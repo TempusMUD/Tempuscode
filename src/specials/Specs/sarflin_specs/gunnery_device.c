@@ -54,9 +54,8 @@ SPECIAL(gunnery_device)
 				dest);
 			vict = NULL;
 			hit = 0;
-			struct creatureList_iterator it = dest->people.begin();
-			for (; it != dest->people.end(); ++it) {
-				vict = *it;
+            for (GList *cit = dest->people;cit;cit = cit->next) {
+				vict = cit->data;
 				if (!number(0, 5)) {
 					damage(ch, vict, 10, TYPE_CATAPULT, -1);
 					hit = 1;
@@ -81,9 +80,8 @@ SPECIAL(gunnery_device)
 				dest);
 			vict = NULL;
 			hit = 0;
-			struct creatureList_iterator it = dest->people.begin();
-			for (; it != dest->people.end(); ++it) {
-				vict = *it;
+			for (GList *cit = dest->people;cit;cit = cit->next) {
+				vict = cit->data;
 				if (!number(0, 5)) {
 					damage(ch, vict, 15, TYPE_BALISTA, -1);
 					hit = 1;
@@ -108,9 +106,8 @@ SPECIAL(gunnery_device)
 					("From above in the tower you hear the creak of a pot tiping\r\n",
 					dest);
 				vict = NULL;
-				struct creatureList_iterator it = dest->people.begin();
-				for (; it != dest->people.end(); ++it) {
-					damage(ch, *it, 15, TYPE_BOILING_OIL, -1);
+				for (GList *cit = dest->people;cit;cit = cit->next) {
+					damage(ch, cit->data, 15, TYPE_BOILING_OIL, -1);
 				}
 			} else {
 				send_to_room
@@ -122,8 +119,8 @@ SPECIAL(gunnery_device)
 					("From above in the tower you hear the creak of a pot tiping\r\n",
 					dest);
 				vict = NULL;
-				struct creatureList_iterator it = dest->people.begin();
-				for (; it != dest->people.end(); ++it) {
+				for (GList *cit = dest->people;cit;cit = cit->next) {
+                    vict = cit->data;
 					damage(ch, vict, 15, TYPE_BOILING_OIL, -1);
 				}
 			}

@@ -34,13 +34,9 @@ SPECIAL(healing_ranger)
 	case 12:
 	case 13:{
 			found = false;
-			struct creatureList_iterator it = ch->in_room->people.begin();
-			struct creatureList_iterator nit = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end() && !found; ++it) {
-				++nit;
-				vict = *it;
-				if (ch == vict || (nit != ch->in_room->people.end()
-						&& !number(0, 2))) {
+            for (GList *it = ch->in_room->people;it;it = it->next) {
+                vict = it->data;
+				if (ch == vict || (!it->next && !number(0, 2))) {
 					continue;
 				}
 				if (!IS_NPC(vict) && can_see_creature(ch, vict) &&
@@ -63,11 +59,11 @@ SPECIAL(healing_ranger)
 	case 15:
 	case 16:{
 			found = false;
-			struct creatureList_iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end() && !found; ++it) {
-				if (AFF_FLAGGED((*it), AFF_POISON)) {
+            for (GList *it = ch->in_room->people;it;it = it->next) {
+                vict = it->data;
+				if (AFF_FLAGGED(vict, AFF_POISON)) {
 					if (GET_MANA(ch) > 50) {
-						cast_spell(ch, *it, 0, NULL, SPELL_REMOVE_POISON);
+						cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_POISON, NULL);
 						return true;
 					}
 				}
@@ -78,16 +74,15 @@ SPECIAL(healing_ranger)
 	case 18:{
 			found = false;
 			found = false;
-			struct creatureList_iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end() && !found; ++it)
-				vict = *it;
-			if (!IS_NPC(vict) && (affected_by_spell(vict, SPELL_BLINDNESS) ||
-					affected_by_spell(vict, SKILL_GOUGE))) {
-				cast_spell(ch, vict, 0, NULL, SPELL_CURE_BLIND);
-				return true;
-			} else
-				return false;
-			break;
+			for (GList *it = ch->in_room->people;it;it = it->next) {
+                vict = it->data;
+                if (!IS_NPC(vict) && (affected_by_spell(vict, SPELL_BLINDNESS) ||
+                                      affected_by_spell(vict, SKILL_GOUGE))) {
+                    cast_spell(ch, vict, 0, NULL, SPELL_CURE_BLIND, NULL);
+                    return true;
+                }
+			}
+            return false;
 		}
 	case 19:
 	case 20:
@@ -96,12 +91,11 @@ SPECIAL(healing_ranger)
 			found = false;
 			if (ch->in_room->zone->weather->sky == SKY_LIGHTNING) {
 				found = false;
-				struct creatureList_iterator it = ch->in_room->people.begin();
-				for (; it != ch->in_room->people.end() && !found; ++it) {
-					vict = *it;
+                for (GList *it = ch->in_room->people;it && !found;it = it->next) {
+                    vict = it->data;
 					if (!affected_by_spell(vict, SPELL_PROT_FROM_LIGHTNING) &&
 						GET_MANA(ch) > 50) {
-						cast_spell(ch, vict, 0, NULL, SPELL_PROT_FROM_LIGHTNING);
+						cast_spell(ch, vict, 0, NULL, SPELL_PROT_FROM_LIGHTNING, NULL);
 						return true;
 					}
 				}

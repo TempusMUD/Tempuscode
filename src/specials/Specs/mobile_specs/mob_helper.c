@@ -13,15 +13,14 @@ SPECIAL(mob_helper)
 		return 0;
 	if (cmd || ch->fighting)
 		return 0;
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		helpee = *it;
+	for (GList *it = ch->in_room->people;it;it = it->next) {
+        helpee = it->data;
         // Being drawn into combat via a death cry will cause this
         // mob to attack a dead creature
-        if (!helpee->isFighting())
+        if (!isFighting(helpee))
             continue;
 
-        vict = helpee->findRandomCombat();
+        vict = findRandomCombat(helpee);
 		if (GET_POSITION(vict) > POS_DEAD
 				&& IS_MOB(helpee)
 				&& IS_MOB(vict)

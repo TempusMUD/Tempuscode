@@ -18,12 +18,12 @@ SPECIAL(stygian_lightning_rm)
 		return 0;
 
 	new_vict = ch;
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (!IS_NPC((*it)) && (*it)->getPosition() > POS_SITTING
-			&& !IS_DEVIL((*it)) && GET_LEVEL((*it)) > GET_LEVEL(new_vict)
-			&& GET_LEVEL((*it)) < LVL_IMMORT && !number(0, 3))
-			new_vict = *it;
+	for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (!IS_NPC(tch) && GET_POSITION(tch) > POS_SITTING
+			&& !IS_DEVIL(tch) && GET_LEVEL(tch) > GET_LEVEL(new_vict)
+			&& GET_LEVEL(tch) < LVL_IMMORT && !number(0, 3))
+			new_vict = tch;
 	}
 	if (!new_vict)
 		new_vict = ch;

@@ -19,16 +19,15 @@ SPECIAL(mugger)
 	const int MUG_MAX = 17;
 
 	struct creature *self = (struct creature *)me;
-	mob_mugger_data *mug;
+	struct mob_mugger_data *mug;
 	int idx;
 	struct creature *vict, *found_vict;
 	struct obj_data *obj;
-	struct creatureList_iterator it;
 
 	if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
 		return 0;
 
-	mug = (mob_mugger_data *)self->mob_specials.func_data;
+	mug = (struct mob_mugger_data *)self->mob_specials.func_data;
 
 	// Handle the give command
 	if (spec_mode == SPECIAL_CMD && CMD_IS("give") && mug) {
@@ -37,10 +36,10 @@ SPECIAL(mugger)
 		for (obj = self->carrying;obj;obj = obj->next_content) {
 			if (GET_OBJ_VNUM(obj) == mug->vnum) {
 				if (GET_IDNUM(ch) == mug->idnum) {
-                    vict = self->findRandomCombat();
-					if (self->isFighting() && !IS_NPC(vict)) {
+                    vict = findRandomCombat(self);
+					if (isFighting(self) && !IS_NPC(vict)) {
 						perform_say(self, "say", tmp_sprintf("Ha!  Let this be a lesson to you, %s!", GET_DISGUISED_NAME(self, vict)));
-                        self->removeAllCombat();
+                        removeAllCombat(self);
 					} else {
 						perform_say(self, "say", tmp_sprintf("Good move, %s!", GET_DISGUISED_NAME(self, ch)));
 					}
@@ -57,14 +56,14 @@ SPECIAL(mugger)
 	if (spec_mode == SPECIAL_CMD)
 		return 0;
 
-	if (self->isFighting() || MOB_HUNTING(self))
+	if (isFighting(self) || MOB_HUNTING(self))
 		return 0;
 
 	// We're not mugging anyone, so look for a new victim
 	if (!mug) {
 		found_vict = NULL;
-		for (it = ch->in_room->people.begin(); it != ch->in_room->people.end();++it) {
-			vict = *it;
+        for (GList *it = ch->in_room->people;it;it = it->next) {
+            vict = it->data;
 			if (check_infiltrate(vict, ch))
 				continue;
 			if (IS_NPC(vict)
@@ -108,7 +107,7 @@ SPECIAL(mugger)
 
             perform_say_to(self, vict,
                            tmp_sprintf("I see you are using %s.  I believe I could appreciate it much more than you.  Give it to me now.", obj->name));
-			CREATE(mug, mob_mugger_data, 1);
+			CREATE(mug, struct mob_mugger_data, 1);
 			mug->idnum = GET_IDNUM(vict);
 			mug->vnum = GET_OBJ_VNUM(obj);
 			mug->timer = 0;
@@ -155,11 +154,13 @@ SPECIAL(mugger)
 
 	// A mugging is in progress
 	vict = NULL;
-	for (it = ch->in_room->people.begin(); it != ch->in_room->people.end();it++)
-		if (!IS_NPC(*it)
-				&& can_see_creature(self, *it)
-				&& GET_IDNUM(*it) == mug->idnum)
-			vict = *it;
+	for (GList *it = ch->in_room->people;it;it = it->next) {
+        vict = it->data;
+		if (!IS_NPC(vict)
+				&& can_see_creature(self, vict)
+				&& GET_IDNUM(vict) == mug->idnum)
+			break;
+    }
 	if (!vict) {
 		vict = get_char_in_world_by_idnum(mug->idnum);
 		if (!vict
@@ -173,7 +174,7 @@ SPECIAL(mugger)
 
 		if (MOB_HUNTING(self) != vict) {
 			do_gen_comm(ch, tmp_sprintf("You're asking for it, %s!", GET_NAME(vict)), 0, SCMD_SHOUT, 0);
-			self->startHunting(vict);
+			startHunting(self, vict);
 		}
 		return 1;
 	}

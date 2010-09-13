@@ -51,7 +51,7 @@ SPECIAL(fate)
 		fate->in_room->zone->idle_time = 0;
 	}
 
-	if (fate->isFighting())
+	if (isFighting(fate))
 		return 0;
 	if (!fate->in_room)
 		return 0;
@@ -102,7 +102,7 @@ SPECIAL(fate)
 		return 1;
 	}
 	// Grab the rooms out of the buffer
-	roomlist_buf_top = new char[strlen(dyntext->buffer) + 1];
+    CREATE(roomlist_buf_top, char, strlen(dyntext->buffer) + 1);
 	roomlist_buf = roomlist_buf_top;
 	strcpy(roomlist_buf, dyntext->buffer);
 
@@ -120,7 +120,7 @@ SPECIAL(fate)
 		temp_room = real_room(atoi(s));
 		if (temp_room && temp_room != fate->in_room
 			&& !player_in_room(temp_room)) {
-			cur_room_list_item = new room_list_struct;
+			CREATE(cur_room_list_item, struct room_list_struct, 1);
 			cur_room_list_item->room = temp_room;
 			cur_room_list_item->next = roomlist;
 			roomlist = cur_room_list_item;
@@ -128,7 +128,7 @@ SPECIAL(fate)
 		}
 		skip_spaces(&roomlist_buf);
 	}
-	delete[]roomlist_buf_top;
+	free(roomlist_buf_top);
 	// Didnt find any rooms. :P
 	if (!roomlist) {
 		perform_say(fate, "say", "Hmm... Where should I go to next?");
@@ -146,7 +146,7 @@ SPECIAL(fate)
 	// delete the list
 	while (roomlist) {
 		cur_room_list_item = roomlist->next;
-		delete roomlist;
+		free(roomlist);
 		roomlist = cur_room_list_item;
 	}
 

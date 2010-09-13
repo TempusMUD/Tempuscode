@@ -21,14 +21,14 @@ SPECIAL(high_priestess)
 		return 0;
 	}
 
-	if (hpr->isFighting() && hpr->in_room != quarters) {
+	if (isFighting(hpr) && hpr->in_room != quarters) {
 		if (GET_HIT(hpr) > 200)
 			return 0;
 
 		act("There is a blinding flash of light!!\r\n"
 			"$n disappears in a thunderclap!", false, hpr, 0, 0, TO_ROOM);
-        vict = hpr->findRandomCombat();
-        hpr->removeAllCombat();
+        vict = findRandomCombat(hpr);
+        removeAllCombat(hpr);
 
 		if ((archon = read_mobile(43014))) {
 			char_to_room(archon, hpr->in_room, false);
@@ -48,7 +48,7 @@ SPECIAL(high_priestess)
 		return 1;
 	}
 
-	if (!hpr->isFighting() && hpr->in_room == quarters &&
+	if (!isFighting(hpr) && hpr->in_room == quarters &&
 		GET_HIT(hpr) == GET_MAX_HIT(hpr) &&
 		GET_MANA(hpr) > (GET_MAX_MANA(hpr) * 0.75)) {
 		act("$n steps onto a flaming golden chariot and disappears into the sky.", false, hpr, 0, 0, TO_ROOM);

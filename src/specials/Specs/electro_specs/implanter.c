@@ -4,7 +4,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-list < long >implanter_sessions;	// ids of players with implant sessions
+GList *implanter_sessions;	// ids of players with implant sessions
 
 void implanter_implant(struct creature *me, struct creature *ch, char *args);
 void implanter_extract(struct creature *me, struct creature *ch, char *args);
@@ -96,7 +96,7 @@ implanter_implant(struct creature * me, struct creature * ch, char *args)
 		implanter_show_pos(me, ch, implant);
 		return;
 	}
-	if (implant->getWeight() > GET_STR(ch)) {
+	if (GET_OBJ_WEIGHT(implant) > GET_STR(ch)) {
 		perform_tell(me, ch, "That thing is too heavy to implant!");
 		return;
 	}
@@ -161,7 +161,7 @@ implanter_implant(struct creature * me, struct creature * ch, char *args)
 	}
 
 	cost = GET_OBJ_COST(implant);
-    cost += (cost*ch->getCostModifier(me))/100;
+    cost += (cost*getCostModifier(ch, me))/100;
 
 	if (!IS_CYBORG(ch))
 		cost <<= 1;
@@ -270,7 +270,7 @@ implanter_extract(struct creature * me, struct creature * ch, char *args)
 	}
 
 	cost = GET_OBJ_COST(implant);
-    cost += (cost*ch->getCostModifier(me))/100;
+    cost += (cost*getCostModifier(ch, me))/100;
 
 	if (!obj && !IS_CYBORG(ch))
 		cost <<= 1;
@@ -371,7 +371,7 @@ implanter_repair(struct creature * me, struct creature * ch, char *args)
 	}
 	// implant repairs cost 1.5 the amount of insertion/extraction
 	cost = GET_OBJ_COST(implant) + GET_OBJ_COST(implant) / 2;
-    cost += (cost*ch->getCostModifier(me))/100;
+    cost += (cost*getCostModifier(ch, me))/100;
 
     if (!IS_CYBORG(ch))
 		cost <<= 1;
@@ -427,18 +427,19 @@ implanter_redeem(struct creature * me, struct creature * ch, char *args)
 		obj_from_char(obj);
 		extract_obj(obj);
 	} else if (is_abbrev(args, "qpoint")) {
-		if (ch->account->get_quest_points() <= 0) {
+		if (ch->account->quest_points <= 0) {
 			perform_tell(me, ch, "You don't have any quest points to redeem!");
 			return;
 		}
 
-		ch->account->set_quest_points(ch->account->get_quest_points() - 1);
+		account_set_quest_points(ch->account, ch->account->quest_points - 1);
 	} else {
 		perform_tell(me, ch, "What do ya wanna redeem?  A ticket or a qpoint?");
 		return;
 	}
 
-	implanter_sessions.push_back(GET_IDNUM(ch));
+
+	implanter_sessions = g_list_prepend(implanter_sessions, GINT_TO_POINTER(GET_IDNUM(ch)));
 	perform_tell(me, ch, "Alright.  So ya got connections.");
 	perform_tell(me, ch,
 		"Act like you're buyin' stuff so I won't get in trouble, right?");
@@ -451,24 +452,13 @@ implanter_redeem(struct creature * me, struct creature * ch, char *args)
 bool
 implanter_in_session(struct creature * ch)
 {
-	if (implanter_sessions.empty())
-		return false;
-
-	list < long >_iterator it;
-
-	it = implanter_sessions.begin();
-	while (it != implanter_sessions.end())
-		if (*it == GET_IDNUM(ch)) {
-			return true;
-		} else
-			it++;
-	return false;
+    return g_list_find(implanter_sessions, GINT_TO_POINTER(GET_IDNUM(ch))) != NULL;
 }
 
 void
 implanter_end_sess(struct creature * ch)
 {
-	implanter_sessions.remove(GET_IDNUM(ch));
+    implanter_sessions = g_list_remove(implanter_sessions, GINT_TO_POINTER(GET_IDNUM(ch)));
 }
 
 void

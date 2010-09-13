@@ -19,7 +19,7 @@ SPECIAL(dwarven_hermit)
 	if (!(od = GET_EQ(me2, WEAR_HOLD)))
 		return (0);
 
-	if (me2->in_room->people.size() == 1) {
+	if (!me2->in_room->people->next) {
 		GET_OBJ_VAL(od, 0) = 0;
 		return (0);
 	}

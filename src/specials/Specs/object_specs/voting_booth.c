@@ -23,7 +23,7 @@ struct voting_poll {
 	bool secret;
 	struct voting_poll *next;
 	struct voting_option *options;
-	struct memory_rec_struct *memory;
+	struct memory_rec *memory;
 };
 
 struct voting_poll *voting_poll_list = NULL;
@@ -54,7 +54,7 @@ voting_booth_load(void)
 {
 	struct voting_poll *new_poll, *prev_poll = NULL;
 	struct voting_option *new_opt, *prev_opt = NULL;
-	struct memory_rec_struct *new_mem;
+	struct memory_rec *new_mem;
 	PGresult *res;
 	int idx, count;
 
@@ -111,7 +111,7 @@ voting_booth_load(void)
 		new_poll = voting_poll_by_id(atoi(PQgetvalue(res, idx, 0)));
 		if (!new_poll)
 			continue;
-		CREATE(new_mem, struct memory_rec_struct, 1);
+		CREATE(new_mem, struct memory_rec, 1);
 		new_mem->id = atoi(PQgetvalue(res, idx, 1));
 		new_mem->next = new_poll->memory;
 		new_poll->memory = new_mem;
@@ -123,7 +123,7 @@ voting_booth_read(struct creature * ch, char *argument)
 {
 	struct voting_poll *poll;
 	struct voting_option *opt;
-	struct memory_rec_struct *memory;
+	struct memory_rec *memory;
 	int poll_num;
 
 	skip_spaces(&argument);
@@ -145,7 +145,7 @@ voting_booth_read(struct creature * ch, char *argument)
 	}
 
 	memory = poll->memory;
-	while (memory && memory->id != ch->desc->account->get_idnum())
+	while (memory && memory->id != ch->desc->account->id)
 		memory = memory->next;
 
 	acc_string_clear();
@@ -181,7 +181,7 @@ voting_booth_vote(struct creature * ch, struct obj_data *obj, char *argument)
 {
 	struct voting_poll *poll;
 	struct voting_option *opt;
-	struct memory_rec_struct *memory, *new_memory;
+	struct memory_rec *memory, *new_memory;
 	char poll_str[MAX_INPUT_LENGTH];
 	char answer_str[MAX_INPUT_LENGTH];
 	int poll_num, answer;
@@ -215,7 +215,7 @@ voting_booth_vote(struct creature * ch, struct obj_data *obj, char *argument)
 	}
 
 	memory = poll->memory;
-	while (memory && memory->id != ch->desc->account->get_idnum())
+	while (memory && memory->id != ch->desc->account->id)
 		memory = memory->next;
 
 	if (memory) {
@@ -251,22 +251,22 @@ voting_booth_vote(struct creature * ch, struct obj_data *obj, char *argument)
 	send_to_char(ch, "You have voted for %c) %s", opt->idx, opt->descrip);
 	act("$n votes on $P.", true, ch, 0, obj, TO_ROOM);
 
-	CREATE(new_memory, struct memory_rec_struct, 1);
+	CREATE(new_memory, struct memory_rec, 1);
 	new_memory->next = poll->memory;
 	poll->memory = new_memory;
-	new_memory->id = ch->desc->account->get_idnum();
+	new_memory->id = ch->desc->account->id;
 
 	sql_exec("update voting_options set count=%d where poll=%d and idx=%d",
 		opt->count, poll->idnum, opt->idx - 'a');
 	sql_exec("insert into voting_accounts (poll, account) values (%d, %d)",
-		poll->idnum, ch->desc->account->get_idnum());
+		poll->idnum, ch->desc->account->id);
 }
 
 void
 voting_booth_list(struct creature * ch)
 {
 	struct voting_poll *poll;
-	struct memory_rec_struct *memory;
+	struct memory_rec *memory;
 	int poll_count = 0;
 	char *secret_str, *not_voted_str;
 
@@ -300,7 +300,7 @@ voting_booth_list(struct creature * ch)
 		poll_count = 0;
 		while (poll) {
 			memory = poll->memory;
-			while (memory && memory->id != ch->desc->account->get_idnum())
+			while (memory && memory->id != ch->desc->account->id)
 				memory = memory->next;
 
 			strftime(buf2, 2048, "%a %b %d", localtime(&poll->creation_time));
@@ -342,7 +342,7 @@ voting_booth_remove(struct creature * ch, char *argument)
 {
 	struct voting_poll *poll, *prev_poll;
 	struct voting_option *opt, *next_opt;
-	struct memory_rec_struct *mem, *next_mem;
+	struct memory_rec *mem, *next_mem;
 	int poll_num;
 
 	skip_spaces(&argument);

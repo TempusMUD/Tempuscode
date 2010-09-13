@@ -34,9 +34,8 @@ SPECIAL(abandoned_cavern)
 		act("The cavern begins to shake, and rocks start falling from the ceiling!", false, ch, 0, 0, TO_ROOM);
 		act("The cavern begins to shake, and rocks start falling from the ceiling!", false, ch, 0, 0, TO_CHAR | TO_SLEEP);
 
-		struct creatureList_iterator it = cavern->people.begin();
-		for (; it != cavern->people.end(); ++it) {
-			vict = *it;
+		for (GList *cit = cavern->people;cit;cit = cit->next) {
+            vict = cit->data;
 			if (number(5, 30) > GET_DEX(vict) && GET_LEVEL(vict) < LVL_IMMORT) {
 				act("A shower of rubble crushes $n!", false, vict, 0, 0,
 					TO_ROOM);
@@ -53,12 +52,12 @@ SPECIAL(abandoned_cavern)
 						if ((obj = GET_EQ(vict, i))) {
 							unequip_char(vict, i, EQUIP_WORN);
 							obj_to_obj(obj, rubble);
-							damage_eq(NULL, obj, dice(10, 40));
+							damage_eq(NULL, obj, dice(10, 40), -1);
 						}
 						if ((obj = GET_IMPLANT(ch, i))) {
 							unequip_char(vict, i, EQUIP_IMPLANT);
 							obj_to_obj(obj, rubble);
-							damage_eq(NULL, obj, dice(10, 60));
+							damage_eq(NULL, obj, dice(10, 60), -1);
 						}
 					}
 					while ((obj = vict->carrying)) {
@@ -67,7 +66,7 @@ SPECIAL(abandoned_cavern)
 					}
 					obj_to_room(rubble, cavern);
 				}
-				vict->die();
+				creature_die(vict);
 			}
 		}
 

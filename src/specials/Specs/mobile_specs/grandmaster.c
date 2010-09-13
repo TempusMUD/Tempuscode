@@ -57,12 +57,12 @@ SPECIAL(grandmaster)
 			vict, 0, ch, TO_ROOM);
 		break;
 	case 2:
-		if ((vict)->getPosition() == POS_FIGHTING) {
+		if (GET_POSITION(vict) == POS_FIGHTING) {
 			act("$N trips you, sending you staggering!", false, vict,
 				0, ch, TO_CHAR);
 			act("$N trips $n, who staggers across the room!", true,
 				vict, 0, ch, TO_ROOM);
-			(vict)->setPosition(POS_SITTING);
+			GET_POSITION(vict) = POS_SITTING;
 		}
 		break;
 	case 3:

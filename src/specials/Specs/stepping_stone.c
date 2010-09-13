@@ -51,7 +51,7 @@ SPECIAL(portal_out)
 		sprintf(buf, "A voice BOOMS out, '%s has left the arena.'\r\n",
 			GET_NAME(ch));
 		send_to_zone(buf, ch->in_room->zone, 0);
-		call_magic(ch, ch, 0, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP, CAST_SPELL);
+		call_magic(ch, ch, 0, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP, CAST_SPELL, NULL);
 		return true;
 	}
 	return false;
@@ -135,9 +135,9 @@ SPECIAL(arena_locker)
 			act("$n opens a locker and gives $N all $S things.",
 				false, atten, 0, ch, TO_NOTVICT);
 
-			House *house = Housing.findHouseByRoom( r_locker_room->number );
+			struct house *house = find_house_by_room( r_locker_room->number );
 			if( house != NULL )
-				house->save();
+				save_house(house);
 			save_player_to_xml(ch);
 
 			return true;

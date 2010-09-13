@@ -13,11 +13,11 @@ SPECIAL(underwater_predator)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (pred->getPosition() < POS_RESTING ||
+	if (GET_POSITION(pred) < POS_RESTING ||
 		AFF2_FLAGGED(pred, AFF2_PETRIFIED) || !AWAKE(pred))
 		return 0;
 
-	if ((vict = pred->findRandomCombat())
+	if ((vict = findRandomCombat(pred))
 		&& SECT_TYPE(pred->in_room) != SECT_UNDERWATER
 		&& SECT_TYPE(pred->in_room) != SECT_DEEP_OCEAN
 		&& !number(0, 3)) {
@@ -46,23 +46,21 @@ SPECIAL(underwater_predator)
 				return 1;
 			}
 		}
-	} else if (!pred->isFighting() && MOB_FLAGGED(pred, MOB_AGGRESSIVE) &&
+	} else if (!isFighting(pred) && MOB_FLAGGED(pred, MOB_AGGRESSIVE) &&
 		(SECT_TYPE(pred->in_room) == SECT_UNDERWATER
 			|| SECT_TYPE(pred->in_room) == SECT_DEEP_OCEAN) &&
 		EXIT(pred, UP) &&
 		((troom = EXIT(pred, UP)->to_room) != NULL) &&
 		!ROOM_FLAGGED(troom, ROOM_NOMOB | ROOM_PEACEFUL |
                       ROOM_DEATH | ROOM_GODROOM)) {
-		struct creatureList_iterator it = troom->people.begin();
-		for (; it != troom->people.end(); ++it) {
-			vict = *it;
+        for (GList *it = troom->people;it;it = it->next) {
+            vict = it->data;
 			if ((IS_MOB(vict) && !MOB2_FLAGGED(pred, MOB2_ATK_MOBS)) ||
 				(!IS_NPC(vict) && !vict->desc) ||
 				PRF_FLAGGED(vict, PRF_NOHASSLE) || !can_see_creature(pred, vict) ||
 				PLR_FLAGGED(vict, PLR_OLC | PLR_WRITING | PLR_MAILING) ||
 				GET_POSITION(vict) == POS_FLYING ||
-				(vict->isMounted()
-					&& (vict->isMounted())->getPosition() == POS_FLYING))
+				(MOUNTED_BY(vict) && GET_POSITION(MOUNTED_BY(vict)) == POS_FLYING))
 				continue;
 
 			act("$n cruises up out of sight with deadly intention.",

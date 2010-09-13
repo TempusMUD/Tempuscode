@@ -13,9 +13,8 @@ SPECIAL(aziz_canon)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 	if (!ch->fighting && GET_POSITION(ch) != POS_FIGHTING) {
-		struct creatureList_iterator it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			vict = *it;
+		for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
+            vict = cit->data;
 			if (!number(0, 2))
 				break;
 		}
@@ -62,7 +61,7 @@ SPECIAL(aziz_canon)
 			act("$n gets in a three point stance and plows his shoulder into $N!", false, ch, 0, vict, TO_NOTVICT);
 			if (GET_LEVEL(vict) < LVL_IMMORT) {
 				GET_HIT(vict) -= dice(1, 20);
-				(vict)->setPosition(POS_SITTING);
+				GET_POSITION(vict) = POS_SITTING;
 				WAIT_STATE(ch, PULSE_VIOLENCE * 4);
 				WAIT_STATE(vict, PULSE_VIOLENCE * 2);
 			}

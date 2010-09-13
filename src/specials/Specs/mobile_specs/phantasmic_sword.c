@@ -27,7 +27,7 @@ SPECIAL(phantasmic_sword)
 			af.modifier = 1;
 			af.location = APPLY_STR;
 			af.duration = 2;
-            af.owner = self->getIdNum();
+            af.owner = GET_IDNUM(self);
 			if (GET_STR(ch) > 21)
 				return 1;
 			affect_to_char(ch, &af);
@@ -43,23 +43,23 @@ SPECIAL(phantasmic_sword)
 			if (!number(0, 4)) {
 				act("$n departs for the ethereal plane!", true, ch, 0, 0,
 					TO_ROOM);
-				ch->purge(true);
+				purge(ch, true);
 				return 1;
 			} else
 				return 0;
 		}
 
 		if (AWAKE(ch)) {
-			struct creatureList_iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-				if (*it != ch && IS_NPC((*it)) &&
-					GET_MOB_VNUM(ch) == GET_MOB_VNUM((*it)) &&
+			    for (GList *it = ch->in_room->people;it;it = it->next) {
+                    struct creature *tch = it->data;
+				if (tch != ch && IS_NPC(tch) &&
+					GET_MOB_VNUM(ch) == GET_MOB_VNUM((tch)) &&
 					!(number(0, GET_LEVEL(mast) +
 							(GET_CHA(mast) >> (mast->in_room !=
 									ch->in_room))))) {
-					//set_fighting(ch, *it, true);
-                    ch->addCombat(*it, true);
-                    (*it)->addCombat(ch, false);
+					//set_fighting(ch, tch, true);
+                    addCombat(ch, tch, true);
+                    addCombat(tch, ch, false);
 					return 0;
 				}
 			}

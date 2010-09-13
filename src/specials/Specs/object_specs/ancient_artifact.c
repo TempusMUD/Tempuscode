@@ -33,7 +33,7 @@ SPECIAL(ancient_artifact)
 		act(buf, true, ch, obj, 0, TO_ROOM);
 	} else {
 		// self-destruct
-		bomb_radius_list *rad_elem, *next_elem;
+		struct bomb_radius_list *rad_elem, *next_elem;
 		struct room_data *room = ch->in_room;
 
 		add_bomb_room(room, -1, 35);
@@ -43,11 +43,11 @@ SPECIAL(ancient_artifact)
 			next_elem = rad_elem->next;
 
 			bomb_damage_room(NULL, 0, obj->name,
-				BOMB_ARTIFACT,
-				35,
-				rad_elem->room,
-				find_first_step(rad_elem->room, room, GOD_TRACK),
-				rad_elem->power);
+                             BOMB_ARTIFACT,
+                             35,
+                             rad_elem->room,
+                             find_first_step(rad_elem->room, room, GOD_TRACK),
+                             rad_elem->power, NULL);
 			free(rad_elem);
 			bomb_rooms = next_elem;
 		}

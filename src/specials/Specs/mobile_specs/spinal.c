@@ -13,7 +13,7 @@ SPECIAL(spinal)
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (spinal->isFighting())
+	if (isFighting(spinal))
 		return 0;
 
 	if (!cmd && spinal->in_room != r_home_pad &&

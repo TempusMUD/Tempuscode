@@ -21,11 +21,9 @@ SPECIAL(killzone_room)
 		return 0;
 
 	// mix up the victims a bit so it doesnt feel like commands are triggering it as much
-	vict = ch->in_room->people;
-	struct creatureList_iterator it = uproom->people.begin();
-	for (; it != uproom->people.end(); ++it) {
-		devil = *it;
-
+	vict = ch->in_room->people->data;
+    for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
+        devil = cit->data;
 		if (IS_NPC(devil) && IS_DEVIL(devil)) {
 
 			int is_miss = mag_savingthrow(vict, GET_LEVEL(devil), SAVING_ROD)

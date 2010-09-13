@@ -8,20 +8,20 @@ SPECIAL(finger_of_death)
     if( spec_mode != SPECIAL_CMD )
         return 0;
 	struct obj_data *finger = (struct obj_data *)me;
+    char *token;
 
 	if (!CMD_IS("activate"))
 		return 0;
 
-	Tokenizer tokens(argument);
-	char token[256];
-
-	if(!tokens.next(token))
+    token = tmp_getword(&argument);
+	if(!token)
 		return 0;
 
 	if (!isname(token, finger->aliases))
 		return 0;
 
-	if (!tokens.next(token)) {
+    token = tmp_getword(&argument);
+	if (!token) {
         send_to_char(ch, "%s has %d charges remaining.\r\n",
                      finger->name, GET_OBJ_VAL(finger,0) );
         send_to_char(ch, "Usage: 'activate %s <mobile name>'\r\n",
@@ -45,7 +45,7 @@ SPECIAL(finger_of_death)
 		mudlog( 0, BRF, true, "(f0d) %s has purged %s with %s at %d",
 				GET_NAME(ch), GET_NAME(target),
 				finger->name, target->in_room->number);
-        target->purge(true);
+        purge(target, true);
         GET_OBJ_VAL(finger,0) -= 1;
     }
 	return 1;

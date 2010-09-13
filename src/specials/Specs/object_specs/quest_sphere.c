@@ -122,7 +122,7 @@ SPECIAL(quest_sphere)
 					true, self->carried_by, self, 0, TO_CHAR);
 				act("$p dissolves into fine sand in $n's hands.",
 					true, self->carried_by, self, 0, TO_ROOM);
-			} else if (self->in_room && self->in_room->people.size()) {
+			} else if (self->in_room && self->in_room->people) {
 				send_to_room(tmp_capitalize(tmp_sprintf("%s dissolves into fine sand and is blown away...\r\n",
 					self->name)), self->in_room);
 			} else {
@@ -210,7 +210,7 @@ SPECIAL(quest_sphere)
 	}
 
 	if (quad)
-		call_magic(ch, ch, NULL, NULL, SPELL_QUAD_DAMAGE, LVL_GRIMP, CAST_SPELL);
+		call_magic(ch, ch, NULL, NULL, SPELL_QUAD_DAMAGE, LVL_GRIMP, CAST_SPELL, NULL);
 
 	if (nobreak) {
 		act("$p becomes immune to breaking!", 1, ch, targ_obj, 0, TO_CHAR);

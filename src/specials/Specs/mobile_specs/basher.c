@@ -16,14 +16,15 @@ SPECIAL(basher)
 	if (number(0, 81) > GET_LEVEL(ch))
 		return 0;
 
-    CombatDataList_iterator li = ch->getCombatList()->begin();
-    for (; li != ch->getCombatList()->end(); ++li) {
-        if (IS_MAGE(li->getOpponent()) && number(0, 1)) {
-            vict = li->getOpponent();
+    for (GList *it = ch->fighting;it;it = it->next) {
+        struct creature *tch = it->data;
+        if (IS_MAGE(tch) && number(0, 1)) {
+            vict = tch;
             break;
         }
     }
-	if (vict == NULL)
+
+    if (vict == NULL)
 		vict = random_opponent(ch);
 
 	do_bash(ch, tmp_strdup(""), 0, 0, 0);

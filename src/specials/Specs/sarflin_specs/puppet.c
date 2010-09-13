@@ -10,7 +10,7 @@ SPECIAL(puppet)
 		return 0;
 	struct creature *me2 = (struct creature *)me;
 	struct affected_type af;
-	if (!cmd && !me2->isFighting() && !number(0, 3)) {
+	if (!cmd && !isFighting(me2) && !number(0, 3)) {
 		switch (number(0, 10)) {
 		case 0:
 			act("The puppet says: I am now the willing slave of $N.", false,
@@ -84,9 +84,7 @@ SPECIAL(puppet)
 		affect_to_char(me2, &af);
 
 	} else {
-		char buf_it[256];
-		sprintf(buf_it, "What do you mean by %s %s", buf, buf2);
-		act(buf_it, false, ch, 0, me2, TO_CHAR);
+        send_to_char(ch, "What do you mean by %s %s", buf, buf2);
 	}
 	return 0;
 }

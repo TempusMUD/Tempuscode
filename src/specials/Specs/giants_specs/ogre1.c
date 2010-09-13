@@ -10,12 +10,12 @@ SPECIAL(ogre1)
 		return 0;
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (IS_ORC((*it)) && can_see_creature(ch, (*it))) {
-			act("$n roars, 'Now I've got $N, you!", false, ch, 0, (*it),
+    for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (IS_ORC(tch) && can_see_creature(ch, tch)) {
+			act("$n roars, 'Now I've got $N, you!", false, ch, 0, tch,
 				TO_ROOM);
-			hit(ch, (*it), TYPE_UNDEFINED);
+			hit(ch, tch, TYPE_UNDEFINED);
 			return 1;
 		}
 	}

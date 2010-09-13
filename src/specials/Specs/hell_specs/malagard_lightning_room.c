@@ -11,7 +11,7 @@ SPECIAL(malagard_lightning_room)
 	if (IS_NPC(ch) || number(0, 4))
 		return 0;
 
-	vict = ch->in_room->people;
+	vict = ch->in_room->people->data;
 
 	if (vict == NULL || IS_NPC(vict))
 		vict = ch;

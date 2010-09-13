@@ -21,11 +21,11 @@ SPECIAL(moloch)
         vict = molorandom_opponent(ch);
 		if (!number(0, 10)) {
 			call_magic(moloch, vict, 0, NULL, SPELL_FLAME_STRIKE, 50,
-				CAST_BREATH);
+                       CAST_BREATH, NULL);
 			return 1;
 		} else if (!number(0, 10)) {
 			call_magic(moloch, vict, 0, NULL, SPELL_BURNING_HANDS, 50,
-				CAST_SPELL);
+                       CAST_SPELL, NULL);
 			return 1;
 		} else if (!number(0, 8) && GET_DEX(vict) < number(10, 25)) {
 			act("$n picks you up in his jaws and flails you around!!",
@@ -33,7 +33,7 @@ SPECIAL(moloch)
 			act("$n picks $N up in his jaws and flails $M around!!",
 				false, moloch, 0, vict, TO_NOTVICT);
 			damage(moloch, vict, dice(30, 29), TYPE_RIP,
-				WEAR_BODY);
+                   WEAR_BODY);
 			WAIT_STATE(moloch, 7 RL_SEC);
 			return 1;
 		}
@@ -55,10 +55,11 @@ SPECIAL(moloch)
 	char_from_room(moloch, false);
 	char_to_room(moloch, targ_room, false);
 	act("$n slowly appears from another place.", true, moloch, 0, 0, TO_ROOM);
-	struct creatureList_iterator it = moloch->in_room->people.begin();
-	for (index = 0; it != moloch->in_room->people.end(); ++it) {
-		if (*it != moloch) {
-			if (!IS_DEVIL((*it))) {
+    index = 0;
+    for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (tch != moloch) {
+			if (!IS_DEVIL(tch)) {
 				index = 1;
 			} else {
 				index = 0;
@@ -68,7 +69,7 @@ SPECIAL(moloch)
 	}
 
 	if (index)
-		cast_spell(moloch, NULL, 0, NULL, SPELL_METEOR_STORM);
+		cast_spell(moloch, NULL, 0, NULL, SPELL_METEOR_STORM, NULL);
 
 	return 1;
 

@@ -23,11 +23,11 @@ SPECIAL(geryon)
 		return 1;
 	} else if (number(0, 2))
 		return 0;
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end() && *it != ch; ++it) {
-		if ((*it)->findCombat(ch) &&
-			!number(0, 4) && !affected_by_spell((*it), SPELL_POISON)) {
-			vict = *it;
+	for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (findCombat(tch, ch) &&
+			!number(0, 4) && !affected_by_spell(tch, SPELL_POISON)) {
+			vict = tch;
 			break;
 		}
 	}
@@ -40,6 +40,6 @@ SPECIAL(geryon)
 	act("$n stings $N with a mighty lash of $s deadly tail!", false, ch, 0,
 		vict, TO_NOTVICT);
 	GET_HIT(vict) -= dice(2, 6);
-	call_magic(ch, vict, 0, NULL, SPELL_POISON, GET_LEVEL(ch), CAST_POTION);
+	call_magic(ch, vict, 0, NULL, SPELL_POISON, GET_LEVEL(ch), CAST_POTION, NULL);
 	return 1;
 }

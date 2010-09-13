@@ -18,7 +18,7 @@ SPECIAL(tiamat)
 		act("$n vanishes in a prismatic blast of light!",
 			false, ch, 0, 0, TO_ROOM);
         remove_all_combat(ch);
-		char_from_room(ch);
+		char_from_room(ch, false);
 		char_to_room(ch, lair, false);
 		act("$n appears in a prismatic blast of light!",
 			false, ch, 0, 0, TO_ROOM);
@@ -43,7 +43,7 @@ SPECIAL(tiamat)
 	}
 
     struct creature *vict = random_opponent(ch);
-	call_magic(ch, vict, 0, NULL, type, GET_LEVEL(ch), SAVING_BREATH);
+	call_magic(ch, vict, 0, NULL, type, GET_LEVEL(ch), SAVING_BREATH, NULL);
 	WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 	return 1;
 }

@@ -27,8 +27,8 @@ SPECIAL(pit_keeper)
 		act("$n lifts $N and hurls $M into the pit below!", false, ch, 0, vict,
 			TO_NOTVICT);
 		WAIT_STATE(ch, 3 RL_SEC);
-        ch->removeCombat(vict);
-        vict->removeCombat(ch);
+        removeCombat(ch, vict);
+        removeCombat(vict, ch);
 		char_from_room(vict, false);
 		char_to_room(vict, ch->in_room->dir_option[DOWN]->to_room, false);
 		act("$n is hurled in from above!", false, vict, 0, 0, TO_ROOM);

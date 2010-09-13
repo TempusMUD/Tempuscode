@@ -13,11 +13,11 @@ SPECIAL(lawyer)
 	int mode, cost = 0;
 	char arg1[MAX_INPUT_LENGTH];
 
-	if (!cmd || lawy->isFighting() || IS_NPC(ch))
+	if (!cmd || isFighting(lawy) || IS_NPC(ch))
 		return 0;
 
     cost = GET_SEVERITY(ch) * 1000000;
-    cost += (cost*ch->getCostModifier(lawy))/100;
+    cost += (cost*getCostModifier(ch, lawy))/100;
 
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);

@@ -12,18 +12,17 @@ SPECIAL(watchdog)
 	struct creature *dog = (struct creature *)me;
 	struct creature *vict = NULL;
 	static byte indignation = 0;
-	struct creatureList_iterator it;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (cmd || !AWAKE(dog) || dog->isFighting())
+	if (cmd || !AWAKE(dog) || isFighting(dog))
 		return 0;
 
-	for (it = dog->in_room->people.begin(); it != ch->in_room->people.end();
-		++it) {
-		if (*it != dog && can_see_creature(dog, (*it)) && GET_LEVEL((*it)) < LVL_IMMORT) {
-			vict = *it;
+	for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+		if (tch != dog && can_see_creature(dog, tch) && GET_LEVEL(tch) < LVL_IMMORT) {
+			vict = tch;
 			break;
 		}
 	}

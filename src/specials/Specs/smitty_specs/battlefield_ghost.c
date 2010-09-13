@@ -40,8 +40,8 @@ SPECIAL(battlefield_ghost)
 
 		act("$n lies down on the pile of bones and disappears!",
 			true, ch, 0, 0, TO_ROOM);
-		char_from_room(ch);
-		char_to_room(ch, r_ghost_hole);
+		char_from_room(ch, true);
+		char_to_room(ch, r_ghost_hole, true);
 		act("$n has disappeared into the netherworld.", false, ch, 0, 0,
 			TO_ROOM);
 		return 1;
@@ -65,8 +65,8 @@ SPECIAL(battlefield_ghost)
 
 		act("$n seems to rise out of the pile of bones.", false, ch, 0, 0,
 			TO_ROOM);
-		char_from_room(ch);
-		char_to_room(ch, r_bones_room);
+		char_from_room(ch, true);
+		char_to_room(ch, r_bones_room, true);
 		act("$n seems to rise out of the pile of bones.", false, ch, 0, 0,
 			TO_ROOM);
 		return 1;

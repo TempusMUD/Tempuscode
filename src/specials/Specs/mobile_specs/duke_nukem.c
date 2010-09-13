@@ -14,8 +14,8 @@ SPECIAL(duke_nukem)
 	if (cmd || !AWAKE(duke))
 		return 0;
 
-	if (duke->isFighting()) {
-        vict = duke->findRandomCombat();
+	if (isFighting(duke)) {
+        vict = findRandomCombat(duke);
 		if (GET_HIT(duke) > (GET_MAX_HIT(duke) >> 2) &&
 			GET_HIT(vict) < (GET_MAX_HIT(vict) >> 1)) {
 			if (!number(0, 10))
@@ -52,12 +52,11 @@ SPECIAL(duke_nukem)
 	}
 
 	if (!number(0, 5)) {
-		struct creatureList_iterator it = duke->in_room->people.begin();
-		for (; it != duke->in_room->people.end(); ++it) {
-			vict = *it;
+		    for (GList *it = ch->fighting;it;it = it->next) {
+			vict = it->data;
 			if (vict == duke || !can_see_creature(duke, vict))
 				continue;
-			if (GET_LEVEL(vict) > 40 && !vict->isFighting() &&
+			if (GET_LEVEL(vict) > 40 && !isFighting(vict) &&
 				!PRF_FLAGGED(vict, PRF_NOHASSLE)) {
 				best_initial_attack(duke, vict);
 				return 1;
