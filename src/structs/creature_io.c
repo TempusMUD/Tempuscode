@@ -19,39 +19,26 @@
 #include "char_class.h"
 #include "handler.h"
 #include "language.h"
+#include "security.h"
 
 void add_alias(struct creature *ch, struct alias_data *a);
 void affect_to_char(struct creature *ch, struct affected_type *af);
 void extract_object_list(struct obj_data * head);
+bool save_player_objects(struct creature *ch);
 
-// Saves the given characters equipment to a file. Intended for use while
-// the character is still in the game.
-bool
-struct creature_crashSave()
-{
-    player_specials->rentcode = RENT_CRASH;
-	player_specials->rent_currency = in_room->zone->time_frame;
 
-    if(!saveObjects() ) {
-        return false;
-    }
-
-    REMOVE_BIT(PLR_FLAGS(this), PLR_CRASH);
-    saveToXML(); // This should probably be here.
-    return true;
-}
 
 struct obj_data *
-struct creature_findCostliestObj(void)
+findCostliestObj(struct creature *ch)
 {
  	struct obj_data *cur_obj, *result;
 
-	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		return false;
 
 	result = NULL;
 
-	cur_obj = carrying;
+	cur_obj = ch->carrying;
 	while (cur_obj) {
 		if (cur_obj &&
 				(!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
@@ -71,16 +58,16 @@ struct creature_findCostliestObj(void)
 // struct creature_payRent will pay the player's rent, selling off items to meet the
 // bill, if necessary.
 int
-struct creature_payRent(time_t last_time, int code, int currency)
+pay_player_rent(struct creature *ch, time_t last_time, int code, int currency)
 {
 	float day_count;
 	int factor;
 	long cost;
 
 	// Immortals don't pay rent
-	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		return 0;
-    if (isTester())
+    if (is_authorized(ch, TESTER, NULL))
         return 0;
 
 	// Cryoed chars already paid their rent, quit chars don't have any rent
@@ -93,53 +80,53 @@ struct creature_payRent(time_t last_time, int code, int currency)
 		factor = 3;
 	else
 		factor = 1;
-	cost = (int)(calc_daily_rent(this, factor, NULL, false) * day_count);
+	cost = (int)(calc_daily_rent(ch, factor, NULL, false) * day_count);
 	slog("Charging %ld for %.2f days of rent", cost, day_count);
 
 	// First we get as much as we can out of their hand
 	if (currency == TIME_ELECTRO) {
-		if (cost < GET_CASH(this) + GET_FUTURE_BANK(this)) {
-			this->account->withdraw_future_bank(cost - GET_CASH(this));
-			GET_CASH(this) = MAX(GET_CASH(this) - cost, 0);
+		if (cost < GET_CASH(ch) + GET_FUTURE_BANK(ch)) {
+			withdraw_future_bank(ch->account, cost - GET_CASH(ch));
+			GET_CASH(ch) = MAX(GET_CASH(ch) - cost, 0);
 			cost = 0;
 		} else {
-			cost -= GET_CASH(this) + GET_FUTURE_BANK(this);
-			this->account->set_future_bank(0);
-			GET_CASH(this) = 0;
+			cost -= GET_CASH(ch) + GET_FUTURE_BANK(ch);
+			set_future_bank(ch->account, 0);
+			GET_CASH(ch) = 0;
 		}
 	} else {
-		if (cost < GET_GOLD(this) + GET_PAST_BANK(this)) {
-			this->account->withdraw_past_bank(cost - GET_GOLD(this));
-			GET_GOLD(this) = MAX(GET_GOLD(this) - cost, 0);
+		if (cost < GET_GOLD(ch) + GET_PAST_BANK(ch)) {
+			withdraw_past_bank(ch->account, cost - GET_GOLD(ch));
+			GET_GOLD(ch) = MAX(GET_GOLD(ch) - cost, 0);
 			cost = 0;
 		} else {
-			cost -= GET_GOLD(this) + GET_PAST_BANK(this);
-			this->account->set_past_bank(0);
-			GET_GOLD(this) = 0;
+			cost -= GET_GOLD(ch) + GET_PAST_BANK(ch);
+			set_past_bank(ch->account, 0);
+			GET_GOLD(ch) = 0;
 		}
 	}
 
 	// If they didn't have enough, try the cross-time money
 	if (cost > 0) {
 		if (currency == TIME_ELECTRO) {
-			if (cost < GET_GOLD(this) + GET_PAST_BANK(this)) {
-				this->account->withdraw_past_bank(cost - GET_GOLD(this));
-				GET_GOLD(this) = MAX(GET_GOLD(this) - cost, 0);
+			if (cost < GET_GOLD(ch) + GET_PAST_BANK(ch)) {
+				withdraw_past_bank(ch->account, cost - GET_GOLD(ch));
+				GET_GOLD(ch) = MAX(GET_GOLD(ch) - cost, 0);
 				cost = 0;
 			} else {
-				cost -= GET_GOLD(this) + GET_PAST_BANK(this);
-				this->account->set_past_bank(0);
-				GET_GOLD(this) = 0;
+				cost -= GET_GOLD(ch) + GET_PAST_BANK(ch);
+				set_past_bank(ch->account, 0);
+				GET_GOLD(ch) = 0;
 			}
 		} else {
-			if (cost < GET_CASH(this) + GET_FUTURE_BANK(this)) {
-				this->account->withdraw_future_bank(cost - GET_CASH(this));
-				GET_CASH(this) = MAX(GET_CASH(this) - cost, 0);
+			if (cost < GET_CASH(ch) + GET_FUTURE_BANK(ch)) {
+				withdraw_future_bank(ch->account, cost - GET_CASH(ch));
+				GET_CASH(ch) = MAX(GET_CASH(ch) - cost, 0);
 				cost = 0;
 			} else {
-				cost -= GET_CASH(this) + GET_FUTURE_BANK(this);
-				this->account->set_future_bank(0);
-				GET_CASH(this) = 0;
+				cost -= GET_CASH(ch) + GET_FUTURE_BANK(ch);
+				set_future_bank(ch->account, 0);
+				GET_CASH(ch) = 0;
 			}
 		}
 	}
@@ -149,7 +136,7 @@ struct creature_payRent(time_t last_time, int code, int currency)
 		struct obj_data *doomed_obj, *tmp_obj;
 
 		while (cost > 0) {
-			doomed_obj = findCostliestObj();
+			doomed_obj = findCostliestObj(ch);
 			if (!doomed_obj)
 				break;
 
@@ -158,8 +145,8 @@ struct creature_payRent(time_t last_time, int code, int currency)
 				doomed_obj->unique_id,
 				GET_OBJ_COST(doomed_obj),
 				(currency == TIME_ELECTRO) ? "creds":"gold",
-				GET_NAME(this));
-			send_to_char(this,
+				GET_NAME(ch));
+			send_to_char(ch,
 				"%s has been sold to cover the cost of your rent.\r\n",
 				tmp_capitalize(doomed_obj->name));
 
@@ -170,7 +157,7 @@ struct creature_payRent(time_t last_time, int code, int currency)
 			while (doomed_obj->contains) {
 				tmp_obj = doomed_obj->contains;
 				obj_from_obj(tmp_obj);
-				obj_to_char(tmp_obj, this);
+				obj_to_char(tmp_obj, ch);
 			}
 
 			// Remove doomed object
@@ -180,9 +167,9 @@ struct creature_payRent(time_t last_time, int code, int currency)
 		if (cost < 0) {
 			// If there's any money left over, give em a consolation prize
 			if (currency == TIME_ELECTRO)
-				GET_CASH(this) -= cost;
+				GET_CASH(ch) -= cost;
 			else
-				GET_GOLD(this) -= cost;
+				GET_GOLD(ch) -= cost;
 		}
 
 		return (cost > 0) ? 2:3;
@@ -202,7 +189,7 @@ reportUnrentables(struct creature *ch, struct obj_data *obj_list, const char *po
 	cur_obj = obj_list;
 	while (cur_obj) {
 		if (!last_obj || !same_obj(last_obj, cur_obj)) {
-			if (cur_obj->isUnrentable()) {
+			if (isUnrentable(cur_obj)) {
 				act(tmp_sprintf("You cannot rent while %s $p!", pos),
 					true, ch, cur_obj, 0, TO_CHAR);
 				result = true;
@@ -224,37 +211,37 @@ reportUnrentables(struct creature *ch, struct obj_data *obj_list, const char *po
 
 // Displays all unrentable items and returns true if any are found
 bool
-struct creature_displayUnrentables(void)
+displayUnrentables(struct creature *ch)
 {
 	struct obj_data *cur_obj;
 	int pos;
 	bool result = false;
 
-	if (GET_LEVEL(this) >= LVL_AMBASSADOR)
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
 		return false;
 
 	for (pos = 0;pos < NUM_WEARS;pos++) {
-		cur_obj = GET_EQ(this, pos);
+		cur_obj = GET_EQ(ch, pos);
 		if (cur_obj)
-			result = result || reportUnrentables(this, cur_obj, "wearing");
-		cur_obj = GET_IMPLANT(this, pos);
+			result = result || reportUnrentables(ch, cur_obj, "wearing");
+		cur_obj = GET_IMPLANT(ch, pos);
 		if (cur_obj)
-			result = result || reportUnrentables(this, cur_obj, "implanted with");
+			result = result || reportUnrentables(ch, cur_obj, "implanted with");
 	}
 
-	result = result || reportUnrentables(this, carrying, "carrying");
+	result = result || reportUnrentables(ch, ch->carrying, "carrying");
 
 	return result;
 }
 
 bool
-struct creature_saveObjects(void)
+save_player_objects(struct creature *ch)
 {
 	FILE *ouf;
 	char *path, *tmp_path;
 	int idx;
 
-    path = get_equipment_file_path(GET_IDNUM(this));
+    path = get_equipment_file_path(GET_IDNUM(ch));
     tmp_path = tmp_sprintf("%s.new", path);
 	ouf = fopen(tmp_path, "w");
 
@@ -265,17 +252,17 @@ struct creature_saveObjects(void)
 	}
 	fprintf( ouf, "<objects>\n" );
 	// Save the inventory
-	for( struct obj_data *obj = carrying; obj != NULL; obj = obj->next_content ) {
-		obj->saveToXML(ouf);
+	for( struct obj_data *obj = ch->carrying; obj != NULL; obj = obj->next_content ) {
+		save_object_to_xml(obj, ouf);
 	}
 	// Save the equipment
 	for( idx = 0; idx < NUM_WEARS; idx++ ) {
-		if( GET_EQ(this, idx) )
-			(GET_EQ(this,idx))->saveToXML(ouf);
-		if( GET_IMPLANT(this, idx) )
-			(GET_IMPLANT(this,idx))->saveToXML(ouf);
-		if( GET_TATTOO(this, idx) )
-			(GET_TATTOO(this,idx))->saveToXML(ouf);
+		if( GET_EQ(ch, idx) )
+			save_object_to_xml(GET_EQ(ch,idx), ouf);
+		if( GET_IMPLANT(ch, idx) )
+			save_object_to_xml(GET_IMPLANT(ch,idx), ouf);
+		if( GET_TATTOO(ch, idx) )
+			save_object_to_xml(GET_TATTOO(ch,idx), ouf);
 	}
 	fprintf( ouf, "</objects>\n" );
 	fclose(ouf);
@@ -294,26 +281,26 @@ struct creature_saveObjects(void)
  *  2 - rented equipment lost ( no $ )
 **/
 int
-struct creature_unrent(void)
+unrent(struct creature *ch)
 {
   int err;
 
-  err = loadObjects();
+  err = load_player_objects();
   if (err)
     return 0;
 
-  return payRent(player.time.logon,
-                 player_specials->rentcode,
-                 player_specials->rent_currency);
+  return pay_player_rent(ch,
+                         ch->player.time.logon,
+                         ch->player_specials->rentcode,
+                         ch->player_specials->rent_currency);
 }
 
 int
-struct creature_loadObjects()
+load_player_objects(struct creature *ch)
 {
 
-    char *path = get_equipment_file_path( GET_IDNUM(this) );
+    char *path = get_equipment_file_path( GET_IDNUM(ch) );
 	int axs = access(path, W_OK);
-	struct obj_data *obj;
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
@@ -338,13 +325,8 @@ struct creature_loadObjects()
     }
 
 	for ( xmlNodePtr node = root->xmlChildrenNode; node; node = node->next ) {
-        if ( xmlMatches(node->name, "object") ) {
-
-			obj = create_obj();
-			if(!obj->loadFromXML(NULL,this,NULL,node) ) {
-				extract_obj(obj);
-			}
-		}
+        if ( xmlMatches(node->name, "object") )
+			(void)load_object_from_xml(NULL,ch,NULL,node);
 	}
 
     xmlFreeDoc(doc);
@@ -353,9 +335,9 @@ struct creature_loadObjects()
 }
 
 bool
-struct creature_checkLoadCorpse()
+checkLoadCorpse(struct creature *ch)
 {
-    char *path = get_corpse_file_path(GET_IDNUM(this));
+    char *path = get_corpse_file_path(GET_IDNUM(ch));
     int axs = access(path, W_OK);
     struct stat file_stat;
     extern time_t boot_time;
@@ -380,10 +362,10 @@ struct creature_checkLoadCorpse()
 }
 
 int
-struct creature_loadCorpse()
+loadCorpse(struct creature *ch)
 {
 
-    char *path = get_corpse_file_path( GET_IDNUM(this) );
+    char *path = get_corpse_file_path( GET_IDNUM(ch) );
 	int axs = access(path, W_OK);
     struct obj_data *corpse_obj;
 
@@ -419,9 +401,8 @@ struct creature_loadCorpse()
         }
     }
 
-    corpse_obj = create_obj();
-    corpse_obj->shared = null_obj_shared;
-    if (!corpse_obj->loadFromXML(NULL, this, NULL, node)) {
+    corpse_obj = load_object_from_xml(NULL, ch, NULL, node);
+    if (!corpse_obj) {
         xmlFreeDoc(doc);
         extract_obj(corpse_obj);
         errlog("Could not create corpse object from file %s", path);
@@ -442,20 +423,19 @@ struct creature_loadCorpse()
 }
 
 void
-struct creature_saveToXML()
+save_player_to_xml(struct creature *ch)
 {
     void expire_old_grievances(struct creature *);
 	// Save vital statistics
 	struct obj_data *saved_eq[NUM_WEARS];
 	struct obj_data *saved_impl[NUM_WEARS];
 	struct obj_data *saved_tattoo[NUM_WEARS];
-	affected_type *saved_affs, *cur_aff;
+	struct affected_type *saved_affs, *cur_aff;
 	FILE *ouf;
 	char *path, *tmp_path;
 	struct alias_data *cur_alias;
 	int idx, pos;
-	int hit = GET_HIT(this), mana = GET_MANA(this), move = GET_MOVE(this);
-    struct creature *ch = this;
+	int hit = GET_HIT(ch), mana = GET_MANA(ch), move = GET_MOVE(ch);
 
 	if (GET_IDNUM(ch) == 0) {
 		slog("Attempt to save creature with idnum==0");
@@ -473,36 +453,36 @@ struct creature_saveToXML()
 	}
 
 	// Remove all spell affects without deleting them
-	saved_affs = affected;
-	affected = NULL;
+	saved_affs = ch->affected;
+	ch->affected = NULL;
 
 	for (cur_aff = saved_affs;cur_aff;cur_aff = cur_aff->next)
-		affect_modify(this, cur_aff->location, cur_aff->modifier,
+		affect_modify(ch, cur_aff->location, cur_aff->modifier,
 			cur_aff->bitvector, cur_aff->aff_index, false);
 
 	// Before we save everything, every piece of eq, and every affect must
 	// be removed and stored - otherwise all the stats get screwed up when
 	// we restore the eq and affects
 	for (pos = 0;pos < NUM_WEARS;pos++) {
-		if (GET_EQ(this, pos))
-			saved_eq[pos] = unequip_char(this, pos, EQUIP_WORN, true);
+		if (GET_EQ(ch, pos))
+			saved_eq[pos] = raw_unequip_char(ch, pos, EQUIP_WORN);
 		else
 			saved_eq[pos] = NULL;
-		if (GET_IMPLANT(this, pos))
-			saved_impl[pos] = unequip_char(this, pos, EQUIP_IMPLANT, true);
+		if (GET_IMPLANT(ch, pos))
+			saved_impl[pos] = raw_unequip_char(ch, pos, EQUIP_IMPLANT);
 		else
 			saved_impl[pos] = NULL;
-		if (GET_TATTOO(this, pos))
-			saved_tattoo[pos] = unequip_char(this, pos, EQUIP_TATTOO, true);
+		if (GET_TATTOO(ch, pos))
+			saved_tattoo[pos] = raw_unequip_char(ch, pos, EQUIP_TATTOO);
 		else
 			saved_tattoo[pos] = NULL;
 	}
 
 	// we need to update time played every time we save...
-	player.time.played += time(0) - player.time.logon;
-	player.time.logon = time(0);
+	ch->player.time.played += time(0) - ch->player.time.logon;
+	ch->player.time.logon = time(0);
 
-    expire_old_grievances(this);
+    expire_old_grievances(ch);
 
 	fprintf(ouf, "<creature name=\"%s\" idnum=\"%ld\">\n",
 		GET_NAME(ch), ch->char_specials.saved.idnum);
@@ -551,8 +531,13 @@ struct creature_saveToXML()
 	fprintf(ouf, "/>\n");
 
 	fprintf(ouf, "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\" stradd=\"%d\"/>\n",
-		real_abils.str, real_abils.intel, real_abils.wis, real_abils.dex,
-		real_abils.con, real_abils.cha, real_abils.str_add);
+            ch->real_abils.str,
+            ch->real_abils.intel,
+            ch->real_abils.wis,
+            ch->real_abils.dex,
+            ch->real_abils.con,
+            ch->real_abils.cha,
+            ch->real_abils.str_add);
 
 	fprintf(ouf, "<condition hunger=\"%d\" thirst=\"%d\" drunk=\"%d\"/>\n",
 		GET_COND(ch, FULL), GET_COND(ch, THIRST), GET_COND(ch, DRUNK));
@@ -672,32 +657,46 @@ struct creature_saveToXML()
 	// Now we get to put all that eq back on and reinstate the spell affects
 	for (pos = 0;pos < NUM_WEARS;pos++) {
 		if (saved_eq[pos])
-			equip_char(this, saved_eq[pos], pos, EQUIP_WORN);
+			equip_char(ch, saved_eq[pos], pos, EQUIP_WORN);
 		if (saved_impl[pos])
-			equip_char(this, saved_impl[pos], pos, EQUIP_IMPLANT);
+			equip_char(ch, saved_impl[pos], pos, EQUIP_IMPLANT);
 		if (saved_tattoo[pos])
-			equip_char(this, saved_tattoo[pos], pos, EQUIP_TATTOO);
+			equip_char(ch, saved_tattoo[pos], pos, EQUIP_TATTOO);
 	}
 
 	for (cur_aff = saved_affs;cur_aff;cur_aff = cur_aff->next)
-		affect_modify(this, cur_aff->location, cur_aff->modifier,
+		affect_modify(ch, cur_aff->location, cur_aff->modifier,
 			cur_aff->bitvector, cur_aff->aff_index, true);
 	affected = saved_affs;
-	affect_total(this);
+	affect_total(ch);
 
-	GET_HIT(this) = MIN(GET_MAX_HIT(ch), hit);
-	GET_MANA(this) = MIN(GET_MAX_MANA(ch), mana);
-	GET_MOVE(this) = MIN(GET_MAX_MOVE(ch), move);
+	GET_HIT(ch) = MIN(GET_MAX_HIT(ch), hit);
+	GET_MANA(ch) = MIN(GET_MAX_MANA(ch), mana);
+	GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), move);
+}// Saves the given characters equipment to a file. Intended for use while
+// the character is still in the game.
+bool
+crashSave(struct creature *ch)
+{
+    ch->player_specials->rentcode = RENT_CRASH;
+	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
+
+    if(!save_player_objects(ch) )
+        return false;
+
+    REMOVE_BIT(PLR_FLAGS(ch), PLR_CRASH);
+    save_player_to_xml(ch);
+    return true;
 }
 
 bool
-struct creature_loadFromXML( long id )
+loadFromXML(struct creature *ch,  long id )
 {
     return loadFromXML(get_player_file_path(id));
 }
 /* copy data from the file structure to a struct creature */
 bool
-struct creature_loadFromXML( const char *path )
+loadFromXML(struct creature *ch,  const char *path )
 {
 	char *txt;
 	int idx;
@@ -757,54 +756,54 @@ struct creature_loadFromXML( const char *path )
             player.level = xmlGetIntProp(node, "level");
             player.height = xmlGetIntProp(node, "height");
             player.weight = xmlGetIntProp(node, "weight");
-            GET_ALIGNMENT(this) = xmlGetIntProp(node, "align");
+            GET_ALIGNMENT(ch) = xmlGetIntProp(node, "align");
 
-            GET_SEX(this) = 0;
+            GET_SEX(ch) = 0;
             char *sex = xmlGetProp(node, "sex");
             if( sex != NULL )
-                GET_SEX(this) = search_block(sex, genders, false);
+                GET_SEX(ch) = search_block(sex, genders, false);
 			free(sex);
 
-            GET_RACE(this) = 0;
+            GET_RACE(ch) = 0;
             char *race = xmlGetProp(node, "race");
             if( race != NULL )
-                GET_RACE(this) = search_block(race, player_race, false);
+                GET_RACE(ch) = search_block(race, player_race, false);
 			free(race);
 
         } else if ( xmlMatches(node->name, "class") ) {
-			GET_OLD_CLASS(this) = GET_REMORT_CLASS(this) = GET_CLASS(this) = -1;
+			GET_OLD_CLASS(ch) = GET_REMORT_CLASS(ch) = GET_CLASS(ch) = -1;
 
             char *trade = xmlGetProp(node, "name");
             if( trade != NULL ) {
-                GET_CLASS(this) = search_block(trade, class_names, false);
+                GET_CLASS(ch) = search_block(trade, class_names, false);
 				free(trade);
 			}
 
             trade = xmlGetProp(node, "remort");
             if( trade != NULL ) {
-                GET_REMORT_CLASS(this) = search_block(trade, class_names, false);
+                GET_REMORT_CLASS(ch) = search_block(trade, class_names, false);
 				free(trade);
 			}
 
-			if( IS_CYBORG(this) ) {
+			if( IS_CYBORG(ch) ) {
 				char *subclass = xmlGetProp( node, "subclass" );
 				if( subclass != NULL ) {
-					GET_OLD_CLASS(this) = search_block( subclass,
+					GET_OLD_CLASS(ch) = search_block( subclass,
 														borg_subchar_class_names,
 														false);
 					free(subclass);
 				}
 			}
 
-			if (GET_CLASS(this) == CLASS_MAGE ) {
+			if (GET_CLASS(ch) == CLASS_MAGE ) {
 				player_specials->saved.mana_shield_low =
 					xmlGetLongProp(node, "manash_low");
 				player_specials->saved.mana_shield_pct =
 					xmlGetLongProp(node, "manash_pct");
 			}
 
-			GET_REMORT_GEN(this) = xmlGetIntProp( node, "gen" );
-			GET_TOT_DAM(this) = xmlGetIntProp( node, "total_dam" );
+			GET_REMORT_GEN(ch) = xmlGetIntProp( node, "gen" );
+			GET_TOT_DAM(ch) = xmlGetIntProp( node, "total_dam" );
 
         } else if ( xmlMatches(node->name, "time") ) {
             player.time.birth = xmlGetLongProp(node, "birth");
@@ -812,12 +811,12 @@ struct creature_loadFromXML( const char *path )
             player.time.played = xmlGetLongProp(node, "played");
             player.time.logon = xmlGetLongProp(node, "last");
         } else if ( xmlMatches(node->name, "carnage") ) {
-            GET_PKILLS(this) = xmlGetIntProp(node, "pkills");
-            GET_ARENAKILLS(this) = xmlGetIntProp(node, "akills");
-            GET_MOBKILLS(this) = xmlGetIntProp(node, "mkills");
-            GET_PC_DEATHS(this) = xmlGetIntProp(node, "deaths");
-			this->set_reputation(xmlGetIntProp(node, "reputation"));
-			GET_SEVERITY(this) = xmlGetIntProp(node, "severity");
+            GET_PKILLS(ch) = xmlGetIntProp(node, "pkills");
+            GET_ARENAKILLS(ch) = xmlGetIntProp(node, "akills");
+            GET_MOBKILLS(ch) = xmlGetIntProp(node, "mkills");
+            GET_PC_DEATHS(ch) = xmlGetIntProp(node, "deaths");
+			ch->set_reputation(xmlGetIntProp(node, "reputation"));
+			GET_SEVERITY(ch) = xmlGetIntProp(node, "severity");
         } else if ( xmlMatches(node->name, "attr") ) {
             aff_abils.str = real_abils.str = xmlGetIntProp(node, "str");
             aff_abils.str_add = real_abils.str_add = xmlGetIntProp(node, "stradd");
@@ -827,21 +826,21 @@ struct creature_loadFromXML( const char *path )
             aff_abils.con = real_abils.con = xmlGetIntProp(node, "con");
             aff_abils.cha = real_abils.cha = xmlGetIntProp(node, "cha");
         } else if ( xmlMatches(node->name, "condition") ) {
-			GET_COND(this, THIRST) = xmlGetIntProp(node, "thirst");
-			GET_COND(this, FULL) = xmlGetIntProp(node, "hunger");
-			GET_COND(this, DRUNK) = xmlGetIntProp(node, "drunk");
+			GET_COND(ch, THIRST) = xmlGetIntProp(node, "thirst");
+			GET_COND(ch, FULL) = xmlGetIntProp(node, "hunger");
+			GET_COND(ch, DRUNK) = xmlGetIntProp(node, "drunk");
        	} else if ( xmlMatches(node->name, "player") ) {
-			GET_WIMP_LEV(this) = xmlGetIntProp(node, "wimpy");
-			GET_LIFE_POINTS(this) = xmlGetIntProp(node, "lp");
-			GET_CLAN(this) = xmlGetIntProp(node, "clan");
+			GET_WIMP_LEV(ch) = xmlGetIntProp(node, "wimpy");
+			GET_LIFE_POINTS(ch) = xmlGetIntProp(node, "lp");
+			GET_CLAN(ch) = xmlGetIntProp(node, "clan");
         } else if ( xmlMatches(node->name, "home") ) {
-			GET_HOME(this) = xmlGetIntProp(node, "town");
-			GET_HOMEROOM(this) = xmlGetIntProp(node, "homeroom");
-			GET_LOADROOM(this) = xmlGetIntProp(node, "loadroom");
+			GET_HOME(ch) = xmlGetIntProp(node, "town");
+			GET_HOMEROOM(ch) = xmlGetIntProp(node, "homeroom");
+			GET_LOADROOM(ch) = xmlGetIntProp(node, "loadroom");
         } else if ( xmlMatches(node->name, "quest") ) {
-			GET_QUEST(this) = xmlGetIntProp(node, "current");
-			GET_IMMORT_QP(this) = xmlGetIntProp(node, "points");
-			GET_QUEST_ALLOWANCE(this) = xmlGetIntProp(node, "allowance");
+			GET_QUEST(ch) = xmlGetIntProp(node, "current");
+			GET_IMMORT_QP(ch) = xmlGetIntProp(node, "points");
+			GET_QUEST_ALLOWANCE(ch) = xmlGetIntProp(node, "allowance");
         } else if ( xmlMatches(node->name, "bits") ) {
 			char* flag = xmlGetProp( node, "flag1" );
 			char_specials.saved.act = hex2dec(flag);
@@ -851,8 +850,8 @@ struct creature_loadFromXML( const char *path )
 			player_specials->saved.plr2_bits = hex2dec(flag);
 			free(flag);
         } else if (xmlMatches(node->name, "frozen")) {
-            this->player_specials->thaw_time = xmlGetIntProp(node, "thaw_time");
-            this->player_specials->freezer_id = xmlGetIntProp(node, "freezer_id");
+            ch->player_specials->thaw_time = xmlGetIntProp(node, "thaw_time");
+            ch->player_specials->freezer_id = xmlGetIntProp(node, "freezer_id");
         } else if ( xmlMatches(node->name, "prefs") ) {
 			char* flag = xmlGetProp( node, "flag1" );
 			player_specials->saved.pref = hex2dec(flag);
@@ -864,7 +863,7 @@ struct creature_loadFromXML( const char *path )
 
             flag = xmlGetProp(node, "tongue");
             if (flag)
-                GET_TONGUE(this) = find_tongue_idx_by_name(flag);
+                GET_TONGUE(ch) = find_tongue_idx_by_name(flag);
             free(flag);
         } else if ( xmlMatches(node->name, "weaponspec") ) {
 			int vnum = xmlGetIntProp( node, "vnum" );
@@ -882,7 +881,7 @@ struct creature_loadFromXML( const char *path )
 			char *txt;
 
 			txt = (char*)xmlNodeGetContent( node );
-			set_title(this, txt);
+			set_title(ch, txt);
             free(txt);
         } else if ( xmlMatches(node->name, "affect") ) {
 			affected_type af;
@@ -907,40 +906,40 @@ struct creature_loadFromXML( const char *path )
 			af.bitvector = hex2dec(bits);
 			free(bits);
 
-			affect_to_char(this, &af);
+			affect_to_char(ch, &af);
 
         } else if ( xmlMatches(node->name, "affects") ) {
 			// PCs shouldn't have ANY perm affects
-			if (IS_NPC(this)) {
+			if (IS_NPC(ch)) {
 				char* flag = xmlGetProp( node, "flag1" );
-				AFF_FLAGS(this) = hex2dec(flag);
+				AFF_FLAGS(ch) = hex2dec(flag);
 				free(flag);
 
 				flag = xmlGetProp( node, "flag2" );
-				AFF2_FLAGS(this) = hex2dec(flag);
+				AFF2_FLAGS(ch) = hex2dec(flag);
 				free(flag);
 
 				flag = xmlGetProp( node, "flag3" );
-				AFF3_FLAGS(this) = hex2dec(flag);
+				AFF3_FLAGS(ch) = hex2dec(flag);
 				free(flag);
 			} else {
-				AFF_FLAGS(this) = 0;
-				AFF2_FLAGS(this) = 0;
-				AFF3_FLAGS(this) = 0;
+				AFF_FLAGS(ch) = 0;
+				AFF2_FLAGS(ch) = 0;
+				AFF3_FLAGS(ch) = 0;
 			}
 
         } else if ( xmlMatches(node->name, "skill") ) {
 			char *spellName = xmlGetProp( node, "name" );
 			int index = str_to_spell( spellName );
 			if( index >= 0 ) {
-				GET_SKILL( this, index ) = xmlGetIntProp( node, "level" );
+				GET_SKILL( ch, index ) = xmlGetIntProp( node, "level" );
 			}
 			free(spellName);
         } else if ( xmlMatches(node->name, "tongue") ) {
 			char *tongue = xmlGetProp( node, "name" );
 			int index = find_tongue_idx_by_name(tongue);
 			if( index >= 0 )
-                SET_TONGUE(this, index,
+                SET_TONGUE(ch, index,
                            MIN(100, xmlGetIntProp(node, "level")));
 			free(tongue);
         } else if ( xmlMatches(node->name, "alias") ) {
@@ -952,24 +951,24 @@ struct creature_loadFromXML( const char *path )
 			if( alias->alias == NULL || alias->replacement == NULL ) {
 				free(alias);
 			} else {
-				add_alias(this,alias);
+				add_alias(ch,alias);
 			}
 		} else if ( xmlMatches(node->name, "description" ) ) {
 			txt = (char *)xmlNodeGetContent(node);
 			player.description = strdup(tmp_gsub(txt, "\n", "\r\n"));
 			free(txt);
         } else if ( xmlMatches(node->name, "poofin") ) {
-			POOFIN(this) = (char*)xmlNodeGetContent( node );
+			POOFIN(ch) = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "poofout") ) {
-			POOFOUT(this) = (char*)xmlNodeGetContent( node );
+			POOFOUT(ch) = (char*)xmlNodeGetContent( node );
         } else if ( xmlMatches(node->name, "immort") ) {
 			txt = xmlGetProp(node, "badge");
-			strncpy(BADGE(this), txt, 7);
-			BADGE(this)[7] = '\0';
+			strncpy(BADGE(ch), txt, 7);
+			BADGE(ch)[7] = '\0';
 			free(txt);
 
-			GET_QLOG_LEVEL(this) = xmlGetIntProp(node, "qlog");
-			GET_INVIS_LVL(this) = xmlGetIntProp(node, "invis");
+			GET_QLOG_LEVEL(ch) = xmlGetIntProp(node, "qlog");
+			GET_INVIS_LVL(ch) = xmlGetIntProp(node, "invis");
         } else if (xmlMatches(node->name, "rent")) {
 			char *txt;
 
@@ -984,7 +983,7 @@ struct creature_loadFromXML( const char *path )
             KillRecord kill;
 
             kill.set(xmlGetIntProp(node, "vnum"), xmlGetIntProp(node, "times"));
-            GET_RECENT_KILLS(this).push_back(kill);
+            GET_RECENT_KILLS(ch).push_back(kill);
         } else if (xmlMatches(node->name, "grievance")) {
             Grievance grievance;
 
@@ -994,7 +993,7 @@ struct creature_loadFromXML( const char *path )
                               xmlGetIntProp(node, "player"),
                               xmlGetIntProp(node, "reputation"),
                               (Grievance_kind)search_block(txt, Grievance::kind_descs, false));
-                GET_GRIEVANCES(this).push_back(grievance);
+                GET_GRIEVANCES(ch).push_back(grievance);
             }
             free(txt);
 		}
@@ -1004,30 +1003,30 @@ struct creature_loadFromXML( const char *path )
 
 	// reset all imprint rooms
 	for( int i = 0; i < MAX_IMPRINT_ROOMS; i++ )
-		GET_IMPRINT_ROOM(this, i) = -1;
+		GET_IMPRINT_ROOM(ch, i) = -1;
 
     // Make sure the NPC flag isn't set
     if( IS_SET(char_specials.saved.act, MOB_ISNPC) ) {
 		REMOVE_BIT(char_specials.saved.act, MOB_ISNPC);
 		errlog("loadFromXML %s loaded with MOB_ISNPC bit set!",
-			GET_NAME(this));
+			GET_NAME(ch));
 	}
 
     // Check for freezer expiration
-    if (PLR_FLAGGED(this, PLR_FROZEN)
+    if (PLR_FLAGGED(ch, PLR_FROZEN)
         && time(NULL) >= player_specials->thaw_time) {
-        REMOVE_BIT(PLR_FLAGS(this), PLR_FROZEN);
+        REMOVE_BIT(PLR_FLAGS(ch), PLR_FROZEN);
     }
 
 	// If you're not poisioned and you've been away for more than an hour,
 	// we'll set your HMV back to full
-	if (!IS_POISONED(this) && (((long)(time(0) - player.time.logon)) >= SECS_PER_REAL_HOUR)) {
-		GET_HIT(this) = GET_MAX_HIT(this);
-		GET_MOVE(this) = GET_MAX_MOVE(this);
-		GET_MANA(this) = GET_MAX_MANA(this);
+	if (!IS_POISONED(ch) && (((long)(time(0) - player.time.logon)) >= SECS_PER_REAL_HOUR)) {
+		GET_HIT(ch) = GET_MAX_HIT(ch);
+		GET_MOVE(ch) = GET_MAX_MOVE(ch);
+		GET_MANA(ch) = GET_MAX_MANA(ch);
 	}
 
-	if (GET_LEVEL(this) >= 50) {
+	if (GET_LEVEL(ch) >= 50) {
 		for (idx = 0;idx < MAX_SKILLS;idx++)
             player_specials->saved.skills[idx] = 100;
 		for (idx = 0;idx < MAX_TONGUES;idx++)
@@ -1038,54 +1037,54 @@ struct creature_loadFromXML( const char *path )
 }
 
 void
-struct creature_set(const char *key, const char *val)
+set(struct creature *ch, const char *key, const char *val)
 {
 	if (!strcmp(key, "race"))
-		GET_RACE(this) = atoi(val);
+		GET_RACE(ch) = atoi(val);
 	else if (!strcmp(key, "class"))
-		GET_CLASS(this) = atoi(val);
+		GET_CLASS(ch) = atoi(val);
 	else if (!strcmp(key, "remort"))
-		GET_REMORT_CLASS(this) = atoi(val);
+		GET_REMORT_CLASS(ch) = atoi(val);
 	else if (!strcmp(key, "name"))
-		GET_NAME(this) = strdup(val);
+		GET_NAME(ch) = strdup(val);
 	else if (!strcmp(key, "title"))
-		GET_TITLE(this) = strdup(val);
+		GET_TITLE(ch) = strdup(val);
 	else if (!strcmp(key, "poofin"))
-		POOFIN(this) = strdup(val);
+		POOFIN(ch) = strdup(val);
 	else if (!strcmp(key, "poofout"))
-		POOFOUT(this) = strdup(val);
+		POOFOUT(ch) = strdup(val);
 	else if (!strcmp(key, "immbadge"))
-		strcpy(BADGE(this), val);
+		strcpy(BADGE(ch), val);
 	else if (!strcmp(key, "sex"))
-		GET_SEX(this) = atoi(val);
+		GET_SEX(ch) = atoi(val);
 	else if (!strcmp(key, "hitp"))
-		GET_HIT(this) = atoi(val);
+		GET_HIT(ch) = atoi(val);
 	else if (!strcmp(key, "mana"))
-		GET_MANA(this) = atoi(val);
+		GET_MANA(ch) = atoi(val);
 	else if (!strcmp(key, "move"))
-		GET_MOVE(this) = atoi(val);
+		GET_MOVE(ch) = atoi(val);
 	else if (!strcmp(key, "maxhitp"))
-		GET_MAX_HIT(this) = atoi(val);
+		GET_MAX_HIT(ch) = atoi(val);
 	else if (!strcmp(key, "maxmana"))
-		GET_MAX_MANA(this) = atoi(val);
+		GET_MAX_MANA(ch) = atoi(val);
 	else if (!strcmp(key, "maxmove"))
-		GET_MAX_MOVE(this) = atoi(val);
+		GET_MAX_MOVE(ch) = atoi(val);
 	else if (!strcmp(key, "gold"))
-		GET_GOLD(this) = atol(val);
+		GET_GOLD(ch) = atol(val);
 	else if (!strcmp(key, "cash"))
-		GET_CASH(this) = atol(val);
+		GET_CASH(ch) = atol(val);
 	else if (!strcmp(key, "exp"))
-		GET_EXP(this) = atol(val);
+		GET_EXP(ch) = atol(val);
 	else if (!strcmp(key, "level"))
-		GET_LEVEL(this) = atol(val);
+		GET_LEVEL(ch) = atol(val);
 	else if (!strcmp(key, "height"))
-		GET_HEIGHT(this) = atol(val);
+		GET_HEIGHT(ch) = atol(val);
 	else if (!strcmp(key, "weight"))
-		GET_WEIGHT(this) = atol(val);
+		GET_WEIGHT(ch) = atol(val);
 	else if (!strcmp(key, "align"))
-		GET_ALIGNMENT(this) = atoi(val);
+		GET_ALIGNMENT(ch) = atoi(val);
 	else if (!strcmp(key, "gen"))
-		GET_REMORT_GEN(this) = atoi(val);
+		GET_REMORT_GEN(ch) = atoi(val);
 	else if (!strcmp(key, "birth_time"))
 		player.time.birth = atol(val);
 	else if (!strcmp(key, "death_time"))
@@ -1095,15 +1094,15 @@ struct creature_set(const char *key, const char *val)
 	else if (!strcmp(key, "login_time"))
 		player.time.logon = atol(val);
 	else if (!strcmp(key, "pkills"))
-		GET_PKILLS(this) = atol(val);
+		GET_PKILLS(ch) = atol(val);
 	else if (!strcmp(key, "mkills"))
-		GET_MOBKILLS(this) = atol(val);
+		GET_MOBKILLS(ch) = atol(val);
 	else if (!strcmp(key, "akills"))
-		GET_ARENAKILLS(this) = atol(val);
+		GET_ARENAKILLS(ch) = atol(val);
 	else if (!strcmp(key, "deaths"))
-		GET_PC_DEATHS(this) = atol(val);
+		GET_PC_DEATHS(ch) = atol(val);
 	else if (!strcmp(key, "reputation"))
-		this->set_reputation(atoi(val));
+		ch->set_reputation(atoi(val));
 	else if (!strcmp(key, "str"))
 		aff_abils.str = real_abils.str = atoi(val);
 	else if (!strcmp(key, "int"))
@@ -1117,11 +1116,11 @@ struct creature_set(const char *key, const char *val)
 	else if (!strcmp(key, "cha"))
 		aff_abils.cha = real_abils.cha = atoi(val);
 	else if (!strcmp(key, "hunger"))
-		GET_COND(this, FULL) = atoi(val);
+		GET_COND(ch, FULL) = atoi(val);
 	else if (!strcmp(key, "thirst"))
-		GET_COND(this, THIRST) = atoi(val);
+		GET_COND(ch, THIRST) = atoi(val);
 	else if (!strcmp(key, "drunk"))
-		GET_COND(this, DRUNK) = atoi(val);
+		GET_COND(ch, DRUNK) = atoi(val);
 	else
 		slog("Invalid player field %s set to %s", key, val);
 }
