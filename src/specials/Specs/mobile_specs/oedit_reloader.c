@@ -6,43 +6,6 @@
 #include "tmpstr.h"
 #include "screen.h"
 #include "utils.h"
-#include "object_map.h"
-
-int retrieve_oedits( struct creature *ch, list<struct obj_data*> &found );
-int load_oedits( struct creature *ch, list<struct obj_data*> &found );
-
-SPECIAL(oedit_reloader)
-{
-	struct creature *self = (struct creature *)me;
-	if(!cmd || ( !CMD_IS("help") && !CMD_IS("retrieve") ) ) {
-		return false;
-	}
-	if (!can_see_creature(self, ch)) {
-		perform_say(self, "say", "Who's there?  I can't see you.");
-		return true;
-	}
-
-	if( CMD_IS("help") && !*argument ) {
-		perform_say(self, "say", "If you want me to retrieve your property, just type 'retrieve'.");
-	} else if (CMD_IS("retrieve")) {
-		list<struct obj_data*> found;
-		act("$n closes $s eyes in deep concentration.", true, self, 0, false, TO_ROOM);
-		int retrieved = retrieve_oedits( ch, found );
-		int existing = load_oedits( ch, found );
-
-		if( existing == 0 ) {
-            perform_say_to(self, ch, "You own nothing that can be retrieved.");
-		} else if( retrieved == 0 && found.size() > 0 ) {
-            perform_say_to(self, ch, "You already have all that could be retrieved.");
-		} else {
-            perform_say_to(self, ch, "That should be everything.");
-		}
-	} else {
-		return false;
-	}
-
-	return true;
-}
 
 struct obj_data*
 get_top_container( struct obj_data* obj )
@@ -53,44 +16,34 @@ get_top_container( struct obj_data* obj )
 	return obj;
 }
 
-bool
-contains( list<struct obj_data*> &objects, int vnum )
-{
-	list<struct obj_data*>_iterator it;
-	for( it = objects.begin(); it != objects.end(); ++it ) {
-		if( (*it)->shared->vnum == vnum )
-			return true;
-	}
-	return false;
-}
-
 int
-load_oedits( struct creature *ch, list<struct obj_data*> &found )
+load_oedits( struct creature *ch )
 {
+    GHashTableIter iter;
+    gpointer key, val;
 	int count = 0;
-    struct obj_data *obj = NULL;
-    ObjectMap_iterator oi = objectPrototypes.begin();
-    for (; oi != objectPrototypes.end(); ++oi) {
-        obj = oi->second;
-		if( obj->shared->owner_id == GET_IDNUM(ch)  ) {
+
+    g_hash_table_iter_init(&iter, obj_prototypes);
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct obj_data *obj = val;
+        if( obj->shared->owner_id == GET_IDNUM(ch)  ) {
 			++count;
-			if( !contains( found, obj->shared->vnum ) ) {
-				struct obj_data* o = read_object( obj->shared->vnum );
-				obj_to_char( o, ch, false );
-				act("$p appears in your hands!", false, ch, o, 0, TO_CHAR);
-			}
+            struct obj_data* o = read_object( obj->shared->vnum );
+            obj_to_char_nospec( o, ch );
+            act("$p appears in your hands!", false, ch, o, 0, TO_CHAR);
 		}
-	}
+    }
+
 	return count;
 }
 
-int
-retrieve_oedits( struct creature *ch, list<struct obj_data*> &found )
+GList *
+retrieve_oedits( struct creature *ch )
 {
 	int count = 0;
-	for( struct obj_data* obj = object_list; obj; obj = obj->next) {
+
+	for (struct obj_data* obj = object_list; obj; obj = obj->next) {
 		if( obj->shared->owner_id == GET_IDNUM(ch) ) {
-			found.push_back(obj);
 			// They already have it
 			if( obj->worn_by == ch || obj->carried_by == ch ) {
 				continue;
@@ -122,7 +75,7 @@ retrieve_oedits( struct creature *ch, list<struct obj_data*> &found )
 					obj->carried_by, obj, 0, TO_CHAR);
 				obj_from_char( obj );
 			} else if( obj->in_room ) {
-				if( obj->in_room->people.size() > 0 )  {
+				if( obj->in_room->people )  {
 					act("$p fades out of existence!",
 						false, NULL, obj, NULL, TO_ROOM);
 				}
@@ -132,15 +85,47 @@ retrieve_oedits( struct creature *ch, list<struct obj_data*> &found )
 			}
 
             if (prev_obj_room && ROOM_FLAGGED(prev_obj_room, ROOM_HOUSE)) {
-                House *h = Housing.findHouseByRoom(prev_obj_room->number);
+                struct house *h = find_house_by_room(prev_obj_room->number);
                 if (h)
-                    h->save();
+                    save_house(h);
             }
 
 			++count;
-			obj_to_char( obj, ch, false );
+			obj_to_char_nospec( obj, ch );
 			act("$p appears in your hands!", false, ch, obj, 0, TO_CHAR);
 		}
 	}
 	return count;
+}
+
+SPECIAL(oedit_reloader)
+{
+	struct creature *self = (struct creature *)me;
+	if(!cmd || ( !CMD_IS("help") && !CMD_IS("retrieve") ) ) {
+		return false;
+	}
+	if (!can_see_creature(self, ch)) {
+		perform_say(self, "say", "Who's there?  I can't see you.");
+		return true;
+	}
+
+	if( CMD_IS("help") && !*argument ) {
+		perform_say(self, "say", "If you want me to retrieve your property, just type 'retrieve'.");
+	} else if (CMD_IS("retrieve")) {
+		act("$n closes $s eyes in deep concentration.", true, self, 0, false, TO_ROOM);
+		int retrieved = retrieve_oedits( ch );
+		int existing = load_oedits( ch );
+
+		if(!existing) {
+            perform_say_to(self, ch, "You own nothing that can be retrieved.");
+		} else if(!retrieved) {
+            perform_say_to(self, ch, "You already have all that could be retrieved.");
+		} else {
+            perform_say_to(self, ch, "That should be everything.");
+		}
+	} else {
+		return false;
+	}
+
+	return true;
 }

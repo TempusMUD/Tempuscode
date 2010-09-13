@@ -9,10 +9,11 @@ void
 labyrinth_spin_carousels(struct zone_data *zone)
 {
 	struct room_data *cur_room;
-	struct creatureList_iterator it;
-	room_direction_data *dir_save[NUM_DIRS];
+	struct room_direction_data *dir_save[NUM_DIRS];
 
-	for (cur_room = zone->world;cur_room && cur_room->number < zone->top;cur_room = cur_room->next) {
+	for (cur_room = zone->world;
+         cur_room && cur_room->number < zone->top;
+         cur_room = cur_room->next) {
 		if (cur_room->func != labyrinth_carousel)
 			continue;
 
@@ -23,17 +24,18 @@ labyrinth_spin_carousels(struct zone_data *zone)
 		cur_room->dir_option[SOUTH] = dir_save[EAST];
 		cur_room->dir_option[WEST] = dir_save[SOUTH];
 
-		if (cur_room->people.empty())
+		if (cur_room->people)
 			continue;
 
 		// Knock people down and describe if there are observers
 		act("The floor lurches beneath your feet!", true, 0, 0, 0, TO_ROOM);
-		it = cur_room->people.begin();
-		for (;it != cur_room->people.end();++it)
-			if (number(1, 26) > GET_DEX(*it)) {
-				send_to_char(*it, "You fall to the floor!  Oof!\r\n");
-				(*it)->setPosition(POS_SITTING);
+        for (GList *it = cur_room->people;it;it = it->next) {
+            struct creature *vict = it->data;
+			if (number(1, 26) > GET_DEX(vict)) {
+				send_to_char(vict, "You fall to the floor!  Oof!\r\n");
+				GET_POSITION(vict) = POS_SITTING;
 			}
-	}
+        }
+    }
 }
 

@@ -48,20 +48,20 @@ SPECIAL(underworld_goddess)
 	struct room_data *room;
 
 	/* See if Styx is in the room */
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if (!strcmp((char *)GET_NAME(vict), "Styx"))
-			styx = (*it);
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+		if (!strcmp(GET_NAME(tch), "Styx")) {
+			styx = tch;
+            break;
+        }
 	}
 	/* First and foremost, if I am fighting, beat the shit out of them. */
 	if (!cmd && (GET_POSITION(ch) == POS_FIGHTING)) {
 		vict = NULL;
-		it = ch->in_room->people.begin();
-		for (; it != ch->in_room->people.end(); ++it) {
-			vict = *it;
-			if (vict->findCombat(ch) && !number(0, 2))
+        for (GList *it = ch->in_room->people;it;it = it->next) {
+            struct creature *tch = it->data;
+			if (findCombat(tch, ch) && !number(0, 2))
 				break;
-
 		}
 
 		/* if I didn't pick any of those, then just slam the guy I'm fighting */
@@ -70,46 +70,46 @@ SPECIAL(underworld_goddess)
 
 		/* if I'm fighting styx, try to teleport him away.  */
 		if (vict == styx) {
-			cast_spell(ch, vict, NULL, NULL, SPELL_RANDOM_COORDINATES);
+			cast_spell(ch, vict, NULL, NULL, SPELL_RANDOM_COORDINATES, NULL);
 		}
 
 		/* Whip up some magic!  */
 		switch (number(0, 9)) {
 		case 0:
-			cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
+			cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL, NULL);
 			break;
 		case 1:
-			cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
+			cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE, NULL);
 			break;
 		case 2:
-			cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
+			cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, NULL);
 			break;
 		case 3:
-			cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP);
+			cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP, NULL);
 			break;
 		case 4:
 		case 5:
 		case 6:
-			cast_spell(ch, ch, NULL, NULL, SPELL_GREATER_HEAL);
+			cast_spell(ch, ch, NULL, NULL, SPELL_GREATER_HEAL, NULL);
 			break;
 		}
 
 		/*  Check to make sure I haven't killed him! */
-		if (vict->findCombat(ch))
+		if (findCombat(vict, ch))
 			return 1;
 
 		/* And maybe say something nice! */
 		switch (number(0, 7)) {
 		case 0:
-			sprintf(buf,
-				"The goddess tells you, 'You are a fool to fight me %s.'\r\n",
-				GET_NAME(vict));
-			send_to_char(vict, "%s", buf);
+			send_to_char(vict,
+                         "The goddess tells you, 'You are a fool "
+                         "to fight me %s.'\r\n",
+                         GET_NAME(vict));
 			break;
 		case 1:
-			sprintf(buf,
-				"The goddess tells you, 'Fool!  Now watch yourself perish!'\r\n");
-			send_to_char(vict, "%s", buf);
+			send_to_char(vict,
+                         "The goddess tells you, 'Fool!  Now watch "
+                         "yourself perish!'\r\n");
 			break;
 		}
 		return 1;
@@ -121,30 +121,30 @@ SPECIAL(underworld_goddess)
 		case 0:
 			send_to_char(styx,
 				"The goddess tell you, 'My Love, you are hurt!  Let me heal you.'\r\n");
-			cast_spell(ch, styx, NULL, NULL, SPELL_GREATER_HEAL);
+			cast_spell(ch, styx, NULL, NULL, SPELL_GREATER_HEAL, NULL);
 			break;
 		}
 
 		/* If Styx is fighting, send a present to his opponent. */
-		if ((vict = styx->findRandomCombat()))
+		if ((vict = findRandomCombat(styx)))
 			switch (number(0, 4)) {
 			case 0:
 				send_to_char(vict,
 					"The Goddess shouts, 'Chew on this worm face!'\r\n");
-				cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
+				cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL, NULL);
 				break;
 			case 1:
 				send_to_char(vict,
 					"The Goddess shouts, 'You FIEND!  Take this!'\r\n");
-				cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
+				cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE, NULL);
 				break;
 			case 2:
 				send_to_char(vict,
 					"The Goddess shouts, 'Have a LIGHT sewer breath!'\r\n");
-				cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
+				cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, NULL);
 				break;
 			case 3:
-				cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP);
+				cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP, NULL);
 				break;
 			}
 		return 1;
@@ -170,21 +170,22 @@ SPECIAL(underworld_goddess)
 			return 0;
 
 		/* Now see if Styx is there */
-		it = room->people.begin();
-		for (; it != room->people.end(); ++it) {
-			vict = *it;
-			if (!strcmp((char *)GET_NAME(vict), "Styx")) {
-				styx = vict;
+        for (GList *it = room->people;it;it = it->next) {
+            struct creature *tch = it->data;
+			if (!strcmp(GET_NAME(tch), "Styx")) {
+				styx = tch;
 				break;			/* breaks out of for */
 			}
 		}
 		/*  If Styx is there, see if one of those cutsie priestess girls are there too.   */
 		if (styx) {
-			it = styx->in_room->people.begin();
-			for (; it != styx->in_room->people.end(); ++it) {
-				vict = *it;
-				if ((IS_MOB(vict)) && (GET_MOB_VNUM(vict) == STYX_PRIESTESS))
+            vict = NULL;
+			for (GList *it = styx->in_room->people;it;it = it->next) {
+                struct creature *tch = it->data;
+				if ((IS_MOB(vict)) && (GET_MOB_VNUM(vict) == STYX_PRIESTESS)) {
+                    vict = tch;
 					break;		/* breaks for loop! */
+                }
 			}
 
 			if (vict) {

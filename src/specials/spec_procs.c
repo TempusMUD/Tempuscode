@@ -1687,7 +1687,6 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/languagemaster.c"
 #include "Specs/mobile_specs/auctioneer.c"
 #include "Specs/mobile_specs/courier_imp.c"
-#include "Specs/mobile_specs/christmas_quest.c"
 
 /* RADFORD's SPECS */
 #include "Specs/rad_specs/labyrinth.c"
@@ -1722,7 +1721,6 @@ SPECIAL(cave_bear)
 
 SPECIAL(weapon_lister)
 {
-	struct obj_data *obj = NULL;
 	int dam, i, found = 0;
 	char buf3[MAX_STRING_LENGTH];
 	unsigned int avg_dam[60];
@@ -1734,9 +1732,13 @@ SPECIAL(weapon_lister)
 		avg_dam[i] = 0;
 
 	strcpy(buf3, "");
-    ObjectMap_iterator oi = objectPrototypes.begin();
-    for (; oi != objectPrototypes.end(); oi++) {
-        obj = oi->second;
+    GHashTableIter iter;
+    gpointer key, val;
+
+    g_hash_table_iter_init(&iter, obj_prototypes);
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct obj_data *obj = val;
+
 		if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
 			continue;
 
@@ -1759,7 +1761,7 @@ SPECIAL(weapon_lister)
 
 		sprintf(buf, "%s (%2d) %3d lb ", buf,
 			(GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam,
-			obj->getWeight());
+                GET_OBJ_WEIGHT(obj));
 
 		if (((GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam > 0 &&
 				GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj,

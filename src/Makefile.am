@@ -166,7 +166,6 @@ ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]
                  specials/Specs/labyrinth/laby_carousel.c \
                  specials/Specs/labyrinth/laby_altar.c \
                  specials/Specs/labyrinth/laby_portal.c \
-                 specials/Specs/mobile_specs/christmas_quest.c \
                  specials/Specs/mobile_specs/astral_deva.c \
                  specials/Specs/mobile_specs/auctioneer.c \
                  specials/Specs/mobile_specs/aziz.c \

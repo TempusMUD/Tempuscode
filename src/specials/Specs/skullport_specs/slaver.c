@@ -17,16 +17,15 @@ SPECIAL(slaver)
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;
-	if (cmd || slaver->getPosition() < POS_STANDING)
+	if (cmd || GET_POSITION(slaver) < POS_STANDING)
 		return 0;
 	if (!r_pit_lip || !r_slave_pit)
 		return 0;
 
-	if (!slaver->isFighting() && !ROOM_FLAGGED(slaver->in_room, ROOM_PEACEFUL)) {
+	if (!isFighting(slaver) && !ROOM_FLAGGED(slaver->in_room, ROOM_PEACEFUL)) {
 
-		struct creatureList_iterator it = slaver->in_room->people.begin();
-		for (; it != slaver->in_room->people.end(); ++it) {
-			vict = *it;
+        for (GList *it = slaver->in_room->people;it;it = it->next) {
+            vict = it->data;
 			if (ch != vict && !IS_NPC(vict) && can_see_creature(slaver, vict) &&
 				PRF_FLAGGED(vict, PRF_NOHASSLE) &&
 				GET_LEVEL(vict) < number(1, 50) && !IS_EVIL(vict)) {
@@ -37,8 +36,8 @@ SPECIAL(slaver)
 						false, slaver, 0, vict, TO_VICT);
 					act("$n hurls $N headfirst into the slave pit!",
 						false, slaver, 0, vict, TO_NOTVICT);
-					slaver->removeCombat(vict);
-					vict->removeCombat(slaver);
+					removeCombat(slaver, vict);
+					removeCombat(vict, slaver);
 					char_from_room(vict, false);
 					char_to_room(vict, r_slave_pit, false);
 					look_at_room(vict, vict->in_room, 1);
@@ -52,7 +51,7 @@ SPECIAL(slaver)
 		return 0;
 	}
 
-	if (!(vict = slaver->findRandomCombat()) ||
+	if (!(vict = findRandomCombat(slaver)) ||
 		PRF_FLAGGED(vict, PRF_NOHASSLE) || !can_see_creature(slaver, vict))
 		return 0;
 
@@ -63,8 +62,8 @@ SPECIAL(slaver)
 				false, slaver, 0, vict, TO_VICT);
 			act("$n hurls $N headfirst into the slave pit!",
 				false, slaver, 0, vict, TO_NOTVICT);
-			slaver->removeCombat(vict);
-			vict->removeCombat(slaver);
+			removeCombat(slaver, vict);
+			removeCombat(vict, slaver);
 			char_from_room(vict, false);
 			char_to_room(vict, r_slave_pit, false);
 			look_at_room(vict, vict->in_room, 1);

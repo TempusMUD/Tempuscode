@@ -51,8 +51,8 @@ SPECIAL(labyrinth_portal)
 	if (!IS_NPC(ch) && ch->in_room->zone != room->zone)
 		room->zone->enter_count++;
 
-	char_from_room(ch);
-	char_to_room(ch, room);
+	char_from_room(ch, true);
+	char_to_room(ch, room, true);
 	act("$n steps out of the portal.", true, ch, 0, 0, TO_ROOM);
 	return 1;
 }

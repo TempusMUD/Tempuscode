@@ -11,24 +11,24 @@ SPECIAL(unholy_stalker)
 
 	struct creature *mob = (struct creature *) me;
 
-	if (!MOB_HUNTING(mob) && !mob->isFighting()) {
+	if (!MOB_HUNTING(mob) && !isFighting(mob)) {
 		act("$n dematerializes, returning to the negative planes.", true, mob,
 			0, 0, TO_ROOM);
-		mob->purge(true);
+		purge(mob, true);
 		return 1;
 	}
 
-	if (mob->isFighting()) {
+	if (isFighting(mob)) {
 		if (!number(0, 3)) {
-			call_magic(mob, mob->findRandomCombat(), NULL, 0, SPELL_CHILL_TOUCH,
-				GET_LEVEL(mob) + 10, CAST_SPELL);
+			call_magic(mob, findRandomCombat(mob), NULL, 0, SPELL_CHILL_TOUCH,
+                       GET_LEVEL(mob) + 10, CAST_SPELL, NULL);
 		}
 
-        struct creature *vict = mob->findRandomCombat();
+        struct creature *vict = findRandomCombat(mob);
 		if (GET_HIT(mob) < 100 && GET_HIT(vict) > GET_HIT(mob) &&
 			!ROOM_FLAGGED(mob->in_room, ROOM_NOMAGIC | ROOM_NORECALL) &&
 			GET_LEVEL(mob) > number(20, 35)) {
-			call_magic(mob, mob, 0, NULL, SPELL_LOCAL_TELEPORT, 90, CAST_SPELL);
+			call_magic(mob, mob, 0, NULL, SPELL_LOCAL_TELEPORT, 90, CAST_SPELL, NULL);
 		}
 	}
 

@@ -20,6 +20,7 @@ SPECIAL(archon)
 				do_rescue(ch, fname(tch->player.name), 0, 0, 0);
 				return 1;
 			}
+        }
 
 		act("$n disappears in a flash of light.", false, ch, 0, 0, TO_ROOM);
 		if (room) {

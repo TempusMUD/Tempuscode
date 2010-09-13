@@ -26,25 +26,24 @@ SPECIAL(multi_healer)
 	if (cmd)
 		return false;
 
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		vict = *it;
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        vict = it->data;
 		if (ch == vict || IS_NPC(vict) || !number(0, 2) || !can_see_creature(ch, vict))
 			continue;
 		if (!MODE_OK(vict))
 			continue;
 
 		if (IS_POISONED(vict)) {
-			cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_POISON);
+			cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_POISON, NULL);
 		} else if (IS_SICK(vict)) {
-			cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_SICKNESS);
+			cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_SICKNESS, NULL);
 		} else if (GET_HIT(vict) < GET_MAX_HIT(vict)) {
 			cast_spell(ch, vict, 0, NULL,
-				GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
-				GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
-				GET_LEVEL(vict) <= 30 ? SPELL_HEAL : SPELL_GREATER_HEAL);
+                       GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
+                       GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
+                       GET_LEVEL(vict) <= 30 ? SPELL_HEAL : SPELL_GREATER_HEAL, NULL);
 		} else if (affected_by_spell(vict, SPELL_BLINDNESS) ||
-			affected_by_spell(vict, SKILL_GOUGE)) {
+                   affected_by_spell(vict, SKILL_GOUGE), NULL) {
 		} else {
 			continue;
 		}

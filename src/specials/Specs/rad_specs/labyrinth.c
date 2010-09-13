@@ -103,7 +103,7 @@ SPECIAL(cuckoo)
 	if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (cmd || bird->isFighting() || !AWAKE(bird))
+	if (cmd || isFighting(bird) || !AWAKE(bird))
 		return 0;
 
 	/* check if cuckoo is in room 66236 */
@@ -254,7 +254,7 @@ SPECIAL(gollum)
 	struct room_data *to_room = NULL;
 
 	/* check if gollum is in room and not fighting */
-	if (gollum->in_room->number != 66163 || gollum->isFighting())
+	if (gollum->in_room->number != 66163 || isFighting(gollum))
 		return 0;
 
 	if (CMD_IS("say") || CMD_IS("'")) {
@@ -380,9 +380,8 @@ SPECIAL(pendulum_timer_mob)
 					in_room);
 
 				struct room_data *theRoom = in_room;
-				struct creatureList_iterator it = theRoom->people.begin();
-				for (; it != theRoom->people.end(); ++it) {
-					vict = *it;
+                for (GList *it = theRoom->people;it;it = it->next) {
+					vict = it->data;
 					if (GET_POSITION(vict) > POS_SITTING) {
 						send_to_char(vict,
 							"You are carried north by the pendulum.\r\n");
@@ -428,9 +427,8 @@ SPECIAL(pendulum_timer_mob)
 					in_room);
 
 				struct room_data *theRoom = in_room;
-				struct creatureList_iterator it = theRoom->people.begin();
-				for (; it != theRoom->people.end(); ++it) {
-					vict = *it;
+				for (GList *it = theRoom->people;it;it = it->next) {
+					vict = it->data;
 					if (GET_POSITION(vict) > POS_SITTING) {
 						send_to_char(vict,
 							"You are carried south by the pendulum.\r\n");

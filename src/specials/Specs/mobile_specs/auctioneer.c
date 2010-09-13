@@ -4,7 +4,7 @@
 #include "room_data.h"
 #include "creature.h"
 
-inline static bool
+inline bool
 BAD_AUCTION(struct obj_data *obj)
 {
     return (obj->obj_flags.type_flag == ITEM_FOOD ||
@@ -35,10 +35,14 @@ int MAX_AUC_ITEMS = 5;
 int MAX_TOTAL_AUC = 100;
 float BID_INCREMENT = 0.05; //percent of starting bid
 
-extern const int IMP_DELIVER_ITEM;
-extern const int IMP_RETURN_ITEM;
+enum {
+    IMP_RETURN_ITEM  = (1 << 0),
+    IMP_NO_BUYER     = (1 << 1),
+    IMP_BUYER_BROKE  = (1 << 2),
+    IMP_DELIVER_ITEM = (1 << 3),
+    IMP_DELIVER_CASH = (1 << 4),
+};
 
-ACMD(do_bid);
 ACMD(do_stun);
 
 struct imp_data {
@@ -56,13 +60,9 @@ struct auctioneer_data {
 };
 
 struct auction_data {
-    bool operator < (const auction_data &b) const {
-        return item_no < b.item_no;
-    }
     long auctioneer_id;
     long owner_id;
     long buyer_id;
-    int item_no;
     struct obj_data *item;
     long start_bid;
     long start_time;
@@ -73,7 +73,7 @@ struct auction_data {
     short announce_count;
 };
 
-list<auction_data> items;
+GList *items;
 
 const char *moods[] = {
     " fiercely",
@@ -87,25 +87,207 @@ const char *moods[] = {
     "\n"
 };
 
-int number(int from, int to);
-int get_max_auction_item();
-struct creature *create_imp(struct room_data *inroom, auction_data &);
-bool bidder_can_afford(struct creature *bidder, money_t amount);
-void aucSaveToXML(struct creature *auc);
-bool aucLoadFromXML(struct creature *auc);
+struct creature *
+create_imp(struct room_data *inroom, struct auction_data *info)
+{
+    struct imp_data *data;
+    struct creature *mob;
+
+    mob = read_mobile(IMP_VNUM);
+    CREATE(data, struct imp_data, 1);
+    mob->mob_specials.func_data = data;
+    data->imp = mob;
+    data->buyer_id = info->buyer_id;
+    data->owner_id = info->owner_id;
+    data->item = info->item;
+    data->owed = info->current_bid;
+    data->fail_count = 0;
+    data->mode = 0;
+    char_to_room(mob, inroom, false);
+
+    return mob;
+}
+
+int
+auctioneer_tick(struct creature *self)
+{
+    int mood_index;
+    char *auc_str = NULL;
+    struct creature *imp;
+
+    int item_no = 1;
+    for (GList *ai = items;ai;ai = ai->next, item_no++) {
+        struct auction_data *item = ai->data;
+
+        if (item->auctioneer_id != GET_IDNUM(self)) {
+            continue;
+        }
+
+        mood_index = number(0, TOP_MOOD);
+        if (item->new_bid) {
+            auc_str = tmp_sprintf("%ld coins heard for item number %d, %s!!",
+                                  item->current_bid, item_no,
+                                  item->item->name);
+            item->new_bid = false;
+            item->announce_count = 0;
+        }
+        else if (item->new_item) {
+            auc_str = tmp_sprintf("We now have a new item up for bids!  "
+                                  "Item number %d, %s. We'll start the "
+                                  "bidding at %ld coins!",
+                                  item_no, item->item->name,
+                                  item->start_bid);
+            item->new_item = false;
+        }
+        else if (item->last_bid_time &&
+                 (time(NULL) - item->last_bid_time) > SOLD_TIME) {
+            auc_str = tmp_sprintf("Item number %d, %s, SOLD!",
+                                  item_no, item->item->name);
+            slog("AUCTION: %s (#%d) has been sold to %s (#%ld)",
+                 item->item->name, GET_OBJ_VNUM(item->item),
+                 player_name_by_idnum(item->buyer_id),
+                 item->buyer_id);
+            imp = create_imp(self->in_room, item);
+            ((struct imp_data *)imp->mob_specials.func_data)->mode = IMP_DELIVER_ITEM;
+            obj_from_char(item->item);
+            obj_to_char(item->item, imp);
+            items = g_list_remove(items, item);
+            aucSaveToXML(self);
+        }
+        else if (item->last_bid_time &&
+                 (time(NULL) - item->last_bid_time) > GOING_TWICE &&
+                 item->announce_count != GOING_TWICE) {
+            auc_str = tmp_sprintf("Item number %d, %s, Going TWICE!",
+                                  item_no, item->item->name);
+            item->announce_count = GOING_TWICE;
+        }
+        else if (item->last_bid_time &&
+                 (time(NULL) - item->last_bid_time) > GOING_ONCE &&
+                 item->announce_count != GOING_ONCE &&
+                 item->announce_count != GOING_TWICE) {
+            auc_str = tmp_sprintf("Item number %d, %s, Going once!",
+                                  item_no, item->item->name);
+            item->announce_count = GOING_ONCE;
+        }
+        else if ((!item->last_bid_time) &&
+                 (time(NULL) - item->start_time) > AUCTION_THRESH) {
+            auc_str = tmp_sprintf("Item number %d, %s is no longer "
+                                  "avitemlable for bids!",
+                                  item_no, item->item->name);
+            item->current_bid = 0;
+            item->buyer_id = item->owner_id;
+            imp = create_imp(self->in_room, item);
+            ((struct imp_data *)imp->mob_specials.func_data)->mode = IMP_RETURN_ITEM;
+            obj_from_char(item->item);
+            obj_to_char(item->item, imp);
+            items = g_list_remove(items, item);
+            aucSaveToXML(self);
+        }
+        else if ((!item->last_bid_time) &&
+                 (time(NULL) - item->start_time) >
+                 (NO_BID_THRESH * item->announce_count)) {
+            auc_str = tmp_sprintf("No bids yet for Item number %d, %s! "
+                                  "Bidding starts at %ld coins!",
+                                  item_no, item->item->name,
+                                  item->start_bid);
+            item->announce_count++;
+        }
+
+        if (auc_str && *auc_str) {
+            GET_MOOD(self) = moods[mood_index];
+            do_gen_comm(self, auc_str, 0, SCMD_AUCTION, NULL);
+            GET_MOOD(self) = NULL;
+            auc_str = NULL;
+        }
+    }
+
+    return 1;
+}
+
+struct auction_data *
+auction_data_from_item_no(int item_no)
+{
+    return g_list_nth_data(items, item_no - 1);
+}
+
+
+bool
+aucLoadFromXML(struct creature *auc) {
+    char *fname = tmp_sprintf(AUC_FILE_NAME, auc->in_room->number);
+
+    if (access(fname, W_OK)) {
+        errlog("Unable to open XML auctioneer file for loading. "
+               "[%s] (%s)\n", fname, strerror(errno));
+        return false;
+    }
+
+    xmlDocPtr doc = xmlParseFile(fname);
+    if (!doc) {
+        errlog("XML parse error while loading %s", fname);
+        return false;
+    }
+
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    if (!root) {
+        xmlFreeDoc(doc);
+        errlog("XML file %s is empty", fname);
+        return false;
+    }
+
+    GOING_ONCE = xmlGetIntProp(root, "going_once", 0);
+    GOING_TWICE = xmlGetIntProp(root, "going_twice", 0);
+    SOLD_TIME = xmlGetIntProp(root, "sold_time", 0);
+    NO_BID_THRESH = xmlGetIntProp(root, "nobid_thresh", 0);
+    AUCTION_THRESH = xmlGetIntProp(root, "auction_thresh", 0);
+    MAX_AUC_VALUE = xmlGetIntProp(root, "max_auc_value", 0);
+    MAX_AUC_ITEMS = xmlGetIntProp(root, "max_auc_items", 0);
+    MAX_TOTAL_AUC = xmlGetIntProp(root, "max_total_auc", 0);
+    BID_INCREMENT = (float)atof(xmlGetProp(root, "bid_increment"));
+
+    struct auction_data *new_ai;
+    for (xmlNodePtr node = root->xmlChildrenNode; node; node = node->next) {
+        if (xmlMatches(node->name, "itemdata")) {
+            CREATE(new_ai, struct auction_data, 1);
+            new_ai->auctioneer_id = GET_IDNUM(auc);
+            new_ai->buyer_id = 0;
+            new_ai->start_time = time(NULL);
+            new_ai->last_bid_time = 0;
+            new_ai->current_bid = 0;
+            new_ai->new_bid = false;
+            new_ai->new_item = false;
+            new_ai->announce_count = 1;
+            new_ai->owner_id = xmlGetIntProp(node, "owner_id", 0);
+            new_ai->start_bid = xmlGetIntProp(node, "start_bid", 0);
+
+            for (xmlNodePtr cnode = node->xmlChildrenNode;
+                 cnode; cnode = cnode->next) {
+                if (xmlMatches(cnode->name, "object")) {
+                    struct obj_data *obj;
+                    obj = load_object_from_xml(NULL, auc, NULL, cnode);
+                    if (!obj) {
+                        errlog("Auctioneer failed to load item from %s", fname);
+                        extract_obj(obj);
+                        continue;
+                    }
+                    new_ai->item = obj;
+                    items = g_list_prepend(items, new_ai);
+                }
+            }
+        }
+    }
+
+    return true;
+}
 
 SPECIAL(do_auctions)
 {
 	struct creature *self = (struct creature *)me;
-    struct creature *imp;
-    list<auction_data>_iterator ai = items.begin();
-    short mood_index = 0;
 
     if (!self->mob_specials.func_data) {
         char *fname = tmp_sprintf(AUC_FILE_NAME, self->in_room->number);
         struct auctioneer_data *data;
 
-        CREATE(data, auctioneer_data, 1);
+        CREATE(data, struct auctioneer_data, 1);
         self->mob_specials.func_data = data;
         if (!access(fname, W_OK)) {
             if (aucLoadFromXML(self))
@@ -117,8 +299,8 @@ SPECIAL(do_auctions)
     }
 
     struct creature *dick;
-    while (self->isFighting()) {
-        dick = self->findRandomCombat();
+    while (isFighting(self)) {
+        dick = findRandomCombat(self);
         act ("A ball of light streaks from $N's hand and hits you "
              "square in the chest, burning you to a cinder!", false,
              dick, 0, self, TO_CHAR);
@@ -128,103 +310,8 @@ SPECIAL(do_auctions)
         raw_kill(dick, self, TYPE_SLASH);
     }
 
-	if (spec_mode == SPECIAL_TICK) {
-        if (items.empty())
-            return 0;
-
-        char *auc_str = NULL;
-        ai = items.begin();
-        while (ai != items.end()) {
-            if (ai->auctioneer_id != self->getIdNum()) {
-                ++ai;
-                continue;
-            }
-
-            mood_index = number(0, TOP_MOOD);
-            if (ai->new_bid) {
-                auc_str = tmp_sprintf("%ld coins heard for item number %d, %s!!",
-                                      ai->current_bid, ai->item_no,
-                                      ai->item->name);
-                ai->new_bid = false;
-                ai->announce_count = 0;
-            }
-            else if (ai->new_item) {
-                auc_str = tmp_sprintf("We now have a new item up for bids!  "
-                                      "Item number %d, %s. We'll start the "
-                                      "bidding at %ld coins!",
-                                      ai->item_no, ai->item->name,
-                                      ai->start_bid);
-                ai->new_item = false;
-            }
-            else if (ai->last_bid_time &&
-                     (time(NULL) - ai->last_bid_time) > SOLD_TIME) {
-                auc_str = tmp_sprintf("Item number %d, %s, SOLD!",
-                                      ai->item_no, ai->item->name);
-                slog("AUCTION: %s (#%d) has been sold to %s (#%ld)",
-                     ai->item->name, GET_OBJ_VNUM(ai->item),
-                     playerIndex.getName(ai->buyer_id),
-                     ai->buyer_id);
-                imp = create_imp(self->in_room, *ai);
-                ((imp_data *)imp->mob_specials.func_data)->mode = IMP_DELIVER_ITEM;
-                obj_from_char(ai->item);
-                obj_to_char(ai->item, imp);
-                list<auction_data>_iterator ti = ai;
-                ai++;
-                items.erase(ti);
-                aucSaveToXML(self);
-            }
-            else if (ai->last_bid_time &&
-                     (time(NULL) - ai->last_bid_time) > GOING_TWICE &&
-                     ai->announce_count != GOING_TWICE) {
-                auc_str = tmp_sprintf("Item number %d, %s, Going TWICE!",
-                                      ai->item_no, ai->item->name);
-                ai->announce_count = GOING_TWICE;
-            }
-            else if (ai->last_bid_time &&
-                     (time(NULL) - ai->last_bid_time) > GOING_ONCE &&
-                     ai->announce_count != GOING_ONCE &&
-                     ai->announce_count != GOING_TWICE) {
-                auc_str = tmp_sprintf("Item number %d, %s, Going once!",
-                                      ai->item_no, ai->item->name);
-                ai->announce_count = GOING_ONCE;
-            }
-            else if ((!ai->last_bid_time) &&
-                    (time(NULL) - ai->start_time) > AUCTION_THRESH) {
-                auc_str = tmp_sprintf("Item number %d, %s is no longer "
-                                      "available for bids!",
-                                      ai->item_no, ai->item->name);
-                ai->current_bid = 0;
-                ai->buyer_id = ai->owner_id;
-                imp = create_imp(self->in_room, *ai);
-                ((imp_data *)imp->mob_specials.func_data)->mode = IMP_RETURN_ITEM;
-                obj_from_char(ai->item);
-                obj_to_char(ai->item, imp);
-                list<auction_data>_iterator ti = ai;
-                ai++;
-                items.erase(ti);
-                aucSaveToXML(self);
-            }
-            else if ((!ai->last_bid_time) &&
-                     (time(NULL) - ai->start_time) >
-                     (NO_BID_THRESH * ai->announce_count)) {
-                auc_str = tmp_sprintf("No bids yet for Item number %d, %s! "
-                                      "Bidding starts at %ld coins!",
-                                      ai->item_no, ai->item->name,
-                                      ai->start_bid);
-                ai->announce_count++;
-            }
-
-            if (auc_str && *auc_str) {
-                GET_MOOD(self) = moods[mood_index];
-                do_gen_comm(self, auc_str, 0, SCMD_AUCTION, NULL);
-                GET_MOOD(self) = NULL;
-                auc_str = NULL;
-            }
-            ++ai;
-        }
-
-        return 1;
-	}
+	if (spec_mode == SPECIAL_TICK)
+        auctioneer_tick(self);
 
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
@@ -241,40 +328,42 @@ SPECIAL(do_auctions)
             if (*arg)
                 return 0;
 
-            if (items.empty())
+            if (!items)
                 send_to_char(ch, "There are no items for auction.\r\n");
             acc_string_clear();
-            for (ai = items.begin(); ai != items.end(); ++ai) {
+            int item_no = 1;
+            for (GList *ai = items;ai;ai = ai->next, item_no++) {
+                struct auction_data *item = ai->data;
                 acc_sprintf("%sAuctioneer Id:%s   %ld\r\n",
-                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), ai->auctioneer_id);
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), item->auctioneer_id);
                 acc_sprintf("%sItem Number:%s   %d\r\n",
-                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), ai->item_no);
+                            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), item_no);
                 acc_sprintf("%sOwner:%s         %s\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                            playerIndex.getName(ai->owner_id));
+                            player_name_by_idnum(item->owner_id));
                 acc_sprintf("%sHigh Bidder:%s   %s\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                            (ai->buyer_id) ?
-                            playerIndex.getName(ai->buyer_id) : "NULL");
+                            (item->buyer_id) ?
+                            player_name_by_idnum(item->buyer_id) : "NULL");
                 acc_sprintf("%sItem:%s          %s\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                            ai->item->name);
+                            item->item->name);
                 acc_sprintf("%sStart Time:%s    %s",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                            ctime(&ai->start_time));
+                            ctime(&item->start_time));
                 acc_sprintf("%sLast Bid:%s      %s",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                            (ai->last_bid_time ?
-                             ctime(&ai->last_bid_time) : "NULL\r\n"));
+                            (item->last_bid_time ?
+                             ctime(&item->last_bid_time) : "NULL\r\n"));
                 acc_sprintf("%sCurrent Bid:%s   %ld coins/cash\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                            ai->current_bid);
+                            item->current_bid);
                 acc_sprintf("%sStarting Bid:%s  %ld coins/cash\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                            ai->start_bid);
+                            item->start_bid);
                 acc_sprintf("%sAnnounced:%s     %d times\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                            ai->announce_count);
+                            item->announce_count);
                 acc_strcat("---------------------------------------\r\n", NULL);
             }
             page_string(ch->desc, acc_get_string());
@@ -423,8 +512,9 @@ SPECIAL(do_auctions)
         }
 
         short item_count = 0;
-        for (ai = items.begin(); ai != items.end(); ++ai) {
-            if (ai->owner_id == GET_IDNUM(ch))
+        for (GList *ai = items;ai;ai = ai->next) {
+            struct auction_data *item = ai->data;
+            if (item->owner_id == GET_IDNUM(ch))
                 item_count++;
 
             if ((item_count >= MAX_AUC_ITEMS) && !IS_IMMORT(ch)) {
@@ -447,25 +537,24 @@ SPECIAL(do_auctions)
             return 1;
         }
 
-        struct auction_data new_ai;
-        new_ai.auctioneer_id = self->getIdNum();
-        new_ai.owner_id = GET_IDNUM(ch);
-        new_ai.buyer_id = 0;
-        new_ai.item_no = item_no;
-        new_ai.item = obj;
-        new_ai.start_time = time(NULL);
-        new_ai.last_bid_time = 0;
-        new_ai.current_bid = 0;
-        new_ai.new_bid = false;
-        new_ai.new_item = true;
-        new_ai.start_bid = amount;
-        new_ai.announce_count = 1;
+        struct auction_data *new_ai;
+        CREATE(new_ai, struct auction_data, 1);
+        new_ai->auctioneer_id = GET_IDNUM(self);
+        new_ai->owner_id = GET_IDNUM(ch);
+        new_ai->buyer_id = 0;
+        new_ai->item = obj;
+        new_ai->start_time = time(NULL);
+        new_ai->last_bid_time = 0;
+        new_ai->current_bid = 0;
+        new_ai->new_bid = false;
+        new_ai->new_item = true;
+        new_ai->start_bid = amount;
+        new_ai->announce_count = 1;
 
         obj_from_char(obj);
         obj_to_char(obj, self);
         save_player_to_xml(ch);
-        items.push_back(new_ai);
-        items.sort();
+        items = g_list_prepend(items, new_ai);
         aucSaveToXML(self);
 
         send_to_char(ch, "Your item has been entered for auction.\r\n");
@@ -487,44 +576,40 @@ SPECIAL(do_auctions)
             return 1;
         }
 
-        list<auction_data>_iterator ai = items.begin();
-        for (; ai != items.end(); ai++) {
-            if (ai->item_no == item_no &&
-                ai->auctioneer_id == self->getIdNum())
-                break;
-        }
+        struct auction_data *item = auction_data_from_item_no(item_no);
 
-        if (ai == items.end()) {
+        if (!item) {
             perform_say_to(self, ch, "I don't see that item!  "
                            "Maybe you should try another auctioneer.\r\n");
             return 1;
         }
 
-        if (GET_IDNUM(ch) != ai->owner_id && !IS_IMMORT(ch)) {
+        if (GET_IDNUM(ch) != item->owner_id && !IS_IMMORT(ch)) {
             send_to_char(ch, "You can only withdraw your own item!\r\n");
             return 1;
         }
 
-        if (((ai->current_bid != 0) || (ai->buyer_id != 0)) && !IS_IMMORT(ch)) {
+        if (((item->current_bid != 0) || (item->buyer_id != 0)) && !IS_IMMORT(ch)) {
             send_to_char(ch, "You cannot withdraw an item that has bids\r\n");
             return 1;
         }
 
-        if (ai->item == NULL) {
-            send_to_char(ch, "Something bad just happened.  Please report it!");
-            items.erase(ai);
+        if (item->item == NULL) {
+            send_to_char(ch, "Something bad just happened. Please report it!");
+            items = g_list_remove(items, item);
+            free(item);
             return 1;
         }
 
-        struct obj_data *obj = ai->item;
+        struct obj_data *obj = item->item;
         GET_MOOD(self) = " sadly";
         do_gen_comm(self,tmp_sprintf("Item number %d, %s, withdrawn.",
-                    ai->item_no, obj->name), 0, SCMD_AUCTION, NULL);
+                    item_no, obj->name), 0, SCMD_AUCTION, NULL);
         GET_MOOD(self) = NULL;
 
         obj_from_char(obj);
         obj_to_char(obj, ch);
-        items.erase(ai);
+        items = g_list_remove(items, item);
         save_player_to_xml(ch);
         aucSaveToXML(self);
 
@@ -539,46 +624,6 @@ SPECIAL(do_auctions)
 	return 0;
 }
 
-int
-get_max_auction_item() {
-    int i;
-    list<auction_data>_iterator ai = items.begin();
-
-    items.sort();
-    if (items.empty())
-        return 1;
-
-    for (i = 1; i < MAX_TOTAL_AUC; i++) {
-        if (ai->item_no != i)
-            return i;
-        ++ai;
-        if (ai == items.end())
-            return ++i;
-    }
-
-    return -1;
-}
-
-struct creature *
-create_imp(struct room_data *inroom, auction_data &info) {
-    imp_data *data;
-    struct creature *mob;
-
-    mob = read_mobile(IMP_VNUM);
-    CREATE(data, imp_data, 1);
-    mob->mob_specials.func_data = data;
-    data->imp = mob;
-    data->buyer_id = info.buyer_id;
-    data->owner_id = info.owner_id;
-    data->item = info.item;
-    data->owed = info.current_bid;
-    data->fail_count = 0;
-    data->mode = 0;
-    char_to_room(mob, inroom, false);
-
-    return mob;
-}
-
 ACMD(do_bidstat) {
     int item_no = atoi(tmp_getword(&argument));
 
@@ -586,24 +631,34 @@ ACMD(do_bidstat) {
         send_to_char(ch, "Which item do you want stats on?\r\n");
         return;
     }
+    struct auction_data *item = auction_data_from_item_no(item_no);
 
-    list<auction_data>_iterator ai = items.begin();
-    for (; ai != items.end(); ai++) {
-        if (ai->item_no == item_no)
-            break;
-    }
-
-    if (ai == items.end()) {
+    if (!item) {
         send_to_char(ch, "That item doesn't exist!\r\n");
         return;
     }
 
-    if (GET_IDNUM(ch) == ai->owner_id) {
+    if (GET_IDNUM(ch) == item->owner_id) {
         send_to_char(ch, "You can't get stats on your own item!\r\n");
         return;
     }
 
-    spell_identify(49, ch, NULL, ai->item, NULL);
+    spell_identify(49, ch, NULL, item->item, NULL);
+}bool
+bidder_can_afford(struct creature *bidder, money_t amount)
+{
+    money_t tamount = amount;
+
+    for (GList *ai = items;ai;ai = ai->next) {
+        struct auction_data *item = ai->data;
+        if (item->buyer_id == GET_IDNUM(bidder))
+            amount += item->current_bid;
+    }
+
+    tamount = GET_GOLD(bidder) + GET_CASH(bidder) +
+              GET_PAST_BANK(bidder) + GET_FUTURE_BANK(bidder);
+
+    return tamount > amount;
 }
 
 ACMD(do_bid) {
@@ -625,52 +680,48 @@ ACMD(do_bid) {
         return;
     }
 
-    list<auction_data>_iterator ai = items.begin();
-    for (; ai != items.end(); ai++) {
-        if (ai->item_no == item_no)
-            break;
-    }
+    struct auction_data *item = auction_data_from_item_no(item_no);
 
-    if (ai == items.end()) {
+    if (!item) {
         send_to_char(ch, "That item doesn't exist!\r\n");
         return;
     }
 
-    if (GET_IDNUM(ch) == ai->owner_id) {
+    if (GET_IDNUM(ch) == item->owner_id) {
         send_to_char(ch, "You can't bid on your own item!\r\n");
         return;
     }
 
-    if (GET_IDNUM(ch) == ai->buyer_id) {
+    if (GET_IDNUM(ch) == item->buyer_id) {
         send_to_char(ch, "You are already the high bidder on that item!\r\n");
         return;
     }
 
-    if (ai->current_bid == 0) {
-        if (amount < ai->start_bid) {
+    if (item->current_bid == 0) {
+        if (amount < item->start_bid) {
             send_to_char(ch, "Your bid amount is invalid, the starting bid is "
-                         "%ld coins.\r\n", ai->start_bid);
+                         "%ld coins.\r\n", item->start_bid);
             return;
         }
     }
     else {
-        if (amount <= ai->current_bid) {
+        if (amount <= item->current_bid) {
             send_to_char(ch, "Your bid amount is invalid, the current bid is "
-                         "%ld coins.\r\n", ai->current_bid);
+                         "%ld coins.\r\n", item->current_bid);
             return;
         }
     }
 
-    if (amount < (ai->current_bid + (ai->start_bid * BID_INCREMENT))) {
+    if (amount < (item->current_bid + (item->start_bid * BID_INCREMENT))) {
         send_to_char(ch, "Bids must be increased in %d coin increments.\r\n",
-                     (int)(floor(ai->start_bid * BID_INCREMENT)));
+                     (int)(floor(item->start_bid * BID_INCREMENT)));
         return;
     }
 
-    ai->last_bid_time = time(NULL);
-    ai->buyer_id = GET_IDNUM(ch);
-    ai->current_bid = amount;
-    ai->new_bid = true;
+    item->last_bid_time = time(NULL);
+    item->buyer_id = GET_IDNUM(ch);
+    item->current_bid = amount;
+    item->new_bid = true;
 
     send_to_char(ch, "Your bid has been entered.\r\n");
 }
@@ -678,31 +729,32 @@ ACMD(do_bid) {
 ACMD(do_bidlist) {
     const char * obj_cond_color(struct obj_data *obj, struct creature *ch);
 
-    if (items.empty())
+    if (!items)
         send_to_char(ch, "There are no items for auction.\r\n");
 
     acc_string_clear();
-    list<auction_data>_iterator ai = items.begin();
-    for (ai = items.begin(); ai != items.end(); ++ai) {
+    int item_no = 1;
+    for (GList *ai = items;ai;ai = ai->next, item_no++) {
+        struct auction_data *item = ai->data;
         acc_sprintf("%sItem Number:%s   %d\r\n",
-                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), ai->item_no);
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), item_no);
         acc_sprintf("%sItem:%s          %s\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                    ai->item->name);
+                    item->item->name);
         acc_sprintf("%sCondition:%s     %s\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                    tmp_capitalize(obj_cond_color(ai->item, ch)));
+                    tmp_capitalize(obj_cond_color(item->item, ch)));
         acc_sprintf("%sStarting Bid:%s  %ld coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                    ai->start_bid);
+                    item->start_bid);
         acc_sprintf("%sCurrent Bid:%s   %ld coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                    ai->current_bid);
+                    item->current_bid);
         time_t time_left = 0;
-        if (ai->last_bid_time)
-            time_left = (ai->last_bid_time + SOLD_TIME) - time(NULL);
+        if (item->last_bid_time)
+            time_left = (item->last_bid_time + SOLD_TIME) - time(NULL);
         else
-            time_left = (ai->start_time + AUCTION_THRESH) - time(NULL);
+            time_left = (item->start_time + AUCTION_THRESH) - time(NULL);
         // Convert to hours, mins, seconds
         int hours = time_left / 3600;
         time_left = time_left % 3600;
@@ -716,20 +768,7 @@ ACMD(do_bidlist) {
     page_string(ch->desc, acc_get_string());
 }
 
-bool bidder_can_afford(struct creature *bidder, money_t amount) {
-    money_t tamount = amount;
 
-    list<auction_data>_iterator ai = items.begin();
-    for (; ai != items.end(); ai++) {
-        if (ai->buyer_id == bidder->getIdNum())
-            amount += ai->current_bid;
-    }
-
-    tamount = GET_GOLD(bidder) + GET_CASH(bidder) +
-              GET_PAST_BANK(bidder) + GET_FUTURE_BANK(bidder);
-
-    return tamount > amount;
-}
 
 void
 aucSaveToXML(struct creature *auc) {
@@ -752,86 +791,16 @@ aucSaveToXML(struct creature *auc) {
                  GOING_TWICE, SOLD_TIME, NO_BID_THRESH, AUCTION_THRESH,
                  MAX_AUC_VALUE, MAX_AUC_ITEMS, MAX_TOTAL_AUC, BID_INCREMENT);
 
-    list<auction_data>_iterator ai = items.begin();
-    for (; ai != items.end(); ai++) {
-        if (ai->auctioneer_id != auc->getIdNum())
+    for (GList *ai = items;ai;ai = ai->next) {
+        struct auction_data *item = ai->data;
+        if (item->auctioneer_id != GET_IDNUM(auc))
             continue;
 
         fprintf(ouf, "<itemdata owner_id=\"%ld\" start_bid=\"%ld\">\n",
-                ai->owner_id, ai->start_bid);
-        ai->item->saveToXML(ouf);
+                item->owner_id, item->start_bid);
+        save_object_to_xml(item->item, ouf);
         fprintf(ouf, "</itemdata>\n");
     }
     fprintf(ouf, "</auctioneer>");
     fclose(ouf);
-}
-
-bool
-aucLoadFromXML(struct creature *auc) {
-    char *fname = tmp_sprintf(AUC_FILE_NAME, auc->in_room->number);
-
-    if (access(fname, W_OK)) {
-        errlog("Unable to open XML auctioneer file for loading. "
-               "[%s] (%s)\n", fname, strerror(errno));
-        return false;
-    }
-
-    xmlDocPtr doc = xmlParseFile(fname);
-    if (!doc) {
-        errlog("XML parse error while loading %s", fname);
-        return false;
-    }
-
-    xmlNodePtr root = xmlDocGetRootElement(doc);
-    if (!root) {
-        xmlFreeDoc(doc);
-        errlog("XML file %s is empty", fname);
-        return false;
-    }
-
-    GOING_ONCE = xmlGetIntProp(root, "going_once");
-    GOING_TWICE = xmlGetIntProp(root, "going_twice");
-    SOLD_TIME = xmlGetIntProp(root, "sold_time");
-    NO_BID_THRESH = xmlGetIntProp(root, "nobid_thresh");
-    AUCTION_THRESH = xmlGetIntProp(root, "auction_thresh");
-    MAX_AUC_VALUE = xmlGetIntProp(root, "max_auc_value");
-    MAX_AUC_ITEMS = xmlGetIntProp(root, "max_auc_items");
-    MAX_TOTAL_AUC = xmlGetIntProp(root, "max_total_auc");
-    BID_INCREMENT = (float)atof(xmlGetProp(root, "bid_increment"));
-
-    struct auction_data new_ai;
-    for (xmlNodePtr node = root->xmlChildrenNode; node; node = node->next) {
-        if (xmlMatches(node->name, "itemdata")) {
-            memset(&new_ai, 0x0, sizeof(struct auction_data));
-            new_ai.auctioneer_id = auc->getIdNum();
-            new_ai.buyer_id = 0;
-            new_ai.item_no = get_max_auction_item();
-            if (new_ai.item_no < 0)
-                return false;
-            new_ai.start_time = time(NULL);
-            new_ai.last_bid_time = 0;
-            new_ai.current_bid = 0;
-            new_ai.new_bid = false;
-            new_ai.new_item = false;
-            new_ai.announce_count = 1;
-            new_ai.owner_id = xmlGetIntProp(node, "owner_id");
-            new_ai.start_bid = xmlGetIntProp(node, "start_bid");
-
-            for (xmlNodePtr cnode = node->xmlChildrenNode;
-                 cnode; cnode = cnode->next) {
-                if (xmlMatches(cnode->name, "object")) {
-                    struct obj_data *obj = create_obj();
-                    if (!obj->loadFromXML(NULL, auc, NULL, cnode)) {
-                        errlog("Auctioneer failed to load item from %s", fname);
-                        extract_obj(obj);
-                        continue;
-                    }
-                    new_ai.item = obj;
-                    items.push_back(new_ai);
-                }
-            }
-        }
-    }
-
-    return true;
 }

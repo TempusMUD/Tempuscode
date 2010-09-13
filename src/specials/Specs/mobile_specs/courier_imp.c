@@ -3,19 +3,70 @@
 
 const float AUCTION_PERCENTAGE = 0.95;
 
-const int IMP_RETURN_ITEM  = (1 << 0);
-const int IMP_NO_BUYER     = (1 << 1);
-const int IMP_BUYER_BROKE  = (1 << 2);
-const int IMP_DELIVER_ITEM = (1 << 3);
-const int IMP_DELIVER_CASH = (1 << 4);
+bool
+imp_take_payment(struct creature *seeking, struct imp_data *data)
+{
+    if (GET_GOLD(seeking) >= data->owed) {
+        GET_GOLD(data->imp) = data->owed;
+        GET_GOLD(seeking) -= data->owed;
+        data->owed = 0;
+    }
+    else {
+        GET_GOLD(data->imp) = GET_GOLD(seeking);
+        data->owed -= GET_GOLD(seeking);
+        GET_GOLD(seeking) = 0;
+    }
 
-bool imp_take_payment(struct creature *seeking, imp_data *data);
+    if (data->owed) {
+        if (GET_CASH(seeking) >= data->owed) {
+            GET_CASH(data->imp) = data->owed;
+            GET_CASH(seeking) -= data->owed;
+            data->owed = 0;
+        }
+        else {
+            GET_CASH(data->imp) = GET_CASH(seeking);
+            data->owed -= GET_CASH(seeking);
+            GET_CASH(seeking) = 0;
+        }
+    }
+
+    if (data->owed) {
+        if (GET_PAST_BANK(seeking) >= data->owed) {
+            GET_GOLD(data->imp) += data->owed;
+            set_past_bank(seeking->account, GET_PAST_BANK(seeking) - data->owed);
+            data->owed = 0;
+        }
+        else {
+            GET_GOLD(data->imp) += GET_PAST_BANK(seeking);
+            data->owed -= GET_PAST_BANK(seeking);
+            set_past_bank(seeking->account, 0);
+        }
+    }
+
+    if (data->owed) {
+        if (GET_FUTURE_BANK(seeking) >= data->owed) {
+            GET_CASH(data->imp) += data->owed;
+            set_future_bank(seeking->account, GET_FUTURE_BANK(seeking) - data->owed);
+            data->owed = 0;
+        }
+        else {
+            GET_CASH(data->imp) += GET_FUTURE_BANK(seeking);
+            data->owed -= GET_FUTURE_BANK(seeking);
+            set_future_bank(seeking->account, 0);
+        }
+    }
+
+    if (data->owed)
+        return false;
+
+    return true;
+}
 
 SPECIAL(courier_imp)
 {
     struct creature *self = (struct creature *)me;
     struct creature *seeking;
-    imp_data *data = (imp_data *)self->mob_specials.func_data;
+    struct imp_data *data = self->mob_specials.func_data;
 
 	if (spec_mode != SPECIAL_TICK)
 	    return 0;
@@ -24,7 +75,7 @@ SPECIAL(courier_imp)
         slog("IMP: Couldn't find data!");
         act("$n looks confused for a moment then fades away.", false,
             self, 0, 0, TO_NOTVICT);
-        self->purge(true);
+        purge(self, true);
         return 1;
     }
 
@@ -40,23 +91,22 @@ SPECIAL(courier_imp)
 
         act("$n looks around frantically and frowns.", false,
             self, 0, 0, TO_NOTVICT);
-        seeking = new struct creature(true);
-        if (!seeking->loadFromXML(data->buyer_id)) {
+        seeking = load_player_from_xml(data->buyer_id);
+        if (!seeking) {
             // WTF?
             slog("IMP:  Failed to load character [%ld] from file.",
                  data->buyer_id);
-            delete seeking;
-            self->purge(true);
+            purge(self, true);
             return 1;
         }
 
-        seeking->account = struct account_retrieve(seeking);
+        seeking->account = account_by_id(player_account_by_idnum(GET_IDNUM(seeking)));
         if (!seeking->account) {
             // WTF?
             slog("IMP:  Failed to load character account [%ld] from file.",
                  data->buyer_id);
-            delete seeking;
-            self->purge(true);
+            free_creature(seeking);
+            purge(self, true);
             return 1;
         }
 
@@ -79,22 +129,22 @@ SPECIAL(courier_imp)
                   slog("IMP: Loading player %ld's objects", data->buyer_id);
 
                   // Load the char's existing eq
-                  seeking->loadObjects();
+                  loadObjects(seeking);
                   // Add the item to char's inventory
                   obj_from_char(data->item);
                   obj_to_char(data->item, seeking);
                   // Save it to disk
-                  seeking->saveObjects();
+                  saveObjects(seeking);
 
                   // Delete all the char's eq, otherwise the destructor
                   // has a cow.
                   for (int pos = 0;pos < NUM_WEARS;pos++) {
                       if (GET_EQ(seeking, pos))
-                          extract_obj(unequip_char(seeking, pos, EQUIP_WORN, true));
+                          extract_obj(raw_unequip_char(seeking, pos, EQUIP_WORN));
                       if (GET_IMPLANT(seeking, pos))
-                          extract_obj(unequip_char(seeking, pos, EQUIP_IMPLANT, true));
+                          extract_obj(raw_unequip_char(seeking, pos, EQUIP_IMPLANT));
                       if (GET_TATTOO(seeking, pos))
-                          extract_obj(unequip_char(seeking, pos, EQUIP_TATTOO, true));
+                          extract_obj(raw_unequip_char(seeking, pos, EQUIP_TATTOO));
                   }
                   while (seeking->carrying) {
                     doomed_obj = seeking->carrying;
@@ -102,10 +152,10 @@ SPECIAL(courier_imp)
                     extract_obj(doomed_obj);
                   }
             }
-            self->purge(true);
+            purge(self, true);
         }
 
-        delete seeking;
+        free_creature(seeking);
         return 0;
     }
 
@@ -194,8 +244,8 @@ SPECIAL(courier_imp)
                 perform_say_to(self, seeking, "Thank you for your business!");
                 GET_GOLD(seeking) += paygold;
                 GET_CASH(seeking) += paycash;
-                seeking->saveToXML();
-                self->purge(true);
+                save_player_to_xml(seeking);
+                purge(self, true);
             }
             else if (data->mode == IMP_BUYER_BROKE) {
                 perform_say_to(self, seeking, "Sorry, your buyer could not "
@@ -206,8 +256,8 @@ SPECIAL(courier_imp)
                 act(msg, false, seeking, 0, self, TO_CHAR);
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
-                seeking->saveToXML();
-                self->purge(true);
+                save_player_to_xml(seeking);
+                purge(self, true);
             }
             else if (data->mode == IMP_RETURN_ITEM) {
                 perform_say_to(self, seeking, "Sorry, there were no bids "
@@ -216,8 +266,8 @@ SPECIAL(courier_imp)
                     false, self, data->item, seeking, TO_NOTVICT);
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
-                seeking->saveToXML();
-                self->purge(true);
+                save_player_to_xml(seeking);
+                purge(self, true);
             }
             else if (data->mode == IMP_NO_BUYER) {
                 perform_say_to(self, seeking, "Sorry, I couldn't find the "
@@ -226,8 +276,8 @@ SPECIAL(courier_imp)
                     false, self, data->item, seeking, TO_NOTVICT);
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
-                seeking->saveToXML();
-                self->purge(true);
+                save_player_to_xml(seeking);
+                purge(self, true);
             }
         }
 
@@ -249,60 +299,3 @@ SPECIAL(courier_imp)
     return 1;
 }
 
-bool imp_take_payment(struct creature *seeking,  imp_data *data)
-{
-    if (GET_GOLD(seeking) >= data->owed) {
-        GET_GOLD(data->imp) = data->owed;
-        GET_GOLD(seeking) -= data->owed;
-        data->owed = 0;
-    }
-    else {
-        GET_GOLD(data->imp) = GET_GOLD(seeking);
-        data->owed -= GET_GOLD(seeking);
-        GET_GOLD(seeking) = 0;
-    }
-
-    if (data->owed) {
-        if (GET_CASH(seeking) >= data->owed) {
-            GET_CASH(data->imp) = data->owed;
-            GET_CASH(seeking) -= data->owed;
-            data->owed = 0;
-        }
-        else {
-            GET_CASH(data->imp) = GET_CASH(seeking);
-            data->owed -= GET_CASH(seeking);
-            GET_CASH(seeking) = 0;
-        }
-    }
-
-    if (data->owed) {
-        if (GET_PAST_BANK(seeking) >= data->owed) {
-            GET_GOLD(data->imp) += data->owed;
-            seeking->account->set_past_bank(GET_PAST_BANK(seeking) - data->owed);
-            data->owed = 0;
-        }
-        else {
-            GET_GOLD(data->imp) += GET_PAST_BANK(seeking);
-            data->owed -= GET_PAST_BANK(seeking);
-            seeking->account->set_past_bank(0);
-        }
-    }
-
-    if (data->owed) {
-        if (GET_FUTURE_BANK(seeking) >= data->owed) {
-            GET_CASH(data->imp) += data->owed;
-            seeking->account->set_future_bank(GET_FUTURE_BANK(seeking) - data->owed);
-            data->owed = 0;
-        }
-        else {
-            GET_CASH(data->imp) += GET_FUTURE_BANK(seeking);
-            data->owed -= GET_FUTURE_BANK(seeking);
-            seeking->account->set_future_bank(0);
-        }
-    }
-
-    if (data->owed)
-        return false;
-
-    return true;
-}

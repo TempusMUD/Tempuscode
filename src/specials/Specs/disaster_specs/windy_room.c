@@ -9,20 +9,20 @@
 #define DEFAULT_WINDY_MIN 0
 #define DEFAULT_WINDY_MAX 25
 
-typedef struct windy_struct room_data {
+typedef struct windy_room_data {
 	int vnum;
 	int min;
 	int max;
-} windy_struct room_data;
+} windy_room_data;
 
-windy_struct room_data *windy_list = NULL;
+struct windy_room_data *windy_list = NULL;
 int num_windy_rooms = 0;
 
 int
 boot_windy_rooms()
 {
 	FILE *fl = NULL;
-	windy_struct room_data *newdata = NULL;
+	struct windy_room_data *newdata = NULL;
 	int i, j;
 	int tot_good;
 	struct room_data *room = NULL;
@@ -69,7 +69,7 @@ boot_windy_rooms()
 	windy_list = NULL;
 
 	if (!(windy_list =
-			(windy_struct room_data *) malloc(sizeof(windy_struct room_data) *
+			(struct windy_room_data *) malloc(sizeof(struct windy_room_data) *
 				num_windy_rooms))) {
 		errlog("unable to malloc %d elements for windy list.",
 			num_windy_rooms);
@@ -77,7 +77,7 @@ boot_windy_rooms()
 		return 0;
 	}
 
-	if (!(fread(windy_list, sizeof(windy_struct room_data), num_windy_rooms, fl))) {
+	if (!(fread(windy_list, sizeof(struct windy_room_data), num_windy_rooms, fl))) {
 		errlog("unable to read %d windy elements from file.",
 			num_windy_rooms);
 		fclose(fl);
@@ -100,7 +100,7 @@ boot_windy_rooms()
 
 	if (tot_good < num_windy_rooms) {
 		newdata =
-			(windy_struct room_data *) malloc(sizeof(windy_struct room_data) * tot_good);
+			(struct windy_room_data *) malloc(sizeof(struct windy_room_data) * tot_good);
 		for (i = 0, j = 0; i < num_windy_rooms; i++) {
 			if (windy_list[i].vnum >= 0) {
 				newdata[j] = windy_list[i];
@@ -141,7 +141,7 @@ save_windy_rooms(void)
 		return 0;
 	}
 
-	if (!(fwrite(windy_list, sizeof(windy_struct room_data), num_windy_rooms, fl))) {
+	if (!(fwrite(windy_list, sizeof(struct windy_room_data), num_windy_rooms, fl))) {
 		errlog("error writing windy list into file.");
 		fclose(fl);
 		return 0;
@@ -153,7 +153,7 @@ save_windy_rooms(void)
 	return 1;
 }
 
-windy_struct room_data *
+struct windy_room_data *
 find_windy_data(int vnum)
 {
 	int i;
@@ -165,10 +165,10 @@ find_windy_data(int vnum)
 	return NULL;
 }
 
-windy_struct room_data *
+struct windy_room_data *
 add_windy_data(int vnum, int min, int max)
 {
-	windy_struct room_data *windy = NULL, *newdata = NULL;
+	struct windy_room_data *windy = NULL, *newdata = NULL;
 
 	min = MIN(MAX(0, min), 25);
 	max = MAX(MIN(MAX(0, max), 100), min);
@@ -182,8 +182,8 @@ add_windy_data(int vnum, int min, int max)
 	num_windy_rooms++;
 
 	if (!(newdata =
-			(windy_struct room_data *) realloc(windy_list,
-				sizeof(windy_struct room_data) * num_windy_rooms))) {
+			(struct windy_room_data *) realloc(windy_list,
+				sizeof(struct windy_room_data) * num_windy_rooms))) {
 		errlog("error reallocating windy_rooms for room %d.", vnum);
 		return NULL;
 	}
@@ -198,7 +198,7 @@ add_windy_data(int vnum, int min, int max)
 }
 
 void
-show_windy(windy_struct room_data * windy, struct creature *ch)
+show_windy(struct windy_room_data * windy, struct creature *ch)
 {
 	send_to_char(ch, "Room [%5d]: min-max range: (%d-%d)\r\n", windy->vnum,
 		windy->min, windy->max);
@@ -207,7 +207,7 @@ show_windy(windy_struct room_data * windy, struct creature *ch)
 #define WINDY_USAGE "Usage: status [show|list|min|max|load|save|reset|help]\r\n"
 
 int
-immort_windy_command(struct creature *ch, windy_struct room_data * windy, char *argument)
+immort_windy_command(struct creature *ch, struct windy_room_data * windy, char *argument)
 {
 
 	int i, max, min;
@@ -291,7 +291,7 @@ SPECIAL(windy_room)
 	struct room_data *room = (struct room_data *)me;
 	int dir, real_dirs[NUM_DIRS], num;
 	static int booted = 0;
-	windy_struct room_data *windy = NULL;
+	struct windy_room_data *windy = NULL;
 	int prob;
 
 	if (!booted) {
@@ -358,8 +358,8 @@ SPECIAL(windy_room)
 			dirs[dir]);
 		act(buf, false, ch, 0, 0, TO_ROOM);
 
-		char_from_room(ch);
-		char_to_room(ch, room);
+		char_from_room(ch, true);
+		char_to_room(ch, room, true);
 
 		look_at_room(ch, ch->in_room, 0);
 

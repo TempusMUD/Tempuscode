@@ -12,9 +12,8 @@ SPECIAL(taunting_frenchman)
 		return 0;
 	if (cmd || !AWAKE(ch) || ch->fighting || number(0, 10))
 		return (false);
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		vict = *it;
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        vict = it->data;
 		if (vict != ch && can_see_creature(ch, vict) &&
 			GET_MOB_VNUM(ch) != GET_MOB_VNUM(vict) && !number(0, 3))
 			break;

@@ -126,9 +126,9 @@ void
 tarrasque_poop(struct creature *tarr, struct obj_data *obj)
 {
 	// The tarr doesn't poop while fighting, sleeping, or in its lair
-	if (tarr->getPosition() == POS_FIGHTING ||
-	tarr->getPosition() < POS_STANDING ||
-	tarr->in_room->number == LAIR_RM) {
+	if (GET_POSITION(tarr) == POS_FIGHTING ||
+        GET_POSITION(tarr) < POS_STANDING ||
+        tarr->in_room->number == LAIR_RM) {
 		return;
 	}
 
@@ -206,9 +206,8 @@ int
 tarrasque_fight(struct creature *tarr)
 {
 	struct creature *vict = NULL, *vict2 = NULL;
-	struct creatureList_iterator it;
 
-	if (!tarr->isFighting()) {
+	if (!isFighting(tarr)) {
 		errlog("FIGHTING(tarr) == NULL in tarrasque_fight!!");
 		return 0;
 	}
@@ -217,10 +216,10 @@ tarrasque_fight(struct creature *tarr)
 	// this fighting pulse
 	vict = get_char_random_vis(tarr, tarr->in_room);
 	if (vict) {
-		if (tarr->findCombat(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE))
+		if (findCombat(tarr, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE))
 			vict = NULL;
 		vict2 = get_char_random_vis(tarr, tarr->in_room);
-		if ( vict2 && (tarr->findCombat(vict2) || vict == vict2 ||
+		if ( vict2 && (findCombat(tarr, vict2) || vict == vict2 ||
 				PRF_FLAGGED(vict2, PRF_NOHASSLE)))
 			vict2 = NULL;
 	}
@@ -231,18 +230,18 @@ tarrasque_fight(struct creature *tarr)
 	if (!number(0, 5)) {
 		WAIT_STATE(tarr, 2 RL_SEC);
 
-		tarrasque_gore(tarr, tarr->findRandomCombat());
+		tarrasque_gore(tarr, findRandomCombat(tarr));
 		if (vict) {
 			if (!tarrasque_trample(tarr, vict)) {
-                tarr->addCombat(vict, true);
-                vict->addCombat(tarr, false);
+                addCombat(tarr, vict, true);
+                addCombat(vict, tarr, false);
             }
 
 		}
 		if (vict2) {
 			if (!tarrasque_trample(tarr, vict2)) {
-                tarr->addCombat(vict2, true);
-                vict2->addCombat(tarr, false);
+                addCombat(tarr, vict2, true);
+                addCombat(vict2, tarr, false);
             }
 		}
 		return 1;
@@ -254,7 +253,7 @@ tarrasque_fight(struct creature *tarr)
 	if (!number(0, 5)) {
 		act("$n lashes out with $s tail!!", false, tarr, 0, 0, TO_ROOM);
 		WAIT_STATE(tarr, 3 RL_SEC);
-		tarrasque_lash(tarr, tarr->findRandomCombat());
+		tarrasque_lash(tarr, findRandomCombat(tarr));
 
 		if (vict)
 			tarrasque_lash(tarr, vict);
@@ -270,7 +269,7 @@ tarrasque_fight(struct creature *tarr)
 	// the character whole, no matter how powerful.  If they make their saving
 	// throw, they just get hurt.  The player being fought is most likely to
 	// get swallowed.
-    vict = tarr->findRandomCombat();
+    vict = findRandomCombat(tarr);
 	if (vict) {
 		if (GET_DEX(vict) < number(5, 23) &&
 			!mag_savingthrow(vict, 50, SAVING_ROD)) {
@@ -296,13 +295,13 @@ tarrasque_follow(struct creature *tarr)
 	if (!ch)
 		return 0;
 
-	vict = tarr->findRandomCombat();
+	vict = findRandomCombat(tarr);
 	vict2 = NULL;
 	if (!vict)
 		vict = get_char_random_vis(tarr, tarr->in_room);
 	if (vict) {
 		vict2 = get_char_random_vis(tarr, tarr->in_room);
-		if (tarr->findCombat(vict) || vict == vict2)
+		if (findCombat(tarr, vict) || vict == vict2)
 			vict2 = NULL;
 	}
 
@@ -379,15 +378,15 @@ SPECIAL(tarrasque)
 					return 1;
 				}
 			} else {
-				vict = tarr->findRandomCombat();
+				vict = findRandomCombat(tarr);
 				if(vict == NULL) {
 					send_to_char(ch, "Yes, but WHO?\r\n");
 					return 1;
 				}
 			}
-			if (!CMD_IS("swallow") && !tarr->isOkToAttack(vict, true))
+			if (!CMD_IS("swallow") && !isOkToAttack(tarr, vict, true))
 				return 1;
-			else if (!tarr->isOkToAttack(vict, false))
+			else if (!isOkToAttack(tarr, vict, false))
 				send_to_char(ch, "You aren't all that hungry, for once.\r\n");
 			else if (GET_LEVEL(vict) >= LVL_IMMORT)
 				send_to_char(ch, "Maybe that's not such a great idea...\r\n");
@@ -410,7 +409,7 @@ SPECIAL(tarrasque)
 		return tarrasque_die(tarr, ch);
 
 	if (spec_mode == SPECIAL_LEAVE && ch != tarr && !MOB_HUNTING(tarr)) {
-		tarr->startHunting(ch);
+		startHunting(tarr, ch);
 		pursuit = true;
 		return 0;
 	}
@@ -436,7 +435,7 @@ SPECIAL(tarrasque)
 	if (pursuit)
 		return tarrasque_follow(tarr);
 
-	if (tarr->isFighting())
+	if (isFighting(tarr))
 		return tarrasque_fight(tarr);
 
 	if (poop_timer > T_POOP_LEN) {
@@ -447,7 +446,7 @@ SPECIAL(tarrasque)
 	switch (mode) {
 	case T_SLEEP:
 		if (diurnal_timer > T_SLEEP_LEN) {
-			tarr->setPosition(POS_STANDING);
+			GET_POSITION(tarr) = POS_STANDING;
 			if (!add_path_to_mob(tarr, path_vnum_by_name("tarr_exit_mod"))) {
 				errlog("error assigning tarr_exit_mod path to tarrasque.");
 				mode = T_ERROR;
@@ -457,9 +456,9 @@ SPECIAL(tarrasque)
 			mode = T_ACTIVE;
 			diurnal_timer = 0;
 		} else if (tarr->in_room->number == LAIR_RM && AWAKE(tarr) &&
-			tarr->in_room->people.size() < 2) {
+			!tarr->in_room->people->next) {
 			act("$n goes to sleep.", false, tarr, 0, 0, TO_ROOM);
-			tarr->setPosition(POS_SLEEPING);
+			GET_POSITION(tarr) = POS_SLEEPING;
 		}
 		break;
 
@@ -481,15 +480,15 @@ SPECIAL(tarrasque)
 			return 1;
 		}
 
-		if (tarr->in_room->people.size() >= 1) {
-			struct creatureList_iterator it = tarr->in_room->people.begin();
-			for (; it != tarr->in_room->people.end(); ++it) {
-				if (!IS_NPC((*it)) && GET_LEVEL((*it)) < 10) {
-					if ((*it)->getPosition() < POS_STANDING)
-						(*it)->setPosition(POS_STANDING);
+		if (tarr->in_room->people->next) {
+            for (GList *it = tarr->in_room->people;it;it = it->next) {
+                struct creature *tch = it->data;
+				if (!IS_NPC(tch) && GET_LEVEL(tch) < 10) {
+					if (GET_POSITION(tch) < POS_STANDING)
+						GET_POSITION(tch) = POS_STANDING;
 					act("You are overcome with terror at the sight of $N!",
-						false, (*it), 0, tarr, TO_CHAR);
-					do_flee((*it), tmp_strdup(""), 0, 0, 0);
+						false, tch, 0, tarr, TO_CHAR);
+					do_flee(tch, tmp_strdup(""), 0, 0, 0);
 				}
 			}
 		}
@@ -500,7 +499,7 @@ SPECIAL(tarrasque)
 
 			if (tarr->in_room->number == LAIR_RM) {
 				mode = T_SLEEP;
-				tarr->setPosition(POS_SLEEPING);
+				GET_POSITION(tarr) = POS_SLEEPING;
 				act("$n lies down and falls asleep.", false, tarr, 0, 0,
 					TO_ROOM);
 				diurnal_timer = 0;
@@ -511,15 +510,15 @@ SPECIAL(tarrasque)
 				tarrasque_jump(tarr, T_RETURN);
 				return 1;
 			}
-			if (tarr->in_room->people.size() >= 1) {
-				struct creatureList_iterator it = tarr->in_room->people.begin();
-				for (; it != tarr->in_room->people.end(); ++it) {
-					if (!IS_NPC((*it)) && GET_LEVEL((*it)) < 10) {
-						if ((*it)->getPosition() < POS_STANDING)
-							(*it)->setPosition(POS_STANDING);
+			if (tarr->in_room->people->next) {
+			for (GList *it = tarr->in_room->people;it;it = it->next) {
+                struct creature *tch = it->data;
+					if (!IS_NPC(tch) && GET_LEVEL(tch) < 10) {
+						if (GET_POSITION(tch) < POS_STANDING)
+							GET_POSITION(tch) = POS_STANDING;
 						act("You are overcome with terror at the sight of $N!",
-							false, (*it), 0, tarr, TO_CHAR);
-						do_flee((*it), tmp_strdup(""), 0, 0, 0);
+							false, tch, 0, tarr, TO_CHAR);
+						do_flee(tch, tmp_strdup(""), 0, 0, 0);
 					}
 				}
 			}

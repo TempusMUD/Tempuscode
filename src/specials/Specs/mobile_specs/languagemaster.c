@@ -15,7 +15,7 @@ SPECIAL(languagemaster)
 	int check_only = 0, tongue_idx = TONGUE_NONE;
     int cost = TONGUE_COST;
 
-    cost += (cost * ch->getCostModifier(master)) / 100;
+    cost += (cost * getCostModifier(ch, master)) / 100;
 
 	if (spec_mode != SPECIAL_CMD)
 		return false;

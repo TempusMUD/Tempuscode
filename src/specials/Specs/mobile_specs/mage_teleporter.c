@@ -42,7 +42,7 @@ SPECIAL(mage_teleporter)
 	cost = vstone->shared->cost * GET_LEVEL(ch);
 	if (IS_MAGE(ch))
 		cost /= 4;
-    cost += (cost*ch->getCostModifier(self))/100;
+    cost += (cost*getCostModifier(ch, self))/100;
 	if (GET_GOLD(ch) < cost || CMD_IS("offer")) {
 		if (can_see_creature(self, ch))
 			perform_say_to(self, ch, tmp_sprintf("It will cost you %d coins to be transported to %s", cost, tmp_capitalize(fname(vstone->aliases))));
@@ -61,7 +61,7 @@ SPECIAL(mage_teleporter)
 	act("You stares at $N and utters, 'horosafh'.", true, self, 0, ch, TO_CHAR);
 	act("$n stares at you and utters, 'horosafh'.", true, self, 0, ch, TO_VICT);
 	act("$n stares at $N and utters, 'horosafh'.", true, self, 0, ch, TO_NOTVICT);
-	char_from_room(ch);
-	char_to_room(ch, dest_room);
+	char_from_room(ch, true);
+	char_to_room(ch, dest_room, true);
 	return 1;
 }

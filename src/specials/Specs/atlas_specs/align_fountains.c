@@ -6,7 +6,8 @@
 
 SPECIAL(fountain_good)
 {
-	struct obj_data *obj = me->to_o();
+	struct obj_data *obj = me;
+
 	if (spec_mode != SPECIAL_CMD)
 		return 0;
 
@@ -17,7 +18,7 @@ SPECIAL(fountain_good)
 
 	act("$n drinks from $p.", true, ch, obj, 0, TO_ROOM);
 	WAIT_STATE(ch, 2 RL_SEC);	// don't let them spam drink
-	call_magic(ch, ch, 0, NULL, SPELL_ESSENCE_OF_GOOD, 25, CAST_SPELL);
+	call_magic(ch, ch, 0, NULL, SPELL_ESSENCE_OF_GOOD, 25, CAST_SPELL, NULL);
 	// everything you need is handled in call_magic(), damage, etc...
 	return 1;
 }
@@ -41,7 +42,7 @@ SPECIAL(fountain_evil)
 
 	act("$n drinks from $p.", true, ch, obj, 0, TO_ROOM);
 	WAIT_STATE(ch, 2 RL_SEC);
-	call_magic(ch, ch, 0, NULL, SPELL_ESSENCE_OF_EVIL, 25, CAST_SPELL);
+	call_magic(ch, ch, 0, NULL, SPELL_ESSENCE_OF_EVIL, 25, CAST_SPELL, NULL);
 
 	return 1;
 }

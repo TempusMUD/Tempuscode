@@ -6,7 +6,7 @@ struct town_crier_data {
 };
 
 void
-town_crier_reset_timer(town_crier_data *data)
+town_crier_reset_timer(struct town_crier_data *data)
 {
 	// On average, the crier should shout something every
 	// 45  minutes to 1 1/4 of an hour
@@ -14,7 +14,7 @@ town_crier_reset_timer(town_crier_data *data)
 }
 
 void
-town_crier_shout(struct creature *self, town_crier_data *data)
+town_crier_shout(struct creature *self, struct town_crier_data *data)
 {
 	char *str;
 
@@ -30,7 +30,7 @@ town_crier_shout(struct creature *self, town_crier_data *data)
 }
 
 bool
-town_crier_select(town_crier_data *data)
+town_crier_select(struct town_crier_data *data)
 {
 	int count;
 	PGresult *res;
@@ -58,12 +58,12 @@ town_crier_select(town_crier_data *data)
 SPECIAL(town_crier)
 {
 	struct creature *self = (struct creature *)me;
-	town_crier_data *data;
+	struct town_crier_data *data;
 	char *str;
 
-	data = (town_crier_data *)self->mob_specials.func_data;
+	data = (struct town_crier_data *)self->mob_specials.func_data;
 	if (!data) {
-		CREATE(data, town_crier_data, 1);
+		CREATE(data, struct town_crier_data, 1);
 		self->mob_specials.func_data = data;
 		data->msg_head = data->msg_pos = NULL;
 		data->last_msg = 0;
@@ -92,7 +92,7 @@ SPECIAL(town_crier)
 	} else if (spec_mode != SPECIAL_TICK)
 		return 0;
 
-	if (self->getPosition() < POS_STANDING)
+	if (GET_POSITION(self) < POS_STANDING)
 		return 0;
 
 	// If we're already shouting something, shout the next line
