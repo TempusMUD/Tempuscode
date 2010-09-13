@@ -296,7 +296,7 @@ ACMD(do_dismiss)
 	if (!vict) {
 		send_to_char(ch, "That person isn't in your clan.\r\n");
 		if (in_file)
-			extract_creature(vict);
+			free_creature(vict);
 		return;
 	}
 
@@ -323,7 +323,7 @@ ACMD(do_dismiss)
         send_to_char(ch, "Player dismissed.\r\n");
 
 		if (in_file)
-			extract_creature(vict);
+			free_creature(vict);
 	}
 }
 
@@ -612,7 +612,7 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan, bool complet
 								PLR_CLAN_LEADER) ? CCCYN(ch, C_NRM) : ""),
 						name, CCNRM(ch, C_NRM));
 			}
-			extract_creature(i);
+			free_creature(i);
 		}
 	}
 }

@@ -61,6 +61,7 @@ enum privilege {
     EDIT_CLAN,
     SEE_FULL_WHOLIST,
     FULL_IMMORT_WHERE,
+    TESTER,
     ENTER_ROOM,
     WORLDWRITE,
     EDIT_ZONE,

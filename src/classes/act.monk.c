@@ -366,7 +366,7 @@ ACMD(do_whirlwind)
                 killed_first = true;
                 return;
             }
-            if (tch->fighting == ch && random_percentage() <= 75) {
+            if (g_list_find(tch->fighting, ch) && random_percentage() <= 75) {
                 dam = 0;
                 if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40, 80) + GET_DEX(tch))
                     dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);

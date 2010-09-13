@@ -94,6 +94,7 @@ void account_set_quest_points(struct account *account, int qp);
 void account_set_quest_banned(struct account *account, bool banned);
 
 void set_password(struct account *account, const char *password);
+void account_gain_reputation(struct account *account, int amt);
 
 const char* get_login_addr(struct account *account);
 const char* get_creation_addr(struct account *account);

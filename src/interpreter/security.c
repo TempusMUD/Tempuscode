@@ -170,6 +170,9 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     case FULL_IMMORT_WHERE:
         return is_named_role_member(ch, "Questor,AdminBasic,WizardBasic");
 
+    case TESTER:
+        return is_named_role_member(ch, "Testers");
+
     case ENTER_ROOM:
         return (can_enter_house(ch, room->number)
                 && clan_house_can_enter(ch, room)

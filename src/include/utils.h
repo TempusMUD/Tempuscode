@@ -271,6 +271,7 @@ const char *AN(const char *str);
 /*  character utils ******************************************************/
 #define MOB_HUNTING(ch) ((ch)->char_specials.hunting)
 #define MOUNTED_BY(ch) ((ch)->char_specials.mounted)
+#define DEFENDING(ch) ((ch)->char_specials.defending)
 #define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define MOB2_FLAGS(ch) ((ch)->char_specials.saved.act2)
 #define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
@@ -608,7 +609,7 @@ inline bool IS_REMORT( const struct creature *ch )
 #define SET_SKILL(ch, i, pct)        \
                              {(ch)->player_specials->saved.skills[i] = pct; }
 #define SET_TONGUE(ch, i, pct)        \
-                             {(ch)->language_data->tongues[i] = pct; }
+                             {(ch)->language_data.tongues[i] = pct; }
 
 #define GET_EQ(ch, i)                ((ch)->equipment[i])
 #define GET_IMPLANT(ch, i)      ((ch)->implants[i])

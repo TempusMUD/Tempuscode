@@ -31,8 +31,8 @@ struct tongue {
 
 extern GHashTable *tongues;
 
-#define GET_LANG_HEARD(ch) ((ch)->language_data->languages_heard)
-#define GET_TONGUE(ch) ((ch)->language_data->current_language)
+#define GET_LANG_HEARD(ch) ((ch)->language_data.languages_heard)
+#define GET_TONGUE(ch) ((ch)->language_data.current_language)
 
 char *translate_tongue(struct creature *speaker,
                        struct creature *listener,

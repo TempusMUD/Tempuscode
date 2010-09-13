@@ -936,7 +936,7 @@ struct creature {
 	struct char_point_data points;	/* Points                        */
 	struct player_special_data *player_specials;	/* PC specials          */
 	struct mob_special_data mob_specials;	/* NPC specials          */
-    struct char_language_data *language_data;
+    struct char_language_data language_data;
 	struct char_special_data char_specials;	/* PC/NPC specials      */
 	struct affected_type *affected;	/* affected by what spells       */
 	struct obj_data *equipment[NUM_WEARS];	/* Equipment array               */
@@ -960,7 +960,6 @@ GList *creatures = NULL;
 GHashTable *creature_map = NULL;
 
 struct creature *random_opponent(struct creature *ch);
-void extract_creature(struct creature *ch);
 int level_bonus(struct creature *ch, bool primary);
 int skill_bonus(struct creature *ch, int skillnum);
 void remove_all_combat(struct creature *ch);

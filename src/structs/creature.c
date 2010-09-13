@@ -4,7 +4,6 @@
 
 #include "structs.h"
 #include "comm.h"
-#include "creature_list.h"
 #include "interpreter.h"
 #include "utils.h"
 #include "spells.h"
@@ -17,13 +16,10 @@
 #include "clan.h"
 #include "security.h"
 #include "fight.h"
-#include "player_table.h"
+#include "players.h"
 #include "prog.h"
 #include "quest.h"
-
-extern struct creatureList defendingList;
-extern struct creatureList mountedList;
-extern struct creatureList huntingList;
+#include "weather.h"
 
 void extract_norents(struct obj_data *obj);
 void char_arrest_pardoned(struct creature *ch);
@@ -31,129 +27,230 @@ void remove_fighting_affects(struct creature *ch);
 extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
 
-creature_struct creature(bool pc)
-    : thing(CREATURE)
+struct creature *
+make_creature(bool pc)
 {
-    initialize();
+    struct creature *ch;
+
+    CREATE(ch, struct creature, 1);
 
 	if (pc) {
-		player_specials = new player_special_data;
+        CREATE(ch->player_specials, struct player_special_data, 1);
 	} else {
-		player_specials = &dummy_mob;
-		SET_BIT(MOB_FLAGS(this), MOB_ISNPC);
+		ch->player_specials = &dummy_mob;
+		SET_BIT(MOB_FLAGS(ch), MOB_ISNPC);
 	}
 
-    this->fighting = new CombatDataList();
-    this->fighting->clear();
-    this->language_data = new char_language_data();
-
-	clear();
-}
-
-creature_~struct creature(void)
-{
-	clear();
-
-	if (player_specials != &dummy_mob) {
-		delete player_specials;
-		free(player.title);
-	}
-
-    delete this->fighting;
-    delete this->language_data;
-}
-
-creature_struct creature(const struct creature &c)
-    : thing(c)
-{
-    // Far as I'm concerned there is NEVER a good reason to copy a player
-    // this way
-    if (!IS_NPC(&c)) {
-		slog("struct creature_struct creature(const struct creature &c) called on a player!");
-        raise(SIGSEGV);
-    }
-    initialize();
-
-    this->in_room = c.in_room;
-	this->player_specials = &dummy_mob;
-    this->account = c.account;
-
-    this->fighting = new CombatDataList(*(c.fighting));
-    this->fighting->clear();
-
-    this->player = c.player;
-    this->real_abils = c.real_abils;
-    this->aff_abils = c.aff_abils;
-    this->points = c.points;
-    this->language_data = new char_language_data(*c.language_data);
-    this->mob_specials =  c.mob_specials;
-    this->char_specials = c.char_specials;
+    return ch;
 }
 
 void
-creature_checkPosition(void)
+reset_creature(struct creature *ch)
 {
-	if (GET_HIT(this) > 0) {
-		if (getPosition() < POS_STUNNED)
-			setPosition(POS_RESTING);
+	struct creature *tmp_mob;
+	struct alias_data *a;
+	bool is_pc;
+
+	void free_alias(struct alias_data *a);
+
+	//
+	// first make sure the char is no longer in the world
+	//
+	if (ch->in_room != NULL
+        || ch->carrying != NULL
+        || ch->fighting
+        || ch->followers != NULL
+        || ch->master != NULL) {
+		errlog("attempted clear of creature who is still connected to the world.");
+		raise(SIGSEGV);
+	}
+
+    //
+    // also check equipment and implants
+    //
+    for (int pos = 0;pos < NUM_WEARS;pos++) {
+        if (ch->equipment[pos]
+            || ch->implants[pos]
+            || ch->tattoos[pos]) {
+            errlog("attempted clear of creature who is still connected to the world.");
+            raise(SIGSEGV);
+        }
+    }
+
+	//
+	// next remove and free all alieases
+	//
+
+	while ((a = GET_ALIASES(ch)) != NULL) {
+		GET_ALIASES(ch) = (GET_ALIASES(ch))->next;
+		free_alias(a);
+	}
+
+	//
+	// now remove all affects
+	//
+
+	while (ch->affected)
+		affect_remove(ch, ch->affected);
+
+	//
+	// free mob strings:
+	// free strings only if the string is not pointing at proto
+	//
+	if (ch->mob_specials.shared && GET_MOB_VNUM(ch) > -1) {
+
+		tmp_mob = real_mobile_proto(GET_MOB_VNUM(ch));
+
+		if (ch->player.name != tmp_mob->player.name)
+			free(ch->player.name);
+		if (ch->player.title != tmp_mob->player.title)
+			free(ch->player.title);
+		if (ch->player.short_descr != tmp_mob->player.short_descr)
+			free(ch->player.short_descr);
+		if (ch->player.long_descr != tmp_mob->player.long_descr)
+			free(ch->player.long_descr);
+		if (ch->player.description != tmp_mob->player.description)
+			free(ch->player.description);
+        free(ch->mob_specials.func_data);
+        prog_state_free(ch->prog_state);
+	} else {
+		//
+		// otherwise ch is a player, so free all
+		//
+
+        free(ch->player.name);
+        free(ch->player.title);
+        free(ch->player.short_descr);
+        free(ch->player.long_descr);
+        free(ch->player.description);
+        free(ch->mob_specials.func_data);
+        prog_state_free(ch->prog_state);
+	}
+
+	// remove player_specials
+	is_pc = !IS_NPC(ch);
+
+	if (ch->player_specials != NULL && ch->player_specials != &dummy_mob) {
+        free(ch->player_specials->poofin);
+        free(ch->player_specials->poofout);
+        free(ch->player_specials->afk_reason);
+        g_list_free(ch->player_specials->afk_notifies);
+        free(ch->player_specials);
+
+		if (IS_NPC(ch)) {
+			errlog("Mob had player_specials allocated!");
+			raise(SIGSEGV);
+		}
+	}
+
+    //
+    // next remove all the combat ch creature might be involved in
+    //
+    removeAllCombat(ch);
+    g_list_free(ch->fighting);
+
+    memset(ch, 0, sizeof(struct creature));
+
+	// And we reset all the values to their initial settings
+    ch->fighting = NULL;
+	GET_POSITION(ch) = POS_STANDING;
+	GET_CLASS(ch) = -1;
+	GET_REMORT_CLASS(ch) = -1;
+
+	GET_AC(ch) = 100;			/* Basic Armor */
+	if (ch->points.max_mana < 100)
+		ch->points.max_mana = 100;
+
+	if (is_pc) {
+        CREATE(ch->player_specials, struct player_special_data, 1);
+		set_title(ch, "");
+	} else {
+		ch->player_specials = &dummy_mob;
+		SET_BIT(MOB_FLAGS(ch), MOB_ISNPC);
+		GET_TITLE(ch) = NULL;
+	}
+}
+
+void
+free_creature(struct creature *ch)
+{
+    reset_creature(ch);
+    if (ch->player_specials != &dummy_mob) {
+		free(ch->player_specials);
+		free(ch->player.title);
+	}
+}
+
+void
+check_position(struct creature *ch)
+{
+	if (GET_HIT(ch) > 0) {
+		if (GET_POSITION(ch) < POS_STUNNED)
+			GET_POSITION(ch) = POS_RESTING;
 		return;
 	}
 
-	if (GET_HIT(this) > -3)
-		setPosition(POS_STUNNED);
-	else if (GET_HIT(this) > -6)
-		setPosition(POS_INCAP);
+	if (GET_HIT(ch) > -3)
+		GET_POSITION(ch) = POS_STUNNED;
+	else if (GET_HIT(ch) > -6)
+		GET_POSITION(ch) = POS_INCAP;
 	else
-		setPosition(POS_MORTALLYW);
+		GET_POSITION(ch) = POS_MORTALLYW;
 }
 
 /**
- * Returns true if this character is in the Testers access group.
+ * Returns true if ch character is in the Testers access group.
 **/
-bool struct creature_isTester(){
-	if( IS_NPC(this) )
+bool
+isTester(struct creature *ch)
+{
+	if (IS_NPC(ch))
 		return false;
-	return is_group_member( this, "Testers", false );
+	return is_authorized(ch, TESTER, NULL);
 }
 
 // Returns this creature's account id.
-long struct creature_getstruct accountID() const {
-    if( account == NULL )
+long
+account_id(struct creature *ch)
+{
+    if( ch->account == NULL )
         return 0;
-    return account->get_idnum();
+    return ch->account->id;
 }
 
 /**
- * Modifies the given experience to be appropriate for this character's
+ * Modifies the given experience to be appropriate for ch character's
  *  level/gen and class.
- * if victim != NULL, assume that this char is fighting victim to gain
+ * if victim != NULL, assume that ch char is fighting victim to gain
  *  experience.
  *
 **/
-int struct creature_getPenalizedExperience( int experience, struct creature *victim)
+int getPenalizedExperience(struct creature *ch,
+                           int experience,
+                           struct creature *victim)
 {
 
 	// Mobs are easily trained
-	if( IS_NPC(this) )
+	if( IS_NPC(ch) )
 		return experience;
 	// Immortals are not
-	if( getLevel() >= LVL_AMBASSADOR ) {
+	if( GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
 		return 0;
 	}
 
 	if ( victim != NULL ) {
-		if( victim->getLevel() >= LVL_AMBASSADOR )
+		if( GET_LEVEL(victim) >= LVL_AMBASSADOR )
 			return 0;
 
 		// good clerics & knights penalized for killing good
-		if( IS_GOOD(victim) && IS_GOOD(this) &&
-			(IS_CLERIC(this) || IS_KNIGHT(this)) ) {
+		if( IS_GOOD(victim) && IS_GOOD(ch) &&
+			(IS_CLERIC(ch) || IS_KNIGHT(ch)) ) {
 			experience /= 2;
 		}
 	}
 
 	// Slow remorting down a little without slowing leveling completely.
-	// This penalty works out to:
+	// Ch penalty works out to:
 	// gen lvl <=15 16->39  40>
 	//  1     23.3%	 33.3%  43.3%
 	//  2     40.0%  50.0%  60.0%
@@ -165,13 +262,13 @@ int struct creature_getPenalizedExperience( int experience, struct creature *vic
 	//  8     70.0%  80.0%  90.0%
 	//  9     71.8%  81.8%  91.8%
 	// 10     73.3%  83.3%  93.3%
-	if( IS_REMORT(this) ) {
-		float gen = GET_REMORT_GEN(this);
+	if( IS_REMORT(ch) ) {
+		float gen = GET_REMORT_GEN(ch);
 		float multiplier = (gen / ( gen + 2 ));
 
-		if( getLevel() <= 15 )
+		if( GET_LEVEL(ch) <= 15 )
 			multiplier -= 0.10;
-		else if( getLevel() >= 40 )
+		else if( GET_LEVEL(ch) >= 40 )
 			multiplier += 0.10;
 
 		experience -= (int)(experience * multiplier);
@@ -182,57 +279,39 @@ int struct creature_getPenalizedExperience( int experience, struct creature *vic
 
 //Positive or negative percent modifier based on buyer vs seller charisma.
 int
-creature_getCostModifier(struct creature* seller) {
-    int cost_modifier = (GET_CHA(seller)-GET_CHA(this))*2;
+getCostModifier(struct creature *ch, struct creature *seller)
+{
+    int cost_modifier = (GET_CHA(seller)-GET_CHA(ch))*2;
     return cost_modifier;
 }
 
 int
-creature_modifyCarriedWeight(int mod_weight)
+getSpeed(struct creature *ch)
 {
-	return (setCarriedWeight(getCarriedWeight() + mod_weight));
-}
-
-int
-creature_modifyWornWeight(int mod_weight)
-{
-	return (setWornWeight(getWornWeight() + mod_weight));
-}
-
-short
-char_player_data_modifyWeight(short mod_weight)
-{
-	return setWeight(getWeight() + mod_weight);
-}
-
-int
-creature_getSpeed(void)
-{
-	// if(IS_NPC(this))
-	if (char_specials.saved.act & MOB_ISNPC)
+	// if(IS_NPC(ch))
+	if (ch->char_specials.saved.act & MOB_ISNPC)
 		return 0;
-	return (int)player_specials->saved.speed;
+	return (int)ch->player_specials->saved.speed;
 }
 
 void
-creature_setSpeed(int speed)
+setSpeed(struct creature *ch, int speed)
 {
-	// if(IS_NPC(this))
-	if (char_specials.saved.act & MOB_ISNPC)
+	if (ch->char_specials.saved.act & MOB_ISNPC)
 		return;
 	speed = MAX(speed, 0);
 	speed = MIN(speed, 100);
-	player_specials->saved.speed = (char)(speed);
+	ch->player_specials->saved.speed = (char)(speed);
 }
 
 bool
-creature_isNewbie()
+isNewbie(struct creature *ch)
 {
-	if (char_specials.saved.act & MOB_ISNPC)
+	if (ch->char_specials.saved.act & MOB_ISNPC)
 		return false;
-	if ((char_specials.saved.remort_generation) > 0)
+	if ((ch->char_specials.saved.remort_generation) > 0)
 		return false;
-	if (player.level > 24)
+	if (ch->player.level > 24)
 		return false;
 
 	return true;
@@ -244,7 +323,7 @@ bool
 creature_affBySanc(struct creature *attacker)
 {
 
-	struct creature *ch = this;
+	struct creature *ch = ch;
 
 	if (AFF_FLAGGED(ch, AFF_SANCTUARY)) {
 		if (attacker && IS_EVIL(ch) &&
@@ -265,7 +344,7 @@ creature_affBySanc(struct creature *attacker)
 float
 creature_getDamReduction(struct creature *attacker)
 {
-	struct creature *ch = this;
+	struct creature *ch = ch;
 	struct affected_type *af = NULL;
 	float dam_reduction = 0;
 
@@ -279,7 +358,7 @@ creature_getDamReduction(struct creature *attacker)
 	}
 	//*************************** Sanctuary ****************************
 	//******************************************************************
-	if (ch->affBySanc(attacker)) {
+	if (affBySanc(ch, attacker)) {
 		if (IS_VAMPIRE(ch))
 			dam_reduction += 0;
 		else if ((IS_CLERIC(ch) || IS_KNIGHT(ch)) && !IS_NEUTRAL(ch))
@@ -339,19 +418,18 @@ creature_getDamReduction(struct creature *attacker)
                 (skill_bonus(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
                 + (GET_ALIGNMENT(ch) / 100);
         } else if (af && ch->in_room) {
-
-            struct creatureList_iterator it = ch->in_room->people.begin();
-            for (; it != ch->in_room->people.end(); ++it) {
-                if (IS_NPC((*it))
-                    && af->modifier == (short int)-MOB_IDNUM((*it))) {
+            for (GList *it = ch->in_room->people;it;it = it->next) {
+                struct creature *tch = it->data;
+                if (IS_NPC(tch)
+                    && af->modifier == (short int)-MOB_IDNUM(tch)) {
                     dam_reduction +=
-                        ((*it)->level_bonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
+                        (skill_bonus(tch, SPELL_SHIELD_OF_RIGHTEOUSNESS) /
                         20)
                         + (GET_ALIGNMENT(ch) / 100);
                     break;
-                } else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {
+                } else if (!IS_NPC(tch) && af->modifier == GET_IDNUM(tch)) {
                     dam_reduction +=
-                        ((*it)->level_bonus(SPELL_SHIELD_OF_RIGHTEOUSNESS) /
+                        (skill_bonus(tch, SPELL_SHIELD_OF_RIGHTEOUSNESS) /
                         20)
                         + (GET_ALIGNMENT(ch) / 100);
                     break;
@@ -361,7 +439,7 @@ creature_getDamReduction(struct creature *attacker)
 	}
 	//************************** Aria of Asylum ************************
 	//******************************************************************
-    // This should be very similar to Shield of Righteousness as it's also
+    // Ch should be very similar to Shield of Righteousness as it's also
     // a group thing
 	if ((af = affected_by_spell(ch, SONG_ARIA_OF_ASYLUM))) {
 
@@ -379,16 +457,16 @@ creature_getDamReduction(struct creature *attacker)
                                   (skill_bonus(ch, SONG_ARIA_OF_ASYLUM) / 10));
         } else if (af && ch->in_room) {
 
-            struct creatureList_iterator it = ch->in_room->people.begin();
-            for (; it != ch->in_room->people.end(); ++it) {
-                if (IS_NPC((*it))
-                    && af->modifier == (short int)-MOB_IDNUM((*it))) {
-                    dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT((*it)))) / 100) +
-                                         ((*it)->level_bonus(SONG_ARIA_OF_ASYLUM) / 10));
+            for (GList *it = ch->in_room->people;it;it = it->next) {
+                struct creature *tch = it->data;
+                if (IS_NPC(tch)
+                    && af->modifier == (short int)-MOB_IDNUM(tch)) {
+                    dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT(tch))) / 100) +
+                                          (skill_bonus(tch, SONG_ARIA_OF_ASYLUM) / 10));
                     break;
-                } else if (!IS_NPC((*it)) && af->modifier == GET_IDNUM((*it))) {
-                    dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT((*it)))) / 100) +
-                                         ((*it)->level_bonus(SONG_ARIA_OF_ASYLUM) / 10));
+                } else if (!IS_NPC(tch) && af->modifier == GET_IDNUM(tch)) {
+                    dam_reduction += 5 + (((1000 - abs(GET_ALIGNMENT(tch))) / 100) +
+                                          (skill_bonus(tch, SONG_ARIA_OF_ASYLUM) / 10));
                     break;
                 }
             }
@@ -442,16 +520,16 @@ creature_getDamReduction(struct creature *attacker)
 //   return: a number from 1-100 based on level and primary/secondary)
 
 int
-creature_level_bonus(bool primary)
+level_bonus(struct creature *ch, bool primary)
 {
-	int bonus = MIN(50, player.level + 1);
-	short gen = char_specials.saved.remort_generation;
+	int bonus = MIN(50, ch->player.level + 1);
+	short gen = ch->char_specials.saved.remort_generation;
 
-	if( gen == 0 && IS_NPC(this) ) {
-		if ((player.remort_char_class % NUM_CLASSES) == 0) {
+	if( gen == 0 && IS_NPC(ch) ) {
+		if ((ch->player.remort_char_class % NUM_CLASSES) == 0) {
 			gen = 0;
 		} else {
-			gen = (aff_abils.intel + aff_abils.str + aff_abils.wis) / 3;
+			gen = (ch->aff_abils.intel + ch->aff_abils.str + ch->aff_abils.wis) / 3;
 			gen = MAX(0, gen - 18);
 		}
 	}
@@ -475,26 +553,26 @@ creature_level_bonus(bool primary)
 // return: a number from 1-100 based on level/gen/can learn skill.
 
 int
-creature_level_bonus(int skill)
+skill_bonus(struct creature *ch, int skill)
 {
 	// Immorts get full bonus.
-	if( player.level >= 50 )
+	if( ch->player.level >= 50 )
 		return 100;
 
 	// Irregular skill #s get 1
 	if( skill > TOP_SPELL_DEFINE || skill < 0 )
 		return 1;
 
-	if( IS_NPC(this) && GET_CLASS(this) >= NUM_CLASSES ) {
+	if( IS_NPC(ch) && GET_CLASS(ch) >= NUM_CLASSES ) {
 		// Check to make sure they have the skill
-		int skill_lvl = CHECK_SKILL(this, skill);
+		int skill_lvl = CHECK_SKILL(ch, skill);
 		if (!skill_lvl)
 			return 1;
 		// Average the basic level bonus and the skill level
-		return MIN(100, (level_bonus(true) + skill_lvl) / 2);
+		return MIN(100, (level_bonus(ch, true) + skill_lvl) / 2);
 	} else {
-		int pclass = GET_CLASS(this);
-		int sclass = GET_REMORT_CLASS(this);
+		int pclass = GET_CLASS(ch);
+		int sclass = GET_REMORT_CLASS(ch);
 		int spell_lvl = SPELL_LEVEL(skill, pclass);
 		int spell_gen = SPELL_GEN( skill, pclass );
 
@@ -504,14 +582,14 @@ creature_level_bonus(int skill)
 		if( sclass >= NUM_CLASSES )
 			sclass = CLASS_WARRIOR;
 
-		if( spell_lvl <= player.level && spell_gen <= GET_REMORT_GEN(this) ) {
-			return level_bonus(true);
+		if( spell_lvl <= ch->player.level && spell_gen <= GET_REMORT_GEN(ch) ) {
+			return level_bonus(ch, true);
 		}
-        else if( sclass >= 0 && (SPELL_LEVEL(skill, sclass) <= player.level)) {
-			return level_bonus(false);
+        else if( sclass >= 0 && (SPELL_LEVEL(skill, sclass) <= ch->player.level)) {
+			return level_bonus(ch, false);
 		}
         else {
-			return player.level/2;
+			return ch->player.level/2;
 		}
 	}
 }
@@ -523,28 +601,45 @@ creature_level_bonus(int skill)
  *  @param new_position the enumerated int position to be set to.
 **/
 bool
-creature_setPosition(int new_pos)
+creature_setPosition(struct creature *ch, int new_pos)
 {
-	if (new_pos == char_specials.getPosition())
+	if (new_pos == GET_POSITION(ch))
 		return false;
 	if (new_pos < BOTTOM_POS || new_pos > TOP_POS)
 		return false;
 	// Petrified
-	if (AFF2_FLAGGED(this, AFF2_PETRIFIED)) {
+	if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
 		// Stoners can stop fighting
-		if (char_specials.getPosition() == POS_FIGHTING && new_pos == POS_STANDING ) {
-			char_specials.setPosition(new_pos);
+		if (GET_POSITION(ch) == POS_FIGHTING && new_pos == POS_STANDING ) {
+			GET_POSITION(ch) = new_pos;
 			return true;
-		} else if (new_pos > char_specials.getPosition()) {
+		} else if (new_pos > GET_POSITION(ch)) {
 			return false;
 		}
 	}
-	if (new_pos == POS_STANDING && this->isFighting()) {
-		char_specials.setPosition(POS_FIGHTING);
+	if (new_pos == POS_STANDING && ch->fighting) {
+		GET_POSITION(ch) = POS_FIGHTING;
 	} else {
-		char_specials.setPosition(new_pos);
+		GET_POSITION(ch) = new_pos;
 	}
 	return true;
+}
+
+// erase ch's memory
+void
+clear_memory(struct creature *ch)
+{
+	struct memory_rec *curr, *next;
+
+	curr = MEMORY(ch);
+
+	while (curr) {
+		next = curr->next;
+		free(curr);
+		curr = next;
+	}
+
+	MEMORY(ch) = NULL;
 }
 
 /**
@@ -552,7 +647,7 @@ creature_setPosition(int new_pos)
  * @param con_state the connection state to change the descriptor to, if one exists
 **/
 void
-creature_extract(cxn_state con_state)
+extract_creature(struct creature *ch, enum cxn_state con_state)
 {
 	ACMD(do_return);
 	void die_follower(struct creature *ch);
@@ -561,173 +656,145 @@ creature_extract(cxn_state con_state)
 	struct obj_data* obj;
 	struct descriptor_data* t_desc;
 	int idx;
-	struct creatureList_iterator cit;
 
-	if (!IS_NPC(this) && !desc) {
+	if (!IS_NPC(ch) && !ch->desc) {
 		for (t_desc = descriptor_list; t_desc; t_desc = t_desc->next)
-			if (t_desc->original == this)
+			if (t_desc->original == ch)
 				do_return(t_desc->creature, tmp_strdup(""), 0, SCMD_FORCED, 0);
 	}
 
-    if (desc && desc->original) {
-        do_return(desc->creature, tmp_strdup(""), 0, SCMD_FORCED, 0);
+    if (ch->desc && ch->desc->original) {
+        do_return(ch->desc->creature, tmp_strdup(""), 0, SCMD_FORCED, 0);
     }
 
-	if (in_room == NULL) {
+	if (ch->in_room == NULL) {
 		errlog("NOWHERE extracting char. (handler.c, extract_char)");
-		slog("...extract char = %s", GET_NAME(this));
+		slog("...extract char = %s", GET_NAME(ch));
 		raise(SIGSEGV);
 	}
 
-	if (followers || master)
-		die_follower(this);
+	if (ch->followers || ch->master)
+		die_follower(ch);
 
 	// remove fighters, defenders, hunters and mounters
-    for (cit = defendingList.begin(); cit != defendingList.end(); ++cit) {
-	  if (this == (*cit)->isDefending())
-		(*cit)->stopDefending();
+    GList *cit, *next;
+    for (cit = creatures;cit;cit = next) {
+        struct creature *tch = cit->data;
+        next = cit->next;
+        if (ch == DEFENDING(tch))
+            stop_defending(tch);
+        if (ch == MOUNTED_BY(tch)) {
+            dismount(tch);
+            if (GET_POSITION(tch) == POS_MOUNTED) {
+                if (room_is_open_air(tch->in_room))
+                    GET_POSITION(tch) = POS_FLYING;
+                else
+                    GET_POSITION(tch) = POS_STANDING;
+            }
+        }
+        if (ch == MOB_HUNTING(tch))
+            stop_hunting(tch);
     }
 
-    for (cit = mountedList.begin(); cit != mountedList.end(); ++cit) {
-		if (this == (*cit)->isMounted()) {
-            (*cit)->dismount();
-			if ((*cit)->getPosition() == POS_MOUNTED) {
-				if ((*cit)->in_room->sector_type == SECT_FLYING)
-					(*cit)->setPosition(POS_FLYING);
-				else
-					(*cit)->setPosition(POS_STANDING);
-			}
-		}
-        mountedList.remove(*cit);
-        break;
-    }
+	destroy_attached_progs(ch);
+	char_arrest_pardoned(ch);
 
-	for (cit = huntingList.begin(); cit != huntingList.end(); ++cit) {
-		if (this == MOB_HUNTING(*cit))
-			(*cit)->stopHunting();
-   	}
-
-	destroy_attached_progs(this);
-	char_arrest_pardoned(this);
-
-	if (this->isMounted()) {
-		REMOVE_BIT(AFF2_FLAGS(this->isMounted()), AFF2_MOUNTED);
-        this->dismount();
+	if (MOUNTED_BY(ch)) {
+		REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(ch)), AFF2_MOUNTED);
+        dismount(ch);
 	}
 
 	// Make sure they aren't editing a help topic.
-	if (GET_OLC_HELP(this)) {
-		GET_OLC_HELP(this)->editor = NULL;
-		GET_OLC_HELP(this) = NULL;
+	if (GET_OLC_HELP(ch)) {
+		GET_OLC_HELP(ch)->editor = NULL;
+		GET_OLC_HELP(ch) = NULL;
 	}
+
 	// Forget snooping, if applicable
-	if (desc) {
-		if (desc->snooping) {
-            vector<descriptor_data *>_iterator vi = desc->snooping->snoop_by.begin();
-            for (; vi != desc->snooping->snoop_by.end(); ++vi) {
-                if ((*vi) == desc) {
-                    desc->snooping->snoop_by.erase(vi);
-                    break;
-                }
-            }
-			desc->snooping = NULL;
+	if (ch->desc) {
+		if (ch->desc->snooping) {
+            ch->desc->snooping->snoop_by = g_list_remove(ch->desc->snooping->snoop_by,
+                                                         ch->desc);
+			ch->desc->snooping = NULL;
 		}
-		if (desc->snoop_by.size()) {
-            for (unsigned x = 0; x < desc->snoop_by.size(); x++) {
-			    SEND_TO_Q("Your victim is no longer among us.\r\n",
-				          desc->snoop_by[x]);
-			    desc->snoop_by[x]->snooping = NULL;
+		if (ch->desc->snoop_by) {
+            for (GList *it = ch->desc->snoop_by;it;it = it->next) {
+                struct descriptor_data *d = it->data;
+                send_to_desc(d, "Your victim is no longer among us.\r\n");
+                d->snooping = NULL;
             }
-			desc->snoop_by.clear();
+			g_list_free(ch->desc->snoop_by);
 		}
 	}
 
 	// destroy all that equipment
 	for (idx = 0; idx < NUM_WEARS; idx++) {
-		if (GET_EQ(this, idx))
-			extract_obj(unequip_char(this, idx, EQUIP_WORN, true));
-		if (GET_IMPLANT(this, idx))
-			extract_obj(unequip_char(this, idx, EQUIP_IMPLANT, true));
-		if (GET_TATTOO(this, idx))
-			extract_obj(unequip_char(this, idx, EQUIP_TATTOO, true));
+		if (GET_EQ(ch, idx))
+			extract_obj(raw_unequip_char(ch, idx, EQUIP_WORN));
+		if (GET_IMPLANT(ch, idx))
+			extract_obj(raw_unequip_char(ch, idx, EQUIP_IMPLANT));
+		if (GET_TATTOO(ch, idx))
+			extract_obj(raw_unequip_char(ch, idx, EQUIP_TATTOO));
 	}
 
 	// transfer inventory to room, if any
-	while (carrying) {
-		obj = carrying;
+	while (ch->carrying) {
+		obj = ch->carrying;
 		obj_from_char(obj);
 		extract_obj(obj);
 	}
 
-	if (desc && desc->original)
-		do_return(this, tmp_strdup(""), 0, SCMD_NOEXTRACT, 0);
+	if (ch->desc && ch->desc->original)
+		do_return(ch, tmp_strdup(""), 0, SCMD_NOEXTRACT, 0);
 
-    removeAllCombat();
+    removeAllCombat(ch);
 
-	char_from_room(this,false);
+	char_from_room(ch, false);
 
 	// pull the char from the various lists
-	defendingList.remove(this);
-	huntingList.remove(this);
-	mountedList.remove(this);
-	characterList.remove(this);
-    if (IS_NPC(this))
-        characterMap.erase(-MOB_IDNUM(this));
+	creatures = g_list_remove(creatures, ch);
+    if (IS_NPC(ch))
+        g_hash_table_remove(creature_map, GINT_TO_POINTER(-MOB_IDNUM(ch)));
     else
-        characterMap.erase(GET_IDNUM(this));
+        g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(ch)));
 
 	// remove any paths
-	path_remove_object(this);
+	path_remove_object(ch);
 
-	if (IS_NPC(this)) {
-		if (GET_MOB_VNUM(this) > -1)	// if mobile
-			mob_specials.shared->number--;
-		clearMemory();			// Only NPC's can have memory
-		delete this;
+	if (IS_NPC(ch)) {
+		if (GET_MOB_VNUM(ch) > -1)	// if mobile
+			ch->mob_specials.shared->number--;
+		clear_memory(ch);			// Only NPC's can have memory
+		free_creature(ch);
 		return;
 	}
 
-	if (desc) {					// PC's have descriptors. Take care of them
-		set_desc_state(con_state, desc);
+	if (ch->desc) {					// PC's have descriptors. Take care of them
+		set_desc_state(con_state, ch->desc);
 	} else {					// if a player gets purged from within the game
-		delete this;
+		free_creature(ch);
 	}
-}
-
-// erase ch's memory
-void
-creature_clearMemory()
-{
-	memory_rec *curr, *next;
-
-	curr = MEMORY(this);
-
-	while (curr) {
-		next = curr->next;
-		free(curr);
-		curr = next;
-	}
-
-	MEMORY(this) = NULL;
 }
 
 // Retrieves the characters appropriate loadroom.
-struct room_data *struct creature_getLoadroom() {
+struct room_data *
+player_loadroom(struct creature *ch)
+{
     struct room_data *load_room = NULL;
 
-	if (PLR_FLAGGED(this, PLR_FROZEN)) {
+	if (PLR_FLAGGED(ch, PLR_FROZEN)) {
 		load_room = r_frozen_start_room;
-	} else if (GET_LOADROOM(this)) {
-		if ((load_room = real_room(GET_LOADROOM(this))) &&
-			(!can_enter_house(this, load_room->number) ||
-			!clan_house_can_enter(this, load_room)))
+	} else if (GET_LOADROOM(ch)) {
+		if ((load_room = real_room(GET_LOADROOM(ch))) &&
+			(!can_enter_house(ch, load_room->number) ||
+			!clan_house_can_enter(ch, load_room)))
 		{
 			load_room = NULL;
 		}
-	} else if (GET_HOMEROOM(this)) {
-		if ((load_room = real_room(GET_HOMEROOM(this))) &&
-			(!can_enter_house(this, load_room->number) ||
-			!clan_house_can_enter(this, load_room)))
+	} else if (GET_HOMEROOM(ch)) {
+		if ((load_room = real_room(GET_HOMEROOM(ch))) &&
+			(!can_enter_house(ch, load_room->number) ||
+			!clan_house_can_enter(ch, load_room)))
 		{
 			load_room = NULL;
 		}
@@ -737,60 +804,60 @@ struct room_data *struct creature_getLoadroom() {
 	if( load_room != NULL )
 		return load_room;
 
-	if ( GET_LEVEL(this) >= LVL_AMBASSADOR ) {
+	if ( GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
 		load_room = r_immort_start_room;
 	} else {
-		if( GET_HOME(this) == HOME_NEWBIE_SCHOOL ) {
-			if (GET_LEVEL(this) > 5) {
+		if( GET_HOME(ch) == HOME_NEWBIE_SCHOOL ) {
+			if (GET_LEVEL(ch) > 5) {
 				population_record[HOME_NEWBIE_SCHOOL]--;
-				GET_HOME(this) = HOME_MODRIAN;
+				GET_HOME(ch) = HOME_MODRIAN;
 				population_record[HOME_MODRIAN]--;
 				load_room = r_mortal_start_room;
 			} else {
 				load_room = r_newbie_school_start_room;
 			}
-		} else if (GET_HOME(this) == HOME_ELECTRO) {
+		} else if (GET_HOME(ch) == HOME_ELECTRO) {
 			load_room = r_electro_start_room;
-		} else if (GET_HOME(this) == HOME_NEWBIE_TOWER) {
-			if (GET_LEVEL(this) > 5) {
+		} else if (GET_HOME(ch) == HOME_NEWBIE_TOWER) {
+			if (GET_LEVEL(ch) > 5) {
 				population_record[HOME_NEWBIE_TOWER]--;
-				GET_HOME(this) = HOME_MODRIAN;
+				GET_HOME(ch) = HOME_MODRIAN;
 				population_record[HOME_MODRIAN]--;
 				load_room = r_mortal_start_room;
 			} else
 				load_room = r_tower_modrian_start_room;
-		} else if (GET_HOME(this) == HOME_NEW_THALOS) {
+		} else if (GET_HOME(ch) == HOME_NEW_THALOS) {
 			load_room = r_new_thalos_start_room;
-		} else if (GET_HOME(this) == HOME_KROMGUARD) {
+		} else if (GET_HOME(ch) == HOME_KROMGUARD) {
 			load_room = r_kromguard_start_room;
-		} else if (GET_HOME(this) == HOME_ELVEN_VILLAGE){
+		} else if (GET_HOME(ch) == HOME_ELVEN_VILLAGE){
 			load_room = r_elven_start_room;
-		} else if (GET_HOME(this) == HOME_ISTAN){
+		} else if (GET_HOME(ch) == HOME_ISTAN){
 			load_room = r_istan_start_room;
-		} else if (GET_HOME(this) == HOME_ARENA){
+		} else if (GET_HOME(ch) == HOME_ARENA){
 			load_room = r_arena_start_room;
-		} else if (GET_HOME(this) == HOME_MONK){
+		} else if (GET_HOME(ch) == HOME_MONK){
 			load_room = r_monk_start_room;
-		} else if (GET_HOME(this) == HOME_SKULLPORT_NEWBIE) {
+		} else if (GET_HOME(ch) == HOME_SKULLPORT_NEWBIE) {
 			load_room = r_skullport_newbie_start_room;
-		} else if (GET_HOME(this) == HOME_SOLACE_COVE){
+		} else if (GET_HOME(ch) == HOME_SOLACE_COVE){
 			load_room = r_solace_start_room;
-		} else if (GET_HOME(this) == HOME_MAVERNAL){
+		} else if (GET_HOME(ch) == HOME_MAVERNAL){
 			load_room = r_mavernal_start_room;
-		} else if (GET_HOME(this) == HOME_DWARVEN_CAVERNS){
+		} else if (GET_HOME(ch) == HOME_DWARVEN_CAVERNS){
 			load_room = r_dwarven_caverns_start_room;
-		} else if (GET_HOME(this) == HOME_HUMAN_SQUARE){
+		} else if (GET_HOME(ch) == HOME_HUMAN_SQUARE){
 			load_room = r_human_square_start_room;
-		} else if (GET_HOME(this) == HOME_SKULLPORT){
+		} else if (GET_HOME(ch) == HOME_SKULLPORT){
 			load_room = r_skullport_start_room;
-		} else if (GET_HOME(this) == HOME_DROW_ISLE){
+		} else if (GET_HOME(ch) == HOME_DROW_ISLE){
 			load_room = r_drow_isle_start_room;
-		} else if (GET_HOME(this) == HOME_ASTRAL_MANSE) {
+		} else if (GET_HOME(ch) == HOME_ASTRAL_MANSE) {
 			load_room = r_astral_manse_start_room;
 		// zul dane
-		} else if (GET_HOME(this) == HOME_ZUL_DANE) {
+		} else if (GET_HOME(ch) == HOME_ZUL_DANE) {
 			// newbie start room for zul dane
-			if (GET_LEVEL(this) > 5)
+			if (GET_LEVEL(ch) > 5)
 				load_room = r_zul_dane_newbie_start_room;
 			else
 				load_room = r_zul_dane_start_room;
@@ -801,420 +868,267 @@ struct room_data *struct creature_getLoadroom() {
     return load_room;
 }
 
-// Called by constructors to initialize
 void
-creature_initialize(void)
-{
-    in_room = NULL;
-    carrying = NULL;
-    master = NULL;
-    followers = NULL;
-    affected = NULL;
-    desc = NULL;
-    account = NULL;
-    prog_state = NULL;
-    memset(&aff_abils, 0, sizeof(aff_abils));
-    memset(&real_abils, 0, sizeof(real_abils));
-    memset(&points, 0, sizeof(points));
-    memset(&mob_specials, 0, sizeof(mob_specials));
-    memset(&char_specials, 0, sizeof(char_specials));
-    memset(&player, 0, sizeof(player));
-    memset(equipment, 0, sizeof(equipment));
-    memset(implants, 0, sizeof(implants));
-    memset(tattoos, 0, sizeof(tattoos));
-}
-
-// Free all structures and return to a virginal state
-void
-creature_clear(void)
-{
-	struct creature *tmp_mob;
-	struct alias_data *a;
-	bool is_pc;
-
-	void free_alias(struct alias_data *a);
-
-	//
-	// first make sure the char is no longer in the world
-	//
-	if (this->in_room != NULL || this->carrying != NULL ||
-		(this->getCombatList() && this->isFighting() != 0) ||
-        this->followers != NULL || this->master != NULL) {
-		errlog("attempted clear of creature who is still connected to the world.");
-		raise(SIGSEGV);
-	}
-
-    //
-    // also check equipment and implants
-    //
-    for (int pos = 0;pos < NUM_WEARS;pos++) {
-        if (this->equipment[pos]
-            || this->implants[pos]
-            || this->tattoos[pos]) {
-            errlog("attempted clear of creature who is still connected to the world.");
-            raise(SIGSEGV);
-        }
-    }
-
-	//
-	// next remove and free all alieases
-	//
-
-	while ((a = GET_ALIASES(this)) != NULL) {
-		GET_ALIASES(this) = (GET_ALIASES(this))->next;
-		free_alias(a);
-	}
-
-	//
-	// now remove all affects
-	//
-
-	while (this->affected)
-		affect_remove(this, this->affected);
-
-	//
-	// free mob strings:
-	// free strings only if the string is not pointing at proto
-	//
-	if (mob_specials.shared && GET_MOB_VNUM(this) > -1) {
-
-		tmp_mob = real_mobile_proto(GET_MOB_VNUM(this));
-
-		if (this->player.name != tmp_mob->player.name)
-			free(this->player.name);
-		if (this->player.title != tmp_mob->player.title)
-			free(this->player.title);
-		if (this->player.short_descr != tmp_mob->player.short_descr)
-			free(this->player.short_descr);
-		if (this->player.long_descr != tmp_mob->player.long_descr)
-			free(this->player.long_descr);
-		if (this->player.description != tmp_mob->player.description)
-			free(this->player.description);
-        free(this->mob_specials.func_data);
-        prog_state_free(this->prog_state);
-	} else {
-		//
-		// otherwise this is a player, so free all
-		//
-
-        free(this->player.name);
-        free(this->player.title);
-        free(this->player.short_descr);
-        free(this->player.long_descr);
-        free(this->player.description);
-        free(this->mob_specials.func_data);
-        prog_state_free(this->prog_state);
-	}
-
-	// remove player_specials
-	is_pc = !IS_NPC(this);
-
-	if (this->player_specials != NULL && this->player_specials != &dummy_mob) {
-        free(this->player_specials->poofin);
-        free(this->player_specials->poofout);
-        free(this->player_specials->afk_reason);
-        this->player_specials->afk_notifies.clear();
-		delete this->player_specials;
-
-		if (IS_NPC(this)) {
-			errlog("Mob had player_specials allocated!");
-			raise(SIGSEGV);
-		}
-	}
-
-    //
-    // next remove all the combat this creature might be involved in
-    //
-    removeAllCombat();
-    delete this->fighting;
-    delete this->language_data;
-
-    initialize();
-
-	// And we reset all the values to their initial settings
-    this->fighting = new CombatDataList();
-	this->setPosition(POS_STANDING);
-	GET_CLASS(this) = -1;
-	GET_REMORT_CLASS(this) = -1;
-
-    // language data
-    this->language_data = new char_language_data();
-
-	GET_AC(this) = 100;			/* Basic Armor */
-	if (this->points.max_mana < 100)
-		this->points.max_mana = 100;
-
-	if (is_pc) {
-		player_specials = new player_special_data;
-		set_title(this, "");
-	} else {
-		player_specials = &dummy_mob;
-		SET_BIT(MOB_FLAGS(this), MOB_ISNPC);
-		GET_TITLE(this) = NULL;
-	}
-
-}
-
-void
-creature_restore(void)
+creature_restore(struct creature *ch)
 {
 	int i;
 
-	GET_HIT(this) = GET_MAX_HIT(this);
-	GET_MANA(this) = GET_MAX_MANA(this);
-	GET_MOVE(this) = GET_MAX_MOVE(this);
+	GET_HIT(ch) = GET_MAX_HIT(ch);
+	GET_MANA(ch) = GET_MAX_MANA(ch);
+	GET_MOVE(ch) = GET_MAX_MOVE(ch);
 
-	if (GET_COND(this, FULL) >= 0)
-		GET_COND(this, FULL) = 24;
-	if (GET_COND(this, THIRST) >= 0)
-		GET_COND(this, THIRST) = 24;
+	if (GET_COND(ch, FULL) >= 0)
+		GET_COND(ch, FULL) = 24;
+	if (GET_COND(ch, THIRST) >= 0)
+		GET_COND(ch, THIRST) = 24;
 
-	if ((GET_LEVEL(this) >= LVL_GRGOD)
-			&& (GET_LEVEL(this) >= LVL_AMBASSADOR)) {
+	if ((GET_LEVEL(ch) >= LVL_GRGOD)
+			&& (GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
 		for (i = 1; i <= MAX_SKILLS; i++)
-			SET_SKILL(this, i, 100);
+			SET_SKILL(ch, i, 100);
         for (i = 0; i < MAX_TONGUES; i++)
-            SET_TONGUE(this, i, 100);
-		if (GET_LEVEL(this) >= LVL_IMMORT) {
-			real_abils.intel = 25;
-			real_abils.wis = 25;
-			real_abils.dex = 25;
-			real_abils.str = 25;
-			real_abils.con = 25;
-			real_abils.cha = 25;
+            SET_TONGUE(ch, i, 100);
+		if (GET_LEVEL(ch) >= LVL_IMMORT) {
+			ch->real_abils.intel = 25;
+			ch->real_abils.wis = 25;
+			ch->real_abils.dex = 25;
+			ch->real_abils.str = 25;
+			ch->real_abils.con = 25;
+			ch->real_abils.cha = 25;
 		}
-		aff_abils = real_abils;
+		ch->aff_abils = ch->real_abils;
 	}
-	update_pos(this);
+	update_pos(ch);
 }
 
 bool
-creature_rent(void)
+creature_rent(struct creature *ch)
 {
-    removeAllCombat();
-	player_specials->rentcode = RENT_RENTED;
-	player_specials->rent_per_day =
-		(GET_LEVEL(this) < LVL_IMMORT) ? calc_daily_rent(this, 1, NULL, false):0;
-	player_specials->desc_mode = CXN_UNKNOWN;
-	player_specials->rent_currency = in_room->zone->time_frame;
-	GET_LOADROOM(this) = in_room->number;
-	player.time.logon = time(0);
-	saveObjects();
-	saveToXML();
-	if (GET_LEVEL(this) < 50)
-		mlog(Security_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)),
+    removeAllCombat(ch);
+	ch->player_specials->rentcode = RENT_RENTED;
+	ch->player_specials->rent_per_day =
+		(GET_LEVEL(ch) < LVL_IMMORT) ? calc_daily_rent(ch, 1, NULL, false):0;
+	ch->player_specials->desc_mode = CXN_UNKNOWN;
+	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
+	GET_LOADROOM(ch) = ch->in_room->number;
+	ch->player.time.logon = time(0);
+	saveObjects(ch);
+	save_player_to_xml(ch);
+	if (GET_LEVEL(ch) < 50)
+		mlog(SECURITY_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)),
 			NRM, true,
-			"%s has rented (%d/day, %lld %s)", GET_NAME(this),
-			player_specials->rent_per_day, CASH_MONEY(this) + BANK_MONEY(this),
-			(player_specials->rent_currency == TIME_ELECTRO) ? "gold":"creds");
-	extract(CXN_MENU);
+			"%s has rented (%d/day, %lld %s)", GET_NAME(ch),
+             ch->player_specials->rent_per_day, CASH_MONEY(ch) + BANK_MONEY(ch),
+             (ch->player_specials->rent_currency == TIME_ELECTRO) ? "gold":"creds");
+	extract_creature(ch, CXN_MENU);
 
 	return true;
 }
 
 bool
-creature_cryo(void)
+creature_cryo(struct creature *ch)
 {
-	player_specials->rentcode = RENT_CRYO;
-	player_specials->rent_per_day = 0;
-	player_specials->desc_mode = CXN_UNKNOWN;
-	player_specials->rent_currency = in_room->zone->time_frame;
-	GET_LOADROOM(this) = in_room->number;
-	player.time.logon = time(0);
+	ch->player_specials->rentcode = RENT_CRYO;
+	ch->player_specials->rent_per_day = 0;
+	ch->player_specials->desc_mode = CXN_UNKNOWN;
+	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
+	GET_LOADROOM(ch) = ch->in_room->number;
+	ch->player.time.logon = time(0);
 	saveObjects();
-	saveToXML();
+	save_player_to_xml(ch);
 
-	mlog(Security_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)),
+	mlog(SECURITY_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)),
 		NRM, true,
-		"%s has cryo-rented", GET_NAME(this));
-	extract(CXN_MENU);
+		"%s has cryo-rented", GET_NAME(ch));
+	extract_creature(ch, CXN_MENU);
 	return true;
 }
 
 bool
-creature_quit(void)
+creature_quit(struct creature *ch)
 {
 	struct obj_data *obj, *next_obj, *next_contained_obj;
 	int pos;
 
-	if (IS_NPC(this))
+	if (IS_NPC(ch))
 		return false;
 
 	for (pos = 0;pos < NUM_WEARS;pos++) {
 		// Drop all non-cursed equipment worn
-		if (GET_EQ(this, pos)) {
-			obj = GET_EQ(this, pos);
+		if (GET_EQ(ch, pos)) {
+			obj = GET_EQ(ch, pos);
 			if (IS_OBJ_STAT(obj, ITEM_NODROP) ||
 					IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)) {
 				for (obj = obj->contains;obj;obj = next_contained_obj) {
 					next_contained_obj = obj->next_content;
 					obj_from_obj(obj);
-					obj_to_room(obj, in_room);
+					obj_to_room(obj, ch->in_room);
 				}
 			} else {
-				obj = unequip_char(this, pos, EQUIP_WORN);
-				obj_to_room(obj, in_room);
+				obj = unequip_char(ch, pos, EQUIP_WORN);
+				obj_to_room(obj, ch->in_room);
 			}
 		}
 
 		// Drop all implanted items, breaking them
-		if (GET_IMPLANT(this, pos)) {
-			obj = unequip_char(this, pos, EQUIP_IMPLANT);
+		if (GET_IMPLANT(ch, pos)) {
+			obj = unequip_char(ch, pos, EQUIP_IMPLANT);
 			GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) / 8 - 1;
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
-			obj_to_room(obj, in_room);
+			obj_to_room(obj, ch->in_room);
 			act("$p drops to the ground!", false, 0, obj, 0, TO_ROOM);
 		}
 	}
 
 	// Drop all uncursed inventory items
-	for (obj = carrying;obj;obj = next_obj) {
+	for (obj = ch->carrying;obj;obj = next_obj) {
 		next_obj = obj->next_content;
 		if (IS_OBJ_STAT(obj, ITEM_NODROP) ||
 				IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)) {
 			for (obj = obj->contains;obj;obj = next_contained_obj) {
 				next_contained_obj = obj->next_content;
 				obj_from_obj(obj);
-				obj_to_room(obj, in_room);
+				obj_to_room(obj, ch->in_room);
 			}
 		} else {
 			obj_from_char(obj);
-			obj_to_room(obj, in_room);
+			obj_to_room(obj, ch->in_room);
 		}
 	}
 
-	player_specials->rentcode = RENT_QUIT;
-	player_specials->rent_per_day = calc_daily_rent(this, 3, NULL, false);
-	player_specials->desc_mode = CXN_UNKNOWN;
-	player_specials->rent_currency = in_room->zone->time_frame;
-	GET_LOADROOM(this) = 0;
-	player.time.logon = time(0);
+	ch->player_specials->rentcode = RENT_QUIT;
+	ch->player_specials->rent_per_day = calc_daily_rent(ch, 3, NULL, false);
+	ch->player_specials->desc_mode = CXN_UNKNOWN;
+	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
+	GET_LOADROOM(ch) = 0;
+	ch->player.time.logon = time(0);
 	saveObjects();
-	saveToXML();
-	extract(CXN_MENU);
+	save_player_to_xml(ch);
+	extract_creature(ch, CXN_MENU);
 
 	return true;
 }
 
 bool
-creature_idle(void)
+creature_idle(struct creature *ch)
 {
-	if (IS_NPC(this))
+	if (IS_NPC(ch))
 		return false;
-	player_specials->rentcode = RENT_FORCED;
-	player_specials->rent_per_day = calc_daily_rent(this, 3, NULL, false);
-	player_specials->desc_mode = CXN_UNKNOWN;
-	player_specials->rent_currency = in_room->zone->time_frame;
-	GET_LOADROOM(this) = 0;
-	player.time.logon = time(0);
+	ch->player_specials->rentcode = RENT_FORCED;
+	ch->player_specials->rent_per_day = calc_daily_rent(ch, 3, NULL, false);
+	ch->player_specials->desc_mode = CXN_UNKNOWN;
+	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
+	GET_LOADROOM(ch) = 0;
+	ch->player.time.logon = time(0);
 	saveObjects();
-	saveToXML();
+	save_player_to_xml(ch);
 
-	mlog(Security_ADMINBASIC, LVL_GOD, CMP, true,
+	mlog(SECURITY_ADMINBASIC, LVL_GOD, CMP, true,
 		"%s force-rented and extracted (idle).",
-		GET_NAME(this));
+		GET_NAME(ch));
 
-	extract(CXN_MENU);
+	extract_creature(ch, CXN_MENU);
 	return true;
 }
 
 bool
-creature_die(void)
+creature_die(struct creature *ch)
 {
 	struct obj_data *obj, *next_obj;
 	int pos;
 
-    removeAllCombat();
+    removeAllCombat(ch);
 
 	// If their stuff hasn't been moved out, they dt'd, so we need to dump
 	// their stuff to the room
 	for (pos = 0;pos < NUM_WEARS;pos++) {
-		if (GET_EQ(this, pos)) {
-			obj = unequip_char(this, pos, EQUIP_WORN);
-			obj_to_room(obj, in_room);
+		if (GET_EQ(ch, pos)) {
+			obj = unequip_char(ch, pos, EQUIP_WORN);
+			obj_to_room(obj, ch->in_room);
 		}
-		if (GET_IMPLANT(this, pos)) {
-			obj = unequip_char(this, pos, EQUIP_IMPLANT);
-			obj_to_room(obj, in_room);
+		if (GET_IMPLANT(ch, pos)) {
+			obj = unequip_char(ch, pos, EQUIP_IMPLANT);
+			obj_to_room(obj, ch->in_room);
 		}
-        if (GET_TATTOO(this, pos)) {
-            obj = unequip_char(this, pos, EQUIP_TATTOO);
+        if (GET_TATTOO(ch, pos)) {
+            obj = unequip_char(ch, pos, EQUIP_TATTOO);
             extract_obj(obj);
         }
 	}
-	for (obj = carrying;obj;obj = next_obj) {
+	for (obj = ch->carrying;obj;obj = next_obj) {
 		next_obj = obj->next_content;
 		obj_from_char(obj);
-		obj_to_room(obj, in_room);
+		obj_to_room(obj, ch->in_room);
 	}
 
-	if (!IS_NPC(this)) {
-		player_specials->rentcode = RENT_QUIT;
-		player_specials->rent_per_day = 0;
-		player_specials->desc_mode = CXN_AFTERLIFE;
-		player_specials->rent_currency = 0;
-		GET_LOADROOM(this) = in_room->zone->respawn_pt;
-		player.time.logon = time(0);
+	if (!IS_NPC(ch)) {
+		ch->player_specials->rentcode = RENT_QUIT;
+		ch->player_specials->rent_per_day = 0;
+		ch->player_specials->desc_mode = CXN_AFTERLIFE;
+		ch->player_specials->rent_currency = 0;
+		GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
+		ch->player.time.logon = time(0);
 		saveObjects();
-		saveToXML();
+		save_player_to_xml(ch);
 	}
-	extract(CXN_AFTERLIFE);
+	extract_creature(ch, CXN_AFTERLIFE);
 
 	return true;
 }
 
 bool
-creature_npk_die(void)
+creature_npk_die(struct creature *ch)
 {
-    removeAllCombat();
+    removeAllCombat(ch);
 
-	if (!IS_NPC(this)) {
-		player_specials->rentcode = RENT_QUIT;
-		player_specials->rent_per_day = 0;
-		player_specials->desc_mode = CXN_AFTERLIFE;
-		player_specials->rent_currency = 0;
-		GET_LOADROOM(this) = in_room->zone->respawn_pt;
-		player.time.logon = time(0);
+	if (!IS_NPC(ch)) {
+		ch->player_specials->rentcode = RENT_QUIT;
+		ch->player_specials->rent_per_day = 0;
+		ch->player_specials->desc_mode = CXN_AFTERLIFE;
+		ch->player_specials->rent_currency = 0;
+		GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
+		ch->player.time.logon = time(0);
 		saveObjects();
-		saveToXML();
+		save_player_to_xml(ch);
 	}
-	extract(CXN_AFTERLIFE);
+	extract_creature(ch, CXN_AFTERLIFE);
 
 	return true;
 }
 
 bool
-creature_arena_die(void)
+creature_arena_die(struct creature *ch)
 {
-    // Remove any combat this character might have been involved in
+    // Remove any combat ch character might have been involved in
     // And make sure all defending creatures stop defending
-    removeAllCombat();
+    removeAllCombat(ch);
 
 	// Rent them out
-	if (!IS_NPC(this)) {
-		player_specials->rentcode = RENT_RENTED;
-		player_specials->rent_per_day =
-			(GET_LEVEL(this) < LVL_IMMORT) ? calc_daily_rent(this, 1, NULL, false):0;
-		player_specials->desc_mode = CXN_UNKNOWN;
-		player_specials->rent_currency = in_room->zone->time_frame;
-		GET_LOADROOM(this) = in_room->zone->respawn_pt;
-		player.time.logon = time(0);
+	if (!IS_NPC(ch)) {
+		ch->player_specials->rentcode = RENT_RENTED;
+		ch->player_specials->rent_per_day =
+			(GET_LEVEL(ch) < LVL_IMMORT) ? calc_daily_rent(ch, 1, NULL, false):0;
+		ch->player_specials->desc_mode = CXN_UNKNOWN;
+		ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
+		GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
+		ch->player.time.logon = time(0);
 		saveObjects();
-		saveToXML();
-		if (GET_LEVEL(this) < 50)
-			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(this)), NRM, true,
-				"%s has died in arena (%d/day, %lld %s)", GET_NAME(this),
-				player_specials->rent_per_day, CASH_MONEY(this) + BANK_MONEY(this),
-				(player_specials->rent_currency == TIME_ELECTRO) ? "creds":"gold");
+		save_player_to_xml(ch);
+		if (GET_LEVEL(ch) < 50)
+			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
+				"%s has died in arena (%d/day, %lld %s)", GET_NAME(ch),
+				ch->player_specials->rent_per_day,
+                   CASH_MONEY(ch) + BANK_MONEY(ch),
+				(ch->player_specials->rent_currency == TIME_ELECTRO) ? "creds":"gold");
 	}
 
 	// But extract them to afterlife
-	extract(CXN_AFTERLIFE);
+	extract_creature(ch, CXN_AFTERLIFE);
 	return true;
 }
 
 bool
-creature_purge(bool destroy_obj)
+creature_purge(struct creature *ch, bool destroy_obj)
 {
 	struct obj_data *obj, *next_obj;
 
@@ -1222,66 +1136,66 @@ creature_purge(bool destroy_obj)
 		int pos;
 
 		for (pos = 0;pos < NUM_WEARS;pos++) {
-			if (GET_EQ(this, pos)) {
-				obj = unequip_char(this, pos, EQUIP_WORN);
-				obj_to_room(obj, in_room);
+			if (GET_EQ(ch, pos)) {
+				obj = unequip_char(ch, pos, EQUIP_WORN);
+				obj_to_room(obj, ch->in_room);
 			}
-			if (GET_IMPLANT(this, pos)) {
-				obj = unequip_char(this, pos, EQUIP_IMPLANT);
-				obj_to_room(obj, in_room);
+			if (GET_IMPLANT(ch, pos)) {
+				obj = unequip_char(ch, pos, EQUIP_IMPLANT);
+				obj_to_room(obj, ch->in_room);
 			}
 		}
 
-		for (obj = carrying;obj;obj = next_obj) {
+		for (obj = ch->carrying;obj;obj = next_obj) {
 			next_obj = obj->next_content;
 			obj_from_char(obj);
-			obj_to_room(obj, in_room);
+			obj_to_room(obj, ch->in_room);
 		}
 	}
 
-	if (!IS_NPC(this)) {
-		player_specials->rentcode = RENT_QUIT;
-		player_specials->rent_per_day = 0;
-		player_specials->desc_mode = CXN_UNKNOWN;
-		player_specials->rent_currency = 0;
-		GET_LOADROOM(this) = 0;
-		player.time.logon = time(0);
+	if (!IS_NPC(ch)) {
+		ch->player_specials->rentcode = RENT_QUIT;
+		ch->player_specials->rent_per_day = 0;
+		ch->player_specials->desc_mode = CXN_UNKNOWN;
+		ch->player_specials->rent_currency = 0;
+		GET_LOADROOM(ch) = 0;
+		ch->player.time.logon = time(0);
 		saveObjects();
-		saveToXML();
+		save_player_to_xml(ch);
 	}
 
-	extract(CXN_DISCONNECT);
+	extract_creature(ch, CXN_DISCONNECT);
 	return true;
 }
 
 bool
-creature_remort(void)
+creature_remort(struct creature *ch)
 {
-	if (IS_NPC(this))
+	if (IS_NPC(ch))
 		return false;
-	player_specials->rentcode = RENT_QUIT;
-	player_specials->rent_per_day = 0;
-	player_specials->desc_mode = CXN_UNKNOWN;
-	player_specials->rent_currency = 0;
-	GET_LOADROOM(this) = 0;
-	player.time.logon = time(0);
+	ch->player_specials->rentcode = RENT_QUIT;
+	ch->player_specials->rent_per_day = 0;
+	ch->player_specials->desc_mode = CXN_UNKNOWN;
+	ch->player_specials->rent_currency = 0;
+	GET_LOADROOM(ch) = 0;
+	ch->player.time.logon = time(0);
 	saveObjects();
-	saveToXML();
-	extract(CXN_REMORT_AFTERLIFE);
+	save_player_to_xml(ch);
+	extract_creature(ch, CXN_REMORT_AFTERLIFE);
 	return true;
 }
 
 bool
-creature_trusts(long idnum)
+creature_trusts_idnum(struct creature *ch, long idnum)
 {
-	if (IS_NPC(this))
+	if (IS_NPC(ch))
 		return false;
 
-	return account->isTrusted(idnum);
+	return isTrusted(ch->account, idnum);
 }
 
 bool
-creature_distrusts(long idnum)
+creature_distrusts_idnum(long idnum)
 {
 	return !trusts(idnum);
 }
@@ -1289,13 +1203,13 @@ creature_distrusts(long idnum)
 bool
 creature_trusts(struct creature *ch)
 {
-	if (IS_NPC(this))
+	if (IS_NPC(ch))
 		return false;
 
-	if (AFF_FLAGGED(this, AFF_CHARM) && master == ch)
+	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master == ch)
 		return true;
 
-	return trusts(GET_IDNUM(ch));
+	return creature_trusts_idnum(ch, GET_IDNUM(ch));
 }
 
 bool
@@ -1305,263 +1219,50 @@ creature_distrusts(struct creature *ch)
 }
 
 int
-creature_get_reputation(void)
+creature_get_reputation(struct creature *ch)
 {
 	struct account *acct;
 
-	if (IS_NPC(this))
+	if (IS_NPC(ch))
 		return 0;
 
-	acct = account;
+	acct = ch->account;
 	if (!acct)
-		acct = struct account_retrieve(playerIndex.getstruct accountID(GET_IDNUM(this)));
-	if (acct && GET_LEVEL(this) < LVL_AMBASSADOR)
-		return MAX(0, MIN(1000, (player_specials->saved.reputation * 95 / 100)
-			+ (acct->get_reputation() * 5 / 100)));
-	return player_specials->saved.reputation;
+		acct = account_by_id(player_account_by_idnum(GET_IDNUM(ch)));
+	if (acct && GET_LEVEL(ch) < LVL_AMBASSADOR)
+		return MAX(0, MIN(1000,
+                          (ch->player_specials->saved.reputation * 95 / 100)
+			+ (acct->reputation * 5 / 100)));
+	return ch->player_specials->saved.reputation;
 }
 
 void
-creature_gain_reputation(int amt)
+creature_gain_reputation(struct creature *ch, int amt)
 {
 	 struct account *acct;
 
-	if (IS_NPC(this))
+	if (IS_NPC(ch))
 		return;
 
-	acct = account;
+	acct = ch->account;
 	if (!acct)
-		acct = struct account_retrieve(playerIndex.getstruct accountID(GET_IDNUM(this)));
-	if (acct && GET_LEVEL(this) < LVL_AMBASSADOR)
-		acct->gain_reputation(amt);
+        acct = account_by_id(player_account_by_idnum(GET_IDNUM(ch)));
+	if (acct && GET_LEVEL(ch) < LVL_AMBASSADOR)
+		account_gain_reputation(acct, amt);
 
-    player_specials->saved.reputation += amt;
-    if (player_specials->saved.reputation < 0)
-        player_specials->saved.reputation = 0;
+    ch->player_specials->saved.reputation += amt;
+    if (ch->player_specials->saved.reputation < 0)
+        ch->player_specials->saved.reputation = 0;
 }
 
 void
-creature_set_reputation(int amt)
+creature_set_reputation(struct creature *ch, int amt)
 {
-	player_specials->saved.reputation = MIN(1000, MAX(0, amt));
-}
-
-void
-creature_addCombat(struct creature *ch, bool initiated)
-{
-    struct creature *defender;
-    bool previously_fighting;
-
-    if (!ch)
-        return;
-
-	if (this == ch || this->in_room != ch->in_room)
-        return;
-
-    if (!isOkToAttack(ch))
-        return;
-
-	previously_fighting = (getCombatList()->size() != 0);
-
-	struct creatureList_iterator cit;
-    cit = ch->in_room->people.begin();
-    for (; cit != ch->in_room->people.end(); ++cit) {
-        defender = NULL;
-        if ((*cit) != ch &&
-            (*cit) != this &&
-            (*cit)->isDefending() == ch &&
-            !(*cit)->isFighting() &&
-            (*cit)->getPosition() > POS_RESTING) {
-
-            defender = *cit;
-			if (findCombat(defender))
-				return;
-
-			send_to_char(defender, "You defend %s from %s's vicious attack!\r\n",
-				PERS(ch, defender), PERS(this, defender));
-			send_to_char(ch, "%s defends you from %s's vicious attack!\r\n",
-				PERS(defender, ch), PERS(this, ch));
-			act("$n comes to $N's defense!", false, defender, 0,
-				ch, TO_NOTVICT);
-
-			if (defender->isDefending() == this)
-				defender->stopDefending();
-
-			// If we're already in combat with the victim, move him
-			// to the front of the list
-			CombatDataList_iterator li = getCombatList()->begin();
-			for (; li != getCombatList()->end(); ++li) {
-				if (li->getOpponent() == ch) {
-					bool ini = li->getInitiated();
-					getCombatList()->remove(li);
-					getCombatList()->add_front(CharCombat(defender, ini));
-					return;
-				}
-			}
-
-			getCombatList()->add_back(CharCombat(defender, initiated));
-
-			update_pos(this);
-			trigger_prog_fight(this, defender);
-
-			//By not breaking here and not adding defenders to combatList we get
-            //the desired effect of a) having new defenders kick in after the first dies
-            //because they are on the attackers combat list, and b) still likely have
-            //defenders left to defend from other potential attackers because they
-            //won't actually begin combat until the attacker hits them.  This is the
-            //theory at least.
-        }
-    }
-
-    if (ch->isDefending() == this)
-        ch->stopDefending();
-
-    // If we're already in combat with the victim, move him
-    // to the front of the list
-    CombatDataList_iterator li = getCombatList()->begin();
-    for (; li != getCombatList()->end(); ++li) {
-        if (li->getOpponent() == ch) {
-            bool ini = li->getInitiated();
-            getCombatList()->remove(li);
-            getCombatList()->add_front(CharCombat(ch, ini));
-            return;
-        }
-    }
-
-    getCombatList()->add_back(CharCombat(ch, initiated));
-
-    update_pos(this);
-    trigger_prog_fight(this, ch);
-
-    if (!previously_fighting && isFighting() > 0) {
-        struct creatureList_iterator li;
-        bool found = false;
-        for (li = combatList.begin(); li != combatList.end(); ++li) {
-            if (*li == this) {
-                found = true;
-                errlog("attempted to add a creature to combatList who was already in it.");
-            }
-        }
-        if (!found) {
-            combatList.add(this);
-        }
-    }
-
-}
-
-void
-creature_removeCombat(struct creature *ch)
-{
-    if (!ch)
-        return;
-
-    if (getCombatList()->empty())
-        return;
-
-    CombatDataList_iterator li = getCombatList()->begin();
-    for (; li != getCombatList()->end(); ++li) {
-        if (li->getOpponent() == ch) {
-            getCombatList()->remove(li);
-            break;
-        }
-    }
-
-    if (!isFighting()) {
-        remove_fighting_affects(this);
-        combatList.remove(this);
-    }
-}
-
-void
-creature_removeAllCombat()
-{
-    if (!getCombatList()) {
-        slog("getCombatList() returned NULL in removeAllCombat()!");
-        raise(SIGSEGV);
-    }
-
-    if (!getCombatList()->empty()) {
-        getCombatList()->clear();
-        remove_fighting_affects(this);
-    }
-
-    struct creatureList_iterator cit = combatList.begin();
-    for (;cit != combatList.end(); ++cit)
-        (*cit)->removeCombat(this);
-
-    combatList.remove(this);
-}
-
-creature *
-creature_findCombat(struct creature *ch)
-{
-    if (!ch || !getCombatList())
-        return NULL;
-
-    CombatDataList_iterator li = getCombatList()->begin();
-    for (; li != getCombatList()->end(); li++) {
-        if (li->getOpponent() == ch)
-            return (li->getOpponent());
-    }
-
-    return NULL;
-}
-
-// This function checks to see if (this) initiated combat with ch
-bool
-creature_initiatedCombat(struct creature *ch)
-{
-
-    if (ch == NULL || !getCombatList())
-        return false;
-
-    CombatDataList_iterator li = getCombatList()->begin();
-    for (; li != getCombatList()->end(); ++li) {
-        if (li->getOpponent() == ch)
-            return (li->getInitiated());
-    }
-
-    return false;
+	ch->player_specials->saved.reputation = MIN(1000, MAX(0, amt));
 }
 
 bool
-creature_isFighting()
-{
-    return !getCombatList()->empty();
-}
-
-int
-creature_numCombatants()
-{
-    if (!this || !getCombatList())
-        return 0;
-
-    return getCombatList()->size();
-}
-
-creature *
-creature_findRandomCombat()
-{
-
-    if (!isFighting())
-        return NULL;
-
-    // Most of the time fighting will be one on one so let's save
-    // the iterator creation and the call to random_fractional_10
-    if (numCombatants() == 1)
-        return getCombatList()->begin()->getOpponent();
-
-    CombatDataList_iterator li = getCombatList()->begin();
-    for (; li != getCombatList()->end(); ++li) {
-       if (!random_fractional_10())
-           return (li->getOpponent());
-    }
-
-    return getCombatList()->begin()->getOpponent();
-}
-
-bool
-creature_isOkToAttack(struct creature *vict, bool mssg)
+isOkToAttack(struct creature *ch, struct creature *vict, bool mssg)
 {
     extern int get_hunted_id(int hunter_id);
 
@@ -1572,154 +1273,154 @@ creature_isOkToAttack(struct creature *vict, bool mssg)
 
     // Immortals over level LVL_GOD can always attack
     // anyone they want
-    if (this->getLevel() >= LVL_GOD) {
+    if (GET_LEVEL(ch) >= LVL_GOD) {
         return true;
     }
 
     // If they're already fighting, let them have at it!
-    if (this->findCombat(vict) || vict->findCombat(this)) {
+    if (findCombat(ch, vict) || findCombat(vict, ch)) {
         return true;
     }
 
     // Charmed players can't attack their master
-    if (AFF_FLAGGED(this, AFF_CHARM) && (this->master == vict)) {
+    if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master == vict)) {
         if (mssg)
             act("$N is just such a good friend, you simply can't hurt $M.",
-                false, this, NULL, vict, TO_CHAR);
+                false, ch, NULL, vict, TO_CHAR);
         return false;
     }
 
     // If we have a bounty situation, we ignore NVZs and !PKs
-    if (IS_PC(this) && IS_PC(vict) &&
-        get_hunted_id(this->getIdNum()) == vict->getIdNum()) {
+    if (IS_PC(ch) && IS_PC(vict) &&
+        get_hunted_id(GET_IDNUM(ch)) == GET_IDNUM(vict)) {
         return true;
     }
 
     // Now if we're in an arena room anbody can attack anybody
-    if (is_arena_combat(this, vict))
+    if (is_arena_combat(ch, vict))
         return true;
 
     // If anyone is in an NVZ, no attacks are allowed
-    if (ROOM_FLAGGED(this->in_room, ROOM_PEACEFUL)) {
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
         if (mssg) {
-            send_to_char(this, "The universal forces of order "
+            send_to_char(ch, "The universal forces of order "
                          "prevent violence here!\r\n");
             if (!number(0, 1))
                 act("$n seems to be violently disturbed.", false,
-                    this, NULL, NULL, TO_ROOM);
+                    ch, NULL, NULL, TO_ROOM);
             else
                 act("$n becomes violently agitated for a moment.",
-                    false, this, NULL, NULL, TO_ROOM);
+                    false, ch, NULL, NULL, TO_ROOM);
         }
         return false;
     }
 
     if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
         if (mssg) {
-            send_to_char(this, "The universal forces of order "
+            send_to_char(ch, "The universal forces of order "
                          "prevent violence there!\r\n");
             if (!number(0, 1))
                 act("$n seems to be violently disturbed.", false,
-                    this, NULL, NULL, TO_ROOM);
+                    ch, NULL, NULL, TO_ROOM);
             else
                 act("$n becomes violently agitated for a moment.",
-                    false, this, NULL, NULL, TO_ROOM);
+                    false, ch, NULL, NULL, TO_ROOM);
         }
         return false;
     }
 
     // Disallow attacking members of your own group
-    if (IS_PC(this)
-        && AFF_FLAGGED(this, AFF_GROUP)
+    if (IS_PC(ch)
+        && AFF_FLAGGED(ch, AFF_GROUP)
         && AFF_FLAGGED(vict, AFF_GROUP)
-        && this->master
+        && ch->master
         && vict->master
-        && (this->master == vict
-            || vict->master == this
-            || this->master == vict->master)) {
-        send_to_char(this, "You can't attack a member of your group!\r\n");
+        && (ch->master == vict
+            || vict->master == ch
+            || ch->master == vict->master)) {
+        send_to_char(ch, "You can't attack a member of your group!\r\n");
         return false;
     }
 
     // If either struct creature is a mob and we're not in an NVZ
     // It's always ok
-    if (IS_NPC(vict) || IS_NPC(this))
+    if (IS_NPC(vict) || IS_NPC(ch))
         return true;
 
-    // At this point, we have to be dealing with PVP
+    // At ch point, we have to be dealing with PVP
     // Start checking killer prefs and zone restrictions
-    if (!PRF2_FLAGGED(this, PRF2_PKILLER)) {
+    if (!PRF2_FLAGGED(ch, PRF2_PKILLER)) {
         if (mssg) {
-            send_to_char(this, "A small dark shape flies in from the future "
+            send_to_char(ch, "A small dark shape flies in from the future "
                          "and sticks to your tongue.\r\n");
         }
         return false;
     }
 
     // If a newbie is trying to attack someone, don't let it happen
-    if (this->isNewbie()) {
+    if (isNewbie(ch)) {
         if (mssg) {
-            send_to_char(this, "You are currently under new player "
+            send_to_char(ch, "You are currently under new player "
                          "protection, which expires at level 41\r\n");
-            send_to_char(this, "You cannot attack other players "
-                         "while under this protection.\r\n");
+            send_to_char(ch, "You cannot attack other players "
+                         "while under ch protection.\r\n");
         }
         return false;
     }
 
     // If someone is trying to attack a newbie, also don't let it
     // happen
-    if (vict->isNewbie()) {
+    if (isNewbie(vict)) {
         if (mssg) {
             act("$N is currently under new character protection.",
-                false, this, NULL, vict, TO_CHAR);
+                false, ch, NULL, vict, TO_CHAR);
             act("You are protected by the gods against $n's attack!",
-                false, this, NULL, vict, TO_VICT);
+                false, ch, NULL, vict, TO_VICT);
             slog("%s protected against %s (struct creature_isOkToAttack()) at %d",
-                 GET_NAME(vict), GET_NAME(this), vict->in_room->number);
+                 GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
         }
 
         return false;
     }
 
     // If they aren't in the same quest it's not ok to attack them
-    if (GET_QUEST(this) && GET_QUEST(this) != GET_QUEST(vict)) {
+    if (GET_QUEST(ch) && GET_QUEST(ch) != GET_QUEST(vict)) {
         if (mssg)
-            send_to_char(this,
+            send_to_char(ch,
                     "%s is not in your quest and may not be attacked!\r\n",
-                    PERS(vict, this));
-        qlog(this,
+                    PERS(vict, ch));
+        qlog(ch,
              tmp_sprintf("%s has attacked non-questing PC %s",
-                         GET_NAME(this), GET_NAME(vict)),
-             QLOG_BRIEF, MAX(GET_INVIS_LVL(this), LVL_AMBASSADOR), true);
+                         GET_NAME(ch), GET_NAME(vict)),
+             QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR), true);
 
         return false;
     }
 
-    if (GET_QUEST(vict) && GET_QUEST(vict) != GET_QUEST(this)) {
+    if (GET_QUEST(vict) && GET_QUEST(vict) != GET_QUEST(ch)) {
         if (mssg)
-            send_to_char(this,
+            send_to_char(ch,
                          "%s is on a godly quest and may not be attacked!\r\n",
-                         PERS(vict, this));
+                         PERS(vict, ch));
 
-        qlog(this,
+        qlog(ch,
              tmp_sprintf("%s has attacked questing PC %s",
-                         GET_NAME(this), GET_NAME(vict)),
-             QLOG_BRIEF, MAX(GET_INVIS_LVL(this), LVL_AMBASSADOR), true);
+                         GET_NAME(ch), GET_NAME(vict)),
+             QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR), true);
 
         return false;
     }
 
     // We're not in an NVZ, or an arena, and nobody is a newbie, so
     // check to see if we're in a !PK zone
-    if (this->in_room->zone->getPKStyle() == ZONE_NO_PK ||
-        vict->in_room->zone->getPKStyle() == ZONE_NO_PK) {
+    if (ch->in_room->zone->pk_style == ZONE_NO_PK ||
+        vict->in_room->zone->pk_style == ZONE_NO_PK) {
         if (mssg) {
-            send_to_char(this, "You seem to be unable to bring "
+            send_to_char(ch, "You seem to be unable to bring "
                              "your weapon to bear on %s.\r\n",
                          GET_NAME(vict));
             act("$n shakes with rage as $e tries to bring $s "
-                "weapon to bear.", false, this, NULL, NULL, TO_ROOM);
+                "weapon to bear.", false, ch, NULL, NULL, TO_ROOM);
 
         }
         return false;
@@ -1729,11 +1430,106 @@ creature_isOkToAttack(struct creature *vict, bool mssg)
 }
 
 void
-creature_ignite(struct creature *ch)
+addCombat(struct creature *ch, struct creature *target, bool initiated)
 {
-    affected_type af;
+    struct creature *defender;
 
-    memset(&af, 0x0, sizeof(affected_type));
+    if (!target)
+        return;
+
+	if (ch == target || ch->in_room != target->in_room)
+        return;
+
+    if (!isOkToAttack(ch, target, true))
+        return;
+
+    defender = NULL;
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+        if (tch != ch
+            && tch != target
+            && DEFENDING(tch) == target
+            && !tch->fighting
+            && GET_POSITION(tch) > POS_RESTING){
+
+            defender = tch;
+
+			send_to_char(defender, "You defend %s from %s's vicious attack!\r\n",
+                         PERS(target, defender), PERS(ch, defender));
+			send_to_char(ch, "%s defends you from %s's vicious attack!\r\n",
+                         PERS(defender, target), PERS(ch, target));
+			act("$n comes to $N's defense!", false, defender, 0,
+				target, TO_NOTVICT);
+
+            if (!g_list_find(defender->fighting, ch))
+                defender->fighting = g_list_prepend(defender->fighting, ch);
+			update_pos(ch);
+			trigger_prog_fight(ch, defender);
+
+			// By not breaking here and not adding defenders to
+            // combatList we get the desired effect of a) having new
+            // defenders kick in after the first dies because they are
+            // on the attackers combat list, and b) still likely have
+            // defenders left to defend from other potential attackers
+            // because they won't actually begin combat until the
+            // attacker hits them.  This is the theory at least.
+        }
+    }
+}
+
+void
+removeCombat(struct creature *ch, struct creature *target)
+{
+    if (!target)
+        return;
+
+    if (!ch->fighting)
+        return;
+
+    ch->fighting = g_list_remove(ch->fighting, target);
+    if (!ch->fighting)
+        remove_fighting_affects(ch);
+}
+
+void
+removeAllCombat(struct creature *ch)
+{
+    g_list_free(ch->fighting);
+    remove_fighting_affects(ch);
+}
+
+int
+creature_numCombatants(struct creature *ch)
+{
+    return g_list_length(ch->fighting);
+}
+
+struct creature *
+findRandomCombat(struct creature *ch)
+{
+
+    if (!ch->fighting)
+        return NULL;
+
+    // Most of the time fighting will be one on one so let's save
+    // the iterator creation and the call to random_fractional_10
+    if (!ch->fighting->next)
+        return ch->fighting->data;
+
+    for (GList *it = ch->fighting;it;it = it->next) {
+        if (!random_fractional_10())
+           return it->data;
+    }
+
+    return ch->fighting->data;
+}
+
+void
+ignite(struct creature *ch)
+{
+    struct affected_type af;
+
+    memset(&af, 0x0, sizeof(struct affected_type));
     af.type = SPELL_ABLAZE;
     af.duration = -1;
     af.bitvector = AFF2_ABLAZE;
@@ -1742,149 +1538,130 @@ creature_ignite(struct creature *ch)
     if (ch)
         af.owner = GET_IDNUM(ch);
 
-    affect_to_char(this, &af);
+    affect_to_char(ch, &af);
 }
 
 void
-creature_extinguish()
+extinguish(struct creature *ch)
 {
-    affect_from_char(this, SPELL_ABLAZE);
+    affect_from_char(ch, SPELL_ABLAZE);
 }
 
 void
-creature_stopDefending()
+stopDefending(struct creature *ch)
 {
-    if (!this->isDefending())
+    if (!DEFENDING(ch))
         return;
 
     act("You stop defending $N.",
-        true, this, 0, this->isDefending(), TO_CHAR);
-    if (this->in_room == this->isDefending()->in_room) {
+        true, ch, 0, DEFENDING(ch), TO_CHAR);
+    if (ch->in_room == DEFENDING(ch)->in_room) {
         act("$n stops defending you against attacks.",
-            false, this, 0, this->isDefending(), TO_VICT);
+            false, ch, 0, DEFENDING(ch), TO_VICT);
         act("$n stops defending $N.",
-            false, this, 0, this->isDefending(), TO_NOTVICT);
+            false, ch, 0, DEFENDING(ch), TO_NOTVICT);
     }
 
-    char_specials.defending = NULL;
-
-    defendingList.remove(this);
+    ch->char_specials.defending = NULL;
 }
 
 void
-creature_startDefending(struct creature *vict)
+startDefending(struct creature *ch, struct creature *vict)
 {
-    if (this->isDefending())
-        this->stopDefending();
+    if (DEFENDING(ch))
+        stopDefending(ch);
 
-    char_specials.defending = vict;
+    ch->char_specials.defending = vict;
 
     act("You start defending $N against attacks.",
-        true, this, 0, vict, TO_CHAR);
+        true, ch, 0, vict, TO_CHAR);
     act("$n starts defending you against attacks.",
-        false, this, 0, vict, TO_VICT);
+        false, ch, 0, vict, TO_VICT);
     act("$n starts defending $N against attacks.",
-        false, this, 0, vict, TO_NOTVICT);
-
-    defendingList.add(this);
+        false, ch, 0, vict, TO_NOTVICT);
 }
 
 void
-creature_dismount()
+dismount(struct creature *ch)
 {
-    if (!this->isMounted())
+    if (!MOUNTED_BY(ch))
         return;
 
-    char_specials.mounted = NULL;
-
-    mountedList.remove(this);
+    ch->char_specials.mounted = NULL;
 }
 
 void
-creature_mount(struct creature *vict)
+mount(struct creature *ch, struct creature *vict)
 {
-    if (this->isMounted())
+    if (MOUNTED_BY(ch))
         return;
 
-    char_specials.mounted = vict;
-
-    mountedList.add(this);
+    ch->char_specials.mounted = vict;
 }
 
 void
-creature_startHunting(struct creature *vict)
+startHunting(struct creature *ch, struct creature *vict)
 {
-	if (!char_specials.hunting)
-		huntingList.add(this);
-
-    char_specials.hunting = vict;
+    ch->char_specials.hunting = vict;
 }
 
 void
-creature_stopHunting()
+stopHunting(struct creature *ch)
 {
-    char_specials.hunting = NULL;
-
-    huntingList.remove(this);
+    ch->char_specials.hunting = NULL;
 }
 
 bool
-creature_checkReputations(struct creature *vict)
+checkReputations(struct creature *ch, struct creature *vict)
 {
     bool ch_msg = false, vict_msg = false;
 
-    if (!this)
+    if (!ch)
         return false;
 
-    if (is_arena_combat(this, vict))
+    if (is_arena_combat(ch, vict))
         return false;
 
-    if (GET_LEVEL(this) > LVL_AMBASSADOR)
+    if (GET_LEVEL(ch) > LVL_AMBASSADOR)
         return false;
 
     if (IS_NPC(vict))
         return false;
 
-    if (IS_NPC(this) && this->master && !IS_NPC(this->master)) {
-        if (GET_REPUTATION(this->master) <= 0)
+    if (IS_NPC(ch) && ch->master && !IS_NPC(ch->master)) {
+        if (GET_REPUTATION(ch->master) <= 0)
             ch_msg = true;
         else if (GET_REPUTATION(vict) <= 0)
             vict_msg = true;
     }
-    else if (IS_NPC(this))
+    else if (IS_NPC(ch))
         return false;
 
-    if (GET_REPUTATION(this) <= 0)
+    if (GET_REPUTATION(ch) <= 0)
         ch_msg = true;
     else if (GET_REPUTATION(vict) <= 0)
         vict_msg = true;
 
     if (ch_msg) {
-        send_to_char(this, "Your reputation is 0.  If you want to be "
+        send_to_char(ch, "Your reputation is 0.  If you want to be "
                            "a player killer, type PK on yes.\r\n");
         send_to_char(vict, "%s has just tried to attack you but was "
                            "prevented by %s reputation being 0.\r\n",
-                     GET_NAME(this), HSHR(this));
+                     GET_NAME(ch), HSHR(ch));
         return true;
     }
 
     if (vict_msg) {
-        send_to_char(this, "%s's reputation is 0 and %s is immune to player "
+        send_to_char(ch, "%s's reputation is 0 and %s is immune to player "
                            "versus player violence.\r\n", GET_NAME(vict), HSSH(vict));
         send_to_char(vict, "%s has just tried to attack you but was "
                            "prevented by your reputation being 0.\r\n",
-                     GET_NAME(this));
+                     GET_NAME(ch));
         return true;
     }
 
     return false;
 }
 
-//not inlined because we need access to spells.h
-bool
-affected_type_clearAtDeath(void) {
-    return (type != SPELL_ITEM_REPULSION_FIELD &&
-    type != SPELL_ITEM_ATTRACTION_FIELD);
-}
-#undef __struct creature_cc__
+#undef __creature_cc__
 
