@@ -30,8 +30,6 @@
 #include "screen.h"
 #include "comm.h"
 #include "tmpstr.h"
-#include "mobile_map.h"
-#include "object_map.h"
 
 extern int mini_mud;
 //extern struct obj_data *obj_proto;
@@ -336,41 +334,45 @@ do_specassign_save(struct creature *ch, int mode)
 	struct creature *mob = NULL;
 	struct room_data *room = NULL;
 	struct zone_data *zone = NULL;
+    GHashTableIter iter;
+    gpointer key, val;
+
 
 	if (!mode || IS_SET(mode, SPEC_MOB)) {
 		if (!(file = fopen(SPEC_FILE_MOB, "w"))) {
 			errlog("Error opening mob spec file for write.");
 			return 1;
 		}
-		MobileMap_iterator mit = mobilePrototypes.begin();
-		for (; mit != mobilePrototypes.end(); ++mit) {
-			mob = mit->second;
+        g_hash_table_iter_init(&iter, mob_prototypes);
+        while (g_hash_table_iter_next(&iter, &key, &val)) {
+            mob = val;
+
 			if (mob->mob_specials.shared->func) {
 				if ((index = find_spec_index_ptr(mob->mob_specials.shared->
-							func)) < 0)
+                                                 func)) < 0)
 					continue;
 				fprintf(file, "%-6d %-20s ## %s\n",
-					GET_MOB_VNUM(mob), spec_list[index].tag,
-					GET_NAME(mob));
+                        GET_MOB_VNUM(mob), spec_list[index].tag,
+                        GET_NAME(mob));
 			}
 		}
-		fclose(file);
-	}
+        fclose(file);
+    }
 
 	if (!mode || IS_SET(mode, SPEC_OBJ)) {
 		if (!(file = fopen(SPEC_FILE_OBJ, "w"))) {
 			errlog("Error opening obj spec file for write.");
 			return 1;
 		}
-    ObjectMap_iterator oi = objectPrototypes.begin();
-    for (; oi != objectPrototypes.end(); ++oi) {
-        obj = oi->second;
+        g_hash_table_iter_init(&iter, obj_prototypes);
+        while (g_hash_table_iter_next(&iter, &key, &val)) {
+            obj = val;
 			if (obj->shared->func) {
 				if ((index = find_spec_index_ptr(obj->shared->func)) < 0)
 					continue;
 				fprintf(file, "%-6d %-20s ## %s\n",
-					GET_OBJ_VNUM(obj), spec_list[index].tag,
-					obj->name);
+                        GET_OBJ_VNUM(obj), spec_list[index].tag,
+                        obj->name);
 			}
 		}
 		fclose(file);
@@ -387,8 +389,8 @@ do_specassign_save(struct creature *ch, int mode)
 					if ((index = find_spec_index_ptr(room->func)) < 0)
 						continue;
 					fprintf(file, "%-6d %-20s ## %s\n",
-						room->number, spec_list[index].tag,
-						room->name);
+                            room->number, spec_list[index].tag,
+                            room->name);
 				}
 			}
 		fclose(file);

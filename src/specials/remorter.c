@@ -34,7 +34,6 @@
 #include "fight.h"
 
 #include "xml_utils.h"
-#include "remorter.h"
 
 int
 do_pass_remort_test(struct creature *ch)

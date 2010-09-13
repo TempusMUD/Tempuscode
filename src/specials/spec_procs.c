@@ -42,9 +42,7 @@
 #include "fight.h"
 #include "tmpstr.h"
 #include "accstr.h"
-#include "tokenizer.h"
-#include "player_table.h"
-#include "object_map.h"
+#include "players.h"
 
 /*   external vars  */
 extern struct descriptor_data *descriptor_list;
@@ -346,7 +344,7 @@ SPECIAL(guild)
 	}
 
 	cost = GET_SKILL_COST(ch, skill_num);
-    cost += (cost*ch->getCostModifier(master))/100;
+    cost += (cost*getCostModifier(ch, master))/100;
 
     if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
 		if (CMD_IS("offer")) {
@@ -458,7 +456,7 @@ npc_steal(struct creature *ch, struct creature *victim)
 		for (obj = victim->carrying; obj; obj = obj->next_content)
 			if (can_see_object(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP) &&
 				GET_OBJ_COST(obj) > number(10, GET_LEVEL(ch) * 10) &&
-				obj->getWeight() < GET_LEVEL(ch) * 5)
+				GET_OBJ_WEIGHT(obj) < GET_LEVEL(ch) * 5)
 				break;
 
 		if (obj) {
@@ -523,7 +521,7 @@ SPECIAL(venom_attack)
 		act(act_tovict, 1, ch, 0, target, TO_VICT);
 		act(act_toroom, 1, ch, 0, target, TO_NOTVICT);
 		call_magic(ch, target, 0, NULL, SPELL_POISON, GET_LEVEL(ch),
-			CAST_SPELL);
+                   CAST_SPELL, NULL);
 		return true;
 	}
 	return false;
@@ -539,12 +537,12 @@ SPECIAL(thief)
 	if (GET_POSITION(ch) != POS_STANDING)
 		return false;
 
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end(); ++it) {
-		if ((GET_LEVEL((*it)) < LVL_AMBASSADOR) && !number(0, 3) &&
-			(GET_LEVEL(ch) + 10 + AWAKE((*it)) ? 0 : 20 - GET_LEVEL(ch)) >
+	for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if ((GET_LEVEL(tch) < LVL_AMBASSADOR) && !number(0, 3) &&
+			(GET_LEVEL(ch) + 10 + AWAKE(tch) ? 0 : 20 - GET_LEVEL(ch)) >
 			number(0, 40)) {
-			npc_steal(ch, (*it));
+			npc_steal(ch, tch);
 			return true;
 		}
 	}
@@ -570,18 +568,18 @@ SPECIAL(magic_user)
 
 	if ((GET_LEVEL(ch) > 5) && (number(0, 8) == 0) &&
 		!affected_by_spell(ch, SPELL_ARMOR)) {
-		cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
+		cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR, NULL);
     } else if ((GET_LEVEL(ch) > 14) && (number(0, 8) == 0)
 		&& !AFF_FLAGGED(ch, AFF_BLUR)) {
-		cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
+		cast_spell(ch, ch, NULL, NULL, SPELL_BLUR, NULL);
     } else if ((GET_LEVEL(ch) > 18) && (number(0, 8) == 0) &&
 		!AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
-		cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
+		cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD, NULL);
     } else if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch))
-			cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN);
+			cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN, NULL);
 		else if (IS_GOOD(ch) && IS_EVIL(vict))
-			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL);
+			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL, NULL);
     } else if (number(0, 4)) {
         // do nothing
     } else {
@@ -593,29 +591,29 @@ SPECIAL(magic_user)
 	switch (GET_LEVEL(ch)) {
 	case 4:
 	case 5:
-		cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE);
+		cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE, NULL);
 		break;
 	case 6:
 	case 7:
-		cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH);
+		cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH, NULL);
 		break;
 	case 8:
 	case 9:
 	case 10:
 	case 11:
-		cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP);
+		cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP, NULL);
 		break;
 	case 12:
 	case 13:
 	case 14:
-		cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS);
+		cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS, NULL);
 		break;
 	case 15:
 	case 16:
 	case 17:
 	case 18:
 	case 19:
-		cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
+		cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, NULL);
 	case 20:
 	case 21:
 	case 22:
@@ -629,7 +627,7 @@ SPECIAL(magic_user)
 	case 30:
 	case 31:
 	case 32:
-		cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY);
+		cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY, NULL);
 		break;
 	case 33:
 	case 34:
@@ -641,10 +639,10 @@ SPECIAL(magic_user)
 	case 40:
 	case 41:
 	case 42:
-		cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
+		cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL, NULL);
 		break;
 	default:
-		cast_spell(ch, vict, NULL, NULL, SPELL_PRISMATIC_SPRAY);
+		cast_spell(ch, vict, NULL, NULL, SPELL_PRISMATIC_SPRAY, NULL);
 		break;
 	}
 	return true;
@@ -670,25 +668,25 @@ SPECIAL(battle_cleric)
     bool found = true;
 	if ((GET_LEVEL(ch) > 2) && (number(0, 8) == 0) &&
 		!affected_by_spell(ch, SPELL_ARMOR)) {
-		cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
+		cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR, NULL);
 
     } else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 1)) {
 		if ((GET_LEVEL(ch) < 12) && (number(0, 4) == 0))
-			cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
+			cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT, NULL);
 
 		else if ((GET_LEVEL(ch) < 24) && (number(0, 4) == 0))
-			cast_spell(ch, ch, NULL, NULL, SPELL_CURE_CRITIC);
+			cast_spell(ch, ch, NULL, NULL, SPELL_CURE_CRITIC, NULL);
 
 		else if ((GET_LEVEL(ch) < 34) && (number(0, 4) == 0))
-			cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
+			cast_spell(ch, ch, NULL, NULL, SPELL_HEAL, NULL);
 
 		else if ((GET_LEVEL(ch) > 34) && (number(0, 4) == 0))
-			cast_spell(ch, ch, NULL, NULL, SPELL_GREATER_HEAL);
+			cast_spell(ch, ch, NULL, NULL, SPELL_GREATER_HEAL, NULL);
 	} else if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
 		if (IS_EVIL(ch))
-			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_GOOD);
+			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_GOOD, NULL);
 		else if (IS_GOOD(ch) && IS_EVIL(vict))
-			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL);
+			cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL, NULL);
 	} else if (number(0, 4)) {
 		// do nothing this round
     } else {
@@ -716,24 +714,24 @@ SPECIAL(battle_cleric)
 	case 23:
 	case 24:
 	case 25:
-		cast_spell(ch, vict, NULL, NULL, SPELL_SPIRIT_HAMMER);
+		cast_spell(ch, vict, NULL, NULL, SPELL_SPIRIT_HAMMER, NULL);
 		break;
 	case 26:
 	case 27:
 	case 28:
 	case 29:
 	case 30:
-		cast_spell(ch, vict, NULL, NULL, SPELL_CALL_LIGHTNING);
+		cast_spell(ch, vict, NULL, NULL, SPELL_CALL_LIGHTNING, NULL);
 		break;
 	case 31:
 	case 32:
 	case 33:
 	case 34:
 	case 35:
-		cast_spell(ch, vict, NULL, NULL, SPELL_HARM);
+		cast_spell(ch, vict, NULL, NULL, SPELL_HARM, NULL);
 		break;
 	default:
-		cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
+		cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE, NULL);
 		break;
 	}
 	return true;
@@ -996,7 +994,7 @@ SPECIAL(garbage_pile)
 			}
 			extract_obj(i);
 			return true;
-		} else if (CAN_WEAR(i, ITEM_WEAR_TAKE) && i->getWeight() < 5) {
+		} else if (CAN_WEAR(i, ITEM_WEAR_TAKE) && GET_OBJ_WEIGHT(i) < 5) {
 			act("$n assimilates $p.", false, ch, i, 0, TO_ROOM);
 			if (GET_OBJ_VNUM(i) == 3365)
 				extract_obj(i);
@@ -1035,7 +1033,7 @@ SPECIAL(janitor)
 	for (i = ch->in_room->contents; i; i = i->next_content) {
 		if (GET_OBJ_VNUM(i) == QUAD_VNUM ||
 			!CAN_WEAR(i, ITEM_WEAR_TAKE) || !can_see_object(ch, i) ||
-			(i->getWeight() + IS_CARRYING_W(ch)) > CAN_CARRY_W(ch) ||
+			(GET_OBJ_WEIGHT(i) + IS_CARRYING_W(ch)) > CAN_CARRY_W(ch) ||
 			(GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 150))
 			continue;
 
@@ -1052,10 +1050,10 @@ SPECIAL(janitor)
 		do_get(ch, fname(i->aliases), 0, 0, 0);
 
 		if (ahole && IS_MALE(ch)) {
-			struct creatureList_iterator it = ch->in_room->people.begin();
-			for (; it != ch->in_room->people.end(); ++it) {
-				if ((*it) != ch && IS_FEMALE((*it)) && can_see_creature(ch, (*it))) {
-                    perform_say_to(ch, *it, "Excuse me, ma'am.");
+			for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
+                struct creature *tch = cit->data;
+				if (tch != ch && IS_FEMALE(tch) && can_see_creature(ch, tch)) {
+                    perform_say_to(ch, tch, "Excuse me, ma'am.");
 				}
 			}
 		}
@@ -1143,10 +1141,10 @@ SPECIAL(pet_shops)
 
 	if (CMD_IS("list")) {
 		send_to_char(ch, "Available pets are:\r\n");
-		struct creatureList_iterator it = pet_room->people.begin();
-		for (; it != pet_room->people.end(); ++it) {
-			cost = (IS_NPC((*it)) ? GET_EXP((*it)) * 3 : (GET_EXP(ch) >> 2));
-			send_to_char(ch, "%8d - %s\r\n", cost, GET_NAME((*it)));
+		for (GList *cit = pet_room->people;cit;cit = cit->next) {
+            struct creature *tch = cit->data;
+			cost = (IS_NPC(tch) ? GET_EXP(tch) * 3 : (GET_EXP(ch) >> 2));
+			send_to_char(ch, "%8d - %s\r\n", cost, GET_NAME(tch));
 		}
 		return 1;
 	}
@@ -1171,7 +1169,7 @@ SPECIAL(pet_shops)
 			cost = GET_EXP(pet) >> 4;
 
         //we have no shop keeper so compare charisma with the pet
-        cost += (cost*ch->getCostModifier(pet))/100;
+        cost += (cost*getCostModifier(ch, pet))/100;
 
 		if (GET_GOLD(ch) < cost) {
 			send_to_char(ch, "You don't have enough gold!\r\n");
@@ -1203,7 +1201,7 @@ SPECIAL(pet_shops)
 
 				tmp = tmp_sprintf( "A small sign on a chain around the neck says 'My name is %s\r\n'", pet_name );
 				if( pet->player.description != NULL )
-					tmp = tmp_strcat( pet->player.description, tmp );
+					tmp = tmp_strcat( pet->player.description, tmp, NULL );
 				pet->player.description = strdup(tmp);
 			}
 			char_to_room(pet, ch->in_room,false);
@@ -1309,7 +1307,10 @@ SPECIAL(bank)
 			return 1;
 		}
 
-		CASH_MONEY(ch) -= amount;
+        if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+            GET_CASH(ch) -= amount;
+        else
+            GET_GOLD(ch) -= amount;
 		if (clan) {
 			clan->bank_account += amount;
 			send_to_char(ch, "You deposit %d %s%s in the clan account.\r\n",
@@ -1320,9 +1321,9 @@ SPECIAL(bank)
 				clan->name, amount);
 		} else {
 			if (ch->in_room->zone->time_frame == TIME_ELECTRO)
-				ch->account->deposit_future_bank(amount);
+				deposit_future_bank(ch->account, amount);
 			else
-				ch->account->deposit_past_bank(amount);
+				deposit_past_bank(ch->account, amount);
 			send_to_char(ch, "You deposit %d %s%s.\r\n", amount, CURRENCY(ch),
 				PLURAL(amount));
 			if (amount > 50000000) {
@@ -1368,12 +1369,15 @@ SPECIAL(bank)
 				return 1;
 			}
 			if (ch->in_room->zone->time_frame == TIME_ELECTRO)
-				ch->account->withdraw_future_bank(amount);
+				withdraw_future_bank(ch->account, amount);
 			else
-				ch->account->withdraw_past_bank(amount);
+				withdraw_past_bank(ch->account, amount);
 		}
 
-		CASH_MONEY(ch) += amount;
+        if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+            GET_CASH(ch) += amount;
+        else
+            GET_GOLD(ch) += amount;
 		send_to_char(ch, "You withdraw %d %s%s.\r\n", amount, CURRENCY(ch),
 			PLURAL(amount));
 		act("$n makes a bank transaction.", true, ch, 0, false, TO_ROOM);
@@ -1400,13 +1404,13 @@ SPECIAL(bank)
 			return 1;
 		}
 
-		if (!playerIndex.exists(arg)) {
+		if (!player_name_exists(arg)) {
 			send_to_char(ch, "You can't transfer money to someone who doesn't exist!\r\n");
 			return 1;
 		}
 
-		vict_name = playerIndex.getName(playerIndex.getID(arg));
-		acct = struct account_retrieve(playerIndex.getstruct accountID(arg));
+		vict_name = player_name_by_idnum(player_idnum_by_name(arg));
+		acct = account_by_id(player_account_by_name(vict_name));
 
 		if (!clan && acct == ch->account) {
 			send_to_char(ch, "Transferring money to your own account?  Odd...\r\n");
@@ -1438,15 +1442,15 @@ SPECIAL(bank)
 				return 1;
 			}
 			if (ch->in_room->zone->time_frame == TIME_ELECTRO)
-				ch->account->withdraw_future_bank(amount);
+				withdraw_future_bank(ch->account, amount);
 			else
-				ch->account->withdraw_past_bank(amount);
+				withdraw_past_bank(ch->account, amount);
 		}
 
 		if (ch->in_room->zone->time_frame == TIME_ELECTRO)
-			acct->deposit_future_bank(amount);
+			deposit_future_bank(acct, amount);
 		else
-			acct->deposit_past_bank(amount);
+			deposit_past_bank(acct, amount);
 
 		send_to_char(ch, "You transfer %d %s%s to %s's account.\r\n",
 			amount, CURRENCY(ch), PLURAL(amount), vict_name);
@@ -1502,218 +1506,218 @@ SPECIAL(cave_bear)
   Included special procedures
 *************************************************************************/
 /* MODRIAN SPECIALS */
-#include "Specs/modrian_specs/shimmering_portal.spec"
-#include "Specs/modrian_specs/wagon_obj.spec"
-#include "Specs/modrian_specs/wagon_room.spec"
-#include "Specs/modrian_specs/wagon_driver.spec"
-#include "Specs/modrian_specs/temple_healer.spec"
-#include "Specs/modrian_specs/rat_mama.spec"
-#include "Specs/modrian_specs/ornery_goat.spec"
-#include "Specs/modrian_specs/entrance_to_cocks.spec"
-#include "Specs/modrian_specs/entrance_to_brawling.spec"
-#include "Specs/modrian_specs/cock_fight.spec"
-#include "Specs/modrian_specs/circus_clown.spec"
-#include "Specs/modrian_specs/chest_mimic.spec"
-#include "Specs/modrian_specs/cemetary_ghoul.spec"
-#include "Specs/modrian_specs/modrian_fountain_obj.spec"
-#include "Specs/modrian_specs/modrian_fountain_rm.spec"
-#include "Specs/modrian_specs/mystical_enclave_rm.spec"
-#include "Specs/modrian_specs/safiir.spec"
-#include "Specs/modrian_specs/unholy_square.spec"
+#include "Specs/modrian_specs/shimmering_portal.c"
+#include "Specs/modrian_specs/wagon_obj.c"
+#include "Specs/modrian_specs/wagon_room.c"
+#include "Specs/modrian_specs/wagon_driver.c"
+#include "Specs/modrian_specs/temple_healer.c"
+#include "Specs/modrian_specs/rat_mama.c"
+#include "Specs/modrian_specs/ornery_goat.c"
+#include "Specs/modrian_specs/entrance_to_cocks.c"
+#include "Specs/modrian_specs/entrance_to_brawling.c"
+#include "Specs/modrian_specs/cock_fight.c"
+#include "Specs/modrian_specs/circus_clown.c"
+#include "Specs/modrian_specs/chest_mimic.c"
+#include "Specs/modrian_specs/cemetary_ghoul.c"
+#include "Specs/modrian_specs/modrian_fountain_obj.c"
+#include "Specs/modrian_specs/modrian_fountain_rm.c"
+#include "Specs/modrian_specs/mystical_enclave_rm.c"
+#include "Specs/modrian_specs/safiir.c"
+#include "Specs/modrian_specs/unholy_square.c"
 
 /* NEWBIE SPECS */
-#include "Specs/newbie_specs/newbie_improve.spec"
-#include "Specs/newbie_specs/newbie_tower_rm.spec"
-#include "Specs/newbie_specs/newbie_cafe_rm.spec"
-#include "Specs/newbie_specs/newbie_healer.spec"
-#include "Specs/newbie_specs/newbie_portal_rm.spec"
-#include "Specs/newbie_specs/newbie_stairs_rm.spec"
-#include "Specs/newbie_specs/newbie_fly.spec"
-#include "Specs/newbie_specs/newbie_gold_coupler.spec"
-#include "Specs/newbie_specs/newbie_fodder.spec"
-#include "Specs/newbie_specs/guardian_angel.spec"
+#include "Specs/newbie_specs/newbie_improve.c"
+#include "Specs/newbie_specs/newbie_tower_rm.c"
+#include "Specs/newbie_specs/newbie_cafe_rm.c"
+#include "Specs/newbie_specs/newbie_healer.c"
+#include "Specs/newbie_specs/newbie_portal_rm.c"
+#include "Specs/newbie_specs/newbie_stairs_rm.c"
+#include "Specs/newbie_specs/newbie_fly.c"
+#include "Specs/newbie_specs/newbie_gold_coupler.c"
+#include "Specs/newbie_specs/newbie_fodder.c"
+#include "Specs/newbie_specs/guardian_angel.c"
 
 /* GENERAL UTIL SPECS */
-#include "Specs/utility_specs/gen_locker.spec"
-#include "Specs/utility_specs/gen_shower_rm.spec"
-#include "Specs/utility_specs/improve_stats.spec"
-#include "Specs/utility_specs/registry.spec"
-#include "Specs/utility_specs/corpse_retrieval.spec"
-#include "Specs/utility_specs/dt_cleaner.spec"
-#include "Specs/utility_specs/killer_hunter.spec"
-#include "Specs/utility_specs/nohunger_dude.spec"
-#include "Specs/utility_specs/portal_home.spec"
-#include "Specs/utility_specs/stable_room.spec"
-#include "Specs/utility_specs/increaser.spec"
-#include "Specs/utility_specs/donation_room.spec"
-#include "Specs/utility_specs/tester_util.spec"
-#include "Specs/utility_specs/typo_util.spec"
-#include "Specs/utility_specs/newspaper.spec"
-#include "Specs/utility_specs/prac_manual.spec"
-#include "Specs/utility_specs/life_point_potion.spec"
-#include "Specs/utility_specs/jail_locker.spec"
-#include "Specs/utility_specs/repairer.spec"
-#include "Specs/utility_specs/telescope.spec"
-#include "Specs/utility_specs/fate_cauldron.spec"
-#include "Specs/utility_specs/fate_portal.spec"
-#include "Specs/utility_specs/quantum_rift.spec"
-#include "Specs/utility_specs/roaming_portal.spec"
-#include "Specs/utility_specs/astral_portal.spec"
-#include "Specs/utility_specs/reinforcer.spec"
-#include "Specs/utility_specs/enhancer.spec"
-#include "Specs/utility_specs/communicator.spec"
-#include "Specs/utility_specs/shade_zone.spec"
-#include "Specs/utility_specs/bounty_clerk.spec"
+#include "Specs/utility_specs/gen_locker.c"
+#include "Specs/utility_specs/gen_shower_rm.c"
+#include "Specs/utility_specs/improve_stats.c"
+#include "Specs/utility_specs/registry.c"
+#include "Specs/utility_specs/corpse_retrieval.c"
+#include "Specs/utility_specs/dt_cleaner.c"
+#include "Specs/utility_specs/killer_hunter.c"
+#include "Specs/utility_specs/nohunger_dude.c"
+#include "Specs/utility_specs/portal_home.c"
+#include "Specs/utility_specs/stable_room.c"
+#include "Specs/utility_specs/increaser.c"
+#include "Specs/utility_specs/donation_room.c"
+#include "Specs/utility_specs/tester_util.c"
+#include "Specs/utility_specs/typo_util.c"
+#include "Specs/utility_specs/newspaper.c"
+#include "Specs/utility_specs/prac_manual.c"
+#include "Specs/utility_specs/life_point_potion.c"
+#include "Specs/utility_specs/jail_locker.c"
+#include "Specs/utility_specs/repairer.c"
+#include "Specs/utility_specs/telescope.c"
+#include "Specs/utility_specs/fate_cauldron.c"
+#include "Specs/utility_specs/fate_portal.c"
+#include "Specs/utility_specs/quantum_rift.c"
+#include "Specs/utility_specs/roaming_portal.c"
+#include "Specs/utility_specs/astral_portal.c"
+#include "Specs/utility_specs/reinforcer.c"
+#include "Specs/utility_specs/enhancer.c"
+#include "Specs/utility_specs/communicator.c"
+#include "Specs/utility_specs/shade_zone.c"
+#include "Specs/utility_specs/bounty_clerk.c"
 
 /* SPECS BY SARFLIN */
-#include "Specs/sarflin_specs/maze_cleaner.spec"
-#include "Specs/sarflin_specs/maze_switcher.spec"
-#include "Specs/sarflin_specs/darom.spec"
-#include "Specs/sarflin_specs/puppet.spec"
-#include "Specs/sarflin_specs/oracle.spec"
-#include "Specs/sarflin_specs/fountain_heal.spec"
-#include "Specs/sarflin_specs/fountain_restore.spec"
-#include "Specs/sarflin_specs/library.spec"
-#include "Specs/sarflin_specs/arena.spec"
-#include "Specs/sarflin_specs/gingwatzim_rm.spec"
-#include "Specs/sarflin_specs/dwarven_hermit.spec"
-#include "Specs/sarflin_specs/vault_door.spec"
-#include "Specs/sarflin_specs/vein.spec"
-#include "Specs/sarflin_specs/gunnery_device.spec"
-#include "Specs/sarflin_specs/ramp_leaver.spec"
+#include "Specs/sarflin_specs/maze_cleaner.c"
+#include "Specs/sarflin_specs/maze_switcher.c"
+#include "Specs/sarflin_specs/darom.c"
+#include "Specs/sarflin_specs/puppet.c"
+#include "Specs/sarflin_specs/oracle.c"
+#include "Specs/sarflin_specs/fountain_heal.c"
+#include "Specs/sarflin_specs/fountain_restore.c"
+#include "Specs/sarflin_specs/library.c"
+#include "Specs/sarflin_specs/arena.c"
+#include "Specs/sarflin_specs/gingwatzim_rm.c"
+#include "Specs/sarflin_specs/dwarven_hermit.c"
+#include "Specs/sarflin_specs/vault_door.c"
+#include "Specs/sarflin_specs/vein.c"
+#include "Specs/sarflin_specs/gunnery_device.c"
+#include "Specs/sarflin_specs/ramp_leaver.c"
 
 /* OBJECT SPECIALS */
-#include "Specs/object_specs/loudspeaker.spec"
-#include "Specs/object_specs/voting_booth.spec"
-#include "Specs/object_specs/ancient_artifact.spec"
-#include "Specs/object_specs/finger_of_death.spec"
-#include "Specs/object_specs/quest_sphere.spec"
-#include "Specs/object_specs/wand_of_wonder.spec"
+#include "Specs/object_specs/loudspeaker.c"
+#include "Specs/object_specs/voting_booth.c"
+#include "Specs/object_specs/ancient_artifact.c"
+#include "Specs/object_specs/finger_of_death.c"
+#include "Specs/object_specs/quest_sphere.c"
+#include "Specs/object_specs/wand_of_wonder.c"
 
 /* HILL GIANT STEADING */
-#include "Specs/giants_specs/javelin_of_lightning.spec"
-#include "Specs/giants_specs/carrion_crawler.spec"
-#include "Specs/giants_specs/ogre1.spec"
-#include "Specs/giants_specs/kata.spec"
-#include "Specs/giants_specs/insane_merchant.spec"
+#include "Specs/giants_specs/javelin_of_lightning.c"
+#include "Specs/giants_specs/carrion_crawler.c"
+#include "Specs/giants_specs/ogre1.c"
+#include "Specs/giants_specs/kata.c"
+#include "Specs/giants_specs/insane_merchant.c"
 
 /* HELL */
-#include "Specs/hell_specs/cloak_of_deception.spec"
-#include "Specs/hell_specs/horn_of_geryon.spec"
-#include "Specs/hell_specs/unholy_compact.spec"
-#include "Specs/hell_specs/stygian_lightning_rm.spec"
-#include "Specs/hell_specs/tiamat.spec"
-#include "Specs/hell_specs/hell_hound.spec"
-#include "Specs/hell_specs/geryon.spec"
-#include "Specs/hell_specs/moloch.spec"
-#include "Specs/hell_specs/malbolge_bridge.spec"
-#include "Specs/hell_specs/abandoned_cavern.spec"
-#include "Specs/hell_specs/dangerous_climb.spec"
-#include "Specs/hell_specs/bearded_devil.spec"
-#include "Specs/hell_specs/cyberfiend.spec"
-#include "Specs/hell_specs/maladomini_jailer.spec"
-#include "Specs/hell_specs/regulator.spec"
-#include "Specs/hell_specs/ressurector.spec"
-#include "Specs/hell_specs/killzone_room.spec"
-#include "Specs/hell_specs/hell_domed_chamber.spec"
-#include "Specs/hell_specs/malagard_lightning_room.spec"
-#include "Specs/hell_specs/pit_keeper.spec"
-#include "Specs/hell_specs/cremator.spec"
+#include "Specs/hell_specs/cloak_of_deception.c"
+#include "Specs/hell_specs/horn_of_geryon.c"
+#include "Specs/hell_specs/unholy_compact.c"
+#include "Specs/hell_specs/stygian_lightning_rm.c"
+#include "Specs/hell_specs/tiamat.c"
+#include "Specs/hell_specs/hell_hound.c"
+#include "Specs/hell_specs/geryon.c"
+#include "Specs/hell_specs/moloch.c"
+#include "Specs/hell_specs/malbolge_bridge.c"
+#include "Specs/hell_specs/abandoned_cavern.c"
+#include "Specs/hell_specs/dangerous_climb.c"
+#include "Specs/hell_specs/bearded_devil.c"
+#include "Specs/hell_specs/cyberfiend.c"
+#include "Specs/hell_specs/maladomini_jailer.c"
+#include "Specs/hell_specs/regulator.c"
+#include "Specs/hell_specs/ressurector.c"
+#include "Specs/hell_specs/killzone_room.c"
+#include "Specs/hell_specs/hell_domed_chamber.c"
+#include "Specs/hell_specs/malagard_lightning_room.c"
+#include "Specs/hell_specs/pit_keeper.c"
+#include "Specs/hell_specs/cremator.c"
 
 /* SMITTY'S SPECS */
-#include "Specs/smitty_specs/aziz_canon.spec"
-#include "Specs/smitty_specs/battlefield_ghost.spec"
-#include "Specs/smitty_specs/nude_guard.spec"
-#include "Specs/smitty_specs/djinn_lamp.spec"
+#include "Specs/smitty_specs/aziz_canon.c"
+#include "Specs/smitty_specs/battlefield_ghost.c"
+#include "Specs/smitty_specs/nude_guard.c"
+#include "Specs/smitty_specs/djinn_lamp.c"
 
 /* C.J's SPECS */
-#include "Specs/cj_specs/beer_tree.spec"
-#include "Specs/cj_specs/black_rose.spec"
+#include "Specs/cj_specs/beer_tree.c"
+#include "Specs/cj_specs/black_rose.c"
 
 /* ELECTRO CENTRALIS SPECS */
-#include "Specs/electro_specs/sunstation.spec"
-#include "Specs/electro_specs/lawyer.spec"
-#include "Specs/electro_specs/electronics_school.spec"
-#include "Specs/electro_specs/vr_arcade_game.spec"
-#include "Specs/electro_specs/cyber_cock.spec"
-#include "Specs/electro_specs/cyborg_overhaul.spec"
-#include "Specs/electro_specs/credit_exchange.spec"
-#include "Specs/electro_specs/implanter.spec"
-#include "Specs/electro_specs/electrician.spec"
-#include "Specs/electro_specs/paramedic.spec"
-#include "Specs/electro_specs/unspecializer.spec"
-#include "Specs/electro_specs/mugger.spec"
+#include "Specs/electro_specs/sunstation.c"
+#include "Specs/electro_specs/lawyer.c"
+#include "Specs/electro_specs/electronics_school.c"
+#include "Specs/electro_specs/vr_arcade_game.c"
+#include "Specs/electro_specs/cyber_cock.c"
+#include "Specs/electro_specs/cyborg_overhaul.c"
+#include "Specs/electro_specs/credit_exchange.c"
+#include "Specs/electro_specs/implanter.c"
+#include "Specs/electro_specs/electrician.c"
+#include "Specs/electro_specs/paramedic.c"
+#include "Specs/electro_specs/unspecializer.c"
+#include "Specs/electro_specs/mugger.c"
 
 /* HEAVENLY SPECS */
-#include "Specs/heaven/archon.spec"
-#include "Specs/heaven/high_priestess.spec"
+#include "Specs/heaven/archon.c"
+#include "Specs/heaven/high_priestess.c"
 
 /* Araken Specs */
-#include "Specs/araken_specs/rust_monster.spec"
+#include "Specs/araken_specs/rust_monster.c"
 
 /* Mavernal Specs */
-#include "Specs/falling_tower_dt.spec"
-#include "Specs/stepping_stone.spec"
+#include "Specs/falling_tower_dt.c"
+#include "Specs/stepping_stone.c"
 
 /* GENERAL MOBILE SPECS */
-#include "Specs/mobile_specs/healing_ranger.spec"
-#include "Specs/mobile_specs/mob_helper.spec"
-#include "Specs/mobile_specs/underwater_predator.spec"
-#include "Specs/mobile_specs/watchdog.spec"
-#include "Specs/mobile_specs/medusa.spec"
-#include "Specs/mobile_specs/grandmaster.spec"
-#include "Specs/mobile_specs/fire_breather.spec"
-#include "Specs/mobile_specs/energy_drainer.spec"
-#include "Specs/mobile_specs/basher.spec"
-#include "Specs/mobile_specs/aziz.spec"
-#include "Specs/mobile_specs/juju_zombie.spec"
-#include "Specs/mobile_specs/phantasmic_sword.spec"
-#include "Specs/mobile_specs/spinal.spec"
-#include "Specs/mobile_specs/fates.spec"
-#include "Specs/mobile_specs/astral_deva.spec"
-#include "Specs/mobile_specs/junker.spec"
-#include "Specs/mobile_specs/duke_nukem.spec"
-#include "Specs/mobile_specs/tarrasque.spec"
-#include "Specs/mobile_specs/weaponsmaster.spec"
-#include "Specs/mobile_specs/unholy_stalker.spec"
-#include "Specs/mobile_specs/oedit_reloader.spec"
-#include "Specs/mobile_specs/town_crier.spec"
-#include "Specs/mobile_specs/mage_teleporter.spec"
-#include "Specs/mobile_specs/languagemaster.spec"
-#include "Specs/mobile_specs/auctioneer.spec"
-#include "Specs/mobile_specs/courier_imp.spec"
-#include "Specs/mobile_specs/christmas_quest.spec"
+#include "Specs/mobile_specs/healing_ranger.c"
+#include "Specs/mobile_specs/mob_helper.c"
+#include "Specs/mobile_specs/underwater_predator.c"
+#include "Specs/mobile_specs/watchdog.c"
+#include "Specs/mobile_specs/medusa.c"
+#include "Specs/mobile_specs/grandmaster.c"
+#include "Specs/mobile_specs/fire_breather.c"
+#include "Specs/mobile_specs/energy_drainer.c"
+#include "Specs/mobile_specs/basher.c"
+#include "Specs/mobile_specs/aziz.c"
+#include "Specs/mobile_specs/juju_zombie.c"
+#include "Specs/mobile_specs/phantasmic_sword.c"
+#include "Specs/mobile_specs/spinal.c"
+#include "Specs/mobile_specs/fates.c"
+#include "Specs/mobile_specs/astral_deva.c"
+#include "Specs/mobile_specs/junker.c"
+#include "Specs/mobile_specs/duke_nukem.c"
+#include "Specs/mobile_specs/tarrasque.c"
+#include "Specs/mobile_specs/weaponsmaster.c"
+#include "Specs/mobile_specs/unholy_stalker.c"
+#include "Specs/mobile_specs/oedit_reloader.c"
+#include "Specs/mobile_specs/town_crier.c"
+#include "Specs/mobile_specs/mage_teleporter.c"
+#include "Specs/mobile_specs/languagemaster.c"
+#include "Specs/mobile_specs/auctioneer.c"
+#include "Specs/mobile_specs/courier_imp.c"
+#include "Specs/mobile_specs/christmas_quest.c"
 
 /* RADFORD's SPECS */
-#include "Specs/rad_specs/labyrinth.spec"
+#include "Specs/rad_specs/labyrinth.c"
 
 /* LABYRINTH SPECS */
-#include "Specs/labyrinth/laby_portal.spec"
-#include "Specs/labyrinth/laby_carousel.spec"
-#include "Specs/labyrinth/laby_altar.spec"
+#include "Specs/labyrinth/laby_portal.c"
+#include "Specs/labyrinth/laby_carousel.c"
+#include "Specs/labyrinth/laby_altar.c"
 
 /* Bugs' SPECS */
-#include "Specs/bugs_specs/monastery_eating.spec"
-#include "Specs/bugs_specs/red_highlord.spec"
+#include "Specs/bugs_specs/monastery_eating.c"
+#include "Specs/bugs_specs/red_highlord.c"
 
 /* skullport SPECS */
-#include "Specs/skullport_specs/corpse_griller.spec"
-#include "Specs/skullport_specs/head_shrinker.spec"
-#include "Specs/skullport_specs/multi_healer.spec"
-#include "Specs/skullport_specs/slaver.spec"
-#include "Specs/skullport_specs/fountain_youth.spec"
+#include "Specs/skullport_specs/corpse_griller.c"
+#include "Specs/skullport_specs/head_shrinker.c"
+#include "Specs/skullport_specs/multi_healer.c"
+#include "Specs/skullport_specs/slaver.c"
+#include "Specs/skullport_specs/fountain_youth.c"
 
 /* out specs */
-#include "Specs/out_specs/spirit_priestess.spec"
-#include "Specs/out_specs/taunting_frenchman.spec"
+#include "Specs/out_specs/spirit_priestess.c"
+#include "Specs/out_specs/taunting_frenchman.c"
 
 /* altas specs */
-#include "Specs/atlas_specs/align_fountains.spec"
+#include "Specs/atlas_specs/align_fountains.c"
 /** OTHERS **/
 
-#include "Specs/disaster_specs/boulder_thrower.spec"
-#include "Specs/disaster_specs/windy_room.spec"
-#include "Specs/javelin_specs/clone_lab.spec"
+#include "Specs/disaster_specs/boulder_thrower.c"
+#include "Specs/disaster_specs/windy_room.c"
+#include "Specs/javelin_specs/clone_lab.c"
 
 SPECIAL(weapon_lister)
 {

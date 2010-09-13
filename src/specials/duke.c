@@ -97,12 +97,12 @@ member_of_royal_guard(struct creature *chChar)
 struct creature *
 find_npc_by_name(struct creature *chAtChar, const char *pszName, int iLen)
 {
-	struct creatureList_iterator it = chAtChar->in_room->people.begin();
-	for (; it != chAtChar->in_room->people.end(); ++it) {
-		if (IS_NPC((*it)))
-			if (!strncmp(pszName, (*it)->player.short_descr, iLen))
-				return ((*it));
-	}
+    for (GList *cit = chAtChar->in_room->people;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (IS_NPC(tch))
+			if (!strncmp(pszName, tch->player.short_descr, iLen))
+				return tch;
+    }
 	return NULL;
 }
 
@@ -113,10 +113,10 @@ struct creature *
 find_guard(struct creature *chAtChar)
 {
 
-	struct creatureList_iterator it = chAtChar->in_room->people.begin();
-	for (; it != chAtChar->in_room->people.end(); ++it) {
-		if (!(*it)->isFighting() && member_of_royal_guard((*it)))
-			return (*it);
+    for (GList *cit = chAtChar->in_room->people;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (!isFighting(tch) && member_of_royal_guard(tch))
+			return tch;
 	}
 	return NULL;
 }
@@ -130,9 +130,9 @@ get_victim(struct creature *chAtChar)
 {
 
 	int iNum_bad_guys = 0, iVictim;
-	struct creatureList_iterator it = chAtChar->in_room->people.begin();
-	for (; it != chAtChar->in_room->people.end(); ++it) {
-		if ((*it)->isFighting() && member_of_staff((*it)->findRandomCombat()))
+    for (GList *cit = chAtChar->in_room->people;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (isFighting(tch) && member_of_staff(findRandomCombat(tch)))
 			iNum_bad_guys++;
 	}
 	if (!iNum_bad_guys)
@@ -143,12 +143,12 @@ get_victim(struct creature *chAtChar)
 		return NULL;
 
 	iNum_bad_guys = 0;
-	it = chAtChar->in_room->people.begin();
-	for (; it != chAtChar->in_room->people.end(); ++it) {
-		if ((*it)->isFighting() &&
-			member_of_staff((*it)->findRandomCombat()) &&
+	for (GList *cit = chAtChar->in_room->people;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (isFighting(tch) &&
+			member_of_staff(findRandomCombat(tch)) &&
             ++iNum_bad_guys == iVictim)
-			return (*it);
+			return tch;
 	}
 	return NULL;
 }
@@ -181,10 +181,10 @@ do_npc_rescue(struct creature *ch_hero, struct creature *ch_victim)
 {
 
 	struct creature *ch_bad_guy = NULL;
-	struct creatureList_iterator it = ch_hero->in_room->people.begin();
-	for (; it != ch_hero->in_room->people.end(); ++it) {
-		if ((*it)->findCombat(ch_victim))
-			ch_bad_guy = *it;
+    for (GList *cit = ch_hero->in_room->people;cit;cit = cit->next) {
+        struct creature *tch = cit->data;
+		if (findCombat(tch, ch_victim))
+			ch_bad_guy = tch;
 	}
 	if (ch_bad_guy) {
 		if (ch_bad_guy == ch_hero)
@@ -196,11 +196,11 @@ do_npc_rescue(struct creature *ch_hero, struct creature *ch_victim)
 		act("$n heroically rescues $N.", false, ch_hero, 0, ch_victim,
 			TO_NOTVICT);
 
-		ch_bad_guy->removeCombat(ch_victim);
-        ch_victim->removeCombat(ch_bad_guy);
+		removeCombat(ch_bad_guy, ch_victim);
+        removeCombat(ch_victim, ch_bad_guy);
 
-        ch_hero->addCombat(ch_bad_guy, false);
-        ch_bad_guy->addCombat(ch_hero, true);
+        addCombat(ch_hero, ch_bad_guy, false);
+        addCombat(ch_bad_guy, ch_hero, true);
 		return true;
 	}
 	return false;
@@ -274,13 +274,13 @@ fry_victim(struct creature *ch)
 			TO_CHAR);
 		act("$n raises $s hand in a dramatic gesture.", 1, ch, 0, 0,
 			TO_ROOM);
-		cast_spell(ch, tch, 0, NULL, SPELL_COLOR_SPRAY);
+		cast_spell(ch, tch, 0, NULL, SPELL_COLOR_SPRAY, NULL);
 		break;
 	case 4:
 	case 5:
 		act("You concentrate and mumble to yourself.", 1, ch, 0, 0, TO_CHAR);
 		act("$n concentrates, and mumbles to $mself.", 1, ch, 0, 0, TO_ROOM);
-		cast_spell(ch, tch, 0, NULL, SPELL_HARM);
+		cast_spell(ch, tch, 0, NULL, SPELL_HARM, NULL);
 		break;
 	case 6:
 	case 7:
@@ -288,11 +288,11 @@ fry_victim(struct creature *ch)
 		act("$n looks deeply into the eyes of $N.", 1, ch, 0, tch, TO_NOTVICT);
 		act("You see an ill-boding flame in the eye of $n.", 1, ch, 0, tch,
 			TO_VICT);
-		cast_spell(ch, tch, 0, NULL, SPELL_FIREBALL);
+		cast_spell(ch, tch, 0, NULL, SPELL_FIREBALL, NULL);
 		break;
 	default:
 		if (!number(0, 1))
-			cast_spell(ch, ch, 0, NULL, SPELL_HEAL);
+			cast_spell(ch, ch, 0, NULL, SPELL_HEAL, NULL);
 		break;
 	}
 
@@ -445,7 +445,7 @@ SPECIAL(training_master)
 	if (!banzaii(ch) && !number(0, 2)) {
 		if ((pupil1 = find_npc_by_name(ch, "Brian", 5)) &&
 			(pupil2 = find_npc_by_name(ch, "Mick", 4)) &&
-			(!pupil1->isFighting() && !pupil2->isFighting())) {
+			(!isFighting(pupil1) && !isFighting(pupil2))) {
 			if (number(0, 1)) {
 				tch = pupil1;
 				pupil1 = pupil2;
@@ -543,12 +543,12 @@ SPECIAL(tom)
 	if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
 		if (!ch->master)
 			do_follow(ch, tmp_strdup("Duke Araken"), 0, 0, 0);
-		if (king->isFighting())
+		if (isFighting(king))
 			do_npc_rescue(ch, king);
 	}
 	if (!cmd)
 		if ((tim = find_npc_by_name(ch, "Tim", 3)))
-			if (tim->isFighting() && 2 * GET_HIT(tim) < GET_HIT(ch))
+			if (isFighting(tim) && 2 * GET_HIT(tim) < GET_HIT(ch))
 				do_npc_rescue(ch, tim);
 
 	if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
@@ -573,12 +573,12 @@ SPECIAL(tim)
 	if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
 		if (!ch->master)
 			do_follow(ch, tmp_strdup("Duke Araken"), 0, 0, 0);
-		if (king->isFighting())
+		if (isFighting(king))
 			do_npc_rescue(ch, king);
 	}
 	if (!cmd)
 		if ((tom = find_npc_by_name(ch, "Tom", 3)))
-			if (tom->isFighting() && 2 * GET_HIT(tom) < GET_HIT(ch))
+			if (isFighting(tom) && 2 * GET_HIT(tom) < GET_HIT(ch))
 				do_npc_rescue(ch, tom);
 
 	if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
@@ -740,7 +740,7 @@ SPECIAL(armory_person)
 	if (!cmd || IS_NPC(ch))
 		return false;
 
-	if (!can_see_creature(guard, ch) || guard->isFighting())
+	if (!can_see_creature(guard, ch) || isFighting(guard))
 		return false;
 
 	act("$n screams, 'This is a RESTRICTED AREA!!!'", false, guard, 0, 0,
@@ -835,7 +835,7 @@ SPECIAL(jerry)
 	if (!banzaii(ch) && !number(0, 2)) {
 		if ((gambler1 = ch) &&
 			(gambler2 = find_npc_by_name(ch, "Michael", 7)) &&
-			(!gambler1->isFighting() && !gambler2->isFighting())) {
+			(!isFighting(gambler1) && !isFighting(gambler2))) {
 			if (number(0, 1)) {
 				tch = gambler1;
 				gambler1 = gambler2;
