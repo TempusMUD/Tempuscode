@@ -65,7 +65,7 @@ get_bounty_amount(int idnum)
 		return 0;
     }
 
-	int amount = GET_REPUTATION(&vict) * 20000;
+	int amount = GET_REPUTATION(vict) * 20000;
     free_creature(vict);
 
     return amount;

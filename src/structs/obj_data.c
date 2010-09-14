@@ -10,16 +10,17 @@
 extern int no_plrtext;
 
 struct extra_descr_data *locate_exdesc(char *word,
-    struct extra_descr_data *list, int exact = 0);
+                                       struct extra_descr_data *list, int exact);
 
 /**
  * Stores this object and it's contents into the given file.
  */
-void struct obj_data_clear()
+void
+reset_object(struct obj_data *obj)
 {
-	memset((char *)this, 0, sizeof(struct obj_data));
-	in_room = NULL;
-	worn_on = -1;
+	memset((char *)obj, 0, sizeof(struct obj_data));
+	obj->in_room = NULL;
+	obj->worn_on = -1;
 }
 
 const char*
@@ -38,89 +39,88 @@ get_worn_type( struct obj_data *obj )
 }
 
 void
-struct obj_data_saveToXML(FILE *ouf)
+save_object_to_xml(struct obj_data *obj, FILE *ouf)
 {
     struct tmp_obj_affect *af = NULL;
     struct tmp_obj_affect *af_head = NULL;
-	static string indent = "\t";
-	fprintf( ouf, "%s<object vnum=\"%d\">\n",
-			indent.c_str(), shared->vnum );
-	indent += "\t";
+	static char indent[512] = "\t";
+	fprintf( ouf, "%s<object vnum=\"%d\">\n", indent, obj->shared->vnum );
+	strcat(indent, "\t");
 
-    struct obj_data *proto = shared->proto;
+    struct obj_data *proto = obj->shared->proto;
 
-    char *s = name;
+    char *s = obj->name;
     if( s != NULL &&
         ( proto == NULL ||
           proto->name == NULL ||
           strcmp(s, proto->name) ) )
     {
         fprintf( ouf, "%s<name>%s</name>\n",
-                 indent.c_str(), xmlEncodeTmp(s) );
+                 indent, xmlEncodeTmp(s) );
     }
 
-    s = aliases;
+    s = obj->aliases;
     if( s != NULL &&
         ( proto == NULL ||   proto->aliases == NULL ||  strcmp(s, proto->aliases) ) )
     {
-        fprintf( ouf, "%s<aliases>%s</aliases>\n",  indent.c_str(), xmlEncodeTmp(s) );
+        fprintf( ouf, "%s<aliases>%s</aliases>\n",  indent, xmlEncodeTmp(s) );
     }
 
-    s = line_desc;
+    s = obj->line_desc;
     if( s != NULL &&
         ( proto == NULL ||  proto->line_desc == NULL ||  strcmp(s, proto->line_desc ) ) )
     {
-        fprintf( ouf, "%s<line_desc>%s</line_desc>\n", indent.c_str(),  xmlEncodeTmp(s) );
+        fprintf( ouf, "%s<line_desc>%s</line_desc>\n", indent,  xmlEncodeTmp(s) );
     }
 
-	if (!proto || ex_description != proto->ex_description) {
-		extra_descr_data *desc;
+	if (!proto || obj->ex_description != proto->ex_description) {
+		struct extra_descr_data *desc;
 
-		for (desc = ex_description;desc;desc = desc->next)
+		for (desc = obj->ex_description;desc;desc = desc->next)
 			if (desc->keyword && desc->description)
 				fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n",
-                        indent.c_str(),  xmlEncodeSpecialTmp(desc->keyword),
+                        indent,  xmlEncodeSpecialTmp(desc->keyword),
                         xmlEncodeTmp(desc->description) );
 	}
 
-    s = action_desc;
+    s = obj->action_desc;
     if( s != NULL &&
         ( proto == NULL || proto->action_desc == NULL ||
           strcmp(s, proto->action_desc) ) )
     {
-        fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent.c_str(),
+        fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent,
                 xmlEncodeTmp(tmp_gsub(tmp_gsub(s, "\r\n", "\n"), "\r", "")));
     }
 
     // Detach the list of temp affects from the object and remove them
     // without deleting them
-    af_head = this->tmp_affects;
+    af_head = obj->tmp_affects;
     for (af = af_head; af; af = af->next)
-        this->affectModify(af, false);
+        objAffectModify(obj, af, false);
 
 	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
-			  indent.c_str(), obj_flags.type_flag, soilage,
-			 getObjWeight(), obj_flags.material, obj_flags.timer );
+			  indent, obj->obj_flags.type_flag, obj->soilage,
+			 GET_OBJ_WEIGHT(obj), obj->obj_flags.material, obj->obj_flags.timer );
 	fprintf(ouf, "%s<tracking id=\"%ld\" method=\"%d\" creator=\"%ld\" time=\"%ld\"/>\n",
-		indent.c_str(), unique_id, creation_method, creator, creation_time);
+		indent, obj->unique_id, obj->creation_method, obj->creator, obj->creation_time);
 	fprintf( ouf, "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
-			 indent.c_str(), obj_flags.damage, obj_flags.max_dam,
-			obj_flags.sigil_idnum, obj_flags.sigil_level );
+			 indent, obj->obj_flags.damage, obj->obj_flags.max_dam,
+			obj->obj_flags.sigil_idnum, obj->obj_flags.sigil_level );
 	fprintf( ouf, "%s<flags extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />\n",
-			 indent.c_str(), obj_flags.extra_flags,
-			obj_flags.extra2_flags, obj_flags.extra3_flags );
+			 indent, obj->obj_flags.extra_flags,
+			obj->obj_flags.extra2_flags, obj->obj_flags.extra3_flags );
 	fprintf( ouf, "%s<values v0=\"%d\" v1=\"%d\" v2=\"%d\" v3=\"%d\" />\n",
-			 indent.c_str(), obj_flags.value[0],obj_flags.value[1],
-			obj_flags.value[2],obj_flags.value[3] );
+			 indent, obj->obj_flags.value[0],obj->obj_flags.value[1],
+			obj->obj_flags.value[2],obj->obj_flags.value[3] );
 
 	fprintf( ouf, "%s<affectbits aff1=\"%lx\" aff2=\"%lx\" aff3=\"%lx\" />\n",
-			 indent.c_str(), obj_flags.bitvector[0],
-			obj_flags.bitvector[1], obj_flags.bitvector[2] );
+			 indent, obj->obj_flags.bitvector[0],
+			obj->obj_flags.bitvector[1], obj->obj_flags.bitvector[2] );
 
 	for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
-		if( affected[i].location > 0) {
+		if( obj->affected[i].location > 0) {
 			fprintf( ouf, "%s<affect modifier=\"%d\" location=\"%d\" />\n",
-					  indent.c_str(), affected[i].modifier, affected[i].location );
+					  indent, obj->affected[i].modifier, obj->affected[i].location );
 		}
 	}
     // Write the temp affects out to the file
@@ -130,7 +130,7 @@ struct obj_data_saveToXML(FILE *ouf)
                 "val_mod2=\"%d\" val_mod3=\"%d\" val_mod4=\"%d\" "
                 "type_mod=\"%d\" old_type=\"%d\" worn_mod=\"%d\" "
                 "extra_mod=\"%d\" extra_index=\"%d\" weight_mod=\"%d\" ",
-                indent.c_str(), af->level, af->type, af->duration,
+                indent, af->level, af->type, af->duration,
                 af->dam_mod, af->maxdam_mod, af->val_mod[0], af->val_mod[1],
                 af->val_mod[2], af->val_mod[3], af->type_mod, af->old_type,
                 af->worn_mod, af->extra_mod, af->extra_index, af->weight_mod);
@@ -143,40 +143,40 @@ struct obj_data_saveToXML(FILE *ouf)
         fprintf(ouf, "/>\n");
     }
 	// Contained objects
-	indent += "\t";
-	for( struct obj_data *obj = contains; obj != NULL; obj = obj->next_content ) {
-		obj->saveToXML(ouf);
+	strcat(indent, "\t");
+	for( struct obj_data *obj2 = obj->contains; obj2 != NULL; obj2 = obj2->next_content ) {
+		save_object_to_xml(obj2, ouf);
 	}
-	indent.erase(indent.size() - 1);
-	// Intentionally done last since reading this property in loadFromXML
+    indent[strlen(indent) - 2] = '\0';
+	// Intentionally done last since reading obj property in loadFromXML
     // causes the eq to be worn on the character.
 	fprintf( ouf, "%s<worn possible=\"%x\" pos=\"%d\" type=\"%s\"/>\n",
-			 indent.c_str(), obj_flags.wear_flags, worn_on, get_worn_type(this) );
+			 indent, obj->obj_flags.wear_flags, obj->worn_on, get_worn_type(obj) );
 
     // Ok, we'll restore the affects to the object right here
-    this->tmp_affects = af_head;
+    obj->tmp_affects = af_head;
     for (af = af_head; af; af = af->next)
-        this->affectModify(af, true);
+        objAffectModify(obj, af, true);
 
-	indent.erase(indent.size() - 1);
-	fprintf( ouf, "%s</object>\n", indent.c_str() );
+    indent[strlen(indent) - 2] = '\0';
+	fprintf( ouf, "%s</object>\n", indent );
 	return;
 }
 
 bool
-struct obj_data_loadFromXML(struct obj_data *container, struct creature *victim, struct room_data* room, xmlNodePtr node)
+loadFromXML(struct obj_data *obj, struct obj_data *container, struct creature *victim, struct room_data* room, xmlNodePtr node)
 {
-	int vnum = xmlGetIntProp(node, "vnum");
+	int vnum = xmlGetIntProp(node, "vnum", 0);
 	bool placed;
 	char *str;
 
 	placed = false;
 
     // Commenting out the code below may be a horrible idea, but I need
-    // this function to handle corpses.
+    // obj function to handle corpses.
 
-	// NOTE: This is bad, but since the object is already allocated, we have
-	// to do it this way.  Functionality is copied from read_object(int)
+	// NOTE: Obj is bad, but since the object is already allocated, we have
+	// to do it obj way.  Functionality is copied from read_object(int)
     if (vnum > -1) {
 	    struct obj_data* prototype = real_object_proto(vnum);
 	    if(!prototype) {
@@ -185,41 +185,41 @@ struct obj_data_loadFromXML(struct obj_data *container, struct creature *victim,
 		    return false;
 	    }
 
-	    shared = prototype->shared;
-	    shared->number++;
+	    obj->shared = prototype->shared;
+	    obj->shared->number++;
 
-	    name = shared->proto->name;
-	    aliases = shared->proto->aliases;
-	    line_desc = shared->proto->line_desc;
-	    action_desc  = shared->proto->action_desc;
-	    ex_description = shared->proto->ex_description;
+	    obj->name = obj->shared->proto->name;
+	    obj->aliases = obj->shared->proto->aliases;
+	    obj->line_desc = obj->shared->proto->line_desc;
+	    obj->action_desc  = obj->shared->proto->action_desc;
+	    obj->ex_description = obj->shared->proto->ex_description;
     }
     else
-        shared = null_obj_shared;
+        obj->shared = null_obj_shared;
 
 	for( xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
 		if(xmlMatches(cur->name, "name")) {
 			str = (char *)xmlNodeGetContent(cur);
-			name = strdup(tmp_gsub(str, "\n", "\r\n"));
+			obj->name = strdup(tmp_gsub(str, "\n", "\r\n"));
 			free(str);
 		} else if(xmlMatches(cur->name, "aliases")) {
-			aliases = (char*)xmlNodeGetContent(cur);
+			obj->aliases = (char*)xmlNodeGetContent(cur);
 		} else if (xmlMatches(cur->name, "line_desc")) {
 			str = (char *)xmlNodeGetContent(cur);
-			line_desc = strdup(tmp_gsub(tmp_gsub(str, "\r", ""), "\n", "\r\n"));
+			obj->line_desc = strdup(tmp_gsub(tmp_gsub(str, "\r", ""), "\n", "\r\n"));
 			free(str);
 		} else if (xmlMatches(cur->name, "extra_desc")) {
 			struct extra_descr_data *desc;
 			char *keyword;
 
-			if (shared->proto
-					&& ex_description == shared->proto->ex_description)
-				ex_description = exdesc_list_dup(shared->proto->ex_description);
+			if (obj->shared->proto
+					&& obj->ex_description == obj->shared->proto->ex_description)
+				obj->ex_description = exdesc_list_dup(obj->shared->proto->ex_description);
 
-			keyword = xmlGetProp(cur, "keywords");
-			desc = locate_exdesc(fname(keyword), ex_description, 1);
+			keyword = (char *)xmlGetProp(cur, (xmlChar *)"keywords");
+			desc = locate_exdesc(fname(keyword), obj->ex_description, 1);
 			if (!desc) {
-				desc = new extra_descr_data;
+                CREATE(desc, struct extra_descr_data, 1);
 				desc->keyword = keyword;
 				desc->description = (char *)xmlNodeGetContent(cur);
 			} else {
@@ -230,54 +230,54 @@ struct obj_data_loadFromXML(struct obj_data *container, struct creature *victim,
 
 		} else if( xmlMatches( cur->name, "action_desc" ) ) {
 			str = (char *)xmlNodeGetContent(cur);
-			action_desc = strdup(tmp_gsub(str, "\n", "\r\n"));
+			obj->action_desc = strdup(tmp_gsub(str, "\n", "\r\n"));
 			free(str);
 		} else if( xmlMatches( cur->name, "points" ) ) {
-			 obj_flags.type_flag = xmlGetIntProp( cur, "type");
-			 soilage = xmlGetIntProp( cur, "soilage");
-			 obj_flags.setWeight(xmlGetIntProp( cur, "weight"));
-			 obj_flags.material = xmlGetIntProp( cur, "material");
-			 obj_flags.timer = xmlGetIntProp( cur, "timer");
+            obj->obj_flags.type_flag = xmlGetIntProp( cur, "type", 0);
+            obj->soilage = xmlGetIntProp( cur, "soilage", 0);
+            obj->obj_flags.weight = xmlGetIntProp( cur, "weight", 0);
+            obj->obj_flags.material = xmlGetIntProp( cur, "material", 0);
+            obj->obj_flags.timer = xmlGetIntProp( cur, "timer", 0);
 		} else if( xmlMatches( cur->name, "tracking" ) ) {
-			unique_id = xmlGetIntProp( cur, "id" );
-			creation_method = xmlGetIntProp( cur, "method" );
-			creator = xmlGetIntProp( cur, "creator" );
-			creation_time = xmlGetIntProp( cur, "time" );
+			obj->unique_id = xmlGetIntProp( cur, "id", 0);
+			obj->creation_method = xmlGetIntProp( cur, "method", 0);
+			obj->creator = xmlGetIntProp( cur, "creator", 0);
+			obj->creation_time = xmlGetIntProp( cur, "time", 0);
 		} else if( xmlMatches( cur->name, "damage" ) ) {
-			obj_flags.damage = xmlGetIntProp( cur, "current");
-			obj_flags.max_dam = xmlGetIntProp( cur, "max");
-			obj_flags.sigil_idnum = xmlGetIntProp( cur, "sigil_id");
-			obj_flags.sigil_level = xmlGetIntProp( cur, "sigil_level");
+			obj->obj_flags.damage = xmlGetIntProp( cur, "current", 0);
+			obj->obj_flags.max_dam = xmlGetIntProp( cur, "max", 0);
+			obj->obj_flags.sigil_idnum = xmlGetIntProp( cur, "sigil_id", 0);
+			obj->obj_flags.sigil_level = xmlGetIntProp( cur, "sigil_level", 0);
 		} else if( xmlMatches( cur->name, "flags" ) ) {
-			char* flag = xmlGetProp(cur,"extra");
-			obj_flags.extra_flags = hex2dec(flag);
+			char* flag = (char *)xmlGetProp(cur, (xmlChar *)"extra");
+			obj->obj_flags.extra_flags = hex2dec(flag);
 			free(flag);
-			flag = xmlGetProp(cur,"extra2");
-			obj_flags.extra2_flags = hex2dec(flag);
+			flag = (char *)xmlGetProp(cur,(xmlChar *)"extra2");
+			obj->obj_flags.extra2_flags = hex2dec(flag);
 			free(flag);
-			flag = xmlGetProp(cur,"extra3");
-			obj_flags.extra3_flags = hex2dec(flag);
+			flag = (char *)xmlGetProp(cur,(xmlChar *)"extra3");
+			obj->obj_flags.extra3_flags = hex2dec(flag);
 			free(flag);
 		} else if( xmlMatches( cur->name, "worn" ) ) {
-			char* flag = xmlGetProp(cur,"possible");
-			obj_flags.wear_flags = hex2dec(flag);
+			char* flag = (char *)xmlGetProp(cur,(xmlChar *)"possible");
+			obj->obj_flags.wear_flags = hex2dec(flag);
 			free(flag);
-			int position = xmlGetIntProp( cur, "pos" );
+			int position = xmlGetIntProp( cur, "pos", 0 );
 
-			char *type = xmlGetProp(cur, "type");
+			char *type = (char *)xmlGetProp(cur, (xmlChar *)"type");
 			if( type != NULL && victim != NULL ) {
 				if( strcmp(type,"equipped") == 0 ) {
-					equip_char( victim, this, position, EQUIP_WORN );
+					equip_char( victim, obj, position, EQUIP_WORN );
 				} else if( strcmp(type,"implanted") == 0 ) {
-					equip_char( victim, this, position, EQUIP_IMPLANT );
+					equip_char( victim, obj, position, EQUIP_IMPLANT );
 				} else if( strcmp(type,"tattooed") == 0 ) {
-					equip_char( victim, this, position, EQUIP_TATTOO );
+					equip_char( victim, obj, position, EQUIP_TATTOO );
 				} else if (container) {
-					obj_to_obj(this, container, false);
+					obj_to_obj(obj, container);
 				} else if (victim) {
-					obj_to_char(this, victim, false);
+					obj_to_char(obj, victim);
 				} else if (room) {
-					obj_to_room(this, room, false);
+					obj_to_room(obj, room);
 				} else {
 					errlog("Don't know where to put object!");
 					return false;
@@ -286,173 +286,160 @@ struct obj_data_loadFromXML(struct obj_data *container, struct creature *victim,
 			}
 			free(type);
 		} else if( xmlMatches( cur->name, "values" ) ) {
-			obj_flags.value[0] = xmlGetIntProp( cur, "v0" );
-			obj_flags.value[1] = xmlGetIntProp( cur, "v1" );
-			obj_flags.value[2] = xmlGetIntProp( cur, "v2" );
-			obj_flags.value[3] = xmlGetIntProp( cur, "v3" );
+			obj->obj_flags.value[0] = xmlGetIntProp( cur, "v0", 0);
+			obj->obj_flags.value[1] = xmlGetIntProp( cur, "v1", 0);
+			obj->obj_flags.value[2] = xmlGetIntProp( cur, "v2", 0);
+			obj->obj_flags.value[3] = xmlGetIntProp( cur, "v3", 0);
 		} else if( xmlMatches( cur->name, "affectbits" ) ) {
-			char* aff = xmlGetProp(cur,"aff1");
-			obj_flags.bitvector[0] = hex2dec(aff);
+			char* aff = (char *)xmlGetProp(cur,(xmlChar *)"aff1");
+			obj->obj_flags.bitvector[0] = hex2dec(aff);
 			free(aff);
 
-			aff = xmlGetProp(cur,"aff2");
-			obj_flags.bitvector[1] = hex2dec(aff);
+			aff = (char *)xmlGetProp(cur,(xmlChar *)"aff2");
+			obj->obj_flags.bitvector[1] = hex2dec(aff);
 			free(aff);
 
-			aff = xmlGetProp(cur,"aff3");
-			obj_flags.bitvector[2] = hex2dec(aff);
+			aff = (char *)xmlGetProp(cur,(xmlChar *)"aff3");
+			obj->obj_flags.bitvector[2] = hex2dec(aff);
 			free(aff);
 
 		} else if( xmlMatches( cur->name, "affect" ) ) {
 			for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
-				if( affected[i].location == 0 && affected[i].modifier == 0 ) {
-					 affected[i].modifier = xmlGetIntProp( cur, "modifier");
-					 affected[i].location = xmlGetIntProp( cur, "location");
+				if( obj->affected[i].location == 0 && obj->affected[i].modifier == 0 ) {
+                    obj->affected[i].modifier = xmlGetIntProp( cur, "modifier", 0);
+                    obj->affected[i].location = xmlGetIntProp( cur, "location", 0);
 					 break;
 				}
 			}
 		} else if( xmlMatches( cur->name, "object" ) ) {
 			struct obj_data *obj;
-			obj = create_obj();
-			if(! obj->loadFromXML(this,victim,room,cur) ) {
-				extract_obj(obj);
-			}
+
+            obj = load_object_from_xml(obj, victim, room, cur);
 		} else if (xmlMatches(cur->name, "tmpaffect")) {
             struct tmp_obj_affect af;
             char *prop;
 
             memset(&af, 0x0, sizeof(af));
-            af.level = xmlGetIntProp(cur, "level");
-            af.type = xmlGetIntProp(cur, "type");
-            af.duration = xmlGetIntProp(cur, "duration");
-            af.dam_mod = xmlGetIntProp(cur, "dam_mod");
-            af.maxdam_mod = xmlGetIntProp(cur, "maxdam_mod");
-            af.val_mod[0] = xmlGetIntProp(cur, "val_mod1");
-            af.val_mod[1] = xmlGetIntProp(cur, "val_mod2");
-            af.val_mod[2] = xmlGetIntProp(cur, "val_mod3");
-            af.val_mod[3] = xmlGetIntProp(cur, "val_mod4");
-            af.type_mod = xmlGetIntProp(cur, "type_mod");
-            af.old_type = xmlGetIntProp(cur, "old_type");
-            af.worn_mod = xmlGetIntProp(cur, "worn_mod");
-            af.extra_mod = xmlGetIntProp(cur, "extra_mod");
-            af.extra_index = xmlGetIntProp(cur, "extra_index");
-            af.weight_mod = xmlGetIntProp(cur, "weight_mod");
+            af.level = xmlGetIntProp(cur, "level", 0);
+            af.type = xmlGetIntProp(cur, "type", 0);
+            af.duration = xmlGetIntProp(cur, "duration", 0);
+            af.dam_mod = xmlGetIntProp(cur, "dam_mod", 0);
+            af.maxdam_mod = xmlGetIntProp(cur, "maxdam_mod", 0);
+            af.val_mod[0] = xmlGetIntProp(cur, "val_mod1", 0);
+            af.val_mod[1] = xmlGetIntProp(cur, "val_mod2", 0);
+            af.val_mod[2] = xmlGetIntProp(cur, "val_mod3", 0);
+            af.val_mod[3] = xmlGetIntProp(cur, "val_mod4", 0);
+            af.type_mod = xmlGetIntProp(cur, "type_mod", 0);
+            af.old_type = xmlGetIntProp(cur, "old_type", 0);
+            af.worn_mod = xmlGetIntProp(cur, "worn_mod", 0);
+            af.extra_mod = xmlGetIntProp(cur, "extra_mod", 0);
+            af.extra_index = xmlGetIntProp(cur, "extra_index", 0);
+            af.weight_mod = xmlGetIntProp(cur, "weight_mod", 0);
             for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
                 prop = tmp_sprintf("affect_loc%d", i);
-                af.affect_loc[i] = xmlGetIntProp(cur, prop);
+                af.affect_loc[i] = xmlGetIntProp(cur, prop, 0);
                 prop = tmp_sprintf("affect_mod%d", i);
-                af.affect_mod[i] = xmlGetIntProp(cur, prop);
+                af.affect_mod[i] = xmlGetIntProp(cur, prop, 0);
             }
 
-            this->addAffect(&af);
+            add_object_affect(obj, &af);
         }
 
 	}
 
-    this->normalizeApplies();
+    normalizeApplies(obj);
 
-	if (!OBJ_APPROVED(this)) {
+	if (!OBJ_APPROVED(obj)) {
 		slog("Unapproved object %d being junked from %s's rent.",
 			 vnum, (victim && GET_NAME(victim)) ? GET_NAME(victim):"(none)");
 		return false;
 	}
 	if (!placed) {
 		if(victim) {
-			obj_to_char(this, victim, false);
+			obj_to_char(obj, victim);
 		} else if(container) {
-			obj_to_obj(this, container, false);
+			obj_to_obj(obj, container);
 		} else if( room != NULL ) {
-			obj_to_room(this, room, false);
+			obj_to_room(obj, room);
 		}
 	}
 	return true;
 }
 
 int
-struct obj_data_modifyWeight(int mod_weight)
+modifyWeight(struct obj_data *obj, int mod_weight)
 {
 
 	// if object is inside another object, recursively
 	// go up and modify it
-	if (in_obj)
-		in_obj->modifyWeight(mod_weight);
-
-	else if (worn_by) {
+	if (obj->in_obj)
+		modifyWeight(obj->in_obj, mod_weight);
+	else if (obj->worn_by) {
 		// implant, increase character weight
-		if (GET_IMPLANT(worn_by, worn_on) == this)
-			worn_by->modifyWeight(mod_weight);
-		// simply worn, increase character worn weight
-		else
-			worn_by->modifyWornWeight(mod_weight);
+		if (GET_IMPLANT(obj->worn_by, obj->worn_on) == obj)
+			modifyCharWeight(obj->worn_by, mod_weight);
 	}
 
-	else if (carried_by)
-		carried_by->modifyCarriedWeight(mod_weight);
+	obj->obj_flags.weight += mod_weight;
 
-	return (obj_flags.setWeight(getWeight() + mod_weight));
+    return obj->obj_flags.weight;
 }
 
 bool
-struct obj_data_isUnrentable()
+isUnrentable(struct obj_data *obj)
 {
 
-	if (IS_OBJ_STAT(this, ITEM_NORENT)
-		|| !OBJ_APPROVED(this) || GET_OBJ_VNUM(this) <= NOTHING
-		|| (GET_OBJ_TYPE(this) == ITEM_KEY && GET_OBJ_VAL(this, 1) == 0)
-		|| (GET_OBJ_TYPE(this) == ITEM_CIGARETTE && GET_OBJ_VAL(this, 3))) {
+	if (IS_OBJ_STAT(obj, ITEM_NORENT)
+		|| !OBJ_APPROVED(obj) || GET_OBJ_VNUM(obj) <= NOTHING
+		|| (GET_OBJ_TYPE(obj) == ITEM_KEY && GET_OBJ_VAL(obj, 1) == 0)
+		|| (GET_OBJ_TYPE(obj) == ITEM_CIGARETTE && GET_OBJ_VAL(obj, 3))) {
 		return true;
 	}
 
-	if (no_plrtext && plrtext_len)
+	if (no_plrtext && obj->plrtext_len)
 		return true;
 	return false;
 }
 
 int
-struct obj_data_setWeight(int new_weight)
+setWeight(struct obj_data *obj, int new_weight)
 {
 
-	return (modifyWeight(new_weight - getWeight()));
-}
-
-int
-obj_flag_data_setWeight(int new_weight)
-{
-	return ((weight = new_weight));
+	return (modifyWeight(obj, new_weight - GET_OBJ_WEIGHT(obj)));
 }
 
 struct room_data *
-struct obj_data_find_room(void)
+find_room(struct obj_data *obj)
 {
-	if (worn_by)
-		return worn_by->in_room;
-	else if (carried_by)
-		return carried_by->in_room;
-	else if (in_obj)
-		return in_obj->find_room();
-	else if (in_room)
-		return in_room;
+	if (obj->worn_by)
+		return obj->worn_by->in_room;
+	else if (obj->carried_by)
+		return obj->carried_by->in_room;
+	else if (obj->in_obj)
+		return find_room(obj->in_obj);
+	else if (obj->in_room)
+		return obj->in_room;
 
 	errlog("Object in limbo at %s:%d", __FILE__, __LINE__);
 	return NULL;
 }
 
 void
-struct obj_data_addAffect(struct tmp_obj_affect *af)
+addAffect(struct obj_data *obj, struct tmp_obj_affect *af)
 {
     struct tmp_obj_affect *new_aff;
 
     CREATE(new_aff, struct tmp_obj_affect, 1);
 
     memcpy(new_aff, af, sizeof(struct tmp_obj_affect));
-    new_aff->next = this->tmp_affects;
-    this->tmp_affects = new_aff;
+    new_aff->next = obj->tmp_affects;
+    obj->tmp_affects = new_aff;
 
     affectModify(new_aff, true);
 }
 
 void
-struct obj_data_removeAffect(struct tmp_obj_affect *af)
+removeAffect(struct obj_data *obj, struct tmp_obj_affect *af)
 {
     struct tmp_obj_affect *curr_aff;
     struct tmp_obj_affect *prev_aff = NULL;
@@ -460,7 +447,7 @@ struct obj_data_removeAffect(struct tmp_obj_affect *af)
 
     affectModify(af, false);
 
-    curr_aff = this->tmp_affects;
+    curr_aff = obj->tmp_affects;
 
     while(curr_aff != NULL) {
         found = false;
@@ -469,7 +456,7 @@ struct obj_data_removeAffect(struct tmp_obj_affect *af)
             if (prev_aff != NULL)
                 prev_aff->next = af->next;
             else
-                this->tmp_affects = curr_aff->next;
+                obj->tmp_affects = curr_aff->next;
 
             free(af);
             break;
@@ -485,66 +472,66 @@ struct obj_data_removeAffect(struct tmp_obj_affect *af)
     }
 }
 
-// NEVER call this function directly.  Use addAffect(), removeAffect(),
+// NEVER call obj function directly.  Use addAffect(), removeAffect(),
 // or affectJoin() instead.
 // add == true adds the affect, add == false deletes the affect
 void
-struct obj_data_affectModify(struct tmp_obj_affect *af, bool add)
+objAffectModify(struct obj_data *obj, struct tmp_obj_affect *af, bool add)
 {
     // Set or restore damage
-    if (af->dam_mod && this->obj_flags.max_dam > 0) {
+    if (af->dam_mod && obj->obj_flags.max_dam > 0) {
         if (add)
-            this->obj_flags.damage += af->dam_mod;
+            obj->obj_flags.damage += af->dam_mod;
         else
-            this->obj_flags.damage -= af->dam_mod;
+            obj->obj_flags.damage -= af->dam_mod;
     }
     //Set or restore maxdam
-    if (af->maxdam_mod && this->obj_flags.max_dam > 0) {
+    if (af->maxdam_mod && obj->obj_flags.max_dam > 0) {
         if (add)
-            this->obj_flags.max_dam += af->maxdam_mod;
+            obj->obj_flags.max_dam += af->maxdam_mod;
         else
-            this->obj_flags.max_dam -= af->maxdam_mod;
+            obj->obj_flags.max_dam -= af->maxdam_mod;
     }
     // Set or reset the value mods
     for (int i = 0; i < 4; i++) {
         if (af->val_mod[i] != 0) {
             if (add)
-                this->obj_flags.value[i] += af->val_mod[i];
+                obj->obj_flags.value[i] += af->val_mod[i];
             else
-                this->obj_flags.value[i] -= af->val_mod[i];
+                obj->obj_flags.value[i] -= af->val_mod[i];
         }
     }
     // Set or restore type
     if (af->type_mod) {
         if (add) {
-            af->old_type = this->obj_flags.type_flag;
-            this->obj_flags.type_flag = af->type_mod;
+            af->old_type = obj->obj_flags.type_flag;
+            obj->obj_flags.type_flag = af->type_mod;
         }
         else
-            this->obj_flags.type_flag = af->old_type;
+            obj->obj_flags.type_flag = af->old_type;
     }
 
     // Set or reset wear positions
     if (af->worn_mod) {
         if (add) {
-            check_bits_32(this->obj_flags.wear_flags, &af->worn_mod);
-            this->obj_flags.wear_flags |= af->worn_mod;
+            check_bits_32(obj->obj_flags.wear_flags, &af->worn_mod);
+            obj->obj_flags.wear_flags |= af->worn_mod;
         }
         else
-            this->obj_flags.wear_flags &= ~(af->worn_mod);
+            obj->obj_flags.wear_flags &= ~(af->worn_mod);
     }
 
     // set or reset extra flags
     if (af->extra_mod && af->extra_index) {
         int *oextra;
         if (af->extra_index == 1) {
-            oextra = &this->obj_flags.extra_flags;
+            oextra = &obj->obj_flags.extra_flags;
         }
         else if (af->extra_index == 2) {
-            oextra = &this->obj_flags.extra2_flags;
+            oextra = &obj->obj_flags.extra2_flags;
         }
         else if (af->extra_index == 3) {
-            oextra = &this->obj_flags.extra3_flags;
+            oextra = &obj->obj_flags.extra3_flags;
         }
         else {
 			errlog("Invalid extra index (%d) in struct obj_data_affectModify().",
@@ -563,13 +550,13 @@ struct obj_data_affectModify(struct tmp_obj_affect *af, bool add)
     // Set or reset weight
     if (af->weight_mod) {
         if (add)
-            this->setWeight(this->getWeight() + af->weight_mod);
+            modifyWeight(obj, af->weight_mod);
         else
-            this->setWeight(this->getWeight() - af->weight_mod);
+            modifyWeight(obj, GET_OBJ_WEIGHT(obj) - af->weight_mod);
     }
 
     // Set or reset affections
-    // I probably could have done this with less code but it would have been
+    // I probably could have done obj with less code but it would have been
     // much more difficult to understand
     for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
         if (af->affect_mod[i] > 125)
@@ -580,46 +567,46 @@ struct obj_data_affectModify(struct tmp_obj_affect *af, bool add)
         if (af->affect_loc[i] != APPLY_NONE) {
             bool found = false;
             for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
-                if (this->affected[j].location == af->affect_loc[i]) {
+                if (obj->affected[j].location == af->affect_loc[i]) {
                     found = true;
                     if (add)
-                        this->affected[j].modifier += af->affect_mod[i];
+                        obj->affected[j].modifier += af->affect_mod[i];
                     else
-                        this->affected[j].modifier -= af->affect_mod[i];
+                        obj->affected[j].modifier -= af->affect_mod[i];
                     break;
                 }
 
                 if (found) {
-                    if (this->affected[j].modifier == 0) {
-                        this->affected[j].location = APPLY_NONE;
+                    if (obj->affected[j].modifier == 0) {
+                        obj->affected[j].location = APPLY_NONE;
                     }
                 }
             }
 
             if (!found) {
                 for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
-                    if (this->affected[j].location == APPLY_NONE) {
+                    if (obj->affected[j].location == APPLY_NONE) {
                         found = true;
-                        this->affected[j].location = af->affect_loc[i];
-                        this->affected[j].modifier = af->affect_mod[i];
+                        obj->affected[j].location = af->affect_loc[i];
+                        obj->affected[j].modifier = af->affect_mod[i];
                         break;
                     }
                 }
             }
 
-            this->normalizeApplies();
+            normalizeApplies(obj);
 
             if (!found)
-				errlog("No affect locations trying to alter object affect on obj vnum %d, id %ld", GET_OBJ_VNUM(this), unique_id);
+				errlog("No affect locations trying to alter object affect on obj vnum %d, id %ld", GET_OBJ_VNUM(obj), obj->unique_id);
         }
     }
 }
 
 void
-struct obj_data_affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode,
+affectJoin(struct obj_data *obj, struct tmp_obj_affect *af, int dur_mode, int val_mode,
                      int aff_mode)
 {
-    struct tmp_obj_affect *cur_aff = this->tmp_affects;
+    struct tmp_obj_affect *cur_aff = obj->tmp_affects;
     struct tmp_obj_affect tmp_aff;
     int j;
     bool found = false;
@@ -698,39 +685,39 @@ struct obj_data_affectJoin(struct tmp_obj_affect *af, int dur_mode, int val_mode
                     tmp_aff.maxdam_mod = (tmp_aff.maxdam_mod + af->maxdam_mod) / 2;
             }
 
-            removeAffect(cur_aff);
-            addAffect(&tmp_aff);
+            removeObjAffect(obj, cur_aff);
+            addObjAffect(obj, &tmp_aff);
             return;
         }
     }
 
-    this->addAffect(af);
+    addObjAffect(obj, af);
 }
 
 void
-struct obj_data_normalizeApplies(void)
+normalizeApplies(struct obj_data *obj)
 {
     int i,j;
 
     for (i = 0, j = 0;i < MAX_OBJ_AFFECT;i++,j++) {
         while (j < MAX_OBJ_AFFECT
-               && (this->affected[j].location == APPLY_NONE
-                   || this->affected[j].modifier == 0))
+               && (obj->affected[j].location == APPLY_NONE
+                   || obj->affected[j].modifier == 0))
             j++;
         if (j < MAX_OBJ_AFFECT) {
-            this->affected[i] = this->affected[j];
+            obj->affected[i] = obj->affected[j];
         } else {
-            this->affected[i].location = APPLY_NONE;
-            this->affected[i].modifier = 0;
+            obj->affected[i].location = APPLY_NONE;
+            obj->affected[i].modifier = 0;
         }
 
     }
 }
 
 struct tmp_obj_affect *
-struct obj_data_affectedBySpell(int spellnum)
+affectedBySpell(struct obj_data *obj, int spellnum)
 {
-    struct tmp_obj_affect *cur_aff = this->tmp_affects;
+    struct tmp_obj_affect *cur_aff = obj->tmp_affects;
 
     for (; cur_aff != NULL; cur_aff = cur_aff->next) {
         if (cur_aff->type == spellnum)
@@ -741,32 +728,31 @@ struct obj_data_affectedBySpell(int spellnum)
 }
 
 int
-struct obj_data_getEquipPos(void)
+getEquipPos(struct obj_data *obj)
 {
 	int result;
 
-	if (!worn_by)
+	if (!obj->worn_by)
 		return -1;
 
 	for (result = 0;result < NUM_WEARS;result++)
-		if (GET_EQ(worn_by, result) == this)
+		if (GET_EQ(obj->worn_by, result) == obj)
 			return result;
 
 	return -1;
 }
 
 int
-struct obj_data_getImplantPos(void)
+getImplantPos(struct obj_data *obj)
 {
 	int result;
 
-	if (!worn_by)
+	if (!obj->worn_by)
 		return -1;
 
 	for (result = 0;result < NUM_WEARS;result++)
-		if (GET_IMPLANT(worn_by, result) == this)
+		if (GET_IMPLANT(obj->worn_by, result) == obj)
 			return result;
 
 	return -1;
 }
-#undef __struct obj_data_cc__

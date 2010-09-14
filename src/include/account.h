@@ -117,7 +117,7 @@ int countGens(struct account *account);
 
 void load_players(struct account *account);
 void load_trusted(struct account *account);
-void set(struct account *account, const char *key, const char *val);
+void set_account_field(struct account *account, const char *key, const char *val);
 void add_trusted(struct account *account, long idnum);
 
 

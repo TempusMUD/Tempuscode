@@ -849,7 +849,7 @@ struct player_special_data {
 	long last_tell_from;			/* idnum of last tell from        */
 	long last_tell_to;				/* idnum of last tell to */
 	int imprint_rooms[MAX_IMPRINT_ROOMS];
-    struct kill_record *recently_killed;
+    GList *recently_killed;
     GList *grievances;
 	unsigned int soilage[NUM_WEARS];
 	struct obj_data *olc_obj;	/* which obj being edited               */
