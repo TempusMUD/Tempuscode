@@ -134,6 +134,19 @@ int generic_find(char *arg, int bitvector, struct creature *ch,
 #define SHOW_OBJ_EXTRA   5
 #define SHOW_OBJ_BITS    6
 
-/* prototypes from crash save system */
+enum decision_t {
+	UNDECIDED,
+	ALLOW,
+	DENY,
+};
+
+struct reaction {
+    char *reaction;
+};
+
+struct reaction *make_reaction(void);
+void free_reaction(struct reaction *reaction);
+bool add_reaction(struct reaction *reaction, char *arg);
+enum decision_t react(struct reaction *reaction, struct creature *ch);
 
 #endif

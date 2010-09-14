@@ -2576,7 +2576,7 @@ free_reaction(struct reaction *reaction)
 }
 
 bool
-add_reaction(struct reaction *reaction, char *config, char *arg)
+add_reaction(struct reaction *reaction, char *arg)
 {
 	char *tmp;
 	struct clan_data *clan;
@@ -2585,7 +2585,7 @@ add_reaction(struct reaction *reaction, char *config, char *arg)
     char *action_str;
 	enum decision_t action;
 
-	action_str = tmp_getword(&config);
+	action_str = tmp_getword(&arg);
 	if (!strcmp(action_str, "allow"))
 		action = ALLOW;
 	else if (!strcmp(action_str, "deny"))

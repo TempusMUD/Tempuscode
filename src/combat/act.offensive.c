@@ -1324,12 +1324,7 @@ ACMD(do_flee)
 					continue;
 			}
 
-            void remove_combat(struct creature *tch, gpointer ignore) {
-                if (g_list_find(tch->fighting, ch))
-                    remove_combat(tch, ch);
-            }
-            g_list_foreach(ch->in_room->people, remove_combat, 0);
-
+            remove_all_combat(ch);
 			int move_result = do_simple_move(ch, attempt, MOVE_FLEE, true);
 
 			//

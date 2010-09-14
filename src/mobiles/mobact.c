@@ -1467,7 +1467,7 @@ mobile_spec(void)
 
 	extern int no_specials;
 
-    for (GList *cit;cit;cit = cit->next) {
+    for (GList *cit = creatures;cit;cit = cit->next) {
 		ch = cit->data;
 
         if (!(ch->char_specials.saved.act & MOB_ISNPC))

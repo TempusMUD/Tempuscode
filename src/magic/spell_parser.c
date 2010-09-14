@@ -150,7 +150,7 @@ say_spell(struct creature *ch,
             to_room = "$n looks at $N and makes a calculation.";
         }
 	} else {
-        char *spellname = translate_with_tongue(TONGUE_ARCANUM,
+        char *spellname = translate_with_tongue(find_tongue_by_idnum(TONGUE_ARCANUM),
                                                 spell_to_str(spellnum),
                                                 0);
 

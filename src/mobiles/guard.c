@@ -18,7 +18,7 @@ SPECIAL(guard)
 {
 	struct creature *self = (struct creature *)me;
 	int cmd_idx, lineno, dir = -1;
-	struct reaction reaction;
+	struct reaction *reaction = make_reaction();
 	const char *to_vict = "You are blocked by $n.";
 	const char *to_room = "$N is blocked by $n.";
 	char *str, *line, *param_key, *dir_str, *room_str;
@@ -85,14 +85,17 @@ SPECIAL(guard)
 	if (spec_mode == SPECIAL_TICK) {
 		if (callsforhelp && !number(0, 10) && self->fighting) {
 			call_for_help(self, random_opponent(self));
+            free_reaction(reaction);
 			return true;
 		}
-
+        free_reaction(reaction);
 		return false;
 	}
 
-	if (dir == -1)
+	if (dir == -1) {
+        free_reaction(reaction);
 		return false;
+    }
 
 	if (err) {
 		// Specparam error
@@ -107,8 +110,13 @@ SPECIAL(guard)
                 perform_say_to(self, ch, "Sorry.  I'm broken, but a god has already been notified.");
 			}
 		}
-	} else if (ch == self || IS_IMMORT(ch) || ALLOW == react(reaction, ch))
+	} else if (ch == self || IS_IMMORT(ch) || ALLOW == react(reaction, ch)) {
+        free_reaction(reaction);
 		return false;
+    }
+
+    // We don't need the reaction anymore, so we discard it here
+    free_reaction(reaction);
 
 	// If we're a fallible guard, check to see if they can get past us
 	if (fallible && check_sneak(ch, self, true, true) == SNEAK_OK)

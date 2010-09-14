@@ -669,12 +669,12 @@ point_update(void)
 		} else if (tch->char_specials.timer)
 			tch->char_specials.timer -= 1;
 
-        while (!GET_LANG_HEARD(tch)) {
+        while (GET_LANG_HEARD(tch)) {
             int lang = GPOINTER_TO_INT(GET_LANG_HEARD(tch)->data);
             if (number(0, 600) < GET_INT(tch) + GET_WIS(tch) + GET_CHA(tch))
                 SET_TONGUE(tch, lang, CHECK_TONGUE(tch, lang) + 1);
             GET_LANG_HEARD(tch) = g_list_delete_link(GET_LANG_HEARD(tch),
-                                                   GET_LANG_HEARD(tch));
+                                                     GET_LANG_HEARD(tch));
         }
 
 		if (affected_by_spell(tch, SPELL_METABOLISM))

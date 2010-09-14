@@ -81,17 +81,6 @@ void safe_exit(int mode);
 bool player_in_room(struct room_data *room);
 void check_bits_32(int bitv, int *newbits);
 
-enum decision_t {
-	UNDECIDED,
-	ALLOW,
-	DENY,
-};
-
-struct reaction {
-    char *reaction;
-};
-
-
 /* undefine MAX and MIN so that our functions are used instead */
 #ifdef MAX
 #undef MAX

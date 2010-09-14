@@ -54,6 +54,7 @@ reset_creature(struct creature *ch)
 
 	void free_alias(struct alias_data *a);
 
+    errlog("%s reset: %p", GET_NAME(ch), ch);
 	//
 	// first make sure the char is no longer in the world
 	//
@@ -62,7 +63,12 @@ reset_creature(struct creature *ch)
         || ch->fighting
         || ch->followers != NULL
         || ch->master != NULL) {
-		errlog("attempted clear of creature who is still connected to the world.");
+		errlog("attempted clear of creature: %p %p %p %p %p",
+               ch->in_room,
+               ch->carrying,
+               ch->fighting,
+               ch->followers,
+               ch->master);
 		raise(SIGSEGV);
 	}
 
@@ -1512,7 +1518,12 @@ remove_combat(struct creature *ch, struct creature *target)
 void
 remove_all_combat(struct creature *ch)
 {
-    g_list_free(ch->fighting);
+    while (ch->fighting) {
+        struct creature *tch = ch->fighting->data;
+        remove_combat(tch, ch);
+        ch->fighting = g_list_delete_link(ch->fighting, ch->fighting);
+    }
+
     remove_fighting_affects(ch);
 }
 

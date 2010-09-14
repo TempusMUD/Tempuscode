@@ -771,6 +771,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
 	shop->steal_ok = false;
 	shop->attack_ok = false;
 	shop->func = NULL;
+    shop->reaction = make_reaction();
 
 	while ((line = tmp_getline(&param)) != NULL) {
 		lineno++;

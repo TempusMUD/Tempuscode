@@ -188,8 +188,10 @@ prog_set_prog_state(struct prog_env *env, struct prog_state_data *state)
 		return;
 	case PROG_TYPE_MOBILE:
 		((struct creature *)env->owner)->prog_state = state;
+        break;
 	case PROG_TYPE_ROOM:
 		((struct room_data *)env->owner)->prog_state = state;
+        break;
 	default:
         errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 		break;

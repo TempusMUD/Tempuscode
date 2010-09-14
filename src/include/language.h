@@ -34,6 +34,9 @@ extern GHashTable *tongues;
 #define GET_LANG_HEARD(ch) ((ch)->language_data.languages_heard)
 #define GET_TONGUE(ch) ((ch)->language_data.current_language)
 
+char *translate_with_tongue(struct tongue *tongue,
+                            const char *phrase,
+                            int amount);
 char *translate_tongue(struct creature *speaker,
                        struct creature *listener,
                        const char *message);
@@ -46,6 +49,7 @@ const char *tongue_name(int tongue_idx);
 const char *fluency_desc(struct creature *ch, int tongue_idx);
 void show_language_help(struct creature *ch);
 int find_tongue_idx_by_name(const char *tongue_name);
+struct tongue *find_tongue_by_idnum(int tongue_id);
 
 enum {
     TONGUE_NONE = -1,

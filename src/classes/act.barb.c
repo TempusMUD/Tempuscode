@@ -91,21 +91,23 @@ perform_barb_berserk(struct creature *ch,
 {
     gint select_victim(struct creature *tch, struct creature *ignore) {
         if (tch == ch
-            || tch->fighting->data != ch
+            || (tch->fighting && tch->fighting->data == ch)
             || PRF_FLAGGED(tch, PRF_NOHASSLE)
-            || (IS_NPC(ch)
-                && IS_NPC(tch)
+            || (IS_NPC(ch) && IS_NPC(tch)
                 && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
             || !can_see_creature(ch, tch)
             || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
-            return 0;
+            return -1;
 
-        return -1;
-    }
-    struct creature *vict;
-    vict = (struct creature *)g_list_find_custom(ch->in_room->people, NULL, (GCompareFunc)select_victim);
-    if (!vict)
         return 0;
+    }
+    GList *cit = g_list_find_custom(ch->in_room->people,
+                                   NULL,
+                                   (GCompareFunc)select_victim);
+    if (!cit)
+        return 0;
+
+    struct creature *vict = cit->data;
 
     act("You go berserk and attack $N!", false, ch, 0, vict, TO_CHAR);
     act("$n attacks you in a BERSERK rage!!", false, ch, 0, vict, TO_VICT);

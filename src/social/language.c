@@ -292,6 +292,12 @@ find_tongue_by_name(const char *tongue_name)
     return NULL;
 }
 
+struct tongue *
+find_tongue_by_idnum(int tongue_id)
+{
+    return g_hash_table_lookup(tongues, GINT_TO_POINTER(tongue_id));
+}
+
 int
 racial_tongue(int race_idx)
 {
