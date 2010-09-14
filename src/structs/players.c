@@ -5,18 +5,8 @@
 #include "utils.h"
 #include "db.h"
 
-/* The global player index */
-PlayerTable playerIndex;
-
-/**
- *  Creates a blank PlayerTable
-**/
-PlayerTable_PlayerTable()
-{
-}
-
 long
-PlayerTable_getTopIDNum()
+top_player_idnum(void)
 {
 	PGresult *res;
 	long result;
@@ -29,29 +19,11 @@ PlayerTable_getTopIDNum()
     return result;
 }
 
-/** loads the named victim into the provided struct creature **/
-bool
-PlayerTable_loadPlayer(const char* name, struct creature *victim) const
-{
-	long id = getID(name);
-	return loadPlayer(id, victim);
-}
-
-/** loads the victim with the given id into the provided struct creature **/
-bool
-PlayerTable_loadPlayer(const long id, struct creature *victim) const
-{
-	if(id <= 0) {
-		return false;
-	}
-	return victim->loadFromXML(id);
-}
-
 /**
  * Returns true if and only if the given id is present in the player table.
 **/
 bool
-PlayerTable_id_exists(long id)
+player_idnum_exists(long id)
 {
 	PGresult *res;
 	bool result;
@@ -67,7 +39,8 @@ PlayerTable_id_exists(long id)
 /**
  * Returns true if and only if the given name is present in the player table.
 **/
-bool PlayerTable_name_exists(const char* name)
+bool
+player_name_exists(const char* name)
 {
 	PGresult *res;
 	int result;
@@ -88,7 +61,7 @@ bool PlayerTable_name_exists(const char* name)
  * returns the char's name or NULL if not found.
 **/
 const char *
-PlayerTable_getName(long id)
+player_name_by_idnum(long id)
 {
 	PGresult *res;
 	char *result;
@@ -109,7 +82,7 @@ PlayerTable_getName(long id)
  *
 **/
 long
-PlayerTable_getID(const char *name) const
+player_idnum_by_name(const char *name)
 {
 	PGresult *res;
 	long result;
@@ -127,7 +100,7 @@ PlayerTable_getID(const char *name) const
 }
 
 long
-PlayerTable_getstruct accountID(const char *name) const
+player_account_by_name(const char *name)
 {
 	PGresult *res;
 	long result;
@@ -145,7 +118,7 @@ PlayerTable_getstruct accountID(const char *name) const
 }
 
 long
-PlayerTable_getstruct accountID(long id) const
+player_account_by_idnum(long id)
 {
 	PGresult *res;
 	long result;
@@ -162,7 +135,7 @@ PlayerTable_getstruct accountID(long id) const
 }
 
 size_t
-PlayerTable_size(void) const
+player_count(void)
 {
 	PGresult *res;
 	long result;

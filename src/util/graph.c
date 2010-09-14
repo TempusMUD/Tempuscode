@@ -61,7 +61,7 @@ struct bfs_queue_struct {
 	struct bfs_queue_struct *next;
 };
 
-static struct bfs_queue_struct *queue_head = 0, *queue_tail = 0;
+struct bfs_queue_struct *queue_head = 0, *queue_tail = 0;
 // Can't be static since it's used in map.
 unsigned char find_first_step_index = 0;
 
@@ -79,7 +79,7 @@ to_room(struct room_data *room, int dir)
 }
 
 inline bool
-valid_edge(struct room_data *room, int dir, track_mode mode)
+valid_edge(struct room_data *room, int dir, enum track_mode mode)
 {
 	struct room_data *dest = to_room(room, dir);
 
@@ -155,7 +155,7 @@ bfs_clear_queue(void)
 */
 
 int
-find_first_step(struct room_data *src, struct room_data *target, track_mode mode)
+find_first_step(struct room_data *src, struct room_data *target, enum track_mode mode)
 {
 	int curr_dir;
 	struct room_data *curr_room;
@@ -236,14 +236,14 @@ find_distance(struct room_data *start, struct room_data *dest)
 void
 show_trails_to_char(struct creature *ch, char *str)
 {
-	room_trail_data *trail;
+	struct room_trail_data *trail;
 	bool found = false;
 	const char *foot_desc, *drop_desc;
 	int prob;
 
 	acc_string_clear();
 
-	if (GET_LEVEL(ch) < LVL_AMBASSADOR && ch->in_room->isOpenAir()) {
+	if (GET_LEVEL(ch) < LVL_AMBASSADOR && room_is_open_air(ch->in_room)) {
 		send_to_char(ch, "Track through the open air?\r\n");
 		return;
 	}
@@ -370,7 +370,7 @@ ACMD(do_track)
 		GET_LEVEL(ch) > LVL_TIMEGOD ? GOD_TRACK : STD_TRACK );
 
     //misdirection melisma
-    affected_type *misdirection = affected_by_spell(vict, SONG_MISDIRECTION_MELISMA);
+    struct affected_type *misdirection = affected_by_spell(vict, SONG_MISDIRECTION_MELISMA);
     if (misdirection && misdirection->level + 40 > random_number_zero_low(150)) {
         int total = 0;
         int dirs[NUM_OF_DIRS];
@@ -489,7 +489,7 @@ ACMD(do_psilocate)
 			"You feel a strange sensation on the periphery of your psyche.\r\n");
 
     //misdirection melisma and psilocate failure
-    affected_type *misdirection = affected_by_spell(vict, SONG_MISDIRECTION_MELISMA);
+    struct affected_type *misdirection = affected_by_spell(vict, SONG_MISDIRECTION_MELISMA);
 	if (number(0, 121) > CHECK_SKILL(ch, SKILL_PSILOCATE) + GET_INT(ch) ||
         (misdirection && misdirection->level + 40 > random_number_zero_low(150))) {
         int total = 0;
@@ -556,16 +556,16 @@ smart_mobile_move(struct creature *ch, int dir)
 			} else
             do_gen_door(ch, doorbuf, 0, SCMD_OPEN, 0);
 
-		} else if (EXIT(ch, dir)->to_room->isOpenAir() &&
+		} else if (room_is_open_air(EXIT(ch, dir)->to_room) &&
         GET_POSITION(ch) != POS_FLYING) {
 			if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
 				do_fly(ch, tmp_strdup(""), 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 33)
-				cast_spell(ch, ch, 0, NULL, SPELL_FLY);
+				cast_spell(ch, ch, 0, NULL, SPELL_FLY, NULL);
 			else if (IS_CLERIC(ch) && GET_LEVEL(ch) >= 32)
-				cast_spell(ch, ch, 0, NULL, SPELL_AIR_WALK);
+				cast_spell(ch, ch, 0, NULL, SPELL_AIR_WALK, NULL);
 			else if (IS_PHYSIC(ch))
-				cast_spell(ch, ch, 0, NULL, SPELL_TIDAL_SPACEWARP);
+				cast_spell(ch, ch, 0, NULL, SPELL_TIDAL_SPACEWARP, NULL);
 			else if (!number(0, 10)) {
                 emit_voice(ch, NULL, VOICE_HUNT_OPENAIR);
 				return 0;
@@ -576,7 +576,7 @@ smart_mobile_move(struct creature *ch, int dir)
 			if (AFF_FLAGGED(ch, AFF_INFLIGHT))
 				do_fly(ch, tmp_strdup(""), 0, 0, 0);
 			else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 32)
-				cast_spell(ch, ch, 0, NULL, SPELL_WATERWALK);
+				cast_spell(ch, ch, 0, NULL, SPELL_WATERWALK, NULL);
 			else if (!number(0, 10)) {
 				emit_voice(ch, NULL, VOICE_HUNT_WATER);
 				return 0;
@@ -601,7 +601,6 @@ hunt_victim(struct creature *ch)
 {
 	struct affected_type *af_ptr = NULL;
 	int dir;
-	byte found;
 
 	if (!ch || !MOB_HUNTING(ch))
 		return;
@@ -612,23 +611,18 @@ hunt_victim(struct creature *ch)
 	}
 
 	/* make sure the char still exists */
-	struct creatureList_iterator cit = characterList.begin();
-	for (found = 0; cit != characterList.end() && !found; ++cit) {
-		if (MOB_HUNTING(ch) == (*cit))
-			found = 1;
-	}
-	if (!found) {
+	if (!g_list_find(creatures, MOB_HUNTING(ch))) {
 		if (!ch->fighting) {
             emit_voice(ch, NULL, VOICE_HUNT_GONE);
-			ch->stopHunting();
+			stopHunting(ch);
 		}
 		return;
 	}
 	if (GET_LEVEL(MOB_HUNTING(ch)) >= LVL_AMBASSADOR) {
-        ch->stopHunting();
+        stopHunting(ch);
 		return;
 	}
-	if (ch->findCombat(MOB_HUNTING(ch)))
+        if (findCombat(ch, MOB_HUNTING(ch)))
 		return;
 
 	if (ch->in_room == MOB_HUNTING(ch)->in_room &&
@@ -647,7 +641,7 @@ hunt_victim(struct creature *ch)
 			if ((IS_CLERIC(ch) && GET_LEVEL(ch) > 16) ||
 				(IS_MAGE(ch) && GET_LEVEL(ch) > 27)) {
 				if (GET_MANA(ch) < mag_manacost(ch, SPELL_SUMMON)) {
-					cast_spell(ch, MOB_HUNTING(ch), 0, NULL, SPELL_SUMMON);
+					cast_spell(ch, MOB_HUNTING(ch), 0, NULL, SPELL_SUMMON, NULL);
                     return;
 				}
 			}
@@ -659,7 +653,7 @@ hunt_victim(struct creature *ch)
         dir = find_first_step(ch->in_room, MOB_HUNTING(ch)->in_room, STD_TRACK);
 
         //misdirection melisma
-        affected_type *misdirection = affected_by_spell(MOB_HUNTING(ch), SONG_MISDIRECTION_MELISMA);
+        struct affected_type *misdirection = affected_by_spell(MOB_HUNTING(ch), SONG_MISDIRECTION_MELISMA);
         if (misdirection && misdirection->level + 40 > random_number_zero_low(150)) {
             int total = 0;
             int dirs[NUM_OF_DIRS];
@@ -683,11 +677,11 @@ hunt_victim(struct creature *ch)
 	if (dir < 0
         || find_distance(ch->in_room, MOB_HUNTING(ch)->in_room) > GET_INT(ch)) {
         emit_voice(ch, MOB_HUNTING(ch), VOICE_HUNT_LOST);
-		ch->stopHunting();
+		stopHunting(ch);
 		return;
 	}
     if (smart_mobile_move(ch, dir) < 0) {
-        ch->stopHunting();
+        stopHunting(ch);
         return;
     }
 

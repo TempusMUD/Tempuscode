@@ -45,6 +45,8 @@
 #include "config.h"
 #endif
 
+#include <stdbool.h>
+
 #define	m  (unsigned long)2147483647
 #define	q  (unsigned long)127773
 

@@ -42,35 +42,18 @@
 #include "utils.h"
 #include "flow_room.h"
 #include "prog.h"
+#include "weather.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
 
 /* external functions */
-long special(struct creature *ch, int cmd, int subcmd, char *arg, special_mode spec_mode);
+long special(struct creature *ch, int cmd, int subcmd, char *arg, enum special_mode spec_mode);
 void path_remove_object(void *object);
 void free_paths();
 void free_socials();
 void print_attributes_to_buf(struct creature *ch, char *buff);
 extern struct clan_data *clan_list;
-
-char *
-fname(char *namelist)
-{
-	static char holder[30];
-	char *point;
-
-	if (!namelist) {
-		errlog("Null namelist passed to fname().");
-		return tmp_strdup("");
-	}
-	for (point = holder; isalnum(*namelist); namelist++, point++)
-		*point = *namelist;
-
-	*point = '\0';
-
-	return (holder);
-}
 
 char *
 fname(const char *namelist)
@@ -507,7 +490,7 @@ affect_modify(struct creature *ch, sh_int loc, sh_int mod, long bitv,
 			GET_COND(ch, DRUNK) = 0;
 		break;
 	case APPLY_SPEED:
-		ch->setSpeed(ch->getSpeed() + mod);
+		SPEED_OF(ch) += mod;
 		break;
 
 	default:
@@ -562,7 +545,7 @@ affect_total(struct creature *ch)
         GET_DAMROLL(ch) = 0;
     }
 
-    ch->setSpeed(0);
+    SPEED_OF(ch) = 0;
 
 	/************************************************************************
      * Reset affected stats                                                 *
@@ -1015,9 +998,7 @@ char_from_room( struct creature *ch, bool check_specials)
 	}
 
 	if( spec_rc != 0 ) {
-		struct creatureList_iterator it =
-			find(tmp_room->people.begin(),tmp_room->people.end(), ch);
-		if( it == tmp_room->people.end() ) {
+        if (!g_list_find(tmp_room->people, ch)) {
 			if( spec_rc == 1 ) {
 				slog("struct creature died leaving search room(0x%lx)[%d]",
 					 (long)tmp_room, tmp_room->number);
@@ -1029,7 +1010,7 @@ char_from_room( struct creature *ch, bool check_specials)
 		}
 	}
 
-	tmp_room->people.remove(ch);
+    tmp_room->people = g_list_remove(tmp_room->people, ch);
 	ch->in_room = NULL;
 	return true;
 }
@@ -1061,7 +1042,7 @@ char_to_room(struct creature *ch, struct room_data *room, bool check_specials)
 		return false;
 	}
 
-	room->people.add(ch);
+    room->people = g_list_prepend(room->people, ch);
 	ch->in_room = room;
 
 	if (GET_RACE(ch) == RACE_ELEMENTAL && IS_CLASS(ch, CLASS_FIRE))
@@ -1103,7 +1084,7 @@ char_to_room(struct creature *ch, struct room_data *room, bool check_specials)
 		!AFF2_FLAGGED(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch)) {
 		act("$n suddenly bursts into flames!", false, ch, 0, 0, TO_ROOM);
 		act("You suddenly burst into flames!", false, ch, 0, 0, TO_CHAR);
-        ch->ignite(NULL);
+        ignite(ch);
 	}
 
     struct room_affect_data *raff;
@@ -1116,7 +1097,7 @@ char_to_room(struct creature *ch, struct room_data *room, bool check_specials)
 	  if (raff_owner &&
 		  raff_owner->in_room != ch->in_room &&
 		  (GET_LEVEL(ch) + number(1, 70)) <
-		  raff_owner->level_bonus(SONG_RHYTHM_OF_ALARM)) {
+		  skill_bonus(raff_owner, SONG_RHYTHM_OF_ALARM)) {
 
             raff->duration--;
             send_to_char(raff_owner, "%s has just entered %s.\r\n",
@@ -1130,9 +1111,7 @@ char_to_room(struct creature *ch, struct room_data *room, bool check_specials)
 		spec_rc = special(ch, 0, 0, tmp_strdup(""), SPECIAL_ENTER);
 
 	if( spec_rc != 0 ) {
-		struct creatureList_iterator it =
-			find(room->people.begin(),room->people.end(), ch);
-		if( it == room->people.end() ) {
+		if(!g_list_find(room->people, ch)) {
 			if( spec_rc == 1 ) {
 				slog("struct creature died entering search room (0x%lx)[%d]",
 					 (long)room, room->number);
@@ -1149,62 +1128,21 @@ char_to_room(struct creature *ch, struct room_data *room, bool check_specials)
 
 /* give an object to a char   */
 void
-obj_to_char(struct obj_data *object, struct creature *ch, bool sorted)
+obj_to_char(struct obj_data *object, struct creature *ch)
 {
-	struct obj_data *o = NULL;
-	int found;
 	struct zone_data *zn = NULL;
 
 	if (!object || !ch) {
 		errlog("NULL obj or char passed to obj_to_char");
 		return;
 	}
-	if (!ch->carrying) {
-		ch->carrying = object;
-		object->next_content = NULL;
-	} else if (sorted) {
-		found = 0;
-		if (ch->carrying && ch->carrying->shared->vnum ==
-			object->shared->vnum &&
-			((object->shared->proto && object->name == ch->carrying->name)
-				|| !strcasecmp(object->name, ch->carrying->name))
-			&& GET_OBJ_EXTRA(ch->carrying) == GET_OBJ_EXTRA(object)
-			&& GET_OBJ_EXTRA2(ch->carrying) == GET_OBJ_EXTRA2(object)) {
-			object->next_content = ch->carrying;
-			ch->carrying = object;
-			found = 1;
-		}
 
-		for (o = ch->carrying; !found && o && o->next_content; o = o->next_content) {
-			if (o->next_content->shared->vnum ==
-				object->shared->vnum &&
-				((object->shared->proto &&
-						object->name ==
-						o->next_content->name)
-					|| !strcasecmp(object->name,
-						o->next_content->name))
-				&& GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(object)
-				&& GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(object)) {
-				object->next_content = o->next_content;
-				o->next_content = object;
-				found = 1;
-				break;
-			}
-		}
-		if (!found) {
-			object->next_content = ch->carrying;
-			ch->carrying = object;
-		}
-	} else {
-		// Unsorted gets put at the end
-		for (o = ch->carrying; o->next_content; o = o->next_content)
-			;
-		o->next_content = object;
-		object->next_content = NULL;
-	}
+    object->next_content = ch->carrying;
+    ch->carrying = object;
+
 	object->carried_by = ch;
 	object->in_room = NULL;
-	IS_CARRYING_W(ch) += object->getWeight();
+	IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
 	IS_CARRYING_N(ch)++;
 
 	if (IS_OBJ_TYPE(object, ITEM_KEY) && !GET_OBJ_VAL(object, 1) &&
@@ -1249,7 +1187,7 @@ obj_from_char(struct obj_data *object)
 	if (!IS_NPC(object->carried_by))
 		SET_BIT(PLR_FLAGS(object->carried_by), PLR_CRASH);
 
-	IS_CARRYING_W(object->carried_by) -= object->getWeight();
+	IS_CARRYING_W(object->carried_by) -= GET_OBJ_WEIGHT(object);
 	IS_CARRYING_N(object->carried_by)--;
 	if (object->aux_obj) {
 		if (GET_OBJ_TYPE(object) == ITEM_SCUBA_MASK ||
@@ -1361,7 +1299,7 @@ equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
 		if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
 			GET_AC(ch) -= apply_ac(ch, pos);
 
-		IS_WEARING_W(ch) += obj->getWeight();
+		IS_WEARING_W(ch) += GET_OBJ_WEIGHT(obj);
 
 		if (ch->in_room != NULL) {
 			if (pos == WEAR_LIGHT && GET_OBJ_TYPE(obj) == ITEM_LIGHT)
@@ -1376,7 +1314,7 @@ equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
             return 0;
         }
 		GET_IMPLANT(ch, pos) = obj;
-		GET_WEIGHT(ch) += obj->getWeight();
+		GET_WEIGHT(ch) += GET_OBJ_WEIGHT(obj);
         break;
     case EQUIP_TATTOO:
         if (GET_TATTOO(ch, pos)) {
@@ -1436,7 +1374,7 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
 		if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
 			GET_AC(ch) += apply_ac(ch, pos);
 
-		IS_WEARING_W(ch) -= obj->getWeight();
+		IS_WEARING_W(ch) -= GET_OBJ_WEIGHT(obj);
 
 		if (ch->in_room != NULL) {
 			if (pos == WEAR_LIGHT && GET_OBJ_TYPE(obj) == ITEM_LIGHT)
@@ -1452,7 +1390,7 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
         }
 		obj = GET_IMPLANT(ch, pos);
 
-		GET_WEIGHT(ch) -= obj->getWeight();
+		GET_WEIGHT(ch) -= GET_OBJ_WEIGHT(obj);
         break;
     case EQUIP_TATTOO:
         if (!GET_TATTOO(ch, pos)) {
@@ -1513,7 +1451,7 @@ check_eq_align(struct creature *ch)
                     act("$n screams in horror as $p burns its way out through $s flesh!", false, ch,
                         implant, 0, TO_ROOM);
 
-                    damage_eq(NULL, implant, (GET_OBJ_DAM(implant) >> 1));
+                    damage_eq(NULL, implant, (GET_OBJ_DAM(implant) >> 1), -1);
 
                     int extraction_damage = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
                     if (pos == WEAR_BODY)
@@ -1620,11 +1558,11 @@ get_char_room(char *name, struct room_data *room)
 	if (!(number = get_number(&tmp)))
 		return NULL;
 
-	struct creatureList_iterator it = room->people.begin();
-	for (; it != room->people.end() && (j <= number); ++it) {
-		if (isname(tmp, (*it)->player.name))
+    for (GList *it = room->people;it &&  (j <= number);it = it->next) {
+        struct creature *tch = it->data;
+		if (isname(tmp, tch->player.name))
 			if (++j == number)
-				return (*it);
+				return tch;
 	}
 	return NULL;
 }
@@ -1632,7 +1570,7 @@ get_char_room(char *name, struct room_data *room)
 struct creature *
 get_char_in_world_by_idnum(int nr)
 {
-	return (characterMap.count(nr)) ? characterMap[nr]:NULL;
+	return g_hash_table_lookup(creature_map, GINT_TO_POINTER(nr));
 }
 
 bool
@@ -1677,7 +1615,7 @@ same_obj(struct obj_data *obj1, struct obj_data *obj2)
 				obj2->affected[index].modifier))
 			return (false);
 
-	if (obj1->getWeight() != obj2->getWeight())
+	if (GET_OBJ_WEIGHT(obj1) != GET_OBJ_WEIGHT(obj2))
 		return false;
 
 	return (true);
@@ -1685,11 +1623,8 @@ same_obj(struct obj_data *obj1, struct obj_data *obj2)
 
 /* put an object in a room */
 void
-obj_to_room(struct obj_data *object, struct room_data *room, bool sorted)
+obj_to_room(struct obj_data *object, struct room_data *room)
 {
-	struct obj_data *o = NULL, *last_o = NULL;
-	int found;
-
 	if (!object || !room) {
 		errlog("Illegal %s | %s passed to obj_to_room",
 			object ? "" : "OBJ", room ? "" : "ROOM");
@@ -1703,35 +1638,10 @@ obj_to_room(struct obj_data *object, struct room_data *room, bool sorted)
         return;
     }
 
-	if (!room->contents) {
-		room->contents = object;
-		object->next_content = NULL;
-	} else if (sorted) {
-		found = 0;
-		for (o = room->contents; o; last_o = o, o = o->next_content) {
+    object->next_content = room->contents;
+    room->contents = object;
 
-			if (same_obj(o, object)) {
-				object->next_content = o;
-				if (last_o)
-					last_o->next_content = object;
-				else
-					room->contents = object;
-				found = 1;
-				break;
-			}
-		}
-		/* prettier if new objects go to top of  room */
-		if (!found) {
-			object->next_content = room->contents;
-			room->contents = object;
-		}
-	} else {
-		for (o = room->contents;o->next_content;o = o->next_content)
-			;
-		o->next_content = object;
-		object->next_content = NULL;
-	}
-	object->in_room = room;
+    object->in_room = room;
 
     if (ROOM_FLAGGED(room, ROOM_HOUSE))
 		SET_BIT(ROOM_FLAGS(room), ROOM_HOUSE_CRASH);
@@ -1784,48 +1694,21 @@ obj_from_room(struct obj_data *object)
 
 /* put an object in an object (quaint)  */
 void
-obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, bool sorted)
+obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
 {
-	struct obj_data *o = NULL;
 	struct creature *vict = NULL;
-	int found;
 
 	if (!obj || !obj_to || obj == obj_to) {
 		errlog("NULL object or same src and targ obj passed to obj_to_obj");
 		return;
 	}
-	if (!obj_to->contains) {
-		obj_to->contains = obj;
-		obj->next_content = NULL;
-	} else if (sorted) {
-		found = 0;
-		for (o = obj_to->contains; o && o->next_content; o = o->next_content) {
-			if (o->next_content->shared->vnum == obj->shared->vnum &&
-				obj->shared->vnum >= 0 &&
-				GET_OBJ_EXTRA(o->next_content) == GET_OBJ_EXTRA(obj) &&
-				GET_OBJ_EXTRA2(o->next_content) == GET_OBJ_EXTRA2(obj)) {
-				obj->next_content = o->next_content;
-				o->next_content = obj;
-
-				found = 1;
-				break;
-			}
-		}
-		if (!found) {
-			obj->next_content = obj_to->contains;
-			obj_to->contains = obj;
-		}
-	} else {
-		for (o = obj_to->contains; o->next_content; o = o->next_content)
-			;
-		o->next_content = obj;
-		obj->next_content = NULL;
-	}
+    obj->next_content = obj_to->contains;
+    obj_to->contains = obj;
 
 	obj->in_obj = obj_to;
 
 	/* top level object.  Subtract weight from inventory if necessary. */
-	obj_to->modifyWeight(obj->getWeight());
+	modifyWeight(obj_to, GET_OBJ_WEIGHT(obj));
 
 	if (obj_to->in_room && ROOM_FLAGGED(obj_to->in_room, ROOM_HOUSE))
 		SET_BIT(ROOM_FLAGS(obj_to->in_room), ROOM_HOUSE_CRASH);
@@ -1857,7 +1740,7 @@ obj_from_obj(struct obj_data *obj)
 
 	obj_from = obj->in_obj;
 
-	obj_from->modifyWeight(-obj->getWeight());
+	modifyWeight(obj_from, -GET_OBJ_WEIGHT(obj));
 
 	REMOVE_FROM_LIST(obj, obj_from->contains, next_content);
 
@@ -1887,7 +1770,7 @@ extract_obj(struct obj_data *obj)
 	if (obj->worn_by != NULL)
 		if (unequip_char(obj->worn_by, obj->worn_on,
 				(obj == GET_EQ(obj->worn_by, obj->worn_on) ?
-					EQUIP_WORN : EQUIP_IMPLANT), false) != obj)
+					EQUIP_WORN : EQUIP_IMPLANT)) != obj)
 			errlog("Inconsistent worn_by and worn_on pointers!!");
 	if (obj->in_room != NULL)
 		obj_from_room(obj);
@@ -1987,7 +1870,6 @@ struct creature *
 get_player_vis(struct creature *ch, const char *name, int inroom)
 {
 	struct creature *i, *match;
-	struct creatureList_iterator cit;
 	char *tmpname, *write_pt;
 
 	// remove leading spaces
@@ -2001,9 +1883,8 @@ get_player_vis(struct creature *ch, const char *name, int inroom)
 	*write_pt = '\0';
 
 	match = NULL;
-	cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		i = *cit;
+    for (GList *cit = creatures;cit;cit = cit->next) {
+		i = cit->data;
 		if ((!IS_NPC(i) || i->desc) &&
 				(!inroom || i->in_room == ch->in_room) &&
 				can_see_creature(ch, i)) {
@@ -2027,7 +1908,6 @@ struct creature *
 get_mobile_vis(struct creature *ch, const char *name, int inroom)
 {
 	struct creature *i, *match;
-	struct creatureList_iterator cit;
 	char *tmpname, *write_pt;
 
 	// remove leading spaces
@@ -2041,9 +1921,8 @@ get_mobile_vis(struct creature *ch, const char *name, int inroom)
 	*write_pt = '\0';
 
 	match = NULL;
-	cit = characterList.begin();
-	for (; cit != characterList.end(); ++cit) {
-		i = *cit;
+    for (GList *cit = creatures;cit;cit = cit->next) {
+		i = cit->data;
 		if (IS_NPC(i)
             && (!inroom || i->in_room == ch->in_room)
             && can_see_creature(ch, i)) {
@@ -2081,20 +1960,20 @@ get_char_room_vis(struct creature *ch, const char *name)
 	if( strcasecmp(name, "self") == 0 )
 		return ch;
 
-	struct creatureList_iterator it = ch->in_room->people.begin();
-	for (; it != ch->in_room->people.end() && j <= number; ++it) {
+    for (GList *cit = ch->in_room->people;cit && j <= number;cit = cit->next) {
+		struct creature *tch = cit->data;
 		struct creature *mob = NULL;
-		af = affected_by_spell( (*it), SKILL_DISGUISE );
+		af = affected_by_spell( tch, SKILL_DISGUISE );
 		if( af != NULL ) {
 			mob = real_mobile_proto(af->modifier);
 		}
 
 		if( (mob != NULL && isname(tmp, mob->player.name)) ||
-			(( af == NULL || CAN_DETECT_DISGUISE(ch, (*it), af->duration))
-				&& isname(tmp, (*it)->player.name))) {
-			if (can_see_creature(ch, (*it))) {
+			(( af == NULL || CAN_DETECT_DISGUISE(ch, tch, af->duration))
+				&& isname(tmp, tch->player.name))) {
+			if (can_see_creature(ch, tch)) {
 				if (++j == number) {
-					return *it;
+					return tch;
 				}
 			}
 		}
@@ -2109,13 +1988,10 @@ get_char_random(struct room_data *room)
 	struct creature *result = NULL;
 	int total = 0;
 
-	if (room->people.empty())
-		return NULL;
-
-	struct creatureList_iterator cit = room->people.begin();
-	for (; cit != room->people.end(); ++cit) {
+	for (GList *cit = room->people;cit;cit = cit->next) {
+		struct creature *tch = cit->data;
 		if (!number(0, total))
-			result = *cit;
+			result = tch;
 		total++;
 	}
 
@@ -2128,14 +2004,14 @@ get_char_random_vis(struct creature *ch, struct room_data *room)
 	struct creature *result = NULL;
 	int total = 0;
 
-	if (room->people.empty())
+	if (!room->people)
 		return NULL;
 
-	struct creatureList_iterator cit = room->people.begin();
-	for (; cit != room->people.end(); ++cit) {
-		if (*cit != ch && can_see_creature(ch, *cit)) {
+	for (GList *cit = room->people;cit;cit = cit->next) {
+		struct creature *tch = cit->data;
+		if (tch != ch && can_see_creature(ch, tch)) {
             if (!number(0, total))
-                result = *cit;
+                result = tch;
             total++;
         }
 	}
@@ -2149,14 +2025,14 @@ get_player_random(struct room_data *room)
 	struct creature *result = NULL;
 	int total = 0;
 
-	if (room->people.empty())
+	if (!room->people)
 		return NULL;
 
-	struct creatureList_iterator cit = room->people.begin();
-	for (; cit != room->people.end(); ++cit) {
-		if (IS_PC(*cit)) {
+    for (GList *cit = room->people;cit;cit = cit->next) {
+		struct creature *tch = cit->data;
+		if (IS_PC(tch)) {
             if (!number(0, total))
-                result = *cit;
+                result = tch;
             total++;
         }
 	}
@@ -2170,14 +2046,14 @@ get_player_random_vis(struct creature *ch, struct room_data *room)
 	struct creature *result = NULL;
 	int total = 0;
 
-	if (room->people.empty())
+	if (!room->people)
 		return NULL;
 
-	struct creatureList_iterator cit = room->people.begin();
-	for (; cit != room->people.end(); ++cit) {
-		if (*cit != ch && IS_PC(*cit) && can_see_creature(ch, *cit)) {
+    for (GList *cit = room->people;cit;cit = cit->next) {
+		struct creature *tch = cit->data;
+		if (tch != ch && IS_PC(tch) && can_see_creature(ch, tch)) {
             if (!number(0, total))
-                result = *cit;
+                result = tch;
             total++;
         }
 	}
@@ -2215,9 +2091,8 @@ get_char_vis(struct creature *ch, const char *name)
 	if (!(number = get_number(&tmp)))
 		return get_player_vis(ch, tmp, 0);
 
-	struct creatureList_iterator cit = characterList.begin();
-	for (; cit != characterList.end() && (j <= number); ++cit) {
-		i = *cit;
+    for (GList *cit = creatures;cit;cit = cit->next) {
+		i = cit->data;
 		if (isname(tmp, i->player.name) && can_see_creature(ch, i))
 			if (++j == number)
 				return i;
@@ -2276,7 +2151,7 @@ get_obj_vis(struct creature *ch, const char *name)
 	char tmpname[MAX_INPUT_LENGTH];
 	char *tmp = tmpname;
 
-	if (is_number(name) && is_group_member(ch, "Coder")) {
+	if (is_number(name) && is_named_role_member(ch, "Coder")) {
 		// Scan the object list for the unique ID given by the number
 		number = atoi(name);
 		for (i = object_list; i; i = i->next)
@@ -2549,12 +2424,16 @@ is_weird(struct creature *ch, struct obj_data *obj, struct creature *vict)
 	if (obj) {
 		if (GET_OBJ_VNUM(obj) == BLOOD_VNUM)
 			return 1;
-		if (!OBJ_APPROVED(obj) && !ch->isTester() && !MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
+		if (!OBJ_APPROVED(obj)
+            && !is_authorized(ch, TESTER, NULL)
+            && !MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
 			return 1;
 	}
 
 	if (vict && IS_NPC(vict)) {
-		if (MOB2_FLAGGED(vict, MOB2_UNAPPROVED) && !ch->isTester() && !MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
+		if (MOB2_FLAGGED(vict, MOB2_UNAPPROVED)
+            && !is_authorized(ch, TESTER, NULL)
+            && !MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
 			return 1;
 	}
 
@@ -2681,14 +2560,14 @@ int parse_char_class(char *);
 int parse_race(char *);
 
 bool
-add_reaction(struct reaction *reaction, char *arg)
+add_reaction(struct reaction *reaction, char *config, char *arg)
 {
 	char *tmp;
-	clan_data *clan;
+	struct clan_data *clan;
 	char *condition;
 	char new_reaction[3];
     char *action_str;
-	decision_t action;
+	enum decision_t action;
 
 	action_str = tmp_getword(&config);
 	if (!strcmp(action_str, "allow"))
@@ -2742,28 +2621,28 @@ add_reaction(struct reaction *reaction, char *arg)
 	} else
 		return false;
 
-	if (_reaction) {
-		tmp = tmp_strcat(_reaction, new_reaction);
-		free(_reaction);
-		_reaction = strdup(tmp);
+	if (reaction->reaction) {
+		tmp = tmp_strcat(reaction->reaction, new_reaction, NULL);
+		free(reaction->reaction);
+		reaction->reaction = strdup(tmp);
 	} else {
-		_reaction = strdup(new_reaction);
+		reaction->reaction = strdup(new_reaction);
 	}
 
 	return true;
 }
 
-decision_t
+enum decision_t
 react(struct reaction *reaction, struct creature *ch)
 {
 	char *read_pt;
 	bool match, wantmatch;
-	decision_t action;
+	enum decision_t action;
 
-	if (!_reaction)
+	if (!reaction->reaction)
 		return UNDECIDED;
 
-	for (read_pt = _reaction;*read_pt;read_pt++) {
+	for (read_pt = reaction->reaction;*read_pt;read_pt++) {
 		match = false;
 		action = ((*read_pt) & 0x10) ? ALLOW:DENY;
 		wantmatch = ((*read_pt) & 0x20) ? false:true;

@@ -158,46 +158,21 @@ one_word(char *argument, char *first_arg)
 void
 show_file(struct creature *ch, const char *fname, int lines)
 {
-	fstream file;
+    FILE *inf;
 
-	file.open(fname, ios_in);
-	if (!file) {
+    inf = fopen(fname, "r");
+    if (!inf) {
 		send_to_char(ch, "It seems to be empty.\r\n");
 		return;
 	}
-
-	file.seekg(0, ios_end);
-	if (!file.tellg()) {
-		send_to_char(ch, "It seems to be empty.\r\n");
-		return;
-	}
-	file.seekg(0, ios_beg);
-
-    if (lines > 100) {
-        send_to_char(ch,
-            "If you want that many lines, you might as well read the whole thing.\r\n");
-        return;
-    }
-
-    char buff[2048];
-    vector<string> oLines;
-
-    do {
-        file.getline(buff, sizeof(buff));
-        oLines.push_back(string(buff));
-    } while (!file.eof());
-
-    if (lines == 0)
-       lines = oLines.size() -1;
 
     acc_string_clear();
-    vector<string>_reverse_iterator ri = oLines.rbegin();
-    for (int x = 0; x <= lines; ++x, ++ri) {
-        if (*ri != "")
-            acc_strcat(ri->c_str(), "\r\n", NULL);
-    }
+    char buf[2048];
+    while (fgets(buf, sizeof(buf), inf))
+        acc_strcat(buf, "\r\n", NULL);
 
-	file.close();
+    fclose(inf);
+
 	page_string(ch->desc, acc_get_string());
 }
 
@@ -212,7 +187,7 @@ page_string(struct descriptor_data *d, const char *str)
 		free(d->showstr_head);
 
     // If term height is zero, just send the string
-    if (!d->account->get_term_height()) {
+    if (!d->account->term_height) {
         send_to_desc(d, "%s", str);
         d->showstr_point = d->showstr_head = NULL;
         return;
@@ -234,8 +209,8 @@ show_string(struct descriptor_data *d)
 	int page_length, cols, undisplayed;
 	int pt_save;
 
-	page_length = d->account->get_term_height();
-	cols = d->account->get_term_width();
+	page_length = d->account->term_height;
+	cols = d->account->term_width;
 
 	// No division by zero errors!
 	if (cols == 0)

@@ -78,7 +78,7 @@ extern struct zone_data *zone_table;
 extern struct creature *mob_proto;
 extern struct spell_info_type spell_info[];
 void safe_exit(int mode);
-int player_in_room(struct room_data *room);
+bool player_in_room(struct room_data *room);
 void check_bits_32(int bitv, int *newbits);
 
 enum decision_t {

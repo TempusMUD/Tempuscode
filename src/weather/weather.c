@@ -30,11 +30,11 @@
 #include "db.h"
 #include "quest.h"
 #include "char_class.h"
+#include "weather.h"
 
 extern struct time_info_data time_info;
 extern int lunar_day;
 
-void weather_and_time(int mode);
 void another_hour();
 void weather_change(void);
 void zone_weather_change(struct zone_data *zone);
@@ -49,7 +49,7 @@ weather_and_time(void)
 	// Advance last sunday time
 	if (now - last_sunday_time > (7 * 24 * 60 * 60)) {
 		last_sunday_time += 7 * 24 * 60 * 60;
-		qp_reload();
+		qp_reload(0);
 	}
 
 	another_hour();

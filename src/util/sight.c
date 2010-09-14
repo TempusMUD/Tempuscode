@@ -8,6 +8,8 @@
 #include "utils.h"
 #include "spells.h"
 #include "handler.h"
+#include "weather.h"
+#include "security.h"
 
 // Returns true if the room is outside and sunny, otherwise returns false
 bool
@@ -145,7 +147,7 @@ check_sight_object(struct creature *self, struct obj_data *obj)
 		return true;
 
 	if (!OBJ_APPROVED(obj) && !MOB2_FLAGGED(self, MOB2_UNAPPROVED) &&
-			!IS_IMMORT(self) && !self->isTester())
+			!IS_IMMORT(self) && !is_authorized(self, TESTER, NULL))
 		return false;
 
 	if (IS_OBJ_STAT(obj, ITEM_TRANSPARENT) &&
@@ -179,12 +181,12 @@ check_sight_vict(struct creature *self, struct creature *vict)
 	// Mortals can't see unapproved mobs
 	if (!MOB2_FLAGGED(self, MOB2_UNAPPROVED) &&
 			MOB2_FLAGGED(vict, MOB2_UNAPPROVED) &&
-			!IS_IMMORT(self) && !self->isTester())
+			!IS_IMMORT(self) && !is_authorized(self, TESTER, NULL))
 		return false;
 
 	// Non-tester mortal players can't see testers
 	if (!IS_IMMORT(self) && !IS_NPC(self) &&
-			!self->isTester() && vict->isTester())
+        !is_authorized(self, TESTER, NULL) && is_authorized(vict, TESTER, NULL))
 		return false;
 
 	// Holy is the light that shines on the chosen

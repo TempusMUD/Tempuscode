@@ -48,19 +48,9 @@
 extern struct follow_type *order_next_k;
 char ANSI[20];
 
-struct ovect_struct {
-    bool operator<(const struct ovect_struct &r) const {
-        return unique_id < r.unique_id;
-    }
-    long unique_id;
-    struct obj_data *obj;
-};
-
 void
 safe_exit(int mode)
 {
-	Security_shutdown();
-
 	touch("../pause");
 	slog("Exiting with status %d from safe_exit().", mode);
 	exit(mode);
@@ -138,7 +128,7 @@ touch(const char *path)
  * based on syslog by Fen Jul 3, 1992
  */
 void
-mlog(const char *group, sbyte level, log_type type, bool file, const char *fmt, ...)
+mlog(const char *group, sbyte level, enum log_type type, bool file, const char *fmt, ...)
 {
 	extern struct descriptor_data *descriptor_list;
 	struct descriptor_data *i;
@@ -158,7 +148,7 @@ mlog(const char *group, sbyte level, log_type type, bool file, const char *fmt, 
 	if (file)
 		fprintf(stderr, "%-19.19s _ %s\n", asctime(ctm), msg);
 
-	if (group == Security_NOONE)
+	if (group == SECURITY_NOONE)
 		return;
 	if (level < 0)
 		return;
@@ -173,7 +163,7 @@ mlog(const char *group, sbyte level, log_type type, bool file, const char *fmt, 
 			tp = ((PRF_FLAGGED(i->creature, PRF_LOG1) ? 1 : 0) +
 				(PRF_FLAGGED(i->creature, PRF_LOG2) ? 2 : 0));
 
-			if (is_group_member(i->creature, group)
+			if (is_named_role_member(i->creature, group)
 					&& (GET_LEVEL(i->creature) >= level)
 					&& (tp >= type))
 				send_to_char(i->creature, "%s[ %s%s ]%s\r\n",
@@ -190,7 +180,7 @@ slog(const char *fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	mlog(Security_NOONE, -1, CMP, true, "%s", tmp_vsprintf(fmt, args));
+	mlog(SECURITY_NOONE, -1, CMP, true, "%s", tmp_vsprintf(fmt, args));
 	va_end(args);
 }
 
@@ -199,13 +189,13 @@ slog(const char *fmt, ...)
  * based on syslog by Fen Jul 3, 1992
  */
 void
-mudlog(sbyte level, log_type type, bool file, const char *fmt, ...)
+mudlog(sbyte level, enum log_type type, bool file, const char *fmt, ...)
 {
 
 	va_list args;
 
 	va_start(args, fmt);
-	mlog(Security_EVERYONE, level, type, file, "%s", tmp_vsprintf(fmt, args));
+	mlog(SECURITY_EVERYONE, level, type, file, "%s", tmp_vsprintf(fmt, args));
 	va_end(args);
 }
 
@@ -228,11 +218,11 @@ errlog(const char *fmt, ...)
     }
 
 	va_start(args, fmt);
-	mlog(Security_CODER, LVL_AMBASSADOR, NRM, true,
+	mlog(SECURITY_CODER, LVL_AMBASSADOR, NRM, true,
 		"SYSERR: %s", tmp_vsprintf(fmt, args));
 	va_end(args);
 
-	mlog(Security_NOONE, LVL_AMBASSADOR, NRM, true,
+	mlog(SECURITY_NOONE, LVL_AMBASSADOR, NRM, true,
 		"TRACE: %s", backtrace_str);
 }
 
@@ -410,7 +400,7 @@ circle_follow(struct creature * ch, struct creature * victim)
 bool
 can_charm_more(struct creature *ch)
 {
-	follow_type *cur;
+	struct follow_type *cur;
 	int count = 0;
 
 	// We can always charm one
@@ -491,15 +481,16 @@ die_follower(struct creature *ch)
 		stop_follower(k->follower);
 	}
 }
-int
+
+bool
 player_in_room(struct room_data *room)
 {
-	struct creatureList_iterator it = room->people.begin();
-	for (; it != room->people.end(); ++it) {
-		if (!IS_NPC((*it)) && GET_LEVEL((*it)) < LVL_AMBASSADOR)
-			return 1;
+    for (GList *it = room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+		if (!IS_NPC(tch) && GET_LEVEL(tch) < LVL_AMBASSADOR)
+			return true;
 	}
-	return 0;
+	return false;
 }
 
 /* Do NOT call this before having checked if a circle of followers */
@@ -658,7 +649,7 @@ CHECK_SKILL(struct creature *ch, int i)
 int
 CHECK_TONGUE(struct creature *ch, int i)
 {
-    return ch->language_data->tongues[i];
+    return ch->language_data.tongues[i];
 }
 
 void
@@ -675,8 +666,8 @@ WAIT_STATE(struct creature *ch, int cycle)
 		wait -= cycle >> 2;
 	if (AFF2_FLAGGED(ch, AFF2_SLOW))
 		wait += cycle >> 2;
-	if (ch->getSpeed())
-		wait -= (cycle * ch->getSpeed()) / 100;
+	if (SPEED_OF(ch))
+		wait -= (cycle * SPEED_OF(ch)) / 100;
 
 	if (ch->desc) {
 		ch->desc->wait = MAX(ch->desc->wait, wait);
@@ -754,16 +745,16 @@ CURRENCY(struct creature * ch)
 bool
 CAN_GO(struct creature * ch, int door)
 {
-	room_direction_data *exit = EXIT(ch, door);
+	struct room_direction_data *exit = EXIT(ch, door);
 	return (exit != NULL &&
 		!IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
 		exit->to_room != NULL);
 }
 
 bool
-CAN_GO(struct obj_data * obj, int door)
+OCAN_GO(struct obj_data * obj, int door)
 {
-	room_direction_data *exit = EXIT(obj, door);
+	struct room_direction_data *exit = OEXIT(obj, door);
 	return (exit != NULL &&
 		!IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
 		exit->to_room != NULL);
@@ -822,19 +813,4 @@ void check_bits_32(int bitv, int *newbits)
         if (bitv & (1 << i))
             *newbits &= ~(1 << i);
     }
-}
-
-void
-create_object_vector(vector<struct ovect_struct> &ov) {
-    struct ovect_struct tempo;
-
-    for (struct obj_data *k = object_list; k; k = k->next) {
-        if (!k->unique_id)
-            continue;
-        tempo.unique_id = k->unique_id;
-        tempo.obj = k;
-        ov.push_back(tempo);
-    }
-
-    sort(ov.begin(), ov.end());
 }

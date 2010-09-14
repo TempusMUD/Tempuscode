@@ -21,8 +21,8 @@ struct tmp_str_pool {
 const size_t DEFAULT_POOL_SIZE = 65536;	// 64k to start with
 size_t tmp_max_used = 0;				// Tracks maximum tmp str space used
 
-static tmp_str_pool *tmp_list_head;	// Always points to the initial pool
-static tmp_str_pool *tmp_list_tail;	// Points to the end of the linked
+static struct tmp_str_pool *tmp_list_head;	// Always points to the initial pool
+static struct tmp_str_pool *tmp_list_tail;	// Points to the end of the linked
 									// list of pools
 
 struct tmp_str_pool *tmp_alloc_pool(size_t size_req);
@@ -220,7 +220,7 @@ tmp_gettoken(const char **src)
 
 // like tmp_gettoken, but downcases the string before returning it
 char *
-tmp_getword(const char **src)
+tmp_getword(char **src)
 {
     char *result = tmp_gettoken(src);
     char *c;
@@ -231,7 +231,7 @@ tmp_getword(const char **src)
 }
 
 char *
-tmp_getquoted(const char **src)
+tmp_getquoted(char **src)
 {
 	struct tmp_str_pool *cur_buf;
 	const char *read_pt;
@@ -481,7 +481,38 @@ tmp_capitalize(const char *str)
 }
 
 char *
-tmp_strdup(const char *src, const char *term_str)
+tmp_strdup(const char *src)
+{
+	struct tmp_str_pool *cur_buf;
+	char *write_pt, *result;
+	const char *read_pt;
+	size_t len;
+
+	// Figure out how much space we'll need
+    len = strlen(src) + 1;
+
+	// If we don't have the space, we allocate another pool
+	if (len > tmp_list_tail->space - tmp_list_tail->used)
+		cur_buf = tmp_alloc_pool(len);
+	else
+		cur_buf = tmp_list_tail;
+
+	result = cur_buf->data + cur_buf->used;
+	write_pt = result;
+	cur_buf->used += len;
+
+	// Copy in the first string
+	read_pt = src;
+	write_pt = result;
+	while (--len)
+		*write_pt++ = *read_pt++;
+	*write_pt = '\0';
+
+	return result;
+}
+
+char *
+tmp_strdupt(const char *src, const char *term_str)
 {
 	struct tmp_str_pool *cur_buf;
 	char *write_pt, *result;
