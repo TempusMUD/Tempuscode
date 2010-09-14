@@ -67,7 +67,7 @@ load_voice(xmlNodePtr node)
     CREATE(voice, struct voice, 1);
     voice->idnum = xmlGetIntProp(node, "idnum", 0);
     voice->name = (char *)xmlGetProp(node, (xmlChar *)"name");
-    voice->emits = g_hash_table_new(g_int_hash, g_int_equal);
+    voice->emits = g_hash_table_new(g_direct_hash, g_direct_equal);
     for (child = node->children;child;child = child->next) {
         if (xmlMatches(child->name, "text"))
             continue;
@@ -134,7 +134,7 @@ boot_voices(void)
 	xmlDocPtr doc;
 	xmlNodePtr node;
 
-    voices = g_hash_table_new(g_int_hash, g_int_equal);
+    voices = g_hash_table_new(g_direct_hash, g_direct_equal);
 
     doc = xmlParseFile("etc/voices.xml");
     if (!doc) {

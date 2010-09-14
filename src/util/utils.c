@@ -146,7 +146,7 @@ mlog(const char *group, sbyte level, enum log_type type, bool file, const char *
 	ctm = localtime(&ct);
 
 	if (file)
-		fprintf(stderr, "%-19.19s _ %s\n", asctime(ctm), msg);
+		fprintf(stderr, "%-19.19s :: %s\n", asctime(ctm), msg);
 
 	if (group == ROLE_NOONE)
 		return;

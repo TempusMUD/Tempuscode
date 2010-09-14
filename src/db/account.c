@@ -45,7 +45,7 @@ account_boot(void)
 {
     PGresult *res;
 
-    account_cache = g_hash_table_new(g_int_hash, g_int_equal);
+    account_cache = g_hash_table_new(g_direct_hash, g_direct_equal);
 
     slog("Getting max account idnum");
 

@@ -476,7 +476,7 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
 	else
 		mat_name = "material";
 
-	new_obj = create_obj();
+	new_obj = make_object();
 	new_obj->shared = null_obj_shared;
 	GET_OBJ_MATERIAL(new_obj) = GET_OBJ_MATERIAL(obj);
 	GET_OBJ_WEIGHT(new_obj) = GET_OBJ_WEIGHT(obj);

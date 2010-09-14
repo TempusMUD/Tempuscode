@@ -36,9 +36,10 @@ role_by_name(const char *name)
         return strcasecmp(role->name, name);
     }
     
-    return (struct role *)g_list_find_custom(roles,
-                                             (GCompareFunc)role_matches,
-                                             (gconstpointer)name);
+    GList *it = g_list_find_custom(roles,
+                                   (gconstpointer)name,
+                                   (GCompareFunc)role_matches);
+    return (it) ? it->data:NULL;
 }
 
 /* sets this role's description */
@@ -293,80 +294,4 @@ free_role(struct role *role)
     g_list_free(role->commands);
     g_list_free(role->members);
     free(role);
-}
-
-/*
- *  Loads a role from the given xmlnode;
- *  Intended for reading from a file
- */
-struct role *
-load_role_from_xml(xmlNodePtr node)
-{
-    struct role *role;
-
-    role = make_role(NULL, NULL, NULL);
-
-    // properties
-    role->name = (char *)xmlGetProp(node, (xmlChar *)"Name");
-    role->description = (char *)xmlGetProp(node, (xmlChar *)"Description");
-    role->admin_role = (char *)xmlGetProp(node, (xmlChar *)"Admin");
-
-    long member;
-    char *command;
-    // commands & members
-    node = node->xmlChildrenNode;
-    while (node != NULL) {
-        if ((xmlMatches(node->name, "Member"))) {
-            member = xmlGetLongProp(node, "ID", 0);
-            if (member == 0 || !player_idnum_exists(member)) {
-                errlog("Invalid PID %ld not loaded.", member);
-            } else {
-                add_role_member(role, member);
-            }
-        }
-        if ((xmlMatches(node->name, "Command"))) {
-            command = (char *)xmlGetProp(node, (xmlChar *)"Name");
-            int index = find_command(command);
-            if (index == -1) {
-                errlog("Role(xmlNodePtr): command %s not found", command);
-            } else {
-                add_role_command(role, &cmd_info[index]);
-            }
-            free(command);
-        }
-        node = node->next;
-    }
-
-    return role;
-}
-
-/*
- * Create the required xmlnodes to recreate this role
- */
-bool
-save_role_to_xml(struct role *role, xmlNodePtr parent)
-{
-    xmlNodePtr node = NULL;
-
-    parent = xmlNewChild(parent, NULL, (const xmlChar *)"Role", NULL);
-    xmlSetProp(parent, (xmlChar *)"Name", (xmlChar *)role->name);
-    xmlSetProp(parent, (xmlChar *)"Description", (xmlChar *)role->description);
-    xmlSetProp(parent, (xmlChar *)"Admin", (xmlChar *)role->admin_role);
-
-    for(GList *cit = role->commands; cit; cit = cit->next) {
-        node = xmlNewChild(parent, NULL, (const xmlChar *)"Command", NULL);
-        struct command_info *cmd = (struct command_info *)cit->data;
-        xmlSetProp(node, (xmlChar *)"Name", (const xmlChar *)cmd->command);
-    }
-    for(GList *cit = role->members; cit; cit = cit->next) {
-        node = xmlNewChild(parent, NULL, (const xmlChar *)"Member", NULL);
-        char *name = player_name_by_idnum(GPOINTER_TO_INT(cit->data));
-        char *id_str = tmp_sprintf("%d", GPOINTER_TO_INT(cit->data));
-        if (name) {
-            xmlSetProp(node, (xmlChar *)"Name", (xmlChar *)name);
-            xmlSetProp(node, (xmlChar *)"ID", (xmlChar *)id_str);
-        }
-    }
-        
-    return true;
 }

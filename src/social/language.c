@@ -220,6 +220,8 @@ boot_tongues(void)
 	xmlDocPtr doc;
 	xmlNodePtr node;
 
+    tongues = g_hash_table_new(g_direct_hash, g_direct_equal);
+
     doc = xmlParseFile("etc/tongues.xml");
     if (!doc) {
         errlog("Couldn't load etc/tongues.xml");
@@ -242,7 +244,7 @@ boot_tongues(void)
     while (node) {
         // Parse different nodes here.
         if (xmlMatches(node->name, "tongue")) {
-            int idnum = xmlGetIntProp(node, "idnum", 0);
+            int idnum = xmlGetIntProp(node, "idnum", -1);
             struct tongue *lang;
 
             lang = load_tongue(node);

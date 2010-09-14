@@ -193,11 +193,8 @@ void
 help_item_setname(struct help_item *item, char *argument)
 {
 	skip_spaces(&argument);
-	if (item->name && strlen(argument) > strlen(item->name)) {
-		free(item->name);
-        item->name = (char *)malloc(strlen(argument) + 1);
-    }
-	strcpy(item->name, argument);
+    free(item->name);
+    item->name = strdup(argument);
 	SET_BIT(item->flags, HFLAG_MODIFIED);
 	if (item->editor)
 		send_to_char(item->editor, "Name set!\r\n");
@@ -208,11 +205,8 @@ void
 help_item_setkeywords(struct help_item *item, char *argument)
 {
 	skip_spaces(&argument);
-	if (item->keys && strlen(argument) > strlen(item->keys)) {
-		free(item->keys);
-        item->keys = (char *)malloc(strlen(argument) + 1);
-    }
-	strcpy(item->keys, argument);
+	free(item->keys);
+    item->keys = strdup(argument);
 	SET_BIT(item->flags, HFLAG_MODIFIED);
 	if (item->editor)
 		send_to_char(item->editor, "Keywords set!\r\n");

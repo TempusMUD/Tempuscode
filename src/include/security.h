@@ -47,7 +47,7 @@ struct role {
     GList *members;
 };
 
-GList *roles;
+extern GList *roles;
 
 enum privilege {
     CREATE_ROLE,

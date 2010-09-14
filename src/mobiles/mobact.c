@@ -525,7 +525,7 @@ burn_update_creature(struct creature *ch)
             send_to_char(ch, "A large chunk of your decaying flesh rots off and falls to the ground!\r\n");
             act("A large chunk of $n's decaying flesh rots off and falls to the ground!", false, ch, 0, 0, TO_ROOM);
             //lets make rotted flesh!!!
-            struct obj_data *flesh = create_obj();
+            struct obj_data *flesh = make_object();
             char desc[MAX_INPUT_LENGTH];
 
             flesh->shared = null_obj_shared;

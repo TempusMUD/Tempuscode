@@ -284,9 +284,11 @@ ACMD(do_reboot)
 void
 boot_world(void)
 {
-    rooms = g_hash_table_new(g_int_hash, g_int_equal);
-    mob_prototypes = g_hash_table_new(g_int_hash, g_int_equal);
-    obj_prototypes = g_hash_table_new(g_int_hash, g_int_equal);
+    rooms = g_hash_table_new(g_direct_hash, g_direct_equal);
+    mob_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
+    obj_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
+    creature_map = g_hash_table_new(g_direct_hash, g_direct_equal);
+
 	slog("Loading zone table.");
 	index_boot(DB_BOOT_ZON);
 
@@ -1894,9 +1896,6 @@ parse_object(FILE * obj_f, int nr)
 	struct obj_data *obj = NULL;
 
 	CREATE(obj, struct obj_data, 1);
-
-	reset_object(obj);
-
 	CREATE(obj->shared, struct obj_shared_data, 1);
 
 	obj->shared->vnum = nr;
@@ -2512,22 +2511,6 @@ on_load_equip( struct creature *ch, int vnum, char* position, int maxload, int p
     return 0;
 }
 
-/* create an object, and add it to the object list */
-struct obj_data *
-create_obj(void)
-{
-	struct obj_data *obj;
-
-	CREATE(obj, struct obj_data, 1);
-
-	reset_object(obj);
-
-	obj->next = object_list;
-	object_list = obj;
-
-	return obj;
-}
-
 void
 randomize_object(struct obj_data *obj)
 {
@@ -2848,15 +2831,18 @@ reset_zone(struct zone_data *zone)
 					if (mob) {
 						char_to_room(mob, room, false);
 						if (GET_MOB_LEADER(mob) > 0) {
-                            void do_follow(struct creature *tch, gpointer ignore) {
+                            void do_follow(struct creature *tch,
+                                           gpointer ignore) {
 								if (tch != mob
+                                    && !mob->master
                                     && IS_NPC(tch)
 									&& GET_MOB_VNUM(tch) == GET_MOB_LEADER(mob)) {
 									if (!circle_follow(mob, tch))
 										add_follower(mob, tch);
                                 }
                             }
-                            g_list_foreach(mob->in_room->people, (GFunc)add_follower, 0);
+                            g_list_foreach(mob->in_room->people,
+                                           (GFunc)do_follow, 0);
                         }
 						if( process_load_param( mob ) ) { // true on death
 							last_cmd = 0;
@@ -3211,85 +3197,6 @@ pread_string(FILE * fl, char *str, const char *error)
 	} while (!done);
 
 	return 1;
-}
-
-/* release memory allocated for an obj struct */
-void
-free_obj(struct obj_data *obj)
-{
-	struct extra_descr_data *this_desc, *next_one;
-
-	if (!obj->shared || GET_OBJ_VNUM(obj) == -1 || !obj->shared->proto) {
-		if (obj->aliases) {
-			free(obj->aliases);
-			obj->aliases = NULL;
-		}
-		if (obj->line_desc) {
-			free(obj->line_desc);
-			obj->line_desc = NULL;
-		}
-		if (obj->name) {
-			free(obj->name);
-			obj->name = NULL;
-		}
-		if (obj->action_desc) {
-			free(obj->action_desc);
-			obj->action_desc = NULL;
-		}
-		if (obj->ex_description) {
-			for (this_desc = obj->ex_description; this_desc;
-				this_desc = next_one) {
-				next_one = this_desc->next;
-				if (this_desc->keyword)
-					free(this_desc->keyword);
-				if (this_desc->description)
-					free(this_desc->description);
-				free(this_desc);
-			}
-			obj->ex_description = NULL;
-		}
-	} else {
-		if (obj->aliases && obj->aliases != obj->shared->proto->aliases) {
-			free(obj->aliases);
-			obj->aliases = NULL;
-		}
-		if (obj->line_desc &&
-			obj->line_desc != obj->shared->proto->line_desc) {
-			free(obj->line_desc);
-			obj->line_desc = NULL;
-		}
-		if (obj->name &&
-			obj->name != obj->shared->proto->name) {
-			free(obj->name);
-			obj->name = NULL;
-		}
-		if (obj->action_desc &&
-			obj->action_desc !=
-			obj->shared->proto->action_desc) {
-			free(obj->action_desc);
-			obj->action_desc = NULL;
-		}
-		if (obj->ex_description &&
-			obj->ex_description != obj->shared->proto->ex_description) {
-			for (this_desc = obj->ex_description; this_desc;
-				this_desc = next_one) {
-				next_one = this_desc->next;
-				if (this_desc->keyword)
-					free(this_desc->keyword);
-				if (this_desc->description)
-					free(this_desc->description);
-				free(this_desc);
-			}
-			obj->ex_description = NULL;
-		}
-        while (obj->tmp_affects) {
-            struct tmp_obj_affect *aff;
-
-            aff = obj->tmp_affects;
-            remove_object_affect(obj, aff);
-        }
-	}
-	free_object(obj);
 }
 
 /* read contets of a text file, alloc space, point buf to it */

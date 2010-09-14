@@ -159,16 +159,16 @@ is_house_guest(struct house *house, long idnum)
         case PRIVATE:
         case PUBLIC:
         case RENTAL:
-            return g_list_find_custom(house->guests, GINT_TO_POINTER(idnum), g_int_equal);
+            return g_list_find_custom(house->guests, GINT_TO_POINTER(idnum), g_direct_equal);
         case CLAN: {
             // if there is no clan then check guests
             struct clan_data *clan = real_clan(house->owner_id);
             if (clan == NULL)
-                return g_list_find_custom(house->guests, GINT_TO_POINTER(idnum), g_int_equal);
+                return g_list_find_custom(house->guests, GINT_TO_POINTER(idnum), g_direct_equal);
             // if they're not a member, check the guests
             struct clanmember_data *member = real_clanmember(idnum, clan);
             if (member == NULL)
-                return g_list_find_custom(house->guests, GINT_TO_POINTER(idnum), g_int_equal);
+                return g_list_find_custom(house->guests, GINT_TO_POINTER(idnum), g_direct_equal);
             return true;
         }
         default:
@@ -197,7 +197,7 @@ remove_house_guest(struct house *house, long guest)
 bool
 house_has_room(struct house *house, room_num room)
 {
-    return g_list_find_custom(house->rooms, GINT_TO_POINTER(room), g_int_equal);
+    return g_list_find_custom(house->rooms, GINT_TO_POINTER(room), g_direct_equal);
 }
 
 bool
@@ -288,21 +288,23 @@ find_house_by_room(room_num room_idnum)
     if (!room)
         return NULL;
 
-    bool house_has_room(struct house *house, gpointer ignore) {
-        return (house_has_room(house, room)) ? -1:0;
+    bool this_house_has_room(struct house *house, gpointer ignore) {
+        return (house_has_room(house, room_idnum)) ? 0:-1;
     }
-    return (struct house *)g_list_find_custom(houses, NULL,
-                                              (GCompareFunc)house_has_room);
+    GList *it = g_list_find_custom(houses,
+                                   NULL,
+                                   (GCompareFunc)this_house_has_room);
+    return (it) ? it->data:NULL;
 }
 
 struct house*
 find_house_by_idnum(int idnum)
 {
     bool house_has_idnum(struct house *house, gpointer ignore) {
-        return (house->id == idnum) ? -1:0;
+        return (house->id == idnum) ? 0:-1;
     }
-    return (struct house *)g_list_find_custom(houses, NULL,
-                                              (GCompareFunc)house_has_idnum);
+    GList *it = g_list_find_custom(houses, NULL, (GCompareFunc)house_has_idnum);
+    return (it) ? it->data:NULL;
 }
 
 struct house*
@@ -310,10 +312,10 @@ find_house_by_owner(int idnum)
 {
     bool house_has_owner(struct house *house, gpointer ignore) {
         return (house->type == PRIVATE &&
-                house->owner_id == idnum) ? -1:0;
+                house->owner_id == idnum) ? 0:-1;
     }
-    return (struct house *)g_list_find_custom(houses, NULL,
-                                              (GCompareFunc)house_has_owner);
+    GList *it = g_list_find_custom(houses, NULL, (GCompareFunc)house_has_owner);
+    return (it) ? it->data:NULL;
 }
 
 struct house*
@@ -321,10 +323,10 @@ find_house_by_clan(int idnum)
 {
     bool house_has_owner(struct house *house, gpointer ignore) {
         return (house->type == CLAN &&
-                house->owner_id == idnum) ? -1:0;
+                house->owner_id == idnum) ? 0:-1;
     }
-    return (struct house *)g_list_find_custom(houses, NULL,
-                                              (GCompareFunc)house_has_owner);
+    GList *it = g_list_find_custom(houses, NULL, (GCompareFunc)house_has_owner);
+    return (it) ? it->data:NULL;
 }
 
 /* note: arg passed must be house vnum, so there. */
@@ -441,7 +443,7 @@ update_objects_in_house(struct house *house, gpointer ignore)
         if (room)
             update_object_counts(room->contents);
     }
-    g_list_foreach(house->rooms, (GFunc)update_object_counts, 0);
+    g_list_foreach(house->rooms, (GFunc)update_objects_in_room, 0);
 }
 
 void
@@ -531,6 +533,7 @@ load_house_room(struct house *house, xmlNodePtr roomNode)
 {
     room_num number = xmlGetIntProp(roomNode, "number", -1);
     struct room_data *room = real_room(number);
+
     if (room == NULL) {
         errlog("House %d has invalid room: %d", house->id, number);
         return false;

@@ -654,7 +654,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 		attacktype = corpse_state;
 		corpse_state = 0;
 	}
-	corpse = create_obj();
+	corpse = make_object();
 	corpse->shared = null_obj_shared;
 	corpse->in_room = NULL;
 	corpse->worn_on = -1;
@@ -753,7 +753,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_MOB(ch))
 			break;
 
-		leg = create_obj();
+		leg = make_object();
 		leg->shared = null_obj_shared;
 		leg->in_room = NULL;
 		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
@@ -1031,7 +1031,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 			if ((spine = read_object(1541)))
 				obj_to_room(spine, ch->in_room);
 		} else {
-			spine = create_obj();
+			spine = make_object();
 			spine->shared = null_obj_shared;
 			spine->in_room = NULL;
 			if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
@@ -1132,7 +1132,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 		if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_MOB(ch))
 			break;
 
-		head = create_obj();
+		head = make_object();
 		head->shared = null_obj_shared;
 		head->in_room = NULL;
 		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
@@ -1216,7 +1216,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 			GET_NAME(ch), isare));
 		strcpy(adj, "maimed");
 
-		heart = create_obj();
+		heart = make_object();
 		heart->shared = null_obj_shared;
 		heart->in_room = NULL;
 		if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {

@@ -319,10 +319,10 @@ send_role_list(struct creature *ch) {
 
 bool
 destroy_role(struct role *role) {
-    sql_exec("update sroles set admin=NULL where admin=%d", role->id);
-    sql_exec("delete from srole_members where srole=%d", role->id);
-    sql_exec("delete from srole_commands where srole=%d", role->id);
-    sql_exec("delete from sroles where idnum=%d", role->id);
+    sql_exec("update sgroups set admin=NULL where admin=%d", role->id);
+    sql_exec("delete from sgroup_members where sgroup=%d", role->id);
+    sql_exec("delete from sgroup_commands where sgroup=%d", role->id);
+    sql_exec("delete from sgroups where idnum=%d", role->id);
 
     roles = g_list_remove(roles, role);
     free_role(role);
@@ -381,39 +381,51 @@ void free_roles(void)
 }
 
 bool
-load_roles_from_db(void) {
+load_roles_from_db(void)
+{
     PGresult *res;
     int idx, count, cmd;
     struct role *role;
 
     free_roles();
 
-    res = sql_query("select sroles.idnum, sroles.name, sroles.descrip, admin.name from sroles left outer join sroles as admin on admin.idnum=sroles.admin order by sroles.name");
+    res = sql_query("select sgroups.idnum, sgroups.name, sgroups.descrip, admin.name from sgroups left outer join sgroups as admin on admin.idnum=sgroups.admin order by sgroups.name");
     count = PQntuples(res);
     for (idx = 0;idx < count;idx++) {
         role = make_role(PQgetvalue(res, idx, 1),
                          PQgetvalue(res, idx, 2),
                          PQgetvalue(res, idx, 3));
         role->id = atoi(PQgetvalue(res, idx, 0));
+        roles = g_list_prepend(roles, role);
     }
+    roles = g_list_reverse(roles);
 
-    res = sql_query("select name, command from sroles, srole_commands where sroles.idnum=srole_commands.srole order by command");
+    res = sql_query("select name, command from sgroups, sgroup_commands where sgroups.idnum=sgroup_commands.sgroup order by command");
     count = PQntuples(res);
     for (idx = 0;idx < count;idx++) {
         cmd = find_command(PQgetvalue(res, idx, 1));
-        if (cmd >= 0)
-            add_role_command(role_by_name(PQgetvalue(res, idx, 0)),
-                             &cmd_info[cmd]);
+        if (cmd >= 0) {
+            role = role_by_name(PQgetvalue(res, idx, 0));
+            if (role)
+                add_role_command(role, &cmd_info[cmd]);
+            else
+                errlog("Invalid security role '%s' using command '%s'",
+                       PQgetvalue(res, idx, 0), PQgetvalue(res, idx, 1));
+        }
         else
             errlog("Invalid command '%s' in security role '%s'",
                    PQgetvalue(res, idx, 1), PQgetvalue(res, idx, 0));
     }
 
-    res = sql_query("select name, player from sroles, srole_members where sroles.idnum=srole_members.srole order by player");
+    res = sql_query("select name, player from sgroups, sgroup_members where sgroups.idnum=sgroup_members.sgroup order by player");
     count = PQntuples(res);
     for (idx = 0;idx < count;idx++) {
-        add_role_member(role_by_name(PQgetvalue(res, idx, 0)),
-                        atol(PQgetvalue(res, idx, 1)));
+        role = role_by_name(PQgetvalue(res, idx, 0));
+        if (role)
+            add_role_member(role, atol(PQgetvalue(res, idx, 1)));
+        else
+            errlog("Invalid security role '%s' with member %s",
+                   PQgetvalue(res, idx, 0), PQgetvalue(res, idx, 1));
     }
 
     slog("Security:  Access role data loaded.");
@@ -454,7 +466,7 @@ ACCMD(do_access)
                 player_id = player_idnum_by_name(token);
                 if (player_id) {
                     add_role_member(role, player_id);
-                    sql_exec("insert into srole_members (srole, player) "
+                    sql_exec("insert into sgroup_members (sgroup, player) "
                              "values (%d, %d)",
                              role->id, player_id);
 
@@ -486,7 +498,7 @@ ACCMD(do_access)
                     add_role_command(role, &cmd_info[command_idx]);
                     send_to_char(ch, "Command added : %s\r\n",
                                  cmd_info[command_idx].command);
-                    sql_exec("insert into srole_commands (srole, command) "
+                    sql_exec("insert into sgroup_commands (sgroup, command) "
                              "values (%d, '%s')",
                              role->id, cmd_info[command_idx].command);
 
@@ -514,7 +526,7 @@ ACCMD(do_access)
             }
 
             set_role_admin_role(role, token);
-            sql_exec("update sroles set admin=%d where idnum=%d",
+            sql_exec("update sgroups set admin=%d where idnum=%d",
                      role->id, admin_role->id);
             send_to_char(ch, "Administrative role set.\r\n");
             break;
@@ -551,12 +563,12 @@ ACCMD(do_access)
                 PGresult *res;
                 int role_id;
 
-                res = sql_query("select MAX(idnum) from sroles");
+                res = sql_query("select MAX(idnum) from sgroups");
                 role_id = atoi(PQgetvalue(res, 0, 0)) + 1;
 
                 role->id = role_id;
 
-                sql_exec("insert into sroles (idnum, name, descrip) "
+                sql_exec("insert into sgroups (idnum, name, descrip) "
                          "values (%d, '%s', 'No description.')",
                          role_id, token);
                 send_to_char(ch,  "Role created.\r\n");
@@ -578,7 +590,7 @@ ACCMD(do_access)
             }
             set_role_description(role, argument);
             send_to_char(ch, "Description set.\r\n");
-            sql_exec("update sroles set descrip='%s' where idnum=%d",
+            sql_exec("update sgroups set descrip='%s' where idnum=%d",
                      tmp_sqlescape(argument), role->id);
             slog("Security:  Role '%s' described by %s.",
                  token, GET_NAME(ch));
@@ -638,8 +650,8 @@ ACCMD(do_access)
                 player_id = player_idnum_by_name(token);
                 if (player_id) {
                     remove_role_member(role, player_id);
-                    sql_exec("delete from srole_members "
-                             "where srole=%d and player=%d",
+                    sql_exec("delete from sgroup_members "
+                             "where sgroup=%d and player=%d",
                              role->id, player_id);
 
                     send_to_char(ch, "Member removed : %s\r\n", token);
@@ -669,8 +681,8 @@ ACCMD(do_access)
                     add_role_command(role, &cmd_info[command_idx]);
                     send_to_char(ch, "Command removed : %s\r\n",
                                  cmd_info[command_idx].command);
-                    sql_exec("delete from srole_commands "
-                             "where srole = %d and command='%s') ",
+                    sql_exec("delete from sgroup_commands "
+                             "where sgroup = %d and command='%s') ",
                              role->id, cmd_info[command_idx].command);
 
                     slog("Security:  command %s removed from role '%s' by %s.",

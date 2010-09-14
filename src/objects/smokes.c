@@ -36,7 +36,7 @@ roll_joint(struct obj_data *tobac, struct obj_data *paper)
 		errlog(" Attempt to roll_joint with NULL tobac or paper.");
 		return NULL;
 	}
-	obj = create_obj();
+	obj = make_object();
 	obj->shared = null_obj_shared;
 	CREATE(new_descr, struct extra_descr_data, 1);
 

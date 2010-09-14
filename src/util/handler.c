@@ -1812,7 +1812,7 @@ extract_obj(struct obj_data *obj)
             remove(fname);
         }
     }
-	free_obj(obj);
+	free_object(obj);
 }
 
 void
@@ -2326,7 +2326,7 @@ create_money(int amount, int mode)
 		errlog("Try to create negative or 0 money.");
 		return NULL;
 	}
-	obj = create_obj();
+	obj = make_object();
 	CREATE(new_descr, struct extra_descr_data, 1);
 
 	if (mode == 0) {

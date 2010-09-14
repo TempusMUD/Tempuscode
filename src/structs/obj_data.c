@@ -17,50 +17,91 @@ make_object(void)
 {
     struct obj_data *obj;
 
-    reset_object(obj);
+    CREATE(obj, struct obj_data, 1);
+
+	obj->next = object_list;
+	object_list = obj;
+
     return obj;
 }
 
-void
-reset_object(struct obj_data *obj)
-{
-    struct obj_data *proto = obj->shared->proto;
-    
-#define FREE_IF_NOT_PROTO(field)            \
-    if (proto && obj->field != proto->name) \
-        free(obj->name)
-
-    FREE_IF_NOT_PROTO(name);
-    FREE_IF_NOT_PROTO(aliases);
-    FREE_IF_NOT_PROTO(line_desc);
-    FREE_IF_NOT_PROTO(action_desc);
-    free(obj->func_data);
-
-    if (obj->ex_description != proto->ex_description) {
-        struct extra_descr_data *exd, *next_exd;
-        for (exd = obj->ex_description;exd;exd = next_exd) {
-            next_exd = exd->next;
-            free(exd->keyword);
-            free(exd->description);
-            free(exd);
-        }
-    }
-
-    struct tmp_obj_affect *tmp_af, *next_af;
-    for (tmp_af = obj->tmp_affects;tmp_af;tmp_af = next_af) {
-        next_af = tmp_af->next;
-        free(tmp_af);
-    }
-    memset((char *)obj, 0, sizeof(struct obj_data));
-	obj->in_room = NULL;
-	obj->worn_on = -1;
-}
-
+/* release memory allocated for an obj struct */
 void
 free_object(struct obj_data *obj)
 {
-    reset_object(obj);
-    free(obj);
+	struct extra_descr_data *this_desc, *next_one;
+
+	if (!obj->shared || GET_OBJ_VNUM(obj) == -1 || !obj->shared->proto) {
+		if (obj->aliases) {
+			free(obj->aliases);
+			obj->aliases = NULL;
+		}
+		if (obj->line_desc) {
+			free(obj->line_desc);
+			obj->line_desc = NULL;
+		}
+		if (obj->name) {
+			free(obj->name);
+			obj->name = NULL;
+		}
+		if (obj->action_desc) {
+			free(obj->action_desc);
+			obj->action_desc = NULL;
+		}
+		if (obj->ex_description) {
+			for (this_desc = obj->ex_description; this_desc;
+				this_desc = next_one) {
+				next_one = this_desc->next;
+				if (this_desc->keyword)
+					free(this_desc->keyword);
+				if (this_desc->description)
+					free(this_desc->description);
+				free(this_desc);
+			}
+			obj->ex_description = NULL;
+		}
+	} else {
+		if (obj->aliases && obj->aliases != obj->shared->proto->aliases) {
+			free(obj->aliases);
+			obj->aliases = NULL;
+		}
+		if (obj->line_desc &&
+			obj->line_desc != obj->shared->proto->line_desc) {
+			free(obj->line_desc);
+			obj->line_desc = NULL;
+		}
+		if (obj->name &&
+			obj->name != obj->shared->proto->name) {
+			free(obj->name);
+			obj->name = NULL;
+		}
+		if (obj->action_desc &&
+			obj->action_desc !=
+			obj->shared->proto->action_desc) {
+			free(obj->action_desc);
+			obj->action_desc = NULL;
+		}
+		if (obj->ex_description &&
+			obj->ex_description != obj->shared->proto->ex_description) {
+			for (this_desc = obj->ex_description; this_desc;
+				this_desc = next_one) {
+				next_one = this_desc->next;
+				if (this_desc->keyword)
+					free(this_desc->keyword);
+				if (this_desc->description)
+					free(this_desc->description);
+				free(this_desc);
+			}
+			obj->ex_description = NULL;
+		}
+        while (obj->tmp_affects) {
+            struct tmp_obj_affect *aff;
+
+            aff = obj->tmp_affects;
+            remove_object_affect(obj, aff);
+        }
+	}
+	free(obj);
 }
 
 const char*
@@ -497,7 +538,10 @@ weigh_contained_objs(struct obj_data *obj)
     return weight;
 }
 struct obj_data *
-load_object_from_xml(struct obj_data *container, struct creature *victim, struct room_data* room, xmlNodePtr node)
+load_object_from_xml(struct obj_data *container,
+                     struct creature *victim,
+                     struct room_data *room,
+                     xmlNodePtr node)
 {
     struct obj_data *obj;
 	int vnum = xmlGetIntProp(node, "vnum", 0);
@@ -648,9 +692,7 @@ load_object_from_xml(struct obj_data *container, struct creature *victim, struct
 				}
 			}
 		} else if( xmlMatches( cur->name, "object" ) ) {
-			struct obj_data *obj;
-
-            obj = load_object_from_xml(obj, victim, room, cur);
+            load_object_from_xml(obj, victim, room, cur);
 		} else if (xmlMatches(cur->name, "tmpaffect")) {
             struct tmp_obj_affect af;
             char *prop;
