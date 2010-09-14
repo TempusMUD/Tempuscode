@@ -25,7 +25,7 @@ SPECIAL(fate)
 	int which_fate;
 
 	if( spec_mode == SPECIAL_CMD ) {
-		if(! is_group_member(ch,"Coder") ) {
+		if(!is_authorized(ch, CONTROL_FATE, NULL) ) {
 			return 0;
 		} else if( CMD_IS("status") ) {
 			send_to_char(ch, "Fate timers: %d, %d, %d\r\n",
@@ -51,7 +51,7 @@ SPECIAL(fate)
 		fate->in_room->zone->idle_time = 0;
 	}
 
-	if (isFighting(fate))
+	if (fate->fighting)
 		return 0;
 	if (!fate->in_room)
 		return 0;

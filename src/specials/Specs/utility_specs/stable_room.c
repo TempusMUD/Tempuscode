@@ -119,7 +119,7 @@ SPECIAL(stable_room)
             struct creature *tch = it->data;
 			if (tch != pet && IS_NPC(tch)
 				&& GET_MOB_VNUM(tch) == GET_MOB_VNUM(pet)) {
-				purge(tch, true);
+				creature_purge(tch, true);
 				return 1;
 			}
 		}

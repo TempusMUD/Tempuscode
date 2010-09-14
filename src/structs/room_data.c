@@ -3,7 +3,30 @@
 #endif
 
 #include <stdbool.h>
+#include <stdlib.h>
+
+#include "structs.h"
 #include "room_data.h"
+#include "prog.h"
+
+void
+free_room(struct room_data *room)
+{
+    free(room->name);
+    free(room->description);
+    free(room->sounds);
+    free(room->prog);
+    free(room->progobj);
+    prog_state_free(room->prog_state);
+    struct extra_descr_data *exd, *next_exd;
+    for (exd = room->ex_description;exd;exd = next_exd) {
+        next_exd = exd->next;
+        free(exd->keyword);
+        free(exd->description);
+        free(exd);
+    }
+
+}
 
 bool
 room_is_open_air(struct room_data *room)

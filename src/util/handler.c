@@ -1084,7 +1084,7 @@ char_to_room(struct creature *ch, struct room_data *room, bool check_specials)
 		!AFF2_FLAGGED(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch)) {
 		act("$n suddenly bursts into flames!", false, ch, 0, 0, TO_ROOM);
 		act("You suddenly burst into flames!", false, ch, 0, 0, TO_CHAR);
-        ignite(ch);
+        ignite_creature(ch, NULL);
 	}
 
     struct room_affect_data *raff;
@@ -1708,7 +1708,7 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
 	obj->in_obj = obj_to;
 
 	/* top level object.  Subtract weight from inventory if necessary. */
-	modifyWeight(obj_to, GET_OBJ_WEIGHT(obj));
+	modify_object_weight(obj_to, GET_OBJ_WEIGHT(obj));
 
 	if (obj_to->in_room && ROOM_FLAGGED(obj_to->in_room, ROOM_HOUSE))
 		SET_BIT(ROOM_FLAGS(obj_to->in_room), ROOM_HOUSE_CRASH);
@@ -1740,7 +1740,7 @@ obj_from_obj(struct obj_data *obj)
 
 	obj_from = obj->in_obj;
 
-	modifyWeight(obj_from, -GET_OBJ_WEIGHT(obj));
+	modify_object_weight(obj_from, -GET_OBJ_WEIGHT(obj));
 
 	REMOVE_FROM_LIST(obj, obj_from->contains, next_content);
 
@@ -2558,6 +2558,22 @@ find_all_dots(char *arg)
 
 int parse_char_class(char *);
 int parse_race(char *);
+
+struct reaction *
+make_reaction(void)
+{
+    struct reaction *reaction;
+
+    CREATE(reaction, struct reaction, 1);
+    return reaction;
+}
+
+void
+free_reaction(struct reaction *reaction)
+{
+    free(reaction->reaction);
+    free(reaction);
+}
 
 bool
 add_reaction(struct reaction *reaction, char *config, char *arg)

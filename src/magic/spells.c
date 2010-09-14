@@ -73,7 +73,7 @@ teleport_not_ok(struct creature *ch, struct creature *vict, int level)
 			vict->desc->input_mode == CXN_NETWORK)
 		return true;
 
-	if (trusts(vict, ch))
+	if (creature_trusts(vict, ch))
 		return false;
 
 	return mag_savingthrow(vict, level, SAVING_SPELL);
@@ -541,7 +541,7 @@ ASPELL(spell_astral_spell)
 		return;
 	}
 
-    if (IS_PC(victim) && distrusts(victim, ch)) {
+    if (IS_PC(victim) && creature_distrusts(victim, ch)) {
 		send_to_char(ch, "They must trust you to be sent to the astral plane.\r\n");
 		return;
 	}
@@ -624,7 +624,7 @@ ASPELL(spell_summon)
 		return;
 	}
 
-	if (IS_PC(victim) && distrusts(victim, ch)) {
+	if (IS_PC(victim) && creature_distrusts(victim, ch)) {
 		send_to_char(ch, "They must trust you to be summoned to this place.\r\n");
 		return;
 	}
@@ -775,7 +775,7 @@ ASPELL(spell_summon)
     mudlog(LVL_AMBASSADOR, BRF, true,
            "%s has%s summoned %s to %s (%d)",
            GET_NAME(ch),
-           (distrusts(victim, ch)) ? " forcibly":"",
+           (creature_distrusts(victim, ch)) ? " forcibly":"",
            GET_NAME(victim), ch->in_room->name, ch->in_room->number);
 }
 
@@ -1239,7 +1239,7 @@ ASPELL(spell_identify)
 		}
 
 	} else if (victim) {		/* victim */
-		if (distrusts(victim, ch) &&
+		if (creature_distrusts(victim, ch) &&
 				mag_savingthrow(victim, level, SAVING_SPELL)) {
 			act("$N resists your spell!", false, ch, 0, victim, TO_CHAR);
 			return;
@@ -1365,7 +1365,7 @@ ASPELL(spell_minor_identify)
 			}
 		}
 	} else if (victim) {		/* victim */
-		if (distrusts(victim, ch) &&
+		if (creature_distrusts(victim, ch) &&
 				mag_savingthrow(victim, level, SAVING_SPELL)) {
 			act("$N resists your spell!", false, ch, 0, victim, TO_CHAR);
 			return;
@@ -1818,7 +1818,7 @@ ASPELL(spell_conjure_elemental)
 			false, ch, 0, elemental, TO_CHAR);
 		act("$N doesn't look too happy at $n!",
 			false, ch, 0, elemental, TO_ROOM);
-		startHunting(elemental, ch);
+		start_hunting(elemental, ch);
 		remember(elemental, ch);
 		return;
 	} else {
@@ -2343,7 +2343,7 @@ ASPELL(spell_id_insinuation)
 
 	if (!victim)
 		return;
-	if (isFighting(victim))
+	if (victim->fighting)
 		return;
 
 	send_to_char(victim, "You feel an intense desire to KILL someone!!\r\n");
@@ -2355,8 +2355,8 @@ ASPELL(spell_id_insinuation)
 		act("$n attacks $N in a rage!!\r\n", true, victim, 0, ch, TO_NOTVICT);
 		act("$n attacks you in a rage!!\r\n", true, victim, 0, ch, TO_VICT);
 		act("You attack $N in a rage!!\r\n", true, victim, 0, ch, TO_CHAR);
-        addCombat(ch, victim, true);
-        addCombat(victim, ch, false);
+        add_combat(ch, victim, true);
+        add_combat(victim, ch, false);
 		return;
 	}
 
@@ -2386,8 +2386,8 @@ ASPELL(spell_id_insinuation)
 	act("$n attacks you in a rage!!\r\n", true, victim, 0, ulv, TO_VICT);
 	act("You attack $N in a rage!!\r\n", true, victim, 0, ulv, TO_CHAR);
 
-    addCombat(victim, ulv, false);
-    addCombat(ulv, victim, false);
+    add_combat(victim, ulv, false);
+    add_combat(ulv, victim, false);
 	gain_skill_prof(ch, SPELL_ID_INSINUATION);
 }
 
@@ -2487,7 +2487,7 @@ ASPELL(spell_summon_legion)
 	// or gold
 	GET_GOLD(devil) = 0;
 
-	char_to_room_nospec(devil, ch->in_room);
+	char_to_room(devil, ch->in_room, false);
 	act("A glowing interplanar rift opens with a crack of thunder!\r\n"
 		"$n steps from the mouth of the conduit, which closes with a roar!",
 		false, devil, 0, 0, TO_ROOM);
@@ -2499,7 +2499,7 @@ ASPELL(spell_summon_legion)
 			false, ch, 0, devil, TO_CHAR);
 		act("$N doesn't look too happy at $n!",
 			false, ch, 0, devil, TO_ROOM);
-		startHunting(devil, ch);
+		start_hunting(devil, ch);
 		remember(devil, ch);
 		return;
 	}
@@ -2716,7 +2716,7 @@ ASPELL(spell_animate_dead)
 	REMOVE_BIT(AFF2_FLAGS(zombie),
 		AFF2_MEDITATE | AFF2_INTIMIDATED);
 
-    extinguish(zombie);
+    extinguish_creature(zombie);
 
 	SET_BIT(AFF3_FLAGS(zombie), AFF3_FLAGS(orig_char));
 	REMOVE_BIT(AFF3_FLAGS(zombie),
@@ -2747,7 +2747,7 @@ ASPELL(spell_animate_dead)
 	if (IS_PC(orig_char))
 		free_creature(orig_char);
 
-	char_to_room_nospec(zombie, ch->in_room);
+	char_to_room(zombie, ch->in_room, false);
 	act("$n rises slowly to a standing position.", false, zombie, 0, 0,
 		TO_ROOM);
 
@@ -2861,7 +2861,7 @@ ASPELL(spell_unholy_stalker)
 	// Make sure noone gets xp fer these buggers.
 	SET_BIT(MOB_FLAGS(stalker), MOB_PET);
 
-	char_to_room_nospec(stalker, ch->in_room);
+	char_to_room(stalker, ch->in_room, false);
 
 	act("The air becomes cold as $n materializes from the negative planes.",
 		false, stalker, 0, 0, TO_ROOM);
@@ -2870,7 +2870,7 @@ ASPELL(spell_unholy_stalker)
 		GET_NAME(victim));
 	CAP(buf);
 
-	startHunting(stalker, victim);
+	start_hunting(stalker, victim);
 
 	slog("%s has sent an unholy stalker after %s.", GET_NAME(ch),
 		GET_NAME(victim));
@@ -3278,7 +3278,7 @@ ASPELL(spell_dispel_magic)
     struct tmp_obj_affect *af;
     for (af = obj->tmp_affects; af != NULL; af = obj->tmp_affects) {
         tmp_affected = true;
-        remove_obj_affect(obj, af);
+        remove_object_affect(obj, af);
     }
 
     if (tmp_affected && !IS_OBJ_STAT(obj, ITEM_MAGIC)) {
@@ -3346,7 +3346,7 @@ ASPELL(spell_distraction)
 		free(curr);
 	}
 	MEMORY(victim) = NULL;
-	stopHunting(victim);
+	stop_hunting(victim);
 
 	gain_skill_prof(ch, SPELL_DISTRACTION);
 
@@ -3448,7 +3448,7 @@ ASPELL(spell_calm)
         return;
     }
 
-    removeAllCombat(victim);
+    remove_all_combat(victim);
 
     return;
 }

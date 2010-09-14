@@ -102,7 +102,7 @@ search_trans_character(struct creature * ch,
 	return 1;
 }
 
-inline void
+void
 SRCH_LOG(struct creature *ch, struct special_search_data *srch)
 {
 	if (!ZONE_FLAGGED( ch->in_room->zone, ZONE_SEARCH_APPROVED)
@@ -643,7 +643,7 @@ general_search(struct creature *ch, struct special_search_data *srch,
 					act("$n suddenly appears.", true, mob, 0, 0, TO_ROOM);
 				}
 				if (srch->arg[2])
-					startHunting(mob, ch);
+					start_hunting(mob, ch);
 			}
 
 			if (!IS_SET(srch->flags, SRCH_IGNORE))

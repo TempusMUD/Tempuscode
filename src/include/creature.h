@@ -956,8 +956,8 @@ struct creature {
 
 /* ====================================================================== */
 
-GList *creatures = NULL;
-GHashTable *creature_map = NULL;
+extern GList *creatures;
+extern GHashTable *creature_map;
 
 struct creature *random_opponent(struct creature *ch);
 int level_bonus(struct creature *ch, bool primary);
@@ -965,9 +965,23 @@ int skill_bonus(struct creature *ch, int skillnum);
 void remove_all_combat(struct creature *ch);
 bool is_newbie(struct creature *ch);
 void removeCombat(struct creature *ch, struct creature *vict);
-void removeAllCombat(struct creature *ch);
-struct creature *findRandomCombat(struct creature *ch);
+void remove_all_combat(struct creature *ch);
+struct creature *random_opponent(struct creature *ch);
 bool isFighting(struct creature *ch);
 void free_creature(struct creature *ch);
+bool creature_trusts_idnum(struct creature *ch, long idnum);
+bool creature_distrusts_idnum(struct creature *ch, long idnum);
+bool creature_trusts(struct creature *ch, struct creature *target);
+bool creature_distrusts(struct creature *ch, struct creature *target);
+float damage_reduction(struct creature *ch, struct creature *attacker);
+int reputation_of(struct creature *ch);
+void gain_reputation(struct creature *ch, int amt);
+void ignite_creature(struct creature *ch, struct creature *igniter);
+void extinguish_creature(struct creature *ch);
+int creature_breath_threshold(struct creature *ch);
+void start_defending(struct creature *ch, struct creature *target);
+void stop_defending(struct creature *ch);
+void add_combat(struct creature *ch, struct creature *target, bool initiated);
+void remove_combat(struct creature *ch, struct creature *target);
 
 #endif

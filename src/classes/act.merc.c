@@ -191,8 +191,8 @@ ACMD(do_crossface)
 				!IS_SET(retval, DAM_ATTACKER_KILLED)) {
 				if (ch->fighting
                     && (!IS_NPC(vict) || !MOB2_FLAGGED(vict, MOB2_NOSTUN))) {
-					removeCombat(ch, vict);
-					removeAllCombat(vict);
+					remove_combat(ch, vict);
+					remove_all_combat(vict);
 					GET_POSITION(vict) = POS_STUNNED;
 					act("Your crossface has knocked $N senseless!",
 						true, ch, NULL, vict, TO_CHAR);
@@ -388,8 +388,8 @@ ACMD(do_snipe)
 	}
 	// if vict is fighting someone you have a 50% chance of hitting the person
 	// vict is fighting
-	if (isFighting(vict) && number(0, 1)) {
-		vict = findRandomCombat(vict);
+	if (vict->fighting && number(0, 1)) {
+		vict = random_opponent(vict);
 	}
 	// Has vict been sniped once and is vict a sentinel mob?
 	if ((MOB_FLAGGED(vict, MOB_SENTINEL)) &&
@@ -475,8 +475,8 @@ ACMD(do_snipe)
 		}
 		// ch and vict really shouldn't be fighting if they aren't in
 		// the same room...
-		removeCombat(ch, vict);
-		removeCombat(vict, ch);
+		remove_combat(ch, vict);
+		remove_combat(vict, ch);
 		send_to_char(ch, "Damn!  You missed!\r\n");
 		act("$n fires $p to the %s, and a look of irritation crosses $s face.",
 			true, ch, gun, vict, TO_ROOM);
@@ -628,7 +628,7 @@ ACMD(do_wrench)
 		dam += dam / 2;
 	}
 
-	if (!(ch->fighting) && !(isFighting(vict))) {
+	if (!(ch->fighting) && !(vict->fighting)) {
 		dam += dam / 3;
 	}
 

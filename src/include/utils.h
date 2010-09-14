@@ -157,7 +157,7 @@ void WAIT_STATE(struct creature *ch, int cycle);
 
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
 #define IF_STR(st) ((st) ? (st) : "\0")
-inline char *CAP(char *st)
+static inline char *CAP(char *st)
 {
     *st = toupper(*st);
     return st;
@@ -334,7 +334,7 @@ const char *AN(const char *str);
 #define AFF2_FLAGGED(ch, flag)  (IS_SET(AFF2_FLAGS(ch), (flag)))
 #define AFF3_FLAGGED(ch, flag)  (IS_SET(AFF3_FLAGS(ch), (flag)))
 
-inline bool
+static inline bool
 PRF_FLAGGED( struct creature *ch, int flag )
 {
     if( IS_NPC(ch) ) {
@@ -347,7 +347,7 @@ PRF_FLAGGED( struct creature *ch, int flag )
         return IS_SET(PRF_FLAGS(ch),flag);
     }
 }
-inline bool
+static inline bool
 PRF2_FLAGGED( struct creature *ch, int flag )
 {
     if( IS_NPC(ch) ) {
@@ -428,7 +428,7 @@ PRF2_FLAGGED( struct creature *ch, int flag )
 
 	  /* room utils *********************************************************** */
 
-inline int
+static inline int
 SECT(struct room_data * room)
 {
 	return room->sector_type;
@@ -520,6 +520,7 @@ const char *CURRENCY(struct creature * ch);
 #define CHAR_CUR_PULSE(ch)  (ch->char_specials.cur_flow_pulse)
 #define GET_FALL_COUNT(ch)     ((ch)->char_specials.fall_count)
 #define GET_MOOD(ch)		(ch->char_specials.mood_str)
+#define BREATH_COUNT_OF(ch) (ch->char_specials.breath_count)
 
 #define DRIVING(ch)       ((ch)->char_specials.driving)
 #define GET_SAVE(ch, i)          ((ch)->char_specials.saved.apply_saving_throw[i])
@@ -539,23 +540,23 @@ const char *CURRENCY(struct creature * ch);
 #define SPEED_OF(ch)            ((ch)->player_specials->saved.speed)
 #define GET_REPUTATION(ch)      ((ch)->player_specials->saved.reputation)
 
-int get_reputation(struct creature *ch);
+int reputation_of(struct creature *ch);
 
-inline bool
+static inline bool
 IS_CRIMINAL(struct creature *ch)
 {
-	return IS_PC(ch) && get_reputation(ch) >= 300;
+	return IS_PC(ch) && reputation_of(ch) >= 300;
 }
 
-inline int
+static inline int
 GET_REPUTATION_RANK(struct creature *ch)
 {
-	if (get_reputation(ch) == 0)
+	if (reputation_of(ch) == 0)
 		return 0;
-	else if (get_reputation(ch) >= 1000)
+	else if (reputation_of(ch) >= 1000)
 		return 11;
 
-	return (get_reputation(ch) / 100) + 1;
+	return (reputation_of(ch) / 100) + 1;
 }
 
 #define GET_PAGE_LENGTH(ch)     ((ch->desc) ? ch->desc->account->term_height:0)
@@ -570,7 +571,7 @@ GET_REPUTATION_RANK(struct creature *ch)
 #define GET_CLAN(ch)                ((ch)->player_specials->saved.clan)
 #define GET_REMORT_GEN(ch) ((ch)->char_specials.saved.remort_generation)
 
-inline bool IS_REMORT( const struct creature *ch )
+static inline bool IS_REMORT( const struct creature *ch )
 {
 	if( ch == NULL )
 		return false;
@@ -632,7 +633,7 @@ inline bool IS_REMORT( const struct creature *ch )
 #define MEMORY(ch)                ((ch)->mob_specials.memory)
 #define MOB_IDNUM(ch)           ((ch)->mob_specials.mob_idnum)
 
-inline int
+static inline int
 STRENGTH_APPLY_INDEX(struct creature *ch)
 {
 	if (GET_STR(ch) < 0 || GET_STR(ch) > 25)
@@ -930,7 +931,7 @@ long GET_SKILL_COST(struct creature *ch, int skill);
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
                                         (ch)->in_room->sector_type != SECT_INSIDE )
-inline bool
+static inline bool
 room_is_open_air(struct room_data *room)
 {
     int sect = SECT_TYPE(room);
@@ -941,7 +942,7 @@ room_is_open_air(struct room_data *room)
             sect == SECT_ELEMENTAL_VACUUM);
 }
 
-inline bool
+static inline bool
 room_is_watery(struct room_data *room)
 {
     int sect = SECT_TYPE(room);
@@ -952,7 +953,7 @@ room_is_watery(struct room_data *room)
             sect == SECT_DEEP_OCEAN);
 }
 
-inline bool
+static inline bool
 room_is_underwater(struct room_data *room)
 {
     int sect = SECT_TYPE(room);
@@ -961,7 +962,7 @@ room_is_underwater(struct room_data *room)
             sect == SECT_DEEP_OCEAN);
 }
 
-inline bool
+static inline bool
 room_has_air(struct room_data *room)
 {
     if (room_is_underwater(room))
@@ -1004,19 +1005,19 @@ bool can_see_room(struct creature *self, struct room_data *room);
                            AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||\
                            (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
 
-inline struct room_direction_data *OEXIT( struct obj_data *ch, int dir ) {
+static inline struct room_direction_data *OEXIT( struct obj_data *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
-inline struct room_direction_data* EXIT( struct creature *ch, int dir ) {
+static inline struct room_direction_data* EXIT( struct creature *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
-inline struct room_direction_data* _2ND_EXIT( struct creature *ch, int dir ) {
+static inline struct room_direction_data* _2ND_EXIT( struct creature *ch, int dir ) {
 	return EXIT(ch,dir)->to_room->dir_option[dir];
 }
-inline struct room_direction_data* _3RD_EXIT( struct creature *ch, int dir ) {
+static inline struct room_direction_data* _3RD_EXIT( struct creature *ch, int dir ) {
 	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
 }
-inline struct room_direction_data* ABS_EXIT( struct room_data *room, int dir ) {
+static inline struct room_direction_data* ABS_EXIT( struct room_data *room, int dir ) {
 	return room->dir_option[dir];
 }
 
@@ -1027,7 +1028,7 @@ struct extra_descr_data *exdesc_list_dup(struct extra_descr_data *list);
 int smart_mobile_move(struct creature *ch, int dir);
 int drag_char_to_jail(struct creature *ch, struct creature *vict, struct room_data *jail_room);
 
-inline bool
+static inline bool
 CAN_SEND_TELL(struct creature *ch, struct creature *tch)
 {
 	// Immortals are hearable everywhere
@@ -1069,7 +1070,7 @@ CAN_SEND_TELL(struct creature *ch, struct creature *tch)
 	return false;
 }
 
-inline bool
+static inline bool
 CAN_CHANNEL_COMM(struct creature *ch, struct creature *tch)
 {
 	// Immortals are hearable everywhere
@@ -1146,7 +1147,7 @@ CAN_CHANNEL_COMM(struct creature *ch, struct creature *tch)
 #define CRYPT(a,b) ((char *) crypt((a),(b)))
 #endif
 
-inline bool
+static inline bool
 MOB_CAN_GO(struct creature * ch, int door)
 {
 	if (EXIT(ch, door) &&
@@ -1197,7 +1198,7 @@ double float_number(double from, double to);
 // simulates dice roll
 int dice(int number, int size);
 
-inline bool
+static inline bool
 isnumber(const char *str)
 {
     if (!*str)
@@ -1210,7 +1211,7 @@ isnumber(const char *str)
 	return true;
 }
 
-inline const char *
+static inline const char *
 SAFETY(const char *str)
 {
 	if (!str) {
@@ -1220,7 +1221,7 @@ SAFETY(const char *str)
 	return str;
 }
 
-inline int
+static inline int
 hex2dec(const char *s)
 {
 	int i = 0;

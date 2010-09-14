@@ -297,7 +297,7 @@ enum affect_join_flag {
     AFF_NOOP = 3,
 };
 
-inline const char *
+static inline const char *
 liquid_to_str(int liquid)
 {
 	extern const char *drinks[];
@@ -408,5 +408,14 @@ struct obj_data *load_object_from_xml(struct obj_data *container, struct creatur
 int count_contained_objs(struct obj_data *obj);
 int weigh_contained_objs(struct obj_data *obj);
 struct obj_affected_type *obj_affected_by_spell(struct obj_data *object, int spell);
+void reset_object(struct obj_data *obj);
+int equipment_position_of(struct obj_data *obj);
+int implant_position_of(struct obj_data *obj);
+void remove_object_affect(struct obj_data *obj, struct tmp_obj_affect *af);
+struct tmp_obj_affect *obj_has_affect(struct obj_data *obj, int spellnum);
+struct room_data *find_object_room(struct obj_data *obj);
+void normalize_applies(struct obj_data *obj);
+int modify_object_weight(struct obj_data *obj, int mod_weight);
+
 
 #endif

@@ -31,10 +31,12 @@ void perform_say_to(struct creature *ch, struct creature *target, const char *me
 void perform_say_to_obj(struct creature *ch, struct obj_data *obj, const char *message);
 
 // Sneaking
-const int SNEAK_OK = 0;
-const int SNEAK_SENSED = 1;
-const int SNEAK_HEARD = 2;
-const int SNEAK_FAILED = 3;
+enum {
+    SNEAK_OK,
+    SNEAK_SENSED,
+    SNEAK_HEARD,
+    SNEAK_FAILED,
+};
 
 int check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msgs);
 

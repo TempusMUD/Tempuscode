@@ -14,7 +14,7 @@
 
 struct creature;    // forward declaration from creature.h
 struct account;      // forward declaration from account.h
-struct CEditor;  // forward declaration from editor.h
+struct editor;  // forward declaration from editor.h
 
 // Modes of connectedness: used by descriptor_data.state
 // make sure changes to this are synced with desc_modes[] in db/constants.cc

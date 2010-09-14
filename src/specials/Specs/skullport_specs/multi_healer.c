@@ -43,7 +43,7 @@ SPECIAL(multi_healer)
                        GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
                        GET_LEVEL(vict) <= 30 ? SPELL_HEAL : SPELL_GREATER_HEAL, NULL);
 		} else if (affected_by_spell(vict, SPELL_BLINDNESS) ||
-                   affected_by_spell(vict, SKILL_GOUGE), NULL) {
+                   affected_by_spell(vict, SKILL_GOUGE)) {
 		} else {
 			continue;
 		}

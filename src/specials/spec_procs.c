@@ -1411,7 +1411,7 @@ SPECIAL(bank)
 		}
 
 		vict_name = player_name_by_idnum(player_idnum_by_name(arg));
-		acct = account_by_id(player_account_by_name(vict_name));
+		acct = account_by_idnum(player_account_by_name(vict_name));
 
 		if (!clan && acct == ch->account) {
 			send_to_char(ch, "Transferring money to your own account?  Odd...\r\n");

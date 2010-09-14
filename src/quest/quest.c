@@ -147,6 +147,18 @@ const char *qp_bits[] = {
 
 GList *quests;
 
+int
+next_quest_vnum(void)
+{
+    int max_id = 1;
+    for (GList *qit = quests;qit;qit = qit->next) {
+        struct quest *quest = qit->data;
+        if (max_id < quest->vnum)
+            max_id = quest->vnum;
+    }
+    return max_id;
+}
+
 #define QUEST_PATH "etc/quest.xml"
 
 struct quest *
@@ -322,7 +334,7 @@ quest_player_by_idnum(struct quest *quest, int idnum)
 }
 
 bool
-is_quest_banned(struct quest *quest, int id)
+banned_from_quest(struct quest *quest, int id)
 {
     return g_list_find(quest->bans, GINT_TO_POINTER(id));
 }
@@ -393,7 +405,7 @@ can_join_quest(struct quest *quest, struct creature *ch)
 		return false;
 	}
 
-	if (is_quest_banned(quest, GET_IDNUM(ch))) {
+	if (banned_from_quest(quest, GET_IDNUM(ch))) {
 		send_to_char(ch, "Sorry, you have been banned from this quest.\r\n");
 		return false;
 	}
@@ -546,7 +558,7 @@ send_to_quest(struct creature *ch,
 
     for (GList *pit = quest->players;pit;pit = pit->next) {
         struct qplayer_data *player = pit->data;
-		if (quest_player_flagged(player, QP_IGNORE) && level < LVL_AMBASSADOR)
+		if ((player->flags & QP_IGNORE) && level < LVL_AMBASSADOR)
 			continue;
 
 		if ((vict = get_char_in_world_by_idnum(player->idnum))) {
@@ -895,6 +907,18 @@ do_quest_list(struct creature *ch)
 	send_to_char(ch, "%s", list_active_quests(ch));
 }
 
+bool
+add_quest_player(struct quest *quest, int id )
+{
+    struct qplayer_data *player;
+
+    CREATE(player, struct qplayer_data, 1);
+    player->idnum = id;
+    quest->players = g_list_prepend(quest->players, player);
+
+	return false;
+}
+
 void
 do_quest_join(struct creature *ch, char *argument)
 {
@@ -925,7 +949,7 @@ do_quest_join(struct creature *ch, char *argument)
 	if (!can_join_quest(quest, ch))
 		return;
 
-	if (! add_player_to_quest(quest, GET_IDNUM(ch))) {
+	if (! add_quest_player(quest, GET_IDNUM(ch))) {
 		send_to_char(ch, "Error adding char to quest.\r\n");
 		return;
 	}
@@ -1318,18 +1342,6 @@ is_playing_quest(struct quest *quest, int id)
 }
 
 bool
-add_quest_player(struct quest *quest, int id )
-{
-    struct qplayer_data *player;
-
-    CREATE(player, struct qplayer_data, 1);
-    player->idnum = id;
-    quest->players = g_list_prepend(quest->players, player);
-
-	return false;
-}
-
-bool
 quest_levelok(struct creature *ch)
 {
 	return true;
@@ -1677,7 +1689,7 @@ do_qcontrol_purge(struct creature *ch, char *argument)
             set_desc_state(CXN_DISCONNECT, vict->desc);
 			vict->desc = NULL;
 		}
-		purge(vict, false);
+		creature_purge(vict, false);
 		send_to_char(ch, "%s", OK);
 	} else {
 		send_to_char(ch, "Purge what?\r\n");
@@ -1863,7 +1875,7 @@ do_qcontrol_create(struct creature *ch, char *argument, int com)
 							 quest->vnum, qtypes[type], argument );
 	qlog(ch, msg, QLOG_BRIEF, LVL_AMBASSADOR, true);
 	send_to_char(ch, "Quest %d created.\r\n", quest->vnum);
-	if (!add_player_to_quest(quest, GET_IDNUM(ch))) {
+	if (!add_quest_player(quest, GET_IDNUM(ch))) {
 		send_to_char(ch, "Error adding you to quest.\r\n");
 		return;
 	}
@@ -1947,7 +1959,7 @@ do_qcontrol_add(struct creature *ch, char *argument, int com)
 	if (!is_authorized(ch, EDIT_QUEST, quest))
 		return;
 
-	if (!add_player_to_quest(quest, GET_IDNUM(vict))) {
+	if (!add_quest_player(quest, GET_IDNUM(vict))) {
 		send_to_char(ch, "Error adding char to quest.\r\n");
 		return;
 	}
@@ -2279,7 +2291,7 @@ do_qcontrol_ban(struct creature *ch, char *argument, int com)
 			vict = load_player_from_xml(pid);
             level = GET_LEVEL(vict);
             del_vict = true;
-            account = account_by_id(accountID);
+            account = account_by_idnum(accountID);
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
@@ -2295,13 +2307,13 @@ do_qcontrol_ban(struct creature *ch, char *argument, int com)
 	}
 
 	if (!strcmp("all", arg2)) { //ban from all quests
-        if (!is_group_member(ch, "QuestorAdmin")) {
+        if (!is_authorized(ch, QUEST_BAN, NULL)) {
             send_to_char(ch, "You do not have this ability.\r\n");
         } else if (account->quest_banned) {
             send_to_char(ch,
                          "That player is already banned from all quests.\r\n");
         } else {
-            set_quest_banned(account, true); //ban
+            account_set_quest_banned(account, true); //ban
 
             sprintf(buf, "banned %s from all quests.", GET_NAME(vict));
             qlog(ch, buf, QLOG_COMP, 0, true);
@@ -2338,7 +2350,7 @@ do_qcontrol_ban(struct creature *ch, char *argument, int com)
             }
         }
 
-        if (!add_ban_to_quest(quest, idnum)) {
+        if (!add_quest_ban(quest, idnum)) {
             send_to_char(ch, "Error banning char from quest.\r\n");
             return;
         }
@@ -2390,7 +2402,7 @@ do_qcontrol_unban(struct creature *ch, char *argument, int com)
             vict = load_player_from_xml(idnum);
             level = GET_LEVEL(vict);
             del_vict=true;
-            account = account_by_id(accountID);
+            account = account_by_idnum(accountID);
 		} else {
 			send_to_char(ch, "Error loading char from file.\r\n");
 			return;
@@ -2406,7 +2418,7 @@ do_qcontrol_unban(struct creature *ch, char *argument, int com)
 	}
 
 	if (!strcmp("all", arg2)) { //unban from all quests
-        if (!is_group_member(ch, "QuestorAdmin")) {
+        if (!is_authorized(ch, QUEST_BAN, NULL)) {
             send_to_char(ch, "You do not have this ability.\r\n");
         } else if (!account->quest_banned) {
             send_to_char(ch,
@@ -2433,13 +2445,13 @@ do_qcontrol_unban(struct creature *ch, char *argument, int com)
             return;
         }
 
-        if (!is_quest_banned(quest, idnum)) {
+        if (!banned_from_quest(quest, idnum)) {
             send_to_char(ch,
                          "That player is not banned... maybe you should ban him!\r\n");
             return;
         }
 
-        if (!remove_ban_from_quest(quest, idnum)) {
+        if (!remove_quest_ban(quest, idnum)) {
             send_to_char(ch, "Error unbanning char from quest.\r\n");
             return;
         }
@@ -2920,7 +2932,7 @@ do_qcontrol_restore(struct creature *ch, char *argument, int com)
     for (GList *pit = quest->players;pit;pit = pit->next) {
         struct qplayer_data *player = pit->data;
 		if ((vict = get_char_in_world_by_idnum(player->idnum))) {
-			restore(vict);
+			restore_creature(vict);
 			if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
                 vict->desc) {
 				send_to_char(vict, "%s",

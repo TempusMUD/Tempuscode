@@ -207,7 +207,7 @@ tarrasque_fight(struct creature *tarr)
 {
 	struct creature *vict = NULL, *vict2 = NULL;
 
-	if (!isFighting(tarr)) {
+	if (!tarr->fighting) {
 		errlog("FIGHTING(tarr) == NULL in tarrasque_fight!!");
 		return 0;
 	}
@@ -216,10 +216,10 @@ tarrasque_fight(struct creature *tarr)
 	// this fighting pulse
 	vict = get_char_random_vis(tarr, tarr->in_room);
 	if (vict) {
-		if (findCombat(tarr, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE))
+		if (g_list_find(tarr->fighting, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE))
 			vict = NULL;
 		vict2 = get_char_random_vis(tarr, tarr->in_room);
-		if ( vict2 && (findCombat(tarr, vict2) || vict == vict2 ||
+		if ( vict2 && (g_list_find(tarr->fighting, vict2) || vict == vict2 ||
 				PRF_FLAGGED(vict2, PRF_NOHASSLE)))
 			vict2 = NULL;
 	}
@@ -230,18 +230,18 @@ tarrasque_fight(struct creature *tarr)
 	if (!number(0, 5)) {
 		WAIT_STATE(tarr, 2 RL_SEC);
 
-		tarrasque_gore(tarr, findRandomCombat(tarr));
+		tarrasque_gore(tarr, random_opponent(tarr));
 		if (vict) {
 			if (!tarrasque_trample(tarr, vict)) {
-                addCombat(tarr, vict, true);
-                addCombat(vict, tarr, false);
+                add_combat(tarr, vict, true);
+                add_combat(vict, tarr, false);
             }
 
 		}
 		if (vict2) {
 			if (!tarrasque_trample(tarr, vict2)) {
-                addCombat(tarr, vict2, true);
-                addCombat(vict2, tarr, false);
+                add_combat(tarr, vict2, true);
+                add_combat(vict2, tarr, false);
             }
 		}
 		return 1;
@@ -253,7 +253,7 @@ tarrasque_fight(struct creature *tarr)
 	if (!number(0, 5)) {
 		act("$n lashes out with $s tail!!", false, tarr, 0, 0, TO_ROOM);
 		WAIT_STATE(tarr, 3 RL_SEC);
-		tarrasque_lash(tarr, findRandomCombat(tarr));
+		tarrasque_lash(tarr, random_opponent(tarr));
 
 		if (vict)
 			tarrasque_lash(tarr, vict);
@@ -269,7 +269,7 @@ tarrasque_fight(struct creature *tarr)
 	// the character whole, no matter how powerful.  If they make their saving
 	// throw, they just get hurt.  The player being fought is most likely to
 	// get swallowed.
-    vict = findRandomCombat(tarr);
+    vict = random_opponent(tarr);
 	if (vict) {
 		if (GET_DEX(vict) < number(5, 23) &&
 			!mag_savingthrow(vict, 50, SAVING_ROD)) {
@@ -295,13 +295,13 @@ tarrasque_follow(struct creature *tarr)
 	if (!ch)
 		return 0;
 
-	vict = findRandomCombat(tarr);
+	vict = random_opponent(tarr);
 	vict2 = NULL;
 	if (!vict)
 		vict = get_char_random_vis(tarr, tarr->in_room);
 	if (vict) {
 		vict2 = get_char_random_vis(tarr, tarr->in_room);
-		if (findCombat(tarr, vict) || vict == vict2)
+		if (g_list_find(tarr->fighting, vict) || vict == vict2)
 			vict2 = NULL;
 	}
 
@@ -378,15 +378,15 @@ SPECIAL(tarrasque)
 					return 1;
 				}
 			} else {
-				vict = findRandomCombat(tarr);
+				vict = random_opponent(tarr);
 				if(vict == NULL) {
 					send_to_char(ch, "Yes, but WHO?\r\n");
 					return 1;
 				}
 			}
-			if (!CMD_IS("swallow") && !isOkToAttack(tarr, vict, true))
+			if (!CMD_IS("swallow") && !ok_to_attack(tarr, vict, true))
 				return 1;
-			else if (!isOkToAttack(tarr, vict, false))
+			else if (!ok_to_attack(tarr, vict, false))
 				send_to_char(ch, "You aren't all that hungry, for once.\r\n");
 			else if (GET_LEVEL(vict) >= LVL_IMMORT)
 				send_to_char(ch, "Maybe that's not such a great idea...\r\n");
@@ -409,7 +409,7 @@ SPECIAL(tarrasque)
 		return tarrasque_die(tarr, ch);
 
 	if (spec_mode == SPECIAL_LEAVE && ch != tarr && !MOB_HUNTING(tarr)) {
-		startHunting(tarr, ch);
+		start_hunting(tarr, ch);
 		pursuit = true;
 		return 0;
 	}
@@ -435,7 +435,7 @@ SPECIAL(tarrasque)
 	if (pursuit)
 		return tarrasque_follow(tarr);
 
-	if (isFighting(tarr))
+	if (tarr->fighting)
 		return tarrasque_fight(tarr);
 
 	if (poop_timer > T_POOP_LEN) {

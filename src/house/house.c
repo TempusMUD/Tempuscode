@@ -23,6 +23,7 @@
 #include "accstr.h"
 #include "clan.h"
 #include "players.h"
+#include "obj_data.h"
 
 // usage message
 #define HCONTROL_FIND_FORMAT \
@@ -766,7 +767,7 @@ load_houses(void)
         acc_strcat(")", NULL);
 
         slog("Preloading accounts with houses...");
-        account_preload(acc_get_string());
+        preload_accounts(acc_get_string());
     }
 }
 
@@ -833,7 +834,7 @@ reconcile_clan_collection(struct house *house, int cost)
 int
 reconcile_private_collection(struct house *house, int cost)
 {
-    struct account *account = account_by_id(house->owner_id);
+    struct account *account = account_by_idnum(house->owner_id);
 
     if (!account)
         return false;
@@ -844,7 +845,7 @@ reconcile_private_collection(struct house *house, int cost)
         cost = 0;
     } else {
         cost -= account->bank_past;
-        set_past_bank(account, 0);
+        account_set_past_bank(account, 0);
     }
 
     // If they didn't have enough, try credits
@@ -854,7 +855,7 @@ reconcile_private_collection(struct house *house, int cost)
             cost = 0;
         } else {
             cost -= account->bank_future;
-            set_future_bank(account, 0);
+            account_set_future_bank(account, 0);
         }
     }
     return cost;
@@ -1011,7 +1012,7 @@ collect_housing_rent()
                 continue;
             if (house->type == PRIVATE || house->type == RENTAL) {
                 // If the player is online, do not charge rent.
-                struct account *account = account_by_id(house->owner_id);
+                struct account *account = account_by_idnum(house->owner_id);
                 if (account || account_is_logged_in(account))
                     continue;
             }
@@ -1074,7 +1075,7 @@ display_house(struct house *house, struct creature *ch)
                  house->id, house_type_name(house->type), landlord);
 
     if (house->type == PRIVATE || house->type == RENTAL || house->type == PUBLIC) {
-        struct account *account = account_by_id(house->owner_id);
+        struct account *account = account_by_idnum(house->owner_id);
         if (account != NULL) {
             const char* email = "";
             if (account->email && *account->email) {
@@ -1168,7 +1169,7 @@ hcontrol_build_house(struct creature *ch, char *arg)
         int id = atoi(str);
         if (id == 0) {
             send_to_char(ch, "Warning, creating house with no owner.\r\n");
-        } else if (!account_by_id(id)) {
+        } else if (!account_by_idnum(id)) {
             send_to_char(ch, "Invalid account id '%d'.\r\n", id);
             return;
         }
@@ -1296,7 +1297,7 @@ set_house_account_owner(struct creature *ch, struct house *house, char *arg)
 {
     int accountID = 0;
     if (isdigit(*arg)) { // to an account id
-        if (account_by_id(atoi(arg))) {
+        if (account_by_idnum(atoi(arg))) {
             accountID = atoi(arg);
         } else {
             send_to_char(ch, "struct account %d doesn't exist.\r\n", atoi(arg));

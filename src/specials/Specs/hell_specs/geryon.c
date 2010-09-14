@@ -25,7 +25,7 @@ SPECIAL(geryon)
 		return 0;
 	for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
         struct creature *tch = cit->data;
-		if (findCombat(tch, ch) &&
+		if (g_list_find(tch->fighting, ch) &&
 			!number(0, 4) && !affected_by_spell(tch, SPELL_POISON)) {
 			vict = tch;
 			break;

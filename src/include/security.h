@@ -2,34 +2,31 @@
 #define _SECURITY_H_
 
 // Special roles
-extern const char *SECURITY_EVERYONE;
-extern const char *SECURITY_NOONE;
+extern const char *ROLE_EVERYONE;
+extern const char *ROLE_NOONE;
 
-extern const char *SECURITY_ADMINBASIC;
-extern const char *SECURITY_ADMINFULL;
-extern const char *SECURITY_CLAN;
-extern const char *SECURITY_CLANADMIN;
-extern const char *SECURITY_CODER;
-extern const char *SECURITY_CODERADMIN;
-extern const char *SECURITY_DYNEDIT;
-extern const char *SECURITY_ROLESADMIN;
-extern const char *SECURITY_HELP;
-extern const char *SECURITY_HOUSE;
-extern const char *SECURITY_OLC;
-extern const char *SECURITY_OLCADMIN;
-extern const char *SECURITY_OLCAPPROVAL;
-extern const char *SECURITY_OLCPROOFER;
-extern const char *SECURITY_OLCWORLDWRITE;
-extern const char *SECURITY_QUESTOR;
-extern const char *SECURITY_QUESTORADMIN;
-extern const char *SECURITY_TESTERS;
-extern const char *SECURITY_WIZARDADMIN;
-extern const char *SECURITY_WIZARDBASIC;
-extern const char *SECURITY_WIZARDFULL;
-extern const char *SECURITY_WORLDADMIN;
-
-/**  Constant Command Flags **/
-const int SECURITY_ROLE = (1 << 0);
+extern const char *ROLE_ADMINBASIC;
+extern const char *ROLE_ADMINFULL;
+extern const char *ROLE_CLAN;
+extern const char *ROLE_CLANADMIN;
+extern const char *ROLE_CODER;
+extern const char *ROLE_CODERADMIN;
+extern const char *ROLE_DYNEDIT;
+extern const char *ROLE_ROLESADMIN;
+extern const char *ROLE_HELP;
+extern const char *ROLE_HOUSE;
+extern const char *ROLE_OLC;
+extern const char *ROLE_OLCADMIN;
+extern const char *ROLE_OLCAPPROVAL;
+extern const char *ROLE_OLCPROOFER;
+extern const char *ROLE_OLCWORLDWRITE;
+extern const char *ROLE_QUESTOR;
+extern const char *ROLE_QUESTORADMIN;
+extern const char *ROLE_TESTERS;
+extern const char *ROLE_WIZARDADMIN;
+extern const char *ROLE_WIZARDBASIC;
+extern const char *ROLE_WIZARDFULL;
+extern const char *ROLE_WORLDADMIN;
 
 struct role {
         /* A one line description of this role */
@@ -61,20 +58,30 @@ enum privilege {
     EDIT_CLAN,
     SEE_FULL_WHOLIST,
     FULL_IMMORT_WHERE,
+    HEAR_ALL_CHANNELS,
+    EAT_ANYTHING,
+    LIST_SEARCHES,
+    SET_RESERVED_SPECIALS,
+    SET_FULLCONTROL,
+    WORLDWRITE,
+    OLC_LOCK,
     TESTER,
     ENTER_ROOM,
-    WORLDWRITE,
+    CREATE_ZONE,
     EDIT_ZONE,
     APPROVE_ZONE,
     UNAPPROVE_ZONE,
     EDIT_HOUSE,
     EDIT_QUEST,
+    QUEST_BAN,
+    CONTROL_FATE,
     COMMAND,
     SHOW,
     SET,
     ASET,
 };
 
+bool load_roles_from_db(void);
 bool is_authorized(struct creature *ch, enum privilege priv, void *target);
 void send_role_linedesc(struct role *role,struct creature *ch);
 bool is_role_member(struct role *role, long player);
@@ -97,5 +104,6 @@ void send_role_member_list(struct role *role,
                            struct creature *ch,
                            const char *title,
                            const char *admin_role_name);
+bool is_tester(struct creature *ch);
 
 #endif

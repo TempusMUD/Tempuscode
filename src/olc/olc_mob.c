@@ -151,7 +151,7 @@ do_create_mob(struct creature *ch, int vnum)
 		return NULL;
 	}
 
-	if (!CAN_EDIT_ZONE(ch, zone)) {
+	if (!is_authorized(ch, EDIT_ZONE, zone)) {
 		send_to_char(ch, "Try creating mobiles in your own zone, luser.\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to CREATE mob %d.",
@@ -297,7 +297,7 @@ do_mob_medit(struct creature *ch, char *argument)
 				return;
 			}
 
-			if (!CAN_EDIT_ZONE(ch, zone)) {
+			if (!is_authorized(ch, EDIT_ZONE, zone)) {
 				send_to_char(ch,
 					"You do not have permission to edit those mobiles.\r\n");
 				return;
@@ -1043,7 +1043,8 @@ do_mob_mset(struct creature *ch, char *argument)
 					"Type show special mob to view a list.\r\n");
 			else if (!IS_SET(spec_list[i].flags, SPEC_MOB))
 				send_to_char(ch, "This special is not for mobiles.\r\n");
-			else if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCIMP(ch))
+			else if (IS_SET(spec_list[i].flags, SPEC_RES)
+                     && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL))
 				send_to_char(ch, "This special is reserved.\r\n");
 			else {
 
@@ -1114,7 +1115,8 @@ do_mob_mset(struct creature *ch, char *argument)
 
 		// Check to see that they can set the spec param
 		i = find_spec_index_ptr(GET_MOB_SPEC(mob_p));
-		if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCIMP(ch)) {
+		if (IS_SET(spec_list[i].flags, SPEC_RES)
+            && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL)) {
 			send_to_char(ch, "This special is reserved.\r\n");
 			break;
 		}
@@ -1217,7 +1219,8 @@ do_mob_mset(struct creature *ch, char *argument)
 			mob_p->mob_specials.shared->vnum <= zone->top)
 			break;
 
-	if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL) && !OLCIMP(ch) )
+	if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL)
+        && is_authorized(ch, APPROVE_ZONE, NULL))
 		SET_BIT(MOB2_FLAGS(mob_p), MOB2_UNAPPROVED);
 
 }
@@ -1546,7 +1549,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
 		return 1;
 	}
 
-	if (!CAN_EDIT_ZONE(ch, zone)) {
+	if (!is_authorized(ch, EDIT_ZONE, zone)) {
 		send_to_char(ch, "Oh, no you don't!!!\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to DESTROY mobile %d.",
@@ -1556,7 +1559,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
 	for (GList *cit = creatures;cit;cit = cit->next) {
         struct creature *tch = cit->data;
 		if (GET_MOB_VNUM(tch) == GET_MOB_VNUM(mob))
-			purge(tch, false);
+			creature_purge(tch, false);
 	}
 
     g_hash_table_remove(mob_prototypes, GINT_TO_POINTER(GET_MOB_VNUM(mob)));
@@ -1957,7 +1960,7 @@ olc_mimic_mob(struct creature *ch,
         for (GList *cit = creatures;cit;cit = cit->next) {
             struct creature *tch = cit->data;
 			if (IS_NPC(tch) && GET_MOB_VNUM(tch) == GET_MOB_VNUM(targ))
-				purge(tch, false);
+				creature_purge(tch, false);
 		}
 	}
 

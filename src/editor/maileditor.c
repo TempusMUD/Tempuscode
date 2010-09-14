@@ -56,7 +56,7 @@ maileditor_display(struct editor *editor,
         maileditor_listattachments(editor);
         send_to_desc(editor->desc, "\r\n");
     }
-    editor_displaybuffer(start_line, line_count);
+    editor_display(start_line, line_count, 0);
 }
 
 bool
@@ -103,12 +103,12 @@ maileditor_finalize(struct editor *editor, const char *text)
 	// If they're trying to send a blank message
 	if (!*text) {
 		editor_emit(editor, "Why would you send a blank message?\r\n");
-        ReturnAttachments();
+        maileditor_returnattachments(editor);
         return;
 	}
 
     for (mail_rcpt = mail_data->mail_to; mail_rcpt; mail_rcpt = mail_rcpt->next) {
-        char *name = player_name_by_id(mail_rcpt->recpt_idnum);
+        char *name = player_name_by_idnum(mail_rcpt->recpt_idnum);
         cc_list = g_list_prepend(cc_list, g_string_new(name));
 	}
 
@@ -276,7 +276,7 @@ maileditor_addrecipient(struct editor *editor, char *name)
                                 tmp_capitalize(player_name_by_idnum(new_id_num))));
 	}
 	cur->next = new_rcpt;
-	ListRecipients();
+	maileditor_listrecipients(editor);
 }
 
 void
@@ -451,7 +451,7 @@ maileditor_addattachment(struct editor *editor, char *obj_name)
 			money = GET_GOLD(editor->desc->creature);
 		}
 
-		cost = get_weight(obj) * MAIL_COST_MULTIPLIER;
+		cost = GET_OBJ_WEIGHT(obj) * MAIL_COST_MULTIPLIER;
 
 		if (money < cost) {
 			editor_emit(editor, tmp_sprintf("You don't have the %d %s necessary to "
@@ -508,13 +508,13 @@ maileditor_returnattachments(struct editor *editor)
         o = mail_data->obj_list;
         while (o) {
             next_obj = o->next_content;
-            obj_to_char_unsorted(o, editor->desc->creature);
+            obj_to_char(o, editor->desc->creature);
 			if (editor->desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
 				GET_CASH(editor->desc->creature) +=
-                    getWeight(o) * MAIL_COST_MULTIPLIER;
+                    GET_OBJ_WEIGHT(o) * MAIL_COST_MULTIPLIER;
 			else
 				GET_GOLD(editor->desc->creature) +=
-                    getWeight(o) * MAIL_COST_MULTIPLIER;
+                    GET_OBJ_WEIGHT(o) * MAIL_COST_MULTIPLIER;
             o = next_obj;
         }
     }
@@ -552,5 +552,5 @@ start_editing_mail(struct descriptor_data *d,
     mail_data->obj_list = NULL;
 
     emit_editor_startup(d->text_editor);
-    display_buffer(d->text_editor);
+    editor_display(d->text_editor, 0, 0);
 }

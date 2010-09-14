@@ -29,7 +29,7 @@ SPECIAL(gen_shower_rm)
 
 	if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
 		send_to_char(ch, "The flames surrounding you are extinguished in a burst of steam!\r\n");
-        extinguish(ch);
+        extinguish_creature(ch);
 	}
 
 	if (acid_cleaned)

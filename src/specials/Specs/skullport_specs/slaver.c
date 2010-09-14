@@ -22,7 +22,7 @@ SPECIAL(slaver)
 	if (!r_pit_lip || !r_slave_pit)
 		return 0;
 
-	if (!isFighting(slaver) && !ROOM_FLAGGED(slaver->in_room, ROOM_PEACEFUL)) {
+	if (!slaver->fighting && !ROOM_FLAGGED(slaver->in_room, ROOM_PEACEFUL)) {
 
         for (GList *it = slaver->in_room->people;it;it = it->next) {
             vict = it->data;
@@ -36,8 +36,8 @@ SPECIAL(slaver)
 						false, slaver, 0, vict, TO_VICT);
 					act("$n hurls $N headfirst into the slave pit!",
 						false, slaver, 0, vict, TO_NOTVICT);
-					removeCombat(slaver, vict);
-					removeCombat(vict, slaver);
+					remove_combat(slaver, vict);
+					remove_combat(vict, slaver);
 					char_from_room(vict, false);
 					char_to_room(vict, r_slave_pit, false);
 					look_at_room(vict, vict->in_room, 1);
@@ -51,7 +51,7 @@ SPECIAL(slaver)
 		return 0;
 	}
 
-	if (!(vict = findRandomCombat(slaver)) ||
+	if (!(vict = random_opponent(slaver)) ||
 		PRF_FLAGGED(vict, PRF_NOHASSLE) || !can_see_creature(slaver, vict))
 		return 0;
 
@@ -62,8 +62,8 @@ SPECIAL(slaver)
 				false, slaver, 0, vict, TO_VICT);
 			act("$n hurls $N headfirst into the slave pit!",
 				false, slaver, 0, vict, TO_NOTVICT);
-			removeCombat(slaver, vict);
-			removeCombat(vict, slaver);
+			remove_combat(slaver, vict);
+			remove_combat(vict, slaver);
 			char_from_room(vict, false);
 			char_to_room(vict, r_slave_pit, false);
 			look_at_room(vict, vict->in_room, 1);

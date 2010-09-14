@@ -111,6 +111,37 @@ void free_account(struct account *acct)
 }
 
 void
+load_players(struct account *account)
+{
+    long count, idx;
+    PGresult *res;
+
+    g_list_free(account->chars);
+    account->chars = NULL;
+
+    res = sql_query("select idnum from players where account=%d order by idnum", account->id);
+    count = PQntuples(res);
+    for (idx = 0;idx < count;idx++)
+        account->chars = g_list_prepend(account->chars,
+                                        GINT_TO_POINTER(atol(PQgetvalue(res, idx, 0))));
+}
+
+void
+load_trusted(struct account *account)
+{
+    PGresult *res;
+    int count, idx;
+
+    g_list_free(account->trusted);
+    account->trusted = NULL;
+
+    res = sql_query("select player from trusted where account=%d", account->id);
+    count = PQntuples(res);
+    for (idx = 0;idx < count;idx++)
+        account_add_trusted(account, atol(PQgetvalue(res, idx, 0)));
+}
+
+void
 preload_accounts(const char *conditions)
 {
     long acct_count, field_count, field_idx;
@@ -247,40 +278,9 @@ account_set(struct account *account, const char *key, const char *val)
 }
 
 void
-account_load_players(struct account *account)
-{
-    long count, idx;
-    PGresult *res;
-
-    g_list_free(account->chars);
-    account->chars = NULL;
-
-    res = sql_query("select idnum from players where account=%d order by idnum", account->id);
-    count = PQntuples(res);
-    for (idx = 0;idx < count;idx++)
-        account->chars = g_list_prepend(account->chars,
-                                        GINT_TO_POINTER(atol(PQgetvalue(res, idx, 0))));
-}
-
-void
 account_add_trusted(struct account *account, long idnum)
 {
     account->trusted = g_list_prepend(account->trusted, GINT_TO_POINTER(idnum));
-}
-
-void
-account_load_trusted(struct account *account)
-{
-    PGresult *res;
-    int count, idx;
-
-    g_list_free(account->trusted);
-    account->trusted = NULL;
-
-    res = sql_query("select player from trusted where account=%d", account->id);
-    count = PQntuples(res);
-    for (idx = 0;idx < count;idx++)
-        account_add_trusted(account, atol(PQgetvalue(res, idx, 0)));
 }
 
 struct account*
@@ -390,7 +390,7 @@ account_remove(struct account *acct)
 int
 chars_available(struct account *account)
 {
-    return countGens(account) / 10 + 10 - g_list_length(account->chars);
+    return count_account_gens(account) / 10 + 10 - g_list_length(account->chars);
 }
 
 // Create a brand new character
@@ -406,7 +406,7 @@ account_create_char(struct account *account, const char *name)
     CREATE(ch, struct creature, 1);
 
     ch->player.name = strdup(tmp_capitalize(tmp_tolower(name)));
-    ch->char_specials.saved.idnum = player_top_idnum() + 1;
+    ch->char_specials.saved.idnum = top_player_idnum() + 1;
     account->chars = g_list_prepend(account->chars, GINT_TO_POINTER(GET_IDNUM(ch)));
 
     sql_exec("insert into players (idnum, name, account) values (%ld, '%s', %d)",
@@ -530,7 +530,7 @@ account_delete_char(struct account *account, struct creature *ch)
         struct quest *quest = quest_by_vnum(GET_QUEST(ch));
 
         if (quest) {
-            removePlayer(quest, GET_IDNUM(ch));
+            remove_player_from_quest(quest, GET_IDNUM(ch));
             save_quests();
         }
     }
@@ -543,7 +543,7 @@ account_delete_char(struct account *account, struct creature *ch)
     for (idx = 0;idx < count;idx++) {
         acct = account_by_idnum(atoi(PQgetvalue(res, idx, 0)));
         if (acct)
-            distrust(acct, GET_IDNUM(ch));
+            account_distrust(acct, GET_IDNUM(ch));
     }
 
     // Remove from the bounty list
@@ -563,7 +563,7 @@ account_delete_char(struct account *account, struct creature *ch)
     // Remove character from game
     if (ch->in_room) {
         send_to_char(ch, "A cold wind blows through your soul, and you disappear!\r\n");
-        purge(ch, false);
+        creature_purge(ch, false);
     }
 }
 
@@ -572,7 +572,7 @@ account_authenticate(struct account *account, const char *pw)
 {
     if(account->password == NULL || *account->password == '\0') {
         errlog("struct account %s[%d] has NULL password. Setting to guess.", account->name, account->id );
-        set_password(account, pw);
+        account_set_password(account, pw);
     }
     return !strcmp(account->password, crypt(pw, account->password));
 }
@@ -637,6 +637,12 @@ account_initialize(struct account *account,
         tmp_sqlescape(d->host), DEFAULT_TERM_HEIGHT, DEFAULT_TERM_WIDTH);
 }
 
+bool
+account_has_password(struct account *account)
+{
+    return (account->password != NULL);
+}
+
 void
 account_set_password(struct account *account, const char *pw)
 {
@@ -656,6 +662,7 @@ account_set_password(struct account *account, const char *pw)
         else
             salt[idx] = '/';
     }
+    free(account->password);
     account->password = strdup(crypt(pw, salt));
     sql_exec("update accounts set password='%s' where idnum=%d",
         tmp_sqlescape(account->password), account->id);
@@ -692,37 +699,37 @@ account_gain_reputation(struct account *account, int amt)
 }
 
 void
-account_deposit_past_bank(struct account *account, money_t amt)
+deposit_past_bank(struct account *account, money_t amt)
 {
     if (amt > 0)
-        set_past_bank(account, account->bank_past + amt);
+        account_set_past_bank(account, account->bank_past + amt);
 }
 
 void
-account_deposit_future_bank(struct account *account, money_t amt)
+deposit_future_bank(struct account *account, money_t amt)
 {
     if (amt > 0)
-        set_future_bank(account, account->bank_future + amt);
+        account_set_future_bank(account, account->bank_future + amt);
 }
 
 void
-account_withdraw_past_bank(struct account *account, money_t amt)
+withdraw_past_bank(struct account *account, money_t amt)
 {
     if (amt <= 0)
         return;
     if (amt > account->bank_past)
         amt = account->bank_past;
-    set_past_bank(account, account->bank_past - amt);
+    account_set_past_bank(account, account->bank_past - amt);
 }
 
 void
-account_withdraw_future_bank(struct account *account, money_t amt)
+withdraw_future_bank(struct account *account, money_t amt)
 {
     if (amt <= 0)
         return;
     if (amt > account->bank_future)
         amt = account->bank_future;
-    set_future_bank(account, account->bank_future - amt);
+    account_set_future_bank(account, account->bank_future - amt);
 }
 
 void
@@ -807,9 +814,9 @@ account_deny_char_entry(struct account *account, struct creature *ch)
             if (is_named_role_member(tch, "AdminFull"))
                 override = true;
             // builder can have on a tester and vice versa.
-            if (is_named_role_member(ch, "OLC") && isTester(tch))
+            if (is_named_role_member(ch, "OLC") && is_tester(tch))
                 override = true;
-            if (isTester(ch) && is_named_role_member(tch, "OLC"))
+            if (is_tester(ch) && is_named_role_member(tch, "OLC"))
                 override = true;
             // We have a non-immortal already in the game, so they don't
             // get to come in
@@ -843,7 +850,7 @@ account_update_last_entry(struct account *account)
 }
 
 bool
-account_isTrusted(struct account *account, long idnum)
+is_trusted(struct account *account, long idnum)
 {
     if (g_list_find(account->chars, GINT_TO_POINTER(idnum)))
         return true;
@@ -873,7 +880,7 @@ account_distrust(struct account *account, long idnum)
 }
 
 void
-account_displayTrusted(struct account *account, struct creature *ch)
+account_display_trusted(struct account *account, struct creature *ch)
 {
     int col = 0;
 
@@ -1014,7 +1021,7 @@ hasCharGen(struct account *account, int gen)
 }
 
 int
-account_countGens(struct account *account)
+count_account_gens(struct account *account)
 {
     struct creature *tmp_ch;
     int count = 0;
@@ -1031,4 +1038,18 @@ account_countGens(struct account *account)
     }
 
     return count;
+}
+
+int
+account_chars_available(struct account *account)
+{
+    return (count_account_gens(account) / 10
+            + 10
+            - g_list_length(account->chars));
+}
+
+int
+account_char_count(struct account *account)
+{
+    return g_list_length(account->chars);
 }

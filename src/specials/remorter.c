@@ -79,7 +79,7 @@ do_pass_remort_test(struct creature *ch)
 	REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
 
 	// Save the char and its implants but not its eq
-	remort(ch);
+	creature_remort(ch);
 
 	return 1;
 }
@@ -166,8 +166,6 @@ SPECIAL(remorter)
 
     value = MIN(level * 5000000, GET_GOLD(ch));
     GET_GOLD(ch) -= value;
-
-    do_pre_test(ch);
 
     send_to_char(ch, "Your sacrifice has been accepted.\r\n");
     return do_pass_remort_test(ch);

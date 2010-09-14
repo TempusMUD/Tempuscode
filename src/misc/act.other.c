@@ -117,9 +117,9 @@ ACMD(do_quit)
 		}
 
 		if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR ||
-			isTester(ch)) {
+			is_tester(ch)) {
 			if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-				mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+				mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has departed from the known multiverse",
 					GET_NAME(ch));
 				act("$n steps out of the universe.", true, ch, 0, 0, TO_ROOM);
@@ -127,11 +127,11 @@ ACMD(do_quit)
 			} else {
 				send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
 				act("$n flickers out of reality.", true, ch, 0, 0, TO_ROOM);
-				mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+				mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has left the game%s", GET_NAME(ch),
-					isTester(ch) ? " (tester)" : " naked");
+					is_tester(ch) ? " (tester)" : " naked");
 			}
-			rent(ch);
+			creature_rent(ch);
 		} else if ((ch->carrying || IS_WEARING_W(ch)) &&
 			!ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) &&
 			strncasecmp(argument, "yes", 3)) {
@@ -160,30 +160,30 @@ ACMD(do_quit)
 					return;
 				}
 
-				mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+				mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s has left the game from house, room %d",
 					GET_NAME(ch), ch->in_room->number);
 				send_to_char(ch, "You smoothly slip out of existence.\r\n");
 				act("$n smoothly slips out of existence and is gone.",
 					true, ch, 0, 0, TO_ROOM);
-				rent(ch);
+				creature_rent(ch);
 			} else {
 				send_to_char(ch,
 					"\r\nVery well %s.  You drop all your things and vanish!\r\n",
 					GET_NAME(ch));
 				act("$n disappears, leaving all $s equipment behind!",
 					true, ch, 0, 0, TO_ROOM);
-				mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+				mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 					"%s (%d) has quit the game, EQ drop at %d",
 					GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number);
-				quit(ch);
+				creature_quit(ch);
 			}
 		} else {
 			send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
 			act("$n flickers out of reality.", true, ch, 0, 0, TO_ROOM);
-			mlog(SECURITY_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+			mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
 				"%s has left the game naked", GET_NAME(ch));
-			quit(ch);
+			creature_quit(ch);
 		}
 	}
 }
@@ -1290,7 +1290,7 @@ ACMD(do_gen_tog)
 		result = PRF2_TOG_CHK(ch, PRF2_NOWRAP);
 		break;
 	case SCMD_WORLDWRITE:
-        if (!is_group_member(ch, "OLCWorldWrite")) {
+        if (!is_authorized(ch, WORLDWRITE, NULL)) {
             send_to_char(ch, "You do not have the worldwrite power!\n");
             return;
         }
@@ -2322,7 +2322,7 @@ ACMD(do_trust)
 		return;
 	}
 
-	if (trusts(ch, idnum)) {
+	if (creature_trusts_idnum(ch, idnum)) {
 		send_to_char(ch, "You already trust %s.\r\n",
 			player_name_by_idnum(idnum));
 		return;
@@ -2365,7 +2365,7 @@ ACMD(do_distrust)
 		return;
 	}
 
-	if (distrusts(ch, idnum)) {
+	if (creature_distrusts_idnum(ch, idnum)) {
 		send_to_char(ch, "You already don't trust %s.\r\n",
 			player_name_by_idnum(idnum));
 		return;

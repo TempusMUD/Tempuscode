@@ -17,10 +17,10 @@ SPECIAL(mob_helper)
         helpee = it->data;
         // Being drawn into combat via a death cry will cause this
         // mob to attack a dead creature
-        if (!isFighting(helpee))
+        if (!helpee->fighting)
             continue;
 
-        vict = findRandomCombat(helpee);
+        vict = random_opponent(helpee);
 		if (GET_POSITION(vict) > POS_DEAD
 				&& IS_MOB(helpee)
 				&& IS_MOB(vict)

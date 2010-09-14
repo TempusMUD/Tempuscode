@@ -151,7 +151,7 @@ make_help_collection(void)
 void
 free_help_collection(struct help_collection *col)
 {
-    g_list_foreach(col->items, free_helpitem, 0);
+    g_list_foreach(col->items, free_help_item, 0);
     g_list_free(col->items);
 
     slog("Help system ended.");
@@ -190,7 +190,7 @@ help_collection_list(struct help_collection *col,
 			break;
 		if (cur->idnum < start)
 			continue;
-		helpitem_show(cur, ch, linebuf, 1);
+		help_item_show(cur, ch, linebuf, 1);
 		strcat(gHelpbuf, linebuf);
 		space_left -= strlen(linebuf);
 		if (space_left <= 0) {
@@ -204,19 +204,58 @@ help_collection_list(struct help_collection *col,
 	page_string(ch->desc, gHelpbuf);
 }
 
+// Save the index
+bool
+help_collection_save_index(struct help_collection *col)
+{
+	FILE *outf;
+    char *fname;
+	struct help_item *cur = NULL;
+	int num_items = 0;
+
+	fname = tmp_sprintf("%s/%s", HELP_DIRECTORY, "index");
+
+    outf = fopen(fname, "w");
+    if (outf) {
+        fprintf(outf, "%d\n", col->top_id);
+        for (cur = col->items; cur; cur = cur->next) {
+            fprintf(outf, "%d %u %d %u %ld\n%s\n%s\n",
+                    cur->idnum,
+                    cur->groups,
+                    cur->counter,
+                    cur->flags,
+                    cur->owner,
+                    cur->name,
+                    cur->keys);
+            num_items++;
+        }
+        fclose(outf);
+    } else {
+        errlog("Cannot open help index.");
+		return false;
+    }
+
+	if (num_items == 0) {
+		errlog("No records saved to help file index.");
+		return false;
+	}
+	slog("Help: %d items saved to help file index\r\n", num_items);
+	return true;
+}
+
 // Create an item. (calls Edit)
 bool
 help_collection_create_item(struct help_collection *col, struct creature *ch)
 {
 	struct help_item *n;
 
-    n = make_helpitem();
+    n = make_help_item();
 	n->idnum = ++col->top_id;
 	help_collection_push(col, n);
 	send_to_char(ch, "Item #%d created.\r\n", n->idnum);
-	helpitem_save(n);
-	help_collection_save_index();
-    helpitem_edit(n, ch);
+	help_item_save(n);
+    help_collection_save_index(col);
+    help_item_edit(n, ch);
 	SET_BIT(n->flags, HFLAG_MODIFIED);
 	slog("%s has help topic # %d.", GET_NAME(ch), n->idnum);
 	return true;
@@ -236,7 +275,7 @@ help_collection_edit_item(struct help_collection *col, struct creature *ch, int 
 	while (cur && cur->idnum != idnum)
         cur = cur->next;
 	if( cur != NULL ) {
-		helpitem_edit(cur, ch);
+		help_item_edit(cur, ch);
 		return true;
 	}
 	send_to_char(ch, "No such item.\r\n");
@@ -251,7 +290,7 @@ help_collection_clear_item(struct help_collection *col, struct creature *ch)
 		send_to_char(ch, "You must be editing an item to clear it.\r\n");
 		return false;
 	}
-	helpitem_clear(GET_OLC_HELP(ch));
+	help_item_clear(GET_OLC_HELP(ch));
 	return true;
 }
 
@@ -263,7 +302,7 @@ help_collection_save_item(struct help_collection *col, struct creature *ch)
 		send_to_char(ch, "You must be editing an item to save it.\r\n");
 		return false;
 	}
-	helpitem_save(GET_OLC_HELP(ch));
+	help_item_save(GET_OLC_HELP(ch));
 	return true;
 }
 
@@ -289,7 +328,7 @@ help_collection_find_items(struct help_collection *col,
 	for (cur = col->items; cur; cur = cur->next) {
 		if (IS_SET(cur->flags, HFLAG_UNAPPROVED) && !find_no_approve)
 			continue;
-		if (thegroup && !helpitem_is_in_group(cur, thegroup))
+		if (thegroup && !help_item_in_group(cur, thegroup))
 			continue;
 		strcpy(stack, cur->keys);
 		b = stack;
@@ -350,11 +389,11 @@ help_collection_get_topic(struct help_collection *col,
 	}
 	// Normal plain old help. One item at a time.
 	if (searchmode == false) {
-		helpitem_show(cur, ch, gHelpbuf, mode);
+		help_item_show(cur, ch, gHelpbuf, mode);
 	} else {					// Searching for multiple items.
 		space_left -= strlen(gHelpbuf);
 		for (; cur; cur = cur->next_show) {
-			helpitem_show(cur, ch, linebuf, 1);
+			help_item_show(cur, ch, linebuf, 1);
 			strcat(gHelpbuf, linebuf);
 			space_left -= strlen(linebuf);
 			if (space_left <= 0) {
@@ -371,55 +410,16 @@ help_collection_get_topic(struct help_collection *col,
 
 // Save everything.
 bool
-help_collection_SaveAll(struct help_collection *col, struct creature *ch)
+help_collection_save_all(struct help_collection *col, struct creature *ch)
 {
 	struct help_item *cur;
-	SaveIndex();
+    help_collection_save_index(col);
 	for (cur = col->items; cur; cur = cur->next) {
 		if (IS_SET(cur->flags, HFLAG_MODIFIED))
-			helpitem_save(cur);
+			help_item_save(cur);
 	}
 	send_to_char(ch, "Saved.\r\n");
 	slog("%s has saved the help system.", GET_NAME(ch));
-	return true;
-}
-
-// Save the index
-bool
-help_collection_SaveIndex(struct help_collection *col)
-{
-	FILE *outf;
-    char *fname;
-	struct help_item *cur = NULL;
-	int num_items = 0;
-
-	fname = tmp_sprintf("%s/%s", HELP_DIRECTORY, "index");
-
-    outf = fopen(fname, "w");
-    if (outf) {
-        fprintf(outf, "%d\n", col->top_id);
-        for (cur = col->items; cur; cur = cur->next) {
-            fprintf(outf, "%d %u %d %u %ld\n%s\n%s\n",
-                    cur->idnum,
-                    cur->groups,
-                    cur->counter,
-                    cur->flags,
-                    cur->owner,
-                    cur->name,
-                    cur->keys);
-            num_items++;
-        }
-        fclose(outf);
-    } else {
-        errlog("Cannot open help index.");
-		return false;
-    }
-
-	if (num_items == 0) {
-		errlog("No records saved to help file index.");
-		return false;
-	}
-	slog("Help: %d items saved to help file index\r\n", num_items);
 	return true;
 }
 
@@ -484,10 +484,10 @@ help_collection_set(struct help_collection *col, struct creature *ch, char *argu
 	}
 	argument = one_argument(argument, arg1);
 	if (!strncmp(arg1, "groups", strlen(arg1))) {
-		helpitem_setgroups(GET_OLC_HELP(ch), argument);
+		help_item_setgroups(GET_OLC_HELP(ch), argument);
 		return true;
 	} else if (!strncmp(arg1, "flags", strlen(arg1))) {
-        helpitem_setflags(GET_OLC_HELP(ch), argument);
+        help_item_setflags(GET_OLC_HELP(ch), argument);
 		return true;
 	} else if (!strncmp(arg1, "name", strlen(arg1))) {
         free(GET_OLC_HELP(ch)->name);
@@ -498,7 +498,7 @@ help_collection_set(struct help_collection *col, struct creature *ch, char *argu
 		GET_OLC_HELP(ch)->keys = strdup(argument);
 		return true;
 	} else if (!strncmp(arg1, "description", strlen(arg1))) {
-        helpitem_edittext(GET_OLC_HELP(ch));
+        help_item_edittext(GET_OLC_HELP(ch));
 		return true;
 	}
 	return false;
@@ -521,7 +521,7 @@ help_collection_sync(struct help_collection *col)
 
 // Approve an item
 void
-help_collection_ApproveItem(struct help_collection *col, struct creature *ch, char *argument)
+help_collection_approve_item(struct help_collection *col, struct creature *ch, char *argument)
 {
 	char arg1[256];
 	int idnum = 0;
@@ -549,7 +549,7 @@ help_collection_ApproveItem(struct help_collection *col, struct creature *ch, ch
 
 // Unapprove an item
 void
-help_collection_UnApproveItem(struct help_collection *col, struct creature *ch, char *argument)
+help_collection_unapprove_item(struct help_collection *col, struct creature *ch, char *argument)
 {
 	char arg1[256];
 	int idnum = 0;
@@ -577,7 +577,7 @@ help_collection_UnApproveItem(struct help_collection *col, struct creature *ch, 
 
 // Give some stat info on the Help System
 void
-help_collection_Show(struct help_collection *col, struct creature *ch)
+help_collection_show(struct help_collection *col, struct creature *ch)
 {
 	int num_items = 0;
 	int num_modified = 0;
@@ -648,7 +648,7 @@ ACMD(do_immhelp)
 	}
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
-		helpitem_show(cur, ch, gHelpbuf, 2);
+		help_item_show(cur, ch, gHelpbuf, 2);
 		page_string(ch->desc, gHelpbuf);
 	} else {
 		help_collection_get_topic(help, ch, argument, 2, false, HGROUP_IMMHELP, false);
@@ -679,7 +679,7 @@ ACMD(do_hcollect_help)
 	}
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
-		helpitem_show(cur, ch, gHelpbuf, 2);
+		help_item_show(cur, ch, gHelpbuf, 2);
 		page_string(ch->desc, gHelpbuf);
 	} else {
         help_collection_get_topic(help, ch, argument, 2, false, 0, false);
@@ -699,7 +699,7 @@ do_qcontrol_help( struct creature *ch, char *argument )
 	}
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
-		helpitem_show(cur, ch, gHelpbuf, 2);
+		help_item_show(cur, ch, gHelpbuf, 2);
 		page_string(ch->desc, gHelpbuf);
 	} else {
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_QCONTROL, false);
@@ -718,7 +718,7 @@ ACMD(do_olchelp)
 	}
 	// If we have a special case, do it, otherwise try to get it normally.
 	if (cur) {
-        helpitem_show(cur, ch, gHelpbuf, 2);
+        help_item_show(cur, ch, gHelpbuf, 2);
 		page_string(ch->desc, gHelpbuf);
 	} else {
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_OLC, false);
@@ -751,10 +751,10 @@ ACMD(do_help_collection_command)
 	}
 	switch (com) {
 	case 0:					// Approve
-		help_collection_approveitem(help, ch, argument);
+		help_collection_approve_item(help, ch, argument);
 		break;
 	case 1:					// Create
-		help_collection_createitem(help, ch);
+		help_collection_create_item(help, ch);
 		break;
 	case 2:					// Edit
 		argument = one_argument(argument, linebuf);
@@ -780,7 +780,7 @@ ACMD(do_help_collection_command)
         help_collection_list(help, ch, argument);
 		break;
 	case 5:					// Save
-        help_collection_saveall(help, ch);
+        help_collection_save_all(help, ch);
 		break;
 	case 6:					// Set
         help_collection_set(help, ch, argument);
@@ -797,7 +797,7 @@ ACMD(do_help_collection_command)
 			while (cur && cur->idnum != id)
                 cur = cur->next;
 			if (cur) {
-                helpitem_show(cur, ch, gHelpbuf, 3);
+                help_item_show(cur, ch, gHelpbuf, 3);
 				page_string(ch->desc, gHelpbuf);
 				break;
 			} else {
@@ -806,7 +806,7 @@ ACMD(do_help_collection_command)
 			}
 		}
 		if (GET_OLC_HELP(ch)) {
-            helpitem_show(GET_OLC_HELP(ch), ch, gHelpbuf, 3);
+            help_item_show(GET_OLC_HELP(ch), ch, gHelpbuf, 3);
 			page_string(ch->desc, gHelpbuf);
 		} else {
 			send_to_char(ch, "Stat what item?\r\n");

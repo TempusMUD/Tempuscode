@@ -342,7 +342,7 @@ do_create_obj(struct creature *ch, int vnum)
 		return NULL;
 	}
 
-	if (!CAN_EDIT_ZONE(ch, zone)) {
+	if (!is_authorized(ch, EDIT_ZONE, zone)) {
 		send_to_char(ch, "Try creating objects in your own zone, luser.\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to CREATE obj %d.",
@@ -423,7 +423,7 @@ do_destroy_object(struct creature *ch, int vnum)
 		return 1;
 	}
 
-	if (!CAN_EDIT_ZONE(ch, zone)) {
+	if (!is_authorized(ch, EDIT_ZONE, zone)) {
 		send_to_char(ch, "Oh, no you don't!!!\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to DESTROY object %d.",
@@ -907,7 +907,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 			}
 		}
 
-        normalizeApplies(obj_p);
+        normalize_applies(obj_p);
 
 		if (k >= MAX_OBJ_AFFECT) {
 			if (j)
@@ -956,7 +956,8 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 				"Type show special obj to view a list.\r\n");
 		else if (!IS_SET(spec_list[i].flags, SPEC_OBJ))
 			send_to_char(ch, "This special is not for objects.\r\n");
-		else if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCIMP(ch))
+		else if (IS_SET(spec_list[i].flags, SPEC_RES)
+                 && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL))
 			send_to_char(ch, "This special is reserved.\r\n");
 		else {
 
@@ -1082,7 +1083,8 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 
 		// Check to see that they can set the spec param
 		i = find_spec_index_ptr(GET_OBJ_SPEC(obj_p));
-		if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCIMP(ch)) {
+		if (IS_SET(spec_list[i].flags, SPEC_RES)
+            && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL)) {
 			send_to_char(ch, "This special is reserved.\r\n");
 			break;
 		}
@@ -1155,7 +1157,8 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 				oset_command == 2))	// ldesc
 			obj_p->obj_flags.material = choose_material(obj_p);
 
-		if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL) && !OLCIMP(ch) )
+		if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL)
+            && !is_authorized(ch, WORLDWRITE, NULL) )
 			SET_BIT(obj_p->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
 	}
 }

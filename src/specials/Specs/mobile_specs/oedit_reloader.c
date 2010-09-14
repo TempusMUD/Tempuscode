@@ -29,7 +29,7 @@ load_oedits( struct creature *ch )
         if( obj->shared->owner_id == GET_IDNUM(ch)  ) {
 			++count;
             struct obj_data* o = read_object( obj->shared->vnum );
-            obj_to_char_nospec( o, ch );
+            obj_to_char( o, ch );
             act("$p appears in your hands!", false, ch, o, 0, TO_CHAR);
 		}
     }
@@ -91,7 +91,7 @@ retrieve_oedits( struct creature *ch )
             }
 
 			++count;
-			obj_to_char_nospec( obj, ch );
+			obj_to_char( obj, ch );
 			act("$p appears in your hands!", false, ch, obj, 0, TO_CHAR);
 		}
 	}

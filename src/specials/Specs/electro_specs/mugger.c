@@ -36,10 +36,10 @@ SPECIAL(mugger)
 		for (obj = self->carrying;obj;obj = obj->next_content) {
 			if (GET_OBJ_VNUM(obj) == mug->vnum) {
 				if (GET_IDNUM(ch) == mug->idnum) {
-                    vict = findRandomCombat(self);
-					if (isFighting(self) && !IS_NPC(vict)) {
+                    vict = random_opponent(self);
+					if (self->fighting && !IS_NPC(vict)) {
 						perform_say(self, "say", tmp_sprintf("Ha!  Let this be a lesson to you, %s!", GET_DISGUISED_NAME(self, vict)));
-                        removeAllCombat(self);
+                        remove_all_combat(self);
 					} else {
 						perform_say(self, "say", tmp_sprintf("Good move, %s!", GET_DISGUISED_NAME(self, ch)));
 					}
@@ -56,7 +56,7 @@ SPECIAL(mugger)
 	if (spec_mode == SPECIAL_CMD)
 		return 0;
 
-	if (isFighting(self) || MOB_HUNTING(self))
+	if (self->fighting || MOB_HUNTING(self))
 		return 0;
 
 	// We're not mugging anyone, so look for a new victim
@@ -174,7 +174,7 @@ SPECIAL(mugger)
 
 		if (MOB_HUNTING(self) != vict) {
 			do_gen_comm(ch, tmp_sprintf("You're asking for it, %s!", GET_NAME(vict)), 0, SCMD_SHOUT, 0);
-			startHunting(self, vict);
+			start_hunting(self, vict);
 		}
 		return 1;
 	}

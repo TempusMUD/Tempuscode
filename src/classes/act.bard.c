@@ -99,7 +99,7 @@ sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict, in
     struct bard_song *song = &songs[songnum];
 
     if (!SPELL_FLAGGED(songnum, MAG_BARD)) {
-        mlog(SECURITY_ADMINBASIC, LVL_AMBASSADOR, NRM, true,
+        mlog(ROLE_ADMINBASIC, LVL_AMBASSADOR, NRM, true,
              "(%d) Not a bard song in sing_song()", songnum);
         return;
     }

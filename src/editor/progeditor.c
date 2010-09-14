@@ -89,6 +89,6 @@ start_editing_prog(struct descriptor_data *d,
     prog_data->owner_type = owner_type;
 
     emit_editor_startup(d->text_editor);
-    display_buffer(d->text_editor);
+    editor_display(d->text_editor, 0, 0);
 }
 

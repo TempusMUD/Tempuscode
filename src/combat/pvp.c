@@ -405,7 +405,7 @@ check_object_killer(struct obj_data *obj, struct creature *vict)
 	if (!killer) {
         killer = load_player_from_xml(obj_id);
 		if (killer) {
-			killer->account = account_by_id(player_account_by_idnum(obj_id));
+			killer->account = account_by_idnum(player_account_by_idnum(obj_id));
             loaded_killer = true;
         }
 	}
@@ -438,12 +438,8 @@ punish_killer_death(struct creature *ch)
     //
     struct affected_type *af = ch->affected;
     while (af) {
-        if (clearAtDeath(af)) {
-            affect_remove(ch, af);
-            af = ch->affected;
-        } else {
-            af = af->next;
-        }
+        affect_remove(ch, af);
+        af = ch->affected;
     }
 
     GET_REMORT_GEN(ch) -= MIN(GET_REMORT_GEN(ch), loss / 50);

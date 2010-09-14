@@ -87,7 +87,7 @@ int path_locked = 1;
 
 int move_car(struct creature *ch, struct obj_data *car, int dir);
 
-inline void
+void
 PATH_MOVE(struct path_object *o)
 {
 	o->pos += o->step;

@@ -131,7 +131,7 @@ SPECIAL(red_highlord)
 			return 1;
 		}
 	} else if (vict && !number(0, 38)) {
-		startHunting(ch, vict);
+		start_hunting(ch, vict);
 		switch (number(0, 2)) {
 		case 0:
 			do_gen_comm(ch, tmp_strdup("Now where might that Desolation Blade be?"), 0,

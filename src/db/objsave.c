@@ -315,14 +315,14 @@ gen_receptionist(struct creature *ch, struct creature *recep,
 
 		if (mode == RENT_FACTOR) {
 			act("$n stores your belongings and helps you into your private chamber.", false, recep, 0, ch, TO_VICT);
-			rent(ch);
+			creature_rent(ch);
 		} else {				/* cryo */
 			act("$n stores your belongings and helps you into your private chamber.\r\nA white mist appears in the room, chilling you to the bone...\r\nYou begin to lose consciousness...", false, recep, 0, ch, TO_VICT);
 			if (recep->in_room->zone->time_frame == TIME_ELECTRO)
 				GET_CASH(ch) -= cost;
 			else
 				GET_GOLD(ch) -= cost;
-			cryo(ch);
+			creature_cryo(ch);
 		}
 
 	} else {

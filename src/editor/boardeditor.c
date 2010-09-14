@@ -34,7 +34,7 @@ bool
 board_command(struct editor *editor, char cmd, char *args)
 {
     if (cmd == 'u') {
-        undo_changes(editor);
+        editor_undo(editor);
         return true;
     }
     return false;
@@ -98,5 +98,5 @@ start_editing_board(struct descriptor_data *d,
 
     editor_import(d->text_editor, body);
     emit_editor_startup(d->text_editor);
-    display_buffer(d->text_editor);
+    editor_display(d->text_editor, 0, 0);
 }

@@ -24,7 +24,7 @@
 extern int max_spell_num;
 extern char **spells;
 
-inline const char *
+static inline const char *
 spell_to_str(int spell)
 {
 	if (spell < 0 || spell > max_spell_num) {
@@ -34,7 +34,7 @@ spell_to_str(int spell)
 	return spells[spell];
 }
 
-inline int
+static inline int
 str_to_spell(const char *spell)
 {
 	if( spell == NULL || *spell == '\0' )

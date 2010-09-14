@@ -182,6 +182,20 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     case WORLDWRITE:
         return is_named_role_member(ch, "OLCWorldWrite");
 
+    case HEAR_ALL_CHANNELS:
+        return is_named_role_member(ch, "AdminBasic");
+
+    case EAT_ANYTHING:
+        return is_named_role_member(ch, "WizardBasic");
+
+    case LIST_SEARCHES:
+        return (zone->owner_idnum == GET_IDNUM(ch)
+                || zone->co_owner_idnum == GET_IDNUM(ch)
+                || is_named_role_member(ch, "OLCWorldWrite"));
+
+    case SET_RESERVED_SPECIALS:
+        return is_named_role_member(ch, "OLCWorldWrite");
+
     case EDIT_ZONE:
         return (zone->owner_idnum == GET_IDNUM(ch)
                 || zone->co_owner_idnum == GET_IDNUM(ch)
@@ -222,7 +236,7 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
             return false;
         if (*(set_cmd->role) =='\0')
             return true;
-        if (set_cmd->role == SECURITY_EVERYONE)
+        if (set_cmd->role == ROLE_EVERYONE)
             return true;
         if (is_named_role_member(ch, set_cmd->role))
             return true;
@@ -233,7 +247,7 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
             return false;
         if (*(show_cmd->role) =='\0')
             return true;
-        if (show_cmd->role == SECURITY_EVERYONE)
+        if (show_cmd->role == ROLE_EVERYONE)
             return true;
         if (is_named_role_member(ch, show_cmd->role))
             return true;
@@ -244,7 +258,7 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
             return false;
         if (*(set_cmd->role) =='\0')
             return true;
-        if (set_cmd->role == SECURITY_EVERYONE)
+        if (set_cmd->role == ROLE_EVERYONE)
             return true;
         if (is_named_role_member(ch, set_cmd->role))
             return true;

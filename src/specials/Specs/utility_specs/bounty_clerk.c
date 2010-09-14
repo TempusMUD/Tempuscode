@@ -150,18 +150,18 @@ award_bounty(struct creature *killer, struct creature *vict)
 	if (amt_left) {
 		if (GET_PAST_BANK(vict) <= amt_left) {
 			amt_left -= GET_PAST_BANK(vict);
-			set_past_bank(vict->account, 0);
+			account_set_past_bank(vict->account, 0);
 		} else {
-			set_past_bank(vict->account, GET_PAST_BANK(vict) - amt_left);
+			account_set_past_bank(vict->account, GET_PAST_BANK(vict) - amt_left);
 			amt_left = 0;
 		}
 	}
 	if (amt_left) {
 		if (GET_FUTURE_BANK(vict) <= amt_left) {
 			amt_left -= GET_FUTURE_BANK(vict);
-			set_future_bank(vict->account, 0);
+			account_set_future_bank(vict->account, 0);
 		} else {
-			set_future_bank(vict->account, GET_FUTURE_BANK(vict) - amt_left);
+			account_set_future_bank(vict->account, GET_FUTURE_BANK(vict) - amt_left);
 			amt_left = 0;
 		}
 	}

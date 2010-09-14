@@ -67,7 +67,7 @@ summon_criminal_demons(struct creature *vict)
 			errlog("Unable to load mob in demonic_overmind");
 			return false;
 		}
-		startHunting(mob, vict);
+		start_hunting(mob, vict);
 		SET_BIT(MOB_FLAGS(mob), MOB_SPIRIT_TRACKER);
 		CREATE(mob->mob_specials.func_data, int, 1);
 		*((int *)mob->mob_specials.func_data) = GET_IDNUM(vict);
@@ -185,9 +185,6 @@ SPECIAL(demonic_overmind)
 	if (CMD_IS("spank")) {
 		char *name;
 
-		if (!is_group_member(ch, "AdminFull"))
-			return false;
-
 		name = tmp_getword(&argument);
 		vict = get_char_vis(ch, name);
 		if (!vict) {
@@ -218,7 +215,7 @@ SPECIAL(demonic_guard)
 	if (!ch || !MOB_HUNTING(self) || GET_REPUTATION(ch) < 700) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
 			false, self, 0, 0, TO_ROOM);
-		purge(self, true);
+		creature_purge(self, true);
 		return true;
 	}
 

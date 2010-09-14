@@ -254,7 +254,7 @@ prog_get_owner_room(struct prog_env *env)
     case PROG_TYPE_ROOM:
         return ((struct room_data *)env->owner);
     case PROG_TYPE_OBJECT:
-        return find_room((struct obj_data *)env->owner);
+        return find_object_room((struct obj_data *)env->owner);
     default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
     }
@@ -732,7 +732,7 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
         result = prog_eval_abbrev(evt, args);
 	} else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
-                  && isFighting((struct creature *) env->owner));
+                  && ((struct creature *) env->owner)->fighting);
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
 	} else if (!strcmp(arg, "variable")) {
@@ -910,7 +910,7 @@ DEFPROGHANDLER(target, env, evt, args)
 	} else if (!strcasecmp(arg, "opponent")) {
 		switch (env->owner_type) {
 		case PROG_TYPE_MOBILE:
-			new_target = findRandomCombat((struct creature *) env->owner);
+			new_target = random_opponent((struct creature *) env->owner);
 			break;
 		default:
 			new_target = NULL;
@@ -1379,7 +1379,7 @@ DEFPROGHANDLER(selfpurge, env, evt, args)
 		env->exec_pt = -1;
 
         if (evt->kind != PROG_EVT_DYING)
-            purge((struct creature *) env->owner, true);
+            creature_purge((struct creature *) env->owner, true);
 		env->owner = NULL;
 	}
 }
@@ -1387,7 +1387,7 @@ DEFPROGHANDLER(selfpurge, env, evt, args)
 DEFPROGHANDLER(hunt, env, evt, args)
 {
 	if (env->owner_type == PROG_TYPE_MOBILE && env->target) {
-		startHunting((struct creature *) env->owner, env->target);
+		start_hunting((struct creature *) env->owner, env->target);
 	}
 }
 

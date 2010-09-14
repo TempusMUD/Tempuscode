@@ -16,7 +16,7 @@ SPECIAL(archon)
 	if (!ch->fighting && ch->in_room->zone->plane != PLANE_HEAVEN) {
         for (GList *it = ch->in_room->people;it;it = it->next) {
             struct creature *tch = it->data;
-			if (tch != ch && IS_ARCHON(tch) && isFighting(tch)) {
+			if (tch != ch && IS_ARCHON(tch) && tch->fighting) {
 				do_rescue(ch, fname(tch->player.name), 0, 0, 0);
 				return 1;
 			}
@@ -29,7 +29,7 @@ SPECIAL(archon)
 			act("$n appears at the center of the room.", false, ch, 0, 0,
 				TO_ROOM);
 		} else {
-			purge(ch, true);
+			creature_purge(ch, true);
 		}
 		return 1;
 	}

@@ -21,7 +21,7 @@ SPECIAL(newbie_healer)
 			continue;
 		if (IS_NPC(i)) {
 			act("$n banishes $N!", false, ch, 0, i, TO_ROOM);
-			purge(i, false);
+			creature_purge(i, false);
 			continue;
 		}
 		if (!IS_NPC(i) && GET_LEVEL(i) < 5 && !number(0, GET_LEVEL(i))) {

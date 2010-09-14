@@ -286,7 +286,7 @@ SPECIAL(tattooist)
 		return 1;
 
 	if (spec_mode == SPECIAL_TICK) {
-        struct creature *target = findRandomCombat(self);
+        struct creature *target = random_opponent(self);
 		if (target && shop->call_for_help && !number(0, 4)) {
 			call_for_help(self, target);
 			return 1;

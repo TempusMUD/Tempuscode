@@ -70,7 +70,7 @@ unsigned char find_first_step_index = 0;
 #define UNMARK(room) ( room->find_first_step_index = 0 )
 #define IS_MARKED(room) ( room->find_first_step_index == find_first_step_index )
 
-inline struct room_data *
+struct room_data *
 to_room(struct room_data *room, int dir)
 {
 	if (room->dir_option[dir])
@@ -78,7 +78,7 @@ to_room(struct room_data *room, int dir)
 	return NULL;
 }
 
-inline bool
+bool
 valid_edge(struct room_data *room, int dir, enum track_mode mode)
 {
 	struct room_data *dest = to_room(room, dir);
@@ -100,7 +100,7 @@ valid_edge(struct room_data *room, int dir, enum track_mode mode)
 	return true;
 }
 
-inline void
+void
 bfs_enqueue(struct room_data *room, char dir)
 {
 
@@ -118,7 +118,7 @@ bfs_enqueue(struct room_data *room, char dir)
 		queue_head = queue_tail = curr;
 }
 
-inline void
+void
 bfs_dequeue(void)
 {
 
@@ -138,7 +138,7 @@ bfs_dequeue(void)
 #endif
 }
 
-inline void
+void
 bfs_clear_queue(void)
 {
 	while (queue_head)
@@ -614,16 +614,16 @@ hunt_victim(struct creature *ch)
 	if (!g_list_find(creatures, MOB_HUNTING(ch))) {
 		if (!ch->fighting) {
             emit_voice(ch, NULL, VOICE_HUNT_GONE);
-			stopHunting(ch);
+			stop_hunting(ch);
 		}
 		return;
 	}
 	if (GET_LEVEL(MOB_HUNTING(ch)) >= LVL_AMBASSADOR) {
-        stopHunting(ch);
+        stop_hunting(ch);
 		return;
 	}
-        if (findCombat(ch, MOB_HUNTING(ch)))
-		return;
+        if (g_list_find(ch->fighting, MOB_HUNTING(ch)))
+            return;
 
 	if (ch->in_room == MOB_HUNTING(ch)->in_room &&
 		!ch->fighting && can_see_creature(ch, MOB_HUNTING(ch)) &&
@@ -677,11 +677,11 @@ hunt_victim(struct creature *ch)
 	if (dir < 0
         || find_distance(ch->in_room, MOB_HUNTING(ch)->in_room) > GET_INT(ch)) {
         emit_voice(ch, MOB_HUNTING(ch), VOICE_HUNT_LOST);
-		stopHunting(ch);
+		stop_hunting(ch);
 		return;
 	}
     if (smart_mobile_move(ch, dir) < 0) {
-        stopHunting(ch);
+        stop_hunting(ch);
         return;
     }
 

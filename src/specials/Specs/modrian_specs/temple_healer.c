@@ -13,8 +13,8 @@ SPECIAL(temple_healer)
 	if (spec_mode != SPECIAL_TICK)
 		return false;
 
-    if (isFighting(self)) {
-		vict = findRandomCombat(self);
+    if (self->fighting) {
+		vict = random_opponent(self);
 
 		if (vict->in_room == self->in_room) {
 			switch (number(0, 20)) {
@@ -42,7 +42,7 @@ SPECIAL(temple_healer)
 		}
 	}
 
-	if (GET_POSITION(self) != POS_FIGHTING && !isFighting(self)) {
+	if (GET_POSITION(self) != POS_FIGHTING && !self->fighting) {
 		switch (number(0, 18)) {
 		case 0:
 			perform_say(self, "say", "Rest here, adventurer.  Your wounds will be tended.");

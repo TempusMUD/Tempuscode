@@ -500,7 +500,7 @@ check_idling(struct creature *ch)
 					ch->desc->creature = NULL;
 					ch->desc = NULL;
 				}
-				idle(ch);
+				creature_idle(ch);
 				return true;
 			}
 		}

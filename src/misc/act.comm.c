@@ -929,22 +929,22 @@ ACMD(do_gen_comm)
 			continue;
 
 		// Must be in same clan or an admin to hear clansay
-		if ((subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) &&
-				GET_CLAN(i->creature) != eff_clan &&
-				!is_group_member(i->creature, "AdminBasic"))
+		if ((subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE)
+            && GET_CLAN(i->creature) != eff_clan
+            && !is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL))
 			continue;
 
 		// Must be in same guild or an admin to hear guildsay
 		if (subcmd == SCMD_GUILDSAY &&
 				GET_CLASS(i->creature) != eff_class &&
-				!is_group_member(i->creature, "AdminBasic"))
+            !is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL))
 			continue;
 
 		// Evil and good clerics and knights have different guilds
 		if (subcmd == SCMD_GUILDSAY &&
 				(GET_CLASS(i->creature) == CLASS_CLERIC ||
 				GET_CLASS(i->creature) == CLASS_KNIGHT) &&
-				!is_group_member(i->creature, "AdminBasic")) {
+				!is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL)) {
 			if (eff_is_neutral)
 				continue;
 			if (eff_is_evil && !IS_EVIL(i->creature))
@@ -957,7 +957,7 @@ ACMD(do_gen_comm)
 		if (subcmd == SCMD_GUILDSAY &&
 				GET_CLASS(i->creature) == CLASS_MONK &&
 				!IS_NEUTRAL(i->creature) &&
-				!is_group_member(i->creature, "AdminBasic"))
+				!is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL))
 			continue;
 
 		if (IS_NPC(ch) || !IS_IMMORT(i->creature)) {

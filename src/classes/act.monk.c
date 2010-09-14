@@ -719,7 +719,7 @@ ACMD(do_pinch)
 			GET_POSITION(ch) = POS_STUNNED;
 			return;
 		}
-		if (ch->fighting || isFighting(vict)
+		if (ch->fighting || vict->fighting
 			|| MOB2_FLAGGED(vict, MOB2_NOSTUN)
 			|| (AFF_FLAGGED(vict, AFF_ADRENALINE)
 				&& number(0, 60) < GET_LEVEL(vict))) {
@@ -734,7 +734,7 @@ ACMD(do_pinch)
 		af.type = 0;
 		break;
 	case SKILL_PINCH_GAMMA:
-		if (ch->fighting || isFighting(vict)) {
+		if (ch->fighting || vict->fighting) {
 			send_to_char(ch, "You fail.\r\n");
 			send_to_char(vict, "%s", NOEFFECT);
 			return;
@@ -839,7 +839,7 @@ ACMD(do_pinch)
 			if (retval)
 				return;
 
-            ignite(ch, vict);
+            ignite_creature(ch, vict);
 		}
 		//
 		// victim is simply on fire
@@ -853,7 +853,7 @@ ACMD(do_pinch)
 			act("$n bursts into flames on contact with you!",
 				false, ch, 0, vict, TO_VICT);
 
-            ignite(ch, vict);
+            ignite_creature(ch, vict);
 		}
 	}
 	//
@@ -874,7 +874,7 @@ ACMD(do_pinch)
 
 	if (which_pinch != SKILL_PINCH_ZETA) {
         check_attack(ch, vict);
-		if (IS_NPC(vict) && !isFighting(vict)
+		if (IS_NPC(vict) && !vict->fighting
 			&& GET_POSITION(vict) >= POS_FIGHTING) {
 			int retval = hit(vict, ch, TYPE_UNDEFINED);
 			retval = SWAP_DAM_RETVAL(retval);

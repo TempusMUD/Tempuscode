@@ -77,7 +77,7 @@ ACMD(do_steal)
 			GET_NAME(vict));
 		return;
 	}
-	if (!IS_MOB(vict) && isNewbie(ch)) {
+	if (!IS_MOB(vict) && is_newbie(ch)) {
 		send_to_char(ch, "You can't steal from players. You're a newbie!\r\n");
 		return;
 	}
@@ -120,7 +120,7 @@ ACMD(do_steal)
 				act("$E hasn't got that item.", false, ch, 0, vict, TO_CHAR);
 				return;
 			} else {			/* It is equipment */
-				percent += getWeight(obj);	/* Make heavy harder */
+				percent += GET_OBJ_WEIGHT(obj);	/* Make heavy harder */
 
 				if (GET_POSITION(vict) > POS_SLEEPING) {
 					send_to_char(ch, "Steal the equipment now?  Impossible!\r\n");
@@ -172,7 +172,7 @@ ACMD(do_steal)
 			}
 		} else {				/* obj found in inventory */
 
-			percent += getWeight(obj);	/* Make heavy harder */
+			percent += GET_OBJ_WEIGHT(obj);	/* Make heavy harder */
 			if (IS_OBJ_STAT(obj, ITEM_NODROP))
 				percent += 30;
 			if (IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM))
@@ -189,7 +189,7 @@ ACMD(do_steal)
 					true, ch, 0, vict, TO_NOTVICT);
 			} else {			/* Steal the item */
 				if ((IS_CARRYING_N(ch) + 1 < CAN_CARRY_N(ch))) {
-					if ((IS_CARRYING_W(ch) + getWeight(obj)) <
+					if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <
 						CAN_CARRY_W(ch)) {
 						obj_from_char(obj);
 						obj_to_char(obj, ch);
@@ -310,7 +310,7 @@ ACMD(do_backstab)
 		send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
 		return;
 	}
-	if (isFighting(vict)) {
+	if (vict->fighting) {
 		send_to_char(ch, "Backstab a fighting person? -- they're too alert!\r\n");
 		return;
 	}
@@ -370,7 +370,7 @@ ACMD(do_circle)
 		send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
 		return;
 	}
-	if (findCombat(vict, ch)) {
+	if (g_list_find(vict->fighting, ch)) {
 		send_to_char(ch,
 			"You can't circle someone who is actively fighting you!\r\n");
 		return;
@@ -403,8 +403,8 @@ ACMD(do_circle)
 
 		if ((number(1, 40) + GET_LEVEL(vict)) > CHECK_SKILL(ch, SKILL_CIRCLE)) {
 			//set_fighting(vict, ch, false);
-            addCombat(vict, ch, false);
-            addCombat(ch, vict, true);
+            add_combat(vict, ch, false);
+            add_combat(ch, vict, true);
 		}
 	}
 }

@@ -183,7 +183,7 @@ check_ban_all(int desc, char *hostname)
                             "\r\n");
     }
 
-    mlog(SECURITY_ADMINBASIC, LVL_GOD, CMP, true,
+    mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
          "Connection attempt denied from [%s]%s",
          hostname,
          (node->reason[0]) ? tmp_sprintf(" (%s)", node->reason):"");

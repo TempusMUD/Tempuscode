@@ -337,7 +337,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int 
 		vict = it->data;
         if (damager
             && damager != vict
-            && !isOkToAttack(damager, vict,false)) {
+            && !ok_to_attack(damager, vict,false)) {
             //display the message to everyone in victs room except damager
             act("A divine shield flashes into existence protecting you from $N's bomb.",
                 false, vict, NULL, damager, TO_NOTVICT);
@@ -363,7 +363,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int 
 
 		if (bomb_type == BOMB_INCENDIARY &&
 			!CHAR_WITHSTANDS_FIRE(vict) && !AFF2_FLAGGED(vict, AFF2_ABLAZE))
-            ignite(vict, damager);
+            ignite_creature(vict, damager);
 
 		if ((bomb_type == BOMB_ARTIFACT || bomb_type == BOMB_FLASH) &&
 			AWAKE(vict) && GET_LEVEL(vict) < LVL_AMBASSADOR &&

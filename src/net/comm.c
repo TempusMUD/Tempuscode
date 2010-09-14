@@ -65,7 +65,7 @@
 
 /* externs */
 extern struct help_collection *Help;
-extern int restrict_mud;
+bool restrict_logins;
 extern int mini_mud;
 extern int olc_lock;
 extern int no_rent_check;
@@ -193,7 +193,7 @@ main(int argc, char **argv)
                             &option_idx)) != -1) {
         switch (c) {
 		case 'b':
-			restrict_mud = 50;
+			restrict_logins = 50;
 			slog("Wizlock 50");
 			break;
 		case 'm':
@@ -210,7 +210,7 @@ main(int argc, char **argv)
 			slog("Quick boot mode -- rent check supressed.");
 			break;
 		case 'r':
-			restrict_mud = 1;
+			restrict_logins = 1;
 			slog("Restricting game -- no new players allowed.");
 			break;
 		case 's':
@@ -366,7 +366,6 @@ init_game(int port)
 		close_socket(descriptor_list);
 
     save_quests();
-	security_shutdown();
 
 	if (circle_reboot) {
 		slog("Rebooting.");
@@ -1046,7 +1045,7 @@ new_descriptor(int s)
     int bantype = isbanned(newd->host, buf2);
 
 	/* Log new connections - probably unnecessary, but you may want it */
-	mlog(SECURITY_ADMINBASIC, LVL_GOD, CMP, true,
+	mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
 		"New connection from [%s]%s%s",
 		newd->host,
 		(bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
@@ -1398,7 +1397,7 @@ close_socket(struct descriptor_data *d)
 		d->creature->player.time.logon = time(0);
 		save_player_to_xml(d->creature);
 		act("$n has lost $s link.", true, d->creature, 0, 0, TO_ROOM);
-		mlog(SECURITY_ADMINBASIC,
+		mlog(ROLE_ADMINBASIC,
 			 MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)),
 			 NRM, false, "Closing link to: %s [%s] ", GET_NAME(d->creature),
 			d->host);
@@ -1411,7 +1410,7 @@ close_socket(struct descriptor_data *d)
 			free_creature(d->creature);
 			d->creature = NULL;
 		}
-		mlog(SECURITY_ADMINBASIC, LVL_AMBASSADOR, NRM, false,
+		mlog(ROLE_ADMINBASIC, LVL_AMBASSADOR, NRM, false,
                 "%s[%d] logging off from %s",
                 d->account->name, d->account->id, d->host);
 		account_logout(d->account, d, false);
@@ -1476,7 +1475,7 @@ unrestrict_game(int sig __attribute__ ((unused)))
 	mudlog(LVL_AMBASSADOR, BRF, true,
 		"Received SIGUSR2 - completely unrestricting game (emergent)");
 	ban_list = NULL;
-	restrict_mud = 0;
+	restrict_logins = 0;
 	num_invalid = 0;
 }
 
@@ -2418,7 +2417,7 @@ descriptor_update(void)
 
 		if (d->idle >= 10 && STATE(d) != CXN_PLAYING
 			&& STATE(d) != CXN_NETWORK) {
-			mlog(SECURITY_ADMINBASIC, LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes");
+			mlog(ROLE_ADMINBASIC, LVL_IMMORT, CMP, true, "Descriptor idling out after 10 minutes");
 			SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
 			set_desc_state(CXN_DISCONNECT, d);
 		}

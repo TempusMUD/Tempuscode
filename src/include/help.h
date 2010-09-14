@@ -63,9 +63,9 @@ struct help_collection {
 	bool need_save;				// Weather something has been changed or not.
 };
 
-struct help_item *make_helpitem(void);
-void free_helpitem(struct help_item *item);
-void helpitem_show(struct help_item *item,
+struct help_item *make_help_item(void);
+void free_help_item(struct help_item *item);
+void help_item_show(struct help_item *item,
                    struct creature *ch,
                    char *buffer,
                    int mode);
@@ -75,6 +75,7 @@ struct help_collection *make_help_collection(void);
 bool help_collection_load_index(struct help_collection *col);
 struct help_item *help_collection_find_item_by_id(struct help_collection *col,
                                                   int id);
-bool helpitem_loadtext(struct help_item *item);
+bool help_item_load_text(struct help_item *item);
+bool help_item_in_group(struct help_item *item, int thegroup);
 
 #endif

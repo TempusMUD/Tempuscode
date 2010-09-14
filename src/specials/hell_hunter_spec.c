@@ -395,7 +395,7 @@ SPECIAL(hell_hunter_brain)
 				num_devils++;
 
 				if (vict) {
-					startHunting(mob, vict);
+					start_hunting(mob, vict);
 					SET_BIT(MOB_FLAGS(mob), MOB_SPIRIT_TRACKER);
                 }
 
@@ -411,7 +411,7 @@ SPECIAL(hell_hunter_brain)
 				errlog("Unable to load hell hunter regulator in hell_hunter_brain.");
 			else {
 				regulator = 1;
-				startHunting(mob, vict);
+				start_hunting(mob, vict);
 				char_to_room(mob, vict->in_room, false);
 				act("$n materializes suddenly from a stream of hellish energy!", false, mob, 0, 0, TO_ROOM);
 			}
@@ -493,7 +493,7 @@ SPECIAL(hell_hunter)
 	if (!ch->fighting && !MOB_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
 		act("$n vanishes into the mouth of an interplanar conduit.",
 			false, ch, 0, 0, TO_ROOM);
-		purge(ch, true);
+		creature_purge(ch, true);
 		return 1;
 	}
 
@@ -502,7 +502,7 @@ SPECIAL(hell_hunter)
 		if (GET_MANA(ch) < 100) {
 			act("$n vanishes into the mouth of an interplanar conduit.",
 				false, ch, 0, 0, TO_ROOM);
-			purge(ch, true);
+			creature_purge(ch, true);
 			return 1;
 		}
 
@@ -513,7 +513,7 @@ SPECIAL(hell_hunter)
 				continue;
 
 			// REGULATOR doesn't want anyone attacking him
-			if (!IS_DEVIL(vict) && findCombat(vict, ch)) {
+			if (!IS_DEVIL(vict) && g_list_find(vict->fighting, ch)) {
 
 				if (!(devil = read_mobile(H_SPINED))) {
 					errlog("HH REGULATOR failed to load H_SPINED for defense.");
@@ -637,7 +637,7 @@ SPECIAL(arioch)
 					!PRF_FLAGGED(vict, PRF_NOHASSLE)
 					&& can_see_creature(ch, vict)))) {
 			if (vict) {
-				startHunting(ch, vict);
+				start_hunting(ch, vict);
 				rm = vict->in_room;
 			}
 			act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);

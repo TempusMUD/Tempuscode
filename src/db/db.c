@@ -72,12 +72,14 @@ int top_of_world = 0;			/* ref to top element of world         */
 int current_mob_idnum = 0;
 
 struct obj_data *object_list = NULL;	/* global linked list of objs         */
-struct obj_data *obj_proto;		/* prototypes for objs                 */
-struct obj_shared_data *null_obj_shared;
-struct mob_shared_data *null_mob_shared;
-GHashTable *rooms;
-GHashTable *mob_prototypes;
-GHashTable *obj_prototypes;
+struct obj_shared_data *null_obj_shared = NULL;
+struct mob_shared_data *null_mob_shared = NULL;
+GHashTable *rooms = NULL;
+GHashTable *mob_prototypes = NULL;
+GHashTable *obj_prototypes = NULL;
+
+GList *creatures = NULL;
+GHashTable *creature_map = NULL;
 
 struct zone_data *zone_table;	/* zone table                         */
 int top_of_zone_table = 0;		/* top element of zone tab         */
@@ -267,9 +269,6 @@ ACMD(do_reboot)
 		boot_social_messages();
 	} else if (!strcasecmp(arg, "spells")) {
         boot_spells();
-    } else if( !strcasecmp(arg, "xml") ) {
-        xml_reload(ch);
-        return;
 	} else {
 		send_to_char(ch, "Unknown reboot option.\r\n");
         send_to_char(ch, "Options: all    *         credits     motd     imotd      info\r\n");
@@ -293,9 +292,6 @@ boot_world(void)
 
 	slog("Loading rooms.");
 	index_boot(DB_BOOT_WLD);
-
-	slog("Loading XML data.");
-	xml_boot();
 
 	slog("Renumbering rooms.");
 	renum_world();
@@ -414,7 +410,7 @@ boot_db(void)
 	sort_commands();
 	sort_spells();
 	sort_skills();
-	load_security_groups();
+	load_roles_from_db();
 
 	slog("Compiling progs.");
 	compile_all_progs();
@@ -1899,7 +1895,7 @@ parse_object(FILE * obj_f, int nr)
 
 	CREATE(obj, struct obj_data, 1);
 
-	clear_object(obj);
+	reset_object(obj);
 
 	CREATE(obj->shared, struct obj_shared_data, 1);
 
@@ -2524,7 +2520,7 @@ create_obj(void)
 
 	CREATE(obj, struct obj_data, 1);
 
-	clear_object(obj);
+	reset_object(obj);
 
 	obj->next = object_list;
 	object_list = obj;
@@ -3290,7 +3286,7 @@ free_obj(struct obj_data *obj)
             struct tmp_obj_affect *aff;
 
             aff = obj->tmp_affects;
-            removeAffect(obj, aff);
+            remove_object_affect(obj, aff);
         }
 	}
 	free_object(obj);

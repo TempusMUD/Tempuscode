@@ -42,10 +42,6 @@ void recalc_all_mobs(struct creature *ch, const char *argument);
 bool CAN_EDIT_ZONE(struct creature *ch, struct zone_data *zone);
 bool OLC_EDIT_OK(struct creature *ch, struct zone_data *zone, int bits);
 
-#define OLCGOD(ch) ( PLR_FLAGGED(ch, PLR_OLCGOD) )
-
-bool OLCIMP(struct creature * ch);
-
 #define UPDATE_OBJLIST_NAMES(obj_p, tmp_obj, _item)                         \
      for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)   \
        if (tmp_obj->shared->vnum == obj_p->shared->vnum &&     \

@@ -1653,14 +1653,14 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     struct affected_type *aff;
 
 	if (IS_PC(k)
-        && !(isTester(ch) && ch == k)
-        && !is_named_role_member(ch, SECURITY_ADMINBASIC)) {
+        && !(is_tester(ch) && ch == k)
+        && !is_named_role_member(ch, ROLE_ADMINBASIC)) {
         send_to_char(ch, "You can't stat this player.\r\n");
         return;
 	}
 
 	if (GET_MOB_SPEC(k) == fate
-			&& !is_named_role_member(ch, SECURITY_WIZARDBASIC)) {
+			&& !is_named_role_member(ch, ROLE_WIZARDBASIC)) {
         send_to_char(ch, "You can't stat this mob.\r\n");
         return;
 	}
@@ -1821,7 +1821,8 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         CCYEL(ch, C_NRM), GET_AC(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         k->points.hitroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         k->points.damroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), getSpeed(k),
-        CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), (int)(getDamReduction(k) * 100),
+        CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+        (int)(damage_reduction(k, NULL) * 100),
         CCNRM(ch, C_NRM));
 
     if (!IS_NPC(k) || k->in_room) {
@@ -1853,7 +1854,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         if (k->in_room)
             acc_sprintf(", %sFT%s: %s, %sHNT%s: %s, Timer: %d",
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                (isFighting(k) ? GET_NAME(findRandomCombat(k)) : "N"),
+                (k->fighting ? GET_NAME(random_opponent(k)) : "N"),
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                 MOB_HUNTING(k) ? PERS(MOB_HUNTING(k), ch) : "N",
                 k->char_specials.timer);
@@ -1861,7 +1862,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
                     position_types[(int)GET_POSITION(k)],
                     CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                    (isFighting(k) ? GET_NAME(findRandomCombat(k)) : "N"),
+                    (k->fighting ? GET_NAME(random_opponent(k)) : "N"),
                     CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                     MOB_HUNTING(k) ? PERS(MOB_HUNTING(k), ch) : "N");
     }
@@ -1951,9 +1952,9 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             IS_CARRYING_W(k), IS_WEARING_W(k),
             (IS_CARRYING_W(k) + IS_WEARING_W(k)), CAN_CARRY_W(k),
             IS_CARRYING_N(k), (int)CAN_CARRY_N(k), num, num2);
-        if (getBreathCount(k) || GET_FALL_COUNT(k)) {
+        if (BREATH_COUNT_OF(k) || GET_FALL_COUNT(k)) {
             acc_sprintf("Breath_count: %d, Fall_count: %d",
-                getBreathCount(k), GET_FALL_COUNT(k));
+                        BREATH_COUNT_OF(k), GET_FALL_COUNT(k));
             found = true;
         }
     }
@@ -2532,7 +2533,7 @@ ACMD(do_return)
             act("$n materializes from a cloud of gas.",
                 false, orig, 0, 0, TO_ROOM);
             if (subcmd != SCMD_NOEXTRACT)
-                purge(ch, true);
+                creature_purge(ch, true);
         }
     } else if (!IS_NPC(ch) && !IS_REMORT(ch) && (GET_LEVEL(ch) < LVL_IMMORT)) {
         // Return to newbie start room
@@ -2913,7 +2914,7 @@ ACMD(do_purge)
                     "(GC) %s has purged %s at %d.",
                     GET_NAME(ch), GET_NAME(vict), vict->in_room->number);
             }
-            purge(vict, false);
+            creature_purge(vict, false);
         } else if ((obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
             act("$n destroys $p.", false, ch, obj, 0, TO_ROOM);
             slog("(GC) %s purged %s at %d.", GET_NAME(ch),
@@ -2935,7 +2936,7 @@ ACMD(do_purge)
             struct creature *tch = it->data;
 
             if (IS_NPC(tch)) {
-                purge(tch, true);
+                creature_purge(tch, true);
             }
         }
 
@@ -4020,11 +4021,11 @@ show_account(struct creature *ch, char *value)
 			idnum = player_account_by_name(value);
 		}
 
-		account = account_by_id(idnum);
+		account = account_by_idnum(idnum);
 	} else {
 		if (is_number(value)) {
 			idnum = atoi(value);
-			account = account_by_id(idnum);
+			account = account_by_idnum(idnum);
 		} else {
 			account = account_by_name(value);
 		}
@@ -4101,7 +4102,7 @@ show_player(struct creature *ch, char *value)
 
     idnum = player_idnum_by_name(value);
 	vict = load_player_from_xml(idnum);
-    vict->account = account_by_id(player_account_by_idnum(idnum));
+    vict->account = account_by_idnum(player_account_by_idnum(idnum));
 
     if (GET_REMORT_GEN(vict) <= 0) {
         strcpy(remort_desc, "");
@@ -5268,7 +5269,7 @@ ACMD(do_show)
         break;
 
     case 21:  /** objects **/
-        do_show_objects(ch, value, arg);
+        // do_show_objects(ch, value, arg);
         break;
 
     case 22:  /** broken **/
@@ -6339,7 +6340,7 @@ ACMD(do_set)
         if (!(vict2 = get_char_vis(ch, argument))) {
             send_to_char(ch, "No such target character around.\r\n");
         } else {
-            startHunting(vict, vict2);
+            start_hunting(vict, vict2);
             send_to_char(ch, "%s now hunts %s.\r\n", GET_NAME(vict),
                 GET_NAME(vict2));
         }
@@ -6348,7 +6349,7 @@ ACMD(do_set)
         if (!(vict2 = get_char_vis(ch, argument))) {
             send_to_char(ch, "No such target character around.\r\n");
         } else {
-            addCombat(vict, vict2, false);
+            add_combat(vict, vict2, false);
             send_to_char(ch, "%s is now fighting %s.\r\n", GET_NAME(vict),
                 GET_NAME(vict2));
         }
@@ -6553,7 +6554,7 @@ ACMD(do_set)
         break;
 
     case 100:
-        set_reputation(vict, RANGE(0, 1000));
+        creature_set_reputation(vict, RANGE(0, 1000));
         break;
     case 101:
         arg1 = tmp_getword(&argument);
@@ -6640,9 +6641,9 @@ ACMD(do_aset)
     }
 
 	if (*name == '.')
-		account = account_by_id(player_account_by_name(name + 1));
+		account = account_by_idnum(player_account_by_name(name + 1));
 	else if (is_number(name))
-		account = account_by_id(atoi(name));
+		account = account_by_idnum(atoi(name));
 	else
 		account = account_by_name(name);
 
@@ -6875,11 +6876,7 @@ ACMD(do_xlist)
         zone = zn;
     }
     // can this person actually look at this zones searches?
-    if (!OLCIMP(ch)
-        && !(zone->owner_idnum == GET_IDNUM(ch))
-        && !(zone->co_owner_idnum == GET_IDNUM(ch))
-        && !OLCGOD(ch)
-        && (GET_LEVEL(ch) < LVL_FORCE)) {
+    if (!is_authorized(ch, LIST_SEARCHES, zone)) {
         send_to_char(ch, "You aren't godly enough to do that here.\r\n");
         return;
     }
@@ -7278,7 +7275,7 @@ ACMD(do_mudwipe)
         for (GList *cit = creatures;cit;cit = cit->next) {
             mob = cit->data;
             if (IS_NPC(mob)) {
-                purge(mob, true);
+                creature_purge(mob, true);
             }
         }
         send_to_char(ch, "DONE.  Mud cleaned of all mobiles.\r\n");
@@ -7330,7 +7327,7 @@ ACMD(do_zonepurge)
             for (GList *it = rm->people;it;it = it->next) {
                 struct creature *tch = it->data;
                 if (IS_MOB(tch)) {
-                    purge(tch, true);
+                    creature_purge(tch, true);
                     mob_count++;
                 } else {
                     send_to_char(tch, "You feel a rush of heat wash over you!\r\n");
@@ -7762,7 +7759,7 @@ ACMD(do_peace)
     for (GList *it = ch->in_room->people;it;it = it->next) {
         struct creature *tch = it->data;
         found = 1;
-        removeAllCombat(tch);
+        remove_all_combat(tch);
     }
 
     if (!found)
@@ -8055,10 +8052,10 @@ ACMD(do_account)
 		}
 
 		account_id = player_account_by_idnum(vict_id);
-		account = account_by_id(account_id);
+		account = account_by_idnum(account_id);
 
         account_id = atoi(token);
-		dst_account = account_by_id(account_id);
+		dst_account = account_by_idnum(account_id);
 		if (!dst_account) {
             send_to_char(ch, "That account does not exist.\r\n");
             return;
@@ -8088,7 +8085,7 @@ ACMD(do_account)
 			return;
 		}
 		vict_id = atol(token);
-		account = account_by_id(account_id);
+		account = account_by_idnum(account_id);
 		if( account == NULL ) {
 			send_to_char(ch, "No such account: %d\r\n",account_id);
 			return;
@@ -8102,7 +8099,7 @@ ACMD(do_account)
 		}
 
 		account_id = atoi(token);
-		account = account_by_id(account_id);
+		account = account_by_idnum(account_id);
 		if (!account) {
 			send_to_char(ch, "No such account: %s\r\n", token);
 			return;
@@ -8182,7 +8179,7 @@ ACMD(do_tester)
     byte tcmd;
     int i;
 
-    if( !isTester(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
+    if( !is_tester(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
         send_to_char(ch, "You are not a tester.\r\n");
         return;
     }
@@ -8608,7 +8605,7 @@ ACMD(do_delete)
 	}
 
 	acct_id = player_account_by_name(name);
-	acct = account_by_id(acct_id);
+	acct = account_by_idnum(acct_id);
 	if (!acct) {
 		errlog("Victim found without account");
 		send_to_char(ch, "The command mysteriously failed (XYZZY)\r\n");
@@ -8690,8 +8687,8 @@ check_log(struct creature *ch, const char *fmt, ...)
         x++;
     }
 
-	mlog(SECURITY_NOONE, LVL_AMBASSADOR, NRM, true, "CHECK: %s", msg);
-	mlog(SECURITY_NOONE, LVL_AMBASSADOR, NRM, true,
+	mlog(ROLE_NOONE, LVL_AMBASSADOR, NRM, true, "CHECK: %s", msg);
+	mlog(ROLE_NOONE, LVL_AMBASSADOR, NRM, true,
 		"TRACE: %s", backtrace_str);
 }
 

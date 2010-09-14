@@ -340,7 +340,8 @@ ACMD(do_olc)
 
 	if (olc_command != 8 && olc_command != 10) {	/* help? */
 		if (!is_authorized(ch, EDIT_ZONE, ch->in_room->zone)) {
-			if( OLCIMP(ch) && !PRF2_FLAGGED(ch,PRF2_WORLDWRITE) ) {
+			if(is_authorized(ch, WORLDWRITE, NULL)
+               && !PRF2_FLAGGED(ch,PRF2_WORLDWRITE) ) {
 				send_to_char(ch, "You seem to have forgotten something.\r\n");
 			} else {
 				send_to_char(ch, "Piss off Beanhead.  Permission DENIED.\r\n");
@@ -574,7 +575,7 @@ ACMD(do_olc)
 		if (!*argument || is_abbrev(argument, "all")) {
 			if (olc_lock)
 				send_to_char(ch, "Olc is currently locked.\r\n");
-			else if (OLCIMP(ch)) {
+			else if (is_authorized(ch, OLC_LOCK, NULL)) {
 				send_to_char(ch, "Locking olc.\r\n");
 				olc_lock = GET_LEVEL(ch);
 				mudlog(GET_INVIS_LVL(ch), BRF, true,
@@ -859,7 +860,7 @@ ACMD(do_olc)
 				return;
 			}
 		}
-		if (!OLCIMP(ch)
+		if (!is_authorized(ch, WORLDWRITE, NULL)
 			&& !IS_SET(tmp_obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED)) {
 			send_to_char(ch, "You cannot olc oload approved items.\r\n");
 			return;
@@ -940,7 +941,7 @@ ACMD(do_olc)
 		obj_p->shared->func = NULL;
 		obj_p->shared->func_param = NULL;
 
-		if (!OLCIMP(ch)) {
+		if (!is_authorized(ch, WORLDWRITE, NULL)) {
 			SET_BIT(obj_p->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
 		}
 
@@ -1069,7 +1070,7 @@ ACMD(do_olc)
 					send_to_char(ch, "No allocatable rooms found in zone.\r\n");
 				}
 			} else if (is_abbrev(arg1, "zone")) {
-				if (!OLCIMP(ch)) {
+				if (!is_authorized(ch, CREATE_ZONE, NULL)) {
 					send_to_char(ch, "You cannot create zones.\r\n");
 					return;
 				}
@@ -1133,7 +1134,8 @@ ACMD(do_olc)
 					send_to_char(ch, "Now editing search (%s)/(%s)\r\n",
 						tmp_search->command_keys, tmp_search->keywords);
 				}
-			} else if (is_abbrev(arg1, "path") && OLCIMP(ch)) {
+			} else if (is_abbrev(arg1, "path")
+                       && is_authorized(ch, WORLDWRITE, NULL)) {
 				if (!add_path(strcat(arg2, argument), true))
 					send_to_char(ch, "Path added.\r\n");
 			} else
@@ -1380,7 +1382,7 @@ ACMD(do_olc)
 			}
 		}
 
-		if (!OLCIMP(ch) && !MOB2_FLAGGED(tmp_mob, MOB2_UNAPPROVED)) {
+		if (!is_authorized(ch, WORLDWRITE, NULL) && !MOB2_FLAGGED(tmp_mob, MOB2_UNAPPROVED)) {
 			send_to_char(ch, "You cannot olc mload approved mobiles.\r\n");
 			return;
 		}
@@ -1971,7 +1973,7 @@ show_olc_help(struct creature *ch, char *arg)
 		break;
 
 	case 18:
-		if (OLCIMP(ch))
+		if (is_authorized(ch, WORLDWRITE, NULL))
 			j = TOT_ZONE_FLAGS;
 		else
 			j = NUM_ZONE_FLAGS;

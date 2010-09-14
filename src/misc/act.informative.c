@@ -215,7 +215,7 @@ show_obj_bits(struct obj_data *object, struct creature *ch)
               || IS_OBJ_TYPE(object, ITEM_DRINKCON)
               || IS_OBJ_TYPE(object, ITEM_FOUNTAIN))
              && GET_OBJ_VAL(object, 3))
-            || obj_affected_by_spell(object, SPELL_ENVENOM)))
+            || obj_has_affect(object, SPELL_ENVENOM)))
         acc_sprintf(" %s(poisoned)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN) ||
         (IS_CLERIC(ch) && AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))) {
@@ -266,14 +266,14 @@ show_obj_bits(struct obj_data *object, struct creature *ch)
         acc_sprintf(" %s(protected)%s",
                     CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
     if (object->tmp_affects != NULL) {
-        if (obj_affected_by_spell(object, SPELL_ITEM_REPULSION_FIELD) != NULL) {
+        if (obj_has_affect(object, SPELL_ITEM_REPULSION_FIELD) != NULL) {
             acc_sprintf(" %s(repulsive)%s",
                         CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
-        } else if (obj_affected_by_spell(object, SPELL_ITEM_ATTRACTION_FIELD) != NULL) {
+        } else if (obj_has_affect(object, SPELL_ITEM_ATTRACTION_FIELD) != NULL) {
             acc_sprintf(" %s(attractive)%s",
                         CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
         }
-        if (obj_affected_by_spell(object, SPELL_ELEMENTAL_BRAND) != NULL) {
+        if (obj_has_affect(object, SPELL_ELEMENTAL_BRAND) != NULL) {
             acc_sprintf(" %s(%sbranded%s)%s",
                         CCRED(ch, C_SPR),
                         CCGRN(ch, C_SPR),
@@ -744,7 +744,7 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
 	}
 }
 
-struct creature *findRandomCombat(struct creature *ch);
+struct creature *random_opponent(struct creature *ch);
 
 const char *
 desc_one_char(struct creature *ch, struct creature *i, bool is_group)
@@ -773,7 +773,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 		return "";
 
 	if (!IS_NPC(ch) && MOB2_FLAGGED(i, MOB2_UNAPPROVED) &&
-			!(PRF_FLAGGED(ch, PRF_HOLYLIGHT) || isTester(ch)))
+			!(PRF_FLAGGED(ch, PRF_HOLYLIGHT) || is_tester(ch)))
 		return "";
 
 	if (IS_NPC(i)) {
@@ -811,13 +811,13 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 		else
 			desc = tmp_strcat(tmp_capitalize(desc), " exists here.", NULL);
 	} else if (GET_POSITION(i) == POS_FIGHTING) {
-		if (!isFighting(i))
+		if (!i->fighting)
 			desc = tmp_sprintf("%s is here, fighting thin air!", desc);
-		else if (findRandomCombat(i) == ch)
+		else if (random_opponent(i) == ch)
 			desc = tmp_sprintf("%s is here, fighting YOU!", desc);
-		else if (findRandomCombat(i)->in_room == i->in_room)
+		else if (random_opponent(i)->in_room == i->in_room)
 			desc = tmp_sprintf("%s is here, fighting %s!", desc,
-				PERS(findRandomCombat(i), ch));
+				PERS(random_opponent(i), ch));
 		else
 			desc = tmp_sprintf("%s is here, fighting someone who already left!",
 				desc);
@@ -898,7 +898,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 	if (MOB2_FLAGGED(i, MOB2_UNAPPROVED))
 		appr = tmp_sprintf(" %s(!appr)", CCRED(ch, C_NRM));
 
-    if ((IS_NPC(i) && (GET_LEVEL(ch) >= LVL_IMMORT || isTester(ch))) &&
+    if ((IS_NPC(i) && (GET_LEVEL(ch) >= LVL_IMMORT || is_tester(ch))) &&
             PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)) {
     	vnum = tmp_sprintf(" %s%s<%s%d%s>%s",
 			CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -1680,12 +1680,12 @@ look_in_obj(struct creature *ch, char *arg)
 			else if (real_room(ROOM_NUMBER(obj)) != NULL) {
                 acc_sprintf("Inside %s you see:\r\n", OBJS(obj, ch));
 				room_was_in = ch->in_room;
-				char_from_room_nospec(ch);
-				char_to_room_nospec(ch, real_room(ROOM_NUMBER(obj)));
+				char_from_room(ch, false);
+				char_to_room(ch, real_room(ROOM_NUMBER(obj)), false);
 				list_char_to_char(ch->in_room->people, ch);
 				act("$n looks in from the outside.", false, ch, 0, 0, TO_ROOM);
-				char_from_room_nospec(ch);
-				char_to_room_nospec(ch, room_was_in);
+				char_from_room(ch, false);
+				char_to_room(ch, room_was_in, false);
 			}
 		} else if (GET_OBJ_TYPE(obj) == ITEM_PIPE) {
 			if (GET_OBJ_VAL(obj, 0))
@@ -1879,7 +1879,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
 				act("$n glances sidelong at $N.", true, ch, 0, found_char,
 					TO_NOTVICT);
 
-				if (IS_NPC(found_char) && !(isFighting(found_char))
+				if (IS_NPC(found_char) && !(found_char->fighting)
 					&& AWAKE(found_char) && (!found_char->master
 						|| found_char->master != ch)) {
 					if (IS_ANIMAL(found_char) || IS_BUGBEAR(found_char)
@@ -1930,7 +1930,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
 							number(GET_LEVEL(ch) >> 1, GET_LEVEL(ch))) &&
 						!PRF_FLAGGED(ch, PRF_NOHASSLE)) {
 						if (GET_POSITION(found_char) >= POS_SITTING) {
-							if (isOkToAttack(found_char, ch, false))
+							if (ok_to_attack(found_char, ch, false))
 								hit(found_char, ch, TYPE_UNDEFINED);
 						} else
 							do_stand(found_char, tmp_strdup(""), 0, 0, 0);
@@ -1957,7 +1957,7 @@ ACMD(do_listen)
 	for (GList *it = ch->in_room->people;it;it = it->next) {
         struct creature *tch = (struct creature *)it->data;
 
-		if (isFighting(tch)) {
+		if (tch->fighting) {
 			fighting_vict = tch;
 			break;
 		}
@@ -2049,7 +2049,7 @@ ACMD(do_listen)
 						EX_CLOSED)) {
 
                     gint found_fighting(struct creature *tch, gpointer ignore) {
-                        return (isFighting(tch)) ? 0:-1;
+                        return (tch->fighting) ? 0:-1;
                     }
                     GList *found = g_list_find_custom(ch->in_room->dir_option[i]->to_room->people, 0, (GCompareFunc)found_fighting);
 
@@ -3157,7 +3157,7 @@ who_string(struct creature *ch, struct creature *target)
                     BADGE(target),
                     tmp_pad(' ', (MAX_BADGE_LENGTH - len + 1) / 2),
                     CCYEL(ch, C_NRM));
-	} else if (isTester(target)) {
+	} else if (is_tester(target)) {
         acc_sprintf("%s%s[%sTESTING%s]",
                     CCBLD(ch, C_NRM), CCYEL(ch, C_NRM), CCGRN(ch, C_NRM),
                     CCYEL(ch, C_NRM));
@@ -3294,7 +3294,7 @@ who_list_compare(struct creature *a, struct creature *b)
     // then by time played
     if (IS_IMMORT(a) || IS_IMMORT(b))
         return GET_LEVEL(a) > GET_LEVEL(b);
-    if (isTester(a))
+    if (is_tester(a))
         return true;
     if (GET_REMORT_GEN(a) != GET_REMORT_GEN(b))
         return GET_REMORT_GEN(a) > GET_REMORT_GEN(b);
@@ -3403,7 +3403,7 @@ ACMD(do_who)
         }
 
 		//update the total number of players first
-        if (isTester(curr)) {
+        if (is_tester(curr)) {
             testerTotal++;
 		} else if (GET_LEVEL(curr) < LVL_AMBASSADOR) {
 			playerTotal++;
@@ -3469,7 +3469,7 @@ ACMD(do_who)
 
 		if (GET_LEVEL(curr) >= LVL_AMBASSADOR)
 			immortals = g_list_prepend(immortals, curr);
-		else if (isTester(curr))
+		else if (is_tester(curr))
             testers = g_list_prepend(testers, curr);
 		else
             players = g_list_prepend(players, curr);
@@ -3496,7 +3496,7 @@ ACMD(do_who)
 		}
         acc_strcat("\r\n", NULL);
 	}
-	if (IS_IMMORT(ch) || isTester(ch)) {
+	if (IS_IMMORT(ch) || is_tester(ch)) {
         for (GList *cit = testers;cit;cit = cit->next) {
             curr = (struct creature *)cit;;
 			who_string(ch, curr);
@@ -3528,7 +3528,7 @@ ACMD(do_who)
                 g_list_length(immortals),
                 immTotal,
                 (!immortals || immortals->next) ? "s":"");
-	if (GET_LEVEL(ch) >= LVL_AMBASSADOR || isTester(ch)) {
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR || is_tester(ch)) {
         acc_sprintf("%d of %d tester%s", g_list_length(testers),
                     testerTotal,
                     (!testers || testers->next) ? "s":"");

@@ -1309,7 +1309,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 	GET_OBJ_TYPE(corpse) = ITEM_CONTAINER;
 	GET_OBJ_WEAR(corpse) = ITEM_WEAR_TAKE;
 	GET_OBJ_EXTRA(corpse) = ITEM_NODONATE;
-	if (isTester(ch))
+	if (is_tester(ch))
 		SET_BIT(GET_OBJ_EXTRA2(corpse), ITEM2_UNAPPROVED);
 	GET_OBJ_VAL(corpse, 0) = 0;	/* You can't store stuff in a corpse */
 	GET_OBJ_VAL(corpse, 3) = 1;	/* corpse identifier */

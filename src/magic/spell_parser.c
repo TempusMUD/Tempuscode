@@ -150,9 +150,9 @@ say_spell(struct creature *ch,
             to_room = "$n looks at $N and makes a calculation.";
         }
 	} else {
-        char *spellname = translate_string(TONGUE_ARCANUM,
-                                           spell_to_str(spellnum),
-                                           0);
+        char *spellname = translate_with_tongue(TONGUE_ARCANUM,
+                                                spell_to_str(spellnum),
+                                                0);
 
 		if (tobj != NULL && tobj->in_room == ch->in_room) {
             to_char = "You stare at $p and utter the words, '%s'.";
@@ -285,7 +285,7 @@ call_magic(struct creature *caster, struct creature *cvict,
 	/* stuff to check caster vs. cvict */
 	if (cvict && caster != cvict) {
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
-			!isOkToAttack(caster, cvict, false)) {
+			!ok_to_attack(caster, cvict, false)) {
 			if (SPELL_IS_PSIONIC(spellnum)) {
 				send_to_char(caster, "The Universal Psyche descends on your mind and "
 					"renders you powerless!\r\n");
@@ -329,7 +329,7 @@ call_magic(struct creature *caster, struct creature *cvict,
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE))) {
 			check_attack(caster, cvict);
             //Try to make this a little more sane...
-            if (distrusts(cvict, caster) &&
+            if (creature_distrusts(cvict, caster) &&
 				AFF3_FLAGGED(cvict, AFF3_PSISHIELD) &&
                 (SPELL_IS_PSIONIC(spellnum) || casttype == CAST_PSIONIC)) {
                 bool failed = false;
@@ -365,7 +365,7 @@ call_magic(struct creature *caster, struct creature *cvict,
                 }
             }
 		}
-		if (distrusts(cvict, caster)) {
+		if (creature_distrusts(cvict, caster)) {
 			af_ptr = NULL;
 			if (SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum))
 				af_ptr = affected_by_spell(cvict, SPELL_ANTI_MAGIC_SHELL);
@@ -1795,7 +1795,7 @@ ACMD(do_trigger)
 
 	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
 
-	if (tch && tGET_POSITION(ch) == POS_FIGHTING)
+	if (tch && GET_POSITION(ch) == POS_FIGHTING)
 		prob -= (GET_LEVEL(tch) >> 3);
 
 	/**** casting probability ends here *****/

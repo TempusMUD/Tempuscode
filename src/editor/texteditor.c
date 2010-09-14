@@ -111,5 +111,5 @@ start_editing_text(struct descriptor_data *d, char **dest, int max)
         editor_import(d->text_editor, *dest);
 
     emit_editor_startup(d->text_editor);
-    display_buffer(d->text_editor);
+    editor_display(d->text_editor, 0, 0);
 }

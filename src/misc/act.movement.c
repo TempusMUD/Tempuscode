@@ -147,17 +147,17 @@ can_travel_sector(struct creature *ch, int sector_type, bool active)
 				if (!GET_OBJ_VAL(obj->aux_obj, 1)) {
 					act("A warning indicator reads: $p fully depleted.",
 						false, ch, obj->aux_obj, 0, TO_CHAR);
-					setBreathCount(ch, 0);
+					BREATH_COUNT_OF(ch) = 0;
 				} else if (GET_OBJ_VAL(obj->aux_obj, 1) == 5)
 					act("A warning indicator reads: $p air level low.",
 						false, ch, obj->aux_obj, 0, TO_CHAR);
 			}
 			return true;
 		}
-		modifyBreathCount(ch, 1);
+        BREATH_COUNT_OF(ch) += 1;
 
-		if (getBreathCount(ch) < getBreathThreshold(ch) &&
-			getBreathCount(ch) > (getBreathThreshold(ch) - 2)) {
+		if (BREATH_COUNT_OF(ch) < creature_breath_threshold(ch) &&
+			BREATH_COUNT_OF(ch) > (creature_breath_threshold(ch) - 2)) {
 			send_to_char(ch, "You are running out of breath.\r\n");
 			return true;
 		}
@@ -321,7 +321,7 @@ check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msg
 	int idx;
 
 	// No one sees invisible immortal or tester movements
-	if (!can_see_creature(vict, ch) && (IS_IMMORT(ch) || isTester(ch)))
+	if (!can_see_creature(vict, ch) && (IS_IMMORT(ch) || is_tester(ch)))
 		return SNEAK_OK;
 
 	// No one can fool an immortal (except an invisible immortal)
@@ -650,8 +650,8 @@ do_simple_move(struct creature *ch, int dir, int mode,
     // the people in the room and make sure that no one is fighting us.
     for (GList *it = ch->in_room->people;it;it = it->next) {
         struct creature *tch = it->data;
-        if (findCombat(tch, ch))
-            removeCombat(tch, ch);
+        if (g_list_find(tch->fighting, ch))
+            remove_combat(tch, ch);
     }
 
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && !IS_NPC(ch))
@@ -1077,18 +1077,18 @@ do_simple_move(struct creature *ch, int dir, int mode,
 
 	if (room_is_underwater(ch->in_room)) {
         if (room_is_underwater(was_in)) {
-			modifyBreathCount(ch, 1);
+			BREATH_COUNT_OF(ch) += 1;
 		} else {
 			send_to_char(ch, "You are now submerged in water.\r\n");
-			setBreathCount(ch, 0);
+            BREATH_COUNT_OF(ch) = 0;
 		}
 	}
 	if (ch->in_room->sector_type == SECT_WATER_NOSWIM) {
 		if (was_in->sector_type != SECT_UNDERWATER &&
 			was_in->sector_type != SECT_WATER_NOSWIM) {
-			setBreathCount(ch, 0);
+            BREATH_COUNT_OF(ch) = 0;
 		} else {
-			modifyBreathCount(ch, 2);
+            BREATH_COUNT_OF(ch) += 2;
 		}
 	}
 	//
@@ -1897,7 +1897,7 @@ ACMD(do_enter)
 	if (ROOM_NUMBER(car))
 		room = real_room(ROOM_NUMBER(car));
 	else
-		room = getLoadroom(ch);
+		room = player_loadroom(ch);
 
 	if (!room) {
 		send_to_char(ch,
@@ -2631,14 +2631,14 @@ ACMD(do_defend)
 	}
 
 	if (targ == ch) {
-		if (isDefending(ch))
-            stopDefending(ch);
+		if (DEFENDING(ch))
+            stop_defending(ch);
 		else
 			send_to_char(ch, "You aren't defending anyone except yourself.\r\n");
 		return;
 	}
 
-	if (isDefending(ch) == targ) {
+	if (DEFENDING(ch) == targ) {
 		act("You are already defending $M.", false, ch, 0, targ, TO_CHAR);
 		return;
 	}
@@ -2647,9 +2647,9 @@ ACMD(do_defend)
 			TO_CHAR);
 	} else {
 		if (targ == ch) {
-			stopDefending(ch);
+			stop_defending(ch);
 		} else {
-            startDefending(ch, targ);
+            start_defending(ch, targ);
 		}
 	}
 }

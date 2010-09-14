@@ -144,7 +144,7 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
 	if (!killer) {
         killer = load_player_from_xml(obj_id);
         if (killer) {
-            killer->account = account_by_id(player_account_by_idnum(obj_id));
+            killer->account = account_by_idnum(player_account_by_idnum(obj_id));
             loaded = true;
         }
 	}
@@ -1350,7 +1350,7 @@ bool
 is_undisposable(struct creature *ch, const char *cmdstr, struct obj_data *obj, bool display)
 {
 	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
-		!is_named_role_member(ch, SECURITY_WIZARDFULL)) {
+		!is_named_role_member(ch, ROLE_WIZARDFULL)) {
 		send_to_char(ch, "You can't %s a player's corpse while it still has objects in it.\r\n", cmdstr);
 		return true;
 	}
@@ -1720,7 +1720,7 @@ perform_give(struct creature *ch, struct creature *vict,
 				&& (CHECK_SKILL(vict, SKILL_DEMOLITIONS) < number(10, 50)
 					|| (obj->contains && IS_FUSE(obj->contains)
 						&& FUSE_STATE(obj->contains)))) {
-				if (!isFighting(vict)
+				if (!vict->fighting
 					&& CHECK_SKILL(vict, SKILL_DEMOLITIONS) > number(40, 60))
 					if (FUSE_IS_BURN(obj->contains))
 						do_extinguish(vict, fname(obj->aliases), 0, 0, 0);
@@ -2275,9 +2275,8 @@ ACMD(do_eat)
 		do_drink(ch, argument, 0, SCMD_SIP, 0);
 		return;
 	}
-	if (GET_OBJ_TYPE(food) != ITEM_FOOD &&
-		!is_group_member(ch, "WizardFull"))
-	{
+	if (!IS_OBJ_TYPE(food, ITEM_FOOD) &&
+		!is_authorized(ch, EAT_ANYTHING, NULL)) {
 		send_to_char(ch, "You can't eat THAT!\r\n");
 		return;
 	}
@@ -2749,7 +2748,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
 		return 0;
 	}
 	if (!OBJ_APPROVED(obj) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
-		!isTester(ch)) {
+		!is_tester(ch)) {
 		act("$p has not been approved for mortal use.",
 			false, ch, obj, 0, TO_CHAR);
 		return 0;
@@ -3919,7 +3918,7 @@ ACMD(do_sacrifice)
 		send_to_char(ch, "You can't find any '%s' in the room.\r\n", argument);
 		return;
 	}
-	if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && !is_named_role_member(ch, SECURITY_WIZARDFULL)) {
+	if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && !is_named_role_member(ch, ROLE_WIZARDFULL)) {
 		send_to_char(ch, "You can't sacrifice that.\r\n");
 		return;
 	}
@@ -3994,7 +3993,7 @@ ACMD(do_empty)
 	}
 
     if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && CORPSE_IDNUM(obj) != GET_IDNUM(ch) &&
-		!is_named_role_member(ch, SECURITY_WIZARDFULL)) {
+		!is_named_role_member(ch, ROLE_WIZARDFULL)) {
 		send_to_char(ch, "You can't empty a player's corpse.");
 		return;
 	}

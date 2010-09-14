@@ -60,7 +60,7 @@ SPECIAL(underworld_goddess)
 		vict = NULL;
         for (GList *it = ch->in_room->people;it;it = it->next) {
             struct creature *tch = it->data;
-			if (findCombat(tch, ch) && !number(0, 2))
+			if (g_list_find(tch->fighting, ch) && !number(0, 2))
 				break;
 		}
 
@@ -95,7 +95,7 @@ SPECIAL(underworld_goddess)
 		}
 
 		/*  Check to make sure I haven't killed him! */
-		if (findCombat(vict, ch))
+		if (g_list_find(vict->fighting, ch))
 			return 1;
 
 		/* And maybe say something nice! */
@@ -126,7 +126,7 @@ SPECIAL(underworld_goddess)
 		}
 
 		/* If Styx is fighting, send a present to his opponent. */
-		if ((vict = findRandomCombat(styx)))
+		if ((vict = random_opponent(styx)))
 			switch (number(0, 4)) {
 			case 0:
 				send_to_char(vict,

@@ -253,7 +253,7 @@ burn_update_creature(struct creature *ch)
         GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + 1);
         GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + 1);
         GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 1);
-        checkPosition(ch);
+        update_pos(ch);
     }
 
     // regen
@@ -262,7 +262,7 @@ burn_update_creature(struct creature *ch)
             MIN(GET_MAX_HIT(ch),
                 GET_HIT(ch) + 1 +
                 (random_percentage_zero_low() * GET_CON(ch) / 125));
-        checkPosition(ch);
+        update_pos(ch);
     }
 
     // mana tap
@@ -566,7 +566,7 @@ burn_update_creature(struct creature *ch)
             send_to_char(ch,
                          "The flames on your body sizzle out and die, leaving you in a cloud of steam.\r\n");
             act("The flames on $n sizzle and die, leaving a cloud of steam.", false, ch, 0, 0, TO_ROOM);
-            extinguish(ch);
+            extinguish_creature(ch);
         }
         //
         // Sect types that don't have oxygen
@@ -577,7 +577,7 @@ burn_update_creature(struct creature *ch)
                          "The flames on your body die in the absence of oxygen.\r\n");
             act("The flames on $n die in the absence of oxygen.", false,
                 ch, 0, 0, TO_ROOM);
-            extinguish(ch);
+            extinguish_creature(ch);
         }
 
         else if (!random_fractional_3() && !CHAR_WITHSTANDS_FIRE(ch)) {
@@ -601,7 +601,7 @@ burn_update_creature(struct creature *ch)
         send_to_char(ch, "Your body suddenly bursts into flames!\r\n");
         act("$n suddenly bursts into flames!", false, ch, 0, 0, TO_ROOM);
         GET_MANA(ch) = 0;
-        ignite(ch, NULL);
+        ignite_creature(ch, NULL);
         if (damage(ch, ch, dice(4, 5), TYPE_ABLAZE, -1))
             return;
     }
@@ -759,7 +759,7 @@ burn_update(void)
 // <= 0 return value means ch will not help vict
 //
 
-inline int
+int
 helper_help_probability(struct creature *ch, struct creature *vict)
 {
 
@@ -852,7 +852,7 @@ helper_help_probability(struct creature *ch, struct creature *vict)
 // <= 0 return value means ch will not attack vict
 //
 
-inline int
+int
 helper_attack_probability(struct creature *ch, struct creature *vict)
 {
 
@@ -1031,7 +1031,7 @@ helper_assist(struct creature *ch, struct creature *vict,
 	act("$n jumps to your aid!", true, ch, 0, fvict, TO_VICT);
 
 	if (prob > random_percentage())
-		removeCombat(vict, fvict);
+		remove_combat(vict, fvict);
 
 	return hit(ch, vict, TYPE_UNDEFINED);
 }
@@ -1286,7 +1286,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
                  ((gun = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(gun)) ||
                  ((gun = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(gun))) {
 
-			if (!isFighting(vict))
+			if (!vict->fighting)
 				do_backstab(ch, fname(vict->player.name), 0, 0, &return_flags);
 			else if (GET_LEVEL(ch) > 43)
 				do_circle(ch, fname(vict->player.name), 0, 0, &return_flags);
@@ -1422,7 +1422,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
 	hit(ch, vict, TYPE_UNDEFINED);
 }
 
-inline bool
+bool
 CHAR_LIKES_ROOM(struct creature * ch, struct room_data * room)
 {
     if (IS_ELEMENTAL(ch)) {
@@ -1989,14 +1989,14 @@ single_mobile_activity(struct creature *ch)
         for (GList *it = ch->in_room->people;it;it = it->next) {
             vict = it->data;
             if (ch != vict
-                && isFighting(vict)
-                && !findCombat(vict, ch)
+                && vict->fighting
+                && !g_list_find(vict->fighting, ch)
                 && can_see_creature(ch, vict)) {
 
                 int fvict_help_prob =
-                    helper_help_probability(ch, findRandomCombat(vict));
+                    helper_help_probability(ch, random_opponent(vict));
                 int fvict_attack_prob =
-                    helper_attack_probability(ch, findRandomCombat(vict));
+                    helper_attack_probability(ch, random_opponent(vict));
 
                 int vict_help_prob = helper_help_probability(ch, vict);
                 int vict_attack_prob = helper_attack_probability(ch, vict);
@@ -2026,7 +2026,7 @@ single_mobile_activity(struct creature *ch)
                     // store a pointer past next_ch if next_ch _happens_ to be vict
                     //
 
-                    (void)helper_assist(ch, vict, findRandomCombat(vict));
+                    (void)helper_assist(ch, vict, random_opponent(vict));
                     return;
                 }
                 //
@@ -2039,7 +2039,7 @@ single_mobile_activity(struct creature *ch)
                     // store a pointer past next_ch if next_ch _happens_ to be fvict
                     //
 
-                    (void)helper_assist(ch, findRandomCombat(vict), vict);
+                    (void)helper_assist(ch, random_opponent(vict), vict);
                     return;
                 }
 
@@ -2273,7 +2273,7 @@ single_mobile_activity(struct creature *ch)
         if ((door < NUM_OF_DIRS) &&
             (MOB_CAN_GO(ch, door)) &&
             (rev_dir[door] != ch->mob_specials.last_direction ||
-             exit_count(ch->in_room) < 2 ||
+             count_room_exits(ch->in_room) < 2 ||
              random_binary())
             && (EXIT(ch, door)->to_room != ch->in_room)
             && (!ROOM_FLAGGED(EXIT(ch, door)->to_room,
@@ -2420,7 +2420,7 @@ single_mobile_activity(struct creature *ch)
             if (k || room_is_watery(ch->in_room) || room_is_open_air(ch->in_room)) {
                 act("$n dissolves, and returns to $s home plane!",
                     true, ch, 0, 0, TO_ROOM);
-                purge(ch, true);
+                creature_purge(ch, true);
                 return;
             }
             break;
@@ -2433,7 +2433,7 @@ single_mobile_activity(struct creature *ch)
                 && !ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED)) {
                 act("$n dissipates, and returns to $s home plane!",
                     true, ch, 0, 0, TO_ROOM);
-                purge(ch, true);
+                creature_purge(ch, true);
                 return;
             }
             break;
@@ -2441,7 +2441,7 @@ single_mobile_activity(struct creature *ch)
             if (k || !room_is_watery(ch->in_room)) {
                 act("$n dissipates, and returns to $s home plane!",
                     true, ch, 0, 0, TO_ROOM);
-                purge(ch, true);
+                creature_purge(ch, true);
                 return;
             }
             break;
@@ -2449,14 +2449,14 @@ single_mobile_activity(struct creature *ch)
             if (k && !room_has_air(ch->in_room)) {
                 act("$n dissipates, and returns to $s home plane!",
                     true, ch, 0, 0, TO_ROOM);
-                purge(ch, true);
+                creature_purge(ch, true);
                 return;
             }
             break;
         default:
             if (k) {
                 act("$n disappears.", true, ch, 0, 0, TO_ROOM);
-                purge(ch, true);
+                creature_purge(ch, true);
                 return;
             }
         }
@@ -2470,7 +2470,7 @@ single_mobile_activity(struct creature *ch)
         if (!MOB_HUNTING(ch)) {
             act("$n dematerializes, removing the chill from the air.",
                 true, ch, 0, 0, TO_ROOM);
-            purge(ch, true);
+            creature_purge(ch, true);
             return;
         }
     }
@@ -2549,7 +2549,7 @@ choose_opponent(struct creature *ch, struct creature *ignore_vict)
 		vict = it->data;
 
 		// ignore bystanders
-		if (!findCombat(vict, ch))
+		if (!g_list_find(vict->fighting, ch))
 			continue;
 
 		//
@@ -2585,7 +2585,7 @@ choose_opponent(struct creature *ch, struct creature *ignore_vict)
 bool
 detect_opponent_master(struct creature *ch, struct creature *opp)
 {
-	if (!findCombat(opp, ch))
+	if (!g_list_find(opp->fighting, ch))
 		return false;
 	if (IS_PC(ch) || IS_PC(opp))
 		return false;
@@ -2602,9 +2602,9 @@ detect_opponent_master(struct creature *ch, struct creature *opp)
 	if (number(0, 50 - GET_INT(ch) - GET_WIS(ch)))
 		return false;
 
-	removeCombat(ch, opp);
-    addCombat(ch, opp->master, false);
-    addCombat(opp->master, ch, false);
+	remove_combat(ch, opp);
+    add_combat(ch, opp->master, false);
+    add_combat(opp->master, ch, false);
 	return true;
 }
 
@@ -2635,7 +2635,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 		raise(SIGSEGV);
 	}
 
-	if (findCombat(ch, precious_vict)) {
+	if (g_list_find(ch->fighting, precious_vict)) {
 		errlog("FIGHTING(ch) == precious_vict in mobile_battle_activity()");
 		return 0;
 	}
@@ -2726,9 +2726,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
                         remove_all_combat(ch);
                         
                         for (GList *ci = ch->in_room->people;ci;ci = ci->next) {
-                            if (findCombat(ci->data, ch)) {
-                                removeCombat(ci->data, ch);
-                            }
+                            remove_combat(ci->data, ch);
                         }
 
 						//
@@ -2747,7 +2745,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 							false, ch, 0, 0, TO_ROOM);
 
                         if (was_fighting)
-						    startHunting(ch, was_fighting);
+						    start_hunting(ch, was_fighting);
 						return 0;
 					}
 				}
@@ -2909,7 +2907,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 			damage(ch, vict, random_number_zero_low(GET_LEVEL(ch)), TYPE_CLAW,
                    WEAR_RANDOM);
 			return 0;
-		} else if (random_fractional_4() && findCombat(ch, vict)) {
+		} else if (random_fractional_4() && g_list_find(ch->fighting, vict)) {
 			damage(ch, vict, random_number_zero_low(GET_LEVEL(ch)), TYPE_CLAW,
                    WEAR_RANDOM);
 			return 0;
@@ -3589,7 +3587,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
                  it && it->data != ch;
                  it = it->next) {
 				vict = it->data;
-				if (findCombat(vict, ch) &&
+				if (g_list_find(vict->fighting, ch) &&
 					GET_LEVEL(vict) < LVL_AMBASSADOR &&
 					!mag_savingthrow(vict, GET_LEVEL(ch) << 2, SAVING_SPELL) &&
 					!AFF_FLAGGED(vict, AFF_CONFIDENCE))

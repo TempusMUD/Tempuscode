@@ -213,7 +213,7 @@ immort_windy_command(struct creature *ch, struct windy_room_data * windy, char *
 	int i, max, min;
 	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
-	if (!CAN_EDIT_ZONE(ch, ch->in_room->zone)) {
+	if (!is_authorized(ch, EDIT_ZONE, ch->in_room->zone)) {
 		send_to_char(ch, "You cannot edit this zone.\r\n"
 			"Goto an editable zone to list windy data.\r\n");
 		return 1;

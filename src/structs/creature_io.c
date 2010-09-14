@@ -91,7 +91,7 @@ pay_player_rent(struct creature *ch, time_t last_time, int code, int currency)
 			cost = 0;
 		} else {
 			cost -= GET_CASH(ch) + GET_FUTURE_BANK(ch);
-			set_future_bank(ch->account, 0);
+			account_set_future_bank(ch->account, 0);
 			GET_CASH(ch) = 0;
 		}
 	} else {
@@ -101,7 +101,7 @@ pay_player_rent(struct creature *ch, time_t last_time, int code, int currency)
 			cost = 0;
 		} else {
 			cost -= GET_GOLD(ch) + GET_PAST_BANK(ch);
-			set_past_bank(ch->account, 0);
+			account_set_past_bank(ch->account, 0);
 			GET_GOLD(ch) = 0;
 		}
 	}
@@ -115,7 +115,7 @@ pay_player_rent(struct creature *ch, time_t last_time, int code, int currency)
 				cost = 0;
 			} else {
 				cost -= GET_GOLD(ch) + GET_PAST_BANK(ch);
-				set_past_bank(ch->account, 0);
+				account_set_past_bank(ch->account, 0);
 				GET_GOLD(ch) = 0;
 			}
 		} else {
@@ -125,7 +125,7 @@ pay_player_rent(struct creature *ch, time_t last_time, int code, int currency)
 				cost = 0;
 			} else {
 				cost -= GET_CASH(ch) + GET_FUTURE_BANK(ch);
-				set_future_bank(ch->account, 0);
+				account_set_future_bank(ch->account, 0);
 				GET_CASH(ch) = 0;
 			}
 		}

@@ -1322,7 +1322,7 @@ advance_level(struct creature *ch, byte keep_internal)
         rid = ch->in_room->number;
 	msg = tmp_sprintf("%s advanced to level %d in room %d%s",
 		GET_NAME(ch), GET_LEVEL(ch), rid,
-		isTester(ch) ? " <TESTER>" : "");
+		is_tester(ch) ? " <TESTER>" : "");
 	if (keep_internal)
 		slog("%s", msg);
 	else
@@ -1345,7 +1345,7 @@ invalid_char_class(struct creature *ch, struct obj_data *obj)
 	}
 
     // Unapproved object
-    if (!OBJ_APPROVED(obj) && !isTester(ch) && GET_LEVEL(ch) < LVL_IMMORT)
+    if (!OBJ_APPROVED(obj) && !is_tester(ch) && GET_LEVEL(ch) < LVL_IMMORT)
         return true;
 
     // Anti class restrictions

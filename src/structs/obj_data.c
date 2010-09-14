@@ -12,15 +12,55 @@ extern int no_plrtext;
 struct extra_descr_data *locate_exdesc(char *word,
                                        struct extra_descr_data *list, int exact);
 
-/**
- * Stores this object and it's contents into the given file.
- */
+struct obj_data *
+make_object(void)
+{
+    struct obj_data *obj;
+
+    reset_object(obj);
+    return obj;
+}
+
 void
 reset_object(struct obj_data *obj)
 {
-	memset((char *)obj, 0, sizeof(struct obj_data));
+    struct obj_data *proto = obj->shared->proto;
+    
+#define FREE_IF_NOT_PROTO(field)            \
+    if (proto && obj->field != proto->name) \
+        free(obj->name)
+
+    FREE_IF_NOT_PROTO(name);
+    FREE_IF_NOT_PROTO(aliases);
+    FREE_IF_NOT_PROTO(line_desc);
+    FREE_IF_NOT_PROTO(action_desc);
+    free(obj->func_data);
+
+    if (obj->ex_description != proto->ex_description) {
+        struct extra_descr_data *exd, *next_exd;
+        for (exd = obj->ex_description;exd;exd = next_exd) {
+            next_exd = exd->next;
+            free(exd->keyword);
+            free(exd->description);
+            free(exd);
+        }
+    }
+
+    struct tmp_obj_affect *tmp_af, *next_af;
+    for (tmp_af = obj->tmp_affects;tmp_af;tmp_af = next_af) {
+        next_af = tmp_af->next;
+        free(tmp_af);
+    }
+    memset((char *)obj, 0, sizeof(struct obj_data));
 	obj->in_room = NULL;
 	obj->worn_on = -1;
+}
+
+void
+free_object(struct obj_data *obj)
+{
+    reset_object(obj);
+    free(obj);
 }
 
 const char*
@@ -38,137 +78,433 @@ get_worn_type( struct obj_data *obj )
 	return "unknown";
 }
 
-void
-save_object_to_xml(struct obj_data *obj, FILE *ouf)
+int
+modify_object_weight(struct obj_data *obj, int mod_weight)
 {
-    struct tmp_obj_affect *af = NULL;
-    struct tmp_obj_affect *af_head = NULL;
-	static char indent[512] = "\t";
-	fprintf( ouf, "%s<object vnum=\"%d\">\n", indent, obj->shared->vnum );
-	strcat(indent, "\t");
 
-    struct obj_data *proto = obj->shared->proto;
-
-    char *s = obj->name;
-    if( s != NULL &&
-        ( proto == NULL ||
-          proto->name == NULL ||
-          strcmp(s, proto->name) ) )
-    {
-        fprintf( ouf, "%s<name>%s</name>\n",
-                 indent, xmlEncodeTmp(s) );
-    }
-
-    s = obj->aliases;
-    if( s != NULL &&
-        ( proto == NULL ||   proto->aliases == NULL ||  strcmp(s, proto->aliases) ) )
-    {
-        fprintf( ouf, "%s<aliases>%s</aliases>\n",  indent, xmlEncodeTmp(s) );
-    }
-
-    s = obj->line_desc;
-    if( s != NULL &&
-        ( proto == NULL ||  proto->line_desc == NULL ||  strcmp(s, proto->line_desc ) ) )
-    {
-        fprintf( ouf, "%s<line_desc>%s</line_desc>\n", indent,  xmlEncodeTmp(s) );
-    }
-
-	if (!proto || obj->ex_description != proto->ex_description) {
-		struct extra_descr_data *desc;
-
-		for (desc = obj->ex_description;desc;desc = desc->next)
-			if (desc->keyword && desc->description)
-				fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n",
-                        indent,  xmlEncodeSpecialTmp(desc->keyword),
-                        xmlEncodeTmp(desc->description) );
+	// if object is inside another object, recursively
+	// go up and modify it
+	if (obj->in_obj)
+		modify_object_weight(obj->in_obj, mod_weight);
+	else if (obj->worn_by) {
+		// implant, increase character weight
+		if (GET_IMPLANT(obj->worn_by, obj->worn_on) == obj)
+			GET_WEIGHT(obj->worn_by) += mod_weight;
 	}
 
-    s = obj->action_desc;
-    if( s != NULL &&
-        ( proto == NULL || proto->action_desc == NULL ||
-          strcmp(s, proto->action_desc) ) )
-    {
-        fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent,
-                xmlEncodeTmp(tmp_gsub(tmp_gsub(s, "\r\n", "\n"), "\r", "")));
-    }
+	obj->obj_flags.weight += mod_weight;
 
-    // Detach the list of temp affects from the object and remove them
-    // without deleting them
-    af_head = obj->tmp_affects;
-    for (af = af_head; af; af = af->next)
-        objAffectModify(obj, af, false);
-
-	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
-			  indent, obj->obj_flags.type_flag, obj->soilage,
-			 GET_OBJ_WEIGHT(obj), obj->obj_flags.material, obj->obj_flags.timer );
-	fprintf(ouf, "%s<tracking id=\"%ld\" method=\"%d\" creator=\"%ld\" time=\"%ld\"/>\n",
-		indent, obj->unique_id, obj->creation_method, obj->creator, obj->creation_time);
-	fprintf( ouf, "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
-			 indent, obj->obj_flags.damage, obj->obj_flags.max_dam,
-			obj->obj_flags.sigil_idnum, obj->obj_flags.sigil_level );
-	fprintf( ouf, "%s<flags extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />\n",
-			 indent, obj->obj_flags.extra_flags,
-			obj->obj_flags.extra2_flags, obj->obj_flags.extra3_flags );
-	fprintf( ouf, "%s<values v0=\"%d\" v1=\"%d\" v2=\"%d\" v3=\"%d\" />\n",
-			 indent, obj->obj_flags.value[0],obj->obj_flags.value[1],
-			obj->obj_flags.value[2],obj->obj_flags.value[3] );
-
-	fprintf( ouf, "%s<affectbits aff1=\"%lx\" aff2=\"%lx\" aff3=\"%lx\" />\n",
-			 indent, obj->obj_flags.bitvector[0],
-			obj->obj_flags.bitvector[1], obj->obj_flags.bitvector[2] );
-
-	for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
-		if( obj->affected[i].location > 0) {
-			fprintf( ouf, "%s<affect modifier=\"%d\" location=\"%d\" />\n",
-					  indent, obj->affected[i].modifier, obj->affected[i].location );
-		}
-	}
-    // Write the temp affects out to the file
-    for (af = af_head; af; af = af->next) {
-        fprintf(ouf, "%s<tmpaffect level=\"%d\" type=\"%d\" duration=\"%d\" "
-                "dam_mod=\"%d\" maxdam_mod=\"%d\" val_mod1=\"%d\" "
-                "val_mod2=\"%d\" val_mod3=\"%d\" val_mod4=\"%d\" "
-                "type_mod=\"%d\" old_type=\"%d\" worn_mod=\"%d\" "
-                "extra_mod=\"%d\" extra_index=\"%d\" weight_mod=\"%d\" ",
-                indent, af->level, af->type, af->duration,
-                af->dam_mod, af->maxdam_mod, af->val_mod[0], af->val_mod[1],
-                af->val_mod[2], af->val_mod[3], af->type_mod, af->old_type,
-                af->worn_mod, af->extra_mod, af->extra_index, af->weight_mod);
-
-        for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-            fprintf(ouf, "affect_loc%d=\"%d\" affect_mod%d=\"%d\" ",
-                    i, af->affect_loc[i], i, af->affect_mod[i]);
-        }
-
-        fprintf(ouf, "/>\n");
-    }
-	// Contained objects
-	strcat(indent, "\t");
-	for( struct obj_data *obj2 = obj->contains; obj2 != NULL; obj2 = obj2->next_content ) {
-		save_object_to_xml(obj2, ouf);
-	}
-    indent[strlen(indent) - 2] = '\0';
-	// Intentionally done last since reading obj property in loadFromXML
-    // causes the eq to be worn on the character.
-	fprintf( ouf, "%s<worn possible=\"%x\" pos=\"%d\" type=\"%s\"/>\n",
-			 indent, obj->obj_flags.wear_flags, obj->worn_on, get_worn_type(obj) );
-
-    // Ok, we'll restore the affects to the object right here
-    obj->tmp_affects = af_head;
-    for (af = af_head; af; af = af->next)
-        objAffectModify(obj, af, true);
-
-    indent[strlen(indent) - 2] = '\0';
-	fprintf( ouf, "%s</object>\n", indent );
-	return;
+    return obj->obj_flags.weight;
 }
 
 bool
-loadFromXML(struct obj_data *obj, struct obj_data *container, struct creature *victim, struct room_data* room, xmlNodePtr node)
+isUnrentable(struct obj_data *obj)
 {
+
+	if (IS_OBJ_STAT(obj, ITEM_NORENT)
+		|| !OBJ_APPROVED(obj) || GET_OBJ_VNUM(obj) <= NOTHING
+		|| (GET_OBJ_TYPE(obj) == ITEM_KEY && GET_OBJ_VAL(obj, 1) == 0)
+		|| (GET_OBJ_TYPE(obj) == ITEM_CIGARETTE && GET_OBJ_VAL(obj, 3))) {
+		return true;
+	}
+
+	if (no_plrtext && obj->plrtext_len)
+		return true;
+	return false;
+}
+
+int
+setWeight(struct obj_data *obj, int new_weight)
+{
+
+	return (modify_object_weight(obj, new_weight - GET_OBJ_WEIGHT(obj)));
+}
+
+struct room_data *
+find_object_room(struct obj_data *obj)
+{
+	if (obj->worn_by)
+		return obj->worn_by->in_room;
+	else if (obj->carried_by)
+		return obj->carried_by->in_room;
+	else if (obj->in_obj)
+		return find_object_room(obj->in_obj);
+	else if (obj->in_room)
+		return obj->in_room;
+
+	errlog("Object in limbo at %s:%d", __FILE__, __LINE__);
+	return NULL;
+}
+
+// NEVER call obj function directly.  Use addAffect(), removeAffect(),
+// or affectJoin() instead.
+// add == true adds the affect, add == false deletes the affect
+void
+apply_object_affect(struct obj_data *obj, struct tmp_obj_affect *af, bool add)
+{
+    // Set or restore damage
+    if (af->dam_mod && obj->obj_flags.max_dam > 0) {
+        if (add)
+            obj->obj_flags.damage += af->dam_mod;
+        else
+            obj->obj_flags.damage -= af->dam_mod;
+    }
+    //Set or restore maxdam
+    if (af->maxdam_mod && obj->obj_flags.max_dam > 0) {
+        if (add)
+            obj->obj_flags.max_dam += af->maxdam_mod;
+        else
+            obj->obj_flags.max_dam -= af->maxdam_mod;
+    }
+    // Set or reset the value mods
+    for (int i = 0; i < 4; i++) {
+        if (af->val_mod[i] != 0) {
+            if (add)
+                obj->obj_flags.value[i] += af->val_mod[i];
+            else
+                obj->obj_flags.value[i] -= af->val_mod[i];
+        }
+    }
+    // Set or restore type
+    if (af->type_mod) {
+        if (add) {
+            af->old_type = obj->obj_flags.type_flag;
+            obj->obj_flags.type_flag = af->type_mod;
+        }
+        else
+            obj->obj_flags.type_flag = af->old_type;
+    }
+
+    // Set or reset wear positions
+    if (af->worn_mod) {
+        if (add) {
+            check_bits_32(obj->obj_flags.wear_flags, &af->worn_mod);
+            obj->obj_flags.wear_flags |= af->worn_mod;
+        }
+        else
+            obj->obj_flags.wear_flags &= ~(af->worn_mod);
+    }
+
+    // set or reset extra flags
+    if (af->extra_mod && af->extra_index) {
+        int *oextra;
+        if (af->extra_index == 1) {
+            oextra = &obj->obj_flags.extra_flags;
+        }
+        else if (af->extra_index == 2) {
+            oextra = &obj->obj_flags.extra2_flags;
+        }
+        else if (af->extra_index == 3) {
+            oextra = &obj->obj_flags.extra3_flags;
+        }
+        else {
+			errlog("Invalid extra index (%d) in apply_object_affect().",
+				af->extra_index);
+            return;
+        }
+
+        if (add) {
+            check_bits_32(*oextra, &af->extra_mod);
+            *oextra |= af->extra_mod;
+        }
+        else
+            *oextra &= ~(af->extra_mod);
+    }
+
+    // Set or reset weight
+    if (af->weight_mod) {
+        if (add)
+            modify_object_weight(obj, af->weight_mod);
+        else
+            modify_object_weight(obj, GET_OBJ_WEIGHT(obj) - af->weight_mod);
+    }
+
+    // Set or reset affections
+    // I probably could have done obj with less code but it would have been
+    // much more difficult to understand
+    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+        if (af->affect_mod[i] > 125)
+            af->affect_mod[i] = 125;
+        else if (af->affect_mod[i] < -125)
+            af->affect_mod[i] = -125;
+
+        if (af->affect_loc[i] != APPLY_NONE) {
+            bool found = false;
+            for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+                if (obj->affected[j].location == af->affect_loc[i]) {
+                    found = true;
+                    if (add)
+                        obj->affected[j].modifier += af->affect_mod[i];
+                    else
+                        obj->affected[j].modifier -= af->affect_mod[i];
+                    break;
+                }
+
+                if (found) {
+                    if (obj->affected[j].modifier == 0) {
+                        obj->affected[j].location = APPLY_NONE;
+                    }
+                }
+            }
+
+            if (!found) {
+                for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+                    if (obj->affected[j].location == APPLY_NONE) {
+                        found = true;
+                        obj->affected[j].location = af->affect_loc[i];
+                        obj->affected[j].modifier = af->affect_mod[i];
+                        break;
+                    }
+                }
+            }
+
+            normalize_applies(obj);
+
+            if (!found)
+				errlog("No affect locations trying to alter object affect on obj vnum %d, id %ld", GET_OBJ_VNUM(obj), obj->unique_id);
+        }
+    }
+}
+
+void
+add_object_affect(struct obj_data *obj, struct tmp_obj_affect *af)
+{
+    struct tmp_obj_affect *new_aff;
+
+    CREATE(new_aff, struct tmp_obj_affect, 1);
+
+    memcpy(new_aff, af, sizeof(struct tmp_obj_affect));
+    new_aff->next = obj->tmp_affects;
+    obj->tmp_affects = new_aff;
+
+    apply_object_affect(obj, new_aff, true);
+}
+
+void
+remove_object_affect(struct obj_data *obj, struct tmp_obj_affect *af)
+{
+    struct tmp_obj_affect *curr_aff;
+    struct tmp_obj_affect *prev_aff = NULL;
+    bool found = true;
+
+    apply_object_affect(obj, af, false);
+
+    curr_aff = obj->tmp_affects;
+
+    while(curr_aff != NULL) {
+        found = false;
+        if (curr_aff == af) {
+            found = true;
+            if (prev_aff != NULL)
+                prev_aff->next = af->next;
+            else
+                obj->tmp_affects = curr_aff->next;
+
+            free(af);
+            break;
+        }
+        else {
+            prev_aff = curr_aff;
+            curr_aff = curr_aff->next;
+        }
+    }
+
+    if (!found) {
+		errlog("Could not find matching temporary object affect to remove.");
+    }
+}
+
+void
+obj_affect_join(struct obj_data *obj, struct tmp_obj_affect *af, int dur_mode, int val_mode,
+                     int aff_mode)
+{
+    struct tmp_obj_affect *cur_aff = obj->tmp_affects;
+    struct tmp_obj_affect tmp_aff;
+    int j;
+    bool found = false;
+
+    for (; cur_aff != NULL; cur_aff = cur_aff->next) {
+        if ((cur_aff->type == af->type) &&
+            (cur_aff->extra_index == af->extra_index)) {
+            memcpy(&tmp_aff, cur_aff, sizeof(struct tmp_obj_affect));
+            if (dur_mode == AFF_ADD)
+                tmp_aff.duration = MIN(666, af->duration + tmp_aff.duration);
+            else if (dur_mode == AFF_AVG)
+                tmp_aff.duration = (af->duration + tmp_aff.duration) / 2;
+
+            for (int i = 0; i < 4; i++) {
+                if (af->val_mod[i] != 0) {
+                    if (val_mode == AFF_ADD)
+                        tmp_aff.val_mod[i] += af->val_mod[i];
+                    else if (val_mode == AFF_AVG)
+                        tmp_aff.val_mod[i] = (af->val_mod[i] +
+                                               tmp_aff.val_mod[i]) / 2;
+                }
+            }
+
+            // The next section for affects is really a cluster fuck
+            // but i can't think of a better way to handle it
+            for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+                if (af->affect_loc[i] != APPLY_NONE) {
+                    // Try to find a matching affect
+                    for (int k = 0; k < MAX_OBJ_AFFECT; k++) {
+                        if (af->affect_loc[i] == tmp_aff.affect_loc[k]) {
+                            if (aff_mode == AFF_ADD)
+                                tmp_aff.affect_mod[k] += af->affect_mod[i];
+                            else if (aff_mode == AFF_AVG)
+                                tmp_aff.affect_mod[i] = (tmp_aff.affect_mod[k] +
+                                                         af->affect_mod[i]) / 2;
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (found)
+                        break;
+                    // We didn't find a matching affect so just add it
+                    for (j = 0; j < MAX_OBJ_AFFECT; j++) {
+                        if (tmp_aff.affect_loc[j] == APPLY_NONE) {
+                            if (aff_mode != AFF_NOOP) {
+                                tmp_aff.affect_loc[j] = af->affect_loc[i];
+                                tmp_aff.affect_mod[j] = af->affect_mod[i];
+                                break;
+                            }
+                        }
+                    }
+
+                    if (j == MAX_OBJ_AFFECT) {
+                        errlog("Could not find free affect position in affectJoin().");
+                    }
+                }
+            }
+
+            if (af->weight_mod) {
+                if (val_mode == AFF_ADD)
+                    tmp_aff.weight_mod += af->weight_mod;
+                else if (val_mode == AFF_AVG)
+                    tmp_aff.weight_mod = (tmp_aff.weight_mod + af->weight_mod) / 2;
+            }
+            if (af->dam_mod) {
+                if (val_mode == AFF_ADD)
+                    tmp_aff.dam_mod += af->dam_mod;
+                else if (val_mode == AFF_AVG)
+                    tmp_aff.dam_mod = (tmp_aff.dam_mod + af->dam_mod) / 2;
+            }
+
+            if (af->maxdam_mod) {
+                if (val_mode == AFF_ADD)
+                    tmp_aff.maxdam_mod += af->maxdam_mod;
+                else if (val_mode == AFF_AVG)
+                    tmp_aff.maxdam_mod = (tmp_aff.maxdam_mod + af->maxdam_mod) / 2;
+            }
+
+            remove_object_affect(obj, cur_aff);
+            add_object_affect(obj, &tmp_aff);
+            return;
+        }
+    }
+
+    add_object_affect(obj, af);
+}
+
+void
+normalize_applies(struct obj_data *obj)
+{
+    int i,j;
+
+    for (i = 0, j = 0;i < MAX_OBJ_AFFECT;i++,j++) {
+        while (j < MAX_OBJ_AFFECT
+               && (obj->affected[j].location == APPLY_NONE
+                   || obj->affected[j].modifier == 0))
+            j++;
+        if (j < MAX_OBJ_AFFECT) {
+            obj->affected[i] = obj->affected[j];
+        } else {
+            obj->affected[i].location = APPLY_NONE;
+            obj->affected[i].modifier = 0;
+        }
+
+    }
+}
+
+struct tmp_obj_affect *
+obj_has_affect(struct obj_data *obj, int spellnum)
+{
+    struct tmp_obj_affect *cur_aff = obj->tmp_affects;
+
+    for (; cur_aff != NULL; cur_aff = cur_aff->next) {
+        if (cur_aff->type == spellnum)
+            return cur_aff;
+    }
+
+    return NULL;
+}
+
+int
+equipment_position_of(struct obj_data *obj)
+{
+	int result;
+
+	if (!obj->worn_by)
+		return -1;
+
+	for (result = 0;result < NUM_WEARS;result++)
+		if (GET_EQ(obj->worn_by, result) == obj)
+			return result;
+
+	return -1;
+}
+
+int
+implant_position_of(struct obj_data *obj)
+{
+	int result;
+
+	if (!obj->worn_by)
+		return -1;
+
+	for (result = 0;result < NUM_WEARS;result++)
+		if (GET_IMPLANT(obj->worn_by, result) == obj)
+			return result;
+
+	return -1;
+}
+
+int
+count_contained_objs(struct obj_data *obj)
+{
+    struct obj_data *cur;
+    int count = 0;
+
+    for (cur = obj->contains;cur;cur = cur->next_content) {
+        count++;
+        if (IS_OBJ_TYPE(cur, ITEM_CONTAINER))
+            count += count_contained_objs(obj);
+    }
+    return count;
+}
+
+int
+weigh_contained_objs(struct obj_data *obj)
+{
+    struct obj_data *cur;
+    int weight = 0;
+
+    for (cur = obj->contains;cur;cur = cur->next_content) {
+        weight += GET_OBJ_WEIGHT(cur);
+        if (IS_OBJ_TYPE(cur, ITEM_CONTAINER))
+            weight += weigh_contained_objs(obj);
+    }
+    return weight;
+}
+struct obj_data *
+load_object_from_xml(struct obj_data *container, struct creature *victim, struct room_data* room, xmlNodePtr node)
+{
+    struct obj_data *obj;
 	int vnum = xmlGetIntProp(node, "vnum", 0);
 	bool placed;
 	char *str;
+
+    obj = make_object();
 
 	placed = false;
 
@@ -182,7 +518,7 @@ loadFromXML(struct obj_data *obj, struct obj_data *container, struct creature *v
 	    if(!prototype) {
 		    slog("Object #%d being removed from %s's rent",
 			    vnum, victim ? GET_NAME(victim):"(null)");
-		    return false;
+		    return NULL;
 	    }
 
 	    obj->shared = prototype->shared;
@@ -280,7 +616,7 @@ loadFromXML(struct obj_data *obj, struct obj_data *container, struct creature *v
 					obj_to_room(obj, room);
 				} else {
 					errlog("Don't know where to put object!");
-					return false;
+					return NULL;
 				}
 				placed = true;
 			}
@@ -347,12 +683,12 @@ loadFromXML(struct obj_data *obj, struct obj_data *container, struct creature *v
 
 	}
 
-    normalizeApplies(obj);
+    normalize_applies(obj);
 
 	if (!OBJ_APPROVED(obj)) {
 		slog("Unapproved object %d being junked from %s's rent.",
 			 vnum, (victim && GET_NAME(victim)) ? GET_NAME(victim):"(none)");
-		return false;
+		return NULL;
 	}
 	if (!placed) {
 		if(victim) {
@@ -363,396 +699,130 @@ loadFromXML(struct obj_data *obj, struct obj_data *container, struct creature *v
 			obj_to_room(obj, room);
 		}
 	}
-	return true;
+	return obj;
 }
 
-int
-modifyWeight(struct obj_data *obj, int mod_weight)
+void
+save_object_to_xml(struct obj_data *obj, FILE *ouf)
 {
+    struct tmp_obj_affect *af = NULL;
+    struct tmp_obj_affect *af_head = NULL;
+	static char indent[512] = "\t";
+	fprintf( ouf, "%s<object vnum=\"%d\">\n", indent, obj->shared->vnum );
+	strcat(indent, "\t");
 
-	// if object is inside another object, recursively
-	// go up and modify it
-	if (obj->in_obj)
-		modifyWeight(obj->in_obj, mod_weight);
-	else if (obj->worn_by) {
-		// implant, increase character weight
-		if (GET_IMPLANT(obj->worn_by, obj->worn_on) == obj)
-			modifyCharWeight(obj->worn_by, mod_weight);
+    struct obj_data *proto = obj->shared->proto;
+
+    char *s = obj->name;
+    if( s != NULL &&
+        ( proto == NULL ||
+          proto->name == NULL ||
+          strcmp(s, proto->name) ) )
+    {
+        fprintf( ouf, "%s<name>%s</name>\n",
+                 indent, xmlEncodeTmp(s) );
+    }
+
+    s = obj->aliases;
+    if( s != NULL &&
+        ( proto == NULL ||   proto->aliases == NULL ||  strcmp(s, proto->aliases) ) )
+    {
+        fprintf( ouf, "%s<aliases>%s</aliases>\n",  indent, xmlEncodeTmp(s) );
+    }
+
+    s = obj->line_desc;
+    if( s != NULL &&
+        ( proto == NULL ||  proto->line_desc == NULL ||  strcmp(s, proto->line_desc ) ) )
+    {
+        fprintf( ouf, "%s<line_desc>%s</line_desc>\n", indent,  xmlEncodeTmp(s) );
+    }
+
+	if (!proto || obj->ex_description != proto->ex_description) {
+		struct extra_descr_data *desc;
+
+		for (desc = obj->ex_description;desc;desc = desc->next)
+			if (desc->keyword && desc->description)
+				fprintf(ouf, "%s<extra_desc keywords=\"%s\">%s</extra_desc>\n",
+                        indent,  xmlEncodeSpecialTmp(desc->keyword),
+                        xmlEncodeTmp(desc->description) );
 	}
 
-	obj->obj_flags.weight += mod_weight;
+    s = obj->action_desc;
+    if( s != NULL &&
+        ( proto == NULL || proto->action_desc == NULL ||
+          strcmp(s, proto->action_desc) ) )
+    {
+        fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent,
+                xmlEncodeTmp(tmp_gsub(tmp_gsub(s, "\r\n", "\n"), "\r", "")));
+    }
 
-    return obj->obj_flags.weight;
-}
+    // Detach the list of temp affects from the object and remove them
+    // without deleting them
+    af_head = obj->tmp_affects;
+    for (af = af_head; af; af = af->next)
+        apply_object_affect(obj, af, false);
 
-bool
-isUnrentable(struct obj_data *obj)
-{
+	fprintf( ouf, "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
+			  indent, obj->obj_flags.type_flag, obj->soilage,
+			 GET_OBJ_WEIGHT(obj), obj->obj_flags.material, obj->obj_flags.timer );
+	fprintf(ouf, "%s<tracking id=\"%ld\" method=\"%d\" creator=\"%ld\" time=\"%ld\"/>\n",
+		indent, obj->unique_id, obj->creation_method, obj->creator, obj->creation_time);
+	fprintf( ouf, "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
+			 indent, obj->obj_flags.damage, obj->obj_flags.max_dam,
+			obj->obj_flags.sigil_idnum, obj->obj_flags.sigil_level );
+	fprintf( ouf, "%s<flags extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />\n",
+			 indent, obj->obj_flags.extra_flags,
+			obj->obj_flags.extra2_flags, obj->obj_flags.extra3_flags );
+	fprintf( ouf, "%s<values v0=\"%d\" v1=\"%d\" v2=\"%d\" v3=\"%d\" />\n",
+			 indent, obj->obj_flags.value[0],obj->obj_flags.value[1],
+			obj->obj_flags.value[2],obj->obj_flags.value[3] );
 
-	if (IS_OBJ_STAT(obj, ITEM_NORENT)
-		|| !OBJ_APPROVED(obj) || GET_OBJ_VNUM(obj) <= NOTHING
-		|| (GET_OBJ_TYPE(obj) == ITEM_KEY && GET_OBJ_VAL(obj, 1) == 0)
-		|| (GET_OBJ_TYPE(obj) == ITEM_CIGARETTE && GET_OBJ_VAL(obj, 3))) {
-		return true;
+	fprintf( ouf, "%s<affectbits aff1=\"%lx\" aff2=\"%lx\" aff3=\"%lx\" />\n",
+			 indent, obj->obj_flags.bitvector[0],
+			obj->obj_flags.bitvector[1], obj->obj_flags.bitvector[2] );
+
+	for( int i = 0; i < MAX_OBJ_AFFECT; i++ ) {
+		if( obj->affected[i].location > 0) {
+			fprintf( ouf, "%s<affect modifier=\"%d\" location=\"%d\" />\n",
+					  indent, obj->affected[i].modifier, obj->affected[i].location );
+		}
 	}
+    // Write the temp affects out to the file
+    for (af = af_head; af; af = af->next) {
+        fprintf(ouf, "%s<tmpaffect level=\"%d\" type=\"%d\" duration=\"%d\" "
+                "dam_mod=\"%d\" maxdam_mod=\"%d\" val_mod1=\"%d\" "
+                "val_mod2=\"%d\" val_mod3=\"%d\" val_mod4=\"%d\" "
+                "type_mod=\"%d\" old_type=\"%d\" worn_mod=\"%d\" "
+                "extra_mod=\"%d\" extra_index=\"%d\" weight_mod=\"%d\" ",
+                indent, af->level, af->type, af->duration,
+                af->dam_mod, af->maxdam_mod, af->val_mod[0], af->val_mod[1],
+                af->val_mod[2], af->val_mod[3], af->type_mod, af->old_type,
+                af->worn_mod, af->extra_mod, af->extra_index, af->weight_mod);
 
-	if (no_plrtext && obj->plrtext_len)
-		return true;
-	return false;
-}
-
-int
-setWeight(struct obj_data *obj, int new_weight)
-{
-
-	return (modifyWeight(obj, new_weight - GET_OBJ_WEIGHT(obj)));
-}
-
-struct room_data *
-find_room(struct obj_data *obj)
-{
-	if (obj->worn_by)
-		return obj->worn_by->in_room;
-	else if (obj->carried_by)
-		return obj->carried_by->in_room;
-	else if (obj->in_obj)
-		return find_room(obj->in_obj);
-	else if (obj->in_room)
-		return obj->in_room;
-
-	errlog("Object in limbo at %s:%d", __FILE__, __LINE__);
-	return NULL;
-}
-
-void
-addAffect(struct obj_data *obj, struct tmp_obj_affect *af)
-{
-    struct tmp_obj_affect *new_aff;
-
-    CREATE(new_aff, struct tmp_obj_affect, 1);
-
-    memcpy(new_aff, af, sizeof(struct tmp_obj_affect));
-    new_aff->next = obj->tmp_affects;
-    obj->tmp_affects = new_aff;
-
-    affectModify(new_aff, true);
-}
-
-void
-removeAffect(struct obj_data *obj, struct tmp_obj_affect *af)
-{
-    struct tmp_obj_affect *curr_aff;
-    struct tmp_obj_affect *prev_aff = NULL;
-    bool found = true;
-
-    affectModify(af, false);
-
-    curr_aff = obj->tmp_affects;
-
-    while(curr_aff != NULL) {
-        found = false;
-        if (curr_aff == af) {
-            found = true;
-            if (prev_aff != NULL)
-                prev_aff->next = af->next;
-            else
-                obj->tmp_affects = curr_aff->next;
-
-            free(af);
-            break;
-        }
-        else {
-            prev_aff = curr_aff;
-            curr_aff = curr_aff->next;
-        }
-    }
-
-    if (!found) {
-		errlog("Could not find matching temporary object affect to remove.");
-    }
-}
-
-// NEVER call obj function directly.  Use addAffect(), removeAffect(),
-// or affectJoin() instead.
-// add == true adds the affect, add == false deletes the affect
-void
-objAffectModify(struct obj_data *obj, struct tmp_obj_affect *af, bool add)
-{
-    // Set or restore damage
-    if (af->dam_mod && obj->obj_flags.max_dam > 0) {
-        if (add)
-            obj->obj_flags.damage += af->dam_mod;
-        else
-            obj->obj_flags.damage -= af->dam_mod;
-    }
-    //Set or restore maxdam
-    if (af->maxdam_mod && obj->obj_flags.max_dam > 0) {
-        if (add)
-            obj->obj_flags.max_dam += af->maxdam_mod;
-        else
-            obj->obj_flags.max_dam -= af->maxdam_mod;
-    }
-    // Set or reset the value mods
-    for (int i = 0; i < 4; i++) {
-        if (af->val_mod[i] != 0) {
-            if (add)
-                obj->obj_flags.value[i] += af->val_mod[i];
-            else
-                obj->obj_flags.value[i] -= af->val_mod[i];
-        }
-    }
-    // Set or restore type
-    if (af->type_mod) {
-        if (add) {
-            af->old_type = obj->obj_flags.type_flag;
-            obj->obj_flags.type_flag = af->type_mod;
-        }
-        else
-            obj->obj_flags.type_flag = af->old_type;
-    }
-
-    // Set or reset wear positions
-    if (af->worn_mod) {
-        if (add) {
-            check_bits_32(obj->obj_flags.wear_flags, &af->worn_mod);
-            obj->obj_flags.wear_flags |= af->worn_mod;
-        }
-        else
-            obj->obj_flags.wear_flags &= ~(af->worn_mod);
-    }
-
-    // set or reset extra flags
-    if (af->extra_mod && af->extra_index) {
-        int *oextra;
-        if (af->extra_index == 1) {
-            oextra = &obj->obj_flags.extra_flags;
-        }
-        else if (af->extra_index == 2) {
-            oextra = &obj->obj_flags.extra2_flags;
-        }
-        else if (af->extra_index == 3) {
-            oextra = &obj->obj_flags.extra3_flags;
-        }
-        else {
-			errlog("Invalid extra index (%d) in struct obj_data_affectModify().",
-				af->extra_index);
-            return;
+        for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+            fprintf(ouf, "affect_loc%d=\"%d\" affect_mod%d=\"%d\" ",
+                    i, af->affect_loc[i], i, af->affect_mod[i]);
         }
 
-        if (add) {
-            check_bits_32(*oextra, &af->extra_mod);
-            *oextra |= af->extra_mod;
-        }
-        else
-            *oextra &= ~(af->extra_mod);
+        fprintf(ouf, "/>\n");
     }
+	// Contained objects
+	strcat(indent, "\t");
+	for( struct obj_data *obj2 = obj->contains; obj2 != NULL; obj2 = obj2->next_content ) {
+		save_object_to_xml(obj2, ouf);
+	}
+    indent[strlen(indent) - 2] = '\0';
+	// Intentionally done last since reading obj property in loadFromXML
+    // causes the eq to be worn on the character.
+	fprintf( ouf, "%s<worn possible=\"%x\" pos=\"%d\" type=\"%s\"/>\n",
+			 indent, obj->obj_flags.wear_flags, obj->worn_on, get_worn_type(obj) );
 
-    // Set or reset weight
-    if (af->weight_mod) {
-        if (add)
-            modifyWeight(obj, af->weight_mod);
-        else
-            modifyWeight(obj, GET_OBJ_WEIGHT(obj) - af->weight_mod);
-    }
+    // Ok, we'll restore the affects to the object right here
+    obj->tmp_affects = af_head;
+    for (af = af_head; af; af = af->next)
+        apply_object_affect(obj, af, true);
 
-    // Set or reset affections
-    // I probably could have done obj with less code but it would have been
-    // much more difficult to understand
-    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-        if (af->affect_mod[i] > 125)
-            af->affect_mod[i] = 125;
-        else if (af->affect_mod[i] < -125)
-            af->affect_mod[i] = -125;
-
-        if (af->affect_loc[i] != APPLY_NONE) {
-            bool found = false;
-            for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
-                if (obj->affected[j].location == af->affect_loc[i]) {
-                    found = true;
-                    if (add)
-                        obj->affected[j].modifier += af->affect_mod[i];
-                    else
-                        obj->affected[j].modifier -= af->affect_mod[i];
-                    break;
-                }
-
-                if (found) {
-                    if (obj->affected[j].modifier == 0) {
-                        obj->affected[j].location = APPLY_NONE;
-                    }
-                }
-            }
-
-            if (!found) {
-                for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
-                    if (obj->affected[j].location == APPLY_NONE) {
-                        found = true;
-                        obj->affected[j].location = af->affect_loc[i];
-                        obj->affected[j].modifier = af->affect_mod[i];
-                        break;
-                    }
-                }
-            }
-
-            normalizeApplies(obj);
-
-            if (!found)
-				errlog("No affect locations trying to alter object affect on obj vnum %d, id %ld", GET_OBJ_VNUM(obj), obj->unique_id);
-        }
-    }
-}
-
-void
-affectJoin(struct obj_data *obj, struct tmp_obj_affect *af, int dur_mode, int val_mode,
-                     int aff_mode)
-{
-    struct tmp_obj_affect *cur_aff = obj->tmp_affects;
-    struct tmp_obj_affect tmp_aff;
-    int j;
-    bool found = false;
-
-    for (; cur_aff != NULL; cur_aff = cur_aff->next) {
-        if ((cur_aff->type == af->type) &&
-            (cur_aff->extra_index == af->extra_index)) {
-            memcpy(&tmp_aff, cur_aff, sizeof(struct tmp_obj_affect));
-            if (dur_mode == AFF_ADD)
-                tmp_aff.duration = MIN(666, af->duration + tmp_aff.duration);
-            else if (dur_mode == AFF_AVG)
-                tmp_aff.duration = (af->duration + tmp_aff.duration) / 2;
-
-            for (int i = 0; i < 4; i++) {
-                if (af->val_mod[i] != 0) {
-                    if (val_mode == AFF_ADD)
-                        tmp_aff.val_mod[i] += af->val_mod[i];
-                    else if (val_mode == AFF_AVG)
-                        tmp_aff.val_mod[i] = (af->val_mod[i] +
-                                               tmp_aff.val_mod[i]) / 2;
-                }
-            }
-
-            // The next section for affects is really a cluster fuck
-            // but i can't think of a better way to handle it
-            for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-                if (af->affect_loc[i] != APPLY_NONE) {
-                    // Try to find a matching affect
-                    for (int k = 0; k < MAX_OBJ_AFFECT; k++) {
-                        if (af->affect_loc[i] == tmp_aff.affect_loc[k]) {
-                            if (aff_mode == AFF_ADD)
-                                tmp_aff.affect_mod[k] += af->affect_mod[i];
-                            else if (aff_mode == AFF_AVG)
-                                tmp_aff.affect_mod[i] = (tmp_aff.affect_mod[k] +
-                                                         af->affect_mod[i]) / 2;
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (found)
-                        break;
-                    // We didn't find a matching affect so just add it
-                    for (j = 0; j < MAX_OBJ_AFFECT; j++) {
-                        if (tmp_aff.affect_loc[j] == APPLY_NONE) {
-                            if (aff_mode != AFF_NOOP) {
-                                tmp_aff.affect_loc[j] = af->affect_loc[i];
-                                tmp_aff.affect_mod[j] = af->affect_mod[i];
-                                break;
-                            }
-                        }
-                    }
-
-                    if (j == MAX_OBJ_AFFECT) {
-                        errlog("Could not find free affect position in affectJoin().");
-                    }
-                }
-            }
-
-            if (af->weight_mod) {
-                if (val_mode == AFF_ADD)
-                    tmp_aff.weight_mod += af->weight_mod;
-                else if (val_mode == AFF_AVG)
-                    tmp_aff.weight_mod = (tmp_aff.weight_mod + af->weight_mod) / 2;
-            }
-            if (af->dam_mod) {
-                if (val_mode == AFF_ADD)
-                    tmp_aff.dam_mod += af->dam_mod;
-                else if (val_mode == AFF_AVG)
-                    tmp_aff.dam_mod = (tmp_aff.dam_mod + af->dam_mod) / 2;
-            }
-
-            if (af->maxdam_mod) {
-                if (val_mode == AFF_ADD)
-                    tmp_aff.maxdam_mod += af->maxdam_mod;
-                else if (val_mode == AFF_AVG)
-                    tmp_aff.maxdam_mod = (tmp_aff.maxdam_mod + af->maxdam_mod) / 2;
-            }
-
-            removeObjAffect(obj, cur_aff);
-            addObjAffect(obj, &tmp_aff);
-            return;
-        }
-    }
-
-    addObjAffect(obj, af);
-}
-
-void
-normalizeApplies(struct obj_data *obj)
-{
-    int i,j;
-
-    for (i = 0, j = 0;i < MAX_OBJ_AFFECT;i++,j++) {
-        while (j < MAX_OBJ_AFFECT
-               && (obj->affected[j].location == APPLY_NONE
-                   || obj->affected[j].modifier == 0))
-            j++;
-        if (j < MAX_OBJ_AFFECT) {
-            obj->affected[i] = obj->affected[j];
-        } else {
-            obj->affected[i].location = APPLY_NONE;
-            obj->affected[i].modifier = 0;
-        }
-
-    }
-}
-
-struct tmp_obj_affect *
-affectedBySpell(struct obj_data *obj, int spellnum)
-{
-    struct tmp_obj_affect *cur_aff = obj->tmp_affects;
-
-    for (; cur_aff != NULL; cur_aff = cur_aff->next) {
-        if (cur_aff->type == spellnum)
-            return cur_aff;
-    }
-
-    return NULL;
-}
-
-int
-getEquipPos(struct obj_data *obj)
-{
-	int result;
-
-	if (!obj->worn_by)
-		return -1;
-
-	for (result = 0;result < NUM_WEARS;result++)
-		if (GET_EQ(obj->worn_by, result) == obj)
-			return result;
-
-	return -1;
-}
-
-int
-getImplantPos(struct obj_data *obj)
-{
-	int result;
-
-	if (!obj->worn_by)
-		return -1;
-
-	for (result = 0;result < NUM_WEARS;result++)
-		if (GET_IMPLANT(obj->worn_by, result) == obj)
-			return result;
-
-	return -1;
+    indent[strlen(indent) - 2] = '\0';
+	fprintf( ouf, "%s</object>\n", indent );
+	return;
 }

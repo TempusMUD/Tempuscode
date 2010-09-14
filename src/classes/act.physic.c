@@ -253,7 +253,7 @@ ACMD(do_lecture)
 		return;
 	}
 
-	if (isFighting(vict)) {
+	if (vict->fighting) {
 		act("$E is busy fighting right now!", false, ch, 0, vict, TO_CHAR);
 		return;
 	}
@@ -856,7 +856,7 @@ ACMD(do_econvert)
 	}
 
 	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
-		!is_named_role_member(ch, SECURITY_WIZARDFULL)) {
+		!is_named_role_member(ch, ROLE_WIZARDFULL)) {
 		send_to_char(ch, "You can't econvert a player's corpse while it still has objects in it.");
 		return;
 	}

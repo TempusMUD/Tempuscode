@@ -326,7 +326,7 @@ obj_affect_update(void)
 						NULL, TO_CHAR);
 			}
 
-			remove_obj_affect(obj, af);
+			remove_object_affect(obj, af);
 		}
 
 		if (aff_removed) {
@@ -921,8 +921,8 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             GET_POSITION(victim) > POS_STUNNED) {
 			struct affected_type af;
 
-            removeCombat(victim, ch);
-            removeCombat(ch, victim);
+            remove_combat(victim, ch);
+            remove_combat(ch, victim);
 			GET_POSITION(victim) = POS_STUNNED;
 			WAIT_STATE(victim, 5 RL_SEC);
 			memset(&af, 0, sizeof(af));
@@ -1189,8 +1189,8 @@ mag_affects(int level,
         if (checkReputations(ch, victim))
             return;
 
-        removeCombat(victim, ch);
-        removeCombat(ch, victim);
+        remove_combat(victim, ch);
+        remove_combat(ch, victim);
 		GET_POSITION(victim) = POS_STUNNED;
 		WAIT_STATE(victim, 2 * PULSE_VIOLENCE);
 		to_room = "$n suddenly looks stunned!";
@@ -2964,7 +2964,7 @@ mag_masses(byte level, struct creature *ch, int spellnum, int savetype)
     for (GList *it = ch->in_room->people;it; it = it->next) {
         struct creature *tch = (struct creature *)it->data;
 
-		if (tch == ch || !findCombat(tch, ch))
+		if (tch == ch || !g_list_find(tch->fighting, ch))
 			continue;
 		found = true;
 		mag_damage(level, ch, tch, spellnum, savetype);
@@ -3797,12 +3797,12 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         {
             struct tmp_obj_affect *af;
 
-            af = objAffectedBySpell(obj, SPELL_ITEM_REPULSION_FIELD);
+            af = obj_has_affect(obj, SPELL_ITEM_REPULSION_FIELD);
             if (af) {
                 struct affected_type *ra;
 
                 act(item_wear_off_msg[af->type], false, ch, obj, NULL, TO_CHAR);
-                remove_obj_affect(obj, af);
+                remove_object_affect(obj, af);
                 for (ra = ch->affected; ra; ra = ra->next) {
                     if (ra->type == SPELL_ITEM_REPULSION_FIELD) {
                         affect_remove(ch, ra);
@@ -3815,7 +3815,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         max_attractions = (skill_bonus(ch, SPELL_ATTRACTION_FIELD)*GET_INT(ch)+200)/400;
         max_attractions = MAX(max_attractions,1);
 
-        if (affectedBySpell(obj, SPELL_ITEM_ATTRACTION_FIELD)) {
+        if (obj_has_affect(obj, SPELL_ITEM_ATTRACTION_FIELD)) {
             to_char = "$p already has an attraction field!";
             break;
         } else if (count_affect(ch, SPELL_ITEM_ATTRACTION_FIELD) >= max_attractions) {
@@ -3856,12 +3856,12 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         {
             struct tmp_obj_affect *af;
 
-            af = obj_affected_by_spell(obj, SPELL_ITEM_ATTRACTION_FIELD);
+            af = obj_has_affect(obj, SPELL_ITEM_ATTRACTION_FIELD);
             if( af != NULL ) {
                 struct affected_type *ra;
 
                 act(item_wear_off_msg[af->type], false, ch, obj, NULL, TO_CHAR);
-                remove_obj_affect(obj, af);
+                remove_object_affect(obj, af);
                  for (ra = ch->affected; ra; ra = ra->next) {
                     if (ra->type == SPELL_ITEM_ATTRACTION_FIELD) {
                         affect_remove(ch, ra);
@@ -3874,7 +3874,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         max_repulsions = (skill_bonus(ch, SPELL_REPULSION_FIELD)*GET_INT(ch)+200)/400;
         max_repulsions = MAX(max_repulsions,1);
 
-        if (obj_affected_by_spell(obj, SPELL_ITEM_REPULSION_FIELD)) {
+        if (obj_has_affect(obj, SPELL_ITEM_REPULSION_FIELD)) {
             to_char = "$p already has an repulsion field!";
             break;
         } else if (count_affect(ch, SPELL_ITEM_REPULSION_FIELD) >= max_repulsions) {
@@ -3990,7 +3990,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             break;
         }
 
-        if (obj_affected_by_spell(obj, SPELL_ENVENOM)) {
+        if (obj_has_affect(obj, SPELL_ENVENOM)) {
             to_char = "That weapon is already envenomed!";
             break;
         }
@@ -4017,7 +4017,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             to_char = "You can only brand weapons.";
             break;
         }
-        af = obj_affected_by_spell(obj, SPELL_ELEMENTAL_BRAND);
+        af = obj_has_affect(obj, SPELL_ELEMENTAL_BRAND);
         oaf[0].level = skill_bonus(ch, SPELL_ELEMENTAL_BRAND);
         oaf[0].type = SPELL_ELEMENTAL_BRAND;
         oaf[0].duration = skill_bonus(ch, SPELL_ELEMENTAL_BRAND) / 2;

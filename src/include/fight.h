@@ -138,7 +138,7 @@ void punish_killer_death(struct creature *ch);
 
 //#define NUM_WEARS      27 /* This must be the # of eq positions!! */
 
-const int wear_translator[] = {
+static const int wear_translator[] = {
 	WEAR_LIGHT, WEAR_FINGER_R, WEAR_FINGER_R, WEAR_NECK_1, WEAR_NECK_1,
 	WEAR_BODY, WEAR_HEAD, WEAR_LEGS, WEAR_FEET, WEAR_HANDS, WEAR_ARMS,
 	WEAR_SHIELD, WEAR_BACK, WEAR_WAIST, WEAR_WRIST_R, WEAR_WRIST_R,
@@ -147,7 +147,7 @@ const int wear_translator[] = {
 };
 
 /* Weapon attack texts */
-const struct attack_hit_type attack_hit_text[] = {
+static const struct attack_hit_type attack_hit_text[] = {
 	{"hit", "hits"},			/* 0 */
 	{"sting", "stings"},
 	{"whip", "whips"},
@@ -170,7 +170,7 @@ const struct attack_hit_type attack_hit_text[] = {
 };
 
 /* Energy weapon attack texts */
-const struct gun_hit_type gun_hit_text[] = {
+static const struct gun_hit_type gun_hit_text[] = {
     {"fire", "fires", "laser beam"},
     {"ignite", "ignites", "plasma eruption"},
     {"discharge", "discharges", "ionic pulse"},
@@ -220,9 +220,11 @@ void forget(struct creature *ch, struct creature *victim);
 void remember(struct creature *ch, struct creature *victim);
 int char_in_memory(struct creature *victim, struct creature *rememberer);
 
-const int DAM_VICT_KILLED = (1 << 0);	// the victim of damage() died
-const int DAM_ATTACKER_KILLED = (1 << 1);	// the caller of damage() died
-const int DAM_ATTACK_FAILED = (1 << 2);	// the caller of damage() died
+enum {
+    DAM_VICT_KILLED = (1 << 0),	// the victim of damage() died
+    DAM_ATTACKER_KILLED = (1 << 1),	// the caller of damage() died
+    DAM_ATTACK_FAILED = (1 << 2),	// the caller of damage() died
+};
 
 int SWAP_DAM_RETVAL(int val);
 int damage(struct creature *ch, struct creature *victim, int dam,

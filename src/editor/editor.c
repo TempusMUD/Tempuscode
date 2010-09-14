@@ -31,6 +31,21 @@
 extern struct descriptor_data *descriptor_list;
 extern struct help_collection *Help;
 
+bool
+check_editors(struct creature *ch, char *buffer)
+{
+    struct descriptor_data *d;
+
+    for (d = descriptor_list;d;d = d->next) {
+        if (d->text_editor
+            && d->text_editor->is_editing(d->text_editor, buffer)) {
+            send_to_char(ch, "Sorry, %s is editing that.\n", GET_NAME(d->creature));
+            return false;
+        }
+    }
+    return true;
+}
+
 void
 editor_import(struct editor *editor, const char *text)
 {
@@ -163,7 +178,8 @@ editor_handle_input(struct editor *editor, char *input)
 
 	if (*inbuf == '&') {		// Commands
         if (!inbuf[1]) {
-            SendMessage("& is the command character. Type &h for help.\r\n");
+            editor_emit(editor,
+                        "& is the command character. Type &h for help.\r\n");
             return;
         }
         args = inbuf + 2;
@@ -630,8 +646,8 @@ editor_help(struct editor *editor, char *line)
 
 		line = one_argument(line, command);
 		*command = tolower(*command);
-        help_item = help_finditems(tmp_sprintf("tedii-%c", *command),
-                                   false, 0, false);
+        help_item = help_collection_find_items(tmp_sprintf("tedii-%c", *command),
+                                               false, 0, false);
         if (help_item) {
             help_item_load_text(help_item);
             send_to_desc(editor->desc, "&cTEDII Command '%c'&n\r\n", *command);
@@ -717,13 +733,12 @@ editor_do_command(struct editor *editor, char cmd, char *args)
 			editor_emit(editor, "Format for Replace Line is: &l <line #> <text>\r\n");
 			break;
 		}
-        editor_replaceline(line, args);
+        editor_replace_line(editor, line, args);
 		break;
 	case 'i':					// Insert Line
 		args = one_argument(args, command);
 		if (!isdigit(*command)) {
-			SendMessage
-				("Format for insert command is: &i <line #> <text>\r\n");
+			editor_emit(editor, "Format for insert command is: &i <line #> <text>\r\n");
 			break;
 		}
 		line = atoi(command);

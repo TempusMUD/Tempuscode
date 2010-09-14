@@ -20,7 +20,7 @@ SPECIAL(killer_hunter)
 		if (!PLR_FLAGGED(MOB_HUNTING(hunter), PLR_KILLER)) {
 			sprintf(buf2, "You're damn lucky, %s.", GET_NAME(MOB_HUNTING(hunter)));
 			do_gen_comm(ch, buf2, 0, SCMD_HOLLER, 0);
-			stopHunting(hunter);
+			stop_hunting(hunter);
 			return 1;
 		}
 		return 0;
@@ -37,7 +37,7 @@ SPECIAL(killer_hunter)
 					(GET_LEVEL(hunter) <= (GET_LEVEL(d->creature) + 10)) &&
 					find_first_step(hunter->in_room, d->creature->in_room,
 						STD_TRACK) >= 0) {
-					startHunting(ch, d->creature);
+					start_hunting(ch, d->creature);
 					do_gen_comm(ch, tmp_strdup("Okay.  Now I'm pissed."), 0, SCMD_HOLLER, 0);
 					return 1;
 				}

@@ -20,7 +20,7 @@ SPECIAL(hell_regulator)
 		if (!ZONE_IS_HELL(ch->in_room->zone)) {
 			act("$n vanishes into the mouth of an interplanar conduit.",
 				false, ch, 0, 0, TO_ROOM);
-			purge(ch, true);
+			creature_purge(ch, true);
 			return 1;
 		}
 		return 0;
@@ -32,7 +32,7 @@ SPECIAL(hell_regulator)
 			continue;
 
 		// REGULATOR doesn't want anyone attacking him
-		if (findCombat(vict, ch)) {
+		if (g_list_find(vict->fighting, ch)) {
 
 			if (!(devil = read_mobile(REG_SPINED_VNUM))) {
 				errlog("REGULATOR failed to load REG_SPINED_VNUM for defense.");
@@ -49,7 +49,7 @@ SPECIAL(hell_regulator)
 			act("...$n leaps out and attacks you!", false, devil, 0, vict,
 				TO_VICT);
 
-            removeCombat(vict, ch);
+            remove_combat(vict, ch);
 			dam_retval = hit(devil, vict, TYPE_UNDEFINED);
             if (dam_retval != DAM_VICT_KILLED)
 			    WAIT_STATE(vict, 1 RL_SEC);

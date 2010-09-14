@@ -43,7 +43,7 @@ SPECIAL(phantasmic_sword)
 			if (!number(0, 4)) {
 				act("$n departs for the ethereal plane!", true, ch, 0, 0,
 					TO_ROOM);
-				purge(ch, true);
+				creature_purge(ch, true);
 				return 1;
 			} else
 				return 0;
@@ -58,8 +58,8 @@ SPECIAL(phantasmic_sword)
 							(GET_CHA(mast) >> (mast->in_room !=
 									ch->in_room))))) {
 					//set_fighting(ch, tch, true);
-                    addCombat(ch, tch, true);
-                    addCombat(tch, ch, false);
+                    add_combat(ch, tch, true);
+                    add_combat(tch, ch, false);
 					return 0;
 				}
 			}

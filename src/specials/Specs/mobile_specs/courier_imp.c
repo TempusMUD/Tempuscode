@@ -33,26 +33,26 @@ imp_take_payment(struct creature *seeking, struct imp_data *data)
     if (data->owed) {
         if (GET_PAST_BANK(seeking) >= data->owed) {
             GET_GOLD(data->imp) += data->owed;
-            set_past_bank(seeking->account, GET_PAST_BANK(seeking) - data->owed);
+            account_set_past_bank(seeking->account, GET_PAST_BANK(seeking) - data->owed);
             data->owed = 0;
         }
         else {
             GET_GOLD(data->imp) += GET_PAST_BANK(seeking);
             data->owed -= GET_PAST_BANK(seeking);
-            set_past_bank(seeking->account, 0);
+            account_set_past_bank(seeking->account, 0);
         }
     }
 
     if (data->owed) {
         if (GET_FUTURE_BANK(seeking) >= data->owed) {
             GET_CASH(data->imp) += data->owed;
-            set_future_bank(seeking->account, GET_FUTURE_BANK(seeking) - data->owed);
+            account_set_future_bank(seeking->account, GET_FUTURE_BANK(seeking) - data->owed);
             data->owed = 0;
         }
         else {
             GET_CASH(data->imp) += GET_FUTURE_BANK(seeking);
             data->owed -= GET_FUTURE_BANK(seeking);
-            set_future_bank(seeking->account, 0);
+            account_set_future_bank(seeking->account, 0);
         }
     }
 
@@ -75,7 +75,7 @@ SPECIAL(courier_imp)
         slog("IMP: Couldn't find data!");
         act("$n looks confused for a moment then fades away.", false,
             self, 0, 0, TO_NOTVICT);
-        purge(self, true);
+        creature_purge(self, true);
         return 1;
     }
 
@@ -96,17 +96,17 @@ SPECIAL(courier_imp)
             // WTF?
             slog("IMP:  Failed to load character [%ld] from file.",
                  data->buyer_id);
-            purge(self, true);
+            creature_purge(self, true);
             return 1;
         }
 
-        seeking->account = account_by_id(player_account_by_idnum(GET_IDNUM(seeking)));
+        seeking->account = account_by_idnum(player_account_by_idnum(GET_IDNUM(seeking)));
         if (!seeking->account) {
             // WTF?
             slog("IMP:  Failed to load character account [%ld] from file.",
                  data->buyer_id);
             free_creature(seeking);
-            purge(self, true);
+            creature_purge(self, true);
             return 1;
         }
 
@@ -129,12 +129,12 @@ SPECIAL(courier_imp)
                   slog("IMP: Loading player %ld's objects", data->buyer_id);
 
                   // Load the char's existing eq
-                  loadObjects(seeking);
+                  load_player_objects(seeking);
                   // Add the item to char's inventory
                   obj_from_char(data->item);
                   obj_to_char(data->item, seeking);
                   // Save it to disk
-                  saveObjects(seeking);
+                  save_player_objects(seeking);
 
                   // Delete all the char's eq, otherwise the destructor
                   // has a cow.
@@ -152,7 +152,7 @@ SPECIAL(courier_imp)
                     extract_obj(doomed_obj);
                   }
             }
-            purge(self, true);
+            creature_purge(self, true);
         }
 
         free_creature(seeking);
@@ -245,7 +245,7 @@ SPECIAL(courier_imp)
                 GET_GOLD(seeking) += paygold;
                 GET_CASH(seeking) += paycash;
                 save_player_to_xml(seeking);
-                purge(self, true);
+                creature_purge(self, true);
             }
             else if (data->mode == IMP_BUYER_BROKE) {
                 perform_say_to(self, seeking, "Sorry, your buyer could not "
@@ -257,7 +257,7 @@ SPECIAL(courier_imp)
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
                 save_player_to_xml(seeking);
-                purge(self, true);
+                creature_purge(self, true);
             }
             else if (data->mode == IMP_RETURN_ITEM) {
                 perform_say_to(self, seeking, "Sorry, there were no bids "
@@ -267,7 +267,7 @@ SPECIAL(courier_imp)
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
                 save_player_to_xml(seeking);
-                purge(self, true);
+                creature_purge(self, true);
             }
             else if (data->mode == IMP_NO_BUYER) {
                 perform_say_to(self, seeking, "Sorry, I couldn't find the "
@@ -277,7 +277,7 @@ SPECIAL(courier_imp)
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
                 save_player_to_xml(seeking);
-                purge(self, true);
+                creature_purge(self, true);
             }
         }
 

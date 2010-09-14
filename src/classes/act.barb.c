@@ -26,6 +26,7 @@
 #include "char_class.h"
 #include "bomb.h"
 #include "fight.h"
+#include "utils.h"
 
 ACMD(do_charge)
 {

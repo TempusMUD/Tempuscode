@@ -452,7 +452,7 @@ ACMD(do_extinguish)
 			send_to_char(ch, "You succeed in putting out the flames.  WHEW!\r\n");
 			act("$n hastily extinguishes the flames which cover $s body.",
 				false, ch, 0, 0, TO_ROOM);
-            extinguish(ch);
+            extinguish_creature(ch);
 		}
 	return;
 	}
@@ -504,7 +504,7 @@ ACMD(do_extinguish)
 				vict, TO_VICT);
 			act("$n hastily extinguishes the flames on $N's body.", false, ch,
 				0, vict, TO_NOTVICT);
-            extinguish(vict);
+            extinguish_creature(vict);
 		}
 	}
 }
@@ -536,7 +536,7 @@ ACMD(do_ignite)
 			TO_NOTVICT);
 		act("You are suddenly consumed in burning flames!!!", false, ch, 0,
 			vict, TO_VICT);
-        ignite(vict, ch);
+        ignite_creature(vict, ch);
 	}
 	return;
 }

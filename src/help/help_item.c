@@ -30,7 +30,7 @@ extern const char *help_bits[];
 // Sets the flags bitvector for things like !approved and
 // IMM+ and changed and um... other flaggy stuff.
 void
-helpitem_setflags(struct help_item *item, char *argument)
+help_item_setflags(struct help_item *item, char *argument)
 {
 	int state, cur_flags = 0, tmp_flags = 0, flag = 0, old_flags = 0;
 	char arg1[MAX_INPUT_LENGTH];
@@ -81,7 +81,7 @@ helpitem_setflags(struct help_item *item, char *argument)
 
 // Loads in the text for a particular help entry.
 bool
-helpitem_loadtext(struct help_item *item)
+help_item_load_text(struct help_item *item)
 {
     FILE *inf;
 	char *fname;
@@ -117,10 +117,10 @@ helpitem_loadtext(struct help_item *item)
 
 // Crank up the text item->editor and lets hit it.
 void
-helpitem_edittext(struct help_item *item)
+help_item_edittext(struct help_item *item)
 {
 
-	helpitem_loadtext(item);
+	help_item_load_text(item);
 	SET_BIT(item->flags, HFLAG_MODIFIED);
 	start_editing_text(item->editor->desc, &item->text, MAX_HELP_TEXT_LENGTH);
 	SET_BIT(PLR_FLAGS(item->editor), PLR_OLC);
@@ -131,7 +131,7 @@ helpitem_edittext(struct help_item *item)
 // Sets the groups bitvector much like the
 // flags in quests.
 void
-helpitem_setgroups(struct help_item *item, char *argument)
+help_item_setgroups(struct help_item *item, char *argument)
 {
 	int state, cur_groups = 0, tmp_groups = 0, flag = 0, old_groups = 0;
 	char arg1[MAX_INPUT_LENGTH];
@@ -181,7 +181,7 @@ helpitem_setgroups(struct help_item *item, char *argument)
 }
 
 bool
-helpitem_isingroup(struct help_item *item, int thegroup)
+help_item_in_group(struct help_item *item, int thegroup)
 {
 	if (IS_SET(item->groups, thegroup))
 		return true;
@@ -190,7 +190,7 @@ helpitem_isingroup(struct help_item *item, int thegroup)
 
 // Don't call me Roger.
 void
-helpitem_setname(struct help_item *item, char *argument)
+help_item_setname(struct help_item *item, char *argument)
 {
 	skip_spaces(&argument);
 	if (item->name && strlen(argument) > strlen(item->name)) {
@@ -205,7 +205,7 @@ helpitem_setname(struct help_item *item, char *argument)
 
 // Set the...um. keywords and stuff.
 void
-helpitem_setkeywords(struct help_item *item, char *argument)
+help_item_setkeywords(struct help_item *item, char *argument)
 {
 	skip_spaces(&argument);
 	if (item->keys && strlen(argument) > strlen(item->keys)) {
@@ -219,7 +219,7 @@ helpitem_setkeywords(struct help_item *item, char *argument)
 }
 
 void
-helpitem_clear(struct help_item *item)
+help_item_clear(struct help_item *item)
 {
 	item->counter = 0;
 	item->flags = (HFLAG_UNAPPROVED | HFLAG_MODIFIED);
@@ -235,18 +235,18 @@ helpitem_clear(struct help_item *item)
 }
 
 struct help_item *
-make_helpitem(void)
+make_help_item(void)
 {
     struct help_item *item;
 
     CREATE(item, struct help_item, 1);
-	helpitem_clear(item);
+	help_item_clear(item);
 
     return item;
 }
 
 void
-free_helpitem(struct help_item *item)
+free_help_item(struct help_item *item)
 {
     free(item->name);
     free(item->keys);
@@ -257,7 +257,7 @@ free_helpitem(struct help_item *item)
 // Begin editing an item much like olc oedit.
 // Sets yer currently editable item to this one.
 bool
-helpitem_edit(struct help_item *item, struct creature *ch)
+help_item_edit(struct help_item *item, struct creature *ch)
 {
 	if (item->editor) {
 		if (item->editor != ch) {
@@ -278,11 +278,11 @@ helpitem_edit(struct help_item *item, struct creature *ch)
 	return true;
 }
 
-// Saves the current HelpItem. Does NOT alter the index.
+// Saves the current Help_Item. Does NOT alter the index.
 // You have to save that too.
 // (SaveAll does everything)
 bool
-helpitem_save(struct help_item *item)
+help_item_save(struct help_item *item)
 {
 	char *fname;
     FILE *outf;
@@ -290,7 +290,7 @@ helpitem_save(struct help_item *item)
 	fname = tmp_sprintf("%s/%04d.topic", HELP_DIRECTORY, item->idnum);
 	// If we don't have the text to edit, get from the file.
 	if (!item->text)
-		helpitem_loadtext(item);
+		help_item_load_text(item);
 
     outf = fopen(fname, "w");
     if (outf) {
@@ -314,7 +314,7 @@ helpitem_save(struct help_item *item)
 // Show the entry.
 // buffer is output buffer.
 void
-helpitem_show(struct help_item *item, struct creature *ch, char *buffer, int mode)
+help_item_show(struct help_item *item, struct creature *ch, char *buffer, int mode)
 {
 	char bitbuf[256];
 	char groupbuf[256];
@@ -334,7 +334,7 @@ helpitem_show(struct help_item *item, struct creature *ch, char *buffer, int mod
 		break;
 	case 2:					// 2 == Entire Entry
 		if (!item->text)
-			helpitem_loadtext(item);
+			help_item_load_text(item);
 		strcpy(buffer, "");
 		sprintf(buffer, "\r\n%s%s%s\r\n%s\r\n",
 			CCCYN(ch, C_NRM), item->name, CCNRM(ch, C_NRM), item->text);
@@ -342,7 +342,7 @@ helpitem_show(struct help_item *item, struct creature *ch, char *buffer, int mod
 		break;
 	case 3:					// 3 == Entire Entry Stat
 		if (!item->text)
-			helpitem_loadtext(item);
+			help_item_load_text(item);
 		sprintbit(item->flags, help_bit_descs, bitbuf);
 		sprintbit(item->groups, help_group_bits, groupbuf);
 		strcpy(buffer, "");

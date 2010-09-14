@@ -189,8 +189,8 @@ breakup_fight(struct creature *ch, struct creature *vict1, struct creature *vict
 
 	}
 
-	removeCombat(vict1, vict2);
-	removeCombat(vict2, vict1);
+	remove_combat(vict1, vict2);
+	remove_combat(vict2, vict1);
 }
 
 int
@@ -276,7 +276,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 	act("You wake up in jail, your head pounding.", false, vict, 0, 0, TO_CHAR);
 
 	if (MOB_HUNTING(ch) && MOB_HUNTING(ch) == vict)
-        stopHunting(ch);
+        stop_hunting(ch);
 
 	if ((torch = read_object(3030)))
 		obj_to_char(torch, vict);
@@ -286,7 +286,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 		GET_NAME(ch), ch->in_room->number);
 
 	if (IS_NPC(vict))
-		purge(vict, true);
+		creature_purge(vict, true);
 	else
 		save_player_to_xml(vict);
 	return 1;
@@ -420,14 +420,14 @@ SPECIAL(cityguard)
 		return false;
 
 	// We're fighting someone - call for help
-	if (isFighting(self)) {
-		tch = findRandomCombat(self);
+	if (self->fighting) {
+		tch = random_opponent(self);
 
 		// Save the newbies from themselves
 		if (GET_LEVEL(tch) < 20 && GET_REMORT_GEN(tch) == 0) {
 			perform_say(self, "declare", "Here now!");
-			removeCombat(self, tch);
-			removeCombat(tch, self);
+			remove_combat(self, tch);
+			remove_combat(tch, self);
 			return true;
 		}
 
@@ -471,7 +471,7 @@ SPECIAL(cityguard)
 	for (it = self->in_room->people;it;it = it->next) {
 		tch = it->data;
 		if (action < 5 && is_fighting_cityguard(tch) &&
-            isOkToAttack(self, tch, false)) {
+            ok_to_attack(self, tch, false)) {
 			action = 5;
 			target = tch;
 		}
@@ -481,7 +481,7 @@ SPECIAL(cityguard)
 				&& can_see_creature(self, tch)
 				&& !PRF_FLAGGED(tch, PRF_NOHASSLE)
 				&& GET_POSITION(ch) > POS_SLEEPING
-            && isOkToAttack(self, tch, false)
+            && ok_to_attack(self, tch, false)
 				) {
 			action = 4;
 			target = tch;
@@ -597,7 +597,7 @@ SPECIAL(cityguard)
 			perform_say(self, "declare", "Here now!");
             break;
 		}
-        struct creature *vict = findRandomCombat(target);
+        struct creature *vict = random_opponent(target);
         if (vict)
 		    breakup_fight(self, target, vict);
 		return true;

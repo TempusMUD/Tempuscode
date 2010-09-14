@@ -318,8 +318,8 @@ SPECIAL(postmaster)
     struct creature *self;
 
 	if (spec_mode == SPECIAL_TICK) {
-		if (isFighting(self) && !number(0, 4)) {
-			call_for_help(self, findRandomCombat(self));
+		if (self->fighting && !number(0, 4)) {
+			call_for_help(self, random_opponent(self));
 			return 1;
 		}
 		return 0;

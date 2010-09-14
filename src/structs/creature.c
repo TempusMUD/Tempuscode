@@ -20,6 +20,7 @@
 #include "prog.h"
 #include "quest.h"
 #include "weather.h"
+#include "account.h"
 
 void extract_norents(struct obj_data *obj);
 void char_arrest_pardoned(struct creature *ch);
@@ -146,7 +147,7 @@ reset_creature(struct creature *ch)
     //
     // next remove all the combat ch creature might be involved in
     //
-    removeAllCombat(ch);
+    remove_all_combat(ch);
     g_list_free(ch->fighting);
 
     memset(ch, 0, sizeof(struct creature));
@@ -202,7 +203,7 @@ check_position(struct creature *ch)
  * Returns true if ch character is in the Testers access group.
 **/
 bool
-isTester(struct creature *ch)
+is_tester(struct creature *ch)
 {
 	if (IS_NPC(ch))
 		return false;
@@ -305,7 +306,7 @@ setSpeed(struct creature *ch, int speed)
 }
 
 bool
-isNewbie(struct creature *ch)
+is_newbie(struct creature *ch)
 {
 	if (ch->char_specials.saved.act & MOB_ISNPC)
 		return false;
@@ -320,11 +321,8 @@ isNewbie(struct creature *ch)
 // Utility function to determine if a char should be affected by sanctuary
 // on a hit by hit level... --N
 bool
-creature_affBySanc(struct creature *attacker)
+affected_by_sanctuary(struct creature *ch, struct creature *attacker)
 {
-
-	struct creature *ch = ch;
-
 	if (AFF_FLAGGED(ch, AFF_SANCTUARY)) {
 		if (attacker && IS_EVIL(ch) &&
 			affected_by_spell(attacker, SPELL_RIGHTEOUS_PENETRATION))
@@ -342,9 +340,8 @@ creature_affBySanc(struct creature *attacker)
 // Pass in the attacker for conditional reduction such as PROT_GOOD and
 // PROT_EVIL.  Or leave it blank for the characters base reduction --N
 float
-creature_getDamReduction(struct creature *attacker)
+damage_reduction(struct creature *ch, struct creature *attacker)
 {
-	struct creature *ch = ch;
 	struct affected_type *af = NULL;
 	float dam_reduction = 0;
 
@@ -358,7 +355,7 @@ creature_getDamReduction(struct creature *attacker)
 	}
 	//*************************** Sanctuary ****************************
 	//******************************************************************
-	if (affBySanc(ch, attacker)) {
+	if (affected_by_sanctuary(ch, attacker)) {
 		if (IS_VAMPIRE(ch))
 			dam_reduction += 0;
 		else if ((IS_CLERIC(ch) || IS_KNIGHT(ch)) && !IS_NEUTRAL(ch))
@@ -642,6 +639,36 @@ clear_memory(struct creature *ch)
 	MEMORY(ch) = NULL;
 }
 
+void
+dismount(struct creature *ch)
+{
+    if (!MOUNTED_BY(ch))
+        return;
+
+    ch->char_specials.mounted = NULL;
+}
+
+void
+mount(struct creature *ch, struct creature *vict)
+{
+    if (MOUNTED_BY(ch))
+        return;
+
+    ch->char_specials.mounted = vict;
+}
+
+void
+start_hunting(struct creature *ch, struct creature *vict)
+{
+    ch->char_specials.hunting = vict;
+}
+
+void
+stop_hunting(struct creature *ch)
+{
+    ch->char_specials.hunting = NULL;
+}
+
 /**
  * Extract a ch completely from the world, and destroy his stuff
  * @param con_state the connection state to change the descriptor to, if one exists
@@ -747,7 +774,7 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
 	if (ch->desc && ch->desc->original)
 		do_return(ch, tmp_strdup(""), 0, SCMD_NOEXTRACT, 0);
 
-    removeAllCombat(ch);
+    remove_all_combat(ch);
 
 	char_from_room(ch, false);
 
@@ -869,7 +896,7 @@ player_loadroom(struct creature *ch)
 }
 
 void
-creature_restore(struct creature *ch)
+restore_creature(struct creature *ch)
 {
 	int i;
 
@@ -904,7 +931,7 @@ creature_restore(struct creature *ch)
 bool
 creature_rent(struct creature *ch)
 {
-    removeAllCombat(ch);
+    remove_all_combat(ch);
 	ch->player_specials->rentcode = RENT_RENTED;
 	ch->player_specials->rent_per_day =
 		(GET_LEVEL(ch) < LVL_IMMORT) ? calc_daily_rent(ch, 1, NULL, false):0;
@@ -912,10 +939,10 @@ creature_rent(struct creature *ch)
 	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 	GET_LOADROOM(ch) = ch->in_room->number;
 	ch->player.time.logon = time(0);
-	saveObjects(ch);
+	save_player_objects(ch);
 	save_player_to_xml(ch);
 	if (GET_LEVEL(ch) < 50)
-		mlog(SECURITY_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)),
+		mlog(ROLE_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)),
 			NRM, true,
 			"%s has rented (%d/day, %lld %s)", GET_NAME(ch),
              ch->player_specials->rent_per_day, CASH_MONEY(ch) + BANK_MONEY(ch),
@@ -934,10 +961,10 @@ creature_cryo(struct creature *ch)
 	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 	GET_LOADROOM(ch) = ch->in_room->number;
 	ch->player.time.logon = time(0);
-	saveObjects();
+	save_player_objects();
 	save_player_to_xml(ch);
 
-	mlog(SECURITY_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)),
+	mlog(ROLE_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)),
 		NRM, true,
 		"%s has cryo-rented", GET_NAME(ch));
 	extract_creature(ch, CXN_MENU);
@@ -1002,7 +1029,7 @@ creature_quit(struct creature *ch)
 	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 	GET_LOADROOM(ch) = 0;
 	ch->player.time.logon = time(0);
-	saveObjects();
+	save_player_objects();
 	save_player_to_xml(ch);
 	extract_creature(ch, CXN_MENU);
 
@@ -1020,10 +1047,10 @@ creature_idle(struct creature *ch)
 	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 	GET_LOADROOM(ch) = 0;
 	ch->player.time.logon = time(0);
-	saveObjects();
+	save_player_objects();
 	save_player_to_xml(ch);
 
-	mlog(SECURITY_ADMINBASIC, LVL_GOD, CMP, true,
+	mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
 		"%s force-rented and extracted (idle).",
 		GET_NAME(ch));
 
@@ -1037,7 +1064,7 @@ creature_die(struct creature *ch)
 	struct obj_data *obj, *next_obj;
 	int pos;
 
-    removeAllCombat(ch);
+    remove_all_combat(ch);
 
 	// If their stuff hasn't been moved out, they dt'd, so we need to dump
 	// their stuff to the room
@@ -1068,7 +1095,7 @@ creature_die(struct creature *ch)
 		ch->player_specials->rent_currency = 0;
 		GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
 		ch->player.time.logon = time(0);
-		saveObjects();
+		save_player_objects();
 		save_player_to_xml(ch);
 	}
 	extract_creature(ch, CXN_AFTERLIFE);
@@ -1079,7 +1106,7 @@ creature_die(struct creature *ch)
 bool
 creature_npk_die(struct creature *ch)
 {
-    removeAllCombat(ch);
+    remove_all_combat(ch);
 
 	if (!IS_NPC(ch)) {
 		ch->player_specials->rentcode = RENT_QUIT;
@@ -1088,7 +1115,7 @@ creature_npk_die(struct creature *ch)
 		ch->player_specials->rent_currency = 0;
 		GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
 		ch->player.time.logon = time(0);
-		saveObjects();
+		save_player_objects();
 		save_player_to_xml(ch);
 	}
 	extract_creature(ch, CXN_AFTERLIFE);
@@ -1101,7 +1128,7 @@ creature_arena_die(struct creature *ch)
 {
     // Remove any combat ch character might have been involved in
     // And make sure all defending creatures stop defending
-    removeAllCombat(ch);
+    remove_all_combat(ch);
 
 	// Rent them out
 	if (!IS_NPC(ch)) {
@@ -1112,7 +1139,7 @@ creature_arena_die(struct creature *ch)
 		ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 		GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
 		ch->player.time.logon = time(0);
-		saveObjects();
+		save_player_objects();
 		save_player_to_xml(ch);
 		if (GET_LEVEL(ch) < 50)
 			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
@@ -1160,7 +1187,7 @@ creature_purge(struct creature *ch, bool destroy_obj)
 		ch->player_specials->rent_currency = 0;
 		GET_LOADROOM(ch) = 0;
 		ch->player.time.logon = time(0);
-		saveObjects();
+		save_player_objects();
 		save_player_to_xml(ch);
 	}
 
@@ -1179,7 +1206,7 @@ creature_remort(struct creature *ch)
 	ch->player_specials->rent_currency = 0;
 	GET_LOADROOM(ch) = 0;
 	ch->player.time.logon = time(0);
-	saveObjects();
+	save_player_objects();
 	save_player_to_xml(ch);
 	extract_creature(ch, CXN_REMORT_AFTERLIFE);
 	return true;
@@ -1191,35 +1218,35 @@ creature_trusts_idnum(struct creature *ch, long idnum)
 	if (IS_NPC(ch))
 		return false;
 
-	return isTrusted(ch->account, idnum);
+	return is_trusted(ch->account, idnum);
 }
 
 bool
-creature_distrusts_idnum(long idnum)
+creature_distrusts_idnum(struct creature *ch, long idnum)
 {
-	return !trusts(idnum);
+	return !creature_trusts_idnum(ch, idnum);
 }
 
 bool
-creature_trusts(struct creature *ch)
+creature_trusts(struct creature *ch, struct creature *target)
 {
 	if (IS_NPC(ch))
 		return false;
 
-	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master == ch)
+	if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master == target)
 		return true;
 
-	return creature_trusts_idnum(ch, GET_IDNUM(ch));
+	return creature_trusts_idnum(ch, GET_IDNUM(target));
 }
 
 bool
-creature_distrusts(struct creature *ch)
+creature_distrusts(struct creature *ch, struct creature *target)
 {
-	return !trusts(ch);
+	return !creature_trusts(ch, target);
 }
 
 int
-creature_get_reputation(struct creature *ch)
+reputation_of(struct creature *ch)
 {
 	struct account *acct;
 
@@ -1228,7 +1255,7 @@ creature_get_reputation(struct creature *ch)
 
 	acct = ch->account;
 	if (!acct)
-		acct = account_by_id(player_account_by_idnum(GET_IDNUM(ch)));
+		acct = account_by_idnum(player_account_by_idnum(GET_IDNUM(ch)));
 	if (acct && GET_LEVEL(ch) < LVL_AMBASSADOR)
 		return MAX(0, MIN(1000,
                           (ch->player_specials->saved.reputation * 95 / 100)
@@ -1237,7 +1264,7 @@ creature_get_reputation(struct creature *ch)
 }
 
 void
-creature_gain_reputation(struct creature *ch, int amt)
+gain_reputation(struct creature *ch, int amt)
 {
 	 struct account *acct;
 
@@ -1246,7 +1273,7 @@ creature_gain_reputation(struct creature *ch, int amt)
 
 	acct = ch->account;
 	if (!acct)
-        acct = account_by_id(player_account_by_idnum(GET_IDNUM(ch)));
+        acct = account_by_idnum(player_account_by_idnum(GET_IDNUM(ch)));
 	if (acct && GET_LEVEL(ch) < LVL_AMBASSADOR)
 		account_gain_reputation(acct, amt);
 
@@ -1262,12 +1289,12 @@ creature_set_reputation(struct creature *ch, int amt)
 }
 
 bool
-isOkToAttack(struct creature *ch, struct creature *vict, bool mssg)
+ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
 {
     extern int get_hunted_id(int hunter_id);
 
     if (!vict) {
-        errlog("ERROR:  NULL victim passed to isOkToAttack()");
+        errlog("ERROR:  NULL victim passed to ok_to_attack()");
         return false;
     }
 
@@ -1278,7 +1305,7 @@ isOkToAttack(struct creature *ch, struct creature *vict, bool mssg)
     }
 
     // If they're already fighting, let them have at it!
-    if (findCombat(ch, vict) || findCombat(vict, ch)) {
+    if (g_list_find(ch->fighting, vict) || g_list_find(vict->fighting, ch)) {
         return true;
     }
 
@@ -1358,7 +1385,7 @@ isOkToAttack(struct creature *ch, struct creature *vict, bool mssg)
     }
 
     // If a newbie is trying to attack someone, don't let it happen
-    if (isNewbie(ch)) {
+    if (is_newbie(ch)) {
         if (mssg) {
             send_to_char(ch, "You are currently under new player "
                          "protection, which expires at level 41\r\n");
@@ -1370,13 +1397,13 @@ isOkToAttack(struct creature *ch, struct creature *vict, bool mssg)
 
     // If someone is trying to attack a newbie, also don't let it
     // happen
-    if (isNewbie(vict)) {
+    if (is_newbie(vict)) {
         if (mssg) {
             act("$N is currently under new character protection.",
                 false, ch, NULL, vict, TO_CHAR);
             act("You are protected by the gods against $n's attack!",
                 false, ch, NULL, vict, TO_VICT);
-            slog("%s protected against %s (struct creature_isOkToAttack()) at %d",
+            slog("%s protected against %s (struct creature_ok_to_attack()) at %d",
                  GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
         }
 
@@ -1430,55 +1457,46 @@ isOkToAttack(struct creature *ch, struct creature *vict, bool mssg)
 }
 
 void
-addCombat(struct creature *ch, struct creature *target, bool initiated)
+add_combat(struct creature *ch, struct creature *target, bool initiated)
 {
-    struct creature *defender;
-
     if (!target)
         return;
 
 	if (ch == target || ch->in_room != target->in_room)
         return;
 
-    if (!isOkToAttack(ch, target, true))
+    if (!ok_to_attack(ch, target, true))
         return;
 
-    defender = NULL;
     for (GList *it = ch->in_room->people;it;it = it->next) {
         struct creature *tch = it->data;
         if (tch != ch
             && tch != target
             && DEFENDING(tch) == target
-            && !tch->fighting
-            && GET_POSITION(tch) > POS_RESTING){
+            && !g_list_find(tch->fighting, ch)
+            && GET_POSITION(tch) > POS_RESTING) {
 
-            defender = tch;
-
-			send_to_char(defender, "You defend %s from %s's vicious attack!\r\n",
-                         PERS(target, defender), PERS(ch, defender));
+			send_to_char(tch, "You defend %s from %s's vicious attack!\r\n",
+                         PERS(target, tch), PERS(ch, tch));
 			send_to_char(ch, "%s defends you from %s's vicious attack!\r\n",
-                         PERS(defender, target), PERS(ch, target));
-			act("$n comes to $N's defense!", false, defender, 0,
+                         PERS(tch, target), PERS(ch, target));
+			act("$n comes to $N's defense!", false, tch, 0,
 				target, TO_NOTVICT);
 
-            if (!g_list_find(defender->fighting, ch))
-                defender->fighting = g_list_prepend(defender->fighting, ch);
-			update_pos(ch);
-			trigger_prog_fight(ch, defender);
+            tch->fighting = g_list_prepend(tch->fighting, ch);
 
-			// By not breaking here and not adding defenders to
-            // combatList we get the desired effect of a) having new
-            // defenders kick in after the first dies because they are
-            // on the attackers combat list, and b) still likely have
-            // defenders left to defend from other potential attackers
-            // because they won't actually begin combat until the
-            // attacker hits them.  This is the theory at least.
+			update_pos(ch);
+			trigger_prog_fight(ch, tch);
+            return;
         }
     }
+
+    // No defender, so simply attack
+    ch->fighting = g_list_prepend(ch->fighting, target);
 }
 
 void
-removeCombat(struct creature *ch, struct creature *target)
+remove_combat(struct creature *ch, struct creature *target)
 {
     if (!target)
         return;
@@ -1492,7 +1510,7 @@ removeCombat(struct creature *ch, struct creature *target)
 }
 
 void
-removeAllCombat(struct creature *ch)
+remove_all_combat(struct creature *ch)
 {
     g_list_free(ch->fighting);
     remove_fighting_affects(ch);
@@ -1505,7 +1523,7 @@ creature_numCombatants(struct creature *ch)
 }
 
 struct creature *
-findRandomCombat(struct creature *ch)
+random_opponent(struct creature *ch)
 {
 
     if (!ch->fighting)
@@ -1525,7 +1543,7 @@ findRandomCombat(struct creature *ch)
 }
 
 void
-ignite(struct creature *ch)
+ignite_creature(struct creature *ch, struct creature *igniter)
 {
     struct affected_type af;
 
@@ -1535,20 +1553,20 @@ ignite(struct creature *ch)
     af.bitvector = AFF2_ABLAZE;
     af.aff_index = 2;
 
-    if (ch)
-        af.owner = GET_IDNUM(ch);
+    if (igniter)
+        af.owner = GET_IDNUM(igniter);
 
     affect_to_char(ch, &af);
 }
 
 void
-extinguish(struct creature *ch)
+extinguish_creature(struct creature *ch)
 {
     affect_from_char(ch, SPELL_ABLAZE);
 }
 
 void
-stopDefending(struct creature *ch)
+stop_defending(struct creature *ch)
 {
     if (!DEFENDING(ch))
         return;
@@ -1566,10 +1584,10 @@ stopDefending(struct creature *ch)
 }
 
 void
-startDefending(struct creature *ch, struct creature *vict)
+start_defending(struct creature *ch, struct creature *vict)
 {
     if (DEFENDING(ch))
-        stopDefending(ch);
+        stop_defending(ch);
 
     ch->char_specials.defending = vict;
 
@@ -1579,36 +1597,6 @@ startDefending(struct creature *ch, struct creature *vict)
         false, ch, 0, vict, TO_VICT);
     act("$n starts defending $N against attacks.",
         false, ch, 0, vict, TO_NOTVICT);
-}
-
-void
-dismount(struct creature *ch)
-{
-    if (!MOUNTED_BY(ch))
-        return;
-
-    ch->char_specials.mounted = NULL;
-}
-
-void
-mount(struct creature *ch, struct creature *vict)
-{
-    if (MOUNTED_BY(ch))
-        return;
-
-    ch->char_specials.mounted = vict;
-}
-
-void
-startHunting(struct creature *ch, struct creature *vict)
-{
-    ch->char_specials.hunting = vict;
-}
-
-void
-stopHunting(struct creature *ch)
-{
-    ch->char_specials.hunting = NULL;
 }
 
 bool
@@ -1663,5 +1651,9 @@ checkReputations(struct creature *ch, struct creature *vict)
     return false;
 }
 
-#undef __creature_cc__
+int
+creature_breath_threshold(struct creature *ch)
+{
+    return GET_LEVEL(ch) / 32 + 2;
+}
 

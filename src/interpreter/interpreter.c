@@ -427,7 +427,6 @@ ACMD(do_xlist);
 ACMD(do_help_collection_command);
 ACMD(do_wizlist);
 ACMD(do_immhelp);
-ACMD(do_map);
 ACMD(do_ventriloquize);
 
 /* This is the Master Command List(tm).
@@ -965,7 +964,6 @@ struct command_info cmd_info[] = {
 	{"more", POS_DEAD, do_show_more, 0, 0, 0, 0},
 	{"makeout", POS_RESTING, do_action, 0, 0, 0, 0},
 	{"makemount", POS_STANDING, do_makemount, LVL_IMMORT, 0, 0, 0},
-	{"map", POS_SLEEPING, do_map, LVL_IMMORT, 0, 0, 0},
 	{"mload", POS_SLEEPING, do_mload, LVL_IMMORT, 0, 0, 0},
 	{"mail", POS_STANDING, do_not_here, 1, 0, 0, 0},
 	{"marvel", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -1724,7 +1722,7 @@ command_interpreter(struct creature *ch, const char *argument)
 	/* otherwise, find the command */
 	for (length = strlen(cmdstr), cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
 		if (!strncmp(cmd_info[cmd].command, cmdstr, length)) {
-			if (Security_canAccess(ch, &cmd_info[cmd])) {
+			if (is_authorized(ch, COMMAND, &cmd_info[cmd])) {
 				break;
 			}
 		}
@@ -2192,6 +2190,24 @@ two_arguments(char *argument, char *first_arg, char *second_arg)
     strcpy(second_arg, s);
 
     return argument;
+}
+
+int
+is_abbrev(const char *needle, const char *haystack)
+{
+	if (!*needle)
+		return 0;
+
+	while (*needle && *haystack)
+		if (tolower(*needle++) != tolower(*haystack++))
+			return 0;
+
+	if (!*needle && !*haystack)
+		return 2;
+	if (!*needle)
+		return 1;
+
+	return 0;
 }
 
 /*

@@ -398,7 +398,7 @@ do_create_room(struct creature *ch, int vnum)
 		return NULL;
 	}
 
-	if (!CAN_EDIT_ZONE(ch, zone)) {
+	if (!is_authorized(ch, EDIT_ZONE, zone)) {
 		send_to_char(ch, "Try creating rooms in your own zone, luser.\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to CREATE room %d.",
@@ -462,7 +462,7 @@ do_destroy_room(struct creature *ch, int vnum)
 		return 1;
 	}
 
-	if (!CAN_EDIT_ZONE(ch, rm->zone)) {
+	if (!is_authorized(ch, EDIT_ZONE, rm->zone)) {
 		send_to_char(ch, "Oh, no you don't!!!\r\n");
 		mudlog(GET_INVIS_LVL(ch), BRF, true,
 			"OLC: %s failed attempt to DESTROY room %d.",
@@ -954,7 +954,8 @@ do_olc_rset(struct creature *ch, char *argument)
 				"Type show special room to view a list.\r\n");
 		else if (!IS_SET(spec_list[i].flags, SPEC_RM))
 			send_to_char(ch, "This special is not for rooms.\r\n");
-		else if (IS_SET(spec_list[i].flags, SPEC_RES) && !OLCIMP(ch))
+		else if (IS_SET(spec_list[i].flags, SPEC_RES)
+                 && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL))
 			send_to_char(ch, "This special is reserved.\r\n");
 		else {
 			ch->in_room->func = spec_list[i].func;

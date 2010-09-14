@@ -18,7 +18,7 @@ SPECIAL(moloch)
 		return 0;
 
 	if (moloch->fighting && GET_MOB_WAIT(moloch) <= 0) {
-        vict = molorandom_opponent(ch);
+        vict = random_opponent(moloch);
 		if (!number(0, 10)) {
 			call_magic(moloch, vict, 0, NULL, SPELL_FLAME_STRIKE, 50,
                        CAST_BREATH, NULL);

@@ -15,8 +15,8 @@
 #include "specs.h"
 #include "players.h"
 
-const int MAX_ITEMS = 10;
-const unsigned int MIN_COST = 12;
+#define MAX_ITEMS   10
+#define MIN_COST    12
 
 // From act.comm.cc
 void perform_analyze( struct creature *ch, struct obj_data *obj, bool checklev );
@@ -941,7 +941,7 @@ SPECIAL(vendor)
 	}
 
 	if (spec_mode == SPECIAL_TICK) {
-        struct creature *target = findRandomCombat(self);
+        struct creature *target = random_opponent(self);
 		if (target && shop->call_for_help && !number(0, 4)) {
 			call_for_help(self, target);
 			return 1;

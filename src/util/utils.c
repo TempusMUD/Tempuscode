@@ -148,7 +148,7 @@ mlog(const char *group, sbyte level, enum log_type type, bool file, const char *
 	if (file)
 		fprintf(stderr, "%-19.19s _ %s\n", asctime(ctm), msg);
 
-	if (group == SECURITY_NOONE)
+	if (group == ROLE_NOONE)
 		return;
 	if (level < 0)
 		return;
@@ -180,7 +180,7 @@ slog(const char *fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	mlog(SECURITY_NOONE, -1, CMP, true, "%s", tmp_vsprintf(fmt, args));
+	mlog(ROLE_NOONE, -1, CMP, true, "%s", tmp_vsprintf(fmt, args));
 	va_end(args);
 }
 
@@ -195,7 +195,7 @@ mudlog(sbyte level, enum log_type type, bool file, const char *fmt, ...)
 	va_list args;
 
 	va_start(args, fmt);
-	mlog(SECURITY_EVERYONE, level, type, file, "%s", tmp_vsprintf(fmt, args));
+	mlog(ROLE_EVERYONE, level, type, file, "%s", tmp_vsprintf(fmt, args));
 	va_end(args);
 }
 
@@ -218,11 +218,11 @@ errlog(const char *fmt, ...)
     }
 
 	va_start(args, fmt);
-	mlog(SECURITY_CODER, LVL_AMBASSADOR, NRM, true,
+	mlog(ROLE_CODER, LVL_AMBASSADOR, NRM, true,
 		"SYSERR: %s", tmp_vsprintf(fmt, args));
 	va_end(args);
 
-	mlog(SECURITY_NOONE, LVL_AMBASSADOR, NRM, true,
+	mlog(ROLE_NOONE, LVL_AMBASSADOR, NRM, true,
 		"TRACE: %s", backtrace_str);
 }
 

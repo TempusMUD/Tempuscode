@@ -120,7 +120,7 @@ do_zcmd(struct creature *ch, char *argument)
 		return;
 	}
 
-	if (!CAN_EDIT_ZONE(ch, zone)) {
+	if (!is_authorized(ch, EDIT_ZONE, zone)) {
 		send_to_char(ch,
 			"You looking to getting a BEAT-DOWN?!  Permission denied.\r\n");
 		return;
@@ -195,7 +195,7 @@ do_zcmd(struct creature *ch, char *argument)
 						int_arg3);
 					return;
 				}
-				if (!CAN_EDIT_ZONE(ch, room->zone)) {
+				if (!is_authorized(ch, EDIT_ZONE, room->zone)) {
 					send_to_char(ch,
 						"Let's not load mobs in other ppl's zones, shall we?\r\n");
 					return;
@@ -298,7 +298,7 @@ do_zcmd(struct creature *ch, char *argument)
 						int_arg3);
 					return;
 				}
-				if (!CAN_EDIT_ZONE(ch, room->zone)) {
+				if (!is_authorized(ch, EDIT_ZONE, room->zone)) {
 					send_to_char(ch,
 						"Let's not load objs in other ppl's zones, shall we?\r\n");
 					return;
@@ -827,7 +827,7 @@ do_zcmd(struct creature *ch, char *argument)
 						int_arg1);
 					return;
 				}
-				if (!CAN_EDIT_ZONE(ch, room->zone)) {
+				if (!is_authorized(ch, EDIT_ZONE, room->zone)) {
 					send_to_char(ch,
 						"Let's not remove objs from other ppl's zones, asshole.\r\n");
 					return;
@@ -887,7 +887,7 @@ do_zcmd(struct creature *ch, char *argument)
 					send_to_char(ch, "Room (V) %d does not exist.\r\n", int_arg1);
 					return;
 				}
-				if (!CAN_EDIT_ZONE(ch, room->zone)) {
+				if (!is_authorized(ch, EDIT_ZONE, room->zone)) {
 					send_to_char(ch,
 						"Let's not close doors in other ppl's zones, shall we?\r\n");
 					return;
@@ -2040,8 +2040,9 @@ do_zset_command(struct creature *ch, char *argument)
 
 		while (*arg1) {
 			if ((tmp_flag = search_block(arg1, zone_flag_names, false)) == -1 ||
-				(tmp_flag >= NUM_ZONE_FLAGS && !OLCIMP(ch)) ||
-				(tmp_flag == ZONE_FULLCONTROL && !OLCIMP(ch))) {
+				(tmp_flag >= NUM_ZONE_FLAGS) ||
+				(tmp_flag == ZONE_FULLCONTROL
+                 && !is_authorized(ch, SET_FULLCONTROL, NULL))) {
 				send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 			} else
 				tmp_zone_flags = tmp_zone_flags | (1 << tmp_flag);
@@ -2205,7 +2206,8 @@ do_zset_command(struct creature *ch, char *argument)
 			bottom = (zone->number) * 100;
 
 			if (!ZONE_FLAGGED(zone, ZONE_ROOMS_APPROVED)
-				&& !ZONE_FLAGGED(zone, ZONE_FULLCONTROL) && !OLCIMP(ch)) {
+				&& !ZONE_FLAGGED(zone, ZONE_FULLCONTROL)
+                && !is_authorized(ch, WORLDWRITE, NULL)) {
 				send_to_char(ch,
 					"You do not have the appropriate permissions biznitch.\r\n");
 				return;
@@ -2225,7 +2227,8 @@ do_zset_command(struct creature *ch, char *argument)
 			while (*arg1) {
 				if ((tmp_flags =
 						search_block(arg1, roomflag_names, false)) == -1
-					|| (tmp_flags >= NUM_ROOM_FLAGS && !OLCIMP(ch))) {
+					|| (tmp_flags >= NUM_ROOM_FLAGS
+                        && !is_authorized(ch, WORLDWRITE, NULL))) {
 					send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
 				} else
 					tmp_room_flags = tmp_room_flags | (1 << tmp_flags);
@@ -3033,7 +3036,7 @@ do_zpath_cmd(struct creature *ch, char *argument)
 	bool obj_mode = 0, mob_mode = 0, found = 0;
 	int line = 0;
 
-	if (!CAN_EDIT_ZONE(ch, zone)) {
+	if (!is_authorized(ch, EDIT_ZONE, zone)) {
 		send_to_char(ch, "You cannot edit this zone.\r\n");
 		return;
 	}

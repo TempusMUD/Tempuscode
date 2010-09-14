@@ -28,7 +28,7 @@ SPECIAL(rat_mama)
 				act("$n climbs into a hole in the wall.", false, tch, 0, 0,
 					TO_ROOM);
 				char_from_room(tch, true);
-				purge(tch, true);
+				creature_purge(tch, true);
 				return true;
 			}
 		}

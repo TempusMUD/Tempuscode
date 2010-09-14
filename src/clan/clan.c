@@ -1572,7 +1572,7 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
                                         CCNRM(ch, C_NRM),
                                         clan_rankname(clan, member->rank),
                                         member->rank),
-                            account_by_id(acct_id)->name,
+                            account_by_idnum(acct_id)->name,
                             acct_id);
             }
         } else {
