@@ -225,6 +225,9 @@ will_fit_in_room(struct creature *ch, struct room_data *room)
 {
 	int i = 0;
 
+    if (MAX_OCCUPANTS(room) == 0)
+        return true;
+
     // If you're mounted, the size of the mount determines how much
     // space you take up, not your own size
     if (MOUNTED_BY(ch))
@@ -581,7 +584,7 @@ do_simple_move(struct creature *ch, int dir, int mode,
 	}
 
 	/* check room count */
-	if (will_fit_in_room(ch, EXIT(ch, dir)->to_room)) {
+	if (!will_fit_in_room(ch, EXIT(ch, dir)->to_room)) {
 		send_to_char(ch, "It is too crowded there to enter.\r\n");
 		return 1;
 	}
