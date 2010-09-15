@@ -124,6 +124,7 @@ load_players(struct account *account)
     for (idx = 0;idx < count;idx++)
         account->chars = g_list_prepend(account->chars,
                                         GINT_TO_POINTER(atol(PQgetvalue(res, idx, 0))));
+    account->chars = g_list_reverse(account->chars);
 }
 
 void
@@ -145,6 +146,7 @@ load_trusted(struct account *account)
     count = PQntuples(res);
     for (idx = 0;idx < count;idx++)
         account_add_trusted(account, atol(PQgetvalue(res, idx, 0)));
+    account->trusted = g_list_reverse(account->trusted);
 }
 
 void
