@@ -157,13 +157,15 @@ check_ban_all(int desc, char *hostname)
     hostname = tmp_tolower(hostname);
 
     for (GList *it = ban_list;it;it = it->next) {
-        struct ban_entry *node = it->data;
-        if (node->type == BAN_ALL
-            && !strncmp(hostname, node->site, strlen(node->site)))
+        struct ban_entry *ban = it->data;
+        if (ban->type == BAN_ALL
+            && !strncmp(hostname, ban->site, strlen(ban->site))) {
+            node = ban;
             break;
+        }
     }
 
-    if (node)
+    if (!node)
         return false;
 
     write_to_descriptor(desc, "*******************************************************************************\r\n");
@@ -176,7 +178,7 @@ check_ban_all(int desc, char *hostname)
                             "       We're sorry, we have been forced to ban your IP address.\r\n"
                             "    If you have never played here before, or you feel we have made\r\n"
                             "    a mistake, or perhaps you just got caught in the wake of\r\n"
-                            "    someone elses trouble making, please mail unban@tempusmud.com.\r\n"
+                            "    someone else's trouble making, please mail unban@tempusmud.com.\r\n"
                             "    Please include your account name and your character name(s)\r\n"
                             "    so we can siteok your IP.  We apologize for the inconvenience,\r\n"
                             "    and we hope to see you soon!\r\n"
