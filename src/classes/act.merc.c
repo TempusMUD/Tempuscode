@@ -414,7 +414,7 @@ ACMD(do_snipe)
     // someone if his skill is less than 40
     percent = number(40, 125);
     if (affected_by_spell(vict, ZEN_AWARENESS) ||
-        AFF_FLAGGED(vict, AFF2_TRUE_SEEING)) {
+        AFF2_FLAGGED(vict, AFF2_TRUE_SEEING)) {
         percent += 25;
     }
 
