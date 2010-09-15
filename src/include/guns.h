@@ -10,9 +10,9 @@
 void show_gun_status(struct creature *ch, struct obj_data *gun);
 
 	 /*** energy gun utils ***/
-#define IS_ENERGY_GUN(obj)      (GET_OBJ_TYPE(obj) == ITEM_ENERGY_GUN)
+#define IS_ENERGY_GUN(obj)      (IS_OBJ_TYPE(obj, ITEM_ENERGY_GUN))
 
-#define IS_RIFLE(obj)           ((GET_OBJ_TYPE(obj) == ITEM_GUN) \
+#define IS_RIFLE(obj)           ((IS_OBJ_TYPE(obj, ITEM_GUN)) \
                                   && (GUN_TYPE(obj) == GUN_7mm_mag))
 #define EGUN_MAX_ENERGY(obj)     ((obj->contains &&                 \
 				   IS_ENERGY_CELL(obj->contains)) ?  \
@@ -30,10 +30,10 @@ void show_gun_status(struct creature *ch, struct obj_data *gun);
 #define GUN_TYPE(gun)            (GET_OBJ_VAL(gun, 3))
 #define MAX_LOAD(gun)            (GET_OBJ_VAL(gun, 2))
 #define BUL_DAM_MOD(gun)         (GET_OBJ_VAL(gun, 2))
-#define IS_GUN(gun)              (GET_OBJ_TYPE(gun) == ITEM_GUN)
+#define IS_GUN(gun)              (IS_OBJ_TYPE(gun, ITEM_GUN))
 #define IS_ANY_GUN(gun)          (IS_GUN(gun) || IS_ENERGY_GUN(gun))
-#define IS_BULLET(gun)           (GET_OBJ_TYPE(gun) == ITEM_BULLET)
-#define IS_CLIP(gun)             (GET_OBJ_TYPE(gun) == ITEM_CLIP)
+#define IS_BULLET(gun)           (IS_OBJ_TYPE(gun, ITEM_BULLET))
+#define IS_CLIP(gun)             (IS_OBJ_TYPE(gun, ITEM_CLIP))
 
 #define GUN_LOADED(gun)          (gun->contains && \
 				  (MAX_LOAD(gun) || gun->contains->contains))

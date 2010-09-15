@@ -91,7 +91,7 @@ CANNOT_DAMAGE(struct creature *ch, struct creature *vict, struct obj_data *weap,
 			return false;
 
         // energy weapons can hit them
-        if (weap && GET_OBJ_TYPE(weap) == ITEM_ENERGY_GUN)
+        if (weap && IS_OBJ_TYPE(weap, ITEM_ENERGY_GUN))
             return false;
 
 		// nothing else can

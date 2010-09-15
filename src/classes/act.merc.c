@@ -496,7 +496,7 @@ ACMD(do_snipe)
             damage_eq(vict, GET_EQ(vict, damage_loc), dam >> 1, TYPE_HIT);
         }
         if ((armor = GET_EQ(vict, damage_loc))
-            && OBJ_TYPE(armor, ITEM_ARMOR)) {
+            && IS_OBJ_TYPE(armor, ITEM_ARMOR)) {
             if (IS_STONE_TYPE(armor) || IS_METAL_TYPE(armor))
                 dam -= GET_OBJ_VAL(armor, 0) << 4;
             else

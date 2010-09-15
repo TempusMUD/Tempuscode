@@ -244,7 +244,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
         for (obj = vict->carrying; obj; obj = next_obj) {
             next_obj = obj->next_content;
             if (!IS_OBJ_STAT(obj, ITEM_NODROP) && can_see_object(ch, obj)) {
-                if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1))
+                if (IS_OBJ_TYPE(obj, ITEM_KEY) && !GET_OBJ_VAL(obj, 1))
                     extract_obj(obj);
                 else if (IS_NPC(vict))
                     extract_obj(obj);

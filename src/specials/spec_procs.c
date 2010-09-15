@@ -926,7 +926,7 @@ SPECIAL(buzzard)
         return (false);
 
     for (i = ch->in_room->contents; i; i = i->next_content) {
-        if (GET_OBJ_TYPE(i) == ITEM_CONTAINER && GET_OBJ_VAL(i, 3)) {
+        if (IS_OBJ_TYPE(i, ITEM_CONTAINER) && GET_OBJ_VAL(i, 3)) {
             act("$n descends on $p and devours it.", false, ch, i, 0, TO_ROOM);
             for (temp = i->contains; temp; temp = next_obj) {
                 next_obj = temp->next_content;
@@ -995,7 +995,7 @@ SPECIAL(garbage_pile)
         if (GET_OBJ_SIGIL_IDNUM(i))
             continue;
 
-        if (GET_OBJ_TYPE(i) == ITEM_CONTAINER && GET_OBJ_VAL(i, 3)) {
+        if (IS_OBJ_TYPE(i, ITEM_CONTAINER) && GET_OBJ_VAL(i, 3)) {
             act("$n devours $p.", false, ch, i, 0, TO_ROOM);
             for (temp = i->contains; temp; temp = next_obj) {
                 next_obj = temp->next_content;

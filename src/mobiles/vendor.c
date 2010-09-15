@@ -132,7 +132,7 @@ vendor_invalid_buy(struct creature *self, struct creature *ch,
         return true;
     }
     // Adjust cost for missing charges
-    if (GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF) {
+    if (IS_OBJ_TYPE(obj, ITEM_WAND) || IS_OBJ_TYPE(obj, ITEM_STAFF)) {
         if (GET_OBJ_VAL(obj, 2) == 0) {
             perform_say_to(self, ch, "I don't buy used up wands or staves!");
             return true;
@@ -155,7 +155,7 @@ vendor_get_value(struct obj_data *obj, int percent, int costModifier,
         percent = percent * GET_OBJ_DAM(obj) / GET_OBJ_MAX_DAM(obj);
 
     // Adjust cost for missing charges
-    if ((GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF) &&
+    if ((IS_OBJ_TYPE(obj, ITEM_WAND) || IS_OBJ_TYPE(obj, ITEM_STAFF)) &&
         GET_OBJ_VAL(obj, 1) != 0)
         percent = percent * GET_OBJ_VAL(obj, 2) / GET_OBJ_VAL(obj, 1);
 
@@ -591,10 +591,10 @@ vendor_list_obj(struct creature *ch, struct obj_data *obj, int cnt, int idx,
     char *obj_desc;
 
     obj_desc = obj->name;
-    if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON && GET_OBJ_VAL(obj, 1))
+    if (IS_OBJ_TYPE(obj, ITEM_DRINKCON) && GET_OBJ_VAL(obj, 1))
         obj_desc = tmp_strcat(obj_desc, " of ",
             liquid_to_str(GET_OBJ_VAL(obj, 2)), NULL);
-    if ((GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF) &&
+    if ((IS_OBJ_TYPE(obj, ITEM_WAND) || IS_OBJ_TYPE(obj, ITEM_STAFF)) &&
         GET_OBJ_VAL(obj, 2) < GET_OBJ_VAL(obj, 1))
         obj_desc = tmp_strcat(obj_desc, " (partially used)", NULL);
     if (OBJ_REINFORCED(obj))

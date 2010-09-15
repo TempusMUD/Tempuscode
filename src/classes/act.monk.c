@@ -282,7 +282,7 @@ ACMD(do_whirlwind)
         struct obj_data *obj = GET_EQ(ch, i);
         if (obj == NULL)
             continue;
-        if (GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
+        if (IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
             if (IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj) || IS_WOOD_TYPE(obj)) {
                 percent += GET_OBJ_WEIGHT(obj);
             }
@@ -474,7 +474,7 @@ ACMD(do_combo)
         struct obj_data *obj = GET_EQ(ch, i);
         if (obj == NULL)
             continue;
-        if (GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
+        if (IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
             if (IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj) || IS_WOOD_TYPE(obj)) {
                 percent += GET_OBJ_WEIGHT(obj);
             }
@@ -644,7 +644,7 @@ ACMD(do_pinch)
     prob += (GET_AC(vict) / 5);
 
     for (i = 0; i < NUM_WEARS; i++)
-        if ((ovict = GET_EQ(ch, i)) && GET_OBJ_TYPE(ovict) == ITEM_ARMOR &&
+        if ((ovict = GET_EQ(ch, i)) && IS_OBJ_TYPE(ovict, ITEM_ARMOR) &&
             (IS_METAL_TYPE(ovict) || IS_STONE_TYPE(ovict) ||
                 IS_WOOD_TYPE(ovict)))
             percent += GET_OBJ_WEIGHT(ovict);
@@ -980,11 +980,11 @@ ACMD(do_evade)
 
     prob = CHECK_SKILL(ch, SKILL_EVASION);
 
-    if ((obj = GET_EQ(ch, WEAR_BODY)) && GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
+    if ((obj = GET_EQ(ch, WEAR_BODY)) && IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
         prob -= GET_OBJ_WEIGHT(obj) / 2;
         prob -= GET_OBJ_VAL(obj, 0) * 3;
     }
-    if ((obj = GET_EQ(ch, WEAR_LEGS)) && GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
+    if ((obj = GET_EQ(ch, WEAR_LEGS)) && IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
         prob -= GET_OBJ_WEIGHT(obj);
         prob -= GET_OBJ_VAL(obj, 0) * 2;
     }

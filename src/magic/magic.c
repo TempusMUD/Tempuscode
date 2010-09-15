@@ -3831,8 +3831,8 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             oaf[0].duration = 20 + skill_bonus(ch, SPELL_ATTRACTION_FIELD) / 2;
             af.duration = oaf[0].duration;
 
-            if (GET_OBJ_TYPE(obj) == ITEM_WEAPON
-                || GET_OBJ_TYPE(obj) == ITEM_ENERGY_GUN) {
+            if (IS_OBJ_TYPE(obj, ITEM_WEAPON)
+                || IS_OBJ_TYPE(obj, ITEM_ENERGY_GUN)) {
                 int levelBonus = skill_bonus(ch, SPELL_ATTRACTION_FIELD);
                 int hitroll = dice(3, 2);
 
@@ -3895,7 +3895,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         oaf[0].duration = 20 + skill_bonus(ch, SPELL_REPULSION_FIELD) / 2;
         af.duration = oaf[0].duration;
 
-        if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
+        if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
             int levelBonus = skill_bonus(ch, SPELL_REPULSION_FIELD);
             int hitroll = dice(3, 2);
 
@@ -3993,7 +3993,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         }
         break;
     case SPELL_ENVENOM:
-        if (!(GET_OBJ_TYPE(obj) == ITEM_WEAPON)) {
+        if (!(IS_OBJ_TYPE(obj, ITEM_WEAPON))) {
             to_char = "You can only envenom weapons.";
             break;
         }
@@ -4021,7 +4021,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
 
             struct tmp_obj_affect *af;
 
-            if (!(GET_OBJ_TYPE(obj) == ITEM_WEAPON)) {
+            if (!(IS_OBJ_TYPE(obj, ITEM_WEAPON))) {
                 to_char = "You can only brand weapons.";
                 break;
             }
@@ -4228,14 +4228,14 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj, int spellnum)
             SET_BIT(GET_OBJ_EXTRA(obj), ITEM_BLESS);
         else if (IS_EVIL(ch))
             SET_BIT(GET_OBJ_EXTRA(obj), ITEM_DAMNED);
-        if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
+        if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
             obj->affected[0].location = APPLY_HITROLL;
             obj->affected[0].modifier = 1 + (level / 12) +
                 (CHECK_REMORT_CLASS(ch) >= 0) * (level / 18);
             obj->affected[1].location = APPLY_DAMROLL;
             obj->affected[1].modifier = 1 + (level / 18) +
                 (CHECK_REMORT_CLASS(ch) >= 0) * (level / 24);
-        } else if (GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
+        } else if (IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
             obj->affected[0].location = APPLY_AC;
             obj->affected[0].modifier = -(1 + (level / 12) +
                 (CHECK_REMORT_CLASS(ch) >= 0) * (level / 28));
@@ -4255,8 +4255,8 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj, int spellnum)
         }
         break;
     case SPELL_POISON:
-        if (GET_OBJ_TYPE(obj) == ITEM_FOOD
-            || GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
+        if (IS_OBJ_TYPE(obj, ITEM_FOOD)
+            || IS_OBJ_TYPE(obj, ITEM_DRINKCON)) {
             GET_OBJ_VAL(obj, 3) =
                 1 + (level > number(10, 40)) + (level > number(40, 60));
             act("$p is now poisoned.", false, ch, obj, 0, TO_CHAR);

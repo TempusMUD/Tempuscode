@@ -720,12 +720,10 @@ STRENGTH_APPLY_INDEX(struct creature *ch)
                           (GET_OBJ_VAL(obj, 3) + TYPE_HIT == TYPE_STAB || \
                            GET_OBJ_VAL(obj, 3) + TYPE_HIT == TYPE_PIERCE))
 
-#define IS_CORPSE(obj)  (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && \
+#define IS_CORPSE(obj)  (IS_OBJ_TYPE(obj, ITEM_CONTAINER) && \
                          GET_OBJ_VAL(obj, 3))
 
 #define IS_BODY_PART(obj)  (IS_OBJ_STAT2(obj, ITEM2_BODY_PART))
-
-#define OBJ_TYPE(obj, type) (GET_OBJ_TYPE(obj) == type)
 
 #define OBJ_APPROVED(obj) (!IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED))
 #define P_OBJ_APPROVED(p_obj) (!IS_SET(p_obj->obj_flags.extra2_flags, \

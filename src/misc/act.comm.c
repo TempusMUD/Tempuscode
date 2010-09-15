@@ -484,7 +484,7 @@ ACMD(do_write)
                 papername);
             return;
         }
-        if (GET_OBJ_TYPE(paper) == ITEM_PEN) {  /* oops, a pen.. */
+        if (IS_OBJ_TYPE(paper, ITEM_PEN)) {  /* oops, a pen.. */
             pen = paper;
             paper = 0;
         } else if (GET_OBJ_TYPE(paper) != ITEM_NOTE) {

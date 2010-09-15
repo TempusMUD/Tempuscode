@@ -1830,7 +1830,7 @@ send_to_room(const char *messg, struct room_data *room)
 
     /* see if there is a podium in the room */
     for (o = room->contents; o; o = o->next_content)
-        if (GET_OBJ_TYPE(o) == ITEM_PODIUM)
+        if (IS_OBJ_TYPE(o, ITEM_PODIUM))
             break;
 
     if (o) {
@@ -1849,7 +1849,7 @@ send_to_room(const char *messg, struct room_data *room)
     }
 
     for (o = room->contents; o; o = o->next_content) {
-        if (GET_OBJ_TYPE(o) == ITEM_CAMERA && o->in_room) {
+        if (IS_OBJ_TYPE(o, ITEM_CAMERA) && o->in_room) {
             to_room = real_room(GET_OBJ_VAL(o, 0));
             if (to_room) {
                 send_to_room(tmp_sprintf("(%s) %s", o->in_room->name, messg),
@@ -2264,7 +2264,7 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
 
     /* see if there is a podium in the room */
     for (o = room->contents; o; o = o->next_content)
-        if (GET_OBJ_TYPE(o) == ITEM_PODIUM)
+        if (IS_OBJ_TYPE(o, ITEM_PODIUM))
             break;
 
     if (o) {
@@ -2290,7 +2290,7 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
     }
 
     for (o = room->contents; o; o = o->next_content) {
-        if (GET_OBJ_TYPE(o) == ITEM_CAMERA && o->in_room) {
+        if (IS_OBJ_TYPE(o, ITEM_CAMERA) && o->in_room) {
             room = real_room(GET_OBJ_VAL(o, 0));
             if (room) {
                 for (GList * it = room->people; it; it = it->next) {

@@ -19,7 +19,7 @@ SPECIAL(newbie_gold_coupler)
     for (i = 2351; i < 2379; i++) {
         if ((real_room(i)) != NULL && (real_room(i))->contents) {
             for (o = (real_room(i))->contents; o; o = o) {
-                if (GET_OBJ_TYPE(o) == ITEM_MONEY && GET_OBJ_VAL(o, 0) &&
+                if (IS_OBJ_TYPE(o, ITEM_MONEY) && GET_OBJ_VAL(o, 0) &&
                     GET_OBJ_VAL(o, 0) < 80) {
                     count += GET_OBJ_VAL(o, 0);
                     tmp_o = o;

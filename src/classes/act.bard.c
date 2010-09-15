@@ -200,7 +200,7 @@ check_instrument(struct creature * ch, int songnum)
         return true;
 
     while (objs[x] != NULL) {
-        if (GET_OBJ_TYPE(objs[x]) == ITEM_INSTRUMENT &&
+        if (IS_OBJ_TYPE(objs[x], ITEM_INSTRUMENT) &&
             GET_OBJ_VAL(objs[x], 0) == req_type)
             found = true;
         x++;

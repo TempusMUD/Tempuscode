@@ -138,7 +138,7 @@ ACMD(do_hamstring)
         percent += 3 * (GET_DEX(vict) - GET_DEX(ch));
     }
     // If they're wearing anything usefull on thier legs make it harder to hurt em.
-    if ((ovict = GET_EQ(vict, WEAR_LEGS)) && OBJ_TYPE(ovict, ITEM_ARMOR)) {
+    if ((ovict = GET_EQ(vict, WEAR_LEGS)) && IS_OBJ_TYPE(ovict, ITEM_ARMOR)) {
         if (IS_STONE_TYPE(ovict) || IS_METAL_TYPE(ovict))
             percent += GET_OBJ_VAL(ovict, 0) * 3;
         else

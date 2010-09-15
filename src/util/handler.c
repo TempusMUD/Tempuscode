@@ -201,8 +201,8 @@ apply_object_affects(struct creature *ch, struct obj_data *obj, bool add)
 
     if (obj == ch->equipment[obj->worn_on]) {
         if (obj->worn_on == WEAR_BELT
-            && (GET_OBJ_TYPE(obj) == ITEM_WEAPON ||
-                GET_OBJ_TYPE(obj) == ITEM_PIPE))
+            && (IS_OBJ_TYPE(obj, ITEM_WEAPON) ||
+                IS_OBJ_TYPE(obj, ITEM_PIPE)))
             return;
     } else {
         // We only check for this when implanted or tattooed because
@@ -972,7 +972,7 @@ char_from_room(struct creature *ch, bool check_specials)
     if (GET_RACE(ch) == RACE_ELEMENTAL && IS_CLASS(ch, CLASS_FIRE))
         ch->in_room->light--;
     if (ch->equipment[WEAR_LIGHT] != NULL)
-        if (GET_OBJ_TYPE(ch->equipment[WEAR_LIGHT]) == ITEM_LIGHT)
+        if (IS_OBJ_TYPE(ch->equipment[WEAR_LIGHT], ITEM_LIGHT))
             if (GET_OBJ_VAL(ch->equipment[WEAR_LIGHT], 2))  /* Light is ON */
                 ch->in_room->light--;
     if (AFF_FLAGGED(ch, AFF_GLOWLIGHT) || AFF2_FLAGGED(ch, AFF2_FLUORESCENT)
@@ -1186,8 +1186,8 @@ obj_from_char(struct obj_data *object)
     IS_CARRYING_W(object->carried_by) -= GET_OBJ_WEIGHT(object);
     IS_CARRYING_N(object->carried_by)--;
     if (object->aux_obj) {
-        if (GET_OBJ_TYPE(object) == ITEM_SCUBA_MASK ||
-            GET_OBJ_TYPE(object) == ITEM_SCUBA_TANK) {
+        if (IS_OBJ_TYPE(object, ITEM_SCUBA_MASK) ||
+            IS_OBJ_TYPE(object, ITEM_SCUBA_TANK)) {
             object->aux_obj->aux_obj = NULL;
             object->aux_obj = NULL;
         }
@@ -1292,13 +1292,13 @@ equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
             return 0;
         }
         GET_EQ(ch, pos) = obj;
-        if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
+        if (IS_OBJ_TYPE(obj, ITEM_ARMOR))
             GET_AC(ch) -= apply_ac(ch, pos);
 
         IS_WEARING_W(ch) += GET_OBJ_WEIGHT(obj);
 
         if (ch->in_room != NULL) {
-            if (pos == WEAR_LIGHT && GET_OBJ_TYPE(obj) == ITEM_LIGHT)
+            if (pos == WEAR_LIGHT && IS_OBJ_TYPE(obj, ITEM_LIGHT))
                 if (GET_OBJ_VAL(obj, 2))    /* if light is ON */
                     ch->in_room->light++;
         }
@@ -1367,13 +1367,13 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
         }
         obj = GET_EQ(ch, pos);
 
-        if (GET_OBJ_TYPE(obj) == ITEM_ARMOR)
+        if (IS_OBJ_TYPE(obj, ITEM_ARMOR))
             GET_AC(ch) += apply_ac(ch, pos);
 
         IS_WEARING_W(ch) -= GET_OBJ_WEIGHT(obj);
 
         if (ch->in_room != NULL) {
-            if (pos == WEAR_LIGHT && GET_OBJ_TYPE(obj) == ITEM_LIGHT)
+            if (pos == WEAR_LIGHT && IS_OBJ_TYPE(obj, ITEM_LIGHT))
                 if (GET_OBJ_VAL(obj, 2))    /* if light is ON */
                     ch->in_room->light--;
         }

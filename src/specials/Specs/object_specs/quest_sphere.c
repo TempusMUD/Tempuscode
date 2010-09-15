@@ -196,9 +196,9 @@ SPECIAL(quest_sphere)
             send_to_char(ch, "You can't enchant that!\r\n");
             return true;
         }
-        if (GET_OBJ_TYPE(targ_obj) == ITEM_WEAPON)
+        if (IS_OBJ_TYPE(targ_obj, ITEM_WEAPON))
             quest_weapon_enchant(ch, targ_obj, enchant_lvl);
-        else if (GET_OBJ_TYPE(targ_obj) == ITEM_ARMOR)
+        else if (IS_OBJ_TYPE(targ_obj, ITEM_ARMOR))
             quest_armor_enchant(ch, targ_obj, enchant_lvl);
         else {
             mudlog(LVL_IMMORT, CMP, true, "Can't happen at %s:%d",

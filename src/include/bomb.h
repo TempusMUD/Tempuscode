@@ -54,9 +54,9 @@ struct obj_data *detonate_bomb(struct obj_data *bomb);
 #define FUSE_IS_CONTACT(obj)      (FUSE_TYPE(obj) == FUSE_CONTACT)
 #define FUSE_IS_MOTION(obj)       (FUSE_TYPE(obj) == FUSE_MOTION)
 
-#define IS_BOMB(obj)              (GET_OBJ_TYPE(obj) == ITEM_BOMB)
-#define IS_DETONATOR(obj)         (GET_OBJ_TYPE(obj) == ITEM_DETONATOR)
-#define IS_FUSE(obj)              (GET_OBJ_TYPE(obj) == ITEM_FUSE)
+#define IS_BOMB(obj)              (IS_OBJ_TYPE(obj, ITEM_BOMB))
+#define IS_DETONATOR(obj)         (IS_OBJ_TYPE(obj, ITEM_DETONATOR))
+#define IS_FUSE(obj)              (IS_OBJ_TYPE(obj, ITEM_FUSE))
 
 #ifndef __bomb_c__
 

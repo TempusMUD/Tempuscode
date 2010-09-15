@@ -622,15 +622,15 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
     struct obj_data *inobj = NULL, *next_obj = NULL;
 
     /* test to see if item should take damage */
-    if ((GET_OBJ_TYPE(obj) == ITEM_MONEY) || GET_OBJ_DAM(obj) < 0 ||
+    if ((IS_OBJ_TYPE(obj, ITEM_MONEY)) || GET_OBJ_DAM(obj) < 0 ||
         GET_OBJ_MAX_DAM(obj) < 0 ||
         (ch && GET_LEVEL(ch) < LVL_IMMORT && !CAN_WEAR(obj, ITEM_WEAR_TAKE)) ||
         (ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) ||
         (obj->in_room && ROOM_FLAGGED(obj->in_room, ROOM_ARENA)) ||
         (obj->worn_by && GET_QUEST(obj->worn_by) &&
             QUEST_FLAGGED(quest_by_vnum(GET_QUEST(obj->worn_by)), QUEST_ARENA))
-        || (GET_OBJ_TYPE(obj) == ITEM_KEY)
-        || (GET_OBJ_TYPE(obj) == ITEM_SCRIPT)
+        || (IS_OBJ_TYPE(obj, ITEM_KEY))
+        || (IS_OBJ_TYPE(obj, ITEM_SCRIPT))
         || obj->in_room == zone_table->world)
         return NULL;
 
@@ -1087,12 +1087,12 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
         if (obj || impl) {
 
-            if (obj && OBJ_TYPE(obj, ITEM_ARMOR)) {
+            if (obj && IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
                 eq_dam = (GET_OBJ_VAL(obj, 0) * dam) / 100;
                 if (location == WEAR_SHIELD)
                     eq_dam *= 2;
             }
-            if (impl && OBJ_TYPE(impl, ITEM_ARMOR))
+            if (impl && IS_OBJ_TYPE(impl, ITEM_ARMOR))
                 impl_dam = (GET_OBJ_VAL(impl, 0) * dam) / 100;
 
             weap_dam = eq_dam + impl_dam;
@@ -1100,7 +1100,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
             if (obj && !eq_dam)
                 eq_dam = (dam / 16);
 
-            if ((!obj || !OBJ_TYPE(obj, ITEM_ARMOR)) && impl && !impl_dam)
+            if ((!obj || !IS_OBJ_TYPE(obj, ITEM_ARMOR)) && impl && !impl_dam)
                 impl_dam = (dam / 32);
 
             /* here are the damage absorbing characteristics */
@@ -2550,7 +2550,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 
     for (i = 0, metal_wt = 0; i < NUM_WEARS; i++)
         if (ch->equipment[i] &&
-            GET_OBJ_TYPE(ch->equipment[i]) == ITEM_ARMOR &&
+            IS_OBJ_TYPE(ch->equipment[i], ITEM_ARMOR) &&
             (IS_METAL_TYPE(ch->equipment[i]) ||
                 IS_STONE_TYPE(ch->equipment[i])))
             metal_wt += GET_OBJ_WEIGHT(ch->equipment[i]);

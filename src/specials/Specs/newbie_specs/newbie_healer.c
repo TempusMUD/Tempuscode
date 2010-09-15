@@ -42,7 +42,7 @@ SPECIAL(newbie_healer)
     }
     for (p = ch->carrying; p; p = p->next_content) {
         act("$p.", false, ch, p, 0, TO_CHAR);
-        if (GET_OBJ_TYPE(p) == ITEM_WORN)
+        if (IS_OBJ_TYPE(p, ITEM_WORN))
             cast_spell(ch, 0, p, NULL, SPELL_MAGICAL_VESTMENT, NULL);
         else
             send_to_char(ch, "No WEAR.\r\n");

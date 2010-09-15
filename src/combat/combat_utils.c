@@ -1456,7 +1456,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
     if (!IS_IMMORT(ch)) {
         for (o = corpse->contains; o; o = next_o) {
             next_o = o->next_content;
-            if (OBJ_TYPE(o, ITEM_SCRIPT))
+            if (IS_OBJ_TYPE(o, ITEM_SCRIPT))
                 extract_obj(o);
         }
     }
@@ -1502,7 +1502,7 @@ calculate_attack_probability(struct creature *ch)
     prob = 1 + (GET_LEVEL(ch) / 7) + (GET_DEX(ch) << 1);
 
     if (IS_RANGER(ch) && (!GET_EQ(ch, WEAR_BODY) ||
-            !OBJ_TYPE(GET_EQ(ch, WEAR_BODY), ITEM_ARMOR) ||
+            !IS_OBJ_TYPE(GET_EQ(ch, WEAR_BODY), ITEM_ARMOR) ||
             !IS_METAL_TYPE(GET_EQ(ch, WEAR_BODY))))
         prob -= (GET_LEVEL(ch) >> 2);
 

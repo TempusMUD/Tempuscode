@@ -121,27 +121,27 @@ ACMD(do_stand);
 void
 show_obj_extra(struct obj_data *object, struct creature *ch)
 {
-    if (GET_OBJ_TYPE(object) == ITEM_NOTE) {
+    if (IS_OBJ_TYPE(object, ITEM_NOTE)) {
         if (object->action_desc)
             acc_strcat(object->action_desc, NULL);
         else
             act("It's blank.", false, ch, 0, 0, TO_CHAR);
         return;
-    } else if (GET_OBJ_TYPE(object) == ITEM_DRINKCON)
+    } else if (IS_OBJ_TYPE(object, ITEM_DRINKCON))
         acc_strcat("It looks like a drink container.", NULL);
-    else if (GET_OBJ_TYPE(object) == ITEM_FOUNTAIN)
+    else if (IS_OBJ_TYPE(object, ITEM_FOUNTAIN))
         acc_strcat("It looks like a source of drink.", NULL);
-    else if (GET_OBJ_TYPE(object) == ITEM_FOOD)
+    else if (IS_OBJ_TYPE(object, ITEM_FOOD))
         acc_strcat("It looks edible.", NULL);
-    else if (GET_OBJ_TYPE(object) == ITEM_HOLY_SYMB)
+    else if (IS_OBJ_TYPE(object, ITEM_HOLY_SYMB))
         acc_strcat("It looks like the symbol of some deity.", NULL);
-    else if (GET_OBJ_TYPE(object) == ITEM_CIGARETTE ||
-        GET_OBJ_TYPE(object) == ITEM_PIPE) {
+    else if (IS_OBJ_TYPE(object, ITEM_CIGARETTE) ||
+        IS_OBJ_TYPE(object, ITEM_PIPE)) {
         if (GET_OBJ_VAL(object, 3))
             acc_strcat("It appears to be lit and smoking.", NULL);
         else
             acc_strcat("It appears to be unlit.", NULL);
-    } else if (GET_OBJ_TYPE(object) == ITEM_CONTAINER) {
+    } else if (IS_OBJ_TYPE(object, ITEM_CONTAINER)) {
         if (GET_OBJ_VAL(object, 3)) {
             acc_strcat("It looks like a corpse.\r\n", NULL);
         } else {
@@ -157,7 +157,7 @@ show_obj_extra(struct obj_data *object, struct creature *ch)
                     acc_strcat("It appears to be empty.\r\n", NULL);
             }
         }
-    } else if (GET_OBJ_TYPE(object) == ITEM_SYRINGE) {
+    } else if (IS_OBJ_TYPE(object, ITEM_SYRINGE)) {
         if (GET_OBJ_VAL(object, 0)) {
             acc_strcat("It is full.", NULL);
         } else {
@@ -193,8 +193,8 @@ show_obj_bits(struct obj_data *object, struct creature *ch)
     if (IS_OBJ_TYPE(object, ITEM_DEVICE) && ENGINE_STATE(object))
         acc_strcat(" (active)", NULL);
 
-    if (((GET_OBJ_TYPE(object) == ITEM_CIGARETTE ||
-                GET_OBJ_TYPE(object) == ITEM_PIPE) &&
+    if (((IS_OBJ_TYPE(object, ITEM_CIGARETTE) ||
+                IS_OBJ_TYPE(object, ITEM_PIPE)) &&
             GET_OBJ_VAL(object, 3)) ||
         (IS_BOMB(object) && object->contains && IS_FUSE(object->contains)
             && FUSE_STATE(object->contains)))
@@ -312,7 +312,7 @@ show_obj_to_char(struct obj_data *object, struct creature *ch,
         acc_sprintf(" [%d]", count);
     acc_strcat("\r\n", NULL);
 
-    if (GET_OBJ_TYPE(object) == ITEM_VEHICLE && mode == SHOW_OBJ_BITS) {
+    if (IS_OBJ_TYPE(object, ITEM_VEHICLE) && mode == SHOW_OBJ_BITS) {
         if (CAR_OPENABLE(object)) {
             if (CAR_CLOSED(object))
                 act("The door of $p is closed.", true, ch, object, 0, TO_CHAR);
@@ -1630,7 +1630,7 @@ look_in_obj(struct creature *ch, char *arg)
         (GET_OBJ_TYPE(obj) != ITEM_VEHICLE))
         acc_sprintf("There's nothing inside that!\r\n");
     else {
-        if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER) {
+        if (IS_OBJ_TYPE(obj, ITEM_CONTAINER)) {
             if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED) &&
                 !GET_OBJ_VAL(obj, 3) && GET_LEVEL(ch) < LVL_GOD)
                 acc_sprintf("It is closed.\r\n");
@@ -1651,7 +1651,7 @@ look_in_obj(struct creature *ch, char *arg)
 
                 list_obj_to_char(obj->contains, ch, SHOW_OBJ_CONTENT, true);
             }
-        } else if (GET_OBJ_TYPE(obj) == ITEM_VEHICLE) {
+        } else if (IS_OBJ_TYPE(obj, ITEM_VEHICLE)) {
             if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED))
                 act("The door of $p is closed, and you can't see in.",
                     false, ch, obj, 0, TO_CHAR);
@@ -1665,7 +1665,7 @@ look_in_obj(struct creature *ch, char *arg)
                 char_from_room(ch, false);
                 char_to_room(ch, room_was_in, false);
             }
-        } else if (GET_OBJ_TYPE(obj) == ITEM_PIPE) {
+        } else if (IS_OBJ_TYPE(obj, ITEM_PIPE)) {
             if (GET_OBJ_VAL(obj, 0))
                 acc_sprintf("There appears to be some tobacco in it.\r\n");
             else
@@ -2165,11 +2165,11 @@ ACMD(do_examine)
             send_to_char(ch, "It seems to have about %d drags left on it.\r\n",
                 GET_OBJ_VAL(tmp_object, 0));
         }
-        if ((GET_OBJ_TYPE(tmp_object) == ITEM_DRINKCON) ||
-            (GET_OBJ_TYPE(tmp_object) == ITEM_FOUNTAIN) ||
-            (GET_OBJ_TYPE(tmp_object) == ITEM_PIPE) ||
-            (GET_OBJ_TYPE(tmp_object) == ITEM_VEHICLE) ||
-            (GET_OBJ_TYPE(tmp_object) == ITEM_CONTAINER)) {
+        if ((IS_OBJ_TYPE(tmp_object, ITEM_DRINKCON)) ||
+            (IS_OBJ_TYPE(tmp_object, ITEM_FOUNTAIN)) ||
+            (IS_OBJ_TYPE(tmp_object, ITEM_PIPE)) ||
+            (IS_OBJ_TYPE(tmp_object, ITEM_VEHICLE)) ||
+            (IS_OBJ_TYPE(tmp_object, ITEM_CONTAINER))) {
             look_in_obj(ch, arg);
         }
     }

@@ -1396,11 +1396,11 @@ ASPELL(spell_enchant_weapon)
     if (ch == NULL || obj == NULL)
         return;
 
-    if (((GET_OBJ_TYPE(obj) == ITEM_WEAPON) &&
-            !IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC) &&
-            !IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC_NODISPEL) &&
-            !IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS) &&
-            !IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)) ||
+    if (((IS_OBJ_TYPE(obj, ITEM_WEAPON)) &&
+            !IS_OBJ_STAT(obj, ITEM_MAGIC) &&
+            !IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) &&
+            !IS_OBJ_STAT(obj, ITEM_BLESS) &&
+            !IS_OBJ_STAT(obj, ITEM_DAMNED)) ||
         GET_LEVEL(ch) > LVL_CREATOR) {
 
         for (i = MAX_OBJ_AFFECT - 1; i >= 0; i--) {
@@ -1456,11 +1456,11 @@ ASPELL(spell_enchant_armor)
     if (ch == NULL || obj == NULL)
         return;
 
-    if (((GET_OBJ_TYPE(obj) == ITEM_ARMOR) &&
-            !IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC) &&
-            !IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC_NODISPEL) &&
-            !IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS) &&
-            !IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)) ||
+    if (((IS_OBJ_TYPE(obj, ITEM_ARMOR)) &&
+            !IS_OBJ_STAT(obj, ITEM_MAGIC) &&
+            !IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) &&
+            !IS_OBJ_STAT(obj, ITEM_BLESS) &&
+            !IS_OBJ_STAT(obj, ITEM_DAMNED)) ||
         GET_LEVEL(ch) > LVL_GRGOD) {
 
         for (i = 0; i < MAX_OBJ_AFFECT; i++) {
@@ -1525,11 +1525,11 @@ ASPELL(spell_greater_enchant)
         return;
     }
 
-    if (GET_OBJ_TYPE(obj) == ITEM_WEAPON &&
-        ((!IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC) &&
-                !IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC_NODISPEL) &&
-                !IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS) &&
-                !IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)) ||
+    if (IS_OBJ_TYPE(obj, ITEM_WEAPON) &&
+        ((!IS_OBJ_STAT(obj, ITEM_MAGIC) &&
+                !IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) &&
+                !IS_OBJ_STAT(obj, ITEM_BLESS) &&
+                !IS_OBJ_STAT(obj, ITEM_DAMNED)) ||
             GET_LEVEL(ch) > LVL_GRGOD)) {
 
         for (i = MAX_OBJ_AFFECT - 1; i >= 0; i--) {
@@ -1560,8 +1560,8 @@ ASPELL(spell_greater_enchant)
 
         act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
     }
-    if ((GET_OBJ_TYPE(obj) == ITEM_ARMOR) &&
-        (!IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC)
+    if ((IS_OBJ_TYPE(obj, ITEM_ARMOR)) &&
+        (!IS_OBJ_STAT(obj, ITEM_MAGIC)
             || GET_LEVEL(ch) > LVL_CREATOR)) {
 
         for (i = 0; i < MAX_OBJ_AFFECT - 1; i++) {
@@ -1641,7 +1641,7 @@ ASPELL(spell_magical_vestment)
         return;
     }
 
-    if (GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
+    if (IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
         if (GET_OBJ_VAL(obj, 0) > (GET_LEVEL(ch) / 10 + 2)) {
             act("$p is not a suitable vestment because it is already a formidable armor.", false, ch, obj, 0, TO_CHAR);
             return;
@@ -2089,7 +2089,7 @@ ASPELL(spell_retrieve_corpse)
     }
 
     for (corpse = object_list; corpse; corpse = corpse->next)
-        if (GET_OBJ_TYPE(corpse) == ITEM_CONTAINER && GET_OBJ_VAL(corpse, 3) &&
+        if (IS_OBJ_TYPE(corpse, ITEM_CONTAINER) && GET_OBJ_VAL(corpse, 3) &&
             CORPSE_IDNUM(corpse) == GET_IDNUM(victim)) {
             if (corpse->in_room)
                 obj_from_room(corpse);
@@ -3355,13 +3355,13 @@ ASPELL(spell_bless)
     }
 
     if (obj) {
-        if (IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)) {
+        if (IS_OBJ_STAT(obj, ITEM_DAMNED)) {
             destroy_object(ch, obj, SPELL_DAMN);
             return;
         }
 
-        if (IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS)
-            || IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC)) {
+        if (IS_OBJ_STAT(obj, ITEM_BLESS)
+            || IS_OBJ_STAT(obj, ITEM_MAGIC)) {
             send_to_char(ch, "%s", NOEFFECT);
             return;
         }
@@ -3375,7 +3375,7 @@ ASPELL(spell_bless)
             }
         }
 
-        if (GET_OBJ_TYPE(obj) == ITEM_FOOD) {
+        if (IS_OBJ_TYPE(obj, ITEM_FOOD)) {
             GET_OBJ_VAL(obj, 1) = GET_LEVEL(ch) / 2;
             GET_OBJ_VAL(obj, 2) = SPELL_ESSENCE_OF_GOOD;
         }
@@ -3454,13 +3454,13 @@ ASPELL(spell_damn)
     }
 
     if (obj) {
-        if (IS_SET(GET_OBJ_EXTRA(obj), ITEM_BLESS)) {
+        if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
             destroy_object(ch, obj, SPELL_DAMN);
             return;
         }
 
-        if (IS_SET(GET_OBJ_EXTRA(obj), ITEM_DAMNED)
-            || IS_SET(GET_OBJ_EXTRA(obj), ITEM_MAGIC)) {
+        if (IS_OBJ_STAT(obj, ITEM_DAMNED)
+            || IS_OBJ_STAT(obj, ITEM_MAGIC)) {
             send_to_char(ch, "%s", NOEFFECT);
             return;
         }
@@ -3478,7 +3478,7 @@ ASPELL(spell_damn)
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_DAMNED);
         act("$p glows red.", false, ch, obj, 0, TO_CHAR);
 
-        if (GET_OBJ_TYPE(obj) == ITEM_FOOD) {
+        if (IS_OBJ_TYPE(obj, ITEM_FOOD)) {
             GET_OBJ_VAL(obj, 1) = GET_LEVEL(ch) / 2;
             GET_OBJ_VAL(obj, 2) = SPELL_ESSENCE_OF_EVIL;
         }

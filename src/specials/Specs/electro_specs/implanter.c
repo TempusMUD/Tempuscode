@@ -222,7 +222,7 @@ implanter_extract(struct creature *me, struct creature *ch, char *args)
         return;
     }
 
-    if (obj && !IS_CORPSE(obj) && !OBJ_TYPE(obj, ITEM_DRINKCON) &&
+    if (obj && !IS_CORPSE(obj) && !IS_OBJ_TYPE(obj, ITEM_DRINKCON) &&
         !IS_BODY_PART(obj) && !isname("head", obj->aliases)) {
         msg = tmp_sprintf("I cannot extract anything from %s.", obj->name);
         perform_tell(me, ch, msg);

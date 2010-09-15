@@ -62,14 +62,14 @@ int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
 
 #define DOOR_IS_OPENABLE(ch, obj, door)        \
 ((obj) ? \
- (((GET_OBJ_TYPE(obj) == ITEM_CONTAINER && \
+ (((IS_OBJ_TYPE(obj, ITEM_CONTAINER) && \
     !GET_OBJ_VAL(obj, 3)) ||               \
    (IS_OBJ_TYPE(obj, ITEM_V_WINDOW)   &&    \
     CAR_OPENABLE(obj))          ||    \
-   GET_OBJ_TYPE(obj) == ITEM_VEHICLE ||    \
-   GET_OBJ_TYPE(obj) == ITEM_PORTAL ||     \
-   GET_OBJ_TYPE(obj) == ITEM_SCUBA_MASK || \
-   GET_OBJ_TYPE(obj) == ITEM_WINDOW) &&    \
+   IS_OBJ_TYPE(obj, ITEM_VEHICLE) ||    \
+   IS_OBJ_TYPE(obj, ITEM_PORTAL) ||     \
+   IS_OBJ_TYPE(obj, ITEM_SCUBA_MASK) || \
+   IS_OBJ_TYPE(obj, ITEM_WINDOW)) &&    \
   (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSEABLE))) :\
  (IS_SET(EXIT(ch, door)->exit_info, EX_ISDOOR)))
 
@@ -120,11 +120,11 @@ can_travel_sector(struct creature *ch, int sector_type, bool active)
                     && GET_CLASS(ch) == CLASS_WATER))
                 return true;
             for (obj = ch->carrying; obj; obj = obj->next_content)
-                if (GET_OBJ_TYPE(obj) == ITEM_BOAT)
+                if (IS_OBJ_TYPE(obj, ITEM_BOAT))
                     return true;
             for (i = 0; i < NUM_WEARS; i++) {
                 if (ch->equipment[i] &&
-                    GET_OBJ_TYPE(ch->equipment[i]) == ITEM_BOAT)
+                    IS_OBJ_TYPE(ch->equipment[i], ITEM_BOAT))
                     return true;
             }
         }
@@ -137,9 +137,9 @@ can_travel_sector(struct creature *ch, int sector_type, bool active)
             return true;
 
         if ((obj = ch->equipment[WEAR_FACE]) &&
-            GET_OBJ_TYPE(obj) == ITEM_SCUBA_MASK &&
+            IS_OBJ_TYPE(obj, ITEM_SCUBA_MASK) &&
             !CAR_CLOSED(obj) &&
-            obj->aux_obj && GET_OBJ_TYPE(obj->aux_obj) == ITEM_SCUBA_TANK &&
+            obj->aux_obj && IS_OBJ_TYPE(obj->aux_obj, ITEM_SCUBA_TANK) &&
             (GET_OBJ_VAL(obj->aux_obj, 1) > 0 ||
                 GET_OBJ_VAL(obj->aux_obj, 0) < 0)) {
             if (active && GET_OBJ_VAL(obj->aux_obj, 0) > 0) {
@@ -175,7 +175,7 @@ can_travel_sector(struct creature *ch, int sector_type, bool active)
             return true;
         for (i = 0; i < NUM_WEARS; i++) {
             if (ch->equipment[i]) {
-                if (GET_OBJ_TYPE(ch->equipment[i]) == ITEM_WINGS)
+                if (IS_OBJ_TYPE(ch->equipment[i], ITEM_WINGS))
                     return true;
             }
         }
@@ -520,7 +520,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
             has_boat = true;
         else {
             for (obj = ch->carrying; obj; obj = obj->next_content)
-                if (GET_OBJ_TYPE(obj) == ITEM_BOAT) {
+                if (IS_OBJ_TYPE(obj, ITEM_BOAT)) {
                     has_boat = true;
                     break;
                 }
@@ -1547,7 +1547,7 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
         OPEN_DOOR(ch->in_room, obj, door);
         if (back)
             OPEN_DOOR(other_room, obj, (int)rev_dir[door]);
-        if (obj && GET_OBJ_TYPE(obj) == ITEM_SCUBA_MASK)
+        if (obj && IS_OBJ_TYPE(obj, ITEM_SCUBA_MASK))
             act("You open the air valve on $p.", false, ch, obj, 0, TO_CHAR);
         else
             send_to_char(ch, "Okay, opened.\r\n");
@@ -1564,7 +1564,7 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
         OPEN_DOOR(ch->in_room, obj, door);
         if (back)
             OPEN_DOOR(other_room, obj, rev_dir[door]);
-        if (obj && GET_OBJ_TYPE(obj) == ITEM_SCUBA_MASK)
+        if (obj && IS_OBJ_TYPE(obj, ITEM_SCUBA_MASK))
             act("You close the air valve on $p.", false, ch, obj, 0, TO_CHAR);
         else
             send_to_char(ch, "Okay, closed.\r\n");
@@ -1835,7 +1835,7 @@ ACMD(do_enter)
             }
     // We must be entering an object
     car = get_obj_in_list_vis(ch, arg, ch->in_room->contents);
-    if (car && GET_OBJ_TYPE(car) == ITEM_VEHICLE) {
+    if (car && IS_OBJ_TYPE(car, ITEM_VEHICLE)) {
         if (CAR_CLOSED(car)) {
             act("The door of $p seems to be closed now.", false, ch,
                 car, 0, TO_CHAR);
@@ -2003,7 +2003,7 @@ ACMD(do_stand)
     if (AFF_FLAGGED(ch, AFF_WATERWALK))
         can_land = true;
     for (obj = ch->carrying; obj && !can_land; obj = obj->next_content) {
-        if (GET_OBJ_TYPE(obj) == ITEM_BOAT)
+        if (IS_OBJ_TYPE(obj, ITEM_BOAT))
             can_land = true;
     }
 
@@ -2134,7 +2134,7 @@ creature_can_fly(struct creature *ch)
 
     for (i = 0; i < NUM_WEARS; i++) {
         if (ch->equipment[i]) {
-            if (GET_OBJ_TYPE(ch->equipment[i]) == ITEM_WINGS)
+            if (IS_OBJ_TYPE(ch->equipment[i], ITEM_WINGS))
                 return true;
         }
     }

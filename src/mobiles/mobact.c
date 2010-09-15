@@ -1567,9 +1567,9 @@ single_mobile_activity(struct creature *ch)
 
     // Deplete scuba tanks
     if ((obj = ch->equipment[WEAR_FACE]) &&
-        GET_OBJ_TYPE(obj) == ITEM_SCUBA_MASK &&
+        IS_OBJ_TYPE(obj, ITEM_SCUBA_MASK) &&
         !CAR_CLOSED(obj) &&
-        obj->aux_obj && GET_OBJ_TYPE(obj->aux_obj) == ITEM_SCUBA_TANK &&
+        obj->aux_obj && IS_OBJ_TYPE(obj->aux_obj, ITEM_SCUBA_TANK) &&
         (GET_OBJ_VAL(obj->aux_obj, 1) > 0 ||
             GET_OBJ_VAL(obj->aux_obj, 0) < 0)) {
         if (GET_OBJ_VAL(obj->aux_obj, 0) > 0) {
@@ -1800,10 +1800,10 @@ single_mobile_activity(struct creature *ch)
         GET_RACE(ch) != RACE_GOLEM && GET_RACE(ch) != RACE_ELEMENTAL) {
         if (ch->in_room->contents && random_fractional_100()) {
             for (obj = ch->in_room->contents; obj; obj = obj->next_content)
-                if (GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN &&
+                if (IS_OBJ_TYPE(obj, ITEM_FOUNTAIN) &&
                     GET_OBJ_VAL(obj, 1) > 0)
                     break;
-            if (obj && GET_OBJ_TYPE(obj) == ITEM_FOUNTAIN &&
+            if (obj && IS_OBJ_TYPE(obj, ITEM_FOUNTAIN) &&
                 GET_OBJ_VAL(obj, 1) > 0) {
                 act("$n drinks from $p.", true, ch, obj, 0, TO_ROOM);
                 act("You drink from $p.", false, ch, obj, 0, TO_CHAR);
@@ -1817,12 +1817,12 @@ single_mobile_activity(struct creature *ch)
         if (ch->in_room->contents && (random_fractional_4()
                 || IS_TARRASQUE(ch))) {
             for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
-                if (GET_OBJ_TYPE(obj) == ITEM_FOOD && !GET_OBJ_VAL(obj, 3)) {
+                if (IS_OBJ_TYPE(obj, ITEM_FOOD) && !GET_OBJ_VAL(obj, 3)) {
                     act("$n devours $p, growling and drooling all over.",
                         false, ch, obj, 0, TO_ROOM);
                     extract_obj(obj);
                     return;
-                } else if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER &&
+                } else if (IS_OBJ_TYPE(obj, ITEM_CONTAINER) &&
                     GET_OBJ_VAL(obj, 3)) {
                     struct room_data *stuff_rm;
 
@@ -1884,7 +1884,7 @@ single_mobile_activity(struct creature *ch)
                 }
                 if (can_see_object(ch, obj) &&
                     !IS_IMPLANT(obj) &&
-                    (GET_OBJ_TYPE(obj) == ITEM_WEAPON ||
+                    (IS_OBJ_TYPE(obj, ITEM_WEAPON) ||
                         IS_ENERGY_GUN(obj) || IS_GUN(obj)) &&
                     !invalid_char_class(ch, obj) &&
                     (!GET_EQ(ch, WEAR_WIELD) ||
@@ -1922,7 +1922,7 @@ single_mobile_activity(struct creature *ch)
         struct obj_data *o = NULL;
         if (ch->in_room->contents && random_fractional_3()) {
             for (i = ch->in_room->contents; i; i = i->next_content) {
-                if ((GET_OBJ_TYPE(i) == ITEM_CONTAINER && GET_OBJ_VAL(i, 3))) {
+                if ((IS_OBJ_TYPE(i, ITEM_CONTAINER) && GET_OBJ_VAL(i, 3))) {
                     if (!i->contains)
                         continue;
                     for (obj = i->contains; obj; obj = obj->next_content) {
@@ -1942,7 +1942,7 @@ single_mobile_activity(struct creature *ch)
                             obj_to_char(obj, ch);
                             act("$n gets $p from $P.", false, ch, obj, i,
                                 TO_ROOM);
-                            if (GET_OBJ_TYPE(obj) == ITEM_MONEY) {
+                            if (IS_OBJ_TYPE(obj, ITEM_MONEY)) {
                                 if (GET_OBJ_VAL(obj, 1))    // credits
                                     GET_CASH(ch) += GET_OBJ_VAL(obj, 0);
                                 else

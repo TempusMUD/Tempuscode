@@ -1573,7 +1573,7 @@ ACMD(do_cast)
         if (need_symbol) {
             for (i = 0; i < NUM_WEARS; i++) {
                 if (ch->equipment[i]) {
-                    if (GET_OBJ_TYPE(ch->equipment[i]) == ITEM_HOLY_SYMB) {
+                    if (IS_OBJ_TYPE(ch->equipment[i], ITEM_HOLY_SYMB)) {
                         holy_symbol = ch->equipment[i];
                         break;
                     }
@@ -1633,7 +1633,7 @@ ACMD(do_cast)
     for (i = 0, num_eq = 0, metal_wt = 0; i < NUM_WEARS; i++) {
         if (ch->equipment[i]) {
             num_eq++;
-            if (i != WEAR_WIELD && GET_OBJ_TYPE(ch->equipment[i]) == ITEM_ARMOR
+            if (i != WEAR_WIELD && IS_OBJ_TYPE(ch->equipment[i], ITEM_ARMOR)
                 && IS_METAL_TYPE(ch->equipment[i])) {
                 metal_wt += GET_OBJ_WEIGHT(ch->equipment[i]);
                 if (!metal || !number(0, 8) ||

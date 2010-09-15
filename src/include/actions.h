@@ -67,7 +67,7 @@ void engage_self_destruct(struct creature *ch);
 
 	 /**** microchip utils ****/
 
-#define IS_CHIP(obj)           (GET_OBJ_TYPE(obj) == ITEM_MICROCHIP)
+#define IS_CHIP(obj)           (IS_OBJ_TYPE(obj, ITEM_MICROCHIP))
 #define CHIP_TYPE(obj)         (GET_OBJ_VAL(obj, 0))
 #define CHIP_DATA(obj)         (GET_OBJ_VAL(obj, 1))
 #define CHIP_MAX(obj)          (GET_OBJ_VAL(obj, 2))
@@ -86,15 +86,15 @@ void engage_self_destruct(struct creature *ch);
 				  IS_COMMUNICATOR(target) || \
 				  IS_DEVICE(target))
 
-#define IS_SYRINGE(obj)  (GET_OBJ_TYPE(obj) == ITEM_SYRINGE)
-#define IS_VIAL(obj)     (GET_OBJ_TYPE(obj) == ITEM_VIAL)
-#define IS_POTION(obj)     (GET_OBJ_TYPE(obj) == ITEM_POTION)
+#define IS_SYRINGE(obj)  (IS_OBJ_TYPE(obj, ITEM_SYRINGE))
+#define IS_VIAL(obj)     (IS_OBJ_TYPE(obj, ITEM_VIAL))
+#define IS_POTION(obj)     (IS_OBJ_TYPE(obj, ITEM_POTION))
 
-#define IS_TOOL(tool)     (OBJ_TYPE(tool, ITEM_TOOL))
+#define IS_TOOL(tool)     (IS_OBJ_TYPE(tool, ITEM_TOOL))
 #define TOOL_SKILL(tool)  ((tool) ? GET_OBJ_VAL(tool, 0):0)
 #define TOOL_MOD(tool)    ((tool) ? GET_OBJ_VAL(tool, 1):0)
 
-#define IS_COMMUNICATOR(obj) (GET_OBJ_TYPE(obj) == ITEM_COMMUNICATOR)
+#define IS_COMMUNICATOR(obj) (IS_OBJ_TYPE(obj, ITEM_COMMUNICATOR))
 #define COMM_CHANNEL(obj)    (GET_OBJ_VAL(obj, 3))
 
 #define COMM_UNIT_SEND_OK(ch, vict)                            \

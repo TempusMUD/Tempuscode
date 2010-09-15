@@ -141,8 +141,8 @@ obj_is_unrentable(struct obj_data * obj)
 
     if (IS_OBJ_STAT(obj, ITEM_NORENT)
         || !OBJ_APPROVED(obj) || GET_OBJ_VNUM(obj) <= NOTHING
-        || (GET_OBJ_TYPE(obj) == ITEM_KEY && GET_OBJ_VAL(obj, 1) == 0)
-        || (GET_OBJ_TYPE(obj) == ITEM_CIGARETTE && GET_OBJ_VAL(obj, 3))) {
+        || (IS_OBJ_TYPE(obj, ITEM_KEY) && GET_OBJ_VAL(obj, 1) == 0)
+        || (IS_OBJ_TYPE(obj, ITEM_CIGARETTE) && GET_OBJ_VAL(obj, 3))) {
         return true;
     }
 

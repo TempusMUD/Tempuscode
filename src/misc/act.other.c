@@ -740,16 +740,16 @@ ACMD(do_use)
         }
         break;
     case SCMD_USE:
-        if (GET_OBJ_TYPE(mag_item) == ITEM_TRANSPORTER) {
+        if (IS_OBJ_TYPE(mag_item, ITEM_TRANSPORTER)) {
             send_to_char(ch,
                 "You must use the command 'activate' to use this.\r\n");
             return;
-        } else if (GET_OBJ_TYPE(mag_item) == ITEM_SYRINGE) {
+        } else if (IS_OBJ_TYPE(mag_item, ITEM_SYRINGE)) {
             send_to_char(ch, "Use the 'inject' command to use this item.\r\n");
             return;
-        } else if (GET_OBJ_TYPE(mag_item) == ITEM_CIGARETTE ||
-            GET_OBJ_TYPE(mag_item) == ITEM_TOBACCO ||
-            GET_OBJ_TYPE(mag_item) == ITEM_PIPE) {
+        } else if (IS_OBJ_TYPE(mag_item, ITEM_CIGARETTE) ||
+            IS_OBJ_TYPE(mag_item, ITEM_TOBACCO) ||
+            IS_OBJ_TYPE(mag_item, ITEM_PIPE)) {
             send_to_char(ch, "You need to SMOKE that.\r\n");
             return;
         } else if ((GET_OBJ_TYPE(mag_item) != ITEM_WAND) &&
@@ -1803,14 +1803,14 @@ ACMD(do_throw)
                     obj_from_char(obj);
                     obj_to_room(obj, ch->in_room);
                 }
-            } else if (GET_OBJ_TYPE(obj) == ITEM_WEAPON
+            } else if (IS_OBJ_TYPE(obj, ITEM_WEAPON)
                 && ok_to_attack(ch, target_vict, false)) {
                 // Hit throw with a weapon
                 damage(ch, target_vict,
                     dice(GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)) +
                     str_app[STRENGTH_APPLY_INDEX(ch)].todam,
                     GET_OBJ_VAL(obj, 3) + TYPE_HIT, number(0, NUM_WEARS - 1));
-            } else if (GET_OBJ_TYPE(obj) == ITEM_POTION) {
+            } else if (IS_OBJ_TYPE(obj, ITEM_POTION)) {
                 // Hit throw with a potion
                 act("$p hits $M in the head and shatters!",
                     false, ch, obj, target_vict, TO_CHAR);

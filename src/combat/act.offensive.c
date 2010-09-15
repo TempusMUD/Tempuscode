@@ -1469,7 +1469,7 @@ ACMD(do_bash)
     if (ovict) {
         act("You bash $p!", false, ch, ovict, 0, TO_CHAR);
         act("$n bashes $p!", false, ch, ovict, 0, TO_ROOM);
-        if (GET_OBJ_TYPE(ovict) == ITEM_VEHICLE &&
+        if (IS_OBJ_TYPE(ovict, ITEM_VEHICLE) &&
             (room = real_room(ROOM_NUMBER(ovict))) != NULL && room->people) {
             act("$N bashes the outside of $p!",
                 false, room->people->data, ovict, ch, TO_ROOM);

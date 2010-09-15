@@ -37,7 +37,7 @@ SPECIAL(corpse_retrieval)
 
     corpse = object_list;
     while (corpse) {
-        if (GET_OBJ_TYPE(corpse) == ITEM_CONTAINER && GET_OBJ_VAL(corpse, 3)
+        if (IS_OBJ_TYPE(corpse, ITEM_CONTAINER) && GET_OBJ_VAL(corpse, 3)
             && CORPSE_IDNUM(corpse) == GET_IDNUM(ch))
             break;
         corpse = corpse->next;

@@ -37,7 +37,7 @@ struct obj_data *find_vehicle(struct obj_data *v_door);
 
 #define IS_ENGINE_SET(engine, bit) \
                                 (IS_SET(ENGINE_STATE(engine), bit))
-#define IS_ENGINE(obj)          (GET_OBJ_TYPE(obj) == ITEM_ENGINE)
+#define IS_ENGINE(obj)          (IS_OBJ_TYPE(obj, ITEM_ENGINE))
 #define WILL_RUN(engine)  	(IS_SET(ENGINE_STATE(engine), ENG_OPERATIONAL))
 #define ENGINE_ON(engine) 	(IS_SET(ENGINE_STATE(engine), ENG_RUN))
 #define IS_PARKED(engine) 	(IS_SET(ENGINE_STATE(engine), ENG_PARK))
@@ -50,35 +50,35 @@ struct obj_data *find_vehicle(struct obj_data *v_door);
 #define VEHICLE_SPACESHIP	(1 << 4)
 #define NUM_VEHICLE_TYPES        5
 
-#define IS_VEHICLE(obj)         (GET_OBJ_TYPE(obj) == ITEM_VEHICLE)
+#define IS_VEHICLE(obj)         (IS_OBJ_TYPE(obj, ITEM_VEHICLE))
 #define IS_ATV(car)		(IS_SET(CAR_FLAGS(car), VEHICLE_ATV))
 #define IS_ROADCAR(car)		(IS_SET(CAR_FLAGS(car), VEHICLE_ROADCAR))
 #define IS_SKYCAR(car)		(IS_SET(CAR_FLAGS(car), VEHICLE_SKYCAR))
 #define IS_BOAT(car)		(IS_SET(CAR_FLAGS(car), VEHICLE_BOAT))
 #define IS_SPACESHIP(car)	(IS_SET(CAR_FLAGS(car), VEHICLE_SPACESHIP))
 
-#define IS_V_WINDOW(obj)        (GET_OBJ_TYPE(obj) == ITEM_V_WINDOW)
-#define IS_V_DOOR(obj)          (GET_OBJ_TYPE(obj) == ITEM_V_DOOR)
-#define IS_V_CONSOLE(obj)       (GET_OBJ_TYPE(obj) == ITEM_V_CONSOLE)
+#define IS_V_WINDOW(obj)        (IS_OBJ_TYPE(obj, ITEM_V_WINDOW))
+#define IS_V_DOOR(obj)          (IS_OBJ_TYPE(obj, ITEM_V_DOOR))
+#define IS_V_CONSOLE(obj)       (IS_OBJ_TYPE(obj, ITEM_V_CONSOLE))
 #define V_CAR_VNUM(obj)         (GET_OBJ_VAL(obj, 2))
 #define V_CONSOLE_IDNUM(obj)    (GET_OBJ_VAL(obj, 3))
 
-#define IS_BATTERY(obj)         (GET_OBJ_TYPE(obj) == ITEM_BATTERY)
+#define IS_BATTERY(obj)         (IS_OBJ_TYPE(obj, ITEM_BATTERY))
 #define RECH_RATE(batt)         (GET_OBJ_VAL(batt, 2))
 #define COST_UNIT(batt)         (GET_OBJ_VAL(batt, 3))
 
-#define IS_TRANSPORTER(obj)     (GET_OBJ_TYPE(obj) == ITEM_TRANSPORTER)
+#define IS_TRANSPORTER(obj)     (IS_OBJ_TYPE(obj, ITEM_TRANSPORTER))
 #define TRANS_TO_ROOM(obj)      (GET_OBJ_VAL(obj, 2))
-#define IS_DEVICE(obj)          (GET_OBJ_TYPE(obj) == ITEM_DEVICE)
+#define IS_DEVICE(obj)          (IS_OBJ_TYPE(obj, ITEM_DEVICE))
 #define IS_IMPLANT(obj)         (IS_OBJ_STAT2(obj, ITEM2_IMPLANT))
-#define IS_INTERFACE(obj)       (GET_OBJ_TYPE(obj) == ITEM_INTERFACE)
-#define IS_ENERGY_CELL(obj)     (GET_OBJ_TYPE(obj) == ITEM_ENERGY_CELL)
+#define IS_INTERFACE(obj)       (IS_OBJ_TYPE(obj, ITEM_INTERFACE))
+#define IS_ENERGY_CELL(obj)     (IS_OBJ_TYPE(obj, ITEM_ENERGY_CELL))
 
-#define IS_SYRINGE(obj)  (GET_OBJ_TYPE(obj) == ITEM_SYRINGE)
-#define IS_VIAL(obj)     (GET_OBJ_TYPE(obj) == ITEM_VIAL)
-#define IS_POTION(obj)     (GET_OBJ_TYPE(obj) == ITEM_POTION)
+#define IS_SYRINGE(obj)  (IS_OBJ_TYPE(obj, ITEM_SYRINGE))
+#define IS_VIAL(obj)     (IS_OBJ_TYPE(obj, ITEM_VIAL))
+#define IS_POTION(obj)     (IS_OBJ_TYPE(obj, ITEM_POTION))
 
-#define IS_COMMUNICATOR(obj) (GET_OBJ_TYPE(obj) == ITEM_COMMUNICATOR)
+#define IS_COMMUNICATOR(obj) (IS_OBJ_TYPE(obj, ITEM_COMMUNICATOR))
 #define COMM_CHANNEL(obj)    (GET_OBJ_VAL(obj, 3))
 
 #define COMM_UNIT_SEND_OK(ch, vict)                            \

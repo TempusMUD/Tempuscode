@@ -994,7 +994,7 @@ DEFPROGHANDLER(driveto, env, evt, args)
 	// Find the console in the room.  Do nothing if there's no console
 	for (console = ch->in_room->contents; console;
 		console = console->next_content)
-		if (GET_OBJ_TYPE(console) == ITEM_V_CONSOLE)
+		if (IS_OBJ_TYPE(console, ITEM_V_CONSOLE))
 			break;
 	if (!console)
 		return;

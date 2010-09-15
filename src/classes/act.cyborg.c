@@ -141,7 +141,7 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
         if ((CUR_ENERGY(battery) - amount) < 0)
             amount = CUR_ENERGY(battery);
 
-        if (GET_OBJ_TYPE(battery) == ITEM_BATTERY
+        if (IS_OBJ_TYPE(battery, ITEM_BATTERY)
             && COST_UNIT(battery) * amount > GET_CASH(ch)) {
             amount = GET_CASH(ch) / COST_UNIT(battery);
 
@@ -202,7 +202,7 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
         QCYN, vict ? GET_MOVE(vict) : CUR_ENERGY(engine), QNRM,
         QCYN, battery ? CUR_ENERGY(battery) : GET_MOVE(ch), QNRM);
     if (battery) {
-        if (GET_OBJ_TYPE(battery) == ITEM_BATTERY && COST_UNIT(battery)) {
+        if (IS_OBJ_TYPE(battery, ITEM_BATTERY) && COST_UNIT(battery)) {
             send_to_char(ch, "Your cost: %d credits.\r\n",
                 amount * COST_UNIT(battery));
             GET_CASH(ch) -= amount * COST_UNIT(battery);
@@ -251,7 +251,7 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
             act("$n recharges $p from $s internal supply.",
                 true, ch, engine, vict, TO_ROOM);
     }
-    if (battery && GET_OBJ_TYPE(battery) == ITEM_BATTERY)
+    if (battery && IS_OBJ_TYPE(battery, ITEM_BATTERY))
         amount -= RECH_RATE(battery);
     if (amount < 0) {
         amount = 0;
@@ -262,8 +262,8 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
     }
 
     if ((battery && amount) &&
-        (GET_OBJ_TYPE(battery) == ITEM_BATTERY
-            || GET_OBJ_TYPE(battery) == ITEM_DEVICE)) {
+        (IS_OBJ_TYPE(battery, ITEM_BATTERY)
+            || IS_OBJ_TYPE(battery, ITEM_DEVICE))) {
         send_to_char(ch, "%sERROR: %s damaged during transfer!\r\n", QRED,
             battery->name);
         damage_eq(ch, battery, amount, -1);
@@ -1964,7 +1964,7 @@ ACMD(do_repair)
         return;
     }
 
-    if (GET_OBJ_TYPE(obj) == ITEM_ARMOR || GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
+    if (IS_OBJ_TYPE(obj, ITEM_ARMOR) || IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
         if (IS_METAL_TYPE(obj))
             skill = SKILL_METALWORKING;
         else if (IS_LEATHER_TYPE(obj))
@@ -2252,7 +2252,7 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
                 CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0), CCNRM(ch, C_NRM));
         break;
     case ITEM_VEHICLE:
-        if (obj->contains && GET_OBJ_TYPE(obj->contains) == ITEM_ENGINE)
+        if (obj->contains && IS_OBJ_TYPE(obj->contains, ITEM_ENGINE))
             acc_sprintf("Vehicle is equipped with:     %s%s%s\r\n",
                 CCCYN(ch, C_NRM), obj->contains->name, CCNRM(ch, C_NRM));
         else
@@ -2634,7 +2634,7 @@ ACMD(do_extract)
                 return;
             }
         } else if (!IS_BODY_PART(corpse) || !isname("head", corpse->aliases) ||
-            !OBJ_TYPE(corpse, ITEM_DRINKCON)) {
+            !IS_OBJ_TYPE(corpse, ITEM_DRINKCON)) {
             send_to_char(ch, "You cannot extract from that.\r\n");
             return;
         }

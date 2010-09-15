@@ -243,7 +243,7 @@ is_trash(struct obj_data *i)
         return false;
 
     else if (IS_SET(i->obj_flags.wear_flags, ITEM_WEAR_TAKE) &&
-        ((GET_OBJ_TYPE(i) == ITEM_DRINKCON) || (GET_OBJ_COST(i) <= 50)))
+        ((IS_OBJ_TYPE(i, ITEM_DRINKCON)) || (GET_OBJ_COST(i) <= 50)))
         return true;
     else
         return false;

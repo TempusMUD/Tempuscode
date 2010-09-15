@@ -319,7 +319,7 @@ perform_put(struct creature * ch, struct obj_data * obj,
     int capacity = 0;
     struct room_data *to_room = NULL;
 
-    if (GET_OBJ_TYPE(cont) == ITEM_PIPE) {
+    if (IS_OBJ_TYPE(cont, ITEM_PIPE)) {
         if (GET_OBJ_TYPE(obj) != ITEM_TOBACCO) {
             errlog("obj %d '%s' attempted to pack.",
                 GET_OBJ_VNUM(obj), obj->name);
@@ -354,7 +354,7 @@ perform_put(struct creature * ch, struct obj_data * obj,
                 return true;
             }
         }
-    } else if (GET_OBJ_TYPE(cont) == ITEM_VEHICLE) {
+    } else if (IS_OBJ_TYPE(cont, ITEM_VEHICLE)) {
         if (CAR_CLOSED(cont))
             act("$p is closed.", false, ch, cont, 0, TO_CHAR);
         else if ((to_room = real_room(ROOM_NUMBER(cont))) == NULL)
@@ -448,7 +448,7 @@ ACMD(do_put)
                 } else if (obj == cont)
                     send_to_char(ch,
                         "You attempt to fold it into itself, but fail.\r\n");
-                else if (GET_OBJ_TYPE(cont) == ITEM_PIPE
+                else if (IS_OBJ_TYPE(cont, ITEM_PIPE)
                     && GET_OBJ_TYPE(obj) != ITEM_TOBACCO)
                     act("You can't pack $p with $P!", false, ch, cont, obj,
                         TO_CHAR);
@@ -525,7 +525,7 @@ ACMD(do_put)
             }
             // If the object is a pipe, extract all objects within it -
             // pipes don't have objects
-            if (GET_OBJ_TYPE(cont) == ITEM_PIPE)
+            if (IS_OBJ_TYPE(cont, ITEM_PIPE))
                 while (cont->contains)
                     extract_obj(cont->contains);
         }
@@ -565,7 +565,7 @@ get_check_money(struct creature *ch, struct obj_data **obj_p, int display)
 {
     struct obj_data *obj = *obj_p;
 
-    if ((GET_OBJ_TYPE(obj) == ITEM_MONEY) && (GET_OBJ_VAL(obj, 0) > 0)) {
+    if ((IS_OBJ_TYPE(obj, ITEM_MONEY)) && (GET_OBJ_VAL(obj, 0) > 0)) {
         obj_from_char(obj);
         if (GET_OBJ_VAL(obj, 0) > 1 && display == 1) {
             send_to_char(ch, "There were %d %s.\r\n", GET_OBJ_VAL(obj, 0),
@@ -1352,7 +1352,7 @@ is_undisposable(struct creature *ch, const char *cmdstr, struct obj_data *obj,
         return true;
     }
 
-    if (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && !IS_CORPSE(obj) &&
+    if (IS_OBJ_TYPE(obj, ITEM_CONTAINER) && !IS_CORPSE(obj) &&
         obj->contains) {
         if (display)
             send_to_char(ch, "You can't %s a container with items in it!\r\n",
@@ -1617,7 +1617,7 @@ ACCMD(do_drop)
         }
 
         oldmode = mode;
-        if (GET_OBJ_TYPE(obj) == ITEM_KEY && !GET_OBJ_VAL(obj, 1) &&
+        if (IS_OBJ_TYPE(obj, ITEM_KEY) && !GET_OBJ_VAL(obj, 1) &&
             mode != SCMD_DROP)
             mode = SCMD_JUNK;
         if (IS_BOMB(obj) && obj->contains && IS_FUSE(obj->contains))
@@ -2106,7 +2106,7 @@ ACMD(do_drink)
         } else
             on_ground = 1;
     }
-    if (GET_OBJ_TYPE(temp) == ITEM_POTION) {
+    if (IS_OBJ_TYPE(temp, ITEM_POTION)) {
         send_to_char(ch, "You must QUAFF that!\r\n");
         return;
     }
@@ -2115,7 +2115,7 @@ ACMD(do_drink)
         send_to_char(ch, "You can't drink from that!\r\n");
         return;
     }
-    if (on_ground && (GET_OBJ_TYPE(temp) == ITEM_DRINKCON)) {
+    if (on_ground && (IS_OBJ_TYPE(temp, ITEM_DRINKCON))) {
         send_to_char(ch, "You have to be holding that to drink from it.\r\n");
         return;
     }
@@ -2274,8 +2274,8 @@ ACMD(do_eat)
         send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
         return;
     }
-    if (subcmd == SCMD_TASTE && ((GET_OBJ_TYPE(food) == ITEM_DRINKCON) ||
-            (GET_OBJ_TYPE(food) == ITEM_FOUNTAIN))) {
+    if (subcmd == SCMD_TASTE && ((IS_OBJ_TYPE(food, ITEM_DRINKCON)) ||
+            (IS_OBJ_TYPE(food, ITEM_FOUNTAIN)))) {
         do_drink(ch, argument, 0, SCMD_SIP, 0);
         return;
     }
@@ -2695,7 +2695,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
         if (GET_EQ(ch, where))
             where++;
 
-    if (GET_OBJ_TYPE(obj) == ITEM_TATTOO) {
+    if (IS_OBJ_TYPE(obj, ITEM_TATTOO)) {
         act("You cannot wear $p.", false, ch, obj, 0, TO_CHAR);
         return 0;
     }
@@ -2984,7 +2984,7 @@ ACCMD(do_wield)
     }
 
     if (IS_CLERIC(ch) && !IS_EVIL(ch) &&
-        (GET_OBJ_TYPE(obj) == ITEM_WEAPON) &&
+        (IS_OBJ_TYPE(obj, ITEM_WEAPON)) &&
         ((GET_OBJ_VAL(obj, 3) == TYPE_SLASH - TYPE_HIT) ||
             (GET_OBJ_VAL(obj, 3) == TYPE_PIERCE - TYPE_HIT) ||
             (GET_OBJ_VAL(obj, 3) == TYPE_STAB - TYPE_HIT) ||
@@ -3045,7 +3045,7 @@ ACMD(do_grab)
     else if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
         send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
     } else {
-        if (GET_OBJ_TYPE(obj) == ITEM_LIGHT) {
+        if (IS_OBJ_TYPE(obj, ITEM_LIGHT)) {
             if (!GET_OBJ_VAL(obj, 2))
                 act("$p is no longer usable as a light.", false, ch, obj, 0,
                     TO_CHAR);
@@ -3078,11 +3078,11 @@ perform_remove(struct creature *ch, int pos)
         act("$p: you can't carry that many items!", false, ch, obj, 0,
             TO_CHAR);
     else if ((GET_POSITION(ch) == POS_FLYING)
-        && (GET_OBJ_TYPE(ch->equipment[pos]) == ITEM_WINGS)
+        && (IS_OBJ_TYPE(ch->equipment[pos], ITEM_WINGS))
         && (!AFF_FLAGGED(ch, AFF_INFLIGHT))) {
         act("$p: you probably shouldn't remove those while flying!", false, ch,
             obj, 0, TO_CHAR);
-    } else if (GET_OBJ_TYPE(obj) == ITEM_TATTOO)
+    } else if (IS_OBJ_TYPE(obj, ITEM_TATTOO))
         act("$p: you must have this removed by a professional.",
             false, ch, obj, 0, TO_CHAR);
     else if (IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)
@@ -3659,14 +3659,14 @@ choose_material(struct obj_data *obj)
     if (isname("rug", obj->aliases))
         return (MAT_CARPET);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_FOOD && (isname("loaf", obj->aliases) ||
+    if (IS_OBJ_TYPE(obj, ITEM_FOOD) && (isname("loaf", obj->aliases) ||
             isname("pastry", obj->aliases) ||
             isname("muffin", obj->aliases) ||
             isname("cracker", obj->aliases) ||
             isname("bisquit", obj->aliases) || isname("cake", obj->aliases)))
         return (MAT_BREAD);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_FOOD && (isname("fish", obj->aliases) ||
+    if (IS_OBJ_TYPE(obj, ITEM_FOOD) && (isname("fish", obj->aliases) ||
             isname("trout", obj->aliases) ||
             isname("steak", obj->aliases) ||
             isname("roast", obj->aliases) ||
@@ -3679,39 +3679,39 @@ choose_material(struct obj_data *obj)
     if (IS_ENGINE(obj) || IS_VEHICLE(obj))
         return (MAT_STEEL);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_SCROLL || GET_OBJ_TYPE(obj) == ITEM_NOTE ||
-        GET_OBJ_TYPE(obj) == ITEM_CIGARETTE || isname("papers", obj->aliases))
+    if (IS_OBJ_TYPE(obj, ITEM_SCROLL) || IS_OBJ_TYPE(obj, ITEM_NOTE) ||
+        IS_OBJ_TYPE(obj, ITEM_CIGARETTE) || isname("papers", obj->aliases))
         return (MAT_PAPER);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_KEY)
+    if (IS_OBJ_TYPE(obj, ITEM_KEY))
         return (MAT_IRON);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_POTION)
+    if (IS_OBJ_TYPE(obj, ITEM_POTION))
         return (MAT_GLASS);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_TOBACCO)
+    if (IS_OBJ_TYPE(obj, ITEM_TOBACCO))
         return (MAT_LEAF);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_WINDOW)
+    if (IS_OBJ_TYPE(obj, ITEM_WINDOW))
         return (MAT_GLASS);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_TATTOO)
+    if (IS_OBJ_TYPE(obj, ITEM_TATTOO))
         return (MAT_SKIN);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_WAND || GET_OBJ_TYPE(obj) == ITEM_STAFF)
+    if (IS_OBJ_TYPE(obj, ITEM_WAND) || IS_OBJ_TYPE(obj, ITEM_STAFF))
         return (MAT_WOOD);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_SYRINGE) {
+    if (IS_OBJ_TYPE(obj, ITEM_SYRINGE)) {
         if (isname("disposable", obj->aliases))
             return (MAT_PLASTIC);
         else
             return (MAT_GLASS);
     }
 
-    if (GET_OBJ_TYPE(obj) == ITEM_WORN)
+    if (IS_OBJ_TYPE(obj, ITEM_WORN))
         return (MAT_CLOTH);
 
-    if (GET_OBJ_TYPE(obj) == ITEM_ARMOR) {
+    if (IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
         if (isname("plate", obj->aliases) || isname("chain", obj->aliases) ||
             isname("plates", obj->aliases) || isname("plated", obj->aliases) ||
             isname("helmet", obj->aliases)
@@ -3728,7 +3728,7 @@ choose_material(struct obj_data *obj)
             return (MAT_LEATHER);
     }
 
-    if (GET_OBJ_TYPE(obj) == ITEM_WEAPON) {
+    if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
         if (isname("blade", obj->aliases) || isname("sword", obj->aliases) ||
             isname("dagger", obj->aliases) || isname("knife", obj->aliases) ||
             isname("axe", obj->aliases) || isname("longsword", obj->aliases) ||
@@ -3798,9 +3798,9 @@ ACMD(do_attach)
         switch (GET_OBJ_TYPE(obj1)) {
         case ITEM_SCUBA_MASK:
         case ITEM_SCUBA_TANK:
-            if ((GET_OBJ_TYPE(obj1) == ITEM_SCUBA_MASK &&
+            if ((IS_OBJ_TYPE(obj1, ITEM_SCUBA_MASK) &&
                     GET_OBJ_TYPE(obj2) != ITEM_SCUBA_TANK) ||
-                (GET_OBJ_TYPE(obj2) == ITEM_SCUBA_MASK &&
+                (IS_OBJ_TYPE(obj2, ITEM_SCUBA_MASK) &&
                     GET_OBJ_TYPE(obj1) != ITEM_SCUBA_TANK)) {
                 act("You cannot attach $p to $P.", false, ch, obj1, obj2,
                     TO_CHAR);
@@ -3982,7 +3982,7 @@ ACMD(do_empty)
         return;
     }
 
-    if (GET_OBJ_TYPE(obj) == ITEM_DRINKCON) {
+    if (IS_OBJ_TYPE(obj, ITEM_DRINKCON)) {
         if (!*arg2)
             do_pour(ch, tmp_strcat(argument, " out", NULL), 0, 0, 0);
         else

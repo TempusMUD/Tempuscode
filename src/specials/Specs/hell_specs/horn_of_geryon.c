@@ -12,7 +12,7 @@ SPECIAL(horn_of_geryon)
     if (spec_mode != SPECIAL_CMD)
         return 0;
     if ((!CMD_IS("wind") && !CMD_IS("blow"))
-        || GET_OBJ_TYPE(horn) == ITEM_PIPE)
+        || IS_OBJ_TYPE(horn, ITEM_PIPE))
         return 0;
 
     act("$n sounds a clear, ultra low note on $p.", false, ch, horn, 0,

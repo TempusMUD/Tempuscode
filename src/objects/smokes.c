@@ -256,9 +256,9 @@ ACMD(do_smoke)
             act("$n blows smoke in $N's face.", false, ch, 0, vict,
                 TO_NOTVICT);
         }
-    } else if (GET_OBJ_TYPE(joint) == ITEM_TOBACCO)
+    } else if (IS_OBJ_TYPE(joint, ITEM_TOBACCO))
         send_to_char(ch, "You need to roll that up first.\r\n");
-    else if (GET_OBJ_TYPE(joint) == ITEM_CIGARETTE) {
+    else if (IS_OBJ_TYPE(joint, ITEM_CIGARETTE)) {
         if (GET_OBJ_VAL(joint, 3)) {
             GET_OBJ_VAL(joint, 0) = MAX(0, GET_OBJ_VAL(joint, 0) - 1);
             type = SMOKE_TYPE(joint);
@@ -274,7 +274,7 @@ ACMD(do_smoke)
             perform_smoke(ch, type);
         } else
             send_to_char(ch, "It doesn't seem to be lit.\r\n");
-    } else if (GET_OBJ_TYPE(joint) == ITEM_PIPE) {
+    } else if (IS_OBJ_TYPE(joint, ITEM_PIPE)) {
         if (GET_OBJ_VAL(joint, 3)) {
 
             GET_OBJ_VAL(joint, 0) = MAX(0, GET_OBJ_VAL(joint, 0) - 1);
@@ -313,24 +313,24 @@ ACMD(do_convert)
         !(obj = get_object_in_equip_pos(ch, argument, WEAR_HOLD))) {
         send_to_char(ch, "You can't seem to have %s '%s'.\r\n", AN(argument),
             argument);
-    } else if (GET_OBJ_TYPE(obj) == ITEM_FOOD ||
-        GET_OBJ_TYPE(obj) == ITEM_TOBACCO ||
-        GET_OBJ_TYPE(obj) == ITEM_NOTE ||
-        GET_OBJ_TYPE(obj) == ITEM_MONEY ||
-        GET_OBJ_TYPE(obj) == ITEM_VEHICLE ||
-        GET_OBJ_TYPE(obj) == ITEM_CIGARETTE ||
-        GET_OBJ_TYPE(obj) == ITEM_METAL ||
-        GET_OBJ_TYPE(obj) == ITEM_VSTONE ||
-        GET_OBJ_TYPE(obj) == ITEM_POTION ||
-        GET_OBJ_TYPE(obj) == ITEM_KEY ||
+    } else if (IS_OBJ_TYPE(obj, ITEM_FOOD) ||
+        IS_OBJ_TYPE(obj, ITEM_TOBACCO) ||
+        IS_OBJ_TYPE(obj, ITEM_NOTE) ||
+        IS_OBJ_TYPE(obj, ITEM_MONEY) ||
+        IS_OBJ_TYPE(obj, ITEM_VEHICLE) ||
+        IS_OBJ_TYPE(obj, ITEM_CIGARETTE) ||
+        IS_OBJ_TYPE(obj, ITEM_METAL) ||
+        IS_OBJ_TYPE(obj, ITEM_VSTONE) ||
+        IS_OBJ_TYPE(obj, ITEM_POTION) ||
+        IS_OBJ_TYPE(obj, ITEM_KEY) ||
         IS_PAPER_TYPE(obj) ||
         IS_CLOTH_TYPE(obj) ||
         IS_VEGETABLE_TYPE(obj) ||
         IS_FLESH_TYPE(obj) ||
-        (GET_OBJ_TYPE(obj) == ITEM_CONTAINER && GET_OBJ_VAL(obj, 3)) ||
+        (IS_OBJ_TYPE(obj, ITEM_CONTAINER) && GET_OBJ_VAL(obj, 3)) ||
         IS_OBJ_STAT2(obj, ITEM2_BODY_PART))
         send_to_char(ch, "You cannot convert that!\r\n");
-    else if (GET_OBJ_TYPE(obj) == ITEM_PIPE)
+    else if (IS_OBJ_TYPE(obj, ITEM_PIPE))
         send_to_char(ch, "It's already a pipe.\r\n");
     else {
 
@@ -394,9 +394,9 @@ ACMD(do_light)
 
     if (!obj)
         send_to_char(ch, "Light what?\r\n");
-    else if (GET_OBJ_TYPE(obj) == ITEM_LIGHT)
+    else if (IS_OBJ_TYPE(obj, ITEM_LIGHT))
         do_grab(ch, fname(obj->aliases), 0, 0, 0);
-    else if (GET_OBJ_TYPE(obj) == ITEM_TOBACCO)
+    else if (IS_OBJ_TYPE(obj, ITEM_TOBACCO))
         send_to_char(ch, "You need to roll it up first.\r\n");
     else if (GET_OBJ_TYPE(obj) != ITEM_CIGARETTE &&
         GET_OBJ_TYPE(obj) != ITEM_PIPE && !IS_BOMB(obj))
@@ -419,7 +419,7 @@ ACMD(do_light)
             }
         } else if (GET_OBJ_VAL(obj, 3))
             send_to_char(ch, "That's already lit.\r\n");
-        else if (GET_OBJ_TYPE(obj) == ITEM_PIPE && !GET_OBJ_VAL(obj, 0))
+        else if (IS_OBJ_TYPE(obj, ITEM_PIPE) && !GET_OBJ_VAL(obj, 0))
             send_to_char(ch, "There's nothing in it!\r\n");
         else {
             act("You light $p.", true, ch, obj, 0, TO_CHAR);
@@ -468,11 +468,11 @@ ACMD(do_extinguish)
         ovict = get_obj_in_list_vis(ch, arg1, ch->in_room->contents);
 
     if (ovict) {
-        if (!OBJ_TYPE(ovict, ITEM_PIPE) &&
-            !OBJ_TYPE(ovict, ITEM_CIGARETTE) && !OBJ_TYPE(ovict, ITEM_BOMB))
+        if (!IS_OBJ_TYPE(ovict, ITEM_PIPE) &&
+            !IS_OBJ_TYPE(ovict, ITEM_CIGARETTE) && !IS_OBJ_TYPE(ovict, ITEM_BOMB))
             send_to_char(ch, "You can't extinguish that.\r\n");
-        else if (((GET_OBJ_TYPE(ovict) == ITEM_PIPE ||
-                    GET_OBJ_TYPE(ovict) == ITEM_CIGARETTE) &&
+        else if (((IS_OBJ_TYPE(ovict, ITEM_PIPE) ||
+                    IS_OBJ_TYPE(ovict, ITEM_CIGARETTE)) &&
                 !GET_OBJ_VAL(ovict, 3)) ||
             (IS_BOMB(ovict) &&
                 (!ovict->contains || !IS_FUSE(ovict->contains) ||

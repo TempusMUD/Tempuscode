@@ -19,9 +19,9 @@
 #define SMOKE_HOMEGROWN     9
 #define NUM_SMOKES          10
 
-#define IS_TOBACCO(obj)     (GET_OBJ_TYPE(obj) == ITEM_TOBACCO)
-#define IS_PIPE(obj)        (GET_OBJ_TYPE(obj) == ITEM_PIPE)
-#define IS_CIGARETTE(obj)   (GET_OBJ_TYPE(obj) == ITEM_CIGARETTE)
+#define IS_TOBACCO(obj)     (IS_OBJ_TYPE(obj, ITEM_TOBACCO))
+#define IS_PIPE(obj)        (IS_OBJ_TYPE(obj, ITEM_PIPE))
+#define IS_CIGARETTE(obj)   (IS_OBJ_TYPE(obj, ITEM_CIGARETTE))
 #define SMOKE_TYPE(obj)     (IS_TOBACCO(obj) ? GET_OBJ_VAL(obj, 0) : \
                              GET_OBJ_VAL(obj, 2))
 #define MAX_DRAGS(obj)      (GET_OBJ_VAL(obj, 1))
