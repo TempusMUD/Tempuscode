@@ -214,27 +214,23 @@ purge_mail(long idnum)
 //     telling him.  We'll let the spec say what it wants.
 // Returns the number of mails received.
 int
-receive_mail(struct creature *ch, GList * olist)
+receive_mail(struct creature *ch, GList *olist)
 {
     int num_letters = 0;
     int counter = 0;
     char *path = get_mail_file_path(GET_IDNUM(ch));
-    bool container = false;
+    struct obj_data *container = NULL;
     GList *mailBag;
+    GList *oi;
+
 
     mailBag = load_mail(path);
 
     if (g_list_length(mailBag) > MAIL_BAG_THRESH)
-        container = true;
-
-    GList *oi;
-
-    struct obj_data *obj = NULL;
-    if (container)
-        obj = read_object(MAIL_BAG_OBJ_VNUM);
+        container = read_object(MAIL_BAG_OBJ_VNUM);
 
     for (oi = mailBag; oi; oi = oi->next) {
-        obj = oi->data;
+        struct obj_data *obj = oi->data;
         counter++;
 
         if (GET_OBJ_VNUM(obj) == MAIL_OBJ_VNUM)
@@ -247,15 +243,15 @@ receive_mail(struct creature *ch, GList * olist)
             obj = read_object(MAIL_BAG_OBJ_VNUM);
             counter = 0;
         }
-        if (obj) {
-            obj_to_obj(obj, obj);
+        if (container) {
+            obj_to_obj(obj, container);
         } else {
             obj_to_char(obj, ch);
         }
     }
 
-    if (obj)
-        obj_to_char(obj, ch);
+    if (container)
+        obj_to_char(container, ch);
 
     unlink(path);
 

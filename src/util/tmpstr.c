@@ -224,7 +224,7 @@ tmp_gettoken_const(const char **src)
     char *s = copy;
     char *result = tmp_gettoken(&copy);
 
-    *src += s - copy;
+    *src += copy - s;
     return result;
 }
 
@@ -247,7 +247,7 @@ tmp_getword_const(const char **src)
     char *s = copy;
     char *result = tmp_getword(&copy);
 
-    *src += s - copy;
+    *src += copy - s;
     return result;
 }
 
@@ -368,7 +368,7 @@ tmp_getline_const(const char **src)
     char *s = copy;
     char *result = tmp_getline(&copy);
 
-    *src += s - copy;
+    *src += copy - s;
     return result;
 }
 

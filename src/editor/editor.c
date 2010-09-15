@@ -94,7 +94,7 @@ emit_editor_startup(struct editor *editor)
 gint
 editor_line_count(struct editor *editor)
 {
-    return editor_line_count(editor);
+    return g_list_length(editor->lines);
 }
 
 void
@@ -111,7 +111,7 @@ editor_buffer_size(struct editor *editor)
     for (GList *it = editor->lines;it;it = it->next) {
         GString *str = it->data;
 
-        len += str->len + 1;
+        len += str->len + 2;
     }
 
     return len;
@@ -127,7 +127,7 @@ editor_finish(struct editor *editor, bool save)
         char *text, *write_pt;
 
         length = editor_buffer_size(editor);
-        text = (char *)malloc(length);
+        text = (char *)malloc(length + 1);
         strcpy(text, "");
         write_pt = text;
         for (GList *it = editor->lines;it;it = it->next) {
@@ -135,6 +135,8 @@ editor_finish(struct editor *editor, bool save)
 
             strcpy(write_pt, line->str);
             write_pt += line->len;
+            strcpy(write_pt, "\r\n");
+            write_pt += 2;
         }
 
         // Call the finalizer
