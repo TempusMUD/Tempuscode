@@ -519,7 +519,7 @@ count_contained_objs(struct obj_data *obj)
     for (cur = obj->contains;cur;cur = cur->next_content) {
         count++;
         if (IS_OBJ_TYPE(cur, ITEM_CONTAINER))
-            count += count_contained_objs(obj);
+            count += count_contained_objs(cur);
     }
     return count;
 }
@@ -533,7 +533,7 @@ weigh_contained_objs(struct obj_data *obj)
     for (cur = obj->contains;cur;cur = cur->next_content) {
         weight += GET_OBJ_WEIGHT(cur);
         if (IS_OBJ_TYPE(cur, ITEM_CONTAINER))
-            weight += weigh_contained_objs(obj);
+            weight += weigh_contained_objs(cur);
     }
     return weight;
 }
