@@ -337,9 +337,7 @@ can_enter_house(struct creature *ch, room_num room_vnum)
     if (!house)
         return true;
 
-    if (is_named_role_member(ch, "House")
-        || is_named_role_member(ch, "AdminBasic")
-        || is_named_role_member(ch, "WizardFull"))
+    if (is_authorized(ch, ENTER_HOUSES, house))
         return true;
 
     if (IS_NPC(ch)) {
@@ -374,17 +372,9 @@ can_enter_house(struct creature *ch, room_num room_vnum)
 }
 
 bool
-can_edit_house(struct creature *c, struct house *house)
+can_hedit_room(struct creature *ch, struct room_data *room)
 {
-    if (house == NULL)
-        return false;
-    return is_named_role_member(c, "House");
-}
-
-bool
-can_hedit_room(struct creature *c, struct room_data *room)
-{
-    return can_edit_house(c, find_house_by_room(room->number));
+    return is_authorized(ch, EDIT_HOUSE, find_house_by_room(room->number));
 }
 
 bool
@@ -1252,7 +1242,7 @@ hcontrol_destroy_house(struct creature *ch, char *arg)
         return;
     }
 
-    if (!can_edit_house(ch, house)) {
+    if (!is_authorized(ch, EDIT_HOUSE, house)) {
         send_to_char(ch, "You cannot edit that house.\r\n");
         return;
     }
@@ -1350,7 +1340,7 @@ hcontrol_set_house(struct creature *ch, char *arg)
         send_to_char(ch, "House id %d not found.\r\n", atoi(arg1));
         return;
     }
-    if (!can_edit_house(ch, house)) {
+    if (!is_authorized(ch, EDIT_HOUSE, house)) {
         send_to_char(ch, "You cannot edit that house.\r\n");
         return;
     }
@@ -1549,7 +1539,7 @@ hcontrol_add_to_house(struct creature *ch, char *arg)
         return;
     }
 
-    if (!can_edit_house(ch, house)) {
+    if (!is_authorized(ch, EDIT_HOUSE, house)) {
         send_to_char(ch, "You cannot edit that house.\r\n");
         return;
     }
@@ -1604,7 +1594,7 @@ hcontrol_delete_from_house(struct creature *ch, char *arg)
         return;
     }
 
-    if (!can_edit_house(ch, house)) {
+    if (!is_authorized(ch, EDIT_HOUSE, house)) {
         send_to_char(ch, "You cannot edit that house.\r\n");
         return;
     }
@@ -1766,7 +1756,7 @@ ACMD(do_hcontrol)
 {
 	char *action_str;
 
-	if (!is_named_role_member(ch, "House")) {
+	if (!is_authorized(ch, EDIT_HOUSE, NULL)) {
 		send_to_char(ch, "You aren't able to edit houses!\r\n");
 		return;
 	}
@@ -1777,14 +1767,6 @@ ACMD(do_hcontrol)
 		save_houses();
 		send_to_char(ch, "Saved.\r\n");
 		slog("HOUSE: Saved by %s.", GET_NAME(ch));
-	} else if (is_abbrev(action_str, "recount")) {
-		if (is_named_role_member(ch, "Coder")) {
-			update_objects_housed_count();
-			slog("HOUSE: Re-Counted by %s.", GET_NAME(ch));
-			send_to_char(ch, "Objs recounted.\r\n");
-		} else {
-			send_to_char(ch, "You probably shouldn't be doing that.\r\n");
-		}
 	} else if (is_abbrev(action_str, "build")) {
 		hcontrol_build_house(ch, argument);
 	} else if (is_abbrev(action_str, "destroy")) {
@@ -1815,16 +1797,7 @@ ACMD(do_hcontrol)
 				send_to_char(ch, HCONTROL_SHOW_FORMAT);
 			}
 		}
-	}
-    else if (is_abbrev(action_str, "reload")) {
-
-        if (!is_named_role_member(ch, "Coder")) {
-            send_to_char(ch, "What are you thinking? You don't even _LOOK_ like a coder.\r\n");
-            return;
-        }
-
-        hcontrol_reload_house(ch, argument);
-    } else {
+	} else {
 		send_to_char(ch,HCONTROL_FORMAT);
     }
 }
@@ -1848,7 +1821,7 @@ ACMD(do_house)
 		return;
 	}
 
-	if (!house->owner_id == GET_IDNUM(ch) && !is_named_role_member(ch, "House")) {
+	if (!is_authorized(ch, EDIT_HOUSE, house)) {
 		send_to_char(ch, "Only the owner can set guests.\r\n");
 		return;
 	}

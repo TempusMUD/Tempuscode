@@ -176,6 +176,11 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     case TESTER:
         return is_named_role_member(ch, "Testers");
 
+    case ENTER_HOUSES:
+        return (is_named_role_member(ch, "House")
+                || is_named_role_member(ch, "AdminBasic")
+                || is_named_role_member(ch, "WizardFull"));
+
     case ENTER_ROOM:
         return (can_enter_house(ch, room->number)
                 && clan_house_can_enter(ch, room)
@@ -217,8 +222,8 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
         return is_named_role_member(ch, "OLCApproval");
 
     case EDIT_HOUSE:
-        return (house->owner_id == GET_IDNUM(ch)
-                || is_named_role_member(ch, "House"));
+        return (is_named_role_member(ch, "House")
+                || (house && house->owner_id == GET_IDNUM(ch)));
 
     case EDIT_QUEST:
         return is_named_role_member(ch, "Quest");

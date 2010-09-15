@@ -856,9 +856,9 @@ account_deny_char_entry(struct account *account, struct creature *ch)
             if (is_authorized(ch, MULTIPLAY, NULL))
                 override = true;
             // builder can have on a tester and vice versa.
-            if (is_named_role_member(ch, "OLC") && is_tester(tch))
+            if (is_authorized(ch, LOGIN_WITH_TESTER, NULL) && is_tester(tch))
                 override = true;
-            if (is_tester(ch) && is_named_role_member(tch, "OLC"))
+            if (is_tester(ch) && is_authorized(tch, LOGIN_WITH_TESTER, NULL))
                 override = true;
             // We have a non-immortal already in the game, so they don't
             // get to come in
