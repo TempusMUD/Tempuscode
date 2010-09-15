@@ -56,8 +56,8 @@ int level_can_shout = 6;
 int holler_move_cost = 20;
 
 /* exp change limits */
-int max_exp_gain = 10000000;	/* max gainable per kill */
-int max_exp_loss = 1000000;		/* max losable per death */
+int max_exp_gain = 10000000;    /* max gainable per kill */
+int max_exp_loss = 1000000;     /* max losable per death */
 
 /* number of tics (usually 75 seconds) before PC/NPC corpses decompose */
 int max_npc_corpse_time = 5;
@@ -157,65 +157,65 @@ room_num donation_room_skullport_dwarven = 22807;
 
 int guild_donation_info[][4] = {
 
-	{CLASS_THIEF, ALL, HOME_SKULLPORT, 22998},
-	{CLASS_THIEF, ALL, HOME_DWARVEN_CAVERNS, 22998},
-	{CLASS_THIEF, ALL, HOME_HUMAN_SQUARE, 22998},
-	{CLASS_THIEF, ALL, HOME_DROW_ISLE, 22998},
+    {CLASS_THIEF, ALL, HOME_SKULLPORT, 22998},
+    {CLASS_THIEF, ALL, HOME_DWARVEN_CAVERNS, 22998},
+    {CLASS_THIEF, ALL, HOME_HUMAN_SQUARE, 22998},
+    {CLASS_THIEF, ALL, HOME_DROW_ISLE, 22998},
 
-	{CLASS_CLERIC, EVIL, HOME_SKULLPORT, 22929},
-	{CLASS_CLERIC, EVIL, HOME_DWARVEN_CAVERNS, 22929},
-	{CLASS_CLERIC, EVIL, HOME_HUMAN_SQUARE, 22929},
-	{CLASS_CLERIC, EVIL, HOME_DROW_ISLE, 22929},
+    {CLASS_CLERIC, EVIL, HOME_SKULLPORT, 22929},
+    {CLASS_CLERIC, EVIL, HOME_DWARVEN_CAVERNS, 22929},
+    {CLASS_CLERIC, EVIL, HOME_HUMAN_SQUARE, 22929},
+    {CLASS_CLERIC, EVIL, HOME_DROW_ISLE, 22929},
 
-	{CLASS_VAMPIRE, EVIL, HOME_SKULLPORT, 22995},
-	{CLASS_VAMPIRE, EVIL, HOME_DWARVEN_CAVERNS, 22995},
-	{CLASS_VAMPIRE, EVIL, HOME_HUMAN_SQUARE, 22995},
-	{CLASS_VAMPIRE, EVIL, HOME_DROW_ISLE, 22995},
+    {CLASS_VAMPIRE, EVIL, HOME_SKULLPORT, 22995},
+    {CLASS_VAMPIRE, EVIL, HOME_DWARVEN_CAVERNS, 22995},
+    {CLASS_VAMPIRE, EVIL, HOME_HUMAN_SQUARE, 22995},
+    {CLASS_VAMPIRE, EVIL, HOME_DROW_ISLE, 22995},
 
-	{CLASS_BARB, ALL, HOME_SKULLPORT, 22993},
-	{CLASS_BARB, ALL, HOME_DWARVEN_CAVERNS, 22993},
-	{CLASS_BARB, ALL, HOME_HUMAN_SQUARE, 22993},
-	{CLASS_BARB, ALL, HOME_DROW_ISLE, 22993},
+    {CLASS_BARB, ALL, HOME_SKULLPORT, 22993},
+    {CLASS_BARB, ALL, HOME_DWARVEN_CAVERNS, 22993},
+    {CLASS_BARB, ALL, HOME_HUMAN_SQUARE, 22993},
+    {CLASS_BARB, ALL, HOME_DROW_ISLE, 22993},
 
-	{CLASS_MAGIC_USER, ALL, HOME_SKULLPORT, 22712},
-	{CLASS_MAGIC_USER, ALL, HOME_DWARVEN_CAVERNS, 22712},
-	{CLASS_MAGIC_USER, ALL, HOME_HUMAN_SQUARE, 22712},
-	{CLASS_MAGIC_USER, ALL, HOME_DROW_ISLE, 22712},
+    {CLASS_MAGIC_USER, ALL, HOME_SKULLPORT, 22712},
+    {CLASS_MAGIC_USER, ALL, HOME_DWARVEN_CAVERNS, 22712},
+    {CLASS_MAGIC_USER, ALL, HOME_HUMAN_SQUARE, 22712},
+    {CLASS_MAGIC_USER, ALL, HOME_DROW_ISLE, 22712},
 
-	{CLASS_KNIGHT, EVIL, HOME_SKULLPORT, 22992},
-	{CLASS_KNIGHT, EVIL, HOME_DWARVEN_CAVERNS, 22992},
-	{CLASS_KNIGHT, EVIL, HOME_HUMAN_SQUARE, 22992},
-	{CLASS_KNIGHT, EVIL, HOME_DROW_ISLE, 22992},
+    {CLASS_KNIGHT, EVIL, HOME_SKULLPORT, 22992},
+    {CLASS_KNIGHT, EVIL, HOME_DWARVEN_CAVERNS, 22992},
+    {CLASS_KNIGHT, EVIL, HOME_HUMAN_SQUARE, 22992},
+    {CLASS_KNIGHT, EVIL, HOME_DROW_ISLE, 22992},
 
-	{CLASS_RANGER, ALL, HOME_MODRIAN, 2701},
-	{CLASS_MAGIC_USER, ALL, HOME_MODRIAN, 2702},
-	{CLASS_THIEF, ALL, HOME_MODRIAN, 2703},
-	{CLASS_BARB, ALL, HOME_MODRIAN, 2704},
-	{CLASS_CLERIC, EVIL, HOME_MODRIAN, 2705},
-	{CLASS_KNIGHT, EVIL, HOME_MODRIAN, 2706},
-	{CLASS_KNIGHT, GOOD, HOME_MODRIAN, 2707},
-	{CLASS_CLERIC, GOOD, HOME_MODRIAN, 2708},
+    {CLASS_RANGER, ALL, HOME_MODRIAN, 2701},
+    {CLASS_MAGIC_USER, ALL, HOME_MODRIAN, 2702},
+    {CLASS_THIEF, ALL, HOME_MODRIAN, 2703},
+    {CLASS_BARB, ALL, HOME_MODRIAN, 2704},
+    {CLASS_CLERIC, EVIL, HOME_MODRIAN, 2705},
+    {CLASS_KNIGHT, EVIL, HOME_MODRIAN, 2706},
+    {CLASS_KNIGHT, GOOD, HOME_MODRIAN, 2707},
+    {CLASS_CLERIC, GOOD, HOME_MODRIAN, 2708},
 
-	{CLASS_MONK, ALL, HOME_MONK, 21033},
+    {CLASS_MONK, ALL, HOME_MONK, 21033},
 
-	{CLASS_CYBORG, ALL, HOME_ELECTRO, 30270},
-	{CLASS_PHYSIC, ALL, HOME_ELECTRO, 30271},
-	{CLASS_MONK, ALL, HOME_ELECTRO, 30272},
-	{CLASS_PSIONIC, ALL, HOME_ELECTRO, 30273},
-	{CLASS_MERCENARY, ALL, HOME_ELECTRO, 30274},
-	{CLASS_CLERIC, EVIL, HOME_ELECTRO, 30276},
-	{CLASS_THIEF, ALL, HOME_ELECTRO, 30277},
-	{CLASS_RANGER, ALL, HOME_ELECTRO, 30278},
+    {CLASS_CYBORG, ALL, HOME_ELECTRO, 30270},
+    {CLASS_PHYSIC, ALL, HOME_ELECTRO, 30271},
+    {CLASS_MONK, ALL, HOME_ELECTRO, 30272},
+    {CLASS_PSIONIC, ALL, HOME_ELECTRO, 30273},
+    {CLASS_MERCENARY, ALL, HOME_ELECTRO, 30274},
+    {CLASS_CLERIC, EVIL, HOME_ELECTRO, 30276},
+    {CLASS_THIEF, ALL, HOME_ELECTRO, 30277},
+    {CLASS_RANGER, ALL, HOME_ELECTRO, 30278},
 
-	{CLASS_RANGER, ALL, HOME_SOLACE_COVE, 63134},
-	{CLASS_MAGIC_USER, ALL, HOME_SOLACE_COVE, 63137},
-	{CLASS_BARB, ALL, HOME_SOLACE_COVE, 63140},
-	{CLASS_KNIGHT, EVIL, HOME_SOLACE_COVE, 63143},
-	{CLASS_KNIGHT, GOOD, HOME_SOLACE_COVE, 63146},
-	{CLASS_CLERIC, GOOD, HOME_SOLACE_COVE, 63149},
-	{CLASS_THIEF, ALL, HOME_SOLACE_COVE, 63152},
+    {CLASS_RANGER, ALL, HOME_SOLACE_COVE, 63134},
+    {CLASS_MAGIC_USER, ALL, HOME_SOLACE_COVE, 63137},
+    {CLASS_BARB, ALL, HOME_SOLACE_COVE, 63140},
+    {CLASS_KNIGHT, EVIL, HOME_SOLACE_COVE, 63143},
+    {CLASS_KNIGHT, GOOD, HOME_SOLACE_COVE, 63146},
+    {CLASS_CLERIC, GOOD, HOME_SOLACE_COVE, 63149},
+    {CLASS_THIEF, ALL, HOME_SOLACE_COVE, 63152},
 
-	{-1, -1, -1, -1}
+    {-1, -1, -1, -1}
 };
 
 /****************************************************************************/
@@ -254,37 +254,38 @@ int max_bad_pws = 2;
 int nameserver_is_slow = YES;
 
 const char *GREETINGS =
-	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-	"\r\n"
-	".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"
-	"          @@@****************************************************@@@\r\n"
-	".   .   . @@* ************************************************** *@@.   .   . \r\n"
-	"          @@* *                     TEMPUS                     * *@@\r\n"
-	".   .   . @@* *                                                * *@@.   .   . \r\n"
-	"          @@* *               the anachronistic                * *@@\r\n"
-	".   .   . @@* *             Multiple User Domain               * *@@.   .   . \r\n"
-	"          @@* *                                                * *@@\r\n"
-	".   .   . @@* *                                                * *@@.   .   . \r\n"
-	"          @@* *     FOUNDATION:  Circle 3.00, Jeremy Elson     * *@@\r\n"
-	".   .   . @@* *       A derivative of DikuMUD (GAMMA 0.0)      * *@@.   .   . \r\n"
-	"          @@* *                                                * *@@\r\n"
-	".   .   . @@* *               Powered by Linux                 * *@@.   .   . \r\n"
-	"          @@* ************************************************** *@@\r\n"
-	".   .   . @@@****************************************************@@@.   .   . \r\n"
-	"           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\n"
-	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-	"\r\n"
-	".   .   .   .   .   .   . Welcome to the Mothership .   .   .   .   .   .   . \r\n"
-	"\r\n"
-	".   .   .  Please email admin@tempusmud.com with any login problems .   .   . \r\n"
-	"\r\n";
+    ".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
+    "\r\n"
+    ".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"
+    "          @@@****************************************************@@@\r\n"
+    ".   .   . @@* ************************************************** *@@.   .   . \r\n"
+    "          @@* *                     TEMPUS                     * *@@\r\n"
+    ".   .   . @@* *                                                * *@@.   .   . \r\n"
+    "          @@* *               the anachronistic                * *@@\r\n"
+    ".   .   . @@* *             Multiple User Domain               * *@@.   .   . \r\n"
+    "          @@* *                                                * *@@\r\n"
+    ".   .   . @@* *                                                * *@@.   .   . \r\n"
+    "          @@* *     FOUNDATION:  Circle 3.00, Jeremy Elson     * *@@\r\n"
+    ".   .   . @@* *       A derivative of DikuMUD (GAMMA 0.0)      * *@@.   .   . \r\n"
+    "          @@* *                                                * *@@\r\n"
+    ".   .   . @@* *               Powered by Linux                 * *@@.   .   . \r\n"
+    "          @@* ************************************************** *@@\r\n"
+    ".   .   . @@@****************************************************@@@.   .   . \r\n"
+    "           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\n"
+    ".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
+    "\r\n"
+    ".   .   .   .   .   .   . Welcome to the Mothership .   .   .   .   .   .   . \r\n"
+    "\r\n"
+    ".   .   .  Please email admin@tempusmud.com with any login problems .   .   . \r\n"
+    "\r\n";
 
-const char *WELC_MESSG = "\r\n" "Welcome to the realms of Tempus, adventurer.\r\n";
+const char *WELC_MESSG =
+    "\r\n" "Welcome to the realms of Tempus, adventurer.\r\n";
 
 const char *START_MESSG =
-	"Welcome.  This is your new character in the world of Tempus! \r\n"
-	"You must be strong to survive, but in time you may become powerful\r\n"
-	"beyond your wildest dreams...\r\n\r\n";
+    "Welcome.  This is your new character in the world of Tempus! \r\n"
+    "You must be strong to survive, but in time you may become powerful\r\n"
+    "beyond your wildest dreams...\r\n\r\n";
 
 /****************************************************************************/
 /****************************************************************************/

@@ -72,25 +72,25 @@ static unsigned long seed;
 void
 my_srand(unsigned long initial_seed)
 {
-	seed = initial_seed;
+    seed = initial_seed;
 }
 
 unsigned long
 my_rand(void)
 {
-	register int lo, hi, test;
+    register int lo, hi, test;
 
-	hi = seed / q;
-	lo = seed % q;
+    hi = seed / q;
+    lo = seed % q;
 
-	test = a * lo - r * hi;
+    test = a * lo - r * hi;
 
-	if (test > 0)
-		seed = test;
-	else
-		seed = test + m;
+    if (test > 0)
+        seed = test;
+    else
+        seed = test + m;
 
-	return seed;
+    return seed;
 }
 
 //
@@ -99,15 +99,16 @@ my_rand(void)
 int
 number(int from, int to)
 {
-	if (to <= from)
-		return (from);
-	return (int)(((long long)my_rand() * (long long)(to - from + 1) / INT_MAX) + from);
+    if (to <= from)
+        return (from);
+    return (int)(((long long)my_rand() * (long long)(to - from +
+                1) / INT_MAX) + from);
 }
 
 double
 rand_float(void)
 {
-	return (double)my_rand() / (double)INT_MAX;
+    return (double)my_rand() / (double)INT_MAX;
 }
 
 //
@@ -116,7 +117,7 @@ rand_float(void)
 bool
 random_binary()
 {
-	return !number(0,1);
+    return !number(0, 1);
 }
 
 //
@@ -125,9 +126,9 @@ random_binary()
 bool
 random_fractional(unsigned int num)
 {
-	if (num == 0)
-		return true;
-	return !number(0, num - 1);
+    if (num == 0)
+        return true;
+    return !number(0, num - 1);
 }
 
 //
@@ -136,7 +137,7 @@ random_fractional(unsigned int num)
 bool
 random_fractional_3()
 {
-	return !number(0, 2);
+    return !number(0, 2);
 }
 
 //
@@ -145,7 +146,7 @@ random_fractional_3()
 bool
 random_fractional_4()
 {
-	return !number(0, 3);
+    return !number(0, 3);
 }
 
 //
@@ -154,7 +155,7 @@ random_fractional_4()
 bool
 random_fractional_5()
 {
-	return !number(0, 4);
+    return !number(0, 4);
 }
 
 //
@@ -163,7 +164,7 @@ random_fractional_5()
 bool
 random_fractional_10()
 {
-	return !number(0, 9);
+    return !number(0, 9);
 }
 
 //
@@ -172,7 +173,7 @@ random_fractional_10()
 bool
 random_fractional_20()
 {
-	return !number(0, 19);
+    return !number(0, 19);
 }
 
 //
@@ -181,7 +182,7 @@ random_fractional_20()
 bool
 random_fractional_50()
 {
-	return !number(0, 49);
+    return !number(0, 49);
 }
 
 //
@@ -190,7 +191,7 @@ random_fractional_50()
 bool
 random_fractional_100()
 {
-	return !number(0, 99);
+    return !number(0, 99);
 }
 
 //
@@ -199,7 +200,7 @@ random_fractional_100()
 int
 random_percentage()
 {
-	return number(1, 100);
+    return number(1, 100);
 }
 
 //
@@ -208,7 +209,7 @@ random_percentage()
 int
 random_percentage_zero_low()
 {
-	return number(0, 99);
+    return number(0, 99);
 }
 
 //
@@ -217,9 +218,9 @@ random_percentage_zero_low()
 int
 random_number_zero_low(unsigned int num)
 {
-	if (num == 0)
-		return 0;
-	return number(0, num);
+    if (num == 0)
+        return 0;
+    return number(0, num);
 }
 
 //
@@ -233,6 +234,7 @@ rand_value(int val, int variance, int min, int max)
         max = val + variance;
     return number(min, max);
 }
+
 //
 //
 //
@@ -240,9 +242,9 @@ rand_value(int val, int variance, int min, int max)
 double
 float_number(double from, double to)
 {
-	if (to <= from)
-		return (from);
-	return rand_float() * (to - from) + from;
+    if (to <= from)
+        return (from);
+    return rand_float() * (to - from) + from;
 }
 
 //
@@ -251,13 +253,13 @@ float_number(double from, double to)
 int
 dice(int num, int size)
 {
-	int sum = 0;
+    int sum = 0;
 
-	if (size <= 0 || number <= 0)
-		return 0;
+    if (size <= 0 || number <= 0)
+        return 0;
 
-	while (num-- > 0)
-		sum += number(1, size);
+    while (num-- > 0)
+        sum += number(1, size);
 
-	return sum;
+    return sum;
 }

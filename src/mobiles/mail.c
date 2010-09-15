@@ -48,7 +48,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 void call_for_help(struct creature *ch, struct creature *attacker);
 
 // The vnum of the "letter" object
-const int MAIL_OBJ_VNUM  = 1204;
+const int MAIL_OBJ_VNUM = 1204;
 
 GList *load_mail(char *path);
 
@@ -107,8 +107,8 @@ mail_box_status(long id)
 // Like it says, store the mail.
 // Returns 0 if mail not stored.
 int
-store_mail(long to_id, long from_id, const char *txt, GList *cc_list,
-           struct obj_data *obj_list)
+store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
+    struct obj_data *obj_list)
 {
     char *mail_file_path;
     FILE *ofile;
@@ -121,19 +121,18 @@ store_mail(long to_id, long from_id, const char *txt, GList *cc_list,
     // This should never happen.
     if (!txt || !strlen(txt)) {
         send_to_char(get_char_in_world_by_idnum(from_id),
-                     "Why would you send a blank message?\r\n");
+            "Why would you send a blank message?\r\n");
         return 0;
     }
-
     // Recipient is frozen, buried, or deleted
     if (!can_receive_mail(to_id)) {
         send_to_char(get_char_in_world_by_idnum(from_id),
-                     "%s doesn't seem to be able to receive mail.\r\n",
+            "%s doesn't seem to be able to receive mail.\r\n",
             player_name_by_idnum(to_id));
         return 0;
     }
 
-    if(! player_idnum_exists(to_id) ) {
+    if (!player_idnum_exists(to_id)) {
         errlog("Toss_Mail Error, recipient idnum %ld invalid.", to_id);
         return 0;
     }
@@ -148,18 +147,18 @@ store_mail(long to_id, long from_id, const char *txt, GList *cc_list,
     time_str = asctime(localtime(&now));
     *(time_str + strlen(time_str) - 1) = '\0';
 
-	acc_string_clear();
+    acc_string_clear();
     acc_sprintf(" * * * *  Tempus Mail System  * * * *\r\n"
-		"Date: %s\r\n  To: %s\r\nFrom: %s",
-		time_str, player_name_by_idnum(to_id), player_name_by_idnum(from_id));
+        "Date: %s\r\n  To: %s\r\nFrom: %s",
+        time_str, player_name_by_idnum(to_id), player_name_by_idnum(from_id));
 
     if (!cc_list) {
-		GList *si;
+        GList *si;
 
-		for (si = cc_list;si;si = si->next)
-			acc_strcat((si == cc_list) ? "\r\n  CC: ":", ",
-                       (char *)si->data, NULL);
-	}
+        for (si = cc_list; si; si = si->next)
+            acc_strcat((si == cc_list) ? "\r\n  CC: " : ", ",
+                (char *)si->data, NULL);
+    }
     if (obj_list) {
         acc_strcat("\r\nPackages attached to this mail:\r\n", NULL);
         temp_o = obj_list;
@@ -169,7 +168,7 @@ store_mail(long to_id, long from_id, const char *txt, GList *cc_list,
             temp_o = temp_o->next_content;
         }
     }
-	acc_strcat("\r\n\r\n", txt, NULL);
+    acc_strcat("\r\n\r\n", txt, NULL);
 
     obj->action_desc = strdup(acc_get_string());
 
@@ -178,14 +177,13 @@ store_mail(long to_id, long from_id, const char *txt, GList *cc_list,
 
     if ((ofile = fopen(mail_file_path, "w")) == NULL) {
         errlog("Unable to open xml mail file '%s': %s",
-             mail_file_path, strerror(errno) );
+            mail_file_path, strerror(errno));
         return 0;
-    }
-    else {
+    } else {
         GList *oi;
 
         fprintf(ofile, "<objects>");
-        for (oi = mailBag;oi;oi = oi->next) {
+        for (oi = mailBag; oi; oi = oi->next) {
             obj = (struct obj_data *)oi->data;
             save_object_to_xml(obj, ofile);
             extract_obj(obj);
@@ -216,17 +214,17 @@ purge_mail(long idnum)
 //     telling him.  We'll let the spec say what it wants.
 // Returns the number of mails received.
 int
-receive_mail(struct creature * ch, GList *olist)
+receive_mail(struct creature *ch, GList * olist)
 {
     int num_letters = 0;
     int counter = 0;
-    char *path = get_mail_file_path( GET_IDNUM(ch) );
+    char *path = get_mail_file_path(GET_IDNUM(ch));
     bool container = false;
     GList *mailBag;
 
     mailBag = load_mail(path);
 
-    if (g_list_length(mailBag) > MAIL_BAG_THRESH )
+    if (g_list_length(mailBag) > MAIL_BAG_THRESH)
         container = true;
 
     GList *oi;
@@ -235,7 +233,7 @@ receive_mail(struct creature * ch, GList *olist)
     if (container)
         obj = read_object(MAIL_BAG_OBJ_VNUM);
 
-    for (oi = mailBag;oi;oi = oi->next) {
+    for (oi = mailBag; oi; oi = oi->next) {
         obj = oi->data;
         counter++;
 
@@ -251,8 +249,7 @@ receive_mail(struct creature * ch, GList *olist)
         }
         if (obj) {
             obj_to_obj(obj, obj);
-        }
-        else {
+        } else {
             obj_to_char(obj, ch);
         }
     }
@@ -262,23 +259,24 @@ receive_mail(struct creature * ch, GList *olist)
 
     unlink(path);
 
-   return num_letters;
+    return num_letters;
 }
 
-GList *load_mail(char *path)
+GList *
+load_mail(char *path)
 {
-	int axs = access(path, W_OK | R_OK);
+    int axs = access(path, W_OK | R_OK);
     GList *mailBag = NULL;
 
-	if( axs != 0 ) {
-		if( errno != ENOENT ) {
-			errlog("Unable to open xml mail file '%s': %s",
-				 path, strerror(errno) );
-			return mailBag;
-		} else {
-			return mailBag; // normal no eq file
-		}
-	}
+    if (axs != 0) {
+        if (errno != ENOENT) {
+            errlog("Unable to open xml mail file '%s': %s",
+                path, strerror(errno));
+            return mailBag;
+        } else {
+            return mailBag;     // normal no eq file
+        }
+    }
     xmlDocPtr doc = xmlParseFile(path);
     if (!doc) {
         errlog("XML parse error while loading %s", path);
@@ -292,14 +290,15 @@ GList *load_mail(char *path)
         return mailBag;
     }
 
-	for ( xmlNodePtr node = root->xmlChildrenNode; node; node = node->next ) {
-        if ( xmlMatches(node->name, "object") ) {
-			struct obj_data *obj = load_object_from_xml(NULL, NULL, NULL, node);
-			if (obj) {
+    for (xmlNodePtr node = root->xmlChildrenNode; node; node = node->next) {
+        if (xmlMatches(node->name, "object")) {
+            struct obj_data *obj =
+                load_object_from_xml(NULL, NULL, NULL, node);
+            if (obj) {
                 mailBag = g_list_append(mailBag, obj);
             }
         }
-	}
+    }
 
     xmlFreeDoc(doc);
 
@@ -317,19 +316,19 @@ SPECIAL(postmaster)
 {
     struct creature *self = (struct creature *)me;
 
-	if (spec_mode == SPECIAL_TICK) {
-		if (self->fighting && !number(0, 4)) {
-			call_for_help(self, random_opponent(self));
-			return 1;
-		}
-		return 0;
-	}
+    if (spec_mode == SPECIAL_TICK) {
+        if (self->fighting && !number(0, 4)) {
+            call_for_help(self, random_opponent(self));
+            return 1;
+        }
+        return 0;
+    }
 
-    if( spec_mode != SPECIAL_CMD )
+    if (spec_mode != SPECIAL_CMD)
         return 0;
 
     if (!ch || !ch->desc || IS_NPC(ch))
-        return 0;                /* so mobs don't get caught here */
+        return 0;               /* so mobs don't get caught here */
 
     if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")))
         return 0;
@@ -348,8 +347,7 @@ SPECIAL(postmaster)
 }
 
 void
-postmaster_send_mail(struct creature *ch, struct creature *mailman,
-    char *arg)
+postmaster_send_mail(struct creature *ch, struct creature *mailman, char *arg)
 {
     long recipient;
     char buf[MAX_STRING_LENGTH];
@@ -394,8 +392,8 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman,
         while (*buf) {
             if ((recipient = player_idnum_by_name(buf)) <= 0) {
                 perform_tell(mailman, ch,
-					tmp_sprintf("No one by the name '%s' is registered here!",
-						buf));
+                    tmp_sprintf("No one by the name '%s' is registered here!",
+                        buf));
             } else if ((status = mail_box_status(recipient)) > 0) {
                 // 0 is normal
                 // 1 is frozen
@@ -420,7 +418,7 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman,
                 }
                 perform_tell(mailman, ch, buf2);
             } else {
-                if (recipient == 1)    // fireball
+                if (recipient == 1) // fireball
                     total_cost += 1000000;
                 else
                     total_cost += STAMP_PRICE;
@@ -511,15 +509,13 @@ postmaster_receive_mail(struct creature *ch, struct creature *mailman)
         to_char = tmp_sprintf("Sorry, you don't have any mail waiting.");
         perform_tell(mailman, ch, to_char);
         return;
-    }
-    else if (num_mails > MAIL_BAG_THRESH) {
+    } else if (num_mails > MAIL_BAG_THRESH) {
         num_mails = num_mails / MAIL_BAG_OBJ_CONTAINS + 1;
         to_char = tmp_sprintf("$n gives you %d bag%s of mail", num_mails,
-               (num_mails > 1 ? "s" : ""));
+            (num_mails > 1 ? "s" : ""));
         to_room = tmp_sprintf("$n gives $N %d bag%s of mail", num_mails,
-               (num_mails > 1 ? "s" : ""));
-    }
-    else {
+            (num_mails > 1 ? "s" : ""));
+    } else {
         to_char = tmp_sprintf("$n gives you %d piece%s of mail", num_mails,
             (num_mails > 1 ? "s" : ""));
         to_room = tmp_sprintf("$n gives $N %d piece%s of mail", num_mails,
@@ -529,22 +525,19 @@ postmaster_receive_mail(struct creature *ch, struct creature *mailman)
     if (olist) {
         if (olist->next) {
             to_room = tmp_strcat(to_room, " and some packages.", NULL);
-        }
-        else {
+        } else {
             to_room = tmp_strcat(to_room, " and a package.", NULL);
         }
 
-        for (GList *li = olist;li;li = li->next) {
+        for (GList * li = olist; li; li = li->next) {
             struct obj_data *obj = li->data;
             if (!li->next) {
                 to_char = tmp_strcat(to_char, " and ", obj->name, ".", NULL);
-            }
-            else {
+            } else {
                 to_char = tmp_strcat(to_char, ", ", obj->name, NULL);
             }
         }
-    }
-    else {
+    } else {
         to_char = tmp_strcat(to_char, ".", NULL);
         to_room = tmp_strcat(to_room, ".", NULL);
     }

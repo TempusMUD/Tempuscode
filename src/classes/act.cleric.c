@@ -29,13 +29,13 @@ ASPELL(spell_dispel_evil)
 
     if (IS_EVIL(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
         send_to_char(ch,
-                     "Your soul is not righteous enough to cast this spell.\n");
+            "Your soul is not righteous enough to cast this spell.\n");
         return;
     }
 
     if (victim == ch) {
         send_to_char(ch,
-                     "That is not the way to the path of righteousness.\n");
+            "That is not the way to the path of righteousness.\n");
         return;
     }
 
@@ -54,7 +54,7 @@ ASPELL(spell_dispel_evil)
         }
 
         GET_ALIGNMENT(victim) += MAX(10,
-                                     skill_bonus(ch, SPELL_DISPEL_EVIL) >> 2);
+            skill_bonus(ch, SPELL_DISPEL_EVIL) >> 2);
 
         if (!IS_SET(retval, DAM_ATTACKER_KILLED))
             WAIT_STATE(ch, 2 RL_SEC);
@@ -97,13 +97,13 @@ ASPELL(spell_dispel_good)
 
     if (IS_GOOD(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
         send_to_char(ch,
-                     "Your soul is not stained enough to cast this spell.\n");
+            "Your soul is not stained enough to cast this spell.\n");
         return;
     }
 
     if (victim == ch) {
         send_to_char(ch,
-                     "That is not the way to the path of unrighteousness.\n");
+            "That is not the way to the path of unrighteousness.\n");
         return;
     }
 
@@ -123,7 +123,7 @@ ASPELL(spell_dispel_good)
         }
 
         GET_ALIGNMENT(victim) -= MAX(5,
-                                     skill_bonus(ch, SPELL_DISPEL_GOOD) / 5);
+            skill_bonus(ch, SPELL_DISPEL_GOOD) / 5);
 
         if (!IS_SET(retval, DAM_ATTACKER_KILLED))
             WAIT_STATE(ch, 2 RL_SEC);

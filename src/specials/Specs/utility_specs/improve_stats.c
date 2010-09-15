@@ -14,203 +14,217 @@ enum {
 };
 
 const char *improve_modes[7] = {
-	"strength", "intelligence", "wisdom",
-	"dexterity", "constitution", "charisma",
-	"\n"
+    "strength", "intelligence", "wisdom",
+    "dexterity", "constitution", "charisma",
+    "\n"
 };
 
 sbyte *
-real_stat_ptr(struct creature *ch, int mode) {
+real_stat_ptr(struct creature *ch, int mode)
+{
     switch (mode) {
-    case MODE_STR: return &ch->real_abils.str;
-    case MODE_INT: return &ch->real_abils.intel;
-    case MODE_WIS: return &ch->real_abils.wis;
-    case MODE_DEX: return &ch->real_abils.dex;
-    case MODE_CON: return &ch->real_abils.con;
-    case MODE_CHA: return &ch->real_abils.cha;
+    case MODE_STR:
+        return &ch->real_abils.str;
+    case MODE_INT:
+        return &ch->real_abils.intel;
+    case MODE_WIS:
+        return &ch->real_abils.wis;
+    case MODE_DEX:
+        return &ch->real_abils.dex;
+    case MODE_CON:
+        return &ch->real_abils.con;
+    case MODE_CHA:
+        return &ch->real_abils.cha;
     }
     return NULL;
 }
 
 int
-do_gen_improve(struct creature *ch, struct creature *trainer, int cmd, int mode, char *argument)
+do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
+    int mode, char *argument)
 {
 
-	int gold, life_cost;
+    int gold, life_cost;
     sbyte *real_stat = real_stat_ptr(ch, mode);
-	sbyte old_stat = *real_stat;
-	int max_stat;
+    sbyte old_stat = *real_stat;
+    int max_stat;
 
-	if ((!CMD_IS("improve") && !CMD_IS("train")) || IS_NPC(ch))
-		return false;
+    if ((!CMD_IS("improve") && !CMD_IS("train")) || IS_NPC(ch))
+        return false;
 
-	if (GET_LEVEL(ch) < 10) {
-		send_to_char(ch, "You are not yet ready to improve this way.\r\n");
-		send_to_char(ch, "Come back when you are level 10 or above.\r\n");
-		return true;
-	}
+    if (GET_LEVEL(ch) < 10) {
+        send_to_char(ch, "You are not yet ready to improve this way.\r\n");
+        send_to_char(ch, "Come back when you are level 10 or above.\r\n");
+        return true;
+    }
 
-	gold = *real_stat * GET_LEVEL(ch) * 50;
-	if (mode == MODE_STR && IS_MAGE(ch))
-		gold <<= 1;
-    gold += (gold*cost_modifier(ch, trainer))/100;
+    gold = *real_stat * GET_LEVEL(ch) * 50;
+    if (mode == MODE_STR && IS_MAGE(ch))
+        gold <<= 1;
+    gold += (gold * cost_modifier(ch, trainer)) / 100;
 
-	life_cost = MAX(6, (*real_stat << 1) - (GET_WIS(ch)));
+    life_cost = MAX(6, (*real_stat << 1) - (GET_WIS(ch)));
 
-	skip_spaces(&argument);
+    skip_spaces(&argument);
 
-	switch (mode) {
-        case MODE_STR:
-            max_stat = get_max_str(ch);
-            break;
-        case MODE_DEX:
-            max_stat = get_max_dex(ch);
-            break;
-        case MODE_INT:
-            max_stat = get_max_int(ch);
-            break;
-        case MODE_CON:
-            max_stat = get_max_con(ch);
-            break;
-        case MODE_CHA:
-            max_stat = get_max_cha(ch);
-            break;
-        case MODE_WIS:
-            max_stat = get_max_wis(ch);
-            break;
-        default:
-            return false;
-	}
+    switch (mode) {
+    case MODE_STR:
+        max_stat = get_max_str(ch);
+        break;
+    case MODE_DEX:
+        max_stat = get_max_dex(ch);
+        break;
+    case MODE_INT:
+        max_stat = get_max_int(ch);
+        break;
+    case MODE_CON:
+        max_stat = get_max_con(ch);
+        break;
+    case MODE_CHA:
+        max_stat = get_max_cha(ch);
+        break;
+    case MODE_WIS:
+        max_stat = get_max_wis(ch);
+        break;
+    default:
+        return false;
+    }
 
-	if (!*argument) {
-		if (*real_stat >= max_stat &&	// Thier stat is maxed
-			// And make sure they cant up thier stradd
-			(!(mode == MODE_STR && *real_stat == 18
-					&& ch->real_abils.str_add < 100))) {
-			send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
-				CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
-			return true;
-		}
+    if (!*argument) {
+        if (*real_stat >= max_stat &&   // Thier stat is maxed
+            // And make sure they cant up thier stradd
+            (!(mode == MODE_STR && *real_stat == 18
+                    && ch->real_abils.str_add < 100))) {
+            send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
+                CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
+            return true;
+        }
 
-		send_to_char(ch,
-			"It will cost you %d coins and %d life points to improve your %s.\r\n",
-			gold, life_cost, improve_modes[mode]);
-		sprintf(buf, "$n considers the implications of improving $s %s.",
-			improve_modes[mode]);
-		act(buf, true, ch, 0, 0, TO_ROOM);
-		if (GET_GOLD(ch) < gold)
-			send_to_char(ch,
-				"But you do not have enough gold on you for that.\r\n");
-		else if (GET_LIFE_POINTS(ch) < life_cost)
-			send_to_char(ch,
-				"But you do not have enough life points for that.\r\n");
+        send_to_char(ch,
+            "It will cost you %d coins and %d life points to improve your %s.\r\n",
+            gold, life_cost, improve_modes[mode]);
+        sprintf(buf, "$n considers the implications of improving $s %s.",
+            improve_modes[mode]);
+        act(buf, true, ch, 0, 0, TO_ROOM);
+        if (GET_GOLD(ch) < gold)
+            send_to_char(ch,
+                "But you do not have enough gold on you for that.\r\n");
+        else if (GET_LIFE_POINTS(ch) < life_cost)
+            send_to_char(ch,
+                "But you do not have enough life points for that.\r\n");
 
-		return true;
-	}
+        return true;
+    }
 
-	if (!is_abbrev(argument, improve_modes[mode])) {
-		send_to_char(ch, "The only thing you can improve here is %s.\r\n",
-			improve_modes[mode]);
-		return true;
-	}
+    if (!is_abbrev(argument, improve_modes[mode])) {
+        send_to_char(ch, "The only thing you can improve here is %s.\r\n",
+            improve_modes[mode]);
+        return true;
+    }
 
-	if (*real_stat >= max_stat &&	// Thier stat is maxed
-		// And make sure they cant up thier stradd
-		(!(mode == MODE_STR && *real_stat == 18
-				&& ch->real_abils.str_add < 100))) {
-		send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
-			CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
-		return true;
-	}
+    if (*real_stat >= max_stat &&   // Thier stat is maxed
+        // And make sure they cant up thier stradd
+        (!(mode == MODE_STR && *real_stat == 18
+                && ch->real_abils.str_add < 100))) {
+        send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
+            CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
+        return true;
+    }
 
-	if (GET_GOLD(ch) < gold) {
-		send_to_char(ch, "You cannot afford it.  The cost is %d coins.\r\n",
-			gold);
-		return 1;
-	}
-	if (GET_LIFE_POINTS(ch) < life_cost) {
-		sprintf(buf,
-			"You have not gained sufficient life points to do this.\r\n"
-			"It requires %d.\r\n", life_cost);
-		send_to_char(ch, "%s", buf);
-		return 1;
-	}
+    if (GET_GOLD(ch) < gold) {
+        send_to_char(ch, "You cannot afford it.  The cost is %d coins.\r\n",
+            gold);
+        return 1;
+    }
+    if (GET_LIFE_POINTS(ch) < life_cost) {
+        sprintf(buf,
+            "You have not gained sufficient life points to do this.\r\n"
+            "It requires %d.\r\n", life_cost);
+        send_to_char(ch, "%s", buf);
+        return 1;
+    }
 
-	while (ch->affected)
-		affect_remove(ch, ch->affected);
+    while (ch->affected)
+        affect_remove(ch, ch->affected);
 
-	GET_GOLD(ch) = MAX(0, GET_GOLD(ch) - gold);
-	GET_LIFE_POINTS(ch) -= life_cost;
+    GET_GOLD(ch) = MAX(0, GET_GOLD(ch) - gold);
+    GET_LIFE_POINTS(ch) -= life_cost;
 
-	if (mode == MODE_STR) {
-		if (*real_stat == 18)
-			*real_stat += (ch->real_abils.str_add / 10);
-		else if (*real_stat > 18)
-			*real_stat += 10;
+    if (mode == MODE_STR) {
+        if (*real_stat == 18)
+            *real_stat += (ch->real_abils.str_add / 10);
+        else if (*real_stat > 18)
+            *real_stat += 10;
 
-		*real_stat += 1;
-		ch->real_abils.str_add = 0;
+        *real_stat += 1;
+        ch->real_abils.str_add = 0;
 
-		if (*real_stat > 18) {
-			if (*real_stat > 28) {
-				*real_stat = 18 + (*real_stat - 28);
-			} else {
-				ch->real_abils.str_add = (*real_stat - 18) * 10;
-				*real_stat = 18;
-			}
-		} else
-			ch->real_abils.str_add = 0;
-	} else {
-		*real_stat += 1;
-	}
-	// Must copy the aff abils over
-	ch->aff_abils = ch->real_abils;
+        if (*real_stat > 18) {
+            if (*real_stat > 28) {
+                *real_stat = 18 + (*real_stat - 28);
+            } else {
+                ch->real_abils.str_add = (*real_stat - 18) * 10;
+                *real_stat = 18;
+            }
+        } else
+            ch->real_abils.str_add = 0;
+    } else {
+        *real_stat += 1;
+    }
+    // Must copy the aff abils over
+    ch->aff_abils = ch->real_abils;
 
-	if (mode != MODE_STR)
-		slog("%s improved %s from %d to %d at %d.",
-			GET_NAME(ch), improve_modes[mode], old_stat, *real_stat,
-			ch->in_room->number);
-	else
-		slog("%s improved %s from %d to %d/%d at %d.",
-			GET_NAME(ch), improve_modes[mode], old_stat, *real_stat,
-			ch->real_abils.str_add, ch->in_room->number);
+    if (mode != MODE_STR)
+        slog("%s improved %s from %d to %d at %d.",
+            GET_NAME(ch), improve_modes[mode], old_stat, *real_stat,
+            ch->in_room->number);
+    else
+        slog("%s improved %s from %d to %d/%d at %d.",
+            GET_NAME(ch), improve_modes[mode], old_stat, *real_stat,
+            ch->real_abils.str_add, ch->in_room->number);
 
-	send_to_char(ch, "You begin your training.\r\n");
-	act("$n begins to train.", false, ch, 0, 0, TO_ROOM);
-	WAIT_STATE(ch, *real_stat RL_SEC);
-	save_player_to_xml(ch);
+    send_to_char(ch, "You begin your training.\r\n");
+    act("$n begins to train.", false, ch, 0, 0, TO_ROOM);
+    WAIT_STATE(ch, *real_stat RL_SEC);
+    save_player_to_xml(ch);
 
-	return true;
+    return true;
 }
 
 SPECIAL(improve_dex)
 {
-	return (do_gen_improve(ch, (struct creature*)me, cmd, MODE_DEX, argument));
+    return (do_gen_improve(ch, (struct creature *)me, cmd, MODE_DEX,
+            argument));
 }
 
 SPECIAL(improve_str)
 {
-	return (do_gen_improve(ch, (struct creature*)me, cmd, MODE_STR, argument));
+    return (do_gen_improve(ch, (struct creature *)me, cmd, MODE_STR,
+            argument));
 }
 
 SPECIAL(improve_int)
 {
-	return (do_gen_improve(ch, (struct creature*)me, cmd, MODE_INT, argument));
+    return (do_gen_improve(ch, (struct creature *)me, cmd, MODE_INT,
+            argument));
 }
 
 SPECIAL(improve_wis)
 {
-	return (do_gen_improve(ch, (struct creature*)me, cmd, MODE_WIS, argument));
+    return (do_gen_improve(ch, (struct creature *)me, cmd, MODE_WIS,
+            argument));
 }
 
 SPECIAL(improve_con)
 {
-	return (do_gen_improve(ch, (struct creature*)me, cmd, MODE_CON, argument));
+    return (do_gen_improve(ch, (struct creature *)me, cmd, MODE_CON,
+            argument));
 }
 
 SPECIAL(improve_cha)
 {
-	return (do_gen_improve(ch, (struct creature*)me, cmd, MODE_CHA, argument));
+    return (do_gen_improve(ch, (struct creature *)me, cmd, MODE_CHA,
+            argument));
 }
 
 #undef MODE_STR

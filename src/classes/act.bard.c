@@ -92,7 +92,8 @@ char *get_instrument_type(int songnum);
     static const int SKILL_LINGERING_SONG = 676; // increases duration of song affects
 */
 void
-sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict, int songnum)
+sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict,
+    int songnum)
 {
     char *buf;
     const char *vbuf;
@@ -100,11 +101,11 @@ sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict, in
 
     if (!SPELL_FLAGGED(songnum, MAG_BARD)) {
         mlog(ROLE_ADMINBASIC, LVL_AMBASSADOR, NRM, true,
-             "(%d) Not a bard song in sing_song()", songnum);
+            "(%d) Not a bard song in sing_song()", songnum);
         return;
     }
-
-    void describe_singing(struct creature *tch, int ignore) {
+    for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
+        struct creature *tch = cit->data;
         if (!tch->desc || !AWAKE(tch) ||
             PLR_FLAGGED(tch, PLR_WRITING | PLR_OLC))
             return;
@@ -124,42 +125,33 @@ sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict, in
                 vbuf = " to herself";
             else
                 vbuf = " to itself";
-        }
-        else
+        } else
             vbuf = " to yourself";
 
         if (song->instrumental) {
             if (tch == ch)
-                buf = tmp_sprintf("You begin to play %s%s.", song->lyrics, vbuf);
+                buf =
+                    tmp_sprintf("You begin to play %s%s.", song->lyrics, vbuf);
             else
                 buf = tmp_sprintf("%s begins playing %s%s.",
-                                  PERS(ch, tch),
-                                  song->lyrics,
-                                  vbuf);
+                    PERS(ch, tch), song->lyrics, vbuf);
         } else {
             if (tch == ch)
                 buf = tmp_sprintf("You sing%s, %s\"%s\"%s",
-                                  vbuf,
-                                  CCCYN(tch, C_NRM),
-                                  song->lyrics,
-                                  CCNRM(tch, C_NRM));
+                    vbuf, CCCYN(tch, C_NRM), song->lyrics, CCNRM(tch, C_NRM));
             else
                 buf = tmp_sprintf("%s sings%s, %s\"%s\"%s",
-                                  PERS(ch, tch),
-                                  vbuf,
-                                  CCCYN(tch, C_NRM),
-                                  song->lyrics,
-                                  CCNRM(tch, C_NRM));
+                    PERS(ch, tch),
+                    vbuf, CCCYN(tch, C_NRM), song->lyrics, CCNRM(tch, C_NRM));
             buf = pad_song(buf);
         }
 
         perform_act(buf, ch, NULL, NULL, tch, 0);
     }
-
-    g_list_foreach(ch->in_room->people, (GFunc)describe_singing, NULL);
 }
 
-char *pad_song(char *lyrics)
+char *
+pad_song(char *lyrics)
 {
     int counter = 0;
     char *ptr = lyrics;
@@ -174,7 +166,8 @@ char *pad_song(char *lyrics)
     return tmp_gsub(lyrics, "\n", sub);
 };
 
-bool bard_can_charm_more(struct creature *ch)
+bool
+bard_can_charm_more(struct creature * ch)
 {
     struct follow_type *cur;
     int count = 0;
@@ -182,7 +175,7 @@ bool bard_can_charm_more(struct creature *ch)
     if (!ch->followers)
         return true;
 
-    for (cur = ch->followers;cur;cur = cur->next)
+    for (cur = ch->followers; cur; cur = cur->next)
         if (AFF_FLAGGED(cur->follower, AFF_CHARM))
             count++;
 
@@ -190,7 +183,8 @@ bool bard_can_charm_more(struct creature *ch)
 
 }
 
-bool check_instrument(struct creature *ch, int songnum)
+bool
+check_instrument(struct creature * ch, int songnum)
 {
     struct obj_data *objs[4];
     short req_type = songs[songnum].type;
@@ -215,7 +209,8 @@ bool check_instrument(struct creature *ch, int songnum)
     return found;
 }
 
-char *get_instrument_type(int songnum)
+char *
+get_instrument_type(int songnum)
 {
     char *type = tmp_strdup(instrument_types[songs[songnum].type]);
 
@@ -232,7 +227,8 @@ ASPELL(song_instant_audience)
     extern void add_follower(struct creature *ch, struct creature *leader);
 
     if (room_is_open_air(ch->in_room)) {
-        send_to_char(ch, "Oh come now!  There's no one up here to hear you!\r\n");
+        send_to_char(ch,
+            "Oh come now!  There's no one up here to hear you!\r\n");
         return;
     }
 
@@ -249,12 +245,13 @@ ASPELL(song_instant_audience)
         member = read_mobile(vnum);
 
         if (!member) {
-            send_to_char(ch, "Something just went terribly wrong.  Please report.\r\n");
+            send_to_char(ch,
+                "Something just went terribly wrong.  Please report.\r\n");
             return;
         }
 
-        float mult = MAX(0.5 ,
-                         (float)((skill_bonus(ch, SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
+        float mult = MAX(0.5,
+            (float)((skill_bonus(ch, SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
 
         // tweak them out
         GET_HITROLL(member) = MIN((int)(GET_HITROLL(member) * mult), 60);
@@ -287,12 +284,13 @@ ASPELL(song_instant_audience)
 
     if (success) {
         act("You have gathered an audience!", false, ch, NULL, NULL, TO_CHAR);
-        act("$n's playing has gathered an audience!", false, ch, NULL, NULL, TO_ROOM);
+        act("$n's playing has gathered an audience!", false, ch, NULL, NULL,
+            TO_ROOM);
         gain_skill_prof(ch, SONG_INSTANT_AUDIENCE);
-    }
-    else {
+    } else {
         act("No one came to hear your music!", false, ch, NULL, NULL, TO_CHAR);
-        act("No one came to hear $n's music!!", false, ch, NULL, NULL, TO_ROOM);
+        act("No one came to hear $n's music!!", false, ch, NULL, NULL,
+            TO_ROOM);
         gain_skill_prof(ch, SONG_INSTANT_AUDIENCE);
     }
 }
@@ -313,7 +311,8 @@ ASPELL(song_exposure_overture)
         if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
             return;
 
-        prob = ((skill_bonus(ch, SONG_EXPOSURE_OVERTURE) * 3 / 4) + GET_CHA(ch));
+        prob =
+            ((skill_bonus(ch, SONG_EXPOSURE_OVERTURE) * 3 / 4) + GET_CHA(ch));
         percent = GET_LEVEL(tch) + (GET_CHA(tch) / 2) + number(1, 60);
 
         if (prob < percent)
@@ -347,15 +346,15 @@ ASPELL(song_exposure_overture)
             to_room = "$N is no longer hidden!";
         }
 
-		if (to_char)
+        if (to_char)
             act(to_char, false, ch, NULL, tch, TO_CHAR);
-		if (to_room)
+        if (to_room)
             act(to_room, false, ch, NULL, tch, TO_NOTVICT);
-		if (to_vict)
+        if (to_vict)
             act(to_vict, false, ch, NULL, tch, TO_VICT);
     }
 
-    g_list_foreach(ch->in_room->people, (GFunc)expose_char, NULL);
+    g_list_foreach(ch->in_room->people, (GFunc) expose_char, NULL);
 
     gain_skill_prof(ch, SONG_EXPOSURE_OVERTURE);
 }
@@ -374,26 +373,29 @@ ASPELL(song_lament_of_longing)
     }
 
     if (GET_LEVEL(victim) >= LVL_AMBASSADOR &&
-		GET_LEVEL(ch) < GET_LEVEL(victim)) {
-		send_to_char(ch, "Cannot find the target of your spell!\r\n");
-		act("$n has sung a song of longing for you.", false,
+        GET_LEVEL(ch) < GET_LEVEL(victim)) {
+        send_to_char(ch, "Cannot find the target of your spell!\r\n");
+        act("$n has sung a song of longing for you.", false,
             ch, 0, victim, TO_VICT);
     }
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)) {
-        send_to_char(ch, "A portal tries to form but snaps suddenly out of existence.\r\n");
+        send_to_char(ch,
+            "A portal tries to form but snaps suddenly out of existence.\r\n");
         act("A shimmering portal appears for a moment but "
-            "snaps suddenly out of existence.\r\n", false, ch, NULL, NULL, TO_ROOM);
+            "snaps suddenly out of existence.\r\n", false, ch, NULL, NULL,
+            TO_ROOM);
         return;
     }
 
     if (IS_NPC(victim)) {
         send_to_char(ch, "Better not sneak up on a monster like that.  "
-                     "It might be upset!\r\n");
+            "It might be upset!\r\n");
         return;
     }
 
-    if (g_list_length(victim->in_room->people) >= (unsigned)ch->in_room->max_occupancy) {
+    if (g_list_length(victim->in_room->people) >=
+        (unsigned)ch->in_room->max_occupancy) {
         send_to_char(ch, "But there is no room for you there!\r\n");
         return;
     }
@@ -411,7 +413,7 @@ ASPELL(song_lament_of_longing)
 
     if (victim->in_room->zone != ch->in_room->zone &&
         (ZONE_FLAGGED(victim->in_room->zone, ZONE_ISOLATED) ||
-         ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) {
+            ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) {
         act("The place $E exists is completely isolated from this.",
             false, ch, 0, victim, TO_CHAR);
         return;
@@ -420,7 +422,7 @@ ASPELL(song_lament_of_longing)
     if (GET_PLANE(ch->in_room) != GET_PLANE(victim->in_room)) {
         if (GET_PLANE(victim->in_room) != PLANE_ASTRAL) {
             if (number(0, 120) > (CHECK_SKILL(ch, SONG_LAMENT_OF_LONGING) +
-                (GET_CHA(ch) / 2))) {
+                    (GET_CHA(ch) / 2))) {
                 if ((targ_room = real_room(number(41100, 41863))) == NULL)
                     targ_room = victim->in_room;
             }
@@ -428,11 +430,12 @@ ASPELL(song_lament_of_longing)
     }
 
     if (number(0, 225) > (skill_bonus(ch, SONG_LAMENT_OF_LONGING) +
-        CHECK_SKILL(ch, SONG_LAMENT_OF_LONGING))) {
+            CHECK_SKILL(ch, SONG_LAMENT_OF_LONGING))) {
         send_to_char(ch, "A shimmering portal begins to appear but it "
-                         "fades along with your music..\r\n");
+            "fades along with your music..\r\n");
         act("A shimmering portal begins to appear but it "
-            "fades along with $n's music.\r\n", false, ch, NULL, NULL, TO_ROOM);
+            "fades along with $n's music.\r\n", false, ch, NULL, NULL,
+            TO_ROOM);
         return;
     }
 
@@ -442,15 +445,17 @@ ASPELL(song_lament_of_longing)
     if (!rift1 || !rift2) {
         errlog("QUANTUM_RIFT_VNUM does not exist?  WTF!");
         send_to_char(ch, "We seem to be having some technical difficulties. "
-                     "please report this to the nearest imm.  Thanks.\r\n");
+            "please report this to the nearest imm.  Thanks.\r\n");
         return;
     }
 
     GET_OBJ_TIMER(rift1) = (1 + skill_bonus(ch, SONG_LAMENT_OF_LONGING)) >> 5;
     GET_OBJ_TIMER(rift2) = GET_OBJ_TIMER(rift1);
 
-    rift1->line_desc = strdup("A beautiful, shimmering rift has been opened here.");
-    rift2->line_desc = strdup("A beautiful, shimmering rift has been opened here.");
+    rift1->line_desc =
+        strdup("A beautiful, shimmering rift has been opened here.");
+    rift2->line_desc =
+        strdup("A beautiful, shimmering rift has been opened here.");
 
     GET_OBJ_VAL(rift1, 0) = targ_room->number;
     GET_OBJ_VAL(rift2, 0) = ch->in_room->number;
@@ -458,15 +463,13 @@ ASPELL(song_lament_of_longing)
     obj_to_room(rift1, ch->in_room);
     obj_to_room(rift2, targ_room);
 
-    act("A beautiful rift in space appears, pulsing to the sound of your music!",
-         true, ch, NULL, NULL, TO_CHAR);
-    act("A beautiful rift in space appears, pulsing to the sound of $n's music!",
-         true, ch, NULL, NULL, TO_ROOM);
+    act("A beautiful rift in space appears, pulsing to the sound of your music!", true, ch, NULL, NULL, TO_CHAR);
+    act("A beautiful rift in space appears, pulsing to the sound of $n's music!", true, ch, NULL, NULL, TO_ROOM);
 
     if (targ_room == victim->in_room) {
         act("A lonely song suddenly drifts through the air and "
             "a beautiful rift appears before you!",
-             true, victim, NULL, NULL, TO_CHAR);
+            true, victim, NULL, NULL, TO_CHAR);
     }
 
     void add_wait_state(struct creature *tch, gpointer ignore) {
@@ -474,7 +477,7 @@ ASPELL(song_lament_of_longing)
             WAIT_STATE(tch, 5 RL_SEC);
     }
 
-    g_list_foreach(ch->in_room->people, (GFunc)add_wait_state, NULL);
+    g_list_foreach(ch->in_room->people, (GFunc) add_wait_state, NULL);
 
     gain_skill_prof(ch, SONG_LAMENT_OF_LONGING);
 }
@@ -494,11 +497,12 @@ ASPELL(song_rhythm_of_alarm)
     }
 
     send_to_room("The music summons a large symbol which "
-                 "disappears into the ground.\r\n", ch->in_room);
+        "disappears into the ground.\r\n", ch->in_room);
 
     rm_aff.level = level;
     rm_aff.spell_type = SONG_RHYTHM_OF_ALARM;
-    rm_aff.duration = number(1, 100) + (skill_bonus(ch, SONG_RHYTHM_OF_ALARM) * 2);
+    rm_aff.duration =
+        number(1, 100) + (skill_bonus(ch, SONG_RHYTHM_OF_ALARM) * 2);
     rm_aff.owner = GET_IDNUM(ch);
     affect_to_room(ch->in_room, &rm_aff);
 
@@ -507,7 +511,9 @@ ASPELL(song_rhythm_of_alarm)
 
 ASPELL(song_wall_of_sound)
 {
-    const char *dir_adj[] = { "northern", "eastern", "southern", "western", "upwards", "downwards", "future", "past" };
+    const char *dir_adj[] =
+        { "northern", "eastern", "southern", "western", "upwards", "downwards",
+            "future", "past" };
     struct room_affect_data rm_aff;
     struct room_affect_data *rm_aff_ptr;
     const char *dir_str;
@@ -524,16 +530,16 @@ ASPELL(song_wall_of_sound)
 
     rm_aff_ptr = room_affected_by(ch->in_room, SONG_WALL_OF_SOUND);
     if (rm_aff_ptr) {
-		send_to_room(tmp_sprintf("The wall of sound to the %s falters and fades.\r\n",
-								 dirs[(int)rm_aff_ptr->type]),
-					 ch->in_room);
-		affect_from_room(ch->in_room, rm_aff_ptr);
+        send_to_room(tmp_sprintf
+            ("The wall of sound to the %s falters and fades.\r\n",
+                dirs[(int)rm_aff_ptr->type]), ch->in_room);
+        affect_from_room(ch->in_room, rm_aff_ptr);
     }
 
     dir_str = dir_adj[*dir];
-    send_to_room(tmp_sprintf("A wall of sound appears, sealing the %s exit!\r\n",
-							 dir_str),
-				 ch->in_room);
+    send_to_room(tmp_sprintf
+        ("A wall of sound appears, sealing the %s exit!\r\n", dir_str),
+        ch->in_room);
 
     rm_aff.level = level;
     rm_aff.spell_type = SONG_WALL_OF_SOUND;
@@ -541,8 +547,9 @@ ASPELL(song_wall_of_sound)
     rm_aff.duration = number(1, 50) + (skill_bonus(ch, SONG_WALL_OF_SOUND));
     rm_aff.flags = EX_NOPASS;
     rm_aff.owner = GET_IDNUM(ch);
-	rm_aff.description = strdup(tmp_sprintf("A shimmering wall seals the %s exit.\r\n",
-											 dir_str));
+    rm_aff.description =
+        strdup(tmp_sprintf("A shimmering wall seals the %s exit.\r\n",
+            dir_str));
     affect_to_room(ch->in_room, &rm_aff);
 
     gain_skill_prof(ch, SONG_WALL_OF_SOUND);
@@ -555,10 +562,11 @@ ASPELL(song_hymn_of_peace)
         remove_all_combat(tch);
         mag_unaffects(level, ch, tch, SONG_HYMN_OF_PEACE, 0);
     }
-    g_list_foreach(ch->in_room->people, (GFunc)pacify_char, NULL);
+    g_list_foreach(ch->in_room->people, (GFunc) pacify_char, NULL);
 
     send_to_char(ch, "Your song brings a feeling of peacefulness.\r\n");
-    act("A feeling of peacefulness is heralded by $n's song.", false, ch, 0, 0, TO_ROOM);
+    act("A feeling of peacefulness is heralded by $n's song.", false, ch, 0, 0,
+        TO_ROOM);
 
     gain_skill_prof(ch, SONG_HYMN_OF_PEACE);
 }
@@ -603,12 +611,14 @@ ACMD(do_ventriloquize)
             otarget = get_obj_in_list_vis(ch, target_str, ch->carrying);
 
             if (!otarget) {
-                otarget = get_obj_in_list_vis(ch, target_str, ch->in_room->contents);
+                otarget =
+                    get_obj_in_list_vis(ch, target_str, ch->in_room->contents);
             }
         }
 
         if (!target && !otarget) {
-            send_to_char(ch, "I can't find the target of your ventriloquization!\r\n");
+            send_to_char(ch,
+                "I can't find the target of your ventriloquization!\r\n");
             return;
         }
     }
@@ -624,24 +634,21 @@ ACMD(do_ventriloquize)
                 target_str = tmp_strdup(" to you");
             else
                 target_str = tmp_sprintf(" to %s", GET_NAME(target));
-        }
-        else if (otarget) {
+        } else if (otarget) {
             if (otarget == obj)
                 target_str = tmp_strdup(" to itself");
             else
                 target_str = tmp_sprintf(" to %s", otarget->name);
-        }
-        else
+        } else
             target_str = NULL;
 
         send_to_char(tch, "%s%s says%s,%s%s \'%s\'%s\r\n",
-                     CCBLU_BLD(ch, C_NRM),
-                     tmp_capitalize(obj->name),
-                     (target_str ? target_str : ""),
-                     CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), argument,
-                     CCNRM(ch, C_NRM));
+            CCBLU_BLD(ch, C_NRM),
+            tmp_capitalize(obj->name),
+            (target_str ? target_str : ""),
+            CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), argument, CCNRM(ch, C_NRM));
     }
-    g_list_foreach(ch->in_room->people, (GFunc)send_ventriloqation, 0);
+    g_list_foreach(ch->in_room->people, (GFunc) send_ventriloqation, 0);
 
     gain_skill_prof(ch, SKILL_VENTRILOQUISM);
 }

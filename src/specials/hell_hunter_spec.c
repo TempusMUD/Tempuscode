@@ -91,7 +91,7 @@ load_target(xmlNodePtr n)
 struct devil *
 devil_by_name(char *name)
 {
-    for (GList *dit = devils;dit;dit = dit->next) {
+    for (GList * dit = devils; dit; dit = dit->next) {
         struct devil *devil = dit->data;
         if (!strcmp(devil->name, name))
             return devil;
@@ -125,11 +125,10 @@ load_hunt_group(xmlNodePtr n)
 
     CREATE(hunt_group, struct hunt_group, 1);
     hunt_group->level = xmlGetIntProp(n, "Level", 0);
-    for (xmlNodePtr node = n->xmlChildrenNode;n;n = n->next) {
+    for (xmlNodePtr node = n->xmlChildrenNode; n; n = n->next) {
         if (xmlMatches(node->name, "HUNTER")) {
             struct hunter *hunter = load_hunter(node);
-            hunt_group->hunters = g_list_prepend(hunt_group->hunters,
-                                                 hunter);
+            hunt_group->hunters = g_list_prepend(hunt_group->hunters, hunter);
         }
     }
 
@@ -148,7 +147,7 @@ acc_print_hunt_group(struct hunt_group *hunt_group)
     int x = 0;
 
     acc_strcat("{", NULL);
-    for (GList *it = hunt_group->hunters;it;it = it->next) {
+    for (GList * it = hunt_group->hunters; it; it = it->next) {
         struct hunter *hunter = it->data;
         acc_print_hunter(hunter);
         if (x++ % 5 == 0)
@@ -158,10 +157,10 @@ acc_print_hunt_group(struct hunt_group *hunt_group)
 }
 
 void
-acc_print_hunt_groups(GList *hunt_groups)
+acc_print_hunt_groups(GList * hunt_groups)
 {
     acc_strcat("{ ", NULL);
-    for (GList *it = hunt_groups;it;it = it->next) {
+    for (GList * it = hunt_groups; it; it = it->next) {
         struct hunt_group *hunt_group = it->data;
         acc_print_hunt_group(hunt_group);
     }
@@ -175,10 +174,10 @@ acc_print_devil(struct devil *devil)
 }
 
 void
-acc_print_devils(GList *devils)
+acc_print_devils(GList * devils)
 {
     acc_strcat("{ ", NULL);
-    for (GList *it = devils;it;it = it->next) {
+    for (GList * it = devils; it; it = it->next) {
         struct devil *devil = it->data;
         acc_print_devil(devil);
     }
@@ -192,10 +191,10 @@ acc_print_target(struct target *target)
 }
 
 void
-acc_print_targets(GList *targets)
+acc_print_targets(GList * targets)
 {
     acc_strcat("{ ", NULL);
-    for (GList *it = targets;it;it = it->next) {
+    for (GList * it = targets; it; it = it->next) {
         struct target *target = it->data;
         acc_print_target(target);
     }
@@ -205,41 +204,41 @@ acc_print_targets(GList *targets)
 bool
 load_hunter_data()
 {
-    g_list_foreach(devils, (GFunc)free, 0);
-	g_list_foreach(targets, (GFunc)free, 0);
-	g_list_foreach(hunters, (GFunc)free, 0);
+    g_list_foreach(devils, (GFunc) free, 0);
+    g_list_foreach(targets, (GFunc) free, 0);
+    g_list_foreach(hunters, (GFunc) free, 0);
 
-	xmlDocPtr doc = xmlParseFile("etc/hell_hunter_data.xml");
-	if (doc == NULL) {
-		errlog("Hell Hunter Brain failed to load hunter data.");
-		return false;
-	}
-	// discard root node
-	xmlNodePtr cur = xmlDocGetRootElement(doc);
-	if (cur == NULL) {
-		xmlFreeDoc(doc);
-		return false;
-	}
-	freq = xmlGetIntProp(cur, "Frequency", 0);
-	cur = cur->xmlChildrenNode;
-	while (cur != NULL) {
-		if ((xmlMatches(cur->name, "TARGET"))) {
+    xmlDocPtr doc = xmlParseFile("etc/hell_hunter_data.xml");
+    if (doc == NULL) {
+        errlog("Hell Hunter Brain failed to load hunter data.");
+        return false;
+    }
+    // discard root node
+    xmlNodePtr cur = xmlDocGetRootElement(doc);
+    if (cur == NULL) {
+        xmlFreeDoc(doc);
+        return false;
+    }
+    freq = xmlGetIntProp(cur, "Frequency", 0);
+    cur = cur->xmlChildrenNode;
+    while (cur != NULL) {
+        if ((xmlMatches(cur->name, "TARGET"))) {
             targets = g_list_prepend(targets, load_target(cur));
-		}
-		if ((xmlMatches(cur->name, "DEVIL"))) {
+        }
+        if ((xmlMatches(cur->name, "DEVIL"))) {
             devils = g_list_prepend(devils, load_devil(cur));
-		}
-		if ((xmlMatches(cur->name, "HUNTGROUP"))) {
+        }
+        if ((xmlMatches(cur->name, "HUNTGROUP"))) {
             hunters = g_list_prepend(hunters, load_hunt_group(cur));
-		}
-		if ((xmlMatches(cur->name, "BLINDSPOT"))) {
+        }
+        if ((xmlMatches(cur->name, "BLINDSPOT"))) {
             blind_spots = g_list_prepend(blind_spots,
-                                         GINT_TO_POINTER(xmlGetIntProp(cur, "ID", 0)));
-		}
-		cur = cur->next;
-	}
-	xmlFreeDoc(doc);
-	return true;
+                GINT_TO_POINTER(xmlGetIntProp(cur, "ID", 0)));
+        }
+        cur = cur->next;
+    }
+    xmlFreeDoc(doc);
+    return true;
 }
 
 bool
@@ -250,310 +249,312 @@ isBlindSpot(struct zone_data * zone)
 
 SPECIAL(hell_hunter_brain)
 {
-	static bool data_loaded = false;
-	static int counter = 1;
-	struct obj_data *obj = NULL, *weap = NULL;
-	struct creature *mob = NULL, *vict = NULL;
-	unsigned int i;
-	int num_devils = 0, regulator = 0;
-	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
-		return 0;
-	if (!data_loaded) {
-		if (!load_hunter_data())
-			return 0;
-		data_loaded = true;
-		slog("Hell Hunter Brain data successfully loaded.");
-	}
-	if (cmd) {
-		if (CMD_IS("reload")) {
-			if (!load_hunter_data()) {
-				data_loaded = false;
-				send_to_char(ch,
-					"Hell Hunter Brain failed to load hunter data.\r\n");
-			} else {
-				data_loaded = true;
-				send_to_char(ch,
-					"Hell Hunter Brain data successfully reloaded.\r\n");
-			}
-			return 1;
-		} else if (CMD_IS("status")) {
-			send_to_char(ch, "Counter is at %d, freq %d.\r\n", counter, freq);
-			sprintf(buf, "     [vnum] %30s exist/housed\r\n", "Object Name");
+    static bool data_loaded = false;
+    static int counter = 1;
+    struct obj_data *obj = NULL, *weap = NULL;
+    struct creature *mob = NULL, *vict = NULL;
+    unsigned int i;
+    int num_devils = 0, regulator = 0;
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+        return 0;
+    if (!data_loaded) {
+        if (!load_hunter_data())
+            return 0;
+        data_loaded = true;
+        slog("Hell Hunter Brain data successfully loaded.");
+    }
+    if (cmd) {
+        if (CMD_IS("reload")) {
+            if (!load_hunter_data()) {
+                data_loaded = false;
+                send_to_char(ch,
+                    "Hell Hunter Brain failed to load hunter data.\r\n");
+            } else {
+                data_loaded = true;
+                send_to_char(ch,
+                    "Hell Hunter Brain data successfully reloaded.\r\n");
+            }
+            return 1;
+        } else if (CMD_IS("status")) {
+            send_to_char(ch, "Counter is at %d, freq %d.\r\n", counter, freq);
+            sprintf(buf, "     [vnum] %30s exist/housed\r\n", "Object Name");
             i = 1;
-			for (GList *it = targets;it;it = it->next, i++) {
+            for (GList * it = targets; it; it = it->next, i++) {
                 struct target *target = it->data;
-				if (!(obj = real_object_proto(target->o_vnum)))
-					continue;
-				send_to_char(ch, "%3d. [%5d] %s%30s%s %3d/%3d\r\n",
-                             i, target->o_vnum, CCGRN(ch, NRM), obj->name, CCNRM(ch, NRM),
-                             obj->shared->number, obj->shared->house_count);
-			}
+                if (!(obj = real_object_proto(target->o_vnum)))
+                    continue;
+                send_to_char(ch, "%3d. [%5d] %s%30s%s %3d/%3d\r\n",
+                    i, target->o_vnum, CCGRN(ch, NRM), obj->name, CCNRM(ch,
+                        NRM), obj->shared->number, obj->shared->house_count);
+            }
             send_to_char(ch, "Hunter blind spots:\r\n");
             int idx = 0;
-            for (GList *it = blind_spots;it;it = it->next, i++) {
+            for (GList * it = blind_spots; it; it = it->next, i++) {
                 struct zone_data *zone = real_zone(GPOINTER_TO_INT(it->data));
-                send_to_char(ch, "%3d. [%3d] %s%s%s\r\n", idx, GPOINTER_TO_INT(it->data),
-                             CCCYN(ch, NRM),
-                             (zone) ? zone->name:"<no such zone>",
-                             CCNRM(ch, NRM));
+                send_to_char(ch, "%3d. [%3d] %s%s%s\r\n", idx,
+                    GPOINTER_TO_INT(it->data), CCCYN(ch, NRM),
+                    (zone) ? zone->name : "<no such zone>", CCNRM(ch, NRM));
             }
 
-			return 1;
-		} else if (CMD_IS("activate")) {
-			skip_spaces(&argument);
+            return 1;
+        } else if (CMD_IS("activate")) {
+            skip_spaces(&argument);
 
-			if (*argument && isdigit(*argument)) {
-				freq = atoi(argument);
-				send_to_char(ch, "Frequency set to %d.\n", freq);
-				counter = freq;
-				return 1;
-			} else if (*argument && strcmp(argument, "now") == 1) {
-				sprintf(buf, "Counter set to 1.\r\n");
-				counter = 1;
-				return 1;
-			} else {
-				return 0;
-			}
-		} else {
-			return 0;
-		}
-	}
+            if (*argument && isdigit(*argument)) {
+                freq = atoi(argument);
+                send_to_char(ch, "Frequency set to %d.\n", freq);
+                counter = freq;
+                return 1;
+            } else if (*argument && strcmp(argument, "now") == 1) {
+                sprintf(buf, "Counter set to 1.\r\n");
+                counter = 1;
+                return 1;
+            } else {
+                return 0;
+            }
+        } else {
+            return 0;
+        }
+    }
 
-	if (--counter > 0) {
-		return 0;
-	}
+    if (--counter > 0) {
+        return 0;
+    }
 
-	counter = freq;
+    counter = freq;
 
-	for (obj = object_list; obj; vict = NULL, obj = obj->next) {
+    for (obj = object_list; obj; vict = NULL, obj = obj->next) {
 
-		if (!obj->in_room && !(vict = obj->carried_by)
-			&& !(vict = obj->worn_by))
-			continue;
-		if (!IS_OBJ_STAT3(obj, ITEM3_HUNTED)) {
-			continue;
-		}
+        if (!obj->in_room && !(vict = obj->carried_by)
+            && !(vict = obj->worn_by))
+            continue;
+        if (!IS_OBJ_STAT3(obj, ITEM3_HUNTED)) {
+            continue;
+        }
 
-		if (vict && (IS_NPC(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
-				// some rooms are safe
-				ROOM_FLAGGED(vict->in_room, SAFE_ROOM_BITS) ||
-				// no players in quest
-				GET_QUEST(vict) ||
-				// can't go to isolated zones
-				ZONE_FLAGGED(vict->in_room->zone, ZONE_ISOLATED) ||
-				// ignore shopkeepers
-				(IS_NPC(vict) && vendor == GET_MOB_SPEC(vict)) ||
-				// don't go to heaven
-				isBlindSpot(vict->in_room->zone))) {
-			continue;
-		}
-		if (vict && IS_SOULLESS(vict)) {
-			send_to_char(ch,
-				"You feel the eyes of hell look down upon you.\r\n");
-			continue;
-		}
+        if (vict && (IS_NPC(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
+                // some rooms are safe
+                ROOM_FLAGGED(vict->in_room, SAFE_ROOM_BITS) ||
+                // no players in quest
+                GET_QUEST(vict) ||
+                // can't go to isolated zones
+                ZONE_FLAGGED(vict->in_room->zone, ZONE_ISOLATED) ||
+                // ignore shopkeepers
+                (IS_NPC(vict) && vendor == GET_MOB_SPEC(vict)) ||
+                // don't go to heaven
+                isBlindSpot(vict->in_room->zone))) {
+            continue;
+        }
+        if (vict && IS_SOULLESS(vict)) {
+            send_to_char(ch,
+                "You feel the eyes of hell look down upon you.\r\n");
+            continue;
+        }
 
-		if (obj->in_room &&
-			(ROOM_FLAGGED(obj->in_room, SAFE_ROOM_BITS) ||
-				ZONE_FLAGGED(obj->in_room->zone, ZONE_ISOLATED))) {
-			continue;
-		}
+        if (obj->in_room &&
+            (ROOM_FLAGGED(obj->in_room, SAFE_ROOM_BITS) ||
+                ZONE_FLAGGED(obj->in_room->zone, ZONE_ISOLATED))) {
+            continue;
+        }
 
         GList *it;
         struct target *target;
-		for (GList *it = targets;it;it = it->next, i++) {
+        for (GList * it = targets; it; it = it->next, i++) {
             target = it->data;
-			if (target->o_vnum == GET_OBJ_VNUM(obj)
-				&& IS_OBJ_STAT3(obj, ITEM3_HUNTED)) {
-				break;
-			}
-		}
-		if (!it)
-			continue;
+            if (target->o_vnum == GET_OBJ_VNUM(obj)
+                && IS_OBJ_STAT3(obj, ITEM3_HUNTED)) {
+                break;
+            }
+        }
+        if (!it)
+            continue;
 
-		// try to skip the first person sometimes
-		if (vict && !number(0, 2)) {
-			continue;
-		}
-
-        struct hunt_group *hunt_group = g_list_nth_data(hunters, target->level);
-        for (GList *hit = hunt_group->hunters;hit;hit = hit->next) {
-            struct hunter *hunter = hit->data;
-            if (number(0, 100) <= hunter->prob) {	// probability
-				if (!(mob = read_mobile(hunter->m_vnum))) {
-					errlog("Unable to load mob in hell_hunter_brain()");
-					return 0;
-				}
-				if (hunter->weapon >= 0 &&
-					(weap = read_object(hunter->weapon))) {
-					if (equip_char(mob, weap, WEAR_WIELD, EQUIP_WORN)) {	// mob equipped
-						errlog("(non-critical) Hell Hunter killed by eq.");
-						return 1;	// return if equip killed mob
-					}
-				}
-
-				num_devils++;
-
-				if (vict) {
-					start_hunting(mob, vict);
-					SET_BIT(MOB_FLAGS(mob), MOB_SPIRIT_TRACKER);
-                }
-
-				char_to_room(mob, vict ? vict->in_room : obj->in_room, false);
-				act("$n steps suddenly out of an infernal conduit from the outer planes!", false, mob, 0, 0, TO_ROOM);
-			}
+        // try to skip the first person sometimes
+        if (vict && !number(0, 2)) {
+            continue;
         }
 
-		if (vict && !IS_NPC(vict) && GET_REMORT_GEN(vict)
-			&& number(0, GET_REMORT_GEN(vict)) > 1) {
+        struct hunt_group *hunt_group =
+            g_list_nth_data(hunters, target->level);
+        for (GList * hit = hunt_group->hunters; hit; hit = hit->next) {
+            struct hunter *hunter = hit->data;
+            if (number(0, 100) <= hunter->prob) {   // probability
+                if (!(mob = read_mobile(hunter->m_vnum))) {
+                    errlog("Unable to load mob in hell_hunter_brain()");
+                    return 0;
+                }
+                if (hunter->weapon >= 0 &&
+                    (weap = read_object(hunter->weapon))) {
+                    if (equip_char(mob, weap, WEAR_WIELD, EQUIP_WORN)) {    // mob equipped
+                        errlog("(non-critical) Hell Hunter killed by eq.");
+                        return 1;   // return if equip killed mob
+                    }
+                }
 
-			if (!(mob = read_mobile(H_REGULATOR)))
-				errlog("Unable to load hell hunter regulator in hell_hunter_brain.");
-			else {
-				regulator = 1;
-				start_hunting(mob, vict);
-				char_to_room(mob, vict->in_room, false);
-				act("$n materializes suddenly from a stream of hellish energy!", false, mob, 0, 0, TO_ROOM);
-			}
-		}
+                num_devils++;
 
-		mudlog(vict ? GET_INVIS_LVL(vict) : 0, CMP, true,
-			"HELL: %d Devils%s sent after obj %s (%s@%d)",
-			num_devils,
-			regulator ? " (+reg)" : "",
-			obj->name,
-			vict ? GET_NAME(vict) : "Nobody",
-			obj->in_room ? obj->in_room->number :
-			(vict && vict->in_room) ? vict->in_room->number : -1);
-		sprintf(buf, "%d Devils%s sent after obj %s (%s@%d)",
-			num_devils,
-			regulator ? " (+reg)" : "",
-			obj->name, vict ? "$N" : "Nobody",
-			obj->in_room ? obj->in_room->number :
-			(vict && vict->in_room) ? vict->in_room->number : -1);
-		act(buf, false, ch, 0, vict, TO_ROOM);
-		act(buf, false, ch, 0, vict, TO_CHAR);
-		return 1;
-	}
+                if (vict) {
+                    start_hunting(mob, vict);
+                    SET_BIT(MOB_FLAGS(mob), MOB_SPIRIT_TRACKER);
+                }
 
-	if (cmd) {
-		send_to_char(ch, "Falling through, no match.\r\n");
-	} else {
+                char_to_room(mob, vict ? vict->in_room : obj->in_room, false);
+                act("$n steps suddenly out of an infernal conduit from the outer planes!", false, mob, 0, 0, TO_ROOM);
+            }
+        }
 
-		// we fell through, lets check again sooner than freq
-		counter = freq >> 3;
-	}
+        if (vict && !IS_NPC(vict) && GET_REMORT_GEN(vict)
+            && number(0, GET_REMORT_GEN(vict)) > 1) {
 
-	return 0;
+            if (!(mob = read_mobile(H_REGULATOR)))
+                errlog
+                    ("Unable to load hell hunter regulator in hell_hunter_brain.");
+            else {
+                regulator = 1;
+                start_hunting(mob, vict);
+                char_to_room(mob, vict->in_room, false);
+                act("$n materializes suddenly from a stream of hellish energy!", false, mob, 0, 0, TO_ROOM);
+            }
+        }
+
+        mudlog(vict ? GET_INVIS_LVL(vict) : 0, CMP, true,
+            "HELL: %d Devils%s sent after obj %s (%s@%d)",
+            num_devils,
+            regulator ? " (+reg)" : "",
+            obj->name,
+            vict ? GET_NAME(vict) : "Nobody",
+            obj->in_room ? obj->in_room->number :
+            (vict && vict->in_room) ? vict->in_room->number : -1);
+        sprintf(buf, "%d Devils%s sent after obj %s (%s@%d)",
+            num_devils,
+            regulator ? " (+reg)" : "",
+            obj->name, vict ? "$N" : "Nobody",
+            obj->in_room ? obj->in_room->number :
+            (vict && vict->in_room) ? vict->in_room->number : -1);
+        act(buf, false, ch, 0, vict, TO_ROOM);
+        act(buf, false, ch, 0, vict, TO_CHAR);
+        return 1;
+    }
+
+    if (cmd) {
+        send_to_char(ch, "Falling through, no match.\r\n");
+    } else {
+
+        // we fell through, lets check again sooner than freq
+        counter = freq >> 3;
+    }
+
+    return 0;
 }
 
 SPECIAL(hell_hunter)
 {
 
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	struct obj_data *obj = NULL, *t_obj = NULL;
-	unsigned int i;
-	struct creature *devil = NULL;
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    struct obj_data *obj = NULL, *t_obj = NULL;
+    unsigned int i;
+    struct creature *devil = NULL;
 
-	if (cmd)
-		return 0;
+    if (cmd)
+        return 0;
 
-	for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
-		if (IS_CORPSE(obj)) {
-			for (t_obj = obj->contains; t_obj; t_obj = t_obj->next_content) {
-				for (GList *it = targets;it;it = it->next) {
+    for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
+        if (IS_CORPSE(obj)) {
+            for (t_obj = obj->contains; t_obj; t_obj = t_obj->next_content) {
+                for (GList * it = targets; it; it = it->next) {
                     struct target *target = it->data;
-					if (target->o_vnum == GET_OBJ_VNUM(t_obj)) {
-						act("$n takes $p from $P.", false, ch, t_obj, obj,
-							TO_ROOM);
-						mudlog(0, CMP, true,
-							"HELL: %s looted %s at %d.", GET_NAME(ch),
-							t_obj->name, ch->in_room->number);
-						extract_obj(t_obj);
-						return 1;
-					}
-				}
-			}
-			continue;
-		}
-        for (GList *it = targets;it;it = it->next, i++) {
+                    if (target->o_vnum == GET_OBJ_VNUM(t_obj)) {
+                        act("$n takes $p from $P.", false, ch, t_obj, obj,
+                            TO_ROOM);
+                        mudlog(0, CMP, true,
+                            "HELL: %s looted %s at %d.", GET_NAME(ch),
+                            t_obj->name, ch->in_room->number);
+                        extract_obj(t_obj);
+                        return 1;
+                    }
+                }
+            }
+            continue;
+        }
+        for (GList * it = targets; it; it = it->next, i++) {
             struct target *target = it->data;
-			if (target->o_vnum == GET_OBJ_VNUM(obj)) {
-				act("$n takes $p.", false, ch, obj, t_obj, TO_ROOM);
-				mudlog(0, CMP, true,
-					"HELL: %s retrieved %s at %d.", GET_NAME(ch),
-					obj->name, ch->in_room->number);
-				extract_obj(obj);
-				return 1;
-			}
-		}
-	}
+            if (target->o_vnum == GET_OBJ_VNUM(obj)) {
+                act("$n takes $p.", false, ch, obj, t_obj, TO_ROOM);
+                mudlog(0, CMP, true,
+                    "HELL: %s retrieved %s at %d.", GET_NAME(ch),
+                    obj->name, ch->in_room->number);
+                extract_obj(obj);
+                return 1;
+            }
+        }
+    }
 
-	if (!ch->fighting && !MOB_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
-		act("$n vanishes into the mouth of an interplanar conduit.",
-			false, ch, 0, 0, TO_ROOM);
-		creature_purge(ch, true);
-		return 1;
-	}
+    if (!ch->fighting && !MOB_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
+        act("$n vanishes into the mouth of an interplanar conduit.",
+            false, ch, 0, 0, TO_ROOM);
+        creature_purge(ch, true);
+        return 1;
+    }
 
-	if (GET_MOB_VNUM(ch) == H_REGULATOR) {
+    if (GET_MOB_VNUM(ch) == H_REGULATOR) {
 
-		if (GET_MANA(ch) < 100) {
-			act("$n vanishes into the mouth of an interplanar conduit.",
-				false, ch, 0, 0, TO_ROOM);
-			creature_purge(ch, true);
-			return 1;
-		}
+        if (GET_MANA(ch) < 100) {
+            act("$n vanishes into the mouth of an interplanar conduit.",
+                false, ch, 0, 0, TO_ROOM);
+            creature_purge(ch, true);
+            return 1;
+        }
 
-        for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
+        for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
             struct creature *vict = cit->data;
 
-			if (vict == ch)
-				continue;
+            if (vict == ch)
+                continue;
 
-			// REGULATOR doesn't want anyone attacking him
-			if (!IS_DEVIL(vict) && g_list_find(vict->fighting, ch)) {
+            // REGULATOR doesn't want anyone attacking him
+            if (!IS_DEVIL(vict) && g_list_find(vict->fighting, ch)) {
 
-				if (!(devil = read_mobile(H_SPINED))) {
-					errlog("HH REGULATOR failed to load H_SPINED for defense.");
-					// set mana to zero so he will go away on the next loop
-					GET_MANA(ch) = 0;
-					return 1;
-				}
+                if (!(devil = read_mobile(H_SPINED))) {
+                    errlog
+                        ("HH REGULATOR failed to load H_SPINED for defense.");
+                    // set mana to zero so he will go away on the next loop
+                    GET_MANA(ch) = 0;
+                    return 1;
+                }
 
-				char_to_room(devil, ch->in_room, false);
-				act("$n gestures... A glowing conduit flashes into existence!",
-					false, ch, 0, vict, TO_ROOM);
-				act("...$n leaps out and attacks $N!", false, devil, 0, vict,
-					TO_NOTVICT);
-				act("...$n leaps out and attacks you!", false, devil, 0, vict,
-					TO_VICT);
+                char_to_room(devil, ch->in_room, false);
+                act("$n gestures... A glowing conduit flashes into existence!",
+                    false, ch, 0, vict, TO_ROOM);
+                act("...$n leaps out and attacks $N!", false, devil, 0, vict,
+                    TO_NOTVICT);
+                act("...$n leaps out and attacks you!", false, devil, 0, vict,
+                    TO_VICT);
 
-				remove_all_combat(ch);
-				hit(devil, vict, TYPE_UNDEFINED);
-				WAIT_STATE(vict, 1 RL_SEC);
+                remove_all_combat(ch);
+                hit(devil, vict, TYPE_UNDEFINED);
+                WAIT_STATE(vict, 1 RL_SEC);
 
-				return 1;
-			}
+                return 1;
+            }
 
-			if (IS_DEVIL(vict) && IS_NPC(vict) &&
-				GET_HIT(vict) < (GET_MAX_HIT(vict) - 500)) {
+            if (IS_DEVIL(vict) && IS_NPC(vict) &&
+                GET_HIT(vict) < (GET_MAX_HIT(vict) - 500)) {
 
-				act("$n opens a conduit of streaming energy to $N!\r\n"
-					"...$N's wounds appear to regenerate!", false, ch, 0, vict,
-					TO_ROOM);
+                act("$n opens a conduit of streaming energy to $N!\r\n"
+                    "...$N's wounds appear to regenerate!", false, ch, 0, vict,
+                    TO_ROOM);
 
-				GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + 500);
-				GET_MANA(ch) -= 100;
-				return 1;
-			}
+                GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + 500);
+                GET_MANA(ch) -= 100;
+                return 1;
+            }
 
-		}
+        }
 
-	}
+    }
 
-	return 0;
+    return 0;
 }
 
 #define BLADE_VNUM 16203
@@ -564,92 +565,92 @@ SPECIAL(hell_hunter)
 
 SPECIAL(arioch)
 {
-	struct obj_data *blade = NULL, *obj = NULL;
-	struct room_data *rm = NULL;
-	struct creature *vict = NULL;
+    struct obj_data *blade = NULL, *obj = NULL;
+    struct room_data *rm = NULL;
+    struct creature *vict = NULL;
 
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
 
-	if (ch->in_room->zone->number != 162) {
+    if (ch->in_room->zone->number != 162) {
 
-		if (!MOB_HUNTING(ch) && !ch->fighting) {
+        if (!MOB_HUNTING(ch) && !ch->fighting) {
 
-			for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
-				if (IS_CORPSE(obj)) {
-					for (blade = obj->contains; blade;
-                         blade = blade->next_content) {
+            for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
+                if (IS_CORPSE(obj)) {
+                    for (blade = obj->contains; blade;
+                        blade = blade->next_content) {
                         if (BLADE_VNUM == GET_OBJ_VNUM(blade)) {
                             act("$n takes $p from $P.", false, ch, blade,
                                 obj, TO_ROOM);
                             mudlog(0, CMP, true,
-                                   "HELL: %s looted %s at %d.",
-                                   GET_NAME(ch), blade->name,
-                                   ch->in_room->number);
+                                "HELL: %s looted %s at %d.",
+                                GET_NAME(ch), blade->name,
+                                ch->in_room->number);
                             if (!GET_EQ(ch, WEAR_WIELD)) {
                                 obj_from_obj(blade);
                                 obj_to_char(blade, ch);
                             } else
                                 extract_obj(blade);
                             return 1;
-						}
-					}
-				}
-				if (BLADE_VNUM == GET_OBJ_VNUM(obj)) {
-					act("$n takes $p.", false, ch, obj, obj, TO_ROOM);
-					mudlog(0, CMP, true,
-						"HELL: %s retrieved %s at %d.", GET_NAME(ch),
-						obj->name, ch->in_room->number);
-					if (!GET_EQ(ch, WEAR_WIELD)) {
-						obj_from_room(obj);
-						obj_to_char(obj, ch);
-					} else
-						extract_obj(obj);
-					return 1;
-				}
-			}
-			act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
-			char_from_room(ch, false);
-			char_to_room(ch, real_room(ARIOCH_LAIR), false);
-			act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
-			return 1;
-		}
-		if (GET_HIT(ch) < 800) {
-			act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
-			char_from_room(ch, false);
-			char_to_room(ch, real_room(ARIOCH_LAIR), false);
-			act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
-			return 1;
-		}
-		return 0;
-	}
+                        }
+                    }
+                }
+                if (BLADE_VNUM == GET_OBJ_VNUM(obj)) {
+                    act("$n takes $p.", false, ch, obj, obj, TO_ROOM);
+                    mudlog(0, CMP, true,
+                        "HELL: %s retrieved %s at %d.", GET_NAME(ch),
+                        obj->name, ch->in_room->number);
+                    if (!GET_EQ(ch, WEAR_WIELD)) {
+                        obj_from_room(obj);
+                        obj_to_char(obj, ch);
+                    } else
+                        extract_obj(obj);
+                    return 1;
+                }
+            }
+            act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
+            char_from_room(ch, false);
+            char_to_room(ch, real_room(ARIOCH_LAIR), false);
+            act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
+            return 1;
+        }
+        if (GET_HIT(ch) < 800) {
+            act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
+            char_from_room(ch, false);
+            char_to_room(ch, real_room(ARIOCH_LAIR), false);
+            act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
+            return 1;
+        }
+        return 0;
+    }
 
-	if (GET_EQ(ch, WEAR_WIELD))
-		return 0;
+    if (GET_EQ(ch, WEAR_WIELD))
+        return 0;
 
-	for (blade = object_list; blade; blade = blade->next) {
-		if (GET_OBJ_VNUM(blade) == BLADE_VNUM &&
-			(((rm = blade->in_room) && !ROOM_FLAGGED(rm, SAFE_ROOM_BITS)) ||
-				(((vict = blade->carried_by) || (vict = blade->worn_by)) &&
-					!ROOM_FLAGGED(vict->in_room, SAFE_ROOM_BITS) &&
-					(!IS_NPC(vict) || vendor != GET_MOB_SPEC(vict)) &&
-					!PRF_FLAGGED(vict, PRF_NOHASSLE)
-					&& can_see_creature(ch, vict)))) {
-			if (vict) {
-				start_hunting(ch, vict);
-				rm = vict->in_room;
-			}
-			act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
-			char_from_room(ch, false);
-			char_to_room(ch, rm, false);
-			act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
-			mudlog(0, CMP, true,
-				"HELL: Arioch ported to %s@%d",
-				vict ? GET_NAME(vict) : "Nobody", rm->number);
-			return 1;
-		}
-	}
-	return 0;
+    for (blade = object_list; blade; blade = blade->next) {
+        if (GET_OBJ_VNUM(blade) == BLADE_VNUM &&
+            (((rm = blade->in_room) && !ROOM_FLAGGED(rm, SAFE_ROOM_BITS)) ||
+                (((vict = blade->carried_by) || (vict = blade->worn_by)) &&
+                    !ROOM_FLAGGED(vict->in_room, SAFE_ROOM_BITS) &&
+                    (!IS_NPC(vict) || vendor != GET_MOB_SPEC(vict)) &&
+                    !PRF_FLAGGED(vict, PRF_NOHASSLE)
+                    && can_see_creature(ch, vict)))) {
+            if (vict) {
+                start_hunting(ch, vict);
+                rm = vict->in_room;
+            }
+            act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
+            char_from_room(ch, false);
+            char_to_room(ch, rm, false);
+            act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
+            mudlog(0, CMP, true,
+                "HELL: Arioch ported to %s@%d",
+                vict ? GET_NAME(vict) : "Nobody", rm->number);
+            return 1;
+        }
+    }
+    return 0;
 }
 
 #undef H_SPINED

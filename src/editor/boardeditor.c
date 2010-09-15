@@ -45,10 +45,7 @@ board_finalize(struct editor *editor, const char *text)
 {
     struct board_data *data = (struct board_data *)editor->mode_data;
     gen_board_save(editor->desc->creature,
-                   data->board,
-                   data->idnum,
-                   data->subject,
-                   text);
+        data->board, data->idnum, data->subject, text);
 
     if (IS_PLAYING(editor->desc))
         act("$n nods with satisfaction as $e saves $s work.", true,
@@ -68,19 +65,17 @@ board_cancel(struct editor *editor)
     free(((struct board_data *)editor->mode_data)->subject);
     free(editor->mode_data);
 }
+
 void
 start_editing_board(struct descriptor_data *d,
-                    const char *b_name,
-                    int idnum,
-                    const char *subject,
-                    const char *body)
+    const char *b_name, int idnum, const char *subject, const char *body)
 {
-	if (d->text_editor) {
-		errlog("Text editor object not null in start_editing_mail");
-		REMOVE_BIT(PLR_FLAGS(d->creature),
-			PLR_WRITING | PLR_OLC | PLR_MAILING);
-		return;
-	}
+    if (d->text_editor) {
+        errlog("Text editor object not null in start_editing_mail");
+        REMOVE_BIT(PLR_FLAGS(d->creature),
+            PLR_WRITING | PLR_OLC | PLR_MAILING);
+        return;
+    }
 
     SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING);
 
@@ -91,7 +86,7 @@ start_editing_board(struct descriptor_data *d,
     data->board = strdup(b_name);
     data->subject = strdup(subject);
 
-	d->text_editor = make_editor(d, MAX_STRING_LENGTH);
+    d->text_editor = make_editor(d, MAX_STRING_LENGTH);
     d->text_editor->do_command = board_command;
     d->text_editor->finalize = board_finalize;
     d->text_editor->cancel = board_cancel;

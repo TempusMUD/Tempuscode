@@ -104,41 +104,43 @@ recurs_obj_contents(struct obj_data *obj, struct obj_data *top_o)
     return (1 + recurs_obj_contents(obj->contains, top_o));
 }
 
-const char*
-house_type_name(enum house_type type) {
-    switch(type) {
-        case PRIVATE:
-            return "Private";
-        case PUBLIC:
-            return "Public";
-        case RENTAL:
-            return "Rental";
-        case CLAN:
-            return "Clan";
-        default:
-            return "Invalid";
+const char *
+house_type_name(enum house_type type)
+{
+    switch (type) {
+    case PRIVATE:
+        return "Private";
+    case PUBLIC:
+        return "Public";
+    case RENTAL:
+        return "Rental";
+    case CLAN:
+        return "Clan";
+    default:
+        return "Invalid";
     }
 }
 
-const char*
+const char *
 house_type_short_name(enum house_type type)
 {
-    switch(type) {
-        case PRIVATE:
-            return "PRIV";
-        case PUBLIC:
-            return "PUB";
-        case RENTAL:
-            return "RENT";
-        case CLAN:
-            return "CLAN";
-        default:
-            return "ERR";
+    switch (type) {
+    case PRIVATE:
+        return "PRIV";
+    case PUBLIC:
+        return "PUB";
+    case RENTAL:
+        return "RENT";
+    case CLAN:
+        return "CLAN";
+    default:
+        return "ERR";
     }
 }
 
 enum house_type
-house_type_from_name(const char* name) {
+house_type_from_name(const char *name)
+{
     if (name == NULL)
         return INVALID;
     if (strcmp(name, "Private") == 0)
@@ -153,14 +155,14 @@ house_type_from_name(const char* name) {
 }
 
 bool
-is_house_guest(struct house *house, long idnum)
+is_house_guest(struct house * house, long idnum)
 {
-    switch(house->type) {
-        case PRIVATE:
-        case PUBLIC:
-        case RENTAL:
-            return g_list_find(house->guests, GINT_TO_POINTER(idnum));
-        case CLAN: {
+    switch (house->type) {
+    case PRIVATE:
+    case PUBLIC:
+    case RENTAL:
+        return g_list_find(house->guests, GINT_TO_POINTER(idnum));
+    case CLAN:{
             // if there is no clan then check guests
             struct clan_data *clan = real_clan(house->owner_id);
             if (clan == NULL)
@@ -171,13 +173,13 @@ is_house_guest(struct house *house, long idnum)
                 return g_list_find(house->guests, GINT_TO_POINTER(idnum));
             return true;
         }
-        default:
-            return false;
+    default:
+        return false;
     }
 }
 
 bool
-add_house_guest(struct house *house, long guest)
+add_house_guest(struct house * house, long guest)
 {
     if (is_house_guest(house, guest)) {
         return false;
@@ -188,20 +190,20 @@ add_house_guest(struct house *house, long guest)
 }
 
 bool
-remove_house_guest(struct house *house, long guest)
+remove_house_guest(struct house * house, long guest)
 {
     house->guests = g_list_remove_all(house->guests, GINT_TO_POINTER(guest));
     return true;
 }
 
 bool
-house_has_room(struct house *house, room_num room)
+house_has_room(struct house * house, room_num room)
 {
     return g_list_find(house->rooms, GINT_TO_POINTER(room));
 }
 
 bool
-add_house_room(struct house *house, room_num room)
+add_house_room(struct house * house, room_num room)
 {
     if (house_has_room(house, room)) {
         return false;
@@ -212,7 +214,7 @@ add_house_room(struct house *house, room_num room)
 }
 
 bool
-remove_house_room(struct house *house, room_num room)
+remove_house_room(struct house * house, room_num room)
 {
     house->rooms = g_list_remove_all(house->rooms, GINT_TO_POINTER(room));
     return true;
@@ -250,22 +252,23 @@ free_house(struct house *house)
 bool
 house_is_owner(struct house *house, struct creature *ch)
 {
-    switch(house->type) {
-        case PRIVATE:
-        case PUBLIC:
-        case RENTAL:
-            return house->owner_id == player_account_by_idnum(GET_IDNUM(ch));
-        case CLAN: {
+    switch (house->type) {
+    case PRIVATE:
+    case PUBLIC:
+    case RENTAL:
+        return house->owner_id == player_account_by_idnum(GET_IDNUM(ch));
+    case CLAN:{
             struct clan_data *clan = real_clan(house->owner_id);
             if (clan == NULL)
                 return false;
-            struct clanmember_data *member = real_clanmember(GET_IDNUM(ch), clan);
+            struct clanmember_data *member =
+                real_clanmember(GET_IDNUM(ch), clan);
             if (member == NULL)
                 return false;
             return PLR_FLAGGED(ch, PLR_CLAN_LEADER);
         }
-        default:
-            return false;
+    default:
+        return false;
     }
 }
 
@@ -288,50 +291,51 @@ find_house_by_room(room_num room_idnum)
     if (!room)
         return NULL;
 
-    bool this_house_has_room(struct house *house, gpointer ignore) {
-        return (house_has_room(house, room_idnum)) ? 0:-1;
+    bool this_house_has_room(struct house * house, gpointer ignore) {
+        return (house_has_room(house, room_idnum)) ? 0 : -1;
     }
     GList *it = g_list_find_custom(houses,
-                                   NULL,
-                                   (GCompareFunc)this_house_has_room);
-    return (it) ? it->data:NULL;
+        NULL,
+        (GCompareFunc) this_house_has_room);
+    return (it) ? it->data : NULL;
 }
 
-struct house*
+struct house *
 find_house_by_idnum(int idnum)
 {
     bool house_has_idnum(struct house *house, gpointer ignore) {
-        return (house->id == idnum) ? 0:-1;
+        return (house->id == idnum) ? 0 : -1;
     }
-    GList *it = g_list_find_custom(houses, NULL, (GCompareFunc)house_has_idnum);
-    return (it) ? it->data:NULL;
+    GList *it =
+        g_list_find_custom(houses, NULL, (GCompareFunc) house_has_idnum);
+    return (it) ? it->data : NULL;
 }
 
-struct house*
+struct house *
 find_house_by_owner(int idnum)
 {
     bool house_has_owner(struct house *house, gpointer ignore) {
-        return (house->type == PRIVATE &&
-                house->owner_id == idnum) ? 0:-1;
+        return (house->type == PRIVATE && house->owner_id == idnum) ? 0 : -1;
     }
-    GList *it = g_list_find_custom(houses, NULL, (GCompareFunc)house_has_owner);
-    return (it) ? it->data:NULL;
+    GList *it =
+        g_list_find_custom(houses, NULL, (GCompareFunc) house_has_owner);
+    return (it) ? it->data : NULL;
 }
 
-struct house*
+struct house *
 find_house_by_clan(int idnum)
 {
     bool house_has_owner(struct house *house, gpointer ignore) {
-        return (house->type == CLAN &&
-                house->owner_id == idnum) ? 0:-1;
+        return (house->type == CLAN && house->owner_id == idnum) ? 0 : -1;
     }
-    GList *it = g_list_find_custom(houses, NULL, (GCompareFunc)house_has_owner);
-    return (it) ? it->data:NULL;
+    GList *it =
+        g_list_find_custom(houses, NULL, (GCompareFunc) house_has_owner);
+    return (it) ? it->data : NULL;
 }
 
 /* note: arg passed must be house vnum, so there. */
 bool
-can_enter_house(struct creature *ch, room_num room_vnum)
+can_enter_house(struct creature * ch, room_num room_vnum)
 {
     struct house *house = find_house_by_room(room_vnum);
     if (!house)
@@ -347,38 +351,39 @@ can_enter_house(struct creature *ch, room_num room_vnum)
         return false;
     }
 
-    switch(house->type) {
-        case PUBLIC:
+    switch (house->type) {
+    case PUBLIC:
+        return true;
+    case RENTAL:
+    case PRIVATE:
+        if (ch->account && ch->account->id == house->owner_id)
             return true;
-        case RENTAL:
-        case PRIVATE:
-            if (ch->account && ch->account->id == house->owner_id)
-                return true;
-            return is_house_guest(house, GET_IDNUM(ch));
-        case CLAN: {
+        return is_house_guest(house, GET_IDNUM(ch));
+    case CLAN:{
             struct clan_data *clan = real_clan(house->owner_id);
             if (clan == NULL)
                 return true;
-            struct clanmember_data *member = real_clanmember(GET_IDNUM(ch), clan);
+            struct clanmember_data *member =
+                real_clanmember(GET_IDNUM(ch), clan);
             if (member != NULL)
                 return true;
             return false;
         }
-        case INVALID:
-            return false;
+    case INVALID:
+        return false;
     }
 
     return false;
 }
 
 bool
-can_hedit_room(struct creature *ch, struct room_data *room)
+can_hedit_room(struct creature * ch, struct room_data * room)
 {
     return is_authorized(ch, EDIT_HOUSE, find_house_by_room(room->number));
 }
 
 bool
-destroy_house(struct house *house)
+destroy_house(struct house * house)
 {
     houses = g_list_remove(houses, house);
 
@@ -393,7 +398,7 @@ repo_note_count(struct house *house)
 {
     int result = 0;
 
-    for (struct txt_block *note = house->repo_notes;note;note = note->next)
+    for (struct txt_block * note = house->repo_notes; note; note = note->next)
         result++;
 
     return result;
@@ -404,7 +409,7 @@ clear_repo_notes(struct house *house)
 {
     struct txt_block *next;
 
-    for (struct txt_block *note = house->repo_notes;note;note = next) {
+    for (struct txt_block * note = house->repo_notes; note; note = next) {
         next = note->next;
         free(note->text);
         free(note);
@@ -433,25 +438,26 @@ update_objects_in_house(struct house *house, gpointer ignore)
         if (room)
             update_object_counts(room->contents);
     }
-    g_list_foreach(house->rooms, (GFunc)update_objects_in_room, 0);
+    g_list_foreach(house->rooms, (GFunc) update_objects_in_room, 0);
 }
 
 void
 update_objects_housed_count(void)
 {
-    void zero_housed_objects(gpointer vnum, struct obj_data *obj, gpointer ignore) {
+    void zero_housed_objects(gpointer vnum, struct obj_data *obj,
+        gpointer ignore) {
         obj->shared->house_count = 0;
     }
-    g_hash_table_foreach(obj_prototypes, (GHFunc)zero_housed_objects, 0);
+    g_hash_table_foreach(obj_prototypes, (GHFunc) zero_housed_objects, 0);
 
-    g_list_foreach(houses, (GFunc)update_objects_in_house, 0);
+    g_list_foreach(houses, (GFunc) update_objects_in_house, 0);
 }
 
 int
 count_objects_in_room(struct room_data *room)
 {
     int count = 0;
-    for (struct obj_data *obj = room->contents; obj; obj = obj->next_content) {
+    for (struct obj_data * obj = room->contents; obj; obj = obj->next_content) {
         count += recurs_obj_contents(obj, NULL);
     }
     return count;
@@ -467,49 +473,47 @@ count_housed_objects(struct house *house, gpointer ignore)
         if (room)
             count += count_objects_in_room(room);
     }
-    g_list_foreach(house->rooms, (GFunc)count_objects, 0);
+    g_list_foreach(house->rooms, (GFunc) count_objects, 0);
 
     return count;
 }
 
 bool
-save_house(struct house *house)
+save_house(struct house * house)
 {
-    char* path = get_house_file_path(house->id);
-    FILE* ouf = fopen(path, "w");
+    char *path = get_house_file_path(house->id);
+    FILE *ouf = fopen(path, "w");
 
     if (!ouf) {
         fprintf(stderr, "Unable to open XML house file for save.[%s] (%s)\n",
-                        path, strerror(errno));
+            path, strerror(errno));
         return false;
     }
     fprintf(ouf, "<housefile>\n");
     fprintf(ouf, "<house id=\"%d\" type=\"%s\" owner=\"%d\" created=\"%ld\"",
-            house->id,
-            house_type_name(house->type),
-            house->owner_id,
-            house->created);
+        house->id,
+        house_type_name(house->type), house->owner_id, house->created);
     fprintf(ouf, " landlord=\"%ld\" rate=\"%d\" overflow=\"%ld\" >\n",
-            house->landlord,
-            house->rental_rate,
-            house->rent_overflow);
-    for (GList *i = house->rooms; i; i = i->next) {
+        house->landlord, house->rental_rate, house->rent_overflow);
+    for (GList * i = house->rooms; i; i = i->next) {
         struct room_data *room = real_room(GPOINTER_TO_INT(i->data));
         if (!room)
             continue;
         fprintf(ouf, "    <room number=\"%d\">\n", GPOINTER_TO_INT(i->data));
-        for (struct obj_data *obj = room->contents; obj != NULL; obj = obj->next_content) {
+        for (struct obj_data * obj = room->contents; obj != NULL;
+            obj = obj->next_content) {
             save_object_to_xml(obj, ouf);
         }
         fprintf(ouf, "    </room>\n");
         REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE_CRASH);
     }
-    for (GList *i = house->guests; i; i = i->next) {
-        fprintf(ouf, "    <guest id=\"%d\"></guest>\n", GPOINTER_TO_INT(i->data));
+    for (GList * i = house->guests; i; i = i->next) {
+        fprintf(ouf, "    <guest id=\"%d\"></guest>\n",
+            GPOINTER_TO_INT(i->data));
     }
-    for (struct txt_block *i = house->repo_notes; i; i = i->next) {
+    for (struct txt_block * i = house->repo_notes; i; i = i->next) {
         fprintf(ouf, "    <repossession note=\"%s\"></repossession>\n",
-                 xmlEncodeSpecialTmp(i->text));
+            xmlEncodeSpecialTmp(i->text));
     }
     fprintf(ouf, "</house>");
     fprintf(ouf, "</housefile>\n");
@@ -519,7 +523,7 @@ save_house(struct house *house)
 }
 
 bool
-load_house_room(struct house *house, xmlNodePtr roomNode)
+load_house_room(struct house * house, xmlNodePtr roomNode)
 {
     room_num number = xmlGetIntProp(roomNode, "number", -1);
     struct room_data *room = real_room(number);
@@ -531,8 +535,7 @@ load_house_room(struct house *house, xmlNodePtr roomNode)
 
     SET_BIT(ROOM_FLAGS(room), ROOM_HOUSE);
     add_house_room(house, number);
-    for (xmlNodePtr node = roomNode->xmlChildrenNode; node; node = node->next)
-    {
+    for (xmlNodePtr node = roomNode->xmlChildrenNode; node; node = node->next) {
         if (xmlMatches(node->name, "object"))
             load_object_from_xml(NULL, NULL, room, node);
     }
@@ -541,7 +544,7 @@ load_house_room(struct house *house, xmlNodePtr roomNode)
 }
 
 struct house *
-load_house(const char* filename)
+load_house(const char *filename)
 {
     struct house *house;
     int axs = access(filename, W_OK);
@@ -549,10 +552,10 @@ load_house(const char* filename)
     if (axs != 0) {
         if (errno != ENOENT) {
             errlog("Unable to open xml house file '%s': %s",
-                 filename, strerror(errno));
+                filename, strerror(errno));
             return false;
         } else {
-            return false; // normal no eq file
+            return false;       // normal no eq file
         }
     }
     xmlDocPtr doc = xmlParseFile(filename);
@@ -569,7 +572,8 @@ load_house(const char* filename)
     }
 
     xmlNodePtr houseNode;
-    for (houseNode = root->xmlChildrenNode; houseNode; houseNode = houseNode->next) {
+    for (houseNode = root->xmlChildrenNode; houseNode;
+        houseNode = houseNode->next) {
         if (xmlMatches(houseNode->name, "house"))
             break;
     }
@@ -578,7 +582,6 @@ load_house(const char* filename)
         errlog("XML house file %s has no house node.", filename);
         return NULL;
     }
-
     //read house node stuff
     int id = xmlGetIntProp(houseNode, "id", -1);
     if (id == -1 || find_house_by_idnum(id) != NULL) {
@@ -599,8 +602,7 @@ load_house(const char* filename)
     house->rental_rate = xmlGetIntProp(houseNode, "rate", 0);
     house->rent_overflow = xmlGetLongProp(houseNode, "rentOverflow", 0);
 
-    for (xmlNodePtr node = houseNode->xmlChildrenNode; node; node = node->next)
-    {
+    for (xmlNodePtr node = houseNode->xmlChildrenNode; node; node = node->next) {
         if (xmlMatches(node->name, "room")) {
             load_house_room(house, node);
         } else if (xmlMatches(node->name, "guest")) {
@@ -635,11 +637,12 @@ house_notify_repossession(struct house *house, struct creature *ch)
         errlog("Failed to read object MAIL_OBJ_VNUM (#%d)", MAIL_OBJ_VNUM);
         return;
     }
-
     // Build the repossession note
     acc_string_clear();
-    acc_strcat("The following items were sold at auction to cover your back rent:\r\n\r\n", NULL);
-    for (struct txt_block *note = house->repo_notes;note;note = note->next)
+    acc_strcat
+        ("The following items were sold at auction to cover your back rent:\r\n\r\n",
+        NULL);
+    for (struct txt_block * note = house->repo_notes; note; note = note->next)
         acc_strcat(note->text, NULL);
 
     acc_strcat("\r\n\r\nSincerely,\r\n    The Management\r\n", NULL);
@@ -647,7 +650,8 @@ house_notify_repossession(struct house *house, struct creature *ch)
     note->action_desc = strdup(acc_get_string());
     note->plrtext_len = strlen(note->action_desc) + 1;
     obj_to_char(note, ch);
-    send_to_char(ch, "The TempusMUD Landlord gives you a letter detailing your bill.\r\n");
+    send_to_char(ch,
+        "The TempusMUD Landlord gives you a letter detailing your bill.\r\n");
     clear_repo_notes(house);
     save_house(house);
 }
@@ -666,7 +670,7 @@ create_house(int owner, room_num firstRoom, room_num lastRoom)
         if (house->id > id)
             id = house->id;
     }
-    g_list_foreach(houses, (GFunc)max_idnum, 0);
+    g_list_foreach(houses, (GFunc) max_idnum, 0);
     id++;
 
     struct house *house = make_house(id, owner);
@@ -693,17 +697,17 @@ save_houses()
         return;
 
     slog("HOUSE: Saving %d houses.", g_list_length(houses));
-    for (GList *i = houses; i; i = i->next) {
+    for (GList * i = houses; i; i = i->next) {
         struct house *house = (struct house *)i->data;
         if (!save_house(house))
-            errlog("Failed to save house %d.",house->id);
+            errlog("Failed to save house %d.", house->id);
     }
 }
 
 void
 load_houses(void)
 {
-    DIR* dir;
+    DIR *dir;
     struct dirent *file;
     char *dirname;
 
@@ -746,7 +750,7 @@ load_houses(void)
         acc_string_clear();
         acc_sprintf("idnum in (");
         bool first = true;
-        for (GList *i = houses;i;i = i->next) {
+        for (GList * i = houses; i; i = i->next) {
             struct house *house = (struct house *)i->data;
             if (house->owner_id &&
                 (house->type == PRIVATE || house->type == RENTAL)) {
@@ -772,11 +776,11 @@ room_rent_cost(struct house *house, struct room_data *room)
     int room_count = count_objects_in_room(room);
     int room_sum = 0;
 
-    for (struct obj_data* obj = room->contents; obj; obj = obj->next_content) {
+    for (struct obj_data * obj = room->contents; obj; obj = obj->next_content) {
         room_sum += recurs_obj_cost(obj, false, NULL);
     }
     if (room_count > MAX_HOUSE_ITEMS) {
-        room_sum *= (room_count/MAX_HOUSE_ITEMS) + 1;
+        room_sum *= (room_count / MAX_HOUSE_ITEMS) + 1;
     }
     return room_sum;
 }
@@ -786,14 +790,13 @@ house_rent_cost(struct house *house)
 {
     int room_count = 0;
     int sum = 0;
-    for (GList *i = house->rooms; i; i = i->next)
-    {
+    for (GList * i = house->rooms; i; i = i->next) {
         struct room_data *room = real_room(GPOINTER_TO_INT(i->data));
 
         gint is_pc(struct creature *ch, gpointer ignore) {
-            return (IS_PC(ch)) ? 0:-1;
+            return (IS_PC(ch)) ? 0 : -1;
         }
-        if (!g_list_find_custom(room->people, 0, (GCompareFunc)is_pc))
+        if (!g_list_find_custom(room->people, 0, (GCompareFunc) is_pc))
             sum += room_rent_cost(house, room);
 
         room_count++;
@@ -857,34 +860,35 @@ reconcile_private_collection(struct house *house, int cost)
 int
 reconcile_rent_collection(struct house *house, int cost)
 {
-    switch(house->type) {
-        case PUBLIC:
-            return 0;
-        case RENTAL:
-        case PRIVATE:
-            return reconcile_private_collection(house, cost);
-        case CLAN:
-            return reconcile_clan_collection(house, cost);
-        default:
-            return 0;
+    switch (house->type) {
+    case PUBLIC:
+        return 0;
+    case RENTAL:
+    case PRIVATE:
+        return reconcile_private_collection(house, cost);
+    case CLAN:
+        return reconcile_clan_collection(house, cost);
+    default:
+        return 0;
     }
 }
 
-struct obj_data*
+struct obj_data *
 find_costliest_obj_in_room(struct room_data *room)
 {
     struct obj_data *result = NULL;
     struct obj_data *cur_obj = room->contents;
     while (cur_obj) {
-        if (cur_obj && (!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
+        if (cur_obj && (!result
+                || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
             result = cur_obj;
 
         if (cur_obj->contains)
             cur_obj = cur_obj->contains;    // descend into obj
         else if (!cur_obj->next_content && cur_obj->in_obj)
-            cur_obj = cur_obj->in_obj->next_content; // ascend out of obj
+            cur_obj = cur_obj->in_obj->next_content;    // ascend out of obj
         else
-            cur_obj = cur_obj->next_content; // go to next obj
+            cur_obj = cur_obj->next_content;    // go to next obj
     }
 
     return result;
@@ -895,7 +899,7 @@ find_costliest_obj_in_house(struct house *house)
 {
     struct obj_data *result = NULL;
 
-    for (GList *i = house->rooms; i; i = i->next) {
+    for (GList * i = house->rooms; i; i = i->next) {
         struct room_data *room = real_room(GPOINTER_TO_INT(i->data));
         if (room != NULL) {
             struct obj_data *o = find_costliest_obj_in_room(room);
@@ -926,7 +930,8 @@ collect_house_rent(struct house *house, int cost)
 {
 
     if (cost < house->rent_overflow) {
-        slog("HOUSE: [%d] Previous repossessions covering %d rent.", house->id,cost);
+        slog("HOUSE: [%d] Previous repossessions covering %d rent.", house->id,
+            cost);
         house->rent_overflow -= cost;
         cost = 0;
         return false;
@@ -945,7 +950,7 @@ collect_house_rent(struct house *house, int cost)
             if (!doomed_obj)
                 break;
             time_t ct = time(0);
-            char* tm_str = asctime(localtime(&ct));
+            char *tm_str = asctime(localtime(&ct));
             *(tm_str + strlen(tm_str) - 1) = '\0';
 
             char *s = tmp_sprintf("%s : %s sold for %d.\r\n",
@@ -955,8 +960,7 @@ collect_house_rent(struct house *house, int cost)
 
             slog("HOUSE: [%d] Repossessing [%d]%s for %d to cover rent.",
                 house->id, GET_OBJ_VNUM(doomed_obj),
-                tmp_capitalize(doomed_obj->name),
-                GET_OBJ_COST(doomed_obj));
+                tmp_capitalize(doomed_obj->name), GET_OBJ_COST(doomed_obj));
 
             // Credit player with value of object
             cost -= GET_OBJ_COST(doomed_obj);
@@ -999,7 +1003,7 @@ collect_housing_rent()
     if (production_mode) {
         last_house_collection = time(0);
 
-        for (GList *i = houses; i; i = i->next) {
+        for (GList * i = houses; i; i = i->next) {
             struct house *house = (struct house *)i->data;
             if (house->type == PUBLIC)
                 continue;
@@ -1009,9 +1013,8 @@ collect_housing_rent()
                 if (account || account_is_logged_in(account))
                     continue;
             }
-
             // Cost per minute
-            int cost = (int) ((house_rent_cost(house) / 24.0) / 60);
+            int cost = (int)((house_rent_cost(house) / 24.0) / 60);
 
             collect_house_rent(house, cost);
             save_house(house);
@@ -1029,7 +1032,7 @@ list_house_guests(struct house *house, struct creature *ch)
 
     acc_string_clear();
     acc_strcat("     Guests: ", NULL);
-    for (GList *i = house->guests; i; i = i->next) {
+    for (GList * i = house->guests; i; i = i->next) {
         acc_sprintf("%s ", player_name_by_idnum(GPOINTER_TO_INT(i->data)));
     }
     acc_strcat("\r\n", NULL);
@@ -1040,15 +1043,14 @@ void
 list_house_rooms(struct house *house, struct creature *ch, bool show_contents)
 {
     acc_string_clear();
-    for (GList *i = house->rooms; i; i = i->next) {
+    for (GList * i = house->rooms; i; i = i->next) {
         struct room_data *room = real_room(GPOINTER_TO_INT(i->data));
 
         if (room)
             acc_strcat(print_room_contents(ch, room, show_contents), NULL);
         else
             errlog("Room [%5d] of House [%5d] does not exist.",
-                   GPOINTER_TO_INT(i->data),
-                   house->id);
+                GPOINTER_TO_INT(i->data), house->id);
     }
     page_string(ch->desc, acc_get_string());
 }
@@ -1057,25 +1059,27 @@ void
 display_house(struct house *house, struct creature *ch)
 {
 
-    const char* landlord;
+    const char *landlord;
     char created_buf[30];
 
     landlord = player_name_by_idnum(house->landlord);
     if (!landlord)
         landlord = "NONE";
 
-    send_to_desc(ch->desc, "&yHouse[&n%4d&y]  Type:&n %s  &yLandlord:&n %s\r\n",
-                 house->id, house_type_name(house->type), landlord);
+    send_to_desc(ch->desc,
+        "&yHouse[&n%4d&y]  Type:&n %s  &yLandlord:&n %s\r\n", house->id,
+        house_type_name(house->type), landlord);
 
-    if (house->type == PRIVATE || house->type == RENTAL || house->type == PUBLIC) {
+    if (house->type == PRIVATE || house->type == RENTAL
+        || house->type == PUBLIC) {
         struct account *account = account_by_idnum(house->owner_id);
         if (account != NULL) {
-            const char* email = "";
+            const char *email = "";
             if (account->email && *account->email) {
                 email = account->email;
             }
             send_to_desc(ch->desc, "&yOwner:&n %s [%d] &c%s&n\r\n",
-                    account->name, account->id, email);
+                account->name, account->id, email);
         }
     } else if (house->type == CLAN) {
         struct clan_data *clan = real_clan(house->owner_id);
@@ -1083,40 +1087,42 @@ display_house(struct house *house, struct creature *ch)
             send_to_desc(ch->desc, "&yOwned by Clan:&n NONE\r\n");
         } else {
             send_to_desc(ch->desc, "&yOwned by Clan:&c %s&n [%d]\r\n",
-                          clan->name, clan->number);
+                clan->name, clan->number);
         }
     } else {
         send_to_desc(ch->desc, "&yOwner:&n NONE\r\n");
     }
 
-    strftime(created_buf, 29, "%a %b %d, %Y %H:%M:%S", localtime(&house->created));
+    strftime(created_buf, 29, "%a %b %d, %Y %H:%M:%S",
+        localtime(&house->created));
     send_to_desc(ch->desc, "&yCreated:&n %s\r\n", created_buf);
     list_house_guests(house, ch);
     list_house_rooms(house, ch, false);
     if (house->repo_notes) {
         send_to_desc(ch->desc, "&cRepossession Notifications:&n \r\n");
-        for (struct txt_block *i = house->repo_notes; i; i = i->next) {
+        for (struct txt_block * i = house->repo_notes; i; i = i->next) {
             send_to_desc(ch->desc, "    %s\r\n", i->text);
         }
     }
 }
 
-char*
-print_room_contents(struct creature *ch, struct room_data *real_house_room, bool showContents)
+char *
+print_room_contents(struct creature *ch, struct room_data *real_house_room,
+    bool showContents)
 {
     int count;
-    char* buf = NULL;
-    const char* buf2 = "";
+    char *buf = NULL;
+    const char *buf2 = "";
 
     struct obj_data *obj, *cont;
     if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
         buf2 = tmp_sprintf(" %s[%s%5d%s]%s", CCGRN(ch, C_NRM),
-                            CCNRM(ch, C_NRM), real_house_room->number,
-                            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+            CCNRM(ch, C_NRM), real_house_room->number,
+            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
 
     buf = tmp_sprintf("Room%s: %s%s%s\r\n", buf2, CCCYN(ch, C_NRM),
-                        real_house_room->name, CCNRM(ch, C_NRM));
+        real_house_room->name, CCNRM(ch, C_NRM));
     if (!showContents)
         return buf;
     for (obj = real_house_room->contents; obj; obj = obj->next_content) {
@@ -1126,8 +1132,8 @@ print_room_contents(struct creature *ch, struct room_data *real_house_room, bool
             buf2 = tmp_sprintf("     (contains %d)\r\n", count);
         }
         buf = tmp_sprintf("%s   %s%-35s%s  %10d Au%s", buf, CCGRN(ch, C_NRM),
-                        obj->name, CCNRM(ch, C_NRM),
-                        recurs_obj_cost(obj, false, NULL), buf2);
+            obj->name, CCNRM(ch, C_NRM),
+            recurs_obj_cost(obj, false, NULL), buf2);
         if (obj->contains) {
             for (cont = obj->contains; cont; cont = cont->next_content) {
                 count = recurs_obj_contents(cont, obj) - 1;
@@ -1135,9 +1141,10 @@ print_room_contents(struct creature *ch, struct room_data *real_house_room, bool
                 if (count > 0) {
                     buf2 = tmp_sprintf("     (contains %d)\r\n", count);
                 }
-                buf = tmp_sprintf("%s     %s%-33s%s  %10d Au%s", buf, CCGRN(ch, C_NRM),
-                                    cont->name, CCNRM(ch, C_NRM),
-                                    recurs_obj_cost(cont, false, obj), buf2);
+                buf =
+                    tmp_sprintf("%s     %s%-33s%s  %10d Au%s", buf, CCGRN(ch,
+                        C_NRM), cont->name, CCNRM(ch, C_NRM),
+                    recurs_obj_cost(cont, false, obj), buf2);
             }
         }
     }
@@ -1178,7 +1185,8 @@ hcontrol_build_house(struct creature *ch, char *arg)
     // SECOND arg: the first room of the house
     str = tmp_getword(&arg);
     if (!*str) {
-        send_to_char(ch, "You have to give a beginning room for the range.\r\n");
+        send_to_char(ch,
+            "You have to give a beginning room for the range.\r\n");
         send_to_char(ch, HCONTROL_FORMAT);
         return;
     } else if (!is_number(str)) {
@@ -1189,7 +1197,7 @@ hcontrol_build_house(struct creature *ch, char *arg)
     struct house *house = find_house_by_room(virt_atrium);
     if (house != NULL) {
         send_to_char(ch, "Room [%d] already exists as room of house [%d]\r\n",
-                    virt_atrium, house->id);
+            virt_atrium, house->id);
         return;
     }
     if ((real_atrium = real_room(virt_atrium)) == NULL) {
@@ -1209,7 +1217,8 @@ hcontrol_build_house(struct creature *ch, char *arg)
     }
     virt_top_room = atoi(str);
     if (virt_top_room < virt_atrium) {
-        send_to_char(ch, "Top room number is less than Atrium room number.\r\n");
+        send_to_char(ch,
+            "Top room number is less than Atrium room number.\r\n");
         return;
     } else if (virt_top_room - virt_atrium > 20) {
         send_to_char(ch, "Don't be greedy! Who needs more than 20 rooms?\r\n");
@@ -1217,13 +1226,14 @@ hcontrol_build_house(struct creature *ch, char *arg)
     }
     struct house *h = find_house_by_owner(owner);
     if (h != NULL) {
-        send_to_char(ch, "struct account %d already owns house %d.\r\n", owner, h->id);
+        send_to_char(ch, "struct account %d already owns house %d.\r\n", owner,
+            h->id);
     } else if ((h = create_house(owner, virt_atrium, virt_top_room)) != NULL) {
         send_to_char(ch, "House built.  Mazel tov!\r\n");
         h->landlord = GET_IDNUM(ch);
         save_house(h);
         slog("HOUSE: %s created house %d for account %d with first room %d.",
-             GET_NAME(ch), h->id, owner, GPOINTER_TO_INT(h->rooms->data));
+            GET_NAME(ch), h->id, owner, GPOINTER_TO_INT(h->rooms->data));
     } else {
         send_to_char(ch, "House build failed.\r\n");
     }
@@ -1259,7 +1269,7 @@ void
 set_house_clan_owner(struct creature *ch, struct house *house, char *arg)
 {
     int clanID = 0;
-    if (is_number(arg)) { // to clan id
+    if (is_number(arg)) {       // to clan id
         struct clan_data *clan = real_clan(atoi(arg));
         if (clan != NULL) {
             clanID = atoi(arg);
@@ -1268,35 +1278,36 @@ set_house_clan_owner(struct creature *ch, struct house *house, char *arg)
             return;
         }
     } else {
-        send_to_char(ch, "When setting a clan owner, the clan ID must be used.\r\n");
+        send_to_char(ch,
+            "When setting a clan owner, the clan ID must be used.\r\n");
         return;
     }
     // An account may only own one house
     struct house *h = find_house_by_owner(clanID);
     if (h != NULL) {
-        send_to_char(ch, "Clan %d already owns house %d.\r\n",
-                     clanID, h->id);
+        send_to_char(ch, "Clan %d already owns house %d.\r\n", clanID, h->id);
         return;
     }
 
     house->owner_id = clanID;
     send_to_char(ch, "Owner set to clan %d.\r\n", house->owner_id);
     slog("HOUSE: Owner of house %d set to clan %d by %s.",
-            house->id, house->owner_id, GET_NAME(ch));
+        house->id, house->owner_id, GET_NAME(ch));
 }
 
 void
 set_house_account_owner(struct creature *ch, struct house *house, char *arg)
 {
     int accountID = 0;
-    if (isdigit(*arg)) { // to an account id
+    if (isdigit(*arg)) {        // to an account id
         if (account_by_idnum(atoi(arg))) {
             accountID = atoi(arg);
         } else {
-            send_to_char(ch, "struct account %d doesn't exist.\r\n", atoi(arg));
+            send_to_char(ch, "struct account %d doesn't exist.\r\n",
+                atoi(arg));
             return;
         }
-    } else { // to a player name
+    } else {                    // to a player name
         if (player_name_exists(arg)) {
             accountID = player_account_by_name(arg);
         } else {
@@ -1308,14 +1319,14 @@ set_house_account_owner(struct creature *ch, struct house *house, char *arg)
     struct house *h = find_house_by_owner(accountID);
     if (h != NULL) {
         send_to_char(ch, "struct account %d already owns house %d.\r\n",
-                     accountID, h->id);
+            accountID, h->id);
         return;
     }
 
     house->owner_id = accountID;
     send_to_char(ch, "Owner set to account %d.\r\n", house->owner_id);
     slog("HOUSE: Owner of house %d set to account %d by %s.",
-            house->id, house->owner_id, GET_NAME(ch));
+        house->id, house->owner_id, GET_NAME(ch));
 
 }
 
@@ -1354,7 +1365,7 @@ hcontrol_set_house(struct creature *ch, char *arg)
             send_to_char(ch, "House %d rental rate set to %d/day.\r\n",
                 house->id, house->rental_rate);
             slog("HOUSE: Rental rate of house %d set to %d by %s.",
-                    house->id, house->rental_rate, GET_NAME(ch));
+                house->id, house->rental_rate, GET_NAME(ch));
         }
     } else if (is_abbrev(arg2, "type")) {
         if (!*arg) {
@@ -1387,9 +1398,9 @@ hcontrol_set_house(struct creature *ch, char *arg)
             return;
         }
         send_to_char(ch, "House %d type set to %s.\r\n",
-                     house->id, house_type_name(house->type));
+            house->id, house_type_name(house->type));
         slog("HOUSE: Type of house %d set to %s by %s.",
-                house->id, house_type_name(house->type), GET_NAME(ch));
+            house->id, house_type_name(house->type), GET_NAME(ch));
 
     } else if (is_abbrev(arg2, "landlord")) {
         if (!*arg) {
@@ -1405,9 +1416,9 @@ hcontrol_set_house(struct creature *ch, char *arg)
         house->landlord = player_idnum_by_name(landlord);
 
         send_to_char(ch, "Landlord of house %d set to %s.\r\n",
-                     house->id, player_name_by_idnum(house->landlord));
+            house->id, player_name_by_idnum(house->landlord));
         slog("HOUSE: Landlord of house %d set to %s by %s.",
-                house->id, player_name_by_idnum(house->landlord), GET_NAME(ch));
+            house->id, player_name_by_idnum(house->landlord), GET_NAME(ch));
         return;
     } else if (is_abbrev(arg2, "owner")) {
         if (!*arg) {
@@ -1415,18 +1426,18 @@ hcontrol_set_house(struct creature *ch, char *arg)
             return;
         }
         char *owner = tmp_getword(&arg);
-        switch(house->type) {
-            case PRIVATE:
-            case PUBLIC:
-            case RENTAL:
-                set_house_account_owner(ch, house, owner);
-                break;
-            case CLAN:
-                set_house_clan_owner(ch, house, owner);
-                break;
-            case INVALID:
-                send_to_char(ch, "Invalid house type. Nothing set.\r\n");
-                break;
+        switch (house->type) {
+        case PRIVATE:
+        case PUBLIC:
+        case RENTAL:
+            set_house_account_owner(ch, house, owner);
+            break;
+        case CLAN:
+            set_house_clan_owner(ch, house, owner);
+            break;
+        case INVALID:
+            send_to_char(ch, "Invalid house type. Nothing set.\r\n");
+            break;
         }
 
         return;
@@ -1448,12 +1459,11 @@ hcontrol_where_house(struct creature *ch)
         "You are in house id: %s[%s%6d%s]%s\n"
         "              Owner: %d\n",
         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-        h->id,
-        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), h->owner_id);
+        h->id, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), h->owner_id);
 }
 
 bool
-reload_house(struct house *house)
+reload_house(struct house * house)
 {
     if (house == NULL)
         return false;
@@ -1463,7 +1473,7 @@ reload_house(struct house *house)
     if (axs != 0) {
         if (errno != ENOENT) {
             errlog("Unable to open xml house file '%s' for reload: %s",
-                   path, strerror(errno));
+                path, strerror(errno));
             return false;
         } else {
             errlog("Unable to open xml house file '%s' for reload.", path);
@@ -1471,11 +1481,11 @@ reload_house(struct house *house)
         }
     }
 
-    for (GList *i = house->rooms; i; i = i->next) {
+    for (GList * i = house->rooms; i; i = i->next) {
         int room_num = GPOINTER_TO_INT(i->data);
-        struct room_data* room = real_room(room_num);
-        for (struct obj_data* obj = room->contents; obj;) {
-            struct obj_data* next_o = obj->next_content;
+        struct room_data *room = real_room(room_num);
+        for (struct obj_data * obj = room->contents; obj;) {
+            struct obj_data *next_o = obj->next_content;
             extract_obj(obj);
             obj = next_o;
         }
@@ -1517,9 +1527,11 @@ hcontrol_reload_house(struct creature *ch, char *arg)
     if (reload_house(h)) {
         send_to_char(ch, "Reload complete. It might even have worked.\r\n");
     } else {
-        send_to_char(ch, "Reload failed. Figure it out yourself oh great coder.\r\n");
+        send_to_char(ch,
+            "Reload failed. Figure it out yourself oh great coder.\r\n");
     }
 }
+
 /* Misc. administrative functions */
 
 void
@@ -1558,18 +1570,18 @@ hcontrol_add_to_house(struct creature *ch, char *arg)
             send_to_char(ch, "No such room exists.\r\n");
             return;
         }
-        struct house* h = find_house_by_room(roomID);
+        struct house *h = find_house_by_room(roomID);
         if (h != NULL) {
-            send_to_char(ch, "Room [%d] already exists as room of house [%d]\r\n",
-                        roomID, h->id);
+            send_to_char(ch,
+                "Room [%d] already exists as room of house [%d]\r\n", roomID,
+                h->id);
             return;
         }
         add_house_room(h, roomID);
         SET_BIT(ROOM_FLAGS(room), ROOM_HOUSE);
-        send_to_char(ch, "Room %d added to house %d.\r\n",
-                    roomID, house->id);
+        send_to_char(ch, "Room %d added to house %d.\r\n", roomID, house->id);
         slog("HOUSE: Room %d added to house %d by %s.",
-                roomID, house->id, GET_NAME(ch));
+            roomID, house->id, GET_NAME(ch));
         save_house(house);
     } else {
         send_to_char(ch, HCONTROL_ADD_FORMAT);
@@ -1581,7 +1593,7 @@ hcontrol_delete_from_house(struct creature *ch, char *arg)
 {
 
     // first arg is the atrium vnum
-    char* str = tmp_getword(&arg);
+    char *str = tmp_getword(&arg);
     if (!*str || !*arg) {
         send_to_char(ch, HCONTROL_DELETE_FORMAT);
         return;
@@ -1598,50 +1610,52 @@ hcontrol_delete_from_house(struct creature *ch, char *arg)
         send_to_char(ch, "You cannot edit that house.\r\n");
         return;
     }
-
     // turn arg into the final argument and arg1 into the room/guest/owner arg
-	str = tmp_getword(&arg);
+    str = tmp_getword(&arg);
 
-	if (!*str || !*arg) {
-		send_to_char(ch, HCONTROL_DELETE_FORMAT);
-		return;
-	}
-	// delete room
-	if (is_abbrev(str, "room")) {
+    if (!*str || !*arg) {
+        send_to_char(ch, HCONTROL_DELETE_FORMAT);
+        return;
+    }
+    // delete room
+    if (is_abbrev(str, "room")) {
 
-		int roomID = atoi(arg);
-		struct room_data *room = real_room(roomID);
-		if (room == NULL) {
-			send_to_char(ch, "No such room exists.\r\n");
-			return;
-		}
-		struct house* h = find_house_by_room(roomID);
-		if (h == NULL) {
-			send_to_char(ch, "Room [%d] isn't a room of any house!\r\n", roomID);
-			return;
-		} else if (house != h) {
-			send_to_char(ch, "Room [%d] belongs to house [%d]!\r\n",roomID, h->id);
-			return;
-		} else if (!house->rooms->next) {
-			send_to_char(ch, "Room %d is the last room in house [%d]. Destroy it instead.\r\n",
-					roomID, h->id);
-			return;
-		}
+        int roomID = atoi(arg);
+        struct room_data *room = real_room(roomID);
+        if (room == NULL) {
+            send_to_char(ch, "No such room exists.\r\n");
+            return;
+        }
+        struct house *h = find_house_by_room(roomID);
+        if (h == NULL) {
+            send_to_char(ch, "Room [%d] isn't a room of any house!\r\n",
+                roomID);
+            return;
+        } else if (house != h) {
+            send_to_char(ch, "Room [%d] belongs to house [%d]!\r\n", roomID,
+                h->id);
+            return;
+        } else if (!house->rooms->next) {
+            send_to_char(ch,
+                "Room %d is the last room in house [%d]. Destroy it instead.\r\n",
+                roomID, h->id);
+            return;
+        }
 
-		remove_house_room(h, roomID);
-		REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE | ROOM_HOUSE_CRASH);
-		send_to_char(ch, "Room %d removed from house %d.\r\n",
-                     roomID, house->id);
-		slog("HOUSE: Room %d removed from house %d by %s.",
-             roomID, house->id, GET_NAME(ch));
-		save_house(house);
-	} else {
-		send_to_char(ch, HCONTROL_FORMAT);
-	}
+        remove_house_room(h, roomID);
+        REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE | ROOM_HOUSE_CRASH);
+        send_to_char(ch, "Room %d removed from house %d.\r\n",
+            roomID, house->id);
+        slog("HOUSE: Room %d removed from house %d by %s.",
+            roomID, house->id, GET_NAME(ch));
+        save_house(house);
+    } else {
+        send_to_char(ch, HCONTROL_FORMAT);
+    }
 }
 
 GList *
-match_houses(GList *houses, int mode, const char *arg)
+match_houses(GList * houses, int mode, const char *arg)
 {
     GList *result = NULL;
     long id;
@@ -1652,7 +1666,7 @@ match_houses(GList *houses, int mode, const char *arg)
         } else {
             id = player_account_by_name(arg);
         }
-        for (GList *i; i; i = i->next)
+        for (GList * i; i; i = i->next)
             if (((struct house *)i->data)->owner_id == id)
                 result = g_list_prepend(result, i->data);
         break;
@@ -1662,7 +1676,7 @@ match_houses(GList *houses, int mode, const char *arg)
         } else {
             id = player_account_by_name(arg);
         }
-        for (GList *i; i; i = i->next)
+        for (GList * i; i; i = i->next)
             if (((struct house *)i->data)->landlord == id)
                 result = g_list_prepend(result, i->data);
         break;
@@ -1672,7 +1686,7 @@ match_houses(GList *houses, int mode, const char *arg)
         } else {
             id = player_idnum_by_name(arg);
         }
-        for (GList *i; i; i = i->next)
+        for (GList * i; i; i = i->next)
             if (is_house_guest(((struct house *)i->data), id))
                 result = g_list_prepend(result, i->data);
         break;
@@ -1683,31 +1697,29 @@ match_houses(GList *houses, int mode, const char *arg)
 }
 
 void
-display_houses(GList *houses, struct creature *ch)
+display_houses(GList * houses, struct creature *ch)
 {
     acc_string_clear();
 
     acc_strcat("ID   Size Owner  Landlord   Type Rooms\r\n"
-               "---- ---- ------ ---------- ---- -----"
-               "-----------------------------------------\r\n", NULL);
+        "---- ---- ------ ---------- ---- -----"
+        "-----------------------------------------\r\n", NULL);
 
-    for (GList *cur = houses; cur; cur = cur->next) {
-		struct house *house = (struct house *)cur->data;
-		const char* landlord = "none";
-		if (player_idnum_exists(house->landlord))
-			landlord = player_name_by_idnum(house->landlord);
+    for (GList * cur = houses; cur; cur = cur->next) {
+        struct house *house = (struct house *)cur->data;
+        const char *landlord = "none";
+        if (player_idnum_exists(house->landlord))
+            landlord = player_name_by_idnum(house->landlord);
         acc_sprintf("%4d %4d %6d %-10s %4s",
-                    house->id,
-                    g_list_length(house->rooms),
-                    house->owner_id,
-                    landlord,
-                    house_type_short_name(house->type));
+            house->id,
+            g_list_length(house->rooms),
+            house->owner_id, landlord, house_type_short_name(house->type));
         if (house->rooms) {
-			acc_sprintf("%d", GPOINTER_TO_INT(house->rooms->data));
-			for (GList *i = house->rooms; i; i = i->next) {
-				acc_sprintf(", %d", GPOINTER_TO_INT(i->data));
-			}
-		}
+            acc_sprintf("%d", GPOINTER_TO_INT(house->rooms->data));
+            for (GList * i = house->rooms; i; i = i->next) {
+                acc_sprintf(", %d", GPOINTER_TO_INT(i->data));
+            }
+        }
         acc_strcat("\r\n", NULL);
     }
     page_string(ch->desc, acc_get_string());
@@ -1719,7 +1731,7 @@ hcontrol_find_houses(struct creature *ch, char *arg)
     char *token;
 
     if (arg == NULL || *arg == '\0') {
-        send_to_char(ch,HCONTROL_FIND_FORMAT);
+        send_to_char(ch, HCONTROL_FIND_FORMAT);
         return;
     }
 
@@ -1728,24 +1740,24 @@ hcontrol_find_houses(struct creature *ch, char *arg)
 
     while (*arg && houses_left) {
         token = tmp_getword(&arg);
-        if (strcmp(token,"owner") == 0 && *arg) {
+        if (strcmp(token, "owner") == 0 && *arg) {
             token = tmp_getword(&arg);
             matched = match_houses(houses_left, HC_OWNER, token);
-        } else if (strcmp(token,"landlord") == 0 && *arg) {
+        } else if (strcmp(token, "landlord") == 0 && *arg) {
             token = tmp_getword(&arg);
             matched = match_houses(houses_left, HC_LANDLORD, token);
-        } else if (strcmp(token,"guest") == 0 && *arg) {
+        } else if (strcmp(token, "guest") == 0 && *arg) {
             token = tmp_getword(&arg);
             matched = match_houses(houses_left, HC_GUEST, token);
         } else {
-            send_to_char(ch,HCONTROL_FIND_FORMAT);
+            send_to_char(ch, HCONTROL_FIND_FORMAT);
             return;
         }
         g_list_free(houses_left);
         houses_left = matched;
     }
     if (!houses_left) {
-        send_to_char(ch,"No houses found.\r\n");
+        send_to_char(ch, "No houses found.\r\n");
         return;
     }
     display_houses(houses, ch);
@@ -1754,138 +1766,137 @@ hcontrol_find_houses(struct creature *ch, char *arg)
 /* The hcontrol command itself, used by imms to create/destroy houses */
 ACMD(do_hcontrol)
 {
-	char *action_str;
+    char *action_str;
 
-	if (!is_authorized(ch, EDIT_HOUSE, NULL)) {
-		send_to_char(ch, "You aren't able to edit houses!\r\n");
-		return;
-	}
+    if (!is_authorized(ch, EDIT_HOUSE, NULL)) {
+        send_to_char(ch, "You aren't able to edit houses!\r\n");
+        return;
+    }
 
-	action_str = tmp_getword(&argument);
+    action_str = tmp_getword(&argument);
 
-	if (is_abbrev(action_str, "save")) {
-		save_houses();
-		send_to_char(ch, "Saved.\r\n");
-		slog("HOUSE: Saved by %s.", GET_NAME(ch));
-	} else if (is_abbrev(action_str, "build")) {
-		hcontrol_build_house(ch, argument);
-	} else if (is_abbrev(action_str, "destroy")) {
-		hcontrol_destroy_house(ch, argument);
-	} else if (is_abbrev(action_str, "add")) {
-		hcontrol_add_to_house(ch, argument);
-	} else if (is_abbrev(action_str, "delete")) {
-		hcontrol_delete_from_house(ch, argument);
-	} else if (is_abbrev(action_str, "set")) {
-		hcontrol_set_house(ch, argument);
+    if (is_abbrev(action_str, "save")) {
+        save_houses();
+        send_to_char(ch, "Saved.\r\n");
+        slog("HOUSE: Saved by %s.", GET_NAME(ch));
+    } else if (is_abbrev(action_str, "build")) {
+        hcontrol_build_house(ch, argument);
+    } else if (is_abbrev(action_str, "destroy")) {
+        hcontrol_destroy_house(ch, argument);
+    } else if (is_abbrev(action_str, "add")) {
+        hcontrol_add_to_house(ch, argument);
+    } else if (is_abbrev(action_str, "delete")) {
+        hcontrol_delete_from_house(ch, argument);
+    } else if (is_abbrev(action_str, "set")) {
+        hcontrol_set_house(ch, argument);
     } else if (is_abbrev(action_str, "find")) {
         hcontrol_find_houses(ch, argument);
     } else if (is_abbrev(action_str, "where")) {
-		hcontrol_where_house(ch);
-	} else if (is_abbrev(action_str, "show")) {
-		if (!*argument) {
-			display_houses(houses, ch);
-		} else {
-			char* str = tmp_getword(&argument);
-			if (isdigit(*str)) {
-				struct house *house = find_house_by_idnum(atoi(str));
-				if (house == NULL) {
-					send_to_char(ch, "No such house %d.\r\n", atoi(str));
-					return;
-				}
-				display_house(house, ch);
-			} else {
-				send_to_char(ch, HCONTROL_SHOW_FORMAT);
-			}
-		}
-	} else {
-		send_to_char(ch,HCONTROL_FORMAT);
+        hcontrol_where_house(ch);
+    } else if (is_abbrev(action_str, "show")) {
+        if (!*argument) {
+            display_houses(houses, ch);
+        } else {
+            char *str = tmp_getword(&argument);
+            if (isdigit(*str)) {
+                struct house *house = find_house_by_idnum(atoi(str));
+                if (house == NULL) {
+                    send_to_char(ch, "No such house %d.\r\n", atoi(str));
+                    return;
+                }
+                display_house(house, ch);
+            } else {
+                send_to_char(ch, HCONTROL_SHOW_FORMAT);
+            }
+        }
+    } else {
+        send_to_char(ch, HCONTROL_FORMAT);
     }
 }
 
 /* The house command, used by mortal house owners to assign guests */
 ACMD(do_house)
 {
-	int found = false;
-	char *action_str;
-	struct house *house = NULL;
-	action_str = tmp_getword(&argument);
+    int found = false;
+    char *action_str;
+    struct house *house = NULL;
+    action_str = tmp_getword(&argument);
 
-	if (!IS_SET(ROOM_FLAGS(ch->in_room), ROOM_HOUSE)) {
-		send_to_char(ch, "You must be in your house to set guests.\r\n");
-		return;
-	}
-	house = find_house_by_room(ch->in_room->number);
+    if (!IS_SET(ROOM_FLAGS(ch->in_room), ROOM_HOUSE)) {
+        send_to_char(ch, "You must be in your house to set guests.\r\n");
+        return;
+    }
+    house = find_house_by_room(ch->in_room->number);
 
-	if (house == NULL) {
-		send_to_char(ch, "Um.. this house seems to be screwed up.\r\n");
-		return;
-	}
+    if (house == NULL) {
+        send_to_char(ch, "Um.. this house seems to be screwed up.\r\n");
+        return;
+    }
 
-	if (!is_authorized(ch, EDIT_HOUSE, house)) {
-		send_to_char(ch, "Only the owner can set guests.\r\n");
-		return;
-	}
-
-	// No arg, list the guests
-	if (!*action_str) {
-		send_to_char(ch, "Guests of your house:\r\n");
-		if (!house->guests) {
-			send_to_char(ch, "  None.\r\n");
-		} else {
+    if (!is_authorized(ch, EDIT_HOUSE, house)) {
+        send_to_char(ch, "Only the owner can set guests.\r\n");
+        return;
+    }
+    // No arg, list the guests
+    if (!*action_str) {
+        send_to_char(ch, "Guests of your house:\r\n");
+        if (!house->guests) {
+            send_to_char(ch, "  None.\r\n");
+        } else {
             GList *j;
             int col;
-			for (j = house->guests, col = 0; j; j = j->next, col++) {
-				send_to_char(ch, "%-19s", player_name_by_idnum(GPOINTER_TO_INT(j)));
-				if (!((col + 1) % 4))
-					send_to_char(ch, "\r\n");
-			}
-			if (col % 4) {
-				send_to_char(ch, "\r\n");
-			}
-		}
-		return;
-	}
+            for (j = house->guests, col = 0; j; j = j->next, col++) {
+                send_to_char(ch, "%-19s",
+                    player_name_by_idnum(GPOINTER_TO_INT(j)));
+                if (!((col + 1) % 4))
+                    send_to_char(ch, "\r\n");
+            }
+            if (col % 4) {
+                send_to_char(ch, "\r\n");
+            }
+        }
+        return;
+    }
 
-	if (!player_name_exists(action_str)) {
-		send_to_char(ch, "No such player.\r\n");
-		return;
-	}
-	int playerID = player_idnum_by_name(action_str);
+    if (!player_name_exists(action_str)) {
+        send_to_char(ch, "No such player.\r\n");
+        return;
+    }
+    int playerID = player_idnum_by_name(action_str);
 
-	if (is_house_guest(house, playerID)) {
-		remove_house_guest(house, playerID);
-		send_to_char(ch, "Guest deleted.\r\n");
-		return;
-	}
+    if (is_house_guest(house, playerID)) {
+        remove_house_guest(house, playerID);
+        send_to_char(ch, "Guest deleted.\r\n");
+        return;
+    }
 
     int accountID = player_account_by_idnum(playerID);
     if (house->owner_id == accountID) {
         send_to_char(ch, "They already own the house.\r\n");
-		return;
+        return;
     }
 
-	if (g_list_length(house->guests) == MAX_HOUSE_GUESTS) {
-		send_to_char(ch, "Sorry, you have the maximum number of guests already.\r\n");
-		return;
-	}
+    if (g_list_length(house->guests) == MAX_HOUSE_GUESTS) {
+        send_to_char(ch,
+            "Sorry, you have the maximum number of guests already.\r\n");
+        return;
+    }
 
-	if (add_house_guest(house, playerID)) {
-		send_to_char(ch, "Guest added.\r\n");
-	}
-
-	// delete any bogus ids
-	for (GList *i = house->guests; i; i = i->next) {
-		if (!player_idnum_exists(GPOINTER_TO_INT(i->data))) {
-			remove_house_guest(house, GPOINTER_TO_INT(i->data));
+    if (add_house_guest(house, playerID)) {
+        send_to_char(ch, "Guest added.\r\n");
+    }
+    // delete any bogus ids
+    for (GList * i = house->guests; i; i = i->next) {
+        if (!player_idnum_exists(GPOINTER_TO_INT(i->data))) {
+            remove_house_guest(house, GPOINTER_TO_INT(i->data));
             i = house->guests;
-			found++;
-		}
-	}
+            found++;
+        }
+    }
 
-	if (found > 0) {
-		send_to_char(ch,
-			"%d bogus guest%s deleted.\r\n", found, found == 1 ? "" : "s");
-	}
-	save_house(house);
+    if (found > 0) {
+        send_to_char(ch,
+            "%d bogus guest%s deleted.\r\n", found, found == 1 ? "" : "s");
+    }
+    save_house(house);
 }
-

@@ -30,50 +30,51 @@
 
 ACMD(do_charge)
 {
-	struct affected_type af;
-	struct creature *vict = NULL;
-	char *arg;
+    struct affected_type af;
+    struct creature *vict = NULL;
+    char *arg;
 
-	arg = tmp_getword(&argument);
-	// Check for berserk.
-	//
+    arg = tmp_getword(&argument);
+    // Check for berserk.
+    //
 
-	if (CHECK_SKILL(ch, SKILL_CHARGE) < 50) {
-		send_to_char(ch, "Do you really think you know what you're doing?\r\n");
-		return;
-	}
-	// find out who we're whackin.
-	vict = get_char_in_remote_room_vis(ch, arg, ch->in_room);
-	if (vict == ch) {
-		send_to_char(ch, "You charge in and scare yourself silly!\r\n");
-		return;
-	}
-	if (!vict) {
-		send_to_char(ch, "Charge who?\r\n");
-		return;
-	}
-	// Instant affect flag.  AFF3_INST_AFF is checked for
-	// every 4 seconds or so in burn_update and decremented.
-	af.is_instant = 1;
+    if (CHECK_SKILL(ch, SKILL_CHARGE) < 50) {
+        send_to_char(ch,
+            "Do you really think you know what you're doing?\r\n");
+        return;
+    }
+    // find out who we're whackin.
+    vict = get_char_in_remote_room_vis(ch, arg, ch->in_room);
+    if (vict == ch) {
+        send_to_char(ch, "You charge in and scare yourself silly!\r\n");
+        return;
+    }
+    if (!vict) {
+        send_to_char(ch, "Charge who?\r\n");
+        return;
+    }
+    // Instant affect flag.  AFF3_INST_AFF is checked for
+    // every 4 seconds or so in burn_update and decremented.
+    af.is_instant = 1;
 
-	af.level = GET_LEVEL(ch);
-	af.type = SKILL_CHARGE;
-	af.duration = number(0, 1);
-	af.location = 0;
-	af.modifier = GET_REMORT_GEN(ch);
-	af.aff_index = 3;
-	af.bitvector = AFF3_INST_AFF;
+    af.level = GET_LEVEL(ch);
+    af.type = SKILL_CHARGE;
+    af.duration = number(0, 1);
+    af.location = 0;
+    af.modifier = GET_REMORT_GEN(ch);
+    af.aff_index = 3;
+    af.bitvector = AFF3_INST_AFF;
     af.owner = GET_IDNUM(ch);
-	affect_to_char(ch, &af);
-	WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
-	// Whap the bastard
-	hit(ch, vict, TYPE_UNDEFINED);
+    affect_to_char(ch, &af);
+    WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+    // Whap the bastard
+    hit(ch, vict, TYPE_UNDEFINED);
 }
 
 ACMD(do_corner)
 {
-	send_to_char(ch, "You back into the corner.\r\n");
-	return;
+    send_to_char(ch, "You back into the corner.\r\n");
+    return;
 }
 
 //
@@ -84,26 +85,27 @@ ACMD(do_corner)
 // return value is 0 for failure, 1 for success
 //
 
+gint
+select_berserk_victim(struct creature * tch, struct creature * ch)
+{
+    if (tch == ch || (tch->fighting && tch->fighting->data == ch)
+        || PRF_FLAGGED(tch, PRF_NOHASSLE)
+        || (IS_NPC(ch) && IS_NPC(tch)
+            && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
+        || !can_see_creature(ch, tch)
+        || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
+        return -1;
+
+    return 0;
+}
+
 int
 perform_barb_berserk(struct creature *ch,
-                     struct creature **who_was_attacked,
-                     int *return_flags)
+    struct creature **who_was_attacked, int *return_flags)
 {
-    gint select_victim(struct creature *tch, struct creature *ignore) {
-        if (tch == ch
-            || (tch->fighting && tch->fighting->data == ch)
-            || PRF_FLAGGED(tch, PRF_NOHASSLE)
-            || (IS_NPC(ch) && IS_NPC(tch)
-                && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
-            || !can_see_creature(ch, tch)
-            || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
-            return -1;
-
-        return 0;
-    }
     GList *cit = g_list_find_custom(ch->in_room->people,
-                                   NULL,
-                                   (GCompareFunc)select_victim);
+        ch,
+        (GCompareFunc) select_berserk_victim);
     if (!cit)
         return 0;
 
@@ -111,8 +113,7 @@ perform_barb_berserk(struct creature *ch,
 
     act("You go berserk and attack $N!", false, ch, 0, vict, TO_CHAR);
     act("$n attacks you in a BERSERK rage!!", false, ch, 0, vict, TO_VICT);
-    act("$n attacks $N in a BERSERK rage!!", false, ch, 0, vict,
-        TO_NOTVICT);
+    act("$n attacks $N in a BERSERK rage!!", false, ch, 0, vict, TO_NOTVICT);
     if (return_flags) {
         *return_flags = hit(ch, vict, TYPE_UNDEFINED);
 
@@ -125,59 +126,59 @@ perform_barb_berserk(struct creature *ch,
 
 ACMD(do_berserk)
 {
-	struct affected_type af, af2, af3;
-	byte percent;
-	percent = (number(1, 101) - GET_LEVEL(ch));
+    struct affected_type af, af2, af3;
+    byte percent;
+    percent = (number(1, 101) - GET_LEVEL(ch));
 
     perform_barb_berserk(ch, NULL, return_flags);
 
-	if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
-		if (percent > CHECK_SKILL(ch, SKILL_BERSERK)) {
-			send_to_char(ch, "You cannot calm down!!\r\n");
-			return;
-		} else {
-			affect_from_char(ch, SKILL_BERSERK);
-			send_to_char(ch, "You are no longer berserk.\r\n");
-			act("$n calms down by taking deep breaths.", true, ch, 0, 0,
-				TO_ROOM);
-		}
-		return;
-	} else if (CHECK_SKILL(ch, SKILL_BERSERK) > number(0, 101)) {
-		if (GET_MANA(ch) < 50) {
-			send_to_char(ch, "You cannot summon the energy to do so.\r\n");
-			return;
-		}
-		af.level = af2.level = af3.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
-		af.is_instant = af2.is_instant = af3.is_instant = 0;
-		af.type = SKILL_BERSERK;
-		af2.type = SKILL_BERSERK;
-		af3.type = SKILL_BERSERK;
-		af.duration = MAX(2, 20 - GET_INT(ch));
-		af2.duration = af.duration;
-		af3.duration = af.duration;
-		af.location = APPLY_INT;
-		af2.location = APPLY_WIS;
-		af3.location = APPLY_DAMROLL;
-		af.modifier = -(5 + (GET_LEVEL(ch) >> 5));
-		af2.modifier = -(5 + (GET_LEVEL(ch) >> 5));
-		af3.modifier = (2 + GET_REMORT_GEN(ch) + (GET_LEVEL(ch) >> 4));
-		af.aff_index = 2;
-		af.bitvector = AFF2_BERSERK;
-		af2.bitvector = 0;
-		af3.bitvector = 0;
+    if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
+        if (percent > CHECK_SKILL(ch, SKILL_BERSERK)) {
+            send_to_char(ch, "You cannot calm down!!\r\n");
+            return;
+        } else {
+            affect_from_char(ch, SKILL_BERSERK);
+            send_to_char(ch, "You are no longer berserk.\r\n");
+            act("$n calms down by taking deep breaths.", true, ch, 0, 0,
+                TO_ROOM);
+        }
+        return;
+    } else if (CHECK_SKILL(ch, SKILL_BERSERK) > number(0, 101)) {
+        if (GET_MANA(ch) < 50) {
+            send_to_char(ch, "You cannot summon the energy to do so.\r\n");
+            return;
+        }
+        af.level = af2.level = af3.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
+        af.is_instant = af2.is_instant = af3.is_instant = 0;
+        af.type = SKILL_BERSERK;
+        af2.type = SKILL_BERSERK;
+        af3.type = SKILL_BERSERK;
+        af.duration = MAX(2, 20 - GET_INT(ch));
+        af2.duration = af.duration;
+        af3.duration = af.duration;
+        af.location = APPLY_INT;
+        af2.location = APPLY_WIS;
+        af3.location = APPLY_DAMROLL;
+        af.modifier = -(5 + (GET_LEVEL(ch) >> 5));
+        af2.modifier = -(5 + (GET_LEVEL(ch) >> 5));
+        af3.modifier = (2 + GET_REMORT_GEN(ch) + (GET_LEVEL(ch) >> 4));
+        af.aff_index = 2;
+        af.bitvector = AFF2_BERSERK;
+        af2.bitvector = 0;
+        af3.bitvector = 0;
         af.owner = GET_IDNUM(ch);
         af2.owner = GET_IDNUM(ch);
         af3.owner = GET_IDNUM(ch);
-		affect_to_char(ch, &af);
-		affect_to_char(ch, &af2);
-		affect_to_char(ch, &af3);
+        affect_to_char(ch, &af);
+        affect_to_char(ch, &af2);
+        affect_to_char(ch, &af3);
 
-		send_to_char(ch, "You go BERSERK!\r\n");
-		act("$n goes BERSERK! Run for cover!", true, ch, 0, ch, TO_ROOM);
+        send_to_char(ch, "You go BERSERK!\r\n");
+        act("$n goes BERSERK! Run for cover!", true, ch, 0, ch, TO_ROOM);
 
         perform_barb_berserk(ch, NULL, NULL);
-	} else
-		send_to_char(ch, "You cannot work up the gumption to do so.\r\n");
+    } else
+        send_to_char(ch, "You cannot work up the gumption to do so.\r\n");
 }
 
 //
@@ -186,73 +187,74 @@ ACMD(do_berserk)
 
 ACMD(do_battlecry)
 {
-	int trans = 0, skillnum = (subcmd == SCMD_KIA ? SKILL_KIA :
-		(subcmd == SCMD_BATTLE_CRY ? SKILL_BATTLE_CRY :
-			SKILL_CRY_FROM_BEYOND));
-	int did = 0;
+    int trans = 0, skillnum = (subcmd == SCMD_KIA ? SKILL_KIA :
+        (subcmd == SCMD_BATTLE_CRY ? SKILL_BATTLE_CRY :
+            SKILL_CRY_FROM_BEYOND));
+    int did = 0;
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
-        send_to_char(ch, "You just feel too damn peaceful here to do that.\r\n");
+        send_to_char(ch,
+            "You just feel too damn peaceful here to do that.\r\n");
+    } else if (CHECK_SKILL(ch, skillnum) < number(50, 110)) {
+        send_to_char(ch, "You emit a feeble warbling sound.\r\n");
+        act("$n makes a feeble warbling sound.", false, ch, 0, 0, TO_ROOM);
+    } else if (GET_MANA(ch) < 5)
+        send_to_char(ch, "You cannot work up the energy to do it.\r\n");
+    else if (skillnum == SKILL_CRY_FROM_BEYOND &&
+        GET_MAX_HIT(ch) == GET_HIT(ch))
+        send_to_char(ch, "But you are feeling in perfect health!\r\n");
+    else if (skillnum != SKILL_CRY_FROM_BEYOND &&
+        GET_MOVE(ch) == GET_MAX_MOVE(ch))
+        send_to_char(ch,
+            "There is no need to do this when your movement is at maximum.\r\n");
+    else if (subcmd == SCMD_CRY_FROM_BEYOND) {
+
+        GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + GET_MANA(ch));
+        GET_MANA(ch) = 0;
+        WAIT_STATE(ch, 4 RL_SEC);
+        did = true;
+
+    } else {
+
+        trans =
+            CHECK_SKILL(ch,
+            skillnum) + (GET_LEVEL(ch) << GET_REMORT_GEN(ch)) +
+            (GET_CON(ch) << 3);
+        trans -= (trans * GET_HIT(ch)) / (GET_MAX_HIT(ch) << 1);
+        trans = MIN(MIN(trans, GET_MANA(ch)), GET_MAX_MOVE(ch) - GET_MOVE(ch));
+
+        if (skillnum != SKILL_KIA || IS_NEUTRAL(ch)) {
+            GET_MOVE(ch) += trans;
+            GET_MANA(ch) -= trans;
+            did = 1;
+        } else
+            did = 2;
+
+        WAIT_STATE(ch, PULSE_VIOLENCE);
+
     }
-    else if (CHECK_SKILL(ch, skillnum) < number(50, 110)) {
-		send_to_char(ch, "You emit a feeble warbling sound.\r\n");
-		act("$n makes a feeble warbling sound.", false, ch, 0, 0, TO_ROOM);
-	} else if (GET_MANA(ch) < 5)
-		send_to_char(ch, "You cannot work up the energy to do it.\r\n");
-	else if (skillnum == SKILL_CRY_FROM_BEYOND &&
-		GET_MAX_HIT(ch) == GET_HIT(ch))
-		send_to_char(ch, "But you are feeling in perfect health!\r\n");
-	else if (skillnum != SKILL_CRY_FROM_BEYOND &&
-		GET_MOVE(ch) == GET_MAX_MOVE(ch))
-		send_to_char(ch,
-			"There is no need to do this when your movement is at maximum.\r\n");
-	else if (subcmd == SCMD_CRY_FROM_BEYOND) {
 
-		GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + GET_MANA(ch));
-		GET_MANA(ch) = 0;
-		WAIT_STATE(ch, 4 RL_SEC);
-		did = true;
+    if (!did)
+        return;
 
-	} else {
+    if (subcmd == SCMD_BATTLE_CRY) {
+        send_to_char(ch,
+            "Your fearsome battle cry rings out across the land!\r\n");
+        act("$n releases a battle cry that makes your blood run cold!", false,
+            ch, 0, 0, TO_ROOM);
+    } else if (subcmd == SCMD_CRY_FROM_BEYOND) {
+        send_to_char(ch, "Your cry from beyond shatters the air!!\r\n");
+        act("$n unleashes a cry from beyond that makes your blood run cold!",
+            false, ch, 0, 0, TO_ROOM);
+    } else {
+        send_to_char(ch, "You release an earsplitting 'KIA!'\r\n");
+        act("$n releases an earsplitting 'KIA!'", false, ch, 0, 0, TO_ROOM);
+    }
 
-		trans =
-			CHECK_SKILL(ch,
-			skillnum) + (GET_LEVEL(ch) << GET_REMORT_GEN(ch)) +
-			(GET_CON(ch) << 3);
-		trans -= (trans * GET_HIT(ch)) / (GET_MAX_HIT(ch) << 1);
-		trans = MIN(MIN(trans, GET_MANA(ch)), GET_MAX_MOVE(ch) - GET_MOVE(ch));
+    sound_gunshots(ch->in_room, skillnum, 1, 1);
 
-		if (skillnum != SKILL_KIA || IS_NEUTRAL(ch)) {
-			GET_MOVE(ch) += trans;
-			GET_MANA(ch) -= trans;
-			did = 1;
-		} else
-			did = 2;
-
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-
-	}
-
-	if (!did)
-		return;
-
-	if (subcmd == SCMD_BATTLE_CRY) {
-		send_to_char(ch, "Your fearsome battle cry rings out across the land!\r\n");
-		act("$n releases a battle cry that makes your blood run cold!",
-			false, ch, 0, 0, TO_ROOM);
-	} else if (subcmd == SCMD_CRY_FROM_BEYOND) {
-		send_to_char(ch, "Your cry from beyond shatters the air!!\r\n");
-		act("$n unleashes a cry from beyond that makes your blood run cold!",
-			false, ch, 0, 0, TO_ROOM);
-	} else {
-		send_to_char(ch, "You release an earsplitting 'KIA!'\r\n");
-		act("$n releases an earsplitting 'KIA!'", false, ch, 0, 0, TO_ROOM);
-	}
-
-	sound_gunshots(ch->in_room, skillnum, 1, 1);
-
-	if (did != 2)
-		gain_skill_prof(ch, skillnum);
+    if (did != 2)
+        gain_skill_prof(ch, skillnum);
 }
 
 void
@@ -260,27 +262,28 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
 {
     int maxWhack;
     int percent = 0;
-    int skill = MAX( GET_SKILL(ch, SKILL_CLEAVE), GET_SKILL(ch, SKILL_GREAT_CLEAVE) );
-    bool great = ( GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50 );
-	struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
+    int skill =
+        MAX(GET_SKILL(ch, SKILL_CLEAVE), GET_SKILL(ch, SKILL_GREAT_CLEAVE));
+    bool great = (GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50);
+    struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
 
-	if( weap == NULL || !IS_TWO_HAND(weap) ) {
-		send_to_char(ch, "You need to be wielding a two handed weapon to cleave!\r\n");
-		return;
-	}
+    if (weap == NULL || !IS_TWO_HAND(weap)) {
+        send_to_char(ch,
+            "You need to be wielding a two handed weapon to cleave!\r\n");
+        return;
+    }
 
-    if( great ) {
-        maxWhack = MAX( 3, GET_REMORT_GEN(ch)-3 );
+    if (great) {
+        maxWhack = MAX(3, GET_REMORT_GEN(ch) - 3);
     } else {
         maxWhack = 2;
     }
 
     int i;
-    for(i = 0; i < maxWhack && vict != NULL; i++ )
-    {
+    for (i = 0; i < maxWhack && vict != NULL; i++) {
         percent = number(1, 101) + GET_DEX(vict);
         cur_weap = weap;
-        if( AWAKE(vict) && percent > skill ) {
+        if (AWAKE(vict) && percent > skill) {
             WAIT_STATE(ch, 2 RL_SEC);
             int retval = damage(ch, vict, 0, SKILL_CLEAVE, WEAR_RANDOM);
             ACMD_set_return_flags(retval);
@@ -288,14 +291,14 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
         } else {
             WAIT_STATE(vict, 1 RL_SEC);
             WAIT_STATE(ch, 3 RL_SEC);
-            if( great )
+            if (great)
                 gain_skill_prof(ch, SKILL_GREAT_CLEAVE);
             gain_skill_prof(ch, SKILL_CLEAVE);
             int retval = hit(ch, vict, SKILL_CLEAVE);
             ACMD_set_return_flags(retval);
-            if( IS_SET( retval, DAM_ATTACKER_KILLED ) ) {
+            if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
                 return;
-            } else if(! IS_SET( retval, DAM_VICT_KILLED ) ) {
+            } else if (!IS_SET(retval, DAM_VICT_KILLED)) {
                 return;
             } else if (GET_EQ(ch, WEAR_WIELD) != weap) {
                 // Sometimes the weapon breaks and falls out of the wield
@@ -304,7 +307,7 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
             }
             vict = NULL;
             // find a new victim
-            gint select_victim(struct creature *tch, struct creature *ignore) {
+            gint select_victim(struct creature * tch, struct creature * ignore) {
                 if (tch == ch
                     || tch->fighting->data != ch
                     || PRF_FLAGGED(tch, PRF_NOHASSLE)
@@ -317,8 +320,9 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
                 return 0;
             }
             struct creature *vict;
-            vict = (struct creature *)g_list_find_custom(ch->in_room->people, NULL,
-                                                         (GCompareFunc)select_victim);
+            vict =
+                (struct creature *)g_list_find_custom(ch->in_room->people,
+                NULL, (GCompareFunc) select_victim);
         }
     }
 }
@@ -326,33 +330,33 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
 ACMD(do_cleave)
 {
     struct creature *vict = NULL;
-	char *arg;
+    char *arg;
 
-	ACMD_set_return_flags(0);
+    ACMD_set_return_flags(0);
 
-	arg = tmp_getword(&argument);
+    arg = tmp_getword(&argument);
 
-    if( !*arg ) {
+    if (!*arg) {
         vict = ch->fighting->data;
     } else {
         vict = get_char_room_vis(ch, arg);
     }
 
-	if( vict == NULL ) {
-		send_to_char(ch, "Cleave who?\r\n");
-		WAIT_STATE(ch, 2);
-		return;
-	}
+    if (vict == NULL) {
+        send_to_char(ch, "Cleave who?\r\n");
+        WAIT_STATE(ch, 2);
+        return;
+    }
 
-	if( vict == ch ) {
-		send_to_char(ch, "You cannot cleave yourself.\r\n");
-		return;
-	}
+    if (vict == ch) {
+        send_to_char(ch, "You cannot cleave yourself.\r\n");
+        return;
+    }
 
-	if (!ok_to_attack(ch, vict, true))
-		return;
+    if (!ok_to_attack(ch, vict, true))
+        return;
 
-	perform_cleave(ch, vict, return_flags);
+    perform_cleave(ch, vict, return_flags);
 }
 
 #undef __act_barb_c__

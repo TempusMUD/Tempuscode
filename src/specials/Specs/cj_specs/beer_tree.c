@@ -6,39 +6,39 @@
 
 SPECIAL(beer_tree)
 {
-	struct obj_data *obj = NULL;
-	int beer;
-	const char *beers[] = { "heineken", "grolsch", "becks", "\n" };
+    struct obj_data *obj = NULL;
+    int beer;
+    const char *beers[] = { "heineken", "grolsch", "becks", "\n" };
 
-	skip_spaces(&argument);
+    skip_spaces(&argument);
 
-	if (!spec_mode != SPECIAL_CMD || !(CMD_IS("get") || CMD_IS("pick")))
-		return 0;
+    if (!spec_mode != SPECIAL_CMD || !(CMD_IS("get") || CMD_IS("pick")))
+        return 0;
 
-	if (!*argument)
-		return 0;
+    if (!*argument)
+        return 0;
 
-	if ((beer = search_block(argument, beers, false)) < 0)
-		return 0;
+    if ((beer = search_block(argument, beers, false)) < 0)
+        return 0;
 
-	switch (beer) {
-	case 0:
-		obj = read_object(2771);
-		break;
-	case 1:
-		obj = read_object(2772);
-		break;
-	case 2:
-		obj = read_object(2773);
-		break;
-	}
+    switch (beer) {
+    case 0:
+        obj = read_object(2771);
+        break;
+    case 1:
+        obj = read_object(2772);
+        break;
+    case 2:
+        obj = read_object(2773);
+        break;
+    }
 
-	if (!obj)
-		return 0;
+    if (!obj)
+        return 0;
 
-	obj_to_char(obj, ch);
+    obj_to_char(obj, ch);
 
-	sprintf(buf, "You pick %s from the tree.\r\n", obj->name);
+    sprintf(buf, "You pick %s from the tree.\r\n", obj->name);
 
-	return 1;
+    return 1;
 }

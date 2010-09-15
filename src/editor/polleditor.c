@@ -33,7 +33,8 @@ struct polleditor_data {
 void
 free_polleditor(struct editor *editor)
 {
-    struct polleditor_data *poll_data = (struct polleditor_data *)editor->mode_data;
+    struct polleditor_data *poll_data =
+        (struct polleditor_data *)editor->mode_data;
     free(poll_data->header);
     free(poll_data);
 }
@@ -41,7 +42,8 @@ free_polleditor(struct editor *editor)
 void
 polleditor_finalize(struct editor *editor, const char *text)
 {
-    struct polleditor_data *poll_data = (struct polleditor_data *)editor->mode_data;
+    struct polleditor_data *poll_data =
+        (struct polleditor_data *)editor->mode_data;
     voting_add_poll(poll_data->header, text);
 
     if (IS_PLAYING(editor->desc))
@@ -61,16 +63,16 @@ void
 start_editing_poll(struct descriptor_data *d, const char *header)
 {
     struct polleditor_data *poll_data;
-	if (d->text_editor) {
-		errlog("Text editor object not null in start_editing_poll");
-		REMOVE_BIT(PLR_FLAGS(d->creature),
-                   PLR_WRITING | PLR_OLC | PLR_MAILING);
-		return;
-	}
+    if (d->text_editor) {
+        errlog("Text editor object not null in start_editing_poll");
+        REMOVE_BIT(PLR_FLAGS(d->creature),
+            PLR_WRITING | PLR_OLC | PLR_MAILING);
+        return;
+    }
 
     SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING);
 
-	d->text_editor = make_editor(d, MAX_MAIL_SIZE);
+    d->text_editor = make_editor(d, MAX_MAIL_SIZE);
     CREATE(poll_data, struct polleditor_data, 1);
     d->text_editor->finalize = polleditor_finalize;
     d->text_editor->cancel = polleditor_cancel;
@@ -81,4 +83,3 @@ start_editing_poll(struct descriptor_data *d, const char *header)
     emit_editor_startup(d->text_editor);
     editor_display(d->text_editor, 0, 0);
 }
-

@@ -38,13 +38,15 @@ fileeditor_finalize(struct editor *editor, const char *text)
         fwrite(text, 1, strlen(text), fd);
         fclose(fd);
     } else {
-        send_to_char(editor->desc->creature, "Your file was not saved.  Please bug this.\r\n");
+        send_to_char(editor->desc->creature,
+            "Your file was not saved.  Please bug this.\r\n");
     }
 
     REMOVE_BIT(PLR_FLAGS(editor->desc->creature), PLR_WRITING);
 
     if (IS_PLAYING(editor->desc))
-        act("$n finishes editing.", true, editor->desc->creature, 0, 0, TO_NOTVICT);
+        act("$n finishes editing.", true, editor->desc->creature, 0, 0,
+            TO_NOTVICT);
 }
 
 void
@@ -58,33 +60,33 @@ start_editing_file(struct descriptor_data *d, const char *fname)
         errlog("NULL desriptor passed into start_editing_file()!!");
         return;
     }
-	if (!fname) {
-		errlog("NULL file name pointer passed into start_editing_file()!!");
-		send_to_char(d->creature, "This command seems to be broken. Bug this.\r\n");
-		return;
-	}
-	if (d->text_editor) {
-		errlog("Text editor object not null in start_editing_file().");
-		return;
-	}
+    if (!fname) {
+        errlog("NULL file name pointer passed into start_editing_file()!!");
+        send_to_char(d->creature,
+            "This command seems to be broken. Bug this.\r\n");
+        return;
+    }
+    if (d->text_editor) {
+        errlog("Text editor object not null in start_editing_file().");
+        return;
+    }
 
     if (access(fname, W_OK | R_OK)) {
         errlog("Unable to edit requested file (%s) in start_editing_file()!",
-               fname);
+            fname);
         send_to_char(d->creature, "I'm unable to edit %s.  Bug this.\r\n",
-                     fname);
+            fname);
         return;
     }
 
     stat(fname, &sbuf);
     if (sbuf.st_size > MAX_EDIT_FILESIZE) {
         errlog("Attempt to edit file too large for editor!");
-        send_to_char(d->creature, "%s is too large. Bug this.\r\n",
-                     fname);
+        send_to_char(d->creature, "%s is too large. Bug this.\r\n", fname);
         return;
     }
 
-	inf = fopen(fname, "r");
+    inf = fopen(fname, "r");
     if (inf) {
         CREATE(target, char, sbuf.st_size + 1);
         if (!target) {
@@ -93,7 +95,8 @@ start_editing_file(struct descriptor_data *d, const char *fname)
             return;
         }
 
-        if (fread(target, sizeof(char), sbuf.st_size, inf) != (size_t)sbuf.st_size) {
+        if (fread(target, sizeof(char), sbuf.st_size,
+                inf) != (size_t) sbuf.st_size) {
             send_to_desc(d, "Internal error #42372\r\n");
             free(target);
             fclose(inf);

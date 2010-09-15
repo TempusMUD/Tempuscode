@@ -54,7 +54,8 @@ account_boot(void)
 
     slog("Getting character count");
     if (player_count())
-        slog("... %d character%s in db", player_count(), (player_count() == 1) ? "":"s");
+        slog("... %d character%s in db", player_count(),
+            (player_count() == 1) ? "" : "s");
     else
         slog("WARNING: No characters loaded");
 }
@@ -99,7 +100,8 @@ make_account(void)
     return acct;
 }
 
-void free_account(struct account *acct)
+void
+free_account(struct account *acct)
 {
     free(acct->name);
     free(acct->password);
@@ -119,18 +121,21 @@ load_players(struct account *account)
     g_list_free(account->chars);
     account->chars = NULL;
 
-    res = sql_query("select idnum from players where account=%d order by idnum", account->id);
+    res =
+        sql_query("select idnum from players where account=%d order by idnum",
+        account->id);
     count = PQntuples(res);
-    for (idx = 0;idx < count;idx++)
+    for (idx = 0; idx < count; idx++)
         account->chars = g_list_prepend(account->chars,
-                                        GINT_TO_POINTER(atol(PQgetvalue(res, idx, 0))));
+            GINT_TO_POINTER(atol(PQgetvalue(res, idx, 0))));
     account->chars = g_list_reverse(account->chars);
 }
 
 void
 account_add_trusted(struct account *account, long idnum)
 {
-    account->trusted = g_list_prepend(account->trusted, GINT_TO_POINTER(idnum));
+    account->trusted =
+        g_list_prepend(account->trusted, GINT_TO_POINTER(idnum));
 }
 
 void
@@ -142,9 +147,10 @@ load_trusted(struct account *account)
     g_list_free(account->trusted);
     account->trusted = NULL;
 
-    res = sql_query("select player from trusted where account=%d", account->id);
+    res =
+        sql_query("select player from trusted where account=%d", account->id);
     count = PQntuples(res);
-    for (idx = 0;idx < count;idx++)
+    for (idx = 0; idx < count; idx++)
         account_add_trusted(account, atol(PQgetvalue(res, idx, 0)));
     account->trusted = g_list_reverse(account->trusted);
 }
@@ -156,7 +162,10 @@ preload_accounts(const char *conditions)
     const char **fields;
     PGresult *res;
 
-    res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where %s", conditions);
+    res =
+        sql_query
+        ("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where %s",
+        conditions);
     acct_count = PQntuples(res);
 
     if (acct_count < 1)
@@ -165,11 +174,11 @@ preload_accounts(const char *conditions)
     // Get field names and put them in an array
     field_count = PQnfields(res);
     fields = (const char **)malloc(sizeof(const char *) * field_count);
-    for (field_idx = 0;field_idx < field_count;field_idx++)
+    for (field_idx = 0; field_idx < field_count; field_idx++)
         fields[field_idx] = PQfname(res, field_idx);
 
     int acct_idx;
-    for (acct_idx = 0;acct_idx < acct_count;acct_idx++) {
+    for (acct_idx = 0; acct_idx < acct_count; acct_idx++) {
         // Make sure we don't reload one that's already in the cache
         long idnum = atol(PQgetvalue(res, acct_idx, 0));
 
@@ -179,10 +188,9 @@ preload_accounts(const char *conditions)
         // Create a new account and load it up
         struct account *new_acct;
         CREATE(new_acct, struct account, 1);
-        for (field_idx = 0;field_idx < field_count;field_idx++)
+        for (field_idx = 0; field_idx < field_count; field_idx++)
             account_set(new_acct,
-                        fields[field_idx],
-                        PQgetvalue(res, acct_idx, field_idx));
+                fields[field_idx], PQgetvalue(res, acct_idx, field_idx));
 
         load_players(new_acct);
         load_trusted(new_acct);
@@ -200,7 +208,10 @@ load_account(struct account *account, long idnum)
     const char **fields;
     PGresult *res;
 
-    res = sql_query("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where idnum=%ld", idnum);
+    res =
+        sql_query
+        ("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where idnum=%ld",
+        idnum);
     acct_count = PQntuples(res);
 
     if (acct_count > 1) {
@@ -214,13 +225,11 @@ load_account(struct account *account, long idnum)
     // Get field names and put them in an array
     field_count = PQnfields(res);
     fields = (const char **)malloc(sizeof(const char *) * field_count);
-    for (field_idx = 0;field_idx < field_count;field_idx++)
+    for (field_idx = 0; field_idx < field_count; field_idx++)
         fields[field_idx] = PQfname(res, field_idx);
 
-    for (field_idx = 0;field_idx < field_count;field_idx++)
-        account_set(account,
-                    fields[field_idx],
-                    PQgetvalue(res, 0, field_idx));
+    for (field_idx = 0; field_idx < field_count; field_idx++)
+        account_set(account, fields[field_idx], PQgetvalue(res, 0, field_idx));
     free(fields);
 
     load_players(account);
@@ -232,7 +241,7 @@ load_account(struct account *account, long idnum)
 }
 
 bool
-account_reload(struct account *account)
+account_reload(struct account * account)
 {
     g_list_free(account->trusted);
     g_list_free(account->chars);
@@ -285,12 +294,12 @@ account_set(struct account *account, const char *key, const char *val)
         slog("Invalid account field %s set to %s", key, val);
 }
 
-struct account*
+struct account *
 account_by_idnum(int id)
 {
     // First check to see if we already have it in memory
     struct account *acct = g_hash_table_lookup(account_cache,
-                                               GINT_TO_POINTER(id));
+        GINT_TO_POINTER(id));
 
     // Apprently, we don't, so look it up on the db
     CREATE(acct, struct account, 1);
@@ -301,7 +310,7 @@ account_by_idnum(int id)
 }
 
 bool
-account_exists( int accountID )
+account_exists(int accountID)
 {
     PGresult *res;
     bool result;
@@ -312,23 +321,22 @@ account_exists( int accountID )
     return result;
 }
 
-struct account*
+struct account *
 account_by_name(char *name)
 {
     PGresult *res;
     int acct_id;
 
     gboolean account_name_matches(gpointer key,
-                                  gpointer value,
-                                  gpointer user_data) {
+        gpointer value, gpointer user_data) {
         struct account *this_acct = (struct account *)value;
         return !strcasecmp(this_acct->name, (char *)user_data);
     }
 
     // First check to see if we already have it in memory
     struct account *acct = g_hash_table_find(account_cache,
-                                             account_name_matches,
-                                             name);
+        account_name_matches,
+        name);
 
     if (acct)
         return acct;
@@ -349,7 +357,7 @@ account_by_name(char *name)
     return NULL;
 }
 
-struct account*
+struct account *
 account_by_creature(struct creature *ch)
 {
     int acct_id;
@@ -378,12 +386,13 @@ account_create(const char *name, struct descriptor_data *d)
     account_top_id++;
     CREATE(result, struct account, 1);
     account_initialize(result, name, d, account_top_id);
-    g_hash_table_insert(account_cache, GINT_TO_POINTER(account_top_id), result);
+    g_hash_table_insert(account_cache, GINT_TO_POINTER(account_top_id),
+        result);
     return result;
 }
 
 bool
-account_remove(struct account *acct)
+account_remove(struct account * acct)
 {
     g_hash_table_remove(account_cache, GINT_TO_POINTER(acct->id));
     return false;
@@ -395,7 +404,7 @@ count_account_gens(struct account *account)
     struct creature *tmp_ch;
     int count = 0;
 
-    for (int idx = 1;!invalid_char_index(account, idx);idx++) {
+    for (int idx = 1; !invalid_char_index(account, idx); idx++) {
         // test for file existence
         tmp_ch = load_player_from_xml(get_char_by_index(account, idx));
         if (!tmp_ch)
@@ -412,7 +421,8 @@ count_account_gens(struct account *account)
 int
 chars_available(struct account *account)
 {
-    return count_account_gens(account) / 10 + 10 - g_list_length(account->chars);
+    return count_account_gens(account) / 10 + 10 -
+        g_list_length(account->chars);
 }
 
 // Create a brand new character
@@ -429,21 +439,22 @@ account_create_char(struct account *account, const char *name)
 
     ch->player.name = strdup(tmp_capitalize(tmp_tolower(name)));
     ch->char_specials.saved.idnum = top_player_idnum() + 1;
-    account->chars = g_list_prepend(account->chars, GINT_TO_POINTER(GET_IDNUM(ch)));
+    account->chars =
+        g_list_prepend(account->chars, GINT_TO_POINTER(GET_IDNUM(ch)));
 
-    sql_exec("insert into players (idnum, name, account) values (%ld, '%s', %d)",
+    sql_exec
+        ("insert into players (idnum, name, account) values (%ld, '%s', %d)",
         GET_IDNUM(ch), tmp_sqlescape(name), account->id);
 
     // New characters shouldn't get old mail.
-    if(has_mail(GET_IDNUM(ch))) {
-        if(purge_mail(GET_IDNUM(ch))>0) {
+    if (has_mail(GET_IDNUM(ch))) {
+        if (purge_mail(GET_IDNUM(ch)) > 0) {
             errlog("Purging pre-existing mailfile for new character.(%s)",
-                   GET_NAME(ch));
+                GET_NAME(ch));
         }
     }
-
     // *** if this is our first player --- he be God ***
-    if( GET_IDNUM(ch) == 1) {
+    if (GET_IDNUM(ch) == 1) {
         GET_EXP(ch) = 160000000;
         GET_LEVEL(ch) = LVL_GRIMP;
 
@@ -496,8 +507,12 @@ account_create_char(struct account *account, const char *name)
     ch->points.move = GET_MAX_MOVE(ch);
     ch->points.armor = 100;
 
-    SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW | PRF_NOPLUG);
-    SET_BIT(PRF2_FLAGS(ch), PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN | PRF2_NEWBIE_HELPER);
+    SET_BIT(PRF_FLAGS(ch),
+        PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW |
+        PRF_NOPLUG);
+    SET_BIT(PRF2_FLAGS(ch),
+        PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN |
+        PRF2_NEWBIE_HELPER);
 
     ch->char_specials.saved.affected_by = 0;
     ch->char_specials.saved.affected2_by = 0;
@@ -508,7 +523,7 @@ account_create_char(struct account *account, const char *name)
 
     GET_COND(ch, FULL) = (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 24);
     GET_COND(ch, THIRST) = (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 24);
-    GET_COND(ch, DRUNK) =  (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 0);
+    GET_COND(ch, DRUNK) = (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 0);
 
     POOFIN(ch) = NULL;
     POOFOUT(ch) = NULL;
@@ -520,7 +535,7 @@ account_distrust(struct account *account, long idnum)
 {
     account->trusted = g_list_remove(account->trusted, GINT_TO_POINTER(idnum));
     sql_exec("delete from trusted where account=%d and player=%ld",
-             account->id, idnum);
+        account->id, idnum);
 }
 
 void
@@ -533,7 +548,7 @@ account_delete_char(struct account *account, struct creature *ch)
     struct account *acct;
 
     // Clear the owner of any clans this player might own in memory
-    for (clan = clan_list;clan;clan = clan->next)
+    for (clan = clan_list; clan; clan = clan->next)
         if (clan->owner == GET_IDNUM(ch))
             clan->owner = 0;
 
@@ -564,13 +579,14 @@ account_delete_char(struct account *account, struct creature *ch)
             save_quests();
         }
     }
-
     // Remove character from trusted lists - we have to take the accounts
     // in memory into consideration when we do this, so we have to go
     // through each account
-    res = sql_query("select account from trusted where player=%ld", GET_IDNUM(ch));
+    res =
+        sql_query("select account from trusted where player=%ld",
+        GET_IDNUM(ch));
     count = PQntuples(res);
-    for (idx = 0;idx < count;idx++) {
+    for (idx = 0; idx < count; idx++) {
         acct = account_by_idnum(atoi(PQgetvalue(res, idx, 0)));
         if (acct)
             account_distrust(acct, GET_IDNUM(ch));
@@ -586,13 +602,13 @@ account_delete_char(struct account *account, struct creature *ch)
         GET_IDNUM(ch));
 
     // Remove character from account
-    acct->chars = g_list_remove(acct->chars,
-                                GINT_TO_POINTER(GET_IDNUM(ch)));
+    acct->chars = g_list_remove(acct->chars, GINT_TO_POINTER(GET_IDNUM(ch)));
     sql_exec("delete from players where idnum=%ld", GET_IDNUM(ch));
 
     // Remove character from game
     if (ch->in_room) {
-        send_to_char(ch, "A cold wind blows through your soul, and you disappear!\r\n");
+        send_to_char(ch,
+            "A cold wind blows through your soul, and you disappear!\r\n");
         creature_purge(ch, false);
     }
 }
@@ -600,8 +616,9 @@ account_delete_char(struct account *account, struct creature *ch)
 bool
 account_authenticate(struct account *account, const char *pw)
 {
-    if(account->password == NULL || *account->password == '\0') {
-        errlog("struct account %s[%d] has NULL password. Setting to guess.", account->name, account->id );
+    if (account->password == NULL || *account->password == '\0') {
+        errlog("struct account %s[%d] has NULL password. Setting to guess.",
+            account->name, account->id);
         account_set_password(account, pw);
     }
     return !strcmp(account->password, crypt(pw, account->password));
@@ -623,13 +640,15 @@ account_logout(struct account *account, struct descriptor_data *d, bool forced)
             free(account->login_addr);
         account->login_addr = strdup(d->host);
 
-        sql_exec("update accounts set login_addr='%s', login_time='%s' where idnum=%d",
-            tmp_sqlescape(account->login_addr), tmp_ctime(account->login_time), account->id);
+        sql_exec
+            ("update accounts set login_addr='%s', login_time='%s' where idnum=%d",
+            tmp_sqlescape(account->login_addr), tmp_ctime(account->login_time),
+            account->id);
 
-        slog("%slogout: %s[%d] from %s", (forced) ? "forced ":"",
-             account->name, account->id, account->login_addr);
+        slog("%slogout: %s[%d] from %s", (forced) ? "forced " : "",
+            account->name, account->id, account->login_addr);
     } else {
-        slog("%slogout: unfinished account from %s", (forced) ? "forced ":"",
+        slog("%slogout: unfinished account from %s", (forced) ? "forced " : "",
             account->login_addr);
     }
 
@@ -638,9 +657,7 @@ account_logout(struct account *account, struct descriptor_data *d, bool forced)
 
 void
 account_initialize(struct account *account,
-                   const char *name,
-                   struct descriptor_data *d,
-                   int idnum)
+    const char *name, struct descriptor_data *d, int idnum)
 {
     account->id = idnum;
     account->name = strdup(name);
@@ -662,7 +679,8 @@ account_initialize(struct account *account,
     account->quest_banned = false;
 
     slog("new account: %s[%d] from %s", account->name, idnum, d->host);
-    sql_exec("insert into accounts (idnum, name, creation_time, creation_addr, login_time, login_addr, ansi_level, compact_level, term_height, term_width, reputation, bank_past, bank_future) values (%d, '%s', now(), '%s', now(), '%s', 0, 0, %d, %d, 0, 0, 0)",
+    sql_exec
+        ("insert into accounts (idnum, name, creation_time, creation_addr, login_time, login_addr, ansi_level, compact_level, term_height, term_width, reputation, bank_past, bank_future) values (%d, '%s', now(), '%s', now(), '%s', 0, 0, %d, %d, 0, 0, 0)",
         idnum, tmp_sqlescape(name), tmp_sqlescape(d->host),
         tmp_sqlescape(d->host), DEFAULT_TERM_HEIGHT, DEFAULT_TERM_WIDTH);
 }
@@ -703,7 +721,7 @@ account_set_banned(struct account *account, bool banned)
 {
     account->banned = banned;
     sql_exec("update accounts set banned='%s' where idnum=%d",
-        account->banned ? "T":"F", account->id);
+        account->banned ? "T" : "F", account->id);
 }
 
 void
@@ -724,7 +742,7 @@ account_gain_reputation(struct account *account, int amt)
         if (account->reputation < 0)
             account->reputation = 0;
         sql_exec("update accounts set reputation=%d where idnum=%d",
-                 account->reputation, account->id);
+            account->reputation, account->id);
     }
 }
 
@@ -795,7 +813,7 @@ get_char_by_index(struct account *account, int idx)
 }
 
 bool
-invalid_char_index(struct account *account, int idx)
+invalid_char_index(struct account * account, int idx)
 {
     return (idx < 1 || idx > g_list_length(account->chars));
 }
@@ -808,35 +826,32 @@ account_move_char(struct account *account, long id, struct account *dest)
 
     // Get the player's name before we delete from player table
     dest->chars = g_list_prepend(dest->chars, GINT_TO_POINTER(id));
-    sql_exec("update players set account=%d where idnum=%ld",
-        dest->id, id);
+    sql_exec("update players set account=%d where idnum=%ld", dest->id, id);
 }
 
 void
-account_exhume_char(struct account *account,
-                    struct creature *exhumer,
-                    long id )
+account_exhume_char(struct account *account, struct creature *exhumer, long id)
 {
-    if( player_idnum_exists(id) ) {
+    if (player_idnum_exists(id)) {
         send_to_char(exhumer, "That character has already been exhumed.\r\n");
         return;
     }
-
     // load char from file
     struct creature *victim;
     CREATE(victim, struct creature, 1);
     victim = load_player_from_xml(id);
     if (victim) {
-        sql_exec("insert into players (idnum, account, name) values (%ld, %d, '%s')",
+        sql_exec
+            ("insert into players (idnum, account, name) values (%ld, %d, '%s')",
             GET_IDNUM(victim), account->id, tmp_sqlescape(GET_NAME(victim)));
         load_players(account);
         send_to_char(exhumer, "%s exhumed.\r\n",
-                    tmp_capitalize(GET_NAME(victim)));
+            tmp_capitalize(GET_NAME(victim)));
         slog("%s[%ld] exhumed into account %s[%d]", GET_NAME(victim),
             GET_IDNUM(victim), account->name, account->id);
         free_creature(victim);
     } else {
-        send_to_char(exhumer, "Unable to load character %ld.\r\n", id );
+        send_to_char(exhumer, "Unable to load character %ld.\r\n", id);
     }
 }
 
@@ -865,7 +880,7 @@ account_deny_char_entry(struct account *account, struct creature *ch)
             found = true;
         }
     }
-    g_list_foreach(creatures, (GFunc)check_existing_char, NULL);
+    g_list_foreach(creatures, (GFunc) check_existing_char, NULL);
     if (override)
         return false;
 
@@ -873,7 +888,7 @@ account_deny_char_entry(struct account *account, struct creature *ch)
 }
 
 bool
-account_is_logged_in(struct account *account)
+account_is_logged_in(struct account * account)
 {
     struct descriptor_data *d;
     for (d = descriptor_list; d != NULL; d = d->next) {
@@ -888,7 +903,8 @@ void
 account_update_last_entry(struct account *account)
 {
     account->entry_time = time(0);
-    sql_exec("update accounts set entry_time=now() where idnum=%d", account->id);
+    sql_exec("update accounts set entry_time=now() where idnum=%d",
+        account->id);
 }
 
 bool
@@ -908,7 +924,8 @@ account_trust(struct account *account, long idnum)
 {
     if (g_list_find(account->trusted, GINT_TO_POINTER(idnum)))
         return;
-    account->trusted = g_list_prepend(account->trusted, GINT_TO_POINTER(idnum));
+    account->trusted =
+        g_list_prepend(account->trusted, GINT_TO_POINTER(idnum));
     sql_exec("insert into trusted (account, player) values (%d, %ld)",
         account->id, idnum);
 }
@@ -928,7 +945,7 @@ account_display_trusted(struct account *account, struct creature *ch)
             }
         }
     }
-    g_list_foreach(account->trusted, (GFunc)display_trusted_char, 0);
+    g_list_foreach(account->trusted, (GFunc) display_trusted_char, 0);
     if (col)
         send_to_char(ch, "\r\n");
 }
@@ -988,7 +1005,7 @@ account_set_quest_banned(struct account *account, bool banned)
 {
     account->quest_banned = banned;
     sql_exec("update accounts set quest_banned='%s' where idnum=%d",
-        account->quest_banned ? "T":"F", account->id);
+        account->quest_banned ? "T" : "F", account->id);
 }
 
 int
@@ -1022,7 +1039,7 @@ hasCharGen(struct account *account, int gen)
     struct creature *tmp_ch;
     int idx;
 
-    for (idx = 1;!invalid_char_index(account, idx);idx++) {
+    for (idx = 1; !invalid_char_index(account, idx); idx++) {
         // test for file existence
         tmp_ch = load_player_from_xml(get_char_by_index(account, idx));
         if (!tmp_ch)
@@ -1042,8 +1059,7 @@ int
 account_chars_available(struct account *account)
 {
     return (count_account_gens(account) / 10
-            + 10
-            - g_list_length(account->chars));
+        + 10 - g_list_length(account->chars));
 }
 
 int

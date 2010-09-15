@@ -61,16 +61,16 @@ void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 int
 member_of_staff(struct creature *chChar)
 {
-	int ch_num;
+    int ch_num;
 
-	if (!IS_NPC(chChar))
-		return (false);
+    if (!IS_NPC(chChar))
+        return (false);
 
-	ch_num = GET_MOB_VNUM(chChar);
-	return (ch_num == CASTLE_ITEM(1) ||
-		(ch_num > CASTLE_ITEM(2) && ch_num < CASTLE_ITEM(15)) ||
-		(ch_num > CASTLE_ITEM(15) && ch_num < CASTLE_ITEM(18)) ||
-		(ch_num > CASTLE_ITEM(18) && ch_num < CASTLE_ITEM(30)));
+    ch_num = GET_MOB_VNUM(chChar);
+    return (ch_num == CASTLE_ITEM(1) ||
+        (ch_num > CASTLE_ITEM(2) && ch_num < CASTLE_ITEM(15)) ||
+        (ch_num > CASTLE_ITEM(15) && ch_num < CASTLE_ITEM(18)) ||
+        (ch_num > CASTLE_ITEM(18) && ch_num < CASTLE_ITEM(30)));
 }
 
 /* Function member_of_royal_guard */
@@ -79,16 +79,16 @@ member_of_staff(struct creature *chChar)
 int
 member_of_royal_guard(struct creature *chChar)
 {
-	int ch_num;
+    int ch_num;
 
-	if (!chChar || !IS_NPC(chChar))
-		return false;
+    if (!chChar || !IS_NPC(chChar))
+        return false;
 
-	ch_num = GET_MOB_VNUM(chChar);
-	return (ch_num == CASTLE_ITEM(3) ||
-		ch_num == CASTLE_ITEM(6) ||
-		(ch_num > CASTLE_ITEM(7) && ch_num < CASTLE_ITEM(12)) ||
-		(ch_num > CASTLE_ITEM(23) && ch_num < CASTLE_ITEM(26)));
+    ch_num = GET_MOB_VNUM(chChar);
+    return (ch_num == CASTLE_ITEM(3) ||
+        ch_num == CASTLE_ITEM(6) ||
+        (ch_num > CASTLE_ITEM(7) && ch_num < CASTLE_ITEM(12)) ||
+        (ch_num > CASTLE_ITEM(23) && ch_num < CASTLE_ITEM(26)));
 }
 
 /* Function find_npc_by_name */
@@ -97,13 +97,13 @@ member_of_royal_guard(struct creature *chChar)
 struct creature *
 find_npc_by_name(struct creature *chAtChar, const char *pszName, int iLen)
 {
-    for (GList *cit = chAtChar->in_room->people;cit;cit = cit->next) {
+    for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-		if (IS_NPC(tch))
-			if (!strncmp(pszName, tch->player.short_descr, iLen))
-				return tch;
+        if (IS_NPC(tch))
+            if (!strncmp(pszName, tch->player.short_descr, iLen))
+                return tch;
     }
-	return NULL;
+    return NULL;
 }
 
 /* Function find_guard */
@@ -113,12 +113,12 @@ struct creature *
 find_guard(struct creature *chAtChar)
 {
 
-    for (GList *cit = chAtChar->in_room->people;cit;cit = cit->next) {
+    for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-		if (!tch->fighting && member_of_royal_guard(tch))
-			return tch;
-	}
-	return NULL;
+        if (!tch->fighting && member_of_royal_guard(tch))
+            return tch;
+    }
+    return NULL;
 }
 
 /* Function get_victim */
@@ -129,28 +129,28 @@ struct creature *
 get_victim(struct creature *chAtChar)
 {
 
-	int iNum_bad_guys = 0, iVictim;
-    for (GList *cit = chAtChar->in_room->people;cit;cit = cit->next) {
+    int iNum_bad_guys = 0, iVictim;
+    for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-		if (tch->fighting && member_of_staff(random_opponent(tch)))
-			iNum_bad_guys++;
-	}
-	if (!iNum_bad_guys)
-		return NULL;
+        if (tch->fighting && member_of_staff(random_opponent(tch)))
+            iNum_bad_guys++;
+    }
+    if (!iNum_bad_guys)
+        return NULL;
 
-	iVictim = number(0, iNum_bad_guys);	/* How nice, we give them a chance */
-	if (!iVictim)
-		return NULL;
+    iVictim = number(0, iNum_bad_guys); /* How nice, we give them a chance */
+    if (!iVictim)
+        return NULL;
 
-	iNum_bad_guys = 0;
-	for (GList *cit = chAtChar->in_room->people;cit;cit = cit->next) {
+    iNum_bad_guys = 0;
+    for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-		if (tch->fighting &&
-			member_of_staff(random_opponent(tch)) &&
+        if (tch->fighting &&
+            member_of_staff(random_opponent(tch)) &&
             ++iNum_bad_guys == iVictim)
-			return tch;
-	}
-	return NULL;
+            return tch;
+    }
+    return NULL;
 }
 
 /* Function banzaii */
@@ -160,17 +160,17 @@ int
 banzaii(struct creature *ch)
 {
 
-	struct creature *chOpponent = NULL;
+    struct creature *chOpponent = NULL;
 
-	if (!AWAKE(ch) || GET_POSITION(ch) == POS_FIGHTING)
-		return false;
+    if (!AWAKE(ch) || GET_POSITION(ch) == POS_FIGHTING)
+        return false;
 
-	if ((chOpponent = get_victim(ch))) {
-		act("$n roars: 'Protect the Duchy of the Great Duke Araken!  BANZAIIII!!!'", false, ch, 0, 0, TO_ROOM);
-		hit(ch, chOpponent, TYPE_UNDEFINED);
-		return true;
-	}
-	return false;
+    if ((chOpponent = get_victim(ch))) {
+        act("$n roars: 'Protect the Duchy of the Great Duke Araken!  BANZAIIII!!!'", false, ch, 0, 0, TO_ROOM);
+        hit(ch, chOpponent, TYPE_UNDEFINED);
+        return true;
+    }
+    return false;
 }
 
 /* Function do_npc_rescue */
@@ -180,55 +180,55 @@ int
 do_npc_rescue(struct creature *ch_hero, struct creature *ch_victim)
 {
 
-	struct creature *ch_bad_guy = NULL;
-    for (GList *cit = ch_hero->in_room->people;cit;cit = cit->next) {
+    struct creature *ch_bad_guy = NULL;
+    for (GList * cit = ch_hero->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-		if (g_list_find(tch->fighting, ch_victim))
-			ch_bad_guy = tch;
-	}
-	if (ch_bad_guy) {
-		if (ch_bad_guy == ch_hero)
-			return false;		/* NO WAY I'll rescue the one I'm fighting! */
-		act("You bravely rescue $N.\r\n", false, ch_hero, 0, ch_victim,
-			TO_CHAR);
-		act("You are rescued by $N, your loyal friend!\r\n", false, ch_victim,
-			0, ch_hero, TO_CHAR);
-		act("$n heroically rescues $N.", false, ch_hero, 0, ch_victim,
-			TO_NOTVICT);
+        if (g_list_find(tch->fighting, ch_victim))
+            ch_bad_guy = tch;
+    }
+    if (ch_bad_guy) {
+        if (ch_bad_guy == ch_hero)
+            return false;       /* NO WAY I'll rescue the one I'm fighting! */
+        act("You bravely rescue $N.\r\n", false, ch_hero, 0, ch_victim,
+            TO_CHAR);
+        act("You are rescued by $N, your loyal friend!\r\n", false, ch_victim,
+            0, ch_hero, TO_CHAR);
+        act("$n heroically rescues $N.", false, ch_hero, 0, ch_victim,
+            TO_NOTVICT);
 
-		remove_combat(ch_bad_guy, ch_victim);
+        remove_combat(ch_bad_guy, ch_victim);
         remove_combat(ch_victim, ch_bad_guy);
 
         add_combat(ch_hero, ch_bad_guy, false);
         add_combat(ch_bad_guy, ch_hero, true);
-		return true;
-	}
-	return false;
+        return true;
+    }
+    return false;
 }
 
 /* Procedure to block a person trying to enter a room. */
 /* Used by Tim/Tom at Kings bedroom */
 int
 block_way(struct creature *ch, struct creature *guard, int cmd,
-          int iIn_room, int iProhibited_direction)
+    int iIn_room, int iProhibited_direction)
 {
 
-	if (cmd != ++iProhibited_direction || (ch->player.short_descr &&
-			!strncmp(ch->player.short_descr, "Duke Araken", 11)))
-		return false;
+    if (cmd != ++iProhibited_direction || (ch->player.short_descr &&
+            !strncmp(ch->player.short_descr, "Duke Araken", 11)))
+        return false;
 
-	if (!can_see_creature(guard, ch) || !AWAKE(guard))
-		return false;
+    if (!can_see_creature(guard, ch) || !AWAKE(guard))
+        return false;
 
-	if ((ch->in_room == real_room(iIn_room)) && (cmd == iProhibited_direction)) {
-		if (!member_of_staff(ch))
-			act("$N roars at $n and pushes $m back.",
-				false, ch, 0, guard, TO_ROOM);
-		act("$N roars: 'Entrance is Prohibited!', and pushes you back.", false,
-			ch, 0, guard, TO_CHAR);
-		return (true);
-	}
-	return false;
+    if ((ch->in_room == real_room(iIn_room)) && (cmd == iProhibited_direction)) {
+        if (!member_of_staff(ch))
+            act("$N roars at $n and pushes $m back.",
+                false, ch, 0, guard, TO_ROOM);
+        act("$N roars: 'Entrance is Prohibited!', and pushes you back.", false,
+            ch, 0, guard, TO_CHAR);
+        return (true);
+    }
+    return false;
 }
 
 /* Routine to check if an object is trash... */
@@ -236,17 +236,17 @@ block_way(struct creature *ch, struct creature *guard, int cmd,
 int
 is_trash(struct obj_data *i)
 {
-	// don't get sigilized items
-	if (GET_OBJ_SIGIL_IDNUM(i))
-		return false;
-	else if (GET_OBJ_VNUM(i) == QUAD_VNUM)
-		return false;
+    // don't get sigilized items
+    if (GET_OBJ_SIGIL_IDNUM(i))
+        return false;
+    else if (GET_OBJ_VNUM(i) == QUAD_VNUM)
+        return false;
 
-	else if (IS_SET(i->obj_flags.wear_flags, ITEM_WEAR_TAKE) &&
-		((GET_OBJ_TYPE(i) == ITEM_DRINKCON) || (GET_OBJ_COST(i) <= 50)))
-		return true;
-	else
-		return false;
+    else if (IS_SET(i->obj_flags.wear_flags, ITEM_WEAR_TAKE) &&
+        ((GET_OBJ_TYPE(i) == ITEM_DRINKCON) || (GET_OBJ_COST(i) <= 50)))
+        return true;
+    else
+        return false;
 }
 
 /* Function fry_victim */
@@ -256,172 +256,171 @@ void
 fry_victim(struct creature *ch)
 {
 
-	struct creature *tch;
+    struct creature *tch;
 
-	if (ch->points.mana < 10)
-		return;
+    if (ch->points.mana < 10)
+        return;
 
-	/* Find someone suitable to fry ! */
+    /* Find someone suitable to fry ! */
 
-	if (!(tch = get_victim(ch)))
-		return;
+    if (!(tch = get_victim(ch)))
+        return;
 
-	switch (number(0, 8)) {
-	case 1:
-	case 2:
-	case 3:
-		act("You raise your hand in a dramatic gesture.", 1, ch, 0, 0,
-			TO_CHAR);
-		act("$n raises $s hand in a dramatic gesture.", 1, ch, 0, 0,
-			TO_ROOM);
-		cast_spell(ch, tch, 0, NULL, SPELL_COLOR_SPRAY, NULL);
-		break;
-	case 4:
-	case 5:
-		act("You concentrate and mumble to yourself.", 1, ch, 0, 0, TO_CHAR);
-		act("$n concentrates, and mumbles to $mself.", 1, ch, 0, 0, TO_ROOM);
-		cast_spell(ch, tch, 0, NULL, SPELL_HARM, NULL);
-		break;
-	case 6:
-	case 7:
-		act("You look deeply into the eyes of $N.", 1, ch, 0, tch, TO_CHAR);
-		act("$n looks deeply into the eyes of $N.", 1, ch, 0, tch, TO_NOTVICT);
-		act("You see an ill-boding flame in the eye of $n.", 1, ch, 0, tch,
-			TO_VICT);
-		cast_spell(ch, tch, 0, NULL, SPELL_FIREBALL, NULL);
-		break;
-	default:
-		if (!number(0, 1))
-			cast_spell(ch, ch, 0, NULL, SPELL_HEAL, NULL);
-		break;
-	}
+    switch (number(0, 8)) {
+    case 1:
+    case 2:
+    case 3:
+        act("You raise your hand in a dramatic gesture.", 1, ch, 0, 0,
+            TO_CHAR);
+        act("$n raises $s hand in a dramatic gesture.", 1, ch, 0, 0, TO_ROOM);
+        cast_spell(ch, tch, 0, NULL, SPELL_COLOR_SPRAY, NULL);
+        break;
+    case 4:
+    case 5:
+        act("You concentrate and mumble to yourself.", 1, ch, 0, 0, TO_CHAR);
+        act("$n concentrates, and mumbles to $mself.", 1, ch, 0, 0, TO_ROOM);
+        cast_spell(ch, tch, 0, NULL, SPELL_HARM, NULL);
+        break;
+    case 6:
+    case 7:
+        act("You look deeply into the eyes of $N.", 1, ch, 0, tch, TO_CHAR);
+        act("$n looks deeply into the eyes of $N.", 1, ch, 0, tch, TO_NOTVICT);
+        act("You see an ill-boding flame in the eye of $n.", 1, ch, 0, tch,
+            TO_VICT);
+        cast_spell(ch, tch, 0, NULL, SPELL_FIREBALL, NULL);
+        break;
+    default:
+        if (!number(0, 1))
+            cast_spell(ch, ch, 0, NULL, SPELL_HEAL, NULL);
+        break;
+    }
 
-	ch->points.mana -= 10;
+    ch->points.mana -= 10;
 
-	return;
+    return;
 }
 
 SPECIAL(duke_araken)
 {
-	struct time_info_data local_time;
-	ACMD(do_gen_door);
+    struct time_info_data local_time;
+    ACMD(do_gen_door);
 
-	static const char *monolog[] = {
-		"$n proclaims 'Primus in regnis Geticis coronam'.",
-		"$n proclaims 'regiam gessi, subiique regis'.",
-		"$n proclaims 'munus et mores colui sereno'.",
-		"$n proclaims 'principe dignos'."
-	};
+    static const char *monolog[] = {
+        "$n proclaims 'Primus in regnis Geticis coronam'.",
+        "$n proclaims 'regiam gessi, subiique regis'.",
+        "$n proclaims 'munus et mores colui sereno'.",
+        "$n proclaims 'principe dignos'."
+    };
 
-	static char bedroom_path[] = "s33004o1c1S.";
+    static char bedroom_path[] = "s33004o1c1S.";
 
-	static char throne_path[] = "W3o3cG52211rg.";
+    static char throne_path[] = "W3o3cG52211rg.";
 
-	static char monolog_path[] = "ABCDPPPP.";
+    static char monolog_path[] = "ABCDPPPP.";
 
-	static char *path;
-	static int index;
-	static bool move = false;
+    static char *path;
+    static int index;
+    static bool move = false;
 
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	set_local_time(ch->in_room->zone, &local_time);
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    set_local_time(ch->in_room->zone, &local_time);
 
-	if (!move) {
-		if (local_time.hours == 8 && ch->in_room == R_ROOM(Z_DUKES_C, 51)) {
-			move = true;
-			path = throne_path;
-			index = 0;
-		} else if (local_time.hours == 21
-			&& ch->in_room == R_ROOM(Z_DUKES_C, 17)) {
-			move = true;
-			path = bedroom_path;
-			index = 0;
-		} else if (local_time.hours == 12
-			&& ch->in_room == R_ROOM(Z_DUKES_C, 17)) {
-			move = true;
-			path = monolog_path;
-			index = 0;
-		}
-	}
-	if (cmd || (GET_POSITION(ch) < POS_SLEEPING) ||
-		(GET_POSITION(ch) == POS_SLEEPING && !move))
-		return false;
+    if (!move) {
+        if (local_time.hours == 8 && ch->in_room == R_ROOM(Z_DUKES_C, 51)) {
+            move = true;
+            path = throne_path;
+            index = 0;
+        } else if (local_time.hours == 21
+            && ch->in_room == R_ROOM(Z_DUKES_C, 17)) {
+            move = true;
+            path = bedroom_path;
+            index = 0;
+        } else if (local_time.hours == 12
+            && ch->in_room == R_ROOM(Z_DUKES_C, 17)) {
+            move = true;
+            path = monolog_path;
+            index = 0;
+        }
+    }
+    if (cmd || (GET_POSITION(ch) < POS_SLEEPING) ||
+        (GET_POSITION(ch) == POS_SLEEPING && !move))
+        return false;
 
-	if (GET_POSITION(ch) == POS_FIGHTING) {
-		fry_victim(ch);
-		return false;
-	} else if (banzaii(ch))
-		return false;
+    if (GET_POSITION(ch) == POS_FIGHTING) {
+        fry_victim(ch);
+        return false;
+    } else if (banzaii(ch))
+        return false;
 
-	if (!move)
-		return false;
+    if (!move)
+        return false;
 
-	switch (path[index]) {
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-		perform_move(ch, path[index] - 0, MOVE_NORM, 1);
-		break;
-	case 'A':
-	case 'B':
-	case 'C':
-	case 'D':
-		act(monolog[path[index] - 'A'], false, ch, 0, 0, TO_ROOM);
-		break;
-	case 'P':
-		break;
-	case 'W':
-		GET_POSITION(ch) = POS_STANDING;
-		act("$n awakens and stands up.", false, ch, 0, 0, TO_ROOM);
-		break;
+    switch (path[index]) {
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+        perform_move(ch, path[index] - 0, MOVE_NORM, 1);
+        break;
+    case 'A':
+    case 'B':
+    case 'C':
+    case 'D':
+        act(monolog[path[index] - 'A'], false, ch, 0, 0, TO_ROOM);
+        break;
+    case 'P':
+        break;
+    case 'W':
+        GET_POSITION(ch) = POS_STANDING;
+        act("$n awakens and stands up.", false, ch, 0, 0, TO_ROOM);
+        break;
 
-	case 'S':
-		GET_POSITION(ch) = POS_SLEEPING;
-		act("$n lies down on $s beautiful bed and instantly falls asleep.",
-			false, ch, 0, 0, TO_ROOM);
-		break;
+    case 'S':
+        GET_POSITION(ch) = POS_SLEEPING;
+        act("$n lies down on $s beautiful bed and instantly falls asleep.",
+            false, ch, 0, 0, TO_ROOM);
+        break;
 
-	case 'r':
-		GET_POSITION(ch) = POS_SITTING;
-		act("$n sits down on his great throne.", false, ch, 0, 0, TO_ROOM);
-		break;
+    case 'r':
+        GET_POSITION(ch) = POS_SITTING;
+        act("$n sits down on his great throne.", false, ch, 0, 0, TO_ROOM);
+        break;
 
-	case 's':
-		GET_POSITION(ch) = POS_STANDING;
-		act("$n stands up.", false, ch, 0, 0, TO_ROOM);
-		break;
+    case 's':
+        GET_POSITION(ch) = POS_STANDING;
+        act("$n stands up.", false, ch, 0, 0, TO_ROOM);
+        break;
 
-	case 'G':
-		act("$n says 'Good morning, trusted friends.'", false, ch, 0, 0,
-			TO_ROOM);
-		break;
+    case 'G':
+        act("$n says 'Good morning, trusted friends.'", false, ch, 0, 0,
+            TO_ROOM);
+        break;
 
-	case 'g':
-		act("$n says 'Good morning, dear subjects.'", false, ch, 0, 0,
-			TO_ROOM);
-		break;
+    case 'g':
+        act("$n says 'Good morning, dear subjects.'", false, ch, 0, 0,
+            TO_ROOM);
+        break;
 
-	case 'o':
-		do_gen_door(ch, tmp_strdup("door"), 0, SCMD_UNLOCK, 0);
-		do_gen_door(ch, tmp_strdup("door"), 0, SCMD_OPEN, 0);
-		break;
+    case 'o':
+        do_gen_door(ch, tmp_strdup("door"), 0, SCMD_UNLOCK, 0);
+        do_gen_door(ch, tmp_strdup("door"), 0, SCMD_OPEN, 0);
+        break;
 
-	case 'c':
-		do_gen_door(ch, tmp_strdup("door"), 0, SCMD_CLOSE, 0);
-		do_gen_door(ch, tmp_strdup("door"), 0, SCMD_LOCK, 0);
-		break;
+    case 'c':
+        do_gen_door(ch, tmp_strdup("door"), 0, SCMD_CLOSE, 0);
+        do_gen_door(ch, tmp_strdup("door"), 0, SCMD_LOCK, 0);
+        break;
 
-	case '.':
-		move = false;
-		break;
-	}
+    case '.':
+        move = false;
+        break;
+    }
 
-	index++;
-	return false;
+    index++;
+    return false;
 }
 
 /* Function training_master */
@@ -431,160 +430,161 @@ SPECIAL(duke_araken)
 SPECIAL(training_master)
 {
 
-	struct creature *pupil1, *pupil2, *tch;
+    struct creature *pupil1, *pupil2, *tch;
 
-	if (spec_mode == SPECIAL_TICK)
-		return 0;
+    if (spec_mode == SPECIAL_TICK)
+        return 0;
 
-	if (!AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
-		return false;
+    if (!AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
+        return false;
 
-	if (cmd)
-		return false;
+    if (cmd)
+        return false;
 
-	if (!banzaii(ch) && !number(0, 2)) {
-		if ((pupil1 = find_npc_by_name(ch, "Brian", 5)) &&
-			(pupil2 = find_npc_by_name(ch, "Mick", 4)) &&
-			(!pupil1->fighting && !pupil2->fighting)) {
-			if (number(0, 1)) {
-				tch = pupil1;
-				pupil1 = pupil2;
-				pupil2 = tch;
-			}
-			switch (number(0, 7)) {
-			case 0:
-				act("$n hits $N on $s head with a powerful blow.",
-					false, pupil1, 0, pupil2, TO_NOTVICT);
-				act("You hit $N on $s head with a powerful blow.",
-					false, pupil1, 0, pupil2, TO_CHAR);
-				act("$n hits you on your head with a powerful blow.",
-					false, pupil1, 0, pupil2, TO_VICT);
-				break;
-			case 1:
-				act("$n hits $N in $s chest with a thrust.",
-					false, pupil1, 0, pupil2, TO_NOTVICT);
-				act("You manage to thrust $N in the chest.",
-					false, pupil1, 0, pupil2, TO_CHAR);
-				act("$n manages to thrust you in your chest.",
-					false, pupil1, 0, pupil2, TO_VICT);
-				break;
-			case 2:
-				send_to_char(ch, "You command your pupils to bow\r\n.");
-				act("$n commands his pupils to bow.", false, ch, 0, 0,
-					TO_ROOM);
-				act("$n bows before $N.", false, pupil1, 0, pupil2,
-					TO_NOTVICT);
-				act("$N bows before $n.", false, pupil1, 0, pupil2,
-					TO_NOTVICT);
-				act("You bow before $N, who returns your gesture.", false,
-					pupil1, 0, pupil2, TO_CHAR);
-				act("You bow before $n, who returns your gesture.", false,
-					pupil1, 0, pupil2, TO_VICT);
-				break;
-			case 3:
-				act("$N yells at $n, as he fumbles and drops his sword.",
-					false, pupil1, 0, ch, TO_NOTVICT);
-				act("$n quickly picks up his weapon.", false, pupil1, 0, 0,
-					TO_ROOM);
-				act("$N yells at you, as you fumble, losing your weapon.",
-					false, pupil1, 0, ch, TO_CHAR);
-				send_to_char(pupil1, "You quickly pick up your weapon again.");
-				act("You yell at $n, as he fumbles, losing his weapon.",
-					false, pupil1, 0, ch, TO_VICT);
-				break;
-			case 4:
-				act("$N tricks $n, and slashes him across the back.",
-					false, pupil1, 0, pupil2, TO_NOTVICT);
-				act("$N tricks you, and slashes you across your back.",
-					false, pupil1, 0, pupil2, TO_CHAR);
-				act("You trick $n, and quickly slash him across his back.",
-					false, pupil1, 0, pupil2, TO_VICT);
-				break;
-			case 5:
-				act("$n lunges a blow at $N but $N parries skillfully.",
-					false, pupil1, 0, pupil2, TO_NOTVICT);
-				act("You lunge a blow at $N but $E parries skillfully.",
-					false, pupil1, 0, pupil2, TO_CHAR);
-				act("$n lunges a blow at you, but you skillfully parry it.",
-					false, pupil1, 0, pupil2, TO_VICT);
-				break;
-			case 6:
-				act("$n clumsily tries to kick $N, but misses.",
-					false, pupil1, 0, pupil2, TO_NOTVICT);
-				act("You clumsily miss $N with your poor excuse for a kick.",
-					false, pupil1, 0, pupil2, TO_CHAR);
-				act("$n fails an unusually clumsy attempt at kicking you.",
-					false, pupil1, 0, pupil2, TO_VICT);
-				break;
-			default:
-				send_to_char(ch, "You show your pupils an advanced technique.");
-				act("$n shows his pupils an advanced technique.", false, ch, 0,
-					0, TO_ROOM);
-				break;
-			}
-		}
-	}
-	return false;
+    if (!banzaii(ch) && !number(0, 2)) {
+        if ((pupil1 = find_npc_by_name(ch, "Brian", 5)) &&
+            (pupil2 = find_npc_by_name(ch, "Mick", 4)) &&
+            (!pupil1->fighting && !pupil2->fighting)) {
+            if (number(0, 1)) {
+                tch = pupil1;
+                pupil1 = pupil2;
+                pupil2 = tch;
+            }
+            switch (number(0, 7)) {
+            case 0:
+                act("$n hits $N on $s head with a powerful blow.",
+                    false, pupil1, 0, pupil2, TO_NOTVICT);
+                act("You hit $N on $s head with a powerful blow.",
+                    false, pupil1, 0, pupil2, TO_CHAR);
+                act("$n hits you on your head with a powerful blow.",
+                    false, pupil1, 0, pupil2, TO_VICT);
+                break;
+            case 1:
+                act("$n hits $N in $s chest with a thrust.",
+                    false, pupil1, 0, pupil2, TO_NOTVICT);
+                act("You manage to thrust $N in the chest.",
+                    false, pupil1, 0, pupil2, TO_CHAR);
+                act("$n manages to thrust you in your chest.",
+                    false, pupil1, 0, pupil2, TO_VICT);
+                break;
+            case 2:
+                send_to_char(ch, "You command your pupils to bow\r\n.");
+                act("$n commands his pupils to bow.", false, ch, 0, 0,
+                    TO_ROOM);
+                act("$n bows before $N.", false, pupil1, 0, pupil2,
+                    TO_NOTVICT);
+                act("$N bows before $n.", false, pupil1, 0, pupil2,
+                    TO_NOTVICT);
+                act("You bow before $N, who returns your gesture.", false,
+                    pupil1, 0, pupil2, TO_CHAR);
+                act("You bow before $n, who returns your gesture.", false,
+                    pupil1, 0, pupil2, TO_VICT);
+                break;
+            case 3:
+                act("$N yells at $n, as he fumbles and drops his sword.",
+                    false, pupil1, 0, ch, TO_NOTVICT);
+                act("$n quickly picks up his weapon.", false, pupil1, 0, 0,
+                    TO_ROOM);
+                act("$N yells at you, as you fumble, losing your weapon.",
+                    false, pupil1, 0, ch, TO_CHAR);
+                send_to_char(pupil1, "You quickly pick up your weapon again.");
+                act("You yell at $n, as he fumbles, losing his weapon.",
+                    false, pupil1, 0, ch, TO_VICT);
+                break;
+            case 4:
+                act("$N tricks $n, and slashes him across the back.",
+                    false, pupil1, 0, pupil2, TO_NOTVICT);
+                act("$N tricks you, and slashes you across your back.",
+                    false, pupil1, 0, pupil2, TO_CHAR);
+                act("You trick $n, and quickly slash him across his back.",
+                    false, pupil1, 0, pupil2, TO_VICT);
+                break;
+            case 5:
+                act("$n lunges a blow at $N but $N parries skillfully.",
+                    false, pupil1, 0, pupil2, TO_NOTVICT);
+                act("You lunge a blow at $N but $E parries skillfully.",
+                    false, pupil1, 0, pupil2, TO_CHAR);
+                act("$n lunges a blow at you, but you skillfully parry it.",
+                    false, pupil1, 0, pupil2, TO_VICT);
+                break;
+            case 6:
+                act("$n clumsily tries to kick $N, but misses.",
+                    false, pupil1, 0, pupil2, TO_NOTVICT);
+                act("You clumsily miss $N with your poor excuse for a kick.",
+                    false, pupil1, 0, pupil2, TO_CHAR);
+                act("$n fails an unusually clumsy attempt at kicking you.",
+                    false, pupil1, 0, pupil2, TO_VICT);
+                break;
+            default:
+                send_to_char(ch,
+                    "You show your pupils an advanced technique.");
+                act("$n shows his pupils an advanced technique.", false, ch, 0,
+                    0, TO_ROOM);
+                break;
+            }
+        }
+    }
+    return false;
 }
 
 SPECIAL(tom)
 {
 
-	struct creature *tom = (struct creature *)me;
-	struct creature *king, *tim;
+    struct creature *tom = (struct creature *)me;
+    struct creature *king, *tim;
 
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	ACMD(do_follow);
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    ACMD(do_follow);
 
-	if (!AWAKE(ch))
-		return false;
+    if (!AWAKE(ch))
+        return false;
 
-	if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
-		if (!ch->master)
-			do_follow(ch, tmp_strdup("Duke Araken"), 0, 0, 0);
-		if (king->fighting)
-			do_npc_rescue(ch, king);
-	}
-	if (!cmd)
-		if ((tim = find_npc_by_name(ch, "Tim", 3)))
-			if (tim->fighting && 2 * GET_HIT(tim) < GET_HIT(ch))
-				do_npc_rescue(ch, tim);
+    if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
+        if (!ch->master)
+            do_follow(ch, tmp_strdup("Duke Araken"), 0, 0, 0);
+        if (king->fighting)
+            do_npc_rescue(ch, king);
+    }
+    if (!cmd)
+        if ((tim = find_npc_by_name(ch, "Tim", 3)))
+            if (tim->fighting && 2 * GET_HIT(tim) < GET_HIT(ch))
+                do_npc_rescue(ch, tim);
 
-	if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
-		banzaii(ch);
+    if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
+        banzaii(ch);
 
-	return block_way(ch, tom, cmd, CASTLE_ITEM(49), 1);
+    return block_way(ch, tom, cmd, CASTLE_ITEM(49), 1);
 }
 
 SPECIAL(tim)
 {
 
-	struct creature *tim = (struct creature *)me;
-	struct creature *king, *tom;
+    struct creature *tim = (struct creature *)me;
+    struct creature *king, *tom;
 
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	ACMD(do_follow);
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    ACMD(do_follow);
 
-	if (!AWAKE(ch))
-		return false;
+    if (!AWAKE(ch))
+        return false;
 
-	if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
-		if (!ch->master)
-			do_follow(ch, tmp_strdup("Duke Araken"), 0, 0, 0);
-		if (king->fighting)
-			do_npc_rescue(ch, king);
-	}
-	if (!cmd)
-		if ((tom = find_npc_by_name(ch, "Tom", 3)))
-			if (tom->fighting && 2 * GET_HIT(tom) < GET_HIT(ch))
-				do_npc_rescue(ch, tom);
+    if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
+        if (!ch->master)
+            do_follow(ch, tmp_strdup("Duke Araken"), 0, 0, 0);
+        if (king->fighting)
+            do_npc_rescue(ch, king);
+    }
+    if (!cmd)
+        if ((tom = find_npc_by_name(ch, "Tom", 3)))
+            if (tom->fighting && 2 * GET_HIT(tom) < GET_HIT(ch))
+                do_npc_rescue(ch, tom);
 
-	if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
-		banzaii(ch);
+    if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
+        banzaii(ch);
 
-	return block_way(ch, tim, cmd, CASTLE_ITEM(49), 1);
+    return block_way(ch, tim, cmd, CASTLE_ITEM(49), 1);
 }
 
 /* Routine for James the Butler */
@@ -592,49 +592,49 @@ SPECIAL(tim)
 SPECIAL(James)
 {
 
-	struct obj_data *i;
+    struct obj_data *i;
 
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
-		return (false);
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
+        return (false);
 
-	for (i = ch->in_room->contents; i; i = i->next_content)
-		if (is_trash(i)) {
-			act("$n says: 'My oh my!  I ought to fire that lazy cleaning woman!'", false, ch, 0, 0, TO_ROOM);
-			act("$n picks up a piece of trash.", false, ch, 0, 0, TO_ROOM);
-			obj_from_room(i);
-			obj_to_char(i, ch);
-			return true;
-		} else
-			return false;
+    for (i = ch->in_room->contents; i; i = i->next_content)
+        if (is_trash(i)) {
+            act("$n says: 'My oh my!  I ought to fire that lazy cleaning woman!'", false, ch, 0, 0, TO_ROOM);
+            act("$n picks up a piece of trash.", false, ch, 0, 0, TO_ROOM);
+            obj_from_room(i);
+            obj_to_char(i, ch);
+            return true;
+        } else
+            return false;
 
-	return false;
+    return false;
 }
 
 /* Routine for the Cleaning Woman */
 /* Picks up any trash she finds... */
 SPECIAL(cleaning)
 {
-	struct obj_data *i, *next;
+    struct obj_data *i, *next;
 
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
 
-	if (cmd || !AWAKE(ch))
-		return 0;
+    if (cmd || !AWAKE(ch))
+        return 0;
 
-	for (i = ch->in_room->contents; i; i = next) {
-		next = i->next_content;
-		if (is_trash(i)) {
-			act("$n picks up some trash.", false, ch, 0, 0, TO_ROOM);
-			obj_from_room(i);
-			obj_to_char(i, ch);
-			return true;
-		} else
-			return false;
-	}
-	return false;
+    for (i = ch->in_room->contents; i; i = next) {
+        next = i->next_content;
+        if (is_trash(i)) {
+            act("$n picks up some trash.", false, ch, 0, 0, TO_ROOM);
+            obj_from_room(i);
+            obj_to_char(i, ch);
+            return true;
+        } else
+            return false;
+    }
+    return false;
 }
 
 /* Routine CastleGuard */
@@ -642,111 +642,111 @@ SPECIAL(cleaning)
 SPECIAL(CastleGuard)
 {
 
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
-		return false;
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
+        return false;
 
-	return (banzaii(ch));
+    return (banzaii(ch));
 }
 
 SPECIAL(sleeping_soldier)
 {
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	if (cmd || (GET_POSITION(ch) == POS_FIGHTING))
-		return false;
-	if (!AWAKE(ch))
-		switch (number(0, 60)) {
-		case 0:
-			act("$n farts in $s sleep.", false, ch, 0, 0, TO_ROOM);
-			break;
-		case 1:
-			act("$n rolls over fitfully.", false, ch, 0, 0, TO_ROOM);
-			break;
-		case 2:
-			act("$n moans loudly.", false, ch, 0, 0, TO_ROOM);
-			break;
-		case 3:
-			act("$n begins to exhibit Rapid Eye Movement.", true, ch, 0, 0,
-				TO_ROOM);
-			break;
-		case 4:
-			act("$n drools all over the place.", true, ch, 0, 0, TO_ROOM);
-			break;
-		}
-	if (!AWAKE(ch))
-		return 0;
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    if (cmd || (GET_POSITION(ch) == POS_FIGHTING))
+        return false;
+    if (!AWAKE(ch))
+        switch (number(0, 60)) {
+        case 0:
+            act("$n farts in $s sleep.", false, ch, 0, 0, TO_ROOM);
+            break;
+        case 1:
+            act("$n rolls over fitfully.", false, ch, 0, 0, TO_ROOM);
+            break;
+        case 2:
+            act("$n moans loudly.", false, ch, 0, 0, TO_ROOM);
+            break;
+        case 3:
+            act("$n begins to exhibit Rapid Eye Movement.", true, ch, 0, 0,
+                TO_ROOM);
+            break;
+        case 4:
+            act("$n drools all over the place.", true, ch, 0, 0, TO_ROOM);
+            break;
+        }
+    if (!AWAKE(ch))
+        return 0;
 
-	return (banzaii(ch));
+    return (banzaii(ch));
 }
 
 SPECIAL(lounge_soldier)
 {
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
-		return false;
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
+        return false;
 
-	switch (number(0, 60)) {
-	case 0:
-		act("$n grabs a dirty magazine and starts flipping through the pages.",
-			true, ch, 0, 0, TO_ROOM);
-		send_to_char(ch, "You grab a dirty mag.\r\n");
-		break;
-	case 1:
-		act("$n counts up this month's pay and scowls.", true, ch, 0, 0,
-			TO_ROOM);
-		send_to_char(ch, "You count your pay and scowl.\r\n");
-		break;
-	case 2:
-		act("$n wonders when $s next leave will be.", true, ch, 0, 0, TO_ROOM);
-		send_to_char(ch, "You wonder about leave.\r\n");
-		break;
-	case 3:
-		act("$n starts biting $s fingernails.", true, ch, 0, 0, TO_ROOM);
-		send_to_char(ch, "You bite your fingernails.\r\n");
-		break;
-	case 4:
-		act("$n starts biting $s toenails.", true, ch, 0, 0, TO_ROOM);
-		send_to_char(ch, "You bite your toenails.\r\n");
-		break;
-	case 5:
-		act("$n flexes $s muscles.", true, ch, 0, 0, TO_ROOM);
-		send_to_char(ch, "You flex.\r\n");
-		break;
-	case 6:
-		act("$n rolls up a blunt.", true, ch, 0, 0, TO_ROOM);
-		send_to_char(ch, "You roll a blunt.\r\n");
-		break;
-	case 7:
-		act("$n starts shadowboxing.", false, ch, 0, 0, TO_ROOM);
-		send_to_char(ch, "You shadowbox.\r\n");
-		break;
-	case 8:
-		act("$n scratches $s butt.", true, ch, 0, 0, TO_ROOM);
-		send_to_char(ch, "You scratch your butt.\r\n");
-		break;
-	}
-	return (banzaii(ch));
+    switch (number(0, 60)) {
+    case 0:
+        act("$n grabs a dirty magazine and starts flipping through the pages.",
+            true, ch, 0, 0, TO_ROOM);
+        send_to_char(ch, "You grab a dirty mag.\r\n");
+        break;
+    case 1:
+        act("$n counts up this month's pay and scowls.", true, ch, 0, 0,
+            TO_ROOM);
+        send_to_char(ch, "You count your pay and scowl.\r\n");
+        break;
+    case 2:
+        act("$n wonders when $s next leave will be.", true, ch, 0, 0, TO_ROOM);
+        send_to_char(ch, "You wonder about leave.\r\n");
+        break;
+    case 3:
+        act("$n starts biting $s fingernails.", true, ch, 0, 0, TO_ROOM);
+        send_to_char(ch, "You bite your fingernails.\r\n");
+        break;
+    case 4:
+        act("$n starts biting $s toenails.", true, ch, 0, 0, TO_ROOM);
+        send_to_char(ch, "You bite your toenails.\r\n");
+        break;
+    case 5:
+        act("$n flexes $s muscles.", true, ch, 0, 0, TO_ROOM);
+        send_to_char(ch, "You flex.\r\n");
+        break;
+    case 6:
+        act("$n rolls up a blunt.", true, ch, 0, 0, TO_ROOM);
+        send_to_char(ch, "You roll a blunt.\r\n");
+        break;
+    case 7:
+        act("$n starts shadowboxing.", false, ch, 0, 0, TO_ROOM);
+        send_to_char(ch, "You shadowbox.\r\n");
+        break;
+    case 8:
+        act("$n scratches $s butt.", true, ch, 0, 0, TO_ROOM);
+        send_to_char(ch, "You scratch your butt.\r\n");
+        break;
+    }
+    return (banzaii(ch));
 }
 
 SPECIAL(armory_person)
 {
 
-	struct creature *guard = (struct creature *)me;
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	if (!cmd || IS_NPC(ch))
-		return false;
+    struct creature *guard = (struct creature *)me;
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    if (!cmd || IS_NPC(ch))
+        return false;
 
-	if (!can_see_creature(guard, ch) || guard->fighting)
-		return false;
+    if (!can_see_creature(guard, ch) || guard->fighting)
+        return false;
 
-	act("$n screams, 'This is a RESTRICTED AREA!!!'", false, guard, 0, 0,
-		TO_ROOM);
-	hit(guard, ch, TYPE_UNDEFINED);
-	return true;
+    act("$n screams, 'This is a RESTRICTED AREA!!!'", false, guard, 0, 0,
+        TO_ROOM);
+    hit(guard, ch, TYPE_UNDEFINED);
+    return true;
 
 }
 
@@ -755,66 +755,66 @@ SPECIAL(armory_person)
 SPECIAL(peter)
 {
 
-	struct creature *ch_guard;
+    struct creature *ch_guard;
 
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	if (cmd || !AWAKE(ch) || GET_POSITION(ch) == POS_FIGHTING)
-		return (false);
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    if (cmd || !AWAKE(ch) || GET_POSITION(ch) == POS_FIGHTING)
+        return (false);
 
-	if (banzaii(ch))
-		return false;
+    if (banzaii(ch))
+        return false;
 
-	if (!(number(0, 3)) && (ch_guard = find_guard(ch)))
-		switch (number(0, 5)) {
-		case 0:
-			act("$N comes sharply into attention as $n inspects $M.",
-				false, ch, 0, ch_guard, TO_NOTVICT);
-			act("$N comes sharply into attention as you inspect $M.",
-				false, ch, 0, ch_guard, TO_CHAR);
-			act("You go sharply into attention as $n inspects you.",
-				false, ch, 0, ch_guard, TO_VICT);
-			break;
-		case 1:
-			act("$N looks very small, as $n roars at $M.",
-				false, ch, 0, ch_guard, TO_NOTVICT);
-			act("$N looks very small as you roar at $M.",
-				false, ch, 0, ch_guard, TO_CHAR);
-			act("You feel very small as $N roars at you.",
-				false, ch, 0, ch_guard, TO_VICT);
-			break;
-		case 2:
-			act("$n gives $N some Royal directions.",
-				false, ch, 0, ch_guard, TO_NOTVICT);
-			act("You give $N some Royal directions.",
-				false, ch, 0, ch_guard, TO_CHAR);
-			act("$n gives you some Royal directions.",
-				false, ch, 0, ch_guard, TO_VICT);
-			break;
-		case 3:
-			act("$n looks at you.", false, ch, 0, ch_guard, TO_VICT);
-			act("$n looks at $N.", false, ch, 0, ch_guard, TO_NOTVICT);
-			act("$n growls: 'Those boots need polishing!'",
-				false, ch, 0, ch_guard, TO_ROOM);
-			act("You growl at $N.", false, ch, 0, ch_guard, TO_CHAR);
-			break;
-		case 4:
-			act("$n looks at you.", false, ch, 0, ch_guard, TO_VICT);
-			act("$n looks at $N.", false, ch, 0, ch_guard, TO_NOTVICT);
-			act("$n growls: 'Straighten that collar!'",
-				false, ch, 0, ch_guard, TO_ROOM);
-			act("You growl at $N.", false, ch, 0, ch_guard, TO_CHAR);
-			break;
-		default:
-			act("$n looks at you.", false, ch, 0, ch_guard, TO_VICT);
-			act("$n looks at $N.", false, ch, 0, ch_guard, TO_NOTVICT);
-			act("$n growls: 'That chain mail looks rusty!  CLEAN IT !!!'",
-				false, ch, 0, ch_guard, TO_ROOM);
-			act("You growl at $N.", false, ch, 0, ch_guard, TO_CHAR);
-			break;
-		}
+    if (!(number(0, 3)) && (ch_guard = find_guard(ch)))
+        switch (number(0, 5)) {
+        case 0:
+            act("$N comes sharply into attention as $n inspects $M.",
+                false, ch, 0, ch_guard, TO_NOTVICT);
+            act("$N comes sharply into attention as you inspect $M.",
+                false, ch, 0, ch_guard, TO_CHAR);
+            act("You go sharply into attention as $n inspects you.",
+                false, ch, 0, ch_guard, TO_VICT);
+            break;
+        case 1:
+            act("$N looks very small, as $n roars at $M.",
+                false, ch, 0, ch_guard, TO_NOTVICT);
+            act("$N looks very small as you roar at $M.",
+                false, ch, 0, ch_guard, TO_CHAR);
+            act("You feel very small as $N roars at you.",
+                false, ch, 0, ch_guard, TO_VICT);
+            break;
+        case 2:
+            act("$n gives $N some Royal directions.",
+                false, ch, 0, ch_guard, TO_NOTVICT);
+            act("You give $N some Royal directions.",
+                false, ch, 0, ch_guard, TO_CHAR);
+            act("$n gives you some Royal directions.",
+                false, ch, 0, ch_guard, TO_VICT);
+            break;
+        case 3:
+            act("$n looks at you.", false, ch, 0, ch_guard, TO_VICT);
+            act("$n looks at $N.", false, ch, 0, ch_guard, TO_NOTVICT);
+            act("$n growls: 'Those boots need polishing!'",
+                false, ch, 0, ch_guard, TO_ROOM);
+            act("You growl at $N.", false, ch, 0, ch_guard, TO_CHAR);
+            break;
+        case 4:
+            act("$n looks at you.", false, ch, 0, ch_guard, TO_VICT);
+            act("$n looks at $N.", false, ch, 0, ch_guard, TO_NOTVICT);
+            act("$n growls: 'Straighten that collar!'",
+                false, ch, 0, ch_guard, TO_ROOM);
+            act("You growl at $N.", false, ch, 0, ch_guard, TO_CHAR);
+            break;
+        default:
+            act("$n looks at you.", false, ch, 0, ch_guard, TO_VICT);
+            act("$n looks at $N.", false, ch, 0, ch_guard, TO_NOTVICT);
+            act("$n growls: 'That chain mail looks rusty!  CLEAN IT !!!'",
+                false, ch, 0, ch_guard, TO_ROOM);
+            act("You growl at $N.", false, ch, 0, ch_guard, TO_CHAR);
+            break;
+        }
 
-	return false;
+    return false;
 }
 
 /* Procedure for Jerry and Michael in x08 of King's Castle.      */
@@ -822,129 +822,129 @@ SPECIAL(peter)
 
 SPECIAL(jerry)
 {
-	struct creature *gambler1, *gambler2, *tch;
+    struct creature *gambler1, *gambler2, *tch;
 
-	if (spec_mode != SPECIAL_TICK)
-		return 0;
-	if (!AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
-		return false;
+    if (spec_mode != SPECIAL_TICK)
+        return 0;
+    if (!AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
+        return false;
 
-	if (cmd)
-		return false;
+    if (cmd)
+        return false;
 
-	if (!banzaii(ch) && !number(0, 2)) {
-		if ((gambler1 = ch) &&
-			(gambler2 = find_npc_by_name(ch, "Michael", 7)) &&
-			(!gambler1->fighting && !gambler2->fighting)) {
-			if (number(0, 1)) {
-				tch = gambler1;
-				gambler1 = gambler2;
-				gambler2 = tch;
-			}
-			switch (number(0, 5)) {
-			case 0:
-				act("$n rolls the dice and cheers loudly at the result.",
-					false, gambler1, 0, gambler2, TO_NOTVICT);
-				act("You roll the dice and cheer. GREAT!",
-					false, gambler1, 0, gambler2, TO_CHAR);
-				act("$n cheers loudly as $e rolls the dice.",
-					false, gambler1, 0, gambler2, TO_VICT);
-				break;
-			case 1:
-				act("$n curses the Goddess of Luck roundly as he sees $N's roll.", false, gambler1, 0, gambler2, TO_NOTVICT);
-				act("You curse the Goddess of Luck as $N rolls.",
-					false, gambler1, 0, gambler2, TO_CHAR);
-				act("$n swears angrily. You are in luck!",
-					false, gambler1, 0, gambler2, TO_VICT);
-				break;
-			case 2:
-				act("$n sighs loudly and gives $N some gold.",
-					false, gambler1, 0, gambler2, TO_NOTVICT);
-				act("You sigh loudly at the pain of having to give $N some gold.", false, gambler1, 0, gambler2, TO_CHAR);
-				act("$n sighs loudly as $e gives you your rightful win.",
-					false, gambler1, 0, gambler2, TO_VICT);
-				break;
-			case 3:
-				act("$n smiles remorsefully as $N's roll tops his.",
-					false, gambler1, 0, gambler2, TO_NOTVICT);
-				act("You smile sadly as you see that $N beats you. Again.",
-					false, gambler1, 0, gambler2, TO_CHAR);
-				act("$n smiles remorsefully as your roll tops his.",
-					false, gambler1, 0, gambler2, TO_VICT);
-				break;
-			case 4:
-				act("$n excitedly follows the dice with his eyes.",
-					false, gambler1, 0, gambler2, TO_NOTVICT);
-				act("You excitedly follow the dice with your eyes.",
-					false, gambler1, 0, gambler2, TO_CHAR);
-				act("$n excitedly follows the dice with his eyes.",
-					false, gambler1, 0, gambler2, TO_VICT);
-				break;
-			default:
-				act("$n says 'Well, my luck has to change soon', as he shakes the dice.", false, gambler1, 0, gambler2, TO_NOTVICT);
-				act("You say 'Well, my luck has to change soon' and shake the dice.", false, gambler1, 0, gambler2, TO_CHAR);
-				act("$n says 'Well, my luck has to change soon', as he shakes the dice.", false, gambler1, 0, gambler2, TO_VICT);
-				break;
-			}
-		}
-	}
-	return false;
+    if (!banzaii(ch) && !number(0, 2)) {
+        if ((gambler1 = ch) &&
+            (gambler2 = find_npc_by_name(ch, "Michael", 7)) &&
+            (!gambler1->fighting && !gambler2->fighting)) {
+            if (number(0, 1)) {
+                tch = gambler1;
+                gambler1 = gambler2;
+                gambler2 = tch;
+            }
+            switch (number(0, 5)) {
+            case 0:
+                act("$n rolls the dice and cheers loudly at the result.",
+                    false, gambler1, 0, gambler2, TO_NOTVICT);
+                act("You roll the dice and cheer. GREAT!",
+                    false, gambler1, 0, gambler2, TO_CHAR);
+                act("$n cheers loudly as $e rolls the dice.",
+                    false, gambler1, 0, gambler2, TO_VICT);
+                break;
+            case 1:
+                act("$n curses the Goddess of Luck roundly as he sees $N's roll.", false, gambler1, 0, gambler2, TO_NOTVICT);
+                act("You curse the Goddess of Luck as $N rolls.",
+                    false, gambler1, 0, gambler2, TO_CHAR);
+                act("$n swears angrily. You are in luck!",
+                    false, gambler1, 0, gambler2, TO_VICT);
+                break;
+            case 2:
+                act("$n sighs loudly and gives $N some gold.",
+                    false, gambler1, 0, gambler2, TO_NOTVICT);
+                act("You sigh loudly at the pain of having to give $N some gold.", false, gambler1, 0, gambler2, TO_CHAR);
+                act("$n sighs loudly as $e gives you your rightful win.",
+                    false, gambler1, 0, gambler2, TO_VICT);
+                break;
+            case 3:
+                act("$n smiles remorsefully as $N's roll tops his.",
+                    false, gambler1, 0, gambler2, TO_NOTVICT);
+                act("You smile sadly as you see that $N beats you. Again.",
+                    false, gambler1, 0, gambler2, TO_CHAR);
+                act("$n smiles remorsefully as your roll tops his.",
+                    false, gambler1, 0, gambler2, TO_VICT);
+                break;
+            case 4:
+                act("$n excitedly follows the dice with his eyes.",
+                    false, gambler1, 0, gambler2, TO_NOTVICT);
+                act("You excitedly follow the dice with your eyes.",
+                    false, gambler1, 0, gambler2, TO_CHAR);
+                act("$n excitedly follows the dice with his eyes.",
+                    false, gambler1, 0, gambler2, TO_VICT);
+                break;
+            default:
+                act("$n says 'Well, my luck has to change soon', as he shakes the dice.", false, gambler1, 0, gambler2, TO_NOTVICT);
+                act("You say 'Well, my luck has to change soon' and shake the dice.", false, gambler1, 0, gambler2, TO_CHAR);
+                act("$n says 'Well, my luck has to change soon', as he shakes the dice.", false, gambler1, 0, gambler2, TO_VICT);
+                break;
+            }
+        }
+    }
+    return false;
 }
 
 SPECIAL(dukes_chamber)
 {
-	struct room_data *other_room;
-	struct room_direction_data *back = 0;
+    struct room_data *other_room;
+    struct room_direction_data *back = 0;
 
-	if (!CMD_IS("pull") && !CMD_IS("push") && !CMD_IS("get") && !CMD_IS("take")
-		&& !CMD_IS("open"))
-		return 0;
-	skip_spaces(&argument);
+    if (!CMD_IS("pull") && !CMD_IS("push") && !CMD_IS("get") && !CMD_IS("take")
+        && !CMD_IS("open"))
+        return 0;
+    skip_spaces(&argument);
 
-	if (strncasecmp(argument, "book", 4) &&
-		strncasecmp(argument, "shelf", 5) &&
-		strncasecmp(argument, "lever", 5) &&
-		strncasecmp(argument, "on lever", 8) &&
-		strncasecmp(argument, "on shelf", 8) &&
-		strncasecmp(argument, "on book", 7))
-		return 0;
+    if (strncasecmp(argument, "book", 4) &&
+        strncasecmp(argument, "shelf", 5) &&
+        strncasecmp(argument, "lever", 5) &&
+        strncasecmp(argument, "on lever", 8) &&
+        strncasecmp(argument, "on shelf", 8) &&
+        strncasecmp(argument, "on book", 7))
+        return 0;
 
-	if (CMD_IS("open") && !strncasecmp(argument, "book", 4)) {
-		send_to_char(ch, "It's securely lodged in the bookshelf.\r\n");
-		return 1;
-	}
-	if ((other_room = EXIT(ch, WEST)->to_room) != NULL)
-		if ((back = other_room->dir_option[rev_dir[WEST]]))
-			if (back->to_room != ch->in_room) {
-				back = 0;
-				send_to_char(ch, " back= 0");
-			}
+    if (CMD_IS("open") && !strncasecmp(argument, "book", 4)) {
+        send_to_char(ch, "It's securely lodged in the bookshelf.\r\n");
+        return 1;
+    }
+    if ((other_room = EXIT(ch, WEST)->to_room) != NULL)
+        if ((back = other_room->dir_option[rev_dir[WEST]]))
+            if (back->to_room != ch->in_room) {
+                back = 0;
+                send_to_char(ch, " back= 0");
+            }
 
-	send_to_char(ch, "You pull firmly on the protruding book...\r\n");
-	act("$n pulls on a book in the bookshelf.", true, ch, 0, 0, TO_ROOM);
+    send_to_char(ch, "You pull firmly on the protruding book...\r\n");
+    act("$n pulls on a book in the bookshelf.", true, ch, 0, 0, TO_ROOM);
 
-	if (IS_SET(EXIT(ch, WEST)->exit_info, EX_CLOSED)) {
-		send_to_room
-			("A small section of the bookshelf rotates open, revealing a small room\r\n"
-			"to the west.\r\n", ch->in_room);
+    if (IS_SET(EXIT(ch, WEST)->exit_info, EX_CLOSED)) {
+        send_to_room
+            ("A small section of the bookshelf rotates open, revealing a small room\r\n"
+            "to the west.\r\n", ch->in_room);
 
-		TOGGLE_BIT(EXITN(ch->in_room, WEST)->exit_info, EX_CLOSED);
-		if (back && IS_SET(back->exit_info, EX_CLOSED)) {
-			TOGGLE_BIT(EXITN(other_room, rev_dir[WEST])->exit_info, EX_CLOSED);
-			send_to_room
-				("The east wall rotates open, revealing a large chamber.\r\n",
-				other_room);
-		}
-		return 1;
-	} else {
-		send_to_room("A small section of the bookshelf rotates closed.\r\n",
-			ch->in_room);
+        TOGGLE_BIT(EXITN(ch->in_room, WEST)->exit_info, EX_CLOSED);
+        if (back && IS_SET(back->exit_info, EX_CLOSED)) {
+            TOGGLE_BIT(EXITN(other_room, rev_dir[WEST])->exit_info, EX_CLOSED);
+            send_to_room
+                ("The east wall rotates open, revealing a large chamber.\r\n",
+                other_room);
+        }
+        return 1;
+    } else {
+        send_to_room("A small section of the bookshelf rotates closed.\r\n",
+            ch->in_room);
 
-		TOGGLE_BIT(EXITN(ch->in_room, WEST)->exit_info, EX_CLOSED);
-		if (back && !IS_SET(back->exit_info, EX_CLOSED)) {
-			TOGGLE_BIT(EXITN(other_room, rev_dir[WEST])->exit_info, EX_CLOSED);
-			send_to_room("The east wall rotates closed.\r\n", other_room);
-		}
-		return 1;
-	}
+        TOGGLE_BIT(EXITN(ch->in_room, WEST)->exit_info, EX_CLOSED);
+        if (back && !IS_SET(back->exit_info, EX_CLOSED)) {
+            TOGGLE_BIT(EXITN(other_room, rev_dir[WEST])->exit_info, EX_CLOSED);
+            send_to_room("The east wall rotates closed.\r\n", other_room);
+        }
+        return 1;
+    }
 }

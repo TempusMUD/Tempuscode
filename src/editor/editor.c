@@ -40,10 +40,11 @@ check_editors(struct creature *ch, char *buffer)
 {
     struct descriptor_data *d;
 
-    for (d = descriptor_list;d;d = d->next) {
+    for (d = descriptor_list; d; d = d->next) {
         if (d->text_editor
             && d->text_editor->is_editing(d->text_editor, buffer)) {
-            send_to_char(ch, "Sorry, %s is editing that.\n", GET_NAME(d->creature));
+            send_to_char(ch, "Sorry, %s is editing that.\n",
+                GET_NAME(d->creature));
             return false;
         }
     }
@@ -59,11 +60,10 @@ editor_import(struct editor *editor, const char *text)
     g_list_free(editor->lines);
 
     strv = g_strsplit(text, "\n", 0);
-    for (strp = strv;*strp;strp++) {
+    for (strp = strv; *strp; strp++) {
         editor->original = g_list_prepend(editor->original,
-                                          g_string_new(*strp));
-        editor->lines = g_list_prepend(editor->lines,
-                                       g_string_new(*strp));
+            g_string_new(*strp));
+        editor->lines = g_list_prepend(editor->lines, g_string_new(*strp));
     }
     g_strfreev(strv);
 
@@ -83,10 +83,10 @@ emit_editor_startup(struct editor *editor)
     int i;
 
     send_to_desc(editor->desc,
-                 "&C     * &YTEDII &b]&n Save and exit with @ on a new line. "
-                 "&&H for help             &C*\r\n");
+        "&C     * &YTEDII &b]&n Save and exit with @ on a new line. "
+        "&&H for help             &C*\r\n");
     send_to_desc(editor->desc, "     ");
-	for (i = 0; i < 7; i++)
+    for (i = 0; i < 7; i++)
         send_to_desc(editor->desc, "&C%d&B---------", i);
     send_to_desc(editor->desc, "&C7&n\r\n");
 }
@@ -108,10 +108,10 @@ editor_buffer_size(struct editor *editor)
 {
     int len;
 
-    void count_string_len(GString *str, gpointer ignore) {
+    void count_string_len(GString * str, gpointer ignore) {
         len += str->len + 1;
     }
-    g_list_foreach(editor->lines, (GFunc)count_string_len, 0);
+    g_list_foreach(editor->lines, (GFunc) count_string_len, 0);
 
     return len;
 }
@@ -129,11 +129,11 @@ editor_finish(struct editor *editor, bool save)
         text = (char *)malloc(length);
         strcpy(text, "");
         write_pt = text;
-        void concat_line(GString *line, gpointer ignore) {
+        void concat_line(GString * line, gpointer ignore) {
             strcpy(write_pt, line->str);
             write_pt += line->len;
         }
-        g_list_foreach(editor->lines, (GFunc)concat_line, 0);
+        g_list_foreach(editor->lines, (GFunc) concat_line, 0);
 
         // Call the finalizer
         editor->finalize(editor, text);
@@ -143,20 +143,21 @@ editor_finish(struct editor *editor, bool save)
         editor->cancel(editor);
     }
 
-	if (IS_PLAYING(desc) && desc->creature && !IS_NPC(desc->creature)) {
+    if (IS_PLAYING(desc) && desc->creature && !IS_NPC(desc->creature)) {
         // Remove "using the editor bits"
         REMOVE_BIT(PLR_FLAGS(desc->creature),
-                   PLR_WRITING | PLR_OLC | PLR_MAILING);
+            PLR_WRITING | PLR_OLC | PLR_MAILING);
         REMOVE_BIT(PRF2_FLAGS(desc->creature), PRF2_NOWRAP);
-	}
-
+    }
     // Free the editor
-	desc->text_editor = NULL;
-    g_list_foreach(editor->original, (GFunc)g_string_free, GINT_TO_POINTER(true));
+    desc->text_editor = NULL;
+    g_list_foreach(editor->original, (GFunc) g_string_free,
+        GINT_TO_POINTER(true));
     g_list_free(editor->original);
-    g_list_foreach(editor->lines, (GFunc)g_string_free, GINT_TO_POINTER(true));
+    g_list_foreach(editor->lines, (GFunc) g_string_free,
+        GINT_TO_POINTER(true));
     g_list_free(editor->lines);
-	free(editor);
+    free(editor);
 }
 
 void
@@ -192,16 +193,16 @@ editor_append(struct editor *editor, char *line)
 void
 editor_handle_input(struct editor *editor, char *input)
 {
-	// 2 special chars, @ and &
-	char inbuf[MAX_INPUT_LENGTH + 1];
+    // 2 special chars, @ and &
+    char inbuf[MAX_INPUT_LENGTH + 1];
     char *args;
 
-	strncpy(inbuf, input, MAX_INPUT_LENGTH);
+    strncpy(inbuf, input, MAX_INPUT_LENGTH);
 
-	if (*inbuf == '&') {		// Commands
+    if (*inbuf == '&') {        // Commands
         if (!inbuf[1]) {
             editor_emit(editor,
-                        "& is the command character. Type &h for help.\r\n");
+                "& is the command character. Type &h for help.\r\n");
             return;
         }
         args = inbuf + 2;
@@ -209,11 +210,11 @@ editor_handle_input(struct editor *editor, char *input)
             args++;
         if (!editor->do_command(editor, inbuf[1], args))
             editor_emit(editor, "Invalid Command. Type &h for help.\r\n");
-	} else if (*inbuf == '@') {	// Finish up
+    } else if (*inbuf == '@') { // Finish up
         editor_finish(editor, true);
-	} else {					// Dump the text in
-		editor_append(editor, inbuf);
-	}
+    } else {                    // Dump the text in
+        editor_append(editor, inbuf);
+    }
 }
 
 void
@@ -234,80 +235,80 @@ editor_display(struct editor *editor, int start_line, int line_count)
 
     // Display the lines from the beginning line to the end, making
     // sure we don't overflow the LARGE_BUF desc buffer
-	for (linenum = start_line;linenum < end_line;linenum++, itr = g_list_next(itr)) {
-		acc_sprintf("%3d%s%s]%s %s\r\n", linenum,
-                    CCBLD(editor->desc->creature, C_CMP),
-                    CCBLU(editor->desc->creature, C_NRM),
-                    CCNRM(editor->desc->creature, C_NRM),
-                    ((GString *)itr->data)->str);
-		if (acc_get_length() > (LARGE_BUFSIZE - 1024))
-			break;
-	}
+    for (linenum = start_line; linenum < end_line;
+        linenum++, itr = g_list_next(itr)) {
+        acc_sprintf("%3d%s%s]%s %s\r\n", linenum, CCBLD(editor->desc->creature,
+                C_CMP), CCBLU(editor->desc->creature, C_NRM),
+            CCNRM(editor->desc->creature, C_NRM),
+            ((GString *) itr->data)->str);
+        if (acc_get_length() > (LARGE_BUFSIZE - 1024))
+            break;
+    }
 
     acc_strcat("\r\n", NULL);
-	if (acc_get_length() > (LARGE_BUFSIZE - 1024))
-        acc_strcat("Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n", NULL);
+    if (acc_get_length() > (LARGE_BUFSIZE - 1024))
+        acc_strcat
+            ("Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n",
+            NULL);
 
-	editor_emit(editor, acc_get_string());
+    editor_emit(editor, acc_get_string());
 }
 
 bool
 editor_insert(struct editor *editor, int lineno, char *line)
 {
-	GList *s;
+    GList *s;
 
     if (lineno < 1)
         lineno = 1;
-	if (*line)
-		line++;
+    if (*line)
+        line++;
 
-	if (lineno > editor_line_count(editor)) {
-		editor_emit(editor,
-                    "You can't insert before a line that doesn't exist.\r\n");
-		return false;
-	}
-	if (editor_is_full(editor, line)) {
-		editor_emit(editor, "Error: The buffer is full.\r\n");
-		return false;
-	}
+    if (lineno > editor_line_count(editor)) {
+        editor_emit(editor,
+            "You can't insert before a line that doesn't exist.\r\n");
+        return false;
+    }
+    if (editor_is_full(editor, line)) {
+        editor_emit(editor, "Error: The buffer is full.\r\n");
+        return false;
+    }
 
 
     s = g_list_nth(editor->lines, lineno - 1);
     editor->lines = g_list_insert_before(editor->lines, s, g_string_new(line));
 
-	return true;
+    return true;
 }
 
 bool
-editor_replace_line(struct editor *editor, unsigned int lineno, char *line)
+editor_replace_line(struct editor * editor, unsigned int lineno, char *line)
 {
     GList *s;
 
-	if (*line && *line == ' ')
-		line++;
+    if (*line && *line == ' ')
+        line++;
 
-	if (lineno < 1 || lineno > editor_line_count(editor)) {
-		editor_emit(editor, "There's no line to replace there.\r\n");
-		return false;
-	}
-	// Find the line
+    if (lineno < 1 || lineno > editor_line_count(editor)) {
+        editor_emit(editor, "There's no line to replace there.\r\n");
+        return false;
+    }
+    // Find the line
     s = g_list_nth(editor->lines, lineno - 1);
 
-	// Make sure we can fit the new stuff in
+    // Make sure we can fit the new stuff in
     if (editor_is_full(editor, line)) {
-		editor_emit(editor, "Error: The buffer is full.\r\n");
-		return false;
-	}
+        editor_emit(editor, "Error: The buffer is full.\r\n");
+        return false;
+    }
     g_string_assign(s->data, line);
 
-	return true;
+    return true;
 }
 
 bool
-editor_movelines(struct editor *editor,
-                 unsigned int start_line,
-                 unsigned int end_line,
-                 unsigned int dest_line)
+editor_movelines(struct editor * editor,
+    unsigned int start_line, unsigned int end_line, unsigned int dest_line)
 {
     GList *dest, *begin, *end, *next;
     GList *cur;
@@ -323,7 +324,6 @@ editor_movelines(struct editor *editor,
         editor_emit(editor, "Ending line %d is an invalid line.\r\n");
         return false;
     }
-
     // Nothing needs to be done if destination is inside the block
     if (dest_line >= start_line && dest_line <= end_line)
         return true;
@@ -337,7 +337,7 @@ editor_movelines(struct editor *editor,
     end = g_list_nth(editor->lines, end_line + 1);
     dest = g_list_nth(editor->lines, dest_line);
 
-    for (cur = begin;cur != end;cur = next) {
+    for (cur = begin; cur != end; cur = next) {
         next = cur->next;
         editor->lines = g_list_insert_before(editor->lines, dest, cur->data);
         editor->lines = g_list_delete_link(editor->lines, cur);
@@ -345,32 +345,32 @@ editor_movelines(struct editor *editor,
 
     if (start_line == end_line) {
         editor_emit(editor, tmp_sprintf("Moved line %d above line %d.\r\n",
-                                start_line, dest_line));
+                start_line, dest_line));
     } else {
-        editor_emit(editor, tmp_sprintf("Moved lines %d-%d to the line above line %d.\r\n",
-                                start_line, end_line, dest_line));
+        editor_emit(editor,
+            tmp_sprintf("Moved lines %d-%d to the line above line %d.\r\n",
+                start_line, end_line, dest_line));
     }
 
     return true;
 }
 
 bool
-editor_find(struct editor *editor, char *args)
+editor_find(struct editor * editor, char *args)
 {
     int i = 0;
 
-    void print_if_match(GString *str, gpointer ignore) {
+    void print_if_match(GString * str, gpointer ignore) {
         i++;
         if (strcasestr(str->str, args))
             acc_sprintf("%3d%s%s]%s %s\r\n", i,
-                    CCBLD(editor->desc->creature, C_CMP),
-                    CCBLU(editor->desc->creature, C_NRM),
-                    CCNRM(editor->desc->creature, C_NRM),
-                    str->str);
+                CCBLD(editor->desc->creature, C_CMP),
+                CCBLU(editor->desc->creature, C_NRM),
+                CCNRM(editor->desc->creature, C_NRM), str->str);
     }
 
     acc_string_clear();
-    g_list_foreach(editor->lines, (GFunc)print_if_match, 0);
+    g_list_foreach(editor->lines, (GFunc) print_if_match, 0);
     acc_strcat("\r\n", NULL);
     editor_emit(editor, acc_get_string());
 
@@ -378,45 +378,49 @@ editor_find(struct editor *editor, char *args)
 }
 
 bool
-editor_substitute(struct editor *editor, char *args)
+editor_substitute(struct editor * editor, char *args)
 {
-    const char *usage = "There are two formats for substitute:\r\n  &s [search pattern] [replacement]\r\n  &s /search pattern/replacement/\r\nIn the first form, you can use (), [], <>, or {}.\r\n";
-	// Iterator to the current line in theText
-	GList *line;
-	// The string containing the search pattern
-	char *pattern;
+    const char *usage =
+        "There are two formats for substitute:\r\n  &s [search pattern] [replacement]\r\n  &s /search pattern/replacement/\r\nIn the first form, you can use (), [], <>, or {}.\r\n";
+    // Iterator to the current line in theText
+    GList *line;
+    // The string containing the search pattern
+    char *pattern;
     int pattern_len;
-	// String containing the replace pattern
-	char *replacement;
+    // String containing the replace pattern
+    char *replacement;
     int replacement_len;
-	// Number of replacements made
-	int replaced = 0;
-	// read pointer and write pointer.
-	char *temp, end_char;
+    // Number of replacements made
+    int replaced = 0;
+    // read pointer and write pointer.
+    char *temp, end_char;
     bool balanced;
     int size_delta, buffer_size;
 
     while (isspace(*args))
         args++;
 
-	if (!*args) {
-		editor_emit(editor, usage);
-		return false;
-	}
-
+    if (!*args) {
+        editor_emit(editor, usage);
+        return false;
+    }
     // First non-space character is the search delimiter.  If the
     // delimiter is something used with some kind of brace, it
     // terminates in the opposite brace
     balanced = true;
     switch (*args) {
     case '(':
-        end_char = ')'; break;
+        end_char = ')';
+        break;
     case '[':
-        end_char = ']'; break;
+        end_char = ']';
+        break;
     case '{':
-        end_char = '}'; break;
+        end_char = '}';
+        break;
     case '<':
-        end_char = '>'; break;
+        end_char = '>';
+        break;
     default:
         end_char = *args;
         balanced = false;
@@ -439,28 +443,31 @@ editor_substitute(struct editor *editor, char *args)
     // the replacement must be, too
     if (balanced) {
         while (*args
-               && *args != '('
-               && *args != '['
-               && *args != '{'
-               && *args != '<')
+            && *args != '(' && *args != '[' && *args != '{' && *args != '<')
             args++;
         if (!*args) {
-            editor_emit(editor, "If the search pattern uses a balanced delimiter, the replacement must use a balanced\r\ndelimiter as well.\r\n");
+            editor_emit(editor,
+                "If the search pattern uses a balanced delimiter, the replacement must use a balanced\r\ndelimiter as well.\r\n");
             return false;
         }
 
         switch (*args) {
         case '(':
-            end_char = ')'; break;
+            end_char = ')';
+            break;
         case '[':
-            end_char = ']'; break;
+            end_char = ']';
+            break;
         case '{':
-            end_char = '}'; break;
+            end_char = '}';
+            break;
         case '<':
-            end_char = '>'; break;
+            end_char = '>';
+            break;
             break;
         default:
-            end_char = *args; break;
+            end_char = *args;
+            break;
         }
         args++;
     }
@@ -476,103 +483,94 @@ editor_substitute(struct editor *editor, char *args)
     size_delta = strlen(replacement) - strlen(pattern);
     buffer_size = editor_buffer_size(editor);
 
-	// Find pattern in theText a line at a time and replace each instance.
-	char *pos;			// Current position in the line
+    // Find pattern in theText a line at a time and replace each instance.
+    char *pos;                  // Current position in the line
 
     for (line = editor->lines;
-         line && buffer_size + size_delta < editor->max_size;
-         line = line->next) {
-        pos = strstr(((GString *)line->data)->str, pattern);
+        line && buffer_size + size_delta < editor->max_size;
+        line = line->next) {
+        pos = strstr(((GString *) line->data)->str, pattern);
         while (pos && buffer_size + size_delta < editor->max_size) {
-            g_string_erase((GString *)line->data,
-                           pos - ((GString *)line->data)->str,
-                           pattern_len);
-            g_string_insert_len((GString *)line->data,
-                                pos - ((GString *)line->data)->str,
-                                replacement,
-                                replacement_len);
+            g_string_erase((GString *) line->data,
+                pos - ((GString *) line->data)->str, pattern_len);
+            g_string_insert_len((GString *) line->data,
+                pos - ((GString *) line->data)->str,
+                replacement, replacement_len);
             replaced++;
             buffer_size += size_delta;
             pos = strstr(pos + replacement_len, pattern);
         }
     }
-	if (buffer_size + size_delta > editor->max_size)
+    if (buffer_size + size_delta > editor->max_size)
         editor_emit(editor, "Error: The buffer is full.\r\n");
     if (replaced > 0) {
-        editor_emit(editor, tmp_sprintf(
-                        "Replaced %d occurrence%s of '%s' with '%s'.\r\n",
-                        replaced,
-                        (replaced == 1) ? "":"s",
-                        pattern,
-                        replacement));
+        editor_emit(editor,
+            tmp_sprintf("Replaced %d occurrence%s of '%s' with '%s'.\r\n",
+                replaced, (replaced == 1) ? "" : "s", pattern, replacement));
     } else {
         editor_emit(editor, "Search string not found.\r\n");
     }
 
-	return true;
+    return true;
 }
 
 bool
-editor_wrap(struct editor *editor)
+editor_wrap(struct editor * editor)
 {
     GString *new_line;
     GList *line;
     char *s;
-	int linebreak;
+    int linebreak;
 
-	for (line = editor->lines; line; line = line->next) {
-		linebreak = 76;
+    for (line = editor->lines; line; line = line->next) {
+        linebreak = 76;
 
         // If its less than 77 chars, it don't need ta be wrapped.
-		if (((GString *)line->data)->len <= linebreak)
-			continue;
+        if (((GString *) line->data)->len <= linebreak)
+            continue;
 
-		s = ((GString *)line->data)->str;
+        s = ((GString *) line->data)->str;
 
-		// Find the first space <= 76th char.
-		for (s += linebreak - 1;
-             s != ((GString *)line->data)->str && !isspace(*s);
-             s--)
-			linebreak--;
+        // Find the first space <= 76th char.
+        for (s += linebreak - 1;
+            s != ((GString *) line->data)->str && !isspace(*s); s--)
+            linebreak--;
 
-		if (linebreak == 1) {	// Linebreak is at 76
-            s = ((GString *)line->data)->str;
-			s += 75;
-		}
+        if (linebreak == 1) {   // Linebreak is at 76
+            s = ((GString *) line->data)->str;
+            s += 75;
+        }
 
-        new_line = g_string_new((linebreak > 1) ? s + 1:s);
-		g_string_truncate(((GString *)line->data),
-                          s - ((GString *)line->data)->str);
-		line = line->next;
-        editor->lines = g_list_insert_before(editor->lines,
-                                             line,
-                                             new_line);
-		line = editor->lines;
-	}
-	return true;
+        new_line = g_string_new((linebreak > 1) ? s + 1 : s);
+        g_string_truncate(((GString *) line->data),
+            s - ((GString *) line->data)->str);
+        line = line->next;
+        editor->lines = g_list_insert_before(editor->lines, line, new_line);
+        line = editor->lines;
+    }
+    return true;
 }
 
 bool
-editor_remove(struct editor *editor,
-              unsigned int start_line,
-              unsigned int finish_line)
+editor_remove(struct editor * editor,
+    unsigned int start_line, unsigned int finish_line)
 {
-	GList *start, *finish, *next;
+    GList *start, *finish, *next;
 
-	if (start_line < 1 || start_line > editor_line_count(editor)) {
-		editor_emit(editor, "Someone already deleted that line boss.\r\n");
-		return false;
-	}
-	if (finish_line < 1 || finish_line > editor_line_count(editor)) {
-		editor_emit(editor, "Someone already deleted that line boss.\r\n");
-		return false;
-	}
+    if (start_line < 1 || start_line > editor_line_count(editor)) {
+        editor_emit(editor, "Someone already deleted that line boss.\r\n");
+        return false;
+    }
+    if (finish_line < 1 || finish_line > editor_line_count(editor)) {
+        editor_emit(editor, "Someone already deleted that line boss.\r\n");
+        return false;
+    }
 
-    start = g_list_nth(editor->lines, start_line -  1);
-    finish = g_list_nth(editor->lines, finish_line -  1);
+    start = g_list_nth(editor->lines, start_line - 1);
+    finish = g_list_nth(editor->lines, finish_line - 1);
     while (start != finish) {
         next = start->next;
-        g_string_free((GString *)start->data, true);
+        g_string_free((GString *) start->data, true);
         editor->lines = g_list_delete_link(editor->lines, start);
         start = next;
     }
@@ -581,40 +579,40 @@ editor_remove(struct editor *editor,
         editor_emit(editor, tmp_sprintf("Line %d deleted.\r\n", start_line));
     else
         editor_emit(editor, tmp_sprintf("Lines %d-%d deleted.\r\n",
-                                start_line,
-                                finish_line));
+                start_line, finish_line));
 
-	return true;
+    return true;
 }
 
 bool
-editor_clear(struct editor *editor)
+editor_clear(struct editor * editor)
 {
-    g_list_foreach(editor->lines, (GFunc)g_string_free, GINT_TO_POINTER(true));
+    g_list_foreach(editor->lines, (GFunc) g_string_free,
+        GINT_TO_POINTER(true));
     g_list_free(editor->lines);
     editor->lines = NULL;
 
-	return true;
+    return true;
 }
 
 void
 editor_undo(struct editor *editor)
 {
-	if (editor->original) {
+    if (editor->original) {
         editor_clear(editor);
         GList *line;
 
-        for (line = editor->original;line;line = line->next) {
-            GString *new_line = g_string_new_len(((GString *)line->data)->str,
-                                                 ((GString *)line->data)->len);
+        for (line = editor->original; line; line = line->next) {
+            GString *new_line = g_string_new_len(((GString *) line->data)->str,
+                ((GString *) line->data)->len);
             editor->lines = g_list_prepend(editor->lines, new_line);
         }
 
         editor->lines = g_list_reverse(editor->lines);
 
         editor_emit(editor, "Original buffer restored.\r\n");
-	} else {
-		editor_emit(editor, "There's no original to undo to.\r\n");
+    } else {
+        editor_emit(editor, "There's no original to undo to.\r\n");
     }
 }
 
@@ -622,41 +620,42 @@ void
 editor_sendmodalhelp(struct editor *editor)
 {
     // default offers the clear buffer and undo changes options
-    send_to_desc(editor->desc, "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
+    send_to_desc(editor->desc,
+        "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
 }
 
 void
 editor_help(struct editor *editor, char *line)
 {
-	char command[MAX_INPUT_LENGTH];
+    char command[MAX_INPUT_LENGTH];
 
     acc_string_clear();
 
-	if (!*line) {
+    if (!*line) {
         send_to_desc(editor->desc,
-                     "     &C*&B-----------------------&Y H E L P &B-----------------------&C*\r\n"
-                     "            &YR - &nRefresh Screen       &YH - &nHelp         \r\n"
-                     "            &YE - &nSave and Exit        &YQ - &nQuit (Cancel)\r\n"
-                     "            &YL - &nReplace Line         &YD - &nDelete Line  \r\n"
-                     "            &YI - &nInsert Line          &YM - &nMove Line(s)\r\n"
-                     "            &YF - &nFind                 &YS - &nSubstitute\r\n");
+            "     &C*&B-----------------------&Y H E L P &B-----------------------&C*\r\n"
+            "            &YR - &nRefresh Screen       &YH - &nHelp         \r\n"
+            "            &YE - &nSave and Exit        &YQ - &nQuit (Cancel)\r\n"
+            "            &YL - &nReplace Line         &YD - &nDelete Line  \r\n"
+            "            &YI - &nInsert Line          &YM - &nMove Line(s)\r\n"
+            "            &YF - &nFind                 &YS - &nSubstitute\r\n");
         editor->sendmodalhelp(editor);
         send_to_desc(editor->desc,
-                     "     &C*&B-------------------------------------------------------&C*&n\r\n");
-	} else {
+            "     &C*&B-------------------------------------------------------&C*&n\r\n");
+    } else {
         struct help_item *help_item;
 
-		line = one_argument(line, command);
-		*command = tolower(*command);
+        line = one_argument(line, command);
+        *command = tolower(*command);
         help_item = help_collection_find_items(help,
-                                               tmp_sprintf("tedii-%c", *command),
-                                               false, 0, false);
+            tmp_sprintf("tedii-%c", *command), false, 0, false);
         if (help_item) {
             help_item_load_text(help_item);
             send_to_desc(editor->desc, "&cTEDII Command '%c'&n\r\n", *command);
             send_to_desc(editor->desc, "%s", help_item->text);
         } else {
-            send_to_desc(editor->desc, "Sorry.  There is no help on that.\r\n");
+            send_to_desc(editor->desc,
+                "Sorry.  There is no help on that.\r\n");
         }
     }
 }
@@ -689,7 +688,6 @@ parse_optional_range(const char *arg, int *start, int *finish)
 
         return true;
     }
-
     // Ensure single arg is numeric
     if (!isnumber(arg))
         return false;
@@ -700,110 +698,120 @@ parse_optional_range(const char *arg, int *start, int *finish)
 }
 
 bool
-editor_do_command(struct editor *editor, char cmd, char *args)
+editor_do_command(struct editor * editor, char cmd, char *args)
 {
-	int line, start_line, end_line, dest_line;
-	char command[MAX_INPUT_LENGTH];
+    int line, start_line, end_line, dest_line;
+    char command[MAX_INPUT_LENGTH];
 
-	switch (tolower(cmd)) {
-	case 'h':					// Help
-		editor_help(editor, args);
+    switch (tolower(cmd)) {
+    case 'h':                  // Help
+        editor_help(editor, args);
         break;
-	case 'e':					// Save and Exit
+    case 'e':                  // Save and Exit
         editor_finish(editor, true);
-		break;
-	case 'q':					// Quit without saving
+        break;
+    case 'q':                  // Quit without saving
         editor_finish(editor, false);
-		break;
-	case 's':					// Substitute
+        break;
+    case 's':                  // Substitute
         editor_substitute(editor, args);
-		break;
-    case 'f':                   // Find
+        break;
+    case 'f':                  // Find
         editor_find(editor, args);
         break;
-	case 'c':					// Clear Buffer
-		editor_clear(editor);
-		editor_emit(editor, "Cleared.\r\n");
-		break;
-	case 'l':					// Replace Line
-		args = one_argument(args, command);
-		if (!isdigit(*command)) {
-			editor_emit(editor, "Format for Replace Line is: &l <line #> <text>\r\n");
-			break;
-		}
-		line = atoi(command);
-		if (line < 1) {
-			editor_emit(editor, "Format for Replace Line is: &l <line #> <text>\r\n");
-			break;
-		}
-        editor_replace_line(editor, line, args);
-		break;
-	case 'i':					// Insert Line
-		args = one_argument(args, command);
-		if (!isdigit(*command)) {
-			editor_emit(editor, "Format for insert command is: &i <line #> <text>\r\n");
-			break;
-		}
-		line = atoi(command);
-		if (line < 1) {
-			editor_emit(editor, "Format for insert command is: &i <line #><text>\r\n");
-			break;
-		}
-        editor_insert(editor, line, args);
-		break;
-	case 'd':					// Delete Line
-		args = one_argument(args, command);
-        if (!parse_optional_range(command, &start_line, &end_line)) {
-			editor_emit(editor, "Format for delete command is: &d <line #>\r\n");
-			break;
-		}
-        editor_remove(editor, start_line, end_line);
-		break;
-    case 'm': {
-        char *arg;
-
-        arg = tmp_getword(&args);
-        if (!*arg) {
-            editor_emit(editor, "Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
-            break;
-        }
-
-        if (!parse_optional_range(arg, &start_line, &end_line)) {
-            editor_emit(editor, "Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
-            break;
-        }
-
-        arg = tmp_getword(&args);
-        if (!*arg || !isnumber(arg)) {
-            editor_emit(editor, "Format for move command is: &m (<start line>-<end line>|<line #>) <destination>\r\n");
-            break;
-        }
-        dest_line = atoi(arg);
-
-        if (dest_line >= start_line && dest_line <= end_line + 1) {
-            editor_emit(editor, "The line range you specified is already at the destination.\r\n");
-            break;
-        }
-
-        editor_movelines(editor, start_line, end_line, dest_line);
+    case 'c':                  // Clear Buffer
+        editor_clear(editor);
+        editor_emit(editor, "Cleared.\r\n");
         break;
-    }
-	case 'r':					// Refresh Screen
+    case 'l':                  // Replace Line
+        args = one_argument(args, command);
+        if (!isdigit(*command)) {
+            editor_emit(editor,
+                "Format for Replace Line is: &l <line #> <text>\r\n");
+            break;
+        }
+        line = atoi(command);
+        if (line < 1) {
+            editor_emit(editor,
+                "Format for Replace Line is: &l <line #> <text>\r\n");
+            break;
+        }
+        editor_replace_line(editor, line, args);
+        break;
+    case 'i':                  // Insert Line
+        args = one_argument(args, command);
+        if (!isdigit(*command)) {
+            editor_emit(editor,
+                "Format for insert command is: &i <line #> <text>\r\n");
+            break;
+        }
+        line = atoi(command);
+        if (line < 1) {
+            editor_emit(editor,
+                "Format for insert command is: &i <line #><text>\r\n");
+            break;
+        }
+        editor_insert(editor, line, args);
+        break;
+    case 'd':                  // Delete Line
+        args = one_argument(args, command);
+        if (!parse_optional_range(command, &start_line, &end_line)) {
+            editor_emit(editor,
+                "Format for delete command is: &d <line #>\r\n");
+            break;
+        }
+        editor_remove(editor, start_line, end_line);
+        break;
+    case 'm':{
+            char *arg;
+
+            arg = tmp_getword(&args);
+            if (!*arg) {
+                editor_emit(editor,
+                    "Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
+                break;
+            }
+
+            if (!parse_optional_range(arg, &start_line, &end_line)) {
+                editor_emit(editor,
+                    "Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
+                break;
+            }
+
+            arg = tmp_getword(&args);
+            if (!*arg || !isnumber(arg)) {
+                editor_emit(editor,
+                    "Format for move command is: &m (<start line>-<end line>|<line #>) <destination>\r\n");
+                break;
+            }
+            dest_line = atoi(arg);
+
+            if (dest_line >= start_line && dest_line <= end_line + 1) {
+                editor_emit(editor,
+                    "The line range you specified is already at the destination.\r\n");
+                break;
+            }
+
+            editor_movelines(editor, start_line, end_line, dest_line);
+            break;
+        }
+    case 'r':                  // Refresh Screen
         if (!*args) {
             editor_display(editor, 0, -1);
         } else if (isnumber(args) && (line = atoi(args)) > 0) {
             int line_count = editor->desc->account->term_height;
 
             editor_display(editor, MAX(1, line - line_count / 2), line_count);
-		} else {
-            editor_emit(editor, "Format for refresh command is: &r [<line #>]\r\nOmit line number to display the whole buffer.\r\n");
+        } else {
+            editor_emit(editor,
+                "Format for refresh command is: &r [<line #>]\r\nOmit line number to display the whole buffer.\r\n");
         }
-		break;
-	default:
-		return false;
-	}
+        break;
+    default:
+        return false;
+    }
 
-	return true;
+    return true;
 }
 
 struct editor *
@@ -825,18 +833,18 @@ make_editor(struct descriptor_data *d, int max)
 
 
 bool
-already_being_edited(struct creature *ch, char *buffer)
+already_being_edited(struct creature * ch, char *buffer)
 {
-	struct descriptor_data *d = NULL;
+    struct descriptor_data *d = NULL;
 
-	for (d = descriptor_list; d; d = d->next) {
-		if (d->text_editor
+    for (d = descriptor_list; d; d = d->next) {
+        if (d->text_editor
             && d->text_editor->is_editing
             && d->text_editor->is_editing(d->text_editor, buffer)) {
-			send_to_char(ch, "%s is already editing that buffer.\r\n",
-                         d->creature ? PERS(d->creature, ch) : "BOGUSMAN");
-			return true;
-		}
-	}
-	return false;
+            send_to_char(ch, "%s is already editing that buffer.\r\n",
+                d->creature ? PERS(d->creature, ch) : "BOGUSMAN");
+            return true;
+        }
+    }
+    return false;
 }

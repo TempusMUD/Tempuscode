@@ -9,21 +9,21 @@
 SPECIAL(morkoth)
 {
 
-	struct creature *morkoth = (struct creature *) me;
+    struct creature *morkoth = (struct creature *)me;
 
-	if (spec_mode != SPECIAL_CMD)
-		return 0;
-	if (!cmd || morkoth->in_room->number != GET_MOB_LAIR(morkoth))
-		return 0;
+    if (spec_mode != SPECIAL_CMD)
+        return 0;
+    if (!cmd || morkoth->in_room->number != GET_MOB_LAIR(morkoth))
+        return 0;
 
-	if (CMD_IS("down")) {
-		act("$n prevents you from going down the tunnel.",
-			false, morkoth, 0, ch, TO_VICT);
-		act("$n prevents $N from going down the tunnel.",
-			false, morkoth, 0, ch, TO_NOTVICT);
-		return 1;
-	}
+    if (CMD_IS("down")) {
+        act("$n prevents you from going down the tunnel.",
+            false, morkoth, 0, ch, TO_VICT);
+        act("$n prevents $N from going down the tunnel.",
+            false, morkoth, 0, ch, TO_NOTVICT);
+        return 1;
+    }
 
-	return 0;
+    return 0;
 
 }

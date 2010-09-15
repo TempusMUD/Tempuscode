@@ -15,25 +15,25 @@ char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact);
 
 SPECIAL(telescope)
 {
-	struct obj_data *scope = (struct obj_data *)me;
-	char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-	char *desc;
+    struct obj_data *scope = (struct obj_data *)me;
+    char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+    char *desc;
 
-	if (!CMD_IS("look") || !can_see_object(ch, scope) || !AWAKE(ch))
-		return 0;
+    if (!CMD_IS("look") || !can_see_object(ch, scope) || !AWAKE(ch))
+        return 0;
 
-	half_chop(argument, arg1, arg2);
+    half_chop(argument, arg1, arg2);
 
-	if (!*arg1 || !*arg2)
-		return 0;
+    if (!*arg1 || !*arg2)
+        return 0;
 
-	if (!isname(arg1, scope->aliases))
-		return 0;
+    if (!isname(arg1, scope->aliases))
+        return 0;
 
-	if ((desc = find_exdesc(arg2, scope->ex_description, false)) != NULL) {
-		page_string(ch->desc, desc);
-	} else
-		act("You cannot look at that with $p.", false, ch, scope, 0, TO_CHAR);
+    if ((desc = find_exdesc(arg2, scope->ex_description, false)) != NULL) {
+        page_string(ch->desc, desc);
+    } else
+        act("You cannot look at that with $p.", false, ch, scope, 0, TO_CHAR);
 
-	return 1;
+    return 1;
 }
