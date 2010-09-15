@@ -1583,7 +1583,7 @@ char_to_game(struct descriptor_data *d)
                         d->creature);
 
 	if(!load_room)
-		load_room = GET_LOADROOM(d->creature);
+		load_room = player_loadroom(d->creature);
 
 	char_to_room(d->creature, load_room, true);
 	load_room->zone->enter_count++;
