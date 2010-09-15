@@ -419,7 +419,7 @@ calculate_thaco(struct creature *ch, struct creature *victim,
     /* end if ( weap ) */
     if ((IS_EVIL(ch) && AFF_FLAGGED(victim, AFF_PROTECT_EVIL)) ||
         (IS_GOOD(ch) && AFF_FLAGGED(victim, AFF_PROTECT_GOOD)) ||
-        (IS_UNDEAD(ch) && AFF_FLAGGED(victim, AFF2_PROTECT_UNDEAD)))
+        (IS_UNDEAD(ch) && AFF2_FLAGGED(victim, AFF2_PROTECT_UNDEAD)))
         calc_thaco += 2;
 
     if (IS_CARRYING_N(ch) > (CAN_CARRY_N(ch) * 0.80))
