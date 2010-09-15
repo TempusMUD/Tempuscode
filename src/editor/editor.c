@@ -35,6 +35,16 @@
 extern struct descriptor_data *descriptor_list;
 extern struct help_collection *Help;
 
+int
+pin(int val, int min, int max)
+{
+    if (val < min)
+        return min;
+    if (val > max)
+        return max;
+    return val;
+}
+
 bool
 already_being_edited(struct creature *ch, char *buffer)
 {
@@ -521,40 +531,172 @@ editor_substitute(struct editor * editor, char *args)
 }
 
 bool
-editor_wrap(struct editor * editor)
+parse_optional_range(const char *arg, int *start, int *finish)
 {
-    GString *new_line;
-    GList *line;
-    char *s;
-    int linebreak;
+    const char *dash = strchr(arg, '-');
 
-    for (line = editor->lines; line; line = line->next) {
-        linebreak = 76;
+    if (dash) {
+        char *str;
 
-        // If its less than 77 chars, it don't need ta be wrapped.
-        if (((GString *) line->data)->len <= linebreak)
-            continue;
+        // Parse range
+        str = tmp_substr(arg, 0, dash - arg - 1);
+        if (!isnumber(str))
+            return false;
+        *start = atoi(str);
 
-        s = ((GString *) line->data)->str;
+        str = tmp_substr(arg, dash - arg + 1, -1);
+        if (!isnumber(str))
+            return false;
+        *finish = atoi(str);
 
-        // Find the first space <= 76th char.
-        for (s += linebreak - 1;
-            s != ((GString *) line->data)->str && !isspace(*s); s--)
-            linebreak--;
+        if (start > finish) {
+            int tmp = *finish;
 
-        if (linebreak == 1) {   // Linebreak is at 76
-            s = ((GString *) line->data)->str;
-            s += 75;
+            *finish = *start;
+            *start = tmp;
         }
 
-        new_line = g_string_new((linebreak > 1) ? s + 1 : s);
-        g_string_truncate(((GString *) line->data),
-            s - ((GString *) line->data)->str);
-        line = line->next;
-        editor->lines = g_list_insert_before(editor->lines, line, new_line);
-        line = editor->lines;
+        return true;
     }
+    // Ensure single arg is numeric
+    if (!isnumber(arg))
+        return false;
+
+    // Single number
+    *start = *finish = atoi(arg);
     return true;
+}
+
+bool
+editor_wrap(struct editor *editor, char *args)
+{
+    const char *usage = "Usage: &w [<start line #>][-<end line #>]\r\n";
+    GList *line_it, *start_line, *finish_line, *newText = NULL;
+	char *start, *end;
+    GString *line;
+    GString *newLine;
+    const char *space;
+    int start_lineno, end_lineno;
+
+    
+    start_line = editor->lines;
+    finish_line = editor->lines;
+
+    if (*args) {
+        if (!parse_optional_range(args, &start_lineno, &end_lineno)) {
+            editor_emit(editor, usage);
+            return false;
+        }
+        start_lineno = pin(start_lineno, 1, editor_line_count(editor));
+        end_lineno = pin(end_lineno, 1, editor_line_count(editor));
+    }
+
+	start_line = g_list_nth(editor->lines, start_lineno - 1);
+    finish_line = g_list_nth(editor->lines, end_lineno - 1);
+    
+    for (line_it = start_line;
+         line_it != finish_line;
+         line_it = line_it->next) {
+        line = line_it->data;
+        start = line->str;
+
+        // Blank lines just cause a paragraph separation
+        if (strcspn(line->str, " ") == 0) {
+            if (newLine->len == 0 && (strcspn(line->str, " ") > 0)) {
+                newText = g_list_prepend(newText, newLine);
+                newLine = g_string_new("");
+            }
+            g_string_assign(newLine, "   ");
+            newText = g_list_prepend(newText, g_string_new(""));
+            continue;
+        }
+
+        // Initial indentation signifies the beginning of a new
+        // paragraph, so we output any line we have left and start a
+        // new one.
+        if (isspace(line->str[0])) {
+            if (newLine->len != 0) {
+                newText = g_list_prepend(newText, newLine);
+                newLine = g_string_new("");
+            }
+            g_string_assign(newLine, "   ");
+            while (*start && isspace(*start))
+                ++start;
+            if (*start == '\0') {
+                // line full of whitespace, treat as blank
+                newText = g_list_prepend(newText, g_string_new(""));
+                continue;
+            }
+        }
+
+        // Copy word by word into the new line.  If the new line would
+        // wrap, plonk it onto the new buffer and empty it
+        end = start;
+        space = "";
+        while (*start) {
+            // Find end of word
+            while (*end && !isspace(*end))
+                ++end;
+
+            // If the line ends with sentence-ending punctuation, we need
+            // to add the right number of spaces afterwards
+            if (newLine->len == 0) {
+                space = "";
+            } else {
+                char lastChar = newLine->str[newLine->len - 1];
+                // Skip quotation mark, if one exists
+                if (strchr("'\"", lastChar) && newLine->len > 1)
+                    lastChar = newLine->str[newLine->len - 2];
+                if (lastChar == ' ')
+                    space = ""; // paragraph indent
+                else if (strchr(".?!", lastChar))
+                    space = "  "; // sentence end
+                else if (ispunct(lastChar) && !strchr("',;)]}", lastChar))
+                    space = ""; // certain punctation
+                else
+                    space = " ";
+            }
+
+            // Check to see if the new word would wrap
+            if (newLine->len + strlen(space) + (end - start) > 72) {
+                newText = g_list_prepend(newText, newLine);
+                newLine = g_string_new("");
+                space = "";
+            }
+            // Copy the space and word
+            g_string_append(newLine, space);
+            g_string_append_len(newLine, start, end - start);
+
+            // Find next word in old text
+            while (*end && isspace(*end))
+                ++end;
+            start = end;
+        }
+	}
+
+    if (newLine->len != 0) {
+        newText = g_list_prepend(newText, newLine);
+        newLine = g_string_new("");
+    }
+
+    newText = g_list_reverse(newText);
+
+    finish_line = finish_line->next;
+    while (start_line != finish_line) {
+        line_it = start_line->next;
+        g_string_free(start_line->data, true);
+        editor->lines = g_list_delete_link(editor->lines, start_line);
+        start_line = line_it;
+    }
+
+    for (GList *it = newText;it;it = it->next) {
+        editor->lines = g_list_insert_before(editor->lines,
+                                             start_line,
+                                             it->data);
+                                             
+    }
+
+	return true;
 }
 
 bool
@@ -667,43 +809,6 @@ editor_help(struct editor *editor, char *line)
 }
 
 bool
-parse_optional_range(const char *arg, int *start, int *finish)
-{
-    const char *dash = strchr(arg, '-');
-
-    if (dash) {
-        char *str;
-
-        // Parse range
-        str = tmp_substr(arg, 0, dash - arg - 1);
-        if (!isnumber(str))
-            return false;
-        *start = atoi(str);
-
-        str = tmp_substr(arg, dash - arg + 1, -1);
-        if (!isnumber(str))
-            return false;
-        *finish = atoi(str);
-
-        if (start > finish) {
-            int tmp = *finish;
-
-            *finish = *start;
-            *start = tmp;
-        }
-
-        return true;
-    }
-    // Ensure single arg is numeric
-    if (!isnumber(arg))
-        return false;
-
-    // Single number
-    *start = *finish = atoi(arg);
-    return true;
-}
-
-bool
 editor_do_command(struct editor * editor, char cmd, char *args)
 {
     int line, start_line, end_line, dest_line;
@@ -813,6 +918,8 @@ editor_do_command(struct editor * editor, char cmd, char *args)
                 "Format for refresh command is: &r [<line #>]\r\nOmit line number to display the whole buffer.\r\n");
         }
         break;
+    case 'w':
+        editor_wrap(editor, args);
     default:
         return false;
     }
