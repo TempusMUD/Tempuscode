@@ -124,7 +124,14 @@ bool authorized_to_edit_role(struct creature *ch, struct role *role);
 bool
 is_named_role_member(struct creature *ch, const char *role_name)
 {
-    struct role *role = role_by_name(role_name);
+    struct role *role;
+
+    if (IS_NPC(ch))
+        return false;
+    if (AFF_FLAGGED(ch, AFF_CHARM))
+        return false;
+
+    role = role_by_name(role_name);
     if (!role)
         return false;
     return is_role_member(role, GET_IDNUM(ch));
@@ -143,10 +150,6 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
 
     if (GET_LEVEL(ch) == LVL_GRIMP)
         return true;
-    if (IS_NPC(ch))
-        return false;
-    if (AFF_FLAGGED(ch, AFF_CHARM))
-        return false;
 
     switch (priv) {
     case CREATE_ROLE:
