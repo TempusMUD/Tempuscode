@@ -710,8 +710,7 @@ load_player_from_xml(int id)
     }
 
     /* to save memory, only PC's -- not MOB's -- have player_specials */
-	if (ch->player_specials == NULL)
-		CREATE(ch->player_specials, struct player_special_data, 1);
+    ch = make_creature(true);
 
     ch->player.name = (char *)xmlGetProp(root, (xmlChar *)"name");
     ch->char_specials.saved.idnum = xmlGetIntProp(root, "idnum", 0);
