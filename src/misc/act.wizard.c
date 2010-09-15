@@ -460,9 +460,7 @@ ACMD(do_goto)
 {
     struct room_data *location = NULL;
 
-    if PLR_FLAGGED
-        (ch, PLR_AFK)
-            REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
+    REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
 
     if ((location = find_target_room(ch, argument)) == NULL)
         return;

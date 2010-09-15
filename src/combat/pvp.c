@@ -328,7 +328,7 @@ ACMD(do_pardon)
     }
     // Do the imm pardon
     if (IS_IMMORT(ch) && is_authorized(ch, PARDON, pardoned)) {
-        if (!PLR_FLAGGED(pardoned, PLR_THIEF | PLR_KILLER)) {
+        if (!PLR_FLAGGED(pardoned, PLR_THIEF) && !PLR_FLAGGED(pardoned, PLR_KILLER)) {
             send_to_char(ch, "Your victim is not flagged.\r\n");
             return;
         }

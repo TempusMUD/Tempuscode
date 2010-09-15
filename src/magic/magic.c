@@ -1638,10 +1638,7 @@ mag_affects(int level,
         accum_duration = false;
         accum_affect = false;
 
-        if AFF_FLAGGED
-            (victim, AFF_CONFUSION) {
-            REMOVE_BIT(AFF_FLAGS(victim), AFF_CONFUSION);
-            }
+        REMOVE_BIT(AFF_FLAGS(victim), AFF_CONFUSION);
 
         to_vict = "Your mental faculties improve!";
         break;

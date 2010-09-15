@@ -118,7 +118,7 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
     struct obj_data *corpse;
 
     assert(ch != NULL);
-    
+
     if (attacktype != SKILL_GAROTTE)
         death_cry(ch);
 
@@ -204,8 +204,8 @@ die(struct creature *ch, struct creature *killer, int attacktype)
         gain_exp(ch, -loss);
     }
 
-    if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF) &&
-        GET_LEVEL(ch) < LVL_AMBASSADOR)
+    if ((PLR_FLAGGED(ch, PLR_KILLER) || PLR_FLAGGED(ch, PLR_THIEF))
+        && GET_LEVEL(ch) < LVL_AMBASSADOR)
         punish_killer_death(ch);
 
     if (!IS_NPC(ch) && ((!ch->in_room) || !is_arena_combat(killer, ch))) {

@@ -91,13 +91,12 @@ ACMD(do_sayto)
     char *name;
     int ignore;
 
-    if PLR_FLAGGED
-        (ch, PLR_AFK) {
+    if (PLR_FLAGGED(ch, PLR_AFK)) {
         send_to_char(ch, "You are no longer afk.\r\n");
         REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
         free(AFK_REASON(ch));
         AFK_REASON(ch) = NULL;
-        }
+    }
 
     if (!*argument) {
         send_to_char(ch, "Say what to who?\r\n");
@@ -193,13 +192,12 @@ ACMD(do_say)
     ACMD(do_action);
     const char *cmdstr = cmd_info[cmd].command;
 
-    if PLR_FLAGGED
-        (ch, PLR_AFK) {
+    if (PLR_FLAGGED(ch, PLR_AFK)) {
         send_to_char(ch, "You are no longer afk.\r\n");
         REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
         free(AFK_REASON(ch));
         AFK_REASON(ch) = NULL;
-        }
+    }
 
     skip_spaces(&argument);
 

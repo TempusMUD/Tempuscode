@@ -314,16 +314,30 @@ const char *AN(const char *str);
 #define IS_NPC(ch)  (IS_SET(NPC_FLAGS(ch), NPC_ISNPC))
 #define IS_PC(ch)   (!IS_NPC(ch))
 
-#define NPC_FLAGGED(ch, flag)   (IS_NPC(ch) && IS_SET(NPC_FLAGS(ch), (flag)))
-#define NPC2_FLAGGED(ch, flag)  (IS_NPC(ch) && IS_SET(NPC2_FLAGS(ch), (flag)))
-#define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && IS_SET(PLR_FLAGS(ch), (flag)))
-#define PLR2_FLAGGED(ch, flag)   (!IS_NPC(ch) && IS_SET(PLR2_FLAGS(ch), (flag)))
-#define AFF_FLAGGED(ch, flag)   (IS_SET(AFF_FLAGS(ch), (flag)))
-#define AFF2_FLAGGED(ch, flag)  (IS_SET(AFF2_FLAGS(ch), (flag)))
-#define AFF3_FLAGGED(ch, flag)  (IS_SET(AFF3_FLAGS(ch), (flag)))
+static inline bool NPC_FLAGGED(struct creature *ch, enum mob_flag flag) {
+    return IS_NPC(ch) && IS_SET(NPC_FLAGS(ch), flag);
+}
+static inline bool NPC2_FLAGGED(struct creature *ch, enum mob2_flag flag) {
+    return IS_NPC(ch) && IS_SET(NPC2_FLAGS(ch), flag);
+}
+static inline bool PLR_FLAGGED(struct creature *ch, enum plr_flag flag) {
+    return IS_PC(ch) && IS_SET(PLR2_FLAGS(ch), flag);
+}
+static inline bool PLR2_FLAGGED(struct creature *ch, enum plr2_flag flag) {
+    return IS_PC(ch) && IS_SET(PLR2_FLAGS(ch), flag);
+}
+static inline bool AFF_FLAGGED(struct creature *ch, enum affect_bit flag) {
+    return IS_SET(AFF_FLAGS(ch), flag);
+}
+static inline bool AFF2_FLAGGED(struct creature *ch, enum aff2_bit flag) {
+    return IS_SET(AFF2_FLAGS(ch), flag);
+}
+static inline bool AFF3_FLAGGED(struct creature *ch, enum aff3_bit flag) {
+    return IS_SET(AFF3_FLAGS(ch), flag);
+}
 
 static inline bool
-PRF_FLAGGED( struct creature *ch, int flag )
+PRF_FLAGGED( struct creature *ch, enum prf_flag flag)
 {
     if( IS_NPC(ch) ) {
         if(ch->desc && ch->desc->original) {
@@ -336,7 +350,7 @@ PRF_FLAGGED( struct creature *ch, int flag )
     }
 }
 static inline bool
-PRF2_FLAGGED( struct creature *ch, int flag )
+PRF2_FLAGGED( struct creature *ch, enum prf2_flag flag )
 {
     if( IS_NPC(ch) ) {
         if(ch->desc && ch->desc->original) {
