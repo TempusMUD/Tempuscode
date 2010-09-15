@@ -282,27 +282,23 @@ area_attack_advisable(struct creature *ch)
     return (pc_count > 1);
 }
 
-int find_two_attackers(struct creature *tch, gpointer ch)
-{
-    int attacker_count = 0;
-
-    if (g_list_find(tch->fighting, ch)) {
-        if (attacker_count)
-            return 0;
-        attacker_count++;
-    }
-    return -1;
-}
-
 bool
 group_attack_advisable(struct creature * ch)
 {
+    int attacker_count = 0;
+
     // Group attacks are advisable when more than one creature is
     // attacking
-
-    return (g_list_find_custom(ch->in_room->people,
-                               ch,
-                               (GCompareFunc) find_two_attackers) != NULL);
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+        if (!g_list_find(tch->fighting, ch))
+            continue;
+        if (attacker_count)
+            return true;
+        attacker_count++;
+    }
+    
+    return false;
 }
 
 // mob ai...

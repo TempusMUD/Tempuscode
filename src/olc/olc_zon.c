@@ -991,7 +991,7 @@ do_zone_cmdmove(struct creature *ch, struct zone_data *zone, char *argument)
         *savecmd2 = NULL;
     int i, num, where;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (is_number(arg1) && is_number(arg2)) {
         num = atoi(arg1);

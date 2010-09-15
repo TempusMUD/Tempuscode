@@ -1691,7 +1691,7 @@ match_houses(GList * houses, int mode, const char *arg)
         } else {
             id = player_account_by_name(arg);
         }
-        for (GList * i; i; i = i->next)
+        for (GList *i = houses; i; i = i->next)
             if (((struct house *)i->data)->owner_id == id)
                 result = g_list_prepend(result, i->data);
         break;
@@ -1701,7 +1701,7 @@ match_houses(GList * houses, int mode, const char *arg)
         } else {
             id = player_account_by_name(arg);
         }
-        for (GList * i; i; i = i->next)
+        for (GList *i = houses; i; i = i->next)
             if (((struct house *)i->data)->landlord == id)
                 result = g_list_prepend(result, i->data);
         break;
@@ -1711,7 +1711,7 @@ match_houses(GList * houses, int mode, const char *arg)
         } else {
             id = player_idnum_by_name(arg);
         }
-        for (GList * i; i; i = i->next)
+        for (GList *i = houses; i; i = i->next)
             if (is_house_guest(((struct house *)i->data), id))
                 result = g_list_prepend(result, i->data);
         break;
@@ -1719,8 +1719,8 @@ match_houses(GList * houses, int mode, const char *arg)
         raise(SIGSEGV);
     }
     return result;
-}
 
+}
 void
 display_houses(GList * houses, struct creature *ch)
 {

@@ -260,14 +260,16 @@ main(int argc, char **argv)
 
     if (optind == argc) {
         dir = getenv(DATADIR_ENV_VAR);
-        if (!dir) {
-            fprintf(stderr,
-                "%s: data directory must be specified by %s environment variable or on command line\n",
-                argv[0], DATADIR_ENV_VAR);
-            safe_exit(EXIT_FAILURE);
-        }
+        
     } else {
         dir = argv[optind];
+    }
+
+    if (!dir) {
+        fprintf(stderr,
+                "%s: data directory must be specified by %s environment variable or on command line\n",
+                argv[0], DATADIR_ENV_VAR);
+        safe_exit(EXIT_FAILURE);
     }
 
     dir = canonicalize_file_name(dir);
@@ -1016,7 +1018,6 @@ new_descriptor(int s)
     }
     /* create a new descriptor */
     CREATE(newd, struct descriptor_data, 1);
-    memset((char *)newd, 0, sizeof(struct descriptor_data));
 
     /* find the sitename */
 

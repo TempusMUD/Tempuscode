@@ -3322,7 +3322,7 @@ ACMD(do_who)
         false, mercenary = false;
     struct clan_data *real_clan = NULL;
     char *arg;
-    GList *immortals, *testers, *players;
+    GList *immortals = NULL, *testers = NULL, *players = NULL;
 
     for (arg = tmp_getword(&argument); arg; arg = tmp_getword(&argument)) {
         if (!strcmp(arg, "zone")) {
@@ -3711,7 +3711,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
     struct descriptor_data *d;
     int num = 0, found = 0;
     bool house_only, no_house, no_mob, no_object;
-    GList *required, *excluded;
+    GList *required = NULL, *excluded = NULL;
     char *arg1;
 
     house_only = no_house = no_mob = no_object = false;

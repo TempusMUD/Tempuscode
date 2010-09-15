@@ -629,7 +629,6 @@ index_boot(int mode)
         errlog("boot error - 0 records counted");
         safe_exit(1);
     }
-    rec_count++;
 
     switch (mode) {
     case DB_BOOT_WLD:
@@ -834,7 +833,7 @@ parse_room(FILE * fl, int vnum_nr)
     room->sounds = NULL;
 
     if (!get_line(fl, line)
-        || sscanf(line, " %d %s %d ", t, flags, t + 2) != 3) {
+        || sscanf(line, " %d %s %d ", t, flags, &t[2]) != 3) {
         fprintf(stderr, "Format error in room #%d\n", vnum_nr);
         safe_exit(1);
     }

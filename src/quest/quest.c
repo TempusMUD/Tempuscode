@@ -503,7 +503,7 @@ void
 list_quest_bans(struct creature *ch, struct quest *quest)
 {
     const char *name;
-    int num;
+    int num = 0;
 
     acc_string_clear();
     acc_strcat("  -Banned Players------------------------------------\r\n",

@@ -1557,7 +1557,9 @@ do_stat_character_kills(struct creature *ch, struct creature *k)
     } else {
         acc_string_clear();
         acc_sprintf("Recently killed by %s:\r\n", GET_NAME(k));
-        for (GList * kill_it; kill_it; kill_it = kill_it->next) {
+        for (GList *kill_it = GET_RECENT_KILLS(k);
+             kill_it;
+             kill_it = kill_it->next) {
             struct kill_record *kill = kill_it->data;
             struct creature *killed = real_mobile_proto(kill->vnum);
             acc_sprintf("%s%3d. %-30s %17d%s\r\n",
@@ -4327,7 +4329,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
     bool match, gt = false, lt = false;
     int found = 0, num, flags = 0, tmp_flag = 0;
     char *arg;
-    GList *str_list, *str_it, *mob_names;
+    GList *str_list = NULL, *str_it = NULL, *mob_names = NULL;
 
     arg = tmp_getword(&args);
 
@@ -5321,7 +5323,7 @@ ACMD(do_show)
         strcpy(buf, "STR      to_hit    to_dam    max_encum    max_weap\r\n");
         for (i = 0; i < 35; i++) {
             if (i > 25)
-                sprintf(buf2, "/%-2d", j = (i - 25) * 10);
+                sprintf(buf2, "/%-2d", (i - 25) * 10);
             else
                 strcpy(buf2, "");
             sprintf(buf,
@@ -6544,7 +6546,6 @@ ACMD(do_set)
         }
         strcpy(BADGE(vict), argument);
         // Convert to uppercase
-        arg1 = BADGE(vict);
         for (arg1 = BADGE(vict); *arg1; arg1++)
             *arg1 = toupper(*arg1);
         sprintf(buf, "You set %s's badge to %s", GET_NAME(vict), BADGE(vict));
@@ -6622,7 +6623,7 @@ ACMD(do_aset)
         {"\n", 0, BOTH, MISC, ""}
     };
     char *name, *field;
-    int i, l, value = 0;
+    int i, l = 0, value = 0;
     struct account *account;
     bool on = false, off = false;
 
@@ -6631,7 +6632,7 @@ ACMD(do_aset)
 
     if (!*name || !*field) {
         send_to_char(ch, "Usage: aset <victim> <field> <value>\r\n");
-        GList *cmdlist;
+        GList *cmdlist = NULL;
         for (i = 0; fields[i].level != 0; i++) {
             if (!is_authorized(ch, ASET, &fields[i]))
                 continue;
@@ -8648,8 +8649,7 @@ ACMD(do_badge)
     } else {
         strcpy(BADGE(ch), argument);
         // Convert to uppercase
-        char *cp = BADGE(ch);
-        for (cp = BADGE(ch); *cp; cp++)
+        for (char *cp = BADGE(ch); *cp; cp++)
             *cp = toupper(*cp);
         send_to_char(ch, "Okay, your badge is now %s.\r\n", BADGE(ch));
     }

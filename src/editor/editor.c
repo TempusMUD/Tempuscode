@@ -106,7 +106,7 @@ editor_send_prompt(struct editor *editor)
 int
 editor_buffer_size(struct editor *editor)
 {
-    int len;
+    int len = 0;
 
     for (GList *it = editor->lines;it;it = it->next) {
         GString *str = it->data;

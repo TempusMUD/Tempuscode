@@ -359,7 +359,7 @@ SPECIAL(hell_hunter_brain)
 
         GList *it;
         struct target *target;
-        for (GList * it = targets; it; it = it->next, i++) {
+        for (it = targets; it; it = it->next, i++) {
             target = it->data;
             if (target->o_vnum == GET_OBJ_VNUM(obj)
                 && IS_OBJ_STAT3(obj, ITEM3_HUNTED)) {

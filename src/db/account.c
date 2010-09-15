@@ -299,9 +299,11 @@ account_by_idnum(int id)
 {
     // First check to see if we already have it in memory
     struct account *acct = g_hash_table_lookup(account_cache,
-        GINT_TO_POINTER(id));
+                                               GINT_TO_POINTER(id));
+    if (acct)
+        return acct;
 
-    // Apprently, we don't, so look it up on the db
+    // Apparently, we don't, so look it up on the db
     CREATE(acct, struct account, 1);
     if (load_account(acct, id))
         return acct;
@@ -548,7 +550,6 @@ account_delete_char(struct account *account, struct creature *ch)
     struct clan_data *clan;
     int idx, count;
     PGresult *res;
-    struct account *acct;
 
     // Clear the owner of any clans this player might own in memory
     for (clan = clan_list; clan; clan = clan->next)
@@ -590,7 +591,7 @@ account_delete_char(struct account *account, struct creature *ch)
         GET_IDNUM(ch));
     count = PQntuples(res);
     for (idx = 0; idx < count; idx++) {
-        acct = account_by_idnum(atoi(PQgetvalue(res, idx, 0)));
+        struct account *acct = account_by_idnum(atoi(PQgetvalue(res, idx, 0)));
         if (acct)
             account_distrust(acct, GET_IDNUM(ch));
     }
@@ -605,7 +606,8 @@ account_delete_char(struct account *account, struct creature *ch)
         GET_IDNUM(ch));
 
     // Remove character from account
-    acct->chars = g_list_remove(acct->chars, GINT_TO_POINTER(GET_IDNUM(ch)));
+    account->chars = g_list_remove(account->chars,
+                                   GINT_TO_POINTER(GET_IDNUM(ch)));
     sql_exec("delete from players where idnum=%ld", GET_IDNUM(ch));
 
     // Remove character from game

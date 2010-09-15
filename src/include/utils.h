@@ -77,7 +77,7 @@ struct time_info_data mud_time_passed(time_t t2, time_t t1);
 extern struct zone_data *zone_table;
 extern struct creature *mob_proto;
 extern struct spell_info_type spell_info[];
-void safe_exit(int mode);
+__attribute__((noreturn)) void safe_exit(int mode);
 bool player_in_room(struct room_data *room);
 void check_bits_32(int bitv, int *newbits);
 

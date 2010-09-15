@@ -435,23 +435,22 @@ handle_input(struct descriptor_data *d)
 
             if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR
                 && GET_LEVEL(d->creature) < LVL_POWER) {
-                struct creature *tmp_ch;
-
                 for (int idx = 1; !invalid_char_index(d->account, idx); idx++) {
-                    tmp_ch =
-                        load_player_from_xml(get_char_by_index(d->account,
-                            idx));
-                    if (GET_LEVEL(tmp_ch) < LVL_POWER && GET_QUEST(tmp_ch)
-                        && GET_IDNUM(d->creature) != GET_IDNUM(tmp_ch)) {
-                        send_to_desc(d, "You can't log on an immortal "
-                            "while %s is in a quest.\r\n", GET_NAME(tmp_ch));
-                        free_creature(d->creature);
-                        d->creature = NULL;
+                    int idnum = get_char_by_index(d->account, idx);
+                    struct creature *tmp_ch = load_player_from_xml(idnum);
+                    
+                    if (tmp_ch) {
+                        if (GET_LEVEL(tmp_ch) < LVL_POWER && GET_QUEST(tmp_ch)
+                            && GET_IDNUM(d->creature) != GET_IDNUM(tmp_ch)) {
+                            send_to_desc(d, "You can't log on an immortal "
+                                     "while %s is in a quest.\r\n", GET_NAME(tmp_ch));
+                            free_creature(d->creature);
+                            d->creature = NULL;
+                            return;
+                        }
                         free_creature(tmp_ch);
-                        return;
                     }
                 }
-                free_creature(tmp_ch);
             }
 
             char_to_game(d);

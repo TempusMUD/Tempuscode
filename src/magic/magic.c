@@ -4354,7 +4354,7 @@ mag_exits(int level, struct creature *caster, struct room_data *room,
         break;
     default:
         send_to_char(caster, "Nope.\r\n");
-        break;
+        return 0;
     }
 
     rm_aff.description =
