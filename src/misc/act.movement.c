@@ -247,7 +247,7 @@ void
 get_giveaway(struct creature *ch, struct creature *vict)
 {
 
-    if (IS_NPC(ch) && GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
+    if (IS_NPC(ch) && GET_NPC_VNUM(ch) == UNHOLY_STALKER_VNUM) {
         send_to_char(vict,
             "You feel a cold chill as something evil passes nearby.\r\n");
         return;
@@ -726,8 +726,8 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         sprintf(buf, "$n staggers %s.", to_dirs[dir]);
     } else if (AFF_FLAGGED(ch, AFF_SNEAK)) {
         sprintf(buf, "$n sneaks off %sward.", dirs[dir]);
-    } else if (IS_NPC(ch) && MOB_SHARED(ch)->move_buf) {
-        sprintf(buf, "$n %s off %s.", MOB_SHARED(ch)->move_buf, to_dirs[dir]);
+    } else if (IS_NPC(ch) && NPC_SHARED(ch)->move_buf) {
+        sprintf(buf, "$n %s off %s.", NPC_SHARED(ch)->move_buf, to_dirs[dir]);
     } else if (IS_DRAGON(ch)) {
         sprintf(buf, "$n lumbers off %s.", to_dirs[dir]);
     } else if (IS_GIANT(ch)) {
@@ -735,9 +735,9 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
     } else if (IS_TABAXI(ch) && !number(0, 4)) {
         sprintf(buf, "$n slinks off %sward.", dirs[dir]);
     } else if (GET_CLASS(ch) == CLASS_SNAKE ||
-        (IS_NPC(ch) && GET_MOB_VNUM(ch) == 3066)) {
+        (IS_NPC(ch) && GET_NPC_VNUM(ch) == 3066)) {
         sprintf(buf, "$n slithers %s.", to_dirs[dir]);
-    } else if ((IS_NPC(ch) && GET_MOB_VNUM(ch) == 3068) ||
+    } else if ((IS_NPC(ch) && GET_NPC_VNUM(ch) == 3068) ||
         IS_LEMURE(ch) || IS_PUDDING(ch) || IS_SLIME(ch)) {
         sprintf(buf, "$n oozes %s.", to_dirs[dir]);
     } else if (IS_GHOST(ch)) {
@@ -967,9 +967,9 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         else
             sprintf(buf, "$n edges in from %s.", from_dirs[dir]);
         /* most racial defaults now */
-    } else if (IS_NPC(ch) && MOB_SHARED(ch)->move_buf) {
+    } else if (IS_NPC(ch) && NPC_SHARED(ch)->move_buf) {
         sprintf(buf, "$n %s in from %s.",
-            MOB_SHARED(ch)->move_buf, from_dirs[dir]);
+            NPC_SHARED(ch)->move_buf, from_dirs[dir]);
     } else if (IS_DRAGON(ch)) {
         sprintf(buf, "$n lumbers in from %s.", from_dirs[dir]);
     } else if (IS_GIANT(ch)) {
@@ -977,9 +977,9 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
     } else if (IS_TABAXI(ch) && !number(0, 4)) {
         sprintf(buf, "$n slinks in from %s.", from_dirs[dir]);
     } else if ((GET_CLASS(ch) == CLASS_SNAKE) ||
-        (IS_NPC(ch) && GET_MOB_VNUM(ch) == 3066)) {
+        (IS_NPC(ch) && GET_NPC_VNUM(ch) == 3066)) {
         sprintf(buf, "$n slithers in from %s.", from_dirs[dir]);
-    } else if ((IS_NPC(ch) && GET_MOB_VNUM(ch) == 3068) ||
+    } else if ((IS_NPC(ch) && GET_NPC_VNUM(ch) == 3068) ||
         IS_LEMURE(ch) || IS_PUDDING(ch) || IS_SLIME(ch)) {
         sprintf(buf, "$n oozes in from %s.", from_dirs[dir]);
     } else if (IS_GHOST(ch)) {
@@ -1689,7 +1689,7 @@ ok_pick(struct creature *ch, int keynum, int pickproof, int tech, int scmd)
             if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
                     !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
                 !IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_PICK_LOCK) {
-                if (PRF_FLAGGED(ch, PRF_NOHASSLE) || IS_MOB(ch))
+                if (PRF_FLAGGED(ch, PRF_NOHASSLE) || IS_NPC(ch))
                     mod = 15;
                 else {
                     send_to_char(ch,
@@ -2424,7 +2424,7 @@ ACMD(do_makemount)
         send_to_char(ch, "What do you wish to make a mount?\r\n");
         return;
     }
-    SET_BIT(MOB2_FLAGS(vict), MOB2_MOUNT);
+    SET_BIT(NPC2_FLAGS(vict), NPC2_MOUNT);
     send_to_char(ch, "%s is now a mount.\r\n", GET_NAME(vict));
     send_to_char(vict, "A saddle suddenly grows on your back.\r\n");
     return;
@@ -2457,7 +2457,7 @@ ACMD(do_mount)
         return;
     }
 
-    if (!(MOB2_FLAGGED(vict, MOB2_MOUNT))) {
+    if (!(NPC2_FLAGGED(vict, NPC2_MOUNT))) {
         act("You cannot mount $M.", false, ch, 0, vict, TO_CHAR);
         return;
     }

@@ -260,7 +260,7 @@ ASPELL(song_instant_audience)
         GET_HIT(member) = GET_MAX_HIT(member);
 
         char_to_room(member, ch->in_room, false);
-        SET_BIT(MOB_FLAGS(member), MOB_PET);
+        SET_BIT(NPC_FLAGS(member), NPC_PET);
 
         if (member->master)
             stop_follower(member);

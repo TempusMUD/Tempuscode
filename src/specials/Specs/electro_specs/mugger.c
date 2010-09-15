@@ -60,7 +60,7 @@ SPECIAL(mugger)
     if (spec_mode == SPECIAL_CMD)
         return 0;
 
-    if (self->fighting || MOB_HUNTING(self))
+    if (self->fighting || NPC_HUNTING(self))
         return 0;
 
     // We're not mugging anyone, so look for a new victim
@@ -72,7 +72,7 @@ SPECIAL(mugger)
                 continue;
             if (IS_NPC(vict)
                 && can_see_creature(ch, vict)
-                && cityguard == GET_MOB_SPEC(vict)) {
+                && cityguard == GET_NPC_SPEC(vict)) {
                 act("$n glances warily at $N", true, ch, 0, vict, TO_ROOM);
                 return 1;
             }
@@ -174,7 +174,7 @@ SPECIAL(mugger)
             return 1;
         }
 
-        if (MOB_HUNTING(self) != vict) {
+        if (NPC_HUNTING(self) != vict) {
             do_gen_comm(ch, tmp_sprintf("You're asking for it, %s!",
                     GET_NAME(vict)), 0, SCMD_SHOUT, 0);
             start_hunting(self, vict);

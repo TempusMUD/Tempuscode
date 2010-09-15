@@ -97,7 +97,7 @@ SPECIAL(thief);
 SPECIAL(cityguard);
 SPECIAL(hell_hunter);
 
-#define MOB_AGGR_TO_ALIGN (MOB_AGGR_EVIL | MOB_AGGR_NEUTRAL | MOB_AGGR_GOOD)
+#define NPC_AGGR_TO_ALIGN (NPC_AGGR_EVIL | NPC_AGGR_NEUTRAL | NPC_AGGR_GOOD)
 #define IS_RACIALLY_AGGRO(ch)                   \
     (GET_RACE(ch) == RACE_GOBLIN ||             \
      GET_RACE(ch) == RACE_ALIEN_1 ||            \
@@ -132,8 +132,8 @@ burn_update_creature(struct creature *ch)
             return;
     }
 
-    if (!ch->fighting && GET_MOB_WAIT(ch))
-        GET_MOB_WAIT(ch) = MAX(0, GET_MOB_WAIT(ch) - FIRE_TICK);
+    if (!ch->fighting && GET_NPC_WAIT(ch))
+        GET_NPC_WAIT(ch) = MAX(0, GET_NPC_WAIT(ch) - FIRE_TICK);
 
     if ((IS_NPC(ch) && ZONE_FLAGGED(ch->in_room->zone, ZONE_FROZEN)) ||
         AFF2_FLAGGED(ch, AFF2_PETRIFIED))
@@ -459,7 +459,7 @@ burn_update_creature(struct creature *ch)
     }
     // motor spasm
     if ((af = affected_by_spell(ch, SPELL_MOTOR_SPASM))
-        && !MOB_FLAGGED(ch, MOB_NOBASH) && GET_POSITION(ch) < POS_FLYING
+        && !NPC_FLAGGED(ch, NPC_NOBASH) && GET_POSITION(ch) < POS_FLYING
         && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         if ((random_number_zero_low(3 + (af->level >> 2)) + 3) >
             GET_DEX(ch) && (obj = ch->carrying)) {
@@ -724,14 +724,14 @@ burn_update_creature(struct creature *ch)
     //
 
     if (IS_NPC(ch) &&
-        GET_MOB_VNUM(ch) == ZOMBIE_VNUM && room_is_sunny(ch->in_room))
+        GET_NPC_VNUM(ch) == ZOMBIE_VNUM && room_is_sunny(ch->in_room))
         if (damage(ch, ch, dice(4, 5), TOP_SPELL_DEFINE, -1))
             return;
 
     /* Hunter Mobs */
-    if (MOB_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_BLIND) &&
-        GET_POSITION(ch) > POS_SITTING && !GET_MOB_WAIT(ch)) {
-        if (MOB_FLAGGED(ch, MOB_WIMPY)) {
+    if (NPC_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_BLIND) &&
+        GET_POSITION(ch) > POS_SITTING && !GET_NPC_WAIT(ch)) {
+        if (NPC_FLAGGED(ch, NPC_WIMPY)) {
             if ((GET_HIT(ch) < MIN(500, GET_MAX_HIT(ch)) * 0.80)
                 || (100 - ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch))) >
                 GET_MORALE(ch) + number(-5, 10 + (GET_INT(ch) >> 2))) {
@@ -761,14 +761,14 @@ helper_help_probability(struct creature *ch, struct creature *vict)
 
     int prob = GET_MORALE(ch);
 
-    if (!IS_MOB(ch) || !vict)
+    if (!IS_NPC(ch) || !vict)
         return 0;
 
     //
     // newbie bonus!
     //
 
-    if (!IS_MOB(vict) && GET_LEVEL(vict) < 6) {
+    if (!IS_NPC(vict) && GET_LEVEL(vict) < 6) {
         prob += GET_LEVEL(ch);
     }
     //
@@ -782,14 +782,14 @@ helper_help_probability(struct creature *ch, struct creature *vict)
     // bonus if vict is leader
     //
 
-    if (IS_MOB(vict) && GET_MOB_LEADER(ch) == GET_MOB_VNUM(vict)) {
+    if (IS_NPC(vict) && GET_NPC_LEADER(ch) == GET_NPC_VNUM(vict)) {
         prob += GET_LEVEL(vict) * 2;
     }
     //
     // bonus if vict is follower
     //
 
-    if (IS_MOB(vict) && GET_MOB_LEADER(vict) == GET_MOB_VNUM(ch)) {
+    if (IS_NPC(vict) && GET_NPC_LEADER(vict) == GET_NPC_VNUM(ch)) {
         prob += GET_LEVEL(vict);
     }
     //
@@ -824,9 +824,9 @@ helper_help_probability(struct creature *ch, struct creature *vict)
     // aggro align penalty
     //
 
-    if ((MOB_FLAGGED(ch, MOB_AGGR_EVIL) && IS_EVIL(vict)) ||
-        (MOB_FLAGGED(ch, MOB_AGGR_GOOD) && IS_GOOD(vict)) ||
-        (MOB_FLAGGED(ch, MOB_AGGR_NEUTRAL) && IS_NEUTRAL(vict))) {
+    if ((NPC_FLAGGED(ch, NPC_AGGR_EVIL) && IS_EVIL(vict)) ||
+        (NPC_FLAGGED(ch, NPC_AGGR_GOOD) && IS_GOOD(vict)) ||
+        (NPC_FLAGGED(ch, NPC_AGGR_NEUTRAL) && IS_NEUTRAL(vict))) {
         prob -= GET_LEVEL(vict);
     }
     //
@@ -854,42 +854,42 @@ helper_attack_probability(struct creature *ch, struct creature *vict)
 
     int prob = GET_MORALE(ch);
 
-    if (!IS_MOB(ch))
+    if (!IS_NPC(ch))
         return 0;
 
     //
     // don't attack newbies
     //
 
-    if (!IS_MOB(vict) && GET_LEVEL(vict) < 6)
+    if (!IS_NPC(vict) && GET_LEVEL(vict) < 6)
         return 0;
 
     //
     // don't attack other mobs unless flagged
     //
 
-    if (!MOB2_FLAGGED(ch, MOB2_ATK_MOBS) && IS_MOB(vict))
+    if (!NPC2_FLAGGED(ch, NPC2_ATK_MOBS) && IS_NPC(vict))
         return 0;
 
     //
     // don't attack same race if prohibited
     //
 
-    if (MOB2_FLAGGED(ch, MOB2_NOAGGRO_RACE) && GET_RACE(ch) == GET_RACE(vict))
+    if (NPC2_FLAGGED(ch, NPC2_NOAGGRO_RACE) && GET_RACE(ch) == GET_RACE(vict))
         return 0;
 
     //
     // don't attack your leader
     //
 
-    if (IS_MOB(vict) && GET_MOB_LEADER(ch) == GET_MOB_VNUM(vict))
+    if (IS_NPC(vict) && GET_NPC_LEADER(ch) == GET_NPC_VNUM(vict))
         return 0;
 
     //
     // don't attack your followers
     //
 
-    if (IS_MOB(vict) && GET_MOB_LEADER(vict) == GET_MOB_VNUM(ch))
+    if (IS_NPC(vict) && GET_NPC_LEADER(vict) == GET_NPC_VNUM(ch))
         return 0;
 
     //
@@ -910,16 +910,16 @@ helper_attack_probability(struct creature *ch, struct creature *vict)
     // aggro bonus
     //
 
-    if (MOB_FLAGGED(ch, MOB_AGGRESSIVE))
+    if (NPC_FLAGGED(ch, NPC_AGGRESSIVE))
         prob += GET_MORALE(ch) / 2;
 
     //
     // aggro align bonus
     //
 
-    if ((MOB_FLAGGED(ch, MOB_AGGR_EVIL) && IS_EVIL(vict)) ||
-        (MOB_FLAGGED(ch, MOB_AGGR_GOOD) && IS_GOOD(vict)) ||
-        (MOB_FLAGGED(ch, MOB_AGGR_NEUTRAL) && IS_NEUTRAL(vict))) {
+    if ((NPC_FLAGGED(ch, NPC_AGGR_EVIL) && IS_EVIL(vict)) ||
+        (NPC_FLAGGED(ch, NPC_AGGR_GOOD) && IS_GOOD(vict)) ||
+        (NPC_FLAGGED(ch, NPC_AGGR_NEUTRAL) && IS_NEUTRAL(vict))) {
         prob += GET_MORALE(ch) / 2;
     }
     //
@@ -1040,7 +1040,7 @@ mob_load_unit_gun(struct creature *ch, struct obj_data *clip,
         internal ? "internal " : "");
     strcat(loadbuf, fname(gun->aliases));
     do_load(ch, loadbuf, 0, SCMD_LOAD, 0);
-    if (GET_MOB_VNUM(ch) == 1516 && IS_CLIP(clip) && random_binary())
+    if (GET_NPC_VNUM(ch) == 1516 && IS_CLIP(clip) && random_binary())
         perform_say(ch, "say", "Let's Rock.");
     return;
 }
@@ -1193,7 +1193,7 @@ check_infiltrate(struct creature * ch, struct creature * vict)
         return false;
     }
 
-    if (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_SPIRIT_TRACKER) &&
+    if (IS_NPC(vict) && NPC_FLAGGED(vict, NPC_SPIRIT_TRACKER) &&
         char_in_memory(ch, vict))
         return false;
 
@@ -1241,7 +1241,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
             act("$n jumps to $s feet!", true, ch, 0, 0, TO_ROOM);
             GET_POSITION(ch) = POS_STANDING;
         }
-        GET_MOB_WAIT(ch) += PULSE_VIOLENCE;
+        GET_NPC_WAIT(ch) += PULSE_VIOLENCE;
         return;
     }
     // Act like the remort class 1/3rd of the time
@@ -1442,7 +1442,7 @@ CHAR_LIKES_ROOM(struct creature *ch, struct room_data *room)
     if (!can_travel_sector(ch, room->sector_type, 0))
         return false;
 
-    if (MOB2_FLAGGED(ch, MOB2_STAY_SECT) &&
+    if (NPC2_FLAGGED(ch, NPC2_STAY_SECT) &&
         ch->in_room->sector_type != room->sector_type)
         return false;
 
@@ -1464,7 +1464,7 @@ mobile_spec(void)
     for (GList * cit = creatures; cit; cit = cit->next) {
         ch = cit->data;
 
-        if (!(ch->char_specials.saved.act & MOB_ISNPC))
+        if (!(ch->char_specials.saved.act & NPC_ISNPC))
             continue;
 
         if (!ch) {
@@ -1485,13 +1485,13 @@ mobile_spec(void)
         //
         // Check for mob spec
         //
-        if (!no_specials && MOB_FLAGGED(ch, MOB_SPEC) &&
-            GET_MOB_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
+        if (!no_specials && NPC_FLAGGED(ch, NPC_SPEC) &&
+            GET_NPC_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
             if (ch->mob_specials.shared->func == NULL) {
                 zerrlog(ch->in_room->zone,
                     "SPEC bit set with no special: %s (#%d)",
-                    GET_NAME(ch), GET_MOB_VNUM(ch));
-                REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
+                    GET_NAME(ch), GET_NPC_VNUM(ch));
+                REMOVE_BIT(NPC_FLAGS(ch), NPC_SPEC);
             } else {
                 if ((ch->mob_specials.shared->func) (ch, ch, 0, tmp_strdup(""),
                         SPECIAL_TICK)) {
@@ -1533,7 +1533,7 @@ single_mobile_activity(struct creature *ch)
         return;
 
     // Utility mobs don't do anything
-    if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_UTILITY))
+    if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_UTILITY))
         return;
 
     // poison 2 tick
@@ -1600,9 +1600,9 @@ single_mobile_activity(struct creature *ch)
     // Check if we've gotten knocked down.
     //
 
-    if (IS_NPC(ch) && !MOB2_FLAGGED(ch, MOB2_MOUNT) &&
+    if (IS_NPC(ch) && !NPC2_FLAGGED(ch, NPC2_MOUNT) &&
         !AFF_FLAGGED(ch, AFF_SLEEP) &&
-        GET_MOB_WAIT(ch) < 30 &&
+        GET_NPC_WAIT(ch) < 30 &&
         !AFF_FLAGGED(ch, AFF_SLEEP) &&
         GET_POSITION(ch) >= POS_SLEEPING &&
         (GET_DEFAULT_POS(ch) <= POS_STANDING ||
@@ -1631,7 +1631,7 @@ single_mobile_activity(struct creature *ch)
     // nothing below this conditional affects characters who are asleep or in a wait state
     //
 
-    if (!AWAKE(ch) || GET_MOB_WAIT(ch) > 0 || CHECK_WAIT(ch))
+    if (!AWAKE(ch) || GET_NPC_WAIT(ch) > 0 || CHECK_WAIT(ch))
         return;
 
     //
@@ -1662,7 +1662,7 @@ single_mobile_activity(struct creature *ch)
     // nothing below this conditional affects PCs
     //
 
-    if (!IS_MOB(ch) || ch->desc)
+    if (!IS_NPC(ch) || ch->desc)
         return;
 
     // If players can't do anything while petrified, neither can mobs
@@ -1693,7 +1693,7 @@ single_mobile_activity(struct creature *ch)
 
     /** mobiles re-hiding **/
     if (!AFF_FLAGGED(ch, AFF_HIDE)
-        && AFF_FLAGGED(MOB_SHARED(ch)->proto, AFF_HIDE))
+        && AFF_FLAGGED(NPC_SHARED(ch)->proto, AFF_HIDE))
         SET_BIT(AFF_FLAGS(ch), AFF_HIDE);
 
     /** mobiles reloading guns **/
@@ -1774,7 +1774,7 @@ single_mobile_activity(struct creature *ch)
 
     /* Scavenger (picking up objects) */
 
-    if (MOB_FLAGGED(ch, MOB_SCAVENGER)) {
+    if (NPC_FLAGGED(ch, NPC_SCAVENGER)) {
         if (ch->in_room->contents && random_fractional_10()) {
             max = 1;
             best_obj = NULL;
@@ -1854,7 +1854,7 @@ single_mobile_activity(struct creature *ch)
     }
 
     /* Wearing Objects */
-    if (!MOB2_FLAGGED(ch, MOB2_WONT_WEAR) && !IS_ANIMAL(ch) &&
+    if (!NPC2_FLAGGED(ch, NPC2_WONT_WEAR) && !IS_ANIMAL(ch) &&
         !ch->fighting && !IS_DRAGON(ch) && !IS_ELEMENTAL(ch)) {
         if (ch->carrying && random_fractional_4()) {
             for (obj = ch->carrying; obj; obj = best_obj) {
@@ -1900,7 +1900,7 @@ single_mobile_activity(struct creature *ch)
                     }
                     if (!GET_EQ(ch, WEAR_WIELD)) {
                         do_wield(ch, fname(obj->aliases), 0, 0, 0);
-                        if (IS_GUN(obj) && GET_MOB_VNUM(ch) == 1516)
+                        if (IS_GUN(obj) && GET_NPC_VNUM(ch) == 1516)
                             perform_say(ch, "say", "Let's Rock.");
                     }
                 }
@@ -1918,7 +1918,7 @@ single_mobile_activity(struct creature *ch)
 
     /* Looter */
 
-    if (MOB2_FLAGGED(ch, MOB2_LOOTER)) {
+    if (NPC2_FLAGGED(ch, NPC2_LOOTER)) {
         struct obj_data *o = NULL;
         if (ch->in_room->contents && random_fractional_3()) {
             for (i = ch->in_room->contents; i; i = i->next_content) {
@@ -1961,7 +1961,7 @@ single_mobile_activity(struct creature *ch)
     }
 
     /* Helper Mobs */
-    if (MOB_FLAGGED(ch, MOB_HELPER) && random_binary()) {
+    if (NPC_FLAGGED(ch, NPC_HELPER) && random_binary()) {
         vict = NULL;
 
         if (AFF_FLAGGED(ch, AFF_CHARM))
@@ -2036,7 +2036,7 @@ single_mobile_activity(struct creature *ch)
         vict = NULL;
         for (GList * it = ch->in_room->people; it; it = it->next) {
             vict = it->data;
-            if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
+            if ((IS_NPC(vict) && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS))
                 || !can_see_creature(ch, vict)
                 || PRF_FLAGGED(vict, PRF_NOHASSLE)
                 || AFF2_FLAGGED(vict, AFF2_PETRIFIED))
@@ -2054,7 +2054,7 @@ single_mobile_activity(struct creature *ch)
                         / MAX(1, GET_MAX_HIT(vict)))) && AWAKE(vict))
                 continue;
             else if (RACIAL_ATTACK(ch, vict) &&
-                (!IS_NPC(vict) || MOB2_FLAGGED(ch, MOB2_ATK_MOBS))) {
+                (!IS_NPC(vict) || NPC2_FLAGGED(ch, NPC2_ATK_MOBS))) {
                 best_initial_attack(ch, vict);
                 return;
             }
@@ -2063,8 +2063,8 @@ single_mobile_activity(struct creature *ch)
 
     /* Aggressive Mobs */
 
-    if ((MOB_FLAGGED(ch, MOB_AGGRESSIVE)
-            || MOB_FLAGGED(ch, MOB_AGGR_TO_ALIGN)) &&
+    if ((NPC_FLAGGED(ch, NPC_AGGRESSIVE)
+            || NPC_FLAGGED(ch, NPC_AGGR_TO_ALIGN)) &&
         !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 
         for (GList * it = ch->in_room->people; it; it = it->next) {
@@ -2076,7 +2076,7 @@ single_mobile_activity(struct creature *ch)
             if (check_infiltrate(vict, ch))
                 continue;
 
-            if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
+            if ((IS_NPC(vict) && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS))
                 || !can_see_creature(ch, vict)
                 || PRF_FLAGGED(vict, PRF_NOHASSLE)
                 || AFF2_FLAGGED(vict, AFF2_PETRIFIED)) {
@@ -2094,15 +2094,15 @@ single_mobile_activity(struct creature *ch)
                 GET_INT(ch) + !random_fractional_20())
                 continue;
 
-            if (MOB2_FLAGGED(ch, MOB2_NOAGGRO_RACE) &&
+            if (NPC2_FLAGGED(ch, NPC2_NOAGGRO_RACE) &&
                 GET_RACE(ch) == GET_RACE(vict))
                 continue;
 
-            if (!MOB_FLAGGED(ch, MOB_AGGRESSIVE))
-                if ((IS_EVIL(vict) && !MOB_FLAGGED(ch, MOB_AGGR_EVIL)) ||
-                    (IS_GOOD(vict) && !MOB_FLAGGED(ch, MOB_AGGR_GOOD)) ||
+            if (!NPC_FLAGGED(ch, NPC_AGGRESSIVE))
+                if ((IS_EVIL(vict) && !NPC_FLAGGED(ch, NPC_AGGR_EVIL)) ||
+                    (IS_GOOD(vict) && !NPC_FLAGGED(ch, NPC_AGGR_GOOD)) ||
                     (IS_NEUTRAL(vict)
-                        && !MOB_FLAGGED(ch, MOB_AGGR_NEUTRAL)))
+                        && !NPC_FLAGGED(ch, NPC_AGGR_NEUTRAL)))
                     continue;
 
             if (IS_ANIMAL(ch) && affected_by_spell(vict, SPELL_ANIMAL_KIN))
@@ -2115,8 +2115,8 @@ single_mobile_activity(struct creature *ch)
         // end for vict
 
         /** scan surrounding rooms **/
-        if (!MOB_HUNTING(ch) && GET_POSITION(ch) > POS_FIGHTING &&
-            !MOB_FLAGGED(ch, MOB_SENTINEL) &&
+        if (!NPC_HUNTING(ch) && GET_POSITION(ch) > POS_FIGHTING &&
+            !NPC_FLAGGED(ch, NPC_SENTINEL) &&
             (GET_LEVEL(ch) + GET_MORALE(ch) >
                 (random_number_zero_low(120) + 50)
                 || IS_TARRASQUE(ch))) {
@@ -2148,17 +2148,17 @@ single_mobile_activity(struct creature *ch)
                             || AFF_FLAGGED(vict, AFF_GLOWLIGHT)
                             || AFF_FLAGGED(vict,
                                 AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION))
-                        && (MOB_FLAGGED(ch, MOB_AGGRESSIVE)
-                            || (MOB_FLAGGED(ch, MOB_AGGR_EVIL)
+                        && (NPC_FLAGGED(ch, NPC_AGGRESSIVE)
+                            || (NPC_FLAGGED(ch, NPC_AGGR_EVIL)
                                 && IS_EVIL(vict))
-                            || (MOB_FLAGGED(ch, MOB_AGGR_GOOD)
+                            || (NPC_FLAGGED(ch, NPC_AGGR_GOOD)
                                 && IS_GOOD(vict))
-                            || (MOB_FLAGGED(ch, MOB_AGGR_NEUTRAL)
+                            || (NPC_FLAGGED(ch, NPC_AGGR_NEUTRAL)
                                 && IS_NEUTRAL(vict)))
-                        && (!MOB2_FLAGGED(ch, MOB2_NOAGGRO_RACE)
+                        && (!NPC2_FLAGGED(ch, NPC2_NOAGGRO_RACE)
                             || GET_RACE(ch) != GET_RACE(vict))
                         && (!IS_NPC(vict)
-                            || MOB2_FLAGGED(ch, MOB2_ATK_MOBS))) {
+                            || NPC2_FLAGGED(ch, NPC2_ATK_MOBS))) {
                         found = true;
                         break;
                     }
@@ -2180,7 +2180,7 @@ single_mobile_activity(struct creature *ch)
 
     /* Mob Memory */
 
-    if (MOB_FLAGGED(ch, MOB_MEMORY) && MEMORY(ch) &&
+    if (NPC_FLAGGED(ch, NPC_MEMORY) && MEMORY(ch) &&
         !AFF_FLAGGED(ch, AFF_CHARM)) {
         for (GList * it = ch->in_room->people; it; it = it->next) {
             vict = it->data;
@@ -2188,7 +2188,7 @@ single_mobile_activity(struct creature *ch)
             if (check_infiltrate(vict, ch))
                 continue;
 
-            if ((IS_NPC(vict) && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS)) ||
+            if ((IS_NPC(vict) && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS)) ||
                 !can_see_creature(ch, vict) || PRF_FLAGGED(vict, PRF_NOHASSLE)
                 || ((af_ptr = affected_by_spell(vict, SKILL_DISGUISE))
                     && !CAN_DETECT_DISGUISE(ch, vict, af_ptr->duration)))
@@ -2220,11 +2220,11 @@ single_mobile_activity(struct creature *ch)
     }
 
     /* Mob Movement -- Lair */
-    if (GET_MOB_LAIR(ch) > 0 && ch->in_room->number != GET_MOB_LAIR(ch) &&
-        !MOB_HUNTING(ch) &&
-        (room = real_room(GET_MOB_LAIR(ch))) &&
+    if (GET_NPC_LAIR(ch) > 0 && ch->in_room->number != GET_NPC_LAIR(ch) &&
+        !NPC_HUNTING(ch) &&
+        (room = real_room(GET_NPC_LAIR(ch))) &&
         ((dir = find_first_step(ch->in_room, room, STD_TRACK)) >= 0) &&
-        MOB_CAN_GO(ch, dir) &&
+        NPC_CAN_GO(ch, dir) &&
         !ROOM_FLAGGED(ch->in_room->dir_option[dir]->to_room,
             ROOM_NOMOB | ROOM_DEATH)) {
         smart_mobile_move(ch, dir);
@@ -2232,7 +2232,7 @@ single_mobile_activity(struct creature *ch)
     }
     // mob movement -- follow the leader
 
-    if (GET_MOB_LEADER(ch) > 0 && ch->master &&
+    if (GET_NPC_LEADER(ch) > 0 && ch->master &&
         ch->in_room != ch->master->in_room) {
         if (smart_mobile_move(ch, find_first_step(ch->in_room,
                     ch->master->in_room, STD_TRACK)))
@@ -2240,8 +2240,8 @@ single_mobile_activity(struct creature *ch)
     }
 
     /* Mob Movement */
-    if (!MOB_FLAGGED(ch, MOB_SENTINEL)
-        && !((MOB_FLAGGED(ch, MOB_PET) || MOB2_FLAGGED(ch, MOB2_FAMILIAR))
+    if (!NPC_FLAGGED(ch, NPC_SENTINEL)
+        && !((NPC_FLAGGED(ch, NPC_PET) || NPC2_FLAGGED(ch, NPC2_FAMILIAR))
             && ch->master)
         && GET_POSITION(ch) >= POS_STANDING && !AFF2_FLAGGED(ch, AFF2_MOUNTED)) {
 
@@ -2253,17 +2253,17 @@ single_mobile_activity(struct creature *ch)
             door = random_number_zero_low(20);
 
         if ((door < NUM_OF_DIRS) &&
-            (MOB_CAN_GO(ch, door)) &&
+            (NPC_CAN_GO(ch, door)) &&
             (rev_dir[door] != ch->mob_specials.last_direction ||
                 count_room_exits(ch->in_room) < 2 || random_binary())
             && (EXIT(ch, door)->to_room != ch->in_room)
             && (!ROOM_FLAGGED(EXIT(ch, door)->to_room, ROOM_NOMOB | ROOM_DEATH)
                 && !IS_SET(EXIT(ch, door)->exit_info, EX_NOMOB))
             && (CHAR_LIKES_ROOM(ch, EXIT(ch, door)->to_room))
-            && (!MOB2_FLAGGED(ch, MOB2_STAY_SECT)
+            && (!NPC2_FLAGGED(ch, NPC2_STAY_SECT)
                 || (EXIT(ch, door)->to_room->sector_type ==
                     ch->in_room->sector_type))
-            && (!MOB_FLAGGED(ch, MOB_STAY_ZONE)
+            && (!NPC_FLAGGED(ch, NPC_STAY_ZONE)
                 || (EXIT(ch, door)->to_room->zone == ch->in_room->zone))
             && g_list_length(EXIT(ch, door)->to_room->people) < 10) {
             if (perform_move(ch, door, MOVE_NORM, 1))
@@ -2388,8 +2388,8 @@ single_mobile_activity(struct creature *ch)
     //
 
     if (GET_RACE(ch) == RACE_ELEMENTAL) {
-        if (((GET_MOB_VNUM(ch) >= 1280 && GET_MOB_VNUM(ch) <= 1283) ||
-                GET_MOB_VNUM(ch) == 5318) &&
+        if (((GET_NPC_VNUM(ch) >= 1280 && GET_NPC_VNUM(ch) <= 1283) ||
+                GET_NPC_VNUM(ch) == 5318) &&
             (!ch->master || ch->master->in_room->zone != ch->in_room->zone))
             k = 1;
         else
@@ -2445,8 +2445,8 @@ single_mobile_activity(struct creature *ch)
     // unholy stalker's job finished
     //
 
-    if (GET_MOB_VNUM(ch) == UNHOLY_STALKER_VNUM) {
-        if (!MOB_HUNTING(ch)) {
+    if (GET_NPC_VNUM(ch) == UNHOLY_STALKER_VNUM) {
+        if (!NPC_HUNTING(ch)) {
             act("$n dematerializes, removing the chill from the air.",
                 true, ch, 0, 0, TO_ROOM);
             creature_purge(ch, true);
@@ -2570,7 +2570,7 @@ detect_opponent_master(struct creature * ch, struct creature * opp)
         return false;
     if (ch->master == opp->master)
         return false;
-    if (GET_MOB_WAIT(ch) >= 10)
+    if (GET_NPC_WAIT(ch) >= 10)
         return false;
     if (!can_see_creature(ch, opp))
         return false;
@@ -3160,7 +3160,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         } else if (GET_LEVEL(ch) > 24 && random_fractional_4()) {
             do_feign(ch, tmp_strdup(""), 0, 0, 0);
             do_hide(ch, tmp_strdup(""), 0, 0, 0);
-            SET_BIT(MOB_FLAGS(ch), MOB_MEMORY);
+            SET_BIT(NPC_FLAGS(ch), NPC_MEMORY);
             remember(ch, vict);
             return 0;
         } else if (weap &&
@@ -3297,7 +3297,7 @@ remember(struct creature *ch, struct creature *victim)
     struct memory_rec *tmp;
     int present = false;
 
-    if (!IS_NPC(ch) || (!MOB2_FLAGGED(ch, MOB2_ATK_MOBS) && IS_NPC(victim)))
+    if (!IS_NPC(ch) || (!NPC2_FLAGGED(ch, NPC2_ATK_MOBS) && IS_NPC(victim)))
         return;
 
     for (tmp = MEMORY(ch); tmp && !present; tmp = tmp->next)
@@ -3371,7 +3371,7 @@ mob_fight_slaad(struct creature *ch, struct creature *precious_vict)
         if (!IS_PET(ch)) {
             if (!random_number_zero_low(3 * num)
                 && ch->mob_specials.shared->number > 1)
-                new_mob = read_mobile(GET_MOB_VNUM(ch));
+                new_mob = read_mobile(GET_NPC_VNUM(ch));
             else if (!random_number_zero_low(3 * num))  /* red saad */
                 new_mob = read_mobile(42000);
         }
@@ -3380,7 +3380,7 @@ mob_fight_slaad(struct creature *ch, struct creature *precious_vict)
         if (!IS_PET(ch)) {
             if (!random_number_zero_low(4 * num)
                 && ch->mob_specials.shared->number > 1)
-                new_mob = read_mobile(GET_MOB_VNUM(ch));
+                new_mob = read_mobile(GET_NPC_VNUM(ch));
             else if (!random_number_zero_low(3 * num))  /* blue slaad */
                 new_mob = read_mobile(42001);
             else if (!random_number_zero_low(2 * num))  /* red slaad */
@@ -3399,7 +3399,7 @@ mob_fight_slaad(struct creature *ch, struct creature *precious_vict)
         if (!IS_PET(ch)) {
             if (!random_number_zero_low(4 * num)
                 && ch->mob_specials.shared->number > 1)
-                new_mob = read_mobile(GET_MOB_VNUM(ch));
+                new_mob = read_mobile(GET_NPC_VNUM(ch));
             else if (!random_number_zero_low(4 * num))  /* green slaad */
                 new_mob = read_mobile(42002);
             else if (!random_number_zero_low(3 * num))  /* blue slaad */
@@ -3431,7 +3431,7 @@ mob_fight_slaad(struct creature *ch, struct creature *precious_vict)
         act("$n steps out of the portal with a crack of lightning!",
             false, new_mob, 0, 0, TO_ROOM);
         struct creature *target = random_opponent(ch);
-        if (target && IS_MOB(target))
+        if (target && IS_NPC(target))
             hit(new_mob, target, TYPE_UNDEFINED);
         return 0;
     }
@@ -3500,7 +3500,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
         return 0;
     }
     // hell hunters only gate IN hell, where they should not be anyway...
-    if (hell_hunter == GET_MOB_SPEC(ch) && PRIME_MATERIAL_ROOM(ch->in_room))
+    if (hell_hunter == GET_NPC_SPEC(ch) && PRIME_MATERIAL_ROOM(ch->in_room))
         return 0;
 
     // see how many devils are already in the room
@@ -3525,7 +3525,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
     case CLASS_LESSER:
         if (random_number_zero_low(1) > num) {
             if (ch->mob_specials.shared->number > 1 && random_binary())
-                new_mob = read_mobile(GET_MOB_VNUM(ch));
+                new_mob = read_mobile(GET_NPC_VNUM(ch));
             else if (random_fractional_3()) // nupperibo-spined
                 new_mob = read_mobile(16111);
             else {              // Abishais
@@ -3545,9 +3545,9 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
     case CLASS_GREATER:
         if (random_number_zero_low(2) > num) {
             if (ch->mob_specials.shared->number > 1 && random_binary())
-                new_mob = read_mobile(GET_MOB_VNUM(ch));
-            else if (GET_MOB_VNUM(ch) == 16118 ||   // Pit Fiends
-                GET_MOB_VNUM(ch) == 15252) {
+                new_mob = read_mobile(GET_NPC_VNUM(ch));
+            else if (GET_NPC_VNUM(ch) == 16118 ||   // Pit Fiends
+                GET_NPC_VNUM(ch) == 15252) {
                 if (random_binary())
                     new_mob = read_mobile(16112);   // Barbed
                 else
@@ -3578,7 +3578,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
             }
 
         } else if (random_number_zero_low(4) > num) {
-            if (GET_MOB_VNUM(ch) == 16142) {    // Sekolah
+            if (GET_NPC_VNUM(ch) == 16142) {    // Sekolah
                 if (random_number_zero_low(12) > num) {
                     new_mob = read_mobile(16165);   // DEVIL FISH
                 }
@@ -3594,7 +3594,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
     }
     if (new_mob) {
         if (IS_PET(ch))
-            SET_BIT(MOB_FLAGS(new_mob), MOB_PET);
+            SET_BIT(NPC_FLAGS(new_mob), NPC_PET);
         WAIT_STATE(ch, 5 RL_SEC);
         GET_MOVE(ch) -= 100;
         char_to_room(new_mob, ch->in_room, false);
@@ -3602,7 +3602,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
         act("$n gestures, a glowing portal appears with a whine!",
             false, ch, 0, 0, TO_ROOM);
 
-        if (GET_MOB_VNUM(ch) == 16142) {    // SEKOLAH
+        if (GET_NPC_VNUM(ch) == 16142) {    // SEKOLAH
             act("$n swims out from the submerged portal in a jet of bubbles.",
                 false, new_mob, 0, 0, TO_ROOM);
         } else {
@@ -3610,7 +3610,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
                 false, new_mob, 0, 0, TO_ROOM);
         }
         struct creature *target = random_opponent(ch);
-        if (target && IS_MOB(target))
+        if (target && IS_NPC(target))
             return (hit(new_mob, target, TYPE_UNDEFINED) & DAM_VICT_KILLED);
         return 0;
     }
@@ -3736,7 +3736,7 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
     }
     if (new_mob) {
         if (IS_PET(ch))
-            SET_BIT(MOB_FLAGS(new_mob), MOB_PET);
+            SET_BIT(NPC_FLAGS(new_mob), NPC_PET);
         WAIT_STATE(ch, 5 RL_SEC);
         GET_MOVE(ch) -= 100;
         char_to_room(new_mob, ch->in_room, false);
@@ -3746,7 +3746,7 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
         act("$n steps out of the portal with a flash of white light!",
             false, new_mob, 0, 0, TO_ROOM);
         struct creature *target = random_opponent(ch);
-        if (target && IS_MOB(target))
+        if (target && IS_NPC(target))
             return (hit(new_mob, target, TYPE_UNDEFINED) & DAM_VICT_KILLED);
         return 0;
     }
@@ -3875,7 +3875,7 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
     }
     if (new_mob) {
         if (IS_PET(ch))
-            SET_BIT(MOB_FLAGS(new_mob), MOB_PET);
+            SET_BIT(NPC_FLAGS(new_mob), NPC_PET);
         WAIT_STATE(ch, 5 RL_SEC);
         GET_MOVE(ch) -= 100;
         char_to_room(new_mob, ch->in_room, false);
@@ -3885,7 +3885,7 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
         act("$n steps out of the portal with a flash of blue light!",
             false, new_mob, 0, 0, TO_ROOM);
         struct creature *target = random_opponent(ch);
-        if (target && IS_MOB(target))
+        if (target && IS_NPC(target))
             return (hit(new_mob, target, TYPE_UNDEFINED) & DAM_VICT_KILLED);
         return 0;
     }
@@ -3958,7 +3958,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
         return 0;
     }
     // Mobs with specials set shouldn't port either
-    if (GET_MOB_SPEC(ch)) {
+    if (GET_NPC_SPEC(ch)) {
         return 0;
     }
     // 100 move flat rate to gate, removed when the gating actually occurs
@@ -4062,7 +4062,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
         break;
     case CLASS_DEMON_LORD:
     case CLASS_SLAAD_LORD:
-        if (GET_MOB_VNUM(ch) == 42819) {    // Pigeon God
+        if (GET_NPC_VNUM(ch) == 42819) {    // Pigeon God
             if (random_number_zero_low(4) > num) {
                 if (random_binary()) {
                     new_mob = read_mobile(42875);   // grey pigeion
@@ -4098,7 +4098,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
     }
     if (new_mob) {
         if (IS_PET(ch))
-            SET_BIT(MOB_FLAGS(new_mob), MOB_PET);
+            SET_BIT(NPC_FLAGS(new_mob), NPC_PET);
         WAIT_STATE(ch, 5 RL_SEC);
         GET_MOVE(ch) -= 100;
         char_to_room(new_mob, ch->in_room, false);
@@ -4106,7 +4106,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
         act("$n gestures, a glowing yellow portal appears with a hum!",
             false, ch, 0, 0, TO_ROOM);
 
-        if (GET_MOB_VNUM(ch) == 42819) {    // Pigeon god!
+        if (GET_NPC_VNUM(ch) == 42819) {    // Pigeon god!
             act("$n flies out of the portal with a clap of thunder!",
                 false, new_mob, 0, 0, TO_ROOM);
         } else {
@@ -4114,7 +4114,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
                 false, new_mob, 0, 0, TO_ROOM);
         }
         struct creature *target = random_opponent(ch);
-        if (target && IS_MOB(target))
+        if (target && IS_NPC(target))
             return (hit(new_mob, target, TYPE_UNDEFINED) & DAM_VICT_KILLED);
         return 0;
     }

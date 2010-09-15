@@ -147,7 +147,7 @@ check_sight_object(struct creature * self, struct obj_data * obj)
     if (PRF_FLAGGED(self, PRF_HOLYLIGHT))
         return true;
 
-    if (!OBJ_APPROVED(obj) && !MOB2_FLAGGED(self, MOB2_UNAPPROVED) &&
+    if (!OBJ_APPROVED(obj) && !NPC2_FLAGGED(self, NPC2_UNAPPROVED) &&
         !IS_IMMORT(self) && !is_authorized(self, TESTER, NULL))
         return false;
 
@@ -181,8 +181,8 @@ check_sight_vict(struct creature * self, struct creature * vict)
         return false;
 
     // Mortals can't see unapproved mobs
-    if (!MOB2_FLAGGED(self, MOB2_UNAPPROVED) &&
-        MOB2_FLAGGED(vict, MOB2_UNAPPROVED) &&
+    if (!NPC2_FLAGGED(self, NPC2_UNAPPROVED) &&
+        NPC2_FLAGGED(vict, NPC2_UNAPPROVED) &&
         !IS_IMMORT(self) && !is_authorized(self, TESTER, NULL))
         return false;
 
@@ -231,7 +231,7 @@ can_see_creature(struct creature * self, struct creature * vict)
         return true;
 
     //only immortals can see utility mobs
-    if (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_UTILITY) && !IS_IMMORT(self)) {
+    if (IS_NPC(vict) && NPC_FLAGGED(vict, NPC_UTILITY) && !IS_IMMORT(self)) {
         return false;
     }
     // Nothing at all gets through immort invis

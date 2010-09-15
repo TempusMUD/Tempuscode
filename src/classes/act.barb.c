@@ -93,7 +93,7 @@ select_berserk_victim(struct creature *tch, struct creature *ch)
         || PRF_FLAGGED(tch, PRF_NOHASSLE)
         || (IS_NPC(ch)
             && IS_NPC(tch)
-            && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
+            && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS))
         || !can_see_creature(ch, tch)
         || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
         return -1;
@@ -267,7 +267,7 @@ select_cleave_victim(struct creature *tch, struct creature *ch)
         || PRF_FLAGGED(tch, PRF_NOHASSLE)
         || (IS_NPC(ch)
             && IS_NPC(tch)
-            && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
+            && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS))
         || !can_see_creature(ch, tch))
         return -1;
 

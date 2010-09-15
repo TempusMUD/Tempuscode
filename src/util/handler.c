@@ -864,7 +864,7 @@ update_trail(struct creature *ch, struct room_data *room, int dir, int mode)
         return;
 
     for (trail = room->trail; trail; trail = trail->next) {
-        if (IS_NPC(ch) && (trail->idnum == (int)-MOB_IDNUM(ch)))
+        if (IS_NPC(ch) && (trail->idnum == (int)-NPC_IDNUM(ch)))
             break;
         if (!IS_NPC(ch) && (trail->idnum == GET_IDNUM(ch)))
             break;
@@ -880,7 +880,7 @@ update_trail(struct creature *ch, struct room_data *room, int dir, int mode)
 
         trail->name = strdup(tmp_capitalize(GET_NAME(ch)));
         if (IS_NPC(ch)) {
-            trail->idnum = -MOB_IDNUM(ch);
+            trail->idnum = -NPC_IDNUM(ch);
             trail->aliases = strdup(ch->player.name);
         } else {
             trail->idnum = GET_IDNUM(ch);
@@ -2426,14 +2426,14 @@ is_weird(struct creature *ch, struct obj_data *obj, struct creature *vict)
             return 1;
         if (!OBJ_APPROVED(obj)
             && !is_authorized(ch, TESTER, NULL)
-            && !MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
+            && !NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
             return 1;
     }
 
     if (vict && IS_NPC(vict)) {
-        if (MOB2_FLAGGED(vict, MOB2_UNAPPROVED)
+        if (NPC2_FLAGGED(vict, NPC2_UNAPPROVED)
             && !is_authorized(ch, TESTER, NULL)
-            && !MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
+            && !NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
             return 1;
     }
 

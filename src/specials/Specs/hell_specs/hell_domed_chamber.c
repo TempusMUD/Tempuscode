@@ -1,6 +1,6 @@
 
 #define DOMED_CHAMBER_TIME 7200 // 7200 secs == 2 hours
-#define DOMED_CHAMBER_MOB_VNUM 17199
+#define DOMED_CHAMBER_NPC_VNUM 17199
 
 SPECIAL(hell_domed_chamber)
 {

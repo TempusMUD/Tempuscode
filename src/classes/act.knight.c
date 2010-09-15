@@ -96,7 +96,7 @@ holytouch_after_effect(long owner, struct creature *vict, int level)
 
     if (damage(vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH, WEAR_EYES))
         return 1;
-    if (!IS_NPC(vict) || !MOB_FLAGGED(vict, MOB_NOBLIND)) {
+    if (!IS_NPC(vict) || !NPC_FLAGGED(vict, NPC_NOBLIND)) {
         struct affected_type af;
 
         af.next = NULL;

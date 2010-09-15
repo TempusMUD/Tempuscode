@@ -253,7 +253,7 @@ call_magic(struct creature *caster, struct creature *cvict,
 
     for (GList * it = caster->in_room->people; it; it = it->next) {
         struct creature *tch = (struct creature *)it->data;
-        if (GET_MOB_PROGOBJ(tch) != NULL) {
+        if (GET_NPC_PROGOBJ(tch) != NULL) {
             if (trigger_prog_spell(tch, PROG_TYPE_MOBILE, caster, spellnum)) {
                 return 0;
             }
@@ -1136,7 +1136,7 @@ cast_spell(struct creature *ch, struct creature *tch,
             break;
         case POS_FIGHTING:
             send_to_char(ch, "Impossible!  You can't concentrate enough!\r\n");
-            if (IS_MOB(ch)) {
+            if (IS_NPC(ch)) {
                 errlog("%s tried to cast spell %d in battle.",
                     GET_NAME(ch), spellnum);
             }
@@ -1211,7 +1211,7 @@ cast_spell(struct creature *ch, struct creature *tch,
     else
         say_spell(ch, spellnum, tch, tobj);
 
-    if (!IS_MOB(ch) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
+    if (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
         GET_LEVEL(ch) < LVL_GOD && !mini_mud &&
         (!tch || GET_LEVEL(tch) < LVL_AMBASSADOR) && (ch != tch)) {
         slog("ImmCast: %s called %s on %s.", GET_NAME(ch),

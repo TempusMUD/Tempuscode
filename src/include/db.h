@@ -37,7 +37,7 @@
 #define MINDEX_FILE	"index.mini"	/* ... and for mini-mud-mode   */
 #define TINDEX_FILE	"index.test"	/* ... and for test-mud-mode   */
 #define WLD_PREFIX	"world/wld"	/* room definitions        */
-#define MOB_PREFIX	"world/mob"	/* monster prototypes      */
+#define NPC_PREFIX	"world/mob"	/* monster prototypes      */
 #define OBJ_PREFIX	"world/obj"	/* object prototypes       */
 #define ZON_PREFIX	"world/zon"	/* zon defs & command tables   */
 #define XML_PREFIX  "world/xml"

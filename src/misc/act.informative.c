@@ -756,7 +756,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
     if (AFF2_FLAGGED(i, AFF2_MOUNTED))
         return "";
 
-    if (!IS_NPC(ch) && MOB2_FLAGGED(i, MOB2_UNAPPROVED) &&
+    if (!IS_NPC(ch) && NPC2_FLAGGED(i, NPC2_UNAPPROVED) &&
         !(PRF_FLAGGED(ch, PRF_HOLYLIGHT) || is_tester(ch)))
         return "";
 
@@ -870,17 +870,17 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
 
-    if (MOB_FLAGGED(i, MOB_UTILITY))
+    if (NPC_FLAGGED(i, NPC_UTILITY))
         appr = tmp_sprintf(" %s<util>", CCCYN(ch, C_NRM));
     // If they can see it, they probably need to know it's unapproved
-    if (MOB2_FLAGGED(i, MOB2_UNAPPROVED))
+    if (NPC2_FLAGGED(i, NPC2_UNAPPROVED))
         appr = tmp_sprintf(" %s(!appr)", CCRED(ch, C_NRM));
 
     if ((IS_NPC(i) && (GET_LEVEL(ch) >= LVL_IMMORT || is_tester(ch))) &&
         PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)) {
         vnum = tmp_sprintf(" %s%s<%s%d%s>%s",
             CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-            GET_MOB_VNUM(i), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+            GET_NPC_VNUM(i), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
 
     desc = tmp_strcat(CCYEL(ch, C_NRM), (is_group) ? CCBLD(ch, C_CMP) : "",
@@ -935,7 +935,7 @@ list_char_to_char(GList * list, struct creature *ch)
 
         // skip those you can't see for in-game reasons
         if (!can_see_creature(ch, i)) {
-            if (!IS_IMMORT(i) && !(IS_NPC(i) && MOB_FLAGGED(i, MOB_UTILITY)))
+            if (!IS_IMMORT(i) && !(IS_NPC(i) && NPC_FLAGGED(i, NPC_UTILITY)))
                 unseen++;
             continue;
         }
@@ -1904,7 +1904,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
                         perform_say_to(found_char, ch, response);
                     }
 
-                    if (MOB_FLAGGED(found_char, MOB_AGGRESSIVE) &&
+                    if (NPC_FLAGGED(found_char, NPC_AGGRESSIVE) &&
                         (GET_MORALE(found_char) >
                             number(GET_LEVEL(ch) >> 1, GET_LEVEL(ch))) &&
                         !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
@@ -3788,7 +3788,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
                 if (can_see_creature(ch, i)
                     && i->in_room
                     && creature_matches_terms(required, excluded, i)
-                    && (GET_MOB_SPEC(i) != fate
+                    && (GET_NPC_SPEC(i) != fate
                         || GET_LEVEL(ch) >= LVL_SPIRIT)) {
                     found = 1;
                     acc_sprintf

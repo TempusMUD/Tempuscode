@@ -60,7 +60,7 @@ gint
 shop_keeper_matches(gpointer vnum, struct craft_shop *shop,
                     struct creature *keeper)
 {
-    return (shop->keeper_vnum == GET_MOB_VNUM(keeper)
+    return (shop->keeper_vnum == GET_NPC_VNUM(keeper)
             && shop->room == keeper->in_room->number) ? 0 : -1;
 }
     

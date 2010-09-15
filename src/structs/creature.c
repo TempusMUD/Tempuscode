@@ -40,7 +40,7 @@ make_creature(bool pc)
         ch->player_specials->desc_mode = CXN_UNKNOWN;
     } else {
         ch->player_specials = &dummy_mob;
-        SET_BIT(MOB_FLAGS(ch), MOB_ISNPC);
+        SET_BIT(NPC_FLAGS(ch), NPC_ISNPC);
     }
 
     return ch;
@@ -99,9 +99,9 @@ reset_creature(struct creature *ch)
     // free mob strings:
     // free strings only if the string is not pointing at proto
     //
-    if (ch->mob_specials.shared && GET_MOB_VNUM(ch) > -1) {
+    if (ch->mob_specials.shared && GET_NPC_VNUM(ch) > -1) {
 
-        tmp_mob = real_mobile_proto(GET_MOB_VNUM(ch));
+        tmp_mob = real_mobile_proto(GET_NPC_VNUM(ch));
 
         if (ch->player.name != tmp_mob->player.name)
             free(ch->player.name);
@@ -167,7 +167,7 @@ reset_creature(struct creature *ch)
         set_title(ch, "");
     } else {
         ch->player_specials = &dummy_mob;
-        SET_BIT(MOB_FLAGS(ch), MOB_ISNPC);
+        SET_BIT(NPC_FLAGS(ch), NPC_ISNPC);
         GET_TITLE(ch) = NULL;
     }
 }
@@ -287,7 +287,7 @@ int
 getSpeed(struct creature *ch)
 {
     // if(IS_NPC(ch))
-    if (ch->char_specials.saved.act & MOB_ISNPC)
+    if (ch->char_specials.saved.act & NPC_ISNPC)
         return 0;
     return (int)ch->player_specials->saved.speed;
 }
@@ -295,7 +295,7 @@ getSpeed(struct creature *ch)
 void
 setSpeed(struct creature *ch, int speed)
 {
-    if (ch->char_specials.saved.act & MOB_ISNPC)
+    if (ch->char_specials.saved.act & NPC_ISNPC)
         return;
     speed = MAX(speed, 0);
     speed = MIN(speed, 100);
@@ -305,7 +305,7 @@ setSpeed(struct creature *ch, int speed)
 bool
 is_newbie(struct creature *ch)
 {
-    if (ch->char_specials.saved.act & MOB_ISNPC)
+    if (ch->char_specials.saved.act & NPC_ISNPC)
         return false;
     if ((ch->char_specials.saved.remort_generation) > 0)
         return false;
@@ -416,7 +416,7 @@ damage_reduction(struct creature *ch, struct creature *attacker)
             for (GList * it = ch->in_room->people; it; it = it->next) {
                 struct creature *tch = it->data;
                 if (IS_NPC(tch)
-                    && af->modifier == (short int)-MOB_IDNUM(tch)) {
+                    && af->modifier == (short int)-NPC_IDNUM(tch)) {
                     dam_reduction +=
                         (skill_bonus(tch, SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
                         + (GET_ALIGNMENT(ch) / 100);
@@ -453,7 +453,7 @@ damage_reduction(struct creature *ch, struct creature *attacker)
             for (GList * it = ch->in_room->people; it; it = it->next) {
                 struct creature *tch = it->data;
                 if (IS_NPC(tch)
-                    && af->modifier == (short int)-MOB_IDNUM(tch)) {
+                    && af->modifier == (short int)-NPC_IDNUM(tch)) {
                     dam_reduction +=
                         5 + (((1000 - abs(GET_ALIGNMENT(tch))) / 100) +
                         (skill_bonus(tch, SONG_ARIA_OF_ASYLUM) / 10));
@@ -718,7 +718,7 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
                     GET_POSITION(tch) = POS_STANDING;
             }
         }
-        if (ch == MOB_HUNTING(tch))
+        if (ch == NPC_HUNTING(tch))
             stop_hunting(tch);
     }
 
@@ -777,7 +777,7 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
     // pull the char from the various lists
     creatures = g_list_remove(creatures, ch);
     if (IS_NPC(ch))
-        g_hash_table_remove(creature_map, GINT_TO_POINTER(-MOB_IDNUM(ch)));
+        g_hash_table_remove(creature_map, GINT_TO_POINTER(-NPC_IDNUM(ch)));
     else
         g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(ch)));
 
@@ -785,7 +785,7 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
     path_remove_object(ch);
 
     if (IS_NPC(ch)) {
-        if (GET_MOB_VNUM(ch) > -1)  // if mobile
+        if (GET_NPC_VNUM(ch) > -1)  // if mobile
             ch->mob_specials.shared->number--;
         clear_memory(ch);       // Only NPC's can have memory
         free_creature(ch);

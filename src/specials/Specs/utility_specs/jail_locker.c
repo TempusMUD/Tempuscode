@@ -19,7 +19,7 @@ SPECIAL(jail_locker)
     if (!CMD_IS("receive") && !CMD_IS("offer"))
         return 0;
 
-    str = GET_MOB_PARAM(self);
+    str = GET_NPC_PARAM(self);
     if (str) {
         for (line = tmp_getline(&str); line; line = tmp_getline(&str)) {
             param_key = tmp_getword(&line);
@@ -29,14 +29,14 @@ SPECIAL(jail_locker)
     }
 
     if (jail_num == 0) {
-        slog("Jailer #%d didn't have his jail set", GET_MOB_VNUM(self));
+        slog("Jailer #%d didn't have his jail set", GET_NPC_VNUM(self));
         perform_say(self, "say", "I can't seem to find my files...");
         return 0;
     }
     jail_room = real_room(jail_num);
     if (!jail_room) {
         slog("Jailer #%d couldn't find jail room #%d",
-            GET_MOB_VNUM(self), jail_num);
+            GET_NPC_VNUM(self), jail_num);
         perform_say(self, "say", "I can't seem to find my files...");
         return 0;
     }

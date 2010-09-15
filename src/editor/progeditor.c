@@ -38,8 +38,8 @@ progeditor_finalize(struct editor *editor, const char *text)
 
     switch (prog_data->owner_type) {
     case PROG_TYPE_MOBILE:
-        if (GET_MOB_PROG((struct creature *)prog_data->owner))
-            free(GET_MOB_PROG((struct creature *)prog_data->owner));
+        if (GET_NPC_PROG((struct creature *)prog_data->owner))
+            free(GET_NPC_PROG((struct creature *)prog_data->owner));
         ((struct creature *)prog_data->owner)->mob_specials.shared->prog =
             new_prog;
         break;

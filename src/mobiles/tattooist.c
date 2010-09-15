@@ -197,7 +197,7 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self,
     // Load all-new item
     obj = read_object(GET_OBJ_VNUM(obj));
     obj->creation_method = 5;
-    obj->creator = GET_MOB_VNUM(self);
+    obj->creator = GET_NPC_VNUM(self);
     equip_char(ch, obj, pos, EQUIP_TATTOO);
 
     WAIT_STATE(ch, 5 RL_SEC);
@@ -282,7 +282,7 @@ SPECIAL(tattooist)
     int err_line;
     struct shop_data *shop;
 
-    config = GET_MOB_PARAM(self);
+    config = GET_NPC_PARAM(self);
     if (!config)
         return 0;
 
@@ -323,7 +323,7 @@ SPECIAL(tattooist)
             else {
                 mudlog(LVL_IMMORT, NRM, true,
                     "ERR: Mobile %d has %s in line %d of specparam",
-                    GET_MOB_VNUM(self), err, err_line);
+                    GET_NPC_VNUM(self), err, err_line);
                 perform_say_to(self, ch,
                     "Sorry.  I'm broken, but a god has already been notified.");
             }

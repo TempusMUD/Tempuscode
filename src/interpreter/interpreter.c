@@ -2359,9 +2359,9 @@ special(struct creature *ch, int cmd, int subcmd, char *arg,
         return 1;
 
     // Special in self?  (for activating special abilities in switched mobs)
-    if (IS_NPC(ch) && MOB_FLAGGED(ch, MOB_SPEC) && GET_MOB_SPEC(ch)) {
-        specAddress = (long)GET_MOB_SPEC(ch);
-        if (GET_MOB_SPEC(ch) (ch, ch, cmd, arg, spec_mode))
+    if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_SPEC) && GET_NPC_SPEC(ch)) {
+        specAddress = (long)GET_NPC_SPEC(ch);
+        if (GET_NPC_SPEC(ch) (ch, ch, cmd, arg, spec_mode))
             return specAddress;
     }
 
@@ -2407,13 +2407,13 @@ special(struct creature *ch, int cmd, int subcmd, char *arg,
     for (GList * it = theRoom->people; it; it = it->next) {
         struct creature *mob = (struct creature *)it->data;
 
-        if (GET_MOB_SPEC(mob) != NULL) {
-            specAddress = (long)GET_MOB_SPEC(mob);
-            if (GET_MOB_SPEC(mob) (ch, mob, cmd, arg, spec_mode)) {
+        if (GET_NPC_SPEC(mob) != NULL) {
+            specAddress = (long)GET_NPC_SPEC(mob);
+            if (GET_NPC_SPEC(mob) (ch, mob, cmd, arg, spec_mode)) {
                 return specAddress;
             }
         }
-        if (GET_MOB_PROGOBJ(mob) != NULL) {
+        if (GET_NPC_PROGOBJ(mob) != NULL) {
             if (spec_mode == SPECIAL_CMD
                 && (!mob->master || IS_NPC(mob->master)
                     || (mob->master->in_room != mob->in_room))

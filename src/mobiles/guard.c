@@ -28,13 +28,13 @@ SPECIAL(guard)
 
     // we only handle ticks if we're fighting, and commands only if they're
     // movement commands
-    if (!GET_MOB_PARAM(self)
+    if (!GET_NPC_PARAM(self)
         || (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
         || (spec_mode == SPECIAL_TICK && !self->fighting)
         || (spec_mode == SPECIAL_CMD && !IS_MOVE(cmd)))
         return 0;
 
-    str = GET_MOB_PARAM(self);
+    str = GET_NPC_PARAM(self);
     for (line = tmp_getline(&str), lineno = 1; line;
         line = tmp_getline(&str), lineno++) {
 
@@ -107,7 +107,7 @@ SPECIAL(guard)
             else {
                 mudlog(LVL_IMMORT, NRM, true,
                     "ERR: Mobile %d has %s in line %d of specparam",
-                    GET_MOB_VNUM(self), err, lineno);
+                    GET_NPC_VNUM(self), err, lineno);
                 perform_say_to(self, ch,
                     "Sorry.  I'm broken, but a god has already been notified.");
             }

@@ -66,7 +66,7 @@ member_of_staff(struct creature *chChar)
     if (!IS_NPC(chChar))
         return (false);
 
-    ch_num = GET_MOB_VNUM(chChar);
+    ch_num = GET_NPC_VNUM(chChar);
     return (ch_num == CASTLE_ITEM(1) ||
         (ch_num > CASTLE_ITEM(2) && ch_num < CASTLE_ITEM(15)) ||
         (ch_num > CASTLE_ITEM(15) && ch_num < CASTLE_ITEM(18)) ||
@@ -84,7 +84,7 @@ member_of_royal_guard(struct creature *chChar)
     if (!chChar || !IS_NPC(chChar))
         return false;
 
-    ch_num = GET_MOB_VNUM(chChar);
+    ch_num = GET_NPC_VNUM(chChar);
     return (ch_num == CASTLE_ITEM(3) ||
         ch_num == CASTLE_ITEM(6) ||
         (ch_num > CASTLE_ITEM(7) && ch_num < CASTLE_ITEM(12)) ||

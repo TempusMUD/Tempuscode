@@ -49,7 +49,7 @@ ACMD(do_steal)
         return;
     }
     if (GET_LEVEL(ch) < LVL_IMMORT && IS_NPC(vict)
-        && MOB2_FLAGGED(vict, MOB2_SELLER)) {
+        && NPC2_FLAGGED(vict, NPC2_SELLER)) {
         send_to_char(ch, "That's probably a bad idea.\r\n");
         return;
     }
@@ -67,14 +67,14 @@ ACMD(do_steal)
         return;
     }
 
-    if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
+    if (!IS_NPC(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
         send_to_char(ch, "You cannot steal from linkless players!!!\r\n");
         mudlog(GET_LEVEL(ch), CMP, true,
             "%s attempted to steal from linkless %s.", GET_NAME(ch),
             GET_NAME(vict));
         return;
     }
-    if (!IS_MOB(vict) && is_newbie(ch)) {
+    if (!IS_NPC(vict) && is_newbie(ch)) {
         send_to_char(ch, "You can't steal from players. You're a newbie!\r\n");
         return;
     }
@@ -536,7 +536,7 @@ ACMD(do_disguise)
     af.type = SKILL_DISGUISE;
     af.is_instant = 0;
     af.duration = GET_LEVEL(ch) + GET_REMORT_GEN(ch) + GET_INT(ch);
-    af.modifier = GET_MOB_VNUM(vict);
+    af.modifier = GET_NPC_VNUM(vict);
     af.location = APPLY_DISGUISE;
     af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
     af.bitvector = 0;

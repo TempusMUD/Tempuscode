@@ -430,7 +430,7 @@ stop_follower(struct creature *ch)
     if (!ch->master)
         raise(SIGSEGV);
 
-    if (AFF_FLAGGED(ch, AFF_CHARM) && !MOB2_FLAGGED(ch, MOB2_MOUNT)) {
+    if (AFF_FLAGGED(ch, AFF_CHARM) && !NPC2_FLAGGED(ch, NPC2_MOUNT)) {
         act("You realize that $N is a jerk!", false, ch, 0, ch->master,
             TO_CHAR);
         act("$n realizes that $N is a jerk!", false, ch, 0, ch->master,
@@ -680,7 +680,7 @@ WAIT_STATE(struct creature *ch, int cycle)
     }
 
     else if (IS_NPC(ch)) {
-        GET_MOB_WAIT(ch) = MAX(GET_MOB_WAIT(ch), wait);
+        GET_NPC_WAIT(ch) = MAX(GET_NPC_WAIT(ch), wait);
     }
 }
 

@@ -220,7 +220,7 @@ mag_savingthrow(struct creature *ch, int level, int type)
             save += 5 + (GET_LEVEL(ch) / 2);
         if (IS_DROW(ch))
             save -= (GET_LEVEL(ch) / 2);
-        if (IS_NPC(ch) && GET_MOB_VNUM(ch) == 7100) // morkoth magic resistance
+        if (IS_NPC(ch) && GET_NPC_VNUM(ch) == 7100) // morkoth magic resistance
             save -= GET_LEVEL(ch);
         break;
     case SAVING_CHEM:
@@ -388,7 +388,7 @@ affect_update(void)
                         || af->type == SPELL_TIDAL_SPACEWARP) {
                         send_to_char(i,
                             "You feel your ability to fly fading.\r\n");
-                        if (IS_MOB(i)) {
+                        if (IS_NPC(i)) {
                             if (IS_MAGE(i) && GET_LEVEL(i) > 32
                                 && GET_MANA(i) > 50)
                                 found =
@@ -917,7 +917,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
     if (spellnum == SPELL_PSYCHIC_SURGE) {
         if (!affected_by_spell(victim, SPELL_PSYCHIC_SURGE) &&
             !mag_savingthrow(victim, level, SAVING_PSI) &&
-            (!IS_NPC(victim) || !MOB2_FLAGGED(victim, MOB2_NOSTUN)) &&
+            (!IS_NPC(victim) || !NPC2_FLAGGED(victim, NPC2_NOSTUN)) &&
             GET_POSITION(victim) > POS_STUNNED) {
             struct affected_type af;
 
@@ -1147,7 +1147,7 @@ mag_affects(int level,
             to_vict = "You feel a dark power enter your soul.";
         break;
     case SPELL_BLINDNESS:
-        if (MOB_FLAGGED(victim, MOB_NOBLIND)) {
+        if (NPC_FLAGGED(victim, NPC_NOBLIND)) {
             send_to_char(ch, "You fail.\r\n");
             return;
         }
@@ -1176,7 +1176,7 @@ mag_affects(int level,
         af.duration = 1;
         af.modifier = -1;
         af.bitvector = 0;
-        if (MOB2_FLAGGED(victim, MOB2_NOSTUN)) {
+        if (NPC2_FLAGGED(victim, NPC2_NOSTUN)) {
             send_to_char(ch, "You fail the stun.\r\n");
             hit(victim, ch, TYPE_UNDEFINED);
             return;
@@ -1609,7 +1609,7 @@ mag_affects(int level,
     case SPELL_SLEEP:
     case SPELL_MELATONIC_FLOOD:
 
-        if (MOB_FLAGGED(victim, MOB_NOSLEEP) || IS_UNDEAD(victim))
+        if (NPC_FLAGGED(victim, NPC_NOSLEEP) || IS_UNDEAD(victim))
             return;
 
         af.duration = 4 + level / 10;
@@ -2202,7 +2202,7 @@ mag_affects(int level,
             return;
         af.duration = level / 4;
         af.location = APPLY_CASTER;
-        af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -MOB_IDNUM(ch);
+        af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -NPC_IDNUM(ch);
         af2.duration = af.duration;
         af2.location = APPLY_AC;
         af2.modifier = -10;
@@ -2322,13 +2322,13 @@ mag_affects(int level,
     case SPELL_VAMPIRIC_REGENERATION:
         af.duration = (3 + skill_bonus(ch, SPELL_VAMPIRIC_REGENERATION) / 25);
         af.location = APPLY_CASTER;
-        af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -MOB_IDNUM(ch);
+        af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -NPC_IDNUM(ch);
         to_vict = "You feel a vampiric link formed between you and $N!";
         break;
     case SPELL_LOCUST_REGENERATION:
         af.duration = 3 + (skill_bonus(ch, SPELL_LOCUST_REGENERATION) / 25);
         af.location = APPLY_CASTER;
-        af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -MOB_IDNUM(ch);
+        af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -NPC_IDNUM(ch);
         to_vict = "You shriek in terror as $N drains your energy!";
         break;
     case SPELL_ENTROPY_FIELD:
@@ -3260,16 +3260,16 @@ static const char *mag_summon_fail_msgs[] = {
     "There is no corpse!\r\n"
 };
 
-#define MOB_MONSUM_I        130
-#define MOB_MONSUM_II        140
-#define MOB_MONSUM_III        150
-#define MOB_GATE_I        160
-#define MOB_GATE_II        170
-#define MOB_GATE_III        180
-#define MOB_ELEMENTAL_BASE    110
-#define MOB_CLONE        69
-#define MOB_ZOMBIE        101
-#define MOB_AERIALSERVANT    109
+#define NPC_MONSUM_I        130
+#define NPC_MONSUM_II        140
+#define NPC_MONSUM_III        150
+#define NPC_GATE_I        160
+#define NPC_GATE_II        170
+#define NPC_GATE_III        180
+#define NPC_ELEMENTAL_BASE    110
+#define NPC_CLONE        69
+#define NPC_ZOMBIE        101
+#define NPC_AERIALSERVANT    109
 
 void
 mag_summons(int level __attribute__ ((unused)),
@@ -3296,7 +3296,7 @@ mag_summons(int level __attribute__ ((unused)),
             return;
         }
         handle_corpse = 1;
-        mob_num = MOB_ZOMBIE;
+        mob_num = NPC_ZOMBIE;
         a = number(0, 5);
         if (a)
             mob_num++;

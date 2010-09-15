@@ -258,11 +258,11 @@ const char *AN(const char *str);
                             || zone->plane == PLANE_PELEM_OOZE )
 
 /*  character utils ******************************************************/
-#define MOB_HUNTING(ch) ((ch)->char_specials.hunting)
+#define NPC_HUNTING(ch) ((ch)->char_specials.hunting)
 #define MOUNTED_BY(ch) ((ch)->char_specials.mounted)
 #define DEFENDING(ch) ((ch)->char_specials.defending)
-#define MOB_FLAGS(ch)  ((ch)->char_specials.saved.act)
-#define MOB2_FLAGS(ch) ((ch)->char_specials.saved.act2)
+#define NPC_FLAGS(ch)  ((ch)->char_specials.saved.act)
+#define NPC2_FLAGS(ch) ((ch)->char_specials.saved.act2)
 #define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
 #define PLR2_FLAGS(ch) ((ch)->player_specials->saved.plr2_bits)
 
@@ -311,12 +311,11 @@ const char *AN(const char *str);
 #define GET_ROWS(ch)    ((ch)->player_specials->saved.page_length)
 #define GET_COLS(ch)    ((ch)->player_specials->saved.columns)
 
-#define IS_NPC(ch)  (IS_SET(MOB_FLAGS(ch), MOB_ISNPC))
-#define IS_MOB(ch)  (IS_NPC(ch))
+#define IS_NPC(ch)  (IS_SET(NPC_FLAGS(ch), NPC_ISNPC))
 #define IS_PC(ch)   (!IS_NPC(ch))
 
-#define MOB_FLAGGED(ch, flag)   (IS_NPC(ch) && IS_SET(MOB_FLAGS(ch), (flag)))
-#define MOB2_FLAGGED(ch, flag)  (IS_NPC(ch) && IS_SET(MOB2_FLAGS(ch), (flag)))
+#define NPC_FLAGGED(ch, flag)   (IS_NPC(ch) && IS_SET(NPC_FLAGS(ch), (flag)))
+#define NPC2_FLAGGED(ch, flag)  (IS_NPC(ch) && IS_SET(NPC2_FLAGS(ch), (flag)))
 #define PLR_FLAGGED(ch, flag)   (!IS_NPC(ch) && IS_SET(PLR_FLAGS(ch), (flag)))
 #define PLR2_FLAGGED(ch, flag)   (!IS_NPC(ch) && IS_SET(PLR2_FLAGS(ch), (flag)))
 #define AFF_FLAGGED(ch, flag)   (IS_SET(AFF_FLAGS(ch), (flag)))
@@ -355,10 +354,10 @@ PRF2_FLAGGED( struct creature *ch, int flag )
 #define WIS_APP(k)         (k >> 1)
 #define INT_APP(k)         (k << 1)
 #define GET_MORALE(ch)     (ch->mob_specials.shared->morale)
-#define MOB_SHARED(ch)     (ch->mob_specials.shared)
+#define NPC_SHARED(ch)     (ch->mob_specials.shared)
 
-#define IS_PET(ch)       (MOB_FLAGGED(ch, MOB_PET))
-#define IS_SOULLESS(ch) (MOB_FLAGGED(ch, MOB_SOULLESS) || PLR2_FLAGGED(ch, PLR2_SOULLESS))
+#define IS_PET(ch)       (NPC_FLAGGED(ch, NPC_PET))
+#define IS_SOULLESS(ch) (NPC_FLAGGED(ch, NPC_SOULLESS) || PLR2_FLAGGED(ch, PLR2_SOULLESS))
 #define HAS_SYMBOL(ch) (IS_SOULLESS(ch) || affected_by_spell(ch, SPELL_STIGMATA) \
                         || AFF3_FLAGGED(ch, AFF3_SYMBOL_OF_PAIN) \
                         || AFF3_FLAGGED(ch, AFF3_TAINTED))
@@ -396,8 +395,8 @@ PRF2_FLAGGED( struct creature *ch, int flag )
                         (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_RED) || \
                          IS_UNDEAD(ch) || GET_CLASS(ch) == CLASS_FIRE || \
                           IS_SLAAD(ch) || \
-                           (GET_MOB_VNUM(ch) >= 16100 && \
-                            GET_MOB_VNUM(ch) <= 16699) || \
+                           (GET_NPC_VNUM(ch) >= 16100 && \
+                            GET_NPC_VNUM(ch) <= 16699) || \
              (IS_DEVIL(ch) && (GET_PLANE(ch->in_room) == PLANE_HELL_4 || \
                                    GET_PLANE(ch->in_room) == PLANE_HELL_6)))
 
@@ -408,8 +407,8 @@ PRF2_FLAGGED( struct creature *ch, int flag )
 
 #define NEEDS_TO_BREATHE(ch) \
      (!AFF3_FLAGGED(ch, AFF3_NOBREATHE) && \
-      !IS_UNDEAD(ch) && (GET_MOB_VNUM(ch) <= 16100 || \
-                         GET_MOB_VNUM(ch) > 16999))
+      !IS_UNDEAD(ch) && (GET_NPC_VNUM(ch) <= 16100 || \
+                         GET_NPC_VNUM(ch) > 16999))
 
 #define NULL_PSI(vict) \
      (IS_UNDEAD(vict) || IS_SLIME(vict) || IS_PUDDING(vict) || \
@@ -606,21 +605,21 @@ static inline bool IS_REMORT( const struct creature *ch )
 #define GET_IMPLANT(ch, i)      ((ch)->implants[i])
 #define GET_TATTOO(ch, i)      ((ch)->tattoos[i])
 
-#define GET_MOB_SPEC(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->func) : NULL)
-#define GET_MOB_PROG(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->prog) : NULL)
-#define GET_MOB_PROGOBJ(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->progobj) : NULL)
+#define GET_NPC_SPEC(ch) (IS_NPC(ch) ? ((ch)->mob_specials.shared->func) : NULL)
+#define GET_NPC_PROG(ch) (IS_NPC(ch) ? ((ch)->mob_specials.shared->prog) : NULL)
+#define GET_NPC_PROGOBJ(ch) (IS_NPC(ch) ? ((ch)->mob_specials.shared->progobj) : NULL)
 
-#define GET_MOB_PARAM(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->func_param) : NULL)
-#define GET_LOAD_PARAM(ch) (IS_MOB(ch) ? ((ch)->mob_specials.shared->load_param) : NULL)
-#define GET_MOB_VNUM(mob)        (IS_MOB(mob) ? \
+#define GET_NPC_PARAM(ch) (IS_NPC(ch) ? ((ch)->mob_specials.shared->func_param) : NULL)
+#define GET_LOAD_PARAM(ch) (IS_NPC(ch) ? ((ch)->mob_specials.shared->load_param) : NULL)
+#define GET_NPC_VNUM(mob)        (IS_NPC(mob) ? \
                                       (mob)->mob_specials.shared->vnum : -1)
 
-#define GET_MOB_WAIT(ch)        ((ch)->mob_specials.wait_state)
-#define GET_MOB_LAIR(ch)        ((ch)->mob_specials.shared->lair)
-#define GET_MOB_LEADER(ch)        ((ch)->mob_specials.shared->leader)
+#define GET_NPC_WAIT(ch)        ((ch)->mob_specials.wait_state)
+#define GET_NPC_LAIR(ch)        ((ch)->mob_specials.shared->lair)
+#define GET_NPC_LEADER(ch)        ((ch)->mob_specials.shared->leader)
 #define GET_DEFAULT_POS(ch)        ((ch)->mob_specials.shared->default_pos)
 #define MEMORY(ch)                ((ch)->mob_specials.memory)
-#define MOB_IDNUM(ch)           ((ch)->mob_specials.mob_idnum)
+#define NPC_IDNUM(ch)           ((ch)->mob_specials.mob_idnum)
 
 static inline int
 STRENGTH_APPLY_INDEX(struct creature *ch)
@@ -905,16 +904,16 @@ long GET_SKILL_COST(struct creature *ch, int skill);
                                  IS_RACE(ch, RACE_RAKSHASA) || \
                                  IS_RACE(ch, RACE_ROWLAHR))
 
-#define IS_TIAMAT(ch)           (GET_MOB_VNUM(ch) == 61119)
-#define IS_TARRASQUE(ch)           (GET_MOB_VNUM(ch) == 24800)
+#define IS_TIAMAT(ch)           (GET_NPC_VNUM(ch) == 61119)
+#define IS_TARRASQUE(ch)           (GET_NPC_VNUM(ch) == 24800)
 
-#define IS_LEMURE(ch)           (GET_MOB_VNUM(ch) == 16121 || \
-                                 GET_MOB_VNUM(ch) == 16110 || \
-                                 GET_MOB_VNUM(ch) == 16652)
+#define IS_LEMURE(ch)           (GET_NPC_VNUM(ch) == 16121 || \
+                                 GET_NPC_VNUM(ch) == 16110 || \
+                                 GET_NPC_VNUM(ch) == 16652)
 
-#define ICY_DEVIL(ch)           (GET_MOB_VNUM(ch) == 16117 || \
-                                 GET_MOB_VNUM(ch) == 16146 || \
-                                 GET_MOB_VNUM(ch) == 16132)
+#define ICY_DEVIL(ch)           (GET_NPC_VNUM(ch) == 16117 || \
+                                 GET_NPC_VNUM(ch) == 16146 || \
+                                 GET_NPC_VNUM(ch) == 16132)
 
 #define LIFE_FORM(ch)           (!IS_ROBOT(ch) && !IS_UNDEAD(ch))
 
@@ -1137,7 +1136,7 @@ CAN_CHANNEL_COMM(struct creature *ch, struct creature *tch)
 #endif
 
 static inline bool
-MOB_CAN_GO(struct creature * ch, int door)
+NPC_CAN_GO(struct creature * ch, int door)
 {
 	if (EXIT(ch, door) &&
 		EXIT(ch, door)->to_room &&

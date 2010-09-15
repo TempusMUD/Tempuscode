@@ -50,7 +50,7 @@ summon_cityguards(struct room_data *room)
             continue;
         if (tch->in_room == room)
             continue;
-        if (GET_MOB_SPEC(tch) != cityguard)
+        if (GET_NPC_SPEC(tch) != cityguard)
             continue;
         // the closer they are, the more likely they are to respond
         distance = find_distance(tch->in_room, room);
@@ -126,7 +126,7 @@ call_for_help(struct creature *ch, struct creature *attacker)
     const char *msg;
 
     // Emit a shout for help
-    if (GET_MOB_SPEC(ch) == cityguard || GET_MOB_SPEC(ch) == guard) {
+    if (GET_NPC_SPEC(ch) == cityguard || GET_NPC_SPEC(ch) == guard) {
         switch (number(0, 10)) {
         case 0:
             msg = "To arms!  To arms!  We are under attack!";
@@ -285,7 +285,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
     act("You wake up in jail, your head pounding.", false, vict, 0, 0,
         TO_CHAR);
 
-    if (MOB_HUNTING(ch) && MOB_HUNTING(ch) == vict)
+    if (NPC_HUNTING(ch) && NPC_HUNTING(ch) == vict)
         stop_hunting(ch);
 
     if ((torch = read_object(3030)))
@@ -310,7 +310,7 @@ drag_char_to_jail(struct creature *ch, struct creature *vict,
     struct cityguard_data *data;
     int dir;
 
-    if ((IS_MOB(vict) && GET_MOB_SPEC(ch) == GET_MOB_SPEC(vict)) || !jail_room)
+    if ((IS_NPC(vict) && GET_NPC_SPEC(ch) == GET_NPC_SPEC(vict)) || !jail_room)
         return 0;
 
     if (ch->in_room == jail_room) {
@@ -342,7 +342,7 @@ drag_char_to_jail(struct creature *ch, struct creature *vict,
     // Get other guards to follow
     for (it = ch->in_room->people; it; it = it->next) {
         struct creature *tch = it->data;
-        if (IS_NPC(tch) && GET_MOB_SPEC(tch) == cityguard) {
+        if (IS_NPC(tch) && GET_NPC_SPEC(tch) == cityguard) {
             data = (struct cityguard_data *)(tch)->mob_specials.func_data;
             if (data)
                 data->targ_room = EXIT(vict, dir)->to_room->number;
@@ -381,7 +381,7 @@ SPECIAL(cityguard)
     if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_DEATH)
         return 0;
 
-    str = GET_MOB_PARAM(self);
+    str = GET_NPC_PARAM(self);
     if (str) {
         for (line = tmp_getline(&str); line; line = tmp_getline(&str)) {
             param_key = tmp_getword(&line);
@@ -408,7 +408,7 @@ SPECIAL(cityguard)
             return 0;
 
         // make new guards that will go to the place of death
-        str = GET_MOB_PARAM(self);
+        str = GET_NPC_PARAM(self);
         if (str) {
             for (line = tmp_getline(&str); line; line = tmp_getline(&str)) {
                 param_key = tmp_getword(&line);
@@ -457,7 +457,7 @@ SPECIAL(cityguard)
             // We're marching to where someone shouted for help
             dir = find_first_step(self->in_room, real_room(data->targ_room),
                 STD_TRACK);
-            if (dir >= 0 && MOB_CAN_GO(self, dir)
+            if (dir >= 0 && NPC_CAN_GO(self, dir)
                 && !ROOM_FLAGGED(self->in_room->dir_option[dir]->to_room,
                     ROOM_DEATH)) {
                 smart_mobile_move(self, dir);
@@ -536,7 +536,7 @@ SPECIAL(cityguard)
                 act("$n looks at $N skeptically.", false,
                     self, 0, target, TO_NOTVICT);
             }
-        } else if (cityguard == GET_MOB_SPEC(target)) {
+        } else if (cityguard == GET_NPC_SPEC(target)) {
             act("$n nods at $N.", false, self, 0, target, TO_NOTVICT);
         } else if (((IS_CLERIC(target) || IS_KNIGHT(target))
                 && IS_EVIL(self) == IS_EVIL(target)

@@ -29,7 +29,7 @@ SPECIAL(corpse_retrieval)
         perform_say(retriever, "say", "Who's there?  I can't see you.");
         return 1;
     }
-    if (IS_MOB(ch)) {
+    if (IS_NPC(ch)) {
         act("$n snickers at $N.", false, retriever, 0, ch, TO_NOTVICT);
         act("$n snickers at you.", false, retriever, 0, ch, TO_VICT);
         return 1;

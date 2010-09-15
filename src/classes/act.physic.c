@@ -289,7 +289,7 @@ ACMD(do_lecture)
     if (AFF2_FLAGGED(vict, AFF2_BERSERK))
         percent += 50;
 
-    if (MOB_FLAGGED(vict, MOB_NOSLEEP) || IS_UNDEAD(vict) ||
+    if (NPC_FLAGGED(vict, NPC_NOSLEEP) || IS_UNDEAD(vict) ||
         CHECK_SKILL(ch, SKILL_LECTURE) < 30 || IS_PHYSIC(vict))
         prob = 0;
 

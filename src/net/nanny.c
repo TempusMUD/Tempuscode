@@ -890,7 +890,7 @@ send_prompt(struct descriptor_data *d)
                     C_NRM), CCRED(d->creature, C_NRM),
                 GET_INVIS_LVL(d->creature), CCMAG(d->creature, C_NRM),
                 CCNRM(d->creature, C_NRM));
-        else if (IS_MOB(d->creature))
+        else if (IS_NPC(d->creature))
             sprintf(prompt, "%s%s[NPC]%s ", prompt,
                 CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 

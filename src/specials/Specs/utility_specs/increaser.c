@@ -29,11 +29,11 @@ SPECIAL(increaser)
         return true;
     }
 
-    if (GET_MOB_VNUM(increaser) == 30100)
+    if (GET_NPC_VNUM(increaser) == 30100)
         status = MODE_HITP;
-    if (GET_MOB_VNUM(increaser) == 37022 || GET_MOB_VNUM(increaser) == 31712)
+    if (GET_NPC_VNUM(increaser) == 37022 || GET_NPC_VNUM(increaser) == 31712)
         status = MODE_MANA;
-    if (GET_MOB_VNUM(increaser) == 5430)
+    if (GET_NPC_VNUM(increaser) == 5430)
         status = MODE_MOVE;
 
     switch (status) {

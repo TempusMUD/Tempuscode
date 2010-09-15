@@ -14,7 +14,7 @@ SPECIAL(newbie_fodder)
         return 0;
 
     // Get replacement mobile
-    new_mob = read_mobile(GET_MOB_VNUM(self));
+    new_mob = read_mobile(GET_NPC_VNUM(self));
     if (!new_mob)
         return 0;
 

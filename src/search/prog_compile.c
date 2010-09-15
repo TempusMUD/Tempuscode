@@ -74,7 +74,7 @@ prog_get_text(void *owner, enum prog_evt_type owner_type)
         break;
     case PROG_TYPE_MOBILE:
         if (owner) {
-            return GET_MOB_PROG(((struct creature *)owner));
+            return GET_NPC_PROG(((struct creature *)owner));
         } else {
             errlog("Mobile Prog with no owner - Can't happen at %s:%d",
                 __FILE__, __LINE__);
@@ -105,7 +105,7 @@ prog_compile_message(struct prog_compiler_state *compiler,
     switch (compiler->owner_type) {
     case PROG_TYPE_MOBILE:
         place = tmp_sprintf("mobile %d%s",
-            GET_MOB_VNUM(((struct creature *)compiler->owner)), linestr);
+            GET_NPC_VNUM(((struct creature *)compiler->owner)), linestr);
         break;
     case PROG_TYPE_ROOM:
         place = tmp_sprintf("room %d%s",

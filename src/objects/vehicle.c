@@ -145,7 +145,7 @@ start_engine(struct creature *ch, struct obj_data *car,
     if (!IS_NPC(ch))
         V_CONSOLE_IDNUM(console) = GET_IDNUM(ch);
     else
-        V_CONSOLE_IDNUM(console) = -(GET_MOB_VNUM(ch));
+        V_CONSOLE_IDNUM(console) = -(GET_NPC_VNUM(ch));
 
     if (ENGINE_ON(engine)) {
         act("The starter squeals as you try to crank $p!",
@@ -601,7 +601,7 @@ SPECIAL(vehicle_console)
             if ((V_CONSOLE_IDNUM(console) > 0 &&
                     GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
                 (V_CONSOLE_IDNUM(console) < 0 &&
-                    GET_MOB_VNUM(driver) == -V_CONSOLE_IDNUM(console)))
+                    GET_NPC_VNUM(driver) == -V_CONSOLE_IDNUM(console)))
                 break;
         }
     } else {

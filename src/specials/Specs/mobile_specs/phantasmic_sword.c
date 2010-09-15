@@ -53,7 +53,7 @@ SPECIAL(phantasmic_sword)
             for (GList * it = ch->in_room->people; it; it = it->next) {
                 struct creature *tch = it->data;
                 if (tch != ch && IS_NPC(tch) &&
-                    GET_MOB_VNUM(ch) == GET_MOB_VNUM((tch)) &&
+                    GET_NPC_VNUM(ch) == GET_NPC_VNUM((tch)) &&
                     !(number(0, GET_LEVEL(mast) +
                             (GET_CHA(mast) >> (mast->in_room !=
                                     ch->in_room))))) {

@@ -131,7 +131,7 @@ prog_get_obj(void *owner, enum prog_evt_type owner_type)
 		break;
 	case PROG_TYPE_MOBILE:
 		if (((struct creature *)owner)) {
-			return GET_MOB_PROGOBJ((((struct creature *)owner)));
+			return GET_NPC_PROGOBJ((((struct creature *)owner)));
 		} else {
 			errlog("Mobile Prog with no owner - Can't happen at %s:%d",
 				__FILE__, __LINE__);
@@ -153,7 +153,7 @@ prog_get_desc(struct prog_env *env)
 	case PROG_TYPE_OBJECT:
 		return tmp_sprintf("object %d", GET_OBJ_VNUM((struct obj_data *)env->owner));
 	case PROG_TYPE_MOBILE:
-		return tmp_sprintf("mobile %d", GET_MOB_VNUM((struct creature *)env->owner));
+		return tmp_sprintf("mobile %d", GET_NPC_VNUM((struct creature *)env->owner));
 	case PROG_TYPE_ROOM:
 		return tmp_sprintf("room %d", ((struct room_data *)env->owner)->number);
 	default:
@@ -618,7 +618,7 @@ prog_eval_vnum(struct prog_env *env, char *args) {
         arg = tmp_getword(&args);
         while (*arg) {
             if (is_number(arg)
-                && atoi(arg) == GET_MOB_VNUM(env->target)) {
+                && atoi(arg) == GET_NPC_VNUM(env->target)) {
                 result = true;
                 break;
             }
@@ -1064,12 +1064,12 @@ DEFPROGHANDLER(mobflag, env, evt, args)
 			flags |= (1 << flag_idx);
 	}
 	// some flags can't change
-	flags &= ~(MOB_SPEC | MOB_ISNPC | MOB_PET);
+	flags &= ~(NPC_SPEC | NPC_ISNPC | NPC_PET);
 
 	if (op)
-		MOB_FLAGS(((struct creature *) env->owner)) |= flags;
+		NPC_FLAGS(((struct creature *) env->owner)) |= flags;
 	else
-		MOB_FLAGS(((struct creature *) env->owner)) &= ~flags;
+		NPC_FLAGS(((struct creature *) env->owner)) &= ~flags;
 }
 
 DEFPROGHANDLER(ldesc, env, evt, args)
@@ -1595,7 +1595,7 @@ DEFPROGHANDLER(oload, env, evt, args)
 	case PROG_TYPE_ROOM:
 		obj->creator = ((struct room_data *)env->owner)->number; break;
 	case PROG_TYPE_MOBILE:
-		obj->creator = GET_MOB_VNUM(((struct creature *)env->owner)); break;
+		obj->creator = GET_NPC_VNUM(((struct creature *)env->owner)); break;
 	default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__);
 	}
@@ -1667,7 +1667,7 @@ DEFPROGHANDLER(mload, env, evt, args)
 	if (max_load == -1 || mob->mob_specials.shared->number < max_load) {
 		mob = read_mobile(vnum);
 		char_to_room(mob, room, true);
-		if (GET_MOB_PROG(mob))
+		if (GET_NPC_PROG(mob))
 			trigger_prog_load(mob);
 	}
 }
@@ -1745,7 +1745,7 @@ DEFPROGHANDLER(giveexp, env, evt, args)
         switch (env->owner_type) {
         case PROG_TYPE_MOBILE:
             owner_type = "mobile";
-            num = GET_MOB_VNUM(((struct creature *)env->owner));
+            num = GET_NPC_VNUM(((struct creature *)env->owner));
             break;
         case PROG_TYPE_OBJECT:
             owner_type = "object";
@@ -1983,7 +1983,7 @@ report_prog_loop(void *owner, enum prog_evt_type owner_type, struct creature *ch
 	case PROG_TYPE_OBJECT:
         owner_desc = tmp_sprintf("object %d", GET_OBJ_VNUM((struct obj_data *)owner)); break;
 	case PROG_TYPE_MOBILE:
-		owner_desc = tmp_sprintf("mobile %d", GET_MOB_VNUM(((struct creature *)owner))); break;
+		owner_desc = tmp_sprintf("mobile %d", GET_NPC_VNUM(((struct creature *)owner))); break;
 	case PROG_TYPE_ROOM:
 		owner_desc = tmp_sprintf("room %d", ((struct room_data *)owner)->number); break;
 	default:
@@ -1994,7 +1994,7 @@ report_prog_loop(void *owner, enum prog_evt_type owner_type, struct creature *ch
         ch_desc = tmp_sprintf("%s %s[%ld]",
                               (IS_NPC(ch)) ? "MOB":"PC",
                               GET_NAME(ch),
-                              (IS_NPC(ch)) ? GET_MOB_VNUM(ch):GET_IDNUM(ch));
+                              (IS_NPC(ch)) ? GET_NPC_VNUM(ch):GET_IDNUM(ch));
 
     errlog("Infinite prog loop detected in %s of %s (triggered by %s)",
            where,
@@ -2197,9 +2197,9 @@ trigger_prog_fight(struct creature * ch, struct creature * self)
 	struct prog_env *env;
 	struct prog_evt evt;
 
-	if (!self || !self->in_room || !GET_MOB_PROG(self))
+	if (!self || !self->in_room || !GET_NPC_PROG(self))
 		return;
-    if (!GET_MOB_PROGOBJ(self))
+    if (!GET_NPC_PROGOBJ(self))
         return;
 	evt.phase = PROG_EVT_AFTER;
 	evt.kind = PROG_EVT_FIGHT;
@@ -2286,7 +2286,7 @@ trigger_prog_give(struct creature * ch, struct creature * self, struct obj_data 
 	struct prog_env *env;
 	struct prog_evt evt;
 
-	if (!self || !self->in_room || !GET_MOB_PROGOBJ(self))
+	if (!self || !self->in_room || !GET_NPC_PROGOBJ(self))
 		return;
 
 	if (!obj) {
@@ -2366,7 +2366,7 @@ trigger_prog_load(struct creature * owner)
 	struct prog_evt evt;
 
 	// Do we have a mobile program?
-	if (!GET_MOB_PROGOBJ(owner))
+	if (!GET_NPC_PROGOBJ(owner))
 		return;
 
 	evt.phase = PROG_EVT_AFTER;
@@ -2474,7 +2474,7 @@ prog_trigger_idle_mobs(void)
 {
 	for (GList *cit = creatures;cit;cit = cit->next) {
         struct creature *ch = cit->data;
-		if (ch->prog_marker || !GET_MOB_PROGOBJ(ch))
+		if (ch->prog_marker || !GET_NPC_PROGOBJ(ch))
 			continue;
 		else if (ch->fighting)
 			trigger_prog_combat(ch, PROG_TYPE_MOBILE);

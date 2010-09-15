@@ -105,7 +105,7 @@ SPECIAL(cyborg_overhaul)
 
     }
 
-    if (GET_MOB_SPEC(borg) == cyborg_overhaul) {
+    if (GET_NPC_SPEC(borg) == cyborg_overhaul) {
         send_to_char(ch, "You may 'buy overhaul', 'buy repairs',\r\n"
             "'value overhaul', or 'value repairs'.\r\n");
         return 1;

@@ -285,7 +285,7 @@ tarrasque_follow(struct creature *tarr)
     int dir;
 
     pursuit = false;
-    ch = MOB_HUNTING(tarr);
+    ch = NPC_HUNTING(tarr);
     if (!ch)
         return 0;
 
@@ -319,7 +319,7 @@ SPECIAL(tarrasque)
 
     if (!IS_TARRASQUE(tarr)) {
         tarr->mob_specials.shared->func = NULL;
-        REMOVE_BIT(MOB_FLAGS(tarr), MOB_SPEC);
+        REMOVE_BIT(NPC_FLAGS(tarr), NPC_SPEC);
         errlog("There is only one true tarrasque");
         return 0;
     }
@@ -402,7 +402,7 @@ SPECIAL(tarrasque)
     if (spec_mode == SPECIAL_DEATH)
         return tarrasque_die(tarr, ch);
 
-    if (spec_mode == SPECIAL_LEAVE && ch != tarr && !MOB_HUNTING(tarr)) {
+    if (spec_mode == SPECIAL_LEAVE && ch != tarr && !NPC_HUNTING(tarr)) {
         start_hunting(tarr, ch);
         pursuit = true;
         return 0;
@@ -416,7 +416,7 @@ SPECIAL(tarrasque)
         if (!(belly_rm = real_room(BELLY_RM))) {
             errlog("Tarrasque can't find his belly!");
             tarr->mob_specials.shared->func = NULL;
-            REMOVE_BIT(MOB_FLAGS(tarr), MOB_SPEC);
+            REMOVE_BIT(NPC_FLAGS(tarr), NPC_SPEC);
             return 1;
         }
     }

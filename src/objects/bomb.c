@@ -367,7 +367,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
         if ((bomb_type == BOMB_ARTIFACT || bomb_type == BOMB_FLASH) &&
             AWAKE(vict) && GET_LEVEL(vict) < LVL_AMBASSADOR &&
             !mag_savingthrow(vict, 40, SAVING_PETRI) &&
-            !AFF_FLAGGED(vict, AFF_BLIND) && !MOB_FLAGGED(vict, MOB_NOBLIND)) {
+            !AFF_FLAGGED(vict, AFF_BLIND) && !NPC_FLAGGED(vict, NPC_NOBLIND)) {
             af.type = SPELL_BLINDNESS;
             af.bitvector = AFF_BLIND;
             af.duration = MAX(1, (power >> 1));

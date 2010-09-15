@@ -66,24 +66,24 @@ ok_damage_vendor(struct creature *ch, struct creature *victim)
         return false;
 
     if (IS_NPC(victim)
-        && (MOB2_FLAGGED(victim, MOB2_SELLER)
+        && (NPC2_FLAGGED(victim, NPC2_SELLER)
             || victim->mob_specials.shared->func == vendor)) {
         struct shop_data *shop =
             (struct shop_data *)victim->mob_specials.func_data;
 
-        if (!GET_MOB_PARAM(victim))
+        if (!GET_NPC_PARAM(victim))
             return false;
 
         if (!shop) {
             CREATE(shop, struct shop_data, 1);
-            vendor_parse_param(GET_MOB_PARAM(victim), shop, NULL);
+            vendor_parse_param(GET_NPC_PARAM(victim), shop, NULL);
             victim->mob_specials.func_data = shop;
         }
 
         return shop->attack_ok;
     }
 
-    if (IS_NPC(victim) && MOB_FLAGGED(victim, MOB_UTILITY)) {
+    if (IS_NPC(victim) && NPC_FLAGGED(victim, NPC_UTILITY)) {
         //utility mobs shouldn't be attacked either
         return false;
     }
@@ -169,7 +169,7 @@ update_pos(struct creature *victim)
         && (GET_POSITION(victim) > POS_STUNNED)
         && GET_POSITION(victim) < POS_FIGHTING && victim->fighting) {
         // If they're an npc, and their wait is 0.
-        if (IS_NPC(victim) && GET_MOB_WAIT(victim) <= 0) {
+        if (IS_NPC(victim) && GET_NPC_WAIT(victim) <= 0) {
             if (GET_POSITION(victim) < POS_FIGHTING) {
                 if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) ||
                     number(1, 20) < GET_STR(victim)) {
@@ -191,7 +191,7 @@ update_pos(struct creature *victim)
             return;
         }
     } else if (GET_HIT(victim) > 0) {
-        if (IS_NPC(victim) && GET_MOB_WAIT(victim) <= 0) {
+        if (IS_NPC(victim) && GET_NPC_WAIT(victim) <= 0) {
             // Flying?
             if (victim->in_room && room_is_open_air(victim->in_room)
                 && !AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
@@ -450,7 +450,7 @@ calculate_thaco(struct creature *ch, struct creature *victim,
     if (AFF2_FLAGGED(victim, AFF2_EVADE))
         calc_thaco += skill_bonus(victim, SKILL_EVASION) / 6;
 
-    if (room_is_watery(ch->in_room) && !IS_MOB(ch))
+    if (room_is_watery(ch->in_room) && !IS_NPC(ch))
         calc_thaco += 4;
 
     calc_thaco -= MIN(5, MAX(0, (POS_FIGHTING - GET_POSITION(victim))));
@@ -625,18 +625,18 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
     extern int max_npc_corpse_time, max_pc_corpse_time;
 
     // The Fate's corpses are portals to the remorter.
-    if (GET_MOB_SPEC(ch) == fate) { // GetMobSpec checks IS_NPC
+    if (GET_NPC_SPEC(ch) == fate) { // GetMobSpec checks IS_NPC
         struct obj_data *portal = NULL;
         extern int fate_timers[];
         if ((portal = read_object(FATE_PORTAL_VNUM))) {
             GET_OBJ_TIMER(portal) = max_npc_corpse_time;
-            if (GET_MOB_VNUM(ch) == FATE_VNUM_LOW) {
+            if (GET_NPC_VNUM(ch) == FATE_VNUM_LOW) {
                 GET_OBJ_VAL(portal, 2) = 1;
                 fate_timers[0] = 0;
-            } else if (GET_MOB_VNUM(ch) == FATE_VNUM_MID) {
+            } else if (GET_NPC_VNUM(ch) == FATE_VNUM_MID) {
                 GET_OBJ_VAL(portal, 2) = 2;
                 fate_timers[1] = 0;
-            } else if (GET_MOB_VNUM(ch) == FATE_VNUM_HIGH) {
+            } else if (GET_NPC_VNUM(ch) == FATE_VNUM_HIGH) {
                 GET_OBJ_VAL(portal, 2) = 3;
                 fate_timers[2] = 0;
             } else {
@@ -1068,7 +1068,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
             ("The shattered, twisted %s of %s %s lying here.", typebuf,
                 GET_NAME(ch), isare));
         strcpy(adj, "shattered");
-        if (GET_MOB_VNUM(ch) == 1511) {
+        if (GET_NPC_VNUM(ch) == 1511) {
             if ((spine = read_object(1541)))
                 obj_to_room(spine, ch->in_room);
         } else {
@@ -1389,19 +1389,19 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 
     if (killer) {
         if (IS_NPC(killer))
-            CORPSE_KILLER(corpse) = -GET_MOB_VNUM(killer);
+            CORPSE_KILLER(corpse) = -GET_NPC_VNUM(killer);
         else
             CORPSE_KILLER(corpse) = GET_IDNUM(killer);
     } else if (dam_object)
         CORPSE_KILLER(corpse) = DAM_OBJECT_IDNUM(dam_object);
 
     // if non-arena room, transfer eq to corpse
-    bool lose_eq = (!is_arena_combat(killer, ch) || IS_MOB(ch))
+    bool lose_eq = (!is_arena_combat(killer, ch) || IS_NPC(ch))
         && GET_LEVEL(ch) < LVL_AMBASSADOR;
 
     bool lose_implants = !(is_npk_combat(killer, ch) ||
         is_arena_combat(killer, ch) ||
-        (IS_MOB(ch) && GET_LEVEL(ch) > LVL_AMBASSADOR));
+        (IS_NPC(ch) && GET_LEVEL(ch) > LVL_AMBASSADOR));
 
     bool lose_tattoos = lose_eq;
 
@@ -1461,7 +1461,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         }
     }
     // leave no corpse behind
-    if (NON_CORPOREAL_MOB(ch) || GET_MOB_SPEC(ch) == fate) {
+    if (NON_CORPOREAL_MOB(ch) || GET_NPC_SPEC(ch) == fate) {
         while ((o = corpse->contains)) {
             obj_from_obj(o);
             obj_to_room(o, ch->in_room);
@@ -1563,7 +1563,7 @@ calculate_attack_probability(struct creature *ch)
     if (ch->desc)
         prob -= ((MAX(0, ch->desc->wait >> 1)) * prob) / 100;
     else
-        prob -= ((MAX(0, GET_MOB_WAIT(ch) >> 1)) * prob) / 100;
+        prob -= ((MAX(0, GET_NPC_WAIT(ch) >> 1)) * prob) / 100;
 
     prob -= ((((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 5) * prob) /
         (CAN_CARRY_W(ch) * 85));

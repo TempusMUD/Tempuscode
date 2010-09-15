@@ -445,11 +445,11 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
     act("$n sells $p to $N.", false, self, obj, ch, TO_NOTVICT);
 
     vendor_log("%s[%d] sold %s[%d] (x%d) to %s %s[%d] for %lu %s",
-        GET_NAME(self), GET_MOB_VNUM(self),
+        GET_NAME(self), GET_NPC_VNUM(self),
         obj->name, GET_OBJ_VNUM(obj),
         num,
         IS_NPC(ch) ? "NPC" : "PC",
-        GET_NAME(ch), IS_NPC(ch) ? GET_MOB_VNUM(ch) : GET_IDNUM(ch),
+        GET_NAME(ch), IS_NPC(ch) ? GET_NPC_VNUM(ch) : GET_IDNUM(ch),
         cost * num, currency_str);
 
     if (vendor_is_produced(obj, shop)) {
@@ -559,11 +559,11 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
     transfer_money(self, ch, cost * num, shop->currency, false);
 
     vendor_log("%s[%d] bought %s[%d] (x%d) from %s %s[%d] for %lu %s",
-        GET_NAME(self), GET_MOB_VNUM(self),
+        GET_NAME(self), GET_NPC_VNUM(self),
         obj->name, GET_OBJ_VNUM(obj),
         num,
         IS_NPC(ch) ? "NPC" : "PC",
-        GET_NAME(ch), IS_NPC(ch) ? GET_MOB_VNUM(ch) : GET_IDNUM(ch),
+        GET_NAME(ch), IS_NPC(ch) ? GET_NPC_VNUM(ch) : GET_IDNUM(ch),
         cost * num, shop->currency ? "creds" : "gold");
     // We've already verified that they have enough of the item via a
     // call to vendor_inventory(), so we can just blindly transfer objects
@@ -740,7 +740,7 @@ vendor_revenue(struct creature *self, struct shop_data *shop)
     struct creature *vkeeper;
     long cur_money, max_money;
 
-    vkeeper = real_mobile_proto(GET_MOB_VNUM(self));
+    vkeeper = real_mobile_proto(GET_NPC_VNUM(self));
     max_money = (shop->currency) ? GET_CASH(vkeeper) : GET_GOLD(vkeeper);
     cur_money = (shop->currency) ? GET_CASH(self) : GET_GOLD(self);
     if (cur_money >= max_money)
@@ -919,7 +919,7 @@ SPECIAL(vendor)
     int err_line;
     struct shop_data *shop;
 
-    config = GET_MOB_PARAM(self);
+    config = GET_NPC_PARAM(self);
     if (!config)
         return 0;
 
@@ -974,7 +974,7 @@ SPECIAL(vendor)
             else {
                 mudlog(LVL_IMMORT, NRM, true,
                     "ERR: Mobile %d has %s in line %d of specparam",
-                    GET_MOB_VNUM(self), err, err_line);
+                    GET_NPC_VNUM(self), err, err_line);
                 perform_say_to(self, ch,
                     "Sorry.  I'm broken, but a god has already been notified.");
             }

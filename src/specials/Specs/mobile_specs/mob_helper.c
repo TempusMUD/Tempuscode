@@ -21,8 +21,8 @@ SPECIAL(mob_helper)
             continue;
 
         vict = random_opponent(helpee);
-        if (GET_POSITION(vict) > POS_DEAD && IS_MOB(helpee)
-            && IS_MOB(vict)
+        if (GET_POSITION(vict) > POS_DEAD && IS_NPC(helpee)
+            && IS_NPC(vict)
             && ((IS_GOOD(ch) && IS_GOOD(helpee)) ||
                 (IS_EVIL(ch) && IS_EVIL(helpee)))
             && !number(0, 2)) {

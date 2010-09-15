@@ -50,13 +50,13 @@ SPECIAL(battlefield_ghost)
         (ch->in_room->zone->weather->sunlight == SUN_SET ||
             ch->in_room->zone->weather->sunlight == SUN_DARK)) {
 
-        if (GET_MOB_VNUM(ch) == 20801)
+        if (GET_NPC_VNUM(ch) == 20801)
             r_bones_room = real_room(20874);
         else
             r_bones_room = real_room(v_bones_room[number(0, 3)]);
 
         if (r_bones_room == NULL) {
-            if (GET_MOB_VNUM(ch) == 20801)
+            if (GET_NPC_VNUM(ch) == 20801)
                 slog("r_bones_room == NULL in battlefield_ghost()...general");
             else
                 slog("r_bones_room == NULL in battlefield_ghost().");

@@ -135,7 +135,7 @@ SPECIAL(underworld_goddess)
         /*  If Styx is there, see if one of those cutsie priestess girls are there too.   */
         if (styx) {
             for (vict = styx->in_room->people; vict; vict = vict->next_in_room)
-                if ((IS_MOB(vict)) && (GET_MOB_VNUM(vict) == STYX_PRIESTESS))
+                if ((IS_NPC(vict)) && (GET_NPC_VNUM(vict) == STYX_PRIESTESS))
                     break;      /* breaks for loop! */
 
             if (vict) {

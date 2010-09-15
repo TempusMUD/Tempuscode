@@ -181,7 +181,7 @@ SPECIAL(underworld_goddess)
             vict = NULL;
             for (GList * it = styx->in_room->people; it; it = it->next) {
                 struct creature *tch = it->data;
-                if ((IS_MOB(vict)) && (GET_MOB_VNUM(vict) == STYX_PRIESTESS)) {
+                if ((IS_NPC(vict)) && (GET_NPC_VNUM(vict) == STYX_PRIESTESS)) {
                     vict = tch;
                     break;      /* breaks for loop! */
                 }

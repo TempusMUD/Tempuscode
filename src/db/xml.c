@@ -239,9 +239,9 @@ load_xml_mobile(xmlNodePtr node)
 
 	// Read in initial properties
 	mob->player.short_descr = xmlGetProp(node, "name");
-	MOB_SHARED(mob)->vnum = xmlGetIntProp(node, "vnum");
-	MOB_SHARED(mob)->lair = xmlGetIntProp(node, "lair", -1);
-	MOB_SHARED(mob)->leader = xmlGetIntProp(node, "leader", -1);
+	NPC_SHARED(mob)->vnum = xmlGetIntProp(node, "vnum");
+	NPC_SHARED(mob)->lair = xmlGetIntProp(node, "lair", -1);
+	NPC_SHARED(mob)->leader = xmlGetIntProp(node, "leader", -1);
 
 	mob->player_specials = &dummy_mob;
 
@@ -252,7 +252,7 @@ load_xml_mobile(xmlNodePtr node)
 		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"linedesc"))
 			mob->player.description = xmlNodeListGetString(doc, cur_node, 1);
 		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"movedesc"))
-			MOB_SHARED(mob)->move_buf = xmlNodeListGetString(doc, cur_node, 1);
+			NPC_SHARED(mob)->move_buf = xmlNodeListGetString(doc, cur_node, 1);
 		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"description"))
 			mob->player.long_descr = xmlNodeListGetString(doc, cur_node, 1);
 		else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"attr")) {
@@ -302,30 +302,30 @@ load_xml_mobile(xmlNodePtr node)
 			mob->points.damroll = xmlGetIntProp(cur_node, "damroll");
 			mob->points.hitroll = xmlGetIntProp(cur_node, "hitroll");
 			mob->points.armor = xmlGetIntProp(cur_node, "armor");
-			MOB_SHARED(mob)->attack_type = xmlGetIntProp(cur_node, "attack");
-			MOB_SHARED(mob)->morale = xmlGetIntProp(cur_node, "morale");
+			NPC_SHARED(mob)->attack_type = xmlGetIntProp(cur_node, "attack");
+			NPC_SHARED(mob)->morale = xmlGetIntProp(cur_node, "morale");
 		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"affects")) {
 			AFF_FLAGS(mob) = xmlGetFlags(node, aff1_enum);
 			AFF2_FLAGS(mob) = xmlGetFlags(node, aff2_enum);
 			AFF3_FLAGS(mob) = xmlGetFlags(node, aff3_enum);
 		} else if (!xmlStrcmp(cur_node->name, (const xmlChar *)"actions")) {
-			MOB_FLAGS(mob) = xmlGetFlags(node, action1_enum);
-			MOB2_FLAGS(mob) = xmlGetFlags(node, action2_enum);
+			NPC_FLAGS(mob) = xmlGetFlags(node, action1_enum);
+			NPC2_FLAGS(mob) = xmlGetFlags(node, action2_enum);
 		} else {
 			errlog("Invalid xml node in <mobile>");
 		}
 	}
 
 	// Now set constant and data-dependent variables
-	MOB_SHARED(mob)->proto = mob;
+	NPC_SHARED(mob)->proto = mob;
 
 	mob->player.title = NULL;
 	GET_COND(mob, 0) = GET_COND(mob, 1) = GET_COND(mob, 2) = -1;
-	REMOVE_BIT(MOB2_FLAGS(mob), MOB2_RENAMED);
-	SET_BIT(MOB_FLAGS(mob), MOB_ISNPC);
+	REMOVE_BIT(NPC2_FLAGS(mob), NPC2_RENAMED);
+	SET_BIT(NPC_FLAGS(mob), NPC_ISNPC);
 	if (!mob->mob_specials.shared->morale)
 		mob->mob_specials.shared->morale =
-			MOB_FLAGGED(mob, MOB_WIMPY) ? MAX(30, GET_LEVEL(mob)) : 100;
+			NPC_FLAGGED(mob, NPC_WIMPY) ? MAX(30, GET_LEVEL(mob)) : 100;
 	set_physical_attribs(mob);
 	mob->aff_abils = mob->real_abils;
 

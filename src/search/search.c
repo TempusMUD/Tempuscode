@@ -209,7 +209,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
             if (srch->to_remote && targ_room->people)
                 act(srch->to_remote, false, targ_room->people->data, obj, mob,
                     TO_ROOM);
-            if (GET_MOB_PROGOBJ(mob))
+            if (GET_NPC_PROGOBJ(mob))
                 trigger_prog_load(mob);
         }
         break;

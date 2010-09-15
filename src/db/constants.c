@@ -890,7 +890,7 @@ const char *player_bits[] = {
     "\n"
 };
 
-/* MOB_x */
+/* NPC_x */
 const char *action_bits[] = {
     "SPEC",
     "SENTINEL",

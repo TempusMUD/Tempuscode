@@ -352,7 +352,7 @@ do_specassign_save(struct creature *ch, int mode)
                     0)
                     continue;
                 fprintf(file, "%-6d %-20s ## %s\n",
-                    GET_MOB_VNUM(mob), spec_list[index].tag, GET_NAME(mob));
+                    GET_NPC_VNUM(mob), spec_list[index].tag, GET_NAME(mob));
             }
         }
         fclose(file);

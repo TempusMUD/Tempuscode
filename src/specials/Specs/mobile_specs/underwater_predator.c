@@ -45,7 +45,7 @@ SPECIAL(underwater_predator)
                 return 1;
             }
         }
-    } else if (!pred->fighting && MOB_FLAGGED(pred, MOB_AGGRESSIVE) &&
+    } else if (!pred->fighting && NPC_FLAGGED(pred, NPC_AGGRESSIVE) &&
         (SECT_TYPE(pred->in_room) == SECT_UNDERWATER
             || SECT_TYPE(pred->in_room) == SECT_DEEP_OCEAN) &&
         EXIT(pred, UP) &&
@@ -54,7 +54,7 @@ SPECIAL(underwater_predator)
             ROOM_DEATH | ROOM_GODROOM)) {
         for (GList * it = troom->people; it; it = it->next) {
             vict = it->data;
-            if ((IS_MOB(vict) && !MOB2_FLAGGED(pred, MOB2_ATK_MOBS)) ||
+            if ((IS_NPC(vict) && !NPC2_FLAGGED(pred, NPC2_ATK_MOBS)) ||
                 (!IS_NPC(vict) && !vict->desc) ||
                 PRF_FLAGGED(vict, PRF_NOHASSLE)
                 || !can_see_creature(pred, vict)

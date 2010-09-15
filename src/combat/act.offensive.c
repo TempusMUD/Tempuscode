@@ -52,7 +52,7 @@ check_mob_reaction(struct creature *ch, struct creature *vict)
 {
     int num = 0;
 
-    if (!IS_MOB(vict))
+    if (!IS_NPC(vict))
         return 0;
 
     num = (GET_ALIGNMENT(vict) - GET_ALIGNMENT(ch)) / 20;
@@ -180,7 +180,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if (bad_sect)
             prob = (int)(prob * 0.90);
 
-        if ((MOB_FLAGGED(vict, MOB_NOBASH) ||
+        if ((NPC_FLAGGED(vict, NPC_NOBASH) ||
                 GET_POSITION(vict) < POS_FIGHTING)
             && GET_LEVEL(ch) < LVL_AMBASSADOR)
             prob = 0;
@@ -188,7 +188,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict)
                     || NON_CORPOREAL_MOB(vict)))
-            || MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect)
+            || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
             prob = 0;
 
         *dam = dice(2, (GET_LEVEL(ch) >> 2));
@@ -264,7 +264,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *vict_wait = 1 RL_SEC;
         *loc = WEAR_EYES;
 
-        if (IS_NPC(vict) && MOB_FLAGGED(vict, MOB_NOBLIND)) {
+        if (IS_NPC(vict) && NPC_FLAGGED(vict, NPC_NOBLIND)) {
             *dam = 0;
             prob = 0;
         } else {
@@ -290,7 +290,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict)
                     || NON_CORPOREAL_MOB(vict)))
-            || MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect)
+            || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
             prob = 0;
 
         if ((GET_WEIGHT(vict) + ((IS_CARRYING_W(vict) +
@@ -314,7 +314,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if (!IS_BARB(ch) && GET_LEVEL(ch) < LVL_IMMORT)
             *dam = *dam >> 2;
         ADD_EQ_DAM(ch, WEAR_CROTCH);
-        if (!MOB_FLAGGED(vict, MOB_NOBASH))
+        if (!NPC_FLAGGED(vict, NPC_NOBASH))
             *vict_pos = POS_SITTING;
         *fail_pos = POS_SITTING;
         *loc = WEAR_HEAD;
@@ -342,7 +342,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict)
                     || NON_CORPOREAL_MOB(vict)))
-            || MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect)
+            || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
             prob = 0;
 
         need_hand = 1;
@@ -383,7 +383,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         break;
 
     case SKILL_SIDEKICK:
-        if ((MOB_FLAGGED(vict, MOB_NOBASH) ||
+        if ((NPC_FLAGGED(vict, NPC_NOBASH) ||
                 GET_POSITION(vict) < POS_FIGHTING)
             && GET_LEVEL(ch) < LVL_AMBASSADOR)
             prob = 0;
@@ -468,7 +468,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if (bad_sect)
             prob = (int)(prob * 0.90);
 
-        if ((MOB_FLAGGED(vict, MOB_NOBASH) ||
+        if ((NPC_FLAGGED(vict, NPC_NOBASH) ||
                 GET_POSITION(vict) < POS_FIGHTING)
             && GET_LEVEL(ch) < LVL_AMBASSADOR)
             prob = 0;
@@ -515,7 +515,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict)
                     || NON_CORPOREAL_MOB(vict)))
-            || MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect)
+            || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
             prob = 0;
 
         *loc = WEAR_NECK_1;
@@ -531,7 +531,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict)
                     || NON_CORPOREAL_MOB(vict)))
-            || MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect)
+            || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
             prob = 0;
 
         *dam = dice(2, GET_LEVEL(ch) >> 3);
@@ -757,7 +757,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict)
                     || NON_CORPOREAL_MOB(vict)))
-            || MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect)
+            || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
             prob = 0;
 
         need_hand = 1;
@@ -774,7 +774,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict)
                     || NON_CORPOREAL_MOB(vict)))
-            || MOB_FLAGGED(vict, MOB_NOBASH) || bad_sect)
+            || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
             prob = 0;
 
         need_hand = 1;
@@ -1204,11 +1204,11 @@ ACMD(do_order)
                     GET_CHA(ch) < number(0, GET_INT(vict))) &&
                 (GET_LEVEL(ch) < LVL_CREATOR ||
                     GET_LEVEL(vict) >= GET_LEVEL(ch))
-                && (!MOB2_FLAGGED(vict, MOB2_FAMILIAR) || vict->master != ch))
+                && (!NPC2_FLAGGED(vict, NPC2_FAMILIAR) || vict->master != ch))
                 act("$n has an indifferent look.", false, vict, 0, 0, TO_ROOM);
             else {
-                if (!CHECK_WAIT(vict) && !GET_MOB_WAIT(vict)) {
-                    if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
+                if (!CHECK_WAIT(vict) && !GET_NPC_WAIT(vict)) {
+                    if (IS_NPC(vict) && GET_NPC_VNUM(vict) == 5318)
                         perform_say(vict, "intone", "As you command, master.");
                     if (vict->fighting) {
                         for (GList * cit = vict->fighting; cit;
@@ -1236,12 +1236,12 @@ ACMD(do_order)
                     if ((AFF_FLAGGED(k->follower, AFF_CHARM) &&
                             GET_CHA(ch) > number(0, GET_INT(k->follower)))
                         || GET_LEVEL(ch) >= LVL_CREATOR
-                        || MOB2_FLAGGED(k->follower, MOB2_FAMILIAR)) {
+                        || NPC2_FLAGGED(k->follower, NPC2_FAMILIAR)) {
                         found = true;
                         if (!CHECK_WAIT(k->follower)
-                            && !GET_MOB_WAIT(k->follower)) {
+                            && !GET_NPC_WAIT(k->follower)) {
                             if (IS_NPC(k->follower)
-                                && GET_MOB_VNUM(k->follower) == 5318)
+                                && GET_NPC_VNUM(k->follower) == 5318)
                                 perform_say(vict, "intone",
                                     "As you command, master.");
                             if (k->follower->fighting) {
@@ -1403,7 +1403,7 @@ ACMD(do_retreat)
             return;
         if (vict != ch && g_list_find(ch->fighting, vict) &&
             can_see_creature(vict, ch) &&
-            ((IS_NPC(vict) && GET_MOB_WAIT(vict) < 10) ||
+            ((IS_NPC(vict) && GET_NPC_WAIT(vict) < 10) ||
                 (vict->desc && vict->desc->wait < 10)) &&
             number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED(vict))) {
             found = 1;
@@ -1674,7 +1674,7 @@ ACMD(do_stun)
     if (IS_PUDDING(vict) || IS_SLIME(vict) || IS_UNDEAD(vict))
         prob = 0;
 
-    if ((prob < percent || MOB2_FLAGGED(vict, MOB2_NOSTUN)) &&
+    if ((prob < percent || NPC2_FLAGGED(vict, NPC2_NOSTUN)) &&
         (GET_LEVEL(ch) < LVL_AMBASSADOR || GET_LEVEL(ch) < GET_LEVEL(vict))) {
         act("Uh-oh!  You fumbled while trying to stun $N!", false, ch, 0, vict,
             TO_CHAR);
@@ -1696,10 +1696,10 @@ ACMD(do_stun)
         remove_all_combat(vict);
         remove_all_combat(ch);
     }
-    if (IS_MOB(vict)) {
-        SET_BIT(MOB_FLAGS(vict), MOB_MEMORY);
+    if (IS_NPC(vict)) {
+        SET_BIT(NPC_FLAGS(vict), NPC_MEMORY);
         remember(vict, ch);
-        if (IS_SET(MOB2_FLAGS(vict), MOB2_HUNT))
+        if (IS_SET(NPC2_FLAGS(vict), NPC2_HUNT))
             start_hunting(vict, ch);
     }
     wait = 1 + (number(0, GET_LEVEL(ch)) / 5);
@@ -1845,7 +1845,7 @@ ACMD(do_rescue)
     else {
         percent = number(1, 101);   /* 101% is a complete failure */
         // Temp hack until mobs actually have skills
-        if (ch->char_specials.saved.act & MOB_ISNPC)
+        if (ch->char_specials.saved.act & NPC_ISNPC)
             prob = 101;
         else
             prob = CHECK_SKILL(ch, SKILL_RESCUE);
@@ -1874,7 +1874,6 @@ ACMD(do_tornado_kick)
     struct creature *vict = NULL;
     struct obj_data *ovict = NULL;
     int percent, prob, dam;
-    bool dead = 0;
     char *arg;
 
     arg = tmp_getword(&argument);
@@ -2021,7 +2020,7 @@ ACMD(do_sleeper)
     // failure
     //
 
-    if (percent > prob || MOB_FLAGGED(vict, MOB_NOSLEEP) ||
+    if (percent > prob || NPC_FLAGGED(vict, NPC_NOSLEEP) ||
         GET_LEVEL(vict) > LVL_CREATOR) {
         int retval = damage(ch, vict, 0, SKILL_SLEEPER, WEAR_NECK_1);
         ACMD_set_return_flags(retval);
@@ -2118,7 +2117,7 @@ ACMD(do_turn)
         return;
     percent = ((GET_LEVEL(vict)) + number(1, 101)); /* 101% is a complete
                                                      * failure */
-    if (MOB_FLAGGED(vict, MOB_NOTURN))
+    if (NPC_FLAGGED(vict, NPC_NOTURN))
         percent += GET_LEVEL(vict);
 
     prob = CHECK_SKILL(ch, SKILL_TURN);
@@ -2396,7 +2395,7 @@ projectile_blast_corpse(struct creature *ch, struct obj_data *gun,
 
     if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents) &&
         CORPSE_KILLER(ch->in_room->contents) ==
-        (IS_NPC(ch) ? -GET_MOB_VNUM(ch) : GET_IDNUM(ch))) {
+        (IS_NPC(ch) ? -GET_NPC_VNUM(ch) : GET_IDNUM(ch))) {
         if (IS_ARROW(gun)) {
             act("You shoot $p with $P!!",
                 false, ch, ch->in_room->contents, gun, TO_CHAR);
@@ -2720,7 +2719,7 @@ ACCMD(do_disarm)
 
         if (GET_STR(ch) + number(0, 20) > GET_STR(vict) + GET_DEX(vict)) {
             do_drop(vict, fname(weap->aliases), 0, 0, 0);
-            if (IS_NPC(vict) && !GET_MOB_WAIT(vict) && AWAKE(vict) &&
+            if (IS_NPC(vict) && !GET_NPC_WAIT(vict) && AWAKE(vict) &&
                 number(0, GET_LEVEL(vict)) > (GET_LEVEL(vict) >> 1))
                 do_get(vict, fname(weap->aliases), 0, 0, 0);
         }

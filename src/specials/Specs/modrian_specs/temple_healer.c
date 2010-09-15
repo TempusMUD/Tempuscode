@@ -71,7 +71,7 @@ SPECIAL(temple_healer)
                     if (self == vict || !can_see_creature(self, vict)
                         || !number(0, 2))
                         continue;
-                    if (GET_MOB_VNUM(self) == 11000 && IS_EVIL(vict)) {
+                    if (GET_NPC_VNUM(self) == 11000 && IS_EVIL(vict)) {
                         if (!number(0, 20)) {
                             act("$n looks at you with distaste.", false, self,
                                 0, vict, TO_VICT);

@@ -1020,9 +1020,9 @@ load_player_from_xml(int id)
         GET_IMPRINT_ROOM(ch, i) = -1;
 
     // Make sure the NPC flag isn't set
-    if (IS_SET(ch->char_specials.saved.act, MOB_ISNPC)) {
-        REMOVE_BIT(ch->char_specials.saved.act, MOB_ISNPC);
-        errlog("loadFromXML %s loaded with MOB_ISNPC bit set!", GET_NAME(ch));
+    if (IS_SET(ch->char_specials.saved.act, NPC_ISNPC)) {
+        REMOVE_BIT(ch->char_specials.saved.act, NPC_ISNPC);
+        errlog("loadFromXML %s loaded with NPC_ISNPC bit set!", GET_NAME(ch));
     }
     // Check for freezer expiration
     if (PLR_FLAGGED(ch, PLR_FROZEN)

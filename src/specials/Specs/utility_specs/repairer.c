@@ -5,7 +5,7 @@
 //
 
 #define MS_VNUM 30185
-#define IS_MS(mob)  (GET_MOB_VNUM(mob) == MS_VNUM)
+#define IS_MS(mob)  (GET_NPC_VNUM(mob) == MS_VNUM)
 
 SPECIAL(repairer)
 {

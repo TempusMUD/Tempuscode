@@ -571,7 +571,7 @@ index_boot(int mode)
         prefix = WLD_PREFIX;
         break;
     case DB_BOOT_MOB:
-        prefix = MOB_PREFIX;
+        prefix = NPC_PREFIX;
         break;
     case DB_BOOT_OBJ:
         prefix = OBJ_PREFIX;
@@ -1314,7 +1314,7 @@ renum_zone_table(void)
 
 void maybe_compile_prog(gpointer key, struct creature *mob, gpointer ignore)
 {
-    if (MOB_SHARED(mob)->prog)
+    if (NPC_SHARED(mob)->prog)
         prog_compile(NULL, mob, PROG_TYPE_MOBILE);
 }
 
@@ -1509,9 +1509,9 @@ recalculate_based_on_level(struct creature *mob_p)
 
     set_physical_attribs(mob_p);
 
-    GET_HIT(mob_p) = MOB_D1(doubleLevel);   // hitd_num
-    GET_MANA(mob_p) = MOB_D2(level);    // hitd_size
-    GET_MOVE(mob_p) = MOB_MOD(level);   // hitp_mod
+    GET_HIT(mob_p) = NPC_D1(doubleLevel);   // hitd_num
+    GET_MANA(mob_p) = NPC_D2(level);    // hitd_size
+    GET_MOVE(mob_p) = NPC_MOD(level);   // hitp_mod
     GET_MOVE(mob_p) += (int)(3.26 * (gen * gen) * level);
 
     GET_AC(mob_p) = (100 - (doubleLevel * 3));
@@ -1560,7 +1560,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->mob_specials.shared->damsizedice = t[7];
     mobile->points.damroll = t[8];
 
-    if (MOB_FLAGGED(mobile, MOB_WIMPY))
+    if (NPC_FLAGGED(mobile, NPC_WIMPY))
         mobile->mob_specials.shared->morale = MAX(30, GET_LEVEL(mobile));
     else
         mobile->mob_specials.shared->morale = 100;
@@ -1635,7 +1635,7 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
     }
 
     CASE("Move_buf") {
-        MOB_SHARED(mobile)->move_buf = strdup(value);
+        NPC_SHARED(mobile)->move_buf = strdup(value);
     }
 
     CASE("Str") {
@@ -1782,11 +1782,11 @@ parse_enhanced_mob(FILE * mob_f, struct creature *mobile, int nr)
 
     while (get_line(mob_f, line)) {
         if (!strcmp(line, "SpecParam:")) {  /* multi-line specparam */
-            MOB_SHARED(mobile)->func_param = fread_string(mob_f, buf2);
+            NPC_SHARED(mobile)->func_param = fread_string(mob_f, buf2);
         } else if (!strcmp(line, "LoadParam:")) {   /* multi-line load param */
-            MOB_SHARED(mobile)->load_param = fread_string(mob_f, buf2);
+            NPC_SHARED(mobile)->load_param = fread_string(mob_f, buf2);
         } else if (!strcmp(line, "Prog:")) {    /* multi-line prog */
-            MOB_SHARED(mobile)->prog = fread_string(mob_f, buf2);
+            NPC_SHARED(mobile)->prog = fread_string(mob_f, buf2);
         } else if (!strcmp(line, "E"))  /* end of the ehanced section */
             return;
         else if (*line == '#') {    /* we've hit the next mob, maybe? */
@@ -1846,10 +1846,10 @@ parse_mobile(FILE * mob_f, int nr)
     /* *** Numeric data *** */
     get_line(mob_f, line);
     sscanf(line, "%s %s %s %s %s %d %c", f1, f2, f3, f4, f5, t + 5, &letter);
-    MOB_FLAGS(mobile) = asciiflag_conv(f1);
-    MOB2_FLAGS(mobile) = asciiflag_conv(f2);
-    REMOVE_BIT(MOB2_FLAGS(mobile), MOB2_RENAMED);
-    SET_BIT(MOB_FLAGS(mobile), MOB_ISNPC);
+    NPC_FLAGS(mobile) = asciiflag_conv(f1);
+    NPC2_FLAGS(mobile) = asciiflag_conv(f2);
+    REMOVE_BIT(NPC2_FLAGS(mobile), NPC2_RENAMED);
+    SET_BIT(NPC_FLAGS(mobile), NPC_ISNPC);
     AFF_FLAGS(mobile) = asciiflag_conv(f3);
     AFF2_FLAGS(mobile) = asciiflag_conv(f4);
     AFF3_FLAGS(mobile) = asciiflag_conv(f5);
@@ -1894,7 +1894,7 @@ parse_mobile(FILE * mob_f, int nr)
     set_initial_tongue(mobile);
 
     g_hash_table_insert(mob_prototypes,
-        GINT_TO_POINTER(GET_MOB_VNUM(mobile)), mobile);
+        GINT_TO_POINTER(GET_NPC_VNUM(mobile)), mobile);
 }
 
 /* read all objects from obj file; generate index and prototypes */
@@ -2374,10 +2374,10 @@ read_mobile(int vnum)
     mob->player.time.played = 0;
     mob->player.time.logon = mob->player.time.birth;
 
-    MOB_IDNUM(mob) = (++current_mob_idnum);
+    NPC_IDNUM(mob) = (++current_mob_idnum);
 
     // unapproved mobs load without money or exp
-    if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
+    if (NPC2_FLAGGED(mob, NPC2_UNAPPROVED))
         GET_GOLD(mob) = GET_CASH(mob) = GET_EXP(mob) = 0;
     else {                      // randomize mob gold and cash
         if (GET_GOLD(mob) > 0)
@@ -2389,7 +2389,7 @@ read_mobile(int vnum)
     }
 
     creatures = g_list_prepend(creatures, mob);
-    g_hash_table_insert(creature_map, GINT_TO_POINTER(-MOB_IDNUM(mob)), mob);
+    g_hash_table_insert(creature_map, GINT_TO_POINTER(-NPC_IDNUM(mob)), mob);
 
     return mob;
 }
@@ -2463,7 +2463,7 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
     if (obj == NULL) {
         errlog("Mob num %d: equip object %d nonexistent.",
             ch->mob_specials.shared->vnum, vnum);
-        if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
+        if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
             perform_say(ch, "yell",
                 tmp_sprintf("Object %d doesn't exist!", vnum));
         return 3;
@@ -2485,7 +2485,7 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
     }
 
     if (pos < 0 || pos >= NUM_WEARS) {
-        if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
+        if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
             perform_say(ch, "yell",
                 tmp_sprintf("%s is not a valid position!", position));
 
@@ -2501,13 +2501,13 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
     if (obj == NULL) {
         errlog("Mob num %d cannot load equip object #%d.",
             ch->mob_specials.shared->vnum, vnum);
-        if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED))
+        if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
             perform_say(ch, "yell",
                 tmp_sprintf("Loading object %d failed!", vnum));
         return 5;
     }
     // Unapproved mobs should load unapproved eq.
-    if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED)) {
+    if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)) {
         SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
     }
     if (pos == ITEM_WEAR_TAKE) {
@@ -2785,9 +2785,9 @@ reset_zone(struct zone_data *zone)
     for (GList *it = creatures;it;it = it->next) {
         struct creature *tch = it->data;
 
-        if (tch->in_room->zone == zone && MOB_FLAGGED(tch, MOB_SPEC)
-            && GET_MOB_SPEC(tch)) {
-            GET_MOB_SPEC(tch) (tch, tch, 0, tmp_strdup(""), SPECIAL_RESET);
+        if (tch->in_room->zone == zone && NPC_FLAGGED(tch, NPC_SPEC)
+            && GET_NPC_SPEC(tch)) {
+            GET_NPC_SPEC(tch) (tch, tch, 0, tmp_strdup(""), SPECIAL_RESET);
         }
     }
 
@@ -2831,14 +2831,14 @@ reset_zone(struct zone_data *zone)
                     }
                     if (mob) {
                         char_to_room(mob, room, false);
-                        if (GET_MOB_LEADER(mob) > 0) {
+                        if (GET_NPC_LEADER(mob) > 0) {
                             for (GList *it = mob->in_room->people;it;it = it->next) {
                                     struct creature *tch = it->data;
 
                                     if (tch != mob
                                         && !mob->master
                                         && IS_NPC(tch)
-                                        && GET_MOB_VNUM(tch) == GET_MOB_LEADER(mob)
+                                        && GET_NPC_VNUM(tch) == GET_NPC_LEADER(mob)
                                         && !circle_follow(mob, tch)) 
                                         add_follower(mob, tch);
                             }
@@ -2848,7 +2848,7 @@ reset_zone(struct zone_data *zone)
                         } else {
                             last_cmd = 1;
                         }
-                        if (GET_MOB_PROGOBJ(mob))
+                        if (GET_NPC_PROGOBJ(mob))
                             trigger_prog_load(mob);
                     } else {
                         last_cmd = 0;
@@ -2945,7 +2945,7 @@ reset_zone(struct zone_data *zone)
                 obj = read_object(zonecmd->arg1);
                 obj->creation_method = CREATED_ZONE;
                 obj->creator = zone->number;
-                if (GET_MOB_SPEC(mob) != vendor)
+                if (GET_NPC_SPEC(mob) != vendor)
                     randomize_object(obj);
                 if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
                     SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);

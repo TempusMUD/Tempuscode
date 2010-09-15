@@ -251,7 +251,7 @@ move_gain(struct creature *ch)
 
     if (IS_NPC(ch)) {
         gain = GET_LEVEL(ch);
-        if (MOB2_FLAGGED(ch, MOB2_MOUNT))
+        if (NPC2_FLAGGED(ch, NPC2_MOUNT))
             gain <<= 1;
     } else
         gain = graf(GET_AGE(ch), GET_RACE(ch), 18, 22, 26, 22, 18, 14, 12);
@@ -654,7 +654,7 @@ point_update(void)
             continue;
         }
         // progs
-        if (IS_NPC(tch) && GET_MOB_PROGOBJ(tch))
+        if (IS_NPC(tch) && GET_NPC_PROGOBJ(tch))
             trigger_prog_tick(tch, PROG_TYPE_MOBILE);
 
         if (!IS_NPC(tch)) {

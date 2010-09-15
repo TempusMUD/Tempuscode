@@ -1,6 +1,6 @@
 
 #define CLONE_LAB_TIME 1800     // 1800 secs == .5 hours
-#define CLONE_LAB_MOB_VNUM 17199
+#define CLONE_LAB_NPC_VNUM 17199
 
 SPECIAL(clone_lab)
 {

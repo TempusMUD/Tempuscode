@@ -340,7 +340,7 @@ SPECIAL(hell_hunter_brain)
                 // can't go to isolated zones
                 ZONE_FLAGGED(vict->in_room->zone, ZONE_ISOLATED) ||
                 // ignore shopkeepers
-                (IS_NPC(vict) && vendor == GET_MOB_SPEC(vict)) ||
+                (IS_NPC(vict) && vendor == GET_NPC_SPEC(vict)) ||
                 // don't go to heaven
                 isBlindSpot(vict->in_room->zone))) {
             continue;
@@ -395,7 +395,7 @@ SPECIAL(hell_hunter_brain)
 
                 if (vict) {
                     start_hunting(mob, vict);
-                    SET_BIT(MOB_FLAGS(mob), MOB_SPIRIT_TRACKER);
+                    SET_BIT(NPC_FLAGS(mob), NPC_SPIRIT_TRACKER);
                 }
 
                 char_to_room(mob, vict ? vict->in_room : obj->in_room, false);
@@ -490,14 +490,14 @@ SPECIAL(hell_hunter)
         }
     }
 
-    if (!ch->fighting && !MOB_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
+    if (!ch->fighting && !NPC_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
         act("$n vanishes into the mouth of an interplanar conduit.",
             false, ch, 0, 0, TO_ROOM);
         creature_purge(ch, true);
         return 1;
     }
 
-    if (GET_MOB_VNUM(ch) == H_REGULATOR) {
+    if (GET_NPC_VNUM(ch) == H_REGULATOR) {
 
         if (GET_MANA(ch) < 100) {
             act("$n vanishes into the mouth of an interplanar conduit.",
@@ -574,7 +574,7 @@ SPECIAL(arioch)
 
     if (ch->in_room->zone->number != 162) {
 
-        if (!MOB_HUNTING(ch) && !ch->fighting) {
+        if (!NPC_HUNTING(ch) && !ch->fighting) {
 
             for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
                 if (IS_CORPSE(obj)) {
@@ -633,7 +633,7 @@ SPECIAL(arioch)
             (((rm = blade->in_room) && !ROOM_FLAGGED(rm, SAFE_ROOM_BITS)) ||
                 (((vict = blade->carried_by) || (vict = blade->worn_by)) &&
                     !ROOM_FLAGGED(vict->in_room, SAFE_ROOM_BITS) &&
-                    (!IS_NPC(vict) || vendor != GET_MOB_SPEC(vict)) &&
+                    (!IS_NPC(vict) || vendor != GET_NPC_SPEC(vict)) &&
                     !PRF_FLAGGED(vict, PRF_NOHASSLE)
                     && can_see_creature(ch, vict)))) {
             if (vict) {

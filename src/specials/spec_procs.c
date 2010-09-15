@@ -501,8 +501,8 @@ SPECIAL(venom_attack)
     if (GET_POSITION(ch) != POS_FIGHTING)
         return false;
 
-    if (GET_MOB_PARAM(ch)) {
-        str = GET_MOB_PARAM(ch);
+    if (GET_NPC_PARAM(ch)) {
+        str = GET_NPC_PARAM(ch);
         for (line = tmp_getline(&str), lineno = 1; line;
             line = tmp_getline(&str), lineno++) {
             param_key = tmp_getword(&line);
@@ -516,7 +516,7 @@ SPECIAL(venom_attack)
         if (err) {
             mudlog(LVL_IMMORT, NRM, true,
                 "ERR: Mobile %d has %s in line %d of specparam",
-                GET_MOB_VNUM(ch), err, lineno);
+                GET_NPC_VNUM(ch), err, lineno);
 
             return 1;
         }
@@ -884,7 +884,7 @@ SPECIAL(fido)
         act("$n pukes all over the place.", false, ch, 0, 0, TO_ROOM);
         break;
     case 4:
-        if (!IS_NPC(vict) || GET_MOB_SPEC(vict) != fido) {
+        if (!IS_NPC(vict) || GET_NPC_SPEC(vict) != fido) {
             act("$n takes a leak on $N's shoes.", false, ch, 0, vict,
                 TO_NOTVICT);
             act("$n takes a leak on your shoes.", false, ch, 0, vict, TO_VICT);
@@ -901,7 +901,7 @@ SPECIAL(fido)
         act("$n sniffs $N's crotch.", true, ch, 0, vict, TO_NOTVICT);
         break;
     case 7:
-        if (!IS_NPC(vict) || GET_MOB_SPEC(vict) != fido) {
+        if (!IS_NPC(vict) || GET_NPC_SPEC(vict) != fido) {
             act("$n slobbers on your hand.", true, ch, 0, vict, TO_VICT);
             act("$n slobbers on $N's hand.", true, ch, 0, vict, TO_NOTVICT);
         }
@@ -1128,7 +1128,7 @@ SPECIAL(gelatinous_blob)
         if (GET_OBJ_SIGIL_IDNUM(i))
             continue;
 
-        if (GET_MOB_VNUM(ch) == 30068)
+        if (GET_NPC_VNUM(ch) == 30068)
             act("$n sucks $p into a holding tank with a WHOOSH!", false, ch, i,
                 0, TO_ROOM);
         else
@@ -1205,7 +1205,7 @@ SPECIAL(pet_shops)
         GET_GOLD(ch) -= cost;
 
         if (IS_NPC(pet)) {
-            pet = read_mobile(GET_MOB_VNUM(pet));
+            pet = read_mobile(GET_NPC_VNUM(pet));
             GET_EXP(pet) = 0;
 
             if (*pet_name) {
@@ -1239,7 +1239,7 @@ SPECIAL(pet_shops)
         if (IS_NPC(pet)) {
             send_to_char(ch, "May you enjoy your pet.\r\n");
             act("$n buys $N as a pet.", false, ch, 0, pet, TO_ROOM);
-            SET_BIT(MOB_FLAGS(pet), MOB_PET);
+            SET_BIT(NPC_FLAGS(pet), NPC_PET);
         } else {
             send_to_char(ch, "May you enjoy your slave.\r\n");
             act("$n buys $N as a slave.", false, ch, 0, pet, TO_ROOM);

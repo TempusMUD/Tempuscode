@@ -163,8 +163,8 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str,
         for (GList *it = ch->in_room->people;it;it = it->next) {
             struct creature *tch = it->data;
 
-            if (GET_MOB_SPEC(tch) == cryogenicist ||
-                GET_MOB_SPEC(tch) == receptionist) {
+            if (GET_NPC_SPEC(tch) == cryogenicist ||
+                GET_NPC_SPEC(tch) == receptionist) {
                 f_factor += (f_factor * cost_modifier(ch, tch)) / 100;
             }
         }

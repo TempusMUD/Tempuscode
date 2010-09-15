@@ -276,7 +276,7 @@ perform_tell(struct creature *ch, struct creature *vict, const char *arg)
             act("$N is away from the keyboard.", true, ch, 0, vict, TO_CHAR);
     }
 
-    if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_MOB(ch))
+    if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_NPC(ch))
         send_to_char(vict, "\007\007");
 
     if (!IS_NPC(ch)) {

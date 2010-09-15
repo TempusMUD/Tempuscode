@@ -55,7 +55,7 @@ SPECIAL(slaver)
         PRF_FLAGGED(vict, PRF_NOHASSLE) || !can_see_creature(slaver, vict))
         return 0;
 
-    if (GET_MOB_WAIT(slaver) <= 5 && !number(0, 1)) {
+    if (GET_NPC_WAIT(slaver) <= 5 && !number(0, 1)) {
 
         if (slaver->in_room == r_pit_lip) {
             act("$n hurls you headfirst into the slave pit!",

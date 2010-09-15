@@ -27,7 +27,7 @@ SPECIAL(horn_of_geryon)
                 0, TO_ROOM);
             add_follower(minotaur, ch);
             SET_BIT(AFF_FLAGS(minotaur), AFF_CHARM);
-            SET_BIT(MOB_FLAGS(minotaur), MOB_PET);
+            SET_BIT(NPC_FLAGS(minotaur), NPC_PET);
             GET_OBJ_VAL(horn, 0)--;
             if (GET_OBJ_VAL(horn, 0) <= 0)
                 extract_obj(horn);

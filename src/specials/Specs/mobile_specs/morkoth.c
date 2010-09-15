@@ -13,7 +13,7 @@ SPECIAL(morkoth)
 
     if (spec_mode != SPECIAL_CMD)
         return 0;
-    if (!cmd || morkoth->in_room->number != GET_MOB_LAIR(morkoth))
+    if (!cmd || morkoth->in_room->number != GET_NPC_LAIR(morkoth))
         return 0;
 
     if (CMD_IS("down")) {

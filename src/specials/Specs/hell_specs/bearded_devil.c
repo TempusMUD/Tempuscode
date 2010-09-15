@@ -8,7 +8,7 @@ SPECIAL(bearded_devil)
 {
     if (spec_mode != SPECIAL_TICK)
         return false;
-    if (!ch->fighting || !AWAKE(ch) || GET_MOB_WAIT(ch) > 0)
+    if (!ch->fighting || !AWAKE(ch) || GET_NPC_WAIT(ch) > 0)
         return false;
 
     if (!number(0, 3)) {

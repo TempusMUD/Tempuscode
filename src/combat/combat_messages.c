@@ -198,7 +198,7 @@ death_cry(struct creature *ch)
     struct room_data *was_in = NULL;
     int found = 0;
 
-    if (GET_MOB_SPEC(ch) == fate)
+    if (GET_NPC_SPEC(ch) == fate)
         act("$n dissipates in a cloud of mystery, leaving you to your fate.",
             false, ch, 0, 0, TO_ROOM);
     else if (IS_GHOUL(ch) || IS_WIGHT(ch) || IS_MUMMY(ch))
@@ -266,9 +266,9 @@ death_cry(struct creature *ch)
 
                     if (found)
                         return;
-                    if (IS_MOB(tch) && !MOB_FLAGGED(tch, MOB_SENTINEL) &&
+                    if (IS_NPC(tch) && !NPC_FLAGGED(tch, NPC_SENTINEL) &&
                         !tch->fighting && AWAKE(tch) &&
-                        (MOB_FLAGGED(tch, MOB_HELPER) ||
+                        (NPC_FLAGGED(tch, NPC_HELPER) ||
                             tch->mob_specials.shared->func ==
                             cityguard) && number(0, 40) < GET_LEVEL(tch)) {
                         if ((!ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ||

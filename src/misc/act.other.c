@@ -1893,7 +1893,7 @@ ACMD(do_feed)
     else if (GET_OBJ_TYPE(food) != ITEM_FOOD)
         act("I don't think anyone wants to eat $p.",
             false, ch, food, 0, TO_CHAR);
-    else if (!MOB2_FLAGGED(vict, MOB2_MOUNT))
+    else if (!NPC2_FLAGGED(vict, NPC2_MOUNT))
         act("You cannot feed $p to $N.", false, ch, food, vict, TO_CHAR);
     else if (!AWAKE(vict))
         act("$N is in no position to be eating.", false, ch, food, vict,

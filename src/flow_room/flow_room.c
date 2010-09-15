@@ -177,8 +177,8 @@ flow_one_creature(struct creature *ch, struct room_data *rnum, int pulse,
         return;
 
     if (CHAR_CUR_PULSE(ch) == pulse ||
-        (IS_MOB(ch) &&
-            (MOB2_FLAGGED(ch, MOB2_NO_FLOW) ||
+        (IS_NPC(ch) &&
+            (NPC2_FLAGGED(ch, NPC2_NO_FLOW) ||
                 IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_NOMOB)
                 || IS_SET(ROOM_FLAGS(ABS_EXIT(rnum,
                             dir)->to_room), ROOM_NOMOB)))

@@ -16,10 +16,10 @@ SPECIAL(killer_hunter)
     if (cmd || !hunter->in_room)
         return 0;
 
-    if (MOB_HUNTING(hunter)) {
-        if (!PLR_FLAGGED(MOB_HUNTING(hunter), PLR_KILLER)) {
+    if (NPC_HUNTING(hunter)) {
+        if (!PLR_FLAGGED(NPC_HUNTING(hunter), PLR_KILLER)) {
             sprintf(buf2, "You're damn lucky, %s.",
-                GET_NAME(MOB_HUNTING(hunter)));
+                GET_NAME(NPC_HUNTING(hunter)));
             do_gen_comm(ch, buf2, 0, SCMD_HOLLER, 0);
             stop_hunting(hunter);
             return 1;

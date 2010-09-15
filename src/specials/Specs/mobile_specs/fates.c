@@ -61,7 +61,7 @@ SPECIAL(fate)
         return 0;
 
     // Who is she?
-    switch (GET_MOB_VNUM(fate)) {
+    switch (GET_NPC_VNUM(fate)) {
     case FATE_VNUM_LOW:
         strcpy(dyn_name, "fatelow");
         which_fate = 0;

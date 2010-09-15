@@ -9,7 +9,7 @@ SPECIAL(newbie_cafe_rm)
     if (spec_mode != SPECIAL_CMD)
         return 0;
 
-    if (IS_MOB(ch) && GET_MOB_VNUM(ch) == 2391) /* janitor */
+    if (IS_NPC(ch) && GET_NPC_VNUM(ch) == 2391) /* janitor */
         return 0;
 
     if (CMD_IS("south")) {

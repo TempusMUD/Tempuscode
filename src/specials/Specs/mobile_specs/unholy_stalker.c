@@ -11,7 +11,7 @@ SPECIAL(unholy_stalker)
 
     struct creature *mob = (struct creature *)me;
 
-    if (!MOB_HUNTING(mob) && !mob->fighting) {
+    if (!NPC_HUNTING(mob) && !mob->fighting) {
         act("$n dematerializes, returning to the negative planes.", true, mob,
             0, 0, TO_ROOM);
         creature_purge(mob, true);

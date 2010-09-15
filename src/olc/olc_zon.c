@@ -1073,7 +1073,7 @@ do_zone_cmdmove(struct creature *ch, struct zone_data *zone, char *argument)
     }
 }
 
-#define ZMOB_USAGE "Usage: olc zmob <mob vnum> <max existing>\n"
+#define ZNPC_USAGE "Usage: olc zmob <mob vnum> <max existing>\n"
 
 void
 do_zmob_cmd(struct creature *ch, char *argument)
@@ -1086,12 +1086,12 @@ do_zmob_cmd(struct creature *ch, char *argument)
     argument = two_arguments(argument, arg1, arg2);
 
     if (!*arg1 || !*arg2) {
-        send_to_char(ch, ZMOB_USAGE);
+        send_to_char(ch, ZNPC_USAGE);
         return;
     }
 
     if (!OLC_EDIT_OK(ch, ch->in_room->zone, ZONE_ZCMDS_APPROVED)) {
-        send_to_char(ch, ZMOB_USAGE);
+        send_to_char(ch, ZNPC_USAGE);
         return;
     }
 
@@ -1108,7 +1108,7 @@ do_zmob_cmd(struct creature *ch, char *argument)
             return;
         }
     } else {
-        send_to_char(ch, ZMOB_USAGE);
+        send_to_char(ch, ZNPC_USAGE);
         return;
     }
 
@@ -3129,7 +3129,7 @@ do_zpath_cmd(struct creature *ch, char *argument)
         zonecmd->if_flag = 1;
         zonecmd->arg1 = path_vnum;
         zonecmd->arg2 = 0;
-        zonecmd->arg3 = GET_MOB_VNUM(mob);
+        zonecmd->arg3 = GET_NPC_VNUM(mob);
         zonecmd->prob = 100;
 
         zonecmd->next = NULL;

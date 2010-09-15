@@ -381,7 +381,7 @@ perform_put(struct creature * ch, struct obj_data * obj,
             GET_OBJ_VAL(cont, 0))
             act("$p won't fit in $P.", false, ch, obj, cont, TO_CHAR);
         else if (IS_OBJ_STAT(obj, ITEM_NODROP)
-            && GET_LEVEL(ch) < LVL_TIMEGOD && !MOB_FLAGGED(ch, MOB_UTILITY))
+            && GET_LEVEL(ch) < LVL_TIMEGOD && !NPC_FLAGGED(ch, NPC_UTILITY))
             act("$p must be cursed!  You can't seem to let go of it...", false,
                 ch, obj, 0, TO_CHAR);
         else {
@@ -1383,7 +1383,7 @@ perform_drop(struct creature *ch, struct obj_data *obj,
         return 0;
 
     if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
-        if (GET_LEVEL(ch) < LVL_TIMEGOD && !MOB_FLAGGED(ch, MOB_UTILITY)) {
+        if (GET_LEVEL(ch) < LVL_TIMEGOD && !NPC_FLAGGED(ch, NPC_UTILITY)) {
             sprintf(buf, "You can't %s $p, it must be CURSED!", sname);
             act(buf, false, ch, obj, 0, TO_CHAR);
             return 0;
@@ -2301,7 +2301,7 @@ ACMD(do_eat)
     gain_condition(ch, FULL, amount);
 
     if ((GET_LEVEL(ch) >= LVL_AMBASSADOR
-            || ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) && !IS_MOB(ch))
+            || ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) && !IS_NPC(ch))
         extract_ok = false;     // sometimes a death extracts the char's objs too
 
     if (IS_OBJ_TYPE(food, ITEM_FOOD)) {

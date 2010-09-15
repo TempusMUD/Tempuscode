@@ -313,51 +313,51 @@ enum plr2_flag {
 
 /* Mobile flags: used by struct creature.char_specials.act */
 enum mob_flag {
-    MOB_SPEC = (1 << 0),	/* Mob has a callable spec-proc    */
-    MOB_SENTINEL = (1 << 1),	/* Mob should not move        */
-    MOB_SCAVENGER = (1 << 2),	/* Mob picks up stuff on the ground    */
-    MOB_ISNPC = (1 << 3),	/* (R) Automatically set on all Mobs    */
-    MOB_AWARE = (1 << 4),	/* Mob can't be backstabbed        */
-    MOB_AGGRESSIVE = (1 << 5),	/* Mob hits players in the room    */
-    MOB_STAY_ZONE = (1 << 6),	/* Mob shouldn't wander out of zone    */
-    MOB_WIMPY = (1 << 7),	/* Mob flees if severely injured    */
-    MOB_AGGR_EVIL = (1 << 8),	/* auto attack evil PC's        */
-    MOB_AGGR_GOOD = (1 << 9),	/* auto attack good PC's        */
-    MOB_AGGR_NEUTRAL = (1 << 10),	/* auto attack neutral PC's        */
-    MOB_MEMORY = (1 << 11),	/* remember attackers if attacked    */
-    MOB_HELPER = (1 << 12),	/* attack PCs fighting other NPCs    */
-    MOB_NOCHARM = (1 << 13),	/* Mob can't be charmed        */
-    MOB_NOSUMMON = (1 << 14),	/* Mob can't be summoned        */
-    MOB_NOSLEEP = (1 << 15),	// Mob can't be slept
-    MOB_NOBASH = (1 << 16),	// Mob can't be bashed (e.g. trees)
-    MOB_NOBLIND = (1 << 17),	// Mob can't be blinded
-    MOB_NOTURN = (1 << 18),	// Hard to turn
-    MOB_NOPETRI = (1 << 19),	// Cannot be petrified
-    MOB_PET = (1 << 20),	// Mob is a conjured pet and shouldn't
+    NPC_SPEC = (1 << 0),	/* Mob has a callable spec-proc    */
+    NPC_SENTINEL = (1 << 1),	/* Mob should not move        */
+    NPC_SCAVENGER = (1 << 2),	/* Mob picks up stuff on the ground    */
+    NPC_ISNPC = (1 << 3),	/* (R) Automatically set on all Mobs    */
+    NPC_AWARE = (1 << 4),	/* Mob can't be backstabbed        */
+    NPC_AGGRESSIVE = (1 << 5),	/* Mob hits players in the room    */
+    NPC_STAY_ZONE = (1 << 6),	/* Mob shouldn't wander out of zone    */
+    NPC_WIMPY = (1 << 7),	/* Mob flees if severely injured    */
+    NPC_AGGR_EVIL = (1 << 8),	/* auto attack evil PC's        */
+    NPC_AGGR_GOOD = (1 << 9),	/* auto attack good PC's        */
+    NPC_AGGR_NEUTRAL = (1 << 10),	/* auto attack neutral PC's        */
+    NPC_MEMORY = (1 << 11),	/* remember attackers if attacked    */
+    NPC_HELPER = (1 << 12),	/* attack PCs fighting other NPCs    */
+    NPC_NOCHARM = (1 << 13),	/* Mob can't be charmed        */
+    NPC_NOSUMMON = (1 << 14),	/* Mob can't be summoned        */
+    NPC_NOSLEEP = (1 << 15),	// Mob can't be slept
+    NPC_NOBASH = (1 << 16),	// Mob can't be bashed (e.g. trees)
+    NPC_NOBLIND = (1 << 17),	// Mob can't be blinded
+    NPC_NOTURN = (1 << 18),	// Hard to turn
+    NPC_NOPETRI = (1 << 19),	// Cannot be petrified
+    NPC_PET = (1 << 20),	// Mob is a conjured pet and shouldn't
 										 // get nor give any xp in any way.
-    MOB_SOULLESS = (1 << 21),	// Mobile is Soulless - Unholy compact.
-    MOB_SPIRIT_TRACKER = (1 << 22),	// Can track through !track
-    MOB_UTILITY = (1 << 23), //Can't be seen, hit, etc...
-#define NUM_MOB_FLAGS             24
+    NPC_SOULLESS = (1 << 21),	// Mobile is Soulless - Unholy compact.
+    NPC_SPIRIT_TRACKER = (1 << 22),	// Can track through !track
+    NPC_UTILITY = (1 << 23), //Can't be seen, hit, etc...
+#define NUM_NPC_FLAGS             24
 };
 
 enum mob2_flag {
-    MOB2_SCRIPT = (1 << 0),
-    MOB2_MOUNT = (1 << 1),
-    MOB2_STAY_SECT = (1 << 2),	/* Can't leave SECT_type.   */
-    MOB2_ATK_MOBS = (1 << 3),	/* Aggro Mobs will attack other mobs */
-    MOB2_HUNT = (1 << 4),	/* Mob will hunt attacker    */
-    MOB2_LOOTER = (1 << 5),	/* Loots corpses     */
-    MOB2_NOSTUN = (1 << 6),
-    MOB2_SELLER = (1 << 7),	/* If shopkeeper, sells anywhere. */
-    MOB2_WONT_WEAR = (1 << 8),	/* Wont wear shit it picks up (SHPKPER) */
-    MOB2_SILENT_HUNTER = (1 << 9),
-    MOB2_FAMILIAR = (1 << 10),	/* mages familiar */
-    MOB2_NO_FLOW = (1 << 11),	/* Mob doesn't flow */
-    MOB2_UNAPPROVED = (1 << 12),	/* Mobile not approved for game play */
-    MOB2_RENAMED = (1 << 13),	/* Mobile renamed */
-    MOB2_NOAGGRO_RACE = (1 << 14),	/* wont attack members of own race */
-#define NUM_MOB2_FLAGS            15
+    NPC2_SCRIPT = (1 << 0),
+    NPC2_MOUNT = (1 << 1),
+    NPC2_STAY_SECT = (1 << 2),	/* Can't leave SECT_type.   */
+    NPC2_ATK_MOBS = (1 << 3),	/* Aggro Mobs will attack other mobs */
+    NPC2_HUNT = (1 << 4),	/* Mob will hunt attacker    */
+    NPC2_LOOTER = (1 << 5),	/* Loots corpses     */
+    NPC2_NOSTUN = (1 << 6),
+    NPC2_SELLER = (1 << 7),	/* If shopkeeper, sells anywhere. */
+    NPC2_WONT_WEAR = (1 << 8),	/* Wont wear shit it picks up (SHPKPER) */
+    NPC2_SILENT_HUNTER = (1 << 9),
+    NPC2_FAMILIAR = (1 << 10),	/* mages familiar */
+    NPC2_NO_FLOW = (1 << 11),	/* Mob doesn't flow */
+    NPC2_UNAPPROVED = (1 << 12),	/* Mobile not approved for game play */
+    NPC2_RENAMED = (1 << 13),	/* Mobile renamed */
+    NPC2_NOAGGRO_RACE = (1 << 14),	/* wont attack members of own race */
+#define NUM_NPC2_FLAGS            15
 };
 
 /* Preference flags: used by struct creature.player_specials.pref */

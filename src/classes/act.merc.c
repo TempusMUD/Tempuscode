@@ -189,7 +189,7 @@ ACMD(do_crossface)
             if (prev_pos != POS_STUNNED && !IS_SET(retval, DAM_VICT_KILLED) &&
                 !IS_SET(retval, DAM_ATTACKER_KILLED)) {
                 if (ch->fighting
-                    && (!IS_NPC(vict) || !MOB2_FLAGGED(vict, MOB2_NOSTUN))) {
+                    && (!IS_NPC(vict) || !NPC2_FLAGGED(vict, NPC2_NOSTUN))) {
                     remove_combat(ch, vict);
                     remove_all_combat(vict);
                     GET_POSITION(vict) = POS_STUNNED;
@@ -387,7 +387,7 @@ ACMD(do_snipe)
         vict = random_opponent(vict);
     }
     // Has vict been sniped once and is vict a sentinel mob?
-    if ((MOB_FLAGGED(vict, MOB_SENTINEL)) &&
+    if ((NPC_FLAGGED(vict, NPC_SENTINEL)) &&
         affected_by_spell(ch, SKILL_SNIPE)) {
         act("$N has taken cover!\r\n", true, ch, NULL, vict, TO_CHAR);
         return;

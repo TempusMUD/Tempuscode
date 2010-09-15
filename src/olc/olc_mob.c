@@ -118,8 +118,8 @@ const char *olc_mset_keys[] = {
     for (GList *cit = creatures;cit;cit = cit->next) {                  \
         tmp_mob = cit->data;                                            \
         if (IS_NPC(tmp_mob)                                             \
-            && GET_MOB_VNUM(tmp_mob) == GET_MOB_VNUM(mob_p)             \
-            && !MOB2_FLAGGED(tmp_mob, MOB2_RENAMED))                    \
+            && GET_NPC_VNUM(tmp_mob) == GET_NPC_VNUM(mob_p)             \
+            && !NPC2_FLAGGED(tmp_mob, NPC2_RENAMED))                    \
             (tmp_mob)_item = (mob_p)_item;                              \
     }
 
@@ -127,7 +127,7 @@ const char *olc_mset_keys[] = {
     for (GList *cit = creatures;cit;cit = cit->next) {                  \
         tmp_mob = cit->data;                                            \
         if (IS_NPC(tmp_mob)                                             \
-            && GET_MOB_VNUM(tmp_mob) == GET_MOB_VNUM(mob_p))            \
+            && GET_NPC_VNUM(tmp_mob) == GET_NPC_VNUM(mob_p))            \
             (tmp_mob)_item = (mob_p)_item;                              \
     }
 
@@ -183,9 +183,9 @@ do_create_mob(struct creature *ch, int vnum)
     new_mob->player.title = NULL;
 
     /* *** Numeric data *** */
-    MOB_FLAGS(new_mob) = 0;
-    MOB2_FLAGS(new_mob) = 0;
-    SET_BIT(MOB_FLAGS(new_mob), MOB_ISNPC);
+    NPC_FLAGS(new_mob) = 0;
+    NPC2_FLAGS(new_mob) = 0;
+    SET_BIT(NPC_FLAGS(new_mob), NPC_ISNPC);
     AFF_FLAGS(new_mob) = 0;
     AFF2_FLAGS(new_mob) = 0;
     AFF3_FLAGS(new_mob) = 0;
@@ -223,8 +223,8 @@ do_create_mob(struct creature *ch, int vnum)
     GET_GOLD(new_mob) = 0;
     GET_EXP(new_mob) = 100;
     GET_MORALE(new_mob) = 100;
-    GET_MOB_LAIR(new_mob) = -1;
-    GET_MOB_LEADER(new_mob) = -1;
+    GET_NPC_LAIR(new_mob) = -1;
+    GET_NPC_LEADER(new_mob) = -1;
 
     new_mob->mob_specials.shared->attack_type = 0;
 
@@ -434,7 +434,7 @@ do_mob_mset(struct creature *ch, char *argument)
             SET_BIT(PLR_FLAGS(ch), PLR_OLC);
             for (GList * cit = creatures; cit; cit = cit->next) {
                 struct creature *tch = cit->data;
-                if (GET_MOB_VNUM(tch) == GET_MOB_VNUM(mob_p)) {
+                if (GET_NPC_VNUM(tch) == GET_NPC_VNUM(mob_p)) {
                     tch->player.description = NULL;
                     break;
                 }
@@ -468,12 +468,12 @@ do_mob_mset(struct creature *ch, char *argument)
 
             argument = one_argument(argument, arg1);
 
-            cur_flags = MOB_FLAGS(mob_p);
+            cur_flags = NPC_FLAGS(mob_p);
 
             while (*arg1) {
                 if ((flag = search_block(arg1, action_bits_desc, false)) == -1) {
                     send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
-                } else if ((1 << flag) == MOB_SPEC && !GET_MOB_SPEC(mob_p) &&
+                } else if ((1 << flag) == NPC_SPEC && !GET_NPC_SPEC(mob_p) &&
                     state == 1)
                     send_to_char(ch,
                         "Can't set SPEC bit until special is assigned.\r\n");
@@ -490,17 +490,17 @@ do_mob_mset(struct creature *ch, char *argument)
                 cur_flags = cur_flags ^ tmp_flags;
             }
 
-            MOB_FLAGS(mob_p) = cur_flags;
+            NPC_FLAGS(mob_p) = cur_flags;
 
             if (tmp_flags == 0 && cur_flags == 0) {
                 SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-                SET_BIT(MOB_FLAGS(mob_p), MOB_ISNPC);
+                SET_BIT(NPC_FLAGS(mob_p), NPC_ISNPC);
                 send_to_char(ch, "Mobile flags set to: ISNPC\r\n");
             } else if (tmp_flags == 0)
                 send_to_char(ch, "Mobile flags not altered.\r\n");
             else {
                 SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
-                SET_BIT(MOB_FLAGS(mob_p), MOB_ISNPC);
+                SET_BIT(NPC_FLAGS(mob_p), NPC_ISNPC);
                 send_to_char(ch, "Mobile flags set.\r\n");
             }
             break;
@@ -526,7 +526,7 @@ do_mob_mset(struct creature *ch, char *argument)
 
             argument = one_argument(argument, arg1);
 
-            cur_flags = MOB2_FLAGS(mob_p);
+            cur_flags = NPC2_FLAGS(mob_p);
 
             while (*arg1) {
                 if ((flag =
@@ -545,7 +545,7 @@ do_mob_mset(struct creature *ch, char *argument)
                 cur_flags = cur_flags ^ tmp_flags;
             }
 
-            MOB2_FLAGS(mob_p) = cur_flags;
+            NPC2_FLAGS(mob_p) = cur_flags;
 
             if (tmp_flags == 0 && cur_flags == 0) {
                 SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
@@ -555,7 +555,7 @@ do_mob_mset(struct creature *ch, char *argument)
             else {
                 SET_BIT(zone->flags, ZONE_MOBS_MODIFIED);
                 send_to_char(ch, "Mobile flags2 set.\r\n");
-                REMOVE_BIT(MOB2_FLAGS(mob_p), MOB2_RENAMED);
+                REMOVE_BIT(NPC2_FLAGS(mob_p), NPC2_RENAMED);
             }
             break;
         }
@@ -1056,9 +1056,9 @@ do_mob_mset(struct creature *ch, char *argument)
             else {
 
                 mob_p->mob_specials.shared->func = spec_list[i].func;
-                if (MOB_SHARED(mob_p)->func_param)
-                    free(MOB_SHARED(mob_p)->func_param);
-                MOB_SHARED(mob_p)->func_param = NULL;
+                if (NPC_SHARED(mob_p)->func_param)
+                    free(NPC_SHARED(mob_p)->func_param);
+                NPC_SHARED(mob_p)->func_param = NULL;
                 do_specassign_save(ch, SPEC_MOB);
                 send_to_char(ch, "Mobile special set.\r\n");
             }
@@ -1093,9 +1093,9 @@ do_mob_mset(struct creature *ch, char *argument)
 
         }
     case 44:{                  /** move_buf **/
-            if (MOB_SHARED(mob_p)->move_buf)
-                free(MOB_SHARED(mob_p)->move_buf);
-            MOB_SHARED(mob_p)->move_buf = strdup(arg2);
+            if (NPC_SHARED(mob_p)->move_buf)
+                free(NPC_SHARED(mob_p)->move_buf);
+            NPC_SHARED(mob_p)->move_buf = strdup(arg2);
             send_to_char(ch, "Mobile move_buf set.\r\n");
             break;
 
@@ -1116,19 +1116,19 @@ do_mob_mset(struct creature *ch, char *argument)
         }
     case 47:
         // Make sure they have a mob special
-        if (!GET_MOB_SPEC(mob_p)) {
+        if (!GET_NPC_SPEC(mob_p)) {
             send_to_char(ch, "You should set a special first!\r\n");
             break;
         }
         // Check to see that they can set the spec param
-        i = find_spec_index_ptr(GET_MOB_SPEC(mob_p));
+        i = find_spec_index_ptr(GET_NPC_SPEC(mob_p));
         if (IS_SET(spec_list[i].flags, SPEC_RES)
             && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL)) {
             send_to_char(ch, "This special is reserved.\r\n");
             break;
         }
         // It's ok.  Let em set it.
-        start_editing_text(ch->desc, &MOB_SHARED(mob_p)->func_param, 8192);
+        start_editing_text(ch->desc, &NPC_SHARED(mob_p)->func_param, 8192);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
         act("$n begins to write a mobile spec param.", true, ch, 0, 0,
             TO_ROOM);
@@ -1146,7 +1146,7 @@ do_mob_mset(struct creature *ch, char *argument)
 
         }
     case 49:
-        start_editing_text(ch->desc, &MOB_SHARED(mob_p)->load_param, 8192);
+        start_editing_text(ch->desc, &NPC_SHARED(mob_p)->load_param, 8192);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
         act("$n begins to write a mobile load param.", true, ch, 0, 0,
             TO_ROOM);
@@ -1229,7 +1229,7 @@ do_mob_mset(struct creature *ch, char *argument)
 
     if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL)
         && is_authorized(ch, APPROVE_ZONE, NULL))
-        SET_BIT(MOB2_FLAGS(mob_p), MOB2_UNAPPROVED);
+        SET_BIT(NPC2_FLAGS(mob_p), NPC2_UNAPPROVED);
 
 }
 
@@ -1354,10 +1354,10 @@ save_mobs(struct creature * ch, struct zone_data * zone)
             GET_WEIGHT(mob) != 200 ||
             GET_HEIGHT(mob) != 198 ||
             GET_MORALE(mob) != 100 ||
-            GET_MOB_LAIR(mob) >= 0 ||
-            GET_MOB_LEADER(mob) >= 0 ||
+            GET_NPC_LAIR(mob) >= 0 ||
+            GET_NPC_LEADER(mob) >= 0 ||
             GET_REMORT_CLASS(mob) != -1 ||
-            GET_CASH(mob) != 0 || MOB_SHARED(mob)->move_buf)
+            GET_CASH(mob) != 0 || NPC_SHARED(mob)->move_buf)
             espec_mob = 1;
 
         fprintf(file, "#%d\n", mob->mob_specials.shared->vnum);
@@ -1388,9 +1388,9 @@ save_mobs(struct creature * ch, struct zone_data * zone)
         }
         fprintf(file, "~\n");
 
-        REMOVE_BIT(MOB_FLAGS(mob), MOB_WIMPY);
-        num2str(sbuf1, MOB_FLAGS(mob));
-        num2str(sbuf2, MOB2_FLAGS(mob));
+        REMOVE_BIT(NPC_FLAGS(mob), NPC_WIMPY);
+        num2str(sbuf1, NPC_FLAGS(mob));
+        num2str(sbuf2, NPC2_FLAGS(mob));
         num2str(sbuf3, AFF_FLAGS(mob));
         num2str(sbuf4, AFF2_FLAGS(mob));
         num2str(sbuf5, AFF3_FLAGS(mob));
@@ -1460,30 +1460,30 @@ save_mobs(struct creature * ch, struct zone_data * zone)
                 fprintf(file, "Cash: %lld\n", GET_CASH(mob));
             if (GET_MORALE(mob) != 100)
                 fprintf(file, "Morale: %d\n", GET_MORALE(mob));
-            if (GET_MOB_LAIR(mob) >= 0)
-                fprintf(file, "Lair: %d\n", GET_MOB_LAIR(mob));
-            if (GET_MOB_LEADER(mob) >= 0)
-                fprintf(file, "Leader: %d\n", GET_MOB_LEADER(mob));
+            if (GET_NPC_LAIR(mob) >= 0)
+                fprintf(file, "Lair: %d\n", GET_NPC_LAIR(mob));
+            if (GET_NPC_LEADER(mob) >= 0)
+                fprintf(file, "Leader: %d\n", GET_NPC_LEADER(mob));
             if (GET_REMORT_CLASS(mob) != -1)
                 fprintf(file, "RemortClass: %d\n", GET_REMORT_CLASS(mob));
-            if (MOB_SHARED(mob)->move_buf)
-                fprintf(file, "Move_buf: %s\n", MOB_SHARED(mob)->move_buf);
-            if (MOB_SHARED(mob)->func_param) {
+            if (NPC_SHARED(mob)->move_buf)
+                fprintf(file, "Move_buf: %s\n", NPC_SHARED(mob)->move_buf);
+            if (NPC_SHARED(mob)->func_param) {
                 char *str;
 
-                str = tmp_gsub(MOB_SHARED(mob)->func_param, "\r", "");
+                str = tmp_gsub(NPC_SHARED(mob)->func_param, "\r", "");
                 str = tmp_gsub(str, "~", "!");
                 fprintf(file, "SpecParam:\n%s~\n", str);
             }
-            if (MOB_SHARED(mob)->load_param) {
+            if (NPC_SHARED(mob)->load_param) {
                 char *str;
-                str = tmp_gsub(MOB_SHARED(mob)->load_param, "\r", "");
+                str = tmp_gsub(NPC_SHARED(mob)->load_param, "\r", "");
                 str = tmp_gsub(str, "~", "!");
                 fprintf(file, "LoadParam:\n%s~\n", str);
             }
-            if (MOB_SHARED(mob)->prog) {
+            if (NPC_SHARED(mob)->prog) {
                 char *str;
-                str = tmp_gsub(MOB_SHARED(mob)->prog, "\r", "");
+                str = tmp_gsub(NPC_SHARED(mob)->prog, "\r", "");
                 str = tmp_gsub(str, "~", "!");
                 fprintf(file, "Prog:\n%s~\n", str);
             }
@@ -1563,16 +1563,16 @@ do_destroy_mobile(struct creature *ch, int vnum)
         send_to_char(ch, "Oh, no you don't!!!\r\n");
         mudlog(GET_INVIS_LVL(ch), BRF, true,
             "OLC: %s failed attempt to DESTROY mobile %d.",
-            GET_NAME(ch), GET_MOB_VNUM(mob));
+            GET_NAME(ch), GET_NPC_VNUM(mob));
         return 1;
     }
     for (GList * cit = creatures; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if (GET_MOB_VNUM(tch) == GET_MOB_VNUM(mob))
+        if (GET_NPC_VNUM(tch) == GET_NPC_VNUM(mob))
             creature_purge(tch, false);
     }
 
-    g_hash_table_remove(mob_prototypes, GINT_TO_POINTER(GET_MOB_VNUM(mob)));
+    g_hash_table_remove(mob_prototypes, GINT_TO_POINTER(GET_NPC_VNUM(mob)));
     for (d = descriptor_list; d; d = d->next) {
         if (d->creature && GET_OLC_MOB(d->creature) == mob) {
             GET_OLC_MOB(d->creature) = NULL;
@@ -1697,7 +1697,7 @@ mobile_experience(struct creature *mob, FILE * outfile)
         factor -= 0.1;
 
     // Protection modifiers
-    if (MOB_FLAGGED(mob, MOB_NOBASH))
+    if (NPC_FLAGGED(mob, NPC_NOBASH))
         factor += 0.3;
     if (AFF_FLAGGED(mob, AFF_SANCTUARY | AFF_NOPAIN))
         factor += 0.2;
@@ -1737,7 +1737,7 @@ mobile_experience(struct creature *mob, FILE * outfile)
 
         fprintf(outfile,
             "%d %6d \'%20s\' L%2d G%2d %10d %10d [%5d] (%2.2f)\r\n", exp,
-            GET_MOB_VNUM(mob), name, GET_LEVEL(mob), GET_REMORT_GEN(mob),
+            GET_NPC_VNUM(mob), name, GET_LEVEL(mob), GET_REMORT_GEN(mob),
             oldexp, exp, percent, factor);
     }
     return exp;
@@ -1817,7 +1817,7 @@ oldmobile_experience(struct creature *mob)
         exp = (int)(exp * 1.2);
         ++affs;
     }
-    if (MOB_FLAGGED(mob, MOB_NOBASH)) {
+    if (NPC_FLAGGED(mob, NPC_NOBASH)) {
         exp = (int)(exp * 1.2);
         ++affs;
     }
@@ -1896,10 +1896,10 @@ do_clear_olc_mob(struct creature *ch)
 #ifdef DMALLOC
     dmalloc_verify(0);
 #endif
-    MOB_FLAGS(targ) = 0;
-    MOB2_FLAGS(targ) = 0;
-    SET_BIT(MOB_FLAGS(targ), MOB_ISNPC);
-    SET_BIT(MOB2_FLAGS(targ), MOB2_UNAPPROVED);
+    NPC_FLAGS(targ) = 0;
+    NPC2_FLAGS(targ) = 0;
+    SET_BIT(NPC_FLAGS(targ), NPC_ISNPC);
+    SET_BIT(NPC2_FLAGS(targ), NPC2_UNAPPROVED);
     AFF_FLAGS(targ) = 0;
     AFF2_FLAGS(targ) = 0;
     AFF3_FLAGS(targ) = 0;
@@ -1928,8 +1928,8 @@ do_clear_olc_mob(struct creature *ch)
     GET_GOLD(targ) = 0;
     GET_EXP(targ) = 100;
     GET_MORALE(targ) = 100;
-    GET_MOB_LAIR(targ) = -1;
-    GET_MOB_LEADER(targ) = -1;
+    GET_NPC_LAIR(targ) = -1;
+    GET_NPC_LEADER(targ) = -1;
 
     targ->mob_specials.shared->attack_type = 0;
 
@@ -1959,7 +1959,7 @@ do_clear_olc_mob(struct creature *ch)
     targ->real_abils.cha = 11;
 
     send_to_char(ch, "Okay, mobile #%d fully cleared.\r\n",
-        GET_MOB_VNUM(targ));
+        GET_NPC_VNUM(targ));
     return 0;
 }
 
@@ -1971,7 +1971,7 @@ olc_mimic_mob(struct creature *ch,
     if (mode) {                 /* (mode) => mimicing prototype... else real mob */
         for (GList * cit = creatures; cit; cit = cit->next) {
             struct creature *tch = cit->data;
-            if (IS_NPC(tch) && GET_MOB_VNUM(tch) == GET_MOB_VNUM(targ))
+            if (IS_NPC(tch) && GET_NPC_VNUM(tch) == GET_NPC_VNUM(targ))
                 creature_purge(tch, false);
         }
     }
@@ -2003,8 +2003,8 @@ olc_mimic_mob(struct creature *ch,
 #ifdef DMALLOC
     dmalloc_verify(0);
 #endif
-    MOB_FLAGS(targ) = MOB_FLAGS(orig);
-    MOB2_FLAGS(targ) = MOB2_FLAGS(orig);
+    NPC_FLAGS(targ) = NPC_FLAGS(orig);
+    NPC2_FLAGS(targ) = NPC2_FLAGS(orig);
     AFF_FLAGS(targ) = AFF_FLAGS(orig);
     AFF2_FLAGS(targ) = AFF2_FLAGS(orig);
     AFF3_FLAGS(targ) = AFF3_FLAGS(orig);
@@ -2073,13 +2073,13 @@ void
 set_move_buffer(struct creature *ch)
 {
     if (GET_RACE(ch) == RACE_GRIFFIN) {
-        if (MOB_SHARED(ch)->move_buf)
-            free(MOB_SHARED(ch)->move_buf);
-        MOB_SHARED(ch)->move_buf = strdup("treads");
+        if (NPC_SHARED(ch)->move_buf)
+            free(NPC_SHARED(ch)->move_buf);
+        NPC_SHARED(ch)->move_buf = strdup("treads");
     }
     if (GET_RACE(ch) == RACE_ROTARIAN) {
-        if (MOB_SHARED(ch)->move_buf)
-            free(MOB_SHARED(ch)->move_buf);
-        MOB_SHARED(ch)->move_buf = strdup("lumbers");
+        if (NPC_SHARED(ch)->move_buf)
+            free(NPC_SHARED(ch)->move_buf);
+        NPC_SHARED(ch)->move_buf = strdup("lumbers");
     }
 }

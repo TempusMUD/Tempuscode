@@ -280,7 +280,7 @@ ACMD(do_drag_char)
                     SKILL_DRAG)) - GET_STR(vict)));
     prob = MIN(prob, 100);
 
-    if (MOB_FLAGGED(vict, MOB_SENTINEL)) {
+    if (NPC_FLAGGED(vict, NPC_SENTINEL)) {
         percent = 101;
     }
 
@@ -363,13 +363,13 @@ ACMD(do_snatch)
         send_to_char(ch, "You cannot snatch from newbies!\r\n");
         return;
     }
-    if (!IS_MOB(vict) && is_newbie(ch)) {
+    if (!IS_NPC(vict) && is_newbie(ch)) {
         send_to_char(ch,
             "You can't snatch from players. You're a newbie!\r\n");
         return;
     }
 
-    if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
+    if (!IS_NPC(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
         send_to_char(ch, "You cannot snatch from linkless players!!!\r\n");
         mudlog(GET_LEVEL(ch), CMP, true,
             "%s attempted to snatch from linkless %s.",
@@ -436,7 +436,7 @@ ACMD(do_snatch)
 
     // NO NO With Imp's and Shopkeepers!
     if (!ok_damage_vendor(ch, vict) || (IS_NPC(vict)
-            && MOB_FLAGGED(vict, MOB_UTILITY)))
+            && NPC_FLAGGED(vict, NPC_UTILITY)))
         percent = 121;          // Failure
 
     // Mod the percentage based on position and flags

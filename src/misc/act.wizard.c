@@ -307,7 +307,7 @@ find_target_room(struct creature *ch, char *rawroomstr)
             return NULL;
         }
     } else if ((target_mob = get_char_vis(ch, roomstr))) {
-        if (GET_LEVEL(ch) < LVL_SPIRIT && GET_MOB_SPEC(target_mob) == fate) {
+        if (GET_LEVEL(ch) < LVL_SPIRIT && GET_NPC_SPEC(target_mob) == fate) {
             send_to_char(ch, "%s's magic repulses you.\r\n",
                 GET_NAME(target_mob));
             return NULL;
@@ -802,8 +802,8 @@ do_stat_zone(struct creature *ch, struct zone_data *zone)
     while (g_hash_table_iter_next(&iter, &key, &val)) {
         struct creature *mob = val;
 
-        if (GET_MOB_VNUM(mob) >= zone->number * 100
-            && GET_MOB_VNUM(mob) <= zone->top && IS_NPC(mob)) {
+        if (GET_NPC_VNUM(mob) >= zone->number * 100
+            && GET_NPC_VNUM(mob) <= zone->top && IS_NPC(mob)) {
             numm_proto++;
             av_lev_proto += GET_LEVEL(mob);
         }
@@ -1057,7 +1057,7 @@ do_stat_room(struct creature *ch, char *roomstr)
         k = it->data;
         if (can_see_creature(ch, k))
             acc_sprintf("%s %s(%s)", found++ ? "," : "", GET_NAME(k),
-                (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")));
+                (!IS_NPC(k) ? "PC" : (!IS_NPC(k) ? "NPC" : "MOB")));
     }
     acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
 
@@ -1575,12 +1575,12 @@ do_stat_character_prog(struct creature *ch, struct creature *k)
 {
     if (IS_PC(k)) {
         send_to_char(ch, "Players don't have progs!\r\n");
-    } else if (!GET_MOB_PROG(k)) {
+    } else if (!GET_NPC_PROG(k)) {
         send_to_char(ch, "Mobile %d does not have a prog.\r\n",
-            GET_MOB_VNUM(k));
+            GET_NPC_VNUM(k));
     } else {
         acc_string_clear();
-        acc_format_prog(ch, GET_MOB_PROG(k));
+        acc_format_prog(ch, GET_NPC_PROG(k));
         page_string(ch->desc, acc_get_string());
     }
 }
@@ -1592,11 +1592,11 @@ do_stat_character_progobj(struct creature *ch, struct creature *k)
 
     if (IS_PC(k)) {
         send_to_char(ch, "Players don't have progs!\r\n");
-    } else if (!GET_MOB_PROG(k)) {
+    } else if (!GET_NPC_PROG(k)) {
         send_to_char(ch, "Mobile %d does not have a prog.\r\n",
-            GET_MOB_VNUM(k));
+            GET_NPC_VNUM(k));
     } else {
-        prog_display_obj(ch, GET_MOB_PROGOBJ(k));
+        prog_display_obj(ch, GET_NPC_PROGOBJ(k));
     }
 }
 
@@ -1607,7 +1607,7 @@ do_stat_character_description(struct creature *ch, struct creature *k)
         page_string(ch->desc, k->player.description);
     } else {
         send_to_char(ch, "Mobile %d does not have a description.\r\n",
-            GET_MOB_VNUM(k));
+            GET_NPC_VNUM(k));
     }
 }
 
@@ -1626,7 +1626,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         return;
     }
 
-    if (GET_MOB_SPEC(k) == fate && !is_named_role_member(ch, ROLE_WIZARDBASIC)) {
+    if (GET_NPC_SPEC(k) == fate && !is_named_role_member(ch, ROLE_WIZARDBASIC)) {
         send_to_char(ch, "You can't stat this mob.\r\n");
         return;
     }
@@ -1666,13 +1666,13 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
 
     acc_sprintf
         (" %s '%s%s%s'  IDNum: [%5ld], struct accountNum: [%5d], In room %s[%s%5d%s]%s\n",
-        (!IS_NPC(k) ? "PC" : (!IS_MOB(k) ? "NPC" : "MOB")), CCYEL(ch, C_NRM),
-        GET_NAME(k), CCNRM(ch, C_NRM), IS_NPC(k) ? MOB_IDNUM(k) : GET_IDNUM(k),
+        (!IS_NPC(k) ? "PC" : (!IS_NPC(k) ? "NPC" : "MOB")), CCYEL(ch, C_NRM),
+        GET_NAME(k), CCNRM(ch, C_NRM), IS_NPC(k) ? NPC_IDNUM(k) : GET_IDNUM(k),
         IS_NPC(k) ? -1 : player_account_by_idnum(GET_IDNUM(k)), CCGRN(ch,
             C_NRM), CCNRM(ch, C_NRM), k->in_room ? k->in_room->number : -1,
         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 
-    if (!IS_MOB(k) && GET_LEVEL(k) >= LVL_AMBASSADOR)
+    if (!IS_NPC(k) && GET_LEVEL(k) >= LVL_AMBASSADOR)
         acc_sprintf("OlcObj: [%d], OlcMob: [%d]\r\n",
             (GET_OLC_OBJ(k) ? GET_OLC_OBJ(k)->shared->vnum : (-1)),
             (GET_OLC_MOB(k) ?
@@ -1680,10 +1680,10 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     else
         acc_strcat("\r\n", NULL);
 
-    if (IS_MOB(k)) {
+    if (IS_NPC(k)) {
         acc_sprintf("Alias: %s, VNum: %s[%s%5d%s]%s, Exist: [%3d]\r\n",
             k->player.name, CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-            GET_MOB_VNUM(k), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+            GET_NPC_VNUM(k), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
             k->mob_specials.shared->number);
         acc_sprintf("L-Des: %s%s%s\r\n", CCYEL(ch, C_NRM),
             (k->player.long_descr ? k->player.long_descr : "<None>"),
@@ -1819,7 +1819,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                 (k->fighting ? GET_NAME(random_opponent(k)) : "N"),
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-                MOB_HUNTING(k) ? PERS(MOB_HUNTING(k), ch) : "N",
+                NPC_HUNTING(k) ? PERS(NPC_HUNTING(k), ch) : "N",
                 k->char_specials.timer);
     } else if (k->in_room) {
         acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
@@ -1827,7 +1827,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
             (k->fighting ? GET_NAME(random_opponent(k)) : "N"),
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-            MOB_HUNTING(k) ? PERS(MOB_HUNTING(k), ch) : "N");
+            NPC_HUNTING(k) ? PERS(NPC_HUNTING(k), ch) : "N");
     }
     if (k->desc)
         acc_sprintf(", Connected: %s, Idle [%d]\r\n",
@@ -1840,10 +1840,10 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         acc_sprintf("Mount: %s\r\n", GET_NAME(MOUNTED_BY(k)));
 
     if (IS_NPC(k)) {
-        sprintbit(MOB_FLAGS(k), action_bits, buf);
+        sprintbit(NPC_FLAGS(k), action_bits, buf);
         acc_sprintf("NPC flags: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
-        sprintbit(MOB2_FLAGS(k), action2_bits, buf);
+        sprintbit(NPC2_FLAGS(k), action2_bits, buf);
         acc_sprintf("NPC flags(2): %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
     } else {
@@ -1874,7 +1874,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         }
     }
 
-    if (IS_MOB(k)) {
+    if (IS_NPC(k)) {
         acc_sprintf
             ("Mob Spec: %s%s%s, NPC Dam: %dd%d, Morale: %d, Lair: %d, Ldr: %d\r\n",
             CCYEL(ch, C_NRM), (k->mob_specials.shared->func ? ((i =
@@ -1885,13 +1885,13 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             k->mob_specials.shared->morale, k->mob_specials.shared->lair,
             k->mob_specials.shared->leader);
 
-        if (MOB_SHARED(k)->move_buf)
-            acc_sprintf("Move_buf: %s\r\n", MOB_SHARED(k)->move_buf);
+        if (NPC_SHARED(k)->move_buf)
+            acc_sprintf("Move_buf: %s\r\n", NPC_SHARED(k)->move_buf);
         if (k->mob_specials.shared->proto == k) {
-            char *param = GET_MOB_PARAM(k);
+            char *param = GET_NPC_PARAM(k);
 
             if (param && strlen(param) > 0)
-                acc_sprintf("Spec_param: \r\n%s\r\n", GET_MOB_PARAM(k));
+                acc_sprintf("Spec_param: \r\n%s\r\n", GET_NPC_PARAM(k));
             param = GET_LOAD_PARAM(k);
             if (param && strlen(param) > 0)
                 acc_sprintf("Load_param: \r\n%s\r\n", GET_LOAD_PARAM(k));
@@ -1918,7 +1918,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             found = true;
         }
     }
-    if (!IS_MOB(k)) {
+    if (!IS_NPC(k)) {
         acc_sprintf("%sHunger: %d, Thirst: %d, Drunk: %d\r\n",
             found ? ", " : "",
             GET_COND(k, FULL), GET_COND(k, THIRST), GET_COND(k, DRUNK));
@@ -2470,7 +2470,7 @@ ACMD(do_return)
 
     if (ch->desc && (orig = ch->desc->original)) {
         // Return from being switched or gasified
-        if (IS_MOB(ch) && GET_MOB_VNUM(ch) == 1518) {
+        if (IS_NPC(ch) && GET_NPC_VNUM(ch) == 1518) {
             cloud_found = true;
             if (subcmd == SCMD_RETURN) {
                 send_to_char(ch, "Use recorporealize.\r\n");
@@ -2548,7 +2548,7 @@ ACMD(do_mload)
     slog("(GC) %s mloaded %s at %d.", GET_NAME(ch), GET_NAME(mob),
         ch->in_room->number);
 
-    if (GET_MOB_PROG(mob))
+    if (GET_NPC_PROG(mob))
         trigger_prog_load(mob);
 }
 
@@ -2774,12 +2774,12 @@ ACMD(do_vstat)
     else if ((obj = get_obj_in_list_vis(ch, str, ch->carrying)))
         number = GET_OBJ_VNUM(obj);
     else if ((mob = get_char_room_vis(ch, str))) {
-        number = GET_MOB_VNUM(mob);
+        number = GET_NPC_VNUM(mob);
         mob_stat = true;
     } else if ((obj = get_obj_in_list_vis(ch, str, ch->in_room->contents)))
         number = GET_OBJ_VNUM(obj);
     else if ((mob = get_char_vis(ch, str))) {
-        number = GET_MOB_VNUM(mob);
+        number = GET_NPC_VNUM(mob);
         mob_stat = true;
     } else if ((obj = get_obj_vis(ch, str)))
         number = GET_OBJ_VNUM(obj);
@@ -4261,7 +4261,7 @@ show_mobkills(struct creature *ch, char *value, char *arg
             (float)mob->mob_specials.shared->loaded);
         if (ratio >= thresh) {
             acc_sprintf(" %3d. [%5d]  %-29s %6d %8d    %.2f\r\n",
-                ++i, GET_MOB_VNUM(mob), GET_NAME(mob),
+                ++i, GET_NPC_VNUM(mob), GET_NAME(mob),
                 mob->mob_specials.shared->kills,
                 mob->mob_specials.shared->loaded, ratio);
         }
@@ -5190,7 +5190,7 @@ ACMD(do_show)
                 free_creature(vict);
                 vict = NULL;
             }
-        } else if (IS_MOB(vict)) {
+        } else if (IS_NPC(vict)) {
             send_to_char(ch,
                 "Mobs don't have skills.  All mobs are assumed to\r\n"
                 "have a (50 + level)%% skill proficiency.\r\n");
@@ -5209,7 +5209,7 @@ ACMD(do_show)
     case 15:                   // aliases
         if (!(vict = get_char_vis(ch, value)))
             send_to_char(ch, "You cannot see any such person.\r\n");
-        else if (IS_MOB(vict))
+        else if (IS_NPC(vict))
             send_to_char(ch,
                 "Now... what would a mob need with aliases??\r\n");
         else if (GET_LEVEL(vict) > GET_LEVEL(ch)) {
@@ -5439,7 +5439,7 @@ ACMD(do_show)
                     "%s%4d. %s[%s%5d%s]%s %35s%s exp:[%9d] pct:%s[%s%3d%s]%s\r\n",
                     buf, i,
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                    GET_MOB_VNUM(mob),
+                    GET_NPC_VNUM(mob),
                     CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
                     GET_NAME(mob), CCNRM(ch, C_NRM),
                     GET_EXP(mob),
@@ -5555,7 +5555,7 @@ ACMD(do_show)
         strcpy(buf, "Characters hunting:\r\n");
         for (cit = creatures; cit; cit = cit->next) {
             vict = cit->data;
-            if (!MOB_HUNTING(vict) || !MOB_HUNTING(vict)->in_room
+            if (!NPC_HUNTING(vict) || !NPC_HUNTING(vict)->in_room
                 || !can_see_creature(ch, vict))
                 continue;
 
@@ -5564,8 +5564,8 @@ ACMD(do_show)
 
             sprintf(buf, "%s %3d. %23s [%5d] ---> %20s [%5d]\r\n", buf, ++i,
                 GET_NAME(vict), vict->in_room->number,
-                GET_NAME(MOB_HUNTING(vict)),
-                MOB_HUNTING(vict)->in_room->number);
+                GET_NAME(NPC_HUNTING(vict)),
+                NPC_HUNTING(vict)->in_room->number);
         }
 
         page_string(ch->desc, buf);
@@ -6512,7 +6512,7 @@ ACMD(do_set)
 
     case 95:
         if (IS_NPC(vict)) {
-            SET_OR_REMOVE(MOB_FLAGS(vict), MOB_SOULLESS);
+            SET_OR_REMOVE(NPC_FLAGS(vict), NPC_SOULLESS);
         } else {
             SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_SOULLESS);
         }
@@ -6948,9 +6948,9 @@ ACMD(do_mlist)
                 mob->player.short_descr,
                 CCNRM(ch, C_NRM),
                 mob->player.level,
-                MOB_SHARED(mob)->number,
-                MOB2_FLAGGED((mob), MOB2_UNAPPROVED) ? "(!ap)" : "",
-                GET_MOB_PROG(mob) ? "(prog)" : "");
+                NPC_SHARED(mob)->number,
+                NPC2_FLAGGED((mob), NPC2_UNAPPROVED) ? "(!ap)" : "",
+                GET_NPC_PROG(mob) ? "(prog)" : "");
     }
 
     g_list_free(protos);
@@ -7326,7 +7326,7 @@ ACMD(do_zonepurge)
 
             for (GList * it = rm->people; it; it = it->next) {
                 struct creature *tch = it->data;
-                if (IS_MOB(tch)) {
+                if (IS_NPC(tch)) {
                     creature_purge(tch, true);
                     mob_count++;
                 } else {
@@ -7486,7 +7486,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
             if (GET_HITROLL(mob) >= k)
                 sprintf(buf,
                     "%s %3d. [%5d] %-30s (%2d) %2d\r\n",
-                    buf, ++i, GET_MOB_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
+                    buf, ++i, GET_NPC_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
                     GET_HITROLL(mob));
         }
         page_string(ch->desc, buf);
@@ -7509,13 +7509,13 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
             cit = cit->next) {
             mob = cit->data;
 
-            if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
+            if (NPC2_FLAGGED(mob, NPC2_UNAPPROVED))
                 continue;
             if (GET_GOLD(mob) >= k &&
                 (!j || vendor != mob->mob_specials.shared->func))
                 sprintf(buf,
                     "%s %3d. [%5d] %-30s (%2d) %2lld\r\n",
-                    buf, ++i, GET_MOB_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
+                    buf, ++i, GET_NPC_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
                     GET_GOLD(mob));
         }
         page_string(ch->desc, buf);
@@ -7542,13 +7542,13 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
         for (k = 0; cit; cit = cit->next) {
             mob = cit->data;
 
-            if ((i == 1 && MOB_FLAGGED(mob, (1 << j))) ||
-                (i == 2 && MOB2_FLAGGED(mob, (1 << j)))) {
+            if ((i == 1 && NPC_FLAGGED(mob, (1 << j))) ||
+                (i == 2 && NPC2_FLAGGED(mob, (1 << j)))) {
                 sprintf(buf2, "%3d. %s[%s%5d%s]%s %40s%s%s\r\n", ++k,
-                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_NPC_VNUM(mob),
                     CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
                     GET_NAME(mob), CCNRM(ch, C_NRM),
-                    MOB2_FLAGGED(mob, MOB2_UNAPPROVED) ? " (!appr)" : "");
+                    NPC2_FLAGGED(mob, NPC2_UNAPPROVED) ? " (!appr)" : "");
                 if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
                     strcat(buf, "**OVERFLOW**\r\n");
                     break;
@@ -7593,18 +7593,18 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
 
         for (k = 0; cit; cit = cit->next) {
             mob = cit->data;
-            if (MOB2_FLAGGED(mob, MOB2_UNAPPROVED))
+            if (NPC2_FLAGGED(mob, NPC2_UNAPPROVED))
                 continue;
 
             if (i && (GET_CASH(mob) > (GET_LEVEL(mob) * l))) {
                 sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6lld)\r\n",
-                    buf, ++k, GET_MOB_VNUM(mob), GET_NAME(mob),
+                    buf, ++k, GET_NPC_VNUM(mob), GET_NAME(mob),
                     GET_LEVEL(mob), GET_GOLD(mob));
 
             } else if (!i && (GET_GOLD(mob) > (GET_LEVEL(mob) * l))) {
 
                 sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6lld)\r\n",
-                    buf, ++k, GET_MOB_VNUM(mob), GET_NAME(mob),
+                    buf, ++k, GET_NPC_VNUM(mob), GET_NAME(mob),
                     GET_LEVEL(mob), GET_GOLD(mob));
             }
 
@@ -7631,9 +7631,9 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
 
         for (j = 0; cit; cit = cit->next) {
             mob = cit->data;
-            if (spec_list[i].func == GET_MOB_SPEC(mob)) {
+            if (spec_list[i].func == GET_NPC_SPEC(mob)) {
                 sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
-                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_NPC_VNUM(mob),
                     CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
                     GET_NAME(mob), CCNRM(ch, C_NRM));
                 if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
@@ -7666,7 +7666,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
             mob = cit->data;
             if (i == GET_RACE(mob)) {
                 sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
-                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_NPC_VNUM(mob),
                     CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
                     GET_NAME(mob), CCNRM(ch, C_NRM));
                 if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
@@ -7698,7 +7698,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
             mob = cit->data;
             if (i == GET_CLASS(mob) || mob->player.remort_char_class == i) {
                 sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
-                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOB_VNUM(mob),
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_NPC_VNUM(mob),
                     CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
                     GET_NAME(mob), CCNRM(ch, C_NRM));
                 if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
@@ -7936,11 +7936,11 @@ ACMD(do_coderutil)
             struct creature *tch = cit->data;
             int ret_flags;
             struct creature *attacked;
-            int old_mob2_flags = MOB2_FLAGS(tch);
+            int old_mob2_flags = NPC2_FLAGS(tch);
 
-            MOB2_FLAGS(tch) |= MOB2_ATK_MOBS;
+            NPC2_FLAGS(tch) |= NPC2_ATK_MOBS;
             perform_barb_berserk(tch, &attacked, &ret_flags);
-            MOB2_FLAGS(tch) = old_mob2_flags;
+            NPC2_FLAGS(tch) = old_mob2_flags;
         }
         send_to_char(ch, "The entire world goes mad...\r\n");
         slog("%s has doomed the world to chaos.", GET_NAME(ch));
@@ -8736,43 +8736,43 @@ verify_tempus_integrity(struct creature *ch)
 
         if (!vict->player.name)
             check_log(ch, "Alias of creature proto #%d (%s) is NULL!",
-                MOB_IDNUM(vict), vict->player.short_descr);
+                NPC_IDNUM(vict), vict->player.short_descr);
         check_ptr(ch, vict->player.name, 0,
-            "aliases of creature proto", MOB_IDNUM(vict));
+            "aliases of creature proto", NPC_IDNUM(vict));
         check_ptr(ch, vict->player.short_descr, 0,
-            "name of creature proto", MOB_IDNUM(vict));
+            "name of creature proto", NPC_IDNUM(vict));
         check_ptr(ch, vict->player.long_descr, 0,
-            "linedesc of creature proto", MOB_IDNUM(vict));
+            "linedesc of creature proto", NPC_IDNUM(vict));
         check_ptr(ch, vict->player.description, 0,
-            "description of creature proto", MOB_IDNUM(vict));
+            "description of creature proto", NPC_IDNUM(vict));
         check_ptr(ch, vict->player.description, 0,
-            "description of creature proto", MOB_IDNUM(vict));
+            "description of creature proto", NPC_IDNUM(vict));
         check_ptr(ch, vict->mob_specials.func_data, 0,
-            "func_data of creature proto", MOB_IDNUM(vict));
+            "func_data of creature proto", NPC_IDNUM(vict));
 
         // Loop through memory
         for (cur_mem = vict->mob_specials.memory; cur_mem;
             cur_mem = cur_mem->next) {
             if (!check_ptr(ch, cur_mem, sizeof(struct memory_rec),
-                    "memory of creature proto", MOB_IDNUM(vict)))
+                    "memory of creature proto", NPC_IDNUM(vict)))
                 break;
         }
         // Mobile shared structure
         if (check_ptr(ch, vict->mob_specials.func_data,
                 sizeof(struct mob_shared_data),
-                "shared struct of creature proto", MOB_IDNUM(vict))) {
+                "shared struct of creature proto", NPC_IDNUM(vict))) {
 
             check_ptr(ch, vict->mob_specials.shared->move_buf, 0,
-                "move_buf of creature proto", MOB_IDNUM(vict));
+                "move_buf of creature proto", NPC_IDNUM(vict));
             check_ptr(ch, vict->mob_specials.shared->func_param, 0,
-                "func_param of creature proto", MOB_IDNUM(vict));
+                "func_param of creature proto", NPC_IDNUM(vict));
             check_ptr(ch, vict->mob_specials.shared->func_param, 0,
-                "load_param of creature proto", MOB_IDNUM(vict));
+                "load_param of creature proto", NPC_IDNUM(vict));
         }
 
         if (vict->mob_specials.shared->proto != vict)
             check_log(ch, "Prototype of prototype is not itself on mob %d",
-                MOB_IDNUM(vict));
+                NPC_IDNUM(vict));
     }
     g_list_free(protos);
 
@@ -8945,11 +8945,11 @@ verify_tempus_integrity(struct creature *ch)
         vict = cit->data;
 
         check_ptr(ch, vict, sizeof(struct creature),
-            "mobile", GET_MOB_VNUM(vict));
+            "mobile", GET_NPC_VNUM(vict));
         for (idx = 0; idx < NUM_WEARS; idx++) {
             if (GET_EQ(vict, idx)
                 && check_ptr(ch, GET_EQ(vict, idx), sizeof(struct obj_data),
-                    "object worn by mobile", GET_MOB_VNUM(vict))) {
+                    "object worn by mobile", GET_NPC_VNUM(vict))) {
                 if (GET_EQ(vict, idx)->worn_by != vict)
                     check_log(ch, "expected object wearer wrong!");
 
@@ -8957,7 +8957,7 @@ verify_tempus_integrity(struct creature *ch)
             if (GET_IMPLANT(vict, idx)
                 && check_ptr(ch, GET_IMPLANT(vict, idx),
                     sizeof(struct obj_data), "object implanted in mobile",
-                    GET_MOB_VNUM(vict))) {
+                    GET_NPC_VNUM(vict))) {
                 if (GET_IMPLANT(vict, idx)->worn_by != vict)
                     check_log(ch, "expected object implanted wrong!");
 
@@ -8965,7 +8965,7 @@ verify_tempus_integrity(struct creature *ch)
             if (GET_TATTOO(vict, idx)
                 && check_ptr(ch, GET_TATTOO(vict, idx),
                     sizeof(struct obj_data), "object tattooed in mobile",
-                    GET_MOB_VNUM(vict))) {
+                    GET_NPC_VNUM(vict))) {
                 if (GET_TATTOO(vict, idx)->worn_by != vict)
                     check_log(ch, "expected object tattooed wrong!");
             }
@@ -8974,12 +8974,12 @@ verify_tempus_integrity(struct creature *ch)
         for (contained = vict->carrying;
             contained; contained = contained->next_content) {
             if (!check_ptr(ch, contained, sizeof(struct obj_data),
-                    "object carried by mobile vnum %d", GET_MOB_VNUM(vict)))
+                    "object carried by mobile vnum %d", GET_NPC_VNUM(vict)))
                 break;
             if (contained->carried_by != vict) {
                 check_log(ch,
                     "expected object %ld carrier = mob %d (%p), got %p",
-                    contained->unique_id, GET_MOB_VNUM(vict), vict,
+                    contained->unique_id, GET_NPC_VNUM(vict), vict,
                     contained->carried_by);
             }
         }

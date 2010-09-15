@@ -133,7 +133,7 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
     for (GList *it = ch->in_room->people;it;it = it->next) {
         struct creature *tch = it->data;
 
-        if (GET_MOB_PROGOBJ(tch) != NULL && tch != ch)
+        if (GET_NPC_PROGOBJ(tch) != NULL && tch != ch)
             trigger_prog_death(tch, PROG_TYPE_MOBILE, ch);
     }
 
@@ -173,8 +173,8 @@ die(struct creature *ch, struct creature *killer, int attacktype)
     assert(ch != NULL);
     assert(ch->mob_specials.shared != NULL);
 
-    if (GET_MOB_SPEC(ch) != NULL) {
-        if (GET_MOB_SPEC(ch) (killer, ch, 0, NULL, SPECIAL_DEATH)) {
+    if (GET_NPC_SPEC(ch) != NULL) {
+        if (GET_NPC_SPEC(ch) (killer, ch, 0, NULL, SPECIAL_DEATH)) {
             mudlog(LVL_CREATOR, NRM, true,
                 "ERROR: Mobile special for %s run in place of standard extraction.\n",
                 GET_NAME(ch));
@@ -187,7 +187,7 @@ die(struct creature *ch, struct creature *killer, int attacktype)
             slog("DEATH: %s killed by %s. attacktype: %d SPEC[%p]",
                 GET_NAME(ch),
                 killer ? GET_NAME(killer) : "(NULL)",
-                attacktype, GET_MOB_SPEC(ch));
+                attacktype, GET_NPC_SPEC(ch));
         } else {
             slog("DEATH: %s killed by %s. attacktype: %d PC",
                 GET_NAME(ch),
@@ -317,14 +317,14 @@ tally_kill_record(struct creature *ch, struct creature *victim)
 
     for (GList * it = GET_RECENT_KILLS(ch); it; it = it->next) {
         kill = it->data;
-        if (GET_MOB_VNUM(victim) == kill->vnum) {
+        if (GET_NPC_VNUM(victim) == kill->vnum) {
             kill->times += 1;
             return kill;
         }
     }
 
     CREATE(kill, struct kill_record, 1);
-    kill->vnum = GET_MOB_VNUM(victim);
+    kill->vnum = GET_NPC_VNUM(victim);
     kill->times = 1;
 
     GET_RECENT_KILLS(ch) = g_list_prepend(GET_RECENT_KILLS(ch), kill);
@@ -421,7 +421,7 @@ gain_kill_exp(struct creature *ch, struct creature *victim)
     if (ch == victim)
         return;
 
-    if (IS_NPC(victim) && MOB2_FLAGGED(victim, MOB2_UNAPPROVED)
+    if (IS_NPC(victim) && NPC2_FLAGGED(victim, NPC2_UNAPPROVED)
         && !is_tester(ch))
         return;
 
@@ -853,13 +853,13 @@ damage(struct creature *ch, struct creature *victim, int dam,
         dam += (dam * (POS_FIGHTING - GET_POSITION(victim))) / 3;
 
     if (ch) {
-        if (MOB2_FLAGGED(ch, MOB2_UNAPPROVED) && !is_tester(victim))
+        if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED) && !is_tester(victim))
             dam = 0;
 
-        if (is_tester(ch) && !IS_MOB(victim) && !is_tester(victim))
+        if (is_tester(ch) && !IS_NPC(victim) && !is_tester(victim))
             dam = 0;
 
-        if (IS_MOB(victim) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
+        if (IS_NPC(victim) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
             GET_LEVEL(ch) < LVL_TIMEGOD && !mini_mud)
             dam = 0;
 
@@ -1781,7 +1781,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         GET_TOT_DAM(victim) += dam;
 
     if (ch && ch != victim
-        && !(MOB2_FLAGGED(victim, MOB2_UNAPPROVED) ||
+        && !(NPC2_FLAGGED(victim, NPC2_UNAPPROVED) ||
             is_tester(ch) || IS_PET(ch) || IS_PET(victim))) {
         // Gaining XP for damage dealt.
         int exp =
@@ -2018,10 +2018,10 @@ damage(struct creature *ch, struct creature *victim, int dam,
             if (ch && IS_NPC(victim) && ch != victim &&
                 !KNOCKDOWN_SKILL(attacktype) &&
                 GET_POSITION(victim) > POS_SITTING
-                && !MOB_FLAGGED(victim, MOB_SENTINEL) && !IS_DRAGON(victim)
+                && !NPC_FLAGGED(victim, NPC_SENTINEL) && !IS_DRAGON(victim)
                 && !IS_UNDEAD(victim) && GET_CLASS(victim) != CLASS_ARCH
                 && GET_CLASS(victim) != CLASS_DEMON_PRINCE
-                && GET_MOB_WAIT(ch) <= 0 && !MOB_FLAGGED(ch, MOB_SENTINEL)
+                && GET_NPC_WAIT(ch) <= 0 && !NPC_FLAGGED(ch, NPC_SENTINEL)
                 && (100 - ((GET_HIT(victim) * 100) / GET_MAX_HIT(victim))) >
                 GET_MORALE(victim) + number(-5, 10 + (GET_INT(victim) / 4))) {
 
@@ -2145,9 +2145,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     }
                     // add ch to victim's shitlist( s )
                     if (!IS_NPC(ch) && !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
-                        if (MOB_FLAGGED(victim, MOB_MEMORY))
+                        if (NPC_FLAGGED(victim, NPC_MEMORY))
                             remember(victim, ch);
-                        if (MOB2_FLAGGED(victim, MOB2_HUNT))
+                        if (NPC2_FLAGGED(victim, NPC2_HUNT))
                             start_hunting(victim, ch);
                     }
                     // make the victim retailiate against the attacker
@@ -2190,7 +2190,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         send_to_char(ch,
             "%s[DAMAGE] %s   dam:%d   wait:%d   pos:%d   reduct:%.2f%s\r\n",
             CCCYN(ch, C_NRM), GET_NAME(victim), dam,
-            IS_NPC(victim) ? GET_MOB_WAIT(victim) :
+            IS_NPC(victim) ? GET_NPC_WAIT(victim) :
             victim->desc ? victim->desc->wait : 0,
             GET_POSITION(victim), dam_reduction, CCNRM(ch, C_NRM));
 
@@ -2198,7 +2198,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         send_to_char(victim,
             "%s[DAMAGE] %s   dam:%d   wait:%d   pos:%d   reduct:%.2f%s\r\n",
             CCCYN(victim, C_NRM), GET_NAME(victim), dam,
-            IS_NPC(victim) ? GET_MOB_WAIT(victim) :
+            IS_NPC(victim) ? GET_NPC_WAIT(victim) :
             victim->desc ? victim->desc->wait : 0,
             GET_POSITION(victim), dam_reduction, CCNRM(victim, C_NRM));
 
@@ -2330,7 +2330,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 } else {
                     mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", logmsg);
                 }
-                if (MOB_FLAGGED(ch, MOB_MEMORY))
+                if (NPC_FLAGGED(ch, NPC_MEMORY))
                     forget(ch, victim);
             } else {
                 GET_MOBKILLS(ch) += 1;
@@ -2794,7 +2794,7 @@ hit(struct creature *ch, struct creature *victim, int type)
         }
 
         if (weap && IS_FERROUS(weap) && IS_NPC(victim)
-            && GET_MOB_SPEC(victim) == rust_monster) {
+            && GET_NPC_SPEC(victim) == rust_monster) {
 
             if ((!IS_OBJ_STAT(weap, ITEM_MAGIC) ||
                     mag_savingthrow(ch, GET_LEVEL(victim), SAVING_ROD)) &&
@@ -2985,9 +2985,9 @@ perform_violence1(struct creature *ch, gpointer ignore)
         return;
 
     if (IS_NPC(ch)) {
-        if (GET_MOB_WAIT(ch) > 0) {
-            GET_MOB_WAIT(ch) = MAX(GET_MOB_WAIT(ch) - SEG_VIOLENCE, 0);
-        } else if (GET_MOB_WAIT(ch) == 0) {
+        if (GET_NPC_WAIT(ch) > 0) {
+            GET_NPC_WAIT(ch) = MAX(GET_NPC_WAIT(ch) - SEG_VIOLENCE, 0);
+        } else if (GET_NPC_WAIT(ch) == 0) {
             update_pos(ch);
         }
         if (GET_POSITION(ch) <= POS_SITTING)
@@ -3008,7 +3008,7 @@ perform_violence1(struct creature *ch, gpointer ignore)
         send_to_char(ch,
             "%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
             CCCYN(ch, C_NRM), GET_NAME(ch), prob, die_roll,
-            IS_NPC(ch) ? GET_MOB_WAIT(ch) : (CHECK_WAIT(ch) ? ch->
+            IS_NPC(ch) ? GET_NPC_WAIT(ch) : (CHECK_WAIT(ch) ? ch->
                 desc->wait : 0), CCNRM(ch, C_NRM));
     }
     //
@@ -3095,14 +3095,14 @@ perform_violence1(struct creature *ch, gpointer ignore)
         }
     } else if (IS_NPC(ch) && ch->in_room &&
         GET_POSITION(ch) == POS_FIGHTING &&
-        GET_MOB_WAIT(ch) <= 0 && (MIN(100, prob) >= number(0, 300))) {
+        GET_NPC_WAIT(ch) <= 0 && (MIN(100, prob) >= number(0, 300))) {
 
-        if (MOB_FLAGGED(ch, MOB_SPEC) && ch->in_room &&
+        if (NPC_FLAGGED(ch, NPC_SPEC) && ch->in_room &&
             ch->mob_specials.shared->func && !number(0, 2)) {
 
             (ch->mob_specials.shared->func) (ch, ch, 0, tmp_strdup(""),
                 SPECIAL_TICK);
-        } else if (ch->in_room && GET_MOB_WAIT(ch) <= 0 && ch->fighting) {
+        } else if (ch->in_room && GET_NPC_WAIT(ch) <= 0 && ch->fighting) {
             mobile_battle_activity(ch, NULL);
         }
     }

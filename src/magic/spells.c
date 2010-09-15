@@ -230,7 +230,7 @@ ASPELL(spell_local_teleport)
         return;
     }
 
-    if (MOB_FLAGGED(victim, MOB_NOSUMMON) ||
+    if (NPC_FLAGGED(victim, NPC_NOSUMMON) ||
         (IS_NPC(victim) && mag_savingthrow(victim, level, SAVING_SPELL))) {
         send_to_char(ch, "You fail.\r\n");
         return;
@@ -420,7 +420,7 @@ ASPELL(spell_teleport)
         return;
     }
 
-    if (MOB_FLAGGED(victim, MOB_NOSUMMON) ||
+    if (NPC_FLAGGED(victim, NPC_NOSUMMON) ||
         (IS_NPC(victim) && mag_savingthrow(victim, level, SAVING_SPELL))) {
         send_to_char(ch, "You fail.\r\n");
         return;
@@ -549,7 +549,7 @@ ASPELL(spell_astral_spell)
         return;
     }
 
-    if (MOB_FLAGGED(victim, MOB_NOSUMMON) ||
+    if (NPC_FLAGGED(victim, NPC_NOSUMMON) ||
         (IS_NPC(victim) && mag_savingthrow(victim, level, SAVING_SPELL))) {
         send_to_char(ch, "You fail.\r\n");
         return;
@@ -650,7 +650,7 @@ ASPELL(spell_summon)
         return;
     }
 
-    if (MOB_FLAGGED(victim, MOB_NOSUMMON) ||
+    if (NPC_FLAGGED(victim, NPC_NOSUMMON) ||
         (IS_NPC(victim) && mag_savingthrow(victim, level, SAVING_SPELL))) {
         send_to_char(ch, SUMMON_FAIL);
         slog("%s attempted summoning %s to %s[%d] (!summon)", GET_NAME(ch),
@@ -961,12 +961,12 @@ ASPELL(spell_charm)
         act("Isn't $n just such a great friend?", false, victim, 0, ch,
             TO_VICT);
         if (IS_NPC(ch)) {
-            REMOVE_BIT(MOB_FLAGS(ch), MOB_AGGRESSIVE);
-            REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
+            REMOVE_BIT(NPC_FLAGS(ch), NPC_AGGRESSIVE);
+            REMOVE_BIT(NPC_FLAGS(ch), NPC_SPEC);
         }
     } else if (AFF_FLAGGED(victim, AFF_SANCTUARY))
         send_to_char(ch, "Your victim is protected by sanctuary!\r\n");
-    else if (MOB_FLAGGED(victim, MOB_NOCHARM) && GET_LEVEL(ch) < LVL_IMPL)
+    else if (NPC_FLAGGED(victim, NPC_NOCHARM) && GET_LEVEL(ch) < LVL_IMPL)
         send_to_char(ch, "Your victim resists!\r\n");
     else if (AFF_FLAGGED(ch, AFF_CHARM))
         send_to_char(ch, "You can't have any followers of your own!\r\n");
@@ -974,7 +974,7 @@ ASPELL(spell_charm)
         (level + number(0, MAX(0, GET_CHA(ch)))) <
         (GET_LEVEL(victim) + number(0, MAX(GET_CHA(victim), 1)))) {
         send_to_char(ch, "You fail.\r\n");
-        if (MOB_FLAGGED(victim, MOB_MEMORY))
+        if (NPC_FLAGGED(victim, NPC_MEMORY))
             remember(victim, ch);
     } else if (IS_ANIMAL(victim))
         send_to_char(ch,
@@ -988,7 +988,7 @@ ASPELL(spell_charm)
                         AFF_CONFIDENCE) ? 20 : 0))) >
         GET_LEVEL(ch) + 2 * GET_CHA(ch) || !can_charm_more(ch)) {
         send_to_char(ch, "Your victim resists!\r\n");
-        if (MOB_FLAGGED(victim, MOB_MEMORY))
+        if (NPC_FLAGGED(victim, NPC_MEMORY))
             remember(victim, ch);
     } else if ((IS_ELF(victim) || IS_DROW(victim)) &&
         (percent = (40 + GET_LEVEL(victim))) > number(1, 101) &&
@@ -1029,8 +1029,8 @@ ASPELL(spell_charm)
         act("Isn't $n just such a nice fellow?", false, ch, 0, victim,
             TO_VICT);
         if (IS_NPC(victim)) {
-            REMOVE_BIT(MOB_FLAGS(victim), MOB_AGGRESSIVE);
-            REMOVE_BIT(MOB_FLAGS(victim), MOB_SPEC);
+            REMOVE_BIT(NPC_FLAGS(victim), NPC_AGGRESSIVE);
+            REMOVE_BIT(NPC_FLAGS(victim), NPC_SPEC);
         }
     }
 }
@@ -1048,7 +1048,7 @@ ASPELL(spell_charm_animal)
         send_to_char(ch, "You like yourself even better!\r\n");
     else if (AFF_FLAGGED(victim, AFF_SANCTUARY))
         send_to_char(ch, "Your victim is protected by sanctuary!\r\n");
-    else if (MOB_FLAGGED(victim, MOB_NOCHARM))
+    else if (NPC_FLAGGED(victim, NPC_NOCHARM))
         send_to_char(ch, "Your victim resists!\r\n");
     else if (AFF_FLAGGED(ch, AFF_CHARM))
         send_to_char(ch, "You can't have any followers of your own!\r\n");
@@ -1090,8 +1090,8 @@ ASPELL(spell_charm_animal)
         act("Isn't $n just such a nice friend?", false, ch, 0, victim,
             TO_VICT);
         if (IS_NPC(victim)) {
-            REMOVE_BIT(MOB_FLAGS(victim), MOB_AGGRESSIVE);
-            REMOVE_BIT(MOB_FLAGS(victim), MOB_SPEC);
+            REMOVE_BIT(NPC_FLAGS(victim), NPC_AGGRESSIVE);
+            REMOVE_BIT(NPC_FLAGS(victim), NPC_SPEC);
         }
     }
 }
@@ -1799,7 +1799,7 @@ ASPELL(spell_conjure_elemental)
     act("$n has conjured $N from $S home plane!",
         false, ch, 0, elemental, TO_ROOM);
 
-    SET_BIT(MOB_FLAGS(elemental), MOB_PET);
+    SET_BIT(NPC_FLAGS(elemental), NPC_PET);
 
     if ((number(0, 101) + GET_LEVEL(elemental) - GET_LEVEL(ch)
             - GET_INT(ch) - GET_WIS(ch)) > 60 || !can_charm_more(ch)) {
@@ -2044,7 +2044,7 @@ ASPELL(spell_sword)
     af.aff_index = 0;
 
     affect_to_char(sword, &af);
-    SET_BIT(MOB_FLAGS(sword), MOB_PET);
+    SET_BIT(NPC_FLAGS(sword), NPC_PET);
     IS_CARRYING_N(sword) = CAN_CARRY_N(sword);
 
     GET_HITROLL(sword) = (GET_LEVEL(ch) >> 2) + 5;
@@ -2077,7 +2077,7 @@ ASPELL(spell_retrieve_corpse)
 
     if (!victim)
         return;
-    if (IS_MOB(victim)) {
+    if (IS_NPC(victim)) {
         send_to_char(ch,
             "You are unable to find the former body of this entity.\r\n");
         return;
@@ -2213,7 +2213,7 @@ ASPELL(spell_gust_of_wind)
         GET_LEVEL(ch) + number(10, GET_DEX(ch) + 40) &&
         !mag_savingthrow(victim, level, SAVING_BREATH) && !IS_DRAGON(victim) &&
         !affected_by_spell(victim, SPELL_ENTANGLE) &&
-        !MOB_FLAGGED(victim, MOB_NOBASH) &&
+        !NPC_FLAGGED(victim, NPC_NOBASH) &&
         !(GET_CLASS(victim) == CLASS_EARTH) && !IS_GIANT(victim) &&
         (GET_WEIGHT(victim) + ((IS_CARRYING_W(victim) +
                     IS_WEARING_W(victim)) >> 1))
@@ -2476,7 +2476,7 @@ ASPELL(spell_summon_legion)
     GET_HIT(devil) = GET_MAX_HIT(devil);
 
     // Make sure noone gets xp fer these buggers.
-    SET_BIT(MOB_FLAGS(devil), MOB_PET);
+    SET_BIT(NPC_FLAGS(devil), NPC_PET);
     // or gold
     GET_GOLD(devil) = 0;
 
@@ -2502,14 +2502,14 @@ ASPELL(spell_summon_legion)
         return;
 
     // pets too scared to help.
-    REMOVE_BIT(MOB_FLAGS(devil), MOB_HELPER);
-    REMOVE_BIT(MOB_FLAGS(devil), MOB_AGGRESSIVE);
+    REMOVE_BIT(NPC_FLAGS(devil), NPC_HELPER);
+    REMOVE_BIT(NPC_FLAGS(devil), NPC_AGGRESSIVE);
     // pets shouldn't snatch shit.
-    REMOVE_BIT(MOB_FLAGS(devil), MOB_SCAVENGER);
-    REMOVE_BIT(MOB2_FLAGS(devil), MOB2_LOOTER);
+    REMOVE_BIT(NPC_FLAGS(devil), NPC_SCAVENGER);
+    REMOVE_BIT(NPC2_FLAGS(devil), NPC2_LOOTER);
     // They shouldn't bother to stay put either.
-    REMOVE_BIT(MOB_FLAGS(devil), MOB_STAY_ZONE);
-    REMOVE_BIT(MOB2_FLAGS(devil), MOB2_STAY_SECT);
+    REMOVE_BIT(NPC_FLAGS(devil), NPC_STAY_ZONE);
+    REMOVE_BIT(NPC2_FLAGS(devil), NPC2_STAY_SECT);
 
     add_follower(devil, ch);
 
@@ -2714,7 +2714,7 @@ ASPELL(spell_animate_dead)
     REMOVE_BIT(AFF3_FLAGS(zombie),
         AFF3_SELF_DESTRUCT | AFF3_STASIS | AFF3_PSYCHIC_CRUSH);
     // Make sure noone gets xp fer these buggers.
-    SET_BIT(MOB_FLAGS(zombie), MOB_PET);
+    SET_BIT(NPC_FLAGS(zombie), NPC_PET);
 
     if (isname(GET_NAME(zombie), "headless"))
         SET_BIT(AFF2_FLAGS(zombie), AFF2_NECK_PROTECTED);
@@ -2851,7 +2851,7 @@ ASPELL(spell_unholy_stalker)
     if (level > number(50, 80))
         SET_BIT(AFF2_FLAGS(stalker), AFF2_HASTE);
     // Make sure noone gets xp fer these buggers.
-    SET_BIT(MOB_FLAGS(stalker), MOB_PET);
+    SET_BIT(NPC_FLAGS(stalker), NPC_PET);
 
     char_to_room(stalker, ch->in_room, false);
 
@@ -2918,8 +2918,8 @@ ASPELL(spell_control_undead)
             TO_VICT);
 
         if (IS_NPC(ch)) {
-            REMOVE_BIT(MOB_FLAGS(ch), MOB_AGGRESSIVE);
-            REMOVE_BIT(MOB_FLAGS(ch), MOB_SPEC);
+            REMOVE_BIT(NPC_FLAGS(ch), NPC_AGGRESSIVE);
+            REMOVE_BIT(NPC_FLAGS(ch), NPC_SPEC);
         }
 
     }
@@ -2928,7 +2928,7 @@ ASPELL(spell_control_undead)
         send_to_char(ch, "Your victim is protected by sanctuary!\r\n");
     }
 
-    else if (MOB_FLAGGED(victim, MOB_NOCHARM) && GET_LEVEL(ch) < LVL_IMPL) {
+    else if (NPC_FLAGGED(victim, NPC_NOCHARM) && GET_LEVEL(ch) < LVL_IMPL) {
         send_to_char(ch, "Your victim resists!\r\n");
     }
 
@@ -2948,7 +2948,7 @@ ASPELL(spell_control_undead)
     else if (mag_savingthrow(victim, level, SAVING_PARA) &&
         (GET_INT(victim) + number(0, GET_LEVEL(victim) + 20) > level)) {
         send_to_char(ch, "Your victim resists!\r\n");
-        if (MOB_FLAGGED(victim, MOB_MEMORY))
+        if (NPC_FLAGGED(victim, NPC_MEMORY))
             remember(victim, ch);
     }
 
@@ -2989,8 +2989,8 @@ ASPELL(spell_control_undead)
             TO_VICT);
 
         if (IS_NPC(victim)) {
-            REMOVE_BIT(MOB_FLAGS(victim), MOB_AGGRESSIVE);
-            REMOVE_BIT(MOB_FLAGS(victim), MOB_SPEC);
+            REMOVE_BIT(NPC_FLAGS(victim), NPC_AGGRESSIVE);
+            REMOVE_BIT(NPC_FLAGS(victim), NPC_SPEC);
         }
     }
 }
@@ -3034,7 +3034,7 @@ ASPELL(spell_sun_ray)
             dam += (GET_ALIGNMENT(ch) - GET_ALIGNMENT((tch))) / 4;
 
         if (!damage(ch, (tch), dam, TYPE_ABLAZE, -1)) {
-            if (!AFF_FLAGGED(tch, AFF_BLIND) && !MOB_FLAGGED(tch, MOB_NOBLIND)) {
+            if (!AFF_FLAGGED(tch, AFF_BLIND) && !NPC_FLAGGED(tch, NPC_NOBLIND)) {
 
                 struct affected_type af, af2;
                 af.is_instant = af2.is_instant = 0;
@@ -3321,7 +3321,7 @@ ASPELL(spell_distraction)
         return;
     }
 
-    if (!MEMORY(victim) && !MOB_HUNTING(victim)) {
+    if (!MEMORY(victim) && !NPC_HUNTING(victim)) {
         send_to_char(ch, "Nothing happens.\r\n");
         return;
     }
@@ -3594,7 +3594,7 @@ perform_call_familiar(struct creature * ch, int level, int type)
 
     // First check to make sure that they don't already have a familiar
     for (cur_fol = ch->followers; cur_fol; cur_fol = cur_fol->next) {
-        if (MOB2_FLAGGED(cur_fol->follower, MOB2_FAMILIAR)) {
+        if (NPC2_FLAGGED(cur_fol->follower, NPC2_FAMILIAR)) {
             send_to_char(ch, "%s", NOEFFECT);
             if (ch->in_room == cur_fol->follower->in_room) {
                 act("$N looks up at you mournfully.", true,
@@ -3614,8 +3614,8 @@ perform_call_familiar(struct creature * ch, int level, int type)
         return false;
     }
 
-    SET_BIT(MOB_FLAGS(pet), MOB_PET);
-    SET_BIT(MOB2_FLAGS(pet), MOB2_FAMILIAR);
+    SET_BIT(NPC_FLAGS(pet), NPC_PET);
+    SET_BIT(NPC2_FLAGS(pet), NPC2_FAMILIAR);
 
     // Scale the pet to the caster's level
     percent = 50 + skill_bonus(ch, true) / 2;
@@ -3633,7 +3633,7 @@ perform_call_familiar(struct creature * ch, int level, int type)
     if (pet->master)
         stop_follower(pet);
     add_follower(pet, ch);
-    GET_MOB_LEADER(pet) = 1;
+    GET_NPC_LEADER(pet) = 1;
 
     af.type = SPELL_CHARM;
     af.is_instant = 0;

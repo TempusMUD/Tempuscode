@@ -11,7 +11,7 @@
 // Dr Cheetah - Family Clan Healer
 #define CHEETA 74003
 
-#define MOBV(mode)  (GET_MOB_VNUM(ch) == mode)
+#define MOBV(mode)  (GET_NPC_VNUM(ch) == mode)
 
 #define MODE_OK(vict) \
                 (MOBV(CHEETA) || ((MOBV(SARAH) && IS_GOOD(vict) && IS_HUMAN(vict)) ? 1 : \

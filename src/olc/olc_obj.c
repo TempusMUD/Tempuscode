@@ -327,7 +327,7 @@ struct obj_data *
 do_create_obj(struct creature *ch, int vnum)
 {
 
-    struct obj_data *obj = NULL, *new_obj = NULL;
+    struct obj_data *new_obj = NULL;
     struct zone_data *zone = NULL;
     int i;
 

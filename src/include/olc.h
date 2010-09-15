@@ -20,10 +20,10 @@
 #define OLC_ALIASES	3
 
 #define MAX_ROOM_NAME	75
-#define MAX_MOB_NAME	50
+#define MAX_NPC_NAME	50
 #define MAX_OBJ_NAME	50
 #define MAX_ROOM_DESC	1024
-#define MAX_MOB_DESC	512
+#define MAX_NPC_DESC	512
 #define MAX_OBJ_DESC	512
 
 #define SCMD_OLC        666
@@ -31,9 +31,9 @@
 #define OLC_OSET    0
 #define NORMAL_OSET 1
 
-#define MOB_D1(lev)    (lev + 1)
-#define MOB_D2(lev)    (6 + (lev >> 1))
-#define MOB_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)
+#define NPC_D1(lev)    (lev + 1)
+#define NPC_D2(lev)    (6 + (lev >> 1))
+#define NPC_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)
 void set_physical_attribs(struct creature *ch);
 //recalculates the given mob prototype's statistics based on it's current level.
 void recalculate_based_on_level(struct creature *mob_p);

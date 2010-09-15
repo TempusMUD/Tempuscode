@@ -18,7 +18,7 @@ SPECIAL(red_highlord)
     struct obj_data *blade = NULL, *container = NULL;
     struct creature *vict = NULL, *tmp_vict = NULL;
 
-    if (cmd || ch->fighting || MOB_HUNTING(ch)
+    if (cmd || ch->fighting || NPC_HUNTING(ch)
         || GET_POSITION(ch) <= POS_SLEEPING)
         return 0;
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
@@ -63,7 +63,7 @@ SPECIAL(red_highlord)
             break;
         } else if (((tmp_vict = blade->carried_by) ||
                 (tmp_vict = blade->worn_by)) && tmp_vict != ch) {
-            if (GET_LEVEL(tmp_vict) >= LVL_IMMORT || IS_MOB(tmp_vict) ||
+            if (GET_LEVEL(tmp_vict) >= LVL_IMMORT || IS_NPC(tmp_vict) ||
                 GET_LEVEL(tmp_vict) < 3) {
                 continue;
             } else if (find_first_step(ch->in_room, tmp_vict->in_room,

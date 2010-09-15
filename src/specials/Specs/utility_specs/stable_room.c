@@ -44,7 +44,7 @@ SPECIAL(stable_room)
         }
         GET_GOLD(ch) -= GET_EXP(pet) * 3;
 
-        pet = read_mobile(GET_MOB_VNUM(pet));
+        pet = read_mobile(GET_NPC_VNUM(pet));
         GET_EXP(pet) = 0;
         SET_BIT(AFF_FLAGS(pet), AFF_CHARM);
 
@@ -88,7 +88,7 @@ SPECIAL(stable_room)
                 TO_CHAR);
             return 1;
         }
-        if (!IS_NPC(pet) || !MOB2_FLAGGED(pet, MOB2_MOUNT)) {
+        if (!IS_NPC(pet) || !NPC2_FLAGGED(pet, NPC2_MOUNT)) {
             send_to_char(ch, "I only buy mounts.\r\n");
             return 1;
         }
@@ -117,7 +117,7 @@ SPECIAL(stable_room)
         for (GList * it = pet_room->people; it; it = it->next) {
             struct creature *tch = it->data;
             if (tch != pet && IS_NPC(tch)
-                && GET_MOB_VNUM(tch) == GET_MOB_VNUM(pet)) {
+                && GET_NPC_VNUM(tch) == GET_NPC_VNUM(pet)) {
                 creature_purge(tch, true);
                 return 1;
             }

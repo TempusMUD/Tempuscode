@@ -68,7 +68,7 @@ summon_criminal_demons(struct creature *vict)
             return false;
         }
         start_hunting(mob, vict);
-        SET_BIT(MOB_FLAGS(mob), MOB_SPIRIT_TRACKER);
+        SET_BIT(NPC_FLAGS(mob), NPC_SPIRIT_TRACKER);
         CREATE(mob->mob_specials.func_data, int, 1);
         *((int *)mob->mob_specials.func_data) = GET_IDNUM(vict);
 
@@ -210,18 +210,18 @@ SPECIAL(demonic_guard)
     vict_id = *((int *)self->mob_specials.func_data);
 
     ch = get_char_in_world_by_idnum(vict_id);
-    if (!ch || !MOB_HUNTING(self) || GET_REPUTATION(ch) < 700) {
+    if (!ch || !NPC_HUNTING(self) || GET_REPUTATION(ch) < 700) {
         act("$n vanishes into the mouth of an interplanar conduit.",
             false, self, 0, 0, TO_ROOM);
         creature_purge(self, true);
         return true;
     }
 
-    if (MOB_HUNTING(self)->in_room->zone != self->in_room->zone) {
+    if (NPC_HUNTING(self)->in_room->zone != self->in_room->zone) {
         act("$n vanishes into the mouth of an interplanar conduit.",
             false, self, 0, 0, TO_ROOM);
         char_from_room(self, true);
-        char_to_room(self, MOB_HUNTING(self)->in_room, true);
+        char_to_room(self, NPC_HUNTING(self)->in_room, true);
         act("The air suddenly cracks open and $n steps out!",
             false, self, 0, 0, TO_ROOM);
         return true;

@@ -15,7 +15,7 @@ SPECIAL(taunting_frenchman)
     for (GList * it = ch->in_room->people; it; it = it->next) {
         vict = it->data;
         if (vict != ch && can_see_creature(ch, vict) &&
-            GET_MOB_VNUM(ch) != GET_MOB_VNUM(vict) && !number(0, 3))
+            GET_NPC_VNUM(ch) != GET_NPC_VNUM(vict) && !number(0, 3))
             break;
     }
     if (!vict || vict == ch)

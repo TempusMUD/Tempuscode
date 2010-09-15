@@ -36,7 +36,7 @@ SPECIAL(fate_cauldron)
     }
     for (GList * it = creatures; it; it = it->next) {
         struct creature *tch = it->data;
-        if (GET_MOB_VNUM(tch) == fateid) {
+        if (GET_NPC_VNUM(tch) == fateid) {
             fate = tch;
             break;
         }

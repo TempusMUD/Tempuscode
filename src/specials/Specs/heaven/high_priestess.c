@@ -17,7 +17,7 @@ SPECIAL(high_priestess)
     if (focus == NULL || quarters == NULL) {
         errlog("High Priestess room is bunk. Removing spec");
         hpr->mob_specials.shared->func = NULL;
-        REMOVE_BIT(MOB_FLAGS(hpr), MOB_SPEC);
+        REMOVE_BIT(NPC_FLAGS(hpr), NPC_SPEC);
         return 0;
     }
 

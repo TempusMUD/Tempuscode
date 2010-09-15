@@ -1208,7 +1208,7 @@ ACMD(do_olc)
                     send_to_char(ch, "Destroy what mobile prototype?\r\n");
                     return;
                 }
-                i = GET_MOB_VNUM(GET_OLC_MOB(ch));
+                i = GET_NPC_VNUM(GET_OLC_MOB(ch));
             } else
                 i = atoi(arg2);
 
@@ -1381,7 +1381,7 @@ ACMD(do_olc)
                 return;
             } else {
                 tmp_mob = mob_p;
-                j = GET_MOB_VNUM(tmp_mob);
+                j = GET_NPC_VNUM(tmp_mob);
             }
         } else {
             skip_spaces(&argument);
@@ -1405,7 +1405,7 @@ ACMD(do_olc)
         }
 
         if (!is_authorized(ch, WORLDWRITE, NULL)
-            && !MOB2_FLAGGED(tmp_mob, MOB2_UNAPPROVED)) {
+            && !NPC2_FLAGGED(tmp_mob, NPC2_UNAPPROVED)) {
             send_to_char(ch, "You cannot olc mload approved mobiles.\r\n");
             return;
         }
@@ -1417,7 +1417,7 @@ ACMD(do_olc)
             act("$N appears next to you.", false, ch, 0, tmp_mob, TO_CHAR);
             act("$n creates $N in $s hands.", true, ch, 0, tmp_mob, TO_ROOM);
             slog("OLC: %s mloaded [%d] %s.", GET_NAME(ch),
-                GET_MOB_VNUM(tmp_mob), GET_NAME(tmp_mob));
+                GET_NPC_VNUM(tmp_mob), GET_NAME(tmp_mob));
         }
 
         break;
@@ -1524,7 +1524,6 @@ ACMD(do_olc)
 
     case 49:{                  // recalculate
             struct creature *mob;
-            struct obj_data *obj;
             int number;
             char *buf1 = tmp_getword(&argument);
             char *buf2 = tmp_getword(&argument);
@@ -1598,13 +1597,13 @@ ACMD(do_olc)
                         "There is no monster with that number.\r\n");
                 } else if (!GET_OLC_MOB(ch)) {
                     send_to_char(ch, "You aren't editing a mobile.\r\n");
-                } else if (!GET_MOB_PROG(mob)) {
+                } else if (!GET_NPC_PROG(mob)) {
                     send_to_char(ch, "There is no prog to mimic on %s.\r\n",
                         GET_NAME(mob));
                 } else {
-                    char *prog = GET_MOB_PROG(mob);
+                    char *prog = GET_NPC_PROG(mob);
                     if (prog)
-                        MOB_SHARED(GET_OLC_MOB(ch))->prog = strdup(prog);
+                        NPC_SHARED(GET_OLC_MOB(ch))->prog = strdup(prog);
                     send_to_char(ch, "You have mimiced %s's prog.\r\n",
                         GET_NAME(mob));
                 }
@@ -1681,12 +1680,12 @@ recalc_all_mobs(struct creature *ch, const char *argument)
     g_hash_table_iter_init(&iter, mob_prototypes);
     while (g_hash_table_iter_next(&iter, (gpointer) & vnum, (gpointer) & mob)) {
         for (zone = zone_table; zone; zone = zone->next)
-            if (GET_MOB_VNUM(mob) >= zone->number * 100 &&
-                GET_MOB_VNUM(mob) <= zone->top)
+            if (GET_NPC_VNUM(mob) >= zone->number * 100 &&
+                GET_NPC_VNUM(mob) <= zone->top)
                 break;
         if (!zone) {
             send_to_char(ch, "WARNING: No zone found for mobile %d.\r\n",
-                GET_MOB_VNUM(mob));
+                GET_NPC_VNUM(mob));
             continue;
         }
 
@@ -2082,7 +2081,7 @@ show_olc_help(struct creature *ch, char *arg)
         break;
     case 22:          /** mob flags **/
         strcpy(buf, "MOB FLAGS:\r\n");
-        for (i = 0; i < NUM_MOB_FLAGS; i++) {
+        for (i = 0; i < NUM_NPC_FLAGS; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), action_bits_desc[i], CCNRM(ch, C_NRM));
             strcat(buf, buf2);
@@ -2091,7 +2090,7 @@ show_olc_help(struct creature *ch, char *arg)
         break;
     case 23:          /** mob flags2 **/
         strcpy(buf, "MOB FLAGS2:\r\n");
-        for (i = 0; i < NUM_MOB2_FLAGS; i++) {
+        for (i = 0; i < NUM_NPC2_FLAGS; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), action2_bits_desc[i], CCNRM(ch, C_NRM));
             strcat(buf, buf2);
@@ -2331,7 +2330,7 @@ ACMD(do_unapprove)
             for (int vnum = first; vnum <= last; vnum++) {
                 mob = (struct creature *)g_hash_table_lookup(mob_prototypes,
                     GINT_TO_POINTER(vnum));
-                SET_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
+                SET_BIT(NPC2_FLAGS(mob), NPC2_UNAPPROVED);
             }
             save_mobs(ch, zone);
             send_to_char(ch, "Mobs approved for olc.\r\n");
@@ -2404,8 +2403,8 @@ ACMD(do_unapprove)
         }
 
         for (zone = zone_table; zone; zone = zone->next) {
-            if (GET_MOB_VNUM(mob) >= (zone->number * 100) &&
-                GET_MOB_VNUM(mob) <= zone->top)
+            if (GET_NPC_VNUM(mob) >= (zone->number * 100) &&
+                GET_NPC_VNUM(mob) <= zone->top)
                 break;
         }
 
@@ -2420,12 +2419,12 @@ ACMD(do_unapprove)
             return;
         }
 
-        if (IS_SET(MOB2_FLAGS(mob), MOB2_UNAPPROVED)) {
+        if (IS_SET(NPC2_FLAGS(mob), NPC2_UNAPPROVED)) {
             send_to_char(ch, "That mobile is already unapproved.\r\n");
             return;
         }
 
-        SET_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
+        SET_BIT(NPC2_FLAGS(mob), NPC2_UNAPPROVED);
         send_to_char(ch, "Mobile unapproved.\r\n");
         slog("%s unapproved mobile [%d] %s.", GET_NAME(ch),
             rnum, GET_NAME(mob));
@@ -2501,7 +2500,7 @@ ACMD(do_approve)
             for (int vnum = first; vnum <= last; vnum++) {
                 mob = (struct creature *)g_hash_table_lookup(mob_prototypes,
                     GINT_TO_POINTER(vnum));
-                REMOVE_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
+                REMOVE_BIT(NPC2_FLAGS(mob), NPC2_UNAPPROVED);
             }
 
             save_mobs(ch, zone);
@@ -2576,8 +2575,8 @@ ACMD(do_approve)
         }
 
         for (zone = zone_table; zone; zone = zone->next) {
-            if (GET_MOB_VNUM(mob) >= (zone->number * 100) &&
-                GET_MOB_VNUM(mob) <= zone->top)
+            if (GET_NPC_VNUM(mob) >= (zone->number * 100) &&
+                GET_NPC_VNUM(mob) <= zone->top)
                 break;
         }
 
@@ -2592,12 +2591,12 @@ ACMD(do_approve)
             return;
         }
 
-        if (!IS_SET(MOB2_FLAGS(mob), MOB2_UNAPPROVED)) {
+        if (!IS_SET(NPC2_FLAGS(mob), NPC2_UNAPPROVED)) {
             send_to_char(ch, "That mobile is already approved.\r\n");
             return;
         }
 
-        REMOVE_BIT(MOB2_FLAGS(mob), MOB2_UNAPPROVED);
+        REMOVE_BIT(NPC2_FLAGS(mob), NPC2_UNAPPROVED);
         send_to_char(ch,
             "Mobile approved for full inclusion in the game.\r\n");
         slog("%s approved mobile [%d] %s.", GET_NAME(ch), rnum, GET_NAME(mob));

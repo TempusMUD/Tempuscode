@@ -659,7 +659,7 @@ ACMD(do_pinch)
         send_to_char(ch, "You fail the pinch!\r\n");
         act("You quickly shake off $n's attack!", false, ch, 0, vict, TO_VICT);
         WAIT_STATE(ch, PULSE_VIOLENCE);
-        if (IS_MOB(vict) && !PRF_FLAGGED(ch, PRF_NOHASSLE))
+        if (IS_NPC(vict) && !PRF_FLAGGED(ch, PRF_NOHASSLE))
             hit(vict, ch, TYPE_UNDEFINED);
         return;
     }
@@ -715,7 +715,7 @@ ACMD(do_pinch)
             GET_POSITION(ch) = POS_STUNNED;
             return;
         }
-        if (ch->fighting || vict->fighting || MOB2_FLAGGED(vict, MOB2_NOSTUN)
+        if (ch->fighting || vict->fighting || NPC2_FLAGGED(vict, NPC2_NOSTUN)
             || (AFF_FLAGGED(vict, AFF_ADRENALINE)
                 && number(0, 60) < GET_LEVEL(vict))) {
             send_to_char(ch, "You fail.\r\n");
@@ -775,7 +775,7 @@ ACMD(do_pinch)
             if (ch->desc)
                 ch->desc->wait = 0;
             else if (IS_NPC(ch))
-                GET_MOB_WAIT(ch) = 0;
+                GET_NPC_WAIT(ch) = 0;
             to_vict = "You feel a strange sensation as $N wakes you.";
             to_room = "$n is revived.";
             happened = true;

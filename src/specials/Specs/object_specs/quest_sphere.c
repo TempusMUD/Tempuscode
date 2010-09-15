@@ -88,7 +88,7 @@ quest_sphere_carrier_bad(struct creature *carrier)
 {
     if (GET_LEVEL(carrier) > LVL_IMMORT)
         return false;
-    if (IS_NPC(carrier) && GET_MOB_SPEC(carrier) == vendor)
+    if (IS_NPC(carrier) && GET_NPC_SPEC(carrier) == vendor)
         return false;
     return true;
 }
