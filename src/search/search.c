@@ -180,7 +180,7 @@ general_search(struct creature *ch, struct special_search_data *srch,
 		if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ZCMDS_APPROVED))
 			SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
 		obj_to_room(obj, targ_room);
-		if (srch->to_remote)
+		if (srch->to_remote && targ_room->people)
 			act(srch->to_remote, false, targ_room->people->data, obj, mob, TO_ROOM);
 		break;
 
@@ -207,7 +207,7 @@ general_search(struct creature *ch, struct special_search_data *srch,
 		if( process_load_param( mob ) ) {
 			// Mobile Died in load_param
 		} else {
-			if (srch->to_remote)
+			if (srch->to_remote && targ_room->people)
 				act(srch->to_remote, false, targ_room->people->data, obj, mob, TO_ROOM);
 			if (GET_MOB_PROGOBJ(mob))
 				trigger_prog_load(mob);
@@ -570,7 +570,7 @@ general_search(struct creature *ch, struct special_search_data *srch,
 		if (targ_room) {
 
 			if (srch->to_remote && ch->in_room != targ_room
-				&& targ_room->people > 0) {
+				&& targ_room->people) {
 				act(srch->to_remote, false, targ_room->people->data, obj, mob,
 					TO_ROOM);
 				act(srch->to_remote, false, targ_room->people->data, obj, mob,
