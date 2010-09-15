@@ -292,7 +292,7 @@ sprintbit(long vektor, const char *names[], char *result)
 }
 
 const char *
-strlist_aref(int idx, const char *names[])
+strlist_aref(int idx, const char **names)
 {
 	int nr;
 

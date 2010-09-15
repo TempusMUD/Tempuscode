@@ -255,6 +255,7 @@ extern struct room_data *r_zul_dane_start_room;
 extern struct room_data *r_zul_dane_newbie_start_room;
 extern struct room_data *r_newbie_school_start_room;
 
-int exit_count(struct room_data *room);
+int count_room_exits(struct room_data *room);
+void free_room(struct room_data *room);
 
 #endif

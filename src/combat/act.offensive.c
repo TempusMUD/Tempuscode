@@ -707,7 +707,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         )
             prob = 0;
 
-		*loc = WEAR_HEAD;;
+		*loc = WEAR_HEAD;
 		*dam = dice(GET_LEVEL(ch), 7);
 		ADD_EQ_DAM(ch, WEAR_FEET);
 		*wait = 6 RL_SEC;

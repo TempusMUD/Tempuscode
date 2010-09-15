@@ -567,7 +567,6 @@ SPECIAL(arioch)
 	struct obj_data *blade = NULL, *obj = NULL;
 	struct room_data *rm = NULL;
 	struct creature *vict = NULL;
-	unsigned int i;
 
 	if (spec_mode != SPECIAL_TICK)
 		return 0;

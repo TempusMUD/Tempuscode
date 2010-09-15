@@ -394,7 +394,7 @@ editor_substitute(struct editor *editor, char *args)
 	// read pointer and write pointer.
 	char *temp, end_char;
     bool balanced;
-    int size_delta, buffer_size;;
+    int size_delta, buffer_size;
 
     while (isspace(*args))
         args++;

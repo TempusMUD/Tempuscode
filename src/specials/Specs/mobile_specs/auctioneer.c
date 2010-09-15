@@ -146,7 +146,7 @@ aucLoadFromXML(struct creature *auc) {
     MAX_AUC_VALUE = xmlGetIntProp(root, "max_auc_value", 0);
     MAX_AUC_ITEMS = xmlGetIntProp(root, "max_auc_items", 0);
     MAX_TOTAL_AUC = xmlGetIntProp(root, "max_total_auc", 0);
-    BID_INCREMENT = (float)atof(xmlGetProp(root, "bid_increment"));
+    BID_INCREMENT = (float)atof((char *)xmlGetProp(root, (xmlChar *)"bid_increment"));
 
     struct auction_data *new_ai;
     for (xmlNodePtr node = root->xmlChildrenNode; node; node = node->next) {

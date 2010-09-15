@@ -52,6 +52,7 @@ bool is_number(const char *str);
 int find_command(const char *command);
 int find_command_noabbrev(const char *command);
 void skip_spaces(char **string);
+void skip_spaces_const(const char **string);
 void send_unknown_cmd(struct creature *ch);
 
 // from search.c

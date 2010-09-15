@@ -1810,7 +1810,7 @@ do_zdoor_cmd(struct creature *ch, char *argument)
 		CREATE(zonecmd, struct reset_com, 1);
 
 		zonecmd->command = 'D';
-		zonecmd->if_flag = 0;;
+		zonecmd->if_flag = 0;
 		zonecmd->arg1 = int_arg1;
 		zonecmd->arg2 = int_arg2;
 		zonecmd->arg3 = cur_door_flags;

@@ -3486,7 +3486,7 @@ ACMD(do_who)
                (IS_NPC(ch) || ch->account->compact_level > 1) ? "" : "\r\n",
                NULL);
 	for (GList *cit = immortals;cit;cit = cit->next) {
-		curr = (struct creature *)cit;;
+		curr = (struct creature *)cit;
 		who_string(ch, curr);
 		if (!noflags) {
 			who_flags(ch, curr);
@@ -3498,7 +3498,7 @@ ACMD(do_who)
 	}
 	if (IS_IMMORT(ch) || is_tester(ch)) {
         for (GList *cit = testers;cit;cit = cit->next) {
-            curr = (struct creature *)cit;;
+            curr = (struct creature *)cit;
 			who_string(ch, curr);
 			if (!noflags) {
 				who_flags(ch, curr);
@@ -3510,7 +3510,7 @@ ACMD(do_who)
 		}
 	}
     for (GList *cit = players;cit;cit = cit->next) {
-        curr = (struct creature *)cit;;
+        curr = (struct creature *)cit;
 		who_string(ch, curr);
 		if (!noflags) {
 			who_flags(ch, curr);

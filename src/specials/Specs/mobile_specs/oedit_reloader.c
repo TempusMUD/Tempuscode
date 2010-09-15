@@ -37,7 +37,7 @@ load_oedits( struct creature *ch )
 	return count;
 }
 
-GList *
+int
 retrieve_oedits( struct creature *ch )
 {
 	int count = 0;

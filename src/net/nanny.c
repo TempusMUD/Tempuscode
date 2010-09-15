@@ -1491,7 +1491,7 @@ char_to_game(struct descriptor_data *d)
 		if (!load_room && GET_HOMEROOM(d->creature))
 			load_room = real_room(GET_HOMEROOM(d->creature));
 		if (!load_room)
-			load_room = GET_LOADROOM(d->creature);
+			load_room = real_room(GET_LOADROOM(d->creature));
 
 		if (load_room && !can_enter_house(d->creature, load_room->number)) {
 			mudlog(LVL_DEMI, NRM, true,

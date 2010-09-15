@@ -29,8 +29,7 @@ SPECIAL(wand_of_wonder)
     for (int spell_idx = 1;spell_idx < TOP_SPELL_DEFINE;spell_idx++)
         if (spell_info[spell_idx].routines && !number(0, spell_count++))
             selected_spell = spell_idx;
-    slog("wand of wonder casting spell '%s'",
-         strlist_aref(selected_spell, spells));
+    slog("wand of wonder casting spell '%s'", spells[selected_spell]);
 
     GET_OBJ_VAL(self, 3) = selected_spell;
 

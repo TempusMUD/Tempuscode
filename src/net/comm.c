@@ -1948,7 +1948,7 @@ make_act_str(const char *orig,
     const char *i = 0;
 	char *first_printed_char = 0;
 
-	for (;;) {
+	while (true) {
         if (*s == '$') {
 			switch (*(++s)) {
 			case 'n':

@@ -2473,7 +2473,7 @@ static void
 prog_trigger_idle_mobs(void)
 {
 	for (GList *cit = creatures;cit;cit = cit->next) {
-        struct creature *ch = cit->data;;
+        struct creature *ch = cit->data;
 		if (ch->prog_marker || !GET_MOB_PROGOBJ(ch))
 			continue;
 		else if (ch->fighting)

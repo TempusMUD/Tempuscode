@@ -1220,7 +1220,7 @@ ACMD(do_cedit)
 			member->next = clan->member_list;
 			clan->member_list = member;
 
-			send_to_char(ch, "Clan member added to list.\r\n");;
+			send_to_char(ch, "Clan member added to list.\r\n");
 
 			slog("(cedit) %s added member %ld to clan %d.",
 				GET_NAME(ch), member->idnum, clan->number);

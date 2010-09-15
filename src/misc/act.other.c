@@ -197,7 +197,7 @@ ACMD(do_save)
 		send_to_char(ch, "Saving %s.\r\n", GET_NAME(ch));
 	}
 	save_player_to_xml(ch);
-	crashSave(ch);
+    save_player_objects(ch);
 	if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
 		struct house *house = find_house_by_room( ch->in_room->number );
 		if( house != NULL )
@@ -2301,7 +2301,7 @@ ACMD(do_trust)
 			return;
 		}
 		send_to_char(ch, "Trusted friends:\r\n");
-		account_display_trusted(ch, ch->account);
+		account_display_trusted(ch->account, ch);
 		return;
 	}
 

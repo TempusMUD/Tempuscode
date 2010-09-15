@@ -57,6 +57,7 @@ int smart_mobile_move(struct creature *ch, int dir);
 bool perform_offensive_skill(struct creature *ch, struct creature *vict, int skill, int *return_flags);
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
+extern bool production_mode;
 
 ACMD(do_flee);
 ACMD(do_sleeper);
@@ -1534,7 +1535,9 @@ single_mobile_activity(struct creature *ch)
     }
 
     // Non-special mobs in idle zones don't do anything
-    if (IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
+    if (!production_mode
+        && IS_NPC(ch)
+        && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
         return;
 
     // Utility mobs don't do anything

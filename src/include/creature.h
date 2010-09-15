@@ -1001,6 +1001,12 @@ bool is_newbie(struct creature *ch);
 void start_hunting(struct creature *ch, struct creature *vict);
 void stop_hunting(struct creature *ch);
 
+void restore_creature(struct creature *ch);
+int unrent(struct creature *ch);
+bool checkLoadCorpse(struct creature *ch);
+int loadCorpse(struct creature *ch);
+void creature_set_reputation(struct creature *ch, int amt);
+
 bool creature_rent(struct creature *ch);
 bool creature_cryo(struct creature *ch);
 bool creature_quit(struct creature *ch);

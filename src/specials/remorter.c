@@ -120,14 +120,13 @@ SPECIAL(remorter)
 
 	skip_spaces(&argument);
     char *arg1 = tmp_getword(&argument);
-    char *arg2 = tmp_getword(&argument);
 
 	if (!*arg1) {
         send_to_char(ch, "You must say 'remort' to begin or 'goodbye' to leave.\r\n");
 		return 1;
 	}
 	if (isname_exact(arg1, "goodbye")) {
-		struct room_data *room = GET_LOADROOM(ch);
+		struct room_data *room = player_loadroom(ch);
         if( room == NULL )
             room = real_room(3061);// modrian dump
 

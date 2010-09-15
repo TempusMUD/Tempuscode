@@ -46,10 +46,10 @@ xmlGetIntProp(xmlNodePtr n, const char *name, int defValue)
 static inline char
 xmlGetCharProp(xmlNodePtr n, const char *name)
 {
-	char prop = 0;
-	xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
+	char prop = '\0';
+	char *c = (char *)xmlGetProp(n, (const xmlChar *)(name));
 	if (c == NULL)
-		return 0;
+		return '\0';
 	prop = *c;
 	free(c);
 	return prop;
@@ -58,7 +58,7 @@ xmlGetCharProp(xmlNodePtr n, const char *name)
 static inline bool
 xmlMatches(const xmlChar *str_a, const char *str_b)
 {
-	return !strcmp((const char *)(str_a), str_b);
+	return (strcmp((const char *)(str_a), str_b) == 0);
 }
 
 /**
@@ -67,9 +67,9 @@ xmlMatches(const xmlChar *str_a, const char *str_b)
  * Contrary to xmlEncodeEntities, uses the tmpstr utility.
 **/
 static inline char*
-xmlEncodeTmp( char* text )
+xmlEncodeTmp( const char* text )
 {
-	char *encoded = (char *)(xmlEncodeEntitiesReentrant(NULL, (xmlChar *)(text)));
+	char *encoded = (char *)(xmlEncodeEntitiesReentrant(NULL, (const xmlChar *)(text)));
 	char *tmp_encoded = tmp_strdup(encoded);
 	free(encoded);
 	return tmp_encoded;

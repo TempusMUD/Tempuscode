@@ -38,6 +38,7 @@
 #include "utils.h"
 #include "security.h"
 #include "accstr.h"
+#include "help.h"
 
 // external funcs here
 ACMD(do_switch);
@@ -294,7 +295,7 @@ save_quest(struct quest *quest, FILE *out)
 
     for (GList *pit = quest->players;pit;pit = pit->next) {
         struct qplayer_data *player = pit->data;
-        fprintf(out, "%s%s<Player ID=\"%d\" FLAGS=\"%d\" DEATHS=\"%d\" MKILLS=\"%d\" PKILLS=\"%d\"/>\n",
+        fprintf(out, "%s%s<Player ID=\"%ld\" FLAGS=\"%d\" DEATHS=\"%d\" MKILLS=\"%d\" PKILLS=\"%d\"/>\n",
                 indent, indent,
                 player->idnum,
                 player->flags,
@@ -317,7 +318,7 @@ free_quest(struct quest *quest)
     free(quest->name);
     free(quest->description);
     free(quest->updates);
-    g_list_foreach(quest->players, free, 0);
+    g_list_foreach(quest->players, (GFunc)free, 0);
     g_list_free(quest->players);
     g_list_free(quest->bans);
 }
@@ -1908,7 +1909,7 @@ do_qcontrol_end(struct creature *ch, char *argument, int com)
 
 
 	while (quest->players)
-        remove_quest_player(quest, quest->players->data);
+        remove_quest_player(quest, GPOINTER_TO_INT(quest->players->data));
 
 	quest->ended = time(0);
 	qlog(ch, tmp_sprintf("ended quest %d '%s'", quest->vnum,quest->name),
@@ -2209,7 +2210,7 @@ do_qcontrol_desc(struct creature *ch, char *argument, int com)
 	if (!is_authorized(ch, EDIT_QUEST, quest))
 		return;
 
-	if (check_editors(ch, &(quest->description)))
+	if (check_editors(ch, quest->description))
 		return;
 
 	act("$n begins to edit a quest description.\r\n", true, ch, 0, 0, TO_ROOM);
@@ -2242,7 +2243,7 @@ do_qcontrol_update(struct creature *ch, char *argument, int com)
 	if (!is_authorized(ch, EDIT_QUEST, quest))
 		return;
 
-	if (check_editors(ch, &(quest->updates)))
+	if (check_editors(ch, quest->updates))
 		return;
 
 	if (quest->description) {

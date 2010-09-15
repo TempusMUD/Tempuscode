@@ -1715,7 +1715,7 @@ command_interpreter(struct creature *ch, const char *argument)
         cmdstr = tmp_substr(argument, 0, 0);
         cmdargs = tmp_substr(argument, 1, -1);
     } else {
-        cmdstr = tmp_getword(&argument);
+        cmdstr = tmp_getword_const(&argument);
         cmdargs = tmp_strdup(argument);
     }
 
@@ -2113,6 +2113,13 @@ is_number(const char *str)
 			return false;
 
 	return true;
+}
+
+void
+skip_spaces_const(const char **string)
+{
+    while (**string && isspace(**string))
+        (*string)++;
 }
 
 void

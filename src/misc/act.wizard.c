@@ -905,9 +905,9 @@ acc_format_prog(struct creature *ch, char *prog)
     acc_sprintf("Prog:\r\n");
 
     int line_num = 1;
-    for (char *line = tmp_getline((const char **)&prog);
+    for (char *line = tmp_getline(&prog);
          line;
-         line = tmp_getline((const char **)&prog), line_num++) {
+         line = tmp_getline(&prog), line_num++) {
 
         // Line number looks like TEDII
         acc_sprintf("%s%3d%s] ",
@@ -1820,7 +1820,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         "AC: [%s%d/10%s], Hitroll: [%s%2d%s], Damroll: [%s%2d%s], Speed: [%s%2d%s], DR: [%s%2d%s]\r\n",
         CCYEL(ch, C_NRM), GET_AC(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         k->points.hitroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
-        k->points.damroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), getSpeed(k),
+        k->points.damroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), SPEED_OF(k),
         CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         (int)(damage_reduction(k, NULL) * 100),
         CCNRM(ch, C_NRM));
@@ -4729,7 +4729,7 @@ show_rooms(struct creature *ch, char *value, char *args)
     } else {
         acc_string_clear();
 
-        acc_strcat("Valid flags are:\n", NULL);;
+        acc_strcat("Valid flags are:\n", NULL);
 
 		for (idx = 0;*show_room_flags[idx] != '\n';idx++) {
             acc_strcat(show_room_flags[idx], "\r\n", NULL);
@@ -5054,7 +5054,7 @@ ACMD(do_show)
         send_to_char(ch, "Show options:\r\n");
         for (j = 0, i = 1; fields[i].level; i++) {
             if (is_authorized(ch, SHOW, &fields[i])) {
-                cmdlist = g_list_prepend(cmdlist, (gpointer)fields[i].cmd);
+                cmdlist = g_list_prepend(cmdlist, tmp_strdup(fields[i].cmd));
             }
         }
         cmdlist = g_list_sort(cmdlist, (GCompareFunc)strcasecmp);
@@ -5873,7 +5873,7 @@ ACMD(do_set)
         send_to_char(ch, "Usage: set <victim> <field> <value>\r\n");
         for (j = 0, i = 1; fields[i].level; i++) {
             if (is_authorized(ch, SET, &fields[i])) {
-                cmdlist = g_list_prepend(cmdlist, (gpointer)fields[i].cmd);
+                cmdlist = g_list_prepend(cmdlist, tmp_strdup(fields[i].cmd));
             }
         }
         cmdlist = g_list_sort(cmdlist, (GCompareFunc)strcasecmp);
@@ -6522,7 +6522,7 @@ ACMD(do_set)
 		send_to_char(ch, "Disabled.  Use the 'delete' command.\r\n");
 		break;
     case 97:                    // Set Speed
-        setSpeed(vict, RANGE(0, 100));
+        SPEED_OF(vict) =  RANGE(0, 100);
         break;
     case 98:
         if(!argument || !*argument) {
@@ -6628,7 +6628,7 @@ ACMD(do_aset)
         for (i = 0; fields[i].level != 0; i++) {
             if (!is_authorized(ch, ASET, &fields[i]))
                 continue;
-            cmdlist = g_list_prepend(cmdlist, (gpointer)fields[i].cmd);
+            cmdlist = g_list_prepend(cmdlist, tmp_strdup(fields[i].cmd));
         }
         cmdlist = g_list_sort(cmdlist, (GCompareFunc)strcmp);
         for (GList *it = cmdlist;it;it = it->next) {

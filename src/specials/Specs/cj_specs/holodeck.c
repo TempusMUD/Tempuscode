@@ -402,7 +402,7 @@ char *holo_loadwld(FILE *file, HoloZone *zone)
   char		line[256], *ch;
   char		mode[] = "world";
 
-  for (;;) {
+  while (true) {
     if (!get_line(file, line)) {
       sprintf(buf, "Format error after %s #%d\n", mode, nr);
       return buf;
@@ -610,7 +610,7 @@ char *holo_parse_room(FILE *file, int virtual_nr, HoloRoom *room)
 
   sprintf(buf2, "Format error in room #%d (expecting D/E/S)", virtual_nr);
 
-  for (;;) {
+  while (true) {
     if (!get_line(file, line)) {
       sprintf(buf, "%s\n", buf2);
       return buf;

@@ -96,9 +96,12 @@ void account_set_quest_banned(struct account *account, bool banned);
 void account_set_ansi_level(struct account *account, int level);
 void account_set_compact_level(struct account *account, int level);
 void account_set_email_addr(struct account *account, const char *addr);
+void account_set_term_height(struct account *account, int height);
+void account_set_term_width(struct account *account, int width);
 
 void account_set_password(struct account *account, const char *password);
 void account_gain_reputation(struct account *account, int amt);
+void account_set_reputation(struct account *account, int amt);
 
 const char* get_login_addr(struct account *account);
 const char* get_creation_addr(struct account *account);
@@ -106,11 +109,11 @@ const char* get_creation_addr(struct account *account);
 time_t get_login_time(struct account *account);
 time_t get_creation_time(struct account *account);
 time_t get_entry_time(struct account *account);
-void update_last_entry(struct account *account);
+void account_update_last_entry(struct account *account);
 
 bool is_trusted(struct account *account, long idnum);
-void trust(struct account *account, long idnum);
-void distrust(struct account *account, long idnum);
+void account_trust(struct account *account, long idnum);
+void account_distrust(struct account *account, long idnum);
 bool trustsNobody(struct account *account);
 void account_display_trusted(struct account *account, struct creature *ch);
 
@@ -125,6 +128,5 @@ void load_players(struct account *account);
 void load_trusted(struct account *account);
 void set_account_field(struct account *account, const char *key, const char *val);
 void add_trusted(struct account *account, long idnum);
-
 
 #endif

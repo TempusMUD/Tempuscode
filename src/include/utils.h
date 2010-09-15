@@ -56,7 +56,7 @@ int number(int from, int to);
 double float_number(double from, double to);
 int dice(int number, int size);
 void sprintbit(long vektor, const char *names[], char *result);
-const char *strlist_aref(int idx, const char *names[]);
+const char *strlist_aref(int idx, const char **names);
 void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
 int remove_from_cstring(char *str, char c, char c_to);

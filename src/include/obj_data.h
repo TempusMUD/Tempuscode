@@ -418,5 +418,6 @@ struct room_data *find_object_room(struct obj_data *obj);
 void normalize_applies(struct obj_data *obj);
 int modify_object_weight(struct obj_data *obj, int mod_weight);
 bool obj_is_unrentable(struct obj_data *obj);
+void obj_affect_join(struct obj_data *obj, struct tmp_obj_affect *af, int dur_mode, int val_mode, int aff_mode);
 
 #endif

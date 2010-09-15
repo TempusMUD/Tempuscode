@@ -33,6 +33,7 @@ int invalid_char_class(struct creature *ch, struct obj_data *obj);
 void gain_skill_prof(struct creature *ch, int skl);
 void calculate_height_weight( struct creature *ch );
 const char *get_component_name(int comp, int sub_class);
+void do_start(struct creature *ch, int mode);
 
 int get_max_str( struct creature *ch );
 int get_max_int( struct creature *ch );

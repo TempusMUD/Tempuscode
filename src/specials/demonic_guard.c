@@ -56,7 +56,7 @@ bool
 summon_criminal_demons(struct creature *vict)
 {
 	struct creature *mob;
-	int vnum_base = (IS_EVIL(vict)) ? ARCHONIC_BASE:DEMONIC_BASE;;
+	int vnum_base = (IS_EVIL(vict)) ? ARCHONIC_BASE:DEMONIC_BASE;
 	int demon_num = GET_REMORT_GEN(vict) / 2 + 1;
 	int idx;
 

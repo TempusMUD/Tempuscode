@@ -75,7 +75,7 @@ find_action(int cmd)
 	if (top < 0)
 		return (-1);
 
-	for (;;) {
+	while (true) {
 		mid = (bot + top) >> 1;
 
 		if (soc_mess_list[mid].act_nr == cmd)
@@ -340,7 +340,7 @@ boot_social_messages(void)
     CREATE(soc_mess_list, struct social_messg, MAX_SOCIALS);
 
 	/* now read 'em */
-	for (;;) {
+	while (true) {
 		if (fscanf(fl, " %s ", next_soc) != 1) {
             perror(tmp_sprintf("error near action #%d", nr));
             safe_exit(1);

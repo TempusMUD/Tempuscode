@@ -186,7 +186,7 @@ void perform_net_finger(struct creature *ch, const char *arg)
 {
     struct creature *vict = NULL;
 
-	skip_spaces(&arg);
+	skip_spaces_const(&arg);
     if (!*arg) {
         send_to_char(ch, "Usage: finger <user>\r\n");
         return;

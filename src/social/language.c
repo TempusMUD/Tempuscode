@@ -130,7 +130,7 @@ translate_with_tongue(struct tongue *tongue, const char *phrase, int amount)
         return tmp_strdup(phrase);
 
 	while (*phrase) {
-		arg = tmp_gettoken(&phrase);
+		arg = tmp_gettoken_const(&phrase);
 
         if (number(1, 100) > amount)
             arg = translate_word(tongue, arg);

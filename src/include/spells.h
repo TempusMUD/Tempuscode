@@ -37,9 +37,9 @@ spell_to_str(int spell)
 static inline int
 str_to_spell(const char *spell)
 {
+    int i;
 	if( spell == NULL || *spell == '\0' )
 		return -1;
-    int i;
 	for(i = 0; i < max_spell_num; i++ ) {
 		if( strcmp(spell, spells[i]) == 0 )
 			return i;

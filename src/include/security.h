@@ -111,5 +111,6 @@ void send_role_member_list(struct role *role,
                            const char *title,
                            const char *admin_role_name);
 bool is_tester(struct creature *ch);
+bool send_available_commands(struct creature *ch, long id);
 
 #endif

@@ -89,4 +89,6 @@ struct help_item *help_collection_find_items(struct help_collection *col,
 bool help_item_load_text(struct help_item *item);
 bool help_item_in_group(struct help_item *item, int thegroup);
 
+void do_qcontrol_help( struct creature *ch, char *argument );
+
 #endif

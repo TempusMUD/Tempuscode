@@ -490,7 +490,7 @@ reset_time(void)
 	slog("   Current Gametime (global): %dH %dD %dM %dY.",
 		time_info.hours, time_info.day, time_info.month, time_info.year);
 
-	lunar_day = ((now - epoch) / SECS_PER_MUD_DAY) % 24;;
+	lunar_day = ((now - epoch) / SECS_PER_MUD_DAY) % 24;
 	slog("   Current lunar day: %d (%s)",
 		lunar_day, lunar_phases[get_lunar_phase(lunar_day)]);
 }
@@ -731,7 +731,7 @@ discrete_load(FILE * fl, int mode)
 
 	const char *modes[] = { "world", "mob", "obj", "zon", "shp" };
 
-	for (;;) {
+	while (true) {
 		/*
 		 * we have to do special processing with the obj files because they have
 		 * no end-of-record marker :(
@@ -847,7 +847,7 @@ parse_room(FILE * fl, int vnum_nr)
 
 	sprintf(buf, "Format error in room #%d (expecting D/E/S)", vnum_nr);
 
-	for (;;) {
+	while (true) {
 		if (!get_line(fl, line)) {
 			fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, buf);
 			safe_exit(1);
@@ -2013,7 +2013,7 @@ parse_object(FILE * obj_f, int nr)
 	strcat(buf2, ", after numeric constants (expecting E/A/#xxx)");
 	j = 0;
 
-	for (;;) {
+	while (true) {
 		if (!get_line(obj_f, line)) {
 			fprintf(stderr, "Format error in %s\n", buf2);
 			safe_exit(1);
@@ -2191,7 +2191,7 @@ load_zones(FILE * fl, char *zonename)
         new_zone->weather = NULL;
     }
 
-	for (;;) {
+	while (true) {
 		if ((tmp = get_line(fl, buf)) == 0) {
 			fprintf(stderr, "Format error in %s - premature end of file\n",
 				zname);
@@ -2389,7 +2389,7 @@ process_load_param( struct creature *ch )
 	if( str == NULL )
 		return false;
 
-	for(line = tmp_getline(&str); line; line = tmp_getline(&str) ) {
+	for(line = tmp_getline_const(&str); line; line = tmp_getline_const(&str)) {
 		++lineno;
 		char *param_key = tmp_getword(&line);
 		if( strcasecmp(param_key, "LOAD") == 0 ) {

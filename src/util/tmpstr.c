@@ -184,10 +184,10 @@ tmp_strcat(const char *src, ...)
 
 // get the next token, copied into a temp pool
 char *
-tmp_gettoken(const char **src)
+tmp_gettoken(char **src)
 {
 	struct tmp_str_pool *cur_buf;
-	const char *read_pt;
+	char *read_pt;
 	char *result, *write_pt;
 	size_t len = 0;
 
@@ -218,6 +218,17 @@ tmp_gettoken(const char **src)
 	return result;
 }
 
+char *
+tmp_gettoken_const(const char **src)
+{
+    char *copy = tmp_strdup(*src);
+    char *s = copy;
+    char *result = tmp_gettoken(&copy);
+
+    *src += s - copy;
+    return result;
+}
+
 // like tmp_gettoken, but downcases the string before returning it
 char *
 tmp_getword(char **src)
@@ -231,10 +242,21 @@ tmp_getword(char **src)
 }
 
 char *
+tmp_getword_const(const char **src)
+{
+    char *copy = tmp_strdup(*src);
+    char *s = copy;
+    char *result = tmp_getword(&copy);
+
+    *src += s - copy;
+    return result;
+}
+
+char *
 tmp_getquoted(char **src)
 {
 	struct tmp_str_pool *cur_buf;
-	const char *read_pt;
+	char *read_pt;
 	char *result, *write_pt;
 	size_t len = 0;
 	int delim;
@@ -299,10 +321,10 @@ tmp_pad(int c, size_t len)
 
 // get the next line, copied into a temp pool
 char *
-tmp_getline(const char **src)
+tmp_getline(char **src)
 {
 	struct tmp_str_pool *cur_buf;
-	const char *read_pt;
+	char *read_pt;
 	char *result, *write_pt;
 	size_t len = 0;
 
@@ -338,6 +360,17 @@ tmp_getline(const char **src)
 	*src = read_pt;
 
 	return result;
+}
+
+char *
+tmp_getline_const(const char **src)
+{
+    char *copy = tmp_strdup(*src);
+    char *s = copy;
+    char *result = tmp_getline(&copy);
+
+    *src += s - copy;
+    return result;
 }
 
 char *
