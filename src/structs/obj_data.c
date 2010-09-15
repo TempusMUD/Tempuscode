@@ -139,7 +139,7 @@ modify_object_weight(struct obj_data *obj, int mod_weight)
 }
 
 bool
-isUnrentable(struct obj_data *obj)
+obj_is_unrentable(struct obj_data *obj)
 {
 
 	if (IS_OBJ_STAT(obj, ITEM_NORENT)

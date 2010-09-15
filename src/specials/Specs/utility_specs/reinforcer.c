@@ -52,7 +52,7 @@ SPECIAL(reinforcer)
 	}
 
 	cost = GET_OBJ_COST(obj);
-    cost += (cost*getCostModifier(ch, keeper))/100;
+    cost += (cost*cost_modifier(ch, keeper))/100;
 
 	sprintf(buf2, "It will cost you %d %s to have %s reinforced.",
 		cost, ch->in_room->zone->time_frame == TIME_ELECTRO ? "credits" :

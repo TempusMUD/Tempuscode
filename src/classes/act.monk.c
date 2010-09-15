@@ -632,9 +632,6 @@ ACMD(do_pinch)
 	if (which_pinch != SKILL_PINCH_ZETA && !ok_to_attack(ch, vict, true))
 		return;
 
-    if (which_pinch != SKILL_PINCH_ZETA && checkReputations(ch, vict))
-        return;
-
 	if (!CHECK_SKILL(ch, which_pinch)) {
 		send_to_char(ch,
 			"You have absolutely no idea how to perform this pinch.\r\n");

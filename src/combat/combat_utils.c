@@ -1349,7 +1349,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 	/* transfer character's inventory to the corpse */
 	for (o = ch->carrying;o != NULL;o = next_obj) {
 		next_obj = o->next_content;
-		if (lose_eq || isUnrentable(o)) {
+		if (lose_eq || obj_is_unrentable(o)) {
 			obj_from_char(o);
 			obj_to_obj(o, corpse);
 		}
@@ -1357,9 +1357,9 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 
 	/* transfer character's equipment to the corpse */
 	for (i = 0; i < NUM_WEARS; i++) {
-		if (GET_EQ(ch, i) && (lose_eq || isUnrentable(GET_EQ(ch, i))))
+		if (GET_EQ(ch, i) && (lose_eq || obj_is_unrentable(GET_EQ(ch, i))))
 			obj_to_obj(raw_unequip_char(ch, i, EQUIP_WORN), corpse);
-		if (GET_IMPLANT(ch, i) && (lose_implants || isUnrentable(GET_IMPLANT(ch, i)))) {
+		if (GET_IMPLANT(ch, i) && (lose_implants || obj_is_unrentable(GET_IMPLANT(ch, i)))) {
 			REMOVE_BIT(GET_OBJ_WEAR(GET_IMPLANT(ch, i)), ITEM_WEAR_TAKE);
 			obj_to_obj(raw_unequip_char(ch, i, EQUIP_IMPLANT), corpse);
 		}
@@ -1481,8 +1481,8 @@ int calculate_attack_probability(struct creature *ch)
     if (AFF2_FLAGGED(ch, AFF2_HASTE))
         prob = (int)(prob * 1.30);
 
-    if (getSpeed(ch))
-        prob += (prob * getSpeed(ch)) / 100;
+    if (SPEED_OF(ch))
+        prob += (prob * SPEED_OF(ch)) / 100;
 
     if (AFF2_FLAGGED(ch, AFF2_SLOW))
         prob = (int)(prob * 0.70);

@@ -86,7 +86,7 @@ SPECIAL(weaponsmaster)
 	}
 
 	cost = (weap_spec.level + 1) * 300000;
-    cost += (cost*getCostModifier(ch, master))/100;
+    cost += (cost*cost_modifier(ch, master))/100;
 
 	send_to_char(ch,
 		"It will cost you %d gold coin%s to train your specialization with %s to level %d.\r\n%s",

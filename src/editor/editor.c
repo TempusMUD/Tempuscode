@@ -10,8 +10,12 @@
 #include "config.h"
 #endif
 
+#define _GNU_SOURCE
+#include <string.h>
+
 #include <ctype.h>
 #include <fcntl.h>
+
 // Tempus Includes
 #include "screen.h"
 #include "desc_data.h"
@@ -68,7 +72,7 @@ editor_import(struct editor *editor, const char *text)
 }
 
 void
-editor_emit(struct editor *editor, char *text)
+editor_emit(struct editor *editor, const char *text)
 {
     send_to_desc(editor->desc, "%s", text);
 }
@@ -129,7 +133,7 @@ editor_finish(struct editor *editor, bool save)
             strcpy(write_pt, line->str);
             write_pt += line->len;
         }
-        g_list_foreach(editor->lines, concat_line, 0);
+        g_list_foreach(editor->lines, (GFunc)concat_line, 0);
 
         // Call the finalizer
         editor->finalize(editor, text);
@@ -148,15 +152,15 @@ editor_finish(struct editor *editor, bool save)
 
     // Free the editor
 	desc->text_editor = NULL;
-    g_list_foreach(editor->original, g_string_free, true);
+    g_list_foreach(editor->original, (GFunc)g_string_free, GINT_TO_POINTER(true));
     g_list_free(editor->original);
-    g_list_foreach(editor->lines, g_string_free, true);
+    g_list_foreach(editor->lines, (GFunc)g_string_free, GINT_TO_POINTER(true));
     g_list_free(editor->lines);
 	free(editor);
 }
 
 void
-editor_finalize(struct editor *editor, char *text)
+editor_finalize(struct editor *editor, const char *text)
 {
     // Do nothing
 }
@@ -165,6 +169,24 @@ void
 editor_cancel(struct editor *editor)
 {
     // Do nothing
+}
+
+bool
+editor_is_full(struct editor *editor, char *line)
+{
+    return (strlen(line) + editor_buffer_size(editor) > editor->max_size);
+}
+
+void
+editor_append(struct editor *editor, char *line)
+{
+    if (editor_is_full(editor, line)) {
+        editor_emit(editor, "Error: The buffer is full.\r\n");
+        return;
+    }
+    if (PLR_FLAGGED(editor->desc->creature, PLR_OLC))
+        g_strdelimit(line, "~", '?');
+    editor->lines = g_list_append(editor->lines, g_string_new(line));
 }
 
 void
@@ -230,24 +252,6 @@ editor_display(struct editor *editor, int start_line, int line_count)
 }
 
 bool
-editor_is_full(struct editor *editor, char *line)
-{
-    return (strlen(line) + editor_buffer_size(editor) > editor->max_size);
-}
-
-void
-editor_append(struct editor *editor, char *line)
-{
-    if (editor_is_full(editor, line)) {
-        editor_emit(editor, "Error: The buffer is full.\r\n");
-        return;
-    }
-    if (PLR_FLAGGED(editor->desc->creature, PLR_OLC))
-        g_strdelimit(line, "~", '?');
-    g_list_append(editor->lines, g_string_new(line));
-}
-
-bool
 editor_insert(struct editor *editor, int lineno, char *line)
 {
 	GList *s;
@@ -257,7 +261,7 @@ editor_insert(struct editor *editor, int lineno, char *line)
 	if (*line)
 		line++;
 
-	if (line > editor_line_count(editor)) {
+	if (lineno > editor_line_count(editor)) {
 		editor_emit(editor,
                     "You can't insert before a line that doesn't exist.\r\n");
 		return false;
@@ -282,13 +286,12 @@ editor_replace_line(struct editor *editor, unsigned int lineno, char *line)
 	if (*line && *line == ' ')
 		line++;
 
-	if (line < 1 || line > editor_line_count(editor)) {
+	if (lineno < 1 || lineno > editor_line_count(editor)) {
 		editor_emit(editor, "There's no line to replace there.\r\n");
 		return false;
 	}
 	// Find the line
     s = g_list_nth(editor->lines, lineno - 1);
-    advance(s, line - 1);
 
 	// Make sure we can fit the new stuff in
     if (editor_is_full(editor, line)) {
@@ -358,7 +361,7 @@ editor_find(struct editor *editor, char *args)
 
     void print_if_match(GString *str, gpointer ignore) {
         i++;
-        if (strcasestr(str, args))
+        if (strcasestr(str->str, args))
             acc_sprintf("%3d%s%s]%s %s\r\n", i,
                     CCBLD(editor->desc->creature, C_CMP),
                     CCBLU(editor->desc->creature, C_NRM),
@@ -367,7 +370,7 @@ editor_find(struct editor *editor, char *args)
     }
 
     acc_string_clear();
-    g_list_foreach(editor->lines, print_if_match, 0);
+    g_list_foreach(editor->lines, (GFunc)print_if_match, 0);
     acc_strcat("\r\n", NULL);
     editor_emit(editor, acc_get_string());
 
@@ -475,7 +478,6 @@ editor_substitute(struct editor *editor, char *args)
 
 	// Find pattern in theText a line at a time and replace each instance.
 	char *pos;			// Current position in the line
-	bool overflow = false;		// Have we overflowed the buffer?
 
     for (line = editor->lines;
          line && buffer_size + size_delta < editor->max_size;
@@ -513,8 +515,8 @@ editor_substitute(struct editor *editor, char *args)
 bool
 editor_wrap(struct editor *editor)
 {
-    GString *tempstr;
-    GList *line, *new_line;
+    GString *new_line;
+    GList *line;
     char *s;
 	int linebreak;
 
@@ -588,7 +590,7 @@ editor_remove(struct editor *editor,
 bool
 editor_clear(struct editor *editor)
 {
-    g_list_foreach(editor->lines, g_string_free, true);
+    g_list_foreach(editor->lines, (GFunc)g_string_free, GINT_TO_POINTER(true));
     g_list_free(editor->lines);
     editor->lines = NULL;
 
@@ -608,7 +610,7 @@ editor_undo(struct editor *editor)
             editor->lines = g_list_prepend(editor->lines, new_line);
         }
 
-        g_list_reverse(editor->lines);
+        editor->lines = g_list_reverse(editor->lines);
 
         editor_emit(editor, "Original buffer restored.\r\n");
 	} else {
@@ -646,12 +648,13 @@ editor_help(struct editor *editor, char *line)
 
 		line = one_argument(line, command);
 		*command = tolower(*command);
-        help_item = help_collection_find_items(tmp_sprintf("tedii-%c", *command),
+        help_item = help_collection_find_items(help,
+                                               tmp_sprintf("tedii-%c", *command),
                                                false, 0, false);
         if (help_item) {
             help_item_load_text(help_item);
             send_to_desc(editor->desc, "&cTEDII Command '%c'&n\r\n", *command);
-            send_to_desc(editor->desc, help_item->text);
+            send_to_desc(editor->desc, "%s", help_item->text);
         } else {
             send_to_desc(editor->desc, "Sorry.  There is no help on that.\r\n");
         }

@@ -191,7 +191,6 @@ load_messages(void)
 void
 death_cry(struct creature *ch)
 {
-    struct creature *tch;
 	struct room_data *adjoin_room = NULL;
 	int door;
 	struct room_data *was_in = NULL;
@@ -234,7 +233,7 @@ death_cry(struct creature *ch)
 				act("Your blood freezes as you hear $n's death cry.",
 					false, ch, 0, tch, TO_VICT);
 		}
-        g_list_foreach(ch->in_room->people, emit_death_cry, 0);
+        g_list_foreach(ch->in_room->people, (GFunc)emit_death_cry, 0);
 	}
 
     void wake_up(struct creature *tch, gpointer ignore) {
@@ -244,7 +243,7 @@ death_cry(struct creature *ch)
 			GET_POSITION(tch) = POS_RESTING;
 		}
 	}
-    g_list_foreach(ch->in_room->people, wake_up, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)wake_up, 0);
 
 	was_in = ch->in_room;
 
@@ -286,7 +285,7 @@ death_cry(struct creature *ch)
 						}
 					}
 				}
-                g_list_foreach(adjoin_room->people, maybe_follow_deathcry, 0);
+                g_list_foreach(adjoin_room->people, (GFunc)maybe_follow_deathcry, 0);
 			}
 		}
 	}
@@ -394,8 +393,11 @@ blood_spray(struct creature *ch,
                 && number(5, 30) > GET_DEX(tch))
             ? 0:-1;
     }
-    struct creature *tch = g_list_find_custom(ch->in_room->people, 0, pick_soilage_target);
-    if (tch) {
+    GList *it = g_list_find_custom(ch->in_room->people, 0, (GCompareFunc)pick_soilage_target);
+
+    if (it) {
+        struct creature *tch = it->data;
+
         pos = apply_soil_to_char(tch, NULL, SOIL_BLOOD, WEAR_RANDOM);
         if (pos) {
             char *msg = NULL;

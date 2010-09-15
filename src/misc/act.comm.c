@@ -792,7 +792,9 @@ ACMD(do_gen_comm)
 	eff_class = GET_CLASS(ch);
 	eff_clan = GET_CLAN(ch);
 
-	if (subcmd == SCMD_GUILDSAY && is_named_role_member(ch, "AdminBasic") && *argument == '>') {
+	if (subcmd == SCMD_GUILDSAY
+        && is_authorized(ch, HEAR_ALL_CHANNELS, NULL)
+        && *argument == '>') {
 		char *class_str, *tmp_arg;
 
 		tmp_arg = argument + 1;
@@ -834,7 +836,7 @@ ACMD(do_gen_comm)
 	}
 
 	if (subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) {
-		if (is_named_role_member(ch, "AdminBasic") && *argument == '>') {
+		if (is_authorized(ch, HEAR_ALL_CHANNELS, NULL) && *argument == '>') {
 			char *tmp_arg;
 
 			tmp_arg = argument + 1;

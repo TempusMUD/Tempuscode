@@ -343,7 +343,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self, struct shop_d
 
 	cost = vendor_get_value(obj,
                             shop->markup,
-                            getCostModifier(ch, self),
+                            cost_modifier(ch, self),
                             shop->currency);
 	switch (shop->currency) {
 	case 0:
@@ -524,7 +524,7 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self, struct shop_da
 	}
 	cost = vendor_get_value(obj,
                             shop->markdown,
-                            getCostModifier(self, ch),
+                            cost_modifier(self, ch),
                             shop->currency);
 	amt_carried = (shop->currency) ? GET_CASH(self):GET_GOLD(self);
 
@@ -663,7 +663,7 @@ vendor_list(struct creature *ch, char *arg, struct creature *self, struct shop_d
 				if (!*arg || namelist_match(arg, last_obj->aliases)) {
 					cost = vendor_get_value(last_obj,
                                             shop->markup,
-                                            getCostModifier(ch, self),
+                                            cost_modifier(ch, self),
                                             shop->currency);
                     msg = tmp_strcat(msg,
                                      vendor_list_obj(ch, last_obj, cnt,
@@ -683,7 +683,7 @@ vendor_list(struct creature *ch, char *arg, struct creature *self, struct shop_d
 			msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
 				vendor_get_value(last_obj,
                                  shop->markup,
-                                 getCostModifier(ch, self),
+                                 cost_modifier(ch, self),
                                  shop->currency)),
                 NULL);
 	}
@@ -721,7 +721,7 @@ vendor_value(struct creature *ch, char *arg, struct creature *self, struct shop_
 
 	cost = vendor_get_value(obj,
                             shop->markdown,
-                            getCostModifier(self, ch),
+                            cost_modifier(self, ch),
                             shop->currency);
 
 	perform_say_to(self, ch, tmp_sprintf("I'll give you %lu %s for it!", cost, shop->currency ? "creds":"gold"));

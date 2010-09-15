@@ -232,18 +232,16 @@ account_id(struct creature *ch)
  *  experience.
  *
 **/
-int getPenalizedExperience(struct creature *ch,
-                           int experience,
-                           struct creature *victim)
+int
+calc_penalized_exp(struct creature *ch, int experience, struct creature *victim)
 {
 
 	// Mobs are easily trained
 	if( IS_NPC(ch) )
 		return experience;
 	// Immortals are not
-	if( GET_LEVEL(ch) >= LVL_AMBASSADOR ) {
+	if( GET_LEVEL(ch) >= LVL_AMBASSADOR )
 		return 0;
-	}
 
 	if ( victim != NULL ) {
 		if( GET_LEVEL(victim) >= LVL_AMBASSADOR )
@@ -286,7 +284,7 @@ int getPenalizedExperience(struct creature *ch,
 
 //Positive or negative percent modifier based on buyer vs seller charisma.
 int
-getCostModifier(struct creature *ch, struct creature *seller)
+cost_modifier(struct creature *ch, struct creature *seller)
 {
     int cost_modifier = (GET_CHA(seller)-GET_CHA(ch))*2;
     return cost_modifier;
@@ -967,7 +965,7 @@ creature_cryo(struct creature *ch)
 	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 	GET_LOADROOM(ch) = ch->in_room->number;
 	ch->player.time.logon = time(0);
-	save_player_objects();
+	save_player_objects(ch);
 	save_player_to_xml(ch);
 
 	mlog(ROLE_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)),
@@ -1035,7 +1033,7 @@ creature_quit(struct creature *ch)
 	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 	GET_LOADROOM(ch) = 0;
 	ch->player.time.logon = time(0);
-	save_player_objects();
+	save_player_objects(ch);
 	save_player_to_xml(ch);
 	extract_creature(ch, CXN_MENU);
 
@@ -1053,7 +1051,7 @@ creature_idle(struct creature *ch)
 	ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 	GET_LOADROOM(ch) = 0;
 	ch->player.time.logon = time(0);
-	save_player_objects();
+	save_player_objects(ch);
 	save_player_to_xml(ch);
 
 	mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
@@ -1101,7 +1099,7 @@ creature_die(struct creature *ch)
 		ch->player_specials->rent_currency = 0;
 		GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
 		ch->player.time.logon = time(0);
-		save_player_objects();
+		save_player_objects(ch);
 		save_player_to_xml(ch);
 	}
 	extract_creature(ch, CXN_AFTERLIFE);
@@ -1121,7 +1119,7 @@ creature_npk_die(struct creature *ch)
 		ch->player_specials->rent_currency = 0;
 		GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
 		ch->player.time.logon = time(0);
-		save_player_objects();
+		save_player_objects(ch);
 		save_player_to_xml(ch);
 	}
 	extract_creature(ch, CXN_AFTERLIFE);
@@ -1145,7 +1143,7 @@ creature_arena_die(struct creature *ch)
 		ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 		GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
 		ch->player.time.logon = time(0);
-		save_player_objects();
+		save_player_objects(ch);
 		save_player_to_xml(ch);
 		if (GET_LEVEL(ch) < 50)
 			mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
@@ -1193,7 +1191,7 @@ creature_purge(struct creature *ch, bool destroy_obj)
 		ch->player_specials->rent_currency = 0;
 		GET_LOADROOM(ch) = 0;
 		ch->player.time.logon = time(0);
-		save_player_objects();
+		save_player_objects(ch);
 		save_player_to_xml(ch);
 	}
 
@@ -1212,7 +1210,7 @@ creature_remort(struct creature *ch)
 	ch->player_specials->rent_currency = 0;
 	GET_LOADROOM(ch) = 0;
 	ch->player.time.logon = time(0);
-	save_player_objects();
+	save_player_objects(ch);
 	save_player_to_xml(ch);
 	extract_creature(ch, CXN_REMORT_AFTERLIFE);
 	return true;
@@ -1375,12 +1373,12 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
         return false;
     }
 
-    // If either struct creature is a mob and we're not in an NVZ
+    // If either creature is a mob and we're not in an NVZ
     // It's always ok
     if (IS_NPC(vict) || IS_NPC(ch))
         return true;
 
-    // At ch point, we have to be dealing with PVP
+    // At this point, we have to be dealing with PVP
     // Start checking killer prefs and zone restrictions
     if (!PRF2_FLAGGED(ch, PRF2_PKILLER)) {
         if (mssg) {
@@ -1396,7 +1394,7 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
             send_to_char(ch, "You are currently under new player "
                          "protection, which expires at level 41\r\n");
             send_to_char(ch, "You cannot attack other players "
-                         "while under ch protection.\r\n");
+                         "while under this protection.\r\n");
         }
         return false;
     }
@@ -1409,10 +1407,9 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
                 false, ch, NULL, vict, TO_CHAR);
             act("You are protected by the gods against $n's attack!",
                 false, ch, NULL, vict, TO_VICT);
-            slog("%s protected against %s (struct creature_ok_to_attack()) at %d",
+            slog("%s protected against %s (ok_to_attack) at %d",
                  GET_NAME(vict), GET_NAME(ch), vict->in_room->number);
         }
-
         return false;
     }
 
@@ -1459,6 +1456,23 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
         return false;
     }
 
+    if (GET_REPUTATION(ch) <= 0) {
+        send_to_char(ch, "Your reputation is 0.  If you want to be "
+                           "a player killer, type PK on yes.\r\n");
+        send_to_char(vict, "%s has just tried to attack you but was "
+                           "prevented by %s reputation being 0.\r\n",
+                     GET_NAME(ch), HSHR(ch));
+        return false;
+    }
+
+    if (GET_REPUTATION(vict) <= 0) {
+        send_to_char(ch, "%s's reputation is 0 and %s is immune to player "
+                           "versus player violence.\r\n", GET_NAME(vict), HSSH(vict));
+        send_to_char(vict, "%s has just tried to attack you but was "
+                           "prevented by your reputation being 0.\r\n",
+                     GET_NAME(ch));
+        return false;
+    }
    return true;
 }
 
@@ -1608,58 +1622,6 @@ start_defending(struct creature *ch, struct creature *vict)
         false, ch, 0, vict, TO_VICT);
     act("$n starts defending $N against attacks.",
         false, ch, 0, vict, TO_NOTVICT);
-}
-
-bool
-checkReputations(struct creature *ch, struct creature *vict)
-{
-    bool ch_msg = false, vict_msg = false;
-
-    if (!ch)
-        return false;
-
-    if (is_arena_combat(ch, vict))
-        return false;
-
-    if (GET_LEVEL(ch) > LVL_AMBASSADOR)
-        return false;
-
-    if (IS_NPC(vict))
-        return false;
-
-    if (IS_NPC(ch) && ch->master && !IS_NPC(ch->master)) {
-        if (GET_REPUTATION(ch->master) <= 0)
-            ch_msg = true;
-        else if (GET_REPUTATION(vict) <= 0)
-            vict_msg = true;
-    }
-    else if (IS_NPC(ch))
-        return false;
-
-    if (GET_REPUTATION(ch) <= 0)
-        ch_msg = true;
-    else if (GET_REPUTATION(vict) <= 0)
-        vict_msg = true;
-
-    if (ch_msg) {
-        send_to_char(ch, "Your reputation is 0.  If you want to be "
-                           "a player killer, type PK on yes.\r\n");
-        send_to_char(vict, "%s has just tried to attack you but was "
-                           "prevented by %s reputation being 0.\r\n",
-                     GET_NAME(ch), HSHR(ch));
-        return true;
-    }
-
-    if (vict_msg) {
-        send_to_char(ch, "%s's reputation is 0 and %s is immune to player "
-                           "versus player violence.\r\n", GET_NAME(vict), HSSH(vict));
-        send_to_char(vict, "%s has just tried to attack you but was "
-                           "prevented by your reputation being 0.\r\n",
-                     GET_NAME(ch));
-        return true;
-    }
-
-    return false;
 }
 
 int

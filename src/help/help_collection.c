@@ -151,7 +151,7 @@ make_help_collection(void)
 void
 free_help_collection(struct help_collection *col)
 {
-    g_list_foreach(col->items, free_help_item, 0);
+    g_list_foreach(col->items, (GFunc)free_help_item, 0);
     g_list_free(col->items);
 
     slog("Help system ended.");
@@ -185,7 +185,8 @@ help_collection_list(struct help_collection *col,
 	}
 	sprintf(gHelpbuf, "Help Topics (%d,%d):\r\n", start, end);
 	space_left -= strlen(gHelpbuf);
-	for (cur = col->items; cur; cur = cur->next) {
+	for (GList *hit = col->items;hit;hit = hit->next) {
+        cur = hit->data;
 		if (cur->idnum > end)
 			break;
 		if (cur->idnum < start)
@@ -218,7 +219,8 @@ help_collection_save_index(struct help_collection *col)
     outf = fopen(fname, "w");
     if (outf) {
         fprintf(outf, "%d\n", col->top_id);
-        for (cur = col->items; cur; cur = cur->next) {
+        for (GList *hit = col->items;hit;hit = hit->next) {
+            cur = hit->data;
             fprintf(outf, "%d %u %d %u %ld\n%s\n%s\n",
                     cur->idnum,
                     cur->groups,
@@ -268,16 +270,16 @@ help_collection_edit_item(struct help_collection *col, struct creature *ch, int 
 	// See if you can edit it before you do....
 	struct help_item *cur;
 
-	if(! is_named_role_member( ch, "Help" ) ) {
+	if(!is_authorized(ch, EDIT_HELP, NULL)) {
 		send_to_char(ch, "You cannot edit help files.\r\n");
 	}
-    cur = col->items;
-	while (cur && cur->idnum != idnum)
-        cur = cur->next;
-	if( cur != NULL ) {
-		help_item_edit(cur, ch);
-		return true;
-	}
+    for (GList *hit = col->items;hit;hit = hit->next) {
+        cur = hit->data;
+        if (cur->idnum == idnum) {
+            help_item_edit(cur, ch);
+            return true;
+        }
+    }
 	send_to_char(ch, "No such item.\r\n");
 	return false;
 }
@@ -325,7 +327,8 @@ help_collection_find_items(struct help_collection *col,
 	for (b = args; *b; b++)
 		*b = tolower(*b);
 	length = strlen(args);
-	for (cur = col->items; cur; cur = cur->next) {
+	for (GList *hit = col->items;hit;hit = hit->next) {
+        cur = hit->data;
 		if (IS_SET(cur->flags, HFLAG_UNAPPROVED) && !find_no_approve)
 			continue;
 		if (thegroup && !help_item_in_group(cur, thegroup))
@@ -414,7 +417,8 @@ help_collection_save_all(struct help_collection *col, struct creature *ch)
 {
 	struct help_item *cur;
     help_collection_save_index(col);
-	for (cur = col->items; cur; cur = cur->next) {
+	for (GList *hit = col->items;hit;hit = hit->next) {
+        cur = hit->data;
 		if (IS_SET(cur->flags, HFLAG_MODIFIED))
 			help_item_save(cur);
 	}
@@ -511,7 +515,8 @@ help_collection_sync(struct help_collection *col)
 {
 	struct help_item *n;
 
-	for (n = col->items; n; n = n->next) {
+	for (GList *hit = col->items;hit;hit = hit->next) {
+        n = hit->data;
 		if (n->text && !IS_SET(n->flags, HFLAG_MODIFIED) && !n->editor) {
 			free(n->text);
 			n->text = NULL;
@@ -534,17 +539,17 @@ help_collection_approve_item(struct help_collection *col, struct creature *ch, c
 		send_to_char(ch, "Approve which item?\r\n");
 		return;
 	}
-    cur = col->items;
-	while (cur && cur->idnum != idnum)
-        cur = cur->next;
-	if (cur) {
-		REMOVE_BIT(cur->flags, HFLAG_UNAPPROVED);
-		SET_BIT(cur->flags, HFLAG_MODIFIED);
-		send_to_char(ch, "Item #%d approved.\r\n", cur->idnum);
-	} else {
-		send_to_char(ch, "Unable to find item.\r\n");
+    for (GList *hit = col->items;hit;hit = hit->next) {
+        cur = hit->data;
+        if (cur->idnum == idnum) {
+            REMOVE_BIT(cur->flags, HFLAG_UNAPPROVED);
+            SET_BIT(cur->flags, HFLAG_MODIFIED);
+            send_to_char(ch, "Item #%d approved.\r\n", cur->idnum);
+            return;
+        }
 	}
-	return;
+
+    send_to_char(ch, "Unable to find item.\r\n");
 }
 
 // Unapprove an item
@@ -562,17 +567,17 @@ help_collection_unapprove_item(struct help_collection *col, struct creature *ch,
 		send_to_char(ch, "UnApprove which item?\r\n");
 		return;
 	}
-    cur = col->items;
-	while (cur && cur->idnum != idnum)
-        cur = cur->next;
-	if (cur) {
-		SET_BIT(cur->flags, HFLAG_MODIFIED);
-		SET_BIT(cur->flags, HFLAG_UNAPPROVED);
-		send_to_char(ch, "Item #%d unapproved.\r\n", cur->idnum);
-	} else {
-		send_to_char(ch, "Unable to find item.\r\n");
+    for (GList *hit = col->items;hit;hit = hit->next) {
+        cur = hit->data;
+        if (cur->idnum == idnum) {
+            SET_BIT(cur->flags, HFLAG_UNAPPROVED);
+            SET_BIT(cur->flags, HFLAG_MODIFIED);
+            send_to_char(ch, "Item #%d unapproved.\r\n", cur->idnum);
+            return;
+        }
 	}
-	return;
+
+    send_to_char(ch, "Unable to find item.\r\n");
 }
 
 // Give some stat info on the Help System
@@ -586,8 +591,9 @@ help_collection_show(struct help_collection *col, struct creature *ch)
 	int num_no_group = 0;
 	struct help_item *cur;
 
-	for (cur = col->items; cur; cur = cur->next) {
-		num_items++;
+	for (GList *hit = col->items;hit;hit = hit->next) {
+        cur = hit->data;
+        num_items++;
 		if (cur->flags != 0) {
 			if (IS_SET(cur->flags, HFLAG_UNAPPROVED))
 				num_unapproved++;
@@ -629,10 +635,12 @@ struct help_item *
 help_collection_find_item_by_id(struct help_collection *col, int id)
 {
 	struct help_item *cur;
-    cur = col->items;
-	while (cur && cur->idnum != id)
-        cur = cur->next;
-	return cur;
+    for (GList *hit = col->items;hit;hit = hit->next) {
+        cur = hit->data;
+        if (cur->idnum == id)
+            return cur;
+    }
+    return NULL;
 }
 
 // The "immhelp" command
@@ -793,17 +801,16 @@ ACMD(do_help_collection_command)
 				send_to_char(ch, "There is no such item #.\r\n");
 				break;
 			}
-            cur = help->items;
-			while (cur && cur->idnum != id)
-                cur = cur->next;
-			if (cur) {
-                help_item_show(cur, ch, gHelpbuf, 3);
-				page_string(ch->desc, gHelpbuf);
-				break;
-			} else {
-				send_to_char(ch, "There is no item: %d.\r\n", id);
-				break;
-			}
+            for (GList *hit = help->items;hit;hit = hit->next) {
+                cur = hit->data;
+                if (cur->idnum == id) {
+                    help_item_show(cur, ch, gHelpbuf, 3);
+                    page_string(ch->desc, gHelpbuf);
+                    return;
+                }
+            }
+            send_to_char(ch, "There is no item: %d.\r\n", id);
+            return;
 		}
 		if (GET_OLC_HELP(ch)) {
             help_item_show(GET_OLC_HELP(ch), ch, gHelpbuf, 3);

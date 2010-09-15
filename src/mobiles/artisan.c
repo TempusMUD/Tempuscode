@@ -227,7 +227,7 @@ list_commission_item(struct creature *ch,
 		item_prefix,
 		needed,
 		CAP(tmp_strdup(obj->name)),
-                       item->cost+(item->cost*getCostModifier(ch, keeper))/100);
+                       item->cost+(item->cost*cost_modifier(ch, keeper))/100);
 
 }
 
@@ -308,7 +308,7 @@ craft_shop_buy(struct craft_shop *shop,
 		return;
 	}
 
-    long modCost = item->cost+(item->cost*getCostModifier(ch, keeper))/100;
+    long modCost = item->cost+(item->cost*cost_modifier(ch, keeper))/100;
 
 	needed_str = craft_item_next_requirement(item, keeper);
 	if (needed_str) {

@@ -247,7 +247,6 @@ free_help_item(struct help_item *item)
     free(item->text);
 }
 
-// Clear out the item.
 // Begin editing an item much like olc oedit.
 // Sets yer currently editable item to this one.
 bool

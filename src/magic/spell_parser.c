@@ -322,10 +322,6 @@ call_magic(struct creature *caster, struct creature *cvict,
 			!ok_damage_vendor(caster, cvict))
 			return 0;
 
-        if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
-            checkReputations(caster, cvict))
-            return 0;
-
 		if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE))) {
 			check_attack(caster, cvict);
             //Try to make this a little more sane...
@@ -1618,12 +1614,12 @@ ACMD(do_cast)
 
 				for (GList *it = ch->in_room->people;it;it = it->next) {
                     struct creature *new_vict = (struct creature *)it->data;
-                    
+
 					if (new_vict != ch
                         && new_vict != tch
                         && GET_LEVEL(tch) < LVL_AMBASSADOR
                         && (!number(0, 4) || !it->next)) {
-                        
+
 						if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch))
 							&& metal && SPELL_IS_MAGIC(spellnum)
 							&& metal_wt > number(5, 80))

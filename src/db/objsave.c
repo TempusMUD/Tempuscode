@@ -62,7 +62,7 @@ extract_norents(struct obj_data *obj)
 	if (obj) {
 		extract_norents(obj->contains);
 		extract_norents(obj->next_content);
-		if (isUnrentable(obj) &&
+		if (obj_is_unrentable(obj) &&
 			(!obj->worn_by || !IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)) &&
 			!IS_OBJ_STAT(obj, ITEM_NODROP))
 			extract_obj(obj);
@@ -117,7 +117,7 @@ tally_obj_rent(struct obj_data *obj, const char *currency_str, bool display)
 
 	last_obj = cur_obj = obj;
 	while (cur_obj) {
-		if (!isUnrentable(cur_obj)) {
+		if (!obj_is_unrentable(cur_obj)) {
 			total_cost += GET_OBJ_RENT(cur_obj);
 			if (last_obj->shared != cur_obj->shared && display) {
                 if (display)
@@ -162,10 +162,10 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str, bool displa
         void calc_cost_modifier(struct creature *tch, gpointer ignore) {
             if (GET_MOB_SPEC(tch) == cryogenicist ||
                 GET_MOB_SPEC(tch) == receptionist) {
-                f_factor += (f_factor*getCostModifier(ch, tch))/100;
+                f_factor += (f_factor*cost_modifier(ch, tch))/100;
             }
         }
-        g_list_foreach(ch->in_room->people, calc_cost_modifier, 0);
+        g_list_foreach(ch->in_room->people, (GFunc)calc_cost_modifier, 0);
     }
 
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
@@ -213,7 +213,7 @@ offer_rent(struct creature *ch, struct creature *receptionist,
 		total_money = GET_GOLD(ch) + GET_PAST_BANK(ch);
 	}
 
-	if (displayUnrentables(ch))
+	if (display_unrentables(ch))
 		return 0;
 
 	if (display) {

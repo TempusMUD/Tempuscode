@@ -959,15 +959,18 @@ struct creature {
 extern GList *creatures;
 extern GHashTable *creature_map;
 
-struct creature *random_opponent(struct creature *ch);
 int level_bonus(struct creature *ch, bool primary);
 int skill_bonus(struct creature *ch, int skillnum);
-void remove_all_combat(struct creature *ch);
-bool is_newbie(struct creature *ch);
-void removeCombat(struct creature *ch, struct creature *vict);
-void remove_all_combat(struct creature *ch);
-struct creature *random_opponent(struct creature *ch);
-bool isFighting(struct creature *ch);
+int calc_penalized_exp(struct creature *ch, int experience, struct creature *victim);
+
+void dismount(struct creature *ch);
+void mount(struct creature *ch, struct creature *vict);
+
+bool load_player_objects(struct creature *ch);
+bool save_player_objects(struct creature *ch);
+bool display_unrentables(struct creature *ch);
+int cost_modifier(struct creature *ch, struct creature *seller);
+
 void free_creature(struct creature *ch);
 bool creature_trusts_idnum(struct creature *ch, long idnum);
 bool creature_distrusts_idnum(struct creature *ch, long idnum);
@@ -979,9 +982,30 @@ void gain_reputation(struct creature *ch, int amt);
 void ignite_creature(struct creature *ch, struct creature *igniter);
 void extinguish_creature(struct creature *ch);
 int creature_breath_threshold(struct creature *ch);
+
 void start_defending(struct creature *ch, struct creature *target);
 void stop_defending(struct creature *ch);
+
 void add_combat(struct creature *ch, struct creature *target, bool initiated);
+struct creature *random_opponent(struct creature *ch);
+void remove_combat(struct creature *ch, struct creature *vict);
+void remove_all_combat(struct creature *ch);
 void remove_combat(struct creature *ch, struct creature *target);
+
+bool is_fighting(struct creature *ch);
+bool is_newbie(struct creature *ch);
+
+void start_hunting(struct creature *ch, struct creature *vict);
+void stop_hunting(struct creature *ch);
+
+bool creature_rent(struct creature *ch);
+bool creature_cryo(struct creature *ch);
+bool creature_quit(struct creature *ch);
+bool creature_idle(struct creature *ch);
+bool creature_die(struct creature *ch);
+bool creature_npk_die(struct creature *ch);
+bool creature_arena_die(struct creature *ch);
+bool creature_purge(struct creature *ch, bool destroy_obj);
+bool creature_remort(struct creature *ch);
 
 #endif

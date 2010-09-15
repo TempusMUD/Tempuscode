@@ -1223,8 +1223,12 @@ ACMD(do_order)
 				if (!CHECK_WAIT(vict) && !GET_MOB_WAIT(vict)) {
 					if (IS_NPC(vict) && GET_MOB_VNUM(vict) == 5318)
 						perform_say(vict, "intone", "As you command, master.");
-					if (vict->fighting)
-                        detect_opponent_master(vict->fighting, vict);
+					if (vict->fighting) {
+                        for (GList *cit = vict->fighting;cit;cit = cit->next) {
+                            struct creature *tch = cit->data;
+                            detect_opponent_master(tch, vict);
+                        }
+                    }
 					command_interpreter(vict, message);
 				}
 
@@ -1255,9 +1259,14 @@ ACMD(do_order)
 								&& GET_MOB_VNUM(k->follower) == 5318)
 								perform_say(vict, "intone",
                                             "As you command, master.");
-							if (k->follower->fighting)
-                                detect_opponent_master(k->follower->fighting,
-                                                       k->follower);
+							if (k->follower->fighting) {
+                                for (GList *cit = k->follower->fighting;
+                                     cit;
+                                     cit = cit->next) {
+                                    struct creature *tch = cit->data;
+                                    detect_opponent_master(tch, k->follower);
+                                }
+                            }
 							command_interpreter(k->follower, message);
 						}
 					} else
@@ -1401,8 +1410,6 @@ ACMD(do_retreat)
 			return;
 		}
 	}
-	struct room_data *room = ch->in_room;
-    struct creature *vict;
     void attack_of_opportunity(struct creature *vict, gpointer ignore) {
         if (*return_flags & DAM_ATTACKER_KILLED)
             return;
@@ -1422,7 +1429,7 @@ ACMD(do_retreat)
 				remove_combat(vict, ch);
 		}
 	}
-    g_list_foreach(ch->in_room->people, attack_of_opportunity, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)attack_of_opportunity, 0);
 
 	int retval = perform_move(ch, dir, MOVE_RETREAT, true);
 
@@ -1481,9 +1488,9 @@ ACMD(do_bash)
 			(room = real_room(ROOM_NUMBER(ovict))) != NULL &&
 			room->people) {
 			act("$N bashes the outside of $p!",
-				false, room->people, ovict, ch, TO_ROOM);
+				false, room->people->data, ovict, ch, TO_ROOM);
 			act("$N bashes the outside of $p!",
-				false, room->people, ovict, ch, TO_CHAR);
+				false, room->people->data, ovict, ch, TO_CHAR);
 		}
 		return;
 	}
@@ -1653,9 +1660,6 @@ ACMD(do_stun)
             false, ch, NULL, vict, TO_VICT);
 		return;
     }
-
-    if (checkReputations(ch, vict))
-        return;
 
 	if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
 		act("$N stuns you with a swift blow!", false, ch, 0, vict, TO_CHAR);
@@ -2019,9 +2023,6 @@ ACMD(do_sleeper)
 	if (!ok_to_attack(ch, vict, true))
 		return;
 
-    if (checkReputations(ch, vict))
-        return;
-
 	percent = ((10 + GET_LEVEL(vict)) >> 1) + number(1, 101);
 	prob = CHECK_SKILL(ch, SKILL_SLEEPER);
 
@@ -2181,6 +2182,7 @@ shoot_energy_gun(struct creature *ch,
 	int dum_ptr = 0, dum_move = 0;
 	struct affected_type *af = NULL;
 	int my_return_flags = 0;
+    GList *it;
 
     if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
         act("$p is not loaded with an energy cell.", false, ch, gun, 0,
@@ -2220,10 +2222,10 @@ shoot_energy_gun(struct creature *ch,
     prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
 
     void adjust_prob(struct creature *tch, gpointer ignore) {
-        if (tch != ch && tch->fighting == ch)
+        if (tch != ch && g_list_find(tch->fighting, ch))
             prob -= GET_LEVEL(tch) / 8;
     }
-    g_list_foreach(ch->in_room->people, adjust_prob, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)adjust_prob, 0);
 
     if (vict->fighting && !g_list_find(vict->fighting, ch) && number(1, 121) > prob)
         vict = random_opponent(vict);
@@ -2231,10 +2233,11 @@ shoot_energy_gun(struct creature *ch,
         int random_fighter(struct creature *tch, gpointer ignore) {
             return (tch != ch
                     && tch != vict
-                    && tch->fighting == vict
+                    && g_list_find(tch->fighting, vict)
                     && !number(0, 2)) ? 0:-1;
         }
-        vict = g_list_find_custom(ch->in_room->people, 0, random_fighter);
+        it = g_list_find_custom(ch->in_room->people, 0, (GCompareFunc)random_fighter);
+        vict = (it) ? it->data:NULL;
 
     } else if (number(1, 81) > prob) {
         int random_bystander(struct creature *tch, gpointer ignore) {
@@ -2242,7 +2245,8 @@ shoot_energy_gun(struct creature *ch,
                     && tch != vict
                     && !number(0, 2)) ? 0:-1;
         }
-        vict = g_list_find_custom(ch->in_room->people, 0, random_bystander);
+        it = g_list_find_custom(ch->in_room->people, 0, (GCompareFunc)random_bystander);
+        vict = (it) ? it->data:NULL;
     }
 
     cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
@@ -2429,12 +2433,12 @@ shoot_projectile_gun(struct creature *ch,
                      struct obj_data *gun,
                      int *return_flags)
 {
-	struct creature *tmp_vict = NULL;
 	struct obj_data *bullet = NULL;
 	sh_int prob, dam;
 	int my_return_flags = 0;
 	int bullet_num = 0, dum_ptr = 0, dum_move = 0;
 	struct affected_type *af = NULL;
+    GList *it;
 
 	if (GUN_TYPE(gun) < 0 || GUN_TYPE(gun) >= NUM_GUN_TYPES) {
 		act("$p is a bogus gun.  extracting.", false, ch, gun, 0, TO_CHAR);
@@ -2488,10 +2492,10 @@ shoot_projectile_gun(struct creature *ch,
                        GET_LEVEL(ch) >> 1) + (GET_REMORT_GEN(ch) << 2);
 
     void adjust_prob(struct creature *tch, gpointer ignore) {
-        if (tch != ch && tch->fighting == ch)
+        if (tch != ch && g_list_find(tch->fighting, ch))
             prob -= GET_LEVEL(tch) / 8;
     }
-    g_list_foreach(ch->in_room->people, adjust_prob, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)adjust_prob, 0);
 
 	if (ch->fighting)
 	    prob -= 10;
@@ -2502,17 +2506,19 @@ shoot_projectile_gun(struct creature *ch,
         int random_fighter(struct creature *tch, gpointer ignore) {
             return (tch != ch
                     && tch != vict
-                    && tch->fighting == vict
+                    && g_list_find(tch->fighting, vict)
                     && !number(0, 2)) ? 0:-1;
         }
-        vict = g_list_find_custom(ch->in_room->people, 0, random_fighter);
+        it = g_list_find_custom(ch->in_room->people, 0, (GCompareFunc)random_fighter);
+        vict = (it) ? it->data:NULL;
 	} else if (number(1, 81) > prob) {
 		int random_bystander(struct creature *tch, gpointer ignore) {
             return (tch != ch
                     && tch != vict
                     && !number(0, 2)) ? 0:-1;
         }
-        vict = g_list_find_custom(ch->in_room->people, 0, random_bystander);
+        it = g_list_find_custom(ch->in_room->people, 0, (GCompareFunc)random_bystander);
+        vict = (it) ? it->data:NULL;
 	}
 
 	if (CUR_R_O_F(gun) <= 0)
@@ -2586,7 +2592,7 @@ ACMD(do_shoot)
 		return;
 	}
 
-	if (ch->fighting && random_opponent(ch)->fighting == ch
+	if (ch->fighting && g_list_find(random_opponent(ch)->fighting, ch)
         && !number(0, 3) && (!skill_bonus(ch, SKILL_ENERGY_WEAPONS > 60))
         && (GET_LEVEL(ch) < LVL_GRGOD)) {
 		send_to_char(ch, "You are in too close to get off a shot!\r\n");
@@ -2644,6 +2650,7 @@ ACMD(do_shoot)
 
 ACMD(do_ceasefire)
 {
+    GList *it;
     struct creature *f = NULL;
 
     if (!ch->fighting) {
@@ -2652,9 +2659,10 @@ ACMD(do_ceasefire)
     }
 
     int is_fighting(struct creature *tch, struct creature *ch) {
-        return (tch != ch && tch->fighting == ch) ? 0:-1;
+        return (tch != ch && g_list_find(tch->fighting, ch)) ? 0:-1;
     }
-    f = g_list_find_custom(ch->in_room->people, ch, is_fighting);
+    it = g_list_find_custom(ch->in_room->people, ch, (GCompareFunc)is_fighting);
+    f = (it) ? it->data:NULL;
 
     if (f)
         send_to_char(ch, "You can't ceasefire while your enemy is actively "
@@ -2697,9 +2705,6 @@ ACCMD(do_disarm)
 
 	if (!ok_to_attack(ch, vict, true))
 		return;
-
-    if (checkReputations(ch, vict))
-        return;
 
 	if (!(weap = GET_EQ(vict, WEAR_WIELD))) {
 		send_to_char(ch, "They aren't wielding anything, fool.\r\n");
@@ -2875,9 +2880,6 @@ ACMD(do_intimidate)
 		}
 	}
 
-    if (checkReputations(ch, vict))
-        return;
-
 	if (!can_see_creature(vict, ch)) {
 		act("$N doesn't seem to be able to see you.", false, ch, 0, vict,
 			TO_CHAR);
@@ -2956,8 +2958,6 @@ ACMD(do_beguile)
 		send_to_char(ch, "You find yourself amazingly beguiling.\r\n");
 		return;
 	}
-    if (checkReputations(ch, vict))
-        return;
 
 	act("$n looks deeply into your eyes with an enigmatic look.",
 		true, ch, 0, vict, TO_VICT);
@@ -2993,13 +2993,15 @@ ACMD(do_beguile)
 struct creature *
 randomize_target(struct creature *ch, struct creature *vict, short prob)
 {
+    GList *it;
+
     void adjust_prob(struct creature *tch, gpointer ignore) {
-        if (tch != ch && tch->fighting == ch)
+        if (tch != ch && g_list_find(tch->fighting, ch))
             prob -= GET_LEVEL(tch) / 8;
     }
-    g_list_foreach(ch->in_room->people, adjust_prob, 0);
+    g_list_foreach(ch->in_room->people, (GFunc)adjust_prob, 0);
 
-    if (vict->fighting != ch) {
+    if (!g_list_find(vict->fighting, ch)) {
         if (number(1, 121) > prob)
             vict = random_opponent(vict);
     }
@@ -3007,18 +3009,19 @@ randomize_target(struct creature *ch, struct creature *vict, short prob)
         int random_fighter(struct creature *tch, gpointer ignore) {
             return (tch != ch
                     && tch != vict
-                    && tch->fighting == vict
+                    && g_list_find(tch->fighting, vict)
                     && !number(0, 2)) ? 0:-1;
         }
-        vict = g_list_find_custom(ch->in_room->people, 0, random_fighter);
-
+        it = g_list_find_custom(ch->in_room->people, 0, (GCompareFunc)random_fighter);
+        vict = (it) ? it->data:NULL;
     } else if (number(1, 81) > prob) {
         int random_bystander(struct creature *tch, gpointer ignore) {
             return (tch != ch
                     && tch != vict
                     && !number(0, 2)) ? 0:-1;
         }
-        vict = g_list_find_custom(ch->in_room->people, 0, random_bystander);
+        it = g_list_find_custom(ch->in_room->people, 0, (GCompareFunc)random_bystander);
+        vict = (it) ? it->data:NULL;
     }
 
     return vict;

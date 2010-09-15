@@ -67,9 +67,6 @@ ACMD(do_steal)
 		return;
     }
 
-    if (checkReputations(ch, vict))
-        return;
-
 	if (!IS_MOB(vict) && !vict->desc && GET_LEVEL(ch) < LVL_ELEMENT) {
 		send_to_char(ch, "You cannot steal from linkless players!!!\r\n");
 		mudlog(GET_LEVEL(ch), CMP, true,

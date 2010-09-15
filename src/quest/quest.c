@@ -340,7 +340,7 @@ banned_from_quest(struct quest *quest, int id)
 }
 
 bool
-remove_player_from_quest(struct quest *quest, int id)
+remove_quest_player(struct quest *quest, int id)
 {
     struct qplayer_data *player = NULL;
 	struct creature *vict = NULL;
@@ -1008,7 +1008,7 @@ do_quest_leave(struct creature *ch, char *argument)
 	if (!can_leave_quest(quest, ch))
 		return;
 
-	if (!remove_player_from_quest(quest, GET_IDNUM(ch))) {
+	if (!remove_quest_player(quest, GET_IDNUM(ch))) {
 		send_to_char(ch, "Error removing char from quest.\r\n");
 		return;
 	}
@@ -1908,7 +1908,7 @@ do_qcontrol_end(struct creature *ch, char *argument, int com)
 
 
 	while (quest->players)
-        remove_player_from_quest(quest, quest->players->data);
+        remove_quest_player(quest, quest->players->data);
 
 	quest->ended = time(0);
 	qlog(ch, tmp_sprintf("ended quest %d '%s'", quest->vnum,quest->name),
@@ -2045,7 +2045,7 @@ do_qcontrol_kick(struct creature *ch, char *argument, int com)
 		return;
 	}
 
-	if (!remove_player_from_quest(quest, idnum)) {
+	if (!remove_quest_player(quest, idnum)) {
 		send_to_char(ch, "Error removing char from quest.\r\n");
 		return;
 	}
@@ -2339,7 +2339,7 @@ do_qcontrol_ban(struct creature *ch, char *argument, int com)
         }
 
         if (is_playing_quest(quest, idnum)) {
-            if (!remove_player_from_quest(quest, idnum)) {
+            if (!remove_quest_player(quest, idnum)) {
                 send_to_char(ch, "Unable to auto-kick victim from quest!\r\n");
             } else {
                 send_to_char(ch, "%s auto-kicked from quest.\r\n", arg1);

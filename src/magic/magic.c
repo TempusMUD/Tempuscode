@@ -1153,9 +1153,6 @@ mag_affects(int level,
 			send_to_char(ch, "You fail.\r\n");
 			return;
 		}
-        if (checkReputations(ch, victim))
-            return;
-
 		af.location = APPLY_HITROLL;
 		af.modifier = -4;
 		af.duration = 2;
@@ -1186,9 +1183,6 @@ mag_affects(int level,
 			hit(victim, ch, TYPE_UNDEFINED);
 			return;
 		}
-        if (checkReputations(ch, victim))
-            return;
-
         remove_combat(victim, ch);
         remove_combat(ch, victim);
 		GET_POSITION(victim) = POS_STUNNED;
@@ -1473,9 +1467,6 @@ mag_affects(int level,
 			return;
 		}
 
-        if (checkReputations(ch, victim))
-            return;
-
 		af.duration = 1 + (level / 4);
 		af.bitvector = AFF2_SLOW;
 		af.aff_index = 2;
@@ -1486,9 +1477,6 @@ mag_affects(int level,
 
 	case SPELL_PROT_FROM_EVIL:
 		if (IS_EVIL(victim)) {
-            if (checkReputations(ch, victim))
-                return;
-
 			to_vict = "You feel terrible!";
 			af.bitvector = 0;
 
@@ -1528,9 +1516,6 @@ mag_affects(int level,
 
 	case SPELL_PROT_FROM_GOOD:
 		if (IS_GOOD(victim)) {
-            if (checkReputations(ch, victim))
-                return;
-
 			to_vict = "You feel terrible!";
 			af.bitvector = 0;
 			switch (number(0, 5)) {
@@ -1628,9 +1613,6 @@ mag_affects(int level,
 
 		if (MOB_FLAGGED(victim, MOB_NOSLEEP) || IS_UNDEAD(victim))
 			return;
-
-        if (checkReputations(ch, victim))
-            return;
 
 		af.duration = 4 + level / 10;
 		af.bitvector = AFF_SLEEP;
@@ -1754,9 +1736,6 @@ mag_affects(int level,
 		break;
 
 	case SPELL_FEAR:
-        if (checkReputations(ch, victim))
-            return;
-
 		if (IS_UNDEAD(victim) || IS_DRAGON(victim) || IS_DEVIL(victim)) {
 			act("You fail to affect $N!", false, ch, 0, victim, TO_CHAR);
 			send_to_char(ch, "You feel a wave of fear pass over you!\r\n");
@@ -1820,9 +1799,6 @@ mag_affects(int level,
 		break;
 
 	case SPELL_VERTIGO:
-        if (checkReputations(ch, victim))
-            return;
-
 		af.modifier = -(2 + (level / 10));
 		af.duration = 6;
 		af.location = APPLY_HITROLL;
@@ -1938,8 +1914,6 @@ mag_affects(int level,
 		break;
 
 	case SPELL_GRAVITY_WELL:
-        if (checkReputations(ch, victim))
-            return;
 		af.duration = (level / 8);
 		af.location = APPLY_STR;
 		af.bitvector = AFF3_GRAVITY_WELL;

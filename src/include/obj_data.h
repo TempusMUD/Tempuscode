@@ -417,5 +417,6 @@ struct tmp_obj_affect *obj_has_affect(struct obj_data *obj, int spellnum);
 struct room_data *find_object_room(struct obj_data *obj);
 void normalize_applies(struct obj_data *obj);
 int modify_object_weight(struct obj_data *obj, int mod_weight);
+bool obj_is_unrentable(struct obj_data *obj);
 
 #endif

@@ -46,6 +46,7 @@
 #include "utils.h"
 #include "prog.h"
 #include "weather.h"
+#include "players.h"
 
 #define BAD_ATTACK_TYPE(attacktype) (attacktype == TYPE_BLEED || \
                                      attacktype == SPELL_POISON || \
@@ -375,7 +376,7 @@ perform_gain_kill_exp(struct creature *ch, struct creature *victim,
 
 	}
 
-	exp = getPenalizedExperience(ch, exp, victim );
+	exp = calc_penalized_exp(ch, exp, victim );
 
     if (IS_PC(ch) && IS_NPC(victim)) {
         struct kill_record *kill = tally_kill_record(ch, victim);
@@ -561,7 +562,8 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
 	if (IS_OBJ_STAT2(obj, ITEM2_IMPLANT))
 		SET_BIT(GET_OBJ_EXTRA2(new_obj), ITEM2_IMPLANT);
 
-	if ((room = obj->in_room) && (vict = g_list_first(obj->in_room->people))) {
+	if ((room = obj->in_room) && obj->in_room->people) {
+        vict = obj->in_room->people->data;
 		act(msg, false, vict, obj, 0, TO_CHAR);
 		act(msg, false, vict, obj, 0, TO_ROOM);
 	} else if ((vict = obj->worn_by))
@@ -653,7 +655,9 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
 	}
 
 	/* send out messages and unequip if needed */
-	if (obj->in_room && (vict = g_list_first(obj->in_room->people))) {
+
+	if (obj->in_room && obj->in_room->people) {
+        vict = obj->in_room->people->data;
 		act(damage_msg, false, vict, obj, 0, TO_CHAR);
 		act(damage_msg, false, vict, obj, 0, TO_ROOM);
 	} else if ((vict = obj->worn_by)) {
@@ -799,7 +803,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 				DAM_RETURN(DAM_ATTACK_FAILED);
 			}
 
-            if (checkReputations(ch, victim))
+            if (!ok_to_attack(ch, victim, false))
                 DAM_RETURN(DAM_ATTACK_FAILED);
 		}
 
@@ -1636,7 +1640,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                         return;
                     damage(ch, tch, dam/2, TYPE_EGUN_SPEC_LIGHTNING, WEAR_RANDOM);
                 }
-                g_list_foreach(ch->in_room->people, lightning_zap, 0);
+                g_list_foreach(ch->in_room->people, (GFunc)lightning_zap, 0);
             }
         }
 
@@ -1754,7 +1758,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 		// Gaining XP for damage dealt.
 		int exp = MIN(GET_LEVEL(ch) * GET_LEVEL(ch) * GET_LEVEL(ch), GET_LEVEL(victim) * dam);
 
-		exp = getPenalizedExperience(ch,  exp, victim );
+		exp = calc_penalized_exp(ch,  exp, victim );
 
         // We shall not give exp for damage delt unless they're in
         // the same room
@@ -1878,9 +1882,10 @@ damage(struct creature *ch, struct creature *victim, int dam,
 				attacktype == TYPE_STAB ||
 				attacktype == TYPE_CHOP ||
 				attacktype == SPELL_BLADE_BARRIER)) {
-            void spray_with_acidic_blood(struct creature *tch, gpointer ignore) {
+            for (GList *cit = ch->in_room->people;cit;cit = cit->next) {
+                struct creature *tch = cit->data;
 				if (tch == victim || number(0, 8))
-                    return;
+                    continue;
 				bool is_char = false;
 				if (tch == ch)
 					is_char = true;
@@ -1892,7 +1897,6 @@ damage(struct creature *ch, struct creature *victim, int dam,
 					DAM_RETURN(DAM_ATTACKER_KILLED);
 				}
 			}
-            g_list_foreach(ch->in_room->people, spray_with_acidic_blood, 0);
 		}
 	} else if (original_ch != ch) {
 		slog("ch was changed in the middle of damage()! original=%p (%s), ch=%p (%s)",
@@ -2209,8 +2213,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                         int imm_idx = hasCharLevel(ch->account, LVL_AMBASSADOR);
                         if (imm_idx) {
                             struct creature *tmp_ch;
-                            CREATE(tmp_ch, struct creature, 1);
-                            load_player_from_xml(tmp_ch, get_char_by_index(ch->account, imm_idx));
+                            tmp_ch = load_player_from_xml(get_char_by_index(ch->account, imm_idx));
                             if (GET_LEVEL(ch) < 70) {
                                 int now = time(NULL);
                                 int last_logon = tmp_ch->player.time.logon;
@@ -2468,12 +2471,6 @@ hit(struct creature *ch, struct creature *victim, int type)
 		return DAM_ATTACK_FAILED;
 	}
 
-    if (checkReputations(ch, victim)) {
-        remove_combat(ch, victim);
-        remove_combat(victim, ch);
-        return DAM_ATTACK_FAILED;
-    }
-
 	if (MOUNTED_BY(ch)) {
 		if (MOUNTED_BY(ch)->in_room != ch->in_room) {
 			REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(ch)), AFF2_MOUNTED);
@@ -2498,7 +2495,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 				GET_POSITION(tch) = POS_STANDING;
 			}
 		}
-        g_list_foreach(victim->in_room->people, check_mount, 0);
+        g_list_foreach(victim->in_room->people, (GFunc)check_mount, 0);
 	}
 
 	for (i = 0, metal_wt = 0; i < NUM_WEARS; i++)
@@ -2927,8 +2924,8 @@ perform_violence1(struct creature *ch, gpointer ignore)
 
     if (!ch->in_room || !ch->fighting)
         return;
-    if (ch == g_list_find(ch->fighting, ch)) {	// intentional crash here.
-        errlog("ch == g_list_find(ch->fighting, ch) in perform_violence.");
+    if (g_list_find(ch->fighting, ch)) {	// intentional crash here.
+        errlog("fighting self in perform_violence.");
         raise(SIGSEGV);
     }
 
@@ -3071,7 +3068,7 @@ perform_violence1(struct creature *ch, gpointer ignore)
 void
 perform_violence(void)
 {
-    g_list_foreach(creatures, perform_violence1, 0);
+    g_list_foreach(creatures, (GFunc)perform_violence1, 0);
 }
 
 

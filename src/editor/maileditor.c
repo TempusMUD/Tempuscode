@@ -47,8 +47,49 @@ free_maileditor(struct editor *editor)
 }
 
 void
+maileditor_listrecipients(struct editor *editor)
+{
+    struct maileditor_data *mail_data = (struct maileditor_data *)editor->mode_data;
+	struct mail_recipient_data *mail_rcpt = NULL;
+
+    send_to_desc(editor->desc, "     &yTo&b: &c");
+	for (mail_rcpt = mail_data->mail_to; mail_rcpt;mail_rcpt = mail_rcpt->next) {
+        send_to_desc(editor->desc, "%s",
+                     tmp_capitalize(player_name_by_idnum(mail_rcpt->recpt_idnum)));
+        if (mail_rcpt->next)
+            send_to_desc(editor->desc, ", ");
+	}
+    send_to_desc(editor->desc, "&n\r\n");
+}
+
+void
+maileditor_listattachments(struct editor *editor)
+{
+    struct maileditor_data *mail_data = (struct maileditor_data *)editor->mode_data;
+    struct obj_data *o, *next_obj;
+
+    if (!mail_data->obj_list)
+        return;
+
+    send_to_desc(editor->desc, "\r\n     &yPackages attached to this mail&b: &c\r\n");
+
+    if (mail_data->obj_list) {
+        o = mail_data->obj_list;
+        while (o) {
+            next_obj = o->next_content;
+            send_to_desc(editor->desc, "       %s", o->name);
+            o = next_obj;
+            if (next_obj) {
+                send_to_desc(editor->desc, ",\r\n");
+            }
+        }
+    }
+    send_to_desc(editor->desc, "&n\r\n");
+}
+
+void
 maileditor_display(struct editor *editor,
-                         unsigned int start_line,
+                         int start_line,
                          int line_count)
 {
     if (start_line == 1) {
@@ -56,39 +97,32 @@ maileditor_display(struct editor *editor,
         maileditor_listattachments(editor);
         send_to_desc(editor->desc, "\r\n");
     }
-    editor_display(start_line, line_count, 0);
+    editor_display(editor, start_line, line_count);
 }
 
-bool
-maileditor_do_command(struct editor *editor, char cmd, char *args)
+void
+maileditor_returnattachments(struct editor *editor)
 {
-    switch (cmd) {
-	case 't':
-		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
-			maileditor_listrecipients(editor);
-            maileditor_listattachments(editor);
-			break;
-		}
-	case 'a':
-		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
-			maileditor_addrecipient(editor, args);
-			break;
-		}
-	case 'e':
-		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
-			maileditor_remrecipient(editor, args);
-			break;
-		}
-	case 'p':
-		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
-			maileditor_addattachment(editor, args);
-			break;
-		}
-    default:
-        return editor_do_command(editor, cmd, args);
+    struct maileditor_data *mail_data = (struct maileditor_data *)editor->mode_data;
+    struct obj_data *o, *next_obj;
+
+    if (mail_data->obj_list) {
+        o = mail_data->obj_list;
+        while (o) {
+            next_obj = o->next_content;
+            obj_to_char(o, editor->desc->creature);
+			if (editor->desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
+				GET_CASH(editor->desc->creature) +=
+                    GET_OBJ_WEIGHT(o) * MAIL_COST_MULTIPLIER;
+			else
+				GET_GOLD(editor->desc->creature) +=
+                    GET_OBJ_WEIGHT(o) * MAIL_COST_MULTIPLIER;
+            o = next_obj;
+        }
     }
 
-    return true;
+    save_player_to_xml(editor->desc->creature);
+    mail_data->obj_list = NULL;
 }
 
 void
@@ -158,49 +192,8 @@ maileditor_sendmodalhelp(struct editor *editor)
 void
 maileditor_cancel(struct editor *editor)
 {
-    maileditor_returnattachments();
+    maileditor_returnattachments(editor);
     free_maileditor(editor);
-}
-
-void
-maileditor_listrecipients(struct editor *editor)
-{
-    struct maileditor_data *mail_data = (struct maileditor_data *)editor->mode_data;
-	struct mail_recipient_data *mail_rcpt = NULL;
-
-    send_to_desc(editor->desc, "     &yTo&b: &c");
-	for (mail_rcpt = mail_data->mail_to; mail_rcpt;mail_rcpt = mail_rcpt->next) {
-        send_to_desc(editor->desc, "%s",
-                     tmp_capitalize(player_name_by_idnum(mail_rcpt->recpt_idnum)));
-        if (mail_rcpt->next)
-            send_to_desc(editor->desc, ", ");
-	}
-    send_to_desc(editor->desc, "&n\r\n");
-}
-
-void
-maileditor_listattachments(struct editor *editor)
-{
-    struct maileditor_data *mail_data = (struct maileditor_data *)editor->mode_data;
-    struct obj_data *o, *next_obj;
-
-    if (!mail_data->obj_list)
-        return;
-
-    send_to_desc(editor->desc, "\r\n     &yPackages attached to this mail&b: &c\r\n");
-
-    if (mail_data->obj_list) {
-        o = mail_data->obj_list;
-        while (o) {
-            next_obj = o->next_content;
-            send_to_desc(editor->desc, "       %s", o->name);
-            o = next_obj;
-            if (next_obj) {
-                send_to_desc(editor->desc, ",\r\n");
-            }
-        }
-    }
-    send_to_desc(editor->desc, "&n\r\n");
 }
 
 void
@@ -498,29 +491,36 @@ maileditor_addattachment(struct editor *editor, char *obj_name)
     return;
 }
 
-void
-maileditor_returnattachments(struct editor *editor)
+bool
+maileditor_do_command(struct editor *editor, char cmd, char *args)
 {
-    struct maileditor_data *mail_data = (struct maileditor_data *)editor->mode_data;
-    struct obj_data *o, *next_obj;
-
-    if (mail_data->obj_list) {
-        o = mail_data->obj_list;
-        while (o) {
-            next_obj = o->next_content;
-            obj_to_char(o, editor->desc->creature);
-			if (editor->desc->creature->in_room->zone->time_frame == TIME_ELECTRO)
-				GET_CASH(editor->desc->creature) +=
-                    GET_OBJ_WEIGHT(o) * MAIL_COST_MULTIPLIER;
-			else
-				GET_GOLD(editor->desc->creature) +=
-                    GET_OBJ_WEIGHT(o) * MAIL_COST_MULTIPLIER;
-            o = next_obj;
-        }
+    switch (cmd) {
+	case 't':
+		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
+			maileditor_listrecipients(editor);
+            maileditor_listattachments(editor);
+			break;
+		}
+	case 'a':
+		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
+			maileditor_addrecipient(editor, args);
+			break;
+		}
+	case 'e':
+		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
+			maileditor_remrecipient(editor, args);
+			break;
+		}
+	case 'p':
+		if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
+			maileditor_addattachment(editor, args);
+			break;
+		}
+    default:
+        return editor_do_command(editor, cmd, args);
     }
 
-    save_player_to_xml(editor->desc->creature);
-    mail_data->obj_list = NULL;
+    return true;
 }
 
 void

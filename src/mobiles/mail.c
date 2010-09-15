@@ -268,7 +268,7 @@ receive_mail(struct creature * ch, GList *olist)
 GList *load_mail(char *path)
 {
 	int axs = access(path, W_OK | R_OK);
-    GList *mailBag;
+    GList *mailBag = NULL;
 
 	if( axs != 0 ) {
 		if( errno != ENOENT ) {
@@ -315,7 +315,7 @@ GList *load_mail(char *path)
 
 SPECIAL(postmaster)
 {
-    struct creature *self;
+    struct creature *self = (struct creature *)me;
 
 	if (spec_mode == SPECIAL_TICK) {
 		if (self->fighting && !number(0, 4)) {
@@ -497,7 +497,7 @@ postmaster_receive_mail(struct creature *ch, struct creature *mailman)
 {
     char *to_char = NULL, *to_room = NULL;
     int num_mails = 0;
-    GList *olist;
+    GList *olist = NULL;
 
     if (!has_mail(GET_IDNUM(ch))) {
         to_char = tmp_sprintf("Sorry, you don't have any mail waiting.");

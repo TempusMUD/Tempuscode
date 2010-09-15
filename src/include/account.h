@@ -47,7 +47,7 @@ struct account {
 };
 void account_boot(void);
 struct account *account_create(const char *name, struct descriptor_data *d);
-struct account *account_by_name(const char *name);
+struct account *account_by_name(char *name);
 struct account *account_by_idnum(int id);
 struct account *account_by_creature(struct creature *ch);
 void preload_accounts(const char *conditions);
@@ -83,8 +83,8 @@ void account_move_char(struct account *account, long id, struct account *dest);
 // Attempts to add the given orphaned character to this account
 void account_exhume_char(struct account *account,  struct creature *exhumer, long id );
 
-void set_past_bank(struct account *account, money_t amt);
-void set_future_bank(struct account *account, money_t amt);
+void account_set_past_bank(struct account *account, money_t amt);
+void account_set_future_bank(struct account *account, money_t amt);
 void deposit_past_bank(struct account *account, money_t amt);
 void deposit_future_bank(struct account *account, money_t amt);
 void withdraw_past_bank(struct account *account, money_t amt);

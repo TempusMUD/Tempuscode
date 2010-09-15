@@ -17,7 +17,7 @@ SPECIAL(lawyer)
 		return 0;
 
     cost = GET_SEVERITY(ch) * 1000000;
-    cost += (cost*getCostModifier(ch, lawy))/100;
+    cost += (cost*cost_modifier(ch, lawy))/100;
 
 	argument = one_argument(argument, arg1);
 	skip_spaces(&argument);

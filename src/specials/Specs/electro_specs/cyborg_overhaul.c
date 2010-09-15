@@ -26,7 +26,7 @@ SPECIAL(cyborg_overhaul)
 		if (GET_BROKE(ch))
 			cost += GET_LEVEL(ch) * 100;
 
-        cost += (cost*getCostModifier(ch, borg))/100;
+        cost += (cost*cost_modifier(ch, borg))/100;
 
 		if (!cost) {
 			perform_tell(borg, ch, "You are not in need of overhaul.");
@@ -69,7 +69,7 @@ SPECIAL(cyborg_overhaul)
 
 	if (!strcasecmp(argument, "repairs")) {
 		cost = (GET_MAX_HIT(ch) - GET_HIT(ch)) * 100;
-        cost += (cost*getCostModifier(ch, borg))/100;
+        cost += (cost*cost_modifier(ch, borg))/100;
 
 		if (!cost) {
 			perform_tell(borg, ch, "You are not in need of repairs.");

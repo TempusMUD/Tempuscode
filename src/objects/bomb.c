@@ -355,9 +355,6 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int 
         if (vict == precious_vict)
             continue;
 
-        if (checkReputations(damager, vict))
-            continue;
-
 		if (damage(damager, vict, dam, damage_type, WEAR_RANDOM))
 			continue;
 
@@ -496,7 +493,7 @@ detonate_bomb(struct obj_data *bomb)
 	dam_object = bomb;
 
 	if (ch) {
-        if (checkReputations(damager, ch)) {
+        if (!ok_to_attack(damager, ch, false)) {
             act(tmp_sprintf("$p fizzles and dies in %s!", (internal ? "body!" :
                     (cont ? "$P" : "your inventory"))),
                 false, ch, bomb, cont, TO_CHAR);

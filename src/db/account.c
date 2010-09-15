@@ -127,6 +127,12 @@ load_players(struct account *account)
 }
 
 void
+account_add_trusted(struct account *account, long idnum)
+{
+    account->trusted = g_list_prepend(account->trusted, GINT_TO_POINTER(idnum));
+}
+
+void
 load_trusted(struct account *account)
 {
     PGresult *res;
@@ -277,12 +283,6 @@ account_set(struct account *account, const char *key, const char *val)
         slog("Invalid account field %s set to %s", key, val);
 }
 
-void
-account_add_trusted(struct account *account, long idnum)
-{
-    account->trusted = g_list_prepend(account->trusted, GINT_TO_POINTER(idnum));
-}
-
 struct account*
 account_by_idnum(int id)
 {
@@ -311,7 +311,7 @@ account_exists( int accountID )
 }
 
 struct account*
-account_by_name(const char *name)
+account_by_name(char *name)
 {
     PGresult *res;
     int acct_id;
@@ -385,6 +385,26 @@ account_remove(struct account *acct)
 {
     g_hash_table_remove(account_cache, GINT_TO_POINTER(acct->id));
     return false;
+}
+
+int
+count_account_gens(struct account *account)
+{
+    struct creature *tmp_ch;
+    int count = 0;
+
+    for (int idx = 1;!invalid_char_index(account, idx);idx++) {
+        // test for file existence
+        tmp_ch = load_player_from_xml(get_char_by_index(account, idx));
+        if (!tmp_ch)
+            continue;
+
+        count += GET_REMORT_GEN(tmp_ch);
+
+        free_creature(tmp_ch);
+    }
+
+    return count;
 }
 
 int
@@ -494,6 +514,14 @@ account_create_char(struct account *account, const char *name)
 }
 
 void
+account_distrust(struct account *account, long idnum)
+{
+    account->trusted = g_list_remove(account->trusted, GINT_TO_POINTER(idnum));
+    sql_exec("delete from trusted where account=%d and player=%ld",
+             account->id, idnum);
+}
+
+void
 account_delete_char(struct account *account, struct creature *ch)
 {
     void remove_bounties(int);
@@ -530,7 +558,7 @@ account_delete_char(struct account *account, struct creature *ch)
         struct quest *quest = quest_by_vnum(GET_QUEST(ch));
 
         if (quest) {
-            remove_player_from_quest(quest, GET_IDNUM(ch));
+            remove_quest_player(quest, GET_IDNUM(ch));
             save_quests();
         }
     }
@@ -699,6 +727,22 @@ account_gain_reputation(struct account *account, int amt)
 }
 
 void
+account_set_past_bank(struct account *account, money_t amt)
+{
+    account->bank_past = amt;
+    sql_exec("update accounts set bank_past=%lld where idnum=%d",
+        account->bank_past, account->id);
+}
+
+void
+account_set_future_bank(struct account *account, money_t amt)
+{
+    account->bank_future = amt;
+    sql_exec("update accounts set bank_future=%lld where idnum=%d",
+        account->bank_future, account->id);
+}
+
+void
 deposit_past_bank(struct account *account, money_t amt)
 {
     if (amt > 0)
@@ -798,9 +842,7 @@ bool
 account_deny_char_entry(struct account *account, struct creature *ch)
 {
     // Admins and full wizards can multi-play all they want
-    if (is_named_role_member(ch, "WizardFull"))
-        return false;
-    if (is_named_role_member(ch, "AdminFull"))
+    if (is_authorized(ch, MULTIPLAY, NULL))
         return false;
 
     bool override = false;
@@ -809,9 +851,7 @@ account_deny_char_entry(struct account *account, struct creature *ch)
     void check_existing_char(struct creature *tch, gpointer ignore) {
         if (tch->account == account) {
             // Admins and full wizards can multi-play all they want
-            if (is_named_role_member(tch, "WizardFull"))
-                override = true;
-            if (is_named_role_member(tch, "AdminFull"))
+            if (is_authorized(ch, MULTIPLAY, NULL))
                 override = true;
             // builder can have on a tester and vice versa.
             if (is_named_role_member(ch, "OLC") && is_tester(tch))
@@ -872,14 +912,6 @@ account_trust(struct account *account, long idnum)
 }
 
 void
-account_distrust(struct account *account, long idnum)
-{
-    account->trusted = g_list_remove(account->trusted, GINT_TO_POINTER(idnum));
-    sql_exec("delete from trusted where account=%d and player=%ld",
-             account->id, idnum);
-}
-
-void
 account_display_trusted(struct account *account, struct creature *ch)
 {
     int col = 0;
@@ -894,7 +926,7 @@ account_display_trusted(struct account *account, struct creature *ch)
             }
         }
     }
-    g_list_foreach(account->trusted, display_trusted_char, 0);
+    g_list_foreach(account->trusted, (GFunc)display_trusted_char, 0);
     if (col)
         send_to_char(ch, "\r\n");
 }
@@ -913,22 +945,6 @@ account_set_compact_level(struct account *account, int level)
     account->compact_level = level;
     sql_exec("update accounts set compact_level=%d where idnum=%d",
         account->compact_level, account->id);
-}
-
-void
-account_set_past_bank(struct account *account, money_t amt)
-{
-    account->bank_past = amt;
-    sql_exec("update accounts set bank_past=%lld where idnum=%d",
-        account->bank_past, account->id);
-}
-
-void
-account_set_future_bank(struct account *account, money_t amt)
-{
-    account->bank_future = amt;
-    sql_exec("update accounts set bank_future=%lld where idnum=%d",
-        account->bank_future, account->id);
 }
 
 void
@@ -989,7 +1005,7 @@ hasCharLevel(struct account *account, int level)
             free_creature(tmp_ch);
             return idx;
         }
-        
+
         free_creature(tmp_ch);
 
         idx++;
@@ -1018,26 +1034,6 @@ hasCharGen(struct account *account, int gen)
     }
 
     return 0;
-}
-
-int
-count_account_gens(struct account *account)
-{
-    struct creature *tmp_ch;
-    int count = 0;
-
-    for (int idx = 1;!invalid_char_index(account, idx);idx++) {
-        // test for file existence
-        tmp_ch = load_player_from_xml(get_char_by_index(account, idx));
-        if (!tmp_ch)
-            continue;
-
-        count += GET_REMORT_GEN(tmp_ch);
-
-        free_creature(tmp_ch);
-    }
-
-    return count;
 }
 
 int

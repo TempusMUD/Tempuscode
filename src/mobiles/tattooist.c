@@ -136,7 +136,7 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self, struct sho
         }
     }
 
-    cost = tattooist_get_value(obj, shop->markup, getCostModifier(ch, self));
+    cost = tattooist_get_value(obj, shop->markup, cost_modifier(ch, self));
 	switch (shop->currency) {
 	case 0:
 		amt_carried = GET_GOLD(ch); break;
@@ -249,7 +249,7 @@ tattooist_list(struct creature *ch, char *arg, struct creature *self, struct sho
 	idx = 1;
 	for (cur_obj = self->carrying;cur_obj;cur_obj = cur_obj->next_content) {
         if (!*arg || namelist_match(arg, cur_obj->aliases)) {
-            cost = tattooist_get_value(cur_obj, shop->markup, getCostModifier(ch, self));
+            cost = tattooist_get_value(cur_obj, shop->markup, cost_modifier(ch, self));
             msg = tmp_strcat(msg,
                              tattooist_list_obj(ch, cur_obj, idx, cost),
                              NULL);

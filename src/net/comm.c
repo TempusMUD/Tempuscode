@@ -18,7 +18,7 @@
 #ifdef HAS_CONFIG_H
 #include "config.h"
 #endif
-
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -1380,7 +1380,7 @@ close_socket(struct descriptor_data *d)
         SEND_TO_Q("Your victim is no longer among us.\r\n", td);
 		td->snooping = NULL;
     }
-    
+
 	if (d->original) {
 		d->creature->desc = NULL;
 		d->creature = d->original;
@@ -1795,7 +1795,7 @@ send_to_room(const char *messg, struct room_data *room)
 
 	if (!room || !messg)
 		return;
-	
+
 	for (GList *it = room->people;it;it = it->next) {
 		i = it->data;
 		if (i->desc && !PLR_FLAGGED(i, PLR_OLC | PLR_WRITING | PLR_MAILING))

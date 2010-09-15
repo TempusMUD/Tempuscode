@@ -22,7 +22,7 @@ struct editor {
     void (*finalize)(struct editor *editor, const char *text);
     void (*cancel)(struct editor *editor);
     void (*displaybuffer)(struct editor *editor,
-                          unsigned int start_line,
+                          int start_line,
                           int line_count);
     void (*sendmodalhelp)(struct editor *editor); // send mode-specific command help
     bool (*is_editing)(struct editor *editor, char *buffer);
@@ -35,6 +35,9 @@ struct editor *make_editor(struct descriptor_data *d, int max);
 void editor_import(struct editor *editor, const char *text);
 void editor_undo(struct editor *editor);
 void editor_display(struct editor *editor, int start_line, int line_count);
+void editor_emit(struct editor *editor, const char *text);
+bool editor_do_command(struct editor *editor, char cmd, char *args);
+void editor_finish(struct editor *editor, bool save);
 
 void emit_editor_startup(struct editor *editor);
 void display_buffer(struct editor *editor);

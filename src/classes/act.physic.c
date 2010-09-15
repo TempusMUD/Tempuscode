@@ -238,9 +238,6 @@ ACMD(do_lecture)
 		return;
 	}
 
-    if (checkReputations(ch, vict))
-        return;
-
 	if (!AWAKE(vict)) {
 		act("$E is not in a state which is receptive to the finer points of lecturing.", false, ch, 0, vict, TO_CHAR);
 		return;
@@ -856,7 +853,7 @@ ACMD(do_econvert)
 	}
 
 	if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
-		!is_named_role_member(ch, ROLE_WIZARDFULL)) {
+		!is_authorized(ch, ECONVERT_CORPSES, NULL)) {
 		send_to_char(ch, "You can't econvert a player's corpse while it still has objects in it.");
 		return;
 	}

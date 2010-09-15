@@ -107,6 +107,7 @@ void do_quest_current(struct creature *ch, char *argument);
 void do_quest_ignore(struct creature *ch, char *argument);
 
 bool is_playing_quest(struct quest *quest, int id);
+bool remove_quest_player(struct quest *quest, int id);
 void tally_quest_death(struct quest *quest, int idnum);
 void tally_quest_mobkill(struct quest *quest, int idnum);
 void tally_quest_pkill(struct quest *quest, int idnum);

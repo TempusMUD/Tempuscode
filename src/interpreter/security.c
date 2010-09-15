@@ -188,6 +188,10 @@ is_authorized(struct creature *ch, enum privilege priv, void *target)
     case EAT_ANYTHING:
         return is_named_role_member(ch, "WizardBasic");
 
+    case MULTIPLAY:
+        return (is_named_role_member(ch, "WizardFull")
+                || is_named_role_member(ch, "AdminFull"));
+
     case LIST_SEARCHES:
         return (zone->owner_idnum == GET_IDNUM(ch)
                 || zone->co_owner_idnum == GET_IDNUM(ch)

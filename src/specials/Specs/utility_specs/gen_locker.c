@@ -37,7 +37,7 @@ SPECIAL(gen_locker)
 		cost_factor = 75;
 	}
 
-    cost_factor += (cost_factor*getCostModifier(ch, atten))/100;
+    cost_factor += (cost_factor*cost_modifier(ch, atten))/100;
 
 	skip_spaces(&argument);
 

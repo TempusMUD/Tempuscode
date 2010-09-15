@@ -55,8 +55,7 @@ struct help_item {
 
 struct help_collection {
 	// Data
-	struct help_item *items;			// The top of the list of help topics
-	struct help_item *bottom;			// The bottom of the list of help topics
+	GList *items;			// The top of the list of help topics
 
 	// Returns a show list of items it found
 	int top_id;					// The highest id in use..
@@ -69,12 +68,24 @@ void help_item_show(struct help_item *item,
                    struct creature *ch,
                    char *buffer,
                    int mode);
+bool help_item_save(struct help_item *item);
+bool help_item_edit(struct help_item *item, struct creature *ch);
+void help_item_clear(struct help_item *item);
+void help_item_setgroups(struct help_item *item, char *argument);
+void help_item_setflags(struct help_item *item, char *argument);
+void help_item_edittext(struct help_item *item);
 
 extern struct help_collection *help;
 struct help_collection *make_help_collection(void);
 bool help_collection_load_index(struct help_collection *col);
-struct help_item *help_collection_find_item_by_id(struct help_collection *col,
-                                                  int id);
+void help_collection_sync(struct help_collection *col);
+
+struct help_item *help_collection_find_item_by_id(struct help_collection *col, int id);
+struct help_item *help_collection_find_items(struct help_collection *col,
+                                             char *args,
+                                             bool find_no_approve,
+                                             int thegroup,
+                                             bool searchmode);
 bool help_item_load_text(struct help_item *item);
 bool help_item_in_group(struct help_item *item, int thegroup);
 

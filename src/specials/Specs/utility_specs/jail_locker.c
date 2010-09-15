@@ -58,7 +58,7 @@ SPECIAL(jail_locker)
 			* GET_LEVEL(ch)
 			* (GET_REMORT_GEN(ch) + 1)
 			* 50);
-    cost += (cost*getCostModifier(ch, self))/100;
+    cost += (cost*cost_modifier(ch, self))/100;
 
 	if (CMD_IS("offer")) {
 		perform_say(ch, "say", "How much will it cost to get my stuff back, sir?");

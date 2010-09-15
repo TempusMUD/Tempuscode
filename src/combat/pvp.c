@@ -75,7 +75,7 @@ pk_reputation_gain(struct creature *perp, struct creature *victim)
         || IS_NPC(perp)
         || IS_NPC(victim)
         || !PRF2_FLAGGED(perp, PRF2_PKILLER)
-        || perp->fighting != victim)
+        || !g_list_find(perp->fighting, victim))
         return 0;
 
     // Start with 10 for causing hassle
@@ -284,10 +284,10 @@ perform_pardon(struct creature *ch, struct creature *pardoned)
         }
     }
 
-    g_list_foreach(GET_GRIEVANCES(ch), pardon_one, 0);
+    g_list_foreach(GET_GRIEVANCES(ch), (GFunc)pardon_one, 0);
 
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
-                                          matches_player,
+                                          (GCompareFunc)matches_player,
                                           GINT_TO_POINTER(GET_IDNUM(pardoned)));
 }
 
@@ -300,7 +300,7 @@ expire_old_grievances(struct creature *ch)
         return (g->time < min_time) ? 0:-1;
     }
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
-                                          grievance_expired,
+                                          (GCompareFunc)grievance_expired,
                                           0);
 }
 
@@ -334,7 +334,7 @@ ACMD(do_pardon)
     }
 
     // Do the imm pardon
-    if (IS_IMMORT(ch) && is_named_role_member(ch, "AdminFull")) {
+    if (IS_IMMORT(ch) && is_authorized(ch, PARDON, pardoned)) {
         if (!PLR_FLAGGED(pardoned, PLR_THIEF | PLR_KILLER)) {
             send_to_char(ch, "Your victim is not flagged.\r\n");
             return;
@@ -352,7 +352,7 @@ ACMD(do_pardon)
         expire_old_grievances(ch);
         if (g_list_find_custom(GET_GRIEVANCES(ch),
                                GINT_TO_POINTER(GET_IDNUM(pardoned)),
-                               matches_player)) {
+                               (GCompareFunc)matches_player)) {
             // If no grievance, increase the reputation of the pardoner
             send_to_char(ch, "%s has done nothing for you to pardon.\r\n",
                          GET_NAME(pardoned));

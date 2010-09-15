@@ -189,7 +189,7 @@ reportUnrentables(struct creature *ch, struct obj_data *obj_list, const char *po
 	cur_obj = obj_list;
 	while (cur_obj) {
 		if (!last_obj || !same_obj(last_obj, cur_obj)) {
-			if (isUnrentable(cur_obj)) {
+			if (obj_is_unrentable(cur_obj)) {
 				act(tmp_sprintf("You cannot rent while %s $p!", pos),
 					true, ch, cur_obj, 0, TO_CHAR);
 				result = true;
@@ -211,7 +211,7 @@ reportUnrentables(struct creature *ch, struct obj_data *obj_list, const char *po
 
 // Displays all unrentable items and returns true if any are found
 bool
-displayUnrentables(struct creature *ch)
+display_unrentables(struct creature *ch)
 {
 	struct obj_data *cur_obj;
 	int pos;
@@ -285,7 +285,7 @@ unrent(struct creature *ch)
 {
   int err;
 
-  err = load_player_objects();
+  err = load_player_objects(ch);
   if (err)
     return 0;
 
@@ -295,7 +295,7 @@ unrent(struct creature *ch)
                          ch->player_specials->rent_currency);
 }
 
-int
+bool
 load_player_objects(struct creature *ch)
 {
 

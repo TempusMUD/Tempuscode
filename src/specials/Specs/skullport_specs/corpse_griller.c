@@ -12,7 +12,7 @@ SPECIAL(corpse_griller)
     struct creature *griller = (struct creature*)me;
 	char arg[MAX_INPUT_LENGTH];
     int cost = GRILL_COST;
-    cost += (cost*getCostModifier(ch, griller))/100;
+    cost += (cost*cost_modifier(ch, griller))/100;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;

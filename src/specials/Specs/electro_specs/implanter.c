@@ -161,7 +161,7 @@ implanter_implant(struct creature * me, struct creature * ch, char *args)
 	}
 
 	cost = GET_OBJ_COST(implant);
-    cost += (cost*getCostModifier(ch, me))/100;
+    cost += (cost*cost_modifier(ch, me))/100;
 
 	if (!IS_CYBORG(ch))
 		cost <<= 1;
@@ -270,7 +270,7 @@ implanter_extract(struct creature * me, struct creature * ch, char *args)
 	}
 
 	cost = GET_OBJ_COST(implant);
-    cost += (cost*getCostModifier(ch, me))/100;
+    cost += (cost*cost_modifier(ch, me))/100;
 
 	if (!obj && !IS_CYBORG(ch))
 		cost <<= 1;
@@ -371,7 +371,7 @@ implanter_repair(struct creature * me, struct creature * ch, char *args)
 	}
 	// implant repairs cost 1.5 the amount of insertion/extraction
 	cost = GET_OBJ_COST(implant) + GET_OBJ_COST(implant) / 2;
-    cost += (cost*getCostModifier(ch, me))/100;
+    cost += (cost*cost_modifier(ch, me))/100;
 
     if (!IS_CYBORG(ch))
 		cost <<= 1;

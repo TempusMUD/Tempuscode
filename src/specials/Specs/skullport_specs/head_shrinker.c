@@ -15,7 +15,7 @@ SPECIAL(head_shrinker)
 	char *s = NULL;
 	char arg[MAX_INPUT_LENGTH];
     int cost = SHRINKER_COST;
-    cost += (cost*getCostModifier(ch, shrinker))/100;
+    cost += (cost*cost_modifier(ch, shrinker))/100;
 
 	if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
 		return 0;

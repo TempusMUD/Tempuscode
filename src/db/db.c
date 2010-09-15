@@ -1046,7 +1046,7 @@ setup_dir(FILE * fl, struct room_data *room, int dir)
 	room->dir_option[dir]->exit_info = asciiflag_conv(flags);
 
 	room->dir_option[dir]->key = t[1];
-	room->dir_option[dir]->to_room = (struct room_data *)t[2];
+	room->dir_option[dir]->to_room = GINT_TO_POINTER(t[2]);
 }
 
 /* make sure the start rooms exist & resolve their vnums to rnums */
