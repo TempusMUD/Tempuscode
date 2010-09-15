@@ -160,13 +160,14 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str,
         else
             room = real_room(GET_LOADROOM(ch));
 
-        void calc_cost_modifier(struct creature *tch, gpointer ignore) {
+        for (GList *it = ch->in_room->people;it;it = it->next) {
+            struct creature *tch = it->data;
+
             if (GET_MOB_SPEC(tch) == cryogenicist ||
                 GET_MOB_SPEC(tch) == receptionist) {
                 f_factor += (f_factor * cost_modifier(ch, tch)) / 100;
             }
         }
-        g_list_foreach(ch->in_room->people, (GFunc) calc_cost_modifier, 0);
     }
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR)

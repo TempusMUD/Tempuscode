@@ -353,7 +353,9 @@ ACMD(do_whirlwind)
         int i = 1;
         bool killed_first = false;
 
-        void smack_creature(struct creature *tch, gpointer ignore) {
+        for (GList *it = ch->in_room->people;it;it = it->next) {
+            struct creature *tch = it->data;
+
             if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
                 return;
             if (IS_SET(my_return_flags, DAM_VICT_KILLED) && tch == vict) {
@@ -370,7 +372,6 @@ ACMD(do_whirlwind)
                 GET_MOVE(ch) -= 3;
             }
         }
-        g_list_foreach(ch->in_room->people, (GFunc) smack_creature, 0);
 
         if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
             return;

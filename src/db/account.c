@@ -321,22 +321,25 @@ account_exists(int accountID)
     return result;
 }
 
+gboolean
+account_name_matches(gpointer key, gpointer value, gpointer user_data)
+{
+    struct account *this_acct = (struct account *)value;
+    return !strcasecmp(this_acct->name, (char *)user_data);
+}
+
+    
+
 struct account *
 account_by_name(char *name)
 {
     PGresult *res;
     int acct_id;
 
-    gboolean account_name_matches(gpointer key,
-        gpointer value, gpointer user_data) {
-        struct account *this_acct = (struct account *)value;
-        return !strcasecmp(this_acct->name, (char *)user_data);
-    }
-
     // First check to see if we already have it in memory
     struct account *acct = g_hash_table_find(account_cache,
-        account_name_matches,
-        name);
+                                             account_name_matches,
+                                             name);
 
     if (acct)
         return acct;
@@ -865,7 +868,9 @@ account_deny_char_entry(struct account *account, struct creature *ch)
     bool override = false;
     bool found = false;
 
-    void check_existing_char(struct creature *tch, gpointer ignore) {
+    for (GList *it = creatures;it;it = it->next) {
+        struct creature *tch = it->data;
+
         if (tch->account == account) {
             // Admins and full wizards can multi-play all they want
             if (is_authorized(ch, MULTIPLAY, NULL))
@@ -880,7 +885,6 @@ account_deny_char_entry(struct account *account, struct creature *ch)
             found = true;
         }
     }
-    g_list_foreach(creatures, (GFunc) check_existing_char, NULL);
     if (override)
         return false;
 
@@ -935,7 +939,9 @@ account_display_trusted(struct account *account, struct creature *ch)
 {
     int col = 0;
 
-    void display_trusted_char(gint idnum, gpointer ignore) {
+    for (GList *it = account->trusted;it;it = it->next) {
+        int idnum = GPOINTER_TO_INT(it->data);
+
         if (player_idnum_exists(idnum)) {
             send_to_char(ch, "%20s   ", player_name_by_idnum(idnum));
             col += 1;
@@ -945,7 +951,6 @@ account_display_trusted(struct account *account, struct creature *ch)
             }
         }
     }
-    g_list_foreach(account->trusted, (GFunc) display_trusted_char, 0);
     if (col)
         send_to_char(ch, "\r\n");
 }

@@ -1312,6 +1312,12 @@ renum_zone_table(void)
         }
 }
 
+void maybe_compile_prog(gpointer key, struct creature *mob, gpointer ignore)
+{
+    if (MOB_SHARED(mob)->prog)
+        prog_compile(NULL, mob, PROG_TYPE_MOBILE);
+}
+
 void
 compile_all_progs(void)
 {
@@ -1324,11 +1330,6 @@ compile_all_progs(void)
                 prog_compile(NULL, room, PROG_TYPE_ROOM);
 
     // Compile all mob progs
-    void maybe_compile_prog(gpointer key,
-        struct creature *mob, gpointer ignore) {
-        if (MOB_SHARED(mob)->prog)
-            prog_compile(NULL, mob, PROG_TYPE_MOBILE);
-    }
     g_hash_table_foreach(mob_prototypes, (GHFunc) maybe_compile_prog, 0);
 }
 
@@ -2293,41 +2294,49 @@ load_zones(FILE * fl, char *zonename)
 int
 vnum_mobile(char *searchname, struct creature *ch)
 {
-    struct creature *mobile;
     int found = 0;
+    GHashTableIter iter;
+    gpointer key, val;
 
     acc_string_clear();
 
-    void mobile_matches(gpointer vnum, struct creature *mob, gpointer ignore) {
+    g_hash_table_iter_init(&iter, mob_prototypes);
+
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct creature *mob = val;
         if (namelist_match(searchname, mob->player.name))
             acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++found,
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                mobile->mob_specials.shared->vnum,
-                CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                mobile->player.short_descr, CCNRM(ch, C_NRM));
+                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                        mob->mob_specials.shared->vnum,
+                        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
+                        mob->player.short_descr, CCNRM(ch, C_NRM));
     }
-    g_hash_table_foreach(mob_prototypes, (GHFunc) mobile_matches, 0);
     if (found)
         page_string(ch->desc, acc_get_string());
     return (found);
 }
 
+
 int
 vnum_object(char *searchname, struct creature *ch)
 {
     int found = 0;
+    GHashTableIter iter;
+    gpointer key, val;
 
     acc_string_clear();
 
-    void object_matches(gpointer vnum, struct obj_data *obj, gpointer ignore) {
-        if (namelist_match(searchname, obj->aliases)) {
-            sprintf(buf, "%s%3d. %s[%s%5d%s]%s %s%s\r\n", buf, ++found,
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
-                CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
-                obj->name, CCNRM(ch, C_NRM));
-        }
+    g_hash_table_iter_init(&iter, obj_prototypes);
+
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct obj_data *obj = val;
+        if (namelist_match(searchname, obj->aliases))
+            acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++found,
+                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                        obj->shared->vnum,
+                        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
+                        obj->name, CCNRM(ch, C_NRM));
     }
-    g_hash_table_foreach(obj_prototypes, (GHFunc) object_matches, 0);
     if (found)
         page_string(ch->desc, acc_get_string());
     return (found);
@@ -2773,13 +2782,14 @@ reset_zone(struct zone_data *zone)
     struct special_search_data *srch = NULL;
 
     // Send SPECIAL_RESET notification to all mobiles with specials
-    void send_special_reset(struct creature *tch, gpointer ignore) {
+    for (GList *it = creatures;it;it = it->next) {
+        struct creature *tch = it->data;
+
         if (tch->in_room->zone == zone && MOB_FLAGGED(tch, MOB_SPEC)
             && GET_MOB_SPEC(tch)) {
             GET_MOB_SPEC(tch) (tch, tch, 0, tmp_strdup(""), SPECIAL_RESET);
         }
     }
-    g_list_foreach(creatures, (GFunc) send_special_reset, 0);
 
     for (zonecmd = zone->cmd; zonecmd && zonecmd->command != 'S';
         zonecmd = zonecmd->next, cmd_no++) {
@@ -2822,17 +2832,16 @@ reset_zone(struct zone_data *zone)
                     if (mob) {
                         char_to_room(mob, room, false);
                         if (GET_MOB_LEADER(mob) > 0) {
-                            void do_follow(struct creature *tch,
-                                gpointer ignore) {
-                                if (tch != mob && !mob->master && IS_NPC(tch)
-                                    && GET_MOB_VNUM(tch) ==
-                                    GET_MOB_LEADER(mob)) {
-                                    if (!circle_follow(mob, tch))
+                            for (GList *it = mob->in_room->people;it;it = it->next) {
+                                    struct creature *tch = it->data;
+
+                                    if (tch != mob
+                                        && !mob->master
+                                        && IS_NPC(tch)
+                                        && GET_MOB_VNUM(tch) == GET_MOB_LEADER(mob)
+                                        && !circle_follow(mob, tch)) 
                                         add_follower(mob, tch);
-                                }
                             }
-                            g_list_foreach(mob->in_room->people,
-                                (GFunc) do_follow, 0);
                         }
                         if (process_load_param(mob)) {  // true on death
                             last_cmd = 0;

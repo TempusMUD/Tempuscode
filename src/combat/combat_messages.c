@@ -220,7 +220,9 @@ death_cry(struct creature *ch)
         act("Your skin crawls as you hear $n's final shriek.",
             false, ch, 0, 0, TO_ROOM);
     else {
-        void emit_death_cry(struct creature *tch, gpointer ignore) {
+        for (GList *it = ch->in_room->people;it;it = it->next) {
+            struct creature *tch = it->data;
+
             if (tch == ch)
                 return;
             found = 0;
@@ -235,17 +237,17 @@ death_cry(struct creature *ch)
                 act("Your blood freezes as you hear $n's death cry.",
                     false, ch, 0, tch, TO_VICT);
         }
-        g_list_foreach(ch->in_room->people, (GFunc) emit_death_cry, 0);
     }
 
-    void wake_up(struct creature *tch, gpointer ignore) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
         if (ch != tch && GET_POSITION(tch) == POS_SLEEPING &&
             !PLR_FLAGGED(tch, PLR_OLC | PLR_WRITING) &&
             !AFF_FLAGGED(tch, AFF_SLEEP)) {
             GET_POSITION(tch) = POS_RESTING;
         }
     }
-    g_list_foreach(ch->in_room->people, (GFunc) wake_up, 0);
 
     was_in = ch->in_room;
 
@@ -259,8 +261,9 @@ death_cry(struct creature *ch)
             ch->in_room = was_in;
             if (adjoin_room->dir_option[rev_dir[door]] &&
                 adjoin_room->dir_option[rev_dir[door]]->to_room == was_in) {
-                void maybe_follow_deathcry(struct creature *tch,
-                    gpointer ignore) {
+                for (GList *it = adjoin_room->people;it;it = it->next) {
+                    struct creature *tch = it->data;
+
                     if (found)
                         return;
                     if (IS_MOB(tch) && !MOB_FLAGGED(tch, MOB_SENTINEL) &&
@@ -288,12 +291,20 @@ death_cry(struct creature *ch)
                         }
                     }
                 }
-                g_list_foreach(adjoin_room->people,
-                    (GFunc) maybe_follow_deathcry, 0);
             }
         }
     }
 }
+
+int pick_soilage_target(struct creature *tch, gpointer victim)
+{
+    return (tch != victim
+            && !IS_NPC(tch)
+            && !number(0, 2)
+            && number(5, 30) > GET_DEX(tch))
+        ? 0 : -1;
+}
+    
 
 void
 blood_spray(struct creature *ch,
@@ -390,15 +401,9 @@ blood_spray(struct creature *ch,
         GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 20);
     }
 
-    int pick_soilage_target(struct creature *tch, gpointer ignore) {
-        return (tch != victim && !IS_NPC(tch)
-            && tch != ch && !number(0, 2)
-            && number(5, 30) > GET_DEX(tch))
-            ? 0 : -1;
-    }
-    GList *it =
-        g_list_find_custom(ch->in_room->people, 0,
-        (GCompareFunc) pick_soilage_target);
+    GList *it = g_list_find_custom(ch->in_room->people,
+                                   0,
+                                   (GCompareFunc) pick_soilage_target);
 
     if (it) {
         struct creature *tch = it->data;

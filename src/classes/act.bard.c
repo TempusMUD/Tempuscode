@@ -303,7 +303,9 @@ ASPELL(song_exposure_overture)
     if (!ch)
         return;
 
-    void expose_char(struct creature *tch, gpointer ignore) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
         const char *to_char = NULL;
         const char *to_vict = NULL;
         const char *to_room = NULL;
@@ -353,8 +355,6 @@ ASPELL(song_exposure_overture)
         if (to_vict)
             act(to_vict, false, ch, NULL, tch, TO_VICT);
     }
-
-    g_list_foreach(ch->in_room->people, (GFunc) expose_char, NULL);
 
     gain_skill_prof(ch, SONG_EXPOSURE_OVERTURE);
 }
@@ -472,12 +472,12 @@ ASPELL(song_lament_of_longing)
             true, victim, NULL, NULL, TO_CHAR);
     }
 
-    void add_wait_state(struct creature *tch, gpointer ignore) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
         if (!IS_NPC(tch))
             WAIT_STATE(tch, 5 RL_SEC);
     }
-
-    g_list_foreach(ch->in_room->people, (GFunc) add_wait_state, NULL);
 
     gain_skill_prof(ch, SONG_LAMENT_OF_LONGING);
 }
@@ -558,11 +558,12 @@ ASPELL(song_wall_of_sound)
 ASPELL(song_hymn_of_peace)
 {
 
-    void pacify_char(struct creature *tch, gpointer ignore) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
         remove_all_combat(tch);
         mag_unaffects(level, ch, tch, SONG_HYMN_OF_PEACE, 0);
     }
-    g_list_foreach(ch->in_room->people, (GFunc) pacify_char, NULL);
 
     send_to_char(ch, "Your song brings a feeling of peacefulness.\r\n");
     act("A feeling of peacefulness is heralded by $n's song.", false, ch, 0, 0,
@@ -628,7 +629,9 @@ ACMD(do_ventriloquize)
         return;
     }
 
-    void send_ventriloqation(struct creature *tch, gpointer ignore) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
         if (target) {
             if (target == tch)
                 target_str = tmp_strdup(" to you");
@@ -648,7 +651,6 @@ ACMD(do_ventriloquize)
             (target_str ? target_str : ""),
             CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), argument, CCNRM(ch, C_NRM));
     }
-    g_list_foreach(ch->in_room->people, (GFunc) send_ventriloqation, 0);
 
     gain_skill_prof(ch, SKILL_VENTRILOQUISM);
 }

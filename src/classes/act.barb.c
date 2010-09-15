@@ -86,11 +86,13 @@ ACMD(do_corner)
 //
 
 gint
-select_berserk_victim(struct creature * tch, struct creature * ch)
+select_berserk_victim(struct creature *tch, struct creature *ch)
 {
-    if (tch == ch || (tch->fighting && tch->fighting->data == ch)
+    if (tch == ch
+        || g_list_find(tch->fighting, ch)
         || PRF_FLAGGED(tch, PRF_NOHASSLE)
-        || (IS_NPC(ch) && IS_NPC(tch)
+        || (IS_NPC(ch)
+            && IS_NPC(tch)
             && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
         || !can_see_creature(ch, tch)
         || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
@@ -257,6 +259,21 @@ ACMD(do_battlecry)
         gain_skill_prof(ch, skillnum);
 }
 
+gint
+select_cleave_victim(struct creature *tch, struct creature *ch)
+{
+    if (tch == ch
+        || g_list_find(tch->fighting, ch)
+        || PRF_FLAGGED(tch, PRF_NOHASSLE)
+        || (IS_NPC(ch)
+            && IS_NPC(tch)
+            && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
+        || !can_see_creature(ch, tch))
+        return -1;
+
+    return 0;
+}
+
 void
 perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
 {
@@ -307,22 +324,10 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
             }
             vict = NULL;
             // find a new victim
-            gint select_victim(struct creature * tch, struct creature * ignore) {
-                if (tch == ch
-                    || tch->fighting->data != ch
-                    || PRF_FLAGGED(tch, PRF_NOHASSLE)
-                    || (IS_NPC(ch)
-                        && IS_NPC(tch)
-                        && !MOB2_FLAGGED(ch, MOB2_ATK_MOBS))
-                    || !can_see_creature(ch, tch))
-                    return -1;
-
-                return 0;
-            }
-            struct creature *vict;
-            vict =
-                (struct creature *)g_list_find_custom(ch->in_room->people,
-                NULL, (GCompareFunc) select_victim);
+            GList *it = g_list_find_custom(ch->in_room->people,
+                                           NULL,
+                                           (GCompareFunc) select_cleave_victim);
+            vict = (it) ? it->data:NULL;
         }
     }
 }

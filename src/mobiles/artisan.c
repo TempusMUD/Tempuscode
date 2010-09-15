@@ -41,28 +41,35 @@ struct obj_data *create(struct craft_item *item,
 char *next_crafting_requirement(struct craft_item *item,
     struct creature *keeper);
 
+gint
+shop_id_matches(gpointer vnum, struct craft_shop *shop,
+                gpointer ignore)
+{
+    return (shop->id == GPOINTER_TO_INT(vnum)) ? 0 : -1;
+}
+    
 struct craft_shop *
 craft_shop_by_id(int idnum)
 {
-    gint shop_id_matches(gpointer vnum, struct craft_shop *shop,
-        gpointer ignore) {
-        return (shop->id == GPOINTER_TO_INT(vnum)) ? 0 : -1;
-    }
     GList *it;
     it = g_list_find_custom(shop_list, 0, (GCompareFunc) shop_id_matches);
     return (it) ? it->data : NULL;
 }
 
+gint 
+shop_keeper_matches(gpointer vnum, struct craft_shop *shop,
+                    struct creature *keeper)
+{
+    return (shop->keeper_vnum == GET_MOB_VNUM(keeper)
+            && shop->room == keeper->in_room->number) ? 0 : -1;
+}
+    
+
 struct craft_shop *
 craft_shop_by_keeper(struct creature *keeper)
 {
-    gint shop_keeper_matches(gpointer vnum, struct craft_shop *shop,
-        gpointer ignore) {
-        return (shop->keeper_vnum == GET_MOB_VNUM(keeper)
-            && shop->room == keeper->in_room->number) ? 0 : -1;
-    }
     GList *it;
-    it = g_list_find_custom(shop_list, 0, (GCompareFunc) shop_keeper_matches);
+    it = g_list_find_custom(shop_list, keeper, (GCompareFunc) shop_keeper_matches);
     return (it) ? it->data : NULL;
 }
 

@@ -272,7 +272,9 @@ flow_room(int pulse)
             // Alignment ambience
             if (!(pulse % (4 RL_SEC))) {
                 if (zone->flags & ZONE_EVIL_AMBIENCE) {
-                    void apply_evil(struct creature *tch, gpointer ignore) {
+                    for (GList *it = rnum->people;it;it = it->next) {
+                        struct creature *tch = it->data;
+
                         if (!IS_NPC(tch) && GET_ALIGNMENT(tch) > -1000 &&
                             !affected_by_spell(tch,
                                 SPELL_SHIELD_OF_RIGHTEOUSNESS)) {
@@ -280,10 +282,11 @@ flow_room(int pulse)
                             check_eq_align(tch);
                         }
                     }
-                    g_list_foreach(rnum->people, (GFunc) apply_evil, 0);
                 }
                 if (zone->flags & ZONE_GOOD_AMBIENCE) {
-                    void apply_good(struct creature *tch, gpointer ignore) {
+                    for (GList *it = rnum->people;it;it = it->next) {
+                        struct creature *tch = it->data;
+
                         if (!IS_NPC(tch) && GET_ALIGNMENT(tch) < 1000 &&
                             !affected_by_spell(tch,
                                 SPELL_SPHERE_OF_DESECRATION)) {
@@ -291,7 +294,6 @@ flow_room(int pulse)
                             check_eq_align(tch);
                         }
                     }
-                    g_list_foreach(rnum->people, (GFunc) apply_good, 0);
                 }
             }
             // Active flows only
@@ -319,12 +321,12 @@ flow_room(int pulse)
                 }
             }
 
-            void flow_one(gpointer it, gpointer ignore) {
-                flow_one_creature((struct creature *)it, rnum, pulse, dir);
+            for (GList *it = rnum->people;it;it = it->next)  {
+                struct creature *tch = it->data;
+
+                flow_one_creature(tch, rnum, pulse, dir);
             }
-
-            g_list_foreach(rnum->people, flow_one, 0);
-
+            
             if ((obj = rnum->contents)) {
                 for (; obj; obj = next_obj) {
                     next_obj = obj->next_content;

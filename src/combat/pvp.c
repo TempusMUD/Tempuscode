@@ -256,7 +256,9 @@ matches_player(struct creature *tch, gpointer idnum_ptr)
 void
 perform_pardon(struct creature *ch, struct creature *pardoned)
 {
-    void pardon_one(struct grievance *grievance, gpointer ignore) {
+    for (GList *it = GET_GRIEVANCES(ch);it;it = it->next) {
+        struct grievance *grievance = it->data;
+
         if (grievance->player_id == GET_IDNUM(pardoned)) {
 
             if (grievance->grievance == MURDER) {
@@ -277,10 +279,16 @@ perform_pardon(struct creature *ch, struct creature *pardoned)
         }
     }
 
-    g_list_foreach(GET_GRIEVANCES(ch), (GFunc) pardon_one, 0);
-
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
         (GCompareFunc) matches_player, GINT_TO_POINTER(GET_IDNUM(pardoned)));
+}
+
+gint
+grievance_expired(struct grievance *g, gpointer user_data)
+{
+    int min_time = GPOINTER_TO_INT(user_data);
+
+    return (g->time < min_time) ? 0 : -1;
 }
 
 // Expire old grievances after 24 hours.
@@ -288,11 +296,8 @@ void
 expire_old_grievances(struct creature *ch)
 {
     time_t min_time = time(NULL) - 86400;
-    gint grievance_expired(struct grievance *g, gpointer ignore) {
-        return (g->time < min_time) ? 0 : -1;
-    }
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
-        (GCompareFunc) grievance_expired, 0);
+                                          (GCompareFunc) grievance_expired, GINT_TO_POINTER(min_time));
 }
 
 ACMD(do_pardon)

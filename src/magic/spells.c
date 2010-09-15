@@ -1727,7 +1727,7 @@ ASPELL(spell_clairvoyance)
     for (GList * it = victim->in_room->people; it; it = it->next) {
         struct creature *tch = (struct creature *)it->data;
         if (AFF3_FLAGGED(tch, AFF3_SHROUD_OBSCUREMENT))
-            prob += (tch == tch ? (GET_LEVEL(tch) << 1) : (GET_LEVEL(tch)));
+            prob += (tch == victim ? (GET_LEVEL(tch) << 1) : (GET_LEVEL(tch)));
     }
 
     if (GET_PLANE(victim->in_room) != GET_PLANE(ch->in_room))

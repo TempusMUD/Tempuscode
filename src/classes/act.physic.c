@@ -1034,7 +1034,14 @@ do_emp_pulse_char(struct creature *ch, struct creature *vict)
     do_emp_pulse_olist(vict->carrying, ch, vict);
 }
 
-// Shuts off devices, communicators
+int invalid_emp_target(struct creature *tch, gpointer ch)
+{
+    if (tch != ch && !ok_to_attack(ch, tch, true))
+        return 0;
+    return -1;
+}
+
+    // Shuts off devices, communicators
 // deactivats all cyborg programs
 // blocked by emp shield
 ASPELL(spell_emp_pulse)
@@ -1048,22 +1055,18 @@ ASPELL(spell_emp_pulse)
         return;
     }
     // Make sure non-pkillers don't get killer flags.
-    int invalid_target(struct creature *tch, gpointer ignore) {
-        if (tch != ch && !ok_to_attack(ch, tch, true))
-            return 0;
-        return -1;
-    }
-    if (g_list_find_custom(ch->in_room->people, 0,
-            (GCompareFunc) invalid_target))
+    if (g_list_find_custom(ch->in_room->people, ch,
+            (GCompareFunc) invalid_emp_target))
         return;
 
     send_to_room("An electromagnetic pulse jolts the room!\r\n", ch->in_room);
 
-    void do_jolt(struct creature *tch, gpointer ignore) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
         if (tch != ch && GET_LEVEL(tch) < LVL_IMMORT)
             do_emp_pulse_char(ch, tch);
     }
-    g_list_foreach(ch->in_room->people, (GFunc) do_jolt, 0);
 
     if (ch->in_room->contents)
         do_emp_pulse_olist(ch->in_room->contents, ch, NULL);

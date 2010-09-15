@@ -125,11 +125,12 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
     if (GET_ROOM_PROG(ch->in_room) != NULL)
         trigger_prog_death(ch->in_room, PROG_TYPE_ROOM, ch);
 
-    void trigger_mobile_prog(struct creature *tch, gpointer ignore) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
         if (GET_MOB_PROGOBJ(tch) != NULL && tch != ch)
             trigger_prog_death(tch, PROG_TYPE_MOBILE, ch);
     }
-    g_list_foreach(ch->in_room->people, (GFunc) trigger_mobile_prog, 0);
 
     // Create the corpse itself
     corpse = make_corpse(ch, killer, attacktype);
@@ -264,7 +265,9 @@ group_gain(struct creature *ch, struct creature *victim)
 
     if (!(leader = ch->master))
         leader = ch;
-    void count_pc_members(struct creature *tch, gpointer ignore) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
         if (AFF_FLAGGED(tch, AFF_GROUP) && (tch == leader
                 || leader == tch->master)) {
             total_levs += GET_LEVEL(tch);
@@ -274,9 +277,10 @@ group_gain(struct creature *ch, struct creature *victim)
             }
         }
     }
-    g_list_foreach(ch->in_room->people, (GFunc) count_pc_members, 0);
 
-    void dole_out_exp(struct creature *tch, gpointer ignore) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
         if (AFF_FLAGGED(tch, AFF_GROUP) &&
             (tch != victim) && (tch == leader || leader == tch->master)) {
             mult = (float)GET_LEVEL(tch);
@@ -294,7 +298,6 @@ group_gain(struct creature *ch, struct creature *victim)
             perform_gain_kill_exp(tch, victim, mult + mult_mod);
         }
     }
-    g_list_foreach(ch->in_room->people, (GFunc) dole_out_exp, 0);
 }
 
 struct kill_record *
@@ -1649,13 +1652,14 @@ damage(struct creature *ch, struct creature *victim, int dam,
         //lightning gun special
         if (attacktype == TYPE_EGUN_LIGHTNING && dam) {
             if (do_gun_special(ch, weap)) {
-                void lightning_zap(struct creature *tch, gpointer ignore) {
+                for (GList *it = ch->in_room->people;it;it = it->next) {
+                    struct creature *tch = it->data;
+
                     if (tch == ch || !g_list_find(tch->fighting, ch))
-                        return;
+                        continue;
                     damage(ch, tch, dam / 2, TYPE_EGUN_SPEC_LIGHTNING,
                         WEAR_RANDOM);
                 }
-                g_list_foreach(ch->in_room->people, (GFunc) lightning_zap, 0);
             }
         }
         //photon special
@@ -2526,7 +2530,9 @@ hit(struct creature *ch, struct creature *victim, int type)
     }
     if (AFF2_FLAGGED(victim, AFF2_MOUNTED)) {
         REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
-        void check_mount(struct creature *tch, gpointer ignore) {
+        for (GList *it = victim->in_room->people;it;it = it->next) {
+            struct creature *tch = it->data;
+
             if (MOUNTED_BY(tch) && MOUNTED_BY(tch) == victim) {
                 act("You are knocked from your mount by $N's attack!",
                     false, tch, 0, ch, TO_CHAR);
@@ -2534,7 +2540,6 @@ hit(struct creature *ch, struct creature *victim, int type)
                 GET_POSITION(tch) = POS_STANDING;
             }
         }
-        g_list_foreach(victim->in_room->people, (GFunc) check_mount, 0);
     }
 
     for (i = 0, metal_wt = 0; i < NUM_WEARS; i++)

@@ -108,10 +108,11 @@ editor_buffer_size(struct editor *editor)
 {
     int len;
 
-    void count_string_len(GString * str, gpointer ignore) {
+    for (GList *it = editor->lines;it;it = it->next) {
+        GString *str = it->data;
+
         len += str->len + 1;
     }
-    g_list_foreach(editor->lines, (GFunc) count_string_len, 0);
 
     return len;
 }
@@ -129,11 +130,12 @@ editor_finish(struct editor *editor, bool save)
         text = (char *)malloc(length);
         strcpy(text, "");
         write_pt = text;
-        void concat_line(GString * line, gpointer ignore) {
+        for (GList *it = editor->lines;it;it = it->next) {
+            GString *line = it->data;
+
             strcpy(write_pt, line->str);
             write_pt += line->len;
         }
-        g_list_foreach(editor->lines, (GFunc) concat_line, 0);
 
         // Call the finalizer
         editor->finalize(editor, text);
@@ -360,7 +362,10 @@ editor_find(struct editor * editor, char *args)
 {
     int i = 0;
 
-    void print_if_match(GString * str, gpointer ignore) {
+    acc_string_clear();
+    for (GList *it = editor->lines;it;it = it->next) {
+        GString *str = it->data;
+
         i++;
         if (strcasestr(str->str, args))
             acc_sprintf("%3d%s%s]%s %s\r\n", i,
@@ -368,9 +373,6 @@ editor_find(struct editor * editor, char *args)
                 CCBLU(editor->desc->creature, C_NRM),
                 CCNRM(editor->desc->creature, C_NRM), str->str);
     }
-
-    acc_string_clear();
-    g_list_foreach(editor->lines, (GFunc) print_if_match, 0);
     acc_strcat("\r\n", NULL);
     editor_emit(editor, acc_get_string());
 

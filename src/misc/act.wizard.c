@@ -75,7 +75,7 @@ extern int log_cmds;
 extern int olc_lock;
 extern int lunar_day;
 extern int quest_status;
-extern bool restrict_logins;
+extern int restrict_logins;
 extern struct creature *combat_list;    /* head of list of fighting chars */
 extern int shutdown_count;
 extern int shutdown_mode;
@@ -641,9 +641,14 @@ do_stat_memory(struct creature *ch)
     send_to_char(ch, "%s  world structs: %9d  (%d)\r\n", buf, sum, i);
 
     sum = g_hash_table_size(mob_prototypes) * (sizeof(struct creature));
+    
+    GHashTableIter iter;
+    gpointer key, val;
 
-    void sum_mobile_memory(gpointer vnum, struct creature *mob,
-        gpointer ignore) {
+    g_hash_table_iter_init(&iter, mob_prototypes);
+
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct creature *mob = val;
         CHARADD(sum, mob->player.name);
         CHARADD(sum, mob->player.short_descr);
         CHARADD(sum, mob->player.long_descr);
@@ -676,7 +681,6 @@ do_stat_memory(struct creature *ch)
             fol = fol->next;
         }
     }
-    g_hash_table_foreach(mob_prototypes, (GHFunc) sum_mobile_memory, NULL);
 
     total += sum;
     send_to_char(ch, "%s     mob protos: %9d  (%d)\r\n", buf, sum, i);
@@ -790,15 +794,20 @@ do_stat_zone(struct creature *ch, struct zone_data *zone)
     if (numm)
         av_lev /= numm;
 
-    void average_mob_level(gpointer vnum, struct creature *mob,
-        gpointer ignore) {
+    GHashTableIter iter;
+    gpointer key, val;
+
+    g_hash_table_iter_init(&iter, mob_prototypes);
+
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct creature *mob = val;
+
         if (GET_MOB_VNUM(mob) >= zone->number * 100
             && GET_MOB_VNUM(mob) <= zone->top && IS_NPC(mob)) {
             numm_proto++;
             av_lev_proto += GET_LEVEL(mob);
         }
     }
-    g_hash_table_foreach(mob_prototypes, (GHFunc) average_mob_level, NULL);
 
     if (numm_proto)
         av_lev_proto /= numm_proto;
@@ -841,12 +850,14 @@ do_stat_zone(struct creature *ch, struct zone_data *zone)
         if (obj->in_room && obj->in_room->zone == zone)
             numo++;
 
-    void tally_obj_proto(gpointer vnum, struct obj_data *obj, gpointer ignore) {
+    g_hash_table_iter_init(&iter, obj_prototypes);
+
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct obj_data *obj = val;
         if (GET_OBJ_VNUM(obj) >= zone->number * 100 &&
             GET_OBJ_VNUM(obj) <= zone->top)
             numo_proto++;
     }
-    g_hash_table_foreach(obj_prototypes, (GHFunc) tally_obj_proto, NULL);
 
     for (plr = descriptor_list; plr; plr = plr->next)
         if (plr->creature && plr->creature->in_room &&
@@ -1997,7 +2008,15 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
     }
     acc_sprintf("Known Languages:\r\n");
-    void list_tongue(gpointer vnum, struct tongue *tongue, gpointer ignore) {
+    GHashTableIter iter;
+    gpointer key, val;
+
+    g_hash_table_iter_init(&iter, tongues);
+
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        int vnum = GPOINTER_TO_INT(key);
+        struct tongue *tongue = val;
+
         if (CHECK_TONGUE(k, GPOINTER_TO_INT(vnum))) {
             acc_sprintf("%s%3d. %-30s %s%-17s%s%s\r\n",
                 CCCYN(ch, C_NRM),
@@ -2010,7 +2029,6 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                     CCNRM(ch, C_NRM)), CCNRM(ch, C_SPR));
         }
     }
-    g_hash_table_foreach(tongues, (GHFunc) list_tongue, NULL);
 
     if (IS_PC(k) && GET_GRIEVANCES(k)) {
         acc_sprintf("Grievances:\r\n");
@@ -4229,7 +4247,14 @@ show_mobkills(struct creature *ch, char *value, char *arg
     acc_strcat
         (" ---- -Vnum-- -Name------------------------- -Kills- -Loaded- -Ratio-\r\n",
         NULL);
-    void show_ratio(gpointer vnum, struct creature *mob, gpointer ignore) {
+    GHashTableIter iter;
+    gpointer key, val;
+
+    g_hash_table_iter_init(&iter, mob_prototypes);
+
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct creature *mob = val;
+
         if (!mob->mob_specials.shared->loaded)
             return;
         ratio = (float)((float)mob->mob_specials.shared->kills /
@@ -4241,7 +4266,6 @@ show_mobkills(struct creature *ch, char *value, char *arg
                 mob->mob_specials.shared->loaded, ratio);
         }
     }
-    g_hash_table_foreach(mob_prototypes, (GHFunc) show_ratio, NULL);
 
     page_string(ch->desc, acc_get_string());
 }
@@ -4755,8 +4779,13 @@ show_mlevels(struct creature *ch, char *value, char *arg)
         }
     } else if (!strcmp(value, "proto")) {
         acc_strcat("mobile protos:\r\n", NULL);
-        void count_mob_protos(gpointer vnum, struct creature *mob,
-            gpointer ignore) {
+        GHashTableIter iter;
+        gpointer key, val;
+
+        g_hash_table_iter_init(&iter, mob_prototypes);
+
+        while (g_hash_table_iter_next(&iter, &key, &val)) {
+            struct creature *mob = val;
             if (GET_LEVEL(mob) < 50 && ((remort && IS_REMORT(mob))
                     || (!remort && !IS_REMORT(mob)))) {
                 if (detailed)
@@ -4765,7 +4794,6 @@ show_mlevels(struct creature *ch, char *value, char *arg)
                     count[(int)(GET_LEVEL(mob) / 5)]++;
             }
         }
-        g_hash_table_foreach(mob_prototypes, (GHFunc) count_mob_protos, NULL);
     } else {
         send_to_char(ch,
             "First argument must be either 'real' or 'proto'\r\n");

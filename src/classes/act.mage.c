@@ -271,15 +271,27 @@ area_attack_advisable(struct creature *ch)
     // Area attacks are advisable when there are more than one PC and
     // no other non-fighting NPCs
     int pc_count = 0;
-    void count_pc(struct creature *tch, gpointer ignore) {
+    for (GList *it = ch->in_room->people;it;it = it->next) {
+        struct creature *tch = it->data;
+
         if (can_see_creature(ch, tch)
             && !(IS_NPC(tch) && tch->fighting))
             pc_count++;
     }
 
-    g_list_foreach(ch->in_room->people, (GFunc) count_pc, 0);
-
     return (pc_count > 1);
+}
+
+int find_two_attackers(struct creature *tch, gpointer ch)
+{
+    int attacker_count = 0;
+
+    if (g_list_find(tch->fighting, ch)) {
+        if (attacker_count)
+            return 0;
+        attacker_count++;
+    }
+    return -1;
 }
 
 bool
@@ -287,19 +299,10 @@ group_attack_advisable(struct creature * ch)
 {
     // Group attacks are advisable when more than one creature is
     // attacking
-    int attacker_count = 0;
-
-    int find_two_attackers(struct creature *tch, gpointer ignore) {
-        if (g_list_find(tch->fighting, ch)) {
-            if (attacker_count)
-                return 0;
-            attacker_count++;
-        }
-        return -1;
-    }
 
     return (g_list_find_custom(ch->in_room->people,
-            0, (GCompareFunc) find_two_attackers) != NULL);
+                               ch,
+                               (GCompareFunc) find_two_attackers) != NULL);
 }
 
 // mob ai...

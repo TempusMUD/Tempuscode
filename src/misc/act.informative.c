@@ -1923,6 +1923,12 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
     return;
 }
 
+gint
+found_fighting(struct creature *tch, gpointer ignore)
+{
+    return (tch->fighting) ? 0 : -1;
+}
+                    
 ACMD(do_listen)
 {
     struct creature *fighting_vict = NULL;
@@ -2032,9 +2038,6 @@ ACMD(do_listen)
                     !IS_SET(ch->in_room->dir_option[i]->exit_info,
                         EX_CLOSED)) {
 
-                    gint found_fighting(struct creature *tch, gpointer ignore) {
-                        return (tch->fighting) ? 0 : -1;
-                    }
                     GList *found =
                         g_list_find_custom(ch->in_room->dir_option[i]->
                         to_room->people, 0, (GCompareFunc) found_fighting);

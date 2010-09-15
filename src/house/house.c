@@ -237,12 +237,13 @@ make_house(int idnum, int owner)
 void
 free_house(struct house *house)
 {
-    void deflag_room(gpointer room_idnum, gpointer ignore) {
+    for (GList *it = house->rooms;it;it = it->next) {
+        room_num room_idnum = GPOINTER_TO_INT(it->data);
+
         struct room_data *room = real_room(GPOINTER_TO_INT(room_idnum));
         if (room)
             REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE | ROOM_HOUSE_CRASH);
     }
-    g_list_foreach(house->rooms, deflag_room, 0);
 
     g_list_free(house->rooms);
     g_list_free(house->guests);
@@ -284,6 +285,14 @@ get_house_by_index(int index)
     return g_list_nth_data(houses, index);
 }
 
+bool
+this_house_has_room(struct house *house, gpointer user_data)
+{
+    room_num room_idnum = GPOINTER_TO_INT(user_data);
+
+    return (house_has_room(house, room_idnum)) ? 0 : -1;
+}
+
 struct house *
 find_house_by_room(room_num room_idnum)
 {
@@ -291,45 +300,54 @@ find_house_by_room(room_num room_idnum)
     if (!room)
         return NULL;
 
-    bool this_house_has_room(struct house * house, gpointer ignore) {
-        return (house_has_room(house, room_idnum)) ? 0 : -1;
-    }
     GList *it = g_list_find_custom(houses,
         NULL,
         (GCompareFunc) this_house_has_room);
     return (it) ? it->data : NULL;
 }
 
+bool
+house_has_idnum(struct house *house, gpointer user_data)
+{
+    int idnum = GPOINTER_TO_INT(user_data);
+    return (house->id == idnum) ? 0 : -1;
+}
+
 struct house *
 find_house_by_idnum(int idnum)
 {
-    bool house_has_idnum(struct house *house, gpointer ignore) {
-        return (house->id == idnum) ? 0 : -1;
-    }
     GList *it =
         g_list_find_custom(houses, NULL, (GCompareFunc) house_has_idnum);
     return (it) ? it->data : NULL;
 }
 
+bool
+house_has_owner(struct house *house, gpointer user_data)
+{
+    int idnum = GPOINTER_TO_INT(user_data);
+    return (house->type == PRIVATE && house->owner_id == idnum) ? 0 : -1;
+}
+
 struct house *
 find_house_by_owner(int idnum)
 {
-    bool house_has_owner(struct house *house, gpointer ignore) {
-        return (house->type == PRIVATE && house->owner_id == idnum) ? 0 : -1;
-    }
     GList *it =
         g_list_find_custom(houses, NULL, (GCompareFunc) house_has_owner);
     return (it) ? it->data : NULL;
 }
 
+bool
+house_has_clan_owner(struct house *house, gpointer user_data)
+{
+    int idnum = GPOINTER_TO_INT(user_data);
+    return (house->type == CLAN && house->owner_id == idnum) ? 0 : -1;
+}
+
 struct house *
 find_house_by_clan(int idnum)
 {
-    bool house_has_owner(struct house *house, gpointer ignore) {
-        return (house->type == CLAN && house->owner_id == idnum) ? 0 : -1;
-    }
     GList *it =
-        g_list_find_custom(houses, NULL, (GCompareFunc) house_has_owner);
+        g_list_find_custom(houses, NULL, (GCompareFunc) house_has_clan_owner);
     return (it) ? it->data : NULL;
 }
 
@@ -433,21 +451,23 @@ update_object_counts(struct obj_data *obj)
 void
 update_objects_in_house(struct house *house, gpointer ignore)
 {
-    void update_objects_in_room(room_num room_idnum, gpointer ignore) {
+    for (GList *it = house->rooms;it;it = it->next) {
+        room_num room_idnum = GPOINTER_TO_INT(it->data);
         struct room_data *room = real_room(room_idnum);
         if (room)
             update_object_counts(room->contents);
     }
-    g_list_foreach(house->rooms, (GFunc) update_objects_in_room, 0);
 }
 
 void
+zero_housed_objects(gpointer vnum, struct obj_data *obj, gpointer ignore)
+{
+    obj->shared->house_count = 0;
+}
+    
+void
 update_objects_housed_count(void)
 {
-    void zero_housed_objects(gpointer vnum, struct obj_data *obj,
-        gpointer ignore) {
-        obj->shared->house_count = 0;
-    }
     g_hash_table_foreach(obj_prototypes, (GHFunc) zero_housed_objects, 0);
 
     g_list_foreach(houses, (GFunc) update_objects_in_house, 0);
@@ -468,12 +488,13 @@ count_housed_objects(struct house *house, gpointer ignore)
 {
     int count = 0;
 
-    void count_objects(room_num room_idnum, gpointer ignore) {
+    for (GList *it = house->rooms;it;it = it->next) {
+        room_num room_idnum = GPOINTER_TO_INT(it->data);
+
         struct room_data *room = real_room(room_idnum);
         if (room)
             count += count_objects_in_room(room);
     }
-    g_list_foreach(house->rooms, (GFunc) count_objects, 0);
 
     return count;
 }
@@ -666,11 +687,12 @@ create_house(int owner, room_num firstRoom, room_num lastRoom)
     if (!room)
         return NULL;
 
-    void max_idnum(struct house *house, gpointer ignore) {
+    for (GList *it = houses;it;it = it->next) {
+        struct house *house = it->data;
+
         if (house->id > id)
             id = house->id;
     }
-    g_list_foreach(houses, (GFunc) max_idnum, 0);
     id++;
 
     struct house *house = make_house(id, owner);
@@ -785,6 +807,12 @@ room_rent_cost(struct house *house, struct room_data *room)
     return room_sum;
 }
 
+gint
+creature_is_pc(struct creature *ch, gpointer ignore)
+{
+    return (IS_PC(ch)) ? 0 : -1;
+}
+        
 int
 house_rent_cost(struct house *house)
 {
@@ -793,10 +821,7 @@ house_rent_cost(struct house *house)
     for (GList * i = house->rooms; i; i = i->next) {
         struct room_data *room = real_room(GPOINTER_TO_INT(i->data));
 
-        gint is_pc(struct creature *ch, gpointer ignore) {
-            return (IS_PC(ch)) ? 0 : -1;
-        }
-        if (!g_list_find_custom(room->people, 0, (GCompareFunc) is_pc))
+        if (!g_list_find_custom(room->people, 0, (GCompareFunc) creature_is_pc))
             sum += room_rent_cost(house, room);
 
         room_count++;
