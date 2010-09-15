@@ -197,7 +197,7 @@ ACMD(do_crossface)
                         true, ch, NULL, vict, TO_CHAR);
                     act("$n stuns $N with a vicious crossface!",
                         true, ch, NULL, vict, TO_ROOM);
-                    act("Your jaw cracks as $n whips his gun across your face.   Your vision fades...", true, ch, NULL, vict, TO_VICT);
+                    act("Your jaw cracks as $n whips $s gun across your face.   Your vision fades...", true, ch, NULL, vict, TO_VICT);
                 }
             }
         }
@@ -210,11 +210,11 @@ ACMD(do_crossface)
                 && !IS_SET(retval, DAM_VICT_KILLED) &&
                 !IS_SET(retval, DAM_ATTACKER_KILLED) && ch->fighting) {
                 GET_POSITION(vict) = POS_RESTING;
-                act("Your crossface has knocked $N on his ass!",
+                act("Your crossface has knocked $N on $S ass!",
                     true, ch, NULL, vict, TO_CHAR);
-                act("$n's nasty crossface just knocked $N on his ass!",
+                act("$n's nasty crossface just knocked $N on $S ass!",
                     true, ch, NULL, vict, TO_ROOM);
-                act("Your jaw cracks as $n whips his gun across your face.\n"
+                act("Your jaw cracks as $n whips $s gun across your face.\n"
                     "You stagger and fall to the ground ",
                     true, ch, NULL, vict, TO_VICT);
             }
@@ -227,11 +227,11 @@ ACMD(do_crossface)
             wear = GET_EQ(vict, wear_num);
             if (wear && !IS_SET(retval, DAM_VICT_KILLED) &&
                 !IS_SET(retval, DAM_ATTACKER_KILLED) && ch->fighting) {
-                act("Your crossface has knocked $N's $p from his head!",
+                act("Your crossface has knocked $N's $p from $S head!",
                     true, ch, wear, vict, TO_CHAR);
                 act("$n's nasty crossface just knocked $p from $N's head!",
                     true, ch, wear, vict, TO_ROOM);
-                act("Your jaw cracks as $n whips his gun across your face.\n"
+                act("Your jaw cracks as $n whips $s gun across your face.\n"
                     "Your $p flies from your head and lands a short distance\n"
                     "away.", true, ch, wear, vict, TO_VICT);
 

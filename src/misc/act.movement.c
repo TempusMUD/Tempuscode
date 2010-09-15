@@ -1899,7 +1899,7 @@ ACMD(do_enter)
         || (ROOM_FLAGGED(room, ROOM_CLAN_HOUSE)
             && !clan_house_can_enter(ch, room))) {
         act("$p repulses you.", false, ch, car, 0, TO_CHAR);
-        act("$n is repulsed by $p as he tries to enter it.",
+        act("$n is repulsed by $p as $e tries to enter it.",
             true, ch, car, 0, TO_ROOM);
         return;
     }

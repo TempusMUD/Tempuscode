@@ -22,7 +22,7 @@ SPECIAL(pit_keeper)
         return 0;
 
     if (GET_STR(ch) + number(0, 10) > GET_STR(vict)) {
-        act("$n lifts you over his head and hurls you into the pit below!",
+        act("$n lifts you over $s head and hurls you into the pit below!",
             false, ch, 0, vict, TO_VICT);
         act("$n lifts $N and hurls $M into the pit below!", false, ch, 0, vict,
             TO_NOTVICT);

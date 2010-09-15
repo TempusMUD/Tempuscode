@@ -311,7 +311,7 @@ ACMD(do_ambush)
         true, ch, 0, vict, TO_CHAR);
     act("$n appears out of nowhere, catching you completely by surprise!",
         true, ch, 0, vict, TO_VICT);
-    act("$n catches $N completely by surprise with his ambush!",
+    act("$n catches $N completely by surprise with $s ambush!",
         true, ch, 0, vict, TO_NOTVICT);
     WAIT_STATE(vict, (CHECK_SKILL(ch, SKILL_AMBUSH) / 30 + 3) RL_SEC);
     gain_skill_prof(ch, SKILL_AMBUSH);

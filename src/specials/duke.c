@@ -386,7 +386,7 @@ SPECIAL(duke_araken)
 
     case 'r':
         GET_POSITION(ch) = POS_SITTING;
-        act("$n sits down on his great throne.", false, ch, 0, 0, TO_ROOM);
+        act("$n sits down on $s great throne.", false, ch, 0, 0, TO_ROOM);
         break;
 
     case 's':
@@ -469,7 +469,7 @@ SPECIAL(training_master)
                 break;
             case 2:
                 send_to_char(ch, "You command your pupils to bow\r\n.");
-                act("$n commands his pupils to bow.", false, ch, 0, 0,
+                act("$n commands $s pupils to bow.", false, ch, 0, 0,
                     TO_ROOM);
                 act("$n bows before $N.", false, pupil1, 0, pupil2,
                     TO_NOTVICT);
@@ -481,14 +481,14 @@ SPECIAL(training_master)
                     pupil1, 0, pupil2, TO_VICT);
                 break;
             case 3:
-                act("$N yells at $n, as he fumbles and drops his sword.",
+                act("$N yells at $n, as $e fumbles and drops $s sword.",
                     false, pupil1, 0, ch, TO_NOTVICT);
-                act("$n quickly picks up his weapon.", false, pupil1, 0, 0,
+                act("$n quickly picks up $s weapon.", false, pupil1, 0, 0,
                     TO_ROOM);
                 act("$N yells at you, as you fumble, losing your weapon.",
                     false, pupil1, 0, ch, TO_CHAR);
                 send_to_char(pupil1, "You quickly pick up your weapon again.");
-                act("You yell at $n, as he fumbles, losing his weapon.",
+                act("You yell at $n, as $e fumbles, losing $s weapon.",
                     false, pupil1, 0, ch, TO_VICT);
                 break;
             case 4:
@@ -496,7 +496,7 @@ SPECIAL(training_master)
                     false, pupil1, 0, pupil2, TO_NOTVICT);
                 act("$N tricks you, and slashes you across your back.",
                     false, pupil1, 0, pupil2, TO_CHAR);
-                act("You trick $n, and quickly slash him across his back.",
+                act("You trick $n, and quickly slash him across $s back.",
                     false, pupil1, 0, pupil2, TO_VICT);
                 break;
             case 5:
@@ -518,7 +518,7 @@ SPECIAL(training_master)
             default:
                 send_to_char(ch,
                     "You show your pupils an advanced technique.");
-                act("$n shows his pupils an advanced technique.", false, ch, 0,
+                act("$n shows $s pupils an advanced technique.", false, ch, 0,
                     0, TO_ROOM);
                 break;
             }
@@ -851,7 +851,7 @@ SPECIAL(jerry)
                     false, gambler1, 0, gambler2, TO_VICT);
                 break;
             case 1:
-                act("$n curses the Goddess of Luck roundly as he sees $N's roll.", false, gambler1, 0, gambler2, TO_NOTVICT);
+                act("$n curses the Goddess of Luck roundly as $e sees $N's roll.", false, gambler1, 0, gambler2, TO_NOTVICT);
                 act("You curse the Goddess of Luck as $N rolls.",
                     false, gambler1, 0, gambler2, TO_CHAR);
                 act("$n swears angrily. You are in luck!",
@@ -873,17 +873,17 @@ SPECIAL(jerry)
                     false, gambler1, 0, gambler2, TO_VICT);
                 break;
             case 4:
-                act("$n excitedly follows the dice with his eyes.",
+                act("$n excitedly follows the dice with $s eyes.",
                     false, gambler1, 0, gambler2, TO_NOTVICT);
                 act("You excitedly follow the dice with your eyes.",
                     false, gambler1, 0, gambler2, TO_CHAR);
-                act("$n excitedly follows the dice with his eyes.",
+                act("$n excitedly follows the dice with $s eyes.",
                     false, gambler1, 0, gambler2, TO_VICT);
                 break;
             default:
-                act("$n says 'Well, my luck has to change soon', as he shakes the dice.", false, gambler1, 0, gambler2, TO_NOTVICT);
+                act("$n says 'Well, my luck has to change soon', as $e shakes the dice.", false, gambler1, 0, gambler2, TO_NOTVICT);
                 act("You say 'Well, my luck has to change soon' and shake the dice.", false, gambler1, 0, gambler2, TO_CHAR);
-                act("$n says 'Well, my luck has to change soon', as he shakes the dice.", false, gambler1, 0, gambler2, TO_VICT);
+                act("$n says 'Well, my luck has to change soon', as $e shakes the dice.", false, gambler1, 0, gambler2, TO_VICT);
                 break;
             }
         }

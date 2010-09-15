@@ -28,9 +28,9 @@ SPECIAL(moloch)
                 CAST_SPELL, NULL);
             return 1;
         } else if (!number(0, 8) && GET_DEX(vict) < number(10, 25)) {
-            act("$n picks you up in his jaws and flails you around!!",
+            act("$n picks you up in $s jaws and flails you around!!",
                 false, moloch, 0, vict, TO_VICT);
-            act("$n picks $N up in his jaws and flails $M around!!",
+            act("$n picks $N up in $s jaws and flails $M around!!",
                 false, moloch, 0, vict, TO_NOTVICT);
             damage(moloch, vict, dice(30, 29), TYPE_RIP, WEAR_BODY);
             WAIT_STATE(moloch, 7 RL_SEC);

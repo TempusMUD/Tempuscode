@@ -273,10 +273,10 @@ SPECIAL(gollum)
             }
 
             act("$N starts hopping around and cursing at $n.\r\n"
-                "$N stares at $n and gestures with his arms.\r\n",
+                "$N stares at $n and gestures with $S arms.\r\n",
                 true, ch, 0, gollum, TO_ROOM);
             act("$N starts hopping around and cursing at you.\r\n"
-                "$N stares at you and gestures with his arms.\r\n",
+                "$N stares at you and gestures with $S arms.\r\n",
                 true, ch, 0, gollum, TO_CHAR);
             act("$n disappears.", true, ch, 0, 0, TO_ROOM);
             char_from_room(ch, false);
