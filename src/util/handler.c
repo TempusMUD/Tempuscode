@@ -253,23 +253,23 @@ affect_modify(struct creature *ch, sh_int loc, sh_int mod, long bitv,
     if (bitv) {
         if (add) {
             if (index == 2) {
-                if (ch->in_room &&
-                    ((bitv == AFF2_FLUORESCENT) ||
-                        (bitv == AFF2_DIVINE_ILLUMINATION)) &&
-                    !AFF_FLAGGED(ch, AFF_GLOWLIGHT) &&
-                    !AFF2_FLAGGED(ch,
-                        AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION)
+				if (ch->in_room
+                    && ((bitv == AFF2_FLUORESCENT) ||
+						(bitv == AFF2_DIVINE_ILLUMINATION))
+                    && !AFF_FLAGGED(ch, AFF_GLOWLIGHT)
+                    && !AFF2_FLAGGED(ch, AFF2_FLUORESCENT)
+                    && !AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION)
                     && !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
                     ch->in_room->light++;
                 SET_BIT(AFF2_FLAGS(ch), bitv);
             } else if (index == 3) {
                 SET_BIT(AFF3_FLAGS(ch), bitv);
             } else {
-                if (bitv == AFF_GLOWLIGHT &&
-                    ch->in_room &&
-                    !AFF_FLAGGED(ch, AFF_GLOWLIGHT) &&
-                    !AFF2_FLAGGED(ch,
-                        AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION)
+				if (bitv == AFF_GLOWLIGHT
+                    && ch->in_room
+                    && !AFF_FLAGGED(ch, AFF_GLOWLIGHT)
+                    && !AFF2_FLAGGED(ch, AFF2_FLUORESCENT)
+                    && !AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION)
                     && !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
                     ch->in_room->light++;
                 SET_BIT(AFF_FLAGS(ch), bitv);
@@ -278,23 +278,23 @@ affect_modify(struct creature *ch, sh_int loc, sh_int mod, long bitv,
         } else {                /* remove aff (!add) */
             if (index == 2) {
                 REMOVE_BIT(AFF2_FLAGS(ch), bitv);
-                if (ch->in_room &&
-                    ((bitv == AFF2_FLUORESCENT) ||
-                        (bitv == AFF2_DIVINE_ILLUMINATION)) &&
-                    !AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
-                    !AFF2_FLAGGED(ch,
-                        AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION)
+				if (ch->in_room
+                    && ((bitv == AFF2_FLUORESCENT)
+                        || (bitv == AFF2_DIVINE_ILLUMINATION))
+                    && !AFF_FLAGGED(ch, AFF_GLOWLIGHT)
+                    && !AFF2_FLAGGED(ch, AFF2_FLUORESCENT)
+                    && !AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION)
                     && !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
                     ch->in_room->light--;
             } else if (index == 3)
                 REMOVE_BIT(AFF3_FLAGS(ch), bitv);
             else {
                 REMOVE_BIT(AFF_FLAGS(ch), bitv);
-                if (bitv == AFF_GLOWLIGHT &&
-                    ch->in_room &&
-                    !AFF2_FLAGGED(ch, AFF_GLOWLIGHT) &&
-                    !AFF2_FLAGGED(ch,
-                        AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION)
+				if (bitv == AFF_GLOWLIGHT
+                    && ch->in_room
+                    && !AFF_FLAGGED(ch, AFF_GLOWLIGHT)
+                    && !AFF2_FLAGGED(ch, AFF2_FLUORESCENT)
+                    && !AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION)
                     && !affected_by_spell(ch, SPELL_QUAD_DAMAGE))
                     ch->in_room->light--;
 
@@ -652,10 +652,12 @@ affect_to_char(struct creature *ch, struct affected_type *af)
     affect_modify(ch, af->location, af->modifier,
         af->bitvector, af->aff_index, true);
     affect_total(ch);
-    if (af->type == SPELL_QUAD_DAMAGE && ch->in_room &&
-        !AFF_FLAGGED(ch, AFF_GLOWLIGHT) &&
-        !AFF2_FLAGGED(ch, AFF2_FLUORESCENT | AFF2_DIVINE_ILLUMINATION) &&
-        !prev_quad)
+	if (af->type == SPELL_QUAD_DAMAGE
+        && ch->in_room
+        && !AFF_FLAGGED(ch, AFF_GLOWLIGHT)
+        && !AFF2_FLAGGED(ch, AFF2_FLUORESCENT)
+        && !AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION)
+        && !prev_quad)
         ch->in_room->light++;
 
     if (IS_SET(af->bitvector, AFF3_SELF_DESTRUCT) && af->aff_index == 3) {
