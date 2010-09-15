@@ -282,10 +282,8 @@ death_cry(struct creature *ch)
                                 1);
 
                             if (move_result == 0) {
-                                found = number(0, 1);
                                 return;
                             } else if (move_result == 2) {
-                                found = 1;
                                 return;
                             }
                         }

@@ -23,6 +23,7 @@
 #define __combat_code__
 
 #include <signal.h>
+#include <assert.h>
 
 #include "structs.h"
 #include "utils.h"
@@ -116,15 +117,19 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
 {
     struct obj_data *corpse;
 
+    assert(ch != NULL);
+    
     if (attacktype != SKILL_GAROTTE)
         death_cry(ch);
 
     trigger_prog_dying(ch, killer);
 
     // Handle dying progs before creating the corpse
+    assert(ch->in_room != NULL);
     if (GET_ROOM_PROG(ch->in_room) != NULL)
         trigger_prog_death(ch->in_room, PROG_TYPE_ROOM, ch);
 
+    assert(ch->in_room != NULL);
     for (GList *it = ch->in_room->people;it;it = it->next) {
         struct creature *tch = it->data;
 
@@ -165,7 +170,10 @@ extern bool LOG_DEATHS;
 void
 die(struct creature *ch, struct creature *killer, int attacktype)
 {
-    if (IS_NPC(ch) && GET_MOB_SPEC(ch)) {
+    assert(ch != NULL);
+    assert(ch->mob_specials.shared != NULL);
+
+    if (GET_MOB_SPEC(ch) != NULL) {
         if (GET_MOB_SPEC(ch) (killer, ch, 0, NULL, SPECIAL_DEATH)) {
             mudlog(LVL_CREATOR, NRM, true,
                 "ERROR: Mobile special for %s run in place of standard extraction.\n",
@@ -720,8 +728,8 @@ int
 damage(struct creature *ch, struct creature *victim, int dam,
     int attacktype, int location)
 {
-    int hard_damcap, is_humil = 0, eq_dam = 0, weap_dam = 0, i, impl_dam =
-        0, mana_loss, feedback_dam, feedback_mana;
+    int hard_damcap, eq_dam = 0, weap_dam = 0, i, impl_dam = 0,
+        mana_loss, feedback_dam, feedback_mana;
     struct obj_data *obj = NULL, *weap = cur_weap, *impl = NULL;
     struct room_affect_data rm_aff;
     struct affected_type *af = NULL;
@@ -2324,8 +2332,6 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 }
                 if (MOB_FLAGGED(ch, MOB_MEMORY))
                     forget(ch, victim);
-                if (!IS_NPC(ch) && ch != victim)
-                    is_humil = true;
             } else {
                 GET_MOBKILLS(ch) += 1;
                 // Tally kills for quest purposes

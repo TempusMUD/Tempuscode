@@ -285,7 +285,7 @@ do_destroy_search(struct creature *ch, char *arg)
     struct special_search_data *srch = NULL, *temp = NULL;
     char triggers[MAX_INPUT_LENGTH], keywords[MAX_INPUT_LENGTH];
 
-    arg = two_arguments(arg, triggers, keywords);
+    two_arguments(arg, triggers, keywords);
 
     if (!*triggers) {
         send_to_char(ch, "USAGE: destroy search <trigger word> [keyword]\r\n");

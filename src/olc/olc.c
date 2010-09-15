@@ -1561,7 +1561,7 @@ ACMD(do_olc)
                         number);
                 }
             } else if (is_abbrev(buf1, "object")) {
-                if (!(obj = real_object_proto(number))) {
+                if (!real_object_proto(number)) {
                     send_to_char(ch,
                         "There is no object with that number.\r\n");
                 } else {

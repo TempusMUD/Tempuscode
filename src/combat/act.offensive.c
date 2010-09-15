@@ -215,7 +215,6 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             ADD_EQ_DAM(ch, WEAR_HANDS);
         else {
             send_to_char(ch, "You need a weapon to strike out with!\r\n");
-            prob = 0;
             return -1;
         }
         *dam *= 2;
@@ -333,7 +332,6 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
                 vict, TO_VICT);
             act("$n tries to pick $N up and bodyslam $M!", false, ch, 0, vict,
                 TO_NOTVICT);
-            prob = 0;
             if (check_mob_reaction(ch, vict)) {
                 int retval = hit(vict, ch, TYPE_UNDEFINED);
                 *return_flags = SWAP_DAM_RETVAL(retval);
@@ -573,7 +571,6 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
                     false, ch, neck, vict, TO_NOTVICT);
                 act("You attempt to choke $N, but $p has $M covered!",
                     false, ch, neck, vict, TO_CHAR);
-                prob = 0;
                 return -1;
             }
         }
@@ -624,7 +621,6 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             else {
                 act("$N is over twice your height!  You can't reach $S head!",
                     false, ch, 0, vict, TO_CHAR);
-                prob = 0;
                 return -1;
             }
         }
@@ -1943,18 +1939,18 @@ ACMD(do_tornado_kick)
         GET_MOVE(ch) -= 10;
     } else {
         GET_MOVE(ch) -= 10;
-        if (!(dead = damage(ch, vict, dam, SKILL_TORNADO_KICK, -1)) &&
+        if (!(damage(ch, vict, dam, SKILL_TORNADO_KICK, -1)) &&
             GET_LEVEL(ch) > number(30, 55) &&
-            (!(dead = damage(ch, vict,
-                        number(0, 1 + GET_LEVEL(ch) / 10) ?
-                        (int)(dam * 1.2) :
-                        0,
-                        SKILL_TORNADO_KICK, -1))) &&
+            (!(damage(ch, vict,
+                      number(0, 1 + GET_LEVEL(ch) / 10) ?
+                      (int)(dam * 1.2) :
+                      0,
+                      SKILL_TORNADO_KICK, -1))) &&
             (GET_MOVE(ch) -= 10) &&
             GET_LEVEL(ch) > number(40, 55) &&
-            (!(dead = damage(ch, vict,
-                        number(0, 1 + GET_LEVEL(ch) / 10) ?
-                        (int)(dam * 1.3) : 0, SKILL_TORNADO_KICK, -1))))
+            (!(damage(ch, vict,
+                      number(0, 1 + GET_LEVEL(ch) / 10) ?
+                      (int)(dam * 1.3) : 0, SKILL_TORNADO_KICK, -1))))
             GET_MOVE(ch) -= 10;
         gain_skill_prof(ch, SKILL_TORNADO_KICK);
 
@@ -2347,6 +2343,7 @@ fire_projectile_round(struct creature *ch,
         extract_obj(bullet);
     }
     /* we /must/ have a clip in a clipped gun at this point! */
+    // TODO: fix this
     bullet = MAX_LOAD(gun) ? gun->contains : gun->contains->contains;
 
     cur_weap = gun;
@@ -3143,6 +3140,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
         extract_obj(bullet);
     }
     // we /must/ have a clip in a clipped gun at this point!
+    // TODO: fix this
     bullet = MAX_LOAD(gun) ? gun->contains : gun->contains->contains;
 
     cur_weap = gun;

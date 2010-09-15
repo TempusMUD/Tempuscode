@@ -61,7 +61,7 @@ vendor_inventory(struct obj_data *obj, struct obj_data *obj_list)
 
     cur_obj = obj_list;
     while (cur_obj && GET_OBJ_VNUM(cur_obj) != GET_OBJ_VNUM(obj) &&
-        !same_obj(cur_obj, obj))
+           !same_obj(cur_obj, obj))
         cur_obj = cur_obj->next_content;
 
     if (!cur_obj)

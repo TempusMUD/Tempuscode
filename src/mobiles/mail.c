@@ -115,7 +115,7 @@ store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
     char *time_str, *obj_string = NULL;
     struct obj_data *obj, *temp_o;
     time_t now = time(NULL);
-    GList *mailBag;
+    GList *mailBag = NULL;
 
     // NO zero length mail!
     // This should never happen.

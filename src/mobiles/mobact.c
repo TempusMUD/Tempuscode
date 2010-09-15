@@ -1229,7 +1229,7 @@ void
 best_initial_attack(struct creature *ch, struct creature *vict)
 {
 
-    struct obj_data *gun = GET_EQ(ch, WEAR_WIELD);
+    struct obj_data *gun;
     int cur_class = 0;
 
     int return_flags = 0;

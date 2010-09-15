@@ -331,7 +331,7 @@ do_create_obj(struct creature *ch, int vnum)
     struct zone_data *zone = NULL;
     int i;
 
-    if ((obj = real_object_proto(vnum))) {
+    if (real_object_proto(vnum)) {
         send_to_char(ch, "ERROR: Object already exists.\r\n");
         return NULL;
     }

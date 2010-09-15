@@ -96,7 +96,6 @@ calculate_weapon_probability(struct creature *ch, int prob,
     struct obj_data *weap)
 {
     int i, weap_weight;
-    i = weap_weight = 0;
 
     if (!ch || !weap)
         return prob;

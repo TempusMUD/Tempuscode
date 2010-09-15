@@ -285,7 +285,7 @@ do_zcmd(struct creature *ch, char *argument)
                 send_to_char(ch, ZCMD_O_USAGE);
                 return;
             }
-
+            
             if (is_number(arg1) && is_number(arg2)) {
                 int_arg2 = atoi(arg1);
                 if (int_arg2 < 1 || int_arg2 > 1000) {

@@ -618,7 +618,6 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
 ACMD(do_clanlist)
 {
     struct clan_data *clan = real_clan(GET_CLAN(ch));
-    struct clanmember_data *ch_member = NULL;
     int min_lev = 0;
     bool complete = false;
     char *arg;
@@ -627,8 +626,6 @@ ACMD(do_clanlist)
         send_to_char(ch, "You are not a member of any clan.\r\n");
         return;
     }
-
-    ch_member = real_clanmember(GET_IDNUM(ch), clan);
 
     arg = tmp_getword(&argument);
     while (*arg) {
@@ -698,13 +695,12 @@ ACMD(do_cinfo)
 ACMD(do_clanpasswd)
 {
     struct special_search_data *srch = NULL;
-    struct clan_data *clan = NULL;
 
     if (!GET_CLAN(ch) || !PLR_FLAGGED(ch, PLR_CLAN_LEADER)) {
         send_to_char(ch, "Only clan leaders can do this.\r\n");
         return;
     }
-    if (!(clan = real_clan(GET_CLAN(ch)))) {
+    if (!real_clan(GET_CLAN(ch))) {
         send_to_char(ch, "Something about your clan is screwed up.\r\n");
         return;
     }
