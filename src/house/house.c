@@ -159,16 +159,16 @@ is_house_guest(struct house *house, long idnum)
         case PRIVATE:
         case PUBLIC:
         case RENTAL:
-            return g_list_find_custom(house->guests, GINT_TO_POINTER(idnum), g_direct_equal);
+            return g_list_find(house->guests, GINT_TO_POINTER(idnum));
         case CLAN: {
             // if there is no clan then check guests
             struct clan_data *clan = real_clan(house->owner_id);
             if (clan == NULL)
-                return g_list_find_custom(house->guests, GINT_TO_POINTER(idnum), g_direct_equal);
+                return g_list_find(house->guests, GINT_TO_POINTER(idnum));
             // if they're not a member, check the guests
             struct clanmember_data *member = real_clanmember(idnum, clan);
             if (member == NULL)
-                return g_list_find_custom(house->guests, GINT_TO_POINTER(idnum), g_direct_equal);
+                return g_list_find(house->guests, GINT_TO_POINTER(idnum));
             return true;
         }
         default:
@@ -197,7 +197,7 @@ remove_house_guest(struct house *house, long guest)
 bool
 house_has_room(struct house *house, room_num room)
 {
-    return g_list_find_custom(house->rooms, GINT_TO_POINTER(room), g_direct_equal);
+    return g_list_find(house->rooms, GINT_TO_POINTER(room));
 }
 
 bool
