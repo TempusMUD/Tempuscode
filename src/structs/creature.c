@@ -37,6 +37,7 @@ make_creature(bool pc)
 
 	if (pc) {
         CREATE(ch->player_specials, struct player_special_data, 1);
+        ch->player_specials->desc_mode = CXN_UNKNOWN;
 	} else {
 		ch->player_specials = &dummy_mob;
 		SET_BIT(MOB_FLAGS(ch), MOB_ISNPC);
@@ -54,7 +55,6 @@ reset_creature(struct creature *ch)
 
 	void free_alias(struct alias_data *a);
 
-    errlog("%s reset: %p", GET_NAME(ch), ch);
 	//
 	// first make sure the char is no longer in the world
 	//
