@@ -36,20 +36,22 @@ extern struct descriptor_data *descriptor_list;
 extern struct help_collection *Help;
 
 bool
-check_editors(struct creature *ch, char *buffer)
+already_being_edited(struct creature *ch, char *buffer)
 {
-    struct descriptor_data *d;
+    struct descriptor_data *d = NULL;
 
     for (d = descriptor_list; d; d = d->next) {
         if (d->text_editor
+            && d->text_editor->is_editing
             && d->text_editor->is_editing(d->text_editor, buffer)) {
-            send_to_char(ch, "Sorry, %s is editing that.\n",
-                GET_NAME(d->creature));
-            return false;
+            send_to_char(ch, "%s is already editing that buffer.\r\n",
+                d->creature ? PERS(d->creature, ch) : "BOGUSMAN");
+            return true;
         }
     }
-    return true;
+    return false;
 }
+
 
 void
 editor_import(struct editor *editor, const char *text)
@@ -833,22 +835,4 @@ make_editor(struct descriptor_data *d, int max)
     editor->sendmodalhelp = editor_sendmodalhelp;
 
     return editor;
-}
-
-
-bool
-already_being_edited(struct creature * ch, char *buffer)
-{
-    struct descriptor_data *d = NULL;
-
-    for (d = descriptor_list; d; d = d->next) {
-        if (d->text_editor
-            && d->text_editor->is_editing
-            && d->text_editor->is_editing(d->text_editor, buffer)) {
-            send_to_char(ch, "%s is already editing that buffer.\r\n",
-                d->creature ? PERS(d->creature, ch) : "BOGUSMAN");
-            return true;
-        }
-    }
-    return false;
 }

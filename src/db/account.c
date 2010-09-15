@@ -66,40 +66,6 @@ account_cache_size(void)
     return g_hash_table_size(account_cache);
 }
 
-struct account *
-make_account(void)
-{
-    struct account *acct;
-    time_t now;
-
-    CREATE(acct, struct account, 1);
-    now = time(NULL);
-
-    acct->id = 0;
-    acct->name = NULL;
-    acct->password = NULL;
-    acct->email = NULL;
-    acct->creation_time = now;
-    acct->login_time = now;
-    acct->entry_time = 0;
-    acct->creation_addr = NULL;
-    acct->login_addr = NULL;
-    acct->ansi_level = 0;
-    acct->compact_level = 0;
-    acct->bank_past = 0;
-    acct->bank_future = 0;
-    acct->banned = false;
-    acct->reputation = 0;
-    acct->quest_points = 0;
-    acct->quest_banned = false;
-    acct->chars = NULL;
-    acct->trusted = NULL;
-    acct->term_height = DEFAULT_TERM_HEIGHT;
-    acct->term_width = DEFAULT_TERM_WIDTH;
-
-    return acct;
-}
-
 void
 free_account(struct account *acct)
 {
@@ -311,18 +277,6 @@ account_by_idnum(int id)
     return NULL;
 }
 
-bool
-account_exists(int accountID)
-{
-    PGresult *res;
-    bool result;
-
-    res = sql_query("select idnum from accounts where idnum=%d", accountID);
-    result = PQntuples(res) > 0;
-
-    return result;
-}
-
 gboolean
 account_name_matches(gpointer key, gpointer value, gpointer user_data)
 {
@@ -363,27 +317,6 @@ account_by_name(char *name)
 }
 
 struct account *
-account_by_creature(struct creature *ch)
-{
-    int acct_id;
-
-    // NPCs don't have accounts!
-    if (IS_NPC(ch))
-        return NULL;
-
-    // If we already have an account loaded for this creature
-    // just return it
-    if (ch->account)
-        return ch->account;
-
-    acct_id = player_account_by_idnum(GET_IDNUM(ch));
-    if (!acct_id)
-        return NULL;
-
-    return account_by_idnum(acct_id);
-}
-
-struct account *
 account_create(const char *name, struct descriptor_data *d)
 {
     struct account *result;
@@ -394,13 +327,6 @@ account_create(const char *name, struct descriptor_data *d)
     g_hash_table_insert(account_cache, GINT_TO_POINTER(account_top_id),
         result);
     return result;
-}
-
-bool
-account_remove(struct account * acct)
-{
-    g_hash_table_remove(account_cache, GINT_TO_POINTER(acct->id));
-    return false;
 }
 
 int
@@ -662,7 +588,9 @@ account_logout(struct account *account, struct descriptor_data *d, bool forced)
 
 void
 account_initialize(struct account *account,
-    const char *name, struct descriptor_data *d, int idnum)
+                   const char *name,
+                   struct descriptor_data *d,
+                   int idnum)
 {
     account->id = idnum;
     account->name = strdup(name);
@@ -1035,28 +963,6 @@ hasCharLevel(struct account *account, int level)
         free_creature(tmp_ch);
 
         idx++;
-    }
-
-    return 0;
-}
-
-int
-hasCharGen(struct account *account, int gen)
-{
-    struct creature *tmp_ch;
-    int idx;
-
-    for (idx = 1; !invalid_char_index(account, idx); idx++) {
-        // test for file existence
-        tmp_ch = load_player_from_xml(get_char_by_index(account, idx));
-        if (!tmp_ch)
-            continue;
-
-        if (GET_REMORT_GEN(tmp_ch) >= gen) {
-            free_creature(tmp_ch);
-            return idx;
-        }
-        free_creature(tmp_ch);
     }
 
     return 0;

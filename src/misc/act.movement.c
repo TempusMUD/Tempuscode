@@ -185,26 +185,6 @@ can_travel_sector(struct creature *ch, int sector_type, bool active)
     return true;
 }
 
-/* count the people in the room */
-int
-room_count(struct creature *ch, struct room_data *room)
-{
-    int i = 0;
-    for (GList * it = room->people; it; it = it->next) {
-        struct creature *tch = it->data;
-
-        if (IS_NPC(tch) || (GET_INVIS_LVL(tch) <= GET_LEVEL(ch))) {
-            if (GET_HEIGHT(tch) > 1000)
-                i += 3;
-            else if (GET_HEIGHT(tch) > 500)
-                i += 2;
-            else
-                i += 1;
-        }
-    }
-    return i;
-}
-
 int
 creature_occupancy(struct creature *ch)
 {

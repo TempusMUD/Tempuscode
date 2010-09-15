@@ -45,7 +45,6 @@ struct follow_type *order_next_k;
 
 /* extern functions */
 int find_door(struct creature *ch, char *type, char *dir, const char *cmdname);
-int do_combat_fire(struct creature *ch, struct creature *vict);
 
 int
 check_mob_reaction(struct creature *ch, struct creature *vict)

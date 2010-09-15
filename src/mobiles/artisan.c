@@ -137,7 +137,7 @@ craft_shop_load(struct craft_shop *shop, xmlNodePtr node)
 
 /**
  * Loads the craft_shop described by the given xml node.
- * If the sho has already been created, it is reinitialized.
+ * If the shop has already been created, it is reinitialized.
 **/
 void
 load_craft_shop(xmlNodePtr node)

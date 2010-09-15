@@ -2190,7 +2190,7 @@ do_qcontrol_desc(struct creature *ch, char *argument, int com)
     if (!is_authorized(ch, EDIT_QUEST, quest))
         return;
 
-    if (check_editors(ch, quest->description))
+    if (already_being_edited(ch, quest->description))
         return;
 
     act("$n begins to edit a quest description.\r\n", true, ch, 0, 0, TO_ROOM);
@@ -2223,7 +2223,7 @@ do_qcontrol_update(struct creature *ch, char *argument, int com)
     if (!is_authorized(ch, EDIT_QUEST, quest))
         return;
 
-    if (check_editors(ch, quest->updates))
+    if (already_being_edited(ch, quest->updates))
         return;
 
     if (quest->description) {

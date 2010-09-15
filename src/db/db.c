@@ -3376,12 +3376,6 @@ get_player_file_path(long id)
 }
 
 char *
-get_account_file_path(long id)
-{
-    return tmp_sprintf("players/accounts/%0ld/%ld.acct", (id % 10), id);
-}
-
-char *
 get_equipment_file_path(long id)
 {
     return tmp_sprintf("players/equipment/%0ld/%ld.dat", (id % 10), id);

@@ -1513,12 +1513,6 @@ remove_all_combat(struct creature *ch)
     remove_fighting_affects(ch);
 }
 
-int
-creature_numCombatants(struct creature *ch)
-{
-    return g_list_length(ch->fighting);
-}
-
 struct creature *
 random_opponent(struct creature *ch)
 {

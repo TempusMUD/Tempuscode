@@ -429,7 +429,7 @@ dyntext_edit_ok(struct creature *ch, dynamic_text_file * dyntext)
             return 1;
     }
 
-    return !check_editors(ch, dyntext->tmp_buffer);
+    return !already_being_edited(ch, dyntext->tmp_buffer);
 }
 
 int

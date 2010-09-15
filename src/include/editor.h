@@ -29,7 +29,7 @@ struct editor {
 };
 
 
-bool check_editors(struct creature *ch, char *buffer);
+bool already_being_edited(struct creature *ch, char *buffer);
 
 struct editor *make_editor(struct descriptor_data *d, int max);
 void editor_import(struct editor *editor, const char *text);
