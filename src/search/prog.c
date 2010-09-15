@@ -1450,7 +1450,7 @@ prog_trans_creature(struct creature * ch, struct room_data * targ_room)
 			next = k->next;
 			if (targ_room == k->follower->in_room &&
 				GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
-				!PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING)
+				!PLR_FLAGGED(k->follower, PLR_WRITING)
 				&& can_see_creature(k->follower, ch))
 				perform_goto(k->follower, targ_room, true);
 		}
@@ -1812,7 +1812,7 @@ DEFPROGHANDLER(echo, env, evt, args)
 			if (pt->input_mode == CXN_PLAYING &&
 				pt->creature && pt->creature->in_room
 				&& pt->creature->in_room->zone == room->zone
-				&& !PLR_FLAGGED(pt->creature, PLR_OLC | PLR_WRITING)) {
+				&& !PLR_FLAGGED(pt->creature, PLR_WRITING)) {
 				act(args, false, pt->creature, obj, target, TO_CHAR);
 			}
 		}

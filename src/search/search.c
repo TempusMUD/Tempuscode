@@ -69,7 +69,7 @@ search_trans_character(struct creature *ch,
             next = k->next;
             if (was_in == k->follower->in_room &&
                 GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
-                !PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING)
+                !PLR_FLAGGED(k->follower, PLR_WRITING)
                 && can_see_creature(k->follower, ch))
                 perform_goto(k->follower, ch->in_room, true);
         }
@@ -304,8 +304,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                     next = k->next;
                     if (rm == k->follower->in_room &&
                         GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
-                        !PLR_FLAGGED(k->follower,
-                            PLR_OLC | PLR_WRITING | PLR_MAILING)
+                        !PLR_FLAGGED(k->follower, PLR_WRITING)
                         && can_see_creature(k->follower, ch))
                         perform_goto(k->follower, targ_room, true);
                 }

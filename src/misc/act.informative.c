@@ -1928,7 +1928,7 @@ found_fighting(struct creature *tch, gpointer ignore)
 {
     return (tch->fighting) ? 0 : -1;
 }
-                    
+
 ACMD(do_listen)
 {
     struct creature *fighting_vict = NULL;
@@ -3246,10 +3246,10 @@ who_flags(struct creature *ch, struct creature *target)
 
     if (PLR_FLAGGED(target, PLR_MAILING)) {
         acc_sprintf(" %s(mailing)", CCGRN(ch, C_NRM));
-    } else if (PLR_FLAGGED(target, PLR_WRITING)) {  //writing
-        acc_sprintf(" %s(writing)", CCGRN(ch, C_NRM));
     } else if (PLR_FLAGGED(target, PLR_OLC)) {
         acc_sprintf(" %s(creating)", CCGRN(ch, C_NRM));
+    } else if (PLR_FLAGGED(target, PLR_WRITING)) {  //writing
+        acc_sprintf(" %s(writing)", CCGRN(ch, C_NRM));
     }
     //deaf
     if (PRF_FLAGGED(target, PRF_DEAF)) {

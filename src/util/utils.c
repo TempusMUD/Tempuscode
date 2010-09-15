@@ -159,8 +159,7 @@ mlog(const char *group, sbyte level, enum log_type type, bool file,
 
     for (i = descriptor_list; i; i = i->next)
         if (i->input_mode == CXN_PLAYING
-            && !PLR_FLAGGED(i->creature, PLR_WRITING)
-            && !PLR_FLAGGED(i->creature, PLR_OLC)) {
+            && !PLR_FLAGGED(i->creature, PLR_WRITING)) {
 
             tp = ((PRF_FLAGGED(i->creature, PRF_LOG1) ? 1 : 0) +
                 (PRF_FLAGGED(i->creature, PRF_LOG2) ? 2 : 0));

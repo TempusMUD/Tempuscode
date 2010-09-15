@@ -633,7 +633,7 @@ hunt_victim(struct creature *ch)
 
     if (ch->in_room == NPC_HUNTING(ch)->in_room &&
         !ch->fighting && can_see_creature(ch, NPC_HUNTING(ch)) &&
-        !PLR_FLAGGED(NPC_HUNTING(ch), PLR_WRITING | PLR_OLC) &&
+        !PLR_FLAGGED(NPC_HUNTING(ch), PLR_WRITING) &&
         (!(af_ptr = affected_by_spell(NPC_HUNTING(ch), SKILL_DISGUISE)) ||
             CAN_DETECT_DISGUISE(ch, NPC_HUNTING(ch), af_ptr->duration))) {
         if (ok_to_attack(ch, NPC_HUNTING(ch), false)
@@ -703,7 +703,7 @@ hunt_victim(struct creature *ch)
             || CAN_DETECT_DISGUISE(ch, NPC_HUNTING(ch), af_ptr->duration))
         && !check_infiltrate(NPC_HUNTING(ch), ch)) {
         if (ok_to_attack(ch, NPC_HUNTING(ch), false)
-            && !PLR_FLAGGED(NPC_HUNTING(ch), PLR_OLC | PLR_WRITING)) {
+            && !PLR_FLAGGED(NPC_HUNTING(ch), PLR_WRITING)) {
             if (GET_POSITION(ch) >= POS_STANDING && !ch->fighting) {
                 emit_voice(ch, NPC_HUNTING(ch), VOICE_HUNT_FOUND);
                 best_initial_attack(ch, NPC_HUNTING(ch));

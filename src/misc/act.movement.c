@@ -1361,7 +1361,7 @@ perform_move(struct creature *ch, int dir, int mode, int need_specials_check)
             bool visible = GPOINTER_TO_INT(g_queue_pop_head(visibility));
 
             if ((was_in == k->follower->in_room) &&
-                !PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING)
+                !PLR_FLAGGED(k->follower, PLR_WRITING)
                 && (GET_POSITION(k->follower) >= POS_STANDING)
                 && visible) {
                 const char *msg = "You follow $N.\r\n";
@@ -1961,7 +1961,7 @@ ACMD(do_enter)
         next = k->next;
         if (was_in == k->follower->in_room &&
             GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
-            !PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+            !PLR_FLAGGED(k->follower, PLR_WRITING) &&
             can_see_creature(k->follower, ch)) {
             act("You follow $N.\r\n", false, k->follower, 0, ch, TO_CHAR);
             perform_goto(k->follower, room, true);

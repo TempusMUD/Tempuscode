@@ -58,7 +58,7 @@ SPECIAL(underwater_predator)
                 (!IS_NPC(vict) && !vict->desc) ||
                 PRF_FLAGGED(vict, PRF_NOHASSLE)
                 || !can_see_creature(pred, vict)
-                || PLR_FLAGGED(vict, PLR_OLC | PLR_WRITING | PLR_MAILING)
+                || PLR_FLAGGED(vict, PLR_WRITING)
                 || GET_POSITION(vict) == POS_FLYING || (MOUNTED_BY(vict)
                     && GET_POSITION(MOUNTED_BY(vict)) == POS_FLYING))
                 continue;

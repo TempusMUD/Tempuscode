@@ -107,7 +107,7 @@ sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict,
     for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
         if (!tch->desc || !AWAKE(tch) ||
-            PLR_FLAGGED(tch, PLR_WRITING | PLR_OLC))
+            PLR_FLAGGED(tch, PLR_WRITING))
             return;
 
         if (ovict)

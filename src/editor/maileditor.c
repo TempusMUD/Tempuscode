@@ -163,8 +163,7 @@ maileditor_finalize(struct editor *editor, const char *text)
                 if (IS_PLAYING(r_d) && r_d->creature &&
                     (r_d->creature != editor->desc->creature) &&
                     (GET_IDNUM(r_d->creature) == id) &&
-                    (!PLR_FLAGGED(r_d->creature,
-                            PLR_WRITING | PLR_MAILING | PLR_OLC))) {
+                    (!PLR_FLAGGED(r_d->creature, PLR_WRITING))) {
                     send_to_char(r_d->creature,
                         "A strange voice in your head says, "
                         "'You have new mail.'\r\n");

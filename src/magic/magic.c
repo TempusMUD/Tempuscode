@@ -320,7 +320,7 @@ obj_affect_update(void)
                 // if anybody cares
                 last = af->type;
                 if (ch && *item_wear_off_msg[af->type]
-                    && !PLR_FLAGGED(ch, PLR_WRITING | PLR_OLC | PLR_MAILING))
+                    && !PLR_FLAGGED(ch, PLR_WRITING))
                     act(item_wear_off_msg[af->type], false, ch, obj,
                         NULL, TO_CHAR);
             }
@@ -438,7 +438,7 @@ affect_update(void)
             else {
                 // spell-specific messages here
                 if ((af->type > 0) && (af->type <= MAX_SPELLS) &&
-                    !PLR_FLAGGED(i, PLR_WRITING | PLR_MAILING | PLR_OLC)) {
+                    !PLR_FLAGGED(i, PLR_WRITING)) {
                     if (!af->next || (af->next->type != af->type) ||
                         (af->next->duration > 0)) {
                         if (*spell_wear_off_msg[af->type]
@@ -464,7 +464,7 @@ affect_update(void)
                 affect_remove(i, af);
             }
         }
-        if (!PLR_FLAGGED(i, PLR_WRITING | PLR_MAILING | PLR_OLC)) {
+        if (!PLR_FLAGGED(i, PLR_WRITING)) {
             if (assimilate_found) {
                 send_to_char(i, "%d assimilation affect%s worn off.\r\n",
                     assimilate_found,

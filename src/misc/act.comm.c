@@ -311,7 +311,7 @@ ACMD(do_tell)
     else if (!IS_NPC(vict) && !vict->desc)  /* linkless */
         act("$E's linkless at the moment.", false, ch, 0, vict,
             TO_CHAR | TO_SLEEP);
-    else if (PLR_FLAGGED(vict, PLR_WRITING | PLR_MAILING))
+    else if (PLR_FLAGGED(vict, PLR_WRITING))
         act("$E's writing a message right now; try again later.",
             false, ch, 0, vict, TO_CHAR | TO_SLEEP);
     else if ((PRF_FLAGGED(vict, PRF_NOTELL) ||
@@ -362,7 +362,7 @@ ACMD(do_reply)
             "You can't tell other people while you have notell on.\r\n");
     else if (!IS_NPC(tch) && tch->desc == NULL)
         send_to_char(ch, "They are linkless at the moment.\r\n");
-    else if (PLR_FLAGGED(tch, PLR_WRITING | PLR_MAILING | PLR_OLC))
+    else if (PLR_FLAGGED(tch, PLR_WRITING))
         send_to_char(ch, "They are writing at the moment.\r\n");
     else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
         && GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(tch) < LVL_GRGOD
@@ -406,7 +406,7 @@ ACMD(do_retell)
             "You can't tell other people while you have notell on.\r\n");
     else if (!IS_NPC(tch) && tch->desc == NULL)
         send_to_char(ch, "They are linkless at the moment.\r\n");
-    else if (PLR_FLAGGED(tch, PLR_WRITING | PLR_MAILING | PLR_OLC))
+    else if (PLR_FLAGGED(tch, PLR_WRITING))
         send_to_char(ch, "They are writing at the moment.\r\n");
     else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
         && GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(tch) < LVL_GRGOD
@@ -904,8 +904,7 @@ ACMD(do_gen_comm)
     /* now send all the strings out */
     for (i = descriptor_list; i; i = i->next) {
         if (STATE(i) != CXN_PLAYING || !i->creature ||
-            PLR_FLAGGED(i->creature, PLR_WRITING) ||
-            PLR_FLAGGED(i->creature, PLR_OLC))
+            PLR_FLAGGED(i->creature, PLR_WRITING))
             continue;
 
         if (chan->deaf_vector == 1 &&

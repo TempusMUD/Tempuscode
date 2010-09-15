@@ -260,7 +260,7 @@ main(int argc, char **argv)
 
     if (optind == argc) {
         dir = getenv(DATADIR_ENV_VAR);
-        
+
     } else {
         dir = argv[optind];
     }
@@ -1671,7 +1671,7 @@ send_to_clerics(int align, const char *messg)
 
     for (i = descriptor_list; i; i = i->next) {
         if (!i->input_mode && i->creature && AWAKE(i->creature) &&
-            !PLR_FLAGGED(i->creature, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+            !PLR_FLAGGED(i->creature, PLR_WRITING) &&
             PRIME_MATERIAL_ROOM(i->creature->in_room)
             && IS_CLERIC(i->creature)
             && !IS_NEUTRAL(i->creature)
@@ -1693,7 +1693,7 @@ send_to_outdoor(const char *messg, int isecho)
     for (i = descriptor_list; i; i = i->next)
         if (!i->input_mode && i->creature && AWAKE(i->creature) &&
             (!isecho || !PRF2_FLAGGED(i->creature, PRF2_NOGECHO)) &&
-            !PLR_FLAGGED(i->creature, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+            !PLR_FLAGGED(i->creature, PLR_WRITING) &&
             OUTSIDE(i->creature)
             && PRIME_MATERIAL_ROOM(i->creature->in_room))
             SEND_TO_Q(messg, i);
@@ -1784,7 +1784,7 @@ send_to_zone(const char *messg, struct zone_data *zn, int outdoor)
 
     for (i = descriptor_list; i; i = i->next)
         if (!i->input_mode && i->creature && AWAKE(i->creature) &&
-            !PLR_FLAGGED(i->creature, PLR_OLC | PLR_WRITING | PLR_MAILING) &&
+            !PLR_FLAGGED(i->creature, PLR_WRITING) &&
             i->creature->in_room->zone == zn &&
             (!outdoor ||
                 (OUTSIDE(i->creature) &&
@@ -1806,7 +1806,7 @@ send_to_room(const char *messg, struct room_data *room)
 
     for (GList * it = room->people; it; it = it->next) {
         i = it->data;
-        if (i->desc && !PLR_FLAGGED(i, PLR_OLC | PLR_WRITING | PLR_MAILING))
+        if (i->desc && !PLR_FLAGGED(i, PLR_WRITING))
             SEND_TO_Q(messg, i->desc);
     }
     /** check for vehicles in the room **/
@@ -1820,9 +1820,7 @@ send_to_room(const char *messg, struct room_data *room)
                     GET_OBJ_VNUM(o) == V_CAR_VNUM(obj) && obj->in_room) {
                     for (GList * it = obj->in_room->people; it; it = it->next) {
                         i = it->data;
-                        if (i->desc
-                            && !PLR_FLAGGED(i,
-                                PLR_OLC | PLR_WRITING | PLR_MAILING))
+                        if (i->desc && !PLR_FLAGGED(i, PLR_WRITING))
                             SEND_TO_Q(str, i->desc);
                     }
                 }
@@ -2127,7 +2125,7 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
     static char lbuf[MAX_STRING_LENGTH];
     char outbuf[MAX_STRING_LENGTH];
 
-    if (!to || !to->desc || PLR_FLAGGED((to), PLR_WRITING | PLR_OLC))
+    if (!to || !to->desc || PLR_FLAGGED((to), PLR_WRITING))
         return;
 
     if (!to->in_room) {

@@ -554,7 +554,7 @@ send_to_quest(struct creature *ch,
             continue;
 
         if ((vict = get_char_in_world_by_idnum(player->idnum))) {
-            if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
+            if (!PLR_FLAGGED(vict, PLR_WRITING) &&
                 vict->desc && GET_LEVEL(vict) >= level) {
                 send_to_char(vict, "%s", compose_qcomm_string(ch, vict, quest,
                         mode, str));
@@ -729,8 +729,7 @@ qlog(struct creature *ch, const char *str, int type, int min_level, int file)
 
         for (d = descriptor_list; d; d = d->next) {
             if (d->input_mode == CXN_PLAYING
-                && !PLR_FLAGGED(d->creature, PLR_WRITING)
-                && !PLR_FLAGGED(d->creature, PLR_OLC)) {
+                && !PLR_FLAGGED(d->creature, PLR_WRITING)) {
                 int level = (d->original) ?
                     GET_LEVEL(d->original) : GET_LEVEL(d->creature);
                 int qlog_level = (d->original) ?
@@ -2926,8 +2925,7 @@ do_qcontrol_restore(struct creature *ch, char *argument, int com)
         struct qplayer_data *player = pit->data;
         if ((vict = get_char_in_world_by_idnum(player->idnum))) {
             restore_creature(vict);
-            if (!PLR_FLAGGED(vict, PLR_MAILING | PLR_WRITING | PLR_OLC) &&
-                vict->desc) {
+            if (!PLR_FLAGGED(vict, PLR_WRITING) && vict->desc) {
                 send_to_char(vict, "%s",
                     compose_qcomm_string(ch, vict, quest, QCOMM_ECHO,
                         "You have been restored!"));

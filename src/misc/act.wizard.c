@@ -444,7 +444,7 @@ perform_goto(struct creature *ch, struct room_data *room, bool allow_follow)
             next = k->next;
             if (was_in == k->follower->in_room &&
                 GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
-                !PLR_FLAGGED(k->follower, PLR_OLC | PLR_WRITING | PLR_MAILING)
+                !PLR_FLAGGED(k->follower, PLR_WRITING)
                 && can_see_creature(k->follower, ch))
                 perform_goto(k->follower, room, true);
         }
@@ -524,8 +524,7 @@ ACMD(do_transport)
                     next = k->next;
                     if (was_in == k->follower->in_room &&
                         GET_LEVEL(k->follower) >= LVL_AMBASSADOR &&
-                        !PLR_FLAGGED(k->follower,
-                            PLR_OLC | PLR_WRITING | PLR_MAILING)
+                        !PLR_FLAGGED(k->follower, PLR_WRITING)
                         && can_see_creature(k->follower, victim))
                         perform_goto(k->follower, ch->in_room, true);
                 }
@@ -641,7 +640,7 @@ do_stat_memory(struct creature *ch)
     send_to_char(ch, "%s  world structs: %9d  (%d)\r\n", buf, sum, i);
 
     sum = g_hash_table_size(mob_prototypes) * (sizeof(struct creature));
-    
+
     GHashTableIter iter;
     gpointer key, val;
 
@@ -3117,7 +3116,7 @@ ACMD(do_gecho)
             if (pt->input_mode == CXN_PLAYING &&
                 pt->creature && pt->creature != ch &&
                 !PRF2_FLAGGED(pt->creature, PRF2_NOGECHO) &&
-                !PLR_FLAGGED(pt->creature, PLR_OLC | PLR_WRITING)) {
+                !PLR_FLAGGED(pt->creature, PLR_WRITING)) {
                 if (GET_LEVEL(pt->creature) >= 50 &&
                     GET_LEVEL(pt->creature) > GET_LEVEL(ch))
                     send_to_char(pt->creature, "[%s-g] %s\r\n", GET_NAME(ch),
@@ -3155,7 +3154,7 @@ ACMD(do_zecho)
                 pt->creature && pt->creature != ch &&
                 pt->creature->in_room && pt->creature->in_room->zone == here
                 && !PRF2_FLAGGED(pt->creature, PRF2_NOGECHO)
-                && !PLR_FLAGGED(pt->creature, PLR_OLC | PLR_WRITING)) {
+                && !PLR_FLAGGED(pt->creature, PLR_WRITING)) {
                 if (GET_LEVEL(pt->creature) > GET_LEVEL(ch))
                     send_to_char(pt->creature, "[%s-zone] %s\r\n",
                         GET_NAME(ch), argument);
@@ -3586,8 +3585,7 @@ ACMD(do_wiznet)
             && (subcmd != SCMD_WIZNET || !PRF_FLAGGED(d->creature, PRF_NOWIZ))
             && (subcmd != SCMD_IMMCHAT
                 || !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT))
-            && (!PLR_FLAGGED(d->creature,
-                    PLR_WRITING | PLR_MAILING | PLR_OLC))) {
+            && (!PLR_FLAGGED(d->creature, PLR_WRITING))) {
 
             if (subcmd == SCMD_IMMCHAT) {
                 send_to_char(d->creature, "%s", CCYEL(d->creature, C_SPR));

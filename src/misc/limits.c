@@ -438,8 +438,7 @@ gain_condition(struct creature *ch, int condition, int value)
     GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
     GET_COND(ch, condition) = MIN(24, GET_COND(ch, condition));
 
-    if (GET_COND(ch, condition) || PLR_FLAGGED(ch, PLR_WRITING) ||
-        PLR_FLAGGED(ch, PLR_OLC))
+    if (GET_COND(ch, condition) || PLR_FLAGGED(ch, PLR_WRITING))
         return;
 
     if (ch->desc && !STATE(ch->desc)) {
