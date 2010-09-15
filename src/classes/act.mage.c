@@ -285,7 +285,7 @@ group_attack_advisable(struct creature *ch)
     int attacker_count = 0;
 
     int find_two_attackers(struct creature *tch, gpointer ignore) {
-        if (tch->fighting->data == ch) {
+        if (g_list_find(tch->fighting, ch)) {
             if (attacker_count)
                 return 0;
             attacker_count++;
