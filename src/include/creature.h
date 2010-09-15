@@ -959,6 +959,9 @@ struct creature {
 extern GList *creatures;
 extern GHashTable *creature_map;
 
+struct creature *make_creature(bool pc);
+void free_creature(struct creature *ch);
+
 int level_bonus(struct creature *ch, bool primary);
 int skill_bonus(struct creature *ch, int skillnum);
 int calc_penalized_exp(struct creature *ch, int experience, struct creature *victim);
@@ -966,12 +969,12 @@ int calc_penalized_exp(struct creature *ch, int experience, struct creature *vic
 void dismount(struct creature *ch);
 void mount(struct creature *ch, struct creature *vict);
 
+struct room_data *player_loadroom(struct creature *ch);
 bool load_player_objects(struct creature *ch);
 bool save_player_objects(struct creature *ch);
 bool display_unrentables(struct creature *ch);
 int cost_modifier(struct creature *ch, struct creature *seller);
 
-void free_creature(struct creature *ch);
 bool creature_trusts_idnum(struct creature *ch, long idnum);
 bool creature_distrusts_idnum(struct creature *ch, long idnum);
 bool creature_trusts(struct creature *ch, struct creature *target);
