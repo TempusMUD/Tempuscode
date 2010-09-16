@@ -1513,22 +1513,24 @@ int
 get_max_str(struct creature *ch)
 {
     return MIN(GET_REMORT_GEN(ch) + 18 +
-        ((IS_NPC(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
-        (IS_MINOTAUR(ch) ? 2 : 0) +
-        (IS_DWARF(ch) ? 1 : 0) +
-        (IS_HALF_ORC(ch) ? 2 : 0) + (IS_ORC(ch) ? 1 : 0), 25);
+               ((IS_NPC(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
+               (IS_MINOTAUR(ch) ? 2 : 0) +
+               (IS_DWARF(ch) ? 1 : 0) +
+               (IS_HALFLING(ch) ? -2 : 0) +
+               (IS_HALF_ORC(ch) ? 2 : 0) +
+               (IS_ORC(ch) ? 1 : 0), 25);
 }
 
 int
 get_max_int(struct creature *ch)
 {
     return (IS_NPC(ch) ? 25 :
-        MIN(25,
-            18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-            ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0) +
-            (IS_MINOTAUR(ch) ? -2 : 0) +
-            (IS_TABAXI(ch) ? -1 : 0) +
-            (IS_ORC(ch) ? -1 : 0) + (IS_HALF_ORC(ch) ? -1 : 0)));
+            MIN(25, 18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
+                ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0) +
+                (IS_MINOTAUR(ch) ? -2 : 0) +
+                (IS_TABAXI(ch) ? -1 : 0) +
+                (IS_ORC(ch) ? -1 : 0) +
+                (IS_HALF_ORC(ch) ? -1 : 0)));
 }
 
 int
@@ -1536,7 +1538,8 @@ get_max_wis(struct creature *ch)
 {
     return (IS_NPC(ch) ? 25 :
         MIN(25, (18 + GET_REMORT_GEN(ch)) +
-            (IS_MINOTAUR(ch) ? -2 : 0) + (IS_HALF_ORC(ch) ? -2 : 0) +
+            (IS_MINOTAUR(ch) ? -2 : 0) +
+            (IS_HALF_ORC(ch) ? -2 : 0) +
             (IS_TABAXI(ch) ? -2 : 0)));
 }
 
@@ -1546,7 +1549,8 @@ get_max_dex(struct creature *ch)
     return (IS_NPC(ch) ? 25 :
         MIN(25,
             18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-            (IS_TABAXI(ch) ? 2 : 0) + ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0)));
+            ((IS_TABAXI(ch) || IS_HALFLING(ch)) ? 2 : 0) +
+            ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0)));
 }
 
 int
