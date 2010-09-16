@@ -1626,42 +1626,43 @@ ACCMD(do_drop)
         found = perform_drop(ch, obj, mode, sname, RDR, false);
         mode = oldmode;
 
-        if (found)
+        if (found) {
             counter++;
 
-        amount += found;
+            amount += found;
 
-        if (subcmd == SCMD_JUNK && !IS_IMMORT(ch)) {
-            GET_MOVE(ch) -= 1;
-            if (GET_MOVE(ch) == 0) {
-                send_to_char(ch,
-                    "You only have the energy to junk %d item%s.\r\n", counter,
-                    (counter == 1) ? "" : "s");
-                next_obj = NULL;
-            }
-        }
-
-        if (!next_obj || strcmp(next_obj->name, obj->name)) {
-            if (counter > 0) {
-                if (counter == 1) {
-                    to_char = tmp_sprintf("You %s $p.%s", sname, VANISH(mode));
-                    to_room = tmp_sprintf("$n %ss $p.%s", sname, VANISH(mode));
-                } else {
-                    to_char = tmp_sprintf("You %s $p.%s (x%d)", sname,
-                        VANISH(mode), counter);
-                    to_room = tmp_sprintf("$n %ss $p.%s (x%d)", sname,
-                        VANISH(mode), counter);
+            if (subcmd == SCMD_JUNK && !IS_IMMORT(ch)) {
+                GET_MOVE(ch) -= 1;
+                if (GET_MOVE(ch) == 0) {
+                    send_to_char(ch,
+                                 "You only have the energy to junk %d item%s.\r\n",
+                                 counter, (counter == 1) ? "" : "s");
+                    next_obj = NULL;
                 }
-                act(to_char, false, ch, obj, 0, TO_CHAR);
-                act(to_room, true, ch, obj, 0, TO_ROOM);
             }
-            counter = 0;
-        }
+
+            if (!next_obj || strcmp(next_obj->name, obj->name)) {
+                if (counter > 0) {
+                    if (counter == 1) {
+                        to_char = tmp_sprintf("You %s $p.%s", sname, VANISH(mode));
+                        to_room = tmp_sprintf("$n %ss $p.%s", sname, VANISH(mode));
+                    } else {
+                        to_char = tmp_sprintf("You %s $p.%s (x%d)", sname,
+                                              VANISH(mode), counter);
+                        to_room = tmp_sprintf("$n %ss $p.%s (x%d)", sname,
+                                              VANISH(mode), counter);
+                    }
+                    act(to_char, false, ch, obj, 0, TO_CHAR);
+                    act(to_room, true, ch, obj, 0, TO_ROOM);
+                }
+                counter = 0;
+            }
         // We needed the object until we had displayed the message.
         // Now that the message has been displayed, it's no longer
         // necessary
-        if (subcmd == SCMD_JUNK)
-            extract_obj(obj);
+            if (subcmd == SCMD_JUNK)
+                extract_obj(obj);
+        }
 
         obj = next_obj;
     }
