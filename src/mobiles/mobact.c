@@ -1189,10 +1189,6 @@ check_infiltrate(struct creature * ch, struct creature * vict)
     int prob = skill_bonus(ch, SKILL_INFILTRATE);
     int percent = number(1, 115);
 
-    if (PLR_FLAGGED(ch, PLR_KILLER)) {
-        return false;
-    }
-
     if (IS_NPC(vict) && NPC_FLAGGED(vict, NPC_SPIRIT_TRACKER) &&
         char_in_memory(ch, vict))
         return false;

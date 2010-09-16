@@ -438,7 +438,7 @@ handle_input(struct descriptor_data *d)
                 for (int idx = 1; !invalid_char_index(d->account, idx); idx++) {
                     int idnum = get_char_by_index(d->account, idx);
                     struct creature *tmp_ch = load_player_from_xml(idnum);
-                    
+
                     if (tmp_ch) {
                         if (GET_LEVEL(tmp_ch) < LVL_POWER && GET_QUEST(tmp_ch)
                             && GET_IDNUM(d->creature) != GET_IDNUM(tmp_ch)) {
@@ -1890,8 +1890,7 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
             continue;
         }
         // Deleted and buried characters don't show on player menus
-        if (!immort && (PLR_FLAGGED(tmp_ch, PLR_DELETED) ||
-                PLR2_FLAGGED(tmp_ch, PLR2_BURIED))) {
+        if (!immort && PLR2_FLAGGED(tmp_ch, PLR2_BURIED)) {
             idx++;
             continue;
         }

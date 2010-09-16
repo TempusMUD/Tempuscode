@@ -2621,22 +2621,20 @@ add_reaction(struct reaction *reaction, char *arg)
         new_reaction[1] = clan->number + 1;
     } else if (is_abbrev(condition, "criminal"))
         new_reaction[0] |= 0x08;
-    else if (is_abbrev(condition, "thiefflag"))
-        new_reaction[0] |= 0x09;
     else if (is_abbrev(condition, "player"))
-        new_reaction[0] |= 0x0a;
+        new_reaction[0] |= 0x09;
     else if (is_abbrev(condition, "lvl<")) {
-        new_reaction[0] |= 0x0b;
+        new_reaction[0] |= 0x0a;
         new_reaction[1] = atoi(arg);
         if (new_reaction[1] < 1 || new_reaction[1] > 70)
             return false;
     } else if (is_abbrev(condition, "lvl>")) {
-        new_reaction[0] |= 0x0c;
+        new_reaction[0] |= 0x0b;
         new_reaction[1] = atoi(arg);
         if (new_reaction[1] < 1 || new_reaction[1] > 70)
             return false;
     } else if (is_abbrev(condition, "clanleader")) {
-        new_reaction[0] |= 0x0d;
+        new_reaction[0] |= 0x0c;
     } else
         return false;
 
@@ -2702,22 +2700,18 @@ react(struct reaction *reaction, struct creature *ch)
                 match = true;
             break;
         case 9:
-            if (PLR_FLAGGED(ch, PLR_THIEF))
-                match = true;
-            break;
-        case 10:
             if (IS_PC(ch))
                 match = true;
             break;
-        case 11:
+        case 10:
             if (GET_LEVEL(ch) < *(++read_pt))
                 match = true;
             break;
-        case 12:
+        case 11:
             if (GET_LEVEL(ch) > *(++read_pt))
                 match = true;
             break;
-        case 13:
+        case 12:
             if (IS_PC(ch) && PLR_FLAGGED(ch, PLR_CLAN_LEADER))
                 match = true;
             break;

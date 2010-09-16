@@ -96,8 +96,6 @@ mail_box_status(long id)
         flag = 1;
     if (PLR2_FLAGGED(victim, PLR2_BURIED))
         flag = 2;
-    if (PLR_FLAGGED(victim, PLR_DELETED))
-        flag = 3;
 
     free_creature(victim);
 

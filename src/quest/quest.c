@@ -367,11 +367,6 @@ remove_quest_player(struct quest * quest, int id)
 bool
 can_join_quest(struct quest * quest, struct creature * ch)
 {
-    if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF)) {
-        send_to_char(ch, "Join when you're no longer a killer or thief.\r\n");
-        return false;
-    }
-
     if (QUEST_FLAGGED(quest, QUEST_NOJOIN)) {
         send_to_char(ch, "This quest is open by invitation only.\r\n"
             "Contact the wizard in charge of the quest for an invitation.\r\n");

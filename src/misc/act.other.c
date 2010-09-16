@@ -89,11 +89,6 @@ ACMD(do_quit)
         return;
     }
 
-    if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF)) {
-        send_to_char(ch, "Outlaws cannot quit.\r\n");
-        return;
-    }
-
     if (subcmd != SCMD_QUIT && GET_LEVEL(ch) < LVL_AMBASSADOR)
         send_to_char(ch, "You have to type quit - no less, to quit!\r\n");
     else if (GET_POSITION(ch) == POS_FIGHTING)

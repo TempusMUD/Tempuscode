@@ -195,8 +195,7 @@ die(struct creature *ch, struct creature *killer, int attacktype)
         }
     }
 
-    if (IS_PC(ch) && !is_arena_combat(killer, ch) && killer != NULL &&
-        !PLR_FLAGGED(killer, PLR_KILLER) && !is_newbie(ch)) {
+    if (IS_PC(ch) && !is_arena_combat(killer, ch) && killer != NULL && !is_newbie(ch)) {
         // exp loss capped at the beginning of the level.
         int loss = GET_EXP(ch) / 8;
 
@@ -204,14 +203,7 @@ die(struct creature *ch, struct creature *killer, int attacktype)
         gain_exp(ch, -loss);
     }
 
-    if ((PLR_FLAGGED(ch, PLR_KILLER) || PLR_FLAGGED(ch, PLR_THIEF))
-        && GET_LEVEL(ch) < LVL_AMBASSADOR)
-        punish_killer_death(ch);
-
     if (!IS_NPC(ch) && ((!ch->in_room) || !is_arena_combat(killer, ch))) {
-        if (ch != killer)
-            REMOVE_BIT(PLR_FLAGS(ch), PLR_KILLER | PLR_THIEF);
-
         if (GET_LEVEL(ch) > 10 && !IS_NPC(ch) && (!killer || IS_NPC(killer))) {
             if (GET_LIFE_POINTS(ch) <= 0 && GET_MAX_HIT(ch) <= 1) {
 

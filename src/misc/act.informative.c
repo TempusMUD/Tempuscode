@@ -3267,14 +3267,6 @@ who_flags(struct creature *ch, struct creature *target)
     if (PLR_FLAGGED(target, PLR_AFK)) {
         acc_sprintf(" %s(afk)", CCGRN(ch, C_NRM));
     }
-    //thief
-    if (PLR_FLAGGED(target, PLR_THIEF)) {
-        acc_sprintf(" %s(THIEF)", CCRED(ch, C_NRM));
-    }
-    //killer
-    if (PLR_FLAGGED(target, PLR_KILLER)) {
-        acc_sprintf(" %s(KILLER)", CCRED(ch, C_NRM));
-    }
 }
 
 void

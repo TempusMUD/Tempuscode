@@ -287,10 +287,6 @@ gen_receptionist(struct creature *ch, struct creature *recep,
             "Rent is free here.  Just quit, and your objects will be saved!");
         return 1;
     }
-    if (PLR_FLAGGED(ch, PLR_KILLER) || PLR_FLAGGED(ch, PLR_THIEF)) {
-        perform_tell(recep, ch, "I don't deal with KILLERS and THIEVES.");
-        return 1;
-    }
     if (CMD_IS("rent")) {
 
         if (!(cost = offer_rent(ch, recep, mode, false)))

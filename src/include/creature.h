@@ -271,8 +271,8 @@ enum position {
 
 /* Player flags: used by struct creature.char_specials.act */
 enum plr_flag {
-    PLR_KILLER = (1 << 0),	/* Player is a player-killer        */
-    PLR_THIEF = (1 << 1),	/* Player is a player-thief        */
+    PLR_HARDCORE = (1 << 0),	/* Player is a hardcore character    */
+    PLR_UNUSED1 = (1 << 1),
     PLR_FROZEN = (1 << 2),	/* Player is frozen            */
     PLR_DONTSET = (1 << 3),	/* Don't EVER set (ISNPC bit)    */
     PLR_WRITING = (1 << 4),	/* Player writing (board/mail/olc)    */
@@ -281,26 +281,26 @@ enum plr_flag {
     PLR_SITEOK = (1 << 7),	/* Player has been site-cleared    */
     PLR_NOSHOUT = (1 << 8),	/* Player not allowed to shout/goss    */
     PLR_NOTITLE = (1 << 9),	/* Player not allowed to set title    */
-    PLR_DELETED = (1 << 10),	/* Player deleted - space reusable    */
-    PLR_LOADROOM = (1 << 11),	/* Player uses nonstandard loadroom    */
+    PLR_UNUSED2 = (1 << 10),
+    PLR_UNUSED3 = (1 << 11),
     PLR_NOCLANMAIL = (1 << 12),	/* Player doesn't get clanmail    */
     PLR_NODELETE = (1 << 13),	/* Player shouldn't be deleted    */
     PLR_INVSTART = (1 << 14),	/* Player should enter game wizinvis    */
     PLR_CRYO = (1 << 15),	/* Player is cryo-saved (purge prog)    */
     PLR_AFK = (1 << 16),	/* Player is away from keyboard      */
     PLR_CLAN_LEADER = (1 << 17),	/* The head of the respective clan   */
-    PLR_UNUSED2 = (1 << 18),
+    PLR_UNUSED4 = (1 << 18),
     PLR_OLC = (1 << 19),	/* Player is descripting olc         */
     PLR_HALT = (1 << 20),	/* Player is halted                  */
     PLR_OLCGOD = (1 << 21),	/* Player can edit at will           */
     PLR_TESTER = (1 << 22),	/* Player is a tester                */
-    PLR_UNUSED3 = (1 << 23),	/* Quest god                         */
+    PLR_UNUSED5 = (1 << 23),
     PLR_MORTALIZED = (1 << 24),	/* God can be killed                 */
-    PLR_UNUSED4 = (1 << 25),
-    PLR_UNUSED6 = (1 << 26),
+    PLR_UNUSED6 = (1 << 25),
+    PLR_UNUSED7 = (1 << 26),
     PLR_NOPOST = (1 << 27),
     PLR_LOG = (1 << 28),	/* log all cmds */
-    PLR_UNUSED5 = (1 << 29),	/* player approved for port olc      */
+    PLR_UNUSED8 = (1 << 29),
     PLR_NOPK = (1 << 30),	/* player cannot pk */
 };
 

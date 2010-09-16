@@ -684,8 +684,7 @@ ASPELL(spell_summon)
         return;
     }
     if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_CLAN_HOUSE) &&
-        !clan_house_can_enter(ch, victim->in_room) &&
-        !PLR_FLAGGED(victim, PLR_KILLER)) {
+        !clan_house_can_enter(ch, victim->in_room)) {
         send_to_char(ch,
             "You cannot summon clan members from their clan house.\r\n");
         act(tmp_sprintf("$n has attempted to summon you to %s!!\r\n"

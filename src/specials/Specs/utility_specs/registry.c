@@ -29,17 +29,6 @@ SPECIAL(registry)
         perform_tell(reg, ch, buf2);
         return 1;
     }
-    if (PLR_FLAGGED(ch, PLR_KILLER)) {
-        sprintf(buf2, "We don't take MURDERERS here, %s!", GET_NAME(ch));
-        do_gen_comm(reg, buf2, 0, SCMD_HOLLER, 0);
-        return 1;
-    }
-    if (PLR_FLAGGED(ch, PLR_THIEF)) {
-        sprintf(buf2, "We don't take THIEVES in our fair city, %s!",
-            GET_NAME(ch));
-        do_gen_comm(reg, buf2, 0, SCMD_HOLLER, 0);
-        return 1;
-    }
 
     switch (ch->in_room->zone->number) {
     case 204:

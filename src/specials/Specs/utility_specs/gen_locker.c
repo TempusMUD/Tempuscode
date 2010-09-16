@@ -129,12 +129,6 @@ SPECIAL(gen_locker)
             return 1;
         }
 
-        if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF)) {
-            sprintf(buf, "Why don't you kiss my ass, %s.", GET_NAME(ch));
-            perform_tell(atten, ch, buf);
-            return 1;
-        }
-
         if (!ch->carrying) {
             perform_tell(atten, ch, "You aren't carrying anything.");
             return 1;
@@ -241,12 +235,6 @@ SPECIAL(gen_locker)
 
         if (IS_NPC(ch)) {
             perform_say(atten, "say", "Sorry, I don't deal with mobiles.");
-            return 1;
-        }
-
-        if (PLR_FLAGGED(ch, PLR_KILLER | PLR_THIEF)) {
-            sprintf(buf, "Why don't you kiss my ass, %s.", GET_NAME(ch));
-            perform_tell(atten, ch, buf);
             return 1;
         }
 

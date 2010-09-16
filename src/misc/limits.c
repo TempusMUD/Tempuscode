@@ -361,9 +361,6 @@ gain_exp(struct creature *ch, int gain)
                             1]) >> 1) + exp_scale[GET_LEVEL(ch) + 1]) -
                 GET_EXP(ch);
 
-        if (PLR_FLAGGED(ch, PLR_KILLER) || PLR_FLAGGED(ch, PLR_THIEF))
-            gain = 0;
-
         GET_EXP(ch) += gain;
         while (GET_LEVEL(ch) < (LVL_AMBASSADOR - 1) &&
             GET_EXP(ch) >= exp_scale[GET_LEVEL(ch) + 1]) {
@@ -631,7 +628,7 @@ point_update(void)
         } else if ((GET_POSITION(tch) == POS_INCAP
                 || GET_POSITION(tch) == POS_MORTALLYW)) {
             // If they've been healed since they were incapacitated,
-            //  Update thier position appropriately.
+            //  Update their position appropriately.
             if (GET_HIT(tch) > -11) {
                 if (GET_HIT(tch) > 0) {
                     GET_POSITION(tch) = POS_RESTING;
