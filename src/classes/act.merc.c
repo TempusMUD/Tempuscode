@@ -474,11 +474,11 @@ ACMD(do_snipe)
         remove_combat(ch, vict);
         remove_combat(vict, ch);
         send_to_char(ch, "Damn!  You missed!\r\n");
-        act("$n fires $p to the %s, and a look of irritation crosses $s face.",
-            true, ch, gun, vict, TO_ROOM);
-        act(tmp_sprintf("A bullet screams past your head from the %s!",
+        act(tmp_sprintf("$n fires $p to %s, and a look of irritation crosses $s face.",
+                        to_dirs[snipe_dir]), true, ch, gun, vict, TO_ROOM);
+        act(tmp_sprintf("A bullet screams past your head from %s!",
                 from_dirs[snipe_dir]), true, ch, NULL, vict, TO_VICT);
-        act(tmp_sprintf("A bullet screams past $n's head from the %s!",
+        act(tmp_sprintf("A bullet screams past $n's head from %s!",
                 from_dirs[snipe_dir]), true, vict, NULL, ch, TO_ROOM);
         WAIT_STATE(ch, 3 RL_SEC);
         return;
@@ -536,11 +536,11 @@ ACMD(do_snipe)
 
         act("You smirk with satisfaction as your bullet rips into $N.",
             false, ch, NULL, vict, TO_CHAR);
-        act(tmp_sprintf("A bullet rips into your flesh from the %s!",
-                dirs[snipe_dir]), true, ch, NULL, vict, TO_VICT);
+        act(tmp_sprintf("A bullet rips into your flesh from %s!",
+                        from_dirs[snipe_dir]), true, ch, NULL, vict, TO_VICT);
         act("A bullet rips into $n's flesh!", true, vict, NULL, ch, TO_ROOM);
-        act(tmp_sprintf("$n takes careful aim and fires $p to the %s!",
-                dirs[snipe_dir]), true, ch, gun, vict, TO_ROOM);
+        act(tmp_sprintf("$n takes careful aim and fires $p %s!",
+                        to_dirs[snipe_dir]), true, ch, gun, vict, TO_ROOM);
         mudlog(LVL_AMBASSADOR, NRM, true,
             "INFO: %s has sniped %s from room %d to room %d",
             GET_NAME(ch), GET_NAME(vict),
