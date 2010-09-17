@@ -2166,16 +2166,16 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     acc_sprintf("Description:          %s%s%s\r\n", CCCYN(ch,
             C_NRM), obj->name, CCNRM(ch, C_NRM));
-    acc_sprintf("Item Classification:  %s%s%s\r\n", CCCYN(ch,
-            C_NRM), item_types[(int)GET_OBJ_TYPE(obj)], CCNRM(ch, C_NRM));
-    acc_sprintf("Material Composition: %s%s%s\r\n", CCCYN(ch,
-            C_NRM), material_names[GET_OBJ_MATERIAL(obj)], CCNRM(ch, C_NRM));
+    acc_sprintf("Item Classification:  %s%s%s\r\n", CCCYN(ch, C_NRM),
+                strlist_aref((int)GET_OBJ_TYPE(obj), item_types), CCNRM(ch, C_NRM));
+    acc_sprintf("Material Composition: %s%s%s\r\n", CCCYN(ch, C_NRM),
+                strlist_aref(GET_OBJ_MATERIAL(obj), material_names), CCNRM(ch, C_NRM));
     // give detailed item damage info
     acc_sprintf("Structural Integrity: %s%-15s%s%s\r\n",
         CCCYN(ch, C_NRM), obj_cond(obj), CCNRM(ch, C_NRM),
         ((ALEV(5) || !checklev) && GET_OBJ_MAX_DAM(obj) > 0) ?
         tmp_sprintf("  [%3d%%]",
-            GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj)) : "");
+                    GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj)) : "");
     acc_sprintf("Commerce Value:       %s%d coins%s\r\n", CCCYN(ch, C_NRM),
         GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
     acc_sprintf("Total Mass:           %s%d pounds%s\r\n", CCCYN(ch, C_NRM),
@@ -2275,8 +2275,7 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
             CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
             CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0),
             CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-            GET_OBJ_VAL(obj, 3) >= EGUN_TOP ? "unknown" :
-            egun_types[GET_OBJ_VAL(obj, 3)], CCNRM(ch, C_NRM));
+                    strlist_aref(GET_OBJ_VAL(obj, 3), egun_types), CCNRM(ch, C_NRM));
         break;
     case ITEM_BATTERY:
         acc_sprintf
@@ -2354,21 +2353,22 @@ ACMD(do_analyze)
             CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
         acc_sprintf("Name:                  %s%s%s\r\n", CCCYN(ch,
                 C_NRM), GET_NAME(vict), CCNRM(ch, C_NRM));
-        acc_sprintf("Racial Classification: %s%s%s\r\n", CCCYN(ch,
-                C_NRM), player_race[(int)GET_RACE(vict)], CCNRM(ch, C_NRM));
+        acc_sprintf("Racial Classification: %s%s%s\r\n", CCCYN(ch, C_NRM),
+                    strlist_aref((int)GET_RACE(vict), player_race), CCNRM(ch, C_NRM));
         if (GET_CLASS(vict) < NUM_CLASSES) {
-            acc_sprintf("Primary Occupation:    %s%s%s\r\n", CCCYN(ch,
-                    C_NRM), class_names[(int)GET_CLASS(vict)],
-                CCNRM(ch, C_NRM));
+            acc_sprintf("Primary Occupation:    %s%s%s\r\n", CCCYN(ch, C_NRM),
+                        strlist_aref((int)GET_CLASS(vict), class_names),
+                        CCNRM(ch, C_NRM));
         } else {
-            acc_sprintf("Primary Type:          %s%s%s\r\n", CCCYN(ch,
-                    C_NRM), class_names[(int)GET_CLASS(vict)],
-                CCNRM(ch, C_NRM));
+            acc_sprintf("Primary Type:          %s%s%s\r\n", CCCYN(ch, C_NRM),
+                        strlist_aref((int)GET_CLASS(vict), class_names),
+                        CCNRM(ch, C_NRM));
         }
         if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
             acc_sprintf("Secondary Occupation:  %s%s%s\r\n",
-                CCCYN(ch, C_NRM),
-                class_names[(int)GET_REMORT_CLASS(vict)], CCNRM(ch, C_NRM));
+                        CCCYN(ch, C_NRM),
+                        strlist_aref((int)GET_REMORT_CLASS(vict), class_names),
+                        CCNRM(ch, C_NRM));
 
         GET_MOVE(ch) -= 10;
         page_string(ch->desc, acc_get_string());
