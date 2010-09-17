@@ -5805,7 +5805,6 @@ ACMD(do_set)
         {"cash", LVL_IMMORT, BOTH, NUMBER, "AdminFull"},
         {"generation", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"path", LVL_LUCIFER, NPC, NUMBER, "Coder"},
-        {"lightread", LVL_IMMORT, PC, BINARY, "Coder"},
         {"nopost", LVL_IMMORT, PC, BINARY, "AdminBasic"},
         {"logging", LVL_IMMORT, PC, BINARY, "WizardAdmin"},
         {"nopk", LVL_IMMORT, PC, BINARY, "AdminFull"},
@@ -5819,6 +5818,7 @@ ACMD(do_set)
         {"skill", LVL_IMMORT, PC, MISC, "WizardFull"},
         {"reputation", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"language", LVL_IMMORT, BOTH, MISC, "AdminFull"},
+        {"hardcore", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""}
     };
 
@@ -6415,7 +6415,6 @@ ACMD(do_set)
     case 74:
         GET_QUEST_ALLOWANCE(vict) = RANGE(0, 100);
         break;
-
     case 75:
         if (IS_NPC(vict)) {
             SET_OR_REMOVE(NPC_FLAGS(vict), NPC_SOULLESS);
@@ -6490,6 +6489,8 @@ ACMD(do_set)
             return;
         }
         break;
+    case 82:
+        SET_OR_REMOVE(PLR_FLAGS(vict), PLR_HARDCORE); break;
     default:
         sprintf(buf, "Can't set that!");
         break;
