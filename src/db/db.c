@@ -435,7 +435,6 @@ boot_db(void)
     if (mini_mud) {
         slog("HOUSE: Mini-mud detected. Houses not loading.");
     } else {
-        slog("HOUSE: Booting houses.");
         load_houses();
         update_objects_housed_count();
     }
@@ -2838,7 +2837,7 @@ reset_zone(struct zone_data *zone)
                                         && !mob->master
                                         && IS_NPC(tch)
                                         && GET_NPC_VNUM(tch) == GET_NPC_LEADER(mob)
-                                        && !circle_follow(mob, tch)) 
+                                        && !circle_follow(mob, tch))
                                         add_follower(mob, tch);
                             }
                         }

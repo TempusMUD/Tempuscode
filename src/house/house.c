@@ -464,7 +464,7 @@ zero_housed_objects(gpointer vnum, struct obj_data *obj, gpointer ignore)
 {
     obj->shared->house_count = 0;
 }
-    
+
 void
 update_objects_housed_count(void)
 {
@@ -733,6 +733,7 @@ load_houses(void)
     struct dirent *file;
     char *dirname;
 
+    slog("Loading player houses");
     for (int i = 0; i <= 9; i++) {
         // If we don't have
         dirname = tmp_sprintf("players/housing/%d", i);
@@ -756,7 +757,6 @@ load_houses(void)
             struct house *house = load_house(filename);
             if (house) {
                 houses = g_list_prepend(houses, house);
-                slog("HOUSE: Loaded house %d", house->id);
             } else {
                 errlog("Failed to load house file: %s ", filename);
             }
@@ -812,7 +812,7 @@ creature_is_pc(struct creature *ch, gpointer ignore)
 {
     return (IS_PC(ch)) ? 0 : -1;
 }
-        
+
 int
 house_rent_cost(struct house *house)
 {
