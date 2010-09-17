@@ -132,6 +132,8 @@ void
 mlog(const char *group, sbyte level, enum log_type type, bool file,
     const char *fmt, ...)
 {
+    bool is_named_role_member(struct creature *ch, const char *role_name);
+
     extern struct descriptor_data *descriptor_list;
     struct descriptor_data *i;
     va_list args;

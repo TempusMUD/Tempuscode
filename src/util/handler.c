@@ -2153,7 +2153,7 @@ get_obj_vis(struct creature *ch, const char *name)
     char tmpname[MAX_INPUT_LENGTH];
     char *tmp = tmpname;
 
-    if (is_number(name) && is_named_role_member(ch, "Coder")) {
+    if (is_number(name) && is_authorized(ch, DEBUGGING, NULL)) {
         // Scan the object list for the unique ID given by the number
         number = atoi(name);
         for (i = object_list; i; i = i->next)

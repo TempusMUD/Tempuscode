@@ -7,6 +7,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <errno.h>
+
 #include "structs.h"
 #include "creature.h"
 #include "utils.h"
@@ -421,26 +423,38 @@ help_collection_save_all(struct help_collection * col, struct creature * ch)
 bool
 help_collection_load_index(struct help_collection * col)
 {
+    char *path;
     FILE *inf;
     struct help_item *n;
     int num_items = 0;
     char line[1024];
     int i;
 
-    inf = fopen(tmp_sprintf("%s/%s", HELP_DIRECTORY, "index"), "r");
+    path = tmp_sprintf("%s/%s", HELP_DIRECTORY, "index");;
+    inf = fopen(path, "r");
     if (!inf) {
         errlog("Cannot open help index.");
         return false;
     }
 
-    fscanf(inf, "%d\n", &col->top_id);
+    if (!fscanf(inf, "%d\n", &col->top_id))
+        goto error;
+
     for (i = 0; i < col->top_id; i++) {
         CREATE(n, struct help_item, 1);
-        fscanf(inf, "%d %d %d %d %ld\n",
-            &n->idnum, &n->groups, &n->counter, &n->flags, &n->owner);
-        fgets(line, sizeof(line), inf);
+        if (fscanf(inf, "%d %d %d %d %ld\n",
+                   &n->idnum,
+                   &n->groups,
+                   &n->counter,
+                   &n->flags,
+                   &n->owner) != 5)
+            goto error;
+
+        if (!fgets(line, sizeof(line), inf))
+            goto error;
         n->name = strdup(line);
-        fgets(line, sizeof(line), inf);
+        if (!fgets(line, sizeof(line), inf))
+            goto error;
         n->keys = strdup(line);
         REMOVE_BIT(n->flags, HFLAG_MODIFIED);
         help_collection_push(col, n);
@@ -454,6 +468,12 @@ help_collection_load_index(struct help_collection * col)
 
     slog("%d items read from help file index", num_items);
     return true;
+
+error:
+    errlog("Unable to load help index (%s): %s",
+           path, strerror(errno));
+    fclose(inf);
+    return false;
 }
 
 // Funnels outside commands into struct help_item functions

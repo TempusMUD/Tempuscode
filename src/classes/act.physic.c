@@ -857,7 +857,7 @@ ACMD(do_econvert)
     }
 
     if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
-        !is_authorized(ch, ECONVERT_CORPSES, NULL)) {
+        !is_authorized(ch, DESTROY_CORPSES, NULL)) {
         send_to_char(ch,
             "You can't econvert a player's corpse while it still has objects in it.");
         return;

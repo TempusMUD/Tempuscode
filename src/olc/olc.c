@@ -2612,8 +2612,7 @@ bool
 OLC_EDIT_OK(struct creature * ch, struct zone_data * zone, int bits)
 {
 
-    if (is_named_role_member(ch, "OLCWorldWrite")
-        && PRF2_FLAGGED(ch, PRF2_WORLDWRITE))
+    if (is_authorized(ch, WORLDWRITE, NULL) && PRF2_FLAGGED(ch, PRF2_WORLDWRITE))
         return true;
 
     if (ZONE_FLAGGED(zone, ZONE_FULLCONTROL))

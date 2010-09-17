@@ -102,17 +102,28 @@ help_item_load_text(struct help_item *item)
 
     inf = fopen(fname, "r");
     if (inf) {
-        fscanf(inf, "%d %d\n", &idnum, &textlen);
+        if (fscanf(inf, "%d %d\n", &idnum, &textlen) != 2)
+            goto error;
+
         if (textlen > MAX_HELP_TEXT_LENGTH - 1)
             textlen = MAX_HELP_TEXT_LENGTH - 1;
-        fgets(buf, sizeof(buf), inf);
-        CREATE(item->text, char, textlen + 1);
-        fread(item->text, 1, textlen, inf);
+        if (!fgets(buf, sizeof(buf), inf))
+            goto error;
 
+        CREATE(item->text, char, textlen + 1);
+
+        if (fread(item->text, 1, textlen, inf) != textlen) {
+            free(item->text);
+            item->text = NULL;
+            goto error;
+        }
+
+        fclose(inf);
         return true;
     }
 
-    errlog("Unable to open help file to load text (%s): %s",
+error:
+    errlog("Unable to load help item text (%s): %s",
         fname, strerror(errno));
     return false;
 }

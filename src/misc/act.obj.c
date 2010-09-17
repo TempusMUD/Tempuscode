@@ -208,7 +208,7 @@ consolidate_char_money(struct creature *ch)
         next_obj = obj->next_content;
 
         if (IS_OBJ_TYPE(obj, ITEM_MONEY)) {
-            if (OBJ_APPROVED(obj) || is_named_role_member(ch, "WizardFull")) {
+            if (OBJ_APPROVED(obj) || is_authorized(ch, APPROVE_ZONE, NULL)) {
                 if (GET_OBJ_VAL(obj, 1) == 1)
                     num_credits += GET_OBJ_VAL(obj, 0);
                 else
@@ -1345,7 +1345,7 @@ is_undisposable(struct creature *ch, const char *cmdstr, struct obj_data *obj,
     bool display)
 {
     if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
-        !is_named_role_member(ch, ROLE_WIZARDFULL)) {
+        !is_authorized(ch, DESTROY_CORPSES, NULL)) {
         send_to_char(ch,
             "You can't %s a player's corpse while it still has objects in it.\r\n",
             cmdstr);
@@ -3924,7 +3924,7 @@ ACMD(do_sacrifice)
         return;
     }
     if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE))
-        && !is_named_role_member(ch, ROLE_WIZARDFULL)) {
+        && !is_authorized(ch, DESTROY_NOTAKE, NULL)) {
         send_to_char(ch, "You can't sacrifice that.\r\n");
         return;
     }
@@ -4000,7 +4000,7 @@ ACMD(do_empty)
 
     if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0
         && CORPSE_IDNUM(obj) != GET_IDNUM(ch)
-        && !is_named_role_member(ch, ROLE_WIZARDFULL)) {
+        && !is_authorized(ch, EMPTY_CORPSES, NULL)) {
         send_to_char(ch, "You can't empty a player's corpse.");
         return;
     }

@@ -326,7 +326,7 @@ find_target_room(struct creature *ch, char *rawroomstr)
     }
 
     /* a location has been found -- if you're < GRGOD, check restrictions. */
-    if (!is_named_role_member(ch, "WizardFull")) {
+    if (!is_authorized(ch, ENTER_ROOM, location)) {
         if (location->zone->number == 12 && GET_LEVEL(ch) < LVL_AMBASSADOR) {
             send_to_char(ch, "You can't go there.\r\n");
             return NULL;
@@ -473,13 +473,6 @@ ACMD(do_transport)
     struct room_data *was_in;
     struct creature *victim;
     char *name_str;
-
-    if (GET_LEVEL(ch) < LVL_IMMORT || !(is_named_role_member(ch, "WizardBasic")
-            || is_named_role_member(ch, "Questor")
-            || is_named_role_member(ch, "AdminBasic"))) {
-        send_to_char(ch, "Sorry, but you can't do that here!\r\n");
-        return;
-    }
 
     name_str = tmp_getword(&argument);
 
@@ -1610,12 +1603,12 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
 
     if (IS_PC(k)
         && !(is_tester(ch) && ch == k)
-        && !is_named_role_member(ch, ROLE_ADMINBASIC)) {
+        && !is_authorized(ch, STAT_PLAYERS, NULL)) {
         send_to_char(ch, "You can't stat this player.\r\n");
         return;
     }
 
-    if (GET_NPC_SPEC(k) == fate && !is_named_role_member(ch, ROLE_WIZARDBASIC)) {
+    if (GET_NPC_SPEC(k) == fate && !is_authorized(ch, STAT_FATE, NULL)) {
         send_to_char(ch, "You can't stat this mob.\r\n");
         return;
     }
@@ -2116,9 +2109,7 @@ ACMD(do_stat)
                 send_to_char(ch, "No such player around.\r\n");
         }
     } else if (is_abbrev(arg1, "file")) {
-        if (GET_LEVEL(ch) < LVL_TIMEGOD
-            && !is_named_role_member(ch, "AdminFull")
-            && !is_named_role_member(ch, "WizardFull")) {
+        if (!is_authorized(ch, STAT_PLAYER_FILE, NULL)) {
             send_to_char(ch, "You cannot peer into the playerfile.\r\n");
             return;
         }
@@ -2321,7 +2312,7 @@ ACMD(do_snoop)
     else if (victim->desc->snooping == ch->desc)
         send_to_char(ch, "Don't be stupid.\r\n");
     else if (ROOM_FLAGGED(victim->in_room, ROOM_GODROOM)
-        && !is_named_role_member(ch, "WizardFull")) {
+             && !is_authorized(ch, SNOOP_IN_GODROOMS, NULL)) {
         send_to_char(ch, "You cannot snoop into that place.\r\n");
     } else {
         if (g_list_find(victim->desc->snoop_by, ch->desc)) {
@@ -3122,8 +3113,7 @@ ACMD(do_zecho)
     struct descriptor_data *pt;
     struct zone_data *here;
     // charmed mobs and players < LVL_GOD cant use this
-    if ((!IS_NPC(ch) && !is_named_role_member(ch, "WizardBasic"))
-        || (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM))) {
+    if (IS_NPC(ch) && AFF_FLAGGED(ch, AFF_CHARM)) {
         send_to_char(ch, "You probably shouldn't be using this.\r\n");
     }
     if (ch->in_room && ch->in_room->zone) {
@@ -3366,7 +3356,7 @@ ACMD(do_force)
 
     if (GET_LEVEL(ch) >= LVL_GRGOD) {
         // Check for high-level special arguments
-        if (!strcasecmp("all", arg) && is_named_role_member(ch, "Coder")) {
+        if (!strcasecmp("all", arg) && is_authorized(ch, FORCE_ALL, NULL)) {
             send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true,
                 "(GC) %s forced all to %s", GET_NAME(ch), to_force);
@@ -3417,7 +3407,7 @@ ACMD(do_force)
         send_to_char(ch, "%s", NOPERSON);
     } else if (GET_LEVEL(ch) <= GET_LEVEL(vict))
         send_to_char(ch, "No, no, no!\r\n");
-    else if (!IS_NPC(vict) && !is_named_role_member(ch, "WizardFull"))
+    else if (!IS_NPC(vict) && !is_authorized(ch, FORCE_PLAYERS, NULL))
         send_to_char(ch, "You cannot force players to do things.\r\n");
     else {
         send_to_char(ch, "%s", OK);
@@ -3432,7 +3422,6 @@ ACMD(do_wiznet)
 {
     struct descriptor_data *d;
     char emote = false;
-    char any = false;
     int level = LVL_AMBASSADOR;
     const char *subcmd_str = NULL;
     const char *subcmd_desc = NULL;
@@ -3470,55 +3459,6 @@ ACMD(do_wiznet)
         } else if (emote)
             argument++;
         break;
-    case '@':
-        for (d = descriptor_list; d; d = d->next) {
-            if (STATE(d) == CXN_PLAYING && GET_LEVEL(d->creature) >=
-                (subcmd == SCMD_IMMCHAT ? LVL_AMBASSADOR : LVL_DEMI) &&
-                ((subcmd == SCMD_IMMCHAT &&
-                        !PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT)) ||
-                    (subcmd == SCMD_WIZNET &&
-                        is_named_role_member(d->creature, "WizardBasic") &&
-                        !PRF_FLAGGED(d->creature, PRF_NOWIZ))) &&
-                (can_see_creature(ch, d->creature)
-                    || GET_LEVEL(ch) == LVL_GRIMP)) {
-                if (!any) {
-                    sprintf(buf1, "Gods online:\r\n");
-                    any = true;
-                }
-                sprintf(buf1, "%s  %s", buf1, GET_NAME(d->creature));
-                if (PLR_FLAGGED(d->creature, PLR_WRITING))
-                    sprintf(buf1, "%s (Writing)\r\n", buf1);
-                else if (PLR_FLAGGED(d->creature, PLR_MAILING))
-                    sprintf(buf1, "%s (Writing mail)\r\n", buf1);
-                else if (PLR_FLAGGED(d->creature, PLR_OLC))
-                    sprintf(buf1, "%s (Creating)\r\n", buf1);
-                else
-                    sprintf(buf1, "%s\r\n", buf1);
-
-            }
-        }
-
-        if (!any)               /* hacked bug fix */
-            strcpy(buf1, "");
-
-        any = false;
-        for (d = descriptor_list; d; d = d->next) {
-            if (STATE(d) == CXN_PLAYING
-                && GET_LEVEL(d->creature) >= LVL_AMBASSADOR
-                && ((subcmd == SCMD_IMMCHAT
-                        && PRF2_FLAGGED(d->creature, PRF2_NOIMMCHAT))
-                    || (subcmd == SCMD_WIZNET
-                        && is_named_role_member(d->creature, "WizardBasic")
-                        && PRF_FLAGGED(d->creature, PRF_NOWIZ)))
-                && can_see_creature(ch, d->creature)) {
-                if (!any) {
-                    sprintf(buf1, "%sGods offline:\r\n", buf1);
-                    any = true;
-                }
-                send_to_char(ch, "%s  %s\r\n", buf1, GET_NAME(d->creature));
-            }
-        }
-        return;
     case '\\':
         ++argument;
         break;

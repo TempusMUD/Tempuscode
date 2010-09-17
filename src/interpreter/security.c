@@ -167,11 +167,26 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
             || is_named_role_member(ch, role->admin_role);
 
     case CREATE_CLAN:
+    case EDIT_CLAN:
     case DESTROY_CLAN:
+        return is_named_role_member(ch, "Clan");
+
+    case LOGIN_WITH_TESTER:
+        return is_named_role_member(ch, "OLC");
+
+    case CONTROL_FATE:
+    case DESTROY_NOTAKE:
+    case EMPTY_CORPSES:
+    case SNOOP_IN_GODROOMS:
         return is_named_role_member(ch, "WizardFull");
 
-    case EDIT_CLAN:
-        return is_named_role_member(ch, "Clan");
+    case STAT_FATE:
+    case STAT_PLAYERS:
+    case STAT_PLAYER_FILE:
+        return is_named_role_member(ch, "AdminFull");
+
+    case EDIT_HELP:
+        return is_named_role_member(ch, "Help");
 
     case SEE_FULL_WHOLIST:
         return is_named_role_member(ch, "AdminBasic");
@@ -181,6 +196,9 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
 
     case TESTER:
         return is_named_role_member(ch, "Testers");
+
+    case DEBUGGING:
+        return is_named_role_member(ch, "Coder");
 
     case ENTER_HOUSES:
         return (is_named_role_member(ch, "House")
@@ -194,11 +212,15 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
                 || is_named_role_member(ch, "WizardFull")));
 
     case WORLDWRITE:
+    case SET_FULLCONTROL:
+    case SET_RESERVED_SPECIALS:
         return is_named_role_member(ch, "OLCWorldWrite");
 
     case HEAR_ALL_CHANNELS:
+    case PARDON:
         return is_named_role_member(ch, "AdminBasic");
 
+    case DESTROY_CORPSES:
     case EAT_ANYTHING:
         return is_named_role_member(ch, "WizardBasic");
 
@@ -211,9 +233,6 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
             || zone->co_owner_idnum == GET_IDNUM(ch)
             || is_named_role_member(ch, "OLCWorldWrite"));
 
-    case SET_RESERVED_SPECIALS:
-        return is_named_role_member(ch, "OLCWorldWrite");
-
     case EDIT_ZONE:
         return (zone->owner_idnum == GET_IDNUM(ch)
             || zone->co_owner_idnum == GET_IDNUM(ch)
@@ -221,16 +240,17 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
             || (is_named_role_member(ch, "OLCWorldWrite")
                 && PRF2_FLAGGED(ch, PRF2_WORLDWRITE)));
 
+    case CREATE_ZONE:
     case APPROVE_ZONE:
-        return is_named_role_member(ch, "OLCApproval");
-
     case UNAPPROVE_ZONE:
+    case OLC_LOCK:
         return is_named_role_member(ch, "OLCApproval");
 
     case EDIT_HOUSE:
         return (is_named_role_member(ch, "House")
             || (house && house->owner_id == GET_IDNUM(ch)));
 
+    case QUEST_BAN:
     case EDIT_QUEST:
         return is_named_role_member(ch, "Quest");
 

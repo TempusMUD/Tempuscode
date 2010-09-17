@@ -47,7 +47,7 @@ shop_id_matches(gpointer vnum, struct craft_shop *shop,
 {
     return (shop->id == GPOINTER_TO_INT(vnum)) ? 0 : -1;
 }
-    
+
 struct craft_shop *
 craft_shop_by_id(int idnum)
 {
@@ -56,14 +56,14 @@ craft_shop_by_id(int idnum)
     return (it) ? it->data : NULL;
 }
 
-gint 
+gint
 shop_keeper_matches(gpointer vnum, struct craft_shop *shop,
                     struct creature *keeper)
 {
     return (shop->keeper_vnum == GET_NPC_VNUM(keeper)
             && shop->room == keeper->in_room->number) ? 0 : -1;
 }
-    
+
 
 struct craft_shop *
 craft_shop_by_keeper(struct creature *keeper)
@@ -455,7 +455,7 @@ SPECIAL(artisan)
     } else if (CMD_IS("sell")) {
         msg = tmp_sprintf("I don't buy things, I make them.");
         perform_say_to(keeper, ch, msg);
-    } else if (CMD_IS("status") && is_named_role_member(ch, "Coder")) {
+    } else if (CMD_IS("status") && is_authorized(ch, DEBUGGING, NULL)) {
         GList *it;
         for (it = shop_list; it; it = it->next) {
             send_craft_shop_status(((struct craft_shop *)it->data), ch);

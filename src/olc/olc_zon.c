@@ -285,7 +285,7 @@ do_zcmd(struct creature *ch, char *argument)
                 send_to_char(ch, ZCMD_O_USAGE);
                 return;
             }
-            
+
             if (is_number(arg1) && is_number(arg2)) {
                 int_arg2 = atoi(arg1);
                 if (int_arg2 < 1 || int_arg2 > 1000) {
@@ -1962,7 +1962,7 @@ do_zset_command(struct creature *ch, char *argument)
         return;
         break;
     case 2:                    /*  top   */
-        if (!is_named_role_member(ch, "OLCWorldWrite")) {
+        if (!is_authorized(ch, WORLDWRITE, NULL)) {
             send_to_char(ch, "You cannot alter zones in this way.\r\n");
             return;
         }

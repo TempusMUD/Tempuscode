@@ -572,8 +572,7 @@ editor_wrap(struct editor *editor, char *args)
     const char *usage = "Usage: &w [<start line #>][-<end line #>]\r\n";
     GList *line_it, *start_line, *finish_line, *newText = NULL;
 	char *start, *end;
-    GString *line;
-    GString *newLine;
+    GString *newLine = g_string_new("");
     const char *space;
     int start_lineno, end_lineno;
 
@@ -596,7 +595,7 @@ editor_wrap(struct editor *editor, char *args)
     for (line_it = start_line;
          line_it != finish_line;
          line_it = line_it->next) {
-        line = line_it->data;
+        GString *line = line_it->data;
         start = line->str;
 
         // Blank lines just cause a paragraph separation
