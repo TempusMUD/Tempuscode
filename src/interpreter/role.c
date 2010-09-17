@@ -231,7 +231,8 @@ send_role_member_list(struct role *role,
     if (!role->members)
         return;
 
-    admin_role = role_by_name(admin_role_name);
+    if (admin_role_name)
+        admin_role = role_by_name(admin_role_name);
 
     acc_sprintf("\r\n\r\n        %s%s%s\r\n",
         CCYEL(ch, C_NRM), title, CCNRM(ch, C_NRM));
@@ -245,7 +246,7 @@ send_role_member_list(struct role *role,
         name = player_name_by_idnum(GPOINTER_TO_INT(it->data));
         if (!name)
             continue;
-        if (role && is_role_member(role, GPOINTER_TO_INT(it->data)))
+        if (admin_role && is_role_member(admin_role, GPOINTER_TO_INT(it->data)))
             acc_sprintf("%s%-15s%s",
                 CCYEL_BLD(ch, C_NRM), name, CCNRM(ch, C_NRM));
         else
