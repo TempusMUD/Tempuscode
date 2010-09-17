@@ -1290,6 +1290,8 @@ advance_level(struct creature *ch, byte keep_internal)
         ch->points.max_mana += add_mana[0];
 
     GET_LIFE_POINTS(ch) += (GET_LEVEL(ch) * (GET_WIS(ch) + GET_CON(ch))) / 300;
+    if (PLR_FLAGGED(ch, PLR_HARDCORE))
+        GET_LIFE_POINTS(ch) += 1;
 
     if (IS_REMORT(ch) && GET_REMORT_GEN(ch)) {
 
