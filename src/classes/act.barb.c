@@ -342,7 +342,7 @@ ACMD(do_cleave)
     arg = tmp_getword(&argument);
 
     if (!*arg) {
-        vict = ch->fighting->data;
+        vict = random_opponent(ch);
     } else {
         vict = get_char_room_vis(ch, arg);
     }
