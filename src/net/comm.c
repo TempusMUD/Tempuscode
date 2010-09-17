@@ -320,7 +320,14 @@ main(int argc, char **argv)
     verify_environment();
 
     if (scheck) {
-        boot_world();
+        void my_srand(unsigned long initial_seed);
+        void verify_tempus_integrity(struct creature *ch);
+        my_srand(time(0));
+        boot_db();
+        verify_tempus_integrity(NULL);
+        slog("Press RETURN to continue.");
+        while (getchar() != '\n')
+            ;
         slog("Done.");
         clear_world();
         safe_exit(EXIT_SUCCESS);
