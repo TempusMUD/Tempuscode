@@ -2260,7 +2260,6 @@ ACMD(do_eat)
     struct obj_data *food;
     struct affected_type af;
     int amount;
-    bool extract_ok = true;
     int my_return_flags = 0;
 
     if (return_flags == NULL)
@@ -2301,23 +2300,19 @@ ACMD(do_eat)
 
     gain_condition(ch, FULL, amount);
 
-    if ((GET_LEVEL(ch) >= LVL_AMBASSADOR
-            || ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) && !IS_NPC(ch))
-        extract_ok = false;     // sometimes a death extracts the char's objs too
+    // Avoid the food being destroyed by being in the char's inventory
+    // when the char is rented out by arena death
+    obj_from_char(food);
+    obj_to_room(food, ch->in_room);
 
     if (IS_OBJ_TYPE(food, ITEM_FOOD)) {
-        if ((GET_OBJ_VAL(food, 1) != 0)
-            && (GET_OBJ_VAL(food, 2) != 0)
+        if (GET_OBJ_VAL(food, 1) != 0
+            && GET_OBJ_VAL(food, 2) != 0
             && subcmd == SCMD_EAT) {
-            if (!mag_objectmagic(ch, food, buf, return_flags)) {
-                if (extract_ok)
-                    extract_obj(food);
+            mag_objectmagic(ch, food, buf, return_flags);
+            if (*return_flags) {
+                extract_obj(food);
                 return;
-            } else {
-                if (*return_flags && extract_ok) {
-                    extract_obj(food);
-                    return;
-                }
             }
         }
     }
