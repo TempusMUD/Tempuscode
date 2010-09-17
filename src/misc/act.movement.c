@@ -1444,10 +1444,8 @@ find_door(struct creature *ch, char *type, char *dir, const char *cmdname)
             } else
                 return door;
         else {
-            sprintf(buf,
-                "I really don't see how you can %s anything there.\r\n",
-                cmdname);
-            send_to_char(ch, "%s", buf);
+            send_to_char(ch, "I really don't see how you can %s anything there.\r\n",
+                         cmdname);
             return -1;
         }
     } else {                    /* try to locate the keyword */
@@ -1461,8 +1459,7 @@ find_door(struct creature *ch, char *type, char *dir, const char *cmdname)
                     if (isname(type, EXIT(ch, door)->keyword))
                         return door;
 
-        send_to_char(ch, "There doesn't seem to be %s %s here.\r\n", AN(type),
-            type);
+        send_to_char(ch, "There doesn't seem to be %s %s here.\r\n", AN(type), type);
         return -1;
     }
 }
