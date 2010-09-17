@@ -1462,7 +1462,7 @@ find_spell_targets(struct creature *ch, char *argument,
             send_to_char(ch, "Upon %s should the spell be cast?\r\n",
                 IS_SET(SINFO.targets,
                     TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD) ? "what" :
-                "who");
+                "whom");
             return 0;
         }
     }

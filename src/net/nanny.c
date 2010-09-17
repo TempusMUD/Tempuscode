@@ -1254,12 +1254,7 @@ send_menu(struct descriptor_data *d)
     case CXN_HARDCORE_PROMPT:
         send_to_desc(d, "\r\n&c                                    HARDCORE\r\n"
                      "*******************************************************************************&n\r\n");
-        send_to_desc(d,
-                     "\r\n    You may choose to play a hardcore character.  Hardcore characters do\r\n"
-                     "not resurrect.  Once your character dies, it is buried and is no longer\r\n"
-                     "playable.  They also do not have the protections against other players\r\n"
-                     "that normal characters do.  In return, they are widely respected and\r\n"
-                     "gain life points a little faster than normal.\r\n\r\n");
+        send_to_desc(d, "\r\n    You may choose to play a hardcore character.  Hardcore characters\r\nare widely respected and gain life points a little faster than normal.\r\nHowever, they do not resurrect once dead.  Once the character dies, it\r\nis buried and no longer playable.  This option is recommended for more\r\nexperienced players who want a challenge.\r\n\r\n");
         break;
     case CXN_RACE_PROMPT:      // Racial Query
         send_to_desc(d, "\e[H\e[J");
