@@ -498,14 +498,28 @@ handle_input(struct descriptor_data *d)
         switch (tolower(arg[0])) {
         case 'm':
             GET_SEX(d->creature) = 1;
-            set_desc_state(CXN_CLASS_PROMPT, d);
+            set_desc_state(CXN_HARDCORE_PROMPT, d);
             break;
         case 'f':
             GET_SEX(d->creature) = 2;
-            set_desc_state(CXN_CLASS_PROMPT, d);
+            set_desc_state(CXN_HARDCORE_PROMPT, d);
             break;
         default:
             send_to_desc(d, "\r\nPlease enter male or female.\r\n\r\n");
+            break;
+        }
+        break;
+    case CXN_HARDCORE_PROMPT:
+        switch (tolower(arg[0])) {
+        case 'y':
+            SET_BIT(PLR_FLAGS(d->creature), PLR_HARDCORE);
+            set_desc_state(CXN_CLASS_PROMPT, d);
+            break;
+        case 'n':
+            set_desc_state(CXN_CLASS_PROMPT, d);
+            break;
+        default:
+            send_to_desc(d, "\r\nPlease specify yes or no.\r\n\r\n");
             break;
         }
         break;
@@ -761,7 +775,10 @@ handle_input(struct descriptor_data *d)
         set_desc_state(CXN_WAIT_MENU, d);
         break;
     case CXN_AFTERLIFE:
-        char_to_game(d);
+        if (PLR_FLAGGED(d->creature, PLR_HARDCORE))
+            set_desc_state(CXN_MENU, d);
+        else
+            char_to_game(d);
         break;
     case CXN_WAIT_MENU:
         set_desc_state(CXN_MENU, d);
@@ -1014,7 +1031,10 @@ send_prompt(struct descriptor_data *d)
         send_to_desc(d, "Enter the name you wish for this character: ");
         break;
     case CXN_SEX_PROMPT:
-        send_to_desc(d, "What do you choose as your sex (M/F)? ");
+        send_to_desc(d, "                        What do you choose as your sex (M/F)? ");
+        break;
+    case CXN_HARDCORE_PROMPT:
+        send_to_desc(d, "           Do you wish to play this character as hardcore (Y/N)? ");
         break;
     case CXN_RACE_PROMPT:
         send_to_desc(d,
@@ -1082,6 +1102,11 @@ send_prompt(struct descriptor_data *d)
         send_to_desc(d, "Press return to go back to the main menu.");
         break;
     case CXN_AFTERLIFE:
+        if (PLR_FLAGGED(d->creature, PLR_HARDCORE))
+            send_to_desc(d, "Press return to go back to the main menu.\r\n");
+        else
+            send_to_desc(d, "Press return to continue into the afterlife.\r\n");
+        break;
     case CXN_REMORT_AFTERLIFE:
         send_to_desc(d, "Press return to continue into the afterlife.\r\n");
         break;
@@ -1225,6 +1250,16 @@ send_menu(struct descriptor_data *d)
             "&c\r\n                                     GENDER\r\n*******************************************************************************\r\n&n");
         send_to_desc(d,
             "\r\n    Is your character a male or a female?\r\n\r\n");
+        break;
+    case CXN_HARDCORE_PROMPT:
+        send_to_desc(d, "\r\n&c                                    HARDCORE\r\n"
+                     "*******************************************************************************&n\r\n");
+        send_to_desc(d,
+                     "\r\n    You may choose to play a hardcore character.  Hardcore characters do\r\n"
+                     "not resurrect.  Once your character dies, it is buried and is no longer\r\n"
+                     "playable.  They also do not have the protections against other players\r\n"
+                     "that normal characters do.  In return, they are widely respected and\r\n"
+                     "gain life points a little faster than normal.\r\n\r\n");
         break;
     case CXN_RACE_PROMPT:      // Racial Query
         send_to_desc(d, "\e[H\e[J");
@@ -1581,10 +1616,34 @@ char_to_game(struct descriptor_data *d)
 
     // Report and go back to menu if buried
     if (PLR2_FLAGGED(d->creature, PLR2_BURIED)) {
-        SEND_TO_Q(tmp_sprintf("You lay fresh flowers on the grave of %s.\r\n",
-                GET_NAME(d->creature)), d);
+        const char *grave =
+            "&@\r\n\r\n\r\n"
+            "                        -------------\r\n"
+            "                       /             \\\r\n"
+            "                      /    R  I  P    \\\r\n"
+            "                     /                 \\\r\n"
+            "                    |%s%s%s|\r\n"
+            "                    |                   |\r\n"
+            "                    |      Level %-2d     |\r\n"
+            "                    |                   |\r\n"
+            "                    |      %s       |\r\n"
+            "                    |                   |\r\n"
+            "                    |                   |\r\n"
+            "                    |                   |\r\n"
+            "                   &Y*&n|     &Y*&n  &Y*&n  &Y*&n      &Y*&n|&Y*\r\n"
+            "        &y___________&G)&g/\\\\&y_&g//&G(&g\\/&G(&g/\\&G)&g/\\//\\/&G(&y__&G)&y_________&n\r\n\r\n"
+            "        You lay fresh flowers on the grave of %s\r\n\r\n";
+        int name_len = strlen(GET_NAME(d->creature));
+        int left_pad = 19 / 2 - name_len / 2;
+        send_to_desc(d, grave,
+                     tmp_pad(' ', left_pad),
+                     tmp_toupper(GET_NAME(d->creature)),
+                     tmp_pad(' ', 19 - name_len - left_pad),
+                     GET_LEVEL(d->creature),
+                     IS_REMORT(d->creature) ? tmp_sprintf("Gen %2d", GET_REMORT_GEN(d->creature)):"      ",
+                     GET_NAME(d->creature));
         mudlog(LVL_GOD, NRM, true,
-            "Denying entry to buried character %s", GET_NAME(d->creature));
+               "Denying entry to buried character %s", GET_NAME(d->creature));
         set_desc_state(CXN_WAIT_MENU, d);
         return;
     }
@@ -1935,9 +1994,9 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
             strftime(laston_str, sizeof(laston_str), "%b %d, %Y",
                 localtime(&tmp_ch->player.time.logon));
         if (PLR_FLAGGED(tmp_ch, PLR_FROZEN))
-            status_str = "&C  FROZEN!";
+            status_str = "&C   FROZEN";
         else if (PLR2_FLAGGED(tmp_ch, PLR2_BURIED))
-            status_str = "&G  BURIED!";
+            status_str = "&n   Buried";
         else if ((real_ch =
                 get_char_in_world_by_idnum(GET_IDNUM(tmp_ch))) != NULL) {
             if (real_ch->desc)

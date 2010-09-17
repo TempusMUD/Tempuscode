@@ -60,6 +60,9 @@ is_npk_combat(struct creature * ch, struct creature * vict)
     if (IS_NPC(ch) || IS_NPC(vict))
         return false;
 
+    if (PLR_FLAGGED(ch, PLR_HARDCORE))
+        return false;
+
     if (vict->in_room->zone->pk_style == ZONE_NEUTRAL_PK) {
         return true;
     }
@@ -72,9 +75,9 @@ is_npk_combat(struct creature * ch, struct creature * vict)
 int
 pk_reputation_gain(struct creature *perp, struct creature *victim)
 {
-    if (perp == victim || IS_NPC(perp)
+    if (perp == victim
+        || IS_NPC(perp)
         || IS_NPC(victim)
-        || !PRF2_FLAGGED(perp, PRF2_PKILLER)
         || !g_list_find(perp->fighting, victim))
         return 0;
 
@@ -83,7 +86,7 @@ pk_reputation_gain(struct creature *perp, struct creature *victim)
 
     // adjust for level/gen difference
     gain += ((GET_LEVEL(perp) + GET_REMORT_GEN(perp) * 50)
-        - (GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)) / 5;
+             - (GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)) / 5;
 
     // Additional adjustment for killing an innocent
     if (GET_REPUTATION(victim) == 0)

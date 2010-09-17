@@ -307,6 +307,8 @@ is_newbie(struct creature *ch)
 {
     if (ch->char_specials.saved.act & NPC_ISNPC)
         return false;
+    if (ch->char_specials.saved.act & PLR_HARDCORE)
+        return false;
     if ((ch->char_specials.saved.remort_generation) > 0)
         return false;
     if (ch->player.level > 24)
@@ -1088,6 +1090,10 @@ creature_die(struct creature * ch)
         GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
         ch->player.time.logon = time(0);
         save_player_objects(ch);
+
+        if (PLR_FLAGGED(ch, PLR_HARDCORE))
+            PLR2_FLAGS(ch) |= PLR2_BURIED;
+
         save_player_to_xml(ch);
     }
     extract_creature(ch, CXN_AFTERLIFE);

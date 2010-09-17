@@ -39,6 +39,7 @@ enum cxn_state {
 	// Character creation
 	CXN_NAME_PROMPT,			// Enter a name for new character
 	CXN_SEX_PROMPT,				// Sex?
+    CXN_HARDCORE_PROMPT,        // Hardcore?
 	CXN_CLASS_PROMPT,			// Class?
 	CXN_RACE_PROMPT,			// Race?
 	CXN_ALIGN_PROMPT,			// Align? (race/class may restrict)

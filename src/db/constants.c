@@ -93,6 +93,7 @@ const char *desc_modes[] = {
     "new-password-verify",
     "name-prompt",
     "sex-prompt",
+    "hardcore-prompt",
     "class-prompt",
     "race-prompt",
     "align-prompt",

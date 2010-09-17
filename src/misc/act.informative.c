@@ -3220,6 +3220,10 @@ who_string(struct creature *ch, struct creature *target)
 void
 who_flags(struct creature *ch, struct creature *target)
 {
+    //hardcore
+    if (PLR_FLAGGED(target, PLR_HARDCORE)) {
+        acc_strcat(CCRED(ch, C_NRM), " (hardcore)", CCNRM(ch, C_NRM), NULL);
+    }
     //nowho
     if (PRF2_FLAGGED(target, PRF2_NOWHO)) {
         acc_strcat(CCRED(ch, C_NRM), " (nowho)", CCNRM(ch, C_NRM), NULL);
