@@ -5,10 +5,20 @@ AC_CONFIG_SRCDIR([src/clan/clan.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([tempusmud], [1.0])
 
+# Enable or disable debugging
+AC_ARG_ENABLE(debug,
+         AS_HELP_STRING([--enable-debug],
+                [enable verbose debugging @<:@default=yes@:>@]),
+              [case "${enableval}" in
+                 yes) debug=true ;;
+                 no)  debug=false ;;
+                 *)   AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+               esac],
+              [debug=true])
+
+AM_CONDITIONAL(DEBUG, test x"$debug" = "xtrue")
+
 # Checks for programs.
-if test -z "${CFLAGS}"; then
-   CFLAGS="-g"
-fi
 AC_PROG_CC
 AC_PROG_CC_C99
 
@@ -33,13 +43,9 @@ AC_HEADER_TIME
 AC_STRUCT_TM
 
 # Checks for library functions.
-AC_FUNC_CLOSEDIR_VOID
 AC_FUNC_MALLOC
 AC_FUNC_MKTIME
 AC_FUNC_REALLOC
-AC_FUNC_SELECT_ARGTYPES
-AC_FUNC_STAT
-AC_FUNC_STRFTIME
 AC_CHECK_FUNCS([bzero gethostbyaddr gettimeofday isascii memmove memset mkdir select socket strcasecmp strchr strdup strerror strncasecmp strpbrk strspn strstr strtol])
 
 AC_CONFIG_FILES([Makefile m4/Makefile src/Makefile])

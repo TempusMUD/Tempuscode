@@ -1,8 +1,14 @@
+if DEBUG
+  DBGFLAG = -g
+else
+  DBGFLAG =
+endif
 bin_PROGRAMS = @top_srcdir@/bin/circle
-INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@
-AM_CFLAGS = -Wall -Wcast-qual @XML_CFLAGS@ @GLIB_CFLAGS@
+INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@ @XML_CFLAGS@ @GLIB_CFLAGS@
+AM_CFLAGS = -Wall -Wcast-qual ${DBGFLAG}
 AM_LDFLAGS = @XML_LIBS@ @GLIB_LIBS@
-ETAGSFLAGS = -r '/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^ACMD(\\([a-zA-Z0-9_]+\\))$/\\1/' -r '/^DEFPROGHANDLER(\\([a-zA-Z0-9_]+\\),[^)]+)$/prog_do_\\1/' -r '/^SPECIAL(\\([a-zA-Z0-9_]+\\))$/\\1/'
+ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^DEFPROGHANDLER(\\([a-zA-Z0-9_]+\\),[^)]+)$/prog_do_\\1/' --regex='/^SPECIAL(\\([a-zA-Z0-9_]+\\))$/\\1/'
+
 @top_srcdir@_bin_circle_SOURCES = \
 				 clan/clan.c \
 				 classes/act.barb.c \
