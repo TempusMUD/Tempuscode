@@ -3231,14 +3231,13 @@ who_flags(struct creature *ch, struct creature *target)
     //clan badge
     if (real_clan(GET_CLAN(target))) {
         if (!PRF2_FLAGGED(target, PRF2_CLAN_HIDE)) {
-            acc_sprintf(" %s)%s(%s",
-                CCCYN(ch, C_NRM),
-                real_clan(GET_CLAN(target))->badge, CCNRM(ch, C_NRM));
-
-        } else if (is_authorized(ch, SEE_FULL_WHOLIST, NULL)) {
             acc_sprintf(" %s%s%s",
                 CCCYN(ch, C_NRM),
-                real_clan(GET_CLAN(target))->name, CCNRM(ch, C_NRM));
+                real_clan(GET_CLAN(target))->badge, CCNRM(ch, C_NRM));
+        } else if (is_authorized(ch, SEE_FULL_WHOLIST, NULL)) {
+            acc_sprintf(" %s)%s(%s",
+                        CCCYN(ch, C_NRM),
+                        real_clan(GET_CLAN(target))->name, CCNRM(ch, C_NRM));
         }
     }
     //imm invis
@@ -3277,7 +3276,7 @@ void
 who_kills(struct creature *ch, struct creature *target)
 {
     acc_sprintf(" %s*%d KILLS*", CCRED_BLD(ch, C_NRM), GET_PKILLS(target));
-    acc_sprintf(" -%s-", reputation_msg[GET_REPUTATION_RANK(target)]);
+    acc_sprintf(" -%s-%s", reputation_msg[GET_REPUTATION_RANK(target)], CCNRM(ch, C_NRM));
 }
 
 bool
