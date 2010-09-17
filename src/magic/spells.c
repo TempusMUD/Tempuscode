@@ -1137,7 +1137,7 @@ ASPELL(spell_identify)
         send_to_char(ch, "Weight: %d, Value: %d, Rent: %d\r\n",
             GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
         send_to_char(ch, "Item material is %s.\r\n",
-            material_names[GET_OBJ_MATERIAL(obj)]);
+                     strlist_aref(GET_OBJ_MATERIAL(obj), material_names));
 
         switch (GET_OBJ_TYPE(obj)) {
         case ITEM_SCROLL:
@@ -1145,7 +1145,7 @@ ASPELL(spell_identify)
         case ITEM_PILL:
         case ITEM_SYRINGE:
             send_to_char(ch, "This %s casts: ",
-                item_types[(int)GET_OBJ_TYPE(obj)]);
+                         strlist_aref((int)GET_OBJ_TYPE(obj), item_types));
 
             if (GET_OBJ_VAL(obj, 1) >= 1)
                 send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 1)));
@@ -1158,7 +1158,7 @@ ASPELL(spell_identify)
         case ITEM_WAND:
         case ITEM_STAFF:
             send_to_char(ch, "This %s casts: ",
-                item_types[(int)GET_OBJ_TYPE(obj)]);
+                         strlist_aref((int)GET_OBJ_TYPE(obj), item_types));
             send_to_char(ch, "%s at level %d\r\n",
                 spell_to_str(GET_OBJ_VAL(obj, 3)), GET_OBJ_VAL(obj, 0));
             send_to_char(ch,
@@ -1181,14 +1181,15 @@ ASPELL(spell_identify)
         case ITEM_HOLY_SYMB:
             send_to_char(ch,
                 "Alignment: %s, Class: %s, Min Level: %d, Max Level: %d\r\n",
-                alignments[(int)GET_OBJ_VAL(obj, 0)],
-                char_class_abbrevs[(int)GET_OBJ_VAL(obj, 1)], GET_OBJ_VAL(obj,
-                    2), GET_OBJ_VAL(obj, 3));
+                         strlist_aref((int)GET_OBJ_VAL(obj, 0), alignments),
+                         strlist_aref((int)GET_OBJ_VAL(obj, 1), char_class_abbrevs),
+                         GET_OBJ_VAL(obj, 2),
+                         GET_OBJ_VAL(obj, 3));
             break;
         case ITEM_TOBACCO:
             send_to_char(ch, "Smoke type is: %s%s%s\r\n",
-                CCYEL(ch, C_NRM), smoke_types[SMOKE_TYPE(obj)],
-                CCNRM(ch, C_NRM));
+                         CCYEL(ch, C_NRM), strlist_aref(SMOKE_TYPE(obj), smoke_types),
+                         CCNRM(ch, C_NRM));
             break;
         case ITEM_CONTAINER:
             send_to_char(ch,
@@ -1202,9 +1203,9 @@ ASPELL(spell_identify)
             break;
         case ITEM_INSTRUMENT:
             send_to_char(ch, "Instrument type is: %s%s%s\r\n",
-                CCCYN(ch, C_NRM), (GET_OBJ_VAL(obj, 0) < 2) ?
-                instrument_types[GET_OBJ_VAL(obj, 0)] : "UNDEFINED",
-                CCNRM(ch, C_NRM));
+                         CCCYN(ch, C_NRM),
+                         strlist_aref(GET_OBJ_VAL(obj, 0), instrument_types),
+                         CCNRM(ch, C_NRM));
             break;
         }
         found = false;
@@ -1248,19 +1249,21 @@ ASPELL(spell_identify)
                 age(victim).day, age(victim).hours);
         }
         send_to_char(ch, "Race: %s, Class: %s, Alignment: %d.\r\n",
-            player_race[(int)MIN(NUM_RACES, GET_RACE(victim))],
-            class_names[(int)MIN(TOP_CLASS, GET_CLASS(victim))],
-            GET_ALIGNMENT(victim));
+                     strlist_aref((int)MIN(NUM_RACES, GET_RACE(victim)), player_race),
+                     strlist_aref((int)MIN(TOP_CLASS, GET_CLASS(victim)), class_names),
+                     GET_ALIGNMENT(victim));
         send_to_char(ch, "Height %d cm, Weight %d pounds\r\n",
             GET_HEIGHT(victim), GET_WEIGHT(victim));
         send_to_char(ch, "Level: %d, Hits: %d, Mana: %d\r\n",
             GET_LEVEL(victim), GET_HIT(victim), GET_MANA(victim));
         send_to_char(ch,
-            "AC: %d, Thac0: %d, Hitroll: %d (%d), Damroll: %d\r\n",
-            GET_AC(victim), (int)MIN(THACO(GET_CLASS(victim),
-                    GET_LEVEL(victim)), THACO(GET_REMORT_CLASS(victim),
-                    GET_LEVEL(victim))), GET_HITROLL(victim),
-            GET_REAL_HITROLL(victim), GET_DAMROLL(victim));
+                     "AC: %d, Thac0: %d, Hitroll: %d (%d), Damroll: %d\r\n",
+                     GET_AC(victim),
+                     (int)MIN(THACO(GET_CLASS(victim), GET_LEVEL(victim)),
+                              THACO(GET_REMORT_CLASS(victim), GET_LEVEL(victim))),
+                     GET_HITROLL(victim),
+                     GET_REAL_HITROLL(victim),
+                     GET_DAMROLL(victim));
         send_to_char(ch,
             "Str: %d/%d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
             GET_STR(victim), GET_ADD(victim), GET_INT(victim), GET_WIS(victim),
@@ -1300,13 +1303,13 @@ ASPELL(spell_minor_identify)
             GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
 
         send_to_char(ch, "Item material is %s.\r\n",
-            material_names[GET_OBJ_MATERIAL(obj)]);
+                     strlist_aref(GET_OBJ_MATERIAL(obj), material_names));
 
         switch (GET_OBJ_TYPE(obj)) {
         case ITEM_SCROLL:
         case ITEM_POTION:
             send_to_char(ch, "This %s casts: ",
-                item_types[(int)GET_OBJ_TYPE(obj)]);
+                         strlist_aref((int)GET_OBJ_TYPE(obj), item_types));
 
             if (GET_OBJ_VAL(obj, 1) >= 1)
                 send_to_char(ch, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 1)));
@@ -1318,7 +1321,7 @@ ASPELL(spell_minor_identify)
         case ITEM_WAND:
         case ITEM_STAFF:
             send_to_char(ch, "This %s casts: ",
-                item_types[(int)GET_OBJ_TYPE(obj)]);
+                         strlist_aref((int)GET_OBJ_TYPE(obj), item_types));
             send_to_char(ch, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
             send_to_char(ch,
                 "It has %d maximum charge%s and %d remaining.\r\n",
@@ -1343,9 +1346,9 @@ ASPELL(spell_minor_identify)
             break;
         case ITEM_INSTRUMENT:
             send_to_char(ch, "Instrument type is: %s%s%s\r\n",
-                CCCYN(ch, C_NRM),
-                (GET_OBJ_VAL(obj, 0) < 2) ? instrument_types[GET_OBJ_VAL(obj,
-                        0)] : "UNDEFINED", CCNRM(ch, C_NRM));
+                         CCCYN(ch, C_NRM),
+                         strlist_aref(GET_OBJ_VAL(obj, 0), instrument_types),
+                         CCNRM(ch, C_NRM));
             break;
         }
         found = false;
