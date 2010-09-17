@@ -60,7 +60,7 @@ is_npk_combat(struct creature * ch, struct creature * vict)
     if (IS_NPC(ch) || IS_NPC(vict))
         return false;
 
-    if (PLR_FLAGGED(ch, PLR_HARDCORE))
+    if (PLR_FLAGGED(vict, PLR_HARDCORE))
         return false;
 
     if (vict->in_room->zone->pk_style == ZONE_NEUTRAL_PK) {
