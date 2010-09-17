@@ -75,7 +75,9 @@ ACMD(do_empower)
     struct affected_type af, af2, af3;
     int val1, val2, old_mana;
 
-    if (!IS_MAGE(ch) || CHECK_SKILL(ch, SKILL_EMPOWER) < number(50, 101)) {
+    if (!IS_MAGE(ch)
+        || affected_by_spell(ch, SKILL_RECONFIGURE)
+        || CHECK_SKILL(ch, SKILL_EMPOWER) < number(50, 101)) {
         send_to_char(ch, "You fail to empower yourself.\r\n");
         return;
     }
@@ -297,7 +299,7 @@ group_attack_advisable(struct creature * ch)
             return true;
         attacker_count++;
     }
-    
+
     return false;
 }
 

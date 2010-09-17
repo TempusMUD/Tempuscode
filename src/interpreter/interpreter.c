@@ -322,6 +322,7 @@ ACMD(do_qecho);
 ACMD(do_reboot);
 ACMD(do_refill);
 ACMD(do_recharge);
+ACMD(do_reconfigure);
 ACMD(do_remove);
 ACMD(do_rename);
 ACMD(do_repair);
@@ -1173,6 +1174,7 @@ struct command_info cmd_info[] = {
     {"recite", POS_RESTING, do_use, 0, SCMD_RECITE, 0, 0},
     {"receive", POS_STANDING, do_not_here, 1, 0, 0, 0},
     {"recharge", POS_SITTING, do_recharge, 0, 0, 0, 0},
+    {"reconfigure", POS_SLEEPING, do_reconfigure, 0, 0, 0, 0},
     {"remove", POS_RESTING, do_remove, 0, 0, 0, 0},
     {"remort", POS_STANDING, do_not_here, LVL_IMMORT, 0, 0, 0},
     {"remote", POS_RESTING, do_action, 0, 0, 0, 0},

@@ -3604,3 +3604,137 @@ ACMD(do_deassimilate)
     GET_MANA(ch) -= 10;
     send_to_char(ch, "Deassimilation complete.\r\n");
 }
+
+ACMD(do_reconfigure)
+{
+   if (!IS_CYBORG(ch)) {
+       send_to_char(ch, "You don't have anything that's reconfigurable!\r\n");
+       return;
+   }
+
+   if (CHECK_SKILL(ch, SKILL_RECONFIGURE) < 60) {
+       send_to_char(ch, "You aren't programmed for reconfiguration.\r\n");
+       return;
+   }
+
+    if (!AFF3_FLAGGED(ch, AFF3_STASIS)
+        && !(GET_CLASS(ch) == CLASS_CYBORG
+             && GET_REMORT_GEN(ch) >= 5)) {
+       send_to_char(ch, "ERROR: Reconfiguration can only be performed in stasis.\r\n");
+       return;
+   }
+
+   if (affected_by_spell(ch, SKILL_EMPOWER)) {
+       send_to_char(ch, "ABORTING: dangerous magical anomalies detected in substructure.\r\n");
+       return;
+   }
+
+    enum { HIT, MANA, MOVE } mode;
+    char *arg = tmp_getword(&argument);
+    struct affected_type af, af2, af3;
+    int val1, val2;
+
+    af.level = af2.level = af3.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
+   af.bitvector = af2.bitvector = af3.bitvector = 0;
+   af.is_instant = af2.is_instant = af3.is_instant = false;
+   af.type = af2.type = af3.type = SKILL_RECONFIGURE;
+   af.duration = af2.duration = af3.duration = (GET_LEVEL(ch) + GET_REMORT_GEN(
+ch)) / 2;
+   af.owner = af2.owner = af3.owner = GET_IDNUM(ch);
+
+    if (is_abbrev(arg, "hitpoints")) {
+        mode = HIT;
+    } else if (is_abbrev(arg, "mana")) {
+        mode = MANA;
+    } else if (is_abbrev(arg, "movement")) {
+        mode = MOVE;
+    } else {
+        send_to_char(ch, "You can only reconfigure hitpoints, mana, or movement.\r\n");
+        return;
+    }
+
+    if (GET_HIT(ch) < 15 && mode != HIT) {
+        send_to_char(ch, "ERROR: structural integrity insufficient.\r\n");
+        return;
+    }
+    if (GET_MANA(ch) < 15 && mode != MANA) {
+        send_to_char(ch, "ERROR: psychoenergetic capacity insufficient.\r\n");
+        return;
+    }
+    if (GET_MOVE(ch) < 15 && mode != MOVE) {
+        send_to_char(ch, "ERROR: energetic reserves insufficient.\r\n");
+        return;
+    }
+
+    switch (mode) {
+    case HIT:
+        af.location = APPLY_HIT;
+        af2.location = APPLY_MANA;
+        af3.location = APPLY_MOVE;
+        val1 = GET_MANA(ch);
+        val2 = GET_MOVE(ch);
+        break;
+    case MANA:
+        af.location = APPLY_MANA;
+        af2.location = APPLY_HIT;
+        af3.location = APPLY_MOVE;
+        val1 = GET_HIT(ch);
+        val2 = GET_MOVE(ch);
+        break;
+    case MOVE:
+        af.location = APPLY_MOVE;
+        af2.location = APPLY_MANA;
+        af3.location = APPLY_HIT;
+        val1 = GET_MANA(ch);
+        val2 = GET_HIT(ch);
+        break;
+    }
+
+    val1 = MIN(GET_LEVEL(ch), val1 / 4);
+    val2 = MIN(GET_LEVEL(ch), val2 / 4);
+
+    struct affected_type *cur_aff;
+   int aff_power;
+
+   for (cur_aff = ch->affected;cur_aff;cur_aff = cur_aff->next) {
+       if (cur_aff->type == SKILL_RECONFIGURE
+            && cur_aff->location == af.location) {
+           aff_power = cur_aff->modifier + val1 + val2 - 5;
+           if (aff_power > 666) {
+               send_to_char(ch, "ERROR: Reconfiguration at maximum levels.\r\n");
+               return;
+           }
+       }
+   }
+
+    // af is the affect that gets the increase, af2 and af3 are the decreasing affects
+   af.modifier = (val1 + val2 - 5);
+   af2.modifier = -(val1);
+   af3.modifier = -(val2);
+
+    affect_join(ch, &af, 0, 0, 1, 0);
+    affect_join(ch, &af2, 0, 0, 1, 0);
+    affect_join(ch, &af3, 0, 0, 1, 0);
+
+    switch (mode) {
+    case HIT:
+        send_to_char(ch, "You reconfigure your body and feel healthier!\r\n");
+        break;
+    case MANA:
+        send_to_char(ch, "You reconfigure your body and feel more powerful!\r\n");
+        break;
+    case MOVE:
+        send_to_char(ch, "You reconfigure your body and feel more energetic!\r\n");
+        break;
+    }
+
+    if ((GET_MAX_HIT(ch) / 2) < GET_WIMP_LEV(ch)) {
+       send_to_char(ch, "NOTICE: Automatic cowardice level recalibrated\r\n");
+       GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) / 2;
+   }
+
+    act("Buzzing and whirring sounds come from $n's prone body.",
+        true, ch, 0, 0, TO_ROOM);
+    if (GET_LEVEL(ch) < LVL_GRGOD)
+       WAIT_STATE(ch, 2 RL_SEC);
+}
