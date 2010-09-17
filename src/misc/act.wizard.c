@@ -4674,7 +4674,7 @@ show_mlevels(struct creature *ch, char *value, char *arg)
         return;
     }
 
-    for (arg1 = tmp_getword(&arg); arg1; arg1 = tmp_getword(&arg)) {
+    for (arg1 = tmp_getword(&arg); *arg1; arg1 = tmp_getword(&arg)) {
         if (!strcmp(arg1, "remort"))
             remort = true;
         else if (!strcmp(arg1, "detailed"))
@@ -6934,7 +6934,7 @@ ACMD(do_addname)
     }
 
     for (new_name = tmp_getword(&argument);
-        new_name; new_name = tmp_getword(&argument)) {
+        *new_name; new_name = tmp_getword(&argument)) {
 
         if (strlen(new_name) >= MAX_INPUT_LENGTH) {
             send_to_char(ch, "Name: \'%s\' too long.\r\n", new_name);

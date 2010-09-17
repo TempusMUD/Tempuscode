@@ -799,7 +799,7 @@ ASPELL(spell_locate_object)
     // Grab the search terms
     char *read_pt = locate_buf;
     char *token = tmp_getword(&read_pt);
-    while (token && term_count <= MAX_LOCATE_TERMS) {
+    while (*token && term_count <= MAX_LOCATE_TERMS) {
         strcpy(terms[term_count], token);
         term_count++;
         token = tmp_getword(&read_pt);

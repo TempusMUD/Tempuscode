@@ -514,7 +514,7 @@ ACCMD(do_access)
                 send_to_char(ch, "Player doesn't exist: %s\r\n", token);
             }
             token = tmp_getword(&argument);
-        } while (token);
+        } while (*token);
 
         break;
     case 1:                    // addcmd
@@ -545,7 +545,7 @@ ACCMD(do_access)
                 send_to_char(ch, "Invalid command: %s\r\n", token);
             }
             token = tmp_getword(&argument);
-        } while (token);
+        } while (*token);
         break;
     case 2:                    // Admin
         token = tmp_getword(&argument);
@@ -693,7 +693,7 @@ ACCMD(do_access)
                 send_to_char(ch, "Player doesn't exist: %s\r\n", token);
             }
             token = tmp_getword(&argument);
-        } while (token);
+        } while (*token);
         break;
     case 11:                   // remcmd
         token = tmp_getword(&argument);
@@ -723,7 +723,7 @@ ACCMD(do_access)
                 send_to_char(ch, "Invalid command: %s\r\n", token);
             }
             token = tmp_getword(&argument);
-        } while (token);
+        } while (*token);
         break;
     case 12:                   // destroy
         if (!is_authorized(ch, DESTROY_ROLE, NULL)) {

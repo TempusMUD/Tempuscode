@@ -3320,7 +3320,7 @@ ACMD(do_who)
     char *arg;
     GList *immortals = NULL, *testers = NULL, *players = NULL;
 
-    for (arg = tmp_getword(&argument); arg; arg = tmp_getword(&argument)) {
+    for (arg = tmp_getword(&argument); *arg; arg = tmp_getword(&argument)) {
         if (!strcmp(arg, "zone")) {
             zone = true;
         }
