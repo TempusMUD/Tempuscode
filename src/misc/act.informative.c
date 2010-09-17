@@ -3482,8 +3482,8 @@ ACMD(do_who)
         CCNRM(ch, C_NRM), CCBLD(ch, C_CMP), "      **************",
         CCNRM(ch, C_SPR), "\r\n",
         (IS_NPC(ch) || ch->account->compact_level > 1) ? "" : "\r\n", NULL);
-    for (GList * cit = immortals; cit; cit = cit->next) {
-        curr = (struct creature *)cit;
+    for (GList *cit = immortals; cit; cit = cit->next) {
+        curr = (struct creature *)cit->data;
         who_string(ch, curr);
         if (!noflags) {
             who_flags(ch, curr);
@@ -3495,7 +3495,7 @@ ACMD(do_who)
     }
     if (IS_IMMORT(ch) || is_tester(ch)) {
         for (GList * cit = testers; cit; cit = cit->next) {
-            curr = (struct creature *)cit;
+            curr = (struct creature *)cit->data;
             who_string(ch, curr);
             if (!noflags) {
                 who_flags(ch, curr);
@@ -3507,7 +3507,7 @@ ACMD(do_who)
         }
     }
     for (GList * cit = players; cit; cit = cit->next) {
-        curr = (struct creature *)cit;
+        curr = (struct creature *)cit->data;
         who_string(ch, curr);
         if (!noflags) {
             who_flags(ch, curr);
@@ -3747,8 +3747,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
         }
         page_string(ch->desc, acc_get_string());
     } else {
-        arg1 = tmp_getword(&arg);
-        while (arg1) {
+        for (arg1 = tmp_getword(&arg);*arg1;arg1 = tmp_getword(&arg)) {
             if (arg1[0] == '!') {
                 excluded = g_list_prepend(excluded, tmp_strdup(arg1 + 1));
             } else if (arg1[0] == '-') {
@@ -3761,7 +3760,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
                 if (is_abbrev(arg1, "-house"))
                     house_only = true;
             } else {
-                required = g_list_prepend(required, tmp_strdup(arg1 + 1));
+                required = g_list_prepend(required, tmp_strdup(arg1));
             }
         }
 
