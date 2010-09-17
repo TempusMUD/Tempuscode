@@ -1246,7 +1246,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     }
     acc_sprintf
         ("Material: [%s%s%s (%d)], Maxdamage: [%d (%d)], Damage: [%d]\r\n",
-        CCYEL(ch, C_NRM), material_names[GET_OBJ_MATERIAL(j)], CCNRM(ch,
+         CCYEL(ch, C_NRM), strlist_aref(GET_OBJ_MATERIAL(j), material_names), CCNRM(ch,
             C_NRM), GET_OBJ_MATERIAL(j), GET_OBJ_MAX_DAM(j), set_maxdamage(j),
         GET_OBJ_DAM(j));
 
@@ -1258,9 +1258,8 @@ do_stat_object(struct creature *ch, struct obj_data *j)
         break;
     case ITEM_INSTRUMENT:
         acc_sprintf("Instrument Type: [%d] (%s)\r\n",
-            GET_OBJ_VAL(j, 0),
-            GET_OBJ_VAL(j, 0) < 2 ? instrument_types[GET_OBJ_VAL(j,
-                    0)] : "UNDEFINED");
+                    GET_OBJ_VAL(j, 0),
+                    strlist_aref(GET_OBJ_VAL(j, 0), instrument_types));
         break;
     case ITEM_SCROLL:
     case ITEM_POTION:
@@ -1336,11 +1335,10 @@ do_stat_object(struct creature *ch, struct obj_data *j)
             GET_OBJ_VAL(j, 3));
         break;
     case ITEM_HOLY_SYMB:
-        // FIXME: buffer overflow possibility
         acc_sprintf
             ("Alignment: %s(%d), Class: %s(%d), Min Level: %d, Max Level: %d \r\n",
-            alignments[GET_OBJ_VAL(j, 0)], GET_OBJ_VAL(j, 0),
-            char_class_abbrevs[(int)GET_OBJ_VAL(j, 1)], GET_OBJ_VAL(j, 1),
+             strlist_aref(GET_OBJ_VAL(j, 0), alignments), GET_OBJ_VAL(j, 0),
+             strlist_aref(GET_OBJ_VAL(j, 1), char_class_abbrevs), GET_OBJ_VAL(j, 1),
             GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
         break;
     case ITEM_BATTERY:
@@ -1362,74 +1360,66 @@ do_stat_object(struct creature *ch, struct obj_data *j)
                     2), engine_flags), GET_OBJ_VAL(j, 3));
         break;
     case ITEM_ENERGY_GUN:
-        // FIXME: possible buffer overflow
-        acc_sprintf
-            ("Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)\r\n",
-            GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
-            (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j, 2) + 1)) / 2, (GET_OBJ_VAL(j,
-                    3) >= 0
-                && GET_OBJ_VAL(j,
-                    3) < EGUN_TOP) ? egun_types[(int)GET_OBJ_VAL(j,
-                    3)] : "unknown", GET_OBJ_VAL(j, 3));
+        acc_sprintf("Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)\r\n",
+                    GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
+                    (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j, 2) + 1)) / 2,
+                    strlist_aref((int)GET_OBJ_VAL(j, 3), egun_types),
+                    GET_OBJ_VAL(j, 3));
         break;
     case ITEM_BOMB:
-        // FIXME: possible buffer overflow
         acc_sprintf("Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
-            item_value_types[(int)GET_OBJ_TYPE(j)][0],
-            bomb_types[(int)GET_OBJ_VAL(j, 0)], GET_OBJ_VAL(j, 0),
-            item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
-            item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
-            item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
+                    item_value_types[(int)GET_OBJ_TYPE(j)][0],
+                    strlist_aref((int)GET_OBJ_VAL(j, 0), bomb_types), GET_OBJ_VAL(j, 0),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
     case ITEM_FUSE:
         acc_sprintf("Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
-            item_value_types[(int)GET_OBJ_TYPE(j)][0],
-            fuse_types[(int)GET_OBJ_VAL(j, 0)], GET_OBJ_VAL(j, 0),
-            item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
-            item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
-            item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
+                    item_value_types[(int)GET_OBJ_TYPE(j)][0],
+                    strlist_aref((int)GET_OBJ_VAL(j, 0), fuse_types), GET_OBJ_VAL(j, 0),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
 
     case ITEM_TOBACCO:
         acc_sprintf("Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
-            item_value_types[(int)GET_OBJ_TYPE(j)][0],
-            smoke_types[(int)MIN(GET_OBJ_VAL(j, 0), NUM_SMOKES - 1)],
-            GET_OBJ_VAL(j, 0),
-            item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
-            item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
-            item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
+                    item_value_types[(int)GET_OBJ_TYPE(j)][0],
+                    strlist_aref((int)MIN(GET_OBJ_VAL(j, 0), NUM_SMOKES - 1), smoke_types),
+                    GET_OBJ_VAL(j, 0),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
 
     case ITEM_GUN:
     case ITEM_BULLET:
     case ITEM_CLIP:
         acc_sprintf("Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%s (%d)]\r\n",
-            item_value_types[(int)GET_OBJ_TYPE(j)][0], GET_OBJ_VAL(j, 0),
-            item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
-            item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
-            item_value_types[(int)GET_OBJ_TYPE(j)][3],
-            (GET_OBJ_VAL(j, 3) >= 0 && GET_OBJ_VAL(j, 3) < NUM_GUN_TYPES) ?
-            gun_types[GET_OBJ_VAL(j, 3)] : "ERROR", GET_OBJ_VAL(j, 3));
+                    item_value_types[(int)GET_OBJ_TYPE(j)][0], GET_OBJ_VAL(j, 0),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][3],
+                    strlist_aref(GET_OBJ_VAL(j, 3), gun_types), GET_OBJ_VAL(j, 3));
         break;
     case ITEM_INTERFACE:
         acc_sprintf("Values 0-3: %s:[%s (%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
-            item_value_types[(int)GET_OBJ_TYPE(j)][0],
-            GET_OBJ_VAL(j, 0) >= 0 && GET_OBJ_VAL(j, 0) < NUM_INTERFACES ?
-            interface_types[GET_OBJ_VAL(j, 0)] : "Error",
-            GET_OBJ_VAL(j, 0),
-            item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
-            item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
-            item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
+                    item_value_types[(int)GET_OBJ_TYPE(j)][0],
+                    strlist_aref(GET_OBJ_VAL(j, 0), interface_types),
+                    GET_OBJ_VAL(j, 0),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
     case ITEM_MICROCHIP:
         acc_sprintf("Values 0-3: %s:[%s (%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
-            item_value_types[(int)GET_OBJ_TYPE(j)][0],
-            GET_OBJ_VAL(j, 0) >= 0 && GET_OBJ_VAL(j, 0) < NUM_CHIPS ?
-            microchip_types[GET_OBJ_VAL(j, 0)] : "Error",
-            GET_OBJ_VAL(j, 0),
-            item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
-            item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
-            item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
+                    item_value_types[(int)GET_OBJ_TYPE(j)][0],
+                    strlist_aref(GET_OBJ_VAL(j, 0), microchip_types),
+                    GET_OBJ_VAL(j, 0),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
+                    item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
     default:
         acc_sprintf("Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%d]\r\n",
@@ -3351,9 +3341,9 @@ ACMD(do_last)
     }
 
     send_to_char(ch, "[%5ld] [%2d %s] %-12s : %-20s",
-        GET_IDNUM(vict), GET_LEVEL(vict),
-        char_class_abbrevs[GET_CLASS(vict)], GET_NAME(vict),
-        ctime(&(vict->player.time.logon)));
+                 GET_IDNUM(vict), GET_LEVEL(vict),
+                 strlist_aref(GET_CLASS(vict), char_class_abbrevs), GET_NAME(vict),
+                 ctime(&(vict->player.time.logon)));
     if (GET_LEVEL(ch) >= GET_LEVEL(vict) && has_mail(GET_IDNUM(vict)))
         send_to_char(ch, "Player has unread mail.\r\n");
     free_creature(vict);
