@@ -236,7 +236,7 @@ help_collection_save_index(struct help_collection *col)
         errlog("No records saved to help file index.");
         return false;
     }
-    slog("Help: %d items saved to help file index\r\n", num_items);
+    slog("Help: %d items saved to help file index", num_items);
     return true;
 }
 
