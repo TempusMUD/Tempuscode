@@ -504,7 +504,7 @@ save_player_to_xml(struct creature *ch)
     if (GET_REMORT_CLASS(ch) != CLASS_UNDEFINED)
         fprintf(ouf, " remort=\"%s\"", class_names[GET_REMORT_CLASS(ch)]);
     if (GET_REMORT_GEN(ch) > 0)
-        fprintf(ouf, "gen=\"%d\"", GET_REMORT_GEN(ch));
+        fprintf(ouf, " gen=\"%d\"", GET_REMORT_GEN(ch));
     if (IS_CYBORG(ch)) {
         if (GET_OLD_CLASS(ch) != -1)
             fprintf(ouf, " subclass=\"%s\"",
