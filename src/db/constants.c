@@ -1044,7 +1044,7 @@ const char *preference2_bits[] = {
     "AUTOLOOT",
     "PK",
     "NOGECHO",
-    "NOWRAP",
+    "!UNUSED!",
     "DSPALGN",
     "WLDWRIT",
     "\n"

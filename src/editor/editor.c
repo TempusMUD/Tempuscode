@@ -163,7 +163,6 @@ editor_finish(struct editor *editor, bool save)
         // Remove "using the editor bits"
         REMOVE_BIT(PLR_FLAGS(desc->creature),
             PLR_WRITING | PLR_OLC | PLR_MAILING);
-        REMOVE_BIT(PRF2_FLAGS(desc->creature), PRF2_NOWRAP);
     }
     // Free the editor
     desc->text_editor = NULL;
@@ -578,7 +577,7 @@ editor_wrap(struct editor *editor, char *args)
     const char *space;
     int start_lineno, end_lineno;
 
-    
+
     start_line = editor->lines;
     finish_line = editor->lines;
 
@@ -593,7 +592,7 @@ editor_wrap(struct editor *editor, char *args)
 
 	start_line = g_list_nth(editor->lines, start_lineno - 1);
     finish_line = g_list_nth(editor->lines, end_lineno - 1);
-    
+
     for (line_it = start_line;
          line_it != finish_line;
          line_it = line_it->next) {
@@ -693,7 +692,7 @@ editor_wrap(struct editor *editor, char *args)
         editor->lines = g_list_insert_before(editor->lines,
                                              start_line,
                                              it->data);
-                                             
+
     }
 
 	return true;

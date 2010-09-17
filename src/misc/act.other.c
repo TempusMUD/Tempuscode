@@ -1004,7 +1004,7 @@ ACMD(do_gen_write)
 bool LOG_DEATHS = false;
 ACMD(do_gen_tog)
 {
-    long result;
+    long result = 0;
     extern int nameserver_is_slow;
 
     const char *tog_messages[][2] = {
@@ -1284,8 +1284,8 @@ ACMD(do_gen_tog)
         result = PRF2_TOG_CHK(ch, PRF2_NOGECHO);
         break;
     case SCMD_AUTOWRAP:
-        result = PRF2_TOG_CHK(ch, PRF2_NOWRAP);
-        break;
+        send_to_char(ch, "Disabled.\r\n");
+        return;
     case SCMD_WORLDWRITE:
         if (!is_authorized(ch, WORLDWRITE, NULL)) {
             send_to_char(ch, "You do not have the worldwrite power!\n");

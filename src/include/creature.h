@@ -404,9 +404,9 @@ enum prf2_flag {
     PRF2_NOAFFECTS = (1 << 4),	/* Affects are not shown in score   */
     PRF2_NOHOLLER = (1 << 5),	/* Gods only                        */
     PRF2_NOIMMCHAT = (1 << 6),	/* Gods only                        */
-    PRF2_UNUSED_1 = (1 << 7),	/* auto-sets title to clan stuff */
+    PRF2_UNUSED_1 = (1 << 7),
     PRF2_CLAN_HIDE = (1 << 8),	/* don't show badge in who list */
-    PRF2_UNUSED_2 = (1 << 9),	/* interrupts while d->showstr_point */
+    PRF2_UNUSED_2 = (1 << 9),
     PRF2_AUTOPROMPT = (1 << 10),	/* always draw new prompt */
     PRF2_NOWHO = (1 << 11),	/* don't show in who */
     PRF2_ANONYMOUS = (1 << 12),	/* don't show char_class, level */
@@ -416,7 +416,7 @@ enum prf2_flag {
     PRF2_AUTOLOOT = (1 << 16),
     PRF2_PKILLER = (1 << 17),	// player can attack other players
     PRF2_NOGECHO = (1 << 18),	// Silly Gecho things
-    PRF2_NOWRAP = (1 << 19),	// turns off autowrap temporarily.
+    PRF2_UNUSED_3 = (1 << 19),
     PRF2_DISPALIGN = (1 << 20),
     PRF2_WORLDWRITE = (1 << 21), // allows worldwrite to work
     PRF2_NOGUILDSAY = (1 << 22),
