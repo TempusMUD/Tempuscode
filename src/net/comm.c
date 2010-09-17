@@ -1610,8 +1610,12 @@ send_to_desc(struct descriptor_data *d, const char *str, ...)
                     // A few extra normal tags never hurt anyone...
                     if (d->account->ansi_level > 2)
                         SEND_TO_Q(KBLD, d);
-                }
+                } else if (d->account->ansi_level > 2)
+                    SEND_TO_Q(KNRM, d);
                 switch (*read_pt) {
+                case '@':
+                    SEND_TO_Q("\e[H\eJ", d);
+                    break;
                 case 'n':
                     SEND_TO_Q(KNRM, d);
                     break;
