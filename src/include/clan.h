@@ -11,6 +11,7 @@
 
 #define MAX_CLAN_NAME      24
 #define MAX_CLAN_BADGE     16
+#define MAX_CLAN_PASSWORD  16
 #define MAX_CLAN_MEMBERS  200
 #define MAX_CLAN_ROOMS    200
 #define MAX_CLAN_RANKNAME  48
@@ -19,6 +20,7 @@
 
 struct clan_data *real_clan(int vnum);
 struct clan_data *clan_by_name(char *arg);
+int clan_owning_room(struct room_data *room);
 int clan_house_can_enter(struct creature *ch, struct room_data *room);
 void do_show_clan(struct creature *ch, struct clan_data *clan);
 bool save_clans();
@@ -48,6 +50,7 @@ struct clan_data {
 	long owner;
 	char *name;					/* official clan name */
 	char *badge;				/* title of clan for who list, etc. */
+	char *password;				/* password of clan */
 	char *ranknames[NUM_CLAN_RANKS];
 	struct clanmember_data *member_list;	/* list of idnums */
 	struct room_list_elem *room_list;	/* list of clan house rooms */

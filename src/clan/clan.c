@@ -126,9 +126,8 @@ char_can_enroll(struct creature *ch, struct creature *vict,
     else if (PLR_FLAGGED(vict, PLR_FROZEN))
         send_to_char(ch,
             "They are frozen right now.  Wait until a god has mercy.\r\n");
-    else if (GET_LEVEL(vict) < LVL_CAN_CLAN)
-        send_to_char(ch,
-            "Players must be level 10 before being inducted into the clan.\r\n");
+    else if (GET_LEVEL(vict) < LVL_CAN_CLAN && GET_REMORT_GEN(vict) == 0)
+        send_to_char(ch, "Players must be level 10 before being inducted into the clan.\r\n");
     else if (clan_member_count(clan) > MAX_CLAN_MEMBERS)
         send_to_char(ch,
             "The max number of members has been reached for this clan.\r\n");
@@ -268,6 +267,86 @@ ACMD(do_enroll)
     }
 }
 
+ACMD(do_join)
+{
+   struct clan_data *clan = real_clan(GET_CLAN(ch));
+   struct clanmember_data *member = NULL;
+   char *msg, *clan_str, *password;
+
+   clan_str = tmp_getword(&argument);
+    password = tmp_getword(&argument);
+
+    if (!*clan_str) {
+        send_to_char(ch, "Join which clan?\r\n");
+        return;
+    }
+
+    clan = clan_by_name(clan_str);
+    if (!clan) {
+        send_to_char(ch, "That clan doesn't exist.\r\n");
+        return;
+    }
+
+    if (clan->number == GET_CLAN(ch)) {
+        send_to_char(ch, "You're already in that clan.\r\n");
+        return;
+    }
+
+    if (!is_authorized(ch, EDIT_CLAN, NULL)) {
+        if (!*password) {
+            send_to_char(ch, "You need to provide the clan password or find a clan leader "
+                         "if you want to join\r\n");
+            return;
+        }
+
+        if (GET_CLAN(ch)) {
+            send_to_char(ch, "You're already in a clan.  RESIGN if you want to change clans.\r\n");
+            return;
+        }
+
+        if (!*clan->password || strcmp(clan->password, password)) {
+            send_to_char(ch, "That was not the correct clan password!\r\n");
+            WAIT_STATE(ch, 5 RL_SEC);
+            return;
+        }
+        if (GET_LEVEL(ch) < LVL_CAN_CLAN && GET_REMORT_GEN(ch) == 0) {
+            send_to_char(ch, "Players must be level 10 before being inducted into the clan.\r\n");
+            return;
+        }
+
+        if (clan_member_count(clan) > MAX_CLAN_MEMBERS) {
+            send_to_char(ch, "The max number of members has been reached for this clan.\r\n");
+            return;
+        }
+    }
+
+    if (IS_NPC(ch)) {
+       send_to_char(ch, "Only player characters can join clans.\r\n");
+        return;
+    }
+    if (AFF_FLAGGED(ch, AFF_CHARM)) {
+       send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
+        return;
+    }
+
+    REMOVE_BIT(PLR_FLAGS(ch), PLR_CLAN_LEADER);
+    send_to_char(ch, "You have joined clan %s!\r\n", clan->name);
+    msg = tmp_sprintf("%s has joined clan %s", GET_NAME(ch), clan->name);
+    mudlog(GET_INVIS_LVL(ch), NRM, true, "%s", msg);
+    msg = tmp_strcat(msg, ".\r\n",NULL);
+    send_to_clan(msg, clan->number);
+
+    GET_CLAN(ch) = clan->number;
+    CREATE(member, struct clanmember_data, 1);
+    member->idnum = GET_IDNUM(ch);
+    member->rank = 0;
+    member->next = clan->member_list;
+    clan->member_list = member;
+    sort_clanmembers(clan);
+    sql_exec("insert into clan_members (clan, player, rank, no_mail) values (%d, %ld, %d, 'f')",
+             clan->number, GET_IDNUM(ch), 0);
+}
+
 ACMD(do_dismiss)
 {
     struct creature *vict;
@@ -358,12 +437,6 @@ ACMD(do_resign)
     else if (strcmp(argument, "yes"))
         send_to_char(ch, "You must type 'resign yes' to leave your clan.\r\n");
     else {
-        send_to_char(ch, "You have resigned from clan %s.\r\n", clan->name);
-        msg = tmp_sprintf("%s has resigned from clan %s.", GET_NAME(ch),
-            clan->name);
-        mudlog(GET_INVIS_LVL(ch), NRM, true, "%s", msg);
-        msg = tmp_strcat(msg, "\r\n", NULL);
-        send_to_clan(msg, GET_CLAN(ch));
         GET_CLAN(ch) = 0;
         REMOVE_BIT(PLR_FLAGS(ch), PLR_CLAN_LEADER);
         if (clan->owner == GET_IDNUM(ch))
@@ -373,6 +446,13 @@ ACMD(do_resign)
             free(member);
         }
         sql_exec("delete from clan_members where player=%ld", GET_IDNUM(ch));
+
+        send_to_char(ch, "You have resigned from clan %s.\r\n", clan->name);
+        msg = tmp_sprintf("%s has resigned from clan %s.", GET_NAME(ch),
+            clan->name);
+        mudlog(GET_INVIS_LVL(ch), NRM, true, "%s", msg);
+        msg = tmp_strcat(msg, "\r\n", NULL);
+        send_to_clan(msg, GET_CLAN(ch));
     }
 }
 
@@ -694,23 +774,13 @@ ACMD(do_cinfo)
 
 ACMD(do_clanpasswd)
 {
-    struct special_search_data *srch = NULL;
-
     if (!GET_CLAN(ch) || !PLR_FLAGGED(ch, PLR_CLAN_LEADER)) {
         send_to_char(ch, "Only clan leaders can do this.\r\n");
         return;
     }
-    if (!real_clan(GET_CLAN(ch))) {
+    struct clan_data *clan = real_clan(GET_CLAN(ch));
+    if (!clan) {
         send_to_char(ch, "Something about your clan is screwed up.\r\n");
-        return;
-    }
-    if (!ROOM_FLAGGED(ch->in_room, ROOM_CLAN_HOUSE)) {
-        send_to_char(ch, "You can't set any clan passwds in this room.\r\n");
-        return;
-    }
-    if (!clan_house_can_enter(ch, ch->in_room)) {
-        send_to_char(ch,
-            "You can't set passwds in other people's clan house.\r\n");
         return;
     }
 
@@ -720,27 +790,18 @@ ACMD(do_clanpasswd)
         return;
     }
 
-    for (srch = ch->in_room->search; srch; srch = srch->next) {
-        if (srch->command == SEARCH_COM_TRANSPORT &&
-            SRCH_FLAGGED(srch, SRCH_CLANPASSWD))
-            break;
-    }
-
-    if (!srch) {
-        send_to_char(ch, "There is no clanpasswd search in this room.\r\n");
-        return;
-    }
-
     if (AFF_FLAGGED(ch, AFF_CHARM)) {
         send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
         return;
     }
-    free(srch->keywords);
-    srch->keywords = strdup(argument);
-    if (!save_wld(ch, ch->in_room->zone))
-        send_to_char(ch, "New clan password set here to '%s'.\r\n", argument);
-    else
-        send_to_char(ch, "There was a problem saving your clan password.\r\n");
+
+    free(clan->password);
+    clan->password = strdup(argument);
+    sql_exec("update clans set password='%s' where idnum=%d",
+             tmp_sqlescape(clan->password), clan->number);
+    slog("%s set clan %d password to '%s'.",
+         GET_NAME(ch), clan->number, clan->password);
+    send_to_char(ch, "Clan password set to '%s'.\r\n", argument);
 }
 
 struct clan_data *
@@ -913,7 +974,7 @@ ACMD(do_cedit)
     case 2:          /*** set    ***/
         if (!*arg1) {
             send_to_char(ch,
-                "Usage: cedit set <vnum> <name|badge|rank|bank|member|owner>['top']<value>\r\n");
+                "Usage: cedit set <vnum> <name|badge|password|rank|bank|member|owner>['top']<value>\r\n");
             return;
         }
 
@@ -922,7 +983,7 @@ ACMD(do_cedit)
 
         if (!*argument || !*arg2) {
             send_to_char(ch,
-                "Usage: cedit set <clan> <name|badge|rank|bank|member|owner>['top']<value>\r\n");
+                "Usage: cedit set <clan> <name|badge|password|rank|bank|member|owner>['top']<value>\r\n");
             return;
         }
         if (!clan) {
@@ -961,6 +1022,23 @@ ACMD(do_cedit)
                 tmp_sqlescape(clan->badge), clan->number);
             slog("(cedit) %s set clan %d badge to '%s'.", GET_NAME(ch),
                 clan->number, clan->badge);
+
+        }
+        // cedit set password
+        else if (is_abbrev(arg2, "password")) {
+            if (strlen(argument) > MAX_CLAN_PASSWORD - 1) {
+                send_to_char(ch, "Password too long.  Maximum %d characters.\r\n",
+                             MAX_CLAN_PASSWORD - 1);
+                return;
+            }
+            if (clan->password) {
+                free(clan->password);
+            }
+            clan->password = strdup(argument);
+            sql_exec("update clans set password='%s' where idnum=%d",
+                     tmp_sqlescape(clan->password), clan->number);
+            slog("(cedit) %s set clan %d password to '%s'.", GET_NAME(ch),
+                 clan->number, clan->password);
 
         }
         // cedit set rank
@@ -1350,7 +1428,7 @@ boot_clans(void)
 
     slog("Reading clans");
 
-    res = sql_query("select idnum, name, badge, bank, owner from clans");
+    res = sql_query("select idnum, name, badge, password, bank, owner from clans");
     count = PQntuples(res);
     if (count == 0) {
         slog("WARNING: No clans loaded");
@@ -1363,8 +1441,9 @@ boot_clans(void)
         clan->number = atoi(PQgetvalue(res, idx, 0));
         clan->name = strdup(PQgetvalue(res, idx, 1));
         clan->badge = strdup(PQgetvalue(res, idx, 2));
-        clan->bank_account = atoll(PQgetvalue(res, idx, 3));
-        clan->owner = atoi(PQgetvalue(res, idx, 4));
+        clan->password = strdup(PQgetvalue(res, idx, 3));
+        clan->bank_account = atoll(PQgetvalue(res, idx, 4));
+        clan->owner = atoi(PQgetvalue(res, idx, 5));
         clan->member_list = NULL;
         clan->room_list = NULL;
         clan->next = NULL;
@@ -1443,6 +1522,7 @@ create_clan(int vnum)
     newclan->top_rank = 0;
     newclan->name = strdup("New");
     newclan->badge = strdup("(//NEW\\\\)");
+    newclan->password = strdup("");
     for (i = 0; i < NUM_CLAN_RANKS; i++)
         newclan->ranknames[i] = NULL;
 
@@ -1464,7 +1544,7 @@ create_clan(int vnum)
     }
 
     sql_exec
-        ("insert into clans (idnum, name, badge, bank) values (%d, 'New', '(//NEW\\\\)', 0)",
+        ("insert into clans (idnum, name, badge, password, bank) values (%d, 'New', '(//NEW\\\\)', '', 0)",
         newclan->number);
     return (newclan);
 }
@@ -1500,16 +1580,11 @@ delete_clan(struct clan_data *clan)
             return 1;
     }
 
-    if (clan->name) {
-        free(clan->name);
-    }
-    if (clan->badge) {
-        free(clan->badge);
-    }
+    free(clan->name);
+    free(clan->badge);
+    free(clan->password);
     for (i = 0; i < NUM_CLAN_RANKS; i++)
-        if (clan->ranknames[i]) {
-            free(clan->ranknames[i]);
-        }
+        free(clan->ranknames[i]);
 
     for (member = clan->member_list; member; member = clan->member_list) {
         clan->member_list = member->next;
@@ -1603,6 +1678,20 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
         }
     }
     page_string(ch->desc, acc_get_string());
+}
+
+int
+clan_owning_room(struct room_data *room)
+{
+    struct clan_data *clan;
+    struct room_list_elem *rm_list = NULL;
+
+    for (clan = clan_list; clan; clan = clan->next) {
+       for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next)
+           if (rm_list->room == room)
+               return clan->number;
+   }
+    return 0;
 }
 
 int

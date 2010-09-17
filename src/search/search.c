@@ -31,6 +31,7 @@
 #include "tmpstr.h"
 #include "house.h"
 #include "prog.h"
+#include "clan.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -794,13 +795,20 @@ triggers_search(struct creature *ch, int cmd, char *arg,
 
     skip_spaces(&arg);
 
-    if (srch->keywords) {
-        if (SRCH_FLAGGED(srch, SRCH_CLANPASSWD | SRCH_NOABBREV)) {
-            if (!isname_exact(arg, srch->keywords)) {
-                return 0;
-            }
-        } else if (!isname(arg, srch->keywords)) {
+    if (SRCH_FLAGGED(srch, SRCH_CLANPASSWD)) {
+        int clan_id = clan_owning_room(ch->in_room);
+        struct clan_data *clan = real_clan(clan_id);
+        if (!clan
+            || !*clan->password
+            || !isname_exact(arg, clan->password))
             return 0;
+    } else if (srch->keywords) {
+        if (SRCH_FLAGGED(srch, SRCH_NOABBREV)) {
+           if (!isname_exact(arg, srch->keywords))
+               return 0;
+        } else {
+            if (!isname(arg, srch->keywords))
+                return 0;
         }
     }
 
