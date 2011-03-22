@@ -364,10 +364,9 @@ help_collection_get_topic(struct help_collection *col,
         send_to_char(ch, "You must enter search criteria.\r\n");
         return;
     }
-    cur =
-        help_collection_find_items(col, args, show_no_app, thegroup,
-        searchmode);
-    if (cur) {
+    cur = help_collection_find_items(col, args, show_no_app, thegroup,
+                                     searchmode);
+    if (!cur) {
         FILE *outf;
 
         outf = fopen("log/help.log", "a");
@@ -440,22 +439,35 @@ help_collection_load_index(struct help_collection * col)
     if (!fscanf(inf, "%d\n", &col->top_id))
         goto error;
 
+    slog("help top id = %d", col->top_id);
+
     for (i = 0; i < col->top_id; i++) {
         CREATE(n, struct help_item, 1);
-        if (fscanf(inf, "%d %d %d %d %ld\n",
+
+        if (!fgets(line, sizeof(line), inf)) {
+            errlog("failure to read statline in help index after %d items", num_items);
+            goto error;
+        }
+        if (sscanf(line, "%d %d %d %d %lu",
                    &n->idnum,
                    &n->groups,
                    &n->counter,
                    &n->flags,
-                   &n->owner) != 5)
+                   &n->owner) != 5) {
+            errlog("mismatching statline in help index after %d items", num_items);
             goto error;
+        }
 
-        if (!fgets(line, sizeof(line), inf))
+        if (!fgets(line, sizeof(line), inf)) {
+            errlog("failure to read name in help index after %d items", num_items);
             goto error;
-        n->name = strdup(line);
-        if (!fgets(line, sizeof(line), inf))
+        }
+        n->name = strndup(line, strlen(line) - 1);
+        if (!fgets(line, sizeof(line), inf)) {
+            errlog("failure to read keys in help index after %d items", num_items);
             goto error;
-        n->keys = strdup(line);
+        }
+        n->keys = strndup(line, strlen(line) - 1);
         REMOVE_BIT(n->flags, HFLAG_MODIFIED);
         help_collection_push(col, n);
         num_items++;
