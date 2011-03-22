@@ -57,7 +57,7 @@ SPECIAL(boulder_thrower)
             char *str = tmp_sprintf("%s %s",
                 fname(obj->aliases),
                 fname(vict->player.name));
-            do_throw(ch, str, 0, 0, 0);
+            do_throw(ch, str, 0, 0);
             return 1;
         }
     }

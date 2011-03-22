@@ -353,7 +353,7 @@ ACMD(do_whirlwind)
         int i = 1;
         bool killed_first = false;
 
-        for (GList *it = ch->in_room->people;it;it = it->next) {
+        for (GList *it = ch->in_room->people;it;it = next_living(it)) {
             struct creature *tch = it->data;
 
             if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
@@ -437,11 +437,10 @@ ACMD(do_combo)
         SKILL_GROINKICK
     };
 
-    ACMD_set_return_flags(0);
     arg = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -510,9 +509,7 @@ ACMD(do_combo)
 
     if (percent > prob) {
         WAIT_STATE(ch, 4 RL_SEC);
-        int retval =
-            damage(ch, vict, 0, which_attack[number(0, HOW_MANY - 1)], -1);
-        ACMD_set_return_flags(retval);
+        damage(ch, vict, 0, which_attack[number(0, HOW_MANY - 1)], -1);
         return;
     }
     //
@@ -520,22 +517,22 @@ ACMD(do_combo)
     //
 
     else {
-        int retval = 0;
-
         gain_skill_prof(ch, SKILL_COMBO);
 
         //
         // lead with a throat strike
         //
 
-        retval = damage(ch, vict, dam, SKILL_THROAT_STRIKE, WEAR_NECK_1);
+        damage(ch, vict, dam, SKILL_THROAT_STRIKE, WEAR_NECK_1);
 
-        if (retval) {
-            if (!IS_SET(retval, DAM_ATTACKER_KILLED))
-                WAIT_STATE(ch, (1 + count) RL_SEC);
-            ACMD_set_return_flags(retval);
+        if (is_dead(ch))
+            return;
+
+        if (is_dead(vict)) {
+            WAIT_STATE(ch, (1 + count) RL_SEC);
             return;
         }
+
         //
         // try to throw up to 8 more attacks
         //
@@ -544,19 +541,17 @@ ACMD(do_combo)
             i++, count++) {
             if (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_COMBO) > number(100,
                     120 + (count << 3))) {
-                retval =
-                    damage(ch, vict, dam + (count << 3), which_attack[number(0,
+                damage(ch, vict, dam + (count << 3), which_attack[number(0,
                             HOW_MANY - 1)], -1);
-                if (retval) {
-                    if (!IS_SET(retval, DAM_ATTACKER_KILLED))
-                        WAIT_STATE(ch, (1 + count) RL_SEC);
-                    ACMD_set_return_flags(retval);
+                if (is_dead(ch))
+                    return;
+                if (is_dead(vict)) {
+                    WAIT_STATE(ch, (1 + count) RL_SEC);
                     return;
                 }
             }
         }
-        if (!IS_SET(retval, DAM_ATTACKER_KILLED))
-            WAIT_STATE(ch, (1 + count) RL_SEC);
+        WAIT_STATE(ch, (1 + count) RL_SEC);
     }
 }
 
@@ -574,13 +569,11 @@ ACMD(do_pinch)
     const char *to_vict = NULL, *to_room = NULL;
     bool happened;
 
-    ACMD_set_return_flags(0);
-
     pinch_str = tmp_getword(&argument);
     vict_str = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, vict_str))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict = get_obj_in_list_vis(ch, vict_str,
                     ch->in_room->contents))) {
@@ -827,12 +820,8 @@ ACMD(do_pinch)
         //
 
         if (AFF2_FLAGGED(vict, AFF2_FIRE_SHIELD)) {
-            int retval = damage(vict, ch, dice(3, 8), SPELL_FIRE_SHIELD, -1);
-            retval = SWAP_DAM_RETVAL(retval);
-
-            ACMD_set_return_flags(retval);
-
-            if (retval)
+            damage(vict, ch, dice(3, 8), SPELL_FIRE_SHIELD, -1);
+            if (is_dead(ch))
                 return;
 
             ignite_creature(ch, vict);
@@ -857,12 +846,7 @@ ACMD(do_pinch)
     //
 
     if (AFF2_FLAGGED(vict, AFF2_BLADE_BARRIER)) {
-        int retval =
-            damage(vict, ch, GET_LEVEL(vict), SPELL_BLADE_BARRIER, -1);
-        retval = SWAP_DAM_RETVAL(retval);
-        ACMD_set_return_flags(retval);
-        if (retval)
-            return;
+        damage(vict, ch, GET_LEVEL(vict), SPELL_BLADE_BARRIER, -1);
     }
     //
     // the victim should attack the monk if they can
@@ -872,9 +856,7 @@ ACMD(do_pinch)
         check_attack(ch, vict);
         if (IS_NPC(vict) && !vict->fighting
             && GET_POSITION(vict) >= POS_FIGHTING) {
-            int retval = hit(vict, ch, TYPE_UNDEFINED);
-            retval = SWAP_DAM_RETVAL(retval);
-            ACMD_set_return_flags(retval);
+            hit(vict, ch, TYPE_UNDEFINED);
         }
     }
 
@@ -889,7 +871,7 @@ ACMD(do_meditate)
         send_to_char(ch, "You cease to meditate.\r\n");
         act("$n comes out of a trance.", true, ch, 0, 0, TO_ROOM);
         MEDITATE_TIMER(ch) = 0;
-    } else if (ch->fighting)
+    } else if (is_fighting(ch))
         send_to_char(ch, "You cannot meditate while in battle.\r\n");
     else if (GET_POSITION(ch) != POS_SITTING || !AWAKE(ch))
         send_to_char(ch,

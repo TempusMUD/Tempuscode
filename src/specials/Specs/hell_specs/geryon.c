@@ -12,14 +12,14 @@ SPECIAL(geryon)
 
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
-    if (cmd || !ch->fighting)
+    if (cmd || !is_fighting(ch))
         return 0;
 
     if ((!ch->followers || !ch->followers->next)
         && (horn = GET_EQ(ch, WEAR_HOLD)) && GET_OBJ_VNUM(horn) == 16144
         && GET_OBJ_VAL(horn, 0)) {
         command_interpreter(ch, tmp_strdup("wind horn"));
-        do_order(ch, tmp_strdup("minotaur assist geryon"), 0, 0, 0);
+        do_order(ch, tmp_strdup("minotaur assist geryon"), 0, 0);
         return 1;
     } else if (number(0, 2))
         return 0;
@@ -40,7 +40,6 @@ SPECIAL(geryon)
     act("$n stings $N with a mighty lash of $s deadly tail!", false, ch, 0,
         vict, TO_NOTVICT);
     GET_HIT(vict) -= dice(2, 6);
-    call_magic(ch, vict, 0, NULL, SPELL_POISON, GET_LEVEL(ch), CAST_POTION,
-        NULL);
+    call_magic(ch, vict, 0, NULL, SPELL_POISON, GET_LEVEL(ch), CAST_POTION);
     return 1;
 }

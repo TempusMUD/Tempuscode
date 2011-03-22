@@ -13,11 +13,11 @@ SPECIAL(archon)
         return 0;
     if (cmd)
         return 0;
-    if (!ch->fighting && ch->in_room->zone->plane != PLANE_HEAVEN) {
+    if (!is_fighting(ch) && ch->in_room->zone->plane != PLANE_HEAVEN) {
         for (GList * it = ch->in_room->people; it; it = it->next) {
             struct creature *tch = it->data;
             if (tch != ch && IS_ARCHON(tch) && tch->fighting) {
-                do_rescue(ch, fname(tch->player.name), 0, 0, 0);
+                do_rescue(ch, fname(tch->player.name), 0, 0);
                 return 1;
             }
         }

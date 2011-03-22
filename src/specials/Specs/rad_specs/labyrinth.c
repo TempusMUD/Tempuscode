@@ -380,7 +380,7 @@ SPECIAL(pendulum_timer_mob)
                     in_room);
 
                 struct room_data *theRoom = in_room;
-                for (GList * it = theRoom->people; it; it = it->next) {
+                for (GList * it = theRoom->people; it; it = next_living(it)) {
                     vict = it->data;
                     if (GET_POSITION(vict) > POS_SITTING) {
                         send_to_char(vict,
@@ -427,7 +427,7 @@ SPECIAL(pendulum_timer_mob)
                     in_room);
 
                 struct room_data *theRoom = in_room;
-                for (GList * it = theRoom->people; it; it = it->next) {
+                for (GList * it = theRoom->people; it; it = next_living(it)) {
                     vict = it->data;
                     if (GET_POSITION(vict) > POS_SITTING) {
                         send_to_char(vict,

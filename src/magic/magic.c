@@ -354,7 +354,7 @@ affect_update(void)
     int METABOLISM = 0;
     ACMD(do_stand);
 
-    for (GList * cit = creatures; cit; cit = cit->next) {
+    for (GList * cit = creatures; cit; cit = next_living(cit)) {
         i = (struct creature *)cit->data;
 
         hamstring_found = kata_found = berserk_found = assimilate_found = 0;
@@ -391,22 +391,17 @@ affect_update(void)
                         if (IS_NPC(i)) {
                             if (IS_MAGE(i) && GET_LEVEL(i) > 32
                                 && GET_MANA(i) > 50)
-                                found =
-                                    cast_spell(i, i, 0, NULL, SPELL_FLY, NULL);
+                                found = cast_spell(i, i, 0, NULL, SPELL_FLY);
                             else if (IS_CLERIC(i) && GET_LEVEL(i) > 31
                                 && GET_MANA(i) > 50)
-                                found =
-                                    cast_spell(i, i, 0, NULL, SPELL_AIR_WALK,
-                                    NULL);
+                                found = cast_spell(i, i, 0, NULL, SPELL_AIR_WALK);
                             else if (IS_PHYSIC(i) && GET_LEVEL(i) > 31
                                 && GET_MANA(i) > 50)
-                                found =
-                                    cast_spell(i, i, 0, NULL,
-                                    SPELL_TIDAL_SPACEWARP, NULL);
+                                found = cast_spell(i, i, 0, NULL, SPELL_TIDAL_SPACEWARP);
                             if (!found) {
 
                                 if (!room_is_open_air(i->in_room)) {
-                                    do_stand(i, tmp_strdup(""), 0, 0, 0);
+                                    do_stand(i, tmp_strdup(""), 0, 0);
                                 }
 
                                 else if (EXIT(i, DOWN)
@@ -414,7 +409,7 @@ affect_update(void)
 
                                     if (IS_SET(EXIT(i, DOWN)->exit_info,
                                             EX_CLOSED)) {
-                                        do_stand(i, tmp_strdup(""), 0, 0, 0);
+                                        do_stand(i, tmp_strdup(""), 0, 0);
                                     }
 
                                     else if (do_simple_move(i, DOWN, MOVE_NORM,
@@ -2641,7 +2636,7 @@ mag_affects(int level,
                 false, ch, 0, 0, TO_ROOM);
 
 
-            for (GList * it = ch->in_room->people; it; it = it->next) {
+            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
                 struct creature *tch = (struct creature *)it->data;
 
                 if (ch == tch || !can_see_creature(ch, tch))
@@ -2809,7 +2804,7 @@ mag_affects(int level,
 
     if (spellnum == SPELL_FEAR && !mag_savingthrow(victim, level, SAVING_PSI)
         && GET_POSITION(victim) > POS_SITTING)
-        do_flee(victim, tmp_strdup(""), 0, 0, 0);
+        do_flee(victim, tmp_strdup(""), 0, 0);
 
     // This looks redundant, but serves as a reminder that the damage()
     // function might kill the character
@@ -2957,7 +2952,7 @@ void
 mag_masses(byte level, struct creature *ch, int spellnum, int savetype)
 {
     int found = 0;
-    for (GList * it = ch->in_room->people; it; it = it->next) {
+    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
 
         if (tch == ch || !g_list_find(tch->fighting, ch))
@@ -2994,7 +2989,7 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
 
     if (spellnum == SPELL_MASS_HYSTERIA) {
         count = 0;
-        for (GList * it = ch->in_room->people; it; it = it->next) {
+        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
             struct creature *tch = (struct creature *)it->data;
             if (tch != ch && can_see_creature(ch, tch))
                 count++;
@@ -3070,7 +3065,7 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
         return 0;
 
     // check for players if caster is not a pkiller
-    for (GList * it = ch->in_room->people; it; it = it->next) {
+    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
         struct creature *vict = (struct creature *)it->data;
         if (vict == ch)
             continue;
@@ -3118,7 +3113,7 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
         }
     }
 
-    for (GList * it = ch->in_room->people; it; it = it->next) {
+    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
         struct creature *vict = (struct creature *)it->data;
         // skips:
         //          caster
@@ -3148,8 +3143,7 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
         }
 
         if (spellnum == SPELL_MASS_HYSTERIA) {
-            call_magic(ch, vict, 0, NULL, SPELL_FEAR, level, CAST_PSIONIC,
-                NULL);
+            call_magic(ch, vict, 0, NULL, SPELL_FEAR, level, CAST_PSIONIC);
             continue;
         }
 
@@ -3199,7 +3193,7 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
                 adjoin_room = ch->in_room;
                 ch->in_room = was_in;
 
-                for (GList * it = adjoin_room->people; it; it = it->next) {
+                for (GList * it = adjoin_room->people; it; it = next_living(it)) {
                     struct creature *vict = (struct creature *)it->data;
                     if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR)
                         continue;

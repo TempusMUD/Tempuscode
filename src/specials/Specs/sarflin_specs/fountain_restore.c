@@ -41,7 +41,7 @@ SPECIAL(fountain_restore)
         return 1;
     }
 
-    do_drink(ch, arg, 0, SCMD_DRINK, 0);
+    do_drink(ch, arg, 0, SCMD_DRINK);
     if (GET_HIT(ch) < GET_MAX_HIT(ch)) {
         send_to_char(ch, "It tastes amazingly refreshing!\r\n");
         GET_HIT(ch) = GET_MAX_HIT(ch);

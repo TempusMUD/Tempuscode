@@ -284,7 +284,7 @@ account_name_matches(gpointer key, gpointer value, gpointer user_data)
     return !strcasecmp(this_acct->name, (char *)user_data);
 }
 
-    
+
 
 struct account *
 account_by_name(char *name)
@@ -798,7 +798,7 @@ account_deny_char_entry(struct account *account, struct creature *ch)
     bool override = false;
     bool found = false;
 
-    for (GList *it = creatures;it;it = it->next) {
+    for (GList *it = creatures;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch->account == account) {

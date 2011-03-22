@@ -490,7 +490,7 @@ SPECIAL(hell_hunter)
         }
     }
 
-    if (!ch->fighting && !NPC_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
+    if (!is_fighting(ch) && !NPC_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
         act("$n vanishes into the mouth of an interplanar conduit.",
             false, ch, 0, 0, TO_ROOM);
         creature_purge(ch, true);
@@ -574,7 +574,7 @@ SPECIAL(arioch)
 
     if (ch->in_room->zone->number != 162) {
 
-        if (!NPC_HUNTING(ch) && !ch->fighting) {
+        if (!NPC_HUNTING(ch) && !is_fighting(ch)) {
 
             for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
                 if (IS_CORPSE(obj)) {

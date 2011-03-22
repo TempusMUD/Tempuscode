@@ -492,7 +492,7 @@ die_follower(struct creature *ch)
 bool
 player_in_room(struct room_data *room)
 {
-    for (GList * it = room->people; it; it = it->next) {
+    for (GList * it = room->people; it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (!IS_NPC(tch) && GET_LEVEL(tch) < LVL_AMBASSADOR)
             return true;

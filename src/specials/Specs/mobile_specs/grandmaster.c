@@ -12,7 +12,7 @@ SPECIAL(grandmaster)
         return 0;
     }
 
-    if (!ch->fighting) {
+    if (!is_fighting(ch)) {
         switch (number(0, 25)) {
         case 0:
             act("$n performs a spinning jump kick.", true, ch, 0, 0, TO_ROOM);

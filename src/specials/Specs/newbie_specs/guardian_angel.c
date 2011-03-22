@@ -11,7 +11,7 @@
 ACMD(do_follow);
 ACMD(do_rescue);
 int cast_spell(struct creature *ch, struct creature *tch,
-    struct obj_data *tobj, int *tdir, int spellnum, int *return_flags);
+    struct obj_data *tobj, int *tdir, int spellnum);
 
 struct angel_data {
     struct creature *angel;
@@ -379,7 +379,6 @@ angel_do_action(struct creature *self, struct creature *charge,
     struct angel_data *data)
 {
     char *cmd, *action;
-    int return_flags = 0;
     int result = 0;
 
     action = data->action;
@@ -396,7 +395,7 @@ angel_do_action(struct creature *self, struct creature *charge,
         } else if (spell) {
             angel_do_respond(self, data, angel_spells[spell_no].text);
             cast_spell(self, charge, NULL, NULL,
-                angel_spells[spell_no].spell_no, &return_flags);
+                angel_spells[spell_no].spell_no);
             result = 1;
         }
     } else if (!strcmp(cmd, "answer")) {
@@ -456,8 +455,6 @@ int
 angel_check_charge(struct creature *self, struct creature *charge,
     struct angel_data *data)
 {
-    int return_flags = 0;
-
     if (!charge)
         return 0;
 
@@ -468,14 +465,14 @@ angel_check_charge(struct creature *self, struct creature *charge,
         char_to_room(self, charge->in_room, true);
         act("$n appears in a bright flash of light!", false,
             self, 0, 0, TO_ROOM);
-        do_follow(self, GET_NAME(charge), 0, 0, 0);
+        do_follow(self, GET_NAME(charge), 0, 0);
         return 1;
     }
     // First check for mortal danger
     if (GET_HIT(charge) < 15 && charge->fighting) {
         SET_BIT(data->flags, ANGEL_DANGER);
         perform_say(self, "yell", "Banzaiiiii!  To the rescue!");
-        do_rescue(self, GET_NAME(charge), 0, 0, 0);
+        do_rescue(self, GET_NAME(charge), 0, 0);
         return 1;
     } else if (GET_HIT(charge) < GET_MAX_HIT(charge) / 4 && charge->fighting) {
         if (!IS_SET(data->flags, ANGEL_DANGER)) {
@@ -535,8 +532,7 @@ angel_check_charge(struct creature *self, struct creature *charge,
             if (ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC)) {
                 perform_say_to(self, charge,
                     "You're about to die from poisoning!  I'll save you!");
-                cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_POISON,
-                    &return_flags);
+                cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_POISON);
             } else if (!IS_SET(data->flags, ANGEL_DEATHLYPOISONED)) {
                 perform_say_to(self, charge,
                     "You're about to die from poisoning!  You need to quaff an antidote immediately!");
@@ -595,7 +591,7 @@ assign_angel(struct creature *angel, struct creature *ch)
         char_from_room(angel, false);
     char_to_room(angel, ch->in_room, false);
 
-    do_follow(angel, GET_NAME(ch), 0, 0, 0);
+    do_follow(angel, GET_NAME(ch), 0, 0);
 
     angels = g_list_prepend(angels, data);
 }

@@ -21,11 +21,11 @@ SPECIAL(moloch)
         vict = random_opponent(moloch);
         if (!number(0, 10)) {
             call_magic(moloch, vict, 0, NULL, SPELL_FLAME_STRIKE, 50,
-                CAST_BREATH, NULL);
+                CAST_BREATH);
             return 1;
         } else if (!number(0, 10)) {
             call_magic(moloch, vict, 0, NULL, SPELL_BURNING_HANDS, 50,
-                CAST_SPELL, NULL);
+                CAST_SPELL);
             return 1;
         } else if (!number(0, 8) && GET_DEX(vict) < number(10, 25)) {
             act("$n picks you up in $s jaws and flails you around!!",
@@ -68,7 +68,7 @@ SPECIAL(moloch)
     }
 
     if (index)
-        cast_spell(moloch, NULL, 0, NULL, SPELL_METEOR_STORM, NULL);
+        cast_spell(moloch, NULL, 0, NULL, SPELL_METEOR_STORM);
 
     return 1;
 

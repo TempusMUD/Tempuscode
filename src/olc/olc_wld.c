@@ -486,7 +486,7 @@ do_destroy_room(struct creature *ch, int vnum)
             }
         }
     }
-    for (GList * it = rm->people; it; it = it->next) {
+    for (GList * it = rm->people; it; it = next_living(it)) {
         vict = it->data;
         send_to_char(vict,
             "The room in which you exist is suddenly removed from reality!\r\n");

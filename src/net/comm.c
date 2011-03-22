@@ -788,6 +788,8 @@ game_loop(int mother_desc)
                 close_socket(d);
         }
 
+        /* garbage collect dead creatures */
+
         update_unique_id();
         tics++;                 /* tics since last checkpoint signal */
         sql_gc_queries();
@@ -1815,7 +1817,7 @@ send_to_room(const char *messg, struct room_data *room)
     if (!room || !messg)
         return;
 
-    for (GList * it = room->people; it; it = it->next) {
+    for (GList * it = room->people; it; it = next_living(it)) {
         i = it->data;
         if (i->desc && !PLR_FLAGGED(i, PLR_WRITING))
             SEND_TO_Q(messg, i->desc);
@@ -1829,7 +1831,7 @@ send_to_room(const char *messg, struct room_data *room)
                         (IS_V_WINDOW(obj) && !CAR_CLOSED(obj))) &&
                     ROOM_NUMBER(obj) == ROOM_NUMBER(o) &&
                     GET_OBJ_VNUM(o) == V_CAR_VNUM(obj) && obj->in_room) {
-                    for (GList * it = obj->in_room->people; it; it = it->next) {
+                    for (GList * it = obj->in_room->people; it; it = next_living(it)) {
                         i = it->data;
                         if (i->desc && !PLR_FLAGGED(i, PLR_WRITING))
                             SEND_TO_Q(str, i->desc);
@@ -1851,7 +1853,7 @@ send_to_room(const char *messg, struct room_data *room)
                 room != ABS_EXIT(room, j)->to_room &&
                 !IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
                 for (GList * it = ABS_EXIT(room, j)->to_room->people;
-                    it; it = it->next) {
+                    it; it = next_living(it)) {
                     i = it->data;
                     if (i->desc && !PLR_FLAGGED(i, PLR_OLC))
                         SEND_TO_Q(str, i->desc);
@@ -2238,7 +2240,7 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
         raise(SIGSEGV);
         return;
     }
-    for (GList * it = room->people; it; it = it->next) {
+    for (GList * it = room->people; it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (!pred(ch, obj, vict_obj, tch, 0))
             continue;
@@ -2256,7 +2258,7 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
                         (IS_OBJ_TYPE(o2, ITEM_V_WINDOW) && !CAR_CLOSED(o2))) &&
                     ROOM_NUMBER(o2) == ROOM_NUMBER(o) &&
                     GET_OBJ_VNUM(o) == V_CAR_VNUM(o2) && o2->in_room) {
-                    for (GList * it = o2->in_room->people; it; it = it->next) {
+                    for (GList * it = o2->in_room->people; it; it = next_living(it)) {
                         struct creature *tch = it->data;
                         if (!pred(ch, obj, vict_obj, tch, 1))
                             continue;
@@ -2285,7 +2287,7 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
                 !IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
 
                 for (GList * it = ABS_EXIT(room, j)->to_room->people;
-                    it; it = it->next) {
+                    it; it = next_living(it)) {
                     struct creature *tch = it->data;
 
                     if (!pred(ch, obj, vict_obj, tch, 2))
@@ -2304,7 +2306,7 @@ act_if(const char *str, int hide_invisible, struct creature *ch,
         if (IS_OBJ_TYPE(o, ITEM_CAMERA) && o->in_room) {
             room = real_room(GET_OBJ_VAL(o, 0));
             if (room) {
-                for (GList * it = room->people; it; it = it->next) {
+                for (GList * it = room->people; it; it = next_living(it)) {
                     struct creature *tch = it->data;
 
                     if (!pred(ch, obj, vict_obj, tch, 3))

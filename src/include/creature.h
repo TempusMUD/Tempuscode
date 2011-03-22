@@ -995,8 +995,11 @@ void remove_combat(struct creature *ch, struct creature *vict);
 void remove_all_combat(struct creature *ch);
 void remove_combat(struct creature *ch, struct creature *target);
 
+bool is_dead(struct creature *ch);
 bool is_fighting(struct creature *ch);
 bool is_newbie(struct creature *ch);
+
+GList *next_living(GList *node);
 
 void start_hunting(struct creature *ch, struct creature *vict);
 void stop_hunting(struct creature *ch);

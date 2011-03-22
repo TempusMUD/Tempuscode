@@ -31,7 +31,7 @@ SPECIAL(mugger)
 
     // Handle the give command
     if (spec_mode == SPECIAL_CMD && CMD_IS("give") && mug) {
-        do_give(ch, argument, cmd, 0, 0);
+        do_give(ch, argument, cmd, 0);
         // Check to see if they gave me what I want
         for (obj = self->carrying; obj; obj = obj->next_content) {
             if (GET_OBJ_VNUM(obj) == mug->vnum) {
@@ -66,7 +66,7 @@ SPECIAL(mugger)
     // We're not mugging anyone, so look for a new victim
     if (!mug) {
         found_vict = NULL;
-        for (GList * it = ch->in_room->people; it; it = it->next) {
+        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
             vict = it->data;
             if (check_infiltrate(vict, ch))
                 continue;
@@ -156,7 +156,7 @@ SPECIAL(mugger)
 
     // A mugging is in progress
     vict = NULL;
-    for (GList * it = ch->in_room->people; it; it = it->next) {
+    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
         vict = it->data;
         if (!IS_NPC(vict)
             && can_see_creature(self, vict)
@@ -176,7 +176,7 @@ SPECIAL(mugger)
 
         if (NPC_HUNTING(self) != vict) {
             do_gen_comm(ch, tmp_sprintf("You're asking for it, %s!",
-                    GET_NAME(vict)), 0, SCMD_SHOUT, 0);
+                    GET_NAME(vict)), 0, SCMD_SHOUT);
             start_hunting(self, vict);
         }
         return 1;

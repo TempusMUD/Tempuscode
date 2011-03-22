@@ -97,7 +97,7 @@ int
 calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     int *wait, int *vict_wait, int *move, int *mana, int *dam,
     int *fail_pos, int *vict_pos, int *loc,
-    struct affected_type *af, int *return_flags)
+    struct affected_type *af)
 {
 
     int prob = 0;
@@ -302,8 +302,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
                 TO_NOTVICT);
             prob = 0;
             if (check_mob_reaction(ch, vict)) {
-                int retval = hit(vict, ch, TYPE_UNDEFINED);
-                *return_flags = SWAP_DAM_RETVAL(retval);
+                hit(vict, ch, TYPE_UNDEFINED);
                 return -1;
             }
         }
@@ -332,8 +331,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             act("$n tries to pick $N up and bodyslam $M!", false, ch, 0, vict,
                 TO_NOTVICT);
             if (check_mob_reaction(ch, vict)) {
-                int retval = hit(vict, ch, TYPE_UNDEFINED);
-                *return_flags = SWAP_DAM_RETVAL(retval);
+                hit(vict, ch, TYPE_UNDEFINED);
             }
             return -1;
         }
@@ -897,15 +895,15 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 }
 
 bool
-perform_offensive_skill(struct creature * ch, struct creature * vict,
-    int skill, int *return_flags)
+perform_offensive_skill(struct creature *ch,
+                        struct creature *vict,
+                        int skill)
 {
     struct affected_type af;
     int prob = -1, wait = 0, vict_wait = 0, dam = 0, vict_pos = 0, fail_pos =
         0, loc = -1, move = 0, mana = 0;
     int my_return_flags = 0;
 
-    ACMD_set_return_flags(0);
     memset(&af, 0, sizeof(struct affected_type));
 
     if (!ok_to_attack(ch, vict, false)) {
@@ -935,14 +933,11 @@ perform_offensive_skill(struct creature * ch, struct creature * vict,
     // calc_skill_prob returns -1 if you cannot perform that skill,
     // or if somethine exceptional happened and we need to return
     //
-
-    if ((prob =
-            calc_skill_prob(ch, vict, skill,
-                &wait, &vict_wait, &move, &mana,
-                &dam, &fail_pos, &vict_pos, &loc, &af,
-                &my_return_flags)) < 0) {
+    prob = calc_skill_prob(ch, vict, skill,
+                           &wait, &vict_wait, &move, &mana,
+                           &dam, &fail_pos, &vict_pos, &loc, &af);
+    if (prob < 0) {
         cur_weap = NULL;
-        ACMD_set_return_flags(my_return_flags);
         return false;
     }
 
@@ -976,7 +971,6 @@ perform_offensive_skill(struct creature * ch, struct creature * vict,
 
         WAIT_STATE(ch, (wait >> 1));
 
-        ACMD_set_return_flags(my_return_flags);
         return false;
     }
     //
@@ -999,7 +993,6 @@ perform_offensive_skill(struct creature * ch, struct creature * vict,
     // set waits, position, and affects on victim if they are still alive
     //
 
-    ACMD_set_return_flags(my_return_flags);
     if ((!IS_SET(my_return_flags, DAM_ATTACK_FAILED))
         && (!IS_SET(my_return_flags, DAM_VICT_KILLED))) {
         if (vict_pos)
@@ -1023,13 +1016,11 @@ ACCMD(do_offensive_skill)
     struct affected_type af;
     char *arg;
 
-    ACMD_set_return_flags(0);
-
     arg = tmp_getword(&argument);
     af.is_instant = 0;
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -1051,7 +1042,7 @@ ACCMD(do_offensive_skill)
         return;
     }
 
-    perform_offensive_skill(ch, vict, subcmd, return_flags);
+    perform_offensive_skill(ch, vict, subcmd);
 }
 
 ACMD(do_assist)
@@ -1133,7 +1124,7 @@ ACMD(do_kill)
     char *arg;
 
     if ((GET_LEVEL(ch) < LVL_CREATOR) || subcmd != SCMD_SLAY || IS_NPC(ch)) {
-        do_hit(ch, argument, cmd, subcmd, 0);
+        do_hit(ch, argument, cmd, subcmd);
         return;
     }
 
@@ -1211,7 +1202,7 @@ ACMD(do_order)
                         perform_say(vict, "intone", "As you command, master.");
                     if (vict->fighting) {
                         for (GList * cit = vict->fighting; cit;
-                            cit = cit->next) {
+                            cit = next_living(cit)) {
                             struct creature *tch = cit->data;
                             detect_opponent_master(tch, vict);
                         }
@@ -1245,7 +1236,7 @@ ACMD(do_order)
                                     "As you command, master.");
                             if (k->follower->fighting) {
                                 for (GList * cit = k->follower->fighting;
-                                    cit; cit = cit->next) {
+                                    cit; cit = next_living(cit)) {
                                     struct creature *tch = cit->data;
                                     detect_opponent_master(tch, k->follower);
                                 }
@@ -1275,8 +1266,6 @@ ACMD(do_flee)
 {
     int i, attempt, loss = 0;
     struct creature *fighting = random_opponent(ch);
-
-    ACMD_set_return_flags(0);
 
     if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
         send_to_char(ch, "You are solid stone!\r\n");
@@ -1325,7 +1314,7 @@ ACMD(do_flee)
             //
 
             if (move_result == 2)
-                ACMD_set_return_flags(DAM_ATTACKER_KILLED);
+                return;
 
             if (move_result == 0) {
                 send_to_char(ch, "You flee head over heels.\r\n");
@@ -1333,7 +1322,7 @@ ACMD(do_flee)
                     gain_exp(ch, -loss);
                     gain_exp(fighting, (loss >> 5));
                 }
-                if (ch->fighting) {
+                if (is_fighting(ch)) {
                     remove_all_combat(ch);
                 }
                 if (room_is_open_air(ch->in_room))
@@ -1386,32 +1375,29 @@ ACMD(do_retreat)
         return;
     }
 
-    if (ch->fighting) {
+    if (is_fighting(ch)) {
         fighting = 1;
         if (CHECK_SKILL(ch, SKILL_RETREAT) + GET_LEVEL(ch) <
             number(60, 70 + GET_LEVEL(random_opponent(ch)))) {
             send_to_char(ch, "You panic!\r\n");
-            do_flee(ch, tmp_strdup(""), 0, 0, 0);
+            do_flee(ch, tmp_strdup(""), 0, 0);
             return;
         }
     }
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *vict = it->data;
 
-        if (*return_flags & DAM_ATTACKER_KILLED)
-            return;
-        if (vict != ch && g_list_find(ch->fighting, vict) &&
-            can_see_creature(vict, ch) &&
-            ((IS_NPC(vict) && GET_NPC_WAIT(vict) < 10) ||
-                (vict->desc && vict->desc->wait < 10)) &&
-            number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED(vict))) {
+        if (vict != ch
+            && g_list_find(ch->fighting, vict)
+            && !is_dead(vict)
+            && can_see_creature(vict, ch)
+            && ((IS_NPC(vict) && GET_NPC_WAIT(vict) < 10)
+                || (vict->desc && vict->desc->wait < 10))
+            && number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED(vict))) {
             found = 1;
-            int retval = hit(vict, ch, TYPE_UNDEFINED);
-
-            if (retval & DAM_VICT_KILLED) {
-                ACMD_set_return_flags(DAM_ATTACKER_KILLED);
+            hit(vict, ch, TYPE_UNDEFINED);
+            if (is_dead(vict) || is_dead(ch))
                 return;
-            }
             if (g_list_find(vict->fighting, ch))
                 remove_combat(vict, ch);
         }
@@ -1419,11 +1405,14 @@ ACMD(do_retreat)
 
     int retval = perform_move(ch, dir, MOVE_RETREAT, true);
 
+    if (is_dead(ch))
+        return;
+
     if (retval == 0) {
 
         if (fighting && !found)
             gain_skill_prof(ch, SKILL_RETREAT);
-        if (ch->fighting)
+        if (is_fighting(ch))
             remove_all_combat(ch);
         if (room_is_open_air(ch->in_room))
             GET_POSITION(ch) = POS_FLYING;
@@ -1435,7 +1424,6 @@ ACMD(do_retreat)
     }
     // critical failure, possible ch death
     else if (retval == 2) {
-        ACMD_set_return_flags(DAM_ATTACKER_KILLED);
         return;
     }
 }
@@ -1461,7 +1449,7 @@ ACMD(do_bash)
 
     // If we found our victim, it's a combat move
     if (vict) {
-        do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH, 0);
+        do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH);
         return;
     }
     // If it's an object in the room, it's just a scary social
@@ -1696,7 +1684,7 @@ ACMD(do_stun)
         WAIT_STATE(ch, 4);
         return;
     }
-    if (ch->fighting) {
+    if (is_fighting(ch)) {
         send_to_char(ch, "You're pretty busy right now!\r\n");
         return;
     }
@@ -1754,7 +1742,7 @@ ACMD(do_tag)
         send_to_char(ch, "Who do you want to tag in?\r\n");
         return;
     }
-    if (!ch->fighting) {
+    if (!is_fighting(ch)) {
         send_to_char(ch, "There is no need.  You aren't fighting!\r\n");
         return;
     }
@@ -1886,7 +1874,7 @@ ACMD(do_tornado_kick)
     arg = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -1970,12 +1958,10 @@ ACMD(do_sleeper)
     int percent, prob;
     char *arg;
 
-    ACMD_set_return_flags(0);
-
     arg = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -2029,8 +2015,7 @@ ACMD(do_sleeper)
 
     if (percent > prob || NPC_FLAGGED(vict, NPC_NOSLEEP) ||
         GET_LEVEL(vict) > LVL_CREATOR) {
-        int retval = damage(ch, vict, 0, SKILL_SLEEPER, WEAR_NECK_1);
-        ACMD_set_return_flags(retval);
+        damage(ch, vict, 0, SKILL_SLEEPER, WEAR_NECK_1);
     }
     //
     // success
@@ -2039,8 +2024,6 @@ ACMD(do_sleeper)
     else {
         gain_skill_prof(ch, SKILL_SLEEPER);
         int retval = damage(ch, vict, 18, SKILL_SLEEPER, WEAR_NECK_1);
-
-        ACMD_set_return_flags(retval);
 
         //
         // put the victim to sleep if he's still alive
@@ -2094,7 +2077,7 @@ ACMD(do_turn)
     arg = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -2150,7 +2133,7 @@ ACMD(do_turn)
                 false, ch, 0, vict, TO_ROOM);
             act("You call upon the power of your deity and force $N to flee!",
                 true, ch, 0, vict, TO_CHAR);
-            do_flee(vict, tmp_strdup(""), 0, 0, 0);
+            do_flee(vict, tmp_strdup(""), 0, 0);
             gain_skill_prof(ch, SKILL_TURN);
         } else {
             damage(ch, vict, GET_LEVEL(ch) >> 1, SKILL_TURN, -1);
@@ -2165,7 +2148,7 @@ random_fighter(struct room_data *room,
                struct creature *ch,
                struct creature *vict)
 {
-    for (GList *it = room->people;it;it = it->next) {
+    for (GList *it = room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch != ch
             && tch != vict && g_list_find(tch->fighting, vict)
@@ -2180,7 +2163,7 @@ random_bystander(struct room_data *room,
                struct creature *ch,
                struct creature *vict)
 {
-    for (GList *it = room->people;it;it = it->next) {
+    for (GList *it = room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch != ch && tch != vict && !number(0, 2))
             return tch;
@@ -2191,7 +2174,7 @@ random_bystander(struct room_data *room,
 void
 shoot_energy_gun(struct creature *ch,
     struct creature *vict,
-    struct obj_data *target, struct obj_data *gun, int *return_flags)
+    struct obj_data *target, struct obj_data *gun)
 {
     sh_int prob, dam, cost;
     int dum_ptr = 0, dum_move = 0;
@@ -2225,16 +2208,14 @@ shoot_energy_gun(struct creature *ch,
 
     prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
         &dum_ptr, &dum_ptr, &dum_move, &dum_move,
-        &dum_ptr, &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags);
+        &dum_ptr, &dum_ptr, &dum_ptr, &dum_ptr, af);
 
-    if (my_return_flags) {
-        ACMD_set_return_flags(my_return_flags);
+    if (is_dead(ch) || is_dead(vict))
         return;
-    }
 
     prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
 
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch != ch && g_list_find(tch->fighting, ch))
@@ -2285,10 +2266,8 @@ shoot_energy_gun(struct creature *ch,
     // if the attacker was somehow killed, return immediately
     //
 
-    if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-        ACMD_set_return_flags(my_return_flags);
+    if (is_dead(ch))
         return;
-    }
 
     if (!CUR_ENERGY(gun->contains)) {
         act("$p has been depleted of fuel.  You must replace the energy cell before firing again.", false, ch, gun, 0, TO_CHAR);
@@ -2314,7 +2293,7 @@ void
 fire_projectile_round(struct creature *ch,
     struct creature *vict,
     struct obj_data *gun,
-    struct obj_data *bullet, int bullet_num, int prob, int *return_flags)
+    struct obj_data *bullet, int bullet_num, int prob)
 {
     sh_int dam;
     int my_return_flags = 0;
@@ -2387,8 +2366,6 @@ fire_projectile_round(struct creature *ch,
                 (IS_ARROW(gun) ? SKILL_ARCHERY :
                     SKILL_PROJ_WEAPONS)), number(0, NUM_WEARS - 1));
     }
-
-    ACMD_set_return_flags(my_return_flags);
 }
 
 void
@@ -2427,7 +2404,7 @@ projectile_blast_corpse(struct creature *ch, struct obj_data *gun,
 void
 shoot_projectile_gun(struct creature *ch,
     struct creature *vict,
-    struct obj_data *target, struct obj_data *gun, int *return_flags)
+    struct obj_data *target, struct obj_data *gun)
 {
     struct obj_data *bullet = NULL;
     sh_int prob, dam;
@@ -2475,7 +2452,7 @@ shoot_projectile_gun(struct creature *ch,
     prob = calc_skill_prob(ch, vict,
         (IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_SHOOT),
         &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
-        &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags);
+        &dum_ptr, &dum_ptr, &dum_ptr, af);
 
     if (my_return_flags)
         return;
@@ -2486,14 +2463,14 @@ shoot_projectile_gun(struct creature *ch,
         prob += number(GET_LEVEL(ch) >> 2,
             GET_LEVEL(ch) >> 1) + (GET_REMORT_GEN(ch) << 2);
 
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch != ch && g_list_find(tch->fighting, ch))
             prob -= GET_LEVEL(tch) / 8;
     }
 
-    if (ch->fighting)
+    if (is_fighting(ch))
         prob -= 10;
 
     if (vict->fighting && !g_list_find(vict->fighting, ch)
@@ -2517,13 +2494,11 @@ shoot_projectile_gun(struct creature *ch,
             projectile_blast_corpse(ch, gun, bullet);
         } else {
             fire_projectile_round(ch, vict, gun, bullet,
-                bullet_num, prob, return_flags);
+                bullet_num, prob);
         }
         // if the attacker was somehow killed, return immediately
-        if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-            ACMD_set_return_flags(my_return_flags);
+        if (is_dead(ch))
             return;
-        }
         break;
     }
 
@@ -2531,8 +2506,6 @@ shoot_projectile_gun(struct creature *ch,
         WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 2) RL_SEC);
     else
         WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 1) RL_SEC);
-
-    ACMD_set_return_flags(my_return_flags);
 }
 
 ACMD(do_shoot)
@@ -2541,8 +2514,6 @@ ACMD(do_shoot)
     struct obj_data *gun = NULL, *target = NULL, *bullet = NULL;
     int i;
     char *arg;
-
-    ACMD_set_return_flags(0);
 
     arg = tmp_getword(&argument);
 
@@ -2628,21 +2599,21 @@ ACMD(do_shoot)
     }
 
     if (IS_ENERGY_GUN(gun))
-        shoot_energy_gun(ch, vict, target, gun, return_flags);
+        shoot_energy_gun(ch, vict, target, gun);
     else
-        shoot_projectile_gun(ch, vict, target, gun, return_flags);
+        shoot_projectile_gun(ch, vict, target, gun);
 }
 
 ACMD(do_ceasefire)
 {
     struct creature *f = NULL;
 
-    if (!ch->fighting) {
+    if (!is_fighting(ch)) {
         send_to_char(ch, "But you aren't fighting anyone.\r\n");
         return;
     }
 
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch != ch && g_list_find(tch->fighting, ch))
             f = tch;
@@ -2673,7 +2644,7 @@ ACCMD(do_disarm)
     arg = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else {
             send_to_char(ch, "Who do you want to disarm?\r\n");
@@ -2725,10 +2696,10 @@ ACCMD(do_disarm)
         }
 
         if (GET_STR(ch) + number(0, 20) > GET_STR(vict) + GET_DEX(vict)) {
-            do_drop(vict, fname(weap->aliases), 0, 0, 0);
+            do_drop(vict, fname(weap->aliases), 0, 0);
             if (IS_NPC(vict) && !GET_NPC_WAIT(vict) && AWAKE(vict) &&
                 number(0, GET_LEVEL(vict)) > (GET_LEVEL(vict) >> 1))
-                do_get(vict, fname(weap->aliases), 0, 0, 0);
+                do_get(vict, fname(weap->aliases), 0, 0);
         }
 
         GET_EXP(ch) += MIN(100, GET_OBJ_WEIGHT(weap));
@@ -2760,7 +2731,7 @@ ACMD(do_impale)
     arg = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -2847,7 +2818,7 @@ ACMD(do_intimidate)
     af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -2974,7 +2945,7 @@ ACMD(do_beguile)
 struct creature *
 randomize_target(struct creature *ch, struct creature *vict, short prob)
 {
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch != ch && g_list_find(tch->fighting, ch))
@@ -3058,7 +3029,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
 
         prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
             &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
-            &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags);
+            &dum_ptr, &dum_ptr, &dum_ptr, af);
 
         prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
         prob += dex_app[GET_DEX(ch)].tohit;
@@ -3118,10 +3089,9 @@ do_combat_fire(struct creature *ch, struct creature *vict)
         return -1;
     }
 
-    prob = calc_skill_prob(ch, vict,
-        (SKILL_SHOOT),
-        &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
-        &dum_ptr, &dum_ptr, &dum_ptr, af, &my_return_flags);
+    prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
+                           &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
+                           &dum_ptr, &dum_ptr, &dum_ptr, af);
 
     prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
 

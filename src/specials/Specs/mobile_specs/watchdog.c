@@ -19,7 +19,7 @@ SPECIAL(watchdog)
     if (cmd || !AWAKE(dog) || dog->fighting)
         return 0;
 
-    for (GList * it = ch->in_room->people; it; it = it->next) {
+    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch != dog && can_see_creature(dog, tch)
             && GET_LEVEL(tch) < LVL_IMMORT) {

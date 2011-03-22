@@ -35,12 +35,8 @@
 #include "accstr.h"
 
 /* extern variables */
-extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
-extern struct room_data *world;
-extern struct spell_info_type spell_info[];
 int check_mob_reaction(struct creature *ch, struct creature *vict);
-char *save_wld(struct creature *ch, struct zone_data *zone);
 
 struct clan_data *clan_list;
 extern FILE *player_fl;

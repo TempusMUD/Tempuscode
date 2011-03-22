@@ -10,7 +10,7 @@ SPECIAL(juju_zombie)
     if (spec_mode != SPECIAL_TICK)
         return 0;
 
-    if (GET_POSITION(ch) != POS_FIGHTING || !ch->fighting)
+    if (GET_POSITION(ch) != POS_FIGHTING || !is_fighting(ch))
         return 0;
 
     struct creature *vict = random_opponent(ch);

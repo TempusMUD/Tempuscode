@@ -8,7 +8,7 @@ SPECIAL(astral_deva)
 {
     if (spec_mode != SPECIAL_TICK)
         return 0;
-    if (!ch->fighting || cmd)
+    if (!is_fighting(ch) || cmd)
         return 0;
 
     struct creature *vict = random_opponent(ch);

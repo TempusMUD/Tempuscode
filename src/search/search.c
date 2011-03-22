@@ -129,7 +129,6 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
     struct room_data *targ_room = NULL;
     int add = 0, killed = 0, found = 0;
     int bits = 0, i, j;
-    int retval = 0;
     int maxlevel = 0;
 
     if (!mode) {
@@ -350,7 +349,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
             struct room_data *src_room = ch->in_room;
             rc = search_trans_character(ch, srch, targ_room);
 
-            for (GList * it = src_room->people; it; it = it->next) {
+            for (GList * it = src_room->people; it; it = next_living(it)) {
                 mob = it->data;
                 if (srch->to_room)
                     act(srch->to_room, false, ch, obj, mob, TO_VICT);
@@ -497,7 +496,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 act(srch->to_remote, false, targ_room->people->data, obj, mob,
                     TO_CHAR);
             }
-            for (GList * it = targ_room->people; it; it = it->next) {
+            for (GList * it = targ_room->people; it; it = next_living(it)) {
                 mob = it->data;
 
                 if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
@@ -511,8 +510,8 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                             SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
                         (SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
                         (SPELL_IS_PSIONIC(srch->arg[2])) ? CAST_PSIONIC :
-                        CAST_ROD, &retval);
-                    if (IS_SET(retval, DAM_ATTACKER_KILLED))
+                        CAST_ROD);
+                    if (is_dead(ch))
                         break;
                 } else {
                     call_magic(ch, mob, 0, NULL, srch->arg[2], srch->arg[0],
@@ -520,7 +519,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                             SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
                         (SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
                         (SPELL_IS_PSIONIC(srch->arg[2])) ? CAST_PSIONIC :
-                        CAST_ROD, NULL);
+                        CAST_ROD);
                 }
             }
         } else if (!targ_room && !affected_by_spell(ch, srch->arg[2]))
@@ -528,8 +527,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 (SPELL_IS_MAGIC(srch->arg[2]) ||
                     SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
                 (SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
-                (SPELL_IS_PSIONIC(srch->arg[2])) ? CAST_PSIONIC : CAST_ROD,
-                NULL);
+                (SPELL_IS_PSIONIC(srch->arg[2])) ? CAST_PSIONIC : CAST_ROD);
 
         search_nomessage = 0;
 
@@ -578,7 +576,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 act(srch->to_remote, false, targ_room->people->data, obj, mob,
                     TO_CHAR);
             }
-            for (GList * it = targ_room->people; it; it = it->next) {
+            for (GList * it = targ_room->people; it; it = next_living(it)) {
                 mob = it->data;
 
                 if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
@@ -634,7 +632,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 && !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
                 SET_BIT(srch->flags, SRCH_TRIPPED);
 
-            for (GList * it = other_rm->people; it; it = it->next) {
+            for (GList * it = other_rm->people; it; it = next_living(it)) {
                 mob = it->data;
                 if (!IS_NPC(mob))
                     continue;

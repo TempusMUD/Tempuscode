@@ -11,7 +11,7 @@ SPECIAL(fire_breather)
         return false;
     if (spec_mode != SPECIAL_TICK)
         return false;
-    if (GET_POSITION(ch) != POS_FIGHTING || !ch->fighting)
+    if (GET_POSITION(ch) != POS_FIGHTING || !is_fighting(ch))
         return false;
 
     struct creature *vict = random_opponent(ch);

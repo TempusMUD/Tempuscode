@@ -160,7 +160,7 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str,
         else
             room = real_room(GET_LOADROOM(ch));
 
-        for (GList *it = ch->in_room->people;it;it = it->next) {
+        for (GList *it = ch->in_room->people;it;it = next_living(it)) {
             struct creature *tch = it->data;
 
             if (GET_NPC_SPEC(tch) == cryogenicist ||
@@ -266,7 +266,7 @@ gen_receptionist(struct creature *ch, struct creature *recep,
 
     if (!cmd && !number(0, 5)) {
         do_action(recep, tmp_strdup(""), find_command(action_table[number(0,
-                        8)]), 0, 0);
+                        8)]), 0);
         return false;
     }
 

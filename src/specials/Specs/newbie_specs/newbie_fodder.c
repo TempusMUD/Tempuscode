@@ -36,7 +36,7 @@ SPECIAL(newbie_fodder)
             continue;
 
         struct creature *tch = NULL;
-        for (GList * it = ch->in_room->people; it; it = it->next) {
+        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
             tch = it->data;
             if (IS_PC(tch))
                 break;

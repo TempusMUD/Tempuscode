@@ -1279,7 +1279,7 @@ qp_reload(int sig __attribute__ ((unused)))
     //
     // Check if the imm is logged on
     //
-    for (GList * cit = creatures; cit; cit = cit->next) {
+    for (GList * cit = creatures; cit; cit = next_living(cit)) {
         immortal = cit->data;
         if (GET_LEVEL(immortal) >= LVL_AMBASSADOR
             && (!IS_NPC(immortal) && GET_QUEST_ALLOWANCE(immortal) > 0)) {
@@ -2692,7 +2692,7 @@ do_qcontrol_switch(struct creature *ch, char *argument)
         send_to_char(ch, "You are not currently active on any quest.\r\n");
         return;
     }
-    do_switch(ch, argument, 0, SCMD_QSWITCH, 0);
+    do_switch(ch, argument, 0, SCMD_QSWITCH);
 }
 
 static void

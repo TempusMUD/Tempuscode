@@ -223,7 +223,7 @@ show_pc_race_help(struct descriptor_data *d, char *arg)
         return;
     }
 
-    do_hcollect_help(d->creature, race_str, 0, 0, NULL);
+    do_hcollect_help(d->creature, race_str, 0, 0);
     set_desc_state(CXN_RACE_HELP, d);
 }
 
@@ -246,7 +246,7 @@ show_pc_class_help(struct descriptor_data *d, char *arg)
         return;
     }
 
-    do_hcollect_help(d->creature, class_str, 0, 0, NULL);
+    do_hcollect_help(d->creature, class_str, 0, 0);
     set_desc_state(CXN_CLASS_HELP, d);
 }
 

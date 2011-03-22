@@ -24,15 +24,13 @@
    void (name)(__attribute__ ((unused)) struct creature *ch, \
    	__attribute__ ((unused)) char *argument, \
 	__attribute__ ((unused)) int cmd, \
-	__attribute__ ((unused)) int subcmd, \
-	__attribute__ ((unused)) int *return_flags)
+	__attribute__ ((unused)) int subcmd)
 
 #define ACCMD(name)  \
    void (name)(__attribute__ ((unused)) struct creature *ch, \
    __attribute__ ((unused)) char *argument, \
    __attribute__ ((unused)) int cmd, \
-   __attribute__ ((unused)) int subcmd, \
-   __attribute__ ((unused)) int *return_flags)
+   __attribute__ ((unused)) int subcmd)
 
 struct creature;
 struct descriptor_data;
@@ -59,20 +57,6 @@ void send_unknown_cmd(struct creature *ch);
 struct special_search_data;
 int triggers_search(struct creature *ch, int cmd, char *arg,
                     struct special_search_data *srch);
-
-//
-// used by ACMD functinos to set return_flags if they exist
-//
-
-#define ACMD_set_return_flags( val ) {\
-    if ( return_flags ) { \
-        *return_flags = val; \
-    } \
-}
-
-//
-// used by any functions to set their return_flags if they exist
-//
 
 struct command_info {
 	const char *command;

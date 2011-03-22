@@ -284,8 +284,6 @@ ACMD(do_backstab)
     struct obj_data *weap = NULL;
     char *target_str;
 
-    ACMD_set_return_flags(0);
-
     target_str = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, target_str))) {
@@ -328,15 +326,13 @@ ACMD(do_backstab)
     cur_weap = weap;
     if (AWAKE(vict) && (percent > prob)) {
         WAIT_STATE(ch, 2 RL_SEC);
-        int retval = damage(ch, vict, 0, SKILL_BACKSTAB, WEAR_BACK);
-        ACMD_set_return_flags(retval);
+        damage(ch, vict, 0, SKILL_BACKSTAB, WEAR_BACK);
     }
 
     else {
         WAIT_STATE(vict, 1 RL_SEC);
         WAIT_STATE(ch, 4 RL_SEC);
-        int retval = hit(ch, vict, SKILL_BACKSTAB);
-        ACMD_set_return_flags(retval);
+        hit(ch, vict, SKILL_BACKSTAB);
     }
 }
 
@@ -346,8 +342,6 @@ ACMD(do_circle)
     int percent, prob;
     struct obj_data *weap = NULL;
     char *target_str;
-
-    ACMD_set_return_flags(0);
 
     target_str = tmp_getword(&argument);
 
@@ -383,19 +377,18 @@ ACMD(do_circle)
     percent = number(1, 101) + GET_INT(vict);   /* 101% is a complete failure */
     prob = CHECK_SKILL(ch, SKILL_CIRCLE) +
         number(0, 20) * (AFF_FLAGGED(ch, AFF_SNEAK));
-    if (ch->fighting)
+    if (is_fighting(ch))
         prob -= number(20, 30);
     prob += 20 * can_see_creature(vict, ch);
 
     cur_weap = weap;
     if (percent > prob) {
         WAIT_STATE(ch, 2 RL_SEC);
-        int retval = damage(ch, vict, 0, SKILL_CIRCLE, WEAR_BACK);
-        ACMD_set_return_flags(retval);
+        damage(ch, vict, 0, SKILL_CIRCLE, WEAR_BACK);
     } else {
         gain_skill_prof(ch, SKILL_CIRCLE);
         WAIT_STATE(ch, 5 RL_SEC);
-        int retval = hit(ch, vict, SKILL_CIRCLE);
+        hit(ch, vict, SKILL_CIRCLE);
 
         if (retval)
             return;

@@ -210,7 +210,7 @@ SPECIAL(quest_sphere)
 
     if (quad)
         call_magic(ch, ch, NULL, NULL, SPELL_QUAD_DAMAGE, LVL_GRIMP,
-            CAST_SPELL, NULL);
+            CAST_SPELL);
 
     if (nobreak) {
         act("$p becomes immune to breaking!", 1, ch, targ_obj, 0, TO_CHAR);

@@ -272,7 +272,7 @@ flow_room(int pulse)
             // Alignment ambience
             if (!(pulse % (4 RL_SEC))) {
                 if (zone->flags & ZONE_EVIL_AMBIENCE) {
-                    for (GList *it = rnum->people;it;it = it->next) {
+                    for (GList *it = rnum->people;it;it = next_living(it)) {
                         struct creature *tch = it->data;
 
                         if (!IS_NPC(tch) && GET_ALIGNMENT(tch) > -1000 &&
@@ -284,7 +284,7 @@ flow_room(int pulse)
                     }
                 }
                 if (zone->flags & ZONE_GOOD_AMBIENCE) {
-                    for (GList *it = rnum->people;it;it = it->next) {
+                    for (GList *it = rnum->people;it;it = next_living(it)) {
                         struct creature *tch = it->data;
 
                         if (!IS_NPC(tch) && GET_ALIGNMENT(tch) < 1000 &&
@@ -321,12 +321,12 @@ flow_room(int pulse)
                 }
             }
 
-            for (GList *it = rnum->people;it;it = it->next)  {
+            for (GList *it = rnum->people;it;it = next_living(it))  {
                 struct creature *tch = it->data;
 
                 flow_one_creature(tch, rnum, pulse, dir);
             }
-            
+
             if ((obj = rnum->contents)) {
                 for (; obj; obj = next_obj) {
                     next_obj = obj->next_content;

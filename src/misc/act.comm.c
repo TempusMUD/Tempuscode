@@ -211,7 +211,7 @@ ACMD(do_say)
     } else if (find_action(cmd) == -1)
         send_to_char(ch, "Yes, but WHAT do you want to %s?\r\n", cmdstr);
     else
-        do_action(ch, argument, cmd, subcmd, return_flags);
+        do_action(ch, argument, cmd, subcmd);
 }
 
 ACMD(do_gsay)

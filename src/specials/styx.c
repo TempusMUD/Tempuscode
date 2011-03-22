@@ -70,27 +70,27 @@ SPECIAL(underworld_goddess)
 
         /* if I'm fighting styx, try to teleport him away.  */
         if (vict == styx) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_RANDOM_COORDINATES, NULL);
+            cast_spell(ch, vict, NULL, NULL, SPELL_RANDOM_COORDINATES);
         }
 
         /* Whip up some magic!  */
         switch (number(0, 9)) {
         case 0:
-            cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL, NULL);
+            cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
             break;
         case 1:
-            cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE, NULL);
+            cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
             break;
         case 2:
-            cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, NULL);
+            cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
             break;
         case 3:
-            cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP, NULL);
+            cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP);
             break;
         case 4:
         case 5:
         case 6:
-            cast_spell(ch, ch, NULL, NULL, SPELL_GREATER_HEAL, NULL);
+            cast_spell(ch, ch, NULL, NULL, SPELL_GREATER_HEAL);
             break;
         }
 
@@ -120,7 +120,7 @@ SPECIAL(underworld_goddess)
         case 0:
             send_to_char(styx,
                 "The goddess tell you, 'My Love, you are hurt!  Let me heal you.'\r\n");
-            cast_spell(ch, styx, NULL, NULL, SPELL_GREATER_HEAL, NULL);
+            cast_spell(ch, styx, NULL, NULL, SPELL_GREATER_HEAL);
             break;
         }
 
@@ -130,20 +130,20 @@ SPECIAL(underworld_goddess)
             case 0:
                 send_to_char(vict,
                     "The Goddess shouts, 'Chew on this worm face!'\r\n");
-                cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL, NULL);
+                cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
                 break;
             case 1:
                 send_to_char(vict,
                     "The Goddess shouts, 'You FIEND!  Take this!'\r\n");
-                cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE, NULL);
+                cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
                 break;
             case 2:
                 send_to_char(vict,
                     "The Goddess shouts, 'Have a LIGHT sewer breath!'\r\n");
-                cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, NULL);
+                cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
                 break;
             case 3:
-                cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP, NULL);
+                cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP);
                 break;
             }
         return 1;

@@ -990,17 +990,16 @@ void mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
 void mag_creations(int level, struct creature *ch, int spellnum);
 
 int call_magic(struct creature *caster, struct creature *cvict,
-	struct obj_data *ovict, int *dvict, int spellnum, int level, int casttype,
-	int *return_flags);
+	struct obj_data *ovict, int *dvict, int spellnum, int level, int casttype);
 
 int mag_objectmagic(struct creature *ch, struct obj_data *obj,
-	char *argument, int *return_flags);
+	char *argument);
 
 void mag_objects(int level, struct creature *ch, struct obj_data *obj,
 	int spellnum);
 
 int cast_spell(struct creature *ch, struct creature *tch,
-	struct obj_data *tobj, int *tdir, int spellnum, int *return_flags);
+	struct obj_data *tobj, int *tdir, int spellnum);
 
 int mag_savingthrow(struct creature *ch, int level, int type);
 

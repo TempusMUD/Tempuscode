@@ -454,7 +454,7 @@ auctioneer_tick(struct creature *self)
 
         if (auc_str && *auc_str) {
             GET_MOOD(self) = moods[mood_index];
-            do_gen_comm(self, auc_str, 0, SCMD_AUCTION, NULL);
+            do_gen_comm(self, auc_str, 0, SCMD_AUCTION);
             GET_MOOD(self) = NULL;
             auc_str = NULL;
         }
@@ -499,7 +499,7 @@ SPECIAL(do_auctions)
 
     if (spec_mode != SPECIAL_CMD)
         return 0;
-    
+
     if (CMD_IS("stun") || CMD_IS("steal") ||
         CMD_IS("pinch") || CMD_IS("glance")) {
         perform_stun(self, ch);
@@ -796,7 +796,7 @@ SPECIAL(do_auctions)
         struct obj_data *obj = item->item;
         GET_MOOD(self) = " sadly";
         do_gen_comm(self, tmp_sprintf("Item number %d, %s, withdrawn.",
-                item_no, obj->name), 0, SCMD_AUCTION, NULL);
+                item_no, obj->name), 0, SCMD_AUCTION);
         GET_MOOD(self) = NULL;
 
         obj_from_char(obj);

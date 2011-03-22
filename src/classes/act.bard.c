@@ -104,7 +104,7 @@ sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict,
             "(%d) Not a bard song in sing_song()", songnum);
         return;
     }
-    for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
+    for (GList * cit = ch->in_room->people; cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
         if (!tch->desc || !AWAKE(tch) ||
             PLR_FLAGGED(tch, PLR_WRITING))
@@ -303,7 +303,7 @@ ASPELL(song_exposure_overture)
     if (!ch)
         return;
 
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         const char *to_char = NULL;
@@ -472,7 +472,7 @@ ASPELL(song_lament_of_longing)
             true, victim, NULL, NULL, TO_CHAR);
     }
 
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (!IS_NPC(tch))
@@ -558,7 +558,7 @@ ASPELL(song_wall_of_sound)
 ASPELL(song_hymn_of_peace)
 {
 
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         remove_all_combat(tch);
@@ -629,7 +629,7 @@ ACMD(do_ventriloquize)
         return;
     }
 
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (target) {

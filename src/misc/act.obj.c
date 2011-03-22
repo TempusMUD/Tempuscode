@@ -168,7 +168,7 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
 
     dam_object = NULL;
 
-    return SWAP_DAM_RETVAL(ret);
+    return ret;
 }
 
 //
@@ -230,7 +230,7 @@ consolidate_char_money(struct creature *ch)
             send_to_char(ch, "There were %lld coins.\r\n", num_gold);
 
         if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT))
-            do_split(ch, tmp_sprintf("%lld", num_gold), 0, 0, 0);
+            do_split(ch, tmp_sprintf("%lld", num_gold), 0, 0);
     }
 
     if (num_credits) {
@@ -245,7 +245,7 @@ consolidate_char_money(struct creature *ch)
             send_to_char(ch, "There were %lld credits.\r\n", num_credits);
 
         if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT))
-            do_split(ch, tmp_sprintf("%lld credits", num_credits), 0, 0, 0);
+            do_split(ch, tmp_sprintf("%lld credits", num_credits), 0, 0);
     }
 }
 
@@ -264,7 +264,7 @@ activate_char_quad(struct creature *ch)
 
         if (GET_OBJ_VNUM(obj) == QUAD_VNUM) {
             call_magic(ch, ch, NULL, NULL, SPELL_QUAD_DAMAGE, LVL_GRIMP,
-                CAST_SPELL, NULL);
+                CAST_SPELL);
             extract_obj(obj);
             slog("%s got the Quad Damage at %d.", GET_NAME(ch),
                 ch->in_room->number);
@@ -1096,7 +1096,6 @@ ACCMD(do_get)
     char *arg2 = tmp_getword(&argument);
     char *tmp_args;
 
-    ACMD_set_return_flags(0);
     total_coins = total_credits = 0;
 
     if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
@@ -1110,13 +1109,7 @@ ACCMD(do_get)
     }
 
     if (!*arg2) {
-
-        int retval = get_from_room(ch, arg1);
-
-        if (retval) {
-            ACMD_set_return_flags(retval);
-        }
-
+        get_from_room(ch, arg1);
         return;
     }
 
@@ -1138,12 +1131,7 @@ ACCMD(do_get)
             return;
         }
 
-        int retval = get_from_container(ch, cont, arg1);
-
-        if (retval) {
-            ACMD_set_return_flags(retval);
-        }
-
+        get_from_container(ch, cont, arg1);
         return;
     }
 
@@ -1187,12 +1175,7 @@ ACCMD(do_get)
             // it contains dots we want to preserve those for every
             // call to get_from_container();
             tmp_args = tmp_strdup(arg1);
-            int retval = get_from_container(ch, cont, tmp_args);
-
-            if (retval) {
-                ACMD_set_return_flags(retval);
-                return;
-            }
+            get_from_container(ch, cont, tmp_args);
         }
     }
 
@@ -1222,12 +1205,7 @@ ACCMD(do_get)
             // it contains dots we want to preserve those for every
             // call to get_from_container();
             tmp_args = tmp_strdup(arg1);
-            int retval = get_from_container(ch, cont, tmp_args);
-
-            if (retval) {
-                ACMD_set_return_flags(retval);
-                return;
-            }
+            get_from_container(ch, cont, tmp_args);
         }
     }
 
@@ -1724,12 +1702,12 @@ perform_give(struct creature *ch, struct creature *vict,
                 if (!vict->fighting
                     && CHECK_SKILL(vict, SKILL_DEMOLITIONS) > number(40, 60))
                     if (FUSE_IS_BURN(obj->contains))
-                        do_extinguish(vict, fname(obj->aliases), 0, 0, 0);
+                        do_extinguish(vict, fname(obj->aliases), 0, 0);
                     else
-                        do_activate(vict, fname(obj->aliases), 0, 1, 0);
+                        do_activate(vict, fname(obj->aliases), 0, 1);
                 else {
                     if (GET_POSITION(vict) < POS_FIGHTING)
-                        do_stand(vict, 0, 0, 0, 0);
+                        do_stand(vict, 0, 0, 0);
                     for (i = 0; i < NUM_DIRS; i++) {
                         if (ch->in_room->dir_option[i] &&
                             ch->in_room->dir_option[i]->to_room && i != UP &&
@@ -1737,22 +1715,22 @@ perform_give(struct creature *ch, struct creature *vict,
                                 EX_CLOSED)) {
                             sprintf(buf, "%s %s", fname(obj->aliases),
                                 dirs[i]);
-                            do_throw(vict, buf, 0, 0, 0);
+                            do_throw(vict, buf, 0, 0);
                             return 1;
                         }
                     }
                     if (can_see_creature(vict, ch)) {
                         sprintf(buf, "%s %s", fname(obj->aliases),
                             fname(ch->player.name));
-                        do_give(vict, buf, 0, 0, 0);
+                        do_give(vict, buf, 0, 0);
                     } else
-                        do_throw(vict, fname(obj->aliases), 0, 0, 0);
+                        do_throw(vict, fname(obj->aliases), 0, 0);
                 }
             }
             return 1;
         }
         if ((IS_CARRYING_W(vict) + IS_WEARING_W(vict)) > (CAN_CARRY_W(vict) >> 1))  // i don't want that heavy shit
-            do_drop(vict, fname(obj->aliases), 0, 0, 0);
+            do_drop(vict, fname(obj->aliases), 0, 0);
     }
     return 1;
 }
@@ -2260,10 +2238,7 @@ ACMD(do_eat)
     struct obj_data *food;
     struct affected_type af;
     int amount;
-    int my_return_flags = 0;
 
-    if (return_flags == NULL)
-        return_flags = &my_return_flags;
     one_argument(argument, arg);
 
     if (!*arg) {
@@ -2276,7 +2251,7 @@ ACMD(do_eat)
     }
     if (subcmd == SCMD_TASTE && ((IS_OBJ_TYPE(food, ITEM_DRINKCON)) ||
             (IS_OBJ_TYPE(food, ITEM_FOUNTAIN)))) {
-        do_drink(ch, argument, 0, SCMD_SIP, 0);
+        do_drink(ch, argument, 0, SCMD_SIP);
         return;
     }
     if (!IS_OBJ_TYPE(food, ITEM_FOOD) &&
@@ -2309,8 +2284,8 @@ ACMD(do_eat)
         if (GET_OBJ_VAL(food, 1) != 0
             && GET_OBJ_VAL(food, 2) != 0
             && subcmd == SCMD_EAT) {
-            mag_objectmagic(ch, food, buf, return_flags);
-            if (*return_flags) {
+            mag_objectmagic(ch, food, buf);
+            if (is_dead(ch)) {
                 extract_obj(food);
                 return;
             }
@@ -3980,9 +3955,9 @@ ACMD(do_empty)
 
     if (IS_OBJ_TYPE(obj, ITEM_DRINKCON)) {
         if (!*arg2)
-            do_pour(ch, tmp_strcat(argument, " out", NULL), 0, 0, 0);
+            do_pour(ch, tmp_strcat(argument, " out", NULL), 0, 0);
         else
-            do_pour(ch, argument, 0, 0, 0);
+            do_pour(ch, argument, 0, 0);
         return;
     }
 

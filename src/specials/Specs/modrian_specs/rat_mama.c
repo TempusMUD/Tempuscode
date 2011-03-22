@@ -21,7 +21,7 @@ SPECIAL(rat_mama)
         return (0);
 
     for (i = 0; i != -1; i++) {
-        for (GList * it = real_room(rat_rooms[i])->people; it; it = it->next) {
+        for (GList * it = real_room(rat_rooms[i])->people; it; it = next_living(it)) {
             struct creature *tch = it->data;
             if (!number(0, 1) == 0 && IS_NPC(tch)
                 && isname("rat", tch->player.name)) {

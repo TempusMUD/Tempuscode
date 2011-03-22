@@ -12,7 +12,7 @@ SPECIAL(aziz_canon)
         return 0;
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
-    if (!ch->fighting && GET_POSITION(ch) != POS_FIGHTING) {
+    if (!is_fighting(ch) && GET_POSITION(ch) != POS_FIGHTING) {
         for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
             vict = cit->data;
             if (!number(0, 2))
@@ -54,7 +54,7 @@ SPECIAL(aziz_canon)
         }
         return 1;
     }
-    if (ch->fighting) {
+    if (is_fighting(ch)) {
         vict = random_opponent(ch);
         if (!number(0, 3)) {
             act("$n gets in a three point stance and plows his shoulder into you!", false, ch, 0, vict, TO_VICT);

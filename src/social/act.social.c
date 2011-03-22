@@ -243,7 +243,7 @@ ACMD(do_flip)
         }
     } else {
         // They're not flipping a coin, so just do the social
-        do_action(ch, argument, cmd, subcmd, return_flags);
+        do_action(ch, argument, cmd, subcmd);
     }
 }
 

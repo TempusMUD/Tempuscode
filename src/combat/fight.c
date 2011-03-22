@@ -130,7 +130,7 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
         trigger_prog_death(ch->in_room, PROG_TYPE_ROOM, ch);
 
     assert(ch->in_room != NULL);
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (GET_NPC_PROGOBJ(tch) != NULL && tch != ch)
@@ -265,7 +265,7 @@ group_gain(struct creature *ch, struct creature *victim)
 
     if (!(leader = ch->master))
         leader = ch;
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (AFF_FLAGGED(tch, AFF_GROUP) && (tch == leader
@@ -278,7 +278,7 @@ group_gain(struct creature *ch, struct creature *victim)
         }
     }
 
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (AFF_FLAGGED(tch, AFF_GROUP) &&
@@ -307,7 +307,7 @@ tally_kill_record(struct creature *ch, struct creature *victim)
     if (IS_PC(victim))
         return NULL;
 
-    for (GList * it = GET_RECENT_KILLS(ch); it; it = it->next) {
+    for (GList * it = GET_RECENT_KILLS(ch); it; it = next_living(it)) {
         kill = it->data;
         if (GET_NPC_VNUM(victim) == kill->vnum) {
             kill->times += 1;
@@ -686,13 +686,6 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
     return NULL;
 }
 
-int
-SWAP_DAM_RETVAL(int val)
-{
-    return ((val & DAM_VICT_KILLED) ? DAM_ATTACKER_KILLED : 0) |
-        ((val & DAM_ATTACKER_KILLED) ? DAM_VICT_KILLED : 0);
-}
-
 //
 // wrapper for damage() for damaging the attacker (swaps return values automagically)
 //
@@ -701,9 +694,8 @@ int
 damage_attacker(struct creature *ch, struct creature *victim, int dam,
     int attacktype, int location)
 {
-    int retval = damage(ch, victim, dam, attacktype, location);
-    retval = SWAP_DAM_RETVAL(retval);
-    return retval;
+    damage(ch, victim, dam, attacktype, location);
+    return 0;
 }
 
 #define DAM_RETURN( flags ) { cur_weap = 0; return flags; }
@@ -1652,7 +1644,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         //lightning gun special
         if (attacktype == TYPE_EGUN_LIGHTNING && dam) {
             if (do_gun_special(ch, weap)) {
-                for (GList *it = ch->in_room->people;it;it = it->next) {
+                for (GList *it = ch->in_room->people;it;it = next_living(it)) {
                     struct creature *tch = it->data;
 
                     if (tch == ch || !g_list_find(tch->fighting, ch))
@@ -1868,8 +1860,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
             if ((IS_SICK(ch) || IS_ZOMBIE(ch)
                     || (ch->in_room->zone->number == 163 && !IS_NPC(victim)))
                 && !IS_SICK(victim) && !IS_UNDEAD(victim)) {
-                call_magic(ch, victim, 0, NULL, SPELL_SICKNESS, GET_LEVEL(ch),
-                    CAST_PARA, NULL);
+                call_magic(ch, victim, 0, NULL, SPELL_SICKNESS, GET_LEVEL(ch), CAST_PARA);
             }
         }
     } else if (ch) {
@@ -1906,7 +1897,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 attacktype == TYPE_STAB ||
                 attacktype == TYPE_CHOP ||
                 attacktype == SPELL_BLADE_BARRIER)) {
-            for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
+            for (GList * cit = ch->in_room->people; cit; cit = next_living(cit)) {
                 struct creature *tch = cit->data;
                 if (tch == victim || number(0, 8))
                     continue;
@@ -2019,7 +2010,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
                 if (GET_HIT(victim) > 0) {
                     int retval = 0;
-                    do_flee(victim, tmp_strdup(""), 0, 0, &retval);
+                    do_flee(victim, tmp_strdup(""), 0, 0);
                     if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
                         DAM_RETURN(DAM_ATTACKER_KILLED);
                     }
@@ -2083,7 +2074,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                         GET_POSITION(victim) = POS_SITTING;
 
                     int retval = 0;
-                    do_flee(victim, tmp_strdup(""), 0, 0, &retval);
+                    do_flee(victim, tmp_strdup(""), 0, 0);
                     if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
                         DAM_RETURN(DAM_ATTACKER_KILLED);
                     }
@@ -2101,7 +2092,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                         GET_POSITION(victim) = POS_SITTING;
 
                     int retval = 0;
-                    do_flee(victim, tmp_strdup(""), 0, 0, &retval);
+                    do_flee(victim, tmp_strdup(""), 0, 0);
                     if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
                         DAM_RETURN(DAM_ATTACKER_KILLED);
                     }
@@ -2117,7 +2108,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     // ch is initiating an attack ?  only if ch is not
                     // "attacking" with a fireshield/energy
                     // shield/etc...
-                    if (!ch->fighting) {
+                    if (!is_fighting(ch)) {
 
                         if (IS_NPC(victim)) {
                             // mages casting spells and shooters
@@ -2528,7 +2519,7 @@ hit(struct creature *ch, struct creature *victim, int type)
     }
     if (AFF2_FLAGGED(victim, AFF2_MOUNTED)) {
         REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
-        for (GList *it = victim->in_room->people;it;it = it->next) {
+        for (GList *it = victim->in_room->people;it;it = next_living(it)) {
             struct creature *tch = it->data;
 
             if (MOUNTED_BY(tch) && MOUNTED_BY(tch) == victim) {
@@ -2875,14 +2866,14 @@ do_casting_weapon(struct creature *ch, struct obj_data *weap)
         if (IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].routines, MAG_DAMAGE) ||
             spell_info[GET_OBJ_VAL(weap, 0)].violent ||
             IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].targets, TAR_UNPLEASANT)) {
-            if (ch->fighting) {
+            if (is_fighting(ch)) {
                 struct creature *vict = random_opponent(ch);
                 call_magic(ch, vict, 0, NULL, GET_OBJ_VAL(weap, 0),
-                    GET_LEVEL(ch), CAST_WAND, NULL);
+                    GET_LEVEL(ch), CAST_WAND);
             }
         } else if (!affected_by_spell(ch, GET_OBJ_VAL(weap, 0)))
             call_magic(ch, ch, 0, NULL, GET_OBJ_VAL(weap, 0), GET_LEVEL(ch),
-                CAST_WAND, NULL);
+                CAST_WAND);
     } else {
         // drop the weapon
         if ((weap->worn_on == WEAR_WIELD ||
@@ -2960,7 +2951,7 @@ perform_violence1(struct creature *ch, gpointer ignore)
 {
     int prob, i, die_roll;
 
-    if (!ch->in_room || !ch->fighting)
+    if (!ch->in_room || !is_fighting(ch) || is_dead(ch))
         return;
     if (g_list_find(ch->fighting, ch)) {    // intentional crash here.
         errlog("fighting self in perform_violence.");
@@ -2973,7 +2964,7 @@ perform_violence1(struct creature *ch, gpointer ignore)
         return;
     }
 
-    if (!ch->fighting)
+    if (!is_fighting(ch))
         return;
 
     if (IS_NPC(ch)) {
@@ -3008,10 +2999,8 @@ perform_violence1(struct creature *ch, gpointer ignore)
     //
     if (MIN(100, prob + 15) >= die_roll) {
 
-        bool stop = false;
-
         for (i = 0; i < 4; i++) {
-            if (!ch->fighting || GET_LEVEL(ch) < (i * 8))
+            if (!is_fighting(ch) || GET_LEVEL(ch) < (i * 8))
                 break;
             if (GET_POSITION(ch) < POS_FIGHTING) {
                 if (CHECK_WAIT(ch) < 10)
@@ -3020,22 +3009,17 @@ perform_violence1(struct creature *ch, gpointer ignore)
             }
 
             if (prob >= number((i * 16) + (i * 8), (i * 32) + (i * 8))) {
-                int retval = hit(ch, random_opponent(ch), TYPE_UNDEFINED);
-                if (IS_SET(retval, DAM_ATTACKER_KILLED) ||
-                    IS_SET(retval, DAM_VICT_KILLED)) {
-                    stop = true;
-                    break;
-                }
+                struct creature *vict = random_opponent(ch);
+                hit(ch, vict, TYPE_UNDEFINED);
+                if (is_dead(ch) || is_dead(vict))
+                    return;
             }
         }
-
-        if (stop)
-            return;
 
         if (IS_CYBORG(ch)) {
             int implant_prob;
 
-            if (!ch->fighting)
+            if (!is_fighting(ch))
                 return;
 
             if (GET_POSITION(ch) < POS_FIGHTING) {
@@ -3062,7 +3046,7 @@ perform_violence1(struct creature *ch, gpointer ignore)
                 }
             }
 
-            if (!ch->fighting)
+            if (!is_fighting(ch))
                 return;
 
             if (IS_NPC(ch) && (GET_REMORT_CLASS(ch) == CLASS_UNDEFINED

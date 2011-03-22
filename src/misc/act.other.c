@@ -714,14 +714,14 @@ ACMD(do_use)
         break;
 
     case SCMD_READ:
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             act("What, while fighting $N?!", false, ch, 0, random_opponent(ch),
                 TO_CHAR);
             return;
         }
         break;
     case SCMD_RECITE:
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             act("What, while fighting $N?!", false, ch, 0, random_opponent(ch),
                 TO_CHAR);
             return;
@@ -787,7 +787,7 @@ ACMD(do_use)
         return;
     }
 
-    mag_objectmagic(ch, mag_item, buf, NULL);
+    mag_objectmagic(ch, mag_item, buf);
 }
 
 ACMD(do_wimpy)
@@ -1187,7 +1187,7 @@ ACMD(do_gen_tog)
         result = PLR_TOG_CHK(ch, PLR_HALT);
         break;
     case SCMD_MORTALIZE:
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             send_to_char(ch, "You can't do this while fighting.\r\n");
             return;
         }
@@ -1272,7 +1272,7 @@ ACMD(do_gen_tog)
             send_to_char(ch, "Nothing happens.\r\n");
             return;
         }
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             send_to_char(ch,
                 "You can't change your mind about playerkilling while you're fighting!\r\n");
             return;
@@ -1816,15 +1816,12 @@ ACMD(do_throw)
                 // TODO: Copied from mag_objectmagic... Needs to be refactored
                 if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
                     for (int i = 1; i < 4; i++) {
-                        int return_flags = 0;
                         call_magic(ch, target_vict,
                             NULL, NULL, GET_OBJ_VAL(obj, i),
                             MAX(1, GET_OBJ_VAL(obj, 0) / 4),
-                            CAST_POTION, &return_flags);
-                        if (IS_SET(return_flags, DAM_ATTACKER_KILLED) ||
-                            IS_SET(return_flags, DAM_VICT_KILLED)) {
+                            CAST_POTION);
+                        if (is_dead(ch) || is_dead(target_vict))
                             break;
-                        }
                     }
                 }
                 extract_obj(obj);
@@ -2250,7 +2247,7 @@ ACMD(do_drag)
         send_to_char(ch, "What do you want to drag?\r\n");
         return;
     } else if (found_char) {
-        do_drag_char(ch, argument, 0, 0, 0);
+        do_drag_char(ch, argument, 0, 0);
         return;
     } else if (found_obj) {
         drag_object(ch, found_obj, argument);

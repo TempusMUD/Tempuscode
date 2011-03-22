@@ -43,8 +43,7 @@ int check_sneak(struct creature *ch, struct creature *vict, bool departing, bool
 #define TIMEWARP_FILE "etc/timewarps"
 
 int perform_barb_berserk(struct creature *ch,
-	struct creature **who_was_attacked,
-	int *return_flags);
+                         struct creature **who_was_attacked);
 
 int max_component_dam(struct creature *ch);
 int room_count(struct creature *ch, struct room_data *room);

@@ -508,7 +508,7 @@ check_idling(struct creature *ch)
 void
 save_all_players(void)
 {
-    for (GList * cit = creatures; cit; cit = cit->next) {
+    for (GList * cit = creatures; cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
         if (IS_PC(tch))
             save_player_to_xml(tch);
@@ -543,7 +543,7 @@ point_update(void)
     }
 
     /* characters */
-    for (GList * cit = creatures; cit; cit = cit->next) {
+    for (GList * cit = creatures; cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
 
         full = 1;

@@ -1833,8 +1833,7 @@ command_interpreter(struct creature *ch, const char *argument)
             break;
     } else if (no_specials ||
         !special(ch, cmd, cmd_info[cmd].subcmd, cmdargs, SPECIAL_CMD)) {
-        cmd_info[cmd].command_pointer(ch, cmdargs, cmd, cmd_info[cmd].subcmd,
-            0);
+        cmd_info[cmd].command_pointer(ch, cmdargs, cmd, cmd_info[cmd].subcmd);
     }
 }
 
@@ -2408,7 +2407,7 @@ special(struct creature *ch, int cmd, int subcmd, char *arg,
 
     /* special in mobile present? */
     struct room_data *theRoom = ch->in_room;
-    for (GList * it = theRoom->people; it; it = it->next) {
+    for (GList * it = theRoom->people; it; it = next_living(it)) {
         struct creature *mob = (struct creature *)it->data;
 
         if (GET_NPC_SPEC(mob) != NULL) {

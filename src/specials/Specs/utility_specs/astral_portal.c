@@ -23,7 +23,7 @@ SPECIAL(astral_portal)
         act("$n steps into $p.", false, ch, portal, 0, TO_ROOM);
         act("You step into $p.", false, ch, portal, 0, TO_CHAR);
         call_magic(ch, ch, 0, NULL, SPELL_ASTRAL_SPELL, GET_LEVEL(ch),
-            CAST_SPELL, NULL);
+            CAST_SPELL);
         return 1;
     }
     return 0;

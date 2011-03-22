@@ -475,14 +475,14 @@ SPECIAL(tarrasque)
         }
 
         if (tarr->in_room->people->next) {
-            for (GList * it = tarr->in_room->people; it; it = it->next) {
+            for (GList * it = tarr->in_room->people; it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (!IS_NPC(tch) && GET_LEVEL(tch) < 10) {
                     if (GET_POSITION(tch) < POS_STANDING)
                         GET_POSITION(tch) = POS_STANDING;
                     act("You are overcome with terror at the sight of $N!",
                         false, tch, 0, tarr, TO_CHAR);
-                    do_flee(tch, tmp_strdup(""), 0, 0, 0);
+                    do_flee(tch, tmp_strdup(""), 0, 0);
                 }
             }
         }
@@ -505,14 +505,14 @@ SPECIAL(tarrasque)
                 return 1;
             }
             if (tarr->in_room->people->next) {
-                for (GList * it = tarr->in_room->people; it; it = it->next) {
+                for (GList * it = tarr->in_room->people; it; it = next_living(it)) {
                     struct creature *tch = it->data;
                     if (!IS_NPC(tch) && GET_LEVEL(tch) < 10) {
                         if (GET_POSITION(tch) < POS_STANDING)
                             GET_POSITION(tch) = POS_STANDING;
                         act("You are overcome with terror at the sight of $N!",
                             false, tch, 0, tarr, TO_CHAR);
-                        do_flee(tch, tmp_strdup(""), 0, 0, 0);
+                        do_flee(tch, tmp_strdup(""), 0, 0);
                     }
                 }
             }

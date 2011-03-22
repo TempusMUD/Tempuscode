@@ -10,11 +10,11 @@ SPECIAL(newbie_fly)
         return 0;
     if (cmd || ch->fighting)
         return 0;
-    for (GList * it = ch->in_room->people; it; it = it->next) {
+    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (AFF_FLAGGED(tch, AFF_INFLIGHT) || !can_see_creature(ch, tch))
             continue;
-        cast_spell(ch, tch, 0, NULL, SPELL_FLY, NULL);
+        cast_spell(ch, tch, 0, NULL, SPELL_FLY);
         return 1;
     }
     return 0;

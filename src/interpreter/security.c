@@ -183,6 +183,7 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
     case STAT_FATE:
     case STAT_PLAYERS:
     case STAT_PLAYER_FILE:
+    case FORCE_PLAYERS:
         return is_named_role_member(ch, "AdminFull");
 
     case EDIT_HELP:
@@ -198,6 +199,7 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
         return is_named_role_member(ch, "Testers");
 
     case DEBUGGING:
+    case FORCE_ALL:
         return is_named_role_member(ch, "Coder");
 
     case ENTER_HOUSES:

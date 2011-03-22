@@ -338,7 +338,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
         return;
 
     //make sure we really do want to do damage in this room
-    for (GList * it = room->people; it; it = it->next) {
+    for (GList * it = room->people; it; it = next_living(it)) {
         vict = it->data;
         if (damager && damager != vict && !ok_to_attack(damager, vict, false)) {
             //display the message to everyone in victs room except damager
@@ -351,7 +351,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
         }
     }
 
-    for (GList * it = room->people; it; it = it->next) {
+    for (GList * it = room->people; it; it = next_living(it)) {
         vict = it->data;
 
         if (vict == precious_vict)

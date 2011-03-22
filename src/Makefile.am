@@ -1,7 +1,7 @@
 if DEBUG
-  DBGFLAG = -g
+  DBGFLAG = -g -O0
 else
-  DBGFLAG =
+  DBGFLAG = -O3
 endif
 bin_PROGRAMS = @top_srcdir@/bin/circle
 INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@ @XML_CFLAGS@ @GLIB_CFLAGS@

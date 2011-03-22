@@ -34,20 +34,20 @@ SPECIAL(healing_ranger)
     case 12:
     case 13:{
             found = false;
-            for (GList * it = ch->in_room->people; it; it = it->next) {
+            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
                 vict = it->data;
-                if (ch == vict || (!it->next && !number(0, 2))) {
+                if (ch == vict || (!next_living(it) && !number(0, 2))) {
                     continue;
                 }
                 if (!IS_NPC(vict) && can_see_creature(ch, vict) &&
                     (GET_HIT(vict) < GET_MAX_HIT(vict))) {
                     if (GET_MOVE(ch) > 50) {
                         if (GET_LEVEL(vict) <= 15)
-                            do_bandage(ch, GET_NAME(vict), 0, 0, 0);
+                            do_bandage(ch, GET_NAME(vict), 0, 0);
                         else if (GET_LEVEL(vict) <= 30)
-                            do_firstaid(ch, GET_NAME(vict), 0, 0, 0);
+                            do_firstaid(ch, GET_NAME(vict), 0, 0);
                         else
-                            do_medic(ch, GET_NAME(vict), 0, 0, 0);
+                            do_medic(ch, GET_NAME(vict), 0, 0);
 
                         return true;
                     }
@@ -59,12 +59,11 @@ SPECIAL(healing_ranger)
     case 15:
     case 16:{
             found = false;
-            for (GList * it = ch->in_room->people; it; it = it->next) {
+            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
                 vict = it->data;
                 if (AFF_FLAGGED(vict, AFF_POISON)) {
                     if (GET_MANA(ch) > 50) {
-                        cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_POISON,
-                            NULL);
+                        cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_POISON);
                         return true;
                     }
                 }
@@ -75,11 +74,11 @@ SPECIAL(healing_ranger)
     case 18:{
             found = false;
             found = false;
-            for (GList * it = ch->in_room->people; it; it = it->next) {
+            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
                 vict = it->data;
                 if (!IS_NPC(vict) && (affected_by_spell(vict, SPELL_BLINDNESS)
                         || affected_by_spell(vict, SKILL_GOUGE))) {
-                    cast_spell(ch, vict, 0, NULL, SPELL_CURE_BLIND, NULL);
+                    cast_spell(ch, vict, 0, NULL, SPELL_CURE_BLIND);
                     return true;
                 }
             }
@@ -93,12 +92,12 @@ SPECIAL(healing_ranger)
             if (ch->in_room->zone->weather->sky == SKY_LIGHTNING) {
                 found = false;
                 for (GList * it = ch->in_room->people; it && !found;
-                    it = it->next) {
+                    it = next_living(it)) {
                     vict = it->data;
                     if (!affected_by_spell(vict, SPELL_PROT_FROM_LIGHTNING) &&
                         GET_MANA(ch) > 50) {
                         cast_spell(ch, vict, 0, NULL,
-                            SPELL_PROT_FROM_LIGHTNING, NULL);
+                            SPELL_PROT_FROM_LIGHTNING);
                         return true;
                     }
                 }

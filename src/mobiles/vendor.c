@@ -987,7 +987,7 @@ SPECIAL(vendor)
             return false;
         do_gen_comm(self,
             tmp_capitalize(tmp_sprintf("%s is a bloody thief!",
-                    GET_NAME(ch))), 0, SCMD_SHOUT, 0);
+                    GET_NAME(ch))), 0, SCMD_SHOUT);
         return true;
     }
 

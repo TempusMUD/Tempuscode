@@ -220,7 +220,7 @@ death_cry(struct creature *ch)
         act("Your skin crawls as you hear $n's final shriek.",
             false, ch, 0, 0, TO_ROOM);
     else {
-        for (GList *it = ch->in_room->people;it;it = it->next) {
+        for (GList *it = ch->in_room->people;it;it = next_living(it)) {
             struct creature *tch = it->data;
 
             if (tch == ch)
@@ -239,7 +239,7 @@ death_cry(struct creature *ch)
         }
     }
 
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (ch != tch && GET_POSITION(tch) == POS_SLEEPING &&
@@ -261,7 +261,7 @@ death_cry(struct creature *ch)
             ch->in_room = was_in;
             if (adjoin_room->dir_option[rev_dir[door]] &&
                 adjoin_room->dir_option[rev_dir[door]]->to_room == was_in) {
-                for (GList *it = adjoin_room->people;it;it = it->next) {
+                for (GList *it = adjoin_room->people;it;it = next_living(it)) {
                     struct creature *tch = it->data;
 
                     if (found)
@@ -297,12 +297,13 @@ death_cry(struct creature *ch)
 int pick_soilage_target(struct creature *tch, gpointer victim)
 {
     return (tch != victim
+            && !is_dead(tch)
             && !IS_NPC(tch)
             && !number(0, 2)
             && number(5, 30) > GET_DEX(tch))
         ? 0 : -1;
 }
-    
+
 
 void
 blood_spray(struct creature *ch,

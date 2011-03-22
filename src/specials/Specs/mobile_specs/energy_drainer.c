@@ -15,7 +15,7 @@ SPECIAL(energy_drainer)
     if (spec_mode != SPECIAL_TICK)
         return false;
 
-    if (GET_POSITION(ch) != POS_FIGHTING || !ch->fighting)
+    if (GET_POSITION(ch) != POS_FIGHTING || !is_fighting(ch))
         return false;
 
     vict = random_opponent(ch);

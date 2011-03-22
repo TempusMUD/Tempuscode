@@ -215,7 +215,7 @@ will_fit_in_room(struct creature * ch, struct room_data * room)
     else
         i += creature_occupancy(ch);
 
-    for (GList * it = room->people; it; it = it->next) {
+    for (GList * it = room->people; it; it = next_living(it)) {
         struct creature *tch = it->data;
         i += creature_occupancy(tch);
     }
@@ -635,7 +635,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
     }
     // At this point we're definately going to move.  Let's iterate though
     // the people in the room and make sure that no one is fighting us.
-    for (GList * it = ch->in_room->people; it; it = it->next) {
+    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (g_list_find(tch->fighting, ch))
             remove_combat(tch, ch);
@@ -727,7 +727,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
     } else if (IS_TARRASQUE(ch)) {
         sprintf(buf, "$n rampages off %sward.", to_dirs[dir]);
     } else {
-        if (ch->fighting)
+        if (is_fighting(ch))
             sprintf(buf, "$n splits %s!", to_dirs[dir]);
         else if (GET_RACE(ch) != RACE_MOBILE && !IS_SPECTRE(ch) &&
             !IS_WRAITH(ch) && !IS_SHADOW(ch)) {
@@ -757,7 +757,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
             blur_msg = tmp_strcat(blur_msg, ".", NULL);
     }
 
-    for (GList * it = ch->in_room->people; it; it = it->next) {
+    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch == ch || !AWAKE(tch))
             continue;
@@ -783,7 +783,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
                 && ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
                 && GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
                 && c_obj->in_room) {
-                for (GList * it = c_obj->in_room->people; it; it = it->next) {
+                for (GList * it = c_obj->in_room->people; it; it = next_living(it)) {
                     struct creature *tch = it->data;
                     if (ch == tch)
                         continue;
@@ -995,7 +995,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
             blur_msg = tmp_strcat(blur_msg, ".", NULL);
     }
 
-    for (GList * it = ch->in_room->people; it; it = it->next) {
+    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch == ch)
             continue;
@@ -1026,7 +1026,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
                 && ROOM_NUMBER(c_obj) == ROOM_NUMBER(car)
                 && GET_OBJ_VNUM(car) == V_CAR_VNUM(c_obj)
                 && c_obj->in_room) {
-                for (GList * it = c_obj->in_room->people; it; it = it->next) {
+                for (GList * it = c_obj->in_room->people; it; it = next_living(it)) {
                     struct creature *tch = it->data;
                     if (ch == tch)
                         continue;
@@ -2439,7 +2439,7 @@ ACMD(do_mount)
         return;
     }
     if (AFF2_FLAGGED(vict, AFF2_MOUNTED)) {
-        for (GList * it = ch->in_room->people; it; it = it->next) {
+        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
             struct creature *tch = it->data;
             if (MOUNTED_BY(tch) == vict) {
                 send_to_char(ch, "But %s is already mounted on %s!\r\n",

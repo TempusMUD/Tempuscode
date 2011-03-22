@@ -28,6 +28,14 @@
 #include "fight.h"
 #include "utils.h"
 
+/**
+ * do_charge:
+ *
+ * Command - Starts combat with another creature with bonus damage on
+ * the first round.
+ *
+ */
+
 ACMD(do_charge)
 {
     struct affected_type af;
@@ -36,7 +44,6 @@ ACMD(do_charge)
 
     arg = tmp_getword(&argument);
     // Check for berserk.
-    //
 
     if (CHECK_SKILL(ch, SKILL_CHARGE) < 50) {
         send_to_char(ch,
@@ -71,24 +78,35 @@ ACMD(do_charge)
     hit(ch, vict, TYPE_UNDEFINED);
 }
 
+
+/**
+ * do_corner:
+ *
+ * Command - intended to trap another person in a room, just a stub now.
+ * TODO: Make this do something
+ */
+
 ACMD(do_corner)
 {
     send_to_char(ch, "You back into the corner.\r\n");
     return;
 }
 
-//
-// perform_barb_berserk randomly selects and attacks somebody in the room
-// who_was attacked is used to return a pointer to the person attacked
-// precious_ch is never attacked
-// sets return_flags value like damage() retval
-// return value is 0 for failure, 1 for success
-//
-
+/**
+ * select_berserk_victim:
+ * @tch: the creature considered for selection
+ * @ch: the creature going berserk
+ *
+ * Decides whether or not @tch will be the creature that @ch will
+ * attack due to berserk.  For use as a g_list_find_custom() callback.
+ *
+ * Returns: 0 if tch is selected, otherwise -1
+ */
 gint
 select_berserk_victim(struct creature *tch, struct creature *ch)
 {
     if (tch == ch
+        || is_dead(tch)
         || g_list_find(tch->fighting, ch)
         || PRF_FLAGGED(tch, PRF_NOHASSLE)
         || (IS_NPC(ch)
@@ -101,9 +119,19 @@ select_berserk_victim(struct creature *tch, struct creature *ch)
     return 0;
 }
 
+/**
+ * perform_barb_berserk:
+ * @ch: the creature going berserk
+ * @who_was_attacked: a return value indicating the creature attacked
+ *
+ * Selects a random valid creature for @ch to attack and attacks it.
+ *
+ * Returns: 1 if someone was attacked, otherwise 0
+ */
+
 int
 perform_barb_berserk(struct creature *ch,
-    struct creature **who_was_attacked, int *return_flags)
+                     struct creature **who_was_attacked)
 {
     GList *cit = g_list_find_custom(ch->in_room->people,
         ch,
@@ -116,15 +144,21 @@ perform_barb_berserk(struct creature *ch,
     act("You go berserk and attack $N!", false, ch, 0, vict, TO_CHAR);
     act("$n attacks you in a BERSERK rage!!", false, ch, 0, vict, TO_VICT);
     act("$n attacks $N in a BERSERK rage!!", false, ch, 0, vict, TO_NOTVICT);
-    if (return_flags) {
-        *return_flags = hit(ch, vict, TYPE_UNDEFINED);
-
-        if (!IS_SET(*return_flags, DAM_VICT_KILLED) && who_was_attacked)
-            *who_was_attacked = vict;
-    }
+    hit(ch, vict, TYPE_UNDEFINED);
+    if (!is_dead(vict) && who_was_attacked)
+        *who_was_attacked = vict;
 
     return 1;
 }
+
+/**
+ * do_berserk:
+ *
+ * Command - toggles the berserk state.  A skill roll must be made to
+ * use this command.  If going berserk with another creature in the
+ * room, starts attacking the creature.
+ *
+ */
 
 ACMD(do_berserk)
 {
@@ -132,7 +166,7 @@ ACMD(do_berserk)
     byte percent;
     percent = (number(1, 101) - GET_LEVEL(ch));
 
-    perform_barb_berserk(ch, NULL, return_flags);
+    perform_barb_berserk(ch, NULL);
 
     if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
         if (percent > CHECK_SKILL(ch, SKILL_BERSERK)) {
@@ -178,14 +212,17 @@ ACMD(do_berserk)
         send_to_char(ch, "You go BERSERK!\r\n");
         act("$n goes BERSERK! Run for cover!", true, ch, 0, ch, TO_ROOM);
 
-        perform_barb_berserk(ch, NULL, NULL);
+        perform_barb_berserk(ch, NULL);
     } else
         send_to_char(ch, "You cannot work up the gumption to do so.\r\n");
 }
 
-//
-// do_battlecry handles both cry_from_beyond and kia
-//
+/**
+ * do_battlecry:
+ *
+ * Command - emit a fierce battlecry, giving recovery to hitpoints or
+ * move.  Handles the kia, battle cry, and cry from beyond commands.
+ */
 
 ACMD(do_battlecry)
 {
@@ -258,12 +295,23 @@ ACMD(do_battlecry)
     if (did != 2)
         gain_skill_prof(ch, skillnum);
 }
-
+/**
+ * select_cleave_victim:
+ * @tch: the creature considered for selection
+ * @ch: the creature that is cleaving
+ *
+ * Decides whether or not @tch will be the creature that @ch will
+ * attack due to the cleave skill.  For use as a g_list_find_custom()
+ * callback.
+ *
+ * Returns: 0 if tch is selected, otherwise -1
+ */
 gint
 select_cleave_victim(struct creature *tch, struct creature *ch)
 {
     if (tch == ch
         || g_list_find(tch->fighting, ch)
+        || is_dead(tch)
         || PRF_FLAGGED(tch, PRF_NOHASSLE)
         || (IS_NPC(ch)
             && IS_NPC(tch)
@@ -274,8 +322,17 @@ select_cleave_victim(struct creature *tch, struct creature *ch)
     return 0;
 }
 
+/**
+ * perform_cleave:
+ * @ch: The creature doing the cleaving
+ * @vict: The creature being cleaved
+ *
+ * Hits @vict with a two-handed weapon, doing bonus damage.  If @vict
+ * dies, more enemies in the room may be hit.
+ *
+ */
 void
-perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
+perform_cleave(struct creature *ch, struct creature *vict)
 {
     int maxWhack;
     int percent = 0;
@@ -302,8 +359,7 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
         cur_weap = weap;
         if (AWAKE(vict) && percent > skill) {
             WAIT_STATE(ch, 2 RL_SEC);
-            int retval = damage(ch, vict, 0, SKILL_CLEAVE, WEAR_RANDOM);
-            ACMD_set_return_flags(retval);
+            damage(ch, vict, 0, SKILL_CLEAVE, WEAR_RANDOM);
             return;
         } else {
             WAIT_STATE(vict, 1 RL_SEC);
@@ -311,11 +367,10 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
             if (great)
                 gain_skill_prof(ch, SKILL_GREAT_CLEAVE);
             gain_skill_prof(ch, SKILL_CLEAVE);
-            int retval = hit(ch, vict, SKILL_CLEAVE);
-            ACMD_set_return_flags(retval);
-            if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
+            hit(ch, vict, SKILL_CLEAVE);
+            if (is_dead(ch)) {
                 return;
-            } else if (!IS_SET(retval, DAM_VICT_KILLED)) {
+            } else if (!is_dead(vict)) {
                 return;
             } else if (GET_EQ(ch, WEAR_WIELD) != weap) {
                 // Sometimes the weapon breaks and falls out of the wield
@@ -325,19 +380,23 @@ perform_cleave(struct creature *ch, struct creature *vict, int *return_flags)
             vict = NULL;
             // find a new victim
             GList *it = g_list_find_custom(ch->in_room->people,
-                                           NULL,
+                                           ch,
                                            (GCompareFunc) select_cleave_victim);
             vict = (it) ? it->data:NULL;
         }
     }
 }
 
+/**
+ * do_cleave:
+ *
+ * Command - Finds the victim and performs the cleave skill.
+ *
+ */
 ACMD(do_cleave)
 {
     struct creature *vict = NULL;
     char *arg;
-
-    ACMD_set_return_flags(0);
 
     arg = tmp_getword(&argument);
 
@@ -361,7 +420,7 @@ ACMD(do_cleave)
     if (!ok_to_attack(ch, vict, true))
         return;
 
-    perform_cleave(ch, vict, return_flags);
+    perform_cleave(ch, vict);
 }
 
 #undef __act_barb_c__

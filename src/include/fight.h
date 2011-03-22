@@ -132,8 +132,8 @@ void check_thief(struct creature *ch, struct creature *vict);
 void die(struct creature *ch, struct creature *killer, int attacktype);
 int calculate_thaco(struct creature *ch, struct creature *victim,
 	struct obj_data *obj);
-bool perform_offensive_skill(struct creature *ch, struct creature *vict, int skill, int *return_flags);
-void perform_cleave(struct creature *ch, struct creature *vict, int *return_flags);
+bool perform_offensive_skill(struct creature *ch, struct creature *vict, int skill);
+void perform_cleave(struct creature *ch, struct creature *vict);
 void punish_killer_death(struct creature *ch);
 
 //#define NUM_WEARS      27 /* This must be the # of eq positions!! */
@@ -226,7 +226,6 @@ enum {
     DAM_ATTACK_FAILED = (1 << 2),	// the caller of damage() died
 };
 
-int SWAP_DAM_RETVAL(int val);
 int damage(struct creature *ch, struct creature *victim, int dam,
 	int attacktype, int location);
 int skill_message(int dam, struct creature *ch, struct creature *vict,

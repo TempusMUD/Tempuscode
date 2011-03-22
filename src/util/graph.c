@@ -548,30 +548,30 @@ smart_mobile_move(struct creature *ch, int dir)
 
             if (IS_SET(EXIT(ch, dir)->exit_info, EX_LOCKED)) {
                 if (has_key(ch, EXIT(ch, dir)->key))
-                    do_gen_door(ch, doorbuf, 0, SCMD_UNLOCK, 0);
+                    do_gen_door(ch, doorbuf, 0, SCMD_UNLOCK);
                 else if ((IS_THIEF(ch) || IS_BARD(ch)) &&
                     CHECK_SKILL(ch, SKILL_PICK_LOCK) > 30)
-                    do_gen_door(ch, doorbuf, 0, SCMD_PICK, 0);
+                    do_gen_door(ch, doorbuf, 0, SCMD_PICK);
                 else if (IS_MAGE(ch) && CHECK_SKILL(ch, SPELL_KNOCK) &&
                     GET_MANA(ch) > (GET_MAX_MANA(ch) >> 1)) {
                     sprintf(doorbuf, "'knock' %s", doorbuf);
-                    do_cast(ch, doorbuf, 0, 0, 0);
+                    do_cast(ch, doorbuf, 0, 0);
                 } else if (CHECK_SKILL(ch, SKILL_BREAK_DOOR) > 30 &&
                     GET_HIT(ch) > (GET_MAX_HIT(ch) >> 1))
-                    do_bash(ch, doorbuf, 0, 0, 0);
+                    do_bash(ch, doorbuf, 0, 0);
             } else
-                do_gen_door(ch, doorbuf, 0, SCMD_OPEN, 0);
+                do_gen_door(ch, doorbuf, 0, SCMD_OPEN);
 
         } else if (room_is_open_air(EXIT(ch, dir)->to_room) &&
             GET_POSITION(ch) != POS_FLYING) {
             if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
-                do_fly(ch, tmp_strdup(""), 0, 0, 0);
+                do_fly(ch, tmp_strdup(""), 0, 0);
             else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 33)
-                cast_spell(ch, ch, 0, NULL, SPELL_FLY, NULL);
+                cast_spell(ch, ch, 0, NULL, SPELL_FLY);
             else if (IS_CLERIC(ch) && GET_LEVEL(ch) >= 32)
-                cast_spell(ch, ch, 0, NULL, SPELL_AIR_WALK, NULL);
+                cast_spell(ch, ch, 0, NULL, SPELL_AIR_WALK);
             else if (IS_PHYSIC(ch))
-                cast_spell(ch, ch, 0, NULL, SPELL_TIDAL_SPACEWARP, NULL);
+                cast_spell(ch, ch, 0, NULL, SPELL_TIDAL_SPACEWARP);
             else if (!number(0, 10)) {
                 emit_voice(ch, NULL, VOICE_HUNT_OPENAIR);
                 return 0;
@@ -580,9 +580,9 @@ smart_mobile_move(struct creature *ch, int dir)
             GET_POSITION(ch) != POS_FLYING &&
             can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)) {
             if (AFF_FLAGGED(ch, AFF_INFLIGHT))
-                do_fly(ch, tmp_strdup(""), 0, 0, 0);
+                do_fly(ch, tmp_strdup(""), 0, 0);
             else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 32)
-                cast_spell(ch, ch, 0, NULL, SPELL_WATERWALK, NULL);
+                cast_spell(ch, ch, 0, NULL, SPELL_WATERWALK);
             else if (!number(0, 10)) {
                 emit_voice(ch, NULL, VOICE_HUNT_WATER);
                 return 0;
@@ -611,6 +611,11 @@ hunt_victim(struct creature *ch)
     if (!ch || !NPC_HUNTING(ch))
         return;
 
+    if (is_dead(NPC_HUNTING(ch))) {
+        stop_hunting(ch);
+        return;
+    }
+
     if (!NPC_HUNTING(ch)->in_room) {
         errlog(" hunting ! NPC_HUNTING(ch)->in_room !!");
         return;
@@ -618,7 +623,7 @@ hunt_victim(struct creature *ch)
 
     /* make sure the char still exists */
     if (!g_list_find(creatures, NPC_HUNTING(ch))) {
-        if (!ch->fighting) {
+        if (!is_fighting(ch)) {
             emit_voice(ch, NULL, VOICE_HUNT_GONE);
             stop_hunting(ch);
         }
@@ -632,7 +637,7 @@ hunt_victim(struct creature *ch)
         return;
 
     if (ch->in_room == NPC_HUNTING(ch)->in_room &&
-        !ch->fighting && can_see_creature(ch, NPC_HUNTING(ch)) &&
+        !is_fighting(ch) && can_see_creature(ch, NPC_HUNTING(ch)) &&
         !PLR_FLAGGED(NPC_HUNTING(ch), PLR_WRITING) &&
         (!(af_ptr = affected_by_spell(NPC_HUNTING(ch), SKILL_DISGUISE)) ||
             CAN_DETECT_DISGUISE(ch, NPC_HUNTING(ch), af_ptr->duration))) {
@@ -648,8 +653,7 @@ hunt_victim(struct creature *ch)
             if ((IS_CLERIC(ch) && GET_LEVEL(ch) > 16) || (IS_MAGE(ch)
                     && GET_LEVEL(ch) > 27)) {
                 if (GET_MANA(ch) < mag_manacost(ch, SPELL_SUMMON)) {
-                    cast_spell(ch, NPC_HUNTING(ch), 0, NULL, SPELL_SUMMON,
-                        NULL);
+                    cast_spell(ch, NPC_HUNTING(ch), 0, NULL, SPELL_SUMMON);
                     return;
                 }
             }
@@ -704,7 +708,7 @@ hunt_victim(struct creature *ch)
         && !check_infiltrate(NPC_HUNTING(ch), ch)) {
         if (ok_to_attack(ch, NPC_HUNTING(ch), false)
             && !PLR_FLAGGED(NPC_HUNTING(ch), PLR_WRITING)) {
-            if (GET_POSITION(ch) >= POS_STANDING && !ch->fighting) {
+            if (GET_POSITION(ch) >= POS_STANDING && !is_fighting(ch)) {
                 emit_voice(ch, NPC_HUNTING(ch), VOICE_HUNT_FOUND);
                 best_initial_attack(ch, NPC_HUNTING(ch));
                 return;

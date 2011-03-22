@@ -226,7 +226,7 @@ perform_smoke(struct creature *ch, int type)
         affect_join(ch, &af, accum_dur, true, accum_affect, true);
 
     if (spell && lev)
-        call_magic(ch, ch, 0, NULL, spell, (int)lev, CAST_CHEM, NULL);
+        call_magic(ch, ch, 0, NULL, spell, (int)lev, CAST_CHEM);
 
     WAIT_STATE(ch, 6);
 
@@ -395,7 +395,7 @@ ACMD(do_light)
     if (!obj)
         send_to_char(ch, "Light what?\r\n");
     else if (IS_OBJ_TYPE(obj, ITEM_LIGHT))
-        do_grab(ch, fname(obj->aliases), 0, 0, 0);
+        do_grab(ch, fname(obj->aliases), 0, 0);
     else if (IS_OBJ_TYPE(obj, ITEM_TOBACCO))
         send_to_char(ch, "You need to roll it up first.\r\n");
     else if (GET_OBJ_TYPE(obj) != ITEM_CIGARETTE &&
@@ -519,7 +519,7 @@ ACMD(do_ignite)
     one_argument(argument, arg1);
 
     if (GET_LEVEL(ch) < LVL_CREATOR) {
-        do_light(ch, argument, 0, 0, 0);
+        do_light(ch, argument, 0, 0);
         return;
     }
 

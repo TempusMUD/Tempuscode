@@ -41,7 +41,7 @@ ACMD(do_pistolwhip)
     arg = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -106,7 +106,7 @@ ACMD(do_crossface)
     arg = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -188,7 +188,7 @@ ACMD(do_crossface)
             retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
             if (prev_pos != POS_STUNNED && !IS_SET(retval, DAM_VICT_KILLED) &&
                 !IS_SET(retval, DAM_ATTACKER_KILLED)) {
-                if (ch->fighting
+                if (is_fighting(ch)
                     && (!IS_NPC(vict) || !NPC2_FLAGGED(vict, NPC2_NOSTUN))) {
                     remove_combat(ch, vict);
                     remove_all_combat(vict);
@@ -208,7 +208,7 @@ ACMD(do_crossface)
             retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
             if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
                 && !IS_SET(retval, DAM_VICT_KILLED) &&
-                !IS_SET(retval, DAM_ATTACKER_KILLED) && ch->fighting) {
+                !IS_SET(retval, DAM_ATTACKER_KILLED) && is_fighting(ch)) {
                 GET_POSITION(vict) = POS_RESTING;
                 act("Your crossface has knocked $N on $S ass!",
                     true, ch, NULL, vict, TO_CHAR);
@@ -226,7 +226,7 @@ ACMD(do_crossface)
             retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
             wear = GET_EQ(vict, wear_num);
             if (wear && !IS_SET(retval, DAM_VICT_KILLED) &&
-                !IS_SET(retval, DAM_ATTACKER_KILLED) && ch->fighting) {
+                !IS_SET(retval, DAM_ATTACKER_KILLED) && is_fighting(ch)) {
                 act("Your crossface has knocked $N's $p from $S head!",
                     true, ch, wear, vict, TO_CHAR);
                 act("$n's nasty crossface just knocked $p from $N's head!",
@@ -574,7 +574,7 @@ ACMD(do_wrench)
     arg = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        if (ch->fighting) {
+        if (is_fighting(ch)) {
             vict = (random_opponent(ch));
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
@@ -623,7 +623,7 @@ ACMD(do_wrench)
         dam += dam / 2;
     }
 
-    if (!(ch->fighting) && !(vict->fighting)) {
+    if (!(is_fighting(ch)) && !is_fighting(vict)) {
         dam += dam / 3;
     }
 

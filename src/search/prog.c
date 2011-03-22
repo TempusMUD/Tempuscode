@@ -269,7 +269,7 @@ prog_send_debug(struct prog_env *env, const char *msg)
 {
     struct room_data *room = prog_get_owner_room(env);
 
-    for (GList *cit = room->people; cit; cit = cit->next) {
+    for (GList *cit = room->people; cit; cit = next_living(cit)) {
         struct creature *ch = cit->data;
 
         if (PRF2_FLAGGED(ch, PRF2_DEBUG))
@@ -1165,7 +1165,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 		zerrlog(room->zone, "Bad *damage argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (GList *it = room->people;it;it = it->next) {
+	for (GList *it = room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 		if ((!players || IS_PC(tch)) &&
             (!mobs || IS_NPC(tch)) &&
@@ -1233,14 +1233,13 @@ DEFPROGHANDLER(spell, env, evt, args)
 		case PROG_TYPE_OBJECT:
 			obj = (struct obj_data *) env->owner;
 			call_magic(caster, caster, obj, NULL,
-                       spell_num, spell_lvl, spell_type, NULL);
+                       spell_num, spell_lvl, spell_type);
 			break;
 		case PROG_TYPE_MOBILE:
             if (GET_POSITION(caster) > POS_DEAD
                 && !affected_by_spell(caster, spell_num))
                 call_magic(caster, caster, NULL, NULL,
-                           spell_num, spell_lvl, spell_type,
-                           NULL);
+                           spell_num, spell_lvl, spell_type);
 			break;
 		case PROG_TYPE_ROOM:
 			break;
@@ -1260,8 +1259,7 @@ DEFPROGHANDLER(spell, env, evt, args)
             call_magic(caster ? caster:(env->target),
                        env->target,
                        NULL, NULL,
-                       spell_num, spell_lvl, spell_type,
-                       NULL);
+                       spell_num, spell_lvl, spell_type);
 		search_nomessage = false;
 		return;
 	}
@@ -1281,15 +1279,14 @@ DEFPROGHANDLER(spell, env, evt, args)
 		zerrlog(room->zone, "Bad *spell argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-    for (GList *it = room->people;it;it = it->next) {
+    for (GList *it = room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 		if ((!players || IS_PC(tch)) &&
             (!mobs || IS_NPC(tch)) &&
             GET_POSITION(tch) > POS_DEAD &&
             !affected_by_spell(tch, spell_num))
             call_magic(caster ? caster:(tch), tch, NULL, NULL,
-                       spell_num, spell_lvl, spell_type,
-                       NULL);
+                       spell_num, spell_lvl, spell_type);
     }
 	search_nomessage = false;
 }
@@ -1535,7 +1532,7 @@ DEFPROGHANDLER(trans, env, evt, args)
 		zerrlog(room->zone, "Bad *trans argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (GList *it = room->people;it;it = it->next) {
+	for (GList *it = room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 		if ((!players || IS_PC(tch)) && (!mobs || IS_NPC(tch)))
 			prog_trans_creature(tch, targ_room);
@@ -2410,7 +2407,7 @@ static void
 prog_unmark_mobiles(void)
 {
 	// Unmark mobiles
-    for (GList *it = creatures;it;it = it->next) {
+    for (GList *it = creatures;it;it = next_living(it)) {
         struct creature *tch = it->data;
         tch->prog_marker = 0;
     }
@@ -2472,11 +2469,11 @@ prog_free_terminated(void)
 static void
 prog_trigger_idle_mobs(void)
 {
-	for (GList *cit = creatures;cit;cit = cit->next) {
+	for (GList *cit = creatures;cit;cit = next_living(cit)) {
         struct creature *ch = cit->data;
 		if (ch->prog_marker || !GET_NPC_PROGOBJ(ch))
 			continue;
-		else if (ch->fighting)
+		else if (is_fighting(ch))
 			trigger_prog_combat(ch, PROG_TYPE_MOBILE);
 		else
 			trigger_prog_idle(ch, PROG_TYPE_MOBILE);

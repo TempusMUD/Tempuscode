@@ -20,7 +20,7 @@ town_crier_shout(struct creature *self, struct town_crier_data *data)
 
     str = tmp_getline(&data->msg_pos);
     if (str && *str)
-        do_gen_comm(self, str, 0, SCMD_SHOUT, NULL);
+        do_gen_comm(self, str, 0, SCMD_SHOUT);
 
     if (!*data->msg_pos) {
         free(data->msg_head);

@@ -281,7 +281,7 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
         else
             send_to_room("You see as you drive up: \r\n", ch->in_room);
 
-        for (GList * it = ch->in_room->people; it; it = it->next) {
+        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
             struct creature *tch = it->data;
             if (AWAKE(tch))
                 look_at_room(tch, car->in_room, 0);
@@ -596,7 +596,7 @@ SPECIAL(vehicle_console)
                 "You have to put the console IN the vehicle to use it.\r\n");
             return 1;
         }
-        for (GList * it = console->in_room->people; it; it = it->next) {
+        for (GList * it = console->in_room->people; it; it = next_living(it)) {
             struct creature *driver = it->data;
             if ((V_CONSOLE_IDNUM(console) > 0 &&
                     GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
@@ -613,7 +613,7 @@ SPECIAL(vehicle_console)
         send_to_char(ch,
             "These are the exits from the room the car is in:\r\n");
         ch->in_room = vehicle->in_room;
-        do_exits(ch, tmp_strdup(""), 0, 0, 0);
+        do_exits(ch, tmp_strdup(""), 0, 0);
         ch->in_room = console->in_room;
         return 1;
     }

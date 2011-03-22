@@ -2,7 +2,7 @@ SPECIAL(cremator)
 {
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
-    if (cmd || !ch->fighting)
+    if (cmd || !is_fighting(ch))
         return 0;
 
     struct creature *vict = random_opponent(ch);

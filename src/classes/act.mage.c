@@ -273,7 +273,7 @@ area_attack_advisable(struct creature *ch)
     // Area attacks are advisable when there are more than one PC and
     // no other non-fighting NPCs
     int pc_count = 0;
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (can_see_creature(ch, tch)
@@ -291,7 +291,7 @@ group_attack_advisable(struct creature * ch)
 
     // Group attacks are advisable when more than one creature is
     // attacking
-    for (GList *it = ch->in_room->people;it;it = it->next) {
+    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
         struct creature *tch = it->data;
         if (!g_list_find(tch->fighting, ch))
             continue;
@@ -312,37 +312,35 @@ group_attack_advisable(struct creature * ch)
 bool
 mage_damaging_attack(struct creature * ch, struct creature * vict)
 {
-    int return_flags;
-
     if (area_attack_advisable(ch)
         && can_cast_spell(ch, SPELL_METEOR_STORM))
-        cast_spell(ch, NULL, NULL, NULL, SPELL_METEOR_STORM, &return_flags);
+        cast_spell(ch, NULL, NULL, NULL, SPELL_METEOR_STORM);
     else if (group_attack_advisable(ch)
         && can_cast_spell(ch, SPELL_CHAIN_LIGHTNING))
-        cast_spell(ch, NULL, NULL, NULL, SPELL_CHAIN_LIGHTNING, &return_flags);
+        cast_spell(ch, NULL, NULL, NULL, SPELL_CHAIN_LIGHTNING);
     else if (can_cast_spell(ch, SPELL_LIGHTNING_BOLT) && IS_CYBORG(vict))
-        cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
     else if (can_cast_spell(ch, SPELL_PRISMATIC_SPRAY))
-        cast_spell(ch, vict, NULL, NULL, SPELL_PRISMATIC_SPRAY, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_PRISMATIC_SPRAY);
     else if (can_cast_spell(ch, SPELL_CONE_COLD))
-        cast_spell(ch, vict, NULL, NULL, SPELL_CONE_COLD, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_CONE_COLD);
     else if (can_cast_spell(ch, SPELL_FIREBALL))
-        cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
     else if (can_cast_spell(ch, SPELL_ENERGY_DRAIN))
-        cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN);
     else if (can_cast_spell(ch, SPELL_COLOR_SPRAY))
-        cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY);
     else if (can_cast_spell(ch, SPELL_LIGHTNING_BOLT))
-        cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
     else if (can_cast_spell(ch, SPELL_BURNING_HANDS)
         && !CHAR_WITHSTANDS_FIRE(vict))
-        cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS);
     else if (can_cast_spell(ch, SPELL_SHOCKING_GRASP))
-        cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP);
     else if (can_cast_spell(ch, SPELL_CHILL_TOUCH))
-        cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH);
     else if (can_cast_spell(ch, SPELL_MAGIC_MISSILE))
-        cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE, &return_flags);
+        cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE);
     else
         return false;
     return true;
@@ -372,8 +370,6 @@ void
 mage_best_attack(struct creature *ch, struct creature *vict)
 {
     int calculate_mob_aggression(struct creature *, struct creature *);
-
-    int return_flags;
     int aggression = calculate_mob_aggression(ch, vict);
 
     if (aggression > 75) {
@@ -385,19 +381,19 @@ mage_best_attack(struct creature *ch, struct creature *vict)
         // somewhat aggressive - balance attacking with crippling
         if (GET_POSITION(vict) > POS_SLEEPING
             && can_cast_spell(ch, SPELL_WORD_STUN)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_WORD_STUN, &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_WORD_STUN);
             return;
         } else if (GET_POSITION(vict) > POS_SLEEPING
             && can_cast_spell(ch, SPELL_SLEEP)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP, &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP);
             return;
         } else if (!AFF_FLAGGED(vict, AFF_BLIND)
             && can_cast_spell(ch, SPELL_BLINDNESS)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_BLINDNESS, &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_BLINDNESS);
             return;
         } else if (!AFF_FLAGGED(vict, AFF_CURSE)
             && can_cast_spell(ch, SPELL_CURSE)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_CURSE, &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_CURSE);
             return;
         }
     }
@@ -405,25 +401,22 @@ mage_best_attack(struct creature *ch, struct creature *vict)
         // not very aggressive - play more defensively
         if (can_cast_spell(ch, SPELL_DISPEL_MAGIC)
             && dispel_is_advisable(vict))
-            cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_MAGIC,
-                &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_MAGIC);
         else if (!AFF2_FLAGGED(vict, AFF2_SLOW)
             && can_cast_spell(ch, SPELL_SLOW))
-            cast_spell(ch, vict, NULL, NULL, SPELL_SLOW, &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_SLOW);
         else if (mage_damaging_attack(ch, vict))
             return;
     }
     if (aggression > 5) {
         if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL,
-                &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL);
             return;
         } else if (can_cast_spell(ch, SPELL_TELEPORT)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_TELEPORT, &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_TELEPORT);
             return;
         } else if (can_cast_spell(ch, SPELL_LOCAL_TELEPORT)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_LOCAL_TELEPORT,
-                &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_LOCAL_TELEPORT);
             return;
         }
     }
@@ -431,7 +424,7 @@ mage_best_attack(struct creature *ch, struct creature *vict)
     if (mage_damaging_attack(ch, vict))
         return;
     else if (can_cast_spell(ch, SKILL_PUNCH))
-        perform_offensive_skill(ch, vict, SKILL_PUNCH, &return_flags);
+        perform_offensive_skill(ch, vict, SKILL_PUNCH);
     else
         hit(ch, vict, TYPE_UNDEFINED);
 }
@@ -441,39 +434,39 @@ mage_activity(struct creature *ch)
 {
     if (room_is_dark(ch->in_room) &&
         can_cast_spell(ch, SPELL_INFRAVISION) && !has_dark_sight(ch)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_INFRAVISION, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_INFRAVISION);
     } else if (room_is_dark(ch->in_room) &&
         can_cast_spell(ch, SPELL_GLOWLIGHT) && !has_dark_sight(ch)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_GLOWLIGHT, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_GLOWLIGHT);
     } else if (can_cast_spell(ch, SPELL_PRISMATIC_SPHERE)
         && !AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_PRISMATIC_SPHERE, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_PRISMATIC_SPHERE);
     } else if (can_cast_spell(ch, SPELL_ANTI_MAGIC_SHELL)
         && !affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_ANTI_MAGIC_SHELL, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_ANTI_MAGIC_SHELL);
     } else if (can_cast_spell(ch, SPELL_HASTE)
         && !AFF2_FLAGGED(ch, AFF2_HASTE)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_HASTE, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_HASTE);
     } else if (can_cast_spell(ch, SPELL_DISPLACEMENT)
         && !AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_DISPLACEMENT, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_DISPLACEMENT);
     } else if (can_cast_spell(ch, SPELL_TRUE_SEEING)
         && !AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_TRUE_SEEING, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_TRUE_SEEING);
     } else if (can_cast_spell(ch, SPELL_REGENERATE)
         && !AFF_FLAGGED(ch, AFF_REGEN)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_REGENERATE, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_REGENERATE);
     } else if (can_cast_spell(ch, SPELL_FIRE_SHIELD)
         && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_FIRE_SHIELD, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_FIRE_SHIELD);
     } else if (can_cast_spell(ch, SPELL_STRENGTH)
         && !affected_by_spell(ch, SPELL_STRENGTH)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_STRENGTH, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_STRENGTH);
     } else if (can_cast_spell(ch, SPELL_BLUR) && !AFF_FLAGGED(ch, AFF_BLUR)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_BLUR, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_BLUR);
     } else if (can_cast_spell(ch, SPELL_ARMOR)
         && !affected_by_spell(ch, SPELL_ARMOR)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_ARMOR, NULL);
+        cast_spell(ch, ch, 0, NULL, SPELL_ARMOR);
     }
 }
 
@@ -481,11 +474,9 @@ bool
 mage_mob_fight(struct creature *ch, struct creature *precious_vict)
 {
     int calculate_mob_aggression(struct creature *ch, struct creature *vict);
+    struct creature *vict = NULL;
 
-    struct creature *vict = 0;
-    int return_flags;
-
-    if (!ch->fighting)
+    if (!is_fighting(ch))
         return false;
 
     // pick an enemy
@@ -503,7 +494,7 @@ mage_mob_fight(struct creature *ch, struct creature *precious_vict)
         // somewhat aggressive - balance attacking with crippling
         if (!AFF2_FLAGGED(vict, AFF2_SLOW)
             && can_cast_spell(ch, SPELL_SLOW)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_SLOW, &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_SLOW);
             return true;
         }
     }
@@ -511,16 +502,16 @@ mage_mob_fight(struct creature *ch, struct creature *precious_vict)
         // not very aggressive - play more defensively
         if (can_cast_spell(ch, SPELL_FIRE_SHIELD)
             && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
-            cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD, NULL);
+            cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
             return true;
         }
         if (can_cast_spell(ch, SPELL_BLUR) && !AFF_FLAGGED(ch, AFF_BLUR)) {
-            cast_spell(ch, ch, NULL, NULL, SPELL_BLUR, NULL);
+            cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
             return true;
         }
         if (can_cast_spell(ch, SPELL_ARMOR)
             && !affected_by_spell(ch, SPELL_ARMOR)) {
-            cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR, NULL);
+            cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
             return true;
         }
         if (mage_damaging_attack(ch, vict))
@@ -529,15 +520,13 @@ mage_mob_fight(struct creature *ch, struct creature *precious_vict)
     if (aggression > 5) {
         // attempt to neutralize or get away
         if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL,
-                &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL);
             return true;
         } else if (can_cast_spell(ch, SPELL_TELEPORT)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_TELEPORT, &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_TELEPORT);
             return true;
         } else if (can_cast_spell(ch, SPELL_LOCAL_TELEPORT)) {
-            cast_spell(ch, vict, NULL, NULL, SPELL_LOCAL_TELEPORT,
-                &return_flags);
+            cast_spell(ch, vict, NULL, NULL, SPELL_LOCAL_TELEPORT);
             return true;
         }
     }

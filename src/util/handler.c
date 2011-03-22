@@ -1559,7 +1559,7 @@ get_char_room(char *name, struct room_data *room)
     if (!(number = get_number(&tmp)))
         return NULL;
 
-    for (GList * it = room->people; it && (j <= number); it = it->next) {
+    for (GList * it = room->people; it && (j <= number); it = next_living(it)) {
         struct creature *tch = it->data;
         if (isname(tmp, tch->player.name))
             if (++j == number)
@@ -1882,7 +1882,7 @@ get_player_vis(struct creature *ch, const char *name, int inroom)
     *write_pt = '\0';
 
     match = NULL;
-    for (GList * cit = creatures; cit; cit = cit->next) {
+    for (GList * cit = creatures; cit; cit = next_living(cit)) {
         i = cit->data;
         if ((!IS_NPC(i) || i->desc) &&
             (!inroom || i->in_room == ch->in_room) &&
@@ -1920,7 +1920,7 @@ get_mobile_vis(struct creature *ch, const char *name, int inroom)
     *write_pt = '\0';
 
     match = NULL;
-    for (GList * cit = creatures; cit; cit = cit->next) {
+    for (GList * cit = creatures; cit; cit = next_living(cit)) {
         i = cit->data;
         if (IS_NPC(i)
             && (!inroom || i->in_room == ch->in_room)
@@ -1960,7 +1960,7 @@ get_char_room_vis(struct creature *ch, const char *name)
         return ch;
 
     for (GList * cit = ch->in_room->people; cit && j <= number;
-        cit = cit->next) {
+        cit = next_living(cit)) {
         struct creature *tch = cit->data;
         struct creature *mob = NULL;
         af = affected_by_spell(tch, SKILL_DISGUISE);
@@ -1988,7 +1988,7 @@ get_char_random(struct room_data *room)
     struct creature *result = NULL;
     int total = 0;
 
-    for (GList * cit = room->people; cit; cit = cit->next) {
+    for (GList * cit = room->people; cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
         if (!number(0, total))
             result = tch;
@@ -2007,7 +2007,7 @@ get_char_random_vis(struct creature *ch, struct room_data *room)
     if (!room->people)
         return NULL;
 
-    for (GList * cit = room->people; cit; cit = cit->next) {
+    for (GList * cit = room->people; cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
         if (tch != ch && can_see_creature(ch, tch)) {
             if (!number(0, total))
@@ -2028,7 +2028,7 @@ get_player_random(struct room_data *room)
     if (!room->people)
         return NULL;
 
-    for (GList * cit = room->people; cit; cit = cit->next) {
+    for (GList * cit = room->people; cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
         if (IS_PC(tch)) {
             if (!number(0, total))
@@ -2049,7 +2049,7 @@ get_player_random_vis(struct creature *ch, struct room_data *room)
     if (!room->people)
         return NULL;
 
-    for (GList * cit = room->people; cit; cit = cit->next) {
+    for (GList * cit = room->people; cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
         if (tch != ch && IS_PC(tch) && can_see_creature(ch, tch)) {
             if (!number(0, total))
@@ -2091,7 +2091,7 @@ get_char_vis(struct creature *ch, const char *name)
     if (!(number = get_number(&tmp)))
         return get_player_vis(ch, tmp, 0);
 
-    for (GList * cit = creatures; cit; cit = cit->next) {
+    for (GList * cit = creatures; cit; cit = next_living(cit)) {
         i = cit->data;
         if (isname(tmp, i->player.name) && can_see_creature(ch, i))
             if (++j == number)

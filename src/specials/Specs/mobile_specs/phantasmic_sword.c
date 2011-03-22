@@ -12,7 +12,7 @@ SPECIAL(phantasmic_sword)
 
     if (spec_mode != SPECIAL_TICK)
         return 0;
-    if (ch->fighting) {
+    if (is_fighting(ch)) {
         if (!number(0, 8)) {
             act("$n starts to emit a piercing whine!", false, ch, 0, 0,
                 TO_ROOM);
@@ -37,7 +37,7 @@ SPECIAL(phantasmic_sword)
     } else {
 
         if ((!(mast = ch->master) || !AFF_FLAGGED(ch, AFF_CHARM))
-            && !ch->fighting) {
+            && !is_fighting(ch)) {
             if (ch->in_room == NULL)
                 return 0;
             if (!number(0, 4)) {
@@ -50,7 +50,7 @@ SPECIAL(phantasmic_sword)
         }
 
         if (AWAKE(ch)) {
-            for (GList * it = ch->in_room->people; it; it = it->next) {
+            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (tch != ch && IS_NPC(tch) &&
                     GET_NPC_VNUM(ch) == GET_NPC_VNUM((tch)) &&

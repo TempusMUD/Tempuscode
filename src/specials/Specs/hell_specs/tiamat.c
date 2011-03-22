@@ -10,7 +10,7 @@ SPECIAL(tiamat)
     int type = 0;
     struct room_data *lair = real_room(16182);
 
-    if (cmd || !ch->fighting || GET_NPC_WAIT(ch) || number(0, 4))
+    if (cmd || !is_fighting(ch) || GET_NPC_WAIT(ch) || number(0, 4))
         return 0;
     if (spec_mode != SPECIAL_TICK)
         return 0;
@@ -43,7 +43,7 @@ SPECIAL(tiamat)
     }
 
     struct creature *vict = random_opponent(ch);
-    call_magic(ch, vict, 0, NULL, type, GET_LEVEL(ch), SAVING_BREATH, NULL);
+    call_magic(ch, vict, 0, NULL, type, GET_LEVEL(ch), SAVING_BREATH);
     WAIT_STATE(ch, PULSE_VIOLENCE * 2);
     return 1;
 }

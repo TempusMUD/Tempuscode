@@ -52,7 +52,7 @@ SPECIAL(portal_out)
             GET_NAME(ch));
         send_to_zone(buf, ch->in_room->zone, 0);
         call_magic(ch, ch, 0, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP,
-            CAST_SPELL, NULL);
+            CAST_SPELL);
         return true;
     }
     return false;

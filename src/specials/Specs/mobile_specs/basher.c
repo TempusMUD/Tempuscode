@@ -10,7 +10,7 @@ SPECIAL(basher)
     ACMD(do_bash);
     if (spec_mode != SPECIAL_TICK)
         return false;
-    if (GET_POSITION(ch) != POS_FIGHTING || !ch->fighting)
+    if (GET_POSITION(ch) != POS_FIGHTING || !is_fighting(ch))
         return 0;
 
     if (number(0, 81) > GET_LEVEL(ch))
@@ -27,6 +27,6 @@ SPECIAL(basher)
     if (vict == NULL)
         vict = random_opponent(ch);
 
-    do_bash(ch, tmp_strdup(""), 0, 0, 0);
+    do_bash(ch, tmp_strdup(""), 0, 0);
     return 1;
 }

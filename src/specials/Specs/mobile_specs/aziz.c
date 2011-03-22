@@ -12,7 +12,7 @@ SPECIAL(Aziz)
 
     if (spec_mode != SPECIAL_TICK)
         return 0;
-    if (!ch->fighting)
+    if (!is_fighting(ch))
         return 0;
 
     /* pseudo-randomly choose a mage in the room who is fighting me */
@@ -28,7 +28,7 @@ SPECIAL(Aziz)
     if (vict == NULL)
         vict = random_opponent(ch);
 
-    do_bash(ch, tmp_strdup(""), 0, 0, 0);
+    do_bash(ch, tmp_strdup(""), 0, 0);
 
     return 0;
 }

@@ -42,7 +42,7 @@ SPECIAL(fountain_heal)
         return 1;
     }
 
-    do_drink(ch, arg, 0, SCMD_DRINK, 0);
+    do_drink(ch, arg, 0, SCMD_DRINK);
     if (GET_HIT(ch) < GET_MAX_HIT(ch)) {
         send_to_char(ch, "It tastes oddly refreshing!\r\n");
         num = dice(3, 8);
