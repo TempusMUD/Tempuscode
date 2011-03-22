@@ -1717,10 +1717,6 @@ ACMD(do_throw)
                 return;
             }
             if (obj->worn_on >= 0) {
-                if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
-                    obj_to_char(unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN),
-                        ch);
-
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
             }
 

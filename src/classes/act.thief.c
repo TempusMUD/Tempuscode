@@ -390,7 +390,7 @@ ACMD(do_circle)
         WAIT_STATE(ch, 5 RL_SEC);
         hit(ch, vict, SKILL_CIRCLE);
 
-        if (retval)
+        if (is_dead(vict))
             return;
 
         //

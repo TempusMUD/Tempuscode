@@ -353,7 +353,7 @@ ACMD(do_whirlwind)
         int i = 1;
         bool killed_first = false;
 
-        for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+        for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
             struct creature *tch = it->data;
 
             if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))

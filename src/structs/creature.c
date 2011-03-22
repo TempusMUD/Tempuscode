@@ -219,30 +219,28 @@ is_dead(struct creature *ch)
 bool
 is_fighting(struct creature *ch)
 {
-
     if (!ch->fighting)
         return false;
 
-    if (!ch->fighting->next) {
-        if (is_dead((struct creature *)ch->fighting->data))
-            return false;
-        else
-            return true;
-    }
+    return (first_living(ch->fighting) != NULL);
+}
 
-    if (next_living(ch->fighting))
-        return true;
-
-    return false;
+GList *
+first_living(GList *node)
+{
+    while (node && is_dead((struct creature *)node->data))
+        node = node->next;
+    return node;
 }
 
 GList *
 next_living(GList *node)
 {
+    if (!node)
+        return NULL;
+
     node = node->next;
-    while (node && is_dead((struct creature *)node->data))
-        node = node->next;
-    return node;
+    return first_living(node);
 }
 
 // Returns this creature's account id.
@@ -450,7 +448,7 @@ damage_reduction(struct creature *ch, struct creature *attacker)
                 (skill_bonus(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS) / 20)
                 + (GET_ALIGNMENT(ch) / 100);
         } else if (af && ch->in_room) {
-            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (IS_NPC(tch)
                     && af->modifier == (short int)-NPC_IDNUM(tch)) {
@@ -487,7 +485,7 @@ damage_reduction(struct creature *ch, struct creature *attacker)
                 (skill_bonus(ch, SONG_ARIA_OF_ASYLUM) / 10));
         } else if (af && ch->in_room) {
 
-            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (IS_NPC(tch)
                     && af->modifier == (short int)-NPC_IDNUM(tch)) {
@@ -742,7 +740,7 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
 
     // remove fighters, defenders, hunters and mounters
     GList *cit, *next;
-    for (cit = creatures; cit; cit = next) {
+    for (cit = first_living(creatures); cit; cit = next) {
         struct creature *tch = cit->data;
         next = next_living(cit);
         if (ch == DEFENDING(tch))
@@ -981,6 +979,7 @@ creature_rent(struct creature *ch)
             (ch->player_specials->rent_currency ==
                 TIME_ELECTRO) ? "gold" : "creds");
     GET_POSITION(ch) = POS_DEAD;
+    destroy_attached_progs(ch);
     if (ch->desc)
         set_desc_state(CXN_MENU, ch->desc);
 
@@ -1002,6 +1001,7 @@ creature_cryo(struct creature * ch)
     mlog(ROLE_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)),
         NRM, true, "%s has cryo-rented", GET_NAME(ch));
     GET_POSITION(ch) = POS_DEAD;
+    destroy_attached_progs(ch);
     if (ch->desc)
         set_desc_state(CXN_MENU, ch->desc);
     return true;
@@ -1066,6 +1066,7 @@ creature_quit(struct creature * ch)
     save_player_objects(ch);
     save_player_to_xml(ch);
     GET_POSITION(ch) = POS_DEAD;
+    destroy_attached_progs(ch);
     if (ch->desc)
         set_desc_state(CXN_MENU, ch->desc);
 
@@ -1090,6 +1091,7 @@ creature_idle(struct creature * ch)
         "%s force-rented and extracted (idle).", GET_NAME(ch));
 
     GET_POSITION(ch) = POS_DEAD;
+    destroy_attached_progs(ch);
     if (ch->desc)
         set_desc_state(CXN_MENU, ch->desc);
     return true;
@@ -1140,6 +1142,7 @@ creature_die(struct creature * ch)
         save_player_to_xml(ch);
     }
     GET_POSITION(ch) = POS_DEAD;
+    destroy_attached_progs(ch);
     if (ch->desc)
         set_desc_state(CXN_AFTERLIFE, ch->desc);
 
@@ -1162,6 +1165,7 @@ creature_npk_die(struct creature * ch)
         save_player_to_xml(ch);
     }
     GET_POSITION(ch) = POS_DEAD;
+    destroy_attached_progs(ch);
     if (ch->desc)
         set_desc_state(CXN_AFTERLIFE, ch->desc);
 
@@ -1197,6 +1201,7 @@ creature_arena_die(struct creature * ch)
     }
     // But extract them to afterlife
     GET_POSITION(ch) = POS_DEAD;
+    destroy_attached_progs(ch);
     if (ch->desc)
         set_desc_state(CXN_AFTERLIFE, ch->desc);
     return true;
@@ -1240,6 +1245,7 @@ creature_purge(struct creature * ch, bool destroy_obj)
     }
 
     GET_POSITION(ch) = POS_DEAD;
+    destroy_attached_progs(ch);
     if (ch->desc)
         set_desc_state(CXN_DISCONNECT, ch->desc);
     return true;
@@ -1260,6 +1266,7 @@ creature_remort(struct creature * ch)
     save_player_to_xml(ch);
 
     GET_POSITION(ch) = POS_DEAD;
+    destroy_attached_progs(ch);
     if (ch->desc)
         set_desc_state(CXN_REMORT_AFTERLIFE, ch->desc);
     return true;
@@ -1522,7 +1529,7 @@ add_combat(struct creature *ch, struct creature *target, bool initiated)
     if (!ok_to_attack(ch, target, true))
         return;
 
-    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch != ch
             && tch != target

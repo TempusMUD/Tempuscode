@@ -809,7 +809,7 @@ perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
                 act(to_room[1], false, ch, 0, 0, TO_ROOM);
 
             if (mode == SKILL_ENERGY_FIELD && room_is_watery(ch->in_room)) {
-                for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+                for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
                     struct creature *tch = it->data;
 
                     if (tch != ch) {
@@ -1264,7 +1264,7 @@ ACMD(do_bioscan)
         return;
     }
 
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if ((((can_see_creature(ch, tch)

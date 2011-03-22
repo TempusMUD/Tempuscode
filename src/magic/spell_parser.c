@@ -247,7 +247,7 @@ call_magic(struct creature *caster, struct creature *cvict,
         }
     }
 
-    for (GList * it = caster->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(caster->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         if (GET_NPC_PROGOBJ(tch) != NULL) {
             if (trigger_prog_spell(tch, PROG_TYPE_MOBILE, caster, spellnum)) {
@@ -739,7 +739,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
                 (GET_OBJ_VAL(obj, 0) * CHECK_SKILL(ch, SKILL_USE_WANDS)) / 100;
             level = MIN(level, LVL_AMBASSADOR);
 
-            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 struct creature *tch = (struct creature *)it->data;
                 if (ch == tch && spell_info[GET_OBJ_VAL(obj, 3)].violent)
                     continue;
@@ -1604,7 +1604,7 @@ ACMD(do_cast)
                 (prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
                 /* misdirect */
 
-                for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+                for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
                     struct creature *new_vict = (struct creature *)it->data;
 
                     if (new_vict != ch

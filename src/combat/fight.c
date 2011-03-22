@@ -130,7 +130,7 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
         trigger_prog_death(ch->in_room, PROG_TYPE_ROOM, ch);
 
     assert(ch->in_room != NULL);
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (GET_NPC_PROGOBJ(tch) != NULL && tch != ch)
@@ -265,7 +265,7 @@ group_gain(struct creature *ch, struct creature *victim)
 
     if (!(leader = ch->master))
         leader = ch;
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (AFF_FLAGGED(tch, AFF_GROUP) && (tch == leader
@@ -278,7 +278,7 @@ group_gain(struct creature *ch, struct creature *victim)
         }
     }
 
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (AFF_FLAGGED(tch, AFF_GROUP) &&
@@ -307,7 +307,7 @@ tally_kill_record(struct creature *ch, struct creature *victim)
     if (IS_PC(victim))
         return NULL;
 
-    for (GList * it = GET_RECENT_KILLS(ch); it; it = next_living(it)) {
+    for (GList * it = GET_RECENT_KILLS(ch); it; it = it->next) {
         kill = it->data;
         if (GET_NPC_VNUM(victim) == kill->vnum) {
             kill->times += 1;
@@ -1644,7 +1644,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         //lightning gun special
         if (attacktype == TYPE_EGUN_LIGHTNING && dam) {
             if (do_gun_special(ch, weap)) {
-                for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+                for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
                     struct creature *tch = it->data;
 
                     if (tch == ch || !g_list_find(tch->fighting, ch))
@@ -1897,7 +1897,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 attacktype == TYPE_STAB ||
                 attacktype == TYPE_CHOP ||
                 attacktype == SPELL_BLADE_BARRIER)) {
-            for (GList * cit = ch->in_room->people; cit; cit = next_living(cit)) {
+            for (GList * cit = first_living(ch->in_room->people); cit; cit = next_living(cit)) {
                 struct creature *tch = cit->data;
                 if (tch == victim || number(0, 8))
                     continue;
@@ -2519,7 +2519,7 @@ hit(struct creature *ch, struct creature *victim, int type)
     }
     if (AFF2_FLAGGED(victim, AFF2_MOUNTED)) {
         REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
-        for (GList *it = victim->in_room->people;it;it = next_living(it)) {
+        for (GList *it = first_living(victim->in_room->people);it;it = next_living(it)) {
             struct creature *tch = it->data;
 
             if (MOUNTED_BY(tch) && MOUNTED_BY(tch) == victim) {

@@ -2407,7 +2407,7 @@ special(struct creature *ch, int cmd, int subcmd, char *arg,
 
     /* special in mobile present? */
     struct room_data *theRoom = ch->in_room;
-    for (GList * it = theRoom->people; it; it = next_living(it)) {
+    for (GList * it = first_living(theRoom->people); it; it = next_living(it)) {
         struct creature *mob = (struct creature *)it->data;
 
         if (GET_NPC_SPEC(mob) != NULL) {

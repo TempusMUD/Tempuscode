@@ -50,7 +50,7 @@ SPECIAL(phantasmic_sword)
         }
 
         if (AWAKE(ch)) {
-            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (tch != ch && IS_NPC(tch) &&
                     GET_NPC_VNUM(ch) == GET_NPC_VNUM((tch)) &&

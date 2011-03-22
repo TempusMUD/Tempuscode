@@ -432,7 +432,7 @@ do_mob_mset(struct creature *ch, char *argument)
             }
             start_editing_text(ch->desc, &mob_p->player.description, 8000);
             SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-            for (GList * cit = creatures; cit; cit = next_living(cit)) {
+            for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
                 struct creature *tch = cit->data;
                 if (GET_NPC_VNUM(tch) == GET_NPC_VNUM(mob_p)) {
                     tch->player.description = NULL;
@@ -1566,7 +1566,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
             GET_NAME(ch), GET_NPC_VNUM(mob));
         return 1;
     }
-    for (GList * cit = creatures; cit; cit = next_living(cit)) {
+    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
         if (GET_NPC_VNUM(tch) == GET_NPC_VNUM(mob))
             creature_purge(tch, false);
@@ -1969,7 +1969,7 @@ olc_mimic_mob(struct creature *ch,
 {
 
     if (mode) {                 /* (mode) => mimicing prototype... else real mob */
-        for (GList * cit = creatures; cit; cit = next_living(cit)) {
+        for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
             struct creature *tch = cit->data;
             if (IS_NPC(tch) && GET_NPC_VNUM(tch) == GET_NPC_VNUM(targ))
                 creature_purge(tch, false);

@@ -901,7 +901,7 @@ list_char_to_char(GList * list, struct creature *ch)
     if (list == NULL)
         return;
 
-    for (GList * it = list; it; it = next_living(it)) {
+    for (GList * it = first_living(list); it; it = next_living(it)) {
         i = (struct creature *)it->data;
         is_group = false;
         if (ch == i)
@@ -1050,7 +1050,7 @@ list_scanned_chars(GList * list, struct creature *ch, int distance, int door)
 
     /* this loop is a quick, easy way to help make a grammatical sentence
        (i.e., "You see x, x, y, and z." with commas, "and", etc.) */
-    for (GList * it = list; it; it = next_living(it)) {
+    for (GList * it = first_living(list); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
 
         /* put any other conditions for scanning someone in this if statement -
@@ -1066,7 +1066,7 @@ list_scanned_chars(GList * list, struct creature *ch, int distance, int door)
         return;
 
     acc_string_clear();
-    for (GList * it = list; it; it = next_living(it)) {
+    for (GList * it = first_living(list); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         /* make sure to add changes to the if statement above to this
            one also, using or's to join them.. i.e.,
@@ -1939,7 +1939,7 @@ ACMD(do_listen)
         send_to_char(ch, "%s", ch->in_room->sounds);
         return;
     }
-    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
 
         if (tch->fighting) {
@@ -3481,7 +3481,7 @@ ACMD(do_who)
         CCNRM(ch, C_NRM), CCBLD(ch, C_CMP), "      **************",
         CCNRM(ch, C_SPR), "\r\n",
         (IS_NPC(ch) || ch->account->compact_level > 1) ? "" : "\r\n", NULL);
-    for (GList *cit = immortals; cit; cit = next_living(cit)) {
+    for (GList *cit = first_living(immortals); cit; cit = next_living(cit)) {
         curr = (struct creature *)cit->data;
         who_string(ch, curr);
         if (!noflags) {
@@ -3493,7 +3493,7 @@ ACMD(do_who)
         acc_strcat("\r\n", NULL);
     }
     if (IS_IMMORT(ch) || is_tester(ch)) {
-        for (GList * cit = testers; cit; cit = next_living(cit)) {
+        for (GList * cit = first_living(testers); cit; cit = next_living(cit)) {
             curr = (struct creature *)cit->data;
             who_string(ch, curr);
             if (!noflags) {
@@ -3505,7 +3505,7 @@ ACMD(do_who)
             acc_strcat("\r\n", NULL);
         }
     }
-    for (GList * cit = players; cit; cit = next_living(cit)) {
+    for (GList * cit = first_living(players); cit; cit = next_living(cit)) {
         curr = (struct creature *)cit->data;
         who_string(ch, curr);
         if (!noflags) {
@@ -3637,12 +3637,12 @@ object_matches_terms(GList * req, GList * exc, struct obj_data *obj)
     if (!obj->aliases)
         return false;
 
-    for (it = req; it; it = next_living(it)) {
+    for (it = req; it; it = it->next) {
         if (!isname((char *)it->data, obj->aliases)) {
             return false;
         }
     }
-    for (it = exc; it; it = next_living(it)) {
+    for (it = exc; it; it = it->next) {
         if (isname((char *)it->data, obj->aliases)) {
             return false;
         }
@@ -3664,12 +3664,12 @@ creature_matches_terms(GList * req, GList * exc, struct creature * mob)
 {
     GList *it;
 
-    for (it = req; it; it = next_living(it)) {
+    for (it = req; it; it = it->next) {
         if (!isname((char *)it->data, mob->player.name)) {
             return false;
         }
     }
-    for (it = exc; it; it = next_living(it)) {
+    for (it = exc; it; it = it->next) {
         if (isname((char *)it->data, mob->player.name)) {
             return false;
         }
@@ -3777,7 +3777,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
 
         if (!no_mob) {
             GList *cit;
-            for (cit = creatures; cit; cit = next_living(cit)) {
+            for (cit = first_living(creatures); cit; cit = next_living(cit)) {
                 i = cit->data;
                 if (can_see_creature(ch, i)
                     && i->in_room

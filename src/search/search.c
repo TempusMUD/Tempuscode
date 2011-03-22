@@ -349,7 +349,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
             struct room_data *src_room = ch->in_room;
             rc = search_trans_character(ch, srch, targ_room);
 
-            for (GList * it = src_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(src_room->people); it; it = next_living(it)) {
                 mob = it->data;
                 if (srch->to_room)
                     act(srch->to_room, false, ch, obj, mob, TO_VICT);
@@ -496,7 +496,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 act(srch->to_remote, false, targ_room->people->data, obj, mob,
                     TO_CHAR);
             }
-            for (GList * it = targ_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(targ_room->people); it; it = next_living(it)) {
                 mob = it->data;
 
                 if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
@@ -576,7 +576,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 act(srch->to_remote, false, targ_room->people->data, obj, mob,
                     TO_CHAR);
             }
-            for (GList * it = targ_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(targ_room->people); it; it = next_living(it)) {
                 mob = it->data;
 
                 if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
@@ -632,7 +632,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 && !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
                 SET_BIT(srch->flags, SRCH_TRIPPED);
 
-            for (GList * it = other_rm->people; it; it = next_living(it)) {
+            for (GList * it = first_living(other_rm->people); it; it = next_living(it)) {
                 mob = it->data;
                 if (!IS_NPC(mob))
                     continue;

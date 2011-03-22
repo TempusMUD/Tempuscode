@@ -2780,7 +2780,7 @@ reset_zone(struct zone_data *zone)
     struct special_search_data *srch = NULL;
 
     // Send SPECIAL_RESET notification to all mobiles with specials
-    for (GList *it = creatures;it;it = next_living(it)) {
+    for (GList *it = first_living(creatures);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch->in_room->zone == zone && NPC_FLAGGED(tch, NPC_SPEC)
@@ -2830,7 +2830,7 @@ reset_zone(struct zone_data *zone)
                     if (mob) {
                         char_to_room(mob, room, false);
                         if (GET_NPC_LEADER(mob) > 0) {
-                            for (GList *it = mob->in_room->people;it;it = next_living(it)) {
+                            for (GList *it = first_living(mob->in_room->people);it;it = next_living(it)) {
                                     struct creature *tch = it->data;
 
                                     if (tch != mob

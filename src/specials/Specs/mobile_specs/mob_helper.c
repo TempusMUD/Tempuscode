@@ -13,7 +13,7 @@ SPECIAL(mob_helper)
         return 0;
     if (cmd || is_fighting(ch))
         return 0;
-    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         helpee = it->data;
         // Being drawn into combat via a death cry will cause this
         // mob to attack a dead creature

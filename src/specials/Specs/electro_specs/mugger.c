@@ -66,7 +66,7 @@ SPECIAL(mugger)
     // We're not mugging anyone, so look for a new victim
     if (!mug) {
         found_vict = NULL;
-        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             vict = it->data;
             if (check_infiltrate(vict, ch))
                 continue;
@@ -156,7 +156,7 @@ SPECIAL(mugger)
 
     // A mugging is in progress
     vict = NULL;
-    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         vict = it->data;
         if (!IS_NPC(vict)
             && can_see_creature(self, vict)

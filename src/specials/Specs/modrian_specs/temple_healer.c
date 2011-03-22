@@ -65,7 +65,7 @@ SPECIAL(temple_healer)
         case 12:
         case 13:{
                 found = false;
-                for (GList * it = self->in_room->people; it && !found;
+                for (GList * it = first_living(self->in_room->people); it && !found;
                     it = next_living(it)) {
                     vict = it->data;
                     if (self == vict || !can_see_creature(self, vict)
@@ -108,7 +108,7 @@ SPECIAL(temple_healer)
         case 14:
         case 15:
         case 16:{
-                for (GList * it = self->in_room->people; it && !found;
+            for (GList * it = first_living(self->in_room->people); it && !found;
                     it = next_living(it)) {
                     vict = it->data;
                     if (self == vict || IS_NPC(vict)
@@ -139,7 +139,7 @@ SPECIAL(temple_healer)
         case 17:
         case 18:{
                 found = false;
-                for (GList * it = self->in_room->people; it && !found;
+                for (GList * it = first_living(self->in_room->people); it && !found;
                     it = next_living(it)) {
                     vict = it->data;
 

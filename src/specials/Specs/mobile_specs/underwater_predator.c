@@ -52,7 +52,7 @@ SPECIAL(underwater_predator)
         ((troom = EXIT(pred, UP)->to_room) != NULL) &&
         !ROOM_FLAGGED(troom, ROOM_NOMOB | ROOM_PEACEFUL |
             ROOM_DEATH | ROOM_GODROOM)) {
-        for (GList * it = troom->people; it; it = next_living(it)) {
+        for (GList * it = first_living(troom->people); it; it = next_living(it)) {
             vict = it->data;
             if ((IS_NPC(vict) && !NPC2_FLAGGED(pred, NPC2_ATK_MOBS)) ||
                 (!IS_NPC(vict) && !vict->desc) ||

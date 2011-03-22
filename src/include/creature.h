@@ -999,6 +999,7 @@ bool is_dead(struct creature *ch);
 bool is_fighting(struct creature *ch);
 bool is_newbie(struct creature *ch);
 
+GList *first_living(GList *node);
 GList *next_living(GList *node);
 
 void start_hunting(struct creature *ch, struct creature *vict);

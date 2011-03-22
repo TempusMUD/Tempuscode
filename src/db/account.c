@@ -798,7 +798,7 @@ account_deny_char_entry(struct account *account, struct creature *ch)
     bool override = false;
     bool found = false;
 
-    for (GList *it = creatures;it;it = next_living(it)) {
+    for (GList *it = first_living(creatures);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch->account == account) {

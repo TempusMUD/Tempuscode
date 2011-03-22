@@ -269,7 +269,7 @@ prog_send_debug(struct prog_env *env, const char *msg)
 {
     struct room_data *room = prog_get_owner_room(env);
 
-    for (GList *cit = room->people; cit; cit = next_living(cit)) {
+    for (GList *cit = first_living(room->people); cit; cit = next_living(cit)) {
         struct creature *ch = cit->data;
 
         if (PRF2_FLAGGED(ch, PRF2_DEBUG))
@@ -1165,7 +1165,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 		zerrlog(room->zone, "Bad *damage argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (GList *it = room->people;it;it = next_living(it)) {
+	for (GList *it = first_living(room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 		if ((!players || IS_PC(tch)) &&
             (!mobs || IS_NPC(tch)) &&
@@ -1279,7 +1279,7 @@ DEFPROGHANDLER(spell, env, evt, args)
 		zerrlog(room->zone, "Bad *spell argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-    for (GList *it = room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 		if ((!players || IS_PC(tch)) &&
             (!mobs || IS_NPC(tch)) &&
@@ -1532,7 +1532,7 @@ DEFPROGHANDLER(trans, env, evt, args)
 		zerrlog(room->zone, "Bad *trans argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (GList *it = room->people;it;it = next_living(it)) {
+	for (GList *it = first_living(room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 		if ((!players || IS_PC(tch)) && (!mobs || IS_NPC(tch)))
 			prog_trans_creature(tch, targ_room);
@@ -2407,7 +2407,7 @@ static void
 prog_unmark_mobiles(void)
 {
 	// Unmark mobiles
-    for (GList *it = creatures;it;it = next_living(it)) {
+    for (GList *it = first_living(creatures);it;it = next_living(it)) {
         struct creature *tch = it->data;
         tch->prog_marker = 0;
     }
@@ -2469,7 +2469,7 @@ prog_free_terminated(void)
 static void
 prog_trigger_idle_mobs(void)
 {
-	for (GList *cit = creatures;cit;cit = next_living(cit)) {
+	for (GList *cit = first_living(creatures);cit;cit = next_living(cit)) {
         struct creature *ch = cit->data;
 		if (ch->prog_marker || !GET_NPC_PROGOBJ(ch))
 			continue;

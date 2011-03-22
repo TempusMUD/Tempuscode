@@ -475,7 +475,7 @@ SPECIAL(tarrasque)
         }
 
         if (tarr->in_room->people->next) {
-            for (GList * it = tarr->in_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(tarr->in_room->people); it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (!IS_NPC(tch) && GET_LEVEL(tch) < 10) {
                     if (GET_POSITION(tch) < POS_STANDING)
@@ -505,7 +505,7 @@ SPECIAL(tarrasque)
                 return 1;
             }
             if (tarr->in_room->people->next) {
-                for (GList * it = tarr->in_room->people; it; it = next_living(it)) {
+                for (GList * it = first_living(tarr->in_room->people); it; it = next_living(it)) {
                     struct creature *tch = it->data;
                     if (!IS_NPC(tch) && GET_LEVEL(tch) < 10) {
                         if (GET_POSITION(tch) < POS_STANDING)

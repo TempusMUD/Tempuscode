@@ -311,7 +311,7 @@ SPECIAL(postmaster)
     struct creature *self = (struct creature *)me;
 
     if (spec_mode == SPECIAL_TICK) {
-        if (self->fighting && !number(0, 4)) {
+        if (is_fighting(self) && !number(0, 4)) {
             call_for_help(self, random_opponent(self));
             return 1;
         }

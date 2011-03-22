@@ -15,7 +15,7 @@ SPECIAL(newbie_healer)
     if (cmd)
         return 0;
 
-    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         i = it->data;
         if (i == ch)
             continue;

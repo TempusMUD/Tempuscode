@@ -742,7 +742,7 @@ ASPELL(spell_summon)
 
         }
     }
-    for (GList * it = victim->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         if (AFF3_FLAGGED(tch, AFF3_SHROUD_OBSCUREMENT))
             prob += (tch == victim ? GET_LEVEL(tch) : (GET_LEVEL(tch) >> 1));
@@ -1726,7 +1726,7 @@ ASPELL(spell_clairvoyance)
             false, ch, 0, victim, TO_CHAR);
         return;
     }
-    for (GList * it = victim->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         if (AFF3_FLAGGED(tch, AFF3_SHROUD_OBSCUREMENT))
             prob += (tch == victim ? (GET_LEVEL(tch) << 1) : (GET_LEVEL(tch)));
@@ -2356,7 +2356,7 @@ ASPELL(spell_id_insinuation)
     }
 
     ulv = NULL;
-    for (GList * it = victim->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
         pulv = (struct creature *)it->data;
         if (pulv == victim || pulv == ch)
             continue;
@@ -2403,7 +2403,7 @@ ASPELL(spell_shadow_breath)
         rm_aff.flags = ROOM_DARK;
         affect_to_room(victim->in_room, &rm_aff);
     }
-    for (GList * it = victim->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
         vch = (struct creature *)it->data;
         if (PRF_FLAGGED(vch, PRF_NOHASSLE))
             continue;
@@ -3010,7 +3010,7 @@ ASPELL(spell_sun_ray)
     }
     // check for players if caster is not a pkiller
     if (!IS_NPC(ch)) {
-        for (GList * it = victim->in_room->people; it; it = next_living(it)) {
+        for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
             struct creature *tch = (struct creature *)it->data;
             if (ch == tch)
                 continue;
@@ -3024,7 +3024,7 @@ ASPELL(spell_sun_ray)
                 return;
         }
     }
-    for (GList * it = victim->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         if (ch == (tch)
             || PRF_FLAGGED((tch), PRF_NOHASSLE)
@@ -3082,7 +3082,7 @@ ASPELL(spell_inferno)
     }
     // check for players if caster is not a pkiller
     if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-        for (GList * it = victim->in_room->people; it; it = next_living(it)) {
+        for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
             struct creature *tch = (struct creature *)it->data;
             if (ch == tch)
                 continue;
@@ -3105,7 +3105,7 @@ ASPELL(spell_inferno)
         affect_to_room(ch->in_room, &rm_aff);
 
     }
-    for (GList * it = victim->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         if (ch == tch)
             continue;

@@ -234,7 +234,7 @@ ACMD(do_echo)
         mort_see = tmp_strdup(argument);
         imm_see = tmp_sprintf("[$n] %s", argument);
 
-        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             struct creature *tch = it->data;
             if (GET_LEVEL(tch) > GET_LEVEL(ch))
                 act(imm_see, false, ch, 0, tch, TO_VICT);
@@ -677,7 +677,7 @@ do_stat_memory(struct creature *ch)
 
     sum = 0;
     i = 0;
-    for (GList * cit = creatures; cit; cit = next_living(cit)) {
+    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         chars = cit->data;
         if (!IS_NPC(chars))
             continue;
@@ -703,7 +703,7 @@ do_stat_memory(struct creature *ch)
 
     sum = 0;
     i = 0;
-    for (GList * cit = creatures; cit; cit = next_living(cit)) {
+    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         chars = cit->data;
         if (IS_NPC(chars))
             continue;
@@ -773,7 +773,7 @@ do_stat_zone(struct creature *ch, struct zone_data *zone)
     send_to_char(ch, "TimeFrame: [%s]  Plane: [%s]   ",
         time_frames[zone->time_frame], planes[zone->plane]);
 
-    for (GList * cit = creatures; cit; cit = next_living(cit)) {
+    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
         if (IS_NPC(tch) && tch->in_room && tch->in_room->zone == zone) {
             numm++;
@@ -1043,7 +1043,7 @@ do_stat_room(struct creature *ch, char *roomstr)
     acc_sprintf("Chars present:%s", CCYEL(ch, C_NRM));
 
     found = 0;
-    for (GList * it = rm->people; it; it = next_living(it)) {
+    for (GList * it = first_living(rm->people); it; it = next_living(it)) {
         k = it->data;
         if (can_see_creature(ch, k))
             acc_sprintf("%s %s(%s)", found++ ? "," : "", GET_NAME(k),
@@ -2875,7 +2875,7 @@ ACMD(do_purge)
             false, ch, 0, 0, TO_ROOM);
         send_to_room("The world seems a little cleaner.\r\n", ch->in_room);
 
-        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             struct creature *tch = it->data;
 
             if (IS_NPC(tch)) {
@@ -2990,7 +2990,7 @@ perform_vis(struct creature *ch)
     }
 
     GET_INVIS_LVL(ch) = 0;
-    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch == ch || !can_see_creature(tch, ch))
             continue;
@@ -3018,7 +3018,7 @@ perform_invis(struct creature *ch, int level)
     old_level = GET_INVIS_LVL(ch);
     GET_INVIS_LVL(ch) = 0;
 
-    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch == ch || !can_see_creature(tch, ch))
             continue;
@@ -3360,7 +3360,7 @@ ACMD(do_force)
             send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true,
                 "(GC) %s forced all to %s", GET_NAME(ch), to_force);
-            for (GList * it = creatures; it; it = next_living(it)) {
+            for (GList * it = first_living(creatures); it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (ch != tch && GET_LEVEL(ch) > GET_LEVEL(tch)) {
                     act(buf1, true, ch, NULL, tch, TO_VICT);
@@ -3391,7 +3391,7 @@ ACMD(do_force)
             send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced room %d to %s",
                 GET_NAME(ch), ch->in_room->number, to_force);
-            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (GET_LEVEL(tch) >= GET_LEVEL(ch) ||
                     (!IS_NPC(tch) && GET_LEVEL(ch) < LVL_GRGOD))
@@ -3792,7 +3792,7 @@ do_show_stats(struct creature *ch)
     struct zone_data *zone;
     extern int buf_switches, buf_largecount, buf_overflows;
 
-    for (GList * it = creatures; it; it = next_living(it)) {
+    for (GList * it = first_living(creatures); it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (IS_NPC(tch))
             j++;
@@ -4406,7 +4406,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
 
         num = atoi(arg);
         for (room = zone->world; room; room = room->next) {
-            for (GList * cit = room->people; cit; cit = next_living(cit)) {
+            for (GList * cit = first_living(room->people); cit; cit = next_living(cit)) {
                 struct creature *tch = cit->data;
                 if (!IS_NPC(tch))
                     continue;
@@ -5453,7 +5453,7 @@ ACMD(do_show)
 
         strcpy(buf, "Characters with Quad Damage:\r\n");
 
-        for (cit = creatures; cit; cit = next_living(cit)) {
+        for (cit = first_living(creatures); cit; cit = next_living(cit)) {
             vict = cit->data;
 
             if (!can_see_creature(ch, vict)
@@ -5478,7 +5478,7 @@ ACMD(do_show)
     case 35:                   /* hunting */
 
         strcpy(buf, "Characters hunting:\r\n");
-        for (cit = creatures; cit; cit = next_living(cit)) {
+        for (cit = first_living(creatures); cit; cit = next_living(cit)) {
             vict = cit->data;
             if (!NPC_HUNTING(vict) || !NPC_HUNTING(vict)->in_room
                 || !can_see_creature(ch, vict))
@@ -7594,7 +7594,7 @@ ACMD(do_peace)
 {
     bool found = 0;
 
-    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
         found = 1;
         remove_all_combat(tch);

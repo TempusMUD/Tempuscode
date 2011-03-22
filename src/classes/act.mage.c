@@ -273,7 +273,7 @@ area_attack_advisable(struct creature *ch)
     // Area attacks are advisable when there are more than one PC and
     // no other non-fighting NPCs
     int pc_count = 0;
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (can_see_creature(ch, tch)
@@ -291,7 +291,7 @@ group_attack_advisable(struct creature * ch)
 
     // Group attacks are advisable when more than one creature is
     // attacking
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
         if (!g_list_find(tch->fighting, ch))
             continue;

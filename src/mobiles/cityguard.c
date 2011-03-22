@@ -44,7 +44,7 @@ summon_cityguards(struct room_data *room)
     int distance;
 
     // Now get about half the cityguards in the zone to respond
-    for (it = creatures; it; it = next_living(it)) {
+    for (it = first_living(creatures); it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (!tch->in_room || tch->in_room->zone != room->zone)
             continue;
@@ -177,7 +177,7 @@ breakup_fight(struct creature *ch, struct creature *vict1,
     GList *it;
     struct creature *tch;
 
-    for (it = ch->in_room->people; it; it = next_living(it)) {
+    for (it = first_living(ch->in_room->people); it; it = next_living(it)) {
         tch = it->data;
         if (tch == ch)
             send_to_char(tch,
@@ -340,7 +340,7 @@ drag_char_to_jail(struct creature *ch, struct creature *vict,
         ch, 0, vict, TO_NOTVICT);
 
     // Get other guards to follow
-    for (it = ch->in_room->people; it; it = next_living(it)) {
+    for (it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (IS_NPC(tch) && GET_NPC_SPEC(tch) == cityguard) {
             data = (struct cityguard_data *)(tch)->mob_specials.func_data;
@@ -431,7 +431,7 @@ SPECIAL(cityguard)
         return false;
 
     // We're fighting someone - call for help
-    if (self->fighting) {
+    if (is_fighting(self)) {
         tch = random_opponent(self);
 
         // Save the newbies from themselves
@@ -478,7 +478,7 @@ SPECIAL(cityguard)
     action = 0;
     lawful = !ZONE_FLAGGED(self->in_room->zone, ZONE_NOLAW);
 
-    for (it = self->in_room->people; it; it = next_living(it)) {
+    for (it = first_living(self->in_room->people); it; it = next_living(it)) {
         tch = it->data;
         if (action < 5 && is_fighting_cityguard(tch) &&
             ok_to_attack(self, tch, false)) {

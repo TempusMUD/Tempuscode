@@ -309,7 +309,7 @@ do_destroy_search(struct creature *ch, char *arg)
         send_to_char(ch, "World olc is not approved for this zone.\r\n");
         return 0;
     }
-    for (GList * cit = creatures; cit; cit = next_living(cit)) {
+    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
         if (GET_OLC_SRCH(tch) == srch)
             GET_OLC_SRCH(tch) = NULL;

@@ -1279,7 +1279,7 @@ qp_reload(int sig __attribute__ ((unused)))
     //
     // Check if the imm is logged on
     //
-    for (GList * cit = creatures; cit; cit = next_living(cit)) {
+    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         immortal = cit->data;
         if (GET_LEVEL(immortal) >= LVL_AMBASSADOR
             && (!IS_NPC(immortal) && GET_QUEST_ALLOWANCE(immortal) > 0)) {

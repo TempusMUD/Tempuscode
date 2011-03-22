@@ -1278,7 +1278,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
             ((gun = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(gun)) ||
             ((gun = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(gun))) {
 
-            if (!vict->fighting)
+            if (!is_fighting(vict))
                 do_backstab(ch, fname(vict->player.name), 0, 0);
             else if (GET_LEVEL(ch) > 43)
                 do_circle(ch, fname(vict->player.name), 0, 0);
@@ -1456,7 +1456,7 @@ mobile_spec(void)
 
     extern int no_specials;
 
-    for (GList * cit = creatures; cit; cit = next_living(cit)) {
+    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         ch = cit->data;
 
         if (!(ch->char_specials.saved.act & NPC_ISNPC))
@@ -1522,6 +1522,10 @@ single_mobile_activity(struct creature *ch)
         errlog("Skipping null mobile in mobile_activity");
         return;
     }
+
+    if (is_dead(ch))
+        return;
+
     // Non-special mobs in idle zones don't do anything
     if (!production_mode && IS_NPC(ch)
         && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)
@@ -1580,7 +1584,7 @@ single_mobile_activity(struct creature *ch)
     //
     // nothing below this conditional affects FIGHTING characters
     //
-    if (GET_POSITION(ch) == POS_FIGHTING || ch->fighting) {
+    if (GET_POSITION(ch) == POS_FIGHTING || is_fighting(ch)) {
         return;
     }
     //
@@ -1725,7 +1729,7 @@ single_mobile_activity(struct creature *ch)
 
     /* Mobiles looking at chars */
     if (random_fractional_20()) {
-        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             vict = it->data;
             if (vict == ch)
                 continue;
@@ -1964,7 +1968,7 @@ single_mobile_activity(struct creature *ch)
         if (AFF_FLAGGED(ch, AFF_BLIND))
             return;
 
-        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             vict = it->data;
             if (ch != vict
                 && is_fighting(vict) && !g_list_find(vict->fighting, ch)
@@ -2028,7 +2032,7 @@ single_mobile_activity(struct creature *ch)
     if (IS_RACIALLY_AGGRO(ch) &&
         !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) && random_fractional_4()) {
         vict = NULL;
-        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             vict = it->data;
             if ((IS_NPC(vict) && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS))
                 || !can_see_creature(ch, vict)
@@ -2061,7 +2065,7 @@ single_mobile_activity(struct creature *ch)
             || NPC_FLAGGED(ch, NPC_AGGR_TO_ALIGN)) &&
         !ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
 
-        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             vict = it->data;
             if (vict == ch || (!next_living(it) && random_fractional_4())
                 || (!IS_NPC(vict) && !vict->desc)) {
@@ -2133,7 +2137,7 @@ single_mobile_activity(struct creature *ch)
                 vict = NULL;
                 struct room_data *tmp_room = EXIT(ch, dir)->to_room;
                 bool found = false;
-                for (GList * it = tmp_room->people; it && !found;
+                for (GList * it = first_living(tmp_room->people); it && !found;
                     it = next_living(it)) {
                     vict = it->data;
                     if (can_see_creature(ch, vict)
@@ -2174,7 +2178,7 @@ single_mobile_activity(struct creature *ch)
 
     if (NPC_FLAGGED(ch, NPC_MEMORY) && MEMORY(ch) &&
         !AFF_FLAGGED(ch, AFF_CHARM)) {
-        for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             vict = it->data;
 
             if (check_infiltrate(vict, ch))
@@ -2628,7 +2632,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         }
     }
 
-    for (GList * li = ch->fighting; li; li = li->next)
+    for (GList * li = first_living(ch->fighting); li; li = next_living(li))
         if (detect_opponent_master(ch, li->data))
             return 0;
 
@@ -2723,7 +2727,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         else if (random_binary()) {
             act("$n releases a deafening scream!!", false, ch, 0, 0, TO_ROOM);
 
-            for (GList * li = ch->fighting; li; li = li->next) {
+            for (GList * li = first_living(ch->fighting); li; li = next_living(li->next)) {
                 call_magic(ch, li->data, 0, NULL, SPELL_FEAR, GET_LEVEL(ch),
                     CAST_BREATH);
             }
@@ -2856,9 +2860,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         if (random_number_zero_low(GET_LEVEL(ch)) > 10) {
             act("You feel a wave of sheer terror wash over you as $n approaches!", false, ch, 0, 0, TO_ROOM);
 
-            GList *next;
-            for (GList *it = ch->fighting; it; it = next) {
-                next = next_living(it);
+            for (GList *it = first_living(ch->fighting); it; it = next_living(it)) {
                 vict = it->data;
                 if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
                     !AFF_FLAGGED(vict, AFF_CONFIDENCE)) {
@@ -3346,7 +3348,7 @@ mob_fight_slaad(struct creature *ch, struct creature *precious_vict)
     if (!(vict = choose_opponent(ch, precious_vict)))
         return 0;
 
-    for (GList * it = ch->in_room->people; it; it = next_living(it))
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it))
         if (IS_SLAAD((struct creature *)(it->data)))
             num++;
 
@@ -3660,7 +3662,7 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
     }
     // see how many celestials are already in the room
     num = 0;
-    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (GET_RACE(tch) == RACE_CELESTIAL || GET_RACE(tch) == RACE_ARCHON)
             num++;
@@ -3800,7 +3802,7 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
     // see how many guardinal are already in the room
 
     num = 0;
-    for (GList * it = ch->in_room->people; it; it = next_living(it))
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it))
         if (GET_RACE((struct creature *)it->data) == RACE_GUARDINAL)
             num++;
 
@@ -3952,7 +3954,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
     // see how many demon are already in the room
 
     num = 0;
-    for (GList * it = ch->in_room->people; it; it = next_living(it))
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it))
         if (GET_RACE((struct creature *)it->data) == RACE_DEMON)
             num++;
 

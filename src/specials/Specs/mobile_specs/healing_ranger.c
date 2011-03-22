@@ -34,7 +34,7 @@ SPECIAL(healing_ranger)
     case 12:
     case 13:{
             found = false;
-            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 vict = it->data;
                 if (ch == vict || (!next_living(it) && !number(0, 2))) {
                     continue;
@@ -59,7 +59,7 @@ SPECIAL(healing_ranger)
     case 15:
     case 16:{
             found = false;
-            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 vict = it->data;
                 if (AFF_FLAGGED(vict, AFF_POISON)) {
                     if (GET_MANA(ch) > 50) {
@@ -74,7 +74,7 @@ SPECIAL(healing_ranger)
     case 18:{
             found = false;
             found = false;
-            for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 vict = it->data;
                 if (!IS_NPC(vict) && (affected_by_spell(vict, SPELL_BLINDNESS)
                         || affected_by_spell(vict, SKILL_GOUGE))) {
@@ -91,7 +91,7 @@ SPECIAL(healing_ranger)
             found = false;
             if (ch->in_room->zone->weather->sky == SKY_LIGHTNING) {
                 found = false;
-                for (GList * it = ch->in_room->people; it && !found;
+                for (GList * it = first_living(ch->in_room->people); it && !found;
                     it = next_living(it)) {
                     vict = it->data;
                     if (!affected_by_spell(vict, SPELL_PROT_FROM_LIGHTNING) &&

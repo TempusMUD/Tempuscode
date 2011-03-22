@@ -1050,7 +1050,7 @@ ACMD(do_assist)
     struct creature *helpee;
     char *arg;
 
-    if (ch->fighting > 0) {
+    if (is_fighting(ch)) {
         send_to_char(ch,
             "You're already fighting!  How can you assist someone else?\r\n");
         return;
@@ -1200,8 +1200,8 @@ ACMD(do_order)
                 if (!CHECK_WAIT(vict) && !GET_NPC_WAIT(vict)) {
                     if (IS_NPC(vict) && GET_NPC_VNUM(vict) == 5318)
                         perform_say(vict, "intone", "As you command, master.");
-                    if (vict->fighting) {
-                        for (GList * cit = vict->fighting; cit;
+                    if (is_fighting(vict)) {
+                        for (GList * cit = first_living(vict->fighting); cit;
                             cit = next_living(cit)) {
                             struct creature *tch = cit->data;
                             detect_opponent_master(tch, vict);
@@ -1235,7 +1235,7 @@ ACMD(do_order)
                                 perform_say(vict, "intone",
                                     "As you command, master.");
                             if (k->follower->fighting) {
-                                for (GList * cit = k->follower->fighting;
+                                for (GList * cit = first_living(k->follower->fighting);
                                     cit; cit = next_living(cit)) {
                                     struct creature *tch = cit->data;
                                     detect_opponent_master(tch, k->follower);
@@ -1384,7 +1384,7 @@ ACMD(do_retreat)
             return;
         }
     }
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *vict = it->data;
 
         if (vict != ch
@@ -2148,7 +2148,7 @@ random_fighter(struct room_data *room,
                struct creature *ch,
                struct creature *vict)
 {
-    for (GList *it = room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch != ch
             && tch != vict && g_list_find(tch->fighting, vict)
@@ -2163,7 +2163,7 @@ random_bystander(struct room_data *room,
                struct creature *ch,
                struct creature *vict)
 {
-    for (GList *it = room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch != ch && tch != vict && !number(0, 2))
             return tch;
@@ -2215,19 +2215,18 @@ shoot_energy_gun(struct creature *ch,
 
     prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
 
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch != ch && g_list_find(tch->fighting, ch))
             prob -= GET_LEVEL(tch) / 8;
     }
 
-    if (vict->fighting && !g_list_find(vict->fighting, ch)
+    if (is_fighting(vict) && !g_list_find(vict->fighting, ch)
         && number(1, 121) > prob)
         vict = random_opponent(vict);
-    else if (vict->fighting && number(1, 101) > prob) {
+    else if (is_fighting(vict) && number(1, 101) > prob) {
         vict = random_fighter(ch->in_room, ch, vict);
-
     } else if (number(1, 81) > prob) {
         vict = random_bystander(ch->in_room, ch, vict);
     }
@@ -2463,7 +2462,7 @@ shoot_projectile_gun(struct creature *ch,
         prob += number(GET_LEVEL(ch) >> 2,
             GET_LEVEL(ch) >> 1) + (GET_REMORT_GEN(ch) << 2);
 
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch != ch && g_list_find(tch->fighting, ch))
@@ -2613,7 +2612,7 @@ ACMD(do_ceasefire)
         return;
     }
 
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch != ch && g_list_find(tch->fighting, ch))
             f = tch;
@@ -2945,7 +2944,7 @@ ACMD(do_beguile)
 struct creature *
 randomize_target(struct creature *ch, struct creature *vict, short prob)
 {
-    for (GList *it = ch->in_room->people;it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch != ch && g_list_find(tch->fighting, ch))
