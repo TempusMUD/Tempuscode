@@ -1374,7 +1374,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         SET_BIT(GET_OBJ_EXTRA2(corpse), ITEM2_UNAPPROVED);
     GET_OBJ_VAL(corpse, 0) = 0; /* You can't store stuff in a corpse */
     GET_OBJ_VAL(corpse, 3) = 1; /* corpse identifier */
-    GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch + IS_CARRYING_W(ch));
+    GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch) + IS_CARRYING_W(ch);
     corpse->contains = NULL;
 
     if (IS_NPC(ch)) {
