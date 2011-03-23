@@ -416,7 +416,7 @@ show_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
 
 }
 
-int
+bool
 dyntext_edit_ok(struct creature *ch, dynamic_text_file * dyntext)
 {
     int i;

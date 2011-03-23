@@ -646,7 +646,7 @@ timewarp_target(struct zone_data *zSrc)
     return NULL;
 }
 
-int
+bool
 room_tele_ok(struct creature *ch, struct room_data *room)
 {
 
@@ -691,7 +691,7 @@ random_room(struct creature *ch, struct zone_data *zone)
 }
 
 // tmode == true, choose other time frame
-int
+bool
 zone_tele_ok(struct creature *ch, struct zone_data *zone, int tmode)
 {
 

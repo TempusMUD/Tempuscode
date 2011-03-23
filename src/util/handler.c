@@ -2266,29 +2266,29 @@ create_money(int amount, int mode)
 /* one_argument routine).                                                 */
 
 // is_weird helps to ignore 'special' items that shouldnt be there
-int
+bool
 is_weird(struct creature *ch, struct obj_data *obj, struct creature *vict)
 {
     if (PRF_FLAGGED(ch, PRF_HOLYLIGHT))
-        return 0;
+        return false;
 
     if (obj) {
         if (GET_OBJ_VNUM(obj) == BLOOD_VNUM)
-            return 1;
+            return true;
         if (!OBJ_APPROVED(obj)
             && !is_authorized(ch, TESTER, NULL)
             && !NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
-            return 1;
+            return true;
     }
 
     if (vict && IS_NPC(vict)) {
         if (NPC2_FLAGGED(vict, NPC2_UNAPPROVED)
             && !is_authorized(ch, TESTER, NULL)
             && !NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
-            return 1;
+            return true;
     }
 
-    return 0;
+    return false;
 }
 
 int

@@ -4,7 +4,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-int
+bool
 THROW_OK(struct obj_data *obj)
 {
     if (!CAN_WEAR(obj, ITEM_WEAR_TAKE) ||
@@ -17,6 +17,7 @@ THROW_OK(struct obj_data *obj)
 }
 
 ACMD(do_throw);
+
 SPECIAL(boulder_thrower)
 {
 
