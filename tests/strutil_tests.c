@@ -206,7 +206,7 @@ END_TEST
 
 START_TEST(test_search_block)
 {
-    const char *strlist[] = {"alpha", "beta", "gamma", "delta", "\n"};
+    const char *strlist[] = {"Alpha", "Beta", "Gamma", "Delta", "\n"};
 
     fail_unless(search_block("alpha", strlist, true) == 0);
     fail_unless(search_block("al", strlist, true) == -1);
@@ -381,6 +381,52 @@ START_TEST(test_half_chop)
 }
 END_TEST
 
+START_TEST(test_search_block_no_lower)
+{
+    const char *strlist[] = {"Alpha", "Beta", "Gamma", "Delta", "\n"};
+
+    fail_unless(search_block_no_lower("Alpha", strlist, true) == 0);
+    fail_unless(search_block_no_lower("Al", strlist, true) == -1);
+    fail_unless(search_block_no_lower("Al", strlist, false) == 0);
+    fail_unless(search_block_no_lower("al", strlist, false) == -1);
+
+    fail_unless(search_block_no_lower("Beta", strlist, true) == 1);
+    fail_unless(search_block_no_lower("Gamma", strlist, true) == 2);
+    fail_unless(search_block_no_lower("Delta", strlist, true) == 3);
+
+    fail_unless(search_block_no_lower("", strlist, true) == -1);
+}
+END_TEST
+
+START_TEST(test_fill_word_no_lower)
+{
+    fail_unless(fill_word_no_lower("the"));
+    fail_unless(fill_word_no_lower("from"));
+    fail_unless(fill_word_no_lower("to"));
+    fail_if(fill_word_no_lower("alpha"));
+    fail_if(fill_word_no_lower("THE"));
+
+}
+END_TEST
+
+START_TEST(test_one_argument_no_lower)
+{
+    char buf[1024];
+    char first_arg[1024];
+    char *str = buf;
+
+    strcpy(buf, "   the Alpha \"beta gamma\" Delta");
+
+    str = one_argument_no_lower(str, first_arg);
+    fail_unless(!strcmp(first_arg, "Alpha"), "first_arg was '%s'", first_arg);
+    fail_unless(!strcmp(str, " \"beta gamma\" Delta"));
+
+    str = one_argument_no_lower(str, first_arg);
+    fail_unless(!strcmp(first_arg, "\"beta"));
+    fail_unless(!strcmp(str, " gamma\" Delta"));
+}
+END_TEST
+
 Suite *
 strutil_suite(void)
 {
@@ -416,6 +462,9 @@ strutil_suite(void)
     tcase_add_test(tc_core, test_is_abbrev);
     tcase_add_test(tc_core, test_is_abbrevn);
     tcase_add_test(tc_core, test_half_chop);
+    tcase_add_test(tc_core, test_search_block_no_lower);
+    tcase_add_test(tc_core, test_fill_word_no_lower);
+    tcase_add_test(tc_core, test_one_argument_no_lower);
     suite_add_tcase(s, tc_core);
 
     return s;

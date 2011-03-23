@@ -41,9 +41,6 @@ extern const char *language_names[];
 
 long asciiflag_conv(char *buf);
 
-char *one_argument_no_lower(char *argument, char *first_arg);
-int search_block_no_lower(char *arg, char **list, bool exact);
-int fill_word_no_lower(char *argument);
 void num2str(char *str, int num);
 void set_physical_attribs(struct creature *ch);
 void do_stat_character(struct creature *ch, struct creature *k,

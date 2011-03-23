@@ -65,10 +65,6 @@ extern const char *fill_words[];
 long asciiflag_conv(char *buf);
 static char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
 
-char *one_argument_no_lower(char *argument, char *first_arg);
-int search_block_no_lower(char *arg, const char **list, bool exact);
-int fill_word_no_lower(char *argument);
-void num2str(char *str, int num);
 void do_stat_object(struct creature *ch, struct obj_data *obj);
 void do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg);
 void do_zone_cmdrem(struct creature *ch, struct zone_data *zone, int num);
@@ -2989,65 +2985,6 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
     }
 
     page_string(ch->desc, out_buf);
-}
-
-/*
- * copy the first non-fill-word, space-delimited argument of 'argument'
- * to 'first_arg'; return a pointer to the remainder of the string.
- */
-char *
-one_argument_no_lower(char *argument, char *first_arg)
-{
-    char *begin = first_arg;
-
-    do {
-        skip_spaces(&argument);
-
-        first_arg = begin;
-        while (*argument && !isspace(*argument)) {
-            *(first_arg++) = *argument;
-            argument++;
-        }
-
-        *first_arg = '\0';
-    } while (fill_word_no_lower(begin));
-
-    return argument;
-}
-
-/*
- * searches an array of strings for a target string.  "exact" can be
- * 0 or non-0, depending on whether or not the match must be exact for
- * it to be returned.  Returns -1 if not found; 0..n otherwise.  Array
- * must be terminated with a '\n' so it knows to stop searching.
- */
-int
-search_block_no_lower(char *arg, const char **list, bool exact)
-{
-    register int i, l;
-
-    l = strlen(arg);
-
-    if (exact) {
-        for (i = 0; **(list + i) != '\n'; i++)
-            if (!strcmp(arg, *(list + i)))
-                return (i);
-    } else {
-        if (!l)
-            l = 1;              /* Avoid "" to match the first available
-                                 * string */
-        for (i = 0; **(list + i) != '\n'; i++)
-            if (!strncmp(arg, *(list + i), l))
-                return (i);
-    }
-
-    return -1;
-}
-
-int
-fill_word_no_lower(char *argument)
-{
-    return (search_block_no_lower(argument, fill_words, false) >= 0);
 }
 
 #define ZPATH_USAGE "Usage: olc zpath <'mob'|'obj'> <name> <path name>\r\n"

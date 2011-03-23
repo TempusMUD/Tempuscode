@@ -507,3 +507,62 @@ half_chop(char *string, char *arg1, char *arg2)
     memmove(arg2, temp, strlen(temp) + 1);
 }
 
+/*
+ * searches an array of strings for a target string.  "exact" can be
+ * 0 or non-0, depending on whether or not the match must be exact for
+ * it to be returned.  Returns -1 if not found; 0..n otherwise.  Array
+ * must be terminated with a '\n' so it knows to stop searching.
+ */
+int
+search_block_no_lower(char *arg, const char **list, bool exact)
+{
+    register int i, l;
+
+    l = strlen(arg);
+
+    if (exact) {
+        for (i = 0; **(list + i) != '\n'; i++)
+            if (!strcmp(arg, *(list + i)))
+                return (i);
+    } else {
+        if (!l)
+            l = 1;              /* Avoid "" to match the first available
+                                 * string */
+        for (i = 0; **(list + i) != '\n'; i++)
+            if (!strncmp(arg, *(list + i), l))
+                return (i);
+    }
+
+    return -1;
+}
+
+int
+fill_word_no_lower(char *argument)
+{
+    return (search_block_no_lower(argument, fill_words, false) >= 0);
+}
+
+/*
+ * copy the first non-fill-word, space-delimited argument of 'argument'
+ * to 'first_arg'; return a pointer to the remainder of the string.
+ */
+char *
+one_argument_no_lower(char *argument, char *first_arg)
+{
+    char *begin = first_arg;
+
+    do {
+        skip_spaces(&argument);
+
+        first_arg = begin;
+        while (*argument && !isspace(*argument)) {
+            *(first_arg++) = *argument;
+            argument++;
+        }
+
+        *first_arg = '\0';
+    } while (fill_word_no_lower(begin));
+
+    return argument;
+}
+

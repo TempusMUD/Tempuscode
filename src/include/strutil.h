@@ -49,4 +49,9 @@ int is_abbrev(const char *needle, const char *haystack);
 int is_abbrevn(const char *needle, const char *haystack, int count);
 void half_chop(char *string, char *arg1, char *arg2);
 
+char *one_argument_no_lower(char *argument, char *first_arg);
+int search_block_no_lower(char *arg, const char **list, bool exact);
+int fill_word_no_lower(char *argument);
+void num2str(char *str, int num);
+
 #endif
