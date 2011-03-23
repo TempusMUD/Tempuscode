@@ -289,7 +289,7 @@ const char *spec_flags[] = { "MOB", "OBJ", "ROOM", "RESERVED" };
 //
 
 int
-find_spec_index_ptr(SPECIAL(*func))
+find_spec_index_ptr(SPECIAL((*func)))
 {
     int i;
 

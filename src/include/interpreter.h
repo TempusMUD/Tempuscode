@@ -21,13 +21,13 @@
 //
 
 #define ACMD(name)  \
-   void (name)(__attribute__ ((unused)) struct creature *ch, \
+   void name(__attribute__ ((unused)) struct creature *ch, \
    	__attribute__ ((unused)) char *argument, \
 	__attribute__ ((unused)) int cmd, \
 	__attribute__ ((unused)) int subcmd)
 
 #define ACCMD(name)  \
-   void (name)(__attribute__ ((unused)) struct creature *ch, \
+   void name(__attribute__ ((unused)) struct creature *ch, \
    __attribute__ ((unused)) char *argument, \
    __attribute__ ((unused)) int cmd, \
    __attribute__ ((unused)) int subcmd)
@@ -61,7 +61,7 @@ int triggers_search(struct creature *ch, int cmd, char *arg,
 struct command_info {
 	const char *command;
 	byte minimum_position;
-    ACMD(*command_pointer);
+    ACMD((*command_pointer));
 	sh_int minimum_level;
 	int subcmd;
 	int role_count;

@@ -285,20 +285,15 @@ SPECIAL(christmas_quest);
 
 struct spec_func_data {
 	const char *tag;
-    SPECIAL(*func);
+    SPECIAL((*func));
 	byte flags;
 };
 
-int
- find_spec_index_arg(char *arg);
-void
- do_show_specials(struct creature *ch, char *arg);
-int
- do_specassign_save(struct creature *ch, int mode);
-int
- find_spec_index_ptr(SPECIAL(*func));
-int
- mob_read_script(struct creature *ch);
+int find_spec_index_arg(char *arg);
+void do_show_specials(struct creature *ch, char *arg);
+int do_specassign_save(struct creature *ch, int mode);
+int find_spec_index_ptr(SPECIAL((*func)));
+int mob_read_script(struct creature *ch);
 
 #define SPEC_FILE_MOB "etc/spec_ass_mob"
 #define SPEC_FILE_OBJ "etc/spec_ass_obj"

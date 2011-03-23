@@ -363,7 +363,7 @@ struct obj_shared_data {
 	/** The player id of the owner of this (oedited) object **/
 	long owner_id;
 	struct obj_data *proto;		/* pointer to prototype */
-	SPECIAL(*func);
+	SPECIAL((*func));
 	char *func_param;
 };
 
@@ -419,5 +419,7 @@ void normalize_applies(struct obj_data *obj);
 int modify_object_weight(struct obj_data *obj, int mod_weight);
 bool obj_is_unrentable(struct obj_data *obj);
 void obj_affect_join(struct obj_data *obj, struct tmp_obj_affect *af, int dur_mode, int val_mode, int aff_mode);
+const char *obj_cond(struct obj_data *obj);
+const char *obj_cond_color(struct obj_data *obj, int color_level);
 
 #endif

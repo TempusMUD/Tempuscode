@@ -881,7 +881,7 @@ struct mob_shared_data {
 	byte morale;
 	char *move_buf;				/* custom move buf */
 	struct creature *proto;	/* pointer to prototype */
-	SPECIAL(*func);
+	SPECIAL((*func));
 	char *func_param;			/* mobile's special parameter str */
 	char *load_param;			/* mobile's on_load script */
 	char *prog;

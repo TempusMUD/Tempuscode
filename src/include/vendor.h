@@ -40,7 +40,7 @@ struct shop_data {
 	bool steal_ok;
 	bool attack_ok;
 	bool call_for_help;
-	SPECIAL(*func);
+	SPECIAL((*func));
 	struct reaction *reaction;
 };
 

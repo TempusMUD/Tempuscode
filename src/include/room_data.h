@@ -224,7 +224,7 @@ struct room_data {
 	byte flow_dir;				// Direction of flow
 	byte flow_speed;			// Speed of flow
 	byte flow_type;				// Type of flow
-	SPECIAL(*func);
+	SPECIAL((*func));
 	char *func_param;
 	struct zone_data *zone;		// zone the room is in
 	struct room_data *next;
