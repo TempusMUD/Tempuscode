@@ -56,135 +56,6 @@ void free_socials();
 void print_attributes_to_buf(struct creature *ch, char *buff);
 extern struct clan_data *clan_list;
 
-char *
-fname(const char *namelist)
-{
-    static char holder[30];
-    char *point;
-
-    if (!namelist) {
-        errlog("Null namelist passed to fname().");
-        return tmp_strdup("");
-    }
-    for (point = holder; isalnum(*namelist); namelist++, point++)
-        *point = *namelist;
-
-    *point = '\0';
-
-    return (holder);
-}
-
-int
-isname(const char *str, const char *namelist)
-{
-    register const char *curname, *curstr;
-
-    if (!*str)
-        return 0;
-
-    if (namelist == NULL || *namelist == '\0') {
-        errlog(" NULL namelist given to isname()");
-        return 0;
-    }
-
-    curname = namelist;
-    while (*curname) {
-        curstr = str;
-        while (true) {
-            if (!*curstr || isspace(*curstr))
-                return true;
-
-            if (!*curname)
-                return false;
-
-            if (*curname == ' ')
-                break;
-
-            if (tolower(*curstr) != tolower(*curname))
-                break;
-
-            curstr++;
-            curname++;
-        }
-
-        /* skip to next name */
-
-        while (isalnum(*curname))
-            curname++;
-        if (!*curname)
-            return false;
-        curname++;              /* first char of new name */
-    }
-
-    return false;
-}
-
-int
-isname_exact(const char *str, const char *namelist)
-{
-    register const char *curname, *curstr;
-
-    if (!*str)
-        return 0;
-
-    if (namelist == NULL || *namelist == '\0') {
-        errlog(" NULL namelist given to isname()");
-        return 0;
-    }
-
-    curname = namelist;
-    while (*curname) {
-        curstr = str;
-        while (true) {
-            if ((!*curstr || isspace(*curstr)) && !isalnum(*curname))
-                return true;
-
-            if (!*curname)
-                return false;
-
-            if (*curname == ' ')
-                break;
-
-            if (tolower(*curstr) != tolower(*curname))
-                break;
-
-            curstr++;
-            curname++;
-        }
-
-        /* skip to next name */
-
-        while (isalnum(*curname))
-            curname++;
-        if (!*curname)
-            return false;
-        curname++;              /* first char of new name */
-    }
-
-    return false;
-}
-
-// Returns true if all words in list_targ can be found in list_vict
-// list targ and list_vict are both space delimited strings
-bool
-namelist_match(const char *sub_list, const char *super_list)
-{
-    const char *word_pt;
-
-    word_pt = sub_list;
-    if (!*word_pt)
-        return false;
-    while (*word_pt) {
-        if (!isname(word_pt, super_list))
-            return false;
-        while (isgraph(*word_pt))
-            word_pt++;
-        while (isspace(*word_pt))
-            word_pt++;
-    }
-    return true;
-}
-
 void
 apply_object_affects(struct creature *ch, struct obj_data *obj, bool add)
 {
@@ -1500,29 +1371,6 @@ check_eq_align(struct creature *ch)
     return 0;
 }
 
-// Given a designation '3.object', returns 3 and sets argument to 'object'
-// Given '.object', returns 0 and sets argument to 'object'
-int
-get_number(char **name)
-{
-    char *read_pt, *write_pt;
-    int i = 0;
-
-    if ((read_pt = strchr(*name, '.'))) {
-        *read_pt++ = '\0';
-
-        if (**name)
-            i = atoi(*name);
-
-        write_pt = *name;
-        while (*read_pt)
-            *write_pt++ = *read_pt++;
-        *write_pt = '\0';
-        return i;
-    }
-    return 1;
-}
-
 /* Search a given list for an object number, and return a ptr to that obj */
 struct obj_data *
 get_obj_in_list_num(int num, struct obj_data *list)
@@ -2518,19 +2366,6 @@ generic_find(char *arg, int bitvector, struct creature *ch,
         }
     }
     return (0);
-}
-
-/* a function to scan for "all" or "all.x" */
-int
-find_all_dots(char *arg)
-{
-    if (!strcmp(arg, "all"))
-        return FIND_ALL;
-    else if (!strncmp(arg, "all.", 4)) {
-        memmove(arg, arg + 4, strlen(arg) - 3);
-        return FIND_ALLDOT;
-    } else
-        return FIND_INDIV;
 }
 
 // The reaction class compiles a list of allow/deny rules into a string

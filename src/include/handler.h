@@ -100,14 +100,6 @@ struct obj_data *get_object_in_equip_all(struct creature *ch, const char *arg,
 
 int weapon_prof(struct creature *ch, struct obj_data *obj);
 
-/* find all dots */
-
-int find_all_dots(char *arg);
-
-#define FIND_INDIV	0
-#define FIND_ALL	1
-#define FIND_ALLDOT	2
-
 /* Generic Find */
 
 int generic_find(char *arg, int bitvector, struct creature *ch,

@@ -21,6 +21,8 @@
 #include <stdio.h>
 #include "structs.h"
 #include "spells.h"
+#include "strutil.h"
+
 /* external declarations and prototypes **********************************/
 
 /* public functions in utils.c */
@@ -55,11 +57,7 @@ void show_string(struct descriptor_data *desc);
 int number(int from, int to);
 double float_number(double from, double to);
 int dice(int number, int size);
-void sprintbit(long vektor, const char *names[], char *result);
-const char *strlist_aref(int idx, const char **names);
-void sprinttype(int type, const char *names[], char *result);
 int get_line(FILE * fl, char *buf);
-int remove_from_cstring(char *str, char c, char c_to);
 void perform_skillset(struct creature *ch, struct creature *vict, char *skill_str, int value);
 int total_obj_weight(struct obj_data *obj);
 
@@ -141,20 +139,6 @@ void WAIT_STATE(struct creature *ch, int cycle);
 #define SECS_PER_REAL_HOUR        (60*SECS_PER_REAL_MIN)
 #define SECS_PER_REAL_DAY        (24*SECS_PER_REAL_HOUR)
 #define SECS_PER_REAL_YEAR        (365*SECS_PER_REAL_DAY)
-
-/* string utils **********************************************************/
-
-#define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
-#define IF_STR(st) ((st) ? (st) : "\0")
-static inline char *CAP(char *st)
-{
-    *st = toupper(*st);
-    return st;
-}
-
-const char *YESNO(bool a);
-const char *ONOFF(bool a);
-const char *AN(const char *str);
 
 /* memory utils **********************************************************/
 

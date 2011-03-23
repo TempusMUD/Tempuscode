@@ -116,48 +116,6 @@ ACMD(do_skillset)
 }
 
 /* db stuff *********************************************** */
-
-/* One_Word is like one_argument, execpt that words in quotes "" are */
-/* regarded as ONE word                                              */
-
-char *
-one_word(char *argument, char *first_arg)
-{
-    int begin, look_at;
-
-    begin = 0;
-
-    do {
-        while (isspace(*(argument + begin)))
-            begin++;
-
-        if (*(argument + begin) == '\"') {  /* is it a quote */
-
-            begin++;
-
-            for (look_at = 0; (*(argument + begin + look_at) >= ' ') &&
-                (*(argument + begin + look_at) != '\"'); look_at++)
-                *(first_arg + look_at) =
-                    tolower(*(argument + begin + look_at));
-
-            if (*(argument + begin + look_at) == '\"')
-                begin++;
-
-        } else {
-
-            for (look_at = 0; *(argument + begin + look_at) > ' '; look_at++)
-                *(first_arg + look_at) =
-                    tolower(*(argument + begin + look_at));
-
-        }
-
-        *(first_arg + look_at) = '\0';
-        begin += look_at;
-    } while (fill_word(first_arg));
-
-    return (argument + begin);
-}
-
 void
 show_file(struct creature *ch, const char *fname, int lines)
 {

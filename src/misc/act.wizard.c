@@ -19,6 +19,7 @@
 #include "config.h"
 #endif
 
+#define _GNU_SOURCE
 #include <string.h>
 #include <execinfo.h>
 
@@ -4887,7 +4888,7 @@ show_zones(struct creature *ch, char *arg, char *value)
                 acc_print_zone(ch, zone);
     } else {                    // Show by name
         for (zone = zone_table; zone; zone = zone->next)
-            if (stristr(zone->name, value))
+            if (strcasestr(zone->name, value))
                 acc_print_zone(ch, zone);
     }
 

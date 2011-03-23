@@ -89,17 +89,6 @@ GET_SKILL_COST(struct creature *ch, int skill)
     return cost;
 }
 
-// removes all occurances of the specified character c from char * str,
-// replacing each occurance with a char c_to
-int
-remove_from_cstring(char *str, char c, char c_to)
-{
-    for (char *p = str; p && *p; ++p)
-        if (*p == c)
-            *p = c_to;
-    return 0;
-}
-
 /* log a death trap hit */
 void
 log_death_trap(struct creature *ch)
@@ -263,54 +252,6 @@ zerrlog(struct zone_data *zone, const char *fmt, ...)
         if (display)
             send_to_desc(d, "&y%s&n\r\n", msg);
     }
-}
-
-void
-sprintbit(long vektor, const char *names[], char *result)
-{
-    long nr;
-
-    *result = '\0';
-
-    if (vektor < 0) {
-        strcpy(result, "SPRINTBIT ERROR!");
-        return;
-    }
-    for (nr = 0; vektor; vektor >>= 1) {
-        if (IS_SET(1, vektor)) {
-            if (*names[nr] != '\n') {
-                strcat(result, names[nr]);
-                strcat(result, " ");
-            } else
-                strcat(result, "UNDEFINED ");
-        }
-        if (*names[nr] != '\n')
-            nr++;
-    }
-
-    if (!*result)
-        strcat(result, "NOBITS ");
-}
-
-const char *
-strlist_aref(int idx, const char **names)
-{
-    int nr;
-
-    if (idx < 0)
-        return tmp_sprintf("ILLEGAL(%d)", idx);
-
-    for (nr = 0; *names[nr] != '\n'; nr++)
-        if (idx == nr)
-            return names[idx];
-
-    return tmp_sprintf("UNDEFINED(%d)", idx);
-}
-
-void
-sprinttype(int type, const char *names[], char *result)
-{
-    strcpy(result, strlist_aref(type, names));
 }
 
 /* Calculate the REAL time passed over the last t2-t1 centuries (secs) */
@@ -715,33 +656,6 @@ PERS(struct creature *ch, struct creature *sub)
 }
 
 const char *
-AN(const char *str)
-{
-    if (PLUR(str))
-        return "some";
-    if (strchr("aeiouAEIOU", *str))
-        return "an";
-    return "a";
-}
-
-const char *
-YESNO(bool a)
-{
-    if (a)
-        return "YES";
-    else
-        return "NO";
-}
-
-const char *
-ONOFF(bool a)
-{
-    if (a)
-        return "ON";
-    return "OFF";
-}
-
-const char *
 CURRENCY(struct creature *ch)
 {
     if (ch->in_room->zone->time_frame == TIME_ELECTRO)
@@ -765,32 +679,6 @@ OCAN_GO(struct obj_data * obj, int door)
     return (exit != NULL &&
         !IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
         exit->to_room != NULL);
-}
-
-const char *
-stristr(const char *haystack, const char *needle)
-{
-    const char *read_pt, *search_pt;
-
-    while (*haystack) {
-        search_pt = haystack;
-        read_pt = needle;
-        while (tolower(*search_pt) == tolower(*read_pt) && *search_pt
-            && *read_pt) {
-            search_pt++;
-            read_pt++;
-        }
-
-        if (!*read_pt)
-            return haystack;
-
-        if (!*search_pt)
-            return NULL;
-
-        haystack++;
-    }
-
-    return NULL;
 }
 
 struct extra_descr_data *
