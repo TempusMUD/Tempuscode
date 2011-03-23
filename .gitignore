@@ -1,5 +1,6 @@
 *.Po
-Makefile*
+Makefile
+Makefile.in
 .fastboot
 .killscript
 /autom4te.cache
