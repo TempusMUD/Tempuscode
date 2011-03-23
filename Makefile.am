@@ -1,2 +1,2 @@
 EXTRA_DIST = bootstrap
-SUBDIRS = m4 src
+SUBDIRS = m4 src tests

@@ -8556,7 +8556,6 @@ verify_tempus_integrity(struct creature *ch)
     struct zone_data *zone;
     struct extra_descr_data *cur_exdesc;
     struct memory_rec *cur_mem;
-    const char *err;
     struct tmp_obj_affect *obj_aff;
     int idx;
 
@@ -8764,11 +8763,6 @@ verify_tempus_integrity(struct creature *ch)
 
         }
     }
-
-    // Check tmpstr module
-    err = tmp_string_test();
-    if (err)
-        check_log(ch, "%s", err);
 
     // Check zones
     // Check mobiles in game

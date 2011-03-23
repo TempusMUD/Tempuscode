@@ -206,7 +206,6 @@ void add_follower(struct creature *ch, struct creature *leader);
 void xml_reload(struct creature *ch);
 void load_bounty_data(void);
 extern int no_specials;
-extern int scheck;
 
 /*************************************************************************
 *  routines for booting the system                                       *
@@ -1299,7 +1298,7 @@ renum_zone_table(void)
                     b = NOWHERE;
                 break;
             }
-            if (!mini_mud && !scheck) {
+            if (!mini_mud) {
                 if (a < 0)
                     zerrlog(zone, "Invalid vnum %d - cmd disabled", a);
                 if (b < 0)

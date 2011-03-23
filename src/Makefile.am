@@ -75,6 +75,7 @@ ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a
                  net/gnetsys.c \
                  net/ban.c \
                  net/comm.c \
+				 net/main.c \
                  net/nanny.c \
                  objects/boards.c \
                  objects/smokes.c \

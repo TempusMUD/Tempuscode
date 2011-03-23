@@ -8,7 +8,6 @@
 #include <ctype.h>
 #include <string.h>
 #include "interpreter.h"
-#include "utils.h"
 #include "db.h"
 
 struct tmp_str_pool {
@@ -57,7 +56,6 @@ tmp_gc_strings(void)
             free(tmp_list_head);
             tmp_list_tail = NULL;
             tmp_list_head = tmp_alloc_pool(tmp_max_used);
-            slog("NOTICE: tmpstr pool increased to %zd bytes", tmp_max_used);
         }
     }
     // We don't deallocate the initial pool here.  We can just set its
@@ -759,137 +757,4 @@ tmp_trim(const char *str)
     *write_pt = '\0';
 
     return result;
-}
-
-const char *
-tmp_string_test(void)
-{
-    const char *bit_descs[32] = {
-        "BIT_00", "BIT_01", "BIT_02", "BIT_03", "BIT_04",
-        "BIT_05", "BIT_06", "BIT_07", "BIT_08", "BIT_09",
-        "BIT_10", "BIT_11", "BIT_12", "BIT_13", "BIT_14",
-        "BIT_15", "\n", 0
-    };
-
-    // Testing tmp_tolower
-    if (strcmp(tmp_tolower("abcdef"), "abcdef"))
-        return "tmp_tolower #1 failed";
-    if (strcmp(tmp_tolower("ABCDEF"), "abcdef"))
-        return "tmp_tolower #2 failed";
-    if (strcmp(tmp_tolower("AbCdEf"), "abcdef"))
-        return "tmp_tolower #3 failed";
-    if (strcmp(tmp_tolower("aBcDeF"), "abcdef"))
-        return "tmp_tolower #4 failed";
-    if (strcmp(tmp_tolower("123456"), "123456"))
-        return "tmp_tolower #5 failed";
-    if (strcmp(tmp_tolower(""), ""))
-        return "tmp_tolower #6 failed";
-
-    // Testing tmp_gsub
-    if (strcmp(tmp_gsub("abcdef", "", ""), "abcdef"))
-        return "tmp_gsub #1 failed";
-    if (strcmp(tmp_gsub("abcdef", "ghi", ""), "abcdef"))
-        return "tmp_gsub #2 failed";
-    if (strcmp(tmp_gsub("abcdef", "c", "ghi"), "abghidef"))
-        return "tmp_gsub #3 failed";
-    if (strcmp(tmp_gsub("abcdef", "cde", "g"), "abgf"))
-        return "tmp_gsub #4 failed";
-    if (strcmp(tmp_gsub("abcdef", "abc", ""), "def"))
-        return "tmp_gsub #5 failed";
-    if (strcmp(tmp_gsub("abcdef", "abc", "g"), "gdef"))
-        return "tmp_gsub #6 failed";
-    if (strcmp(tmp_gsub("abcdef", "def", ""), "abc"))
-        return "tmp_gsub #7 failed";
-    if (strcmp(tmp_gsub("abcdef", "def", "g"), "abcg"))
-        return "tmp_gsub #8 failed";
-    if (strcmp(tmp_gsub("", "", ""), ""))
-        return "tmp_gsub #9 failed";
-    if (strcmp(tmp_gsub("ABCDEF", "def", "xxx"), "ABCDEF"))
-        return "tmp_gsub #10 failed";
-    if (strcmp(tmp_gsub("ABCDEFEDCBA", "D", "xxx"), "ABCxxxEFExxxCBA"))
-        return "tmp_gsub #11 failed";
-
-    // Testing tmp_gsubi
-    if (strcmp(tmp_gsubi("abcdef", "", ""), "abcdef"))
-        return "tmp_gsubi #1 failed";
-    if (strcmp(tmp_gsubi("abcdef", "ghi", ""), "abcdef"))
-        return "tmp_gsubi #2 failed";
-    if (strcmp(tmp_gsubi("abcdef", "c", "ghi"), "abghidef"))
-        return "tmp_gsubi #3 failed";
-    if (strcmp(tmp_gsubi("abcdef", "cde", "g"), "abgf"))
-        return "tmp_gsubi #4 failed";
-    if (strcmp(tmp_gsubi("abcdef", "abc", ""), "def"))
-        return "tmp_gsubi #5 failed";
-    if (strcmp(tmp_gsubi("abcdef", "abc", "g"), "gdef"))
-        return "tmp_gsubi #6 failed";
-    if (strcmp(tmp_gsubi("abcdef", "def", ""), "abc"))
-        return "tmp_gsubi #7 failed";
-    if (strcmp(tmp_gsubi("abcdef", "def", "g"), "abcg"))
-        return "tmp_gsubi #8 failed";
-    if (strcmp(tmp_gsubi("", "", ""), ""))
-        return "tmp_gsubi #9 failed";
-    if (strcmp(tmp_gsubi("ABCDEF", "def", "xxx"), "ABCxxx"))
-        return "tmp_gsubi #10 failed";
-    if (strcmp(tmp_gsubi("ABCDEFEDCBA", "d", "xxx"), "ABCxxxEFExxxCBA"))
-        return "tmp_gsubi #11 failed";
-
-    // Testing tmp_sqlescape
-    if (strcmp(tmp_sqlescape("abcd'ef"), "abcd''ef"))
-        return "tmp_sqlescape #1 failed";
-    if (strcmp(tmp_sqlescape("abcd\\'ef"), "abcd\\\\''ef"))
-        return "tmp_sqlescape #2 failed";
-    if (strcmp(tmp_sqlescape("abcd\\ef"), "abcd\\\\ef"))
-        return "tmp_sqlescape #3 failed";
-
-    // Testing tmp_printbits
-    if (strcmp(tmp_printbits(0x1, bit_descs), "BIT_00"))
-        return "tmp_printbits #1 failed";
-    if (strcmp(tmp_printbits(0x2, bit_descs), "BIT_01"))
-        return "tmp_printbits #2 failed";
-    if (strcmp(tmp_printbits(0x3, bit_descs), "BIT_00 BIT_01"))
-        return "tmp_printbits #3 failed";
-    if (strcmp(tmp_printbits(0x4, bit_descs), "BIT_02"))
-        return "tmp_printbits #4 failed";
-    if (strcmp(tmp_printbits(0x5, bit_descs), "BIT_00 BIT_02"))
-        return "tmp_printbits #5 failed";
-    if (strcmp(tmp_printbits(0x6, bit_descs), "BIT_01 BIT_02"))
-        return "tmp_printbits #6 failed";
-    if (strcmp(tmp_printbits(0x7, bit_descs), "BIT_00 BIT_01 BIT_02"))
-        return "tmp_printbits #7 failed";
-    if (strcmp(tmp_printbits(0x20000, bit_descs), ""))
-        return "tmp_printbits #8 failed";
-
-    // Testing tmp_substr
-    if (strcmp(tmp_substr("abcdef", 0, -1), "abcdef"))
-        return "tmp_substr #1 failed";
-    if (strcmp(tmp_substr("abcdef", 0, 2), "abc"))
-        return "tmp_substr #2 failed";
-    if (strcmp(tmp_substr("abcdef", 1, 4), "bcde"))
-        return "tmp_substr #3 failed";
-    if (strcmp(tmp_substr("abcdef", 3, -1), "def"))
-        return "tmp_substr #4 failed";
-    if (strcmp(tmp_substr("abcdef", -1, -1), "f"))
-        return "tmp_substr #5 failed";
-    if (strcmp(tmp_substr("abcdef", 0, 0), "a"))
-        return "tmp_substr #6 failed";
-    if (strcmp(tmp_substr("abcdef", -5, -1), "bcdef"))
-        return "tmp_substr #7 failed";
-
-    // Testing tmp_trim
-    if (strcmp(tmp_trim(""), ""))
-        return "tmp_trim #1 failed";
-    if (strcmp(tmp_trim("abcdef"), "abcdef"))
-        return "tmp_trim #2 failed";
-    if (strcmp(tmp_trim("abcdef"), "abcdef"))
-        return "tmp_trim #3 failed";
-    if (strcmp(tmp_trim("   abcdef"), "abcdef"))
-        return "tmp_trim #4 failed";
-    if (strcmp(tmp_trim("abcdef   "), "abcdef"))
-        return "tmp_trim #5 failed";
-    if (strcmp(tmp_trim("   abcdef   "), "abcdef"))
-        return "tmp_trim #6 failed";
-    if (strcmp(tmp_trim("   abc def   "), "abc def"))
-        return "tmp_trim #7 failed";
-
-    return NULL;
 }
