@@ -6,6 +6,7 @@
 #include "handler.h"
 #include "db.h"
 #include "comm.h"
+#include "screen.h"
 
 extern int no_plrtext;
 
@@ -862,3 +863,76 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
     fprintf(ouf, "%s</object>\n", indent);
     return;
 }
+const char *
+obj_cond(struct obj_data *obj)
+{
+
+    int num;
+
+    if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
+        return "unbreakable";
+    else if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
+        return "<broken>";
+    else if (GET_OBJ_MAX_DAM(obj) == 0)
+        return "frail";
+    else if (GET_OBJ_DAM(obj) >= GET_OBJ_MAX_DAM(obj))
+        num = 0;
+    else
+        num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
+            GET_OBJ_MAX_DAM(obj));
+
+    if (num == 0)
+        return "perfect";
+    else if (num < 10)
+        return "excellent";
+    else if (num < 30)
+        return "good";
+    else if (num < 50)
+        return "fair";
+    else if (num < 60)
+        return "worn";
+    else if (num < 70)
+        return "shabby";
+    else if (num < 90)
+        return "bad";
+
+    return "terrible";
+}
+
+const char *
+obj_cond_color(struct obj_data *obj, int color_level)
+{
+    int num;
+
+    if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
+        return tmp_sprintf("%sunbreakable%s",
+                           CGRN(color_level, C_CMP),
+                           CNRM(color_level, C_CMP));
+    else if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
+        return "<broken>";
+    else if (GET_OBJ_MAX_DAM(obj) == 0)
+        return "frail";
+    else if (GET_OBJ_DAM(obj) >= GET_OBJ_MAX_DAM(obj))
+        num = 0;
+    else
+        num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
+            GET_OBJ_MAX_DAM(obj));
+
+    if (num == 0)
+        return "perfect";
+    else if (num < 10)
+        return "excellent";
+    else if (num < 30)
+        return tmp_sprintf("%sgood%s", CCYN(color_level, C_NRM), CNRM(color_level, C_NRM));
+    else if (num < 50)
+        return tmp_sprintf("%sfair%s", CCYN(color_level, C_NRM), CNRM(color_level, C_NRM));
+    else if (num < 60)
+        return tmp_sprintf("%sworn%s", CYEL(color_level, C_NRM), CNRM(color_level, C_NRM));
+    else if (num < 70)
+        return tmp_sprintf("%sshabby%s", CYEL(color_level, C_NRM), CNRM(color_level, C_NRM));
+    else if (num < 90)
+        return tmp_sprintf("%sbad%s", CYEL(color_level, C_NRM), CNRM(color_level, C_NRM));
+
+    return tmp_sprintf("%sterrible%s", CRED(color_level, C_NRM), CNRM(color_level, C_NRM));
+}
+

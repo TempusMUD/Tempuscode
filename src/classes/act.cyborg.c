@@ -36,8 +36,6 @@ extern struct obj_data *object_list;
 int check_mob_reaction(struct creature *ch, struct creature *vict);
 void look_at_target(struct creature *ch, char *arg);
 void perform_extract_all(struct creature *ch, struct creature *vict);
-const char *obj_cond(struct obj_data *obj);
-const char *obj_cond_color(struct obj_data *obj, struct creature *ch);
 
 ACMD(do_not_here);
 ACMD(do_examine);
@@ -1823,7 +1821,7 @@ ACMD(do_status)
     }
 
     send_to_char(ch, "%s is in %s condition.\r\n", obj->name,
-        obj_cond_color(obj, ch));
+                 obj_cond_color(obj, COLOR_LEV(ch)));
 
 }
 
@@ -2075,78 +2073,6 @@ ACMD(do_overhaul)
                 component_names[(int)GET_BROKE(vict)][GET_OLD_CLASS(vict)]);
         }
     }
-}
-
-const char *
-obj_cond(struct obj_data *obj)
-{
-
-    int num;
-
-    if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
-        return "unbreakable";
-    else if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
-        return "<broken>";
-    else if (GET_OBJ_MAX_DAM(obj) == 0)
-        return "frail";
-    else if (GET_OBJ_DAM(obj) >= GET_OBJ_MAX_DAM(obj))
-        num = 0;
-    else
-        num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
-            GET_OBJ_MAX_DAM(obj));
-
-    if (num == 0)
-        return "perfect";
-    else if (num < 10)
-        return "excellent";
-    else if (num < 30)
-        return "good";
-    else if (num < 50)
-        return "fair";
-    else if (num < 60)
-        return "worn";
-    else if (num < 70)
-        return "shabby";
-    else if (num < 90)
-        return "bad";
-
-    return "terrible";
-}
-
-const char *
-obj_cond_color(struct obj_data *obj, struct creature *ch)
-{
-    int num;
-
-    if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1)
-        return tmp_sprintf("%sunbreakable%s", CCGRN(ch, C_CMP), CCNRM(ch,
-                C_CMP));
-    else if (IS_OBJ_STAT2(obj, ITEM2_BROKEN))
-        return "<broken>";
-    else if (GET_OBJ_MAX_DAM(obj) == 0)
-        return "frail";
-    else if (GET_OBJ_DAM(obj) >= GET_OBJ_MAX_DAM(obj))
-        num = 0;
-    else
-        num = ((GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj)) * 100 /
-            GET_OBJ_MAX_DAM(obj));
-
-    if (num == 0)
-        return "perfect";
-    else if (num < 10)
-        return "excellent";
-    else if (num < 30)
-        return tmp_sprintf("%sgood%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-    else if (num < 50)
-        return tmp_sprintf("%sfair%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-    else if (num < 60)
-        return tmp_sprintf("%sworn%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-    else if (num < 70)
-        return tmp_sprintf("%sshabby%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-    else if (num < 90)
-        return tmp_sprintf("%sbad%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-
-    return tmp_sprintf("%sterrible%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 }
 
 // n should run between 1 and 7

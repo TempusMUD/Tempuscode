@@ -101,8 +101,6 @@ extern const char *wear_description[];
 extern const struct weap_spec_info weap_spec_char_class[];
 
 int isbanned(char *hostname, char *blocking_hostname);
-char *obj_cond(struct obj_data *obj);  /** writes to buf2 **/
-char *obj_cond_color(struct obj_data *obj, struct creature *ch);  /**writes to buf2 **/
 
 ACMD(do_stand);
 
