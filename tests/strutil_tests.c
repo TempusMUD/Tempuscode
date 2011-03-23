@@ -35,9 +35,9 @@ END_TEST
 
 START_TEST(test_remove_from_cstring)
 {
-    char str[8] = "abcdefba";
+    char str[9] = "abcdefba";
     remove_from_cstring(str, 'b', '?');
-    fail_unless(!strcmp(str, "a?cdef?a"));
+    fail_unless(!strcmp(str, "a?cdef?a"), "remove_from_cstring() result was '%s'", str);
 }
 END_TEST
 
