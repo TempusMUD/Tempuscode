@@ -2156,7 +2156,7 @@ ACMD(do_examine)
                 false, ch, tmp_object, 0, TO_CHAR);
 
         sprintf(buf, "$p seems to be in %s condition.",
-            obj_cond_color(tmp_object, ch));
+                obj_cond_color(tmp_object, COLOR_LEV(ch)));
         act(buf, false, ch, tmp_object, 0, TO_CHAR);
 
         if (IS_OBJ_TYPE(tmp_object, ITEM_CIGARETTE)) {
@@ -2912,7 +2912,7 @@ ACMD(do_equipment)
                     continue;
                 found = 1;
                 acc_sprintf("-%s- is in %s condition.\r\n",
-                    obj->name, obj_cond_color(obj, ch));
+                            obj->name, obj_cond_color(obj, COLOR_LEV(ch)));
             }
             if (found)
                 page_string(ch->desc, acc_get_string());
@@ -2983,7 +2983,7 @@ ACMD(do_equipment)
                     continue;
                 found = true;
                 acc_sprintf("-%s- is in %s condition.\r\n",
-                    obj->name, obj_cond_color(obj, ch));
+                            obj->name, obj_cond_color(obj, COLOR_LEV(ch)));
             }
             if (found)
                 page_string(ch->desc, acc_get_string());
