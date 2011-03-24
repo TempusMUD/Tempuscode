@@ -184,9 +184,7 @@ explode_all_sigils(struct creature *ch)
 
         if (GET_OBJ_SIGIL_IDNUM(obj)
             && GET_OBJ_SIGIL_IDNUM(obj) != GET_IDNUM(ch)) {
-            if (explode_sigil(ch, obj)) {
-                return DAM_ATTACKER_KILLED;
-            }
+            return explode_sigil(ch, obj);
         }
     }
     return 0;

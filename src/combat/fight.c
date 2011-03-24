@@ -698,15 +698,9 @@ damage_attacker(struct creature *ch, struct creature *victim, int dam,
     return 0;
 }
 
-#define DAM_RETURN( flags ) { cur_weap = 0; return flags; }
-
 //
-// damage( ) returns true on a kill, false otherwise
-// damage(  ) MUST return with DAM_RETURN(  ) macro !!!
-// the return value bits can be a combination of:
-// DAM_VICT_KILLED
-// DAM_ATTACKER_KILLED
-// or DAM_ATTACK_FAILED
+// damage( ) returns true when damage is dealt, false otherwise
+//
 
 int
 damage(struct creature *ch, struct creature *victim, int dam,
@@ -727,7 +721,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
     if (GET_POSITION(victim) <= POS_DEAD) {
         errlog("Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
             ch ? GET_NAME(ch) : "NULL", GET_NAME(victim), attacktype);
-        DAM_RETURN(DAM_VICT_KILLED);
+        return false;
     }
 
     if (victim->in_room == NULL) {
@@ -738,14 +732,14 @@ damage(struct creature *ch, struct creature *victim, int dam,
     }
     // No more shall anyone be damaged in the void.
     if (victim->in_room == zone_table->world) {
-        return DAM_ATTACK_FAILED;
+        return false;
     }
 
     if (GET_HIT(victim) < -10) {
         errlog("Attempt to damage a char with hps %d ch=%s,vict=%s,type=%d.",
             GET_HIT(victim), ch ? GET_NAME(ch) : "NULL", GET_NAME(victim),
             attacktype);
-        DAM_RETURN(DAM_VICT_KILLED);
+        return false;
     }
 
     if (ch && (PLR_FLAGGED(victim, PLR_MAILING) ||
@@ -758,7 +752,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         remove_all_combat(victim);
         send_to_char(ch,
             "NO!  Do you want to be ANNIHILATED by the gods?!\r\n");
-        DAM_RETURN(DAM_ATTACK_FAILED);
+        return false;
     }
 
     if (ch) {
@@ -789,7 +783,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
     /* vendor protection */
     if (!ok_damage_vendor(ch, victim)) {
-        DAM_RETURN(0);          //we don't want to return DAM_ATTACK_FAILED because we shouldn't interfere with mass attacks
+        return false;          //we don't want to return DAM_ATTACK_FAILED because we shouldn't interfere with mass attacks
     }
 
     /* newbie protection and PLR_NOPK check */
@@ -800,16 +794,16 @@ damage(struct creature *ch, struct creature *victim, int dam,
             if (PLR_FLAGGED(ch, PLR_NOPK)) {
                 send_to_char(ch,
                     "A small dark shape flies in from the future and sticks to your eyebrow.\r\n");
-                DAM_RETURN(DAM_ATTACK_FAILED);
+                return false;
             }
             if (PLR_FLAGGED(victim, PLR_NOPK)) {
                 send_to_char(ch,
                     "A small dark shape flies in from the future and sticks to your nose.\r\n");
-                DAM_RETURN(DAM_ATTACK_FAILED);
+                return false;
             }
 
             if (!ok_to_attack(ch, victim, false))
-                DAM_RETURN(DAM_ATTACK_FAILED);
+                return false;
         }
 
         if (is_newbie(victim) &&
@@ -822,14 +816,14 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
             remove_combat(victim, ch);
             remove_combat(ch, victim);
-            DAM_RETURN(DAM_ATTACK_FAILED);
+            return false;
         }
 
         if (is_newbie(ch) && !is_arena_combat(ch, victim)) {
             send_to_char(ch,
                 "You are currently under new player protection, which expires at level 41.\r\n"
                 "You cannot attack other players while under this protection.\r\n");
-            DAM_RETURN(DAM_ATTACK_FAILED);
+            return false;
         }
     }
 
@@ -901,7 +895,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         act("$N smirks as $E easily sidesteps $n's attack!", true,
             ch, NULL, victim, TO_NOTVICT);
 
-        DAM_RETURN(DAM_ATTACK_FAILED);
+        return false;
     }
 
     if (ch && IS_WEAPON(attacktype)
@@ -917,7 +911,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         act("$N dexterously rolls away from $n's attack!", true,
             ch, NULL, victim, TO_NOTVICT);
 
-        DAM_RETURN(0);
+        return false;
     }
     // Mirror Image Melody
     if (ch && ch != victim && !IS_WEAPON(attacktype) &&
@@ -951,7 +945,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     add_combat(victim, ch, false);
                 }
 
-                DAM_RETURN(DAM_ATTACK_FAILED);
+                return false;
             }
         }
     }
@@ -1040,7 +1034,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 add_combat(victim, ch, false);
             }
 
-            DAM_RETURN(DAM_ATTACK_FAILED);
+            return false;
         }
     }                           // end dimensional shift
 
@@ -1203,7 +1197,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
             attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
             attacktype != SKILL_ENERGY_WEAPONS)
             damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
-        DAM_RETURN(0);
+        return false;
     }
     //
     // attacker is a character
@@ -1265,15 +1259,13 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     false, ch, 0, victim, TO_NOTVICT);
                 act("$n is deflected by your prismatic sphere!",
                     false, ch, 0, victim, TO_VICT);
-                int retval =
-                    damage_attacker(victim, ch, dice(30, 3) + (dam / 4),
+                damage_attacker(victim, ch, dice(30, 3) + (dam / 4),
                     SPELL_PRISMATIC_SPHERE, -1);
 
-                if (!IS_SET(retval, DAM_VICT_KILLED)) {
+                if (!is_dead(victim)) {
                     gain_skill_prof(victim, SPELL_PRISMATIC_SPHERE);
                 }
-                SET_BIT(retval, DAM_ATTACK_FAILED);
-                DAM_RETURN(retval);
+                return false;
             }
             //
             // vict has electrostatic field
@@ -1286,15 +1278,13 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (af->duration > 1) {
                         af->duration--;
                     }
-                    int retval =
-                        damage_attacker(victim, ch, dice(3, af->level),
+                    damage_attacker(victim, ch, dice(3, af->level),
                         SPELL_ELECTROSTATIC_FIELD, -1);
 
-                    if (!IS_SET(retval, DAM_VICT_KILLED)) {
+                    if (!is_dead(victim)) {
                         gain_skill_prof(victim, SPELL_ELECTROSTATIC_FIELD);
                     }
-                    SET_BIT(retval, DAM_ATTACK_FAILED);
-                    DAM_RETURN(retval);
+                    return false;
                 }
             }
             //
@@ -1307,15 +1297,14 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (af->duration > 1) {
                         af->duration--;
                     }
-                    int retval =
-                        damage_attacker(victim, ch, dice(3, af->level),
-                        SPELL_THORN_SKIN, -1);
+                    damage_attacker(victim, ch, dice(3, af->level),
+                                    SPELL_THORN_SKIN, -1);
 
-                    if (!IS_SET(retval, DAM_VICT_KILLED)) {
+                    if (!is_dead(victim)) {
                         gain_skill_prof(victim, SPELL_THORN_SKIN);
                     }
 
-                    if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
+                    if (!is_dead(ch)) {
                         if (!mag_savingthrow(ch, af->level, SAVING_BREATH) &&
                             !IS_POISONED(ch) && random_fractional_4()) {
                             struct affected_type af;
@@ -1349,8 +1338,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                                 NULL, ch, TO_NOTVICT);
                         }
                     }
-                    SET_BIT(retval, DAM_ATTACK_FAILED);
-                    DAM_RETURN(retval);
+                    return false;
                 }
             }
             //
@@ -1361,8 +1349,6 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 attacktype != SKILL_SECOND_WEAPON
                 && attacktype != SKILL_IMPALE) {
 
-                int retval = 0; // damage result for end of block return
-
                 //
                 // vict has prismatic sphere
                 //
@@ -1370,12 +1356,11 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 if (AFF3_FLAGGED(victim, AFF3_PRISMATIC_SPHERE) &&
                     !mag_savingthrow(ch, GET_LEVEL(victim), SAVING_ROD)) {
 
-                    retval =
-                        damage_attacker(victim, ch, dice(30,
+                    damage_attacker(victim, ch, dice(30,
                             3) + (IS_MAGE(victim) ? (dam / 4) : 0),
                         SPELL_PRISMATIC_SPHERE, -1);
 
-                    if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
+                    if (!is_dead(ch)) {
                         WAIT_STATE(ch, PULSE_VIOLENCE);
                     }
 
@@ -1385,7 +1370,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 //
 
                 else if (AFF2_FLAGGED(victim, AFF2_BLADE_BARRIER)) {
-                    retval = damage_attacker(victim, ch,
+                    damage_attacker(victim, ch,
                         GET_LEVEL(victim) + (dam / 16),
                         SPELL_BLADE_BARRIER, -1);
 
@@ -1393,7 +1378,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
                 else if (affected_by_spell(victim, SONG_WOUNDING_WHISPERS) &&
                     attacktype != SKILL_PSIBLAST) {
-                    retval = damage_attacker(victim, ch,
+                    damage_attacker(victim, ch,
                         (skill_bonus(victim,
                                 SONG_WOUNDING_WHISPERS) / 2) + (dam / 20),
                         SONG_WOUNDING_WHISPERS, -1);
@@ -1408,11 +1393,11 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     !AFF2_FLAGGED(ch, AFF2_ABLAZE) &&
                     !CHAR_WITHSTANDS_FIRE(ch)) {
 
-                    retval = damage_attacker(victim, ch, dice(8, 8) +
+                    damage_attacker(victim, ch, dice(8, 8) +
                         (IS_MAGE(victim) ? (dam / 8) : 0),
                         SPELL_FIRE_SHIELD, -1);
 
-                    if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
+                    if (!is_dead(ch)) {
                         ignite_creature(ch, ch);
                     }
 
@@ -1426,11 +1411,11 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (!mag_savingthrow(ch,
                             af ? af->level : GET_LEVEL(victim),
                             SAVING_ROD) && !CHAR_WITHSTANDS_ELECTRIC(ch)) {
-                        retval = damage_attacker(victim, ch,
+                        damage_attacker(victim, ch,
                             af ? dice(3, MAX(10, af->level)) : dice(3, 8),
                             SKILL_ENERGY_FIELD, -1);
 
-                        if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
+                        if (!is_dead(ch)) {
                             GET_POSITION(ch) = POS_SITTING;
                             WAIT_STATE(ch, 2 RL_SEC);
                         }
@@ -1440,10 +1425,8 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 // return if anybody got killed
                 //
 
-                if (retval) {
-                    DAM_RETURN(retval);
-                }
-
+                if (is_dead(ch) || is_dead(victim))
+                    return false;
             }
         }
     }
@@ -1904,11 +1887,11 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 bool is_char = false;
                 if (tch == ch)
                     is_char = true;
-                int retval = damage(victim, tch, dice(4, GET_LEVEL(victim)),
+                damage(victim, tch, dice(4, GET_LEVEL(victim)),
                     TYPE_ALIEN_BLOOD, -1);
 
-                if (is_char && IS_SET(retval, DAM_VICT_KILLED)) {
-                    DAM_RETURN(DAM_ATTACKER_KILLED);
+                if (is_char && is_dead(ch)) {
+                    return true;
                 }
             }
         }
@@ -1935,15 +1918,14 @@ damage(struct creature *ch, struct creature *victim, int dam,
         }
         if (feedback_dam > 0) {
             GET_MANA(victim) -= MAX(feedback_mana, 1);
-            int retval =
-                damage_attacker(victim, ch, feedback_dam,
+            damage_attacker(victim, ch, feedback_dam,
                 SPELL_PSYCHIC_FEEDBACK, -1);
-            if (!IS_SET(retval, DAM_VICT_KILLED)
+            if (!is_dead(victim)
                 && random_number_zero_low(400) < feedback_dam) {
                 gain_skill_prof(victim, SPELL_PSYCHIC_FEEDBACK);
             }
-            if (retval) {
-                DAM_RETURN(retval);
+            if (is_dead(ch)) {
+                return true;
             }
         }
     }
@@ -2009,11 +1991,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 GET_MORALE(victim) + number(-5, 10 + (GET_INT(victim) / 4))) {
 
                 if (GET_HIT(victim) > 0) {
-                    int retval = 0;
                     do_flee(victim, tmp_strdup(""), 0, 0);
-                    if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
-                        DAM_RETURN(DAM_ATTACKER_KILLED);
-                    }
+                    if (is_dead(ch))
+                        return true;
 
                 } else {
                     mudlog(LVL_DEMI, BRF, true,
@@ -2073,12 +2053,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (KNOCKDOWN_SKILL(attacktype) && dam)
                         GET_POSITION(victim) = POS_SITTING;
 
-                    int retval = 0;
                     do_flee(victim, tmp_strdup(""), 0, 0);
-                    if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
-                        DAM_RETURN(DAM_ATTACKER_KILLED);
-                    }
-
+                    if (is_dead(ch))
+                        return true;
                     break;
                 }
                 //
@@ -2091,11 +2068,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (KNOCKDOWN_SKILL(attacktype) && dam)
                         GET_POSITION(victim) = POS_SITTING;
 
-                    int retval = 0;
                     do_flee(victim, tmp_strdup(""), 0, 0);
-                    if (IS_SET(retval, DAM_ATTACKER_KILLED)) {
-                        DAM_RETURN(DAM_ATTACKER_KILLED);
-                    }
+                    if (is_dead(ch))
+                        return true;
 
                     break;
                 }
@@ -2332,8 +2307,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 && ch->char_specials.hunting == victim)
                 stop_hunting(ch);
             die(victim, ch, attacktype);
-            DAM_RETURN(DAM_VICT_KILLED);
-
+            return true;
         }
 
         if (!IS_NPC(victim)) {
@@ -2347,16 +2321,14 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 victim->in_room->number, victim->in_room->name);
         }
         die(victim, NULL, attacktype);
-        DAM_RETURN(DAM_VICT_KILLED);
+        return true;
     }
     //
     // end if GET_POSITION(victim) == POS_DEAD
     //
 
-    DAM_RETURN(0);
+    return true;
 }
-
-#undef DAM_RETURN
 
 // Pick the next weapon that the creature will strike with
 struct obj_data *
@@ -2463,17 +2435,17 @@ hit(struct creature *ch, struct creature *victim, int type)
     if (ch->in_room != victim->in_room) {
         remove_combat(ch, victim);
         remove_combat(victim, ch);
-        return DAM_ATTACK_FAILED;
+        return false;
     }
 
     if (ch && victim && !ok_to_attack(ch, victim, true)) {
-        return DAM_ATTACK_FAILED;
+        return false;
     }
 
     if (LVL_AMBASSADOR <= GET_LEVEL(ch) && GET_LEVEL(ch) < LVL_GOD &&
         IS_NPC(victim) && !mini_mud) {
         send_to_char(ch, "You are not allowed to attack mobiles!\r\n");
-        return DAM_ATTACK_FAILED;
+        return false;
     }
     if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) && GET_LEVEL(ch) < LVL_ELEMENT) {
         if (!number(0, 2))
@@ -2486,7 +2458,7 @@ hit(struct creature *ch, struct creature *victim, int type)
             send_to_char(ch,
                 "You cannot fight back!!  You are petrified!\r\n");
 
-        return DAM_ATTACK_FAILED;
+        return false;
     }
 
     if (is_newbie(victim) && !IS_NPC(ch) && !IS_NPC(victim) &&
@@ -2500,7 +2472,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 
         remove_combat(ch, victim);
         remove_combat(victim, ch);
-        return DAM_ATTACK_FAILED;
+        return false;
     }
 
     if (MOUNTED_BY(ch)) {
@@ -2509,7 +2481,7 @@ hit(struct creature *ch, struct creature *victim, int type)
             dismount(ch);
         } else
             send_to_char(ch, "You had better dismount first.\r\n");
-        return DAM_ATTACK_FAILED;
+        return false;
     }
     if (MOUNTED_BY(victim)) {
         REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(victim)), AFF2_MOUNTED);
@@ -2792,7 +2764,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 
                 if ((weap = read_object(RUSTPILE)))
                     obj_to_room(weap, ch->in_room);
-                return DAM_ATTACK_FAILED;
+                return false;
             }
         }
 
@@ -2887,8 +2859,9 @@ do_casting_weapon(struct creature *ch, struct obj_data *weap)
                 weap2 = unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN);
                 obj_to_room(unequip_char(ch, weap->worn_on, EQUIP_WORN),
                     ch->in_room);
-                if (equip_char(ch, weap2, WEAR_WIELD, EQUIP_WORN))
-                    return DAM_ATTACKER_KILLED;
+                equip_char(ch, weap2, WEAR_WIELD, EQUIP_WORN);
+                if (is_dead(ch))
+                    return true;
             }
             // weapon should fall to ground
             else if (number(0, 20) > GET_DEX(ch))

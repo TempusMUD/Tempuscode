@@ -902,7 +902,6 @@ perform_offensive_skill(struct creature *ch,
     struct affected_type af;
     int prob = -1, wait = 0, vict_wait = 0, dam = 0, vict_pos = 0, fail_pos =
         0, loc = -1, move = 0, mana = 0;
-    int my_return_flags = 0;
 
     memset(&af, 0, sizeof(struct affected_type));
 
@@ -987,14 +986,13 @@ perform_offensive_skill(struct creature *ch,
     // On success, we always do at least one point of damage
     if (dam < 1)
         dam = 1;
-    my_return_flags = damage(ch, vict, dam, skill, loc);
+    damage(ch, vict, dam, skill, loc);
 
     //
     // set waits, position, and affects on victim if they are still alive
     //
 
-    if ((!IS_SET(my_return_flags, DAM_ATTACK_FAILED))
-        && (!IS_SET(my_return_flags, DAM_VICT_KILLED))) {
+    if (!is_dead(ch) && !is_dead(vict)) {
         if (vict_pos)
             GET_POSITION(vict) = vict_pos;
         if (vict_wait)
@@ -1257,11 +1255,6 @@ ACMD(do_order)
     }
 }
 
-//
-// if this case, if return_flags has DAM_ATTACKER_KILLED set, it is not absolutely
-// certain that he is dead, but you better damn well not mess with his pointer afterwards
-//
-
 ACMD(do_flee)
 {
     int i, attempt, loss = 0;
@@ -1351,10 +1344,6 @@ FLEE_SPEED(struct creature *ch)
     return speed;
 }
 
-//
-// if this case, if return_flags has DAM_ATTACKER_KILLED set, it is not absolutely
-// certain that he is dead, but you better damn well not mess with his pointer afterwards
-//
 ACMD(do_retreat)
 {
     int dir;
@@ -2023,15 +2012,13 @@ ACMD(do_sleeper)
 
     else {
         gain_skill_prof(ch, SKILL_SLEEPER);
-        int retval = damage(ch, vict, 18, SKILL_SLEEPER, WEAR_NECK_1);
+        damage(ch, vict, 18, SKILL_SLEEPER, WEAR_NECK_1);
+        // FIXME: don't do anything if the attack failed
 
         //
         // put the victim to sleep if he's still alive
         //
-        if (IS_SET(retval, DAM_ATTACK_FAILED))
-            return;
-
-        if (!IS_SET(retval, DAM_VICT_KILLED)) {
+        if (!is_dead(vict)) {
             struct affected_type af;
 
             remove_all_combat(vict);
@@ -2050,7 +2037,7 @@ ACMD(do_sleeper)
             af.owner = GET_IDNUM(ch);
             affect_join(vict, &af, false, false, false, false);
 
-            if (IS_SET(retval, DAM_ATTACKER_KILLED))
+            if (is_dead(ch))
                 return;
 
             remove_combat(ch, vict);
@@ -2179,7 +2166,6 @@ shoot_energy_gun(struct creature *ch,
     sh_int prob, dam, cost;
     int dum_ptr = 0, dum_move = 0;
     struct affected_type *af = NULL;
-    int my_return_flags = 0;
 
     if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
         act("$p is not loaded with an energy cell.", false, ch, gun, 0,
@@ -2247,8 +2233,7 @@ shoot_energy_gun(struct creature *ch,
 
     if (number(0, 121) > prob) {
         check_attack(ch, vict);
-        my_return_flags =
-            damage(ch, vict, 0, GUN_TYPE(gun) + TYPE_EGUN_LASER, number(0,
+        damage(ch, vict, 0, GUN_TYPE(gun) + TYPE_EGUN_LASER, number(0,
                 NUM_WEARS - 1));
     }
     //
@@ -2257,8 +2242,7 @@ shoot_energy_gun(struct creature *ch,
 
     else {
         check_attack(ch, vict);
-        my_return_flags =
-            damage(ch, vict, dam, GUN_TYPE(gun) + TYPE_EGUN_LASER, number(0,
+        damage(ch, vict, dam, GUN_TYPE(gun) + TYPE_EGUN_LASER, number(0,
                 NUM_WEARS - 1));
     }
     //
@@ -2295,7 +2279,6 @@ fire_projectile_round(struct creature *ch,
     struct obj_data *bullet, int bullet_num, int prob)
 {
     sh_int dam;
-    int my_return_flags = 0;
     const char *arrow_name;
 
     if (!bullet) {
@@ -2344,8 +2327,7 @@ fire_projectile_round(struct creature *ch,
             act(tmp_sprintf("$n fires %s at $N from $p!", arrow_name),
                 false, ch, gun, vict, TO_NOTVICT);
         }
-        my_return_flags =
-            damage(ch, vict, 0,
+        damage(ch, vict, 0,
             IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : (IS_ARROW(gun) ?
                 SKILL_ARCHERY : SKILL_PROJ_WEAPONS), number(0, NUM_WEARS - 1));
     } else {
@@ -2360,7 +2342,7 @@ fire_projectile_round(struct creature *ch,
             act(tmp_sprintf("$n fires %s into $N from $p!", arrow_name), false,
                 ch, gun, vict, TO_NOTVICT);
         }
-        my_return_flags = damage(ch, vict, dam,
+        damage(ch, vict, dam,
             (IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER :
                 (IS_ARROW(gun) ? SKILL_ARCHERY :
                     SKILL_PROJ_WEAPONS)), number(0, NUM_WEARS - 1));
@@ -2407,7 +2389,6 @@ shoot_projectile_gun(struct creature *ch,
 {
     struct obj_data *bullet = NULL;
     sh_int prob, dam;
-    int my_return_flags = 0;
     int bullet_num = 0, dum_ptr = 0, dum_move = 0;
     struct affected_type *af = NULL;
 
@@ -2453,9 +2434,6 @@ shoot_projectile_gun(struct creature *ch,
         &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
         &dum_ptr, &dum_ptr, &dum_ptr, af);
 
-    if (my_return_flags)
-        return;
-
     if (!IS_ARROW(gun))
         prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
     else if (IS_ELF(ch))
@@ -2488,7 +2466,7 @@ shoot_projectile_gun(struct creature *ch,
     // loop through ROF of the gun for burst fire
 
     for (bullet_num = 0; bullet_num < CUR_R_O_F(gun); bullet_num++) {
-        if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
+        if (is_dead(vict)) {
             // if victim was killed, fire at their corpse
             projectile_blast_corpse(ch, gun, bullet);
         } else {
@@ -2547,8 +2525,10 @@ ACMD(do_shoot)
         return;
     }
 
-    if (ch->fighting && g_list_find(random_opponent(ch)->fighting, ch)
-        && !number(0, 3) && (!skill_bonus(ch, SKILL_ENERGY_WEAPONS > 60))
+    if (is_fighting(ch)
+        && g_list_find(random_opponent(ch)->fighting, ch)
+        && !number(0, 3)
+        && (!skill_bonus(ch, SKILL_ENERGY_WEAPONS > 60))
         && (GET_LEVEL(ch) < LVL_GRGOD)) {
         send_to_char(ch, "You are in too close to get off a shot!\r\n");
         return;
@@ -2971,7 +2951,6 @@ do_combat_fire(struct creature *ch, struct creature *vict)
     sh_int prob, dam, cost;
     int dum_ptr = 0, dum_move = 0;
     struct affected_type *af = NULL;
-    int my_return_flags = 0;
     struct obj_data *weap1 = NULL, *weap2 = NULL;
 
     weap1 = GET_EQ(ch, WEAR_WIELD);
@@ -3046,28 +3025,24 @@ do_combat_fire(struct creature *ch, struct creature *vict)
         cur_weap = gun;
         if (number(0, 121) > prob) {    //miss
             check_attack(ch, vict);
-            my_return_flags = damage(ch, vict, 0, SKILL_ENERGY_WEAPONS,
+            damage(ch, vict, 0, SKILL_ENERGY_WEAPONS,
                 number(0, NUM_WEARS - 1));
         } else {                // hit
             check_attack(ch, vict);
-            my_return_flags = damage(ch, vict, dam, SKILL_ENERGY_WEAPONS,
+            damage(ch, vict, dam, SKILL_ENERGY_WEAPONS,
                 number(0, NUM_WEARS - 1));
         }
 
         // if the attacker was somehow killed, return immediately
-        if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-            return 1;
-        }
-
-        if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
-            return DAM_VICT_KILLED;
+        if (is_dead(ch) || is_dead(vict)) {
+            return true;
         }
 
         if (!CUR_ENERGY(gun->contains)) {
             act("$p has been depleted of fuel.  Replace cell before further use.", false, ch, gun, 0, TO_CHAR);
         }
         cur_weap = NULL;
-        return 0;
+        return false;
     }
     //
     // The Projectile Gun block
@@ -3121,24 +3096,13 @@ do_combat_fire(struct creature *ch, struct creature *vict)
     cur_weap = gun;
 
     if (number(0, 121) > prob) {    //miss
-        my_return_flags = damage(ch, vict, 0,
-            IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS,
-            number(0, NUM_WEARS - 1));
-    } else {                    //hit
-        my_return_flags = damage(ch, vict, dam,
+        damage(ch, vict, 0,
             IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS,
             number(0, NUM_WEARS - 1));
     }
 
-    // if the attacker was somehow killed, return immediately
-
-    if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
-        return 1;
-    }
-
-    if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
-        return DAM_VICT_KILLED;
-    }
-
-    return 0;
+    // hit
+    return damage(ch, vict, dam,
+                  IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS,
+                  number(0, NUM_WEARS - 1));
 }

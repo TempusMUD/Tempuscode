@@ -977,9 +977,6 @@ int
 helper_assist(struct creature *ch, struct creature *vict,
     struct creature *fvict)
 {
-
-    int my_return_flags = 0;
-
     int prob = 0;
     struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
 
@@ -1003,14 +1000,14 @@ helper_assist(struct creature *ch, struct creature *vict,
             (GET_OBJ_VAL(weap, 3) == TYPE_PIERCE - TYPE_HIT ||
                 GET_OBJ_VAL(weap, 3) == TYPE_STAB - TYPE_HIT)) {
             do_circle(ch, GET_NAME(vict), 0, 0);
-            return my_return_flags;
+            return 0;
         }
 
         if (IS_ENERGY_GUN(weap) && CHECK_SKILL(ch, SKILL_SHOOT) > 40 &&
             EGUN_CUR_ENERGY(weap) > 10) {
             do_shoot(ch, tmp_sprintf("%s %s", fname(weap->aliases),
                     fname(vict->player.name)), 0, 0);
-            return my_return_flags;
+            return 0;
         }
 
         if (IS_GUN(weap) && CHECK_SKILL(ch, SKILL_SHOOT) > 40 &&
@@ -1019,7 +1016,7 @@ helper_assist(struct creature *ch, struct creature *vict,
             sprintf(buf, "%s ", fname(weap->aliases));
             strcat(buf, fname(vict->player.name));
             do_shoot(ch, buf, 0, 0);
-            return my_return_flags;
+            return 0;
         }
     }
 
@@ -1229,8 +1226,6 @@ best_initial_attack(struct creature *ch, struct creature *vict)
     struct obj_data *gun;
     int cur_class = 0;
 
-    int return_flags = 0;
-
     // Standing should take just as long for mobs
     if (GET_POSITION(ch) < POS_STANDING) {
         if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
@@ -1285,13 +1280,13 @@ best_initial_attack(struct creature *ch, struct creature *vict)
             else if (GET_LEVEL(ch) >= 30)
                 perform_offensive_skill(ch, vict, SKILL_GOUGE);
             else {
-                return_flags = hit(ch, vict, TYPE_UNDEFINED);
+                hit(ch, vict, TYPE_UNDEFINED);
             }
         } else {
             if (GET_LEVEL(ch) >= 30) {
                 perform_offensive_skill(ch, vict, SKILL_GOUGE);
             } else {
-                return_flags = hit(ch, vict, TYPE_UNDEFINED);
+                hit(ch, vict, TYPE_UNDEFINED);
             }
         }
         return;
@@ -1319,7 +1314,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
         if (GET_LEVEL(ch) >= 25 && GET_POSITION(vict) > POS_SITTING)
             perform_offensive_skill(ch, vict, SKILL_BASH);
         else
-            return_flags = hit(ch, vict, TYPE_UNDEFINED);
+            hit(ch, vict, TYPE_UNDEFINED);
         return;
     }
     //
@@ -1359,7 +1354,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
             } else if (GET_LEVEL(ch) >= 30) {
                 perform_offensive_skill(ch, vict, SKILL_RIDGEHAND);
             } else {
-                return_flags = hit(ch, vict, TYPE_UNDEFINED);
+                hit(ch, vict, TYPE_UNDEFINED);
             }
         }
         return;
@@ -2518,7 +2513,7 @@ choose_opponent(struct creature *ch, struct creature *ignore_vict)
     struct creature *best_vict = NULL;
 
     // first look for someone who is fighting us
-    for (GList * it = ch->in_room->people; it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         vict = it->data;
 
         // ignore bystanders
@@ -2598,7 +2593,6 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
     struct creature *vict = random_opponent(ch);
     int prob = 0, dam = 0;
     struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
-    int return_flags = 0;
 
     ACCMD(do_disarm);
     ACMD(do_feign);
@@ -2657,7 +2651,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
                 do_shoot(ch, tmp_sprintf("%s %s",
                         fname(gun->aliases), random_opponent(ch)->player.name),
                     0, 0);
-            return return_flags;
+            return 0;
         }
     }
 
@@ -2670,7 +2664,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
                 call_magic(ch, vict, 0, NULL, SPELL_POISON, GET_LEVEL(ch),
                     CAST_CHEM);
             }
-            return return_flags;
+            return 0;
         }
     }
 
@@ -2726,12 +2720,13 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 
         else if (random_binary()) {
             act("$n releases a deafening scream!!", false, ch, 0, 0, TO_ROOM);
-
-            for (GList * li = first_living(ch->fighting); li; li = next_living(li->next)) {
+            GList *tmp_list = g_list_copy(ch->fighting);
+            for (GList * li = first_living(tmp_list); li; li = next_living(li->next)) {
                 call_magic(ch, li->data, 0, NULL, SPELL_FEAR, GET_LEVEL(ch),
                     CAST_BREATH);
             }
-            return return_flags;
+            g_list_free(tmp_list);
+            return 0;
         }
     }
 
@@ -2739,7 +2734,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         if (vict && random_fractional_3() && !AFF_FLAGGED(vict, AFF_CONFUSION)) {
             call_magic(ch, vict, 0, NULL, SPELL_CONFUSION, GET_LEVEL(ch),
                 CAST_ROD);
-            return return_flags;
+            return 0;
         }
     }
 
@@ -2749,7 +2744,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
                 WAIT_STATE(ch, 3 RL_SEC);
                 call_magic(ch, random_opponent(ch), 0, NULL, SPELL_FIRE_BREATH,
                     GET_LEVEL(ch), CAST_BREATH);
-                return return_flags;
+                return 0;
             }
         }
     }
@@ -2852,7 +2847,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         else if (random_fractional_5()) {
             call_magic(ch, vict, 0, NULL, SPELL_CHILL_TOUCH, GET_LEVEL(ch),
                 CAST_SPELL);
-            return return_flags;
+            return 0;
         }
     }
 
@@ -2860,13 +2855,15 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         if (random_number_zero_low(GET_LEVEL(ch)) > 10) {
             act("You feel a wave of sheer terror wash over you as $n approaches!", false, ch, 0, 0, TO_ROOM);
 
-            for (GList *it = first_living(ch->fighting); it; it = next_living(it)) {
+            GList *tmp_list = g_list_copy(ch->fighting);
+            for (GList *it = first_living(tmp_list); it; it = next_living(it)) {
                 vict = it->data;
                 if (!mag_savingthrow(vict, GET_LEVEL(ch), SAVING_SPELL) &&
                     !AFF_FLAGGED(vict, AFF_CONFIDENCE)) {
                     do_flee(vict, tmp_strdup(""), 0, 0);
                 }
             }
+            g_list_free(tmp_list);
             return 0;
         }
 
@@ -3086,13 +3083,13 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         if (can_see_creature(ch, vict) && (IS_MAGE(vict) || IS_CLERIC(vict))
             && GET_POSITION(vict) > POS_SITTING) {
             perform_offensive_skill(ch, vict, SKILL_BASH);
-            return return_flags;
+            return 0;
         }
 
         if ((GET_LEVEL(ch) > 37) && GET_POSITION(vict) > POS_SITTING &&
             random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_BASH);
-            return return_flags;
+            return 0;
         } else if ((GET_LEVEL(ch) >= 20) &&
             GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
             random_fractional_5()) {
@@ -3100,13 +3097,13 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
             return 0;
         } else if ((GET_LEVEL(ch) > 9) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_ELBOW);
-            return return_flags;
+            return 0;
         } else if ((GET_LEVEL(ch) > 5) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_STOMP);
-            return return_flags;
+            return 0;
         } else if ((GET_LEVEL(ch) > 2) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_PUNCH);
-            return return_flags;
+            return 0;
         }
 
         if (random_fractional_5()) {
@@ -3128,7 +3125,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
             } else if (GET_LEVEL(ch) < 36) {
                 perform_offensive_skill(ch, vict, SKILL_SIDEKICK);
             }
-            return return_flags;
+            return 0;
         }
     }
 
@@ -3140,7 +3137,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         if (GET_LEVEL(ch) > 18 && GET_POSITION(vict) >= POS_FIGHTING
             && random_fractional_4()) {
             perform_offensive_skill(ch, vict, SKILL_TRIP);
-            return return_flags;
+            return 0;
         } else if ((GET_LEVEL(ch) >= 20) &&
             GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
             random_fractional_5()) {
@@ -3148,7 +3145,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
             return 0;
         } else if (GET_LEVEL(ch) > 29 && random_fractional_4()) {
             perform_offensive_skill(ch, vict, SKILL_GOUGE);
-            return return_flags;
+            return 0;
         } else if (GET_LEVEL(ch) > 24 && random_fractional_4()) {
             do_feign(ch, tmp_strdup(""), 0, 0);
             do_hide(ch, tmp_strdup(""), 0, 0);
@@ -3163,13 +3160,13 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
             return 0;
         } else if ((GET_LEVEL(ch) > 9) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_ELBOW);
-            return return_flags;
+            return 0;
         } else if ((GET_LEVEL(ch) > 5) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_STOMP);
-            return return_flags;
+            return 0;
         } else if ((GET_LEVEL(ch) > 2) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_PUNCH);
-            return return_flags;
+            return 0;
         }
 
         if (random_fractional_5()) {
@@ -3187,7 +3184,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
             } else if (GET_LEVEL(ch) < 36) {
                 perform_offensive_skill(ch, vict, SKILL_SIDEKICK);
             }
-            return return_flags;
+            return 0;
         }
     }
     if (cur_class == CLASS_RANGER) {
@@ -3222,18 +3219,18 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
                 perform_offensive_skill(ch, vict, SKILL_HIP_TOSS);
             else if (GET_LEVEL(ch) >= 25)
                 perform_offensive_skill(ch, vict, SKILL_SWEEPKICK);
-            return return_flags;
+            return 0;
         }
         if ((GET_LEVEL(ch) >= 49) && (random_fractional_5() ||
                 GET_POSITION(vict) < POS_FIGHTING)) {
             perform_offensive_skill(ch, vict, SKILL_DEATH_TOUCH);
-            return return_flags;
+            return 0;
         } else if ((GET_LEVEL(ch) > 33) && random_fractional_5()) {
             do_combo(ch, GET_NAME(vict), 0, 0);
             return 0;
         } else if ((GET_LEVEL(ch) > 27) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_HIP_TOSS);
-            return return_flags;
+            return 0;
         } else if (random_fractional_5()
             && !affected_by_spell(vict, SKILL_PINCH_EPSILON)
             && (GET_LEVEL(ch) > 26)) {
@@ -3260,16 +3257,16 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
             return 0;
         } else if ((GET_LEVEL(ch) > 30) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_RIDGEHAND);
-            return return_flags;
+            return 0;
         } else if ((GET_LEVEL(ch) > 25) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_SWEEPKICK);
-            return return_flags;
+            return 0;
         } else if ((GET_LEVEL(ch) > 36) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_GOUGE);
-            return return_flags;
+            return 0;
         } else if ((GET_LEVEL(ch) > 10) && random_fractional_5()) {
             perform_offensive_skill(ch, vict, SKILL_THROAT_STRIKE);
-            return return_flags;
+            return 0;
         }
     }
     return 0;
@@ -3439,7 +3436,6 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
     struct creature *new_mob = NULL;
     struct creature *vict = NULL;
     int num = 0;
-    int return_flags = 0;
 
     if (IS_PET(ch)) {           // pets should only fight who they're told to
         vict = random_opponent(ch);
@@ -3462,7 +3458,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
             (IN_ICY_HELL(ch) || ICY_DEVIL(ch)) ?
             SPELL_HELL_FROST : SPELL_HELL_FIRE,
             GET_LEVEL(ch), CAST_BREATH);
-        return return_flags;
+        return 0;
     }
     // see if we're fighting more than 1 person, if so, blast the room
     num = g_list_length(ch->fighting);
@@ -3473,7 +3469,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
                 (IN_ICY_HELL(ch) || ICY_DEVIL(ch)) ?
                 SPELL_HELL_FROST_STORM : SPELL_HELL_FIRE_STORM,
                 GET_LEVEL(ch), CAST_BREATH)) {
-            return return_flags;
+            return 0;
         }
     }
     // pets shouldnt port, ever, not even once. not on a train. not on a plane
@@ -3597,7 +3593,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
         }
         struct creature *target = random_opponent(ch);
         if (target && IS_NPC(target))
-            return (hit(new_mob, target, TYPE_UNDEFINED) & DAM_VICT_KILLED);
+            return hit(new_mob, target, TYPE_UNDEFINED);
         return 0;
     }
 
@@ -3618,7 +3614,6 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
     struct creature *new_mob = NULL;
     struct creature *vict = NULL;
     int num = 0;
-    int return_flags = 0;
 
     if (IS_PET(ch)) {           // pets should only fight who they're told to
         vict = random_opponent(ch);
@@ -3639,7 +3634,7 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
         WAIT_STATE(ch, 2 RL_SEC);
         call_magic(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE,
             GET_LEVEL(ch), CAST_BREATH);
-        return return_flags;
+        return 0;
     }
     // see if we're fighting more than 1 person, if so, blast the room
     num = g_list_length(ch->fighting);
@@ -3648,7 +3643,7 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
         WAIT_STATE(ch, 3 RL_SEC);
         if (call_magic(ch, NULL, NULL, NULL, SPELL_FLAME_STRIKE,
                 GET_LEVEL(ch), CAST_BREATH)) {
-            return return_flags;
+            return 0;
         }
     }
     // pets shouldnt port, ever, not even once. not on a train. not on a plane
@@ -3733,7 +3728,7 @@ mob_fight_celestial(struct creature *ch, struct creature *precious_vict)
             false, new_mob, 0, 0, TO_ROOM);
         struct creature *target = random_opponent(ch);
         if (target && IS_NPC(target))
-            return (hit(new_mob, target, TYPE_UNDEFINED) & DAM_VICT_KILLED);
+            return hit(new_mob, target, TYPE_UNDEFINED);
         return 0;
     }
 
@@ -3757,7 +3752,6 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
     struct creature *new_mob = NULL;
     struct creature *vict = NULL;
     int num = 0;
-    int return_flags = 0;
 
     if (IS_PET(ch)) {           // pets should only fight who they're told to
         vict = random_opponent(ch);
@@ -3778,7 +3772,7 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
         WAIT_STATE(ch, 2 RL_SEC);
         call_magic(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE,
             GET_LEVEL(ch), CAST_BREATH);
-        return return_flags;
+        return 0;
     }
     // see if we're fighting more than 1 person, if so, blast the room
     num = g_list_length(ch->fighting);
@@ -3787,7 +3781,7 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
         WAIT_STATE(ch, 3 RL_SEC);
         if (call_magic(ch, NULL, NULL, NULL, SPELL_FLAME_STRIKE,
                 GET_LEVEL(ch), CAST_BREATH)) {
-            return return_flags;
+            return 0;
         }
     }
     // pets shouldnt port, ever, not even once. not on a train. not on a plane
@@ -3872,7 +3866,7 @@ mob_fight_guardinal(struct creature *ch, struct creature *precious_vict)
             false, new_mob, 0, 0, TO_ROOM);
         struct creature *target = random_opponent(ch);
         if (target && IS_NPC(target))
-            return (hit(new_mob, target, TYPE_UNDEFINED) & DAM_VICT_KILLED);
+            return hit(new_mob, target, TYPE_UNDEFINED);
         return 0;
     }
 
@@ -3905,7 +3899,6 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
     struct creature *new_mob = NULL;
     struct creature *vict = NULL;
     int num = 0;
-    int return_flags = 0;
 
     if (IS_PET(ch)) {           // pets should only fight who they're told to
         vict = random_opponent(ch);
@@ -3926,7 +3919,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
         WAIT_STATE(ch, 2 RL_SEC);
         call_magic(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE,
             GET_LEVEL(ch), CAST_BREATH);
-        return return_flags;
+        return 0;
     }
     // see if we're fighting more than 1 person, if so, blast the room
     num = g_list_length(ch->fighting);
@@ -3935,7 +3928,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
         WAIT_STATE(ch, 3 RL_SEC);
         if (call_magic(ch, NULL, NULL, NULL, SPELL_HELL_FIRE,
                 GET_LEVEL(ch), CAST_BREATH)) {
-            return return_flags;
+            return 0;
         }
     }
     // pets shouldnt port, ever, not even once. not on a train. not on a plane
@@ -4101,7 +4094,7 @@ mob_fight_demon(struct creature *ch, struct creature *precious_vict)
         }
         struct creature *target = random_opponent(ch);
         if (target && IS_NPC(target))
-            return (hit(new_mob, target, TYPE_UNDEFINED) & DAM_VICT_KILLED);
+            return hit(new_mob, target, TYPE_UNDEFINED);
         return 0;
     }
     return -1;

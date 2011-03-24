@@ -1898,8 +1898,8 @@ parse_mobile(FILE * mob_f, int nr)
 char *
 parse_object(FILE * obj_f, int nr)
 {
-    static int retval;
-    static char line[256];
+    int retval;
+    char line[256];
     int t[10], j;
     char *tmpptr;
     char f1[256], f2[256], f3[256], f4[256];

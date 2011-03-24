@@ -66,7 +66,6 @@ ACMD(do_hamstring)
     struct obj_data *ovict = NULL, *weap = NULL;
     int percent, prob, dam;
     struct affected_type af;
-    int retval = 0;
     char *arg;
 
     arg = tmp_getword(&argument);
@@ -191,13 +190,13 @@ ACMD(do_hamstring)
             affect_to_char(vict, &af);
             WAIT_STATE(vict, 3 RL_SEC);
             GET_POSITION(vict) = POS_RESTING;
-            retval = damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
+            damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
         } else {
             WAIT_STATE(vict, 2 RL_SEC);
             GET_POSITION(vict) = POS_SITTING;
-            retval = damage(ch, vict, dam / 2, SKILL_HAMSTRING, WEAR_LEGS);
+            damage(ch, vict, dam / 2, SKILL_HAMSTRING, WEAR_LEGS);
         }
-        if (!IS_SET(retval, DAM_ATTACKER_KILLED)) {
+        if (!is_dead(ch)) {
             gain_skill_prof(ch, SKILL_HAMSTRING);
             WAIT_STATE(ch, 5 RL_SEC);
         }

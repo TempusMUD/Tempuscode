@@ -220,12 +220,6 @@ void forget(struct creature *ch, struct creature *victim);
 void remember(struct creature *ch, struct creature *victim);
 int char_in_memory(struct creature *victim, struct creature *rememberer);
 
-enum {
-    DAM_VICT_KILLED = (1 << 0),	// the victim of damage() died
-    DAM_ATTACKER_KILLED = (1 << 1),	// the caller of damage() died
-    DAM_ATTACK_FAILED = (1 << 2),	// the caller of damage() died
-};
-
 int damage(struct creature *ch, struct creature *victim, int dam,
 	int attacktype, int location);
 int skill_message(int dam, struct creature *ch, struct creature *vict,

@@ -225,8 +225,6 @@ find_skill_num(char *name)
  *
  * returns 1 on success of casting, 0 on failure
  *
- * return_flags has CALL_MAGIC_VICT_KILLED bit set if cvict dies
- *
  */
 int
 call_magic(struct creature *caster, struct creature *cvict,

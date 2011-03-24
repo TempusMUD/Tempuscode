@@ -185,9 +185,8 @@ ACMD(do_crossface)
         // Wow!  vict really took one hell of a shot.  Stun that bastard!
         if (diff >= 70 && !GET_EQ(vict, wear_num)) {
             prev_pos = GET_POSITION(vict);
-            retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
-            if (prev_pos != POS_STUNNED && !IS_SET(retval, DAM_VICT_KILLED) &&
-                !IS_SET(retval, DAM_ATTACKER_KILLED)) {
+            damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
+            if (prev_pos != POS_STUNNED && !is_dead(vict) && !is_dead(ch)) {
                 if (is_fighting(ch)
                     && (!IS_NPC(vict) || !NPC2_FLAGGED(vict, NPC2_NOSTUN))) {
                     remove_combat(ch, vict);
@@ -205,10 +204,9 @@ ACMD(do_crossface)
         else if (diff >= 55) {
             dam = (int)(dam * 0.75);
             prev_pos = GET_POSITION(vict);
-            retval = damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
             if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
-                && !IS_SET(retval, DAM_VICT_KILLED) &&
-                !IS_SET(retval, DAM_ATTACKER_KILLED) && is_fighting(ch)) {
+                && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
                 GET_POSITION(vict) = POS_RESTING;
                 act("Your crossface has knocked $N on $S ass!",
                     true, ch, NULL, vict, TO_CHAR);
@@ -225,8 +223,7 @@ ACMD(do_crossface)
 
             retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
             wear = GET_EQ(vict, wear_num);
-            if (wear && !IS_SET(retval, DAM_VICT_KILLED) &&
-                !IS_SET(retval, DAM_ATTACKER_KILLED) && is_fighting(ch)) {
+            if (wear && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
                 act("Your crossface has knocked $N's $p from $S head!",
                     true, ch, wear, vict, TO_CHAR);
                 act("$n's nasty crossface just knocked $p from $N's head!",
@@ -257,9 +254,9 @@ ACMD(do_crossface)
         gain_skill_prof(ch, SKILL_CROSSFACE);
     }
 
-    if (!IS_SET(retval, DAM_ATTACKER_KILLED))
+    if (!is_dead(ch))
         WAIT_STATE(ch, 3 RL_SEC);
-    if (!IS_SET(retval, DAM_VICT_KILLED))
+    if (!is_dead(vict))
         WAIT_STATE(vict, 2 RL_SEC);
 }
 
@@ -279,7 +276,6 @@ ACMD(do_snipe)
     struct obj_data *gun, *bullet, *armor;
     struct room_data *cur_room, *nvz_room = NULL;
     struct affected_type af;
-    int retval = 0;
     int prob, percent, damage_loc, dam = 0;
     int snipe_dir = -1, distance = 0;
     char *vict_str, *dir_str, *kill_msg;
@@ -465,10 +461,9 @@ ACMD(do_snipe)
     if (percent > prob) {
         // call damage with 0 dam to check for killers, TG's
         // newbie protection and other such stuff automagically ;)
-        retval = damage(ch, vict, 0, SKILL_SNIPE, damage_loc);
-        if (retval == DAM_ATTACK_FAILED) {
-            return;
-        }
+        damage(ch, vict, 0, SKILL_SNIPE, damage_loc);
+        // FIXME: check to see that vict can be damaged
+
         // ch and vict really shouldn't be fighting if they aren't in
         // the same room...
         remove_combat(ch, vict);
@@ -548,11 +543,10 @@ ACMD(do_snipe)
 
         kill_msg = tmp_sprintf("You have killed %s!", GET_NAME(vict));
 
-        retval = damage(ch, vict, dam, SKILL_SNIPE, damage_loc);
-        if (retval == DAM_ATTACK_FAILED)
-            return;
+        damage(ch, vict, dam, SKILL_SNIPE, damage_loc);
+        // FIXME: if attack failed, return
 
-        if (IS_SET(retval, DAM_VICT_KILLED)) {
+        if (is_dead(vict)) {
             act(kill_msg, true, ch, 0, 0, TO_CHAR);
             act("$n gets a look of predatory satisfaction.",
                 true, ch, 0, 0, TO_ROOM);

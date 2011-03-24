@@ -7769,7 +7769,7 @@ ACMD(do_coderutil)
     } else if (strcmp(token, "verify") == 0) {
         verify_tempus_integrity(ch);
     } else if (strcmp(token, "chaos") == 0) {
-        for (GList * cit = creatures; cit; cit = cit->next) {
+        for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
             struct creature *tch = cit->data;
             struct creature *attacked;
             int old_mob2_flags = NPC2_FLAGS(tch);

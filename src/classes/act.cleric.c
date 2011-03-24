@@ -56,9 +56,9 @@ ASPELL(spell_dispel_evil)
         GET_ALIGNMENT(victim) += MAX(10,
             skill_bonus(ch, SPELL_DISPEL_EVIL) >> 2);
 
-        if (!IS_SET(retval, DAM_ATTACKER_KILLED))
+        if (!is_dead(ch))
             WAIT_STATE(ch, 2 RL_SEC);
-        if (!IS_SET(retval, DAM_VICT_KILLED))
+        if (!is_dead(victim))
             WAIT_STATE(victim, 1 RL_SEC);
 
         return;
@@ -125,9 +125,9 @@ ASPELL(spell_dispel_good)
         GET_ALIGNMENT(victim) -= MAX(5,
             skill_bonus(ch, SPELL_DISPEL_GOOD) / 5);
 
-        if (!IS_SET(retval, DAM_ATTACKER_KILLED))
+        if (!is_dead(ch))
             WAIT_STATE(ch, 2 RL_SEC);
-        if (!IS_SET(retval, DAM_VICT_KILLED))
+        if (!is_dead(victim))
             WAIT_STATE(victim, 1 RL_SEC);
 
         return;

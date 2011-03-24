@@ -261,16 +261,20 @@ death_cry(struct creature *ch)
             ch->in_room = was_in;
             if (adjoin_room->dir_option[rev_dir[door]] &&
                 adjoin_room->dir_option[rev_dir[door]]->to_room == was_in) {
-                for (GList *it = first_living(adjoin_room->people);it;it = next_living(it)) {
+
+                GList *tmplist = g_list_copy(adjoin_room->people);
+                for (GList *it = first_living(tmplist);it;it = next_living(it)) {
                     struct creature *tch = it->data;
 
                     if (found)
-                        return;
-                    if (IS_NPC(tch) && !NPC_FLAGGED(tch, NPC_SENTINEL) &&
-                        !tch->fighting && AWAKE(tch) &&
-                        (NPC_FLAGGED(tch, NPC_HELPER) ||
-                            tch->mob_specials.shared->func ==
-                            cityguard) && number(0, 40) < GET_LEVEL(tch)) {
+                        break;
+                    if (IS_NPC(tch)
+                        && !NPC_FLAGGED(tch, NPC_SENTINEL)
+                        && !is_fighting(tch)
+                        && AWAKE(tch)
+                        && (NPC_FLAGGED(tch, NPC_HELPER) ||
+                            tch->mob_specials.shared->func == cityguard)
+                        && number(0, 40) < GET_LEVEL(tch)) {
                         if ((!ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ||
                                 CHAR_WITHSTANDS_FIRE(tch)) &&
                             (!ROOM_FLAGGED(ch->in_room, ROOM_ICE_COLD) ||
@@ -282,13 +286,14 @@ death_cry(struct creature *ch)
                                 1);
 
                             if (move_result == 0) {
-                                return;
+                                break;
                             } else if (move_result == 2) {
-                                return;
+                                break;
                             }
                         }
                     }
                 }
+                g_list_free(tmplist);
             }
         }
     }

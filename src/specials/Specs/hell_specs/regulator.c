@@ -9,7 +9,6 @@
 SPECIAL(hell_regulator)
 {
     struct creature *vict = NULL, *devil = NULL;
-    int dam_retval = 0;
     if (spec_mode != SPECIAL_TICK)
         return 0;
 
@@ -26,7 +25,7 @@ SPECIAL(hell_regulator)
         return 0;
     }
 
-    for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
+    for (GList *cit = first_living(ch->in_room->people); cit; cit = next_living(cit)) {
         vict = cit->data;
         if (vict == ch)
             continue;
@@ -51,8 +50,8 @@ SPECIAL(hell_regulator)
                 TO_VICT);
 
             remove_combat(vict, ch);
-            dam_retval = hit(devil, vict, TYPE_UNDEFINED);
-            if (dam_retval != DAM_VICT_KILLED)
+            hit(devil, vict, TYPE_UNDEFINED);
+            if (!is_dead(vict))
                 WAIT_STATE(vict, 1 RL_SEC);
 
             return 1;

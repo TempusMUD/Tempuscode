@@ -341,10 +341,10 @@ ACMD(do_whirlwind)
         }
 
         bool killedFirst = false;
-        int my_return_flags = damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
-        if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED)) {
+        damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
+        if (is_dead(ch)) {
             return;
-        } else if (IS_SET(my_return_flags, DAM_VICT_KILLED)) {
+        } else if (is_dead(vict)) {
             killedFirst = true;
         }
         GET_MOVE(ch) -= 3;
@@ -356,9 +356,9 @@ ACMD(do_whirlwind)
         for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
             struct creature *tch = it->data;
 
-            if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
+            if (is_dead(ch))
                 return;
-            if (IS_SET(my_return_flags, DAM_VICT_KILLED) && tch == vict) {
+            if (is_dead(vict) && tch == vict) {
                 killed_first = true;
                 return;
             }
@@ -367,13 +367,13 @@ ACMD(do_whirlwind)
                 if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40,
                         80) + GET_DEX(tch))
                     dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
-                my_return_flags = damage(ch, tch, dam, SKILL_WHIRLWIND, -1);
+                damage(ch, tch, dam, SKILL_WHIRLWIND, -1);
                 i++;
                 GET_MOVE(ch) -= 3;
             }
         }
 
-        if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
+        if (is_dead(ch))
             return;
 
         //if we still haven't attacked hits times send the rest of them too
@@ -387,11 +387,10 @@ ACMD(do_whirlwind)
                         dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
                     }
                     GET_MOVE(ch) -= 3;
-                    int my_return_flags =
-                        damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
-                    if (IS_SET(my_return_flags, DAM_ATTACKER_KILLED))
+                    damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
+                    if (is_dead(ch))
                         return;
-                    else if (IS_SET(my_return_flags, DAM_VICT_KILLED))
+                    else if (is_dead(vict))
                         break;
                 }
             }

@@ -562,7 +562,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
 
     if (GET_POSITION(victim) <= POS_DEAD) {
         errlog("vict is already dead in mag_damage.");
-        return DAM_VICT_KILLED;
+        return false;
     }
 
     is_mage = (IS_MAGE(ch) || IS_VAMPIRE(ch));
