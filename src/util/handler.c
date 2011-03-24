@@ -872,10 +872,10 @@ char_from_room(struct creature *ch, bool check_specials)
     if (spec_rc != 0) {
         if (!g_list_find(tmp_room->people, ch)) {
             if (spec_rc == 1) {
-                slog("struct creature died leaving search room(0x%lx)[%d]",
+                slog("Creature died leaving search room(0x%lx)[%d]",
                     (long)tmp_room, tmp_room->number);
             } else {
-                slog("struct creature died leaving spec(0x%lx) room(0x%lx)[%d]", spec_rc, (long)tmp_room, tmp_room->number);
+                slog("Creature died leaving spec(0x%lx) room(0x%lx)[%d]", spec_rc, (long)tmp_room, tmp_room->number);
             }
             return false;
         }
@@ -984,10 +984,10 @@ char_to_room(struct creature * ch, struct room_data * room,
     if (spec_rc != 0) {
         if (!g_list_find(room->people, ch)) {
             if (spec_rc == 1) {
-                slog("struct creature died entering search room (0x%lx)[%d]",
+                slog("Creature died entering search room (0x%lx)[%d]",
                     (long)room, room->number);
             } else {
-                slog("struct creature died entering spec(0x%lx) room(0x%lx)[%d]", spec_rc, (long)room, room->number);
+                slog("Creature died entering spec(0x%lx) room(0x%lx)[%d]", spec_rc, (long)room, room->number);
             }
 
             return false;
