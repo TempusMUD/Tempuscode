@@ -23,6 +23,8 @@ make_object(void)
     obj->next = object_list;
     object_list = obj;
 
+    obj->worn_on = -1;
+
     return obj;
 }
 
