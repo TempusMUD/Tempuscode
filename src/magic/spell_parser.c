@@ -854,7 +854,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
         for (i = 1; i < 4; i++) {
             call_magic(ch, tch, tobj, NULL, GET_OBJ_VAL(obj, i),
                 level, CAST_SCROLL);
-            if (is_dead(ch) || is_dead(tch))
+            if (is_dead(ch) || (tch && is_dead(tch)))
                 break;
         }
         extract_obj(obj);
@@ -982,7 +982,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
                 GET_OBJ_VAL(obj, 0),
                 IS_OBJ_STAT(obj, ITEM_MAGIC) ? CAST_SPELL :
                 CAST_INTERNAL);
-            if (is_dead(ch) || is_dead(tch))
+            if (is_dead(ch) || (tch && is_dead(tch)))
                 break;
         }
         extract_obj(obj);
