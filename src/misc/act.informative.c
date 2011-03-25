@@ -3515,18 +3515,17 @@ ACMD(do_who)
         acc_strcat("\r\n", NULL);
     }
 
-    //determine plurality of nouns
     if (IS_PC(ch) && ch->account->compact_level <= 1)
         acc_strcat("\r\n", NULL);
-    acc_sprintf("%d of %d immortal%s",
-        g_list_length(immortals),
-        immTotal, (!immortals || immortals->next) ? "s" : "");
+    acc_sprintf("%d of %d immortal%s, ",
+                g_list_length(immortals),
+                immTotal, (immTotal == 1) ? "" : "s");
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR || is_tester(ch)) {
-        acc_sprintf("%d of %d tester%s", g_list_length(testers),
-            testerTotal, (!testers || testers->next) ? "s" : "");
+        acc_sprintf("%d of %d tester%s, ", g_list_length(testers),
+            testerTotal, (testerTotal == 1) ? "" : "s");
     }
     acc_sprintf("and %d of %d player%s displayed.\r\n", g_list_length(players),
-        playerTotal, (!players || players->next) ? "s" : "");
+        playerTotal, (playerTotal == 1) ? "" : "s");
     page_string(ch->desc, acc_get_string());
     g_list_free(immortals);
     g_list_free(testers);
