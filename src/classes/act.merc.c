@@ -935,7 +935,11 @@ ACMD(do_combine)
             break;
         }
         BOMB_POWER(new_potion) = number(20, 40);
-        BOMB_IDNUM(new_potion) = GET_IDNUM(ch);
+        if (IS_PC(ch)) {
+            BOMB_IDNUM(new_potion) = GET_IDNUM(ch);
+        } else {
+            BOMB_IDNUM(new_potion) = -NPC_IDNUM(ch);
+        }
 
         detonate_bomb(new_potion);
         return;
