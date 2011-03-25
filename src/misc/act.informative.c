@@ -1673,7 +1673,7 @@ look_in_obj(struct creature *ch, char *arg)
             if (GET_OBJ_VAL(obj, 1) == 0)
                 acc_sprintf("It is empty.\r\n");
             else {
-                if (GET_OBJ_VAL(obj, 1) < 0)
+                if (GET_OBJ_VAL(obj, 0) < 0 || GET_OBJ_VAL(obj, 1) < 0)
                     amt = 3;
                 else
                     amt = ((GET_OBJ_VAL(obj, 1) * 3) / GET_OBJ_VAL(obj, 0));
