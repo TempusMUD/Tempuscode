@@ -34,7 +34,7 @@ SPECIAL(fate_cauldron)
     } else {
         fateid = FATE_VNUM_HIGH;
     }
-    for (GList * it = creatures; it; it = it->next) {
+    for (GList *it = first_living(creatures); it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (GET_NPC_VNUM(tch) == fateid) {
             fate = tch;

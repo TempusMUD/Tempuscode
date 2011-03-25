@@ -7108,7 +7108,9 @@ ACMD(do_mudwipe)
         send_to_char(ch, "DONE.  Mobiles cleared of objects.\r\n");
     }
     if (mode == 3 || mode == 2 || mode == 0) {
-        for (GList * cit = creatures; cit; cit = cit->next) {
+        GList *next;
+        for (GList *cit = creatures; cit; cit = next) {
+            next = cit->next;
             mob = cit->data;
             if (IS_NPC(mob)) {
                 creature_purge(mob, true);
@@ -7205,7 +7207,7 @@ ACMD(do_searchfor)
     struct obj_data *obj = NULL;
     byte mob_found = false, obj_found = false;
 
-    for (GList * cit = creatures; cit; cit = cit->next) {
+    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         mob = cit->data;
         if (!mob->in_room) {
             mob_found = true;
@@ -8767,7 +8769,7 @@ verify_tempus_integrity(struct creature *ch)
 
     // Check zones
     // Check mobiles in game
-    for (cit = creatures; cit; cit = cit->next) {
+    for (cit = first_living(creatures); cit; cit = next_living(cit)) {
         vict = cit->data;
 
         check_ptr(ch, vict, sizeof(struct creature),

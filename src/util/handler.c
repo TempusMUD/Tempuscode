@@ -1420,7 +1420,10 @@ get_char_room(char *name, struct room_data *room)
 struct creature *
 get_char_in_world_by_idnum(int nr)
 {
-    return g_hash_table_lookup(creature_map, GINT_TO_POINTER(nr));
+    struct creature *result = g_hash_table_lookup(creature_map, GINT_TO_POINTER(nr));
+    if (!result || is_dead(result))
+        return NULL;
+    return result;
 }
 
 bool

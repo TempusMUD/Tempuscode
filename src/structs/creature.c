@@ -980,8 +980,11 @@ creature_rent(struct creature *ch)
                 TIME_ELECTRO) ? "gold" : "creds");
     GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
-    if (ch->desc)
+    if (ch->desc) {
+        ch->desc->creature = NULL;
         set_desc_state(CXN_MENU, ch->desc);
+        ch->desc = NULL;
+    }
 
     return true;
 }
@@ -1002,8 +1005,12 @@ creature_cryo(struct creature * ch)
         NRM, true, "%s has cryo-rented", GET_NAME(ch));
     GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
-    if (ch->desc)
+    if (ch->desc) {
+        ch->desc->creature = NULL;
         set_desc_state(CXN_MENU, ch->desc);
+        ch->desc = NULL;
+    }
+
     return true;
 }
 
@@ -1067,8 +1074,11 @@ creature_quit(struct creature * ch)
     save_player_to_xml(ch);
     GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
-    if (ch->desc)
+    if (ch->desc) {
+        ch->desc->creature = NULL;
         set_desc_state(CXN_MENU, ch->desc);
+        ch->desc = NULL;
+    }
 
     return true;
 }
@@ -1092,8 +1102,11 @@ creature_idle(struct creature * ch)
 
     GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
-    if (ch->desc)
+    if (ch->desc) {
+        ch->desc->creature = NULL;
         set_desc_state(CXN_MENU, ch->desc);
+        ch->desc = NULL;
+    }
     return true;
 }
 
@@ -1572,11 +1585,14 @@ remove_combat(struct creature *ch, struct creature *target)
 void
 remove_all_combat(struct creature *ch)
 {
-    while (ch->fighting) {
-        struct creature *tch = ch->fighting->data;
-        remove_combat(tch, ch);
-        ch->fighting = g_list_delete_link(ch->fighting, ch->fighting);
+    if (!ch->in_room)
+        return;
+
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
+        remove_combat((struct creature *)it->data, ch);
     }
+    g_list_free(ch->fighting);
+    ch->fighting = NULL;
 
     remove_fighting_affects(ch);
 }

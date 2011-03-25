@@ -3042,9 +3042,11 @@ perform_violence1(struct creature *ch, gpointer ignore)
                 }
             }
         }
-    } else if (IS_NPC(ch) && ch->in_room &&
-        GET_POSITION(ch) == POS_FIGHTING &&
-        GET_NPC_WAIT(ch) <= 0 && (MIN(100, prob) >= number(0, 300))) {
+    } else if (IS_NPC(ch)
+               && ch->in_room
+               && is_fighting(ch)
+               && GET_NPC_WAIT(ch) <= 0
+               && (MIN(100, prob) >= number(0, 300))) {
 
         if (NPC_FLAGGED(ch, NPC_SPEC) && ch->in_room &&
             ch->mob_specials.shared->func && !number(0, 2)) {
