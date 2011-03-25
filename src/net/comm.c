@@ -442,6 +442,10 @@ game_loop(int mother_desc)
 
         pulse++;
 
+        void random_mob_activity(void);
+
+        random_mob_activity();
+
         if (!(pulse % (PULSE_ZONE)))
             zone_update();
         if (!((pulse + 1) % PULSE_MOBILE))
