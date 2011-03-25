@@ -1600,13 +1600,8 @@ remove_all_combat(struct creature *ch)
 struct creature *
 random_opponent(struct creature *ch)
 {
-    GList *first = ch->fighting;
+    GList *first = first_living(ch->fighting);
 
-    if (!first)
-        return NULL;
-
-    if (is_dead((struct creature *)first->data))
-        first = next_living(first);
     if (!first)
         return NULL;
 
