@@ -44,7 +44,7 @@ void print_search_data_to_buf(struct creature *ch,
 int general_search(struct creature *ch, struct special_search_data *srch,
     int mode);
 int clan_house_can_enter(struct creature *ch, struct room_data *room);
-int room_tele_ok(struct creature *ch, struct room_data *room);
+bool room_tele_ok(struct creature *ch, struct room_data *room);
 bool process_load_param(struct creature *ch);
 
 int

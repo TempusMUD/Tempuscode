@@ -47,8 +47,9 @@ void num2str(char *str, int num);
 void do_stat_object(struct creature *ch, struct obj_data *obj);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
-extern struct extra_descr_data *locate_exdesc(char *word,
-    struct extra_descr_data *list, int exact);
+struct extra_descr_data *locate_exdesc(char *word,
+                                       struct extra_descr_data *list,
+                                       bool exact);
 
 int
 write_wld_index(struct creature *ch, struct zone_data *zone)

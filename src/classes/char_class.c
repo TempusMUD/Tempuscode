@@ -658,10 +658,8 @@ find_char_class_bitvector(char arg)
     case 'e':
         return (1 << 13);
         break;
-    default:
-        return 0;
-        break;
     }
+    return 0;
 }
 
 /*

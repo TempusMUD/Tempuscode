@@ -76,7 +76,7 @@ extern int log_cmds;
 extern int olc_lock;
 extern int lunar_day;
 extern int quest_status;
-extern int restrict_logins;
+extern bool restrict_logins;
 extern struct creature *combat_list;    /* head of list of fighting chars */
 extern int shutdown_count;
 extern int shutdown_mode;
@@ -91,7 +91,7 @@ char *how_good(int percent);
 extern char *prac_types[];
 int spell_sort_info[MAX_SPELLS + 1];
 int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];
-int has_mail(long idnum);
+bool has_mail(long idnum);
 int prototype_obj_value(struct obj_data *obj);
 int choose_material(struct obj_data *obj);
 int set_maxdamage(struct obj_data *obj);
@@ -8490,7 +8490,7 @@ ACMD(do_badge)
 void
 check_log(struct creature *ch, const char *fmt, ...)
 {
-    const int MAX_FRAMES = 10;
+#define MAX_FRAMES 10
     va_list args;
     const char *backtrace_str = "";
     void *ret_addrs[MAX_FRAMES + 1];

@@ -11,7 +11,7 @@
 extern int no_plrtext;
 
 struct extra_descr_data *locate_exdesc(char *word,
-    struct extra_descr_data *list, int exact);
+    struct extra_descr_data *list, bool exact);
 
 struct obj_data *
 make_object(void)

@@ -766,7 +766,7 @@ load_houses(void)
     }
 
     // Now we preload the accounts that are attached to the house
-    extern int production_mode;
+    extern bool production_mode;
 
     if (production_mode) {
         acc_string_clear();
@@ -1023,7 +1023,7 @@ collect_house_rent(struct house *house, int cost)
 void
 collect_housing_rent()
 {
-    extern int production_mode;
+    extern bool production_mode;
 
     if (production_mode) {
         last_house_collection = time(0);

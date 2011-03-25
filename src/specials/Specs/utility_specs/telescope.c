@@ -11,7 +11,7 @@
    You must set value 3 of the scope to be -999.
 */
 
-char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact);
+char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
 
 SPECIAL(telescope)
 {

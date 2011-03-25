@@ -46,7 +46,8 @@ void set_physical_attribs(struct creature *ch);
 void do_stat_character(struct creature *ch, struct creature *k,
     const char *options);
 struct extra_descr_data *locate_exdesc(char *word,
-    struct extra_descr_data *list, int exact);
+                                       struct extra_descr_data *list,
+                                       bool exact);
 void set_move_buffer(struct creature *ch);
 char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact);
 

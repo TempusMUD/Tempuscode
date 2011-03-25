@@ -26,13 +26,6 @@ SPECIAL(wagon_room)
         return 1;
     }
 
-    if (i->in_room < 0) {
-        errlog("Wagon_obj(10)->in_room < 0!!!  Aww shit!");
-        act("You suddenly realize that reality is not what it seems to be...",
-            false, ch, 0, 0, TO_CHAR);
-        return 1;
-    }
-
     if (CMD_IS("look")) {
         skip_spaces(&argument);
         if (!*argument)

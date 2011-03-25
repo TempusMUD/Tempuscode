@@ -201,7 +201,7 @@ void load_banned(void);
 void Read_Invalid_List(void);
 void Read_Nasty_List(void);
 void add_alias(struct creature *ch, struct alias_data *a);
-void boot_clans(void);
+bool boot_clans(void);
 void add_follower(struct creature *ch, struct creature *leader);
 void xml_reload(struct creature *ch);
 void load_bounty_data(void);
@@ -334,7 +334,7 @@ boot_db(void)
     else
         sql_cxn =
             PQconnectdb
-            ("hostaddr=127.0.0.1 user=realm dbname=devtempus password=tarrasque");
+            ("user=realm dbname=devtempus");
     if (!sql_cxn) {
         slog("Couldn't allocate postgres connection!");
         safe_exit(1);
@@ -1227,9 +1227,7 @@ renum_world(void)
                     int vnum = (long int)room->dir_option[door]->to_room;
                     room->dir_option[door]->to_room = NULL;
                     // if it points somewhere and is in the map
-                    if (vnum != NOWHERE
-                        && g_hash_table_lookup(rooms,
-                            GINT_TO_POINTER(vnum)) > 0) {
+                    if (vnum != NOWHERE && g_hash_table_lookup(rooms, GINT_TO_POINTER(vnum))) {
                         room->dir_option[door]->to_room =
                             g_hash_table_lookup(rooms, GINT_TO_POINTER(vnum));
                     }
@@ -1898,8 +1896,8 @@ parse_mobile(FILE * mob_f, int nr)
 char *
 parse_object(FILE * obj_f, int nr)
 {
+    static char line[256];
     int retval;
-    char line[256];
     int t[10], j;
     char *tmpptr;
     char f1[256], f2[256], f3[256], f4[256];

@@ -4,15 +4,15 @@
 struct creature;
 
 bool player_name_exists(char *name);
-char *player_name_by_idnum(int idnum);
-int player_account_by_name(const char *name);
+char *player_name_by_idnum(long idnum);
+long player_account_by_name(const char *name);
 
-bool player_idnum_exists(int idnum);
-int player_idnum_by_name(const char *name);
-int player_account_by_idnum(int idnum);
+bool player_idnum_exists(long idnum);
+long player_idnum_by_name(const char *name);
+long player_account_by_idnum(long idnum);
 
-int player_count(void);
-int top_player_idnum(void);
+size_t player_count(void);
+long top_player_idnum(void);
 
 struct creature *load_player_from_xml(int idnum);
 void save_player_to_xml(struct creature *ch);

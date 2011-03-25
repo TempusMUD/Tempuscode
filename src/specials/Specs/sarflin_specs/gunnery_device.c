@@ -39,7 +39,7 @@ SPECIAL(gunnery_device)
     if (!GET_OBJ_VAL(ob, 0))
         return (0);
     dest = real_room(GET_OBJ_VAL(ob, 1));
-    if (dest < 0)
+    if (!dest)
         return (1);
 /*28*/
     switch (GET_OBJ_VAL(ob, 2)) {

@@ -1686,7 +1686,7 @@ look_in_obj(struct creature *ch, char *arg)
 }
 
 char *
-find_exdesc(char *word, struct extra_descr_data *list, int find_exact)
+find_exdesc(char *word, struct extra_descr_data *list, bool find_exact)
 {
     struct extra_descr_data *i;
 

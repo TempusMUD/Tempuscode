@@ -255,7 +255,7 @@ dice(int num, int size)
 {
     int sum = 0;
 
-    if (size <= 0 || number <= 0)
+    if (size <= 0 || num <= 0)
         return 0;
 
     while (num-- > 0)

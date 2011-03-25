@@ -165,7 +165,7 @@ SPECIAL(underworld_goddess)
     /*   so, she might as well worship him TOO! */
     if (!cmd && !styx && !number(0, 5)) {
         /*  First get the room number for prison cell where that harlet stays! */
-        if ((room = real_room(DUNGEON_SE)) < 0)
+        if ((room = real_room(DUNGEON_SE)))
             return 0;
 
         /* Now see if Styx is there */

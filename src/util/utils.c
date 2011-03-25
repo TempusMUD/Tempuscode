@@ -193,7 +193,7 @@ mudlog(sbyte level, enum log_type type, bool file, const char *fmt, ...)
 void
 errlog(const char *fmt, ...)
 {
-    const int MAX_FRAMES = 10;
+#define MAX_FRAMES 10
     va_list args;
     const char *backtrace_str = "";
     void *ret_addrs[MAX_FRAMES + 1];

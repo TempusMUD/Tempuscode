@@ -207,9 +207,9 @@ int do_destroy_search(struct creature *ch, char *arg);
 int set_char_xedit(struct creature *ch, char *argument);
 void do_clear_room(struct creature *ch);
 void do_clear_olc_object(struct creature *ch);
-void do_clear_olc_mob(struct creature *ch);
+int do_clear_olc_mob(struct creature *ch);
 
-char *find_exdesc(char *word, struct extra_descr_data *list, int find_exact);
+char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
 
 const char *olc_commands[] = {
     "rsave",                    /* save wld file */
@@ -267,7 +267,7 @@ const char *olc_commands[] = {
 };
 
 struct extra_descr_data *
-locate_exdesc(char *word, struct extra_descr_data *list, int exact)
+locate_exdesc(char *word, struct extra_descr_data *list, bool exact)
 {
 
     struct extra_descr_data *i;

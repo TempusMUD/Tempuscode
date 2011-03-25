@@ -49,7 +49,8 @@ int add_path_to_vehicle(struct obj_data *obj, int vnum);
 int choose_material(struct obj_data *obj);
 
 struct extra_descr_data *locate_exdesc(char *word,
-    struct extra_descr_data *list, bool exact);
+                                       struct extra_descr_data *list,
+                                       bool exact);
 
 const char *olc_oset_keys[] = {
     "alias",

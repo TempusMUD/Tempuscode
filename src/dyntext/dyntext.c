@@ -60,7 +60,7 @@ load_dyntext_buffer(dynamic_text_file * dyntext)
     char line[1024];
 
     acc_string_clear();
-    while (fgets(line, 1024, fl) > 0) {
+    while (fgets(line, 1024, fl)) {
         acc_strcat(line, NULL);
     }
     acc_strcat("\n", NULL);

@@ -49,7 +49,7 @@ SPECIAL(vault_door)
         if (GET_OBJ_VAL(me2, 0) == 5) {
             send_to_room("The vault door pulse bright blue\r\n", me2->in_room);
             GET_OBJ_VAL(me2, 0)++;
-            if (real_room(19429) >= 0)
+            if (real_room(19429))
                 (real_room(19429))->dir_option[1]->to_room = real_room(19401);
             return (1);
         }
@@ -58,7 +58,7 @@ SPECIAL(vault_door)
     if (GET_OBJ_VAL(me2, 0) == 6) {
         send_to_room("The vault door pulse bright blue\r\n", me2->in_room);
         GET_OBJ_VAL(me2, 0) = 0;
-        if (real_room(19429) >= 0)
+        if (real_room(19429))
             (real_room(19429))->dir_option[1]->to_room = real_room(19445);
     }
     return (1);
