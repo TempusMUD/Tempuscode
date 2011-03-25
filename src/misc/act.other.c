@@ -1645,12 +1645,8 @@ ACMD(do_throw)
         }
         argument = one_argument(argument, arg1);
         if (!*arg1) {
-            if (obj->worn_on >= 0) {
-                if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
-                    obj_to_char(unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN),
-                        ch);
+            if (obj->worn_by)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
-            }
 
             act("$n throws $p across the room.", false, ch, obj, 0, TO_ROOM);
             act("You throw $p across the room.", false, ch, obj, 0, TO_CHAR);
@@ -1691,13 +1687,8 @@ ACMD(do_throw)
                 return;
             }
             if (IS_SET(EXIT(ch, dir - 1)->exit_info, EX_CLOSED)) {
-                if (obj->worn_on >= 0) {
-                    if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
-                        obj_to_char(unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN),
-                            ch);
-                    obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN),
-                        ch);
-                }
+                if (obj->worn_by)
+                    obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 
                 sprintf(buf, "$n throws $p %sward against the closed %s.",
                     dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
@@ -1720,9 +1711,8 @@ ACMD(do_throw)
                 send_to_char(ch, "No such target in that direction.\r\n");
                 return;
             }
-            if (obj->worn_on >= 0) {
+            if (obj->worn_by)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
-            }
 
             sprintf(buf, "$n throws $p %sward.", dirs[(int)(dir - 1)]);
             act(buf, false, ch, obj, 0, TO_ROOM);
@@ -1750,13 +1740,8 @@ ACMD(do_throw)
         }
 
         if (target_vict) {
-            if (obj->worn_on >= 0) {
-                if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
-                    obj_to_char(unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN),
-                        ch);
-
+            if (obj->worn_by)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
-            }
 
             if (target_vict == ch) {
                 send_to_char(ch, "You can't throw something at yourself!\r\n");
@@ -1845,13 +1830,8 @@ ACMD(do_throw)
 
             return;
         } else if (target_obj) {
-            if (obj->worn_on >= 0) {
-                if (obj->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2))
-                    obj_to_char(unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN),
-                        ch);
-
+            if (obj->worn_by)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
-            }
             sprintf(buf, "$n hurls $p up against %s with brute force!",
                 target_obj->name);
             act(buf, false, ch, obj, 0, TO_ROOM);
