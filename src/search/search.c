@@ -102,17 +102,6 @@ search_trans_character(struct creature *ch,
     return 1;
 }
 
-void
-SRCH_LOG(struct creature *ch, struct special_search_data *srch)
-{
-    if (!ZONE_FLAGGED(ch->in_room->zone, ZONE_SEARCH_APPROVED)
-        && GET_LEVEL(ch) < LVL_GOD)
-        slog("SRCH: %s at %d: %c %d %d %d.",
-            GET_NAME(ch), ch->in_room->number,
-            *search_commands[(int)srch->command],
-            srch->arg[0], srch->arg[1], srch->arg[2]);
-}
-
 #define SRCH_DOOR ( targ_room->dir_option[srch->arg[1]]->exit_info )
 #define SRCH_REV_DOOR ( other_rm->dir_option[rev_dir[srch->arg[1]]]->exit_info )
 
@@ -281,8 +270,6 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 act(srch->to_vict, false, ch, obj, mob, TO_CHAR);
             else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
                 send_to_char(ch, "Okay.\r\n");
-
-            SRCH_LOG(ch, srch); // don't log trans searches for now
 
             char_from_room(ch, true);
             char_to_room(ch, targ_room, true);
