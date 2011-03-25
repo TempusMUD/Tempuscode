@@ -3398,12 +3398,12 @@ ACMD(do_who)
             continue;
         }
         //update the total number of players first
-        if (is_tester(curr)) {
-            testerTotal++;
-        } else if (GET_LEVEL(curr) < LVL_AMBASSADOR) {
-            playerTotal++;
-        } else {
+        if (GET_LEVEL(curr) >= LVL_AMBASSADOR) {
             immTotal++;
+        } else if (is_tester(curr)) {
+            testerTotal++;
+        } else  {
+            playerTotal++;
         }
 
         /////////////////BEGIN CONDITION CHECKING//////////////////////
