@@ -592,7 +592,15 @@ game_loop(int mother_desc)
         }
 
         /* garbage collect dead creatures */
+        void extract_creature(struct creature *ch, enum cxn_state con_state);
 
+        GList *next;
+        for (GList *it = creatures;it;it = next) {
+            next = it->next;
+            struct creature *tch = it->data;
+            if (is_dead(tch))
+                extract_creature(tch, CXN_DISCONNECT);
+        }
         update_unique_id();
         tics++;                 /* tics since last checkpoint signal */
         sql_gc_queries();
