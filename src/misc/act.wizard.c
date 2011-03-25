@@ -1647,8 +1647,8 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         break;
     }
 
-    acc_sprintf
-        (" %s '%s%s%s'  IDNum: [%5ld], struct accountNum: [%5d], In room %s[%s%5d%s]%s\n",
+    acc_sprintf(
+        " %s '%s%s%s'  IDNum: [%5ld], struct accountNum: [%5ld], In room %s[%s%5d%s]%s\n",
         (!IS_NPC(k) ? "PC" : (!IS_NPC(k) ? "NPC" : "MOB")), CCYEL(ch, C_NRM),
         GET_NAME(k), CCNRM(ch, C_NRM), IS_NPC(k) ? NPC_IDNUM(k) : GET_IDNUM(k),
         IS_NPC(k) ? -1 : player_account_by_idnum(GET_IDNUM(k)), CCGRN(ch,
@@ -3826,7 +3826,7 @@ do_show_stats(struct creature *ch)
 
     send_to_char(ch, "Current statistics of Tempus:\r\n");
     send_to_char(ch, "  %5d players in game  %5d connected\r\n", i, con);
-    send_to_char(ch, "  %5zd accounts cached  %5d characters\r\n",
+    send_to_char(ch, "  %5zd accounts cached  %5zd characters\r\n",
         account_cache_size(), player_count());
     send_to_char(ch, "  %5d mobiles          %5d prototypes (%d id'd)\r\n",
         j, g_hash_table_size(mob_prototypes), current_mob_idnum);
@@ -3995,7 +3995,7 @@ show_player(struct creature *ch, char *value)
         sprintf(remort_desc, "/%s",
             char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
     }
-    sprintf(buf, "Player: [%ld] %-12s Act[%d] (%s) [%2d %s %s%s]  Gen: %d",
+    sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d",
         GET_IDNUM(vict), GET_NAME(vict),
         player_account_by_idnum(GET_IDNUM(vict)),
         genders[(int)GET_SEX(vict)], GET_LEVEL(vict),

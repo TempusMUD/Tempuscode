@@ -54,7 +54,7 @@ account_boot(void)
 
     slog("Getting character count");
     if (player_count())
-        slog("... %d character%s in db", player_count(),
+        slog("... %zd character%s in db", player_count(),
             (player_count() == 1) ? "" : "s");
     else
         slog("WARNING: No characters loaded");
