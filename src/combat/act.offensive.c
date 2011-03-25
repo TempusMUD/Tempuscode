@@ -958,8 +958,6 @@ perform_offensive_skill(struct creature *ch,
                 int tmp_wait = 50 - prob;
                 tmp_wait = MAX(tmp_wait, 70);
                 wait += tmp_wait;
-                slog("%s failed %s miserably, tacking on %d x0.1 sec",
-                    GET_NAME(ch), spell_to_str(skill), tmp_wait);
             }
         }
 
