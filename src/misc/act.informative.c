@@ -2181,10 +2181,12 @@ ACMD(do_qpoints)
         qp = GET_IMMORT_QP(ch);
         send_to_char(ch, "You have %d quest point%s to award.\r\n", qp,
             (qp == 1) ? "" : "s");
-    } else {
+    } else if (IS_PC(ch)) {
         qp = ch->account->quest_points;
         send_to_char(ch, "You have %d quest point%s.\r\n", qp,
             (qp == 1) ? "" : "s");
+    } else {
+        send_to_char(ch, "Mobiles don't have quest points!\r\n");
     }
 }
 
