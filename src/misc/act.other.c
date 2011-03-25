@@ -675,9 +675,9 @@ ACMD(do_use)
             }
             break;
         case SCMD_READ:
-            if (!(mag_item = get_obj_in_list_all(ch, arg, ch->carrying)) ||
-                GET_OBJ_TYPE(mag_item) != ITEM_BOOK) {
-                look_at_target(ch, arg, SCMD_LOOK);
+            if (!(mag_item = get_obj_in_list_all(ch, arg, ch->carrying))) {
+                send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg),
+                    arg);
                 return;
             }
             if (!can_see_object(ch, mag_item)) {
@@ -717,6 +717,10 @@ ACMD(do_use)
         if (is_fighting(ch)) {
             act("What, while fighting $N?!", false, ch, 0, random_opponent(ch),
                 TO_CHAR);
+            return;
+        }
+        if (!IS_OBJ_TYPE(mag_item, ITEM_BOOK)) {
+            look_at_target(ch, arg, SCMD_LOOK);
             return;
         }
         break;
