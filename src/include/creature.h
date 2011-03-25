@@ -896,7 +896,7 @@ struct mob_special_data {
 	struct mob_shared_data *shared;
 	int wait_state;				/* Wait state for bashed mobs           */
 	byte last_direction;		/* The last direction the monster went     */
-	unsigned int mob_idnum;		/* mobile's unique idnum */
+	unsigned long mob_idnum;		/* mobile's unique idnum */
 };
 
 /* An affect structure */
