@@ -23,6 +23,9 @@ load_oedits(struct creature *ch)
     gpointer key, val;
     int count = 0;
 
+    if (IS_NPC(ch))
+        return 0;
+
     g_hash_table_iter_init(&iter, obj_prototypes);
     while (g_hash_table_iter_next(&iter, &key, &val)) {
         struct obj_data *obj = val;
@@ -41,6 +44,9 @@ int
 retrieve_oedits(struct creature *ch)
 {
     int count = 0;
+
+    if (IS_NPC(ch))
+        return 0;
 
     for (struct obj_data * obj = object_list; obj; obj = obj->next) {
         if (obj->shared->owner_id == GET_IDNUM(ch)) {
