@@ -156,6 +156,8 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
 
     if (GET_LEVEL(ch) == LVL_GRIMP)
         return true;
+    if (IS_NPC(ch))
+        return (priv == COMMAND);
 
     switch (priv) {
     case CREATE_ROLE:
