@@ -153,9 +153,10 @@ update_pos(struct creature *victim)
     if (GET_HIT(victim) > 0 && GET_POSITION(victim) == POS_SLEEPING)
         GET_POSITION(victim) = POS_RESTING;
     // If everything is normal and they're fighting, set them fighting
-    else if (GET_HIT(victim) > 0 &&
-        (GET_POSITION(victim) == POS_STANDING
-            || GET_POSITION(victim) == POS_FLYING) && victim->fighting) {
+    else if (GET_HIT(victim) > 0
+             && (GET_POSITION(victim) == POS_STANDING
+                 || GET_POSITION(victim) == POS_FLYING)
+             && is_fighting(victim)) {
 #ifdef DEBUG_POSITION
         if (GET_POSITION(victim) = POS_FIGHTING, 1)
             act("$n moves to POS_FIGHTING.(from standing or flying)",
@@ -166,8 +167,9 @@ update_pos(struct creature *victim)
     // If they're alive, not stunned, in a fight, and not pos_fighting
     // (Making mobs stand when they get popped.
     else if ((GET_HIT(victim) > 0)
-        && (GET_POSITION(victim) > POS_STUNNED)
-        && GET_POSITION(victim) < POS_FIGHTING && victim->fighting) {
+             && (GET_POSITION(victim) > POS_STUNNED)
+             && GET_POSITION(victim) < POS_FIGHTING
+             && is_fighting(victim)) {
         // If they're an npc, and their wait is 0.
         if (IS_NPC(victim) && GET_NPC_WAIT(victim) <= 0) {
             if (GET_POSITION(victim) < POS_FIGHTING) {
@@ -223,7 +225,7 @@ update_pos(struct creature *victim)
                 }
             } else if (number(1, 20) < GET_STR(victim)
                 && GET_POSITION(victim) < POS_FIGHTING) {
-                if (victim->fighting) {
+                if (is_fighting(victim)) {
                     if (GET_POSITION(victim) == POS_FIGHTING) {
 #ifdef DEBUG_POSITION
                         act("$n moves to POS_FIGHTING.(C1)", true, victim, 0,

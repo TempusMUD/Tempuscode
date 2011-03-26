@@ -148,7 +148,6 @@ reset_creature(struct creature *ch)
     // next remove all the combat ch creature might be involved in
     //
     remove_all_combat(ch);
-    g_list_free(ch->fighting);
 
     memset(ch, 0, sizeof(struct creature));
 
@@ -737,12 +736,10 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
 
     if (ch->followers || ch->master)
         die_follower(ch);
-
     // remove fighters, defenders, hunters and mounters
-    GList *cit, *next;
-    for (cit = first_living(creatures); cit; cit = next) {
+    GList *cit;
+    for (cit = first_living(creatures); cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
-        next = next_living(cit);
         if (ch == DEFENDING(tch))
             stop_defending(tch);
         if (ch == MOUNTED_BY(tch)) {
@@ -756,10 +753,13 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
         }
         if (ch == NPC_HUNTING(tch))
             stop_hunting(tch);
+        if (g_list_find(tch->fighting, ch))
+            remove_combat(tch, ch);
     }
 
     destroy_attached_progs(ch);
     char_arrest_pardoned(ch);
+    remove_all_combat(ch);
 
     if (MOUNTED_BY(ch)) {
         REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(ch)), AFF2_MOUNTED);
@@ -805,8 +805,6 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
 
     if (ch->desc && ch->desc->original)
         do_return(ch, tmp_strdup(""), 0, SCMD_NOEXTRACT);
-
-    remove_all_combat(ch);
 
     char_from_room(ch, false);
 
@@ -1540,6 +1538,9 @@ add_combat(struct creature *ch, struct creature *target, bool initiated)
         return;
 
     if (!ok_to_attack(ch, target, true))
+        return;
+
+    if (g_list_find(ch->fighting, target))
         return;
 
     for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {

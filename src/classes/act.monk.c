@@ -340,45 +340,35 @@ ACMD(do_whirlwind)
             dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
         }
 
-        bool killedFirst = false;
         damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
-        if (is_dead(ch)) {
+        if (is_dead(ch))
             return;
-        } else if (is_dead(vict)) {
-            killedFirst = true;
-        }
+
         GET_MOVE(ch) -= 3;
 
         //attack up to hits-1 more victims at random
         int i = 1;
-        bool killed_first = false;
 
         for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
             struct creature *tch = it->data;
 
-            if (is_dead(ch))
-                return;
-            if (is_dead(vict) && tch == vict) {
-                killed_first = true;
-                return;
-            }
             if (g_list_find(tch->fighting, ch) && random_percentage() <= 75) {
                 dam = 0;
                 if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40,
                         80) + GET_DEX(tch))
                     dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
                 damage(ch, tch, dam, SKILL_WHIRLWIND, -1);
+                if (is_dead(ch))
+                    return;
+
                 i++;
                 GET_MOVE(ch) -= 3;
             }
         }
 
-        if (is_dead(ch))
-            return;
-
         //if we still haven't attacked hits times send the rest of them too
         //our initially chosen victim as long as he's alive
-        if (!killed_first) {
+        if (!is_dead(vict)) {
             for (; i < hits; i++) {
                 if (vict && vict->in_room == ch->in_room) {
                     dam = 0;
@@ -390,7 +380,7 @@ ACMD(do_whirlwind)
                     damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
                     if (is_dead(ch))
                         return;
-                    else if (is_dead(vict))
+                    if (is_dead(vict))
                         break;
                 }
             }

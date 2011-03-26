@@ -2924,8 +2924,9 @@ perform_violence1(struct creature *ch, gpointer ignore)
 {
     int prob, i, die_roll;
 
-    if (!ch->in_room || !is_fighting(ch) || is_dead(ch))
+    if (!ch->in_room || is_dead(ch) || !is_fighting(ch))
         return;
+
     if (g_list_find(ch->fighting, ch)) {    // intentional crash here.
         errlog("fighting self in perform_violence.");
         raise(SIGSEGV);
@@ -2936,9 +2937,6 @@ perform_violence1(struct creature *ch, gpointer ignore)
         remove_all_combat(ch);
         return;
     }
-
-    if (!is_fighting(ch))
-        return;
 
     if (IS_NPC(ch)) {
         if (GET_NPC_WAIT(ch) > 0) {

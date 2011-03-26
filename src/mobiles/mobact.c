@@ -1966,7 +1966,8 @@ single_mobile_activity(struct creature *ch)
         for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             vict = it->data;
             if (ch != vict
-                && is_fighting(vict) && !g_list_find(vict->fighting, ch)
+                && is_fighting(vict)
+                && !g_list_find(vict->fighting, ch)
                 && can_see_creature(ch, vict)) {
 
                 int fvict_help_prob =
@@ -5023,6 +5024,7 @@ random_active_creature(struct creature *ch)
             switch (*s) {
             case 'c':           /* creature */
                 i = 0;
+                tch = NULL;
                 for (GList *cit = first_living(ch->in_room->people);cit;cit = next_living(cit))
                     if (can_see_creature(ch, cit->data) && !number(0, i++))
                         tch = cit->data;
