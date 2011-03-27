@@ -1047,6 +1047,7 @@ do_olc_rexdesc(struct creature *ch, char *argument, bool is_hedit)
         }
         CREATE(ndesc, struct extra_descr_data, 1);
         ndesc->keyword = strdup(argument);
+        ndesc->description = strdup("You see nothing special.");
         ndesc->next = ch->in_room->ex_description;
         ch->in_room->ex_description = ndesc;
 
