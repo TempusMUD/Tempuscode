@@ -1266,7 +1266,9 @@ best_initial_attack(struct creature *ch, struct creature *vict)
     // thief mobs
     //
     if (cur_class == CLASS_THIEF) {
-        if (GET_LEVEL(ch) >= 35 && GET_POSITION(vict) > POS_STUNNED)
+        if (GET_LEVEL(ch) >= 35
+            && GET_POSITION(vict) > POS_STUNNED
+            && !is_fighting(vict))
             perform_stun(ch, vict);
 
         else if (((gun = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(gun)) ||

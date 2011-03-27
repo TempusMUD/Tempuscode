@@ -1578,6 +1578,14 @@ perform_stun(struct creature *ch, struct creature *vict)
         send_to_char(ch, "Aren't we stunningly funny today...\r\n");
         return;
     }
+    if (is_fighting(ch)) {
+        send_to_char(ch, "You're pretty busy right now!\r\n");
+        return;
+    }
+    if (is_fighting(vict)) {
+        send_to_char(ch, "You aren't able to get the right grip!");
+        return;
+    }
     if ((GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_HOLD) ||
                 GET_EQ(ch, WEAR_WIELD_2))) ||
         (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD)))) {
