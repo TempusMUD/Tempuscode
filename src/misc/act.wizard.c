@@ -8811,7 +8811,15 @@ verify_tempus_integrity(struct creature *ch)
                     contained->carried_by);
             }
         }
-
+        for (GList *it = vict->fighting;it;it = it->next) {
+            struct creature *tch = it->data;
+            if (!tch->in_room) {
+                check_log(ch,
+                          "mob %p fighting extracted creature %p",
+                          vict, tch);
+                raise(SIGSEGV);
+            }
+        }
     }
 
     // Check objects in game
