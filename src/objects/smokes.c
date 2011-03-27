@@ -506,6 +506,8 @@ ACMD(do_extinguish)
                 0, vict, TO_NOTVICT);
             extinguish_creature(vict);
         }
+    } else {
+        send_to_char(ch, "You don't see one of those.\r\n");
     }
 }
 
