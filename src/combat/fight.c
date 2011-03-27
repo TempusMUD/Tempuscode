@@ -2498,6 +2498,8 @@ hit(struct creature *ch, struct creature *victim, int type)
         }
     }
 
+    cur_weap = NULL;
+
     for (i = 0, metal_wt = 0; i < NUM_WEARS; i++)
         if (ch->equipment[i] &&
             IS_OBJ_TYPE(ch->equipment[i], ITEM_ARMOR) &&
