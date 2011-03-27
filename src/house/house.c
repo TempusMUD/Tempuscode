@@ -919,25 +919,6 @@ find_costliest_obj_in_room(struct room_data *room)
     return result;
 }
 
-struct obj_data *
-find_costliest_obj_in_house(struct house *house)
-{
-    struct obj_data *result = NULL;
-
-    for (GList * i = house->rooms; i; i = i->next) {
-        struct room_data *room = real_room(GPOINTER_TO_INT(i->data));
-        if (room != NULL) {
-            struct obj_data *o = find_costliest_obj_in_room(room);
-            if (o == NULL)
-                continue;
-            if (result == NULL || GET_OBJ_COST(o) > GET_OBJ_COST(result)) {
-                result = o;
-            }
-        }
-    }
-    return result;
-}
-
 void
 add_repo_note(struct house *house, char *s)
 {
@@ -964,59 +945,7 @@ collect_house_rent(struct house *house, int cost)
         cost -= house->rent_overflow;
     }
 
-    cost = reconcile_rent_collection(house, cost);
-
-    // If they still don't have enough, start selling stuff
-    if (cost > 0) {
-        struct obj_data *doomed_obj, *tmp_obj;
-
-        while (cost > 0) {
-            doomed_obj = find_costliest_obj_in_house(house);
-            if (!doomed_obj)
-                break;
-            time_t ct = time(0);
-            char *tm_str = asctime(localtime(&ct));
-            *(tm_str + strlen(tm_str) - 1) = '\0';
-
-            char *s = tmp_sprintf("%s : %s sold for %d.\r\n",
-                tm_str, tmp_capitalize(doomed_obj->name),
-                GET_OBJ_COST(doomed_obj));
-            add_repo_note(house, s);
-
-            slog("HOUSE: [%d] Repossessing [%d]%s for %d to cover rent.",
-                house->id, GET_OBJ_VNUM(doomed_obj),
-                tmp_capitalize(doomed_obj->name), GET_OBJ_COST(doomed_obj));
-
-            // Credit player with value of object
-            cost -= GET_OBJ_COST(doomed_obj);
-
-            struct obj_data *destObj = doomed_obj->in_obj;
-            struct room_data *destRoom = doomed_obj->in_room;
-            // Remove objects within doomed object, if any
-            while (doomed_obj->contains) {
-                tmp_obj = doomed_obj->contains;
-                obj_from_obj(tmp_obj);
-                if (destObj != NULL) {
-                    obj_to_obj(tmp_obj, destObj);
-                } else {
-                    obj_to_room(tmp_obj, destRoom);
-                }
-            }
-
-            // Remove doomed object
-            if (destRoom != NULL) {
-                act("$p vanishes in a puff of smoke!",
-                    false, 0, doomed_obj, 0, TO_ROOM);
-            }
-            extract_obj(doomed_obj);
-        }
-
-        if (cost < 0) {
-            // If there's any money left over, store it for the next tick
-            house->rent_overflow = -cost;
-        }
-        return true;
-    }
+    reconcile_rent_collection(house, cost);
     return false;
 }
 

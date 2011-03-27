@@ -130,48 +130,10 @@ pay_player_rent(struct creature *ch, time_t last_time, int code, int currency)
             }
         }
     }
-    // If they still don't have enough, start selling stuff
-    if (cost > 0) {
-        struct obj_data *doomed_obj, *tmp_obj;
 
-        while (cost > 0) {
-            doomed_obj = findCostliestObj(ch);
-            if (!doomed_obj)
-                break;
-
-            slog("%s (%lu) sold for %d %s to cover %s's rent",
-                tmp_capitalize(doomed_obj->name),
-                doomed_obj->unique_id,
-                GET_OBJ_COST(doomed_obj),
-                (currency == TIME_ELECTRO) ? "creds" : "gold", GET_NAME(ch));
-            send_to_char(ch,
-                "%s has been sold to cover the cost of your rent.\r\n",
-                tmp_capitalize(doomed_obj->name));
-
-            // Credit player with value of object
-            cost -= GET_OBJ_COST(doomed_obj);
-
-            // Remove objects within doomed object, if any
-            while (doomed_obj->contains) {
-                tmp_obj = doomed_obj->contains;
-                obj_from_obj(tmp_obj);
-                obj_to_char(tmp_obj, ch);
-            }
-
-            // Remove doomed object
-            extract_obj(doomed_obj);
-        }
-
-        if (cost < 0) {
-            // If there's any money left over, give em a consolation prize
-            if (currency == TIME_ELECTRO)
-                GET_CASH(ch) -= cost;
-            else
-                GET_GOLD(ch) -= cost;
-        }
-
-        return (cost > 0) ? 2 : 3;
-    }
+    // If they still don't have enough, put them in JAIL
+    if (cost > 0)
+        return 3;
     return 0;
 }
 
