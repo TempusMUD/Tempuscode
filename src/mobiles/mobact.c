@@ -1670,21 +1670,22 @@ single_mobile_activity(struct creature *ch)
     if (ROOM_FLAGGED(ch->in_room, ROOM_HOLYOCEAN)
         && IS_EVIL(ch)
         && GET_POSITION(ch) < POS_FLYING) {
-        if (!is_fighting(ch)) {
-            do_flee(ch, tmp_strdup(""), 0, 0);
-        }
+        do_flee(ch, tmp_strdup(""), 0, 0);
     }
     // Attempt to keep from freezing
     if (ROOM_FLAGGED(ch->in_room, ROOM_ICE_COLD)
         && !CHAR_WITHSTANDS_COLD(ch)
         && can_cast_spell(ch, SPELL_ENDURE_COLD)) {
         cast_spell(ch, ch, 0, NULL, SPELL_ENDURE_COLD);
+        return;
     }
     // If on fire, try to extinguish the flames
-    if (GET_POSITION(ch) >= POS_RESTING && !CHAR_WITHSTANDS_FIRE(ch)) {
+    if (GET_POSITION(ch) >= POS_RESTING
+        && AFF2_FLAGGED(ch, AFF2_ABLAZE)
+        && !CHAR_WITHSTANDS_FIRE(ch)) {
         do_extinguish(ch, tmp_strdup(""), 0, 0);
+        return;
     }
-
 
     /** mobiles re-hiding **/
     if (!AFF_FLAGGED(ch, AFF_HIDE)
@@ -1791,7 +1792,7 @@ single_mobile_activity(struct creature *ch)
     }
 
     /* Drink from fountains */
-    if (IS_UNDEAD(ch) && GET_RACE(ch) != RACE_DRAGON &&
+    if (!IS_UNDEAD(ch) && GET_RACE(ch) != RACE_DRAGON &&
         GET_RACE(ch) != RACE_GOLEM && GET_RACE(ch) != RACE_ELEMENTAL) {
         if (ch->in_room->contents && random_fractional_100()) {
             for (obj = ch->in_room->contents; obj; obj = obj->next_content)
@@ -1860,7 +1861,7 @@ single_mobile_activity(struct creature *ch)
 
     /* Wearing Objects */
     if (!NPC2_FLAGGED(ch, NPC2_WONT_WEAR) && !IS_ANIMAL(ch) &&
-        !is_fighting(ch) && !IS_DRAGON(ch) && !IS_ELEMENTAL(ch)) {
+        !IS_DRAGON(ch) && !IS_ELEMENTAL(ch)) {
         if (ch->carrying && random_fractional_4()) {
             for (obj = ch->carrying; obj; obj = best_obj) {
                 best_obj = obj->next_content;
@@ -2198,26 +2199,25 @@ single_mobile_activity(struct creature *ch)
                     && !CAN_DETECT_DISGUISE(ch, vict, af_ptr->duration)))
                 continue;
             if (char_in_memory(vict, ch)) {
-                if (GET_POSITION(ch) != POS_FIGHTING) {
-                    if (!random_number_zero_low(4)) {
-                        emit_voice(ch, vict, VOICE_TAUNTING);
-                    } else if (AWAKE(vict)
-                        && !IS_UNDEAD(ch)
-                        && !IS_DRAGON(ch)
-                        && !IS_DEVIL(ch)
-                        && GET_HIT(ch) > GET_HIT(vict)
-                        && ((GET_LEVEL(vict)
+                if (!random_number_zero_low(4)) {
+                    emit_voice(ch, vict, VOICE_TAUNTING);
+                } else if (AWAKE(vict)
+                           && !IS_UNDEAD(ch)
+                           && !IS_DRAGON(ch)
+                           && !IS_DEVIL(ch)
+                           && GET_HIT(ch) > GET_HIT(vict)
+                           && ((GET_LEVEL(vict)
                                 + ((50 * GET_HIT(vict))
-                                    / MAX(1, GET_MAX_HIT(vict)))) >
-                            GET_LEVEL(ch) + (GET_MORALE(ch) >> 1)
-                            + random_percentage())) {
-                        emit_voice(ch, vict, VOICE_PANICKING);
-                        do_flee(ch, tmp_strdup(""), 0, 0);
-                    } else {
-                        emit_voice(ch, vict, VOICE_ATTACKING);
-                        best_initial_attack(ch, vict);
-                        return;
-                    }
+                                   / MAX(1, GET_MAX_HIT(vict)))) >
+                               GET_LEVEL(ch) + (GET_MORALE(ch) >> 1)
+                               + random_percentage())) {
+                    emit_voice(ch, vict, VOICE_PANICKING);
+                    do_flee(ch, tmp_strdup(""), 0, 0);
+                    return;
+                } else {
+                    emit_voice(ch, vict, VOICE_ATTACKING);
+                    best_initial_attack(ch, vict);
+                    return;
                 }
             }
         }
