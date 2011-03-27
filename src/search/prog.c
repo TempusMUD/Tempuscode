@@ -1918,30 +1918,6 @@ prog_start(enum prog_evt_type owner_type, void *owner, struct creature * target,
 	return new_prog;
 }
 
-static void
-prog_free(struct prog_env *prog)
-{
-	struct prog_env *prev_prog;
-
-	if (prog_list == prog) {
-		prog_list = prog->next;
-	} else {
-		prev_prog = prog_list;
-		while (prev_prog && prev_prog->next != prog)
-			prev_prog = prev_prog->next;
-		if (!prev_prog) {
-            errlog("prog_free() called on prog not in prog_list!");
-            return;
-		}
-		prev_prog->next = prog->next;
-	}
-
-    prog_state_free(prog->state);
-
-	prog->next = free_progs;
-	free_progs = prog;
-}
-
 void
 destroy_attached_progs(void *owner)
 {
@@ -2454,15 +2430,45 @@ prog_execute_and_mark(void)
 	}
 }
 
+void
+prog_state_free(struct prog_state_data *state)
+{
+	struct prog_var *cur_var, *next_var;
+
+    if (state) {
+        for (cur_var = state->var_list; cur_var; cur_var = next_var) {
+            next_var = cur_var->next;
+            free(cur_var);
+        }
+        free(state);
+    }
+}
+
+static void
+prog_free(struct prog_env *prog)
+{
+    prog_state_free(prog->state);
+    prog->next = free_progs;
+    free_progs = prog;
+}
+
 static void
 prog_free_terminated(void)
 {
 	struct prog_env *cur_prog, *next_prog;
 
-	for (cur_prog = prog_list; cur_prog; cur_prog = next_prog) {
+    while (prog_list && (prog_list->exec_pt < 0 || !prog_list->owner)) {
+        next_prog = prog_list->next;
+        prog_free(prog_list);
+        prog_list = next_prog;
+    }
+
+	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
 		next_prog = cur_prog->next;
-		if (cur_prog->exec_pt < 0 || !cur_prog->owner)
-			prog_free(cur_prog);
+		if (next_prog && (next_prog->exec_pt < 0 || !next_prog->owner)) {
+            cur_prog->next = next_prog->next;
+			prog_free(next_prog);
+        }
 	}
 }
 
@@ -2505,19 +2511,16 @@ prog_update(void)
 
     prog_execute_and_mark();
 
-    prog_free_terminated();
-
     prog_trigger_idle_mobs();
     prog_trigger_idle_rooms();
+
+    prog_free_terminated();
 }
 
 void
 prog_update_pending(void)
 {
 	struct prog_env *cur_prog;
-
-	if (!prog_list)
-		return;
 
 	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
 		if (cur_prog->executed == 0)
@@ -2547,18 +2550,3 @@ free_prog_count(void)
 		result++;
 	return result;
 }
-
-void
-prog_state_free(struct prog_state_data *state)
-{
-	struct prog_var *cur_var, *next_var;
-
-    if (state) {
-        for (cur_var = state->var_list; cur_var; cur_var = next_var) {
-            next_var = cur_var->next;
-            free(cur_var);
-        }
-        free(state);
-    }
-}
-

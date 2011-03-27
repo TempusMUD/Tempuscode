@@ -434,9 +434,6 @@ game_loop(int mother_desc)
                 save_player_to_xml(d->creature);
         }
 
-        /* Update progs triggered by user input that have not run yet */
-        prog_update_pending();
-
         /* handle heartbeat stuff */
         /* Note: pulse now changes every 0.10 seconds  */
 
@@ -445,6 +442,9 @@ game_loop(int mother_desc)
         void random_mob_activity(void);
 
         random_mob_activity();
+
+        /* Update progs triggered by user input that have not run yet */
+        prog_update_pending();
 
         if (!(pulse % (PULSE_ZONE)))
             zone_update();
