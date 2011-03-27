@@ -17,6 +17,11 @@ SPECIAL(fountain_youth)
     struct affected_type af, af1, af2, af3;
     struct obj_data *fountain = (struct obj_data *)me;
 
+    init_affect(&af);
+    init_affect(&af1);
+    init_affect(&af2);
+    init_affect(&af3);
+
     if (spec_mode != SPECIAL_CMD || !CMD_IS("drink"))
         return 0;
 
@@ -40,8 +45,6 @@ SPECIAL(fountain_youth)
     af.duration = 60;
     af.location = APPLY_AGE;
     af.modifier = -(GET_AGE(ch) / 4);
-    af.aff_index = 0;
-    af.bitvector = 0;
     af.level = 1;
     af.is_instant = false;
     af.owner = GET_IDNUM(ch);
@@ -51,8 +54,6 @@ SPECIAL(fountain_youth)
     af1.duration = 60;
     af1.location = APPLY_CON;
     af1.modifier = 3;
-    af1.aff_index = 0;
-    af1.bitvector = 0;
     af1.level = 1;
     af1.is_instant = false;
     af1.owner = GET_IDNUM(ch);
@@ -62,8 +63,6 @@ SPECIAL(fountain_youth)
     af2.duration = 60;
     af2.location = APPLY_STR;
     af2.modifier = 2;
-    af2.aff_index = 0;
-    af2.bitvector = 0;
     af2.level = 1;
     af2.is_instant = false;
     af2.owner = GET_IDNUM(ch);
@@ -73,8 +72,6 @@ SPECIAL(fountain_youth)
     af3.duration = 60;
     af3.location = APPLY_WIS;
     af3.modifier = -4;
-    af3.aff_index = 0;
-    af3.bitvector = 0;
     af3.level = 1;
     af3.is_instant = false;
     af3.owner = GET_IDNUM(ch);

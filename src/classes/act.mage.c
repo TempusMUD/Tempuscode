@@ -75,6 +75,10 @@ ACMD(do_empower)
     struct affected_type af, af2, af3;
     int val1, val2, old_mana;
 
+    init_affect(&af);
+    init_affect(&af2);
+    init_affect(&af3);
+
     if (!IS_MAGE(ch)
         || affected_by_spell(ch, SKILL_RECONFIGURE)
         || CHECK_SKILL(ch, SKILL_EMPOWER) < number(50, 101)) {

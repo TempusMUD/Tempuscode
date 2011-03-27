@@ -903,7 +903,7 @@ perform_offensive_skill(struct creature *ch,
     int prob = -1, wait = 0, vict_wait = 0, dam = 0, vict_pos = 0, fail_pos =
         0, loc = -1, move = 0, mana = 0;
 
-    memset(&af, 0, sizeof(struct affected_type));
+    init_affect(&af);
 
     if (!ok_to_attack(ch, vict, false)) {
         send_to_char(ch, "You seem to be unable to attack %s.\r\n",
@@ -926,7 +926,6 @@ perform_offensive_skill(struct creature *ch,
         return false;
     }
 
-    af.type = 0;
     af.owner = GET_IDNUM(ch);
     //
     // calc_skill_prob returns -1 if you cannot perform that skill,
@@ -1012,8 +1011,9 @@ ACCMD(do_offensive_skill)
     struct affected_type af;
     char *arg;
 
+    init_affect(&af);
+
     arg = tmp_getword(&argument);
-    af.is_instant = 0;
 
     if (!(vict = get_char_room_vis(ch, arg))) {
         if (is_fighting(ch)) {
@@ -2019,6 +2019,8 @@ ACMD(do_sleeper)
         if (!is_dead(vict)) {
             struct affected_type af;
 
+            init_affect(&af);
+
             remove_all_combat(vict);
 
             WAIT_STATE(vict, 4 RL_SEC);
@@ -2028,9 +2030,7 @@ ACMD(do_sleeper)
             af.duration = 2;
             af.bitvector = AFF_SLEEP;
             af.type = SKILL_SLEEPER;
-            af.modifier = 0;
             af.aff_index = 1;
-            af.location = APPLY_NONE;
             af.level = GET_LEVEL(ch);
             af.owner = GET_IDNUM(ch);
             affect_join(vict, &af, false, false, false, false);
@@ -2791,6 +2791,8 @@ ACMD(do_intimidate)
     int prob = 0;
     char *arg;
 
+    init_affect(&af);
+
     arg = tmp_getword(&argument);
     af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
 
@@ -2821,11 +2823,9 @@ ACMD(do_intimidate)
         if (affected_by_spell(ch, SKILL_INTIMIDATE))
             return;
         af.type = SKILL_INTIMIDATE;
-        af.is_instant = 0;
         af.duration = 2 + 2 * (GET_LEVEL(ch) > 40);
         af.modifier = -5;
         af.location = APPLY_HITROLL;
-        af.bitvector = 0;
         af.owner = GET_IDNUM(ch);
         affect_to_char(vict, &af);
         return;
@@ -2857,7 +2857,6 @@ ACMD(do_intimidate)
         af.duration = 2 + 2 * (GET_LEVEL(ch) > 40);
         af.modifier = -5;
         af.location = APPLY_HITROLL;
-        af.bitvector = 0;
         af.owner = GET_IDNUM(ch);
         affect_to_char(vict, &af);
 

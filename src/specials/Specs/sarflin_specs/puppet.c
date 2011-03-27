@@ -10,6 +10,9 @@ SPECIAL(puppet)
         return 0;
     struct creature *me2 = (struct creature *)me;
     struct affected_type af;
+
+    init_affect(&af);
+
     if (!cmd && !me2->fighting && !number(0, 3)) {
         switch (number(0, 10)) {
         case 0:
@@ -77,8 +80,6 @@ SPECIAL(puppet)
 
         af.duration = 24 * 20;
 
-        af.modifier = 0;
-        af.location = 0;
         af.bitvector = AFF_CHARM;
         af.owner = GET_IDNUM(ch);
         affect_to_char(me2, &af);

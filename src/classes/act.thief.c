@@ -409,6 +409,8 @@ ACMD(do_sneak)
 {
     struct affected_type af;
 
+    init_affect(&af);
+
     if (AFF_FLAGGED(ch, AFF_SNEAK)) {
         send_to_char(ch, "Okay, you will now attempt to walk normally.\r\n");
         affect_from_char(ch, SKILL_SNEAK);
@@ -422,10 +424,7 @@ ACMD(do_sneak)
         return;
 
     af.type = SKILL_SNEAK;
-    af.is_instant = 0;
     af.duration = GET_LEVEL(ch);
-    af.modifier = 0;
-    af.location = APPLY_NONE;
     af.bitvector = AFF_SNEAK;
     af.aff_index = 0;
     af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
@@ -473,6 +472,8 @@ ACMD(do_disguise)
 {
     struct creature *vict = NULL;
     struct affected_type af;
+
+    init_affect(&af);
 
     if (CHECK_SKILL(ch, SKILL_DISGUISE) < 20) {
         send_to_char(ch, "You do not know how.\r\n");
@@ -527,13 +528,10 @@ ACMD(do_disguise)
         return;
     }
     af.type = SKILL_DISGUISE;
-    af.is_instant = 0;
     af.duration = GET_LEVEL(ch) + GET_REMORT_GEN(ch) + GET_INT(ch);
     af.modifier = GET_NPC_VNUM(vict);
     af.location = APPLY_DISGUISE;
     af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
-    af.bitvector = 0;
-    af.aff_index = 0;
     af.owner = GET_IDNUM(ch);
 
     act("$n disguises $mself as $N.", true, ch, 0, vict, TO_ROOM);

@@ -280,6 +280,8 @@ ACMD(do_snipe)
     int snipe_dir = -1, distance = 0;
     char *vict_str, *dir_str, *kill_msg;
 
+    init_affect(&af);
+
     vict_str = tmp_getword(&argument);
     dir_str = tmp_getword(&argument);
 
@@ -657,6 +659,8 @@ ACMD(do_infiltrate)
 {
     struct affected_type af;
 
+    init_affect(&af);
+
     if (AFF3_FLAGGED(ch, AFF3_INFILTRATE)) {
         send_to_char(ch,
             "Okay, you are no longer attempting to infiltrate.\r\n");
@@ -674,10 +678,7 @@ ACMD(do_infiltrate)
         "Okay, you'll try to infiltrate until further notice.\r\n");
 
     af.type = SKILL_SNEAK;
-    af.is_instant = 0;
     af.duration = GET_LEVEL(ch);
-    af.modifier = 0;
-    af.location = APPLY_NONE;
     af.bitvector = AFF_SNEAK;
     af.aff_index = 0;
     af.level = GET_LEVEL(ch) + skill_bonus(ch, SKILL_INFILTRATE);
@@ -686,10 +687,7 @@ ACMD(do_infiltrate)
 
     af.type = SKILL_INFILTRATE;
     af.aff_index = 3;
-    af.is_instant = 0;
     af.duration = GET_LEVEL(ch);
-    af.modifier = 0;
-    af.location = APPLY_NONE;
     af.bitvector = AFF3_INFILTRATE;
     af.level = GET_LEVEL(ch) + skill_bonus(ch, SKILL_INFILTRATE);
     af.owner = GET_IDNUM(ch);

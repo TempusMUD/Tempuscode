@@ -256,7 +256,8 @@ mag_savingthrow(struct creature *ch, int level, int type)
 int
 update_iaffects(struct creature *ch)
 {
-    static struct affected_type *af, *next;
+    struct affected_type *af, *next;
+
     for (af = ch->affected; af; af = next) {
         next = af->next;
         if (!af->is_instant)
@@ -346,8 +347,8 @@ obj_affect_update(void)
 void
 affect_update(void)
 {
-    static struct affected_type *af, *next;
-    static struct creature *i;
+    struct affected_type *af, *next;
+    struct creature *i;
     int found = 0;
     char assimilate_found = 0, berserk_found = 0,
         kata_found = 0, hamstring_found = 0;
@@ -916,6 +917,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             GET_POSITION(victim) > POS_STUNNED) {
             struct affected_type af;
 
+            init_affect(&af);
             remove_combat(victim, ch);
             remove_combat(ch, victim);
             GET_POSITION(victim) = POS_STUNNED;
@@ -1017,15 +1019,13 @@ mag_affects(int level,
     // has some time we should completely remove
     // af and af2 from this function and convert
     // everything to aff_array
-    memset(&af, 0x0, sizeof(struct affected_type));
-    memset(&af2, 0x0, sizeof(struct affected_type));
+    init_affect(&af);
+    init_affect(&af2);
     af.type = af2.type = spellnum;
-    af.location = af2.location = APPLY_NONE;
-    af.level = af2.level = level;
     af.owner = af2.owner = GET_IDNUM(ch);
 
     for (int i = 0; i < 8; i++) {
-        memset(&aff_array[i], 0x0, sizeof(struct affected_type));
+        init_affect(&aff_array[i]);
         aff_array[i].type = spellnum;
         aff_array[i].location = APPLY_NONE;
         aff_array[i].level = level;
@@ -1170,7 +1170,6 @@ mag_affects(int level,
         af.location = APPLY_INT;
         af.duration = 1;
         af.modifier = -1;
-        af.bitvector = 0;
         if (NPC2_FLAGGED(victim, NPC2_NOSTUN)) {
             send_to_char(ch, "You fail the stun.\r\n");
             hit(victim, ch, TYPE_UNDEFINED);
@@ -1363,8 +1362,6 @@ mag_affects(int level,
         break;
     case SPELL_PETRIFY:
         af.duration = level;
-        af.location = APPLY_NONE;
-        af.modifier = 0;
         af.bitvector = AFF2_PETRIFIED;
         af.aff_index = 2;
         to_vict = "You feel petrified as your body TURNS TO STONE!";
@@ -1419,8 +1416,6 @@ mag_affects(int level,
         break;
     case SPELL_PRISMATIC_SPHERE:
         af.type = SPELL_PRISMATIC_SPHERE;
-        af.location = APPLY_NONE;
-        af.modifier = 0;
         af.duration = 2 + GET_INT(ch);
         af.bitvector = AFF3_PRISMATIC_SPHERE;
         af.aff_index = 3;
@@ -1471,8 +1466,6 @@ mag_affects(int level,
     case SPELL_PROT_FROM_EVIL:
         if (IS_EVIL(victim)) {
             to_vict = "You feel terrible!";
-            af.bitvector = 0;
-
             switch (number(0, 5)) {
             case 0:
                 af.location = APPLY_STR;
@@ -1510,7 +1503,6 @@ mag_affects(int level,
     case SPELL_PROT_FROM_GOOD:
         if (IS_GOOD(victim)) {
             to_vict = "You feel terrible!";
-            af.bitvector = 0;
             switch (number(0, 5)) {
             case 0:
                 af.location = APPLY_STR;
@@ -1882,7 +1874,6 @@ mag_affects(int level,
         break;
 
     case SPELL_PSYCHIC_FEEDBACK:
-        af.aff_index = 0;
         af.duration = (level / 8) + dice(1, 1 + (level / 8));
         to_vict =
             "You will now send psychic feedback to anyone who attacks you.";
@@ -2067,7 +2058,6 @@ mag_affects(int level,
     case SPELL_DIMENSIONAL_SHIFT:
         af.duration = number(1 + skill_bonus(ch, SPELL_DIMENSIONAL_SHIFT) / 15,
             1 + skill_bonus(ch, SPELL_DIMENSIONAL_SHIFT) / 9);
-        af.aff_index = 0;
         to_vict =
             "You step into an infinitesimally different plane of the multiverse.";
         break;
@@ -2079,7 +2069,6 @@ mag_affects(int level,
         } else {
             af.bitvector = AFF3_TAINTED;
             af.aff_index = 3;
-            af.location = af.modifier = 0;
             af.duration = dice(skill_bonus(ch, SPELL_TAINT), 6);
             af.level = 2 * (skill_bonus(ch, SPELL_TAINT));
             to_vict =
@@ -3715,15 +3704,9 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
     int max_attractions = 0;
     struct affected_type af;
 
-    af.is_instant = 0;
-    af.bitvector = 0;
-    af.location = APPLY_NONE;
-    af.modifier = 0;
-    af.aff_index = 0;
+    init_affect(&af);
     af.owner = GET_IDNUM(ch);
-    af.duration = 0;
     af.level = GET_LEVEL(ch);
-    af.type = 0;
 
     dur_mode = val_mode = aff_mode = AFF_NOOP;
 

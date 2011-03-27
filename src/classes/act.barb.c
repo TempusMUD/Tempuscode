@@ -42,6 +42,8 @@ ACMD(do_charge)
     struct creature *vict = NULL;
     char *arg;
 
+    init_affect(&af);
+
     arg = tmp_getword(&argument);
     // Check for berserk.
 
@@ -164,6 +166,11 @@ ACMD(do_berserk)
 {
     struct affected_type af, af2, af3;
     byte percent;
+
+    init_affect(&af);
+    init_affect(&af2);
+    init_affect(&af3);
+
     percent = (number(1, 101) - GET_LEVEL(ch));
 
     perform_barb_berserk(ch, NULL);

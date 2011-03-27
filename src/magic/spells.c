@@ -930,6 +930,7 @@ ASPELL(spell_charm)
         return;
     }
 
+    init_affect(&af);
     af.owner = GET_IDNUM(ch);
     if (victim == ch)
         send_to_char(ch, "You like yourself even better!\r\n");
@@ -946,13 +947,10 @@ ASPELL(spell_charm)
             stop_follower(ch);
         add_follower(ch, victim);
         af.type = SPELL_CHARM;
-        af.is_instant = 0;
         if (GET_INT(victim))
             af.duration = 6 * 18 / GET_INT(victim);
         else
             af.duration = 6 * 18;
-        af.modifier = 0;
-        af.location = 0;
         af.bitvector = AFF_CHARM;
         af.level = level;
         af.aff_index = 0;
@@ -1011,15 +1009,12 @@ ASPELL(spell_charm)
         add_follower(victim, ch);
 
         af.type = SPELL_CHARM;
-        af.is_instant = 0;
 
         if (GET_INT(victim))
             af.duration = 24 * 18 / GET_INT(victim);
         else
             af.duration = 24 * 18;
 
-        af.modifier = 0;
-        af.location = 0;
         af.bitvector = AFF_CHARM;
         af.level = level;
         af.aff_index = 0;
@@ -1042,6 +1037,7 @@ ASPELL(spell_charm_animal)
     if (victim == NULL || ch == NULL)
         return;
 
+    init_affect(&af);
     af.owner = GET_IDNUM(ch);
     if (victim == ch)
         send_to_char(ch, "You like yourself even better!\r\n");
@@ -1072,15 +1068,12 @@ ASPELL(spell_charm_animal)
         add_follower(victim, ch);
 
         af.type = SPELL_CHARM;
-        af.is_instant = 0;
 
         if (GET_INT(victim))
             af.duration = 48 * 18 / GET_INT(victim);
         else
             af.duration = 48 * 18;
 
-        af.modifier = 0;
-        af.location = 0;
         af.bitvector = AFF_CHARM;
         af.level = level;
         af.aff_index = 0;
@@ -1766,6 +1759,7 @@ ASPELL(spell_conjure_elemental)
     struct affected_type af;
     struct creature *elemental = NULL;
 
+    init_affect(&af);
     if (GET_LEVEL(ch) >= 35
         && number(0, GET_INT(ch)) > 3 && !room_is_watery(ch->in_room))
         elemental = read_mobile(1283);  /*  Air Elemental */
@@ -1819,15 +1813,12 @@ ASPELL(spell_conjure_elemental)
         add_follower(elemental, ch);
 
         af.type = SPELL_CHARM;
-        af.is_instant = 0;
 
         if (GET_INT(elemental))
             af.duration = GET_LEVEL(ch) * 18 / GET_INT(elemental);
         else
             af.duration = GET_LEVEL(ch) * 18;
 
-        af.modifier = 0;
-        af.location = 0;
         af.bitvector = AFF_CHARM;
         af.level = level;
         af.owner = GET_IDNUM(ch);
@@ -1844,9 +1835,9 @@ ASPELL(spell_death_knell)
     struct affected_type af, af2, af3;
 
     // Zero out structures
-    memset(&af, 0x0, sizeof(struct affected_type));
-    memset(&af2, 0x0, sizeof(struct affected_type));
-    memset(&af3, 0x0, sizeof(struct affected_type));
+    init_affect(&af);
+    init_affect(&af2);
+    init_affect(&af3);
 
     if (GET_HIT(victim) > -1) {
         act("$N is way too healthy for that!", true, ch, NULL, victim,
@@ -2006,6 +1997,8 @@ ASPELL(spell_sword)
     struct affected_type af;
     struct creature *sword = NULL;
 
+    init_affect(&af);
+
     if ((GET_LEVEL(ch) + GET_INT(ch) + number(0, 10)) < 50 + number(0, 13)) {
         send_to_char(ch, "You fail.\r\n");
         return;
@@ -2031,15 +2024,12 @@ ASPELL(spell_sword)
     add_follower(sword, ch);
 
     af.type = SPELL_CHARM;
-    af.is_instant = 0;
 
     if (GET_INT(sword))
         af.duration = GET_LEVEL(ch) * 18 / GET_INT(sword);
     else
         af.duration = GET_LEVEL(ch) * 18;
 
-    af.modifier = 0;
-    af.location = 0;
     af.bitvector = AFF_CHARM;
     af.level = level;
     af.owner = GET_IDNUM(ch);
@@ -2437,6 +2427,9 @@ ASPELL(spell_summon_legion)
     struct creature *devil = NULL;
     struct affected_type af;
     struct follow_type *k = NULL;
+
+    init_affect(&af);
+
     /*
        i = number(0, MAX(1, GET_REMORT_GEN(ch)-4));
        i = MAX(((GET_REMORT_GEN(ch) - 4) / 3), i);
@@ -2516,12 +2509,9 @@ ASPELL(spell_summon_legion)
     add_follower(devil, ch);
 
     af.type = SPELL_CHARM;
-    af.is_instant = 0;
 
     af.duration = level * 10 / (GET_INT(devil) - GET_REMORT_GEN(ch));
 
-    af.modifier = 0;
-    af.location = 0;
     af.bitvector = AFF_CHARM;
     af.level = level;
     af.owner = GET_IDNUM(ch);
@@ -2559,6 +2549,8 @@ ASPELL(spell_animate_dead)
     struct creature *zombie = NULL;
     struct obj_data *i = NULL;
     float mult = (float)level / 70;
+
+    init_affect(&af);
 
     // Casting it on an undead creature causes it to regenerate somewhat
     if (victim) {
@@ -2753,10 +2745,7 @@ ASPELL(spell_animate_dead)
     add_follower(zombie, ch);
 
     af.type = SPELL_CHARM;
-    af.is_instant = 0;
     af.duration = -1;
-    af.modifier = 0;
-    af.location = 0;
     af.bitvector = AFF_CHARM;
     af.level = level;
     af.owner = GET_IDNUM(ch);
@@ -2876,6 +2865,7 @@ ASPELL(spell_control_undead)
 {
     struct affected_type af;
 
+    init_affect(&af);
     if (!IS_UNDEAD(victim)) {
         act("$N is not undead!", false, ch, 0, victim, TO_CHAR);
         return;
@@ -2906,13 +2896,10 @@ ASPELL(spell_control_undead)
             stop_follower(ch);
         add_follower(ch, victim);
         af.type = SPELL_CHARM;
-        af.is_instant = 0;
         if (GET_INT(victim))
             af.duration = 6 * 18 / GET_INT(victim);
         else
             af.duration = 6 * 18;
-        af.modifier = 0;
-        af.location = 0;
         af.bitvector = AFF_CHARM;
         af.level = level;
         af.aff_index = 0;
@@ -2973,15 +2960,12 @@ ASPELL(spell_control_undead)
         add_follower(victim, ch);
 
         af.type = SPELL_CHARM;
-        af.is_instant = 0;
 
         if (GET_INT(victim))
             af.duration = 24 * 18 / GET_INT(victim);
         else
             af.duration = 24 * 18;
 
-        af.modifier = 0;
-        af.location = 0;
         af.bitvector = AFF_CHARM;
         af.level = level;
         af.owner = GET_IDNUM(ch);
@@ -3040,7 +3024,9 @@ ASPELL(spell_sun_ray)
             if (!AFF_FLAGGED(tch, AFF_BLIND) && !NPC_FLAGGED(tch, NPC_NOBLIND)) {
 
                 struct affected_type af, af2;
-                af.is_instant = af2.is_instant = 0;
+                init_affect(&af);
+                init_affect(&af2);
+
                 af.type = af2.type = SPELL_BLINDNESS;
                 af.location = APPLY_HITROLL;
                 af.modifier = -4;
@@ -3350,6 +3336,9 @@ ASPELL(spell_bless)
     struct affected_type af, af2;
     int i;
 
+    init_affect(&af);
+    init_affect(&af2);
+
     if (!IS_GOOD(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
         send_to_char(ch,
             "Your soul is not worthy enough to cast this spell.\n");
@@ -3448,6 +3437,9 @@ ASPELL(spell_damn)
 {
     struct affected_type af, af2;
     int i;
+
+    init_affect(&af);
+    init_affect(&af2);
 
     if (!IS_EVIL(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
         send_to_char(ch,
@@ -3595,6 +3587,7 @@ perform_call_familiar(struct creature * ch, int level, int type)
     struct follow_type *cur_fol;
     int percent;
 
+    init_affect(&af);
     // First check to make sure that they don't already have a familiar
     for (cur_fol = ch->followers; cur_fol; cur_fol = cur_fol->next) {
         if (NPC2_FLAGGED(cur_fol->follower, NPC2_FAMILIAR)) {
@@ -3639,10 +3632,7 @@ perform_call_familiar(struct creature * ch, int level, int type)
     GET_NPC_LEADER(pet) = 1;
 
     af.type = SPELL_CHARM;
-    af.is_instant = 0;
     af.duration = -1;
-    af.modifier = 0;
-    af.location = 0;
     af.bitvector = AFF_CHARM;
     af.level = level;
     af.owner = GET_IDNUM(ch);

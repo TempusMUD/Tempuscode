@@ -99,6 +99,8 @@ holytouch_after_effect(long owner, struct creature *vict, int level)
     if (!IS_NPC(vict) || !NPC_FLAGGED(vict, NPC_NOBLIND)) {
         struct affected_type af;
 
+        init_affect(&af);
+
         af.next = NULL;
         af.type = TYPE_MALOVENT_HOLYTOUCH;
         af.duration = level / 10;
@@ -106,7 +108,6 @@ holytouch_after_effect(long owner, struct creature *vict, int level)
         af.location = APPLY_HITROLL;
         af.bitvector = AFF_BLIND;
         af.aff_index = 0;
-        af.is_instant = 0;
         af.owner = owner;
 
         affect_to_char(vict, &af);
@@ -123,10 +124,8 @@ malovent_holy_touch(struct creature *ch, struct creature *vict)
 {
     int chance = 0;
     struct affected_type af;
-    af.type = af.duration = af.modifier = af.location = 0;
-    af.level = af.is_instant = af.aff_index = 0;
-    af.next = NULL;
-    af.owner = 0;
+
+    init_affect(&af);
 
     if (GET_LEVEL(vict) > LVL_AMBASSADOR) {
         send_to_char(ch, "Aren't they evil enough already?\r\n");

@@ -31,9 +31,9 @@ perform_monk_meditate(struct creature *ch)
 {
     struct affected_type af;
 
+    init_affect(&af);
+
     af.level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2);
-    af.is_instant = 0;
-    af.location = APPLY_NONE;
     MEDITATE_TIMER(ch)++;
 
     // meditating makes a monk's alignment correct itself
@@ -71,7 +71,6 @@ perform_monk_meditate(struct creature *ch)
             af.bitvector = AFF2_OBLIVITY;
             af.aff_index = 2;
             af.duration = af.level / 5;
-            af.modifier = 0;
             af.owner = GET_IDNUM(ch);
             affect_to_char(ch, &af);
             if (GET_LEVEL(ch) < LVL_AMBASSADOR)
@@ -105,7 +104,6 @@ perform_monk_meditate(struct creature *ch)
                 af.aff_index = 2;
             }
             af.duration = af.level / 5;
-            af.modifier = 0;
             af.owner = GET_IDNUM(ch);
             affect_to_char(ch, &af);
             if (GET_LEVEL(ch) < LVL_AMBASSADOR)
@@ -129,10 +127,7 @@ perform_monk_meditate(struct creature *ch)
         if (target > test) {
             send_to_char(ch, "You have attained the zen of motion.\r\n");
             af.type = ZEN_MOTION;
-            af.bitvector = 0;
-            af.aff_index = 0;
             af.duration = af.level / 4;
-            af.modifier = 0;
             af.owner = GET_IDNUM(ch);
             // make them able to fly at high power
             if (GET_CLASS(ch) == CLASS_MONK
@@ -165,10 +160,7 @@ perform_monk_meditate(struct creature *ch)
             send_to_char(ch,
                 "You have achieved the zen of translocation.\r\n");
             af.type = ZEN_TRANSLOCATION;
-            af.bitvector = 0;
-            af.aff_index = 0;
             af.duration = af.level / 4;
-            af.modifier = 0;
             af.owner = GET_IDNUM(ch);
             affect_to_char(ch, &af);
             WAIT_STATE(ch, PULSE_VIOLENCE * 2);
@@ -190,8 +182,6 @@ perform_monk_meditate(struct creature *ch)
         if (target > test) {
             send_to_char(ch, "You have reached the zen of celerity.\r\n");
             af.type = ZEN_CELERITY;
-            af.bitvector = 0;
-            af.aff_index = 0;
             af.duration = af.level / 5;
             af.location = APPLY_SPEED;
             af.modifier = af.level / 4;
@@ -217,8 +207,6 @@ perform_monk_meditate(struct creature *ch)
         if (target > test) {
             send_to_char(ch, "You have grasped the zen of dispassion.\r\n");
             af.type = ZEN_DISPASSION;
-            af.bitvector = 0;
-            af.aff_index = 0;
             af.duration = af.level / 5;
             af.owner = GET_IDNUM(ch);
             affect_to_char(ch, &af);
@@ -558,6 +546,8 @@ ACMD(do_pinch)
     const char *to_vict = NULL, *to_room = NULL;
     bool happened;
 
+    init_affect(&af);
+
     pinch_str = tmp_getword(&argument);
     vict_str = tmp_getword(&argument);
 
@@ -650,11 +640,6 @@ ACMD(do_pinch)
         prob = 0;
 
     af.type = which_pinch;
-    af.location = APPLY_NONE;
-    af.is_instant = 0;
-    af.modifier = 0;
-    af.duration = 0;
-    af.bitvector = 0;
     af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
     af.owner = GET_IDNUM(ch);
 
@@ -902,6 +887,8 @@ ACMD(do_kata)
 {
     struct affected_type af;
 
+    init_affect(&af);
+
     if (GET_LEVEL(ch) < LVL_AMBASSADOR &&
         (CHECK_SKILL(ch, SKILL_KATA) < 50 || !IS_MONK(ch)))
         send_to_char(ch, "You have not learned any kata.\r\n");
@@ -925,8 +912,6 @@ ACMD(do_kata)
             return;
 
         af.type = SKILL_KATA;
-        af.is_instant = 0;
-        af.bitvector = 0;
         af.duration = 1 + (GET_LEVEL(ch) / 12);
         af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
         af.owner = GET_IDNUM(ch);

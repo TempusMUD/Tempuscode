@@ -888,7 +888,7 @@ load_player_from_xml(int id)
             free(txt);
         } else if (xmlMatches(node->name, "affect")) {
             struct affected_type af;
-            memset(&af, 0x0, sizeof(struct affected_type));
+            init_affect(&af);
             af.type = xmlGetIntProp(node, "type", 0);
             af.duration = xmlGetIntProp(node, "duration", 0);
             af.modifier = xmlGetIntProp(node, "modifier", 0);
@@ -900,8 +900,6 @@ load_player_from_xml(int id)
             char *instant = (char *)xmlGetProp(node, (xmlChar *) "instant");
             if (instant != NULL && strcmp(instant, "yes") == 0) {
                 af.is_instant = 1;
-            } else {
-                af.is_instant = 0;
             }
             free(instant);
 

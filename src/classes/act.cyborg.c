@@ -528,6 +528,10 @@ perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
     const char *to_room[2], *to_char[2];
     int opposite_mode = 0;
 
+    init_affect(&af[0]);
+    init_affect(&af[1]);
+    init_affect(&af[2]);
+
     if (!CHECK_SKILL(ch, mode))
         send_to_char(ch, "You do not have this program in memory.\r\n");
     else if (CHECK_SKILL(ch, mode) < 40)
@@ -3469,6 +3473,7 @@ ACMD(do_assimilate)
                 return;
             }
 
+            init_affect(&affs[num_affs - 1]);
             affs[num_affs - 1].type = SKILL_ASSIMILATE;
             affs[num_affs - 1].level =
                 GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2);
@@ -3477,8 +3482,6 @@ ACMD(do_assimilate)
                     SKILL_ASSIMILATE) / 10) + (affs[num_affs - 1].level >> 4);
             affs[num_affs - 1].modifier = obj->affected[i].modifier;
             affs[num_affs - 1].location = obj->affected[i].location;
-            affs[num_affs - 1].bitvector = 0;
-            affs[num_affs - 1].aff_index = 0;
         }
 
     }
@@ -3559,6 +3562,10 @@ ACMD(do_reconfigure)
     char *arg = tmp_getword(&argument);
     struct affected_type af, af2, af3;
     int val1, val2;
+
+    init_affect(&af);
+    init_affect(&af2);
+    init_affect(&af3);
 
     af.level = af2.level = af3.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
    af.bitvector = af2.bitvector = af3.bitvector = 0;

@@ -975,13 +975,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
             //now, does anything else happen to them?
 
             struct affected_type shiftAf;
-            shiftAf.is_instant = 0;
-            shiftAf.bitvector = 0;
-            shiftAf.location = APPLY_NONE;
-            shiftAf.modifier = 0;
-            shiftAf.aff_index = 0;
+
+            init_affect(&shiftAf);
             shiftAf.owner = GET_IDNUM(victim);
-            shiftAf.duration = 0;
             shiftAf.level = skill_bonus(victim, SPELL_DIMENSIONAL_SHIFT);
             shiftAf.type = SPELL_DIMENSIONAL_VOID;
             bool applyAffect = false;
@@ -1308,6 +1304,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                         if (!mag_savingthrow(ch, af->level, SAVING_BREATH) &&
                             !IS_POISONED(ch) && random_fractional_4()) {
                             struct affected_type af;
+                            init_affect(&af);
                             int level_bonus =
                                 skill_bonus(ch, SPELL_THORN_SKIN);
                             af.type = SPELL_POISON;
@@ -1677,11 +1674,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
         if (attacktype == TYPE_EGUN_SONIC && dam) {
             if (do_gun_special(ch, weap)) {
                 struct affected_type sonicAf;
-                sonicAf.is_instant = 0;
-                sonicAf.bitvector = 0;
+                init_affect(&sonicAf);
                 sonicAf.location = APPLY_DEX;
                 sonicAf.modifier = -1;
-                sonicAf.aff_index = 0;
                 sonicAf.owner = GET_IDNUM(ch);
                 sonicAf.duration = 1;
                 sonicAf.level = skill_bonus(ch, SKILL_ENERGY_WEAPONS);

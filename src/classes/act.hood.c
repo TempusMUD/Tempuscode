@@ -68,6 +68,8 @@ ACMD(do_hamstring)
     struct affected_type af;
     char *arg;
 
+    init_affect(&af);
+
     arg = tmp_getword(&argument);
     if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 50) {
         send_to_char(ch,
@@ -178,7 +180,6 @@ ACMD(do_hamstring)
             WEAR_FEET);
         if (!affected_by_spell(vict, SKILL_HAMSTRING)) {
             af.type = SKILL_HAMSTRING;
-            af.is_instant = 0;
             af.bitvector = AFF3_HAMSTRUNG;
             af.aff_index = 3;
             af.level = level + gen;

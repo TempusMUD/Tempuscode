@@ -122,10 +122,8 @@ perform_smoke(struct creature *ch, int type)
     ubyte lev = 0;
     int accum_dur = 0, accum_affect = 0;
 
+    init_affect(&af);
     af.type = SMOKE_EFFECTS;
-    af.bitvector = 0;
-    af.duration = 0;
-    af.location = APPLY_NONE;
     af.level = 30;
     af.owner = GET_IDNUM(ch);
 

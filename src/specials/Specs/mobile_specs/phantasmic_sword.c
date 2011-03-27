@@ -10,6 +10,8 @@ SPECIAL(phantasmic_sword)
     struct creature *mast = NULL;
     struct creature *self = (struct creature *)me;
 
+    init_affect(&af);
+
     if (spec_mode != SPECIAL_TICK)
         return 0;
     if (is_fighting(ch)) {

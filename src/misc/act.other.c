@@ -208,6 +208,8 @@ ACMD(do_elude)
 {
     struct affected_type af;
 
+    init_affect(&af);
+
     if (affected_by_spell(ch, SKILL_ELUSION)) {
         affect_from_char(ch, SKILL_ELUSION);
         send_to_char(ch, "You are no longer being actively elusive.\r\n");
@@ -215,10 +217,7 @@ ACMD(do_elude)
     } else {
         if (CHECK_SKILL(ch, SKILL_ELUSION) > number(0, 101)) {
             af.type = SKILL_ELUSION;
-            af.is_instant = 0;
             af.duration = -1;
-            af.location = APPLY_NONE;
-            af.modifier = 0;
             af.aff_index = 1;
             af.bitvector = AFF_NOTRACK;
             af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);

@@ -1619,6 +1619,8 @@ ignite_creature(struct creature *ch, struct creature *igniter)
 {
     struct affected_type af;
 
+    init_affect(&af);
+
     memset(&af, 0x0, sizeof(struct affected_type));
     af.type = SPELL_ABLAZE;
     af.duration = -1;

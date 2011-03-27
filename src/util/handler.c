@@ -57,6 +57,21 @@ void print_attributes_to_buf(struct creature *ch, char *buff);
 extern struct clan_data *clan_list;
 
 void
+init_affect(struct affected_type *af)
+{
+    af->type = 0;
+    af->duration = 0;
+    af->modifier = 0;
+    af->location = APPLY_NONE;
+    af->level = 0;
+    af->is_instant = 0;
+    af->bitvector = 0;
+    af->aff_index = 0;
+    af->owner = 0;
+    af->next = NULL;
+}
+
+void
 apply_object_affects(struct creature *ch, struct obj_data *obj, bool add)
 {
     if (!obj)

@@ -224,6 +224,8 @@ ASPELL(song_instant_audience)
     struct affected_type af;
     bool success = false;
 
+    init_affect(&af);
+
     extern void add_follower(struct creature *ch, struct creature *leader);
 
     if (room_is_open_air(ch->in_room)) {
@@ -268,14 +270,11 @@ ASPELL(song_instant_audience)
         add_follower(member, ch);
 
         af.type = SPELL_CHARM;
-        af.is_instant = 0;
         af.duration = 5 + (skill_bonus(ch, SONG_INSTANT_AUDIENCE) >> 2);
 
         if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(0, 120))
             af.duration = (int)(af.duration * 1.5);
 
-        af.modifier = 0;
-        af.location = 0;
         af.bitvector = AFF_CHARM;
         af.level = level;
         af.owner = GET_IDNUM(ch);

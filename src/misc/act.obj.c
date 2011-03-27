@@ -2070,6 +2070,8 @@ ACMD(do_drink)
     int drunk = 0, full = 0, thirst = 0;
     int on_ground = 0;
 
+    init_affect(&af);
+
     one_argument(argument, arg);
 
     if (!*arg) {
@@ -2189,11 +2191,8 @@ ACMD(do_drink)
         af.location = APPLY_STR;
         af.modifier = -2;
         af.duration = amount * 3;
-        af.bitvector = 0;
         af.type = SPELL_POISON;
         af.level = 30;
-        af.owner = 0;
-        af.is_instant = false;
 
         if (GET_OBJ_VAL(temp, 3) == 2) {
             if (HAS_POISON_3(ch))
@@ -2236,6 +2235,8 @@ ACMD(do_eat)
     struct obj_data *food;
     struct affected_type af;
     int amount;
+
+    init_affect(&af);
 
     one_argument(argument, arg);
 
@@ -2304,9 +2305,7 @@ ACMD(do_eat)
         af.location = APPLY_STR;
         af.modifier = -2;
         af.duration = amount * 3;
-        af.bitvector = 0;
         af.type = SPELL_POISON;
-        af.is_instant = false;
 
         if (GET_OBJ_VAL(food, 3) == 2) {
             if (HAS_POISON_3(ch))

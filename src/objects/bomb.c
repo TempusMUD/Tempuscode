@@ -169,6 +169,8 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
     int dam, damage_type = 0;
     char dname[128];
 
+    init_affect(&af);
+
     if (ROOM_FLAGGED(room, ROOM_PEACEFUL) || power <= bomb_power * 0.25)
         dam = 0;
     else
@@ -371,8 +373,6 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
             af.type = SPELL_BLINDNESS;
             af.bitvector = AFF_BLIND;
             af.duration = MAX(1, (power >> 1));
-            af.location = 0;
-            af.modifier = 0;
             af.aff_index = 1;
             af.level = 30;
             af.owner = damager_id;

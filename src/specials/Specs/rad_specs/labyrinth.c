@@ -157,6 +157,8 @@ SPECIAL(drink_me_bottle)
     struct affected_type af;
     struct obj_data *bottle = (struct obj_data *)me;
 
+    init_affect(&af);
+
     if (spec_mode != SPECIAL_CMD)
         return 0;
 
@@ -189,8 +191,6 @@ SPECIAL(drink_me_bottle)
     af.duration = 2;
     af.location = APPLY_CHAR_HEIGHT;
     af.modifier = -(GET_HEIGHT(ch) - 10);
-    af.aff_index = 0;
-    af.bitvector = 0;
     af.owner = GET_IDNUM(ch);
 
     affect_to_char(ch, &af);
