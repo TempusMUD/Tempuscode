@@ -2420,7 +2420,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 {
 
     int w_type = 0, victim_ac, calc_thaco, dam, tmp_dam, diceroll, skill = 0;
-    int i, metal_wt;
+    int i;
     byte limb;
     struct obj_data *weap = NULL;
     int retval;
@@ -2497,13 +2497,6 @@ hit(struct creature *ch, struct creature *victim, int type)
     }
 
     cur_weap = NULL;
-
-    for (i = 0, metal_wt = 0; i < NUM_WEARS; i++)
-        if (ch->equipment[i] &&
-            IS_OBJ_TYPE(ch->equipment[i], ITEM_ARMOR) &&
-            (IS_METAL_TYPE(ch->equipment[i]) ||
-                IS_STONE_TYPE(ch->equipment[i])))
-            metal_wt += GET_OBJ_WEIGHT(ch->equipment[i]);
 
     if ((type != SKILL_BACKSTAB && type != SKILL_CIRCLE &&
             type != SKILL_BEHEAD && type != SKILL_CLEAVE) || !cur_weap) {
