@@ -1004,7 +1004,7 @@ perform_offensive_skill(struct creature *ch,
     return false;
 }
 
-ACCMD(do_offensive_skill)
+ACMD(do_offensive_skill)
 {
     struct creature *vict = NULL;
     struct obj_data *ovict = NULL;
@@ -2617,14 +2617,14 @@ ACMD(do_ceasefire)
     }
 }
 
-ACCMD(do_disarm)
+ACMD(do_disarm)
 {
     struct creature *vict = NULL;
     struct obj_data *weap = NULL, *weap2 = NULL;
     int percent, prob;
     char *arg;
-    ACCMD(do_drop);
-    ACCMD(do_get);
+    ACMD(do_drop);
+    ACMD(do_get);
 
     arg = tmp_getword(&argument);
 

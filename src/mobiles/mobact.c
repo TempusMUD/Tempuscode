@@ -67,7 +67,7 @@ ACMD(do_feign);
 ACMD(do_hide);
 ACMD(do_gen_comm);
 ACMD(do_remove);
-ACCMD(do_drop);
+ACMD(do_drop);
 ACMD(do_load);
 ACMD(do_battlecry);
 ACMD(do_psidrain);
@@ -79,9 +79,9 @@ ACMD(do_berserk);
 
 // for mobile_activity
 ACMD(do_repair);
-ACCMD(do_get);
+ACMD(do_get);
 ACMD(do_wear);
-ACCMD(do_wield);
+ACMD(do_wield);
 ACMD(do_shoot);
 ACMD(do_holytouch);
 ACMD(do_medic);
@@ -2607,7 +2607,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
     int prob = 0, dam = 0;
     struct obj_data *weap = GET_EQ(ch, WEAR_WIELD), *gun = NULL;
 
-    ACCMD(do_disarm);
+    ACMD(do_disarm);
     ACMD(do_feign);
 
     if (!is_fighting(ch)) {
@@ -4268,7 +4268,7 @@ knight_activity(struct creature *ch)
 bool
 knight_battle_activity(struct creature *ch, struct creature *precious_vict)
 {
-    ACCMD(do_disarm);
+    ACMD(do_disarm);
     struct creature *vict;
 
     if (!(vict = choose_opponent(ch, precious_vict)))
@@ -4400,7 +4400,7 @@ ranger_activity(struct creature *ch)
 bool
 ranger_battle_activity(struct creature *ch, struct creature *precious_vict)
 {
-    ACCMD(do_disarm);
+    ACMD(do_disarm);
 
     struct creature *vict;
 
@@ -4521,7 +4521,7 @@ bool
 barbarian_battle_activity(struct creature * ch,
     struct creature * precious_vict)
 {
-    ACCMD(do_disarm);
+    ACMD(do_disarm);
 
     struct creature *vict;
 

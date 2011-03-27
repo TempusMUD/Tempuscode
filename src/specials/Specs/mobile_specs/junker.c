@@ -4,7 +4,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-ACCMD(do_drop);
+ACMD(do_drop);
 
 SPECIAL(junker)
 {

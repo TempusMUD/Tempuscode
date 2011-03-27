@@ -49,7 +49,7 @@ void weight_change_object(struct obj_data *obj, int weight);
 void add_follower(struct creature *ch, struct creature *leader);
 extern struct spell_info_type spell_info[];
 ACMD(do_flee);
-ACCMD(do_drop);
+ACMD(do_drop);
 void sound_gunshots(struct room_data *rm, int type, int power, int num);
 void ice_room(struct room_data *room, int amount);
 

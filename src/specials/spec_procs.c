@@ -59,7 +59,7 @@ ACMD(do_echo);
 ACMD(do_gen_comm);
 ACMD(do_rescue);
 ACMD(do_steal);
-ACCMD(do_get);
+ACMD(do_get);
 
 /* ********************************************************************
 *  Special procedures for mobiles                                     *
@@ -413,7 +413,7 @@ SPECIAL(dump)
     struct obj_data *k, *next_obj;
     int value = 0;
 
-    ACCMD(do_drop);
+    ACMD(do_drop);
     if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
         return 0;
 

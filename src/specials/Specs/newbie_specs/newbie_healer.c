@@ -6,7 +6,7 @@
 
 SPECIAL(newbie_healer)
 {
-    ACCMD(do_drop);
+    ACMD(do_drop);
     struct creature *i;
     struct obj_data *p;
 

@@ -479,7 +479,7 @@ load_roles_from_db(void)
  *  Used as an interface for the modification of security settings
  *  from within the mud.
  */
-ACCMD(do_access)
+ACMD(do_access)
 {
     struct role *role, *admin_role;
     char *token;

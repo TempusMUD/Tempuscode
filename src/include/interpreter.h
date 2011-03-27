@@ -26,12 +26,6 @@
 	__attribute__ ((unused)) int cmd, \
 	__attribute__ ((unused)) int subcmd)
 
-#define ACCMD(name)  \
-   void name(__attribute__ ((unused)) struct creature *ch, \
-   __attribute__ ((unused)) char *argument, \
-   __attribute__ ((unused)) int cmd, \
-   __attribute__ ((unused)) int subcmd)
-
 struct creature;
 struct descriptor_data;
 

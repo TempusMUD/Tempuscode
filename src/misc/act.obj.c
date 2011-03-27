@@ -1086,7 +1086,7 @@ get_from_room(struct creature *ch, char *arg)
     return retval;
 }
 
-ACCMD(do_get)
+ACMD(do_get)
 {
     int cont_dotmode = -1;
     struct obj_data *cont = NULL;
@@ -1426,7 +1426,7 @@ perform_drop(struct creature *ch, struct obj_data *obj,
     return 0;
 }
 
-ACCMD(do_drop)
+ACMD(do_drop)
 {
     extern room_num donation_room_1;    /* Modrian */
     extern room_num donation_room_2;    /* EC */
@@ -2919,7 +2919,7 @@ ACMD(do_wear)
     }
 }
 
-ACCMD(do_wield)
+ACMD(do_wield)
 {
     struct obj_data *obj;
     int hands_free = 2;

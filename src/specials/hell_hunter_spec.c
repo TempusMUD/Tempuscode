@@ -52,7 +52,7 @@ ACMD(do_echo);
 ACMD(do_gen_comm);
 ACMD(do_rescue);
 ACMD(do_steal);
-ACCMD(do_get);
+ACMD(do_get);
 
 GList *devils = NULL;
 GList *targets = NULL;
