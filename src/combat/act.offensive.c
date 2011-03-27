@@ -1095,7 +1095,7 @@ ACMD(do_hit)
         send_to_char(ch, "They don't seem to be here.\r\n");
         WAIT_STATE(ch, 4);
     } else if (vict == ch) {
-        send_to_char(ch, "You hit yourself...OUCH!.\r\n");
+        send_to_char(ch, "You hit yourself...OUCH!\r\n");
         act("$n hits $mself, and says OUCH!", false, ch, 0, vict, TO_ROOM);
     } else if (g_list_find(ch->fighting, vict)) {
         act("Ok, you will now concentrate your attacks on $N!",
