@@ -602,8 +602,17 @@ game_loop(int mother_desc)
         for (GList *it = creatures;it;it = next) {
             next = it->next;
             struct creature *tch = it->data;
-            if (is_dead(tch))
+            if (is_dead(tch)) {
                 extract_creature(tch, CXN_DISCONNECT);
+                // pull the char from the various lists
+                creatures = g_list_delete_link(creatures, it);
+                if (IS_NPC(tch))
+                    g_hash_table_remove(creature_map, GINT_TO_POINTER(-NPC_IDNUM(tch)));
+                else
+                    g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(tch)));
+
+
+            }
         }
         update_unique_id();
         tics++;                 /* tics since last checkpoint signal */

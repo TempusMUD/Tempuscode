@@ -808,13 +808,6 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
 
     char_from_room(ch, false);
 
-    // pull the char from the various lists
-    creatures = g_list_remove(creatures, ch);
-    if (IS_NPC(ch))
-        g_hash_table_remove(creature_map, GINT_TO_POINTER(-NPC_IDNUM(ch)));
-    else
-        g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(ch)));
-
     // remove any paths
     path_remove_object(ch);
 
