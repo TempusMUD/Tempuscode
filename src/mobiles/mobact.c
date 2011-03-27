@@ -1816,31 +1816,41 @@ single_mobile_activity(struct creature *ch)
                     extract_obj(obj);
                     return;
                 } else if (IS_OBJ_TYPE(obj, ITEM_CONTAINER) &&
-                    GET_OBJ_VAL(obj, 3)) {
+                           GET_OBJ_VAL(obj, 3)) {
                     struct room_data *stuff_rm;
 
-                    act("$n devours $p, growling and drooling all over.",
-                        false, ch, obj, 0, TO_ROOM);
-                    if (IS_TARRASQUE(ch))
-                        stuff_rm = real_room(24919);
-                    else
-                        stuff_rm = NULL;
+                    if (CORPSE_IDNUM(obj) < 0
+                        || ch->in_room->zone->pk_style == ZONE_CHAOTIC_PK) {
+                        act("$n devours $p, growling and drooling all over.",
+                            false, ch, obj, 0, TO_ROOM);
+                        if (IS_TARRASQUE(ch))
+                            stuff_rm = real_room(24919);
+                        else
+                            stuff_rm = NULL;
 
-                    if (!stuff_rm)
-                        stuff_rm = ch->in_room;
-                    for (i = obj->contains; i; i = best_obj) {
-                        best_obj = i->next_content;
-                        if (IS_IMPLANT(i)) {
-                            SET_BIT(GET_OBJ_WEAR(i), ITEM_WEAR_TAKE);
-                            if (GET_OBJ_DAM(i) > 0)
-                                GET_OBJ_DAM(i) >>= 1;
+                        if (!stuff_rm)
+                            stuff_rm = ch->in_room;
+                        for (i = obj->contains; i; i = best_obj) {
+                            best_obj = i->next_content;
+                            if (IS_IMPLANT(i)) {
+                                SET_BIT(GET_OBJ_WEAR(i), ITEM_WEAR_TAKE);
+                                if (GET_OBJ_DAM(i) > 0)
+                                    GET_OBJ_DAM(i) >>= 1;
+                            }
+                            obj_from_obj(i);
+                            obj_to_room(i, stuff_rm);
+
                         }
-                        obj_from_obj(i);
-                        obj_to_room(i, stuff_rm);
-
-                    }
-                    extract_obj(obj);
+                        extract_obj(obj);
+                        return;
+                    } else if (AFF_FLAGGED(ch, AFF_CHARM)
+                               && ch->master
+                               && ch->master->in_room == ch->in_room) {
+                    vict = ch->master;
+                    stop_follower(ch);
+                    hit(ch, vict, TYPE_UNDEFINED);
                     return;
+                    }
                 }
             }
         }
