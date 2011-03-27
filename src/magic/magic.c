@@ -1960,9 +1960,9 @@ mag_affects(int level,
 
             // see if we have chemical stability
             if (af_ptr) {
-                act("$n's chemical stability prevents further acidification from occurring!", false, victim, 0, 0, TO_ROOM);
+                act("$n's chemical stability prevents acidification from occurring!", false, victim, 0, 0, TO_ROOM);
                 send_to_char(victim,
-                    "You chemical stability prevents further acidification from occurring!\r\n");
+                    "Your chemical stability prevents acidification from occurring!\r\n");
                 af_ptr->duration -= (level / 8);
 
                 if (af_ptr->duration <= 0) {
@@ -2246,7 +2246,7 @@ mag_affects(int level,
             to_room =
                 "The grass and weeds growing through cracks in the pavement come alive, entangling $n where $e stands!";
             to_vict =
-                "The grass and weeds growing through cracks in the pavement come alive, entangling you where you stands!";
+                "The grass and weeds growing through cracks in the pavement come alive, entangling you where you stand!";
             af.modifier = -(level / 4);
             af2.modifier = -(level / 16);
         } else {
@@ -2273,7 +2273,7 @@ mag_affects(int level,
         af.location = APPLY_INT;
         af.modifier = -(level / 8);
         to_room = "A cloud of forgetfulness passes over $n's face.";
-        to_vict = "An wave of amnesia washes over your mind.";
+        to_vict = "A wave of amnesia washes over your mind.";
         break;
     case SPELL_ANTI_MAGIC_SHELL:
         af.duration = level;
@@ -2509,7 +2509,7 @@ mag_affects(int level,
         aff_array[0].location = APPLY_INT;
 
         to_vict =
-            "$N's music snakes it's way into your brain, dulling your senses.";
+            "$N's music snakes its way into your brain, dulling your senses.";
         to_room = "The music causes $n's eyes glaze over.";
         break;
 
@@ -2619,7 +2619,7 @@ mag_affects(int level,
             aff_array[0].aff_index = 2;
             aff_array[0].bitvector = AFF2_BERSERK;
 
-            act("The music drives you feril with rage!", false, ch, 0, 0,
+            act("The music drives you feral with rage!", false, ch, 0, 0,
                 TO_CHAR);
             act("$n looks murderous.  You might want to get out of here!",
                 false, ch, 0, 0, TO_ROOM);
