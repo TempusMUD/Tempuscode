@@ -515,7 +515,7 @@ prog_eval_abbrev(struct prog_evt *evt, char *args) {
                 int len = 0;
                 if ((len_ptr = strstr(args, "*"))) {
                     len = len_ptr - args;
-                    memcpy(len_ptr, len_ptr + 1, strlen(args) - len - 1);
+                    memmove(len_ptr, len_ptr + 1, strlen(args) - len - 1);
                     args[strlen(args) - 1] = 0;
                 }
                 if (is_abbrevn(arg, args, len)) {
