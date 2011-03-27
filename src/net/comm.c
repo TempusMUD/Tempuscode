@@ -1314,7 +1314,7 @@ unrestrict_game(int sig __attribute__ ((unused)))
 void
 hupsig(int sig __attribute__ ((unused)))
 {
-    slog("Received SIGHUP, SIGINT, or SIGTERM.  Shutting down...");
+    slog("Received SIGHUP or SIGTERM.  Shutting down...");
 
     mudlog(LVL_AMBASSADOR, BRF, true,
         "Received external signal - shutting down for reboot in 60 sec..");
@@ -1324,6 +1324,16 @@ hupsig(int sig __attribute__ ((unused)))
     shutdown_count = 60;
     shutdown_mode = SHUTDOWN_REBOOT;
 
+}
+
+void
+intsig(int sig __attribute__ ((unused)))
+{
+    mudlog(LVL_AMBASSADOR, BRF, true,
+        "Received external signal - shutting down for reboot now.");
+
+    send_to_all("\007\007_ Tempus REBOOT NOW! ::\r\n");
+    circle_shutdown = circle_reboot = 1;
 }
 
 /*
@@ -1384,8 +1394,8 @@ signal_setup(void)
 
     /* just to be on the safe side: */
     my_signal(SIGHUP, hupsig);
-    my_signal(SIGINT, hupsig);
     my_signal(SIGTERM, hupsig);
+    my_signal(SIGINT, intsig);
     my_signal(SIGPIPE, SIG_IGN);
     my_signal(SIGALRM, SIG_IGN);
 
