@@ -5750,6 +5750,7 @@ ACMD(do_set)
         {"reputation", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"language", LVL_IMMORT, BOTH, MISC, "AdminFull"},
         {"hardcore", LVL_IMMORT, PC, BINARY, "AdminFull"},
+        {"rentcode", LVL_DEMI, PC, MISC, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""}
     };
 
@@ -6422,6 +6423,37 @@ ACMD(do_set)
         break;
     case 82:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_HARDCORE); break;
+    case 83:
+        if (is_file) {
+            const char *rent_codes[] = {
+                "undefined",
+                "crash",
+                "rented",
+                "cryoed",
+                "forcerented",
+                "quit",
+                "newchar",
+                "creating",
+                "remorting",
+                "\n"
+            };
+            i = search_block(argument, rent_codes, false);
+            if (i >= 0) {
+                vict->player_specials->rentcode = i;
+                sprintf(buf, "%s's rent code set to %s.",
+                        GET_NAME(vict), rent_codes[i]);
+            } else {
+                send_to_char(ch, "Valid rent codes are:\r\n");
+                for (i = 0;rent_codes[i][0] != '\n';i++) {
+                    send_to_char(ch, "  %s\r\n", rent_codes[i]);
+                }
+                return;
+            }
+        } else {
+            send_to_char(ch, "Rentcode only makes sense when editing a player file\r\n");
+            return;
+        }
+        break;
     default:
         sprintf(buf, "Can't set that!");
         break;
