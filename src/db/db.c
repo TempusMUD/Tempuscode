@@ -1996,8 +1996,8 @@ parse_object(FILE * obj_f, int nr)
         safe_exit(1);
     }
     obj->obj_flags.weight = t[0];
-    obj->shared->cost = t[1];
-    obj->shared->cost_per_day = t[2];
+    obj->shared->cost = MAX(1, t[1]);
+    obj->shared->cost_per_day = MAX(1, t[2]);
     if (t[3] < 0)
         t[3] = 0;
     obj->obj_flags.timer = t[3];

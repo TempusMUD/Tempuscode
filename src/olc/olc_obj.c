@@ -848,7 +848,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             return;
         } else {
             i = atoi(arg2);
-            if (i < 0) {
+            if (i < 1) {
                 send_to_char(ch, "Object cost out of range.\r\n");
                 return;
             } else {
@@ -865,7 +865,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             return;
         } else {
             i = atoi(arg2);
-            if (i < 0) {
+            if (i < 1) {
                 send_to_char(ch, "Object rent out of range.\r\n");
                 return;
             } else {
