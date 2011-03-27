@@ -987,10 +987,10 @@ send_prompt(struct descriptor_data *d)
         break;
     case CXN_ACCOUNT_LOGIN:
         send_to_desc(d,
-            "Login with your account name, or 'new' for a new account: ");
+            "  Login with your account name, or 'new' for a new account: ");
         break;
     case CXN_ACCOUNT_PW:
-        send_to_desc(d, "Password: ");
+        send_to_desc(d, "  Password: ");
         break;
     case CXN_PW_PROMPT:
         send_to_desc(d, "        Enter your desired password: ");

@@ -830,7 +830,7 @@ new_descriptor(int s)
     struct descriptor_data *newd;
     struct sockaddr_in peer;
     struct hostent *from;
-    extern char *GREETINGS;
+    extern const char *GREETINGS[];
 
     /* accept the new connection */
     i = sizeof(peer);
@@ -907,7 +907,15 @@ new_descriptor(int s)
         SEND_TO_Q("(testmud)", newd);
     } else {
         SEND_TO_Q("\033[H\033[J", newd);
-        SEND_TO_Q(GREETINGS, newd);
+        if (number(0, 99)) {
+            if (number(0, 10))
+                SEND_TO_Q(GREETINGS[1], newd);
+            else
+                SEND_TO_Q(GREETINGS[2], newd);
+        } else {
+            // send original greeting 1/100th of the time
+            SEND_TO_Q(GREETINGS[0], newd);
+        }
     }
     return 0;
 }
