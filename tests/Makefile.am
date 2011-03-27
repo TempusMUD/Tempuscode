@@ -66,6 +66,7 @@ check_tempus_LDADD = @CHECK_LIBS@ @XML_LIBS@ @GLIB_LIBS@ \
 			$(top_builddir)/src/guard.o \
 			$(top_builddir)/src/mail.o \
 			$(top_builddir)/src/mobact.o \
+			$(top_builddir)/src/stress.o \
 			$(top_builddir)/src/tattooist.o \
 			$(top_builddir)/src/vendor.o \
 			$(top_builddir)/src/voice.o \

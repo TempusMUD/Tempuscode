@@ -66,9 +66,6 @@
 extern struct help_collection *Help;
 extern int mini_mud;
 extern int olc_lock;
-extern int no_rent_check;
-extern int no_initial_zreset;
-extern int log_cmds;
 extern unsigned int MAX_PLAYERS;
 extern int MAX_DESCRIPTORS_AVAILABLE;
 extern struct obj_data *cur_car;
@@ -89,6 +86,7 @@ int no_specials = 0;            /* Suppress ass. of special routines */
 int avail_descs = 0;            /* max descriptors available */
 int tics = 0;                   /* for extern checkpointing */
 int log_cmds = 0;               /* log cmds */
+bool stress_test = false;       /* stress test the codebase */
 int shutdown_count = -1;        /* shutdown countdown */
 int shutdown_idnum = -1;        /* idnum of person calling shutdown */
 int shutdown_mode = SHUTDOWN_NONE;  /* what type of shutdown */
@@ -366,26 +364,27 @@ game_loop(int mother_desc)
          * However, I think it is easier to check for an EINTR error return from
          * this select() call rather than to block and unblock signals.
          */
-        do {
-            errno = 0;          /* clear error condition */
+        if (!stress_test) {
+            do {
+                errno = 0;          // clear error condition
 
-            /* figure out for how long we have to sleep */
-            gettimeofday(&now, (struct timezone *)0);
-            timespent = timediff(&now, &last_time);
-            timeout = timediff(&opt_time, &timespent);
+                // figure out for how long we have to sleep
+                gettimeofday(&now, (struct timezone *)0);
+                timespent = timediff(&now, &last_time);
+                timeout = timediff(&opt_time, &timespent);
 
-            if (!production_mode && !timeout.tv_sec && !timeout.tv_usec)
-                slog("WARNING: Last pulse %d took %lu.%06lu seconds",
-                    pulse, timespent.tv_sec, timespent.tv_usec);
+                if (!production_mode && !timeout.tv_sec && !timeout.tv_usec)
+                    slog("WARNING: Last pulse %d took %lu.%06lu seconds",
+                         pulse, timespent.tv_sec, timespent.tv_usec);
 
-            /* sleep until the next 0.1 second mark */
-            if (usleep(timeout.tv_sec * 1000000 + timeout.tv_usec) < 0)
-                if (errno != EINTR) {
-                    perror("Select sleep");
-                    safe_exit(EXIT_FAILURE);
-                }
-        } while (errno);
-
+                // sleep until the next 0.1 second mark
+                if (usleep(timeout.tv_sec * 1000000 + timeout.tv_usec) < 0)
+                    if (errno != EINTR) {
+                        perror("Select sleep");
+                        safe_exit(EXIT_FAILURE);
+                    }
+            } while (errno);
+        }
         /* record the time for the next pass */
         gettimeofday(&last_time, (struct timezone *)0);
 
@@ -439,9 +438,12 @@ game_loop(int mother_desc)
 
         pulse++;
 
-        void random_mob_activity(void);
+        if (stress_test) {
+            void random_mob_activity(void);
 
-        random_mob_activity();
+            slog("Pulse %d", pulse);
+            random_mob_activity();
+        }
 
         /* Update progs triggered by user input that have not run yet */
         prog_update_pending();
@@ -1381,16 +1383,14 @@ signal_setup(void)
     my_signal(SIGUSR2, unrestrict_game);
     /*
      * set up the deadlock-protection so that the MUD aborts itself if it gets
-     * caught in an infinite loop for more than 3 minutes
+     * caught in an infinite loop for more than 3 seconds
      */
-    interval.tv_sec = 180;
+    interval.tv_sec = 600;
     interval.tv_usec = 0;
     itime.it_interval = interval;
     itime.it_value = interval;
-    if (production_mode) {
-        setitimer(ITIMER_VIRTUAL, &itime, NULL);
-        my_signal(SIGVTALRM, checkpointing);
-    }
+    setitimer(ITIMER_VIRTUAL, &itime, NULL);
+    my_signal(SIGVTALRM, checkpointing);
 
     /* just to be on the safe side: */
     my_signal(SIGHUP, hupsig);

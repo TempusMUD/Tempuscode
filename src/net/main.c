@@ -20,6 +20,7 @@ extern int no_rent_check;
 extern int no_initial_zreset;
 extern int log_cmds;
 extern int nameserver_is_slow;  /* see config.c */
+extern bool stress_test;
 extern bool production_mode;
 
 void verify_environment(void);
@@ -43,12 +44,11 @@ main(int argc, char **argv)
     int option_idx = 0;
     struct option long_options[] = {
         {"wizlock", no_argument, NULL, 'b'},
+        {"stress", no_argument, NULL, 's'},
         {"minimud", no_argument, NULL, 'm'},
         {"check", no_argument, NULL, 'c'},
         {"quickboot", no_argument, NULL, 'q'},
         {"restrict", no_argument, NULL, 'r'},
-        {"nospecials", no_argument, NULL, 's'},
-        {"noolc", no_argument, NULL, 'o'},
         {"nozreset", no_argument, NULL, 'z'},
         {"nonameserver", no_argument, NULL, 'n'},
         {"logall", no_argument, NULL, 'l'},
@@ -68,6 +68,10 @@ main(int argc, char **argv)
             restrict_logins = 50;
             slog("Wizlock 50");
             break;
+        case 's':
+            stress_test = true;
+            slog("Running in stress test mode");
+            break;
         case 'm':
             mini_mud = 1;
             no_rent_check = 1;
@@ -84,14 +88,6 @@ main(int argc, char **argv)
         case 'r':
             restrict_logins = 1;
             slog("Restricting game -- no new players allowed.");
-            break;
-        case 's':
-            no_specials = 1;
-            slog("Suppressing assignment of special routines.");
-            break;
-        case 'o':
-            olc_lock = 1;
-            slog("Locking olc.");
             break;
         case 'z':
             no_initial_zreset = 1;

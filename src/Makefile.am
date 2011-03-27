@@ -69,6 +69,7 @@ ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a
                  mobiles/guard.c \
                  mobiles/mail.c \
                  mobiles/mobact.c \
+                 mobiles/stress.c \
                  mobiles/tattooist.c \
                  mobiles/vendor.c \
                  mobiles/voice.c \
