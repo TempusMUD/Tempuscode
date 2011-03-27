@@ -1598,8 +1598,7 @@ send_to_comm_channel(struct creature *ch, char *buf, int chan, int mode,
             continue;
 
         if (!IS_PLAYING(receiver->desc) || !receiver->desc ||
-            PLR_FLAGGED(receiver, PLR_WRITING) ||
-            PLR_FLAGGED(receiver, PLR_OLC))
+            PLR_FLAGGED(receiver, PLR_WRITING))
             continue;
 
         if (!COMM_UNIT_SEND_OK(ch, receiver))

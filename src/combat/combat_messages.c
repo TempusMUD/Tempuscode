@@ -243,7 +243,7 @@ death_cry(struct creature *ch)
         struct creature *tch = it->data;
 
         if (ch != tch && GET_POSITION(tch) == POS_SLEEPING &&
-            !PLR_FLAGGED(tch, PLR_OLC | PLR_WRITING) &&
+            !PLR_FLAGGED(tch, PLR_WRITING) &&
             !AFF_FLAGGED(tch, AFF_SLEEP)) {
             GET_POSITION(tch) = POS_RESTING;
         }

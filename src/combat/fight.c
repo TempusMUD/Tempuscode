@@ -742,9 +742,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         return false;
     }
 
-    if (ch && (PLR_FLAGGED(victim, PLR_MAILING) ||
-            PLR_FLAGGED(victim, PLR_WRITING) ||
-            PLR_FLAGGED(victim, PLR_OLC)) && ch != victim) {
+    if (ch && PLR_FLAGGED(victim, PLR_WRITING) && ch != victim) {
         mudlog(GET_INVIS_LVL(ch), BRF, true,
             "%s has attacked %s while writing at %d.", GET_NAME(ch),
             GET_NAME(victim), ch->in_room->number);

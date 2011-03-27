@@ -769,11 +769,11 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
         if (!i->desc)
             desc = tmp_sprintf("%s %s(linkless)%s", desc,
                 CCMAG(ch, C_NRM), CCYEL(ch, C_NRM));
-        if (PLR_FLAGGED(i, PLR_WRITING))
-            desc = tmp_sprintf("%s %s(writing)%s", desc,
-                CCGRN(ch, C_NRM), CCYEL(ch, C_NRM));
         if (PLR_FLAGGED(i, PLR_OLC))
             desc = tmp_sprintf("%s %s(creating)%s", desc,
+                CCGRN(ch, C_NRM), CCYEL(ch, C_NRM));
+        else if (PLR_FLAGGED(i, PLR_WRITING))
+            desc = tmp_sprintf("%s %s(writing)%s", desc,
                 CCGRN(ch, C_NRM), CCYEL(ch, C_NRM));
         if (PLR_FLAGGED(i, PLR_AFK)) {
             if (AFK_REASON(i))
