@@ -3477,6 +3477,16 @@ who_kills(struct creature *ch, struct creature *target)
     acc_sprintf(" -%s-%s", reputation_msg[GET_REPUTATION_RANK(target)], CCNRM(ch, C_NRM));
 }
 
+static int
+cmp(int a, int b)
+{
+    if (a < b)
+        return -1;
+    if (a > b)
+        return 1;
+    return 0;
+}
+
 bool
 who_list_compare(struct creature *a, struct creature *b)
 {
@@ -3486,18 +3496,22 @@ who_list_compare(struct creature *a, struct creature *b)
     // then testers, then by gen, then by level
     // then by time played
     if (IS_IMMORT(a) || IS_IMMORT(b))
-        return GET_LEVEL(a) > GET_LEVEL(b);
-    if (is_tester(a))
-        return true;
+        return cmp(GET_LEVEL(b), GET_LEVEL(a));
+    if (is_tester(a) && is_tester(b))
+        return 0;
+    if (is_tester(a) && !is_tester(b))
+        return -1;
+    if (!is_tester(a) && is_tester(b))
+        return 1;
     if (GET_REMORT_GEN(a) != GET_REMORT_GEN(b))
-        return GET_REMORT_GEN(a) > GET_REMORT_GEN(b);
+        return cmp(GET_REMORT_GEN(b), GET_REMORT_GEN(a));
     if (GET_LEVEL(a) != GET_LEVEL(b))
-        return GET_LEVEL(a) > GET_LEVEL(b);
+        return cmp(GET_LEVEL(b), GET_LEVEL(a));
 
     now = time(0);
     time_a = now - a->player.time.logon + a->player.time.played;
     time_b = now - b->player.time.logon + b->player.time.played;
-    return time_a > time_b;
+    return cmp(time_b, time_a);
 }
 
 ACMD(do_who)
