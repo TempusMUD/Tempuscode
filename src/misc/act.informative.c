@@ -2680,16 +2680,62 @@ ACMD(do_affects)
         page_string(ch->desc, acc_get_string());
 }
 
-ACMD(do_experience)
+ACMD(do_gen_points)
 {
+    char cbuf[MAX_INPUT_LENGTH];
 
-    if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-        send_to_char(ch, "You are very experienced.\r\n");
-        return;
+    switch (subcmd) {
+    case SCMD_ALIGNMENT:
+        if (GET_ALIGNMENT(ch) < -300) {
+            sprintf(cbuf, "%s", CCRED(ch, C_NRM));
+        } else if (GET_ALIGNMENT(ch) > 300) {
+            sprintf(cbuf, "%s", CCCYN(ch, C_NRM));
+        } else {
+            sprintf(cbuf, "%s", CCYEL(ch, C_NRM));
+        }
+        send_to_char(ch, "%sYour alignment is%s %s%d%s.\r\n", CCWHT(ch, C_NRM),
+                     CCNRM(ch, C_NRM), cbuf, GET_ALIGNMENT(ch), CCNRM(ch, C_NRM));
+        break;
+    case SCMD_ARMOR:
+        send_to_char(ch, "Your armor class is %s%d%s.\r\n",
+                     CCGRN(ch, C_NRM), GET_AC(ch), CCNRM(ch, C_NRM));
+        break;
+    case SCMD_EXPERIENCE:
+        if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+            send_to_char(ch, "You are very experienced.\r\n");
+            return;
+        }
+        send_to_char(ch, "You need %s%d%s exp to level.\r\n",
+                     CCCYN(ch, C_NRM), ((exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch)),
+                     CCNRM(ch, C_NRM));
+        break;
+    case SCMD_HITPOINTS:
+        send_to_char(ch, "You have %s%d%s out of %s%d%s hitpoints.\r\n",
+                     CCGRN(ch, C_NRM), GET_HIT(ch), CCNRM(ch, C_NRM),
+                     CCGRN(ch, C_NRM), GET_MAX_HIT(ch), CCNRM(ch, C_NRM));
+        break;
+    case SCMD_LIFEPOINTS:
+        send_to_char(ch, "You have %s%d%s life points.\r\n",
+                     CCCYN(ch, C_NRM), GET_LIFE_POINTS(ch), CCNRM(ch, C_NRM));
+        break;
+    case SCMD_MANA:
+        send_to_char(ch, "You have %s%d%s out of %s%d%s mana.\r\n",
+                     CCMAG(ch, C_NRM), GET_MANA(ch), CCNRM(ch, C_NRM),
+                     CCMAG(ch, C_NRM), GET_MAX_MANA(ch), CCNRM(ch, C_NRM));
+        break;
+    case SCMD_MOVE:
+        send_to_char(ch, "You have %s%d%s out of %s%d%s move.\r\n",
+                     CCCYN(ch, C_NRM), GET_MOVE(ch), CCNRM(ch, C_NRM),
+                     CCCYN(ch, C_NRM), GET_MAX_MOVE(ch), CCNRM(ch, C_NRM));
+        break;
+    case SCMD_REPUTATION:
+        strcpy(cbuf, reputation_msg[GET_REPUTATION_RANK(ch)]);
+        send_to_char(ch, "You have %s %s reputation.\r\n", AN(cbuf), cbuf);
+        break;
+    default:
+        errlog("Bad do_gen_points subcmd %d", subcmd);
+        send_to_char(ch, "You don't seem to be able to do that.\r\n");
     }
-    send_to_char(ch, "You need %s%d%s exp to level.\r\n",
-        CCCYN(ch, C_NRM), ((exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch)),
-        CCNRM(ch, C_NRM));
 }
 
 ACMD(do_score)
@@ -4697,28 +4743,6 @@ ACMD(do_specializations)
         send_to_char(ch, " %2d. %-30s [%d]\r\n", i + 1,
             obj->name, GET_WEAP_SPEC(ch, i).level);
     }
-}
-
-ACMD(do_alignment)
-{
-
-    char cbuf[MAX_INPUT_LENGTH];
-
-    if (GET_ALIGNMENT(ch) < -300) {
-        sprintf(cbuf, "%s", CCRED(ch, C_NRM));
-    }
-
-    else if (GET_ALIGNMENT(ch) > 300) {
-        sprintf(cbuf, "%s", CCCYN(ch, C_NRM));
-    }
-
-    else {
-        sprintf(cbuf, "%s", CCYEL(ch, C_NRM));
-    }
-
-    send_to_char(ch, "%sYour alignment is%s %s%d%s.\r\n", CCWHT(ch, C_NRM),
-        CCNRM(ch, C_NRM), cbuf, GET_ALIGNMENT(ch), CCNRM(ch, C_NRM));
-
 }
 
 ACMD(do_wizlist)

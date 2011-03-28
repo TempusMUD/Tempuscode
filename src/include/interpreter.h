@@ -390,4 +390,15 @@ struct set_struct {
 #define SCMD_DYNTEXT_FAIT_2 4
 #define SCMD_DYNTEXT_FAIT_3 5
 
+// do_gen_points
+enum {
+    SCMD_ALIGNMENT,
+    SCMD_ARMOR,
+    SCMD_EXPERIENCE,
+    SCMD_HITPOINTS,
+    SCMD_LIFEPOINTS,
+    SCMD_MANA,
+    SCMD_REPUTATION,
+};
+
 #endif							//TEMPUSMUD_INTERPRETER_H

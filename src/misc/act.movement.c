@@ -50,6 +50,7 @@ extern struct obj_data *object_list;
 extern struct creatureList mountedList;
 
 /* external functs */
+ACMD(do_gen_points);
 long special(struct creature *ch, int cmd, int subcmd, char *arg,
     enum special_mode spec_mode);
 int find_eq_pos(struct creature *ch, struct obj_data *obj, char *arg);
@@ -1400,7 +1401,10 @@ ACMD(do_move)
     if (subcmd == SCMD_MOVE || subcmd == SCMD_JUMP || subcmd == SCMD_CRAWL) {
         argument = one_argument(argument, arg1);
         if (!*arg1) {
-            send_to_char(ch, "In which direction?\r\n");
+            if (subcmd == SCMD_MOVE)
+                do_gen_points(ch, arg1, cmd, subcmd);
+            else
+                send_to_char(ch, "In which direction?\r\n");
             return;
         }
         if ((dir = search_block(arg1, dirs, false)) < 0) {

@@ -97,7 +97,6 @@ ACMD(do_advance);
 ACMD(do_affects);
 ACMD(do_afk);
 ACMD(do_alias);
-ACMD(do_alignment);
 ACMD(do_alter);
 ACMD(do_ambush);
 ACMD(do_analyze);
@@ -200,7 +199,6 @@ ACMD(do_enroll);
 ACMD(do_equipment);
 ACMD(do_examine);
 ACMD(do_extinguish);
-ACMD(do_experience);
 ACMD(do_exits);
 ACMD(do_evade);
 ACMD(do_evaluate);
@@ -217,6 +215,7 @@ ACMD(do_gasify);
 ACMD(do_gecho);
 ACMD(do_gen_comm);
 ACMD(do_gen_door);
+ACMD(do_gen_points);
 ACMD(do_gen_ps);
 ACMD(do_gen_tog);
 ACMD(do_gen_write);
@@ -456,7 +455,7 @@ struct command_info cmd_info[] = {
     {"advance", POS_DEAD, do_advance, LVL_IMMORT, 0, 0, 0},
     {"ahem", POS_RESTING, do_action, 0, 0, 0, 0},
     {"alias", POS_DEAD, do_alias, 0, 0, 0, 0},
-    {"alignment", POS_DEAD, do_alignment, 0, 0, 0, 0},
+    {"alignment", POS_DEAD, do_gen_points, 0, SCMD_ALIGNMENT, 0, 0},
     {"alter", POS_SITTING, do_alter, 0, 0, 0, 0},
     {"alterations", POS_SLEEPING, do_skills, 0, SCMD_SPELLS_ONLY, 0, 0},
     {"activate", POS_SITTING, do_activate, 0, SCMD_ON, 0, 0},
@@ -478,6 +477,7 @@ struct command_info cmd_info[] = {
     {"appraise", POS_RESTING, do_appraise, 0, 0, 0, 0},
     {"unapprove", POS_DEAD, do_unapprove, LVL_IMMORT, 0, 0, 0},
     {"arm", POS_SITTING, do_arm, 1, 0, 0, 0},
+    {"armor", POS_SITTING, do_gen_points, 0, SCMD_ARMOR, 0, 0},
     {"assist", POS_FIGHTING, do_assist, 1, 0, 0, 0},
     {"assemble", POS_RESTING, do_not_here, 0, 0, 0, 0},
     {"assert", POS_RESTING, do_say, 0, 0, 0, 0},
@@ -732,7 +732,7 @@ struct command_info cmd_info[] = {
     {"examine", POS_RESTING, do_examine, 0, 0, 0, 0},
     {"exchange", POS_SITTING, do_not_here, 0, 0, 0, 0},
     {"exclaim", POS_RESTING, do_say, 0, 0, 0, 0},
-    {"experience", POS_DEAD, do_experience, 0, 0, 0, 0},
+    {"experience", POS_DEAD, do_gen_points, 0, SCMD_EXPERIENCE, 0, 0},
     {"explain", POS_RESTING, do_action, 0, 0, 0, 0},
     {"extinguish", POS_RESTING, do_extinguish, 0, 0, 0, 0},
     {"expostulate", POS_RESTING, do_say, 0, 0, 0, 0},
@@ -846,6 +846,7 @@ struct command_info cmd_info[] = {
     {"hide", POS_RESTING, do_hide, 1, 0, 0, 0},
     {"hiss", POS_RESTING, do_action, 0, 0, 0, 0},
     {"hit", POS_FIGHTING, do_hit, 0, SCMD_HIT, 0, 0},
+    {"hitpoints", POS_DEAD, do_gen_points, 0, SCMD_HITPOINTS, 0, 0},
     {"hiptoss", POS_FIGHTING, do_offensive_skill, 0, SKILL_HIP_TOSS, 0, 0},
     {"hamstring", POS_STANDING, do_hamstring, 0, SKILL_HAMSTRING, 0, 0},
     {"hmmm", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -944,6 +945,7 @@ struct command_info cmd_info[] = {
     {"listen", POS_RESTING, do_listen, 0, 0, 0, 0},
     {"lick", POS_RESTING, do_action, 0, 0, 0, 0},
     {"life", POS_RESTING, do_action, 0, 0, 0, 0},
+    {"lifepoints", POS_DEAD, do_gen_points, 0, SCMD_LIFEPOINTS, 0, 0},
     {"lightbulb", POS_RESTING, do_action, 0, 0, 0, 0},
     {"liver", POS_RESTING, do_action, 0, 0, 0, 0},
     {"lock", POS_SITTING, do_gen_door, 0, SCMD_LOCK, 0, 0},
@@ -959,6 +961,7 @@ struct command_info cmd_info[] = {
     {"makemount", POS_STANDING, do_makemount, LVL_IMMORT, 0, 0, 0},
     {"mload", POS_SLEEPING, do_mload, LVL_IMMORT, 0, 0, 0},
     {"mail", POS_STANDING, do_not_here, 1, 0, 0, 0},
+    {"mana", POS_DEAD, do_gen_points, 0, SCMD_MANA, 0, 0},
     {"marvel", POS_RESTING, do_action, 0, 0, 0, 0},
     {"marvelous", POS_RESTING, do_action, 0, 0, 0, 0},
     {"massage", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -969,6 +972,7 @@ struct command_info cmd_info[] = {
     {"mischievous", POS_RESTING, do_action, 0, 0, 0, 0},
     {"miss", POS_RESTING, do_action, 0, 0, 0, 0},
     {"mock", POS_RESTING, do_action, 0, 0, 0, 0},
+    {"move", POS_DEAD, do_gen_points, 0, SCMD_MOVE, 0, 0},
     {"mount", POS_STANDING, do_mount, 0, 0, 0, 0},
     {"mourn", POS_STANDING, do_say, 0, 0, 0, 0},
     {"moan", POS_RESTING, do_say, 0, 0, 0, 0},
@@ -978,9 +982,7 @@ struct command_info cmd_info[] = {
     {"moo", POS_RESTING, do_action, 0, 0, 0, 0},
     {"moods", POS_DEAD, do_commands, 0, SCMD_MOODS, 0, 0},
     {"moon", POS_SITTING, do_action, 0, 0, 0, 0},
-    {"mortalize", POS_SLEEPING, do_gen_tog, LVL_AMBASSADOR, SCMD_MORTALIZE, 0,
-            0},
-    {"move", POS_STANDING, do_move, 0, SCMD_MOVE, 0, 0},
+    {"mortalize", POS_SLEEPING, do_gen_tog, LVL_AMBASSADOR, SCMD_MORTALIZE, 0, 0},
     {"mshield", POS_DEAD, do_mshield, 0, 0, 0, 0},
     {"mud", POS_RESTING, do_action, 0, 0, 0, 0},
     {"mudwipe", POS_DEAD, do_mudwipe, LVL_ENTITY, 0, 0, 0},
@@ -1150,6 +1152,7 @@ struct command_info cmd_info[] = {
     {"rant", POS_SITTING, do_say, 0, 0, 0, 0},
     {"rave", POS_SITTING, do_say, 0, 0, 0, 0},
     {"reply", POS_SLEEPING, do_reply, 0, 0, 0, 0},
+    {"reputation", POS_DEAD, do_gen_points, 0, SCMD_REPUTATION, 0, 0},
     {"retell", POS_SLEEPING, do_retell, 0, 0, 0, 0},
     {"redeem", POS_RESTING, do_not_here, 0, 0, 0, 0},
     {"repair", POS_SITTING, do_repair, 0, 0, 0, 0},
