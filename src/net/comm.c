@@ -108,7 +108,7 @@ void init_game(int port);
 void signal_setup(void);
 void game_loop(int main_listener, int reader_listener);
 int init_socket(int port);
-int new_descriptor(int s, bool is_blind);
+int new_descriptor(int s, int port);
 int get_avail_descs(void);
 int process_output(struct descriptor_data *t);
 int process_input(struct descriptor_data *t);
@@ -824,7 +824,7 @@ write_to_output(const char *txt, struct descriptor_data *t)
 ****************************************************************** */
 
 int
-new_descriptor(int s, bool is_blind)
+new_descriptor(int s, int port)
 {
     int desc, sockets_input_mode = 0;
     unsigned long addr;
@@ -883,10 +883,11 @@ new_descriptor(int s, bool is_blind)
 
     /* Log new connections - probably unnecessary, but you may want it */
     mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
-        "New connection from [%s]%s%s",
-        newd->host,
-        (bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
-        (bantype == BAN_NEW) ? "(NEWBIE BAN)" : "");
+         "New connection from [%s]%s%s on %d",
+         newd->host,
+         (bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
+         (bantype == BAN_NEW) ? "(NEWBIE BAN)" : "",
+         port);
 
     /* initialize descriptor data */
     newd->descriptor = desc;
@@ -899,7 +900,7 @@ new_descriptor(int s, bool is_blind)
     newd->text_editor = NULL;
     newd->idle = 0;
     newd->ban_dc_counter = 0;
-    newd->is_blind = is_blind;
+    newd->is_blind = (port == reader_port);
 
     if (++last_desc == 10000)
         last_desc = 1;
@@ -909,7 +910,7 @@ new_descriptor(int s, bool is_blind)
     descriptor_list = newd;
     if (mini_mud) {
         SEND_TO_Q("(testmud)", newd);
-    } else if (is_blind) {
+    } else if (newd->is_blind) {
         SEND_TO_Q("Welcome to Tempus MUD!\r\n", newd);
     } else {
         // This text is printed just before the screen clear, so most
