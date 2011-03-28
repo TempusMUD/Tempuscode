@@ -2,7 +2,7 @@
 #include "config.h"
 #endif
 
-#include <signal.h>o
+#include <signal.h>
 
 #include "structs.h"
 #include "comm.h"
