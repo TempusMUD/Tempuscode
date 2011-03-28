@@ -495,6 +495,10 @@ handle_input(struct descriptor_data *d)
                 "\r\nSorry, there was an error creating your character.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
         }
+        if (d->is_blind) {
+            SET_BIT(PRF_FLAGS(d->creature), PRF_BRIEF | PRF_GAGMISS);
+            SET_BIT(PRF2_FLAGS(d->creature), PRF2_NOTRAILERS);
+        }
         d->creature->desc = d;
         d->creature->player_specials->rentcode = RENT_CREATING;
         set_desc_state(CXN_SEX_PROMPT, d);
