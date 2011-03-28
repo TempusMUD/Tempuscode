@@ -1849,7 +1849,7 @@ ACMD(do_enter)
             return;
         }
 
-        if (will_fit_in_room(ch, room)) {
+        if (!will_fit_in_room(ch, room)) {
             act("$p is already full of people.", false, ch, car, 0, TO_CHAR);
             return;
         }
@@ -1905,7 +1905,7 @@ ACMD(do_enter)
         return;
     }
 
-    if (will_fit_in_room(ch, room)) {
+    if (!will_fit_in_room(ch, room)) {
         act("You are unable to enter $p!", false, ch, car, 0, TO_CHAR);
         return;
     }
