@@ -1,3 +1,4 @@
+#include <signal.h>
 #include "obj_data.h"
 #include "creature.h"
 #include "room_data.h"

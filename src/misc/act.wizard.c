@@ -22,6 +22,7 @@
 #define _GNU_SOURCE
 #include <string.h>
 #include <execinfo.h>
+#include <signal.h>
 
 #include "structs.h"
 #include "utils.h"

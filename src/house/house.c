@@ -8,6 +8,7 @@
 #include <time.h>
 #include <errno.h>
 #include <dirent.h>
+#include <signal.h>
 
 #include "structs.h"
 #include "comm.h"

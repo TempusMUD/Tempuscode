@@ -2,6 +2,8 @@
 #include "config.h"
 #endif
 
+#include <signal.h>o
+
 #include "structs.h"
 #include "comm.h"
 #include "interpreter.h"

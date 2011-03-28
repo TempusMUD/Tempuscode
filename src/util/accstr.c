@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <signal.h>
+
 #include "interpreter.h"
 #include "utils.h"
 #include "db.h"
