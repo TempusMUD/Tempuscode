@@ -805,7 +805,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
                 }
             } else
                 val = 0;
-            shop->item_list = g_list_prepend(shop->item_list,
+            shop->item_types = g_list_prepend(shop->item_types,
                 GINT_TO_POINTER(1 << 8 | val));
         } else if (!strcmp(param_key, "refuse")) {
             if (strcmp(line, "all")) {
@@ -816,7 +816,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
                 }
             } else
                 val = 0;
-            shop->item_list = g_list_prepend(shop->item_list,
+            shop->item_types = g_list_prepend(shop->item_types,
                 GINT_TO_POINTER(0 << 8 | val));
         } else if (!strcmp(param_key, "denied-msg")) {
             shop->msg_denied = strdup(line);
