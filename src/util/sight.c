@@ -187,8 +187,10 @@ check_sight_vict(struct creature * self, struct creature * vict)
         return false;
 
     // Non-tester mortal players can't see testers
-    if (!IS_IMMORT(self) && !IS_NPC(self) &&
-        !is_authorized(self, TESTER, NULL)
+    if (!IS_IMMORT(self)
+        && !IS_NPC(self)
+        && !IS_IMMORT(vict)
+        && !is_authorized(self, TESTER, NULL)
         && is_authorized(vict, TESTER, NULL))
         return false;
 
