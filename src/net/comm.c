@@ -398,9 +398,9 @@ game_loop(int main_listener, int reader_listener)
         }
         /* New connection waiting for us? */
         if (FD_ISSET(main_listener, &input_set))
-            new_descriptor(main_listener, false);
+            new_descriptor(main_listener, main_port);
         if (FD_ISSET(reader_listener, &input_set))
-            new_descriptor(reader_listener, true);
+            new_descriptor(reader_listener, reader_port);
 
         /* kick out the freaky folks in the exception set */
         for (d = descriptor_list; d; d = d->next) {
