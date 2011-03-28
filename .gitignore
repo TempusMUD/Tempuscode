@@ -5,14 +5,7 @@ Makefile.in
 .killscript
 /autom4te.cache
 /build
-/lib/log
-/lib/players
-/lib/text/dyn/text_backup
-/lib/world/mob/olc
-/lib/world/obj/olc
-/lib/world/wld/olc
-/lib/world/zon/olc
-/lib/world/zon/olc
+/lib
 /log
 TAGS
 aclocal.m4
@@ -23,8 +16,6 @@ configure
 depcomp
 errors
 install-sh
-lib/etc/quest.xml
-lib/gmon.out
 missing
 pause
 syslog
