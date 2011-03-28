@@ -609,15 +609,14 @@ game_loop(int main_listener, int reader_listener)
             next = it->next;
             struct creature *tch = it->data;
             if (is_dead(tch)) {
-                extract_creature(tch, CXN_DISCONNECT);
-                // pull the char from the various lists
-                creatures = g_list_delete_link(creatures, it);
                 if (IS_NPC(tch))
                     g_hash_table_remove(creature_map, GINT_TO_POINTER(-NPC_IDNUM(tch)));
                 else
                     g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(tch)));
 
-
+                extract_creature(tch, CXN_DISCONNECT);
+                // pull the char from the various lists
+                creatures = g_list_delete_link(creatures, it);
             }
         }
         update_unique_id();
