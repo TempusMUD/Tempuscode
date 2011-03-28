@@ -542,8 +542,6 @@ load_object_from_xml(struct obj_data *container,
     bool placed;
     char *str;
 
-    obj = make_object();
-
     placed = false;
 
     // Commenting out the code below may be a horrible idea, but I need
@@ -559,6 +557,8 @@ load_object_from_xml(struct obj_data *container,
             return NULL;
         }
 
+        obj = make_object();
+
         obj->shared = prototype->shared;
         obj->shared->number++;
 
@@ -567,8 +567,10 @@ load_object_from_xml(struct obj_data *container,
         obj->line_desc = obj->shared->proto->line_desc;
         obj->action_desc = obj->shared->proto->action_desc;
         obj->ex_description = obj->shared->proto->ex_description;
-    } else
+    } else {
+        obj = make_object();
         obj->shared = null_obj_shared;
+    }
 
     for (xmlNodePtr cur = node->xmlChildrenNode; cur; cur = cur->next) {
         if (xmlMatches(cur->name, "name")) {
@@ -655,6 +657,7 @@ load_object_from_xml(struct obj_data *container,
                     obj_to_room(obj, room);
                 } else {
                     errlog("Don't know where to put object!");
+                    extract_obj(obj);
                     return NULL;
                 }
                 placed = true;
@@ -728,6 +731,7 @@ load_object_from_xml(struct obj_data *container,
     if (!OBJ_APPROVED(obj)) {
         slog("Unapproved object %d being junked from %s's rent.",
             vnum, (victim && GET_NAME(victim)) ? GET_NAME(victim) : "(none)");
+        extract_obj(obj);
         return NULL;
     }
     if (!placed) {
