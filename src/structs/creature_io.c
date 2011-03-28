@@ -638,6 +638,9 @@ save_player_to_xml(struct creature *ch)
 bool
 crashsave(struct creature *ch)
 {
+    if (IS_NPC(ch))
+        return false;
+
     ch->player_specials->rentcode = RENT_CRASH;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 
@@ -645,7 +648,7 @@ crashsave(struct creature *ch)
         return false;
 
     REMOVE_BIT(PLR_FLAGS(ch), PLR_CRASH);
-    crashsave(ch);
+    save_player_to_xml(ch);
     return true;
 }
 

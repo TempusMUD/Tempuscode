@@ -1789,7 +1789,6 @@ char_to_game(struct descriptor_data *d)
     }
 
     d->creature->player.time.logon = now;
-    crashsave(d->creature);
     send_to_char(d->creature, "%s%s%s%s",
         CCRED(d->creature, C_NRM), CCBLD(d->creature, C_NRM), WELC_MESSG,
         CCNRM(d->creature, C_NRM));
@@ -1802,6 +1801,7 @@ char_to_game(struct descriptor_data *d)
         load_room = player_loadroom(d->creature);
 
     char_to_room(d->creature, load_room, true);
+    crashsave(d->creature);
     load_room->zone->enter_count++;
     show_mud_date_to_char(d->creature);
     SEND_TO_Q("\r\n", d);
