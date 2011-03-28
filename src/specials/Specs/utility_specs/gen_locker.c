@@ -212,7 +212,7 @@ SPECIAL(gen_locker)
         struct house *house = find_house_by_room(locker->in_room->number);
         if (house != NULL)
             save_house(house);
-        save_player_to_xml(ch);
+        crashsave(ch);
 
         act("$n takes all your things and locks them in a locker.", false,
             atten, 0, ch, TO_VICT);
@@ -300,7 +300,7 @@ SPECIAL(gen_locker)
         struct house *house = find_house_by_room(locker->in_room->number);
         if (house != NULL)
             save_house(house);
-        save_player_to_xml(ch);
+        crashsave(ch);
 
         act("$n opens a locker and gives you all your things.",
             false, atten, 0, ch, TO_VICT);

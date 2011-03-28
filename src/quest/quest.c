@@ -348,7 +348,7 @@ remove_quest_player(struct quest * quest, int id)
         vict = load_player_from_xml(id);
         if (vict) {
             GET_QUEST(vict) = 0;
-            save_player_to_xml(vict);
+            crashsave(vict);
             free_creature(vict);
         } else {
             errlog
@@ -358,7 +358,7 @@ remove_quest_player(struct quest * quest, int id)
         }
     } else {
         GET_QUEST(vict) = 0;
-        save_player_to_xml(vict);
+        crashsave(vict);
     }
 
     return true;
@@ -933,7 +933,7 @@ do_quest_join(struct creature *ch, char *argument)
     }
 
     GET_QUEST(ch) = quest->vnum;
-    save_player_to_xml(ch);
+    crashsave(ch);
 
     sprintf(buf, "joined quest %d '%s'.", quest->vnum, quest->name);
     qlog(ch, buf, QLOG_COMP, 0, true);
@@ -1159,7 +1159,7 @@ do_quest_current(struct creature *ch, char *argument)
     }
 
     GET_QUEST(ch) = quest->vnum;
-    save_player_to_xml(ch);
+    crashsave(ch);
 
     send_to_char(ch, "Ok, you are now currently active in '%s'.\r\n",
         quest->name);
@@ -1290,7 +1290,7 @@ qp_reload(int sig __attribute__ ((unused)))
             GET_IMMORT_QP(immortal) = GET_QUEST_ALLOWANCE(immortal);
             send_to_char(immortal,
                 "Your quest points have been restored!\r\n");
-            save_player_to_xml(immortal);
+            crashsave(immortal);
             online++;
         }
     }
@@ -1557,7 +1557,7 @@ do_qcontrol_oload(struct creature *ch, char *argument, int com)
 
     GET_IMMORT_QP(ch) -= obj->shared->cost;
     obj_to_char(obj, ch);
-    save_player_to_xml(ch);
+    crashsave(ch);
     act("$n makes a quaint, magical gesture with one hand.", true, ch,
         0, 0, TO_ROOM);
     act("$n has created $p!", false, ch, obj, 0, TO_ROOM);
@@ -1859,7 +1859,7 @@ do_qcontrol_create(struct creature *ch, char *argument, int com)
         return;
     }
     GET_QUEST(ch) = quest->vnum;
-    save_player_to_xml(ch);
+    crashsave(ch);
     save_quests();
 }
 
@@ -2800,8 +2800,8 @@ do_qcontrol_award(struct creature *ch, char *argument, int com)
         account_set_quest_points(vict->account,
             vict->account->quest_points + award);
         quest->awarded += award;
-        save_player_to_xml(ch);
-        save_player_to_xml(vict);
+        crashsave(ch);
+        crashsave(vict);
         sprintf(buf, "awarded player %s %d qpoints.", GET_NAME(vict), award);
         qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
             true);
@@ -2877,8 +2877,8 @@ do_qcontrol_penalize(struct creature *ch, char *argument, int com)
             vict->account->quest_points - penalty);
         GET_IMMORT_QP(ch) += penalty;
         quest->penalized += penalty;
-        save_player_to_xml(vict);
-        save_player_to_xml(ch);
+        crashsave(vict);
+        crashsave(ch);
         send_to_char(vict,
             "%d of your quest points have been taken by %s!\r\n", penalty,
             GET_NAME(ch));

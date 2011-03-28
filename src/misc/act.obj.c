@@ -159,7 +159,7 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
     ret = damage(killer, ch, dam, SPELL_WARDING_SIGIL, WEAR_HANDS);
 
     // save the sonuvabitch to file
-    save_player_to_xml(killer);
+    crashsave(killer);
 
     if (loaded)
         free_creature(killer);
@@ -1843,9 +1843,9 @@ transfer_money(struct creature *from, struct creature *to, money_t amt,
             GET_NAME(to), to->in_room->number, to->in_room->name);
 
     if (IS_PC(from))
-        save_player_to_xml(from);
+        crashsave(from);
     if (IS_PC(to))
-        save_player_to_xml(to);
+        crashsave(to);
 }
 
 ACMD(do_give)

@@ -2504,9 +2504,9 @@ ACMD(do_insert)
     }
 
     if (!IS_NPC(ch))
-        save_player_to_xml(ch);
+        crashsave(ch);
     if (!IS_NPC(vict))
-        save_player_to_xml(vict);
+        crashsave(vict);
 }
 
 ACMD(do_extract)

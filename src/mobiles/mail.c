@@ -539,5 +539,5 @@ postmaster_receive_mail(struct creature *ch, struct creature *mailman)
     act(to_char, false, mailman, 0, ch, TO_VICT);
     act(to_room, false, mailman, 0, ch, TO_NOTVICT);
 
-    save_player_to_xml(ch);
+    crashsave(ch);
 }

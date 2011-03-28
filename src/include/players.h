@@ -14,6 +14,7 @@ long player_account_by_idnum(long idnum);
 size_t player_count(void);
 long top_player_idnum(void);
 
+void crashsave(struct creature *ch);
 struct creature *load_player_from_xml(int idnum);
 void save_player_to_xml(struct creature *ch);
 

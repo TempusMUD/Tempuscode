@@ -631,11 +631,12 @@ save_player_to_xml(struct creature *ch)
     GET_HIT(ch) = MIN(GET_MAX_HIT(ch), hit);
     GET_MANA(ch) = MIN(GET_MAX_MANA(ch), mana);
     GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), move);
-}                               // Saves the given characters equipment to a file. Intended for use while
+}
 
+// Saves the given characters equipment to a file. Intended for use while
 // the character is still in the game.
 bool
-crashSave(struct creature *ch)
+crashsave(struct creature *ch)
 {
     ch->player_specials->rentcode = RENT_CRASH;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
@@ -644,7 +645,7 @@ crashSave(struct creature *ch)
         return false;
 
     REMOVE_BIT(PLR_FLAGS(ch), PLR_CRASH);
-    save_player_to_xml(ch);
+    crashsave(ch);
     return true;
 }
 

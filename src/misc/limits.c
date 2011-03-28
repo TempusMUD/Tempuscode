@@ -381,7 +381,7 @@ gain_exp(struct creature *ch, int gain)
             } else {
                 send_to_char(ch, "You rise %d levels!\r\n", num_levels);
             }
-            save_player_to_xml(ch);
+            crashsave(ch);
         }
     } else if (gain < 0) {
         gain = MAX(-max_exp_loss, gain);    /* Cap max exp lost per death */
@@ -511,7 +511,7 @@ save_all_players(void)
     for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
         if (IS_PC(tch))
-            save_player_to_xml(tch);
+            crashsave(tch);
     }
 }
 
@@ -713,7 +713,7 @@ point_update(void)
             if (now > tch->player_specials->thaw_time) {
                 PLR_FLAGS(tch) = REMOVE_BIT(PLR_FLAGS(tch), PLR_FROZEN);
                 tch->player_specials->thaw_time = 0;
-                save_player_to_xml(tch);
+                crashsave(tch);
                 mudlog(MAX(LVL_POWER, GET_INVIS_LVL(tch)), BRF, true,
                     "(GC) %s un-frozen by timeout.", GET_NAME(tch));
                 send_to_char(tch, "You thaw out and can move again.\r\n");

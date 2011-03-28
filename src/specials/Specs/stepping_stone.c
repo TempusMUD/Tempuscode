@@ -144,7 +144,7 @@ SPECIAL(arena_locker)
             struct house *house = find_house_by_room(r_locker_room->number);
             if (house != NULL)
                 save_house(house);
-            save_player_to_xml(ch);
+            crashsave(ch);
 
             return true;
         }

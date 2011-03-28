@@ -580,7 +580,7 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
         obj = next_obj;
     }
     if (GET_IDNUM(ch) > 0) {
-        save_player_to_xml(ch);
+        crashsave(ch);
     }
 }
 

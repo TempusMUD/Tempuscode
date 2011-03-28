@@ -406,7 +406,7 @@ ACMD(do_dismiss)
         REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
         sql_exec("delete from clan_members where player=%ld", GET_IDNUM(vict));
 
-        save_player_to_xml(vict);
+        crashsave(vict);
         send_to_char(ch, "Player dismissed.\r\n");
 
         if (in_file)
@@ -478,7 +478,7 @@ ACMD(do_promote)
             slog("%s", msg);
             msg = tmp_strcat(msg, "\r\n", NULL);
             send_to_clan(msg, clan->number);
-            save_player_to_xml(vict);
+            crashsave(vict);
         } else {
             // Normal rank promotion
             vict_member->rank++;

@@ -1323,7 +1323,7 @@ advance_level(struct creature *ch, byte keep_internal)
             MIN(100, CHECK_SKILL(ch, SKILL_USE_WANDS) +
             MIN(10, number(1, GET_INT(ch) >> 1)));
 
-    save_player_to_xml(ch);
+    crashsave(ch);
     int rid = -1;
     if (ch->in_room != NULL)
         rid = ch->in_room->number;

@@ -1485,7 +1485,7 @@ SPECIAL(bank)
         }
     }
 
-    save_player_to_xml(ch);
+    crashsave(ch);
     if (clan) {
         if (clan->bank_account > 0)
             send_to_char(ch, "The current clan balance is %lld %s%s.\r\n",

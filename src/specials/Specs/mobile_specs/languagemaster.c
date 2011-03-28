@@ -65,7 +65,7 @@ SPECIAL(languagemaster)
 
     WAIT_STATE(ch, 2 RL_SEC);
 
-    save_player_to_xml(ch);
+    crashsave(ch);
     return 1;
 }
 

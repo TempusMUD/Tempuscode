@@ -104,7 +104,7 @@ SPECIAL(weaponsmaster)
         TO_CHAR);
     act("$n improves $s fighting aptitude with $p.", false, ch, weap, 0,
         TO_ROOM);
-    save_player_to_xml(ch);
+    crashsave(ch);
     return 1;
 }
 

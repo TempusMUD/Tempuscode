@@ -2959,7 +2959,7 @@ ACMD(do_advance)
         "(GC) %s has advanced %s to level %d (from %d)",
         GET_NAME(ch), GET_NAME(victim), newlevel, GET_LEVEL(victim));
     gain_exp_regardless(victim, exp_scale[newlevel] - GET_EXP(victim));
-    save_player_to_xml(victim);
+    crashsave(victim);
 }
 
 ACMD(do_restore)
@@ -3704,7 +3704,7 @@ ACMD(do_wizutil)
             errlog("Unknown subcmd passed to do_wizutil (act.wizard.c)");
             break;
         }
-        save_player_to_xml(vict);
+        crashsave(vict);
     }
 
     if (loaded)
@@ -6112,7 +6112,7 @@ ACMD(do_set)
         if (IS_PC(vict)) {
             sql_exec("update players set name='%s' where idnum=%ld",
                 tmp_sqlescape(argument), GET_IDNUM(vict));
-            save_player_to_xml(vict);
+            crashsave(vict);
         }
         break;
     case 35:
@@ -6470,7 +6470,7 @@ ACMD(do_set)
         send_to_char(ch, "%s\r\n", buf);
 
     if (IS_PC(vict))
-        save_player_to_xml(vict);
+        crashsave(vict);
 
     if (is_file) {
         free_creature(vict);
@@ -7304,7 +7304,7 @@ ACMD(do_oset)
         if (equip_char(vict, obj, where_worn, equip_mode))
             return;
         if (!IS_NPC(vict))
-            save_player_to_xml(vict);
+            crashsave(vict);
     }
 
 }
@@ -8110,7 +8110,7 @@ ACMD(do_tester)
             GET_HIT(ch) = GET_MAX_HIT(ch);
             GET_MANA(ch) = GET_MAX_MANA(ch);
             GET_MOVE(ch) = GET_MAX_MOVE(ch);
-            save_player_to_xml(ch);
+            crashsave(ch);
         }
         break;
     case 1:                    /* unaffect */

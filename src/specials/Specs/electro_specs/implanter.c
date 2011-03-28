@@ -297,13 +297,13 @@ implanter_extract(struct creature *me, struct creature *ch, char *args)
         GET_HIT(ch) = 1;
         GET_MOVE(ch) = 1;
         WAIT_STATE(ch, 10 RL_SEC);
-        save_player_to_xml(ch);
+        crashsave(ch);
     } else {
         act("$n extracts $p from $P.", false, me, implant, obj, TO_ROOM);
         obj_from_obj(implant);
         SET_BIT(GET_OBJ_WEAR(implant), ITEM_WEAR_TAKE);
         obj_to_char(implant, ch);
-        save_player_to_xml(ch);
+        crashsave(ch);
     }
 
     return;
@@ -398,7 +398,7 @@ implanter_repair(struct creature *me, struct creature *ch, char *args)
     GET_HIT(ch) = 1;
     GET_MOVE(ch) = 1;
     WAIT_STATE(ch, 10 RL_SEC);
-    save_player_to_xml(ch);
+    crashsave(ch);
 
     return;
 }

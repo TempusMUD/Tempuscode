@@ -298,7 +298,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
     if (IS_NPC(vict))
         creature_purge(vict, true);
     else
-        save_player_to_xml(vict);
+        crashsave(vict);
     return 1;
 }
 

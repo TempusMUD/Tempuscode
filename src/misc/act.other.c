@@ -188,7 +188,7 @@ ACMD(do_save)
     if (cmd) {
         send_to_char(ch, "Saving %s.\r\n", GET_NAME(ch));
     }
-    save_player_to_xml(ch);
+    crashsave(ch);
     save_player_objects(ch);
     if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
         struct house *house = find_house_by_room(ch->in_room->number);

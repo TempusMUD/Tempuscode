@@ -627,7 +627,7 @@ handle_input(struct descriptor_data *d)
                 GET_NAME(d->creature), GET_REMORT_GEN(d->creature),
                 class_names[(int)GET_CLASS(d->creature)],
                 class_names[(int)GET_REMORT_CLASS(d->creature)]);
-            save_player_to_xml(d->creature);
+            crashsave(d->creature);
             set_desc_state(CXN_MENU, d);
         }
         break;
@@ -691,7 +691,7 @@ handle_input(struct descriptor_data *d)
                 GET_NAME(d->creature), GET_IDNUM(d->creature));
             d->creature->player_specials->rentcode = RENT_NEW_CHAR;
             calculate_height_weight(d->creature);
-            save_player_to_xml(d->creature);
+            crashsave(d->creature);
         } else
             SEND_TO_Q("\r\nYou must type 'reroll' or 'keep'.\r\n\r\n", d);
         break;
@@ -1322,7 +1322,7 @@ send_menu(struct descriptor_data *d)
     case CXN_MENU:
         // If we have a creature, save and offload
         if (d->creature) {
-            save_player_to_xml(d->creature);
+            crashsave(d->creature);
             free_creature(d->creature);
             d->creature = NULL;
         }
@@ -1538,9 +1538,9 @@ set_desc_state(enum cxn_state state, struct descriptor_data *d)
     }
 
     if (d->original)
-        save_player_to_xml(d->original);
+        crashsave(d->original);
     else if (d->creature)
-        save_player_to_xml(d->creature);
+        crashsave(d->creature);
 
     send_menu(d);
 
@@ -1789,7 +1789,7 @@ char_to_game(struct descriptor_data *d)
     }
 
     d->creature->player.time.logon = now;
-    save_player_to_xml(d->creature);
+    crashsave(d->creature);
     send_to_char(d->creature, "%s%s%s%s",
         CCRED(d->creature, C_NRM), CCBLD(d->creature, C_NRM), WELC_MESSG,
         CCNRM(d->creature, C_NRM));

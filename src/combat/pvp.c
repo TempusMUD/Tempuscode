@@ -355,8 +355,8 @@ ACMD(do_pardon)
         perform_pardon(ch, pardoned);
     }
 
-    save_player_to_xml(ch);
-    save_player_to_xml(pardoned);
+    crashsave(ch);
+    crashsave(pardoned);
     if (loaded_pardoned)
         free_creature(pardoned);
 }
@@ -409,7 +409,7 @@ check_object_killer(struct obj_data *obj, struct creature *vict)
     count_pkill(killer, vict);
 
     // save the sonuvabitch to file
-    save_player_to_xml(killer);
+    crashsave(killer);
 
     if (loaded_killer)
         free_creature(killer);

@@ -145,6 +145,6 @@ SPECIAL(increaser)
     if (GET_COND(ch, THIRST) != -1)
         GET_COND(ch, THIRST) = 1;
     WAIT_STATE(ch, PULSE_VIOLENCE * 5);
-    save_player_to_xml(ch);
+    crashsave(ch);
     return true;
 }

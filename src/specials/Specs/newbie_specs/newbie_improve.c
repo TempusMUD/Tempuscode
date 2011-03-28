@@ -142,7 +142,7 @@ SPECIAL(newbie_improve)
     }
     GET_LIFE_POINTS(ch) -= 1;
     send_to_char(ch, "%s", mssg);
-    save_player_to_xml(ch);
+    crashsave(ch);
     if (GET_LIFE_POINTS(ch)) {
         sprintf(buf3, "You have %d life points left, %s.", GET_LIFE_POINTS(ch),
             GET_NAME(ch));

@@ -434,7 +434,7 @@ game_loop(int main_listener, int reader_listener)
                 d->creature &&
                 IS_PLAYING(d) &&
                 IS_PC(d->creature) && PLR_FLAGGED(d->creature, PLR_CRASH))
-                save_player_to_xml(d->creature);
+                crashsave(d->creature);
         }
 
         /* handle heartbeat stuff */
@@ -1250,7 +1250,7 @@ close_socket(struct descriptor_data *d)
     if (d->creature && d->creature->in_room) {
         // Lost link in-game
         d->creature->player.time.logon = time(0);
-        save_player_to_xml(d->creature);
+        crashsave(d->creature);
         act("$n has lost $s link.", true, d->creature, 0, 0, TO_ROOM);
         mlog(ROLE_ADMINBASIC,
             MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)),
@@ -1261,7 +1261,7 @@ close_socket(struct descriptor_data *d)
         GET_OLC_OBJ(d->creature) = NULL;
     } else if (d->account) {
         if (d->creature) {
-            save_player_to_xml(d->creature);
+            crashsave(d->creature);
             free_creature(d->creature);
             d->creature = NULL;
         }

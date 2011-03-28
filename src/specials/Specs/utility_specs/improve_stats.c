@@ -186,7 +186,7 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
     send_to_char(ch, "You begin your training.\r\n");
     act("$n begins to train.", false, ch, 0, 0, TO_ROOM);
     WAIT_STATE(ch, *real_stat RL_SEC);
-    save_player_to_xml(ch);
+    crashsave(ch);
 
     return true;
 }

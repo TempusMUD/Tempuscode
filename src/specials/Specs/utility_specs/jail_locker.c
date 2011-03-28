@@ -146,6 +146,6 @@ SPECIAL(jail_locker)
     struct house *house = find_house_by_room(jail_room->number);
     if (house != NULL)
         save_house(house);
-    save_player_to_xml(ch);
+    crashsave(ch);
     return 1;
 }

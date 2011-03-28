@@ -743,7 +743,7 @@ SPECIAL(do_auctions)
 
         obj_from_char(obj);
         obj_to_char(obj, self);
-        save_player_to_xml(ch);
+        crashsave(ch);
         items = g_list_prepend(items, new_ai);
         aucSaveToXML(self);
 
@@ -800,7 +800,7 @@ SPECIAL(do_auctions)
         obj_from_char(obj);
         obj_to_char(obj, ch);
         items = g_list_remove(items, item);
-        save_player_to_xml(ch);
+        crashsave(ch);
         aucSaveToXML(self);
 
         send_to_char(ch, "Your item has been withdrawn from auction.\r\n");

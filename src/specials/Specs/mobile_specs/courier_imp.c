@@ -240,7 +240,7 @@ SPECIAL(courier_imp)
                 perform_say_to(self, seeking, "Thank you for your business!");
                 GET_GOLD(seeking) += paygold;
                 GET_CASH(seeking) += paycash;
-                save_player_to_xml(seeking);
+                crashsave(seeking);
                 creature_purge(self, true);
             } else if (data->mode == IMP_BUYER_BROKE) {
                 perform_say_to(self, seeking, "Sorry, your buyer could not "
@@ -255,7 +255,7 @@ SPECIAL(courier_imp)
                 act(msg, false, seeking, 0, self, TO_CHAR);
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
-                save_player_to_xml(seeking);
+                crashsave(seeking);
                 creature_purge(self, true);
             } else if (data->mode == IMP_RETURN_ITEM) {
                 perform_say_to(self, seeking, "Sorry, there were no bids "
@@ -264,7 +264,7 @@ SPECIAL(courier_imp)
                     false, self, data->item, seeking, TO_NOTVICT);
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
-                save_player_to_xml(seeking);
+                crashsave(seeking);
                 creature_purge(self, true);
             } else if (data->mode == IMP_NO_BUYER) {
                 perform_say_to(self, seeking, "Sorry, I couldn't find the "
@@ -273,7 +273,7 @@ SPECIAL(courier_imp)
                     false, self, data->item, seeking, TO_NOTVICT);
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
-                save_player_to_xml(seeking);
+                crashsave(seeking);
                 creature_purge(self, true);
             }
         }

@@ -126,7 +126,7 @@ maileditor_returnattachments(struct editor *editor)
         }
     }
 
-    save_player_to_xml(editor->desc->creature);
+    crashsave(editor->desc->creature);
     mail_data->obj_list = NULL;
 }
 
@@ -519,7 +519,7 @@ maileditor_addattachment(struct editor *editor, char *obj_name)
 
     mail_data->num_attachments++;
 
-    save_player_to_xml(editor->desc->creature);
+    crashsave(editor->desc->creature);
     obj->next_content = NULL;
 
     editor_emit(editor,
