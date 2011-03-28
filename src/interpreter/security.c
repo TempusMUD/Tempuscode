@@ -263,7 +263,7 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
         return is_named_role_member(ch, "Quest");
 
     case COMMAND:
-        if (GET_LEVEL(ch) <= command->minimum_level)
+        if (GET_LEVEL(ch) < command->minimum_level)
             return false;
 
         if (!command->role_count)
