@@ -202,7 +202,12 @@ handle_input(struct descriptor_data *d)
         switch (tolower(arg[0])) {
         case 'y':
             d->account = account_create(d->mode_data, d);
-            set_desc_state(CXN_ANSI_PROMPT, d);
+            if (d->is_blind) {
+                account_set_ansi_level(d->account, 0);
+                set_desc_state(CXN_COMPACT_PROMPT, d);
+            } else {
+                set_desc_state(CXN_ANSI_PROMPT, d);
+            }
             break;
         case 'n':
             set_desc_state(CXN_ACCOUNT_PROMPT, d);
@@ -896,6 +901,9 @@ send_prompt(struct descriptor_data *d)
     case CXN_DISCONNECT:
         break;
     case CXN_PLAYING:          // Playing - Nominal state
+        if (d->is_blind)
+            return;
+
         *prompt = '\0';
 
         if (!production_mode)
@@ -1314,6 +1322,38 @@ send_menu(struct descriptor_data *d)
             free_creature(d->creature);
             d->creature = NULL;
         }
+
+        if (d->is_blind) {
+            struct creature *tmp_ch;
+            struct account *acct = d->account;
+
+            send_to_desc(d, "Main menu\r\n");
+
+            for (int idx = 1;!invalid_char_index(acct, idx);idx++) {
+                tmp_ch = load_player_from_xml(get_char_by_index(d->account, idx));
+
+                if (tmp_ch) {
+                    send_to_desc(d, "%d. %s\r\n", idx, GET_NAME(tmp_ch));
+                    free_creature(tmp_ch);
+                } else {
+                    send_to_desc(d, "%d. Char file not loadable - please report number %ld\r\n",
+                                 idx,
+                                 get_char_by_index(d->account, idx));
+                }
+            }
+
+            send_to_desc(d, "L. Log out of the game\r\n");
+            send_to_desc(d, "C. Create a new character\r\n");
+            send_to_desc(d, "E. Edit a character's description\r\n");
+            send_to_desc(d, "S. Show character details\r\n");
+            send_to_desc(d, "P. Change your account password\r\n");
+            send_to_desc(d, "D. Delete an existing character\r\n");
+            send_to_desc(d, "V. View the background story\r\n");
+			send_to_desc(d, "\r\n");
+
+            return;
+		}
+
 
         send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,

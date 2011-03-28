@@ -2738,12 +2738,164 @@ ACMD(do_gen_points)
     }
 }
 
+void
+do_blind_score(struct creature *ch)
+{
+	struct time_info_data playing_time;
+	struct time_info_data real_time_passed(time_t t2, time_t t1);
+	int get_hunted_id(int hunter_id);
+
+    acc_string_clear();
+    if (IS_PC(ch)) {
+        acc_sprintf("You are known as %s %s\r\n",
+                    GET_NAME(ch), GET_TITLE(ch));
+    }
+    acc_sprintf("You are a %d level, %d year old %s %s %s.\r\n",
+                GET_LEVEL(ch), GET_AGE(ch), genders[(int)GET_SEX(ch)],
+                (GET_RACE(ch) >= 0 && GET_RACE(ch) < NUM_RACES) ?
+                player_race[(int)GET_RACE(ch)] : "BAD RACE",
+                (GET_CLASS(ch) >= 0 && GET_CLASS(ch) < TOP_CLASS) ?
+                class_names[(int)GET_CLASS(ch)] : "BAD CLASS");
+	if (!IS_NPC(ch) && IS_REMORT(ch))
+		acc_sprintf("You have remortalized as a %s (generation %d).\r\n",
+			class_names[(int)GET_REMORT_CLASS(ch)],
+			GET_REMORT_GEN(ch));
+	if ((age(ch).month == 0) && (age(ch).day == 0))
+		acc_strcat("  It's your birthday today!\r\n\r\n", NULL);
+	else
+		acc_strcat("\r\n", NULL);
+
+	acc_sprintf("Hit Points:  (%4d/%4d)\r\n",
+                GET_HIT(ch), GET_MAX_HIT(ch));
+	acc_sprintf("Mana Points: (%4d/%4d)\r\n",
+                GET_MANA(ch), GET_MAX_MANA(ch));
+	acc_sprintf("Move Points: (%4d/%4d)\r\n",
+                GET_MOVE(ch), GET_MAX_MOVE(ch));
+	acc_sprintf("Armor Class: %d/10, ", GET_AC(ch));
+	acc_sprintf("Alignment: %d, ", GET_ALIGNMENT(ch));
+	acc_sprintf("Experience: %d\r\n", GET_EXP(ch));
+	acc_sprintf("Kills: %d, PKills: %d, Arena: %d\r\n",
+                (GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)),
+                GET_PKILLS(ch),
+                GET_ARENAKILLS(ch));
+	acc_sprintf("Life points: %d\r\n", GET_LIFE_POINTS(ch));
+	acc_sprintf("You are %d cm tall, and weigh %d pounds.\r\n",
+                GET_HEIGHT(ch), GET_WEIGHT(ch));
+	if (IS_PC(ch)) {
+		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
+			acc_sprintf("Next level in %d more experience\r\n",
+                        ((exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch)));
+		} else {
+			if (ch->player_specials->poofout) {
+				acc_sprintf("%sPoofout:%s  %s\r\n",
+					CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+					ch->player_specials->poofout);
+			}
+			if (ch->player_specials->poofin) {
+				acc_sprintf("%sPoofin :%s  %s\r\n",
+					CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+					ch->player_specials->poofin);
+			}
+		}
+		playing_time = real_time_passed((time(0) - ch->player.time.logon) +
+                                        ch->player.time.played, 0);
+		acc_sprintf("Playing time: %d days and %d hours.\r\n",
+                    playing_time.day, playing_time.hours);
+
+		acc_strcat("You have a reputation of being -",
+			reputation_msg[GET_REPUTATION_RANK(ch)], "-\r\n", NULL);
+		if (get_hunted_id(GET_IDNUM(ch)))
+			acc_sprintf("You are registered to bounty hunt %s.\r\n",
+				player_name_by_idnum(get_hunted_id(GET_IDNUM(ch))));
+
+	}
+	acc_sprintf("You are currently speaking %s.\r\n",
+                tongue_name(GET_TONGUE(ch)));
+	acc_sprintf(
+		"You carry %s%lld%s gold coins.  You have %s%lld%s cash credits.\r\n",
+		CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch,
+			C_NRM), GET_CASH(ch), CCNRM(ch, C_NRM));
+
+	switch (GET_POSITION(ch)) {
+	case POS_DEAD:
+		acc_strcat("You are DEAD!\r\n", NULL);
+		break;
+	case POS_MORTALLYW:
+		acc_strcat("You are mortally wounded!  You should seek help!\r\n", NULL);
+		break;
+	case POS_INCAP:
+		acc_strcat("You are incapacitated, slowly fading away...\r\n", NULL);
+		break;
+	case POS_STUNNED:
+		acc_strcat("You are stunned!  You can't move!\r\n", NULL);
+		break;
+	case POS_SLEEPING:
+		if (AFF3_FLAGGED(ch, AFF3_STASIS))
+			acc_strcat("You are inactive in a static state.\r\n", NULL);
+		else
+			acc_strcat("You are sleeping.\r\n", NULL);
+		break;
+	case POS_RESTING:
+		acc_strcat("You are resting.\r\n", NULL);
+		break;
+	case POS_SITTING:
+		if (AFF2_FLAGGED(ch, AFF2_MEDITATE))
+			acc_strcat("You are meditating.\r\n", NULL);
+		else
+			acc_strcat("You are sitting.\r\n", NULL);
+		break;
+	case POS_FIGHTING:
+		if (is_fighting(ch))
+			acc_strcat("You are fighting \r\n", CCNRM(ch, C_NRM), "\r\n", NULL);
+		else
+			acc_strcat("You are fighting thin air.\r\n", NULL);
+		break;
+	case POS_MOUNTED:
+		if (GET_POSITION(ch) == POS_MOUNTED)
+			acc_strcat("You are mounted on \r\n", CCNRM(ch, C_NRM), "\r\n", NULL);
+		else
+			acc_strcat("You are mounted on the thin air!?\r\n", NULL);
+		break;
+	case POS_STANDING:
+		acc_strcat("You are standing\r\n", NULL);
+		break;
+	case POS_FLYING:
+		acc_strcat("You are hovering in midair\r\n", NULL);
+		break;
+	default:
+		acc_strcat("You are floating.\r\n", NULL);
+		break;
+	}
+
+	if (GET_COND(ch, DRUNK) > 10)
+		acc_strcat("You are intoxicated\r\n", NULL);
+	if (GET_COND(ch, FULL) == 0)
+		acc_strcat("You are hungry.\r\n", NULL);
+	if (GET_COND(ch, THIRST) == 0) {
+		if (IS_VAMPIRE(ch))
+			acc_strcat("You have an intense thirst for blood.\r\n", NULL);
+		else
+			acc_strcat("You are thirsty.\r\n", NULL);
+	} else if (IS_VAMPIRE(ch) && GET_COND(ch, THIRST) < 4)
+		acc_strcat("You feel the onset of your bloodlust.\r\n", NULL);
+
+	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && PLR_FLAGGED(ch, PLR_MORTALIZED))
+		acc_strcat("You are mortalized.\r\n", NULL);
+
+	page_string(ch->desc, acc_get_string());
+}
+
 ACMD(do_score)
 {
 
     struct time_info_data playing_time;
     struct time_info_data real_time_passed(time_t t2, time_t t1);
     int get_hunted_id(int hunter_id);
+
+    if (ch->desc && ch->desc->is_blind) {
+        do_blind_score(ch);
+        return;
+    }
 
     acc_string_clear();
     acc_sprintf

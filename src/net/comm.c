@@ -71,6 +71,8 @@ extern int MAX_DESCRIPTORS_AVAILABLE;
 extern struct obj_data *cur_car;
 extern struct zone_data *default_quad_zone;
 extern struct obj_data *object_list;
+int main_port;
+int reader_port;
 bool restrict_logins = false;
 bool production_mode = false;   // Run in production mode
 
@@ -104,9 +106,9 @@ int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 void flush_q(struct txt_q *queue);
 void init_game(int port);
 void signal_setup(void);
-void game_loop(int mother_desc);
+void game_loop(int main_listener, int reader_listener);
 int init_socket(int port);
-int new_descriptor(int s);
+int new_descriptor(int s, bool is_blind);
 int get_avail_descs(void);
 int process_output(struct descriptor_data *t);
 int process_input(struct descriptor_data *t);
@@ -151,7 +153,7 @@ void save_all_players();
 void
 init_game(int port)
 {
-    int mother_desc;
+    int main_listener, reader_listener;
     void my_srand(unsigned long initial_seed);
     void verify_tempus_integrity(struct creature *ch);
 
@@ -162,7 +164,8 @@ init_game(int port)
     verify_tempus_integrity(NULL);
 
     slog("Opening mother connection.");
-    mother_desc = init_socket(port);
+    main_listener = init_socket(main_port);
+    reader_listener = init_socket(reader_port);
 
     avail_descs = get_avail_descs();
 
@@ -171,10 +174,11 @@ init_game(int port)
 
     slog("Entering game loop.");
 
-    game_loop(mother_desc);
+    game_loop(main_listener, reader_listener);
 
     slog("Closing all sockets.");
-    close(mother_desc);
+    close(main_listener);
+    close(reader_listener);
     while (descriptor_list)
         close_socket(descriptor_list);
 
@@ -326,7 +330,7 @@ get_avail_descs(void)
  * such as mobile_activity().
  */
 void
-game_loop(int mother_desc)
+game_loop(int main_listener, int reader_listener)
 {
     fd_set input_set, output_set, exc_set;
     struct timeval last_time, now, timespent, timeout, opt_time;
@@ -346,8 +350,10 @@ game_loop(int mother_desc)
         FD_ZERO(&input_set);
         FD_ZERO(&output_set);
         FD_ZERO(&exc_set);
-        FD_SET(mother_desc, &input_set);
-        maxdesc = mother_desc;
+        FD_SET(main_listener, &input_set);
+        maxdesc = main_listener;
+        FD_SET(reader_listener, &input_set);
+        maxdesc = MAX(main_listener, reader_listener);
         for (d = descriptor_list; d; d = d->next) {
             if (d->descriptor > maxdesc)
                 maxdesc = d->descriptor;
@@ -356,14 +362,10 @@ game_loop(int mother_desc)
             FD_SET(d->descriptor, &exc_set);
         }
 
-        /*
-         * At this point, the original Diku code set up a signal mask to avoid
-         * block all signals from being delivered.  I believe this was done in
-         * order to prevent the MUD from dying with an "interrupted system call"
-         * error in the event that a signal be received while the MUD is dormant.
-         * However, I think it is easier to check for an EINTR error return from
-         * this select() call rather than to block and unblock signals.
-         */
+        // If we're not doing a stress test, we want to slow the mud
+        // down to 1/10th of a second per pulse, if possible.  If we
+        // ARE doing a stress test, this is skipped so we can load the
+        // mud as fast as possible.
         if (!stress_test) {
             do {
                 errno = 0;          // clear error condition
@@ -395,8 +397,10 @@ game_loop(int mother_desc)
             return;
         }
         /* New connection waiting for us? */
-        if (FD_ISSET(mother_desc, &input_set))
-            new_descriptor(mother_desc);
+        if (FD_ISSET(main_listener, &input_set))
+            new_descriptor(main_listener, false);
+        if (FD_ISSET(reader_listener, &input_set))
+            new_descriptor(reader_listener, true);
 
         /* kick out the freaky folks in the exception set */
         for (d = descriptor_list; d; d = d->next) {
@@ -821,7 +825,7 @@ write_to_output(const char *txt, struct descriptor_data *t)
 ****************************************************************** */
 
 int
-new_descriptor(int s)
+new_descriptor(int s, bool is_blind)
 {
     int desc, sockets_input_mode = 0;
     unsigned long addr;
@@ -896,6 +900,7 @@ new_descriptor(int s)
     newd->text_editor = NULL;
     newd->idle = 0;
     newd->ban_dc_counter = 0;
+    newd->is_blind = is_blind;
 
     if (++last_desc == 10000)
         last_desc = 1;
@@ -905,7 +910,15 @@ new_descriptor(int s)
     descriptor_list = newd;
     if (mini_mud) {
         SEND_TO_Q("(testmud)", newd);
+    } else if (is_blind) {
+        SEND_TO_Q("Welcome to Tempus MUD!\r\n", newd);
     } else {
+        // This text is printed just before the screen clear, so most
+        // people won't even see it.  Screen readers will read it out
+        // loud, though.
+        SEND_TO_Q(tmp_sprintf("If you use a screen reader, you'll want to use port %d",
+                              reader_port),
+                  newd);
         SEND_TO_Q("\033[H\033[J", newd);
         if (number(0, 99)) {
             if (number(0, 10))

@@ -73,7 +73,7 @@
 #define C_SPR	1
 #define C_NRM	2
 #define C_CMP	3
-#define _clrlevel(ch) ((ch->desc) ? ch->desc->account->ansi_level:0)
+#define _clrlevel(ch) ((!ch->desc || ch->desc->is_blind) ? 0:ch->desc->account->ansi_level)
 #define clr(ch,lvl) (_clrlevel(ch) >= (lvl))
 
 #define CNRM(disp,lvl)  ((disp >= lvl)?KNRM:KNUL)

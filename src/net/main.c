@@ -22,6 +22,8 @@ extern int log_cmds;
 extern int nameserver_is_slow;  /* see config.c */
 extern bool stress_test;
 extern bool production_mode;
+extern int main_port;
+extern int reader_port;
 
 void verify_environment(void);
 void clear_world(void);
@@ -30,13 +32,12 @@ void init_game(int port);
 int
 main(int argc, char **argv)
 {
-    int port;
     char *dir;
     const char *user = NULL, *group = NULL;
     const char *DATADIR_ENV_VAR = "CIRCLE_DATADIR";
     bool scheck = false;
 
-    port = DFLT_PORT;
+    main_port = DFLT_PORT;
 
     tmp_string_init();
     acc_string_init();
@@ -116,9 +117,9 @@ main(int argc, char **argv)
                 fprintf(stderr, "%s: port must be numeric\n", argv[0]);
                 safe_exit(EXIT_FAILURE);
             }
-            port = atoi(optarg);
-            if (port < 1 || port > 65535) {
-                fprintf(stderr, "%s: port %d out of range\n", argv[0], port);
+            main_port = atoi(optarg);
+            if (main_port < 1 || main_port > 65535) {
+                fprintf(stderr, "%s: port %d out of range\n", argv[0], main_port);
                 safe_exit(EXIT_FAILURE);
             }
             break;
@@ -188,6 +189,7 @@ main(int argc, char **argv)
 
     verify_environment();
 
+    reader_port = main_port + 1;
     if (scheck) {
         void my_srand(unsigned long initial_seed);
         void verify_tempus_integrity(struct creature *ch);
@@ -201,8 +203,8 @@ main(int argc, char **argv)
         clear_world();
         safe_exit(EXIT_SUCCESS);
     } else {
-        slog("Running game on port %d.", port);
-        init_game(port);
+        slog("Running game on port %d.", main_port);
+        init_game(main_port);
     }
 
     clear_world();
