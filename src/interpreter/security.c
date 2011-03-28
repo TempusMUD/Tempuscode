@@ -156,8 +156,6 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
 
     if (GET_LEVEL(ch) == LVL_GRIMP)
         return true;
-    if (IS_NPC(ch))
-        return (priv == COMMAND);
 
     switch (priv) {
     case CREATE_ROLE:
@@ -233,11 +231,15 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
             || is_named_role_member(ch, "AdminFull"));
 
     case LIST_SEARCHES:
+        if (IS_NPC(ch))
+            return false;
         return (zone->owner_idnum == GET_IDNUM(ch)
             || zone->co_owner_idnum == GET_IDNUM(ch)
             || is_named_role_member(ch, "OLCWorldWrite"));
 
     case EDIT_ZONE:
+        if (IS_NPC(ch))
+            return false;
         return (zone->owner_idnum == GET_IDNUM(ch)
             || zone->co_owner_idnum == GET_IDNUM(ch)
             || (is_named_role_member(ch, "OLCProofer") && !IS_APPR(zone))
@@ -251,6 +253,8 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
         return is_named_role_member(ch, "OLCApproval");
 
     case EDIT_HOUSE:
+        if (IS_NPC(ch))
+            return false;
         return (is_named_role_member(ch, "House")
             || (house && house->owner_id == GET_IDNUM(ch)));
 
@@ -265,15 +269,19 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
         if (!command->role_count)
             return true;
 
-        for (GList * it = roles; it; it = it->next) {
-            struct role *role = (struct role *)it->data;
-            if (is_role_command(role, command)
-                && is_role_member(role, GET_IDNUM(ch)))
-                return true;
+        if (IS_PC(ch)) {
+            for (GList * it = roles; it; it = it->next) {
+                struct role *role = (struct role *)it->data;
+                if (is_role_command(role, command)
+                    && is_role_member(role, GET_IDNUM(ch)))
+                    return true;
+            }
         }
         return false;
 
     case SET:
+        if (IS_NPC(ch))
+            return false;
         if (set_cmd->level > GET_LEVEL(ch))
             return false;
         if (*(set_cmd->role) == '\0')
@@ -285,6 +293,8 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
         return false;
 
     case SHOW:
+        if (IS_NPC(ch))
+            return false;
         if (show_cmd->level > GET_LEVEL(ch))
             return false;
         if (*(show_cmd->role) == '\0')
@@ -296,6 +306,8 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
         return false;
 
     case ASET:
+        if (IS_NPC(ch))
+            return false;
         if (set_cmd->level > GET_LEVEL(ch))
             return false;
         if (*(set_cmd->role) == '\0')
