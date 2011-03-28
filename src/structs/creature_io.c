@@ -680,6 +680,7 @@ load_player_from_xml(int id)
 
     ch->player.name = (char *)xmlGetProp(root, (xmlChar *) "name");
     ch->char_specials.saved.idnum = xmlGetIntProp(root, "idnum", 0);
+    set_title(ch, "");
 
     ch->player.short_descr = NULL;
     ch->player.long_descr = NULL;
