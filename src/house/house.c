@@ -302,8 +302,8 @@ find_house_by_room(room_num room_idnum)
         return NULL;
 
     GList *it = g_list_find_custom(houses,
-        NULL,
-        (GCompareFunc) this_house_has_room);
+                                   GINT_TO_POINTER(room_idnum),
+                                   (GCompareFunc) this_house_has_room);
     return (it) ? it->data : NULL;
 }
 
@@ -1665,7 +1665,7 @@ display_houses(GList * houses, struct creature *ch)
         const char *landlord = "none";
         if (player_idnum_exists(house->landlord))
             landlord = player_name_by_idnum(house->landlord);
-        acc_sprintf("%4d %4d %6d %-10s %4s",
+        acc_sprintf("%4d %4d %6d %-10s %4s ",
             house->id,
             g_list_length(house->rooms),
             house->owner_id, landlord, house_type_short_name(house->type));
