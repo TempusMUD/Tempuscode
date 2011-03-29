@@ -1797,6 +1797,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
      */
 
     if (!IS_WEAPON(attacktype)) {
+        cur_weap = NULL;
         if (ch && !mshield_hit)
             skill_message(dam, ch, victim, attacktype);
 
