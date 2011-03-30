@@ -3,6 +3,7 @@
 
 Suite *tmpstr_suite(void);
 Suite *strutil_suite(void);
+Suite *player_io_suite(void);
 
 int
 main(void)
@@ -16,6 +17,12 @@ main(void)
     srunner_free(sr);
 
     s = strutil_suite();
+    sr = srunner_create(s);
+    srunner_run_all(sr, CK_NORMAL);
+    number_failed += srunner_ntests_failed(sr);
+    srunner_free(sr);
+
+    s = player_io_suite();
     sr = srunner_create(s);
     srunner_run_all(sr, CK_NORMAL);
     number_failed += srunner_ntests_failed(sr);

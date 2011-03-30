@@ -170,7 +170,7 @@ void assign_objects(void);
 void assign_rooms(void);
 void assign_artisans(void);
 void boot_dynamic_text(void);
-void boot_tongues(void);
+void boot_tongues(const char *path);
 void boot_voices(void);
 
 void reset_zone(struct zone_data *zone);
@@ -373,7 +373,7 @@ boot_db(void)
     file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
 
     slog("Loading tongues.");
-    boot_tongues();
+    boot_tongues("etc/tongues.xml");
     slog("Loading NPC voices.");
     boot_voices();
 

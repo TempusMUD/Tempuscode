@@ -385,7 +385,7 @@ loadCorpse(struct creature *ch)
 }
 
 void
-save_player_to_xml(struct creature *ch)
+save_player_to_file(struct creature *ch, const char *path)
 {
     void expire_old_grievances(struct creature *);
     // Save vital statistics
@@ -394,17 +394,11 @@ save_player_to_xml(struct creature *ch)
     struct obj_data *saved_tattoo[NUM_WEARS];
     struct affected_type *saved_affs, *cur_aff;
     FILE *ouf;
-    char *path, *tmp_path;
+    char *tmp_path;
     struct alias_data *cur_alias;
     int idx, pos;
     int hit = GET_HIT(ch), mana = GET_MANA(ch), move = GET_MOVE(ch);
 
-    if (GET_IDNUM(ch) == 0) {
-        slog("Attempt to save creature with idnum==0");
-        raise(SIGSEGV);
-    }
-
-    path = get_player_file_path(GET_IDNUM(ch));
     tmp_path = tmp_sprintf("%s.tmp", path);
     ouf = fopen(tmp_path, "w");
 
@@ -633,6 +627,19 @@ save_player_to_xml(struct creature *ch)
     GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), move);
 }
 
+void
+save_player_to_xml(struct creature *ch)
+{
+    char *path = get_player_file_path(GET_IDNUM(ch));
+
+    if (GET_IDNUM(ch) == 0) {
+        slog("Attempt to save creature with idnum==0");
+        raise(SIGSEGV);
+    }
+
+    save_player_to_file(ch, path);
+}
+
 // Saves the given characters equipment to a file. Intended for use while
 // the character is still in the game.
 bool
@@ -652,11 +659,9 @@ crashsave(struct creature *ch)
     return true;
 }
 
-/* copy data from the file structure to a struct creature */
 struct creature *
-load_player_from_xml(int id)
+load_player_from_file(const char *path)
 {
-    char *path = get_player_file_path(id);
     struct creature *ch = NULL;
     char *txt;
     int idx;
@@ -1009,6 +1014,14 @@ load_player_from_xml(int id)
     }
 
     return ch;
+}
+
+struct creature *
+load_player_from_xml(int id)
+{
+    char *path = get_player_file_path(id);
+
+    return load_player_from_file(path);
 }
 
 void

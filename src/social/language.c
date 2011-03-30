@@ -216,16 +216,16 @@ const char *race_tongue[][2] = {
 };
 
 void
-boot_tongues(void)
+boot_tongues(const char *path)
 {
     xmlDocPtr doc;
     xmlNodePtr node;
 
     tongues = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-    doc = xmlParseFile("etc/tongues.xml");
+    doc = xmlParseFile(path);
     if (!doc) {
-        errlog("Couldn't load etc/tongues.xml");
+        errlog("Couldn't load %s", path);
         return;
     }
 

@@ -1,11 +1,14 @@
 TESTS = check_tempus
 check_PROGRAMS = check_tempus
 INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@
+AM_CFLAGS = -Wall -Wcast-qual ${DBGFLAG}
 check_tempus_CFLAGS = @CHECK_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@
 check_tempus_SOURCES = \
 			@top_srcdir@/tests/check_tempus.c \
 			@top_srcdir@/tests/tmpstr_tests.c \
-	        @top_srcdir@/tests/strutil_tests.c
+	        @top_srcdir@/tests/strutil_tests.c \
+	        @top_srcdir@/tests/player_io_tests.c
+
 check_tempus_LDADD = @CHECK_LIBS@ @XML_LIBS@ @GLIB_LIBS@ \
 			$(top_builddir)/src/clan.o \
 			$(top_builddir)/src/act.barb.o \

@@ -366,7 +366,7 @@ account_create_char(struct account *account, const char *name)
     if (chars_available(account) <= 0)
         return NULL;
 
-    CREATE(ch, struct creature, 1);
+    ch = make_creature(true);
 
     ch->player.name = strdup(tmp_capitalize(tmp_tolower(name)));
     ch->char_specials.saved.idnum = top_player_idnum() + 1;
