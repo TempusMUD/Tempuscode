@@ -2347,9 +2347,8 @@ clear_spells(void)
 }
 
 void
-boot_spells(void)
+boot_spells(const char *path)
 {
-    const char *path = "etc/spells.xml";
     xmlDocPtr doc;
     xmlNodePtr node;
     int num_spells = 0;

@@ -191,7 +191,7 @@ void randomize_object(struct obj_data *obj);
 extern struct descriptor_data *descriptor_list;
 void load_messages(void);
 void weather_and_time(int mode);
-void boot_spells(void);
+void boot_spells(const char *path);
 void boot_social_messages(void);
 void free_socials(void);
 void sort_commands(void);
@@ -267,7 +267,7 @@ ACMD(do_reboot)
         free_socials();
         boot_social_messages();
     } else if (!strcasecmp(arg, "spells")) {
-        boot_spells();
+        boot_spells("etc/spells.xml");
     } else {
         send_to_char(ch, "Unknown reboot option.\r\n");
         send_to_char(ch,
@@ -407,7 +407,7 @@ boot_db(void)
         assign_artisans();
     }
     slog("   Spells.");
-    boot_spells();
+    boot_spells("etc/spells.xml");
     while (spells[max_spell_num][0] != '\n')
         max_spell_num++;
 
