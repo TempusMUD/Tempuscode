@@ -770,7 +770,7 @@ load_player_from_file(const char *path)
 
             GET_REMORT_GEN(ch) = xmlGetIntProp(node, "gen", 0);
             GET_TOT_DAM(ch) = xmlGetIntProp(node, "total_dam", 0);
-
+            GET_BROKE(ch) = xmlGetIntProp(node, "broken", 0);
         } else if (xmlMatches(node->name, "time")) {
             ch->player.time.birth = xmlGetLongProp(node, "birth", 0);
             ch->player.time.death = xmlGetLongProp(node, "death", 0);
