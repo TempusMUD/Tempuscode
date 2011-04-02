@@ -77,7 +77,7 @@ extern int log_cmds;
 extern int olc_lock;
 extern int lunar_day;
 extern int quest_status;
-extern bool restrict_logins;
+extern int restrict_logins;
 extern struct creature *combat_list;    /* head of list of fighting chars */
 extern int shutdown_count;
 extern int shutdown_mode;
@@ -6601,9 +6601,9 @@ ACMD(do_aset)
         send_to_char(ch, "%s %s for %s.\r\n", fields[l].cmd, ONOFF(on),
             account->name);
     } else if (fields[l].type == NUMBER) {
-        slog("(GC) %s set %s for account %s[%d] to %Ld",
+        slog("(GC) %s set %s for account %s[%d] to %lld",
             GET_NAME(ch), fields[l].cmd, account->name, account->id, value);
-        send_to_char(ch, "%s's %s set to %Ld.\r\n", account->name,
+        send_to_char(ch, "%s's %s set to %lld.\r\n", account->name,
             fields[l].cmd, value);
     } else
         send_to_char(ch, "%s\r\n", buf);

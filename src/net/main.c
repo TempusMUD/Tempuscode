@@ -13,7 +13,7 @@
 extern int DFLT_PORT;
 extern char *DFLT_DIR;
 extern int no_specials;
-extern bool restrict_logins;
+extern int restrict_logins;
 extern int mini_mud;
 extern int olc_lock;
 extern int no_rent_check;

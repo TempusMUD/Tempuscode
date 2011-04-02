@@ -73,7 +73,7 @@ extern struct zone_data *default_quad_zone;
 extern struct obj_data *object_list;
 int main_port;
 int reader_port;
-bool restrict_logins = false;
+int restrict_logins = false;
 bool production_mode = false;   // Run in production mode
 
 /* local globals */
