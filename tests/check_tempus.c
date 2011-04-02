@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <check.h>
+#include <time.h>
+
+void my_srand(unsigned long initial_seed);
 
 Suite *tmpstr_suite(void);
 Suite *strutil_suite(void);
@@ -9,6 +12,8 @@ int
 main(void)
 {
     int number_failed = 0;
+
+    my_srand(time(0));
 
     Suite *s = tmpstr_suite();
     SRunner *sr = srunner_create(s);
