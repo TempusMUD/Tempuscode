@@ -539,10 +539,10 @@ save_player_to_file(struct creature *ch, const char *path)
         ch->char_specials.saved.affected3_by);
 
     for (idx = 0; idx < MAX_WEAPON_SPEC; idx++) {
-        if (ch->player_specials->saved.weap_spec[idx].level)
+        if (GET_WEAP_SPEC(ch, idx).level > 0)
             fprintf(ouf, "<weaponspec vnum=\"%d\" level=\"%d\"/>\n",
-                ch->player_specials->saved.weap_spec[idx].vnum,
-                ch->player_specials->saved.weap_spec[idx].level);
+                GET_WEAP_SPEC(ch, idx).vnum,
+                GET_WEAP_SPEC(ch, idx).level);
     }
 
     if (GET_TITLE(ch) && *GET_TITLE(ch)) {
@@ -841,13 +841,13 @@ load_player_from_file(const char *path)
                 GET_TONGUE(ch) = find_tongue_idx_by_name(flag);
             free(flag);
         } else if (xmlMatches(node->name, "weaponspec")) {
-            int vnum = xmlGetIntProp(node, "vnum", 0);
+            int vnum = xmlGetIntProp(node, "vnum", -1);
             int level = xmlGetIntProp(node, "level", 0);
             if (vnum > 0 && level > 0) {
                 for (int i = 0; i < MAX_WEAPON_SPEC; i++) {
-                    if (ch->player_specials->saved.weap_spec[i].vnum == 0) {
-                        ch->player_specials->saved.weap_spec[i].vnum = vnum;
-                        ch->player_specials->saved.weap_spec[i].level = level;
+                    if (GET_WEAP_SPEC(ch, i).level <= 0) {
+                        GET_WEAP_SPEC(ch, i).vnum = vnum;
+                        GET_WEAP_SPEC(ch, i).level = level;
                         break;
                     }
                 }

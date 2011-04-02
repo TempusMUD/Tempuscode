@@ -422,7 +422,7 @@ account_create_char(struct account *account, const char *name)
         ch->player_specials->saved.skills[i] = 0;
 
     for (i = 0; i < MAX_WEAPON_SPEC; i++) {
-        ch->player_specials->saved.weap_spec[i].vnum = -1;
+        ch->player_specials->saved.weap_spec[i].vnum = 0;
         ch->player_specials->saved.weap_spec[i].level = 0;
     }
     ch->player_specials->saved.imm_qp = 0;
