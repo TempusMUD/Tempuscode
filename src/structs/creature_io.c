@@ -433,10 +433,6 @@ save_player_to_file(struct creature *ch, const char *path)
             saved_tattoo[pos] = NULL;
     }
 
-    // we need to update time played every time we save...
-    ch->player.time.played += time(0) - ch->player.time.logon;
-    ch->player.time.logon = time(0);
-
     expire_old_grievances(ch);
 
     fprintf(ouf, "<creature name=\"%s\" idnum=\"%ld\">\n",
@@ -645,11 +641,16 @@ save_player_to_xml(struct creature *ch)
 bool
 crashsave(struct creature *ch)
 {
+    time_t now = time(0);
+
     if (IS_NPC(ch))
         return false;
 
     ch->player_specials->rentcode = RENT_CRASH;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
+
+    ch->player.time.played += now - ch->player.time.logon;
+    ch->player.time.logon = now;
 
     if (!save_player_objects(ch))
         return false;
@@ -664,7 +665,6 @@ load_player_from_file(const char *path)
 {
     struct creature *ch = NULL;
     char *txt;
-    int idx;
 
     if (access(path, W_OK)) {
         errlog("Unable to open xml player file '%s': %s", path,
@@ -982,6 +982,18 @@ load_player_from_file(const char *path)
     }
 
     xmlFreeDoc(doc);
+    return ch;
+}
+
+struct creature *
+load_player_from_xml(int id)
+{
+    char *path = get_player_file_path(id);
+    struct creature *ch = load_player_from_file(path);
+    int idx;
+
+    if (!ch)
+        return NULL;
 
     // reset all imprint rooms
     for (int i = 0; i < MAX_IMPRINT_ROOMS; i++)
@@ -1013,15 +1025,7 @@ load_player_from_file(const char *path)
             ch->language_data.tongues[idx] = 100;
     }
 
-    return ch;
-}
-
-struct creature *
-load_player_from_xml(int id)
-{
-    char *path = get_player_file_path(id);
-
-    return load_player_from_file(path);
+   return ch;
 }
 
 void
