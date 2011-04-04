@@ -120,7 +120,6 @@ int write_to_descriptor(int desc, const char *txt);
 
 /* extern fcnts */
 void boot_world(void);
-void clear_world(void);
 void affect_update(void);       /* In spells.c */
 void obj_affect_update(void);
 void mobile_activity(void);

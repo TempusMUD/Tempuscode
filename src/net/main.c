@@ -26,7 +26,6 @@ extern int main_port;
 extern int reader_port;
 
 void verify_environment(void);
-void clear_world(void);
 void init_game(int port);
 
 int
@@ -200,14 +199,11 @@ main(int argc, char **argv)
         while (getchar() != '\n')
             ;
         slog("Done.");
-        clear_world();
         safe_exit(EXIT_SUCCESS);
     } else {
         slog("Running game on port %d.", main_port);
         init_game(main_port);
     }
-
-    clear_world();
 
     return EXIT_SUCCESS;
 }

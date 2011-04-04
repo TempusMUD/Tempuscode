@@ -459,16 +459,6 @@ boot_db(void)
     slog("Boot db -- DONE.");
 }
 
-// Clear the world enough to not trip up memory leak detection.  Since
-// we're storing vectors and maps of pointers, when the global
-// containers are freed, the memory blocks are left dangling.  To
-// prevent this, we have to deallocate everything that is tracked in
-// this manner.
-void
-clear_world(void)
-{
-}
-
 /* reset the time in the game from file */
 void
 reset_time(void)
