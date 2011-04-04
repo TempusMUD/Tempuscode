@@ -14,7 +14,6 @@
 #include <string.h>
 
 #include <ctype.h>
-#include <fcntl.h>
 
 // Tempus Includes
 #include "screen.h"

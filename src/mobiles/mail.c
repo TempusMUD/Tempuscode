@@ -28,6 +28,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include <string.h>
 #include <time.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 #include "actions.h"
 #include "structs.h"

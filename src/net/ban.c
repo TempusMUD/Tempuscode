@@ -25,7 +25,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include <sys/types.h>
 #include <regex.h>
 
 #include "structs.h"

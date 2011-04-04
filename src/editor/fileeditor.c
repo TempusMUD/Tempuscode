@@ -7,9 +7,8 @@
 #endif
 
 #include <ctype.h>
-#include <fcntl.h>
 #include <errno.h>
-
+#include <sys/stat.h>
 // Tempus Includes
 #include "screen.h"
 #include "desc_data.h"

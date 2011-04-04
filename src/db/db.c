@@ -28,7 +28,6 @@
 #include <time.h>
 #include <errno.h>
 #include <signal.h>
-#include <dirent.h>
 #include <glib.h>
 
 #include "structs.h"
