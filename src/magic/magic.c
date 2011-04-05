@@ -45,7 +45,6 @@ extern char weapon_verbs[];
 extern int *max_ac_applys;
 extern struct apply_mod_defaults *apmd;
 
-void weight_change_object(struct obj_data *obj, int weight);
 void add_follower(struct creature *ch, struct creature *leader);
 extern struct spell_info_type spell_info[];
 ACMD(do_flee);
@@ -3899,7 +3898,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         break;
 
     case SPELL_DENSIFY:
-        GET_OBJ_WEIGHT(obj) += level + GET_INT(ch);
+        set_obj_weight(obj, GET_OBJ_WEIGHT(obj) + level + GET_INT(ch));
         to_char = "$p becomes denser.";
         break;
 
@@ -4182,7 +4181,7 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj, int spellnum)
             // Purify it of poison
             GET_OBJ_VAL(obj, 3) = 0;
             // Update the container's weight
-            GET_OBJ_WEIGHT(obj) = dry_weight + GET_OBJ_VAL(obj, 1) / 10;
+            set_obj_weight(obj, dry_weight + GET_OBJ_VAL(obj, 1) / 10);
         }
         break;
     case SPELL_BLESS:

@@ -345,7 +345,7 @@ struct tmp_obj_affect {
     char extra_index;     /* Which bitvector to modify */
     int weight_mod;       /* Change the weight by this value */
     char affect_loc[MAX_OBJ_AFFECT];  /* (APPLY_XXX)*/
-    char affect_mod[MAX_OBJ_AFFECT];; /* Change apply by this value */
+    char affect_mod[MAX_OBJ_AFFECT]; /* Change apply by this value */
     struct tmp_obj_affect *next;
 };
 
@@ -417,5 +417,6 @@ bool obj_is_unrentable(struct obj_data *obj);
 void obj_affect_join(struct obj_data *obj, struct tmp_obj_affect *af, int dur_mode, int val_mode, int aff_mode);
 const char *obj_cond(struct obj_data *obj);
 const char *obj_cond_color(struct obj_data *obj, int color_level);
+int set_obj_weight(struct obj_data *obj, int new_weight);
 
 #endif

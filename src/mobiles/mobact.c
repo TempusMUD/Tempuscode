@@ -538,7 +538,7 @@ burn_update_creature(struct creature *ch)
             GET_OBJ_EXTRA2(flesh) = ITEM2_BODY_PART;
             GET_OBJ_VAL(flesh, 0) = 3;
             GET_OBJ_VAL(flesh, 3) = 3;
-            GET_OBJ_WEIGHT(flesh) = 2;
+            set_obj_weight(flesh, 2);
             flesh->worn_on = -1;
             if (IS_NPC(ch)) {
                 GET_OBJ_TIMER(flesh) = max_npc_corpse_time;

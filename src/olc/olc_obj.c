@@ -836,7 +836,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
                 send_to_char(ch, "Object weight out of range.\r\n");
                 return;
             } else {
-                GET_OBJ_WEIGHT(obj_p) = i;
+                set_obj_weight(obj_p, i);
                 send_to_char(ch, "Object %d weight set to %d.\r\n",
                     obj_p->shared->vnum, i);
             }

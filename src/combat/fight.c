@@ -480,7 +480,7 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
     new_obj = make_object();
     new_obj->shared = null_obj_shared;
     GET_OBJ_MATERIAL(new_obj) = GET_OBJ_MATERIAL(obj);
-    GET_OBJ_WEIGHT(new_obj) = GET_OBJ_WEIGHT(obj);
+    set_obj_weight(new_obj, GET_OBJ_WEIGHT(obj));
     GET_OBJ_TYPE(new_obj) = ITEM_TRASH;
     GET_OBJ_WEAR(new_obj) = ITEM_WEAR_TAKE;
     GET_OBJ_EXTRA(new_obj) = ITEM_NODONATE + ITEM_NOSELL;

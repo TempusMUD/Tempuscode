@@ -53,7 +53,6 @@ extern char *last_command;
 extern struct apply_mod_defaults *apmd;
 extern const char *instrument_types[];
 
-void weight_change_object(struct obj_data *obj, int weight);
 void add_follower(struct creature *ch, struct creature *leader);
 void zone_weather_change(struct zone_data *zone);
 int clan_house_can_enter(struct creature *ch, struct room_data *room);

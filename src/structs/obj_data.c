@@ -155,7 +155,7 @@ obj_is_unrentable(struct obj_data * obj)
 }
 
 int
-setWeight(struct obj_data *obj, int new_weight)
+set_obj_weight(struct obj_data *obj, int new_weight)
 {
 
     return (modify_object_weight(obj, new_weight - GET_OBJ_WEIGHT(obj)));
@@ -802,8 +802,9 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
 
     fprintf(ouf,
         "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
-        indent, obj->obj_flags.type_flag, obj->soilage, GET_OBJ_WEIGHT(obj),
-        obj->obj_flags.material, obj->obj_flags.timer);
+            indent, obj->obj_flags.type_flag, obj->soilage,
+            GET_OBJ_WEIGHT(obj) - weigh_contained_objs(obj),
+            obj->obj_flags.material, obj->obj_flags.timer);
     fprintf(ouf,
         "%s<tracking id=\"%ld\" method=\"%d\" creator=\"%ld\" time=\"%ld\"/>\n",
         indent, obj->unique_id, obj->creation_method, obj->creator,

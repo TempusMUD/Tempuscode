@@ -779,7 +779,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         GET_OBJ_VAL(leg, 1) = 2;
         GET_OBJ_VAL(leg, 2) = 9;
         GET_OBJ_VAL(leg, 3) = 7;
-        GET_OBJ_WEIGHT(leg) = 7;
+        set_obj_weight(leg, 7);
         leg->worn_on = -1;
         if (IS_NPC(ch))
             GET_OBJ_TIMER(leg) = max_npc_corpse_time;
@@ -1100,7 +1100,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
             GET_OBJ_VAL(spine, 0) = 0;
             GET_OBJ_VAL(spine, 2) = 6;
             GET_OBJ_VAL(spine, 3) = 5;
-            GET_OBJ_WEIGHT(spine) = 5;
+            set_obj_weight(spine, 5);
             GET_OBJ_MATERIAL(spine) = MAT_BONE;
             spine->worn_on = -1;
             obj_to_room(spine, ch->in_room);
@@ -1210,10 +1210,10 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 
         if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
             GET_OBJ_MATERIAL(head) = MAT_STONE;
-            GET_OBJ_WEIGHT(head) = 25;
+            set_obj_weight(head, 25);
         } else {
             GET_OBJ_MATERIAL(head) = MAT_FLESH;
-            GET_OBJ_WEIGHT(head) = 10;
+            set_obj_weight(head, 10);
         }
 
         if (IS_NPC(ch))
@@ -1317,7 +1317,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
             GET_OBJ_VAL(heart, 2) = 0;
         }
 
-        GET_OBJ_WEIGHT(heart) = 0;
+        set_obj_weight(head, 0);
         heart->worn_on = -1;
 
         if (IS_NPC(ch))
@@ -1376,7 +1376,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         SET_BIT(GET_OBJ_EXTRA2(corpse), ITEM2_UNAPPROVED);
     GET_OBJ_VAL(corpse, 0) = 0; /* You can't store stuff in a corpse */
     GET_OBJ_VAL(corpse, 3) = 1; /* corpse identifier */
-    GET_OBJ_WEIGHT(corpse) = GET_WEIGHT(ch) + IS_CARRYING_W(ch);
+    set_obj_weight(corpse, GET_WEIGHT(ch));
     corpse->contains = NULL;
 
     if (IS_NPC(ch)) {

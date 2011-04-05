@@ -2141,7 +2141,7 @@ ACMD(do_drink)
     if ((GET_OBJ_VAL(temp, 1) != -1) && (GET_OBJ_VNUM(temp) != -1)) {
         weight = GET_OBJ_WEIGHT(real_object_proto(GET_OBJ_VNUM(temp)));
         weight += GET_OBJ_VAL(temp, 1) / 10;
-        GET_OBJ_WEIGHT(temp) = weight;
+        set_obj_weight(temp, weight);
     }
 
     drunk = (int)drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount;
@@ -2432,7 +2432,7 @@ ACMD(do_pour)
                 weight =
                     GET_OBJ_WEIGHT(real_object_proto(GET_OBJ_VNUM(from_obj)));
                 weight += GET_OBJ_VAL(from_obj, 1) / 10;
-                GET_OBJ_WEIGHT(from_obj) = weight;
+                set_obj_weight(from_obj, weight);
             }
             name_from_drinkcon(from_obj, GET_OBJ_VAL(from_obj, 2));
 
@@ -2508,11 +2508,11 @@ ACMD(do_pour)
     if ((GET_OBJ_VNUM(from_obj)) != -1 && (GET_OBJ_VNUM(to_obj) != -1)) {
         weight = GET_OBJ_WEIGHT(real_object_proto(GET_OBJ_VNUM(from_obj)));
         weight += GET_OBJ_VAL(from_obj, 1) / 10;
-        GET_OBJ_WEIGHT(from_obj) = weight;
+        set_obj_weight(from_obj, weight);
 
         weight = GET_OBJ_WEIGHT(real_object_proto(GET_OBJ_VNUM(to_obj)));
         weight += GET_OBJ_VAL(to_obj, 1) / 10;
-        GET_OBJ_WEIGHT(to_obj) = weight;
+        set_obj_weight(to_obj, weight);
     }
 
     return;
