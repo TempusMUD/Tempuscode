@@ -99,7 +99,7 @@ randomize_creature(struct creature *ch, int char_class)
     ch->player_specials->saved.plr2_bits = number(0, 65535);
     ch->player_specials->saved.pref = number(0, 65535);
     ch->player_specials->saved.pref2 = number(0, 65535);
-    GET_TONGUE(ch) = number(0, 35);
+    GET_TONGUE(ch) = number(0, 34);
 
     for (int i = 0; i < number(0, MAX_WEAPON_SPEC); i++) {
         GET_WEAP_SPEC(ch, i).vnum = number(1, 30000);
@@ -240,12 +240,15 @@ START_TEST(test_load_save_mage)
     ch->player_specials->saved.mana_shield_low = number(0, 100);
     ch->player_specials->saved.mana_shield_pct = number(0, 100);
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    tch = load_player_from_file("/tmp/test_player.xml");
+    save_player_to_file(ch, "/tmp/test_player_mage.xml");
+    tch = load_player_from_file("/tmp/test_player_mage.xml");
 
     compare_creatures(ch, tch);
 
     fail_unless(ch->player_specials->saved.mana_shield_low ==
+                tch->player_specials->saved.mana_shield_low,
+                "mana_shield_low mismatch: %d != %d",
+                ch->player_specials->saved.mana_shield_low,
                 tch->player_specials->saved.mana_shield_low);
     fail_unless(ch->player_specials->saved.mana_shield_pct ==
                 tch->player_specials->saved.mana_shield_pct);

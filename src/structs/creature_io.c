@@ -458,6 +458,7 @@ save_player_to_file(struct creature *ch, const char *path)
         fprintf(ouf, " remort=\"%s\"", class_names[GET_REMORT_CLASS(ch)]);
     if (GET_REMORT_GEN(ch) > 0)
         fprintf(ouf, " gen=\"%d\"", GET_REMORT_GEN(ch));
+
     if (IS_CYBORG(ch)) {
         if (GET_OLD_CLASS(ch) != -1)
             fprintf(ouf, " subclass=\"%s\"",
@@ -466,7 +467,8 @@ save_player_to_file(struct creature *ch, const char *path)
             fprintf(ouf, " total_dam=\"%d\"", GET_TOT_DAM(ch));
         if (GET_BROKE(ch))
             fprintf(ouf, " broken=\"%d\"", GET_BROKE(ch));
-    } else if (GET_CLASS(ch) == CLASS_MAGE &&
+    }
+    if (GET_CLASS(ch) == CLASS_MAGE &&
         GET_SKILL(ch, SPELL_MANA_SHIELD) > 0) {
         fprintf(ouf, " manash_low=\"%ld\" manash_pct=\"%ld\"",
             ch->player_specials->saved.mana_shield_low,
