@@ -1683,6 +1683,8 @@ char_to_game(struct descriptor_data *d)
                      GET_NAME(d->creature));
         mudlog(LVL_GOD, NRM, true,
                "Denying entry to buried character %s", GET_NAME(d->creature));
+        free_creature(d->creature);
+        d->creature = NULL;
         set_desc_state(CXN_WAIT_MENU, d);
         return;
     }
