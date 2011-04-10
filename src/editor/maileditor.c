@@ -532,26 +532,18 @@ maileditor_do_command(struct editor * editor, char cmd, char *args)
 {
     switch (cmd) {
     case 't':
-        if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
-            maileditor_listrecipients(editor);
-            maileditor_listattachments(editor);
-            break;
-        }
+        maileditor_listrecipients(editor);
+        maileditor_listattachments(editor);
+        break;
     case 'a':
-        if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
-            maileditor_addrecipient(editor, args);
-            break;
-        }
+        maileditor_addrecipient(editor, args);
+        break;
     case 'e':
-        if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
-            maileditor_remrecipient(editor, args);
-            break;
-        }
+        maileditor_remrecipient(editor, args);
+        break;
     case 'p':
-        if (PLR_FLAGGED(editor->desc->creature, PLR_MAILING)) {
-            maileditor_addattachment(editor, args);
-            break;
-        }
+        maileditor_addattachment(editor, args);
+        break;
     default:
         return editor_do_command(editor, cmd, args);
     }

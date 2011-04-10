@@ -305,7 +305,7 @@ static inline bool NPC2_FLAGGED(struct creature *ch, enum mob2_flag flag) {
     return IS_NPC(ch) && IS_SET(NPC2_FLAGS(ch), flag);
 }
 static inline bool PLR_FLAGGED(struct creature *ch, enum plr_flag flag) {
-    return IS_PC(ch) && IS_SET(PLR2_FLAGS(ch), flag);
+    return IS_PC(ch) && IS_SET(PLR_FLAGS(ch), flag);
 }
 static inline bool PLR2_FLAGGED(struct creature *ch, enum plr2_flag flag) {
     return IS_PC(ch) && IS_SET(PLR2_FLAGS(ch), flag);
