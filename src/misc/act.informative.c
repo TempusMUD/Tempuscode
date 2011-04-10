@@ -3731,7 +3731,8 @@ ACMD(do_who)
 
     if (IS_PC(ch) && ch->account->compact_level <= 1)
         acc_strcat("\r\n", NULL);
-    acc_sprintf("%d of %d immortal%s, ",
+    acc_sprintf("%s%d of %d immortal%s, ",
+                CCNRM(ch, C_NRM),
                 g_list_length(immortals),
                 immTotal, (immTotal == 1) ? "" : "s");
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR || is_tester(ch)) {
