@@ -2857,10 +2857,10 @@ do_blind_score(struct creature *ch)
 			acc_strcat("You are mounted on the thin air!?\r\n", NULL);
 		break;
 	case POS_STANDING:
-		acc_strcat("You are standing\r\n", NULL);
+		acc_strcat("You are standing.\r\n", NULL);
 		break;
 	case POS_FLYING:
-		acc_strcat("You are hovering in midair\r\n", NULL);
+		acc_strcat("You are hovering in midair.\r\n", NULL);
 		break;
 	default:
 		acc_strcat("You are floating.\r\n", NULL);
@@ -3049,11 +3049,11 @@ ACMD(do_score)
                 CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     case POS_STANDING:
-        acc_strcat(CCGRN(ch, C_NRM), "You are standing",
+        acc_strcat(CCGRN(ch, C_NRM), "You are standing.",
             CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     case POS_FLYING:
-        acc_strcat(CCGRN(ch, C_NRM), "You are hovering in midair",
+        acc_strcat(CCGRN(ch, C_NRM), "You are hovering in midair.",
             CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     default:
