@@ -1982,12 +1982,6 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
             idx++;
             continue;
         }
-        // Deleted and buried characters don't show on player menus
-        if (!immort && PLR2_FLAGGED(tmp_ch, PLR2_BURIED)) {
-            idx++;
-            continue;
-        }
-
         switch (GET_SEX(tmp_ch)) {
         case SEX_MALE:
             sex_color = "&b";
