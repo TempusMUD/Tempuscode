@@ -1587,8 +1587,12 @@ remove_all_combat(struct creature *ch)
     for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         remove_combat((struct creature *)it->data, ch);
     }
-    g_list_free(ch->fighting);
-    ch->fighting = NULL;
+
+    if (is_fighting(ch)) {
+        g_list_free(ch->fighting);
+        ch->fighting = NULL;
+        remove_fighting_affects(ch);
+    }
 }
 
 struct creature *
