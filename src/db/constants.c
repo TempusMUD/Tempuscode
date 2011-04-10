@@ -88,6 +88,7 @@ const char *desc_modes[] = {
     "ansi-prompt",
     "compact-prompt",
     "email-prompt",
+    "view-policy",
     "old-password-prompt",
     "new-password-prompt",
     "new-password-verify",
