@@ -1472,7 +1472,7 @@ send_to_desc(struct descriptor_data *d, const char *str, ...)
                     SEND_TO_Q(KNRM, d);
                 switch (*read_pt) {
                 case '@':
-                    SEND_TO_Q("\e[H\eJ", d);
+                    SEND_TO_Q("\e[H\e[J", d);
                     break;
                 case 'n':
                     SEND_TO_Q(KNRM, d);
