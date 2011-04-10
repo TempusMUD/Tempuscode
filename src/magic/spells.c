@@ -123,7 +123,7 @@ ASPELL(spell_recall)
         return;
     }
 
-    load_room = real_room(GET_LOADROOM(victim));
+    load_room = player_loadroom(victim);
 
     if (!load_room || !victim->in_room) {
         errlog("NULL load_room or victim->in_room in spell_recall.");

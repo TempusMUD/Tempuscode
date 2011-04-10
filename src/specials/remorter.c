@@ -106,7 +106,7 @@ SPECIAL(remorter)
     if (GET_EXP(ch) < exp_scale[LVL_AMBASSADOR] ||
         GET_LEVEL(ch) < (LVL_AMBASSADOR - 1)) {
         send_to_char(ch, "Piss off.  Come back when you are bigger.\r\n");
-        struct room_data *room = real_room(GET_LOADROOM(ch));
+        struct room_data *room = player_loadroom(ch);
         if (room == NULL)
             room = real_room(3061); // modrian dump
         act("$n disappears in a mushroom cloud.", false, ch, 0, 0, TO_ROOM);
