@@ -1589,8 +1589,6 @@ remove_all_combat(struct creature *ch)
     }
     g_list_free(ch->fighting);
     ch->fighting = NULL;
-
-    remove_fighting_affects(ch);
 }
 
 struct creature *

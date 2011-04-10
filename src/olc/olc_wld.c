@@ -379,14 +379,38 @@ save_wld(struct creature * ch, struct zone_data * zone)
     return true;
 }
 
+struct room_data *make_room(struct zone_data *zone, int num)
+{
+    struct room_data *new_rm;
+
+    CREATE(new_rm, struct room_data, 1);
+    new_rm->number = num;
+    new_rm->zone = zone;
+    new_rm->name = strdup("A Freshly Made Room");
+
+    if (zone->world && zone->world->number < num) {
+        struct room_data *rm = zone->world;
+        while (rm->next && rm->next->number < num)
+            rm = rm->next;
+        new_rm->next = rm->next;
+        rm->next = new_rm;
+    } else {
+        new_rm->next = zone->world;
+        zone->world = new_rm;
+    }
+
+    g_hash_table_insert(rooms, GINT_TO_POINTER(num), new_rm);
+    top_of_world++;
+
+    return new_rm;
+}
+
 struct room_data *
 do_create_room(struct creature *ch, int vnum)
 {
-
-    struct room_data *rm = NULL, *new_rm = NULL;
     struct zone_data *zone = NULL;
 
-    if ((rm = real_room(vnum))) {
+    if (real_room(vnum)) {
         send_to_char(ch, "ERROR: Room already exists.\r\n");
         return NULL;
     }
@@ -413,29 +437,7 @@ do_create_room(struct creature *ch, int vnum)
         return NULL;
     }
 
-    if (zone->world && vnum > zone->world->number) {
-        for (rm = zone->world; rm; rm = rm->next) {
-            if (vnum > rm->number && (!rm->next || vnum < rm->next->number))
-                break;
-        }
-    }
-    CREATE(new_rm, struct room_data, 1);
-    new_rm->number = vnum;
-    new_rm->zone = zone;
-    new_rm->name = strdup("A Freshly Made Room");
-
-    if (rm) {
-        new_rm->next = rm->next;
-        rm->next = new_rm;
-    } else {
-        new_rm->next = zone->world;
-        zone->world = new_rm;
-    }
-
-    g_hash_table_insert(rooms, GINT_TO_POINTER(vnum), new_rm);
-    top_of_world++;
-
-    return (new_rm);
+    return make_room(zone, vnum);
 }
 
 int

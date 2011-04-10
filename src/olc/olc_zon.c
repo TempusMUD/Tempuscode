@@ -2393,6 +2393,60 @@ do_zset_command(struct creature *ch, char *argument)
     }
 }
 
+struct zone_data *
+make_zone(int num)
+{
+    struct zone_data *new_zone;
+    struct weather_data *weather;
+
+    CREATE(new_zone, struct zone_data, 1);
+
+    new_zone->name = strdup("A Freshly made Zone");
+    new_zone->lifespan = 30;
+    new_zone->age = 0;
+    new_zone->top = num * 100 + 99;
+    new_zone->reset_mode = 0;
+    new_zone->number = num;
+    new_zone->time_frame = 0;
+    new_zone->plane = PLANE_OLC;
+    new_zone->owner_idnum = -1;
+    new_zone->enter_count = 0;
+    new_zone->hour_mod = 0;
+    new_zone->year_mod = 0;
+    new_zone->flags = ZONE_MOBS_APPROVED + ZONE_OBJS_APPROVED +
+        ZONE_ROOMS_APPROVED + ZONE_ZCMDS_APPROVED + ZONE_SEARCH_APPROVED;
+    new_zone->world = NULL;
+    new_zone->cmd = NULL;
+    new_zone->next = NULL;
+
+    CREATE(weather, struct weather_data, 1);
+    weather->pressure = 0;
+    weather->change = 0;
+    weather->sky = 0;
+    weather->sunlight = 0;
+    weather->humid = 0;
+
+    new_zone->weather = weather;
+
+    /* Add new zone to zone_table */
+
+    if (zone_table) {
+        for (struct zone_data *zone = zone_table; zone; zone = zone->next)
+            if (new_zone->number > zone->number &&
+                (!zone->next || new_zone->number < zone->next->number)) {
+                if (zone->next != NULL)
+                    new_zone->next = zone->next;
+                zone->next = new_zone;
+                break;
+            }
+    } else
+        zone_table = new_zone;
+
+    top_of_zone_table++;
+
+    return new_zone;
+}
+
 /* Create zone structure        */
 /* Create <num>.zon file        */
 /* Add zone <num> to index file */
@@ -2401,7 +2455,6 @@ int
 do_create_zone(struct creature *ch, int num)
 {
     struct zone_data *zone = NULL, *new_zone = NULL;
-    struct weather_data *weather = NULL;
 
     char fname[64];
     FILE *index;
@@ -2445,50 +2498,7 @@ do_create_zone(struct creature *ch, int num)
 
     /* Create the new zone and set the defualts */
 
-    CREATE(new_zone, struct zone_data, 1);
-
-    new_zone->name = strdup("A Freshly made Zone");
-    new_zone->lifespan = 30;
-    new_zone->age = 0;
-    new_zone->top = num * 100 + 99;
-    new_zone->reset_mode = 0;
-    new_zone->number = num;
-    new_zone->time_frame = 0;
-    new_zone->plane = PLANE_OLC;
-    new_zone->owner_idnum = -1;
-    new_zone->enter_count = 0;
-    new_zone->hour_mod = 0;
-    new_zone->year_mod = 0;
-    new_zone->flags = ZONE_MOBS_APPROVED + ZONE_OBJS_APPROVED +
-        ZONE_ROOMS_APPROVED + ZONE_ZCMDS_APPROVED + ZONE_SEARCH_APPROVED;
-    new_zone->world = NULL;
-    new_zone->cmd = NULL;
-    new_zone->next = NULL;
-
-    CREATE(weather, struct weather_data, 1);
-    weather->pressure = 0;
-    weather->change = 0;
-    weather->sky = 0;
-    weather->sunlight = 0;
-    weather->humid = 0;
-
-    new_zone->weather = weather;
-
-    /* Add new zone to zone_table */
-
-    if (zone_table) {
-        for (zone = zone_table; zone; zone = zone->next)
-            if (new_zone->number > zone->number &&
-                (!zone->next || new_zone->number < zone->next->number)) {
-                if (zone->next != NULL)
-                    new_zone->next = zone->next;
-                zone->next = new_zone;
-                break;
-            }
-    } else
-        zone_table = new_zone;
-
-    top_of_zone_table++;
+    new_zone = make_zone(num);
 
     send_to_char(ch, "Zone %d structure created OK.\r\n", num);
 

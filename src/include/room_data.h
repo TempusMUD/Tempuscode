@@ -256,6 +256,8 @@ extern struct room_data *r_zul_dane_newbie_start_room;
 extern struct room_data *r_newbie_school_start_room;
 
 int count_room_exits(struct room_data *room);
+struct room_data *make_room(struct zone_data *zone, int num);
 void free_room(struct room_data *room);
+void link_rooms(struct room_data *room_a, struct room_data *room_b, int dir);
 
 #endif

@@ -149,4 +149,6 @@ struct reset_q_type {
 	struct reset_q_element *tail;
 };
 
+struct zone_data *make_zone(int num);
+
 #endif

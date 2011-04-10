@@ -1,10 +1,11 @@
 TESTS = check_tempus
 check_PROGRAMS = check_tempus
 INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@
-AM_CFLAGS = -Wall -Wcast-qual ${DBGFLAG}
-check_tempus_CFLAGS = @CHECK_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@
+AM_CFLAGS = -Wall -Wcast-qual -g ${DBGFLAG}
+check_tempus_CFLAGS = -g @CHECK_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@
 check_tempus_SOURCES = \
 			@top_srcdir@/tests/check_tempus.c \
+	        @top_srcdir@/tests/movement_tests.c \
 			@top_srcdir@/tests/tmpstr_tests.c \
 	        @top_srcdir@/tests/strutil_tests.c \
 	        @top_srcdir@/tests/player_io_tests.c

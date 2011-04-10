@@ -7,6 +7,7 @@
 
 #include "structs.h"
 #include "room_data.h"
+#include "utils.h"
 #include "prog.h"
 
 void
@@ -28,25 +29,6 @@ free_room(struct room_data *room)
 
 }
 
-bool
-room_is_open_air(struct room_data *room)
-{
-
-    //
-    // sector types must not only be added here, but also in
-    // act.movement.cc can_travel_sector()
-    //
-
-    if (room->sector_type == SECT_FLYING ||
-        room->sector_type == SECT_ELEMENTAL_AIR ||
-        room->sector_type == SECT_ELEMENTAL_RADIANCE ||
-        room->sector_type == SECT_ELEMENTAL_LIGHTNING ||
-        room->sector_type == SECT_ELEMENTAL_VACUUM)
-        return true;
-
-    return false;
-}
-
 int
 count_room_exits(struct room_data *room)
 {
@@ -59,4 +41,20 @@ count_room_exits(struct room_data *room)
             result++;
 
     return result;
+}
+
+void
+link_rooms(struct room_data *room_a, struct room_data *room_b, int dir)
+{
+    if (!ABS_EXIT(room_a, dir)) {
+        CREATE(room_a->dir_option[dir],
+               struct room_direction_data, 1);
+    }
+    ABS_EXIT(room_a, dir)->to_room = room_b;
+
+    if (!ABS_EXIT(room_b, dir)) {
+        CREATE(room_b->dir_option[rev_dir[dir]],
+               struct room_direction_data, 1);
+    }
+    ABS_EXIT(room_b, rev_dir[dir])->to_room = room_a;
 }
