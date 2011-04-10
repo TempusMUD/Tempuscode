@@ -1172,10 +1172,14 @@ cast_spell(struct creature *ch, struct creature *tch,
     if (tch && is_dead(tch))
         return 1;
 
-    if (tch && ch != tch && IS_NPC(tch) &&
-        ch->in_room == tch->in_room &&
-        SINFO.violent && !is_fighting(tch) && GET_POSITION(ch) > POS_SLEEPING &&
-        (!AFF_FLAGGED(tch, AFF_CHARM) || ch != tch->master)) {
+    if (tch
+        && ch != tch
+        && IS_NPC(tch)
+        && ch->in_room == tch->in_room
+        && SINFO.violent
+        && !is_fighting(tch)
+        && GET_POSITION(tch) > POS_SLEEPING
+        && (!AFF_FLAGGED(tch, AFF_CHARM) || ch != tch->master)) {
         hit(tch, ch, TYPE_UNDEFINED);
         if (is_dead(ch))
             return 0;
