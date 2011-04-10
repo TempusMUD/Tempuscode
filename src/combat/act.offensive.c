@@ -1345,7 +1345,7 @@ FLEE_SPEED(struct creature *ch)
 ACMD(do_retreat)
 {
     int dir;
-    bool fighting = 0, found = 0;
+    bool fighting = false, found = false;
 
     skip_spaces(&argument);
     if (GET_MOVE(ch) < 10) {
@@ -1363,7 +1363,7 @@ ACMD(do_retreat)
     }
 
     if (is_fighting(ch)) {
-        fighting = 1;
+        fighting = true;
         if (CHECK_SKILL(ch, SKILL_RETREAT) + GET_LEVEL(ch) <
             number(60, 70 + GET_LEVEL(random_opponent(ch)))) {
             send_to_char(ch, "You panic!\r\n");
@@ -1376,19 +1376,18 @@ ACMD(do_retreat)
 
         if (vict != ch
             && g_list_find(ch->fighting, vict)
-            && !is_dead(vict)
             && can_see_creature(vict, ch)
             && ((IS_NPC(vict) && GET_NPC_WAIT(vict) < 10)
                 || (vict->desc && vict->desc->wait < 10))
             && number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED(vict))) {
-            found = 1;
+            found = true;
             hit(vict, ch, TYPE_UNDEFINED);
-            if (is_dead(vict) || is_dead(ch))
+            if (is_dead(ch))
                 return;
-            if (g_list_find(vict->fighting, ch))
-                remove_combat(vict, ch);
         }
     }
+
+    remove_all_combat(ch);
 
     int retval = perform_move(ch, dir, MOVE_RETREAT, true);
 
