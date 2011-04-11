@@ -82,7 +82,7 @@ struct descriptor_data {
 	int descriptor;				/* file descriptor for socket       */
 	char host[HOST_LENGTH + 1];	/* hostname             */
 	enum cxn_state input_mode;  /* mode of 'connectedness'      */
-	char *mode_data;			// pointer for misc data needed for input_mode
+	void *mode_data;			// pointer for misc data needed for input_mode
 	int wait;					/* wait for how many loops      */
 	int desc_num;				/* unique num assigned to desc      */
 	time_t login_time;			/* when the person connected        */
