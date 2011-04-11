@@ -7985,10 +7985,10 @@ ACMD(do_account)
 
         if (account_reload(account))
             send_to_char(ch,
-                "struct account successfully reloaded from db\r\n");
+                "Account successfully reloaded from db\r\n");
         else
             send_to_char(ch,
-                "Error: struct account could not be reloaded\r\n");
+                "Error: Account could not be reloaded\r\n");
         return;
     } else {
         send_to_char(ch, "%s", ACCOUNT_USAGE);
@@ -8334,7 +8334,7 @@ ACMD(do_users)
 
     acc_string_clear();
     acc_strcat
-        (" Num struct account      Character     State          Idl Login@   Site\r\n",
+        (" Num Account      Character     State          Idl Login@   Site\r\n",
         " --- ------------ ------------- --------------- -- -------- ---------------\r\n",
         NULL);
 

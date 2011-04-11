@@ -161,7 +161,7 @@ preload_accounts(const char *conditions)
         load_trusted(new_acct);
 
         g_hash_table_insert(account_cache, GINT_TO_POINTER(idnum), new_acct);
-        slog("struct account %ld preloaded from database", idnum);
+        slog("Account %ld preloaded from database", idnum);
     }
     free(fields);
 }
@@ -200,7 +200,7 @@ load_account(struct account *account, long idnum)
     load_players(account);
     load_trusted(account);
 
-    slog("struct account %d loaded from database", account->id);
+    slog("Account %d loaded from database", account->id);
     g_hash_table_insert(account_cache, GINT_TO_POINTER(idnum), account);
     return true;
 }
@@ -553,12 +553,14 @@ account_delete_char(struct account *account, struct creature *ch)
 bool
 account_authenticate(struct account *account, const char *pw)
 {
+    struct crypt_data data = { initialized: 0 };
+
     if (account->password == NULL || *account->password == '\0') {
-        errlog("struct account %s[%d] has NULL password. Setting to guess.",
+        errlog("Account %s[%d] has NULL password. Setting to guess.",
             account->name, account->id);
         account_set_password(account, pw);
     }
-    return !strcmp(account->password, crypt(pw, account->password));
+    return !strcmp(account->password, crypt_r(pw, account->password, &data));
 }
 
 void

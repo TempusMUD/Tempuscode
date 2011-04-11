@@ -2144,7 +2144,7 @@ check_newbie_ban(struct descriptor_data *desc)
             "your IP.  We apologize for the inconvenience,\r\n\tand "
             "we hope to see you soon!");
         mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
-            "struct account creation denied from [%s]", desc->host);
+            "Account creation denied from [%s]", desc->host);
         return BAN_NEW;
     }
 

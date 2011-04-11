@@ -1183,7 +1183,7 @@ hcontrol_build_house(struct creature *ch, char *arg)
     }
     struct house *h = find_house_by_owner(owner);
     if (h != NULL) {
-        send_to_char(ch, "struct account %d already owns house %d.\r\n", owner,
+        send_to_char(ch, "Account %d already owns house %d.\r\n", owner,
             h->id);
     } else if ((h = create_house(owner, virt_atrium, virt_top_room)) != NULL) {
         send_to_char(ch, "House built.  Mazel tov!\r\n");
@@ -1260,7 +1260,7 @@ set_house_account_owner(struct creature *ch, struct house *house, char *arg)
         if (account_by_idnum(atoi(arg))) {
             accountID = atoi(arg);
         } else {
-            send_to_char(ch, "struct account %d doesn't exist.\r\n",
+            send_to_char(ch, "Account %d doesn't exist.\r\n",
                 atoi(arg));
             return;
         }
@@ -1275,7 +1275,7 @@ set_house_account_owner(struct creature *ch, struct house *house, char *arg)
     // An account may only own one house
     struct house *h = find_house_by_owner(accountID);
     if (h != NULL) {
-        send_to_char(ch, "struct account %d already owns house %d.\r\n",
+        send_to_char(ch, "Account %d already owns house %d.\r\n",
             accountID, h->id);
         return;
     }
