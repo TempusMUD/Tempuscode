@@ -138,7 +138,14 @@ reset_creature(struct creature *ch)
         free(ch->player_specials->poofin);
         free(ch->player_specials->poofout);
         free(ch->player_specials->afk_reason);
+        g_list_foreach(ch->player_specials->afk_notifies, (GFunc)free, NULL);
         g_list_free(ch->player_specials->afk_notifies);
+        g_list_foreach(GET_RECENT_KILLS(ch), (GFunc)free, NULL);
+        g_list_free(GET_RECENT_KILLS(ch));
+        GET_RECENT_KILLS(ch) = NULL;
+        g_list_foreach(GET_GRIEVANCES(ch), (GFunc)free, NULL);
+        g_list_free(GET_GRIEVANCES(ch));
+        GET_GRIEVANCES(ch) = NULL;
         free(ch->player_specials);
 
         if (IS_NPC(ch)) {
