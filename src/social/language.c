@@ -65,7 +65,9 @@ load_tongue(xmlNodePtr node)
         if (xmlMatches(child->name, "syllable"))
             tongue->syllable_count++;
 
-    CREATE(tongue->syllables, struct trans_pair, tongue->syllable_count);
+    if (tongue->syllable_count) {
+        CREATE(tongue->syllables, struct trans_pair, tongue->syllable_count);
+    }
 
     int syllable_idx = 0;
     for (child = node->children; child; child = child->next) {
