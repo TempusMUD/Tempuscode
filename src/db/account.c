@@ -1,9 +1,11 @@
 #ifdef HAS_CONFIG_H
 #include "config.h"
 #endif
+#define _GNU_SOURCE 1
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <crypt.h>
 #include "utils.h"
 #include "desc_data.h"
 #include "interpreter.h"
