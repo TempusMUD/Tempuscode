@@ -1159,6 +1159,7 @@ send_menu(struct descriptor_data *d)
     case CXN_AFTERLIFE:
     case CXN_REMORT_AFTERLIFE:
     case CXN_DELETE_PW:
+    case CXN_WAIT_MENU:
         // These states don't have menus
         break;
     case CXN_OLDPW_PROMPT:
@@ -1415,6 +1416,13 @@ send_menu(struct descriptor_data *d)
         idx = 1;
         while (!invalid_char_index(d->account, idx)) {
             tmp_ch = load_player_from_xml(get_char_by_index(d->account, idx));
+            if (!tmp_ch) {
+                send_to_desc(d, "Player file %ld could not be read - "
+                             "please report.\r\n",
+                             get_char_by_index(d->account, idx));
+                set_desc_state(CXN_WAIT_MENU, d);
+                return;
+            }
             send_to_desc(d, "    &r[&y%2d&r] &y%-20s %10s %10s %6s %s\r\n",
                 idx, GET_NAME(tmp_ch),
                 player_race[(int)GET_RACE(tmp_ch)],
@@ -1499,9 +1507,9 @@ send_menu(struct descriptor_data *d)
                 "&r**** &nPress return to go back to race selection &r****&n\r\n");
         break;
     default:
+        slog("Unhandled input_mode %d in send_menu()", d->input_mode);
         break;
     }
-    return;
 }
 
 void
