@@ -25,6 +25,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <sys/time.h>
+#include <sys/resource.h>
 #include <sys/stat.h>
 #include <netdb.h>
 #include <string.h>
@@ -266,45 +267,12 @@ int
 get_avail_descs(void)
 {
     unsigned int max_descs = 0;
+    struct rlimit limit;
 
-/*
- * First, we'll try using getrlimit/setrlimit.  This will probably work
- * on most systems.
- */
-#if defined (RLIMIT_NOFILE) || defined (RLIMIT_OFILE)
-#if !defined(RLIMIT_NOFILE)
-#define RLIMIT_NOFILE RLIMIT_OFILE
-#endif
-    {
-        struct rlimit limit;
-
-        getrlimit(RLIMIT_NOFILE, &limit);
-        max_descs = MIN(MAX_PLAYERS + NUM_RESERVED_DESCS, limit.rlim_max);
-        limit.rlim_cur = max_descs;
-        setrlimit(RLIMIT_NOFILE, &limit);
-    }
-#elif defined (OPEN_MAX) || defined(FOPEN_MAX)
-#if !defined(OPEN_MAX)
-#define OPEN_MAX FOPEN_MAX
-#endif
-    max_descs = OPEN_MAX;       /* Uh oh.. rlimit didn't work, but we have
-                                 * OPEN_MAX */
-#else
-    /*
-     * Okay, you don't have getrlimit() and you don't have OPEN_MAX.  Time to
-     * use the POSIX sysconf() function.  (See Stevens' _Advanced Programming
-     * in the UNIX Environment_).
-     */
-    errno = 0;
-    if ((max_descs = sysconf(_SC_OPEN_MAX)) < 0) {
-        if (errno == 0)
-            max_descs = MAX_PLAYERS + NUM_RESERVED_DESCS;
-        else {
-            perror("Error calling sysconf");
-            safe_exit(EXIT_FAILURE);
-        }
-    }
-#endif
+    getrlimit(RLIMIT_NOFILE, &limit);
+    max_descs = MIN(MAX_PLAYERS + NUM_RESERVED_DESCS, limit.rlim_max);
+    limit.rlim_cur = max_descs;
+    setrlimit(RLIMIT_NOFILE, &limit);
 
     max_descs = MIN(MAX_PLAYERS, max_descs - NUM_RESERVED_DESCS);
 
