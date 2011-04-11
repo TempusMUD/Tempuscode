@@ -208,8 +208,15 @@ load_account(struct account *account, long idnum)
 bool
 account_reload(struct account * account)
 {
+    free(account->name);
+    free(account->password);
+    free(account->email);
+    free(account->creation_addr);
+    free(account->login_addr);
     g_list_free(account->trusted);
+    account->trusted = NULL;
     g_list_free(account->chars);
+    account->chars = NULL;
     g_hash_table_remove(account_cache, GINT_TO_POINTER(account->id));
     return load_account(account, account->id);
 }
@@ -370,7 +377,7 @@ account_create_char(struct account *account, const char *name)
     ch->player.name = strdup(tmp_capitalize(tmp_tolower(name)));
     ch->char_specials.saved.idnum = top_player_idnum() + 1;
     account->chars =
-        g_list_prepend(account->chars, GINT_TO_POINTER(GET_IDNUM(ch)));
+        g_list_append(account->chars, GINT_TO_POINTER(GET_IDNUM(ch)));
 
     sql_exec
         ("insert into players (idnum, name, account) values (%ld, '%s', %d)",
