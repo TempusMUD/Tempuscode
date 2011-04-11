@@ -1076,10 +1076,8 @@ send_prompt(struct descriptor_data *d)
     case CXN_STATISTICS_ROLL:
         roll_real_abils(d->creature);
         print_attributes_to_buf(d->creature, buf2);
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "%s\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n",
-            CCCYN(d->creature, C_NRM));
+            "&@&c\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n");
         send_to_desc(d, "%s\r\n", buf2);
         send_to_desc(d,
             "%sWould you like to %sREROLL%s or %sKEEP%s these attributes?%s ",
@@ -1163,14 +1161,12 @@ send_menu(struct descriptor_data *d)
         // These states don't have menus
         break;
     case CXN_OLDPW_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                                 CHANGE PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
+            "&@&c\r\n                                 CHANGE PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
         break;
     case CXN_PW_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                                  SET PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
+            "&@&c\r\n                                  SET PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
         send_to_desc(d,
             "    In order to protect your character against intrusion, you must\r\nchoose a password to use on this system.\r\n\r\n");
         break;
@@ -1179,16 +1175,14 @@ send_menu(struct descriptor_data *d)
             set_desc_state(CXN_DISCONNECT, d);
             break;
         }
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&n\r\n                                ACCOUNT CREATION\r\n*******************************************************************************&n\r\n");
+            "&@&n\r\n                                ACCOUNT CREATION\r\n*******************************************************************************&n\r\n");
         send_to_desc(d,
             "\r\n\r\n    On TempusMUD, you have an account, which is a handy way of keeping\r\ntrack of all your characters here.  All your characters share a bank\r\naccount, and you can see at a single glance which of your character have\r\nreceived mail.  Quest points are also shared by all your characters.  Your account name will also never be shown to other players.\r\n\r\n");
         break;
     case CXN_ANSI_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "\r\n                                   ANSI COLOR\r\n*******************************************************************************&n\r\n");
+            "&@\r\n                                   ANSI COLOR\r\n*******************************************************************************&n\r\n");
         send_to_desc(d,
             "\r\n\r\n"
             "    This game supports ANSI color standards.  If you have a color capable\r\n"
@@ -1204,9 +1198,8 @@ send_menu(struct descriptor_data *d)
             "            Complete - Use the maximum amount of color available.\r\n\r\n");
         break;
     case CXN_COMPACT_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "\r\n                              TEXT COMPACTNESS\r\n*******************************************************************************&n\r\n");
+            "&@\r\n                              TEXT COMPACTNESS\r\n*******************************************************************************&n\r\n");
         send_to_desc(d,
             "\r\n\r\n"
             "    Many players have differing tastes as to the vertical spacing of their\r\n"
@@ -1225,14 +1218,13 @@ send_menu(struct descriptor_data *d)
             "kill goblin\r\n");
         break;
     case CXN_EMAIL_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                                 EMAIL ADDRESS\r\n*******************************************************************************&n\r\n");
+            "&@&c\r\n                                 EMAIL ADDRESS\r\n*******************************************************************************&n\r\n");
         send_to_desc(d,
             "\r\n\r\n    You may elect to associate an email address with this account.  This\r\nis entirely optional, and will not be sold to anyone.  Its primary use is\r\npassword reminders but may soon be used for Realm board login.\r\n\r\n");
         break;
     case CXN_VIEW_POLICY:
-        send_to_desc(d, "\e[H\e[J");
+        send_to_desc(d, "&@");
         acc_string_clear();
         acc_sprintf
             ("%s\r\n                             POLICY\r\n*******************************************************************************%s\r\n",
@@ -1245,9 +1237,8 @@ send_menu(struct descriptor_data *d)
         page_string(d, acc_get_string());
         break;
     case CXN_NAME_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "\r\n&c                                 CHARACTER CREATION\r\n*******************************************************************************&n\r\n");
+            "&@&c\r\n                                 CHARACTER CREATION\r\n*******************************************************************************&n\r\n");
         send_to_desc(d,
             "\r\n    Now that you have created your account, you probably want to create a\r\ncharacter to play on the mud.  This character will be your persona on the\r\nmud, allowing you to interact with other people and things.  You may press\r\nreturn at any time to cancel the creation of your character.\r\n\r\n");
         if (account_char_count(d->account))
@@ -1258,21 +1249,19 @@ send_menu(struct descriptor_data *d)
                 account_chars_available(d->account));
         break;
     case CXN_SEX_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                                     GENDER\r\n*******************************************************************************\r\n&n");
+            "&@&c\r\n                                     GENDER\r\n*******************************************************************************\r\n&n");
         send_to_desc(d,
             "\r\n    Is your character a male or a female?\r\n\r\n");
         break;
     case CXN_HARDCORE_PROMPT:
-        send_to_desc(d, "\r\n&c                                    HARDCORE\r\n"
+        send_to_desc(d, "&@&c\r\n                                    HARDCORE\r\n"
                      "*******************************************************************************&n\r\n");
         send_to_desc(d, "\r\n    You may choose to play a hardcore character.  Hardcore characters\r\nare widely respected and gain life points a little faster than normal.\r\nHowever, they do not resurrect once dead.  Once the character dies, it\r\nis buried and no longer playable.  This option is recommended for more\r\nexperienced players who want a challenge.\r\n\r\n");
         break;
     case CXN_RACE_PROMPT:      // Racial Query
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                                      RACE\r\n"
+            "&@&c\r\n                                      RACE\r\n"
             "*******************************************************************************&n\r\n"
             "    Races on Tempus have nothing to do with coloration.  Your character's\r\n"
             "race refers to the intelligent species that your character can be.  Each\r\n"
@@ -1282,9 +1271,8 @@ send_menu(struct descriptor_data *d)
         show_pc_race_menu(d);
         break;
     case CXN_CLASS_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                                   PROFESSION\r\n"
+            "&@&c\r\n                                   PROFESSION\r\n"
             "*******************************************************************************&n\r\n"
             "    Your character class is the special training your character has had\r\n"
             "before embarking on the life of an adventurer.  Your class determines\r\n"
@@ -1294,22 +1282,19 @@ send_menu(struct descriptor_data *d)
         show_char_class_menu(d, false);
         break;
     case CXN_CLASS_REMORT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                                   PROFESSION\r\n*******************************************************************************&n\r\n\r\n\r\n");
+            "&@&c\r\n                                   PROFESSION\r\n*******************************************************************************&n\r\n\r\n\r\n");
         show_char_class_menu(d, true);
         break;
     case CXN_ALIGN_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                                   ALIGNMENT\r\n*******************************************************************************&n\r\n");
+            "&@&c\r\n                                   ALIGNMENT\r\n*******************************************************************************&n\r\n");
         send_to_desc(d,
             "\r\n\r\n    ALIGNMENT is a measure of your philosophies and morals.\r\n\r\n");
         break;
     case CXN_EDIT_DESC:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                                  DESCRIPTION\r\n*******************************************************************************&n\r\n");
+            "&@&c\r\n                                  DESCRIPTION\r\n*******************************************************************************&n\r\n");
         send_to_desc(d,
             "\r\n\r\n    Other players will usually be able to determine your general\r\n"
             "size, as well as your race and gender, by looking at you.  What\r\n"
@@ -1360,9 +1345,8 @@ send_menu(struct descriptor_data *d)
 		}
 
 
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c*&n&b-----------------------------------------------------------------------------&c*\r\n"
+            "&@&c*&n&b-----------------------------------------------------------------------------&c*\r\n"
             "&n&b|                                 &YT E M P U S&n                                 &b|\r\n"
             "&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n");
 
@@ -1409,9 +1393,8 @@ send_menu(struct descriptor_data *d)
         }
         break;
     case CXN_DELETE_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&r\r\n                                DELETE CHARACTER\r\n*******************************************************************************&n\r\n\r\n");
+            "&@&r\r\n                                DELETE CHARACTER\r\n*******************************************************************************&n\r\n\r\n");
 
         idx = 1;
         while (!invalid_char_index(d->account, idx)) {
@@ -1436,9 +1419,8 @@ send_menu(struct descriptor_data *d)
         send_to_desc(d, "&n\r\n");
         break;
     case CXN_EDIT_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                         EDIT CHARACTER DESCRIPTION\r\n*******************************************************************************&n\r\n\r\n");
+            "&@&c\r\n                         EDIT CHARACTER DESCRIPTION\r\n*******************************************************************************&n\r\n\r\n");
 
         idx = 1;
         while (!invalid_char_index(d->account, idx)) {
@@ -1456,9 +1438,8 @@ send_menu(struct descriptor_data *d)
         send_to_desc(d, "&n\r\n");
         break;
     case CXN_DETAILS_PROMPT:
-        send_to_desc(d, "\e[H\e[J");
         send_to_desc(d,
-            "&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
+            "&@&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
 
         idx = 1;
         while (!invalid_char_index(d->account, idx)) {
@@ -1486,12 +1467,9 @@ send_menu(struct descriptor_data *d)
             d);
         break;
     case CXN_VIEW_BG:
-        send_to_desc(d, "\e[H\e[J");
-        page_string(d,
-            tmp_sprintf
-            ("%s\r\n                                   BACKGROUND\r\n*******************************************************************************%s\r\n%s",
-                (d->account->ansi_level >= C_NRM) ? KCYN : "",
-                (d->account->ansi_level >= C_NRM) ? KNRM : "", background));
+        page_string(d, tmp_sprintf("&@&c\r\n                                   BACKGROUND\r\n"
+                                   "*******************************************************************************&n\r\n%s",
+                                   background));
         // If there's no showstr_point, they finished already
         if (!d->showstr_point)
             set_desc_state(CXN_WAIT_MENU, d);
@@ -1918,9 +1896,8 @@ show_character_detail(struct descriptor_data *d)
         return;
     }
 
-    send_to_desc(d, "\e[H\e[J");
     send_to_desc(d,
-        "&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
+        "&@&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
 
     if (IS_REMORT(ch)) {
         str = tmp_sprintf("%s%4s&n/%s%4s&n",
