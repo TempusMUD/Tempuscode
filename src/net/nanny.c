@@ -690,8 +690,8 @@ handle_input(struct descriptor_data *d)
                 d->account->name, d->account->id,
                 GET_NAME(d->creature), GET_IDNUM(d->creature));
             d->creature->player_specials->rentcode = RENT_NEW_CHAR;
+            save_player_to_xml(d->creature);
             calculate_height_weight(d->creature);
-            crashsave(d->creature);
         } else
             SEND_TO_Q("\r\nYou must type 'reroll' or 'keep'.\r\n\r\n", d);
         break;
@@ -1522,11 +1522,6 @@ set_desc_state(enum cxn_state state, struct descriptor_data *d)
             flush_q(&d->input);
         }
     }
-
-    if (d->original)
-        crashsave(d->original);
-    else if (d->creature)
-        crashsave(d->creature);
 
     send_menu(d);
 

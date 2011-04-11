@@ -22,6 +22,7 @@
 #include "accstr.h"
 #include "help.h"
 #include "comm.h"
+#include "players.h"
 
 struct texteditor_data {
     char **target;
@@ -62,6 +63,8 @@ texteditor_finalize(struct editor *editor, const char *text)
     // If editing their description.
     if (STATE(editor->desc) == CXN_EDIT_DESC) {
         send_to_desc(editor->desc, "\033[H\033[J");
+        save_player_to_xml(editor->desc->creature);
+        editor->desc->creature = NULL;
         set_desc_state(CXN_MENU, editor->desc);
         free_texteditor(editor);
         return;
