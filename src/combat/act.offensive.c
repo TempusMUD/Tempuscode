@@ -2455,12 +2455,11 @@ shoot_projectile_gun(struct creature *ch,
     if (is_fighting(ch))
         prob -= 10;
 
-    if (vict->fighting && !g_list_find(vict->fighting, ch)
+    if (is_fighting(vict) && !g_list_find(vict->fighting, ch)
         && number(1, 121) > prob)
         vict = random_opponent(vict);
-    else if (vict->fighting && number(1, 101) > prob) {
+    else if (is_fighting(vict) && number(1, 101) > prob) {
         vict = random_fighter(ch->in_room, ch, vict);
-
     } else if (number(1, 81) > prob) {
         vict = random_bystander(ch->in_room, ch, vict);
     }
@@ -2566,7 +2565,7 @@ ACMD(do_shoot)
             return;
         }
     } else if (!(vict = get_char_room_vis(ch, argument)) &&
-        !(target = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
+               !(target = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
         send_to_char(ch, "You don't see %s '%s' here.\r\n", AN(argument),
             argument);
         WAIT_STATE(ch, 4);
