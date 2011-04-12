@@ -948,7 +948,7 @@ perform_offensive_skill(struct creature *ch,
     //
 
     if (prob < number(1, 120)) {
-        if (damage(ch, vict, 0, skill, loc))
+        if (!damage(ch, vict, 0, skill, loc))
             return false;
         if (fail_pos) {
             GET_POSITION(ch) = fail_pos;
