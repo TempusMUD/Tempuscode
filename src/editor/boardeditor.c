@@ -89,6 +89,7 @@ start_editing_board(struct descriptor_data *d,
     d->text_editor->do_command = board_command;
     d->text_editor->finalize = board_finalize;
     d->text_editor->cancel = board_cancel;
+    d->text_editor->mode_data = data;
 
     if (body)
         editor_import(d->text_editor, body);
