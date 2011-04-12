@@ -895,12 +895,7 @@ point_update(void)
                 }
 
                 if (GET_OBJ_TIMER(j) <= 0) {
-                    if (j->action_desc) {
-                        act("$p melts and is gone.",
-                            true, j->in_room->people->data, j, 0, TO_CHAR);
-                        act("$p melts and is gone.",
-                            true, j->in_room->people->data, j, 0, TO_ROOM);
-                    }
+                    act("$p melts and is gone.", true, NULL, j, 0, TO_ROOM);
                     extract_obj(j);
                 }
             }
