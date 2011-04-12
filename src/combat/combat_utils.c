@@ -149,123 +149,63 @@ calculate_weapon_probability(struct creature *ch, int prob,
 void
 update_pos(struct creature *victim)
 {
-    // Wake them up from thier nap.
-    if (GET_HIT(victim) > 0 && GET_POSITION(victim) == POS_SLEEPING)
+    // Various stages of unhappiness
+    if (GET_HIT(victim) <= -11) {
+        GET_POSITION(victim) = POS_DEAD;
+    } else if (GET_HIT(victim) <= -6) {
+        GET_POSITION(victim) = POS_MORTALLYW;
+    } else if (GET_HIT(victim) <= -3) {
+        GET_POSITION(victim) = POS_INCAP;
+    } else if (GET_HIT(victim) <= 0) {
+        GET_POSITION(victim) = POS_STUNNED;
+    } else if (GET_POSITION(victim) == POS_SLEEPING) {
+        // Wake them up from thier nap.
+        act("$n wakes up.", true, victim, 0, 0, TO_ROOM);
         GET_POSITION(victim) = POS_RESTING;
-    // If everything is normal and they're fighting, set them fighting
-    else if (GET_HIT(victim) > 0
-             && (GET_POSITION(victim) == POS_STANDING
-                 || GET_POSITION(victim) == POS_FLYING)
-             && is_fighting(victim)) {
-#ifdef DEBUG_POSITION
-        if (GET_POSITION(victim) = POS_FIGHTING, 1)
-            act("$n moves to POS_FIGHTING.(from standing or flying)",
-                true, victim, 0, 0, TO_ROOM);
-#endif
+    } else if ((GET_POSITION(victim) == POS_STANDING
+                || GET_POSITION(victim) == POS_FLYING)
+               && is_fighting(victim)) {
+        // If everything is normal and they're fighting, set them fighting
         GET_POSITION(victim) = POS_FIGHTING;
-    }
-    // If they're alive, not stunned, in a fight, and not pos_fighting
-    // (Making mobs stand when they get popped.
-    else if ((GET_HIT(victim) > 0)
-             && (GET_POSITION(victim) > POS_STUNNED)
-             && GET_POSITION(victim) < POS_FIGHTING
-             && is_fighting(victim)) {
-        // If they're an npc, and their wait is 0.
-        if (IS_NPC(victim) && GET_NPC_WAIT(victim) <= 0) {
-            if (GET_POSITION(victim) < POS_FIGHTING) {
-                if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) ||
-                    number(1, 20) < GET_STR(victim)) {
-                    if (GET_POSITION(victim) == POS_FIGHTING) {
-#ifdef DEBUG_POSITION
-                        act("$n moves to POS_FIGHTING.(A)", true, victim, 0, 0,
-                            TO_ROOM);
-#else
-                        act("$n scrambles to $s feet!", true, victim, 0, 0,
-                            TO_ROOM);
-#endif
-                    }
-                }
-                WAIT_STATE(victim, PULSE_VIOLENCE);
-            } else {
-                GET_POSITION(victim) = POS_FIGHTING;
-            }
-        } else {                // PC or a mob with a wait state.
+    } else if (GET_POSITION(victim) > POS_STUNNED
+               && GET_POSITION(victim) < POS_FIGHTING
+               && is_fighting(victim)) {
+        // If they're alive, not stunned, in a fight, and not pos_fighting
+        // (Making mobs stand when they get popped)
+        if (IS_NPC(victim) && GET_NPC_WAIT(victim) > 0) {
+            // PC or a mob with a wait state.
             return;
         }
-    } else if (GET_HIT(victim) > 0) {
-        if (IS_NPC(victim) && GET_NPC_WAIT(victim) <= 0) {
-            // Flying?
-            if (victim->in_room && room_is_open_air(victim->in_room)
-                && !AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
-                && GET_POSITION(victim) != POS_FLYING)
-                GET_POSITION(victim) = POS_FLYING;
-            else if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
-                && GET_POSITION(victim) < POS_FIGHTING) {
-                if (victim->fighting) {
-                    if (GET_POSITION(victim) == POS_FIGHTING) {
-#ifdef DEBUG_POSITION
-                        act("$n moves to POS_FIGHTING.(B1)", true, victim, 0,
-                            0, TO_ROOM);
-#else
-                        act("$n scrambles to $s feet!", true, victim, 0, 0,
-                            TO_ROOM);
-#endif
-                        WAIT_STATE(victim, PULSE_VIOLENCE);
-                    }
-                } else {
-                    if (GET_POSITION(victim) == POS_STANDING) {
-#ifdef DEBUG_POSITION
-                        act("$n moves to POS_STANDING.(B2)", true, victim, 0,
-                            0, TO_ROOM);
-#else
-                        act("$n stands up.", true, victim, 0, 0, TO_ROOM);
-#endif
-                        WAIT_STATE(victim, PULSE_VIOLENCE);
-                    }
-                }
-            } else if (number(1, 20) < GET_STR(victim)
-                && GET_POSITION(victim) < POS_FIGHTING) {
-                if (is_fighting(victim)) {
-                    if (GET_POSITION(victim) == POS_FIGHTING) {
-#ifdef DEBUG_POSITION
-                        act("$n moves to POS_FIGHTING.(C1)", true, victim, 0,
-                            0, TO_ROOM);
-#else
-                        act("$n scrambles to $s feet!", true, victim, 0, 0,
-                            TO_ROOM);
-#endif
-                        WAIT_STATE(victim, PULSE_VIOLENCE);
-                    }
-                } else {
-                    if (GET_POSITION(victim) == POS_STANDING) {
-#ifdef DEBUG_POSITION
-                        act("$n moves to POS_STANDING.(C2)", true, victim, 0,
-                            0, TO_ROOM);
-#else
-                        act("$n stands up.", true, victim, 0, 0, TO_ROOM);
-#endif
-                        WAIT_STATE(victim, PULSE_VIOLENCE);
-                    }
-                }
-            }
-        } else if (GET_POSITION(victim) == POS_STUNNED) {
-            GET_POSITION(victim) = POS_RESTING;
-#ifdef DEBUG_POSITION
-            act("$n moves to POS_RESTING.(From Stunned)", true, victim, 0, 0,
-                TO_ROOM);
-#endif
+        if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) ||
+            number(1, 20) < GET_STR(victim)) {
+
+            GET_POSITION(victim) = POS_FIGHTING;
+            act("$n scrambles to $s feet!", true, victim, 0, 0, TO_ROOM);
+        }
+        WAIT_STATE(victim, PULSE_VIOLENCE);
+    } else if ((IS_PC(victim) || GET_NPC_WAIT(victim) > 0)
+               && GET_POSITION(victim) == POS_STUNNED) {
+        // Unstun the poor bastard, even if they're a PC or a mob with
+        // wait state
+        GET_POSITION(victim) = POS_RESTING;
+    } else if (victim->in_room && room_is_open_air(victim->in_room)
+               && !AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
+               && GET_POSITION(victim) != POS_FLYING) {
+        // Flying?
+        GET_POSITION(victim) = POS_FLYING;
+    } else if ((!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)
+                || number(1, 20) < GET_STR(victim))
+               && GET_POSITION(victim) < POS_FIGHTING) {
+        if (is_fighting(victim)) {
+            GET_POSITION(victim) = POS_FIGHTING;
+            act("$n scrambles to $s feet!", true, victim, 0, 0, TO_ROOM);
+            WAIT_STATE(victim, PULSE_VIOLENCE);
+        } else {
+            GET_POSITION(victim) = POS_STANDING;
+            act("$n stands up.", true, victim, 0, 0, TO_ROOM);
+            WAIT_STATE(victim, PULSE_VIOLENCE);
         }
     }
-    // Various stages of unhappiness
-    else if (GET_HIT(victim) <= -11)
-        GET_POSITION(victim) = POS_DEAD;
-    else if (GET_HIT(victim) <= -6)
-        GET_POSITION(victim) = POS_MORTALLYW;
-    else if (GET_HIT(victim) <= -3)
-        GET_POSITION(victim) = POS_INCAP;
-    else
-        GET_POSITION(victim) = POS_STUNNED;
-    return;
 }
 
 char *
