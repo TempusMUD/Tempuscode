@@ -1157,8 +1157,6 @@ creature_die(struct creature * ch)
     }
     GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
-    if (ch->desc)
-        set_desc_state(CXN_AFTERLIFE, ch->desc);
 
     return true;
 }
@@ -1180,8 +1178,6 @@ creature_npk_die(struct creature * ch)
     }
     GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
-    if (ch->desc)
-        set_desc_state(CXN_AFTERLIFE, ch->desc);
 
     return true;
 }
@@ -1216,8 +1212,6 @@ creature_arena_die(struct creature * ch)
     // But extract them to afterlife
     GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
-    if (ch->desc)
-        set_desc_state(CXN_AFTERLIFE, ch->desc);
     return true;
 }
 

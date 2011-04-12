@@ -556,13 +556,6 @@ game_loop(int main_listener, int reader_listener)
             }
         }
 
-        /* kick out folks in the CXN_DISCONNECT state */
-        for (d = descriptor_list; d; d = next_d) {
-            next_d = d->next;
-            if (d->input_mode == CXN_DISCONNECT)
-                close_socket(d);
-        }
-
         /* garbage collect dead creatures */
         void extract_creature(struct creature *ch, enum cxn_state con_state);
 
@@ -576,11 +569,21 @@ game_loop(int main_listener, int reader_listener)
                 else
                     g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(tch)));
 
-                extract_creature(tch, CXN_DISCONNECT);
+                if (tch->in_room)
+                    extract_creature(tch, CXN_AFTERLIFE);
+
                 // pull the char from the various lists
                 creatures = g_list_delete_link(creatures, it);
             }
         }
+
+        /* kick out folks in the CXN_DISCONNECT state */
+        for (d = descriptor_list; d; d = next_d) {
+            next_d = d->next;
+            if (d->input_mode == CXN_DISCONNECT)
+                close_socket(d);
+        }
+
         update_unique_id();
         tics++;                 /* tics since last checkpoint signal */
         sql_gc_queries();
