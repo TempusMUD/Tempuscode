@@ -322,6 +322,12 @@ ACMD(do_pardon)
     }
     // Get the pardoned character
     int pardoned_idnum = player_idnum_by_name(pardoned_name);
+
+    if (GET_IDNUM(ch) == pardoned_idnum) {
+        send_to_char(ch, "The hardest person to forgive... is yourself.\r\n");
+        return;
+    }
+
     struct creature *pardoned = get_char_in_world_by_idnum(pardoned_idnum);
     bool loaded_pardoned = false;
     if (!pardoned) {
@@ -340,10 +346,9 @@ ACMD(do_pardon)
 
         // Find out if the player has a valid grievance against the pardoned
         expire_old_grievances(ch);
-        if (g_list_find_custom(GET_GRIEVANCES(ch),
+        if (!g_list_find_custom(GET_GRIEVANCES(ch),
                 GINT_TO_POINTER(GET_IDNUM(pardoned)),
                 (GCompareFunc) matches_player)) {
-            // If no grievance, increase the reputation of the pardoner
             send_to_char(ch, "%s has done nothing for you to pardon.\r\n",
                 GET_NAME(pardoned));
             return;
@@ -356,9 +361,12 @@ ACMD(do_pardon)
     }
 
     crashsave(ch);
-    crashsave(pardoned);
-    if (loaded_pardoned)
+    if (loaded_pardoned) {
+        save_player_to_xml(pardoned);
         free_creature(pardoned);
+    } else {
+        crashsave(pardoned);
+    }
 }
 
 void
