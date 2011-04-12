@@ -189,6 +189,9 @@ save_objs(struct creature * ch, struct zone_data * zone)
     for (int vnum = low; vnum <= high; vnum++) {
         obj = (struct obj_data *)g_hash_table_lookup(obj_prototypes,
             GINT_TO_POINTER(vnum));
+        if (!obj)
+            continue;
+
         fprintf(file, "#%d\n", obj->shared->vnum);
         if (obj->aliases)
             fprintf(file, "%s", obj->aliases);
@@ -288,7 +291,6 @@ save_objs(struct creature * ch, struct zone_data * zone)
         if (obj->shared->owner_id != 0) {
             fprintf(file, "O %ld \n", obj->shared->owner_id);
         }
-        low++;
     }
 
     fprintf(file, "$\n");
