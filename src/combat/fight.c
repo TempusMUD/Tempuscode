@@ -171,7 +171,7 @@ void
 die(struct creature *ch, struct creature *killer, int attacktype)
 {
     assert(ch != NULL);
-    assert(ch->mob_specials.shared != NULL);
+    assert(IS_PC(ch) || ch->mob_specials.shared != NULL);
 
     if (GET_NPC_SPEC(ch) != NULL) {
         if (GET_NPC_SPEC(ch) (killer, ch, 0, NULL, SPECIAL_DEATH)) {
