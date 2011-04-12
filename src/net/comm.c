@@ -2261,6 +2261,10 @@ descriptor_update(void)
             mlog(ROLE_ADMINBASIC, LVL_IMMORT, CMP, true,
                 "Descriptor idling out after 10 minutes");
             SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
+            if (d->creature) {
+                save_player_to_xml(d->creature);
+                d->creature = NULL;
+            }
             set_desc_state(CXN_DISCONNECT, d);
         }
     }
