@@ -122,6 +122,7 @@ craft_shop_load(struct craft_shop *shop, xmlNodePtr node)
     // Remove all the currently stored items.
     g_list_foreach(shop->items, (GFunc) free, 0);
     g_list_free(shop->items);
+    shop->items = NULL;
 
     // Load the described items and thier info.
     for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {

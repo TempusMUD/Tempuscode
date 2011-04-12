@@ -68,7 +68,9 @@ editor_import(struct editor *editor, const char *text)
     gchar **strv, **strp;
 
     g_list_free(editor->original);
+    editor->original = NULL;
     g_list_free(editor->lines);
+    editor->lines = NULL;
 
     strv = g_strsplit(text, "\n", 0);
     for (strp = strv; *strp; strp++) {

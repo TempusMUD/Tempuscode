@@ -312,6 +312,7 @@ free_quest(struct quest *quest)
     g_list_foreach(quest->players, (GFunc) free, 0);
     g_list_free(quest->players);
     g_list_free(quest->bans);
+    free(quest);
 }
 
 struct qplayer_data *

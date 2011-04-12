@@ -77,6 +77,7 @@ free_account(struct account *acct)
     free(acct->login_addr);
     g_list_free(acct->chars);
     g_list_free(acct->trusted);
+    free(acct);
 }
 
 void

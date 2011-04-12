@@ -140,6 +140,7 @@ reset_creature(struct creature *ch)
         free(ch->player_specials->afk_reason);
         g_list_foreach(ch->player_specials->afk_notifies, (GFunc)free, NULL);
         g_list_free(ch->player_specials->afk_notifies);
+        ch->player_specials->afk_notifies = NULL;
         g_list_foreach(GET_RECENT_KILLS(ch), (GFunc)free, NULL);
         g_list_free(GET_RECENT_KILLS(ch));
         GET_RECENT_KILLS(ch) = NULL;
