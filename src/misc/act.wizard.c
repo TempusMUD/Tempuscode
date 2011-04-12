@@ -2210,7 +2210,7 @@ ACMD(do_shutdown)
             shutdown_idnum = -1;
             shutdown_mode = SHUTDOWN_NONE;
             slog("(GC) Shutdown ABORT called by %s.", GET_NAME(ch));
-            send_to_all("_ Tempus REBOOT sequence aborted ::\r\n");
+            send_to_all(":: Tempus REBOOT sequence aborted ::\r\n");
         }
         return;
 

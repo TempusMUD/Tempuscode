@@ -473,11 +473,11 @@ game_loop(int main_listener, int reader_listener)
             shutdown_count--;   /* units of seconds */
 
             if (shutdown_count == 10)
-                send_to_all("_ Tempus REBOOT in 10 seconds ::\r\n");
+                send_to_all(":: Tempus REBOOT in 10 seconds ::\r\n");
             else if (shutdown_count == 30)
-                send_to_all("_ Tempus REBOOT in 30 seconds ::\r\n");
+                send_to_all(":: Tempus REBOOT in 30 seconds ::\r\n");
             else if (shutdown_count && !(shutdown_count % 60)) {
-                sprintf(buf, "_ Tempus REBOOT in %d minute%s ::\r\n",
+                sprintf(buf, ":: Tempus REBOOT in %d minute%s ::\r\n",
                     shutdown_count / 60, shutdown_count == 60 ? "" : "s");
                 send_to_all(buf);
             } else if (shutdown_count <= 0) {
@@ -487,7 +487,7 @@ game_loop(int main_listener, int reader_listener)
                 xmlCleanupParser();
 
                 autosave_zones(ZONE_RESETSAVE);
-                send_to_all("_ Tempus REBOOTING ::\r\n\r\n"
+                send_to_all(":: Tempus REBOOTING ::\r\n\r\n"
                     "You feel your reality fading, as the universe spins away\r\n"
                     "before your eyes and the icy cold of nothingness settles\r\n"
                     "into your flesh.  With a jolt, you feel the thread snap,\r\n"
