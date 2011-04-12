@@ -90,7 +90,9 @@ start_editing_board(struct descriptor_data *d,
     d->text_editor->finalize = board_finalize;
     d->text_editor->cancel = board_cancel;
 
-    editor_import(d->text_editor, body);
+    if (body)
+        editor_import(d->text_editor, body);
+
     emit_editor_startup(d->text_editor);
     editor_display(d->text_editor, 0, 0);
 }
