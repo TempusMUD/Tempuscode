@@ -887,7 +887,7 @@ do_quest_list(struct creature *ch)
     send_to_char(ch, "%s", list_active_quests(ch));
 }
 
-bool
+void
 add_quest_player(struct quest *quest, int id)
 {
     struct qplayer_data *player;
@@ -895,8 +895,6 @@ add_quest_player(struct quest *quest, int id)
     CREATE(player, struct qplayer_data, 1);
     player->idnum = id;
     quest->players = g_list_prepend(quest->players, player);
-
-    return false;
 }
 
 void
@@ -928,10 +926,7 @@ do_quest_join(struct creature *ch, char *argument)
     if (!can_join_quest(quest, ch))
         return;
 
-    if (!add_quest_player(quest, GET_IDNUM(ch))) {
-        send_to_char(ch, "Error adding char to quest.\r\n");
-        return;
-    }
+    add_quest_player(quest, GET_IDNUM(ch));
 
     GET_QUEST(ch) = quest->vnum;
     crashsave(ch);
@@ -1855,10 +1850,8 @@ do_qcontrol_create(struct creature *ch, char *argument, int com)
         quest->vnum, qtypes[type], argument);
     qlog(ch, msg, QLOG_BRIEF, LVL_AMBASSADOR, true);
     send_to_char(ch, "Quest %d created.\r\n", quest->vnum);
-    if (!add_quest_player(quest, GET_IDNUM(ch))) {
-        send_to_char(ch, "Error adding you to quest.\r\n");
-        return;
-    }
+    add_quest_player(quest, GET_IDNUM(ch));
+
     GET_QUEST(ch) = quest->vnum;
     crashsave(ch);
     save_quests();
@@ -1939,10 +1932,7 @@ do_qcontrol_add(struct creature *ch, char *argument, int com)
     if (!is_authorized(ch, EDIT_QUEST, quest))
         return;
 
-    if (!add_quest_player(quest, GET_IDNUM(vict))) {
-        send_to_char(ch, "Error adding char to quest.\r\n");
-        return;
-    }
+    add_quest_player(quest, GET_IDNUM(vict));
     GET_QUEST(vict) = quest->vnum;
 
     qlog(ch, tmp_sprintf("added %s to quest %d '%s'.",
