@@ -601,7 +601,7 @@ editor_wrap(struct editor *editor, char *args)
     }
 
 	start_line = g_list_nth(editor->lines, start_lineno - 1);
-    finish_line = g_list_nth(editor->lines, end_lineno - 1);
+    finish_line = g_list_nth(editor->lines, end_lineno);
 
     for (line_it = start_line;
          line_it != finish_line;
