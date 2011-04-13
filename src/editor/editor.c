@@ -234,17 +234,27 @@ editor_handle_input(struct editor *editor, char *input)
 }
 
 void
-editor_display(struct editor *editor, int start_line, int line_count)
+editor_display(struct editor *editor, int start_line, int display_lines)
 {
     unsigned int linenum, end_line;
+    unsigned int line_count;
     GList *itr;
 
     acc_string_clear();
 
+    line_count = editor_line_count(editor);
+
+    // Ensure that the start line is valid
+    if (start_line > line_count) {
+        // Display nothing if the start line is more than the number of lines
+        return;
+    }
+    start_line = MAX(1, start_line);
+
     // Calculate last line number we're going to show
-    end_line = editor_line_count(editor) + 1;
-    if (line_count >= 0 && start_line + line_count < end_line)
-        end_line = start_line + line_count;
+    end_line = line_count + 1;
+    if (display_lines >= 0 && start_line + display_lines < end_line)
+        end_line = start_line + display_lines;
 
     // Set the iterator to the beginning line
     itr = g_list_nth(editor->lines, start_line - 1);
