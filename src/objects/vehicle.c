@@ -299,9 +299,9 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
                 act("$p sputters and dies.", false, ch, engine, 0, TO_CHAR);
                 act("$p sputters and dies.", false, ch, engine, 0, TO_ROOM);
             }
-            if (car->in_room->people) {
-                act("$p sputters and dies.", false, NULL, engine, 0, TO_CHAR);
-                act("$p sputters and dies.", false, NULL, engine, 0, TO_ROOM);
+            if (car->in_room) {
+                act("$p sputters and dies.", false, NULL, car, 0, TO_CHAR);
+                act("$p sputters and dies.", false, NULL, car, 0, TO_ROOM);
             }
 
             if (ENGINE_ON(engine))
