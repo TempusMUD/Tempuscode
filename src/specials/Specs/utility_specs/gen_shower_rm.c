@@ -41,15 +41,21 @@ SPECIAL(gen_shower_rm)
 
     if (IS_WEARING_W(ch) || IS_CARRYING_W(ch)) {
         send_to_char(ch, "All your things get a good cleaning!\r\n");
-        for (idx = 0; idx < NUM_WEARS; idx++) {
-            CHAR_SOILAGE(ch, idx) = 0;
-            if (GET_EQ(ch, idx))
-                OBJ_SOILAGE(GET_EQ(ch, idx)) = 0;
-        }
-        for (cur_obj = ch->carrying; cur_obj; cur_obj = cur_obj->next_content)
-            OBJ_SOILAGE(cur_obj) = 0;
-        return 1;
     }
+
+    for (idx = 0; idx < NUM_WEARS; idx++) {
+        CHAR_SOILAGE(ch, idx) = 0;
+        if (GET_EQ(ch, idx))
+            OBJ_SOILAGE(GET_EQ(ch, idx)) = 0;
+    }
+
+    for (cur_obj = ch->carrying; cur_obj; cur_obj = cur_obj->next_content)
+        OBJ_SOILAGE(cur_obj) = 0;
+
+    // They don't get the restorative benefits if they aren't naked
+    if (IS_WEARING_W(ch))
+        return 1;
+
     send_to_char(ch,
         "The hot water runs over your naked body, refreshing you.\r\n");
     act("The hot water runs over $n's naked body.", false, ch, 0, 0, TO_ROOM);
