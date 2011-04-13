@@ -559,7 +559,7 @@ parse_optional_range(const char *arg, int *start, int *finish)
             return false;
         *finish = atoi(str);
 
-        if (start > finish) {
+        if (*start > *finish) {
             int tmp = *finish;
 
             *finish = *start;
@@ -724,7 +724,7 @@ editor_remove(struct editor * editor,
     }
 
     start = g_list_nth(editor->lines, start_line - 1);
-    finish = g_list_nth(editor->lines, finish_line - 1);
+    finish = g_list_nth(editor->lines, finish_line);
     while (start != finish) {
         next = start->next;
         g_string_free((GString *) start->data, true);
