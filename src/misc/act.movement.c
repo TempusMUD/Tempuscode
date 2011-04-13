@@ -186,44 +186,6 @@ can_travel_sector(struct creature *ch, int sector_type, bool active)
     return true;
 }
 
-int
-creature_occupancy(struct creature *ch)
-{
-    if (IS_PC(ch) && IS_IMMORT(ch))
-        return 0;
-    else if (GET_HEIGHT(ch) > 1000)
-        return 3;
-    else if (GET_HEIGHT(ch) > 500)
-        return 2;
-    else if (GET_HEIGHT(ch) > 50)
-        return 1;
-
-    return 0;
-}
-
-bool
-will_fit_in_room(struct creature * ch, struct room_data * room)
-{
-    int i = 0;
-
-    if (MAX_OCCUPANTS(room) == 0)
-        return true;
-
-    // If you're mounted, the size of the mount determines how much
-    // space you take up, not your own size
-    if (MOUNTED_BY(ch))
-        i += creature_occupancy(MOUNTED_BY(ch));
-    else
-        i += creature_occupancy(ch);
-
-    for (GList * it = first_living(room->people); it; it = next_living(it)) {
-        struct creature *tch = it->data;
-        i += creature_occupancy(tch);
-    }
-
-    return (i < MAX_OCCUPANTS(room));
-}
-
 void
 get_giveaway(struct creature *ch, struct creature *vict)
 {

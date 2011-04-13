@@ -13,6 +13,7 @@
 /* The cardinal directions: used as index to struct room_data.dir_option[] */
 
 #include <glib.h>
+#include <stdbool.h>
 #include "defs.h"
 #include "macros.h"
 #include "constants.h"
@@ -259,5 +260,6 @@ int count_room_exits(struct room_data *room);
 struct room_data *make_room(struct zone_data *zone, int num);
 void free_room(struct room_data *room);
 void link_rooms(struct room_data *room_a, struct room_data *room_b, int dir);
+bool will_fit_in_room(struct creature *ch, struct room_data *room);
 
 #endif

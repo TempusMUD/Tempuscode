@@ -393,8 +393,7 @@ ASPELL(song_lament_of_longing)
         return;
     }
 
-    if (g_list_length(victim->in_room->people) >=
-        (unsigned)ch->in_room->max_occupancy) {
+    if (!will_fit_in_room(ch, victim->in_room)) {
         send_to_char(ch, "But there is no room for you there!\r\n");
         return;
     }

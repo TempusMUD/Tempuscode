@@ -2136,8 +2136,7 @@ single_mobile_activity(struct creature *ch)
                     && tmp_room != ch->in_room && CHAR_LIKES_ROOM(ch, tmp_room)
                     && tmp_room->people
                     && can_see_creature(ch, tmp_room->people->data)
-                    && g_list_length(tmp_room->people) <
-                    (unsigned)tmp_room->max_occupancy) {
+                    && will_fit_in_room(ch, tmp_room)) {
                     break;
                 }
             }

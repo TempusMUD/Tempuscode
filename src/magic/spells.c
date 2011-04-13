@@ -626,8 +626,7 @@ ASPELL(spell_summon)
         send_to_char(ch, "This magic cannot penetrate here!\r\n");
         return;
     }
-    if (g_list_length(ch->in_room->people) >=
-        (unsigned)ch->in_room->max_occupancy) {
+    if (!will_fit_in_room(victim, ch->in_room)) {
         send_to_char(ch, "This room is too crowded to summon anyone!\r\n");
         return;
     }
