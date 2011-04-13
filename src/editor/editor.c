@@ -218,14 +218,14 @@ editor_handle_input(struct editor *editor, char *input)
     if (*inbuf == '&') {        // Commands
         if (!inbuf[1]) {
             editor_emit(editor,
-                "& is the command character. Type &h for help.\r\n");
+                "&& is the command character. Type &h for help.\r\n");
             return;
         }
         args = inbuf + 2;
         while (*args && isspace(*args))
             args++;
         if (!editor->do_command(editor, inbuf[1], args))
-            editor_emit(editor, "Invalid Command. Type &h for help.\r\n");
+            editor_emit(editor, "Invalid Command. Type &&h for help.\r\n");
     } else if (*inbuf == '@') { // Finish up
         editor_finish(editor, true);
     } else {                    // Dump the text in
@@ -588,19 +588,19 @@ editor_wrap(struct editor *editor, char *args)
     int start_lineno, end_lineno;
 
 
-    start_line = editor->lines;
-    finish_line = editor->lines;
+    start_lineno = 0;
+    end_lineno = g_list_length(editor->lines);
 
     if (*args) {
         if (!parse_optional_range(args, &start_lineno, &end_lineno)) {
             editor_emit(editor, usage);
             return false;
         }
-        start_lineno = pin(start_lineno, 1, editor_line_count(editor));
+        start_lineno = pin(start_lineno, 1, editor_line_count(editor)) - 1;
         end_lineno = pin(end_lineno, 1, editor_line_count(editor));
     }
 
-	start_line = g_list_nth(editor->lines, start_lineno - 1);
+	start_line = g_list_nth(editor->lines, start_lineno);
     finish_line = g_list_nth(editor->lines, end_lineno);
 
     for (line_it = start_line;
@@ -690,7 +690,6 @@ editor_wrap(struct editor *editor, char *args)
 
     newText = g_list_reverse(newText);
 
-    finish_line = finish_line->next;
     while (start_line != finish_line) {
         line_it = start_line->next;
         g_string_free(start_line->data, true);
@@ -929,6 +928,7 @@ editor_do_command(struct editor * editor, char cmd, char *args)
         break;
     case 'w':
         editor_wrap(editor, args);
+        break;
     default:
         return false;
     }
