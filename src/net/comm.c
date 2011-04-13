@@ -1307,7 +1307,7 @@ hupsig(int sig __attribute__ ((unused)))
     mudlog(LVL_AMBASSADOR, BRF, true,
         "Received external signal - shutting down for reboot in 60 sec..");
 
-    send_to_all("\007\007_ Tempus REBOOT in 60 seconds ::\r\n");
+    send_to_all("\007\007:: Tempus REBOOT in 60 seconds ::\r\n");
     shutdown_idnum = -1;
     shutdown_count = 60;
     shutdown_mode = SHUTDOWN_REBOOT;
@@ -1320,7 +1320,7 @@ intsig(int sig __attribute__ ((unused)))
     mudlog(LVL_AMBASSADOR, BRF, true,
         "Received external signal - shutting down for reboot now.");
 
-    send_to_all("\007\007_ Tempus REBOOT NOW! ::\r\n");
+    send_to_all("\007\007:: Tempus REBOOT NOW! ::\r\n");
     circle_shutdown = circle_reboot = 1;
 }
 
