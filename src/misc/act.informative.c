@@ -3929,7 +3929,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
         acc_strcat("Players\r\n-------\r\n", NULL);
         for (d = descriptor_list; d; d = d->next) {
             if (STATE(d) != CXN_PLAYING)
-                return;
+                continue;
             i = (d->original ? d->original : d->creature);
             if (i && can_see_creature(ch, i)
                 && (i->in_room != NULL)
