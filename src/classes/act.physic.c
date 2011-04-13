@@ -497,9 +497,8 @@ ASPELL(spell_quantum_rift)
         if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM
             && GET_OBJ_VAL(o, 2) == GET_IDNUM(ch)
             && !o->in_room->people) {
-            struct creature *occupant = o->in_room->people->data;
-            act("$p collapses in on itself.", true, occupant, o, 0, TO_CHAR);
-            act("$p collapses in on itself.", true, occupant, o, 0, TO_ROOM);
+            act("$p collapses in on itself.", true, NULL, o, 0, TO_CHAR);
+            act("$p collapses in on itself.", true, NULL, o, 0, TO_ROOM);
             extract_obj(o);
         }
     }

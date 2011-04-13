@@ -2153,9 +2153,7 @@ ASPELL(spell_gust_of_wind)
                         sprintf(buf,
                             "$p is blown in on a gust of wind from the %s!",
                             from_dirs[attempt]);
-                        act(buf, false,
-                            (struct creature *)obj->in_room->people->data, obj,
-                            0, TO_ROOM);
+                        act(buf, false, NULL, obj, 0, TO_ROOM);
                         found = true;
                     }
                 }

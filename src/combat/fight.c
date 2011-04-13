@@ -570,9 +570,8 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
         SET_BIT(GET_OBJ_EXTRA2(new_obj), ITEM2_IMPLANT);
 
     if ((room = obj->in_room) && obj->in_room->people) {
-        vict = obj->in_room->people->data;
-        act(msg, false, vict, obj, 0, TO_CHAR);
-        act(msg, false, vict, obj, 0, TO_ROOM);
+        act(msg, false, NULL, obj, 0, TO_CHAR);
+        act(msg, false, NULL, obj, 0, TO_ROOM);
     } else if ((vict = obj->worn_by))
         act(msg, false, vict, obj, 0, TO_CHAR);
     else
@@ -665,9 +664,8 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
     /* send out messages and unequip if needed */
 
     if (obj->in_room && obj->in_room->people) {
-        vict = obj->in_room->people->data;
-        act(damage_msg, false, vict, obj, 0, TO_CHAR);
-        act(damage_msg, false, vict, obj, 0, TO_ROOM);
+        act(damage_msg, false, NULL, obj, 0, TO_CHAR);
+        act(damage_msg, false, NULL, obj, 0, TO_ROOM);
     } else if ((vict = obj->worn_by)) {
         act(damage_msg, false, vict, obj, 0, TO_CHAR);
         if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {

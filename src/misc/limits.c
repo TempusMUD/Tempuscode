@@ -788,8 +788,8 @@ point_update(void)
                         msg = "$p decays into nothing before your eyes.";
                     }
 
-                    act(msg, true, j->in_room->people->data, j, 0, TO_ROOM);
-                    act(msg, true, j->in_room->people->data, j, 0, TO_CHAR);
+                    act(msg, true, NULL, j, 0, TO_ROOM);
+                    act(msg, true, NULL, j, 0, TO_CHAR);
                 }
 
                 for (jj = j->contains; jj; jj = next_thing2) {
@@ -833,9 +833,9 @@ point_update(void)
                         false, j->carried_by, j, 0, TO_CHAR);
                 else if ((j->in_room != NULL) && (j->in_room->people)) {
                     act("$p collapses into nothing.",
-                        true, j->in_room->people->data, j, 0, TO_ROOM);
+                        true, NULL, j, 0, TO_ROOM);
                     act("$p collapses into nothing.",
-                        true, j->in_room->people->data, j, 0, TO_CHAR);
+                        true, NULL, j, 0, TO_CHAR);
                 }
                 // drop out the (damaged) implants
                 for (jj = j->contains; jj; jj = next_thing2) {
@@ -874,9 +874,9 @@ point_update(void)
             if (GET_OBJ_TIMER(j) <= 0) {
                 if (j->action_desc && j->in_room) {
                     act("$p collapses in on itself.",
-                        true, j->in_room->people->data, j, 0, TO_CHAR);
+                        true, NULL, j, 0, TO_CHAR);
                     act("$p collapses in on itself.",
-                        true, j->in_room->people->data, j, 0, TO_ROOM);
+                        true, NULL, j, 0, TO_ROOM);
                 }
                 extract_obj(j);
             }
@@ -933,9 +933,9 @@ point_update(void)
                         false, j->worn_by, j, 0, TO_CHAR);
                 else if ((j->in_room != NULL) && (j->in_room->people)) {
                     act("$p slowly fades out of existence.",
-                        true, j->in_room->people->data, j, 0, TO_ROOM);
+                        true, NULL, j, 0, TO_ROOM);
                     act("$p slowly fades out of existence.",
-                        true, j->in_room->people->data, j, 0, TO_CHAR);
+                        true, NULL, j, 0, TO_CHAR);
                 }
                 for (jj = j->contains; jj; jj = next_thing2) {
                     next_thing2 = jj->next_content; /* Next in inventory */

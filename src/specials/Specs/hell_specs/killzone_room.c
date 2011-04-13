@@ -4,6 +4,7 @@ SPECIAL(killzone_room)
 {
     struct room_data *uproom = 0;
     struct creature *devil = 0, *vict = 0;
+    GList *cit;
     int retval = 0;
 
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
@@ -21,8 +22,12 @@ SPECIAL(killzone_room)
         return 0;
 
     // mix up the victims a bit so it doesnt feel like commands are triggering it as much
-    vict = ch->in_room->people->data;
-    for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
+    cit = first_living(ch->in_room->people);
+    if (!cit)
+        return 0;
+    vict = cit->data;
+
+    for (cit = first_living(uproom->people); cit; cit = next_living(cit)) {
         devil = cit->data;
         if (IS_NPC(devil) && IS_DEVIL(devil)) {
 

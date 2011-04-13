@@ -4,6 +4,7 @@ SPECIAL(malagard_lightning_room)
 {
     struct creature *vict = 0;
     int retval = 0;
+    GList *cit = 0;
 
     if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER)
         return 0;
@@ -11,7 +12,9 @@ SPECIAL(malagard_lightning_room)
     if (IS_NPC(ch) || number(0, 4))
         return 0;
 
-    vict = ch->in_room->people->data;
+    cit = first_living(ch->in_room->people);
+    if (cit)
+        vict = cit->data;
 
     if (vict == NULL || IS_NPC(vict))
         vict = ch;
