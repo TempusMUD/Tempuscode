@@ -4331,7 +4331,7 @@ ACMD(do_consider)
         send_to_char(ch,
             "Well, if you really want to kill another player...\r\n");
     }
-    diff = level_bonus(victim, true) - skill_bonus(ch, true);
+    diff = level_bonus(victim, true) - level_bonus(ch, true);
 
     if (diff <= -30)
         send_to_char(ch, "It's not even worth the effort...\r\n");
