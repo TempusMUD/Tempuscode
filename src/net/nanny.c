@@ -986,7 +986,7 @@ send_prompt(struct descriptor_data *d)
             }
         }
 
-        if (d->creature->fighting &&
+        if (is_fighting(d->creature) &&
             PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE))
             sprintf(prompt, "%s%s(%s)%s ", prompt, CCRED(d->creature, C_NRM),
                 diag_conditions(random_opponent(d->creature)),
