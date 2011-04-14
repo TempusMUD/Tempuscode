@@ -3462,7 +3462,9 @@ who_flags(struct creature *ch, struct creature *target)
     }
     //questing
     if (GET_QUEST(target)) {
-        acc_sprintf(" %s(quest)", CCYEL_BLD(ch, C_NRM));
+        acc_sprintf(" %s(quest)%s",
+                    CCYEL_BLD(ch, C_NRM),
+                    CCNRM(ch, C_NRM));
     }
     //afk
     if (PLR_FLAGGED(target, PLR_AFK)) {
