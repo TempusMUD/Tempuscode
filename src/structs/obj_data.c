@@ -128,9 +128,15 @@ modify_object_weight(struct obj_data *obj, int mod_weight)
     if (obj->in_obj)
         modify_object_weight(obj->in_obj, mod_weight);
     else if (obj->worn_by) {
-        // implant, increase character weight
-        if (GET_IMPLANT(obj->worn_by, obj->worn_on) == obj)
+        if (GET_IMPLANT(obj->worn_by, obj->worn_on) == obj) {
+            // implant, increase character weight
             GET_WEIGHT(obj->worn_by) += mod_weight;
+        } else {
+            // worn, increase worn weight
+            IS_WEARING_W(obj->worn_by) += mod_weight;
+        }
+    } else if (obj->carried_by) {
+        IS_CARRYING_W(obj->carried_by) += mod_weight;
     }
 
     obj->obj_flags.weight += mod_weight;

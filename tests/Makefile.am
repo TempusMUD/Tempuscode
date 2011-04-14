@@ -6,6 +6,7 @@ check_tempus_CFLAGS = -g @CHECK_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@
 check_tempus_SOURCES = \
 			@top_srcdir@/tests/check_tempus.c \
 	        @top_srcdir@/tests/movement_tests.c \
+	        @top_srcdir@/tests/object_tests.c \
 			@top_srcdir@/tests/tmpstr_tests.c \
 	        @top_srcdir@/tests/strutil_tests.c \
 	        @top_srcdir@/tests/player_io_tests.c
