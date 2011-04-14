@@ -1448,15 +1448,12 @@ CHAR_LIKES_ROOM(struct creature *ch, struct room_data *room)
 void
 mobile_spec(void)
 {
-    struct creature *ch;
-    int count = 0;
-
     extern int no_specials;
 
     for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
-        ch = cit->data;
+        struct creature *ch = cit->data;
 
-        if (!(ch->char_specials.saved.act & NPC_ISNPC))
+        if (!IS_NPC(ch))
             continue;
 
         if (!ch) {
@@ -1469,7 +1466,8 @@ mobile_spec(void)
             continue;
         }
 
-        if (!ch->in_room && !ch->player.name && !ch->player.short_descr
+        if (!ch->player.name
+            && !ch->player.short_descr
             && !ch->player.description) {
             errlog("Skipping null mobile in mobile_activity");
             continue;
@@ -1477,16 +1475,17 @@ mobile_spec(void)
         //
         // Check for mob spec
         //
-        if (!no_specials && NPC_FLAGGED(ch, NPC_SPEC) &&
-            GET_NPC_WAIT(ch) <= 0 && !ch->desc && (count % 2)) {
+        if (!no_specials
+            && NPC_FLAGGED(ch, NPC_SPEC)
+            && GET_NPC_WAIT(ch) <= 0
+            && !ch->desc) {
             if (ch->mob_specials.shared->func == NULL) {
                 zerrlog(ch->in_room->zone,
                     "SPEC bit set with no special: %s (#%d)",
                     GET_NAME(ch), GET_NPC_VNUM(ch));
                 REMOVE_BIT(NPC_FLAGS(ch), NPC_SPEC);
             } else {
-                if ((ch->mob_specials.shared->func) (ch, ch, 0, tmp_strdup(""),
-                        SPECIAL_TICK)) {
+                if ((ch->mob_specials.shared->func) (ch, ch, 0, tmp_strdup(""), SPECIAL_TICK)) {
                     continue;   /* go to next char */
                 }
             }
