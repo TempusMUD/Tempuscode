@@ -94,5 +94,5 @@ will_fit_in_room(struct creature * ch, struct room_data * room)
         i += creature_occupancy(tch);
     }
 
-    return (i < MAX_OCCUPANTS(room));
+    return (i <= MAX_OCCUPANTS(room));
 }
