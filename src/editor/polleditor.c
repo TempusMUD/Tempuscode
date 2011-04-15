@@ -80,5 +80,4 @@ start_editing_poll(struct descriptor_data *d, const char *header)
     poll_data->header = strdup(header);
 
     emit_editor_startup(d->text_editor);
-    editor_display(d->text_editor, 0, 0);
 }

@@ -96,12 +96,13 @@ emit_editor_startup(struct editor *editor)
     int i;
 
     send_to_desc(editor->desc,
-        "&C     * &YTEDII &b]&n Save and exit with @ on a new line. "
+        "&C     * &YTED///  &b]&n Save and exit with @ on a new line. "
         "&&H for help             &C*\r\n");
     send_to_desc(editor->desc, "     ");
     for (i = 0; i < 7; i++)
         send_to_desc(editor->desc, "&C%d&B---------", i);
     send_to_desc(editor->desc, "&C7&n\r\n");
+    editor->displaybuffer(editor, 1, -1);
 }
 
 gint
@@ -916,11 +917,11 @@ editor_do_command(struct editor * editor, char cmd, char *args)
         }
     case 'r':                  // Refresh Screen
         if (!*args) {
-            editor_display(editor, 0, -1);
+            editor->displaybuffer(editor, 1, -1);
         } else if (isnumber(args) && (line = atoi(args)) > 0) {
             int line_count = editor->desc->account->term_height;
 
-            editor_display(editor, MAX(1, line - line_count / 2), line_count);
+            editor->displaybuffer(editor, MAX(1, line - line_count / 2), line_count);
         } else {
             editor_emit(editor,
                 "Format for refresh command is: &&r [<line #>]\r\nOmit line number to display the whole buffer.\r\n");

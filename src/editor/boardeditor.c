@@ -95,5 +95,4 @@ start_editing_board(struct descriptor_data *d,
         editor_import(d->text_editor, body);
 
     emit_editor_startup(d->text_editor);
-    editor_display(d->text_editor, 0, 0);
 }

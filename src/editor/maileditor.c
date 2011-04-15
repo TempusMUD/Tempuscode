@@ -580,5 +580,4 @@ start_editing_mail(struct descriptor_data *d,
     mail_data->obj_list = NULL;
 
     emit_editor_startup(d->text_editor);
-    editor_display(d->text_editor, 0, 0);
 }

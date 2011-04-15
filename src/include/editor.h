@@ -38,8 +38,6 @@ void editor_display(struct editor *editor, int start_line, int line_count);
 void editor_emit(struct editor *editor, const char *text);
 bool editor_do_command(struct editor *editor, char cmd, char *args);
 void editor_finish(struct editor *editor, bool save);
-
-void emit_editor_startup(struct editor *editor);
 void display_buffer(struct editor *editor);
 
 // Interfaces to the editor from the outside world.

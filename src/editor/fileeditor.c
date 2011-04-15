@@ -113,6 +113,5 @@ start_editing_file(struct descriptor_data *d, const char *fname)
         fclose(inf);
 
         emit_editor_startup(d->text_editor);
-        editor_display(d->text_editor, 0, 0);
     }
 }
