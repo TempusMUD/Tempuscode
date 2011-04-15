@@ -334,18 +334,22 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
 
             int rc = 1;
             struct room_data *src_room = ch->in_room;
+            GList *trans_list = g_list_copy(src_room->people);
             rc = search_trans_character(ch, srch, targ_room);
 
-            for (GList * it = first_living(src_room->people); it; it = next_living(it)) {
+            for (GList * it = trans_list; it; it = next_living(it)) {
                 mob = it->data;
-                if (srch->to_room)
-                    act(srch->to_room, false, ch, obj, mob, TO_VICT);
+                if (mob->in_room != src_room)
+                    continue;
                 if (SRCH_FLAGGED(srch, SRCH_NOAFFMOB) && IS_NPC(mob))
                     continue;
+                if (srch->to_room)
+                    act(srch->to_room, false, ch, obj, mob, TO_VICT);
                 int r = search_trans_character(mob, srch, targ_room);
                 if (rc != 2)
                     rc = r;
             }
+            g_list_free(trans_list);
             return rc;
         }
     case SEARCH_COM_DOOR:
