@@ -162,9 +162,7 @@ update_pos(struct creature *victim)
         // Wake them up from thier nap.
         act("$n wakes up.", true, victim, 0, 0, TO_ROOM);
         GET_POSITION(victim) = POS_RESTING;
-    } else if ((GET_POSITION(victim) == POS_STANDING
-                || GET_POSITION(victim) == POS_FLYING)
-               && is_fighting(victim)) {
+    } else if (GET_POSITION(victim) > POS_FIGHTING && is_fighting(victim)) {
         // If everything is normal and they're fighting, set them fighting
         GET_POSITION(victim) = POS_FIGHTING;
     } else if (GET_POSITION(victim) > POS_STUNNED
@@ -181,8 +179,8 @@ update_pos(struct creature *victim)
 
             GET_POSITION(victim) = POS_FIGHTING;
             act("$n scrambles to $s feet!", true, victim, 0, 0, TO_ROOM);
+            WAIT_STATE(victim, PULSE_VIOLENCE);
         }
-        WAIT_STATE(victim, PULSE_VIOLENCE);
     } else if ((IS_PC(victim) || GET_NPC_WAIT(victim) > 0)
                && GET_POSITION(victim) == POS_STUNNED) {
         // Unstun the poor bastard, even if they're a PC or a mob with

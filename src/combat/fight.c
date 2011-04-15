@@ -3038,7 +3038,7 @@ perform_violence1(struct creature *ch, gpointer ignore)
 
             (ch->mob_specials.shared->func) (ch, ch, 0, tmp_strdup(""),
                 SPECIAL_TICK);
-        } else if (ch->in_room && GET_NPC_WAIT(ch) <= 0 && ch->fighting) {
+        } else if (ch->in_room && GET_NPC_WAIT(ch) <= 0 && is_fighting(ch)) {
             mobile_battle_activity(ch, NULL);
         }
     }
