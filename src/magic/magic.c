@@ -891,10 +891,9 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
     // Do spell damage of type spellnum
     // unless its gravity well which does pressure damage.
     if (spellnum == SPELL_GRAVITY_WELL) {
-        int retval = damage(ch, victim, dam, TYPE_PRESSURE, WEAR_RANDOM);
-        if (retval) {
-            return retval;
-        }
+        if (!damage(ch, victim, dam, TYPE_PRESSURE, WEAR_RANDOM))
+            return 0;
+
         WAIT_STATE(victim, 2 RL_SEC);
         if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) &&
             (GET_POSITION(victim) > POS_STANDING
@@ -904,10 +903,8 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             act("The gravity around $n suddenly increases, slamming $m to the ground!", true, victim, 0, ch, TO_ROOM);
         }
     } else {                    // normal spell damage type
-        int retval = damage(ch, victim, dam, spellnum, WEAR_RANDOM);
-        if (retval) {
-            return retval;
-        }
+        if (!damage(ch, victim, dam, spellnum, WEAR_RANDOM))
+            return 0;
     }
     if (spellnum == SPELL_PSYCHIC_SURGE) {
         if (!affected_by_spell(victim, SPELL_PSYCHIC_SURGE) &&
@@ -3163,13 +3160,12 @@ mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
         if (spellnum == SONG_LICHS_LYRICS) {
             mag_affects(level, ch, vict, 0, SONG_LICHS_LYRICS, savetype);
         }
-        int retval = mag_damage(level, ch, vict, spellnum, 1);
-        return_value |= retval;
-        if (retval == 0) {
-            if (spellnum == SPELL_EARTHQUAKE && number(10, 20) > GET_DEX(ch)) {
+        mag_damage(level, ch, vict, spellnum, 1);
+        if (!is_dead(ch)
+            && spellnum == SPELL_EARTHQUAKE
+            && number(10, 20) > GET_DEX(ch)) {
                 send_to_char(ch, "You stumble and fall to the ground!\r\n");
                 GET_POSITION(ch) = POS_SITTING;
-            }
         }
     }
     if (to_next_room) {
