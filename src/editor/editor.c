@@ -274,7 +274,7 @@ editor_display(struct editor *editor, int start_line, int display_lines)
     acc_strcat("\r\n", NULL);
     if (acc_get_length() > (LARGE_BUFSIZE - 1024))
         acc_strcat
-            ("Output buffer limit reached. Use \"&r <line number>\" to specify starting line.\r\n",
+            ("Output buffer limit reached. Use \"&&r <line number>\" to specify starting line.\r\n",
             NULL);
 
     editor_emit(editor, acc_get_string());
@@ -407,7 +407,7 @@ bool
 editor_substitute(struct editor * editor, char *args)
 {
     const char *usage =
-        "There are two formats for substitute:\r\n  &s [search pattern] [replacement]\r\n  &s /search pattern/replacement/\r\nIn the first form, you can use (), [], <>, or {}.\r\n";
+        "There are two formats for substitute:\r\n  &&s [search pattern] [replacement]\r\n  &&s /search pattern/replacement/\r\nIn the first form, you can use (), [], <>, or {}.\r\n";
     // Iterator to the current line in theText
     GList *line;
     // The string containing the search pattern
@@ -580,7 +580,7 @@ parse_optional_range(const char *arg, int *start, int *finish)
 bool
 editor_wrap(struct editor *editor, char *args)
 {
-    const char *usage = "Usage: &w [<start line #>][-<end line #>]\r\n";
+    const char *usage = "Usage: &&w [<start line #>][-<end line #>]\r\n";
     GList *line_it, *start_line, *finish_line, *newText = NULL;
 	char *start, *end;
     GString *newLine = g_string_new("");
@@ -846,13 +846,13 @@ editor_do_command(struct editor * editor, char cmd, char *args)
         args = one_argument(args, command);
         if (!isdigit(*command)) {
             editor_emit(editor,
-                "Format for Replace Line is: &l <line #> <text>\r\n");
+                "Format for Replace Line is: &&l <line #> <text>\r\n");
             break;
         }
         line = atoi(command);
         if (line < 1) {
             editor_emit(editor,
-                "Format for Replace Line is: &l <line #> <text>\r\n");
+                "Format for Replace Line is: &&l <line #> <text>\r\n");
             break;
         }
         editor_replace_line(editor, line, args);
@@ -861,13 +861,13 @@ editor_do_command(struct editor * editor, char cmd, char *args)
         args = one_argument(args, command);
         if (!isdigit(*command)) {
             editor_emit(editor,
-                "Format for insert command is: &i <line #> <text>\r\n");
+                "Format for insert command is: &&i <line #> <text>\r\n");
             break;
         }
         line = atoi(command);
         if (line < 1) {
             editor_emit(editor,
-                "Format for insert command is: &i <line #><text>\r\n");
+                "Format for insert command is: &&i <line #><text>\r\n");
             break;
         }
         editor_insert(editor, line, args);
@@ -876,7 +876,7 @@ editor_do_command(struct editor * editor, char cmd, char *args)
         args = one_argument(args, command);
         if (!parse_optional_range(command, &start_line, &end_line)) {
             editor_emit(editor,
-                "Format for delete command is: &d <line #>\r\n");
+                "Format for delete command is: &&d <line #>\r\n");
             break;
         }
         editor_remove(editor, start_line, end_line);
@@ -887,20 +887,20 @@ editor_do_command(struct editor * editor, char cmd, char *args)
             arg = tmp_getword(&args);
             if (!*arg) {
                 editor_emit(editor,
-                    "Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
+                    "Format for move command is: &&m (<start line>-<end line>|<linenum>) <destination>\r\n");
                 break;
             }
 
             if (!parse_optional_range(arg, &start_line, &end_line)) {
                 editor_emit(editor,
-                    "Format for move command is: &m (<start line>-<end line>|<linenum>) <destination>\r\n");
+                    "Format for move command is: &&m (<start line>-<end line>|<linenum>) <destination>\r\n");
                 break;
             }
 
             arg = tmp_getword(&args);
             if (!*arg || !isnumber(arg)) {
                 editor_emit(editor,
-                    "Format for move command is: &m (<start line>-<end line>|<line #>) <destination>\r\n");
+                    "Format for move command is: &&m (<start line>-<end line>|<line #>) <destination>\r\n");
                 break;
             }
             dest_line = atoi(arg);
@@ -923,7 +923,7 @@ editor_do_command(struct editor * editor, char cmd, char *args)
             editor_display(editor, MAX(1, line - line_count / 2), line_count);
         } else {
             editor_emit(editor,
-                "Format for refresh command is: &r [<line #>]\r\nOmit line number to display the whole buffer.\r\n");
+                "Format for refresh command is: &&r [<line #>]\r\nOmit line number to display the whole buffer.\r\n");
         }
         break;
     case 'w':
