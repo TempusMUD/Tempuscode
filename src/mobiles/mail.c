@@ -66,10 +66,15 @@ can_receive_mail(long id)
 {
     struct stat stat_buf;
 
+    // Return false if player doesn't exist
     if (!player_idnum_exists(id))
         return false;
+
+    // Return true if file not found, false on any other error
     if (!stat(get_mail_file_path(id), &stat_buf))
-        return false;
+        return errno == ENOENT;
+
+    // Purge mail if file size has gotten too large
     if (stat_buf.st_size > MAX_MAILFILE_SIZE)
         purge_mail(id);
 
@@ -103,9 +108,8 @@ mail_box_status(long id)
     return flag;
 }
 
-// Like it says, store the mail.
-// Returns 0 if mail not stored.
-int
+// Returns true if mail was successfully stored
+bool
 store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
     struct obj_data *obj_list)
 {
@@ -121,19 +125,19 @@ store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
     if (!txt || !strlen(txt)) {
         send_to_char(get_char_in_world_by_idnum(from_id),
             "Why would you send a blank message?\r\n");
-        return 0;
+        return false;
     }
     // Recipient is frozen, buried, or deleted
     if (!can_receive_mail(to_id)) {
         send_to_char(get_char_in_world_by_idnum(from_id),
             "%s doesn't seem to be able to receive mail.\r\n",
             player_name_by_idnum(to_id));
-        return 0;
+        return false;
     }
 
     if (!player_idnum_exists(to_id)) {
         errlog("Toss_Mail Error, recipient idnum %ld invalid.", to_id);
-        return 0;
+        return false;
     }
 
     mail_file_path = get_mail_file_path(to_id);
@@ -177,7 +181,7 @@ store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
     if ((ofile = fopen(mail_file_path, "w")) == NULL) {
         errlog("Unable to open xml mail file '%s': %s",
             mail_file_path, strerror(errno));
-        return 0;
+        return false;
     } else {
         GList *oi;
 
@@ -199,10 +203,10 @@ store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
         fclose(ofile);
     }
 
-    return 1;
+    return true;
 }
 
-int
+bool
 purge_mail(long idnum)
 {
     return unlink(get_mail_file_path(idnum)) == 0;
