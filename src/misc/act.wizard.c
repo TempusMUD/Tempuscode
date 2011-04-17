@@ -6470,7 +6470,7 @@ ACMD(do_set)
         send_to_char(ch, "%s\r\n", buf);
 
     if (IS_PC(vict))
-        crashsave(vict);
+        save_player_to_xml(vict);
 
     if (is_file) {
         free_creature(vict);
