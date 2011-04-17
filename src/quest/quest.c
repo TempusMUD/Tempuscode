@@ -344,12 +344,17 @@ remove_quest_player(struct quest * quest, int id)
 
     quest->players = g_list_remove(quest->players, player);
 
-    if (!(vict = get_char_in_world_by_idnum(player->idnum))) {
+    vict = get_char_in_world_by_idnum(player->idnum);
+
+    if (vict) {
+        GET_QUEST(vict) = 0;
+        crashsave(vict);
+    } else {
         // load the char from file
         vict = load_player_from_xml(id);
         if (vict) {
             GET_QUEST(vict) = 0;
-            crashsave(vict);
+            save_player_to_xml(vict);
             free_creature(vict);
         } else {
             errlog
@@ -357,9 +362,6 @@ remove_quest_player(struct quest * quest, int id)
                 id, quest->vnum);
             return false;
         }
-    } else {
-        GET_QUEST(vict) = 0;
-        crashsave(vict);
     }
 
     return true;
@@ -1880,8 +1882,10 @@ do_qcontrol_end(struct creature *ch, char *argument, int com)
     qlog(ch, "Purging players from quest...", QLOG_COMP, 0, true);
 
 
-    while (quest->players)
-        remove_quest_player(quest, GPOINTER_TO_INT(quest->players->data));
+    while (quest->players) {
+        struct qplayer_data *player = quest->players->data;
+        remove_quest_player(quest, player->idnum);
+    }
 
     quest->ended = time(0);
     qlog(ch, tmp_sprintf("ended quest %d '%s'", quest->vnum, quest->name),
