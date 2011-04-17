@@ -5804,6 +5804,8 @@ ACMD(do_set)
         vict = NULL;
         if (!player_name_exists(name))
             send_to_char(ch, "There is no such player.\r\n");
+        else if ((vict = get_player_vis(ch, name, 0)) != NULL)
+            is_file = false;
         else if (!(vict = load_player_from_xml(player_idnum_by_name(name))))
             send_to_char(ch, "Error loading player file.\r\n");
         else if (GET_LEVEL(vict) >= GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
