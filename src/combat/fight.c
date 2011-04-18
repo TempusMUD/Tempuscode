@@ -685,18 +685,6 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
 }
 
 //
-// wrapper for damage() for damaging the attacker (swaps return values automagically)
-//
-
-int
-damage_attacker(struct creature *ch, struct creature *victim, int dam,
-    int attacktype, int location)
-{
-    damage(ch, victim, dam, attacktype, location);
-    return 0;
-}
-
-//
 // damage( ) returns true when damage is dealt, false otherwise
 //
 
@@ -1251,8 +1239,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     false, ch, 0, victim, TO_NOTVICT);
                 act("$n is deflected by your prismatic sphere!",
                     false, ch, 0, victim, TO_VICT);
-                damage_attacker(victim, ch, dice(30, 3) + (dam / 4),
-                    SPELL_PRISMATIC_SPHERE, -1);
+                damage(victim, ch, dice(30, 3) + (dam / 4), SPELL_PRISMATIC_SPHERE, -1);
 
                 if (!is_dead(victim)) {
                     gain_skill_prof(victim, SPELL_PRISMATIC_SPHERE);
@@ -1270,8 +1257,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (af->duration > 1) {
                         af->duration--;
                     }
-                    damage_attacker(victim, ch, dice(3, af->level),
-                        SPELL_ELECTROSTATIC_FIELD, -1);
+                    damage(victim, ch, dice(3, af->level), SPELL_ELECTROSTATIC_FIELD, -1);
 
                     if (!is_dead(victim)) {
                         gain_skill_prof(victim, SPELL_ELECTROSTATIC_FIELD);
@@ -1289,8 +1275,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (af->duration > 1) {
                         af->duration--;
                     }
-                    damage_attacker(victim, ch, dice(3, af->level),
-                                    SPELL_THORN_SKIN, -1);
+                    damage(victim, ch, dice(3, af->level), SPELL_THORN_SKIN, -1);
 
                     if (!is_dead(victim)) {
                         gain_skill_prof(victim, SPELL_THORN_SKIN);
@@ -1349,9 +1334,8 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 if (AFF3_FLAGGED(victim, AFF3_PRISMATIC_SPHERE) &&
                     !mag_savingthrow(ch, GET_LEVEL(victim), SAVING_ROD)) {
 
-                    damage_attacker(victim, ch, dice(30,
-                            3) + (IS_MAGE(victim) ? (dam / 4) : 0),
-                        SPELL_PRISMATIC_SPHERE, -1);
+                    damage(victim, ch, dice(30, 3) + (IS_MAGE(victim) ? (dam / 4) : 0),
+                           SPELL_PRISMATIC_SPHERE, -1);
 
                     if (!is_dead(ch)) {
                         WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -1363,18 +1347,18 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 //
 
                 else if (AFF2_FLAGGED(victim, AFF2_BLADE_BARRIER)) {
-                    damage_attacker(victim, ch,
-                        GET_LEVEL(victim) + (dam / 16),
-                        SPELL_BLADE_BARRIER, -1);
+                    damage(victim, ch,
+                           GET_LEVEL(victim) + (dam / 16),
+                           SPELL_BLADE_BARRIER, -1);
 
                 }
 
                 else if (affected_by_spell(victim, SONG_WOUNDING_WHISPERS) &&
                     attacktype != SKILL_PSIBLAST) {
-                    damage_attacker(victim, ch,
-                        (skill_bonus(victim,
-                                SONG_WOUNDING_WHISPERS) / 2) + (dam / 20),
-                        SONG_WOUNDING_WHISPERS, -1);
+                    damage(victim, ch,
+                           (skill_bonus(victim,
+                                        SONG_WOUNDING_WHISPERS) / 2) + (dam / 20),
+                           SONG_WOUNDING_WHISPERS, -1);
                 }
                 //
                 // vict has fire shield
@@ -1386,9 +1370,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     !AFF2_FLAGGED(ch, AFF2_ABLAZE) &&
                     !CHAR_WITHSTANDS_FIRE(ch)) {
 
-                    damage_attacker(victim, ch, dice(8, 8) +
-                        (IS_MAGE(victim) ? (dam / 8) : 0),
-                        SPELL_FIRE_SHIELD, -1);
+                    damage(victim, ch, dice(8, 8) +
+                           (IS_MAGE(victim) ? (dam / 8) : 0),
+                           SPELL_FIRE_SHIELD, -1);
 
                     if (!is_dead(ch)) {
                         ignite_creature(ch, ch);
@@ -1404,9 +1388,9 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (!mag_savingthrow(ch,
                             af ? af->level : GET_LEVEL(victim),
                             SAVING_ROD) && !CHAR_WITHSTANDS_ELECTRIC(ch)) {
-                        damage_attacker(victim, ch,
-                            af ? dice(3, MAX(10, af->level)) : dice(3, 8),
-                            SKILL_ENERGY_FIELD, -1);
+                        damage(victim, ch,
+                               af ? dice(3, MAX(10, af->level)) : dice(3, 8),
+                               SKILL_ENERGY_FIELD, -1);
 
                         if (!is_dead(ch)) {
                             GET_POSITION(ch) = POS_SITTING;
@@ -1626,7 +1610,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (tch == ch || !g_list_find(tch->fighting, ch))
                         continue;
                     damage(ch, tch, dam / 2, TYPE_EGUN_SPEC_LIGHTNING,
-                        WEAR_RANDOM);
+                           WEAR_RANDOM);
                 }
             }
         }
@@ -1880,7 +1864,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 if (tch == ch)
                     is_char = true;
                 damage(victim, tch, dice(4, GET_LEVEL(victim)),
-                    TYPE_ALIEN_BLOOD, -1);
+                       TYPE_ALIEN_BLOOD, -1);
 
                 if (is_char && is_dead(ch)) {
                     return true;
@@ -1910,8 +1894,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         }
         if (feedback_dam > 0) {
             GET_MANA(victim) -= MAX(feedback_mana, 1);
-            damage_attacker(victim, ch, feedback_dam,
-                SPELL_PSYCHIC_FEEDBACK, -1);
+            damage(victim, ch, feedback_dam, SPELL_PSYCHIC_FEEDBACK, -1);
             if (!is_dead(victim)
                 && random_number_zero_low(400) < feedback_dam) {
                 gain_skill_prof(victim, SPELL_PSYCHIC_FEEDBACK);
