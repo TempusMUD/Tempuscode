@@ -186,7 +186,7 @@ check_char_room_vis(struct creature *ch, char *argument)
     struct creature *vict = NULL;
 
     if (!(vict = get_char_room_vis(ch, argument))) {
-        send_to_char(ch, "There's no one named '%s' here.\r\n", argument);
+        send_to_char(ch, "There's no-one named '%s' here.\r\n", argument);
     }
     return (vict);
 }
