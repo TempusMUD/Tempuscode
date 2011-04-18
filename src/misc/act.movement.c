@@ -61,40 +61,97 @@ void update_trail(struct creature *ch, struct room_data *rm, int dir, int j);
 int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
     int pos);
 
-#define DOOR_IS_OPENABLE(ch, obj, door)        \
-((obj) ? \
- (((IS_OBJ_TYPE(obj, ITEM_CONTAINER) && \
-    !GET_OBJ_VAL(obj, 3)) ||               \
-   (IS_OBJ_TYPE(obj, ITEM_V_WINDOW)   &&    \
-    CAR_OPENABLE(obj))          ||    \
-   IS_OBJ_TYPE(obj, ITEM_VEHICLE) ||    \
-   IS_OBJ_TYPE(obj, ITEM_PORTAL) ||     \
-   IS_OBJ_TYPE(obj, ITEM_SCUBA_MASK) || \
-   IS_OBJ_TYPE(obj, ITEM_WINDOW)) &&    \
-  (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSEABLE))) :\
- (IS_SET(EXIT(ch, door)->exit_info, EX_ISDOOR)))
+static inline bool
+door_is_openable(struct creature *ch, struct obj_data *obj, int door)
+{
+    if (obj) {
+        if (!IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSEABLE))
+            return false;
 
-#define DOOR_FLAGGED(ch, door, flag) \
-    (IS_SET(EXIT(ch, door)->exit_info, flag))
-#define DOOR_IS_OPEN(ch, obj, door)        ((obj) ? \
-                                         (!IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED)) :\
-                                         (!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED)))
-#define DOOR_IS_UNLOCKED(ch, obj, door)        ((obj) ? \
-                                         (!IS_SET(GET_OBJ_VAL(obj, 1), CONT_LOCKED)) :\
-                                         (!IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED)))
-#define DOOR_IS_PICKPROOF(ch, obj, door) ((obj) ? \
-                                          (IS_SET(GET_OBJ_VAL(obj, 1), CONT_PICKPROOF)) : \
-                                          (IS_SET(EXIT(ch, door)->exit_info, EX_PICKPROOF)))
-#define DOOR_IS_TECH(ch, obj, door) (!obj && \
-                                     (IS_SET(EXIT(ch, door)->exit_info, EX_TECH)))
-#define DOOR_IS_HEAVY(ch, obj, door)     (!obj && \
-                                          (IS_SET(EXIT(ch, door)->exit_info, EX_HEAVY_DOOR)))
+        if (IS_OBJ_TYPE(obj, ITEM_VEHICLE) ||
+            IS_OBJ_TYPE(obj, ITEM_PORTAL) ||
+            IS_OBJ_TYPE(obj, ITEM_SCUBA_MASK) ||
+            IS_OBJ_TYPE(obj, ITEM_WINDOW))
+            return true;
 
-#define DOOR_IS_LOCKED(ch, obj, door)        (!(DOOR_IS_UNLOCKED(ch, obj, door)))
-#define DOOR_KEY(ch, obj, door)                ((obj) ? (GET_OBJ_VAL(obj, 2)) : \
-                                         (EXIT(ch, door)->key))
-#define DOOR_IS_SPECIAL(ch, obj, door) (!obj && \
-                                        DOOR_FLAGGED(ch, door, EX_SPECIAL))
+        if (IS_OBJ_TYPE(obj, ITEM_CONTAINER) && !GET_OBJ_VAL(obj, 3))
+            return true;
+
+        if (IS_OBJ_TYPE(obj, ITEM_V_WINDOW) && CAR_OPENABLE(obj))
+            return true;
+
+        return false;
+    } else {
+        return IS_SET(EXIT(ch, door)->exit_info, EX_ISDOOR);
+    }
+}
+
+static inline bool
+door_is_flagged(struct creature *ch, int door, int flag)
+{
+    return IS_SET(EXIT(ch, door)->exit_info, flag);
+}
+
+static inline bool
+door_is_open(struct creature *ch, struct obj_data *obj, int door)
+{
+    if (obj)
+        return !IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED);
+    else
+        return !door_is_flagged(ch, door, EX_CLOSED);
+}
+
+static inline bool
+door_is_locked(struct creature *ch, struct obj_data *obj, int door)
+{
+    if (obj)
+        return IS_SET(GET_OBJ_VAL(obj, 1), CONT_LOCKED);
+    else
+        return door_is_flagged(ch, door, EX_LOCKED);
+}
+
+static inline bool
+door_is_unlocked(struct creature *ch, struct obj_data *obj, int door)
+{
+    return !door_is_locked(ch, obj, door);
+}
+
+static inline bool
+door_is_pickproof(struct creature *ch, struct obj_data *obj, int door)
+{
+    if (obj)
+        return IS_SET(GET_OBJ_VAL(obj, 1), CONT_PICKPROOF);
+    else
+        return door_is_flagged(ch, door, EX_PICKPROOF);
+}
+
+static inline int
+door_key(struct creature *ch, struct obj_data *obj, int door)
+{
+    if (obj)
+        return GET_OBJ_VAL(obj, 2);
+    else
+        return EXIT(ch, door)->key;
+}
+
+static inline bool
+door_is_technical(struct creature *ch, struct obj_data *obj, int door)
+{
+    return (obj) ? false:door_is_flagged(ch, door, EX_TECH);
+}
+
+
+static inline bool
+door_is_heavy(struct creature *ch, struct obj_data *obj, int door)
+{
+    return (obj) ? false:door_is_flagged(ch, door, EX_HEAVY_DOOR);
+}
+
+static inline bool
+door_is_special(struct creature *ch, struct obj_data *obj, int door)
+{
+    return (obj) ? false:door_is_flagged(ch, door, EX_SPECIAL);
+}
 
 bool
 can_travel_sector(struct creature *ch, int sector_type, bool active)
@@ -1517,7 +1574,7 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
 
         if (obj)
             wait_state = 7;     // 0.7 sec
-        else if (DOOR_IS_HEAVY(ch, obj, door))
+        else if (door_is_heavy(ch, obj, door))
             wait_state = 30;    // 3 sec
         else
             wait_state = 15;    // 1.5 sec
@@ -1534,7 +1591,7 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
 
         if (obj)
             wait_state = 7;     // 0.7 sec
-        else if (DOOR_IS_HEAVY(ch, obj, door))
+        else if (door_is_heavy(ch, obj, door))
             wait_state = 30;    // 3 sec
         else
             wait_state = 15;    // 1.5 sec
@@ -1687,33 +1744,33 @@ ACMD(do_gen_door)
         door = find_door(ch, type, dir, cmd_door[subcmd]);
 
     if ((obj) || (door >= 0)) {
-        keynum = DOOR_KEY(ch, obj, door);
-        if (!(DOOR_IS_OPENABLE(ch, obj, door)))
+        keynum = door_key(ch, obj, door);
+        if (!door_is_openable(ch, obj, door))
             act(tmp_sprintf("You can't %s that!", cmd_door[subcmd]),
                 false, ch, 0, 0, TO_CHAR);
-        else if (!DOOR_IS_OPEN(ch, obj, door) &&
-            IS_SET(flags_door[subcmd], NEED_OPEN)) {
+        else if (!door_is_open(ch, obj, door) &&
+                 IS_SET(flags_door[subcmd], NEED_OPEN)) {
             send_to_char(ch, "But it's already closed!\r\n");
-        } else if (DOOR_IS_OPEN(ch, obj, door) &&
-            IS_SET(flags_door[subcmd], NEED_CLOSED)) {
+        } else if (door_is_open(ch, obj, door) &&
+                   IS_SET(flags_door[subcmd], NEED_CLOSED)) {
             send_to_char(ch, "But it's currently open!\r\n");
         } else if (IS_SET(flags_door[subcmd], NEED_CLOSED | NEED_OPEN) &&
-            DOOR_IS_SPECIAL(ch, obj, door)) {
+                   door_is_special(ch, obj, door)) {
             act(tmp_sprintf("You can't %s that from here.", cmd_door[subcmd]),
                 false, ch, 0, 0, TO_CHAR);
-        } else if (!(DOOR_IS_LOCKED(ch, obj, door))
-            && IS_SET(flags_door[subcmd], NEED_LOCKED))
+        } else if (!(door_is_locked(ch, obj, door))
+                   && IS_SET(flags_door[subcmd], NEED_LOCKED))
             send_to_char(ch, "Oh.. it wasn't locked, after all..\r\n");
-        else if (!(DOOR_IS_UNLOCKED(ch, obj, door)) &&
+        else if (!(door_is_unlocked(ch, obj, door)) &&
             IS_SET(flags_door[subcmd], NEED_UNLOCKED))
             send_to_char(ch, "It seems to be locked.\r\n");
         else if (!has_key(ch, keynum) && (GET_LEVEL(ch) < LVL_GOD) &&
-            ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
+                 ((subcmd == SCMD_LOCK) || (subcmd == SCMD_UNLOCK)))
             send_to_char(ch, "You don't seem to have the proper key.\r\n");
-        else if (door >= 0 && DOOR_IS_HEAVY(ch, obj, door) &&
-            (subcmd == SCMD_OPEN) &&
-            (IS_SET(flags_door[subcmd], NEED_CLOSED)) &&
-            ((dice(2, 7) + str_app[STRENGTH_APPLY_INDEX(ch)].todam) < 12)) {
+        else if (door >= 0 && door_is_heavy(ch, obj, door) &&
+                 (subcmd == SCMD_OPEN) &&
+                 (IS_SET(flags_door[subcmd], NEED_CLOSED)) &&
+                 ((dice(2, 7) + str_app[STRENGTH_APPLY_INDEX(ch)].todam) < 12)) {
             if (EXIT(ch, door)->keyword)
                 strcpy(dname, fname(EXIT(ch, door)->keyword));
             else
@@ -1754,8 +1811,10 @@ ACMD(do_gen_door)
             WAIT_STATE(ch, PULSE_VIOLENCE);
             GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 10);
             act(buf, false, ch, 0, 0, TO_ROOM);
-        } else if (ok_pick(ch, keynum, DOOR_IS_PICKPROOF(ch, obj, door),
-                DOOR_IS_TECH(ch, obj, door), subcmd))
+        } else if (ok_pick(ch,
+                           keynum,
+                           door_is_pickproof(ch, obj, door),
+                           door_is_technical(ch, obj, door), subcmd))
             do_doorcmd(ch, obj, door, subcmd);
     }
     return;
@@ -1779,7 +1838,7 @@ ACMD(do_enter)
             // try to locate an entrance
             for (door = 0; door < NUM_OF_DIRS; door++)
                 if (EXIT(ch, door) && EXIT(ch, door)->to_room)
-                    if (!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED) &&
+                    if (!door_is_flagged(ch, door, EX_CLOSED) &&
                         IS_SET(ROOM_FLAGS(EXIT(ch, door)->to_room),
                             ROOM_INDOORS)) {
                         perform_move(ch, door, MOVE_NORM, 1);
@@ -1944,7 +2003,7 @@ ACMD(do_leave)
         for (door = 0; door < NUM_OF_DIRS; door++)
             if (EXIT(ch, door))
                 if (EXIT(ch, door)->to_room != NULL)
-                    if (!IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED) &&
+                    if (!door_is_flagged(ch, door, EX_CLOSED) &&
                         !IS_SET(ROOM_FLAGS(EXIT(ch, door)->to_room),
                             ROOM_INDOORS)) {
                         perform_move(ch, door, MOVE_NORM, 1);
