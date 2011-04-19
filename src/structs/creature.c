@@ -26,7 +26,6 @@
 
 void extract_norents(struct obj_data *obj);
 void char_arrest_pardoned(struct creature *ch);
-void remove_fighting_affects(struct creature *ch);
 extern struct descriptor_data *descriptor_list;
 struct player_special_data dummy_mob;   /* dummy spec area for mobs         */
 
@@ -1564,6 +1563,31 @@ add_combat(struct creature *ch, struct creature *target, bool initiated)
 
     // No defender, so simply attack
     ch->fighting = g_list_prepend(ch->fighting, target);
+}
+
+/*
+   corrects position and removes combat related bits.
+   Call ONLY from remove_combat()/remove_all_combat()
+*/
+static void
+remove_fighting_affects(struct creature *ch)
+{
+    if (ch->in_room && room_is_open_air(ch->in_room)) {
+        GET_POSITION(ch) = POS_FLYING;
+    } else if (!IS_NPC(ch)) {
+        if (GET_POSITION(ch) >= POS_FIGHTING)
+            GET_POSITION(ch) = POS_STANDING;
+        else if (GET_POSITION(ch) >= POS_RESTING)
+            GET_POSITION(ch) = POS_SITTING;
+    } else {
+        if (AFF_FLAGGED(ch, AFF_CHARM) && IS_UNDEAD(ch))
+            GET_POSITION(ch) = POS_STANDING;
+        else if (GET_POSITION(ch) > POS_SITTING)
+            GET_POSITION(ch) = POS_STANDING;
+    }
+
+    update_pos(ch);
+
 }
 
 void
