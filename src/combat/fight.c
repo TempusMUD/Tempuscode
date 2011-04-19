@@ -49,21 +49,7 @@
 #include "weather.h"
 #include "players.h"
 
-#define BAD_ATTACK_TYPE(attacktype) (attacktype == TYPE_BLEED || \
-                                     attacktype == SPELL_POISON || \
-                                     attacktype == TYPE_ABLAZE || \
-                                     attacktype == TYPE_ACID_BURN || \
-                                     attacktype == TYPE_TAINT_BURN || \
-                                     attacktype == TYPE_PRESSURE || \
-                                     attacktype == TYPE_SUFFOCATING || \
-                                     attacktype == TYPE_ANGUISH || \
-                                     attacktype == TYPE_OVERLOAD || \
-                                     attacktype == TYPE_SUFFERING || \
-                                     attacktype == SPELL_STIGMATA || \
-                                     attacktype == TYPE_DROWNING || \
-                                     attacktype == SPELL_SICKNESS || \
-                                     attacktype == TYPE_RAD_SICKNESS || \
-                                     attacktype == SKILL_HOLY_TOUCH)
+extern bool LOG_DEATHS;
 
 int corpse_state = 0;
 
@@ -76,6 +62,22 @@ int do_casting_weapon(struct creature *ch, struct obj_data *weap);
 int calculate_attack_probability(struct creature *ch);
 void do_emp_pulse_char(struct creature *ch, struct creature *vict);
 void perform_autoloot(struct creature *ch, struct obj_data *corpse);
+
+bool
+is_bad_attack_type(int attacktype)
+{
+    int bad_types[] = { TYPE_BLEED, SPELL_POISON, TYPE_ABLAZE,
+                        TYPE_ACID_BURN, TYPE_TAINT_BURN, TYPE_PRESSURE,
+                        TYPE_SUFFOCATING, TYPE_ANGUISH, TYPE_OVERLOAD,
+                        TYPE_SUFFERING, SPELL_STIGMATA, TYPE_DROWNING,
+                        SPELL_SICKNESS, TYPE_RAD_SICKNESS, SKILL_HOLY_TOUCH,
+                        0 };
+    for (int i = 0;bad_types[i];i++)
+        if (attacktype == bad_types[i])
+            return true;
+
+    return false;
+}
 
 /* When ch kills victim */
 void
@@ -139,8 +141,6 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
     if (killer && killer != ch && PRF2_FLAGGED(killer, PRF2_AUTOLOOT))
         perform_autoloot(killer, corpse);
 }
-
-extern bool LOG_DEATHS;
 
 void
 die(struct creature *ch, struct creature *killer, int attacktype)
@@ -874,7 +874,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
     }
     // Mirror Image Melody
     if (ch && ch != victim && !IS_WEAPON(attacktype) &&
-        !BAD_ATTACK_TYPE(attacktype) && !SPELL_IS_PSIONIC(attacktype)) {
+        !is_bad_attack_type(attacktype) && !SPELL_IS_PSIONIC(attacktype)) {
         struct affected_type *paf;
         if ((paf = affected_by_spell(victim, SONG_MIRROR_IMAGE_MELODY))) {
             if ((number(0, 375) < paf->modifier * 10 + skill_bonus(victim,
@@ -1386,7 +1386,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
     float dam_reduction = 0;
 
     if (affected_by_spell(victim, SPELL_MANA_SHIELD)
-        && !BAD_ATTACK_TYPE(attacktype)) {
+        && !is_bad_attack_type(attacktype)) {
         mana_loss = (dam * GET_MSHIELD_PCT(victim)) / 100;
         mana_loss = MIN(GET_MANA(victim) - GET_MSHIELD_LOW(victim), mana_loss);
         mana_loss = MAX(mana_loss, 0);
@@ -1853,7 +1853,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
     if (ch && (af = affected_by_spell(victim, SPELL_PSYCHIC_FEEDBACK)) &&
         !mag_savingthrow(ch, GET_LEVEL(victim), SAVING_PSI) &&
         !ROOM_FLAGGED(victim->in_room, ROOM_NOPSIONICS) && !NULL_PSI(ch) &&
-        !BAD_ATTACK_TYPE(attacktype) && attacktype != SPELL_PSYCHIC_FEEDBACK) {
+        !is_bad_attack_type(attacktype) && attacktype != SPELL_PSYCHIC_FEEDBACK) {
         feedback_dam =
             (dam * skill_bonus(victim, SPELL_PSYCHIC_FEEDBACK)) / 400;
         feedback_mana = feedback_dam / 15;
