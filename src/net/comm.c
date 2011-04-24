@@ -539,23 +539,6 @@ game_loop(int main_listener, int reader_listener)
 
         }
 
-        /* send queued output out to the operating system (ultimately to user) */
-        for (d = descriptor_list; d; d = d->next) {
-            if (FD_ISSET(d->descriptor, &output_set) && *(d->output)) {
-                if (process_output(d) < 0)
-                    set_desc_state(CXN_DISCONNECT, d);
-            }
-        }
-
-        // Enforce an autoban disconnection
-        for (d = descriptor_list; d; d = d->next) {
-            if (d->ban_dc_counter) {
-                d->ban_dc_counter--;
-                if (!d->ban_dc_counter)
-                    set_desc_state(CXN_DISCONNECT, d);
-            }
-        }
-
         /* garbage collect dead creatures */
         void extract_creature(struct creature *ch, enum cxn_state con_state);
 
@@ -574,6 +557,23 @@ game_loop(int main_listener, int reader_listener)
 
                 // pull the char from the various lists
                 creatures = g_list_delete_link(creatures, it);
+            }
+        }
+
+        /* send queued output out to the operating system (ultimately to user) */
+        for (d = descriptor_list; d; d = d->next) {
+            if (FD_ISSET(d->descriptor, &output_set) && *(d->output)) {
+                if (process_output(d) < 0)
+                    set_desc_state(CXN_DISCONNECT, d);
+            }
+        }
+
+        // Enforce an autoban disconnection
+        for (d = descriptor_list; d; d = d->next) {
+            if (d->ban_dc_counter) {
+                d->ban_dc_counter--;
+                if (!d->ban_dc_counter)
+                    set_desc_state(CXN_DISCONNECT, d);
             }
         }
 
