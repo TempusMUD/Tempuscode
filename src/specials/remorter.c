@@ -10,8 +10,6 @@
 
 #include <libxml/parser.h>
 #include <libxml/tree.h>
-// Undefine CHAR to avoid collisions
-#undef CHAR
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>

@@ -1274,8 +1274,7 @@ creature_remort(struct creature * ch)
 
     GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
-    if (ch->desc)
-        set_desc_state(CXN_REMORT_AFTERLIFE, ch->desc);
+    extract_creature(ch, CXN_REMORT_AFTERLIFE);
     return true;
 }
 
