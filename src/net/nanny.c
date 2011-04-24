@@ -627,8 +627,8 @@ handle_input(struct descriptor_data *d)
                 GET_NAME(d->creature), GET_REMORT_GEN(d->creature),
                 class_names[(int)GET_CLASS(d->creature)],
                 class_names[(int)GET_REMORT_CLASS(d->creature)]);
-            crashsave(d->creature);
-            set_desc_state(CXN_MENU, d);
+            save_player_to_xml(d->creature);
+            char_to_game(d);
         }
         break;
     case CXN_ALIGN_PROMPT:
