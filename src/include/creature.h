@@ -1010,6 +1010,7 @@ int unrent(struct creature *ch);
 bool checkLoadCorpse(struct creature *ch);
 int loadCorpse(struct creature *ch);
 void creature_set_reputation(struct creature *ch, int amt);
+void check_position(struct creature *ch);
 
 bool creature_rent(struct creature *ch);
 bool creature_cryo(struct creature *ch);

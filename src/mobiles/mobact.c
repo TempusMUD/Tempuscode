@@ -248,7 +248,7 @@ burn_update_creature(struct creature *ch)
         GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + 1);
         GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + 1);
         GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 1);
-        update_pos(ch);
+        check_position(ch);
     }
     // regen
     if (AFF_FLAGGED(ch, AFF_REGEN) || IS_TROLL(ch) || IS_VAMPIRE(ch)) {
@@ -256,7 +256,7 @@ burn_update_creature(struct creature *ch)
             MIN(GET_MAX_HIT(ch),
             GET_HIT(ch) + 1 +
             (random_percentage_zero_low() * GET_CON(ch) / 125));
-        update_pos(ch);
+        check_position(ch);
     }
     // mana tap
     if (AFF3_FLAGGED(ch, AFF3_MANA_TAP))
