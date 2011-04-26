@@ -621,6 +621,19 @@ load_object_from_xml(struct obj_data *container,
             obj->obj_flags.weight = xmlGetIntProp(cur, "weight", 0);
             obj->obj_flags.material = xmlGetIntProp(cur, "material", 0);
             obj->obj_flags.timer = xmlGetIntProp(cur, "timer", 0);
+            if (obj->obj_flags.weight < 1) {
+                if (GET_OBJ_VNUM(obj) > 0) {
+                    slog("Illegal object %d weight %d - setting to %d from prototype",
+                         GET_OBJ_VNUM(obj),
+                         GET_OBJ_WEIGHT(obj),
+                         GET_OBJ_WEIGHT(obj->shared->proto));
+                    obj->obj_flags.weight = obj->shared->proto->obj_flags.weight;
+                } else {
+                    slog("Illegal prototype-less object weight %d - setting to 1",
+                         GET_OBJ_WEIGHT(obj));
+                    obj->obj_flags.weight = 1;
+                }
+            }
         } else if (xmlMatches(cur->name, "tracking")) {
             obj->unique_id = xmlGetIntProp(cur, "id", 0);
             obj->creation_method = xmlGetIntProp(cur, "method", 0);

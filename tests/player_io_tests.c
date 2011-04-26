@@ -400,6 +400,7 @@ START_TEST(test_load_save_objects_carried)
     struct obj_data *carried_item = read_object(carried_vnum);
 
     obj_to_char(carried_item, ch);
+    fail_unless(ch->char_specials.carry_weight == carried_item->obj_flags.weight);
 
     save_player_to_file(ch, "/tmp/test_player.xml");
     save_player_objects_to_file(ch, "/tmp/test_items.xml");
@@ -436,6 +437,7 @@ START_TEST(test_load_save_objects_equipped)
     int equipped_pos = number(0, NUM_WEARS);
 
     equip_char(ch, equipped_item, equipped_pos, EQUIP_WORN);
+    fail_unless(ch->char_specials.worn_weight == equipped_item->obj_flags.weight);
 
     save_player_to_file(ch, "/tmp/test_player.xml");
     save_player_objects_to_file(ch, "/tmp/test_items.xml");
@@ -560,6 +562,8 @@ START_TEST(test_load_save_objects_contained)
     obj_to_char(carried_item, ch);
     obj_to_obj(contained_item, carried_item);
     // TODO: manage multiple contained or carried items
+    fail_unless(ch->char_specials.carry_weight
+                == carried_item->obj_flags.weight + contained_item->obj_flags.weight);
 
     save_player_to_file(ch, "/tmp/test_player.xml");
     save_player_objects_to_file(ch, "/tmp/test_items.xml");
