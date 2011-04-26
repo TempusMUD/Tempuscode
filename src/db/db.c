@@ -1904,6 +1904,7 @@ parse_object(FILE * obj_f, int nr)
     obj->shared->owner_id = 0;
 
     obj->in_room = NULL;
+    obj->worn_on = -1;
 
     sprintf(buf2, "object #%d", nr);
 

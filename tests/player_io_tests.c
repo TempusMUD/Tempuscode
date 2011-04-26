@@ -11,6 +11,7 @@
 #include "db.h"
 #include "language.h"
 #include "char_class.h"
+#include "handler.h"
 
 static struct descriptor_data *desc = NULL;
 static struct account *test_acct = NULL;
@@ -19,6 +20,9 @@ extern PGconn *sql_cxn;
 
 struct creature *load_player_from_file(const char *path);
 void save_player_to_file(struct creature *ch, const char *path);
+bool save_player_objects_to_file(struct creature *ch, const char *path);
+bool load_player_objects_from_file(struct creature *ch, const char *path);
+
 void boot_tongues(const char *path);
 void boot_spells(const char *path);
 
@@ -197,6 +201,81 @@ compare_creatures(struct creature *ch, struct creature *tch)
     fail_unless(!strcmp(GET_TITLE(ch), GET_TITLE(tch)));
 }
 
+int
+make_random_object(void)
+{
+    struct obj_data *obj;
+    CREATE(obj, struct obj_data, 1);
+    CREATE(obj->shared, struct obj_shared_data, 1);
+    obj->shared->vnum = 3000;
+    obj->shared->number = 0;
+    obj->shared->house_count = 0;
+    obj->shared->func = NULL;
+    obj->shared->proto = obj;
+    obj->shared->owner_id = 0;
+
+    obj->name = strdup("test name");
+    obj->aliases = strdup("test aliases");
+    obj->line_desc = strdup("test line desc");
+    obj->action_desc = strdup("test action desc");
+    obj->soilage = 84732;
+    obj->unique_id = 34827429;
+    obj->creation_time = time(NULL);
+    obj->creation_method = CREATED_IMM;
+    obj->creator = 732;
+
+    obj->worn_on = -1;
+
+    if (!obj_prototypes) {
+        obj_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
+    }
+    g_hash_table_insert(obj_prototypes, GINT_TO_POINTER(GET_OBJ_VNUM(obj)), obj);
+
+    return obj->shared->vnum;
+}
+
+void
+compare_objects(struct obj_data *obj_a, struct obj_data *obj_b)
+{
+    fail_unless(!strcmp(obj_a->name, obj_b->name));
+    fail_unless(!strcmp(obj_a->aliases, obj_b->aliases));
+    fail_unless(!strcmp(obj_a->line_desc, obj_b->line_desc));
+    fail_unless(!strcmp(obj_a->action_desc, obj_b->action_desc));
+    fail_unless(obj_a->plrtext_len == obj_b->plrtext_len);
+    fail_unless(obj_a->worn_on == obj_b->worn_on, "obj_a->worn_on = %d, obj_b->worn_on = %d", obj_a->worn_on, obj_b->worn_on);
+    fail_unless(obj_a->soilage == obj_b->soilage);
+    fail_unless(obj_a->unique_id == obj_b->unique_id);
+    fail_unless(obj_a->creation_time == obj_b->creation_time);
+    fail_unless(obj_a->creation_method == obj_b->creation_method);
+    fail_unless(obj_a->creator == obj_b->creator);
+    fail_unless(obj_a->obj_flags.value[0] == obj_b->obj_flags.value[0]);
+    fail_unless(obj_a->obj_flags.value[1] == obj_b->obj_flags.value[1]);
+    fail_unless(obj_a->obj_flags.value[2] == obj_b->obj_flags.value[2]);
+    fail_unless(obj_a->obj_flags.value[3] == obj_b->obj_flags.value[3]);
+    fail_unless(obj_a->obj_flags.type_flag == obj_b->obj_flags.type_flag);
+    fail_unless(obj_a->obj_flags.wear_flags == obj_b->obj_flags.wear_flags);
+    fail_unless(obj_a->obj_flags.extra_flags == obj_b->obj_flags.extra_flags);
+    fail_unless(obj_a->obj_flags.extra2_flags == obj_b->obj_flags.extra2_flags);
+    fail_unless(obj_a->obj_flags.extra3_flags == obj_b->obj_flags.extra3_flags);
+    fail_unless(obj_a->obj_flags.weight == obj_b->obj_flags.weight);
+    fail_unless(obj_a->obj_flags.timer == obj_b->obj_flags.timer);
+    fail_unless(obj_a->obj_flags.bitvector[0] == obj_b->obj_flags.bitvector[0]);
+    fail_unless(obj_a->obj_flags.bitvector[1] == obj_b->obj_flags.bitvector[1]);
+    fail_unless(obj_a->obj_flags.bitvector[2] == obj_b->obj_flags.bitvector[2]);
+    fail_unless(obj_a->obj_flags.material == obj_b->obj_flags.material);
+    fail_unless(obj_a->obj_flags.max_dam == obj_b->obj_flags.max_dam);
+    fail_unless(obj_a->obj_flags.damage == obj_b->obj_flags.damage);
+    fail_unless(obj_a->obj_flags.sigil_idnum == obj_b->obj_flags.sigil_idnum);
+    fail_unless(obj_a->obj_flags.sigil_level == obj_b->obj_flags.sigil_level);
+
+    for (int i = 0;i < MAX_OBJ_AFFECT;i++) {
+        fail_unless(obj_a->affected[i].location == obj_a->affected[i].location);
+        fail_unless(obj_a->affected[i].modifier == obj_a->affected[i].modifier);
+    }
+
+    // TODO: test temp object affects
+}
+
 START_TEST(test_load_save_creature)
 {
     struct creature *tch;
@@ -295,7 +374,7 @@ END_TEST
 
 START_TEST(test_load_save_frozen)
 {
-    struct creature *tch;
+    struct creature *tch = NULL;
 
     randomize_creature(ch, CLASS_UNDEFINED);
     PLR_FLAGS(ch) |= PLR_FROZEN;
@@ -312,6 +391,214 @@ START_TEST(test_load_save_frozen)
 }
 END_TEST
 
+START_TEST(test_load_save_objects_carried)
+{
+    bool save_player_objects_to_file(struct creature *ch, const char *path);
+
+    struct creature *tch = NULL;
+    int carried_vnum = make_random_object();
+    struct obj_data *carried_item = read_object(carried_vnum);
+
+    obj_to_char(carried_item, ch);
+
+    save_player_to_file(ch, "/tmp/test_player.xml");
+    save_player_objects_to_file(ch, "/tmp/test_items.xml");
+
+    tch = load_player_from_file("/tmp/test_player.xml");
+    load_player_objects_from_file(tch, "/tmp/test_items.xml");
+
+    struct obj_data *obj_a = ch->carrying;
+    struct obj_data *obj_b = tch->carrying;
+    while (obj_a || obj_b) {
+        if (!obj_a || !obj_b) {
+            fail("different carried counts");
+            return;
+        }
+        compare_objects(obj_a, obj_b);
+        obj_a = obj_a->next_content;
+        obj_b = obj_b->next_content;
+    }
+
+    fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
+    fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
+
+    ch->carrying = NULL;
+}
+END_TEST
+
+START_TEST(test_load_save_objects_equipped)
+{
+    bool save_player_objects_to_file(struct creature *ch, const char *path);
+
+    struct creature *tch = NULL;
+    int equipped_vnum = make_random_object();
+    struct obj_data *equipped_item = read_object(equipped_vnum);
+    int equipped_pos = number(0, NUM_WEARS);
+
+    equip_char(ch, equipped_item, equipped_pos, EQUIP_WORN);
+
+    save_player_to_file(ch, "/tmp/test_player.xml");
+    save_player_objects_to_file(ch, "/tmp/test_items.xml");
+
+    tch = load_player_from_file("/tmp/test_player.xml");
+    load_player_objects_from_file(tch, "/tmp/test_items.xml");
+
+    for (int i = 0;i < NUM_WEARS;i++) {
+        struct obj_data *obj_a = GET_EQ(ch, i);
+        struct obj_data *obj_b = GET_EQ(tch, i);
+        if (!obj_a && obj_b) {
+            fail("wear pos %d on original has eq, loaded doesn't", i);
+            return;
+        } else if (obj_a && !obj_b) {
+            fail("wear pos %d on loaded has eq, original doesn't", i);
+            return;
+        } else if (obj_a && obj_b) {
+            compare_objects(obj_a, obj_b);
+        }
+    }
+
+    fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
+    fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
+    fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+
+    for (int i = 0;i < NUM_WEARS;i++) {
+        GET_EQ(ch, i) = NULL;
+    }
+}
+END_TEST
+
+START_TEST(test_load_save_objects_implanted)
+{
+    bool save_player_objects_to_file(struct creature *ch, const char *path);
+
+    struct creature *tch = NULL;
+    int implanted_vnum = make_random_object();
+    struct obj_data *implanted_item = read_object(implanted_vnum);
+    int equipped_pos = number(0, NUM_WEARS);
+
+    equip_char(ch, implanted_item, equipped_pos, EQUIP_IMPLANT);
+
+    save_player_to_file(ch, "/tmp/test_player.xml");
+    save_player_objects_to_file(ch, "/tmp/test_items.xml");
+
+    tch = load_player_from_file("/tmp/test_player.xml");
+    load_player_objects_from_file(tch, "/tmp/test_items.xml");
+
+    for (int i = 0;i < NUM_WEARS;i++) {
+        struct obj_data *obj_a = GET_IMPLANT(ch, i);
+        struct obj_data *obj_b = GET_IMPLANT(tch, i);
+        if (!obj_a && obj_b) {
+            fail("implant pos %d on original has eq, loaded doesn't", i);
+            return;
+        } else if (obj_a && !obj_b) {
+            fail("implant pos %d on loaded has eq, original doesn't", i);
+            return;
+        } else if (obj_a && obj_b) {
+            compare_objects(obj_a, obj_b);
+        }
+    }
+
+    fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
+    fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
+    fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+
+    for (int i = 0;i < NUM_WEARS;i++) {
+        GET_IMPLANT(ch, i) = NULL;
+    }
+}
+END_TEST
+
+START_TEST(test_load_save_objects_tattooed)
+{
+    struct creature *tch = NULL;
+    int tattooed_vnum = make_random_object();
+    struct obj_data *tattooed_item = read_object(tattooed_vnum);
+    int equipped_pos = number(0, NUM_WEARS);
+
+    equip_char(ch, tattooed_item, equipped_pos, EQUIP_TATTOO);
+
+    save_player_to_file(ch, "/tmp/test_player.xml");
+    save_player_objects_to_file(ch, "/tmp/test_items.xml");
+
+    tch = load_player_from_file("/tmp/test_player.xml");
+    load_player_objects_from_file(tch, "/tmp/test_items.xml");
+
+    for (int i = 0;i < NUM_WEARS;i++) {
+        struct obj_data *obj_a = GET_TATTOO(ch, i);
+        struct obj_data *obj_b = GET_TATTOO(tch, i);
+        if (!obj_a && obj_b) {
+            fail("tattoo pos %d on original has eq, loaded doesn't", i);
+            return;
+        } else if (obj_a && !obj_b) {
+            fail("tattoo pos %d on loaded has eq, original doesn't", i);
+            return;
+        } else if (obj_a && obj_b) {
+            compare_objects(obj_a, obj_b);
+        }
+    }
+
+    fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
+    fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
+    fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+
+    for (int i = 0;i < NUM_WEARS;i++) {
+        GET_TATTOO(ch, i) = NULL;
+    }
+}
+END_TEST
+
+START_TEST(test_load_save_objects_contained)
+{
+    bool save_player_objects_to_file(struct creature *ch, const char *path);
+
+    struct creature *tch = NULL;
+    int carried_vnum = make_random_object();
+    struct obj_data *carried_item = read_object(carried_vnum);
+    int contained_vnum = make_random_object();
+    struct obj_data *contained_item = read_object(contained_vnum);
+
+    obj_to_char(carried_item, ch);
+    obj_to_obj(contained_item, carried_item);
+    // TODO: manage multiple contained or carried items
+
+    save_player_to_file(ch, "/tmp/test_player.xml");
+    save_player_objects_to_file(ch, "/tmp/test_items.xml");
+
+    tch = load_player_from_file("/tmp/test_player.xml");
+    load_player_objects_from_file(tch, "/tmp/test_items.xml");
+
+    struct obj_data *obj_a = ch->carrying;
+    struct obj_data *obj_b = tch->carrying;
+    while (obj_a || obj_b) {
+        if (!obj_a || !obj_b) {
+            fail("different carried counts");
+            return;
+        }
+        compare_objects(obj_a, obj_b);
+        obj_a = obj_a->next_content;
+        obj_b = obj_b->next_content;
+    }
+
+    obj_a = ch->carrying->contains;
+    obj_b = tch->carrying->contains;
+    while (obj_a || obj_b) {
+        if (!obj_a || !obj_b) {
+            fail("different contained counts");
+            return;
+        }
+        compare_objects(obj_a, obj_b);
+        obj_a = obj_a->next_content;
+        obj_b = obj_b->next_content;
+    }
+
+    fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
+    fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
+    fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+
+    ch->carrying = NULL;
+}
+END_TEST
+
 Suite *
 player_io_suite(void)
 {
@@ -325,6 +612,11 @@ player_io_suite(void)
     tcase_add_test(tc_core, test_load_save_immort);
     tcase_add_test(tc_core, test_load_save_title);
     tcase_add_test(tc_core, test_load_save_mage);
+    tcase_add_test(tc_core, test_load_save_objects_carried);
+    tcase_add_test(tc_core, test_load_save_objects_equipped);
+    tcase_add_test(tc_core, test_load_save_objects_implanted);
+    tcase_add_test(tc_core, test_load_save_objects_tattooed);
+    tcase_add_test(tc_core, test_load_save_objects_contained);
     suite_add_tcase(s, tc_core);
 
     return s;

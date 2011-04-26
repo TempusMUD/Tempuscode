@@ -198,13 +198,12 @@ display_unrentables(struct creature * ch)
 }
 
 bool
-save_player_objects(struct creature * ch)
+save_player_objects_to_file(struct creature *ch, const char *path)
 {
     FILE *ouf;
-    char *path, *tmp_path;
+    char *tmp_path;
     int idx;
 
-    path = get_equipment_file_path(GET_IDNUM(ch));
     tmp_path = tmp_sprintf("%s.new", path);
     ouf = fopen(tmp_path, "w");
 
@@ -238,6 +237,12 @@ save_player_objects(struct creature * ch)
     return true;
 }
 
+bool
+save_player_objects(struct creature * ch)
+{
+    return save_player_objects_to_file(ch, get_equipment_file_path(GET_IDNUM(ch)));
+}
+
 /**
  * return values:
  * -1 - dangerous failure - don't allow char to enter
@@ -260,10 +265,8 @@ unrent(struct creature *ch)
 }
 
 bool
-load_player_objects(struct creature * ch)
+load_player_objects_from_file(struct creature *ch, const char *path)
 {
-
-    char *path = get_equipment_file_path(GET_IDNUM(ch));
     int axs = access(path, W_OK);
 
     if (axs != 0) {
@@ -296,6 +299,12 @@ load_player_objects(struct creature * ch)
     xmlFreeDoc(doc);
 
     return 0;
+}
+
+bool
+load_player_objects(struct creature *ch)
+{
+    return load_player_objects_from_file(ch, get_equipment_file_path(GET_IDNUM(ch)));
 }
 
 bool
