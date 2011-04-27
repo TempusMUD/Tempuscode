@@ -2227,10 +2227,10 @@ ACMD(do_encumbrance)
             return;
         } else {
             send_to_char(ch,
-                "You are carrying a total %d pounds of stuff.\r\n",
+                "You are carrying a total %.2f pounds of stuff.\r\n",
                 IS_WEARING_W(ch) + IS_CARRYING_W(ch));
             send_to_char(ch,
-                "%d of which you are wearing or equipped with.\r\n",
+                "%.2f of which you are wearing or equipped with.\r\n",
                 IS_WEARING_W(ch));
         }
     }

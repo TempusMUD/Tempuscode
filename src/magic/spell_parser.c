@@ -1554,7 +1554,7 @@ ACMD(do_cast)
     if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
         prob += GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD));
 
-    prob += ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
+    prob += ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 8) / CAN_CARRY_W(ch);
 
     for (i = 0, num_eq = 0, metal_wt = 0; i < NUM_WEARS; i++) {
         if (ch->equipment[i]) {
@@ -1784,7 +1784,7 @@ ACMD(do_trigger)
     if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
         prob -= GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD));
 
-    prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
+    prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 8) / CAN_CARRY_W(ch);
 
     if (tch && GET_POSITION(ch) == POS_FIGHTING)
         prob -= (GET_LEVEL(tch) >> 3);

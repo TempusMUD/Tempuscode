@@ -1776,7 +1776,7 @@ SPECIAL(weapon_lister)
         else
             strcat(buf, "   ");
 
-        sprintf(buf, "%s (%2d) %3d lb ", buf,
+        sprintf(buf, "%s (%2d) %3.2f lb ", buf,
             (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam,
             GET_OBJ_WEIGHT(obj));
 

@@ -1125,7 +1125,7 @@ ASPELL(spell_identify)
         strcat(buf, "\r\n");
         send_to_char(ch, "%s", buf);
 
-        send_to_char(ch, "Weight: %d, Value: %d, Rent: %d\r\n",
+        send_to_char(ch, "Weight: %.2f, Value: %d, Rent: %d\r\n",
             GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
         send_to_char(ch, "Item material is %s.\r\n",
                      strlist_aref(GET_OBJ_MATERIAL(obj), material_names));
@@ -1290,7 +1290,7 @@ ASPELL(spell_minor_identify)
         sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf);
         send_to_char(ch, "%s\r\n", buf);
 
-        send_to_char(ch, "Weight: %d, Value: %d, Rent: %d\r\n",
+        send_to_char(ch, "Weight: %.2f, Value: %d, Rent: %d\r\n",
             GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
 
         send_to_char(ch, "Item material is %s.\r\n",
@@ -2204,7 +2204,7 @@ ASPELL(spell_gust_of_wind)
         !NPC_FLAGGED(victim, NPC_NOBASH) &&
         !(GET_CLASS(victim) == CLASS_EARTH) && !IS_GIANT(victim) &&
         (GET_WEIGHT(victim) + ((IS_CARRYING_W(victim) +
-                    IS_WEARING_W(victim)) >> 1))
+                    IS_WEARING_W(victim)) / 2))
         < (number(200, 500) + GET_INT(ch) + 16 * GET_LEVEL(ch))) {
         attempt = number(1, NUM_OF_DIRS - 1);
         while (!CAN_GO(victim, attempt) && count < 40) {

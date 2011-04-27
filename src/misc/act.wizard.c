@@ -1220,7 +1220,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     acc_sprintf("Extra3 flags: %s\r\n",
         tmp_printbits(GET_OBJ_EXTRA3(j), extra3_bits));
 
-    acc_sprintf("Weight: %d, Cost: %d (%d), Rent: %d, Timer: %d\r\n",
+    acc_sprintf("Weight: %.2f, Cost: %d (%d), Rent: %d, Timer: %d\r\n",
         GET_OBJ_WEIGHT(j), GET_OBJ_COST(j),
         prototype_obj_value(j), GET_OBJ_RENT(j), GET_OBJ_TIMER(j));
 
@@ -1892,7 +1892,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     found = false;
     if (k->in_room) {
         acc_sprintf
-            ("Encum : (%d inv + %d eq) = (%d tot)/%d, Number: %d/%d inv, %d eq, %d imp\r\n",
+            ("Encum : (%.2f inv + %.2f eq) = (%.2f tot)/%d, Number: %d/%d inv, %d eq, %d imp\r\n",
             IS_CARRYING_W(k), IS_WEARING_W(k),
             (IS_CARRYING_W(k) + IS_WEARING_W(k)), CAN_CARRY_W(k),
             IS_CARRYING_N(k), (int)CAN_CARRY_N(k), num, num2);

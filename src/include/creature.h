@@ -762,8 +762,8 @@ struct char_special_data {
 	struct creature *hunting;	/* Char hunted by this char        */
 	struct creature *mounted;	/* creatures mounted ON this char        */
 
-	int carry_weight;			/* Carried weight                     */
-	int worn_weight;			/* Total weight equipped                */
+	float carry_weight;			/* Carried weight                     */
+	float worn_weight;			/* Total weight equipped                */
 	int timer;					/* Timer for update            */
 	int meditate_timer;			/* How long has been meditating           */
 	int cur_flow_pulse;			/* Keeps track of whether char has flowed */

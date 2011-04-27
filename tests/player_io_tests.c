@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 #include <check.h>
 #include "libpq-fe.h"
 
@@ -225,6 +226,8 @@ make_random_object(void)
     obj->creator = 732;
 
     obj->worn_on = -1;
+
+    obj->obj_flags.weight = 1.0;
 
     if (!obj_prototypes) {
         obj_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
@@ -562,8 +565,8 @@ START_TEST(test_load_save_objects_contained)
     obj_to_char(carried_item, ch);
     obj_to_obj(contained_item, carried_item);
     // TODO: manage multiple contained or carried items
-    fail_unless(ch->char_specials.carry_weight
-                == carried_item->obj_flags.weight + contained_item->obj_flags.weight);
+
+    fail_unless(ch->char_specials.carry_weight == GET_OBJ_WEIGHT(carried_item));
 
     save_player_to_file(ch, "/tmp/test_player.xml");
     save_player_objects_to_file(ch, "/tmp/test_items.xml");

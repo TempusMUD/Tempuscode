@@ -1902,7 +1902,7 @@ ACMD(do_weigh)
     act("$n gauges the weight of $p by tossing it in one hand.",
         true, ch, obj, 0, TO_ROOM);
 
-    send_to_char(ch, "It seems to weigh about %d pounds.\r\n",
+    send_to_char(ch, "It seems to weigh about %.2f pounds.\r\n",
         (GET_OBJ_WEIGHT(obj) + number(-(GET_OBJ_WEIGHT(obj) / GET_INT(ch)),
                 GET_OBJ_WEIGHT(obj) / GET_INT(ch))));
 }

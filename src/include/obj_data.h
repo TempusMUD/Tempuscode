@@ -315,7 +315,7 @@ struct obj_flag_data {
 	int extra_flags;			/* If it hums, glows, etc.      */
 	int extra2_flags;			/* More of the same...              */
 	int extra3_flags;			// More, same, different
-	int weight;					/* Weight what else                 */
+	float weight;					/* Weight what else                 */
 	int timer;					/* Timer for object                 */
 	long bitvector[3];			/* To set chars bits                */
 	int material;				/* material object is made of */
@@ -418,5 +418,6 @@ void obj_affect_join(struct obj_data *obj, struct tmp_obj_affect *af, int dur_mo
 const char *obj_cond(struct obj_data *obj);
 const char *obj_cond_color(struct obj_data *obj, int color_level);
 int set_obj_weight(struct obj_data *obj, int new_weight);
+void fix_object_weight(struct obj_data *obj);
 
 #endif

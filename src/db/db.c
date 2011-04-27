@@ -331,9 +331,7 @@ boot_db(void)
     if (production_mode)
         sql_cxn = PQconnectdb("user=realm dbname=tempus");
     else
-        sql_cxn =
-            PQconnectdb
-            ("user=realm dbname=devtempus");
+        sql_cxn = PQconnectdb("user=realm dbname=devtempus");
     if (!sql_cxn) {
         slog("Couldn't allocate postgres connection!");
         safe_exit(1);
@@ -1978,16 +1976,15 @@ parse_object(FILE * obj_f, int nr)
     obj->obj_flags.damage = t[2];
 
     t[3] = 0;
+    float f;
     if (!get_line(obj_f, line) ||
-        (retval = sscanf(line, "%d %d %d %d", t, t + 1, t + 2, t + 3)) < 3) {
+        (retval = sscanf(line, "%f %d %d %d", &f, t + 1, t + 2, t + 3)) < 3) {
         fprintf(stderr,
             "Format error in fourth numeric line (expecting 3 or 4 args, got %d), %s\n",
             retval, buf2);
         safe_exit(1);
     }
-    if (t[0] < 1)
-        t[0] = 1;
-    obj->obj_flags.weight = t[0];
+    obj->obj_flags.weight = f;
     obj->shared->cost = MAX(1, t[1]);
     obj->shared->cost_per_day = MAX(1, t[2]);
     if (t[3] < 0)
@@ -2055,6 +2052,7 @@ parse_object(FILE * obj_f, int nr)
         case '$':
         case '#':
             obj->next = NULL;
+            fix_object_weight(obj);
             g_hash_table_insert(obj_prototypes,
                 GINT_TO_POINTER(GET_OBJ_VNUM(obj)), obj);
             return line;

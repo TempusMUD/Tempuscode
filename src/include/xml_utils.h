@@ -41,6 +41,21 @@ xmlGetIntProp(xmlNodePtr n, const char *name, int defValue)
 }
 
 /**
+ * Parses an integer from a named property in the given node
+ **/
+static inline float
+xmlGetFloatProp(xmlNodePtr n, const char *name, float defValue)
+{
+	int prop = 0;
+	xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
+	if (c == NULL)
+		return defValue;
+	prop = atof((const char *)(c));
+	free(c);
+	return prop;
+}
+
+/**
  * Parses a character from a named property in the given node
  **/
 static inline char

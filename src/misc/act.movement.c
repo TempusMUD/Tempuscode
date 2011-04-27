@@ -369,7 +369,7 @@ check_sneak(struct creature *ch, struct creature *vict, bool departing,
     if (IS_ELF(ch))
         sneak_prob += 10;
     sneak_prob -=
-        ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 4) / CAN_CARRY_W(ch);
+        ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 16) / CAN_CARRY_W(ch);
 
     for (idx = 0; idx < NUM_WEARS; idx++)
         if (ch->equipment[idx] && IS_METAL_TYPE(ch->equipment[idx]))
@@ -606,7 +606,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         movement_loss[ch->in_room->dir_option[dir]->
             to_room->sector_type]) >> 1;
 
-    need_movement += (((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 1) /
+    need_movement += (((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 2) /
         CAN_CARRY_W(ch));
 
     if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||

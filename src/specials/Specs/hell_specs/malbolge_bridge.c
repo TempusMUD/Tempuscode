@@ -33,7 +33,7 @@ SPECIAL(malbolge_bridge)
     char_to_room(ch, under, false);
     look_at_room(ch, ch->in_room, 0);
     int rc = damage(ch, ch,
-        dice(3, 5) + ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) >> 5),
+        dice(3, 5) + ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) / 32),
         TYPE_FALLING, WEAR_RANDOM);
     if (rc)
         return rc;

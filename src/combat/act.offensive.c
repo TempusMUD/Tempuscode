@@ -72,14 +72,14 @@ RAW_EQ_DAM(struct creature *ch, int pos, int *var)
     if (ch->equipment[pos]) {
         if (IS_OBJ_TYPE(ch->equipment[pos], ITEM_ARMOR))
             *var += (GET_OBJ_WEIGHT(ch->equipment[pos]) +
-                GET_OBJ_VAL(ch->equipment[pos], 0)) >> 2;
+                GET_OBJ_VAL(ch->equipment[pos], 0)) / 4;
         else if (IS_OBJ_TYPE(ch->equipment[pos], ITEM_WEAPON))
             *var += dice(GET_OBJ_VAL(ch->equipment[pos], 1),
                 GET_OBJ_VAL(ch->equipment[pos], 2));
     } else if (ch->implants[pos]) {
         if (IS_OBJ_TYPE(ch->implants[pos], ITEM_ARMOR))
             *var += (GET_OBJ_WEIGHT(ch->implants[pos]) +
-                GET_OBJ_VAL(ch->implants[pos], 0)) >> 2;
+                GET_OBJ_VAL(ch->implants[pos], 0)) / 4;
         else if (IS_OBJ_TYPE(ch->implants[pos], ITEM_WEAPON))
             *var += dice(GET_OBJ_VAL(ch->implants[pos], 1),
                 GET_OBJ_VAL(ch->implants[pos], 2));
@@ -293,7 +293,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             prob = 0;
 
         if ((GET_WEIGHT(vict) + ((IS_CARRYING_W(vict) +
-                        IS_WEARING_W(vict)) >> 1)) > CAN_CARRY_W(ch) * 1.5) {
+                        IS_WEARING_W(vict)) / 2)) > CAN_CARRY_W(ch) * 1.5) {
             act("$N is too heavy for you to lift!", false, ch, 0, vict,
                 TO_CHAR);
             act("$n tries to pick you up and piledrive you!", false, ch, 0,
@@ -323,7 +323,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     case SKILL_BODYSLAM:
 
         if ((GET_WEIGHT(vict) + ((IS_CARRYING_W(vict) +
-                        IS_WEARING_W(vict)) >> 1)) > CAN_CARRY_W(ch) * 1.5) {
+                        IS_WEARING_W(vict)) / 2)) > CAN_CARRY_W(ch) * 1.5) {
             act("$N is too heavy for you to lift!", false, ch, 0, vict,
                 TO_CHAR);
             act("$n tries to pick you up and bodyslam you!", false, ch, 0,

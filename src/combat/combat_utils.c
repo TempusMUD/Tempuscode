@@ -122,7 +122,7 @@ calculate_weapon_probability(struct creature *ch, int prob,
     }
     // 1/4 actual weapon weight or effective weapon weight, whichever is higher.
     weap_weight += GET_OBJ_WEIGHT(weap);
-    weap_weight = MAX((GET_OBJ_WEIGHT(weap) >> 2), weap_weight);
+    weap_weight = MAX((GET_OBJ_WEIGHT(weap) / 4), weap_weight);
 
     if (weap->worn_on == WEAR_WIELD_2) {
         prob -=
@@ -369,7 +369,7 @@ calculate_thaco(struct creature *ch, struct creature *victim,
         calc_thaco += 1;
 
     if (CAN_CARRY_W(ch))
-        calc_thaco += ((TOTAL_ENCUM(ch) << 1) / CAN_CARRY_W(ch));
+        calc_thaco += ((TOTAL_ENCUM(ch) * 2) / CAN_CARRY_W(ch));
     else
         calc_thaco += 10;
 
@@ -1508,7 +1508,7 @@ calculate_attack_probability(struct creature *ch)
     else
         prob -= ((MAX(0, GET_NPC_WAIT(ch) >> 1)) * prob) / 100;
 
-    prob -= ((((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 5) * prob) /
+    prob -= ((((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 32) * prob) /
         (CAN_CARRY_W(ch) * 85));
 
     if (GET_COND(ch, DRUNK) > 5)

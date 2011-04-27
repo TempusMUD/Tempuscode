@@ -618,18 +618,18 @@ load_object_from_xml(struct obj_data *container,
         } else if (xmlMatches(cur->name, "points")) {
             obj->obj_flags.type_flag = xmlGetIntProp(cur, "type", 0);
             obj->soilage = xmlGetIntProp(cur, "soilage", 0);
-            obj->obj_flags.weight = xmlGetIntProp(cur, "weight", 0);
+            obj->obj_flags.weight = xmlGetFloatProp(cur, "weight", 1);
             obj->obj_flags.material = xmlGetIntProp(cur, "material", 0);
             obj->obj_flags.timer = xmlGetIntProp(cur, "timer", 0);
             if (obj->obj_flags.weight < 1) {
                 if (GET_OBJ_VNUM(obj) > 0) {
-                    slog("Illegal object %d weight %d - setting to %d from prototype",
+                    slog("Illegal object %d weight %.2f - setting to %.2f from prototype",
                          GET_OBJ_VNUM(obj),
                          GET_OBJ_WEIGHT(obj),
                          GET_OBJ_WEIGHT(obj->shared->proto));
                     obj->obj_flags.weight = obj->shared->proto->obj_flags.weight;
                 } else {
-                    slog("Illegal prototype-less object weight %d - setting to 1",
+                    slog("Illegal prototype-less object weight %.2f - setting to 1",
                          GET_OBJ_WEIGHT(obj));
                     obj->obj_flags.weight = 1;
                 }
@@ -746,6 +746,7 @@ load_object_from_xml(struct obj_data *container,
     }
 
     normalize_applies(obj);
+    fix_object_weight(obj);
 
     if (!OBJ_APPROVED(obj)) {
         slog("Unapproved object %d being junked from %s's rent.",
@@ -820,7 +821,7 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
         apply_object_affect(obj, af, false);
 
     fprintf(ouf,
-        "%s<points type=\"%d\" soilage=\"%d\" weight=\"%d\" material=\"%d\" timer=\"%d\"/>\n",
+        "%s<points type=\"%d\" soilage=\"%d\" weight=\"%f\" material=\"%d\" timer=\"%d\"/>\n",
             indent, obj->obj_flags.type_flag, obj->soilage,
             GET_OBJ_WEIGHT(obj) - weigh_contained_objs(obj),
             obj->obj_flags.material, obj->obj_flags.timer);
@@ -962,3 +963,30 @@ obj_cond_color(struct obj_data *obj, int color_level)
     return tmp_sprintf("%sterrible%s", CRED(color_level, C_NRM), CNRM(color_level, C_NRM));
 }
 
+void
+fix_object_weight(struct obj_data *obj)
+{
+    if (IS_OBJ_TYPE(obj, ITEM_POTION)) {
+        GET_OBJ_WEIGHT(obj) = 0.5;
+    } else if (IS_OBJ_TYPE(obj, ITEM_SYRINGE)) {
+        GET_OBJ_WEIGHT(obj) = 0.3;
+    } else if (IS_OBJ_TYPE(obj, ITEM_PILL)) {
+        GET_OBJ_WEIGHT(obj) = 0.1;
+    } else if (IS_OBJ_TYPE(obj, ITEM_PEN)) {
+        GET_OBJ_WEIGHT(obj) = 0.2;
+    } else if (IS_OBJ_TYPE(obj, ITEM_CIGARETTE)) {
+        GET_OBJ_WEIGHT(obj) = 0.1;
+    } else if (IS_OBJ_TYPE(obj, ITEM_BULLET)) {
+        GET_OBJ_WEIGHT(obj) = 0.05;
+    } else if (IS_OBJ_TYPE(obj, ITEM_MICROCHIP)) {
+        GET_OBJ_WEIGHT(obj) = 0.05;
+    } else if (CAN_WEAR(obj, ITEM_WEAR_FINGER)) {
+        // rings
+        GET_OBJ_WEIGHT(obj) = 0.1;
+    } else if (CAN_WEAR(obj, ITEM_WEAR_EAR)) {
+        // earrings
+        GET_OBJ_WEIGHT(obj) = 0.1;
+    } else if (GET_OBJ_WEIGHT(obj) == 0.0) {
+        GET_OBJ_WEIGHT(obj) = 0.01;
+    }
+}

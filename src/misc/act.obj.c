@@ -3196,7 +3196,7 @@ prototype_obj_value(struct obj_data *obj)
     case ITEM_CONTAINER:
         value += GET_OBJ_VAL(obj, 0);
         value <<= 2;
-        value += ((30 - GET_OBJ_WEIGHT(obj)) >> 2);
+        value += ((30 - GET_OBJ_WEIGHT(obj)) / 4);
         if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSEABLE))
             value += 100;
         if (GET_OBJ_VAL(obj, 2)) {
@@ -3259,17 +3259,17 @@ prototype_obj_value(struct obj_data *obj)
         if (CAN_WEAR(obj, ITEM_WEAR_BODY)) {
             value *= 3;
             prev_value = value;
-            value += ((50 - GET_OBJ_WEIGHT(obj)) << 3);
+            value += ((50 - GET_OBJ_WEIGHT(obj)) * 8);
             value = (prev_value + value) >> 1;
         } else if (CAN_WEAR(obj, ITEM_WEAR_HEAD)
             || CAN_WEAR(obj, ITEM_WEAR_LEGS)) {
             value *= 2;
             prev_value = value;
-            value += ((25 - GET_OBJ_WEIGHT(obj)) << 3);
+            value += ((25 - GET_OBJ_WEIGHT(obj)) * 8);
             value = (prev_value + value) >> 1;
         } else {
             prev_value = value;
-            value += ((25 - GET_OBJ_WEIGHT(obj)) << 3);
+            value += ((25 - GET_OBJ_WEIGHT(obj)) * 8);
             value = (prev_value + value) >> 1;
         }
         if (IS_IMPLANT(obj))
@@ -3395,7 +3395,7 @@ set_maxdamage(struct obj_data *obj)
 
     int dam = 0;
 
-    dam = (GET_OBJ_WEIGHT(obj) >> 1);
+    dam = (GET_OBJ_WEIGHT(obj) / 2);
 
     if (IS_LEATHER_TYPE(obj))
         dam *= 3;
