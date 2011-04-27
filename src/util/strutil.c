@@ -359,6 +359,32 @@ is_number(const char *str)
     return true;
 }
 
+bool
+is_float_number(const char *str)
+{
+    int radix_count = 0;
+
+    if (!*str)
+        return false;
+
+    if (str[0] == '-' || str[0] == '+')
+        str++;
+
+    while (*str) {
+        if (*str == '.') {
+            radix_count++;
+            if (radix_count > 1)
+                return false;
+        } else if (!isdigit(*str)) {
+            return false;
+        }
+
+        str++;
+    }
+
+    return true;
+}
+
 void
 skip_spaces_const(const char **string)
 {

@@ -2586,7 +2586,7 @@ hit(struct creature *ch, struct creature *victim, int type)
                 dam_add = GET_OBJ_WEIGHT(cur_weap) / 4;
                 if (CHECK_SKILL(ch, SKILL_DISCIPLINE_OF_STEEL) > 60) {
                     int bonus = skill_bonus(ch, SKILL_DISCIPLINE_OF_STEEL);
-                    int weight = GET_OBJ_WEIGHT(cur_weap);
+                    float weight = GET_OBJ_WEIGHT(cur_weap);
                     dam_add += (bonus * weight) / 100;
                 }
                 dam += dam_add;

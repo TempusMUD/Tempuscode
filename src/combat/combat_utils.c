@@ -1258,7 +1258,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
             GET_OBJ_VAL(heart, 2) = 0;
         }
 
-        set_obj_weight(heart, 0);
+        set_obj_weight(heart, 0.5);
         heart->worn_on = -1;
 
         if (IS_NPC(ch))

@@ -59,7 +59,7 @@ double float_number(double from, double to);
 int dice(int number, int size);
 int get_line(FILE * fl, char *buf);
 void perform_skillset(struct creature *ch, struct creature *vict, char *skill_str, int value);
-int total_obj_weight(struct obj_data *obj);
+float total_obj_weight(struct obj_data *obj);
 
 enum track_mode
 {

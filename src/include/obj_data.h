@@ -404,7 +404,7 @@ void free_object(struct obj_data *obj);
 void save_object_to_xml(struct obj_data *obj, FILE *outf);
 struct obj_data *load_object_from_xml(struct obj_data *container, struct creature *victim, struct room_data* room, xmlNodePtr node);
 int count_contained_objs(struct obj_data *obj);
-int weigh_contained_objs(struct obj_data *obj);
+float weigh_contained_objs(struct obj_data *obj);
 struct obj_affected_type *obj_affected_by_spell(struct obj_data *object, int spell);
 int equipment_position_of(struct obj_data *obj);
 int implant_position_of(struct obj_data *obj);
@@ -412,12 +412,12 @@ void remove_object_affect(struct obj_data *obj, struct tmp_obj_affect *af);
 struct tmp_obj_affect *obj_has_affect(struct obj_data *obj, int spellnum);
 struct room_data *find_object_room(struct obj_data *obj);
 void normalize_applies(struct obj_data *obj);
-int modify_object_weight(struct obj_data *obj, int mod_weight);
+float modify_object_weight(struct obj_data *obj, float mod_weight);
 bool obj_is_unrentable(struct obj_data *obj);
 void obj_affect_join(struct obj_data *obj, struct tmp_obj_affect *af, int dur_mode, int val_mode, int aff_mode);
 const char *obj_cond(struct obj_data *obj);
 const char *obj_cond_color(struct obj_data *obj, int color_level);
-int set_obj_weight(struct obj_data *obj, int new_weight);
+float set_obj_weight(struct obj_data *obj, float new_weight);
 void fix_object_weight(struct obj_data *obj);
 
 #endif

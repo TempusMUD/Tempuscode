@@ -2066,7 +2066,8 @@ ACMD(do_drink)
 {
     struct obj_data *temp;
     struct affected_type af;
-    int amount, weight;
+    int amount;
+    float weight;
     int drunk = 0, full = 0, thirst = 0;
     int on_ground = 0;
 
@@ -2350,7 +2351,8 @@ ACMD(do_pour)
     char arg2[MAX_INPUT_LENGTH];
     struct obj_data *from_obj = NULL;
     struct obj_data *to_obj = NULL;
-    int amount, weight;
+    int amount;
+    float weight;
 
     two_arguments(argument, arg1, arg2);
 

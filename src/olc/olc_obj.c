@@ -377,7 +377,7 @@ do_create_obj(struct creature *ch, int vnum)
     new_obj->obj_flags.wear_flags = 0;
     new_obj->obj_flags.extra_flags = 0;
     new_obj->obj_flags.extra2_flags = 0;
-    new_obj->obj_flags.weight = 0;
+    new_obj->obj_flags.weight = 1;
     new_obj->shared->cost = 0;
     new_obj->shared->cost_per_day = 0;
     new_obj->obj_flags.timer = 0;
@@ -493,6 +493,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
     struct zone_data *zone = NULL;
     struct obj_data *proto = NULL, *tmp_obj = NULL;
     int i, j, k, oset_command;
+    float f;
     int tmp_flags = 0, state = 0, cur_flags = 0, flag = 0;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     struct extra_descr_data *desc = NULL, *ndesc = NULL;
@@ -833,14 +834,14 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             send_to_char(ch, "The argument must be a number.\r\n");
             return;
         } else {
-            i = atoi(arg2);
-            if (i < 0) {
+            f = atof(arg2);
+            if (f < 0) {
                 send_to_char(ch, "Object weight out of range.\r\n");
                 return;
             } else {
-                set_obj_weight(obj_p, i);
-                send_to_char(ch, "Object %d weight set to %d.\r\n",
-                    obj_p->shared->vnum, i);
+                set_obj_weight(obj_p, f);
+                send_to_char(ch, "Object %d weight set to %f.\r\n",
+                    obj_p->shared->vnum, f);
             }
         }
         break;

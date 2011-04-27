@@ -119,8 +119,8 @@ get_worn_type(struct obj_data *obj)
     return "unknown";
 }
 
-int
-modify_object_weight(struct obj_data *obj, int mod_weight)
+float
+modify_object_weight(struct obj_data *obj, float mod_weight)
 {
 
     // if object is inside another object, recursively
@@ -160,8 +160,8 @@ obj_is_unrentable(struct obj_data * obj)
     return false;
 }
 
-int
-set_obj_weight(struct obj_data *obj, int new_weight)
+float
+set_obj_weight(struct obj_data *obj, float new_weight)
 {
 
     return (modify_object_weight(obj, new_weight - GET_OBJ_WEIGHT(obj)));
@@ -525,11 +525,11 @@ count_contained_objs(struct obj_data *obj)
     return count;
 }
 
-int
+float
 weigh_contained_objs(struct obj_data *obj)
 {
     struct obj_data *cur;
-    int weight = 0;
+    float weight = 0;
 
     for (cur = obj->contains; cur; cur = cur->next_content) {
         weight += GET_OBJ_WEIGHT(cur);
