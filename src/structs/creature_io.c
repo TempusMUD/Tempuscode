@@ -657,7 +657,8 @@ crashsave(struct creature *ch)
 
     if (IS_NPC(ch))
         return false;
-
+    if (!ch->in_room)
+        return false;
     ch->player_specials->rentcode = RENT_CRASH;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 
