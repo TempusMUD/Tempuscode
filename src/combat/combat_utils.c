@@ -754,7 +754,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
     case SKILL_BITE:
     case TYPE_BITE:
         corpse->line_desc =
-            strdup(tmp_sprintf("The chewed up looking %s of %s %s lying here.",
+            strdup(tmp_sprintf("The chewed-up %s of %s %s lying here.",
                 typebuf, GET_NAME(ch), isare));
         strcpy(adj, "chewed up");
         break;
