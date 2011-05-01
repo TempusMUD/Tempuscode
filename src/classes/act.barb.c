@@ -317,8 +317,8 @@ gint
 select_cleave_victim(struct creature *tch, struct creature *ch)
 {
     if (tch == ch
-        || g_list_find(tch->fighting, ch)
         || is_dead(tch)
+        || !g_list_find(tch->fighting, ch)
         || PRF_FLAGGED(tch, PRF_NOHASSLE)
         || (IS_NPC(ch)
             && IS_NPC(tch)
