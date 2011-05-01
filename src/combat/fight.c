@@ -1104,8 +1104,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     impl_dam = (int)(impl_dam * 0.7);
                     weap_dam = (int)(weap_dam * 1.3);
                 }
-            } else if (attacktype == SPELL_PSYCHIC_CRUSH)
-                eq_dam *= 127;
+            }
             // OXIDIZE Damaging equipment
             else if (attacktype == SPELL_OXIDIZE) {
                 // Chemical stability stops oxidize dam on eq.
