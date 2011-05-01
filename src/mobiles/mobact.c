@@ -1242,23 +1242,23 @@ best_initial_attack(struct creature *ch, struct creature *vict)
     else
         cur_class = GET_CLASS(ch);
 
-    if (CHECK_SKILL(ch, SKILL_SHOOT) + random_number_zero_low(10) > 40) {
-        if (((gun = GET_EQ(ch, WEAR_WIELD)) &&
-                ((IS_GUN(gun) && GUN_LOADED(gun)) ||
-                    (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
-            ((gun = GET_EQ(ch, WEAR_WIELD_2)) &&
-                ((IS_GUN(gun) && GUN_LOADED(gun)) ||
-                    (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
-            ((gun = GET_IMPLANT(ch, WEAR_WIELD)) &&
-                ((IS_GUN(gun) && GUN_LOADED(gun)) ||
-                    (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
-            ((gun = GET_IMPLANT(ch, WEAR_WIELD_2)) &&
-                ((IS_GUN(gun) && GUN_LOADED(gun)) ||
-                    (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun))))) {
+    if (((gun = GET_EQ(ch, WEAR_WIELD)) &&
+         ((IS_GUN(gun) && GUN_LOADED(gun)) ||
+          (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
+        ((gun = GET_EQ(ch, WEAR_WIELD_2)) &&
+         ((IS_GUN(gun) && GUN_LOADED(gun)) ||
+          (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
+        ((gun = GET_IMPLANT(ch, WEAR_WIELD)) &&
+         ((IS_GUN(gun) && GUN_LOADED(gun)) ||
+          (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun)))) ||
+        ((gun = GET_IMPLANT(ch, WEAR_WIELD_2)) &&
+         ((IS_GUN(gun) && GUN_LOADED(gun)) ||
+          (IS_ENERGY_GUN(gun) && EGUN_CUR_ENERGY(gun))))) {
 
-            sprintf(buf, "%s ", fname(gun->aliases));
-            strcat(buf, fname(vict->player.name));
-            do_shoot(ch, buf, 0, 0);
+        if (CHECK_SKILL(ch, SKILL_SHOOT) + random_number_zero_low(10) > 40) {
+            do_shoot(ch, tmp_sprintf("%s %s", fname(gun->aliases),
+                                     fname(vict->player.name)),
+                     0, 0);
             return;
         }
     }
@@ -1272,8 +1272,8 @@ best_initial_attack(struct creature *ch, struct creature *vict)
             perform_stun(ch, vict);
 
         else if (((gun = GET_EQ(ch, WEAR_WIELD)) && STAB_WEAPON(gun)) ||
-            ((gun = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(gun)) ||
-            ((gun = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(gun))) {
+                 ((gun = GET_EQ(ch, WEAR_WIELD_2)) && STAB_WEAPON(gun)) ||
+                 ((gun = GET_EQ(ch, WEAR_HANDS)) && STAB_WEAPON(gun))) {
 
             if (!is_fighting(vict))
                 do_backstab(ch, fname(vict->player.name), 0, 0);
