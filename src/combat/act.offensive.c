@@ -2213,14 +2213,19 @@ shoot_energy_gun(struct creature *ch,
             prob -= GET_LEVEL(tch) / 8;
     }
 
-    if (is_fighting(vict) && !g_list_find(vict->fighting, ch)
-        && number(1, 121) > prob)
-        vict = random_opponent(vict);
-    else if (is_fighting(vict) && number(1, 101) > prob) {
-        vict = random_fighter(ch->in_room, ch, vict);
+    struct creature *miss_vict = NULL;
+
+    if (is_fighting(vict)
+        && !g_list_find(vict->fighting, ch)
+        && number(1, 121) > prob) {
+        miss_vict = random_opponent(vict);
+    } else if (is_fighting(vict) && number(1, 101) > prob) {
+        miss_vict = random_fighter(ch->in_room, ch, vict);
     } else if (number(1, 81) > prob) {
-        vict = random_bystander(ch->in_room, ch, vict);
+        miss_vict = random_bystander(ch->in_room, ch, vict);
     }
+    if (miss_vict)
+        vict = miss_vict;
 
     cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
 
@@ -2455,14 +2460,19 @@ shoot_projectile_gun(struct creature *ch,
     if (is_fighting(ch))
         prob -= 10;
 
-    if (is_fighting(vict) && !g_list_find(vict->fighting, ch)
-        && number(1, 121) > prob)
-        vict = random_opponent(vict);
-    else if (is_fighting(vict) && number(1, 101) > prob) {
-        vict = random_fighter(ch->in_room, ch, vict);
+    struct creature *miss_vict = NULL;
+
+    if (is_fighting(vict)
+        && !g_list_find(vict->fighting, ch)
+        && number(1, 121) > prob) {
+        miss_vict = random_opponent(vict);
+    } else if (is_fighting(vict) && number(1, 101) > prob) {
+        miss_vict = random_fighter(ch->in_room, ch, vict);
     } else if (number(1, 81) > prob) {
-        vict = random_bystander(ch->in_room, ch, vict);
+        miss_vict = random_bystander(ch->in_room, ch, vict);
     }
+    if (miss_vict)
+        vict = miss_vict;
 
     if (CUR_R_O_F(gun) <= 0)
         CUR_R_O_F(gun) = 1;
@@ -2921,9 +2931,6 @@ ACMD(do_beguile)
     WAIT_STATE(ch, 2 RL_SEC);
 }
 
-//This function assumes that ch is a merc.  It provides for  mercs
-//shooting wielded guns in combat instead of bludgeoning with them
-
 struct creature *
 randomize_target(struct creature *ch, struct creature *vict, short prob)
 {
@@ -2947,6 +2954,8 @@ randomize_target(struct creature *ch, struct creature *vict, short prob)
     return vict;
 }
 
+//This function assumes that ch is a merc.  It provides for  mercs
+//shooting wielded guns in combat instead of bludgeoning with them
 int
 do_combat_fire(struct creature *ch, struct creature *vict)
 {
