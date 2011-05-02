@@ -71,7 +71,7 @@ can_receive_mail(long id)
         return false;
 
     // Return true if file not found, false on any other error
-    if (!stat(get_mail_file_path(id), &stat_buf))
+    if (stat(get_mail_file_path(id), &stat_buf) < 0)
         return errno == ENOENT;
 
     // Purge mail if file size has gotten too large
