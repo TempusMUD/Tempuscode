@@ -3053,23 +3053,25 @@ ASPELL(spell_sun_ray)
 ASPELL(spell_inferno)
 {
     struct room_affect_data rm_aff;
-    struct creature *vict = NULL;
 
-    send_to_room
-        ("A raging firestorm fills the room with a hellish inferno!\r\n",
-        ch->in_room);
+    send_to_room("A raging firestorm fills the room "
+                 "with a hellish inferno!\r\n",
+                 ch->in_room);
 
-    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL))
         return;
-    }
+
     // check for players if caster is not a pkiller
     if (!IS_NPC(ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-        for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
+        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             struct creature *tch = (struct creature *)it->data;
             if (ch == tch)
                 continue;
             if (!is_arena_combat(ch, tch) && !IS_NPC(tch)) {
-                act("You cannot do this, because this action might cause harm to $N,\r\n" "and you have not chosen to be a Pkiller.\r\n" "You can toggle this with the command 'pkiller'.", false, ch, 0, vict, TO_CHAR);
+                act("You cannot do this, because this action might cause harm to $N,\r\n"
+                    "and you have not chosen to be a Pkiller.\r\n"
+                    "You can toggle this with the command 'pkiller'.",
+                    false, ch, 0, tch, TO_CHAR);
                 return;
             }
             if (!ok_to_attack(ch, tch, true))
@@ -3087,7 +3089,7 @@ ASPELL(spell_inferno)
         affect_to_room(ch->in_room, &rm_aff);
 
     }
-    for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         if (ch == tch)
             continue;
