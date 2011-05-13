@@ -2990,7 +2990,7 @@ ASPELL(spell_sun_ray)
     }
     // check for players if caster is not a pkiller
     if (!IS_NPC(ch)) {
-        for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
+        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             struct creature *tch = (struct creature *)it->data;
             if (ch == tch)
                 continue;
@@ -3004,7 +3004,7 @@ ASPELL(spell_sun_ray)
                 return;
         }
     }
-    for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
+    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         if (ch == (tch)
             || PRF_FLAGGED((tch), PRF_NOHASSLE)
