@@ -254,7 +254,7 @@ apply_object_affect(struct obj_data *obj, struct tmp_obj_affect *af, bool add)
         if (add)
             modify_object_weight(obj, af->weight_mod);
         else
-            modify_object_weight(obj, GET_OBJ_WEIGHT(obj) - af->weight_mod);
+            modify_object_weight(obj, -af->weight_mod);
     }
     // Set or reset affections
     // I probably could have done obj with less code but it would have been
@@ -423,6 +423,8 @@ obj_affect_join(struct obj_data *obj, struct tmp_obj_affect *af, int dur_mode,
                 else if (val_mode == AFF_AVG)
                     tmp_aff.weight_mod =
                         (tmp_aff.weight_mod + af->weight_mod) / 2;
+                if (GET_OBJ_WEIGHT(obj) + tmp_aff.weight_mod < 0)
+                    tmp_aff.weight_mod = 0.01 - GET_OBJ_WEIGHT(obj);
             }
             if (af->dam_mod) {
                 if (val_mode == AFF_ADD)
@@ -732,7 +734,7 @@ load_object_from_xml(struct obj_data *container,
             af.worn_mod = xmlGetIntProp(cur, "worn_mod", 0);
             af.extra_mod = xmlGetIntProp(cur, "extra_mod", 0);
             af.extra_index = xmlGetIntProp(cur, "extra_index", 0);
-            af.weight_mod = xmlGetIntProp(cur, "weight_mod", 0);
+            af.weight_mod = xmlGetFloatProp(cur, "weight_mod", 0.01);
             for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
                 prop = tmp_sprintf("affect_loc%d", i);
                 af.affect_loc[i] = xmlGetIntProp(cur, prop, 0);
@@ -856,7 +858,7 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
             "dam_mod=\"%d\" maxdam_mod=\"%d\" val_mod1=\"%d\" "
             "val_mod2=\"%d\" val_mod3=\"%d\" val_mod4=\"%d\" "
             "type_mod=\"%d\" old_type=\"%d\" worn_mod=\"%d\" "
-            "extra_mod=\"%d\" extra_index=\"%d\" weight_mod=\"%d\" ",
+            "extra_mod=\"%d\" extra_index=\"%d\" weight_mod=\"%f\" ",
             indent, af->level, af->type, af->duration,
             af->dam_mod, af->maxdam_mod, af->val_mod[0], af->val_mod[1],
             af->val_mod[2], af->val_mod[3], af->type_mod, af->old_type,

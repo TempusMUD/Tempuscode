@@ -116,7 +116,7 @@ randomize_creature(struct creature *ch, int char_class)
 void
 fixture_make_player(void)
 {
-    sql_cxn = PQconnectdb("user=realm dbname=devtempus");
+    sql_cxn = PQconnectdb("host=127.0.0.1 user=realm dbname=devtempus password=tarrasque");
     sql_exec("delete from players where account=99999");
     sql_exec("delete from accounts where idnum=99999");
     account_boot();
@@ -606,6 +606,63 @@ START_TEST(test_load_save_objects_contained)
 }
 END_TEST
 
+START_TEST(test_load_save_objects_affected)
+{
+    bool save_player_objects_to_file(struct creature *ch, const char *path);
+
+    struct creature *tch = NULL;
+    int vnum = make_random_object();
+    struct obj_data *obj_a = read_object(vnum);
+    FILE *ouf;
+    struct tmp_obj_affect aff;
+    float orig_weight = GET_OBJ_WEIGHT(obj_a);
+
+    memset(&aff, 0, sizeof(aff));
+    aff.type = SPELL_ELEMENTAL_BRAND;
+    aff.level = 64;
+    aff.duration = 5;
+    aff.dam_mod = 4200;
+    aff.maxdam_mod = 4200;
+    aff.type_mod = ITEM_WEAPON;
+    aff.weight_mod = 5.0;
+
+    obj_affect_join(obj_a, &aff, AFF_ADD, AFF_ADD, AFF_ADD);
+
+    fail_unless(GET_OBJ_WEIGHT(obj_a) == orig_weight + 5);
+
+    ouf = fopen("/tmp/test_items.xml", "w");
+    if (!ouf) {
+        fail("Couldn't open file to save object");
+        return;
+    }
+    fprintf(ouf, "<objects>\n");
+    save_object_to_xml(obj_a, ouf);
+    fprintf(ouf, "</objects>\n");
+    fclose(ouf);
+
+    fail_unless(GET_OBJ_WEIGHT(obj_a) == orig_weight + 5);
+
+    xmlDocPtr doc = xmlParseFile("/tmp/test_items.xml");
+    if (!doc) {
+        fail("Couldn't open file to load object");
+        return;
+    }
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    if (!doc) {
+        fail("XML file is empty");
+        return;
+    }
+
+    for (xmlNodePtr node = root->xmlChildrenNode; node; node = node->next) {
+        if (xmlMatches(node->name, "object")) {
+            struct obj_data *obj_b = load_object_from_xml(NULL, NULL, NULL, node);
+            compare_objects(obj_a, obj_b);
+            free_object(obj_b);
+        }
+    }
+}
+END_TEST
+
 Suite *
 player_io_suite(void)
 {
@@ -624,6 +681,7 @@ player_io_suite(void)
     tcase_add_test(tc_core, test_load_save_objects_implanted);
     tcase_add_test(tc_core, test_load_save_objects_tattooed);
     tcase_add_test(tc_core, test_load_save_objects_contained);
+    tcase_add_test(tc_core, test_load_save_objects_affected);
     suite_add_tcase(s, tc_core);
 
     return s;

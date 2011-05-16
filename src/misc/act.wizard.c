@@ -1512,7 +1512,7 @@ do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj)
         }
 
         if (aff->weight_mod)
-            acc_sprintf("%s weight by %d\r\n", stat_prefix, aff->weight_mod);
+            acc_sprintf("%s weight by %f\r\n", stat_prefix, aff->weight_mod);
 
         for (int i = 0; i < MAX_OBJ_AFFECT; i++)
             if (aff->affect_loc[i])

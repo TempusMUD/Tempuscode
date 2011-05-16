@@ -343,7 +343,7 @@ struct tmp_obj_affect {
     int worn_mod;         /* Add these bits to the wear positions */
     int extra_mod;        /* Add this to the extra bitvector */
     char extra_index;     /* Which bitvector to modify */
-    int weight_mod;       /* Change the weight by this value */
+    float weight_mod;     /* Change the weight by this value */
     char affect_loc[MAX_OBJ_AFFECT];  /* (APPLY_XXX)*/
     char affect_mod[MAX_OBJ_AFFECT]; /* Change apply by this value */
     struct tmp_obj_affect *next;
