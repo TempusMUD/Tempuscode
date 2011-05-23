@@ -33,6 +33,38 @@
 
 #include "xml_utils.h"
 
+void
+do_pre_test(struct creature *ch)
+{
+	struct obj_data *obj = NULL, *next_obj = NULL;
+
+	for (obj = ch->carrying; obj; obj = next_obj) {
+		next_obj = obj->next_content;
+		extract_obj(obj);
+	}
+
+	for (int i = 0; i < NUM_WEARS; i++) {
+		if ((obj = GET_EQ(ch, i))) {
+			extract_obj(GET_EQ(ch, i));
+		}
+	}
+
+	while (ch->affected)
+		   affect_remove(ch, ch->affected);
+
+	for (obj = ch->in_room->contents; obj; obj = next_obj) {
+		 next_obj = obj->next_content;
+		 extract_obj(obj);
+	}
+
+	if (GET_COND(ch, FULL) >= 0)
+		GET_COND(ch, FULL) = 24;
+	if (GET_COND(ch, THIRST) >= 0)
+		GET_COND(ch, THIRST) = 24;
+
+	SET_BIT(ch->in_room->room_flags, ROOM_NORECALL);
+}
+
 int
 do_pass_remort_test(struct creature *ch)
 {
@@ -167,6 +199,8 @@ SPECIAL(remorter)
 
     value = MIN(level * 5000000, GET_GOLD(ch));
     GET_GOLD(ch) -= value;
+
+    do_pre_test(ch);
 
     send_to_char(ch, "Your sacrifice has been accepted.\r\n");
     return do_pass_remort_test(ch);
