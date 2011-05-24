@@ -2481,6 +2481,11 @@ ACMD(do_pour)
         act("$n gently fills $p from $P.", true, ch, to_obj, from_obj,
             TO_ROOM);
     }
+
+    /* Calculate how much to pour */
+    amount = MIN(GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1),
+                 GET_OBJ_VAL(from_obj, 1));
+
     /* New alias */
     if (GET_OBJ_VAL(to_obj, 1) == 0)
         name_to_drinkcon(to_obj, GET_OBJ_VAL(from_obj, 2));
@@ -2488,20 +2493,10 @@ ACMD(do_pour)
     /* First same type liq. */
     GET_OBJ_VAL(to_obj, 2) = GET_OBJ_VAL(from_obj, 2);
 
-    /* Then how much to pour */
-    GET_OBJ_VAL(from_obj, 1) -= (amount =
-        (GET_OBJ_VAL(to_obj, 0) - GET_OBJ_VAL(to_obj, 1)));
+    /* Then the liquid amount boogie */
+    GET_OBJ_VAL(from_obj, 1) -= amount;
+    GET_OBJ_VAL(to_obj, 1) += amount;
 
-    GET_OBJ_VAL(to_obj, 1) = GET_OBJ_VAL(to_obj, 0);
-
-    if (GET_OBJ_VAL(from_obj, 1) < 0) { /* There was too little */
-        GET_OBJ_VAL(to_obj, 1) += GET_OBJ_VAL(from_obj, 1);
-        amount += GET_OBJ_VAL(from_obj, 1);
-        name_from_drinkcon(from_obj, GET_OBJ_VAL(from_obj, 2));
-        GET_OBJ_VAL(from_obj, 1) = 0;
-        GET_OBJ_VAL(from_obj, 2) = 0;
-        GET_OBJ_VAL(from_obj, 3) = 0;
-    }
     /* Then the poison boogie */
     GET_OBJ_VAL(to_obj, 3) =
         (GET_OBJ_VAL(to_obj, 3) || GET_OBJ_VAL(from_obj, 3));
