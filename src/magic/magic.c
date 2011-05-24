@@ -265,7 +265,7 @@ update_iaffects(struct creature *ch)
         if (af->duration <= 0) {
             if (affect_remove(ch, af))
                 return 1;
-            af = ch->affected;
+            next = ch->affected;
         }
     }
     return 0;
