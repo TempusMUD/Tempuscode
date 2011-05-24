@@ -613,11 +613,12 @@ skill_bonus(struct creature *ch, int skill)
     } else {
         int pclass = GET_CLASS(ch);
         int sclass = GET_REMORT_CLASS(ch);
-        int spell_lvl = SPELL_LEVEL(skill, pclass);
-        int spell_gen = SPELL_GEN(skill, pclass);
 
         if (pclass < 0 || pclass >= NUM_CLASSES)
             pclass = CLASS_WARRIOR;
+
+        int spell_lvl = SPELL_LEVEL(skill, pclass);
+        int spell_gen = SPELL_GEN(skill, pclass);
 
         if (sclass >= NUM_CLASSES)
             sclass = CLASS_WARRIOR;
