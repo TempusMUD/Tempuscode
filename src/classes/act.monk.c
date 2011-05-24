@@ -624,6 +624,9 @@ ACMD(do_pinch)
     if (IS_PUDDING(vict) || IS_SLIME(vict))
         prob = 0;
 
+    if (!IS_NPC(vict) && !vict->desc)
+        prob = 0;
+
     act("$n grabs a nerve on your body!", false, ch, 0, vict, TO_VICT);
     act("$n suddenly grabs $N!", false, ch, 0, vict, TO_NOTVICT);
 
@@ -635,9 +638,6 @@ ACMD(do_pinch)
             hit(vict, ch, TYPE_UNDEFINED);
         return;
     }
-
-    if (!IS_NPC(vict) && !vict->desc)
-        prob = 0;
 
     af.type = which_pinch;
     af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
