@@ -330,7 +330,7 @@ ACMD(do_unban)
             break;
     }
 
-    if (node) {
+    if (node == NULL) {
         send_to_char(ch, "That site is not currently banned.\r\n");
         return;
     }
