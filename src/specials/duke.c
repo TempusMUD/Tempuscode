@@ -631,8 +631,7 @@ SPECIAL(cleaning)
             obj_from_room(i);
             obj_to_char(i, ch);
             return true;
-        } else
-            return false;
+        }
     }
     return false;
 }
