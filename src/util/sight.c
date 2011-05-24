@@ -41,7 +41,7 @@ bool
 room_is_dark(struct room_data * room)
 {
     if (!room) {
-        errlog("room_is_dark() called with NULL room [%d]", room->number);
+        errlog("room_is_dark() called with NULL room");
         return false;
     }
 
