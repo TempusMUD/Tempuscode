@@ -59,7 +59,7 @@ randomize_creature(struct creature *ch, int char_class)
     GET_GOLD(ch) = number(0, 1000000);
     GET_CASH(ch) = number(0, 1000000);
     GET_LEVEL(ch) = number(1, 49);
-    GET_EXP(ch) = exp_scale[GET_LEVEL(ch)];
+    GET_EXP(ch) = exp_scale[(int)GET_LEVEL(ch)];
     GET_HITROLL(ch) = number(0, 125);
     GET_DAMROLL(ch) = number(0, 125);
     GET_SEX(ch) = number(0, 2);
@@ -116,7 +116,17 @@ randomize_creature(struct creature *ch, int char_class)
 void
 fixture_make_player(void)
 {
-    sql_cxn = PQconnectdb("host=127.0.0.1 user=realm dbname=devtempus password=tarrasque");
+    if (!sql_cxn)
+        sql_cxn = PQconnectdb("user=realm dbname=devtempus");
+
+    if (!sql_cxn) {
+        slog("Couldn't allocate postgres connection!");
+        safe_exit(1);
+    }
+    if (PQstatus(sql_cxn) != CONNECTION_OK) {
+        slog("Couldn't connect to postgres!: %s", PQerrorMessage(sql_cxn));
+        safe_exit(1);
+    }
     sql_exec("delete from players where account=99999");
     sql_exec("delete from accounts where idnum=99999");
     account_boot();
@@ -610,7 +620,6 @@ START_TEST(test_load_save_objects_affected)
 {
     bool save_player_objects_to_file(struct creature *ch, const char *path);
 
-    struct creature *tch = NULL;
     int vnum = make_random_object();
     struct obj_data *obj_a = read_object(vnum);
     FILE *ouf;
@@ -676,6 +685,7 @@ player_io_suite(void)
     tcase_add_test(tc_core, test_load_save_immort);
     tcase_add_test(tc_core, test_load_save_title);
     tcase_add_test(tc_core, test_load_save_mage);
+    tcase_add_test(tc_core, test_load_save_frozen);
     tcase_add_test(tc_core, test_load_save_objects_carried);
     tcase_add_test(tc_core, test_load_save_objects_equipped);
     tcase_add_test(tc_core, test_load_save_objects_implanted);
