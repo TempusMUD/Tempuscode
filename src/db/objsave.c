@@ -101,10 +101,10 @@ void
 append_obj_rent(const char *currency_str, int count, struct obj_data *obj)
 {
     if (count == 1)
-        acc_sprintf("%10d %s for %s\r\n", GET_OBJ_RENT(obj), currency_str,
+        acc_sprintf("%10u %s for %s\r\n", GET_OBJ_RENT(obj), currency_str,
             obj->name);
     else
-        acc_sprintf("%10d %s for %s (x%d)\r\n",
+        acc_sprintf("%10u %s for %s (x%d)\r\n",
             GET_OBJ_RENT(obj) * count, currency_str, obj->name, count);
 }
 

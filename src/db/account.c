@@ -556,7 +556,7 @@ account_delete_char(struct account *account, struct creature *ch)
 bool
 account_authenticate(struct account *account, const char *pw)
 {
-    struct crypt_data data = { initialized: 0 };
+    struct crypt_data data = { .initialized = 0 };
 
     if (account->password == NULL || *account->password == '\0') {
         errlog("Account %s[%d] has NULL password. Setting to guess.",

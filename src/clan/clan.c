@@ -263,11 +263,10 @@ ACMD(do_enroll)
 
 ACMD(do_join)
 {
-   struct clan_data *clan = real_clan(GET_CLAN(ch));
-   struct clanmember_data *member = NULL;
-   char *msg, *clan_str, *password;
+    struct clanmember_data *member = NULL;
+    char *msg, *clan_str, *password;
 
-   clan_str = tmp_getword(&argument);
+    clan_str = tmp_getword(&argument);
     password = tmp_getword(&argument);
 
     if (!*clan_str) {
@@ -275,7 +274,7 @@ ACMD(do_join)
         return;
     }
 
-    clan = clan_by_name(clan_str);
+    struct clan_data *clan = clan_by_name(clan_str);
     if (!clan) {
         send_to_char(ch, "That clan doesn't exist.\r\n");
         return;
@@ -315,11 +314,11 @@ ACMD(do_join)
     }
 
     if (IS_NPC(ch)) {
-       send_to_char(ch, "Only player characters can join clans.\r\n");
+        send_to_char(ch, "Only player characters can join clans.\r\n");
         return;
     }
     if (AFF_FLAGGED(ch, AFF_CHARM)) {
-       send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
+        send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
         return;
     }
 

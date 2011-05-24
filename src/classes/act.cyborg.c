@@ -1325,14 +1325,18 @@ ACMD(do_discharge)
         return;
     }
 
-    if (!(vict = get_char_room_vis(ch, arg2)) &&
-        !(ovict = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
-        if (is_fighting(ch)) {
-            vict = random_opponent(ch);
-        } else {
+    if (!*arg2) {
+        vict = random_opponent(ch);
+        if (vict == NULL) {
             send_to_char(ch, "Discharge into who?\r\n");
             return;
         }
+    }
+
+    if (!(vict = get_char_room_vis(ch, arg2)) &&
+        !(ovict = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
+        send_to_char(ch, "You don't see any '%s'.", arg2);
+        return;
     }
 
     if (!is_number(arg1)) {

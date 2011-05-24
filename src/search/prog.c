@@ -791,8 +791,9 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
                 zerrlog(room->zone, "Invalid position '%s' in %s prog",
                         args, prog_get_desc(env));
                 result = false;
+            } else {
+                result = (pos == GET_POSITION(env->target));
             }
-            result = (pos == GET_POSITION(env->target));
         }
         else if (!strcasecmp(arg, "player")) {
 			result = env->target && IS_PC(env->target);
@@ -1429,12 +1430,9 @@ DEFPROGHANDLER(nuke, env, evt, args)
 static void
 prog_trans_creature(struct creature * ch, struct room_data * targ_room)
 {
-	struct room_data *was_in;
-
     if (!is_authorized(ch, ENTER_ROOM, targ_room))
 		return;
 
-	was_in = ch->in_room;
 	char_from_room(ch, true);
 	char_to_room(ch, targ_room, true);
 	targ_room->zone->enter_count++;
@@ -2026,7 +2024,7 @@ trigger_prog_cmd(void *owner, enum prog_evt_type owner_type, struct creature * c
 
 	evt.phase = PROG_EVT_AFTER;
 	strcpy(evt.args, argument);
-	env = prog_start(owner_type, owner, ch, &evt);
+	prog_start(owner_type, owner, ch, &evt);
 	// note that we don't start executing yet...
 
 	loop_fence -= 1;
@@ -2088,7 +2086,7 @@ trigger_prog_spell(void *owner, enum prog_evt_type owner_type, struct creature *
 
 	evt.phase = PROG_EVT_AFTER;
 	strcpy(evt.args, "");
-	env = prog_start(owner_type, owner, ch, &evt);
+	prog_start(owner_type, owner, ch, &evt);
 	// note that we don't start executing yet...
 
 	loop_fence -= 1;
@@ -2151,7 +2149,7 @@ trigger_prog_move(void *owner, enum prog_evt_type owner_type, struct creature * 
 
 	evt.phase = PROG_EVT_AFTER;
 	strcpy(evt.args, "");
-	env = prog_start(owner_type, owner, ch, &evt);
+	prog_start(owner_type, owner, ch, &evt);
 	// note that we don't start executing yet...  prog_update_pending()
 	// gets called by interpret_command(), after all command processing
 	// takes place

@@ -334,7 +334,7 @@ jet_stream()
 {
 
     struct zone_data *fr_zone = NULL, *zone = NULL;
-    int count = 0, hour, change;
+    int count = 0, hour, change = 0;
 
     for (hour = 2; hour > -4; hour--) {
         for (zone = zone_table; zone; zone = zone->next) {
@@ -357,10 +357,10 @@ jet_stream()
                     zone->weather->pressure;
             }
 
-            if (count)
+            if (count > 0)
                 change /= count;
 
-            zone->weather->change += count;
+            zone->weather->change += change;
         }
     }
 }

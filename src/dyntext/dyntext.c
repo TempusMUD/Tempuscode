@@ -315,10 +315,10 @@ set_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     int lev;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg1 || !*arg2) {
-        send_to_char(ch, "Dynedit set reuires more arguments.\r\n");
+        send_to_char(ch, "Dynedit set requires more arguments.\r\n");
         show_dynedit_options(ch);
         return;
     }
@@ -459,9 +459,6 @@ ACMD(do_dynedit)
     char *s = NULL;             // pointer for update string
 
     argument = two_arguments(argument, arg1, arg2);
-
-    if (argument)
-        skip_spaces(&argument);
 
     if (!*arg1) {
         show_dynedit_options(ch);

@@ -67,6 +67,8 @@ SPECIAL(underworld_goddess)
         /* if I didn't pick any of those, then just slam the guy I'm fighting */
         if (vict == NULL)
             vict = random_opponent(ch);
+        if (vict == NULL)
+            return 1;
 
         /* if I'm fighting styx, try to teleport him away.  */
         if (vict == styx) {
@@ -165,7 +167,7 @@ SPECIAL(underworld_goddess)
     /*   so, she might as well worship him TOO! */
     if (!cmd && !styx && !number(0, 5)) {
         /*  First get the room number for prison cell where that harlet stays! */
-        if ((room = real_room(DUNGEON_SE)))
+        if (!(room = real_room(DUNGEON_SE)))
             return 0;
 
         /* Now see if Styx is there */
@@ -181,7 +183,7 @@ SPECIAL(underworld_goddess)
             vict = NULL;
             for (GList * it = styx->in_room->people; it; it = it->next) {
                 struct creature *tch = it->data;
-                if ((IS_NPC(vict)) && (GET_NPC_VNUM(vict) == STYX_PRIESTESS)) {
+                if (IS_NPC(tch) && (GET_NPC_VNUM(tch) == STYX_PRIESTESS)) {
                     vict = tch;
                     break;      /* breaks for loop! */
                 }

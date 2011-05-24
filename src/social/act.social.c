@@ -138,9 +138,6 @@ ACMD(do_action)
             // it sure beats reworking act().  Someday later, maybe...
             char *char_found_msg, *others_found_msg;
 
-            char_found_msg = action->char_found;
-            others_found_msg = action->others_found;
-
             char_found_msg = tmp_gsub(action->char_found, "$N", "$p");
             char_found_msg = tmp_gsub(char_found_msg, "$M", "it");
             char_found_msg = tmp_gsub(char_found_msg, "$S", "its");

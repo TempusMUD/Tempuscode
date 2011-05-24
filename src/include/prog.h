@@ -52,7 +52,7 @@ enum prog_cmd_kind {
 
 struct prog_evt {
 	enum prog_evt_phase phase;
-	enum prog_evt_type kind;
+	enum prog_evt_kind kind;
 	int cmd;
 	char args[MAX_INPUT_LENGTH];
 

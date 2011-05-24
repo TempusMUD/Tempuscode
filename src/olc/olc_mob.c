@@ -618,6 +618,10 @@ do_mob_mset(struct creature *ch, char *argument)
                 if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
                     mob_p->mob_specials.shared->vnum <= zone->top)
                     break;
+            if (!zone) {
+                errlog("!zone in olc mset aff2");
+                return;
+            }
 
             if (*arg1 == '+')
                 state = 1;
@@ -672,6 +676,10 @@ do_mob_mset(struct creature *ch, char *argument)
                 if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
                     mob_p->mob_specials.shared->vnum <= zone->top)
                     break;
+            if (!zone) {
+                errlog("!zone in olc mset aff3");
+                return;
+            }
 
             if (*arg1 == '+')
                 state = 1;
@@ -1220,15 +1228,15 @@ do_mob_mset(struct creature *ch, char *argument)
     if (mset_command != 25)     /*mob exp */
         GET_EXP(mob_p) = mobile_experience(mob_p, NULL);
 
-    for (zone = zone_table; zone; zone = zone->next)
+    for (zone = zone_table; zone; zone = zone->next) {
         if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
-            mob_p->mob_specials.shared->vnum <= zone->top)
+            mob_p->mob_specials.shared->vnum <= zone->top) {
+            if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL)
+                && is_authorized(ch, APPROVE_ZONE, NULL))
+                SET_BIT(NPC2_FLAGS(mob_p), NPC2_UNAPPROVED);
             break;
-
-    if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL)
-        && is_authorized(ch, APPROVE_ZONE, NULL))
-        SET_BIT(NPC2_FLAGS(mob_p), NPC2_UNAPPROVED);
-
+        }
+    }
 }
 
 int

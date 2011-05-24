@@ -95,7 +95,7 @@ ACMD(do_crossface)
     struct creature *vict = NULL;
     struct obj_data *ovict = NULL, *weap = NULL;
     int str_mod, dex_mod, percent = 0, prob = 0, dam = 0;
-    int retval = 0, diff = 0, wear_num;
+    int diff = 0, wear_num;
     bool prime_merc = false;
     short prev_pos = 0;
     char *arg;
@@ -221,7 +221,7 @@ ACMD(do_crossface)
         else if (diff >= 20) {
             struct obj_data *wear, *scraps;
 
-            retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
             wear = GET_EQ(vict, wear_num);
             if (wear && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
                 act("Your crossface has knocked $N's $p from $S head!",
@@ -248,7 +248,7 @@ ACMD(do_crossface)
                 }
             }
         } else {
-            retval = damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
         }
 
         gain_skill_prof(ch, SKILL_CROSSFACE);

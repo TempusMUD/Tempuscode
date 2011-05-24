@@ -1387,7 +1387,7 @@ do_qcontrol_mload(struct creature *ch, char *argument, int com)
     char arg1[MAX_INPUT_LENGTH];
     int number;
 
-    argument = two_arguments(argument, buf, arg1);
+    two_arguments(argument, buf, arg1);
 
     if (!*buf || !isdigit(*buf) || !*arg1 || !isdigit(*arg1)) {
         do_qcontrol_usage(ch, com);
@@ -1432,7 +1432,7 @@ do_qcontrol_loadroom(struct creature *ch, char *argument, int com)
     char arg1[MAX_INPUT_LENGTH];
     int number;
 
-    argument = two_arguments(argument, buf, arg1);
+    two_arguments(argument, buf, arg1);
 
     if (!*buf || !isdigit(*buf)) {
         do_qcontrol_usage(ch, com);
@@ -1502,7 +1502,7 @@ do_qcontrol_oload(struct creature *ch, char *argument, int com)
     int number;
     char arg2[MAX_INPUT_LENGTH];
 
-    argument = two_arguments(argument, buf, arg2);
+    two_arguments(argument, buf, arg2);
 
     if (!*buf || !isdigit(*buf)) {
         do_qcontrol_oload_list(ch);
@@ -1574,7 +1574,7 @@ do_qcontrol_trans(struct creature *ch, char *argument)
     struct quest *quest = NULL;
     struct room_data *room = NULL;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
     if (!*arg1) {
         send_to_char(ch,
             "Usage: qcontrol trans <quest number> [room number]\r\n");
@@ -1640,7 +1640,7 @@ do_qcontrol_purge(struct creature *ch, char *argument)
     struct quest *quest = NULL;
     char arg1[MAX_INPUT_LENGTH];
 
-    argument = two_arguments(argument, arg1, buf);
+    two_arguments(argument, arg1, buf);
     if (!*buf) {
         send_to_char(ch, "Purge what?\r\n");
         return;
@@ -1900,7 +1900,7 @@ do_qcontrol_add(struct creature *ch, char *argument, int com)
     struct quest *quest = NULL;
     struct creature *vict = NULL;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg1 || !*arg2) {
         do_qcontrol_usage(ch, com);
@@ -2239,7 +2239,7 @@ do_qcontrol_ban(struct creature *ch, char *argument, int com)
     int level = 0;
     bool del_vict = false;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg1 || !*arg2) {
         do_qcontrol_usage(ch, com);
@@ -2354,7 +2354,7 @@ do_qcontrol_unban(struct creature *ch, char *argument, int com)
     bool del_vict = false;
     struct account *account;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg1 || !*arg2) {
         do_qcontrol_usage(ch, com);
@@ -2476,7 +2476,7 @@ do_qcontrol_minlev(struct creature *ch, char *argument, int com)
 {
     struct quest *quest = NULL;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg2 || !*arg1) {
         do_qcontrol_usage(ch, com);
@@ -2503,7 +2503,7 @@ do_qcontrol_maxlev(struct creature *ch, char *argument, int com)
 {
     struct quest *quest = NULL;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg2 || !*arg1) {
         do_qcontrol_usage(ch, com);
@@ -2528,7 +2528,7 @@ do_qcontrol_mingen(struct creature *ch, char *argument, int com)
 {
     struct quest *quest = NULL;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg2 || !*arg1) {
         do_qcontrol_usage(ch, com);
@@ -2553,7 +2553,7 @@ do_qcontrol_maxgen(struct creature *ch, char *argument, int com)
 {
     struct quest *quest = NULL;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg2 || !*arg1) {
         do_qcontrol_usage(ch, com);
@@ -2580,7 +2580,7 @@ do_qcontrol_mute(struct creature *ch, char *argument, int com)
     struct quest *quest = NULL;
     long idnum;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg1 || !*arg2) {
         do_qcontrol_usage(ch, com);
@@ -2631,7 +2631,7 @@ do_qcontrol_unmute(struct creature *ch, char *argument, int com)
     struct quest *quest = NULL;
     long idnum;
 
-    argument = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg1 || !*arg2) {
         do_qcontrol_usage(ch, com);

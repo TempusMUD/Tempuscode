@@ -4085,17 +4085,16 @@ show_topzones(struct creature *ch, char *value)
     int lessThan = INT_MAX, greaterThan = -1;
     bool reverse = false;
 
+    if (ch->desc == NULL)
+        return;
+
     temp = strstr(lower, "limit ");
     if (temp && strlen(temp) > 6) {
         num_zones = atoi(temp + 6);
     }
     temp = NULL;
-    if (!num_zones) {
-        if (ch && ch->desc && ch->desc->account)
-            num_zones = ch->desc->account->term_height - 3;
-        else
-            num_zones = 50;
-    }
+    if (!num_zones)
+        num_zones = ch->desc->account->term_height - 3;
 
     temp = strstr(lower, ">");
     if (temp && strlen(temp) > 1) {
@@ -4130,20 +4129,18 @@ show_topzones(struct creature *ch, char *value)
 
     acc_string_clear();
 
-    acc_sprintf
-        ("Usage Options: [limit #] [>#] [<#] [reverse]\r\nTOP %d zones:\r\n",
-        num_zones);
+    acc_sprintf("Usage Options: [limit #] [>#] [<#] [reverse]\r\nTOP %d zones:\r\n",
+                num_zones);
 
     for (GList * i = zone_list; i; num++, i = i->next) {
         struct zone_data *zone = i->data;
 
-        acc_sprintf
-            ("%2d.[%s%3d%s] %s%-30s%s %s[%s%6d%s]%s accesses.  Owner: %s%s%s\r\n",
-            num, CCYEL(ch, C_NRM), zone->number, CCNRM(ch, C_NRM), CCCYN(ch,
-                C_NRM), zone->name, CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
-            CCNRM(ch, C_NRM), zone->enter_count, CCGRN(ch, C_NRM), CCNRM(ch,
-                C_NRM), CCYEL(ch, C_NRM),
-            player_name_by_idnum(zone->owner_idnum), CCNRM(ch, C_NRM));
+        acc_sprintf("%2d.[%s%3d%s] %s%-30s %s[%s%6d%s]%s accesses.  Owner: %s%s%s\r\n",
+                    num, CCYEL(ch, C_NRM),
+                    zone->number, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                    zone->name, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                    zone->enter_count, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+                    player_name_by_idnum(zone->owner_idnum), CCNRM(ch, C_NRM));
     }
 
     g_list_free(zone_list);
@@ -8275,7 +8272,7 @@ do_freeze_char(char *argument, struct creature *vict, struct creature *ch)
 }
 
 #define USERS_USAGE \
-"format: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c char_claslist] [-o] [-p]\r\n"
+"format: users [-l minlevel[-maxlevel]] [-n name] [-h host] [-c char_claslist] [-p]\r\n"
 
 ACMD(do_users)
 {
@@ -8286,16 +8283,14 @@ ACMD(do_users)
     struct creature *tch;
     struct descriptor_data *d;
     int low = 0, high = LVL_GRIMP, i, num_can_see = 0;
-    int showchar_class = 0, outlaws = 0, playing = 0, deadweight = 0;
+    int showchar_class = 0, playing = 0, deadweight = 0;
     char *arg;
     char timebuf[27], idletime[10];
 
     while (*(arg = tmp_getword(&argument)) != '\0') {
         if (*arg == '-') {
             switch (*(arg + 1)) {
-            case 'o':
             case 'k':
-                outlaws = 1;
                 playing = 1;
                 break;
             case 'p':

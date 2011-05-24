@@ -232,7 +232,6 @@ call_magic(struct creature *caster, struct creature *cvict,
 {
 
     int savetype, mana = -1;
-    bool same_vict = false;
     struct affected_type *af_ptr = NULL;
 
     if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
@@ -436,9 +435,6 @@ call_magic(struct creature *caster, struct creature *cvict,
         break;
     }
     if (IS_SET(SINFO.routines, MAG_DAMAGE)) {
-        if (caster == cvict)
-            same_vict = true;
-
         mag_damage(level, caster, cvict, spellnum, savetype);
 
         //
@@ -699,6 +695,11 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
     struct creature *tch = NULL;
     struct obj_data *tobj = NULL;
     struct room_data *was_in = NULL;
+
+    if (ch == NULL) {
+        errlog("NULL ch in mag_objectmagic()");
+        return 0;
+    }
 
     char *arg = tmp_getword(&argument);
 

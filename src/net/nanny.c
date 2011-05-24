@@ -905,9 +905,12 @@ send_prompt(struct descriptor_data *d)
     case CXN_DISCONNECT:
         break;
     case CXN_PLAYING:          // Playing - Nominal state
+        if (d->creature == NULL) {
+            errlog("NULL d->creature in send_prompt() while in CXN_PLAYING state");
+            return;
+        }
         if (d->is_blind)
             return;
-
         *prompt = '\0';
 
         if (!production_mode)
@@ -1061,6 +1064,10 @@ send_prompt(struct descriptor_data *d)
             "             Choose your secondary class from the above list: ");
         break;
     case CXN_ALIGN_PROMPT:
+        if (d->creature == NULL) {
+            errlog("NULL d->creature in send_prompt() while in CXN_ALIGN_PROMPT state");
+            return;
+        }
         if (IS_DROW(d->creature)) {
             send_to_desc(d,
                 "The Drow race is inherently evil.  Thus you begin your life as evil.\r\n\r\nPress return to continue.\r\n");
@@ -1100,6 +1107,10 @@ send_prompt(struct descriptor_data *d)
             "               &cWhich character's description do you want to edit:&n ");
         break;
     case CXN_DELETE_PW:
+        if (d->creature == NULL) {
+            errlog("NULL d->creature in send_prompt() while in CXN_DELETE_PW state");
+            return;
+        }
         send_to_desc(d,
             "              &yTo confirm deletion of %s, enter your account password: &n",
             GET_NAME(d->creature));
@@ -1677,8 +1688,9 @@ char_to_game(struct descriptor_data *d)
             (quest = quest_by_vnum(GET_QUEST(d->creature)))) {
             if (quest->loadroom > -1)
                 load_room = real_room(quest->loadroom);
+        } else {
+            load_room = player_loadroom(d->creature);
         }
-        load_room = player_loadroom(d->creature);
 
         if (load_room && !can_enter_house(d->creature, load_room->number)) {
             mudlog(LVL_DEMI, NRM, true,

@@ -420,10 +420,10 @@ SECT(struct room_data * room)
 	return room->sector_type;
 }
 
-#define GET_ROOM_SPEC(room) ((room) != NULL ? (room)->func : NULL)
-#define GET_ROOM_PARAM(room) ((room) != NULL ? (room)->func_param : NULL)
-#define GET_ROOM_PROG(room) ((room) != NULL ? (room)->prog : NULL)
-#define GET_ROOM_PROGOBJ(room) ((room) != NULL ? (room)->progobj : NULL)
+#define GET_ROOM_SPEC(room) ((room)->func)
+#define GET_ROOM_PARAM(room) ((room)->func_param)
+#define GET_ROOM_PROG(room) ((room)->prog)
+#define GET_ROOM_PROGOBJ(room) ((room)->progobj)
 
 /* char utils ************************************************************/
 
@@ -455,8 +455,8 @@ SECT(struct room_data * room)
 #define GET_SEX(ch)        ((ch)->player.sex)
 #define IS_MALE(ch)     ((ch)->player.sex == SEX_MALE)
 #define IS_FEMALE(ch)   ((ch)->player.sex == SEX_FEMALE)
-#define IS_IMMORT(ch)	((ch) && (GET_LEVEL(ch) >= LVL_AMBASSADOR))
-#define IS_MORT(ch)		((ch) && !IS_REMORT(ch) && !IS_IMMORT(ch))
+#define IS_IMMORT(ch)	(GET_LEVEL(ch) >= LVL_AMBASSADOR)
+#define IS_MORT(ch)		(!IS_REMORT(ch) && !IS_IMMORT(ch))
 
 #define GET_STR(ch)     ((ch)->aff_abils.str)
 #define GET_ADD(ch)     ((ch)->aff_abils.str_add)

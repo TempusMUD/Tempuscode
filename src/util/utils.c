@@ -126,7 +126,8 @@ mlog(const char *group, sbyte level, enum log_type type, bool file,
     extern struct descriptor_data *descriptor_list;
     struct descriptor_data *i;
     va_list args;
-    char *msg, tp;
+    char *msg;
+    enum log_type tp;
     char timebuf[25];
     time_t ct;
     struct tm *ctm;
@@ -267,7 +268,6 @@ real_time_passed(time_t t2, time_t t1)
     secs -= SECS_PER_REAL_HOUR * now.hours;
 
     now.day = (secs / SECS_PER_REAL_DAY);   /* 0..34 days  */
-    secs -= SECS_PER_REAL_DAY * now.day;
 
     now.month = -1;
     now.year = -1;

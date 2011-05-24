@@ -2119,7 +2119,6 @@ special(struct creature *ch, int cmd, int subcmd, char *arg,
 
     /* special in room? */
     if (GET_ROOM_SPEC(ch->in_room) != NULL) {
-        specAddress = (long)GET_ROOM_SPEC(ch->in_room);
         if (GET_ROOM_SPEC(ch->in_room) (ch, ch->in_room, cmd, arg, spec_mode)) {
             return 1;
         }

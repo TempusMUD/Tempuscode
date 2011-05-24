@@ -208,14 +208,11 @@ ACMD(do_drag_char)
 {
     struct creature *vict = NULL;
     struct room_data *target_room = NULL;
-    struct room_data *location = NULL;
 
     int percent, prob;
     char *arg, *arg2;
 
     int dir = -1;
-
-    location = ch->in_room;
 
     arg = tmp_getword(&argument);
     arg2 = tmp_getword(&argument);

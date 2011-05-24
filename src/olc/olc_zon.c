@@ -936,7 +936,6 @@ do_zcmd(struct creature *ch, char *argument)
                 if (tmp_zonecmd->command == 'D'
                     && tmp_zonecmd->arg1 == int_arg1
                     && tmp_zonecmd->arg2 == int_arg2) {
-                    cur_door_flags = tmp_zonecmd->arg3;
                     found = 1;
                     zcmd = tmp_zonecmd;
                 }
@@ -2856,7 +2855,6 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_mob)
                 break;
             tmp_mob = real_mobile_proto(zcmd->arg1);
-            tmp_rom = real_room(zcmd->arg3);
             sprintf(buf,
                 "%3d. %sMobile%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,

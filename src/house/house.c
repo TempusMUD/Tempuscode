@@ -942,12 +942,10 @@ collect_house_rent(struct house *house, int cost)
         slog("HOUSE: [%d] Previous repossessions covering %d rent.", house->id,
             cost);
         house->rent_overflow -= cost;
-        cost = 0;
         return false;
-    } else {
-        cost -= house->rent_overflow;
     }
 
+    cost -= house->rent_overflow;
     reconcile_rent_collection(house, cost);
     return false;
 }

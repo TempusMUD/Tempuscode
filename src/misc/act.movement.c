@@ -2815,11 +2815,10 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
     int dir = -1;
     int drag_wait = 0;
     int mvm_cost = 0;
-    char *arg1, *arg2;
+    char *arg1;
     struct room_data *theroom = NULL;
 
     arg1 = tmp_getword(&argument);
-    arg2 = tmp_getword(&argument);
 
     // a character can drag an object twice the weight of his maximum
     // encumberance + a little luck
@@ -2843,35 +2842,35 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
         return 0;
     }
     // Find out which direction the player wants to drag in
-    if (is_abbrev(arg2, "north")) {
+    if (is_abbrev(arg1, "north")) {
         dir = 0;
     }
 
-    else if (is_abbrev(arg2, "east")) {
+    else if (is_abbrev(arg1, "east")) {
         dir = 1;
     }
 
-    else if (is_abbrev(arg2, "south")) {
+    else if (is_abbrev(arg1, "south")) {
         dir = 2;
     }
 
-    else if (is_abbrev(arg2, "west")) {
+    else if (is_abbrev(arg1, "west")) {
         dir = 3;
     }
 
-    else if (is_abbrev(arg2, "up")) {
+    else if (is_abbrev(arg1, "up")) {
         dir = 4;
     }
 
-    else if (is_abbrev(arg2, "down")) {
+    else if (is_abbrev(arg1, "down")) {
         dir = 5;
     }
 
-    else if (is_abbrev(arg2, "future")) {
+    else if (is_abbrev(arg1, "future")) {
         dir = 6;
     }
 
-    else if (is_abbrev(arg2, "past")) {
+    else if (is_abbrev(arg1, "past")) {
         dir = 7;
     }
 

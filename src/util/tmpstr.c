@@ -528,7 +528,6 @@ tmp_strdup(const char *src)
         cur_buf = tmp_list_tail;
 
     result = cur_buf->data + cur_buf->used;
-    write_pt = result;
     cur_buf->used += len;
 
     // Copy in the first string
@@ -563,7 +562,6 @@ tmp_strdupt(const char *src, const char *term_str)
         cur_buf = tmp_list_tail;
 
     result = cur_buf->data + cur_buf->used;
-    write_pt = result;
     cur_buf->used += len;
 
     // Copy in the first string

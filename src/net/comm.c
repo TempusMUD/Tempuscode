@@ -32,6 +32,7 @@
 #include <fcntl.h>
 #include <signal.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #include "macros.h"
 #include "structs.h"
@@ -313,7 +314,6 @@ game_loop(int main_listener, int reader_listener)
         FD_ZERO(&output_set);
         FD_ZERO(&exc_set);
         FD_SET(main_listener, &input_set);
-        maxdesc = main_listener;
         FD_SET(reader_listener, &input_set);
         maxdesc = MAX(main_listener, reader_listener);
         for (d = descriptor_list; d; d = d->next) {
@@ -792,7 +792,6 @@ int
 new_descriptor(int s, int port)
 {
     int desc, sockets_input_mode = 0;
-    unsigned long addr;
     unsigned int i;
     static int last_desc = 0;   /* last descriptor number */
     struct descriptor_data *newd;
@@ -823,19 +822,20 @@ new_descriptor(int s, int port)
     CREATE(newd, struct descriptor_data, 1);
 
     /* find the sitename */
-
-    if (nameserver_is_slow || !(from = gethostbyaddr((char *)&peer.sin_addr,
-                sizeof(peer.sin_addr), AF_INET))) {
-        if (!nameserver_is_slow)
-            perror("gethostbyaddr");
-        addr = ntohl(peer.sin_addr.s_addr);
-        sprintf(newd->host, "%d.%d.%d.%d", (int)((addr & 0xFF000000) >> 24),
-            (int)((addr & 0x00FF0000) >> 16), (int)((addr & 0x0000FF00) >> 8),
-            (int)((addr & 0x000000FF)));
+    if (nameserver_is_slow) {
+        from = NULL;
     } else {
-        strncpy(newd->host, from->h_name, HOST_LENGTH);
-        *(newd->host + HOST_LENGTH) = '\0';
+        from = gethostbyaddr((char *)&peer.sin_addr,
+                             sizeof(peer.sin_addr),
+                             AF_INET);
     }
+
+    if (from) {
+        strncpy(newd->host, from->h_name, HOST_LENGTH);
+    } else {
+        strncpy(newd->host, inet_ntoa(peer.sin_addr), HOST_LENGTH);
+    }
+    *(newd->host + HOST_LENGTH) = '\0';
 
     /* determine if the site is banned */
     if (check_ban_all(desc, newd->host)) {
@@ -1774,9 +1774,11 @@ act_translate(struct creature *ch, struct creature *to, const char **s)
 
 void
 make_act_str(const char *orig,
-    char *buf,
-    struct creature *ch,
-    struct obj_data *obj, void *vict_obj, struct creature *to)
+             char *buf,
+             struct creature *ch,
+             struct obj_data *obj,
+             void *vict_obj,
+             struct creature *to)
 {
     const char *s = orig;
     const char *i = 0;
@@ -1795,7 +1797,9 @@ make_act_str(const char *orig,
                 i = (ch == to) ? "you" : PERS(ch, to);
                 break;
             case 'T':
-                if (ch == vict_obj) {
+                if (vict_obj == NULL) {
+                    i = ACTNULL;
+                } else if (ch == vict_obj) {
                     if (vict_obj == to)
                         i = "yourself";
                     else if (IS_MALE((struct creature *)vict_obj))
@@ -1807,8 +1811,7 @@ make_act_str(const char *orig,
                 } else if (to == vict_obj) {
                     i = "you";
                 } else {
-                    CHECK_NULL(vict_obj, PERS((struct creature *)vict_obj,
-                            to));
+                    i = PERS((struct creature *)vict_obj, to);
                 }
                 break;
             case 'm':

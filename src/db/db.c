@@ -1789,11 +1789,9 @@ parse_mobile(FILE * mob_f, int nr)
     int j, t[10];
     char line[256], *tmpptr, letter;
     char f1[128], f2[128], f3[128], f4[128], f5[128];
-    struct creature *mobile = NULL, *tmp_mob = NULL;
+    struct creature *mobile = NULL;
 
     CREATE(mobile, struct creature, 1);
-
-    tmp_mob = real_mobile_proto(nr);
 
     CREATE(mobile->mob_specials.shared, struct mob_shared_data, 1);
     mobile->mob_specials.shared->vnum = nr;
@@ -1923,7 +1921,6 @@ parse_object(FILE * obj_f, int nr)
     obj->action_desc = fread_string(obj_f, buf2);
 
     /* *** numeric data *** */
-    retval = 0;
     if (!get_line(obj_f, line)) {
         fprintf(stderr, "Unable to read first numeric line for object %d.\n",
             nr);
@@ -2974,8 +2971,7 @@ reset_zone(struct zone_data *zone)
                     } else
                         last_cmd = 1;
                 }
-            } else
-                last_cmd = 0;
+            }
             break;
         case 'I':              /* object to equipment list */
             if (!mob) {
@@ -3008,8 +3004,7 @@ reset_zone(struct zone_data *zone)
                     } else
                         last_cmd = 1;
                 }
-            } else
-                last_cmd = 0;
+            }
             break;
         case 'W':
             if (!mob) {
@@ -3018,7 +3013,6 @@ reset_zone(struct zone_data *zone)
                 last_cmd = 0;
                 break;
             }
-            last_cmd = 0;
             if (!path_vnum_exists(zonecmd->arg1)) {
                 ZONE_ERROR("invalid path vnum");
                 break;

@@ -529,9 +529,7 @@ detonate_bomb(struct obj_data *bomb)
         while (cont->in_obj)
             cont = cont->in_obj;
 
-        ch = (cont->worn_by ? cont->worn_by : cont->carried_by);
-        damage_eq(NULL,
-            cont, dice(MIN(100, BOMB_POWER(bomb)), BOMB_POWER(bomb)), -1);
+        damage_eq(NULL, cont, dice(MIN(100, BOMB_POWER(bomb)), BOMB_POWER(bomb)), -1);
     }
 
     if ((cont || internal) && BOMB_IS_FLASH(bomb))

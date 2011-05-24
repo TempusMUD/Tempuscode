@@ -337,11 +337,10 @@ gain_exp(struct creature *ch, int gain)
     int is_altered = false;
     int num_levels = 0;
 
-    if (ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
+    if (ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
         return;
 
-    if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1
-                || GET_LEVEL(ch) >= LVL_AMBASSADOR)))
+    if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_AMBASSADOR)))
         return;
 
     if (IS_PC(ch) && AFF_FLAGGED(ch, AFF_CHARM))

@@ -518,9 +518,16 @@ prog_compile_handler(struct prog_compiler_state *compiler)
         break;
     }
 
+    // Ensure there's another token to get to
+    if (!compiler->cur_token->next) {
+        prog_compile_error(compiler, compiler->cur_token->linenum,
+            "End of line expected.");
+        goto err;
+    }
     // Advance token and ensure that it's an end of line
     compiler->cur_token = compiler->cur_token->next;
-    if (!compiler->cur_token || compiler->cur_token->kind != PROG_TOKEN_EOL) {
+
+    if (compiler->cur_token->kind != PROG_TOKEN_EOL) {
         prog_compile_error(compiler, compiler->cur_token->linenum,
             "End of line expected.");
         goto err;

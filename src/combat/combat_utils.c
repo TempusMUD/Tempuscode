@@ -60,8 +60,7 @@ ok_damage_vendor(struct creature *ch, struct creature *victim)
 {
     if (ch && GET_LEVEL(ch) > LVL_CREATOR)
         return true;
-    if (victim &&
-        GET_LEVEL(victim) > LVL_IMMORT &&
+    if (GET_LEVEL(victim) > LVL_IMMORT &&
         (IS_NPC(victim) || !PLR_FLAGGED(victim, PLR_MORTALIZED)))
         return false;
 

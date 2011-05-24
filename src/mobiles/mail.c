@@ -446,9 +446,10 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman, char *arg)
                 perform_tell(mailman, ch, buf2);
                 strcpy(buf2, "...which I see you can't afford.");
                 perform_tell(mailman, ch, buf2);
-                while ((n_mail_to = mail_list)) {
-                    mail_list = n_mail_to->next;
-                    free(n_mail_to);
+                while (mail_list) {
+                    n_mail_to = mail_list->next;
+                    free(mail_list);
+                    mail_list = n_mail_to;
                 }
                 return;
             }
@@ -460,9 +461,10 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman, char *arg)
                 perform_tell(mailman, ch, buf2);
                 strcpy(buf2, "...which I see you can't afford.");
                 perform_tell(mailman, ch, buf2);
-                while ((n_mail_to = mail_list)) {
-                    mail_list = n_mail_to->next;
-                    free(n_mail_to);
+                while (mail_list) {
+                    n_mail_to = mail_list->next;
+                    free(mail_list);
+                    mail_list = n_mail_to;
                 }
                 return;
             }

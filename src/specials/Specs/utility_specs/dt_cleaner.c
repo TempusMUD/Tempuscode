@@ -25,7 +25,8 @@ SPECIAL(dt_cleaner)
                         room->name);
                     send_to_room(buf, ch->in_room);
                 }
-                for (obj = room->contents; obj; obj = obj) {
+                obj = room->contents;
+                while (obj) {
                     tmp_obj = obj;
                     obj = obj->next_content;
                     extract_obj(tmp_obj);

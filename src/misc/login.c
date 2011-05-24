@@ -209,7 +209,7 @@ show_pc_race_help(struct descriptor_data *d, char *arg)
 {
     char *race_str;
 
-    race_str = tmp_getword(&arg);   // throw away
+    (void)tmp_getword(&arg);   // throw away
     race_str = tmp_getword(&arg);   // actual race
 
     if (!*race_str) {
@@ -232,7 +232,7 @@ show_pc_class_help(struct descriptor_data *d, char *arg)
 {
     char *class_str;
 
-    class_str = tmp_getword(&arg);  // throw away
+    (void)tmp_getword(&arg);  // throw away
     class_str = tmp_getword(&arg);  // actual class
 
     if (!*class_str) {

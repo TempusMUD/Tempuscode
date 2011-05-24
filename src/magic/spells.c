@@ -67,6 +67,7 @@ teleport_not_ok(struct creature *ch, struct creature *vict, int level)
     if (!IS_IMMORT(ch) && IS_IMMORT(vict))
         return true;
 
+    // Players logged into the network can't be ported
     if (IS_PC(vict) && vict->desc && vict->desc->input_mode == CXN_NETWORK)
         return true;
 
@@ -788,6 +789,7 @@ ASPELL(spell_locate_object)
     char terms[MAX_LOCATE_TERMS][MAX_INPUT_LENGTH];
     int term_idx, term_count = 0;
     int found;
+    int extracost;
 
     j = level >> 1;
     k = level >> 2;
@@ -804,24 +806,19 @@ ASPELL(spell_locate_object)
     }
 
     //Check to see if the character can be that precise
-    if (ch) {
-        int extracost;
-
-        if (term_count > MAX(1, (skill_bonus(ch, SPELL_LOCATE_OBJECT) / 25))) {
-            send_to_char(ch,
-                "You are not powerful enough to be so precise.\r\n");
-            return;
-        }
-
-        extracost = (term_count - 1) * mag_manacost(ch, SPELL_LOCATE_OBJECT);
-        if (extracost > GET_MANA(ch) && ((GET_LEVEL(ch) < LVL_AMBASSADOR) &&
-                !PLR_FLAGGED(ch, PLR_MORTALIZED))) {
-            send_to_char(ch, "You haven't the energy to be that precise!\r\n");
-            return;
-        }
-
-        GET_MANA(ch) = GET_MANA(ch) - extracost;
+    if (term_count > MAX(1, (skill_bonus(ch, SPELL_LOCATE_OBJECT) / 25))) {
+        send_to_char(ch, "You are not powerful enough to be so precise.\r\n");
+        return;
     }
+
+    extracost = (term_count - 1) * mag_manacost(ch, SPELL_LOCATE_OBJECT);
+    if (extracost > GET_MANA(ch) && ((GET_LEVEL(ch) < LVL_AMBASSADOR) &&
+                                     !PLR_FLAGGED(ch, PLR_MORTALIZED))) {
+        send_to_char(ch, "You haven't the energy to be that precise!\r\n");
+        return;
+    }
+
+    GET_MANA(ch) = GET_MANA(ch) - extracost;
 
     for (i = object_list; i && (j > 0 || k > 0); i = i->next) {
         found = 1;

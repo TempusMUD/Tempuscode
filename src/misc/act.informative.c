@@ -716,7 +716,6 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
                 }
         }
         if (ch != i && (IS_THIEF(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
-            found = false;
             acc_sprintf("\r\nYou attempt to peek at %s inventory:\r\n",
                 HSHR(i));
             list_obj_to_char_GLANCE(i->carrying, ch, i, SHOW_OBJ_INV, true,
@@ -1357,7 +1356,6 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
                         "A thick coating of ice covers everything" :
                         "Everything is covered with a thick coating of ice",
                         CCNRM(ch, C_NRM));
-                    ice_shown = 1;
                     break;
                 }
             }
@@ -1553,7 +1551,7 @@ look_in_direction(struct creature *ch, int dir)
                     else
                         send_to_char(ch, "You see the sky above you.\r\n");
                 }
-            } else if ((ch->in_room->sector_type == SECT_DEEP_OCEAN))
+            } else if (ch->in_room->sector_type == SECT_DEEP_OCEAN)
                 send_to_char(ch, "You see dark waters above you.\r\n");
             else if (room_is_underwater(ch->in_room))
                 send_to_char(ch, "You see water above you.\r\n");
@@ -1802,7 +1800,6 @@ look_at_target(struct creature *ch, char *arg, int cmd)
                 } else
                     act("$p is closed right now.", false, ch, found_obj, 0,
                         TO_CHAR);
-                found = 1;
             } else if (IS_V_WINDOW(found_obj)) {
 
                 for (car = object_list; car; car = car->next)
@@ -1815,7 +1812,6 @@ look_at_target(struct creature *ch, char *arg, int cmd)
                     act("You look through $p.", false, ch, found_obj, 0,
                         TO_CHAR);
                     look_at_room(ch, car->in_room, 1);
-                    found = 1;
                 }
             } else if (!found) {
                 acc_string_clear();

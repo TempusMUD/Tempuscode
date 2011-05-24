@@ -233,7 +233,7 @@ maileditor_addrecipient(struct editor *editor, char *name)
 
     // Now find the end of the current list and add the new cur
     cur = mail_data->mail_to;
-    while (cur && cur->recpt_idnum != new_id_num && cur->next)
+    while (cur->recpt_idnum != new_id_num && cur->next)
         cur = cur->next;
 
     if (cur->recpt_idnum == new_id_num) {
@@ -303,6 +303,11 @@ maileditor_remrecipient(struct editor *editor, char *name)
         editor_emit(editor, "Cannot find anyone by that name.\r\n");
         return;
     }
+    if (!mail_data->mail_to) {
+        editor_emit(editor, "There are no recipients!\r\n");
+        errlog("NULL mail_data->mail_to in maileditor_remrecipient()");
+        return;
+    }
     // First case...the mail only has one recipient
     if (!mail_data->mail_to->next) {
         editor_emit(editor,
@@ -362,9 +367,9 @@ maileditor_remrecipient(struct editor *editor, char *name)
         return;
     }
     // Last case... Somewhere past the first recipient.
-    cur = mail_data->mail_to;
+    prev = cur = mail_data->mail_to;
     // Find the recipient in question
-    while (cur && cur->recpt_idnum != removed_idnum) {
+    while (cur->recpt_idnum != removed_idnum) {
         prev = cur;
         cur = cur->next;
     }

@@ -642,7 +642,6 @@ editor_wrap(struct editor *editor, char *args)
         // Copy word by word into the new line.  If the new line would
         // wrap, plonk it onto the new buffer and empty it
         end = start;
-        space = "";
         while (*start) {
             // Find end of word
             while (*end && !isspace(*end))
@@ -686,7 +685,6 @@ editor_wrap(struct editor *editor, char *args)
 
     if (newLine->len != 0) {
         newText = g_list_prepend(newText, newLine);
-        newLine = g_string_new("");
     }
 
     newText = g_list_reverse(newText);
@@ -784,7 +782,7 @@ editor_sendmodalhelp(struct editor *editor)
 void
 editor_help(struct editor *editor, char *line)
 {
-    char command[MAX_INPUT_LENGTH];
+    char *command;
 
     acc_string_clear();
 
@@ -802,7 +800,7 @@ editor_help(struct editor *editor, char *line)
     } else {
         struct help_item *help_item;
 
-        line = one_argument(line, command);
+        command = tmp_getword(&line);
         *command = tolower(*command);
         help_item = help_collection_find_items(help,
             tmp_sprintf("tedii-%c", *command), false, 0, false);

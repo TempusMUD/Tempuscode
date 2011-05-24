@@ -446,8 +446,6 @@ affect_total(struct creature *ch)
             af->aff_index, true);
 
     /* Make certain values are between 0..25, not < 0 and not > 25! */
-
-    i = (IS_NPC(ch) ? 25 : 18);
     max_dex = (IS_NPC(ch) ? 25 :
         MIN(25,
             18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
@@ -848,10 +846,11 @@ char_from_room(struct creature *ch, bool check_specials)
 
     if (ch == NULL || ch->in_room == NULL) {
         errlog("NULL or NOWHERE in handler.c, char_from_room");
-        if (ch)
+        if (ch) {
             sprintf(buf, "Char is %s\r\n", GET_NAME(ch));
-        if (ch->in_room != NULL)
-            sprintf(buf, "Char is in_room %d\r\n", ch->in_room->number);
+            if (ch->in_room != NULL)
+                sprintf(buf, "Char is in_room %d\r\n", ch->in_room->number);
+        }
         exit(1);
     }
 
@@ -1283,6 +1282,9 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
         }
         obj = GET_TATTOO(ch, pos);
         break;
+    default:
+        errlog("invalid mode given to raw_unequip_char()");
+        return NULL;
     }
 
 #ifdef TRACK_OBJS
@@ -1599,6 +1601,7 @@ obj_from_obj(struct obj_data *obj)
     if (obj->in_obj == NULL) {
         errlog("(handler.c): trying to illegally extract obj from obj");
         raise(SIGSEGV);
+        return;
     }
 #ifdef TRACK_OBJS
     obj->obj_flags.tracker.lost_time = time(0);
@@ -2316,10 +2319,25 @@ generic_find(char *arg, int bitvector, struct creature *ch,
     int i, found;
     char *name;
 
-    if (tar_ch)
-        *tar_ch = NULL;
-    if (tar_obj)
-        *tar_obj = NULL;
+    if (IS_SET(bitvector, FIND_CHAR_ROOM | FIND_CHAR_WORLD)) {
+        if (tar_ch) {
+            *tar_ch = NULL;
+        } else {
+            errlog("NULL tar_ch passed to generic_find()");
+            return false;
+        }
+    }
+
+    if (IS_SET(bitvector,
+               FIND_OBJ_EQUIP | FIND_OBJ_EQUIP_CONT
+               | FIND_OBJ_INV | FIND_OBJ_ROOM | FIND_OBJ_WORLD)) {
+        if (tar_obj) {
+            *tar_obj = NULL;
+        } else {
+            errlog("NULL tar_obj passed to generic_find()");
+            return false;
+        }
+    }
 
     name = tmp_getword(&arg);
 

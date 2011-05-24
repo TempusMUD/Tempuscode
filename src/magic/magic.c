@@ -553,8 +553,8 @@ int
 mag_damage(int level, struct creature *ch, struct creature *victim,
     int spellnum, int savetype)
 {
-    int is_mage = 0, is_cleric = 0, is_psychic = 0, is_physic = 0,
-        is_ranger = 0, is_knight = 0, audible = 0, is_bard = 0;
+    int is_mage = 0, is_cleric = 0, is_physic = 0, is_ranger = 0,
+        is_knight = 0, is_bard = 0, audible = 0;
     int dam = 0;
 
     if (victim == NULL || ch == NULL)
@@ -567,7 +567,6 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
 
     is_mage = (IS_MAGE(ch) || IS_VAMPIRE(ch));
     is_cleric = IS_CLERIC(ch);
-    is_psychic = IS_PSIONIC(ch);
     is_physic = IS_PHYSIC(ch);
     is_ranger = IS_RANGER(ch);
     is_knight = IS_KNIGHT(ch);
@@ -981,10 +980,6 @@ mag_affects(int level,
 
     struct affected_type af, af2, *afp;
     struct affected_type aff_array[8];
-    int is_mage = false;
-    int is_cleric = false;
-    int is_psychic = false;
-    int is_physic = false;
     int accum_affect = false;
     int accum_duration = false;
     const char *to_vict = NULL;
@@ -1005,11 +1000,6 @@ mag_affects(int level,
             send_to_char(victim, "%s", NOEFFECT);
         return;
     }
-
-    is_mage = (IS_MAGE(ch) || IS_VAMPIRE(ch));
-    is_cleric = (IS_CLERIC(ch));
-    is_psychic = (IS_PSYCHIC(ch));
-    is_physic = (IS_PHYSIC(ch));
 
     // This is dumb.  One day when one of us
     // has some time we should completely remove
@@ -4243,7 +4233,6 @@ mag_creations(int level, struct creature *ch, int spellnum)
 
     if (ch == NULL)
         return;
-    level = MAX(MIN(level, LVL_GRIMP), 1);
 
     switch (spellnum) {
     case SPELL_CREATE_FOOD:

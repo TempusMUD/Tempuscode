@@ -51,11 +51,9 @@ texteditor_finalize(struct editor *editor, const char *text)
     struct texteditor_data *text_data =
         (struct texteditor_data *)editor->mode_data;
     // If we were editing rather than creating, wax what was there.
-    if (text_data->target) {
-        if (*text_data->target) {
-            free(*text_data->target);
-            *text_data->target = NULL;
-        }
+    if (*text_data->target) {
+        free(*text_data->target);
+        *text_data->target = NULL;
     }
 
     *text_data->target = strdup(text);

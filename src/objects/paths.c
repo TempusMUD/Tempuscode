@@ -509,7 +509,6 @@ add_path(char *spath, int save)
         }
     }
 
-    spath = one_argument(spath, buf);
     if (*buf) {
         if ((*buf == 'r') || (*buf == 'R'))
             SET_BIT(phead->flags, PATH_REVERSIBLE);
@@ -668,6 +667,10 @@ path_activity(void)
             room = real_room(o->phead->path[o->pos].data);
             if ((o->type == PMOBILE) && room) {
                 ch = (struct creature *)o->object;
+                if (ch == NULL) {
+                    errlog("Found NULL ch in path object in path_activity()");
+                    break;
+                }
                 if ((room == ch->in_room) && (o->phead->length != 1)) {
                     PATH_MOVE(o);
                     break;
@@ -698,7 +701,10 @@ path_activity(void)
             dir = o->phead->path[o->pos].data;
             if (o->type == PMOBILE) {
                 ch = (struct creature *)o->object;
-
+                if (ch == NULL) {
+                    errlog("Found NULL ch in path object in path_activity()");
+                    break;
+                }
                 if (GET_POSITION(ch) < POS_STANDING)
                     GET_POSITION(ch) = POS_STANDING;
 

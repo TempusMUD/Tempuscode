@@ -2214,10 +2214,11 @@ ACMD(do_drag)
 {
     struct creature *found_char;
     struct obj_data *found_obj;
+    char *target_str = tmp_getword(&argument);
 
     int bits;
 
-    bits = generic_find(argument, FIND_OBJ_ROOM | FIND_CHAR_ROOM, ch,
+    bits = generic_find(target_str, FIND_OBJ_ROOM | FIND_CHAR_ROOM, ch,
         &found_char, &found_obj);
 
     //Target is a character
