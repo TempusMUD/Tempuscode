@@ -86,7 +86,8 @@ help_item_load_text(struct help_item *item)
 {
     FILE *inf;
     char *fname;
-    int idnum, textlen;
+    int idnum;
+    size_t textlen;
     char buf[512];
 
     if (item->text)

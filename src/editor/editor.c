@@ -105,7 +105,7 @@ emit_editor_startup(struct editor *editor)
     editor->displaybuffer(editor, 1, -1);
 }
 
-gint
+guint
 editor_line_count(struct editor *editor)
 {
     return g_list_length(editor->lines);
@@ -235,7 +235,7 @@ editor_handle_input(struct editor *editor, char *input)
 }
 
 void
-editor_display(struct editor *editor, int start_line, int display_lines)
+editor_display(struct editor *editor, unsigned int start_line, unsigned int display_lines)
 {
     unsigned int linenum, end_line;
     unsigned int line_count;
@@ -254,7 +254,7 @@ editor_display(struct editor *editor, int start_line, int display_lines)
 
     // Calculate last line number we're going to show
     end_line = line_count + 1;
-    if (display_lines >= 0 && start_line + display_lines < end_line)
+    if (display_lines > 0 && start_line + display_lines < end_line)
         end_line = start_line + display_lines;
 
     // Set the iterator to the beginning line
@@ -282,7 +282,7 @@ editor_display(struct editor *editor, int start_line, int display_lines)
 }
 
 bool
-editor_insert(struct editor *editor, int lineno, char *line)
+editor_insert(struct editor *editor, unsigned int lineno, char *line)
 {
     GList *s;
 
@@ -422,7 +422,8 @@ editor_substitute(struct editor * editor, char *args)
     // read pointer and write pointer.
     char *temp, end_char;
     bool balanced;
-    int size_delta, buffer_size;
+    int size_delta;
+    guint buffer_size;
 
     while (isspace(*args))
         args++;
@@ -490,7 +491,6 @@ editor_substitute(struct editor * editor, char *args)
             break;
         case '<':
             end_char = '>';
-            break;
             break;
         default:
             end_char = *args;

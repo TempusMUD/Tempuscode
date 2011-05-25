@@ -92,7 +92,7 @@ maileditor_listattachments(struct editor *editor)
 }
 
 void
-maileditor_display(struct editor *editor, int start_line, int line_count)
+maileditor_display(struct editor *editor, unsigned int start_line, unsigned int line_count)
 {
     if (start_line == 1) {
         maileditor_listrecipients(editor);
