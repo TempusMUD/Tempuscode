@@ -447,7 +447,7 @@ START_TEST(test_load_save_objects_equipped)
     struct creature *tch = NULL;
     int equipped_vnum = make_random_object();
     struct obj_data *equipped_item = read_object(equipped_vnum);
-    int equipped_pos = number(0, NUM_WEARS);
+    int equipped_pos = number(0, NUM_WEARS - 1);
 
     equip_char(ch, equipped_item, equipped_pos, EQUIP_WORN);
     fail_unless(ch->char_specials.worn_weight == equipped_item->obj_flags.weight);
@@ -489,7 +489,7 @@ START_TEST(test_load_save_objects_implanted)
     struct creature *tch = NULL;
     int implanted_vnum = make_random_object();
     struct obj_data *implanted_item = read_object(implanted_vnum);
-    int equipped_pos = number(0, NUM_WEARS);
+    int equipped_pos = number(0, NUM_WEARS - 1);
 
     equip_char(ch, implanted_item, equipped_pos, EQUIP_IMPLANT);
 
@@ -528,7 +528,7 @@ START_TEST(test_load_save_objects_tattooed)
     struct creature *tch = NULL;
     int tattooed_vnum = make_random_object();
     struct obj_data *tattooed_item = read_object(tattooed_vnum);
-    int equipped_pos = number(0, NUM_WEARS);
+    int equipped_pos = number(0, NUM_WEARS - 1);
 
     equip_char(ch, tattooed_item, equipped_pos, EQUIP_TATTOO);
 
