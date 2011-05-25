@@ -102,7 +102,7 @@ emit_editor_startup(struct editor *editor)
     for (i = 0; i < 7; i++)
         send_to_desc(editor->desc, "&C%d&B---------", i);
     send_to_desc(editor->desc, "&C7&n\r\n");
-    editor->displaybuffer(editor, 1, -1);
+    editor->displaybuffer(editor, 1, 0);
 }
 
 guint
@@ -915,7 +915,7 @@ editor_do_command(struct editor * editor, char cmd, char *args)
         }
     case 'r':                  // Refresh Screen
         if (!*args) {
-            editor->displaybuffer(editor, 1, -1);
+            editor->displaybuffer(editor, 1, 0);
         } else if (isnumber(args) && (line = atoi(args)) > 0) {
             int line_count = editor->desc->account->term_height;
 
