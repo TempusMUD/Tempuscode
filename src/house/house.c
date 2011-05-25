@@ -320,7 +320,7 @@ struct house *
 find_house_by_idnum(int idnum)
 {
     GList *it =
-        g_list_find_custom(houses, NULL, (GCompareFunc) house_has_idnum);
+        g_list_find_custom(houses, GINT_TO_POINTER(idnum), (GCompareFunc) house_has_idnum);
     return (it) ? it->data : NULL;
 }
 
@@ -335,7 +335,7 @@ struct house *
 find_house_by_owner(int idnum)
 {
     GList *it =
-        g_list_find_custom(houses, NULL, (GCompareFunc) house_has_owner);
+        g_list_find_custom(houses, GINT_TO_POINTER(idnum), (GCompareFunc) house_has_owner);
     return (it) ? it->data : NULL;
 }
 
@@ -350,7 +350,7 @@ struct house *
 find_house_by_clan(int idnum)
 {
     GList *it =
-        g_list_find_custom(houses, NULL, (GCompareFunc) house_has_clan_owner);
+        g_list_find_custom(houses, GINT_TO_POINTER(idnum), (GCompareFunc) house_has_clan_owner);
     return (it) ? it->data : NULL;
 }
 
