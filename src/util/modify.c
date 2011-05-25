@@ -128,8 +128,8 @@ show_file(struct creature *ch, const char *fname, int lines)
     }
 
     acc_string_clear();
-    char buf[2048];
-    while (fgets(buf, sizeof(buf), inf)) {
+    char buf[32 << 10];
+    while ((lines == 0 || lines-- != 0) && fgets(buf, sizeof(buf), inf)) {
         char *c = buf + strlen(buf) - 1;
         if (*c == '\n') {
             *c = '\0';
