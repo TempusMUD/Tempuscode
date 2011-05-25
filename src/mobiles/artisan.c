@@ -42,8 +42,7 @@ char *next_crafting_requirement(struct craft_item *item,
     struct creature *keeper);
 
 gint
-shop_id_matches(gpointer vnum, struct craft_shop *shop,
-                gpointer ignore)
+shop_id_matches(struct craft_shop *shop, gpointer vnum)
 {
     return (shop->id == GPOINTER_TO_INT(vnum)) ? 0 : -1;
 }
@@ -52,12 +51,12 @@ struct craft_shop *
 craft_shop_by_id(int idnum)
 {
     GList *it;
-    it = g_list_find_custom(shop_list, 0, (GCompareFunc) shop_id_matches);
+    it = g_list_find_custom(shop_list, GINT_TO_POINTER(idnum), (GCompareFunc) shop_id_matches);
     return (it) ? it->data : NULL;
 }
 
 gint
-shop_keeper_matches(gpointer vnum, struct craft_shop *shop,
+shop_keeper_matches(struct craft_shop *shop,
                     struct creature *keeper)
 {
     return (shop->keeper_vnum == GET_NPC_VNUM(keeper)
