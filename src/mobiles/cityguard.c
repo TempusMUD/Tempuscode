@@ -361,8 +361,13 @@ drag_char_to_jail(struct creature *ch, struct creature *vict,
 }
 
 bool
-is_fighting_cityguard(struct creature * ch)
+is_fighting_cityguard(struct creature *ch)
 {
+    for (GList *it = first_living(ch->fighting); it; it = next_living(it)) {
+        struct creature *tch = it->data;
+        if (GET_NPC_SPEC(tch) == cityguard)
+            return true;
+    }
     return false;
 }
 
