@@ -101,7 +101,7 @@ struct timeval null_time;       /* zero-valued time structure */
 /* functions in this file */
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 void flush_q(struct txt_q *queue);
-void init_game(int port);
+void init_game(void);
 void signal_setup(void);
 void game_loop(int main_listener, int reader_listener);
 int init_socket(int port);
@@ -147,7 +147,7 @@ void save_all_players();
 
 /* Init sockets, run game, and cleanup sockets */
 void
-init_game(int port)
+init_game(void)
 {
     int main_listener, reader_listener;
     void my_srand(unsigned long initial_seed);

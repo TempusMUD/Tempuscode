@@ -26,7 +26,7 @@ extern int main_port;
 extern int reader_port;
 
 void verify_environment(void);
-void init_game(int port);
+void init_game(void);
 
 int
 main(int argc, char **argv)
@@ -202,7 +202,7 @@ main(int argc, char **argv)
         safe_exit(EXIT_SUCCESS);
     } else {
         slog("Running game on port %d.", main_port);
-        init_game(main_port);
+        init_game();
     }
 
     return EXIT_SUCCESS;
