@@ -623,7 +623,7 @@ load_object_from_xml(struct obj_data *container,
             obj->obj_flags.weight = xmlGetFloatProp(cur, "weight", 1);
             obj->obj_flags.material = xmlGetIntProp(cur, "material", 0);
             obj->obj_flags.timer = xmlGetIntProp(cur, "timer", 0);
-            if (obj->obj_flags.weight < 1) {
+            if (obj->obj_flags.weight == 0.0) {
                 if (obj->shared->proto) {
                     slog("Illegal object %d weight %.2f - setting to %.2f from prototype",
                          GET_OBJ_VNUM(obj),
