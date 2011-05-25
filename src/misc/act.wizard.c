@@ -1649,7 +1649,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     }
 
     acc_sprintf(
-        " %s '%s%s%s'  IDNum: [%5ld], struct accountNum: [%5ld], In room %s[%s%5d%s]%s\n",
+        " %s '%s%s%s'  IDNum: [%5ld], AccountNum: [%5ld], In room %s[%s%5d%s]%s\n",
         (!IS_NPC(k) ? "PC" : (!IS_NPC(k) ? "NPC" : "MOB")), CCYEL(ch, C_NRM),
         GET_NAME(k), CCNRM(ch, C_NRM), IS_NPC(k) ? NPC_IDNUM(k) : GET_IDNUM(k),
         IS_NPC(k) ? -1 : player_account_by_idnum(GET_IDNUM(k)), CCGRN(ch,
@@ -3923,8 +3923,8 @@ show_account(struct creature *ch, char *value)
         return;
     }
 
-    send_to_desc(ch->desc, "&y  struct account: &n%s [%d]", account->name,
-        account->id);
+    send_to_desc(ch->desc, "&y  Account: &n%s [%d]", account->name,
+                 account->id);
     if (account->email && *account->email)
         send_to_desc(ch->desc, " &c<%s>&n", account->email);
     struct house *h = find_house_by_owner(account->id);

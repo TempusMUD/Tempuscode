@@ -147,7 +147,7 @@ perform_net_load(struct descriptor_data *d, char *arg)
     }
 
     cost = GET_SKILL_COST(d->creature, skill_num);
-    send_to_desc(d, "Program cost: %10ld  struct account balance; %lld\r\n",
+    send_to_desc(d, "Program cost: %10ld  Account balance; %lld\r\n",
         cost, d->account->bank_future);
 
     if (d->account->bank_future < cost) {
