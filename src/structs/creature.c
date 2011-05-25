@@ -1525,7 +1525,7 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
 }
 
 void
-add_combat(struct creature *ch, struct creature *target, bool initiated)
+add_combat(struct creature *ch, struct creature *target, bool initiated __attribute__((unused)))
 {
     if (!target)
         return;

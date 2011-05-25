@@ -4226,7 +4226,7 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj, int spellnum)
 }
 
 void
-mag_creations(int level, struct creature *ch, int spellnum)
+mag_creations(int level __attribute__((unused)), struct creature *ch, int spellnum)
 {
     struct obj_data *tobj;
     int z;

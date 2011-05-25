@@ -1294,7 +1294,7 @@ renum_zone_table(void)
         }
 }
 
-void maybe_compile_prog(gpointer key, struct creature *mob, gpointer ignore)
+void maybe_compile_prog(gpointer key __attribute__((unused)), struct creature *mob, gpointer ignore __attribute__((unused)))
 {
     if (NPC_SHARED(mob)->prog)
         prog_compile(NULL, mob, PROG_TYPE_MOBILE);

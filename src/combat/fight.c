@@ -2864,7 +2864,7 @@ do_gun_special(struct creature * ch, struct obj_data * obj)
 }
 
 void
-perform_violence1(struct creature *ch, gpointer ignore)
+perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
 {
     int prob, i, die_roll;
 

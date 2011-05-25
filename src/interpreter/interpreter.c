@@ -2107,8 +2107,8 @@ find_command_noabbrev(const char *command)
 }
 
 long
-special(struct creature *ch, int cmd, int subcmd, char *arg,
-    enum special_mode spec_mode)
+special(struct creature *ch, int cmd, int subcmd __attribute__((unused)), char *arg,
+        enum special_mode spec_mode)
 {
     struct obj_data *i;
     struct special_search_data *srch = NULL;

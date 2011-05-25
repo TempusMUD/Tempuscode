@@ -30,7 +30,7 @@ struct board_data {
 };
 
 bool
-board_command(struct editor *editor, char cmd, char *args)
+board_command(struct editor *editor, char cmd, char *args __attribute__((unused)))
 {
     if (cmd == 'u') {
         editor_undo(editor);

@@ -287,13 +287,11 @@ account_by_idnum(int id)
 }
 
 gboolean
-account_name_matches(gpointer key, gpointer value, gpointer user_data)
+account_name_matches(gpointer key __attribute__((unused)), gpointer value, gpointer user_data)
 {
     struct account *this_acct = (struct account *)value;
     return !strcasecmp(this_acct->name, (char *)user_data);
 }
-
-
 
 struct account *
 account_by_name(char *name)
@@ -759,7 +757,7 @@ get_char_by_index(struct account *account, int idx)
 bool
 invalid_char_index(struct account * account, int idx)
 {
-    return (idx < 1 || idx > g_list_length(account->chars));
+    return (idx < 1 || (guint)idx > g_list_length(account->chars));
 }
 
 void

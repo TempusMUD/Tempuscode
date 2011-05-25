@@ -1317,7 +1317,7 @@ is_playing_quest(struct quest * quest, int id)
 }
 
 bool
-quest_levelok(struct creature * ch)
+quest_levelok(struct creature *ch __attribute__((unused)))
 {
     return true;
 }

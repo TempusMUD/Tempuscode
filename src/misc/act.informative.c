@@ -1918,7 +1918,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
 }
 
 gint
-found_fighting(struct creature *tch, gpointer ignore)
+found_fighting(struct creature *tch, gpointer ignore __attribute__((unused)))
 {
     return (tch->fighting) ? 0 : -1;
 }

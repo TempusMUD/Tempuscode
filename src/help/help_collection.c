@@ -283,7 +283,7 @@ help_collection_edit_item(struct help_collection * col, struct creature * ch,
 
 // Clear an item
 bool
-help_collection_clear_item(struct help_collection * col, struct creature * ch)
+help_collection_clear_item(struct help_collection *col __attribute__((unused)), struct creature * ch)
 {
     if (!GET_OLC_HELP(ch)) {
         send_to_char(ch, "You must be editing an item to clear it.\r\n");
@@ -295,7 +295,7 @@ help_collection_clear_item(struct help_collection * col, struct creature * ch)
 
 // Save and Item
 bool
-help_collection_save_item(struct help_collection * col, struct creature * ch)
+help_collection_save_item(struct help_collection *col __attribute__((unused)), struct creature * ch)
 {
     if (!GET_OLC_HELP(ch)) {
         send_to_char(ch, "You must be editing an item to save it.\r\n");
@@ -490,7 +490,7 @@ error:
 // Funnels outside commands into struct help_item functions
 // (that should be protected or something... shrug.)
 bool
-help_collection_set(struct help_collection * col, struct creature * ch,
+help_collection_set(struct help_collection *col __attribute__((unused)), struct creature * ch,
     char *argument)
 {
     char arg1[256];

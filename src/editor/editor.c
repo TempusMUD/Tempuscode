@@ -178,13 +178,13 @@ editor_finish(struct editor *editor, bool save)
 }
 
 void
-editor_finalize(struct editor *editor, const char *text)
+editor_finalize(struct editor *editor __attribute__((unused)), const char *text __attribute__((unused)))
 {
     // Do nothing
 }
 
 void
-editor_cancel(struct editor *editor)
+editor_cancel(struct editor *editor __attribute__((unused)))
 {
     // Do nothing
 }

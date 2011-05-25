@@ -452,7 +452,7 @@ update_object_counts(struct obj_data *obj)
 }
 
 void
-update_objects_in_house(struct house *house, gpointer ignore)
+update_objects_in_house(struct house *house, gpointer ignore __attribute__((unused)))
 {
     for (GList *it = house->rooms;it;it = it->next) {
         room_num room_idnum = GPOINTER_TO_INT(it->data);
@@ -463,7 +463,7 @@ update_objects_in_house(struct house *house, gpointer ignore)
 }
 
 void
-zero_housed_objects(gpointer vnum, struct obj_data *obj, gpointer ignore)
+zero_housed_objects(gpointer vnum __attribute__((unused)), struct obj_data *obj, gpointer ignore __attribute__((unused)))
 {
     obj->shared->house_count = 0;
 }
@@ -487,7 +487,7 @@ count_objects_in_room(struct room_data *room)
 }
 
 int
-count_housed_objects(struct house *house, gpointer ignore)
+count_housed_objects(struct house *house, gpointer ignore __attribute__((unused)))
 {
     int count = 0;
 
@@ -794,7 +794,7 @@ load_houses(void)
 }
 
 int
-room_rent_cost(struct house *house, struct room_data *room)
+room_rent_cost(struct house *house __attribute__((unused)), struct room_data *room)
 {
     if (room == NULL)
         return 0;
@@ -811,7 +811,7 @@ room_rent_cost(struct house *house, struct room_data *room)
 }
 
 gint
-creature_is_pc(struct creature *ch, gpointer ignore)
+creature_is_pc(struct creature *ch, gpointer ignore __attribute__((unused)))
 {
     return (IS_PC(ch)) ? 0 : -1;
 }
