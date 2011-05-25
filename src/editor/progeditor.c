@@ -74,7 +74,7 @@ start_editing_prog(struct descriptor_data *d,
     if (d->text_editor) {
         errlog("Text editor object not null in start_editing_prog");
         REMOVE_BIT(PLR_FLAGS(d->creature),
-            PLR_WRITING | PLR_OLC | PLR_MAILING);
+                   PLR_WRITING | PLR_OLC | PLR_MAILING);
         return;
     }
 

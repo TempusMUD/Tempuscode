@@ -165,7 +165,7 @@ perform_barb_berserk(struct creature *ch,
 ACMD(do_berserk)
 {
     struct affected_type af, af2, af3;
-    byte percent;
+    int percent;
 
     init_affect(&af);
     init_affect(&af2);

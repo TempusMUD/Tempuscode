@@ -302,7 +302,7 @@ craft_shop_buy(struct craft_shop *shop,
             return;
         }
         if ((unsigned int)num < g_list_length(shop->items))
-            item = g_list_nth_data(shop->items, num);
+            item = g_list_nth_data(shop->items, (unsigned int)num);
     } else {
         for (item_itr = shop->items; item_itr; item_itr = item_itr->next) {
             item = item_itr->data;
@@ -421,7 +421,7 @@ SPECIAL(artisan)
     if (CMD_IS("steal") && GET_LEVEL(ch) < LVL_IMMORT) {
         do_action(keeper, GET_NAME(ch), cmd_slap, 0);
         sprintf(buf, "%s is a bloody thief!", GET_NAME(ch));
-        buf[0] = toupper(buf[0]);
+        buf[0] = (char)toupper(buf[0]);
         perform_say(keeper, "shout", buf);
         return true;
     }

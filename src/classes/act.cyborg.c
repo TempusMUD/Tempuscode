@@ -141,7 +141,7 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
 
         if (IS_OBJ_TYPE(battery, ITEM_BATTERY)
             && COST_UNIT(battery) * amount > GET_CASH(ch)) {
-            amount = GET_CASH(ch) / COST_UNIT(battery);
+            amount = (int)(GET_CASH(ch) / COST_UNIT(battery));
 
             if (!amount) {
                 send_to_char(ch,
@@ -522,7 +522,7 @@ ACMD(do_recharge)
 //
 
 void
-perform_cyborg_activate(struct creature *ch, int mode, int subcmd)
+perform_cyborg_activate(struct creature *ch, sh_int mode, int subcmd)
 {
     struct affected_type af[3];
     const char *to_room[2], *to_char[2];

@@ -214,7 +214,7 @@ maileditor_addrecipient(struct editor *editor, char *name)
     struct mail_recipient_data *cur = NULL;
     struct mail_recipient_data *new_rcpt = NULL;
     const char *money_desc;
-    int money, cost;
+    money_t money, cost;
 
     new_id_num = player_idnum_by_name(name);
     if (!new_id_num) {
@@ -262,7 +262,7 @@ maileditor_addrecipient(struct editor *editor, char *name)
         if (money < cost) {
             editor_emit(editor,
                 tmp_sprintf
-                ("You don't have the %d %s necessary to add %s.\r\n", cost,
+                ("You don't have the %lld %s necessary to add %s.\r\n", cost,
                     money_desc,
                     tmp_capitalize(player_name_by_idnum(new_id_num))));
             free(new_rcpt);

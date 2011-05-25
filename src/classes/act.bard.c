@@ -153,7 +153,7 @@ sing_song(struct creature *ch, struct creature *vict, struct obj_data *ovict,
 char *
 pad_song(char *lyrics)
 {
-    int counter = 0;
+    uint16_t counter = 0;
     char *ptr = lyrics;
 
     while (*ptr != '"') {
@@ -187,7 +187,7 @@ bool
 check_instrument(struct creature * ch, int songnum)
 {
     struct obj_data *objs[4];
-    short req_type = songs[songnum].type;
+    int req_type = songs[songnum].type;
     bool found = false;
     int x = 0;
 
@@ -256,8 +256,8 @@ ASPELL(song_instant_audience)
             (float)((skill_bonus(ch, SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
 
         // tweak them out
-        GET_HITROLL(member) = MIN((int)(GET_HITROLL(member) * mult), 60);
-        GET_DAMROLL(member) = MIN((int)(GET_DAMROLL(member) * mult), 75);
+        GET_HITROLL(member) = (sbyte)MIN((int)(GET_HITROLL(member) * mult), 60);
+        GET_DAMROLL(member) = (sbyte)MIN((int)(GET_DAMROLL(member) * mult), 75);
         GET_MAX_HIT(member) = MIN((int)(GET_MAX_HIT(member) * mult), 30000);
         GET_HIT(member) = GET_MAX_HIT(member);
 

@@ -2909,7 +2909,7 @@ const int rev_dir[] = {
     6
 };
 
-const char movement_loss[] = {
+const byte movement_loss[] = {
     1,                          // Inside
     1,                          // City
     2,                          // Field
@@ -3028,7 +3028,7 @@ const char *moon_sky_types[] = {
     "\n"
 };
 
-const char eq_pos_order[] = {
+const byte eq_pos_order[] = {
     WEAR_HEAD,
     WEAR_FACE,
     WEAR_EYES,

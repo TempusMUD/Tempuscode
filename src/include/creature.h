@@ -7,6 +7,7 @@
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
+#include <stdint.h>
 #include <glib.h>
 
 #include "structs.h"
@@ -706,7 +707,7 @@ struct char_player_data {
 	sh_int hometown;			/* PC s Hometown (zone)                 */
 	byte sex;					/* PC / NPC's sex                       */
 	byte race;					/* PC / NPC's race                  */
-	byte level;					/* PC / NPC's level                     */
+	ubyte level;			/* PC / NPC's level                     */
 	byte age_adjust;			/* PC age adjust to maintain sanity     */
 	struct time_data time;		/* PC's AGE in days                 */
 };
@@ -747,11 +748,11 @@ struct char_point_data {
 struct char_special_data_saved {
     int alignment;				/* +-1000 for alignments                */
 	long idnum;					/* player's idnum; -1 for mobiles    */
-	long act;					/* act flag for NPC's; player flag for PC's */
-	long act2;
-	long affected_by;			/* Bitvector for spells/skills affected by */
-	long affected2_by;
-	long affected3_by;
+	uint32_t act;					/* act flag for NPC's; player flag for PC's */
+	uint32_t act2;
+	uint32_t affected_by;			/* Bitvector for spells/skills affected by */
+	uint32_t affected2_by;
+	uint32_t affected3_by;
     ubyte remort_generation;
 	sh_int apply_saving_throw[10];	/* Saving throw (Bonuses)        */
 };
@@ -803,8 +804,8 @@ struct player_special_data_saved {
 	sh_int invis_level;			/* level of invisibility        */
 	room_num load_room;			/* Which room to place char in        */
 	room_num home_room;
-	long pref;					/* preference flags for PC's.        */
-	long pref2;					/* 2nd pref flag                        */
+	uint32_t pref;					/* preference flags for PC's.        */
+	uint32_t pref2;					/* 2nd pref flag                        */
 	sbyte conditions[3];		/* Drunk, full, thirsty            */
 
 	ubyte clan;
@@ -826,7 +827,7 @@ struct player_special_data_saved {
 	int columns;
 	int hold_load_room;
 	int quest_id;
-	int plr2_bits;
+	uint32_t plr2_bits;
 	int reputation;
 	int killer_severity;
 	long mana_shield_low;

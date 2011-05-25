@@ -176,7 +176,7 @@ void WAIT_STATE(struct creature *ch, int cycle);
 
 #define IS_SET(flag,bit)  ((flag) & (bit))
 #define SET_BIT(var,bit)  ((var) |= (bit))
-#define REMOVE_BIT(var,bit)  ((var) &= ~(bit))
+#define REMOVE_BIT(var,bit)  ((var) &= ~((unsigned long)(bit)))
 #define TOGGLE_BIT(var,bit) ((var) = (var) ^ (bit))
 
 /* room utils ************************************************************/

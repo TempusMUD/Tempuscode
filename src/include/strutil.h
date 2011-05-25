@@ -12,7 +12,7 @@
 
 static inline char *CAP(char *st)
 {
-    *st = toupper(*st);
+    *st = (char)toupper(*st);
     return st;
 }
 

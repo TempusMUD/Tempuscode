@@ -199,7 +199,7 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str,
     return total_cost;
 }
 
-int
+money_t
 offer_rent(struct creature *ch, struct creature *receptionist,
     int factor, bool display)
 {

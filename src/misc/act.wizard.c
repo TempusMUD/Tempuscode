@@ -182,7 +182,7 @@ show_char_class_skills(struct creature *ch, int con, int immort, int bits)
                     // the gen after the spell.  The trick is that we want it
                     // to be yellow, but printf doesn't recognize the existence
                     // of escape codes for purposes of padding.
-                    int len;
+                    size_t len;
 
                     tmp = tmp_sprintf("%s (gen %d)", spell_to_str(skl),
                         spell_info[skl].gen[con]);
@@ -584,7 +584,7 @@ ACMD(do_vnum)
 static void
 do_stat_memory(struct creature *ch)
 {
-    int sum = 0, total = 0;
+    size_t sum = 0, total = 0;
     int i = 0, j = 0;
     struct alias_data *al;
     struct extra_descr_data *tmpdesc;

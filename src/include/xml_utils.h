@@ -46,11 +46,11 @@ xmlGetIntProp(xmlNodePtr n, const char *name, int defValue)
 static inline float
 xmlGetFloatProp(xmlNodePtr n, const char *name, float defValue)
 {
-	int prop = 0;
+	float prop = 0;
 	xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
 	if (c == NULL)
 		return defValue;
-	prop = atof((const char *)(c));
+	prop = (float)atof((const char *)(c));
 	free(c);
 	return prop;
 }

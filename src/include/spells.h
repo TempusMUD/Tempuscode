@@ -878,7 +878,7 @@ struct gun_hit_type {
 };
 
 #define ASPELL(spellname) \
-	void spellname(__attribute__ ((unused)) int level, \
+	void spellname(__attribute__ ((unused)) ubyte level, \
 		__attribute__ ((unused)) struct creature *ch, \
 		__attribute__ ((unused))  struct creature *victim, \
 		__attribute__ ((unused)) struct obj_data *obj, \
