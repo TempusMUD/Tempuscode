@@ -102,17 +102,22 @@ help_item_load_text(struct help_item *item)
 
     inf = fopen(fname, "r");
     if (inf) {
-        if (fscanf(inf, "%d %d\n", &idnum, &textlen) != 2)
+        if (fscanf(inf, "%d %zu\n", &idnum, &textlen) != 2) {
+            errlog("Format problem with help file %s", fname);
             goto error;
+        }
 
         if (textlen > MAX_HELP_TEXT_LENGTH - 1)
             textlen = MAX_HELP_TEXT_LENGTH - 1;
-        if (!fgets(buf, sizeof(buf), inf))
+        if (!fgets(buf, sizeof(buf), inf)) {
+            errlog("Can't get text length with help file %s", fname);
             goto error;
+        }
 
         CREATE(item->text, char, textlen + 1);
-
-        if (fread(item->text, 1, textlen, inf) != textlen) {
+        size_t read_bytes = fread(item->text, 1, textlen, inf);
+        if (read_bytes != textlen) {
+            errlog("Expected %zu bytes, got %zu in help file %s", textlen, read_bytes, fname);
             free(item->text);
             item->text = NULL;
             goto error;
