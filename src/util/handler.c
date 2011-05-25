@@ -1156,7 +1156,7 @@ equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
     int invalid_char_class(struct creature *ch, struct obj_data *obj);
 
     if (pos < 0 || pos >= NUM_WEARS) {
-        errlog("Illegal pos in equip_char.");
+        errlog("Illegal pos %d in equip_char.", pos);
         obj_to_room(obj, zone_table->world);
         return 0;
     }
