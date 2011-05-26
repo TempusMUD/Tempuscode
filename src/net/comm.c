@@ -355,6 +355,8 @@ game_loop(int main_listener, int reader_listener)
         /* poll (without blocking) for new input, output, and exceptions */
         if (select(maxdesc + 1, &input_set, &output_set, &exc_set,
                 &null_time) < 0) {
+            if (errno == EINTR)
+                continue;
             perror("Select poll");
             return;
         }
