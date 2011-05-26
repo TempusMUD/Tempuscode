@@ -1387,15 +1387,12 @@ ACMD(do_retreat)
         }
     }
 
-    remove_all_combat(ch);
-
     int retval = perform_move(ch, dir, MOVE_RETREAT, true);
 
     if (is_dead(ch))
         return;
 
     if (retval == 0) {
-
         if (fighting && !found)
             gain_skill_prof(ch, SKILL_RETREAT);
         if (is_fighting(ch))
