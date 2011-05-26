@@ -111,6 +111,7 @@ check_tempus_LDADD = @CHECK_LIBS@ @XML_LIBS@ @GLIB_LIBS@ \
 			$(top_builddir)/src/room_data.o \
 			$(top_builddir)/src/accstr.o \
 			$(top_builddir)/src/handler.o \
+			$(top_builddir)/src/gpqueue.o \
 			$(top_builddir)/src/graph.o \
 			$(top_builddir)/src/modify.o \
 			$(top_builddir)/src/random.o \

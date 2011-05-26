@@ -2,6 +2,7 @@
 #define _PROG_H_
 
 #include "constants.h"
+#include "gpqueue.h"
 
 struct creature;
 
@@ -72,12 +73,12 @@ struct prog_state_data {
 };
 
 struct prog_env {
-	struct prog_env *next;	// next prog environment
 	int exec_pt;				// the line number we're executing
 	int executed;				// the number of non-handlers we've executed
     int speed;					// default wait between commands
-    int wait;					// the number of seconds to wait
+    int next_tick;              // the tick number to continue execution
 	int condition;				// T/F depending on last compare
+    GPQueueHandle handle;       // Handle to priority queue entry
     enum prog_evt_type owner_type;	// type of the owner
 	void *owner;				// pointer to the actual owner
 	struct creature *target;			// target of prog
@@ -109,8 +110,8 @@ void trigger_prog_death(void *owner, enum prog_evt_type owner_type, struct creat
 struct prog_env *prog_start(enum prog_evt_type owner_type, void *owner, struct creature *target, struct prog_evt *evt);
 void prog_update(void);
 void prog_update_pending(void);
-int prog_count(bool total);
-int free_prog_count(void);
+size_t prog_count(bool total);
+size_t free_prog_count(void);
 void prog_state_free(struct prog_state_data *state);
 void prog_compile(struct creature *ch, void *owner, enum prog_evt_type owner_type);
 char *prog_get_text(void *owner, enum prog_evt_type owner_type);

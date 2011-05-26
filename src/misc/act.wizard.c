@@ -7840,7 +7840,8 @@ ACMD(do_coderutil)
         }
     } else if (strcmp(token, "progstat") == 0) {
         void *owner;
-        extern struct prog_env *prog_list;
+        extern GList *active_progs;
+        extern gint prog_tick;
         unsigned char *prog_get_obj(void *owner,
             enum prog_evt_type owner_type);
 
@@ -7864,7 +7865,8 @@ ACMD(do_coderutil)
             { "command", "idle", "fight", "give", "enter", "leave", "load",
                 "tick", "spell", "combat", "death", "dying" };
 
-        for (struct prog_env * prog = prog_list; prog; prog = prog->next) {
+        for (GList *cur = active_progs;cur;cur = cur->next) {
+            struct prog_env *prog = cur->data;
             if (prog->owner == owner) {
                 unsigned char *exec =
                     prog_get_obj(prog->owner, prog->owner_type);
@@ -7875,9 +7877,10 @@ ACMD(do_coderutil)
                     (unsigned long)prog,
                     prog_event_kind_desc[(int)prog->evt.kind],
                     (prog->target) ? GET_NAME(prog->target) : "<none>",
-                    prog->wait, prog_cmds[cmd].str, (char *)exec + arg_addr);
+                    prog->next_tick - prog_tick, prog_cmds[cmd].str, (char *)exec + arg_addr);
             }
         }
+
         page_string(ch->desc, acc_get_string());
     } else
         send_to_char(ch, "%s", CODER_UTIL_USAGE);

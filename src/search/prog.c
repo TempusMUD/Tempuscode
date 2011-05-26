@@ -27,11 +27,15 @@
 #include "prog.h"
 #include "clan.h"
 #include "weather.h"
+#include "gpqueue.h"
 
-struct prog_env *free_progs = NULL;
-struct prog_env *prog_list = NULL;
-int loop_fence = 0;
 extern char locate_buf[256];
+
+static int loop_fence = 0;
+gint prog_tick = 0;
+GTrashStack *dead_progs = NULL;
+GPQueue *active_prog_queue = NULL;
+GList *active_progs = NULL;
 
 #define DEFPROGHANDLER(cmd, env, evt, args) \
     void prog_do_##cmd(struct prog_env *env __attribute__ ((unused)), \
@@ -933,7 +937,7 @@ DEFPROGHANDLER(trace, env, evt, args)
 
 DEFPROGHANDLER(pause, env, evt, args)
 {
-	env->wait = MAX(1, atoi(args));
+	env->next_tick = prog_tick + MAX(1, atoi(args));
 }
 
 DEFPROGHANDLER(walkto, env, evt, args)
@@ -960,7 +964,7 @@ DEFPROGHANDLER(walkto, env, evt, args)
 
 		// we have to wait at least one second
 		pause = atoi(tmp_getword(&args));
-		env->wait = MAX(1, pause);
+        env->next_tick = prog_tick + MAX(1, pause);
 
 		// we stay on the same line until we get to the destination
 		env->exec_pt -= sizeof(short) * 2;
@@ -1029,7 +1033,7 @@ DEFPROGHANDLER(driveto, env, evt, args)
 
 		// we have to wait at least one second
 		pause = atoi(tmp_getword(&args));
-		env->wait = MAX(1, pause);
+        env->next_tick = prog_tick + MAX(1, pause);
 
 		// we stay on the same line until we get to the destination
 		env->exec_pt -= sizeof(short) * 2;
@@ -1420,11 +1424,12 @@ DEFPROGHANDLER(cond_next_handler, env, evt, args)
 
 DEFPROGHANDLER(nuke, env, evt, args)
 {
-	struct prog_env *cur_prog;
 
-	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
+	for (GList *cur = active_progs; cur; cur = cur->next) {
+        struct prog_env *cur_prog = cur->data;
 		if (cur_prog != env && cur_prog->owner == env->owner)
 			cur_prog->exec_pt = -1;
+    }
 }
 
 static void
@@ -1835,17 +1840,7 @@ prog_execute(struct prog_env *env)
 	if (env->exec_pt < 0)
 		return;
 
-	// blocking indefinitely
-	if (env->wait < 0)
-		return;
-
-	// waiting until the right moment
-	if (env->wait > 0) {
-		env->wait -= 1;
-		return;
-	}
-	// we've waited long enough!
-	env->wait = env->speed;
+	env->next_tick = prog_tick + env->speed;
 
     exec = prog_get_obj(env->owner, env->owner_type);
     if (!exec) {
@@ -1854,9 +1849,7 @@ prog_execute(struct prog_env *env)
         return;
     }
 
-    while (env->exec_pt >= 0 &&
-           *((short *)&exec[env->exec_pt]) &&
-           env->wait == 0) {
+    while (env->exec_pt >= 0 && env->next_tick == prog_tick) {
         // Get the command and the arg address
         cmd = *((short *)(exec + env->exec_pt));
         arg_addr = *((short *)(exec + env->exec_pt + sizeof(short)));
@@ -1875,9 +1868,6 @@ prog_execute(struct prog_env *env)
         if (prog_cmds[cmd].count)
             env->executed +=1 ;
     }
-
-    if (!env->wait)
-        env->exec_pt = -1;
 }
 
 struct prog_env *
@@ -1890,25 +1880,31 @@ prog_start(enum prog_evt_type owner_type, void *owner, struct creature * target,
     if (!initial_exec_pt)
 		return NULL;
 
-	if (free_progs) {
-		new_prog = free_progs;
-		free_progs = free_progs->next;
-	} else {
+    new_prog = g_trash_stack_pop(&dead_progs);
+    if (!new_prog)
 		CREATE(new_prog, struct prog_env, 1);
-	}
-	new_prog->next = prog_list;
-	prog_list = new_prog;
+
+    active_progs = g_list_prepend(active_progs, new_prog);
+    active_prog_queue = g_pqueue_insert(active_prog_queue,
+                                        new_prog,
+                                        prog_tick,
+                                        &new_prog->handle);
 
 	new_prog->owner_type = owner_type;
 	new_prog->owner = owner;
     new_prog->exec_pt = initial_exec_pt;
 	new_prog->executed = 0;
-	new_prog->wait = 0;
+	new_prog->next_tick = prog_tick;
 	new_prog->speed = 0;
 	new_prog->target = NULL;
 	new_prog->evt = *evt;
     new_prog->tracing = false;
     new_prog->state = NULL;
+
+    if (owner_type == PROG_TYPE_MOBILE)
+        ((struct creature *)owner)->prog_marker += 1;
+    else
+        ((struct room_data *)owner)->prog_marker += 1;
 
     if (target)
         prog_set_target(new_prog, target);
@@ -1919,23 +1915,21 @@ prog_start(enum prog_evt_type owner_type, void *owner, struct creature * target,
 void
 destroy_attached_progs(void *owner)
 {
-	struct prog_env *cur_prog;
-
-	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
+    for (GList *cur = active_progs; cur; cur = cur->next) {
+        struct prog_env *cur_prog = cur->data;
 		if (cur_prog->owner == owner ||
             cur_prog->target == owner ||
             cur_prog->evt.subject == owner ||
             cur_prog->evt.object == owner)
 			cur_prog->exec_pt = -1;
-	}
+    }
 }
 
 void
 prog_unreference_object(struct obj_data *obj)
 {
-	struct prog_env *cur_prog;
-
-	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
+	for (GList *cur = active_progs; cur; cur = cur->next) {
+        struct prog_env *cur_prog = cur->data;
 		if (cur_prog->evt.object_type == PROG_TYPE_OBJECT
 				&& cur_prog->evt.object == obj) {
 			cur_prog->evt.object_type = PROG_TYPE_NONE;
@@ -2377,57 +2371,6 @@ trigger_prog_tick(void *owner, enum prog_evt_type owner_type)
     loop_fence--;
 }
 
-static void
-prog_unmark_mobiles(void)
-{
-	// Unmark mobiles
-    for (GList *it = first_living(creatures);it;it = next_living(it)) {
-        struct creature *tch = it->data;
-        tch->prog_marker = 0;
-    }
-}
-
-static void
-prog_unmark_rooms(void)
-{
-	struct zone_data *zone;
-	struct room_data *room;
-
-	for (zone = zone_table; zone; zone = zone->next)  {
-		if (ZONE_FLAGGED(zone, ZONE_FROZEN)
-				|| zone->idle_time >= ZONE_IDLE_TIME)
-			continue;
-
-		for (room = zone->world; room; room = room->next)
-			if (GET_ROOM_PROG(room))
-				room->prog_marker = 0;
-	}
-}
-
-static void
-prog_execute_and_mark(void)
-{
-	struct prog_env *cur_prog;
-
-	// Execute progs and mark them as non-idle
-	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
-		if (cur_prog->exec_pt == -1)
-			continue;
-
-		if (!cur_prog->owner) {
-			errlog("Prog without owner");
-			continue;
-		}
-
-        if (cur_prog->owner_type == PROG_TYPE_MOBILE)
-            ((struct creature *)cur_prog->owner)->prog_marker = 1;
-        else
-            ((struct room_data *)cur_prog->owner)->prog_marker = 1;
-
-		prog_execute(cur_prog);
-	}
-}
-
 void
 prog_state_free(struct prog_state_data *state)
 {
@@ -2446,28 +2389,58 @@ static void
 prog_free(struct prog_env *prog)
 {
     prog_state_free(prog->state);
-    prog->next = free_progs;
-    free_progs = prog;
+    if (prog->handle) {
+        active_prog_queue = g_pqueue_delete(active_prog_queue, prog->handle);
+        prog->handle = NULL;
+    }
+    if (prog->owner) {
+        if (prog->owner_type == PROG_TYPE_MOBILE)
+            ((struct creature *)prog->owner)->prog_marker -= 1;
+        else
+            ((struct room_data *)prog->owner)->prog_marker -= 1;
+    }
+    active_progs = g_list_remove(active_progs, prog);
+    g_trash_stack_push(&dead_progs, prog);
+}
+
+static void
+prog_execute_and_mark(void)
+{
+	struct prog_env *cur_prog;
+    gint tick;
+
+	// Execute progs and mark them as non-idle
+    while (g_pqueue_top_extended(active_prog_queue, (gpointer *)&cur_prog, &tick)
+           && tick == prog_tick) {
+        if (cur_prog->exec_pt < 0) {
+            prog_free(cur_prog);
+            continue;
+        }
+
+		prog_execute(cur_prog);
+
+        if (cur_prog->exec_pt > 0) {
+            active_prog_queue = g_pqueue_change_priority(active_prog_queue,
+                                                         cur_prog->handle,
+                                                         cur_prog->next_tick);
+        } else {
+            prog_free(cur_prog);
+        }
+    }
 }
 
 static void
 prog_free_terminated(void)
 {
-	struct prog_env *cur_prog, *next_prog;
+    GList *next;
 
-    while (prog_list && (prog_list->exec_pt < 0 || !prog_list->owner)) {
-        next_prog = prog_list->next;
-        prog_free(prog_list);
-        prog_list = next_prog;
+    for (GList *cur = active_progs;cur;cur = next) {
+        struct prog_env *cur_prog = cur->data;
+        next = cur->next;
+
+        if (cur_prog->exec_pt < 0 || !cur_prog->owner)
+            prog_free(cur_prog);
     }
-
-	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next) {
-		next_prog = cur_prog->next;
-		if (next_prog && (next_prog->exec_pt < 0 || !next_prog->owner)) {
-            cur_prog->next = next_prog->next;
-			prog_free(next_prog);
-        }
-	}
 }
 
 static void
@@ -2504,13 +2477,11 @@ prog_trigger_idle_rooms(void)
 void
 prog_update(void)
 {
-    prog_unmark_mobiles();
-    prog_unmark_rooms();
-
-    prog_execute_and_mark();
-
     prog_trigger_idle_mobs();
     prog_trigger_idle_rooms();
+
+    prog_execute_and_mark();
+    prog_tick++;
 
     prog_free_terminated();
 }
@@ -2518,33 +2489,21 @@ prog_update(void)
 void
 prog_update_pending(void)
 {
-	struct prog_env *cur_prog;
-
-	for (cur_prog = prog_list; cur_prog; cur_prog = cur_prog->next)
-		if (cur_prog->executed == 0)
-			prog_execute(cur_prog);
-
+    prog_execute_and_mark();
 }
 
-int
-prog_count(bool total)
-{
-	int result = 0;
-	struct prog_env *cur_env;
-
-	for (cur_env = prog_list; cur_env; cur_env = cur_env->next)
-		if (total || cur_env->exec_pt > 0)
-			result++;
-	return result;
-}
-
-int
+size_t
 free_prog_count(void)
 {
-	int result = 0;
-	struct prog_env *cur_env;
-
-	for (cur_env = free_progs; cur_env; cur_env = cur_env->next)
-		result++;
-	return result;
+    return g_trash_stack_height(&dead_progs);
 }
+
+size_t
+prog_count(bool total)
+{
+    if (total)
+        return g_list_length(active_progs) + free_prog_count();
+    else
+        return g_list_length(active_progs);
+}
+
