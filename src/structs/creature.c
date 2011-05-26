@@ -219,36 +219,12 @@ is_tester(struct creature *ch)
 }
 
 bool
-is_dead(struct creature *ch)
-{
-    return (GET_POSITION(ch) == POS_DEAD);
-}
-
-bool
 is_fighting(struct creature *ch)
 {
     if (!ch->fighting)
         return false;
 
     return (first_living(ch->fighting) != NULL);
-}
-
-GList *
-first_living(GList *node)
-{
-    while (node && is_dead((struct creature *)node->data))
-        node = node->next;
-    return node;
-}
-
-GList *
-next_living(GList *node)
-{
-    if (!node)
-        return NULL;
-
-    node = node->next;
-    return first_living(node);
 }
 
 // Returns this creature's account id.

@@ -996,12 +996,32 @@ void remove_combat(struct creature *ch, struct creature *vict);
 void remove_all_combat(struct creature *ch);
 void remove_combat(struct creature *ch, struct creature *target);
 
-bool is_dead(struct creature *ch);
+inline bool
+is_dead(struct creature *ch)
+{
+    return (ch->char_specials.position == POS_DEAD);
+}
+
+inline GList *
+first_living(GList *node)
+{
+    while (node && is_dead((struct creature *)node->data))
+        node = node->next;
+    return node;
+}
+
+inline GList *
+next_living(GList *node)
+{
+    if (!node)
+        return NULL;
+
+    node = node->next;
+    return first_living(node);
+}
+
 bool is_fighting(struct creature *ch);
 bool is_newbie(struct creature *ch);
-
-GList *first_living(GList *node);
-GList *next_living(GList *node);
 
 void start_hunting(struct creature *ch, struct creature *vict);
 void stop_hunting(struct creature *ch);
