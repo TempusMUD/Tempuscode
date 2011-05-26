@@ -928,6 +928,11 @@ char_to_room(struct creature * ch, struct room_data * room,
         return false;
     }
 
+    if (IS_PC(ch) && room->zone->age == 999) {
+        reset_zone(room->zone);
+        slog("Zone %s reset due to player %s entry", room->zone->name, GET_NAME(ch));
+    }
+
     room->people = g_list_prepend(room->people, ch);
     ch->in_room = room;
 
