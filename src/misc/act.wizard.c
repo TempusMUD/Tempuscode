@@ -630,7 +630,7 @@ do_stat_memory(struct creature *ch)
         }
     }
     total = sum;
-    send_to_char(ch, "%s  world structs: %9d  (%d)\r\n", buf, sum, i);
+    send_to_char(ch, "%s  world structs: %9zu  (%d)\r\n", buf, sum, i);
 
     sum = g_hash_table_size(mob_prototypes) * (sizeof(struct creature));
 
@@ -675,7 +675,7 @@ do_stat_memory(struct creature *ch)
     }
 
     total += sum;
-    send_to_char(ch, "%s     mob protos: %9d  (%d)\r\n", buf, sum, i);
+    send_to_char(ch, "%s     mob protos: %9zu  (%d)\r\n", buf, sum, i);
 
     sum = 0;
     i = 0;
@@ -701,7 +701,7 @@ do_stat_memory(struct creature *ch)
         }
     }
     total += sum;
-    send_to_char(ch, "%s        mobiles: %9d  (%d)\r\n", buf, sum, i);
+    send_to_char(ch, "%s        mobiles: %9zu  (%d)\r\n", buf, sum, i);
 
     sum = 0;
     i = 0;
@@ -746,9 +746,9 @@ do_stat_memory(struct creature *ch)
     }
     total += sum;
 
-    send_to_char(ch, "%s        players: %9d  (%d)\r\n", buf, sum, i);
+    send_to_char(ch, "%s        players: %9zu  (%d)\r\n", buf, sum, i);
     send_to_char(ch, "%s               ___________\r\n", buf);
-    send_to_char(ch, "%s         total   %9d\r\n", buf, total);
+    send_to_char(ch, "%s         total   %9zu\r\n", buf, total);
 }
 
 #undef CHARADD
@@ -1785,11 +1785,11 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                 C_NRM), GET_SAVE(k, 7), CCNRM(ch, C_NRM));
     }
     if (IS_NPC(k))
-        acc_sprintf("Gold:[%8lld], Cash:[%8lld], (Total: %lld)\r\n",
+        acc_sprintf("Gold:[%8" PRId64 "], Cash:[%8" PRId64 "], (Total: %" PRId64 ")\r\n",
             GET_GOLD(k), GET_CASH(k), GET_GOLD(k) + GET_CASH(k));
     else
         acc_sprintf
-            ("Au:[%8lld], Bank:[%9lld], Cash:[%8lld], Enet:[%9lld], (Total: %lld)\r\n",
+            ("Au:[%8" PRId64 "], Bank:[%9" PRId64 "], Cash:[%8" PRId64 "], Enet:[%9" PRId64 "], (Total: %" PRId64 ")\r\n",
             GET_GOLD(k), GET_PAST_BANK(k), GET_CASH(k), GET_FUTURE_BANK(k),
             GET_GOLD(k) + GET_PAST_BANK(k) + GET_FUTURE_BANK(k) + GET_CASH(k));
 
@@ -3847,7 +3847,7 @@ do_show_stats(struct creature *ch)
 #else
     send_to_char(ch, "  %5d trail count\r\n", tr_count);
 #endif
-    send_to_char(ch, "  %5u running progs (%u total, %u free)\r\n",
+    send_to_char(ch, "  %5zu running progs (%zu total, %zu free)\r\n",
         prog_count(false), prog_count(true), free_prog_count());
     //send_to_char(ch, "  %5zu fighting creatures\r\n",
     // combatList.size());
@@ -3949,7 +3949,7 @@ show_account(struct creature *ch, char *value)
             account->creation_addr, account->login_addr, account->reputation);
     }
     send_to_desc(ch->desc,
-        "&y  Past bank: &n%-12lld    &yFuture Bank: &n%-12lld",
+        "&y  Past bank: &n%-12" PRId64 "    &yFuture Bank: &n%-12" PRId64,
         account->bank_past, account->bank_future);
     if (is_named_role_member(ch, "Questor")) {
         send_to_desc(ch->desc, "   &yQuest Points: &n%d\r\n",
@@ -4004,7 +4004,7 @@ show_player(struct creature *ch, char *value)
         remort_desc, GET_REMORT_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
-        "%sAu: %-8lld  Cr: %-8lld  Past: %-8lld  Fut: %-8lld\r\n",
+        "%sAu: %-8" PRId64 "  Cr: %-8" PRId64 "  Past: %-8" PRId64 "  Fut: %-8" PRId64 "\r\n",
         buf, GET_GOLD(vict), GET_CASH(vict),
         GET_PAST_BANK(vict), GET_FUTURE_BANK(vict));
     // Trim and fit the date to show year but not seconds.
@@ -7386,7 +7386,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
             if (GET_GOLD(mob) >= k &&
                 (!j || vendor != mob->mob_specials.shared->func))
                 sprintf(buf,
-                    "%s %3d. [%5d] %-30s (%2d) %2lld\r\n",
+                    "%s %3d. [%5d] %-30s (%2d) %2" PRId64 "\r\n",
                     buf, ++i, GET_NPC_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
                     GET_GOLD(mob));
         }
@@ -7469,13 +7469,13 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
                 continue;
 
             if (i && (GET_CASH(mob) > (GET_LEVEL(mob) * l))) {
-                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6lld)\r\n",
+                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6" PRId64 ")\r\n",
                     buf, ++k, GET_NPC_VNUM(mob), GET_NAME(mob),
                     GET_LEVEL(mob), GET_GOLD(mob));
 
             } else if (!i && (GET_GOLD(mob) > (GET_LEVEL(mob) * l))) {
 
-                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6lld)\r\n",
+                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6" PRId64 ")\r\n",
                     buf, ++k, GET_NPC_VNUM(mob), GET_NAME(mob),
                     GET_LEVEL(mob), GET_GOLD(mob));
             }

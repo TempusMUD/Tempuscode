@@ -453,7 +453,7 @@ save_player_to_file(struct creature *ch, const char *path)
         ch->points.hit, ch->points.mana, ch->points.move, ch->points.max_hit,
         ch->points.max_mana, ch->points.max_move);
 
-    fprintf(ouf, "<money gold=\"%lld\" cash=\"%lld\" xp=\"%d\"/>\n",
+    fprintf(ouf, "<money gold=\"%" PRId64 "\" cash=\"%" PRId64 "\" xp=\"%d\"/>\n",
         ch->points.gold, ch->points.cash, ch->points.exp);
 
     fprintf(ouf,
@@ -534,18 +534,18 @@ save_player_to_file(struct creature *ch, const char *path)
         fprintf(ouf, " points=\"%d\"", GET_IMMORT_QP(ch));
     fprintf(ouf, "/>\n");
 
-    fprintf(ouf, "<bits flag1=\"%lx\" flag2=\"%x\"/>\n",
+    fprintf(ouf, "<bits flag1=\"%" PRIx32 "\" flag2=\"%" PRIx32 "\"/>\n",
         ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits);
     if (PLR_FLAGGED(ch, PLR_FROZEN)) {
         fprintf(ouf, "<frozen thaw_time=\"%d\" freezer_id=\"%d\"/>\n",
             ch->player_specials->thaw_time, ch->player_specials->freezer_id);
     }
 
-    fprintf(ouf, "<prefs flag1=\"%lx\" flag2=\"%lx\" tongue=\"%s\"/>\n",
+    fprintf(ouf, "<prefs flag1=\"%" PRIx32 "\" flag2=\"%" PRIx32 "\" tongue=\"%s\"/>\n",
         ch->player_specials->saved.pref, ch->player_specials->saved.pref2,
         tongue_name(GET_TONGUE(ch)));
 
-    fprintf(ouf, "<affects flag1=\"%lx\" flag2=\"%lx\" flag3=\"%lx\"/>\n",
+    fprintf(ouf, "<affects flag1=\"%" PRIx32 "\" flag2=\"%" PRIx32 "\" flag3=\"%" PRIx32 "\"/>\n",
         ch->char_specials.saved.affected_by,
         ch->char_specials.saved.affected2_by,
         ch->char_specials.saved.affected3_by);

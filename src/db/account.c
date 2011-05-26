@@ -692,7 +692,7 @@ void
 account_set_past_bank(struct account *account, money_t amt)
 {
     account->bank_past = amt;
-    sql_exec("update accounts set bank_past=%lld where idnum=%d",
+    sql_exec("update accounts set bank_past=%" PRId64 " where idnum=%d",
         account->bank_past, account->id);
 }
 
@@ -700,7 +700,7 @@ void
 account_set_future_bank(struct account *account, money_t amt)
 {
     account->bank_future = amt;
-    sql_exec("update accounts set bank_future=%lld where idnum=%d",
+    sql_exec("update accounts set bank_future=%" PRId64 " where idnum=%d",
         account->bank_future, account->id);
 }
 

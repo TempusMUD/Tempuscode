@@ -975,7 +975,7 @@ creature_rent(struct creature *ch)
     if (GET_LEVEL(ch) < 50)
         mlog(ROLE_ADMINBASIC, MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)),
             NRM, true,
-            "%s has rented (%d/day, %lld %s)", GET_NAME(ch),
+            "%s has rented (%d/day, %" PRId64 " %s)", GET_NAME(ch),
             ch->player_specials->rent_per_day, CASH_MONEY(ch) + BANK_MONEY(ch),
             (ch->player_specials->rent_currency ==
                 TIME_ELECTRO) ? "gold" : "creds");
@@ -1203,7 +1203,7 @@ creature_arena_die(struct creature * ch)
         save_player_to_xml(ch);
         if (GET_LEVEL(ch) < 50)
             mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, true,
-                "%s has died in arena (%d/day, %lld %s)", GET_NAME(ch),
+                "%s has died in arena (%d/day, %" PRId64 " %s)", GET_NAME(ch),
                 ch->player_specials->rent_per_day,
                 CASH_MONEY(ch) + BANK_MONEY(ch),
                 (ch->player_specials->rent_currency ==

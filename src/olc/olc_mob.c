@@ -1419,7 +1419,7 @@ save_mobs(struct creature * ch, struct zone_data * zone)
             mob->mob_specials.shared->damnodice,
             mob->mob_specials.shared->damsizedice, mob->points.damroll);
 
-        fprintf(file, "%lld %d %d %d\n", GET_GOLD(mob),
+        fprintf(file, "%" PRId64 " %d %d %d\n", GET_GOLD(mob),
             GET_EXP(mob), GET_RACE(mob), GET_CLASS(mob));
 
         fprintf(file, "%d %d %d %d\n", GET_POSITION(mob),
@@ -1463,7 +1463,7 @@ save_mobs(struct creature * ch, struct zone_data * zone)
             if (GET_VOICE(mob) != 0)
                 fprintf(file, "Voice: %d\n", GET_VOICE(mob));
             if (GET_CASH(mob) != 0)
-                fprintf(file, "Cash: %lld\n", GET_CASH(mob));
+                fprintf(file, "Cash: %" PRId64 "\n", GET_CASH(mob));
             if (GET_MORALE(mob) != 100)
                 fprintf(file, "Morale: %d\n", GET_MORALE(mob));
             if (GET_NPC_LAIR(mob) >= 0)

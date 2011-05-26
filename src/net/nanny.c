@@ -1371,7 +1371,7 @@ send_menu(struct descriptor_data *d)
                 account_chars_available(d->account));
         }
         send_to_desc(d,
-            "\r\n             Past bank: %-12lld      Future Bank: %-12lld\r\n\r\n",
+            "\r\n             Past bank: %-12" PRId64 "      Future Bank: %-12" PRId64 "\r\n\r\n",
             d->account->bank_past, d->account->bank_future);
 
         send_to_desc(d,

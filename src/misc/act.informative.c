@@ -2193,7 +2193,7 @@ ACMD(do_gold)
     else if (GET_GOLD(ch) == 1)
         send_to_char(ch, "You have one miserable little gold coin.\r\n");
     else {
-        send_to_char(ch, "You have %lld gold coins.\r\n", GET_GOLD(ch));
+        send_to_char(ch, "You have %" PRId64 " gold coins.\r\n", GET_GOLD(ch));
     }
 }
 
@@ -2204,7 +2204,7 @@ ACMD(do_cash)
     else if (GET_CASH(ch) == 1)
         send_to_char(ch, "You have one almighty credit.\r\n");
     else {
-        send_to_char(ch, "You have %lld credits.\r\n", GET_CASH(ch));
+        send_to_char(ch, "You have %" PRId64 " credits.\r\n", GET_CASH(ch));
     }
 }
 
@@ -2808,7 +2808,7 @@ do_blind_score(struct creature *ch)
 	acc_sprintf("You are currently speaking %s.\r\n",
                 tongue_name(GET_TONGUE(ch)));
 	acc_sprintf(
-		"You carry %s%lld%s gold coins.  You have %s%lld%s cash credits.\r\n",
+		"You carry %s%" PRId64 "%s gold coins.  You have %s%" PRId64 "%s cash credits.\r\n",
 		CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch,
 			C_NRM), GET_CASH(ch), CCNRM(ch, C_NRM));
 
@@ -2984,7 +2984,7 @@ ACMD(do_score)
     acc_sprintf("You are currently speaking %s.\r\n",
         tongue_name(GET_TONGUE(ch)));
     acc_sprintf
-        ("You carry %s%lld%s gold coins.  You have %s%lld%s cash credits.\r\n",
+        ("You carry %s%" PRId64 "%s gold coins.  You have %s%" PRId64 "%s cash credits.\r\n",
         CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
         GET_CASH(ch), CCNRM(ch, C_NRM));
 

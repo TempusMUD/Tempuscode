@@ -1335,7 +1335,7 @@ SPECIAL(bank)
             clan->bank_account += amount;
             send_to_char(ch, "You deposit %d %s%s in the clan account.\r\n",
                 amount, CURRENCY(ch), PLURAL(amount));
-            sql_exec("update clans set bank=%lld where idnum=%d",
+            sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
                 clan->bank_account, clan->number);
             slog("CLAN: %s clandep (%s) %d.", GET_NAME(ch),
                 clan->name, amount);
@@ -1379,7 +1379,7 @@ SPECIAL(bank)
                 return 1;
             }
             clan->bank_account -= amount;
-            sql_exec("update clans set bank=%lld where idnum=%d",
+            sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
                 clan->bank_account, clan->number);
         } else {
             if (BANK_MONEY(ch) < amount) {
@@ -1454,7 +1454,7 @@ SPECIAL(bank)
                 return 1;
             }
             clan->bank_account -= amount;
-            sql_exec("update clans set bank=%lld where idnum=%d",
+            sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
                 clan->bank_account, clan->number);
         } else {
             if (BANK_MONEY(ch) < amount) {
@@ -1488,13 +1488,13 @@ SPECIAL(bank)
     crashsave(ch);
     if (clan) {
         if (clan->bank_account > 0)
-            send_to_char(ch, "The current clan balance is %lld %s%s.\r\n",
+            send_to_char(ch, "The current clan balance is %" PRId64 " %s%s.\r\n",
                 clan->bank_account, CURRENCY(ch), PLURAL(clan->bank_account));
         else
             send_to_char(ch, "The clan currently has no money deposited.\r\n");
     } else {
         if (BANK_MONEY(ch) > 0)
-            send_to_char(ch, "Your current balance is %lld %s%s.\r\n",
+            send_to_char(ch, "Your current balance is %" PRId64 " %s%s.\r\n",
                 BANK_MONEY(ch), CURRENCY(ch), PLURAL(BANK_MONEY(ch)));
         else
             send_to_char(ch, "You currently have no money deposited.\r\n");

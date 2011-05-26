@@ -218,32 +218,32 @@ consolidate_char_money(struct creature *ch)
 
     if (num_gold) {
         if (num_gold > MONEY_LOG_LIMIT)
-            slog("MONEY: %s picked up %lld gold in room #%d (%s)",
+            slog("MONEY: %s picked up %" PRId64 " gold in room #%d (%s)",
                 GET_NAME(ch), num_gold, ch->in_room->number,
                 ch->in_room->name);
         GET_GOLD(ch) += num_gold;
         if (num_gold == 1)
             send_to_char(ch, "There was only a single gold coin.\r\n");
         else
-            send_to_char(ch, "There were %lld coins.\r\n", num_gold);
+            send_to_char(ch, "There were %" PRId64 " coins.\r\n", num_gold);
 
         if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT))
-            do_split(ch, tmp_sprintf("%lld", num_gold), 0, 0);
+            do_split(ch, tmp_sprintf("%" PRId64, num_gold), 0, 0);
     }
 
     if (num_credits) {
         if (num_credits > MONEY_LOG_LIMIT)
-            slog("MONEY: %s picked up %lld credits in room #%d (%s)",
+            slog("MONEY: %s picked up %" PRId64 " credits in room #%d (%s)",
                 GET_NAME(ch), num_gold, ch->in_room->number,
                 ch->in_room->name);
         GET_CASH(ch) += num_credits;
         if (num_credits == 1)
             send_to_char(ch, "There was only a single credit.\r\n");
         else
-            send_to_char(ch, "There were %lld credits.\r\n", num_credits);
+            send_to_char(ch, "There were %" PRId64 " credits.\r\n", num_credits);
 
         if (AFF_FLAGGED(ch, AFF_GROUP) && PRF2_FLAGGED(ch, PRF2_AUTOSPLIT))
-            do_split(ch, tmp_sprintf("%lld credits", num_credits), 0, 0);
+            do_split(ch, tmp_sprintf("%" PRId64 " credits", num_credits), 0, 0);
     }
 }
 
@@ -1810,19 +1810,19 @@ transfer_money(struct creature *from, struct creature *to, money_t amt,
     }
 
     if (plant) {
-        send_to_char(from, "You plant %lld %s%s on %s\r\n", amt, currency_str,
+        send_to_char(from, "You plant %" PRId64 " %s%s on %s\r\n", amt, currency_str,
             amt == 1 ? "" : "s", PERS(to, from));
         if (IS_IMMORT(to) || (GET_SKILL(from, SKILL_PLANT) + GET_DEX(from)) <
             (number(0, 83) + GET_WIS(to))) {
-            act(tmp_sprintf("%lld %s%s planted in your pocket by $n.", amt,
+            act(tmp_sprintf("%" PRId64 " %s%s planted in your pocket by $n.", amt,
                     currency_str, amt == 1 ? "is" : "s are"),
                 false, from, 0, to, TO_VICT);
         }
         cmd_str = "planted";
     } else {
-        send_to_char(from, "You give %lld %s%s to %s\r\n", amt, currency_str,
+        send_to_char(from, "You give %" PRId64 " %s%s to %s\r\n", amt, currency_str,
             amt == 1 ? "" : "s", PERS(to, from));
-        act(tmp_sprintf("You are given %lld %s%s by $n.", amt, currency_str,
+        act(tmp_sprintf("You are given %" PRId64 " %s%s by $n.", amt, currency_str,
                 amt == 1 ? "" : "s"), false, from, 0, to, TO_VICT);
         act(tmp_sprintf("$n gives %s to $N.", money_desc(amt, currency)),
             true, from, 0, to, TO_NOTVICT);
@@ -1838,7 +1838,7 @@ transfer_money(struct creature *from, struct creature *to, money_t amt,
     }
 
     if (amt >= MONEY_LOG_LIMIT)
-        slog("MONEY: %s has %s %lld %s%s to %s in room #%d (%s)",
+        slog("MONEY: %s has %s %" PRId64 " %s%s to %s in room #%d (%s)",
             GET_NAME(from), cmd_str, amt, currency_str, (amt == 1) ? "" : "s",
             GET_NAME(to), to->in_room->number, to->in_room->name);
 

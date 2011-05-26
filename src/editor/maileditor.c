@@ -262,7 +262,7 @@ maileditor_addrecipient(struct editor *editor, char *name)
         if (money < cost) {
             editor_emit(editor,
                 tmp_sprintf
-                ("You don't have the %lld %s necessary to add %s.\r\n", cost,
+                ("You don't have the %" PRId64 " %s necessary to add %s.\r\n", cost,
                     money_desc,
                     tmp_capitalize(player_name_by_idnum(new_id_num))));
             free(new_rcpt);
@@ -270,7 +270,7 @@ maileditor_addrecipient(struct editor *editor, char *name)
         } else {
             editor_emit(editor,
                 tmp_sprintf
-                ("%s added to recipient list.  You have been charged %d %s.\r\n",
+                ("%s added to recipient list.  You have been charged %" PRId64 " %s.\r\n",
                     tmp_capitalize(player_name_by_idnum(new_id_num)), cost,
                     money_desc));
             if (editor->desc->creature->in_room->zone->time_frame ==
