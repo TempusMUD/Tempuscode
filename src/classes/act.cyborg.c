@@ -3625,6 +3625,11 @@ ch)) / 2;
         val1 = GET_MANA(ch);
         val2 = GET_HIT(ch);
         break;
+    default:
+        errlog("Can't happen");
+        val1 = 0;
+        val2 = 0;
+        break;
     }
 
     val1 = MIN(GET_LEVEL(ch), val1 / 4);
