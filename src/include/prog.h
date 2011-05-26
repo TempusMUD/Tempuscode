@@ -2,7 +2,6 @@
 #define _PROG_H_
 
 #include "constants.h"
-#include "gpqueue.h"
 
 struct creature;
 
@@ -78,7 +77,6 @@ struct prog_env {
     int speed;					// default wait between commands
     int next_tick;              // the tick number to continue execution
 	int condition;				// T/F depending on last compare
-    GPQueueHandle handle;       // Handle to priority queue entry
     enum prog_evt_type owner_type;	// type of the owner
 	void *owner;				// pointer to the actual owner
 	struct creature *target;			// target of prog

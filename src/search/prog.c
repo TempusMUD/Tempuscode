@@ -27,14 +27,12 @@
 #include "prog.h"
 #include "clan.h"
 #include "weather.h"
-#include "gpqueue.h"
 
 extern char locate_buf[256];
 
 static int loop_fence = 0;
 gint prog_tick = 0;
 GTrashStack *dead_progs = NULL;
-GPQueue *active_prog_queue = NULL;
 GList *active_progs = NULL;
 
 #define DEFPROGHANDLER(cmd, env, evt, args) \
@@ -1885,12 +1883,8 @@ prog_start(enum prog_evt_type owner_type, void *owner, struct creature * target,
 		CREATE(new_prog, struct prog_env, 1);
 
     active_progs = g_list_prepend(active_progs, new_prog);
-    active_prog_queue = g_pqueue_insert(active_prog_queue,
-                                        new_prog,
-                                        prog_tick,
-                                        &new_prog->handle);
 
-	new_prog->owner_type = owner_type;
+    new_prog->owner_type = owner_type;
 	new_prog->owner = owner;
     new_prog->exec_pt = initial_exec_pt;
 	new_prog->executed = 0;
@@ -2389,10 +2383,6 @@ static void
 prog_free(struct prog_env *prog)
 {
     prog_state_free(prog->state);
-    if (prog->handle) {
-        active_prog_queue = g_pqueue_delete(active_prog_queue, prog->handle);
-        prog->handle = NULL;
-    }
     if (prog->owner) {
         if (prog->owner_type == PROG_TYPE_MOBILE)
             ((struct creature *)prog->owner)->prog_marker -= 1;
@@ -2406,26 +2396,18 @@ prog_free(struct prog_env *prog)
 static void
 prog_execute_and_mark(void)
 {
-	struct prog_env *cur_prog;
-    gint tick;
-
 	// Execute progs and mark them as non-idle
-    while (g_pqueue_top_extended(active_prog_queue, (gpointer *)&cur_prog, &tick)
-           && tick == prog_tick) {
-        if (cur_prog->exec_pt < 0) {
-            prog_free(cur_prog);
+    GList *next;
+    for (GList *cur = active_progs;cur;cur = next) {
+        struct prog_env *cur_prog = cur->data;
+        next = cur->next;
+
+        if (cur_prog->next_tick != prog_tick)
             continue;
-        }
+        if (cur_prog->exec_pt < 0)
+            continue;
 
-		prog_execute(cur_prog);
-
-        if (cur_prog->exec_pt > 0) {
-            active_prog_queue = g_pqueue_change_priority(active_prog_queue,
-                                                         cur_prog->handle,
-                                                         cur_prog->next_tick);
-        } else {
-            prog_free(cur_prog);
-        }
+        prog_execute(cur_prog);
     }
 }
 
