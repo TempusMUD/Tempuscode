@@ -1,5 +1,5 @@
 if DEBUG
-  DBGFLAG = -g -O0
+  DBGFLAG = -g -O
 else
   DBGFLAG = -O3
 endif
