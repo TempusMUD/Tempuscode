@@ -1027,6 +1027,11 @@ SPECIAL(vendor)
         return true;
     }
 
+    if (AFF_FLAGGED(ch, AFF_CHARM)) {
+        perform_say_to(self, ch, "You don't look in your right mind, there.");
+        return true;
+    }
+
     if (CMD_IS("buy")) {
         vendor_sell(ch, argument, self, shop);
     } else if (CMD_IS("sell")) {
