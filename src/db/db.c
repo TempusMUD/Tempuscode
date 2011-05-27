@@ -94,7 +94,7 @@ time_t boot_time = 0;           /* time of mud boot                 */
 time_t last_sunday_time = 0;    /* time of last sunday, for qp regen */
 int game_restrict = 0;          /* level of game restriction         */
 int olc_lock = 0;
-bool no_initial_zreset = true;
+int no_initial_zreset = 0;
 int quest_status = 0;
 int lunar_day = 0;
 long top_unique_id = 0;
@@ -2064,8 +2064,6 @@ parse_object(FILE * obj_f, int nr)
     raise(SIGSEGV);
 }
 
-#define ZO_DEAD  999
-
 /* load the zone table and command tables */
 void
 load_zones(FILE * fl, char *zonename)
@@ -2082,7 +2080,6 @@ load_zones(FILE * fl, char *zonename)
     CREATE(new_zone, struct zone_data, 1);
 
     strcpy(zname, zonename);
-    new_zone->age = ZO_DEAD;
 
     while (get_line(fl, buf))
         num_of_cmds++;          /* this should be correct within 3 or so */
@@ -2678,6 +2675,8 @@ read_object(int vnum)
     return obj;
 }
 
+#define ZO_DEAD  999
+
 /* update zone ages, queue for reset if necessary, and dequeue when possible */
 void
 zone_update(void)
@@ -2768,10 +2767,7 @@ reset_zone(struct zone_data *zone)
     for (GList *it = first_living(creatures);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
-        if (IS_NPC(tch)
-            && tch->in_room
-            && tch->in_room->zone == zone
-            && NPC_FLAGGED(tch, NPC_SPEC)
+        if (tch->in_room->zone == zone && NPC_FLAGGED(tch, NPC_SPEC)
             && GET_NPC_SPEC(tch)) {
             GET_NPC_SPEC(tch) (tch, tch, 0, tmp_strdup(""), SPECIAL_RESET);
         }
