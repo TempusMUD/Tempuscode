@@ -6803,27 +6803,23 @@ ACMD(do_mlist)
 
     acc_string_clear();
 
-    GList *protos = g_hash_table_get_values(mob_prototypes);
-    for (GList * mit = protos; mit; mit = mit->next) {
-        struct creature *mob = mit->data;
-
-        if (mob->mob_specials.shared->vnum >= first)
+    for (int vnum = first;vnum <= last;vnum++) {
+        struct creature *mob = g_hash_table_lookup(mob_prototypes, GINT_TO_POINTER(vnum));
+        if (mob)
             acc_sprintf("%5d. %s[%s%5d%s]%s %-40s%s  [%2d] <%3d> %s%s\r\n",
-                ++found,
-                CCGRN(ch, C_NRM),
-                CCNRM(ch, C_NRM),
-                mob->mob_specials.shared->vnum,
-                CCGRN(ch, C_NRM),
-                CCYEL(ch, C_NRM),
-                mob->player.short_descr,
-                CCNRM(ch, C_NRM),
-                mob->player.level,
-                NPC_SHARED(mob)->number,
-                NPC2_FLAGGED((mob), NPC2_UNAPPROVED) ? "(!ap)" : "",
-                GET_NPC_PROG(mob) ? "(prog)" : "");
+                        ++found,
+                        CCGRN(ch, C_NRM),
+                        CCNRM(ch, C_NRM),
+                        mob->mob_specials.shared->vnum,
+                        CCGRN(ch, C_NRM),
+                        CCYEL(ch, C_NRM),
+                        mob->player.short_descr,
+                        CCNRM(ch, C_NRM),
+                        mob->player.level,
+                        NPC_SHARED(mob)->number,
+                        NPC2_FLAGGED((mob), NPC2_UNAPPROVED) ? "(!ap)" : "",
+                        GET_NPC_PROG(mob) ? "(prog)" : "");
     }
-
-    g_list_free(protos);
 
     if (!found)
         send_to_char(ch, "No mobiles were found in those parameters.\r\n");
@@ -6860,15 +6856,16 @@ ACMD(do_olist)
 
     acc_string_clear();
 
-    GList *protos = g_hash_table_get_values(obj_prototypes);
-    for (GList * oit = protos; oit; oit = oit->next) {
-        struct obj_data *obj = oit->data;
-        acc_sprintf("%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
-            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
-            CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
-            obj->name, CCNRM(ch, C_NRM),
-            !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "", (!(obj->line_desc)
-                || !(*(obj->line_desc))) ? "(nodesc)" : "");
+
+    for (int vnum = first;vnum <= last;vnum++) {
+        struct obj_data *obj = g_hash_table_lookup(obj_prototypes, GINT_TO_POINTER(vnum));
+        if (obj)
+            acc_sprintf("%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
+                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
+                        CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
+                        obj->name, CCNRM(ch, C_NRM),
+                        !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "",
+                        (!(obj->line_desc) || !(*(obj->line_desc))) ? "(nodesc)" : "");
     }
 
     if (!found)
