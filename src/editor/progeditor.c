@@ -89,7 +89,9 @@ start_editing_prog(struct descriptor_data *d,
     prog_data->owner = owner;
     prog_data->owner_type = owner_type;
 
-    editor_import(d->text_editor, prog_get_text(owner, owner_type));
+    char *text = prog_get_text(owner, owner_type);
+    if (text)
+        editor_import(d->text_editor, text);
 
     emit_editor_startup(d->text_editor);
 }
