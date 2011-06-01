@@ -288,7 +288,7 @@ get_house_by_index(int index)
     return g_list_nth_data(houses, index);
 }
 
-bool
+gint
 this_house_has_room(struct house *house, gpointer user_data)
 {
     room_num room_idnum = GPOINTER_TO_INT(user_data);
