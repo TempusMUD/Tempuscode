@@ -18,7 +18,6 @@ SPECIAL(guard)
 {
     struct creature *self = (struct creature *)me;
     int cmd_idx, lineno, dir = -1;
-    struct reaction *reaction = make_reaction();
     const char *to_vict = "You are blocked by $n.";
     const char *to_room = "$N is blocked by $n.";
     char *str, *line, *param_key, *dir_str, *room_str;
@@ -33,6 +32,8 @@ SPECIAL(guard)
         || (spec_mode == SPECIAL_TICK && !self->fighting)
         || (spec_mode == SPECIAL_CMD && !IS_MOVE(cmd)))
         return 0;
+
+    struct reaction *reaction = make_reaction();
 
     str = GET_NPC_PARAM(self);
     for (line = tmp_getline(&str), lineno = 1; line;
