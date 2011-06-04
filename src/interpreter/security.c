@@ -256,7 +256,7 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
         if (IS_NPC(ch))
             return false;
         return (is_named_role_member(ch, "House")
-            || (house && house->owner_id == GET_IDNUM(ch)));
+            || (house && house->owner_id == ch->account->id));
 
     case QUEST_BAN:
     case EDIT_QUEST:
