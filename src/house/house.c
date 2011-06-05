@@ -1802,7 +1802,7 @@ ACMD(do_house)
             int col;
             for (j = house->guests, col = 0; j; j = j->next, col++) {
                 send_to_char(ch, "%-19s",
-                    player_name_by_idnum(GPOINTER_TO_INT(j)));
+                             player_name_by_idnum(GPOINTER_TO_INT(j->data)));
                 if (!((col + 1) % 4))
                     send_to_char(ch, "\r\n");
             }
