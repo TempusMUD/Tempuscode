@@ -1139,7 +1139,7 @@ ACMD(do_hedit)
         return;
     }
 
-    if (is_authorized(ch, EDIT_HOUSE, house)) {
+    if (!is_authorized(ch, EDIT_HOUSE, house)) {
         send_to_char(ch, "Only the owner can edit the house.\r\n");
         return;
     }
