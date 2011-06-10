@@ -1688,30 +1688,32 @@ clan_owning_room(struct room_data *room)
     return 0;
 }
 
-int
+bool
 clan_house_can_enter(struct creature *ch, struct room_data *room)
 {
     struct clan_data *clan = NULL, *ch_clan = NULL;
     struct room_list_elem *rm_list = NULL;
 
     if (!ROOM_FLAGGED(room, ROOM_CLAN_HOUSE))
-        return 1;
+        return true;
     if (GET_LEVEL(ch) >= LVL_DEMI)
-        return 1;
+        return true;
     if (is_authorized(ch, EDIT_CLAN, NULL))
-        return 1;
+        return true;
+    if (IS_NPC(ch))
+        return true;
     if (!(ch_clan = real_clan(GET_CLAN(ch))))
-        return 0;
+        return false;
 
     for (clan = clan_list; clan; clan = clan->next) {
         if (clan == ch_clan)
             continue;
         for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next)
             if (rm_list->room == room)
-                return 0;
+                return false;
     }
 
-    return 1;
+    return true;
 }
 
 void
