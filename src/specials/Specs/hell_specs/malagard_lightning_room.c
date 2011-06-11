@@ -28,7 +28,7 @@ SPECIAL(malagard_lightning_room)
         act("A bolt of lightning blasts down from above and hits $n!", false,
             vict, 0, 0, TO_ROOM);
         retval =
-            damage(NULL, vict, dice(20, 20), SPELL_LIGHTNING_BOLT, WEAR_HEAD);
+            damage(NULL, vict, NULL, dice(20, 20), SPELL_LIGHTNING_BOLT, WEAR_HEAD);
         return (ch == vict ? retval : 0);
     }
 

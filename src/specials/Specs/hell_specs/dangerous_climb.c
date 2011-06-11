@@ -20,7 +20,7 @@ SPECIAL(dangerous_climb)
             "Your body crashes painfully against the rocks below!!\r\n");
         dam = dice(5, 8) + (GET_WEIGHT(ch) >> 4);
         dam -= (dam * (100 - GET_AC(ch))) / 400;
-        if (damage(ch, ch, dam, TYPE_FALLING, -1))
+        if (damage(ch, ch, NULL, dam, TYPE_FALLING, -1))
             return 1;
 
         char_from_room(ch, false);

@@ -815,7 +815,7 @@ perform_cyborg_activate(struct creature *ch, sh_int mode, int subcmd)
                     struct creature *tch = it->data;
 
                     if (tch != ch) {
-                        damage(ch, tch, dice(4, GET_LEVEL(ch)),
+                        damage(ch, tch, NULL, dice(4, GET_LEVEL(ch)),
                             SKILL_ENERGY_FIELD, -1);
                         WAIT_STATE(ch, 1 RL_SEC);
                     }
@@ -1400,7 +1400,7 @@ ACMD(do_discharge)
         send_to_char(ch,
             "WARNING: System components damaged by discharge!\r\n");
 
-        if (damage(ch, ch, dice(amount - tolerance, 10), TYPE_OVERLOAD, -1)) {
+        if (damage(ch, ch, NULL, dice(amount - tolerance, 10), TYPE_OVERLOAD, -1)) {
             return;
         }
 
@@ -1436,10 +1436,10 @@ ACMD(do_discharge)
     WAIT_STATE(ch, wait);
 
     if (percent > prob) {
-        damage(ch, vict, 0, SKILL_DISCHARGE, -1);
+        damage(ch, vict, NULL, 0, SKILL_DISCHARGE, -1);
     } else {
         gain_skill_prof(ch, SKILL_DISCHARGE);
-        damage(ch, vict, dam, SKILL_DISCHARGE, -1);
+        damage(ch, vict, NULL, dam, SKILL_DISCHARGE, -1);
     }
 }
 
@@ -3379,7 +3379,7 @@ ACMD(do_assimilate)
         damd = abs(GET_ALIGNMENT(ch));
         damd >>= 5;
         damd = MAX(5, damd);
-        damage(ch, ch, dice(damd, 6), TOP_SPELL_DEFINE, -1);
+        damage(ch, ch, NULL, dice(damd, 6), TOP_SPELL_DEFINE, -1);
         return;
     }
 

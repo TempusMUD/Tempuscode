@@ -77,14 +77,13 @@ ACMD(do_pistolwhip)
     if (IS_PUDDING(vict) || IS_SLIME(vict))
         prob = 0;
 
-    cur_weap = weap;
     if (percent > prob) {
-        damage(ch, vict, 0, SKILL_PISTOLWHIP, WEAR_BODY);
+        damage(ch, vict, weap, 0, SKILL_PISTOLWHIP, WEAR_BODY);
     } else {
         dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
             dice(4, GET_OBJ_WEIGHT(weap));
         dam /= 4;
-        damage(ch, vict, dam, SKILL_PISTOLWHIP, WEAR_HEAD);
+        damage(ch, vict, weap, dam, SKILL_PISTOLWHIP, WEAR_HEAD);
         gain_skill_prof(ch, SKILL_PISTOLWHIP);
     }
     WAIT_STATE(ch, PULSE_VIOLENCE * 3);
@@ -146,8 +145,6 @@ ACMD(do_crossface)
         return;
     }
 
-    cur_weap = weap;
-
     str_mod = 3;
     dex_mod = 3;
     // This beastly function brought to you by Cat, the letter F, and Nothing more
@@ -170,7 +167,7 @@ ACMD(do_crossface)
         prob = 0;
 
     if (percent >= prob) {
-        damage(ch, vict, 0, SKILL_CROSSFACE, WEAR_HEAD);
+        damage(ch, vict, weap, 0, SKILL_CROSSFACE, WEAR_HEAD);
     } else {
 
         dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
@@ -185,7 +182,7 @@ ACMD(do_crossface)
         // Wow!  vict really took one hell of a shot.  Stun that bastard!
         if (diff >= 70 && !GET_EQ(vict, wear_num)) {
             prev_pos = GET_POSITION(vict);
-            damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, weap, dam, SKILL_CROSSFACE, wear_num);
             if (prev_pos != POS_STUNNED && !is_dead(vict) && !is_dead(ch)) {
                 if (is_fighting(ch)
                     && (!IS_NPC(vict) || !NPC2_FLAGGED(vict, NPC2_NOSTUN))) {
@@ -204,7 +201,7 @@ ACMD(do_crossface)
         else if (diff >= 55) {
             dam = (int)(dam * 0.75);
             prev_pos = GET_POSITION(vict);
-            damage(ch, vict, dam, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, weap, dam, SKILL_CROSSFACE, wear_num);
             if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
                 && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
                 GET_POSITION(vict) = POS_RESTING;
@@ -221,7 +218,7 @@ ACMD(do_crossface)
         else if (diff >= 20) {
             struct obj_data *wear, *scraps;
 
-            damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, weap, dam >> 1, SKILL_CROSSFACE, wear_num);
             wear = GET_EQ(vict, wear_num);
             if (wear && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
                 act("Your crossface has knocked $N's $p from $S head!",
@@ -248,7 +245,7 @@ ACMD(do_crossface)
                 }
             }
         } else {
-            damage(ch, vict, dam >> 1, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, weap, dam >> 1, SKILL_CROSSFACE, wear_num);
         }
 
         gain_skill_prof(ch, SKILL_CROSSFACE);
@@ -463,7 +460,7 @@ ACMD(do_snipe)
     if (percent > prob) {
         // call damage with 0 dam to check for killers, TG's
         // newbie protection and other such stuff automagically ;)
-        damage(ch, vict, 0, SKILL_SNIPE, damage_loc);
+        damage(ch, vict, gun, 0, SKILL_SNIPE, damage_loc);
         // FIXME: check to see that vict can be damaged
 
         // ch and vict really shouldn't be fighting if they aren't in
@@ -545,7 +542,7 @@ ACMD(do_snipe)
 
         kill_msg = tmp_sprintf("You have killed %s!", GET_NAME(vict));
 
-        damage(ch, vict, dam, SKILL_SNIPE, damage_loc);
+        damage(ch, vict, gun, dam, SKILL_SNIPE, damage_loc);
         // FIXME: if attack failed, return
 
         if (is_dead(vict)) {
@@ -646,12 +643,12 @@ ACMD(do_wrench)
     if (prob > percent && (CHECK_SKILL(ch, SKILL_WRENCH) >= 30)) {
         WAIT_STATE(ch, SEG_VIOLENCE * 4);
         WAIT_STATE(vict, SEG_VIOLENCE * 2);
-        damage(ch, vict, dam, SKILL_WRENCH, WEAR_NECK_1);
+        damage(ch, vict, NULL, dam, SKILL_WRENCH, WEAR_NECK_1);
         gain_skill_prof(ch, SKILL_WRENCH);
         return;
     } else {
         WAIT_STATE(ch, SEG_VIOLENCE * 2);
-        damage(ch, vict, 0, SKILL_WRENCH, WEAR_NECK_1);
+        damage(ch, vict, NULL, 0, SKILL_WRENCH, WEAR_NECK_1);
     }
 }
 

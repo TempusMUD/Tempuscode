@@ -363,10 +363,9 @@ perform_cleave(struct creature *ch, struct creature *vict)
     int i;
     for (i = 0; i < maxWhack && vict != NULL; i++) {
         percent = number(1, 101) + GET_DEX(vict);
-        cur_weap = weap;
         if (AWAKE(vict) && percent > skill) {
             WAIT_STATE(ch, 2 RL_SEC);
-            damage(ch, vict, 0, SKILL_CLEAVE, WEAR_RANDOM);
+            damage(ch, vict, weap, 0, SKILL_CLEAVE, WEAR_RANDOM);
             return;
         } else {
             WAIT_STATE(vict, 1 RL_SEC);

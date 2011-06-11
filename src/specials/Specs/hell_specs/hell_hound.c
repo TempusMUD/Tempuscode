@@ -13,7 +13,7 @@ SPECIAL(hell_hound)
 
     struct creature *vict = random_opponent(ch);
     if (vict && !number(0, 6))
-        damage(ch, vict,
+        damage(ch, vict, NULL,
             mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH) ?
             (GET_LEVEL(ch) >> 1) : GET_LEVEL(ch), SPELL_FIRE_BREATH, -1);
     else

@@ -1784,7 +1784,7 @@ ACMD(do_throw)
             } else if (IS_OBJ_TYPE(obj, ITEM_WEAPON)
                 && ok_to_attack(ch, target_vict, false)) {
                 // Hit throw with a weapon
-                damage(ch, target_vict,
+                damage(ch, target_vict, obj,
                     dice(GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)) +
                     str_app[STRENGTH_APPLY_INDEX(ch)].todam,
                     GET_OBJ_VAL(obj, 3) + TYPE_HIT, number(0, NUM_WEARS - 1));

@@ -1346,7 +1346,7 @@ check_eq_align(struct creature *ch)
                 else if (pos == WEAR_HEAD || pos == WEAR_LEGS)
                     extraction_damage *= 2;
                 extraction_damage >>= 3;
-                return damage(ch, ch, dice(extraction_damage, 3),
+                return damage(ch, ch, NULL, dice(extraction_damage, 3),
                     TOP_SPELL_DEFINE, pos);
             }
         }
@@ -1368,7 +1368,7 @@ check_eq_align(struct creature *ch)
             skill = MAX(1, skill);
             obj_to_char(unequip_char(ch, pos, false), ch);
 
-            return damage(ch, ch, dice(skill, 2), TOP_SPELL_DEFINE, pos);
+            return damage(ch, ch, NULL, dice(skill, 2), TOP_SPELL_DEFINE, pos);
         }
 
         if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||

@@ -32,7 +32,7 @@ SPECIAL(moloch)
                 false, moloch, 0, vict, TO_VICT);
             act("$n picks $N up in $s jaws and flails $M around!!",
                 false, moloch, 0, vict, TO_NOTVICT);
-            damage(moloch, vict, dice(30, 29), TYPE_RIP, WEAR_BODY);
+            damage(moloch, vict, NULL, dice(30, 29), TYPE_RIP, WEAR_BODY);
             WAIT_STATE(moloch, 7 RL_SEC);
             return 1;
         }

@@ -57,7 +57,7 @@ SPECIAL(gunnery_device)
             for (GList * cit = dest->people; cit; cit = cit->next) {
                 vict = cit->data;
                 if (!number(0, 5)) {
-                    damage(ch, vict, 10, TYPE_CATAPULT, -1);
+                    damage(ch, vict, NULL, 10, TYPE_CATAPULT, -1);
                     hit = 1;
                     break;
                 }
@@ -83,7 +83,7 @@ SPECIAL(gunnery_device)
             for (GList * cit = dest->people; cit; cit = cit->next) {
                 vict = cit->data;
                 if (!number(0, 5)) {
-                    damage(ch, vict, 15, TYPE_BALISTA, -1);
+                    damage(ch, vict, NULL, 15, TYPE_BALISTA, -1);
                     hit = 1;
                     break;
                 }
@@ -107,7 +107,7 @@ SPECIAL(gunnery_device)
                     dest);
                 vict = NULL;
                 for (GList * cit = dest->people; cit; cit = cit->next) {
-                    damage(ch, cit->data, 15, TYPE_BOILING_OIL, -1);
+                    damage(ch, cit->data, NULL, 15, TYPE_BOILING_OIL, -1);
                 }
             } else {
                 send_to_room
@@ -121,7 +121,7 @@ SPECIAL(gunnery_device)
                 vict = NULL;
                 for (GList * cit = dest->people; cit; cit = cit->next) {
                     vict = cit->data;
-                    damage(ch, vict, 15, TYPE_BOILING_OIL, -1);
+                    damage(ch, vict, NULL, 15, TYPE_BOILING_OIL, -1);
                 }
             }
             break;

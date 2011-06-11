@@ -890,7 +890,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
     // Do spell damage of type spellnum
     // unless its gravity well which does pressure damage.
     if (spellnum == SPELL_GRAVITY_WELL) {
-        if (!damage(ch, victim, dam, TYPE_PRESSURE, WEAR_RANDOM))
+        if (!damage(ch, victim, NULL, dam, TYPE_PRESSURE, WEAR_RANDOM))
             return 0;
 
         WAIT_STATE(victim, 2 RL_SEC);
@@ -902,7 +902,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             act("The gravity around $n suddenly increases, slamming $m to the ground!", true, victim, 0, ch, TO_ROOM);
         }
     } else {                    // normal spell damage type
-        if (!damage(ch, victim, dam, spellnum, WEAR_RANDOM))
+        if (!damage(ch, victim, NULL, dam, spellnum, WEAR_RANDOM))
             return 0;
     }
     if (spellnum == SPELL_PSYCHIC_SURGE) {
@@ -2784,7 +2784,7 @@ mag_affects(int level,
     // This looks redundant, but serves as a reminder that the damage()
     // function might kill the character
     if (spellnum == SPELL_THORN_SKIN)
-        if (damage(ch, ch, (150 - skill_bonus(ch, SPELL_THORN_SKIN) / 2),
+        if (damage(ch, ch, NULL, (150 - skill_bonus(ch, SPELL_THORN_SKIN) / 2),
                 SPELL_THORN_SKIN_CASTING, WEAR_RANDOM))
             return;
 }

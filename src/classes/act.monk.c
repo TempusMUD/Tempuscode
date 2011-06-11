@@ -303,7 +303,7 @@ ACMD(do_whirlwind)
 
     //do we fail outright?
     if (percent > prob) {
-        damage(ch, vict, 0, SKILL_WHIRLWIND, -1);
+        damage(ch, vict, NULL, 0, SKILL_WHIRLWIND, -1);
         //do we fall down too?
         if (GET_LEVEL(ch) + GET_DEX(ch) < number(0, 77)) {
             send_to_char(ch, "You fall on your ass!\r\n");
@@ -328,7 +328,7 @@ ACMD(do_whirlwind)
             dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
         }
 
-        damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
+        damage(ch, vict, NULL, dam, SKILL_WHIRLWIND, -1);
         if (is_dead(ch))
             return;
 
@@ -345,7 +345,7 @@ ACMD(do_whirlwind)
                 if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40,
                         80) + GET_DEX(tch))
                     dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
-                damage(ch, tch, dam, SKILL_WHIRLWIND, -1);
+                damage(ch, tch, NULL, dam, SKILL_WHIRLWIND, -1);
                 if (is_dead(ch))
                     return;
 
@@ -365,7 +365,7 @@ ACMD(do_whirlwind)
                         dam = dice(GET_LEVEL(ch), 5) + GET_DAMROLL(ch);
                     }
                     GET_MOVE(ch) -= 3;
-                    damage(ch, vict, dam, SKILL_WHIRLWIND, -1);
+                    damage(ch, vict, NULL, dam, SKILL_WHIRLWIND, -1);
                     if (is_dead(ch))
                         return;
                     if (is_dead(vict))
@@ -486,7 +486,7 @@ ACMD(do_combo)
 
     if (percent > prob) {
         WAIT_STATE(ch, 4 RL_SEC);
-        damage(ch, vict, 0, which_attack[number(0, HOW_MANY - 1)], -1);
+        damage(ch, vict, NULL, 0, which_attack[number(0, HOW_MANY - 1)], -1);
         return;
     }
     //
@@ -500,7 +500,6 @@ ACMD(do_combo)
         // lead with a throat strike
         //
 
-        damage(ch, vict, dam, SKILL_THROAT_STRIKE, WEAR_NECK_1);
 
         if (is_dead(ch))
             return;
@@ -518,7 +517,7 @@ ACMD(do_combo)
             i++, count++) {
             if (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_COMBO) > number(100,
                     120 + (count << 3))) {
-                damage(ch, vict, dam + (count << 3), which_attack[number(0,
+                damage(ch, vict, NULL, dam + (count << 3), which_attack[number(0,
                             HOW_MANY - 1)], -1);
                 if (is_dead(ch))
                     return;
@@ -794,7 +793,7 @@ ACMD(do_pinch)
         //
 
         if (AFF2_FLAGGED(vict, AFF2_FIRE_SHIELD)) {
-            damage(vict, ch, dice(3, 8), SPELL_FIRE_SHIELD, -1);
+            damage(vict, ch, NULL, dice(3, 8), SPELL_FIRE_SHIELD, -1);
             if (is_dead(ch))
                 return;
 
@@ -820,7 +819,7 @@ ACMD(do_pinch)
     //
 
     if (AFF2_FLAGGED(vict, AFF2_BLADE_BARRIER)) {
-        damage(vict, ch, GET_LEVEL(vict), SPELL_BLADE_BARRIER, -1);
+        damage(vict, ch, NULL, GET_LEVEL(vict), SPELL_BLADE_BARRIER, -1);
     }
     //
     // the victim should attack the monk if they can

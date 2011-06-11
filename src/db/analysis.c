@@ -132,32 +132,77 @@ struct ObjectMatcherTable {
 		}
 };
 
-//
-// prints a delightfull description of the given object into the
-// given buffer of the given size, using ch for it's color and
-// showing or not showing spell names.
+enum matcher_type {
+    MATCHER_TYPE,
+    MATCHER_APPLY,
+    MATCHER_MATERIAL,
+    MATCHER_SPECIAL,
+    MATCHER_WORN,
+    MATCHER_SPELL,
+    MATCHER_EXTRA1,
+    MATCHER_EXTRA2,
+    MATCHER_EXTRA3,
+    MATCHER_AFFECT,
+    MATCHER_COST
+};
 
-char*
-sprintobj( struct creature *ch, struct obj_data *obj, ObjectMatcherTable &table, int num )
+struct matcher {
+    enum matcher_type types[1024];
+    intptr_t values[1024];
+    size_t len;
+};
+
+void
+do_show_objects(struct creature *ch, char *value, char *args)
 {
-	const char *info = table.getAddedInfo( ch, obj );
-	return tmp_sprintf("%3d. %s[%s%5d%s] %35s%s %s%s\r\n", num,
-					   CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_OBJ_VNUM(obj),
-					   CCGRN(ch, C_NRM), obj->name, CCNRM(ch, C_NRM),
-					   info, !OBJ_APPROVED(obj) ? "(!appr)" : "");
+    struct matcher matcher = { { 0 }, { 0 }, 1 };
+
+    if (!*value) {
+		send_to_char(ch, "Show objects: utility to search the object prototype list.\r\n");
+        send_to_char(ch, "Usage: show objects [<attribute> <attribute> <atttribute> ...]");
+        return;
+    }
+
+    // Build matcher
+    if (parse_matcher(value, &matcher->types[0], &matcher->values[0]))
+        return;
+
+    char *arg = tmp_getquoted(&args);
+
+    while (*arg) {
+        if (parse_matcher(arg, &matcher->types[matcher->len], &matcher->values[matcher->len]))
+            return;
+        arg = tmp_getquoted(&args);
+        matcher->len++;
+    }
+
+    // Now find prototypes matching that object
+    acc_string_clear();
+    for (int vnum = 1, int found = 0;vnum < 99999 && found < 300;vnum++) {
+        struct obj_data *obj = g_hash_table_lookup(object_prototypes, GINT_TO_POINTER(vnum));
+
+        if (obj) {
+            found++;
+            const char *info = "";
+            if (eval_matcher(&matcher, obj)) {
+                acc_sprintf("%3d. %s[%s%5d%s] %35s%s %s%s\r\n", found,
+                            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_OBJ_VNUM(obj),
+                            CCGRN(ch, C_NRM), obj->name, CCNRM(ch, C_NRM),
+                            info, !OBJ_APPROVED(obj) ? "(!appr)" : "")
+            }
+        }
+    }
 }
+
 
 void
 do_show_objects( struct creature *ch, char *value, char *arg ) {
-	ObjectMatcherTable matcherTable;
-	list<struct obj_data*> objects;
-	Tokenizer tokens(value);
     struct obj_data *obj = NULL;
 
 	tokens.append(arg);
 	if(! tokens.hasNext() ) {
 		send_to_char(ch, "Show objects: utility to search the object prototype list.\r\n");
-		send_to_char(ch, "Usage: show obj <option> <arg> [& <option> <arg> ...]\r\n");
+		send_to_char(ch, "Usage: show obj <option> <arg> [<option> <arg> ...]\r\n");
 		send_to_char(ch, "Options are: %s\r\n",matcherTable.getOptionList());
 		return;
 	}

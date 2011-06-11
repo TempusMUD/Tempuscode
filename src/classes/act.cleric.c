@@ -49,7 +49,7 @@ ASPELL(spell_dispel_evil)
         }
         if (IS_EVIL(victim)) {
             dam = dice(10, 15) + skill_bonus(ch, SPELL_DISPEL_EVIL);
-            damage(ch, victim, dam, SPELL_DISPEL_EVIL, WEAR_RANDOM);
+            damage(ch, victim, NULL, dam, SPELL_DISPEL_EVIL, WEAR_RANDOM);
         }
 
         GET_ALIGNMENT(victim) += MAX(10,
@@ -117,7 +117,7 @@ ASPELL(spell_dispel_good)
 
         if (IS_GOOD(victim)) {
             dam = dice(15, 20) + skill_bonus(ch, SPELL_DISPEL_GOOD);
-            damage(ch, victim, dam, SPELL_DISPEL_GOOD, WEAR_RANDOM);
+            damage(ch, victim, NULL, dam, SPELL_DISPEL_GOOD, WEAR_RANDOM);
         }
 
         GET_ALIGNMENT(victim) -= MAX(5,

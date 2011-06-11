@@ -40,7 +40,7 @@ SPECIAL(stygian_lightning_rm)
                 false, ch, 0, 0, TO_ROOM);
         }
     } else {
-        return damage(new_vict, new_vict, dice(12, 10), TYPE_STYGIAN_LIGHTNING,
+        return damage(new_vict, new_vict, NULL, dice(12, 10), TYPE_STYGIAN_LIGHTNING,
             WEAR_BODY);
     }
     return 0;

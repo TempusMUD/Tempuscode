@@ -311,8 +311,9 @@ int pick_soilage_target(struct creature *tch, gpointer victim)
 
 
 void
-blood_spray(struct creature *ch,
-    struct creature *victim, int dam __attribute__ ((unused)), int attacktype)
+blood_spray(struct creature *ch, struct creature *victim,
+            struct obj_data *weapon,
+            int dam __attribute__ ((unused)), int attacktype)
 {
     const char *to_char, *to_vict, *to_notvict;
     int pos, found = 0;
@@ -438,22 +439,21 @@ blood_spray(struct creature *ch,
     if (!found)
         add_blood_to_room(ch->in_room, 1);
 
-    if (cur_weap && cur_weap->worn_by &&
-        cur_weap == GET_EQ(ch, cur_weap->worn_on) &&
-        !OBJ_SOILED(cur_weap, SOIL_BLOOD)) {
-        apply_soil_to_char(ch, NULL, SOIL_BLOOD, cur_weap->worn_on);
+    if (weapon && weapon->worn_by &&
+        weapon == GET_EQ(ch, weapon->worn_on) &&
+        !OBJ_SOILED(weapon, SOIL_BLOOD)) {
+        apply_soil_to_char(ch, NULL, SOIL_BLOOD, weapon->worn_on);
     }
 }
 
 /* message for doing damage with a weapon */
 void
 dam_message(int dam, struct creature *ch, struct creature *victim,
-    int w_type, int location)
+            struct obj_data *weapon,
+            int w_type, int location)
 {
     char *buf;
     int msgnum;
-
-    struct obj_data *weap = cur_weap;
 
     static struct dam_weapon_type {
         const char *to_room;
@@ -1024,9 +1024,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
         buf = replace_string(dam_mana_shield[msgnum].to_room,
             attack_hit_text[w_type].singular,
             attack_hit_text[w_type].plural, NULL, NULL);
-    else if (weap && IS_ENERGY_GUN(weap)
+    else if (weapon && IS_ENERGY_GUN(weapon)
         && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
-        int guntype = GET_OBJ_VAL(weap, 3);
+        int guntype = GET_OBJ_VAL(weapon, 3);
         if (guntype > EGUN_TOP)
             guntype = EGUN_TOP;
         if (!number(0, 2))
@@ -1041,16 +1041,16 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
             buf = replace_string(dam_energyguns3[msgnum].to_room,
                 gun_hit_text[guntype].singular, gun_hit_text[guntype].plural,
                 NULL, gun_hit_text[guntype].substance);
-    } else if (weap && IS_GUN(weap) && w_type == (TYPE_BLAST - TYPE_HIT))
+    } else if (weapon && IS_GUN(weapon) && w_type == (TYPE_BLAST - TYPE_HIT))
         buf = replace_string(dam_guns[msgnum].to_room,
             attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
             NULL, NULL);
     else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2) &&
-        (!weap || weap->worn_on == WEAR_WIELD))
+        (!weapon || weapon->worn_on == WEAR_WIELD))
         buf = replace_string(dam_weapons_location[msgnum].to_room,
             attack_hit_text[w_type].singular, attack_hit_text[w_type].plural,
             wear_keywords[wear_translator[location]], NULL);
-    else if (weap && (number(0, 2) || weap->worn_on != WEAR_WIELD))
+    else if (weapon && (number(0, 2) || weapon->worn_on != WEAR_WIELD))
         buf = replace_string(dam_weapons_2[msgnum].to_room,
             attack_hit_text[w_type].singular,
             attack_hit_text[w_type].plural, NULL, NULL);
@@ -1058,16 +1058,16 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
         buf = replace_string(dam_weapons[msgnum].to_room,
             attack_hit_text[w_type].singular,
             attack_hit_text[w_type].plural, NULL, NULL);
-    act(buf, false, ch, weap, victim, TO_NOTVICT);
+    act(buf, false, ch, weapon, victim, TO_NOTVICT);
     /* damage message to damager */
     if ((msgnum || !PRF_FLAGGED(ch, PRF_GAGMISS)) && ch->desc) {
         if (location == WEAR_MSHIELD)   // Mana shield hit
             buf = replace_string(dam_mana_shield[msgnum].to_char,
                 attack_hit_text[w_type].singular,
                 attack_hit_text[w_type].plural, NULL, NULL);
-        else if (weap && IS_ENERGY_GUN(weap)
+        else if (weapon && IS_ENERGY_GUN(weapon)
             && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
-            int guntype = GET_OBJ_VAL(weap, 3);
+            int guntype = GET_OBJ_VAL(weapon, 3);
             if (guntype > EGUN_TOP)
                 guntype = EGUN_TOP;
             if (!number(0, 2))
@@ -1085,7 +1085,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                     gun_hit_text[guntype].singular,
                     gun_hit_text[guntype].plural, NULL,
                     gun_hit_text[guntype].substance);
-        } else if (weap && IS_GUN(weap) && w_type == (TYPE_BLAST - TYPE_HIT))
+        } else if (weapon && IS_GUN(weapon) && w_type == (TYPE_BLAST - TYPE_HIT))
             buf = replace_string(dam_guns[msgnum].to_char,
                 attack_hit_text[w_type].singular,
                 attack_hit_text[w_type].plural, NULL, NULL);
@@ -1094,7 +1094,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                 attack_hit_text[w_type].singular,
                 attack_hit_text[w_type].plural,
                 wear_keywords[wear_translator[location]], NULL);
-        } else if (weap && (number(0, 4) || weap->worn_on != WEAR_WIELD))
+        } else if (weapon && (number(0, 4) || weapon->worn_on != WEAR_WIELD))
             buf = replace_string(dam_weapons_2[msgnum].to_char,
                 attack_hit_text[w_type].singular,
                 attack_hit_text[w_type].plural, NULL, NULL);
@@ -1106,7 +1106,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
             send_to_char(ch, "%s", CCMAG(ch, C_NRM));
         else
             send_to_char(ch, "%s", CCYEL(ch, C_NRM));
-        act(buf, false, ch, weap, victim, TO_CHAR | TO_SLEEP);
+        act(buf, false, ch, weapon, victim, TO_CHAR | TO_SLEEP);
         send_to_char(ch, "%s", CCNRM(ch, C_NRM));
     }
     /* damage message to damagee */
@@ -1115,9 +1115,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
             buf = replace_string(dam_mana_shield[msgnum].to_victim,
                 attack_hit_text[w_type].singular,
                 attack_hit_text[w_type].plural, NULL, NULL);
-        else if (weap && IS_ENERGY_GUN(weap)
+        else if (weapon && IS_ENERGY_GUN(weapon)
             && w_type == (TYPE_ENERGY_GUN - TYPE_HIT)) {
-            int guntype = GET_OBJ_VAL(weap, 3);
+            int guntype = GET_OBJ_VAL(weapon, 3);
             if (guntype > EGUN_TOP)
                 guntype = EGUN_TOP;
             if (!number(0, 2))
@@ -1135,7 +1135,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                     gun_hit_text[guntype].singular,
                     gun_hit_text[guntype].plural, NULL,
                     gun_hit_text[guntype].substance);
-        } else if (weap && IS_GUN(weap) && w_type == (TYPE_BLAST - TYPE_HIT))
+        } else if (weapon && IS_GUN(weapon) && w_type == (TYPE_BLAST - TYPE_HIT))
             buf = replace_string(dam_guns[msgnum].to_char,
                 attack_hit_text[w_type].singular,
                 attack_hit_text[w_type].plural, NULL, NULL);
@@ -1144,7 +1144,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                 attack_hit_text[w_type].singular,
                 attack_hit_text[w_type].plural,
                 wear_keywords[wear_translator[location]], NULL);
-        } else if (weap && (number(0, 3) || weap->worn_on != WEAR_WIELD))
+        } else if (weapon && (number(0, 3) || weapon->worn_on != WEAR_WIELD))
             buf = replace_string(dam_weapons_2[msgnum].to_victim,
                 attack_hit_text[w_type].singular,
                 attack_hit_text[w_type].plural, NULL, NULL);
@@ -1156,12 +1156,12 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
             send_to_char(victim, "%s", CCCYN(victim, C_NRM));
         else
             send_to_char(victim, "%s", CCRED(victim, C_NRM));
-        act(buf, false, ch, weap, victim, TO_VICT | TO_SLEEP);
+        act(buf, false, ch, weapon, victim, TO_VICT | TO_SLEEP);
         send_to_char(victim, "%s", CCNRM(victim, C_NRM));
     }
 
     if (BLOODLET(victim, dam, w_type + TYPE_HIT))
-        blood_spray(ch, victim, dam, w_type + TYPE_HIT);
+        blood_spray(ch, victim, weapon, dam, w_type + TYPE_HIT);
 }
 
 /*
@@ -1170,11 +1170,10 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
  */
 int
 skill_message(int dam, struct creature *ch, struct creature *vict,
-    int attacktype)
+              struct obj_data *weapon, int attacktype)
 {
     int i, j, nr;
     struct message_type *msg;
-    struct obj_data *weap = cur_weap;
 
     if (search_nomessage)
         return 1;
@@ -1200,18 +1199,18 @@ skill_message(int dam, struct creature *ch, struct creature *vict,
 
             if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR &&
                 (!PLR_FLAGGED(vict, PLR_MORTALIZED) || dam == 0)) {
-                act(msg->god_msg.attacker_msg, false, ch, weap, vict, TO_CHAR);
-                act(msg->god_msg.victim_msg, false, ch, weap, vict, TO_VICT);
-                act(msg->god_msg.room_msg, false, ch, weap, vict, TO_NOTVICT);
+                act(msg->god_msg.attacker_msg, false, ch, weapon, vict, TO_CHAR);
+                act(msg->god_msg.victim_msg, false, ch, weapon, vict, TO_VICT);
+                act(msg->god_msg.room_msg, false, ch, weapon, vict, TO_NOTVICT);
             } else if (dam != 0) {
                 if (GET_POSITION(vict) == POS_DEAD) {
                     if (ch) {
-                        act(msg->die_msg.room_msg, false, ch, weap, vict,
+                        act(msg->die_msg.room_msg, false, ch, weapon, vict,
                             TO_NOTVICT | TO_VICT_RM);
                         if (ch != vict &&
                             find_distance(ch->in_room, vict->in_room) < 3) {
                             send_to_char(ch, "%s", CCYEL(ch, C_NRM));
-                            act(msg->die_msg.attacker_msg, false, ch, weap,
+                            act(msg->die_msg.attacker_msg, false, ch, weapon,
                                 vict, TO_CHAR);
                             send_to_char(ch, "%s", CCNRM(ch, C_NRM));
                         }
@@ -1219,24 +1218,24 @@ skill_message(int dam, struct creature *ch, struct creature *vict,
                     }
 
                     send_to_char(vict, "%s", CCRED(vict, C_NRM));
-                    act(msg->die_msg.victim_msg, false, ch, weap, vict,
+                    act(msg->die_msg.victim_msg, false, ch, weapon, vict,
                         TO_VICT | TO_SLEEP);
                     send_to_char(vict, "%s", CCNRM(vict, C_NRM));
 
                 } else {
                     if (ch) {
-                        act(msg->hit_msg.room_msg, false, ch, weap, vict,
+                        act(msg->hit_msg.room_msg, false, ch, weapon, vict,
                             TO_NOTVICT | TO_VICT_RM);
                         if (ch != vict && ch->in_room == vict->in_room) {
                             send_to_char(ch, "%s", CCYEL(ch, C_NRM));
-                            act(msg->hit_msg.attacker_msg, false, ch, weap,
+                            act(msg->hit_msg.attacker_msg, false, ch, weapon,
                                 vict, TO_CHAR);
                             send_to_char(ch, "%s", CCNRM(ch, C_NRM));
                         }
                     }
 
                     send_to_char(vict, "%s", CCRED(vict, C_NRM));
-                    act(msg->hit_msg.victim_msg, false, ch, weap, vict,
+                    act(msg->hit_msg.victim_msg, false, ch, weapon, vict,
                         TO_VICT | TO_SLEEP);
                     send_to_char(vict, "%s", CCNRM(vict, C_NRM));
 
@@ -1246,25 +1245,25 @@ skill_message(int dam, struct creature *ch, struct creature *vict,
                         || !PRF_FLAGGED(ch, PRF_GAGMISS))) {
                     if (ch->in_room == vict->in_room) {
                         send_to_char(ch, "%s", CCYEL(ch, C_NRM));
-                        act(msg->miss_msg.attacker_msg, false, ch, weap, vict,
+                        act(msg->miss_msg.attacker_msg, false, ch, weapon, vict,
                             TO_CHAR);
                         send_to_char(ch, "%s", CCNRM(ch, C_NRM));
                     }
 
-                    act(msg->miss_msg.room_msg, false, ch, weap, vict,
+                    act(msg->miss_msg.room_msg, false, ch, weapon, vict,
                         TO_NOTVICT | TO_VICT_RM);
                 }
 
                 if (!IS_WEAPON(attacktype)
                     || !PRF_FLAGGED(vict, PRF_GAGMISS)) {
                     send_to_char(vict, "%s", CCRED(vict, C_NRM));
-                    act(msg->miss_msg.victim_msg, false, ch, weap, vict,
+                    act(msg->miss_msg.victim_msg, false, ch, weapon, vict,
                         TO_VICT | TO_SLEEP);
                     send_to_char(vict, "%s", CCNRM(vict, C_NRM));
                 }
             }
             if (BLOODLET(vict, dam, attacktype))
-                blood_spray(ch, vict, dam, attacktype);
+                blood_spray(ch, vict, weapon, dam, attacktype);
 
             return 1;
         }

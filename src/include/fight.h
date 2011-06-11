@@ -113,7 +113,7 @@ struct obj_data *destroy_object(struct creature *ch, struct obj_data *obj, int t
 struct obj_data *damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type);
 
 void dam_message(int dam, struct creature *ch, struct creature *victim,
-	int w_type, int location);
+                 struct obj_data *weapon, int w_type, int location);
 
 bool do_gun_special(struct creature *ch, struct obj_data *obj);
 
@@ -201,17 +201,6 @@ int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
 
 int choose_random_limb(struct creature *victim);
 
-#ifdef __fight_c__
-/* Structures */
-struct creature *combat_list = NULL;	/* head of list of fighting chars */
-struct creature *next_combat_list = NULL;
-struct obj_data *cur_weap = NULL;
-#else
-extern struct creature *combat_list;	/* head of list of fighting chars */
-extern struct creature *next_combat_list;
-extern struct obj_data *cur_weap;
-#endif
-
 /* prototypes from fight.c */
 void set_defending(struct creature *ch, struct creature *target);
 void stop_follower(struct creature *ch);
@@ -220,10 +209,11 @@ void forget(struct creature *ch, struct creature *victim);
 void remember(struct creature *ch, struct creature *victim);
 int char_in_memory(struct creature *victim, struct creature *rememberer);
 
-int damage(struct creature *ch, struct creature *victim, int dam,
-	int attacktype, int location);
+bool damage(struct creature *ch, struct creature *victim,
+            struct obj_data *weapon,
+            int dam, int attacktype, int location);
 int skill_message(int dam, struct creature *ch, struct creature *vict,
-	int attacktype);
+                  struct obj_data *weapon, int attacktype);
 void best_initial_attack(struct creature *ch, struct creature *vict);
 bool check_infiltrate(struct creature *ch, struct creature *vict);
 void add_blood_to_room(struct room_data *rm, int amount);

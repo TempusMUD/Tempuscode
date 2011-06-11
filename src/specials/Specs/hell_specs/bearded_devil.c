@@ -18,9 +18,9 @@ SPECIAL(bearded_devil)
         act("$n thrusts $s wirelike beard at $N!",
             false, ch, 0, vict, TO_NOTVICT);
         if (GET_DEX(vict) > number(0, 25))
-            damage(ch, vict, 0, TYPE_RIP, WEAR_FACE);
+            damage(ch, vict, NULL, 0, TYPE_RIP, WEAR_FACE);
         else
-            damage(ch, vict, dice(8, 8), TYPE_RIP, WEAR_FACE);
+            damage(ch, vict, NULL, dice(8, 8), TYPE_RIP, WEAR_FACE);
         WAIT_STATE(ch, 2 RL_SEC);
         return 1;
     }

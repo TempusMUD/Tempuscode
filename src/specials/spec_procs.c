@@ -770,22 +770,22 @@ SPECIAL(barbarian)
 
     bool found = true;
     if ((GET_LEVEL(ch) > 2) && (number(0, 12) == 0)) {
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_PUNCH, -1);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_PUNCH, -1);
     } else if ((GET_LEVEL(ch) > 5) && (number(0, 8) == 0)) {
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_STOMP, WEAR_FEET);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_STOMP, WEAR_FEET);
     } else if ((GET_LEVEL(ch) > 16) && (number(0, 18) == 0)) {
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_CHOKE, WEAR_NECK_1);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_CHOKE, WEAR_NECK_1);
     } else if ((GET_LEVEL(ch) > 9) && (number(0, 8) == 0)) {
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_ELBOW, -1);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_ELBOW, -1);
     } else if ((GET_LEVEL(ch) > 20) && (number(0, 8) == 0)) {
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_CLOTHESLINE,
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_CLOTHESLINE,
             WEAR_NECK_1);
     } else if ((GET_LEVEL(ch) > 27) && (number(0, 14) == 0)) {
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_SLEEPER, -1);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_SLEEPER, -1);
     } else if ((GET_LEVEL(ch) > 22) && (number(0, 6) == 0)) {
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_BODYSLAM, WEAR_BODY);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_BODYSLAM, WEAR_BODY);
     } else if ((GET_LEVEL(ch) > 32) && (number(0, 8) == 0)) {
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_PILEDRIVE, WEAR_ASS);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_PILEDRIVE, WEAR_ASS);
     } else if (number(0, 4)) {
         // do nothing this round
     } else {
@@ -801,15 +801,15 @@ SPECIAL(barbarian)
     case 2:
     case 3:
     case 4:
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_PUNCH, -1);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_PUNCH, -1);
         break;
     case 5:
     case 6:
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_STOMP, WEAR_FEET);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_STOMP, WEAR_FEET);
         break;
     case 7:
     case 8:
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_KNEE, -1);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_KNEE, -1);
         break;
     case 9:
     case 10:
@@ -818,12 +818,12 @@ SPECIAL(barbarian)
     case 13:
     case 14:
     case 15:
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_ELBOW, -1);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_ELBOW, -1);
         break;
     case 16:
     case 17:
     case 18:
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_CHOKE, WEAR_NECK_1);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_CHOKE, WEAR_NECK_1);
         break;
     case 19:
     case 20:
@@ -831,7 +831,7 @@ SPECIAL(barbarian)
     case 22:
     case 23:
     case 24:
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_CLOTHESLINE,
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_CLOTHESLINE,
             WEAR_NECK_1);
         break;
     case 25:
@@ -840,10 +840,10 @@ SPECIAL(barbarian)
     case 28:
     case 29:
     case 30:
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_BODYSLAM, -1);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_BODYSLAM, -1);
         break;
     default:
-        damage(ch, vict, number(0, GET_LEVEL(ch)), SKILL_PILEDRIVE, -1);
+        damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_PILEDRIVE, -1);
         break;
     }
     return true;
@@ -1513,7 +1513,7 @@ SPECIAL(cave_bear)
         return false;
 
     if (!number(0, 12)) {
-        damage(ch, random_opponent(ch),
+        damage(ch, random_opponent(ch), NULL,
             number(0, 1 + GET_LEVEL(ch)), SKILL_BEARHUG, WEAR_BODY);
         return true;
     }

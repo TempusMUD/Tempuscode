@@ -156,7 +156,7 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
         return 0;
     }
 
-    ret = damage(killer, ch, dam, SPELL_WARDING_SIGIL, WEAR_HANDS);
+    ret = damage(killer, ch, NULL, dam, SPELL_WARDING_SIGIL, WEAR_HANDS);
 
     // save the sonuvabitch to file
     crashsave(killer);

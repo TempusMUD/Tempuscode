@@ -40,15 +40,14 @@ SPECIAL(javelin_of_lightning)
         if (!ok_to_attack(ch, vict, false))
             return 1;
 
-        cur_weap = jav;
         if ((GET_SKILL(ch, SKILL_SHOOT) >> 4) +
             GET_INT(ch) + GET_DEX(ch) + number(0, GET_LEVEL(ch) + 5) >
             (-(GET_AC(vict) >> 3) + GET_DEX(vict) + number(10,
                     GET_LEVEL(vict) + 5))) {
             dam = dice(20, 24) + GET_STR(ch);
-            damage(ch, vict, dam, JAVELIN_OF_LIGHTNING, -1);
+            damage(ch, vict, jav, dam, JAVELIN_OF_LIGHTNING, -1);
         } else
-            damage(ch, vict, 0, JAVELIN_OF_LIGHTNING, -1);
+            damage(ch, vict, jav, 0, JAVELIN_OF_LIGHTNING, -1);
         obj_to_char(unequip_char(ch, WEAR_WIELD, EQUIP_WORN), ch);
         obj_from_char(jav);
         extract_obj(jav);

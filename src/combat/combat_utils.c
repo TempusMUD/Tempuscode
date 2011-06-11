@@ -263,7 +263,7 @@ replace_string(const char *str,
 /* Calculate the raw armor including magic armor.  Lower AC is better. */
 int
 calculate_thaco(struct creature *ch, struct creature *victim,
-    struct obj_data *weap)
+                struct obj_data *weap)
 {
     int calc_thaco, wpn_wgt, i;
 
@@ -315,9 +315,9 @@ calculate_thaco(struct creature *ch, struct creature *victim,
                 }
         }
         // Bonuses for bless/damn
-        if (IS_EVIL(victim) && IS_OBJ_STAT(cur_weap, ITEM_BLESS))
+        if (IS_EVIL(victim) && IS_OBJ_STAT(weap, ITEM_BLESS))
             calc_thaco -= 1;
-        if (IS_GOOD(victim) && IS_OBJ_STAT(cur_weap, ITEM_DAMNED))
+        if (IS_GOOD(victim) && IS_OBJ_STAT(weap, ITEM_DAMNED))
             calc_thaco -= 1;
 
         wpn_wgt = GET_OBJ_WEIGHT(weap);

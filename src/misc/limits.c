@@ -564,9 +564,9 @@ point_update(void)
             GET_MOVE(tch) =
                 MIN(GET_MOVE(tch) + move_gain(tch), GET_MAX_MOVE(tch));
 
-            if (AFF_FLAGGED(tch, AFF_POISON) && damage(tch, tch, dice(4, 11)
-                    + (affected_by_spell(tch, SPELL_METABOLISM) ? dice(4,
-                            3) : 0), SPELL_POISON, -1))
+            if (AFF_FLAGGED(tch, AFF_POISON) && damage(tch, tch, NULL, dice(4, 11)
+                    + (affected_by_spell(tch, SPELL_METABOLISM) ? dice(4, 3) : 0),
+                                                       SPELL_POISON, -1))
                 continue;
 
             if (GET_POSITION(tch) <= POS_STUNNED)

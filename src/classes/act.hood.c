@@ -159,9 +159,8 @@ ACMD(do_hamstring)
         prob = 0;
     }
 
-    cur_weap = weap;
     if (percent > prob) {
-        damage(ch, vict, 0, SKILL_HAMSTRING, WEAR_LEGS);
+        damage(ch, vict, weap, 0, SKILL_HAMSTRING, WEAR_LEGS);
         WAIT_STATE(ch, 2 RL_SEC);
         return;
     } else {
@@ -191,11 +190,11 @@ ACMD(do_hamstring)
             affect_to_char(vict, &af);
             WAIT_STATE(vict, 3 RL_SEC);
             GET_POSITION(vict) = POS_RESTING;
-            damage(ch, vict, dam, SKILL_HAMSTRING, WEAR_LEGS);
+            damage(ch, vict, weap, dam, SKILL_HAMSTRING, WEAR_LEGS);
         } else {
             WAIT_STATE(vict, 2 RL_SEC);
             GET_POSITION(vict) = POS_SITTING;
-            damage(ch, vict, dam / 2, SKILL_HAMSTRING, WEAR_LEGS);
+            damage(ch, vict, weap, dam / 2, SKILL_HAMSTRING, WEAR_LEGS);
         }
         if (!is_dead(ch)) {
             gain_skill_prof(ch, SKILL_HAMSTRING);

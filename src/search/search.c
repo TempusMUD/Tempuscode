@@ -573,17 +573,17 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                     continue;
 
                 if (mob == ch)
-                    killed = damage(NULL, mob,
+                    killed = damage(NULL, mob, NULL,
                         dice(srch->arg[0], srch->arg[0]), srch->arg[2],
                         WEAR_RANDOM);
                 else
-                    damage(NULL, mob,
+                    damage(NULL, mob, NULL,
                         dice(srch->arg[0], srch->arg[0]), srch->arg[2],
                         WEAR_RANDOM);
 
             }
         } else
-            killed = damage(NULL, ch,
+            killed = damage(NULL, ch, NULL,
                 dice(srch->arg[0], srch->arg[0]), srch->arg[2], WEAR_RANDOM);
 
         // turn messaging back on

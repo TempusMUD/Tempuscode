@@ -359,7 +359,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
         if (vict == precious_vict)
             continue;
 
-        if (damage(damager, vict, dam, damage_type, WEAR_RANDOM))
+        if (damage(damager, vict, NULL, dam, damage_type, WEAR_RANDOM))
             continue;
 
         if (bomb_type == BOMB_INCENDIARY &&
@@ -517,7 +517,7 @@ detonate_bomb(struct obj_data *bomb)
             obj_from_char(bomb);
         }
 
-        damage(damager, ch,
+        damage(damager, ch, NULL,
             dice(MIN(100, BOMB_POWER(bomb) +
                     (internal ? BOMB_POWER(bomb) : 0)),
                 MIN(500, BOMB_POWER(bomb))), TYPE_BLAST, WEAR_HANDS);

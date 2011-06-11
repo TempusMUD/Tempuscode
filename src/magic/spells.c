@@ -1893,7 +1893,7 @@ ASPELL(spell_death_knell)
 
         // Kill the affected mob, since we know he already has -1 hp or less
         // 15 points of damage should do it.
-        damage(ch, victim, 15, SPELL_DEATH_KNELL, 0);
+        damage(ch, victim, NULL, 15, SPELL_DEATH_KNELL, 0);
     } else
         act("Nothing seems to happen.", false, ch, 0, victim, TO_CHAR);
     return;
@@ -3013,7 +3013,7 @@ ASPELL(spell_sun_ray)
         if (IS_EVIL((tch)))
             dam += (GET_ALIGNMENT(ch) - GET_ALIGNMENT((tch))) / 4;
 
-        if (!damage(ch, (tch), dam, TYPE_ABLAZE, -1)) {
+        if (!damage(ch, tch, NULL, dam, TYPE_ABLAZE, -1)) {
             if (!AFF_FLAGGED(tch, AFF_BLIND) && !NPC_FLAGGED(tch, NPC_NOBLIND)) {
 
                 struct affected_type af, af2;
@@ -3094,7 +3094,7 @@ ASPELL(spell_inferno)
         if (PRF_FLAGGED(tch, PRF_NOHASSLE))
             continue;
 
-        damage(ch, tch, dice(level, 6) + (level << 2), TYPE_ABLAZE, -1);
+        damage(ch, tch, NULL, dice(level, 6) + (level << 2), TYPE_ABLAZE, -1);
     }
 
 }

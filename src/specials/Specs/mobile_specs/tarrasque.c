@@ -66,7 +66,7 @@ tarrasque_lash(struct creature *tarr, struct creature *vict)
 
     WAIT_STATE(tarr, 3 RL_SEC);
 
-    is_dead = damage(tarr, vict,
+    is_dead = damage(tarr, vict, NULL,
         GET_DEX(vict) < number(5, 28) ?
         (dice(20, 20) + 100) : 0, TYPE_TAIL_LASH, WEAR_LEGS);
     if (!is_dead && vict &&
@@ -84,7 +84,7 @@ tarrasque_gore(struct creature * tarr, struct creature * vict)
 
     act("$n charges forward!!", false, tarr, 0, 0, TO_ROOM);
 
-    return damage(tarr, vict, (GET_DEX(vict) < number(5, 28)) ?
+    return damage(tarr, vict, NULL, (GET_DEX(vict) < number(5, 28)) ?
         (dice(30, 20) + 300) : 0, TYPE_GORE_HORNS, WEAR_BODY);
 }
 
@@ -93,7 +93,7 @@ tarrasque_trample(struct creature * tarr, struct creature * vict)
 {
     if (vict && GET_DEX(vict) < number(5, 25)) {
         GET_POSITION(vict) = POS_SITTING;
-        return damage(tarr, vict,
+        return damage(tarr, vict, NULL,
             dice(20, 40) + 300, TYPE_TRAMPLING, WEAR_BODY);
     }
 
@@ -269,8 +269,7 @@ tarrasque_fight(struct creature *tarr)
             !mag_savingthrow(vict, 50, SAVING_ROD)) {
             tarrasque_swallow(tarr, vict);
         } else {
-            damage(tarr,
-                vict, GET_DEX(vict) < number(5, 28) ?
+            damage(tarr, vict, NULL, GET_DEX(vict) < number(5, 28) ?
                 (dice(40, 20) + 200) : 0, TYPE_BITE, WEAR_BODY);
         }
     }

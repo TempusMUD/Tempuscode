@@ -94,7 +94,7 @@ holytouch_after_effect(long owner, struct creature *vict, int level)
     if (GET_EQ(vict, WEAR_EYES))
         obj_to_char(unequip_char(vict, WEAR_EYES, EQUIP_WORN), vict);
 
-    if (damage(vict, vict, dam, TYPE_MALOVENT_HOLYTOUCH, WEAR_EYES))
+    if (damage(vict, vict, NULL, dam, TYPE_MALOVENT_HOLYTOUCH, WEAR_EYES))
         return 1;
     if (!IS_NPC(vict) || !NPC_FLAGGED(vict, NPC_NOBLIND)) {
         struct affected_type af;
@@ -169,7 +169,7 @@ malovent_holy_touch(struct creature *ch, struct creature *vict)
                 C_NRM));
 
     if (roll > chance) {
-        damage(ch, vict, 0, SKILL_HOLY_TOUCH, 0);
+        damage(ch, vict, NULL, 0, SKILL_HOLY_TOUCH, 0);
         return;
     }
 
@@ -190,7 +190,7 @@ malovent_holy_touch(struct creature *ch, struct creature *vict)
         WAIT_STATE(ch, PULSE_VIOLENCE);
 
     gain_skill_prof(ch, SKILL_HOLY_TOUCH);
-    if (damage(ch, vict, skill_bonus(ch, SKILL_HOLY_TOUCH) * 2,
+    if (damage(ch, vict, NULL, skill_bonus(ch, SKILL_HOLY_TOUCH) * 2,
             SKILL_HOLY_TOUCH, WEAR_EYES))
         return;
 

@@ -45,7 +45,7 @@ SPECIAL(killzone_room)
                     act("A bolt of lightning blasts down from above and hits you!", false, vict, 0, 0, TO_CHAR);
                     act("A bolt of lightning blasts down from above and hits $n!", false, vict, 0, 0, TO_ROOM);
                     retval =
-                        damage(NULL, vict, dice(20, 20), SPELL_LIGHTNING_BOLT,
+                        damage(NULL, vict, NULL, dice(20, 20), SPELL_LIGHTNING_BOLT,
                         WEAR_HEAD);
 
                     return (ch == vict ? retval : 0);
@@ -61,7 +61,7 @@ SPECIAL(killzone_room)
                     act("A fireball comes hurtling in from above and slams into $n!", false, vict, 0, 0, TO_ROOM);
                     act("A fireball comes hurtling in from above, explosively slamming into you!", false, vict, 0, 0, TO_CHAR);
                     retval =
-                        damage(NULL, vict, dice(25, 20), SPELL_FIREBALL,
+                        damage(NULL, vict, NULL, dice(25, 20), SPELL_FIREBALL,
                         WEAR_HEAD);
                     return (ch == vict ? retval : 0);
 
@@ -77,7 +77,7 @@ SPECIAL(killzone_room)
                     act("A rain of burning javelins flies in from above onto $n!", false, vict, 0, 0, TO_ROOM);
                     act("A rain of burning javelins flies in from above, puncturing you mercilessly!", false, vict, 0, 0, TO_CHAR);
                     retval =
-                        damage(NULL, vict, dice(25, 20), TYPE_PIERCE,
+                        damage(NULL, vict, NULL, dice(25, 20), TYPE_PIERCE,
                         WEAR_HEAD);
                     return (ch == vict ? retval : 0);
 
@@ -95,7 +95,7 @@ SPECIAL(killzone_room)
                         false, vict, 0, 0, TO_ROOM);
                     act("A torrent of boiling pitch pours onto you from above!!", false, vict, 0, 0, TO_CHAR);
                     retval =
-                        damage(NULL, vict, dice(25, 20), TYPE_BOILING_PITCH,
+                        damage(NULL, vict, NULL, dice(25, 20), TYPE_BOILING_PITCH,
                         WEAR_HEAD);
                     return (ch == vict ? retval : 0);
 

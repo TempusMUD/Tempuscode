@@ -1204,7 +1204,7 @@ perform_taint_burn(struct creature *ch, int spellnum)
     if (af != NULL)
         dam = dam * af->level / 100;
 
-    if (damage(ch, ch, dam, TYPE_TAINT_BURN, WEAR_HEAD)) {
+    if (damage(ch, ch, NULL, dam, TYPE_TAINT_BURN, WEAR_HEAD)) {
         return 0;
     }
     // fucking weaklings can't cast while tainted.
@@ -1660,7 +1660,7 @@ ACMD(do_cast)
                     false, ch, metal, 0, TO_CHAR);
             else
                 send_to_char(ch, "You lost your concentration!\r\n");
-            if (!skill_message(0, ch, tch, spellnum)) {
+            if (!skill_message(0, ch, tch, NULL, spellnum)) {
                 send_to_char(ch, "%s", NOEFFECT);
             }
 
@@ -1796,7 +1796,7 @@ ACMD(do_trigger)
     if (number(0, 111) > prob) {
         WAIT_STATE(ch, PULSE_VIOLENCE);
         if (!tch || spellnum == SPELL_ELECTROSTATIC_FIELD
-            || !skill_message(0, ch, tch, spellnum))
+            || !skill_message(0, ch, tch, NULL, spellnum))
             send_to_char(ch, "Your concentration was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =
@@ -2037,7 +2037,7 @@ ACMD(do_alter)
     /* You throws the dice and you takes your chances.. 101% is total failure */
     if (number(0, 101) > GET_SKILL(ch, spellnum)) {
         WAIT_STATE(ch, PULSE_VIOLENCE);
-        if (!tch || !skill_message(0, ch, tch, spellnum))
+        if (!tch || !skill_message(0, ch, tch, NULL, spellnum))
             send_to_char(ch, "Your concentration was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =
@@ -2140,7 +2140,7 @@ ACMD(do_perform)
     /* You throws the dice and you takes your chances.. 101% is total failure */
     if (number(0, 101) > GET_SKILL(ch, spellnum)) {
         WAIT_STATE(ch, PULSE_VIOLENCE);
-        if (!tch || !skill_message(0, ch, tch, spellnum))
+        if (!tch || !skill_message(0, ch, tch, NULL, spellnum))
             send_to_char(ch, "Your song was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =

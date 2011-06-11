@@ -1076,7 +1076,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         if (!damager)
             damager = ch;
         if (!(mode == MOVE_FLEE) || random_fractional_3())
-            if (damage(damager, ch, dice(5, 9), TYPE_BLEED, 0))
+            if (damage(damager, ch, NULL, dice(5, 9), TYPE_BLEED, 0))
                 return 2;
     }
 
@@ -1244,7 +1244,7 @@ int
 perform_move(struct creature *ch, int dir, int mode, int need_specials_check)
 {
     struct room_data *was_in;
-    struct follow_type *k, *next;
+    struct follow_type *k;
 
     if (ch == NULL || dir < 0 || dir >= NUM_OF_DIRS || ch->in_room == NULL)
         return 1;
@@ -1363,40 +1363,50 @@ perform_move(struct creature *ch, int dir, int mode, int need_specials_check)
         // caused some player confusion.
         GQueue *visibility = NULL;
 
+        struct leader_visibility {
+            struct creature *follower;
+            bool visible;
+        };
+        struct leader_visibility *vis = NULL;
+
         visibility = g_queue_new();
 
         for (k = ch->followers; k; k = k->next) {
-            g_queue_push_tail(visibility,
-                GINT_TO_POINTER(can_see_creature(k->follower, ch)));
+            vis = malloc(sizeof(struct leader_visibility));
+            vis->follower = k->follower;
+            vis->visible = can_see_creature(k->follower, ch);
+
+            g_queue_push_tail(visibility, vis);
         }
 
         int retval = 0;
         if ((retval = do_simple_move(ch, dir, mode, need_specials_check)) != 0) {
+            while ((vis = g_queue_pop_head(visibility)) != NULL)
+                free(vis);
             g_queue_free(visibility);
             return retval;
         }
 
-        for (k = ch->followers; k; k = next) {
-            next = k->next;
-            bool visible = GPOINTER_TO_INT(g_queue_pop_head(visibility));
-
-            if ((was_in == k->follower->in_room) &&
-                !PLR_FLAGGED(k->follower, PLR_WRITING)
-                && (GET_POSITION(k->follower) >= POS_STANDING)
-                && visible) {
+        while ((vis = g_queue_pop_head(visibility)) != NULL) {
+            if ((was_in == vis->follower->in_room) &&
+                !PLR_FLAGGED(vis->follower, PLR_WRITING)
+                && (GET_POSITION(vis->follower) >= POS_STANDING)
+                && vis->visible) {
                 const char *msg = "You follow $N.\r\n";
                 // These conditions match those in check_sight_room() in sight.cc
-                if (room_is_dark(ch->in_room) && !has_dark_sight(k->follower))
+                if (room_is_dark(ch->in_room) && !has_dark_sight(vis->follower))
                     msg = tmp_sprintf("You follow %s into darkness.\r\n",
-                        GET_DISGUISED_NAME(k->follower, ch));
+                        GET_DISGUISED_NAME(vis->follower, ch));
                 else if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED)
-                    && !AFF3_FLAGGED(k->follower, AFF3_SONIC_IMAGERY))
+                    && !AFF3_FLAGGED(vis->follower, AFF3_SONIC_IMAGERY))
                     msg = tmp_sprintf("You follow %s into dense smoke.\r\n",
-                        GET_DISGUISED_NAME(k->follower, ch));
+                        GET_DISGUISED_NAME(vis->follower, ch));
 
-                act(msg, false, k->follower, 0, ch, TO_CHAR);
-                perform_move(k->follower, dir, MOVE_NORM, 1);
+                act(msg, false, vis->follower, 0, ch, TO_CHAR);
+                perform_move(vis->follower, dir, MOVE_NORM, 1);
             }
+            free(vis);
+
         }
         // We should have used up all the visibility items
         assert(g_queue_is_empty(visibility));

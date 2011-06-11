@@ -581,6 +581,24 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
     return (new_obj);
 }
 
+/**
+ * damage_eq:
+ * @ch The #creature dealing the damage
+ * @obj The object being damaged
+ * @eq_dam The base damage being dealt
+ * @type The kind of damage responsible
+ *
+ * Damages an object.
+ *
+ * If @obj contains other objects, those objects will also be damaged.
+ * Sets an object %BROKEN and unequips if the object is sufficiently
+ * damaged.  Emits updates about the object's condition.  @obj may be
+ * freed when this function exits.
+ *
+ * Returns: A replacement object or %NULL when @obj is destroyed,
+ * otherwise always returns %NULL.
+ */
+
 struct obj_data *
 damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
 {
@@ -659,24 +677,32 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
     return NULL;
 }
 
-//
-// damage( ) returns true when damage is dealt, false otherwise
-//
-
-int
-damage(struct creature *ch, struct creature *victim, int dam,
-    int attacktype, int location)
+/**
+ * damage:
+ * @ch The #creature dealing the damage, or %NULL if no #creature is reponsible
+ * @victim The #creature taking the damage
+ * @dam The base damage amount before modifiers.  0 indicates a missed attack.
+ * @attacktype The kind of damage being done
+ * @location The body part on #creature being damaged, or -1 to choose a part
+ * at random
+ *
+ * Damages a creature.
+ *
+ * Returns: false if the damage did not succeed (due to evasion or
+ * protection, perhaps), otherwise true.
+**/
+bool
+damage(struct creature *ch, struct creature *victim,
+       struct obj_data *weap,
+       int dam, int attacktype, int location)
 {
     int hard_damcap, eq_dam = 0, weap_dam = 0, i, impl_dam = 0,
         mana_loss, feedback_dam, feedback_mana;
-    struct obj_data *obj = NULL, *weap = cur_weap, *impl = NULL;
+    struct obj_data *obj = NULL, *impl = NULL;
     struct room_affect_data rm_aff;
     struct affected_type *af = NULL;
     bool deflected = false;
     bool mshield_hit = false;
-    struct creature *original_ch;
-
-    original_ch = ch;
 
     memset(&rm_aff, 0x0, sizeof(struct room_affect_data));
     if (GET_POSITION(victim) <= POS_DEAD) {
@@ -1193,7 +1219,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         // attack type is a skill type
         //
 
-        if (!cur_weap && ch != victim && dam &&
+        if (!weap && ch != victim && dam &&
             (attacktype < MAX_SKILLS || attacktype >= TYPE_HIT) &&
             (attacktype > MAX_SPELLS
                 || IS_SET(spell_info[attacktype].routines, MAG_TOUCH))
@@ -1213,7 +1239,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     false, ch, 0, victim, TO_NOTVICT);
                 act("$n is deflected by your prismatic sphere!",
                     false, ch, 0, victim, TO_VICT);
-                damage(victim, ch, dice(30, 3) + (dam / 4), SPELL_PRISMATIC_SPHERE, -1);
+                damage(victim, ch, NULL, dice(30, 3) + (dam / 4), SPELL_PRISMATIC_SPHERE, -1);
 
                 if (!is_dead(victim)) {
                     gain_skill_prof(victim, SPELL_PRISMATIC_SPHERE);
@@ -1231,7 +1257,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (af->duration > 1) {
                         af->duration--;
                     }
-                    damage(victim, ch, dice(3, af->level), SPELL_ELECTROSTATIC_FIELD, -1);
+                    damage(victim, ch, NULL, dice(3, af->level), SPELL_ELECTROSTATIC_FIELD, -1);
 
                     if (!is_dead(victim)) {
                         gain_skill_prof(victim, SPELL_ELECTROSTATIC_FIELD);
@@ -1249,7 +1275,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (af->duration > 1) {
                         af->duration--;
                     }
-                    damage(victim, ch, dice(3, af->level), SPELL_THORN_SKIN, -1);
+                    damage(victim, ch, NULL, dice(3, af->level), SPELL_THORN_SKIN, -1);
 
                     if (!is_dead(victim)) {
                         gain_skill_prof(victim, SPELL_THORN_SKIN);
@@ -1308,7 +1334,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 if (AFF3_FLAGGED(victim, AFF3_PRISMATIC_SPHERE) &&
                     !mag_savingthrow(ch, GET_LEVEL(victim), SAVING_ROD)) {
 
-                    damage(victim, ch, dice(30, 3) + (IS_MAGE(victim) ? (dam / 4) : 0),
+                    damage(victim, ch, NULL, dice(30, 3) + (IS_MAGE(victim) ? (dam / 4) : 0),
                            SPELL_PRISMATIC_SPHERE, -1);
 
                     if (!is_dead(ch)) {
@@ -1321,7 +1347,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 //
 
                 else if (AFF2_FLAGGED(victim, AFF2_BLADE_BARRIER)) {
-                    damage(victim, ch,
+                    damage(victim, ch, NULL,
                            GET_LEVEL(victim) + (dam / 16),
                            SPELL_BLADE_BARRIER, -1);
 
@@ -1329,7 +1355,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
                 else if (affected_by_spell(victim, SONG_WOUNDING_WHISPERS) &&
                     attacktype != SKILL_PSIBLAST) {
-                    damage(victim, ch,
+                    damage(victim, ch, NULL,
                            (skill_bonus(victim,
                                         SONG_WOUNDING_WHISPERS) / 2) + (dam / 20),
                            SONG_WOUNDING_WHISPERS, -1);
@@ -1344,7 +1370,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     !AFF2_FLAGGED(ch, AFF2_ABLAZE) &&
                     !CHAR_WITHSTANDS_FIRE(ch)) {
 
-                    damage(victim, ch, dice(8, 8) +
+                    damage(victim, ch, NULL, dice(8, 8) +
                            (IS_MAGE(victim) ? (dam / 8) : 0),
                            SPELL_FIRE_SHIELD, -1);
 
@@ -1362,7 +1388,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                     if (!mag_savingthrow(ch,
                             af ? af->level : GET_LEVEL(victim),
                             SAVING_ROD) && !CHAR_WITHSTANDS_ELECTRIC(ch)) {
-                        damage(victim, ch,
+                        damage(victim, ch, NULL,
                                af ? dice(3, MAX(10, af->level)) : dice(3, 8),
                                SKILL_ENERGY_FIELD, -1);
 
@@ -1403,10 +1429,10 @@ damage(struct creature *ch, struct creature *victim, int dam,
             mshield_hit = true;
             if (ch) {
                 if (IS_WEAPON(attacktype))
-                    dam_message(mana_loss, ch, victim, attacktype,
+                    dam_message(mana_loss, ch, victim, weap, attacktype,
                         WEAR_MSHIELD);
                 else
-                    skill_message(mana_loss, ch, victim, attacktype);
+                    skill_message(mana_loss, ch, victim, weap, attacktype);
             }
         }
     }
@@ -1583,7 +1609,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
 
                     if (tch == ch || !g_list_find(tch->fighting, ch))
                         continue;
-                    damage(ch, tch, dam / 2, TYPE_EGUN_SPEC_LIGHTNING,
+                    damage(ch, tch, weap, dam / 2, TYPE_EGUN_SPEC_LIGHTNING,
                            WEAR_RANDOM);
                 }
             }
@@ -1753,9 +1779,8 @@ damage(struct creature *ch, struct creature *victim, int dam,
      */
 
     if (!IS_WEAPON(attacktype)) {
-        cur_weap = NULL;
         if (ch && !mshield_hit)
-            skill_message(dam, ch, victim, attacktype);
+            skill_message(dam, ch, victim, weap, attacktype);
 
         // some "non-weapon" attacks involve a weapon, e.g. backstab
         if (weap)
@@ -1802,10 +1827,10 @@ damage(struct creature *ch, struct creature *victim, int dam,
         }
         // it is a weapon attack
         if (GET_POSITION(victim) == POS_DEAD || dam == 0) {
-            if (!mshield_hit && !skill_message(dam, ch, victim, attacktype))
-                dam_message(dam, ch, victim, attacktype, location);
+            if (!mshield_hit && !skill_message(dam, ch, victim, weap, attacktype))
+                dam_message(dam, ch, victim, weap, attacktype, location);
         } else if (!mshield_hit) {
-            dam_message(dam, ch, victim, attacktype, location);
+            dam_message(dam, ch, victim, weap, attacktype, location);
         }
 
         if (obj && eq_dam)
@@ -1837,7 +1862,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 bool is_char = false;
                 if (tch == ch)
                     is_char = true;
-                damage(victim, tch, dice(4, GET_LEVEL(victim)),
+                damage(victim, tch, NULL, dice(4, GET_LEVEL(victim)),
                        TYPE_ALIEN_BLOOD, -1);
 
                 if (is_char && is_dead(ch)) {
@@ -1845,9 +1870,8 @@ damage(struct creature *ch, struct creature *victim, int dam,
                 }
             }
         }
-    } else if (original_ch != ch) {
-        slog("ch was changed in the middle of damage()! original=%p (%s), ch=%p (%s)", original_ch, (original_ch) ? GET_NAME(original_ch) : "NULL", ch, (ch) ? GET_NAME(ch) : "NULL");
     }
+
     //psychic feedback - now that we've taken damage we return some of it
     if (ch && (af = affected_by_spell(victim, SPELL_PSYCHIC_FEEDBACK)) &&
         !mag_savingthrow(ch, GET_LEVEL(victim), SAVING_PSI) &&
@@ -1868,7 +1892,7 @@ damage(struct creature *ch, struct creature *victim, int dam,
         }
         if (feedback_dam > 0) {
             GET_MANA(victim) -= MAX(feedback_mana, 1);
-            damage(victim, ch, feedback_dam, SPELL_PSYCHIC_FEEDBACK, -1);
+            damage(victim, ch, NULL, feedback_dam, SPELL_PSYCHIC_FEEDBACK, -1);
             if (!is_dead(victim)
                 && random_number_zero_low(400) < feedback_dam) {
                 gain_skill_prof(victim, SPELL_PSYCHIC_FEEDBACK);
@@ -2452,38 +2476,36 @@ hit(struct creature *ch, struct creature *victim, int type)
         }
     }
 
-    cur_weap = NULL;
-
     if ((type != SKILL_BACKSTAB && type != SKILL_CIRCLE &&
-            type != SKILL_BEHEAD && type != SKILL_CLEAVE) || !cur_weap) {
+            type != SKILL_BEHEAD && type != SKILL_CLEAVE) || !weap) {
         if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W)
-            cur_weap = get_random_uncovered_implant(ch, ITEM_WEAPON);
+            weap = get_random_uncovered_implant(ch, ITEM_WEAPON);
         else
-            cur_weap = get_next_weap(ch);
-        if (cur_weap) {
-            if ((IS_ENERGY_GUN(cur_weap)
-                    && (!cur_weap->contains
-                        || (cur_weap->contains
-                            && CUR_ENERGY(cur_weap->contains) <= 0)))
-                || IS_GUN(cur_weap)) {
+            weap = get_next_weap(ch);
+        if (weap) {
+            if ((IS_ENERGY_GUN(weap)
+                    && (!weap->contains
+                        || (weap->contains
+                            && CUR_ENERGY(weap->contains) <= 0)))
+                || IS_GUN(weap)) {
                 w_type = TYPE_BLUDGEON;
-            } else if (IS_ENERGY_GUN(cur_weap) && cur_weap->contains) {
-                w_type = GUN_TYPE(cur_weap) + TYPE_EGUN_LASER;
+            } else if (IS_ENERGY_GUN(weap) && weap->contains) {
+                w_type = GUN_TYPE(weap) + TYPE_EGUN_LASER;
                 int cost =
-                    MIN(CUR_ENERGY(cur_weap->contains),
-                    GUN_DISCHARGE(cur_weap));
-                CUR_ENERGY(cur_weap->contains) -= cost;
-                if (CUR_ENERGY(cur_weap->contains) <= 0) {
-                    act("$p has been depleted of fuel.  Replace cell before further use.", false, ch, cur_weap, 0, TO_CHAR);
+                    MIN(CUR_ENERGY(weap->contains),
+                    GUN_DISCHARGE(weap));
+                CUR_ENERGY(weap->contains) -= cost;
+                if (CUR_ENERGY(weap->contains) <= 0) {
+                    act("$p has been depleted of fuel.  Replace cell before further use.", false, ch, weap, 0, TO_CHAR);
                 }
-            } else if (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON))
-                w_type = GET_OBJ_VAL(cur_weap, 3) + TYPE_HIT;
+            } else if (IS_OBJ_TYPE(weap, ITEM_WEAPON))
+                w_type = GET_OBJ_VAL(weap, 3) + TYPE_HIT;
             else
-                cur_weap = NULL;
+                weap = NULL;
         }
     }
 
-    if (!cur_weap) {
+    if (!weap) {
         if (IS_NPC(ch) && (ch->mob_specials.shared->attack_type != 0))
             w_type = ch->mob_specials.shared->attack_type + TYPE_HIT;
         else if (IS_TABAXI(ch) && number(0, 1))
@@ -2492,7 +2514,6 @@ hit(struct creature *ch, struct creature *victim, int type)
             w_type = TYPE_HIT;
     }
 
-    weap = cur_weap;
     calc_thaco = calculate_thaco(ch, victim, weap);
 
     victim_ac = MAX(GET_AC(victim), -(GET_LEVEL(ch) * 4)) / 15;
@@ -2516,9 +2537,9 @@ hit(struct creature *ch, struct creature *victim, int type)
 
         if (type == SKILL_BACKSTAB || type == SKILL_CIRCLE ||
             type == SKILL_SECOND_WEAPON || type == SKILL_CLEAVE)
-            return (damage(ch, victim, 0, type, -1));
+            return (damage(ch, victim, weap, 0, type, -1));
         else
-            return (damage(ch, victim, 0, w_type, -1));
+            return (damage(ch, victim, weap, 0, w_type, -1));
     }
 
     /* IT's A HIT! */
@@ -2543,7 +2564,7 @@ hit(struct creature *ch, struct creature *victim, int type)
         limb = WEAR_NECK_1;
 
     /* okay, we know the guy has been hit.  now calculate damage. */
-    if (cur_weap && w_type >= TYPE_EGUN_LASER && w_type <= TYPE_EGUN_TOP) {
+    if (weap && w_type >= TYPE_EGUN_LASER && w_type <= TYPE_EGUN_TOP) {
         dam = dex_app[GET_DEX(ch)].todam;
         dam += GET_HITROLL(ch);
     } else {
@@ -2552,48 +2573,48 @@ hit(struct creature *ch, struct creature *victim, int type)
     }
 
     // If a weapon is involved, apply bless/damn bonuses
-    if (cur_weap) {
-        if (IS_EVIL(victim) && IS_OBJ_STAT(cur_weap, ITEM_BLESS))
+    if (weap) {
+        if (IS_EVIL(victim) && IS_OBJ_STAT(weap, ITEM_BLESS))
             dam += 5;
-        if (IS_GOOD(victim) && IS_OBJ_STAT(cur_weap, ITEM_DAMNED))
+        if (IS_GOOD(victim) && IS_OBJ_STAT(weap, ITEM_DAMNED))
             dam += 5;
     }
 
     tmp_dam = dam;
 
-    if (cur_weap) {
-        if (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap)) {
-            dam += dice(GET_OBJ_VAL(cur_weap, 1), GET_OBJ_VAL(cur_weap, 2));
-            if (invalid_char_class(ch, cur_weap))
+    if (weap) {
+        if (IS_OBJ_TYPE(weap, ITEM_WEAPON) || IS_ENERGY_GUN(weap)) {
+            dam += dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2));
+            if (invalid_char_class(ch, weap))
                 dam /= 2;
             if (IS_NPC(ch)) {
                 tmp_dam += dice(ch->mob_specials.shared->damnodice,
                     ch->mob_specials.shared->damsizedice);
                 dam = MAX(tmp_dam, dam);
             }
-            if (GET_OBJ_VNUM(cur_weap) > 0) {
+            if (GET_OBJ_VNUM(weap) > 0) {
                 for (i = 0; i < MAX_WEAPON_SPEC; i++)
-                    if (GET_WEAP_SPEC(ch, i).vnum == GET_OBJ_VNUM(cur_weap)) {
+                    if (GET_WEAP_SPEC(ch, i).vnum == GET_OBJ_VNUM(weap)) {
                         dam += GET_WEAP_SPEC(ch, i).level;
                         break;
                     }
             }
-            if (IS_TWO_HAND(cur_weap) && IS_BARB(ch)
-                && !IS_ENERGY_GUN(cur_weap)
-                && cur_weap->worn_on == WEAR_WIELD) {
+            if (IS_TWO_HAND(weap) && IS_BARB(ch)
+                && !IS_ENERGY_GUN(weap)
+                && weap->worn_on == WEAR_WIELD) {
                 int dam_add;
-                dam_add = GET_OBJ_WEIGHT(cur_weap) / 4;
+                dam_add = GET_OBJ_WEIGHT(weap) / 4;
                 if (CHECK_SKILL(ch, SKILL_DISCIPLINE_OF_STEEL) > 60) {
                     int bonus = skill_bonus(ch, SKILL_DISCIPLINE_OF_STEEL);
-                    float weight = GET_OBJ_WEIGHT(cur_weap);
+                    float weight = GET_OBJ_WEIGHT(weap);
                     dam_add += (bonus * weight) / 100;
                 }
                 dam += dam_add;
             }
-        } else if (IS_OBJ_TYPE(cur_weap, ITEM_ARMOR)) {
-            dam += (GET_OBJ_VAL(cur_weap, 0) / 3);
+        } else if (IS_OBJ_TYPE(weap, ITEM_ARMOR)) {
+            dam += (GET_OBJ_VAL(weap, 0) / 3);
         } else
-            dam += dice(1, 4) + number(0, GET_OBJ_WEIGHT(cur_weap));
+            dam += dice(1, 4) + number(0, GET_OBJ_WEIGHT(weap));
     } else if (IS_NPC(ch)) {
         tmp_dam += dice(ch->mob_specials.shared->damnodice,
             ch->mob_specials.shared->damsizedice);
@@ -2607,7 +2628,7 @@ hit(struct creature *ch, struct creature *victim, int type)
     }
 
     //bludgeoning with our gun
-    if (cur_weap && IS_ENERGY_GUN(cur_weap) &&
+    if (weap && IS_ENERGY_GUN(weap) &&
         !(w_type >= TYPE_EGUN_LASER && w_type <= TYPE_EGUN_TOP)) {
         dam /= 10;
     }
@@ -2631,7 +2652,7 @@ hit(struct creature *ch, struct creature *victim, int type)
                 number(0, (CHECK_SKILL(ch, SKILL_BACKSTAB) - LEARNED(ch)) / 2);
         }
 
-        retval = damage(ch, victim, dam, SKILL_BACKSTAB, WEAR_BACK);
+        retval = damage(ch, victim, weap, dam, SKILL_BACKSTAB, WEAR_BACK);
 
         if (retval) {
             return retval;
@@ -2644,7 +2665,7 @@ hit(struct creature *ch, struct creature *victim, int type)
         }
         gain_skill_prof(ch, type);
 
-        retval = damage(ch, victim, dam, SKILL_CIRCLE, WEAR_BACK);
+        retval = damage(ch, victim, weap, dam, SKILL_CIRCLE, WEAR_BACK);
 
         if (retval) {
             return retval;
@@ -2652,17 +2673,17 @@ hit(struct creature *ch, struct creature *victim, int type)
 
     } else {
         int ablaze_level = 0;
-        if (cur_weap && IS_OBJ_TYPE(cur_weap, ITEM_WEAPON)
-            && !IS_ENERGY_GUN(cur_weap)) {
-            if (GET_OBJ_VAL(cur_weap, 3) >= 0
-                && GET_OBJ_VAL(cur_weap, 3) < TOP_ATTACKTYPE - TYPE_HIT
+        if (weap && IS_OBJ_TYPE(weap, ITEM_WEAPON)
+            && !IS_ENERGY_GUN(weap)) {
+            if (GET_OBJ_VAL(weap, 3) >= 0
+                && GET_OBJ_VAL(weap, 3) < TOP_ATTACKTYPE - TYPE_HIT
                 && IS_BARB(ch)) {
-                skill = weapon_proficiencies[GET_OBJ_VAL(cur_weap, 3)];
+                skill = weapon_proficiencies[GET_OBJ_VAL(weap, 3)];
                 if (skill)
                     gain_skill_prof(ch, skill);
             }
-            if (IS_OBJ_STAT2(cur_weap, ITEM2_ABLAZE)) {
-                struct tmp_obj_affect *af = obj_has_affect(cur_weap,
+            if (IS_OBJ_STAT2(weap, ITEM2_ABLAZE)) {
+                struct tmp_obj_affect *af = obj_has_affect(weap,
                     SPELL_FLAME_OF_FAITH);
                 if (af != NULL) {
                     dam += number(1, 10);
@@ -2675,7 +2696,7 @@ hit(struct creature *ch, struct creature *victim, int type)
             gain_skill_prof(ch, SKILL_ENERGY_WEAPONS);
         }
 
-        retval = damage(ch, victim, dam, w_type, limb);
+        retval = damage(ch, victim, weap, dam, w_type, limb);
 
         if (retval) {
             return retval;

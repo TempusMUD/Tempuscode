@@ -1132,7 +1132,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 		case PROG_TYPE_MOBILE:
 			mob = (struct creature *) env->owner;
             if (GET_POSITION(mob) > POS_DEAD)
-                damage(NULL, mob, damage_amt, damage_type, WEAR_RANDOM);
+                damage(NULL, mob, NULL, damage_amt, damage_type, WEAR_RANDOM);
 			break;
 		case PROG_TYPE_ROOM:
 			break;
@@ -1148,7 +1148,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 			return;
 		}
         if (GET_POSITION(env->target) > POS_DEAD)
-            damage(NULL, env->target, damage_amt, damage_type, WEAR_RANDOM);
+            damage(NULL, env->target, NULL, damage_amt, damage_type, WEAR_RANDOM);
 		search_nomessage = false;
 		return;
 	}
@@ -1173,7 +1173,7 @@ DEFPROGHANDLER(damage, env, evt, args)
 		if ((!players || IS_PC(tch)) &&
             (!mobs || IS_NPC(tch)) &&
             GET_POSITION(tch) > POS_DEAD)
-			damage(NULL, tch, damage_amt, damage_type, WEAR_RANDOM);
+			damage(NULL, tch, NULL, damage_amt, damage_type, WEAR_RANDOM);
     }
 	search_nomessage = false;
 }

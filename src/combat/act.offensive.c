@@ -39,7 +39,6 @@
 extern struct room_data *world;
 extern struct descriptor_data *descriptor_list;
 extern struct room_data *world;
-extern struct obj_data *cur_weap;
 
 struct follow_type *order_next_k;
 
@@ -649,7 +648,6 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             prob = 0;
 
         *wait = 6 RL_SEC;
-        cur_weap = weap;
         break;
 
     case SKILL_SHOOT:
@@ -900,6 +898,7 @@ perform_offensive_skill(struct creature *ch,
                         int skill)
 {
     struct affected_type af;
+    struct obj_data *weap;
     int prob = -1, wait = 0, vict_wait = 0, dam = 0, vict_pos = 0, fail_pos =
         0, loc = -1, move = 0, mana = 0;
 
@@ -935,7 +934,7 @@ perform_offensive_skill(struct creature *ch,
                            &wait, &vict_wait, &move, &mana,
                            &dam, &fail_pos, &vict_pos, &loc, &af);
     if (prob < 0) {
-        cur_weap = NULL;
+        weap = NULL;
         return false;
     }
 
@@ -948,7 +947,7 @@ perform_offensive_skill(struct creature *ch,
     //
 
     if (prob < number(1, 120)) {
-        if (!damage(ch, vict, 0, skill, loc))
+        if (!damage(ch, vict, weap, 0, skill, loc))
             return false;
         if (fail_pos) {
             GET_POSITION(ch) = fail_pos;
@@ -983,7 +982,7 @@ perform_offensive_skill(struct creature *ch,
     // On success, we always do at least one point of damage
     if (dam < 1)
         dam = 1;
-    damage(ch, vict, dam, skill, loc);
+    damage(ch, vict, weap, dam, skill, loc);
 
     //
     // set waits, position, and affects on victim if they are still alive
@@ -1920,20 +1919,20 @@ ACMD(do_tornado_kick)
     WAIT_STATE(ch, PULSE_VIOLENCE * 3);
 
     if (percent > prob) {
-        damage(ch, vict, 0, SKILL_TORNADO_KICK, -1);
+        damage(ch, vict, NULL, 0, SKILL_TORNADO_KICK, -1);
         GET_MOVE(ch) -= 10;
     } else {
         GET_MOVE(ch) -= 10;
-        if (!(damage(ch, vict, dam, SKILL_TORNADO_KICK, -1)) &&
+        if (!(damage(ch, vict, NULL, dam, SKILL_TORNADO_KICK, -1)) &&
             GET_LEVEL(ch) > number(30, 55) &&
-            (!(damage(ch, vict,
+            (!(damage(ch, vict, NULL,
                       number(0, 1 + GET_LEVEL(ch) / 10) ?
                       (int)(dam * 1.2) :
                       0,
                       SKILL_TORNADO_KICK, -1))) &&
             (GET_MOVE(ch) -= 10) &&
             GET_LEVEL(ch) > number(40, 55) &&
-            (!(damage(ch, vict,
+            (!(damage(ch, vict, NULL,
                       number(0, 1 + GET_LEVEL(ch) / 10) ?
                       (int)(dam * 1.3) : 0, SKILL_TORNADO_KICK, -1))))
             GET_MOVE(ch) -= 10;
@@ -2006,7 +2005,7 @@ ACMD(do_sleeper)
 
     if (percent > prob || NPC_FLAGGED(vict, NPC_NOSLEEP) ||
         GET_LEVEL(vict) > LVL_CREATOR) {
-        damage(ch, vict, 0, SKILL_SLEEPER, WEAR_NECK_1);
+        damage(ch, vict, NULL, 0, SKILL_SLEEPER, WEAR_NECK_1);
     }
     //
     // success
@@ -2014,7 +2013,7 @@ ACMD(do_sleeper)
 
     else {
         gain_skill_prof(ch, SKILL_SLEEPER);
-        damage(ch, vict, 18, SKILL_SLEEPER, WEAR_NECK_1);
+        damage(ch, vict, NULL, 18, SKILL_SLEEPER, WEAR_NECK_1);
         // FIXME: don't do anything if the attack failed
 
         //
@@ -2102,7 +2101,7 @@ ACMD(do_turn)
     prob = CHECK_SKILL(ch, SKILL_TURN);
 
     if (percent > prob) {
-        damage(ch, vict, 0, SKILL_TURN, -1);
+        damage(ch, vict, NULL, 0, SKILL_TURN, -1);
         WAIT_STATE(ch, PULSE_VIOLENCE * 3);
     } else {
         if ((GET_LEVEL(ch) - GET_LEVEL(vict) - number(0, 10)) > 20) {
@@ -2125,7 +2124,7 @@ ACMD(do_turn)
             do_flee(vict, tmp_strdup(""), 0, 0);
             gain_skill_prof(ch, SKILL_TURN);
         } else {
-            damage(ch, vict, GET_LEVEL(ch) >> 1, SKILL_TURN, -1);
+            damage(ch, vict, NULL, GET_LEVEL(ch) >> 1, SKILL_TURN, -1);
             WAIT_STATE(ch, PULSE_VIOLENCE * 2);
             gain_skill_prof(ch, SKILL_TURN);
         }
@@ -2232,15 +2231,13 @@ shoot_energy_gun(struct creature *ch,
 
     CUR_ENERGY(gun->contains) -= cost;
 
-    cur_weap = gun;
-
     //
     // miss
     //
 
     if (number(0, 121) > prob) {
         check_attack(ch, vict);
-        damage(ch, vict, 0, GUN_TYPE(gun) + TYPE_EGUN_LASER, number(0,
+        damage(ch, vict, gun, 0, GUN_TYPE(gun) + TYPE_EGUN_LASER, number(0,
                 NUM_WEARS - 1));
     }
     //
@@ -2249,7 +2246,7 @@ shoot_energy_gun(struct creature *ch,
 
     else {
         check_attack(ch, vict);
-        damage(ch, vict, dam, GUN_TYPE(gun) + TYPE_EGUN_LASER, number(0,
+        damage(ch, vict, gun, dam, GUN_TYPE(gun) + TYPE_EGUN_LASER, number(0,
                 NUM_WEARS - 1));
     }
     //
@@ -2263,7 +2260,6 @@ shoot_energy_gun(struct creature *ch,
         act("$p has been depleted of fuel.  You must replace the energy cell before firing again.", false, ch, gun, 0, TO_CHAR);
     }
 
-    cur_weap = NULL;
     WAIT_STATE(ch, 4 RL_SEC);
     //don't do the extra stuff because we're only shooting one blast at a time
     //ROF doesn't exist anymore
@@ -2291,7 +2287,6 @@ fire_projectile_round(struct creature *ch,
     if (!bullet) {
         act("$p is out of ammo.",
             false, ch, gun->contains ? gun->contains : gun, 0, TO_CHAR);
-        cur_weap = NULL;
 
         if (IS_ARROW(gun) && IS_ELF(ch))
             WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 2) RL_SEC);
@@ -2320,8 +2315,6 @@ fire_projectile_round(struct creature *ch,
     // TODO: fix this
     bullet = MAX_LOAD(gun) ? gun->contains : gun->contains->contains;
 
-    cur_weap = gun;
-
     if (number(0, 121) > prob) {
         //
         // miss
@@ -2334,7 +2327,7 @@ fire_projectile_round(struct creature *ch,
             act(tmp_sprintf("$n fires %s at $N from $p!", arrow_name),
                 false, ch, gun, vict, TO_NOTVICT);
         }
-        damage(ch, vict, 0,
+        damage(ch, vict, gun, 0,
             IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : (IS_ARROW(gun) ?
                 SKILL_ARCHERY : SKILL_PROJ_WEAPONS), number(0, NUM_WEARS - 1));
     } else {
@@ -2349,7 +2342,7 @@ fire_projectile_round(struct creature *ch,
             act(tmp_sprintf("$n fires %s into $N from $p!", arrow_name), false,
                 ch, gun, vict, TO_NOTVICT);
         }
-        damage(ch, vict, dam,
+        damage(ch, vict, gun, dam,
             (IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER :
                 (IS_ARROW(gun) ? SKILL_ARCHERY :
                     SKILL_PROJ_WEAPONS)), number(0, NUM_WEARS - 1));
@@ -2776,7 +2769,6 @@ ACMD(do_impale)
     if (IS_PUDDING(vict) || IS_SLIME(vict))
         prob = 0;
 
-    cur_weap = weap;
     dam = dice(GET_OBJ_VAL(weap, 1), GET_OBJ_VAL(weap, 2)) * 2 +
         GET_OBJ_WEIGHT(weap) * 4 + GET_DAMROLL(ch);
     dam += dam * skill_bonus(ch, SKILL_IMPALE) / 200;
@@ -2788,9 +2780,9 @@ ACMD(do_impale)
         dam = 0;
 
     if (percent > prob) {
-        damage(ch, vict, 0, SKILL_IMPALE, WEAR_BODY);
+        damage(ch, vict, weap, 0, SKILL_IMPALE, WEAR_BODY);
     } else {
-        damage(ch, vict, dam, SKILL_IMPALE, WEAR_BODY);
+        damage(ch, vict, weap, dam, SKILL_IMPALE, WEAR_BODY);
         gain_skill_prof(ch, SKILL_IMPALE);
     }
     WAIT_STATE(ch, PULSE_VIOLENCE * 3);
@@ -3031,14 +3023,13 @@ do_combat_fire(struct creature *ch, struct creature *vict)
 
         CUR_ENERGY(gun->contains) -= cost;
 
-        cur_weap = gun;
         if (number(0, 121) > prob) {    //miss
             check_attack(ch, vict);
-            damage(ch, vict, 0, SKILL_ENERGY_WEAPONS,
+            damage(ch, vict, gun, 0, SKILL_ENERGY_WEAPONS,
                 number(0, NUM_WEARS - 1));
         } else {                // hit
             check_attack(ch, vict);
-            damage(ch, vict, dam, SKILL_ENERGY_WEAPONS,
+            damage(ch, vict, gun, dam, SKILL_ENERGY_WEAPONS,
                 number(0, NUM_WEARS - 1));
         }
 
@@ -3050,7 +3041,6 @@ do_combat_fire(struct creature *ch, struct creature *vict)
         if (!CUR_ENERGY(gun->contains)) {
             act("$p has been depleted of fuel.  Replace cell before further use.", false, ch, gun, 0, TO_CHAR);
         }
-        cur_weap = NULL;
         return false;
     }
     //
@@ -3102,16 +3092,14 @@ do_combat_fire(struct creature *ch, struct creature *vict)
     // TODO: fix this
     bullet = MAX_LOAD(gun) ? gun->contains : gun->contains->contains;
 
-    cur_weap = gun;
-
     if (number(0, 121) > prob) {    //miss
-        damage(ch, vict, 0,
+        damage(ch, vict, gun, 0,
             IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS,
             number(0, NUM_WEARS - 1));
     }
 
     // hit
-    return damage(ch, vict, dam,
+    return damage(ch, vict, gun, dam,
                   IS_FLAMETHROWER(gun) ? TYPE_FLAMETHROWER : SKILL_PROJ_WEAPONS,
                   number(0, NUM_WEARS - 1));
 }
