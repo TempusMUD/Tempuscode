@@ -898,7 +898,7 @@ perform_offensive_skill(struct creature *ch,
                         int skill)
 {
     struct affected_type af;
-    struct obj_data *weap;
+    struct obj_data *weap = NULL;
     int prob = -1, wait = 0, vict_wait = 0, dam = 0, vict_pos = 0, fail_pos =
         0, loc = -1, move = 0, mana = 0;
 
@@ -934,7 +934,6 @@ perform_offensive_skill(struct creature *ch,
                            &wait, &vict_wait, &move, &mana,
                            &dam, &fail_pos, &vict_pos, &loc, &af);
     if (prob < 0) {
-        weap = NULL;
         return false;
     }
 

@@ -276,7 +276,7 @@ save_objs(struct creature * ch, struct zone_data * zone)
             if (obj->obj_flags.bitvector[i]) {
                 num2str(sbuf1, obj->obj_flags.bitvector[i]);
                 fprintf(file, "V\n");
-                fprintf(file, "%ld %s\n", (i + 1), sbuf1);
+                fprintf(file, "%zd %s\n", (i + 1), sbuf1);
             }
         }
 

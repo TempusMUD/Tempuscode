@@ -326,7 +326,8 @@ ACMD(do_speak_tongue)
     char *tongue_name;
 
     if (!*argument) {
-        tongue = g_hash_table_lookup(tongues, GINT_TO_POINTER(GET_TONGUE(ch)));
+        tongue = g_hash_table_lookup(tongues,
+                                     GINT_TO_POINTER((intptr_t)GET_TONGUE(ch)));
         send_to_char(ch, "You are currently speaking %s.\r\n", tongue->name);
         return;
     }
@@ -396,7 +397,7 @@ ACMD(do_show_languages)
 {
     struct tongue *tongue;
 
-    tongue = g_hash_table_lookup(tongues, GINT_TO_POINTER(GET_TONGUE(ch)));
+    tongue = g_hash_table_lookup(tongues, GINT_TO_POINTER((intptr_t)GET_TONGUE(ch)));
 
     acc_string_clear();
     acc_sprintf("%sYou are currently speaking:  %s%s\r\n\r\n",
