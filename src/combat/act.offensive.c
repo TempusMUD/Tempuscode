@@ -981,7 +981,8 @@ perform_offensive_skill(struct creature *ch,
     // On success, we always do at least one point of damage
     if (dam < 1)
         dam = 1;
-    damage(ch, vict, weap, dam, skill, loc);
+    if (!damage(ch, vict, weap, dam, skill, loc))
+        return false;
 
     //
     // set waits, position, and affects on victim if they are still alive
