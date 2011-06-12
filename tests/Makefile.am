@@ -9,7 +9,8 @@ check_tempus_SOURCES = \
 	        @top_srcdir@/tests/object_tests.c \
 			@top_srcdir@/tests/tmpstr_tests.c \
 	        @top_srcdir@/tests/strutil_tests.c \
-	        @top_srcdir@/tests/player_io_tests.c
+	        @top_srcdir@/tests/player_io_tests.c \
+	        @top_srcdir@/tests/quest_tests.c
 
 check_tempus_LDADD = @CHECK_LIBS@ @XML_LIBS@ @GLIB_LIBS@ \
 			$(top_builddir)/src/clan.o \

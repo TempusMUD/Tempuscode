@@ -151,24 +151,43 @@ const char *qp_bits[] = {
     "\n"
 };
 
-GList *quests;
+#define QUEST_PATH "etc/quest.xml"
 
+GList *quests = NULL;
+
+/**
+ * next_quest_vnum
+ *
+ * Returns: a number one more than the current maximum quest vnum
+ *
+ */
 int
 next_quest_vnum(void)
 {
-    int max_id = 1;
-    for (GList * qit = quests; qit; qit = qit->next) {
+    int new_id = 1;
+
+    for (GList *qit = quests; qit; qit = qit->next) {
         struct quest *quest = qit->data;
-        if (max_id < quest->vnum)
-            max_id = quest->vnum;
+        if (new_id <= quest->vnum)
+            new_id = quest->vnum + 1;
     }
-    return max_id;
+    return new_id;
 }
 
-#define QUEST_PATH "etc/quest.xml"
-
+/**
+ * make_quest:
+ * @owner_id The player id of the player creating the quest
+ * @owner_level The level of the player creating the quest
+ * @type The type of the quest
+ * @name The name of the quest
+ *
+ * Creates a new #quest, initializes its properties and assigns it a
+ * new quest vnum.
+ *
+ * Returns: A pointer to the created quest
+ **/
 struct quest *
-make_quest(struct creature *ch, int type, const char *name)
+make_quest(long owner_id, int owner_level, int type, const char *name)
 {
     struct quest *quest;
 
@@ -176,8 +195,8 @@ make_quest(struct creature *ch, int type, const char *name)
     quest->vnum = next_quest_vnum();
     quest->type = type;
     quest->name = strdup(name);
-    quest->owner_id = GET_IDNUM(ch);
-    quest->owner_level = GET_LEVEL(ch);
+    quest->owner_id = owner_id;
+    quest->owner_level = owner_level;
 
     quest->flags = QUEST_HIDE;
     quest->started = time(0);
@@ -203,6 +222,15 @@ make_quest(struct creature *ch, int type, const char *name)
     return quest;
 }
 
+/**
+ * load_quest:
+ * @n An XML node pointer with the quest data
+ * @doc A pointer to the XML document which owns @n
+ *
+ * Loads a single quest from an XML document.
+ *
+ * Returns: a newly allocated quest with fields set
+ **/
 struct quest *
 load_quest(xmlNodePtr n, xmlDocPtr doc)
 {
@@ -261,9 +289,21 @@ load_quest(xmlNodePtr n, xmlDocPtr doc)
         }
         cur = cur->next;
     }
+
+    quest->players = g_list_reverse(quest->players);
+    quest->bans = g_list_reverse(quest->bans);
+
     return quest;
 }
 
+/**
+ * save_quest:
+ * @quest the quest to be saved
+ * @out A file pointer to the output file
+ *
+ * Saves a single quest in XML format.
+ *
+ **/
 void
 save_quest(struct quest *quest, FILE * out)
 {
@@ -303,6 +343,13 @@ save_quest(struct quest *quest, FILE * out)
     fprintf(out, "%s</Quest>\n", indent);
 }
 
+/**
+ * free_quest:
+ * @quest the quest to be freed
+ *
+ * Deallocates all memory used by the given quest.
+ *
+ **/
 void
 free_quest(struct quest *quest)
 {
@@ -315,6 +362,17 @@ free_quest(struct quest *quest)
     free(quest);
 }
 
+/**
+ * quest_player_by_idnum:
+ * @quest the #quest to search for a quest player
+ * @idnum the idnum of the player to look for
+ *
+ * Finds the quest player record of the player with the given id.
+ *
+ * Returns: A pointer to a #qplayer_data struct if found.  %NULL if
+ * not found.
+ *
+ **/
 struct qplayer_data *
 quest_player_by_idnum(struct quest *quest, int idnum)
 {
@@ -326,6 +384,17 @@ quest_player_by_idnum(struct quest *quest, int idnum)
     return NULL;
 }
 
+/**
+ * banned_from_quest:
+ * @quest the #quest being queried
+ * @idnum the idnum of the potentially banned player
+ *
+ * Determines if the player is banned from a particular quest.
+ *
+ * Returns: %true if the player is banned.  %false if the player is
+ * not banned.
+ *
+ **/
 bool
 banned_from_quest(struct quest * quest, int id)
 {
@@ -1845,7 +1914,8 @@ do_qcontrol_create(struct creature *ch, char *argument, int com)
         return;
     }
 
-    struct quest *quest = make_quest(ch, type, argument);
+    struct quest *quest = make_quest(GET_IDNUM(ch), GET_LEVEL(ch),
+                                     type, argument);
     quests = g_list_prepend(quests, quest);
 
     char *msg = tmp_sprintf("created quest [%d] type %s, '%s'",
