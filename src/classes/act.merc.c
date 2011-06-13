@@ -215,7 +215,7 @@ ACMD(do_crossface)
             }
         }
         // vict pretty much caught a grazing blow, knock off some eq
-        else if (diff >= 20) {
+        else if (diff >= 20 && !is_arena_combat(ch, vict)) {
             struct obj_data *wear, *scraps;
 
             damage(ch, vict, weap, dam >> 1, SKILL_CROSSFACE, wear_num);
