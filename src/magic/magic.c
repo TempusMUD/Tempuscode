@@ -977,9 +977,7 @@ mag_affects(int level,
     struct creature *victim,
     int *dir __attribute__ ((unused)), int spellnum, int savetype)
 {
-
-    struct affected_type af, af2, *afp;
-    struct affected_type aff_array[8];
+    struct affected_type aff[8];
     int accum_affect = false;
     int accum_duration = false;
     const char *to_vict = NULL;
@@ -1001,57 +999,48 @@ mag_affects(int level,
         return;
     }
 
-    // This is dumb.  One day when one of us
-    // has some time we should completely remove
-    // af and af2 from this function and convert
-    // everything to aff_array
-    init_affect(&af);
-    init_affect(&af2);
-    af.type = af2.type = spellnum;
-    af.owner = af2.owner = GET_IDNUM(ch);
-
     for (int i = 0; i < 8; i++) {
-        init_affect(&aff_array[i]);
-        aff_array[i].type = spellnum;
-        aff_array[i].location = APPLY_NONE;
-        aff_array[i].level = level;
-        aff_array[i].owner = GET_IDNUM(ch);
+        init_affect(&aff[i]);
+        aff[i].type = spellnum;
+        aff[i].location = APPLY_NONE;
+        aff[i].level = level;
+        aff[i].owner = GET_IDNUM(ch);
     }
     switch (spellnum) {
 
     case SPELL_CHILL_TOUCH:
     case SPELL_CONE_COLD:
-        af.location = APPLY_STR;
+        aff[0].location = APPLY_STR;
         if (mag_savingthrow(victim, level, savetype))
-            af.duration = 1;
+            aff[0].duration = 1;
         else
-            af.duration = 4;
-        af.modifier = -((level / 16) + 1);
+            aff[0].duration = 4;
+        aff[0].modifier = -((level / 16) + 1);
         accum_duration = true;
         to_vict = "You feel your strength wither!";
         break;
     case SPELL_HELL_FROST_STORM:
         spellnum = SPELL_HELL_FROST;
     case SPELL_HELL_FROST:
-        af.location = APPLY_STR;
+        aff[0].location = APPLY_STR;
         if (mag_savingthrow(victim, level, savetype))
-            af.duration = 1;
+            aff[0].duration = 1;
         else
-            af.duration = 4;
-        af.modifier = -((level / 16) + 1);
+            aff[0].duration = 4;
+        aff[0].modifier = -((level / 16) + 1);
         accum_duration = true;
         to_vict = "You feel your strength withered by the cold!";
         break;
 
     case SPELL_TROG_STENCH:
-        af.location = APPLY_STR;
+        aff[0].location = APPLY_STR;
         if (mag_savingthrow(victim, level, savetype)) {
-            af.duration = 1;
-            af.modifier = -(number(0, 3));
+            aff[0].duration = 1;
+            aff[0].modifier = -(number(0, 3));
             to_vict = "You feel your strength wither!";
         } else {
-            af.duration = 4;
-            af.modifier = -(number(1, 8));
+            aff[0].duration = 4;
+            aff[0].modifier = -(number(1, 8));
             to_vict =
                 "You feel your strength wither as you vomit on the floor!";
             if (!number(0, 1))
@@ -1067,9 +1056,9 @@ mag_affects(int level,
         accum_duration = true;
         break;
     case SPELL_ARMOR:
-        af.location = APPLY_AC;
-        af.duration = 24;
-        af.modifier = -((level / 4) + 20);
+        aff[0].location = APPLY_AC;
+        aff[0].duration = 24;
+        aff[0].modifier = -((level / 4) + 20);
         accum_duration = true;
         to_vict = "You feel someone protecting you.";
         break;
@@ -1083,18 +1072,18 @@ mag_affects(int level,
             }
         }
 
-        af.location = APPLY_AC;
-        af.duration = dice(4, (level / 8) + 1);
-        af.modifier = -10;
-        af.level = skill_bonus(ch, SPELL_BARKSKIN);
+        aff[0].location = APPLY_AC;
+        aff[0].duration = dice(4, (level / 8) + 1);
+        aff[0].modifier = -10;
+        aff[0].level = skill_bonus(ch, SPELL_BARKSKIN);
         accum_duration = true;
         to_vict = "Your skin tightens up and hardens.";
         break;
 
     case SPELL_THORN_SKIN:
-        af.location = APPLY_AC;
-        af.duration = dice(3, (level / 4) + 1);
-        af.modifier = -(skill_bonus(ch, SPELL_THORN_SKIN) / 10 + 5);
+        aff[0].location = APPLY_AC;
+        aff[0].duration = dice(3, (level / 4) + 1);
+        aff[0].modifier = -(skill_bonus(ch, SPELL_THORN_SKIN) / 10 + 5);
         break;
     case SPELL_STONESKIN:
         if (affected_by_spell(victim, SPELL_BARKSKIN)) {
@@ -1104,23 +1093,23 @@ mag_affects(int level,
                     spell_wear_off_msg[SPELL_BARKSKIN]);
             }
         }
-        af.level = af2.level = skill_bonus(ch, SPELL_STONESKIN);
-        af2.location = APPLY_DEX;
-        af.location = APPLY_AC;
-        af.duration = af2.duration = dice(4, (level / 8) + 1);
-        af.modifier = -20;
-        af2.modifier = -2;
+        aff[0].level = aff[1].level = skill_bonus(ch, SPELL_STONESKIN);
+        aff[1].location = APPLY_DEX;
+        aff[0].location = APPLY_AC;
+        aff[0].duration = aff[1].duration = dice(4, (level / 8) + 1);
+        aff[0].modifier = -20;
+        aff[1].modifier = -2;
         accum_duration = true;
         to_vict = "Your skin hardens to a rock-like shell.";
         to_room = "$n's skin turns a pale, rough grey.";
         break;
     case SPELL_PRAY:
-        af.location = APPLY_HITROLL;
-        af.modifier = 3 + (level / 8);
-        af.duration = 4 + (level / 16);
-        af2.location = APPLY_SAVING_SPELL;
-        af2.modifier = -(3 + (level / 16));
-        af2.duration = af.duration;
+        aff[0].location = APPLY_HITROLL;
+        aff[0].modifier = 3 + (level / 8);
+        aff[0].duration = 4 + (level / 16);
+        aff[1].location = APPLY_SAVING_SPELL;
+        aff[1].modifier = -(3 + (level / 16));
+        aff[1].duration = aff[0].duration;
         accum_duration = true;
         if (IS_GOOD(ch))
             to_vict = "You feel extremely righteous.";
@@ -1132,30 +1121,30 @@ mag_affects(int level,
             send_to_char(ch, "You fail.\r\n");
             return;
         }
-        af.location = APPLY_HITROLL;
-        af.modifier = -4;
-        af.duration = 2;
-        af.bitvector = AFF_BLIND;
-        af2.location = APPLY_AC;
-        af2.modifier = 40;
-        af2.duration = 2;
-        af2.bitvector = AFF_BLIND;
+        aff[0].location = APPLY_HITROLL;
+        aff[0].modifier = -4;
+        aff[0].duration = 2;
+        aff[0].bitvector = AFF_BLIND;
+        aff[1].location = APPLY_AC;
+        aff[1].modifier = 40;
+        aff[1].duration = 2;
+        aff[1].bitvector = AFF_BLIND;
         to_room = "$n seems to be blinded!";
         to_vict = "You have been blinded!";
         break;
     case SPELL_BREATHE_WATER:
-        af.bitvector = AFF_WATERBREATH;
-        af.duration = 10 + level;
+        aff[0].bitvector = AFF_WATERBREATH;
+        aff[0].duration = 10 + level;
         to_vict = "You are now able to breathe underwater.";
         break;
     case SPELL_SPIRIT_TRACK:
-        af.duration = level;
+        aff[0].duration = level;
         to_vict = "You can now sense trails to other creatures.";
         break;
     case SPELL_WORD_STUN:
-        af.location = APPLY_INT;
-        af.duration = 1;
-        af.modifier = -1;
+        aff[0].location = APPLY_INT;
+        aff[0].duration = 1;
+        aff[0].modifier = -1;
         if (NPC2_FLAGGED(victim, NPC2_NOSTUN)) {
             send_to_char(ch, "You fail the stun.\r\n");
             hit(victim, ch, TYPE_UNDEFINED);
@@ -1169,79 +1158,79 @@ mag_affects(int level,
         to_vict = "You have been stunned!";
         break;
     case SPELL_BLUR:
-        af.location = APPLY_AC;
-        af.duration = 2 + (level / 4);
-        af.modifier = -10;
-        af.bitvector = AFF_BLUR;
+        aff[0].location = APPLY_AC;
+        aff[0].duration = 2 + (level / 4);
+        aff[0].modifier = -10;
+        aff[0].bitvector = AFF_BLUR;
         accum_duration = true;
         to_vict = "Your image suddenly starts to blur and shift.";
         to_room = "The image of $n suddenly starts to blur and shift.";
         break;
     case SPELL_CURSE:
-        af.location = APPLY_HITROLL;
-        af.duration = 1 + (level / 2);
-        af.modifier = -(1 + level / 8);
-        af.bitvector = AFF_CURSE;
-        af2.location = APPLY_DAMROLL;
-        af2.duration = 1 + (level / 2);
-        af2.modifier = -(1 + level / 10);
-        af2.bitvector = AFF_CURSE;
+        aff[0].location = APPLY_HITROLL;
+        aff[0].duration = 1 + (level / 2);
+        aff[0].modifier = -(1 + level / 8);
+        aff[0].bitvector = AFF_CURSE;
+        aff[1].location = APPLY_DAMROLL;
+        aff[1].duration = 1 + (level / 2);
+        aff[1].modifier = -(1 + level / 10);
+        aff[1].bitvector = AFF_CURSE;
         accum_duration = true;
         accum_affect = false;
         to_room = "$n briefly glows with a sick red light!";
         to_vict = "You feel very uncomfortable";
         break;
     case SPELL_DETECT_ALIGN:
-        af.duration = 12 + level;
-        af.bitvector = AFF_DETECT_ALIGN;
+        aff[0].duration = 12 + level;
+        aff[0].bitvector = AFF_DETECT_ALIGN;
         accum_duration = true;
         to_vict = "Your eyes tingle.";
         break;
     case SPELL_DETECT_INVIS:
-        af.duration = 12 + level;
-        af.bitvector = AFF_DETECT_INVIS;
+        aff[0].duration = 12 + level;
+        aff[0].bitvector = AFF_DETECT_INVIS;
         accum_duration = false;
         to_vict = "Your eyes tingle.";
         break;
     case SPELL_DETECT_MAGIC:
-        af.duration = 12 + level;
-        af.bitvector = AFF_DETECT_MAGIC;
+        aff[0].duration = 12 + level;
+        aff[0].bitvector = AFF_DETECT_MAGIC;
         accum_duration = false;
         to_vict = "Your eyes tingle.";
         break;
     case SPELL_DETECT_POISON:
-        af.duration = 12 + level;
-        af.bitvector = AFF3_DETECT_POISON;
-        af.aff_index = 3;
+        aff[0].duration = 12 + level;
+        aff[0].bitvector = AFF3_DETECT_POISON;
+        aff[0].aff_index = 3;
         to_vict = "Your eyes tingle.";
         if (AFF_FLAGGED(victim, AFF_POISON))
             send_to_char(victim, "You can sense poison in your blood.\r\n");
         break;
     case SPELL_DETECT_SCRYING:
         to_vict = "You are now aware.";
-        af.duration = level;
+        aff[0].duration = level;
         accum_duration = true;
         break;
     case SPELL_DISPLACEMENT:
-        af.duration = 4 + 2 * (level > 48);
-        af.bitvector = AFF2_DISPLACEMENT;
-        af.aff_index = 2;
+        aff[0].duration = 4 + 2 * (level > 48);
+        aff[0].bitvector = AFF2_DISPLACEMENT;
+        aff[0].aff_index = 2;
         accum_duration = false;
         to_vict = "Your image will now be displaced from its actual position.";
         break;
     case SPELL_ENDURE_COLD:
-        af.duration = 24;
-        af.bitvector = AFF2_ENDURE_COLD;
-        af.aff_index = 2;
+        aff[0].duration = 24;
+        aff[0].bitvector = AFF2_ENDURE_COLD;
+        aff[0].aff_index = 2;
         accum_duration = true;
         to_vict = "You can now endure the coldest of cold.";
         break;
     case SPELL_FIRE_SHIELD:
-        af.duration = 6 + (level / 8);
-        af.bitvector = AFF2_FIRE_SHIELD;
-        af.aff_index = 2;
-        af.location = APPLY_AC;
-        af.modifier = -8;
+        aff[0].duration = 6 + (level / 8);
+        aff[0].bitvector = AFF2_FIRE_SHIELD;
+        aff[0].aff_index = 2;
+        aff[0].location = APPLY_AC;
+        aff[0].modifier = -8;
         accum_duration = true;
         to_vict = "A sheet of flame appears before your body.";
         to_room = "A sheet of flame appears before $n!";
@@ -1253,31 +1242,31 @@ mag_affects(int level,
                 TO_CHAR);
             return;
         }
-        af.duration = 2 + (level / 8);
-        af.bitvector = AFF_INFLIGHT;
+        aff[0].duration = 2 + (level / 8);
+        aff[0].bitvector = AFF_INFLIGHT;
         accum_duration = true;
         to_vict = "Your feet lift lightly from the ground.";
         to_room = "$n begins to hover above the ground.";
         GET_POSITION(victim) = POS_FLYING;
         break;
     case SPELL_HASTE:
-        af.duration = (level / 4);
-        af.bitvector = AFF2_HASTE;
-        af.aff_index = 2;
+        aff[0].duration = (level / 4);
+        aff[0].bitvector = AFF2_HASTE;
+        aff[0].aff_index = 2;
         accum_duration = false;
         to_vict = "You start moving FAST.";
         break;
     case SPELL_INFRAVISION:
-        af.duration = 12 + (level / 4);
-        af.bitvector = AFF_INFRAVISION;
+        aff[0].duration = 12 + (level / 4);
+        aff[0].bitvector = AFF_INFRAVISION;
         accum_duration = true;
         to_vict = "Your eyes glow red.";
         to_room = "$n's eyes glow red.";
         break;
     case SPELL_DIVINE_ILLUMINATION:
-        af.duration = 8 + level;
-        af.bitvector = AFF2_DIVINE_ILLUMINATION;
-        af.aff_index = 2;
+        aff[0].duration = 8 + level;
+        aff[0].bitvector = AFF2_DIVINE_ILLUMINATION;
+        aff[0].aff_index = 2;
         accum_duration = true;
         if (IS_GOOD(ch)) {
             to_vict = "You are surrounded with a soft holy light.";
@@ -1291,8 +1280,8 @@ mag_affects(int level,
         }
         break;
     case SPELL_GLOWLIGHT:
-        af.duration = 8 + level;
-        af.bitvector = AFF_GLOWLIGHT;
+        aff[0].duration = 8 + level;
+        aff[0].bitvector = AFF_GLOWLIGHT;
         accum_duration = true;
         to_vict = "The area around you is illuminated with ghostly light.";
         to_room = "A ghostly light appears around $n.";
@@ -1300,46 +1289,46 @@ mag_affects(int level,
     case SPELL_INVISIBLE:
         if (!victim)
             victim = ch;
-        af.duration = 12 + (level / 4);
-        af.modifier = -20;
-        af.location = APPLY_AC;
-        af.bitvector = AFF_INVISIBLE;
+        aff[0].duration = 12 + (level / 4);
+        aff[0].modifier = -20;
+        aff[0].location = APPLY_AC;
+        aff[0].bitvector = AFF_INVISIBLE;
         accum_duration = true;
         to_vict = "You vanish.";
         to_room = "$n slowly fades out of existence.";
         break;
     case SPELL_GREATER_INVIS:
-        af.duration = 3 + (level / 8);
+        aff[0].duration = 3 + (level / 8);
         if (!AFF_FLAGGED(victim, AFF_INVISIBLE)) {
-            af.modifier = -20;
-            af.location = APPLY_AC;
+            aff[0].modifier = -20;
+            aff[0].location = APPLY_AC;
         } else {
-            af.modifier = -4;
-            af.location = APPLY_AC;
+            aff[0].modifier = -4;
+            aff[0].location = APPLY_AC;
         }
-        af.bitvector = AFF_INVISIBLE;
+        aff[0].bitvector = AFF_INVISIBLE;
         accum_duration = false;
         to_vict = "You vanish.";
         to_room = "$n slowly fades out of existence.";
         break;
     case SPELL_INVIS_TO_UNDEAD:
-        af.duration = 12 + (level / 4);
-        af.bitvector = AFF2_INVIS_TO_UNDEAD;
-        af.aff_index = 2;
+        aff[0].duration = 12 + (level / 4);
+        aff[0].bitvector = AFF2_INVIS_TO_UNDEAD;
+        aff[0].aff_index = 2;
         accum_duration = true;
         to_vict = "The undead can no longer see you.";
         break;
     case SPELL_ANIMAL_KIN:
-        af.duration = 12 + (level / 4);
-        af.bitvector = AFF2_ANIMAL_KIN;
-        af.aff_index = 2;
+        aff[0].duration = 12 + (level / 4);
+        aff[0].bitvector = AFF2_ANIMAL_KIN;
+        aff[0].aff_index = 2;
         accum_duration = true;
         to_vict = "You feel a strong kinship with animals.";
         break;
     case SPELL_MAGICAL_PROT:
-        af.duration = 3 + (level / 4);
-        af.location = APPLY_SAVING_SPELL;
-        af.modifier = -(level / 8) + 1;
+        aff[0].duration = 3 + (level / 4);
+        aff[0].location = APPLY_SAVING_SPELL;
+        aff[0].modifier = -(level / 8) + 1;
         accum_duration = false;
         to_vict =
             "You are now protected somewhat against the forces of magic.";
@@ -1347,9 +1336,9 @@ mag_affects(int level,
             "A shimmering aura appears around $n's body, then dissipates.";
         break;
     case SPELL_PETRIFY:
-        af.duration = level;
-        af.bitvector = AFF2_PETRIFIED;
-        af.aff_index = 2;
+        aff[0].duration = level;
+        aff[0].bitvector = AFF2_PETRIFIED;
+        aff[0].aff_index = 2;
         to_vict = "You feel petrified as your body TURNS TO STONE!";
         to_room = "$n suddenly turns to stone and stops in $s tracks!";
         accum_duration = false;
@@ -1358,21 +1347,21 @@ mag_affects(int level,
     case SPELL_GAS_BREATH:
         if (!NEEDS_TO_BREATHE(victim))
             return;
-        af.type = SPELL_POISON;
-        af.location = APPLY_STR;
-        af.duration = level;
-        af.modifier = -2;
+        aff[0].type = SPELL_POISON;
+        aff[0].location = APPLY_STR;
+        aff[0].duration = level;
+        aff[0].modifier = -2;
         accum_duration = true;
 
         if (level > 40 + number(0, 8)) {
-            af.bitvector = AFF3_POISON_3;
-            af.aff_index = 3;
+            aff[0].bitvector = AFF3_POISON_3;
+            aff[0].aff_index = 3;
         } else if (level > 30 + number(0, 9)) {
-            af.bitvector = AFF3_POISON_2;
-            af.aff_index = 3;
+            aff[0].bitvector = AFF3_POISON_2;
+            aff[0].aff_index = 3;
         } else {
-            af.bitvector = AFF_POISON;
-            af.aff_index = 1;
+            aff[0].bitvector = AFF_POISON;
+            aff[0].aff_index = 1;
         }
 
         to_vict = "You inhale the vapors and get violently sick!";
@@ -1381,30 +1370,30 @@ mag_affects(int level,
     case SPELL_POISON:
         if (IS_UNDEAD(victim))
             return;
-        af.location = APPLY_STR;
-        af.duration = level;
-        af.modifier = -2;
+        aff[0].location = APPLY_STR;
+        aff[0].duration = level;
+        aff[0].modifier = -2;
         accum_duration = true;
 
         if (level > 40 + number(0, 8)) {
-            af.bitvector = AFF3_POISON_3;
-            af.aff_index = 3;
+            aff[0].bitvector = AFF3_POISON_3;
+            aff[0].aff_index = 3;
         } else if (level > 30 + number(0, 9)) {
-            af.bitvector = AFF3_POISON_2;
-            af.aff_index = 3;
+            aff[0].bitvector = AFF3_POISON_2;
+            aff[0].aff_index = 3;
         } else {
-            af.bitvector = AFF_POISON;
-            af.aff_index = 1;
+            aff[0].bitvector = AFF_POISON;
+            aff[0].aff_index = 1;
         }
 
         to_vict = "You feel very sick!";
         to_room = "$n gets violently ill!";
         break;
     case SPELL_PRISMATIC_SPHERE:
-        af.type = SPELL_PRISMATIC_SPHERE;
-        af.duration = 2 + GET_INT(ch);
-        af.bitvector = AFF3_PRISMATIC_SPHERE;
-        af.aff_index = 3;
+        aff[0].type = SPELL_PRISMATIC_SPHERE;
+        aff[0].duration = 2 + GET_INT(ch);
+        aff[0].bitvector = AFF3_PRISMATIC_SPHERE;
+        aff[0].aff_index = 3;
         accum_affect = false;
         accum_duration = false;
         to_room = "A prismatic sphere of light appears, surrounding $n!";
@@ -1414,23 +1403,23 @@ mag_affects(int level,
     case SPELL_SICKNESS:
         if (IS_SICK(victim))
             return;
-        af.type = SPELL_SICKNESS;
-        af2.type = SPELL_SICKNESS;
-        af.location = APPLY_HITROLL;
-        af.duration = dice(level, 8) - (GET_CON(victim) * 2);
-        af.modifier = -(level / 5);
-        af.bitvector = AFF3_SICKNESS;
-        af.aff_index = 3;
-        af2.bitvector = 0;
-        af2.location = APPLY_DAMROLL;
-        af2.modifier = af.modifier;
-        af2.duration = af.duration;
+        aff[0].type = SPELL_SICKNESS;
+        aff[1].type = SPELL_SICKNESS;
+        aff[0].location = APPLY_HITROLL;
+        aff[0].duration = dice(level, 8) - (GET_CON(victim) * 2);
+        aff[0].modifier = -(level / 5);
+        aff[0].bitvector = AFF3_SICKNESS;
+        aff[0].aff_index = 3;
+        aff[1].bitvector = 0;
+        aff[1].location = APPLY_DAMROLL;
+        aff[1].modifier = aff[0].modifier;
+        aff[1].duration = aff[0].duration;
         break;
 
     case SPELL_SHROUD_OBSCUREMENT:
-        af.duration = 10 + (level / 2);
-        af.bitvector = AFF3_SHROUD_OBSCUREMENT;
-        af.aff_index = 3;
+        aff[0].duration = 10 + (level / 2);
+        aff[0].bitvector = AFF3_SHROUD_OBSCUREMENT;
+        aff[0].aff_index = 3;
         to_vict = "An obscuring shroud forms in the space around you.";
         to_room = "An obscuring shroud forms around $n.";
         break;
@@ -1441,11 +1430,11 @@ mag_affects(int level,
             return;
         }
 
-        af.duration = 1 + (level / 4);
-        af.bitvector = AFF2_SLOW;
-        af.aff_index = 2;
-        af.location = APPLY_DEX;
-        af.modifier = -number(0, (level / 16));
+        aff[0].duration = 1 + (level / 4);
+        aff[0].bitvector = AFF2_SLOW;
+        aff[0].aff_index = 2;
+        aff[0].location = APPLY_DEX;
+        aff[0].modifier = -number(0, (level / 16));
         to_vict = "Your movements slow to a tortured crawl.";
         break;
 
@@ -1454,35 +1443,35 @@ mag_affects(int level,
             to_vict = "You feel terrible!";
             switch (number(0, 5)) {
             case 0:
-                af.location = APPLY_STR;
-                af.modifier = -(level / 16);
+                aff[0].location = APPLY_STR;
+                aff[0].modifier = -(level / 16);
                 break;
             case 1:
-                af.location = APPLY_INT;
-                af.modifier = -(level / 16);
+                aff[0].location = APPLY_INT;
+                aff[0].modifier = -(level / 16);
                 break;
             case 2:
-                af.location = APPLY_CHA;
-                af.modifier = -(level / 16);
+                aff[0].location = APPLY_CHA;
+                aff[0].modifier = -(level / 16);
                 break;
             case 3:
-                af.location = APPLY_CON;
-                af.modifier = -(level / 8);
+                aff[0].location = APPLY_CON;
+                aff[0].modifier = -(level / 8);
                 break;
             case 4:
-                af.location = APPLY_HITROLL;
-                af.modifier = -(level / 8);
+                aff[0].location = APPLY_HITROLL;
+                aff[0].modifier = -(level / 8);
                 break;
             case 5:
-                af.location = APPLY_DAMROLL;
-                af.modifier = -(level / 8);
+                aff[0].location = APPLY_DAMROLL;
+                aff[0].modifier = -(level / 8);
                 break;
             }
         } else {
-            af.bitvector = AFF_PROTECT_EVIL;
+            aff[0].bitvector = AFF_PROTECT_EVIL;
             to_vict = "You feel invulnerable against the forces of evil!";
         }
-        af.duration = 12;
+        aff[0].duration = 12;
         accum_duration = true;
         break;
 
@@ -1491,83 +1480,83 @@ mag_affects(int level,
             to_vict = "You feel terrible!";
             switch (number(0, 5)) {
             case 0:
-                af.location = APPLY_STR;
-                af.modifier = -(level / 16);
+                aff[0].location = APPLY_STR;
+                aff[0].modifier = -(level / 16);
                 break;
             case 1:
-                af.location = APPLY_INT;
-                af.modifier = -(level / 16);
+                aff[0].location = APPLY_INT;
+                aff[0].modifier = -(level / 16);
                 break;
             case 2:
-                af.location = APPLY_CHA;
-                af.modifier = -(level / 16);
+                aff[0].location = APPLY_CHA;
+                aff[0].modifier = -(level / 16);
                 break;
             case 3:
-                af.location = APPLY_CON;
-                af.modifier = -(level / 8);
+                aff[0].location = APPLY_CON;
+                aff[0].modifier = -(level / 8);
                 break;
             case 4:
-                af.location = APPLY_HITROLL;
-                af.modifier = -(level / 8);
+                aff[0].location = APPLY_HITROLL;
+                aff[0].modifier = -(level / 8);
                 break;
             case 5:
-                af.location = APPLY_DAMROLL;
-                af.modifier = -(level / 8);
+                aff[0].location = APPLY_DAMROLL;
+                aff[0].modifier = -(level / 8);
                 break;
             }
         } else {
-            af.bitvector = AFF_PROTECT_GOOD;
+            aff[0].bitvector = AFF_PROTECT_GOOD;
             to_vict = "You feel invulnerable against the forces of good!";
         }
-        af.duration = 12;
+        aff[0].duration = 12;
         accum_duration = true;
         break;
     case SPELL_PROTECT_FROM_DEVILS:
-        af.duration = 12 + (level / 8);
-        af.bitvector = AFF2_PROT_DEVILS;
-        af.aff_index = 2;
+        aff[0].duration = 12 + (level / 8);
+        aff[0].bitvector = AFF2_PROT_DEVILS;
+        aff[0].aff_index = 2;
         accum_duration = false;
         to_vict = "The devilish races will have difficulty harming you.";
         break;
     case SPELL_PROT_FROM_LIGHTNING:
-        af.duration = 12 + (level / 4);
-        af.bitvector = AFF2_PROT_LIGHTNING;
-        af.aff_index = 2;
+        aff[0].duration = 12 + (level / 4);
+        aff[0].bitvector = AFF2_PROT_LIGHTNING;
+        aff[0].aff_index = 2;
         accum_duration = true;
         to_vict = "You feel like standing on a hill holding a flagpole!";
         break;
 
     case SPELL_PROT_FROM_FIRE:
-        af.duration = 12 + (level / 4);
-        af.bitvector = AFF2_PROT_FIRE;
-        af.aff_index = 2;
+        aff[0].duration = 12 + (level / 4);
+        aff[0].bitvector = AFF2_PROT_FIRE;
+        aff[0].aff_index = 2;
         accum_duration = true;
         to_vict = "You feel like joining the local volunteer fire department!";
         break;
 
     case SPELL_REGENERATE:
-        af.duration = (GET_LEVEL(ch) / 10 + GET_REMORT_GEN(ch) / 2);
-        af.bitvector = AFF_REGEN;
+        aff[0].duration = (GET_LEVEL(ch) / 10 + GET_REMORT_GEN(ch) / 2);
+        aff[0].bitvector = AFF_REGEN;
         accum_duration = true;
         to_vict = "Your body begins to regenerate at an accelerated rate.";
         break;
 
     case SPELL_REJUVENATE:
-        af.duration = 3;
-        af.bitvector = AFF_REJUV;
+        aff[0].duration = 3;
+        aff[0].bitvector = AFF_REJUV;
         accum_duration = true;
         to_vict = "You will heal faster while sleeping.";
         break;
     case SPELL_UNDEAD_PROT:
-        af.duration = 12 + (level / 8);
-        af.bitvector = AFF2_PROTECT_UNDEAD;
-        af.aff_index = 2;
+        aff[0].duration = 12 + (level / 8);
+        aff[0].bitvector = AFF2_PROTECT_UNDEAD;
+        aff[0].aff_index = 2;
         accum_duration = false;
         to_vict = "The undead are toast.  You're bad.";
         break;
     case SPELL_SANCTUARY:
-        af.duration = 4;
-        af.bitvector = AFF_SANCTUARY;
+        aff[0].duration = 4;
+        aff[0].bitvector = AFF_SANCTUARY;
 
         accum_duration = false;
         if (IS_EVIL(ch)) {
@@ -1585,8 +1574,8 @@ mag_affects(int level,
         if (NPC_FLAGGED(victim, NPC_NOSLEEP) || IS_UNDEAD(victim))
             return;
 
-        af.duration = 4 + level / 10;
-        af.bitvector = AFF_SLEEP;
+        aff[0].duration = 4 + level / 10;
+        aff[0].bitvector = AFF_SLEEP;
 
         if (GET_POSITION(victim) > POS_SLEEPING) {
             act("You feel very sleepy...ZZzzzz...", false, victim, 0, 0,
@@ -1597,17 +1586,17 @@ mag_affects(int level,
         break;
 
     case SPELL_STRENGTH:
-        af.location = APPLY_STR;
-        af.duration = (level / 2) + 4;
-        af.modifier = 1 + (number(0, (level / 8)));
+        aff[0].location = APPLY_STR;
+        aff[0].duration = (level / 2) + 4;
+        aff[0].modifier = 1 + (number(0, (level / 8)));
         accum_duration = true;
         accum_affect = false;
         to_vict = "You feel stronger!";
         break;
     case SPELL_WORD_OF_INTELLECT:
-        af.location = APPLY_INT;
-        af.duration = (level / 2) + 4;
-        af.modifier = 1 + (level > 18);
+        aff[0].location = APPLY_INT;
+        aff[0].duration = (level / 2) + 4;
+        aff[0].modifier = 1 + (level > 18);
         accum_duration = false;
         accum_affect = false;
 
@@ -1618,23 +1607,23 @@ mag_affects(int level,
 
     case SPELL_SENSE_LIFE:
         to_vict = "You feel your awareness improve.";
-        af.duration = 1;        //level
-        af.bitvector = AFF_SENSE_LIFE;
+        aff[0].duration = 1;        //level
+        aff[0].bitvector = AFF_SENSE_LIFE;
         accum_duration = true;
         break;
 
     case SPELL_TELEKINESIS:
         to_vict = "You feel able to carry a greater load.";
-        af.duration = level / 2;
-        af.bitvector = AFF2_TELEKINESIS;
-        af.aff_index = 2;
+        aff[0].duration = level / 2;
+        aff[0].bitvector = AFF2_TELEKINESIS;
+        aff[0].aff_index = 2;
         accum_duration = true;
         break;
 
     case SPELL_TRUE_SEEING:
-        af.duration = 1 + (level / 4);
-        af.bitvector = AFF2_TRUE_SEEING;
-        af.aff_index = 2;
+        aff[0].duration = 1 + (level / 4);
+        aff[0].bitvector = AFF2_TRUE_SEEING;
+        aff[0].aff_index = 2;
 
         accum_duration = true;
         to_room = "$n's eyes open wide.";
@@ -1642,52 +1631,52 @@ mag_affects(int level,
         break;
 
     case SPELL_WATERWALK:
-        af.duration = 24;
-        af.bitvector = AFF_WATERWALK;
-        af.aff_index = 1;
+        aff[0].duration = 24;
+        aff[0].bitvector = AFF_WATERWALK;
+        aff[0].aff_index = 1;
         accum_duration = true;
         to_vict = "You feel webbing between your toes.";
         break;
 
     case SPELL_MANA_SHIELD:
-        af.duration = -1;
+        aff[0].duration = -1;
         to_vict = "Your mana will now absorb a percentage of damage.";
         break;
 
     /** psionic skills here **/
     case SPELL_POWER:
-        af.duration = (level / 4) + 4;
-        af.modifier = 1 + dice(1, (level / 16));
-        af.location = APPLY_STR;
+        aff[0].duration = (level / 4) + 4;
+        aff[0].modifier = 1 + dice(1, (level / 16));
+        aff[0].location = APPLY_STR;
         to_vict = "A psychic finger on your brain makes you feel stronger!";
         break;
 
     case SPELL_WEAKNESS:
-        af.duration = (level / 4) + 4;
-        af.modifier = -(1 + dice(1, (level / 16)));
-        af.location = APPLY_STR;
+        aff[0].duration = (level / 4) + 4;
+        aff[0].modifier = -(1 + dice(1, (level / 16)));
+        aff[0].location = APPLY_STR;
         to_vict = "A psychic finger on your brain makes you feel weaker!";
         break;
 
     case SPELL_CLUMSINESS:
-        af.duration = (level / 4) + 4;
-        af.modifier = -(1 + dice(1, (level / 8)));
-        af.location = APPLY_DEX;
+        aff[0].duration = (level / 4) + 4;
+        aff[0].modifier = -(1 + dice(1, (level / 8)));
+        aff[0].location = APPLY_DEX;
         to_vict = "A psychic finger on your brain makes you feel less agile!";
         break;
 
     case SPELL_INTELLECT:
-        af.duration = (level / 4) + 4;
-        af.modifier = 1 + dice(1, (level / 16));
-        af.location = APPLY_INT;
+        aff[0].duration = (level / 4) + 4;
+        aff[0].modifier = 1 + dice(1, (level / 16));
+        aff[0].location = APPLY_INT;
         to_vict = "Your mental faculties improve!";
         break;
 
     case SPELL_CONFUSION:
-        af.duration = 1 + (level / 4);
-        af.modifier = -(1 + (level / 7));
-        af.location = APPLY_HITROLL;
-        af.bitvector = AFF_CONFUSION;
+        aff[0].duration = 1 + (level / 4);
+        aff[0].modifier = -(1 + (level / 7));
+        aff[0].location = APPLY_HITROLL;
+        aff[0].bitvector = AFF_CONFUSION;
 
         if (GET_POSITION(victim) > POS_SLEEPING)
             to_room = "$n stops in $s tracks and stares off into space.";
@@ -1696,9 +1685,9 @@ mag_affects(int level,
         break;
 
     case SPELL_ENDURANCE:
-        af.duration = 1 + (level / 4);
-        af.modifier = 10 + (level * 2);
-        af.location = APPLY_MOVE;
+        aff[0].duration = 1 + (level / 4);
+        aff[0].modifier = 10 + (level * 2);
+        aff[0].location = APPLY_MOVE;
         to_vict = "You feel your energy capacity rise.";
         accum_duration = 1;
         break;
@@ -1709,7 +1698,7 @@ mag_affects(int level,
             send_to_char(ch, "You feel a wave of fear pass over you!\r\n");
             return;
         }
-        af.duration = 1 + (level / 16);
+        aff[0].duration = 1 + (level / 16);
         accum_affect = 1;
         accum_duration = 1;
         to_vict = "You suddenly feel very afraid!";
@@ -1717,19 +1706,19 @@ mag_affects(int level,
         break;
 
     case SPELL_TELEPATHY:
-        af.duration = 1 + (level / 16);
+        aff[0].duration = 1 + (level / 16);
         to_vict = "Your telepathic senses are greatly heightened.";
         break;
 
     case SPELL_CONFIDENCE:
-        af.modifier = dice(2, (level / 8) + 1);
-        af.duration = 3 + (level / 4);
-        af.location = APPLY_HITROLL;
-        af.bitvector = AFF_CONFIDENCE;
+        aff[0].modifier = dice(2, (level / 8) + 1);
+        aff[0].duration = 3 + (level / 4);
+        aff[0].location = APPLY_HITROLL;
+        aff[0].bitvector = AFF_CONFIDENCE;
 
-        af2.location = APPLY_SAVING_SPELL;
-        af2.modifier = -dice(1, (level / 8) + 1);
-        af2.duration = af.duration;
+        aff[1].location = APPLY_SAVING_SPELL;
+        aff[1].modifier = -dice(1, (level / 8) + 1);
+        aff[1].duration = aff[0].duration;
         accum_duration = 1;
         to_vict = "You suddenly feel very confident!";
         break;
@@ -1737,84 +1726,84 @@ mag_affects(int level,
     case SPELL_NOPAIN:
         to_room = "$n ripples $s muscles and grins insanely!";
         to_vict = "You feel like you can take anything!";
-        af.duration = 1 + dice(3, (level / 16) + 1);
-        af.bitvector = AFF_NOPAIN;
+        aff[0].duration = 1 + dice(3, (level / 16) + 1);
+        aff[0].bitvector = AFF_NOPAIN;
         break;
 
     case SPELL_RETINA:
-        af.duration = 12 + (level / 2);
-        af.bitvector = AFF_RETINA;
+        aff[0].duration = 12 + (level / 2);
+        aff[0].bitvector = AFF_RETINA;
         to_vict = "The rods of your retina are stimulated!";
         to_room = "$n's eyes shine brightly.";
         break;
 
     case SPELL_ADRENALINE:
-        af.modifier = dice(1, (level / 8) + 1);
-        af.duration = 3 + (level / 8);
-        af.location = APPLY_HITROLL;
-        af.bitvector = AFF_ADRENALINE;
+        aff[0].modifier = dice(1, (level / 8) + 1);
+        aff[0].duration = 3 + (level / 8);
+        aff[0].location = APPLY_HITROLL;
+        aff[0].bitvector = AFF_ADRENALINE;
         accum_duration = false;
         to_vict = "A rush of adrenaline hits your brain!";
         break;
 
     case SPELL_DERMAL_HARDENING:
-        af.level = skill_bonus(ch, SPELL_DERMAL_HARDENING);
-        af.location = APPLY_AC;
-        af.modifier = -10;
-        af.duration = dice(4, (level / 8) + 1);
+        aff[0].level = skill_bonus(ch, SPELL_DERMAL_HARDENING);
+        aff[0].location = APPLY_AC;
+        aff[0].modifier = -10;
+        aff[0].duration = dice(4, (level / 8) + 1);
         accum_duration = true;
         to_vict = "You feel your skin tighten up and thicken.";
         break;
 
     case SPELL_VERTIGO:
-        af.modifier = -(2 + (level / 10));
-        af.duration = 6;
-        af.location = APPLY_HITROLL;
-        af.bitvector = AFF2_VERTIGO;
-        af.aff_index = 2;
+        aff[0].modifier = -(2 + (level / 10));
+        aff[0].duration = 6;
+        aff[0].location = APPLY_HITROLL;
+        aff[0].bitvector = AFF2_VERTIGO;
+        aff[0].aff_index = 2;
         accum_duration = false;
-        af2.location = APPLY_DEX;
-        af2.modifier = -(1 + (level / 16));
-        af2.duration = af.duration;
+        aff[1].location = APPLY_DEX;
+        aff[1].modifier = -(1 + (level / 16));
+        aff[1].duration = aff[0].duration;
         to_vict = "You feel a wave of vertigo rush over you!";
         to_room = "$n staggers in a dazed way.";
         break;
 
     case SPELL_BREATHING_STASIS:
-        af.bitvector = AFF3_NOBREATHE;
-        af.aff_index = 3;
-        af.location = APPLY_MOVE;
-        af.modifier = -(50 - (level / 2));
-        af.duration = (dice(1, 1 + (level / 8)) * (level / 16));
+        aff[0].bitvector = AFF3_NOBREATHE;
+        aff[0].aff_index = 3;
+        aff[0].location = APPLY_MOVE;
+        aff[0].modifier = -(50 - (level / 2));
+        aff[0].duration = (dice(1, 1 + (level / 8)) * (level / 16));
         to_vict = "Your breathing rate drops into a static state.";
         break;
 
     case SPELL_METABOLISM:
-        af.location = APPLY_SAVING_CHEM;
-        af.duration = dice(2, 2 + (level / 8));
-        af.modifier = (level / 4);
+        aff[0].location = APPLY_SAVING_CHEM;
+        aff[0].duration = dice(2, 2 + (level / 8));
+        aff[0].modifier = (level / 4);
         to_vict = "Your metabolism speeds up.";
         break;
 
     case SPELL_RELAXATION:
-        af.location = APPLY_MOVE;
-        af.duration = dice(2, 2 + (level / 8));
-        af.modifier = -(35 - (level / 2));
-        af.aff_index = 3;
-        af.bitvector = AFF3_MANA_TAP;
-        af2.location = APPLY_STR;
-        af2.duration = af.duration;
-        af2.modifier = -1;
+        aff[0].location = APPLY_MOVE;
+        aff[0].duration = dice(2, 2 + (level / 8));
+        aff[0].modifier = -(35 - (level / 2));
+        aff[0].aff_index = 3;
+        aff[0].bitvector = AFF3_MANA_TAP;
+        aff[1].location = APPLY_STR;
+        aff[1].duration = aff[0].duration;
+        aff[1].modifier = -1;
         to_vict = "Your body and mind relax.";
         break;
 
     case SPELL_CELL_REGEN:
         if (level + GET_CON(victim) > number(34, 70))
-            af.bitvector = AFF_REGEN;
+            aff[0].bitvector = AFF_REGEN;
 
-        af.location = APPLY_CON;
-        af.modifier = 1;
-        af.duration = dice(1, 1 + (level / 8));
+        aff[0].location = APPLY_CON;
+        aff[0].modifier = 1;
+        aff[0].duration = dice(1, 1 + (level / 8));
         to_vict = "Your cell regeneration rate increases.";
 
         if (affected_by_spell(victim, SKILL_HAMSTRING)) {
@@ -1828,69 +1817,69 @@ mag_affects(int level,
 
     case SPELL_PSISHIELD:
 
-        af.bitvector = AFF3_PSISHIELD;
-        af.duration = dice(1, 1 + (level / 8)) + 3;
-        af.aff_index = 3;
+        aff[0].bitvector = AFF3_PSISHIELD;
+        aff[0].duration = dice(1, 1 + (level / 8)) + 3;
+        aff[0].aff_index = 3;
         to_vict = "You feel a psionic shield form around your mind.";
         break;
 
     case SPELL_MOTOR_SPASM:
-        af.location = APPLY_DEX;
-        af.modifier = -(number(0, level / 8));
-        af.duration = number(0, level / 16) + 1;
+        aff[0].location = APPLY_DEX;
+        aff[0].modifier = -(number(0, level / 8));
+        aff[0].duration = number(0, level / 16) + 1;
         to_vict = "Your muscles begin spasming uncontrollably.";
         break;
 
     case SPELL_PSYCHIC_RESISTANCE:
 
-        af.location = APPLY_SAVING_PSI;
-        af.modifier = -(5 + (level / 8));
-        af.duration = dice(1, 1 + (level / 8)) + 3;
+        aff[0].location = APPLY_SAVING_PSI;
+        aff[0].modifier = -(5 + (level / 8));
+        aff[0].duration = dice(1, 1 + (level / 8)) + 3;
         to_vict =
             "The psychic conduits of your mind become resistant to external energies.";
         accum_duration = 1;
         break;
 
     case SPELL_PSYCHIC_CRUSH:
-        af.location = APPLY_MANA;
-        af.modifier = -(5 + (level / 8));
-        af.duration = dice(1, 1 + (level / 16)) + 2;
-        af.aff_index = 3;
-        af.bitvector = AFF3_PSYCHIC_CRUSH;
+        aff[0].location = APPLY_MANA;
+        aff[0].modifier = -(5 + (level / 8));
+        aff[0].duration = dice(1, 1 + (level / 16)) + 2;
+        aff[0].aff_index = 3;
+        aff[0].bitvector = AFF3_PSYCHIC_CRUSH;
         break;
 
     case SPELL_PSYCHIC_FEEDBACK:
-        af.duration = (level / 8) + dice(1, 1 + (level / 8));
+        aff[0].duration = (level / 8) + dice(1, 1 + (level / 8));
         to_vict =
             "You will now send psychic feedback to anyone who attacks you.";
         break;
 
         /* physic skills */
     case SPELL_GAMMA_RAY:
-        af.duration = (level / 4);
-        af.location = APPLY_HIT;
-        af.modifier = -(level);
+        aff[0].duration = (level / 4);
+        aff[0].location = APPLY_HIT;
+        aff[0].modifier = -(level);
         if (GET_CLASS(ch) == CLASS_PHYSIC)
-            af.modifier *= (GET_REMORT_GEN(ch) + 2) / 2;
-        af.modifier = MAX(-(GET_MAX_HIT(victim) - 1), af.modifier);
-        af2.location = APPLY_MOVE;
-        af2.modifier = -(level / 2);
-        af2.duration = af.duration;
+            aff[0].modifier *= (GET_REMORT_GEN(ch) + 2) / 2;
+        aff[0].modifier = MAX(-(GET_MAX_HIT(victim) - 1), aff[0].modifier);
+        aff[1].location = APPLY_MOVE;
+        aff[1].modifier = -(level / 2);
+        aff[1].duration = aff[0].duration;
         accum_affect = true;
         to_room = "$n appears slightly irradiated.";
         to_vict = "You feel irradiated... how irritating.";
         break;
 
     case SPELL_GRAVITY_WELL:
-        af.duration = (level / 8);
-        af.location = APPLY_STR;
-        af.bitvector = AFF3_GRAVITY_WELL;
-        af.aff_index = 3;
+        aff[0].duration = (level / 8);
+        aff[0].location = APPLY_STR;
+        aff[0].bitvector = AFF3_GRAVITY_WELL;
+        aff[0].aff_index = 3;
 
         if (GET_CLASS(ch) == CLASS_PHYSIC) {
-            af.modifier = -(level / 5);
+            aff[0].modifier = -(level / 5);
         } else {
-            af.modifier = -(level / 8);
+            aff[0].modifier = -(level / 8);
         }
         to_vict = "The gravity well seems to take hold on your body.";
 
@@ -1898,42 +1887,42 @@ mag_affects(int level,
         break;
 
     case SPELL_CAPACITANCE_BOOST:
-        af.duration = 1 + (level / 4);
-        af.modifier = 10 + (level * 2);
-        af.location = APPLY_MOVE;
+        aff[0].duration = 1 + (level / 4);
+        aff[0].modifier = 10 + (level * 2);
+        aff[0].location = APPLY_MOVE;
         to_vict = "You feel your energy capacity rise.";
         accum_duration = 1;
         break;
 
     case SPELL_VACUUM_SHROUD:
-        af.type = SPELL_VACUUM_SHROUD;
-        af.bitvector = AFF3_NOBREATHE;
-        af.aff_index = 3;
-        af.duration = MAX(15, skill_bonus(ch, SPELL_VACUUM_SHROUD) / 4);
-        af2.type = SPELL_VACUUM_SHROUD;
-        af2.bitvector = AFF2_PROT_FIRE;
-        af2.aff_index = 2;
-        af2.duration = MAX(15, skill_bonus(ch, SPELL_VACUUM_SHROUD) / 4);
+        aff[0].type = SPELL_VACUUM_SHROUD;
+        aff[0].bitvector = AFF3_NOBREATHE;
+        aff[0].aff_index = 3;
+        aff[0].duration = MAX(15, skill_bonus(ch, SPELL_VACUUM_SHROUD) / 4);
+        aff[1].type = SPELL_VACUUM_SHROUD;
+        aff[1].bitvector = AFF2_PROT_FIRE;
+        aff[1].aff_index = 2;
+        aff[1].duration = MAX(15, skill_bonus(ch, SPELL_VACUUM_SHROUD) / 4);
         to_vict = "A total vacuum springs into existence around your body.";
         accum_affect = true;
         break;
 
     case SPELL_ALBEDO_SHIELD:
-        af.type = SPELL_ALBEDO_SHIELD;
-        af.bitvector = AFF3_EMP_SHIELD;
-        af.aff_index = 3;
-        af.duration = level;
+        aff[0].type = SPELL_ALBEDO_SHIELD;
+        aff[0].bitvector = AFF3_EMP_SHIELD;
+        aff[0].aff_index = 3;
+        aff[0].duration = level;
         to_vict = "You feel protected from electromagnetic attacks.";
         break;
 
     case SPELL_GAUSS_SHIELD:
-        af.type = SPELL_GAUSS_SHIELD;
-        af.duration = skill_bonus(ch, SPELL_GAUSS_SHIELD) / 2;
+        aff[0].type = SPELL_GAUSS_SHIELD;
+        aff[0].duration = skill_bonus(ch, SPELL_GAUSS_SHIELD) / 2;
         to_vict = "You feel protected from metal.";
         break;
 
     case SPELL_CHEMICAL_STABILITY:
-        af.duration = (level / 4);
+        aff[0].duration = (level / 4);
         to_room = "$n begins looking more chemically inert.";
         to_vict = "You feel more chemically inert.";
         break;
@@ -1963,65 +1952,65 @@ mag_affects(int level,
                 return;
             }
         }
-        af.duration = (level / 8);
-        af.bitvector = AFF3_ACIDITY;
-        af.aff_index = 3;
+        aff[0].duration = (level / 8);
+        aff[0].bitvector = AFF3_ACIDITY;
+        aff[0].aff_index = 3;
         accum_duration = true;
         break;
 
     case SPELL_HALFLIFE:
         to_room = "$n becomes radioactive.";
         to_vict = "You suddenly begin to feel radioactive.";
-        af.duration = (level / 4);
-        af.bitvector = AFF3_RADIOACTIVE;
-        af.aff_index = 3;
-        af.location = APPLY_CON;
-        af.modifier = -number(1, 2 + (level / 16));
+        aff[0].duration = (level / 4);
+        aff[0].bitvector = AFF3_RADIOACTIVE;
+        aff[0].aff_index = 3;
+        aff[0].location = APPLY_CON;
+        aff[0].modifier = -number(1, 2 + (level / 16));
         break;
 
     case SPELL_ELECTROSTATIC_FIELD:
         to_room = "An electrostatic field crackles into being around $n.";
         to_vict = "An electrostatic field crackles into being around you.";
-        af.duration = (level / 4) + 2;
+        aff[0].duration = (level / 4) + 2;
         break;
 
     case SPELL_RADIOIMMUNITY:
         to_vict = "You feel more resistant to radiation.";
-        af.duration = (level / 2);
-        af.bitvector = AFF2_PROT_RAD;
-        af.aff_index = 2;
+        aff[0].duration = (level / 2);
+        aff[0].bitvector = AFF2_PROT_RAD;
+        aff[0].aff_index = 2;
         break;
 
     case SPELL_ATTRACTION_FIELD:
-        af.duration = 1 + (level / 4);
-        af.modifier = 10 + (level);
-        af.location = APPLY_AC;
-        af.bitvector = AFF3_ATTRACTION_FIELD;
-        af.aff_index = 3;
+        aff[0].duration = 1 + (level / 4);
+        aff[0].modifier = 10 + (level);
+        aff[0].location = APPLY_AC;
+        aff[0].bitvector = AFF3_ATTRACTION_FIELD;
+        aff[0].aff_index = 3;
         to_room = "$n suddenly becomes attractive like a magnet!";
         to_vict = "You feel very attractive -- to weapons.";
         break;
 
     case SPELL_REPULSION_FIELD:
-        af.location = APPLY_AC;
-        af.duration = MAX(12, skill_bonus(ch, SPELL_REPULSION_FIELD) / 4);
-        af.modifier = -((skill_bonus(ch, SPELL_REPULSION_FIELD) / 4) + 20);
+        aff[0].location = APPLY_AC;
+        aff[0].duration = MAX(12, skill_bonus(ch, SPELL_REPULSION_FIELD) / 4);
+        aff[0].modifier = -((skill_bonus(ch, SPELL_REPULSION_FIELD) / 4) + 20);
         accum_duration = true;
         to_vict = "The space around you begins repelling matter.";
         break;
 
     case SPELL_FLUORESCE:
-        af.duration = 8 + level;
-        af.bitvector = AFF2_FLUORESCENT;
-        af.aff_index = 2;
+        aff[0].duration = 8 + level;
+        aff[0].bitvector = AFF2_FLUORESCENT;
+        aff[0].aff_index = 2;
         to_vict = "The area around you is illuminated with fluorescent atoms.";
         to_room = "The light of fluorescent atoms surrounds $n.";
         break;
 
     case SPELL_TEMPORAL_COMPRESSION:
-        af.duration = skill_bonus(ch, SPELL_TEMPORAL_COMPRESSION) / 2;
-        af.bitvector = AFF2_HASTE;
-        af.aff_index = 2;
+        aff[0].duration = skill_bonus(ch, SPELL_TEMPORAL_COMPRESSION) / 2;
+        aff[0].bitvector = AFF2_HASTE;
+        aff[0].aff_index = 2;
         accum_duration = false;
         to_vict = "Time seems to slow down around you.";
         break;
@@ -2031,18 +2020,18 @@ mag_affects(int level,
             send_to_char(ch, "%s", NOEFFECT);
             return;
         }
-        af.duration = 1 + (level / 4);
-        af.bitvector = AFF2_SLOW;
-        af.aff_index = 2;
-        af.location = APPLY_DEX;
-        af.modifier = -number(0,
+        aff[0].duration = 1 + (level / 4);
+        aff[0].bitvector = AFF2_SLOW;
+        aff[0].aff_index = 2;
+        aff[0].location = APPLY_DEX;
+        aff[0].modifier = -number(0,
             skill_bonus(ch, SPELL_TEMPORAL_DILATION) / 25);
         to_vict =
             "Time seems to speed up around you as your movements slow to a crawl.";
         break;
 
     case SPELL_DIMENSIONAL_SHIFT:
-        af.duration = number(1 + skill_bonus(ch, SPELL_DIMENSIONAL_SHIFT) / 15,
+        aff[0].duration = number(1 + skill_bonus(ch, SPELL_DIMENSIONAL_SHIFT) / 15,
             1 + skill_bonus(ch, SPELL_DIMENSIONAL_SHIFT) / 9);
         to_vict =
             "You step into an infinitesimally different plane of the multiverse.";
@@ -2053,10 +2042,10 @@ mag_affects(int level,
             send_to_char(ch, "Your rune of taint fails to form.\r\n");
             return;
         } else {
-            af.bitvector = AFF3_TAINTED;
-            af.aff_index = 3;
-            af.duration = dice(skill_bonus(ch, SPELL_TAINT), 6);
-            af.level = 2 * (skill_bonus(ch, SPELL_TAINT));
+            aff[0].bitvector = AFF3_TAINTED;
+            aff[0].aff_index = 3;
+            aff[0].duration = dice(skill_bonus(ch, SPELL_TAINT), 6);
+            aff[0].level = 2 * (skill_bonus(ch, SPELL_TAINT));
             to_vict =
                 "The mark of the tainted begins to burn brightly on your forehead!";
             to_room =
@@ -2070,21 +2059,21 @@ mag_affects(int level,
                 false, victim, 0, ch, TO_CHAR);
             return;
         } else {
-            af.bitvector = AFF3_SYMBOL_OF_PAIN;
-            af.aff_index = 3;
-            af.location = APPLY_DEX;
-            af.modifier = -(level / 7);
-            af.duration = number(1, 3);
-            af2.location = APPLY_HITROLL;
-            af2.modifier = -(1 + level / 4);
-            af2.duration = af.duration;
+            aff[0].bitvector = AFF3_SYMBOL_OF_PAIN;
+            aff[0].aff_index = 3;
+            aff[0].location = APPLY_DEX;
+            aff[0].modifier = -(level / 7);
+            aff[0].duration = number(1, 3);
+            aff[1].location = APPLY_HITROLL;
+            aff[1].modifier = -(1 + level / 4);
+            aff[1].duration = aff[0].duration;
             to_vict = "You shudder and shake as your mind burns!";
             to_room = "$n shudders and shakes in pain!";
         }
         break;
     case SPELL_TIME_WARP:
-        af.duration = 3 + level;
-        af.bitvector = AFF_TIME_WARP;
+        aff[0].duration = 3 + level;
+        aff[0].bitvector = AFF_TIME_WARP;
         accum_duration = true;
         to_vict = "You are now able to move freely through time.";
         break;
@@ -2095,17 +2084,17 @@ mag_affects(int level,
         to_room = "$n's body slowly becomes completely transparent.";
         to_vict = "You become transparent.";
 
-        af.duration = 8 + (level / 4);
-        af.modifier = -16;
-        af.location = APPLY_AC;
-        af.bitvector = AFF2_TRANSPARENT;
-        af.aff_index = 2;
+        aff[0].duration = 8 + (level / 4);
+        aff[0].modifier = -16;
+        aff[0].location = APPLY_AC;
+        aff[0].bitvector = AFF2_TRANSPARENT;
+        aff[0].aff_index = 2;
         accum_duration = true;
         break;
 
     case SPELL_TIDAL_SPACEWARP:
-        af.duration = 6 + level;
-        af.bitvector = AFF_INFLIGHT;
+        aff[0].duration = 6 + level;
+        aff[0].bitvector = AFF_INFLIGHT;
         accum_duration = true;
         to_vict = "Your feet lift lightly from the ground.";
         to_room = "$n begins to hover above the ground.";
@@ -2115,7 +2104,7 @@ mag_affects(int level,
         //
         //
     case SPELL_QUAD_DAMAGE:
-        af.duration = 6;
+        aff[0].duration = 6;
         accum_affect = true;
         to_vict = "There is a screaming roar and you begin to glow brightly!";
         to_room = "There is a screaming roar as $n begins to glow brightly!";
@@ -2123,9 +2112,9 @@ mag_affects(int level,
 
         // physic mag_affect items
     case SPELL_DENSIFY:
-        af.duration = 1 + (level / 2);
-        af.location = APPLY_CHAR_WEIGHT;
-        af.modifier = level + GET_INT(ch);
+        aff[0].duration = 1 + (level / 2);
+        aff[0].location = APPLY_CHAR_WEIGHT;
+        aff[0].modifier = level + GET_INT(ch);
 
         if (victim == ch)
             accum_affect = true;
@@ -2145,18 +2134,18 @@ mag_affects(int level,
             send_to_char(ch, "There seems to be no affect.\r\n");
             return;
         } else {
-            af.duration = 1 + (level / 2);
-            af.level = level;
+            aff[0].duration = 1 + (level / 2);
+            aff[0].level = level;
             accum_affect = false;
             to_vict = "Your molecular bonds seem strengthened.";
         }
         break;
     case SPELL_REFRACTION:
-        af.duration = 1 + (level / 2);
-        af.location = APPLY_AC;
-        af.modifier = -GET_INT(ch);
-        af.bitvector = AFF2_DISPLACEMENT;
-        af.aff_index = 2;
+        aff[0].duration = 1 + (level / 2);
+        aff[0].location = APPLY_AC;
+        aff[0].modifier = -GET_INT(ch);
+        aff[0].bitvector = AFF2_DISPLACEMENT;
+        aff[0].aff_index = 2;
         accum_duration = false;
         to_vict = "Your body becomes irregularly refractive.";
         to_room = "$n's body becomes irregularly refractive.";
@@ -2167,12 +2156,12 @@ mag_affects(int level,
     case SPELL_SHIELD_OF_RIGHTEOUSNESS:
         if (!IS_GOOD(victim))
             return;
-        af.duration = level / 4;
-        af.location = APPLY_CASTER;
-        af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -NPC_IDNUM(ch);
-        af2.duration = af.duration;
-        af2.location = APPLY_AC;
-        af2.modifier = -10;
+        aff[0].duration = level / 4;
+        aff[0].location = APPLY_CASTER;
+        aff[0].modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -NPC_IDNUM(ch);
+        aff[1].duration = aff[0].duration;
+        aff[1].location = APPLY_AC;
+        aff[1].modifier = -10;
         if (ch == victim) {
             to_vict = "A shield of righteousness appears around you.";
             to_room = "A shield of righteousness expands around $N.";
@@ -2180,17 +2169,17 @@ mag_affects(int level,
             to_vict = "You feel enveloped in $N's shield of righteousness.";
         break;
     case SPELL_BLACKMANTLE:
-        af.duration = level / 4;
-        af.location = APPLY_HIT;
-        af.modifier = -level;
-        af.modifier = MAX(-(GET_MAX_HIT(victim) - 1), af.modifier);
+        aff[0].duration = level / 4;
+        aff[0].location = APPLY_HIT;
+        aff[0].modifier = -level;
+        aff[0].modifier = MAX(-(GET_MAX_HIT(victim) - 1), aff[0].modifier);
         to_room = "A mantle of darkness briefly surrounds $n.";
         to_vict = "An evil black mantle of magic surrounds you.";
         break;
     case SPELL_SANCTIFICATION:
-        af.duration = level / 8;
-        af.location = APPLY_MOVE;
-        af.modifier = level / 2;
+        aff[0].duration = level / 8;
+        aff[0].location = APPLY_MOVE;
+        aff[0].modifier = level / 2;
         to_room = "An aura of sanctification glows about $n.";
         to_vict = "You have been sanctified!";
         break;
@@ -2203,7 +2192,7 @@ mag_affects(int level,
             send_to_char(ch, "Your stigmata fails.\r\n");
             return;
         }
-        af.duration = level / 4;
+        aff[0].duration = level / 4;
         to_room = "A bloody stigmatic mark appears on $n's forehead.";
         to_vict = "A bloody stigmatic mark appears on your forehead.";
         break;
@@ -2223,128 +2212,128 @@ mag_affects(int level,
                 "There is not enough vegetation here for that.\r\n");
             return;
         }
-        af.location = APPLY_HITROLL;
-        af2.location = APPLY_DEX;
+        aff[0].location = APPLY_HITROLL;
+        aff[1].location = APPLY_DEX;
 
         if (ch->in_room->sector_type == SECT_CITY
             || ch->in_room->sector_type == SECT_CRACKED_ROAD) {
-            af.duration = (level + (CHECK_SKILL(ch, SPELL_ENTANGLE) / 4)) / 4;
+            aff[0].duration = (level + (CHECK_SKILL(ch, SPELL_ENTANGLE) / 4)) / 4;
             to_room =
                 "The grass and weeds growing through cracks in the pavement come alive, entangling $n where $e stands!";
             to_vict =
                 "The grass and weeds growing through cracks in the pavement come alive, entangling you where you stand!";
-            af.modifier = -(level / 4);
-            af2.modifier = -(level / 16);
+            aff[0].modifier = -(level / 4);
+            aff[1].modifier = -(level / 16);
         } else {
             to_room =
                 "The vines and vegetation surrounding $n come alive, entangling $n where $e stands!";
             to_vict =
                 "The vines and vegetation surrounding you come alive, entangling you where you stand!";
             if (!OUTSIDE(ch) || ch->in_room->sector_type == SECT_ROAD) {
-                af.duration =
+                aff[0].duration =
                     (level + (CHECK_SKILL(ch, SPELL_ENTANGLE) / 2)) / 4;
-                af.modifier = -(level / 4);
-                af2.modifier = -(level / 16);
+                aff[0].modifier = -(level / 4);
+                aff[1].modifier = -(level / 16);
             } else {
-                af.duration =
+                aff[0].duration =
                     (level + (CHECK_SKILL(ch, SPELL_ENTANGLE) / 2)) / 2;
-                af.modifier = -(level / 2);
-                af2.modifier = -(level / 8);
+                aff[0].modifier = -(level / 2);
+                aff[1].modifier = -(level / 8);
             }
         }
-        af2.duration = af.duration;
+        aff[1].duration = aff[0].duration;
         break;
     case SPELL_AMNESIA:
-        af.duration = MAX(10, level - 20);
-        af.location = APPLY_INT;
-        af.modifier = -(level / 8);
+        aff[0].duration = MAX(10, level - 20);
+        aff[0].location = APPLY_INT;
+        aff[0].modifier = -(level / 8);
         to_room = "A cloud of forgetfulness passes over $n's face.";
         to_vict = "A wave of amnesia washes over your mind.";
         break;
     case SPELL_ANTI_MAGIC_SHELL:
-        af.duration = level;
+        aff[0].duration = level;
         to_room = "A dark and glittering translucent shell appears around $n.";
         to_vict =
             "A dark and glittering translucent shell appears around you.";
         break;
     case SPELL_SPHERE_OF_DESECRATION:
-        af.duration = level;
+        aff[0].duration = level;
         to_room = "A shimmering dark translucent sphere appears around $n.";
         to_vict = "A shimmering dark translucent sphere appears around you.";
         break;
     case SPELL_DIVINE_INTERVENTION:
-        af.duration = level;
+        aff[0].duration = level;
         to_room = "A shimmering pearly translucent sphere appears around $n.";
         to_vict = "A shimmering pearly translucent sphere appears around you.";
         break;
     case SPELL_MALEFIC_VIOLATION:
-        af.duration = level;
+        aff[0].duration = level;
         to_vict = "You feel wickedly potent.";
         break;
     case SPELL_RIGHTEOUS_PENETRATION:
-        af.duration = level;
+        aff[0].duration = level;
         to_vict =
             "You have been granted terrible potency against the forces of evil.";
         break;
     case SPELL_VAMPIRIC_REGENERATION:
-        af.duration = (3 + skill_bonus(ch, SPELL_VAMPIRIC_REGENERATION) / 25);
-        af.location = APPLY_CASTER;
-        af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -NPC_IDNUM(ch);
+        aff[0].duration = (3 + skill_bonus(ch, SPELL_VAMPIRIC_REGENERATION) / 25);
+        aff[0].location = APPLY_CASTER;
+        aff[0].modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -NPC_IDNUM(ch);
         to_vict = "You feel a vampiric link formed between you and $N!";
         break;
     case SPELL_LOCUST_REGENERATION:
-        af.duration = 3 + (skill_bonus(ch, SPELL_LOCUST_REGENERATION) / 25);
-        af.location = APPLY_CASTER;
-        af.modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -NPC_IDNUM(ch);
+        aff[0].duration = 3 + (skill_bonus(ch, SPELL_LOCUST_REGENERATION) / 25);
+        aff[0].location = APPLY_CASTER;
+        aff[0].modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -NPC_IDNUM(ch);
         to_vict = "You shriek in terror as $N drains your energy!";
         break;
     case SPELL_ENTROPY_FIELD:
-        af.duration = level;
+        aff[0].duration = level;
         to_vict = "You suddenly feel like you're falling apart!";
         break;
     case SPELL_DIVINE_POWER:
         // Set duration of all affects
-        af.duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
-        af2.duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
-        aff_array[0].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
-        aff_array[1].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
+        aff[0].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
+        aff[1].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
+        aff[0].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
+        aff[1].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
 
         // Set type of all affects
-        af.type = SPELL_DIVINE_POWER;
-        af2.type = SPELL_DIVINE_POWER;
-        aff_array[0].type = SPELL_DIVINE_POWER;
-        aff_array[1].type = SPELL_DIVINE_POWER;
+        aff[0].type = SPELL_DIVINE_POWER;
+        aff[1].type = SPELL_DIVINE_POWER;
+        aff[0].type = SPELL_DIVINE_POWER;
+        aff[1].type = SPELL_DIVINE_POWER;
 
         // Should only need to set the bitvector with one of the affects
-        af.bitvector = AFF3_DIVINE_POWER;
-        af.aff_index = 3;
+        aff[0].bitvector = AFF3_DIVINE_POWER;
+        aff[0].aff_index = 3;
         // Set the to_vict message on the first affect
         to_vict = "Your veins course with the power of your Guiharia!";
 
         // The location of each affect
-        af.location = APPLY_STR;
-        af2.location = APPLY_HIT;
-        aff_array[0].location = APPLY_HIT;
-        aff_array[1].location = APPLY_HIT;
+        aff[0].location = APPLY_STR;
+        aff[1].location = APPLY_HIT;
+        aff[0].location = APPLY_HIT;
+        aff[1].location = APPLY_HIT;
 
         // The amoune of modification to each affect
-        af.modifier = (skill_bonus(ch, SPELL_DIVINE_POWER) / 15);
-        af2.modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
-        aff_array[0].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
-        aff_array[1].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
+        aff[0].modifier = (skill_bonus(ch, SPELL_DIVINE_POWER) / 15);
+        aff[1].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
+        aff[0].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
+        aff[1].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
 
         if (!AFF3_FLAGGED(ch, AFF3_DIVINE_POWER))
             accum_affect = 1;
         break;
 
     case SPELL_FIRE_BREATHING:
-        af.duration = 10 + skill_bonus(ch, SPELL_FIRE_BREATHING) / 4;
+        aff[0].duration = 10 + skill_bonus(ch, SPELL_FIRE_BREATHING) / 4;
         to_room = "$n's eyes begin to glow a deep red.";
         to_vict = "A warm tingling begins in the back of your throat.";
         break;
 
     case SPELL_FROST_BREATHING:
-        af.duration = 10 + skill_bonus(ch, SPELL_FROST_BREATHING) / 4;
+        aff[0].duration = 10 + skill_bonus(ch, SPELL_FROST_BREATHING) / 4;
         to_room = "$n's eyes begin to glow a deep blue.";
         to_vict = "A cold tingling begins in the back of your throat.";
         break;
@@ -2352,18 +2341,18 @@ mag_affects(int level,
         // Bard stuff
 
     case SONG_DRIFTERS_DITTY:
-        aff_array[0].duration = 1 + (level / 2);
-        aff_array[0].modifier = 15 + skill_bonus(ch, SONG_DRIFTERS_DITTY);
-        aff_array[0].location = APPLY_MOVE;
+        aff[0].duration = 1 + (level / 2);
+        aff[0].modifier = 15 + skill_bonus(ch, SONG_DRIFTERS_DITTY);
+        aff[0].location = APPLY_MOVE;
 
         to_vict = "The song bolsters your spirit!";
         accum_duration = 1;
         break;
 
     case SONG_ARIA_OF_ARMAMENT:
-        aff_array[0].location = APPLY_AC;
-        aff_array[0].duration = 1 + skill_bonus(ch, SONG_ARIA_OF_ARMAMENT) / 4;
-        aff_array[0].modifier =
+        aff[0].location = APPLY_AC;
+        aff[0].duration = 1 + skill_bonus(ch, SONG_ARIA_OF_ARMAMENT) / 4;
+        aff[0].modifier =
             -((skill_bonus(ch, SONG_ARIA_OF_ARMAMENT) / 4) + 20);
 
         accum_duration = 1;
@@ -2371,14 +2360,14 @@ mag_affects(int level,
         break;
 
     case SONG_VERSE_OF_VULNERABILITY:
-        aff_array[0].location = APPLY_AC;
-        aff_array[0].duration =
+        aff[0].location = APPLY_AC;
+        aff[0].duration =
             1 + skill_bonus(ch, SONG_VERSE_OF_VULNERABILITY) / 8;
-        aff_array[0].modifier =
+        aff[0].modifier =
             (skill_bonus(ch, SONG_VERSE_OF_VULNERABILITY) / 4) + number(5, 20);
-        aff_array[1].location = APPLY_DEX;
-        aff_array[1].duration = aff_array[0].duration;
-        aff_array[1].modifier =
+        aff[1].location = APPLY_DEX;
+        aff[1].duration = aff[0].duration;
+        aff[1].modifier =
             -(1 + skill_bonus(ch, SONG_VERSE_OF_VULNERABILITY) / 25);
         to_vict = "Your armor softens at $N's words!";
         to_room = "$n's armor appears to grow softer with $N's song!";
@@ -2386,75 +2375,75 @@ mag_affects(int level,
         break;
 
     case SONG_MELODY_OF_METTLE:
-        aff_array[0].location = APPLY_CON;
-        aff_array[0].duration =
+        aff[0].location = APPLY_CON;
+        aff[0].duration =
             (skill_bonus(ch, SONG_MELODY_OF_METTLE) / 4) + 10;
-        aff_array[0].modifier =
+        aff[0].modifier =
             1 + (skill_bonus(ch, SONG_MELODY_OF_METTLE) / 2) / 25;
 
-        aff_array[1].location = APPLY_HIT;
-        aff_array[1].duration = aff_array[0].duration;
-        aff_array[1].modifier =
+        aff[1].location = APPLY_HIT;
+        aff[1].duration = aff[0].duration;
+        aff[1].modifier =
             50 + MIN(skill_bonus(ch, SONG_MELODY_OF_METTLE), 125);
         to_vict = "The power of the song infuses your spirit!";
         break;
 
     case SONG_REGALERS_RHAPSODY:
-        aff_array[0].location = APPLY_NOHUNGER;
-        aff_array[0].duration =
+        aff[0].location = APPLY_NOHUNGER;
+        aff[0].duration =
             (skill_bonus(ch, SONG_REGALERS_RHAPSODY) / 4) + 10;
-        aff_array[0].modifier = 1;
+        aff[0].modifier = 1;
 
-        aff_array[1].location = APPLY_NOTHIRST;
-        aff_array[1].duration = aff_array[0].duration;
-        aff_array[1].modifier = 1;
+        aff[1].location = APPLY_NOTHIRST;
+        aff[1].duration = aff[0].duration;
+        aff[1].modifier = 1;
         to_vict = "The uplifting tune drains away your hunger and thirst.";
         break;
 
     case SONG_DEFENSE_DITTY:
-        aff_array[0].location = APPLY_SAVING_PSI;
-        aff_array[0].duration = (skill_bonus(ch, SONG_DEFENSE_DITTY) / 8) + 20;
-        aff_array[0].modifier =
+        aff[0].location = APPLY_SAVING_PSI;
+        aff[0].duration = (skill_bonus(ch, SONG_DEFENSE_DITTY) / 8) + 20;
+        aff[0].modifier =
             -(1 + skill_bonus(ch, SONG_DEFENSE_DITTY) / 10);
 
         if (number(0, 120) < skill_bonus(ch, SONG_DEFENSE_DITTY)) {
-            aff_array[1].location = APPLY_SAVING_PHY;
-            aff_array[1].duration = aff_array[0].duration;
-            aff_array[1].modifier = aff_array[0].modifier;
+            aff[1].location = APPLY_SAVING_PHY;
+            aff[1].duration = aff[0].duration;
+            aff[1].modifier = aff[0].modifier;
         }
         if (number(0, 200) < skill_bonus(ch, SONG_DEFENSE_DITTY)) {
-            aff_array[2].location = APPLY_SAVING_SPELL;
-            aff_array[2].duration = aff_array[0].duration;
-            aff_array[2].modifier = aff_array[0].modifier;
+            aff[2].location = APPLY_SAVING_SPELL;
+            aff[2].duration = aff[0].duration;
+            aff[2].modifier = aff[0].modifier;
         }
         to_vict = "Your resistances increase as the music surrounds you.";
         break;
 
     case SONG_ALRONS_ARIA:
-        aff_array[0].modifier = dice(2, (level / 8) + 1);
-        aff_array[0].duration = 3 + (level / 4);
-        aff_array[0].location = APPLY_HITROLL;
-        aff_array[0].bitvector = AFF_CONFIDENCE;
+        aff[0].modifier = dice(2, (level / 8) + 1);
+        aff[0].duration = 3 + (level / 4);
+        aff[0].location = APPLY_HITROLL;
+        aff[0].bitvector = AFF_CONFIDENCE;
 
-        aff_array[1].location = APPLY_SAVING_SPELL;
-        aff_array[1].modifier = -dice(1, (level / 8) + 1);
-        aff_array[1].duration = aff_array[0].duration;
+        aff[1].location = APPLY_SAVING_SPELL;
+        aff[1].modifier = -dice(1, (level / 8) + 1);
+        aff[1].duration = aff[0].duration;
         accum_duration = 1;
         to_vict = "Your confidence soars!";
         break;
 
     case SONG_VERSE_OF_VALOR:
-        aff_array[0].location = APPLY_HITROLL;
-        aff_array[0].duration = 6 + skill_bonus(ch, SONG_VERSE_OF_VALOR) / 8;
-        aff_array[0].modifier =
+        aff[0].location = APPLY_HITROLL;
+        aff[0].duration = 6 + skill_bonus(ch, SONG_VERSE_OF_VALOR) / 8;
+        aff[0].modifier =
             5 + skill_bonus(ch, SONG_VERSE_OF_VALOR) / 25 + number(0, 6);
 
         to_vict = "The valor of heros gone comes crashing into your mind!";
         break;
 
     case SONG_WHITE_NOISE:
-        aff_array[0].duration = 1 + skill_bonus(ch, SONG_WHITE_NOISE) / 25;
-        aff_array[0].bitvector = AFF_CONFUSION;
+        aff[0].duration = 1 + skill_bonus(ch, SONG_WHITE_NOISE) / 25;
+        aff[0].bitvector = AFF_CONFUSION;
 
         if (GET_POSITION(victim) > POS_SLEEPING)
             to_room = "$n stops suddenly and stares around as if confused.";
@@ -2463,23 +2452,23 @@ mag_affects(int level,
         break;
 
     case SONG_CHANT_OF_LIGHT:
-        aff_array[0].duration = 1 + skill_bonus(ch, SONG_CHANT_OF_LIGHT) / 4;
-        aff_array[0].bitvector = AFF_GLOWLIGHT;
+        aff[0].duration = 1 + skill_bonus(ch, SONG_CHANT_OF_LIGHT) / 4;
+        aff[0].bitvector = AFF_GLOWLIGHT;
 
-        aff_array[1].duration = aff_array[0].duration;
-        aff_array[1].bitvector = AFF2_ENDURE_COLD;
-        aff_array[1].aff_index = 2;
+        aff[1].duration = aff[0].duration;
+        aff[1].bitvector = AFF2_ENDURE_COLD;
+        aff[1].aff_index = 2;
         accum_duration = true;
         to_vict = "The air around you begins to emit a warm glow.";
         to_room = "$n's music causes the air to glow warmly.";
         break;
 
     case SONG_IRRESISTABLE_DANCE:
-        aff_array[0].duration =
+        aff[0].duration =
             1 + skill_bonus(ch, SONG_IRRESISTABLE_DANCE) / 25;
-        aff_array[0].modifier =
+        aff[0].modifier =
             -(4 + (skill_bonus(ch, SONG_IRRESISTABLE_DANCE) / 20));
-        aff_array[0].location = APPLY_HITROLL;
+        aff[0].location = APPLY_HITROLL;
 
         if (GET_POSITION(victim) > POS_SITTING) {
             to_vict = "You begin to dance uncontrollably!";
@@ -2488,11 +2477,11 @@ mag_affects(int level,
         break;
 
     case SONG_INSIDIOUS_RHYTHM:
-        aff_array[0].duration =
+        aff[0].duration =
             1 + skill_bonus(ch, SONG_INSIDIOUS_RHYTHM) / 25;
-        aff_array[0].modifier =
+        aff[0].modifier =
             -(2 + (skill_bonus(ch, SONG_INSIDIOUS_RHYTHM) / 20));
-        aff_array[0].location = APPLY_INT;
+        aff[0].location = APPLY_INT;
 
         to_vict =
             "$N's music snakes its way into your brain, dulling your senses.";
@@ -2500,30 +2489,30 @@ mag_affects(int level,
         break;
 
     case SONG_EAGLES_OVERTURE:
-        aff_array[0].location = APPLY_CHA;
-        aff_array[0].duration = 1 + skill_bonus(ch, SONG_EAGLES_OVERTURE) / 4;
-        aff_array[0].modifier = 5 + skill_bonus(ch, SONG_EAGLES_OVERTURE) / 20;
+        aff[0].location = APPLY_CHA;
+        aff[0].duration = 1 + skill_bonus(ch, SONG_EAGLES_OVERTURE) / 4;
+        aff[0].modifier = 5 + skill_bonus(ch, SONG_EAGLES_OVERTURE) / 20;
 
         accum_duration = 1;
         to_vict = "The song lifts your spirits and puts a smile on your face.";
         break;
 
     case SONG_WEIGHT_OF_THE_WORLD:
-        aff_array[0].duration =
+        aff[0].duration =
             1 + skill_bonus(ch, SONG_WEIGHT_OF_THE_WORLD) / 25;
-        aff_array[0].bitvector = AFF2_TELEKINESIS;
-        aff_array[0].aff_index = 2;
+        aff[0].bitvector = AFF2_TELEKINESIS;
+        aff[0].aff_index = 2;
 
         to_vict =
             "You feel the weight of the world lifted from your shoulders.";
         break;
 
     case SONG_GUIHARIAS_GLORY:
-        aff_array[0].modifier =
+        aff[0].modifier =
             dice(2, (skill_bonus(ch, SONG_GUIHARIAS_GLORY) / 16) + 1);
-        aff_array[0].duration =
+        aff[0].duration =
             3 + (skill_bonus(ch, SONG_GUIHARIAS_GLORY) / 8);
-        aff_array[0].location = APPLY_DAMROLL;
+        aff[0].location = APPLY_DAMROLL;
 
         to_vict = "You feel the power of dieties flowing in your veins!";
         break;
@@ -2534,9 +2523,9 @@ mag_affects(int level,
                 ch, 0, victim, TO_CHAR);
             return;
         }
-        aff_array[0].duration =
+        aff[0].duration =
             5 + skill_bonus(ch, SONG_UNLADEN_SWALLOW_SONG) / 10;
-        aff_array[0].bitvector = AFF_INFLIGHT;
+        aff[0].bitvector = AFF_INFLIGHT;
 
         accum_duration = true;
         to_vict = "The music lifts you off your feet and sustains you.";
@@ -2551,14 +2540,14 @@ mag_affects(int level,
             return;
         }
 
-        aff_array[0].duration = 1 + skill_bonus(ch, SONG_EAGLES_OVERTURE) / 4;
-        aff_array[0].modifier =
+        aff[0].duration = 1 + skill_bonus(ch, SONG_EAGLES_OVERTURE) / 4;
+        aff[0].modifier =
             1 + skill_bonus(ch, SONG_POWER_OVERTURE) / 30 + number(0, 2);
-        aff_array[0].location = APPLY_STR;
+        aff[0].location = APPLY_STR;
 
-        aff_array[1].duration = aff_array[0].duration;
-        aff_array[1].modifier = aff_array[0].modifier + number(0, 5);
-        aff_array[1].location = APPLY_HITROLL;
+        aff[1].duration = aff[0].duration;
+        aff[1].modifier = aff[0].modifier + number(0, 5);
+        aff[1].location = APPLY_HITROLL;
 
         to_vict = "Your strength seems to grow as the song swells.";
         break;
@@ -2569,7 +2558,7 @@ mag_affects(int level,
             send_to_char(victim, "Nothing seems to happen.\r\n");
             return;
         }
-        aff_array[0].duration =
+        aff[0].duration =
             5 + skill_bonus(ch, SONG_WOUNDING_WHISPERS) / 4;
         to_vict = "Whispers of your song begin whirling around you!";
         to_room = "Whispers of $N's song begin whirling around $M!";
@@ -2581,29 +2570,29 @@ mag_affects(int level,
                     GET_NAME(victim));
             }
 
-            aff_array[0].type = SKILL_BERSERK;
-            aff_array[1].type = SKILL_BERSERK;
-            aff_array[2].type = SKILL_BERSERK;
+            aff[0].type = SKILL_BERSERK;
+            aff[1].type = SKILL_BERSERK;
+            aff[2].type = SKILL_BERSERK;
 
-            aff_array[0].duration =
+            aff[0].duration =
                 1 + (skill_bonus(ch, SONG_RHYTHM_OF_RAGE) / 32);
 
-            aff_array[1].duration = aff_array[0].duration;
-            aff_array[2].duration = aff_array[0].duration;
+            aff[1].duration = aff[0].duration;
+            aff[2].duration = aff[0].duration;
 
-            aff_array[0].location = APPLY_INT;
-            aff_array[1].location = APPLY_WIS;
-            aff_array[2].location = APPLY_DAMROLL;
+            aff[0].location = APPLY_INT;
+            aff[1].location = APPLY_WIS;
+            aff[2].location = APPLY_DAMROLL;
 
-            aff_array[0].modifier =
+            aff[0].modifier =
                 -(4 + (skill_bonus(ch, SONG_RHYTHM_OF_RAGE) / 32));
-            aff_array[1].modifier = aff_array[0].modifier;
-            aff_array[2].modifier =
+            aff[1].modifier = aff[0].modifier;
+            aff[2].modifier =
                 (1 + (skill_bonus(ch,
                         SONG_RHYTHM_OF_RAGE) / 12) + (GET_LEVEL(ch) / 16));
 
-            aff_array[0].aff_index = 2;
-            aff_array[0].bitvector = AFF2_BERSERK;
+            aff[0].aff_index = 2;
+            aff[0].bitvector = AFF2_BERSERK;
 
             act("The music drives you feral with rage!", false, ch, 0, 0,
                 TO_CHAR);
@@ -2635,63 +2624,63 @@ mag_affects(int level,
         }
 
     case SONG_ARIA_OF_ASYLUM:
-        aff_array[0].duration = 5 + skill_bonus(ch, SONG_ARIA_OF_ASYLUM) / 8;
-        aff_array[0].location = APPLY_CASTER;
+        aff[0].duration = 5 + skill_bonus(ch, SONG_ARIA_OF_ASYLUM) / 8;
+        aff[0].location = APPLY_CASTER;
         if (IS_NPC(ch))
-            aff_array[0].modifier = -(GET_IDNUM(ch));
+            aff[0].modifier = -(GET_IDNUM(ch));
         else
-            aff_array[0].modifier = GET_IDNUM(ch);
+            aff[0].modifier = GET_IDNUM(ch);
 
         to_vict = "A gossimer shield of music forms around you.";
         to_room = "A gossimer shield of music forms around $n";
         break;
 
     case SONG_FORTISSIMO:
-        aff_array[0].duration =
+        aff[0].duration =
             1 + GET_CHA(ch) + (skill_bonus(ch, SONG_FORTISSIMO) / 8);
-        aff_array[0].location = APPLY_CASTER;
+        aff[0].location = APPLY_CASTER;
 
         if (IS_NPC(ch))
-            aff_array[0].modifier = -(GET_IDNUM(ch));
+            aff[0].modifier = -(GET_IDNUM(ch));
         else
-            aff_array[0].modifier = GET_IDNUM(ch);
+            aff[0].modifier = GET_IDNUM(ch);
 
         to_vict =
             "The air around you begins to vibrate with an increased intensity.";
         break;
 
     case SONG_LICHS_LYRICS:
-        aff_array[0].duration = 1 + (GET_CHA(ch) / 8) +
+        aff[0].duration = 1 + (GET_CHA(ch) / 8) +
             (skill_bonus(ch, SONG_LICHS_LYRICS) / 16);
-        aff_array[0].location = APPLY_CASTER;
+        aff[0].location = APPLY_CASTER;
 
         if (IS_NPC(ch))
-            aff_array[0].modifier = -(GET_IDNUM(ch));
+            aff[0].modifier = -(GET_IDNUM(ch));
         else
-            aff_array[0].modifier = GET_IDNUM(ch);
+            aff[0].modifier = GET_IDNUM(ch);
 
         to_vict = "Your flesh begins to rot and decay!";
         to_room = "$n's flesh begins to rot and decay!";
         break;
 
     case SONG_MISDIRECTION_MELISMA:
-        aff_array[0].duration = 1 + (GET_CHA(ch) / 4) +
+        aff[0].duration = 1 + (GET_CHA(ch) / 4) +
             (skill_bonus(ch, SONG_MISDIRECTION_MELISMA) / 16);
-        aff_array[0].location = APPLY_CASTER;
+        aff[0].location = APPLY_CASTER;
 
         if (IS_NPC(ch))
-            aff_array[0].modifier = -(GET_IDNUM(ch));
+            aff[0].modifier = -(GET_IDNUM(ch));
         else
-            aff_array[0].modifier = GET_IDNUM(ch);
+            aff[0].modifier = GET_IDNUM(ch);
 
         to_vict = "You begin misdirecting attempts to track you.";
         break;
 
     case SONG_MIRROR_IMAGE_MELODY:
-        aff_array[0].duration = 1 + (GET_CHA(ch) / 4) +
+        aff[0].duration = 1 + (GET_CHA(ch) / 4) +
             (skill_bonus(ch, SONG_MIRROR_IMAGE_MELODY) / 8);
-        aff_array[0].location = APPLY_CASTER;
-        aff_array[0].modifier = 1 + (GET_CHA(ch) / 8) +
+        aff[0].location = APPLY_CASTER;
+        aff[0].modifier = 1 + (GET_CHA(ch) / 8) +
             (skill_bonus(ch, SONG_MIRROR_IMAGE_MELODY) / 33);
         to_vict = "Mirror images of yourself begin moving around you.";
         to_room = "Mirror images of $n begin moving around $m.";
@@ -2708,32 +2697,16 @@ mag_affects(int level,
      * by sancting them and waiting for it to fade, for example.
      */
     if (IS_NPC(victim)) {
-        int done = 0;
-        afp = &af;
-        while (!done) {
-            if (afp->aff_index == 0) {
-                if (AFF_FLAGGED(victim, afp->bitvector) &&
-                    !affected_by_spell(victim, spellnum)) {
-                    send_to_char(ch, "%s", NOEFFECT);
-                    return;
-                }
-            } else if (afp->aff_index == 2) {
-                if (AFF2_FLAGGED(victim, afp->bitvector) &&
-                    !affected_by_spell(victim, spellnum)) {
-                    send_to_char(ch, "%s", NOEFFECT);
-                    return;
-                }
-            } else if (afp->aff_index == 3) {
-                if (AFF3_FLAGGED(victim, afp->bitvector) &&
-                    !affected_by_spell(victim, spellnum)) {
-                    send_to_char(ch, "%s", NOEFFECT);
-                    return;
-                }
+        for (int x = 0; x < 8; x++) {
+            if (aff[x].bitvector
+                && ((aff[x].aff_index == 0 && AFF_FLAGGED(victim, aff[x].bitvector))
+                    || (aff[x].aff_index == 1 && AFF2_FLAGGED(victim, aff[x].bitvector))
+                    || (aff[x].aff_index == 2 && AFF3_FLAGGED(victim, aff[x].bitvector)))
+                && !affected_by_spell(victim, spellnum)) {
+                send_to_char(ch, "%s", NOEFFECT);
+                return;
             }
-            if (afp == &af)
-                afp = &af2;
-            else
-                done = 1;
+
         }
     }
     // Lingering song causes a bards songs to last longer
@@ -2742,7 +2715,7 @@ mag_affects(int level,
         //prevents multiple wear off messages
         if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120)) {
             for (int x = 0; x < 8; x++) {
-                aff_array[x].duration = (int)(aff_array[x].duration * 1.5);
+                aff[x].duration = (int)(aff[x].duration * 1.5);
             }
         }
     }
@@ -2755,15 +2728,10 @@ mag_affects(int level,
         return;
     }
 
-    if (af.bitvector || af.location || af.duration)
-        affect_join(victim, &af, accum_duration, false, accum_affect, false);
-    if (af2.bitvector || af2.location || af2.duration)
-        affect_join(victim, &af2, accum_duration, false, accum_affect, false);
-
     for (int x = 0; x < 8; x++) {
-        if (aff_array[x].bitvector || aff_array[x].location
-            || aff_array[x].duration)
-            affect_join(victim, &aff_array[x], accum_duration, false,
+        if (aff[x].bitvector || aff[x].location
+            || aff[x].duration)
+            affect_join(victim, &aff[x], accum_duration, false,
                 accum_affect, false);
     }
     if (to_vict != NULL)
