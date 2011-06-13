@@ -149,7 +149,7 @@ ACMD(do_crossface)
     dex_mod = 3;
     // This beastly function brought to you by Cat, the letter F, and Nothing more
     prob =
-        ((GET_LEVEL(ch) + skill_bonus(ch, prime_merc)) - (GET_LEVEL(vict) * 2))
+        ((GET_LEVEL(ch) + level_bonus(ch, prime_merc)) - (GET_LEVEL(vict) * 2))
         + (CHECK_SKILL(ch, SKILL_CROSSFACE) >> 2)
         + (dex_mod * (GET_DEX(ch) - GET_DEX(vict)))
         + (str_mod * (GET_STR(ch) - GET_STR(vict)));
