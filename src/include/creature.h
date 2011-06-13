@@ -996,13 +996,13 @@ void remove_combat(struct creature *ch, struct creature *vict);
 void remove_all_combat(struct creature *ch);
 void remove_combat(struct creature *ch, struct creature *target);
 
-inline bool
+inline static bool
 is_dead(struct creature *ch)
 {
     return (ch->char_specials.position == POS_DEAD);
 }
 
-inline GList *
+inline static GList *
 first_living(GList *node)
 {
     while (node && is_dead((struct creature *)node->data))
@@ -1010,7 +1010,7 @@ first_living(GList *node)
     return node;
 }
 
-inline GList *
+inline static GList *
 next_living(GList *node)
 {
     if (!node)
