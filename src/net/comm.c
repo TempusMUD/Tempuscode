@@ -827,7 +827,7 @@ new_descriptor(int s, int port)
     if (nameserver_is_slow) {
         from = NULL;
     } else {
-        from = gethostbyaddr((char *)&peer.sin_addr,
+        from = gethostbyaddr(&peer.sin_addr,
                              sizeof(peer.sin_addr),
                              AF_INET);
     }
