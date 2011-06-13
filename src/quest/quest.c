@@ -302,7 +302,6 @@ load_quest(xmlNodePtr n, xmlDocPtr doc)
  * @out A file pointer to the output file
  *
  * Saves a single quest in XML format.
- *
  **/
 void
 save_quest(struct quest *quest, FILE * out)
@@ -348,7 +347,6 @@ save_quest(struct quest *quest, FILE * out)
  * @quest the quest to be freed
  *
  * Deallocates all memory used by the given quest.
- *
  **/
 void
 free_quest(struct quest *quest)
@@ -371,7 +369,6 @@ free_quest(struct quest *quest)
  *
  * Returns: A pointer to a #qplayer_data struct if found.  %NULL if
  * not found.
- *
  **/
 struct qplayer_data *
 quest_player_by_idnum(struct quest *quest, int idnum)
@@ -393,7 +390,6 @@ quest_player_by_idnum(struct quest *quest, int idnum)
  *
  * Returns: %true if the player is banned.  %false if the player is
  * not banned.
- *
  **/
 bool
 banned_from_quest(struct quest * quest, int id)
@@ -401,6 +397,18 @@ banned_from_quest(struct quest * quest, int id)
     return g_list_find(quest->bans, GINT_TO_POINTER(id));
 }
 
+
+/**
+ * remove_quest_player:
+ * @quest the #quest from which the player is to be removed
+ * @id the idnum of the player
+ *
+ * Removes the player from the quest, updating the quest property in
+ * the character record.  The character is loaded from file if not
+ * present in the game world.
+ *
+ * Returns: %true if the removal succeeded
+ **/
 bool
 remove_quest_player(struct quest * quest, int id)
 {
@@ -426,9 +434,8 @@ remove_quest_player(struct quest * quest, int id)
             save_player_to_xml(vict);
             free_creature(vict);
         } else {
-            errlog
-                ("Error loading player id %d from file for removal from quest %d.\r\n",
-                id, quest->vnum);
+            errlog("Error loading player %d from file for removal from quest %d.\r\n",
+                   id, quest->vnum);
             return false;
         }
     }
@@ -436,6 +443,17 @@ remove_quest_player(struct quest * quest, int id)
     return true;
 }
 
+/**
+ * can_join_quest:
+ * @quest the #quest being queried
+ * @ch the #creature being queried about
+ *
+ * Determines if @ch can join the @quest, and sends a message to @ch
+ * if unable to join.
+ *
+ * Returns: %true if @ch can join the @quest.  %false if @ch cannot
+ * join @quest.
+ **/
 bool
 can_join_quest(struct quest * quest, struct creature * ch)
 {
@@ -479,6 +497,11 @@ can_join_quest(struct quest * quest, struct creature * ch)
     return true;
 }
 
+/**
+ * load_quests:
+ *
+ * Loads all quest information from the saved quest file.
+ **/
 void
 load_quests()
 {
@@ -509,6 +532,11 @@ load_quests()
     xmlFreeDoc(doc);
 }
 
+/**
+ * save_quests:
+ *
+ * Saves all quest information to the saved quest file.
+ **/
 void
 save_quests(void)
 {
