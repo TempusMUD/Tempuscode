@@ -1370,7 +1370,7 @@ DEFPROGHANDLER(doorexit, env, evt, args)
         return;
     }
 
-    if (room->dir_option[dir] || target_room)
+    if (room->dir_option[dir] && target_room)
         room->dir_option[dir]->to_room = target_room;
 }
 
