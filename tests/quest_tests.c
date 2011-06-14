@@ -28,7 +28,9 @@ void save_quest(struct quest *quest, FILE *out);
 struct qplayer_data *quest_player_by_idnum(struct quest *quest, int idnum);
 bool banned_from_quest(struct quest * quest, int id);
 void add_quest_player(struct quest *quest, int id);
-bool remove_quest_player(struct quest * quest, int id);
+bool remove_quest_player(struct quest *quest, int id);
+bool can_join_quest(struct quest *quest, struct creature * ch);
+bool crashsave(struct creature *ch);
 
 static void
 fixture_make_player(void)
@@ -104,7 +106,7 @@ random_quest(void)
     q->players = g_list_prepend(q->players, qp);
 
     CREATE(qp, struct qplayer_data, 1);
-    qp->idnum = 5;
+     qp->idnum = 5;
     qp->flags = QP_MUTE;
     qp->deaths = 6;
     qp->mobkills = 7;
@@ -184,9 +186,6 @@ START_TEST(test_save_load_quest)
     struct quest *lq = load_quest(root, doc);
 
     compare_quests(q, lq);
-
-    free_quest(q);
-    free_quest(lq);
 }
 END_TEST
 
@@ -201,8 +200,6 @@ START_TEST(test_quest_player_by_idnum)
     qp = quest_player_by_idnum(q, 2);
     fail_unless(qp != NULL);
     fail_unless(qp->idnum == 2);
-
-    free_quest(q);
 }
 END_TEST
 
@@ -212,8 +209,6 @@ START_TEST(test_banned_from_quest)
 
     fail_if(banned_from_quest(q, 2));
     fail_unless(banned_from_quest(q, 7));
-
-    free_quest(q);
 }
 END_TEST
 
@@ -225,8 +220,110 @@ START_TEST(test_add_remove_quest_player)
     fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
     remove_quest_player(q, GET_IDNUM(ch));
     fail_if(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
+}
+END_TEST
 
-    free_quest(q);
+START_TEST(test_can_join_quest_1)
+{
+    struct quest *q = random_quest();
+
+    q->flags = QUEST_NOJOIN;
+    fail_if(can_join_quest(q, ch));
+}
+END_TEST
+
+START_TEST(test_can_join_quest_2)
+{
+    struct quest *q = random_quest();
+
+    q->flags = 0;
+    GET_LEVEL(ch) = LVL_AMBASSADOR;
+
+    fail_unless(can_join_quest(q, ch));
+}
+END_TEST
+
+START_TEST(test_can_join_quest_3)
+{
+    struct quest *q = random_quest();
+
+    q->flags = 0;
+    q->maxgen = number(0, 9);
+    GET_REMORT_GEN(ch) = q->maxgen + 1;
+
+    fail_if(can_join_quest(q, ch));
+}
+END_TEST
+
+START_TEST(test_can_join_quest_4)
+{
+    struct quest *q = random_quest();
+
+    q->flags = 0;
+    q->mingen = number(1, 10);
+    GET_REMORT_GEN(ch) = q->mingen - 1;
+
+    fail_if(can_join_quest(q, ch));
+}
+END_TEST
+
+START_TEST(test_can_join_quest_5)
+{
+    struct quest *q = random_quest();
+
+    q->flags = 0;
+    q->maxlevel = number(0, 48);
+    GET_REMORT_GEN(ch) = q->maxlevel + 1;
+
+    fail_if(can_join_quest(q, ch));
+}
+END_TEST
+
+START_TEST(test_can_join_quest_6)
+{
+    struct quest *q = random_quest();
+
+    q->flags = 0;
+    q->minlevel = number(2, 50);
+    GET_REMORT_GEN(ch) = q->minlevel - 1;
+
+    fail_if(can_join_quest(q, ch));
+}
+END_TEST
+
+START_TEST(test_can_join_quest_7)
+{
+    struct quest *q = random_quest();
+
+    q->flags = 0;
+    ch->account->quest_banned = true;
+
+    fail_if(can_join_quest(q, ch));
+}
+END_TEST
+
+START_TEST(test_can_join_quest_8)
+{
+    struct quest *q = random_quest();
+
+    q->flags = 0;
+    q->bans = g_list_prepend(q->bans, GINT_TO_POINTER(GET_IDNUM(ch)));
+
+    fail_if(can_join_quest(q, ch));
+}
+END_TEST
+
+START_TEST(test_can_join_quest_9)
+{
+    struct quest *q = random_quest();
+
+    q->flags = 0;
+    q->maxgen = 10;
+    q->mingen = 0;
+    q->maxlevel = LVL_AMBASSADOR;
+    q->minlevel = 0;
+
+    fail_unless(can_join_quest(q, ch), "couldn't join quest: %s", ch->desc->small_outbuf);
 }
 END_TEST
 
@@ -244,6 +341,14 @@ quest_suite(void)
     tcase_add_test(tc_core, test_quest_player_by_idnum);
     tcase_add_test(tc_core, test_banned_from_quest);
     tcase_add_test(tc_core, test_add_remove_quest_player);
+    tcase_add_test(tc_core, test_can_join_quest_1);
+    tcase_add_test(tc_core, test_can_join_quest_2);
+    tcase_add_test(tc_core, test_can_join_quest_3);
+    tcase_add_test(tc_core, test_can_join_quest_4);
+    tcase_add_test(tc_core, test_can_join_quest_5);
+    tcase_add_test(tc_core, test_can_join_quest_6);
+    tcase_add_test(tc_core, test_can_join_quest_7);
+    tcase_add_test(tc_core, test_can_join_quest_8);
     suite_add_tcase(s, tc_core);
 
     return s;
