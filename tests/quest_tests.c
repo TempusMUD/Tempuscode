@@ -6,14 +6,12 @@
 #include "handler.h"
 #include "quest.h"
 #include "utils.h"
+#include "testing.h"
 
 extern int current_mob_idnum;
 extern GHashTable *rooms;
 extern GHashTable *mob_prototypes;
 extern GHashTable *obj_prototypes;
-
-extern GList *creatures;
-extern GHashTable *creature_map;
 
 static struct creature *ch = NULL;
 static struct zone_data *zone = NULL;
@@ -29,7 +27,21 @@ struct quest *load_quest(xmlNodePtr n, xmlDocPtr doc);
 void save_quest(struct quest *quest, FILE *out);
 struct qplayer_data *quest_player_by_idnum(struct quest *quest, int idnum);
 bool banned_from_quest(struct quest * quest, int id);
+void add_quest_player(struct quest *quest, int id);
 bool remove_quest_player(struct quest * quest, int id);
+
+static void
+fixture_make_player(void)
+{
+    ch = make_test_player("foo", "Foo");
+    crashsave(ch);
+}
+
+static void
+fixture_destroy_player(void)
+{
+    destroy_test_player(ch);
+}
 
 START_TEST(test_next_quest_vnum)
 {
@@ -205,18 +217,33 @@ START_TEST(test_banned_from_quest)
 }
 END_TEST
 
+START_TEST(test_add_remove_quest_player)
+{
+    struct quest *q = random_quest();
+
+    add_quest_player(q, GET_IDNUM(ch));
+    fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
+    remove_quest_player(q, GET_IDNUM(ch));
+    fail_if(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
+
+    free_quest(q);
+}
+END_TEST
+
 Suite *
 quest_suite(void)
 {
     Suite *s = suite_create("quest");
 
     TCase *tc_core = tcase_create("Core");
-    tcase_add_checked_fixture(tc_core, tmp_string_init, NULL);
+    tcase_add_checked_fixture(tc_core, test_tempus_boot, NULL);
+    tcase_add_checked_fixture(tc_core, fixture_make_player, fixture_destroy_player);
     tcase_add_test(tc_core, test_next_quest_vnum);
     tcase_add_test(tc_core, test_make_destroy_quest);
     tcase_add_test(tc_core, test_save_load_quest);
     tcase_add_test(tc_core, test_quest_player_by_idnum);
     tcase_add_test(tc_core, test_banned_from_quest);
+    tcase_add_test(tc_core, test_add_remove_quest_player);
     suite_add_tcase(s, tc_core);
 
     return s;

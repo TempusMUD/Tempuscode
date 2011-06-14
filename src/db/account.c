@@ -48,12 +48,9 @@ account_boot(void)
 
     account_cache = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-    slog("Getting max account idnum");
-
     res = sql_query("select MAX(idnum) from accounts");
     account_top_id = atol(PQgetvalue(res, 0, 0));
 
-    slog("Getting character count");
     if (player_count())
         slog("... %zd character%s in db", player_count(),
             (player_count() == 1) ? "" : "s");

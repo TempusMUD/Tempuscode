@@ -397,6 +397,22 @@ banned_from_quest(struct quest * quest, int id)
     return g_list_find(quest->bans, GINT_TO_POINTER(id));
 }
 
+/**
+ * add_quest_player:
+ * @quest the #quest to which the player is to be added
+ * @id the idnum of the player
+ *
+ * Adds the player to the quest.
+ **/
+void
+add_quest_player(struct quest *quest, int id)
+{
+    struct qplayer_data *player;
+
+    CREATE(player, struct qplayer_data, 1);
+    player->idnum = id;
+    quest->players = g_list_prepend(quest->players, player);
+}
 
 /**
  * remove_quest_player:
@@ -984,16 +1000,6 @@ void
 do_quest_list(struct creature *ch)
 {
     send_to_char(ch, "%s", list_active_quests(ch));
-}
-
-void
-add_quest_player(struct quest *quest, int id)
-{
-    struct qplayer_data *player;
-
-    CREATE(player, struct qplayer_data, 1);
-    player->idnum = id;
-    quest->players = g_list_prepend(quest->players, player);
 }
 
 void
