@@ -2572,7 +2572,7 @@ do_qcontrol_level(struct creature *ch, char *argument, int com)
     sprintf(buf, "set quest %d '%s' access level to %d",
         quest->vnum, quest->name, quest->owner_level);
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
-
+    send_to_char(ch, "%s", buf);
 }
 
 static void
@@ -2599,7 +2599,7 @@ do_qcontrol_minlev(struct creature *ch, char *argument, int com)
         quest->vnum, quest->name, quest->minlevel);
 
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
-
+    send_to_char(ch, "%s", buf);
 }
 
 static void
@@ -2625,6 +2625,7 @@ do_qcontrol_maxlev(struct creature *ch, char *argument, int com)
     sprintf(buf, "set quest %d '%s' maximum level to %d",
         quest->vnum, quest->name, quest->maxlevel);
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
+    send_to_char(ch, "%s", buf);
 }
 
 static void
@@ -2650,6 +2651,7 @@ do_qcontrol_mingen(struct creature *ch, char *argument, int com)
     sprintf(buf, "set quest %d '%s' minimum gen to %d",
         quest->vnum, quest->name, quest->mingen);
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
+    send_to_char(ch, "%s", buf);
 }
 
 static void
@@ -2675,6 +2677,7 @@ do_qcontrol_maxgen(struct creature *ch, char *argument, int com)
     sprintf(buf, "set quest %d '%s' maximum gen to %d",
         quest->vnum, quest->name, quest->maxgen);
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
+    send_to_char(ch, "%s", buf);
 }
 
 static void
