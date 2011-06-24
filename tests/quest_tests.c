@@ -31,6 +31,7 @@ void add_quest_player(struct quest *quest, int id);
 bool remove_quest_player(struct quest *quest, int id);
 bool can_join_quest(struct quest *quest, struct creature * ch);
 bool crashsave(struct creature *ch);
+ACMD(do_quest);
 
 static void
 fixture_make_player(void)
@@ -327,6 +328,59 @@ START_TEST(test_can_join_quest_9)
 }
 END_TEST
 
+START_TEST(test_quest_list)
+{
+    struct quest *q = random_quest();
+
+    q->flags = 0;
+    q->ended = 0;
+    q->maxgen = 10;
+    q->mingen = 0;
+    q->maxlevel = LVL_AMBASSADOR;
+    q->minlevel = 0;
+
+    quests = g_list_prepend(quests, q);
+    do_quest(ch, "list", 0, 0);
+    fail_unless(strstr(ch->desc->small_outbuf, q->name) != NULL,
+                "Quest name not found in '%s'", ch->desc->small_outbuf);
+    free(q);
+    g_list_free(quests);
+    quests = NULL;
+}
+END_TEST
+
+START_TEST(test_quest_join_leave)
+{
+    struct quest *q = random_quest();
+
+    q->flags = 0;
+    q->ended = 0;
+    q->maxgen = 10;
+    q->mingen = 0;
+    q->maxlevel = LVL_AMBASSADOR;
+    q->minlevel = 0;
+
+    quests = g_list_prepend(quests, q);
+    do_quest(ch, tmp_sprintf("join %d", q->vnum), 0, 0);
+    fail_unless(GET_QUEST(ch) == q->vnum);
+    fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
+    fail_unless(strstr(ch->desc->small_outbuf,
+                       "You have joined quest 'Test quest'") != NULL);
+
+    ch->desc->small_outbuf[0] = '\0';
+    ch->desc->bufptr = 0;
+    ch->desc->bufspace = SMALL_BUFSIZE;
+	do_quest(ch, tmp_sprintf("leave %d", q->vnum), 0, 0);
+    fail_unless(GET_QUEST(ch) == 0, "ch's quest == %d", GET_QUEST(ch));
+    fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) == NULL);
+    fail_unless(strstr(ch->desc->small_outbuf,
+                       "You have left quest 'Test quest'") != NULL,
+                "quest leave yielded output '%s'", ch->desc->small_outbuf);
+
+
+}
+END_TEST
+
 Suite *
 quest_suite(void)
 {
@@ -349,6 +403,8 @@ quest_suite(void)
     tcase_add_test(tc_core, test_can_join_quest_6);
     tcase_add_test(tc_core, test_can_join_quest_7);
     tcase_add_test(tc_core, test_can_join_quest_8);
+    tcase_add_test(tc_core, test_quest_list);
+    tcase_add_test(tc_core, test_quest_join_leave);
     suite_add_tcase(s, tc_core);
 
     return s;
