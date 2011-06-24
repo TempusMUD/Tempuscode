@@ -1091,13 +1091,15 @@ do_quest_leave(struct creature *ch, char *argument)
         return;
     }
 
-    sprintf(buf, "left quest %d '%s'.", quest->vnum, quest->name);
-    qlog(ch, buf, QLOG_COMP, 0, true);
+    GET_QUEST(ch) = 0;
+    crashsave(ch);
 
+    qlog(ch, tmp_sprintf("%s left quest %d '%s'.",
+                         GET_NAME(ch), quest->vnum, quest->name),
+         QLOG_COMP, 0, true);
     send_to_char(ch, "You have left quest '%s'.\r\n", quest->name);
-
-    sprintf(buf, "%s has left the quest.", GET_NAME(ch));
-    send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(ch), 0), QCOMM_ECHO);
+    send_to_quest(NULL, tmp_sprintf("%s has left the quest.", GET_NAME(ch)),
+                  quest, MAX(GET_INVIS_LVL(ch), 0), QCOMM_ECHO);
 }
 
 void
