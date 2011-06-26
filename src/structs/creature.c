@@ -1501,44 +1501,56 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
 }
 
 void
-add_combat(struct creature *ch, struct creature *target, bool initiated __attribute__((unused)))
+add_combat(struct creature *attacker, struct creature *target, bool initiated __attribute__((unused)))
 {
-    if (!target)
+    if (attacker == target || attacker->in_room != target->in_room)
         return;
 
-    if (ch == target || ch->in_room != target->in_room)
+    if (!ok_to_attack(attacker, target, true))
         return;
 
-    if (!ok_to_attack(ch, target, true))
+    if (g_list_find(attacker->fighting, target))
         return;
 
-    if (g_list_find(ch->fighting, target))
-        return;
+    for (GList * it = first_living(attacker->in_room->people); it; it = next_living(it)) {
+        struct creature *defender = it->data;
+        if (defender != attacker
+            && defender != target
+            && DEFENDING(defender) == target
+            && !is_fighting(defender)
+            && !g_list_find(attacker->fighting, defender)
+            && GET_POSITION(defender) > POS_RESTING) {
 
-    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
-        struct creature *tch = it->data;
-        if (tch != ch
-            && tch != target
-            && DEFENDING(tch) == target && !g_list_find(tch->fighting, ch)
-            && GET_POSITION(tch) > POS_RESTING) {
-
-            send_to_char(tch, "You defend %s from %s's vicious attack!\r\n",
-                PERS(target, tch), PERS(ch, tch));
-            send_to_char(ch, "%s defends you from %s's vicious attack!\r\n",
-                PERS(tch, target), PERS(ch, target));
-            act("$n comes to $N's defense!", false, tch, 0,
+            send_to_char(defender, "You defend %s from %s's vicious attack!\r\n",
+                PERS(target, defender), PERS(attacker, defender));
+            send_to_char(attacker, "%s defends you from %s's vicious attack!\r\n",
+                PERS(defender, target), PERS(attacker, target));
+            act("$n comes to $N's defense!", false, defender, 0,
                 target, TO_NOTVICT);
 
-            tch->fighting = g_list_prepend(tch->fighting, ch);
+            if (DEFENDING(defender) == attacker)
+                stop_defending(defender);
 
-            update_pos(ch);
-            trigger_prog_fight(ch, tch);
-            return;
+            attacker->fighting = g_list_remove(attacker->fighting, defender);
+            attacker->fighting = g_list_append(attacker->fighting, defender);
+
+            update_pos(attacker);
+            trigger_prog_fight(attacker, defender);
+
+			//By not breaking here and not adding defenders to combatList we get
+            //the desired effect of a) having new defenders kick in after the first dies
+            //because they are on the attackers combat list, and b) still likely have
+            //defenders left to defend from other potential attackers because they
+            //won't actually begin combat until the attacker hits them.  This is the
+            //theory at least.
         }
     }
 
-    // No defender, so simply attack
-    ch->fighting = g_list_prepend(ch->fighting, target);
+    if (DEFENDING(target) == attacker)
+        stop_defending(target);
+
+    attacker->fighting = g_list_remove(attacker->fighting, target);
+    attacker->fighting = g_list_append(attacker->fighting, target);
 }
 
 /*
