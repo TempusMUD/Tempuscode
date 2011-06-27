@@ -1521,10 +1521,12 @@ add_combat(struct creature *attacker, struct creature *target, bool initiated __
             && !g_list_find(attacker->fighting, defender)
             && GET_POSITION(defender) > POS_RESTING) {
 
-            send_to_char(defender, "You defend %s from %s's vicious attack!\r\n",
-                PERS(target, defender), PERS(attacker, defender));
-            send_to_char(attacker, "%s defends you from %s's vicious attack!\r\n",
-                PERS(defender, target), PERS(attacker, target));
+            send_to_char(defender,
+                         "You defend %s from %s's vicious attack!\r\n",
+                         PERS(target, defender), PERS(attacker, defender));
+            send_to_char(DEFENDING(defender),
+                         "%s defends you from %s's vicious attack!\r\n",
+                         PERS(defender, target), PERS(attacker, target));
             act("$n comes to $N's defense!", false, defender, 0,
                 target, TO_NOTVICT);
 
