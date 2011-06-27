@@ -435,6 +435,7 @@ clear_repo_notes(struct house *house)
         free(note->text);
         free(note);
     }
+    house->repo_notes = NULL;
 }
 
 void
@@ -535,7 +536,7 @@ save_house(struct house * house)
         fprintf(ouf, "    <guest id=\"%d\"></guest>\n",
             GPOINTER_TO_INT(i->data));
     }
-    for (struct txt_block * i = house->repo_notes; i; i = i->next) {
+    for (struct txt_block *i = house->repo_notes; i; i = i->next) {
         fprintf(ouf, "    <repossession note=\"%s\"></repossession>\n",
             xmlEncodeSpecialTmp(i->text));
     }
@@ -638,7 +639,8 @@ load_house(const char *filename)
 
             CREATE(blk, struct txt_block, 1);
             blk->next = house->repo_notes;
-            blk->text = note;
+            blk->text = strdup(tmp_trim(note));
+            free(note);
             house->repo_notes = blk;
         }
     }
@@ -667,7 +669,7 @@ house_notify_repossession(struct house *house, struct creature *ch)
         ("The following items were sold at auction to cover your back rent:\r\n\r\n",
         NULL);
     for (struct txt_block * note = house->repo_notes; note; note = note->next)
-        acc_strcat(note->text, NULL);
+        acc_strcat(note->text, "\r\n", NULL);
 
     acc_strcat("\r\n\r\nSincerely,\r\n    The Management\r\n", NULL);
 
