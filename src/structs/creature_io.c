@@ -736,6 +736,13 @@ load_player_from_file(const char *path)
             ch->player.height = xmlGetIntProp(node, "height", 0);
             ch->player.weight = xmlGetIntProp(node, "weight", 0);
             GET_ALIGNMENT(ch) = xmlGetIntProp(node, "align", 0);
+            /***
+                Temp fix for negative weights
+             ***/
+
+            if (ch->player.weight < 0) {
+                calculate_height_weight(ch);
+            }
 
             GET_SEX(ch) = 0;
             char *sex = (char *)xmlGetProp(node, (xmlChar *) "sex");
