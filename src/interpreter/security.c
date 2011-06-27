@@ -20,6 +20,7 @@
 #include "players.h"
 #include "house.h"
 #include "clan.h"
+#include "quest.h"
 
  /**
   *
@@ -146,13 +147,14 @@ is_named_role_member(struct creature *ch, const char *role_name)
 bool
 is_authorized(struct creature * ch, enum privilege priv, void *target)
 {
-    struct role *role = (struct role *)target;
-    struct command_info *command = (struct command_info *)target;
-    struct show_struct *show_cmd = (struct show_struct *)target;
-    struct set_struct *set_cmd = (struct set_struct *)target;
-    struct zone_data *zone = (struct zone_data *)target;
-    struct house *house = (struct house *)target;
-    struct room_data *room = (struct room_data *)target;
+    struct role *role = target;
+    struct command_info *command = target;
+    struct show_struct *show_cmd = target;
+    struct set_struct *set_cmd = target;
+    struct zone_data *zone = target;
+    struct house *house = target;
+    struct room_data *room = target;
+    struct quest *quest = target;
 
     if (GET_LEVEL(ch) == LVL_GRIMP)
         return true;
@@ -260,7 +262,8 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
 
     case QUEST_BAN:
     case EDIT_QUEST:
-        return is_named_role_member(ch, "Quest");
+        return GET_IDNUM(ch) == quest->owner_id
+            || is_named_role_member(ch, "Questor");
 
     case COMMAND:
         if (GET_LEVEL(ch) < command->minimum_level)

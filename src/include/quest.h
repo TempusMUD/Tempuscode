@@ -42,11 +42,6 @@
 #define MAX_QUEST_OBJ_VNUM 92299
 #define MIN_QUEST_OBJ_VNUM 92270
 
-#define QTYPE_TRIVIA        1
-#define QTYPE_SCAVENGER     2
-#define QTYPE_HIDE_AND_SEEK 3
-#define QTYPE_ROLEPLAY      4
-
 /**
  * An entry representing a player in a quest and the flags set on him/her.
 **/

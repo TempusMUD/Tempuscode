@@ -52,6 +52,11 @@ test_tempus_boot(void)
     boot_tongues("etc/tongues.xml");
     boot_spells("etc/spells.xml");
     qlogfile = fopen(QLOGFILENAME, "a");
+
+    struct zone_data *zone = make_zone(1);
+    struct room_data *room_a = make_room(zone, 1);
+    struct room_data *room_b = make_room(zone, 2);
+    link_rooms(room_a, room_b, NORTH);
 }
 
 int
@@ -140,6 +145,19 @@ randomize_creature(struct creature *ch, int char_class)
     GET_TITLE(ch) = strdup("");
 }
 
+void
+test_creature_to_world(struct creature *ch)
+{
+    creatures = g_list_prepend(creatures, ch);
+    if (IS_NPC(ch))
+        g_hash_table_insert(creature_map, GINT_TO_POINTER(NPC_IDNUM(ch)), ch);
+    else
+        g_hash_table_insert(creature_map, GINT_TO_POINTER(-GET_IDNUM(ch)), ch);
+
+    char_to_room(ch, real_room(1), false);
+    GET_POSITION(ch) = POS_STANDING;
+}
+
 struct creature *
 make_test_player(const char *acct_name, const char *char_name)
 {
@@ -177,7 +195,10 @@ destroy_test_player(struct creature *ch)
     free(ch->account->login_addr);
     free(ch->account);
     sql_exec("delete from accounts where idnum=%d", ch->account->id);
-    free_creature(ch);
+    if (ch->in_room)
+        extract_creature(ch);
+    else
+        free_creature(ch);
 }
 
 void

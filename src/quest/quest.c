@@ -1133,29 +1133,28 @@ do_quest_info(struct creature *ch, char *argument)
     timestr_s = asctime(localtime(&started));
     *(timestr_s + strlen(timestr_s) - 1) = '\0';
 
-    sprintf(buf,
-        "Quest [%d] info:\r\n"
-        "Owner:  %s\r\n"
-        "Name:   %s\r\n"
-        "Description:\r\n%s"
-        "Updates:\r\n%s"
-        "  Type:            %s\r\n"
-        "  Started:         %s\r\n"
-        "  Age:             %s\r\n"
-        "  Min Level:   Gen %-2d, Level %2d\r\n"
-        "  Max Level:   Gen %-2d, Level %2d\r\n"
-        "  Num Players:     %d\r\n"
-        "  Max Players:     %d\r\n",
-        quest->vnum,
-        player_name_by_idnum(quest->owner_id), quest->name,
-        quest->description ? quest->description : "None.\r\n",
-        quest->updates ? quest->updates : "None.\r\n",
-        qtypes[(int)quest->type], timestr_s, timestr_a,
-        quest->mingen, quest->minlevel,
-        quest->maxgen, quest->maxlevel,
-        g_list_length(quest->players), quest->max_players);
-    page_string(ch->desc, buf);
-
+    page_string(ch->desc,
+                tmp_sprintf(
+                    "Quest [%d] info:\r\n"
+                    "Owner:  %s\r\n"
+                    "Name:   %s\r\n"
+                    "Description:\r\n%s"
+                    "Updates:\r\n%s"
+                    "  Type:            %s\r\n"
+                    "  Started:         %s\r\n"
+                    "  Age:             %s\r\n"
+                    "  Min Level:   Gen %-2d, Level %2d\r\n"
+                    "  Max Level:   Gen %-2d, Level %2d\r\n"
+                    "  Num Players:     %d\r\n"
+                    "  Max Players:     %d\r\n",
+                    quest->vnum,
+                    player_name_by_idnum(quest->owner_id), quest->name,
+                    quest->description ? quest->description : "None.\r\n",
+                    quest->updates ? quest->updates : "None.\r\n",
+                    qtypes[(int)quest->type], timestr_s, timestr_a,
+                    quest->mingen, quest->minlevel,
+                    quest->maxgen, quest->maxlevel,
+                    g_list_length(quest->players), quest->max_players));
 }
 
 void

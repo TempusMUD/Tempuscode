@@ -32,6 +32,7 @@ bool remove_quest_player(struct quest *quest, int id);
 bool can_join_quest(struct quest *quest, struct creature * ch);
 bool crashsave(struct creature *ch);
 ACMD(do_quest);
+ACMD(do_qcontrol);
 
 static void
 fixture_make_player(void)
@@ -64,12 +65,12 @@ END_TEST
 
 START_TEST(test_make_destroy_quest)
 {
-    struct quest *q = make_quest(2, 72, QTYPE_TRIVIA, "Test quest");
+    struct quest *q = make_quest(2, 72, 0, "Test quest");
     fail_unless(q != NULL);
 
     fail_unless(q->owner_id == 2);
     fail_unless(q->owner_level == 72);
-    fail_unless(q->type == QTYPE_TRIVIA);
+    fail_unless(q->type == 0);
     fail_unless(!strcmp(q->name, "Test quest"));
 
     free_quest(q);
@@ -79,7 +80,7 @@ END_TEST
 struct quest *
 random_quest(void)
 {
-    struct quest *q = make_quest(2, 72, QTYPE_TRIVIA, "Test quest");
+    struct quest *q = make_quest(2, 72, 0, "Test quest");
 
     q->started = time(NULL);
     q->ended = q->started + 10;
@@ -221,6 +222,202 @@ START_TEST(test_add_remove_quest_player)
     fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
     remove_quest_player(q, GET_IDNUM(ch));
     fail_if(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
+}
+END_TEST
+
+START_TEST(test_qcontrol_create)
+{
+    GET_LEVEL(ch) = LVL_IMMORT;
+    do_qcontrol(ch, "create trivia Test quest", 0, 0);
+    fail_unless(g_list_length(quests) == 1);
+
+    struct quest *q = quests->data;
+
+    fail_unless(!strcmp(q->name, "Test quest"));
+    fail_unless(q->type == 0);
+    fail_unless(q->owner_id == GET_IDNUM(ch));
+    fail_unless(q->owner_level == GET_LEVEL(ch));
+    fail_unless(g_list_length(q->players) == 1);
+
+    struct qplayer_data *p = q->players->data;
+
+    fail_unless(p->idnum == GET_IDNUM(ch));
+}
+END_TEST
+
+START_TEST(test_qcontrol_end)
+{
+    struct quest *q = random_quest();
+    quests = g_list_prepend(quests, q);
+
+    add_quest_player(q, GET_IDNUM(ch));
+    q->ended = 0;
+
+    GET_LEVEL(ch) = LVL_IMMORT;
+    do_qcontrol(ch, tmp_sprintf("end %d", q->vnum), 0, 0);
+
+    fail_unless(q->ended != 0);
+    fail_unless(q->players == NULL);
+}
+END_TEST
+
+START_TEST(test_qcontrol_add)
+{
+    struct creature *tch = make_test_player("xernst", "Xernst");
+
+    test_creature_to_world(ch);
+    test_creature_to_world(tch);
+
+    struct quest *q = random_quest();
+    quests = g_list_prepend(quests, q);
+    q->owner_id = GET_IDNUM(ch);
+    q->ended = 0;
+    q->players = NULL;
+
+    GET_LEVEL(ch) = LVL_IMMORT;
+    do_qcontrol(ch, tmp_sprintf("add Xernst %d", q->vnum), 0, 0);
+    fail_unless(strstr(ch->desc->small_outbuf, "added") != NULL,
+                "qcontrol add yielded output '%s'", ch->desc->small_outbuf);
+    fail_unless(g_list_length(q->players) == 1,
+                "Expected one player, got %d players",
+                g_list_length(q->players));
+    struct qplayer_data *p = q->players->data;
+    fail_unless(p->idnum == GET_IDNUM(tch));
+}
+END_TEST
+
+START_TEST(test_qcontrol_show)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_kick)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_flags)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_comment)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_describe)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_update)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_ban)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_unban)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_mute)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_unmute)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_level)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_minlev)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_maxlev)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_mingen)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_maxgen)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_mload)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_purge)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_save)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_help)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_switch)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_title)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_oload)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_trans)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_award)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_penalize)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_restore)
+{
+}
+END_TEST
+
+START_TEST(test_qcontrol_loadroom)
+{
 }
 END_TEST
 
@@ -376,8 +573,6 @@ START_TEST(test_quest_join_leave)
     fail_unless(strstr(ch->desc->small_outbuf,
                        "You have left quest 'Test quest'") != NULL,
                 "quest leave yielded output '%s'", ch->desc->small_outbuf);
-
-
 }
 END_TEST
 
@@ -406,6 +601,41 @@ quest_suite(void)
     tcase_add_test(tc_core, test_quest_list);
     tcase_add_test(tc_core, test_quest_join_leave);
     suite_add_tcase(s, tc_core);
+
+    TCase *tc_qcontrol = tcase_create("qcontrol");
+    tcase_add_checked_fixture(tc_qcontrol, test_tempus_boot, NULL);
+    tcase_add_checked_fixture(tc_qcontrol, fixture_make_player, fixture_destroy_player);
+    tcase_add_test(tc_qcontrol, test_qcontrol_create);
+    tcase_add_test(tc_qcontrol, test_qcontrol_end);
+    tcase_add_test(tc_qcontrol, test_qcontrol_add);
+    tcase_add_test(tc_qcontrol, test_qcontrol_show);
+    tcase_add_test(tc_qcontrol, test_qcontrol_kick);
+    tcase_add_test(tc_qcontrol, test_qcontrol_flags);
+    tcase_add_test(tc_qcontrol, test_qcontrol_comment);
+    tcase_add_test(tc_qcontrol, test_qcontrol_describe);
+    tcase_add_test(tc_qcontrol, test_qcontrol_update);
+    tcase_add_test(tc_qcontrol, test_qcontrol_ban);
+    tcase_add_test(tc_qcontrol, test_qcontrol_unban);
+    tcase_add_test(tc_qcontrol, test_qcontrol_mute);
+    tcase_add_test(tc_qcontrol, test_qcontrol_unmute);
+    tcase_add_test(tc_qcontrol, test_qcontrol_level);
+    tcase_add_test(tc_qcontrol, test_qcontrol_minlev);
+    tcase_add_test(tc_qcontrol, test_qcontrol_maxlev);
+    tcase_add_test(tc_qcontrol, test_qcontrol_mingen);
+    tcase_add_test(tc_qcontrol, test_qcontrol_maxgen);
+    tcase_add_test(tc_qcontrol, test_qcontrol_mload);
+    tcase_add_test(tc_qcontrol, test_qcontrol_purge);
+    tcase_add_test(tc_qcontrol, test_qcontrol_save);
+    tcase_add_test(tc_qcontrol, test_qcontrol_help);
+    tcase_add_test(tc_qcontrol, test_qcontrol_switch);
+    tcase_add_test(tc_qcontrol, test_qcontrol_title);
+    tcase_add_test(tc_qcontrol, test_qcontrol_oload);
+    tcase_add_test(tc_qcontrol, test_qcontrol_trans);
+    tcase_add_test(tc_qcontrol, test_qcontrol_award);
+    tcase_add_test(tc_qcontrol, test_qcontrol_penalize);
+    tcase_add_test(tc_qcontrol, test_qcontrol_restore);
+    tcase_add_test(tc_qcontrol, test_qcontrol_loadroom);
+    suite_add_tcase(s, tc_qcontrol);
 
     return s;
 }
