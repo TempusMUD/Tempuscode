@@ -2214,7 +2214,8 @@ ACMD(do_drag)
 {
     struct creature *found_char;
     struct obj_data *found_obj;
-    char *target_str = tmp_getword(&argument);
+    char *args = argument;
+    char *target_str = tmp_getword(&args);
 
     int bits;
 
