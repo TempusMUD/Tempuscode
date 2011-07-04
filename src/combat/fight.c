@@ -2476,33 +2476,35 @@ hit(struct creature *ch, struct creature *victim, int type)
         }
     }
 
-    if ((type != SKILL_BACKSTAB && type != SKILL_CIRCLE &&
-            type != SKILL_BEHEAD && type != SKILL_CLEAVE) || !weap) {
-        if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W)
-            weap = get_random_uncovered_implant(ch, ITEM_WEAPON);
-        else
-            weap = get_next_weap(ch);
-        if (weap) {
-            if ((IS_ENERGY_GUN(weap)
-                    && (!weap->contains
-                        || (weap->contains
-                            && CUR_ENERGY(weap->contains) <= 0)))
-                || IS_GUN(weap)) {
-                w_type = TYPE_BLUDGEON;
-            } else if (IS_ENERGY_GUN(weap) && weap->contains) {
-                w_type = GUN_TYPE(weap) + TYPE_EGUN_LASER;
-                int cost =
-                    MIN(CUR_ENERGY(weap->contains),
+    if (type == SKILL_BACKSTAB
+        && type == SKILL_CIRCLE
+        && type == SKILL_CLEAVE)
+        weap = GET_EQ(ch, WEAR_WIELD);
+    else if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W)
+        weap = get_random_uncovered_implant(ch, ITEM_WEAPON);
+    else
+        weap = get_next_weap(ch);
+
+    if (weap) {
+        if ((IS_ENERGY_GUN(weap)
+             && (!weap->contains
+                 || (weap->contains
+                     && CUR_ENERGY(weap->contains) <= 0)))
+            || IS_GUN(weap)) {
+            w_type = TYPE_BLUDGEON;
+        } else if (IS_ENERGY_GUN(weap) && weap->contains) {
+            w_type = GUN_TYPE(weap) + TYPE_EGUN_LASER;
+            int cost =
+                MIN(CUR_ENERGY(weap->contains),
                     GUN_DISCHARGE(weap));
-                CUR_ENERGY(weap->contains) -= cost;
-                if (CUR_ENERGY(weap->contains) <= 0) {
-                    act("$p has been depleted of fuel.  Replace cell before further use.", false, ch, weap, 0, TO_CHAR);
-                }
-            } else if (IS_OBJ_TYPE(weap, ITEM_WEAPON))
-                w_type = GET_OBJ_VAL(weap, 3) + TYPE_HIT;
-            else
-                weap = NULL;
-        }
+            CUR_ENERGY(weap->contains) -= cost;
+            if (CUR_ENERGY(weap->contains) <= 0) {
+                act("$p has been depleted of fuel.  Replace cell before further use.", false, ch, weap, 0, TO_CHAR);
+            }
+        } else if (IS_OBJ_TYPE(weap, ITEM_WEAPON))
+            w_type = GET_OBJ_VAL(weap, 3) + TYPE_HIT;
+        else
+            weap = NULL;
     }
 
     if (!weap) {

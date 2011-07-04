@@ -348,7 +348,7 @@ perform_cleave(struct creature *ch, struct creature *vict)
     bool great = (GET_SKILL(ch, SKILL_GREAT_CLEAVE) > 50);
     struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
 
-    if (weap == NULL || !IS_TWO_HAND(weap)) {
+    if (weap == NULL || !IS_TWO_HAND(weap) || !IS_OBJ_TYPE(weap, ITEM_WEAPON)) {
         send_to_char(ch,
             "You need to be wielding a two handed weapon to cleave!\r\n");
         return;
@@ -360,8 +360,7 @@ perform_cleave(struct creature *ch, struct creature *vict)
         maxWhack = 2;
     }
 
-    int i;
-    for (i = 0; i < maxWhack && vict != NULL; i++) {
+    for (int i = 0; i < maxWhack && vict != NULL; i++) {
         percent = number(1, 101) + GET_DEX(vict);
         if (AWAKE(vict) && percent > skill) {
             WAIT_STATE(ch, 2 RL_SEC);
