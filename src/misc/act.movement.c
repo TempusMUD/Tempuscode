@@ -602,6 +602,13 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         return 1;
     }
 
+    // Attempt to keep unapproved NPCs in unapproved zones
+    if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)
+        && !ZONE_FLAGGED(EXIT(ch, dir)->to_room->zone, ZONE_MOBS_APPROVED)) {
+        send_to_char(ch, "Sorry, you aren't allowed to play yet.\r\n");
+        return 1;
+    }
+
     need_movement = (movement_loss[ch->in_room->sector_type] +
         movement_loss[ch->in_room->dir_option[dir]->
             to_room->sector_type]) >> 1;

@@ -664,12 +664,28 @@ CURRENCY(struct creature *ch)
 }
 
 bool
-CAN_GO(struct creature * ch, int door)
+CAN_GO(struct creature *ch, int door)
 {
     struct room_direction_data *exit = EXIT(ch, door);
-    return (exit != NULL &&
-        !IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
-        exit->to_room != NULL);
+
+    // No exit
+    if (!exit || exit->to_room == NULL)
+        return false;
+
+    // Closed door
+    if ((IS_SET(exit->exit_info, EX_NOPASS)
+         || (IS_SET(exit->exit_info, EX_SECRET | EX_HIDDEN)
+             && IS_SET(exit->exit_info, EX_CLOSED)))
+        && !NON_CORPOREAL_MOB(ch)
+        && GET_LEVEL(ch) < LVL_AMBASSADOR)
+        return false;
+
+    // Unapproved mob trying to move into approved zone
+    if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)
+        && !ZONE_FLAGGED(exit->to_room->zone, ZONE_MOBS_APPROVED))
+        return false;
+
+    return true;
 }
 
 bool
