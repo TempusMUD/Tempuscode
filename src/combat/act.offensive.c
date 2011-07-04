@@ -2610,6 +2610,7 @@ ACMD(do_ceasefire)
         act("$n stops attacking $s opponents.", false, ch, 0,
             NULL, TO_NOTVICT);
         act("$n stops attacking you.", false, ch, 0, f, TO_VICT);
+        g_list_free(ch->fighting);
         ch->fighting = NULL;
         WAIT_STATE(ch, 2 RL_SEC);
     }
