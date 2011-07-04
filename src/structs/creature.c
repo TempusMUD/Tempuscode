@@ -1604,7 +1604,7 @@ remove_all_combat(struct creature *ch)
         remove_combat((struct creature *)it->data, ch);
     }
 
-    if (is_fighting(ch)) {
+    if (ch->fighting) {
         g_list_free(ch->fighting);
         ch->fighting = NULL;
         remove_fighting_affects(ch);
