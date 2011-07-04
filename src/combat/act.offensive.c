@@ -1296,7 +1296,6 @@ ACMD(do_flee)
                     continue;
             }
 
-            remove_all_combat(ch);
             int move_result = do_simple_move(ch, attempt, MOVE_FLEE, true);
 
             //
