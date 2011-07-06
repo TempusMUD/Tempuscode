@@ -298,7 +298,7 @@ one_word(char *argument, char *first_arg)
 
         }
 
-        *(first_arg + look_at) = '\0';
+        first_arg[look_at] = '\0';
         begin += look_at;
     } while (fill_word(first_arg));
 

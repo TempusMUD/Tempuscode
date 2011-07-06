@@ -3289,7 +3289,7 @@ ACMD(do_date)
         mytime = boot_time;
 
     tmstr = (char *)asctime(localtime(&mytime));
-    *(tmstr + strlen(tmstr) - 1) = '\0';
+    tmstr[strlen(tmstr) - 1] = '\0';
 
     if (subcmd == SCMD_DATE)
         send_to_char(ch, "Current machine time: %s\r\n", tmstr);

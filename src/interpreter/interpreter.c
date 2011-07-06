@@ -60,7 +60,7 @@ cmdlog(char *str)
 
     ct = time(0);
     tmstr = asctime(localtime(&ct));
-    *(tmstr + strlen(tmstr) - 1) = '\0';
+    tmstr[strlen(tmstr) - 1] = '\0';
     log = tmp_sprintf("%-19.19s _ %s", tmstr, str);
     if (!commandLog)
         commandLog = fopen("log/command.log", "a");
@@ -77,7 +77,7 @@ newbielog(struct creature *ch, const char *cmd, const char *args)
 
     ct = time(0);
     tmstr = asctime(localtime(&ct));
-    *(tmstr + strlen(tmstr) - 1) = '\0';
+    tmstr[strlen(tmstr) - 1] = '\0';
     log = tmp_sprintf("%-19.19s _ [%05d] %s :: %s %s",
         tmstr, ch->in_room->number, GET_NAME(ch), cmd, args);
     if (!newbieLog)

@@ -148,7 +148,7 @@ store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
 
     obj = read_object(MAIL_OBJ_VNUM);
     time_str = asctime(localtime(&now));
-    *(time_str + strlen(time_str) - 1) = '\0';
+    time_str[strlen(time_str) - 1] = '\0';
 
     acc_string_clear();
     acc_sprintf(" * * * *  Tempus Mail System  * * * *\r\n"

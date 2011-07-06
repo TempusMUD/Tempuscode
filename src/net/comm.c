@@ -837,7 +837,7 @@ new_descriptor(int s, int port)
     } else {
         strncpy(newd->host, inet_ntoa(peer.sin_addr), HOST_LENGTH);
     }
-    *(newd->host + HOST_LENGTH) = '\0';
+    newd->host[HOST_LENGTH] = '\0';
 
     /* determine if the site is banned */
     if (check_ban_all(desc, newd->host)) {
@@ -1010,7 +1010,7 @@ process_input(struct descriptor_data *t)
         }
         /* at this point, we know we got some data from the read */
 
-        *(read_point + bytes_read) = '\0';  /* terminate the string */
+        read_point[bytes_read] = '\0';  /* terminate the string */
 
         /* search for a newline in the data we just read */
         for (ptr = read_point; *ptr && !nl_pos; ptr++)

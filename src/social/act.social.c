@@ -310,7 +310,7 @@ fread_action(FILE * fl, int nr)
     if (*buf == '#')
         return (NULL);
     else {
-        *(buf + strlen(buf) - 1) = '\0';
+        buf[strlen(buf) - 1] = '\0';
         CREATE(rslt, char, strlen(buf) + 1);
         strcpy(rslt, buf);
         return (rslt);

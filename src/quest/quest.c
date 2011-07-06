@@ -1131,7 +1131,7 @@ do_quest_info(struct creature *ch, char *argument)
 
     time_t started = quest->started;
     timestr_s = asctime(localtime(&started));
-    *(timestr_s + strlen(timestr_s) - 1) = '\0';
+    timestr_s[strlen(timestr_s) - 1] = '\0';
 
     page_string(ch->desc,
                 tmp_sprintf(
@@ -1810,7 +1810,7 @@ do_qcontrol_show(struct creature *ch, char *argument)
 
     time_t started = quest->started;
     timestr_s = asctime(localtime(&started));
-    *(timestr_s + strlen(timestr_s) - 1) = '\0';
+    timestr_s[strlen(timestr_s) - 1] = '\0';
 
     // quest is over, show summary information
     if (quest->ended) {
