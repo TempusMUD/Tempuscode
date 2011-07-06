@@ -431,7 +431,7 @@ auctioneer_tick(struct creature *self)
         } else if ((!item->last_bid_time) &&
             (time(NULL) - item->start_time) > AUCTION_THRESH) {
             auc_str = tmp_sprintf("Item number %d, %s is no longer "
-                "avitemlable for bids!", item_no, item->item->name);
+                "available for bids!", item_no, item->item->name);
             item->current_bid = 0;
             item->buyer_id = item->owner_id;
             imp = create_imp(self->in_room, item);
