@@ -1820,7 +1820,7 @@ do_qcontrol_show(struct creature *ch, char *argument)
 
         time_t started = quest->started;
         timestr_e = asctime(localtime(&started));
-        *(timestr_e + strlen(timestr_e) - 1) = '\0';
+        timestr_e[strlen(timestr_e) - 1] = '\0';
 
         acc_string_clear();
 
