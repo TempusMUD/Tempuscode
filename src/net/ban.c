@@ -120,6 +120,8 @@ load_banned(void)
             load_banned_entry(node);
     }
 
+    ban_list = g_list_reverse(ban_list);
+
     xmlFreeDoc(doc);
 }
 
@@ -288,7 +290,7 @@ ACMD(do_ban)
         return;
     }
 
-    for (GList * it = ban_list; it; it = it->next) {
+    for (GList *it = ban_list; it; it = it->next) {
         struct ban_entry *node = it->data;
         if (!strcasecmp(node->site, site)) {
             send_to_char(ch,
@@ -325,9 +327,11 @@ ACMD(do_unban)
         return;
     }
     for (GList * it = ban_list; it; it = it->next) {
-        struct ban_entry *node = it->data;
-        if (!strcasecmp(node->site, site))
+        struct ban_entry *n = it->data;
+        if (!strcasecmp(n->site, site)) {
+            node = n;
             break;
+        }
     }
 
     if (node == NULL) {
