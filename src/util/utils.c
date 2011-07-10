@@ -674,8 +674,7 @@ CAN_GO(struct creature *ch, int door)
 
     // Closed door
     if ((IS_SET(exit->exit_info, EX_NOPASS)
-         || (IS_SET(exit->exit_info, EX_SECRET | EX_HIDDEN)
-             && IS_SET(exit->exit_info, EX_CLOSED)))
+         || IS_SET(exit->exit_info, EX_CLOSED))
         && !NON_CORPOREAL_MOB(ch)
         && GET_LEVEL(ch) < LVL_AMBASSADOR)
         return false;
