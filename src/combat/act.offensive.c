@@ -94,9 +94,9 @@ IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
 
 int
 calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
-    int *wait, int *vict_wait, int *move, int *mana, int *dam,
-    int *fail_pos, int *vict_pos, int *loc,
-    struct affected_type *af)
+                int *wait, int *vict_wait, int *move, int *mana, int *dam,
+                int *fail_pos, int *vict_pos, struct obj_data **out_weap, int *loc,
+                struct affected_type *af)
 {
 
     int prob = 0;
@@ -889,6 +889,8 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
     prob = MIN(MAX(0, prob), 110);
 
+    *out_weap = weap;
+
     return (prob);
 }
 
@@ -932,7 +934,7 @@ perform_offensive_skill(struct creature *ch,
     //
     prob = calc_skill_prob(ch, vict, skill,
                            &wait, &vict_wait, &move, &mana,
-                           &dam, &fail_pos, &vict_pos, &loc, &af);
+                           &dam, &fail_pos, &vict_pos, &weap, &loc, &af);
     if (prob < 0) {
         return false;
     }
@@ -2165,6 +2167,7 @@ shoot_energy_gun(struct creature *ch,
 {
     sh_int prob, dam, cost;
     int dum_ptr = 0, dum_move = 0;
+    struct obj_data *dum_obj;
     struct affected_type *af = NULL;
 
     if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
@@ -2193,8 +2196,8 @@ shoot_energy_gun(struct creature *ch,
     }
 
     prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
-        &dum_ptr, &dum_ptr, &dum_move, &dum_move,
-        &dum_ptr, &dum_ptr, &dum_ptr, &dum_ptr, af);
+                           &dum_ptr, &dum_ptr, &dum_move, &dum_move,
+                           &dum_ptr, &dum_ptr, &dum_ptr, &dum_obj, &dum_ptr, af);
 
     if (is_dead(ch) || is_dead(vict))
         return;
@@ -2387,6 +2390,7 @@ shoot_projectile_gun(struct creature *ch,
     struct obj_data *target, struct obj_data *gun)
 {
     struct obj_data *bullet = NULL;
+    struct obj_data *dum_obj;
     sh_int prob, dam;
     int bullet_num = 0, dum_ptr = 0, dum_move = 0;
     struct affected_type *af = NULL;
@@ -2429,9 +2433,9 @@ shoot_projectile_gun(struct creature *ch,
     }
 
     prob = calc_skill_prob(ch, vict,
-        (IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_SHOOT),
-        &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
-        &dum_ptr, &dum_ptr, &dum_ptr, af);
+                           (IS_ARROW(gun) ? SKILL_ARCHERY : SKILL_SHOOT),
+                           &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
+                           &dum_ptr, &dum_ptr, &dum_obj, &dum_ptr, af);
 
     if (!IS_ARROW(gun))
         prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
@@ -2949,6 +2953,7 @@ int
 do_combat_fire(struct creature *ch, struct creature *vict)
 {
     struct obj_data *bullet = NULL, *gun = NULL;
+    struct obj_data *dum_obj;
     sh_int prob, dam, cost;
     int dum_ptr = 0, dum_move = 0;
     struct affected_type *af = NULL;
@@ -3007,8 +3012,8 @@ do_combat_fire(struct creature *ch, struct creature *vict)
         }
 
         prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
-            &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
-            &dum_ptr, &dum_ptr, &dum_ptr, af);
+                               &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
+                               &dum_ptr, &dum_ptr, &dum_obj, &dum_ptr, af);
 
         prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
         prob += dex_app[GET_DEX(ch)].tohit;
@@ -3064,7 +3069,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
 
     prob = calc_skill_prob(ch, vict, SKILL_SHOOT,
                            &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
-                           &dum_ptr, &dum_ptr, &dum_ptr, af);
+                           &dum_ptr, &dum_ptr, &dum_obj, &dum_ptr, af);
 
     prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
 
