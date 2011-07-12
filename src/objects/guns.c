@@ -66,7 +66,8 @@ const char *egun_types[] = {
     "particle",
     "gamma",
     "lightning",
-    "unknown"
+    "unknown",
+    "\n"
 };
 
 const int gun_damage[][2] = {
