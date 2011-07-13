@@ -548,6 +548,56 @@ ACMD(do_page)
     }
 }
 
+ACMD(do_chat)
+{
+    struct creature *vict;
+    char *vict_str = tmp_getword(&argument);
+
+    if (!*vict_str) {
+        send_to_char(ch, "With whom do you wish to chat??\r\n");
+    } else if (!(vict = get_char_room_vis(ch, vict_str))) {
+        send_to_char(ch, "%s", NOPERSON);
+    } else if (vict == ch) {
+        switch (number(0,2)) {
+        case 0:
+            send_to_char(ch, "%s doesn't tell you anything you didn't already know.\r\n", HSSH(ch));
+            break;
+        case 1:
+            send_to_char(ch, "Your conversational partner seems a bit predictable.\r\n");
+            break;
+        case 2:
+            send_to_char(ch, "Talking to yourself is a sign of impending mental collapse.\r\n");
+            break;
+        }
+    } else if (IS_PC(vict)) {
+        send_to_char(ch, "Use the SAY command to talk with other players.\r\n");
+    } else if (!AWAKE(vict)) {
+        act("$n is unconscious and will not speak to you.", false, vict, 0, ch, TO_VICT);
+    } else if (is_fighting(vict)) {
+        act("$n is too busy fighting to talk right now!", false, vict, 0, ch, TO_VICT);
+    } else if ((IS_EVIL(ch) && NPC_FLAGGED(vict, NPC_AGGR_EVIL)) ||
+               (IS_GOOD(ch) && NPC_FLAGGED(vict, NPC_AGGR_GOOD)) ||
+               (IS_NEUTRAL(ch) && NPC_FLAGGED(vict, NPC_AGGR_NEUTRAL))) {
+        if (IS_ANIMAL(vict)) {
+            act("You viciously snarl at $N!", false, vict, 0, ch, TO_CHAR);
+            act("$n viciously snarls at you!", false, vict, 0, ch, TO_VICT);
+            act("$n viciously snarls at $N!", false, vict, 0, ch, TO_NOTVICT);
+        } else {
+            perform_say_to(vict, ch, "You think I'm going to talk with YOU?");
+        }
+    } else {
+        if (!trigger_prog_chat(ch, vict)) {
+            if (AFF_FLAGGED(ch, AFF_CHARM)) {
+                act("$n merely stares at you in adoration.", false, vict, 0, ch, TO_VICT);
+            } else if (NPC_FLAGGED(vict, NPC_AGGRESSIVE)) {
+                act("$n merely stares at you with hate and fury.", false, vict, 0, ch, TO_VICT);
+            } else {
+                act("$n doesn't have much to say to you.", false, vict, 0, ch, TO_VICT);
+            }
+        }
+    }
+}
+
 /**********************************************************************
  * generalized communication func, originally by Fred C. Merkel (Torg) *
   *********************************************************************/

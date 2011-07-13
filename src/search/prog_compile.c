@@ -54,8 +54,8 @@ struct prog_compiler_state {
 const char *prog_phase_strs[] = { "before", "handle", "after", "\n" };
 
 const char *prog_event_strs[] = {
-    "command", "idle", "fight", "give", "enter", "leave", "load", "tick",
-    "spell", "combat", "death", "dying", "\n"
+    "command", "idle", "fight", "give", "chat", "enter", "leave", "load",
+    "tick", "spell", "combat", "death", "dying", "\n"
 };
 
 // Function prototypes

@@ -149,6 +149,7 @@ ACMD(do_ceasefire);
 ACMD(do_conceal);
 ACMD(do_cedit);
 ACMD(do_charge);
+ACMD(do_chat);
 ACMD(do_circle);
 ACMD(do_cinfo);
 ACMD(do_cleave);
@@ -572,7 +573,7 @@ struct command_info cmd_info[] = {
     {"cartwheel", POS_DEAD, do_action, 0, 0, 0, 0},
     {"camel", POS_RESTING, do_action, 0, 0, 0, 0},
     {"catnap", POS_RESTING, do_action, 0, 0, 0, 0},
-    {"chat", POS_RESTING, do_gen_comm, 0, SCMD_GOSSIP, 0, 0},
+    {"chat", POS_RESTING, do_chat, 0, 0, 0, 0},
     {"charge", POS_STANDING, do_charge, 0, 0, 0, 0},
     {"chant", POS_RESTING, do_say, 0, 0, 0, 0},
     {"check", POS_STANDING, do_not_here, 1, 0, 0, 0},
