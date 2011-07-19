@@ -622,7 +622,8 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 && !SRCH_FLAGGED(srch, SRCH_REPEATABLE))
                 SET_BIT(srch->flags, SRCH_TRIPPED);
 
-            for (GList * it = first_living(other_rm->people); it; it = next_living(it)) {
+            for (GList *it = first_living(other_rm->people), *next = NULL; it; it = next) {
+                next = next_living(it);
                 mob = it->data;
                 if (!IS_NPC(mob))
                     continue;
@@ -648,21 +649,16 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
         targ_room = real_room(srch->arg[0]);
 
         if ((GET_LEVEL(ch) < maxlevel) && (targ_room)) {
-
             if (room_tele_ok(ch, targ_room)) {
                 GET_LOADROOM(ch) = srch->arg[0];
             }
-
-        }
-
-        else {
+        } else {
             return 0;
         }
 
         break;
 
     case SEARCH_COM_NONE:      /* simple echo search */
-
         if ((targ_room = real_room(srch->arg[1])) &&
             srch->to_remote && ch->in_room != targ_room && targ_room->people) {
             act(srch->to_remote, false, targ_room->people->data, obj, mob,
