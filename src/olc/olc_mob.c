@@ -995,10 +995,11 @@ do_mob_mset(struct creature *ch, char *argument)
             break;
         }
     case 35:{             /** race **/
-            if ((i = search_block(arg2, player_race, false)) < 0) {
+        struct race *race = race_by_name(arg2, true);
+            if (!race) {
                 send_to_char(ch, "Invalid race, '%s'.\r\n", arg2);
             } else {
-                GET_RACE(mob_p) = i;
+                GET_RACE(mob_p) = race->idnum;
                 set_physical_attribs(mob_p);
                 set_move_buffer(mob_p);
                 send_to_char(ch, "Mobile Race set.\r\n");

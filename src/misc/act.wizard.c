@@ -64,6 +64,7 @@
 #include "weather.h"
 #include "players.h"
 #include "quest.h"
+#include "race.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
@@ -1679,7 +1680,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
 
 /* Race, Class */
     acc_sprintf("Race: %s, Class: %s%s/%s Gen: %d\r\n",
-        strlist_aref(k->player.race, player_race),
+        race_name_by_idnum(k->player.race),
         strlist_aref(k->player.char_class, class_names),
         (IS_CYBORG(k) ?
             tmp_sprintf("(%s)",
@@ -4000,7 +4001,7 @@ show_player(struct creature *ch, char *value)
         GET_IDNUM(vict), GET_NAME(vict),
         player_account_by_idnum(GET_IDNUM(vict)),
         genders[(int)GET_SEX(vict)], GET_LEVEL(vict),
-        player_race[(int)GET_RACE(vict)], char_class_abbrevs[GET_CLASS(vict)],
+        race_name_by_idnum(GET_RACE(vict)), char_class_abbrevs[GET_CLASS(vict)],
         remort_desc, GET_REMORT_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
@@ -7523,17 +7524,18 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
         }
         skip_spaces(&arg);
 
-        if ((i = search_block(arg, player_race, false)) < 0) {
+        struct race *race = race_by_name(arg, false);
+        if (!race) {
             send_to_char(ch, "Type olchelp race for a valid list.\r\n");
             goto escape;
         }
 
         sprintf(buf, "Mobiles with race %s%s%s:\r\n", CCYEL(ch, C_NRM),
-            player_race[i], CCNRM(ch, C_NRM));
+                race->name, CCNRM(ch, C_NRM));
 
         for (j = 0; cit; cit = cit->next) {
             mob = cit->data;
-            if (i == GET_RACE(mob)) {
+            if (race->idnum == GET_RACE(mob)) {
                 sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_NPC_VNUM(mob),
                     CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),

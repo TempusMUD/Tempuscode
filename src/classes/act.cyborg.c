@@ -27,6 +27,7 @@
 #include "utils.h"
 #include "accstr.h"
 #include "players.h"
+#include "race.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -2286,7 +2287,7 @@ ACMD(do_analyze)
         acc_sprintf("Name:                  %s%s%s\r\n", CCCYN(ch,
                 C_NRM), GET_NAME(vict), CCNRM(ch, C_NRM));
         acc_sprintf("Racial Classification: %s%s%s\r\n", CCCYN(ch, C_NRM),
-                    strlist_aref((int)GET_RACE(vict), player_race), CCNRM(ch, C_NRM));
+                    race_name_by_idnum(GET_RACE(vict)), CCNRM(ch, C_NRM));
         if (GET_CLASS(vict) < NUM_CLASSES) {
             acc_sprintf("Primary Occupation:    %s%s%s\r\n", CCCYN(ch, C_NRM),
                         strlist_aref((int)GET_CLASS(vict), class_names),

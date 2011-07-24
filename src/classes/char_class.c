@@ -46,6 +46,7 @@
 #include "tmpstr.h"
 #include "clan.h"
 #include "players.h"
+#include "race.h"
 
 extern struct room_data *world;
 
@@ -492,72 +493,6 @@ parse_player_class(char *arg)
     return CLASS_UNDEFINED;
 }
 
-const char *player_race[] = {
-    "Human",
-    "Elf",
-    "Dwarf",
-    "Half Orc",
-    "Klingon",
-    "Halfling",                 /* 5 */
-    "Tabaxi",
-    "Drow",
-    "ILL", "ILL",
-    "Mobile",                   /* 10 */
-    "Undead",
-    "Humanoid",
-    "Animal",
-    "Dragon",
-    "Giant",                    /* 15 */
-    "Orc",
-    "Goblin",
-    "Hafling",
-    "Minotaur",
-    "Troll",                    /* 20 */
-    "Golem",
-    "Elemental",
-    "Ogre",
-    "Devil",
-    "Trog",
-    "Manticore",
-    "Bugbear",
-    "Draconian",
-    "Duergar",
-    "Slaad",
-    "Robot",
-    "Demon",
-    "Deva",
-    "Plant",
-    "Archon",
-    "Pudding",
-    "Alien 1",
-    "Predator Alien",
-    "Slime",
-    "Illithid",                 /* 40 */
-    "Fish",
-    "Beholder",
-    "Gaseous",
-    "Githyanki",
-    "Insect",
-    "Daemon",
-    "Mephit",
-    "Kobold",
-    "Umber Hulk",
-    "Wemic",
-    "Rakshasa",
-    "Spider",                   /* 52 */
-    "Griffin",
-    "Rotarian",
-    "Half Elf",
-    "Celestial",
-    "Guardinal",
-    "Olympian",
-    "Yugoloth",
-    "Rowlahr",
-    "Githzerai",
-    "Faerie",
-    "\n"
-};
-
 const int race_lifespan[] = {
     80,                         /* human */
     400,                        /* elf */
@@ -585,13 +520,11 @@ const int race_lifespan[] = {
 int
 parse_race(char *arg)
 {
-    int j;
+    struct race *race = race_by_name(arg, false);
+    if (race)
+        return race->idnum;
 
-    for (j = 0; j < NUM_RACES; j++)
-        if (is_abbrev(arg, player_race[j]))
-            return j;
-
-    return (-1);
+    return -1;
 }
 
 int

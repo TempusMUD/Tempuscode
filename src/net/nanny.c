@@ -1419,7 +1419,7 @@ send_menu(struct descriptor_data *d)
             }
             send_to_desc(d, "    &r[&y%2d&r] &y%-20s %10s %10s %6s %s\r\n",
                 idx, GET_NAME(tmp_ch),
-                player_race[(int)GET_RACE(tmp_ch)],
+                race_name_by_idnum(GET_RACE(tmp_ch)),
                 class_names[GET_CLASS(tmp_ch)],
                 genders[(int)GET_SEX(tmp_ch)],
                 GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
@@ -1438,7 +1438,7 @@ send_menu(struct descriptor_data *d)
             tmp_ch = load_player_from_xml(get_char_by_index(d->account, idx));
             send_to_desc(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
                 idx, GET_NAME(tmp_ch),
-                player_race[(int)GET_RACE(tmp_ch)],
+                race_name_by_idnum(GET_RACE(tmp_ch)),
                 class_names[GET_CLASS(tmp_ch)],
                 genders[(int)GET_SEX(tmp_ch)],
                 GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
@@ -1457,7 +1457,7 @@ send_menu(struct descriptor_data *d)
             tmp_ch = load_player_from_xml(get_char_by_index(d->account, idx));
             send_to_desc(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
                 idx, GET_NAME(tmp_ch),
-                player_race[(int)GET_RACE(tmp_ch)],
+                race_name_by_idnum(GET_RACE(tmp_ch)),
                 class_names[GET_CLASS(tmp_ch)],
                 genders[(int)GET_SEX(tmp_ch)],
                 GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
@@ -2089,7 +2089,7 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
                     idx, name_str,
                     GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
                     sex_str,
-                    player_race[(int)GET_RACE(tmp_ch)],
+                    race_name_by_idnum(GET_RACE(tmp_ch)),
                     class_str, laston_str, status_str, mail_str);
         }
         idx++;

@@ -55,6 +55,36 @@ race_by_idnum(int idnum)
     return g_hash_table_lookup(races, GINT_TO_POINTER(idnum));
 }
 
+gboolean
+race_name_matches(gpointer key, struct race *race, char *name)
+{
+    return !strcasecmp(name, race->name);
+}
+
+gboolean
+race_name_abbrev(gpointer key, struct race *race, char *name)
+{
+    return is_abbrev(name, race->name);
+}
+
+struct race *
+race_by_name(const char *name, bool exact)
+{
+    if (exact)
+        return g_hash_table_find(races, (GHRFunc)race_name_matches, name);
+    else
+        return g_hash_table_find(races, (GHRFunc)race_name_abbrev, name);
+}
+
+const char *
+race_name_by_idnum(int idnum)
+{
+    struct race *race = race_by_idnum(idnum);
+    if (race)
+        return race->name;
+    return "ILLEGAL";
+}
+
 void
 boot_races(const char *path)
 {

@@ -1894,8 +1894,9 @@ show_olc_help(struct creature *ch, char *arg)
     case 10:
         strcpy(buf, "RACES:\r\n");
         for (i = 0; i < NUM_RACES; i++) {
+            struct race *race = race_by_idnum(i);
             sprintf(buf2, "%2d         %s%s%s\r\n",
-                i, CCCYN(ch, C_NRM), player_race[i], CCNRM(ch, C_NRM));
+                i, CCCYN(ch, C_NRM), race->name, CCNRM(ch, C_NRM));
             strcat(buf, buf2);
         }
         page_string(ch->desc, buf);

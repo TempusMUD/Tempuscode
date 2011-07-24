@@ -3,6 +3,7 @@
 
 /*
   #include <stdint.h>
+  #include <stdbool.h>
   #include <glib.h>
   #include "utils.h"
 */
@@ -90,6 +91,9 @@ struct race {
 extern GHashTable *races;
 
 struct race *race_by_idnum(int idnum);
+struct race *race_by_name(const char *name, bool exact);
+const char *race_name_by_idnum(int idnum);
+
 void boot_races(const char *path);
 int max_creature_str(struct creature *ch);
 int max_creature_int(struct creature *ch);

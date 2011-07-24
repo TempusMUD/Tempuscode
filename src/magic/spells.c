@@ -41,6 +41,7 @@
 #include "house.h"
 #include "players.h"
 
+#include "race.h"
 extern struct obj_data *object_list;
 
 extern struct descriptor_data *descriptor_list;
@@ -1237,7 +1238,7 @@ ASPELL(spell_identify)
                 age(victim).day, age(victim).hours);
         }
         send_to_char(ch, "Race: %s, Class: %s, Alignment: %d.\r\n",
-                     strlist_aref((int)MIN(NUM_RACES, GET_RACE(victim)), player_race),
+                     race_name_by_idnum(GET_RACE(victim)),
                      strlist_aref((int)MIN(TOP_CLASS, GET_CLASS(victim)), class_names),
                      GET_ALIGNMENT(victim));
         send_to_char(ch, "Height %d cm, Weight %d pounds\r\n",

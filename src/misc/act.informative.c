@@ -49,6 +49,7 @@
 #include "language.h"
 #include "house.h"
 #include "weather.h"
+#include "race.h"
 
 /* extern variables */
 extern int mini_mud;
@@ -86,7 +87,6 @@ extern const char *color_chemical[];
 extern const char *fullness[];
 extern const char *char_class_abbrevs[];
 extern const char *level_abbrevs[];
-extern const char *player_race[];
 extern const char *class_names[];
 extern const char *room_bits[];
 extern const char *sector_types[];
@@ -629,7 +629,7 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
             send_to_char(ch,
                 "%s appears to be a %d cm tall, %d pound %s %s.\r\n",
                 i->player.name, app_height, app_weight,
-                genders[(int)GET_SEX(i)], player_race[(int)GET_RACE(i)]);
+                genders[(int)GET_SEX(i)], race_name_by_idnum(GET_RACE(i)));
         }
     }
 
@@ -2749,7 +2749,7 @@ do_blind_score(struct creature *ch)
     acc_sprintf("You are a %d level, %d year old %s %s %s.\r\n",
                 GET_LEVEL(ch), GET_AGE(ch), genders[(int)GET_SEX(ch)],
                 (GET_RACE(ch) >= 0 && GET_RACE(ch) < NUM_RACES) ?
-                player_race[(int)GET_RACE(ch)] : "BAD RACE",
+                race_name_by_idnum(GET_RACE(ch)) : "BAD RACE",
                 (GET_CLASS(ch) >= 0 && GET_CLASS(ch) < TOP_CLASS) ?
                 class_names[(int)GET_CLASS(ch)] : "BAD CLASS");
 	if (!IS_NPC(ch) && IS_REMORT(ch))
@@ -2909,7 +2909,7 @@ ACMD(do_score)
         GET_NAME(ch),
         GET_AGE(ch), genders[(int)GET_SEX(ch)],
         (GET_RACE(ch) >= 0 && GET_RACE(ch) < NUM_RACES) ?
-        player_race[(int)GET_RACE(ch)] : "BAD RACE",
+        race_name_by_idnum(GET_RACE(ch)) : "BAD RACE",
         (GET_CLASS(ch) >= 0 && GET_CLASS(ch) < TOP_CLASS) ?
         class_names[(int)GET_CLASS(ch)] : "BAD CLASS", GET_LEVEL(ch));
     if (!IS_NPC(ch) && IS_REMORT(ch))
@@ -4295,7 +4295,7 @@ ACMD(do_attributes)
     send_to_char(ch, "%s", buf);
     send_to_char(ch, "        Name:  %s%20s%s        Race: %s%10s%s\r\n",
         CCRED(ch, C_SPR), GET_NAME(ch), CCWHT(ch, C_SPR), CCRED(ch, C_SPR),
-        player_race[(int)GET_RACE(ch)], CCWHT(ch, C_SPR));
+        race_name_by_idnum(GET_RACE(ch)), CCWHT(ch, C_SPR));
     send_to_char(ch, "        Class: %s%20s%s        Level: %s%9d%s\r\n\r\n",
         CCRED(ch, C_SPR), class_names[(int)GET_CLASS(ch)], CCWHT(ch, C_SPR),
         CCRED(ch, C_SPR), GET_LEVEL(ch), CCWHT(ch, C_SPR));

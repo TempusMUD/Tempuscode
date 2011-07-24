@@ -321,9 +321,9 @@ flow_room(int pulse)
                 }
             }
 
-            for (GList *it = first_living(rnum->people);it;it = next_living(it))  {
+            for (GList *it = first_living(rnum->people), *next;it;it = next)  {
                 struct creature *tch = it->data;
-
+                next = next_living(it);
                 flow_one_creature(tch, rnum, pulse, dir);
             }
 

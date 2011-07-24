@@ -193,7 +193,7 @@ parse_pc_race(struct descriptor_data *d, char *arg)
 
     last_match = -1;
     for (idx = 0; idx < NUM_PC_RACES; idx++) {
-        if (!is_abbrev(arg, player_race[(int)race_restr[idx][0]]))
+        if (!is_abbrev(arg, race_name_by_idnum(race_restr[idx][0])))
             continue;
         last_match = race_restr[idx][0];
         if (race_restr[idx][GET_CLASS(d->creature) + 1] != 2)

@@ -149,8 +149,6 @@ translate_with_tongue(struct tongue *tongue, const char *phrase, int amount)
 
 GHashTable *tongues;
 
-extern const char *player_race[];
-
 const char *race_tongue[][2] = {
     {"Human", "modriatic"},
     {"Elf", "elvish"},
@@ -304,7 +302,7 @@ find_tongue_by_idnum(int tongue_id)
 int
 racial_tongue(int race_idx)
 {
-    const char *race_name = player_race[race_idx];
+    const char *race_name = race_name_by_idnum(race_idx);
     char *tongue_name = NULL;
 
     for (int x = 0; *race_tongue[x][0] != '\n'; x++) {

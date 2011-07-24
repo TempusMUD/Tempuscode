@@ -459,7 +459,7 @@ save_player_to_file(struct creature *ch, const char *path)
     fprintf(ouf,
         "<stats level=\"%d\" sex=\"%s\" race=\"%s\" height=\"%d\" weight=\"%d\" align=\"%d\"/>\n",
         GET_LEVEL(ch), genders[(int)GET_SEX(ch)],
-        player_race[(int)GET_RACE(ch)], GET_HEIGHT(ch), GET_WEIGHT(ch),
+        race_name_by_idnum(GET_RACE(ch)), GET_HEIGHT(ch), GET_WEIGHT(ch),
         GET_ALIGNMENT(ch));
 
     fprintf(ouf, "<class name=\"%s\"", class_names[GET_CLASS(ch)]);
@@ -750,10 +750,14 @@ load_player_from_file(const char *path)
             free(sex);
 
             GET_RACE(ch) = 0;
-            char *race = (char *)xmlGetProp(node, (xmlChar *) "race");
-            if (race != NULL)
-                GET_RACE(ch) = search_block(race, player_race, false);
-            free(race);
+            char *race_name = (char *)xmlGetProp(node, (xmlChar *) "race");
+            if (race_name != NULL) {
+                struct race *race = race_by_name(race_name, true);
+                if (race != NULL) {
+                    GET_RACE(ch) = race->idnum;
+                }
+            }
+            free(race_name);
 
         } else if (xmlMatches(node->name, "class")) {
             GET_OLD_CLASS(ch) = GET_REMORT_CLASS(ch) = GET_CLASS(ch) = -1;

@@ -215,7 +215,7 @@ perform_net_finger(struct creature *ch, const char *arg)
         "Name:  %s, Level %d %s %s.\r\n"
         "Logged in at: %s.\r\n",
         GET_NAME(vict), GET_LEVEL(vict),
-        player_race[(int)GET_RACE(vict)],
+                 race_name_by_idnum(GET_RACE(vict)),
         class_names[(int)GET_CLASS(vict)],
         vict->in_room != NULL ? ch->in_room->name : "NOWHERE");
 }
