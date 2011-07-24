@@ -1326,128 +1326,18 @@ const int exp_scale[LVL_GRIMP + 2] = {
     2000000012,
     2000000013
 };
-
-int
-get_max_str(struct creature *ch)
-{
-    return MIN(GET_REMORT_GEN(ch) + 18 +
-               ((IS_NPC(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
-               (IS_MINOTAUR(ch) ? 2 : 0) +
-               (IS_DWARF(ch) ? 1 : 0) +
-               (IS_HALFLING(ch) ? -2 : 0) +
-               (IS_HALF_ORC(ch) ? 2 : 0) +
-               (IS_ORC(ch) ? 1 : 0), 25);
-}
-
-int
-get_max_int(struct creature *ch)
-{
-    return (IS_NPC(ch) ? 25 :
-            MIN(25, 18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-                ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0) +
-                (IS_MINOTAUR(ch) ? -2 : 0) +
-                (IS_TABAXI(ch) ? -1 : 0) +
-                (IS_ORC(ch) ? -1 : 0) +
-                (IS_HALF_ORC(ch) ? -1 : 0)));
-}
-
-int
-get_max_wis(struct creature *ch)
-{
-    return (IS_NPC(ch) ? 25 :
-        MIN(25, (18 + GET_REMORT_GEN(ch)) +
-            (IS_MINOTAUR(ch) ? -2 : 0) +
-            (IS_HALF_ORC(ch) ? -2 : 0) +
-            (IS_TABAXI(ch) ? -2 : 0)));
-}
-
-int
-get_max_dex(struct creature *ch)
-{
-    return (IS_NPC(ch) ? 25 :
-        MIN(25,
-            18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-            ((IS_TABAXI(ch) || IS_HALFLING(ch)) ? 2 : 0) +
-            ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0)));
-}
-
-int
-get_max_con(struct creature *ch)
-{
-    return (IS_NPC(ch) ? 25 :
-        MIN(25,
-            18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-            ((IS_MINOTAUR(ch) || IS_DWARF(ch)) ? 1 : 0) +
-            (IS_TABAXI(ch) ? 1 : 0) +
-            (IS_HALF_ORC(ch) ? 1 : 0) +
-            (IS_ORC(ch) ? 2 : 0) + ((IS_ELF(ch) || IS_DROW(ch)) ? -1 : 0)));
-}
-
-int
-get_max_cha(struct creature *ch)
-{
-    return (IS_NPC(ch) ? 25 :
-        MIN(25,
-            18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-            (IS_HALF_ORC(ch) ? -3 : 0) +
-            (IS_ORC(ch) ? -3 : 0) +
-            (IS_DWARF(ch) ? -1 : 0) + (IS_TABAXI(ch) ? -2 : 0)));
-}
-
 void
 calculate_height_weight(struct creature *ch)
 {
-    /* make favors for sex ... and race */// after keep
-    if (ch->player.sex == SEX_MALE) {
-        if (GET_RACE(ch) == RACE_HUMAN) {
-            ch->player.weight = number(130, 180) + GET_STR(ch);
-            ch->player.height = number(140, 190) + (GET_WEIGHT(ch) / 8);
-        } else if (GET_RACE(ch) == RACE_TABAXI) {
-            ch->player.weight = number(110, 160) + GET_STR(ch);
-            ch->player.height = number(160, 200) + (GET_WEIGHT(ch) / 8);
-        } else if (GET_RACE(ch) == RACE_HALFLING) {
-            ch->player.weight = number(70, 80) + GET_STR(ch);
-            ch->player.height = number(81, 100) + (GET_WEIGHT(ch) / 16);
-        } else if (GET_RACE(ch) == RACE_DWARF) {
-            ch->player.weight = number(120, 160) + GET_STR(ch);
-            ch->player.height = number(100, 125) + (GET_WEIGHT(ch) / 16);
-        } else if (IS_ELF(ch) || IS_DROW(ch)) {
-            ch->player.weight = number(120, 180) + GET_STR(ch);
-            ch->player.height = number(140, 165) + (GET_WEIGHT(ch) / 8);
-        } else if (GET_RACE(ch) == RACE_HALF_ORC) {
-            ch->player.weight = number(120, 180) + GET_STR(ch);
-            ch->player.height = number(120, 200) + (GET_WEIGHT(ch) / 16);
-        } else if (GET_RACE(ch) == RACE_MINOTAUR) {
-            ch->player.weight = number(200, 360) + GET_STR(ch);
-            ch->player.height = number(140, 190) + (GET_WEIGHT(ch) / 8);
-        } else {
-            ch->player.weight = number(130, 180) + GET_STR(ch);
-            ch->player.height = number(140, 190) + (GET_WEIGHT(ch) / 8);
-        }
-    } else {
-        if (GET_RACE(ch) == RACE_HUMAN) {
-            ch->player.weight = number(90, 150) + GET_STR(ch);
-            ch->player.height = number(140, 170) + (GET_WEIGHT(ch) / 8);
-        } else if (GET_RACE(ch) == RACE_TABAXI) {
-            ch->player.weight = number(80, 120) + GET_STR(ch);
-            ch->player.height = number(160, 190) + (GET_WEIGHT(ch) / 8);
-        } else if (GET_RACE(ch) == RACE_HALFLING) {
-            ch->player.weight = number(70, 80) + GET_STR(ch);
-            ch->player.height = number(81, 100) + (GET_WEIGHT(ch) / 16);
-        } else if (GET_RACE(ch) == RACE_DWARF) {
-            ch->player.weight = number(100, 140) + GET_STR(ch);
-            ch->player.height = number(90, 115) + (GET_WEIGHT(ch) / 16);
-        } else if (IS_ELF(ch) || IS_DROW(ch)) {
-            ch->player.weight = number(90, 130) + GET_STR(ch);
-            ch->player.height = number(120, 155) + (GET_WEIGHT(ch) / 8);
-        } else if (GET_RACE(ch) == RACE_HALF_ORC) {
-            ch->player.weight = number(110, 170) + GET_STR(ch);
-            ch->player.height = number(110, 190) + (GET_WEIGHT(ch) / 8);
-        } else {
-            ch->player.weight = number(90, 150) + GET_STR(ch);
-            ch->player.height = number(140, 170) + (GET_WEIGHT(ch) / 8);
-        }
-    }
+    struct race *race = race_by_idnum(GET_RACE(ch));
+    int sex = ch->player.sex;
+
+    ch->player.weight = number(race->weight_min[sex],
+                               race->weight_max[sex])
+        + GET_STR(ch);
+    ch->player.height = number(race->height_min[sex],
+                               race->height_max[sex])
+        + ch->player.weight / race->weight_add[sex];
 }
 
 #undef __char_class_c__

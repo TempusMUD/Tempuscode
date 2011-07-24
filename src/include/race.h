@@ -88,9 +88,18 @@ struct race {
     int8_t cha_mod;
     int age_adjust;
     int lifespan;
+
+    /* Intrinsic affects */
     int aff1;
     int aff2;
     int aff3;
+
+    /* Weight min and max for each sex */
+    int weight_min[3];
+    int weight_max[3];
+    int height_min[3];
+    int height_max[3];
+    int weight_add[3];          /* Portion of weight adding to height */
 };
 
 extern GHashTable *races;

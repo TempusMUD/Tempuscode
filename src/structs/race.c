@@ -7,7 +7,7 @@
 
 GHashTable *races = NULL;
 
-struct race *
+static struct race *
 make_race(void)
 {
     struct race *race;
@@ -19,14 +19,24 @@ make_race(void)
     return race;
 }
 
-void
-free_race(struct race *race)
+static void
+parse_racial_sex(struct race *race, xmlNodePtr node)
 {
-    free(race->name);
-    free(race);
-}
+    int sex_id = xmlGetIntProp(node, "idnum", 0);
 
-struct race *
+    for (xmlNodePtr child = node->children; child; child = child->next) {
+        if (xmlMatches(child->name, "weight")) {
+            race->weight_min[sex_id] = xmlGetIntProp(child, "weight_min", 130);
+            race->weight_max[sex_id] = xmlGetIntProp(child, "weight_max", 180);
+        } else if (xmlMatches(child->name, "height")) {
+            race->height_min[sex_id] = xmlGetIntProp(child, "height_min", 140);
+            race->height_max[sex_id] = xmlGetIntProp(child, "height_max", 190);
+            race->weight_add[sex_id] = xmlGetIntProp(child, "weight_add", 8);
+        }
+    }
+ }
+
+static struct race *
 load_race(xmlNodePtr node)
 {
     struct race *race = make_race();
@@ -45,8 +55,7 @@ load_race(xmlNodePtr node)
             race->dex_mod = xmlGetIntProp(child, "dex", 0);
             race->con_mod = xmlGetIntProp(child, "con", 0);
             race->cha_mod = xmlGetIntProp(child, "cha", 0);
-        }
-        else if (xmlMatches(child->name, "age")) {
+        } else if (xmlMatches(child->name, "age")) {
             race->age_adjust = xmlGetIntProp(child, "adjust", 13);
             race->lifespan = xmlGetIntProp(child, "lifespan", 100);
         } else if (xmlMatches(child->name, "intrinsic")) {
@@ -62,8 +71,9 @@ load_race(xmlNodePtr node)
                 }
                 free(aff);
             }
+        } else if (xmlMatches(child->name, "sex")) {
+            parse_racial_sex(race, child);
         }
-
     }
 
     return race;
@@ -75,13 +85,13 @@ race_by_idnum(int idnum)
     return g_hash_table_lookup(races, GINT_TO_POINTER(idnum));
 }
 
-gboolean
+static gboolean
 race_name_matches(gpointer key, struct race *race, const char *name)
 {
     return !strcasecmp(name, race->name);
 }
 
-gboolean
+static gboolean
 race_name_abbrev(gpointer key, struct race *race, const char *name)
 {
     return is_abbrev(name, race->name);
