@@ -149,72 +149,6 @@ translate_with_tongue(struct tongue *tongue, const char *phrase, int amount)
 
 GHashTable *tongues;
 
-const char *race_tongue[][2] = {
-    {"Human", "modriatic"},
-    {"Elf", "elvish"},
-    {"Dwarf", "dwarven"},
-    {"Half Orc", "orcish"},
-    {"Klingon", "klingon"},
-    {"Halfling", "hobbish"},
-    {"Tabaxi", "sylvan"},
-    {"Drow", "underdark"},
-    {"ILL", ""},
-    {"ILL", ""},
-    {"Mobile", ""},
-    {"Undead", "deadite"},
-    {"Humanoid", ""},
-    {"Animal", ""},
-    {"Dragon", "draconian"},
-    {"Giant", "ogrish"},
-    {"Orc", "orcish"},
-    {"Goblin", "mordorian"},
-    {"Hafling", "hobbish"},
-    {"Minotaur", "daedalus"},
-    {"Troll", "trollish"},
-    {"Golem", ""},
-    {"Elemental", "elemental"},
-    {"Ogre", "ogrish"},
-    {"Devil", "infernum"},
-    {"Trog", "trogish"},
-    {"Manticore", "manticora"},
-    {"Bugbear", "ghennish"},
-    {"Draconian", "draconian"},
-    {"Duergar", "underdark"},
-    {"Slaad", "astral"},
-    {"Robot", "centralian"},
-    {"Demon", "abyssal"},
-    {"Deva", "abyssal"},
-    {"Plant", ""},
-    {"Archon", "celestial"},
-    {"Pudding", ""},
-    {"Alien 1", "inconnu"},
-    {"Predator Alien", "inconnu"},
-    {"Slime", ""},
-    {"Illithid", "sibilant"},
-    {"Fish", ""},
-    {"Beholder", "underdark"},
-    {"Gaseous", "elemental"},
-    {"Githyanki", "gish"},
-    {"Insect", ""},
-    {"Daemon", "abyssal"},
-    {"Mephit", "elemental"},
-    {"Kobold", "kobolas"},
-    {"Umber Hulk", "underdark"},
-    {"Wemic", "kalerrian"},
-    {"Rakshasa", "rakshasian"},
-    {"Spider", ""},
-    {"Griffin", "gryphus"},
-    {"Rotarian", "rotarial"},
-    {"Half Elf", "elvish"},
-    {"Celestial", "celestial"},
-    {"Guardinal", "elysian"},
-    {"Olympian", "greek"},
-    {"Yugoloth", "all"},
-    {"Rowlahr", ""},
-    {"Githzerai", "gish"},
-    {"\n", "\n"},
-};
-
 void
 boot_tongues(const char *path)
 {
@@ -302,18 +236,10 @@ find_tongue_by_idnum(int tongue_id)
 int
 racial_tongue(int race_idx)
 {
-    const char *race_name = race_name_by_idnum(race_idx);
-    char *tongue_name = NULL;
+    struct race *race = race_by_idnum(race_idx);
 
-    for (int x = 0; *race_tongue[x][0] != '\n'; x++) {
-        if (!strcmp(race_tongue[x][0], race_name)) {
-            tongue_name = tmp_strdup(race_tongue[x][1]);
-            break;
-        }
-    }
-
-    if (tongue_name)
-        return find_tongue_idx_by_name(tongue_name);
+    if (race)
+        return race->tongue;
 
     return TONGUE_NONE;
 }
@@ -541,18 +467,8 @@ show_language_help(struct creature *ch)
     while (g_hash_table_iter_next(&iter, &key, &val)) {
         struct tongue *tongue = val;
 
-        acc_sprintf("%2d         %s%-10s     [ %s",
+        acc_sprintf("%2d         %s%-10s%s",
             tongue->idnum, CCCYN(ch, C_NRM), tongue->name, CCNRM(ch, C_NRM));
-        bool printed = false;
-        for (int y = 0; *race_tongue[y][0] != '\n'; y++) {
-            if (!strcmp(race_tongue[y][1], tongue->name)) {
-                if (printed)
-                    acc_strcat(", ", NULL);
-                acc_strcat(race_tongue[y][0], NULL);
-                printed = true;
-            }
-        }
-        acc_sprintf(" %s]%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     page_string(ch->desc, acc_get_string());
 }

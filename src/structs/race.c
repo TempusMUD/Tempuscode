@@ -3,6 +3,7 @@
 
 #include "creature.h"
 #include "utils.h"
+#include "language.h"
 #include "race.h"
 
 GHashTable *races = NULL;
@@ -15,6 +16,7 @@ make_race(void)
     CREATE(race, struct race, 1);
     race->age_adjust = 13;
     race->lifespan = 100;
+    race->tongue = TONGUE_NONE;
 
     return race;
 }
@@ -58,6 +60,12 @@ load_race(xmlNodePtr node)
         } else if (xmlMatches(child->name, "age")) {
             race->age_adjust = xmlGetIntProp(child, "adjust", 13);
             race->lifespan = xmlGetIntProp(child, "lifespan", 100);
+        } else if (xmlMatches(child->name, "tongue")) {
+            char *tongue_name = (char *)xmlGetProp(child, "name");
+            if (tongue_name) {
+                race->tongue = find_tongue_idx_by_name(tongue_name);
+                free(tongue_name);
+            }
         } else if (xmlMatches(child->name, "intrinsic")) {
             char *aff = (char *)xmlGetProp(child, (xmlChar *)"affect");
             if (aff) {

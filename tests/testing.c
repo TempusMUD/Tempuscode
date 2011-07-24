@@ -49,8 +49,8 @@ test_tempus_boot(void)
     }
     tmp_string_init();
     account_boot();
-    boot_races("etc/races.xml");
     boot_tongues("etc/tongues.xml");
+    boot_races("etc/races.xml");
     boot_spells("etc/spells.xml");
     qlogfile = fopen(QLOGFILENAME, "a");
 

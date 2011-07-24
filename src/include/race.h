@@ -78,21 +78,24 @@ enum race_num {
 };
 
 struct race {
-    int idnum;
+    uint8_t idnum;
     char *name;
+    int age_adjust;
+    int lifespan;
+    int8_t tongue;
+
+    /* Attribute modifiers */
     int8_t str_mod;
     int8_t int_mod;
     int8_t wis_mod;
     int8_t dex_mod;
     int8_t con_mod;
     int8_t cha_mod;
-    int age_adjust;
-    int lifespan;
 
     /* Intrinsic affects */
-    int aff1;
-    int aff2;
-    int aff3;
+    uint32_t aff1;
+    uint32_t aff2;
+    uint32_t aff3;
 
     /* Weight min and max for each sex */
     int weight_min[3];

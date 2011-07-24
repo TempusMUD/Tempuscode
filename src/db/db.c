@@ -370,10 +370,10 @@ boot_db(void)
     file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
     file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
 
-    slog("Loading races");
-    boot_races("etc/races.xml");
     slog("Loading tongues.");
     boot_tongues("etc/tongues.xml");
+    slog("Loading races");
+    boot_races("etc/races.xml");
     slog("Loading NPC voices.");
     boot_voices();
 
