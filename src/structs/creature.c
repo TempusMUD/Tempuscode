@@ -543,9 +543,7 @@ level_bonus(struct creature *ch, bool primary)
         if ((ch->player.remort_char_class % NUM_CLASSES) == 0) {
             gen = 0;
         } else {
-            gen =
-                (ch->aff_abils.intel + ch->aff_abils.str +
-                ch->aff_abils.wis) / 3;
+            gen = (GET_INT(ch) + GET_STR(ch) + GET_WIS(ch)) / 3;
             gen = MAX(0, gen - 18);
         }
     }
@@ -553,9 +551,9 @@ level_bonus(struct creature *ch, bool primary)
     if (gen == 0) {
         return bonus;
     } else {
-        if (primary) {          // Primary. Give full remort bonus per gen.
+        if (primary) {     // Primary. Give full remort bonus per gen.
             return bonus + (MIN(gen, 10)) * 5;
-        } else {                // Secondary. Give less level bonus and less remort bonus.
+        } else { // Secondary. Give less level bonus and less remort bonus.
             return (bonus * 3 / 4) + (MIN(gen, 10) * 3);
         }
     }
@@ -1687,4 +1685,53 @@ int
 creature_breath_threshold(struct creature *ch)
 {
     return GET_LEVEL(ch) / 32 + 2;
+}
+
+int
+max_creature_attr(struct creature *ch, int mode)
+{
+    if (IS_NPC(ch) || IS_IMMORT(ch))
+        return (mode == ATTR_STR) ? 35:25;
+
+    struct race *race = race_by_idnum(GET_RACE(ch));
+    int max_stat = 18;
+
+    if (IS_REMORT(ch))
+        max_stat += GET_REMORT_GEN(ch);
+
+    if (race) {
+        switch (mode) {
+        case ATTR_STR:
+            max_stat += race->str_mod;
+            break;
+        case ATTR_INT:
+            max_stat += race->int_mod;
+            break;
+        case ATTR_WIS:
+            max_stat += race->wis_mod;
+            break;
+        case ATTR_DEX:
+            max_stat += race->dex_mod;
+            break;
+        case ATTR_CON:
+            max_stat += race->con_mod;
+            break;
+        case ATTR_CHA:
+            max_stat += race->cha_mod;
+            break;
+        }
+    }
+
+    return MIN(max_stat, (mode == ATTR_STR) ? 35:25);
+}
+
+char *
+format_strength(int str)
+{
+    if (str < 18)
+        return tmp_sprintf("%d", str);
+    else if (str > 28)
+        return tmp_sprintf("%d", str - 10);
+    else
+        return tmp_sprintf("18/%02d", (str - 18) * 10);
 }

@@ -1253,9 +1253,13 @@ ASPELL(spell_identify)
                      GET_REAL_HITROLL(victim),
                      GET_DAMROLL(victim));
         send_to_char(ch,
-            "Str: %d/%d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
-            GET_STR(victim), GET_ADD(victim), GET_INT(victim), GET_WIS(victim),
-            GET_DEX(victim), GET_CON(victim), GET_CHA(victim));
+            "Str: %s, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
+                     format_strength(GET_STR(victim)),
+                     GET_INT(victim),
+                     GET_WIS(victim),
+                     GET_DEX(victim),
+                     GET_CON(victim),
+                     GET_CHA(victim));
 
     }
 }
@@ -1371,10 +1375,10 @@ ASPELL(spell_minor_identify)
         send_to_char(ch, "AC: %d, Hitroll: %d, Damroll: %d\r\n",
             GET_AC(victim), GET_HITROLL(victim), GET_DAMROLL(victim));
         send_to_char(ch,
-            "Str: %d/%d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
-            GET_STR(victim), GET_ADD(victim), GET_INT(victim),
-            GET_WIS(victim), GET_DEX(victim), GET_CON(victim),
-            GET_CHA(victim));
+                     "Str: %s, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
+                     format_strength(GET_STR(victim)), GET_INT(victim),
+                     GET_WIS(victim), GET_DEX(victim), GET_CON(victim),
+                     GET_CHA(victim));
 
     }
 }

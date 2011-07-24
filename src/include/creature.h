@@ -16,8 +16,18 @@
 #include "account.h"
 #include "desc_data.h"
 #include "interpreter.h"
+#include "race.h"
 
 /* char and mob-related defines *****************************************/
+
+enum {
+    ATTR_STR,
+    ATTR_INT,
+    ATTR_WIS,
+    ATTR_DEX,
+    ATTR_CON,
+    ATTR_CHA,
+};
 
 /* Rent codes */
 enum rent_codes {
@@ -139,73 +149,6 @@ enum char_class {
     CLASS_DIETY = 179,
 
     TOP_CLASS = 180,
-};
-
-enum race {
-    RACE_UNDEFINED = -1,
-    RACE_HUMAN = 0,
-    RACE_ELF = 1,
-    RACE_DWARF = 2,
-    RACE_HALF_ORC = 3,
-    RACE_KLINGON = 4,
-    RACE_HALFLING = 5,
-    RACE_TABAXI = 6,
-    RACE_DROW = 7,
-    RACE_MOBILE = 10,
-    RACE_UNDEAD = 11,
-    RACE_HUMANOID = 12,
-    RACE_ANIMAL = 13,
-    RACE_DRAGON = 14,
-    RACE_GIANT = 15,
-    RACE_ORC = 16,
-    RACE_GOBLIN = 17,
-    RACE_HAFLING = 18,
-    RACE_MINOTAUR = 19,
-    RACE_TROLL = 20,
-    RACE_GOLEM = 21,
-    RACE_ELEMENTAL = 22,
-    RACE_OGRE = 23,
-    RACE_DEVIL = 24,
-    RACE_TROGLODYTE = 25,
-    RACE_MANTICORE = 26,
-    RACE_BUGBEAR = 27,
-    RACE_DRACONIAN = 28,
-    RACE_DUERGAR = 29,
-    RACE_SLAAD = 30,
-    RACE_ROBOT = 31,
-    RACE_DEMON = 32,
-    RACE_DEVA = 33,
-    RACE_PLANT = 34,
-    RACE_ARCHON = 35,
-    RACE_PUDDING = 36,
-    RACE_ALIEN_1 = 37,
-    RACE_PRED_ALIEN = 38,
-    RACE_SLIME = 39,
-    RACE_ILLITHID = 40,
-    RACE_FISH = 41,
-    RACE_BEHOLDER = 42,
-    RACE_GASEOUS = 43,
-    RACE_GITHYANKI = 44,
-    RACE_INSECT = 45,
-    RACE_DAEMON = 46,
-    RACE_MEPHIT = 47,
-    RACE_KOBOLD = 48,
-    RACE_UMBER_HULK = 49,
-    RACE_WEMIC = 50,
-    RACE_RAKSHASA = 51,
-    RACE_SPIDER = 52,
-    RACE_GRIFFIN = 53,
-    RACE_ROTARIAN = 54,
-    RACE_HALF_ELF = 55,
-    RACE_CELESTIAL = 56,
-    RACE_GUARDINAL = 57,
-    RACE_OLYMPIAN = 58,
-    RACE_YUGOLOTH = 59,
-    RACE_ROWLAHR = 60,
-    RACE_GITHZERAI = 61,
-    RACE_FAERIE = 62,
-    NUM_RACES = 63,
-    NUM_PC_RACES = 9,
 };
 
 // Hometown defines
@@ -714,8 +657,7 @@ struct char_player_data {
 
 /* Char's abilities. */
 struct char_ability_data {
-    sbyte str;
-	sbyte str_add;				/* 000 - 100 if strength 18             */
+    sbyte str;                  /* 1 - 35 */
 	sbyte intel;
 	sbyte wis;
 	sbyte dex;
@@ -1042,5 +984,8 @@ bool creature_npk_die(struct creature *ch);
 bool creature_arena_die(struct creature *ch);
 bool creature_purge(struct creature *ch, bool destroy_obj);
 bool creature_remort(struct creature *ch);
+
+int max_creature_attr(struct creature *ch, int mode);
+char *format_strength(int str);
 
 #endif

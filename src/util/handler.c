@@ -202,8 +202,6 @@ affect_modify(struct creature *ch, sh_int loc, sh_int mod, long bitv,
         break;
     case APPLY_STR:
         GET_STR(ch) += mod;
-        GET_STR(ch) += GET_ADD(ch) / 10;
-        GET_ADD(ch) = 0;
         break;
     case APPLY_DEX:
         GET_DEX(ch) += mod;
@@ -392,10 +390,6 @@ affect_total(struct creature *ch)
 {
     struct affected_type *af;
     int i;
-    int max_intel, max_dex, max_wis, max_con, max_cha;
-
-    if (GET_STR(ch) > 18)
-        GET_STR(ch) += 10;
 
     // remove all item-based affects
     for (i = 0; i < NUM_WEARS; i++) {
@@ -414,9 +408,6 @@ affect_total(struct creature *ch)
      ************************************************************************/
 
     ch->aff_abils = ch->real_abils;
-
-    if (GET_STR(ch) > 18)
-        GET_STR(ch) += 10;
 
     for (i = 0; i < 10; i++)
         GET_SAVE(ch, i) = 0;
@@ -446,77 +437,26 @@ affect_total(struct creature *ch)
             af->aff_index, true);
 
     /* Make certain values are between 0..25, not < 0 and not > 25! */
-    max_dex = (IS_NPC(ch) ? 25 :
-        MIN(25,
-            18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-            (IS_TABAXI(ch) ? 2 : 0) + ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0)));
+    int max_str, max_intel, max_dex, max_wis, max_con, max_cha;
+    max_str = max_creature_attr(ch, ATTR_STR);
+    max_dex = max_creature_attr(ch, ATTR_DEX);
+    max_intel = max_creature_attr(ch, ATTR_INT);
+    max_wis = max_creature_attr(ch, ATTR_WIS);
+    max_con = max_creature_attr(ch, ATTR_CON);
+    max_cha = max_creature_attr(ch, ATTR_CHA);
 
-    max_intel = (IS_NPC(ch) ? 25 :
-        MIN(25,
-            18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-            ((IS_ELF(ch) || IS_DROW(ch)) ? 1 : 0) +
-            (IS_MINOTAUR(ch) ? -2 : 0) +
-            (IS_TABAXI(ch) ? -1 : 0) +
-            (IS_ORC(ch) ? -1 : 0) + (IS_HALF_ORC(ch) ? -1 : 0)));
-
-    max_wis = (IS_NPC(ch) ? 25 :
-        MIN(25, (18 + GET_REMORT_GEN(ch)) +
-            (IS_MINOTAUR(ch) ? -2 : 0) + (IS_HALF_ORC(ch) ? -2 : 0) +
-            (IS_TABAXI(ch) ? -2 : 0)));
-
-    max_con = (IS_NPC(ch) ? 25 :
-        MIN(25,
-            18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-            ((IS_MINOTAUR(ch) || IS_DWARF(ch)) ? 1 : 0) +
-            (IS_TABAXI(ch) ? 1 : 0) +
-            (IS_HALF_ORC(ch) ? 1 : 0) +
-            (IS_ORC(ch) ? 2 : 0) + ((IS_ELF(ch) || IS_DROW(ch)) ? -1 : 0)));
-
-    max_cha = (IS_NPC(ch) ? 25 :
-        MIN(25,
-            18 + (IS_REMORT(ch) ? GET_REMORT_GEN(ch) : 0) +
-            (IS_HALF_ORC(ch) ? -3 : 0) +
-            (IS_ORC(ch) ? -3 : 0) +
-            (IS_DWARF(ch) ? -1 : 0) + (IS_TABAXI(ch) ? -2 : 0)));
-
+    GET_STR(ch) = MAX(1, MIN(GET_STR(ch), max_str));
     GET_DEX(ch) = MAX(1, MIN(GET_DEX(ch), max_dex));
     GET_INT(ch) = MAX(1, MIN(GET_INT(ch), max_intel));
     GET_WIS(ch) = MAX(1, MIN(GET_WIS(ch), max_wis));
     GET_CON(ch) = MAX(1, MIN(GET_CON(ch), max_con));
     GET_CHA(ch) = MAX(1, MIN(GET_CHA(ch), max_cha));
-    GET_STR(ch) = MAX(1, GET_STR(ch));
 
     /* Make sure that HIT !> MAX_HIT, etc...               */
 
     GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch));
     GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch));
     GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch));
-
-    i = GET_STR(ch);
-    i += GET_ADD(ch) / 10;
-    if (i > 28) {
-        if (IS_REMORT(ch) || IS_MINOTAUR(ch) || IS_NPC(ch) ||
-            IS_HALF_ORC(ch) || IS_DWARF(ch) || IS_ORC(ch) ||
-            GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-            i -= 10;
-            GET_STR(ch) = MIN(i,
-                MIN(GET_REMORT_GEN(ch) + 18 +
-                    ((IS_NPC(ch) ||
-                            GET_LEVEL(ch) >= LVL_AMBASSADOR) ? 8 : 0) +
-                    (IS_MINOTAUR(ch) ? 2 : 0) +
-                    (IS_DWARF(ch) ? 1 : 0) +
-                    (IS_HALF_ORC(ch) ? 2 : 0) + (IS_ORC(ch) ? 1 : 0), 25));
-            GET_ADD(ch) = 0;
-        } else {
-            GET_STR(ch) = 18;
-            GET_ADD(ch) = 100;
-        }
-    } else if (i > 18) {
-        GET_STR(ch) = 18;
-        GET_ADD(ch) = (i - 18) * 10;
-    } else
-        GET_ADD(ch) = 0;
-
 }
 
 /* Insert an affect_type in a struct creature structure

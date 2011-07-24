@@ -4064,9 +4064,8 @@ void
 print_attributes_to_buf(struct creature *ch, char *buff)
 {
 
-    sbyte str, stradd, intel, wis, dex, con, cha;
+    sbyte str, intel, wis, dex, con, cha;
     str = GET_STR(ch);
-    stradd = GET_ADD(ch);
     intel = GET_INT(ch);
     wis = GET_WIS(ch);
     dex = GET_DEX(ch);
@@ -4079,7 +4078,7 @@ print_attributes_to_buf(struct creature *ch, char *buff)
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
-        strcat(buff, tmp_sprintf(" [%d/%d]", str, stradd));
+        strcat(buff, tmp_sprintf(" [%s]", format_strength(str)));
     if (str <= 3)
         strcat(buff, "You can barely stand up under your own weight.");
     else if (str <= 4)
@@ -4103,34 +4102,34 @@ print_attributes_to_buf(struct creature *ch, char *buff)
         strcat(buff, "You are a damn nice specimen.");
     else if (str < 18)
         strcat(buff, "You are very strong.");
-    else if (str == 18 && stradd <= 20)
+    else if (str <= 20)
         strcat(buff, "You are extremely strong.");
-    else if (str == 18 && stradd <= 50)
+    else if (str <= 23)
         strcat(buff, "You are exceptionally strong.");
-    else if (str == 18 && stradd <= 70)
+    else if (str <= 25)
         strcat(buff, "Your strength is awe inspiring.");
-    else if (str == 18 && stradd <= 90)
+    else if (str <= 27)
         strcat(buff, "Your strength is super-human.");
-    else if (str == 18)
+    else if (str == 28)
         strcat(buff, "Your strength is at the human peak!");
-    else if (str == 19)
+    else if (str == 29)
         strcat(buff, "You have the strength of a hill giant!");
-    else if (str == 20)
+    else if (str == 30)
         strcat(buff, "You have the strength of a stone giant!");
-    else if (str == 21)
+    else if (str == 31)
         strcat(buff, "You have the strength of a frost giant!");
-    else if (str == 22)
+    else if (str == 32)
         strcat(buff, "You can toss boulders with ease!");
-    else if (str == 23)
+    else if (str == 33)
         strcat(buff, "You have the strength of a cloud giant!");
-    else if (str == 24)
+    else if (str == 34)
         strcat(buff, "You possess a herculean might!");
-    else if (str == 25)
+    else if (str == 35)
         strcat(buff, "You have the strength of a god!");
     else
         strcat(buff, "Your strength is SKREWD.");
 
-    if (str != ch->real_abils.str || stradd != ch->real_abils.str_add)
+    if (str != ch->real_abils.str)
         strcat(buff, buf2);
     strcat(buff, "\r\n");
 

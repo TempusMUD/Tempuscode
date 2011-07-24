@@ -49,6 +49,7 @@ test_tempus_boot(void)
     }
     tmp_string_init();
     account_boot();
+    boot_races("etc/races.xml");
     boot_tongues("etc/tongues.xml");
     boot_spells("etc/spells.xml");
     qlogfile = fopen(QLOGFILENAME, "a");
@@ -112,14 +113,12 @@ randomize_creature(struct creature *ch, int char_class)
     ch->player.time.logon = now - number(0, 100000);
     ch->player.time.played = number(0, 100000);
 
-    ch->real_abils.str = number(3, 25);
+    ch->real_abils.str = number(3, 35);
     ch->real_abils.intel = number(3, 25);
     ch->real_abils.wis = number(3, 25);
     ch->real_abils.dex = number(3, 25);
     ch->real_abils.con = number(3, 25);
     ch->real_abils.cha = number(3, 25);
-    if (ch->real_abils.str == 18)
-        ch->real_abils.str_add = number(0, 100);
     GET_COND(ch, FULL) = number(0, 20);
     GET_COND(ch, THIRST) = number(0, 20);
     GET_COND(ch, DRUNK) = number(0, 20);

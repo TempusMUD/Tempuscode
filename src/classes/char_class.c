@@ -706,7 +706,6 @@ roll_real_abils(struct creature *ch)
             }
         }
     }
-    ch->real_abils.str_add = 0;
 
     switch (GET_CLASS(ch)) {
     case CLASS_MAGIC_USER:
@@ -740,8 +739,6 @@ roll_real_abils(struct creature *ch)
         ch->real_abils.wis = table[3];
         ch->real_abils.intel = table[4];
         ch->real_abils.cha = table[5];
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = str_add;
         break;
     case CLASS_BARB:
         ch->real_abils.str = table[0];
@@ -750,8 +747,6 @@ roll_real_abils(struct creature *ch)
         ch->real_abils.wis = table[3];
         ch->real_abils.intel = table[4];
         ch->real_abils.cha = table[5];
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = str_add;
         break;
 
     case CLASS_PSIONIC:
@@ -805,8 +800,6 @@ roll_real_abils(struct creature *ch)
         ch->real_abils.dex = table[3];
         ch->real_abils.intel = table[4];
         ch->real_abils.cha = table[5];
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = str_add;
         break;
     case CLASS_RANGER:
         ch->real_abils.dex = table[0];
@@ -815,8 +808,6 @@ roll_real_abils(struct creature *ch)
         ch->real_abils.str = table[3];
         ch->real_abils.intel = table[4];
         ch->real_abils.cha = table[5];
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = str_add;
         break;
     case CLASS_MONK:
         ch->real_abils.dex = table[0];
@@ -841,8 +832,6 @@ roll_real_abils(struct creature *ch)
         ch->real_abils.intel = table[3];
         ch->real_abils.wis = table[4];
         ch->real_abils.cha = table[5];
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = str_add;
         break;
     case CLASS_BARD:
         ch->real_abils.cha = table[0];
@@ -861,83 +850,17 @@ roll_real_abils(struct creature *ch)
         ch->real_abils.cha = table[5];
         break;
     }
-    switch (GET_RACE(ch)) {
-    case RACE_ELF:
-    case RACE_DROW:
-        ch->real_abils.intel += 1;
-        ch->real_abils.dex += 1;
-        ch->real_abils.con -= 1;
-        break;
-    case RACE_HALFLING:
-        if (ch->real_abils.str == 18 && ch->real_abils.str_add > 0)
-            ch->real_abils.str_add -= 10;
-        else
-            ch->real_abils.str -= 1;
-        if (ch->real_abils.str == 18 && ch->real_abils.str_add > 0)
-            ch->real_abils.str_add -= 10;
-        else
-            ch->real_abils.str -= 1;
-        ch->real_abils.dex += 2;
-        break;
-    case RACE_DWARF:
-        ch->real_abils.con += 1;
-        if (ch->real_abils.str == 18) {
-            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-        } else {
-            ch->real_abils.str += 1;
-        }
-        ch->real_abils.cha -= 1;
-        break;
-    case RACE_HALF_ORC:
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-        else
-            ch->real_abils.str += 1;
 
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-        else if (ch->real_abils.str < 18)
-            ch->real_abils.str += 1;
+    struct race *race = race_by_idnum(GET_RACE(ch));
 
-        ch->real_abils.con += 1;
-        ch->real_abils.cha -= 3;
-        break;
-    case RACE_ORC:
-        if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-        else
-            ch->real_abils.str += 1;
+    ch->real_abils.str += race->str_mod;
+    ch->real_abils.intel += race->int_mod;
+    ch->real_abils.wis += race->wis_mod;
+    ch->real_abils.dex += race->dex_mod;
+    ch->real_abils.con += race->con_mod;
+    ch->real_abils.cha += race->cha_mod;
 
-        ch->real_abils.intel -= 1;
-        ch->real_abils.wis -= 2;
-        ch->real_abils.con += 2;
-        ch->real_abils.cha -= 3;
-        break;
-    case RACE_TABAXI:
-        ch->real_abils.dex = MIN(20, ch->real_abils.dex + 3);
-        ch->real_abils.intel -= 1;
-        ch->real_abils.wis -= 3;
-        ch->real_abils.con += 1;
-        ch->real_abils.cha -= 2;
-        break;
-    case RACE_MINOTAUR:
-        ch->real_abils.intel -= 2;
-        ch->real_abils.wis -= 3;
-        ch->real_abils.con += 2;
-        ch->real_abils.cha -= 2;
-        ch->real_abils.str += 3;
-        if (ch->real_abils.str > 18) {
-            ch->real_abils.str_add += (ch->real_abils.str - 18) * 10;
-            if (ch->real_abils.str_add > 100) {
-                ch->real_abils.str =
-                    MIN(20, 18 + ((ch->real_abils.str_add - 100) / 10));
-                ch->real_abils.str_add = 0;
-            } else
-                ch->real_abils.str = 18;
-        }
-        break;
-
-    case RACE_HUMAN:
+    if (GET_RACE(ch) == RACE_HUMAN) {
         switch (GET_CLASS(ch)) {
         case CLASS_MAGIC_USER:
             ch->real_abils.intel += 1;
@@ -948,10 +871,7 @@ roll_real_abils(struct creature *ch)
             ch->real_abils.wis += 1;
             break;
         case CLASS_BARB:
-            if (ch->real_abils.str == 18)
-                ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-            else
-                ch->real_abils.str += 1;
+            ch->real_abils.str += 1;
             ch->real_abils.con += 1;
             break;
         case CLASS_RANGER:
@@ -963,10 +883,7 @@ roll_real_abils(struct creature *ch)
             ch->real_abils.dex += 1;
             break;
         case CLASS_KNIGHT:
-            if (ch->real_abils.str == 18)
-                ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-            else
-                ch->real_abils.str += 1;
+            ch->real_abils.str += 1;
             ch->real_abils.wis += 1;
             break;
         case CLASS_PSIONIC:
@@ -988,11 +905,7 @@ roll_real_abils(struct creature *ch)
                 ch->real_abils.intel += 1;
                 break;
             case BORG_POWER:
-                if (ch->real_abils.str == 18)
-                    ch->real_abils.str_add =
-                        MIN(100, ch->real_abils.str_add + 10);
-                else
-                    ch->real_abils.str += 1;
+                ch->real_abils.str += 1;
                 break;
             default:
                 break;
@@ -1003,16 +916,12 @@ roll_real_abils(struct creature *ch)
             ch->real_abils.wis += 1;
             break;
         case CLASS_MERCENARY:
-            if (ch->real_abils.str == 18)
-                ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
-            else
-                ch->real_abils.str += 1;
+            ch->real_abils.str += 1;
             ch->real_abils.dex += 1;
             break;
         default:
             break;
         }
-        break;
     }
 
     ch->aff_abils = ch->real_abils;

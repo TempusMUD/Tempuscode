@@ -110,6 +110,7 @@ check_tempus_LDADD = @CHECK_LIBS@ @XML_LIBS@ @GLIB_LIBS@ \
 			$(top_builddir)/src/creature_io.o \
 			$(top_builddir)/src/obj_data.o \
 			$(top_builddir)/src/players.o \
+			$(top_builddir)/src/race.o \
 			$(top_builddir)/src/room_data.o \
 			$(top_builddir)/src/accstr.o \
 			$(top_builddir)/src/handler.o \

@@ -459,7 +459,6 @@ SECT(struct room_data * room)
 #define IS_MORT(ch)		(!IS_REMORT(ch) && !IS_IMMORT(ch))
 
 #define GET_STR(ch)     ((ch)->aff_abils.str)
-#define GET_ADD(ch)     ((ch)->aff_abils.str_add)
 #define GET_DEX(ch)     ((ch)->aff_abils.dex)
 #define GET_INT(ch)     ((ch)->aff_abils.intel)
 #define GET_WIS(ch)     ((ch)->aff_abils.wis)
@@ -624,13 +623,7 @@ STRENGTH_APPLY_INDEX(struct creature *ch)
 {
 	if (GET_STR(ch) < 0 || GET_STR(ch) > 25)
 		return 11;
-	if (GET_STR(ch) != 18 || GET_ADD(ch) == 0)
-		return GET_STR(ch);
-	if (GET_ADD(ch) == 99)
-		return 35;
-	if (GET_ADD(ch) == 100)
-		return 36;
-	return GET_ADD(ch) / 10 + 25;
+    return GET_STR(ch);
 }
 
 #define CAN_CARRY_W(ch) (MAX(10, RAW_CARRY_W(ch)))

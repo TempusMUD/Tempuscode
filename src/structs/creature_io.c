@@ -497,10 +497,9 @@ save_player_to_file(struct creature *ch, const char *path)
     fprintf(ouf, "/>\n");
 
     fprintf(ouf,
-        "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\" stradd=\"%d\"/>\n",
-        ch->real_abils.str, ch->real_abils.intel, ch->real_abils.wis,
-        ch->real_abils.dex, ch->real_abils.con, ch->real_abils.cha,
-        ch->real_abils.str_add);
+        "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\"/>\n",
+            ch->real_abils.str, ch->real_abils.intel, ch->real_abils.wis,
+            ch->real_abils.dex, ch->real_abils.con, ch->real_abils.cha);
 
     fprintf(ouf, "<condition hunger=\"%d\" thirst=\"%d\" drunk=\"%d\"/>\n",
         GET_COND(ch, FULL), GET_COND(ch, THIRST), GET_COND(ch, DRUNK));
@@ -806,8 +805,8 @@ load_player_from_file(const char *path)
         } else if (xmlMatches(node->name, "attr")) {
             ch->aff_abils.str = ch->real_abils.str =
                 xmlGetIntProp(node, "str", 0);
-            ch->aff_abils.str_add = ch->real_abils.str_add =
-                xmlGetIntProp(node, "stradd", 0);
+            ch->aff_abils.str = ch->real_abils.str +=
+                xmlGetIntProp(node, "stradd", 0) / 10;
             ch->aff_abils.intel = ch->real_abils.intel =
                 xmlGetIntProp(node, "int", 0);
             ch->aff_abils.wis = ch->real_abils.wis =

@@ -1022,7 +1022,7 @@ do_mob_mset(struct creature *ch, char *argument)
             if (i < 0 || i > 100)
                 send_to_char(ch, "StrAdd must be between 0 and 100.\r\n");
             else {
-                GET_ADD(mob_p) = i;
+                GET_STR(mob_p) = 18 + i / 10;
                 send_to_char(ch, "Mobile StrAdd set.\r\n");
             }
             break;
@@ -1092,7 +1092,7 @@ do_mob_mset(struct creature *ch, char *argument)
                 send_to_char(ch,
                     "Strength apply must be between 0 and 100.\r\n");
             else {
-                mob_p->aff_abils.str_add = mob_p->real_abils.str_add = i;
+                mob_p->aff_abils.str = mob_p->real_abils.str = 18 + i / 10;
                 send_to_char(ch, "Mobile strength apply set.\r\n");
             }
             break;
@@ -1349,7 +1349,6 @@ save_mobs(struct creature * ch, struct zone_data * zone)
 
         if (mob->mob_specials.shared->attack_type != 0 ||
             GET_STR(mob) != 11 ||
-            GET_ADD(mob) != 0 ||
             GET_INT(mob) != 11 ||
             GET_WIS(mob) != 11 ||
             GET_DEX(mob) != 11 ||
@@ -1429,8 +1428,6 @@ save_mobs(struct creature * ch, struct zone_data * zone)
         if (espec_mob == 1) {
             if (GET_STR(mob) != 11)
                 fprintf(file, "Str: %d\n", GET_STR(mob));
-            if (GET_ADD(mob) != 0)
-                fprintf(file, "StrAdd: %d\n", GET_ADD(mob));
             if (GET_INT(mob) != 11)
                 fprintf(file, "Int: %d\n", GET_INT(mob));
             if (GET_WIS(mob) != 11)
@@ -1949,7 +1946,6 @@ do_clear_olc_mob(struct creature *ch)
     targ->player.remort_char_class = -1;
 
     targ->aff_abils.str = 11;
-    targ->aff_abils.str_add = 0;
     targ->aff_abils.intel = 11;
     targ->aff_abils.wis = 11;
     targ->aff_abils.dex = 11;
@@ -1957,7 +1953,6 @@ do_clear_olc_mob(struct creature *ch)
     targ->aff_abils.cha = 11;
 
     targ->real_abils.str = 11;
-    targ->real_abils.str_add = 0;
     targ->real_abils.intel = 11;
     targ->real_abils.wis = 11;
     targ->real_abils.dex = 11;
@@ -2056,7 +2051,6 @@ olc_mimic_mob(struct creature *ch,
     targ->player.remort_char_class = orig->player.remort_char_class;
 
     targ->aff_abils.str = orig->aff_abils.str;
-    targ->aff_abils.str_add = orig->aff_abils.str_add;
     targ->aff_abils.intel = orig->aff_abils.intel;
     targ->aff_abils.wis = orig->aff_abils.wis;
     targ->aff_abils.dex = orig->aff_abils.dex;
@@ -2064,7 +2058,6 @@ olc_mimic_mob(struct creature *ch,
     targ->aff_abils.cha = orig->aff_abils.cha;
 
     targ->real_abils.str = orig->real_abils.str;
-    targ->real_abils.str_add = orig->real_abils.str_add;
     targ->real_abils.intel = orig->real_abils.intel;
     targ->real_abils.wis = orig->real_abils.wis;
     targ->real_abils.dex = orig->real_abils.dex;

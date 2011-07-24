@@ -58,6 +58,7 @@
 #include "prog.h"
 #include "vendor.h"
 #include "weather.h"
+#include "race.h"
 
 #define ZONE_ERROR(message) \
 { zerrlog(zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); last_cmd = 0; }
@@ -369,6 +370,8 @@ boot_db(void)
     file_to_string_alloc(OLC_GUIDE_FILE, &olc_guide);
     file_to_string_alloc(QUEST_GUIDE_FILE, &quest_guide);
 
+    slog("Loading races");
+    boot_races("etc/races.xml");
     slog("Loading tongues.");
     boot_tongues("etc/tongues.xml");
     slog("Loading NPC voices.");
@@ -1621,13 +1624,13 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
     }
 
     CASE("Str") {
-        RANGE(3, 25);
+        RANGE(3, 35);
         mobile->real_abils.str = (int)num_arg;
     }
 
     CASE("StrAdd") {
         RANGE(0, 100);
-        mobile->real_abils.str_add = (int)num_arg;
+        mobile->real_abils.str = 18 + (int)num_arg / 10;
     }
 
     CASE("Int") {

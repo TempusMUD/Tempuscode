@@ -184,7 +184,7 @@ update_pos(struct creature *ch)
         // If they're alive, not stunned, in a fight, and not pos_fighting
         // (Making mobs stand when they get popped)
         if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL) ||
-            number(1, 20) < GET_STR(ch)) {
+            number(1, 35) < GET_STR(ch)) {
 
             GET_POSITION(ch) = POS_FIGHTING;
             act("You scramble to your feet!", true, ch, 0, 0, TO_CHAR);
@@ -193,7 +193,7 @@ update_pos(struct creature *ch)
         }
     } else if (GET_POSITION(ch) < POS_FIGHTING) {
         if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
-            || number(1, 20) < GET_STR(ch)) {
+            || number(1, 35) < GET_STR(ch)) {
             if (is_fighting(ch)) {
                 act("You scramble to your feet!", true, ch, 0, 0, TO_CHAR);
                 act("$n scrambles to $s feet!", true, ch, 0, 0, TO_ROOM);

@@ -56,7 +56,6 @@ SPECIAL(clone_lab)
     AFF_FLAGS(cloned_char) = AFF_FLAGS(ch);
     GET_AC(cloned_char) = GET_AC(ch);
     GET_STR(cloned_char) = GET_STR(ch);
-    GET_ADD(cloned_char) = GET_ADD(ch);
     GET_DEX(cloned_char) = GET_DEX(ch);
     GET_INT(cloned_char) = GET_INT(ch);
     GET_WIS(cloned_char) = GET_WIS(ch);

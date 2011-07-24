@@ -6,13 +6,6 @@
 
 SPECIAL(newbie_improve)
 {
-
-#define STR  0
-#define INT  1
-#define WIS  2
-#define DEX  3
-#define CON  4
-#define CHA  5
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
     struct creature *impro = (struct creature *)me;
@@ -59,17 +52,17 @@ SPECIAL(newbie_improve)
     }
 
     if (!strncasecmp(argument, "s", 1))
-        index = STR;
+        index = ATTR_STR;
     else if (!strncasecmp(argument, "i", 1))
-        index = INT;
+        index = ATTR_INT;
     else if (!strncasecmp(argument, "w", 1))
-        index = WIS;
+        index = ATTR_WIS;
     else if (!strncasecmp(argument, "d", 1))
-        index = DEX;
+        index = ATTR_DEX;
     else if (!strncasecmp(argument, "co", 2))
-        index = CON;
+        index = ATTR_CON;
     else if (!strncasecmp(argument, "ch", 2))
-        index = CHA;
+        index = ATTR_CHA;
     else {
         send_to_char(ch, "You must specify one of:\r\n"
             "strength, intelligence, wisdom,\r\n"
@@ -77,21 +70,17 @@ SPECIAL(newbie_improve)
         return 1;
     }
     switch (index) {
-    case STR:
-        if ((ch->real_abils.str == 18 && ch->real_abils.str_add >= 100) ||
-            ch->real_abils.str > 18) {
+    case ATTR_STR:
+        if (max_creature_attr(ch, ATTR_STR)) {
             send_to_char(ch,
                 "Your strength is already at the peak of mortal ablility.\r\n");
             return 1;
         }
-        if (ch->real_abils.str < 18)
-            ch->real_abils.str++;
-        else if (ch->real_abils.str == 18)
-            ch->real_abils.str_add = MIN(100, ch->real_abils.str_add + 10);
+        ch->real_abils.str++;
         mssg = "Your strength improves!\r\n";
         break;
-    case INT:
-        if (ch->real_abils.intel >= 18) {
+    case ATTR_INT:
+        if (ch->real_abils.intel >= max_creature_attr(ch, ATTR_INT)) {
             send_to_char(ch,
                 "You have already reached the peak of mortal intellegence.\r\n");
             return 1;
@@ -99,16 +88,16 @@ SPECIAL(newbie_improve)
         ch->real_abils.intel++;
         mssg = "Your intellegence improves!\r\n";
         break;
-    case WIS:
-        if (ch->real_abils.wis >= 18) {
+    case ATTR_WIS:
+        if (ch->real_abils.wis >= max_creature_attr(ch, ATTR_WIS)) {
             send_to_char(ch, "Your wisdom is already legendary.\r\n");
             return 1;
         }
         ch->real_abils.wis++;
         mssg = "Your become wiser!\r\n";
         break;
-    case DEX:
-        if (ch->real_abils.dex >= 18) {
+    case ATTR_DEX:
+        if (ch->real_abils.dex >= max_creature_attr(ch, ATTR_DEX)) {
             send_to_char(ch,
                 "You have already reached the peak of mortal agility.\r\n");
             return 1;
@@ -116,8 +105,8 @@ SPECIAL(newbie_improve)
         ch->real_abils.dex++;
         mssg = "Your dexterity improves!\r\n";
         break;
-    case CON:
-        if (ch->real_abils.con >= 18) {
+    case ATTR_CON:
+        if (ch->real_abils.con >= max_creature_attr(ch, ATTR_CON)) {
             send_to_char(ch,
                 "You have already reached the peak of mortal health.\r\n");
             return 1;
@@ -125,8 +114,8 @@ SPECIAL(newbie_improve)
         ch->real_abils.con++;
         mssg = "Your health improves!\r\n";
         break;
-    case CHA:
-        if (ch->real_abils.cha >= 18) {
+    case ATTR_CHA:
+        if (ch->real_abils.cha >= max_creature_attr(ch, ATTR_CHA)) {
             send_to_char(ch,
                 "You have already reached the peak of mortal charisma.\r\n");
             return 1;
@@ -143,16 +132,12 @@ SPECIAL(newbie_improve)
     GET_LIFE_POINTS(ch) -= 1;
     send_to_char(ch, "%s", mssg);
     crashsave(ch);
-    if (GET_LIFE_POINTS(ch)) {
-        sprintf(buf3, "You have %d life points left, %s.", GET_LIFE_POINTS(ch),
-            GET_NAME(ch));
-        perform_tell(impro, ch, buf3);
-    }
-    if (GET_LIFE_POINTS(ch) <= 0) {
+    if (GET_LIFE_POINTS(ch) > 0) {
+        send_to_char(ch, "You have %d life points left.", GET_LIFE_POINTS(ch));
+    } else {
         send_to_char(ch,
-            "You have no more life points left.  From now on, you will gain life\r\n"
-            "points slowly as you increase in experience.\r\n");
-        return 1;
-    } else
-        return 1;
+                     "You have no more life points left.  From now on, you will gain life\r\n"
+                     "points slowly as you increase in experience.\r\n");
+    }
+    return 1;
 }

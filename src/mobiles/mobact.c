@@ -1229,7 +1229,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
     // Standing should take just as long for mobs
     if (GET_POSITION(ch) < POS_STANDING) {
         if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
-            || number(1, 20) < GET_STR(ch)) {
+            || number(1, 35) < GET_STR(ch)) {
             act("$n jumps to $s feet!", true, ch, 0, 0, TO_ROOM);
             GET_POSITION(ch) = POS_STANDING;
         }
@@ -1614,7 +1614,7 @@ single_mobile_activity(struct creature *ch)
             break;
         default:
             if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
-                || number(1, 20) < GET_STR(ch)) {
+                || number(1, 35) < GET_STR(ch)) {
                 act("$n stands up.", true, ch, 0, 0, TO_ROOM);
                 GET_POSITION(ch) = POS_STANDING;
             }

@@ -1741,14 +1741,14 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                 C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(k), CCGRN(ch, C_NRM),
             CCNRM(ch, C_NRM), GET_PC_DEATHS(k));
     }
-    acc_sprintf("Str: [%s%d/%d%s]  Int: [%s%d%s]  Wis: [%s%d%s]  "
+    acc_sprintf("Str: [%s%s%s]  Int: [%s%d%s]  Wis: [%s%d%s]  "
         "Dex: [%s%d%s]  Con: [%s%d%s]  Cha: [%s%d%s]\r\n",
-        CCCYN(ch, C_NRM), GET_STR(k), GET_ADD(k), CCNRM(ch, C_NRM),
-        CCCYN(ch, C_NRM), GET_INT(k), CCNRM(ch, C_NRM),
-        CCCYN(ch, C_NRM), GET_WIS(k), CCNRM(ch, C_NRM),
-        CCCYN(ch, C_NRM), GET_DEX(k), CCNRM(ch, C_NRM),
-        CCCYN(ch, C_NRM), GET_CON(k), CCNRM(ch, C_NRM),
-        CCCYN(ch, C_NRM), GET_CHA(k), CCNRM(ch, C_NRM));
+                CCCYN(ch, C_NRM), format_strength(GET_STR(k)), CCNRM(ch, C_NRM),
+                CCCYN(ch, C_NRM), GET_INT(k), CCNRM(ch, C_NRM),
+                CCCYN(ch, C_NRM), GET_WIS(k), CCNRM(ch, C_NRM),
+                CCCYN(ch, C_NRM), GET_DEX(k), CCNRM(ch, C_NRM),
+                CCCYN(ch, C_NRM), GET_CON(k), CCNRM(ch, C_NRM),
+                CCCYN(ch, C_NRM), GET_CHA(k), CCNRM(ch, C_NRM));
     if (k->in_room || !IS_NPC(k)) { // Real Mob/Char
         acc_sprintf
             ("Hit p.:[%s%d/%d+%d%s]  Mana p.:[%s%d/%d+%d%s]  Move p.:[%s%d/%d+%d%s]\r\n",
@@ -3596,9 +3596,9 @@ perform_reroll(struct creature *ch, struct creature *vict)
     send_to_char(vict, "Your stats have been rerolled.\r\n");
     slog("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
     send_to_char(ch,
-        "New stats: Str %d/%d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
-        GET_STR(vict), GET_ADD(vict), GET_INT(vict), GET_WIS(vict),
-        GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
+        "New stats: Str %s, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
+                 format_strength(GET_STR(vict)), GET_INT(vict), GET_WIS(vict),
+                 GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
 }
 
 /*
@@ -5918,20 +5918,20 @@ ACMD(do_set)
         break;
     case 10:
         RANGE(3, 25);
-        if (value != 18)
-            vict->real_abils.str_add = 0;
-        /*    else if (value > 18)
-           value += 10; */
-        vict->real_abils.str = value;
+        if (value <= 18)
+            vict->real_abils.str = value;
+        else if (value > 18)
+            vict->real_abils.str = value + 10;
         affect_total(vict);
         break;
     case 11:
-        if (vict->real_abils.str != 18) {
+        if (vict->real_abils.str < 18 ||
+            vict->real_abils.str > 28) {
             send_to_char(ch,
                 "Stradd is only applicable with 18 str... asshole.\r\n");
             return;
         }
-        vict->real_abils.str_add = RANGE(0, 100);
+        vict->real_abils.str = 18 + RANGE(0, 100) / 10;
         affect_total(vict);
         break;
     case 12:
