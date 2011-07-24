@@ -49,7 +49,21 @@ load_race(xmlNodePtr node)
         else if (xmlMatches(child->name, "age")) {
             race->age_adjust = xmlGetIntProp(child, "adjust", 13);
             race->lifespan = xmlGetIntProp(child, "lifespan", 100);
+        } else if (xmlMatches(child->name, "intrinsic")) {
+            char *aff = (char *)xmlGetProp(child, (xmlChar *)"affect");
+            if (aff) {
+                int idx;
+                if ((idx = search_block(aff, affected_bits_desc, true)) >= 0) {
+                    race->aff1 |= (1 << idx);
+                } else if ((idx = search_block(aff, affected2_bits_desc, true)) >= 0) {
+                    race->aff2 |= (1 << idx);
+                } else if ((idx = search_block(aff, affected3_bits_desc, true)) >= 0) {
+                    race->aff3 |= (1 << idx);
+                }
+                free(aff);
+            }
         }
+
     }
 
     return race;

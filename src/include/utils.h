@@ -958,7 +958,6 @@ room_has_air(struct room_data *room)
 bool room_is_sunny(struct room_data *room);
 bool room_is_dark(struct room_data *room);
 bool room_is_light(struct room_data *room);
-bool has_infravision(struct creature *self);
 bool has_dark_sight(struct creature *self);
 bool check_sight_self(struct creature *self);
 bool check_sight_room(struct creature *self, struct room_data *room);

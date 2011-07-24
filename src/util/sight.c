@@ -84,25 +84,6 @@ room_is_light(struct room_data * room)
     return !room_is_dark(room);
 }
 
-// Returns true if the creature possesses infravision
-bool
-has_infravision(struct creature * ch)
-{
-    return (AFF_FLAGGED(ch, AFF_INFRAVISION) ||
-        (GET_RACE(ch) == RACE_ELF) ||
-        (GET_RACE(ch) == RACE_DROW) ||
-        (GET_RACE(ch) == RACE_DWARF) ||
-        (GET_RACE(ch) == RACE_HALF_ORC) ||
-        (GET_RACE(ch) == RACE_TABAXI) ||
-        (GET_RACE(ch) == RACE_DRAGON) ||
-        (GET_RACE(ch) == RACE_ORC) ||
-        (GET_RACE(ch) == RACE_OGRE) ||
-        (GET_RACE(ch) == RACE_GOBLIN) ||
-        (GET_RACE(ch) == RACE_TROLL) ||
-        (GET_RACE(ch) == RACE_BUGBEAR) ||
-        IS_UNDEAD(ch) || (GET_CLASS(ch) == CLASS_VAMPIRE && IS_EVIL(ch)));
-}
-
 // Returns true if the player can see at all, regardless of other influences
 bool
 check_sight_self(struct creature * self)
@@ -114,11 +95,11 @@ check_sight_self(struct creature * self)
 bool
 has_dark_sight(struct creature * self)
 {
-    return (has_infravision(self) ||
-        PRF_FLAGGED(self, PRF_HOLYLIGHT) ||
-        AFF3_FLAGGED(self, AFF3_SONIC_IMAGERY) ||
-        AFF_FLAGGED(self, AFF_RETINA) ||
-        CHECK_SKILL(self, SKILL_NIGHT_VISION));
+    return (AFF_FLAGGED(self, AFF_INFRAVISION) ||
+            PRF_FLAGGED(self, PRF_HOLYLIGHT) ||
+            AFF3_FLAGGED(self, AFF3_SONIC_IMAGERY) ||
+            AFF_FLAGGED(self, AFF_RETINA) ||
+            CHECK_SKILL(self, SKILL_NIGHT_VISION));
 }
 
 // Returns true if the player can see in the room

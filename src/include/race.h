@@ -88,6 +88,9 @@ struct race {
     int8_t cha_mod;
     int age_adjust;
     int lifespan;
+    int aff1;
+    int aff2;
+    int aff3;
 };
 
 extern GHashTable *races;

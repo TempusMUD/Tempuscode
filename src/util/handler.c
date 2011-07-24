@@ -412,6 +412,13 @@ affect_total(struct creature *ch)
     for (i = 0; i < 10; i++)
         GET_SAVE(ch, i) = 0;
 
+    struct race *race = race_by_idnum(GET_RACE(ch));
+    if (race) {
+        AFF_FLAGS(ch) |= race->aff1;
+        AFF2_FLAGS(ch) |= race->aff2;
+        AFF3_FLAGS(ch) |= race->aff3;
+    }
+
     if (IS_NPC(ch) && ch->mob_specials.shared->proto) {
         GET_HITROLL(ch) = ch->mob_specials.shared->proto->points.hitroll;
         GET_DAMROLL(ch) = ch->mob_specials.shared->proto->points.damroll;
@@ -421,6 +428,8 @@ affect_total(struct creature *ch)
     }
 
     SPEED_OF(ch) = 0;
+
+
 
     /************************************************************************
      * Reset affected stats                                                 *
