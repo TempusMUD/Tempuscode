@@ -40,6 +40,7 @@
 #include "language.h"
 #include "weather.h"
 #include "players.h"
+#include "race.h"
 
 extern struct obj_data *object_list;
 extern struct room_data *world;
@@ -47,7 +48,6 @@ extern struct zone_data *zone_table;
 extern int max_exp_gain;
 extern int max_exp_loss;
 extern int exp_scale[];
-extern int race_lifespan[];
 
 /* When age < 15 return the value p0 */
 /* When age in 15..29 calculate the line between p1 & p2 */
@@ -56,27 +56,27 @@ extern int race_lifespan[];
 /* When age in 60..79 calculate the line between p4 & p5 */
 /* When age >= 80 return the value p6 */
 int
-graf(int age, int race, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
+graf(int age, int race_id, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 {
+    if (race_id > RACE_TROLL)
+        race_id = RACE_HUMAN;
 
-    if (race > RACE_TROLL)
-        race = RACE_HUMAN;
+    struct race *race = race_by_idnum(race_id);
+    int lifespan = race->lifespan;
 
-    race = race_lifespan[race];
-
-    if (age < (race * 0.2))
+    if (age < (lifespan * 0.2))
         return (p0);
-    else if (age <= (race * 0.30))
-        return (int)(p1 + (((age - (race * 0.2)) * (p2 - p1)) / (race * 0.2)));
-    else if (age <= (race * 0.55))
-        return (int)(p2 + (((age - (race * 0.35)) * (p3 -
-                        p2)) / (race * 0.2)));
-    else if (age <= (race * 0.75))
-        return (int)(p3 + (((age - (race * 0.55)) * (p4 -
-                        p3)) / (race * 0.2)));
-    else if (age <= race)
-        return (int)(p4 + (((age - (race * 0.75)) * (p5 -
-                        p4)) / (race * 0.2)));
+    else if (age <= (lifespan * 0.30))
+        return (int)(p1 + (((age - (lifespan * 0.2)) * (p2 - p1)) / (lifespan * 0.2)));
+    else if (age <= (lifespan * 0.55))
+        return (int)(p2 + (((age - (lifespan * 0.35)) * (p3 -
+                        p2)) / (lifespan * 0.2)));
+    else if (age <= (lifespan * 0.75))
+        return (int)(p3 + (((age - (lifespan * 0.55)) * (p4 -
+                        p3)) / (lifespan * 0.2)));
+    else if (age <= lifespan)
+        return (int)(p4 + (((age - (lifespan * 0.75)) * (p5 -
+                        p4)) / (lifespan * 0.2)));
     else
         return (p6);
 }
@@ -103,11 +103,11 @@ mana_gain(struct creature *ch)
         gain = graf(GET_AGE(ch), GET_RACE(ch), 4, 8, 12, 16, 12, 10, 8);
 
         /* Class calculations */
-        gain += (GET_LEVEL(ch) >> 3);
+        gain += GET_LEVEL(ch) / 8;
     }
 
     /* Skill/Spell calculations */
-    gain += (GET_WIS(ch) >> 2);
+    gain += GET_WIS(ch) / 4;
 
     // evil clerics get a gain bonus, up to 10%
     if (GET_CLASS(ch) == CLASS_CLERIC && IS_EVIL(ch))
@@ -116,16 +116,16 @@ mana_gain(struct creature *ch)
     /* Position calculations    */
     switch (GET_POSITION(ch)) {
     case POS_SLEEPING:
-        gain <<= 1;
+        gain *= 2;
         break;
     case POS_RESTING:
-        gain += (gain >> 1);    /* Divide by 2 */
+        gain += gain / 2;    /* Divide by 2 */
         break;
     case POS_SITTING:
-        gain += (gain >> 2);    /* Divide by 4 */
+        gain += gain / 4;    /* Divide by 4 */
         break;
     case POS_FLYING:
-        gain += (gain >> 1);
+        gain += gain / 2;
         break;
     }
 

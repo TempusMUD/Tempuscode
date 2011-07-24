@@ -13,6 +13,8 @@ make_race(void)
     struct race *race;
 
     CREATE(race, struct race, 1);
+    race->age_adjust = 13;
+    race->lifespan = 100;
 
     return race;
 }
@@ -44,6 +46,10 @@ load_race(xmlNodePtr node)
             race->con_mod = xmlGetIntProp(child, "con", 0);
             race->cha_mod = xmlGetIntProp(child, "cha", 0);
         }
+        else if (xmlMatches(child->name, "age")) {
+            race->age_adjust = xmlGetIntProp(child, "adjust", 13);
+            race->lifespan = xmlGetIntProp(child, "lifespan", 100);
+        }
     }
 
     return race;
@@ -56,19 +62,19 @@ race_by_idnum(int idnum)
 }
 
 gboolean
-race_name_matches(gpointer key, struct race *race, char *name)
+race_name_matches(gpointer key, struct race *race, const char *name)
 {
     return !strcasecmp(name, race->name);
 }
 
 gboolean
-race_name_abbrev(gpointer key, struct race *race, char *name)
+race_name_abbrev(gpointer key, struct race *race, const char *name)
 {
     return is_abbrev(name, race->name);
 }
 
 struct race *
-race_by_name(const char *name, bool exact)
+race_by_name(char *name, bool exact)
 {
     if (exact)
         return g_hash_table_find(races, (GHRFunc)race_name_matches, name);

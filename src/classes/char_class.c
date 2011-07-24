@@ -493,30 +493,6 @@ parse_player_class(char *arg)
     return CLASS_UNDEFINED;
 }
 
-const int race_lifespan[] = {
-    80,                         /* human */
-    400,                        /* elf */
-    160,                        /* dwarf */
-    55,                         /* half orc */
-    100,                        /* klingon */
-    110,                        /* halfling */
-    80,                         /* tabaxi */
-    200,                        /* drow */
-    0,
-    0,
-    0,                          /* mobile */
-    10000,                      /* undead */
-    100,                        /* humanoid */
-    50,                         /* animal */
-    10000,                      /* dragon */
-    500,                        /* giant */
-    65,                         /* orc */
-    50,                         /* goblin */
-    50,                         /* halfling */
-    200,                        /* minotaur */
-    500                         /* troll */
-};
-
 int
 parse_race(char *arg)
 {

@@ -302,30 +302,10 @@ struct time_info_data
 age(struct creature *ch)
 {
     struct time_info_data player_age;
+    struct race *race = race_by_idnum(GET_RACE(ch));
 
     player_age = mud_time_passed(time(0), ch->player.time.birth);
-
-    switch (GET_RACE(ch)) {
-    case RACE_ELF:
-    case RACE_DROW:
-        player_age.year += 80;
-        break;
-    case RACE_DWARF:
-        player_age.year += 40;
-        break;
-    case RACE_HALF_ORC:
-        player_age.year += 12;
-        break;
-    case RACE_HUMAN:
-        player_age.year += 13;
-        break;
-    case RACE_HALFLING:
-        player_age.year += 33;
-        break;
-    default:
-        player_age.year += 13;
-        break;
-    }
+    player_age.year += race->age_adjust;
 
     return player_age;
 }

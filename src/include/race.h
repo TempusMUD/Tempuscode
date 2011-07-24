@@ -86,12 +86,14 @@ struct race {
     int8_t dex_mod;
     int8_t con_mod;
     int8_t cha_mod;
+    int age_adjust;
+    int lifespan;
 };
 
 extern GHashTable *races;
 
 struct race *race_by_idnum(int idnum);
-struct race *race_by_name(const char *name, bool exact);
+struct race *race_by_name(char *name, bool exact);
 const char *race_name_by_idnum(int idnum);
 
 void boot_races(const char *path);

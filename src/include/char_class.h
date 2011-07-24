@@ -9,7 +9,6 @@
 
 #ifndef __char_class_c__
 
-extern const int race_lifespan[];
 extern const char *class_names[];
 extern const char *char_class_abbrevs[];
 extern const int prac_params[4][NUM_CLASSES];
