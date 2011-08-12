@@ -1336,8 +1336,9 @@ calculate_height_weight(struct creature *ch)
                                race->weight_max[sex])
         + GET_STR(ch);
     ch->player.height = number(race->height_min[sex],
-                               race->height_max[sex])
-        + ch->player.weight / race->weight_add[sex];
+                               race->height_max[sex]);
+    if (race->weight_add[sex])
+        ch->player.height += ch->player.weight / race->weight_add[sex];
 }
 
 #undef __char_class_c__
