@@ -968,27 +968,31 @@ obj_cond_color(struct obj_data *obj, int color_level)
 void
 fix_object_weight(struct obj_data *obj)
 {
+    float new_weight = GET_OBJ_WEIGHT(obj);
+
     if (IS_OBJ_TYPE(obj, ITEM_POTION)) {
-        GET_OBJ_WEIGHT(obj) = 0.5;
+        new_weight = 0.5;
     } else if (IS_OBJ_TYPE(obj, ITEM_SYRINGE)) {
-        GET_OBJ_WEIGHT(obj) = 0.3;
+        new_weight = 0.3;
     } else if (IS_OBJ_TYPE(obj, ITEM_PILL)) {
-        GET_OBJ_WEIGHT(obj) = 0.1;
+        new_weight = 0.1;
     } else if (IS_OBJ_TYPE(obj, ITEM_PEN)) {
-        GET_OBJ_WEIGHT(obj) = 0.2;
+        new_weight = 0.2;
     } else if (IS_OBJ_TYPE(obj, ITEM_CIGARETTE)) {
-        GET_OBJ_WEIGHT(obj) = 0.1;
+        new_weight = 0.1;
     } else if (IS_OBJ_TYPE(obj, ITEM_BULLET)) {
-        GET_OBJ_WEIGHT(obj) = 0.05;
+        new_weight = 0.05;
     } else if (IS_OBJ_TYPE(obj, ITEM_MICROCHIP)) {
-        GET_OBJ_WEIGHT(obj) = 0.05;
+        new_weight = 0.05;
     } else if (CAN_WEAR(obj, ITEM_WEAR_FINGER)) {
         // rings
-        GET_OBJ_WEIGHT(obj) = 0.1;
+        new_weight = 0.1;
     } else if (CAN_WEAR(obj, ITEM_WEAR_EAR)) {
         // earrings
-        GET_OBJ_WEIGHT(obj) = 0.1;
-    } else if (GET_OBJ_WEIGHT(obj) == 0.0) {
-        GET_OBJ_WEIGHT(obj) = 0.01;
+        new_weight = 0.1;
+    } else if (new_weight == 0.0) {
+        new_weight = 0.01;
     }
+
+    set_obj_weight(obj, new_weight);
 }
