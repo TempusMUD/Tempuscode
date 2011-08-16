@@ -61,7 +61,7 @@ load_race(xmlNodePtr node)
             race->age_adjust = xmlGetIntProp(child, "adjust", 13);
             race->lifespan = xmlGetIntProp(child, "lifespan", 100);
         } else if (xmlMatches(child->name, "tongue")) {
-            char *tongue_name = (char *)xmlGetProp(child, "name");
+            char *tongue_name = (char *)xmlGetProp(child, (xmlChar *)"name");
             if (tongue_name) {
                 race->tongue = find_tongue_idx_by_name(tongue_name);
                 free(tongue_name);

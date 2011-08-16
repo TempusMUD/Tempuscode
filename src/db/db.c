@@ -1324,39 +1324,19 @@ set_physical_attribs(struct creature *ch)
     GET_MAX_MANA(ch) = MAX(100, (GET_LEVEL(ch) << 3));
     GET_MAX_MOVE(ch) = MAX(100, (GET_LEVEL(ch) << 4));
 
-    if (GET_RACE(ch) == RACE_HUMAN || IS_HUMANOID(ch) ||
-        GET_RACE(ch) == RACE_MOBILE) {
-        ch->player.weight = number(130, 180) + (GET_STR(ch) << 1);
-        ch->player.height = number(140, 180) + (GET_WEIGHT(ch) >> 3);
-    } else if (GET_RACE(ch) == RACE_ROTARIAN) {
-        ch->player.weight = number(300, 450);
-        ch->player.height = number(200, 325);
-    } else if (GET_RACE(ch) == RACE_GRIFFIN) {
-        ch->player.weight = number(1500, 2300);
-        ch->player.height = number(400, 550);
-    } else if (GET_RACE(ch) == RACE_DWARF) {
-        ch->player.weight = number(120, 160) + (GET_STR(ch) << 1);
-        ch->player.height = number(100, 115) + (GET_WEIGHT(ch) >> 4);
-        ch->real_abils.str = 15;
-    } else if (IS_ELF(ch) || IS_DROW(ch)) {
-        ch->player.weight = number(120, 180) + (GET_STR(ch) << 1);
-        ch->player.height = number(140, 155) + (GET_WEIGHT(ch) >> 3);
-        ch->real_abils.intel = 15;
-    } else if (GET_RACE(ch) == RACE_HALF_ORC || IS_ORC(ch)) {
-        ch->player.weight = number(120, 180) + (GET_STR(ch) << 1);
-        ch->player.height = number(120, 190) + (GET_WEIGHT(ch) >> 3);
-    } else if (GET_RACE(ch) == RACE_HALFLING || IS_GOBLIN(ch)) {
-        ch->player.weight = number(110, 150) + (GET_STR(ch) << 1);
-        ch->player.height = number(100, 125) + (GET_WEIGHT(ch) >> 3);
-        ch->real_abils.dex = 15;
-    } else if (GET_RACE(ch) == RACE_WEMIC) {
-        ch->player.weight = number(500, 560) + (GET_STR(ch) << 1);
-    }
+    struct race *race = race_by_idnum(GET_RACE(ch));
 
-    if (ch->player.sex == SEX_FEMALE) {
-        ch->player.weight = (int)(ch->player.weight * 0.75);
-        ch->player.height = (int)(ch->player.weight * 0.75);
+    if (!race) {
+        // Use human stats if illegal race
+        race = race_by_idnum(RACE_HUMAN);
     }
+    ch->player.weight = number(race->weight_min[GET_SEX(ch)],
+                               race->weight_max[GET_SEX(ch)]);
+    ch->player.weight += GET_STR(ch) / 2;
+    ch->player.height = number(race->height_min[GET_SEX(ch)],
+                               race->height_max[GET_SEX(ch)]);
+    if (race->weight_add[GET_SEX(ch)])
+        ch->player.height += GET_WEIGHT(ch) / race->weight_add[GET_SEX(ch)];
 
     if (GET_RACE(ch) == RACE_GIANT) {
         if (GET_CLASS(ch) == CLASS_STONE) {
