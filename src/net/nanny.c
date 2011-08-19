@@ -315,7 +315,7 @@ handle_input(struct descriptor_data *d)
                     d->creature->desc = d;
                     set_desc_state(CXN_EDIT_DESC, d);
                 } else {
-                    errlog("loading character %d to edit it's description.",
+                    errlog("loading character %d to edit its description.",
                         char_id);
                     send_to_desc(d,
                         "\r\nThere was an error loading the character.\r\n\r\n");
@@ -1409,14 +1409,16 @@ send_menu(struct descriptor_data *d)
 
         idx = 1;
         while (!invalid_char_index(d->account, idx)) {
-            tmp_ch = load_player_from_xml(get_char_by_index(d->account, idx));
+            long idnum = get_char_by_index(d->account, idx);
+            tmp_ch = load_player_from_xml(idnum);
             if (!tmp_ch) {
-                send_to_desc(d, "Player file %ld could not be read - "
-                             "please report.\r\n",
-                             get_char_by_index(d->account, idx));
-                set_desc_state(CXN_WAIT_MENU, d);
-                return;
+                send_to_desc(d,
+                             "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
+                             player_name_by_idnum(idnum), idnum);
+                idx++;
+                continue;
             }
+
             send_to_desc(d, "    &r[&y%2d&r] &y%-20s %10s %10s %6s %s\r\n",
                 idx, GET_NAME(tmp_ch),
                 race_name_by_idnum(GET_RACE(tmp_ch)),
@@ -1435,17 +1437,27 @@ send_menu(struct descriptor_data *d)
 
         idx = 1;
         while (!invalid_char_index(d->account, idx)) {
-            tmp_ch = load_player_from_xml(get_char_by_index(d->account, idx));
+            long idnum = get_char_by_index(d->account, idx);
+            tmp_ch = load_player_from_xml(idnum);
+            if (!tmp_ch) {
+                send_to_desc(d,
+                             "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
+                             player_name_by_idnum(idnum), idnum);
+                idx++;
+                continue;
+            }
+
             send_to_desc(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
-                idx, GET_NAME(tmp_ch),
-                race_name_by_idnum(GET_RACE(tmp_ch)),
-                class_names[GET_CLASS(tmp_ch)],
-                genders[(int)GET_SEX(tmp_ch)],
-                GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
-                    GET_LEVEL(tmp_ch)) : "&m new");
+                         idx, GET_NAME(tmp_ch),
+                         race_name_by_idnum(GET_RACE(tmp_ch)),
+                         class_names[GET_CLASS(tmp_ch)],
+                         genders[(int)GET_SEX(tmp_ch)],
+                         GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
+                                                         GET_LEVEL(tmp_ch)) : "&m new");
             idx++;
             free_creature(tmp_ch);
         }
+
         send_to_desc(d, "&n\r\n");
         break;
     case CXN_DETAILS_PROMPT:
@@ -1454,7 +1466,16 @@ send_menu(struct descriptor_data *d)
 
         idx = 1;
         while (!invalid_char_index(d->account, idx)) {
-            tmp_ch = load_player_from_xml(get_char_by_index(d->account, idx));
+            long idnum = get_char_by_index(d->account, idx);
+            tmp_ch = load_player_from_xml(idnum);
+            if (!tmp_ch) {
+                send_to_desc(d,
+                             "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
+                             player_name_by_idnum(idnum), idnum);
+                idx++;
+                continue;
+            }
+
             send_to_desc(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
                 idx, GET_NAME(tmp_ch),
                 race_name_by_idnum(GET_RACE(tmp_ch)),
@@ -1968,11 +1989,12 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
 
     idx = 1;
     while (!invalid_char_index(acct, idx)) {
-        tmp_ch = load_player_from_xml(get_char_by_index(acct, idx));
+        long idnum = get_char_by_index(acct, idx);
+        tmp_ch = load_player_from_xml(idnum);
         if (!tmp_ch) {
             send_to_desc(d,
-                "&R------ BAD PROBLEMS ------  PLEASE REPORT ------[%ld]&n\r\n",
-                get_char_by_index(acct, idx));
+                         "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
+                         player_name_by_idnum(idnum), idnum);
             idx++;
             continue;
         }
