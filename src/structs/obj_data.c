@@ -623,19 +623,7 @@ load_object_from_xml(struct obj_data *container,
             obj->obj_flags.weight = xmlGetFloatProp(cur, "weight", 1);
             obj->obj_flags.material = xmlGetIntProp(cur, "material", 0);
             obj->obj_flags.timer = xmlGetIntProp(cur, "timer", 0);
-            if (obj->obj_flags.weight <= 0.0) {
-                if (obj->shared->proto) {
-                    slog("Illegal object %d weight %.2f - setting to %.2f from prototype",
-                         GET_OBJ_VNUM(obj),
-                         GET_OBJ_WEIGHT(obj),
-                         GET_OBJ_WEIGHT(obj->shared->proto));
-                    obj->obj_flags.weight = obj->shared->proto->obj_flags.weight;
-                } else {
-                    slog("Illegal prototype-less object weight %.2f - setting to 1",
-                         GET_OBJ_WEIGHT(obj));
-                    obj->obj_flags.weight = 1;
-                }
-            }
+            fix_object_weight(obj);
         } else if (xmlMatches(cur->name, "tracking")) {
             obj->unique_id = xmlGetIntProp(cur, "id", 0);
             obj->creation_method = xmlGetIntProp(cur, "method", 0);
@@ -748,7 +736,6 @@ load_object_from_xml(struct obj_data *container,
     }
 
     normalize_applies(obj);
-    fix_object_weight(obj);
 
     if (!OBJ_APPROVED(obj)) {
         slog("Unapproved object %d being junked from %s's rent.",
@@ -992,6 +979,18 @@ fix_object_weight(struct obj_data *obj)
         new_weight = 0.1;
     } else if (new_weight == 0.0) {
         new_weight = 0.01;
+    } else if (obj->obj_flags.weight < 0.0) {
+        if (obj->shared->proto) {
+            slog("Illegal object %d weight %.2f - setting to %.2f from prototype",
+                 GET_OBJ_VNUM(obj),
+                 GET_OBJ_WEIGHT(obj),
+                 GET_OBJ_WEIGHT(obj->shared->proto));
+            obj->obj_flags.weight = obj->shared->proto->obj_flags.weight;
+        } else {
+            slog("Illegal prototype-less object weight %.2f - setting to 1",
+                 GET_OBJ_WEIGHT(obj));
+            obj->obj_flags.weight = 1;
+        }
     }
 
     set_obj_weight(obj, new_weight);
