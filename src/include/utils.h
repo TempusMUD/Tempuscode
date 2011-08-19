@@ -88,8 +88,8 @@ void check_bits_32(int bitv, int *newbits);
 #undef MIN
 #endif
 
-#define MAX(a, b) (a > b ? a : b)
-#define MIN(a, b) (a > b ? b : a)
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) > (b) ? (b) : (a))
 
 /* in magic.c */
 bool circle_follow(struct creature *ch, struct creature *victim);
