@@ -194,71 +194,86 @@ init_game(void)
 int
 init_socket(int port)
 {
-    int s, opt;
-    struct sockaddr_in sa;
+    struct addrinfo *info, hints;
+    int err, s, opt;
+    char portstr[6];
 
-    /*
-     * Should the first argument to socket() be AF_INET or PF_INET?  I don't
-     * know, take your pick.  PF_INET seems to be more widely adopted, and
-     * Comer (_Internetworking with TCP/IP_) even makes a point to say that
-     * people erroneously use AF_INET with socket() when they should be using
-     * PF_INET.  However, the man pages of some systems indicate that AF_INET
-     * is correct; some such as ConvexOS even say that you can use either one.
-     * All implementations I've seen define AF_INET and PF_INET to be the same
-     * number anyway, so ths point is (hopefully) moot.
-     */
+    memset(&hints, 0, sizeof(hints));
 
-    if ((s = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-        perror("Create socket");
-        safe_exit(EXIT_FAILURE);
-    }
-#if defined(SO_SNDBUF)
-    opt = LARGE_BUFSIZE + GARBAGE_SPACE;
-    if (setsockopt(s, SOL_SOCKET, SO_SNDBUF, (char *)&opt, sizeof(opt)) < 0) {
-        perror("setsockopt SNDBUF");
-        safe_exit(EXIT_FAILURE);
-    }
+#ifdef USE_IPV6
+    hints.ai_family = AF_INET6;
+#else
+    hints.ai_family = AF_INET;
 #endif
-
-#if defined(SO_REUSEADDR)
-    opt = 1;
-    if (setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt)) < 0) {
-        perror("setsockopt REUSEADDR");
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE | AI_NUMERICSERV;
+    sprintf(portstr, "%d", port);
+    err = getaddrinfo(NULL, portstr, &hints, &info);
+    if (err != 0) {
+        fprintf(stderr, "init_socket(): %s\n", gai_strerror(err));
         safe_exit(EXIT_FAILURE);
     }
-#endif
 
-#if defined(SO_REUSEPORT)
-    opt = 1;
-    if (setsockopt(s, SOL_SOCKET, SO_REUSEPORT, (char *)&opt, sizeof(opt)) < 0) {
-        perror("setsockopt REUSEPORT");
-        safe_exit(EXIT_FAILURE);
-    }
-#endif
+    struct addrinfo *cur = NULL;
+    for (cur = info;cur;cur = cur->ai_next) {
+        s = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
+        if (s == -1)
+            continue;
 
-#if defined(SO_LINGER)
-    {
-        struct linger ld;
-
-        ld.l_onoff = 0;
-        ld.l_linger = 0;
-        if (setsockopt(s, SOL_SOCKET, SO_LINGER, (char *)&ld, sizeof(ld)) < 0) {
-            perror("setsockopt LINGER");
+#ifdef SO_SNDBUF
+        opt = LARGE_BUFSIZE + GARBAGE_SPACE;
+        err = setsockopt(s, SOL_SOCKET, SO_SNDBUF, (char *)&opt, sizeof(opt));
+        if (err < 0) {
+            perror("setsockopt SNDBUF");
             safe_exit(EXIT_FAILURE);
         }
-    }
 #endif
 
-    memset(&sa, 0, sizeof(struct sockaddr_in));
-    sa.sin_family = AF_INET;
-    sa.sin_port = htons(port);
-    sa.sin_addr.s_addr = htonl(INADDR_ANY);
+#ifdef SO_REUSEADDR
+        opt = 1;
+        err = setsockopt(s, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
+        if (err < 0) {
+            perror("setsockopt REUSEADDR");
+            safe_exit(EXIT_FAILURE);
+        }
+#endif
 
-    if (bind(s, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-        perror("bind");
+#ifdef SO_REUSEPORT
+        opt = 1;
+        err = setsockopt(s, SOL_SOCKET, SO_REUSEPORT, (char *)&opt, sizeof(opt));
+        if (err < 0) {
+            perror("setsockopt REUSEPORT");
+            safe_exit(EXIT_FAILURE);
+        }
+#endif
+
+#ifdef SO_LINGER
+        {
+            struct linger ld;
+
+            ld.l_onoff = 0;
+            ld.l_linger = 0;
+            err = setsockopt(s, SOL_SOCKET, SO_LINGER, (char *)&ld, sizeof(ld));
+            if (err < 0) {
+                perror("setsockopt LINGER");
+                safe_exit(EXIT_FAILURE);
+            }
+        }
+#endif
+        err = bind(s, cur->ai_addr, cur->ai_addrlen);
+        if (err == 0)
+            break;
+
         close(s);
+    }
+
+    freeaddrinfo(info);
+
+    if (cur == NULL) {
+        fprintf(stderr, "Could not bind.\n");
         safe_exit(EXIT_FAILURE);
     }
+
     nonblock(s);
     listen(s, 5);
     return s;
@@ -794,19 +809,19 @@ int
 new_descriptor(int s, int port)
 {
     int desc, sockets_input_mode = 0;
-    unsigned int i;
     static int last_desc = 0;   /* last descriptor number */
     struct descriptor_data *newd;
-    struct sockaddr_in peer;
-    struct hostent *from;
+    struct sockaddr_storage peer;
+    socklen_t addrlen;
     extern const char *GREETINGS[];
 
     /* accept the new connection */
-    i = sizeof(peer);
-    if ((desc = accept(s, (struct sockaddr *)&peer, &i)) < 0) {
+    addrlen = sizeof(peer);
+    if ((desc = accept(s, (struct sockaddr *)&peer, &addrlen)) < 0) {
         perror("accept");
         return -1;
     }
+
     /* keep it from blocking */
     nonblock(desc);
 
@@ -820,24 +835,22 @@ new_descriptor(int s, int port)
         close(desc);
         return 0;
     }
+
     /* create a new descriptor */
     CREATE(newd, struct descriptor_data, 1);
 
-    /* find the sitename */
-    if (nameserver_is_slow) {
-        from = NULL;
-    } else {
-        from = gethostbyaddr(&peer.sin_addr,
-                             sizeof(peer.sin_addr),
-                             AF_INET);
+    int info_flags = NI_NUMERICSERV;
+    int err;
+    if (nameserver_is_slow)
+        info_flags |= NI_NUMERICHOST;
+    err = getnameinfo((struct sockaddr *)&peer, addrlen,
+                      newd->host, HOST_LENGTH,
+                      NULL, 0, info_flags);
+    if (err != 0) {
+        fprintf(stderr, "new_descriptor(): %s\n", gai_strerror(err));
+        close(s);
+        return 0;
     }
-
-    if (from) {
-        strncpy(newd->host, from->h_name, HOST_LENGTH);
-    } else {
-        strncpy(newd->host, inet_ntoa(peer.sin_addr), HOST_LENGTH);
-    }
-    newd->host[HOST_LENGTH] = '\0';
 
     /* determine if the site is banned */
     if (check_ban_all(desc, newd->host)) {

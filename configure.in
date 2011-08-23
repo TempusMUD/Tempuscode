@@ -18,6 +18,22 @@ AC_ARG_ENABLE(debug,
 
 AM_CONDITIONAL(DEBUG, test x"$debug" = "xtrue")
 
+# Enable or disable ipv6
+AC_ARG_ENABLE(ipv6,
+         AS_HELP_STRING([--enable-ipv6],
+                [enable ipv6 support @<:@default=yes@:>@]),
+              [case "${enableval}" in
+                 yes) ipv6_support=true ;;
+                 no)  ipv6_support=false ;;
+                 *)   AC_MSG_ERROR([bad value ${enableval} for --enable-ipv6]) ;;
+               esac],
+              [ipv6_support=true])
+
+AM_CONDITIONAL(IPV6_SUPPORT, test x"$ipv6_support" = "xtrue")
+
+# Set default CFLAGS to empty
+: ${CFLAGS=""}
+
 # Checks for programs.
 AC_PROG_CC
 AC_PROG_CC_C99

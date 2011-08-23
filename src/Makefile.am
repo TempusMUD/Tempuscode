@@ -3,9 +3,14 @@ if DEBUG
 else
   DBGFLAG = -O3
 endif
+if IPV6_SUPPORT
+  USE_IPV6_FLAG=-DUSE_IPV6
+else
+  USE_IPV6_FLAG=
+endif
 bin_PROGRAMS = @top_srcdir@/bin/circle
 INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@ @XML_CFLAGS@ @GLIB_CFLAGS@
-AM_CFLAGS = -Wall -Wcast-qual ${DBGFLAG}
+AM_CFLAGS = -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG}
 AM_LDFLAGS = @XML_LIBS@ @GLIB_LIBS@
 ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^DEFPROGHANDLER(\\([a-zA-Z0-9_]+\\),[^)]+)$/prog_do_\\1/' --regex='/^SPECIAL(\\([a-zA-Z0-9_]+\\))$/\\1/'
 
