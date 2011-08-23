@@ -621,7 +621,7 @@ static inline bool IS_REMORT( const struct creature *ch )
 static inline int
 STRENGTH_APPLY_INDEX(struct creature *ch)
 {
-	if (GET_STR(ch) < 0 || GET_STR(ch) > 25)
+	if (GET_STR(ch) < 0 || GET_STR(ch) > 35)
 		return 11;
     return GET_STR(ch);
 }
