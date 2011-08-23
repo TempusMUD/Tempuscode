@@ -446,22 +446,14 @@ affect_total(struct creature *ch)
             af->aff_index, true);
 
     /* Make certain values are between 0..25, not < 0 and not > 25! */
-    int max_str, max_intel, max_dex, max_wis, max_con, max_cha;
-    max_str = max_creature_attr(ch, ATTR_STR);
-    max_dex = max_creature_attr(ch, ATTR_DEX);
-    max_intel = max_creature_attr(ch, ATTR_INT);
-    max_wis = max_creature_attr(ch, ATTR_WIS);
-    max_con = max_creature_attr(ch, ATTR_CON);
-    max_cha = max_creature_attr(ch, ATTR_CHA);
+    GET_STR(ch) = MAX(1, MIN(GET_STR(ch), 35)); /* str is a special case atm */
+    GET_DEX(ch) = MAX(1, MIN(GET_DEX(ch), 25));
+    GET_INT(ch) = MAX(1, MIN(GET_INT(ch), 25));
+    GET_WIS(ch) = MAX(1, MIN(GET_WIS(ch), 25));
+    GET_CON(ch) = MAX(1, MIN(GET_CON(ch), 25));
+    GET_CHA(ch) = MAX(1, MIN(GET_CHA(ch), 25));
 
-    GET_STR(ch) = MAX(1, MIN(GET_STR(ch), max_str));
-    GET_DEX(ch) = MAX(1, MIN(GET_DEX(ch), max_dex));
-    GET_INT(ch) = MAX(1, MIN(GET_INT(ch), max_intel));
-    GET_WIS(ch) = MAX(1, MIN(GET_WIS(ch), max_wis));
-    GET_CON(ch) = MAX(1, MIN(GET_CON(ch), max_con));
-    GET_CHA(ch) = MAX(1, MIN(GET_CHA(ch), max_cha));
-
-    /* Make sure that HIT !> MAX_HIT, etc...               */
+    /* Make sure that HIT < MAX_HIT, etc...               */
 
     GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch));
     GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch));
