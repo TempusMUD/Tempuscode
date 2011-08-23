@@ -1,0 +1,76 @@
+#!/usr/bin/ruby
+
+require 'rubygems'
+require 'postgres'
+
+Dir.chdir('/opt/tempus')
+
+# Fetch the new version
+Kernel.system('git fetch origin')
+
+if not File.exists?('/tmp/tempus.reboot.news.txt')
+  File.open('/tmp/tempus.reboot.news.txt', 'w') { |ouf|
+    ouf.print "# Edit the news file here.  Lines beginning with # will be ignored\n"
+    changes = `git log --format="format:- %s" master..origin/master >>/tmp/tempus.reboot.news.txt`
+    ouf.print "This reboot:\n\n"
+    if changes == ''
+      ouf.print changes
+    else
+      ouf.print '- no changes detected\n'
+    end
+    ouf.print "\n: Azi :\n"
+  }
+end
+
+Kernel.system('git merge origin')
+
+# Build the new version while editing the news
+Process.fork {
+  if not Kernel.system('git pull >build.log 2>&1')
+    Kernel.exit(1)
+  end
+  if not Kernel.system('make -j3 >>build.log 2>&1')
+    Kernel.exit(1)
+  end
+}
+
+Kernel.system('/usr/bin/vim /tmp/tempus.reboot.news.txt')
+
+# Make sure the build succeeded
+pid, status = Process.wait2()
+if status.exitstatus != 0
+  $stderr.write "Error occurred during build.  See build.log for details\n"
+  Kernel.exit(1)
+end
+
+# Read the news
+news = IO.read('/tmp/tempus.reboot.news.txt')
+File.unlink('/tmp/tempus.reboot.news.txt')
+
+news.gsub!(/^#.*\r?\n/, '')     # remove commented lines
+news.gsub!(/\r?\n/, '\r\n')     # ensure CRLF formatting
+
+# Post the news to realm
+sql = PGconn.connect("", -1, "", "", "tempus", "realm")
+post_title = Time.now.strftime("%y-%m-%d Reboot")
+sql.exec("insert into forum_topics (forum, subject, last_updated, locked) values (9, $1, now(), false)", post_title)
+res = sql.query('select lastval()')
+topic_id = res[0][0].to_i
+sql.exec("insert into forum_messages (topic, author, post_time, name, body) values ($1, 2, now(), $2, $3)",
+         topic_id, 'Azimuth', news)
+
+# Post the news to the mud news file
+old_news = IO.read('lib/text/news')
+header = "\r\n-- NEWS UPDATE (#{Time.now.strftime("%m/%d")}) -----------------------------------------\r\n\r\n"
+news_entry = header
+news_entry += news
+news_entry += old_news
+File.open('lib/text/news', 'w') { | ouf|
+  ouf.write(news_entry)
+}
+
+# Initiate mud reboot
+Kernel.system("pkill -HUP circle")
+
+# Remove obsoleted core files
+Kernel.system("find /opt/tempus/log -name '*-core' -delete")
