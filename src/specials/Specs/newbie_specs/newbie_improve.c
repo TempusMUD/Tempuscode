@@ -71,7 +71,7 @@ SPECIAL(newbie_improve)
     }
     switch (index) {
     case ATTR_STR:
-        if (max_creature_attr(ch, ATTR_STR)) {
+        if (ch->real_abils.str >= max_creature_attr(ch, ATTR_STR)) {
             send_to_char(ch,
                 "Your strength is already at the peak of mortal ablility.\r\n");
             return 1;
