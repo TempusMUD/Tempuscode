@@ -913,7 +913,7 @@ dynedit_update_string(dynamic_text_file * d)
     tmTime = *(localtime(&t));
 
     sprintf(buffer,
-        "\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\n",
+        "\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\r\n",
         tmp_toupper(d->filename), tmTime.tm_mon + 1, tmTime.tm_mday);
 
     return buffer;
