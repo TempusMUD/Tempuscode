@@ -108,15 +108,13 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
         return 1;
     }
 
-    while (ch->affected)
-        affect_remove(ch, ch->affected);
-
     GET_GOLD(ch) = MAX(0, GET_GOLD(ch) - gold);
     GET_LIFE_POINTS(ch) -= life_cost;
 
     *real_stat += 1;
-    // Must copy the aff abils over
-    ch->aff_abils = ch->real_abils;
+
+    // crashsaving does the necessary adjustments to aff_attrs
+    crashsave(ch);
 
     if (mode != ATTR_STR)
         slog("%s improved %s from %d to %d at %d.",
@@ -130,7 +128,6 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
     send_to_char(ch, "You begin your training.\r\n");
     act("$n begins to train.", false, ch, 0, 0, TO_ROOM);
     WAIT_STATE(ch, *real_stat RL_SEC);
-    crashsave(ch);
 
     return true;
 }
