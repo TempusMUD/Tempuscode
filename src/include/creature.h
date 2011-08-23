@@ -897,6 +897,13 @@ struct creature {
     int prog_marker;
 };
 
+struct aff_stash {
+    struct obj_data *saved_eq[NUM_WEARS];
+    struct obj_data *saved_impl[NUM_WEARS];
+    struct obj_data *saved_tattoo[NUM_WEARS];
+    struct affected_type *saved_affs;
+};
+
 /* ====================================================================== */
 
 extern GList *creatures;
@@ -987,5 +994,9 @@ bool creature_remort(struct creature *ch);
 
 int max_creature_attr(struct creature *ch, int mode);
 char *format_strength(int str);
+
+struct aff_stash *stash_creature_affects(struct creature *ch);
+void restore_creature_affects(struct creature *ch,
+                              struct aff_stash *aff_stash);
 
 #endif

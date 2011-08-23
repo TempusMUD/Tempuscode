@@ -394,19 +394,67 @@ loadCorpse(struct creature *ch)
     return 0;
 }
 
+struct aff_stash *
+stash_creature_affects(struct creature *ch)
+{
+    // Save vital statistics
+    struct aff_stash *result = NULL;
+    struct affected_type *cur_aff;
+    int pos;
+
+    CREATE(result, struct aff_stash, 1);
+
+    // Remove all spell affects without deleting them
+    result->saved_affs = ch->affected;
+    ch->affected = NULL;
+
+    for (cur_aff = result->saved_affs; cur_aff; cur_aff = cur_aff->next)
+        affect_modify(ch, cur_aff->location, cur_aff->modifier,
+                      cur_aff->bitvector, cur_aff->aff_index, false);
+
+    for (pos = 0; pos < NUM_WEARS; pos++) {
+        if (GET_EQ(ch, pos))
+            result->saved_eq[pos] = raw_unequip_char(ch, pos, EQUIP_WORN);
+        if (GET_IMPLANT(ch, pos))
+            result->saved_impl[pos] = raw_unequip_char(ch, pos, EQUIP_IMPLANT);
+        if (GET_TATTOO(ch, pos))
+            result->saved_tattoo[pos] = raw_unequip_char(ch, pos, EQUIP_TATTOO);
+    }
+
+    return result;
+}
+
+void
+restore_creature_affects(struct creature *ch, struct aff_stash *aff_stash)
+{
+    struct affected_type *cur_aff;
+    int pos;
+
+    for (pos = 0; pos < NUM_WEARS; pos++) {
+        if (aff_stash->saved_eq[pos])
+            equip_char(ch, aff_stash->saved_eq[pos], pos, EQUIP_WORN);
+        if (aff_stash->saved_impl[pos])
+            equip_char(ch, aff_stash->saved_impl[pos], pos, EQUIP_IMPLANT);
+        if (aff_stash->saved_tattoo[pos])
+            equip_char(ch, aff_stash->saved_tattoo[pos], pos, EQUIP_TATTOO);
+    }
+
+    for (cur_aff = aff_stash->saved_affs; cur_aff; cur_aff = cur_aff->next)
+        affect_modify(ch, cur_aff->location, cur_aff->modifier,
+                      cur_aff->bitvector, cur_aff->aff_index, true);
+    ch->affected = aff_stash->saved_affs;
+    affect_total(ch);
+}
+
 void
 save_player_to_file(struct creature *ch, const char *path)
 {
     void expire_old_grievances(struct creature *);
     // Save vital statistics
-    struct obj_data *saved_eq[NUM_WEARS];
-    struct obj_data *saved_impl[NUM_WEARS];
-    struct obj_data *saved_tattoo[NUM_WEARS];
-    struct affected_type *saved_affs, *cur_aff;
     FILE *ouf;
     char *tmp_path;
     struct alias_data *cur_alias;
-    int idx, pos;
+    int idx;
     int hit = GET_HIT(ch), mana = GET_MANA(ch), move = GET_MOVE(ch);
 
     tmp_path = tmp_sprintf("%s.tmp", path);
@@ -417,31 +465,7 @@ save_player_to_file(struct creature *ch, const char *path)
             path, strerror(errno));
         return;
     }
-    // Remove all spell affects without deleting them
-    saved_affs = ch->affected;
-    ch->affected = NULL;
-
-    for (cur_aff = saved_affs; cur_aff; cur_aff = cur_aff->next)
-        affect_modify(ch, cur_aff->location, cur_aff->modifier,
-            cur_aff->bitvector, cur_aff->aff_index, false);
-
-    // Before we save everything, every piece of eq, and every affect must
-    // be removed and stored - otherwise all the stats get screwed up when
-    // we restore the eq and affects
-    for (pos = 0; pos < NUM_WEARS; pos++) {
-        if (GET_EQ(ch, pos))
-            saved_eq[pos] = raw_unequip_char(ch, pos, EQUIP_WORN);
-        else
-            saved_eq[pos] = NULL;
-        if (GET_IMPLANT(ch, pos))
-            saved_impl[pos] = raw_unequip_char(ch, pos, EQUIP_IMPLANT);
-        else
-            saved_impl[pos] = NULL;
-        if (GET_TATTOO(ch, pos))
-            saved_tattoo[pos] = raw_unequip_char(ch, pos, EQUIP_TATTOO);
-        else
-            saved_tattoo[pos] = NULL;
-    }
+    struct aff_stash *aff_stash = stash_creature_affects(ch);
 
     expire_old_grievances(ch);
 
@@ -579,7 +603,10 @@ save_player_to_file(struct creature *ch, const char *path)
         fprintf(ouf, "<alias type=\"%d\" alias=\"%s\" replace=\"%s\"/>\n",
             cur_alias->type, xmlEncodeSpecialTmp(cur_alias->alias),
             xmlEncodeSpecialTmp(cur_alias->replacement));
-    for (cur_aff = saved_affs; cur_aff; cur_aff = cur_aff->next)
+
+    for (struct affected_type *cur_aff = aff_stash->saved_affs;
+         cur_aff;
+         cur_aff = cur_aff->next)
         fprintf(ouf,
             "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" owner=\"%ld\"/>\n",
             cur_aff->type, cur_aff->duration, cur_aff->modifier,
@@ -613,21 +640,8 @@ save_player_to_file(struct creature *ch, const char *path)
     // on success, move temp file on top of the old file
     rename(tmp_path, path);
 
-    // Now we get to put all that eq back on and reinstate the spell affects
-    for (pos = 0; pos < NUM_WEARS; pos++) {
-        if (saved_eq[pos])
-            equip_char(ch, saved_eq[pos], pos, EQUIP_WORN);
-        if (saved_impl[pos])
-            equip_char(ch, saved_impl[pos], pos, EQUIP_IMPLANT);
-        if (saved_tattoo[pos])
-            equip_char(ch, saved_tattoo[pos], pos, EQUIP_TATTOO);
-    }
-
-    for (cur_aff = saved_affs; cur_aff; cur_aff = cur_aff->next)
-        affect_modify(ch, cur_aff->location, cur_aff->modifier,
-            cur_aff->bitvector, cur_aff->aff_index, true);
-    ch->affected = saved_affs;
-    affect_total(ch);
+    restore_creature_affects(ch, aff_stash);
+    free(aff_stash);
 
     GET_HIT(ch) = MIN(GET_MAX_HIT(ch), hit);
     GET_MANA(ch) = MIN(GET_MAX_MANA(ch), mana);
