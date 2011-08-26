@@ -7,10 +7,11 @@ installed for tempus to build.  In addition, if you wish to do more
 than minor development, you should have the GNU autoconf system
 installed.
 
-In Debian or Ubuntu, you should be able to install the necessary
+In Debian or Ubuntu, you should be able to install all the necessary
 prerequisites with this command:
 
-  apt-get install libpq-dev libxml2-dev glib2.0-dev check git-core
+apt-get install build-essential postgresql autotools-dev autoconf
+                libpq-dev libxml2-dev glib2.0-dev check git-core
 
 Getting Tempus Code
 ------------------------------------------------------------------------
@@ -35,8 +36,8 @@ $ sh bootstrap
 This will generate the configure script and all the necessary makefile
 templates.  Then, run the following to configure your system:
 
-$ cd build
-$ ../configure
+  cd build
+  ../configure
 
 This will ensure that intermediate build files are placed in the build
 directory rather than the source directory (which can get very messy).
@@ -46,13 +47,32 @@ make requests to the makefiles in the build directory.
 If you add any source files to the system, you must run the bootstrap
 script again.  Don't forget to add them to your repository!
 
-Multiprocessor machines
-------------------------------------------------------------------------
 If you have a multiprocessor machine, you can build Tempus much more
-quickly by putting the following in your .bashrc or .profile script:
+quickly by running this command first:
 
-export MAKEFLAGS='-j #'
+  export MAKEFLAGS='-j #'
 
 where # is the number of processors (or cores) you have + 1.  Dual-core
 machines should put 3, quad-cpu machines should put 5, etc.  This
-ensures the maximum use of all your processors.
+ensures the maximum use of all your processors.  This is a good
+command to put in your .profile.
+
+
+Configuring Postgresql
+------------------------------------------------------------------------
+Tempuscode uses both the lib/ directory and a postgresql database to
+store its data.  The postgreql database must be set up correctly for
+Tempuscode to run.
+
+   createuser -d -R -S realm
+   createdb -U realm devtempus
+   psql -f sample_lib/etc/tempus.sql
+
+Running Tempuscode
+------------------------------------------------------------------------
+You should now be able to run the code with this command:
+
+  bin/circle sample_lib
+
+Happy hacking!
+
