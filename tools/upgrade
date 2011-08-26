@@ -11,12 +11,12 @@ Kernel.system('git fetch origin')
 if not File.exists?('/tmp/tempus.reboot.news.txt')
   File.open('/tmp/tempus.reboot.news.txt', 'w') { |ouf|
     ouf.print "# Edit the news file here.  Lines beginning with # will be ignored\n"
-    changes = `git log --format="format:- %s" master..origin/master >>/tmp/tempus.reboot.news.txt`
+    changes = `git log --format="format:- %s" master..origin/master`
     ouf.print "This reboot:\n\n"
     if changes == ''
       ouf.print changes
     else
-      ouf.print '- no changes detected\n'
+      ouf.print "- no changes detected\n"
     end
     ouf.print "\n: Azi :\n"
   }
@@ -52,7 +52,7 @@ news.gsub!(/\r?\n/, '\r\n')     # ensure CRLF formatting
 
 # Post the news to realm
 sql = PGconn.connect("", -1, "", "", "tempus", "realm")
-post_title = Time.now.strftime("%y-%m-%d Reboot")
+post_title = Time.now.strftime("%Y-%m-%d Reboot")
 sql.exec("insert into forum_topics (forum, subject, last_updated, locked) values (9, $1, now(), false)", post_title)
 res = sql.query('select lastval()')
 topic_id = res[0][0].to_i
