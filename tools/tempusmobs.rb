@@ -111,7 +111,7 @@ class Mobile
   attr_accessor :vnum, :alignment, :aliases, :name, :ldesc, :desc,
   :mob_flags, :mob2_flags, :aff_flags, :aff2_flags, :aff3_flags,
   :cur_tongue, :known_tongues, :hitnodice, :hitdice, :hitplus, :gold,
-  :cash, :hitroll, :damroll, :morale
+  :cash, :hitroll, :damroll, :morale, :str, :int, :wis, :con, :dex, :cha
 
   def initialize
     @aff_flags = ""
@@ -152,6 +152,7 @@ class Mobile
     @stradd = 0
     @tongues = []
     @vnum = 0
+    @voice = 0
     @weight = 200
     @wis = 11
   end
@@ -293,7 +294,6 @@ EOF
         mob_type = match[7]
         raise "Invalid mob type #{mob_type}" unless ['S','E'].index(mob_type)
 
-        @morale = (/h/.match(@mob_flags)) ? max(30, @level):100;
         state = :numbers1
       when :numbers1
         match = line.match(/^(\d+)\s+([\d-]+)\s+([\d-]+)\s+(\d+)d(\d+)\+(\d+)\s+(\d+)d(\d+)\+([-0-9]+)/)
@@ -394,6 +394,8 @@ EOF
               @tongues.push(bit)
             end
           }
+        when /Voice: (\d+)/
+          @voice = $1.to_i
         else
           raise "Unrecognized espec keyword in mobile #{@vnum}"
         end
@@ -413,12 +415,14 @@ EOF
           read_tilde_str('', inf)
         when /^[\$#]/
           inf.seek(-(line.length), IO::SEEK_CUR)
-          return true
+          break
         end
       else
           raise "Invalid state reached in mob #{@vnum}"
       end
     }
+    @morale = (/h/.match(@mob_flags)) ? ([30, @level].max):100;
+    return true
   end
 
   def check
