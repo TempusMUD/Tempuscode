@@ -23,8 +23,9 @@
 #include "race.h"
 #include "creature.h"
 #include "prog.h"
-#include "mail.h"
 #include "editor.h"
+
+#define MAX_POLL_SIZE 4096
 
 void voting_add_poll(const char *header, const char *text);
 
@@ -74,7 +75,7 @@ start_editing_poll(struct descriptor_data *d, const char *header)
 
     SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING);
 
-    d->text_editor = make_editor(d, MAX_MAIL_SIZE);
+    d->text_editor = make_editor(d, MAX_POLL_SIZE);
     CREATE(poll_data, struct polleditor_data, 1);
     d->text_editor->finalize = polleditor_finalize;
     d->text_editor->cancel = polleditor_cancel;

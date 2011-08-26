@@ -24,8 +24,9 @@
 #include "creature.h"
 #include "players.h"
 #include "prog.h"
-#include "mail.h"
 #include "editor.h"
+
+#define MAX_TEXT_SIZE 4096
 
 struct texteditor_data {
     char **target;
@@ -110,7 +111,7 @@ start_editing_text(struct descriptor_data *d, char **dest, int max)
 
     SET_BIT(PLR_FLAGS(d->creature), PLR_WRITING);
 
-    d->text_editor = make_editor(d, MAX_MAIL_SIZE);
+    d->text_editor = make_editor(d, MAX_TEXT_SIZE);
     CREATE(text_data, struct texteditor_data, 1);
     d->text_editor->finalize = texteditor_finalize;
     d->text_editor->cancel = texteditor_cancel;

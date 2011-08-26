@@ -86,7 +86,6 @@
 #include "search.h"
 #include "prog.h"
 #include "quest.h"
-#include "mail.h"
 #include "help.h"
 #include "paths.h"
 #include "voice.h"
