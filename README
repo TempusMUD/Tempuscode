@@ -10,8 +10,9 @@ installed.
 In Debian or Ubuntu, you should be able to install all the necessary
 prerequisites with this command:
 
-apt-get install build-essential postgresql autotools-dev autoconf
-                libpq-dev libxml2-dev glib2.0-dev check git-core
+apt-get install build-essential postgresql autotools-dev autoconf \
+                libpq-dev libxml2-dev glib2.0-dev check git-core \
+                autoconf-archive
 
 Getting Tempus Code
 ------------------------------------------------------------------------
