@@ -7,16 +7,6 @@
 // All modifications and additions are
 // Copyright 1998 by John Watson, all rights reserved.
 //
-#include <stdint.h>
-#include <glib.h>
-
-#include "structs.h"
-#include "constants.h"
-#include "macros.h"
-#include "account.h"
-#include "desc_data.h"
-#include "interpreter.h"
-#include "race.h"
 
 /* char and mob-related defines *****************************************/
 
@@ -633,7 +623,7 @@ struct time_data {
 enum {MAX_WEAPON_SPEC = 6};
 typedef struct weapon_spec {
 	int vnum;
-	ubyte level;
+	uint8_t level;
 } weapon_spec;
 
 /* general player-related info, usually PC's and NPC's */
@@ -643,26 +633,26 @@ struct char_player_data {
 	char *long_descr;			/* for 'look'                   */
 	char *description;			/* Extra descriptions                   */
 	char *title;				/* PC / NPC's title                     */
-	sh_int char_class;			/* PC / NPC's char_class               */
-	sh_int remort_char_class;	/* PC / NPC REMORT CLASS (-1 for none) */
-	sh_int weight;				/* PC / NPC's weight                    */
-	sh_int height;				/* PC / NPC's height                    */
-	sh_int hometown;			/* PC s Hometown (zone)                 */
-	byte sex;					/* PC / NPC's sex                       */
-	byte race;					/* PC / NPC's race                  */
-	ubyte level;			/* PC / NPC's level                     */
-	byte age_adjust;			/* PC age adjust to maintain sanity     */
+	int16_t char_class;			/* PC / NPC's char_class               */
+	int16_t remort_char_class;	/* PC / NPC REMORT CLASS (-1 for none) */
+	int16_t weight;				/* PC / NPC's weight                    */
+	int16_t height;				/* PC / NPC's height                    */
+	int16_t hometown;			/* PC s Hometown (zone)                 */
+	int8_t sex;					/* PC / NPC's sex                       */
+	int8_t race;					/* PC / NPC's race                  */
+	uint8_t level;			/* PC / NPC's level                     */
+	int8_t age_adjust;			/* PC age adjust to maintain sanity     */
 	struct time_data time;		/* PC's AGE in days                 */
 };
 
 /* Char's abilities. */
 struct char_ability_data {
-    sbyte str;                  /* 1 - 35 */
-	sbyte intel;
-	sbyte wis;
-	sbyte dex;
-	sbyte con;
-	sbyte cha;
+    int8_t str;                  /* 1 - 35 */
+	int8_t intel;
+	int8_t wis;
+	int8_t dex;
+	int8_t con;
+	int8_t cha;
 };
 
 /* Char's points */
@@ -674,13 +664,13 @@ struct char_point_data {
 	int move;
 	int max_move;			/* Max move for PC/NPC                     */
 
-	sh_int armor;				/* Internal -100..100, external -10..10 AC */
+	int16_t armor;				/* Internal -100..100, external -10..10 AC */
     money_t gold;					/* Money carried                           */
 	money_t cash;					// cash on hand
 	int exp;					/* The experience of the player            */
 
-	sbyte hitroll;				/* Any bonus or penalty to the hit roll    */
-	sbyte damroll;				/* Any bonus or penalty to the damage roll */
+	int8_t hitroll;				/* Any bonus or penalty to the hit roll    */
+	int8_t damroll;				/* Any bonus or penalty to the damage roll */
 };
 
 /*
@@ -695,8 +685,8 @@ struct char_special_data_saved {
 	uint32_t affected_by;			/* Bitvector for spells/skills affected by */
 	uint32_t affected2_by;
 	uint32_t affected3_by;
-    ubyte remort_generation;
-	sh_int apply_saving_throw[10];	/* Saving throw (Bonuses)        */
+    uint8_t remort_generation;
+	int16_t apply_saving_throw[10];	/* Saving throw (Bonuses)        */
 };
 
 /* Special playing constants shared by PCs and NPCs which aren't in pfile */
@@ -711,11 +701,11 @@ struct char_special_data {
 	int meditate_timer;			/* How long has been meditating           */
 	int cur_flow_pulse;			/* Keeps track of whether char has flowed */
 
-	byte breath_count;			/* for breathing and falling              */
-	byte fall_count;
-	byte position;				/* Standing, fighting, sleeping, etc.    */
-	byte carry_items;			/* Number of items carried        */
-	byte weapon_proficiency;	/* Scale of learnedness of weapon prof.   */
+	int8_t breath_count;			/* for breathing and falling              */
+	int8_t fall_count;
+	int8_t position;				/* Standing, fighting, sleeping, etc.    */
+	int8_t carry_items;			/* Number of items carried        */
+	int8_t weapon_proficiency;	/* Scale of learnedness of weapon prof.   */
 
 	const char *mood_str;		/* Sets mood for $a in act() */
 	struct char_special_data_saved saved;	/* constants saved in plrfile    */
@@ -739,23 +729,23 @@ struct grievance {
 };
 
 struct player_special_data_saved {
-	byte skills[MAX_SKILLS + 1];	/* array of skills plus skill 0        */
+	int8_t skills[MAX_SKILLS + 1];	/* array of skills plus skill 0        */
 	weapon_spec weap_spec[MAX_WEAPON_SPEC];
 	int wimp_level;				/* Below this # of hit points, flee!    */
-	byte freeze_level;			/* Level of god who froze char, if any    */
-	sh_int invis_level;			/* level of invisibility        */
+	int8_t freeze_level;			/* Level of god who froze char, if any    */
+	int16_t invis_level;			/* level of invisibility        */
 	room_num load_room;			/* Which room to place char in        */
 	room_num home_room;
 	uint32_t pref;					/* preference flags for PC's.        */
 	uint32_t pref2;					/* 2nd pref flag                        */
-	sbyte conditions[3];		/* Drunk, full, thirsty            */
+	int8_t conditions[3];		/* Drunk, full, thirsty            */
 
-	ubyte clan;
-	ubyte broken_component;
-	ubyte imm_qp;
-	ubyte qlog_level;			// what level of awareness we have to qlog
-	ubyte speed;				// percentage of speedup
-	ubyte qp_allowance;			// Quest point allowance
+	uint8_t clan;
+	uint8_t broken_component;
+	uint8_t imm_qp;
+	uint8_t qlog_level;			// what level of awareness we have to qlog
+	uint8_t speed;				// percentage of speedup
+	uint8_t qp_allowance;			// Quest point allowance
 	char badge[MAX_BADGE_LENGTH+1];
 	int deity;
 	int life_points;
@@ -818,10 +808,10 @@ struct mob_shared_data {
 	int kills;
 	int loaded;
     int voice;
-	byte default_pos;			/* Default position for NPC              */
-	byte damnodice;				/* The number of damage dice's           */
-	byte damsizedice;			/* The size of the damage dice's         */
-	byte morale;
+	int8_t default_pos;			/* Default position for NPC              */
+	int8_t damnodice;				/* The number of damage dice's           */
+	int8_t damsizedice;			/* The size of the damage dice's         */
+	int8_t morale;
 	char *move_buf;				/* custom move buf */
 	struct creature *proto;	/* pointer to prototype */
 	SPECIAL((*func));
@@ -838,7 +828,7 @@ struct mob_special_data {
 	void *func_data;			// Mobile-specific data used for specials
 	struct mob_shared_data *shared;
 	int wait_state;				/* Wait state for bashed mobs           */
-	byte last_direction;		/* The last direction the monster went     */
+	int8_t last_direction;		/* The last direction the monster went     */
 	long mob_idnum;		/* mobile's unique idnum */
 };
 
@@ -848,8 +838,8 @@ struct affected_type {
 	int duration;			/* For how long its effects will last      */
 	int modifier;			/* This is added to apropriate ability     */
 	int location;			/* Tells which ability to change(APPLY_XXX) */
-	ubyte level;
-	ubyte is_instant;
+	uint8_t level;
+	uint8_t is_instant;
 	long bitvector;				/* Tells which bits to set (AFF_XXX)       */
 	int aff_index;
     long owner;             /* Who placed this affect on this struct creature */
@@ -864,7 +854,7 @@ struct follow_type {
 
 struct char_language_data {
     GList *languages_heard;
-    byte tongues[MAX_TONGUES];
+    int8_t tongues[MAX_TONGUES];
     char current_language;
 };
 
@@ -945,6 +935,127 @@ void remove_combat(struct creature *ch, struct creature *vict);
 void remove_all_combat(struct creature *ch);
 void remove_combat(struct creature *ch, struct creature *target);
 
+#define NPC_HUNTING(ch) ((ch)->char_specials.hunting)
+#define MOUNTED_BY(ch) ((ch)->char_specials.mounted)
+#define DEFENDING(ch) ((ch)->char_specials.defending)
+#define NPC_FLAGS(ch)  ((ch)->char_specials.saved.act)
+#define NPC2_FLAGS(ch) ((ch)->char_specials.saved.act2)
+#define PLR_FLAGS(ch)  ((ch)->char_specials.saved.act)
+#define PLR2_FLAGS(ch) ((ch)->player_specials->saved.plr2_bits)
+
+#define PRF_FLAGS(ch)  ((ch)->player_specials->saved.pref)
+#define PRF2_FLAGS(ch) ((ch)->player_specials->saved.pref2)
+#define AFF_FLAGS(ch)  ((ch)->char_specials.saved.affected_by)
+#define AFF2_FLAGS(ch) ((ch)->char_specials.saved.affected2_by)
+#define AFF3_FLAGS(ch) ((ch)->char_specials.saved.affected3_by)
+
+#define CHAR_SOILAGE(ch, pos) (ch->player_specials->soilage[pos])
+#define CHAR_SOILED(ch, pos, soil) (IS_SET(CHAR_SOILAGE(ch, pos), soil))
+
+#define ILLEGAL_SOILPOS(pos) \
+     (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
+      pos == WEAR_WIELD || pos == WEAR_HOLD || pos == WEAR_BELT ||    \
+      pos == WEAR_WIELD_2 || pos == WEAR_ASS || pos == WEAR_NECK_2 || \
+      pos == WEAR_RANDOM)
+
+#define IS_WEAR_EXTREMITY(pos) \
+    (        pos == WEAR_FINGER_L || pos == WEAR_FINGER_R \
+     || pos == WEAR_LEGS     || pos == WEAR_FEET     || pos == WEAR_BELT \
+     || pos == WEAR_EAR_L    || pos == WEAR_EAR_R    || pos == WEAR_ARMS \
+     || pos == WEAR_HANDS    || pos == WEAR_HOLD     || pos == WEAR_WIELD \
+     || pos == WEAR_SHIELD   || pos == WEAR_WRIST_L  || pos == WEAR_WRIST_R \
+         || pos == WEAR_WAIST         || pos == WEAR_CROTCH)
+
+#define IS_WEAR_STRIKER(pos) \
+    (        pos == WEAR_FINGER_L || pos == WEAR_FINGER_R \
+     || pos == WEAR_LEGS     || pos == WEAR_FEET \
+     || pos == WEAR_EAR_L    || pos == WEAR_EAR_R    || pos == WEAR_ARMS \
+     || pos == WEAR_HANDS    || pos == WEAR_WRIST_L  || pos == WEAR_WRIST_R \
+         || pos == WEAR_WAIST          || pos == WEAR_HEAD)
+
+#define ILLEGAL_IMPLANTPOS(pos) \
+     (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
+      pos == WEAR_WIELD || pos == WEAR_BELT || pos == WEAR_WIELD_2 || \
+	  pos == WEAR_RANDOM)
+
+#define ILLEGAL_TATTOOPOS(pos) \
+     (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
+      pos == WEAR_WIELD || pos == WEAR_HOLD || pos == WEAR_BELT ||    \
+      pos == WEAR_WIELD_2 || pos == WEAR_ASS || pos == WEAR_NECK_2 || \
+      pos == WEAR_FINGER_L || pos == WEAR_FINGER_R ||                 \
+      pos == WEAR_EYES || pos == WEAR_RANDOM)
+
+#define GET_ROWS(ch)    ((ch)->player_specials->saved.page_length)
+#define GET_COLS(ch)    ((ch)->player_specials->saved.columns)
+
+#define IS_NPC(ch)  (IS_SET(NPC_FLAGS(ch), NPC_ISNPC))
+#define IS_PC(ch)   (!IS_NPC(ch))
+
+#define NOHASS(ch)       (PRF_FLAGGED(ch, PRF_NOHASSLE))
+
+#define WIS_APP(k)         (k >> 1)
+#define INT_APP(k)         (k << 1)
+#define GET_MORALE(ch)     (ch->mob_specials.shared->morale)
+#define NPC_SHARED(ch)     (ch->mob_specials.shared)
+
+#define IS_PET(ch)       (NPC_FLAGGED(ch, NPC_PET))
+#define IS_SOULLESS(ch) (NPC_FLAGGED(ch, NPC_SOULLESS) || PLR2_FLAGGED(ch, PLR2_SOULLESS))
+#define HAS_SYMBOL(ch) (IS_SOULLESS(ch) || affected_by_spell(ch, SPELL_STIGMATA) \
+                        || AFF3_FLAGGED(ch, AFF3_SYMBOL_OF_PAIN) \
+                        || AFF3_FLAGGED(ch, AFF3_TAINTED))
+
+#define PLR_TOG_CHK(ch,flag) ((TOGGLE_BIT(PLR_FLAGS(ch), (flag))) & (flag))
+#define PRF_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF_FLAGS(ch), (flag))) & (flag))
+#define PRF2_TOG_CHK(ch,flag) ((TOGGLE_BIT(PRF2_FLAGS(ch), (flag))) & (flag))
+
+#define CHAR_WITHSTANDS_RAD(ch)   (PRF_FLAGGED(ch, PRF_NOHASSLE) || \
+                                   AFF2_FLAGGED(ch, AFF2_PROT_RAD))
+
+#define CHAR_WITHSTANDS_FIRE(ch)  (GET_LEVEL(ch) >= LVL_IMMORT      ||  \
+                                  AFF2_FLAGGED(ch, AFF2_PROT_FIRE) ||  \
+                                        GET_CLASS(ch) == CLASS_FIRE ||  \
+                      (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_RED) ||  \
+             (IS_DEVIL(ch) && (GET_PLANE(ch->in_room) == PLANE_HELL_4 || \
+                               GET_PLANE(ch->in_room) == PLANE_HELL_6)))
+
+#define CHAR_WITHSTANDS_COLD(ch)  (GET_LEVEL(ch) >= LVL_IMMORT        || \
+                                   IS_VAMPIRE(ch) || \
+                                  AFF2_FLAGGED(ch, AFF2_ENDURE_COLD) || \
+                                  AFF2_FLAGGED(ch, AFF2_ABLAZE)      || \
+                                   (GET_POSITION(ch) == POS_SLEEPING &&       \
+                                    AFF3_FLAGGED(ch, AFF3_STASIS))    || \
+                      (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_WHITE) || \
+                        IS_UNDEAD(ch) || GET_CLASS(ch) == CLASS_FROST || \
+                                                         IS_SLAAD(ch) || \
+             (IS_DEVIL(ch) && (GET_PLANE(ch->in_room) == PLANE_HELL_5 || \
+                               GET_PLANE(ch->in_room) == PLANE_HELL_8)))
+
+#define CHAR_WITHSTANDS_HEAT(ch)  (GET_LEVEL(ch) >= LVL_IMMORT        || \
+                                   AFF3_FLAGGED(ch, AFF3_PROT_HEAT)   || \
+                                   (GET_POSITION(ch) == POS_SLEEPING &&       \
+                                    AFF3_FLAGGED(ch, AFF3_STASIS))    || \
+                        (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_RED) || \
+                         IS_UNDEAD(ch) || GET_CLASS(ch) == CLASS_FIRE || \
+                          IS_SLAAD(ch) || \
+                           (GET_NPC_VNUM(ch) >= 16100 && \
+                            GET_NPC_VNUM(ch) <= 16699) || \
+             (IS_DEVIL(ch) && (GET_PLANE(ch->in_room) == PLANE_HELL_4 || \
+                                   GET_PLANE(ch->in_room) == PLANE_HELL_6)))
+
+#define CHAR_WITHSTANDS_ELECTRIC(ch)   \
+                                (AFF2_FLAGGED(ch, AFF2_PROT_LIGHTNING) || \
+                                 IS_VAMPIRE(ch) || \
+                           (IS_DRAGON(ch) && GET_CLASS(ch) == CLASS_BLUE))
+
+#define NEEDS_TO_BREATHE(ch) \
+     (!AFF3_FLAGGED(ch, AFF3_NOBREATHE) && \
+      !IS_UNDEAD(ch) && (GET_NPC_VNUM(ch) <= 16100 || \
+                         GET_NPC_VNUM(ch) > 16999))
+
+#define NULL_PSI(vict) \
+     (IS_UNDEAD(vict) || IS_SLIME(vict) || IS_PUDDING(vict) || \
+      IS_ROBOT(vict) || IS_PLANT(vict))
+
 inline static bool
 is_dead(struct creature *ch)
 {
@@ -967,6 +1078,310 @@ next_living(GList *node)
 
     node = node->next;
     return first_living(node);
+}
+
+#define IN_ROOM(ch)        ((ch)->in_room)
+#define GET_WAS_IN(ch)        ((ch)->player_specials->was_in_room)
+#define GET_AGE(ch)     (MAX(age(ch).year + ch->player.age_adjust, 17))
+
+#define GET_NAME(ch)    (IS_NPC(ch) ? \
+                         (ch)->player.short_descr : (ch)->player.name)
+#define GET_TITLE(ch)   ((ch)->player.title)
+#define GET_LEVEL(ch)   ((ch)->player.level)
+#define GET_PASSWD(ch)        ((ch)->player.passwd)
+
+/*
+ * I wonder if this definition of GET_REAL_LEVEL should be the definition
+ * of GET_LEVEL?  JE
+ */
+#define GET_REAL_LEVEL(ch) \
+   (ch->desc && ch->desc->original ? GET_LEVEL(ch->desc->original) : \
+    GET_LEVEL(ch))
+
+#define GET_CLASS(ch)   ((ch)->player.char_class)
+#define GET_REMORT_CLASS(ch)  ((ch)->player.remort_char_class)
+#define CHECK_REMORT_CLASS(ch)  ((ch)->player.remort_char_class)
+#define GET_RACE(ch)        ((ch)->player.race)
+#define GET_HOME(ch)        ((ch)->player.hometown)
+#define GET_HEIGHT(ch)        ((ch)->player.height)
+#define GET_WEIGHT(ch)        ((ch)->player.weight)
+#define GET_SEX(ch)        ((ch)->player.sex)
+#define IS_MALE(ch)     ((ch)->player.sex == SEX_MALE)
+#define IS_FEMALE(ch)   ((ch)->player.sex == SEX_FEMALE)
+#define IS_IMMORT(ch)	(GET_LEVEL(ch) >= LVL_AMBASSADOR)
+#define IS_MORT(ch)		(!IS_REMORT(ch) && !IS_IMMORT(ch))
+
+#define GET_STR(ch)     ((ch)->aff_abils.str)
+#define GET_DEX(ch)     ((ch)->aff_abils.dex)
+#define GET_INT(ch)     ((ch)->aff_abils.intel)
+#define GET_WIS(ch)     ((ch)->aff_abils.wis)
+#define GET_CON(ch)     ((ch)->aff_abils.con)
+#define GET_CHA(ch)     ((ch)->aff_abils.cha)
+
+#define GET_EXP(ch)          ((ch)->points.exp)
+#define GET_AC(ch)        ((ch)->points.armor)
+#define GET_HIT(ch)          ((ch)->points.hit)
+#define GET_MAX_HIT(ch)          ((ch)->points.max_hit)
+#define GET_MOVE(ch)          ((ch)->points.move)
+#define GET_MAX_MOVE(ch)  ((ch)->points.max_move)
+#define GET_MANA(ch)          ((ch)->points.mana)
+#define GET_MAX_MANA(ch)  ((ch)->points.max_mana)
+#define GET_GOLD(ch)          ((ch)->points.gold)
+#define GET_CASH(ch)      ((ch)->points.cash)
+#define GET_PAST_BANK(ch) (((ch)->account) ? (ch)->account->bank_past:0)
+#define GET_FUTURE_BANK(ch) (((ch)->account) ? (ch)->account->bank_future:0)
+
+#define BANK_MONEY(ch) (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
+                        GET_FUTURE_BANK(ch) : GET_PAST_BANK(ch))
+#define CASH_MONEY(ch) (ch->in_room->zone->time_frame == TIME_ELECTRO ? \
+                    GET_CASH(ch) : GET_GOLD(ch))
+const char *CURRENCY(struct creature * ch);
+
+#define GET_HITROLL(ch)          ((ch)->points.hitroll)
+#define GET_DAMROLL(ch)   ((ch)->points.damroll)
+
+#define GET_REAL_HITROLL(ch)   \
+  ((GET_HITROLL(ch) <= 5) ?    \
+   GET_HITROLL(ch) :           \
+   ((GET_HITROLL(ch) <= 50) ?  \
+    (5 + (((GET_HITROLL(ch) - 5)) / 3)) : 20))
+
+#define GET_IDNUM(ch)          ((ch)->char_specials.saved.idnum)
+#define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)
+#define IS_CARRYING_N(ch) ((ch)->char_specials.carry_items)
+#define IS_WEARING_W(ch)  ((ch)->char_specials.worn_weight)
+#define TOTAL_ENCUM(ch)   (IS_CARRYING_W(ch) + IS_WEARING_W(ch))
+#define GET_WEAPON_PROF(ch)  ((ch)->char_specials.weapon_proficiency)
+#define GET_POSITION(ch)        ((ch)->char_specials.position)
+#define CHECK_WEAPON_PROF(ch)  ((ch)->char_specials.weapon_proficiency)
+#define MEDITATE_TIMER(ch)  (ch->char_specials.meditate_timer)
+#define CHAR_CUR_PULSE(ch)  (ch->char_specials.cur_flow_pulse)
+#define GET_FALL_COUNT(ch)     ((ch)->char_specials.fall_count)
+#define GET_MOOD(ch)		(ch->char_specials.mood_str)
+#define BREATH_COUNT_OF(ch) (ch->char_specials.breath_count)
+
+#define DRIVING(ch)       ((ch)->char_specials.driving)
+#define GET_SAVE(ch, i)          ((ch)->char_specials.saved.apply_saving_throw[i])
+#define GET_ALIGNMENT(ch) ((ch)->char_specials.saved.alignment)
+
+#define GET_COND(ch, i)                ((ch)->player_specials->saved.conditions[(i)])
+#define GET_LOADROOM(ch)        ((ch)->player_specials->saved.load_room)
+#define GET_HOMEROOM(ch)		((ch)->player_specials->saved.home_room)
+#define GET_LIFE_POINTS(ch)     ((ch)->player_specials->saved.life_points)
+#define GET_MOBKILLS(ch)        ((ch)->player_specials->saved.mobkills)
+#define GET_MSHIELD_LOW(ch)     ((ch)->player_specials->saved.mana_shield_low)
+#define GET_MSHIELD_PCT(ch)     ((ch)->player_specials->saved.mana_shield_pct)
+#define GET_PKILLS(ch)          ((ch)->player_specials->saved.pkills)
+#define GET_ARENAKILLS(ch)		((ch)->player_specials->saved.akills)
+#define GET_PC_DEATHS(ch)       ((ch)->player_specials->saved.deaths)
+#define GET_SEVERITY(ch)		((ch)->player_specials->saved.killer_severity)
+#define SPEED_OF(ch)            ((ch)->player_specials->saved.speed)
+#define GET_REPUTATION(ch)      ((ch)->player_specials->saved.reputation)
+
+#define GET_PAGE_LENGTH(ch)     ((ch->desc) ? ch->desc->account->term_height:0)
+#define GET_PAGE_WIDTH(ch)     ((ch->desc) ? ch->desc->account->term_width:0)
+#define GET_INVIS_LVL(ch)        ((ch)->player_specials->saved.invis_level)
+#define GET_BROKE(ch)           ((ch)->player_specials->saved.broken_component)
+#define GET_OLD_CLASS(ch)       ((ch)->player_specials->saved.old_char_class)
+#define GET_TOT_DAM(ch)         ((ch)->player_specials->saved.total_dam)
+#define GET_WIMP_LEV(ch)        ((ch)->player_specials->saved.wimp_level)
+#define GET_WEAP_SPEC(ch, i)    ((ch)->player_specials->saved.weap_spec[(i)])
+#define GET_DEITY(ch)                ((ch)->player_specials->saved.deity)
+#define GET_CLAN(ch)                ((ch)->player_specials->saved.clan)
+#define GET_REMORT_GEN(ch) ((ch)->char_specials.saved.remort_generation)
+
+#define GET_IMMORT_QP(ch)    ((ch)->player_specials->saved.imm_qp)
+#define GET_QUEST_ALLOWANCE(ch) ((ch)->player_specials->saved.qp_allowance)
+#define GET_QLOG_LEVEL(ch)     ((ch)->player_specials->saved.qlog_level)
+#define GET_QUEST(ch)           ((ch)->player_specials->saved.quest_id)
+#define GET_FREEZE_LEV(ch)        ((ch)->player_specials->saved.freeze_level)
+#define GET_BAD_PWS(ch)                ((ch)->player_specials->saved.bad_pws)
+#define POOFIN(ch)                ((ch)->player_specials->poofin)
+#define POOFOUT(ch)                ((ch)->player_specials->poofout)
+#define AFK_REASON(ch)                ((ch)->player_specials->afk_reason)
+#define AFK_NOTIFIES(ch)                ((ch)->player_specials->afk_notifies)
+#define BADGE(ch)					((ch)->player_specials->saved.badge)
+#define GET_IMPRINT_ROOM(ch,i)  ((ch)->player_specials->imprint_rooms[i])
+#define GET_RECENT_KILLS(ch) ((ch)->player_specials->recently_killed)
+#define GET_GRIEVANCES(ch)   ((ch)->player_specials->grievances)
+#define GET_LAST_OLC_TARG(ch)        ((ch)->player_specials->last_olc_targ)
+#define GET_LAST_OLC_MODE(ch)        ((ch)->player_specials->last_olc_mode)
+#define GET_ALIASES(ch)                ((ch)->player_specials->aliases)
+#define GET_LAST_TELL_FROM(ch)        ((ch)->player_specials->last_tell_from)
+#define GET_LAST_TELL_TO(ch)        ((ch)->player_specials->last_tell_to)
+#define GET_OLC_OBJ(ch)         ((ch)->player_specials->olc_obj)
+#define GET_OLC_MOB(ch)         ((ch)->player_specials->olc_mob)
+#define GET_OLC_SHOP(ch)        ((ch)->player_specials->olc_shop)
+#define GET_OLC_HELP(ch)        ((ch)->player_specials->olc_help_item)
+#define GET_OLC_SRCH(ch)        ((ch)->player_specials->olc_srch)
+#define GET_OLC_HANDLER(ch)     ((ch)->player_specials->olc_handler)
+
+#define SET_SKILL(ch, i, pct)        \
+                             {(ch)->player_specials->saved.skills[i] = pct; }
+#define SET_TONGUE(ch, i, pct)        \
+                             {(ch)->language_data.tongues[i] = pct; }
+
+#define GET_EQ(ch, i)                ((ch)->equipment[i])
+#define GET_IMPLANT(ch, i)      ((ch)->implants[i])
+#define GET_TATTOO(ch, i)      ((ch)->tattoos[i])
+
+#define GET_NPC_SPEC(ch) (IS_NPC(ch) ? ((ch)->mob_specials.shared->func) : NULL)
+#define GET_NPC_PROG(ch) (IS_NPC(ch) ? ((ch)->mob_specials.shared->prog) : NULL)
+#define GET_NPC_PROGOBJ(ch) (IS_NPC(ch) ? ((ch)->mob_specials.shared->progobj) : NULL)
+
+#define GET_NPC_PARAM(ch) (IS_NPC(ch) ? ((ch)->mob_specials.shared->func_param) : NULL)
+#define GET_LOAD_PARAM(ch) (IS_NPC(ch) ? ((ch)->mob_specials.shared->load_param) : NULL)
+#define GET_NPC_VNUM(mob)        (IS_NPC(mob) ? \
+                                      (mob)->mob_specials.shared->vnum : -1)
+
+#define GET_NPC_WAIT(ch)        ((ch)->mob_specials.wait_state)
+#define GET_NPC_LAIR(ch)        ((ch)->mob_specials.shared->lair)
+#define GET_NPC_LEADER(ch)        ((ch)->mob_specials.shared->leader)
+#define GET_DEFAULT_POS(ch)        ((ch)->mob_specials.shared->default_pos)
+#define MEMORY(ch)                ((ch)->mob_specials.memory)
+#define NPC_IDNUM(ch)           ((ch)->mob_specials.mob_idnum)
+
+#define CAN_CARRY_W(ch) (MAX(10, RAW_CARRY_W(ch)))
+
+#define RAW_CARRY_W(ch) (AFF2_FLAGGED(ch, AFF2_TELEKINESIS) ? \
+                         (str_app[STRENGTH_APPLY_INDEX(ch)].carry_w << 1) : \
+                         str_app[STRENGTH_APPLY_INDEX(ch)].carry_w + \
+                         ((GET_LEVEL(ch) >= LVL_GOD) ? 100000 : 0) + \
+						 ((GET_LEVEL(ch) >= LVL_IMMORT) ? 1000 : 0))
+#define CAN_CARRY_N(ch) (1 + GET_DEX(ch) + \
+                         ((GET_LEVEL(ch) >= LVL_GOD) ? 100000 : 0) + \
+						 ((GET_LEVEL(ch) >= LVL_IMMORT) ? 1000 : 0) + \
+                         (AFF2_FLAGGED(ch, AFF2_TELEKINESIS) ? \
+                          (GET_LEVEL(ch) >> 2) : 0))
+
+#define AWAKE(ch) (GET_POSITION(ch) > POS_SLEEPING && !AFF2_FLAGGED(ch, AFF2_MEDITATE))
+
+#define IS_GOOD(ch)    (GET_ALIGNMENT(ch) >= 350)
+#define IS_EVIL(ch)    (GET_ALIGNMENT(ch) <= -350)
+#define IS_NEUTRAL(ch) (!IS_GOOD(ch) && !IS_EVIL(ch))
+#define IS_SICK(ch)    (AFF3_FLAGGED(ch, AFF3_SICKNESS))
+#define IS_HAMSTRUNG(ch)    (AFF3_FLAGGED(ch, AFF3_HAMSTRUNG))
+#define HAS_POISON_1(ch) (AFF_FLAGGED(ch, AFF_POISON))
+#define HAS_POISON_2(ch) (AFF3_FLAGGED(ch, AFF3_POISON_2))
+#define HAS_POISON_3(ch) (AFF3_FLAGGED(ch, AFF3_POISON_3))
+#define IS_POISONED(ch) (HAS_POISON_1(ch) || HAS_POISON_2(ch) || \
+                         HAS_POISON_3(ch))
+#define IS_CONFUSED(ch)  (AFF_FLAGGED(ch, AFF_CONFUSION) \
+                          || AFF3_FLAGGED(ch, AFF3_SYMBOL_OF_PAIN))
+#define THACO(char_class, level) \
+     ((char_class < 0) ? 20 :                             \
+      ((char_class < NUM_CLASSES) ?                       \
+       (20 - (level * thaco_factor[char_class])) :        \
+       (20 - (level * thaco_factor[CLASS_WARRIOR]))))
+
+static inline bool NPC_FLAGGED(struct creature *ch, enum mob_flag flag) {
+    return IS_NPC(ch) && IS_SET(NPC_FLAGS(ch), flag);
+}
+static inline bool NPC2_FLAGGED(struct creature *ch, enum mob2_flag flag) {
+    return IS_NPC(ch) && IS_SET(NPC2_FLAGS(ch), flag);
+}
+static inline bool PLR_FLAGGED(struct creature *ch, enum plr_flag flag) {
+    return IS_PC(ch) && IS_SET(PLR_FLAGS(ch), flag);
+}
+static inline bool PLR2_FLAGGED(struct creature *ch, enum plr2_flag flag) {
+    return IS_PC(ch) && IS_SET(PLR2_FLAGS(ch), flag);
+}
+static inline bool AFF_FLAGGED(struct creature *ch, enum affect_bit flag) {
+    return IS_SET(AFF_FLAGS(ch), flag);
+}
+static inline bool AFF2_FLAGGED(struct creature *ch, enum aff2_bit flag) {
+    return IS_SET(AFF2_FLAGS(ch), flag);
+}
+static inline bool AFF3_FLAGGED(struct creature *ch, enum aff3_bit flag) {
+    return IS_SET(AFF3_FLAGS(ch), flag);
+}
+
+static inline bool
+PRF_FLAGGED( struct creature *ch, enum prf_flag flag)
+{
+    if( IS_NPC(ch) ) {
+        if(ch->desc && ch->desc->original) {
+            return IS_SET(PRF_FLAGS(ch->desc->original), flag);
+        } else {
+            return false;
+        }
+    } else {
+        return IS_SET(PRF_FLAGS(ch),flag);
+    }
+}
+static inline bool
+PRF2_FLAGGED( struct creature *ch, enum prf2_flag flag )
+{
+    if( IS_NPC(ch) ) {
+        if(ch->desc && ch->desc->original) {
+            return IS_SET(PRF2_FLAGS(ch->desc->original), flag);
+        } else {
+            return false;
+        }
+    } else {
+        return IS_SET(PRF2_FLAGS(ch),flag);
+    }
+}
+
+int reputation_of(struct creature *ch);
+
+static inline bool
+IS_CRIMINAL(struct creature *ch)
+{
+	return IS_PC(ch) && reputation_of(ch) >= 300;
+}
+
+static inline int
+GET_REPUTATION_RANK(struct creature *ch)
+{
+	if (reputation_of(ch) == 0)
+		return 0;
+	else if (reputation_of(ch) >= 1000)
+		return 11;
+
+	return (reputation_of(ch) / 100) + 1;
+}
+
+static inline bool IS_REMORT( const struct creature *ch )
+{
+	if( ch == NULL )
+		return false;
+	if( GET_REMORT_CLASS(ch) == CLASS_UNDEFINED )
+		return false;
+	if( IS_PC(ch) && GET_REMORT_GEN(ch) <= 0 )
+		return false;
+	return true;
+}
+
+static inline int
+STRENGTH_APPLY_INDEX(struct creature *ch)
+{
+	if (GET_STR(ch) < 0 || GET_STR(ch) > 35)
+		return 11;
+    return GET_STR(ch);
+}
+
+static inline struct room_direction_data* EXIT( struct creature *ch, int dir ) {
+	return ch->in_room->dir_option[dir];
+}
+static inline struct room_direction_data* _2ND_EXIT( struct creature *ch, int dir ) {
+	return EXIT(ch,dir)->to_room->dir_option[dir];
+}
+static inline struct room_direction_data* _3RD_EXIT( struct creature *ch, int dir ) {
+	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
+}
+
+static inline bool
+NPC_CAN_GO(struct creature * ch, int door)
+{
+	if (EXIT(ch, door) &&
+		EXIT(ch, door)->to_room &&
+		(!IS_SET(EXIT(ch, door)->exit_info,
+				EX_CLOSED | EX_NOPASS | EX_HIDDEN) ||
+			GET_LEVEL(ch) >= LVL_IMMORT || NON_CORPOREAL_MOB(ch))) {
+		return true;
+	}
+	return false;
 }
 
 bool is_fighting(struct creature *ch);

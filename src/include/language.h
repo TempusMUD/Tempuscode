@@ -13,9 +13,6 @@
 // File: language.h                            -- Part of TempusMUD
 //
 
-#include <stdio.h>
-#include "creature.h"
-
 struct trans_pair {
     char pattern[10];
     char replacement[10];

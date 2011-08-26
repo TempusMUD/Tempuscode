@@ -64,7 +64,7 @@ struct special_search_data {
 	char *to_vict;
 	char *to_room;
 	char *to_remote;
-	byte command;
+	int8_t command;
 	int flags;
 	int arg[3];
 	int fail_chance;

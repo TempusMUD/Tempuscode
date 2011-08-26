@@ -5,32 +5,47 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <errno.h>
+#include <unistd.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "editor.h"
 #include "security.h"
-#include "olc.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
 #include "screen.h"
-#include "flow_room.h"
-#include "clan.h"
-#include "specs.h"
 #include "house.h"
+#include "clan.h"
 #include "tmpstr.h"
-#include "players.h"
-#include "prog.h"
 #include "accstr.h"
+#include "account.h"
+#include "flow_room.h"
+#include "obj_data.h"
+#include "specs.h"
+#include "strutil.h"
+#include "search.h"
+#include "prog.h"
+#include "olc.h"
+#include "editor.h"
 
 extern GHashTable *rooms;
 extern struct zone_data *zone_table;
@@ -655,7 +670,7 @@ olc_mimic_room(struct creature *ch, struct room_data *rnum, char *argument)
 {
 
     char arg1[MAX_INPUT_LENGTH];
-    byte mode_sounds = 0, mode_desc = 0, mode_sector = 0, mode_flags = 0,
+    int8_t mode_sounds = 0, mode_desc = 0, mode_sector = 0, mode_flags = 0,
         mode_exdesc = 0, mode_all = 0, mode_title = 0;
     struct extra_descr_data *desc = NULL, *ndesc = NULL;
 

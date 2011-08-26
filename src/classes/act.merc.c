@@ -5,25 +5,44 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
 #include "db.h"
-#include "spells.h"
 #include "screen.h"
 #include "char_class.h"
+#include "tmpstr.h"
+#include "accstr.h"
+#include "account.h"
+#include "spells.h"
 #include "vehicle.h"
 #include "materials.h"
-#include "fight.h"
-#include "guns.h"
 #include "bomb.h"
-#include "tmpstr.h"
-#include "smokes.h"
-#include "accstr.h"
+#include "fight.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
+#include "strutil.h"
+#include "guns.h"
 
 #define PISTOL(gun)  ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && !IS_TWO_HAND(gun))
 #define LARGE_GUN(gun) ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && IS_TWO_HAND(gun))

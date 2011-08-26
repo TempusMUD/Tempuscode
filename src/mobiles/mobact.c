@@ -17,34 +17,47 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <signal.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <math.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
-#include "db.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
+#include "security.h"
 #include "handler.h"
-#include "spells.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
 #include "char_class.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 #include "vehicle.h"
 #include "flow_room.h"
-#include "guns.h"
-#include "bomb.h"
-#include "mobact.h"
 #include "fight.h"
+#include "obj_data.h"
 #include "actions.h"
-#include "creature.h"
-#include "screen.h"
-#include "tmpstr.h"
-#include "prog.h"
-#include "specs.h"
-#include "voice.h"
+#include "guns.h"
+#include "mobact.h"
 #include "weather.h"
+#include "search.h"
+#include "voice.h"
 
 /* external structs */
 void npc_steal(struct creature *ch, struct creature *victim);

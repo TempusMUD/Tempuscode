@@ -40,9 +40,6 @@ int get_max_dex( struct creature *ch );
 int get_max_con( struct creature *ch );
 int get_max_cha( struct creature *ch );
 
-#include "actions.h"
-#include "mobact.h"
-
 #define ALL     0
 #define GOOD        1
 #define NEUTRAL     2

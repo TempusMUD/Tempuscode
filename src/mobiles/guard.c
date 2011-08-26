@@ -1,16 +1,30 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include "actions.h"
-#include "db.h"
-#include "comm.h"
-#include "fight.h"
-#include "handler.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <glib.h>
+
 #include "interpreter.h"
-#include "tmpstr.h"
-#include "screen.h"
 #include "utils.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "tmpstr.h"
+#include "spells.h"
+#include "actions.h"
 
 void call_for_help(struct creature *, struct creature *);
 

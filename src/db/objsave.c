@@ -16,29 +16,38 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #include <stdio.h>
 #include <string.h>
-#include <sys/time.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <errno.h>
-#include <stdlib.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "actions.h"
-#include "comm.h"
-#include "handler.h"
-#include "db.h"
 #include "interpreter.h"
 #include "utils.h"
-#include "spells.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
+#include "db.h"
 #include "screen.h"
-#include "vehicle.h"
-#include "house.h"
-#include "bomb.h"
+#include "tmpstr.h"
 #include "accstr.h"
+#include "account.h"
+#include "spells.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
+#include "actions.h"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR         1

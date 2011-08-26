@@ -5,27 +5,38 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
-#include "structs.h"
-#include "utils.h"
-#include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "olc.h"
-#include "screen.h"
-#include "spells.h"
-#include "materials.h"
-#include "accstr.h"
-#include "tmpstr.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-int clan_house_can_enter(struct creature *ch, struct room_data *room);
+#include "utils.h"
+#include "constants.h"
+#include "comm.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "clan.h"
+#include "tmpstr.h"
+#include "accstr.h"
+#include "account.h"
+#include "spells.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "search.h"
+#include "olc.h"
+
 const char *olc_xset_keys[] = {
     "triggers",
     "keywords",

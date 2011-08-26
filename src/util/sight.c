@@ -1,15 +1,28 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdlib.h>
-#include "defs.h"
-#include "creature.h"
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
 #include "utils.h"
-#include "spells.h"
-#include "handler.h"
-#include "weather.h"
+#include "constants.h"
 #include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "tmpstr.h"
+#include "spells.h"
+#include "obj_data.h"
+#include "weather.h"
 
 // Returns true if the room is outside and sunny, otherwise returns false
 bool

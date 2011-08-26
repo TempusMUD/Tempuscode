@@ -3,28 +3,36 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <stdbool.h>
 #include <ctype.h>
-// Tempus Includes
-#include "screen.h"
-#include "desc_data.h"
-#include "comm.h"
-#include "db.h"
+#include <inttypes.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
 #include "utils.h"
-#include "login.h"
-#include "interpreter.h"
-#include "boards.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "bomb.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "prog.h"
 #include "mail.h"
 #include "editor.h"
-#include "tmpstr.h"
-#include "accstr.h"
-#include "help.h"
-#include "comm.h"
-#include "bomb.h"
-#include "handler.h"
-#include "players.h"
 
 struct maileditor_data {
     struct mail_recipient_data *mail_to;
@@ -148,7 +156,7 @@ maileditor_finalize(struct editor *editor, const char *text)
 
     for (mail_rcpt = mail_data->mail_to; mail_rcpt;
         mail_rcpt = mail_rcpt->next) {
-        char *name = player_name_by_idnum(mail_rcpt->recpt_idnum);
+        const char *name = player_name_by_idnum(mail_rcpt->recpt_idnum);
         cc_list = g_list_prepend(cc_list, g_string_new(name));
     }
 

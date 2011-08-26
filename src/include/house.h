@@ -1,19 +1,9 @@
 #ifndef _HOUSE_H_
 #define _HOUSE_H_
 
-#include "defs.h"
-#include "xml_utils.h"
-#include "tmpstr.h"
-
 struct creature;
 struct obj_data;
 struct room_data;
-
-static inline char*
-get_house_file_path( int id )
-{
-	return tmp_sprintf( "players/housing/%d/%04d.dat", (id % 10), id );
-}
 
 // Modes used for match_houses
 enum HC_SearchModes { HC_INVALID=0, HC_OWNER, HC_LANDLORD, HC_GUEST };

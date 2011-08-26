@@ -18,9 +18,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include "creature.h"
-#include "tmpstr.h"
-
 extern int max_spell_num;
 extern char **spells;
 
@@ -822,15 +819,15 @@ enum target_flag {
 
 struct spell_info_type {
 	char min_position;			/* Position for caster   */
-	sh_int mana_min;			/* Min amount of mana used by a spell (highest lev) */
-	sh_int mana_max;			/* Max amount of mana used by a spell (lowest lev) */
+	int16_t mana_min;			/* Min amount of mana used by a spell (highest lev) */
+	int16_t mana_max;			/* Max amount of mana used by a spell (lowest lev) */
 	char mana_change;			/* Change in mana used by spell from lev to lev */
 
 	char min_level[NUM_CLASSES];
 	char gen[NUM_CLASSES];
 	int routines;
 	char violent;
-	sh_int targets;				/* See below for use with TAR_XXX  */
+	int16_t targets;				/* See below for use with TAR_XXX  */
 };
 
 struct bard_song {
@@ -878,7 +875,7 @@ struct gun_hit_type {
 };
 
 #define ASPELL(spellname) \
-	void spellname(__attribute__ ((unused)) ubyte level, \
+	void spellname(__attribute__ ((unused)) uint8_t level, \
 		__attribute__ ((unused)) struct creature *ch, \
 		__attribute__ ((unused))  struct creature *victim, \
 		__attribute__ ((unused)) struct obj_data *obj, \
@@ -971,9 +968,9 @@ void mag_group_switch(int level, struct creature *ch, struct creature *tch,
 
 void mag_groups(int level, struct creature *ch, int spellnum, int savetype);
 
-void mag_masses(byte level, struct creature *ch, int spellnum, int savetype);
+void mag_masses(int8_t level, struct creature *ch, int spellnum, int savetype);
 
-int mag_areas(byte level, struct creature *ch, int spellnum, int savetype);
+int mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype);
 
 void mag_summons(int level, struct creature *ch, struct obj_data *obj,
 	int spellnum, int savetype);

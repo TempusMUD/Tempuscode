@@ -1,20 +1,37 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include "creature.h"
-#include "house.h"
-#include "actions.h"
-#include "db.h"
-#include "comm.h"
-#include "fight.h"
-#include "handler.h"
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
 #include "interpreter.h"
-#include "tmpstr.h"
-#include "screen.h"
+#include "structs.h"
 #include "utils.h"
-#include "specs.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "house.h"
 #include "players.h"
+#include "tmpstr.h"
+#include "spells.h"
+#include "fight.h"
+#include "obj_data.h"
+#include "specs.h"
+#include "actions.h"
 
 struct cityguard_data {
     int targ_room;

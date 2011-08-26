@@ -3,26 +3,29 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <ctype.h>
-// Tempus Includes
-#include "screen.h"
-#include "desc_data.h"
-#include "comm.h"
-#include "db.h"
+#include <glib.h>
+
 #include "utils.h"
-#include "login.h"
-#include "interpreter.h"
-#include "boards.h"
+#include "constants.h"
+#include "comm.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "players.h"
+#include "prog.h"
 #include "mail.h"
 #include "editor.h"
-#include "tmpstr.h"
-#include "accstr.h"
-#include "help.h"
-#include "comm.h"
-#include "players.h"
 
 struct texteditor_data {
     char **target;

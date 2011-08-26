@@ -16,26 +16,43 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
-#include "interpreter.h"
-#include "spells.h"
-#include "handler.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "materials.h"
-#include "char_class.h"
-#include "fight.h"
 #include "screen.h"
+#include "char_class.h"
 #include "tmpstr.h"
-#include "prog.h"
+#include "account.h"
+#include "spells.h"
+#include "materials.h"
+#include "fight.h"
+#include "xml_utils.h"
+#include "obj_data.h"
+#include "actions.h"
 #include "language.h"
+#include "prog.h"
 
 char **spells = NULL;
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];

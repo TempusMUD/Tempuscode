@@ -150,32 +150,48 @@
 */
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <time.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
 #include "db.h"
-#include "spells.h"
 #include "screen.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "flow_room.h"
 #include "house.h"
 #include "char_class.h"
-#include "fight.h"
-#include "bomb.h"
-#include "specs.h"
-#include "security.h"
+#include "tmpstr.h"
 #include "accstr.h"
+#include "account.h"
+#include "spells.h"
+#include "vehicle.h"
+#include "flow_room.h"
+#include "bomb.h"
+#include "fight.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
+#include "specs.h"
+#include "strutil.h"
+#include "actions.h"
 
 static timewarp_data *timewarp_list = NULL;
 static int num_timewarp_data = 0;

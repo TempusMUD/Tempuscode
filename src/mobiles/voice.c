@@ -1,21 +1,29 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #include <string.h>
-#include <time.h>
-#include <tmpstr.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <stdlib.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
 #include "interpreter.h"
-#include "constants.h"
 #include "utils.h"
-#include "creature.h"
+#include "constants.h"
 #include "comm.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
 #include "screen.h"
-#include "handler.h"
-#include "voice.h"
+#include "tmpstr.h"
 #include "accstr.h"
+#include "account.h"
+#include "xml_utils.h"
+#include "voice.h"
 
 // Note: These must be in the same order as the voice_situation enum
 // in voice.h

@@ -6,8 +6,6 @@
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-#include "xml_utils.h"
-
 #define QUEST_DIR "quest"
 #define QLOGFILENAME "log/quest.log"
 
@@ -75,7 +73,7 @@ struct quest {
 		int mingen;
 		int maxgen;
         int loadroom;
-		ubyte type;
+		uint8_t type;
 };
 
 // utility functions

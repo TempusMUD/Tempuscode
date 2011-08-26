@@ -5,28 +5,42 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "handler.h"
-#include "db.h"
-#include "spells.h"
-#include "screen.h"
-#include "char_class.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "fight.h"
-#include "guns.h"
-#include "bomb.h"
-#include "utils.h"
-#include "house.h"
 #include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
+#include "db.h"
+#include "screen.h"
 #include "clan.h"
-#include "specs.h"
+#include "char_class.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 #include "flow_room.h"
+#include "fight.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
+#include "specs.h"
 
 extern const char *instrument_types[];
 
@@ -256,8 +270,8 @@ ASPELL(song_instant_audience)
             (float)((skill_bonus(ch, SONG_INSTANT_AUDIENCE)) * 1.5) / 100);
 
         // tweak them out
-        GET_HITROLL(member) = (sbyte)MIN((int)(GET_HITROLL(member) * mult), 60);
-        GET_DAMROLL(member) = (sbyte)MIN((int)(GET_DAMROLL(member) * mult), 75);
+        GET_HITROLL(member) = (int8_t)MIN((int)(GET_HITROLL(member) * mult), 60);
+        GET_DAMROLL(member) = (int8_t)MIN((int)(GET_DAMROLL(member) * mult), 75);
         GET_MAX_HIT(member) = MIN((int)(GET_MAX_HIT(member) * mult), 30000);
         GET_HIT(member) = GET_MAX_HIT(member);
 

@@ -16,29 +16,42 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#define _GNU_SOURCE
-#include <stdio.h>
+#define _GNU_SOURCE 1
 #include <string.h>
-#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "spells.h"
-#include "utils.h"
-#include "comm.h"
 #include "interpreter.h"
+#include "utils.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "editor.h"
 #include "screen.h"
 #include "clan.h"
-#include "security.h"
 #include "tmpstr.h"
-#include "ban.h"
-
+#include "account.h"
+#include "spells.h"
+#include "obj_data.h"
+#include "strutil.h"
 #include "language.h"
+#include "prog.h"
+#include "editor.h"
+#include "ban.h"
 
 /* extern variables */
 extern const char *class_names[];
@@ -214,6 +227,52 @@ ACMD(do_say)
         do_action(ch, argument, cmd, subcmd);
 }
 
+static bool
+can_channel_comm(struct creature *ch, struct creature *tch)
+{
+	// Immortals are hearable everywhere
+	if (ch->player.level >= LVL_IMMORT)
+		return true;
+
+	// Anyone can hear people inside the same rooms
+	if (ch->in_room == tch->in_room)
+		return true;
+
+	// People outside of soundproof rooms can't hear or speak out
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
+			ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF))
+		return false;
+
+	// Players can hear each other inside the same zone
+	if (ch->in_room->zone == tch->in_room->zone)
+		return true;
+
+	// but not outside if the zone is isolated or soundproof
+	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
+			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
+		return false;
+
+	// remorts ignore planar and temporal boundries
+	if (IS_REMORT(ch) || IS_REMORT(tch))
+		return true;
+
+	// mortals can't speak on different planes
+	if (ch->in_room->zone->plane != tch->in_room->zone->plane)
+		return false;
+
+	// mortals can speak to each other in the same times
+	if (ch->in_room->zone->time_frame == tch->in_room->zone->time_frame)
+		return true;
+
+	// or to or from timeless zones
+	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
+			tch->in_room->zone->time_frame == TIME_TIMELESS)
+		return true;
+
+	// otherwise, they can't
+	return false;
+}
+
 ACMD(do_gsay)
 {
     struct creature *k;
@@ -234,14 +293,14 @@ ACMD(do_gsay)
             k = ch;
 
         argument = act_escape(argument);
-        if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && CAN_CHANNEL_COMM(ch, k)) {
+        if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && can_channel_comm(ch, k)) {
             sprintf(buf, "%s$n tells the group,%s '%s'%s", CCGRN(k, C_NRM),
                 CCYEL(k, C_NRM), argument, CCNRM(k, C_NRM));
             act(buf, false, ch, 0, k, TO_VICT | TO_SLEEP);
         }
         for (f = k->followers; f; f = f->next)
             if (AFF_FLAGGED(f->follower, AFF_GROUP) && (f->follower != ch) &&
-                CAN_CHANNEL_COMM(ch, f->follower)) {
+                can_channel_comm(ch, f->follower)) {
                 sprintf(buf, "%s$n tells the group,%s '%s'%s",
                     CCGRN(f->follower, C_NRM), CCYEL(f->follower, C_NRM),
                     argument, CCNRM(f->follower, C_NRM));
@@ -283,6 +342,48 @@ perform_tell(struct creature *ch, struct creature *vict, const char *arg)
     }
 }
 
+static bool
+can_send_tell(struct creature *ch, struct creature *tch)
+{
+	// Immortals are hearable everywhere
+	if (ch->player.level >= LVL_IMMORT)
+		return true;
+
+	// Anyone can hear people inside the same rooms
+	if (ch->in_room == tch->in_room)
+		return true;
+
+	// People outside of soundproof rooms can't hear or speak out
+	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
+			ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF))
+		return false;
+
+	// Players can hear each other inside the same zone
+	if (ch->in_room->zone == tch->in_room->zone)
+		return true;
+
+	// but not outside if the zone is isolated or soundproof
+	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
+			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
+		return false;
+
+	// Can't speak on different planes
+	if (ch->in_room->zone->plane != tch->in_room->zone->plane)
+		return false;
+
+	// Can speak to each other in the same times
+	if (ch->in_room->zone->time_frame == tch->in_room->zone->time_frame)
+		return true;
+
+	// or to or from timeless zones
+	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
+			tch->in_room->zone->time_frame == TIME_TIMELESS)
+		return true;
+
+	// otherwise, they can't
+	return false;
+}
+
 /*
  * Yes, do_tell probably could be combined with whisper and ask, but
  * called frequently, and should IMHO be kept as tight as possible.
@@ -319,7 +420,7 @@ ACMD(do_tell)
         !(GET_LEVEL(ch) >= LVL_GRGOD && GET_LEVEL(ch) > GET_LEVEL(vict)))
         act("$E can't hear you.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
     else {
-        if (!CAN_SEND_TELL(ch, vict)) {
+        if (!can_send_tell(ch, vict)) {
             if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
                     affected_by_spell(vict, SPELL_TELEPATHY))) {
                 act("Your telepathic voice cannot reach $M.",
@@ -367,7 +468,7 @@ ACMD(do_reply)
         && ch->in_room != tch->in_room)
         send_to_char(ch, "The walls seem to absorb your words.\r\n");
     else {
-        if (!CAN_SEND_TELL(ch, tch) && !CAN_SEND_TELL((tch), ch)) {
+        if (!can_send_tell(ch, tch) && !can_send_tell((tch), ch)) {
             if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
                     affected_by_spell((tch), SPELL_TELEPATHY))) {
                 act("Your telepathic voice cannot reach $M.",
@@ -411,7 +512,7 @@ ACMD(do_retell)
         && ch->in_room != tch->in_room)
         send_to_char(ch, "The walls seem to absorb your words.\r\n");
     else {
-        if (!CAN_SEND_TELL(ch, tch) && !CAN_SEND_TELL((tch), ch)) {
+        if (!can_send_tell(ch, tch) && !can_send_tell((tch), ch)) {
             if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
                     affected_by_spell((tch), SPELL_TELEPATHY))) {
                 act("Your telepathic voice cannot reach $M.",
@@ -1017,7 +1118,7 @@ ACMD(do_gen_comm)
                 !IS_IMMORT(ch) && i->creature->in_room != ch->in_room)
                 continue;
 
-            if (chan->check_plane && !CAN_CHANNEL_COMM(ch, i->creature))
+            if (chan->check_plane && !can_channel_comm(ch, i->creature))
                 continue;
         }
 

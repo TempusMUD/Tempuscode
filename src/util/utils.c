@@ -16,34 +16,37 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
 #include <string.h>
-#include <signal.h>
-#include <limits.h>
-#include <time.h>
-#include <sys/types.h>
-#include <arpa/telnet.h>
-#include <netinet/in.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <execinfo.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "screen.h"
-#include "spells.h"
-#include "handler.h"
-#include "interpreter.h"
 #include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
+#include "screen.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "account.h"
 #include "spells.h"
-#include "language.h"
+#include "obj_data.h"
 
 extern struct follow_type *order_next_k;
 char ANSI[20];
@@ -118,7 +121,7 @@ touch(const char *path)
  * based on syslog by Fen Jul 3, 1992
  */
 void
-mlog(const char *group, sbyte level, enum log_type type, bool file,
+mlog(const char *group, int8_t level, enum log_type type, bool file,
     const char *fmt, ...)
 {
     bool is_named_role_member(struct creature *ch, const char *role_name);
@@ -181,7 +184,7 @@ slog(const char *fmt, ...)
  * based on syslog by Fen Jul 3, 1992
  */
 void
-mudlog(sbyte level, enum log_type type, bool file, const char *fmt, ...)
+mudlog(int8_t level, enum log_type type, bool file, const char *fmt, ...)
 {
 
     va_list args;

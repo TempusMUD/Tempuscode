@@ -13,9 +13,6 @@
 // File: voice.h                            -- Part of TempusMUD
 //
 
-#include <stdio.h>
-#include "creature.h"
-
 enum voice_situation {
     VOICE_TAUNTING = 0,         // NPC remembers creature in room
     VOICE_ATTACKING,            // NPC attacking remembered creature

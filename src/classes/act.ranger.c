@@ -9,24 +9,36 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
 #include "db.h"
-#include "spells.h"
-#include "screen.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "flow_room.h"
-#include "house.h"
 #include "char_class.h"
-#include "fight.h"
-#include "tmpstr.h"
 #include "players.h"
+#include "tmpstr.h"
+#include "spells.h"
+#include "fight.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
 
 ACMD(do_bandage)
 {
@@ -293,7 +305,7 @@ ACMD(do_ambush)
 
     GET_MOVE(ch) -= 48;
 
-    if (CANNOT_DAMAGE(ch, vict, 0, SKILL_AMBUSH) ||
+    if (cannot_damage(ch, vict, 0, SKILL_AMBUSH) ||
         number(30, 120) > CHECK_SKILL(ch, SKILL_AMBUSH)) {
         act("You spring out in front of $N, surprising nobody.",
             true, ch, 0, vict, TO_CHAR);

@@ -5,29 +5,50 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <errno.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
 #include "db.h"
-#include "spells.h"
 #include "screen.h"
+#include "house.h"
+#include "char_class.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "accstr.h"
+#include "account.h"
+#include "spells.h"
 #include "vehicle.h"
 #include "materials.h"
-#include "char_class.h"
-#include "guns.h"
 #include "bomb.h"
 #include "fight.h"
-#include "house.h"
-#include "utils.h"
-#include "accstr.h"
-#include "players.h"
-#include "race.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
+#include "strutil.h"
+#include "actions.h"
+#include "guns.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -523,7 +544,7 @@ ACMD(do_recharge)
 //
 
 void
-perform_cyborg_activate(struct creature *ch, sh_int mode, int subcmd)
+perform_cyborg_activate(struct creature *ch, int16_t mode, int subcmd)
 {
     struct affected_type af[3];
     const char *to_room[2], *to_char[2];
@@ -1449,7 +1470,7 @@ ACMD(do_tune)
     struct obj_data *obj = NULL, *obj2 = NULL;
     char *arg1, *arg2;
     struct room_data *to_room = NULL;
-    sh_int count = 0;
+    int16_t count = 0;
     int i;
 
     skip_spaces(&argument);

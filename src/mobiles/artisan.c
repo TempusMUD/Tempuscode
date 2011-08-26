@@ -1,19 +1,35 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include "db.h"
-#include "structs.h"
-#include "xml_utils.h"
-#include "utils.h"
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
 #include "interpreter.h"
-#include "actions.h"
-#include "char_class.h"
+#include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "tmpstr.h"
-#include "screen.h"
-#include "handler.h"
 #include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
+#include "xml_utils.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "actions.h"
 #include "vendor.h"
 
 SPECIAL(artisan);

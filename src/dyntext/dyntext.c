@@ -8,27 +8,40 @@
 // ping 2
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #define __DYNTEXT_C__
 
-#include <stdlib.h>
+
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <time.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <ctype.h>
 #include <dirent.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "comm.h"
-#include "utils.h"
-#include "db.h"
-#include "editor.h"
-#include "screen.h"
 #include "interpreter.h"
-#include "accstr.h"
+#include "utils.h"
+#include "constants.h"
+#include "comm.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
+#include "db.h"
+#include "screen.h"
 #include "players.h"
+#include "tmpstr.h"
+#include "accstr.h"
+#include "account.h"
+#include "strutil.h"
+#include "prog.h"
+#include "editor.h"
 
 // external variables
 

@@ -1,9 +1,6 @@
 #ifndef _TMPSTR_H_
 #define _TMPSTR_H_
 
-#include <unistd.h>
-#include <stdarg.h>
-
 // vsprintf into a temp str
 char *tmp_vsprintf(const char *fmt, va_list args)
 	__attribute__ ((format_arg (1)));

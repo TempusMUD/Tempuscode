@@ -1,14 +1,30 @@
-#include "room_data.h"
-#include "creature.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "utils.h"
-#include "quest.h"
-#include "bomb.h"
-#include "handler.h"
-#include "spells.h"
-#include "char_class.h"
+#include "constants.h"
 #include "comm.h"
 #include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "bomb.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
+#include "quest.h"
 
 bool
 is_arena_combat(struct creature *ch, struct creature *vict)

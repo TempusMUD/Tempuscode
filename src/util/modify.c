@@ -16,30 +16,33 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "utils.h"
 #include "interpreter.h"
-#include "handler.h"
-#include "db.h"
+#include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "spells.h"
-#include "mail.h"
-#include "boards.h"
-#include "login.h"
-#include "screen.h"
+#include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "tmpstr.h"
 #include "accstr.h"
+#include "account.h"
+#include "spells.h"
 
 /* External Variables */
 

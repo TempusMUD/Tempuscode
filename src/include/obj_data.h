@@ -10,19 +10,6 @@
 
 /*#define DMALLOC 1 */
 
-/* preamble *************************************************************/
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <time.h>
-#include <pthread.h>
-#include "defs.h"
-#include "constants.h"
-#include "xml_utils.h"
-#include "macros.h"
-
 /* object-related defines ********************************************/
 struct creature;
 struct room_data;
@@ -310,7 +297,7 @@ liquid_to_str(int liquid)
 /* object flags; used in struct obj_data */
 struct obj_flag_data {
 	int value[4];				/* Values of the item (see list)    */
-	byte type_flag;				/* Type of item             */
+	int8_t type_flag;				/* Type of item             */
 	int wear_flags;				/* Where you can wear it        */
 	int extra_flags;			/* If it hums, glows, etc.      */
 	int extra2_flags;			/* More of the same...              */
@@ -322,13 +309,13 @@ struct obj_flag_data {
 	int max_dam;
 	int damage;
 	int sigil_idnum;			// the owner of the sigil
-	byte sigil_level;			// the level of the sigil
+	int8_t sigil_level;			// the level of the sigil
 };
 
 /* Used in obj_file_elem *DO*NOT*CHANGE* */
 struct obj_affected_type {
-	byte location;				/* Which ability to change (APPLY_XXX) */
-	sbyte modifier;				/* How much it changes by              */
+	int8_t location;				/* Which ability to change (APPLY_XXX) */
+	int8_t modifier;				/* How much it changes by              */
 };
 
 struct tmp_obj_affect {
@@ -380,7 +367,7 @@ struct obj_data {
 	struct creature *carried_by;	/* Carried by :NULL in room/conta   */
 	struct creature *worn_by;	/* Worn by?                 */
 	struct obj_shared_data *shared;
-	sh_int worn_on;				/* Worn where?              */
+	int16_t worn_on;				/* Worn where?              */
 	unsigned int soilage;
 	void *func_data;
 	long unique_id;
@@ -399,6 +386,9 @@ struct obj_data {
 };
 /* ======================================================================= */
 
+static inline struct room_direction_data *OEXIT( struct obj_data *obj, int dir ) {
+	return obj->in_room->dir_option[dir];
+}
 struct obj_data *make_object(void);
 void free_object(struct obj_data *obj);
 void save_object_to_xml(struct obj_data *obj, FILE *outf);

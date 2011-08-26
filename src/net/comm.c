@@ -16,48 +16,51 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
-#define _GNU_SOURCE
-#include <stdio.h>
-#include <stdlib.h>
+
+#include <string.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <limits.h>
 #include <errno.h>
-#include <sys/time.h>
+#include <fcntl.h>
+#include <netdb.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
-#include <netdb.h>
-#include <string.h>
-#include <fcntl.h>
-#include <signal.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-#include "macros.h"
-#include "structs.h"
-#include "spells.h"
-#include "utils.h"
-#include "comm.h"
 #include "interpreter.h"
+#include "utils.h"
+#include "constants.h"
+#include "comm.h"
 #include "security.h"
 #include "handler.h"
-#include "db.h"
-#include "editor.h"
-#include "house.h"
-#include "screen.h"
-#include "vehicle.h"
-#include "help.h"
+#include "defs.h"
 #include "desc_data.h"
-#include "tmpstr.h"
-#include "accstr.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "house.h"
+#include "char_class.h"
 #include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "vehicle.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "language.h"
 #include "prog.h"
 #include "quest.h"
-#include "language.h"
+#include "help.h"
+#include "editor.h"
 #include "ban.h"
-#include "char_class.h"
-#include "quest.h"
 
 /* externs */
 extern struct help_collection *Help;
@@ -958,12 +961,12 @@ process_output(struct descriptor_data *d)
 int
 write_to_descriptor(int desc, const char *txt)
 {
-    int total, bytes_written;
+    int total, int8_ts_written;
 
     total = strlen(txt);
 
     do {
-        if ((bytes_written = write(desc, txt, total)) < 0) {
+        if ((int8_ts_written = write(desc, txt, total)) < 0) {
 #ifdef EWOULDBLOCK
             if (errno == EWOULDBLOCK)
                 errno = EAGAIN;
@@ -974,8 +977,8 @@ write_to_descriptor(int desc, const char *txt)
                 perror("Write to socket");
             return -1;
         } else {
-            txt += bytes_written;
-            total -= bytes_written;
+            txt += int8_ts_written;
+            total -= int8_ts_written;
         }
     } while (total > 0);
 
@@ -989,7 +992,7 @@ write_to_descriptor(int desc, const char *txt)
 int
 process_input(struct descriptor_data *t)
 {
-    int buf_length, bytes_read, space_left, failed_subst;
+    int buf_length, int8_ts_read, space_left, failed_subst;
     char *ptr, *read_point, *write_point, *nl_pos = NULL;
     char tmp[MAX_INPUT_LENGTH + 8];
 
@@ -1004,7 +1007,7 @@ process_input(struct descriptor_data *t)
             return -1;
         }
 
-        if ((bytes_read = read(t->descriptor, read_point, space_left)) < 0) {
+        if ((int8_ts_read = read(t->descriptor, read_point, space_left)) < 0) {
 
 #ifdef EWOULDBLOCK
             if (errno == EWOULDBLOCK)
@@ -1017,21 +1020,21 @@ process_input(struct descriptor_data *t)
             } else
                 return 0;       /* the read would have blocked: just means no
                                  * data there */
-        } else if (bytes_read == 0) {
+        } else if (int8_ts_read == 0) {
             slog("EOF on socket read (connection broken by peer)");
             return -1;
         }
         /* at this point, we know we got some data from the read */
 
-        read_point[bytes_read] = '\0';  /* terminate the string */
+        read_point[int8_ts_read] = '\0';  /* terminate the string */
 
         /* search for a newline in the data we just read */
         for (ptr = read_point; *ptr && !nl_pos; ptr++)
             if (ISNEWL(*ptr))
                 nl_pos = ptr;
 
-        read_point += bytes_read;
-        space_left -= bytes_read;
+        read_point += int8_ts_read;
+        space_left -= int8_ts_read;
     } while (nl_pos == NULL);
 
     /*

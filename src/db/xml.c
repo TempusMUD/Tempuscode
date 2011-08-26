@@ -1,16 +1,6 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 /*
-#include <dirent.h>
-#include <string.h>
-#include "constants.h"
-#include "utils.h"
-#include "xml_utils.h"
-#include "db.h"
-#include "vendor.h"
-#include "tmpstr.h"
-#include "comm.h"
 
 void load_xml_object(xmlNodePtr node);
 void load_xml_mobile(xmlNodePtr node);

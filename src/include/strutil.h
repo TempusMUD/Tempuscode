@@ -4,11 +4,19 @@
 #ifndef _STRUTIL_H_
 #define _STRUTIL_H_
 
-#include <stdbool.h>
-#include <ctype.h>
-
 #define ISNEWL(ch) ((ch) == '\n' || (ch) == '\r')
 #define IF_STR(st) ((st) ? (st) : "\0")
+
+// add special plural words that don't end in S to the SPECIAL_PLUR macro
+#define SPECIAL_PLUR( buf )    ( !strcasecmp( buf, "teeth" ) || \
+                                 !strcasecmp( buf, "cattle" ) ||  \
+                                 !strcasecmp( buf, "data" ) )
+#define SPECIAL_SING( buf )    ( !strcasecmp( buf, "portcullis" ) )
+#define PLUR(buf)              ( !SPECIAL_SING( buf ) && ( SPECIAL_PLUR( buf ) || buf[strlen(buf) - 1] == 's' ) )
+
+#define ISARE(buf)             (PLUR(buf) ? "are" : "is")
+#define IT_THEY(buf)           (PLUR(buf) ? "they" : "it")
+#define IT_THEM(buf)           (PLUR(buf) ? "them" : "it")
 
 static inline char *CAP(char *st)
 {

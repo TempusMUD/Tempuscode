@@ -1,13 +1,6 @@
 #ifndef _XML_UTILS_H_
 #define _XML_UTILS_H_
 
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
-#include "tmpstr.h"
-
 void xml_boot(void);
 
 /**

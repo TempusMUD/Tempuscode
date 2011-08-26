@@ -12,12 +12,6 @@
 
 /* The cardinal directions: used as index to struct room_data.dir_option[] */
 
-#include <glib.h>
-#include <stdbool.h>
-#include "defs.h"
-#include "macros.h"
-#include "constants.h"
-
 struct creature;
 struct obj_list;
 
@@ -170,9 +164,9 @@ struct room_direction_data {
 
 struct room_affect_data {
 	char *description;
-	byte level;
+	int8_t level;
 	int flags;
-	byte type;
+	int8_t type;
 	int duration;
     int val[4];
   int owner;
@@ -217,14 +211,14 @@ struct room_data {
 	struct room_affect_data *affects;	// temp. room affects
 	struct room_trail_data *trail;	// tracking data
 	int room_flags;				// DEATH,DARK ... etc
-	sh_int max_occupancy;		// Maximum Occupancy of Room
+	int16_t max_occupancy;		// Maximum Occupancy of Room
 
 	unsigned char find_first_step_index;
 
-	byte light;					// Number of lightsources in room
-	byte flow_dir;				// Direction of flow
-	byte flow_speed;			// Speed of flow
-	byte flow_type;				// Type of flow
+	int8_t light;					// Number of lightsources in room
+	int8_t flow_dir;				// Direction of flow
+	int8_t flow_speed;			// Speed of flow
+	int8_t flow_type;				// Type of flow
 	SPECIAL((*func));
 	char *func_param;
 	struct zone_data *zone;		// zone the room is in
@@ -232,6 +226,68 @@ struct room_data {
 	struct obj_data *contents;	// List of items in room
 	GList *people;		// List of NPC / PC in room
 };
+
+static inline int
+SECT(struct room_data * room)
+{
+	return room->sector_type;
+}
+
+static inline bool
+room_is_open_air(struct room_data *room)
+{
+    int sect = room->sector_type;
+    return (sect == SECT_FLYING ||
+            sect == SECT_ELEMENTAL_AIR ||
+            sect == SECT_ELEMENTAL_RADIANCE ||
+            sect == SECT_ELEMENTAL_LIGHTNING ||
+            sect == SECT_ELEMENTAL_VACUUM);
+}
+
+static inline bool
+room_is_watery(struct room_data *room)
+{
+    int sect = room->sector_type;
+    return (sect == SECT_WATER_NOSWIM ||
+            sect == SECT_WATER_SWIM ||
+            sect == SECT_UNDERWATER ||
+            sect == SECT_ELEMENTAL_WATER ||
+            sect == SECT_DEEP_OCEAN);
+}
+
+static inline bool
+room_is_underwater(struct room_data *room)
+{
+    int sect = room->sector_type;
+    return (sect == SECT_UNDERWATER ||
+            sect == SECT_ELEMENTAL_WATER ||
+            sect == SECT_DEEP_OCEAN);
+}
+
+static inline bool
+room_has_air(struct room_data *room)
+{
+    if (room_is_underwater(room))
+        return false;
+
+    int sect = room->sector_type;
+    if (sect == SECT_PITCH_SUB
+        || sect == SECT_ELEMENTAL_OOZE
+        || sect == SECT_WATER_NOSWIM
+        || sect == SECT_FREESPACE)
+        return false;
+
+    return true;
+}
+
+bool room_is_sunny(struct room_data *room);
+bool room_is_dark(struct room_data *room);
+bool room_is_light(struct room_data *room);
+
+static inline struct room_direction_data* ABS_EXIT( struct room_data *room, int dir ) {
+	return room->dir_option[dir];
+}
+
 //these structs used in do_return()
 extern struct room_data *r_immort_start_room;
 extern struct room_data *r_frozen_start_room;

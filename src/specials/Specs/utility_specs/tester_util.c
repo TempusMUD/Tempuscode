@@ -65,7 +65,7 @@ SPECIAL(tester_util)
     void do_start(struct creature *ch, int mode);
     struct obj_data *obj = (struct obj_data *)me;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-    byte tcmd;
+    int8_t tcmd;
     int i;
 
     return 0;

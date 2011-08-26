@@ -1,8 +1,6 @@
 #ifndef _PROG_H_
 #define _PROG_H_
 
-#include "constants.h"
-
 struct creature;
 
 enum prog_evt_type {

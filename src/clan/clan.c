@@ -9,29 +9,38 @@
 ************************************************************************ */
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <time.h>
+#include <glib.h>
 #include <inttypes.h>
 
-#include "structs.h"
-#include "utils.h"
+#include "interpreter.h"
+#include "constants.h"
 #include "comm.h"
 #include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "utils.h"
+#include "creature.h"
+#include "libpq-fe.h"
 #include "db.h"
 #include "screen.h"
-#include "house.h"
 #include "clan.h"
 #include "char_class.h"
 #include "players.h"
 #include "tmpstr.h"
 #include "accstr.h"
+#include "account.h"
 
 /* extern variables */
 extern struct descriptor_data *descriptor_list;

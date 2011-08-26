@@ -8,9 +8,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include <sys/types.h>
-#include "defs.h"
-
 #define NOWHERE    -1			/* nil reference for room-database        */
 #define NOTHING           -1	/* nil reference for objects                */
 #define NOBODY           -1		/* nil reference for mobiles                */
@@ -67,31 +64,31 @@ enum {
 };
 
 struct dex_skill_type {
-	sh_int p_pocket;
-	sh_int p_locks;
-	sh_int traps;
-	sh_int sneak;
-	sh_int hide;
+	int16_t p_pocket;
+	int16_t p_locks;
+	int16_t traps;
+	int16_t sneak;
+	int16_t hide;
 };
 
 struct dex_app_type {
-	sh_int reaction;
-	sh_int miss_att;
-	sh_int defensive;
-    sh_int tohit;
-    sh_int todam;
+	int16_t reaction;
+	int16_t miss_att;
+	int16_t defensive;
+    int16_t tohit;
+    int16_t todam;
 };
 
 struct str_app_type {
-	sh_int tohit;				/* To Hit (THAC0) Bonus/Penalty        */
-	sh_int todam;				/* Damage Bonus/Penalty                */
-	sh_int carry_w;				/* Maximum weight that can be carrried */
-	sh_int wield_w;				/* Maximum weight that can be wielded  */
+	int16_t tohit;				/* To Hit (THAC0) Bonus/Penalty        */
+	int16_t todam;				/* Damage Bonus/Penalty                */
+	int16_t carry_w;				/* Maximum weight that can be carrried */
+	int16_t wield_w;				/* Maximum weight that can be wielded  */
 };
 
 struct con_app_type {
-	sh_int hitp;
-	sh_int shock;
+	int16_t hitp;
+	int16_t shock;
 };
 
 struct weap_spec_info {
@@ -179,7 +176,7 @@ extern const int mana_bonus[26];
 extern const char *spell_wear_off_msg[];
 extern const char *item_wear_off_msg[];
 extern const int rev_dir[];
-extern const byte movement_loss[];
+extern const int8_t movement_loss[];
 extern const char *weekdays[7];
 extern const char *month_name[16];
 extern const int daylight_mod[16];
@@ -187,7 +184,7 @@ extern const char *sun_types[];
 extern const char *sky_types[];
 extern const char *lunar_phases[];
 extern const char *moon_sky_types[];
-extern const byte eq_pos_order[];
+extern const int8_t eq_pos_order[];
 extern const char implant_pos_order[];
 extern const char tattoo_pos_order[];
 extern const char *material_names[];

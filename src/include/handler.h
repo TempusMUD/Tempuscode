@@ -18,17 +18,19 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+struct creature;
+
 /* handling the affected-structures */
 void init_affect(struct affected_type *af);
 void apply_object_affects(struct creature *ch, struct obj_data *obj, bool add);
 void affect_total(struct creature *ch);
-void affect_modify(struct creature *ch, sh_int loc, sh_int mod, long bitv,
+void affect_modify(struct creature *ch, int16_t loc, int16_t mod, long bitv,
 	int index, bool add);
 void affect_to_char(struct creature *ch, struct affected_type *af);
 int affect_remove(struct creature *ch, struct affected_type *af);
-int affect_from_char(struct creature *ch, sh_int type);
-struct affected_type *affected_by_spell(struct creature *ch, sh_int type);
-int count_affect(struct creature *ch, sh_int type);
+int affect_from_char(struct creature *ch, int16_t type);
+struct affected_type *affected_by_spell(struct creature *ch, int16_t type);
+int count_affect(struct creature *ch, int16_t type);
 void affect_join(struct creature *ch, struct affected_type *af,
 	bool add_dur, bool avg_dur, bool add_mod, bool avg_mod);
 void check_interface(struct creature *ch, struct obj_data *obj, int mode);

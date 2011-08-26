@@ -1,26 +1,39 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <time.h>
 #include <errno.h>
-#include <signal.h>
+#include <inttypes.h>
 #include <sys/stat.h>
-#include "constants.h"
+#include <unistd.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "utils.h"
-#include "xml_utils.h"
-#include "db.h"
-#include "tmpstr.h"
+#include "constants.h"
 #include "comm.h"
-#include "creature.h"
-#include "char_class.h"
-#include "handler.h"
-#include "language.h"
 #include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "char_class.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
+#include "xml_utils.h"
+#include "obj_data.h"
+#include "actions.h"
+#include "language.h"
 
 void add_alias(struct creature *ch, struct alias_data *a);
 void affect_to_char(struct creature *ch, struct affected_type *af);

@@ -1,6 +1,5 @@
 all:
 	+make -C build all
-	+make -C build check
 clean:
 	+make -C build clean
 check:

@@ -30,7 +30,7 @@ SPECIAL(typo_util)
 
     struct obj_data *obj = (struct obj_data *)me;
     char arg1[MAX_INPUT_LENGTH];
-    byte tcmd;
+    int8_t tcmd;
 
     if (spec_mode != SPECIAL_CMD)
         return 0;

@@ -1,9 +1,23 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <glib.h>
+
 #include "utils.h"
+#include "constants.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
+#include "tmpstr.h"
 
 long
 top_player_idnum(void)

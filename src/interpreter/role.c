@@ -1,21 +1,29 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-#include "xml_utils.h"
-// Tempus includes
-#include "structs.h"
-#include "utils.h"
-#include "db.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
+
 #include "interpreter.h"
+#include "utils.h"
+#include "constants.h"
 #include "comm.h"
 #include "security.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
 #include "screen.h"
 #include "players.h"
 #include "accstr.h"
+#include "account.h"
 
 /*
  * The Security Namespace Role function definitions.

@@ -18,24 +18,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-/* preamble *************************************************************/
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <time.h>
-#include <pthread.h>
-
-#include "defs.h"
-#include "macros.h"
-#include "obj_data.h"
-#include "creature.h"
-#include "desc_data.h"
-#include "room_data.h"
-#include "search.h"
-#include "zone_data.h"
-
 /***********************************************************************
  * Structures                                                          *
  **********************************************************************/
@@ -78,7 +60,5 @@ struct message_list {
 };
 
 extern struct player_special_data dummy_mob;	/* dummy spec area for mobs         */
-
-#include "constants.h"
 
 #endif

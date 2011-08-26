@@ -1,17 +1,10 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <malloc.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <ctype.h>
 #include <string.h>
 #include <signal.h>
+#include <libxml/parser.h>
 
-#include "interpreter.h"
-#include "utils.h"
-#include "db.h"
 
 const size_t DEFAULT_ACCUM_SIZE = 65536;    // 64k to start with
 const size_t MAX_STR_ALLOC = 20 * 1024 * 1024;  // 20MB hard maximum

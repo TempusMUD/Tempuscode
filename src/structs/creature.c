@@ -1,28 +1,42 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <signal.h>
+#include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <inttypes.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "comm.h"
 #include "interpreter.h"
+#include "structs.h"
 #include "utils.h"
-#include "spells.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "help.h"
-#include "paths.h"
-#include "login.h"
 #include "house.h"
 #include "clan.h"
-#include "security.h"
-#include "fight.h"
 #include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
+#include "fight.h"
+#include "obj_data.h"
+#include "weather.h"
 #include "prog.h"
 #include "quest.h"
-#include "weather.h"
-#include "account.h"
+#include "help.h"
+#include "paths.h"
 
 void extract_norents(struct obj_data *obj);
 void char_arrest_pardoned(struct creature *ch);

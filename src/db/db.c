@@ -16,49 +16,53 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #define __db_c__
 
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <time.h>
-#include <errno.h>
-#include <signal.h>
 #include <glib.h>
 
-#include "structs.h"
-#include "constants.h"
-#include "utils.h"
-#include "db.h"
-#include "comm.h"
-#include "handler.h"
-#include "spells.h"
-#include "mail.h"
 #include "interpreter.h"
-#include "house.h"
-#include "screen.h"
-#include "flow_room.h"
-#include "clan.h"
-#include "paths.h"
-#include "quest.h"
-#include "char_class.h"
+#include "structs.h"
+#include "utils.h"
+#include "constants.h"
+#include "comm.h"
 #include "security.h"
-#include "olc.h"
-#include "help.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
+#include "db.h"
+#include "screen.h"
+#include "house.h"
 #include "tmpstr.h"
 #include "accstr.h"
 #include "account.h"
+#include "spells.h"
+#include "flow_room.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
 #include "specs.h"
+#include "actions.h"
 #include "language.h"
-#include "voice.h"
-#include "prog.h"
-#include "vendor.h"
 #include "weather.h"
-#include "race.h"
+#include "search.h"
+#include "prog.h"
+#include "quest.h"
+#include "help.h"
+#include "paths.h"
+#include "voice.h"
+#include "olc.h"
 
 #define ZONE_ERROR(message) \
 { zerrlog(zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); last_cmd = 0; }

@@ -16,11 +16,27 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include "structs.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
+
+#include "utils.h"
+#include "constants.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "tmpstr.h"
 #include "spells.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
 
 const char circlemud_version[] = {
     "CircleMUD, version 3.00 beta patchlevel 8\r\n"
@@ -2908,7 +2924,7 @@ const int rev_dir[] = {
     6
 };
 
-const byte movement_loss[] = {
+const int8_t movement_loss[] = {
     1,                          // Inside
     1,                          // City
     2,                          // Field
@@ -3027,7 +3043,7 @@ const char *moon_sky_types[] = {
     "\n"
 };
 
-const byte eq_pos_order[] = {
+const int8_t eq_pos_order[] = {
     WEAR_HEAD,
     WEAR_FACE,
     WEAR_EYES,

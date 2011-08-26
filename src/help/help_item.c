@@ -1,22 +1,32 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #include <stdio.h>
-#include <string.h>
-#include <time.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <errno.h>
-#include "structs.h"
-#include "creature.h"
+#include <unistd.h>
+#include <glib.h>
+
 #include "utils.h"
-#include "help.h"
-#include "interpreter.h"
-#include "db.h"
-#include "editor.h"
+#include "constants.h"
 #include "comm.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
 #include "screen.h"
-#include "handler.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "strutil.h"
+#include "prog.h"
+#include "help.h"
+#include "editor.h"
 
 extern struct help_collection *Help;
 extern char gHelpbuf[];
@@ -115,9 +125,9 @@ help_item_load_text(struct help_item *item)
         }
 
         CREATE(item->text, char, textlen + 1);
-        size_t read_bytes = fread(item->text, 1, textlen, inf);
-        if (read_bytes != textlen) {
-            errlog("Expected %zu bytes, got %zu in help file %s", textlen, read_bytes, fname);
+        size_t read_int8_ts = fread(item->text, 1, textlen, inf);
+        if (read_int8_ts != textlen) {
+            errlog("Expected %zu int8_ts, got %zu in help file %s", textlen, read_int8_ts, fname);
             free(item->text);
             item->text = NULL;
             goto error;

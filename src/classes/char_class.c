@@ -24,29 +24,37 @@
   */
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #define __char_class_c__
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include "structs.h"
-#include "db.h"
-#include "utils.h"
-#include "spells.h"
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
+
 #include "interpreter.h"
-#include "char_class.h"
-#include "comm.h"
-#include "vehicle.h"
-#include "handler.h"
-#include "screen.h"
+#include "utils.h"
+#include "constants.h"
 #include "security.h"
-#include "tmpstr.h"
-#include "clan.h"
-#include "players.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
 #include "race.h"
+#include "creature.h"
+#include "screen.h"
+#include "char_class.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
+#include "actions.h"
 
 extern struct room_data *world;
 
@@ -580,7 +588,7 @@ void
 roll_real_abils(struct creature *ch)
 {
     int i, j, k, str_add;
-    ubyte table[6];
+    uint8_t table[6];
     // Zero out table
     for (i = 0; i < 6; i++) {
         table[i] = 12;
@@ -844,8 +852,8 @@ roll_real_abils(struct creature *ch)
 void
 do_start(struct creature *ch, int mode)
 {
-    void advance_level(struct creature *ch, byte keep_internal);
-    byte new_player = 0;
+    void advance_level(struct creature *ch, int8_t keep_internal);
+    int8_t new_player = 0;
     int i;
     struct obj_data *implant_save[NUM_WEARS];
     struct obj_data *tattoo_save[NUM_WEARS];
@@ -984,7 +992,7 @@ do_start(struct creature *ch, int mode)
  * each char_class every time they gain a level.
  */
 void
-advance_level(struct creature *ch, byte keep_internal)
+advance_level(struct creature *ch, int8_t keep_internal)
 {
     int add_hp[2], add_mana[2], add_move[2], i, char_class;
     char *msg;

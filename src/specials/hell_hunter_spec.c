@@ -6,36 +6,40 @@
 // Hacked to use classes and XML John Rothe 2001
 //
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-// Undefine CHAR to avoid collisions
-#undef CHAR
 #include <string.h>
-#include <stdlib.h>
-#include <errno.h>
-// Tempus Includes
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "spells.h"
-#include "char_class.h"
 #include "screen.h"
-#include "clan.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "specs.h"
-#include "login.h"
-#include "house.h"
-#include "fight.h"
+#include "tmpstr.h"
 #include "accstr.h"
-
+#include "account.h"
+#include "spells.h"
+#include "fight.h"
 #include "xml_utils.h"
+#include "obj_data.h"
+#include "specs.h"
 #include "hell_hunter_spec.h"
 
 /*   external vars  */

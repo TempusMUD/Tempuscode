@@ -15,35 +15,51 @@
 ************************************************************************ */
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "editor.h"
 #include "security.h"
-#include "olc.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
 #include "screen.h"
-#include "flow_room.h"
-#include "spells.h"
-#include "materials.h"
-#include "vehicle.h"
-#include "specs.h"
-#include "smokes.h"
-#include "paths.h"
-#include "bomb.h"
-#include "guns.h"
 #include "char_class.h"
-#include "language.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
+#include "vehicle.h"
+#include "materials.h"
+#include "flow_room.h"
+#include "bomb.h"
 #include "fight.h"
+#include "obj_data.h"
+#include "actions.h"
+#include "guns.h"
+#include "language.h"
+#include "search.h"
+#include "prog.h"
+#include "paths.h"
+#include "olc.h"
+#include "editor.h"
+#include "smokes.h"
 
 extern const char *language_names[];
 extern const char *race_language[][2];
@@ -184,7 +200,7 @@ int olc_mimic_mob(struct creature *ch, struct creature *orig,
 void olc_mimic_room(struct creature *ch, struct room_data *targ, char *arg);
 void do_olc_rexdesc(struct creature *ch, char *a, bool is_hedit);
 void perform_oset(struct creature *ch, struct obj_data *obj_p,
-    char *argument, byte subcmd);
+    char *argument, int8_t subcmd);
 void do_zset_command(struct creature *ch, char *argument);
 void do_zcmd(struct creature *ch, char *argument);
 void do_zone_cmdlist(struct creature *ch, struct zone_data *zone);
@@ -299,7 +315,7 @@ ACMD(do_olc)
     struct room_data *rnum, *room;
     int edir;
     int i = 0, j, k;
-    byte one_way = false;
+    int8_t one_way = false;
     struct extra_descr_data *desc, *ndesc, *temp;
     struct obj_data *tmp_obj = NULL, *obj = NULL;
     struct descriptor_data *d = NULL;
@@ -2274,7 +2290,7 @@ ACMD(do_unapprove)
     int rnum = NOTHING;
     int first, last = 0;
     char *arg1, *arg2, *arg3;
-    byte o_m = 0, zn = 0;
+    int8_t o_m = 0, zn = 0;
     struct obj_data *obj = NULL;
     struct zone_data *zone = NULL;
     struct creature *mob = NULL;
@@ -2443,7 +2459,7 @@ ACMD(do_approve)
     int rnum = NOTHING;
     int first, last = 0;
     char *arg1, *arg2, *arg3;
-    byte o_m = 0, zn = 0;
+    int8_t o_m = 0, zn = 0;
     struct obj_data *obj = NULL;
     struct zone_data *zone = NULL;
     struct creature *mob = NULL;

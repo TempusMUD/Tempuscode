@@ -1,8 +1,6 @@
 #ifndef _INTERPRETER_H_
 #define _INTERPRETER_H_
 
-#include <stdbool.h>
-#include "defs.h"
 /* ************************************************************************
 *   File: interpreter.h                                 Part of CircleMUD *
 *  Usage: header file: public procs, macro defs, subcommand defines       *
@@ -54,9 +52,9 @@ int triggers_search(struct creature *ch, int cmd, char *arg,
 
 struct command_info {
 	const char *command;
-	byte minimum_position;
+	int8_t minimum_position;
     ACMD((*command_pointer));
-	sh_int minimum_level;
+	int16_t minimum_level;
 	int subcmd;
 	int role_count;
 	unsigned long usage;

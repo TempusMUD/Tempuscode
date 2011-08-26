@@ -5,25 +5,40 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "spells.h"
-#include "screen.h"
-#include "house.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "smokes.h"
-#include "clan.h"
 #include "char_class.h"
+#include "tmpstr.h"
+#include "spells.h"
+#include "materials.h"
 #include "bomb.h"
+#include "obj_data.h"
+#include "strutil.h"
 #include "weather.h"
+#include "smokes.h"
 
 struct obj_data *
 roll_joint(struct obj_data *tobac, struct obj_data *paper)
@@ -119,7 +134,7 @@ perform_smoke(struct creature *ch, int type)
     const char *to_vict = NULL;
     struct affected_type af;
     int hp_mod = 0, mana_mod = 0, move_mod = 0, spell = 0;
-    ubyte lev = 0;
+    uint8_t lev = 0;
     int accum_dur = 0, accum_affect = 0;
 
     init_affect(&af);

@@ -16,23 +16,45 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
 #include "db.h"
-#include "spells.h"
 #include "screen.h"
 #include "char_class.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 #include "vehicle.h"
-#include "materials.h"
-#include "fight.h"
-#include "guns.h"
 #include "bomb.h"
+#include "fight.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
+#include "strutil.h"
+#include "actions.h"
+#include "guns.h"
 #include "weather.h"
 
 /* extern variables */
@@ -2165,7 +2187,7 @@ shoot_energy_gun(struct creature *ch,
     struct creature *vict,
     struct obj_data *target, struct obj_data *gun)
 {
-    sh_int prob, dam, cost;
+    int16_t prob, dam, cost;
     int dum_ptr = 0, dum_move = 0;
     struct obj_data *dum_obj;
     struct affected_type *af = NULL;
@@ -2270,7 +2292,7 @@ shoot_energy_gun(struct creature *ch,
 int
 bullet_damage(struct obj_data *gun, struct obj_data *bullet)
 {
-    sh_int dam;
+    int16_t dam;
 
     dam = dice(gun_damage[GUN_TYPE(gun)][0], gun_damage[GUN_TYPE(gun)][1]);
     dam += BUL_DAM_MOD(bullet);
@@ -2283,7 +2305,7 @@ fire_projectile_round(struct creature *ch,
     struct obj_data *gun,
     struct obj_data *bullet, int bullet_num, int prob)
 {
-    sh_int dam;
+    int16_t dam;
     const char *arrow_name;
 
     if (!bullet) {
@@ -2358,7 +2380,7 @@ projectile_blast_corpse(struct creature *ch, struct obj_data *gun,
     //
     // vict is dead, blast the corpse
     //
-    sh_int dam = bullet_damage(gun, bullet);
+    int16_t dam = bullet_damage(gun, bullet);
 
     if (ch->in_room->contents && IS_CORPSE(ch->in_room->contents) &&
         CORPSE_KILLER(ch->in_room->contents) ==
@@ -2391,7 +2413,7 @@ shoot_projectile_gun(struct creature *ch,
 {
     struct obj_data *bullet = NULL;
     struct obj_data *dum_obj;
-    sh_int prob, dam;
+    int16_t prob, dam;
     int bullet_num = 0, dum_ptr = 0, dum_move = 0;
     struct affected_type *af = NULL;
 
@@ -2954,7 +2976,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
 {
     struct obj_data *bullet = NULL, *gun = NULL;
     struct obj_data *dum_obj;
-    sh_int prob, dam, cost;
+    int16_t prob, dam, cost;
     int dum_ptr = 0, dum_move = 0;
     struct affected_type *af = NULL;
     struct obj_data *weap1 = NULL, *weap2 = NULL;

@@ -1,14 +1,15 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <malloc.h>
-#include <stdarg.h>
-#include <stdio.h>
-#include <ctype.h>
+#include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <glib.h>
+
 #include "interpreter.h"
-#include "db.h"
+#include "tmpstr.h"
 
 struct tmp_str_pool {
     struct tmp_str_pool *next;  // Ptr to next in linked list
@@ -610,7 +611,7 @@ tmp_ctime(time_t val)
     result = cur_buf->data + cur_buf->used;
     ctime_r(&val, result);
     cur_buf->used += strlen(result) + 1;
-    // last byte is, sadly, a newline.  we remove it here
+    // last int8_t is, sadly, a newline.  we remove it here
     result[strlen(result) - 1] = '\0';
 
     return result;

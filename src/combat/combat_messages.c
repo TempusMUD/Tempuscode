@@ -16,28 +16,46 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #define __combat_code__
 #define __combat_messages__
 
+
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
-#include "interpreter.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
 #include "db.h"
-#include "spells.h"
 #include "screen.h"
-#include "char_class.h"
-#include "vehicle.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 #include "materials.h"
-#include "flow_room.h"
 #include "fight.h"
-#include "bomb.h"
-#include "guns.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
 #include "specs.h"
+#include "guns.h"
+#include "search.h"
 
 extern int corpse_state;
 char *replace_string(const char *str,

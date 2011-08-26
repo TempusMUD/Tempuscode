@@ -1,19 +1,38 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include "actions.h"
-#include "db.h"
-#include "comm.h"
-#include "handler.h"
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
 #include "interpreter.h"
-#include "tmpstr.h"
-#include "screen.h"
-#include "weather.h"
+#include "structs.h"
 #include "utils.h"
-#include "vendor.h"
-#include "specs.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
 #include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
+#include "obj_data.h"
+#include "specs.h"
+#include "actions.h"
+#include "weather.h"
+#include "vendor.h"
 
 #define MAX_ITEMS   10
 #define MIN_COST    12

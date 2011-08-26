@@ -1,24 +1,34 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <sys/time.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "utils.h"
-#include "comm.h"
-#include "db.h"
-#include "editor.h"
-#include "boards.h"
 #include "interpreter.h"
-#include "handler.h"
-#include "screen.h"
-#include "clan.h"
-#include "accstr.h"
+#include "utils.h"
+#include "constants.h"
+#include "comm.h"
 #include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "tmpstr.h"
+#include "accstr.h"
+#include "account.h"
+#include "obj_data.h"
+#include "prog.h"
+#include "editor.h"
 
 struct board_data {
     const char *name;

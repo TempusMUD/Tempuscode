@@ -16,26 +16,47 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <assert.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "spells.h"
+#include "screen.h"
 #include "house.h"
+#include "clan.h"
+#include "char_class.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 #include "vehicle.h"
 #include "materials.h"
 #include "fight.h"
-#include "security.h"
-#include "char_class.h"
-#include "tmpstr.h"
-#include "screen.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "actions.h"
 #include "weather.h"
-#include "assert.h"
+#include "search.h"
 
 /* external vars  */
 extern struct descriptor_data *descriptor_list;
@@ -45,7 +66,7 @@ extern const int rev_dir[];
 extern const char *dirs[];
 extern const char *from_dirs[];
 extern const char *to_dirs[];
-extern const byte movement_loss[];
+extern const int8_t movement_loss[];
 extern struct obj_data *object_list;
 extern struct creatureList mountedList;
 
@@ -54,7 +75,6 @@ ACMD(do_gen_points);
 long special(struct creature *ch, int cmd, int subcmd, char *arg,
     enum special_mode spec_mode);
 int find_eq_pos(struct creature *ch, struct obj_data *obj, char *arg);
-int clan_house_can_enter(struct creature *ch, struct room_data *room);
 int general_search(struct creature *ch, struct special_search_data *srch,
     int mode);
 void update_trail(struct creature *ch, struct room_data *rm, int dir, int j);

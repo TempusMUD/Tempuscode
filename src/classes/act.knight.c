@@ -9,22 +9,32 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
-#include "db.h"
-#include "spells.h"
-#include "screen.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "flow_room.h"
-#include "house.h"
-#include "char_class.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
 #include "creature.h"
+#include "screen.h"
+#include "char_class.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 #include "fight.h"
 
 int holytouch_after_effect(long owner, struct creature *vict, int level);

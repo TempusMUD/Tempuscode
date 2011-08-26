@@ -96,6 +96,9 @@ enum privilege {
     ASET,
 };
 
+struct command_info;
+struct affected_type;
+
 bool load_roles_from_db(void);
 bool is_authorized(struct creature *ch, enum privilege priv, void *target);
 void send_role_linedesc(struct role *role,struct creature *ch);

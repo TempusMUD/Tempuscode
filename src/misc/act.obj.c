@@ -16,34 +16,47 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <errno.h>
+#include <inttypes.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "spells.h"
+#include "screen.h"
 #include "char_class.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 #include "vehicle.h"
 #include "materials.h"
-#include "smokes.h"
 #include "bomb.h"
-#include "guns.h"
 #include "fight.h"
-#include "security.h"
-#include "tmpstr.h"
-#include "players.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "guns.h"
 #include "prog.h"
-#include "actions.h"
-#include "screen.h"
+#include "smokes.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -1218,7 +1231,7 @@ ACMD(do_get)
 
 void
 perform_drop_gold(struct creature *ch, int amount,
-    byte mode, struct room_data *RDR)
+    int8_t mode, struct room_data *RDR)
 {
     struct obj_data *obj;
 
@@ -1273,7 +1286,7 @@ perform_drop_gold(struct creature *ch, int amount,
 
 void
 perform_drop_credits(struct creature *ch, int amount,
-    byte mode, struct room_data *RDR)
+    int8_t mode, struct room_data *RDR)
 {
     struct obj_data *obj;
 
@@ -1351,7 +1364,7 @@ is_undisposable(struct creature *ch, const char *cmdstr, struct obj_data *obj,
 
 int
 perform_drop(struct creature *ch, struct obj_data *obj,
-    byte mode, const char *sname, struct room_data *RDR, int display)
+    int8_t mode, const char *sname, struct room_data *RDR, int display)
 {
     int value;
 
@@ -1440,8 +1453,8 @@ ACMD(do_drop)
     int i;
     struct obj_data *obj, *next_obj = NULL;
     struct room_data *RDR = NULL;
-    byte oldmode;
-    byte mode = SCMD_DROP;
+    int8_t oldmode;
+    int8_t mode = SCMD_DROP;
     int dotmode, amount = 0, counter = 0, found;
     const char *sname = NULL;
     char *arg1, *arg2;

@@ -11,20 +11,33 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
-#include "db.h"
-#include "spells.h"
-#include "screen.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
 #include "char_class.h"
-#include "vehicle.h"
-#include "materials.h"
+#include "tmpstr.h"
+#include "spells.h"
 #include "fight.h"
+#include "strutil.h"
+#include "mobact.h"
 
 ACMD(do_psidrain)
 {

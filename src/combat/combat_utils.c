@@ -16,36 +16,49 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #define __combat_code__
 #define __combat_utils__
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <errno.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "handler.h"
-#include "interpreter.h"
-#include "db.h"
-#include "spells.h"
-#include "screen.h"
-#include "char_class.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "flow_room.h"
-#include "fight.h"
-#include "bomb.h"
-#include "guns.h"
-#include "specs.h"
 #include "security.h"
-#include "house.h"
-#include "quest.h"
-#include "vendor.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
 #include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
+#include "db.h"
+#include "char_class.h"
+#include "tmpstr.h"
+#include "spells.h"
+#include "materials.h"
+#include "bomb.h"
+#include "fight.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
+#include "specs.h"
+#include "strutil.h"
+#include "guns.h"
 #include "weather.h"
+#include "vendor.h"
 
 extern int corpse_state;
 /* The Fight related routines */

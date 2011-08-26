@@ -12,33 +12,41 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
 #include <libxml/parser.h>
-#include <libxml/tree.h>
-#include "xml_utils.h"
+#include <glib.h>
 
-#include "structs.h"
-#include "comm.h"
-#include "utils.h"
 #include "interpreter.h"
-#include "db.h"
-#include "editor.h"
-#include "spells.h"
-#include "quest.h"
-#include "players.h"
-#include "handler.h"
-#include "screen.h"
-#include "tmpstr.h"
 #include "utils.h"
+#include "constants.h"
+#include "comm.h"
 #include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "players.h"
+#include "tmpstr.h"
 #include "accstr.h"
+#include "account.h"
+#include "xml_utils.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "prog.h"
+#include "quest.h"
 #include "help.h"
+#include "editor.h"
 
 // external funcs here
 ACMD(do_switch);

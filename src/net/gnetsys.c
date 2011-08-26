@@ -16,26 +16,32 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <arpa/telnet.h>
-#include "structs.h"
-#include "comm.h"
+#include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <inttypes.h>
+#include <libpq-fe.h>
+#include <glib.h>
+
 #include "interpreter.h"
-#include "db.h"
 #include "utils.h"
-#include "spells.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
 #include "handler.h"
-#include "mail.h"
-#include "screen.h"
-#include "help.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
 #include "char_class.h"
-#include "clan.h"
-#include "vehicle.h"
-#include "house.h"
-#include "login.h"
-#include "bomb.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 
 extern int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];
 extern struct descriptor_data *descriptor_list;

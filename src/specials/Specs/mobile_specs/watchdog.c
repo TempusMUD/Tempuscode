@@ -11,7 +11,7 @@ SPECIAL(watchdog)
 {
     struct creature *dog = (struct creature *)me;
     struct creature *vict = NULL;
-    static byte indignation = 0;
+    static int8_t indignation = 0;
 
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;

@@ -16,7 +16,7 @@ SPECIAL(increaser)
     char status_desc[64];
     int gold, life_cost, incr;
     int amount = 0;
-    byte mode, status = 0;
+    int8_t mode, status = 0;
 
     if ((!CMD_IS("increase")) || IS_NPC(ch))
         return false;

@@ -33,7 +33,7 @@ void REMOVE_MEMBER_FROM_CLAN(struct clanmember_data *member,
 
 struct clanmember_data {
 	long idnum;
-	byte rank;
+	int8_t rank;
     bool no_mail;
 	struct clanmember_data *next;
 };
@@ -46,7 +46,7 @@ struct room_list_elem {
 struct clan_data {
 	int number;
 	money_t bank_account;
-	byte top_rank;
+	int8_t top_rank;
 	long owner;
 	char *name;					/* official clan name */
 	char *badge;				/* title of clan for who list, etc. */

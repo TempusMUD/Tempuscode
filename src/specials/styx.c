@@ -16,21 +16,27 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <sys/types.h>
+#include <libpq-fe.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "utils.h"
-#include "comm.h"
 #include "interpreter.h"
-#include "handler.h"
+#include "utils.h"
+#include "constants.h"
+#include "comm.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
+#include "tmpstr.h"
 #include "spells.h"
 
 /*   external vars  */

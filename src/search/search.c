@@ -5,33 +5,42 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "comm.h"
-#include "utils.h"
 #include "interpreter.h"
+#include "structs.h"
+#include "utils.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "spells.h"
 #include "screen.h"
+#include "clan.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 #include "vehicle.h"
 #include "fight.h"
-#include "security.h"
+#include "obj_data.h"
 #include "actions.h"
-#include "tmpstr.h"
-#include "house.h"
+#include "search.h"
 #include "prog.h"
-#include "clan.h"
 
 /* extern variables */
 extern struct room_data *world;

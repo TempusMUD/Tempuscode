@@ -9,22 +9,39 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
+#include <stdio.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
 #include "db.h"
-#include "spells.h"
 #include "screen.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "flow_room.h"
-#include "house.h"
 #include "char_class.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
+#include "materials.h"
 #include "fight.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
 
 void
 perform_monk_meditate(struct creature *ch)
@@ -837,7 +854,7 @@ ACMD(do_pinch)
 
 ACMD(do_meditate)
 {
-    byte percent;
+    int8_t percent;
 
     if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
         REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);

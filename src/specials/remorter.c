@@ -5,33 +5,33 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <libxml/parser.h>
-#include <libxml/tree.h>
 #include <string.h>
-#include <stdlib.h>
-#include <errno.h>
-// Tempus Includes
-#include "structs.h"
-#include "utils.h"
-#include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "spells.h"
-#include "char_class.h"
-#include "screen.h"
-#include "clan.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "specs.h"
-#include "login.h"
-#include "house.h"
-#include "fight.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-#include "xml_utils.h"
+#include "interpreter.h"
+#include "utils.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "char_class.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "obj_data.h"
 
 void
 do_pre_test(struct creature *ch)

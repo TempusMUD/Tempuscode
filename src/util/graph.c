@@ -16,32 +16,37 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#define TRACK_THROUGH_DOORS
-
-/* You can define or not define TRACK_THOUGH_DOORS, above, depending on
-   whether or not you want track to find paths which lead through closed
-   or hidden doors.
-*/
-
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <glib.h>
 
-#include "actions.h"
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "spells.h"
-#include "vehicle.h"
-#include "fight.h"
 #include "char_class.h"
+#include "tmpstr.h"
 #include "accstr.h"
+#include "spells.h"
+#include "fight.h"
+#include "strutil.h"
 #include "voice.h"
 
 /* Externals */
@@ -417,7 +422,7 @@ ACMD(do_psilocate)
 
     struct creature *vict = NULL;
     int dist, dir;
-    byte error;
+    int8_t error;
 
     skip_spaces(&argument);
 

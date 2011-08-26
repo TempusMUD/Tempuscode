@@ -8,11 +8,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include <glib.h>
-#include <stdbool.h>
-#include "defs.h"
-#include "constants.h"
-
 struct creature;    // forward declaration from creature.h
 struct account;      // forward declaration from account.h
 struct editor;  // forward declaration from editor.h
@@ -88,8 +83,8 @@ struct descriptor_data {
 	time_t login_time;			/* when the person connected        */
 	char *showstr_head;			/* for paging through texts     */
 	char *showstr_point;		/*      -           */
-	byte bad_pws;				/* number of bad pw attempts this login  */
-	byte need_prompt;			/* control of prompt-printing       */
+	int8_t bad_pws;				/* number of bad pw attempts this login  */
+	int8_t need_prompt;			/* control of prompt-printing       */
 	int max_str;				/*      -           */
 	int repeat_cmd_count;		/* how many times has this command been */
 	struct editor *text_editor;	/*  Pointer to text editor object. */

@@ -16,55 +16,65 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #define _GNU_SOURCE
-#include <string.h>
-#include <execinfo.h>
-#include <signal.h>
 
+#include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <execinfo.h>
+#include <inttypes.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "spells.h"
-#include "house.h"
-#include "screen.h"
-#include "char_class.h"
-#include "vehicle.h"
 #include "security.h"
-#include "olc.h"
-#include "materials.h"
-#include "clan.h"
-#include "specs.h"
-#include "flow_room.h"
-#include "smokes.h"
-#include "paths.h"
-#include "login.h"
-#include "bomb.h"
-#include "guns.h"
-#include "fight.h"
+#include "handler.h"
 #include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "house.h"
+#include "clan.h"
+#include "char_class.h"
+#include "players.h"
 #include "tmpstr.h"
 #include "accstr.h"
-#include "interpreter.h"
-#include "utils.h"
-#include "players.h"
-#include "quest.h"
-#include "ban.h"
-#include "boards.h"
+#include "account.h"
+#include "spells.h"
+#include "vehicle.h"
+#include "materials.h"
+#include "flow_room.h"
+#include "bomb.h"
+#include "fight.h"
+#include "obj_data.h"
+#include "specs.h"
+#include "strutil.h"
+#include "actions.h"
+#include "guns.h"
 #include "language.h"
-#include "prog.h"
-#include "house.h"
-#include "editor.h"
-#include "voice.h"
 #include "weather.h"
-#include "players.h"
+#include "search.h"
+#include "prog.h"
 #include "quest.h"
-#include "race.h"
+#include "paths.h"
+#include "voice.h"
+#include "olc.h"
+#include "editor.h"
+#include "boards.h"
+#include "smokes.h"
+#include "ban.h"
 
 /*   external vars  */
 extern struct obj_data *object_list;
@@ -103,7 +113,7 @@ void build_player_table(void);
 void show_social_messages(struct creature *ch, char *arg);
 void autosave_zones(int SAVE_TYPE);
 void perform_oset(struct creature *ch, struct obj_data *obj_p,
-    char *argument, byte subcmd);
+    char *argument, int8_t subcmd);
 void do_show_objects(struct creature *ch, char *value, char *arg);
 static void do_show_mobiles(struct creature *ch, char *value, char *arg);
 void show_searches(struct creature *ch, char *value, char *arg);
@@ -6064,7 +6074,7 @@ ACMD(do_set)
             return;
         }
 
-        vict->player.level = (byte) value;
+        vict->player.level = (int8_t) value;
         break;
     case 31:
         if ((room = real_room(value)) == NULL) {
@@ -6280,7 +6290,7 @@ ACMD(do_set)
         SET_OR_REMOVE(PRF2_FLAGS(vict), PRF2_NOAFFECTS);
         break;
     case 65:
-        vict->player.age_adjust = (byte) RANGE(-125, 125);
+        vict->player.age_adjust = (int8_t) RANGE(-125, 125);
         break;
     case 66:
         GET_CASH(vict) = RANGE(0, 1000000000);
@@ -7236,7 +7246,7 @@ ACMD(do_searchfor)
 {
     struct creature *mob = NULL;
     struct obj_data *obj = NULL;
-    byte mob_found = false, obj_found = false;
+    int8_t mob_found = false, obj_found = false;
 
     for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         mob = cit->data;
@@ -8057,7 +8067,7 @@ ACMD(do_tester)
     };
 
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-    byte tcmd;
+    int8_t tcmd;
     int i;
 
     if (!is_tester(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR) {

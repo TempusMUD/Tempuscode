@@ -9,24 +9,34 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
-#include "db.h"
-#include "spells.h"
-#include "screen.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "flow_room.h"
-#include "house.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
 #include "char_class.h"
+#include "tmpstr.h"
+#include "spells.h"
 #include "bomb.h"
 #include "fight.h"
-#include "utils.h"
+#include "obj_data.h"
 
 /**
  * do_charge:

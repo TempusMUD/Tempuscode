@@ -16,38 +16,56 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #define __fight_c__
 #define __combat_code__
 
-#include <signal.h>
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
-#include "interpreter.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "libpq-fe.h"
 #include "db.h"
-#include "spells.h"
 #include "screen.h"
 #include "char_class.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 #include "vehicle.h"
 #include "materials.h"
 #include "flow_room.h"
-#include "fight.h"
 #include "bomb.h"
-#include "guns.h"
+#include "fight.h"
+#include <libxml/parser.h>
+#include "obj_data.h"
 #include "specs.h"
+#include "actions.h"
+#include "guns.h"
 #include "mobact.h"
-#include "security.h"
-#include "quest.h"
-#include "utils.h"
-#include "prog.h"
 #include "weather.h"
-#include "players.h"
+#include "prog.h"
+#include "quest.h"
 
 extern bool LOG_DEATHS;
 
@@ -677,6 +695,54 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
     return NULL;
 }
 
+bool
+cannot_damage(struct creature *ch,
+              struct creature *vict,
+              struct obj_data *weap,
+              int attacktype)
+{
+
+	if (IS_PC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR &&
+			!PLR_FLAGGED(vict, PLR_MORTALIZED))
+		return true;
+
+	if (NON_CORPOREAL_MOB(vict) ||
+			IS_RAKSHASA(vict) ||
+			IS_GREATER_DEVIL(vict)) {
+		if (ch) {
+			// They can hit each other
+			if (IS_CELESTIAL(ch) ||
+					NON_CORPOREAL_MOB(ch) ||
+					IS_RAKSHASA(ch) ||
+					IS_DEVIL(ch))
+				return false;
+
+			// bare-handed attacks with kata can hit magical stuff
+			if (IS_WEAPON(attacktype) && !weap &&
+                skill_bonus(ch, SKILL_KATA) >= 50 &&
+                affected_by_spell(ch, SKILL_KATA))
+				return false;
+		}
+
+		// Spells can hit them
+		if (!IS_WEAPON(attacktype))
+			return false;
+
+		// Magical items can hit them
+		if (weap && IS_OBJ_STAT(weap, ITEM_MAGIC))
+			return false;
+
+        // energy weapons can hit them
+        if (weap && IS_OBJ_TYPE(weap, ITEM_ENERGY_GUN))
+            return false;
+
+		// nothing else can
+		return true;
+	}
+
+	return false;
+}
+
 /**
  * damage:
  * @ch The #creature dealing the damage, or %NULL if no #creature is reponsible
@@ -763,7 +829,7 @@ damage(struct creature *ch, struct creature *victim,
         }
     }
 
-    if (CANNOT_DAMAGE(ch, victim, weap, attacktype))
+    if (cannot_damage(ch, victim, weap, attacktype))
         dam = 0;
 
     /* vendor protection */
@@ -2401,7 +2467,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 
     int w_type = 0, victim_ac, calc_thaco, dam, tmp_dam, diceroll, skill = 0;
     int i;
-    byte limb;
+    int8_t limb;
     struct obj_data *weap = NULL;
     int retval;
 

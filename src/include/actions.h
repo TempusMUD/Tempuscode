@@ -7,9 +7,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include "interpreter.h"
-#include "spells.h"
-
 ACMD(do_gen_comm);
 ACMD(do_drag_char);
 ACMD(do_say);

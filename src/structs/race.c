@@ -1,10 +1,20 @@
+#ifdef HAS_CONFIG_H
+#endif
+
+#include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libxml/parser.h>
 #include <glib.h>
 
-#include "creature.h"
+#include "interpreter.h"
 #include "utils.h"
-#include "language.h"
+#include "constants.h"
 #include "race.h"
+#include "tmpstr.h"
+#include "xml_utils.h"
+#include "language.h"
 
 GHashTable *races = NULL;
 

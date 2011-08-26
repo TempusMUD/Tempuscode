@@ -286,7 +286,7 @@ SPECIAL(christmas_quest);
 struct spec_func_data {
 	const char *tag;
     SPECIAL((*func));
-	byte flags;
+	int8_t flags;
 };
 
 int find_spec_index_arg(char *arg);

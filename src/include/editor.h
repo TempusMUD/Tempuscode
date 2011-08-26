@@ -1,9 +1,6 @@
 #ifndef _EDITOR_H_
 #define _EDITOR_H_
 
-#include "constants.h"
-#include "prog.h"
-
 #define MAX_MAIL_ATTACHMENTS    5
 #define MAIL_COST_MULTIPLIER   30
 

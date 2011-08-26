@@ -6,7 +6,7 @@
 
 SPECIAL(black_rose)
 {
-    byte num;
+    int8_t num;
     struct obj_data *trash = (struct obj_data *)me;
 
     if (spec_mode != SPECIAL_CMD || !CMD_IS("smell"))

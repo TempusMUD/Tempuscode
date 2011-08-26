@@ -7,10 +7,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-//#define DEBUG_POSITION 1
-#include "handler.h"
-#include "utils.h"
-
 #define DAM_OBJECT_IDNUM(obj) (IS_BOMB(obj) ? BOMB_IDNUM(obj) : GET_OBJ_SIGIL_IDNUM(obj))
 
 #define IS_WEAPON(type) ((((type)>=TYPE_HIT) && ((type)<TOP_ATTACKTYPE)) || \
@@ -57,49 +53,7 @@
 
 #define IS_DEFENSE_ATTACK(attacktype)   (attacktype == SPELL_FIRE_SHIELD || attacktype == SPELL_BLADE_BARRIER  || attacktype == SPELL_PRISMATIC_SPHERE || attacktype == SKILL_ENERGY_FIELD || attacktype == SPELL_THORN_SKIN || attacktype == SONG_WOUNDING_WHISPERS)
 
-static inline bool
-CANNOT_DAMAGE(struct creature *ch, struct creature *vict, struct obj_data *weap, int attacktype) {
-
-	if (IS_PC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR &&
-			!PLR_FLAGGED(vict, PLR_MORTALIZED))
-		return true;
-
-	if (NON_CORPOREAL_MOB(vict) ||
-			IS_RAKSHASA(vict) ||
-			IS_GREATER_DEVIL(vict)) {
-		if (ch) {
-			// They can hit each other
-			if (IS_CELESTIAL(ch) ||
-					NON_CORPOREAL_MOB(ch) ||
-					IS_RAKSHASA(ch) ||
-					IS_DEVIL(ch))
-				return false;
-
-			// bare-handed attacks with kata can hit magical stuff
-			if (IS_WEAPON(attacktype) && !weap &&
-                skill_bonus(ch, SKILL_KATA) >= 50 &&
-                affected_by_spell(ch, SKILL_KATA))
-				return false;
-		}
-
-		// Spells can hit them
-		if (!IS_WEAPON(attacktype))
-			return false;
-
-		// Magical items can hit them
-		if (weap && IS_OBJ_STAT(weap, ITEM_MAGIC))
-			return false;
-
-        // energy weapons can hit them
-        if (weap && IS_OBJ_TYPE(weap, ITEM_ENERGY_GUN))
-            return false;
-
-		// nothing else can
-		return true;
-	}
-
-	return false;
-}
+bool cannot_damage(struct creature *ch, struct creature *vict, struct obj_data *weap, int attacktype);
 
 struct CallerDiedException {
 };

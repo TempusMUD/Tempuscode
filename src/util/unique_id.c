@@ -1,5 +1,7 @@
-#include "unique_id.h"
 #include <limits.h>
+#include <glib.h>
+
+#include "unique_id.h"
 
 long UniqueID__topID = 0;
 bool UniqueID__modified = false;

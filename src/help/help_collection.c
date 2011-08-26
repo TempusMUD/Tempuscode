@@ -1,25 +1,30 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
 #include <stdio.h>
-#include <string.h>
-#include <time.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <errno.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "creature.h"
-#include "utils.h"
-#include "help.h"
 #include "interpreter.h"
-#include "db.h"
+#include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "screen.h"
-#include "handler.h"
-#include "tmpstr.h"
 #include "security.h"
-#include "accstr.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "screen.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "help.h"
 
 // The global HelpCollection object.
 // Allocated in comm.cc

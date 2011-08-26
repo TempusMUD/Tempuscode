@@ -10,7 +10,7 @@ const char *improve_modes[7] = {
     "\n"
 };
 
-sbyte *
+int8_t *
 real_stat_ptr(struct creature *ch, int mode)
 {
     switch (mode) {
@@ -36,8 +36,8 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
 {
 
     int gold, life_cost;
-    sbyte *real_stat = real_stat_ptr(ch, mode);
-    sbyte old_stat = *real_stat;
+    int8_t *real_stat = real_stat_ptr(ch, mode);
+    int8_t old_stat = *real_stat;
     int max_stat;
 
     if ((!CMD_IS("improve") && !CMD_IS("train")) || IS_NPC(ch))

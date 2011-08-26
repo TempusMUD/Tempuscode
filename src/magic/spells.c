@@ -17,31 +17,48 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "spells.h"
+#include "security.h"
 #include "handler.h"
-#include "db.h"
-#include "interpreter.h"
-#include "flow_room.h"
-#include "smokes.h"
-#include "screen.h"
-#include "vehicle.h"
-#include "char_class.h"
-#include "fight.h"
-#include "materials.h"
-#include "tmpstr.h"
-#include "house.h"
-#include "players.h"
-
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
 #include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "house.h"
+#include "clan.h"
+#include "char_class.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
+#include "vehicle.h"
+#include "materials.h"
+#include "flow_room.h"
+#include "fight.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "actions.h"
+#include "smokes.h"
+
 extern struct obj_data *object_list;
 
 extern struct descriptor_data *descriptor_list;
@@ -56,7 +73,6 @@ extern const char *instrument_types[];
 
 void add_follower(struct creature *ch, struct creature *leader);
 void zone_weather_change(struct zone_data *zone);
-int clan_house_can_enter(struct creature *ch, struct room_data *room);
 
 /*
  * Special spells appear below.
@@ -2463,9 +2479,9 @@ ASPELL(spell_summon_legion)
     gain_skill_prof(ch, SPELL_SUMMON_LEGION);
 
     // tweak based on multiplier
-    GET_HITROLL(devil) = (sbyte) MIN(GET_HITROLL(devil) * mult, 60);
-    GET_DAMROLL(devil) = (sbyte) MIN(GET_DAMROLL(devil) * mult, 60);
-    GET_MAX_HIT(devil) = (sh_int) MIN(GET_MAX_HIT(devil) * mult, 30000);
+    GET_HITROLL(devil) = (int8_t) MIN(GET_HITROLL(devil) * mult, 60);
+    GET_DAMROLL(devil) = (int8_t) MIN(GET_DAMROLL(devil) * mult, 60);
+    GET_MAX_HIT(devil) = (int16_t) MIN(GET_MAX_HIT(devil) * mult, 30000);
     GET_HIT(devil) = GET_MAX_HIT(devil);
 
     // Make sure noone gets xp fer these buggers.

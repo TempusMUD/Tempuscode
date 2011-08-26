@@ -11,29 +11,43 @@
 **************************************************************************/
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#define __flow_room_c__
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-#include <stdio.h>
-#include <stdlib.h>
-
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "flow_room.h"
-#include "vehicle.h"
-#include "smokes.h"
-#include "spells.h"
-#include "char_class.h"
-#include "bomb.h"
 #include "house.h"
+#include "tmpstr.h"
+#include "spells.h"
+#include "vehicle.h"
+#include "flow_room.h"
+#include "bomb.h"
 #include "fight.h"
-#include "prog.h"
+#include "obj_data.h"
+#include "actions.h"
 #include "weather.h"
+#include "search.h"
+#include "smokes.h"
 
 /* external structs */
 extern struct obj_data *object_list;

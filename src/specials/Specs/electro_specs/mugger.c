@@ -4,7 +4,7 @@ struct mob_mugger_data {
     int idnum;                  // idnum of player on shit list
     int vnum;                   // vnum of object desired
     int deaths;                 // For tracking whether the player has died
-    byte timer;                 // how long has the mob been waiting
+    int8_t timer;                 // how long has the mob been waiting
 };
 
 SPECIAL(mugger)

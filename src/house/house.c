@@ -1,32 +1,41 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
-#include <time.h>
-#include <errno.h>
-#include <signal.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <dirent.h>
-#include <unistd.h>
+#include <errno.h>
+#include <inttypes.h>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "comm.h"
-#include "handler.h"
-#include "db.h"
 #include "interpreter.h"
-#include "security.h"
-#include "account.h"
 #include "utils.h"
-#include "house.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
 #include "screen.h"
-#include "tmpstr.h"
-#include "accstr.h"
+#include "house.h"
 #include "clan.h"
 #include "players.h"
+#include "tmpstr.h"
+#include "accstr.h"
+#include "account.h"
+#include "xml_utils.h"
 #include "obj_data.h"
+#include "mail.h"
 
 // usage message
 #define HCONTROL_FIND_FORMAT \
@@ -62,6 +71,12 @@ void extract_norents(struct obj_data *obj);
 
 time_t last_house_collection;
 GList *houses;
+
+static char*
+get_house_file_path( int id )
+{
+	return tmp_sprintf( "players/housing/%d/%04d.dat", (id % 10), id );
+}
 
 /**
  * mode:  true, recursively sums object costs.
@@ -652,7 +667,6 @@ load_house(const char *filename)
 void
 house_notify_repossession(struct house *house, struct creature *ch)
 {
-    extern int MAIL_OBJ_VNUM;
     struct obj_data *note;
 
     if (repo_note_count(house) == 0)

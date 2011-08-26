@@ -1,25 +1,33 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <stdlib.h>
 #include <string.h>
-#include <libxml/parser.h>
-#include <libxml/tree.h>
-// Undefine CHAR to avoid collisions
-#undef CHAR
-#include "xml_utils.h"
-// Tempus includes
-#include "structs.h"
-#include "utils.h"
-#include "db.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <glib.h>
+
 #include "interpreter.h"
+#include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "screen.h"
 #include "security.h"
-#include "boards.h"
-#include "players.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
 #include "house.h"
 #include "clan.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "account.h"
 #include "quest.h"
 
  /**

@@ -16,29 +16,38 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#define __interpreter_c__
-#include "structs.h"
-#include "comm.h"
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
 #include "interpreter.h"
-#include "db.h"
 #include "utils.h"
-#include "spells.h"
-#include "handler.h"
-#include "mail.h"
-#include "screen.h"
-#include "help.h"
-#include "char_class.h"
-#include "clan.h"
-#include "vehicle.h"
-#include "house.h"
-#include "login.h"
-#include "bomb.h"
+#include "constants.h"
+#include "comm.h"
 #include "security.h"
-#include "prog.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "tmpstr.h"
 #include "accstr.h"
+#include "account.h"
+#include "spells.h"
+#include "bomb.h"
+#include "obj_data.h"
+#include "actions.h"
+#include "search.h"
+#include "prog.h"
 
 extern int log_cmds;
 struct sort_struct *cmd_sort_info = NULL;

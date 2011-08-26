@@ -16,40 +16,51 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include <ctype.h>
-#include <time.h>
-#include <errno.h>
-#include <sys/time.h>
+#include <inttypes.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "handler.h"
-#include "db.h"
-#include "spells.h"
-#include "screen.h"
-#include "vehicle.h"
-#include "materials.h"
-#include "clan.h"
-#include "smokes.h"
-#include "bomb.h"
-#include "fight.h"
-#include "specs.h"
 #include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "house.h"
+#include "clan.h"
 #include "char_class.h"
+#include "players.h"
 #include "tmpstr.h"
 #include "accstr.h"
-#include "players.h"
+#include "account.h"
+#include "spells.h"
+#include "vehicle.h"
+#include "materials.h"
+#include "bomb.h"
+#include "fight.h"
+#include "obj_data.h"
+#include "specs.h"
+#include "strutil.h"
+#include "actions.h"
 #include "language.h"
-#include "house.h"
 #include "weather.h"
-#include "race.h"
+#include "smokes.h"
 
 /* extern variables */
 extern int mini_mud;
@@ -60,7 +71,7 @@ extern struct obj_data *object_list;
 //extern const struct command_info cmd_info[];
 extern struct zone_data *zone_table;
 
-extern const byte eq_pos_order[];
+extern const int8_t eq_pos_order[];
 extern const int exp_scale[];
 
 extern char *credits;
@@ -2243,7 +2254,7 @@ ACMD(do_encumbrance)
 //it may interest you to know that mode=1 means we should only show bad things
 //IMPORTANT: Add negative messages ABOVE the mode check, positive messages BELOW
 void
-acc_append_affects(struct creature *ch, byte mode)
+acc_append_affects(struct creature *ch, int8_t mode)
 {
 
     struct affected_type *af = NULL;
@@ -4064,7 +4075,7 @@ void
 print_attributes_to_buf(struct creature *ch, char *buff)
 {
 
-    sbyte str, intel, wis, dex, con, cha;
+    int8_t str, intel, wis, dex, con, cha;
     str = GET_STR(ch);
     intel = GET_INT(ch);
     wis = GET_WIS(ch);

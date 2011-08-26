@@ -1,5 +1,14 @@
+#ifdef HAS_CONFIG_H
+#endif
+
 #include <string.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libxml/parser.h>
+
 #include "utils.h"
+#include "tmpstr.h"
+#include "strutil.h"
 
 const char *fill_words[] = {
     "in",
@@ -35,7 +44,7 @@ sprintbit(long vektor, const char *names[], char *result)
         return;
     }
     for (nr = 0; vektor; vektor >>= 1) {
-        if (IS_SET(1, vektor)) {
+        if ((1 & vektor) != 0) {
             if (*names[nr] != '\n') {
                 strcat(result, names[nr]);
                 strcat(result, " ");
@@ -591,4 +600,3 @@ one_argument_no_lower(char *argument, char *first_arg)
 
     return argument;
 }
-

@@ -17,16 +17,10 @@
 // Copyright 2002 by John Rothe, all rights reserved.
 //
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include "structs.h"
-#include "specs.h"
-#include "comm.h"
-#include "materials.h"
-#include "interpreter.h"
-#include "screen.h"
-#include "tmpstr.h"
+
+
 /*
 //
 // TYPE

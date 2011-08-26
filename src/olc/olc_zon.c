@@ -5,27 +5,40 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
-#include "structs.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "editor.h"
 #include "security.h"
-#include "olc.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
 #include "screen.h"
-#include "flow_room.h"
-#include "paths.h"
 #include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "obj_data.h"
+#include "strutil.h"
 #include "weather.h"
+#include "prog.h"
+#include "paths.h"
+#include "olc.h"
+#include "editor.h"
 
 const char *olc_zset_keys[] = {
     "name",

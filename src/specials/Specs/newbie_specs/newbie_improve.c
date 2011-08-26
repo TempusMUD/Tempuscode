@@ -9,7 +9,7 @@ SPECIAL(newbie_improve)
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
     struct creature *impro = (struct creature *)me;
-    byte index = -1;
+    int8_t index = -1;
     const char *mssg = NULL;
     char buf3[MAX_STRING_LENGTH];
 

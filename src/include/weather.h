@@ -8,8 +8,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include "structs.h"
-
 /* Sun state for weather_data */
 #define SUN_DARK	0
 #define SUN_RISE	1
@@ -41,11 +39,11 @@
 struct weather_data {
 	int pressure;				/* How is the pressure ( Mb ) */
 	int change;					/* How fast and what way does it change. */
-	byte sky;					/* How is the sky. */
-	byte sunlight;				/* And how much sun. */
-	byte moonlight;
-	byte temp;					/* temperature */
-	byte humid;					/* humidity */
+	int8_t sky;					/* How is the sky. */
+	int8_t sunlight;				/* And how much sun. */
+	int8_t moonlight;
+	int8_t temp;					/* temperature */
+	int8_t humid;					/* humidity */
 };
 
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);

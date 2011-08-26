@@ -16,33 +16,44 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <signal.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "db.h"
-#include "handler.h"
-#include "interpreter.h"
-#include "spells.h"
-#include "screen.h"
-#include "vehicle.h"
-#include "clan.h"
-#include "smokes.h"
-#include "materials.h"
-#include "login.h"
-#include "char_class.h"
-#include "help.h"
-#include "fight.h"
 #include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "clan.h"
+#include "char_class.h"
 #include "tmpstr.h"
-#include "utils.h"
+#include "spells.h"
+#include "vehicle.h"
+#include "materials.h"
 #include "flow_room.h"
-#include "prog.h"
+#include "fight.h"
+#include "obj_data.h"
+#include "actions.h"
 #include "weather.h"
+#include "prog.h"
+#include "smokes.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -133,7 +144,7 @@ GET_SKILL(ch, skill) = \
 MIN(GET_SKILL(ch, skill) + mod, 125)
 
 void
-affect_modify(struct creature *ch, sh_int loc, sh_int mod, long bitv,
+affect_modify(struct creature *ch, int16_t loc, int16_t mod, long bitv,
     int index, bool add)
 {
     if (bitv) {
@@ -550,7 +561,7 @@ affect_remove(struct creature *ch, struct affected_type *af)
 
 /* Call affect_remove with every spell of spelltype "skill" */
 int
-affect_from_char(struct creature *ch, sh_int type)
+affect_from_char(struct creature *ch, int16_t type)
 {
     struct affected_type *hjp = NULL, *next_hjp = NULL;
     int found = 0;
@@ -570,7 +581,7 @@ affect_from_char(struct creature *ch, sh_int type)
  * not affected
  */
 struct affected_type *
-affected_by_spell(struct creature *ch, sh_int type)
+affected_by_spell(struct creature *ch, int16_t type)
 {
     struct affected_type *hjp = NULL;
 
@@ -582,7 +593,7 @@ affected_by_spell(struct creature *ch, sh_int type)
 }
 
 int
-count_affect(struct creature *ch, sh_int type)
+count_affect(struct creature *ch, int16_t type)
 {
     struct affected_type *curr = NULL;
     int count = 0;
@@ -2346,10 +2357,10 @@ generic_find(char *arg, int bitvector, struct creature *ch,
 }
 
 // The reaction class compiles a list of allow/deny rules into a string
-// of byte codes, and executes them on a match.  This way, we can compile
+// of int8_t codes, and executes them on a match.  This way, we can compile
 // an arbitrary number of rules into a convenient, fast format.
 
-// The byte code is:
+// The int8_t code is:
 //    bit 4-7
 //       0 == deny
 //       1 == allow
@@ -2361,14 +2372,14 @@ generic_find(char *arg, int bitvector, struct creature *ch,
 //       2 == good align
 //       3 == evil align
 //       4 == neutral align
-//       5 == class (next byte is class + 1)
-//       6 == race (next byte is race + 1)
-//       7 == clan (next byte is clan + 1)
+//       5 == class (next int8_t is class + 1)
+//       6 == race (next int8_t is race + 1)
+//       7 == clan (next int8_t is clan + 1)
 //       8 == killer
 //       9 == thief
 //       a == player
-//       b == level less than (next byte is number compared to)
-//       c == level greater than (next byte is number compared to)
+//       b == level less than (next int8_t is number compared to)
+//       c == level greater than (next int8_t is number compared to)
 // so 0x12 means 'accept good'
 // and 0x01 means 'deny all'
 

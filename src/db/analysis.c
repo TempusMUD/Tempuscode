@@ -18,20 +18,9 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 /*
-#include <string.h>
 
-#include "structs.h"
-#include "utils.h"
-#include "comm.h"
-#include "interpreter.h"
-#include "screen.h"
-#include "tokenizer.h"
-#include "obj_matcher.h"
-#include "tmpstr.h"
-#include "object_map.h"
 
 //
 // A table of ObjectMatcher objects used to do matching searches

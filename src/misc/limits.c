@@ -16,38 +16,51 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
-#include "spells.h"
+#include "constants.h"
 #include "comm.h"
-#include "db.h"
+#include "security.h"
 #include "handler.h"
-#include "vehicle.h"
-#include "clan.h"
-#include "specs.h"
-#include "fight.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
 #include "screen.h"
-#include "prog.h"
+#include "char_class.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
+#include "vehicle.h"
 #include "materials.h"
+#include "fight.h"
+#include "obj_data.h"
+#include "specs.h"
 #include "language.h"
 #include "weather.h"
-#include "players.h"
-#include "race.h"
+#include "prog.h"
 
 extern struct obj_data *object_list;
 extern struct room_data *world;
 extern struct zone_data *zone_table;
 extern int max_exp_gain;
 extern int max_exp_loss;
-extern int exp_scale[];
 
 /* When age < 15 return the value p0 */
 /* When age in 15..29 calculate the line between p1 & p2 */

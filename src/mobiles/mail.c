@@ -18,32 +18,44 @@ Rewritten by John Rothe (forget@tempusmud.com)
 // Copyright 1998 by John Watson, all rights reserved.
 //
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <signal.h>
-#include <ctype.h>
 #include <string.h>
-#include <time.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <errno.h>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-#include "actions.h"
-#include "structs.h"
-#include "utils.h"
-#include "comm.h"
-#include "db.h"
 #include "interpreter.h"
+#include "utils.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "clan.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "accstr.h"
+#include "spells.h"
+#include "xml_utils.h"
+#include "obj_data.h"
+#include "actions.h"
+#include "prog.h"
 #include "mail.h"
 #include "editor.h"
-#include "screen.h"
-#include "clan.h"
-#include "materials.h"
-#include "players.h"
-#include "accstr.h"
 
 // From cityguard.cc
 void call_for_help(struct creature *ch, struct creature *attacker);

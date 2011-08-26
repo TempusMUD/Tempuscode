@@ -1,16 +1,29 @@
 #include <string.h>
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <glib.h>
+
+#include "interpreter.h"
+#include "utils.h"
 #include "constants.h"
 #include "comm.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
 #include "creature.h"
-#include "prog.h"
-#include "utils.h"
-#include "spells.h"
 #include "db.h"
+#include "tmpstr.h"
+#include "spells.h"
+#include "prog.h"
 
 enum prog_token_kind {
     PROG_TOKEN_EOL,

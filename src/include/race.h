@@ -1,13 +1,6 @@
 #ifndef _RACES_H_
 #define _RACES_H_
 
-/*
-  #include <stdint.h>
-  #include <stdbool.h>
-  #include <glib.h>
-  #include "utils.h"
-*/
-
 struct creature;
 
 enum race_num {

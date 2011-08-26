@@ -1,13 +1,22 @@
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <glib.h>
 
 #include "structs.h"
-#include "room_data.h"
 #include "utils.h"
+#include "constants.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
 #include "prog.h"
 
 void

@@ -18,12 +18,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include <stdio.h>
-#include <stdint.h>
-#include "defs.h"
-#include "creature.h"
-#include "libpq-fe.h"
-
 #ifndef _NEWDYNCONTROL_			// used by a util
 
 /* arbitrary constants used by index_boot() (must be unique) */
@@ -189,9 +183,9 @@ extern int population_record[NUM_HOMETOWNS];
 #endif
 
 #ifndef __CONFIG_C__
-extern char *OK;
-extern char *NOPERSON;
-extern char *NOEFFECT;
+extern const char *OK;
+extern const char *NOPERSON;
+extern const char *NOEFFECT;
 #endif
 
 #endif							// _NEWDYNCONTROL_

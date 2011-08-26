@@ -5,29 +5,43 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <unistd.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
-#include "handler.h"
-#include "db.h"
-#include "editor.h"
 #include "security.h"
-#include "olc.h"
-#include "paths.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
 #include "screen.h"
-#include "spells.h"
-#include "materials.h"
-#include "specs.h"
 #include "players.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "materials.h"
+#include "obj_data.h"
+#include "specs.h"
+#include "prog.h"
+#include "paths.h"
+#include "olc.h"
+#include "editor.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
@@ -488,7 +502,7 @@ do_destroy_object(struct creature *ch, int vnum)
 
 void
 perform_oset(struct creature *ch, struct obj_data *obj_p,
-    char *argument, byte subcmd)
+    char *argument, int8_t subcmd)
 {
     struct zone_data *zone = NULL;
     struct obj_data *proto = NULL, *tmp_obj = NULL;

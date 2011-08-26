@@ -17,19 +17,35 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
 #include <errno.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 
-#include "structs.h"
-#include "db.h"
 #include "interpreter.h"
 #include "utils.h"
-#include "specs.h"
-#include "screen.h"
+#include "constants.h"
 #include "comm.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
 #include "tmpstr.h"
+#include "account.h"
+#include "obj_data.h"
+#include "specs.h"
+#include "strutil.h"
 
 extern int mini_mud;
 //extern struct obj_data *obj_proto;

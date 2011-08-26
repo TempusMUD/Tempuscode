@@ -5,24 +5,41 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "interpreter.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "spells.h"
 #include "screen.h"
-#include "vehicle.h"
-#include "materials.h"
+#include "char_class.h"
+#include "tmpstr.h"
+#include "account.h"
+#include "spells.h"
 #include "flow_room.h"
 #include "bomb.h"
 #include "fight.h"
-#include "house.h"
-#include "char_class.h"
+#include "obj_data.h"
+#include "strutil.h"
 
 extern struct room_data *world;
 extern struct spell_info_type spell_info[];
@@ -379,7 +396,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
             affect_to_char(vict, &af);
         }
 
-        if (CANNOT_DAMAGE(NULL, vict, NULL, damage_type))
+        if (cannot_damage(NULL, vict, NULL, damage_type))
             continue;
 
         if (GET_STR(vict) < number(3, power)) {

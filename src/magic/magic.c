@@ -16,21 +16,39 @@
 //
 
 #ifdef HAS_CONFIG_H
-#include "config.h"
 #endif
 
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
+
+#include "interpreter.h"
 #include "structs.h"
 #include "utils.h"
+#include "constants.h"
 #include "comm.h"
-#include "spells.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "zone_data.h"
+#include "race.h"
+#include "creature.h"
 #include "db.h"
-#include "interpreter.h"
 #include "char_class.h"
+#include "tmpstr.h"
+#include "spells.h"
 #include "flow_room.h"
 #include "fight.h"
 #include "obj_data.h"
 #include "specs.h"
+#include "actions.h"
 #include "weather.h"
 
 extern struct room_data *world;
@@ -59,7 +77,7 @@ void ice_room(struct room_data *room, int amount);
  *     Levels 0-56
  */
 
-const byte saving_throws[8][LVL_GRIMP + 1] = {
+const int8_t saving_throws[8][LVL_GRIMP + 1] = {
 
     /* PARA  */
     {90, 70, 69, 69, 68, 68, 67, 67, 66, 66, 65,    /* 0 - 10 */
@@ -2892,7 +2910,7 @@ mag_groups(int level, struct creature *ch, int spellnum, int savetype)
  */
 
 void
-mag_masses(byte level, struct creature *ch, int spellnum, int savetype)
+mag_masses(int8_t level, struct creature *ch, int spellnum, int savetype)
 {
     int found = 0;
     for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
@@ -2918,13 +2936,13 @@ mag_masses(byte level, struct creature *ch, int spellnum, int savetype)
 */
 
 int
-mag_areas(byte level, struct creature *ch, int spellnum, int savetype)
+mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
 {
     const char *to_char = NULL;
     const char *to_room = NULL;
     const char *to_next_room = NULL;
     struct room_data *was_in, *adjoin_room;
-    byte count;
+    int8_t count;
     int return_value = 0;
 
     if (ch == NULL)
