@@ -1,0 +1,37 @@
+Clans are groups of players which can own money and rooms.  A player
+may only be in one clan.  Each player has a rank within the clan.
+Enrollment is the act of adding another player to the clan.  Dismissal
+is the act of removing a player from the clan.  Promotion means to
+increase a player's clan rank.  Demotion means to decrease a player's
+clan rank.
+
+Privileges
+- Clan members can promote, demote, and clan deposit
+- Clan leaders can also enroll, dismiss and clan withdraw.
+- Clan owners can do anything to clans they own
+- Clan owners must be immortal
+- Clan administrators can do anything to any clan
+- Charmed players may not perform clan commands
+- Players may not perform clan commands on themselves
+- Mobiles may not join clans
+
+Enrollment
+- Those already in another clan may not be enrolled
+- Those already in the clan may not be enrolled
+- Players below level 10 may not be enrolled
+
+Dismissal
+- Players must be in the clan to be dismissed
+- Clan leaders may not be dismissed
+
+Promote
+- Players must be in the clan to be promoted
+- Clan leaders may promote up to clan leader
+- Players may promote another up to, but not including, their own rank 
+- Players may not be promoted past the maximum rank
+
+Demote
+- Players must be in the clan to be demoted
+- Players may only demote another if their rank exceeds the target's
+- Players may not be demoted to a rank below 0
+- Clan leaders may not be demoted by another member

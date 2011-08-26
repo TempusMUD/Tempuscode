@@ -1,32 +1,23 @@
 High Priority
 -------------------------------------------------------------------------------
-* Implement house repossession
 * Penalties for dying far exceed reasonable (at least in randomness).
-* Add recalculate object
-* Add recalculate "zone" for mob/object.
-* Debug qcontrol system. ( doesn't save/load reliably )
 * Cleave/Great-Cleave damage is too low and too consistant.
-* Pretty up and pack functionality into show account, show player, and show
-  multi
 
 Low Priority
 -------------------------------------------------------------------------------
 * Remove second wield from mercs or make it pistols only
-* Add 'The Zen of <Centering/Dispassion/Detachment?>'
-    - resists ambience
-    - ticks toward neutral on ticks while meditating
 * Guns changes from containers to batteries
 
 0 Barb skill revamp
-    X Cleave(30): 
-        - do_hit up to 4XDAM and blows through to first FIGHTING(ch) 
+    X Cleave(30):
+        - do_hit up to 4XDAM and blows through to first FIGHTING(ch)
             in room ( 5 move + 5 for blow through )
     1 Great Cleave(40<2>):
         - Cleave with blow through up to gen or gen/2 times.
 * New remorter system
     X Remove Test
     X Labyrinth portal repels those with equip, or if someone is already
-      in laby 
+      in laby
     X enter far more populated labyrinth in random location.
     ? battle through labyrinth to find the fates
     ? Klotho asks riddles (or remort test questions) and gives a
@@ -42,7 +33,6 @@ Low Priority
 
 Under discussion
 -------------------------------------------------------------------------------
-* Keep track of mob vnums killed - adjust exp based on killing same mob
 * New combat system
 	- Melee combat takes time to start if not sneaking or invis: can make
 	  messages amusingly dependant on state
@@ -67,24 +57,34 @@ Under discussion
 	- might block behead, cleave, ... ?
 * Support for accidentally hitting player without incurring penalties
 	- for skills like berserk, id insinuation
-* Quest related obj_data changes
+* Remove stradd
+* AC changed to positive
+* Class description file
+
+FINISHED
+-----------------------------------------------------------------
+X Keep track of mob vnums killed - adjust exp based on killing same mob
+X Quest related obj_data changes
     - Add player id ( and only that player can wear/wield/use )
     - Add '(protected)' flag or use player id to show '(protected)'
     - Add insurance company in E.C. that will both insure objects, and
       load a character's insured eq
-* Bounty Hunter
+X Bounty Hunter
     - Kiosk in Skullport that sells 'bountys' on any player
     - Any player that kills the given player outside NVZ can
       return to the kiosk to accept the reward
     - On death, the special is notified who and where killed
       the target.
-* Remove stradd
-* AC changed to positive
-* Race description file
-* Class description file
-
-FINISHED
------------------------------------------------------------------
+X Add 'The Zen of <Centering/Dispassion/Detachment?>'
+    - resists ambience
+    - ticks toward neutral on ticks while meditating
+X Race description file
+X Implement house repossession
+X Add recalculate object
+X Add recalculate "zone" for mob/object.
+X Debug qcontrol system. ( doesn't save/load reliably )
+X Pretty up and pack functionality into show account, show player, and show
+  multi
 X Change file formats to XML
     X Account
     X Mail
@@ -94,8 +94,8 @@ X Change file formats to XML
 X Remove hcollect group setup in favor of access "House" group.
 X !Magic !Science object flags
 X Reduce price in shops based on number of that item in shop
-X Change tmp_str to allocate MAX(wanted, default) bytes on a 
-  buffer overrun, check only tail, adjust initial pool to 
+X Change tmp_str to allocate MAX(wanted, default) bytes on a
+  buffer overrun, check only tail, adjust initial pool to
   match maximum
 X Solve buffer overflow problems permanently
 X Change char_data to Creature
