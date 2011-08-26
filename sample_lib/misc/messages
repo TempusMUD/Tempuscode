@@ -1,0 +1,3016 @@
+* Note: all lines between records which start with '*' are comments and
+* are ignored.  Comments can only be between records, not within them.
+*
+* This file is where the damage messages go for offensive spells, and
+* skills such as kick and backstab.  Also, starting with Circle 3.0, these
+* messages are used for failed spells, and weapon messages for misses and
+* death blows.
+*
+* All records must start with 'M' in the first column (for 'Message').
+* The next line must contain the damage number (defined in spells.h),
+* then the messages (one per line):
+*   Death Message (damager, damagee, onlookers)
+*   Miss Message (damager, damagee, onlookers)
+*   Hit message (damager, damagee, onlookers)
+*   God message (damager, damagee, onlookers)
+*
+* All messages must be contained in one line.  They will be sent through
+* act(), meaning that all standard act() codes apply, and each message will
+* automatically be wrapped to 79 columns when they are printed.  '#' can
+* be substituted for a message if none should be printed.  Note however
+* that, unlike the socials file, all twelve lines must be present for each
+* record, regardless of any '#' fields which may be contained in it.
+
+***************************************************************************
+*                           Offensive Spells                              *
+***************************************************************************
+
+* Burning Hands
+M
+ 5
+You have burned $N to death!
+You have been burned to death by $n!
+$n has burned $N to death!
+You miss $N with your burning hands.
+$n reaches for you with burning hands, but misses!
+$n tries to burn $N, but $E escapes!
+$N screams as your flaming hands grab $M.
+You cry out in pain as $n grabs you with burning hands!
+$N cries out as $n burns $M!
+Your attempt to burn $N nears BLASPHEMY!!!
+The pitiful creature before you tries to burn you.
+Unaware of the risks, $n tries to burn $N.
+
+* Call Lightning
+M
+ 6
+Your lightning bolt kills $N!
+You are electrocuted to death by a lightning bolt sent by $n!
+The dead body of $N sizzles in the heat from a lightning bolt sent by $n!
+Your lightning bolt scores the ground in front of $N, a misser!
+The ground before you is scored as $n misses you with lightning!
+$N jumps backwards in time to avoid lightning sent by $n!
+You blast $N with an arc of blue lightning!
+You are hit by lightning sent by $n, OUCH!
+$N screams in pain as lightning from $n penetrates $M!
+$N stops your lightning with a single gesture, BEWARE!!!
+You stop $n's lightning with a sure hand, no time for children's games...
+$n's lightning disappears as $N makes a simple gesture.
+
+* Chill Touch
+M
+ 8
+$N stiffens, and falls dead from your frozen touch.
+$n touches you, and you succumb to $s frozen touch.
+$n touches $N who slumps to the ground as a dead lump, rather chilly isn't it?
+The atmosphere turns chilly as you miss $N!
+You dodge $n and $s chill touch!
+$n tries unsuccessfully to chill $N!
+You chill $N!
+You feel your life flowing away as $n chills you!
+$n chills $N who suddenly seem less lively!
+Are you trying to chill $N? -- what a joke!!
+$n tries to chill you, what a laugh...
+$N starts to laugh as $n turns chilly!
+
+* Color Spray
+M
+ 10
+You blast $N with a vivid rainbow, killing $M instantly.
+Your head is filled with all the colors of the rainbow before it bursts!
+$n makes $N into a colorful corpse!
+Your spray of color misses $N -- what a dull world...
+$n unsuccessfully tries to add color to your life!
+$n splashes color everywhere except $N.
+You send a burst of bright colors at $N hitting $M in the face.
+A sudden burst of colors from $n sends you reeling!
+$n blasts $N with a stream of colors!
+Your spray of colors turn into butterflies as $N frowns.
+Your frown is enough to turn $n's color spray into butterflies.
+$N frowns at $n's color spray.
+
+* Dispel Evil
+M
+ 22
+$N is dissolved by your goodness.
+The power of $n's righteous touch dissolves your vile flesh.
+$n completely dissolves $N!
+$N is unaffected by your goodness!
+$n thinks that $e is really good, and tries to dispel you.
+$N laughs at $n as $e tries to dispel $M!
+$N shivers and suffers from $S evilness!
+$n makes your soul hurt and suffer!
+$n makes $N's evil spirit shiver and suffer!
+Did you really expect $M to suffer?
+$n unfruitfully tries to dispel you.
+$n is stupid...
+
+* Energy Drain
+M
+25
+$N crumples as you kill $M by draining $S energy!
+As $n drains your last energy you look forward to the peace of the graveyard...
+$n drains the energy of $N who crumples as a lifeless cocoon!
+You need more draining lessons...
+Luckily for you $n slept during draining-lessons!
+$n fails to drain $N -- what a waste of energy!
+You drain $N of some of $S energy!
+You feel less energetic as $n drains you!
+$n drains $N -- what a waste of energy!
+You waste energy trying to drain $N!
+How amusing -- $n tries to drain you!
+$N's eyes twinkle with laughter as $n tries to drain $M.
+
+* Fireball
+M
+ 26
+Your fireball hits $N with full force, turning $M into a flaming corpse.
+As you burst into flames of death $n grins evilly...
+The heat from a fireball from $n turns $N into a charred corpse!
+Your fireball blooms a few feet before $N who claps $S hands in wonder.
+$n aims a fireball at you but it blooms a few feet before you; you clap your hands at the show.
+A fireball from $n misses $N -- what great fireworks around here!!
+You throw a fireball at $N and have the satisfaction of seeing $M enveloped in flames!
+You are enveloped in flames from a fireball sent by $n.
+$n smirks as $s fireball explodes into the face of $N!
+How shameful to throw fireballs at a GOD!!!
+You choose to ignore $n's shameful attempt to fireball you.
+$n's fireball is tactfully ignored by $N.
+
+* Harm
+M
+ 27
+$N screams as $E is ripped apart!
+You are ripped apart and killed by an intense pain!
+$N is ripped apart and destroyed!
+$N laughs as your magic is reflected off $M!
+You laugh as $n's magic is reflected off you!
+$N laughs as $n's magic is reflected off $M!
+$N screams as your magic rips into $M!
+You scream in agony as $n's magic rips into you!
+$N screams as $n's magic rips into $M!
+$N laughs as your magic is reflected off $M!
+You laugh as $n's magic is reflected off you!
+$N laughs as $n's magic is reflected off $M!
+
+* Lightning Bolt
+M
+ 30
+$N is knocked to the floor by the power of your lightning, and doesn't move.
+The last thing you feel is the ground below you as $n's lightning knocks you down.
+$N receives the full blast of a lightning bolt from $n ... and is no more.
+Your aim goes from bad to worse, and your lightning bolt misses $N!
+$n has bad aim and the lightning bolt misses you!
+$n tries to hit $N with a lightning bolt but only hits the sky!
+The lightning bolt hits $N with full impact!
+$n sends a lightning bolt directly into your chest!
+$N wavers under the impact of the lightning bolt sent by $n!
+Your lightning bolt is extinguished as mighty $N moves $S ears!
+You move your ears to extinguish $n's lightning bolt.
+$N moves $S ears and $n's lightning bolt is extinguished!
+
+* Magic Missile
+M
+ 32
+The magic missile tears away the remaining life of $N!
+You have time to notice $n uttering strange sounds and all goes dark!
+The magic missile sent by $n causes $N to collapse in a lifeless heap!
+The magic missile penetrates the air miles above $N.
+You don't even have to duck as $n sends a magic missile way over your head.
+$n tries in vain to correct the course of the magic missile meant to hit $N.
+You watch with self-pride as your magic missile hits $N!
+You stagger as a magic missile from $n hits you!
+$n throws a magic missile at $N who staggers under the blow!
+Your magic missile makes $N roar with laughter.
+You can't help laughing as $n sends a magic missile at you.
+$N starts to roar with laughter as $n sends a magic missile at $N.
+
+* Poison
+M
+ 33
+#
+Poison burns intensely in your veins.. you shiver.. you die.
+$N has a few cramps and dies, suffering.
+#
+suffer miss victim - should never see.
+suffer miss room - should never see.
+#
+You feel burning poison in your blood, and suffer.
+$N looks really sick and shivers uncomfortably.
+#
+You have become poisoned somehow.
+$N has somehow become poisoned.
+
+* Shocking Grasp
+M
+ 37
+$N dies while looking rather shocked!
+$n shocks you.  Unfortunately your heart can't stand it...
+$n reveals with a shock that $N has left $S body!
+$N rather shockingly evades your grasp!
+You nimbly dodge a shocking grasp from $n!
+$N shockingly evades the grasp of $n!
+You get a good hold $N and shock $M!
+You get a shock as $n gets too close to you!
+$N looks shocked as $n grasps at $M!
+You shockingly realize you can't shock $N...
+These puny creatures are shocking at times...
+The atmosphere gets loaded as $n tries to shock $N!
+
+* Dispel Good
+M
+ 46
+$N is dissolved by your evil.
+You scream as the vile taint of $n's soul rips your life from you.
+$n completely dissolves $N!
+$N is unaffected by your evil!
+$n thinks that $e is really evil, and tries to dispel you.
+$N laughs at $n as $e tries to dispel $M!
+$N shivers and suffers from $S goodness!
+$n makes your soul hurt and suffer!
+$n makes $N's good spirit shiver and suffer!
+Did you really expect $N to suffer?
+$n unfruitfully tries to dispel you.
+$n is stupid...
+
+* Prismatic Spray
+M
+ 64
+There is a blinding flash as your prismatic spray destroys $N!
+$n has killed you with $s prismatic spray!
+$n utterly destroys $N with $s prismatic spray!
+$N leaps out of the path of your prismatic spray!
+You barely avoid a prismatic spray of light from $n's hands!
+$N leaps aside as a prismatic spray of light blasts from $n's hands!
+You blast $N with a prismatic spray of light!
+$n nails you hard with a prismatic spray of light!
+$n blasts $N with a prismatic spray of light!
+Your prismatic spray flickers weakly at $M...
+$n tries to spray you with mortal prismatism!  what a fool.
+$n stupidly attacks the mighty $N with a prismatic spray!
+
+* Fire Shield
+M
+ 65
+$N is seared to a lifeless cinder as $E leaps into your fire shield!!
+You are seared to a lifeless cinder as you leap into $n's fire shield!!
+$N is seared to a lifeless cinder as $E leaps into $n's fire shield!!
+#
+#
+#
+$N's body bursts into flames on contact with your fire shield!
+Your body bursts into flames on contact with $n's fire shield!
+$N's body bursts into flames on contact with $n's fire shield!
+$N dances grimly into your feeble shield of flame.
+You dance grimly into $n's feeble shield of flame.
+$N dances grimly into $n's feeble shield of flame.
+
+* Cone of Cold
+M
+ 74
+The room temperature drops suddenly as $N's frozen body explodes!!
+Your body numbs, then explodes in the face of $n's icy blast!!
+$N explodes into frozen fragments after $n's icy blast!!
+$N nimbly avoids your freezing blast!
+You nimbly avoid $n's freezing blast of ice!
+$N nimbly avoids $n's freezing blast of ice!
+You blast $N full force with your icy cone of coldness!
+$n blasts you across the room as a cone of ice shoots from $s fingers!
+$n blasts $N across the room with a cone of magical ice!
+$N laughs in your face!
+$n sprays a puny cone of ice at you.
+$n sprays a cone of ice at the mighty $N.
+
+*Spiritual Hammer
+M
+ 79
+The spiritual hammer crushes the skull of $N!!
+A ghostly hammer appears from nowhere and smashes your skull in!!
+$n conjures a ghostly hammer, which speeds to $N and breaks $S skull!!
+The spiritual hammer swings wide, missing $N!
+$n flings a ghostly hammer at you, it barely misses your forehead!
+$n flings a ghostly hammer at $N, barely missing!
+The spirit hammer speeds toward $N, and smacks $M soundly!
+$n throws a spirit hammer at you, knocking you breathless!
+$n sends a spiritual hammer speeding into the head of $N!
+$N catches your puny hammer and eats it!
+$n thought it'd be funny to throw a spiritual hammer at you.
+$n throws a spirit hammer at $N, who catches and eats it!
+
+*Flame Strike
+M
+ 81
+A column of flame falls from the skies and consumes $N!!
+You are burned alive as $n calls a pillar of fire down on your head!!
+$n calls down a pillar of fire, which consumes $N!!
+A tongue of flame falls from the skies, but misses $N!
+$n calls a tongue of flame down from the sky, but you leap aside!
+$n calls flame down from the sky at $N , but $E leaps aside!
+You call down a pillar of blazing fire, which strikes $N!
+$n calls a blazing column of fire down on your head!
+A column of fire falls from the sky onto $N, at the command of $n!
+$n chuckles at your pitiful column of fire.
+$n warms you by calling a pillar of fire onto your head.
+$n brings fire from the skies onto the head of the mighty $N!
+
+*Meteor Storm
+M
+ 108
+A storm of blazing meteors rains down, obliterating $N!!
+A storm of blazing meteors rains down and obliterates you!!
+A storm of blazing meteors rains down, obliterating $N!!
+$N leaps aside as a storm of meteors rains down from the sky!
+You leap aside as a storm of meteors rains down from the sky!
+$N leaps aside as a storm of meteors rains down from the sky!
+$N is buffeted by a hail of fiery meteors!
+You are buffeted by a hail of fiery meteors!
+$N is buffeted by a hail of fiery meteors!
+$N opens wide and swallows every last meteor.
+As a rain of meteors begins to shower, you open wide and swallow every one.
+$N swallows a storm of meteors which fall blazing from the sky.
+
+*Symbol of Pain
+M
+ 110
+Your symbol of pain sends $N screaming into the depths of hell!!
+$n's symbol of pain sends your soul screaming into the depths of hell!!
+$n's symbol of pain sends $N's soul screaming into the depths of hell!!
+Your symbol of pain seems to have no affect on $N!
+$n blasts at you with a symbol of pain!  You are unaffected!
+$n blasts $N with a symbol of pain!  $E seems to be unaffected!
+$N reels backward in agony, burning under your symbol of pain!
+You reel backward in agony, your mind burning under $n's symbol of pain!
+$N reels backward in agony, burning under $n's symbol of pain!
+$N laughs at your weak attempt to summon a symbol of pain!
+$n blasts at you with a symbol of pain!  You are unaffected!
+$n blasts $N with a symbol of pain!  $E laughs in contempt!
+
+*Ice Storm
+M
+ 111
+You freeze $N's body with a terrible storm of ice, and $E stops moving.
+$n freezes your body solid with a terrible storm of ice!!
+$n freezes $N's body solid with a terrible storm of ice!!
+$N leaps aside as a storm of ice blasts out of the sky!
+You leap aside as $n calls a storm of ice from the sky!
+$N leaps aside as $n calls a storm of ice from the sky!
+$N is decimated by a deadly hail of ice!
+You are decimated by a deadly hail of ice!
+$N is decimated by a deadly hail of ice!
+$n leaps aside as a storm of ice blasts out of the sky!
+You leap aside as $n calls a storm of ice from the sky!
+$N leaps aside as $n calls a storm of ice from the sky!
+
+*Disruption
+M
+ 114
+$N explodes into tiny fragments from your fatal disruption!!
+$n disrupts your essence into millions of tiny fragments!!
+$N explodes into tiny fragments from $n's fatal disruption!!
+The air around $N ionizes with a bang, but $E emerges unscathed!
+The air around you ionizes with a bang, but you emerge unscathed!
+The air around $N ionizes with a bang, but $E emerges unscathed!
+$N reels backwards as $S essence rips away from $S body!
+Your body feels ripped apart as $n disrupts your essence!
+$N reels backwards as $S essence rips away from $S body!
+Your beam of disruption is reflected off $N, back into your eyes!
+$n's beam of disruption reflects off your forehead.
+$n's beam of disruption reflects off $N's forehead.
+
+*Prismatic Sphere
+M
+ 118
+Your prismatic sphere annihilates $N on contact!!!
+$n's prismatic sphere annihilates you on contact!!!
+$n's  prismatic sphere annihilates $N on contact!!!
+Your light sphere scatters shards of color reflecting off $N!!
+$n's light sphere scatters shards of color reflecting off you!!
+$n's light sphere scatters shards of color reflecting off $N!!
+$N is blasted with color as $E enters your prismatic sphere!
+You are blasted with color as you enter $n's prismatic sphere!
+$N is blasted with color as $E enters $n's prismatic sphere!
+Your light sphere scatters shards of color reflecting off $N!!
+$n's light sphere scatters shards of color reflecting off you!!
+$n's light sphere scatters shards of color reflecting off $N!!
+
+* Hailstorm
+M
+ 127
+Your deadly storm of hailstones pulverizes $N into atoms!!
+$n's storm of hailstones pulverizes you into atoms!!
+$n's storm of hailstones pulverizes $N into atoms!!
+$N deftly avoids your storm of hailstones!
+You deftly avoid $n's storm of hailstones!
+$N deftly avoids $n's storm of hailstones!
+Your storm of hailstones batters $N ruthlessly!
+$n's storm of hailstones batters you ruthlessly!
+$n's storm of hailstones batters $N ruthlessly!
+$N deftly avoids your storm of hailstones!
+You deftly avoid $n's storm of hailstones!
+$N deftly avoids $n's storm of hailstones!
+
+* Stigmata
+M
+ 132
+$N collapses as the last of $S blood seeps out through $S burning stigmata.
+The last of your blood seeps painfully out of your burning stigmata, and you collapse to the ground, dead.
+$N collapses as the last of $S blood seeps out through $S burning stigmata.
+#
+stigmata miss victim - should never see.
+stigmata miss room - should never see.
+The bloody stigmata on $N's forehead oozes blood.
+The bloody stigmata on your forehead burns painfully.
+The bloody stigmata on $N's forehead oozes blood.
+#
+#
+#
+
+*Taint's initial damage
+M
+ 147
+A gout of flame leaps from your hand, completely incinerating $N's head!
+A gout of flame from $n's hand completely incinerates your head!
+A gout of flame from $n's hand completely incinerates $N's head!
+$N narrowly avoids your blast of hellfire!
+You narrowly avoids $n's blast of hellfire!
+$N narrowly avoids $n's blast of hellfire!
+You engulf $N's head with a blast of hellfire from your hand.
+A blast of hellfire slams into your head from $n's outstretched hand!
+A blast of hellfire leaps from $n's hand and slams into $N's head!
+$N seems to be tainted enough. Don't you think?
+$n offers to light your cigarette with $s hellfire.
+$n offers to light $N's cigarette with $s hellfire.
+
+* Thorn Skin
+M
+ 154
+Your thorns pierce $N who collapses from the pain!
+$n's thorns pierce you one final time.
+$n's thorns pierce $N who collapses from the pain!
+#
+#
+#
+$N is pricked by the thorns protruding from your skin!
+You are pricked by the thorns protruding from $n's skin!
+$N is pricked by the thorns protruding from $n's skin!
+#
+#
+#
+
+M
+ 157
+#
+Thorns erupt from your skin, ending your life in agony!
+Thorns erupt from $n's skin, ending $s life in agony!
+#
+#
+#
+#
+You howl in pain as thorns erupt from your skin!
+$n howls in pain as thorns erupt from $s skin!
+Thorns pop out of $n's skin effortlessly.
+#
+$n chuckles as thorns effortlessly pop out of $s skin.
+
+* Psychic Surge
+M
+ 224
+Your surge rips into $N's mind, destroying $S life!
+$n's psychic surge rips into your mind, destroying you utterly!
+$n destroys $N's mind with a psychic surge!
+Your psychic surge is rejected by $S mind!
+Your mind violently rejects a psychic surge from $n!
+$N violently rejects $n's psychic surge!
+You send an overwhelming surge of psychic energy into $S mind!
+$n sends a surge of psychic energy blasting into your mind!
+$N is blasted by a surge of psychic energy from $n!
+Your psychic surge is rejected by $S mind!
+Your mind violently rejects a psychic surge from $n!
+$N violently rejects $n's psychic surge!
+
+* Ego Whip
+M
+ 217
+You backlash $N's mind into oblivion!!
+A lash of psychic energy whips you into oblivion!!
+$n's psychic whip lashes $N into oblivion!!
+$N's ego is unaffected by your psychic lash!
+Your ego is unaffected by $N's violent psychic lash!
+$N staggers under $n's  psychic lash!
+Your psychic whip lashes $N's ego!!
+Your ego is whipped by a psychic lash from $n!
+$N screams as his ego is whipped by $n!
+$N's ego is unaffected by your psychic lash!
+Your ego is unaffected by $N's violent psychic lash!
+$N staggers under $n's  psychic lash!
+
+* Psychic Crush
+M
+ 218
+$N's head collapses into mush under an unseen psychic force!!
+Your head collapses into mush under an unseen psychic force!!
+$N's head collapses into mush under an unseen psychic force!!
+$N shakes off the effect of the crushing psychic force!
+You shake off the effect of a crushing psychic force!
+$N shakes off the effect of a crushing psychic force!
+$N howls with pain as a psychic force crushes $S skull!
+You howl with pain as a psychic force crushes your skull!
+$N howls with pain as a psychic force crushes $S skull!
+$N shakes off the effect of the crushing psychic force!
+You shake off the effect of a crushing psychic force!
+$N shakes off the effect of a crushing psychic force!
+
+* Motor Spasm
+M
+ 229
+$N's muscles rip apart and $E falls to the ground dead!
+Your muscles are ripped apart agonizingly!
+$N's muscles rip apart and $E falls to the ground dead!
+$N's muscles resist the spasm signal!
+Your muscles begin to spasm, but you resist the affect!
+$N spasms briefly.
+$N's body contorts as $S muscles spasm violently!!
+Your body contorts as your muscles spasm violently!!
+$N's body contorts as $S muscles spasm violently!!
+$N's muscles resist the spasm signal!
+Your muscles begin to spasm, but you resist the affect!
+$N spasms briefly.
+
+* Psychic Feedback
+M
+ 245
+$N's brain liquefies and leaks out of $S ears!!
+$n's psychic feedback liquefies your brain!!
+$n's psychic feedback liquefies $N's brain!!
+#
+#
+#
+$N's brain shakes from your psychic feedback!
+Your brain shakes under the force of $n's psychic feedback!
+$N's brain shakes under the force of $n's psychic feedback!
+#
+#
+#
+
+* Acidity
+M
+ 301
+$N screams in agony as $E dissolves into a smoking puddle of acid!
+$n has turned your bodily fluids into acid, and you burn to death!!
+$N screams in agony as $n reduces $M to a smoking puddle of acid!
+$N leaps aside as you attempt to reduce $S body to acid!
+You leap aside just as an alteration in space-time ripples past you!
+$N leaps aside as $n attempts to reduce $S body to acid!
+You cause $N's body to acidify, and $E screams in agony!
+$n causes your body to acidify, you scream in agony!
+$n causes $N's body to acidify, and $E screams in agony!
+You must be stupid...acidity is meaningless to the gods!
+$n tries to acidify you!
+$n stupidly tries to acidify $N!
+
+* Gamma Ray
+M
+ 305
+$N's body melts and disintegrates as you bombard it with gamma rays!
+$n has disintegrated you with a blast of high energy gamma rays!
+$n destroys $N's body with an invisible blast of gamma rays!
+$N dodges out of the way of your gamma blast!
+You leap aside as $n sends gamma rays blasting past you!
+$N dodges out of the way of $n's gamma ray blast!
+You blast $N full-force with high energy gamma radiation!
+$n blasts you full-force with invisible gamma radiation!
+$n blasts $N full-force with invisible gamma radiation!
+$n absorbs the gamma radiation!  $e seems to like it!
+$n has tried to irradiate you!
+$n blasts $N with gamma rays, and $N smirks!
+
+* Halflife
+M
+ 306
+$N's body spontaneously disintegrates before your very eyes!
+$n forces your body to disintegrate!
+$n disintegrates $N!
+$N quickly avoids your attempt to disintegrate $M!
+You quickly avoid $n's attempt to disintegrate you!
+$N jumps aside as $n tries to disintegrate $M!
+$N staggers as part of $S body disintegrates!
+Part of your body disintegrates as a result of $n's alteration!
+$N staggers as $n disintegrates part of $S body!
+You can't divide into infinity!
+$n has tried to alter your body's half life!
+$n tries to alter the half life of infinity!
+
+* Microwave
+M
+ 307
+You cook $N to death with your microwave radiation!
+You scream as $n cooks you to death with microwave radiation!
+$N screams as $n cooks $M to death with microwave radiation!
+$N dodges your blast of microwaves!
+You nimbly dodge a blast of microwaves from $n's hands!
+$N nimbly dodges a blast of microwaves from $n's hands!
+You blast $N full-force with intense microwaves!
+$n blasts you full-force with intense microwaves!
+$n blasts $N full-force with intense microwaves!
+Are you kidding?!! $E probably invented microwaves!
+$n stupidly tries to cook you with microwaves!
+$n stupidly tries to cook $N with microwaves!
+
+* Oxidize
+M
+ 308
+$N's flesh oxidizes completely as $E falls screaming to the ground!
+Your flesh oxidizes completely as you fall screaming to the ground!
+$n oxidizes $N's entire body! $N falls dead!
+$N avoids your attempt to oxidize $M!
+You barely avoid $n's attempt to oxidize you!
+$N barely avoids $n's attempt to oxidize $M!
+$N screams in agony as $S flesh oxidizes!
+You scream in agony as $n oxidizes your flesh!
+$N screams in agony as $n oxidizes $S flesh!
+You can't oxidize a god, you FOOL!
+$n tries to oxidize you! -- Waste 'em!
+$n stupidly tries to oxidize the flesh of $N!
+
+* Entropy field
+M
+ 322
+$N contorts in pain, dying in the grip of an entropy field.
+The forces of entropy send you to your doom.
+$N contorts in pain, dying in the grip of a entropy field.
+entropy field miss victim - should never see.
+entropy field miss room - should never see.
+#
+$N screams agonizingly as $E is ripped apart by your entropy field.
+You are wracked with pain as you are ripped apart by an entropy field.
+$N screams agonizingly as $E is ripped apart by an entropy field.
+#
+#
+#
+
+* Electric arc
+M
+ 325
+$N's flesh begins to blacken and melt!  Soon nothing is left but charred bone.
+Your flesh begins to bubble and burn!  You succumb to $n's electric arc.
+The dead body of $N sizzles in the heat from the electricity arcing about $n!
+Electricity arcs wildly about you, completely missing $N.
+Electricity arcs wildly about $n, but doesn't come anywhere near you.
+Electricity arcs wildly about $n, but completely misses $N.
+$N screams in pain as your electricity arcs into $M!
+You scream in pain as electricity arcs into your body from $n!
+$N screams in pain as electricity arcs from $n to $M!
+$N stops your electricity with a single gesture, BEWARE!!!
+You stop $n's electricity with a sure hand, no time for children's games...
+$n's electricity disappears as $N makes a simple gesture.
+
+* Electrostatic Field
+M
+ 341
+Your electrostatic discharge kills $N!!
+$n's electrostatic field discharges into you, stopping your heart!!
+$n's electrostatic discharge kills $N!!
+#
+#
+#
+$N is zapped by your electrostatic field!
+You are zapped by $n's electrostatic field!
+$N is zapped by $n's electrostatic field!
+#
+#
+#
+
+* Wounding Whispers
+M
+ 386
+The slivers surrounding your body leave $N lying in a pool of blood!
+The slivers surrounding $n's body leave you lying in a pool of blood!
+The slivers surrounding $n's body leave $N lying in a pool of blood!
+#
+#
+#
+The slivers surrounding you slice into $N's flesh!
+The slivers surrounding $n slice into your flesh!
+The slivers surrounding $n slice into $N's flesh!
+#
+#
+#
+
+***************************************************************************
+*                           Offensive Skills                              *
+***************************************************************************
+
+* Backstab
+M
+ 501
+$N makes a strange sound but is suddenly very silent as you place $p in $S back.
+Suddenly $n stabs you in the back, R.I.P....
+$n places $p in the back of $N, resulting in some strange noises, a lot of blood, and a corpse.
+$N quickly avoids your backstab and you nearly cut your own finger!
+$n tries to backstab you, but you avoid $m!
+$n tries to backstab $N but nearly cuts $s own finger!
+$N makes a strange sound as you place $p in $S back!
+Suddenly $n stabs you in the back!
+$n places $p in the back of $N, resulting in some strange noises and some blood!
+$N sends you a look that makes you forget all about backstabbing.
+$n tries to backstab you, but changes $s mind.
+$n tries to backstab $N, but changes $s mind.
+M
+ 501
+Your vicious stab of $p into the back of $N kills $M!
+$n appears from nowhere and kills you with a backstab!
+$n places $p in the back of $N and kills $M!
+$N sees you coming and spins around, ruining your backstab!
+You see $n sneaking up from behind wielding $p, and spin around!
+$N spins around as $n attempts to sneak up behind $M!
+You sneak up on $N and stab $M in the back with $p!
+$n appears behind you and stabs you in the back with $p!
+$n sneaks up behind $N and stabs $M in the back!
+You suddenly realize that $N is behind YOU!
+$n wants to backstab you, but is too puny.
+$n wants to backstab $N, but is too puny.
+
+* Bash
+M
+ 502
+$N doesn't recover from your bash! -- $E is dead.
+As $n bashes at you, you give up living and die...
+$N dies after $n has bashed $M!
+As $N avoids your bash, you topple over and fall to the ground!
+You dodge a bash from $n who loses $s balance and falls!
+$N avoids being bashed by $n who loses $s balance and falls!
+Your bash at $N sends $M sprawling!
+$n sends you sprawling with a powerful bash!
+$n sends $N sprawling with a powerful bash!
+Your effort to bash $N sends YOU sprawling on the ground.
+$n fruitlessly tries to bash you and is sent sprawling.
+$n dares a bash at $N and is sent sprawling without touching $M.
+M
+ 502
+You bash $N so hard $E EXPLODES into a thousand pieces.
+$n bashes you so hard you EXPLODE into a thousand pieces...
+$N EXPLODES into a thousand pieces as a result of $n's bash.
+You fail in your attempt to bash $N, better stand up and try again.
+You easily dodge $n's feeble attempt to bash you.
+$n falls flat on $s face missing $s bash at $N.
+You knock $N on $S butt with your powerful bash!
+$n knocks you flat on your ass with a powerful bash!
+$n knocks $N flat on $S ass with $s powerful bash!
+You go flying through the air right past $N as you miss your bash.
+$n goes flying through the air right past you missing the bash.
+$n flies past $N as $e misses $s bash -- Stupid Mortal!
+
+* Kick
+M
+ 504
+Your kick at $N's kidneys made $M die.
+$n kills you by kicking your kidneys in!
+$N dies from $n's last kick in $S kidneys!
+Your beautiful full-circle kick misses $N by a mile.
+$n makes a nice ballet step which plants $s foot a mile above your head.
+$n makes a nice ballet step which plants $s foot a mile above $N's head.
+Your boots need polishing again -- blood all over them...
+$n wipes $s boots in your face!
+$n wipes $s boots in the face of $N!
+$N makes you kick at a huge stone appearing from nowhere -- OUCH!
+You make $n kick a huge stone appearing from nowhere -- *giggle*
+$n starts kicking a huge stone which suddenly appears.
+M
+ 504
+Your kick at $N's face splits $S head open -- yummy!
+$n aims a kick at your face which splits your head in two!
+$n neatly kicks $N's head into pieces -- YUMMY!
+You miss your kick at $N's groin, much to $S relief...
+$n misses a kick at your groin, you breathe lighter now...
+$n misses a kick at $N's groin, much to $N's relief...
+Your kick hits $N in the solar plexus!
+You're hit in solar plexus, wow, this is breathtaking!!
+$n kicks $N in solar plexus, $N is rendered breathless!
+You attempt to kick $N but lose your balance and fall face down in some mud that has suddenly appeared.
+When $n tries to kick you, you quickly make $m fall in some mud you have created.
+$n falls face down in some mud created by $N.
+
+* Punch
+M
+ 506
+You crack $N's skull with your lethal punch!!!
+$n's lethal punch connects with your temple!!!
+$n's lethal fist cracks open $N's skull!
+You miss $N with your wild punch.
+$n misses you with a punch at your head.
+$n's punch fails to connect with $N's face.
+You nail $N right in the kisser! POW!
+$n punches you in the face!
+$n punches $N right in the nose!
+Your fist swings around and hits you in the nose!
+$n starts beating $s damn self up...fool!
+$n tries to punch at $N, but blacks $s own eye!
+M
+ 506
+You end $N's life with a deadly kidney punch!!
+All goes black as $n pulverizes your left kidney with $s fist!
+$n savagely kills $N with a deadly kidney punch!
+Your fist swings wide, missing $N.
+$n punches at you, but misses.
+$n misses $N with a wild punch.
+You punch $N's solar plexus hard!
+$n knocks the breath out of you with a punch to the solar plexus!
+$n punches $N hard in the solar plexus!
+You swing at $N, but your arm droops limply!
+$n tries to punch you but flops around limply.
+$n tries to beat up $N, but $s body flops around limply!
+M
+ 506
+You ram $N's nose into $S head!
+Your nose is rammed back into your head by $n's fist!
+$n smashes $N's nose into $S head with a deadly punch!
+Your wild punch misses $N.
+$n misses you with a wild punch.
+$n misses $N with a wild punch.
+You punch $N right in the nose! WHAP!
+$n punches you right in the nose! WHAP!
+$n punches $N right in the nose! WHAP!
+You punch yourself in the nose!
+$n tries to punch you, but punches $mself in the nose!
+$n tries to punch $N, but punches $mself in the nose!
+
+
+*Piledriver
+M
+ 511
+You piledrive $N so hard $S spine shoots out $S asshole!
+$n piledrives you so hard your spine shoots out your asshole!
+$n drives $N into the ground so hard only $S feet remain!
+You try to piledrive $N but lose your grip!
+$n tries to piledrive you but loses $s grip!
+$n tries to piledrive $N but loses $s grip!
+You drive $N's body into the ground like a fencepost!
+$n drives your body into the ground like a fencepost!
+$n drives $N's body into the ground like a fencepost!
+Where do you want to drive $N?  Barbarians can't drive!
+$n wants to drive you somewhere.  Wear your seatbelt!
+$n offers to drive $N somewhere.  Like $E needs a ride. *roll*
+
+*Sleeper
+M
+ 512
+Like a sleeper hold ever killed anybody.
+Like a sleeper hold ever killed anybody.
+Like a sleeper hold ever killed anybody.
+You give $M a bear hug but $E don't look sleepy.
+$n tries to put you to sleep.  You're not sleepy!
+$n tries to put $N to sleep but only gives $M a bear hug!
+$N goes to sleep.
+$n grabs you in a sleeper hold and you slip into unconsciousness!
+$n just put $N to sleep!
+What makes you think $N is sleepy?  Gods don't sleep moron!
+$n tries to put the sleeper on you!
+$n tries to put $N to bed!  What a pervert!
+
+*Elbow
+M
+ 513
+You elbow $N's nose up into $S brain!  You're so violent!
+$n elbows your nose up into your brain!  Gotta hate that!
+$n elbows $N's nose up into $S brain!  $e may need a therapist!
+You nearly throw your shoulder out of socket with your miss!
+$n nearly throws $s shoulder out of socket with $s miss!
+$n nearly throws $s shoulder out of socket with $s miss!
+Your elbow swings swiftly to the bridge of $N's nose!
+$n's elbow swings swiftly to the bridge of your nose!
+$n's elbow swings swiftly to the bridge of $N's nose!
+Yes $E has an elbow!  Wanna see it closer!
+$n wants to show you $s elbow!
+$n tries to get $N to show $m $S elbow!
+
+*Knee
+M
+ 514
+You put your knee through $N's face, killing $M almost instantly!
+$n puts $s knee through your face, killing you almost instantly!
+$n puts $s knee through $N's face, killing $M almost instantly!
+Your knee misses $N's head and barely misses your own!
+$n's knee misses you head and nearly hits $s own!
+$n's knee misses $N's head and barely misses $s own!
+Your knee hits $N squarely in the nose!
+$n's knee just slammed your nose flat!
+$n's knee just flattened $N's nose!
+Your knee is stuck inside your mouth!  How ya gonna get it back out?
+$n tried to knee you!  Now $s knee is stuck in $s mouth!
+$n tried to knee $N!  Help him remove $s knee from $s mouth!
+
+*Stomp
+M
+ 516
+You stomp $N to death!  Better seek some counseling!
+$n stomps you to death!  Have a nice Funeral!
+$n stomps $N to death!  What a temper -- sheesh!
+You stomp your own foot!  Ouch the pain!
+$n stomps $s own foot rather than yours!  That had to hurt!
+$n stomps $s own foot rather than $N's!
+You stomp $N's foot and $E hops around for a second!
+$n stomps your foot!  Better take a second and rub it!
+$n stomps $N's foot!  Watch $M hop around!
+You stomp and fume cause you can't attack a God!
+$n throws a temper tantrum cause $e can't attack you!
+$n stomps and throws a tantrum cause $e can't attack $N!
+
+*Bodyslam
+M
+ 517
+You slam $N so hard $S spirit leaves $S body, screaming!
+$n slams you so hard your spirit screams and leaves you!
+$n slams $N so hard $S spirit screams and leaves $S body!
+You miss your attempt to slam $N!
+$n misses $s attempt to slam you!
+$n misses $s attempt to slam $N!
+You successfully throw $N to the ground!
+$n just bodyslammed you!  What ya gonna do about it?
+$n picks $N up and slams $M to the ground!
+You slam yourself to the ground and lick $N's shoe!
+$n slams $mself to the ground and licks your shoes!
+$n slams $mself to the ground and licks $N's shoes!
+
+*Choke
+M
+ 518
+You rip $N's throat out with your bare hands!
+$n rips your throat out with $s bare hands!
+$n rips $N's throat out with $s bare hands!
+You frantically grab air as you try to choke $N!
+$n frantically grabs at the air as $e tries to choke you!
+$n frantically grabs at the air as $e tries to choke $N!
+You squeeze $S throat!  $N no longer feels like fighting!
+$n squeezes your throat!  You can't breathe or fight back!
+$n squeezes $N's throat!  $E can't breathe or fight back!
+Alright.  You choke!  Ha ha ha ha ha!
+$n must have swallowed a bone!  $e is choking in front of you.
+Anyone know the Heimlich?!  $n seems to be choking!
+
+*Clothesline
+M
+ 519
+You knock $N's head right off with your clothesline!
+$n knocks your head right off with $s clothesline!
+$n knocks $N's head off and rolling with $s clothesline!
+You swing your arm around and nearly hit yourself in the face!
+$n swings $s arm around and nearly hits $mself in the face!
+$n misses $s clothesline and nearly hits $mself in the face!
+You knock $N to the ground hard with your powerful clothesline!
+$n knocks you to the ground hard with a powerful clothesline!
+$n knocks $N to the ground hard with a powerful clothesline!
+Go ahead and hang up your clothes!
+$n tried to hang $s clothes on you!
+$n tried to hang $s clothes on $N!
+
+
+*Bite
+M
+ 526
+You bite right through $N's jugular vein!  $E is dead!
+$n bites through your jugular vein!  You are dead!
+$n bites through $N's jugular vein!  $E is dead!
+Your teeth slam together as you miss your bite!
+$n's teeth slam together as $e misses $s bite!
+$n's teeth slam together as $e misses $s bite!
+You bite $N hard, ripping $S flesh open!
+$n bites you hard, ripping your flesh open!
+$n bites $N hard, ripping $S flesh open!
+You bite your lip!
+$n bites $s lip as $e tries to bite you!
+$n bites $s lip realizing that its not nice to bite a God!
+
+
+*Bearhug
+M
+ 525
+You squeeze $N into two bloody pieces with your bearhug!
+$n squeezes you into two bloody pieces with $s bearhug!
+$n squeezes $N into two bloody pieces with $S bearhug!
+You slap yourself in the head as you miss your bearhug!
+$n slaps $mself in the head as $e misses $s bearhug!
+$n slaps $mself in the head as $e misses $s bearhug!
+You squeeze $N with your bearhug!  $E can't breathe!
+$n squeezes you with $s bearhug!  You can't breathe!
+$n squeezes $N with $s bearhug!  $N can't breathe!
+$E don't want a hug from you...You Freak!
+$n wants to hug you... What a freak!
+$n tried to give $N a hug...Feeling pretty affectionate i guess.
+
+*Headbutt
+M
+ 533
+You headbutt $N so hard $S head shatters like a melon!
+$n shatters your head like a melon with $s headbutt!
+$n headbutts $N so hard $S head shatters like a melon!
+You miss your attempt to headbutt your opponent!
+$n misses $s attempt to headbutt you!
+$n misses $s attempt to headbutt $s opponent!
+You slam your head into $N's face, knocking $M senseless!
+$n slams $s head into your face, knocking you senseless!
+$n flattens $N's nose with $s powerful headbutt!
+You try so hard to kiss $N's ass that your head goes right in!
+$n shoves $s head up your ass in a failed attempt to brown nose!
+$n tries to kiss $N's ass but rams $s head inside instead!
+
+*Gouge
+M
+ 534
+You force your fingers right through $N's brains!
+$n gouges your eyes so hard $s fingers go right through your brain!
+$n forces $s fingers through $N's brain!
+You thrust your fingers through the air, missing $N!
+$n thrusts $s fingers through the air, missing you!
+$n thrusts $s fingers through the air, missing $N!
+You thrust your fingers into $N's eyes, temporarily blinding $M!
+$n thrusts $s fingers into your eyes!  You are blind!
+$n thrusts $s fingers into $N's eyes!  $E is blind!
+$N puts $S hand against $S nose blocking your gouge!  Nyuck Nyuck!
+You put your hand against your nose blocking $n's gouge!  Nyuck Nyuck!
+$n puts $s hand against $s forehead blocking $n's gouge!
+
+*Behead
+M
+ 541
+You strike with lightning speed, relieving $N of $S head!
+$n strikes with lightning speed, slicing off your head!
+$n strikes with lightning speed, slicing off the head of $N!
+$N ducks under your swinging blade!
+You barely manage to duck, as $n attempts to behead you!
+$N ducks as $n attempts to behead $M!
+Your strike at the neck of $N all but severs $S head!
+$n's strike at your neck all but severs your head!
+$n's strike at $N's neck all but severs $S head!
+You sever $N's head! $E gives you a dirty look!
+$n's blade bounces off your godly neck!
+$n strikes mightily at the neck of $N, to no avail!
+*Hamstring
+M
+ 666
+You jump behind $N and lop $S leg clean off!
+$n jumps behind you and cuts your leg clean off!
+$n jumps behind $N and cuts off the fool's leg!
+$N narrowly avoids your gash!
+You narrowly avoid $n sticking $S $p in your leg!
+$N dodges $n attempts to slash $S hamstring!
+Your hamstring gash drops $N to $S knees!
+$n rakes $s $p across your hamstring dropping you to your knees!
+$n's hamstring gash drops $N to $S knees!
+You saw away at $N's hamstring! $E doesn't look amused!
+$n begins scuffing up your new trousers trying to cut into your leg.
+$n saws away at $N's hamstring! $E doesn't look amused!
+M
+ 541
+$p traces a long arc, lopping off the head of $N!!
+$n traces a long, deadly arc with $p, lopping off your head!!
+$n traces a long, deadly arc with $p, and lops off the head of $N!!
+$N barely evades your deadly arc of destruction!
+You barely manage to evade $n's attempt to lop off your head!!
+$N ducks as $n attempts to behead $M!
+$p cuts deeply into $S neck!  But $E lives!
+$n's $p slashes into your neck! OUCH!!!
+$n's strike at $N's neck all but severs $S head!
+You sever $N's head! $E gives you a dirty look!
+$n's blade bounces off your godly neck!
+$n strikes mightily at the neck of $N, to no avail!
+
+*Spinkick
+M
+  543
+You spin around and whip your foot through $N's head!
+$n spins around and whips $s foot right through your head!
+$n spins around and whips $s foot right through $N's head!
+$N ducks your spin kick!
+You see $n spinning around and immediately duck under $s kick!
+$N ducks under $n's spin kick!
+You spin around rapidly kicking $N in the teeth!
+$n spins around rapidly and kicks you in the teeth!
+$n spins around rapidly and kicks $N in the teeth!
+You spin around and fall on your butt!  You feel very dizzy!
+$n spins around and falls on $s butt!
+$n spins around and falls on $s butt!
+
+
+*Roundhouse
+M
+  544
+You knock $N's head off with a powerful roundhouse kick!
+$n knocks your head off with a powerful roundhouse kick!
+$n knocks $N's head off with a powerful roundhouse kick!
+$N ducks your roundhouse kick!
+You duck $n's roundhouse kick!
+$N ducks $n's roundhouse kick!
+You swing your foot around and connect with $N's ribs!
+$n swings $s foot around and kicks you in the ribs!
+$n swings $s foot around and kicks $N in the ribs!
+You tell $N about your round house.
+$n tells you about $s round house.
+$n is trying to tell $N about $s round house.
+
+*Sidekick
+M
+ 545
+You thrust your sidekick into $N's chest stopping $S heart!
+$n thrusts $s sidekick into your chest stopping your heart!
+$n thrusts $s sidekick into $N's chest stopping $S heart!
+$N blocks your sidekick!
+You block $n's sidekick!
+$N blocks $n's sidekick!
+You thrust your foot into $N's chest knocking $M down!
+$n thrusts $s foot into your chest knocking you down!
+$n thrusts $s foot into $N's chest knocking $M down!
+You ask $N if you can be $S sidekick.
+$n asks you if $e can be your sidekick.
+$n asks $N if $e can be $S sidekick.
+
+*Spinfist
+M
+ 546
+You whip around and shatter $N's skull with your spinning backfist!
+$n whips around and shatters your skull with $s spinning backfist!
+$n whips around and shatters $N's skull with $s spinning backfist!
+$N just barely evades your spinning backfist!
+You just barely evade $n's spinning backfist!
+$N just barely evades $n's spinning backfist!
+You whip around and punch $N in the face with your spinning backfist!
+$n whips around and punches you in the face with a spinning backfist!
+$n whips around and punches $N in the face with a spinning backfist!
+You twirl around like a ballerina.  Don't you feel stupid!
+$n twirls around like a ballerina.
+$n twirls around like a ballerina.
+
+*Jab
+M
+ 547
+You jab $N in the face and $E falls over and dies.  Must have a glass jaw!
+$n jabs you in the face and you fall over and die.  Must have a glass jaw!
+$n jabs $N in the face and $E falls over and dies.  Must have a glass jaw!
+$N knocks your jab aside with $S forearm!
+You knock $n's jab aside with your forearm!
+$N knocks $n's jab aside with $S forearm!
+You jab $N in the forehead!  $S eyes begin to water.
+$n jabs you in the forehead!  Your eyes begin to water.
+$n jabs $N in the forehead!  $S eyes begin to water.
+You jab yourself in the forehead and cry like a baby!
+$n jabs $mself in the forehead and cries like a baby!
+$n jabs $mself in the forehead and cries like a baby!
+
+*Hook
+M
+ 548
+Your hook punch to $N's temple kills $M instantly!
+$n's hook punch to your temple kills you instantly!
+$n's hook punch to $N's temple kills $M instantly!
+$N dodges your hook punch!
+You dodge $n's hook punch!
+$N dodges $n's hook punch!
+Your hook punch connects with $N's head!  $E staggers around dizzy!
+$n's hook punch connects with your head!  You stagger around dizzy!
+$n's hook punch connects with $N's head!  $E staggers around dizzy!
+You ask $N to put a worm on your hook so you can fish.
+$n asks you to put a worm on $s hook so $e can fish.
+$n asks $N to put a worm on $s hook so $e can fish.
+
+
+*Sweepkick
+M
+ 549
+Your sweep kick knocks $N down so hard $E breaks $S neck!
+$n's sweep kick knocks you down so hard you break your neck!
+$n's sweep kick knocks $N down so hard $E breaks $S neck!
+$N jumps over your sweep kick!
+You jump over $n's sweep kick!
+$N jumps over $n's sweep kick!
+Your sweep kick knocks $N to the ground!
+$n's sweep kick knocks you to the ground!
+$n's sweep kick knocks $N to the ground!
+You offer to sweep $N's god rooms for $M.
+$n offers to sweep your god rooms for you.
+$n offers to sweep $N's god rooms for $M.
+
+*Trip
+M
+ 550
+You trip $N to the ground so hard you break $S neck!
+$n trips you to the ground so hard you break your neck!
+$n trips $N to the ground so hard $e breaks $S neck!
+$N says, 'That ain't funny!  I ain't trippin!'
+You say, 'That ain't funny!  I ain't trippin!'
+$N says, 'That ain't funny!  I ain't trippin!'
+You trip $N to the ground and say 'And don't get up!'
+$n trips you to the ground and says, 'And don't get up!'
+$n trips $N to the ground and says, 'And don't get up!'
+$N trips out on your silly antics.
+You trip out on $n's silly antics.
+$N trips out on $n's silly antics.
+
+*Uppercut
+M
+ 551
+Your uppercut sends $N's bottom jaw through $S brain!
+$n's uppercut sends your bottom jaw through your brain!
+$n's uppercut sends $N's bottom jaw through $S brain!
+Your fist goes straight up in the air, missing $N's head!
+$n's fist goes straight up in the air, missing your head!
+$n's fist goes straight up in the air, missing $N's head!
+Your uppercut hits $N in the jaw causing $S teeth to slam together!
+$n's uppercut hits you in the jaw causing your teeth to slam together!
+$n's uppercut hits $N in the jaw causing $S teeth to slam together!
+There ya go cutting up again.
+There $n goes cutting up again trying to impress you.
+There goes $n cutting up to impress $N again.
+
+
+*Groinkick
+M
+ 552
+You kick $N's groin so hard $S head explodes!
+$n kicks your groin so hard your head explodes!
+$n kicks $N's groin so hard $S head explodes!
+$N thanks the gods that you missed your kick to $S groin.
+You thank the gods that $n missed $s kick to your groin.
+$N thanks the gods that $n missed $s kick to $S groin.
+Your kick hits $N right in the groin!  Damn!  That's gotta hurt!
+$n kicks you in the groin!  Damn!  That's gotta hurt!
+$n kicks $N in the groin!  Damn!  That's gotta hurt!
+You offer $N a free shot at your groin.  Are you stupid!
+$n offers you a free shot at $s groin.  How stupid can $e be?
+$n offers $N a free shot at $s groin.  How stupid can $e be?
+
+*Claw
+M
+ 553
+You claw $N's face off!  Good thing it killed $M!
+$n claws your face off!  Good thing it killed ya!
+$n clawed $N's face off!  Good thing it killed $M!
+Your claw misses $N's face!
+$n's claw just misses your face!
+$n's claw just misses $N's face!
+You claw $N's face, drawing blood from $S cheek!
+$n claws your face, drawing blood from your cheek!
+$n claws $N's face, drawing blood from $S cheek!
+You show $N your dirty fingernails.  Have you ever cleaned them?
+$n shows you $s dirty fingernails.  How Nasty!
+$n shows $N $s dirty fingernails.  How Nasty!
+
+*Rabbitpunch
+M
+ 554
+Your rabbit punch to $N's kidneys kills $M instantly!
+$n's rabbit punch to your kidneys kills you instantly!
+$n's rabbit punch to $N's kidneys kills $M instantly!
+Your rabbit punch misses $N!
+$n misses a rabbit punch at your kidneys!
+v$n misses a rabbit punch at $N's kidneys!
+Your rabbit punch hits $N right in the kidneys!
+$n's rabbit punch hits you right in the kidneys!
+$n's rabbit punch hits $N right in the kidneys!
+You try to get a rabbit to punch $N.  You don't even have a rabbit!
+$n is seeing rabbits again.  $e seems to want one to punch you!
+$n is seeing rabbits again.  $e seems to want one to punch $N!
+
+*Impale
+M
+ 555
+You IMPALE $N on $p, who dies a horrible death!
+$n IMPALES you on $p and you die a horrible death!
+$n IMPALES $N on $p, who dies a horrible death!
+You thrust $p right past $N missing $M completely!
+$n thrusts $p right past you missing you completely!
+$n thrusts $p right past $N missing $M completely!
+You drive $p into $N's body!
+$n drives $p into your body!
+$n drives $p into $N's body!
+You try to put $N in a pail.  Are you sure about this?
+$n tries to put you in a pail.  Hmmm...maybe we purge him.
+$n tries to put $N in a pail.  He has GOT to be stupid!
+
+
+*Pele's Bicycle Kick  shhhh!  Its a secret!
+M
+ 556
+You make like Pele with a back-flip and kick off $N's head!
+$n makes like Pele with a back-flip and kicks off your head!
+$n makes like Pele with a back-flip and kicks off $N's head!
+You land on your head trying to imitate Pele again!  Amateur!
+$n lands on $s head trying to imitate Pele again!  Amateur!
+$n lands on $s head trying to imitate Pele again!  Amateur!
+You do a back-flip and kick $N in the nose.  Everybody wants to be Pele!
+$n does a back-flip and kicks you in the nose!
+$n does a back-flip and kicks $N in the nose!
+So you wanna be like Pele do ya?  Well not on a God you Idiot!
+$n thinks $e is Pele again.  Better set $m straight.
+$n thinks $e is Pele again.  $N better set $m straight.
+
+*Lunge Punch
+M
+ 557
+You punch right through $N's chest ripping out $S heart!
+$n punches right through your chest ripping out your heart!
+$n punches right through $N's chest ripping out $S heart!
+You miss your lunge punch at $N and nearly fall over!
+$n misses $s lunge punch at you and nearly falls over!
+$n misses $s lunge punch at $N and nearly falls over!
+Your lunge punch hits $N in the chest knocking $M on $S butt!
+$n's lunge punch hits you in the chest knocking you on your butt!
+$n's lunge punch hits $N in the chest knocking $M on $S butt!!
+What you trying to lunge?  $N ain't no damn pony!
+$n thinks you're a pony and tries to lunge you!
+$n thinks $N is a pony and tries to lunge $M!
+
+*Tornado Kick
+M
+ 558
+Your spinning foot smashes in the skull of $N!!
+$n leaps into the air spinning like a tornado and kicks your skull in!
+$n leaps into the air spinning like a tornado and destroys $N's skull!
+Your spinning foot misses its mark by a mile!
+$n's spinning foot narrowly misses your fragile skull!
+$n's spinning foot narrowly misses the head of $N!
+You fly spinning through the air, kicking $N ruthlessly!
+$n flies spinning through the air, kicking your head ruthlessly!
+$n flies spinning through the air, kicking $N ruthlessly!
+You fly across the room like a madman, spinning wildly!
+You send $n spinning across the room!
+$N sends $n spinning across the room!
+
+*Circle
+M
+ 559
+You stealthily circle around $N and ram $p through $S back!!
+$n suddenly appears behind you and rams $p through your back!!
+$n circles quickly around $N and ram $p through $S back!!
+$N rotates as you attempt to circle $M, foiling your attempt.
+You notice $n trying to circle behind you, and spin in defense.
+$n attempts to circle behind $N, who quickly spins around.
+You stealthily circle around $N and stab $M in the back!
+$n suddenly appears behind you and stabs $p into your back!  OUCH!
+$n circles quickly around $N and stabs $M in the back!
+$N laughs at your attempt to circle $M!
+$n thought it would be funny to try to circle around you!
+$n tries to circle $N, who laughs!
+
+*Palm Strike
+M
+ 561
+$N collapses from your fatal palm strike!
+You collapse from $n's fatal palm strike!
+$n delivers a fatal palm strike to $N!
+$N easily avoids your pathetic palm strike!
+You easily avoid $n's pathetic palm strike!
+$N easily avoids $n's pathetic palm strike!
+Your open palm connects solidly with $N's chest!
+$n's open palm connects solidly with your chest!
+$n's open palm connects solidly with $N's chest!
+You can't palm strike a GOD!
+You notice that $n just tried to palm strike you.
+You laugh at $n who just tried to palm strike $N.
+
+*Throat Strike
+M
+ 562
+You crush $N's throat with your lethal strike!!
+Your throat is crushed by $n's lethal strike!
+$n's lethal throat strike crushes $N's wind-pipe!
+$N dodges your throat strike!
+You easily dodge $n's throat strike!
+$n misses completely with his throat strike!
+You deliver a powerful throat strike to $N!
+$n delivers a strike to your throat!
+$n delivers a powerful throat strike to $N!
+There's no way you can throat strike a GOD!
+$n tries in vain to strike your throat!
+$n looks foolish trying to throat strike $N!
+
+*Whirlwind
+M
+ 563
+Your whirling fist kills $N dead!
+You are fatally wounded by $s whirling fist!
+$N is fatally wounded by $s whirling fist!
+Your whirling fist misses $N!
+You are not touched by $s whirling fist!
+$N is not touched by $s whirling fist!
+You blindside $N with your whirling fist!
+You are blindsided by $n's whirling fist!
+$n blindsides $N with his whirling fist!
+You feel foolish, since you can't attack a GOD!
+$n tries in vain to hit you with his whirling fist!
+$n tries in vain to hit $N with his whirling fist!
+M
+ 563
+Your whirling foot kills $N dead!
+You are killed by $s whirling foot!
+$N dies from $s whirling foot!
+Your whirling foot misses $N completely!
+$s whirling foot misses you completely!
+$n misses $N completely with his whirling foot!
+You blindside $N with your whirling foot!
+Your are blindsided by $n's whirling foot!
+$N is blindsided by $n's whirling foot!
+You feel foolish, since you can't attack a GOD!
+$n tries in vain to hit you with his whirling foot!
+$n tries in vain to hit $N with his whirling foot!
+
+*Hip Toss
+M
+ 564
+Your hip toss knocks the life out of $N!
+$n's hip toss knocks the life out of you!
+$n's hip toss knocks the life out of $s opponent!
+You fail to hip toss $M!
+You are too sly to get hip tossed by $n!
+$N is too sly to get hip tossed by $n!
+You hip toss $N to the ground with a loud SMACK!
+You get hip tossed to the ground with a loud SMACK! by $n.
+$n hip tosses $N to the ground with a loud SMACK!
+You can't hip toss a GOD!
+$n just tried to hip toss you!
+Hah! $n just tried to hip toss $N!
+
+*Death Touch
+M
+ 566
+Your death touch kills $N instantly!
+You are killed instantly by $n's death touch!
+$n kills $N instantly by $s death touch!
+You fail to apply the death touch to $N!
+$n tries to apply the death touch to you!
+$n tried to apply the death touch to $N!
+You deftly strike a vital nerve near $N's heart!
+$n deftly strikes a vital nerve near your heart!
+$n deftly strikes a vital nerve near $N's heart!
+You can't apply the death touch to a GOD!
+$n just tried to apply the death touch to you.
+$n fails to apply the death touch to $N.
+
+*Crane Kick
+M
+ 567
+Your crane kick knocks the life out of $N!
+You are killed by $n's crane kick!
+$n kills $N with a vicious crane kick!
+You fail the crane kick and land on your ass!
+$n fails $s crane kick at you and lands on $s ass!
+$n fails $s crane kick at $N and lands on $s ass!
+You assume the crane form and kick $N's head viciously!
+$n kicks you in the head viciously!
+$n assumes the crane form and kicks $N's head viciously!
+You can't crane kick a GOD!
+$n just tried to crane kick you.
+$n fails horribly to crane kick $N!
+
+*Ridgehand
+M
+ 568
+$N dies from your deadly ridgehand blow!
+You die from $n's deadly ridgehand blow!
+$N dies from $n's deadly ridgehand blow!
+You fail to connect with your ridgehand!
+$n fails to connect with $s ridgehand!
+$n fails to connect with $s ridgehand!
+You deal a powerful blow to $N with your ridgehand!
+$n deals a powerful blow to you with $s ridgehand!
+$n deals a powerful blow to $N with $s ridgehand!
+You can't deliver a ridgehand blow to a GOD!
+$n just tried to hit you with a ridgehand blow.
+$n just tried to ridgehand $N!
+
+*Scissor Kick
+M
+ 569
+You scissor kick $N to death!
+You are scissor kicked to death by $n!
+$n scissor kicks $N to death!
+You fail to connect and land on your ass!
+$n fails $s scissor kick and lands on $s ass!
+$n fails $s scissor kick and lands on $s ass!
+You cut $N to shreds with your scissor kick!
+You are viciously cut by $n's scissor kick!
+$n cuts $N to shreds with $s scissor kick!
+You can't scissor kick a GOD!
+$n just tried to scissor kick you.
+$n tries to cut $N with $s scissor kick!
+
+* Psiblast
+M
+ 589
+You blast $N's mind into a smoking husk!!
+$n blasts your mind into a smoking husk!!
+$n blasts $N's mind into a smoking husk!!
+Your psiblast narrowly misses its target!
+$n's psiblast courses past your mind, just off its mark!
+#
+You blast $N's mind with a torrent of energy!!
+$n blasts your mind with a torrent of energy!!
+$n blasts $N's mind with a torrent of energy!!
+Your psiblast narrowly misses its target!
+$n's psiblast courses past your mind, just off its mark!
+#
+
+*Pistolwhip
+M
+ 594
+$N's head explodes on impact with an expertly placed blow to their head.
+$n reduces your brain to mush with an expertly placed blow to your head.
+Brains look neat!  $N falls dead from $n's whip to the head.
+You shoot yourself in the foot as $p slips from your fingers!
+What a fool!  You laugh at $n as $e shoots $mself in the foot.
+You laugh at $n as $e shoots $mself in the foot.
+Damn, that must've hurt.  Your expert whip to $N's head lands on target!
+You reel in pain as $n's whip to your head lands on target!
+$N's head slams back as $n whips $p into $S head.
+You shoot yourself in the foot as $p slips from your fingers!
+What a fool!  You laugh at $n as $e shoots $mself in the foot.
+You laugh at $n as $e shoots $mself in the foot.
+
+*Crossface
+M
+ 595
+$N's head caves in from the force of your blow!
+$n caves in your head to mush with a mighty blow from the stock of $s gun!
+$n caves in $N's head with a mighty blow from the stock of $s gun!
+The stock of your gun misses $N's head by a hair!
+The stock of $n's gun misses your head by a hair!
+The stock of $n's gun misses $N's head by a hair!
+$N staggers under the force of your blow!
+You stagger under the force of $n's crossface!
+$N staggers under the force of $n's crossface!
+The stock of your gun misses $N's head by a hair!
+The stock of $n's gun misses your head by a hair!
+The stock of $n's gun misses $N's head by a hair!
+
+*Wrench
+M
+ 596
+$N falls into a lifeless heap as you hear a sickening crack.
+$n expertly places $s arms around your neck and....*CRACK*
+$N collapses as $n expertly snaps $S neck.
+You can't quite get your hands into the proper position to snap $N's neck.
+You easily shake off $n's attempt to snap your neck.
+$N slips out of $n's grip.
+$N screeches as you nearly break $S neck.
+$n wrenches your neck nearly severing your spinal cord!
+$N screeches in pain as $n wrenches $S neck.
+You can't even get your puny hands around $S neck!
+You easily shake off $n's attempt to snap your neck.
+$N just laughs as $n attempts to wrench $s infinitely large neck.
+*Turn
+M
+ 601
+$N shudders and falls to the ground, completely lifeless!!
+Your existence is ended as $n brandishes $s holy symbol at you!!
+$n brandishes $s holy symbol at $N, who crumples to the ground!!
+$N sneers at your attempt to turn $M away!
+$n tries to turn you with $s holy symbol, but fails!
+$n brandishes $s holy symbol, but $N sneers at $m!
+You burn $N with your holy symbol!
+$n burns you with $s holy symbol!
+$n brandishes $s holy symbol and burns $N, who screams in pain!
+You try to turn $N, who laughs at your mortal attempts.
+$n tries to turn you away! ...FOOL...
+$n tries to turn $N away with $s holy symbol...yeah, right.
+M
+ 601
+$N bursts into flames and dies instantly from your holy touch.
+You burst into flames and die instantly from $n's holy touch.
+$N bursts into flames and dies instantly from $n's holy touch.
+$N laughs at you and spits on your holy symbol.
+You laugh at $n and spit on $s holy symbol.
+$N laughs at $n and spits on $s holy symbol.
+You leave another holy symbol scar on $N's forehead.
+$n leaves yet another holy symbol scar on your forehead.
+$N screams as $n leaves a holy symbol burn scar on $S forehead.
+You stand looking foolish trying to turn a God.
+$N stands looking foolish thrusting $S holy symbol in your face.
+$N stands here looking foolish thrusting $S holy symbol in $n's face.
+* Holy Touch, evil vs good
+M
+ 604
+$N screams in agony as you tear $S mind from $S body!
+$n's touch rends your spirit from your body!
+$N screams in agony as $n tears $S mind from $S body!
+$N seems unaffected by your touch.
+Visions of evil flood through your mind, leaving a foul taste in your mouth.
+$n places $s hands on the head of $N.
+Your holy touch solicits a rather gratifying scream from $N.
+$n's touch sears your mind with harrowing visions of hell.
+$N screams in terror as $n lays $s hands upon $M.
+Touch $N? They're a god you schmuck!!!
+$n keeps trying to touch you. $s thinks $s's holy or something.
+$n keeps trying to touch $N in some holy way.
+* Energy Field
+M
+ 617
+$N dies with a scream as $E is seared by your energy field!!
+You die with a scream as you are seared by $n's energy field!!
+$N dies with a scream as $E is seared by $n's energy field!!
+#
+#
+#
+$N is blown across the room by contact with your energy fields!
+You are blown across the room by a violent electrical blast!
+$N is blown across the room by a violent electrical blast!
+#
+#
+#
+
+* Self Destruct
+M
+ 622
+#
+You are blown apart by the flying shrapnel!
+$N is blown apart by flying shrapnel!
+#
+You dive to the ground as shrapnel rips past you!
+#
+#
+You are blasted full force by the explosion!!
+#
+#
+You dive to the ground as shrapnel rips past you!
+#
+
+* Discharge
+M
+ 625
+You blast $N into oblivion with your deadly discharge!!!
+$n blasts you into oblivion with a deadly electrical discharge!!!
+$n blasts $N into oblivion with a deadly electrical discharge!!!
+You singe $N with your ill-aimed discharge!
+You are singed by a blast of electrical energy from $n!
+$N is singed by a blast of electrical energy from $n!
+You blast $N with a stream of pure energy!!
+You are blasted with a stream of pure energy from $n!!
+$N is blasted with a stream of pure energy from $n!!
+$N howls with delight as $E absorbs your energy!
+You howl with delight as you absorb $n's  energy!
+$N howls with delight as $E absorbs $n's energy!
+M
+ 625
+$N is obliterated by your deadly electrical blast!!!
+You are obliterated by $n's deadly electrical blast!!!
+$N is obliterated by $n's deadly electrical blast!!!
+$N leaps aside as a stream of electricity blasts from your hands!
+You leap aside as a stream of electricity blasts from $n's hands!
+$N leaps aside as a stream of electricity blasts from $n's hands!
+A stream of electricity blasts from your hands into $N!!
+A stream of electricity blasts from $n's hands into you!!
+A stream of electricity blasts from $n's hands into $N!!
+$N glares at you and says, 'If you start me up...'
+You howl with delight as you absorb $n's  energy!
+$N howls with delight as $E absorbs $n's energy!
+
+* Drain (vamps)
+M
+ 654
+You leave nothing but a withered husk behind as you drain $S life away!!
+$n draws your life away with an icy touch!!
+$N shrivels and collapses as $n draws $S life away!!
+$n avoids your icy fingers of death!
+You move aside as $n reaches for you with a demonic grin!
+$n reaches for $N, who leaps aside!
+You touch $N's flesh, and absorb $S life force!
+You feel your life slipping away as $n grasps you with icy fingers!
+$n grabs $N, who suddenly looks drained!
+$N laughs at your attempt to drain $M!
+$n reaches out and tries to drain you!
+$n touches $N, who begins to look irritated.
+
+* Shoulder Throw (merc)
+M
+  671
+$N flies over your shoulder and slams into the ground, breaking $S back!
+You fly over $n's shoulder and slam into the ground, breaking your back!
+$N flies over $n's shoulder and slams into the ground, breaking $S back!
+You try to throw $N but $E breaks your grip!
+$n tries to throw you but you break $s grip!
+$n tries to throw $N but $E breaks $s grip!
+You slam $N to the ground with a bone crunching throw!
+$n slams you to the ground with a bone crunching throw!
+$n slams $N to the ground with a bone crunching throw!
+You can't shoulder throw a GOD!
+$n just tried to shoulder throw you!
+Hah! $n just tried to shoulder throw $N!
+
+* Scream (bard)
+M
+ 672
+$N's head explodes into a bloody cloud from the power of your mighty scream!
+Your head explodes into a bloody cloud from the power of $n's mighty scream!
+$N's head explodes into a bloody cloud from the power of $n's mighty scream!
+You try to scream at $N but the sound catches in your throat!
+$n tries to scream at you, but all that emerges is a feeble squeak!
+$n tries to scream at $N, but all that emerges is a feeble squeak!
+$N falls to $S knees as your piercing scream invades $S senses!
+You feel like your head is going to explode as $n's scream echoes around you!
+$N falls to $S knees as $n's piercing scream invades $S senses!
+You scream and whine, but $N still says no.
+$n is screaming and whining at you like a child.  Better tell $m no.
+$n screams and whines at $N who doesn't look moved.
+
+M
+ 693
+You strike $N down to the ground, killing $M dead!
+$n strikes you down, putting you out of your misery!
+$N is destroyed by $n's powerful strike!
+You attempt to strike $N, but miss by a mile.
+$n attempts to strike out at you, but misses.
+$n attempts to strike out at $N but misses.
+You strike a terrible blow to $N!
+$n strikes you with a terrible blow!
+$n strikes $N with a terrible blow!
+You notice that $N just struck out.
+You struck out while trying to hit $n.
+$n snickers as $N attempts to strike $m.
+
+M
+ 694
+Your incredible cleave separates $N's upper from $S lower half!
+$n separates your upper and your lower half with $s incredible cleave.
+$n separates $N's upper and lower half from each other!
+Your cleave whistles hopelessly through the air.
+$n swings $p in a enormous arc at you, hitting absolutely nothing.
+$n swings $p in a enormous arc at $N, hitting absolutely nothing.
+You swing $p and cleave through $N's body!
+$n cleaves through your body with $p
+$n swings $p and cleaves straight through $N's body!
+You're not going to get anywhere that way.
+$n tries to cleave you.  Heh.
+$n is a complete moron.
+
+M
+ 695
+Your incredible cleave separates $N's upper from $S lower half!
+$n separates your upper and your lower half with $s incredible cleave.
+$n separates $N's upper and lower half from each other!
+Your cleave whistles hopelessly through the air.
+$n swings $p in a enormous arc at you, hitting absolutely nothing.
+$n swings $p in a enormous arc at $N, hitting absolutely nothing.
+You swing $p and cleave through $N's body!
+$n cleaves through your body with $p
+$n swings $p and cleaves straight through $N's body!
+You're not going to get anywhere that way.
+$n tries to cleave you.  Heh.
+$n is a complete moron who knows cleave.
+
+M
+ 697
+You sneak up behind $N and garrote $M until $E stops struggling!
+$n garrotes you with a thin wire until you stop breathing!
+$n sneaks up behind $N and garrote $M until $E stops struggling!
+$N ducks underneath your wire as you attempt to garrote $M.
+You duck underneath $n's wire as $e attempts to garrote you.
+$N ducks underneath $n's attempt to garrote $M with a thin wire.
+You garrote $N with a thin wire, but the wire breaks!
+$n garrotes you with a thin wire until the wire breaks!
+$n garrotes $N with a thin wire, but the wire breaks!
+Your wire goes right through $N's neck.
+$n just tried to garrote you.
+$n tries pathetically to garrote $N.
+
+**************************************************************************
+*                              NPC Attacks                                *
+***************************************************************************
+
+* Fire Breath
+M
+ 702
+You blast $N's body into ash with your fiery breath!
+Your body is blasted to ash by the fiery breath of $n!
+$n blasts $N to ash with $s fiery breath!
+$N dodges your jet of fiery breath!
+$n breathes fire at you, but you leap aside!
+$N dodges a jet of fiery breath from $n!
+You blast $N with a jet of fiery breath.
+$n blasts you full force with $s fiery breath!
+$N staggers under a blast of flame as $n breathes on $M!
+$N sneers at your offensive breath.
+$n warms you with a breath of fire.
+$n warms $N with $s fiery breath.
+* Gas Breath
+M
+ 703
+You kill $N with gas breath!
+You choke to death on the gas cloud $n has breathed on you!
+$n engulfs $N with a cloud of deadly chlorine gas!
+$N missed.
+You gasp $n breathes a cloud of poison gas on you!
+$N resists $N's deadly gas breath!
+$N hit.
+$n breathes a choking cloud of poisonous gas on you!
+$N is engulfed in a cloud of poisonous gas from the mouth of $n.
+$N immortal.
+$n wants to gas you, but can't.
+$N laughs as $n engulfs $M in a cloud of chlorine gas!
+
+* Frost Breath
+M
+ 704
+You freeze $N to a solid block of ice!
+You are frozen to ice, as $n breathes on you.
+$n's frosty breath freezes $N into a solid block of ice.
+$N dodges your blast of freezing breath!
+You narrowly avoid $n's blast of frozen breath!
+$N avoids $n's freezing breath!
+You blast $N with your freezing breath!
+$n blasts you with $s freezing breath!
+$N is blasted with $n's freezing breath!
+$N is already cold and unresponsive.
+$n supplies your air conditioning with his frosty breath.
+$n supplies $N with air conditioning by breathing on $M.
+
+* Acid Breath
+M
+ 705
+$N killed.
+You are corroded to nothing, as $n breathes on you.
+$n corrodes $N to nothing.
+$N missed.
+$n breathes acid at you, but you avoids it.
+$N avoids $n's acid breath.
+$N hit.
+$n corrodes you.
+$N is corroded as $n breaths acid.
+$N immortal.
+$n helps you clean your hands with a little acid.
+$n helps $N cleaning.
+
+* Lightning Breath
+M
+ 706
+$N killed.
+You are killed by $n's lightning breath.
+$n kills $N with a lightning breath.
+$N missed.
+$n breathes lightning at you, but you avoid it.
+$N avoids $n's lightning breath.
+$N hit.
+$n demolishes you with a blast of lightning breath!
+$N is by a blast of $n's lightning breath.
+$N immortal.
+$n tries to breath lightning upon you.
+$n tries to breath lightning upon $N.
+
+* lava breath
+M
+ 707
+$N killed.
+You are immolated by $n's lava breath.
+$N is immolated by $n's lava breath.
+$N missed.
+$n spits a molten blob of lava at you!!  You barely avoid the attack!
+$n spits a molten blob of lava at $N, who barely avoids the attack!
+$N hit.
+$n spits a molten blob of lava in your face!!  ARRGH!!!
+$n spits a molten blob of lava into $N's face!
+$N missed.
+$n spits a molten blob of lava at you!!  You barely avoid the attack!
+$n spits a molten blob of lava at $N, who barely avoids the attack!
+
+* Earth Elemental
+M
+ 711
+You drive $N into the ground!
+$n smashes you into the ground with a heavy earthen limb!
+$n smashes $N into the ground with a heavy earthen limb!
+You miss your smash at $N.
+$n's huge earthen limb smashes into the ground right by your foot!
+$n's misses $N with a powerful swinging limb!
+You smash $N.
+$n sends you reeling across the ground with a powerful blow!
+$n sends $N reeling with a powerful blow!
+$N is immortal.
+$n tried to smash you into the ground.  Funny.
+$n shatters $s arm on the head of the mighty $N.
+* Fire Elemental
+M
+ 712
+You burn $N to death!
+$n engulfs you a deadly, blazing embrace!
+$n engulfs $N a deadly, blazing embrace!
+You don't burn $N.
+You leap aside as $n blasts a scorching tongue of flame at you!
+$N leaps aside as $n blasts a scorching tongue of flame at $M!
+You burn $N.
+$n blasts you with a scorching fist of flame!
+$n blasts $N with a scorching fist of flame!
+$N is immortal, unburnable.
+$n tried to burn you up.
+$n blasts $N with flame!  $N falls down laughing!
+
+* Water Elemental
+M
+ 713
+You drown $N!
+$n drowns you in a powerful wave of water!
+$n drowns $N in a powerful wave of water!
+You don't drown $N.
+You dodge a powerful blast of water from $n!
+$N dodges a powerful blast of water from $n!
+You blast $N with water.
+$n knocks you down with a powerful wave of water!
+$n knocks $N down with a powerful wave of water!
+$N is immortal, no drowning.
+$n tried to drown you...
+$N grins as $n hits $M full force with a blast of water!
+
+* Air Elemental
+M
+ 714
+You kill $N!
+$n spins $mself into a tornado and rips your body apart!
+$n spins $mself into a tornado and rips $N's body apart!
+You miss $N with air.
+You duck as $n sends hurricane force winds past your head!
+$N ducks as $n sends hurricane force winds past $S head!
+You blast $N with air.
+You are buffeted by $n as $e whips $mself into a tornado!
+$N is buffeted by $n as $e whips $mself into a tornado!
+$N is immortal.
+$n tried to tornado you.
+$n whips $mself into a tornado, only to dissipate on $N's head!
+
+* HELL FIRE
+M
+ 717
+You burn $N to death!
+$n blasts you to ash with $s hell fire!
+$n blasts $N to ash with $s hell fire!
+$N missed.
+$n throws hell fire at you, but you leap aside!
+$N dodges a jet of hell fire from $n!
+$N hit.
+$n blasts you full force with $s hell fire!
+$N staggers under a blast of hellfire from $n!
+$N immortal.
+$n warms you.
+$n warms $N with $s hell fire.
+
+* Javelin of Lightning
+M
+ 718
+$p blasts into $N with a flash!
+$p blasts into you with a flash!
+$p blasts into $N with a flash!
+$p streaks past $N with a flash!
+$p streaks past you with a flash!
+$p streaks past $N with a flash!
+$p blasts into $N with a flash!
+$p blasts into you with a flash!
+$p blasts into $N with a flash!
+$p streaks past $N with a flash!
+$p streaks past you with a flash!
+$p streaks past $N with a flash!
+
+M
+ 730
+#
+You fall to the ground with a forty pound catapult rock on your chest...
+$N falls to the ground with their chest caved in from the catapult boulder...
+#
+A large boulder skips across the ground and misses you.
+A large boulder skips past $N and stops rolling nearby.
+#
+You take a grazing blow from a large bolder...
+$N is shaken by a grazing blow from a large boulder...
+#
+A large boulder smashes into your chest and shatters..
+A boulder smashes into $N and shatters...
+M
+ 731
+#
+You fall to the ground with a five foot Ballista Bolt in your chest...
+$N falls to the ground with a five foot Ballista Bolt through their chest...
+#
+A large Ballista Bolt plows into the ground near you.
+A large Ballista Bolt strikes the ground in front of $N.
+#
+A Ballista Bolt grazes your arm.
+A Ballista Bolt grazes $N.
+#
+A Ballista bolt hits your chest and bends...
+A Ballista bolt hits $N in the chest and bends...
+M
+ 732
+#
+A gush of boiling oil hits YOU!
+A stream of boiling oil falls on $N. (OH that's gotta hurt!)
+#
+The boiling oil misses you by a mile.
+The boiling oil misses $N.
+#
+The boiling oil hits near you splashing you.
+Boiling oil hits near $N and splashes them.
+#
+The boiling oil falls from above, and covers you in a oily sheen.
+$N is hit with a stream of boiling oil. They look well oiled. $N won't squeak now.
+M
+ 733
+#
+You are hit with a cloud of RED HOT sand. It blows into your armor and clothes.
+A cloud of RED HOT sand hits $N and billows around them.
+#
+A stream of RED HOT sand hits the ground near you and misses.
+A cloud of RED HOT sand misses $N .
+#
+A cloud of RED HOT sand lands near you and sprays in your face.
+A cloud of RED HOT sand lands near $N and sprays them.
+#
+A cloud of RED HOT sand hits you. It does a nice job of polishing your amour.
+A cloud of RED HOT sand polishes $N's armor.
+
+* Blade Barrier
+M
+ 735
+Your barrier of whirling blades slashes $N into tiny pieces!!
+$n's barrier of whirling blades slashes you into tiny pieces!!
+$n's barrier of whirling blades slashes $N into tiny pieces!!
+$N dances quickly through your barrier of whirling blades!
+You dance quickly through $n's barrier of whirling blades!
+$N dances quickly through $n's barrier of whirling blades!
+$N is slashed to bits by the whirling blades which surround you!
+You are slashed to bits by the whirling blades which surround $n!
+$N is slashed to bits by the whirling blades which surround $n!
+$N dances quickly through your barrier of whirling blades!
+You dance quickly through $n's barrier of whirling blades!
+$N dances quickly through $n's barrier of whirling blades!
+
+* Stygian Lightning
+M
+ 737
+#
+A bolt of lightning streaks from the jet black sky, obliterating you!
+A bolt of lightning streaks from the jet black sky, obliterating $N!
+#
+A bolt of lightning streaks from the sky and blasts the ground by your feet!
+A bolt of lightning blasts into the ground by $N's feet!
+#
+A bolt of lighting streaks from the black sky into your chest!
+A bolt of lighting streaks from the black sky into $N's chest!
+#
+A bolt of lighting streaks from the black sky into your chest!
+A bolt of lighting streaks from the black sky into $N's chest!
+
+* Essence of Evil
+M
+ 741
+#
+Your body is ripped apart and your soul rushes screaming into the void!!!
+You hear a cry from beyond as $N melts before your eyes!!!
+#
+You scream in agony as the essence of evil burns your soul!!
+$N screams in agony as the essence of evil burns your soul!!
+#
+You feel the burning of evil in your soul.
+#
+#
+You feel the burning of evil in your soul.
+#
+
+* Essence of Goodness
+M
+ 742
+#
+Your body is ripped apart and your soul rushes screaming into the void!!!
+You hear a cry from beyond as $N melts before your eyes!!!
+#
+You scream in agony as the essence of goodness purges your soul!!
+$N screams in agony as the essence of goodness purges your soul!!
+#
+You feel the burning of goodness in your soul.
+#
+#
+You feel the burning of goodness in your soul.
+#
+
+* HELL FROST
+M
+ 744
+You freeze $N to death!
+Your body freezes and shatters under $n's deadly hell frost!!
+$N freezes and shatters under $n's deadly hell frost!!
+$N missed with your hell frost.
+$s spews hell frost at you, narrowly missing $s mark!
+$s spews hell frost at $N, narrowly missing $s mark!
+$N hit with your hell frost.
+You are blasted with a jet of hell frost from $n!!
+$N is blasted with a jet of hell frost from $n!!
+$N missed with your hell frost.
+$n spews hell frost at you, narrowly missing $s mark!
+$n spews hell frost at $N, narrowly missing $s mark!
+
+* ALIEN BLOOD
+M
+ 745
+$N is sprayed with your acid blood and killed!!
+You die horribly, burned to death by a spray of $n's acid blood!!
+$N is sprayed with $n's acid blood and dies screaming!!
+Your blood sprays out, narrowly missing $N.
+Green blood sprays from $n's wound, narrowly missing you.
+#
+$N hit with your spray of acid blood!
+$n's green blood splatters you and burns like fire!!
+$N screams in agony as $E is splattered with $n's blood!
+Your blood sprays out, narrowly missing $N.
+Green blood sprays from $n's wound, narrowly missing you.
+#
+
+* Shadow Dragon
+M
+ 750
+$N blasted to death with shadowy mist!
+$n spews forth a cloud of black mist, engulfing you in pain.
+$N screams out as $E is surrounded by $n's blast of black mist.
+You missed $N.
+$n spews forth a cloud of black mist, nearly engulfing you.
+$N dodges a cloud of black mist from $n!
+Your shadowy breath engulfs $N.
+$n spews forth a cloud of black mist, engulfing you in pain.
+$N screams out as $E is surrounded by $n's blast of black mist.
+You try to tint $N's shades.
+$n tints your shades for you.
+$n tries to tint $N's shades.
+
+* steam breath
+M
+ 751
+$N Killed with steam.
+Your flesh cooks until it boils with blisters from the scalding breath of $n!
+$n boils away the skin $N with $s scalding breath!
+$N missed.
+$n breathes a scalding stream of steam at you, but you leap away.
+$N dodges a cloud of scalding steam from $n!
+$N hit.
+$n sears your flesh with $s scalding breath!
+$N screams out as $n breathes steam on $M!
+$N immortal.
+$n steams your shorts.
+$n puffs steam at $N.
+
+* trampling
+M
+ 752
+$N Killed by trample.
+You are trampled into paste beneath $n's mighty feet!!
+$n tramples $N into paste!!
+$N missed with trample.
+You roll away as $n's foot crashes into the ground!!
+$n's foot narrowly misses crushing $N!
+$N hit with trample.
+You are crushed beneath $n's mighty foot!!
+$N is crushed beneath $n's mighty foot!!
+$N immortal to trample.
+$n tries to stomp you.
+$n trips over $N.
+
+* gore horns
+M
+ 753
+You impale $N on your terrible horns and send $S body flying through the air!!
+You are speared on $n's terrible horns and die screaming!!
+$n impales $N on $s terrible horns and sends $S body flying through the air!!
+$N barely avoids being skewered on your terrible horns!!
+You leap away as $n thrusts his deadly horns toward you!!
+$N barely avoids being skewered on $n's terrible horns!!
+Your terrible horns sink deeply into $N's flesh!!
+$n's terrible horns sink deeply into your flesh!!
+$n's terrible horns sink deeply into $N's flesh!!
+$N immortal to gore.
+$n tries to gore you.
+$n gets gory on $N.
+
+* tarrasque lash
+M
+ 754
+$N's body is severed at the waist by your mighty lashing tail!!
+$n's mighty tail whips around, severing your body at the waist!!
+$N's body is severed at the waist by $n's mighty lashing tail!!
+$N leaps over your lashing deadly tail!
+You leap over $n's lashing deadly tail!
+$N leaps over $n's lashing deadly tail!
+$N is slammed into the ground by your tail lash!!
+You are slammed into the ground by $n's tail lash!!
+$N is slammed into the ground by $n's tail lash!!
+$N giggles as you try to lash $M.
+$n tries to lash you.
+$N giggles as $n lashes out at $M.
+
+* boiling pitch
+M
+ 755
+#
+An agonizing groan passes your lips as you die in the pitch.
+$N groans agonizingly as $S life is ended by the boiling pitch.
+#
+pitch miss victim - should never see.
+pitch miss room - should never see.
+#
+The boiling pitch scorches your flesh!!
+$N yowls in pain as the boiling pitch scorches $M!
+#
+pitch miss victim - should never see.
+pitch miss room - should never see.
+
+* Holyocean
+M
+ 757
+#
+You utter one final scream as you dissolve in the water.
+$N screams before dissolving in the pure water.
+#
+dissolve miss victim - should never see.
+dissolve miss you - should never see.
+#
+Ouch!!! That water burns like acid!
+$N gets a shocked expression as the water begins to boil.
+#
+#
+#
+
+* Holyocean
+M
+ 757
+#
+The blemish of your evilness is washed away, along with your life.
+An aura of goodness fills the area as $N is dissolved.
+#
+dissolve miss victim - should never see.
+dissolve miss you - should never see.
+#
+Your evil soul suffers as the water washes over you.
+$N thrashes around as the holy water swells.
+#
+#
+#
+
+* Freezing
+M
+ 758
+#
+Your body painfully freezes as all fades to black...
+$N groans one last time as $E freezes and dies.
+#
+freeze miss victim - should never see.
+freeze miss room - should never see.
+#
+You feel an icy feeling creeping over you as your body begins to freeze.
+#
+#
+#
+#
+M
+ 758
+#
+The icy fingers of death clutches you as you freeze to death.
+$N shudders and lies still, frozen solid.
+#
+freeze miss victim - should never see.
+freeze miss room - should never see.
+#
+The icy coldness stings your flesh, causing you to cry out in pain.
+$N cries out in pain as $S flesh begins to freeze.
+#
+#
+#
+M
+ 758
+#
+You take one last, painful breath as your body is frozen solid and dies.
+$N takes one last, painful breath as $S body is frozen solid.
+#
+freeze miss victim - should never see.
+freeze miss room - should never see.
+#
+You feel a stinging pain as an icy coldness floods your body.
+#
+#
+#
+#
+
+* Drowning
+M
+ 759
+#
+You die horribly, choking for one last breath of air!
+$N shudders violently before completely drowning.
+#
+drown miss victim - should never see.
+drown miss room - should never see.
+#
+You struggle, gasping for a breath of air!
+$N struggles wildly, gasping for air!
+#
+#
+#
+* Drowning
+M
+ 759
+#
+You choke to death, gasping for one more breath of air!
+$N struggles and gasps for air, then is still.
+#
+drown miss victim - should never see.
+drown miss room - should never see.
+#
+You thrash about wildly, choking for a breath!
+$N thrashes around desperately, struggling for air.
+#
+#
+#
+* Drowning
+M
+ 759
+#
+A surge of panic rises as you drown to death, then all is still.
+$N struggles and gasps for air, then is still.
+#
+drown miss victim - should never see.
+drown miss room - should never see.
+#
+You panic as you realize you are drowning here!
+$N starts to panic, and thrash around wildly!
+#
+#
+#
+
+* Ablaze
+M
+ 760
+#
+You are consumed by the burning flames all around you!
+$N is consumed, screaming, in flames!
+#
+burn miss victim - should never see.
+burn miss room - should never see.
+#
+You thrash around wildly, your body ablaze!
+$N thrashes around wildly, covered in burning flames!
+#
+You cackle gleefully at the burning flames all around you!
+$N cackles gleefully at the burning flames all around $M!
+* Ablaze
+M
+ 760
+#
+You are burned to death by the flames which cover your body!
+$N dies with a scream, consumed by flames!
+#
+burn miss victim - should never see.
+burn miss room - should never see.
+#
+You struggle desperately as burning flames consume your body!
+$N struggles desperately as burning flames consume $S body!
+#
+You cackle insanely at the burning flames all around you!
+$N cackles insanely at the burning flames all around $M!
+M
+ 760
+#
+You are burned to death by the flames which cover your body!
+$N dies with a scream, consumed by flames!
+#
+burn miss victim - should never see.
+burn miss room - should never see.
+#
+You scream in agony as flames cover your body!
+$N screams in agony as flames cover $S body!
+#
+You dance with delight in the flames which cover your body!
+$N dances with delight in the flames which cover $S body!
+
+* Acid burn
+M
+ 763
+$N melts into a smoking puddle before your eyes!!!
+Your body burns painfully as you melt into a smoking puddle of acid!!!
+$N melts into a smoking puddle before your eyes!!!
+$N resists as $S body begins to acidify!
+You resist as you feel your body acidifying!
+$N resists as $S body begins to acidify!
+$N screams as $S skin begins to bubble and melt!!
+You scream as your skin begins to bubble and melt!!
+$N screams as $S skin begins to bubble and melt!!
+$N resists as $S body begins to acidify!
+You resist as you feel your body acidifying!
+$N resists as $S body begins to acidify!
+
+
+* Flamethrower
+M
+ 766
+You reduce $N to a pile of ash with a blast from $p!!
+$n reduces you to a pile of ash with a blast from $p!!
+$n reduces $N to a pile of ash with a blast from $p!!
+You lose control of $p and spray flames wildly in all directions!!
+$n blasts flames at you from $p, but you nimbly leap aside!
+$n sprays flames wildly from $p, seemingly out of control!!
+You blast $N with a gout of flame from $p!
+$n blasts you with a gout of flame from $p!
+$n blasts $N with a gout of flame from $p!
+You lose control of $p and spray flames wildly in all directions!!
+$n blasts flames at you from $p, but you nimbly leap aside!
+$n sprays flames wildly from $p, seemingly out of control!!
+
+* Malevolent Holy Touch, ripping your eyes out from the visions
+M
+ 767
+No-one ever rips someone else's eyes out.
+You rend your eyes from your skull trying to tear out the evil!
+$N rips the flesh off $S face with $S bare hands!
+#
+#
+#
+No-one ever digs holes in other peoples faces.
+You frantically tear at your eyes, trying to make the visions stop!
+$N frantically tries to tear $S face off!
+#
+#
+#
+
+***************************************************************************
+*                           Weapon Attacks                                *
+***************************************************************************
+
+* Hit
+M
+ 800
+You punch $N's head with a blow that crushes $S skull!
+$n punches your head with a blow that crushes your skull!
+$n punches $N's head so hard that $S skull cracks open!
+You swing your fist at $N, but miss $M!
+You barely avoid $n's fist as $e takes a swing at you!
+$N barely avoids a blow from $n!
+#
+#
+#
+Your fist flops as your body refuses to fight the mighty $N.
+$n is having trouble getting $s body to fight you!
+$n's body rebels against $m when $e tries to punch $N.
+M
+ 800
+You punch $N in $S kidneys resulting in $S immediate death!
+You receive a punch in your kidneys which ends your worldly misery -- R.I.P.!
+$n punches $N in the kidneys causing immediate death!
+You wildly punch at the air, missing $N.
+$n misses a wild punch at you.
+$n practices shadow-boxing while $N takes a break.
+#
+#
+#
+Instead of letting you punch $M, $N forces you to play Punch and Judy!!!
+You convince $n of playing Punch and Judy instead of punching you.
+$N convinces $n that no punching is necessary.
+M
+ 800
+You hit $N with such force that $S neck snaps in two!
+$n hits you with such force that your neck snaps in two!
+$N's neck is snapped in two by a powerful blow from $n!
+You try to hit $N who easily avoids the blow.
+$n tries to hit you but you easily avoid the blow.
+$n tries to hit $N who easily avoids the blow.
+#
+#
+#
+You try to hit $N but hit yourself instead!
+$n tries to hit you but you whacks $mself instead!
+$n tries to hit $N but hits $mself instead!
+M
+ 800
+You hit $N with a blow that breaks $S spine!
+$n hits you with a blow that breaks your spine!
+$n hits $N with a blow that breaks $S spine!
+$N ducks under your fist as you try to hit $M.
+You duck under $n's fist as $e takes a swing at you.
+$N ducks under $n's fist as $e takes a swing at $M.
+#
+#
+#
+It's not polite to swing at a GOD!!
+$n tries to take a swing at you -- dumbass.
+$n pathetically tries to take a swing at $N - ha!
+
+* Sting
+M
+ 801
+You sting $N to death.
+$n stings you to death.
+$n stings $N repeatedly until $E dies a horrible agonizing death.
+You nearly sting yourself as $N jumps to the side.
+You step neatly to the side and laugh as $n nearly stings $mself.
+$N steps out of the way laughing as $n nearly stings $mself.
+#
+#
+#
+What are you thinking.  You can't sting a God!
+$n tried to sting you.  What a dumbass!
+$n tries to sting $N.  Don't he know you can't sting a God?
+
+* Whip
+M
+ 802
+You whip $N's head right off of $S body!
+$n whips your head right off of your body!
+$n whips $N's head right off of $S body!
+You crack your whip at $N but it hits you in the face!
+$n cracks $s whip at you and it hits $m in the face!
+$n cracks $s whip at $N but only hits $mself in the face!
+#
+#
+#
+You'd better stop before $N whips your butt.
+Pathetic little $n is trying to whip you.. how cute.
+$n tries to whip $N - isn't $e cute?
+M
+ 802
+Your dexterous whip messily tears $N's torso right off!
+$n's whip messily tears you right in half!
+With an evil grin, $n messily whips $N in half!
+You try to whip $N but whip the ground instead!
+$n tries to whip you but whips the ground instead!
+$n tries to whip $N but whips the ground instead!
+#
+#
+#
+Don't try to whip $N.
+$n is trying to whip you.  Yawn.
+$n tries to whip $N - yawn.
+
+* Slash
+M
+ 803
+You beautifully slash $N into two parts -- both dead.
+Your upper body is disconnected from your legs as $n slashes at you -- R.I.P.!
+$N is slashed in two by a masterful stroke of $n!
+Your desperate slash at $N is easily avoided by $M.
+You easily avoid a slash from $n.
+$N nimbly avoids $n's slash.
+#
+#
+#
+Your cunning slash at $N is fruitless.
+You nimbly stop a slash from $n.
+$N stops a cunning slash from $n who looks disappointed.
+M
+ 803
+Your slash at $N results in a pool of blood and $S immediate death!
+Blood spurts all over as $n slashes at you.  You die...
+$n slashes at $N who colors everything red with blood from $S lethal wound.
+You miss $N by an inch, curse that brat!
+You manage to dodge $n's slash and laugh, HA!
+$n's slash misses $N who laughs in sheer delight, HA!
+#
+#
+#
+Come on, what makes you think you can slash at a GOD?!
+You barely register the puny creature before you...
+The great $N seems to ignore $n's slashes.
+M
+ 803
+$N cries out in agony as you slash $S ribcage open!
+Your ribcage is slashed open by $n -- R.I.P.!
+$n nicely dissects $N's ribcage with a single slash!
+You try to slash $N but miss by a mile.
+$n's slash misses you by a mile.
+$n's slash at $N misses $M by a mile.
+#
+#
+#
+It's rude to try to slash a GOD, you know.
+$n tries to slash you -- how rude!
+$n tries to slash $N -- how rude!
+M
+ 803
+Your powerful slash cleanly cuts off $N's head, which rolls away with a look of horror on it.
+You briefly feel the sensation of flight as $n slices your head cleanly off!
+$n cleanly slices off $N's head which rolls away with a look of horror on it!
+$N is cooled by the breeze of your missed slash at $M.
+$n cools you with the breeze of $s missed slash at you.
+$n cools $N with the breeze of $s missed slash.
+#
+#
+#
+Yeah, right.
+$n tries to slash you.. yeah, right.
+$n tries to slash $N.. yeah, right.
+
+* Bite
+M
+ 804
+You sink your teeth deep into $N's neck -- blood sprays everywhere!
+$n sinks $s teeth deep into your neck, tearing your jugular vein to bits!
+$n sinks $s teeth deep into $N's neck, tearing $S jugular vein to bits!
+You snap your teeth at $N but miss him.
+$n snaps $s teeth at you fiercely but misses.
+$n fiercely snaps $s teeth at $N but misses the mark.
+#
+#
+#
+How dare you try to bite a GOD!!!
+$n tries to bite you, how funny.
+$n tries to bite $N - funny, huh?
+M
+ 804
+You bite $N through $S ribcage and into $S heart -- $E falls to the ground in agony.
+$n bites you right your ribcage and into your heart -- you fall to the ground writhing in agony...
+$n's powerful jaw bites through $N's ribcage into $S heart -- $E falls to the ground writhing in agony!
+You try to bite $N but bite your tongue instead.
+$n tries to bite you but bites $s tongue instead!
+$n tries to bite $N but bites $s own tongue instead!
+#
+#
+#
+Aren't you trying to bite off more than you can chew?
+$n snaps at you but realizes $e is biting off more than $e can chew.
+$n stupidly tries to bite off more than $e can chew by snapping at $N.
+
+* Bludgeon
+M
+ 805
+You forcefully bludgeon $N whose head suddenly cracks open like a walnut!
+$n bludgeons your head which cracks open like a walnut!
+$n ruthlessly bludgeons $N whose head cracks open like a walnut!
+You fruitlessly try to bludgeon $N.
+You easily dodge $n's attempt to bludgeon you.
+$n tries to bludgeon $N who easily avoids the blow.
+#
+#
+#
+Your attempt to bludgeon $N fails, luckily for you $N has a good sense of humor!
+Your patience is tried when $n tries to clobber you.
+$N restrains $Mself from zapping $n when $e attempts to bludgeon the mighty one.
+M
+ 805
+Your relentless bludgeoning of $N finally results in $S broken neck!
+$n's relentless bludgeoning of you finally results in your broken neck!
+$n's relentless bludgeoning of $N finally results in $N's broken neck!
+You try to bludgeon $N who simply laughs at you.
+$n tries to bludgeon you, but you avoid $m and laugh.
+$N laughs at $n's attempt to bludgeon $M.
+#
+#
+#
+Your attempt to bludgeon $N fails, luckily for you $N has a good sense of humor!
+Your patience is tried when $n tries to clobber you.
+$N restrains $Mself from zapping $n when $e attempts to bludgeon the mighty one.
+
+* Crush
+M
+ 806
+You crush $N right out of existence!
+$n crushes you right out of existence!
+$n crushes $N right out of existence!
+You try to crush $N who jumps out of the way!
+$n tries to crush you but you jump out of the way!
+$n tries to crush $N who jumps out of the way!
+#
+#
+#
+A pox on thee and thy pitiful crush on $N!
+$n seems to have a crush on you...
+$n seems to have a crush on $N...
+M
+ 806
+You crush $N's entire body, making a terrible mess!
+$n crushes your entire body, making a terrible mess!
+$n crushes $N's entire body, making a terrible mess!
+You hopelessly try to crush $N.
+$n hopelessly tries to crush you.
+$n hopelessly tries to crush $N.
+#
+#
+#
+A pox on thee and thy pitiful crush on $N!
+$n seems to have a crush on you...
+$n seems to have a crush on $N...
+
+*Pound
+M
+ 807
+You pound $N so hard $S brains fly everywhere. What a mess!
+$n pounds you so hard your brains are scattered across the room!
+$n pounds $N so hard $S brains fly out across the room.
+You miss your pound at $N, nearly smashing your thumb.
+$n nearly smashes $s thumb as $e misses $s pound.
+$n nearly smashes $s thumb as $e misses $s pound at $N.
+#
+#
+#
+Your head begins to pound!  Attacking a God is not wise!
+$n falls to the ground with a pounding headache.
+$n screams out in agony as $s head begins to pound from attacking a God.
+
+* Claw
+M
+ 808
+You claw $N's face right off!
+$n claws your face right off!
+$n claws $N's face right off!
+You try to claw at $N but miss!
+$n tries to claw at you but misses by a hair!
+$n tries to claw at $N, missing by a hair!
+#
+#
+#
+You dummy!  Not the claw, the claw!
+$n must be crazy - trying to claw at you!
+$n must be crazy - trying to claw at $N!
+M
+ 808
+Your razor-sharp claws rip $N wide open!
+$n's razor-sharp claws rip you wide open!
+$n's razor-sharp claws rip $N wide open!
+You try to claw at $N but almost nick yourself instead!
+$n tries to claw at you but nearly nicks $mself instead!
+$n tries to claw at $N but nearly nicks $mself instead!
+#
+#
+#
+You dummy!  Not the claw, the claw!
+$n must be crazy - trying to claw at you!
+$n must be crazy - trying to claw at $N!
+
+*Maul
+M
+ 809
+You maul $N to death.  Oops...the blood and guts...how nasty!
+$n mauls you to death and starts chewing your leg off!
+$n mauls $N to death and begins chewing on $S legs!
+You try to maul $N but only succeed in swatting flies.
+$n tries to maul you but only succeeds in swatting flies.
+$n stands here swatting flies as $e tries to maul $N.
+#
+#
+#
+You begin to chew on your own legs since you can't maul a God.
+$n is chewing on $s legs and drooling at you.
+$n is chewing on $s legs and drooling at $N.
+
+*Thrash
+M
+ 810
+You give $N a thrashing so bad that it kills $M!!
+$n gives you a thrashing so bad that it kills you!!
+$n thrashes $N into a bloody pulp!!
+You try to thrash $N but miss.
+$n tries to thrash you but misses.
+$n misses $s thrash at $N.
+#
+#
+#
+You thrash about as if you were drowning.  You can't thrash a God.
+$n thrashes about as if $e were drowning.  What a dumbass!
+$n thrashes about as if $e were drowning.  What a dumbass!
+
+* Pierce
+M
+ 811
+You pierce $N and $S dead body falls to the ground in a lifeless heap.
+$n pierces you.  You are no longer a living member of this world -- R.I.P.!
+$n pierces $N whose suddenly lifeless body falls to the ground!
+You try to pierce $N but pierce the air instead!
+$n pierces holes in the air.
+$n tries to pierce air instead of fighting $N.
+#
+#
+#
+The mighty $N begins to think you a nuisance!!!
+Your patience is almost gone when you stare back at $n.
+$N angrily wards off a piercing attack from $n.
+M
+ 811
+You pierce $N's heart, you heartbreaker you...
+$n breaks your heart, goodbye cruel world...
+$n pierces the heart of $N who falls to the ground clutching at the wound!
+You lunge at $N without managing to pierce $M.
+$n tries to pierce you but fails miserably.
+$n lunges at $N but can't pierce $M.
+#
+#
+#
+The great $N sends you a piercing look, OOPS!!
+You return $n's pierce with a piercing look, hmmm...
+$N returns $n's pierce with a piercing look, hmmm...
+
+*Punch
+M
+ 813
+You punch $N so hard $S skull cracks open like a melon.
+$n punches you so hard your skull cracks open like a melon.
+$n punches $N so hard $S skull cracks open like a melon.
+You try to punch $N who ducks out of the way.
+You duck out of the way of $n's wild punch.
+$N ducks out of the way of $n's wild punch.
+#
+#
+#
+You offer a punch bowl to $N.  You couldn't have really meant to hit $M.
+$n offers you a bowl of punch.  What is $e thinking?
+$n offers $N a bowl of punch.  Must be ass kissing for levels again.
+
+*Stab
+M
+ 814
+You stab $N straight through $S heart, stopping its rhythm!
+$n stabs you in straight through your heart, stopping its rhythm!
+$n stabs $N straight through $S heart, stopping its rhythm!
+You try to stab $N but nearly stab yourself instead.
+$n tries to stab you but nearly stabs $mself instead.
+$n tries to stab $N but nearly stabs $mself instead.
+#
+#
+#
+I KNOW you didn't!
+$n just tried to stab you.  You KNOW he didn't!
+$n just tried to stab $N.  You KNOW he didn't!
+
+* Raygun
+M
+ 815
+You blast $N's head off with $p!
+$n blasts your head off with $p!
+$n blasts $N's head off with $p!
+You blow a hole in the ground missing $N!
+$n tries to zap you, but hits the ground instead!
+$n tries to zap $N, but hits the ground instead!
+#
+#
+#
+Umm, shooting at gods is very stupid.
+$n tries to blast you with $p!
+$n blasts at $N with $p!  What a moron!
+
+* Lightning gun special chained attack
+M
+ 831
+Your arcing lightning kills $N!
+You are cooked into a sizzling corpse by an arc sent from $n!
+The dead body of $N sizzles in the heat from a lightning arc sent by $n!
+Your lightning arcs into the ground at $N's feet!
+The ground before you is scored as $n misses you with lightning!
+$N jumps backwards as an arc of lightning scorches the ground, a near miss!
+Blue lightning arcs into $N!
+You are hit by an arc of blue lightning from $n's $p!
+$N screams in pain as lightning arcs into $M!
+$N stops your lightning with a single gesture, BEWARE!!!
+You stop $n's lightning with a sure hand, no time for children's games...
+$n's lightning disappears as $N makes a simple gesture.
+
+* Crushing depth - in deep ocean without a vehicle
+M
+ 892
+#
+The pressure of the ocean crushes you into a pulp!
+The pressure of the ocean turns $N into a pulp!
+#
+#
+#
+#
+The weight of the ocean crushes you with its enormous pressure!
+$N is crushed by the weight of the ocean!
+#
+#
+#
+
+* Taint - casting while tainted
+M
+ 893
+#
+The rune of taint explodes, taking your head with it!
+The rune on $n's forehead explodes, taking $s head with it!
+#
+#
+#
+#
+The rune of taint burns hot, searing your mind!
+#
+#
+#
+#
+
+*Suffocating
+M
+ 895
+#
+Your lungs explode as you desperately gasp for a breath.
+$N desperately gasps for a breath, and is suddenly silent.
+#
+suffocate miss victim - YOU SHOULDN'T SEE THIS.
+suffocate miss room - YOU SHOULDN'T SEE THIS.
+#
+You struggle, gasping for a breathe of air!
+$n thrashes around desperately gasping for a breath of air!
+#
+suffocating god victim..
+suffocating god room..
+
+M
+ 895
+#
+All goes dark as the last of life seeps from your limp corpse.
+$N's body is suddenly motionless as $e expels his last breath.
+#
+suffocate miss victim - YOU SHOULDN'T SEE THIS.
+suffocate miss room - YOU SHOULDN'T SEE THIS.
+#
+Your chest heaves in agony as you struggle for air!
+$n's body contorts as $e gasps for a breath of air!
+#
+suffocating god victim..
+suffocating god room..
+
+* bleeding
+M
+ 897
+#
+#
+#
+#
+#
+#
+#
+You're BLEEDING everywhere!
+$N bleeds all over!
+#
+#
+#
+
+* overload
+M
+ 898
+#
+#
+#
+#
+#
+#
+#
+Your circuits begin to melt from the overload!
+$N twitches and begins to smoke.
+#
+#
+#
+
+* Anguish
+M
+ 896
+#
+Anguish death victim. Should never see.
+Anguish death room. Should never see.
+#
+suffer miss victim - should never see.
+suffer miss room - should never see.
+#
+The wretched screams of the soulless burn through your mind!
+$N cries out in pain!
+#
+#
+#
+
+* Gravity Well Crushing (GRAVITY_WELL)
+M
+ 894
+$N contorts in pain, dying in the grip of your gravity well.
+A field of crushing gravitational forces closes in on you.
+$N contorts in pain, dying in the grip of a gravity well.
+grav-well miss victim - should never see.
+grav-well miss room - should never see.
+#
+$N contorts in pain as $E struggles in the grip of your gravity well.
+A field of crushing gravitational forces closes in on you.
+$N contorts in pain as $E struggles in the grip of a gravity well.
+#
+#
+#
+
+* Suffering
+M
+ 899
+#
+You feel wounded -- too wounded -- you die...
+$N lies suffering on the ground until no blood is left in $S body.
+#
+suffer miss victim - should never see.
+suffer miss room - should never see.
+#
+You lie on the ground suffering from your terrible wounds...
+$N lies helplessly on the ground and suffers...
+#
+Suffer god victim - should never see
+Suffer god room - should never see
+
+M
+ 899
+#
+You can only lie still as your last heartbeat ebbs...
+$N suffers from bloodlack, and the lack of a beating heart...
+#
+suffer miss victim - should never see.
+suffer miss room - should never see.
+#
+You lie on the ground suffering from bleeding wounds...
+$N lies immobile on the ground, suffering...
+#
+Suffer god victim..
+Suffer god room..
+$

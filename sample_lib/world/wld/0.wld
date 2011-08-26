@@ -1,0 +1,100 @@
+#0
+The Void~
+    You do not exist.
+~
+0 dej 0
+D4
+~
+~
+0 0 3001
+S
+#1
+Limbo~
+   You are floating in a formless void, detached from all sensation of
+physical matter, surrounded by swirling glowing light, which fades
+into the relative darkness around you without any trace of edges or
+shadow.
+   There is a "No Tipping" notice pinned to the darkness.
+~
+0 defj 1
+S
+#3
+System Object Allocation~
+0 -  19 : reserved for historical reasons
+20 - 29 : city ranger familiars
+30 - 39 : mountain ranger familiars
+40 - 49 : field ranger familiars
+50 - 59 : forest ranger familiars
+60 - 69 : jungle ranger familiars
+70 - 79 : swamp ranger familiars
+80 - 89 : mage 'conjure elemental' spell
+90 - 98 : mobs for demonic_guard special
+99 : Death
+100-109 : archons for demonic_guard special
+~
+0 dj 0
+D4
+You do not see that here.
+~
+~
+0 -1 51089
+S
+#10
+In a Horse Drawn Wagon~
+   A bed of smelly straw fills the large wooden wagon.  The wagon,
+which rolls along on large creaking wheels, is drawn by two grey
+mares.  The slow speed of the wagon makes it quite easy to exit at
+any time.
+~
+0 0 0
+E
+wagon straw~
+To get out of the wagon, type EXIT.
+To look out of the wagon, type LOOK OUT.
+~
+S
+#13
+Vampiric Holding Tank~
+
+~
+0 adfj 0
+S
+#99
+The Realm of the Dead~
+   You are standing on an immense, grey stone floor that stretches as
+far as you can see in all directions.  Rough winds plunging from the
+dark, starless sky tear savagely at your fragile body.
+~
+0 dj 0
+D0
+The hard floor seems to go on forever.
+~
+~
+0 -1 99
+D1
+The hard floor seems to go on forever.
+~
+~
+0 -1 99
+D2
+The hard floor seems to go on forever.
+~
+~
+0 -1 99
+D3
+The hard floor seems to go on forever.
+~
+~
+0 -1 99
+E
+floor~
+The stone floor is the same shade of grey as the sky and is completely plain
+and unscratched.  It is probably too hard for anything to leave as much as a
+scratch on it.
+~
+E
+sky wind winds~
+Cold winds plunge ceaselessly at you from the dark, cloudless sky.
+~
+S
+$~

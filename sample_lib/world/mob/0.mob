@@ -1,0 +1,1121 @@
+#1
+Puff dragon fractal~
+Puff~
+Puff the Fractal Dragon is here, contemplating a higher reality.
+~
+Is that some type of differential curve involving some strange, and
+unknown calculus that she seems to be made out of?
+~
+dnopqr 0 dkp 0 0 1000 E
+26 1 -1 5d10+550 4d6+3
+10000 271020 14 50
+8 8 2 0
+Str: 18
+MaxMana: 208
+MaxMove: 416
+Weight: 1680
+Height: 1736
+CurTongue: 18
+KnownTongue: 0
+KnownTongue: 18
+Prog:
+*handle tick
+*require random 6
+*randomly
+' My god!  It's full of stars!
+*or
+' How'd all those fish get up here?
+*or
+' I'm a very female dragon.
+*or
+' I've got a peaceful, easy feeling
+~
+E
+#10
+driver wagon farmer young~
+the wagon driver~
+A young farmer sits here, driving the wagon.
+~
+He wears a nice pair of overalls, and a straw hat.  He says, 'If you want to
+get off the wagon, then EXIT.  If you want to look out, LOOK OUT'.
+~
+bdglnopr 0 yC d 0 0 E
+30 -50 -50 5d100+10000 8d16+100
+0 1454140 0 3
+8 8 1 0
+MaxMana: 240
+MaxMove: 480
+Weight: 156
+Height: 178
+CurTongue: 3
+KnownTongue: 0
+KnownTongue: 2
+KnownTongue: 3
+Prog:
+*handle idle
+*pause 5
+*driveto 3051
+*pause 5
+*driveto 3212
+*pause 5
+*driveto 3208
+*pause 5
+*driveto 3073
+*pause 5
+*driveto 3017
+*pause 5
+*driveto 3037
+*pause 5
+*driveto 3030
+*pause 5
+*driveto 3046
+*pause 5
+*driveto 3050
+*pause 5
+*driveto 3212
+*pause 5
+*driveto 3208
+*pause 5
+*driveto 3073
+*pause 5
+*driveto 3013
+*pause 10
+~
+E
+#20
+rat black sleek rodent mouse~
+a black rat~
+A sleek black rodent with a naked tail scurries about.
+~
+   A small black rodent with a scaled, naked tail scurries to and fro.
+Its body is shaped like a dark, elongated egg, narrowing to a point at
+its tiny nose.  Two small, grey ears sprout up upon the rat's head,
+attentively aware of local sounds.  The eyes are beady and bright, 
+and look as if they never close.
+~
+d 0 0 0 0 0 E
+15 5 5 16d13+44 2d5+15
+0 13630 13 50
+8 8 0 4
+Str: 15
+Dex: 17
+MaxMana: 120
+MaxMove: 240
+Weight: 88
+Height: 114
+KnownTongue: 0
+Leader: 1
+E
+#21
+grey pigeon~
+a grey pigeon~
+A grey pigeon struts along the ground, occasionally pecking for food.
+~
+   The grey pigeon looks like a common member of the Columbidae family. 
+Its head looks disproportionate to its plump round body, but perfect for
+its tiny toothpick legs.  Its small beak and beady eyes sit in the middle
+of its face.  Strips of white and darker grey decorate the back and breast
+of the creature like splashes of paint of a feather canvas.
+~
+d 0 q 0 0 0 E
+20 0 4 21d16+123 4d5+20
+0 52680 13 51
+9 8 0 14
+Str: 16
+Int: 13
+Dex: 19
+Cha: 13
+MaxMana: 160
+MaxMove: 320
+Weight: 49
+Height: 84
+KnownTongue: 0
+Leader: 1
+E
+#22
+jewel green lizard~
+a green lizard~
+A jewel-green lizard lies here alertly scenting the air.
+~
+   The small green lizard's unblinking black eyes alertly scan the
+area for any sign of danger. A master of natural disguise, it survives
+by its stealth. It is scarcely visible as it lies unmoving in its hiding
+place. It's long whip-like tail and claw-like feet make it an adept
+and lightning fast climber should it's other defenses fail.
+~
+d 0 0 0 0 0 E
+25 -5 2 26d18+329 5d6+25
+0 139360 13 50
+8 8 0 4
+Str: 14
+Int: 12
+Wis: 12
+Dex: 18
+MaxMana: 200
+MaxMove: 400
+Weight: 159
+Height: 192
+KnownTongue: 0
+Leader: 1
+E
+#23
+massive dog irish wolfhound~
+an enormous wolfhound~
+A massive dog stands here, fiercely loyal to its master.
+~
+   This large Irish Wolfhound is representative of its breed with a large
+muscular frame and short shaggy hair.  Its powerful body rises high above
+the ground on long legs, bringing the dogs overall height to over a meter. 
+A long black-tipped tail swings slowly from side to side conveying a
+vigilant; but not hostile mood.
+~
+d 0 0 0 0 0 E
+30 -10 1 31d21+777 8d6+30
+0 385240 13 50
+8 8 0 4
+Str: 16
+Dex: 16
+MaxMana: 240
+MaxMove: 480
+Weight: 140
+Height: 205
+KnownTongue: 0
+Leader: 1
+E
+#30
+large weasel weasel-like creature ferret black black-footed footed~
+a black-footed ferret~
+A large, weasel-like creature is eagerly sniffing the ground.
+~
+   This four-legged animal is covered with fur.  It has brown markings
+across its body, and a dark, mask-like band across its white face.
+Its tail is black, matching its little black feet.  Two pike eyes shine
+through the mask of fur, taking in all it sees.
+~
+d 0 0 0 0 0 E
+15 5 5 16d13+44 2d5+15
+0 13630 13 52
+8 8 0 4
+Str: 15
+Dex: 17
+MaxMana: 120
+MaxMove: 240
+Weight: 147
+Height: 172
+KnownTongue: 0
+Leader: 1
+E
+#31
+eagle glorious bird~
+a magnificent eagle~
+A glorious eagle is here waiting for its next meal to scurry along.
+~
+   The eagle's wings are long and broad giving the bird a great deal of
+lift when needed.  A hooked bill extends to a sharp point, much like the
+bird's talons, which look capable of ripping an arm clear off a man.  The
+bird's darks eyes dart quickly from one object to the next, quickly
+scanning for food or foe.
+~
+d 0 q 0 0 0 E
+20 0 4 21d16+123 4d5+20
+0 52680 13 51
+9 9 0 3
+Str: 16
+Int: 13
+Dex: 19
+Cha: 13
+MaxMana: 160
+MaxMove: 320
+Weight: 66
+Height: 79
+KnownTongue: 0
+Leader: 1
+E
+#32
+lizard greg green~
+a green lizard~
+A jewel-green lizard lies here alertly scenting the air.
+~
+   The small green lizard's unblinking black eyes alertly scan the
+area for any sign of danger. A master of natural disguise, it survives
+by its stealth. It is scarcely visible as it lies unmoving in its hiding
+place. It's long whip-like tail and claw-like feet make it an adept
+and lightning fast climber should it's other defenses fail.
+~
+d 0 0 0 0 0 E
+20 -5 4 21d16+123 4d5+25
+0 48650 13 50
+8 8 0 4
+Str: 14
+Int: 12
+Wis: 12
+Dex: 18
+MaxMana: 160
+MaxMove: 320
+Weight: 152
+Height: 178
+KnownTongue: 0
+Leader: 1
+E
+#33
+mountain goat~
+a mountain goat~
+A white-coated mountain goat with shiny-black horns stands proudly before you.
+~
+His thick white coat keeps him warm in these high reaches.  
+Cloven hooves grip the smallest of ledges as he bounds happily 
+past.
+~
+dg 0 0 0 0 0 E
+30 -10 1 31d21+777 8d6+30
+0 383040 13 50
+8 8 1 5
+Str: 15
+Dex: 17
+MaxMana: 240
+MaxMove: 480
+Weight: 170
+Height: 152
+KnownTongue: 0
+Leader: 1
+E
+#34
+sleek graceful beautiful mountain lion puma~
+a beautiful puma~
+A sleek and graceful mountain lion scans its territory.
+~
+   Covered with an amber colored coat of fur, the sleek and supple
+enlarged mountain cat, cocks its short, rounded ears on its smallish,
+intelligent-looking face and flicks its dark brown like tail around its
+muscled body.  Large as it may be ranging from the height of 27 inches
+and weighing from 150 to 225 pounds this beautiful puma's lineage
+surprisingly began from a normal sized house cat.
+~
+bdeglnopACD 0 0 0 0 0 E
+35 -15 0 36d23+1643 10d7+35
+0 970500 13 52
+8 8 1 8
+Str: 22
+Dex: 17
+Con: 20
+Cha: 8
+MaxMana: 280
+MaxMove: 560
+Weight: 90
+Height: 156
+KnownTongue: 0
+Leader: 1
+E
+#40
+grey mouse rodent small ears~
+a little mouse~
+A small grey rodent with large ears moves cautiously about.
+~
+   This small mouse has soft grey fur and a thin, hairless tail.
+Its ears as quite large, thrusting up from either side of its tiny
+head.  The front of the mouse's face narrows to a pointy snout, with
+thin whiskers poking out from the sides.  It has the cautious stance
+of a survivor.
+~
+d 0 0 0 0 0 E
+15 5 5 16d13+44 2d5+15
+0 13630 13 50
+8 8 0 4
+Str: 15
+Dex: 17
+MaxMana: 120
+MaxMove: 240
+Weight: 165
+Height: 129
+KnownTongue: 0
+Leader: 1
+E
+#41
+black crow bird~
+a deep-black crow~
+A black crow stares at you with judging eyes.
+~
+   The crow is as black as coal from bill to talon.  Its long trail
+feathers give the bird excellent maneuverability and its long bill lets it
+reach deep into the ground or trees to scavenge any food it can find.  The
+black, fluffy breast feathers of the bird stay comfortable in inclement
+weather, but make the bird less agile in the air.
+~
+d 0 q 0 0 0 E
+20 0 4 21d16+123 4d5+20
+0 52680 13 51
+9 9 0 8
+Str: 16
+Int: 13
+Dex: 19
+Cha: 13
+MaxMana: 160
+MaxMove: 320
+Weight: 67
+Height: 81
+KnownTongue: 0
+Leader: 1
+E
+#42
+anaconda snake~
+a vicious anaconda~
+A vicious anaconda slithers around, staring at you with a hypnotic gaze.
+~
+   This vicious snake is extremely deadly, able to destroy its prey through
+constriction and drowning with its powerfully large body and jaws.  It has
+a deep, jungle-green color, with black oval patches on its back, allowing
+it to blend into the jungles and vegetation of its natural habitat.  The
+eyes and nostrils of the snake are located on the top of its head, allowing
+it to stalk its prey while still submerged in water.  Its cloaca cavity
+emits a foul-smelling musk that repels any small organisms around it.  It
+patiently watches its prey with a deadly gaze, waiting for the perfect time
+to strike.
+~
+d 0 0 0 0 0 E
+25 -5 2 26d18+329 5d6+25
+0 139360 13 50
+8 8 0 6
+Str: 14
+Int: 12
+Wis: 12
+Dex: 18
+MaxMana: 200
+MaxMove: 400
+Weight: 127
+Height: 121
+KnownTongue: 0
+Leader: 1
+E
+#43
+fat tomcat tom cat rare~
+a fat tomcat~
+A finicky tomcat purrs with discontent.
+~
+   Being obvious on showing that its tolerance runs thin of its presence
+having to be here, the fat grey and white striped tom cat, rolls its big
+greeny blue eyes at everything it sees and taps its crocked tail in
+frustration.
+~
+bdmnop 0 k 0 0 410 E
+30 -10 1 31d21+777 8d6+30
+0 823320 13 50
+8 8 1 8
+Str: 20
+Int: 17
+Wis: 18
+Dex: 22
+Con: 12
+Cha: 5
+MaxMana: 240
+MaxMove: 480
+Weight: 152
+Height: 123
+KnownTongue: 0
+Leader: 1
+E
+#44
+white wolf sleek rare admirable~
+a sleek white wolf~
+A rare and powerful white wolf patrols its domain.
+~
+   Its icy blue stare stands out sharply against its well-kept and shiny 
+white coat of fur.  His black nose moves in rhythmic patterns, showing its
+keen sense of smell constantly working every minute of his life.  Its
+sharp tipped ears waving in the air letting itself know where everything
+is or will be.  Its presence has much to be admired...and maybe a little
+intimidated.
+~
+bdmno 0 yz 0 0 0 E
+35 -15 0 36d23+1643 10d7+35
+0 1067550 13 52
+8 8 2 4
+Str: 22
+Dex: 17
+Con: 20
+Cha: 8
+MaxMana: 280
+MaxMove: 560
+Weight: 180
+Height: 130
+KnownTongue: 0
+Leader: 1
+E
+#50
+fuzzy squirrel bushy-tailed rodent~
+a fuzzy squirrel~
+A bushy-tailed rodent scampers nimbly about.
+~
+   This quick, fuzzy mammal is always on the move.  Soft, short fur covers
+its body save the tail, which is bushy and flexible.  The hair on its back
+is a light-grey, blending to a light brown on the underside.  Its legs and
+belly are the color of chestnut, seperated by a thick, white strip.  Round 
+black eyes protrude from its head, which are slightly smaller than its ears.
+It appears quite resourceful, and quick on its feet.
+~
+d 0 0 0 0 0 E
+15 5 5 16d13+44 2d5+15
+0 13630 13 50
+8 8 0 4
+Str: 15
+Dex: 17
+MaxMana: 120
+MaxMove: 240
+Weight: 124
+Height: 142
+KnownTongue: 0
+Leader: 1
+E
+#51
+red tailed hawk~
+a red-tailed hawk~
+A red-tailed hawk is perched here, staring keenly at you.
+~
+   This bird of prey perches regally and can soar through the sky with a
+three foot wingspan.  His outer coat of feathers covers the back of his
+body and wings with a light brown and black spots.  This contrasts the
+white feathers on the front of his body.  His tail is a reddish brown
+color, extending out in a fan shape behind his body.  He has sharp yellow
+talons with black tips that match his large yellow and black eyes.  His
+keen vision shows as he stares out into the horizon.
+~
+d 0 q 0 0 0 E
+20 0 4 21d16+123 4d5+20
+0 52680 13 51
+9 9 0 8
+Str: 16
+Int: 13
+Dex: 19
+Cha: 13
+MaxMana: 160
+MaxMove: 320
+Weight: 56
+Height: 45
+KnownTongue: 0
+Leader: 1
+E
+#52
+snake grass green~
+a grass snake~
+A thin green grass snake is slithering around your ankles.
+~
+The snake's smooth skin is a bright green with a thin black stripe
+running from its head to its tail. The bright green blends perfectly
+with the tall green grass in the fields.
+~
+dl i t 0 0 -100 E
+25 -5 2 26d18+329 5d6+25
+0 139360 13 53
+8 8 0 4
+Str: 14
+Int: 12
+Wis: 12
+Dex: 18
+MaxMana: 200
+MaxMove: 400
+Weight: 37
+Height: 86
+KnownTongue: 0
+Leader: 1
+E
+#53
+red fox noble~
+a red fox~
+A noble red fox prowls about here.
+~
+   Thick rusty red hair covers the body of this majestic animal except for
+a brilliantly white chest and tail.  A narrow muzzle and dark penetrating
+eyes leave the impression of a deep and cunning intellect.  Large
+triangular ears are raised alertly, attentive for any possible threat.
+~
+d 0 0 0 0 0 E
+30 -10 1 31d21+777 8d6+30
+0 443330 13 50
+8 8 0 4
+Str: 16
+Int: 13
+Dex: 18
+MaxMana: 240
+MaxMove: 480
+Weight: 170
+Height: 148
+KnownTongue: 0
+Leader: 1
+E
+#54
+massive enormous black bear~
+a massive black bear~
+An enormous black bear dominates your vision.
+~
+   A gigantic black-furred beast looks as if it could tear apart a
+halfling village.  The mass of muscle hidden beneath the long fur
+is thick on the bones, rippling with the slightest movement.  Its bright
+white teeth are a blinding contrast against the dark frame of its 
+massive build.  The paws on this bear are as thick as its shoulders,
+and as strong as an anvil.  The presence of this mighty mammal exudes
+intimidation.
+~
+bd i yz 0 0 0 E
+35 -15 0 36d23+1643 10d7+35
+0 1067550 13 52
+8 8 0 9
+Str: 22
+Dex: 17
+Con: 20
+Cha: 8
+MaxMana: 280
+MaxMove: 560
+Weight: 112
+Height: 170
+KnownTongue: 0
+Leader: 1
+E
+#60
+black bat small dark creature wings skin shadows shadow~
+a black bat~
+A small, dark creature with wings of skin lingers in the shadows.
+~
+   Large ears expel from the ugly head of this hairy animal.  Its body
+is covered with short, tight fur from its head to its feet.  A hairless
+membrane stretches from the long, bony forarms to its hind feet, like
+an ancient dragon's wing.  The arms end in a sharp, clawed thumb, free
+of the membrane.  Its breastplate is large and triangular, echoing the
+shape of its head.  The eyes are small and devious, refusing to return
+your glance.
+~
+d 0 q 0 0 0 E
+20 0 4 21d16+123 4d5+20
+0 44040 13 51
+9 9 0 4
+Str: 15
+Dex: 17
+MaxMana: 160
+MaxMove: 320
+Weight: 52
+Height: 69
+KnownTongue: 0
+Leader: 1
+E
+#61
+parrot~
+a colorful parrot~
+A colorfully feathered parrot is squawking loudly here.
+~
+   This colorful parrot is a yellow-collared macaw with a beautiful
+feathered-green body.  She has a bright yellow collar of feathers and an
+ocean-blue tint at the end of her wing feathers, matching her blue and red
+tail.  Her deep black eyes lie in a white patch of feathers as she gazes at
+you and squawks.
+~
+d 0 q 0 0 0 E
+20 0 4 21d16+123 4d5+20
+0 52680 13 51
+9 9 0 4
+Str: 16
+Int: 13
+Dex: 19
+Cha: 13
+MaxMana: 160
+MaxMove: 320
+Weight: 47
+Height: 64
+KnownTongue: 0
+Leader: 1
+E
+#62
+anaconda snake~
+a vicious anaconda~
+A vicious anaconda slithers around, staring at you with a hypnotic gaze.
+~
+   This vicious snake is extremely deadly, able to destroy its prey through
+constriction and drowning with its powerfully large body and jaws.  It has
+a deep, jungle-green color, with black oval patches on its back, allowing
+it to blend into the jungles and vegetation of its natural habitat.  The
+eyes and nostrils of the snake are located on the top of its head, allowing
+it to stalk its prey while still submerged in water.  Its cloaca cavity
+emits a foul-smelling musk that repels any small organisms around it.  It
+patiently watches its prey with a deadly gaze, waiting for the perfect time
+to strike.
+~
+d 0 0 0 0 0 E
+25 -5 2 26d18+329 5d6+25
+0 139360 10 50
+8 8 0 6
+Str: 14
+Int: 12
+Wis: 12
+Dex: 18
+MaxMana: 200
+MaxMove: 400
+Weight: 196
+Height: 194
+KnownTongue: 0
+Leader: 1
+E
+#63
+massive warthog pig~
+a massive warthog~
+A massive warthog stands here, ready to charge.
+~
+   This massive warthog snorts agressively, stomping its foot in the mud. 
+Its large, black body and tail are covered in short black hairs, leading up
+to its face.  Its face contains small, beady eyes, a short, moist snout,
+and two large, sharpened tusks.  Since it doesn't have sweat glands, it
+relies on the mud to keep cool, resulting in pieces of dried mud all around
+its body.
+~
+d 0 0 0 0 0 E
+30 -10 1 31d21+777 8d6+30
+0 385240 13 50
+8 8 0 9
+Str: 16
+Dex: 16
+MaxMana: 240
+MaxMove: 480
+Weight: 165
+Height: 141
+KnownTongue: 0
+Leader: 1
+E
+#64
+enlarged tiger beautiful orange white siberian~
+an enlarged tiger~
+A beautiful orange and white tiger washes its huge paws proudly.
+~
+   Moving with a lithe grace and smooth perfection accentuated by the
+stripes boldly barring her side, her eyes shine of a golden green almost
+like its looking right through you then at you.  Licking her sharp canine
+teeth that reach to the length of 4 inches long, she proudly shows her
+rank in the food chain with a chilling but admirable grin. 
+~
+bdeglC 0 d 0 0 0 E
+35 -15 0 36d23+1643 10d7+35
+0 970500 13 52
+8 8 2 3
+Str: 22
+Dex: 17
+Con: 20
+Cha: 8
+MaxMana: 280
+MaxMove: 560
+Weight: 105
+Height: 202
+KnownTongue: 0
+Leader: 1
+E
+#70
+furry beaver brown~
+a furry beaver~
+A small brown beaver looks around inquisitively.
+~
+   The small creature has two large bucked-teeth, which stick out of its
+mouth.  A large, flat, black tail drags behind the creature, sweeping away
+any tracks that might be left by its feet.  A black, wet nose sits between
+two solid eyes which shine like round onyx gems.
+~
+d 0 0 0 0 0 E
+30 -10 1 31d21+777 8d6+30
+0 316450 13 50
+8 8 0 4
+Str: 14
+Dex: 13
+MaxMana: 240
+MaxMove: 480
+Weight: 92
+Height: 140
+KnownTongue: 0
+Leader: 1
+E
+#71
+raven midnight~
+a midnight raven~
+A midnight raven flies here, gazing into the darkness.
+~
+   This black scavenger bird can fly about in a graceful manner, soaring in
+the sky.  The feathers on her body are slightly darker than those on her
+face and tail, matching the color of her deep black eyes.  Her deadly stare
+shows signs of insight and intelligence, as she cunningly spots her prey.
+~
+d 0 q 0 0 0 E
+20 0 4 21d16+123 4d5+20
+0 52680 13 51
+9 9 0 4
+Str: 16
+Int: 13
+Dex: 19
+Cha: 13
+MaxMana: 160
+MaxMove: 320
+Weight: 63
+Height: 69
+KnownTongue: 0
+Leader: 1
+E
+#72
+snapping turtle massive amphibian carapace serrated shell~
+a snapping turtle~
+A massive amphibian with a serrated carapace waits solemnly for action.
+~
+   Rough and warty skin protrude beneath a massive shell of rigidity.
+The carapace-shell is darker then the rest of the body, mostly brown,
+with shallow black and light-brown horns stabbing out in all directions.
+Its serpentine neck, massive head, and muscular legs move with a slow
+and subtle grace of aged confidence.   The back-edge of the shell is
+saw-toothed, leading to a tail that mimics a crocodile.  The toothless,
+powerful jaw is slightly hooked and anxious to snap hold of any 
+unwary victim.
+~
+d 0 0 0 0 0 E
+25 -5 2 26d18+329 5d6+25
+0 139360 13 99
+8 8 0 4
+Str: 14
+Int: 12
+Wis: 12
+Dex: 18
+MaxMana: 200
+MaxMove: 400
+Weight: 122
+Height: 179
+KnownTongue: 0
+E
+#73
+cute small playful raccoon~
+a cute and playful raccoon~
+A small, cute raccoon grins evilly from behind a mask of fur.
+~
+   Fat and happy from last days spoils of fish and garbage, this walking
+bag of mischief colored in brown, gray, and black, has a black mask on
+its pointed face like a ironically suiting little robber and a black and
+bushy ringed tail.  Be sure to check your bag of lunch after passing by
+this little guy.
+~
+bcdeln fi 0 0 0 333 E
+30 -10 1 31d21+777 8d6+30
+0 396250 13 55
+8 8 1 4
+Str: 15
+Dex: 18
+Con: 15
+MaxMana: 240
+MaxMove: 480
+Weight: 25
+Height: 43
+KnownTongue: 0
+E
+#74
+deadly alligator~
+a deadly alligator~
+A deadly alligator lies here, patiently watching your every movement.
+~
+   This scaled, armored lizard has a long, muscular body that is
+camaflouged with a brown-green color.  The skin on his back is protected
+with rows of embedded bony plate scutes, and the skin on his belly is a
+soft, pale yellow.  His long, round, shovel-shaped snout tilts upward,
+allowing him to breath while the rest of his body is underwater.  As he
+leers at his prey, he gives an odd sort of grin, revealing dozens of
+frightening teeth.
+~
+d 0 0 0 0 0 E
+25 -5 2 26d18+329 5d6+25
+0 107690 13 52
+8 8 0 4
+Str: 13
+Dex: 14
+MaxMana: 200
+MaxMove: 400
+Weight: 130
+Height: 204
+KnownTongue: 0
+E
+#80
+elemental earth~
+an earth elemental~
+A huge elemental of the earth stands here.
+~
+The towering figure before you is shaped like a huge humanoid, and formed
+completely from earth, clay and rocks.
+~
+cdelnpqr 0 yC 0 p 0 E
+25 2 7 25d8+500 4d6+8
+0 0 22 81
+8 8 0 0
+Str: 20
+Wis: 8
+Con: 20
+MaxMana: 200
+MaxMove: 400
+Height: 200
+CurTongue: 35
+KnownTongue: 0
+KnownTongue: 33
+RemortClass: 3
+Generation: 1
+E
+#81
+elemental fire blazing~
+a fire elemental~
+A blazing elemental of fire stands before you.
+~
+The elemental looks like a huge sheet of flame, towering over you and 
+scorching your eyebrows.  It appears to have two armlike appendages which 
+flicker in and out of its body at various locations.
+~
+cdelnpqr 0 yC d 0 0 E
+30 -5 5 25d8+600 4d6+10
+0 0 22 82
+8 8 0 0
+Str: 17
+Dex: 17
+Con: 15
+MaxMana: 240
+MaxMove: 480
+CurTongue: 35
+KnownTongue: 0
+KnownTongue: 33
+E
+#82
+elemental water~
+a water elemental~
+A huge elemental of water rushes toward you.
+~
+It appears like a gigantic wave of water, as large as a house.  It seems to
+have watery, wavelike arms flowing at its sides, and you see two glowing
+green orbs near the top of the thing, like eyes.
+~
+cdelnpqr 0 guyC d 0 0 E
+35 -9 3 25d8+800 4d6+12
+0 0 22 83
+8 8 0 0
+Str: 19
+Dex: 15
+Con: 18
+MaxMana: 280
+MaxMove: 560
+CurTongue: 35
+KnownTongue: 0
+KnownTongue: 33
+E
+#83
+elemental air~
+an air elemental~
+An air elemental exists here in the form of an amorphous, shifting cloud.
+~
+Swift winds whip to and fro about the elemental as it spins itself into a 
+whirlwind, preparing for attack.
+~
+cdelnpqr q qyC d 0 0 E
+40 -20 2 25d8+800 4d6+15
+0 0 22 84
+9 9 0 12
+Str: 15
+Dex: 20
+Con: 15
+MaxMana: 320
+MaxMove: 640
+CurTongue: 35
+KnownTongue: 0
+KnownTongue: 33
+E
+#90
+demon hezrou~
+a Hezrou demon~
+A Hezrou demon stands here.
+~
+This massive demon looks like a huge frog with deadly arms and razor
+sharp claws.  He looks at you as if to surmise how you will taste.
+~
+admnpuw ei dkxyz dgiq 0 -500 E
+25 -2 -4 10d10+540 4d6+20
+0 256890 32 131
+8 8 0 8
+MaxMana: 200
+MaxMove: 400
+CurTongue: 21
+KnownTongue: 0
+KnownTongue: 20
+KnownTongue: 21
+E
+#91
+demon glabrezu~
+a Glabrezu demon~
+a Glabrezu demon stands here radiating hate.
+~
+This huge demon towers above you at well over nine feet tall.  He appears
+to be a cross between a dog and you can only guess what.... His massive
+claws drip blood from his last victim.
+~
+admnopruw ej dkxyz diq 0 -700 E
+30 -4 -10 10d10+700 4d6+27
+0 731700 32 132
+8 8 0 3
+MaxMana: 240
+MaxMove: 480
+CurTongue: 21
+KnownTongue: 0
+KnownTongue: 20
+KnownTongue: 21
+E
+#92
+knecht demon~
+a Knecht demon~
+A large Knecht demon dressed in white glares at you.
+~
+This large hulking centaurian beast seems extracted from your worst 
+nightmares. Its pale white armor lends it an undead cast, but the
+burning hatred in its eyes leaves no doubt to its vile existence.
+~
+ademnopruw egjo cdekny dipqs p -500 E
+37 -6 -3 45d24+2641 11d7+21
+0 5077470 32 133
+8 8 0 5
+Str: 24
+Int: 17
+Wis: 18
+Dex: 23
+Con: 23
+Cha: 17
+MaxMana: 444
+MaxMove: 710
+Weight: 600
+Height: 240
+CurTongue: 21
+KnownTongue: 0
+KnownTongue: 20
+KnownTongue: 21
+RemortClass: 8
+Generation: 2
+E
+#93
+demon nalfeshnee boar ape~
+a Nalfeshnee demon~
+A demonic boar-headed ape looms here with hatred in its eyes.
+~
+   This demon looks like a huge, gross cross between an ape and a boar. 
+Standing taller than three men, it appears to need all its vast strength to
+support its massive body.  The small, feathered wings that sprout from its
+back are seemingly unable to lift its bulk.  Nevertheless, this
+scientifically impossible being flys anyhow.  Its red eyes glow like embers
+and seem to pierce the mind and draw energy from just a glance.
+~
+ademnopqruw egilo deknqxyC dips lp 0 E
+40 -10 -4 49d26+3692 13d8+24
+0 8660580 32 133
+8 8 0 6
+Str: 22
+Int: 20
+Wis: 16
+Dex: 18
+Con: 20
+Cha: 12
+MaxMana: 1152
+MaxMove: 768
+Weight: 10000
+Height: 673
+CurTongue: 21
+KnownTongue: 0
+KnownTongue: 20
+KnownTongue: 21
+RemortClass: 5
+Generation: 2
+E
+#94
+goristro demon~
+a Goristro demon~
+A lumbering Goristro demon advances toward you.
+~
+This bison headed demon is mamoth.  It towers over all around as it
+bellows the hatred and pain of its existence.  Green fire seems to 
+burn around its eyes as it glares balefully.
+~
+ademnopquw eijo dknxyAC dipqrs p -500 E
+40 -12 -5 53d26+4344 13d8+26
+0 7079410 32 134
+8 8 0 7
+Str: 25
+Wis: 8
+Dex: 25
+Con: 25
+Cha: 13
+MaxMana: 416
+MaxMove: 832
+Weight: 1000
+Height: 679
+CurTongue: 21
+KnownTongue: 0
+KnownTongue: 20
+KnownTongue: 21
+RemortClass: 13
+Generation: 3
+E
+#95
+balor demon~
+a Balor demon~
+A massive red scaled Balor demon floats here.
+~
+This huge demon is terror personified.  Its massive body is covered with
+red scales and its wings easily span ten feet.  Its mammoth arms and legs
+ripple with muscle and sinew, and his hatred for all things is apparent
+in its vile eyes, and horrible bellow.
+~
+admnopqruw ego hknqyC dipqrs p -1000 E
+41 -12 -5 54d26+4784 14d8+26
+0 11573010 32 134
+9 9 0 7
+Str: 21
+Int: 20
+Wis: 20
+Dex: 19
+Con: 20
+Cha: 10
+MaxMana: 1279
+MaxMove: 852
+Weight: 1000
+Height: 412
+CurTongue: 21
+KnownTongue: 0
+KnownTongue: 20
+KnownTongue: 21
+RemortClass: 0
+Generation: 3
+E
+#96
+demonic overmind~
+the Demonic Overmind~
+The Demonic Overmind lies in wait for a damned soul.
+~
+~
+abdu 0 0 0 0 0 E
+1 20 0 10d10+50 5d2+0
+0 660 10 50
+8 8 0 0
+MaxMana: 100
+MaxMove: 100
+Weight: 144
+Height: 181
+KnownTongue: 0
+E
+#99
+death reaper~
+Death~
+Death the Grim Reaper is observing you silently from empty eye sockets.
+~
+The dark-robed skeletal figure radiates an unendurable coldness.
+~
+bdelnopqru 0 dfhkp dnpq 0 0 E
+49 -18 -20 50d30+11000 19d9+65
+0 51794330 11 69
+8 8 0 0
+Str: 25
+Int: 25
+Wis: 25
+Dex: 25
+Con: 25
+Cha: 25
+MaxMana: 588
+MaxMove: 784
+CurTongue: 34
+KnownTongue: 0
+KnownTongue: 33
+KnownTongue: 34
+E
+$

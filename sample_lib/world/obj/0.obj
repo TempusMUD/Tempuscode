@@ -1,0 +1,137 @@
+#1
+locker strongbox box jail~
+a jail strongbox~
+A large strongbox is mounted here.~
+~
+15 0 0 0 0
+0 0 0 0
+103 100 100
+0 0 0 0
+#10
+wagon~
+the horse drawn wagon~
+A large wooden wagon is here, drawn by two grey mares.~
+~
+30 e 0 0 0
+10 0 2 0
+80 100 100
+0 0 0 0
+E
+wagon mares horse horses~
+   The wagon rests upon two large wooden wheels, and appears to contain a
+load  of fresh hay.  A young farmer sits at the front of the wagon, holding
+the reins of the two grey horses which pull the wagon.  To jump onto the
+wagon,  type BOARD WAGON.
+~
+#11
+wagon window out~
+the wagon window~
+~
+~
+53 0 0 0 0
+10 0 10 0
+5 100 100
+0 0 0 0
+#12
+wagon door~
+the wagon door~
+~
+~
+54 0 0 0 0
+10 0 10 0
+0 100 100
+0 0 0 0
+#13
+wagon console~
+a wagon console~
+~
+~
+55 0 0 0 0
+10 0 10 -10
+0 100 100
+0 0 0 0
+#14
+blank object~
+the wagon engine~
+A blank object has been dropped here.~
+~
+31 0 0 0 0
+1000 1000 5 0
+0 100 100
+0 0 0 0
+#15
+mixed potion~
+a mixed potion~
+Some enterprising soul has mixed together a potion.~
+~
+10 dq 0 a 0
+0 0 0 0
+160 100 100
+1 0 0 0
+#66
+bouquet~
+Lovely's Valentine's Bouquet from Fishbone~
+Lovely must have got mad at Fishbone and threw away her bouquet.~
+~
+15 0 0 0 0
+12 0 0 0
+0 100 100
+0 50 1 0
+#67
+red rose fishbone lovely~
+a red rose~
+A red rose is lying here.~
+~
+13 deq 0 ao 0
+0 0 0 0
+66 100 100
+0 0 0 0
+#68
+rose black~
+a black rose~
+A magnificent black rose is lying here.~
+~
+13 deq 0 ao 0
+0 0 0 0
+66 100 100
+0 0 0 0
+E
+black rose~
+The small rose is such a deep shade of red that it appears almost black.  
+It feels warm in your hands, almost as if it was producing a heat of its own.
+You notice a tiny stamp at the base of one of its petals. ~
+E
+stamp petal~
+The printing on the stamp appears to read:
+
+Ecstacy Division.  Satisfaction guaranteed by Lucifer Enterprise.
+~
+#69
+red rose fishbone lovely~
+the lovely red rose that Fishbone gave her.~
+A lovely red rose is lying here.~
+~
+13 deq 0 ao 0
+0 0 0 0
+66 100 100
+1 0 0 0
+A
+6 4
+#99
+scythe death~
+the Scythe of Death~
+The Scythe of Death rests heavily on the ground.~
+~
+5 dgnoA l an 0
+0 10 8 3
+116 19200 19200
+32 448000 8960 0
+E
+scythe death~
+It is a very heavy scythe.  The grey handle is made from hard wood and the
+long iron blade is completely smooth from countless years of use.  It feels
+cold to the touch.
+~
+A
+19 6
+$

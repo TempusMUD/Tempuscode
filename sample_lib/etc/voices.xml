@@ -1,0 +1,156 @@
+<voices>
+  <voice idnum="1" name="mobile">
+    <taunt>emote sighs loudly.</taunt>
+    <taunt>emote gazes at $N coldly.</taunt>
+    <taunt>emote prepares for battle.</taunt>
+    <taunt>tell $N Let's rumble.</taunt>
+    <attack>sayto $N Hey, you're the fiend that attacked me!!!</attack>
+    <attack>sayto $N Hey, you're the punk I've been looking for!!!</attack>
+    <panic>emote screams in terror!</panic>
+    <panic>shout Run away!  Run away!</panic>
+    <fight_losing>emote grits $s teeth as $e begins to weaken.</fight_losing>
+    <fight_losing>yell $N you bastard!</fight_losing>
+    <fight_winning>sneer Let this be a lesson to you!</fight_winning>
+    <fight_winning>smirk So you thought you were tough, eh?</fight_winning>
+    <fight_winning>yell Kiss my ass, $N!</fight_winning>
+    <hunt_openair>say Well SHIT!  I need to be able to fly!</hunt_openair>
+    <hunt_water>say Damn this water!  Can anybody help me cross?</hunt_water>
+    <hunt_gone>say Damn!  My prey is gone!!</hunt_gone>
+    <hunt_lost>say Damn!  Lost $M!</hunt_lost>
+    <hunt_found>scream Gotcha, punk ass $N!!</hunt_found>
+    <hunt_found>say Well, well, well... if it isn't $N!</hunt_found>
+    <hunt_found>sayto $N You can run but you can't hide!</hunt_found>
+    <hunt_found>sayto $N Now I have you!</hunt_found>
+    <hunt_unseen>say I know that jerk $N is around here somewhere!</hunt_unseen>
+    <hunt_taunt>say I'm gonna get that freak $N!</hunt_taunt>
+    <hunt_taunt>tell $N I'm gonna find you, $N!</hunt_taunt>
+    <hunt_taunt>shout You're toast, $N!</hunt_taunt>
+    <hunt_taunt>shout You can run but you can't hide, $N you sissy!</hunt_taunt>
+    <hunt_taunt>shout You better run for the inn, cause I'm coming for you $N!</hunt_taunt>
+    <hunt_taunt>tell $N You're gonna learn better than to mess with me, $N!</hunt_taunt>
+    <hunt_taunt>shout One of these days, I'm gonna get a little respect!</hunt_taunt>
+    <hunt_taunt>Well, looks like I'm gonna hafta teach $N a lesson!</hunt_taunt>
+    <hunt_taunt>shout Anybody know where that punk $N is?!</hunt_taunt>
+    <hunt_taunt>shout Now you've pissed me off, $N!</hunt_taunt>
+    <hunt_taunt>shout I've had it up to HERE with punks like $N!</hunt_taunt>
+    <hunt_taunt>tell $N Don't worry $N... I'll find you!</hunt_taunt>
+    <hunt_taunt>shout I'm practically on you, $N!</hunt_taunt>
+    <hunt_taunt>shout Looks like I'm gonna have to hunt you down, $N!</hunt_taunt>
+    <hunt_taunt>tell $N Looks like I'm gonna have to hunt you down, $N!</hunt_taunt>
+    <hunt_taunt>say One of these days...</hunt_taunt>
+  </voice>
+  <voice idnum="2" name="animal">
+    <taunt>emote growls menacingly at $N.</taunt>
+    <attack>emote snarls and attacks $N!!</attack>
+    <panic>emote lets out a frightened yelp!</panic>
+    <hunt_openair>emote growls and sniffs the wind.</hunt_openair>
+    <hunt_water>emote approaches the edge of the water and whines.</hunt_water>
+    <hunt_gone>emote whines and looks confused.</hunt_gone>
+    <hunt_taunt>emote sniffs the ground.</hunt_taunt>
+  </voice>
+  <voice idnum="3" name="stalker">
+    <hunt_found>intone Time to die.</hunt_found>
+  </voice>
+  <voice idnum="4" name="archon">
+    <taunt>say The powers of good will take you down, servant of evil.</taunt>
+    <attack>say For the light!</attack>
+    <panic>say Light preserve us!</panic>
+    <fight_losing>say Your evil shall not prevail!</fight_losing>
+    <fight_winning>say It is never too late to repent, evildoer!</fight_winning>
+    <hunt_openair>say I will remember this, $N.  Beware!</hunt_openair>
+    <hunt_water>say I will remember this, $N.  Beware!</hunt_water>
+    <hunt_gone>sigh</hunt_gone>
+    <hunt_lost>say I will remember this, $N.  Beware!</hunt_lost>
+    <hunt_unseen>say You remain in the shadow for you fear the light!</hunt_unseen>
+    <hunt_found>yell $N you vile profaner of goodness!</hunt_found>
+  </voice>
+  <voice idnum="5" name="elven">
+    <attack>say Make peace with your god, for you shall soon meet!</attack>
+    <attack>say For the dark huntress!</attack>
+    <taunt>say By Selene's blade, I shall destroy you!</taunt>
+    <taunt>say Dark mistress take you!</taunt>
+    <panic>say Dark mistress save me!</panic>
+    <fight_winning>say Veloth's dark halls await you</fight_winning>
+    <fight_winning>say This day shall be your last!</fight_winning>
+    <fight_winning>say Your moss covered bones shall rot before I fall!</fight_winning>
+    <fight_losing>say Selene preserve me!</fight_losing>
+    <fight_losing>say You cannot prevail.</fight_losing>
+    <fight_losing>yell My people will avenge me should I fall!</fight_losing>
+    <fight_losing>flinch</fight_losing>
+  </voice>
+  <voice idnum="6" name="dwarven">
+    <attack>crack</attack>
+    <attack>say This'll be fun!</attack>
+    <attack>say I'll crush you like Alron's hammer!</attack>
+    <attack>say For the Dwarves!</attack>
+    <taunt>say I'll rip yer head off you bleedin' oaf!</taunt>
+    <taunt>roar</taunt>
+    <fight_winning>cackle $N</fight_winning>
+    <fight_winning>say I'll murder you, $N!</fight_winning>
+    <fight_losing>say My clan will see you dead!</fight_losing>
+    <fight_losing>say I'll see you in hell, you dog!</fight_losing>
+    <fight_losing>say You'll never destroy us all!</fight_losing>
+    <fight_losing>say You're stronger than you look, $N.</fight_losing>
+  </voice>
+  <voice idnum="7" name="halfling">
+    <attack>say I'll be show'n you my fist then!</attack>
+    <attack>say You're a plucky bugger aren't ya.</attack>
+  </voice>
+  <voice idnum="8" name="zombie">
+    <attack>moan</attack>
+    <attack>growl</attack>
+  </voice>
+  <voice idnum="9" name="good_knight">
+    <attack>say For Alron!</attack>
+    <attack>say To the sword!</attack>
+    <attack>say Hark!  Battle calls.</attack>
+    <attack>say Duty, Justice, and Alron!</attack>
+    <attack>say No quarter!</attack>
+    <fight_winning>say Now ye will see true justice.</fight_winning>
+    <fight_winning>say Thine blood shall honor the gods.</fight_winning>
+    <fight_winning>say Make ready to meet thy maker, knave!</fight_winning>
+    <fight_winning>say Thy fell strength shall amount to naught!</fight_winning>
+    <fight_winning>say Burn the heretic!</fight_winning>
+    <fight_winning>say Feel the judgment of Alron, $N</fight_winning>
+    <fight_winning>say Prepare to meet thy doom!</fight_winning>
+    <fight_losing>say Alron, preserve me!</fight_losing>
+    <fight_losing>say Grant me strength mine Lord!</fight_losing>
+    <fight_losing>say I applaud thine strength.</fight_losing>
+    <fight_losing>say Velroth take you to his darkest hell!</fight_losing>
+    <fight_losing>say Burn in the depths of the Abyss!</fight_losing>
+    <fight_losing>say Alron, do not desert me!</fight_losing>
+  </voice>
+  <voice idnum="10" name="evil_knight">
+    <attack>snarl Die!</attack>
+    <attack>howl Death to the unbelievers!</attack>
+    <attack>declare I will destroy you!</attack>
+    <attack>sayto $N Your soul now belongs to Veloth</attack>
+    <attack>intone Veloth, accept this sacrifice.</attack>
+    <fight_winning>say I will consume your soul!</fight_winning>
+    <fight_winning>scream</fight_winning>
+    <fight_winning>say Can you feel the dark lord waiting for you?</fight_winning>
+    <fight_losing>say Veloth, do not forsake me!</fight_losing>
+  </voice>
+  <voice idnum="11" name="good_cleric">
+    <attack>say For the light!</attack>
+    <attack>say Guiharia, guide me.</attack>
+    <attack>say Foul profaner of goodness!</attack>
+    <fight_winning>say Guiharia will judge your soul.</fight_winning>
+    <fight_winning>say My soul knows its destination, does yours?</fight_winning>
+    <fight_winning>say May the lady of light cast you into shade.</fight_winning>
+    <fight_losing>say You cannot defeat me.</fight_losing>
+    <fight_losing>say My mistress will guard my soul.</fight_losing>
+    <fight_losing>say Guiharia, be my strength!</fight_losing>
+    <fight_losing>say Why hast thou forsaken me, my mistress?</fight_losing>
+  </voice>
+  <voice idnum="12" name="mage">
+    <attack>say You dare disturb my studies?</attack>
+    <attack>say Prepare to be destroyed</attack>
+    <fight_winning>say Behold my powers!</fight_winning>
+    <fight_winning>say You will rue the day you trifled with me!</fight_winning>
+    <fight_winning>say My ruinous powers will destroy you.</fight_winning>
+    <fight_winning>say Pathetic creature, feel my wrath!</fight_winning>
+    <fight_losing>say How are you defeating me?</fight_losing>
+    <fight_losing>say You must know some secret I haven't gleaned.</fight_losing>
+  </voice>
+</voices>

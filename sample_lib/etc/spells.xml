@@ -1,0 +1,3724 @@
+<spells>
+  <skill id="161" name="ABLAZE!"/>
+  <spell id="764" name="Zhengis Fist of Annihilation">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+  </spell>
+  <spell id="705" name="acid breath">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+  </spell>
+  <skill id="763" name="acid burn">
+  </skill>
+  <spell id="301" name="acidity">
+    <granted class="physic" level="2"/>
+    <manacost initial="40" level_dec="2" minimum="20"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="213" name="adrenaline">
+    <granted class="psionic" level="27"/>
+    <manacost initial="80" level_dec="1" minimum="60"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="652" name="advanced cybosurgery">
+    <granted class="cyborg" level="47" gen="7"/>
+  </skill>
+  <skill id="643" name="advanced implant weaponry">
+    <granted class="cyborg" level="28" gen="5"/>
+  </skill>
+  <skill id="714" name="air elemental">
+  </skill>
+  <spell id="87" name="air walk">
+    <granted class="cleric" level="32"/>
+    <manacost initial="60" level_dec="2" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="nowater"/>
+  </spell>
+  <spell id="336" name="albedo shield">
+    <granted class="physic" level="34"/>
+    <manacost initial="90" level_dec="1" minimum="50"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="745" name="alien blood">
+  </skill>
+  <spell id="570" name="alpha nerve">
+    <granted class="monk" level="6"/>
+    <flag value="biologic"/>
+  </spell>
+  <spell id="360" name="alrons aria">
+    <granted class="bard" level="24"/>
+    <manacost initial="120" level_dec="1" minimum="95"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="unaffects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>The courage and strength with which Alron is blessed
+Will come to our aid 'til our souls are at rest!</lyrics>
+  </spell>
+  <spell id="650" name="ambush">
+    <position minimum="standing"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+  </spell>
+  <spell id="235" name="amnesia">
+    <granted class="psionic" level="25" gen="1"/>
+    <manacost initial="70" level_dec="2" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="602" name="analyze">
+    <granted class="physic" level="12"/>
+    <granted class="cyborg" level="20"/>
+  </skill>
+  <spell id="93" name="animal kin">
+    <granted class="ranger" level="17"/>
+    <manacost initial="60" level_dec="1" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="alterations"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="45" name="animate dead">
+    <granted class="cleric" level="24" gen="2"/>
+    <manacost initial="60" level_dec="1" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="object" scope="room"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+    <flag value="nosun"/>
+  </spell>
+  <spell id="135" name="anti-magic shell">
+    <granted class="mage" level="21" gen="2"/>
+    <manacost initial="150" level_dec="4" minimum="70"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="211" name="antibody">
+    <granted class="psionic" level="19"/>
+    <manacost initial="80" level_dec="1" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="unaffects"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="696" name="appraise">
+    <granted class="mage" level="10"/>
+    <granted class="cleric" level="10"/>
+    <granted class="thief" level="10"/>
+    <granted class="barbarian" level="10"/>
+    <granted class="psionic" level="10"/>
+    <granted class="physic" level="10"/>
+    <granted class="cyborg" level="10"/>
+    <granted class="knight" level="10"/>
+    <granted class="ranger" level="10"/>
+    <granted class="monk" level="10"/>
+    <granted class="mercenary" level="10"/>
+  </skill>
+  <skill id="688" name="archery">
+    <granted class="thief" level="14"/>
+    <granted class="barbarian" level="24"/>
+    <granted class="ranger" level="9"/>
+  </skill>
+  <spell id="340" name="area stasis">
+    <granted class="physic" level="40"/>
+    <manacost initial="100" level_dec="5" minimum="50"/>
+    <position minimum="sitting"/>
+    <flag value="manual"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="351" name="aria of armament">
+    <granted class="bard" level="3"/>
+    <manacost initial="55" level_dec="2" minimum="40"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>Of bravery I sing to thee,
+Take up your swords and follow me!</lyrics>
+  </spell>
+  <spell id="369" name="aria of asylum">
+    <granted class="bard" level="35" gen="3"/>
+    <manacost initial="95" level_dec="2" minimum="70"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>Through pouring rain and stinging sleet,
+As swords and arrows fall,
+We fear no pain in our retreat,
+Asylum saves us all!</lyrics>
+  </spell>
+  <spell id="1" name="armor">
+    <granted class="mage" level="4"/>
+    <granted class="cleric" level="1"/>
+    <granted class="knight" level="5"/>
+    <manacost initial="45" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+    <flag value="divine"/>
+  </spell>
+  <skill id="640" name="assimilate">
+    <granted class="cyborg" level="22" gen="3"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+  </skill>
+  <spell id="112" name="astral spell">
+    <granted class="mage" level="43"/>
+    <granted class="cleric" level="47"/>
+    <granted class="psionic" level="45"/>
+    <manacost initial="175" level_dec="8" minimum="105"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+    <flag value="divine"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="302" name="attraction field">
+    <granted class="physic" level="8"/>
+    <manacost initial="60" level_dec="1" minimum="40"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="alterations"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="345" name="attraction field (obj)">
+  </skill>
+  <skill id="584" name="autopsy">
+    <granted class="cyborg" level="40"/>
+    <granted class="ranger" level="36"/>
+    <granted class="mercenary" level="10"/>
+  </skill>
+  <skill id="501" name="backstab">
+    <granted class="thief" level="5"/>
+  </skill>
+  <skill id="731" name="balista">
+  </skill>
+  <skill id="528" name="bandage">
+    <granted class="barbarian" level="34"/>
+    <granted class="ranger" level="10"/>
+    <granted class="monk" level="17"/>
+    <granted class="mercenary" level="3"/>
+    <manacost initial="40" level_dec="1" minimum="30"/>
+  </skill>
+  <spell id="143" name="banishment">
+    <granted class="cleric" level="29" gen="4"/>
+    <manacost initial="100" level_dec="5" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <spell id="90" name="barkskin">
+    <granted class="ranger" level="4"/>
+    <manacost initial="60" level_dec="1" minimum="25"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="502" name="bash">
+    <granted class="barbarian" level="10"/>
+    <granted class="knight" level="9"/>
+    <granted class="ranger" level="14"/>
+    <granted class="mercenary" level="4"/>
+  </skill>
+  <skill id="583" name="battle cry">
+    <granted class="barbarian" level="33"/>
+  </skill>
+  <skill id="525" name="bearhug">
+    <granted class="ranger" level="25"/>
+  </skill>
+  <skill id="541" name="behead">
+    <granted class="knight" level="40"/>
+  </skill>
+  <spell id="515" name="berserk">
+    <granted class="barbarian" level="22"/>
+    <flag value="biologic"/>
+  </spell>
+  <spell id="571" name="beta nerve">
+    <granted class="monk" level="12"/>
+    <flag value="biologic"/>
+  </spell>
+  <skill id="624" name="bioscan">
+    <granted class="cyborg" level="12"/>
+  </skill>
+  <skill id="526" name="bite">
+    <granted class="ranger" level="5"/>
+  </skill>
+  <spell id="130" name="blackmantle">
+    <granted class="cleric" level="42" gen="1"/>
+    <manacost initial="120" level_dec="5" minimum="80"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <skill id="735" name="blade barrier">
+  </skill>
+  <skill id="686" name="blasting weapons">
+    <granted class="barbarian" level="42"/>
+  </skill>
+  <spell id="3" name="bless">
+    <granted class="cleric" level="7"/>
+    <granted class="knight" level="10"/>
+    <manacost initial="35" level_dec="1" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="good"/>
+  </spell>
+  <spell id="4" name="blindness">
+    <granted class="mage" level="16"/>
+    <granted class="cleric" level="13"/>
+    <manacost initial="35" level_dec="1" minimum="25"/>
+    <position minimum="standing"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="681" name="blunt weapons">
+    <granted class="barbarian" level="3"/>
+  </skill>
+  <spell id="55" name="blur">
+    <granted class="mage" level="13"/>
+    <manacost initial="45" level_dec="2" minimum="20"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="517" name="bodyslam">
+    <granted class="barbarian" level="20"/>
+  </skill>
+  <skill id="732" name="boiling oil">
+  </skill>
+  <skill id="755" name="boiling pitch">
+  </skill>
+  <skill id="689" name="bowery and fletchery">
+    <granted class="ranger" level="17"/>
+  </skill>
+  <skill id="687" name="break door">
+    <granted class="barbarian" level="26"/>
+    <granted class="mercenary" level="1"/>
+  </skill>
+  <spell id="96" name="breathe water">
+    <granted class="mage" level="40"/>
+    <manacost initial="45" level_dec="2" minimum="20"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="214" name="breathing stasis">
+    <granted class="psionic" level="21"/>
+    <manacost initial="100" level_dec="1" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="760" name="burning">
+  </skill>
+  <spell id="5" name="burning hands">
+    <granted class="mage" level="11"/>
+    <manacost initial="30" level_dec="3" minimum="10"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="touch"/>
+    <flag value="magic"/>
+    <flag value="nowater"/>
+  </spell>
+  <spell id="242" name="call beast">
+    <granted class="ranger" level="35"/>
+    <manacost initial="90" level_dec="2" minimum="60"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="240" name="call bird">
+    <granted class="ranger" level="22"/>
+    <manacost initial="90" level_dec="2" minimum="60"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="6" name="call lightning">
+    <granted class="cleric" level="25"/>
+    <granted class="ranger" level="30"/>
+    <manacost initial="40" level_dec="3" minimum="25"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="divine"/>
+    <flag value="outdoors"/>
+    <flag value="nowater"/>
+  </spell>
+  <spell id="243" name="call predator">
+    <granted class="ranger" level="41"/>
+    <manacost initial="90" level_dec="2" minimum="60"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="241" name="call reptile">
+    <granted class="ranger" level="29"/>
+    <manacost initial="90" level_dec="2" minimum="60"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="239" name="call rodent">
+    <granted class="ranger" level="15"/>
+    <manacost initial="90" level_dec="2" minimum="60"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="153" name="calm">
+    <granted class="knight" level="36"/>
+    <manacost initial="35" level_dec="1" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="324" name="capacitance boost">
+    <granted class="physic" level="6"/>
+    <manacost initial="70" level_dec="3" minimum="45"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="points"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="730" name="catapult">
+  </skill>
+  <spell id="222" name="cell regeneration">
+    <granted class="psionic" level="34"/>
+    <manacost initial="100" level_dec="1" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="points"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="126" name="chain lightning">
+    <granted class="mage" level="23"/>
+    <manacost initial="120" level_dec="5" minimum="30"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="masses"/>
+    <flag value="magic"/>
+    <flag value="waterzap"/>
+  </spell>
+  <spell id="368" name="chant of light">
+    <granted class="bard" level="1"/>
+    <manacost initial="30" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>Oh sun, sweet kiss of warmth and light,
+Repel the frigid cold of night!</lyrics>
+  </spell>
+  <skill id="611" name="charge">
+  </skill>
+  <spell id="94" name="charm animal">
+    <granted class="ranger" level="23"/>
+    <manacost initial="75" level_dec="2" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="7" name="charm person">
+    <granted class="mage" level="22"/>
+    <manacost initial="75" level_dec="2" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="651" name="chemistry">
+    <granted class="mercenary" level="45" gen="3"/>
+    <position minimum="sitting"/>
+  </spell>
+  <spell id="321" name="chemical stability">
+    <granted class="physic" level="9"/>
+    <manacost initial="80" level_dec="8" minimum="20"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="unaffects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="8" name="chill touch">
+    <granted class="mage" level="5"/>
+    <manacost initial="30" level_dec="3" minimum="10"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+    <flag value="touch"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="518" name="choke">
+    <granted class="thief" level="23"/>
+    <granted class="barbarian" level="16"/>
+  </skill>
+  <skill id="559" name="circle">
+    <granted class="thief" level="33"/>
+  </skill>
+  <spell id="67" name="clairvoyance">
+    <granted class="mage" level="35"/>
+    <manacost initial="90" level_dec="2" minimum="60"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="world"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="377" name="clarifying harmonies">
+    <granted class="bard" level="12"/>
+    <manacost initial="45" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+    <flag value="manual"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>The magic uncovered as choruses sing,
+To answer the mysteries one's life can bring.</lyrics>
+  </spell>
+  <skill id="553" name="claw">
+    <granted class="ranger" level="32"/>
+  </skill>
+  <skill id="694" name="cleave">
+    <granted class="barbarian" level="30"/>
+  </skill>
+  <spell id="9" name="clone">
+    <manacost initial="80" level_dec="5" minimum="65"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="519" name="clothesline">
+    <granted class="barbarian" level="18"/>
+    <granted class="mercenary" level="12"/>
+  </skill>
+  <spell id="233" name="clumsiness">
+    <granted class="psionic" level="28"/>
+    <manacost initial="70" level_dec="1" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="647" name="cogenic neural bridging">
+    <granted class="cyborg" level="35"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="10" name="color spray">
+    <granted class="mage" level="18"/>
+    <manacost initial="90" level_dec="3" minimum="45"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="565" name="combo">
+    <granted class="monk" level="33"/>
+  </skill>
+  <spell id="86" name="command">
+    <manacost initial="50" level_dec="5" minimum="35"/>
+    <position minimum="standing"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+  </spell>
+  <skill id="537" name="conceal">
+    <granted class="thief" level="15"/>
+    <granted class="mercenary" level="30"/>
+  </skill>
+  <spell id="74" name="cone of cold">
+    <granted class="mage" level="36"/>
+    <manacost initial="140" level_dec="4" minimum="55"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="207" name="confidence">
+    <granted class="psionic" level="8"/>
+    <manacost initial="60" level_dec="1" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="unaffects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="203" name="confusion">
+    <granted class="psionic" level="36"/>
+    <manacost initial="110" level_dec="5" minimum="80"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="97" name="conjure elemental">
+    <granted class="mage" level="20"/>
+    <manacost initial="175" level_dec="4" minimum="90"/>
+    <position minimum="standing"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="531" name="consider">
+    <granted class="thief" level="11"/>
+    <granted class="barbarian" level="9"/>
+    <granted class="knight" level="13"/>
+    <granted class="ranger" level="18"/>
+    <granted class="monk" level="13"/>
+    <granted class="mercenary" level="13"/>
+  </skill>
+  <skill id="657" name="control undead">
+  </skill>
+  <spell id="144" name="control undead">
+    <granted class="cleric" level="26"/>
+    <manacost initial="50" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <spell id="11" name="control weather">
+    <granted class="cleric" level="22"/>
+    <manacost initial="75" level_dec="5" minimum="25"/>
+    <position minimum="standing"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+    <flag value="outdoors"/>
+    <flag value="nowater"/>
+  </spell>
+  <skill id="612" name="counter attack">
+    <granted class="ranger" level="31"/>
+  </skill>
+  <skill id="567" name="crane kick">
+    <granted class="monk" level="15"/>
+  </skill>
+  <spell id="12" name="create food">
+    <granted class="cleric" level="5"/>
+    <manacost initial="30" level_dec="3" minimum="5"/>
+    <position minimum="standing"/>
+    <flag value="creations"/>
+    <flag value="divine"/>
+  </spell>
+  <skill id="656" name="create vampire">
+  </skill>
+  <spell id="13" name="create water">
+    <granted class="cleric" level="3"/>
+    <manacost initial="30" level_dec="4" minimum="5"/>
+    <position minimum="standing"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="equip"/>
+    <flag value="objects"/>
+    <flag value="divine"/>
+  </spell>
+  <skill id="595" name="crossface">
+    <granted class="mercenary" level="26"/>
+  </skill>
+  <skill id="685" name="crushing weapons">
+    <granted class="barbarian" level="34"/>
+  </skill>
+  <skill id="597" name="cry from beyond">
+    <granted class="barbarian" level="42"/>
+  </skill>
+  <spell id="14" name="cure blind">
+    <granted class="cleric" level="6"/>
+    <granted class="knight" level="26"/>
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="unaffects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="15" name="cure critic">
+    <granted class="cleric" level="10"/>
+    <granted class="knight" level="14"/>
+    <manacost initial="40" level_dec="1" minimum="10"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="divine"/>
+  </spell>
+  <skill id="582" name="cure disease">
+    <granted class="knight" level="43"/>
+    <manacost initial="30" level_dec="1" minimum="10"/>
+  </skill>
+  <spell id="16" name="cure light">
+    <granted class="cleric" level="2"/>
+    <granted class="knight" level="6"/>
+    <manacost initial="30" level_dec="1" minimum="5"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="17" name="curse">
+    <granted class="mage" level="19"/>
+    <manacost initial="80" level_dec="2" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="alterations"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="632" name="cyberscan">
+    <granted class="cyborg" level="30"/>
+  </skill>
+  <skill id="633" name="cybo surgery">
+    <granted class="cyborg" level="45"/>
+  </skill>
+  <skill id="627" name="cyborepair">
+    <granted class="cyborg" level="30"/>
+  </skill>
+  <spell id="629" name="damage control">
+    <granted class="cyborg" level="12"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="152" name="damn">
+    <granted class="cleric" level="7"/>
+    <granted class="knight" level="10"/>
+    <manacost initial="35" level_dec="1" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <skill id="639" name="de-energize">
+    <granted class="cyborg" level="22" gen="1"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+  </skill>
+  <spell id="150" name="death knell">
+    <granted class="cleric" level="25" gen="1"/>
+    <manacost initial="100" level_dec="1" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <skill id="566" name="death touch">
+    <granted class="monk" level="49"/>
+  </skill>
+  <spell id="359" name="defense ditty">
+    <granted class="bard" level="39"/>
+    <manacost initial="120" level_dec="1" minimum="95"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>a spirited march</description>
+  </spell>
+  <spell id="645" name="defensive posturing">
+    <granted class="cyborg" level="15"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="573" name="delta nerve">
+    <granted class="monk" level="19"/>
+    <flag value="biologic"/>
+  </spell>
+  <skill id="588" name="demolitions">
+    <granted class="mercenary" level="19"/>
+  </skill>
+  <spell id="320" name="densify">
+    <granted class="physic" level="26"/>
+    <manacost initial="80" level_dec="8" minimum="20"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+    <flag value="affects"/>
+    <flag value="alterations"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="209" name="dermal hardening">
+    <granted class="psionic" level="12"/>
+    <manacost initial="70" level_dec="1" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="18" name="detect alignment">
+    <granted class="mage" level="24"/>
+    <granted class="cleric" level="1"/>
+    <granted class="knight" level="1"/>
+    <granted class="ranger" level="13"/>
+    <manacost initial="20" level_dec="2" minimum="10"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="19" name="detect invisibility">
+    <granted class="mage" level="14"/>
+    <manacost initial="20" level_dec="2" minimum="10"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="20" name="detect magic">
+    <granted class="mage" level="7"/>
+    <granted class="cleric" level="14"/>
+    <granted class="knight" level="20"/>
+    <granted class="ranger" level="27"/>
+    <manacost initial="20" level_dec="2" minimum="10"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="21" name="detect poison">
+    <granted class="mage" level="20"/>
+    <granted class="cleric" level="4"/>
+    <granted class="knight" level="12"/>
+    <granted class="ranger" level="6"/>
+    <manacost initial="15" level_dec="1" minimum="5"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="66" name="detect scrying">
+    <granted class="mage" level="44"/>
+    <granted class="cleric" level="44"/>
+    <manacost initial="50" level_dec="4" minimum="30"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="59" name="dimension door">
+    <manacost initial="90" level_dec="3" minimum="60"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="498" name="dimensional shift">
+    <granted class="physic" level="35" gen="4"/>
+    <manacost initial="100" level_dec="3" minimum="65"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="499" name="dimensional void">
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="387" name="dirge">
+    <granted class="bard" level="6"/>
+    <manacost initial="100" level_dec="5" minimum="50"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="areas"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>a slow and mournful tune</description>
+  </spell>
+  <skill id="542" name="disarm">
+    <granted class="thief" level="13"/>
+    <granted class="barbarian" level="32"/>
+    <granted class="knight" level="20"/>
+    <granted class="ranger" level="20"/>
+    <granted class="monk" level="31"/>
+    <granted class="mercenary" level="25"/>
+  </skill>
+  <skill id="625" name="discharge">
+    <granted class="cyborg" level="14"/>
+  </skill>
+  <skill id="692" name="discipline of steel">
+    <granted class="barbarian" level="10" gen="1"/>
+  </skill>
+  <skill id="649" name="disguise">
+    <granted class="thief" level="17" gen="1"/>
+    <manacost initial="40" level_dec="1" minimum="20"/>
+  </skill>
+  <spell id="22" name="dispel evil">
+    <granted class="cleric" level="20"/>
+    <manacost initial="40" level_dec="3" minimum="25"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <flag value="unpleasant"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="good"/>
+  </spell>
+  <spell id="46" name="dispel good">
+    <granted class="cleric" level="20"/>
+    <manacost initial="40" level_dec="3" minimum="25"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <flag value="unpleasant"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <spell id="57" name="dispel magic">
+    <granted class="mage" level="39"/>
+    <manacost initial="90" level_dec="5" minimum="55"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="106" name="displacement">
+    <granted class="mage" level="46"/>
+    <manacost initial="55" level_dec="4" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="114" name="disruption">
+    <granted class="cleric" level="38"/>
+    <manacost initial="150" level_dec="7" minimum="75"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="238" name="distraction">
+    <granted class="psionic" level="5"/>
+    <manacost initial="40" level_dec="4" minimum="10"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="88" name="divine illumination">
+    <granted class="cleric" level="9"/>
+    <granted class="knight" level="7"/>
+    <manacost initial="40" level_dec="1" minimum="20"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="136" name="divine intervention">
+    <granted class="cleric" level="21" gen="4"/>
+    <granted class="knight" level="23" gen="6"/>
+    <manacost initial="120" level_dec="3" minimum="70"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="good"/>
+  </spell>
+  <spell id="149" name="divine power">
+    <granted class="cleric" level="30" gen="5"/>
+    <manacost initial="150" level_dec="1" minimum="80"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="good"/>
+  </spell>
+  <skill id="527" name="double attack">
+    <granted class="thief" level="45"/>
+    <granted class="barbarian" level="37"/>
+    <granted class="knight" level="25"/>
+    <granted class="ranger" level="30"/>
+    <granted class="bard" level="35"/>
+    <granted class="monk" level="24"/>
+    <granted class="mercenary" level="25"/>
+  </skill>
+  <skill id="668" name="drag">
+    <granted class="barbarian" level="40"/>
+  </skill>
+  <spell id="365" name="drifters ditty">
+    <granted class="bard" level="4"/>
+    <manacost initial="30" level_dec="2" minimum="15"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="points"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>The journey of a thousand miles begins with just one step,
+So I'll provide a merry tune to give our step some pep!</lyrics>
+  </spell>
+  <skill id="759" name="drowning">
+  </skill>
+  <spell id="38" name="drowsy">
+    <granted class="mage" level="10"/>
+    <manacost initial="40" level_dec="5" minimum="25"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="388" name="eagles overture">
+    <granted class="bard" level="25"/>
+    <manacost initial="55" level_dec="2" minimum="25"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>a loud and boisterous tune</description>
+  </spell>
+  <skill id="711" name="earth elemental">
+  </skill>
+  <spell id="23" name="earthquake">
+    <granted class="cleric" level="30"/>
+    <manacost initial="40" level_dec="3" minimum="25"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="areas"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="217" name="ego whip">
+    <granted class="psionic" level="22"/>
+    <manacost initial="50" level_dec="1" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="513" name="elbow">
+    <granted class="barbarian" level="8"/>
+    <granted class="cyborg" level="9"/>
+  </skill>
+  <spell id="325" name="electric arc">
+    <granted class="physic" level="21"/>
+    <manacost initial="90" level_dec="1" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="physics"/>
+    <flag value="waterzap"/>
+  </spell>
+  <spell id="342" name="electromagnetic pulse">
+    <granted class="physic" level="34"/>
+    <manacost initial="145" level_dec="5" minimum="75"/>
+    <position minimum="sitting"/>
+    <flag value="manual"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="630" name="electronics">
+    <granted class="physic" level="13"/>
+    <granted class="cyborg" level="6"/>
+  </skill>
+  <skill id="318" name="electroshield">
+  </skill>
+  <spell id="341" name="electrostatic field">
+    <granted class="physic" level="1"/>
+    <manacost initial="40" level_dec="2" minimum="20"/>
+    <position minimum="sitting"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="156" name="elemental branding">
+    <granted class="ranger" level="31" gen="1"/>
+    <manacost initial="160" level_dec="1" minimum="120"/>
+    <position minimum="standing"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+    <flag value="alterations"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="593" name="elusion">
+    <granted class="mercenary" level="11"/>
+  </skill>
+  <skill id="606" name="empower">
+    <granted class="mage" level="5"/>
+  </skill>
+  <spell id="70" name="enchant armor">
+    <granted class="mage" level="16"/>
+    <manacost initial="180" level_dec="3" minimum="80"/>
+    <position minimum="standing"/>
+    <target type="object" scope="inventory"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="24" name="enchant weapon">
+    <granted class="mage" level="21"/>
+    <manacost initial="200" level_dec="3" minimum="100"/>
+    <position minimum="standing"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="equip"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="234" name="endurance">
+    <granted class="psionic" level="11"/>
+    <manacost initial="90" level_dec="1" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="points"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="82" name="endure cold">
+    <granted class="cleric" level="15"/>
+    <granted class="knight" level="16"/>
+    <granted class="ranger" level="16"/>
+    <manacost initial="100" level_dec="5" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+    <flag value="divine"/>
+  </spell>
+  <skill id="679" name="energy conversion">
+    <granted class="physic" level="22"/>
+  </skill>
+  <spell id="25" name="energy drain">
+    <granted class="mage" level="24"/>
+    <manacost initial="40" level_dec="1" minimum="25"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="617" name="energy field">
+    <granted class="cyborg" level="32"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <skill id="634" name="energy weapons">
+    <granted class="cyborg" level="20"/>
+    <granted class="mercenary" level="7"/>
+  </skill>
+  <spell id="134" name="entangle">
+    <granted class="ranger" level="22" gen="1"/>
+    <manacost initial="70" level_dec="2" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+    <flag value="outdoors"/>
+  </spell>
+  <spell id="322" name="entropy field">
+    <granted class="physic" level="27"/>
+    <manacost initial="101" level_dec="8" minimum="60"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="155" name="envenom">
+    <granted class="ranger" level="5"/>
+    <manacost initial="25" level_dec="1" minimum="10"/>
+    <position minimum="fighting"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+    <flag value="alterations"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="574" name="epsilon nerve">
+    <granted class="monk" level="26"/>
+    <flag value="biologic"/>
+  </spell>
+  <spell id="741" name="essence of evil">
+    <manacost initial="330" level_dec="21" minimum="215"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <flag value="damage"/>
+    <flag value="points"/>
+    <flag value="evil"/>
+  </spell>
+  <spell id="742" name="essence of goodness">
+    <manacost initial="330" level_dec="21" minimum="215"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <flag value="damage"/>
+    <flag value="points"/>
+    <flag value="good"/>
+  </spell>
+  <skill id="603" name="evaluate">
+    <granted class="physic" level="10"/>
+    <granted class="cyborg" level="20"/>
+  </skill>
+  <spell id="579" name="evasion">
+    <granted class="monk" level="22"/>
+    <flag value="biologic"/>
+  </spell>
+  <spell id="354" name="exposure overture">
+    <granted class="bard" level="25"/>
+    <manacost initial="95" level_dec="1" minimum="75"/>
+    <position minimum="standing"/>
+    <flag value="manual"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>a light and revealing tune</description>
+  </spell>
+  <skill id="756" name="falling">
+  </skill>
+  <skill id="621" name="fastboot script">
+    <granted class="cyborg" level="12"/>
+  </skill>
+  <spell id="204" name="fear">
+    <granted class="psionic" level="29"/>
+    <manacost initial="60" level_dec="2" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="536" name="feign">
+    <granted class="thief" level="25"/>
+  </skill>
+  <spell id="125" name="fiery sheet">
+    <manacost initial="50" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="door"/>
+    <flag value="magic"/>
+    <flag value="exits"/>
+    <flag value="nowater"/>
+  </spell>
+  <spell id="702" name="fire breath">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="nowater"/>
+  </spell>
+  <spell id="158" name="fire breathing">
+    <granted class="mage" level="35" gen="1"/>
+    <manacost initial="280" level_dec="10" minimum="180"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="712" name="fire elemental">
+  </skill>
+  <spell id="65" name="fire shield">
+    <granted class="mage" level="17"/>
+    <manacost initial="70" level_dec="3" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+    <flag value="nowater"/>
+  </spell>
+  <spell id="26" name="fireball">
+    <granted class="mage" level="31"/>
+    <manacost initial="130" level_dec="5" minimum="40"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="magic"/>
+    <flag value="nowater"/>
+  </spell>
+  <skill id="529" name="firstaid">
+    <granted class="ranger" level="19"/>
+    <granted class="monk" level="30"/>
+    <granted class="mercenary" level="16"/>
+    <manacost initial="70" level_dec="1" minimum="60"/>
+  </skill>
+  <spell id="316" name="fission blast">
+    <granted class="physic" level="43"/>
+    <manacost initial="150" level_dec="10" minimum="70"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="areas"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="160" name="flame of faith">
+    <granted class="cleric" level="12"/>
+    <manacost initial="60" level_dec="2" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+    <flag value="alterations"/>
+    <flag value="divine"/>
+    <flag value="nowater"/>
+  </spell>
+  <spell id="81" name="flame strike">
+    <granted class="cleric" level="33"/>
+    <granted class="knight" level="35"/>
+    <manacost initial="60" level_dec="2" minimum="40"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="divine"/>
+    <flag value="nowater"/>
+  </spell>
+  <skill id="766" name="flamethrower">
+  </skill>
+  <spell id="304" name="fluorescence">
+    <granted class="physic" level="3"/>
+    <manacost initial="50" level_dec="1" minimum="10"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="72" name="fly">
+    <granted class="mage" level="33"/>
+    <manacost initial="60" level_dec="2" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="391" name="fortissimo">
+    <granted class="bard" level="14" gen="3"/>
+    <manacost initial="150" level_dec="5" minimum="75"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>an upbeat tune that swells to a deafening volume</description>
+  </spell>
+  <spell id="221" name="fortress of iron will">
+    <manacost initial="30" level_dec="1" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="758" name="freezing">
+  </skill>
+  <spell id="704" name="frost breath">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+  </spell>
+  <skill id="159" name="frost breathing">
+  </skill>
+  <spell id="572" name="gamma nerve">
+    <granted class="monk" level="35"/>
+    <flag value="biologic"/>
+  </spell>
+  <spell id="305" name="gamma ray">
+    <granted class="physic" level="25"/>
+    <manacost initial="100" level_dec="2" minimum="50"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="697" name="garrote">
+    <granted class="mercenary" level="21"/>
+    <flag value="violent"/>
+  </skill>
+  <spell id="703" name="gas breath">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+  </spell>
+  <spell id="335" name="gauss shield">
+    <granted class="physic" level="32" gen="3"/>
+    <manacost initial="90" level_dec="1" minimum="70"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="677" name="genetek optimmunal response">
+    <flag value="cybernetic"/>
+  </spell>
+  <skill id="389" name="ghost instrument">
+    <instrument type="wind"/>
+    <description>an ethereal, haunting song</description>
+  </skill>
+  <skill id="532" name="glance">
+    <granted class="thief" level="4"/>
+  </skill>
+  <spell id="54" name="glowlight">
+    <granted class="mage" level="8"/>
+    <manacost initial="30" level_dec="1" minimum="20"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="89" name="goodberry">
+    <granted class="ranger" level="7"/>
+    <manacost initial="30" level_dec="4" minimum="5"/>
+    <position minimum="standing"/>
+    <flag value="creations"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="753" name="gore horns">
+  </skill>
+  <skill id="534" name="gouge">
+    <granted class="thief" level="30"/>
+    <granted class="monk" level="36"/>
+  </skill>
+  <skill id="767" name="gouged his own eyes out">
+  </skill>
+  <spell id="323" name="gravity well">
+    <granted class="physic" level="38"/>
+    <manacost initial="130" level_dec="4" minimum="70"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="695" name="great cleave">
+    <granted class="barbarian" level="40" gen="2"/>
+  </skill>
+  <spell id="69" name="greater enchant">
+    <granted class="mage" level="34"/>
+    <manacost initial="230" level_dec="5" minimum="120"/>
+    <position minimum="standing"/>
+    <target type="object" scope="inventory"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="73" name="greater heal">
+    <granted class="cleric" level="34"/>
+    <manacost initial="120" level_dec="2" minimum="90"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="unaffects"/>
+    <flag value="points"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="98" name="greater invis">
+    <granted class="mage" level="38"/>
+    <manacost initial="85" level_dec="1" minimum="65"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="552" name="groinkick">
+    <granted class="thief" level="12"/>
+  </skill>
+  <spell id="47" name="group armor">
+    <granted class="cleric" level="19"/>
+    <manacost initial="50" level_dec="2" minimum="30"/>
+    <position minimum="standing"/>
+    <flag value="groups"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="232" name="group confidence">
+    <granted class="psionic" level="14"/>
+    <manacost initial="90" level_dec="2" minimum="45"/>
+    <position minimum="standing"/>
+    <flag value="groups"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="48" name="group heal">
+    <granted class="cleric" level="31"/>
+    <manacost initial="80" level_dec="5" minimum="60"/>
+    <position minimum="standing"/>
+    <flag value="groups"/>
+    <flag value="divine"/>
+  </spell>
+  <skill id="49" name="group recall">
+  </skill>
+  <spell id="373" name="guiharias glory">
+    <granted class="bard" level="16"/>
+    <manacost initial="120" level_dec="1" minimum="80"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>Guiharia's Glory, her essence so pure,
+Her spirit renews me, my heart can endure</lyrics>
+  </spell>
+  <skill id="592" name="gunsmithing">
+    <granted class="mercenary" level="20"/>
+  </skill>
+  <spell id="103" name="gust of wind">
+    <granted class="mage" level="40"/>
+    <manacost initial="80" level_dec="4" minimum="55"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <target type="object" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+    <flag value="nowater"/>
+  </spell>
+  <skill id="631" name="hacking">
+    <granted class="cyborg" level="20"/>
+  </skill>
+  <spell id="127" name="hailstorm">
+    <granted class="ranger" level="37"/>
+    <manacost initial="180" level_dec="10" minimum="110"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="masses"/>
+    <flag value="magic"/>
+    <flag value="outdoors"/>
+  </spell>
+  <spell id="306" name="halflife">
+    <granted class="physic" level="30"/>
+    <manacost initial="120" level_dec="5" minimum="70"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="alterations"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="666" name="hamstring">
+    <granted class="mercenary" level="32"/>
+  </skill>
+  <spell id="27" name="harm">
+    <granted class="cleric" level="29"/>
+    <manacost initial="95" level_dec="2" minimum="45"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="92" name="haste">
+    <granted class="mage" level="44"/>
+    <manacost initial="60" level_dec="1" minimum="40"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="533" name="headbutt">
+    <granted class="barbarian" level="13"/>
+    <granted class="ranger" level="16"/>
+  </skill>
+  <spell id="28" name="heal">
+    <granted class="cleric" level="24"/>
+    <granted class="knight" level="28"/>
+    <manacost initial="60" level_dec="1" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="unaffects"/>
+    <flag value="points"/>
+    <flag value="divine"/>
+  </spell>
+  <skill id="524" name="hearing">
+    <granted class="thief" level="11"/>
+  </skill>
+  <spell id="717" name="hell fire">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+  </spell>
+  <spell id="748" name="hell firestorm">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="masses"/>
+  </spell>
+  <spell id="744" name="hell frost">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+  </spell>
+  <spell id="749" name="hell froststorm">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="masses"/>
+  </spell>
+  <skill id="503" name="hide">
+    <granted class="thief" level="3"/>
+    <granted class="ranger" level="15"/>
+    <granted class="mercenary" level="30"/>
+  </skill>
+  <skill id="564" name="hip toss">
+    <granted class="monk" level="27"/>
+  </skill>
+  <skill id="757" name="holyocean">
+  </skill>
+  <skill id="604" name="holytouch">
+    <granted class="knight" level="2"/>
+    <manacost initial="30" level_dec="1" minimum="10"/>
+  </skill>
+  <spell id="383" name="home sweet home">
+    <granted class="bard" level="9"/>
+    <manacost initial="100" level_dec="2" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>I'm on my way, just set me free,
+Home sweet home.</lyrics>
+  </spell>
+  <skill id="548" name="hook">
+    <granted class="barbarian" level="23"/>
+    <granted class="knight" level="22"/>
+    <granted class="ranger" level="23"/>
+  </skill>
+  <skill id="733" name="hotsands">
+  </skill>
+  <skill id="539" name="hotwire">
+  </skill>
+  <spell id="363" name="hymn of peace">
+    <granted class="bard" level="33"/>
+    <manacost initial="75" level_dec="3" minimum="50"/>
+    <position minimum="standing"/>
+    <flag value="unaffects"/>
+    <flag value="manual"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>a cool and peaceful hymn</description>
+  </spell>
+  <spell id="637" name="hyperscanning">
+    <granted class="cyborg" level="25"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="128" name="ice storm">
+    <granted class="cleric" level="49"/>
+    <manacost initial="130" level_dec="15" minimum="60"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="masses"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="111" name="icy blast">
+    <granted class="cleric" level="41"/>
+    <manacost initial="80" level_dec="3" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="227" name="id insinuation">
+    <granted class="psionic" level="32" gen="1"/>
+    <manacost initial="110" level_dec="5" minimum="80"/>
+    <position minimum="standing"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="53" name="identify">
+    <granted class="mage" level="25"/>
+    <manacost initial="95" level_dec="3" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="555" name="impale">
+    <granted class="barbarian" level="43"/>
+    <granted class="knight" level="30"/>
+    <granted class="ranger" level="45"/>
+  </skill>
+  <skill id="642" name="implant weaponry">
+    <granted class="cyborg" level="26"/>
+  </skill>
+  <spell id="141" name="inferno">
+    <granted class="cleric" level="35" gen="1"/>
+    <manacost initial="100" level_dec="7" minimum="50"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <skill id="670" name="infiltrate">
+    <granted class="mercenary" level="27"/>
+  </skill>
+  <spell id="50" name="infravision">
+    <granted class="mage" level="3"/>
+    <manacost initial="25" level_dec="1" minimum="10"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="392" name="insidious rhythm">
+    <granted class="bard" level="20"/>
+    <manacost initial="90" level_dec="1" minimum="55"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>an insidious, bewitching rhythm</description>
+  </spell>
+  <spell id="346" name="instant audience">
+    <granted class="bard" level="26"/>
+    <manacost initial="190" level_dec="5" minimum="100"/>
+    <position minimum="standing"/>
+    <flag value="manual"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>Come one come all to hear my tune,
+The likes of which you'll not hear again soon.</lyrics>
+  </spell>
+  <spell id="202" name="intellect">
+    <granted class="psionic" level="23"/>
+    <manacost initial="60" level_dec="1" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="unaffects"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="521" name="intimidate">
+    <granted class="barbarian" level="35"/>
+  </skill>
+  <spell id="91" name="invis to undead">
+    <granted class="mage" level="30"/>
+    <granted class="ranger" level="21"/>
+    <manacost initial="60" level_dec="1" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="alterations"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="29" name="invisibility">
+    <granted class="mage" level="12"/>
+    <manacost initial="35" level_dec="1" minimum="25"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="affects"/>
+    <flag value="alterations"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="379" name="irresistable dance">
+    <granted class="bard" level="38"/>
+    <manacost initial="65" level_dec="1" minimum="40"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>They found the gold, they did the dance,
+As treasure seekers do.
+Their cheerful spirit lingers on,
+In me as well as you.</lyrics>
+  </spell>
+  <skill id="547" name="jab">
+    <granted class="thief" level="6"/>
+  </skill>
+  <skill id="718" name="javelin of lightning">
+  </skill>
+  <skill id="578" name="kata">
+    <granted class="monk" level="5"/>
+  </skill>
+  <skill id="598" name="kia">
+    <granted class="monk" level="23"/>
+  </skill>
+  <skill id="504" name="kick">
+    <granted class="barbarian" level="2"/>
+    <granted class="cyborg" level="3"/>
+    <granted class="ranger" level="3"/>
+    <granted class="mercenary" level="2"/>
+  </skill>
+  <skill id="514" name="kneethrust">
+    <granted class="barbarian" level="6"/>
+  </skill>
+  <spell id="56" name="knock">
+    <granted class="mage" level="27"/>
+    <manacost initial="50" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="door"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="349" name="lament of longing">
+    <granted class="bard" level="40" gen="4"/>
+    <manacost initial="320" level_dec="5" minimum="180"/>
+    <position minimum="standing"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="world"/>
+    <flag value="manual"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>a mild and melancholy tune</description>
+  </spell>
+  <spell id="327" name="lattice hardening">
+    <granted class="physic" level="28"/>
+    <manacost initial="100" level_dec="4" minimum="40"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="affects"/>
+    <flag value="alterations"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="707" name="lava breath">
+  </skill>
+  <skill id="587" name="leatherworking">
+    <granted class="thief" level="32"/>
+    <granted class="barbarian" level="26"/>
+    <granted class="knight" level="29"/>
+    <granted class="ranger" level="28"/>
+    <granted class="monk" level="32"/>
+  </skill>
+  <skill id="600" name="lecture">
+    <granted class="physic" level="30"/>
+  </skill>
+  <spell id="390" name="lichs lyrics">
+    <granted class="bard" level="45" gen="5"/>
+    <manacost initial="300" level_dec="25" minimum="200"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="areas"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>Your life leaks, your soul drips,
+Run slowly down his fingertips.
+Into the palm and see him smile,
+the lich controls you all the while.</lyrics>
+  </spell>
+  <spell id="30" name="lightning bolt">
+    <granted class="mage" level="15"/>
+    <manacost initial="50" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="magic"/>
+    <flag value="waterzap"/>
+  </spell>
+  <spell id="706" name="lightning breath">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="waterzap"/>
+  </spell>
+  <skill id="676" name="lingering song">
+    <granted class="bard" level="20" gen="2"/>
+  </skill>
+  <spell id="105" name="local teleport">
+    <granted class="mage" level="18"/>
+    <manacost initial="45" level_dec="3" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="31" name="locate object">
+    <granted class="mage" level="23"/>
+    <manacost initial="25" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="148" name="locust regeneration">
+    <granted class="mage" level="34" gen="5"/>
+    <manacost initial="125" level_dec="5" minimum="60"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="352" name="lullaby">
+    <instrument type="string"/>
+    <lyrics>The sweet allure of pleasant dreams
+Is irresistable, so it seems.
+So have no fear, just close your eyes,
+And meditate on what you prize</lyrics>
+  </skill>
+  <skill id="557" name="lunge punch">
+    <granted class="barbarian" level="32"/>
+    <granted class="knight" level="35"/>
+    <granted class="ranger" level="42"/>
+  </skill>
+  <spell id="358" name="lustration melisma">
+    <granted class="bard" level="2"/>
+    <manacost initial="95" level_dec="1" minimum="75"/>
+    <position minimum="standing"/>
+    <flag value="unaffects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>The poison, the plague, the malady's cold,
+We beg for release from these sicknesses' hold.</lyrics>
+  </spell>
+  <spell id="32" name="magic missile">
+    <granted class="mage" level="1"/>
+    <manacost initial="20" level_dec="3" minimum="8"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="77" name="magical protection">
+    <granted class="mage" level="32"/>
+    <granted class="cleric" level="26"/>
+    <manacost initial="40" level_dec="2" minimum="10"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="83" name="magical vestment">
+    <granted class="cleric" level="11"/>
+    <granted class="knight" level="4"/>
+    <manacost initial="100" level_dec="1" minimum="80"/>
+    <position minimum="standing"/>
+    <target type="object" scope="inventory"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="138" name="malefic violation">
+    <granted class="cleric" level="39" gen="5"/>
+    <manacost initial="100" level_dec="5" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <spell id="734" name="mana restore">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <potiondesc first="bright" second="purple" third="volatile"/>
+    <flag value="points"/>
+  </spell>
+  <spell id="52" name="mana shield">
+    <granted class="mage" level="28" gen="3"/>
+    <manacost initial="60" level_dec="2" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="231" name="mass hysteria">
+    <granted class="psionic" level="48"/>
+    <manacost initial="100" level_dec="1" minimum="30"/>
+    <position minimum="standing"/>
+    <flag value="violent"/>
+    <flag value="areas"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="530" name="medic">
+    <granted class="ranger" level="40"/>
+    <manacost initial="90" level_dec="1" minimum="80"/>
+  </skill>
+  <skill id="577" name="meditate">
+    <granted class="monk" level="9"/>
+  </skill>
+  <spell id="228" name="melatonic flood">
+    <granted class="psionic" level="18"/>
+    <manacost initial="90" level_dec="5" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="unaffects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="646" name="melee combat tactics">
+    <granted class="cyborg" level="24"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="357" name="melody of mettle">
+    <granted class="bard" level="11"/>
+    <manacost initial="100" level_dec="3" minimum="75"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>Our courage has seen us through worse times before;
+Such mettle is forged in the fires of war!</lyrics>
+  </spell>
+  <spell id="216" name="metabolism increase">
+    <granted class="psionic" level="9"/>
+    <manacost initial="50" level_dec="1" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="586" name="metalworking">
+    <granted class="barbarian" level="41"/>
+    <granted class="knight" level="32"/>
+    <granted class="ranger" level="36"/>
+  </skill>
+  <spell id="108" name="meteor storm">
+    <granted class="mage" level="48"/>
+    <manacost initial="180" level_dec="25" minimum="110"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="areas"/>
+    <flag value="magic"/>
+    <flag value="nowater"/>
+  </spell>
+  <spell id="307" name="microwave">
+    <granted class="physic" level="18"/>
+    <manacost initial="45" level_dec="2" minimum="20"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="60" name="minor creation">
+  </skill>
+  <spell id="71" name="minor identify">
+    <granted class="mage" level="15"/>
+    <granted class="cleric" level="46"/>
+    <manacost initial="75" level_dec="3" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="376" name="mirror image melody">
+    <granted class="bard" level="46" gen="6"/>
+    <manacost initial="75" level_dec="10" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>an off-beat, confusing tune</description>
+  </spell>
+  <spell id="350" name="misdirection melisma">
+    <granted class="bard" level="34"/>
+    <manacost initial="75" level_dec="2" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>The hunter shall not see my face,
+The melody removes my trace.</lyrics>
+  </spell>
+  <spell id="615" name="motion sensor">
+    <granted class="cyborg" level="16"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="229" name="motor spasm">
+    <granted class="psionic" level="37"/>
+    <manacost initial="100" level_dec="5" minimum="70"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="675" name="nanite reconstruction">
+    <granted class="cyborg" level="33"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <skill id="605" name="night vision">
+    <granted class="ranger" level="2"/>
+  </skill>
+  <spell id="208" name="nopain">
+    <granted class="psionic" level="30"/>
+    <manacost initial="130" level_dec="5" minimum="100"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="303" name="nuclear wasteland">
+    <granted class="physic" level="40"/>
+    <manacost initial="100" level_dec="10" minimum="50"/>
+    <position minimum="sitting"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="328" name="nullify">
+    <granted class="physic" level="11"/>
+    <manacost initial="90" level_dec="5" minimum="55"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="unaffects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="236" name="nullpsi">
+    <granted class="psionic" level="17"/>
+    <manacost initial="90" level_dec="1" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="unaffects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="644" name="offensive posturing">
+    <granted class="cyborg" level="15"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="575" name="omega nerve">
+    <granted class="monk" level="39"/>
+    <flag value="biologic"/>
+  </spell>
+  <skill id="638" name="overdrain">
+    <granted class="cyborg" level="8"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+  </skill>
+  <skill id="628" name="overhaul">
+    <granted class="cyborg" level="45"/>
+  </skill>
+  <spell id="308" name="oxidize">
+    <granted class="physic" level="10"/>
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="561" name="palm strike">
+    <granted class="monk" level="4"/>
+  </skill>
+  <spell id="107" name="peer">
+    <granted class="mage" level="40"/>
+    <manacost initial="100" level_dec="6" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="556" name="pele kick">
+    <granted class="thief" level="41"/>
+    <granted class="barbarian" level="40"/>
+    <granted class="ranger" level="41"/>
+  </skill>
+  <spell id="739" name="petrify">
+    <manacost initial="330" level_dec="21" minimum="215"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+  </spell>
+  <spell id="62" name="phantasmic sword">
+    <granted class="mage" level="30"/>
+    <manacost initial="265" level_dec="2" minimum="180"/>
+    <position minimum="standing"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="505" name="pick lock">
+    <granted class="thief" level="1"/>
+  </skill>
+  <skill id="683" name="piercing weapons">
+    <granted class="barbarian" level="18"/>
+  </skill>
+  <skill id="511" name="piledrive">
+  </skill>
+  <skill id="610" name="pipemaking">
+    <granted class="mage" level="40"/>
+    <granted class="ranger" level="15"/>
+    <granted class="bard" level="13"/>
+  </skill>
+  <skill id="594" name="pistolwhip">
+    <granted class="mercenary" level="20"/>
+  </skill>
+  <skill id="538" name="plant">
+    <granted class="thief" level="20"/>
+    <granted class="mercenary" level="35"/>
+  </skill>
+  <spell id="33" name="poison">
+    <granted class="mage" level="20"/>
+    <manacost initial="50" level_dec="3" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="objects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="201" name="power">
+    <granted class="psionic" level="15"/>
+    <manacost initial="80" level_dec="1" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="619" name="power boost">
+    <granted class="cyborg" level="18"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="372" name="power overture">
+    <granted class="bard" level="13"/>
+    <manacost initial="50" level_dec="1" minimum="25"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>Such strength to rule without dispute,
+A surge of power absolute</lyrics>
+  </spell>
+  <spell id="80" name="pray">
+    <granted class="cleric" level="27"/>
+    <granted class="knight" level="30"/>
+    <manacost initial="80" level_dec="2" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="118" name="prismatic sphere">
+    <granted class="mage" level="40" gen="1"/>
+    <manacost initial="170" level_dec="3" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="64" name="prismatic spray">
+    <granted class="mage" level="42"/>
+    <manacost initial="160" level_dec="10" minimum="80"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="635" name="projectile weapons">
+    <granted class="cyborg" level="20"/>
+    <granted class="mercenary" level="8"/>
+  </skill>
+  <spell id="109" name="protection from devils">
+    <manacost initial="40" level_dec="2" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="34" name="protection from evil">
+    <granted class="cleric" level="16"/>
+    <granted class="knight" level="9"/>
+    <manacost initial="40" level_dec="2" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="good"/>
+  </spell>
+  <spell id="100" name="protection from fire">
+    <granted class="cleric" level="16"/>
+    <granted class="ranger" level="19"/>
+    <manacost initial="40" level_dec="2" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="76" name="protection from good">
+    <granted class="cleric" level="16"/>
+    <granted class="knight" level="9"/>
+    <manacost initial="40" level_dec="2" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <spell id="99" name="protection from lightning">
+    <granted class="ranger" level="9"/>
+    <manacost initial="40" level_dec="2" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="589" name="psiblast">
+    <granted class="psionic" level="1"/>
+    <manacost initial="50" level_dec="1" minimum="50"/>
+    <flag value="damage"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="591" name="psidrain">
+    <granted class="psionic" level="24"/>
+    <manacost initial="50" level_dec="1" minimum="30"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="590" name="psilocate">
+    <granted class="psionic" level="25"/>
+    <manacost initial="100" level_dec="5" minimum="30"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="226" name="psionic shatter">
+    <granted class="psionic" level="33"/>
+    <manacost initial="80" level_dec="3" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="unaffects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="223" name="psionic shield">
+    <granted class="psionic" level="30"/>
+    <manacost initial="120" level_dec="5" minimum="60"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="237" name="psionic shockwave">
+    <granted class="psionic" level="38" gen="7"/>
+    <manacost initial="150" level_dec="10" minimum="50"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="masses"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="225" name="psychic conduit">
+    <granted class="psionic" level="26"/>
+    <manacost initial="70" level_dec="1" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="218" name="psychic crush">
+    <granted class="psionic" level="35"/>
+    <manacost initial="130" level_dec="15" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="245" name="psychic feedback">
+    <granted class="psionic" level="32" gen="3"/>
+    <manacost initial="75" level_dec="3" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="230" name="psychic resistance">
+    <granted class="psionic" level="20"/>
+    <manacost initial="80" level_dec="1" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="224" name="psychic surge">
+    <granted class="psionic" level="40"/>
+    <manacost initial="90" level_dec="4" minimum="60"/>
+    <position minimum="standing"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="506" name="punch">
+    <granted class="mage" level="1"/>
+    <granted class="cleric" level="1"/>
+    <granted class="thief" level="1"/>
+    <granted class="barbarian" level="1"/>
+    <granted class="psionic" level="1"/>
+    <granted class="physic" level="1"/>
+    <granted class="cyborg" level="1"/>
+    <granted class="knight" level="1"/>
+    <granted class="ranger" level="1"/>
+    <granted class="bard" level="1"/>
+    <granted class="monk" level="1"/>
+    <granted class="mercenary" level="1"/>
+  </skill>
+  <skill id="385" name="purple haze">
+    <instrument type="string"/>
+    <lyrics>Purple haze was in my eyes.
+Don't know if it's day or night.
+You've got me blowing, blowing my mind.
+Is it tomorrow or just the end of time?</lyrics>
+  </skill>
+  <spell id="761" name="quad damage">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="affects"/>
+  </spell>
+  <spell id="343" name="quantum rift">
+    <granted class="physic" level="45" gen="5"/>
+    <manacost initial="400" level_dec="5" minimum="300"/>
+    <position minimum="sitting"/>
+    <flag value="manual"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="206" name="quench">
+    <granted class="psionic" level="4"/>
+    <manacost initial="35" level_dec="1" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="554" name="rabbitpunch">
+    <granted class="thief" level="10"/>
+  </skill>
+  <skill id="765" name="radiation sickness">
+  </skill>
+  <spell id="338" name="radioimmunity">
+    <granted class="physic" level="20"/>
+    <manacost initial="80" level_dec="8" minimum="20"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="641" name="radionegation">
+    <granted class="cyborg" level="17" gen="1"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="309" name="random coordinates">
+    <granted class="physic" level="20"/>
+    <manacost initial="100" level_dec="2" minimum="20"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="690" name="read scrolls">
+    <granted class="mage" level="1"/>
+    <granted class="cleric" level="2"/>
+    <granted class="thief" level="3"/>
+    <granted class="psionic" level="35"/>
+    <granted class="knight" level="21"/>
+    <granted class="ranger" level="21"/>
+    <granted class="bard" level="5"/>
+    <granted class="monk" level="7"/>
+  </skill>
+  <skill id="614" name="reboot">
+    <granted class="cyborg" level="1"/>
+  </skill>
+  <skill id="613" name="reconfigure">
+    <granted class="cyborg" level="13"/>
+  </skill>
+  <spell id="618" name="reflex boost">
+    <granted class="cyborg" level="18"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="317" name="refraction">
+    <granted class="physic" level="33"/>
+    <manacost initial="80" level_dec="8" minimum="20"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="95" name="refresh">
+    <granted class="ranger" level="15"/>
+    <manacost initial="100" level_dec="2" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="356" name="regalers rhapsody">
+    <granted class="bard" level="5"/>
+    <manacost initial="37" level_dec="1" minimum="15"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>A morsel of a melody keeps appetites in line,
+For when the battle's finally won, we all will drink and dine!</lyrics>
+  </spell>
+  <spell id="85" name="regenerate">
+    <granted class="mage" level="49"/>
+    <granted class="cleric" level="45"/>
+    <manacost initial="140" level_dec="10" minimum="100"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="84" name="rejuvenate">
+    <granted class="cleric" level="40"/>
+    <manacost initial="100" level_dec="8" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="219" name="relaxation">
+    <granted class="psionic" level="7"/>
+    <manacost initial="100" level_dec="3" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="unaffects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="35" name="remove curse">
+    <granted class="mage" level="26"/>
+    <granted class="cleric" level="27"/>
+    <granted class="knight" level="31"/>
+    <manacost initial="45" level_dec="5" minimum="25"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <flag value="unaffects"/>
+    <flag value="alterations"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="43" name="remove poison">
+    <granted class="cleric" level="8"/>
+    <granted class="knight" level="19"/>
+    <granted class="ranger" level="12"/>
+    <manacost initial="40" level_dec="4" minimum="8"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="unaffects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="116" name="remove sickness">
+    <granted class="cleric" level="37"/>
+    <manacost initial="145" level_dec="5" minimum="85"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="unaffects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="310" name="repulsion field">
+    <granted class="physic" level="16"/>
+    <manacost initial="30" level_dec="1" minimum="20"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+    <flag value="affects"/>
+    <flag value="alterations"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="344" name="repulsion field (obj)">
+  </skill>
+  <skill id="395" name="requiem">
+    <instrument type="wind"/>
+    <description>a dark and joyless requiem</description>
+  </skill>
+  <skill id="507" name="rescue">
+    <granted class="barbarian" level="12"/>
+    <granted class="knight" level="8"/>
+    <granted class="ranger" level="12"/>
+    <granted class="monk" level="16"/>
+    <granted class="mercenary" level="26"/>
+  </skill>
+  <spell id="101" name="restoration">
+    <granted class="cleric" level="43"/>
+    <manacost initial="210" level_dec="11" minimum="80"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="212" name="retina">
+    <granted class="psionic" level="13"/>
+    <manacost initial="60" level_dec="1" minimum="25"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="648" name="retreat">
+    <granted class="thief" level="16"/>
+    <granted class="ranger" level="18"/>
+    <granted class="bard" level="17"/>
+    <granted class="monk" level="33"/>
+    <granted class="mercenary" level="22"/>
+  </skill>
+  <spell id="104" name="retrieve corpse">
+    <granted class="cleric" level="48"/>
+    <manacost initial="125" level_dec="15" minimum="65"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="381" name="rhapsody of remedy">
+    <granted class="bard" level="28"/>
+    <manacost initial="80" level_dec="1" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>As blades can rend and magic freeze,
+A song can mend it all with ease.</lyrics>
+  </spell>
+  <spell id="380" name="rhythm of alarm">
+    <granted class="bard" level="41"/>
+    <manacost initial="100" level_dec="1" minimum="75"/>
+    <position minimum="sitting"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>The rogue may stalk, but I can see
+His presence is revealed to me.</lyrics>
+  </spell>
+  <spell id="371" name="rhythm of rage">
+    <granted class="bard" level="36"/>
+    <manacost initial="325" level_dec="3" minimum="180"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <description>an intense and violent rhythm</description>
+  </spell>
+  <skill id="568" name="ridgehand">
+    <granted class="monk" level="30"/>
+  </skill>
+  <skill id="609" name="riding">
+    <granted class="mage" level="1"/>
+    <granted class="cleric" level="1"/>
+    <granted class="thief" level="1"/>
+    <granted class="barbarian" level="1"/>
+    <granted class="knight" level="1"/>
+    <granted class="ranger" level="1"/>
+  </skill>
+  <spell id="139" name="righteous penetration">
+    <granted class="cleric" level="39" gen="5"/>
+    <manacost initial="100" level_dec="5" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="good"/>
+  </spell>
+  <skill id="544" name="roundhouse">
+    <granted class="barbarian" level="19"/>
+    <granted class="ranger" level="20"/>
+    <granted class="mercenary" level="5"/>
+  </skill>
+  <spell id="131" name="sanctification">
+    <granted class="knight" level="33" gen="1"/>
+    <manacost initial="100" level_dec="1" minimum="60"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="good"/>
+  </spell>
+  <spell id="36" name="sanctuary">
+    <granted class="cleric" level="28"/>
+    <manacost initial="110" level_dec="5" minimum="85"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="205" name="satiation">
+    <granted class="psionic" level="3"/>
+    <manacost initial="30" level_dec="1" minimum="10"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="psionic"/>
+  </spell>
+  <skill id="581" name="scanning">
+    <granted class="thief" level="31"/>
+    <granted class="ranger" level="24"/>
+    <granted class="mercenary" level="22"/>
+  </skill>
+  <skill id="569" name="scissor kick">
+    <granted class="monk" level="20"/>
+  </skill>
+  <spell id="672" name="scream">
+    <granted class="bard" level="5"/>
+    <manacost initial="35" level_dec="1" minimum="35"/>
+    <flag value="damage"/>
+    <flag value="song"/>
+  </spell>
+  <skill id="580" name="second weapon">
+    <granted class="ranger" level="14"/>
+    <granted class="mercenary" level="18"/>
+  </skill>
+  <skill id="622" name="self destruct">
+    <granted class="cyborg" level="12"/>
+  </skill>
+  <skill id="626" name="self repair">
+    <granted class="cyborg" level="20"/>
+  </skill>
+  <spell id="44" name="sense life">
+    <granted class="mage" level="27"/>
+    <granted class="cleric" level="23"/>
+    <manacost initial="120" level_dec="4" minimum="80"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="750" name="shadow breath">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="manual"/>
+  </spell>
+  <skill id="382" name="shatter">
+    <instrument type="percussion"/>
+    <description>a primitive syncopation</description>
+  </skill>
+  <skill id="698" name="shield mastery">
+    <granted class="knight" level="22"/>
+  </skill>
+  <spell id="129" name="shield of righteousness">
+    <granted class="cleric" level="32" gen="2"/>
+    <manacost initial="50" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="divine"/>
+    <flag value="good"/>
+  </spell>
+  <spell id="37" name="shocking grasp">
+    <granted class="mage" level="9"/>
+    <manacost initial="30" level_dec="3" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="touch"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="540" name="shoot">
+    <granted class="thief" level="10"/>
+    <granted class="cyborg" level="20"/>
+    <granted class="ranger" level="26"/>
+    <granted class="bard" level="1"/>
+    <granted class="mercenary" level="3"/>
+  </skill>
+  <skill id="671" name="shoulderthrow">
+    <granted class="mercenary" level="39"/>
+  </skill>
+  <skill id="743" name="shrinking">
+  </skill>
+  <spell id="117" name="shroud of obscurement">
+    <granted class="mage" level="36"/>
+    <manacost initial="145" level_dec="10" minimum="65"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="678" name="shukutei adrenal maximizations">
+    <granted class="cyborg" level="37"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <spell id="740" name="sickness">
+    <manacost initial="330" level_dec="21" minimum="215"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+  </spell>
+  <skill id="545" name="sidekick">
+    <granted class="barbarian" level="29"/>
+    <granted class="ranger" level="35"/>
+  </skill>
+  <skill id="374" name="sirens song">
+    <instrument type="wind"/>
+    <description>an alluring melody</description>
+  </skill>
+  <skill id="738" name="skunk stench">
+  </skill>
+  <skill id="684" name="slashing weapons">
+    <granted class="barbarian" level="26"/>
+  </skill>
+  <spell id="512" name="sleeper">
+    <granted class="barbarian" level="25"/>
+    <flag value="biologic"/>
+  </spell>
+  <spell id="68" name="slow">
+    <granted class="mage" level="38"/>
+    <manacost initial="120" level_dec="6" minimum="60"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+    <flag value="unpleasant"/>
+  </spell>
+  <skill id="747" name="smoke effects">
+  </skill>
+  <skill id="667" name="snatch">
+  </skill>
+  <skill id="508" name="sneak">
+    <granted class="thief" level="3"/>
+    <granted class="ranger" level="8"/>
+    <granted class="bard" level="10"/>
+  </skill>
+  <skill id="669" name="snipe">
+    <granted class="mercenary" level="37" gen="2"/>
+  </skill>
+  <skill id="364" name="song of silence">
+    <instrument type="wind"/>
+    <description>a quiet and doleful song</description>
+  </skill>
+  <skill id="361" name="song shield">
+    <instrument type="wind"/>
+    <description>a light, comforting melody</description>
+  </skill>
+  <spell id="375" name="sonic disruption">
+    <granted class="bard" level="17"/>
+    <manacost initial="100" level_dec="5" minimum="60"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="areas"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <description>a sickening rhythm</description>
+  </spell>
+  <spell id="312" name="spacetime imprint">
+    <granted class="physic" level="30"/>
+    <manacost initial="100" level_dec="10" minimum="50"/>
+    <position minimum="sitting"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="313" name="spacetime recall">
+    <granted class="physic" level="30"/>
+    <manacost initial="100" level_dec="10" minimum="50"/>
+    <position minimum="sitting"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="522" name="speed healing">
+    <granted class="barbarian" level="39"/>
+  </skill>
+  <skill id="636" name="speed loading">
+    <granted class="cyborg" level="25"/>
+    <granted class="mercenary" level="15"/>
+  </skill>
+  <spell id="137" name="sphere of desecration">
+    <granted class="cleric" level="21" gen="4"/>
+    <granted class="knight" level="23" gen="6"/>
+    <manacost initial="120" level_dec="3" minimum="70"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <skill id="720" name="spikes of manticore">
+  </skill>
+  <skill id="546" name="spinfist">
+    <granted class="barbarian" level="7"/>
+    <granted class="knight" level="6"/>
+    <granted class="ranger" level="7"/>
+  </skill>
+  <skill id="543" name="spinkick">
+    <granted class="barbarian" level="17"/>
+  </skill>
+  <spell id="244" name="spirit track">
+    <granted class="ranger" level="38" gen="1"/>
+    <manacost initial="120" level_dec="10" minimum="60"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="79" name="spiritual hammer">
+    <granted class="cleric" level="10"/>
+    <granted class="knight" level="15"/>
+    <manacost initial="40" level_dec="1" minimum="10"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="divine"/>
+  </spell>
+  <skill id="523" name="stalk">
+    <granted class="thief" level="40"/>
+  </skill>
+  <spell id="616" name="stasis">
+    <granted class="cyborg" level="10"/>
+    <flag value="cybernetic"/>
+  </spell>
+  <skill id="509" name="steal">
+    <granted class="thief" level="2"/>
+    <granted class="bard" level="15"/>
+  </skill>
+  <spell id="751" name="steam breath">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+  </spell>
+  <spell id="132" name="stigmata">
+    <granted class="cleric" level="23" gen="1"/>
+    <manacost initial="60" level_dec="1" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="good"/>
+  </spell>
+  <skill id="516" name="stomp">
+    <granted class="thief" level="5"/>
+    <granted class="barbarian" level="4"/>
+  </skill>
+  <spell id="115" name="stone to flesh">
+    <granted class="cleric" level="36"/>
+    <granted class="ranger" level="44"/>
+    <manacost initial="380" level_dec="20" minimum="230"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="unaffects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="145" name="stoneskin">
+    <granted class="ranger" level="20" gen="4"/>
+    <manacost initial="60" level_dec="1" minimum="25"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="39" name="strength">
+    <granted class="mage" level="6"/>
+    <manacost initial="65" level_dec="1" minimum="30"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="693" name="strike">
+    <granted class="barbarian" level="17"/>
+  </skill>
+  <spell id="535" name="stun">
+    <granted class="thief" level="35"/>
+    <flag value="biologic"/>
+  </spell>
+  <skill id="737" name="stygian lightning">
+  </skill>
+  <spell id="40" name="summon">
+    <granted class="mage" level="29"/>
+    <granted class="cleric" level="17"/>
+    <manacost initial="320" level_dec="7" minimum="180"/>
+    <position minimum="standing"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="world"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="133" name="summon legion">
+    <granted class="knight" level="27" gen="5"/>
+    <manacost initial="200" level_dec="5" minimum="100"/>
+    <position minimum="standing"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <skill id="736" name="summon minotaur">
+  </skill>
+  <spell id="146" name="sun ray">
+    <granted class="cleric" level="20" gen="3"/>
+    <manacost initial="100" level_dec="3" minimum="40"/>
+    <position minimum="fighting"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="good"/>
+  </spell>
+  <skill id="746" name="surgery">
+  </skill>
+  <skill id="549" name="sweepkick">
+    <granted class="barbarian" level="28"/>
+    <granted class="ranger" level="27"/>
+    <granted class="monk" level="25"/>
+  </skill>
+  <skill id="607" name="swimming">
+    <granted class="mage" level="1"/>
+    <granted class="cleric" level="1"/>
+    <granted class="thief" level="1"/>
+    <granted class="barbarian" level="1"/>
+    <granted class="psionic" level="2"/>
+    <granted class="physic" level="1"/>
+    <granted class="knight" level="1"/>
+    <granted class="ranger" level="1"/>
+    <granted class="bard" level="1"/>
+    <granted class="monk" level="7"/>
+    <granted class="mercenary" level="1"/>
+  </skill>
+  <spell id="110" name="symbol of pain">
+    <granted class="cleric" level="38"/>
+    <manacost initial="140" level_dec="5" minimum="80"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <skill id="520" name="tag">
+    <granted class="barbarian" level="27"/>
+  </skill>
+  <skill id="754" name="tail lash">
+  </skill>
+  <spell id="147" name="taint">
+    <granted class="knight" level="42" gen="9"/>
+    <manacost initial="250" level_dec="10" minimum="180"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="damage"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <spell id="61" name="telekinesis">
+    <granted class="psionic" level="38"/>
+    <manacost initial="165" level_dec="5" minimum="70"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="151" name="telepathy">
+    <granted class="psionic" level="41"/>
+    <manacost initial="95" level_dec="4" minimum="62"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="2" name="teleport">
+    <granted class="mage" level="33"/>
+    <manacost initial="75" level_dec="3" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="333" name="temporal compression">
+    <granted class="physic" level="29"/>
+    <manacost initial="80" level_dec="1" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="334" name="temporal dilation">
+    <granted class="physic" level="36"/>
+    <manacost initial="120" level_dec="6" minimum="60"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+    <flag value="unpleasant"/>
+  </spell>
+  <skill id="658" name="terrorize">
+  </skill>
+  <spell id="154" name="thorn skin">
+    <granted class="ranger" level="38" gen="6"/>
+    <manacost initial="110" level_dec="1" minimum="80"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="157" name="thorn skin casting">
+  </skill>
+  <spell id="124" name="thorn trap">
+    <manacost initial="50" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="door"/>
+    <flag value="magic"/>
+    <flag value="exits"/>
+  </spell>
+  <skill id="562" name="throat strike">
+    <granted class="monk" level="10"/>
+  </skill>
+  <skill id="608" name="throwing">
+    <granted class="thief" level="7"/>
+    <granted class="barbarian" level="15"/>
+    <granted class="ranger" level="9"/>
+    <granted class="bard" level="3"/>
+    <granted class="merc" level="9"/>
+  </skill>
+  <spell id="315" name="tidal spacesurf">
+    <granted class="physic" level="15"/>
+    <manacost initial="100" level_dec="2" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <spell id="314" name="time warp">
+    <granted class="physic" level="35"/>
+    <manacost initial="100" level_dec="8" minimum="50"/>
+    <position minimum="sitting"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="manual"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="558" name="tornado kick">
+    <granted class="barbarian" level="45"/>
+  </skill>
+  <skill id="510" name="track">
+    <granted class="thief" level="8"/>
+    <granted class="barbarian" level="14"/>
+    <granted class="cyborg" level="11"/>
+    <granted class="ranger" level="11"/>
+    <granted class="mercenary" level="14"/>
+  </skill>
+  <skill id="752" name="trampling">
+  </skill>
+  <spell id="311" name="transmittance">
+    <granted class="physic" level="14"/>
+    <manacost initial="60" level_dec="1" minimum="30"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <target type="object" scope="equip"/>
+    <flag value="affects"/>
+    <flag value="alterations"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="585" name="transmute">
+  </skill>
+  <skill id="550" name="trip">
+    <granted class="thief" level="18"/>
+  </skill>
+  <skill id="560" name="triple attack">
+    <granted class="barbarian" level="48"/>
+    <granted class="knight" level="45"/>
+    <granted class="ranger" level="43"/>
+    <granted class="monk" level="41"/>
+    <granted class="mercenary" level="38"/>
+  </skill>
+  <spell id="719" name="troglodytian stench">
+    <manacost initial="30" level_dec="1" minimum="15"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+  </spell>
+  <spell id="75" name="true seeing">
+    <granted class="mage" level="41"/>
+    <granted class="cleric" level="42"/>
+    <manacost initial="210" level_dec="15" minimum="65"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="674" name="tumbling">
+    <granted class="bard" level="30"/>
+  </skill>
+  <skill id="601" name="turn">
+    <granted class="cleric" level="1"/>
+    <granted class="knight" level="3"/>
+    <manacost initial="90" level_dec="5" minimum="30"/>
+  </skill>
+  <skill id="699" name="uncanny dodge">
+    <granted class="thief" level="22" gen="2"/>
+  </skill>
+  <spell id="78" name="undead protection">
+    <granted class="mage" level="41"/>
+    <granted class="cleric" level="18"/>
+    <granted class="knight" level="18"/>
+    <manacost initial="60" level_dec="3" minimum="10"/>
+    <position minimum="standing"/>
+    <target type="self" scope="only"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="140" name="unholy stalker">
+    <granted class="cleric" level="25" gen="3"/>
+    <manacost initial="100" level_dec="5" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="world"/>
+    <flag value="violent"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+    <flag value="nosun"/>
+  </spell>
+  <spell id="378" name="unladen swallow song">
+    <granted class="bard" level="19"/>
+    <manacost initial="105" level_dec="1" minimum="85"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>The sky is the swallow's place to be in,
+whether African or European</lyrics>
+  </spell>
+  <spell id="366" name="unravelling diapason">
+    <granted class="bard" level="40"/>
+    <manacost initial="120" level_dec="3" minimum="75"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="manual"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>Oh mystic forces, hear my yell,
+Unmake your magic, break this spell</lyrics>
+  </spell>
+  <skill id="551" name="uppercut">
+    <granted class="barbarian" level="11"/>
+    <granted class="knight" level="15"/>
+    <granted class="ranger" level="13"/>
+  </skill>
+  <skill id="691" name="use wands">
+    <granted class="mage" level="4"/>
+    <granted class="cleric" level="9"/>
+    <granted class="thief" level="10"/>
+    <granted class="psionic" level="20"/>
+    <granted class="knight" level="21"/>
+    <granted class="ranger" level="29"/>
+    <granted class="bard" level="5"/>
+    <granted class="monk" level="35"/>
+  </skill>
+  <spell id="319" name="vacuum shroud">
+    <granted class="physic" level="31"/>
+    <manacost initial="60" level_dec="1" minimum="40"/>
+    <position minimum="sitting"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="physics"/>
+  </spell>
+  <skill id="762" name="vader choke">
+  </skill>
+  <spell id="142" name="vampiric regeneration">
+    <granted class="cleric" level="37" gen="4"/>
+    <manacost initial="100" level_dec="5" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+    <flag value="evil"/>
+  </spell>
+  <skill id="41" name="ventriloquate">
+  </skill>
+  <skill id="673" name="ventriloquism">
+    <granted class="bard" level="25"/>
+  </skill>
+  <spell id="362" name="verse of valor">
+    <granted class="bard" level="10"/>
+    <manacost initial="55" level_dec="1" minimum="30"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>The battle, still it rages,
+As it has for many ages,
+But a piercing strike can hope to end it all.</lyrics>
+  </spell>
+  <spell id="353" name="verse of vulnerability">
+    <granted class="bard" level="8"/>
+    <manacost initial="50" level_dec="3" minimum="20"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>The music flows from me to you,
+It guides my blade as I strike true!</lyrics>
+  </spell>
+  <spell id="215" name="vertigo">
+    <granted class="psionic" level="31"/>
+    <manacost initial="70" level_dec="1" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="113" name="vestigial rune">
+    <granted class="mage" level="45" gen="1"/>
+    <manacost initial="450" level_dec="10" minimum="380"/>
+    <position minimum="standing"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="manual"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="122" name="wall of fire">
+    <manacost initial="50" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="door"/>
+    <flag value="magic"/>
+    <flag value="exits"/>
+    <flag value="nowater"/>
+  </spell>
+  <spell id="121" name="wall of ice">
+    <manacost initial="50" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="door"/>
+    <flag value="magic"/>
+    <flag value="exits"/>
+  </spell>
+  <spell id="123" name="wall of iron">
+    <manacost initial="50" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="door"/>
+    <flag value="magic"/>
+    <flag value="exits"/>
+  </spell>
+  <spell id="347" name="wall of sound">
+    <granted class="bard" level="42" gen="1"/>
+    <manacost initial="150" level_dec="4" minimum="90"/>
+    <position minimum="standing"/>
+    <target type="direction"/>
+    <flag value="manual"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>a loud and boisterous tune</description>
+  </spell>
+  <spell id="120" name="wall of stone">
+    <manacost initial="50" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="door"/>
+    <flag value="magic"/>
+    <flag value="exits"/>
+  </spell>
+  <spell id="119" name="wall of thorns">
+    <manacost initial="50" level_dec="1" minimum="20"/>
+    <position minimum="standing"/>
+    <target type="door"/>
+    <flag value="magic"/>
+    <flag value="exits"/>
+  </spell>
+  <spell id="58" name="warding sigil">
+    <granted class="mage" level="17" gen="1"/>
+    <manacost initial="300" level_dec="2" minimum="250"/>
+    <position minimum="standing"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="alterations"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="713" name="water elemental">
+  </skill>
+  <spell id="51" name="waterwalk">
+    <granted class="mage" level="32"/>
+    <manacost initial="60" level_dec="2" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <spell id="220" name="weakness">
+    <granted class="psionic" level="16"/>
+    <manacost initial="70" level_dec="1" minimum="50"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="384" name="weight of the world">
+    <granted class="bard" level="21"/>
+    <manacost initial="180" level_dec="1" minimum="150"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>We carry the weight of the world on our shoulders,
+Holding us down as surely as boulders.
+To lighten our loads, this song we'll sing,
+And to our packs a lightness bring!</lyrics>
+  </spell>
+  <skill id="682" name="whipping weapons">
+    <granted class="barbarian" level="11"/>
+  </skill>
+  <skill id="563" name="whirlwind">
+    <granted class="monk" level="40"/>
+  </skill>
+  <spell id="370" name="white noise">
+    <granted class="bard" level="35"/>
+    <manacost initial="80" level_dec="2" minimum="40"/>
+    <position minimum="fighting"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="song"/>
+    <instrument type="wind"/>
+    <description>a cacophony of sound</description>
+  </spell>
+  <spell id="102" name="word of intellect">
+    <granted class="cleric" level="35"/>
+    <manacost initial="100" level_dec="3" minimum="40"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="42" name="word of recall">
+    <granted class="cleric" level="15"/>
+    <granted class="knight" level="25"/>
+    <manacost initial="100" level_dec="2" minimum="20"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <target type="object" scope="inventory"/>
+    <target type="object" scope="room"/>
+    <flag value="manual"/>
+    <flag value="divine"/>
+  </spell>
+  <spell id="63" name="word stun">
+    <granted class="mage" level="37"/>
+    <manacost initial="100" level_dec="5" minimum="50"/>
+    <position minimum="standing"/>
+    <target type="self" scope="never"/>
+    <target type="creature" scope="room"/>
+    <flag value="violent"/>
+    <flag value="affects"/>
+    <flag value="magic"/>
+  </spell>
+  <skill id="599" name="wormhole">
+    <granted class="physic" level="30" gen="1"/>
+    <manacost initial="50" level_dec="2" minimum="20"/>
+  </skill>
+  <spell id="210" name="wound closure">
+    <granted class="psionic" level="10"/>
+    <manacost initial="80" level_dec="1" minimum="30"/>
+    <position minimum="fighting"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="psionic"/>
+  </spell>
+  <spell id="386" name="wounding whispers">
+    <granted class="bard" level="36"/>
+    <manacost initial="120" level_dec="3" minimum="60"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="affects"/>
+    <flag value="song"/>
+    <instrument type="percussion"/>
+    <lyrics>The whispered lies and gossip told
+Come back to haunt the young and old.
+The barrier they form is very thin,
+But blocks true love and harbors sin.</lyrics>
+  </spell>
+  <skill id="596" name="wrench">
+    <granted class="mercenary" level="6"/>
+  </skill>
+  <skill id="768" name="youth">
+  </skill>
+  <spell id="402" name="zen of awareness">
+    <granted class="monk" level="21"/>
+    <manacost initial="30" level_dec="1" minimum="5"/>
+    <flag value="zen"/>
+  </spell>
+  <spell id="406" name="zen of celerity">
+    <granted class="monk" level="25" gen="2"/>
+    <manacost initial="40" level_dec="1" minimum="20"/>
+    <flag value="zen"/>
+  </spell>
+  <spell id="407" name="zen of dispassion">
+    <granted class="monk" level="45"/>
+    <manacost initial="30" level_dec="30" minimum="50"/>
+    <position minimum="resting"/>
+    <flag value="zen"/>
+  </spell>
+  <spell id="401" name="zen of healing">
+    <granted class="monk" level="36"/>
+    <manacost initial="30" level_dec="2" minimum="9"/>
+    <flag value="zen"/>
+  </spell>
+  <spell id="404" name="zen of motion">
+    <granted class="monk" level="28"/>
+    <manacost initial="30" level_dec="1" minimum="7"/>
+    <flag value="zen"/>
+  </spell>
+  <spell id="403" name="zen of oblivity">
+    <granted class="monk" level="43"/>
+    <manacost initial="40" level_dec="4" minimum="10"/>
+    <flag value="zen"/>
+  </spell>
+  <spell id="405" name="zen of translocation">
+    <granted class="monk" level="37" gen="1"/>
+    <manacost initial="40" level_dec="1" minimum="20"/>
+    <flag value="zen"/>
+  </spell>
+  <spell id="576" name="zeta nerve">
+    <granted class="monk" level="32"/>
+    <flag value="biologic"/>
+  </spell>
+</spells>

@@ -1076,7 +1076,7 @@ check_start_rooms(void)
 
     if ((r_mortal_start_room = real_room(mortal_start_room)) == NULL) {
         errlog(" Mortal start room does not exist.  Change in config.c.");
-        safe_exit(1);
+        r_mortal_start_room = real_room(0);
     }
     if ((r_electro_start_room = real_room(electro_start_room)) == NULL) {
         if (!mini_mud)

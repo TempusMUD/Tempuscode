@@ -1,0 +1,322 @@
+<races>
+  <race idnum="0" name="Human">
+    <age adjust="13" lifespan="80"/>
+    <tongue name="modriatic"/>
+    <sex idnum="1" name="male">
+      <weight min="130" max="180"/>
+      <height min="140" max="190" weight_add="8"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="90" max="150"/>
+      <height min="140" max="170" weight_add="8"/>
+    </sex>
+  </race>
+  <race idnum="1" name="Elf">
+    <attributes int="+1" dex="+1" con="-1"/>
+    <tongue name="elvish"/>
+    <age adjust="80" lifespan="400"/>
+    <sex idnum="1" name="male">
+      <weight min="120" max="180"/>
+      <height min="140" max="165" weight_add="8"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="90" max="130"/>
+      <height min="120" max="155" weight_add="8"/>
+    </sex>
+  </race>
+  <race idnum="2" name="Dwarf">
+    <attributes str="+1" con="+1" cha="-1"/>
+    <tongue name="dwarven"/>
+    <age adjust="40" lifespan="160"/>
+    <intrinsic affect="infravision"/>
+    <sex idnum="1" name="male">
+      <weight min="120" max="160"/>
+      <height min="100" max="125" weight_add="16"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="100" max="140"/>
+      <height min="90" max="115" weight_add="16"/>
+    </sex>
+  </race>
+  <race idnum="3" name="Half Orc">
+    <attributes str="+2" con="+1" cha="-3"/>
+    <tongue name="orcish"/>
+    <age adjust="12" lifespan="55"/>
+    <sex idnum="1" name="male">
+      <weight min="120" max="180"/>
+      <height min="120" max="200" weight_add="16"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="110" max="170"/>
+      <height min="110" max="190" weight_add="8"/>
+    </sex>
+  </race>
+  <race idnum="4" name="Klingon">
+    <age adjust="12" lifespan="100"/>
+    <tongue name="klingon"/>
+  </race>
+  <race idnum="5" name="Halfling">
+    <attributes str="-1" dex="2"/>
+    <tongue name="hobbish"/>
+    <age adjust="33" lifespan="110"/>
+    <sex idnum="1" name="male">
+      <weight min="70" max="80"/>
+      <height min="81" max="100" weight_add="16"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="70" max="80"/>
+      <height min="81" max="100" weight_add="16"/>
+    </sex>
+  </race>
+  <race idnum="6" name="Tabaxi">
+    <attributes dex="+3" int="-1" wis="-3" con="+1" cha="-2"/>
+    <tongue name="sylvan"/>
+    <age adjust="13" lifespan="80"/>
+    <intrinsic affect="retina"/>
+    <sex idnum="1" name="male">
+      <weight min="110" max="160"/>
+      <height min="81" max="100" weight_add="8"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="80" max="120"/>
+      <height min="160" max="190" weight_add="8"/>
+    </sex>
+  </race>
+  <race idnum="7" name="Drow">
+    <attributes int="+1" dex="+1" con="-1"/>
+    <tongue name="underdark"/>
+    <age adjust="80" lifespan="200"/>
+    <intrinsic affect="infravision"/>
+    <sex idnum="1" name="male">
+      <weight min="120" max="180"/>
+      <height min="140" max="165" weight_add="8"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="90" max="130"/>
+      <height min="120" max="155" weight_add="8"/>
+    </sex>
+  </race>
+  <race idnum="10" name="Mobile">
+  </race>
+  <race idnum="11" name="Undead">
+    <intrinsic affect="retina"/>
+  </race>
+  <race idnum="12" name="Humanoid">
+  </race>
+  <race idnum="13" name="Animal">
+  </race>
+  <race idnum="14" name="Dragon">
+    <intrinsic affect="inflight"/>
+    <tongue name="draconian"/>
+  </race>
+  <race idnum="15" name="Giant">
+    <tongue name="ogrish"/>
+  </race>
+  <race idnum="16" name="Orc">
+    <attributes str="+1" int="-1" wis="-2" con="+2" cha="-3"/>
+    <tongue name="orcish"/>
+  </race>
+  <race idnum="17" name="Goblin">
+    <intrinsic affect="infravision"/>
+    <tongue name="mordorian"/>
+    <sex idnum="1" name="male">
+      <weight min="70" max="80"/>
+      <height min="81" max="100" weight_add="16"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="70" max="80"/>
+      <height min="81" max="100" weight_add="16"/>
+    </sex>
+  </race>
+  <race idnum="18" name="Hafling">
+    <tongue name="hobbish"/>
+    <attributes str="-1" dex="2"/>
+    <sex idnum="1" name="male">
+      <weight min="70" max="80"/>
+      <height min="81" max="100" weight_add="16"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="70" max="80"/>
+      <height min="81" max="100" weight_add="16"/>
+    </sex>
+  </race>
+  <race idnum="19" name="Minotaur">
+    <attributes str="+3" int="-2" wis="-3" con="+2" cha="-2"/>
+    <tongue name="daedalus"/>
+    <age adjust="100" lifespan="200"/>
+    <sex idnum="1" name="male">
+      <weight min="200" max="360"/>
+      <height min="140" max="190" weight_add="8"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="200" max="360"/>
+      <height min="140" max="190" weight_add="8"/>
+    </sex>
+  </race>
+  <race idnum="20" name="Troll">
+    <age adjust="100" lifespan="500"/>
+    <tongue name="trollish"/>
+    <attributes str="+5"/>
+    <intrinsic affect="regeneration"/>
+  </race>
+  <race idnum="21" name="Golem">
+    <intrinsic affect="nobreathe"/>
+  </race>
+  <race idnum="22" name="Elemental">
+    <tongue name="elemental"/>
+  </race>
+  <race idnum="23" name="Ogre">
+    <tongue name="ogrish"/>
+    <attributes str="+5"/>
+  </race>
+  <race idnum="24" name="Devil">
+    <tongue name="infernum"/>
+  </race>
+  <race idnum="25" name="Troglodyte">
+    <intrinsic affect="infravision"/>
+    <tongue name="trogish"/>
+  </race>
+  <race idnum="26" name="Manticore">
+    <tongue name="manticora"/>
+  </race>
+  <race idnum="27" name="Bugbear">
+    <intrinsic affect="infravision"/>
+    <tongue name="ghennish"/>
+  </race>
+  <race idnum="28" name="Draconian">
+    <tongue name="draconian"/>
+  </race>
+  <race idnum="29" name="Duergar">
+    <intrinsic affect="infravision"/>
+    <tongue name="underdark"/>
+  </race>
+  <race idnum="30" name="Slaad">
+    <tongue name="astral"/>
+  </race>
+  <race idnum="31" name="Robot">
+    <intrinsic affect="nobreathe"/>
+    <tongue name="centralian"/>
+  </race>
+  <race idnum="32" name="Demon">
+    <tongue name="abyssal"/>
+  </race>
+  <race idnum="33" name="Deva">
+    <tongue name="abyssal"/>
+  </race>
+  <race idnum="34" name="Plant">
+    <intrinsic affect="no_behead"/>
+    <intrinsic affect="nobreathe"/>
+  </race>
+  <race idnum="35" name="Archon">
+    <tongue name="celestial"/>
+  </race>
+  <race idnum="36" name="Pudding">
+    <intrinsic affect="no_behead"/>
+    <intrinsic affect="nobreathe"/>
+  </race>
+  <race idnum="37" name="Alien 1">
+    <tongue name="inconnu"/>
+  </race>
+  <race idnum="38" name="Pred Alien">
+    <tongue name="inconnu"/>
+  </race>
+  <race idnum="39" name="Slime">
+    <intrinsic affect="no_behead"/>
+    <intrinsic affect="nobreathe"/>
+  </race>
+  <race idnum="40" name="Illithid">
+    <tongue name="sibilant"/>
+  </race>
+  <race idnum="41" name="Fish">
+    <intrinsic affect="no_behead"/>
+  </race>
+  <race idnum="42" name="Beholder">
+    <intrinsic affect="no_behead"/>
+    <tongue name="underdark"/>
+  </race>
+  <race idnum="43" name="Gaseous">
+    <intrinsic affect="no_behead"/>
+    <intrinsic affect="inflight"/>
+    <tongue name="elemental"/>
+  </race>
+  <race idnum="44" name="Githyanki">
+    <tongue name="gish"/>
+  </race>
+  <race idnum="45" name="Insect">
+  </race>
+  <race idnum="46" name="Daemon">
+    <tongue name="abyssal"/>
+  </race>
+  <race idnum="47" name="Mephit">
+    <tongue name="elemental"/>
+  </race>
+  <race idnum="48" name="Kobold">
+    <tongue name="kobolas"/>
+  </race>
+  <race idnum="49" name="Umber Hulk">
+    <tongue name="underdark"/>
+  </race>
+  <race idnum="50" name="Wemic">
+    <tongue name="kalerrian"/>
+    <sex idnum="1" name="male">
+      <weight min="500" max="560"/>
+      <height min="140" max="180" weight_add="16"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="70" max="80"/>
+      <height min="140" max="180" weight_add="16"/>
+    </sex>
+  </race>
+  <race idnum="51" name="Rakshasa">
+    <tongue name="rakshasian"/>
+  </race>
+  <race idnum="52" name="Spider">
+  </race>
+  <race idnum="53" name="Griffin">
+    <intrinsic affect="inflight"/>
+    <tongue name="gryphus"/>
+    <sex idnum="1" name="male">
+      <weight min="1500" max="2300"/>
+      <height min="400" max="550" weight_add="8"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="1500" max="2300"/>
+      <height min="400" max="550" weight_add="8"/>
+    </sex>
+  </race>
+  <race idnum="54" name="Rotarian">
+    <tongue name="rotarial"/>
+    <sex idnum="1" name="male">
+      <weight min="300" max="450"/>
+      <height min="200" max="325" weight_add="8"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="300" max="450"/>
+      <height min="200" max="325" weight_add="8"/>
+    </sex>
+  </race>
+  <race idnum="55" name="Half Elf">
+    <tongue name="elvish"/>
+  </race>
+  <race idnum="56" name="Celestial">
+    <tongue name="celestial"/>
+  </race>
+  <race idnum="57" name="Guardinal">
+    <tongue name="elysian"/>
+  </race>
+  <race idnum="58" name="Olympian">
+    <tongue name="greek"/>
+  </race>
+  <race idnum="59" name="Yugoloth">
+    <tongue name="all"/>
+  </race>
+  <race idnum="60" name="Rowlahr">
+  </race>
+  <race idnum="61" name="Githzerai">
+    <tongue name="gish"/>
+  </race>
+  <race idnum="62" name="Faerie">
+    <intrinsic affect="inflight"/>
+    <tongue name="daedelus"/>
+  </race>
+</races>
