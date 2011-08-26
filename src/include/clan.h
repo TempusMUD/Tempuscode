@@ -18,6 +18,9 @@
 #define NUM_CLAN_RANKS     11
 #define LVL_CAN_CLAN       10
 
+struct clan_data;
+struct room_list_elem;
+
 struct clan_data *real_clan(int vnum);
 struct clan_data *clan_by_name(char *arg);
 int clan_owning_room(struct room_data *room);
@@ -28,8 +31,14 @@ struct clan_data *create_clan(int vnum);
 int delete_clan(struct clan_data *clan);
 struct clanmember_data *real_clanmember(long idnum, struct clan_data *clan);
 void sort_clanmembers(struct clan_data *clan);
-void REMOVE_MEMBER_FROM_CLAN(struct clanmember_data *member,
-	struct clan_data *clan);
+void remove_member_from_clan(struct clanmember_data *member,
+                             struct clan_data *clan);
+void remove_room_from_clan(struct room_list_elem *rm_list,
+                           struct clan_data *clan);
+void remove_clan_member(struct creature *ch);
+void clear_clan_owner(long idnum);
+void remove_char_clan(int clan_idnum, long ch_idnum);
+int clan_id(struct clan_data *clan);
 
 struct clanmember_data {
 	long idnum;
@@ -57,5 +66,4 @@ struct clan_data {
 	struct clan_data *next;
 };
 
-extern struct clan_data *clan_list;
 #endif

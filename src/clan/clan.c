@@ -42,7 +42,6 @@
 #include "accstr.h"
 #include "account.h"
 
-/* extern variables */
 extern struct descriptor_data *descriptor_list;
 int check_mob_reaction(struct creature *ch, struct creature *vict);
 
@@ -51,14 +50,14 @@ extern FILE *player_fl;
 int player_i = 0;
 
 void
-REMOVE_ROOM_FROM_CLAN(struct room_list_elem *rm_list, struct clan_data *clan)
+remove_room_from_clan(struct room_list_elem *rm_list, struct clan_data *clan)
 {
     struct room_list_elem *temp;
     REMOVE_FROM_LIST(rm_list, clan->room_list, next);
 }
 
 void
-REMOVE_MEMBER_FROM_CLAN(struct clanmember_data *member, struct clan_data *clan)
+remove_member_from_clan(struct clanmember_data *member, struct clan_data *clan)
 {
     struct clanmember_data *temp;
     REMOVE_FROM_LIST(member, clan->member_list, next);
@@ -109,7 +108,7 @@ char_can_enroll(struct creature *ch, struct creature *vict,
         if (member) {
             send_to_char(ch,
                 "Something weird just happened... try again.\r\n");
-            REMOVE_MEMBER_FROM_CLAN(member, clan);
+            remove_member_from_clan(member, clan);
             free(member);
         }
     }
@@ -407,7 +406,7 @@ ACMD(do_dismiss)
         msg = tmp_strcat(msg, "\r\n", NULL);
         send_to_clan(msg, GET_CLAN(ch));
         if ((member = real_clanmember(GET_IDNUM(vict), clan))) {
-            REMOVE_MEMBER_FROM_CLAN(member, clan);
+            remove_member_from_clan(member, clan);
             free(member);
         }
         REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
@@ -445,7 +444,7 @@ ACMD(do_resign)
         if (clan->owner == GET_IDNUM(ch))
             clan->owner = 0;
         if ((member = real_clanmember(GET_IDNUM(ch), clan))) {
-            REMOVE_MEMBER_FROM_CLAN(member, clan);
+            remove_member_from_clan(member, clan);
             free(member);
         }
         sql_exec("delete from clan_members where player=%ld", GET_IDNUM(ch));
@@ -1350,7 +1349,7 @@ ACMD(do_cedit)
                 return;
             }
 
-            REMOVE_ROOM_FROM_CLAN(rm_list, clan);
+            remove_room_from_clan(rm_list, clan);
             free(rm_list);
             send_to_char(ch,
                 "Room removed and memory freed.  Thank you.. Call again.\r\n");
@@ -1385,7 +1384,7 @@ ACMD(do_cedit)
                 return;
             }
 
-            REMOVE_MEMBER_FROM_CLAN(member, clan);
+            remove_member_from_clan(member, clan);
             free(member);
             send_to_char(ch, "Member removed from the sacred list.\r\n");
 
@@ -1751,4 +1750,32 @@ sort_clanmembers(struct clan_data *clan)
         }
     }
     clan->member_list = new_list;
+}
+
+void
+clear_clan_owner(long idnum)
+{
+    // Clear the owner of any clans this player might own in memory
+    for (struct clan_data *clan = clan_list; clan; clan = clan->next)
+        if (clan->owner == idnum)
+            clan->owner = 0;
+
+    // Clear the owner of any clans this player might own on the db
+    sql_exec("update clans set owner=null where owner=%ld", idnum);
+}
+
+void
+remove_char_clan(int clan_idnum, long ch_idnum)
+{
+    // Remove character from clan
+    struct clan_data *clan = real_clan(clan_idnum);
+    if (clan) {
+        struct clanmember_data *member, *temp;
+
+        member = real_clanmember(ch_idnum, clan);
+        if (member) {
+            REMOVE_FROM_LIST(member, clan->member_list, next);
+        }
+    }
+    sql_exec("delete from clan_members where player=%ld", ch_idnum);
 }

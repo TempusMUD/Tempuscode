@@ -531,7 +531,7 @@ do_destroy_room(struct creature *ch, int vnum)
     for (clan = clan_list; clan; clan = clan->next)
         for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next)
             if (rm == rm_list->room) {
-                REMOVE_ROOM_FROM_CLAN(rm_list, clan);
+                remove_room_from_clan(rm_list, clan);
                 break;
             }
 

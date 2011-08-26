@@ -488,29 +488,11 @@ void
 account_delete_char(struct account *account, struct creature *ch)
 {
     void remove_bounties(int);
-    struct clan_data *clan;
     int idx, count;
     PGresult *res;
 
-    // Clear the owner of any clans this player might own in memory
-    for (clan = clan_list; clan; clan = clan->next)
-        if (clan->owner == GET_IDNUM(ch))
-            clan->owner = 0;
-
-    // Clear the owner of any clans this player might own on the db
-    sql_exec("update clans set owner=null where owner=%ld", GET_IDNUM(ch));
-
-    // Remove character from clan
-    clan = real_clan(GET_CLAN(ch));
-    if (clan) {
-        struct clanmember_data *member, *temp;
-
-        member = real_clanmember(GET_IDNUM(ch), clan);
-        if (member) {
-            REMOVE_FROM_LIST(member, clan->member_list, next);
-        }
-    }
-    sql_exec("delete from clan_members where player=%ld", GET_IDNUM(ch));
+    clear_clan_owner(GET_IDNUM(ch));
+    remove_char_clan(GET_CLAN(ch), GET_IDNUM(ch));
 
     // TODO: Remove character from any access groups
     sql_exec("delete from sgroup_members where player=%ld", GET_IDNUM(ch));
