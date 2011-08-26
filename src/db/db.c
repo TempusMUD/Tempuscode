@@ -1609,7 +1609,10 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
 
     CASE("Str") {
         RANGE(3, 35);
-        mobile->real_abils.str = (int)num_arg;
+        if (num_arg <= 18)
+            mobile->real_abils.str = (int)num_arg;
+        else
+            mobile->real_abils.str = (int)num_arg + 10;
     }
 
     CASE("StrAdd") {
