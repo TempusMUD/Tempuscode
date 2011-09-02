@@ -708,3 +708,38 @@ check_bits_32(int bitv, int *newbits)
             *newbits &= ~(1 << i);
     }
 }
+
+char *
+format_distance(int cm, bool metric)
+{
+    if (metric) {
+        return tmp_sprintf("%dcm", cm);
+    } else {
+        float inches = cm / 2.54;
+        if (inches < 1)
+            return tmp_strdup("1/2 in");
+        if (inches < 12)
+            return tmp_sprintf("%d in", (int)inches);
+        else {
+            int ft = inches / 12;
+            return tmp_sprintf("%d ft, %d in", ft, (int)(inches - (ft * 12)));
+        }
+    }
+}
+
+char *
+format_weight(float lbs, bool metric)
+{
+    if (metric) {
+        float kg = lbs / 2.2;
+        if (kg < 1.0)
+            return tmp_sprintf("%dg", (int)(kg * 1000));
+        else
+            return tmp_sprintf("%.2fkg", kg);
+    } else {
+        if (lbs < 1)
+            return tmp_sprintf("%.2f oz", lbs * 16);
+        else
+            return tmp_sprintf("%.2f lb", lbs);
+    }
+}

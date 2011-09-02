@@ -1719,8 +1719,8 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             GET_ALIGNMENT(k));
     }
 
-    acc_sprintf("Height:  %d centimeters , Weight: %d pounds.\r\n",
-        GET_HEIGHT(k), GET_WEIGHT(k));
+    acc_sprintf("Height:  %d centimeters , Weight: %d lbs.\r\n",
+                GET_HEIGHT(k), GET_WEIGHT(k));
 
     if (!IS_NPC(k)) {
         strcpy(buf1, (char *)asctime(localtime(&(k->player.time.birth))));
@@ -5254,7 +5254,7 @@ ACMD(do_show)
         break;
     case 27:                   /* str_app */
         strcpy(buf, "STR      to_hit    to_dam    max_encum    max_weap\r\n");
-        for (i = 0; i <= 35; i++) {
+        for (i = 0; i <= 50; i++) {
             sprintf(buf,
                 "%s%-5s     %2d         %2d         %4f          %2f\r\n",
                     buf,

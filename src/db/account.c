@@ -184,10 +184,16 @@ load_account(struct account *account, long idnum)
     const char **fields;
     PGresult *res;
 
-    res =
-        sql_query
-        ("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future from accounts where idnum=%ld",
-        idnum);
+    res = sql_query("select idnum, name, password, email, "
+                    "date_part('epoch', creation_time) as creation_time, "
+                    "date_part('epoch', login_time) as login_time, "
+                    "date_part('epoch', entry_time) as entry_time, "
+                    "creation_addr, login_addr, "
+                    "ansi_level, compact_level, term_height, term_width, "
+                    "banned, reputation, quest_points, quest_banned, "
+                    "bank_past, bank_future, metric_units "
+                    "from accounts where idnum=%ld",
+                    idnum);
     acct_count = PQntuples(res);
 
     if (acct_count > 1) {
@@ -273,6 +279,8 @@ account_set(struct account *account, const char *key, const char *val)
         account->bank_past = atoll(val);
     else if (!strcmp(key, "bank_future"))
         account->bank_future = atoll(val);
+    else if (!strcmp(key, "metric_units"))
+        account->metric_units = !strcasecmp(val, "T");
     else
         slog("Invalid account field %s set to %s", key, val);
 }
@@ -609,6 +617,7 @@ account_initialize(struct account *account,
     account->reputation = 0;
     account->quest_points = 0;
     account->quest_banned = false;
+    account->metric_units = false;
 
     slog("new account: %s[%d] from %s", account->name, idnum, d->host);
     sql_exec
@@ -939,7 +948,15 @@ account_set_quest_banned(struct account *account, bool banned)
 {
     account->quest_banned = banned;
     sql_exec("update accounts set quest_banned='%s' where idnum=%d",
-        account->quest_banned ? "T" : "F", account->id);
+        banned ? "T" : "F", account->id);
+}
+
+void
+account_set_metric(struct account *account, bool metric)
+{
+    account->metric_units = metric;
+    sql_exec("update accounts set metric_units='%s' where idnum=%d",
+        metric ? "T" : "F", account->id);
 }
 
 int

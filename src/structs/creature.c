@@ -1705,7 +1705,7 @@ int
 max_creature_attr(struct creature *ch, int mode)
 {
     if (IS_NPC(ch) || IS_IMMORT(ch))
-        return (mode == ATTR_STR) ? 35:25;
+        return 50;
 
     struct race *race = race_by_idnum(GET_RACE(ch));
     int max_stat = 18;
@@ -1736,18 +1736,13 @@ max_creature_attr(struct creature *ch, int mode)
         }
     }
 
-    return MIN(max_stat, (mode == ATTR_STR) ? 35:25);
+    return MIN(max_stat, 50);
 }
 
 char *
 format_strength(int str)
 {
-    if (str < 18)
-        return tmp_sprintf("%d", str);
-    else if (str > 28)
-        return tmp_sprintf("%d", str - 10);
-    else
-        return tmp_sprintf("18/%02d", (str - 18) * 10);
+    return tmp_sprintf("%d", str);
 }
 
 int
@@ -1766,12 +1761,12 @@ float
 strength_carry_weight(int str)
 {
     float fstr = str;
-    return fstr * fstr - 8 * fstr + 15;
+    return fstr * fstr;
 }
 
 float
 strength_wield_weight(int str)
 {
     float fstr = str;
-    return str * 12 / 10;
+    return fstr * 12 / 10;
 }

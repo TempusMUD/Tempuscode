@@ -2786,8 +2786,11 @@ do_blind_score(struct creature *ch)
                 GET_PKILLS(ch),
                 GET_ARENAKILLS(ch));
 	acc_sprintf("Life points: %d\r\n", GET_LIFE_POINTS(ch));
-	acc_sprintf("You are %d cm tall, and weigh %d pounds.\r\n",
-                GET_HEIGHT(ch), GET_WEIGHT(ch));
+
+    bool metric = ch->desc->account ? ch->desc->account->metric_units:false;
+    acc_sprintf("You are %s tall, and weigh %s.\r\n",
+                format_distance(GET_HEIGHT(ch), metric),
+                format_weight(GET_WEIGHT(ch), metric));
 	if (IS_PC(ch)) {
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			acc_sprintf("Next level in %d more experience\r\n",
@@ -2957,9 +2960,12 @@ ACMD(do_score)
         CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
     acc_sprintf("You have %s%d%s life points.\r\n", CCCYN(ch, C_NRM),
         GET_LIFE_POINTS(ch), CCNRM(ch, C_NRM));
-    acc_sprintf("You are %s%d%s cm tall, and weigh %s%d%s pounds.\r\n",
-        CCCYN(ch, C_NRM), GET_HEIGHT(ch), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-        GET_WEIGHT(ch), CCNRM(ch, C_NRM));
+
+    bool metric = ch->desc->account ? ch->desc->account->metric_units:false;
+    acc_sprintf("You are %s%s%s tall, and weigh %s%s%s.\r\n",
+                CCCYN(ch, C_NRM), format_distance(GET_HEIGHT(ch), metric), CCNRM(ch, C_NRM),
+                CCCYN(ch, C_NRM), format_weight(GET_WEIGHT(ch), metric), CCNRM(ch, C_NRM));
+
     if (!IS_NPC(ch)) {
         if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
             acc_sprintf("You need %s%d%s exp to reach your next level.\r\n",
@@ -4090,6 +4096,7 @@ print_attributes_to_buf(struct creature *ch, char *buff)
 
     if (mini_mud)
         strcat(buff, tmp_sprintf(" [%s]", format_strength(str)));
+
     if (str <= 3)
         strcat(buff, "You can barely stand up under your own weight.");
     else if (str <= 4)
@@ -4135,7 +4142,7 @@ print_attributes_to_buf(struct creature *ch, char *buff)
         strcat(buff, "You have the strength of a cloud giant!");
     else if (str == 34)
         strcat(buff, "You possess a herculean might!");
-    else if (str == 35)
+    else if (str > 35)
         strcat(buff, "You have the strength of a god!");
     else
         strcat(buff, "Your strength is SKREWD.");
@@ -4590,7 +4597,8 @@ show_all_toggles(struct creature *ch)
         "Compact Display: %s\r\n"
         "  Terminal Size: %-7s"
         "     Notrailers: %-3s    "
-        "    Color Level: %s\r\n\r\n"
+        "    Color Level: %s\r\n"
+        "   Metric Units: %-3s\r\n\r\n"
         "-- CHANNELS ------------------------------------------------------------------\r\n"
         "       Autopage: %-3s    "
         " Newbie Helper?: %-3s    "
@@ -4632,6 +4640,7 @@ show_all_toggles(struct creature *ch)
             GET_PAGE_WIDTH(ch)),
         ONOFF(PRF2_FLAGGED(ch, PRF2_NOTRAILERS)),
         ansi_levels[COLOR_LEV(ch)],
+        YESNO(ch->desc && ch->desc->account && ch->desc->account->metric_units),
         ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOPAGE)),
         YESNO(PRF2_FLAGGED(ch, PRF2_NEWBIE_HELPER)),
         ONOFF(!PRF_FLAGGED(ch, PRF_NOPROJECT)),

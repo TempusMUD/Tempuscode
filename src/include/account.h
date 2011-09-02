@@ -17,32 +17,34 @@ extern GHashTable *account_cache;
 
 
 struct account {
-		// Internal
-		int id;
-		char *name;
-		char *password;
-		// Administration
-		char *email;
-		time_t creation_time;		// time account was created
-		char *creation_addr;
-		time_t login_time;			// last time account was logged into
-		char *login_addr;
-		time_t entry_time;			// last time char entered game
-		// struct account-wide references
-		unsigned char ansi_level;
-		unsigned char compact_level;
-		unsigned int term_height;
-		unsigned int term_width;
-		// Game data
-		GList *chars;
-		GList *trusted;
-        bool banned;
-		int reputation;
-		int quest_points;
-		bool quest_banned;
-		money_t bank_past;
-		money_t bank_future;
+    // Internal
+    int id;
+    char *name;
+    char *password;
+    // Administration
+    char *email;
+    time_t creation_time;		// time account was created
+    char *creation_addr;
+    time_t login_time;			// last time account was logged into
+    char *login_addr;
+    time_t entry_time;			// last time char entered game
+    // struct account-wide references
+    unsigned char ansi_level;
+    unsigned char compact_level;
+    unsigned int term_height;
+    unsigned int term_width;
+    // Game data
+    GList *chars;
+    GList *trusted;
+    bool banned;
+    int reputation;
+    int quest_points;
+    bool quest_banned;
+    bool metric_units;
+    money_t bank_past;
+    money_t bank_future;
 };
+
 void account_boot(void);
 struct account *account_create(const char *name, struct descriptor_data *d);
 struct account *account_by_name(char *name);
@@ -96,6 +98,7 @@ void account_set_compact_level(struct account *account, int level);
 void account_set_email_addr(struct account *account, const char *addr);
 void account_set_term_height(struct account *account, int height);
 void account_set_term_width(struct account *account, int width);
+void account_set_metric(struct account *account, bool metric);
 
 void account_set_password(struct account *account, const char *password);
 void account_gain_reputation(struct account *account, int amt);

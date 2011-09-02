@@ -1020,104 +1020,106 @@ ACMD(do_gen_tog)
 
     const char *tog_messages[][2] = {
         {"You are now safe from summoning by other players.\r\n",
-            "You may now be summoned by other players.\r\n"},
+         "You may now be summoned by other players.\r\n"},
         {"Nohassle disabled.\r\n",
-            "Nohassle enabled.\r\n"},
+         "Nohassle enabled.\r\n"},
         {"Brief mode off.\r\n",
-            "Brief mode on.\r\n"},
+         "Brief mode on.\r\n"},
         {"Compact mode off.\r\n",
-            "Compact mode on.\r\n"},
+         "Compact mode on.\r\n"},
         {"You can now hear tells.\r\n", // 5
-            "You are now deaf to tells.\r\n"},
+         "You are now deaf to tells.\r\n"},
         {"You can now hear auctions.\r\n",
-            "You are now deaf to auctions.\r\n"},
+         "You are now deaf to auctions.\r\n"},
         {"You can now hear shouts.\r\n",
-            "You are now deaf to shouts.\r\n"},
+         "You are now deaf to shouts.\r\n"},
         {"You can now hear gossip.\r\n",
-            "You are now deaf to gossip.\r\n"},
+         "You are now deaf to gossip.\r\n"},
         {"You can now hear the congratulation messages.\r\n",
-            "You are now deaf to the congratulation messages.\r\n"},
+         "You are now deaf to the congratulation messages.\r\n"},
         {"You can now hear the Wiz-channel.\r\n",   // 10
-            "You are now deaf to the Wiz-channel.\r\n"},
+         "You are now deaf to the Wiz-channel.\r\n"},
         {"You will no longer see the room flags.\r\n",
-            "You will now see the room flags.\r\n"},
+         "You will now see the room flags.\r\n"},
         {"HolyLight mode off.\r\n",
-            "HolyLight mode on.\r\n"},
+         "HolyLight mode on.\r\n"},
         {"Nameserver_is_slow changed to NO; IP addresses will now be resolved.\r\n",
-            "Nameserver_is_slow changed to YES; sitenames will no longer be resolved.\r\n"},
+         "Nameserver_is_slow changed to YES; sitenames will no longer be resolved.\r\n"},
         {"Autoexits disabled.\r\n",
-            "Autoexits enabled.\r\n"},
+         "Autoexits enabled.\r\n"},
         {"You have returned to the keyboard.\r\n",  // 15
-            "You are now afk.  When you move again, you will no longer be.\r\n"},
+         "You are now afk.  When you move again, you will no longer be.\r\n"},
         {"You will now hear the music of your peers.\r\n",
-            "You will no longer hear the music of your peers.\r\n"},
+         "You will no longer hear the music of your peers.\r\n"},
         {"You will now be subjected to the spewings of your peers.\r\n",
-            "You will no longer be subjected to the spewings of your peers.\r\n"},
+         "You will no longer be subjected to the spewings of your peers.\r\n"},
         {"You will now see all misses in your fights.\r\n",
-            "You will no longer see the misses in your fights.\r\n"},
+         "You will no longer see the misses in your fights.\r\n"},
         {"You will no longer be beeped if someone tells to you.\r\n",
-            "You will now receive a bell tone if someone tells to you.\r\n"},
+         "You will now receive a bell tone if someone tells to you.\r\n"},
         {"You have now opened yourself to clan communication.\r\n", // 20
-            "You have closed yourself to clan communication.\r\n"},
+         "You have closed yourself to clan communication.\r\n"},
         {"You are now allowing others to identify you.\r\n",
-            "You are now consciously resisting any attempts to identify you.\r\n"},
+         "You are now consciously resisting any attempts to identify you.\r\n"},
         {"You will now stop debugging fights.\r\n",
-            "You will now be debugging fights.\r\n"},
+         "You will now be debugging fights.\r\n"},
         {"You are now ignoring the newbies.\r\n",
-            "You are now monitoring the newbies.\r\n"},
+         "You are now monitoring the newbies.\r\n"},
         {"You have disabled auto-diagnose.\r\n",
-            "You will now automatically be aware of your opponent's condition.\r\n"},
+         "You will now automatically be aware of your opponent's condition.\r\n"},
         {"You will now hear the dreams of other players while you sleep.\r\n",  // 25
-            "You will no longer hear dreams.\r\n"},
+         "You will no longer hear dreams.\r\n"},
         {"You will now be aware of the projections of other remorts.\r\n",
-            "You will now ignore the projections of other remorts.\r\n"},
+         "You will now ignore the projections of other remorts.\r\n"},
         {"You are no longer halted.\r\n",
-            "You are now in halt mode.\r\n"},
+         "You are now in halt mode.\r\n"},
         {"You resume your immortal status.\r\n",
-            "Other gods may now kill you... if you don't watch it.\r\n"},
+         "Other gods may now kill you... if you don't watch it.\r\n"},
         {"You will now see all affections on the score page.\r\n",
-            "You will no longer see your affections on the score page.\r\n"},
+         "You will no longer see your affections on the score page.\r\n"},
         {"You now hear the hollering.\r\n", // 30
-            "You now ignore the hollering.\r\n"},
+         "You now ignore the hollering.\r\n"},
         {"You are now on the immchat channel.\r\n",
-            "You are now closed off from the immchat channel.\r\n",},
+         "You are now closed off from the immchat channel.\r\n",},
         {"Your clan badge will now show up on the who list.\r\n",
-            "Your clan badge will now be hidden on the who list.\r\n"},
+         "Your clan badge will now be hidden on the who list.\r\n"},
         {"Your prompt will now be displayed only after carriage returns.\r\n",
-            "Your prompt will now be redrawn after every message you receive.\r\n"},
+         "Your prompt will now be redrawn after every message you receive.\r\n"},
         {"You will now be shown on the who list.\r\n",
-            "You will no longer be shown on the who list.\r\n"},
+         "You will no longer be shown on the who list.\r\n"},
         {"Your level will be shown on the who list.\r\n",   // 35
-            "Your level will not be shown on the who list.\r\n"},
+         "Your level will not be shown on the who list.\r\n"},
         {"You will now see affect trailers on characters.\r\n",
-            "You will now ignore affect trailers on characters.\r\n"},
+         "You will now ignore affect trailers on characters.\r\n"},
         {"Logall", "Logall"},
         {"Jetstream", "Jetstream"},
         {"Weather", "Weather"},
         {"Autosplit OFF.\r\n",  // 40
-            "Autosplit ON.\r\n"},
+         "Autosplit ON.\r\n"},
         {"Autoloot OFF.\r\n",
-            "Autoloot ON.\r\n"},
+         "Autoloot ON.\r\n"},
         {"Pkiller OFF.\r\n",
-            "Pkiller ON.\r\n"},
+         "Pkiller ON.\r\n"},
         {"You open yourself to the echoing thoughts of the gods.\r\n",
-            "You close your mind to the echoing thoughts of the gods.\r\n"},
+         "You close your mind to the echoing thoughts of the gods.\r\n"},
         {"TEDII will now wrap your text at 76 columns.\r\n",
-            "TEDII will not wrap your text at 76 colums next time.\r\n"},
+         "TEDII will not wrap your text at 76 colums next time.\r\n"},
         {"Your world writing ability is now deactivated.\r\n",  // 45
-            "Your world writing ability is now activated.\r\n"},
+         "Your world writing ability is now activated.\r\n"},
         {"Deaths will not be logged.\r\n",
-            "All deaths will now be logged.\r\n"},
+         "All deaths will now be logged.\r\n"},
         {"You can now hear the rumors within your guild.\r\n",
-            "You are now deaf to the rumors of your guild members.\r\n"},
+         "You are now deaf to the rumors of your guild members.\r\n"},
         {"You can now hear the petitions of mortals.\r\n",
-            "You are now deaf to the petitions of mortals.\r\n"},
+         "You are now deaf to the petitions of mortals.\r\n"},
         {"You are now protected from the nasty words of your peers.\r\n",
-            "You are now subjected to the nastiness of your peers.\r\n"},
+         "You are now subjected to the nastiness of your peers.\r\n"},
         {"You can now hear the haggling of your peers.\r\n",
-            "You are now deaf to the haggling of your peers.\r\n"},
+         "You are now deaf to the haggling of your peers.\r\n"},
         {"You can now hear criers plug tempus.\r\n",
-            "You no longer hear criers plug tempus.\r\n"},
+         "You no longer hear criers plug tempus.\r\n"},
+        {"You are now using the imperial system of measurement.\r\n",
+         "You are now using the metric system of measurement.\r\n"},
         {"\n", "\n"}
     };
 
@@ -1324,6 +1326,10 @@ ACMD(do_gen_tog)
         break;
     case SCMD_NOPLUG:
         result = PRF_TOG_CHK(ch, PRF_NOPLUG);
+        break;
+    case SCMD_METRIC:
+        result = !ch->desc->account->metric_units;
+        account_set_metric(ch->desc->account, result);
         break;
     default:
         errlog("Unknown subcmd in do_gen_toggle");
@@ -1912,9 +1918,12 @@ ACMD(do_weigh)
     act("$n gauges the weight of $p by tossing it in one hand.",
         true, ch, obj, 0, TO_ROOM);
 
-    send_to_char(ch, "It seems to weigh about %.2f pounds.\r\n",
-        (GET_OBJ_WEIGHT(obj) + number(-(GET_OBJ_WEIGHT(obj) / GET_INT(ch)),
-                GET_OBJ_WEIGHT(obj) / GET_INT(ch))));
+    bool metric = ch->desc->account ? ch->desc->account->metric_units:false;
+    send_to_char(ch, "It seems to weigh about %s.\r\n",
+                 format_weight(GET_OBJ_WEIGHT(obj) +
+                               number(-(GET_OBJ_WEIGHT(obj) / GET_INT(ch)),
+                                      GET_OBJ_WEIGHT(obj) / GET_INT(ch)),
+                               metric));
 }
 
 ACMD(do_knock)

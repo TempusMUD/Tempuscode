@@ -190,6 +190,7 @@ struct set_struct {
 #define SCMD_NASTY      48
 #define SCMD_NOHAGGLE   49
 #define SCMD_NOPLUG     50
+#define SCMD_METRIC     51
 
 /* do_wizutil */
 #define SCMD_REROLL	0
