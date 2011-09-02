@@ -1749,3 +1749,29 @@ format_strength(int str)
     else
         return tmp_sprintf("18/%02d", (str - 18) * 10);
 }
+
+int
+strength_damage_bonus(int str)
+{
+    return (str * str) / 47 - str / 10 - 4;
+}
+
+int
+strength_hit_bonus(int str)
+{
+    return str / 3 - 5;
+}
+
+float
+strength_carry_weight(int str)
+{
+    float fstr = str;
+    return fstr * fstr - 8 * fstr + 15;
+}
+
+float
+strength_wield_weight(int str)
+{
+    float fstr = str;
+    return str * 12 / 10;
+}

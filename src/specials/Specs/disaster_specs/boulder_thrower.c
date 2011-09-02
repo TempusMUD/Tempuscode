@@ -69,7 +69,7 @@ SPECIAL(boulder_thrower)
         return 0;
 
     // already over-encumbered
-    if (IS_CARRYING_W(ch) + IS_WEARING_W(ch) > (CAN_CARRY_W(ch) >> 1))
+    if (IS_CARRYING_W(ch) + IS_WEARING_W(ch) > (CAN_CARRY_W(ch) / 2))
         return 0;
 
     // look for something in the room to pick up

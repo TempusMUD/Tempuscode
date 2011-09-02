@@ -1244,8 +1244,8 @@ const char *CURRENCY(struct creature * ch);
 #define CAN_CARRY_W(ch) (MAX(10, RAW_CARRY_W(ch)))
 
 #define RAW_CARRY_W(ch) (AFF2_FLAGGED(ch, AFF2_TELEKINESIS) ? \
-                         (str_app[STRENGTH_APPLY_INDEX(ch)].carry_w << 1) : \
-                         str_app[STRENGTH_APPLY_INDEX(ch)].carry_w + \
+                         (strength_carry_weight(GET_STR(ch)) * 2) : \
+                         strength_carry_weight(GET_STR(ch)) + \
                          ((GET_LEVEL(ch) >= LVL_GOD) ? 100000 : 0) + \
 						 ((GET_LEVEL(ch) >= LVL_IMMORT) ? 1000 : 0))
 #define CAN_CARRY_N(ch) (1 + GET_DEX(ch) + \
@@ -1409,6 +1409,10 @@ bool creature_remort(struct creature *ch);
 
 int max_creature_attr(struct creature *ch, int mode);
 char *format_strength(int str);
+int strength_damage_bonus(int str);
+int strength_hit_bonus(int str);
+float strength_carry_weight(int str);
+float strength_wield_weight(int str);
 
 struct aff_stash *stash_creature_affects(struct creature *ch);
 void restore_creature_affects(struct creature *ch,

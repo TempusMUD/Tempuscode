@@ -60,7 +60,6 @@
 
 /* external vars  */
 extern struct descriptor_data *descriptor_list;
-extern const struct str_app_type str_app[];
 extern const struct dex_skill_type dex_app_skill[];
 extern const int rev_dir[];
 extern const char *dirs[];
@@ -521,8 +520,8 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 10);
         WAIT_STATE(ch, 2 RL_SEC);
 
-        if ((af_ptr->duration -=
-                (str_app[STRENGTH_APPLY_INDEX(ch)].todam << 1)) <= 0) {
+        af_ptr->duration -= strength_damage_bonus(GET_STR(ch));
+        if (af_ptr->duration <= 0) {
             send_to_char(ch, "You break free!\r\n");
             act("$n breaks free from the entanglement!", true, ch, 0, 0,
                 TO_ROOM);
@@ -1807,7 +1806,7 @@ ACMD(do_gen_door)
         else if (door >= 0 && door_is_heavy(ch, obj, door) &&
                  (subcmd == SCMD_OPEN) &&
                  (IS_SET(flags_door[subcmd], NEED_CLOSED)) &&
-                 ((dice(2, 7) + str_app[STRENGTH_APPLY_INDEX(ch)].todam) < 12)) {
+                 ((dice(2, 7) + strength_damage_bonus(GET_STR(ch))) < 12)) {
             if (EXIT(ch, door)->keyword)
                 strcpy(dname, fname(EXIT(ch, door)->keyword));
             else
@@ -2866,7 +2865,7 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
     mvm_cost = MIN(mvm_cost, 30);
 
     max_drag =
-        (2 * str_app[GET_STR(ch)].carry_w) + (dice(1, (2 * GET_LEVEL(ch))));
+        (2 * strength_carry_weight(GET_STR(ch))) + (dice(1, (2 * GET_LEVEL(ch))));
 
     if (CHECK_SKILL(ch, SKILL_DRAG) > 30) {
         max_drag += (3 * CHECK_SKILL(ch, SKILL_DRAG));

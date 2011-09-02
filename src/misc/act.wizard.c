@@ -1903,7 +1903,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     found = false;
     if (k->in_room) {
         acc_sprintf
-            ("Encum : (%.2f inv + %.2f eq) = (%.2f tot)/%d, Number: %d/%d inv, %d eq, %d imp\r\n",
+            ("Encum : (%.2f inv + %.2f eq) = (%.2f tot)/%f, Number: %d/%d inv, %d eq, %d imp\r\n",
             IS_CARRYING_W(k), IS_WEARING_W(k),
             (IS_CARRYING_W(k) + IS_WEARING_W(k)), CAN_CARRY_W(k),
             IS_CARRYING_N(k), (int)CAN_CARRY_N(k), num, num2);
@@ -5254,23 +5254,16 @@ ACMD(do_show)
         break;
     case 27:                   /* str_app */
         strcpy(buf, "STR      to_hit    to_dam    max_encum    max_weap\r\n");
-        for (i = 0; i < 35; i++) {
-            if (i > 25)
-                sprintf(buf2, "/%-2d", (i - 25) * 10);
-            else
-                strcpy(buf2, "");
+        for (i = 0; i <= 35; i++) {
             sprintf(buf,
-                "%s%2d%-4s     %2d         %2d         %4d          %2d\r\n",
-                buf, i > 25 ? 18 : i, buf2, str_app[i].tohit, str_app[i].todam,
-                str_app[i].carry_w, str_app[i].wield_w);
+                "%s%-5s     %2d         %2d         %4f          %2f\r\n",
+                    buf,
+                    format_strength(i),
+                    strength_hit_bonus(i),
+                    strength_damage_bonus(i),
+                    strength_carry_weight(i),
+                    strength_wield_weight(i));
         }
-        sprintf(buf, "%s"
-            "18/99      %2d         %2d         %4d          %2d\r\n"
-            "18/00      %2d         %2d         %4d          %2d\r\n",
-            buf, str_app[35].tohit, str_app[35].todam, str_app[35].carry_w,
-            str_app[35].wield_w,
-            str_app[36].tohit, str_app[36].todam, str_app[36].carry_w,
-            str_app[36].wield_w);
         page_string(ch->desc, buf);
         break;
 

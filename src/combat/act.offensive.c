@@ -130,7 +130,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     if (CHECK_SKILL(ch, skillnum) < LEARNED(ch))
         prob -= (LEARNED(ch) - CHECK_SKILL(ch, skillnum));
     prob += GET_DEX(ch);
-    prob += (str_app[STRENGTH_APPLY_INDEX(ch)].tohit + GET_HITROLL(ch)) >> 1;
+    prob += (strength_hit_bonus(GET_STR(ch)) + GET_HITROLL(ch)) >> 1;
 
     prob -= ((IS_WEARING_W(ch) + IS_CARRYING_W(ch)) * 15) / CAN_CARRY_W(ch);
 
@@ -189,8 +189,8 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     switch (skillnum) {
 
     case SKILL_BASH:
-        prob -= (str_app[STRENGTH_APPLY_INDEX(vict)].wield_w >> 1);
-        prob -= (GET_WEIGHT(vict) - GET_WEIGHT(ch)) >> 4;
+        prob -= (strength_wield_weight(GET_STR(vict)) / 2);
+        prob -= (GET_WEIGHT(vict) - GET_WEIGHT(ch)) / 16;
 
         if (ch->equipment[WEAR_WIELD])
             prob += GET_OBJ_WEIGHT(ch->equipment[WEAR_WIELD]);
@@ -674,13 +674,13 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
     case SKILL_SHOOT:
         prob += (GET_DEX(ch) >> 1);
-        prob -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+        prob -= strength_hit_bonus(GET_STR(ch));
 
         break;
 
     case SKILL_ARCHERY:
         prob += (GET_DEX(ch) >> 1);
-        prob -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+        prob -= strength_hit_bonus(GET_STR(ch));
 
         break;
 
@@ -894,7 +894,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         return -1;
     }
 
-    *dam += str_app[STRENGTH_APPLY_INDEX(ch)].todam;
+    *dam += strength_damage_bonus(GET_STR(ch));
     *dam += GET_DAMROLL(ch);
 
     *dam += (*dam * GET_REMORT_GEN(ch)) / 10;
@@ -1494,7 +1494,7 @@ ACMD(do_bash)
     }
 
     percent = CHECK_SKILL(ch, SKILL_BREAK_DOOR) +
-        (str_app[STRENGTH_APPLY_INDEX(ch)].todam << 3) + GET_CON(ch);
+        (strength_damage_bonus(GET_STR(ch)) << 3) + GET_CON(ch);
 
     if (IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED))
         percent -= 15;
@@ -1923,7 +1923,7 @@ ACMD(do_tornado_kick)
     prob -= GET_DEX(vict);
 
     dam = dice(GET_LEVEL(ch), 5) +
-        (str_app[STRENGTH_APPLY_INDEX(ch)].todam) + GET_DAMROLL(ch);
+        strength_damage_bonus(GET_STR(ch)) + GET_DAMROLL(ch);
     if (!IS_NPC(ch))
         dam += (dam * GET_REMORT_GEN(ch)) / 10;
 

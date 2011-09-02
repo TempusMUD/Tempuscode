@@ -1740,7 +1740,7 @@ perform_give(struct creature *ch, struct creature *vict,
             }
             return 1;
         }
-        if ((IS_CARRYING_W(vict) + IS_WEARING_W(vict)) > (CAN_CARRY_W(vict) >> 1))  // i don't want that heavy shit
+        if ((IS_CARRYING_W(vict) + IS_WEARING_W(vict)) > (CAN_CARRY_W(vict) / 2))  // i don't want that heavy shit
             do_drop(vict, fname(obj->aliases), 0, 0);
     }
     return 1;
@@ -2727,7 +2727,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
     // If the shield's too heavy, they cant make good use of it.
     if (where == WEAR_SHIELD
         && GET_OBJ_WEIGHT(obj) >
-        1.5 * str_app[STRENGTH_APPLY_INDEX(ch)].wield_w) {
+        1.5 * strength_wield_weight(GET_STR(ch))) {
         send_to_char(ch, "It's too damn heavy.\r\n");
         return 0;
     }
@@ -2956,7 +2956,7 @@ ACMD(do_wield)
         return;
     }
 
-    if (GET_OBJ_WEIGHT(obj) > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w) {
+    if (GET_OBJ_WEIGHT(obj) > strength_wield_weight(GET_STR(ch))) {
         send_to_char(ch, "It's too damn heavy.\r\n");
         return;
     }

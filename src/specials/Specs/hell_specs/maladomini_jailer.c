@@ -31,7 +31,7 @@ SPECIAL(maladomini_jailer)
 
     if (!number(0, 3)) {
 
-        if (str_app[GET_STR(ch)].carry_w + number(100, 500) <
+        if (strength_carry_weight(GET_STR(ch)) + number(100, 500) <
             (GET_WEIGHT(vict) + IS_CARRYING_W(vict) + IS_WEARING_W(vict))) {
             act("$n attempts to lift you and hurl you into the chasm to the west!", false, ch, 0, vict, TO_VICT);
             act("$n attempts to lift $N and hurl $M into the chasm to the west!", false, ch, 0, vict, TO_NOTVICT);

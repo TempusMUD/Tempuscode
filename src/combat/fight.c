@@ -2636,7 +2636,7 @@ hit(struct creature *ch, struct creature *victim, int type)
         dam = dex_app[GET_DEX(ch)].todam;
         dam += GET_HITROLL(ch);
     } else {
-        dam = str_app[STRENGTH_APPLY_INDEX(ch)].todam;
+        dam = strength_damage_bonus(GET_STR(ch));
         dam += GET_DAMROLL(ch);
     }
 

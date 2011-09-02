@@ -79,13 +79,6 @@ struct dex_app_type {
     int16_t todam;
 };
 
-struct str_app_type {
-	int16_t tohit;				/* To Hit (THAC0) Bonus/Penalty        */
-	int16_t todam;				/* Damage Bonus/Penalty                */
-	int16_t carry_w;				/* Maximum weight that can be carrried */
-	int16_t wield_w;				/* Maximum weight that can be wielded  */
-};
-
 struct con_app_type {
 	int16_t hitp;
 	int16_t shock;
@@ -96,7 +89,6 @@ struct weap_spec_info {
 	int max;
 };
 
-extern const struct str_app_type str_app[];
 extern const struct dex_skill_type dex_app_skill[];
 extern const struct dex_app_type dex_app[26];
 extern const struct con_app_type con_app[26];

@@ -99,7 +99,7 @@ ACMD(do_pistolwhip)
     if (percent > prob) {
         damage(ch, vict, weap, 0, SKILL_PISTOLWHIP, WEAR_BODY);
     } else {
-        dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
+        dam = dice(GET_LEVEL(ch), strength_damage_bonus(GET_STR(ch))) +
             dice(4, GET_OBJ_WEIGHT(weap));
         dam /= 4;
         damage(ch, vict, weap, dam, SKILL_PISTOLWHIP, WEAR_HEAD);
@@ -189,7 +189,7 @@ ACMD(do_crossface)
         damage(ch, vict, weap, 0, SKILL_CROSSFACE, WEAR_HEAD);
     } else {
 
-        dam = dice(GET_LEVEL(ch), str_app[STRENGTH_APPLY_INDEX(ch)].todam) +
+        dam = dice(GET_LEVEL(ch), strength_damage_bonus(GET_STR(ch))) +
             dice(9, GET_OBJ_WEIGHT(weap));
 
         wear_num = WEAR_FACE;

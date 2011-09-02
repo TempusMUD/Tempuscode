@@ -1096,21 +1096,9 @@ do_mob_mset(struct creature *ch, char *argument)
 
         }
     case 43:{               /** str_app **/
-            i = atoi(arg2);
-            if (mob_p->real_abils.str != 18) {
-                send_to_char(ch, "The mob must have an 18 strength.\r\n");
-                return;
-            }
-            if (i < 0 || i > 100)
-                send_to_char(ch,
-                    "Strength apply must be between 0 and 100.\r\n");
-            else {
-                mob_p->aff_abils.str = mob_p->real_abils.str = 18 + i / 10;
-                send_to_char(ch, "Mobile strength apply set.\r\n");
-            }
-            break;
-
-        }
+        send_to_char(ch, "Disabled.\r\n");
+        break;
+    }
     case 44:{                  /** move_buf **/
             if (NPC_SHARED(mob_p)->move_buf)
                 free(NPC_SHARED(mob_p)->move_buf);

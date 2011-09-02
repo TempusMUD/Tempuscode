@@ -1910,7 +1910,7 @@ single_mobile_activity(struct creature *ch)
                             ITEM2_NOREMOVE))) {
                     if (GET_EQ(ch, WEAR_WIELD)
                         && (GET_OBJ_WEIGHT(obj) <=
-                            str_app[STRENGTH_APPLY_INDEX(ch)].wield_w)
+                            strength_wield_weight(GET_STR(ch)))
                         && GET_OBJ_COST(obj) > GET_OBJ_COST(GET_EQ(ch,
                                 WEAR_WIELD))) {
                         strcpy(buf, fname(obj->aliases));

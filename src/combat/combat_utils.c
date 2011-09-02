@@ -139,7 +139,7 @@ calculate_weapon_probability(struct creature *ch, int prob,
     if (weap->worn_on == WEAR_WIELD_2) {
         prob -=
             (prob * weap_weight) /
-            MAX(1, (str_app[STRENGTH_APPLY_INDEX(ch)].wield_w >> 1));
+            MAX(1, (strength_wield_weight(GET_STR(ch)) / 2));
         if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
             prob += CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) - 60;
         } else {
@@ -150,7 +150,7 @@ calculate_weapon_probability(struct creature *ch, int prob,
     } else {
         prob -=
             (prob * weap_weight) /
-            (str_app[STRENGTH_APPLY_INDEX(ch)].wield_w << 1);
+            (strength_wield_weight(GET_STR(ch)) * 2);
         if (IS_BARB(ch)) {
             prob += (LEARNED(ch) - weapon_prof(ch, weap)) >> 3;
         }
@@ -286,7 +286,7 @@ calculate_thaco(struct creature *ch, struct creature *victim,
     if (weap && IS_ENERGY_GUN(weap))
         calc_thaco -= dex_app[GET_DEX(ch)].tohit;
     else
-        calc_thaco -= str_app[STRENGTH_APPLY_INDEX(ch)].tohit;
+        calc_thaco -= strength_hit_bonus(GET_STR(ch));
 
     if (GET_HITROLL(ch) <= 5)
         calc_thaco -= GET_HITROLL(ch);
@@ -334,13 +334,13 @@ calculate_thaco(struct creature *ch, struct creature *victim,
             calc_thaco -= 1;
 
         wpn_wgt = GET_OBJ_WEIGHT(weap);
-        if (wpn_wgt > str_app[STRENGTH_APPLY_INDEX(ch)].wield_w)
+        if (wpn_wgt > strength_wield_weight(GET_STR(ch)))
             calc_thaco += 2;
         if (IS_MAGE(ch) &&
             (wpn_wgt >
-                ((GET_LEVEL(ch) * str_app[STRENGTH_APPLY_INDEX(ch)].wield_w /
+             ((GET_LEVEL(ch) * strength_wield_weight(GET_STR(ch)) /
                         100)
-                    + (str_app[STRENGTH_APPLY_INDEX(ch)].wield_w >> 1))))
+                    + (strength_wield_weight(GET_STR(ch)) / 2))))
             calc_thaco += (wpn_wgt >> 2);
         else if (IS_THIEF(ch) && (wpn_wgt > 12 + (GET_STR(ch) >> 2)))
             calc_thaco += (wpn_wgt >> 3);
