@@ -48,7 +48,7 @@ news = IO.read('/tmp/tempus.reboot.news.txt')
 File.unlink('/tmp/tempus.reboot.news.txt')
 
 news.gsub!(/^#.*\r?\n/, '')     # remove commented lines
-news.gsub!(/\r?\n/, '\r\n')     # ensure CRLF formatting
+news.gsub!(/\r?\n/, "\r\n")     # ensure CRLF formatting
 
 # Post the news to realm
 sql = PGconn.connect("", -1, "", "", "tempus", "realm")
