@@ -1739,12 +1739,6 @@ max_creature_attr(struct creature *ch, int mode)
     return MIN(max_stat, 50);
 }
 
-char *
-format_strength(int str)
-{
-    return tmp_sprintf("%d", str);
-}
-
 int
 strength_damage_bonus(int str)
 {

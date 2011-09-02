@@ -2070,7 +2070,7 @@ ACMD(do_stand)
     case POS_RESTING:
     case POS_SITTING:
         if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)) {
-            if (number(1, 35) < GET_STR(ch)) {
+            if (number(1, 50) < GET_STR(ch)) {
                 act("You defy the probability waves of the gravity well and struggle to your feet.", false, ch, 0, 0, TO_CHAR);
                 act("$n defies the gravity well and struggles to $s feet.",
                     true, ch, 0, 0, TO_ROOM);

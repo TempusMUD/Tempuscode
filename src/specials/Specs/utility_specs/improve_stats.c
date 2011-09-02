@@ -116,14 +116,9 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
     // crashsaving does the necessary adjustments to aff_attrs
     crashsave(ch);
 
-    if (mode != ATTR_STR)
-        slog("%s improved %s from %d to %d at %d.",
-            GET_NAME(ch), improve_modes[mode], old_stat, *real_stat,
-            ch->in_room->number);
-    else
-        slog("%s improved %s from %d to %s at %d.",
-            GET_NAME(ch), improve_modes[mode], old_stat,
-             format_strength(*real_stat), ch->in_room->number);
+    slog("%s improved %s from %d to %d at %d.",
+         GET_NAME(ch), improve_modes[mode], old_stat, *real_stat,
+         ch->in_room->number);
 
     send_to_char(ch, "You begin your training.\r\n");
     act("$n begins to train.", false, ch, 0, 0, TO_ROOM);

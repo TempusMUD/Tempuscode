@@ -1764,8 +1764,7 @@ perform_plant(struct creature *ch, struct creature *vict, struct obj_data *obj)
     obj_from_char(obj);
     obj_to_char(obj, vict);
     act("You plant $p on $N.", false, ch, obj, vict, TO_CHAR);
-    if ((CHECK_SKILL(ch, SKILL_PLANT) + GET_DEX(ch)) <
-        (number(0, 83) + GET_WIS(vict)) ||
+    if ((CHECK_SKILL(ch, SKILL_PLANT) + GET_DEX(ch)) < (number(0, 83) + GET_WIS(vict)) ||
         AFF2_FLAGGED(vict, AFF2_TRUE_SEEING))
         act("$n puts $p in your pocket.", false, ch, obj, vict, TO_VICT);
     else
@@ -2112,7 +2111,7 @@ ACMD(do_drink)
         send_to_char(ch, "You have to be holding that to drink from it.\r\n");
         return;
     }
-    if (GET_COND(ch, DRUNK) > GET_CON(ch) * 2 || GET_COND(ch, DRUNK) == 24) {
+    if (GET_COND(ch, DRUNK) > GET_CON(ch) || GET_COND(ch, DRUNK) == 24) {
         /* The pig is drunk */
         send_to_char(ch,
             "You can't seem to get it close enough to your mouth.\r\n");
@@ -2174,13 +2173,13 @@ ACMD(do_drink)
     gain_condition(ch, FULL, full);
     gain_condition(ch, THIRST, thirst);
 
-    if (GET_COND(ch, DRUNK) > GET_CON(ch) * 2 || GET_COND(ch, DRUNK) == 24)
+    if (GET_COND(ch, DRUNK) > GET_CON(ch) || GET_COND(ch, DRUNK) == 24)
         send_to_char(ch, "You are on the verge of passing out!\r\n");
     else if (GET_COND(ch, DRUNK) > GET_CON(ch) * 3 / 4)
         send_to_char(ch, "You are feeling no pain.\r\n");
-    else if (GET_COND(ch, DRUNK) > GET_CON(ch))
-        send_to_char(ch, "You feel pretty damn drunk.\r\n");
     else if (GET_COND(ch, DRUNK) > GET_CON(ch) / 2)
+        send_to_char(ch, "You feel pretty damn drunk.\r\n");
+    else if (GET_COND(ch, DRUNK) > GET_CON(ch) / 4)
         send_to_char(ch, "You feel pretty good.\r\n");
 
     if (GET_COND(ch, THIRST) > 20)

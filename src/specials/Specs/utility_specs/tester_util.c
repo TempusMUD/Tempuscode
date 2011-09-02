@@ -184,12 +184,12 @@ SPECIAL(tester_util)
         do_set(ch, buf, 0, 0);
         break;
     case 23:                   // Max Stats
-        do_set(ch, tmp_strdup("me str 25"), 0, 0);
-        do_set(ch, tmp_strdup("me int 25"), 0, 0);
-        do_set(ch, tmp_strdup("me wis 25"), 0, 0);
-        do_set(ch, tmp_strdup("me con 25"), 0, 0);
-        do_set(ch, tmp_strdup("me dex 25"), 0, 0);
-        do_set(ch, tmp_strdup("me cha 25"), 0, 0);
+        do_set(ch, tmp_strdup("me str 50"), 0, 0);
+        do_set(ch, tmp_strdup("me int 50"), 0, 0);
+        do_set(ch, tmp_strdup("me wis 50"), 0, 0);
+        do_set(ch, tmp_strdup("me con 50"), 0, 0);
+        do_set(ch, tmp_strdup("me dex 50"), 0, 0);
+        do_set(ch, tmp_strdup("me cha 50"), 0, 0);
         break;
     case 24:
         sprintf(buf, "me %s %s", arg1, arg2);

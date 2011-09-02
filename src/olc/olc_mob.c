@@ -751,8 +751,8 @@ do_mob_mset(struct creature *ch, char *argument)
         }
     case 10:{               /** str **/
             i = atoi(arg2);
-            if (i < 3 || i > 25)
-                send_to_char(ch, "Strength must be between 3 and 25.\r\n");
+            if (i < 3 || i > 50)
+                send_to_char(ch, "Strength must be between 3 and 50.\r\n");
             else {
                 mob_p->aff_abils.str = mob_p->real_abils.str = i;
                 send_to_char(ch, "Mobile strength set.\r\n");
@@ -761,8 +761,8 @@ do_mob_mset(struct creature *ch, char *argument)
         }
     case 11:{               /** intel **/
             i = atoi(arg2);
-            if (i < 3 || i > 25)
-                send_to_char(ch, "Intelligence must be between 3 and 25.\r\n");
+            if (i < 3 || i > 50)
+                send_to_char(ch, "Intelligence must be between 3 and 50.\r\n");
             else {
                 mob_p->aff_abils.intel = mob_p->real_abils.intel = i;
                 send_to_char(ch, "Mobile intelligence set.\r\n");
@@ -771,8 +771,8 @@ do_mob_mset(struct creature *ch, char *argument)
         }
     case 12:{              /** wis **/
             i = atoi(arg2);
-            if (i < 3 || i > 25)
-                send_to_char(ch, "Wisdom must be between 3 and 25.\r\n");
+            if (i < 3 || i > 50)
+                send_to_char(ch, "Wisdom must be between 3 and 50.\r\n");
             else {
                 mob_p->aff_abils.wis = mob_p->real_abils.wis = i;
                 send_to_char(ch, "Mobile wisdom set.\r\n");
@@ -781,8 +781,8 @@ do_mob_mset(struct creature *ch, char *argument)
         }
     case 13:{              /** dex **/
             i = atoi(arg2);
-            if (i < 3 || i > 25)
-                send_to_char(ch, "Dexterity must be between 3 and 25.\r\n");
+            if (i < 3 || i > 50)
+                send_to_char(ch, "Dexterity must be between 3 and 50.\r\n");
             else {
                 mob_p->aff_abils.dex = mob_p->real_abils.dex = i;
                 send_to_char(ch, "Mobile dexterity set.\r\n");
@@ -791,8 +791,8 @@ do_mob_mset(struct creature *ch, char *argument)
         }
     case 14:{               /** con **/
             i = atoi(arg2);
-            if (i < 3 || i > 25)
-                send_to_char(ch, "Constitution must be between 3 and 25.\r\n");
+            if (i < 3 || i > 50)
+                send_to_char(ch, "Constitution must be between 3 and 50.\r\n");
             else {
                 mob_p->aff_abils.con = mob_p->real_abils.con = i;
                 send_to_char(ch, "Mobile constitution set.\r\n");
@@ -801,8 +801,8 @@ do_mob_mset(struct creature *ch, char *argument)
         }
     case 15:{              /** cha **/
             i = atoi(arg2);
-            if (i < 3 || i > 25)
-                send_to_char(ch, "Charisma must be between 3 and 25.\r\n");
+            if (i < 3 || i > 50)
+                send_to_char(ch, "Charisma must be between 3 and 50.\r\n");
             else {
                 mob_p->aff_abils.cha = mob_p->real_abils.cha = i;
                 send_to_char(ch, "Mobile charisma set.\r\n");
@@ -1030,16 +1030,9 @@ do_mob_mset(struct creature *ch, char *argument)
             }
             break;
         }
-    case 37:{             /** stradd **/
-            i = atoi(arg2);
-            if (i < 0 || i > 100)
-                send_to_char(ch, "StrAdd must be between 0 and 100.\r\n");
-            else {
-                GET_STR(mob_p) = 18 + i / 10;
-                send_to_char(ch, "Mobile StrAdd set.\r\n");
-            }
-            break;
-        }
+    case 37:             /** stradd **/
+        send_to_char(ch, "StrAdd disabled.\r\n");
+        break;
     case 38:{             /** height **/
             i = atoi(arg2);
             if (i < 1 || i > 10000)

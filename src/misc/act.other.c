@@ -1450,7 +1450,7 @@ ACMD(do_compare)
     case ITEM_WAND:
     case ITEM_STAFF:
     case ITEM_POTION:
-        if (!IS_MAGE(ch) || IS_DWARF(ch) || GET_INT(ch) < 15)
+        if (!IS_MAGE(ch) || IS_DWARF(ch) || GET_INT(ch) < 30)
             break;
         send_to_char(ch, "%s seems to carry a greater aura of power.\r\n",
             GET_OBJ_VAL(item1, 0) >= GET_OBJ_VAL(item2, 0) ?

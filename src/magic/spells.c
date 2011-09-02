@@ -1270,8 +1270,8 @@ ASPELL(spell_identify)
                      GET_REAL_HITROLL(victim),
                      GET_DAMROLL(victim));
         send_to_char(ch,
-            "Str: %s, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
-                     format_strength(GET_STR(victim)),
+            "Str: %d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
+                     GET_STR(victim),
                      GET_INT(victim),
                      GET_WIS(victim),
                      GET_DEX(victim),
@@ -1392,8 +1392,8 @@ ASPELL(spell_minor_identify)
         send_to_char(ch, "AC: %d, Hitroll: %d, Damroll: %d\r\n",
             GET_AC(victim), GET_HITROLL(victim), GET_DAMROLL(victim));
         send_to_char(ch,
-                     "Str: %s, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
-                     format_strength(GET_STR(victim)), GET_INT(victim),
+                     "Str: %d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
+                     GET_STR(victim), GET_INT(victim),
                      GET_WIS(victim), GET_DEX(victim), GET_CON(victim),
                      GET_CHA(victim));
 
@@ -2671,21 +2671,21 @@ ASPELL(spell_animate_dead)
     //
 
     // Set aff abils
-    GET_STR(zombie) = (char)MIN(25, GET_STR(orig_char) * mult);
-    GET_DEX(zombie) = (char)MIN(25, GET_DEX(orig_char) * mult);
-    GET_CON(zombie) = (char)MIN(25, GET_CON(orig_char) * mult);
-    GET_INT(zombie) = (char)MIN(25, GET_INT(orig_char) * mult);
-    GET_WIS(zombie) = (char)MIN(25, GET_WIS(orig_char) * mult);
-    GET_CHA(zombie) = (char)MIN(25, GET_CHA(orig_char) * mult);
+    GET_STR(zombie) = (char)MIN(50, GET_STR(orig_char) * mult);
+    GET_DEX(zombie) = (char)MIN(50, GET_DEX(orig_char) * mult);
+    GET_CON(zombie) = (char)MIN(50, GET_CON(orig_char) * mult);
+    GET_INT(zombie) = (char)MIN(50, GET_INT(orig_char) * mult);
+    GET_WIS(zombie) = (char)MIN(50, GET_WIS(orig_char) * mult);
+    GET_CHA(zombie) = (char)MIN(50, GET_CHA(orig_char) * mult);
 
     // Set real abils
-    zombie->real_abils.str = (char)MIN(25, orig_char->real_abils.str * mult);
-    zombie->real_abils.dex = (char)MIN(25, orig_char->real_abils.dex * mult);
-    zombie->real_abils.con = (char)MIN(25, orig_char->real_abils.con * mult);
+    zombie->real_abils.str = (char)MIN(50, orig_char->real_abils.str * mult);
+    zombie->real_abils.dex = (char)MIN(50, orig_char->real_abils.dex * mult);
+    zombie->real_abils.con = (char)MIN(50, orig_char->real_abils.con * mult);
     zombie->real_abils.intel =
-        (char)MIN(25, orig_char->real_abils.intel * mult);
-    zombie->real_abils.wis = (char)MIN(25, orig_char->real_abils.wis * mult);
-    zombie->real_abils.cha = (char)MIN(25, orig_char->real_abils.cha * mult);
+        (char)MIN(50, orig_char->real_abils.intel * mult);
+    zombie->real_abils.wis = (char)MIN(50, orig_char->real_abils.wis * mult);
+    zombie->real_abils.cha = (char)MIN(50, orig_char->real_abils.cha * mult);
 
     GET_HITROLL(zombie) = (char)MIN(50, GET_HITROLL(orig_char) * mult);
     GET_DAMROLL(zombie) = (char)MIN(50, GET_HITROLL(orig_char) * mult);
@@ -2824,12 +2824,12 @@ ASPELL(spell_unholy_stalker)
     // stats
     //
 
-    GET_STR(stalker) = (char)MIN(25, GET_STR(stalker) * mult);
-    GET_DEX(stalker) = (char)MIN(25, GET_DEX(stalker) * mult);
-    GET_CON(stalker) = (char)MIN(25, GET_CON(stalker) * mult);
-    GET_INT(stalker) = (char)MIN(25, GET_INT(stalker) * mult);
-    GET_WIS(stalker) = (char)MIN(25, GET_WIS(stalker) * mult);
-    GET_CHA(stalker) = (char)MIN(25, GET_CHA(stalker) * mult);
+    GET_STR(stalker) = (char)MIN(50, GET_STR(stalker) * mult);
+    GET_DEX(stalker) = (char)MIN(50, GET_DEX(stalker) * mult);
+    GET_CON(stalker) = (char)MIN(50, GET_CON(stalker) * mult);
+    GET_INT(stalker) = (char)MIN(50, GET_INT(stalker) * mult);
+    GET_WIS(stalker) = (char)MIN(50, GET_WIS(stalker) * mult);
+    GET_CHA(stalker) = (char)MIN(50, GET_CHA(stalker) * mult);
 
     GET_HITROLL(stalker) = (char)MIN(50, GET_HITROLL(stalker) * mult);
     GET_DAMROLL(stalker) = (char)MIN(50, GET_HITROLL(stalker) * mult);

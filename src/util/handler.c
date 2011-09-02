@@ -456,13 +456,13 @@ affect_total(struct creature *ch)
         affect_modify(ch, af->location, af->modifier, af->bitvector,
             af->aff_index, true);
 
-    /* Make certain values are between 0..25, not < 0 and not > 25! */
-    GET_STR(ch) = MAX(1, MIN(GET_STR(ch), 35)); /* str is a special case atm */
-    GET_DEX(ch) = MAX(1, MIN(GET_DEX(ch), 25));
-    GET_INT(ch) = MAX(1, MIN(GET_INT(ch), 25));
-    GET_WIS(ch) = MAX(1, MIN(GET_WIS(ch), 25));
-    GET_CON(ch) = MAX(1, MIN(GET_CON(ch), 25));
-    GET_CHA(ch) = MAX(1, MIN(GET_CHA(ch), 25));
+    /* Make certain values are between 0..50, not < 0 and not > 50! */
+    GET_STR(ch) = MAX(0, MIN(GET_STR(ch), 50)); /* str is a special case atm */
+    GET_DEX(ch) = MAX(0, MIN(GET_DEX(ch), 50));
+    GET_INT(ch) = MAX(0, MIN(GET_INT(ch), 50));
+    GET_WIS(ch) = MAX(0, MIN(GET_WIS(ch), 50));
+    GET_CON(ch) = MAX(0, MIN(GET_CON(ch), 50));
+    GET_CHA(ch) = MAX(0, MIN(GET_CHA(ch), 50));
 
     /* Make sure that HIT < MAX_HIT, etc...               */
 

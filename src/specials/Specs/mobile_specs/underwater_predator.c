@@ -27,9 +27,7 @@ SPECIAL(underwater_predator)
                 || SECT_TYPE(troom) == SECT_DEEP_OCEAN) &&
             !ROOM_FLAGGED(troom, ROOM_GODROOM | ROOM_DEATH | ROOM_PEACEFUL)) {
 
-            if ((STRENGTH_APPLY_INDEX(pred) + number(1, 6) >
-                    STRENGTH_APPLY_INDEX(vict))) {
-
+            if (GET_STR(pred) + number(1, 6) > GET_STR(vict)) {
                 act("$n drags you under!!!", false, pred, 0, vict, TO_VICT);
                 act("$n drags $N under!!!", false, pred, 0, vict, TO_NOTVICT);
                 char_from_room(pred, false);

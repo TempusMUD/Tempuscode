@@ -277,12 +277,7 @@ ACMD(do_drag_char)
 
     percent = ((GET_LEVEL(vict)) + number(1, 101));
     percent -= (GET_WEIGHT(ch) - GET_WEIGHT(vict)) / 5;
-
-    if (GET_STR(ch) >= 19) {
-        percent -= (GET_STR(ch) * 2);
-    } else {
-        percent -= (GET_STR(ch));
-    }
+    percent -= (GET_STR(ch));
 
     prob =
         MAX(0, (GET_LEVEL(ch) + (CHECK_SKILL(ch,

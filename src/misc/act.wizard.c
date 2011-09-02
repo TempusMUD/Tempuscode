@@ -1752,9 +1752,9 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                 C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(k), CCGRN(ch, C_NRM),
             CCNRM(ch, C_NRM), GET_PC_DEATHS(k));
     }
-    acc_sprintf("Str: [%s%s%s]  Int: [%s%d%s]  Wis: [%s%d%s]  "
+    acc_sprintf("Str: [%s%d%s]  Int: [%s%d%s]  Wis: [%s%d%s]  "
         "Dex: [%s%d%s]  Con: [%s%d%s]  Cha: [%s%d%s]\r\n",
-                CCCYN(ch, C_NRM), format_strength(GET_STR(k)), CCNRM(ch, C_NRM),
+                CCCYN(ch, C_NRM), GET_STR(k), CCNRM(ch, C_NRM),
                 CCCYN(ch, C_NRM), GET_INT(k), CCNRM(ch, C_NRM),
                 CCCYN(ch, C_NRM), GET_WIS(k), CCNRM(ch, C_NRM),
                 CCCYN(ch, C_NRM), GET_DEX(k), CCNRM(ch, C_NRM),
@@ -3607,8 +3607,8 @@ perform_reroll(struct creature *ch, struct creature *vict)
     send_to_char(vict, "Your stats have been rerolled.\r\n");
     slog("(GC) %s has rerolled %s.", GET_NAME(ch), GET_NAME(vict));
     send_to_char(ch,
-        "New stats: Str %s, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
-                 format_strength(GET_STR(vict)), GET_INT(vict), GET_WIS(vict),
+        "New stats: Str %d, Int %d, Wis %d, Dex %d, Con %d, Cha %d\r\n",
+                 GET_STR(vict), GET_INT(vict), GET_WIS(vict),
                  GET_DEX(vict), GET_CON(vict), GET_CHA(vict));
 }
 
@@ -5256,9 +5256,9 @@ ACMD(do_show)
         strcpy(buf, "STR      to_hit    to_dam    max_encum    max_weap\r\n");
         for (i = 0; i <= 50; i++) {
             sprintf(buf,
-                "%s%-5s     %2d         %2d         %4f          %2f\r\n",
+                "%s%-5d     %2d         %2d         %4f          %2f\r\n",
                     buf,
-                    format_strength(i),
+                    i,
                     strength_hit_bonus(i),
                     strength_damage_bonus(i),
                     strength_carry_weight(i),
@@ -5921,7 +5921,7 @@ ACMD(do_set)
         affect_total(vict);
         break;
     case 10:
-        RANGE(3, 25);
+        RANGE(0, 50);
         if (value <= 18)
             vict->real_abils.str = value;
         else if (value > 18)
@@ -5929,52 +5929,46 @@ ACMD(do_set)
         affect_total(vict);
         break;
     case 11:
-        if (vict->real_abils.str < 18 ||
-            vict->real_abils.str > 28) {
-            send_to_char(ch,
-                "Stradd is only applicable with 18 str... asshole.\r\n");
-            return;
-        }
-        vict->real_abils.str = 18 + RANGE(0, 100) / 10;
-        affect_total(vict);
-        break;
+        send_to_char(ch,
+                "Stradd doesn't exist anymore... asshole.\r\n");
+        return;
     case 12:
         if (IS_NPC(vict) || GET_LEVEL(vict) >= LVL_GRGOD)
-            RANGE(3, 25);
+            RANGE(3, 50);
         else
-            RANGE(3, MIN(25, GET_REMORT_GEN(vict) + 18));
+            RANGE(3, MIN(50, GET_REMORT_GEN(vict) + 18));
         vict->real_abils.intel = value;
         affect_total(vict);
         break;
     case 13:
         if (IS_NPC(vict) || GET_LEVEL(vict) >= LVL_GRGOD)
-            RANGE(3, 25);
+            RANGE(3, 50);
         else
-            RANGE(3, MIN(25, GET_REMORT_GEN(vict) + 18));
+            RANGE(3, MIN(50, GET_REMORT_GEN(vict) + 18));
         vict->real_abils.wis = value;
         affect_total(vict);
         break;
     case 14:
         if (IS_NPC(vict) || GET_LEVEL(vict) >= LVL_GRGOD)
-            RANGE(3, 25);
+            RANGE(3, 50);
         else
-            RANGE(3, MIN(25, GET_REMORT_GEN(vict) + 18));
+            RANGE(3, MIN(50, GET_REMORT_GEN(vict) + 18));
         vict->real_abils.dex = value;
         affect_total(vict);
         break;
     case 15:
         if (IS_NPC(vict) || GET_LEVEL(vict) >= LVL_GRGOD)
-            RANGE(3, 25);
+            RANGE(3, 50);
         else
-            RANGE(3, MIN(25, GET_REMORT_GEN(vict) + 18));
+            RANGE(3, MIN(50, GET_REMORT_GEN(vict) + 18));
         vict->real_abils.con = value;
         affect_total(vict);
         break;
     case 16:
         if (IS_NPC(vict) || GET_LEVEL(vict) >= LVL_GRGOD)
-            RANGE(3, 25);
+            RANGE(3, 50);
         else
-            RANGE(3, MIN(25, GET_REMORT_GEN(vict) + 18));
+            RANGE(3, MIN(50, GET_REMORT_GEN(vict) + 18));
         vict->real_abils.cha = value;
         affect_total(vict);
         break;
@@ -8183,12 +8177,12 @@ ACMD(do_tester)
             SCMD_TESTER_SET);
         break;
     case 23:                   // Max Stats
-        do_set(ch, tmp_strdup("self str 25"), 0, SCMD_TESTER_SET);
-        do_set(ch, tmp_strdup("self int 25"), 0, SCMD_TESTER_SET);
-        do_set(ch, tmp_strdup("self wis 25"), 0, SCMD_TESTER_SET);
-        do_set(ch, tmp_strdup("self con 25"), 0, SCMD_TESTER_SET);
-        do_set(ch, tmp_strdup("self dex 25"), 0, SCMD_TESTER_SET);
-        do_set(ch, tmp_strdup("self cha 25"), 0, SCMD_TESTER_SET);
+        do_set(ch, tmp_strdup("self str 50"), 0, SCMD_TESTER_SET);
+        do_set(ch, tmp_strdup("self int 50"), 0, SCMD_TESTER_SET);
+        do_set(ch, tmp_strdup("self wis 50"), 0, SCMD_TESTER_SET);
+        do_set(ch, tmp_strdup("self con 50"), 0, SCMD_TESTER_SET);
+        do_set(ch, tmp_strdup("self dex 50"), 0, SCMD_TESTER_SET);
+        do_set(ch, tmp_strdup("self cha 50"), 0, SCMD_TESTER_SET);
         break;
     default:
         sprintf(buf, "$p: Invalid command '%s'.", arg1);

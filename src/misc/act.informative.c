@@ -4095,7 +4095,7 @@ print_attributes_to_buf(struct creature *ch, char *buff)
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
-        strcat(buff, tmp_sprintf(" [%s]", format_strength(str)));
+        strcat(buff, tmp_sprintf(" [%d]", str));
 
     if (str <= 3)
         strcat(buff, "You can barely stand up under your own weight.");

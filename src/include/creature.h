@@ -1353,14 +1353,6 @@ static inline bool IS_REMORT( const struct creature *ch )
 	return true;
 }
 
-static inline int
-STRENGTH_APPLY_INDEX(struct creature *ch)
-{
-	if (GET_STR(ch) < 0 || GET_STR(ch) > 35)
-		return 11;
-    return GET_STR(ch);
-}
-
 static inline struct room_direction_data* EXIT( struct creature *ch, int dir ) {
 	return ch->in_room->dir_option[dir];
 }
@@ -1408,7 +1400,6 @@ bool creature_purge(struct creature *ch, bool destroy_obj);
 bool creature_remort(struct creature *ch);
 
 int max_creature_attr(struct creature *ch, int mode);
-char *format_strength(int str);
 int strength_damage_bonus(int str);
 int strength_hit_bonus(int str);
 float strength_carry_weight(int str);

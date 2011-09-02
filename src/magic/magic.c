@@ -914,7 +914,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         WAIT_STATE(victim, 2 RL_SEC);
         if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) &&
             (GET_POSITION(victim) > POS_STANDING
-                || number(1, level / 2) > GET_STR(victim))) {
+                || number(1, level) > GET_STR(victim))) {
             GET_POSITION(victim) = POS_RESTING;
             act("The gravity around you suddenly increases, slamming you to the ground!", false, victim, 0, ch, TO_CHAR);
             act("The gravity around $n suddenly increases, slamming $m to the ground!", true, victim, 0, ch, TO_ROOM);
