@@ -4136,7 +4136,7 @@ print_attributes_to_buf(struct creature *ch, char *buff)
         strcat(buff, "You have the strength of a cloud giant!");
     else if (str == 34)
         strcat(buff, "You possess a herculean might!");
-    else if (str > 35)
+    else if (str >= 35)
         strcat(buff, "You have the strength of a god!");
     else
         strcat(buff, "Your strength is SKREWD.");
