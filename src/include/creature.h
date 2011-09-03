@@ -993,8 +993,6 @@ void remove_combat(struct creature *ch, struct creature *target);
 
 #define NOHASS(ch)       (PRF_FLAGGED(ch, PRF_NOHASSLE))
 
-#define WIS_APP(k)         (k >> 1)
-#define INT_APP(k)         (k << 1)
 #define GET_MORALE(ch)     (ch->mob_specials.shared->morale)
 #define NPC_SHARED(ch)     (ch->mob_specials.shared)
 
@@ -1088,7 +1086,6 @@ next_living(GList *node)
                          (ch)->player.short_descr : (ch)->player.name)
 #define GET_TITLE(ch)   ((ch)->player.title)
 #define GET_LEVEL(ch)   ((ch)->player.level)
-#define GET_PASSWD(ch)        ((ch)->player.passwd)
 
 /*
  * I wonder if this definition of GET_REAL_LEVEL should be the definition
@@ -1139,12 +1136,6 @@ const char *CURRENCY(struct creature * ch);
 
 #define GET_HITROLL(ch)          ((ch)->points.hitroll)
 #define GET_DAMROLL(ch)   ((ch)->points.damroll)
-
-#define GET_REAL_HITROLL(ch)   \
-  ((GET_HITROLL(ch) <= 5) ?    \
-   GET_HITROLL(ch) :           \
-   ((GET_HITROLL(ch) <= 50) ?  \
-    (5 + (((GET_HITROLL(ch) - 5)) / 3)) : 20))
 
 #define GET_IDNUM(ch)          ((ch)->char_specials.saved.idnum)
 #define IS_CARRYING_W(ch) ((ch)->char_specials.carry_weight)

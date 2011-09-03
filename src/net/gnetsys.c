@@ -163,7 +163,7 @@ perform_net_load(struct descriptor_data *d, char *arg)
 
     withdraw_future_bank(d->account, cost);
     percent = MIN(MAXGAIN(d->creature),
-        MAX(MINGAIN(d->creature), INT_APP(GET_INT(d->creature))));
+        MAX(MINGAIN(d->creature), GET_INT(d->creature) * 2));
     percent = MIN(LEARNED(d->creature) -
         GET_SKILL(d->creature, skill_num), percent);
     SET_SKILL(d->creature, skill_num, GET_SKILL(d->creature,

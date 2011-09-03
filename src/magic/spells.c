@@ -1262,12 +1262,11 @@ ASPELL(spell_identify)
         send_to_char(ch, "Level: %d, Hits: %d, Mana: %d\r\n",
             GET_LEVEL(victim), GET_HIT(victim), GET_MANA(victim));
         send_to_char(ch,
-                     "AC: %d, Thac0: %d, Hitroll: %d (%d), Damroll: %d\r\n",
+                     "AC: %d, Thac0: %d, Hitroll: %d, Damroll: %d\r\n",
                      GET_AC(victim),
                      (int)MIN(THACO(GET_CLASS(victim), GET_LEVEL(victim)),
                               THACO(GET_REMORT_CLASS(victim), GET_LEVEL(victim))),
                      GET_HITROLL(victim),
-                     GET_REAL_HITROLL(victim),
                      GET_DAMROLL(victim));
         send_to_char(ch,
             "Str: %d, Int: %d, Wis: %d, Dex: %d, Con: %d, Cha: %d\r\n",
