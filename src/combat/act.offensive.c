@@ -3038,7 +3038,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
                                &dum_ptr, &dum_ptr, &dum_obj, &dum_ptr, af);
 
         prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
-        prob += dex_app[GET_DEX(ch)].tohit;
+        prob += dexterity_hit_bonus(GET_DEX(ch));
 
         vict = randomize_target(ch, vict, prob);
 
@@ -3046,7 +3046,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
 
         dam = dice(GET_OBJ_VAL(gun, 1), GET_OBJ_VAL(gun, 2));
         dam += GET_HITROLL(ch);
-        dam += dex_app[GET_DEX(ch)].todam;
+        dam += dexterity_damage_bonus(GET_DEX(ch));
 
         CUR_ENERGY(gun->contains) -= cost;
 

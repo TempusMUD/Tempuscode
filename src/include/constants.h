@@ -71,27 +71,12 @@ struct dex_skill_type {
 	int16_t hide;
 };
 
-struct dex_app_type {
-	int16_t reaction;
-	int16_t miss_att;
-	int16_t defensive;
-    int16_t tohit;
-    int16_t todam;
-};
-
-struct con_app_type {
-	int16_t hitp;
-	int16_t shock;
-};
-
 struct weap_spec_info {
 	double multiplier;
 	int max;
 };
 
 extern const struct dex_skill_type dex_app_skill[];
-extern const struct dex_app_type dex_app[26];
-extern const struct con_app_type con_app[26];
 
 extern const char circlemud_version[];
 extern const char *reputation_msg[];
@@ -164,7 +149,6 @@ extern const char *drinknames[];
 extern const char drink_aff[][3];
 extern const char *color_liquid[];
 extern const char *fullness[];
-extern const int mana_bonus[26];
 extern const char *spell_wear_off_msg[];
 extern const char *item_wear_off_msg[];
 extern const int rev_dir[];

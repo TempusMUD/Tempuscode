@@ -2633,7 +2633,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 
     /* okay, we know the guy has been hit.  now calculate damage. */
     if (weap && w_type >= TYPE_EGUN_LASER && w_type <= TYPE_EGUN_TOP) {
-        dam = dex_app[GET_DEX(ch)].todam;
+        dam = dexterity_damage_bonus(GET_DEX(ch));
         dam += GET_HITROLL(ch);
     } else {
         dam = strength_damage_bonus(GET_STR(ch));

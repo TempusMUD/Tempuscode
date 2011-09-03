@@ -997,8 +997,8 @@ advance_level(struct creature *ch, int8_t keep_internal)
     int add_hp[2], add_mana[2], add_move[2], i, char_class;
     char *msg;
 
-    add_hp[0] = add_hp[1] = con_app[GET_CON(ch)].hitp;
-    add_mana[0] = add_mana[1] = mana_bonus[GET_WIS(ch)];
+    add_hp[0] = add_hp[1] = constitution_hitpoint_bonus(GET_CON(ch));
+    add_mana[0] = add_mana[1] = wisdom_mana_bonus(GET_WIS(ch));
     add_move[0] = add_move[1] = MAX(0, GET_CON(ch) - 15);
 
     for (i = 0; i < 2; i++) {

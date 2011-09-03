@@ -1773,7 +1773,7 @@ ACMD(do_throw)
             victim_ac = GET_AC(target_vict) / 10;
             victim_ac = MAX(-10, victim_ac);    /* -10 is lowest */
             if (AWAKE(target_vict))
-                victim_ac += dex_app[GET_DEX(target_vict)].defensive;
+                victim_ac += dexterity_defense_bonus(GET_DEX(target_vict));
             diceroll = number(1, 20);
             if ((diceroll < 20 && AWAKE(target_vict)) &&
                 ((diceroll == 1) || ((calc_thaco - diceroll) > victim_ac))) {

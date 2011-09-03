@@ -284,7 +284,7 @@ calculate_thaco(struct creature *ch, struct creature *victim,
         THACO(GET_REMORT_CLASS(ch), GET_LEVEL(ch)));
 
     if (weap && IS_ENERGY_GUN(weap))
-        calc_thaco -= dex_app[GET_DEX(ch)].tohit;
+        calc_thaco -= dexterity_hit_bonus(GET_DEX(ch));
     else
         calc_thaco -= strength_hit_bonus(GET_STR(ch));
 
@@ -299,7 +299,7 @@ calculate_thaco(struct creature *ch, struct creature *victim,
     calc_thaco -= (int)((GET_WIS(ch) - 10) >> 2);   /* So does wisdom */
 
     if (AWAKE(victim))
-        calc_thaco -= dex_app[GET_DEX(victim)].defensive;
+        calc_thaco -= dexterity_defense_bonus(GET_DEX(victim));
 
     if (IS_DROW(ch)) {
         if (OUTSIDE(ch) && PRIME_MATERIAL_ROOM(ch->in_room)) {

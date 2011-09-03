@@ -93,7 +93,7 @@ ACMD(do_steal)
     check_thief(ch, vict);
 
     /* 101% is a complete failure */
-    percent = number(1, 101) - dex_app_skill[GET_DEX(ch)].p_pocket;
+    percent = number(1, 101);
 
     if (CHECK_SKILL(ch, SKILL_STEAL) < 50)
         percent >>= 1;
@@ -332,7 +332,7 @@ ACMD(do_backstab)
     prob =
         CHECK_SKILL(ch, SKILL_BACKSTAB) + (!can_see_creature(vict,
             ch) ? (32) : 0) + (AFF_FLAGGED(ch, AFF_SNEAK) ? number(10,
-            25) : (-5)) + dex_app_skill[GET_DEX(ch)].sneak;
+            25) : (-5));
 
     if (AWAKE(vict) && (percent > prob)) {
         WAIT_STATE(ch, 2 RL_SEC);
@@ -468,8 +468,7 @@ ACMD(do_hide)
     else
         percent += 20;
 
-    if (percent > CHECK_SKILL(ch,
-            SKILL_HIDE) + dex_app_skill[GET_DEX(ch)].hide)
+    if (percent > CHECK_SKILL(ch, SKILL_HIDE))
         return;
 
     SET_BIT(AFF_FLAGS(ch), AFF_HIDE);

@@ -2229,17 +2229,11 @@ ACMD(do_encumbrance)
         send_to_char(ch, "You aren't carrying a damn thing.\r\n");
         return;
     } else {
-        if (IS_CARRYING_W(ch) + IS_WEARING_W(ch) == 1) {
-            send_to_char(ch, "Your stuff weighs a total of one pound.\r\n");
-            return;
-        } else {
-            send_to_char(ch,
-                "You are carrying a total %.2f pounds of stuff.\r\n",
-                IS_WEARING_W(ch) + IS_CARRYING_W(ch));
-            send_to_char(ch,
-                "%.2f of which you are wearing or equipped with.\r\n",
-                IS_WEARING_W(ch));
-        }
+        bool metric = ch->desc && ch->desc->account && ch->desc->account->metric_units;
+        send_to_char(ch, "You are carrying a total %s of stuff.\r\n",
+                     format_weight(IS_WEARING_W(ch) + IS_CARRYING_W(ch), metric));
+        send_to_char(ch, "%s of which you are wearing or equipped with.\r\n",
+                     format_weight(IS_WEARING_W(ch), metric));
     }
     if (encumbr > 3)
         send_to_char(ch, "You are heavily encumbered.\r\n");

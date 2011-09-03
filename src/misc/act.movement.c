@@ -374,8 +374,7 @@ check_sneak(struct creature *ch, struct creature *vict, bool departing,
         return SNEAK_FAILED;
     }
 
-    sneak_prob = skill_bonus(ch, SKILL_SNEAK) +
-        dex_app_skill[GET_DEX(ch)].sneak;
+    sneak_prob = skill_bonus(ch, SKILL_SNEAK);
 
     if (GET_CLASS(ch) == CLASS_RANGER &&
         ((ch->in_room->sector_type == SECT_FOREST) ||

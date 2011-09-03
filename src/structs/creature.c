@@ -1764,3 +1764,40 @@ strength_wield_weight(int str)
     float fstr = str;
     return fstr * 12 / 10;
 }
+
+int
+dexterity_defense_bonus(int dex)
+{
+    return 7 - dex / 2;
+}
+
+int
+dexterity_hit_bonus(int dex)
+{
+    return dex / 2 - 5;
+}
+
+int
+dexterity_damage_bonus(int dex)
+{
+    return dex - 5;
+}
+
+int
+constitution_hitpoint_bonus(int con)
+{
+    return con * 3 / 4 - 4;
+}
+
+
+int
+constitution_shock_bonus(int con)
+{
+    return con * 2 + 20;
+}
+
+int
+wisdom_mana_bonus(int wis)
+{
+    return MAX(0, wis - 10);
+}

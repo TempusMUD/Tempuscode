@@ -1404,6 +1404,12 @@ int strength_damage_bonus(int str);
 int strength_hit_bonus(int str);
 float strength_carry_weight(int str);
 float strength_wield_weight(int str);
+int dexterity_defense_bonus(int dex);
+int dexterity_hit_bonus(int dex);
+int dexterity_damage_bonus(int dex);
+int constitution_hitpoint_bonus(int con);
+int constitution_shock_bonus(int con);
+int wisdom_mana_bonus(int intel);
 
 struct aff_stash *stash_creature_affects(struct creature *ch);
 void restore_creature_affects(struct creature *ch,
