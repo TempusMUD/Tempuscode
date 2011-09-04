@@ -1125,6 +1125,12 @@ next_living(GList *node)
 #define GET_MAX_MANA(ch)  ((ch)->points.max_mana)
 #define GET_GOLD(ch)          ((ch)->points.gold)
 #define GET_CASH(ch)      ((ch)->points.cash)
+
+#define USE_METRIC(ch)    ((ch)->desc \
+                           && (ch)->desc->account \
+                           && (ch)->desc->account->metric_units)
+#define GET_PAGE_LENGTH(ch)     ((ch->desc) ? ch->desc->account->term_height:0)
+#define GET_PAGE_WIDTH(ch)     ((ch->desc) ? ch->desc->account->term_width:0)
 #define GET_PAST_BANK(ch) (((ch)->account) ? (ch)->account->bank_past:0)
 #define GET_FUTURE_BANK(ch) (((ch)->account) ? (ch)->account->bank_future:0)
 
@@ -1169,8 +1175,6 @@ const char *CURRENCY(struct creature * ch);
 #define SPEED_OF(ch)            ((ch)->player_specials->saved.speed)
 #define GET_REPUTATION(ch)      ((ch)->player_specials->saved.reputation)
 
-#define GET_PAGE_LENGTH(ch)     ((ch->desc) ? ch->desc->account->term_height:0)
-#define GET_PAGE_WIDTH(ch)     ((ch->desc) ? ch->desc->account->term_width:0)
 #define GET_INVIS_LVL(ch)        ((ch)->player_specials->saved.invis_level)
 #define GET_BROKE(ch)           ((ch)->player_specials->saved.broken_component)
 #define GET_OLD_CLASS(ch)       ((ch)->player_specials->saved.old_char_class)

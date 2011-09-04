@@ -815,8 +815,8 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
                 ("This armor provides an insane amount of protection.\r\n");
         break;
     case ITEM_CONTAINER:
-        acc_sprintf("This container holds a maximum of %d pounds.\r\n",
-            GET_OBJ_VAL(obj, 0));
+        acc_sprintf("This container holds a maximum of %s.\r\n",
+                    format_weight(GET_OBJ_VAL(obj, 0), USE_METRIC(ch)));
         break;
     case ITEM_FOUNTAIN:
     case ITEM_DRINKCON:

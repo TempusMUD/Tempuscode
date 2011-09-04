@@ -1328,6 +1328,10 @@ ACMD(do_gen_tog)
         result = PRF_TOG_CHK(ch, PRF_NOPLUG);
         break;
     case SCMD_METRIC:
+        if (!ch->desc || !ch->desc->account) {
+            send_to_char(ch, "You don't get to pick metric, mobile.\r\n");
+            return;
+        }
         result = !ch->desc->account->metric_units;
         account_set_metric(ch->desc->account, result);
         break;
@@ -1918,12 +1922,11 @@ ACMD(do_weigh)
     act("$n gauges the weight of $p by tossing it in one hand.",
         true, ch, obj, 0, TO_ROOM);
 
-    bool metric = ch->desc->account ? ch->desc->account->metric_units:false;
     send_to_char(ch, "It seems to weigh about %s.\r\n",
                  format_weight(GET_OBJ_WEIGHT(obj) +
                                number(-(GET_OBJ_WEIGHT(obj) / GET_INT(ch)),
                                       GET_OBJ_WEIGHT(obj) / GET_INT(ch)),
-                               metric));
+                               USE_METRIC(ch)));
 }
 
 ACMD(do_knock)

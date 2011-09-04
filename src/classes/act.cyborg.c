@@ -2132,8 +2132,8 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
                     GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj)) : "");
     acc_sprintf("Commerce Value:       %s%d coins%s\r\n", CCCYN(ch, C_NRM),
         GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
-    acc_sprintf("Total Mass:           %s%.2f pounds%s\r\n", CCCYN(ch, C_NRM),
-        GET_OBJ_WEIGHT(obj), CCNRM(ch, C_NRM));
+    acc_sprintf("Total Mass:           %s%s%s\r\n", CCCYN(ch, C_NRM),
+                format_weight(GET_OBJ_WEIGHT(obj), USE_METRIC(ch)), CCNRM(ch, C_NRM));
 
     acc_sprintf("Intrinsic Properties: %s", CCCYN(ch, C_NRM));
     if (GET_OBJ_EXTRA(obj) == 0 && GET_OBJ_EXTRA2(obj) == 0) {

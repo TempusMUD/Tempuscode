@@ -637,10 +637,12 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
         app_height = GET_HEIGHT(i) - number(1, 6) + number(1, 6);
         app_weight = GET_WEIGHT(i) - number(1, 6) + number(1, 6);
         if (!IS_NPC(i) && !mob) {
-            send_to_char(ch,
-                "%s appears to be a %d cm tall, %d pound %s %s.\r\n",
-                i->player.name, app_height, app_weight,
-                genders[(int)GET_SEX(i)], race_name_by_idnum(GET_RACE(i)));
+            send_to_char(ch, "%s appears to be a %s tall, %s %s %s.\r\n",
+                         i->player.name,
+                         format_distance(app_height, USE_METRIC(ch)),
+                         format_weight(app_weight, USE_METRIC(ch)),
+                         genders[(int)GET_SEX(i)],
+                         race_name_by_idnum(GET_RACE(i)));
         }
     }
 
@@ -2229,11 +2231,10 @@ ACMD(do_encumbrance)
         send_to_char(ch, "You aren't carrying a damn thing.\r\n");
         return;
     } else {
-        bool metric = ch->desc && ch->desc->account && ch->desc->account->metric_units;
         send_to_char(ch, "You are carrying a total %s of stuff.\r\n",
-                     format_weight(IS_WEARING_W(ch) + IS_CARRYING_W(ch), metric));
+                     format_weight(IS_WEARING_W(ch) + IS_CARRYING_W(ch), USE_METRIC(ch)));
         send_to_char(ch, "%s of which you are wearing or equipped with.\r\n",
-                     format_weight(IS_WEARING_W(ch), metric));
+                     format_weight(IS_WEARING_W(ch), USE_METRIC(ch)));
     }
     if (encumbr > 3)
         send_to_char(ch, "You are heavily encumbered.\r\n");
@@ -2781,10 +2782,9 @@ do_blind_score(struct creature *ch)
                 GET_ARENAKILLS(ch));
 	acc_sprintf("Life points: %d\r\n", GET_LIFE_POINTS(ch));
 
-    bool metric = ch->desc->account ? ch->desc->account->metric_units:false;
     acc_sprintf("You are %s tall, and weigh %s.\r\n",
-                format_distance(GET_HEIGHT(ch), metric),
-                format_weight(GET_WEIGHT(ch), metric));
+                format_distance(GET_HEIGHT(ch), USE_METRIC(ch)),
+                format_weight(GET_WEIGHT(ch), USE_METRIC(ch)));
 	if (IS_PC(ch)) {
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
 			acc_sprintf("Next level in %d more experience\r\n",
@@ -2955,10 +2955,9 @@ ACMD(do_score)
     acc_sprintf("You have %s%d%s life points.\r\n", CCCYN(ch, C_NRM),
         GET_LIFE_POINTS(ch), CCNRM(ch, C_NRM));
 
-    bool metric = ch->desc->account ? ch->desc->account->metric_units:false;
     acc_sprintf("You are %s%s%s tall, and weigh %s%s%s.\r\n",
-                CCCYN(ch, C_NRM), format_distance(GET_HEIGHT(ch), metric), CCNRM(ch, C_NRM),
-                CCCYN(ch, C_NRM), format_weight(GET_WEIGHT(ch), metric), CCNRM(ch, C_NRM));
+                CCCYN(ch, C_NRM), format_distance(GET_HEIGHT(ch), USE_METRIC(ch)), CCNRM(ch, C_NRM),
+                CCCYN(ch, C_NRM), format_weight(GET_WEIGHT(ch), USE_METRIC(ch)), CCNRM(ch, C_NRM));
 
     if (!IS_NPC(ch)) {
         if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
@@ -4634,7 +4633,7 @@ show_all_toggles(struct creature *ch)
             GET_PAGE_WIDTH(ch)),
         ONOFF(PRF2_FLAGGED(ch, PRF2_NOTRAILERS)),
         ansi_levels[COLOR_LEV(ch)],
-        YESNO(ch->desc && ch->desc->account && ch->desc->account->metric_units),
+        YESNO(USE_METRIC(ch)),
         ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOPAGE)),
         YESNO(PRF2_FLAGGED(ch, PRF2_NEWBIE_HELPER)),
         ONOFF(!PRF_FLAGGED(ch, PRF_NOPROJECT)),

@@ -1106,6 +1106,7 @@ ASPELL(spell_identify)
     int found;
 
     struct time_info_data age(struct creature *ch);
+    bool metric = USE_METRIC(ch);
 
     if (obj) {
         send_to_char(ch, "You feel informed:\r\n");
@@ -1139,8 +1140,9 @@ ASPELL(spell_identify)
         strcat(buf, "\r\n");
         send_to_char(ch, "%s", buf);
 
-        send_to_char(ch, "Weight: %.2f, Value: %d, Rent: %d\r\n",
-            GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
+        send_to_char(ch, "Weight: %s, Value: %d, Rent: %d\r\n",
+                     format_weight(GET_OBJ_WEIGHT(obj), metric),
+                     GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
         send_to_char(ch, "Item material is %s.\r\n",
                      strlist_aref(GET_OBJ_MATERIAL(obj), material_names));
 
@@ -1197,9 +1199,8 @@ ASPELL(spell_identify)
                          CCNRM(ch, C_NRM));
             break;
         case ITEM_CONTAINER:
-            send_to_char(ch,
-                "This container holds a maximum of %d pounds.\r\n",
-                GET_OBJ_VAL(obj, 0));
+            send_to_char(ch, "This container holds a maximum of %s.\r\n",
+                         format_weight(GET_OBJ_VAL(obj, 0), metric));
             break;
 
         case ITEM_TOOL:
@@ -1257,8 +1258,9 @@ ASPELL(spell_identify)
                      race_name_by_idnum(GET_RACE(victim)),
                      strlist_aref((int)MIN(TOP_CLASS, GET_CLASS(victim)), class_names),
                      GET_ALIGNMENT(victim));
-        send_to_char(ch, "Height %d cm, Weight %d pounds\r\n",
-            GET_HEIGHT(victim), GET_WEIGHT(victim));
+        send_to_char(ch, "Height %s, Weight %s\r\n",
+                     format_distance(GET_HEIGHT(victim), metric),
+                     format_weight(GET_WEIGHT(victim), metric));
         send_to_char(ch, "Level: %d, Hits: %d, Mana: %d\r\n",
             GET_LEVEL(victim), GET_HIT(victim), GET_MANA(victim));
         send_to_char(ch,
@@ -1284,6 +1286,7 @@ ASPELL(spell_minor_identify)
 {
     int i;
     int found;
+    bool metric = USE_METRIC(ch);
 
     struct time_info_data age(struct creature *ch);
 
@@ -1307,8 +1310,9 @@ ASPELL(spell_minor_identify)
         sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf);
         send_to_char(ch, "%s\r\n", buf);
 
-        send_to_char(ch, "Weight: %.2f, Value: %d, Rent: %d\r\n",
-            GET_OBJ_WEIGHT(obj), GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
+        send_to_char(ch, "Weight: %s, Value: %d, Rent: %d\r\n",
+                     format_weight(GET_OBJ_WEIGHT(obj), metric),
+                     GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
 
         send_to_char(ch, "Item material is %s.\r\n",
                      strlist_aref(GET_OBJ_MATERIAL(obj), material_names));
@@ -1348,9 +1352,8 @@ ASPELL(spell_minor_identify)
             send_to_char(ch, "AC-apply is %d\r\n", GET_OBJ_VAL(obj, 0));
             break;
         case ITEM_CONTAINER:
-            send_to_char(ch,
-                "This container holds a maximum of %d pounds.\r\n",
-                GET_OBJ_VAL(obj, 0));
+            send_to_char(ch, "This container holds a maximum of %s.\r\n",
+                         format_weight(GET_OBJ_VAL(obj, 0), metric));
             break;
         case ITEM_INSTRUMENT:
             send_to_char(ch, "Instrument type is: %s%s%s\r\n",
@@ -1384,8 +1387,10 @@ ASPELL(spell_minor_identify)
                 GET_NAME(victim), age(victim).year, age(victim).month,
                 age(victim).day, age(victim).hours);
         }
-        send_to_char(ch, "Height %d cm, Weight %d pounds\r\n",
-            GET_HEIGHT(victim), GET_WEIGHT(victim));
+
+        send_to_char(ch, "Height %s, Weight %s\r\n",
+                     format_distance(GET_HEIGHT(victim), metric),
+                     format_weight(GET_WEIGHT(victim), metric));
         send_to_char(ch, "Level: %d, Hits: %d, Mana: %d\r\n",
             GET_LEVEL(victim), GET_HIT(victim), GET_MANA(victim));
         send_to_char(ch, "AC: %d, Hitroll: %d, Damroll: %d\r\n",
