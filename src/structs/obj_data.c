@@ -551,11 +551,8 @@ weigh_contained_objs(struct obj_data *obj)
     struct obj_data *cur;
     float weight = 0;
 
-    for (cur = obj->contains; cur; cur = cur->next_content) {
+    for (cur = obj->contains; cur; cur = cur->next_content)
         weight += GET_OBJ_WEIGHT(cur);
-        if (cur->contains)
-            weight += weigh_contained_objs(cur);
-    }
     return weight;
 }
 
@@ -778,9 +775,9 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
 {
     struct tmp_obj_affect *af = NULL;
     struct tmp_obj_affect *af_head = NULL;
-    static char indent[512] = "\t";
+    static char indent[512] = "  ";
     fprintf(ouf, "%s<object vnum=\"%d\">\n", indent, obj->shared->vnum);
-    strcat(indent, "\t");
+    strcat(indent, "  ");
 
     struct obj_data *proto = obj->shared->proto;
 
@@ -877,12 +874,10 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
         fprintf(ouf, "/>\n");
     }
     // Contained objects
-    strcat(indent, "\t");
-    for (struct obj_data * obj2 = obj->contains; obj2 != NULL;
+    for (struct obj_data *obj2 = obj->contains; obj2 != NULL;
         obj2 = obj2->next_content) {
         save_object_to_xml(obj2, ouf);
     }
-    indent[strlen(indent) - 2] = '\0';
     // Intentionally done last since reading obj property in loadFromXML
     // causes the eq to be worn on the character.
     fprintf(ouf, "%s<worn possible=\"%x\" pos=\"%d\" type=\"%s\"/>\n",
@@ -1003,11 +998,11 @@ fix_object_weight(struct obj_data *obj)
                  GET_OBJ_VNUM(obj),
                  GET_OBJ_WEIGHT(obj),
                  GET_OBJ_WEIGHT(obj->shared->proto));
-            obj->obj_flags.weight = obj->shared->proto->obj_flags.weight;
+            new_weight = obj->shared->proto->obj_flags.weight;
         } else {
             slog("Illegal prototype-less object weight %.2f - setting to 1",
                  GET_OBJ_WEIGHT(obj));
-            obj->obj_flags.weight = 1;
+            new_weight = 1;
         }
     }
 
