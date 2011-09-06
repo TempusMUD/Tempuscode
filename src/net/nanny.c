@@ -1168,7 +1168,6 @@ send_prompt(struct descriptor_data *d)
 void
 send_menu(struct descriptor_data *d)
 {
-    struct help_item *policy;
     struct creature *tmp_ch;
     int idx;
 
@@ -1257,11 +1256,20 @@ send_menu(struct descriptor_data *d)
             ("%s\r\n                             POLICY\r\n*******************************************************************************%s\r\n",
             (d->account->ansi_level >= C_NRM) ? KCYN : "",
             (d->account->ansi_level >= C_NRM) ? KNRM : "");
-        policy = help_collection_find_item_by_id(help, 667);
-        if (!policy->text)
-            help_item_load_text(policy);
-        acc_strcat(policy->text, NULL);
-        page_string(d, acc_get_string());
+        FILE *fl = fopen("text/policies", "r");
+        if (!fl) {
+            send_to_desc(d, "Please press return.\r\n");
+            break;
+        }
+        char line[1024];
+
+        acc_string_clear();
+        while (fgets(line, 1024, fl)) {
+            acc_strcat(line, NULL);
+        }
+        fclose(fl);
+        acc_strcat("\n", NULL);
+        page_string(d, tmp_gsub(acc_get_string(), "\n", "\r\n"));
         break;
     case CXN_NAME_PROMPT:
         send_to_desc(d,
