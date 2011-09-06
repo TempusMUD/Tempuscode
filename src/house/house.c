@@ -43,9 +43,9 @@
 #define HCONTROL_DESTROY_FORMAT \
 "Usage: hcontrol destroy <house#>\r\n"
 #define HCONTROL_ADD_FORMAT \
-"Usage: hcontrol add <house#> <'room'|'guest'> <room# | name >\r\n"
+"Usage: hcontrol add <house#> <room#>\r\n"
 #define HCONTROL_DELETE_FORMAT \
-"Usage: hcontrol delete <house#> <'room'|'guest'> <room# | name >\r\n"
+"Usage: hcontrol delete <house#> <room#>\r\n"
 #define HCONTROL_SET_FORMAT \
 "Usage: hcontrol set <house#> <rate|owner|type|landlord> <'value'|public|private|rental>\r\n"
 #define HCONTROL_SHOW_FORMAT \
@@ -1304,22 +1304,22 @@ set_house_account_owner(struct creature *ch, struct house *house, char *arg)
 void
 hcontrol_set_house(struct creature *ch, char *arg)
 {
-    char *arg1 = tmp_getword(&arg);
-    char *arg2 = tmp_getword(&arg);
+    char *house_id_str = tmp_getword(&arg);
+    char *field = tmp_getword(&arg);
 
-    if (!*arg1 || !*arg2) {
+    if (!*house_id_str || !*field) {
         send_to_char(ch, HCONTROL_FORMAT);
         return;
     }
 
-    if (!isdigit(*arg1)) {
+    if (!isdigit(*house_id_str)) {
         send_to_char(ch, "The house id must be a number.\r\n");
         return;
     }
 
-    struct house *house = find_house_by_idnum(atoi(arg1));
+    struct house *house = find_house_by_idnum(atoi(house_id_str));
     if (house == NULL) {
-        send_to_char(ch, "House id %d not found.\r\n", atoi(arg1));
+        send_to_char(ch, "House id %d not found.\r\n", atoi(house_id_str));
         return;
     }
     if (!is_authorized(ch, EDIT_HOUSE, house)) {
@@ -1327,18 +1327,18 @@ hcontrol_set_house(struct creature *ch, char *arg)
         return;
     }
 
-    if (is_abbrev(arg2, "rate")) {
+    if (is_abbrev(field, "rate")) {
         if (!*arg) {
             send_to_char(ch, "Set rental rate to what?\r\n");
         } else {
-            arg1 = tmp_getword(&arg);
-            house->rental_rate = atoi(arg1);
+            char *rate_str = tmp_getword(&arg);
+            house->rental_rate = atoi(rate_str);
             send_to_char(ch, "House %d rental rate set to %d/day.\r\n",
                 house->id, house->rental_rate);
             slog("HOUSE: Rental rate of house %d set to %d by %s.",
                 house->id, house->rental_rate, GET_NAME(ch));
         }
-    } else if (is_abbrev(arg2, "type")) {
+    } else if (is_abbrev(field, "type")) {
         if (!*arg) {
             send_to_char(ch, "Set mode to public, private, or rental?\r\n");
             return;
@@ -1373,7 +1373,7 @@ hcontrol_set_house(struct creature *ch, char *arg)
         slog("HOUSE: Type of house %d set to %s by %s.",
             house->id, house_type_name(house->type), GET_NAME(ch));
 
-    } else if (is_abbrev(arg2, "landlord")) {
+    } else if (is_abbrev(field, "landlord")) {
         if (!*arg) {
             send_to_char(ch, "Set who as the landlord?\r\n");
             return;
@@ -1391,9 +1391,9 @@ hcontrol_set_house(struct creature *ch, char *arg)
         slog("HOUSE: Landlord of house %d set to %s by %s.",
             house->id, player_name_by_idnum(house->landlord), GET_NAME(ch));
         return;
-    } else if (is_abbrev(arg2, "owner")) {
+    } else if (is_abbrev(field, "owner")) {
         if (!*arg) {
-            send_to_char(ch, "Set owner of what house?\r\n");
+            send_to_char(ch, "To whom would you like to set the house owner?\r\n");
             return;
         }
         char *owner = tmp_getword(&arg);
@@ -1529,34 +1529,29 @@ hcontrol_add_to_house(struct creature *ch, char *arg)
     // turn arg into the final argument and arg1 into the room/guest/owner arg
     str = tmp_getword(&arg);
 
-    if (!*str || !*arg) {
+    if (!*str) {
         send_to_char(ch, HCONTROL_ADD_FORMAT);
         return;
     }
 
-    if (is_abbrev(str, "room")) {
-        int roomID = atoi(arg);
-        struct room_data *room = real_room(roomID);
-        if (room == NULL) {
-            send_to_char(ch, "No such room exists.\r\n");
-            return;
-        }
-        struct house *h = find_house_by_room(roomID);
-        if (h != NULL) {
-            send_to_char(ch,
-                "Room [%d] already exists as room of house [%d]\r\n", roomID,
-                h->id);
-            return;
-        }
-        add_house_room(h, roomID);
-        SET_BIT(ROOM_FLAGS(room), ROOM_HOUSE);
-        send_to_char(ch, "Room %d added to house %d.\r\n", roomID, house->id);
-        slog("HOUSE: Room %d added to house %d by %s.",
-            roomID, house->id, GET_NAME(ch));
-        save_house(house);
-    } else {
-        send_to_char(ch, HCONTROL_ADD_FORMAT);
+    int roomID = atoi(str);
+    struct room_data *room = real_room(roomID);
+    if (room == NULL) {
+        send_to_char(ch, "No such room exists.\r\n");
+        return;
     }
+    struct house *h = find_house_by_room(roomID);
+    if (h != NULL) {
+        send_to_char(ch, "Room [%d] is already part of house [%d]\r\n",
+                     roomID, h->id);
+        return;
+    }
+    add_house_room(house, roomID);
+    SET_BIT(ROOM_FLAGS(room), ROOM_HOUSE);
+    send_to_char(ch, "Room %d added to house %d.\r\n", roomID, house->id);
+    slog("HOUSE: Room %d added to house %d by %s.",
+         roomID, house->id, GET_NAME(ch));
+    save_house(house);
 }
 
 void
@@ -1584,45 +1579,39 @@ hcontrol_delete_from_house(struct creature *ch, char *arg)
     // turn arg into the final argument and arg1 into the room/guest/owner arg
     str = tmp_getword(&arg);
 
-    if (!*str || !*arg) {
+    if (!*str) {
         send_to_char(ch, HCONTROL_DELETE_FORMAT);
         return;
     }
     // delete room
-    if (is_abbrev(str, "room")) {
-
-        int roomID = atoi(arg);
-        struct room_data *room = real_room(roomID);
-        if (room == NULL) {
-            send_to_char(ch, "No such room exists.\r\n");
-            return;
-        }
-        struct house *h = find_house_by_room(roomID);
-        if (h == NULL) {
-            send_to_char(ch, "Room [%d] isn't a room of any house!\r\n",
-                roomID);
-            return;
-        } else if (house != h) {
-            send_to_char(ch, "Room [%d] belongs to house [%d]!\r\n", roomID,
-                h->id);
-            return;
-        } else if (!house->rooms->next) {
-            send_to_char(ch,
-                "Room %d is the last room in house [%d]. Destroy it instead.\r\n",
-                roomID, h->id);
-            return;
-        }
-
-        remove_house_room(h, roomID);
-        REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE | ROOM_HOUSE_CRASH);
-        send_to_char(ch, "Room %d removed from house %d.\r\n",
-            roomID, house->id);
-        slog("HOUSE: Room %d removed from house %d by %s.",
-            roomID, house->id, GET_NAME(ch));
-        save_house(house);
-    } else {
-        send_to_char(ch, HCONTROL_FORMAT);
+    int roomID = atoi(str);
+    struct room_data *room = real_room(roomID);
+    if (room == NULL) {
+        send_to_char(ch, "No such room exists.\r\n");
+        return;
     }
+    struct house *h = find_house_by_room(roomID);
+    if (h == NULL) {
+        send_to_char(ch, "Room [%d] isn't a room of any house!\r\n",
+                     roomID);
+        return;
+    } else if (house != h) {
+        send_to_char(ch, "Room [%d] belongs to house [%d]!\r\n",
+                     roomID, h->id);
+        return;
+    } else if (!house->rooms->next) {
+        send_to_char(ch, "Room %d is the last room in house [%d]. Destroy it instead.\r\n",
+                     roomID, h->id);
+        return;
+    }
+
+    remove_house_room(house, roomID);
+    REMOVE_BIT(ROOM_FLAGS(room), ROOM_HOUSE | ROOM_HOUSE_CRASH);
+    send_to_char(ch, "Room %d removed from house %d.\r\n",
+                 roomID, house->id);
+    slog("HOUSE: Room %d removed from house %d by %s.",
+         roomID, house->id, GET_NAME(ch));
+    save_house(house);
 }
 
 GList *
