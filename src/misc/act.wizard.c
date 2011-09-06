@@ -5202,7 +5202,7 @@ ACMD(do_show)
         break;
 
     case 21: /** objects **/
-        // do_show_objects(ch, value, arg);
+        do_show_objects(ch, value, arg);
         break;
 
     case 22: /** broken **/
