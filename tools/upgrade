@@ -14,11 +14,11 @@ if not File.exists?('/tmp/tempus.reboot.news.txt')
     changes = `git log --format="format:- %s" master..origin/master`
     ouf.print "This reboot:\n\n"
     if changes == ''
-      ouf.print changes
-    else
       ouf.print "- no changes detected\n"
+    else
+      ouf.print changes
     end
-    ouf.print "\n: Azi :\n"
+    ouf.print "\n\n: Azi :\n"
   }
 end
 
