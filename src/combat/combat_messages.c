@@ -317,7 +317,8 @@ death_cry(struct creature *ch)
     }
 }
 
-int pick_soilage_target(struct creature *tch, gpointer victim)
+gint
+pick_soilage_target(struct creature *tch, gpointer victim)
 {
     return (tch != victim
             && !is_dead(tch)

@@ -324,7 +324,7 @@ find_house_by_room(room_num room_idnum)
     return (it) ? it->data : NULL;
 }
 
-bool
+gint
 house_has_idnum(struct house *house, gpointer user_data)
 {
     int idnum = GPOINTER_TO_INT(user_data);
@@ -335,11 +335,11 @@ struct house *
 find_house_by_idnum(int idnum)
 {
     GList *it =
-        g_list_find_custom(houses, GINT_TO_POINTER(idnum), (GCompareFunc) house_has_idnum);
+        g_list_find_custom(houses, GINT_TO_POINTER(idnum), (GCompareFunc)house_has_idnum);
     return (it) ? it->data : NULL;
 }
 
-bool
+gint
 house_has_owner(struct house *house, gpointer user_data)
 {
     int idnum = GPOINTER_TO_INT(user_data);
@@ -354,7 +354,7 @@ find_house_by_owner(int idnum)
     return (it) ? it->data : NULL;
 }
 
-bool
+gint
 house_has_clan_owner(struct house *house, gpointer user_data)
 {
     int idnum = GPOINTER_TO_INT(user_data);

@@ -1047,7 +1047,8 @@ do_emp_pulse_char(struct creature *ch, struct creature *vict)
     do_emp_pulse_olist(vict->carrying, ch, vict);
 }
 
-int invalid_emp_target(struct creature *tch, gpointer ch)
+gint
+invalid_emp_target(struct creature *tch, gpointer ch)
 {
     if (tch != ch && !ok_to_attack(ch, tch, true))
         return 0;

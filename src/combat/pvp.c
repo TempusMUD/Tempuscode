@@ -266,7 +266,7 @@ g_list_remove_if(GList * list, GCompareFunc func, gpointer user_data)
     return list;
 }
 
-int
+gint
 matches_player(struct creature *tch, gpointer idnum_ptr)
 {
     return (GET_IDNUM(tch) == GPOINTER_TO_INT(idnum_ptr)) ? 0 : -1;

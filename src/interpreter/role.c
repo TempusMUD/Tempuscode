@@ -37,7 +37,8 @@ security_log(const char *msg, const char *name)
     slog("<SECURITY> %s : %s", msg, name);
 }
 
-gint role_matches(struct role *role, const char *name)
+gint
+role_matches(struct role *role, const char *name)
 {
     return strcasecmp(role->name, name);
 }

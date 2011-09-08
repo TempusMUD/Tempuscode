@@ -3495,7 +3495,7 @@ cmp(int a, int b)
     return 0;
 }
 
-int
+gint
 who_list_compare(struct creature *a, struct creature *b)
 {
     time_t now, time_a, time_b;
