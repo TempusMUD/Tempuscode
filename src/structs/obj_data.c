@@ -993,15 +993,20 @@ fix_object_weight(struct obj_data *obj)
     } else if (new_weight == 0.0) {
         new_weight = 0.01;
     } else if (obj->obj_flags.weight < 0.0) {
-        if (obj->shared->proto) {
+        if (obj->shared->proto && obj->shared->proto != obj) {
             slog("Illegal object %d weight %.2f - setting to %.2f from prototype",
                  GET_OBJ_VNUM(obj),
                  GET_OBJ_WEIGHT(obj),
                  GET_OBJ_WEIGHT(obj->shared->proto));
             new_weight = obj->shared->proto->obj_flags.weight;
         } else {
-            slog("Illegal prototype-less object weight %.2f - setting to 1",
-                 GET_OBJ_WEIGHT(obj));
+            if (obj->shared->proto)
+                slog("Illegal prototype object %d weight %.2f - setting to 1",
+                     GET_OBJ_VNUM(obj),
+                     GET_OBJ_WEIGHT(obj));
+            else
+                slog("Illegal prototype-less object weight %.2f - setting to 1",
+                     GET_OBJ_WEIGHT(obj));
             new_weight = 1;
         }
     }
