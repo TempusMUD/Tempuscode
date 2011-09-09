@@ -67,7 +67,7 @@ Tempuscode to run.
 
    createuser -d -R -S realm
    createdb -U realm devtempus
-   psql -f sample_lib/etc/tempus.sql
+   psql -U realm -d devtempus -f sample_lib/etc/tempus.sql
 
 Running Tempuscode
 ------------------------------------------------------------------------
