@@ -496,7 +496,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
         "$n utterly DEMOLISHES $N with $s unbelievable #w!!", "You utterly DEMOLISH $N with your unbelievable #w!!", "$n utterly DEMOLISHES you with $s unbelievable #w!!"}, {  // 11: 46 - 69
         "$n PULVERIZES $N with $s vicious #w!!", "You PULVERIZE $N with your vicious #w!!", "$n PULVERIZES you with $s vicious #w!!"}, {    // 12: 70 - 99
         "$n *DECIMATES* $N with $s horrible #w!!", "You *DECIMATE* $N with your horrible #w!!", "$n *DECIMATES* you with $s horrible #w!!"}, {  // 13: 100 - 139
-        "$n *LIQUIFIES* $N with $s incredibly vicious #w!!", "You **LIQUIFY** $N with your incredibly vicious #w!!", "$n *LIQUIFIES* you with $s incredibly vicious #w!!"}, {   // 14: 140 - 189
+        "$n *LIQUEFIES* $N with $s incredibly vicious #w!!", "You **LIQUEFY** $N with your incredibly vicious #w!!", "$n *LIQUEFIES* you with $s incredibly vicious #w!!"}, {   // 14: 140 - 189
         "$n **VAPORIZES** $N with $s terrible #w!!", "You **VAPORIZE** $N with your terrible #w!!", "$n **VAPORIZES** you with $s terrible #w!!"}, {    // 15: >189
         "$n **ANNIHILATES** $N with $s ultra powerful #w!!",
                 "You **ANNIHILATE** $N with your ultra powerful #w!!",
@@ -557,9 +557,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                 "You *DECIMATE* $N's mana shield with your horrible #w!!",
             "$n *DECIMATES* your mana shield with $s horrible #w!!"},
         {                       // 13: 100 - 139
-                "$n *LIQUIFIES* $N's mana shield with $s incredibly vicious #w!!",
-                "You **LIQUIFY** $N's mana shield with your incredibly vicious #w!!",
-            "$n *LIQUIFIES* your mana shield with $s incredibly vicious #w!!"},
+                "$n *LIQUEFIES* $N's mana shield with $s incredibly vicious #w!!",
+                "You **LIQUEFY** $N's mana shield with your incredibly vicious #w!!",
+            "$n *LIQUEFIES* your mana shield with $s incredibly vicious #w!!"},
         {                       // 14: 140 - 189
                 "$n **VAPORIZES** $N's mana shield with $s terrible #w!!",
                 "You **VAPORIZE** $N's mana shield with your terrible #w!!",
@@ -626,9 +626,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                 "You *DECIMATE* $N with $p!!",
             "$n *DECIMATES* you with $p!!"},
         {                       // 13: 100 - 139
-                "$n *LIQUIFIES* $N with a #w from $p!!",
-                "You **LIQUIFY** $N with a #w from $p!!",
-            "$n *LIQUIFIES* you with a #w from $p"},
+                "$n *LIQUEFIES* $N with a #w from $p!!",
+                "You **LIQUEFY** $N with a #w from $p!!",
+            "$n *LIQUEFIES* you with a #w from $p"},
         {                       // 14: 140 - 189
                 "$n **VAPORIZES** $N with $p!!",
                 "You **VAPORIZE** $N with a #w from $p!!",
@@ -695,9 +695,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                 "You *DECIMATE* $N's #p with your horrible #w!!",
             "$n *DECIMATES* your #p with $s horrible #w!!"},
         {                       // 13: 100 - 139
-                "$n *LIQUIFIES* $N's #p with $s vicious #w!!",
-                "You **LIQUIFY** $N's #p with your vicious #w!!",
-            "$n *LIQUIFIES* your #p with $s vicious #w!!"},
+                "$n *LIQUEFIES* $N's #p with $s vicious #w!!",
+                "You **LIQUEFY** $N's #p with your vicious #w!!",
+            "$n *LIQUEFIES* your #p with $s vicious #w!!"},
         {                       // 14: 140 - 189
                 "$n **VAPORIZES** $N's #p with $s terrible #w!!",
                 "You **VAPORIZE** $N's #p with your terrible #w!!",
@@ -764,9 +764,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                 "You *DECIMATE* $N with a #w from $p!!",
             "$n *DECIMATES* you with a #w from $p!!"},
         {                       // 13: 100 - 139
-                "$n *LIQUIFIES* $N with a #w from $p!!",
-                "You **LIQUIFY** $N with a #w from $p!!",
-            "$n *LIQUIFIES* you with a #w from $p"},
+                "$n *LIQUEFIES* $N with a #w from $p!!",
+                "You **LIQUEFY** $N with a #w from $p!!",
+            "$n *LIQUEFIES* you with a #w from $p"},
         {                       // 14: 140 - 189
                 "$n **VAPORIZES** $N with $p!!",
                 "You **VAPORIZE** $N with a #w from $p!!",
@@ -834,9 +834,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                 "You *DECIMATE* $N with #s!!",
             "$n *DECIMATES* you with #s!!"},
         {                       // 13: 100 - 139
-                "$n *LIQUIFIES** $N with #s!!",
-                "You *LIQUIFY* $N with #s!!",
-            "$n *LIQUIFIES* you with #s!!"},
+                "$n *LIQUEFIES** $N with #s!!",
+                "You *LIQUEFY* $N with #s!!",
+            "$n *LIQUEFIES* you with #s!!"},
         {                       // 14: 140 - 189
                 "$n **VAPORIZES** $N with #s!!",
                 "You **VAPORIZE** $N with #s!!",
@@ -904,9 +904,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                 "#s *DECIMATES* $N as you #w $p!",
             "#s *DECIMATES* you as $n #W $p!"},
         {                       // 13: 100 - 139
-                "#s *LIQUIFIES* $N as $n #W $p!!",
-                "#s *LIQUIFIES* $N as you #w $p!!",
-            "#s *LIQUIFIES* you as $n #W $p!!"},
+                "#s *LIQUEFIES* $N as $n #W $p!!",
+                "#s *LIQUEFIES* $N as you #w $p!!",
+            "#s *LIQUEFIES* you as $n #W $p!!"},
         {                       // 14: 140 - 189
                 "#s **VAPORIZES** $N as $n #W $p!!",
                 "#s **VAPORIZES** $N as you #w $p!!",
@@ -974,9 +974,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                 "You **DECIMATE** $N with $p's #S!",
             "$n **DECIMATES** you with $p's #S!"},
         {                       // 13: 100 - 139
-                "$n **LIQUIFIES** $N with $p's #S!!",
-                "You **LIQUIFY** $N with $p's #S!!",
-            "$n **LIQUIFIES** you with $p's #S!!"},
+                "$n **LIQUEFIES** $N with $p's #S!!",
+                "You **LIQUEFY** $N with $p's #S!!",
+            "$n **LIQUEFIES** you with $p's #S!!"},
         {                       // 14: 140 - 189
                 "$n **VAPORIZES** $N with $p's #S!!",
                 "You **VAPORIZE** $N with $p's #S!!",
@@ -1027,7 +1027,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
     else if (dam <= 94)
         msgnum = 12;            /* decimate   */
     else if (dam <= 129)
-        msgnum = 13;            /* liquify    */
+        msgnum = 13;            /* liquefy    */
     else if (dam <= 169)
         msgnum = 14;            /* vaporize   */
     else
