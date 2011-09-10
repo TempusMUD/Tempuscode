@@ -2202,8 +2202,10 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
         if (GET_OBJ_VAL(obj, 3))
             acc_strcat("Item is a corpse.\r\n", NULL);
         else
-            acc_sprintf("Capacity:            %s%d pounds%s\r\n",
-                CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0), CCNRM(ch, C_NRM));
+            acc_sprintf("Capacity:            %s%s%s\r\n",
+                        CCCYN(ch, C_NRM),
+                        format_weight(GET_OBJ_VAL(obj, 0), USE_METRIC(ch)),
+                        CCNRM(ch, C_NRM));
         break;
     case ITEM_VEHICLE:
         if (obj->contains && IS_OBJ_TYPE(obj->contains, ITEM_ENGINE))
