@@ -2543,8 +2543,8 @@ hit(struct creature *ch, struct creature *victim, int type)
     }
 
     if (type == SKILL_BACKSTAB
-        && type == SKILL_CIRCLE
-        && type == SKILL_CLEAVE)
+        || type == SKILL_CIRCLE
+        || type == SKILL_CLEAVE)
         weap = GET_EQ(ch, WEAR_WIELD);
     else if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W)
         weap = get_random_uncovered_implant(ch, ITEM_WEAPON);
