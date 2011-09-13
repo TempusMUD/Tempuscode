@@ -47,6 +47,7 @@ extern FILE *qlogfile;
 void boot_tongues(const char *path);
 void boot_spells(const char *path);
 void extract_creature(struct creature *ch, enum cxn_state con_state);
+void free_account(struct account *acct);
 
 void
 test_tempus_boot(void)
@@ -216,12 +217,8 @@ destroy_test_player(struct creature *ch)
 {
     account_delete_char(ch->account, ch);
     g_hash_table_remove(account_cache, GINT_TO_POINTER(ch->account->id));
-    free(ch->account->name);
-    free(ch->account->password);
-    free(ch->account->creation_addr);
-    free(ch->account->login_addr);
-    free(ch->account);
     sql_exec("delete from accounts where idnum=%d", ch->account->id);
+    free_account(ch->account);
     if (ch->in_room)
         extract_creature(ch, CXN_DISCONNECT);
     else

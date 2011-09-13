@@ -40,8 +40,6 @@ extern GHashTable *mob_prototypes;
 extern GHashTable *obj_prototypes;
 
 static struct creature *ch = NULL;
-static struct zone_data *zone = NULL;
-static struct room_data *room_a = NULL, *room_b = NULL;
 
 extern GList *quests;
 struct quest *make_quest(long owner_id,
@@ -253,6 +251,7 @@ END_TEST
 
 START_TEST(test_qcontrol_create)
 {
+    quests = NULL;
     GET_LEVEL(ch) = LVL_IMMORT;
     do_qcontrol(ch, "create trivia Test quest", 0, 0);
     fail_unless(g_list_length(quests) == 1);
@@ -644,6 +643,7 @@ quest_suite(void)
     tcase_add_test(tc_core, test_can_join_quest_6);
     tcase_add_test(tc_core, test_can_join_quest_7);
     tcase_add_test(tc_core, test_can_join_quest_8);
+    tcase_add_test(tc_core, test_can_join_quest_9);
     tcase_add_test(tc_core, test_quest_list);
     tcase_add_test(tc_core, test_quest_join_leave);
     suite_add_tcase(s, tc_core);
