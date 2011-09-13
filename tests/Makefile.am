@@ -1,8 +1,8 @@
 TESTS = check_tempus
 check_PROGRAMS = check_tempus
-INCLUDES = -I@top_srcdir@/src/include @PQINCPATH@
-AM_CFLAGS = -Wall -Wcast-qual -g ${DBGFLAG}
-check_tempus_CFLAGS = -g @CHECK_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@
+INCLUDES = -I@top_srcdir@/src/include @POSTGRESQL_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @CHECK_CFLAGS@
+AM_CFLAGS = -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG}
+AM_LDFLAGS = @POSTGRESQL_LDFLAGS@ @XML_LIBS@ @GLIB_LIBS@
 check_tempus_SOURCES = \
 			@top_srcdir@/tests/check_tempus.c \
 			@top_srcdir@/tests/testing.c \

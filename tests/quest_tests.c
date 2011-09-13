@@ -1,11 +1,37 @@
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 #include <check.h>
 
-#include "creature.h"
-#include "room_data.h"
-#include "zone_data.h"
-#include "handler.h"
-#include "quest.h"
+#include "interpreter.h"
 #include "utils.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
+#include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "accstr.h"
+#include "account.h"
+#include "xml_utils.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "prog.h"
+#include "quest.h"
+#include "help.h"
+#include "editor.h"
 #include "testing.h"
 
 extern int current_mob_idnum;
@@ -293,6 +319,26 @@ END_TEST
 
 START_TEST(test_qcontrol_kick)
 {
+    struct creature *tch = make_test_player("xernst", "Xernst");
+
+    test_creature_to_world(ch);
+    test_creature_to_world(tch);
+
+    struct quest *q = random_quest();
+    quests = g_list_prepend(quests, q);
+    q->owner_id = GET_IDNUM(ch);
+    q->ended = 0;
+    q->players = NULL;
+
+    add_quest_player(q, GET_IDNUM(tch));
+
+    GET_LEVEL(ch) = LVL_IMMORT;
+    do_qcontrol(ch, tmp_sprintf("kick Xernst %d", q->vnum), 0, 0);
+    fail_unless(strstr(ch->desc->small_outbuf, "kicked") != NULL,
+                "qcontrol kick yielded output '%s'", ch->desc->small_outbuf);
+    fail_unless(g_list_length(q->players) == 0,
+                "Expected 0 players, got %d players",
+                g_list_length(q->players));
 }
 END_TEST
 

@@ -1,18 +1,43 @@
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 #include <check.h>
-#include "libpq-fe.h"
+#include <unistd.h>
 
-#include "desc_data.h"
-#include "creature.h"
-#include "account.h"
-#include "strutil.h"
-#include "tmpstr.h"
+#include "interpreter.h"
 #include "utils.h"
-#include "db.h"
-#include "language.h"
-#include "char_class.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
 #include "handler.h"
-#include "testing.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "accstr.h"
+#include "account.h"
+#include "xml_utils.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "prog.h"
 #include "quest.h"
+#include "help.h"
+#include "editor.h"
+#include "zone_data.h"
+#include "char_class.h"
+#include "testing.h"
+#include "language.h"
+
 extern PGconn *sql_cxn;
 extern GList *creatures;
 extern GHashTable *creature_map;
@@ -21,6 +46,7 @@ extern FILE *qlogfile;
 
 void boot_tongues(const char *path);
 void boot_spells(const char *path);
+void extract_creature(struct creature *ch, enum cxn_state con_state);
 
 void
 test_tempus_boot(void)
@@ -181,6 +207,8 @@ make_test_player(const char *acct_name, const char *char_name)
     ch->account = acct;
 
     GET_EXP(ch) = 1;
+
+    return ch;
 }
 
 void
@@ -195,7 +223,7 @@ destroy_test_player(struct creature *ch)
     free(ch->account);
     sql_exec("delete from accounts where idnum=%d", ch->account->id);
     if (ch->in_room)
-        extract_creature(ch);
+        extract_creature(ch, CXN_DISCONNECT);
     else
         free_creature(ch);
 }

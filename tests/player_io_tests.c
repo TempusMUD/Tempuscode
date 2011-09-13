@@ -1,19 +1,40 @@
-#include <stdlib.h>
-#include <math.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <ctype.h>
+#include <libpq-fe.h>
+#include <libxml/parser.h>
+#include <glib.h>
 #include <check.h>
-#include "libpq-fe.h"
+#include <math.h>
 
-#include "desc_data.h"
-#include "creature.h"
-#include "account.h"
-#include "strutil.h"
-#include "tmpstr.h"
+#include "interpreter.h"
 #include "utils.h"
-#include "db.h"
-#include "language.h"
-#include "char_class.h"
+#include "constants.h"
+#include "comm.h"
+#include "security.h"
 #include "handler.h"
+#include "defs.h"
+#include "desc_data.h"
+#include "macros.h"
+#include "room_data.h"
+#include "race.h"
+#include "creature.h"
+#include "db.h"
+#include "screen.h"
+#include "players.h"
+#include "tmpstr.h"
+#include "accstr.h"
+#include "account.h"
+#include "xml_utils.h"
+#include "obj_data.h"
+#include "strutil.h"
+#include "prog.h"
+#include "quest.h"
+#include "help.h"
+#include "editor.h"
 #include "testing.h"
+#include "spells.h"
 
 static struct creature *ch = NULL;
 
