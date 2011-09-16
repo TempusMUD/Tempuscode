@@ -112,7 +112,7 @@ int new_descriptor(int s, int port);
 int get_avail_descs(void);
 int process_output(struct descriptor_data *t);
 int process_input(struct descriptor_data *t);
-struct timeval timediff(struct timeval *a, struct timeval *b);
+struct timespec timediff(struct timespec *a, struct timespec *b);
 void flush_queues(struct descriptor_data *d);
 void nonblock(int s);
 int perform_subst(struct descriptor_data *t, char *orig, char *subst);
@@ -314,16 +314,16 @@ void
 game_loop(int main_listener, int reader_listener)
 {
     fd_set input_set, output_set, exc_set;
-    struct timeval last_time, now, timespent, timeout, opt_time;
+    struct timespec last_time, now, timespent, timeout, opt_time;
     struct descriptor_data *d, *next_d;
     int pulse = 0, mins_since_crashsave = 0, maxdesc;
 
     /* initialize various time values */
     null_time.tv_sec = 0;
     null_time.tv_usec = 0;
-    opt_time.tv_usec = OPT_USEC;
+    opt_time.tv_nsec = OPT_USEC * 1000;
     opt_time.tv_sec = 0;
-    gettimeofday(&last_time, (struct timezone *)0);
+    clock_gettime(CLOCK_MONOTONIC, &last_time);
 
     /* The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The.. */
     while (!circle_shutdown) {
@@ -347,28 +347,30 @@ game_loop(int main_listener, int reader_listener)
         // ARE doing a stress test, this is skipped so we can load the
         // mud as fast as possible.
         if (!stress_test) {
-            do {
+            while (true) {
                 errno = 0;          // clear error condition
 
                 // figure out for how long we have to sleep
-                gettimeofday(&now, (struct timezone *)0);
+                clock_gettime(CLOCK_MONOTONIC, &last_time);
                 timespent = timediff(&now, &last_time);
                 timeout = timediff(&opt_time, &timespent);
+                if (timeout.tv_sec <= 0)
+                    break;
 
-                if (!production_mode && !timeout.tv_sec && !timeout.tv_usec)
+                if (!production_mode && !timeout.tv_sec && !timeout.tv_nsec)
                     slog("WARNING: Last pulse %d took %lu.%06lu seconds",
-                         pulse, timespent.tv_sec, timespent.tv_usec);
+                         pulse, timespent.tv_sec, timespent.tv_nsec / 1000);
 
                 // sleep until the next 0.1 second mark
-                if (usleep(timeout.tv_sec * 1000000 + timeout.tv_usec) < 0)
+                if (usleep(timeout.tv_sec * 1000000 + timeout.tv_nsec / 1000) < 0)
                     if (errno != EINTR) {
                         perror("Select sleep");
                         safe_exit(EXIT_FAILURE);
                     }
-            } while (errno);
+            }
         }
         /* record the time for the next pass */
-        gettimeofday(&last_time, (struct timezone *)0);
+        clock_gettime(CLOCK_MONOTONIC, &last_time);
 
         /* poll (without blocking) for new input, output, and exceptions */
         if (select(maxdesc + 1, &input_set, &output_set, &exc_set,
@@ -626,28 +628,28 @@ game_loop(int main_listener, int reader_listener)
  * code to return the time difference between a and b (a-b).
  * always returns a nonnegative value (floors at 0).
  */
-struct timeval
-timediff(struct timeval *a, struct timeval *b)
+struct timespec
+timediff(struct timespec *a, struct timespec *b)
 {
-    struct timeval rslt;
+    struct timespec rslt = { .tv_sec = 0, .tv_nsec = 0 };
 
     if (a->tv_sec < b->tv_sec)
-        return null_time;
+        return rslt;
     else if (a->tv_sec == b->tv_sec) {
-        if (a->tv_usec < b->tv_usec)
-            return null_time;
+        if (a->tv_nsec < b->tv_nsec)
+            return rslt;
         else {
             rslt.tv_sec = 0;
-            rslt.tv_usec = a->tv_usec - b->tv_usec;
+            rslt.tv_nsec = a->tv_nsec - b->tv_nsec;
             return rslt;
         }
     } else {                    /* a->tv_sec > b->tv_sec */
         rslt.tv_sec = a->tv_sec - b->tv_sec;
-        if (a->tv_usec < b->tv_usec) {
-            rslt.tv_usec = a->tv_usec + 1000000 - b->tv_usec;
+        if (a->tv_nsec < b->tv_nsec) {
+            rslt.tv_nsec = a->tv_nsec + 1000000000 - b->tv_nsec;
             rslt.tv_sec--;
         } else
-            rslt.tv_usec = a->tv_usec - b->tv_usec;
+            rslt.tv_nsec = a->tv_nsec - b->tv_nsec;
         return rslt;
     }
 }
