@@ -351,7 +351,7 @@ game_loop(int main_listener, int reader_listener)
                 errno = 0;          // clear error condition
 
                 // figure out for how long we have to sleep
-                clock_gettime(CLOCK_MONOTONIC, &last_time);
+                clock_gettime(CLOCK_MONOTONIC, &now);
                 timespent = timediff(&now, &last_time);
                 timeout = timediff(&opt_time, &timespent);
                 if (timeout.tv_sec <= 0)
