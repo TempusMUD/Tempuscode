@@ -1560,7 +1560,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
 
     mobile->char_specials.position = t[0];
     mobile->mob_specials.shared->default_pos = t[1];
-    mobile->player.sex = t[2];
+    mobile->player.sex = MAX(0, MIN(2, t[2]));
 
     mobile->player.weight = 200;
     mobile->player.height = 198;
