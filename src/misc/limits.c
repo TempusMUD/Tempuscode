@@ -722,7 +722,7 @@ point_update(void)
             now = time(NULL);
 
             if (now > tch->player_specials->thaw_time) {
-                PLR_FLAGS(tch) = REMOVE_BIT(PLR_FLAGS(tch), PLR_FROZEN);
+                REMOVE_BIT(PLR_FLAGS(tch), PLR_FROZEN);
                 tch->player_specials->thaw_time = 0;
                 crashsave(tch);
                 mudlog(MAX(LVL_POWER, GET_INVIS_LVL(tch)), BRF, true,
