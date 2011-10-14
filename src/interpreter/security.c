@@ -203,7 +203,9 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
         return is_named_role_member(ch, "AdminBasic");
 
     case FULL_IMMORT_WHERE:
-        return is_named_role_member(ch, "Questor,AdminBasic,WizardBasic");
+        return is_named_role_member(ch, "Questor")
+            || is_named_role_member(ch, "AdminBasic")
+            || is_named_role_member(ch, "WizardBasic");
 
     case TESTER:
         return is_named_role_member(ch, "Testers");
