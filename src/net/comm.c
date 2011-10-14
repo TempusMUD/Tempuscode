@@ -321,8 +321,8 @@ game_loop(int main_listener, int reader_listener)
     /* initialize various time values */
     null_time.tv_sec = 0;
     null_time.tv_usec = 0;
-    opt_time.tv_nsec = OPT_USEC * 1000;
     opt_time.tv_sec = 0;
+    opt_time.tv_nsec = OPT_USEC * 1000;
     clock_gettime(CLOCK_MONOTONIC, &last_time);
 
     /* The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The.. */
@@ -354,7 +354,7 @@ game_loop(int main_listener, int reader_listener)
                 clock_gettime(CLOCK_MONOTONIC, &now);
                 timespent = timediff(&now, &last_time);
                 timeout = timediff(&opt_time, &timespent);
-                if (timeout.tv_sec <= 0)
+                if (timeout.tv_sec <= 0 && timeout.tv_nsec == 0)
                     break;
 
                 if (!production_mode && !timeout.tv_sec && !timeout.tv_nsec)
@@ -362,11 +362,14 @@ game_loop(int main_listener, int reader_listener)
                          pulse, timespent.tv_sec, timespent.tv_nsec / 1000);
 
                 // sleep until the next 0.1 second mark
-                if (usleep(timeout.tv_sec * 1000000 + timeout.tv_nsec / 1000) < 0)
+                if (clock_nanosleep(CLOCK_MONOTONIC, 0, &timeout, &timeout) < 0) {
                     if (errno != EINTR) {
-                        perror("Select sleep");
+                        perror("clock_nanosleep");
                         safe_exit(EXIT_FAILURE);
                     }
+                } else {
+                    break;
+                }
             }
         }
         /* record the time for the next pass */
