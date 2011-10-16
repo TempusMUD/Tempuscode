@@ -2,7 +2,6 @@ TESTS = check_tempus
 check_PROGRAMS = check_tempus
 INCLUDES = -I@top_srcdir@/src/include @POSTGRESQL_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @CHECK_CFLAGS@
 AM_CFLAGS = -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG}
-AM_LDFLAGS = @POSTGRESQL_LDFLAGS@ @XML_LIBS@ @GLIB_LIBS@
 check_tempus_SOURCES = \
 			@top_srcdir@/tests/check_tempus.c \
 			@top_srcdir@/tests/testing.c \
@@ -13,7 +12,7 @@ check_tempus_SOURCES = \
 	        @top_srcdir@/tests/player_io_tests.c \
 	        @top_srcdir@/tests/quest_tests.c
 
-check_tempus_LDADD = @CHECK_LIBS@ @XML_LIBS@ @GLIB_LIBS@ \
+check_tempus_LDADD = \
 			$(top_builddir)/src/clan.o \
 			$(top_builddir)/src/act.barb.o \
 			$(top_builddir)/src/act.cleric.o \
@@ -122,4 +121,6 @@ check_tempus_LDADD = @CHECK_LIBS@ @XML_LIBS@ @GLIB_LIBS@ \
 			$(top_builddir)/src/tmpstr.o \
 			$(top_builddir)/src/strutil.o \
 			$(top_builddir)/src/utils.o \
-			$(top_builddir)/src/weather.o
+			$(top_builddir)/src/weather.o \
+			@CHECK_LIBS@ @POSTGRESQL_LDFLAGS@ @XML_LIBS@ @GLIB_LIBS@ \
+	        -lcrypt
