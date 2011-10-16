@@ -31,6 +31,7 @@
 #include "actions.h"
 #include "weather.h"
 #include "vendor.h"
+#include "strutil.h"
 
 const int MAX_ITEMS = 10;
 

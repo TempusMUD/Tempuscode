@@ -40,6 +40,7 @@
 #include "voice.h"
 #include "olc.h"
 #include "editor.h"
+#include "strutil.h"
 
 extern struct zone_data *zone_table;
 extern struct descriptor_data *descriptor_list;

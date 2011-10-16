@@ -37,6 +37,7 @@
 #include "fight.h"
 #include <libxml/parser.h>
 #include "obj_data.h"
+#include "strutil.h"
 
 int check_mob_reaction(struct creature *ch, struct creature *vict);
 int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,

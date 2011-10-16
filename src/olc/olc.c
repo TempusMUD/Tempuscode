@@ -60,6 +60,7 @@
 #include "olc.h"
 #include "editor.h"
 #include "smokes.h"
+#include "strutil.h"
 
 extern const char *language_names[];
 extern const char *race_language[][2];
@@ -1985,7 +1986,7 @@ show_olc_help(struct creature *ch, char *arg)
     case 15:      /** spells **/
         if (*arg2) {
             if (!is_number(arg2)) {
-                if ((i = search_block(arg2, (const char **)spells, 0)) < 0) {
+                if ((i = search_block(arg2, (const char * const *)spells, 0)) < 0) {
                     send_to_char(ch,
                         "Type olc help spells for a valid list.\r\n");
                     return;

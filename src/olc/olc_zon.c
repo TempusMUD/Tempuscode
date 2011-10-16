@@ -2269,8 +2269,7 @@ do_zset_command(struct creature *ch, char *argument)
 
                 if (room) {
                     if (add_flags) {
-                        room->room_flags = (room->room_flags |=
-                            tmp_room_flags);
+                        room->room_flags = (room->room_flags | tmp_room_flags);
                     } else {
                         tmp_flags = room->room_flags;
                         tmp_room_flags = (tmp_flags & tmp_room_flags);

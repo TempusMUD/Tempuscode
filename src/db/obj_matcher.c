@@ -357,7 +357,7 @@ make_object_spell_matcher(struct creature *ch,
     if (is_number(expr))
         matcher->num = atoi(expr);
     else
-        matcher->num = search_block(expr, (const char **)spells, 0);
+        matcher->num = search_block(expr, (const char * const *)spells, 0);
     if (matcher->num < 0 || matcher->num > TOP_SPELL_DEFINE) {
         send_to_char(ch, "Type olc help spells for a list of spells.\r\n");
         return false;

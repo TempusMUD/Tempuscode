@@ -24,6 +24,7 @@
 #include "tmpstr.h"
 #include "spells.h"
 #include "prog.h"
+#include "strutil.h"
 
 enum prog_token_kind {
     PROG_TOKEN_EOL,

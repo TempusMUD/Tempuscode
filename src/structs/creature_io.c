@@ -34,6 +34,7 @@
 #include "obj_data.h"
 #include "actions.h"
 #include "language.h"
+#include "strutil.h"
 
 void add_alias(struct creature *ch, struct alias_data *a);
 void affect_to_char(struct creature *ch, struct affected_type *af);

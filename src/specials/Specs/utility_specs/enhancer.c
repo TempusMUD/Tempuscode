@@ -14,7 +14,7 @@ SPECIAL(enhancer)
 
     struct creature *keeper = (struct creature *)me;
     struct obj_data *obj = NULL;
-    char *args = NULL, arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+    char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     int cmd_type = 0, cost = 0;
 
     if (!cmd || (!CMD_IS("buy") && !CMD_IS("offer")))
@@ -25,7 +25,7 @@ SPECIAL(enhancer)
     else
         cmd_type = ENHANCE_OFF;
 
-    args = two_arguments(argument, arg1, arg2);
+    two_arguments(argument, arg1, arg2);
 
     if (!*arg1 || strncmp(arg1, "enhancement", 13)) {
         perform_tell(keeper, ch, "Usage: buy/offer enhancement <item>");

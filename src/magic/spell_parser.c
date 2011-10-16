@@ -53,6 +53,7 @@
 #include "actions.h"
 #include "language.h"
 #include "prog.h"
+#include "strutil.h"
 
 char **spells = NULL;
 struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];

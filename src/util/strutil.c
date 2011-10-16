@@ -322,7 +322,7 @@ one_word(char *argument, char *first_arg)
  * must be terminated with a '\n' so it knows to stop searching.
  */
 int
-search_block(const char *arg, const char **list, bool exact)
+search_block(const char *arg, const char * const *list, bool exact)
 {
     if (*arg == '\0')
         return -1;

@@ -42,6 +42,7 @@
 #include "paths.h"
 #include "olc.h"
 #include "editor.h"
+#include "strutil.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;

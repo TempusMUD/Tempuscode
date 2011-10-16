@@ -33,6 +33,7 @@
 #include "actions.h"
 #include "weather.h"
 #include "vendor.h"
+#include "strutil.h"
 
 #define MAX_ITEMS   10
 #define MIN_COST    12

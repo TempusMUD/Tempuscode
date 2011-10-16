@@ -130,7 +130,6 @@ void
 craft_shop_load(struct craft_shop *shop, xmlNodePtr node)
 {
     xmlNodePtr sub_node;
-    xmlChar *prop;
     shop->room = xmlGetIntProp(node, "room", 0);
     shop->keeper_vnum = xmlGetIntProp(node, "keeper", 0);
 
@@ -141,7 +140,6 @@ craft_shop_load(struct craft_shop *shop, xmlNodePtr node)
 
     // Load the described items and thier info.
     for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {
-        prop = NULL;
         if (xmlMatches(sub_node->name, "item")) {
             craft_shop_parse_item(shop, sub_node);
         } else if (!xmlMatches(sub_node->name, "text")) {

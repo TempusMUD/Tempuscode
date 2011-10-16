@@ -24,6 +24,7 @@
 #include "account.h"
 #include "xml_utils.h"
 #include "voice.h"
+#include "strutil.h"
 
 // Note: These must be in the same order as the voice_situation enum
 // in voice.h

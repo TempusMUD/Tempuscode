@@ -63,6 +63,7 @@
 #include "paths.h"
 #include "voice.h"
 #include "olc.h"
+#include "strutil.h"
 
 #define ZONE_ERROR(message) \
 { zerrlog(zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); last_cmd = 0; }

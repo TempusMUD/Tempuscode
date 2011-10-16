@@ -35,6 +35,7 @@
 #include "weather.h"
 #include "search.h"
 #include "prog.h"
+#include "strutil.h"
 
 extern char locate_buf[256];
 

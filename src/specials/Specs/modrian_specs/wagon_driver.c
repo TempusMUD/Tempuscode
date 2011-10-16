@@ -9,7 +9,7 @@ SPECIAL(wagon_driver)
     struct obj_data *i;
     struct creature *driver = (struct creature *)me;
     struct room_data *destination = NULL;
-    int wagon_obj_rnum = 10, dir, num;
+    int wagon_obj_rnum = 10, dir;
 
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
@@ -19,7 +19,7 @@ SPECIAL(wagon_driver)
     if (!number(0, 7))          /* Only try to some of the time */
         return 0;
 
-    for (num = 0, i = object_list; i; i = i->next)
+    for (i = object_list; i; i = i->next)
         if ((wagon_obj_rnum == GET_OBJ_VNUM(i)) && (i->in_room != NULL))
             break;
 

@@ -45,7 +45,7 @@ enum {
 };
 
 char *one_word(char *argument, char *first_arg);
-int search_block(const char *arg, const char **list, bool exact);
+int search_block(const char *arg, const char * const *list, bool exact);
 bool is_number(const char *str);
 void skip_spaces_const(const char **string);
 void skip_spaces(char **string);

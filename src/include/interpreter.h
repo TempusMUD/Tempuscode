@@ -28,7 +28,6 @@ struct creature;
 struct descriptor_data;
 
 void command_interpreter(struct creature *ch, const char *argument);
-int search_block(const char *arg, const char **list, bool exact);
 char lower(char c);
 char *one_argument(char *argument, char *first_arg);
 char *any_one_arg(char *argument, char *first_arg);

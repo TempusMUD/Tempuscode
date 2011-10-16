@@ -41,6 +41,7 @@
 #include "actions.h"
 #include "search.h"
 #include "prog.h"
+#include "strutil.h"
 
 /* extern variables */
 extern struct room_data *world;

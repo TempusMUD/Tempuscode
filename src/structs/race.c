@@ -15,6 +15,7 @@
 #include "tmpstr.h"
 #include "xml_utils.h"
 #include "language.h"
+#include "strutil.h"
 
 GHashTable *races = NULL;
 
