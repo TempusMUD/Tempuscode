@@ -7689,7 +7689,8 @@ const char *CODER_UTIL_USAGE =
     "    loadzone - load zone files for zone.\r\n"
     "	 progstat - stat the progs for a room or mob.\r\n"
     "  progscript - translate a script to a prog.\r\n"
-    "	  progall - translate all scripts to progs\r\n";
+    "	  progall - translate all scripts to progs\r\n"
+    "   dumpprogs - dumps state of all active progs\r\n";
 
 bool
 load_single_zone(int zone_num)
@@ -7878,6 +7879,36 @@ ACMD(do_coderutil)
         }
 
         page_string(ch->desc, acc_get_string());
+    } else if (strcmp(token, "dumpprogs") == 0) {
+        extern GList *active_progs;
+        extern gint prog_tick;
+        unsigned char *prog_get_obj(void *owner,
+            enum prog_evt_type owner_type);
+        char *prog_get_desc(struct prog_env *env);
+        FILE *ouf;
+
+        ouf = fopen("progdump.txt", "w");
+        fprintf(ouf, "owner        progid    trigger   target          wait statement\r\n");
+        fprintf(ouf, "------------ --------- --------- --------------- ---- ----------------------------\r\n");
+        const char *prog_event_kind_desc[] =
+            { "command", "idle", "fight", "give", "enter", "leave", "load",
+                "tick", "spell", "combat", "death", "dying" };
+
+        for (GList *cur = active_progs;cur;cur = cur->next) {
+            struct prog_env *prog = cur->data;
+            unsigned char *exec =
+                prog_get_obj(prog->owner, prog->owner_type);
+            int cmd = *((short *)(exec + prog->exec_pt));
+            int arg_addr =
+                *((short *)(exec + prog->exec_pt + sizeof(short)));
+            fprintf(ouf, "%12s 0x%lx %-8s  %-15s %4d %s %s\r\n",
+                    prog_get_desc(prog),
+                    (unsigned long)prog,
+                    prog_event_kind_desc[(int)prog->evt.kind],
+                    (prog->target) ? GET_NAME(prog->target) : "<none>",
+                    prog->next_tick - prog_tick, prog_cmds[cmd].str, (char *)exec + arg_addr);
+        }
+        send_to_char(ch, "Dumped.\r\n");
     } else
         send_to_char(ch, "%s", CODER_UTIL_USAGE);
 }
