@@ -1856,7 +1856,7 @@ prog_execute(struct prog_env *env)
         return;
     }
 
-    while (env->exec_pt >= 0 && env->next_tick == prog_tick) {
+    while (env->exec_pt >= 0 && env->next_tick <= prog_tick) {
         // Get the command and the arg address
         cmd = *((short *)(exec + env->exec_pt));
         arg_addr = *((short *)(exec + env->exec_pt + sizeof(short)));
@@ -2432,7 +2432,7 @@ prog_execute_and_mark(void)
         struct prog_env *cur_prog = cur->data;
         next = cur->next;
 
-        if (cur_prog->next_tick != prog_tick)
+        if (cur_prog->next_tick > prog_tick)
             continue;
         if (cur_prog->exec_pt < 0)
             continue;
