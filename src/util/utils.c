@@ -306,9 +306,10 @@ age(struct creature *ch)
 {
     struct time_info_data player_age;
     struct race *race = race_by_idnum(GET_RACE(ch));
+    int age_adjust = (race) ? race->age_adjust:18;
 
     player_age = mud_time_passed(time(0), ch->player.time.birth);
-    player_age.year += race->age_adjust;
+    player_age.year += age_adjust;
 
     return player_age;
 }
