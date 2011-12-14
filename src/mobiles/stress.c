@@ -170,6 +170,9 @@ const char *cmd_templates[] = {
     "extinguish #o",
     "extinguish #c",
     "extract",
+    "extract self #o #i",
+    "extract #c #o #i",
+
     "fill #o #o",
     "firstaid #c",
     "fight #c",
@@ -225,6 +228,8 @@ const char *cmd_templates[] = {
     "imbibe #o",
     "impale #c",
     "implants",
+    "implant self #o #i",
+    "implant #c #o #i",
     "improve str",
     "improve con",
     "improve wis",
@@ -340,6 +345,7 @@ const char *cmd_templates[] = {
     "sacrifice #o",
     "scan",
     "scissorkick #c",
+    "score",
     "scream #c",
     "sell #o",
     "selfdestruct",
@@ -424,8 +430,10 @@ const char *cmd_templates[] = {
 
     "wake",
     "wear #o",
+    "wear #o #p",
     "weather",
     "weigh #o",
+    "where",
     "who",
     "whoami",
     "where",
@@ -549,8 +557,14 @@ random_active_creature(struct creature *ch)
                 d += strlen(dirs[i]);
                 break;
             case 'p':           /* position */
-                strcpy(d, "eyes");
-                d += 4;
+                i = number(0, 28);
+                strcpy(d, wear_eqpos[i]);
+                d += strlen(wear_eqpos[i]);
+                break;
+            case 'i':
+                i = number(0, 28);
+                strcpy(d, wear_implantpos[i]);
+                d += strlen(wear_implantpos[i]);
                 break;
             default:
                 *d++ = *s;
