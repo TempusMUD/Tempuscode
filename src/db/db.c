@@ -1015,6 +1015,29 @@ parse_room(FILE * fl, int vnum_nr)
     }
 }
 
+int
+calc_door_strength(struct room_data *room, int dir)
+{
+    int result;
+
+    if (IS_SET(room->dir_option[dir]->exit_info, EX_ISDOOR)) {
+        result = 100;
+        if (IS_SET(room->dir_option[dir]->exit_info, EX_HEAVY_DOOR)) {
+            result += 100;
+        }
+        if (IS_SET(room->dir_option[dir]->exit_info, EX_REINFORCED)) {
+            result += 200;
+        }
+        if (IS_SET(room->dir_option[dir]->exit_info, EX_PICKPROOF)) {
+            result = -1;
+        }
+    } else {
+        result = 0;
+    }
+
+    return result;
+}
+
 /* read direction data */
 void
 setup_dir(FILE * fl, struct room_data *room, int dir)
@@ -1046,6 +1069,8 @@ setup_dir(FILE * fl, struct room_data *room, int dir)
 
     room->dir_option[dir]->key = t[1];
     room->dir_option[dir]->to_room = GINT_TO_POINTER(t[2]);
+    room->dir_option[dir]->maxdam = calc_door_strength(room, dir);
+    room->dir_option[dir]->damage = room->dir_option[dir]->maxdam;
 }
 
 /* make sure the start rooms exist & resolve their vnums to rnums */
@@ -3034,28 +3059,31 @@ reset_zone(struct zone_data *zone)
                 (room->dir_option[zonecmd->arg2] == NULL)) {
                 ZONE_ERROR("door does not exist");
             } else {
+                int dir = zonecmd->arg2;
                 if (IS_SET(zonecmd->arg3, DOOR_OPEN)) {
-                    REMOVE_BIT(room->dir_option[zonecmd->arg2]->exit_info,
+                    REMOVE_BIT(room->dir_option[dir]->exit_info,
                         EX_LOCKED);
-                    REMOVE_BIT(room->dir_option[zonecmd->arg2]->exit_info,
+                    REMOVE_BIT(room->dir_option[dir]->exit_info,
                         EX_CLOSED);
                 }
                 if (IS_SET(zonecmd->arg3, DOOR_CLOSED)) {
-                    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info,
+                    SET_BIT(room->dir_option[dir]->exit_info,
                         EX_CLOSED);
-                    REMOVE_BIT(room->dir_option[zonecmd->arg2]->exit_info,
+                    REMOVE_BIT(room->dir_option[dir]->exit_info,
                         EX_LOCKED);
                 }
                 if (IS_SET(zonecmd->arg3, DOOR_LOCKED)) {
-                    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info,
+                    SET_BIT(room->dir_option[dir]->exit_info,
                         EX_LOCKED);
-                    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info,
+                    SET_BIT(room->dir_option[dir]->exit_info,
                         EX_CLOSED);
                 }
                 if (IS_SET(zonecmd->arg3, DOOR_HIDDEN)) {
-                    SET_BIT(room->dir_option[zonecmd->arg2]->exit_info,
+                    SET_BIT(room->dir_option[dir]->exit_info,
                         EX_HIDDEN);
                 }
+                room->dir_option[dir]->maxdam = calc_door_strength(room, dir);
+                room->dir_option[dir]->damage = room->dir_option[dir]->maxdam;
                 last_cmd = 1;
             }
             break;

@@ -159,6 +159,8 @@ struct room_direction_data {
 
 	unsigned int exit_info;		// Exit info
 	obj_num key;				// Key's number (-1 for no key)
+    int16_t damage;             // Damage to door (-1 for unbreakable)
+    int16_t maxdam;             // Durability of door (-1 for unbreakable)
 	struct room_data *to_room;	// Pointer to room
 };
 

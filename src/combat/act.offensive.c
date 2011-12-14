@@ -1435,48 +1435,11 @@ ACMD(do_retreat)
 
 #undef FLEE_SPEED
 
-ACMD(do_bash)
+void
+bash_door(struct creature *ch, int door)
 {
-    struct creature *vict = NULL;
-    struct obj_data *ovict;
-    int percent, prob, door;
-    struct room_data *room = NULL;
-    char *arg1, *arg2;
     const char *door_str;
 
-    arg1 = tmp_getword(&argument);
-    arg2 = tmp_getword(&argument);
-
-    if (*arg1)
-        vict = get_char_room_vis(ch, arg1);
-    else
-        vict = random_opponent(ch);
-
-    // If we found our victim, it's a combat move
-    if (vict) {
-        do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH);
-        return;
-    }
-    // If it's an object in the room, it's just a scary social
-    ovict = get_obj_in_list_vis(ch, arg1, ch->in_room->contents);
-    if (ovict) {
-        act("You bash $p!", false, ch, ovict, 0, TO_CHAR);
-        act("$n bashes $p!", false, ch, ovict, 0, TO_ROOM);
-        if (IS_OBJ_TYPE(ovict, ITEM_VEHICLE) &&
-            (room = real_room(ROOM_NUMBER(ovict))) != NULL && room->people) {
-            act("$N bashes the outside of $p!",
-                false, room->people->data, ovict, ch, TO_ROOM);
-            act("$N bashes the outside of $p!",
-                false, room->people->data, ovict, ch, TO_CHAR);
-        }
-        return;
-    }
-    // If it's a door, it's a non-combat skill
-    door = find_door(ch, arg1, arg2, "bash");
-    if (door < 0) {
-        WAIT_STATE(ch, 4);
-        return;
-    }
     // We know they're looking for a door at this point
     if (!IS_SET(EXIT(ch, door)->exit_info, EX_ISDOOR)) {
         send_to_char(ch, "You cannot bash that!\r\n");
@@ -1492,35 +1455,66 @@ ACMD(do_bash)
         send_to_char(ch, "You are too exhausted.\r\n");
         return;
     }
+    GET_MOVE(ch) -= 20;
 
-    percent = CHECK_SKILL(ch, SKILL_BREAK_DOOR) +
-        (strength_damage_bonus(GET_STR(ch)) << 3) + GET_CON(ch);
+    int door_damage = dice(2, GET_LEVEL(ch) / 4);
+    door_damage += strength_damage_bonus(GET_STR(ch)) * 4;
+    if (CHECK_SKILL(ch, SKILL_BREAK_DOOR) < number(1,99)) {
+        door_damage *= 2;
+    }
 
-    if (IS_SET(EXIT(ch, door)->exit_info, EX_LOCKED))
-        percent -= 15;
-    if (IS_SET(EXIT(ch, door)->exit_info, EX_HEAVY_DOOR))
-        percent -= 20;
-    if (IS_SET(EXIT(ch, door)->exit_info, EX_REINFORCED))
-        percent -= 25;
-    if (!GET_COND(ch, FULL))
-        percent -= 5;
-
-    if (IS_SET(EXIT(ch, door)->exit_info, EX_PICKPROOF) ||
+    if (door_damage < 0 ||
+        IS_SET(EXIT(ch, door)->exit_info, EX_PICKPROOF) ||
+        EXIT(ch, door)->damage < 0 ||
         EXIT(ch, door)->to_room == NULL)
-        percent = 0;
+        door_damage = 0;
 
-    // gods can bash down anything, dammit!!!
-    if (GET_LEVEL(ch) > LVL_GRGOD)
-        percent += 100;
+    door_damage = MIN(door_damage, EXIT(ch, door)->damage);
 
-    prob = dice(3, 8);
     door_str = EXIT(ch, door)->keyword ?
         fname(EXIT(ch, door)->keyword) : "door";
 
-    if (percent < number(100, 170)) {
-        prob += dice(4, 8);
-        GET_HIT(ch) -= prob;
-        if (GET_HIT(ch) < -10) {
+    // Damage the door
+    EXIT(ch, door)->damage -= door_damage;
+
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+        send_to_char(ch, "%s[BASH] door_damage: %d, durability left: %d%s\r\n",
+                     CCCYN(ch, C_CMP),
+                     door_damage,
+                     EXIT(ch, door)->damage,
+                     CCNRM(ch, C_CMP));
+    }
+    // Report success
+    if (EXIT(ch, door)->damage > 0) {
+        GET_HIT(ch) -= dice(4, 8);
+        if (GET_HIT(ch) > -10) {
+            act(tmp_sprintf
+                ("$n throws $mself against the %s in an attempt to break it.",
+                    door_str), false, ch, 0, 0, TO_ROOM);
+            send_to_char(ch,
+                "You slam yourself against the %s.\r\n",
+                EXIT(ch, door)->keyword ? fname(EXIT(ch,
+                        door)->keyword) : "door");
+            update_pos(ch);
+            int percent = EXIT(ch, door)->damage * 100 / EXIT(ch, door)->maxdam;
+            const char *damage_desc = "untouched";
+            if (percent > 99)
+                damage_desc = "untouched";
+            else if (percent > 90)
+                damage_desc = "virtually unharmed";
+            else if (percent > 75)
+                damage_desc = "pretty scratched up";
+            else if (percent > 50)
+                damage_desc = "in poor shape";
+            else if (percent > 25)
+                damage_desc = "completely battered";
+            else if (percent > 5)
+                damage_desc = "on the verge of breaking";
+
+            act(tmp_sprintf("The %s looks %s.", door_str, damage_desc),
+                false, ch, 0, 0, TO_ROOM);
+            send_to_char(ch, "The %s looks %s.\r\n", door_str, damage_desc);
+        } else {
             act(tmp_sprintf
                 ("$n throws $mself against the %s, $s last futile effort.",
                     door_str), false, ch, 0, 0, TO_ROOM);
@@ -1533,15 +1527,6 @@ ACMD(do_bash)
                     GET_NAME(ch), ch->in_room->number);
 
             raw_kill(ch, ch, SKILL_BASH);   // Bashing a door to death
-        } else {
-            act(tmp_sprintf
-                ("$n throws $mself against the %s in an attempt to break it.",
-                    door_str), false, ch, 0, 0, TO_ROOM);
-            send_to_char(ch,
-                "You slam yourself against the %s in a futile effort.\r\n",
-                EXIT(ch, door)->keyword ? fname(EXIT(ch,
-                        door)->keyword) : "door");
-            update_pos(ch);
         }
     } else {
         // Success
@@ -1552,7 +1537,7 @@ ACMD(do_bash)
 
         REMOVE_BIT(EXIT(ch, door)->exit_info, EX_CLOSED);
         REMOVE_BIT(EXIT(ch, door)->exit_info, EX_LOCKED);
-        GET_HIT(ch) -= prob;
+        GET_HIT(ch) -= dice(4,8);
 
         if (number(0, 20) > GET_DEX(ch)) {
             act("$n staggers and falls down.", true, ch, 0, 0, TO_ROOM);
@@ -1584,7 +1569,49 @@ ACMD(do_bash)
                 EXIT(ch, door)->to_room);
         }
     }
-    GET_MOVE(ch) -= 20;
+}
+
+ACMD(do_bash)
+{
+    struct creature *vict = NULL;
+    struct obj_data *ovict;
+    char *arg1, *arg2;
+    struct room_data *room = NULL;
+
+    arg1 = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
+
+    if (*arg1)
+        vict = get_char_room_vis(ch, arg1);
+    else
+        vict = random_opponent(ch);
+
+    // If we found our victim, it's a combat move
+    if (vict) {
+        do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH);
+        return;
+    }
+    // If it's an object in the room, it's just a scary social
+    ovict = get_obj_in_list_vis(ch, arg1, ch->in_room->contents);
+    if (ovict) {
+        act("You bash $p!", false, ch, ovict, 0, TO_CHAR);
+        act("$n bashes $p!", false, ch, ovict, 0, TO_ROOM);
+        if (IS_OBJ_TYPE(ovict, ITEM_VEHICLE) &&
+            (room = real_room(ROOM_NUMBER(ovict))) != NULL && room->people) {
+            act("$N bashes the outside of $p!",
+                false, room->people->data, ovict, ch, TO_ROOM);
+            act("$N bashes the outside of $p!",
+                false, room->people->data, ovict, ch, TO_CHAR);
+        }
+        return;
+    }
+    // If it's a door, it's a non-combat skill
+    int door = find_door(ch, arg1, arg2, "bash");
+    if (door < 0) {
+        WAIT_STATE(ch, 4);
+        return;
+    }
+    bash_door(ch, door);
 }
 
 void

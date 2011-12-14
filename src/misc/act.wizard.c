@@ -1083,14 +1083,14 @@ do_stat_room(struct creature *ch, char *roomstr)
 
     for (i = 0; i < NUM_OF_DIRS; i++) {
         if (ABS_EXIT(rm, i)) {
-            acc_sprintf
-                ("Exit %s%-5s%s:  To: [%s%s%s], Key: [%5d], Keywrd: %s, Type: %s\r\n",
-                CCCYN(ch, C_NRM), dirs[i], CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-                ((ABS_EXIT(rm, i)->to_room) ? tmp_sprintf("%5d", ABS_EXIT(rm,
-                            i)->to_room->number) : "NONE"), CCNRM(ch, C_NRM),
-                ABS_EXIT(rm, i)->key, ABS_EXIT(rm, i)->keyword ? ABS_EXIT(rm,
-                    i)->keyword : "None", tmp_printbits(ABS_EXIT(rm,
-                        i)->exit_info, exit_bits));
+            acc_sprintf("Exit %s%-5s%s:  To: [%s%s%s], Key: [%5d], Dam: [%4d], "
+                        "Keywrd: %s, Type: %s\r\n",
+                        CCCYN(ch, C_NRM), dirs[i], CCNRM(ch, C_NRM),
+                        CCCYN(ch, C_NRM), ((ABS_EXIT(rm, i)->to_room) ? tmp_sprintf("%5d", ABS_EXIT(rm, i)->to_room->number) : "NONE"), CCNRM(ch, C_NRM),
+                        ABS_EXIT(rm, i)->key,
+                        ABS_EXIT(rm, i)->damage,
+                        ABS_EXIT(rm, i)->keyword ? ABS_EXIT(rm, i)->keyword : "None",
+                        tmp_printbits(ABS_EXIT(rm, i)->exit_info, exit_bits));
             if (ABS_EXIT(rm, i)->general_description) {
                 acc_strcat(ABS_EXIT(rm, i)->general_description, NULL);
             } else {
