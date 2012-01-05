@@ -260,7 +260,7 @@ ACMD(do_insult)
 {
     struct creature *victim;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (*arg) {
         if (!(victim = get_char_room_vis(ch, arg)))

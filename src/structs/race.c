@@ -55,8 +55,6 @@ load_race(xmlNodePtr node)
     struct race *race = make_race();
     xmlNodePtr child;
 
-    race = make_race();
-
     race->idnum = xmlGetIntProp(node, "idnum", 0);
     race->name = (char *)xmlGetProp(node, (xmlChar *) "name");
 

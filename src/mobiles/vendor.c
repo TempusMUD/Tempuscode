@@ -474,17 +474,19 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
 
     if (vendor_is_produced(obj, shop)) {
         // Load all-new identical items
-        while (num--) {
+        while (num > 0) {
             obj = read_object(GET_OBJ_VNUM(obj));
             obj_to_char(obj, ch);
+            num--;
         }
     } else {
         // Actually move the items from vendor to player
-        while (num--) {
+        while (num > 0) {
             next_obj = obj->next_content;
             obj_from_char(obj);
             obj_to_char(obj, ch);
             obj = next_obj;
+            num--;
         }
     }
 

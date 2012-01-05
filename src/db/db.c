@@ -35,6 +35,7 @@
 #include "security.h"
 #include "handler.h"
 #include "defs.h"
+#include "clan.h"
 #include "desc_data.h"
 #include "macros.h"
 #include "room_data.h"
@@ -206,7 +207,6 @@ void load_banned(void);
 void Read_Invalid_List(void);
 void Read_Nasty_List(void);
 void add_alias(struct creature *ch, struct alias_data *a);
-bool boot_clans(void);
 void add_follower(struct creature *ch, struct creature *leader);
 void xml_reload(struct creature *ch);
 void load_bounty_data(void);

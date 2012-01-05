@@ -67,7 +67,7 @@ extern const char *fuse_types[];
 struct bomb_radius_list {
     struct room_data *room;
 	struct bomb_radius_list *next;
-	uint power;
+	uint32_t power;
 };
 
 extern struct bomb_radius_list *bomb_rooms;

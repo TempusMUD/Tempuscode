@@ -408,7 +408,7 @@ void
 voting_booth_write(struct creature *ch, char *argument)
 {
     skip_spaces(&argument);
-    if (!*arg) {
+    if (!*argument) {
         send_to_char(ch, "We must have a headline!\r\n");
         return;
     }

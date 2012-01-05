@@ -383,8 +383,8 @@ damage_reduction(struct creature *ch, struct creature *attacker)
         else
             dam_reduction += GET_ALIGNMENT(ch) / 100;
     }
-    //*************************** Sanctuary ****************************
-    //******************************************************************
+    // *************************** Sanctuary ****************************
+    // ******************************************************************
     if (affected_by_sanctuary(ch, attacker)) {
         if (IS_VAMPIRE(ch))
             dam_reduction += 0;
@@ -396,8 +396,8 @@ damage_reduction(struct creature *ch, struct creature *attacker)
         else
             dam_reduction += 15;
     }
-    //***************************** Oblivity ****************************
-    //*******************************************************************
+    // ***************************** Oblivity ****************************
+    // *******************************************************************
     // damage reduction ranges up to about 35%
     if (AFF2_FLAGGED(ch, AFF2_OBLIVITY) && IS_NEUTRAL(ch)) {
         dam_reduction += (((GET_LEVEL(ch) +
@@ -405,31 +405,31 @@ damage_reduction(struct creature *ch, struct creature *attacker)
             (1000 - abs(GET_ALIGNMENT(ch))) +
             (CHECK_SKILL(ch, ZEN_OBLIVITY) * 10)) / 100;
     }
-    //**************************** No Pain *****************************
-    //******************************************************************
+    // **************************** No Pain *****************************
+    // ******************************************************************
     if (AFF_FLAGGED(ch, AFF_NOPAIN)) {
         dam_reduction += 25;
     }
-    //**************************** Berserk *****************************
-    //******************************************************************
+    // **************************** Berserk *****************************
+    // ******************************************************************
     if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
         if (IS_BARB(ch))
             dam_reduction += (skill_bonus(ch, SKILL_BERSERK)) / 6;
         else
             dam_reduction += 7;
     }
-    //************************** Damage Control ************************
-    //******************************************************************
+    // ************************** Damage Control ************************
+    // ******************************************************************
     if (AFF3_FLAGGED(ch, AFF3_DAMAGE_CONTROL)) {
         dam_reduction += (skill_bonus(ch, SKILL_DAMAGE_CONTROL)) / 5;
     }
-    //**************************** ALCOHOLICS!!! ***********************
-    //******************************************************************
+    // **************************** ALCOHOLICS!!! ***********************
+    // ******************************************************************
     if (GET_COND(ch, DRUNK) > 5)
         dam_reduction += GET_COND(ch, DRUNK);
 
-    //********************** Shield of Righteousness *******************
-    //******************************************************************
+    // ********************** Shield of Righteousness *******************
+    // ******************************************************************
     if ((af = affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS))) {
 
         // Find the caster apply for the shield of righteousness spell
@@ -463,8 +463,8 @@ damage_reduction(struct creature *ch, struct creature *attacker)
             }
         }
     }
-    //************************** Aria of Asylum ************************
-    //******************************************************************
+    // ************************** Aria of Asylum ************************
+    // ******************************************************************
     // Ch should be very similar to Shield of Righteousness as it's also
     // a group thing
     if ((af = affected_by_spell(ch, SONG_ARIA_OF_ASYLUM))) {
@@ -500,13 +500,13 @@ damage_reduction(struct creature *ch, struct creature *attacker)
             }
         }
     }
-    //*********************** Lattice Hardening *************************
-    //*******************************************************************
+    // *********************** Lattice Hardening *************************
+    // *******************************************************************
     if (affected_by_spell(ch, SPELL_LATTICE_HARDENING))
         dam_reduction += (skill_bonus(ch, SPELL_LATTICE_HARDENING)) / 6;
 
-    //************** Stoneskin Barkskin Dermal Hardening ****************
-    //*******************************************************************
+    // ************** Stoneskin Barkskin Dermal Hardening ****************
+    // *******************************************************************
     struct affected_type *taf;
     if ((taf = affected_by_spell(ch, SPELL_STONESKIN)))
         dam_reduction += (taf->level) / 4;
@@ -515,13 +515,13 @@ damage_reduction(struct creature *ch, struct creature *attacker)
     else if ((taf = affected_by_spell(ch, SPELL_DERMAL_HARDENING)))
         dam_reduction += (taf->level) / 6;
 
-    //************************** Petrification **************************
-    //*******************************************************************
+    // ************************** Petrification **************************
+    // *******************************************************************
     if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
         dam_reduction += 75;
 
     if (attacker) {
-        ///****************** Various forms of protection ***************
+        /// ****************** Various forms of protection ***************
         if (IS_EVIL(attacker) && AFF_FLAGGED(ch, AFF_PROTECT_EVIL))
             dam_reduction += 8;
         if (IS_GOOD(attacker) && AFF_FLAGGED(ch, AFF_PROTECT_GOOD))

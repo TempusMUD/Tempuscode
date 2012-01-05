@@ -1984,7 +1984,7 @@ ACMD(do_plant)
     struct creature *vict;
     struct obj_data *obj, *next_obj;
 
-    argument = one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg)
         send_to_char(ch, "Plant what on who?\r\n");
@@ -2085,7 +2085,7 @@ ACMD(do_drink)
 
     init_affect(&af);
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         send_to_char(ch, "Drink from what?\r\n");
@@ -2251,7 +2251,7 @@ ACMD(do_eat)
 
     init_affect(&af);
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         send_to_char(ch, "Eat what?\r\n");
@@ -2933,7 +2933,7 @@ ACMD(do_wield)
     struct obj_data *obj;
     int hands_free = 2;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         send_to_char(ch, "Wield what?\r\n");
@@ -3015,7 +3015,7 @@ ACMD(do_grab)
 {
     struct obj_data *obj;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg)
         send_to_char(ch, "Hold what?\r\n");
@@ -3125,7 +3125,7 @@ ACMD(do_remove)
     struct obj_data *obj;
     int i, dotmode, found;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         send_to_char(ch, "Remove what?\r\n");

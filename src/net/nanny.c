@@ -1667,7 +1667,6 @@ reset_char(struct creature *ch)
 void
 char_to_game(struct descriptor_data *d)
 {
-    struct clan_data *clan_by_owner(int idnum);
     struct descriptor_data *k, *next;
     struct room_data *load_room = NULL;
     time_t now = time(0);

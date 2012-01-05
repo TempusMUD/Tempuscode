@@ -51,7 +51,7 @@ struct qplayer_data {
         int pkills;
 };
 
-int top_quest_vnum;
+extern int top_quest_vnum;
 
 struct quest {
 		int max_players; // max number of players

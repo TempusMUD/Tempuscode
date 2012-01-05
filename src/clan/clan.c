@@ -47,7 +47,6 @@ int check_mob_reaction(struct creature *ch, struct creature *vict);
 
 struct clan_data *clan_list;
 extern FILE *player_fl;
-int player_i = 0;
 
 void
 remove_room_from_clan(struct room_list_elem *rm_list, struct clan_data *clan)
@@ -219,7 +218,7 @@ char_can_promote(struct creature *ch, struct creature *vict,
 
 ACMD(do_enroll)
 {
-    struct creature *vict = 0;
+    struct creature *vict = NULL;
     struct clan_data *clan = real_clan(GET_CLAN(ch));
     struct clanmember_data *member = NULL;
     char *msg, *member_str;
@@ -538,16 +537,16 @@ ACMD(do_demote)
             sort_clanmembers(clan);
         }
     } else if (real_clan(GET_CLAN(vict)) != clan) {
-        act("$N is not a member of your clan.", false, ch, 0, vict, TO_CHAR);
+        act("$N is not a member of your clan.", false, ch, NULL, vict, TO_CHAR);
     } else if (!(member2 = real_clanmember(GET_IDNUM(vict), clan))) {
         act("$N is not properly installed in the clan.\r\n",
-            false, ch, 0, vict, TO_CHAR);
+            false, ch, NULL, vict, TO_CHAR);
     } else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER)
         && !is_authorized(ch, EDIT_CLAN, NULL)) {
         send_to_char(ch, "You are unable to demote.\r\n");
     } else if (member2->rank >= member1->rank
         || PLR_FLAGGED(vict, PLR_CLAN_LEADER)) {
-        act("You are not in a position to demote $M.", false, ch, 0, vict,
+        act("You are not in a position to demote $M.", false, ch, NULL, vict,
             TO_CHAR);
     } else if (member2->rank <= 0) {
         send_to_char(ch, "They are already as low as they can go.\r\n");
@@ -869,7 +868,7 @@ typedef struct cedit_command_data {
     enum privilege priv;
 } cedit_command_data;
 
-cedit_command_data cedit_keys[] = {
+static cedit_command_data cedit_keys[] = {
     {"create", CREATE_CLAN},
     {"delete", DESTROY_CLAN},
     {"set", EDIT_CLAN},
@@ -1551,7 +1550,7 @@ create_clan(int vnum)
     return (newclan);
 }
 
-void
+static void
 notify_clan_disbanding(struct creature *tch, struct clan_data *clan)
 {
     if (IS_PC(tch) && GET_CLAN(tch) == clan->number) {

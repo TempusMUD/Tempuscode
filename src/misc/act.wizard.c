@@ -261,7 +261,7 @@ ACMD(do_send)
 {
     struct creature *vict;
 
-    half_chop(argument, arg, buf);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         send_to_char(ch, "Send what to who?\r\n");
@@ -271,9 +271,9 @@ ACMD(do_send)
         send_to_char(ch, "%s", NOPERSON);
         return;
     }
-    send_to_char(vict, "%s\r\n", buf);
-    send_to_char(ch, "You send '%s' to %s.\r\n", buf, GET_NAME(vict));
-    slog("(GC) %s send %s %s", GET_NAME(ch), GET_NAME(vict), buf);
+    send_to_char(vict, "%s\r\n", argument);
+    send_to_char(ch, "You send '%s' to %s.\r\n", argument, GET_NAME(vict));
+    slog("(GC) %s send %s %s", GET_NAME(ch), GET_NAME(vict), argument);
 }
 
 /* take a string, and return an rnum.. used for goto, at, etc.  -je 4/6/93 */
@@ -2310,7 +2310,7 @@ ACMD(do_snoop)
     if (!ch->desc)
         return;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg)
         stop_snooping(ch);
@@ -2360,7 +2360,7 @@ ACMD(do_switch)
 {
     struct creature *victim;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (ch->desc->original)
         send_to_char(ch, "You're already switched.\r\n");
@@ -2396,9 +2396,10 @@ ACMD(do_switch)
 ACMD(do_rswitch)
 {
     struct creature *orig, *victim;
-    char arg2[MAX_INPUT_LENGTH];
 
-    two_arguments(argument, arg, arg2);
+    char *arg = tmp_getword(&argument);
+    char *arg2 = tmp_getword(&argument);
+
 
     if (!*arg)
         send_to_char(ch, "Switch with who?\r\n");
@@ -2911,11 +2912,11 @@ ACMD(do_purge)
 ACMD(do_advance)
 {
     struct creature *victim;
-    char *name = arg, *level = buf2;
     int newlevel;
     void do_start(struct creature *ch, int mode);
 
-    two_arguments(argument, name, level);
+    char *name = tmp_getword(&argument);
+    char *level = tmp_getword(&argument);
 
     if (*name) {
         if (!(victim = get_char_vis(ch, name))) {
@@ -3204,7 +3205,7 @@ ACMD(do_dc)
     struct descriptor_data *d;
     int num_to_dc;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
     if (!(num_to_dc = atoi(arg))) {
         send_to_char(ch,
             "Usage: DC <connection number> (type USERS for a list)\r\n");
@@ -3232,7 +3233,7 @@ ACMD(do_wizcut)
     int level;
     struct descriptor_data *d;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (*arg) {
         level = atoi(arg);
@@ -3259,7 +3260,7 @@ ACMD(do_wizlock)
     int value;
     const char *when;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
     if (*arg) {
         value = atoi(arg);
         if (value < 0 || value > GET_LEVEL(ch)) {
@@ -3321,7 +3322,7 @@ ACMD(do_last)
     int pid;
     struct creature *vict;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
     if (!*arg) {
         send_to_char(ch, "For whom do you wish to search?\r\n");
         return;
@@ -3356,13 +3357,11 @@ ACMD(do_force)
 {
     struct descriptor_data *i, *next_desc;
     struct creature *vict;
-    char to_force[MAX_INPUT_LENGTH + 2];
 
-    half_chop(argument, arg, to_force);
+    char *arg = tmp_getword(&argument);
+    char *msg = tmp_sprintf("$n has forced you to '%s'.", argument);
 
-    sprintf(buf1, "$n has forced you to '%s'.", to_force);
-
-    if (!*arg || !*to_force) {
+    if (!*arg || !*argument) {
         send_to_char(ch, "Whom do you wish to force do what?\r\n");
         return;
     }
@@ -3372,12 +3371,12 @@ ACMD(do_force)
         if (!strcasecmp("all", arg) && is_authorized(ch, FORCE_ALL, NULL)) {
             send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true,
-                "(GC) %s forced all to %s", GET_NAME(ch), to_force);
+                "(GC) %s forced all to %s", GET_NAME(ch), argument);
             for (GList * it = first_living(creatures); it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (ch != tch && GET_LEVEL(ch) > GET_LEVEL(tch)) {
-                    act(buf1, true, ch, NULL, tch, TO_VICT);
-                    command_interpreter(tch, to_force);
+                    act(msg, true, ch, NULL, tch, TO_VICT);
+                    command_interpreter(tch, argument);
                 }
             }
             return;
@@ -3386,7 +3385,7 @@ ACMD(do_force)
         if (!strcasecmp("players", arg)) {
             send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true,
-                "(GC) %s forced players to %s", GET_NAME(ch), to_force);
+                "(GC) %s forced players to %s", GET_NAME(ch), argument);
 
             for (i = descriptor_list; i; i = next_desc) {
                 next_desc = i->next;
@@ -3394,8 +3393,8 @@ ACMD(do_force)
                 if (STATE(i) || !(vict = i->creature) ||
                     GET_LEVEL(vict) >= GET_LEVEL(ch))
                     continue;
-                act(buf1, true, ch, NULL, vict, TO_VICT);
-                command_interpreter(vict, to_force);
+                act(msg, true, ch, NULL, vict, TO_VICT);
+                command_interpreter(vict, argument);
             }
             return;
         }
@@ -3403,14 +3402,14 @@ ACMD(do_force)
         if (!strcasecmp("room", arg)) {
             send_to_char(ch, "%s", OK);
             mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced room %d to %s",
-                GET_NAME(ch), ch->in_room->number, to_force);
+                GET_NAME(ch), ch->in_room->number, argument);
             for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (GET_LEVEL(tch) >= GET_LEVEL(ch) ||
                     (!IS_NPC(tch) && GET_LEVEL(ch) < LVL_GRGOD))
                     continue;
-                act(buf1, true, ch, NULL, tch, TO_VICT);
-                command_interpreter(tch, to_force);
+                act(msg, true, ch, NULL, tch, TO_VICT);
+                command_interpreter(tch, argument);
             }
             return;
         }
@@ -3424,10 +3423,10 @@ ACMD(do_force)
         send_to_char(ch, "You cannot force players to do things.\r\n");
     else {
         send_to_char(ch, "%s", OK);
-        act(buf1, true, ch, NULL, vict, TO_VICT);
+        act(msg, true, ch, NULL, vict, TO_VICT);
         mudlog(GET_LEVEL(ch), NRM, true, "(GC) %s forced %s to %s",
-            GET_NAME(ch), GET_NAME(vict), to_force);
-        command_interpreter(vict, to_force);
+            GET_NAME(ch), GET_NAME(vict), argument);
+        command_interpreter(vict, argument);
     }
 }
 
@@ -3550,7 +3549,7 @@ ACMD(do_zreset)
 
     int j;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
     if (!*arg) {
         send_to_char(ch, "You must specify a zone.\r\n");
         return;
@@ -4972,7 +4971,6 @@ ACMD(do_show)
     struct alias_data *a;
     struct zone_data *zone = NULL;
     struct room_data *room = NULL, *tmp_room = NULL;
-    char field[MAX_INPUT_LENGTH], value[MAX_INPUT_LENGTH];
     struct creature *mob = NULL;
     GList *protos, *mit, *cit, *oi;
 
@@ -4998,7 +4996,8 @@ ACMD(do_show)
         return;
     }
 
-    strcpy(arg, two_arguments(argument, field, value));
+    char *field = tmp_getword(&argument);
+    char *value = tmp_getword(&argument);
 
     for (l = 0; *(fields[l].cmd) != '\n'; l++)
         if (!strncmp(field, fields[l].cmd, strlen(field)))
@@ -5013,7 +5012,7 @@ ACMD(do_show)
 
     switch (l) {
     case 1:                    // zone
-        show_zones(ch, arg, value);
+        show_zones(ch, argument, value);
         break;
     case 2:                    // player
         show_player(ch, value);
@@ -5076,7 +5075,7 @@ ACMD(do_show)
         show_account(ch, value);
         break;
     case 8:                    // rooms
-        show_rooms(ch, value, arg);
+        show_rooms(ch, value, argument);
         break;
     case 9:
         if (*value && isdigit(*value)) {
@@ -5135,7 +5134,7 @@ ACMD(do_show)
         break;
     case 13:                   // zone commands
         strcpy(buf, value);
-        strcat(buf, arg);
+        strcat(buf, argument);
         do_zone_cmdlist(ch, ch->in_room->zone, buf);
         break;
     case 14:
@@ -5177,7 +5176,7 @@ ACMD(do_show)
         show_zoneusage(ch, value);
         break;
     case 19:                   // topzones
-        show_topzones(ch, tmp_strcat(value, arg, NULL));
+        show_topzones(ch, tmp_strcat(value, argument, NULL));
         break;
     case 20:                   /* nomaterial */
         strcpy(buf, "Objects without material types:\r\n");
@@ -5202,7 +5201,7 @@ ACMD(do_show)
         break;
 
     case 21: /** objects **/
-        do_show_objects(ch, value, arg);
+        do_show_objects(ch, value, argument);
         break;
 
     case 22: /** broken **/
@@ -5329,12 +5328,12 @@ ACMD(do_show)
         return;
 
     case 30:                   /* exp_percent */
-        if (!*arg || !*value) {
+        if (!*argument || !*value) {
             send_to_char(ch,
                 "Usage: show exp <min percent> <max percent>\r\n");
             return;
         }
-        if ((k = atoi(value)) < 0 || (l = atoi(arg)) < 0) {
+        if ((k = atoi(value)) < 0 || (l = atoi(argument)) < 0) {
             send_to_char(ch, "Try using positive numbers, asshole.\r\n");
             return;
         }
@@ -5475,7 +5474,7 @@ ACMD(do_show)
         break;
 
     case 34:
-        do_show_mobiles(ch, value, arg);
+        do_show_mobiles(ch, value, argument);
         break;
 
     case 35:                   /* hunting */
@@ -5577,13 +5576,13 @@ ACMD(do_show)
             send_to_char(ch, ZEXITS_USAGE);
             return;
         }
-        if (!*arg) {
+        if (!*argument) {
             send_to_char(ch, "Second argument must be a zone number.\r\n");
             send_to_char(ch, ZEXITS_USAGE);
             return;
         }
 
-        k = atoi(arg);
+        k = atoi(argument);
 
         if (!(zone = real_zone(k))) {
             send_to_char(ch, "Zone %d does not exist.\r\n", k);
@@ -5629,11 +5628,11 @@ ACMD(do_show)
         break;
 
     case 40:                   // mlevels
-        show_mlevels(ch, value, arg);
+        show_mlevels(ch, value, argument);
         break;
 
     case 41:                   // mobkills
-        show_mobkills(ch, value, arg);
+        show_mobkills(ch, value, argument);
         break;
 
     case 42:                   // wizcommands
@@ -6610,7 +6609,7 @@ ACMD(do_syslog)
 {
     int tp;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         tp = ((PRF_FLAGGED(ch, PRF_LOG1) ? 1 : 0) +
@@ -6876,11 +6875,11 @@ ACMD(do_rename)
 {
     struct obj_data *obj;
     struct creature *vict = NULL;
-    char new_desc[MAX_INPUT_LENGTH], logbuf[MAX_STRING_LENGTH];
+    char logbuf[MAX_STRING_LENGTH];
 
-    half_chop(argument, arg, new_desc);
+    char *arg = tmp_getword(&argument);
 
-    if (!*new_desc) {
+    if (!*argument) {
         send_to_char(ch, "What do you want to call it?\r\b");
         return;
     }
@@ -6888,7 +6887,7 @@ ACMD(do_rename)
         send_to_char(ch, "Rename usage: rename <target> <string>\r\n");
         return;
     }
-    if (strlen(new_desc) >= MAX_INPUT_LENGTH) {
+    if (strlen(argument) >= MAX_INPUT_LENGTH) {
         send_to_char(ch, "Desript too long.\r\n");
         return;
     }
@@ -6908,19 +6907,19 @@ ACMD(do_rename)
 
     if (obj) {
         sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch),
-            obj->name, new_desc);
-        obj->name = strdup(new_desc);
-        sprintf(buf, "%s has been left here.", new_desc);
+            obj->name, argument);
+        obj->name = strdup(argument);
+        sprintf(buf, "%s has been left here.", argument);
         strcpy(buf, CAP(buf));
         obj->line_desc = strdup(buf);
     } else if (vict) {
         sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch),
-            GET_NAME(vict), new_desc);
-        vict->player.short_descr = strdup(new_desc);
+            GET_NAME(vict), argument);
+        vict->player.short_descr = strdup(argument);
         if (GET_POSITION(vict) == POS_FLYING)
-            sprintf(buf, "%s is hovering here.", new_desc);
+            sprintf(buf, "%s is hovering here.", argument);
         else
-            sprintf(buf, "%s is standing here.", new_desc);
+            sprintf(buf, "%s is standing here.", argument);
         strcpy(buf, CAP(buf));
         vict->player.long_descr = strdup(buf);
     }
@@ -6999,7 +6998,6 @@ ACMD(do_addname)
 ACMD(do_addpos)
 {
     struct obj_data *obj;
-    char new_pos[MAX_INPUT_LENGTH];
     int bit = -1;
     static const char *keywords[] = {
         "take",                 /*   0   */
@@ -7027,7 +7025,8 @@ ACMD(do_addpos)
         "\n"
     };
 
-    two_arguments(argument, arg, new_pos);
+    char *arg = tmp_getword(&argument);
+    char *new_pos = tmp_getword(&argument);
 
     if (!*new_pos) {
         send_to_char(ch, "What new position?\r\n");
@@ -7065,7 +7064,7 @@ ACMD(do_nolocate)
 {
     struct obj_data *obj;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         send_to_char(ch, "Nolocate usage: nolocate <target>\r\n");

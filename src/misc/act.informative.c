@@ -127,14 +127,14 @@ ACMD(do_stand);
  ((IS_OBJ_STAT(obj, ITEM_MAGIC) &&                \
    AFF_FLAGGED(ch, AFF_DETECT_MAGIC)) ? 20 : 0))
 
-void
+static void
 show_obj_extra(struct obj_data *object, struct creature *ch)
 {
     if (IS_OBJ_TYPE(object, ITEM_NOTE)) {
         if (object->action_desc)
             acc_strcat(object->action_desc, NULL);
         else
-            act("It's blank.", false, ch, 0, 0, TO_CHAR);
+            act("It's blank.", false, ch, NULL, NULL, TO_CHAR);
         return;
     } else if (IS_OBJ_TYPE(object, ITEM_DRINKCON))
         acc_strcat("It looks like a drink container.", NULL);
@@ -181,7 +181,7 @@ show_obj_extra(struct obj_data *object, struct creature *ch)
     }
 }
 
-void
+static void
 show_obj_bits(struct obj_data *object, struct creature *ch)
 {
     if (IS_OBJ_STAT2(object, ITEM2_BROKEN))
@@ -324,9 +324,9 @@ show_obj_to_char(struct obj_data *object, struct creature *ch,
     if (IS_OBJ_TYPE(object, ITEM_VEHICLE) && mode == SHOW_OBJ_BITS) {
         if (CAR_OPENABLE(object)) {
             if (CAR_CLOSED(object))
-                act("The door of $p is closed.", true, ch, object, 0, TO_CHAR);
+                act("The door of $p is closed.", true, ch, object, NULL, TO_CHAR);
             else
-                act("The door of $p is open.", true, ch, object, 0, TO_CHAR);
+                act("The door of $p is open.", true, ch, object, NULL, TO_CHAR);
         }
     }
 }
@@ -383,7 +383,7 @@ list_obj_to_char(struct obj_data *list, struct creature *ch, int mode,
         acc_sprintf(" Nothing.\r\n");
 }
 
-void
+static void
 list_obj_to_char_GLANCE(struct obj_data *list, struct creature *ch,
     struct creature *vict, int mode, bool show, int glance)
 {
@@ -432,7 +432,7 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct creature *ch,
         acc_sprintf("You can't see anything.\r\n");
 }
 
-void
+static void
 diag_char_to_char(struct creature *i, struct creature *ch)
 {
     int percent;
@@ -508,7 +508,7 @@ diag_conditions(struct creature *ch)
     return (buf);
 }
 
-void
+static void
 desc_char_trailers(struct creature *ch, struct creature *i)
 {
     if (affected_by_spell(i, SPELL_QUAD_DAMAGE))
@@ -614,7 +614,7 @@ desc_char_trailers(struct creature *ch, struct creature *i)
             " is shifted into a parallel dimension.\r\n", NULL);
 }
 
-void
+static void
 look_at_char(struct creature *i, struct creature *ch, int cmd)
 {
     int j, found = 0, app_height, app_weight, h, k, pos;
@@ -632,7 +632,7 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
         else if (!mob && i->player.description)
             send_to_char(ch, "%s", i->player.description);
         else
-            act("You see nothing special about $m.", false, i, 0, ch, TO_VICT);
+            act("You see nothing special about $m.", false, i, NULL, ch, TO_VICT);
 
         app_height = GET_HEIGHT(i) - number(1, 6) + number(1, 6);
         app_weight = GET_WEIGHT(i) - number(1, 6) + number(1, 6);
@@ -740,7 +740,7 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
 
 struct creature *random_opponent(struct creature *ch);
 
-const char *
+static const char *
 desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 {
     const char *positions[] = {
@@ -899,7 +899,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
     return desc;
 }
 
-void
+static void
 list_char_to_char(GList * list, struct creature *ch)
 {
     struct creature *i;
@@ -998,7 +998,7 @@ list_char_to_char(GList * list, struct creature *ch)
     }
 }
 
-void
+static void
 do_auto_exits(struct creature *ch, struct room_data *room)
 {
     int door;
@@ -1044,7 +1044,7 @@ do_auto_exits(struct creature *ch, struct room_data *room)
 }
 
 /* functions and macros for 'scan' command */
-void
+static void
 list_scanned_chars(GList * list, struct creature *ch, int distance, int door)
 {
     const char *how_far[] = {
@@ -1125,7 +1125,7 @@ ACMD(do_scan)
     }
     /* may want to add more restrictions here, too */
     send_to_char(ch, "You quickly scan the area.\r\n");
-    act("$n quickly scans $s surroundings.", true, ch, 0, 0, TO_ROOM);
+    act("$n quickly scans $s surroundings.", true, ch, NULL, NULL, TO_ROOM);
 
     for (door = 0; door < NUM_OF_DIRS - 4; door++)  /* don't scan up/down */
         if (EXIT(ch, door) && EXIT(ch, door)->to_room != NULL &&
@@ -1386,7 +1386,7 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
     send_to_char(ch, "%s", acc_get_string());
 }
 
-void
+static void
 look_in_direction(struct creature *ch, int dir)
 {
 #define EXNUMB EXIT(ch, dir)->to_room
@@ -1619,7 +1619,7 @@ look_in_direction(struct creature *ch, int dir)
     }
 }
 
-void
+static void
 look_in_obj(struct creature *ch, char *arg)
 {
     struct obj_data *obj = NULL;
@@ -1663,14 +1663,14 @@ look_in_obj(struct creature *ch, char *arg)
         } else if (IS_OBJ_TYPE(obj, ITEM_VEHICLE)) {
             if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED))
                 act("The door of $p is closed, and you can't see in.",
-                    false, ch, obj, 0, TO_CHAR);
+                    false, ch, obj, NULL, TO_CHAR);
             else if (real_room(ROOM_NUMBER(obj)) != NULL) {
                 acc_sprintf("Inside %s you see:\r\n", OBJS(obj, ch));
                 room_was_in = ch->in_room;
                 char_from_room(ch, false);
                 char_to_room(ch, real_room(ROOM_NUMBER(obj)), false);
                 list_char_to_char(ch->in_room->people, ch);
-                act("$n looks in from the outside.", false, ch, 0, 0, TO_ROOM);
+                act("$n looks in from the outside.", false, ch, NULL, NULL, TO_ROOM);
                 char_from_room(ch, false);
                 char_to_room(ch, room_was_in, false);
             }
@@ -1740,11 +1740,11 @@ look_at_target(struct creature *ch, char *arg, int cmd)
         if (ch != found_char) {
             if (can_see_creature(found_char, ch)) {
                 if (CMD_IS("examine"))
-                    act("$n examines you.", true, ch, 0, found_char, TO_VICT);
+                    act("$n examines you.", true, ch, NULL, found_char, TO_VICT);
                 else
-                    act("$n looks at you.", true, ch, 0, found_char, TO_VICT);
+                    act("$n looks at you.", true, ch, NULL, found_char, TO_VICT);
             }
-            act("$n looks at $N.", true, ch, 0, found_char, TO_NOTVICT);
+            act("$n looks at $N.", true, ch, NULL, found_char, TO_NOTVICT);
         }
         return;
     }
@@ -1811,7 +1811,7 @@ look_at_target(struct creature *ch, char *arg, int cmd)
                         look_at_room(ch, real_room(GET_OBJ_VAL(found_obj, 0)),
                             1);
                 } else
-                    act("$p is closed right now.", false, ch, found_obj, 0,
+                    act("$p is closed right now.", false, ch, found_obj, NULL,
                         TO_CHAR);
             } else if (IS_V_WINDOW(found_obj)) {
 
@@ -1822,7 +1822,7 @@ look_at_target(struct creature *ch, char *arg, int cmd)
                         break;
 
                 if (car) {
-                    act("You look through $p.", false, ch, found_obj, 0,
+                    act("You look through $p.", false, ch, found_obj, NULL,
                         TO_CHAR);
                     look_at_room(ch, car->in_room, 1);
                 }
@@ -1841,7 +1841,7 @@ look_at_target(struct creature *ch, char *arg, int cmd)
         send_to_char(ch, "You do not see that here.\r\n");
 }
 
-void
+static void
 glance_at_target(struct creature *ch, char *arg, int cmd)
 {
     struct creature *found_char = NULL;
@@ -1860,9 +1860,9 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
             if (can_see_creature(found_char, ch) &&
                 ((GET_SKILL(ch, SKILL_GLANCE) + GET_LEVEL(ch)) <
                     (number(0, 101) + GET_LEVEL(found_char)))) {
-                act("$n glances sidelong at you.", true, ch, 0, found_char,
+                act("$n glances sidelong at you.", true, ch, NULL, found_char,
                     TO_VICT);
-                act("$n glances sidelong at $N.", true, ch, 0, found_char,
+                act("$n glances sidelong at $N.", true, ch, NULL, found_char,
                     TO_NOTVICT);
 
                 if (IS_NPC(found_char) && !(found_char->fighting)
@@ -1870,20 +1870,20 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
                         || found_char->master != ch)) {
                     if (IS_ANIMAL(found_char) || IS_BUGBEAR(found_char)
                         || GET_INT(found_char) < number(3, 5)) {
-                        act("$N growls at you.", false, ch, 0, found_char,
+                        act("$N growls at you.", false, ch, NULL, found_char,
                             TO_CHAR);
-                        act("$N growls at $n.", false, ch, 0, found_char,
+                        act("$N growls at $n.", false, ch, NULL, found_char,
                             TO_NOTVICT);
                     } else if (IS_UNDEAD(found_char)) {
                         act("$N regards you with an icy glare.",
-                            false, ch, 0, found_char, TO_CHAR);
+                            false, ch, NULL, found_char, TO_CHAR);
                         act("$N regards $n with an icy glare.",
-                            false, ch, 0, found_char, TO_NOTVICT);
+                            false, ch, NULL, found_char, TO_NOTVICT);
                     } else if (IS_MINOTAUR(found_char) || IS_DEVIL(found_char)
                         || IS_DEMON(found_char) || IS_MANTICORE(found_char)) {
-                        act("$N roars at you.", false, ch, 0, found_char,
+                        act("$N roars at you.", false, ch, NULL, found_char,
                             TO_CHAR);
-                        act("$N roars at $n.", false, ch, 0, found_char,
+                        act("$N roars at $n.", false, ch, NULL, found_char,
                             TO_NOTVICT);
                     } else {
                         const char *response = "";
@@ -1930,7 +1930,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
     return;
 }
 
-gint
+static gint
 found_fighting(struct creature *tch, gpointer ignore __attribute__((unused)))
 {
     return (tch->fighting) ? 0 : -1;
@@ -2029,14 +2029,14 @@ ACMD(do_listen)
                 send_to_char(ch, "You hear the sounds of battle.\r\n");
             else if (noisy_obj)
                 act("You hear a low humming coming from $p.",
-                    false, ch, noisy_obj, 0, TO_CHAR);
+                    false, ch, noisy_obj, NULL, TO_CHAR);
             else
                 send_to_char(ch, "You hear nothing special.\r\n");
         } else if (fighting_vict)
             send_to_char(ch, "You hear the sounds of battle.\r\n");
         else if (noisy_obj)
             act("You hear a low humming coming from $p.",
-                false, ch, noisy_obj, 0, TO_CHAR);
+                false, ch, noisy_obj, NULL, TO_CHAR);
         else {
             for (i = 0; i < NUM_DIRS; i++) {
                 if (ch->in_room->dir_option[i] &&
@@ -2047,7 +2047,7 @@ ACMD(do_listen)
 
                     GList *found =
                         g_list_find_custom(ch->in_room->dir_option[i]->
-                        to_room->people, 0, (GCompareFunc) found_fighting);
+                        to_room->people, NULL, (GCompareFunc) found_fighting);
 
                     if (found && !number(0, 1)) {
                         send_to_char(ch,
@@ -2064,6 +2064,7 @@ ACMD(do_listen)
 
 ACMD(do_look)
 {
+    static char arg[MAX_INPUT_LENGTH];
     static char arg2[MAX_INPUT_LENGTH];
     int look_type;
 
@@ -2098,8 +2099,6 @@ ACMD(do_look)
 
 ACMD(do_glance)
 {
-    static char arg2[MAX_INPUT_LENGTH];
-
     if (!ch->desc)
         return;
 
@@ -2114,12 +2113,12 @@ ACMD(do_glance)
         list_char_to_char(ch->in_room->people, ch); // glowing red eyes
         send_to_char(ch, "%s", acc_get_string());
     } else {
-        half_chop(argument, arg, arg2);
+        char *arg = tmp_getword(&argument);
 
         if (!*arg)              /* "look" alone, without an argument at all */
             send_to_char(ch, "Glance at who?\r\n");
         else if (is_abbrev(arg, "at"))
-            glance_at_target(ch, arg2, cmd);
+            glance_at_target(ch, argument, cmd);
         else
             glance_at_target(ch, arg, cmd);
     }
@@ -2145,7 +2144,7 @@ ACMD(do_examine)
         return;
     }
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         send_to_char(ch, "Examine what?\r\n");
@@ -2159,14 +2158,14 @@ ACMD(do_examine)
     if (tmp_object) {
         if (OBJ_REINFORCED(tmp_object))
             act("$p appears to be structurally reinforced.",
-                false, ch, tmp_object, 0, TO_CHAR);
+                false, ch, tmp_object, NULL, TO_CHAR);
         if (OBJ_ENHANCED(tmp_object))
             act("$p looks like it has been enhanced.",
-                false, ch, tmp_object, 0, TO_CHAR);
+                false, ch, tmp_object, NULL, TO_CHAR);
 
         sprintf(buf, "$p seems to be in %s condition.",
                 obj_cond_color(tmp_object, COLOR_LEV(ch)));
-        act(buf, false, ch, tmp_object, 0, TO_CHAR);
+        act(buf, false, ch, tmp_object, NULL, TO_CHAR);
 
         if (IS_OBJ_TYPE(tmp_object, ITEM_CIGARETTE)) {
             send_to_char(ch, "It seems to have about %d drags left on it.\r\n",
@@ -2801,7 +2800,7 @@ do_blind_score(struct creature *ch)
 					ch->player_specials->poofin);
 			}
 		}
-		playing_time = real_time_passed((time(0) - ch->player.time.logon) +
+		playing_time = real_time_passed((time(NULL) - ch->player.time.logon) +
                                         ch->player.time.played, 0);
 		acc_sprintf("Playing time: %d days and %d hours.\r\n",
                     playing_time.day, playing_time.hours);
@@ -2977,7 +2976,7 @@ ACMD(do_score)
                     ch->player_specials->poofin);
             }
         }
-        playing_time = real_time_passed((time(0) - ch->player.time.logon) +
+        playing_time = real_time_passed((time(NULL) - ch->player.time.logon) +
             ch->player.time.played, 0);
         acc_sprintf("You have existed here for %d days and %d hours.\r\n",
             playing_time.day, playing_time.hours);
@@ -3516,7 +3515,7 @@ who_list_compare(struct creature *a, struct creature *b)
     if (GET_LEVEL(a) != GET_LEVEL(b))
         return cmp(GET_LEVEL(b), GET_LEVEL(a));
 
-    now = time(0);
+    now = time(NULL);
     time_a = now - a->player.time.logon + a->player.time.played;
     time_b = now - b->player.time.logon + b->player.time.played;
     return cmp(time_b, time_a);
@@ -4065,7 +4064,7 @@ ACMD(do_where)
         }
         if (ch->in_room->zone->public_desc)
             send_to_char(ch, "%s", ch->in_room->zone->public_desc);
-        act("$n ponders the implications of $s location.", true, ch, 0, 0,
+        act("$n ponders the implications of $s location.", true, ch, NULL, NULL,
             TO_ROOM);
     }
 }
@@ -4392,59 +4391,59 @@ ACMD(do_consider)
     if (GET_SKILL(ch, SKILL_CONSIDER) > 70) {
         diff = (GET_MAX_HIT(victim) - GET_MAX_HIT(ch));
         if (diff <= -300)
-            act("$E looks puny, and weak.", false, ch, 0, victim, TO_CHAR);
+            act("$E looks puny, and weak.", false, ch, NULL, victim, TO_CHAR);
         else if (diff <= -200)
             act("$E would die ten times before you would be killed.", false,
-                ch, 0, victim, TO_CHAR);
+                ch, NULL, victim, TO_CHAR);
         else if (diff <= -100)
-            act("You could beat $M to death with your forehead.", false, ch, 0,
+            act("You could beat $M to death with your forehead.", false, ch, NULL,
                 victim, TO_CHAR);
         else if (diff <= -50)
-            act("$E can take almost as much as you.", false, ch, 0, victim,
+            act("$E can take almost as much as you.", false, ch, NULL, victim,
                 TO_CHAR);
         else if (diff <= 50)
             send_to_char(ch,
                 "You can both take pretty much the same abuse.\r\n");
         else if (diff <= 200)
-            act("$E looks like $E could take a lickin.", false, ch, 0, victim,
+            act("$E looks like $E could take a lickin.", false, ch, NULL, victim,
                 TO_CHAR);
         else if (diff <= 600)
             act("Haven't you seen $M breaking bricks on $S head?", false, ch,
-                0, victim, TO_CHAR);
+                NULL, victim, TO_CHAR);
         else if (diff <= 900)
             act("You would bet $E eats high voltage cable for breakfast.",
-                false, ch, 0, victim, TO_CHAR);
+                false, ch, NULL, victim, TO_CHAR);
         else if (diff <= 1200)
-            act("$E probably isn't very scared of bulldozers.", false, ch, 0,
+            act("$E probably isn't very scared of bulldozers.", false, ch, NULL,
                 victim, TO_CHAR);
         else if (diff <= 1800)
             act("A blow from a house-sized meteor MIGHT do $M in.", false, ch,
-                0, victim, TO_CHAR);
+                NULL, victim, TO_CHAR);
         else
-            act("Maybe if you threw $N into the sun...", false, ch, 0, victim,
+            act("Maybe if you threw $N into the sun...", false, ch, NULL, victim,
                 TO_CHAR);
 
         ac = GET_AC(victim);
         if (ac <= -100)
-            act("$E makes battleships look silly.", false, ch, 0, victim,
+            act("$E makes battleships look silly.", false, ch, NULL, victim,
                 TO_CHAR);
         else if (ac <= -50)
-            act("$E is about as defensible as a boulder.", false, ch, 0,
+            act("$E is about as defensible as a boulder.", false, ch, NULL,
                 victim, TO_CHAR);
         else if (ac <= 0)
-            act("$E has better defenses than most small cars.", false, ch, 0,
+            act("$E has better defenses than most small cars.", false, ch, NULL,
                 victim, TO_CHAR);
         else if (ac <= 50)
-            act("$S defenses are pretty damn good.", false, ch, 0, victim,
+            act("$S defenses are pretty damn good.", false, ch, NULL, victim,
                 TO_CHAR);
         else if (ac <= 70)
-            act("$S body appears to be well protected.", false, ch, 0, victim,
+            act("$S body appears to be well protected.", false, ch, NULL, victim,
                 TO_CHAR);
         else if (ac <= 90)
-            act("Well, $E's better off than a naked person.", false, ch, 0,
+            act("Well, $E's better off than a naked person.", false, ch, NULL,
                 victim, TO_CHAR);
         else
-            act("$S armor SUCKS!", false, ch, 0, victim, TO_CHAR);
+            act("$S armor SUCKS!", false, ch, NULL, victim, TO_CHAR);
     }
 }
 
@@ -4512,7 +4511,7 @@ ACMD(do_compact)
     if (IS_NPC(ch))
         return;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         send_to_char(ch, "Your current compact level is %s.\r\n",
@@ -4538,7 +4537,7 @@ ACMD(do_color)
     if (IS_NPC(ch))
         return;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         send_to_char(ch, "Your current color level is %s.\r\n",
@@ -4561,7 +4560,7 @@ show_all_toggles(struct creature *ch)
 {
     bool gets_clanmail = false;
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch) || !ch->desc || !ch->desc->account)
         return;
     if (GET_WIMP_LEV(ch) == 0)
         strcpy(buf2, "OFF");
@@ -4708,8 +4707,7 @@ ACMD(do_commands)
     int no, i, cmd_num;
     int wizhelp = 0, socials = 0, moods = 0, level = 0;
     struct creature *vict = NULL;
-
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (*arg) {
         if (!(vict = get_char_vis(ch, arg)) || IS_NPC(vict)) {

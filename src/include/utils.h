@@ -585,9 +585,9 @@ int dice(int number, int size);
 static inline bool
 isnumber(const char *str)
 {
-    if (!*str)
+    if (*str == '\0')
         return false;
-	while (*str)
+	while (*str != '\0')
 		if (!isdigit(*str))
 			return false;
 		else
@@ -605,14 +605,14 @@ SAFETY(const char *str)
 	return str;
 }
 
-static inline int
+static inline unsigned int
 hex2dec(const char *s)
 {
-	int i = 0;
+	unsigned int i = 0;
 
 	while (isxdigit(*s)) {
 		int n = toupper(*s);
-		i = i << 4 | (n - ((n >= 'A') ? '7':'0'));
+		i = i << 4 | (n - ((n >= (int)'A') ? (int)'7':(int)'0'));
 		s++;
 	}
 	return i;

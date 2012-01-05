@@ -2370,7 +2370,7 @@ fire_projectile_round(struct creature *ch,
         //
         // miss
         //
-        if (IS_ARROW(gun)) {
+        if (IS_ARROW(bullet)) {
             act(tmp_sprintf("$n fires %s at you from $p!", arrow_name),
                 false, ch, gun, vict, TO_VICT);
             act(tmp_sprintf("You fire %s at $N from $p!", arrow_name),
@@ -2385,7 +2385,7 @@ fire_projectile_round(struct creature *ch,
         //
         // hit
         //
-        if (IS_ARROW(gun)) {
+        if (IS_ARROW(bullet)) {
             act(tmp_sprintf("$n fires %s into you from $p!  OUCH!!",
                     arrow_name), false, ch, gun, vict, TO_VICT);
             act(tmp_sprintf("You fire %s into $N from $p!", arrow_name), false,

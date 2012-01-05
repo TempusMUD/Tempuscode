@@ -351,7 +351,7 @@ ACMD(do_track)
         send_to_char(ch, "You have no idea how.\r\n");
         return;
     }
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
     if (!*arg || (!spirit && !good_track)) {
         show_trails_to_char(ch, NULL);
         if (!spirit) {

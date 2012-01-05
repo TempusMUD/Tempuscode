@@ -90,8 +90,6 @@ bool perform_offensive_skill(struct creature *ch, struct creature *vict, int ski
 void perform_cleave(struct creature *ch, struct creature *vict);
 void punish_killer_death(struct creature *ch);
 
-//#define NUM_WEARS      27 /* This must be the # of eq positions!! */
-
 static const int wear_translator[] = {
 	WEAR_LIGHT, WEAR_FINGER_R, WEAR_FINGER_R, WEAR_NECK_1, WEAR_NECK_1,
 	WEAR_BODY, WEAR_HEAD, WEAR_LEGS, WEAR_FEET, WEAR_HANDS, WEAR_ARMS,

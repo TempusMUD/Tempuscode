@@ -30,6 +30,7 @@
 #include <unistd.h>
 #include <libpq-fe.h>
 #include <libxml/parser.h>
+#include <time.h>
 #include <glib.h>
 
 #include "interpreter.h"
@@ -78,15 +79,15 @@ bool production_mode = false;   // Run in production mode
 
 /* local globals */
 struct descriptor_data *descriptor_list = NULL; /* master desc list */
-struct txt_block *bufpool = 0;  /* pool of large output buffers */
+static struct txt_block *bufpool = NULL; /* pool of large output buffers */
 int buf_largecount = 0;         /* # of large buffers which exist */
 int buf_overflows = 0;          /* # of overflows of output */
 int buf_switches = 0;           /* # of switches from small to large buf */
 int circle_shutdown = 0;        /* clean shutdown */
 int circle_reboot = 0;          /* reboot the game after a shutdown */
 int no_specials = 0;            /* Suppress ass. of special routines */
-int avail_descs = 0;            /* max descriptors available */
-int tics = 0;                   /* for extern checkpointing */
+static int avail_descs = 0;            /* max descriptors available */
+static int tics = 0;                   /* for extern checkpointing */
 int log_cmds = 0;               /* log cmds */
 bool stress_test = false;       /* stress test the codebase */
 int shutdown_count = -1;        /* shutdown countdown */

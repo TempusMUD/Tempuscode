@@ -2377,8 +2377,8 @@ ACMD(do_wake)
 {
     struct creature *vict;
     int self = 0;
+    char *arg = tmp_getword(&argument);
 
-    one_argument(argument, arg);
     if (*arg) {
         if (GET_POSITION(ch) == POS_SLEEPING)
             send_to_char(ch,

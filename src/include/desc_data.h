@@ -102,7 +102,6 @@ struct descriptor_data {
 	int idle;					// how long idle for
     bool is_blind;
     int ban_dc_counter;         // countdown to disconnection due to ban
-	pthread_t resolver_thread;	// thread to resolve hostname
 	struct account *account;
 	struct creature *creature;	/* linked to char           */
 	struct creature *original;	/* original char if switched        */

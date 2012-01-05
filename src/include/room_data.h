@@ -269,10 +269,10 @@ room_is_underwater(struct room_data *room)
 static inline bool
 room_has_air(struct room_data *room)
 {
+    int sect = room->sector_type;
     if (room_is_underwater(room))
         return false;
 
-    int sect = room->sector_type;
     if (sect == SECT_PITCH_SUB
         || sect == SECT_ELEMENTAL_OOZE
         || sect == SECT_WATER_NOSWIM

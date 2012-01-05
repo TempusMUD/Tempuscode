@@ -27,6 +27,7 @@
 #include "creature.h"
 #include "db.h"
 #include "screen.h"
+#include "interpreter.h"
 #include "clan.h"
 #include "tmpstr.h"
 #include "accstr.h"

@@ -8,7 +8,7 @@ SPECIAL(modrian_fountain_obj)
 {
     struct obj_data *fount = (struct obj_data *)me;
     struct room_data *fountain_room;
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (spec_mode != SPECIAL_CMD)
         return false;

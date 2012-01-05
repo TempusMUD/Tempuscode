@@ -587,7 +587,7 @@ find_char_class_bitvector(char arg)
 void
 roll_real_abils(struct creature *ch)
 {
-    int i, j, k, str_add;
+    int i, j, k;
     uint8_t table[6];
     // Zero out table
     for (i = 0; i < 6; i++) {
@@ -605,13 +605,6 @@ roll_real_abils(struct creature *ch)
         } while (table[j] == 3);
         table[j] -= 1;
     }
-
-    str_add = number(0, 100);
-    int remainder = str_add % 10;
-    if (remainder > 4)
-        str_add += (10 - remainder);
-    else
-        str_add -= (remainder);
 
     // Sort the table
     for (j = 0; j < 6; j++) {

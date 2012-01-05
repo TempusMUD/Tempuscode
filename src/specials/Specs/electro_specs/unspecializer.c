@@ -29,7 +29,7 @@ SPECIAL(unspecializer)
 
     word = tmp_getword(&argument);
 
-    if (!*arg || !is_abbrev(word, "unspecialization")) {
+    if (!*word || !is_abbrev(word, "unspecialization")) {
         msg =
             tmp_sprintf
             ("You must type '%s unspecialization <weapon name>'\r\n",

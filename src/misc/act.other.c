@@ -240,7 +240,7 @@ ACMD(do_practice)
 {
     void list_skills(struct creature *ch, int mode, int type);
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (*arg)
         send_to_char(ch, "You can only practice skills in your guild.\r\n");
@@ -655,10 +655,9 @@ ACMD(do_split)
 ACMD(do_use)
 {
     struct obj_data *mag_item;
-    char arg1[256];
     struct creature *vict = NULL;
 
-    half_chop(argument, arg, buf);
+    char *arg = tmp_getword(&argument);
     if (!*arg) {
         send_to_char(ch, "What do you want to %s?\r\n", CMD_NAME);
         return;
@@ -774,7 +773,8 @@ ACMD(do_use)
             send_to_char(ch, "You can only inject with syringes.\r\n");
             return;
         }
-        one_argument(buf, arg1);
+        char *arg1 = tmp_getword(&argument);
+
         if ((vict = get_char_room(arg1, ch->in_room)) &&
             (affected_by_spell(vict, SPELL_STONESKIN) ||
                 (affected_by_spell(vict, SPELL_DERMAL_HARDENING)
@@ -798,14 +798,14 @@ ACMD(do_use)
         return;
     }
 
-    mag_objectmagic(ch, mag_item, buf);
+    mag_objectmagic(ch, mag_item, argument);
 }
 
 ACMD(do_wimpy)
 {
     int wimp_lev;
 
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!*arg) {
         if (GET_WIMP_LEV(ch)) {

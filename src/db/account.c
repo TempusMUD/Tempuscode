@@ -22,6 +22,7 @@
 #include "creature.h"
 #include "libpq-fe.h"
 #include "db.h"
+#include "interpreter.h"
 #include "clan.h"
 #include "players.h"
 #include "tmpstr.h"

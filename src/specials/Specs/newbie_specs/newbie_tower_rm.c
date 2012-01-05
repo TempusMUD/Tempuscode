@@ -10,7 +10,7 @@ SPECIAL(newbie_tower_rm)
     struct help_item *cur = NULL;
 
     ACMD(do_hcollect_help);
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!CMD_IS("look") && !CMD_IS("examine"))
         return 0;

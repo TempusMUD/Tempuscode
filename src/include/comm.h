@@ -70,20 +70,10 @@ void act(const char *str, int hide_invisible, struct creature *ch,
 
 struct account;
 
-void write_to_q(char *txt, struct txt_q *queue, int aliased);
-void write_to_output(const char *txt, struct descriptor_data *d);
-void page_string(struct descriptor_data *d, const char *str);
-void show_file(struct creature *ch, const char *fname, int lines);
-void show_account_chars(struct descriptor_data *d, struct account *acct, bool immort, bool brief);
-
-extern bool suppress_output;
-
 #define SEND_TO_Q(messg, desc)  write_to_output((messg), desc)
 
 #define USING_SMALL(d)	((d)->output == (d)->small_outbuf)
 #define USING_LARGE(d)  (!USING_SMALL(d))
-
-typedef void sigfunc(int);
 
 struct last_command_data {
 	int idnum;
@@ -94,5 +84,16 @@ struct last_command_data {
 };
 
 #define NUM_SAVE_CMDS 30
+
+typedef void sigfunc(int);
+void write_to_q(char *txt, struct txt_q *queue, int aliased);
+void write_to_output(const char *txt, struct descriptor_data *d);
+void page_string(struct descriptor_data *d, const char *str);
+void show_file(struct creature *ch, const char *fname, int lines);
+void show_account_chars(struct descriptor_data *d, struct account *acct, bool immort, bool brief);
+
+
+extern bool suppress_output;
+extern bool production_mode;
 
 #endif

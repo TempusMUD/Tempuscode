@@ -19,8 +19,11 @@
 #define LVL_CAN_CLAN       10
 
 struct clan_data;
+struct room_data;
 struct room_list_elem;
 
+bool boot_clans(void);
+struct clan_data *clan_by_owner(int idnum);
 struct clan_data *real_clan(int vnum);
 struct clan_data *clan_by_name(char *arg);
 int clan_owning_room(struct room_data *room);
@@ -65,5 +68,17 @@ struct clan_data {
 	struct room_list_elem *room_list;	/* list of clan house rooms */
 	struct clan_data *next;
 };
+
+ACMD(do_enroll);
+ACMD(do_join);
+ACMD(do_dismiss);
+ACMD(do_resign);
+ACMD(do_promote);
+ACMD(do_demote);
+ACMD(do_clanmail);
+ACMD(do_clanlist);
+ACMD(do_cinfo);
+ACMD(do_clanpasswd);
+ACMD(do_cedit);
 
 #endif
