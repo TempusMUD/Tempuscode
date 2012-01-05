@@ -137,9 +137,9 @@ SPECIAL(jail_locker)
     extract_obj(locker);
 
     act("$n opens a locker and gives you all your things.", false,
-        self, 0, ch, TO_VICT);
+        self, NULL, ch, TO_VICT);
     act("$n opens a locker and gives $N all $S things.", false, self,
-        0, ch, TO_NOTVICT);
+        NULL, ch, TO_NOTVICT);
 
     slog("%s received jail impound at %d.", GET_NAME(ch), ch->in_room->number);
 

@@ -84,7 +84,7 @@ struct obj_data *dam_object;
 //
 
 void
-sort_rooms()
+sort_rooms(void)
 {
     struct bomb_radius_list
     *new_list = NULL, *i = NULL, *j = NULL, *k = NULL;
@@ -249,8 +249,8 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
             break;
         }
         if (room->people) {
-            act(buf, false, room->people->data, 0, 0, TO_CHAR | TO_SLEEP);
-            act(buf, false, room->people->data, 0, 0, TO_ROOM | TO_SLEEP);
+            act(buf, false, room->people->data, NULL, NULL, TO_CHAR | TO_SLEEP);
+            act(buf, false, room->people->data, NULL, NULL, TO_ROOM | TO_SLEEP);
         }
     } else {
 
@@ -423,7 +423,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
                 look_at_room(vict, vict->in_room, 0);
 
                 sprintf(buf, "$n is blown in from %s!", from_dirs[dir]);
-                act(buf, false, vict, 0, 0, TO_ROOM);
+                act(buf, false, vict, NULL, NULL, TO_ROOM);
             } else if (GET_POSITION(vict) > POS_SITTING && (power << 5) >
                 GET_WEIGHT(vict) + CAN_CARRY_W(vict)) {
                 send_to_char(vict,
@@ -742,11 +742,11 @@ ACMD(do_defuse)
         !(bomb = get_obj_in_list_vis(ch, argument, ch->in_room->contents)))
         send_to_char(ch, "Defuse what?\r\n");
     else if (!IS_BOMB(bomb))
-        act("$p is not a bomb.", false, ch, bomb, 0, TO_CHAR);
+        act("$p is not a bomb.", false, ch, bomb, NULL, TO_CHAR);
     else if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 20)
         send_to_char(ch, "You have no idea how.\r\n");
     else if (!(fuse = bomb->contains) || !IS_FUSE(fuse))
-        act("$p is not fused.", false, ch, bomb, 0, TO_CHAR);
+        act("$p is not fused.", false, ch, bomb, NULL, TO_CHAR);
     else {
         if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) <
             number(0, 60 +
@@ -768,7 +768,7 @@ ACMD(do_defuse)
             bomb->aux_obj = NULL;
         }
 
-        act("$n defuses $p.", true, ch, bomb, 0, TO_ROOM);
+        act("$n defuses $p.", true, ch, bomb, NULL, TO_ROOM);
         act("You remove $P from $p.", false, ch, bomb, fuse, TO_CHAR);
         gain_skill_prof(ch, SKILL_DEMOLITIONS);
 

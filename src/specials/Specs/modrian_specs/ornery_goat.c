@@ -19,7 +19,7 @@ SPECIAL(ornery_goat)
         if (!can)
             return 0;
         obj_to_room(can, ch->in_room);
-        act("$n coughs up $p!", true, ch, can, 0, TO_ROOM);
+        act("$n coughs up $p!", true, ch, can, NULL, TO_ROOM);
         return 1;
     }
     return 0;

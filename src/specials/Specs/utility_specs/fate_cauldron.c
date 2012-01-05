@@ -19,11 +19,11 @@ SPECIAL(fate_cauldron)
     if (!isname(arg1, pot->aliases))
         return 0;
 
-    act("$n gazes deeply into $p.", false, ch, pot, 0, TO_ROOM);
+    act("$n gazes deeply into $p.", false, ch, pot, NULL, TO_ROOM);
     // Is he ready to remort? Or level 49 at least?
     if (GET_LEVEL(ch) != 49 && GET_LEVEL(ch) < LVL_SPIRIT) {
         act("You gaze deep into $p but learn nothing.",
-            false, ch, pot, 0, TO_CHAR);
+            false, ch, pot, NULL, TO_CHAR);
         return 1;
     }
     // Which fate does this guy need.
@@ -41,7 +41,7 @@ SPECIAL(fate_cauldron)
             break;
         }
     }
-    act("You gaze deep into $p.", false, ch, pot, 0, TO_CHAR);
+    act("You gaze deep into $p.", false, ch, pot, NULL, TO_CHAR);
 
     // Couldn't find her
     if (!fate || !fate->in_room) {

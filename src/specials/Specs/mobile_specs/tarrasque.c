@@ -39,7 +39,7 @@ tarrasque_jump(struct creature *tarr, int jump_mode)
     struct room_data *up_room = NULL;
     int i;
     act("$n takes a flying leap upwards into the chasm!",
-        false, tarr, 0, 0, TO_ROOM);
+        false, tarr, NULL, NULL, TO_ROOM);
 
     for (i = 1; i <= (jump_mode == T_ACTIVE ? 4 : 3); i++) {
         if (!(up_room = real_room(jump_mode == T_ACTIVE ?
@@ -51,10 +51,10 @@ tarrasque_jump(struct creature *tarr, int jump_mode)
 
         if ((jump_mode == T_ACTIVE && i == 4) ||
             (jump_mode == T_RETURN && i == 3)) {
-            act("$n comes flying up from the chasm and lands with an earthshaking footfall!", false, tarr, 0, 0, TO_ROOM);
+            act("$n comes flying up from the chasm and lands with an earthshaking footfall!", false, tarr, NULL, NULL, TO_ROOM);
         } else {
             act("$n comes flying past from below, and disappears above you!",
-                false, tarr, 0, 0, TO_ROOM);
+                false, tarr, NULL, NULL, TO_ROOM);
         }
     }
 }
@@ -82,7 +82,7 @@ tarrasque_gore(struct creature * tarr, struct creature * vict)
 {
     WAIT_STATE(tarr, 2 RL_SEC);
 
-    act("$n charges forward!!", false, tarr, 0, 0, TO_ROOM);
+    act("$n charges forward!!", false, tarr, NULL, NULL, TO_ROOM);
 
     return damage(tarr, vict, NULL, (GET_DEX(vict) < number(5, 28)) ?
         (dice(30, 20) + 300) : 0, TYPE_GORE_HORNS, WEAR_BODY);
@@ -103,8 +103,8 @@ tarrasque_trample(struct creature * tarr, struct creature * vict)
 void
 tarrasque_swallow(struct creature *tarr, struct creature *vict)
 {
-    act("You suddenly pounce and devour $N whole!", 0, tarr, 0, vict, TO_CHAR);
-    act("$n suddenly pounces and devours $N whole!", 0, tarr, 0, vict,
+    act("You suddenly pounce and devour $N whole!", false, tarr, NULL, vict, TO_CHAR);
+    act("$n suddenly pounces and devours $N whole!", false, tarr, NULL, vict,
         TO_NOTVICT);
     send_to_char(vict, "The tarrasque suddenly leaps into the the air,\r\n");
     send_to_char(vict,
@@ -116,7 +116,7 @@ tarrasque_swallow(struct creature *tarr, struct creature *vict)
         tarr->in_room->name, tarr->in_room->number);
     char_from_room(vict, false);
     char_to_room(vict, belly_rm, false);
-    act("The body of $n flies in from the mouth.", 1, vict, 0, 0, TO_ROOM);
+    act("The body of $n flies in from the mouth.", 1, vict, NULL, NULL, TO_ROOM);
     GET_HIT(vict) = -15;
     die(vict, tarr, TYPE_SWALLOW);
 }
@@ -139,11 +139,11 @@ tarrasque_poop(struct creature *tarr, struct obj_data *obj)
             obj = obj->next_content;
     }
 
-    act("$p is pooped out.", 0, NULL, obj, NULL, TO_ROOM);
+    act("$p is pooped out.", false, NULL, obj, NULL, TO_ROOM);
     obj_from_room(obj);
     obj_to_room(obj, tarr->in_room);
-    act("You strain a bit, and $p plops out.", 0, tarr, obj, NULL, TO_CHAR);
-    act("$n strains a bit, and $p plops out.", 0, tarr, obj, NULL, TO_ROOM);
+    act("You strain a bit, and $p plops out.", false, tarr, obj, NULL, TO_CHAR);
+    act("$n strains a bit, and $p plops out.", false, tarr, obj, NULL, TO_ROOM);
 
     poop_timer = 0;
 }
@@ -245,7 +245,7 @@ tarrasque_fight(struct creature *tarr)
     // intrepid adventurer the tarr is fighting, plus the two random
     // individuals.
     if (!number(0, 5)) {
-        act("$n lashes out with $s tail!!", false, tarr, 0, 0, TO_ROOM);
+        act("$n lashes out with $s tail!!", false, tarr, NULL, NULL, TO_ROOM);
         WAIT_STATE(tarr, 3 RL_SEC);
         tarrasque_lash(tarr, random_opponent(tarr));
 
@@ -450,7 +450,7 @@ SPECIAL(tarrasque)
             diurnal_timer = 0;
         } else if (tarr->in_room->number == LAIR_RM && AWAKE(tarr) &&
             !tarr->in_room->people->next) {
-            act("$n goes to sleep.", false, tarr, 0, 0, TO_ROOM);
+            act("$n goes to sleep.", false, tarr, NULL, NULL, TO_ROOM);
             GET_POSITION(tarr) = POS_SLEEPING;
         }
         break;
@@ -480,7 +480,7 @@ SPECIAL(tarrasque)
                     if (GET_POSITION(tch) < POS_STANDING)
                         GET_POSITION(tch) = POS_STANDING;
                     act("You are overcome with terror at the sight of $N!",
-                        false, tch, 0, tarr, TO_CHAR);
+                        false, tch, NULL, tarr, TO_CHAR);
                     do_flee(tch, tmp_strdup(""), 0, 0);
                 }
             }
@@ -493,7 +493,7 @@ SPECIAL(tarrasque)
             if (tarr->in_room->number == LAIR_RM) {
                 mode = T_SLEEP;
                 GET_POSITION(tarr) = POS_SLEEPING;
-                act("$n lies down and falls asleep.", false, tarr, 0, 0,
+                act("$n lies down and falls asleep.", false, tarr, NULL, NULL,
                     TO_ROOM);
                 diurnal_timer = 0;
                 return 1;
@@ -510,7 +510,7 @@ SPECIAL(tarrasque)
                         if (GET_POSITION(tch) < POS_STANDING)
                             GET_POSITION(tch) = POS_STANDING;
                         act("You are overcome with terror at the sight of $N!",
-                            false, tch, 0, tarr, TO_CHAR);
+                            false, tch, NULL, tarr, TO_CHAR);
                         do_flee(tch, tmp_strdup(""), 0, 0);
                     }
                 }

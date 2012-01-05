@@ -60,7 +60,7 @@ SPECIAL(reinforcer)
     perform_tell(keeper, ch, buf2);
 
     if (cmd_type == REIN_OFF) {
-        act("$n gets an offer on reinforcement for $p.", false, ch, obj, 0,
+        act("$n gets an offer on reinforcement for $p.", false, ch, obj, NULL,
             TO_ROOM);
         return 1;
     }

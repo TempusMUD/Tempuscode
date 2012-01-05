@@ -111,7 +111,7 @@ SPECIAL(underworld_goddess)
     if (!cmd && styx) {
         switch (number(0, 20)) {
         case 0:
-            act("The Goddess of the Underworld kisses $n.", false, styx, 0, 0,
+            act("The Goddess of the Underworld kisses $n.", false, styx, NULL, NULL,
                 TO_ROOM);
             break;
         }

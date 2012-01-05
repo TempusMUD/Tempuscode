@@ -652,7 +652,7 @@ retire_trails(void)
     struct room_data *rm = NULL;
     struct room_trail_data *trail = NULL, *next_trail = NULL, *last_trail =
         NULL;
-    time_t cur_time = time(0), del_time;
+    time_t cur_time = time(NULL), del_time;
 
     del_time = cur_time - 360;  // 6 minute lifetime 1440; // 24 minutes lifetime
 
@@ -755,7 +755,7 @@ update_trail(struct creature *ch, struct room_data *room, int dir, int mode)
             SET_BIT(trail->flags, TRAIL_FLAG_BLOODPRINTS);
     }
 
-    trail->time = time(0);
+    trail->time = time(NULL);
 
     // Remove trails over the maximum allowed for that sector type
     max_trails = 10;
@@ -906,7 +906,7 @@ char_to_room(struct creature * ch, struct room_data * room,
             send_to_char(ch,
                 "You are dazed by a blinding flash inside your brain!\r\n"
                 "You feel different...\r\n");
-            act("Light flashes from behind $n's eyes.", false, ch, 0, 0,
+            act("Light flashes from behind $n's eyes.", false, ch, NULL, NULL,
                 TO_ROOM);
             for (aff = ch->affected; aff; aff = next_aff) {
                 next_aff = aff->next;
@@ -920,8 +920,8 @@ char_to_room(struct creature * ch, struct room_data * room,
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) &&
         !AFF2_FLAGGED(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch)) {
-        act("$n suddenly bursts into flames!", false, ch, 0, 0, TO_ROOM);
-        act("You suddenly burst into flames!", false, ch, 0, 0, TO_CHAR);
+        act("$n suddenly bursts into flames!", false, ch, NULL, NULL, TO_ROOM);
+        act("You suddenly burst into flames!", false, ch, NULL, NULL, TO_CHAR);
         ignite_creature(ch, NULL);
     }
 
@@ -1286,8 +1286,8 @@ check_eq_align(struct creature *ch)
                 obj_to_char(unequip_char(ch, pos, EQUIP_IMPLANT), ch);
 
                 act("$p burns its way out through your flesh!", false, ch,
-                    implant, 0, TO_CHAR);
-                act("$n screams in horror as $p burns its way out through $s flesh!", false, ch, implant, 0, TO_ROOM);
+                    implant, NULL, TO_CHAR);
+                act("$n screams in horror as $p burns its way out through $s flesh!", false, ch, implant, NULL, TO_ROOM);
 
                 damage_eq(NULL, implant, (GET_OBJ_DAM(implant) >> 1), -1);
 
@@ -1312,9 +1312,9 @@ check_eq_align(struct creature *ch)
             int skill;
 
             act("You are burned by $p and frantically take it off!", false, ch,
-                obj, 0, TO_CHAR);
+                obj, NULL, TO_CHAR);
             act("$n frantically takes off $p as $e screams in agony!", false,
-                ch, obj, 0, TO_ROOM);
+                ch, obj, NULL, TO_ROOM);
             skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
             skill >>= 5;
             skill = MAX(1, skill);
@@ -1327,9 +1327,9 @@ check_eq_align(struct creature *ch)
             (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
             (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
             act("You are zapped by $p and instantly let go of it.",
-                false, ch, obj, 0, TO_CHAR);
+                false, ch, obj, NULL, TO_CHAR);
             act("$n is zapped by $p and instantly lets go of it.",
-                false, ch, obj, 0, TO_ROOM);
+                false, ch, obj, NULL, TO_ROOM);
             obj_to_char(unequip_char(ch, pos, false), ch);
             if (IS_NPC(ch)) {
                 obj_from_char(obj);
@@ -1547,7 +1547,7 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
 void
 obj_from_obj(struct obj_data *obj)
 {
-    struct obj_data *obj_from = 0, *temp = 0;
+    struct obj_data *obj_from = NULL, *temp = NULL;
     struct creature *vict = NULL;
 
     if (obj->in_obj == NULL) {
@@ -1661,14 +1661,14 @@ update_char_objects(struct creature *ch)
             if (GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2) > 0) {
                 i = --GET_OBJ_VAL(GET_EQ(ch, WEAR_LIGHT), 2);
                 if (i == 1) {
-                    act("Your light begins to flicker and fade.", false, ch, 0,
-                        0, TO_CHAR);
-                    act("$n's light begins to flicker and fade.", false, ch, 0,
-                        0, TO_ROOM);
+                    act("Your light begins to flicker and fade.", false, ch, NULL,
+                        NULL, TO_CHAR);
+                    act("$n's light begins to flicker and fade.", false, ch, NULL,
+                        NULL, TO_ROOM);
                 } else if (i == 0) {
-                    act("Your light sputters out and dies.", false, ch, 0, 0,
+                    act("Your light sputters out and dies.", false, ch, NULL, NULL,
                         TO_CHAR);
-                    act("$n's light sputters out and dies.", false, ch, 0, 0,
+                    act("$n's light sputters out and dies.", false, ch, NULL, NULL,
                         TO_ROOM);
                     ch->in_room->light--;
                 }

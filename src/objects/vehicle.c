@@ -112,7 +112,7 @@ display_status(struct creature *ch, struct obj_data *car,
         sprintf(buf,
             "%sThe %sinstrument %spanel %sblinks %sfor %sa %smoment%s.", QGRN,
             QBLU, QMAG, QYEL, QCYN, QYEL, QBLU, QNRM);
-        act(buf, false, ch, 0, 0, TO_ROOM);
+        act(buf, false, ch, NULL, NULL, TO_ROOM);
     }
     send_to_char(ch,
         "\r\n%s<<<<<<<<%sSYSTEM STATUS UPDATE (%s)%s>>>>>>>>>%s\r\n", QRED,
@@ -139,7 +139,7 @@ display_status(struct creature *ch, struct obj_data *car,
     send_to_char(ch, "%s", buf);
     if (LOW_ENERGY(engine)) {
         send_to_char(ch, "A %sWARNING%s indicator lights up.", QRED, QNRM);
-        act(buf, false, ch, 0, 0, TO_ROOM);
+        act(buf, false, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "%s***%sWARNING%s***%s (Low Energy Level).\r\n", QGRN,
             QRED, QGRN, QNRM);
     }
@@ -161,44 +161,44 @@ start_engine(struct creature *ch, struct obj_data *car,
 
     if (ENGINE_ON(engine)) {
         act("The starter squeals as you try to crank $p!",
-            false, ch, car, 0, TO_CHAR);
+            false, ch, car, NULL, TO_CHAR);
         act("The starter squeals as $n tries to crank $p!",
-            false, ch, car, 0, TO_ROOM);
+            false, ch, car, NULL, TO_ROOM);
         if (car->in_room->people)
             act("You hear a loud squealing from under the hood of $p.",
-                false, 0, car, 0, TO_ROOM);
+                false, NULL, car, NULL, TO_ROOM);
         return;
     }
     if (CUR_ENERGY(engine) == 0) {
-        act("$n tries to crank $p.", true, ch, car, 0, TO_ROOM);
+        act("$n tries to crank $p.", true, ch, car, NULL, TO_ROOM);
         act("$p turns over sluggishly, but doesn't start.",
-            false, ch, engine, 0, TO_ROOM);
-        act("$p turns over and over sluggishly.", false, ch, engine, 0,
+            false, ch, engine, NULL, TO_ROOM);
+        act("$p turns over and over sluggishly.", false, ch, engine, NULL,
             TO_CHAR);
         if (car->in_room->people)
             act("$p's engine turns over and over sluggishly.",
-                false, 0, car, 0, TO_ROOM);
+                false, NULL, car, NULL, TO_ROOM);
         return;
     }
     if (LOW_ENERGY(engine)) {
-        act("$n tries to crank $p.", true, ch, car, 0, TO_ROOM);
+        act("$n tries to crank $p.", true, ch, car, NULL, TO_ROOM);
         act("$p turns over sluggishly and sputters to life.",
-            false, ch, engine, 0, TO_ROOM);
+            false, ch, engine, NULL, TO_ROOM);
         act("$p turns over sluggishly and sputters to life.",
-            false, ch, engine, 0, TO_CHAR);
+            false, ch, engine, NULL, TO_CHAR);
         if (car->in_room->people)
             act("$p's engine turns over sluggishly and sputters to life.",
-                false, 0, car, 0, TO_ROOM);
+                false, NULL, car, NULL, TO_ROOM);
         TOGGLE_BIT(ENGINE_STATE(engine), ENG_RUN);
         CUR_ENERGY(engine) = MAX(0, CUR_ENERGY(engine) - USE_RATE(engine) * 2);
         return;
     }
-    act("$n tries to crank $p.", true, ch, car, 0, TO_ROOM);
-    act("$p turns over and roars to life.", false, ch, engine, 0, TO_ROOM);
-    act("$p turns over and roars to life.", false, ch, engine, 0, TO_CHAR);
+    act("$n tries to crank $p.", true, ch, car, NULL, TO_ROOM);
+    act("$p turns over and roars to life.", false, ch, engine, NULL, TO_ROOM);
+    act("$p turns over and roars to life.", false, ch, engine, NULL, TO_CHAR);
     if (car->in_room->people)
         act("$p's engine turns over and roars to life.",
-            false, 0, car, 0, TO_ROOM);
+            false, NULL, car, NULL, TO_ROOM);
     TOGGLE_BIT(ENGINE_STATE(engine), ENG_RUN);
     CUR_ENERGY(engine) = MAX(0, CUR_ENERGY(engine) - USE_RATE(engine) * 2);
     return;
@@ -270,23 +270,23 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
         sprintf(abuf, "$p sails in from %s.", from_dirs[dir]);
     }
 
-    act(lbuf, false, 0, car, 0, TO_ROOM | ACT_HIDECAR);
+    act(lbuf, false, NULL, car, NULL, TO_ROOM | ACT_HIDECAR);
 
     obj_from_room(car);
     obj_to_room(car, dest);
 
-    act(abuf, false, 0, car, 0, TO_ROOM | ACT_HIDECAR);
+    act(abuf, false, NULL, car, NULL, TO_ROOM | ACT_HIDECAR);
 
     if (car->action_desc && OCAN_GO(car, dir) &&
         (other_rm = OEXIT(car, dir)->to_room) && other_rm->people) {
         sprintf(buf, "%s %s.", car->action_desc, from_dirs[dir]);
-        act(buf, false, other_rm->people->data, car, 0, TO_ROOM);
-        act(buf, false, other_rm->people->data, car, 0, TO_CHAR);
+        act(buf, false, other_rm->people->data, car, NULL, TO_ROOM);
+        act(buf, false, other_rm->people->data, car, NULL, TO_CHAR);
     }
 
     if (ch) {
         sprintf(buf, "$n drives $p %s.", dirs[dir]);
-        act(buf, false, ch, car, 0, TO_ROOM);
+        act(buf, false, ch, car, NULL, TO_ROOM);
 
         if (IS_SKYCAR(car))
             send_to_room("You see as you fly up: \r\n", ch->in_room);
@@ -300,20 +300,20 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
         }
     } else if ((other_rm = real_room(ROOM_NUMBER(car))) && other_rm->people) {
         sprintf(buf, "$p travels %s.", to_dirs[dir]);
-        act(buf, false, other_rm->people->data, car, 0, TO_ROOM);
-        act(buf, false, other_rm->people->data, car, 0, TO_CHAR);
+        act(buf, false, other_rm->people->data, car, NULL, TO_ROOM);
+        act(buf, false, other_rm->people->data, car, NULL, TO_CHAR);
     }
 
     if (engine) {
         if (CUR_ENERGY(engine) == 0) {
             if (ch) {
-                act("$p has run out of energy.", false, ch, car, 0, TO_CHAR);
-                act("$p sputters and dies.", false, ch, engine, 0, TO_CHAR);
-                act("$p sputters and dies.", false, ch, engine, 0, TO_ROOM);
+                act("$p has run out of energy.", false, ch, car, NULL, TO_CHAR);
+                act("$p sputters and dies.", false, ch, engine, NULL, TO_CHAR);
+                act("$p sputters and dies.", false, ch, engine, NULL, TO_ROOM);
             }
             if (car->in_room) {
-                act("$p sputters and dies.", false, NULL, car, 0, TO_CHAR);
-                act("$p sputters and dies.", false, NULL, car, 0, TO_ROOM);
+                act("$p sputters and dies.", false, NULL, car, NULL, TO_CHAR);
+                act("$p sputters and dies.", false, NULL, car, NULL, TO_ROOM);
             }
 
             if (ENGINE_ON(engine))
@@ -352,7 +352,7 @@ ACMD(do_install)
         return;
     }
     if (GET_OBJ_TYPE(car) != ITEM_VEHICLE) {
-        act("$p is not a motorized vehicle.", false, ch, car, 0, TO_CHAR);
+        act("$p is not a motorized vehicle.", false, ch, car, NULL, TO_CHAR);
         return;
     }
 
@@ -363,13 +363,13 @@ ACMD(do_install)
         return;
     }
     if (GET_OBJ_TYPE(engine) != ITEM_ENGINE) {
-        act("$p is not an engine.", false, ch, engine, 0, TO_CHAR);
+        act("$p is not an engine.", false, ch, engine, NULL, TO_CHAR);
         return;
     }
 
     if (car->contains && IS_ENGINE(car->contains)) {
         act("$p is already installed in that vehicle.",
-            false, ch, car->contains, 0, TO_CHAR);
+            false, ch, car->contains, NULL, TO_CHAR);
         return;
     }
     obj_from_char(engine);
@@ -408,14 +408,14 @@ ACMD(do_uninstall)
         return;
     }
     if (GET_OBJ_TYPE(car) != ITEM_VEHICLE) {
-        act("$p is not a motorized vehicle.", false, ch, car, 0, TO_CHAR);
+        act("$p is not a motorized vehicle.", false, ch, car, NULL, TO_CHAR);
         return;
     }
 
     engine = get_obj_in_list_vis(ch, arg1, car->contains);
 
     if (!engine) {
-        act("$p is not even installed with an engine!", false, ch, car, 0,
+        act("$p is not even installed with an engine!", false, ch, car, NULL,
             TO_CHAR);
         return;
     }
@@ -457,8 +457,8 @@ SPECIAL(vehicle_door)
 
         if (CAR_CLOSED(vehicle)) {
             act("$p is currently closed--your head gets a nasty whack.",
-                false, ch, v_door, 0, TO_CHAR);
-            act("$n bangs $s head into $p.", true, ch, v_door, 0, TO_ROOM);
+                false, ch, v_door, NULL, TO_CHAR);
+            act("$n bangs $s head into $p.", true, ch, v_door, NULL, TO_ROOM);
             return 1;
         }
 
@@ -476,12 +476,12 @@ SPECIAL(vehicle_door)
             return 1;
         }
 
-        act("You climb out of $p.", false, ch, vehicle, 0, TO_CHAR);
-        act("$n climbs out of $p.", false, ch, vehicle, 0, TO_ROOM);
+        act("You climb out of $p.", false, ch, vehicle, NULL, TO_CHAR);
+        act("$n climbs out of $p.", false, ch, vehicle, NULL, TO_ROOM);
         char_from_room(ch, true);
         char_to_room(ch, vehicle->in_room, true);
         look_at_room(ch, ch->in_room, 0);
-        act("$n has climbed out of $p.", true, ch, vehicle, 0, TO_ROOM);
+        act("$n has climbed out of $p.", true, ch, vehicle, NULL, TO_ROOM);
         GET_POSITION(ch) = POS_STANDING;
         return 1;
     }
@@ -495,15 +495,15 @@ SPECIAL(vehicle_door)
         if (CAR_LOCKED(vehicle)) {
             REMOVE_BIT(DOOR_STATE(vehicle), CONT_LOCKED | CONT_CLOSED);
             act("You unlock and open the door of $p.",
-                false, ch, vehicle, 0, TO_CHAR);
+                false, ch, vehicle, NULL, TO_CHAR);
             act("$n unlocks and opens the door of $p.",
-                false, ch, vehicle, 0, TO_ROOM);
+                false, ch, vehicle, NULL, TO_ROOM);
         } else {
             REMOVE_BIT(DOOR_STATE(vehicle), CONT_CLOSED);
-            act("You open the door of $p.", false, ch, vehicle, 0, TO_CHAR);
-            act("$n opens the door of $p.", false, ch, vehicle, 0, TO_ROOM);
+            act("You open the door of $p.", false, ch, vehicle, NULL, TO_CHAR);
+            act("$n opens the door of $p.", false, ch, vehicle, NULL, TO_ROOM);
         }
-        act("The door of $p swings open.", false, 0, vehicle, 0, TO_ROOM);
+        act("The door of $p swings open.", false, NULL, vehicle, NULL, TO_ROOM);
         return 1;
     }
 
@@ -521,8 +521,8 @@ SPECIAL(vehicle_door)
             return 1;
         }
         REMOVE_BIT(GET_OBJ_VAL(vehicle, 1), CONT_LOCKED);
-        act("You unlock the door of $p.", false, ch, vehicle, 0, TO_CHAR);
-        act("$n unlocks the door of $p.", false, ch, vehicle, 0, TO_ROOM);
+        act("You unlock the door of $p.", false, ch, vehicle, NULL, TO_CHAR);
+        act("$n unlocks the door of $p.", false, ch, vehicle, NULL, TO_ROOM);
         return 1;
     }
     if (CMD_IS("lock")) {
@@ -537,16 +537,16 @@ SPECIAL(vehicle_door)
         if (!CAR_CLOSED(vehicle)) {
             SET_BIT(GET_OBJ_VAL(vehicle, 1), CONT_CLOSED | CONT_LOCKED);
             act("You close and lock the door of $p.",
-                false, ch, vehicle, 0, TO_CHAR);
+                false, ch, vehicle, NULL, TO_CHAR);
             act("$n closes and locks the door of $p.",
-                false, ch, vehicle, 0, TO_ROOM);
+                false, ch, vehicle, NULL, TO_ROOM);
             act("The door of $p is closed from the inside.",
-                false, 0, vehicle, 0, TO_ROOM);
+                false, NULL, vehicle, NULL, TO_ROOM);
             return 1;
         } else {
             SET_BIT(GET_OBJ_VAL(vehicle, 1), CONT_LOCKED);
-            act("You lock the door of $p.", false, ch, vehicle, 0, TO_CHAR);
-            act("$n locks the door of $p.", false, ch, vehicle, 0, TO_ROOM);
+            act("You lock the door of $p.", false, ch, vehicle, NULL, TO_CHAR);
+            act("$n locks the door of $p.", false, ch, vehicle, NULL, TO_ROOM);
             return 1;
         }
         return 0;
@@ -562,10 +562,10 @@ SPECIAL(vehicle_door)
         }
 
         TOGGLE_BIT(GET_OBJ_VAL(vehicle, 1), CONT_CLOSED);
-        act("You close the door of $p.", false, ch, vehicle, 0, TO_CHAR);
-        act("$n closes the door of $p.", false, ch, vehicle, 0, TO_ROOM);
+        act("You close the door of $p.", false, ch, vehicle, NULL, TO_CHAR);
+        act("$n closes the door of $p.", false, ch, vehicle, NULL, TO_ROOM);
         act("The door of $p is closed from the inside.",
-            false, 0, vehicle, 0, TO_ROOM);
+            false, NULL, vehicle, NULL, TO_ROOM);
 
         return 1;
     }
@@ -634,7 +634,7 @@ SPECIAL(vehicle_console)
             return 0;
 
         display_status(ch, vehicle, driver, engine);
-        act("$n checks the vehicle status.", true, ch, 0, 0, TO_ROOM);
+        act("$n checks the vehicle status.", true, ch, NULL, NULL, TO_ROOM);
         return 1;
     }
 
@@ -644,7 +644,7 @@ SPECIAL(vehicle_console)
     if (CMD_IS("listen")) {
         if (ENGINE_ON(engine)) {
             act("You hear the sound of $p running.\r\n",
-                false, ch, engine, 0, TO_CHAR);
+                false, ch, engine, NULL, TO_CHAR);
             return 1;
         }
         return 0;
@@ -663,10 +663,10 @@ SPECIAL(vehicle_console)
             return 1;
         }
 
-        act("You rev the engine of $p.", false, ch, vehicle, 0, TO_CHAR);
-        act("$n revs the engine of $p.", true, ch, vehicle, 0, TO_ROOM);
+        act("You rev the engine of $p.", false, ch, vehicle, NULL, TO_CHAR);
+        act("$n revs the engine of $p.", true, ch, vehicle, NULL, TO_ROOM);
         act("The engine of $p revs loudly.",
-            false, 0, vehicle, 0, TO_ROOM | ACT_HIDECAR);
+            false, NULL, vehicle, NULL, TO_ROOM | ACT_HIDECAR);
         return 1;
     }
     if (CMD_IS("spinout")) {
@@ -677,19 +677,19 @@ SPECIAL(vehicle_console)
         }
 
         act("The tires of $p scream as they spin on the pavement.",
-            false, ch, vehicle, 0, TO_CHAR);
+            false, ch, vehicle, NULL, TO_CHAR);
         act("$n stomps the gas--you hear the tires scream.",
-            false, ch, vehicle, 0, TO_ROOM);
+            false, ch, vehicle, NULL, TO_ROOM);
         act("The tires of $p scream as they spin on the pavement.",
-            false, 0, vehicle, 0, TO_ROOM | ACT_HIDECAR);
+            false, NULL, vehicle, NULL, TO_ROOM | ACT_HIDECAR);
         return 1;
     }
 
     if (CMD_IS("honk")) {
         send_to_char(ch, "You honk the horn.\r\n");
-        act("$n honks the horn of $p.", false, ch, vehicle, 0, TO_ROOM);
+        act("$n honks the horn of $p.", false, ch, vehicle, NULL, TO_ROOM);
         act("There is a loud honking sound from $p.\r\n",
-            false, 0, vehicle, 0, TO_ROOM);
+            false, NULL, vehicle, NULL, TO_ROOM);
         return 1;
     }
 
@@ -706,9 +706,9 @@ SPECIAL(vehicle_console)
                 send_to_char(ch, "The headlights are already on.\r\n");
             else {
                 act("You activate the exterior lights of $p.",
-                    false, ch, vehicle, 0, TO_CHAR);
+                    false, ch, vehicle, NULL, TO_CHAR);
                 act("$n activates the exterior lights of $p.",
-                    false, ch, vehicle, 0, TO_ROOM);
+                    false, ch, vehicle, NULL, TO_ROOM);
                 TOGGLE_BIT(ENGINE_STATE(engine), ENG_LIGHTS);
                 CUR_ENERGY(engine) = MAX(0, CUR_ENERGY(engine) - 1);
                 vehicle->in_room->light++;
@@ -719,9 +719,9 @@ SPECIAL(vehicle_console)
                 send_to_char(ch, "The headlights are already off.\r\n");
             else {
                 act("You turn off the exterior lights of $p.",
-                    false, ch, vehicle, 0, TO_CHAR);
+                    false, ch, vehicle, NULL, TO_CHAR);
                 act("$n turns off the exterior lights of $p.",
-                    false, ch, vehicle, 0, TO_ROOM);
+                    false, ch, vehicle, NULL, TO_ROOM);
                 TOGGLE_BIT(ENGINE_STATE(engine), ENG_LIGHTS);
                 vehicle->in_room->light--;
             }
@@ -740,7 +740,7 @@ SPECIAL(vehicle_console)
 
         if (!ENGINE_ON(engine)) {
             send_to_char(ch, "What, without the engine running?\r\n");
-            act("$n pretends to be driving $p.", true, ch, vehicle, 0,
+            act("$n pretends to be driving $p.", true, ch, vehicle, NULL,
                 TO_ROOM);
             return 1;
         }
@@ -770,7 +770,7 @@ SPECIAL(vehicle_console)
             send_to_char(ch, "Sorry, you can't go that way.\r\n");
             break;
         case ERR_NODRIVE:
-            act("You cannot drive $p there.", false, ch, vehicle, 0, TO_CHAR);
+            act("You cannot drive $p there.", false, ch, vehicle, NULL, TO_CHAR);
             break;
         case ERR_HOUSE:
             send_to_char(ch,
@@ -805,8 +805,8 @@ SPECIAL(vehicle_console)
 
     if (CMD_IS("hotwire")) {
 
-        act("You attempt to hot-wire $p.", false, ch, vehicle, 0, TO_CHAR);
-        act("$n attempts to hot-wire $p.", true, ch, vehicle, 0, TO_ROOM);
+        act("You attempt to hot-wire $p.", false, ch, vehicle, NULL, TO_CHAR);
+        act("$n attempts to hot-wire $p.", true, ch, vehicle, NULL, TO_ROOM);
 
         if (number(0, 101) > CHECK_SKILL(ch, SKILL_HOTWIRE)) {
             send_to_char(ch, "You fail.\r\n");
@@ -828,10 +828,10 @@ SPECIAL(vehicle_console)
             return 1;
         }
 
-        act("You shut down $p.", false, ch, engine, 0, TO_CHAR);
-        act("$n shuts down $p.", false, ch, engine, 0, TO_ROOM);
+        act("You shut down $p.", false, ch, engine, NULL, TO_CHAR);
+        act("$n shuts down $p.", false, ch, engine, NULL, TO_ROOM);
         act("$p's engine stops running and becomes quiet.",
-            false, 0, vehicle, 0, TO_ROOM);
+            false, NULL, vehicle, NULL, TO_ROOM);
         REMOVE_BIT(ENGINE_STATE(engine), ENG_RUN);
         V_CONSOLE_IDNUM(console) = 0;
 
@@ -846,8 +846,8 @@ SPECIAL(vehicle_console)
             send_to_char(ch, "It's already parked.\r\n");
             return 1;
         }
-        act("You put $p in park.", false, ch, vehicle, 0, TO_CHAR);
-        act("$n puts $p in park.", false, ch, vehicle, 0, TO_ROOM);
+        act("You put $p in park.", false, ch, vehicle, NULL, TO_CHAR);
+        act("$n puts $p in park.", false, ch, vehicle, NULL, TO_ROOM);
         SET_BIT(ENGINE_STATE(engine), ENG_PARK);
         return 1;
     }

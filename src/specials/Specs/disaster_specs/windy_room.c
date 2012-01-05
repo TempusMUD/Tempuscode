@@ -19,7 +19,7 @@ struct windy_room_data *windy_list = NULL;
 int num_windy_rooms = 0;
 
 int
-boot_windy_rooms()
+boot_windy_rooms(void)
 {
     FILE *fl = NULL;
     struct windy_room_data *newdata = NULL;
@@ -361,7 +361,7 @@ SPECIAL(windy_room)
         sprintf(buf,
             "An icy gust of wind sends $n flying %sward through the air!",
             dirs[dir]);
-        act(buf, false, ch, 0, 0, TO_ROOM);
+        act(buf, false, ch, NULL, NULL, TO_ROOM);
 
         char_from_room(ch, true);
         char_to_room(ch, room, true);
@@ -372,7 +372,7 @@ SPECIAL(windy_room)
         sprintf(buf,
             "$n comes flying in on an icy blast of wind from %s!",
             from_dirs[dir]);
-        act(buf, false, ch, 0, 0, TO_ROOM);
+        act(buf, false, ch, NULL, NULL, TO_ROOM);
 
         return 1;
     }

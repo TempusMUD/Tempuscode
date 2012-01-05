@@ -505,7 +505,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                     continue;
 
                 if (mob == ch) {
-                    call_magic(ch, ch, 0, NULL, srch->arg[2], srch->arg[0],
+                    call_magic(ch, ch, NULL, NULL, srch->arg[2], srch->arg[0],
                         (SPELL_IS_MAGIC(srch->arg[2]) ||
                             SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
                         (SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
@@ -514,7 +514,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                     if (is_dead(ch))
                         break;
                 } else {
-                    call_magic(ch, mob, 0, NULL, srch->arg[2], srch->arg[0],
+                    call_magic(ch, mob, NULL, NULL, srch->arg[2], srch->arg[0],
                         (SPELL_IS_MAGIC(srch->arg[2]) ||
                             SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
                         (SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
@@ -523,7 +523,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 }
             }
         } else if (!targ_room && !affected_by_spell(ch, srch->arg[2]))
-            call_magic(ch, ch, 0, NULL, srch->arg[2], srch->arg[0],
+            call_magic(ch, ch, NULL, NULL, srch->arg[2], srch->arg[0],
                 (SPELL_IS_MAGIC(srch->arg[2]) ||
                     SPELL_IS_DIVINE(srch->arg[2])) ? CAST_SPELL :
                 (SPELL_IS_PHYSICS(srch->arg[2])) ? CAST_PHYSIC :
@@ -638,10 +638,10 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                 if (!IS_NPC(mob))
                     continue;
                 if (other_rm != targ_room) {
-                    act("$n suddenly disappears.", true, mob, 0, 0, TO_ROOM);
+                    act("$n suddenly disappears.", true, mob, NULL, NULL, TO_ROOM);
                     char_from_room(mob, false);
                     char_to_room(mob, targ_room, false);
-                    act("$n suddenly appears.", true, mob, 0, 0, TO_ROOM);
+                    act("$n suddenly appears.", true, mob, NULL, NULL, TO_ROOM);
                 }
                 if (srch->arg[2])
                     start_hunting(mob, ch);

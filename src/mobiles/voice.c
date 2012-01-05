@@ -59,7 +59,7 @@ free_voice(struct voice *voice)
 
     g_hash_table_iter_init(&it, voice->emits);
     while (g_hash_table_iter_next(&it, (gpointer) & key, (gpointer) & emits)) {
-        g_list_foreach(emits, (GFunc) free, 0);
+        g_list_foreach(emits, (GFunc) free, NULL);
         g_list_free(emits);
     }
 

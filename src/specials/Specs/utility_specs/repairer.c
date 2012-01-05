@@ -91,7 +91,7 @@ SPECIAL(repairer)
     }
 
     act("$n takes $p into $s shop and repairs it.",
-        false, repairer, obj, 0, TO_ROOM);
+        false, repairer, obj, NULL, TO_ROOM);
     WAIT_STATE(ch, 5 RL_SEC);
 
     if (currency)

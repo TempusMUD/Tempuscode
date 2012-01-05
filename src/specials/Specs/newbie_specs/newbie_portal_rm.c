@@ -10,11 +10,11 @@ SPECIAL(newbie_portal_rm)
     struct room_data *room = (struct room_data *)me;
 
     if (CMD_IS("north") || CMD_IS("enter")) {
-        act("$n steps into the portal.", false, ch, 0, 0, TO_ROOM);
+        act("$n steps into the portal.", false, ch, NULL, NULL, TO_ROOM);
         char_from_room(ch, false);
         if (IS_REMORT(ch)) {
             char_to_room(ch, room, false);
-            call_magic(ch, ch, 0, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP,
+            call_magic(ch, ch, NULL, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP,
                 CAST_SPELL);
             return 1;
         } else if (GET_EXP(ch) < 10) {
@@ -37,7 +37,7 @@ SPECIAL(newbie_portal_rm)
         }
         look_at_room(ch, ch->in_room, 0);
         act("$n has stepped through the portal into the arena.",
-            true, ch, 0, 0, TO_ROOM);
+            true, ch, NULL, NULL, TO_ROOM);
         return 1;
     }
     return 0;

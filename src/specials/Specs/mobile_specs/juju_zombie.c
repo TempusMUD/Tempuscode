@@ -21,8 +21,8 @@ SPECIAL(juju_zombie)
             return 0;
 
         act("$n reaches out and touches you!  You feel paralyzed!", false, ch,
-            0, vict, TO_VICT);
-        act("$n reaches out and paralyzes $N!", false, ch, 0, vict,
+            NULL, vict, TO_VICT);
+        act("$n reaches out and paralyzes $N!", false, ch, NULL, vict,
             TO_NOTVICT);
         WAIT_STATE(vict, number(1, 3) * PULSE_VIOLENCE);
         return 1;

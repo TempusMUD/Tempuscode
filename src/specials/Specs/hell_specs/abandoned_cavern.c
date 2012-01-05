@@ -31,16 +31,16 @@ SPECIAL(abandoned_cavern)
 
     if (count > 30) {
         count = 0;
-        act("The cavern begins to shake, and rocks start falling from the ceiling!", false, ch, 0, 0, TO_ROOM);
-        act("The cavern begins to shake, and rocks start falling from the ceiling!", false, ch, 0, 0, TO_CHAR | TO_SLEEP);
+        act("The cavern begins to shake, and rocks start falling from the ceiling!", false, ch, NULL, NULL, TO_ROOM);
+        act("The cavern begins to shake, and rocks start falling from the ceiling!", false, ch, NULL, NULL, TO_CHAR | TO_SLEEP);
 
         for (GList * cit = cavern->people; cit; cit = cit->next) {
             vict = cit->data;
             if (number(5, 30) > GET_DEX(vict) && GET_LEVEL(vict) < LVL_IMMORT) {
-                act("A shower of rubble crushes $n!", false, vict, 0, 0,
+                act("A shower of rubble crushes $n!", false, vict, NULL, NULL,
                     TO_ROOM);
                 act("A shower of rubble buries you alive!\r\n"
-                    "You die a horrible death!!", false, vict, 0, 0,
+                    "You die a horrible death!!", false, vict, NULL, NULL,
                     TO_CHAR | TO_SLEEP);
 
                 mudlog(GET_INVIS_LVL(vict), BRF, true,

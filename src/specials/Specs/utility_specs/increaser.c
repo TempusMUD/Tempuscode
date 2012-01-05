@@ -107,13 +107,13 @@ SPECIAL(increaser)
     if (CASH_MONEY(ch) < gold) {
         send_to_char(ch,
             "But you do not have enough money on you for that.\r\n");
-        act(buf, true, ch, 0, 0, TO_ROOM);
+        act(buf, true, ch, NULL, NULL, TO_ROOM);
         return 1;
     }
     if (GET_LIFE_POINTS(ch) < life_cost) {
         send_to_char(ch,
             "But you do not have enough life points for that.\r\n");
-        act(buf, true, ch, 0, 0, TO_ROOM);
+        act(buf, true, ch, NULL, NULL, TO_ROOM);
         return true;
     }
 
@@ -139,7 +139,7 @@ SPECIAL(increaser)
         GET_NAME(ch), arg1, incr, ch->in_room->number);
 
     send_to_char(ch, "You begin your improvement.\r\n");
-    act("$n begins to improve.", false, ch, 0, 0, TO_ROOM);
+    act("$n begins to improve.", false, ch, NULL, NULL, TO_ROOM);
     if (GET_COND(ch, FULL) != -1)
         GET_COND(ch, FULL) = 1;
     if (GET_COND(ch, THIRST) != -1)

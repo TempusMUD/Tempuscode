@@ -73,7 +73,7 @@ SPECIAL(mugger)
             if (IS_NPC(vict)
                 && can_see_creature(ch, vict)
                 && cityguard == GET_NPC_SPEC(vict)) {
-                act("$n glances warily at $N", true, ch, 0, vict, TO_ROOM);
+                act("$n glances warily at $N", true, ch, NULL, vict, TO_ROOM);
                 return 1;
             }
             if (vict == self || !can_see_creature(self, vict)
@@ -93,9 +93,9 @@ SPECIAL(mugger)
             return 0;
 
         vict = found_vict;
-        act("You examine $N.", true, ch, 0, vict, TO_CHAR);
-        act("$n examines you.", true, ch, 0, vict, TO_VICT);
-        act("$n examines $N.", true, ch, 0, vict, TO_NOTVICT);
+        act("You examine $N.", true, ch, NULL, vict, TO_CHAR);
+        act("$n examines you.", true, ch, NULL, vict, TO_VICT);
+        act("$n examines $N.", true, ch, NULL, vict, TO_NOTVICT);
 
         for (idx = 0; idx < MUG_MAX; idx++) {
             obj = GET_EQ(vict, mug_eq[idx]);
@@ -129,14 +129,14 @@ SPECIAL(mugger)
 
             if (obj->in_obj) {
                 act(tmp_sprintf("You snicker and loot $p from %s",
-                        obj->in_obj->name), false, self, obj, 0, TO_CHAR);
+                        obj->in_obj->name), false, self, obj, NULL, TO_CHAR);
                 act(tmp_sprintf("$n snickers and loots $p from %s",
-                        obj->in_obj->name), false, self, obj, 0, TO_ROOM);
+                        obj->in_obj->name), false, self, obj, NULL, TO_ROOM);
                 obj_from_obj(obj);
             } else {
-                act("You snicker and pick up $p.", false, self, obj, 0,
+                act("You snicker and pick up $p.", false, self, obj, NULL,
                     TO_CHAR);
-                act("$n snickers and picks up $p.", false, self, obj, 0,
+                act("$n snickers and picks up $p.", false, self, obj, NULL,
                     TO_ROOM);
                 obj_from_room(obj);
             }

@@ -46,7 +46,7 @@ fileeditor_finalize(struct editor *editor, const char *text)
     REMOVE_BIT(PLR_FLAGS(editor->desc->creature), PLR_WRITING);
 
     if (IS_PLAYING(editor->desc))
-        act("$n finishes editing.", true, editor->desc->creature, 0, 0,
+        act("$n finishes editing.", true, editor->desc->creature, NULL, NULL,
             TO_NOTVICT);
 }
 

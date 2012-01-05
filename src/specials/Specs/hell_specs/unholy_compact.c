@@ -10,7 +10,6 @@ SPECIAL(unholy_compact)
     struct creature *dude = (struct creature *)me;
     int gold, life_cost;
     int con_cost = 5;
-    char buf[MAX_STRING_LENGTH];
     int min_gen = 0;
 
     if (spec_mode != SPECIAL_CMD)
@@ -66,12 +65,12 @@ SPECIAL(unholy_compact)
         sprintf(buf, "Your body cannot survive without it's soul. Yet.");
         perform_tell(dude, ch, buf);
     } else {
-        act("$n burns the mark of evil into $N's forehead.", true, dude, 0, ch,
+        act("$n burns the mark of evil into $N's forehead.", true, dude, NULL, ch,
             TO_NOTVICT);
         act("$n burns the mark of evil in your forehead.  All hope is lost...",
-            true, dude, 0, ch, TO_VICT);
+            true, dude, NULL, ch, TO_VICT);
         act("$N screams in agony as $S soul is ripped from $S body!", true,
-            dude, 0, ch, TO_NOTVICT);
+            dude, NULL, ch, TO_NOTVICT);
         GET_POSITION(ch) = POS_SLEEPING;
         GET_LIFE_POINTS(ch) -= life_cost;
         GET_GOLD(ch) -= gold;

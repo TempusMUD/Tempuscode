@@ -21,8 +21,8 @@ SPECIAL(shimmering_portal)
 
     if (!(strncasecmp(argument, "portal", 6))) {
         send_to_char(ch, "You step into the portal...\r\n\r\n");
-        act("$n steps into the shimmering portal and vanishes!", true, ch, 0,
-            0, TO_ROOM);
+        act("$n steps into the shimmering portal and vanishes!", true, ch, NULL,
+            NULL, TO_ROOM);
         if (ch->in_room == real_room(3012)) {
             char_from_room(ch, false);
             char_to_room(ch, real_room(30012), false);
@@ -33,10 +33,10 @@ SPECIAL(shimmering_portal)
             send_to_char(ch,
                 "You are ejected from the portal with a violent jerk!\r\n");
             act("$n is ejected from the portal with a violent jerk!", false,
-                ch, 0, 0, TO_ROOM);
+                ch, NULL, NULL, TO_ROOM);
             return true;
         }
-        act("$n steps out of the shimmering portal.", true, ch, 0, 0, TO_ROOM);
+        act("$n steps out of the shimmering portal.", true, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch,
             "For a few brief moments you feel completely disoriented.  You float\r\n"
             "in a timeless void, without obvious form or direction.  You see a\r\n"

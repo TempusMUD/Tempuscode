@@ -36,7 +36,7 @@ SPECIAL(cyborg_overhaul)
         if (CMD_IS("value")) {
             sprintf(buf2, "Cost of operation: %d credits.", cost);
             perform_tell(borg, ch, buf2);
-            act("$N interfaces momentarily with $n.", true, ch, 0, borg,
+            act("$N interfaces momentarily with $n.", true, ch, NULL, borg,
                 TO_ROOM);
             return 1;
         }
@@ -51,9 +51,9 @@ SPECIAL(cyborg_overhaul)
         perform_tell(borg, ch, buf2);
 
         act("$n lies down on the table and enters a static state.\r\n"
-            "$N begins to overhaul $n.", false, ch, 0, borg, TO_ROOM);
+            "$N begins to overhaul $n.", false, ch, NULL, borg, TO_ROOM);
         act("You lie down on the table and enter a static state.\r\n"
-            "$N begins to overhaul you.", false, ch, 0, borg, TO_CHAR);
+            "$N begins to overhaul you.", false, ch, NULL, borg, TO_CHAR);
 
         GET_POSITION(ch) = POS_SLEEPING;
         SET_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
@@ -79,7 +79,7 @@ SPECIAL(cyborg_overhaul)
         if (CMD_IS("value")) {
             sprintf(buf2, "Cost of operation: %d credits.", cost);
             perform_tell(borg, ch, buf2);
-            act("$N interfaces momentarily with $n.", true, ch, 0, borg,
+            act("$N interfaces momentarily with $n.", true, ch, NULL, borg,
                 TO_ROOM);
             return 1;
         }
@@ -93,9 +93,9 @@ SPECIAL(cyborg_overhaul)
         sprintf(buf2, "Your account has been debited %d credits.", cost);
         perform_tell(borg, ch, buf2);
 
-        act("$N begins to perform repairs on you.", false, ch, 0, borg,
+        act("$N begins to perform repairs on you.", false, ch, NULL, borg,
             TO_CHAR);
-        act("$N begins to perform repairs on $n.", false, ch, 0, borg,
+        act("$N begins to perform repairs on $n.", false, ch, NULL, borg,
             TO_ROOM);
 
         GET_HIT(ch) = GET_MAX_HIT(ch);

@@ -157,7 +157,7 @@ init_game(void)
     void my_srand(unsigned long initial_seed);
     void verify_tempus_integrity(struct creature *ch);
 
-    my_srand(time(0));
+    my_srand(time(NULL));
     boot_db();
 
     slog("Testing internal integrity");
@@ -885,7 +885,7 @@ new_descriptor(int s, int port)
     newd->output = newd->small_outbuf;
     newd->bufspace = SMALL_BUFSIZE - 1;
     newd->next = descriptor_list;
-    newd->login_time = time(0);
+    newd->login_time = time(NULL);
     newd->text_editor = NULL;
     newd->idle = 0;
     newd->ban_dc_counter = 0;
@@ -1106,7 +1106,7 @@ process_input(struct descriptor_data *t)
             if (t->creature && t->creature->in_room) {
                 act("SAY NO TO SPAM.\r\n"
                     "Begone oh you waster of electrons,"
-                    " ye vile profaner of CPU time!", true, t->creature, 0, 0,
+                    " ye vile profaner of CPU time!", true, t->creature, NULL, NULL,
                     TO_ROOM);
                 slog("SPAM-death on the queue!");
                 return (-1);
@@ -1238,9 +1238,9 @@ close_socket(struct descriptor_data *d)
 
     if (d->creature && d->creature->in_room) {
         // Lost link in-game
-        d->creature->player.time.logon = time(0);
+        d->creature->player.time.logon = time(NULL);
         crashsave(d->creature);
-        act("$n has lost $s link.", true, d->creature, 0, 0, TO_ROOM);
+        act("$n has lost $s link.", true, d->creature, NULL, NULL, TO_ROOM);
         mlog(ROLE_ADMINBASIC,
             MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)),
             NRM, false, "Closing link to: %s [%s] ", GET_NAME(d->creature),
@@ -1599,7 +1599,7 @@ send_to_comm_channel(struct creature *ch, char *buf, int chan, int mode,
             continue;
 
         if (obj->in_room) {
-            act("$p makes some noises.", false, 0, obj, 0, TO_ROOM);
+            act("$p makes some noises.", false, NULL, obj, NULL, TO_ROOM);
             continue;
         }
 
@@ -1805,8 +1805,8 @@ make_act_str(const char *orig,
              struct creature *to)
 {
     const char *s = orig;
-    const char *i = 0;
-    char *first_printed_char = 0;
+    const char *i = NULL;
+    char *first_printed_char = NULL;
 
     while (true) {
         if (*s == '$') {
@@ -2203,7 +2203,7 @@ bamf_quad_damage(void)
 
     if (quad) {
         if (quad->in_room->people)
-            act("$p starts spinning faster and faster, and disappears in a flash!", false, 0, quad, 0, TO_ROOM);
+            act("$p starts spinning faster and faster, and disappears in a flash!", false, NULL, quad, NULL, TO_ROOM);
         orig_room = quad->in_room;
         obj_from_room(quad);
     } else if (!(quad = read_object(QUAD_VNUM))) {
@@ -2246,7 +2246,7 @@ bamf_quad_damage(void)
 
     if (room->people)
         act("$p appears slowly spinning at the center of the room.",
-            false, 0, quad, 0, TO_ROOM);
+            false, NULL, quad, NULL, TO_ROOM);
 
 }
 

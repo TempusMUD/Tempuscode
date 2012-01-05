@@ -33,16 +33,16 @@ SPECIAL(slaver)
 
                 if (slaver->in_room == r_pit_lip) {
                     act("$n hurls you headfirst into the slave pit!",
-                        false, slaver, 0, vict, TO_VICT);
+                        false, slaver, NULL, vict, TO_VICT);
                     act("$n hurls $N headfirst into the slave pit!",
-                        false, slaver, 0, vict, TO_NOTVICT);
+                        false, slaver, NULL, vict, TO_NOTVICT);
                     remove_combat(slaver, vict);
                     remove_combat(vict, slaver);
                     char_from_room(vict, false);
                     char_to_room(vict, r_slave_pit, false);
                     look_at_room(vict, vict->in_room, 1);
                     act("$n is hurled into the pit from above!",
-                        false, vict, 0, 0, TO_ROOM);
+                        false, vict, NULL, NULL, TO_ROOM);
                     return 1;
                 } else
                     return (drag_char_to_jail(slaver, vict, r_pit_lip));
@@ -59,16 +59,16 @@ SPECIAL(slaver)
 
         if (slaver->in_room == r_pit_lip) {
             act("$n hurls you headfirst into the slave pit!",
-                false, slaver, 0, vict, TO_VICT);
+                false, slaver, NULL, vict, TO_VICT);
             act("$n hurls $N headfirst into the slave pit!",
-                false, slaver, 0, vict, TO_NOTVICT);
+                false, slaver, NULL, vict, TO_NOTVICT);
             remove_combat(slaver, vict);
             remove_combat(vict, slaver);
             char_from_room(vict, false);
             char_to_room(vict, r_slave_pit, false);
             look_at_room(vict, vict->in_room, 1);
             act("$n is hurled into the pit from above!",
-                false, vict, 0, 0, TO_ROOM);
+                false, vict, NULL, NULL, TO_ROOM);
             return 1;
         } else
             return (drag_char_to_jail(slaver, vict, r_pit_lip));

@@ -717,7 +717,7 @@ vendor_list(struct creature *ch, char *arg, struct creature *self,
                         cost_modifier(ch, self), shop->currency)), NULL);
     }
 
-    act("$n peruses the shop's wares.", false, ch, 0, 0, TO_ROOM);
+    act("$n peruses the shop's wares.", false, ch, NULL, NULL, TO_ROOM);
     page_string(ch->desc, msg);
 }
 

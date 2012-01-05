@@ -206,11 +206,11 @@ acc_print_targets(GList * targets)
 }
 
 bool
-load_hunter_data()
+load_hunter_data(void)
 {
-    g_list_foreach(devils, (GFunc) free, 0);
-    g_list_foreach(targets, (GFunc) free, 0);
-    g_list_foreach(hunters, (GFunc) free, 0);
+    g_list_foreach(devils, (GFunc) free, NULL);
+    g_list_foreach(targets, (GFunc) free, NULL);
+    g_list_foreach(hunters, (GFunc) free, NULL);
 
     xmlDocPtr doc = xmlParseFile("etc/hell_hunter_data.xml");
     if (doc == NULL) {
@@ -403,7 +403,7 @@ SPECIAL(hell_hunter_brain)
                 }
 
                 char_to_room(mob, vict ? vict->in_room : obj->in_room, false);
-                act("$n steps suddenly out of an infernal conduit from the outer planes!", false, mob, 0, 0, TO_ROOM);
+                act("$n steps suddenly out of an infernal conduit from the outer planes!", false, mob, NULL, NULL, TO_ROOM);
             }
         }
 
@@ -417,7 +417,7 @@ SPECIAL(hell_hunter_brain)
                 regulator = 1;
                 start_hunting(mob, vict);
                 char_to_room(mob, vict->in_room, false);
-                act("$n materializes suddenly from a stream of hellish energy!", false, mob, 0, 0, TO_ROOM);
+                act("$n materializes suddenly from a stream of hellish energy!", false, mob, NULL, NULL, TO_ROOM);
             }
         }
 
@@ -435,8 +435,8 @@ SPECIAL(hell_hunter_brain)
             obj->name, vict ? "$N" : "Nobody",
             obj->in_room ? obj->in_room->number :
             (vict && vict->in_room) ? vict->in_room->number : -1);
-        act(buf, false, ch, 0, vict, TO_ROOM);
-        act(buf, false, ch, 0, vict, TO_CHAR);
+        act(buf, false, ch, NULL, vict, TO_ROOM);
+        act(buf, false, ch, NULL, vict, TO_CHAR);
         return 1;
     }
 
@@ -496,7 +496,7 @@ SPECIAL(hell_hunter)
 
     if (!is_fighting(ch) && !NPC_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_CHARM)) {
         act("$n vanishes into the mouth of an interplanar conduit.",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
         creature_purge(ch, true);
         return 1;
     }
@@ -505,7 +505,7 @@ SPECIAL(hell_hunter)
 
         if (GET_MANA(ch) < 100) {
             act("$n vanishes into the mouth of an interplanar conduit.",
-                false, ch, 0, 0, TO_ROOM);
+                false, ch, NULL, NULL, TO_ROOM);
             creature_purge(ch, true);
             return 1;
         }
@@ -529,10 +529,10 @@ SPECIAL(hell_hunter)
 
                 char_to_room(devil, ch->in_room, false);
                 act("$n gestures... A glowing conduit flashes into existence!",
-                    false, ch, 0, vict, TO_ROOM);
-                act("...$n leaps out and attacks $N!", false, devil, 0, vict,
+                    false, ch, NULL, vict, TO_ROOM);
+                act("...$n leaps out and attacks $N!", false, devil, NULL, vict,
                     TO_NOTVICT);
-                act("...$n leaps out and attacks you!", false, devil, 0, vict,
+                act("...$n leaps out and attacks you!", false, devil, NULL, vict,
                     TO_VICT);
 
                 remove_all_combat(ch);
@@ -546,7 +546,7 @@ SPECIAL(hell_hunter)
                 GET_HIT(vict) < (GET_MAX_HIT(vict) - 500)) {
 
                 act("$n opens a conduit of streaming energy to $N!\r\n"
-                    "...$N's wounds appear to regenerate!", false, ch, 0, vict,
+                    "...$N's wounds appear to regenerate!", false, ch, NULL, vict,
                     TO_ROOM);
 
                 GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + 500);
@@ -613,17 +613,17 @@ SPECIAL(arioch)
                     return 1;
                 }
             }
-            act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
+            act(ARIOCH_LEAVE_MSG, false, ch, NULL, NULL, TO_ROOM);
             char_from_room(ch, false);
             char_to_room(ch, real_room(ARIOCH_LAIR), false);
-            act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
+            act(ARIOCH_ARRIVE_MSG, false, ch, NULL, NULL, TO_ROOM);
             return 1;
         }
         if (GET_HIT(ch) < 800) {
-            act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
+            act(ARIOCH_LEAVE_MSG, false, ch, NULL, NULL, TO_ROOM);
             char_from_room(ch, false);
             char_to_room(ch, real_room(ARIOCH_LAIR), false);
-            act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
+            act(ARIOCH_ARRIVE_MSG, false, ch, NULL, NULL, TO_ROOM);
             return 1;
         }
         return 0;
@@ -644,10 +644,10 @@ SPECIAL(arioch)
                 start_hunting(ch, vict);
                 rm = vict->in_room;
             }
-            act(ARIOCH_LEAVE_MSG, false, ch, 0, 0, TO_ROOM);
+            act(ARIOCH_LEAVE_MSG, false, ch, NULL, NULL, TO_ROOM);
             char_from_room(ch, false);
             char_to_room(ch, rm, false);
-            act(ARIOCH_ARRIVE_MSG, false, ch, 0, 0, TO_ROOM);
+            act(ARIOCH_ARRIVE_MSG, false, ch, NULL, NULL, TO_ROOM);
             mudlog(0, CMP, true,
                 "HELL: Arioch ported to %s@%d",
                 vict ? GET_NAME(vict) : "Nobody", rm->number);

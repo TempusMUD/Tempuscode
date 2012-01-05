@@ -139,11 +139,11 @@ SPECIAL(remorter)
         struct room_data *room = player_loadroom(ch);
         if (room == NULL)
             room = real_room(3061); // modrian dump
-        act("$n disappears in a mushroom cloud.", false, ch, 0, 0, TO_ROOM);
+        act("$n disappears in a mushroom cloud.", false, ch, NULL, NULL, TO_ROOM);
         char_from_room(ch, false);
         char_to_room(ch, room, false);
-        act("$n arrives from a puff of smoke.", false, ch, 0, 0, TO_ROOM);
-        act("$n has transferred you!", false, (struct creature *)me, 0, ch,
+        act("$n arrives from a puff of smoke.", false, ch, NULL, NULL, TO_ROOM);
+        act("$n has transferred you!", false, (struct creature *)me, NULL, ch,
             TO_VICT);
         look_at_room(ch, room, 0);
         return 1;
@@ -167,12 +167,12 @@ SPECIAL(remorter)
             return 1;
         } else {
             send_to_char(ch, "Very well, coward.\r\n");
-            act("$n disappears in a mushroom cloud.", false, ch, 0, 0,
+            act("$n disappears in a mushroom cloud.", false, ch, NULL, NULL,
                 TO_ROOM);
             char_from_room(ch, false);
             char_to_room(ch, room, false);
-            act("$n arrives from a puff of smoke.", false, ch, 0, 0, TO_ROOM);
-            act("$n has transferred you!", false, (struct creature *)me, 0, ch,
+            act("$n arrives from a puff of smoke.", false, ch, NULL, NULL, TO_ROOM);
+            act("$n has transferred you!", false, (struct creature *)me, NULL, ch,
                 TO_VICT);
             look_at_room(ch, room, 0);
             return 1;

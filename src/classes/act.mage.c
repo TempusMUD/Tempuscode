@@ -152,7 +152,7 @@ ACMD(do_empower)
             GET_WIMP_LEV(ch), GET_MAX_HIT(ch) >> 1);
         GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) >> 1;
     }
-    act("$n concentrates deeply.", true, ch, 0, 0, TO_ROOM);
+    act("$n concentrates deeply.", true, ch, NULL, NULL, TO_ROOM);
     if (GET_LEVEL(ch) < LVL_GRGOD)
         WAIT_STATE(ch, PULSE_VIOLENCE * (1 + ((val1 + val2) > 100)));
 }
@@ -227,7 +227,7 @@ ACMD(do_teach)
         if (CHECK_TONGUE(target, num) >= CHECK_TONGUE(ch, num) / 2) {
             act(tmp_sprintf
                 ("$E already knows as much as you can teach $M of '%s'.",
-                    skill_name), false, ch, 0, target, TO_CHAR);
+                    skill_name), false, ch, NULL, target, TO_CHAR);
             return;
         }
     } else if ((num = find_skill_num(skill_str)) != -1) {
@@ -235,13 +235,13 @@ ACMD(do_teach)
         skill_name = spell_to_str(num);
         if (!is_able_to_learn(target, num)) {
             act(tmp_sprintf("$E isn't ready to learn '%s'.", skill_name),
-                false, ch, 0, target, TO_CHAR);
+                false, ch, NULL, target, TO_CHAR);
             return;
         }
         if (CHECK_SKILL(target, num) >= CHECK_SKILL(ch, num) / 2) {
             act(tmp_sprintf
                 ("$E already knows as much as you can teach $M of '%s'.",
-                    skill_name), false, ch, 0, target, TO_CHAR);
+                    skill_name), false, ch, NULL, target, TO_CHAR);
             return;
         }
     } else {
@@ -257,11 +257,11 @@ ACMD(do_teach)
         // Teaching failure
         act(tmp_sprintf
             ("You try to teach '%s' to $N, but $E doesn't seem to get it.",
-                skill_name), false, ch, 0, target, TO_CHAR);
+                skill_name), false, ch, NULL, target, TO_CHAR);
         act(tmp_sprintf
             ("$n tries to teach you '%s', but you don't really understand the lesson.",
-                skill_name), false, ch, 0, target, TO_VICT);
-        act("$n gives a lesson to $N.", false, ch, 0, target, TO_NOTVICT);
+                skill_name), false, ch, NULL, target, TO_VICT);
+        act("$n gives a lesson to $N.", false, ch, NULL, target, TO_NOTVICT);
         return;
     }
     // Teaching success
@@ -276,10 +276,10 @@ ACMD(do_teach)
     }
 
     act(tmp_sprintf("You give a quick lesson to $N on '%s'.", skill_name),
-        false, ch, 0, target, TO_CHAR);
+        false, ch, NULL, target, TO_CHAR);
     act(tmp_sprintf("$n gives you a quick lesson on '%s'.", skill_name),
-        false, ch, 0, target, TO_VICT);
-    act("$n gives a lesson to $N.", false, ch, 0, target, TO_NOTVICT);
+        false, ch, NULL, target, TO_VICT);
+    act("$n gives a lesson to $N.", false, ch, NULL, target, TO_NOTVICT);
 }
 
 bool
@@ -449,39 +449,39 @@ mage_activity(struct creature *ch)
 {
     if (room_is_dark(ch->in_room) &&
         can_cast_spell(ch, SPELL_INFRAVISION) && !has_dark_sight(ch)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_INFRAVISION);
+        cast_spell(ch, ch, NULL, NULL, SPELL_INFRAVISION);
     } else if (room_is_dark(ch->in_room) &&
         can_cast_spell(ch, SPELL_GLOWLIGHT) && !has_dark_sight(ch)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_GLOWLIGHT);
+        cast_spell(ch, ch, NULL, NULL, SPELL_GLOWLIGHT);
     } else if (can_cast_spell(ch, SPELL_PRISMATIC_SPHERE)
         && !AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_PRISMATIC_SPHERE);
+        cast_spell(ch, ch, NULL, NULL, SPELL_PRISMATIC_SPHERE);
     } else if (can_cast_spell(ch, SPELL_ANTI_MAGIC_SHELL)
         && !affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_ANTI_MAGIC_SHELL);
+        cast_spell(ch, ch, NULL, NULL, SPELL_ANTI_MAGIC_SHELL);
     } else if (can_cast_spell(ch, SPELL_HASTE)
         && !AFF2_FLAGGED(ch, AFF2_HASTE)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_HASTE);
+        cast_spell(ch, ch, NULL, NULL, SPELL_HASTE);
     } else if (can_cast_spell(ch, SPELL_DISPLACEMENT)
         && !AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_DISPLACEMENT);
+        cast_spell(ch, ch, NULL, NULL, SPELL_DISPLACEMENT);
     } else if (can_cast_spell(ch, SPELL_TRUE_SEEING)
         && !AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_TRUE_SEEING);
+        cast_spell(ch, ch, NULL, NULL, SPELL_TRUE_SEEING);
     } else if (can_cast_spell(ch, SPELL_REGENERATE)
         && !AFF_FLAGGED(ch, AFF_REGEN)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_REGENERATE);
+        cast_spell(ch, ch, NULL, NULL, SPELL_REGENERATE);
     } else if (can_cast_spell(ch, SPELL_FIRE_SHIELD)
         && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_FIRE_SHIELD);
+        cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
     } else if (can_cast_spell(ch, SPELL_STRENGTH)
         && !affected_by_spell(ch, SPELL_STRENGTH)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_STRENGTH);
+        cast_spell(ch, ch, NULL, NULL, SPELL_STRENGTH);
     } else if (can_cast_spell(ch, SPELL_BLUR) && !AFF_FLAGGED(ch, AFF_BLUR)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_BLUR);
+        cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
     } else if (can_cast_spell(ch, SPELL_ARMOR)
         && !affected_by_spell(ch, SPELL_ARMOR)) {
-        cast_spell(ch, ch, 0, NULL, SPELL_ARMOR);
+        cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
     }
 }
 

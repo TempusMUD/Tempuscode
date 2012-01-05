@@ -25,22 +25,22 @@ SPECIAL(vein)
 
     if (!pick) {
         act("You don't have a pick! how do you think to mine with out one?",
-            true, ch, 0, 0, TO_CHAR);
+            true, ch, NULL, NULL, TO_CHAR);
         return true;
     }
 
     if (number(0, GET_OBJ_VAL(self, 1))) {
-        act("$n hits the vein with $p.", true, ch, pick, 0, TO_ROOM);
-        act("You hit the vein knocking some rock lose.", true, ch, 0, 0,
+        act("$n hits the vein with $p.", true, ch, pick, NULL, TO_ROOM);
+        act("You hit the vein knocking some rock lose.", true, ch, NULL, NULL,
             TO_CHAR);
         return (1);
     }
     new_obj = read_object(GET_OBJ_VAL(self, 0));
     if (!new_obj) {
         act("Your pick goes awry and you nearly hit yourself!", true,
-            ch, pick, 0, TO_CHAR);
+            ch, pick, NULL, TO_CHAR);
         act("$n's pick goes awry and $e nearly hit $mself!", true,
-            ch, pick, 0, TO_ROOM);
+            ch, pick, NULL, TO_ROOM);
         errlog("vein #%d has invalid ovnum #%d",
             GET_OBJ_VNUM(self), GET_OBJ_VAL(self, 0));
         return true;

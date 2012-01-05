@@ -77,7 +77,7 @@ SPECIAL(boulder_thrower)
         if (THROW_OK(obj) &&
             GET_OBJ_WEIGHT(obj) < (CAN_CARRY_W(ch) -
                 IS_CARRYING_W(ch) - IS_WEARING_W(ch))) {
-            act("$n picks up $p.", true, ch, obj, 0, TO_ROOM);
+            act("$n picks up $p.", true, ch, obj, NULL, TO_ROOM);
             obj_from_room(obj);
             obj_to_char(obj, ch);
             return 1;

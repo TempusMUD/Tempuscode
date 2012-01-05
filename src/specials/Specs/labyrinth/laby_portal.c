@@ -44,12 +44,12 @@ SPECIAL(labyrinth_portal)
     }
 
     send_to_char(ch, "You enter the realm of the labyrinth.\r\n");
-    act("$n steps into $p", true, ch, portal, 0, TO_ROOM);
+    act("$n steps into $p", true, ch, portal, NULL, TO_ROOM);
     if (!IS_NPC(ch) && ch->in_room->zone != room->zone)
         room->zone->enter_count++;
 
     char_from_room(ch, true);
     char_to_room(ch, room, true);
-    act("$n steps out of the portal.", true, ch, 0, 0, TO_ROOM);
+    act("$n steps out of the portal.", true, ch, NULL, NULL, TO_ROOM);
     return 1;
 }

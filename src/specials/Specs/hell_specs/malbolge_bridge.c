@@ -18,17 +18,17 @@ SPECIAL(malbolge_bridge)
         number(5, 25) < GET_DEX(ch))
         return 0;
 
-    act("A sudden earthquake shakes the bridge!!", false, ch, 0, 0, TO_ROOM);
+    act("A sudden earthquake shakes the bridge!!", false, ch, NULL, NULL, TO_ROOM);
     act("A sudden earthquake shakes the bridge!!",
-        false, ch, 0, 0, TO_CHAR | TO_SLEEP);
+        false, ch, NULL, NULL, TO_CHAR | TO_SLEEP);
 
     if (!(under = bridge->dir_option[DOWN]->to_room))
         return 1;
 
     act("$n loses $s balance and falls off the bridge!",
-        false, ch, 0, 0, TO_ROOM);
+        false, ch, NULL, NULL, TO_ROOM);
     act("You lose your balance and fall off the bridge!",
-        false, ch, 0, 0, TO_CHAR | TO_SLEEP);
+        false, ch, NULL, NULL, TO_CHAR | TO_SLEEP);
     char_from_room(ch, false);
     char_to_room(ch, under, false);
     look_at_room(ch, ch->in_room, 0);

@@ -15,18 +15,18 @@ SPECIAL(insane_merchant)
 
     switch (number(0, 50)) {
     case 0:
-        act("$n laughs maniacally, chilling you to the bone.", false, ch, 0, 0,
+        act("$n laughs maniacally, chilling you to the bone.", false, ch, NULL, NULL,
             TO_ROOM);
         break;
     case 1:
-        act("$n begins to giggle uncontrollably.", false, ch, 0, 0, TO_ROOM);
+        act("$n begins to giggle uncontrollably.", false, ch, NULL, NULL, TO_ROOM);
         break;
     case 2:
-        act("$n begins to sob loudly.", false, ch, 0, 0, TO_ROOM);
+        act("$n begins to sob loudly.", false, ch, NULL, NULL, TO_ROOM);
         break;
     case 3:
-        act("$n laments the destruction of the fine city Istan.", false, ch, 0,
-            0, TO_ROOM);
+        act("$n laments the destruction of the fine city Istan.", false, ch, NULL,
+            NULL, TO_ROOM);
         break;
     default:
         return 0;

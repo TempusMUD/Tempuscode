@@ -51,7 +51,7 @@ SPECIAL(keymaster)
                 key->carried_by, TO_VICT);
             act("$n grins at $N and grabs $p.", false, keymaster, key,
                 key->carried_by, TO_NOTVICT);
-            act("$n eats $p.", false, keymaster, key, 0, TO_ROOM);
+            act("$n eats $p.", false, keymaster, key, NULL, TO_ROOM);
             extract_obj(key);
             return 1;
         } else {
@@ -64,7 +64,7 @@ SPECIAL(keymaster)
             keymaster, 0, 0, TO_ROOM);
         act("$n grins and grabs $p.", false, keymaster, key, key->carried_by,
             TO_ROOM);
-        act("$n eats $p.", false, keymaster, key, 0, TO_ROOM);
+        act("$n eats $p.", false, keymaster, key, NULL, TO_ROOM);
         extract_obj(key);
         return 1;
     } else {

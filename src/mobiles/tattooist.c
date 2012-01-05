@@ -289,7 +289,7 @@ tattooist_list(struct creature *ch, char *arg, struct creature *self,
         }
     }
 
-    act("$n peruses the tattooists offerings.", false, ch, 0, 0, TO_ROOM);
+    act("$n peruses the tattooists offerings.", false, ch, NULL, NULL, TO_ROOM);
     page_string(ch->desc, msg);
 }
 

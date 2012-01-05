@@ -253,26 +253,26 @@ ACMD(do_lecture)
     }
 
     if (!AWAKE(vict)) {
-        act("$E is not in a state which is receptive to the finer points of lecturing.", false, ch, 0, vict, TO_CHAR);
+        act("$E is not in a state which is receptive to the finer points of lecturing.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
     if (CHECK_SKILL(ch, SKILL_LECTURE) < 30) {
-        act("$n explains the finer points of gravity, by tossing $mself to the ground!", false, ch, 0, 0, TO_ROOM);
-        act("Your flying leap seems to have convinced $N.", false, ch, 0, vict,
+        act("$n explains the finer points of gravity, by tossing $mself to the ground!", false, ch, NULL, NULL, TO_ROOM);
+        act("Your flying leap seems to have convinced $N.", false, ch, NULL, vict,
             TO_CHAR);
         GET_POSITION(ch) = POS_RESTING;
         return;
     }
 
     if (vict->fighting) {
-        act("$E is busy fighting right now!", false, ch, 0, vict, TO_CHAR);
+        act("$E is busy fighting right now!", false, ch, NULL, vict, TO_CHAR);
         return;
     }
 
     if (!ok_to_attack(ch, vict, true))
         return;
     if (!ok_damage_vendor(ch, vict)) {
-        act("$E is interested in your wallet, not your words.", false, ch, 0,
+        act("$E is interested in your wallet, not your words.", false, ch, NULL,
             vict, TO_CHAR);
         return;
     }
@@ -287,11 +287,11 @@ ACMD(do_lecture)
     index = number(0, NUM_TOPICS - 1);
 
     act(tmp_sprintf("You begin lecturing $N %s", lecture_topics[index]),
-        false, ch, 0, vict, TO_CHAR);
+        false, ch, NULL, vict, TO_CHAR);
     act(tmp_sprintf("$n begins lecturing $N %s", lecture_topics[index]),
-        false, ch, 0, vict, TO_NOTVICT);
+        false, ch, NULL, vict, TO_NOTVICT);
     act(tmp_sprintf("$n begins lecturing you %s", lecture_topics[index]),
-        false, ch, 0, vict, TO_VICT);
+        false, ch, NULL, vict, TO_VICT);
 
     percent = (GET_LEVEL(vict) >> 1) + GET_REMORT_GEN(vict) + GET_INT(vict);
     percent += number(0, 60);
@@ -310,12 +310,12 @@ ACMD(do_lecture)
     // he likes it!
     if (IS_PHYSIC(vict)) {
         act("$n appears to be fascinated, and nods in agreement.", true, vict,
-            0, 0, TO_ROOM);
+            NULL, NULL, TO_ROOM);
         send_to_char(vict, "Fascinating!\r\n");
     }
     // victim falls asleep
     else if (percent < prob) {
-        act("$n immediately dozes off to sleep.", true, vict, 0, 0, TO_ROOM);
+        act("$n immediately dozes off to sleep.", true, vict, NULL, NULL, TO_ROOM);
         send_to_char(vict, "You start to feel very sleepy...\r\n");
         GET_POSITION(vict) = POS_SLEEPING;
         wait = 2 RL_SEC + ((prob - percent) >> 1);
@@ -324,7 +324,7 @@ ACMD(do_lecture)
     }
     // resist
     else {
-        act("$n starts to doze off, but resists.", true, vict, 0, 0, TO_ROOM);
+        act("$n starts to doze off, but resists.", true, vict, NULL, NULL, TO_ROOM);
         send_to_char(vict, "You start to doze off, but resist.\r\n");
     }
 
@@ -475,7 +475,7 @@ ASPELL(spell_spacetime_imprint)
     }
 
     push_imprint(ch, max);
-    act("You feel a strange sensation, which quickly passes.", false, ch, 0, 0,
+    act("You feel a strange sensation, which quickly passes.", false, ch, NULL, NULL,
         TO_ROOM);
     send_to_char(ch, "A spacetime imprint has been made of this place.\r\n");
 }
@@ -513,8 +513,8 @@ ASPELL(spell_quantum_rift)
         if (GET_OBJ_VNUM(o) == QUANTUM_RIFT_VNUM
             && GET_OBJ_VAL(o, 2) == GET_IDNUM(ch)
             && !o->in_room->people) {
-            act("$p collapses in on itself.", true, NULL, o, 0, TO_CHAR);
-            act("$p collapses in on itself.", true, NULL, o, 0, TO_ROOM);
+            act("$p collapses in on itself.", true, NULL, o, NULL, TO_CHAR);
+            act("$p collapses in on itself.", true, NULL, o, NULL, TO_ROOM);
             extract_obj(o);
         }
     }
@@ -530,9 +530,9 @@ ASPELL(spell_quantum_rift)
         GET_OBJ_VAL(rift, 0) = rnum;
 
         act("$n shreds the fabric of space and time creating $p!",
-            true, ch, rift, 0, TO_ROOM);
+            true, ch, rift, NULL, TO_ROOM);
         act("You shred the fabric of space and time creating $p!",
-            true, ch, rift, 0, TO_CHAR);
+            true, ch, rift, NULL, TO_CHAR);
     } else {
         send_to_char(ch,
             "The rift has failed to form.  Something is terribly wrong.\r\n");
@@ -571,12 +571,12 @@ ASPELL(spell_spacetime_recall)
         return;
     }
 
-    act("$n fades from view and disappears.", true, ch, 0, 0, TO_ROOM);
+    act("$n fades from view and disappears.", true, ch, NULL, NULL, TO_ROOM);
     char_from_room(ch, true);
     send_to_char(ch, "You shift through space and time:\r\n");
     char_to_room(ch, room, true);
     look_at_room(ch, room, 0);
-    act("$n fades into view from some other place and time.", true, ch, 0, 0,
+    act("$n fades into view from some other place and time.", true, ch, NULL, NULL,
         TO_ROOM);
 
 }
@@ -784,7 +784,7 @@ ASPELL(spell_time_warp)
     act(tmp_sprintf("$n fades silently into the %s.",
             zone->time_frame == TIME_ELECTRO ? "future" :
             zone->time_frame == TIME_MODRIAN ? "past" : "unknown"),
-        true, ch, 0, 0, TO_ROOM);
+        true, ch, NULL, NULL, TO_ROOM);
 
     send_to_char(ch, "You fade silently into the %s:\r\n",
         zone->time_frame == TIME_ELECTRO ? "future" :
@@ -797,7 +797,7 @@ ASPELL(spell_time_warp)
     act(tmp_sprintf("$n fades silently in from the %s.",
             oldzone->time_frame == TIME_ELECTRO ? "future" :
             oldzone->time_frame == TIME_MODRIAN ? "past" : "unknown"),
-        true, ch, 0, 0, TO_ROOM);
+        true, ch, NULL, NULL, TO_ROOM);
 }
 
 //
@@ -841,8 +841,8 @@ recurs_econvert_points(struct obj_data *obj, bool top)
 ACMD(do_econvert)
 {
 
-    struct obj_data *obj = 0;
-    struct obj_data *battery = 0;
+    struct obj_data *obj = NULL;
+    struct obj_data *battery = NULL;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
         arg3[MAX_INPUT_LENGTH];
 
@@ -894,7 +894,7 @@ ACMD(do_econvert)
         }
 
         if (!IS_BATTERY(battery)) {
-            act("Sorry, $p is not a battery.", false, ch, battery, 0, TO_CHAR);
+            act("Sorry, $p is not a battery.", false, ch, battery, NULL, TO_CHAR);
             return;
         }
     }
@@ -913,15 +913,15 @@ ACMD(do_econvert)
     // num_points += GET_REMORT_GEN( ch ) << 1;
 
     act("E=mc^2.... Voila!  You convert $p into raw energy.", false, ch, obj,
-        0, TO_CHAR);
-    act("With a flash, $n converts $p into raw energy.", false, ch, obj, 0,
+        NULL, TO_CHAR);
+    act("With a flash, $n converts $p into raw energy.", false, ch, obj, NULL,
         TO_ROOM);
 
     extract_obj(obj);
 
     if (battery) {
         if (CUR_ENERGY(battery) >= MAX_ENERGY(battery)) {
-            act("The newly converted energy dissipates into the void, because\r\n" "$p is already maxed out.", false, ch, battery, 0, TO_CHAR);
+            act("The newly converted energy dissipates into the void, because\r\n" "$p is already maxed out.", false, ch, battery, NULL, TO_CHAR);
             return;
         }
 
@@ -930,7 +930,7 @@ ACMD(do_econvert)
         CUR_ENERGY(battery) += num_points;
         act(tmp_sprintf
             ("You have increased $p's energy level by %d to %d units.",
-                num_points, CUR_ENERGY(battery)), false, ch, battery, 0,
+                num_points, CUR_ENERGY(battery)), false, ch, battery, NULL,
             TO_CHAR);
 
         if (num_points > number(50, 300))
@@ -940,7 +940,7 @@ ACMD(do_econvert)
 
     if (GET_MANA(ch) >= GET_MAX_MANA(ch)) {
         act("The newly converted energy dissipates into the void, because\r\n"
-            "your mana is already maxed out.", false, ch, 0, 0, TO_CHAR);
+            "your mana is already maxed out.", false, ch, NULL, NULL, TO_CHAR);
         return;
     }
 
@@ -1108,7 +1108,7 @@ ASPELL(spell_area_stasis)
             if (o->in_room->people) {
                 act("$p collapses in on itself.",
                     true, g_list_nth_data(o->in_room->people, 0),
-                    o, 0, TO_NOTVICT);
+                    o, NULL, TO_NOTVICT);
             }
             extract_obj(o);
         }

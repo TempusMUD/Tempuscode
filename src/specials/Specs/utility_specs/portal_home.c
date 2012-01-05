@@ -26,9 +26,9 @@ SPECIAL(portal_home)
     if (isname(argument, portal->aliases)) {
         flags = room->room_flags;
         REMOVE_BIT(room->room_flags, ROOM_NOMAGIC);
-        act("$n steps into $p.", false, ch, portal, 0, TO_ROOM);
-        act("You step into $p.", false, ch, portal, 0, TO_CHAR);
-        call_magic(ch, ch, 0, NULL, SPELL_WORD_OF_RECALL, GET_LEVEL(ch),
+        act("$n steps into $p.", false, ch, portal, NULL, TO_ROOM);
+        act("You step into $p.", false, ch, portal, NULL, TO_CHAR);
+        call_magic(ch, ch, NULL, NULL, SPELL_WORD_OF_RECALL, GET_LEVEL(ch),
             CAST_SPELL);
         room->room_flags = flags;
         WAIT_STATE(ch, 2 RL_SEC);

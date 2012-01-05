@@ -13,7 +13,7 @@ SPECIAL(ogre1)
     for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
         if (IS_ORC(tch) && can_see_creature(ch, tch)) {
-            act("$n roars, 'Now I've got $N, you!", false, ch, 0, tch,
+            act("$n roars, 'Now I've got $N, you!", false, ch, NULL, tch,
                 TO_ROOM);
             hit(ch, tch, TYPE_UNDEFINED);
             return 1;

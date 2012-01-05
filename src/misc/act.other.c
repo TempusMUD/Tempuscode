@@ -103,7 +103,7 @@ ACMD(do_quit)
         send_to_char(ch, "No way!  You're fighting for your life!\r\n");
     else if (GET_POSITION(ch) < POS_STUNNED) {
         send_to_char(ch, "You die before your time...\r\n");
-        die(ch, 0, 0);
+        die(ch, NULL, 0);
     } else {
 
         /*
@@ -122,12 +122,12 @@ ACMD(do_quit)
             if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
                 mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
                     "%s has departed from the known multiverse", GET_NAME(ch));
-                act("$n steps out of the universe.", true, ch, 0, 0, TO_ROOM);
+                act("$n steps out of the universe.", true, ch, NULL, NULL, TO_ROOM);
                 send_to_char(ch,
                     "Goodbye.  We will be awaiting your return.\r\n");
             } else {
                 send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
-                act("$n flickers out of reality.", true, ch, 0, 0, TO_ROOM);
+                act("$n flickers out of reality.", true, ch, NULL, NULL, TO_ROOM);
                 mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
                     "%s has left the game%s", GET_NAME(ch),
                     is_tester(ch) ? " (tester)" : " naked");
@@ -146,7 +146,7 @@ ACMD(do_quit)
             || ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
             if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
                 act("You fear that your death will grieve $N.",
-                    false, ch, 0, ch->master, TO_CHAR);
+                    false, ch, NULL, ch->master, TO_CHAR);
                 return;
             }
             if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
@@ -165,14 +165,14 @@ ACMD(do_quit)
                     GET_NAME(ch), ch->in_room->number);
                 send_to_char(ch, "You smoothly slip out of existence.\r\n");
                 act("$n smoothly slips out of existence and is gone.",
-                    true, ch, 0, 0, TO_ROOM);
+                    true, ch, NULL, NULL, TO_ROOM);
                 creature_rent(ch);
             } else {
                 send_to_char(ch,
                     "\r\nVery well %s.  You drop all your things and vanish!\r\n",
                     GET_NAME(ch));
                 act("$n disappears, leaving all $s equipment behind!",
-                    true, ch, 0, 0, TO_ROOM);
+                    true, ch, NULL, NULL, TO_ROOM);
                 mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
                     "%s (%d) has quit the game, EQ drop at %d",
                     GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number);
@@ -180,7 +180,7 @@ ACMD(do_quit)
             }
         } else {
             send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
-            act("$n flickers out of reality.", true, ch, 0, 0, TO_ROOM);
+            act("$n flickers out of reality.", true, ch, NULL, NULL, TO_ROOM);
             mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
                 "%s has left the game naked", GET_NAME(ch));
             creature_quit(ch);
@@ -327,7 +327,7 @@ ACMD(do_visible)
     if (!found)
         send_to_char(ch, "You are already visible.\r\n");
     else
-        act("$n fades into view.", true, ch, 0, 0, TO_ROOM);
+        act("$n fades into view.", true, ch, NULL, NULL, TO_ROOM);
 }
 
 ACMD(do_title)
@@ -360,9 +360,9 @@ perform_group(struct creature *ch, struct creature *vict)
 
     SET_BIT(AFF_FLAGS(vict), AFF_GROUP);
     if (ch != vict)
-        act("$N is now a member of your group.", false, ch, 0, vict, TO_CHAR);
-    act("You are now a member of $n's group.", false, ch, 0, vict, TO_VICT);
-    act("$N is now a member of $n's group.", false, ch, 0, vict, TO_NOTVICT);
+        act("$N is now a member of your group.", false, ch, NULL, vict, TO_CHAR);
+    act("You are now a member of $n's group.", false, ch, NULL, vict, TO_VICT);
+    act("$N is now a member of $n's group.", false, ch, NULL, vict, TO_NOTVICT);
     return 1;
 }
 
@@ -411,7 +411,7 @@ print_group(struct creature *ch)
                 GET_LEVEL(k), CLASS_ABBR(k),
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM), CCBLU(ch, C_NRM), CCCYN(ch,
                     C_NRM), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
-            act(buf, false, ch, 0, k, TO_CHAR | TO_SLEEP);
+            act(buf, false, ch, NULL, k, TO_CHAR | TO_SLEEP);
         }
 
         for (f = k->followers; f; f = f->next) {
@@ -427,7 +427,7 @@ print_group(struct creature *ch)
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCRED(ch, C_NRM), CCNRM(ch,
                     C_NRM), GET_LEVEL(f->follower), CLASS_ABBR(f->follower),
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-            act(buf, false, ch, 0, f->follower, TO_CHAR | TO_SLEEP);
+            act(buf, false, ch, NULL, f->follower, TO_CHAR | TO_SLEEP);
         }
     }
 }
@@ -452,7 +452,7 @@ ACMD(do_group)
 
     if (ch->master) {
         act("You can not enroll group members without being head of a group.",
-            false, ch, 0, 0, TO_CHAR);
+            false, ch, NULL, NULL, TO_CHAR);
         return;
     }
 
@@ -469,18 +469,18 @@ ACMD(do_group)
     if (!(vict = get_char_room_vis(ch, buf))) {
         send_to_char(ch, "%s", NOPERSON);
     } else if ((vict->master != ch) && (vict != ch))
-        act("$N must follow you to enter your group.", false, ch, 0, vict,
+        act("$N must follow you to enter your group.", false, ch, NULL, vict,
             TO_CHAR);
     else {
         if (!AFF_FLAGGED(vict, AFF_GROUP))
             perform_group(ch, vict);
         else {
             if (ch != vict)
-                act("$N is no longer a member of your group.", false, ch, 0,
+                act("$N is no longer a member of your group.", false, ch, NULL,
                     vict, TO_CHAR);
-            act("You have been kicked out of $n's group!", false, ch, 0, vict,
+            act("You have been kicked out of $n's group!", false, ch, NULL, vict,
                 TO_VICT);
-            act("$N has been kicked out of $n's group!", false, ch, 0, vict,
+            act("$N has been kicked out of $n's group!", false, ch, NULL, vict,
                 TO_NOTVICT);
             REMOVE_BIT(AFF_FLAGS(vict), AFF_GROUP);
         }
@@ -533,9 +533,9 @@ ACMD(do_ungroup)
 
     REMOVE_BIT(AFF_FLAGS(tch), AFF_GROUP);
 
-    act("$N is no longer a member of your group.", false, ch, 0, tch, TO_CHAR);
-    act("You have been kicked out of $n's group!", false, ch, 0, tch, TO_VICT);
-    act("$N has been kicked out of $n's group!", false, ch, 0, tch,
+    act("$N is no longer a member of your group.", false, ch, NULL, tch, TO_CHAR);
+    act("You have been kicked out of $n's group!", false, ch, NULL, tch, TO_VICT);
+    act("$N has been kicked out of $n's group!", false, ch, NULL, tch,
         TO_NOTVICT);
 
     if (!AFF_FLAGGED(tch, AFF_CHARM))
@@ -676,7 +676,7 @@ ACMD(do_use)
             }
             if (subcmd == SCMD_RECITE && !can_see_object(ch, mag_item)) {
                 act("You can't see $p well enough to recite from it.",
-                    false, ch, mag_item, 0, TO_CHAR);
+                    false, ch, mag_item, NULL, TO_CHAR);
                 return;
             }
             break;
@@ -688,7 +688,7 @@ ACMD(do_use)
             }
             if (!can_see_object(ch, mag_item)) {
                 act("You can't see $p well enough to read it.",
-                    false, ch, mag_item, 0, TO_CHAR);
+                    false, ch, mag_item, NULL, TO_CHAR);
                 return;
             }
             break;
@@ -721,7 +721,7 @@ ACMD(do_use)
 
     case SCMD_READ:
         if (is_fighting(ch)) {
-            act("What, while fighting $N?!", false, ch, 0, random_opponent(ch),
+            act("What, while fighting $N?!", false, ch, NULL, random_opponent(ch),
                 TO_CHAR);
             return;
         }
@@ -732,7 +732,7 @@ ACMD(do_use)
         break;
     case SCMD_RECITE:
         if (is_fighting(ch)) {
-            act("What, while fighting $N?!", false, ch, 0, random_opponent(ch),
+            act("What, while fighting $N?!", false, ch, NULL, random_opponent(ch),
                 TO_CHAR);
             return;
         } else if (GET_OBJ_TYPE(mag_item) != ITEM_SCROLL) {
@@ -764,7 +764,7 @@ ACMD(do_use)
             return;
         } else if (CHECK_SKILL(ch, SKILL_USE_WANDS) < 10) {
             act("You do not know how to harness the magical power of $p.",
-                false, ch, mag_item, 0, TO_CHAR);
+                false, ch, mag_item, NULL, TO_CHAR);
             return;
         }
         break;
@@ -971,7 +971,7 @@ ACMD(do_gen_write)
         return;
     }
 
-    ct = time(0);
+    ct = time(NULL);
     tmp = asctime(localtime(&ct));
 
     if (IS_NPC(ch)) {
@@ -1367,7 +1367,7 @@ ACMD(do_afk)
         SET_BIT(PLR_FLAGS(ch), PLR_AFK);
         send_to_char(ch, "You are now afk: %s.\r\n", argument);
         act(tmp_sprintf("$n has gone away from the keyboard: %s", argument),
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     } else if (PLR_FLAGGED(ch, PLR_AFK)) {
         // Leaving afk
         free(AFK_REASON(ch));
@@ -1376,7 +1376,7 @@ ACMD(do_afk)
         AFK_NOTIFIES(ch) = NULL;
         REMOVE_BIT(PLR_FLAGS(ch), PLR_AFK);
         send_to_char(ch, "You have returned to the keyboard.\r\n");
-        act("$n has returned to the keyboard", false, ch, 0, 0, TO_ROOM);
+        act("$n has returned to the keyboard", false, ch, NULL, NULL, TO_ROOM);
     } else {
         // Afk with no reason
         free(AFK_REASON(ch));
@@ -1386,7 +1386,7 @@ ACMD(do_afk)
         send_to_char(ch,
             "You are now afk.  When you move again, you will no longer be.\r\n");
         SET_BIT(PLR_FLAGS(ch), PLR_AFK);
-        act("$n has gone away from the keyboard.", false, ch, 0, 0, TO_ROOM);
+        act("$n has gone away from the keyboard.", false, ch, NULL, NULL, TO_ROOM);
     }
 }
 
@@ -1654,9 +1654,9 @@ ACMD(do_throw)
         send_to_char(ch, "You can't find that to throw it.\r\n");
     else if (obj) {
         if (IS_OBJ_STAT(obj, ITEM_NODROP) && GET_LEVEL(ch) < LVL_ETERNAL) {
-            act("Arrrgh!  $p won't come off of your hand!", false, ch, obj, 0,
+            act("Arrrgh!  $p won't come off of your hand!", false, ch, obj, NULL,
                 TO_CHAR);
-            act("$n struggles with $p for a moment.", false, ch, obj, 0,
+            act("$n struggles with $p for a moment.", false, ch, obj, NULL,
                 TO_ROOM);
             return;
         }
@@ -1665,8 +1665,8 @@ ACMD(do_throw)
             if (obj->worn_by)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 
-            act("$n throws $p across the room.", false, ch, obj, 0, TO_ROOM);
-            act("You throw $p across the room.", false, ch, obj, 0, TO_CHAR);
+            act("$n throws $p across the room.", false, ch, obj, NULL, TO_ROOM);
+            act("You throw $p across the room.", false, ch, obj, NULL, TO_CHAR);
             obj_from_char(obj);
             obj_to_room(obj, ch->in_room);
             return;
@@ -1710,11 +1710,11 @@ ACMD(do_throw)
                 sprintf(buf, "$n throws $p %sward against the closed %s.",
                     dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
                     fname(EXIT(ch, dir - 1)->keyword) : "door");
-                act(buf, false, ch, obj, 0, TO_ROOM);
+                act(buf, false, ch, obj, NULL, TO_ROOM);
                 sprintf(buf, "You throw $p %sward against the closed %s.",
                     dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
                     fname(EXIT(ch, dir - 1)->keyword) : "door");
-                act(buf, false, ch, obj, 0, TO_CHAR);
+                act(buf, false, ch, obj, NULL, TO_CHAR);
                 obj_from_char(obj);
                 obj_to_room(obj, ch->in_room);
                 return;
@@ -1732,26 +1732,26 @@ ACMD(do_throw)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 
             sprintf(buf, "$n throws $p %sward.", dirs[(int)(dir - 1)]);
-            act(buf, false, ch, obj, 0, TO_ROOM);
+            act(buf, false, ch, obj, NULL, TO_ROOM);
             sprintf(buf, "You throw $p %sward.", dirs[(int)(dir - 1)]);
-            act(buf, false, ch, obj, 0, TO_CHAR);
+            act(buf, false, ch, obj, NULL, TO_CHAR);
             obj_from_char(obj);
             obj_to_room(obj, r_toroom);
             if (target_vict) {
                 sprintf(buf, "$p flies in from %s and hits you in the head!",
                     from_dirs[(int)(dir - 1)]);
-                act(buf, false, 0, obj, target_vict, TO_VICT);
+                act(buf, false, NULL, obj, target_vict, TO_VICT);
                 sprintf(buf, "$p flies in from %s and hits $N in the head!",
                     from_dirs[(int)(dir - 1)]);
-                act(buf, false, 0, obj, target_vict, TO_NOTVICT);
+                act(buf, false, NULL, obj, target_vict, TO_NOTVICT);
             } else if (target_obj) {
                 sprintf(buf, "$p flies in from %s and slams into %s!",
                     from_dirs[(int)(dir - 1)], target_obj->name);
-                act(buf, false, 0, obj, target_vict, TO_ROOM);
+                act(buf, false, NULL, obj, target_vict, TO_ROOM);
             } else {
                 sprintf(buf, "$p flies in from %s and lands by your feet.",
                     from_dirs[(int)(dir - 1)]);
-                act(buf, false, 0, obj, 0, TO_ROOM);
+                act(buf, false, NULL, obj, NULL, TO_ROOM);
             }
             return;
         }
@@ -1852,10 +1852,10 @@ ACMD(do_throw)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
             sprintf(buf, "$n hurls $p up against %s with brute force!",
                 target_obj->name);
-            act(buf, false, ch, obj, 0, TO_ROOM);
+            act(buf, false, ch, obj, NULL, TO_ROOM);
             sprintf(buf, "You hurl $p up against %s with brute force!",
                 target_obj->name);
-            act(buf, false, ch, obj, 0, TO_CHAR);
+            act(buf, false, ch, obj, NULL, TO_CHAR);
         }
         obj_from_char(obj);
         obj_to_room(obj, ch->in_room);
@@ -1882,7 +1882,7 @@ ACMD(do_feed)
         send_to_char(ch, "No-one around by that name.\r\n");
     else if (GET_OBJ_TYPE(food) != ITEM_FOOD)
         act("I don't think anyone wants to eat $p.",
-            false, ch, food, 0, TO_CHAR);
+            false, ch, food, NULL, TO_CHAR);
     else if (!NPC2_FLAGGED(vict, NPC2_MOUNT))
         act("You cannot feed $p to $N.", false, ch, food, vict, TO_CHAR);
     else if (!AWAKE(vict))
@@ -1918,9 +1918,9 @@ ACMD(do_weigh)
         return;
     }
 
-    act("You carefully judge the weight of $p.", false, ch, obj, 0, TO_CHAR);
+    act("You carefully judge the weight of $p.", false, ch, obj, NULL, TO_CHAR);
     act("$n gauges the weight of $p by tossing it in one hand.",
-        true, ch, obj, 0, TO_ROOM);
+        true, ch, obj, NULL, TO_ROOM);
 
     send_to_char(ch, "It seems to weigh about %s.\r\n",
                  format_weight(GET_OBJ_WEIGHT(obj) +
@@ -1948,14 +1948,14 @@ ACMD(do_knock)
     if ((vict = get_char_room_vis(ch, arg1))) {
         if (vict == ch) {
             send_to_char(ch, "You rap your knuckles on your head.\r\n");
-            act("$n raps $s knuckles on $s head.", true, ch, 0, ch, TO_ROOM);
+            act("$n raps $s knuckles on $s head.", true, ch, NULL, ch, TO_ROOM);
             return;
         }
-        act("You knock on $N's skull.  Anybody home?", false, ch, 0, vict,
+        act("You knock on $N's skull.  Anybody home?", false, ch, NULL, vict,
             TO_CHAR);
-        act("$n knocks on your skull.  Anybody home?", false, ch, 0, vict,
+        act("$n knocks on your skull.  Anybody home?", false, ch, NULL, vict,
             TO_VICT | TO_SLEEP);
-        act("$n knocks on $N's skull.  Anybody home?", false, ch, 0, vict,
+        act("$n knocks on $N's skull.  Anybody home?", false, ch, NULL, vict,
             TO_NOTVICT);
         if (GET_POSITION(vict) == POS_SLEEPING
             && !AFF_FLAGGED(vict, AFF_SLEEP))
@@ -1968,8 +1968,8 @@ ACMD(do_knock)
         obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents);
 
     if (obj) {
-        act("$n knocks on $p.", false, ch, obj, 0, TO_ROOM);
-        act("You knock on $p.", false, ch, obj, 0, TO_CHAR);
+        act("$n knocks on $p.", false, ch, obj, NULL, TO_ROOM);
+        act("You knock on $p.", false, ch, obj, NULL, TO_CHAR);
 
         if (IS_VEHICLE(obj)) {
             if ((other_room = real_room(ROOM_NUMBER(obj)))
@@ -1990,7 +1990,7 @@ ACMD(do_knock)
             strcpy(dname, "door");
 
         sprintf(buf, "$n knocks on the %s.", dname);
-        act(buf, false, ch, 0, 0, TO_ROOM);
+        act(buf, false, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You knock on the %s.\r\n", dname);
 
         if ((other_room = EXIT(ch, dir)->to_room) &&
@@ -2005,9 +2005,9 @@ ACMD(do_knock)
 
             sprintf(buf, "Someone knocks on the %s from the other side.",
                 dname);
-            act(buf, false, other_room->people->data, 0, 0,
+            act(buf, false, other_room->people->data, NULL, NULL,
                 TO_CHAR | TO_SLEEP);
-            act(buf, false, other_room->people->data, 0, 0,
+            act(buf, false, other_room->people->data, NULL, NULL,
                 TO_ROOM | TO_SLEEP);
         }
         return;
@@ -2078,7 +2078,7 @@ ACMD(do_gasify)
     IS_CARRYING_N(gas) = 200;
 
     act("$n slowly fades away, leaving only a gaseous cloud behind.",
-        true, ch, 0, 0, TO_ROOM);
+        true, ch, NULL, NULL, TO_ROOM);
     send_to_char(ch, "You become gaseous.\r\n");
 
     char_to_room(gas, ch->in_room, false);
@@ -2144,25 +2144,25 @@ ACMD(do_clean)
         if (!CHAR_SOILAGE(vict, pos)) {
             sprintf(buf, "%s not soiled there.",
                 ch == vict ? "You are" : "$E is");
-            act(buf, false, ch, 0, vict, TO_CHAR);
+            act(buf, false, ch, NULL, vict, TO_CHAR);
             return;
         }
 
         if (vict == ch) {
             sprintf(buf, "$n carefully cleans $s %s.", wear_description[pos]);
-            act(buf, true, ch, 0, 0, TO_ROOM);
+            act(buf, true, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch, "You carefully clean your %s.\r\n",
                 wear_description[pos]);
         } else {
             sprintf(buf, "$n carefully cleans $N's %s.",
                 wear_description[pos]);
-            act(buf, true, ch, 0, vict, TO_NOTVICT);
+            act(buf, true, ch, NULL, vict, TO_NOTVICT);
             sprintf(buf, "You carefully clean $N's %s.",
                 wear_description[pos]);
-            act(buf, false, ch, 0, vict, TO_CHAR);
+            act(buf, false, ch, NULL, vict, TO_CHAR);
             sprintf(buf, "$n carefully cleans your %s.",
                 wear_description[pos]);
-            act(buf, false, ch, 0, vict, TO_VICT);
+            act(buf, false, ch, NULL, vict, TO_VICT);
         }
         found = 0;
         strcpy(buf, "no longer ");
@@ -2198,14 +2198,14 @@ ACMD(do_clean)
     /* obj */
 
     if (!OBJ_SOILAGE(obj))
-        act("$p is not soiled.", false, ch, obj, 0, TO_CHAR);
+        act("$p is not soiled.", false, ch, obj, NULL, TO_CHAR);
     else {
         sprintf(buf, "$n carefully cleans $p. (%s)",
             obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
-        act(buf, true, ch, obj, 0, TO_ROOM);
+        act(buf, true, ch, obj, NULL, TO_ROOM);
         sprintf(buf, "You carefully clean $p. (%s)",
             obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
-        act(buf, false, ch, obj, 0, TO_CHAR);
+        act(buf, false, ch, obj, NULL, TO_CHAR);
 
         found = 0;
         strcpy(buf, "$p is no longer ");
@@ -2226,8 +2226,8 @@ ACMD(do_clean)
             }
         }
         strcat(buf, ".");
-        act(buf, false, ch, obj, 0, TO_CHAR);
-        act(buf, false, ch, obj, 0, TO_ROOM);
+        act(buf, false, ch, obj, NULL, TO_CHAR);
+        act(buf, false, ch, obj, NULL, TO_ROOM);
         OBJ_SOILAGE(obj) = 0;
     }
 }

@@ -11,7 +11,7 @@ SPECIAL(dwarven_hermit)
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
     if (CMD_IS("ask"))
-        act("$N ignores you!", true, me2, 0, 0, TO_CHAR);
+        act("$N ignores you!", true, me2, NULL, NULL, TO_CHAR);
 
     if (cmd)
         return (0);

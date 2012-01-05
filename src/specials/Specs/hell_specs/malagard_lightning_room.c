@@ -2,9 +2,9 @@
 
 SPECIAL(malagard_lightning_room)
 {
-    struct creature *vict = 0;
+    struct creature *vict = NULL;
     int retval = 0;
-    GList *cit = 0;
+    GList *cit = NULL;
 
     if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER)
         return 0;
@@ -20,13 +20,13 @@ SPECIAL(malagard_lightning_room)
         vict = ch;
 
     if (mag_savingthrow(vict, 50, SAVING_ROD)) {
-        act("A bolt of lightning strikes nearby!", false, vict, 0, 0, TO_CHAR);
-        act("A bolt of lightning strikes nearby!", false, vict, 0, 0, TO_ROOM);
+        act("A bolt of lightning strikes nearby!", false, vict, NULL, NULL, TO_CHAR);
+        act("A bolt of lightning strikes nearby!", false, vict, NULL, NULL, TO_ROOM);
     } else {
         act("A bolt of lightning blasts down from above and hits you!", false,
-            vict, 0, 0, TO_CHAR);
+            vict, NULL, NULL, TO_CHAR);
         act("A bolt of lightning blasts down from above and hits $n!", false,
-            vict, 0, 0, TO_ROOM);
+            vict, NULL, NULL, TO_ROOM);
         retval =
             damage(NULL, vict, NULL, dice(20, 20), SPELL_LIGHTNING_BOLT, WEAR_HEAD);
         return (ch == vict ? retval : 0);

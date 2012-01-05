@@ -153,10 +153,10 @@ SPECIAL(fate)
     slog("FATE: Fate #%d moving to %d.  Timer reset to %d.",
         which_fate, dest->number, fate_timers[which_fate]);
 
-    act("$n disappears into a green mist.", false, fate, 0, 0, TO_ROOM);
+    act("$n disappears into a green mist.", false, fate, NULL, NULL, TO_ROOM);
     char_from_room(fate, false);
     char_to_room(fate, dest, false);
     fate->in_room->zone->idle_time = 0;
-    act("$n appears out of a green mist.", false, fate, 0, 0, TO_ROOM);
+    act("$n appears out of a green mist.", false, fate, NULL, NULL, TO_ROOM);
     return 1;
 }

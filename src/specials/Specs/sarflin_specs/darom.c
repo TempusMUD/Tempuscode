@@ -92,8 +92,8 @@ SPECIAL(darom)
                 return 0;
             if ((quest_rec.max >= GET_LEVEL(ch))
                 && (quest_rec.min <= GET_LEVEL(ch))) {
-                act("Darom tells $n something.", true, ch, 0, 0, TO_ROOM);
-                act(quest_rec.quest_desc, true, ch, 0, 0, TO_CHAR);
+                act("Darom tells $n something.", true, ch, NULL, NULL, TO_ROOM);
+                act(quest_rec.quest_desc, true, ch, NULL, NULL, TO_CHAR);
 
             }
             clear_quest();
@@ -115,8 +115,8 @@ SPECIAL(darom)
                 if (read_quest(file_handle))
                     return 0;
                 if (!strncasecmp(quest_rec.key_wrd, buf2, strlen(buf2))) {
-                    act("Darom tells $n something.", true, ch, 0, 0, TO_ROOM);
-                    act(quest_rec.first_clue, true, ch, 0, 0, TO_CHAR);
+                    act("Darom tells $n something.", true, ch, NULL, NULL, TO_ROOM);
+                    act(quest_rec.first_clue, true, ch, NULL, NULL, TO_CHAR);
                     flag = 1;
                 }
                 clear_quest();

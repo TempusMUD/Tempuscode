@@ -215,9 +215,9 @@ SPECIAL(gen_locker)
         crashsave(ch);
 
         act("$n takes all your things and locks them in a locker.", false,
-            atten, 0, ch, TO_VICT);
+            atten, NULL, ch, TO_VICT);
         act("$n takes all $N's things and locks them in a locker.", false,
-            atten, 0, ch, TO_NOTVICT);
+            atten, NULL, ch, TO_NOTVICT);
 
         if (GET_OBJ_VAL(locker, 1)) {
             send_to_char(ch,
@@ -303,9 +303,9 @@ SPECIAL(gen_locker)
         crashsave(ch);
 
         act("$n opens a locker and gives you all your things.",
-            false, atten, 0, ch, TO_VICT);
+            false, atten, NULL, ch, TO_VICT);
         act("$n opens a locker and gives $N all $S things.",
-            false, atten, 0, ch, TO_NOTVICT);
+            false, atten, NULL, ch, TO_NOTVICT);
         return 1;
     }
     return 0;

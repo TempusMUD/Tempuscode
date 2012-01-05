@@ -15,7 +15,7 @@ SPECIAL(lawyer)
 
     if (CMD_IS("buy") || CMD_IS("value")) {
         perform_say_to(lawy, ch, "Buzz off, I'm retired.");
-        act("$n snickers.", false, lawy, 0, 0, TO_ROOM);
+        act("$n snickers.", false, lawy, NULL, NULL, TO_ROOM);
         return 1;
     }
 

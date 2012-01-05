@@ -39,12 +39,12 @@ SPECIAL(oracle)
 
         if (GET_OBJ_VAL(od, 0) < GET_OBJ_VAL(od, 1)) {
             act("Sorry you have not payed my fee for this question", true, ch,
-                0, 0, TO_CHAR);
+                NULL, NULL, TO_CHAR);
             sprintf(buf, "My fee for this question is %d gold.",
                 GET_OBJ_VAL(od, 1));
-            act(buf, true, ch, 0, 0, TO_CHAR);
+            act(buf, true, ch, NULL, NULL, TO_CHAR);
             act("Just give me the gold and ask your question again.", true, ch,
-                0, 0, TO_CHAR);
+                NULL, NULL, TO_CHAR);
             return 1;
 
         } else {

@@ -65,11 +65,11 @@ SPECIAL(mage_teleporter)
     }
 
     perform_say(self, "say", tmp_sprintf("Very well, %s.", GET_NAME(ch)));
-    act("You stares at $N and utters, 'horosafh'.", true, self, 0, ch,
+    act("You stares at $N and utters, 'horosafh'.", true, self, NULL, ch,
         TO_CHAR);
-    act("$n stares at you and utters, 'horosafh'.", true, self, 0, ch,
+    act("$n stares at you and utters, 'horosafh'.", true, self, NULL, ch,
         TO_VICT);
-    act("$n stares at $N and utters, 'horosafh'.", true, self, 0, ch,
+    act("$n stares at $N and utters, 'horosafh'.", true, self, NULL, ch,
         TO_NOTVICT);
     char_from_room(ch, true);
     char_to_room(ch, dest_room, true);

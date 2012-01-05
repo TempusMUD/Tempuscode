@@ -23,28 +23,28 @@ SPECIAL(taunting_frenchman)
 
     switch (number(0, 4)) {
     case 0:
-        act("$n insults your mother!", true, ch, 0, vict, TO_VICT);
-        act("$n just insulted $N's mother!", true, ch, 0, vict, TO_NOTVICT);
+        act("$n insults your mother!", true, ch, NULL, vict, TO_VICT);
+        act("$n just insulted $N's mother!", true, ch, NULL, vict, TO_NOTVICT);
         break;
     case 1:
         act("$n smacks you with a rubber chicken!",
-            true, ch, 0, vict, TO_VICT);
+            true, ch, NULL, vict, TO_VICT);
         act("$n hits $N in the head with a rubber chicken!",
-            true, ch, 0, vict, TO_NOTVICT);
+            true, ch, NULL, vict, TO_NOTVICT);
         break;
     case 2:
-        act("$n spits in your face.", true, ch, 0, vict, TO_VICT);
-        act("$n spits in $N's face.", true, ch, 0, vict, TO_NOTVICT);
+        act("$n spits in your face.", true, ch, NULL, vict, TO_VICT);
+        act("$n spits in $N's face.", true, ch, NULL, vict, TO_NOTVICT);
         break;
     case 3:
         act("$n says, 'GO AWAY, I DONT WANT TO TALK TO YOU NO MORE!",
-            true, ch, 0, 0, TO_ROOM);
+            true, ch, NULL, NULL, TO_ROOM);
         break;
     case 4:
         act("$n ***ANNIHILATES*** you with his ultra powerfull taunt!!",
-            true, ch, 0, vict, TO_VICT);
+            true, ch, NULL, vict, TO_VICT);
         act("$n ***ANNIHILATES*** $N with his ultra powerfull taunt!!",
-            true, ch, 0, vict, TO_NOTVICT);
+            true, ch, NULL, vict, TO_NOTVICT);
         break;
     default:
         return false;

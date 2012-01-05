@@ -64,7 +64,7 @@ ACMD(do_pistolwhip)
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-            act("You pistolwhip $p!", false, ch, ovict, 0, TO_CHAR);
+            act("You pistolwhip $p!", false, ch, ovict, NULL, TO_CHAR);
             return;
         } else {
             send_to_char(ch, "Pistolwhip who?\r\n");
@@ -80,11 +80,11 @@ ACMD(do_pistolwhip)
     if (vict == ch) {
         if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
             act("You fear that your death will grieve $N.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         }
-        act("You slam $p into your head!", false, ch, weap, 0, TO_CHAR);
-        act("$n beats $mself senseless with $p!", true, ch, weap, 0, TO_ROOM);
+        act("You slam $p into your head!", false, ch, weap, NULL, TO_CHAR);
+        act("$n beats $mself senseless with $p!", true, ch, weap, NULL, TO_ROOM);
         return;
     }
     if (!ok_to_attack(ch, vict, true))
@@ -128,7 +128,7 @@ ACMD(do_crossface)
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-            act("You fiercely crossface $p!", false, ch, ovict, 0, TO_CHAR);
+            act("You fiercely crossface $p!", false, ch, ovict, NULL, TO_CHAR);
             return;
         } else {
             send_to_char(ch, "Crossface who?\r\n");
@@ -144,11 +144,11 @@ ACMD(do_crossface)
     if (vict == ch) {
         if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
             act("You fear that your death will grieve $N.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         }
-        act("You slam $p into your head!", false, ch, weap, 0, TO_CHAR);
-        act("$n beats $mself senseless with $p!", true, ch, weap, 0, TO_ROOM);
+        act("You slam $p into your head!", false, ch, weap, NULL, TO_CHAR);
+        act("$n beats $mself senseless with $p!", true, ch, weap, NULL, TO_ROOM);
         return;
     }
 
@@ -157,9 +157,9 @@ ACMD(do_crossface)
 
     if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
         act("$n catches the butt of your gun and smacks you silly!", true,
-            ch, 0, vict, TO_CHAR);
+            ch, NULL, vict, TO_CHAR);
         act("$n gets smacked silly for trying to crossface $N!", true,
-            ch, 0, vict, TO_ROOM);
+            ch, NULL, vict, TO_ROOM);
         WAIT_STATE(ch, PULSE_VIOLENCE * 8);
         return;
     }
@@ -464,7 +464,7 @@ ACMD(do_snipe)
         send_to_char(ch,
             "You watch in shock as your bullet stops in mid-air and drops to the ground.\r\n");
         act("$n takes careful aim, fires, and gets a shocked look on $s face.",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
         send_to_room(tmp_sprintf
             ("%s screams in from %s and harmlessly falls to the ground.",
                 bullet->name, from_dirs[snipe_dir]), nvz_room);
@@ -565,9 +565,9 @@ ACMD(do_snipe)
         // FIXME: if attack failed, return
 
         if (is_dead(vict)) {
-            act(kill_msg, true, ch, 0, 0, TO_CHAR);
+            act(kill_msg, true, ch, NULL, NULL, TO_CHAR);
             act("$n gets a look of predatory satisfaction.",
-                true, ch, 0, 0, TO_ROOM);
+                true, ch, NULL, NULL, TO_ROOM);
         }
         gain_skill_prof(ch, SKILL_SNIPE);
         WAIT_STATE(ch, 5 RL_SEC);
@@ -590,7 +590,7 @@ ACMD(do_wrench)
             vict = (random_opponent(ch));
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-            act("You fiercely wrench $p!", false, ch, ovict, 0, TO_CHAR);
+            act("You fiercely wrench $p!", false, ch, ovict, NULL, TO_CHAR);
             return;
         } else {
             send_to_char(ch, "Wrench who?\r\n");
@@ -882,7 +882,7 @@ ACMD(do_combine)
         return;
     }
     if (!IS_POTION(potion1)) {
-        act("$p is not a potion.", true, ch, 0, potion1, TO_CHAR);
+        act("$p is not a potion.", true, ch, NULL, potion1, TO_CHAR);
         return;
     }
     // Find the second potion
@@ -893,7 +893,7 @@ ACMD(do_combine)
         return;
     }
     if (!IS_POTION(potion2)) {
-        act("$p is not a potion.", true, ch, 0, potion2, TO_CHAR);
+        act("$p is not a potion.", true, ch, NULL, potion2, TO_CHAR);
         return;
     }
 
@@ -976,7 +976,7 @@ ACMD(do_combine)
     }
     // They don't know if they succeeded unless they identify it or use it
     act("You mix them together and create $p!",
-        false, ch, new_potion, 0, TO_CHAR);
+        false, ch, new_potion, NULL, TO_CHAR);
     act("$n mixes two potions together and creates $p!",
-        false, ch, new_potion, 0, TO_ROOM);
+        false, ch, new_potion, NULL, TO_ROOM);
 }

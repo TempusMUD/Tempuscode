@@ -114,7 +114,7 @@ rand_float(void)
 // returns a random boolean value
 //
 bool
-random_binary()
+random_binary(void)
 {
     return !number(0, 1);
 }
@@ -134,7 +134,7 @@ random_fractional(unsigned int num)
 // returns a random boolean value, true 1/3 of returns (33% tru)
 //
 bool
-random_fractional_3()
+random_fractional_3(void)
 {
     return !number(0, 2);
 }
@@ -143,7 +143,7 @@ random_fractional_3()
 // returns a random boolean value, true 1/4 of returns (25% true)
 //
 bool
-random_fractional_4()
+random_fractional_4(void)
 {
     return !number(0, 3);
 }
@@ -152,7 +152,7 @@ random_fractional_4()
 // returns a random boolean value, true 1/5 of returns (20% true)
 //
 bool
-random_fractional_5()
+random_fractional_5(void)
 {
     return !number(0, 4);
 }
@@ -161,7 +161,7 @@ random_fractional_5()
 // returns a random boolean value, true 1/10 of returns (10% true)
 //
 bool
-random_fractional_10()
+random_fractional_10(void)
 {
     return !number(0, 9);
 }
@@ -170,7 +170,7 @@ random_fractional_10()
 // returns a random boolean value, true 1/20 of returns (5% true)
 //
 bool
-random_fractional_20()
+random_fractional_20(void)
 {
     return !number(0, 19);
 }
@@ -179,7 +179,7 @@ random_fractional_20()
 // returns a random boolean value, true 1/50 of returns (2% true)
 //
 bool
-random_fractional_50()
+random_fractional_50(void)
 {
     return !number(0, 49);
 }
@@ -188,7 +188,7 @@ random_fractional_50()
 // returns a random boolean value, true 1/100 of returns (1% true)
 //
 bool
-random_fractional_100()
+random_fractional_100(void)
 {
     return !number(0, 99);
 }
@@ -197,7 +197,7 @@ random_fractional_100()
 // returns a random value between and including 1-100
 //
 int
-random_percentage()
+random_percentage(void)
 {
     return number(1, 100);
 }
@@ -206,7 +206,7 @@ random_percentage()
 // returns a random value between and including 0-99
 //
 int
-random_percentage_zero_low()
+random_percentage_zero_low(void)
 {
     return number(0, 99);
 }

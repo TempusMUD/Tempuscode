@@ -72,7 +72,7 @@ main(int argc, char **argv)
         {"user", required_argument, NULL, 'u'},
         {"group", required_argument, NULL, 'g'},
         {"port", required_argument, NULL, 'p'},
-        {0, 0, 0, 0}
+        {NULL, 0, NULL, 0}
     };
 
     char c;
@@ -208,7 +208,7 @@ main(int argc, char **argv)
     if (scheck) {
         void my_srand(unsigned long initial_seed);
         void verify_tempus_integrity(struct creature *ch);
-        my_srand(time(0));
+        my_srand(time(NULL));
         boot_db();
         verify_tempus_integrity(NULL);
         slog("Press RETURN to continue.");

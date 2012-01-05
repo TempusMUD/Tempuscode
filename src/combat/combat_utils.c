@@ -175,8 +175,8 @@ update_pos(struct creature *ch)
         GET_POSITION(ch) = POS_RESTING;
     } else if (GET_POSITION(ch) == POS_SLEEPING) {
         // Wake them up from thier nap.
-        act("You wake up.", true, ch, 0, 0, TO_CHAR);
-        act("$n wakes up.", true, ch, 0, 0, TO_ROOM);
+        act("You wake up.", true, ch, NULL, NULL, TO_CHAR);
+        act("$n wakes up.", true, ch, NULL, NULL, TO_ROOM);
         GET_POSITION(ch) = POS_RESTING;
     } else if (GET_POSITION(ch) > POS_FIGHTING && is_fighting(ch)) {
         // If everything is normal and they're fighting, set them fighting
@@ -200,20 +200,20 @@ update_pos(struct creature *ch)
             number(1, 50) < GET_STR(ch)) {
 
             GET_POSITION(ch) = POS_FIGHTING;
-            act("You scramble to your feet!", true, ch, 0, 0, TO_CHAR);
-            act("$n scrambles to $s feet!", true, ch, 0, 0, TO_ROOM);
+            act("You scramble to your feet!", true, ch, NULL, NULL, TO_CHAR);
+            act("$n scrambles to $s feet!", true, ch, NULL, NULL, TO_ROOM);
             WAIT_STATE(ch, PULSE_VIOLENCE);
         }
     } else if (GET_POSITION(ch) < POS_FIGHTING) {
         if (!AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
             || number(1, 50) < GET_STR(ch)) {
             if (is_fighting(ch)) {
-                act("You scramble to your feet!", true, ch, 0, 0, TO_CHAR);
-                act("$n scrambles to $s feet!", true, ch, 0, 0, TO_ROOM);
+                act("You scramble to your feet!", true, ch, NULL, NULL, TO_CHAR);
+                act("$n scrambles to $s feet!", true, ch, NULL, NULL, TO_ROOM);
                 GET_POSITION(ch) = POS_FIGHTING;
             } else {
-                act("You stand up.", true, ch, 0, 0, TO_CHAR);
-                act("$n stands up.", true, ch, 0, 0, TO_ROOM);
+                act("You stand up.", true, ch, NULL, NULL, TO_CHAR);
+                act("$n stands up.", true, ch, NULL, NULL, TO_ROOM);
                 GET_POSITION(ch) = POS_STANDING;
             }
         }

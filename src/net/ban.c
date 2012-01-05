@@ -104,7 +104,7 @@ load_banned(void)
     xmlDocPtr doc;
     xmlNodePtr node;
 
-    g_list_foreach(ban_list, (GFunc) free, 0);
+    g_list_foreach(ban_list, (GFunc) free, NULL);
     g_list_free(ban_list);
     ban_list = NULL;
 
@@ -236,7 +236,7 @@ perform_ban(int flag, const char *site, const char *name, const char *reason)
     CREATE(ban, struct ban_entry, 1);
     strcpy(ban->site, site);
     ban->type = flag;
-    ban->date = time(0);
+    ban->date = time(NULL);
     strcpy(ban->name, name);
     strcpy(ban->reason, reason);
     ban_list = g_list_append(ban_list, ban);
@@ -393,7 +393,7 @@ is_valid_name(char *newname)
 
     /* Does the desired name contain a string in the invalid list? */
     for (i = 0; i < num_invalid; i++)
-        if (regexec(&invalid_list[i], tempname, 0, 0, 0) == 0)
+        if (regexec(&invalid_list[i], tempname, 0, NULL, 0) == 0)
             return false;
 
     // Build histogram of characters used

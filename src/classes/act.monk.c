@@ -262,9 +262,9 @@ ACMD(do_whirlwind)
     }
     //hit an object
     if (ovict && !vict) {
-        act("You whirl through the air hitting $p!", false, ch, ovict, 0,
+        act("You whirl through the air hitting $p!", false, ch, ovict, NULL,
             TO_CHAR);
-        act("$n whirls through the air hitting $p!", false, ch, ovict, 0,
+        act("$n whirls through the air hitting $p!", false, ch, ovict, NULL,
             TO_ROOM);
         return;
     }
@@ -324,7 +324,7 @@ ACMD(do_whirlwind)
         //do we fall down too?
         if (GET_LEVEL(ch) + GET_DEX(ch) < number(0, 77)) {
             send_to_char(ch, "You fall on your ass!\r\n");
-            act("$n falls smack on $s ass!\r\n", true, ch, 0, 0, TO_ROOM);
+            act("$n falls smack on $s ass!\r\n", true, ch, NULL, NULL, TO_ROOM);
             GET_POSITION(ch) = POS_SITTING;
         }
         GET_MOVE(ch) -= 5;
@@ -439,9 +439,9 @@ ACMD(do_combo)
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
             act("You perform a devastating combo to the $p!", false, ch, ovict,
-                0, TO_CHAR);
+                NULL, TO_CHAR);
             act("$n performs a devastating combo on the $p!", false, ch, ovict,
-                0, TO_ROOM);
+                NULL, TO_ROOM);
             return;
         } else {
             send_to_char(ch, "Combo who?\r\n");
@@ -572,7 +572,7 @@ ACMD(do_pinch)
             vict = random_opponent(ch);
         } else if ((ovict = get_obj_in_list_vis(ch, vict_str,
                     ch->in_room->contents))) {
-            act("You can't pinch that.", false, ch, ovict, 0, TO_CHAR);
+            act("You can't pinch that.", false, ch, ovict, NULL, TO_CHAR);
             return;
         } else {
             send_to_char(ch, "Pinch who?\r\n");
@@ -643,12 +643,12 @@ ACMD(do_pinch)
     if (!IS_NPC(vict) && !vict->desc)
         prob = 0;
 
-    act("$n grabs a nerve on your body!", false, ch, 0, vict, TO_VICT);
-    act("$n suddenly grabs $N!", false, ch, 0, vict, TO_NOTVICT);
+    act("$n grabs a nerve on your body!", false, ch, NULL, vict, TO_VICT);
+    act("$n suddenly grabs $N!", false, ch, NULL, vict, TO_NOTVICT);
 
     if (percent > prob || IS_UNDEAD(vict)) {
         send_to_char(ch, "You fail the pinch!\r\n");
-        act("You quickly shake off $n's attack!", false, ch, 0, vict, TO_VICT);
+        act("You quickly shake off $n's attack!", false, ch, NULL, vict, TO_VICT);
         WAIT_STATE(ch, PULSE_VIOLENCE);
         if (IS_NPC(vict) && !PRF_FLAGGED(ch, PRF_NOHASSLE))
             hit(vict, ch, TYPE_UNDEFINED);
@@ -690,9 +690,9 @@ ACMD(do_pinch)
         break;
     case SKILL_PINCH_OMEGA:
         if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
-            act("$N stuns you with a swift blow!", false, ch, 0, vict,
+            act("$N stuns you with a swift blow!", false, ch, NULL, vict,
                 TO_CHAR);
-            act("$N stuns $n with a swift blow to the neck!", false, ch, 0,
+            act("$N stuns $n with a swift blow to the neck!", false, ch, NULL,
                 vict, TO_ROOM);
             WAIT_STATE(ch, PULSE_VIOLENCE * 3);
             GET_POSITION(ch) = POS_STUNNED;
@@ -784,9 +784,9 @@ ACMD(do_pinch)
         affect_to_char(vict, &af);
 
     if (to_vict)
-        act(to_vict, false, vict, 0, ch, TO_CHAR);
+        act(to_vict, false, vict, NULL, ch, TO_CHAR);
     if (to_room)
-        act(to_room, false, vict, 0, ch, TO_ROOM);
+        act(to_room, false, vict, NULL, ch, TO_ROOM);
 
     gain_skill_prof(ch, which_pinch);
 
@@ -822,11 +822,11 @@ ACMD(do_pinch)
 
         else if (AFF2_FLAGGED(vict, AFF2_ABLAZE) && !number(0, 3)) {
             act("You burst into flames on contact with $N!",
-                false, ch, 0, vict, TO_CHAR);
+                false, ch, NULL, vict, TO_CHAR);
             act("$n bursts into flames on contact with $N!",
-                false, ch, 0, vict, TO_NOTVICT);
+                false, ch, NULL, vict, TO_NOTVICT);
             act("$n bursts into flames on contact with you!",
-                false, ch, 0, vict, TO_VICT);
+                false, ch, NULL, vict, TO_VICT);
 
             ignite_creature(ch, vict);
         }
@@ -859,7 +859,7 @@ ACMD(do_meditate)
     if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
         REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
         send_to_char(ch, "You cease to meditate.\r\n");
-        act("$n comes out of a trance.", true, ch, 0, 0, TO_ROOM);
+        act("$n comes out of a trance.", true, ch, NULL, NULL, TO_ROOM);
         MEDITATE_TIMER(ch) = 0;
     } else if (is_fighting(ch))
         send_to_char(ch, "You cannot meditate while in battle.\r\n");
@@ -895,7 +895,7 @@ ACMD(do_meditate)
 
         if (GET_LEVEL(ch) < LVL_AMBASSADOR)
             WAIT_STATE(ch, PULSE_VIOLENCE * 3);
-        act("$n goes into a trance.", true, ch, 0, 0, TO_ROOM);
+        act("$n goes into a trance.", true, ch, NULL, NULL, TO_ROOM);
     }
 }
 
@@ -917,7 +917,7 @@ ACMD(do_kata)
         send_to_char(ch, "You are too spiritually exhausted.\r\n");
     else {
         send_to_char(ch, "You carefully perform your finest kata.\r\n");
-        act("$n begins to perform a kata with fluid motions.", true, ch, 0, 0,
+        act("$n begins to perform a kata with fluid motions.", true, ch, NULL, NULL,
             TO_ROOM);
 
         GET_MANA(ch) -= 40;

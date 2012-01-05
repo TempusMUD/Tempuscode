@@ -16,7 +16,7 @@ SPECIAL(stepping_stone)
         if (GET_POSITION(ch) >= POS_STANDING) {
             if (GET_LOADROOM(ch) != arena_start_room) {
                 act("$p flares up suddenly with a bright light!",
-                    false, ch, ruby, 0, TO_ROOM);
+                    false, ch, ruby, NULL, TO_ROOM);
                 send_to_char(ch, "You feel a strange sensation...\r\n");
                 sprintf(buf,
                     "A voice BOOMS out, 'Welcome to the Arena, %s!'\r\n",
@@ -51,7 +51,7 @@ SPECIAL(portal_out)
         sprintf(buf, "A voice BOOMS out, '%s has left the arena.'\r\n",
             GET_NAME(ch));
         send_to_zone(buf, ch->in_room->zone, 0);
-        call_magic(ch, ch, 0, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP,
+        call_magic(ch, ch, NULL, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP,
             CAST_SPELL);
         return true;
     }
@@ -99,11 +99,11 @@ SPECIAL(arena_locker)
             }
             GET_OBJ_VAL(locker, 0) = GET_IDNUM(ch);
             act("$n takes all your things and locks them in a locker.",
-                false, atten, 0, ch, TO_VICT);
-            act("You are now stark naked!", false, atten, 0, ch, TO_VICT);
+                false, atten, NULL, ch, TO_VICT);
+            act("You are now stark naked!", false, atten, NULL, ch, TO_VICT);
             act("$n takes all $N's things and locks them in a locker.",
-                false, atten, 0, ch, TO_NOTVICT);
-            act("$N is now stark naked!", false, atten, 0, ch, TO_NOTVICT);
+                false, atten, NULL, ch, TO_NOTVICT);
+            act("$N is now stark naked!", false, atten, NULL, ch, TO_NOTVICT);
             return true;
         }
         perform_say(atten, "apologize",
@@ -137,9 +137,9 @@ SPECIAL(arena_locker)
             }
             GET_OBJ_VAL(locker, 0) = 0;
             act("$n opens a locker and gives you all your things.",
-                false, atten, 0, ch, TO_VICT);
+                false, atten, NULL, ch, TO_VICT);
             act("$n opens a locker and gives $N all $S things.",
-                false, atten, 0, ch, TO_NOTVICT);
+                false, atten, NULL, ch, TO_NOTVICT);
 
             struct house *house = find_house_by_room(r_locker_room->number);
             if (house != NULL)

@@ -15,16 +15,16 @@ SPECIAL(medusa)
     if (isname("medusa", ch->player.name) &&
         vict && (vict->in_room == ch->in_room) &&
         (number(0, 57 - GET_LEVEL(ch)) == 0)) {
-        act("The snakes on $n bite $N!", 1, ch, 0, vict, TO_NOTVICT);
-        act("You are bitten by the snakes on $n!", 1, ch, 0, vict, TO_VICT);
-        call_magic(ch, vict, 0, NULL, SPELL_POISON, GET_LEVEL(ch),
+        act("The snakes on $n bite $N!", 1, ch, NULL, vict, TO_NOTVICT);
+        act("You are bitten by the snakes on $n!", 1, ch, NULL, vict, TO_VICT);
+        call_magic(ch, vict, NULL, NULL, SPELL_POISON, GET_LEVEL(ch),
             CAST_SPELL);
 
         return true;
     } else if (vict && !number(0, 4)) {
-        act("$n gazes into your eyes!", false, ch, 0, vict, TO_VICT);
-        act("$n gazes into $N's eyes!", false, ch, 0, vict, TO_NOTVICT);
-        call_magic(ch, vict, 0, NULL, SPELL_PETRIFY, GET_LEVEL(ch),
+        act("$n gazes into your eyes!", false, ch, NULL, vict, TO_VICT);
+        act("$n gazes into $N's eyes!", false, ch, NULL, vict, TO_NOTVICT);
+        call_magic(ch, vict, NULL, NULL, SPELL_PETRIFY, GET_LEVEL(ch),
             CAST_PETRI);
         if (AFF2_FLAGGED(vict, AFF2_PETRIFIED))
             remove_all_combat(ch);

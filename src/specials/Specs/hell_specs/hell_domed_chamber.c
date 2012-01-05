@@ -10,7 +10,7 @@ SPECIAL(hell_domed_chamber)
     if (!CMD_IS("listen"))
         return 0;
 
-    time_t cur_time = time(0);
+    time_t cur_time = time(NULL);
 
     if (cur_time - last_time < DOMED_CHAMBER_TIME)
         return 0;

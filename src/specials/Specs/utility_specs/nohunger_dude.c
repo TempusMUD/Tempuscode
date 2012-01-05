@@ -10,7 +10,6 @@ SPECIAL(nohunger_dude)
 {
     struct creature *dude = (struct creature *)me;
     int gold, life_cost, mode;
-    char buf[MAX_STRING_LENGTH];
 
     if (!CMD_IS("gain"))
         return 0;
@@ -58,10 +57,10 @@ SPECIAL(nohunger_dude)
                 life_cost);
             perform_tell(dude, ch, buf);
         } else {
-            act("$n outstretches $s arms in supplication to the powers that be.", true, dude, 0, 0, TO_ROOM);
+            act("$n outstretches $s arms in supplication to the powers that be.", true, dude, NULL, NULL, TO_ROOM);
             send_to_char(ch,
                 "You feel a strange sensation pass through your soul.\r\n");
-            act("A strange expression crosses $N's face...", true, dude, 0, ch,
+            act("A strange expression crosses $N's face...", true, dude, NULL, ch,
                 TO_NOTVICT);
             GET_LIFE_POINTS(ch) -= life_cost;
             GET_GOLD(ch) -= gold;

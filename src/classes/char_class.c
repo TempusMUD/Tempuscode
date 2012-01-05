@@ -969,7 +969,7 @@ do_start(struct creature *ch, int mode)
 
     if (new_player) {
         ch->player.time.played = 0;
-        ch->player.time.logon = time(0);
+        ch->player.time.logon = time(NULL);
     }
 
     for (i = 0; i < NUM_WEARS; i++) {

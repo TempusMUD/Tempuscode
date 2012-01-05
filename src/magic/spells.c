@@ -103,7 +103,7 @@ ASPELL(spell_recall)
         if (!IS_OBJ_TYPE(obj, ITEM_VSTONE) || !GET_OBJ_VAL(obj, 2))
             send_to_char(ch, "%s", NOEFFECT);
         if (IS_OBJ_TYPE(obj, ITEM_VSTONE))
-            act("Your divine magic has no effect on $p.", false, ch, obj, 0,
+            act("Your divine magic has no effect on $p.", false, ch, obj, NULL,
                 TO_CHAR);
         return;
     }
@@ -116,7 +116,7 @@ ASPELL(spell_recall)
         send_to_char(victim, "You fade out for a moment...\r\n"
             "You are suddenly knocked to the floor by a blinding flash!\r\n");
         act("$n is knocked to the floor by a blinding flash of light!", false,
-            victim, 0, 0, TO_ROOM);
+            victim, NULL, NULL, TO_ROOM);
         return;
     }
 
@@ -124,20 +124,20 @@ ASPELL(spell_recall)
         ch->master->in_room == ch->in_room) {
         if (ch == victim) {
             act("You just can't stand the thought of leaving $N behind.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         } else if (victim == ch->master) {
             act("You really can't stand the though of parting with $N.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         }
     }
 
     if (teleport_not_ok(ch, victim, level)) {
         act("$N resists your attempt to recall $M home!",
-            true, ch, 0, victim, TO_CHAR);
+            true, ch, NULL, victim, TO_CHAR);
         act("You resist $n's attempt to recall you home!",
-            true, ch, 0, victim, TO_VICT);
+            true, ch, NULL, victim, TO_VICT);
         return;
     }
 
@@ -168,15 +168,15 @@ ASPELL(spell_recall)
             if ((targ_room = real_room(number(41100, 41863))) != NULL) {
                 if (ch != victim)
                     act("You send $N hurtling into the Astral Plane!!!",
-                        false, ch, 0, victim, TO_CHAR);
+                        false, ch, NULL, victim, TO_CHAR);
                 act("You hurtle out of control into the Astral Plane!!!",
-                    false, ch, 0, victim, TO_VICT);
+                    false, ch, NULL, victim, TO_VICT);
                 act("$N is suddenly sucked into an astral void.",
-                    true, ch, 0, victim, TO_NOTVICT);
+                    true, ch, NULL, victim, TO_NOTVICT);
                 char_from_room(victim, true);
                 char_to_room(victim, targ_room, true);
                 act("$N is suddenly pulled into the Astral Plane!",
-                    true, ch, 0, victim, TO_NOTVICT);
+                    true, ch, NULL, victim, TO_NOTVICT);
                 look_at_room(victim, victim->in_room, 0);
                 victim->in_room->zone->enter_count++;
                 return;
@@ -187,10 +187,10 @@ ASPELL(spell_recall)
     if (victim->in_room->zone != load_room->zone)
         load_room->zone->enter_count++;
 
-    act("$n disappears.", true, victim, 0, 0, TO_ROOM);
+    act("$n disappears.", true, victim, NULL, NULL, TO_ROOM);
     char_from_room(victim, true);
     char_to_room(victim, load_room, true);
-    act("$n appears in the middle of the room.", true, victim, 0, 0, TO_ROOM);
+    act("$n appears in the middle of the room.", true, victim, NULL, NULL, TO_ROOM);
     look_at_room(victim, victim->in_room, 0);
 }
 
@@ -206,44 +206,44 @@ ASPELL(spell_local_teleport)
         ch->master->in_room == ch->in_room) {
         if (ch == victim) {
             act("You just can't stand the thought of leaving $N behind.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         } else if (victim == ch->master) {
             act("You really can't stand the though of parting with $N.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         }
     }
 
     if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
         act("You feel strange as $n attempts to teleport you.",
-            false, ch, 0, victim, TO_VICT);
+            false, ch, NULL, victim, TO_VICT);
         act("You fail.  $N is in a non-violence zone!.",
-            false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_CHAR);
         return;
     }
     if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
         victim->in_room->zone->pk_style == ZONE_NO_PK) {
         act("You feel strange as $n attempts to teleport you.",
-            false, ch, 0, victim, TO_VICT);
-        act("You fail.  $N is in a !PK zone!.", false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_VICT);
+        act("You fail.  $N is in a !PK zone!.", false, ch, NULL, victim, TO_CHAR);
         return;
     }
     if (GET_LEVEL(victim) > LVL_AMBASSADOR
         && GET_LEVEL(victim) > GET_LEVEL(ch)) {
-        act("$N sneers at you with disgust.\r\n", false, ch, 0, victim,
+        act("$N sneers at you with disgust.\r\n", false, ch, NULL, victim,
             TO_CHAR);
-        act("$N sneers at $n with disgust.\r\n", false, ch, 0, victim,
+        act("$N sneers at $n with disgust.\r\n", false, ch, NULL, victim,
             TO_NOTVICT);
-        act("You sneer at $n with disgust.\r\n", false, ch, 0, victim,
+        act("You sneer at $n with disgust.\r\n", false, ch, NULL, victim,
             TO_VICT);
         return;
     }
     if (teleport_not_ok(ch, victim, level)) {
         act("$N resists your attempt to teleport $M!",
-            true, ch, 0, victim, TO_CHAR);
+            true, ch, NULL, victim, TO_CHAR);
         act("You resist $n's attempt to teleport you!",
-            true, ch, 0, victim, TO_VICT);
+            true, ch, NULL, victim, TO_VICT);
         return;
     }
 
@@ -258,7 +258,7 @@ ASPELL(spell_local_teleport)
         send_to_char(victim, "You fade out for a moment...\r\n"
             "The magic quickly dissipates!\r\n");
         act("$n fades out for a moment but quickly flickers back into view.",
-            false, victim, 0, 0, TO_ROOM);
+            false, victim, NULL, NULL, TO_ROOM);
         return;
     }
 
@@ -279,12 +279,12 @@ ASPELL(spell_local_teleport)
         to_room = ch->in_room;
 
     act("$n disappears in a whirling flash of light.",
-        false, victim, 0, 0, TO_ROOM);
+        false, victim, NULL, NULL, TO_ROOM);
     send_to_char(victim, "Your vision slowly fades to blackness...\r\n");
     send_to_char(victim, "A new scene unfolds before you!\r\n\r\n");
     char_from_room(victim, true);
     char_to_room(victim, to_room, true);
-    act("$n appears out of a whirling flash.", false, victim, 0, 0, TO_ROOM);
+    act("$n appears out of a whirling flash.", false, victim, NULL, NULL, TO_ROOM);
     look_at_room(victim, victim->in_room, 0);
 }
 
@@ -304,15 +304,15 @@ ASPELL(spell_teleport)
         }
 
         if (GET_OBJ_VAL(obj, 1) > 0 && GET_OBJ_VAL(obj, 1) != GET_IDNUM(ch)) {
-            act("$p hums loudly and zaps you!", false, ch, obj, 0, TO_CHAR);
-            act("$p hums loudly and zaps $n!", false, ch, obj, 0, TO_ROOM);
+            act("$p hums loudly and zaps you!", false, ch, obj, NULL, TO_CHAR);
+            act("$p hums loudly and zaps $n!", false, ch, obj, NULL, TO_ROOM);
             return;
         }
 
         if (GET_OBJ_VAL(obj, 0) == 0 ||
             (load_room = real_room(GET_OBJ_VAL(obj, 0))) == NULL) {
             act("$p is not linked with a real location.",
-                false, ch, obj, 0, TO_CHAR);
+                false, ch, obj, NULL, TO_CHAR);
             return;
         }
 
@@ -324,7 +324,7 @@ ASPELL(spell_teleport)
         }
 
         send_to_char(ch, "You slowly fade into nothingness.\r\n");
-        act("$p glows brightly as $n fades from view.", false, ch, obj, 0,
+        act("$p glows brightly as $n fades from view.", false, ch, obj, NULL,
             TO_ROOM);
 
         was_in = ch->in_room;
@@ -333,7 +333,7 @@ ASPELL(spell_teleport)
         load_room->zone->enter_count++;
 
         act("$n slowly fades into view, $p brightly glowing.",
-            true, ch, obj, 0, TO_ROOM);
+            true, ch, obj, NULL, TO_ROOM);
 
         if (GET_OBJ_VAL(obj, 2) > 0)
             GET_OBJ_VAL(obj, 2)--;
@@ -347,13 +347,13 @@ ASPELL(spell_teleport)
                 was_in->zone != load_room->zone)) {
             send_to_char(ch,
                 "Your gut wrenches as you are slung violently through spacetime.\r\n");
-            act("$n is jerked violently back into the void!", false, ch, 0, 0,
+            act("$n is jerked violently back into the void!", false, ch, NULL, NULL,
                 TO_ROOM);
             char_from_room(ch, false);
             char_to_room(ch, was_in, false);
 
             act("$n reappears, clenching $s gut in pain.",
-                false, ch, 0, 0, TO_ROOM);
+                false, ch, NULL, NULL, TO_ROOM);
             GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - 30);
             GET_MANA(ch) = MAX(0, GET_MANA(ch) - 30);
             return;
@@ -363,7 +363,7 @@ ASPELL(spell_teleport)
 
         if (!GET_OBJ_VAL(obj, 2)) {
             act("$p becomes dim, ceases to glow, and vanishes.",
-                false, ch, obj, 0, TO_CHAR);
+                false, ch, obj, NULL, TO_CHAR);
             extract_obj(obj);
         }
 
@@ -380,7 +380,7 @@ ASPELL(spell_teleport)
         send_to_char(victim, "You fade out for a moment...\r\n"
             "The magic quickly dissipates!\r\n");
         act("$n fades out for a moment but quickly flickers back into view.",
-            false, victim, 0, 0, TO_ROOM);
+            false, victim, NULL, NULL, TO_ROOM);
         return;
     }
 
@@ -388,11 +388,11 @@ ASPELL(spell_teleport)
         ch->master->in_room == ch->in_room) {
         if (ch == victim) {
             act("You just can't stand the thought of leaving $N behind.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         } else if (victim == ch->master) {
             act("You really can't stand the though of parting with $N.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         }
     }
@@ -400,40 +400,40 @@ ASPELL(spell_teleport)
     if (ch->in_room->zone->number == 400 ||
         GET_PLANE(ch->in_room) == PLANE_DOOM ||
         ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)) {
-        call_magic(ch, victim, 0, NULL, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch),
+        call_magic(ch, victim, NULL, NULL, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch),
             CAST_SPELL);
         return;
     }
 
     if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
         act("You feel strange as $n attempts to teleport you.",
-            false, ch, 0, victim, TO_VICT);
+            false, ch, NULL, victim, TO_VICT);
         act("You fail.  $N is in a non-violence zone!.",
-            false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_CHAR);
         return;
     }
     if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
         victim->in_room->zone->pk_style == ZONE_NO_PK) {
         act("You feel strange as $n attempts to teleport you.",
-            false, ch, 0, victim, TO_VICT);
-        act("You fail.  $N is in a !PK zone!.", false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_VICT);
+        act("You fail.  $N is in a !PK zone!.", false, ch, NULL, victim, TO_CHAR);
         return;
     }
     if (GET_LEVEL(victim) > LVL_AMBASSADOR &&
         GET_LEVEL(victim) > GET_LEVEL(ch)) {
-        act("$N sneers at you with disgust.\r\n", false, ch, 0, victim,
+        act("$N sneers at you with disgust.\r\n", false, ch, NULL, victim,
             TO_CHAR);
-        act("$N sneers at $n with disgust.\r\n", false, ch, 0, victim,
+        act("$N sneers at $n with disgust.\r\n", false, ch, NULL, victim,
             TO_NOTVICT);
-        act("You sneer at $n with disgust.\r\n", false, ch, 0, victim,
+        act("You sneer at $n with disgust.\r\n", false, ch, NULL, victim,
             TO_VICT);
         return;
     }
     if (teleport_not_ok(ch, victim, level)) {
         act("$N resists your attempt to teleport $M!",
-            true, ch, 0, victim, TO_CHAR);
+            true, ch, NULL, victim, TO_CHAR);
         act("You resist $n's attempt to teleport you!",
-            true, ch, 0, victim, TO_VICT);
+            true, ch, NULL, victim, TO_VICT);
         return;
     }
 
@@ -474,12 +474,12 @@ ASPELL(spell_teleport)
         to_room = ch->in_room;
 
     act("$n slowly fades out of existence and is gone.",
-        false, victim, 0, 0, TO_ROOM);
+        false, victim, NULL, NULL, TO_ROOM);
     send_to_char(victim, "Your vision slowly fades to blackness...\r\n");
     send_to_char(victim, "A new scene unfolds before you!\r\n\r\n");
     char_from_room(victim, true);
     char_to_room(victim, to_room, true);
-    act("$n slowly fades into existence.", true, victim, 0, 0, TO_ROOM);
+    act("$n slowly fades into existence.", true, victim, NULL, NULL, TO_ROOM);
     look_at_room(victim, victim->in_room, 0);
 }
 
@@ -497,7 +497,7 @@ ASPELL(spell_astral_spell)
         send_to_char(victim, "You fade out for a moment...\r\n"
             "The magic quickly dissipates!\r\n");
         act("$n fades out for a moment but quickly flickers back into view.",
-            false, victim, 0, 0, TO_ROOM);
+            false, victim, NULL, NULL, TO_ROOM);
         /* Removed per Cat's request
            "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
            act("$n is knocked to the ground by a blinding flash of light!",
@@ -510,44 +510,44 @@ ASPELL(spell_astral_spell)
         ch->master->in_room == ch->in_room) {
         if (ch == victim) {
             act("You just can't stand the thought of leaving $N behind.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         } else if (victim == ch->master) {
             act("You really can't stand the though of parting with $N.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         }
     }
 
     if (ch->in_room->zone->number == 400 || GET_PLANE(ch->in_room) ==
         PLANE_DOOM || ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)) {
-        call_magic(ch, victim, 0, NULL, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch),
+        call_magic(ch, victim, NULL, NULL, SPELL_LOCAL_TELEPORT, GET_LEVEL(ch),
             CAST_SPELL);
         return;
     }
 
     if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
         act("You feel strange as $n attempts to send you into the astral.",
-            false, ch, 0, victim, TO_VICT);
+            false, ch, NULL, victim, TO_VICT);
         act("You fail.  $N is in a non-violence zone!.",
-            false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_CHAR);
         return;
     }
     if (ch != victim && IS_PC(ch) && IS_PC(victim) &&
         victim->in_room->zone->pk_style == ZONE_NO_PK) {
         act("You feel strange as $n attempts to send you into the astral.",
-            false, ch, 0, victim, TO_VICT);
-        act("You fail.  $N is in a !PK zone!.", false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_VICT);
+        act("You fail.  $N is in a !PK zone!.", false, ch, NULL, victim, TO_CHAR);
         return;
     }
 
     if (GET_LEVEL(victim) > LVL_AMBASSADOR
         && GET_LEVEL(victim) > GET_LEVEL(ch)) {
-        act("$N sneers at you with disgust.\r\n", false, ch, 0, victim,
+        act("$N sneers at you with disgust.\r\n", false, ch, NULL, victim,
             TO_CHAR);
-        act("$N sneers at $n with disgust.\r\n", false, ch, 0, victim,
+        act("$N sneers at $n with disgust.\r\n", false, ch, NULL, victim,
             TO_NOTVICT);
-        act("You sneer at $n with disgust.\r\n", false, ch, 0, victim,
+        act("You sneer at $n with disgust.\r\n", false, ch, NULL, victim,
             TO_VICT);
         return;
     }
@@ -560,9 +560,9 @@ ASPELL(spell_astral_spell)
 
     if (teleport_not_ok(ch, victim, level)) {
         act("$N resists your attempt to send $m into the astral plane!",
-            true, ch, 0, victim, TO_CHAR);
+            true, ch, NULL, victim, TO_CHAR);
         act("You resist $n's attempt to send you into the astral plane!",
-            true, ch, 0, victim, TO_VICT);
+            true, ch, NULL, victim, TO_VICT);
         return;
     }
 
@@ -595,13 +595,13 @@ ASPELL(spell_astral_spell)
         zone->enter_count++;
 
     act("$n slowly fades out of this plane of existence and is gone.",
-        false, victim, 0, 0, TO_ROOM);
+        false, victim, NULL, NULL, TO_ROOM);
     send_to_char(victim, "Your vision slowly fades to blackness...\r\n");
     send_to_char(victim, "A new scene unfolds before you!\r\n\r\n");
     char_from_room(victim, true);
     char_to_room(victim, to_room, true);
     act("$n slowly fades into existence from another plane.",
-        true, victim, 0, 0, TO_ROOM);
+        true, victim, NULL, NULL, TO_ROOM);
     look_at_room(victim, victim->in_room, 0);
 }
 
@@ -618,7 +618,7 @@ ASPELL(spell_summon)
     if (GET_LEVEL(victim) >= LVL_AMBASSADOR &&
         GET_LEVEL(ch) < GET_LEVEL(victim)) {
         send_to_char(ch, "Cannot find the target of your spell!\r\n");
-        act("$n has just tried to summon you.", false, ch, 0, victim, TO_VICT);
+        act("$n has just tried to summon you.", false, ch, NULL, victim, TO_VICT);
         return;
     }
     if (ch->in_room == victim->in_room) {
@@ -630,7 +630,7 @@ ASPELL(spell_summon)
         send_to_char(victim, "You fade out for a moment...\r\n"
             "The magic quickly dissipates!\r\n");
         act("$n fades out for a moment but quickly flickers back into view.",
-            false, victim, 0, 0, TO_ROOM);
+            false, victim, NULL, NULL, TO_ROOM);
         send_to_char(ch, SUMMON_FAIL);
         return;
     }
@@ -658,9 +658,9 @@ ASPELL(spell_summon)
 
     if (teleport_not_ok(ch, victim, level)) {
         act("$N resists your attempt to summon $M!",
-            true, ch, 0, victim, TO_CHAR);
+            true, ch, NULL, victim, TO_CHAR);
         act("You resist $n's attempt to summon you!",
-            true, ch, 0, victim, TO_VICT);
+            true, ch, NULL, victim, TO_VICT);
         slog("%s attempted summoning %s to %s[%d] (!ok)", GET_NAME(ch),
             GET_NAME(victim), ch->in_room->name, ch->in_room->number);
         return;
@@ -680,7 +680,7 @@ ASPELL(spell_summon)
         send_to_char(ch,
             "You can neither summon players out of arenas nor into arenas.\r\n");
         if (ch != victim)
-            act("$n has attempted to summon you.", false, ch, 0, victim,
+            act("$n has attempted to summon you.", false, ch, NULL, victim,
                 TO_VICT);
         slog("%s attempted summoning %s to %s[%d] (arena failure)",
             GET_NAME(ch), GET_NAME(victim), ch->in_room->name,
@@ -692,7 +692,7 @@ ASPELL(spell_summon)
         !clan_house_can_enter(victim, ch->in_room)) {
         send_to_char(ch,
             "You cannot summon non-members into the clan house.\r\n");
-        act("$n has attempted to summon you to $s clan house!!", false, ch, 0,
+        act("$n has attempted to summon you to $s clan house!!", false, ch, NULL,
             victim, TO_VICT);
         mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(victim)), CMP, true,
             "%s has attempted to summon %s into %s (clan).", GET_NAME(ch),
@@ -705,7 +705,7 @@ ASPELL(spell_summon)
             "You cannot summon clan members from their clan house.\r\n");
         act(tmp_sprintf("$n has attempted to summon you to %s!!\r\n"
                 "$e failed because you are in your clan house.\r\n",
-                ch->in_room->name), false, ch, 0, victim, TO_VICT);
+                ch->in_room->name), false, ch, NULL, victim, TO_VICT);
         mudlog(MAX(GET_INVIS_LVL(ch), GET_INVIS_LVL(victim)), CMP, true,
             "%s has attempted to summon %s from %s (clan).",
             GET_NAME(ch), GET_NAME(victim), victim->in_room->name);
@@ -717,7 +717,7 @@ ASPELL(spell_summon)
         (ZONE_FLAGGED(victim->in_room->zone, ZONE_ISOLATED) ||
             ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) {
         act("The place $E exists is completely isolated from this.",
-            false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_CHAR);
         slog("%s attempted summoning %s to %s[%d] (isolated)", GET_NAME(ch),
             GET_NAME(victim), ch->in_room->name, ch->in_room->number);
         return;
@@ -737,14 +737,14 @@ ASPELL(spell_summon)
         } else if (GET_PLANE(victim->in_room) != PLANE_ASTRAL) {
             if (number(0, 120) > (CHECK_SKILL(ch, SPELL_SUMMON) + GET_INT(ch))) {
                 if ((targ_room = real_room(number(41100, 41863))) != NULL) {
-                    act("You fail, sending $N hurtling into the Astral Plane!!!", false, ch, 0, victim, TO_CHAR);
-                    act("$n attempts to summon you, but something goes wrong!!\r\n" "You are send hurtling into the Astral Plane!!", false, ch, 0, victim, TO_VICT);
+                    act("You fail, sending $N hurtling into the Astral Plane!!!", false, ch, NULL, victim, TO_CHAR);
+                    act("$n attempts to summon you, but something goes wrong!!\r\n" "You are send hurtling into the Astral Plane!!", false, ch, NULL, victim, TO_VICT);
                     act("$N is suddenly sucked into an astral void.",
-                        true, ch, 0, victim, TO_NOTVICT);
+                        true, ch, NULL, victim, TO_NOTVICT);
                     char_from_room(victim, true);
                     char_to_room(victim, targ_room, true);
                     act("$N is suddenly pulled into the Astral Plane!",
-                        true, ch, 0, victim, TO_NOTVICT);
+                        true, ch, NULL, victim, TO_NOTVICT);
                     look_at_room(victim, victim->in_room, 0);
                     WAIT_STATE(ch, PULSE_VIOLENCE * 2);
                     return;
@@ -776,13 +776,13 @@ ASPELL(spell_summon)
         return;
     }
 
-    act("$n disappears suddenly.", true, victim, 0, 0, TO_ROOM);
+    act("$n disappears suddenly.", true, victim, NULL, NULL, TO_ROOM);
 
     char_from_room(victim, true);
     char_to_room(victim, ch->in_room, true);
 
-    act("$n arrives suddenly.", true, victim, 0, 0, TO_ROOM);
-    act("$n has summoned you!", false, ch, 0, victim, TO_VICT);
+    act("$n arrives suddenly.", true, victim, NULL, NULL, TO_ROOM);
+    act("$n has summoned you!", false, ch, NULL, victim, TO_VICT);
     look_at_room(victim, victim->in_room, 0);
     WAIT_STATE(ch, PULSE_VIOLENCE * 2);
 
@@ -949,12 +949,12 @@ ASPELL(spell_charm)
     else if (!IS_NPC(victim) && !(victim->desc))
         send_to_char(ch, "You cannot charm linkless players!\r\n");
     else if (!ok_damage_vendor(ch, victim)) {
-        act("$N falls down laughing at you!", false, ch, 0, victim, TO_CHAR);
-        act("$N peers deeply into your eyes...", false, ch, 0, victim,
+        act("$N falls down laughing at you!", false, ch, NULL, victim, TO_CHAR);
+        act("$N peers deeply into your eyes...", false, ch, NULL, victim,
             TO_CHAR);
-        act("$N falls down laughing at $n!", false, ch, 0, victim, TO_ROOM);
+        act("$N falls down laughing at $n!", false, ch, NULL, victim, TO_ROOM);
         act("$N peers deeply into the eyes of $n...",
-            false, ch, 0, victim, TO_ROOM);
+            false, ch, NULL, victim, TO_ROOM);
         if (ch->master)
             stop_follower(ch);
         add_follower(ch, victim);
@@ -967,7 +967,7 @@ ASPELL(spell_charm)
         af.level = level;
         af.aff_index = 0;
         affect_to_char(ch, &af);
-        act("Isn't $n just such a great friend?", false, victim, 0, ch,
+        act("Isn't $n just such a great friend?", false, victim, NULL, ch,
             TO_VICT);
         if (IS_NPC(ch)) {
             REMOVE_BIT(NPC_FLAGS(ch), NPC_AGGRESSIVE);
@@ -1007,11 +1007,11 @@ ASPELL(spell_charm)
         send_to_char(ch, "You cannot charm the undead!\r\n");
     else if (GET_LEVEL(victim) > LVL_AMBASSADOR &&
         GET_LEVEL(victim) > GET_LEVEL(ch)) {
-        act("$N sneers at you with disgust.\r\n", false, ch, 0, victim,
+        act("$N sneers at you with disgust.\r\n", false, ch, NULL, victim,
             TO_CHAR);
-        act("$N sneers at $n with disgust.\r\n", false, ch, 0, victim,
+        act("$N sneers at $n with disgust.\r\n", false, ch, NULL, victim,
             TO_NOTVICT);
-        act("You sneer at $n with disgust.\r\n", false, ch, 0, victim,
+        act("You sneer at $n with disgust.\r\n", false, ch, NULL, victim,
             TO_VICT);
         return;
     } else {
@@ -1032,7 +1032,7 @@ ASPELL(spell_charm)
         af.aff_index = 0;
         affect_to_char(victim, &af);
 
-        act("Isn't $n just such a nice fellow?", false, ch, 0, victim,
+        act("Isn't $n just such a nice fellow?", false, ch, NULL, victim,
             TO_VICT);
         if (IS_NPC(victim)) {
             REMOVE_BIT(NPC_FLAGS(victim), NPC_AGGRESSIVE);
@@ -1091,7 +1091,7 @@ ASPELL(spell_charm_animal)
         af.aff_index = 0;
         affect_to_char(victim, &af);
 
-        act("Isn't $n just such a nice friend?", false, ch, 0, victim,
+        act("Isn't $n just such a nice friend?", false, ch, NULL, victim,
             TO_VICT);
         if (IS_NPC(victim)) {
             REMOVE_BIT(NPC_FLAGS(victim), NPC_AGGRESSIVE);
@@ -1244,7 +1244,7 @@ ASPELL(spell_identify)
     } else if (victim) {        /* victim */
         if (creature_distrusts(victim, ch) &&
             mag_savingthrow(victim, level, SAVING_SPELL)) {
-            act("$N resists your spell!", false, ch, 0, victim, TO_CHAR);
+            act("$N resists your spell!", false, ch, NULL, victim, TO_CHAR);
             return;
         }
         send_to_char(ch, "Name: %s\r\n", GET_NAME(victim));
@@ -1377,7 +1377,7 @@ ASPELL(spell_minor_identify)
     } else if (victim) {        /* victim */
         if (creature_distrusts(victim, ch) &&
             mag_savingthrow(victim, level, SAVING_SPELL)) {
-            act("$N resists your spell!", false, ch, 0, victim, TO_CHAR);
+            act("$N resists your spell!", false, ch, NULL, victim, TO_CHAR);
             return;
         }
         send_to_char(ch, "Name: %s\r\n", GET_NAME(victim));
@@ -1446,7 +1446,7 @@ ASPELL(spell_enchant_weapon)
             60)
             + (GET_LEVEL(ch) >= 66);
 
-        act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows yellow.", false, ch, obj, NULL, TO_CHAR);
         if (level > number(30, 50))
             SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
@@ -1509,7 +1509,7 @@ ASPELL(spell_enchant_armor)
             obj->affected[3].modifier = saveMod;
         }
 
-        act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows yellow.", false, ch, obj, NULL, TO_CHAR);
         if (level > number(30, 50))
             SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
@@ -1573,7 +1573,7 @@ ASPELL(spell_greater_enchant)
             (GET_LEVEL(ch) >= 50) + (GET_LEVEL(ch) >= 56) +
             (GET_LEVEL(ch) >= 60) + (GET_LEVEL(ch) >= 67);
 
-        act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows yellow.", false, ch, obj, NULL, TO_CHAR);
     }
     if ((IS_OBJ_TYPE(obj, ITEM_ARMOR)) &&
         (!IS_OBJ_STAT(obj, ITEM_MAGIC)
@@ -1604,7 +1604,7 @@ ASPELL(spell_greater_enchant)
         obj->affected[3].location = APPLY_SAVING_SPELL;
         obj->affected[3].modifier = saveMod;
 
-        act("$p glows yellow.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows yellow.", false, ch, obj, NULL, TO_CHAR);
     }
     SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
     if (level > number(35, 52))
@@ -1652,17 +1652,17 @@ ASPELL(spell_magical_vestment)
         CAN_WEAR(obj, ITEM_WEAR_HOLD) ||
         CAN_WEAR(obj, ITEM_WEAR_ASS) ||
         CAN_WEAR(obj, ITEM_WEAR_EAR) || CAN_WEAR(obj, ITEM_WEAR_WIELD)) {
-        act("$p is not a suitable vestment due to the places where it can be worn.", false, ch, obj, 0, TO_CHAR);
+        act("$p is not a suitable vestment due to the places where it can be worn.", false, ch, obj, NULL, TO_CHAR);
         return;
     }
 
     if (IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
         if (GET_OBJ_VAL(obj, 0) > (GET_LEVEL(ch) / 10 + 2)) {
-            act("$p is not a suitable vestment because it is already a formidable armor.", false, ch, obj, 0, TO_CHAR);
+            act("$p is not a suitable vestment because it is already a formidable armor.", false, ch, obj, NULL, TO_CHAR);
             return;
         }
     } else if (GET_OBJ_TYPE(obj) != ITEM_WORN) {
-        act("$p is not a typical worn item, and cannot be the target of this spell.", false, ch, obj, 0, TO_CHAR);
+        act("$p is not a typical worn item, and cannot be the target of this spell.", false, ch, obj, NULL, TO_CHAR);
         return;
     }
     // silently remove the armor, save_para, save_spell affects
@@ -1683,14 +1683,14 @@ ASPELL(spell_magical_vestment)
             multiplier = 1.5;
         else {
             act("$p is an evil item.  You cannot endow it with your magic.",
-                false, ch, obj, 0, TO_CHAR);
+                false, ch, obj, NULL, TO_CHAR);
             return;
         }
     } else if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
         if (IS_GOOD(ch))
             multiplier = 1.5;
         else {
-            act("$p is a good item.  Burn it!!!", false, ch, obj, 0, TO_CHAR);
+            act("$p is a good item.  Burn it!!!", false, ch, obj, NULL, TO_CHAR);
             return;
         }
     }
@@ -1698,10 +1698,10 @@ ASPELL(spell_magical_vestment)
     SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
     if (IS_EVIL(ch)) {
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_DAMNED);
-        act("$p glows red.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows red.", false, ch, obj, NULL, TO_CHAR);
     } else {
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_BLESS);
-        act("$p glows blue.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows blue.", false, ch, obj, NULL, TO_CHAR);
     }
 
     obj->affected[0].location = APPLY_AC;
@@ -1730,13 +1730,13 @@ ASPELL(spell_clairvoyance)
         GET_LEVEL(ch) < GET_LEVEL(victim)) {
         send_to_char(ch, "Cannot find the target of your spell!\r\n");
         act("$n has just attempted to get clairvoyant on your ass.",
-            false, ch, 0, victim, TO_VICT);
+            false, ch, NULL, victim, TO_VICT);
         return;
     }
     if (victim->in_room == NULL || ROOM_FLAGGED(victim->in_room, ROOM_NOTEL)
         || ROOM_FLAGGED(victim->in_room, ROOM_GODROOM)) {
         act("$N seems to be outside the known universe at the moment.",
-            false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_CHAR);
         return;
     }
     for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
@@ -1763,7 +1763,7 @@ ASPELL(spell_clairvoyance)
                 30))) {
         if (affected_by_spell(victim, SPELL_DETECT_SCRYING))
             act("You feel the presence of $n pass near you.",
-                false, ch, 0, victim, TO_VICT);
+                false, ch, NULL, victim, TO_VICT);
         else
             send_to_char(victim,
                 "You feel a strange presence pass near you.\r\n");
@@ -1811,18 +1811,18 @@ ASPELL(spell_conjure_elemental)
 
     char_to_room(elemental, ch->in_room, true);
     act("You have conjured $N from $S home plane!",
-        false, ch, 0, elemental, TO_CHAR);
+        false, ch, NULL, elemental, TO_CHAR);
     act("$n has conjured $N from $S home plane!",
-        false, ch, 0, elemental, TO_ROOM);
+        false, ch, NULL, elemental, TO_ROOM);
 
     SET_BIT(NPC_FLAGS(elemental), NPC_PET);
 
     if ((number(0, 101) + GET_LEVEL(elemental) - GET_LEVEL(ch)
             - GET_INT(ch) - GET_WIS(ch)) > 60 || !can_charm_more(ch)) {
         act("Uh, oh.  $N doesn't look happy at you!",
-            false, ch, 0, elemental, TO_CHAR);
+            false, ch, NULL, elemental, TO_CHAR);
         act("$N doesn't look too happy at $n!",
-            false, ch, 0, elemental, TO_ROOM);
+            false, ch, NULL, elemental, TO_ROOM);
         start_hunting(elemental, ch);
         remember(elemental, ch);
         return;
@@ -1909,9 +1909,9 @@ ASPELL(spell_death_knell)
 
         // Messages
         act("$N withers and crumbles to dust as you drain $s lifeforce!",
-            false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_CHAR);
         act("$N withers and crumbles to dust as $n drains $s lifeforce!",
-            false, ch, 0, victim, TO_ROOM);
+            false, ch, NULL, victim, TO_ROOM);
 
         // Up the chars skill proficiency
         gain_skill_prof(ch, SPELL_DEATH_KNELL);
@@ -1920,7 +1920,7 @@ ASPELL(spell_death_knell)
         // 15 points of damage should do it.
         damage(ch, victim, NULL, 15, SPELL_DEATH_KNELL, 0);
     } else
-        act("Nothing seems to happen.", false, ch, 0, victim, TO_CHAR);
+        act("Nothing seems to happen.", false, ch, NULL, victim, TO_CHAR);
     return;
 }
 
@@ -1974,7 +1974,7 @@ ASPELL(spell_knock)
         REMOVE_BIT(knock_door->exit_info, EX_LOCKED);
         send_to_char(ch, "Opened.\r\n");
         sprintf(buf, "The %s %s flung open suddenly.", dname, ISARE(dname));
-        act(buf, false, ch, 0, 0, TO_ROOM);
+        act(buf, false, ch, NULL, NULL, TO_ROOM);
 
         for (i = 0; i < NUM_DIRS; i++) {
             if (ch->in_room->dir_option[i] &&
@@ -2033,9 +2033,9 @@ ASPELL(spell_sword)
     }
 
     char_to_room(sword, ch->in_room, true);
-    act("You have conjured $N from the ethereal plane!", false, ch, 0, sword,
+    act("You have conjured $N from the ethereal plane!", false, ch, NULL, sword,
         TO_CHAR);
-    act("$n has conjured $N from the ethereal plane!", false, ch, 0, sword,
+    act("$n has conjured $N from the ethereal plane!", false, ch, NULL, sword,
         TO_ROOM);
 
     if (sword->master)
@@ -2109,28 +2109,28 @@ ASPELL(spell_retrieve_corpse)
                 obj_from_obj(corpse);
             else if (corpse->carried_by) {
                 act("$p disappears out of your hands!", false,
-                    corpse->carried_by, corpse, 0, TO_CHAR);
+                    corpse->carried_by, corpse, NULL, TO_CHAR);
                 obj_from_char(corpse);
             } else if (corpse->worn_by) {
                 act("$p disappears off of your body!", false, corpse->worn_by,
-                    corpse, 0, TO_CHAR);
+                    corpse, NULL, TO_CHAR);
                 unequip_char(corpse->worn_by, corpse->worn_on, EQUIP_WORN);
             } else {
-                act("$S corpse has shifted out of the universe.", false, ch, 0,
+                act("$S corpse has shifted out of the universe.", false, ch, NULL,
                     victim, TO_CHAR);
                 return;
             }
             obj_to_room(corpse, ch->in_room);
-            act("$p appears in the center of the room!", false, ch, corpse, 0,
+            act("$p appears in the center of the room!", false, ch, corpse, NULL,
                 TO_CHAR);
-            act("$p appears in the center of the room!", false, ch, corpse, 0,
+            act("$p appears in the center of the room!", false, ch, corpse, NULL,
                 TO_ROOM);
             return;
         }
     if (ch == victim)
-        act("You cannot locate your corpse.", false, ch, 0, victim, TO_CHAR);
+        act("You cannot locate your corpse.", false, ch, NULL, victim, TO_CHAR);
     else
-        act("You cannot locate $S corpse.", false, ch, 0, victim, TO_CHAR);
+        act("You cannot locate $S corpse.", false, ch, NULL, victim, TO_CHAR);
     return;
 }
 
@@ -2146,7 +2146,7 @@ ASPELL(spell_gust_of_wind)
         if (!obj->in_room) {
             errlog("%s tried to gust %s at %d.",
                 GET_NAME(ch), obj->name, ch->in_room->number);
-            act("$p doesn't budge.", false, ch, obj, 0, TO_CHAR);
+            act("$p doesn't budge.", false, ch, obj, NULL, TO_CHAR);
             return;
         }
         if (GET_LEVEL(ch) + number(10, GET_DEX(ch) + 40) +
@@ -2167,22 +2167,22 @@ ASPELL(spell_gust_of_wind)
                     sprintf(buf,
                         "A sudden gust of wind blows $p out of sight to the %s!",
                         dirs[attempt]);
-                    act(buf, true, ch, obj, 0, TO_ROOM);
-                    act(buf, true, ch, obj, 0, TO_CHAR);
+                    act(buf, true, ch, obj, NULL, TO_ROOM);
+                    act(buf, true, ch, obj, NULL, TO_CHAR);
                     obj_from_room(obj);
                     obj_to_room(obj, target_room);
                     if (obj->in_room->people) {
                         sprintf(buf,
                             "$p is blown in on a gust of wind from the %s!",
                             from_dirs[attempt]);
-                        act(buf, false, NULL, obj, 0, TO_ROOM);
+                        act(buf, false, NULL, obj, NULL, TO_ROOM);
                         found = true;
                     }
                 }
             }
         }
         if (!found)
-            act("A gust of wind buffets $p!", false, ch, obj, 0, TO_ROOM);
+            act("A gust of wind buffets $p!", false, ch, obj, NULL, TO_ROOM);
 
         if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED)) {
             for (rm_aff = ch->in_room->affects; rm_aff; rm_aff = rm_aff->next)
@@ -2209,11 +2209,11 @@ ASPELL(spell_gust_of_wind)
         ch->master->in_room == ch->in_room) {
         if (ch == victim) {
             act("You just can't stand the thought of leaving $N behind.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         } else if (victim == ch->master) {
             act("You really can't stand the though of parting with $N.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         }
     }
@@ -2247,8 +2247,8 @@ ASPELL(spell_gust_of_wind)
                     sprintf(buf,
                         "A sudden gust of wind blows $N out of sight to the %s!",
                         dirs[attempt]);
-                    act(buf, true, ch, 0, victim, TO_NOTVICT);
-                    act(buf, true, ch, 0, victim, TO_CHAR);
+                    act(buf, true, ch, NULL, victim, TO_NOTVICT);
+                    act(buf, true, ch, NULL, victim, TO_CHAR);
                     send_to_char(victim,
                         "A sudden gust of wind blows you to the %s!",
                         dirs[attempt]);
@@ -2258,7 +2258,7 @@ ASPELL(spell_gust_of_wind)
                     sprintf(buf,
                         "$n is blown in on a gust of wind from the %s!",
                         from_dirs[attempt]);
-                    act(buf, false, victim, 0, 0, TO_ROOM);
+                    act(buf, false, victim, NULL, NULL, TO_ROOM);
                     GET_POSITION(victim) = POS_RESTING;
                     found = true;
                 }
@@ -2267,12 +2267,12 @@ ASPELL(spell_gust_of_wind)
     }
     if (!found) {
         act("A gust of wind buffets $N, who stands $S ground!",
-            false, ch, 0, victim, TO_NOTVICT);
+            false, ch, NULL, victim, TO_NOTVICT);
         if (victim != ch)
             act("A gust of wind buffets $N, who stands $S ground!",
-                false, ch, 0, victim, TO_CHAR);
+                false, ch, NULL, victim, TO_CHAR);
         act("A gust of wind buffets you, but you stand your ground!",
-            false, ch, 0, victim, TO_VICT);
+            false, ch, NULL, victim, TO_VICT);
     }
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED)) {
@@ -2297,8 +2297,8 @@ ASPELL(spell_peer)
     else if (!(target_rnum = real_room(GET_OBJ_VAL(obj, 0))))
         send_to_char(ch, "It leads absolutely nowhere!\r\n");
     else {
-        act("You peer through $p.", false, ch, obj, 0, TO_CHAR);
-        act("$n peers through $p.", false, ch, obj, 0, TO_ROOM);
+        act("You peer through $p.", false, ch, obj, NULL, TO_CHAR);
+        act("$n peers through $p.", false, ch, obj, NULL, TO_ROOM);
         look_at_room(ch, target_rnum, 1);
         return;
     }
@@ -2324,16 +2324,16 @@ ASPELL(spell_vestigial_rune)
             && GET_LEVEL(ch) < LVL_CREATOR)
         || ROOM_FLAGGED(ch->in_room,
             ROOM_DEATH | ROOM_NOTEL | ROOM_NOMAGIC | ROOM_NORECALL))
-        act("$p hums dully and gets cold.", false, ch, obj, 0, TO_CHAR);
+        act("$p hums dully and gets cold.", false, ch, obj, NULL, TO_CHAR);
     else {
         GET_OBJ_VAL(obj, 0) = ch->in_room->number;
         GET_OBJ_VAL(obj, 1) = GET_IDNUM(ch);
         if (GET_OBJ_VAL(obj, 2) >= 0)
             GET_OBJ_VAL(obj, 2) = (level >> 2);
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
-        act("$p glows briefly with a faint light.", false, ch, obj, 0,
+        act("$p glows briefly with a faint light.", false, ch, obj, NULL,
             TO_ROOM);
-        act("$p glows briefly with a faint light.", false, ch, obj, 0,
+        act("$p glows briefly with a faint light.", false, ch, obj, NULL,
             TO_CHAR);
     }
 }
@@ -2350,14 +2350,14 @@ ASPELL(spell_id_insinuation)
         return;
 
     send_to_char(victim, "You feel an intense desire to KILL someone!!\r\n");
-    act("$n looks around frantically!", true, victim, 0, 0, TO_ROOM);
+    act("$n looks around frantically!", true, victim, NULL, NULL, TO_ROOM);
 
     if ((mag_savingthrow(victim, level, SAVING_PSI) ||
             number(0, GET_LEVEL(victim)) > number(0, GET_LEVEL(ch))) &&
         can_see_creature(victim, ch)) {
-        act("$n attacks $N in a rage!!\r\n", true, victim, 0, ch, TO_NOTVICT);
-        act("$n attacks you in a rage!!\r\n", true, victim, 0, ch, TO_VICT);
-        act("You attack $N in a rage!!\r\n", true, victim, 0, ch, TO_CHAR);
+        act("$n attacks $N in a rage!!\r\n", true, victim, NULL, ch, TO_NOTVICT);
+        act("$n attacks you in a rage!!\r\n", true, victim, NULL, ch, TO_VICT);
+        act("You attack $N in a rage!!\r\n", true, victim, NULL, ch, TO_CHAR);
         add_combat(ch, victim, true);
         add_combat(victim, ch, false);
         return;
@@ -2385,9 +2385,9 @@ ASPELL(spell_id_insinuation)
             ulv = ch;
     }
 
-    act("$n attacks $N in a rage!!\r\n", true, victim, 0, ulv, TO_NOTVICT);
-    act("$n attacks you in a rage!!\r\n", true, victim, 0, ulv, TO_VICT);
-    act("You attack $N in a rage!!\r\n", true, victim, 0, ulv, TO_CHAR);
+    act("$n attacks $N in a rage!!\r\n", true, victim, NULL, ulv, TO_NOTVICT);
+    act("$n attacks you in a rage!!\r\n", true, victim, NULL, ulv, TO_VICT);
+    act("You attack $N in a rage!!\r\n", true, victim, NULL, ulv, TO_CHAR);
 
     add_combat(victim, ulv, false);
     add_combat(ulv, victim, false);
@@ -2496,13 +2496,13 @@ ASPELL(spell_summon_legion)
     char_to_room(devil, ch->in_room, false);
     act("A glowing interplanar rift opens with a crack of thunder!\r\n"
         "$n steps from the mouth of the conduit, which closes with a roar!",
-        false, devil, 0, 0, TO_ROOM);
+        false, devil, NULL, NULL, TO_ROOM);
 
     if (number(0, 50 + GET_LEVEL(devil)) >
         skill_bonus(ch, SPELL_SUMMON_LEGION) || !can_charm_more(ch)) {
         act("Uh, oh.  $N doesn't look happy at you!",
-            false, ch, 0, devil, TO_CHAR);
-        act("$N doesn't look too happy at $n!", false, ch, 0, devil, TO_ROOM);
+            false, ch, NULL, devil, TO_CHAR);
+        act("$N doesn't look too happy at $n!", false, ch, NULL, devil, TO_ROOM);
         start_hunting(devil, ch);
         remember(devil, ch);
         return;
@@ -2577,7 +2577,7 @@ ASPELL(spell_animate_dead)
                 GET_HIT(victim) + dice(4, level));
             send_to_char(victim,
                 "You feel a renewal of your tainted form.\r\n");
-            act("$n glows dimly as $s tainted flesh regenerates.", true, ch, 0,
+            act("$n glows dimly as $s tainted flesh regenerates.", true, ch, NULL,
                 victim, TO_NOTVICT);
         }
         return;
@@ -2616,7 +2616,7 @@ ASPELL(spell_animate_dead)
     //
 
     if (IS_UNDEAD(orig_char)) {
-        act("You cannot re-animate $p.", false, ch, obj, 0, TO_CHAR);
+        act("You cannot re-animate $p.", false, ch, obj, NULL, TO_CHAR);
         if (IS_PC(orig_char))
             free_creature(orig_char);
         return;
@@ -2753,7 +2753,7 @@ ASPELL(spell_animate_dead)
         free_creature(orig_char);
 
     char_to_room(zombie, ch->in_room, false);
-    act("$n rises slowly to a standing position.", false, zombie, 0, 0,
+    act("$n rises slowly to a standing position.", false, zombie, NULL, NULL,
         TO_ROOM);
 
     //
@@ -2784,7 +2784,7 @@ ASPELL(spell_unholy_stalker)
         GET_LEVEL(ch) < GET_LEVEL(victim)) {
         send_to_char(ch, "Cannot find the target of your spell!\r\n");
         act("$n has just tried to send a stalker after you.",
-            false, ch, 0, victim, TO_VICT);
+            false, ch, NULL, victim, TO_VICT);
         return;
     }
     if (!ok_to_attack(ch, victim, true))
@@ -2795,7 +2795,7 @@ ASPELL(spell_unholy_stalker)
         if (AFF_FLAGGED(victim, AFF_NOTRACK) ||
             find_first_step(ch->in_room, victim->in_room, STD_TRACK) < 0 ||
             (distance = find_distance(ch->in_room, victim->in_room)) < 0) {
-            act("You cannot discern a physical path to $M.", false, ch, 0,
+            act("You cannot discern a physical path to $M.", false, ch, NULL,
                 victim, TO_CHAR);
             return;
         }
@@ -2803,7 +2803,7 @@ ASPELL(spell_unholy_stalker)
         distance = 0;
 
     if (distance > level) {
-        act("$N is beyond the range of your powers.", false, ch, 0, victim,
+        act("$N is beyond the range of your powers.", false, ch, NULL, victim,
             TO_CHAR);
         return;
     }
@@ -2866,7 +2866,7 @@ ASPELL(spell_unholy_stalker)
     char_to_room(stalker, ch->in_room, false);
 
     act("The air becomes cold as $n materializes from the negative planes.",
-        false, stalker, 0, 0, TO_ROOM);
+        false, stalker, NULL, NULL, TO_ROOM);
 
     send_to_char(ch, "%s begins to stalk %s.\r\n", GET_NAME(stalker),
         GET_NAME(victim));
@@ -2885,7 +2885,7 @@ ASPELL(spell_control_undead)
 
     init_affect(&af);
     if (!IS_UNDEAD(victim)) {
-        act("$N is not undead!", false, ch, 0, victim, TO_CHAR);
+        act("$N is not undead!", false, ch, NULL, victim, TO_CHAR);
         return;
     }
 
@@ -2904,12 +2904,12 @@ ASPELL(spell_control_undead)
 
     else if (!ok_damage_vendor(ch, victim)) {
 
-        act("$N falls down laughing at you!", false, ch, 0, victim, TO_CHAR);
-        act("$N peers deeply into your eyes...", false, ch, 0, victim,
+        act("$N falls down laughing at you!", false, ch, NULL, victim, TO_CHAR);
+        act("$N peers deeply into your eyes...", false, ch, NULL, victim,
             TO_CHAR);
-        act("$N falls down laughing at $n!", false, ch, 0, victim, TO_ROOM);
+        act("$N falls down laughing at $n!", false, ch, NULL, victim, TO_ROOM);
         act("$N peers deeply into the eyes of $n...",
-            false, ch, 0, victim, TO_ROOM);
+            false, ch, NULL, victim, TO_ROOM);
         if (ch->master)
             stop_follower(ch);
         add_follower(ch, victim);
@@ -2922,7 +2922,7 @@ ASPELL(spell_control_undead)
         af.level = level;
         af.aff_index = 0;
         affect_to_char(ch, &af);
-        act("Isn't $n just such a great friend?", false, victim, 0, ch,
+        act("Isn't $n just such a great friend?", false, victim, NULL, ch,
             TO_VICT);
 
         if (IS_NPC(ch)) {
@@ -2962,11 +2962,11 @@ ASPELL(spell_control_undead)
 
     else if (GET_LEVEL(victim) > LVL_AMBASSADOR
         && GET_LEVEL(victim) > GET_LEVEL(ch)) {
-        act("$N sneers at you with disgust.\r\n", false, ch, 0, victim,
+        act("$N sneers at you with disgust.\r\n", false, ch, NULL, victim,
             TO_CHAR);
-        act("$N sneers at $n with disgust.\r\n", false, ch, 0, victim,
+        act("$N sneers at $n with disgust.\r\n", false, ch, NULL, victim,
             TO_NOTVICT);
-        act("You sneer at $n with disgust.\r\n", false, ch, 0, victim,
+        act("You sneer at $n with disgust.\r\n", false, ch, NULL, victim,
             TO_VICT);
         return;
     }
@@ -2990,7 +2990,7 @@ ASPELL(spell_control_undead)
         af.aff_index = 0;
         affect_to_char(victim, &af);
 
-        act("$n has become your unholy master.", false, ch, 0, victim,
+        act("$n has become your unholy master.", false, ch, NULL, victim,
             TO_VICT);
 
         if (IS_NPC(victim)) {
@@ -3019,7 +3019,7 @@ ASPELL(spell_sun_ray)
             if (!PRF2_FLAGGED(ch, PRF2_PKILLER)
                 && !IS_NPC(tch)
                 && IS_UNDEAD(tch)) {
-                act("You cannot do this, because this action might cause harm to $N,\r\n" "and you have not chosen to be a Pkiller.\r\n" "You can toggle this with the command 'pkiller'.", false, ch, 0, tch, TO_CHAR);
+                act("You cannot do this, because this action might cause harm to $N,\r\n" "and you have not chosen to be a Pkiller.\r\n" "You can toggle this with the command 'pkiller'.", false, ch, NULL, tch, TO_CHAR);
                 return;
             }
             if (IS_UNDEAD(tch) && !ok_to_attack(ch, tch, true))
@@ -3093,7 +3093,7 @@ ASPELL(spell_inferno)
                 act("You cannot do this, because this action might cause harm to $N,\r\n"
                     "and you have not chosen to be a Pkiller.\r\n"
                     "You can toggle this with the command 'pkiller'.",
-                    false, ch, 0, tch, TO_CHAR);
+                    false, ch, NULL, tch, TO_CHAR);
                 return;
             }
             if (!ok_to_attack(ch, tch, true))
@@ -3145,7 +3145,7 @@ ASPELL(spell_banishment)
             return;
         }
 
-        act("$n is banished to $s home plane!", false, victim, 0, 0, TO_ROOM);
+        act("$n is banished to $s home plane!", false, victim, NULL, NULL, TO_ROOM);
 
         creature_die(victim);
         gain_skill_prof(ch, SPELL_BANISHMENT);
@@ -3153,7 +3153,7 @@ ASPELL(spell_banishment)
         return;
     }
 
-    act("You cannot banish $N.", false, ch, 0, victim, TO_CHAR);
+    act("You cannot banish $N.", false, ch, NULL, victim, TO_CHAR);
 
 }
 
@@ -3261,7 +3261,7 @@ ASPELL(spell_dispel_magic)
             }
             send_to_char(victim, "You feel your magic fading away!\r\n");
             act("The magic of $n flows out into the universe.", true,
-                victim, 0, 0, TO_ROOM);
+                victim, NULL, NULL, TO_ROOM);
         } else {
             send_to_char(ch, "Nothing seems to happen.\r\n");
         }
@@ -3277,12 +3277,12 @@ ASPELL(spell_dispel_magic)
 
     if (tmp_affected && !IS_OBJ_STAT(obj, ITEM_MAGIC)) {
         act("All the magic that $p ever had is gone.", true,
-            ch, obj, 0, TO_CHAR);
+            ch, obj, NULL, TO_CHAR);
         return;
     }
     // Cast on object
     if (!IS_OBJ_STAT(obj, ITEM_MAGIC)) {
-        act("$p is not magical.", false, ch, obj, 0, TO_CHAR);
+        act("$p is not magical.", false, ch, obj, NULL, TO_CHAR);
         return;
     }
 
@@ -3295,7 +3295,7 @@ ASPELL(spell_dispel_magic)
 
     if (IS_OBJ_STAT(obj, ITEM_BLESS) || IS_OBJ_STAT(obj, ITEM_DAMNED)) {
         act("$p hums for a moment this absorbs your magic!", false,
-            ch, obj, 0, TO_CHAR);
+            ch, obj, NULL, TO_CHAR);
         return;
     }
     // removes up to ten affects
@@ -3313,10 +3313,10 @@ ASPELL(spell_dispel_magic)
             REMOVE_BIT(obj->obj_flags.extra_flags, ITEM_MAGIC);
 
         act("All the magic that $p ever had is gone.", true,
-            ch, obj, 0, TO_CHAR);
+            ch, obj, NULL, TO_CHAR);
     } else {
         act("Your spell unravels some of the magic of $p!", true,
-            ch, obj, 0, TO_CHAR);
+            ch, obj, NULL, TO_CHAR);
     }
 }
 
@@ -3344,10 +3344,10 @@ ASPELL(spell_distraction)
 
     gain_skill_prof(ch, SPELL_DISTRACTION);
 
-    act("$N suddenly looks very distracted.", false, ch, 0, victim, TO_CHAR);
-    act("You suddenly feel like you're missing something...", false, ch, 0,
+    act("$N suddenly looks very distracted.", false, ch, NULL, victim, TO_CHAR);
+    act("You suddenly feel like you're missing something...", false, ch, NULL,
         victim, TO_VICT);
-    act("$N suddenly looks very distracted.", false, ch, 0, victim,
+    act("$N suddenly looks very distracted.", false, ch, NULL, victim,
         TO_NOTVICT);
 }
 
@@ -3393,7 +3393,7 @@ ASPELL(spell_bless)
 
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_BLESS);
-        act("$p glows blue.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows blue.", false, ch, obj, NULL, TO_CHAR);
 
         if (IS_OBJ_TYPE(obj, ITEM_ARMOR) || IS_OBJ_TYPE(obj, ITEM_WORN)) {
             if (GET_LEVEL(ch) >= 37) {
@@ -3429,11 +3429,11 @@ ASPELL(spell_bless)
         send_to_char(victim, "You feel righteous.\r\n");
         if (ch != victim)
             act("$N briefly glows with a bright blue light!", true,
-                ch, 0, victim, TO_CHAR);
+                ch, NULL, victim, TO_CHAR);
         act("You briefly glow with a bright blue light!", true,
-            ch, 0, victim, TO_VICT);
+            ch, NULL, victim, TO_VICT);
         act("$N briefly glows with a bright blue light!", true,
-            ch, 0, victim, TO_NOTVICT);
+            ch, NULL, victim, TO_NOTVICT);
     }
 
     gain_skill_prof(ch, SPELL_BLESS);
@@ -3490,7 +3490,7 @@ ASPELL(spell_damn)
 
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC);
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_DAMNED);
-        act("$p glows red.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows red.", false, ch, obj, NULL, TO_CHAR);
 
         if (IS_OBJ_TYPE(obj, ITEM_FOOD)) {
             GET_OBJ_VAL(obj, 1) = GET_LEVEL(ch) / 2;
@@ -3535,11 +3535,11 @@ ASPELL(spell_damn)
 
         if (ch != victim)
             act("$N briefly glows with a dark red light!", true,
-                ch, 0, victim, TO_CHAR);
+                ch, NULL, victim, TO_CHAR);
         act("You briefly glow with a dark red light!", true,
-            ch, 0, victim, TO_VICT);
+            ch, NULL, victim, TO_VICT);
         act("$N briefly glows with a dark red light!", true,
-            ch, 0, victim, TO_NOTVICT);
+            ch, NULL, victim, TO_NOTVICT);
     }
     gain_skill_prof(ch, SPELL_DAMN);
 }
@@ -3592,9 +3592,9 @@ load_familiar(struct creature *ch, int sect_type, int type)
 
     char_to_room(result, ch->in_room, true);
     if (to_char)
-        act(to_room, false, result, 0, ch, TO_CHAR);
+        act(to_room, false, result, NULL, ch, TO_CHAR);
     if (to_room)
-        act(to_room, false, result, 0, ch, TO_ROOM);
+        act(to_room, false, result, NULL, ch, TO_ROOM);
 
     return result;
 }
@@ -3614,11 +3614,11 @@ perform_call_familiar(struct creature * ch, int level, int type)
             send_to_char(ch, "%s", NOEFFECT);
             if (ch->in_room == cur_fol->follower->in_room) {
                 act("$N looks up at you mournfully.", true,
-                    ch, 0, cur_fol->follower, TO_CHAR);
+                    ch, NULL, cur_fol->follower, TO_CHAR);
                 act("You look up at $n mournfully.", true,
-                    ch, 0, cur_fol->follower, TO_VICT);
+                    ch, NULL, cur_fol->follower, TO_VICT);
                 act("$N looks up at $n mournfully.", true,
-                    ch, 0, cur_fol->follower, TO_NOTVICT);
+                    ch, NULL, cur_fol->follower, TO_NOTVICT);
             }
             return false;
         }

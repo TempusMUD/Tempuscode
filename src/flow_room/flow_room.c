@@ -215,16 +215,16 @@ flow_one_creature(struct creature *ch, struct room_data *rnum, int pulse,
     CHAR_CUR_PULSE(ch) = pulse;
 
     act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1],
-            to_dirs[dir]), true, ch, 0, 0, TO_ROOM);
+            to_dirs[dir]), true, ch, NULL, NULL, TO_ROOM);
 
     act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TOCHAR],
-            to_dirs[dir]), false, ch, 0, 0, TO_CHAR);
+            to_dirs[dir]), false, ch, NULL, NULL, TO_CHAR);
 
     char_from_room(ch, true);
     char_to_room(ch, ABS_EXIT(rnum, dir)->to_room, true);
     look_at_room(ch, ch->in_room, 0);
     act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2],
-            from_dirs[dir]), true, ch, 0, 0, TO_ROOM);
+            from_dirs[dir]), true, ch, NULL, NULL, TO_ROOM);
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
         && GET_LEVEL(ch) < LVL_AMBASSADOR) {
@@ -357,12 +357,12 @@ flow_room(int pulse)
 
                     act(tmp_sprintf(obj_flow_msg[(int)
                                 FLOW_TYPE(rnum)][MSG_TORM_1], to_dirs[dir]),
-                        true, 0, obj, 0, TO_ROOM);
+                        true, NULL, obj, NULL, TO_ROOM);
                     obj_from_room(obj);
                     obj_to_room(obj, ABS_EXIT(rnum, dir)->to_room);
                     act(tmp_sprintf(obj_flow_msg[(int)
                                 FLOW_TYPE(rnum)][MSG_TORM_2], from_dirs[dir]),
-                        true, 0, obj, 0, TO_ROOM);
+                        true, NULL, obj, NULL, TO_ROOM);
                 }
             }
         }
@@ -370,7 +370,7 @@ flow_room(int pulse)
 }
 
 void
-dynamic_object_pulse()
+dynamic_object_pulse(void)
 {
 
     register struct obj_data *obj = NULL, *next_obj = NULL;
@@ -399,12 +399,12 @@ dynamic_object_pulse()
             fall_to != obj->in_room &&
             !IS_SET(obj->in_room->dir_option[DOWN]->exit_info, EX_CLOSED)) {
             if (obj->in_room->people)
-                act("$p falls downward through the air!", true, 0, obj, 0,
+                act("$p falls downward through the air!", true, NULL, obj, NULL,
                     TO_ROOM);
             obj_from_room(obj);
             obj_to_room(obj, fall_to);
             if (obj->in_room->people)
-                act("$p falls in from above.", false, 0, obj, 0, TO_ROOM);
+                act("$p falls in from above.", false, NULL, obj, NULL, TO_ROOM);
             continue;
         }
 
@@ -423,9 +423,9 @@ dynamic_object_pulse()
                         act("$p burns itself out.",
                             true,
                             obj->worn_by ? obj->worn_by : obj->carried_by, obj,
-                            0, TO_CHAR);
+                            NULL, TO_CHAR);
                     else if (obj->in_room && obj->in_room->people)
-                        act("$p burns itself out.", true, 0, obj, 0, TO_ROOM);
+                        act("$p burns itself out.", true, NULL, obj, NULL, TO_ROOM);
                     extract_obj(obj);
                     continue;
                 }
@@ -443,7 +443,7 @@ dynamic_object_pulse()
 
                     if ((vict = obj->carried_by) || (vict = obj->worn_by)) {
                         act("$p auto switching off: depleted of energy.",
-                            false, vict, obj, 0, TO_CHAR | TO_SLEEP);
+                            false, vict, obj, NULL, TO_CHAR | TO_SLEEP);
                     }
                 }
                 continue;
@@ -455,7 +455,7 @@ dynamic_object_pulse()
                     CUR_ENERGY(obj) = 0;
                     if ((vict = obj->carried_by) || (vict = obj->worn_by)) {
                         act("$p auto switching off: depleted of energy.",
-                            false, vict, obj, 0, TO_CHAR | TO_SLEEP);
+                            false, vict, obj, NULL, TO_CHAR | TO_SLEEP);
                         if (obj->worn_by) {
                             apply_object_affects(obj->worn_by, obj, false);
                             ENGINE_STATE(obj) = 0;
@@ -594,7 +594,7 @@ room_affected_by(struct room_data *room, int type)
             return aff;
     }
 
-    return false;
+    return NULL;
 }
 
 #undef __flow_room_c__

@@ -485,10 +485,10 @@ SPECIAL(do_auctions)
         dick = random_opponent(self);
         act("A ball of light streaks from $N's hand and hits you "
             "square in the chest, burning you to a cinder!", false,
-            dick, 0, self, TO_CHAR);
+            dick, NULL, self, TO_CHAR);
         act("A ball of light streaks from $n's hand and hits $N "
             "square in the chest, burning $M to a cinder!", false,
-            self, 0, dick, TO_NOTVICT);
+            self, NULL, dick, TO_NOTVICT);
         raw_kill(dick, self, TYPE_SLASH);
     }
 

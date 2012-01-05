@@ -594,45 +594,45 @@ point_update(void)
                 switch (number(0, 6)) {
                 case 0:
                     act("You puke all over the place.",
-                        true, tch, 0, 0, TO_CHAR);
-                    act("$n pukes all over the place.", false, tch, 0, 0,
+                        true, tch, NULL, NULL, TO_CHAR);
+                    act("$n pukes all over the place.", false, tch, NULL, NULL,
                         TO_ROOM);
                     break;
                 case 1:
-                    act("You vomit uncontrollably.", true, tch, 0, 0, TO_CHAR);
-                    act("$n vomits uncontrollably.", false, tch, 0, 0,
+                    act("You vomit uncontrollably.", true, tch, NULL, NULL, TO_CHAR);
+                    act("$n vomits uncontrollably.", false, tch, NULL, NULL,
                         TO_ROOM);
                     break;
 
                 case 2:
                     act("You begin to regurgitate steaming bile.",
-                        true, tch, 0, 0, TO_CHAR);
+                        true, tch, NULL, NULL, TO_CHAR);
                     act("$n begins to regurgitate steaming bile.", false, tch,
-                        0, 0, TO_ROOM);
+                        NULL, NULL, TO_ROOM);
                     break;
 
                 case 3:
-                    act("You are violently overcome with a fit of dry heaving.", true, tch, 0, 0, TO_CHAR);
+                    act("You are violently overcome with a fit of dry heaving.", true, tch, NULL, NULL, TO_CHAR);
                     act("$n is violently overcome with a fit of dry heaving.",
-                        false, tch, 0, 0, TO_ROOM);
+                        false, tch, NULL, NULL, TO_ROOM);
                     break;
 
                 case 4:
-                    act("You begin to retch.", true, tch, 0, 0, TO_CHAR);
-                    act("$n begins to retch.", false, tch, 0, 0, TO_ROOM);
+                    act("You begin to retch.", true, tch, NULL, NULL, TO_CHAR);
+                    act("$n begins to retch.", false, tch, NULL, NULL, TO_ROOM);
                     break;
 
                 case 5:
                     act("You violently eject your lunch!",
-                        true, tch, 0, 0, TO_CHAR);
-                    act("$n violently ejects $s lunch!", false, tch, 0, 0,
+                        true, tch, NULL, NULL, TO_CHAR);
+                    act("$n violently ejects $s lunch!", false, tch, NULL, NULL,
                         TO_ROOM);
                     break;
 
                 default:
-                    act("You begin an extended session of tossing your cookies.", true, tch, 0, 0, TO_CHAR);
+                    act("You begin an extended session of tossing your cookies.", true, tch, NULL, NULL, TO_CHAR);
                     act("$n begins an extended session of tossing $s cookies.",
-                        false, tch, 0, 0, TO_ROOM);
+                        false, tch, NULL, NULL, TO_ROOM);
                     break;
                 }
             }
@@ -729,7 +729,7 @@ point_update(void)
                     "(GC) %s un-frozen by timeout.", GET_NAME(tch));
                 send_to_char(tch, "You thaw out and can move again.\r\n");
                 act("$n has thawed out and can move again.",
-                    false, tch, 0, 0, TO_ROOM);
+                    false, tch, NULL, NULL, TO_ROOM);
             }
         }
     }
@@ -751,11 +751,11 @@ point_update(void)
 
             if (GET_OBJ_TIMER(j) <= 0) {
                 if (j->carried_by)
-                    act("$p decays in your hands.", false, j->carried_by, j, 0,
+                    act("$p decays in your hands.", false, j->carried_by, j, NULL,
                         TO_CHAR);
                 if (j->worn_by)
                     act("$p disintegrates as you are wearing it.", false,
-                        j->worn_by, j, 0, TO_CHAR);
+                        j->worn_by, j, NULL, TO_CHAR);
                 else if ((j->in_room != NULL) && (j->in_room->people)) {
                     const char *msg =
                         "$p decays into nothing right before your eyes.";
@@ -800,8 +800,8 @@ point_update(void)
                         msg = "$p decays into nothing before your eyes.";
                     }
 
-                    act(msg, true, NULL, j, 0, TO_ROOM);
-                    act(msg, true, NULL, j, 0, TO_CHAR);
+                    act(msg, true, NULL, j, NULL, TO_ROOM);
+                    act(msg, true, NULL, j, NULL, TO_CHAR);
                 }
 
                 for (jj = j->contains; jj; jj = next_thing2) {
@@ -842,12 +842,12 @@ point_update(void)
             if (GET_OBJ_TIMER(j) == 0) {
                 if (j->carried_by)
                     act("$p collapses into mush in your hands.",
-                        false, j->carried_by, j, 0, TO_CHAR);
+                        false, j->carried_by, j, NULL, TO_CHAR);
                 else if ((j->in_room != NULL) && (j->in_room->people)) {
                     act("$p collapses into nothing.",
-                        true, NULL, j, 0, TO_ROOM);
+                        true, NULL, j, NULL, TO_ROOM);
                     act("$p collapses into nothing.",
-                        true, NULL, j, 0, TO_CHAR);
+                        true, NULL, j, NULL, TO_CHAR);
                 }
                 // drop out the (damaged) implants
                 for (jj = j->contains; jj; jj = next_thing2) {
@@ -886,9 +886,9 @@ point_update(void)
             if (GET_OBJ_TIMER(j) <= 0) {
                 if (j->action_desc && j->in_room) {
                     act("$p collapses in on itself.",
-                        true, NULL, j, 0, TO_CHAR);
+                        true, NULL, j, NULL, TO_CHAR);
                     act("$p collapses in on itself.",
-                        true, NULL, j, 0, TO_ROOM);
+                        true, NULL, j, NULL, TO_ROOM);
                 }
                 extract_obj(j);
             }
@@ -907,7 +907,7 @@ point_update(void)
                 }
 
                 if (GET_OBJ_TIMER(j) <= 0) {
-                    act("$p melts and is gone.", true, NULL, j, 0, TO_ROOM);
+                    act("$p melts and is gone.", true, NULL, j, NULL, TO_ROOM);
                     extract_obj(j);
                 }
             }
@@ -939,15 +939,15 @@ point_update(void)
 
                 if (j->carried_by)
                     act("$p slowly fades out of existence.",
-                        false, j->carried_by, j, 0, TO_CHAR);
+                        false, j->carried_by, j, NULL, TO_CHAR);
                 if (j->worn_by)
                     act("$p disintegrates as you are wearing it.",
-                        false, j->worn_by, j, 0, TO_CHAR);
+                        false, j->worn_by, j, NULL, TO_CHAR);
                 else if ((j->in_room != NULL) && (j->in_room->people)) {
                     act("$p slowly fades out of existence.",
-                        true, NULL, j, 0, TO_ROOM);
+                        true, NULL, j, NULL, TO_ROOM);
                     act("$p slowly fades out of existence.",
-                        true, NULL, j, 0, TO_CHAR);
+                        true, NULL, j, NULL, TO_CHAR);
                 }
                 for (jj = j->contains; jj; jj = next_thing2) {
                     next_thing2 = jj->next_content; /* Next in inventory */

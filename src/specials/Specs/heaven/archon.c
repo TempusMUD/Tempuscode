@@ -22,11 +22,11 @@ SPECIAL(archon)
             }
         }
 
-        act("$n disappears in a flash of light.", false, ch, 0, 0, TO_ROOM);
+        act("$n disappears in a flash of light.", false, ch, NULL, NULL, TO_ROOM);
         if (room) {
             char_from_room(ch, false);
             char_to_room(ch, room, false);
-            act("$n appears at the center of the room.", false, ch, 0, 0,
+            act("$n appears at the center of the room.", false, ch, NULL, NULL,
                 TO_ROOM);
         } else {
             creature_purge(ch, true);

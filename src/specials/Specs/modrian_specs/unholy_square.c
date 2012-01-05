@@ -133,7 +133,7 @@ SPECIAL(unholy_square)
             ch->in_room->zone, 1);
 
         winner = GET_IDNUM(ch);
-        wintime = time(0);
+        wintime = time(NULL);
 
         perform_resanct(ch->in_room, &state, olddesc, oldtitle);
 

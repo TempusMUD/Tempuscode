@@ -460,7 +460,7 @@ boot_db(void)
 
     reset_q.head = reset_q.tail = NULL;
 
-    boot_time = time(0);
+    boot_time = time(NULL);
 
     slog("Boot db -- DONE.");
 }
@@ -470,7 +470,7 @@ void
 reset_time(void)
 {
     long epoch = 650336715;
-    time_t now = time(0);
+    time_t now = time(NULL);
     struct tm *sun_tm;
     char sun_str[30];
 
@@ -1345,7 +1345,7 @@ compile_all_progs(void)
                 prog_compile(NULL, room, PROG_TYPE_ROOM);
 
     // Compile all mob progs
-    g_hash_table_foreach(mob_prototypes, (GHFunc) maybe_compile_prog, 0);
+    g_hash_table_foreach(mob_prototypes, (GHFunc) maybe_compile_prog, NULL);
 }
 
 void
@@ -2367,7 +2367,7 @@ read_mobile(int vnum)
     mob->points.mana = mob->points.max_mana;
     mob->points.move = mob->points.max_move;
 
-    mob->player.time.birth = time(0);
+    mob->player.time.birth = time(NULL);
     mob->player.time.death = 0;
     mob->player.time.played = 0;
     mob->player.time.logon = mob->player.time.birth;
@@ -2728,7 +2728,7 @@ zone_update(void)
                 CREATE(update_u, struct reset_q_element, 1);
 
                 update_u->zone_to_reset = zone;
-                update_u->next = 0;
+                update_u->next = NULL;
 
                 if (!reset_q.head)
                     reset_q.head = reset_q.tail = update_u;

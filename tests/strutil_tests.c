@@ -37,7 +37,7 @@ static const char *bit_descs[32] = {
     "BIT_00", "BIT_01", "BIT_02", "BIT_03", "BIT_04",
     "BIT_05", "BIT_06", "BIT_07", "BIT_08", "BIT_09",
     "BIT_10", "BIT_11", "BIT_12", "BIT_13", "BIT_14",
-    "BIT_15", "\n", 0
+    "BIT_15", "\n", NULL
 };
 
 START_TEST(test_is_newl_macro)

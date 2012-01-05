@@ -26,7 +26,7 @@ SPECIAL(rat_mama)
                  struct creature *tch = it->data;
              if (!number(0, 1) == 0 && IS_NPC(tch)
                  && isname("rat", tch->player.name)) {
-                 act("$n climbs into a hole in the wall.", false, tch, 0, 0,
+                 act("$n climbs into a hole in the wall.", false, tch, NULL, NULL,
                      TO_ROOM);
                  char_from_room(tch, true);
                  creature_purge(tch, true);
@@ -36,7 +36,7 @@ SPECIAL(rat_mama)
         if (real_room(rat_rooms[i])->people && !number(0, 1)) {
             rat = read_mobile(number(4206, 4208));
             char_to_room(rat, real_room(rat_rooms[i]), false);
-            act("$n climbs out of a hole in the wall.", false, rat, 0, 0,
+            act("$n climbs out of a hole in the wall.", false, rat, NULL, NULL,
                 TO_ROOM);
             return true;
         }

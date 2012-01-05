@@ -457,10 +457,10 @@ ACMD(do_olc)
             }
 
             if (EXIT(ch, edir)->general_description == NULL) {
-                act("$n begins to create an exit description.", true, ch, 0, 0,
+                act("$n begins to create an exit description.", true, ch, NULL, NULL,
                     TO_ROOM);
             } else {
-                act("$n begins to edit an exit description.", true, ch, 0, 0,
+                act("$n begins to edit an exit description.", true, ch, NULL, NULL,
                     TO_ROOM);
             }
             start_editing_text(ch->desc, &EXIT(ch, edir)->general_description,
@@ -715,7 +715,7 @@ ACMD(do_olc)
 
                 for (d = descriptor_list; d; d = d->next) {
                     if (d->creature && GET_OLC_OBJ(d->creature) == tmp_obj) {
-                        act("$N is already editing that object.", false, ch, 0,
+                        act("$N is already editing that object.", false, ch, NULL,
                             d->creature, TO_CHAR);
                         return;
                     }
@@ -813,7 +813,7 @@ ACMD(do_olc)
             SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
             act("$n begins to write an object description.",
-                true, ch, 0, 0, TO_ROOM);
+                true, ch, NULL, NULL, TO_ROOM);
             UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
             for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)
                 if (GET_OBJ_VNUM(tmp_obj) == GET_OBJ_VNUM(obj_p))
@@ -826,7 +826,7 @@ ACMD(do_olc)
                 SET_BIT(PLR_FLAGS(ch), PLR_OLC);
                 UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
                 act("$n begins to write an object description.",
-                    true, ch, 0, 0, TO_ROOM);
+                    true, ch, NULL, NULL, TO_ROOM);
                 for (tmp_obj = object_list; tmp_obj; tmp_obj = tmp_obj->next)
                     if (GET_OBJ_VNUM(tmp_obj) == GET_OBJ_VNUM(obj_p))
                         tmp_obj->ex_description = NULL;
@@ -897,8 +897,8 @@ ACMD(do_olc)
         else {
             obj_to_char(tmp_obj, ch);
             GET_OBJ_TIMER(tmp_obj) = GET_LEVEL(ch);
-            act("$p appears in your hands.", false, ch, tmp_obj, 0, TO_CHAR);
-            act("$n creates $p in $s hands.", true, ch, tmp_obj, 0, TO_ROOM);
+            act("$p appears in your hands.", false, ch, tmp_obj, NULL, TO_CHAR);
+            act("$n creates $p in $s hands.", true, ch, tmp_obj, NULL, TO_ROOM);
             slog("OLC: %s oloaded [%d] %s.", GET_NAME(ch),
                 GET_OBJ_VNUM(tmp_obj), tmp_obj->name);
         }
@@ -1431,8 +1431,8 @@ ACMD(do_olc)
             send_to_char(ch, "Unable to load mobile.\r\n");
         } else {
             char_to_room(tmp_mob, ch->in_room, false);
-            act("$N appears next to you.", false, ch, 0, tmp_mob, TO_CHAR);
-            act("$n creates $N in $s hands.", true, ch, 0, tmp_mob, TO_ROOM);
+            act("$N appears next to you.", false, ch, NULL, tmp_mob, TO_CHAR);
+            act("$n creates $N in $s hands.", true, ch, NULL, tmp_mob, TO_ROOM);
             slog("OLC: %s mloaded [%d] %s.", GET_NAME(ch),
                 GET_NPC_VNUM(tmp_mob), GET_NAME(tmp_mob));
         }

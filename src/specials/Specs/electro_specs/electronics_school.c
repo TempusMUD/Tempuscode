@@ -11,32 +11,32 @@ electronics_raoe(struct creature *self)
     switch (number(0, 7)) {
     case 0:
         act("$n begins poring through a parts manual.",
-            false, self, 0, 0, TO_ROOM);
+            false, self, NULL, NULL, TO_ROOM);
         break;
     case 1:
         act("$n dabs a few drops of solder on a circuit board.",
-            false, self, 0, 0, TO_ROOM);
+            false, self, NULL, NULL, TO_ROOM);
         break;
     case 2:
-        act("$n gets a part out of a box.", false, self, 0, 0, TO_ROOM);
+        act("$n gets a part out of a box.", false, self, NULL, NULL, TO_ROOM);
         break;
     case 3:
-        act("$n frowns as $e breaks a wire.", false, self, 0, 0, TO_ROOM);
+        act("$n frowns as $e breaks a wire.", false, self, NULL, NULL, TO_ROOM);
         break;
     case 4:
-        act("Sparks fly as $n toggles a switch.", false, self, 0, 0, TO_ROOM);
+        act("Sparks fly as $n toggles a switch.", false, self, NULL, NULL, TO_ROOM);
         break;
     case 5:
         act("$n gazes serenely at a frenetically gyrating oscilloscope",
-            false, self, 0, 0, TO_ROOM);
+            false, self, NULL, NULL, TO_ROOM);
         break;
     case 6:
         act("$n quietly curses as $e burns $mself on $s soldering iron.",
-            false, self, 0, 0, TO_ROOM);
+            false, self, NULL, NULL, TO_ROOM);
         break;
     case 7:
         act("$n pushes a button, which blinks a few times and stops.",
-            false, self, 0, 0, TO_ROOM);
+            false, self, NULL, NULL, TO_ROOM);
         break;
     default:
         break;
@@ -100,7 +100,7 @@ SPECIAL(electronics_school)
     send_to_char(ch,
         "You pay %d creds to %s and are given a short electronics lesson.\r\n",
         cred_cost, PERS(self, ch));
-    act("$n pays $N, who gives an impromptu electronics lesson.", true, ch, 0,
+    act("$n pays $N, who gives an impromptu electronics lesson.", true, ch, NULL,
         self, TO_ROOM);
 
     WAIT_STATE(ch, PULSE_VIOLENCE * 2);

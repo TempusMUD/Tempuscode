@@ -100,9 +100,9 @@ SPECIAL(weaponsmaster)
     GET_GOLD(ch) -= cost;
     weap_spec.vnum = GET_OBJ_VNUM(weap);
     weap_spec.level++;
-    act("You improve your fighting aptitude with $p.", false, ch, weap, 0,
+    act("You improve your fighting aptitude with $p.", false, ch, weap, NULL,
         TO_CHAR);
-    act("$n improves $s fighting aptitude with $p.", false, ch, weap, 0,
+    act("$n improves $s fighting aptitude with $p.", false, ch, weap, NULL,
         TO_ROOM);
     crashsave(ch);
     return 1;

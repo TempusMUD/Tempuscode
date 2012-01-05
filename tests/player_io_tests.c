@@ -237,7 +237,7 @@ START_TEST(test_load_save_frozen)
 
     randomize_creature(ch, CLASS_UNDEFINED);
     PLR_FLAGS(ch) |= PLR_FROZEN;
-    ch->player_specials->thaw_time = time(0) + number(0, 65535);
+    ch->player_specials->thaw_time = time(NULL) + number(0, 65535);
     ch->player_specials->freezer_id = number(0, 65535);
 
     save_player_to_file(ch, "/tmp/test_player.xml");

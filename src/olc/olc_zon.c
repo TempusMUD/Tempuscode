@@ -2366,20 +2366,20 @@ do_zset_command(struct creature *ch, char *argument)
         break;
     case 19:                   // public description
         if (zone->public_desc)
-            act("$n begins to edit a zone description.", true, ch, 0, 0,
+            act("$n begins to edit a zone description.", true, ch, NULL, NULL,
                 TO_ROOM);
         else
-            act("$n starts to write a zone description.", true, ch, 0, 0,
+            act("$n starts to write a zone description.", true, ch, NULL, NULL,
                 TO_ROOM);
         start_editing_text(ch->desc, &zone->public_desc, 4096);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
         break;
     case 20:                   // private description
         if (zone->private_desc)
-            act("$n begins to edit a zone description.", true, ch, 0, 0,
+            act("$n begins to edit a zone description.", true, ch, NULL, NULL,
                 TO_ROOM);
         else
-            act("$n starts to write a zone description.", true, ch, 0, 0,
+            act("$n starts to write a zone description.", true, ch, NULL, NULL,
                 TO_ROOM);
         start_editing_text(ch->desc, &zone->private_desc, 4096);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);

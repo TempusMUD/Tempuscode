@@ -21,7 +21,7 @@ SPECIAL(chest_mimic)
 
     if (!strncasecmp(argument, "in chest", 8)) {
         send_to_char(ch, "It seems to be closed.");
-        act("$n looks at the bulging chest by the wall.", true, ch, 0, 0,
+        act("$n looks at the bulging chest by the wall.", true, ch, NULL, NULL,
             TO_ROOM);
         return 1;
     }
@@ -45,17 +45,17 @@ SPECIAL(chest_mimic)
         }
         send_to_char(ch,
             "The chest lurches forward suddenly!  It has sharp teeth!!\r\n");
-        act("$n attempts to open the bulging chest.", false, ch, 0, 0,
+        act("$n attempts to open the bulging chest.", false, ch, NULL, NULL,
             TO_ROOM);
         act("The chest lurches forward suddenly and snaps at $n!", false, ch,
-            0, 0, TO_ROOM);
+            NULL, NULL, TO_ROOM);
         hit(mimic, ch, TYPE_BITE);
         return true;
 
     } else if (CMD_IS("look") || CMD_IS("examine")) {
         send_to_char(ch,
             "The chest appears to be full of jewels and precious metals.\r\n");
-        act("$n looks at the bulging chest by the wall.", true, ch, 0, 0,
+        act("$n looks at the bulging chest by the wall.", true, ch, NULL, NULL,
             TO_ROOM);
         return true;
     } else

@@ -253,7 +253,7 @@ START_TEST(test_qcontrol_create)
 {
     quests = NULL;
     GET_LEVEL(ch) = LVL_IMMORT;
-    do_qcontrol(ch, "create trivia Test quest", 0, 0);
+    do_qcontrol(ch, "create trivia Test quest", NULL, 0);
     fail_unless(g_list_length(quests) == 1);
 
     struct quest *q = quests->data;

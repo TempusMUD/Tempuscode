@@ -64,7 +64,7 @@ ACMD(do_bandage)
             GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - cost, 0);
             send_to_char(ch, "You carefully bandage your wounds.\r\n");
-            act("$n carefully bandages $s wounds.", true, ch, 0, 0, TO_ROOM);
+            act("$n carefully bandages $s wounds.", true, ch, NULL, NULL, TO_ROOM);
             if (GET_LEVEL(ch) < LVL_AMBASSADOR)
                 WAIT_STATE(ch, PULSE_VIOLENCE);
         } else
@@ -92,8 +92,8 @@ ACMD(do_bandage)
         if (GET_MOVE(ch) > cost) {
             GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + mod);
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - cost, 0);
-            act("$N bandages your wounds.", true, vict, 0, ch, TO_CHAR);
-            act("$n bandages $N's wounds.", false, ch, 0, vict, TO_NOTVICT);
+            act("$N bandages your wounds.", true, vict, NULL, ch, TO_CHAR);
+            act("$n bandages $N's wounds.", false, ch, NULL, vict, TO_NOTVICT);
             send_to_char(ch, "You do it.\r\n");
             if (GET_LEVEL(ch) < LVL_AMBASSADOR)
                 WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -133,7 +133,7 @@ ACMD(do_firstaid)
             GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - cost, 0);
             send_to_char(ch, "You carefully tend to your wounds.\r\n");
-            act("$n carefully tends to $s wounds.", true, ch, 0, 0, TO_ROOM);
+            act("$n carefully tends to $s wounds.", true, ch, NULL, NULL, TO_ROOM);
             if (GET_LEVEL(ch) < LVL_AMBASSADOR)
                 WAIT_STATE(ch, PULSE_VIOLENCE);
         } else
@@ -154,9 +154,9 @@ ACMD(do_firstaid)
         if (GET_MOVE(ch) > cost) {
             GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + mod);
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - cost, 0);
-            act("$N performs first aid on your wounds.", true, vict, 0, ch,
+            act("$N performs first aid on your wounds.", true, vict, NULL, ch,
                 TO_CHAR);
-            act("$n performs first aid on $N.", false, ch, 0, vict,
+            act("$n performs first aid on $N.", false, ch, NULL, vict,
                 TO_NOTVICT);
             send_to_char(ch, "You do it.\r\n");
             if (GET_LEVEL(ch) < LVL_AMBASSADOR)
@@ -193,7 +193,7 @@ ACMD(do_medic)
             }
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
             send_to_char(ch, "You apply some TLC to your wounds.\r\n");
-            act("$n fixes up $s wounds.", true, ch, 0, 0, TO_ROOM);
+            act("$n fixes up $s wounds.", true, ch, NULL, NULL, TO_ROOM);
             if (GET_LEVEL(ch) < LVL_AMBASSADOR)
                 WAIT_STATE(ch, PULSE_VIOLENCE);
         } else
@@ -205,16 +205,16 @@ ACMD(do_medic)
         send_to_char(ch, "They are fighting right now.\r\n");
         return;
     } else if (GET_HIT(vict) == GET_MAX_HIT(vict)) {
-        act("What makes you think $E's bleeding?", true, ch, 0, vict, TO_CHAR);
+        act("What makes you think $E's bleeding?", true, ch, NULL, vict, TO_CHAR);
     } else {
         if (GET_MOVE(ch) > mod) {
             if (GET_CLASS(ch) == CLASS_RANGER)
                 mod *= 2;       //2x multiplier for prime rangers
             GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + mod);
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
-            act("$n gives you some TLC.  You feel better!", true, ch, 0, vict,
+            act("$n gives you some TLC.  You feel better!", true, ch, NULL, vict,
                 TO_VICT);
-            act("$n gives some TLC to $N.", false, ch, 0, vict, TO_NOTVICT);
+            act("$n gives some TLC to $N.", false, ch, NULL, vict, TO_NOTVICT);
             send_to_char(ch, "You do it.\r\n");
             if (GET_LEVEL(ch) < LVL_AMBASSADOR)
                 WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -258,12 +258,12 @@ ACMD(do_autopsy)
             return;
         }
     } else {
-        act("$p is too far messed up to discern.", false, ch, corpse, 0,
+        act("$p is too far messed up to discern.", false, ch, corpse, NULL,
             TO_CHAR);
         return;
     }
 
-    act("$n examines $p.", true, ch, corpse, 0, TO_ROOM);
+    act("$n examines $p.", true, ch, corpse, NULL, TO_ROOM);
 
     if (number(30, 151) > GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_AUTOPSY)) {
         send_to_char(ch,
@@ -305,14 +305,14 @@ ACMD(do_ambush)
 
     GET_MOVE(ch) -= 48;
 
-    if (cannot_damage(ch, vict, 0, SKILL_AMBUSH) ||
+    if (cannot_damage(ch, vict, NULL, SKILL_AMBUSH) ||
         number(30, 120) > CHECK_SKILL(ch, SKILL_AMBUSH)) {
         act("You spring out in front of $N, surprising nobody.",
-            true, ch, 0, vict, TO_CHAR);
+            true, ch, NULL, vict, TO_CHAR);
         act("$n springs out in front of you, but you were ready for $m",
-            true, ch, 0, vict, TO_VICT);
+            true, ch, NULL, vict, TO_VICT);
         act("$n springs out from hiding, but $N is ready to fight!",
-            true, ch, 0, vict, TO_NOTVICT);
+            true, ch, NULL, vict, TO_NOTVICT);
         WAIT_STATE(ch, 2 RL_SEC);
         if (IS_NPC(vict))
             hit(vict, ch, TYPE_UNDEFINED);
@@ -320,11 +320,11 @@ ACMD(do_ambush)
     }
 
     act("You catch $N completely by surprise with your ambush!",
-        true, ch, 0, vict, TO_CHAR);
+        true, ch, NULL, vict, TO_CHAR);
     act("$n appears out of nowhere, catching you completely by surprise!",
-        true, ch, 0, vict, TO_VICT);
+        true, ch, NULL, vict, TO_VICT);
     act("$n catches $N completely by surprise with $s ambush!",
-        true, ch, 0, vict, TO_NOTVICT);
+        true, ch, NULL, vict, TO_NOTVICT);
     WAIT_STATE(vict, (CHECK_SKILL(ch, SKILL_AMBUSH) / 30 + 3) RL_SEC);
     gain_skill_prof(ch, SKILL_AMBUSH);
     REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);

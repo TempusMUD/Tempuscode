@@ -157,7 +157,7 @@ make_help_collection(void)
 void
 free_help_collection(struct help_collection *col)
 {
-    g_list_foreach(col->items, (GFunc) free_help_item, 0);
+    g_list_foreach(col->items, (GFunc) free_help_item, NULL);
     g_list_free(col->items);
 
     slog("Help system ended.");

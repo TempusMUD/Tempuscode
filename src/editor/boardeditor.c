@@ -51,7 +51,7 @@ board_finalize(struct editor *editor, const char *text)
 
     if (IS_PLAYING(editor->desc))
         act("$n nods with satisfaction as $e saves $s work.", true,
-            editor->desc->creature, 0, 0, TO_NOTVICT);
+            editor->desc->creature, NULL, NULL, TO_NOTVICT);
     free(((struct board_data *)editor->mode_data)->board);
     free(((struct board_data *)editor->mode_data)->subject);
     free(editor->mode_data);
@@ -62,7 +62,7 @@ board_cancel(struct editor *editor)
 {
     if (IS_PLAYING(editor->desc))
         act("$n's awareness returns to $s surroundings.", true,
-            editor->desc->creature, 0, 0, TO_NOTVICT);
+            editor->desc->creature, NULL, NULL, TO_NOTVICT);
     free(((struct board_data *)editor->mode_data)->board);
     free(((struct board_data *)editor->mode_data)->subject);
     free(editor->mode_data);

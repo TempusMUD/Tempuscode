@@ -292,7 +292,7 @@ house_is_owner(struct house *house, struct creature *ch)
 }
 
 unsigned int
-house_count()
+house_count(void)
 {
     return g_list_length(houses);
 }
@@ -487,9 +487,9 @@ zero_housed_objects(gpointer vnum __attribute__((unused)), struct obj_data *obj,
 void
 update_objects_housed_count(void)
 {
-    g_hash_table_foreach(obj_prototypes, (GHFunc) zero_housed_objects, 0);
+    g_hash_table_foreach(obj_prototypes, (GHFunc) zero_housed_objects, NULL);
 
-    g_list_foreach(houses, (GFunc) update_objects_in_house, 0);
+    g_list_foreach(houses, (GFunc) update_objects_in_house, NULL);
 }
 
 int
@@ -593,22 +593,22 @@ load_house(const char *filename)
         if (errno != ENOENT) {
             errlog("Unable to open xml house file '%s': %s",
                 filename, strerror(errno));
-            return false;
+            return NULL;
         } else {
-            return false;       // normal no eq file
+            return NULL;       // normal no eq file
         }
     }
     xmlDocPtr doc = xmlParseFile(filename);
     if (!doc) {
         errlog("XML parse error while loading %s", filename);
-        return false;
+        return NULL;
     }
 
     xmlNodePtr root = xmlDocGetRootElement(doc);
     if (!root) {
         xmlFreeDoc(doc);
         errlog("XML file %s is empty", filename);
-        return false;
+        return NULL;
     }
 
     xmlNodePtr houseNode;
@@ -732,7 +732,7 @@ create_house(int owner, room_num firstRoom, room_num lastRoom)
 }
 
 void
-save_houses()
+save_houses(void)
 {
     if (!houses)
         return;
@@ -840,7 +840,7 @@ house_rent_cost(struct house *house)
     for (GList * i = house->rooms; i; i = i->next) {
         struct room_data *room = real_room(GPOINTER_TO_INT(i->data));
 
-        if (!g_list_find_custom(room->people, 0, (GCompareFunc) creature_is_pc))
+        if (!g_list_find_custom(room->people, NULL, (GCompareFunc) creature_is_pc))
             sum += room_rent_cost(house, room);
 
         room_count++;
@@ -967,12 +967,12 @@ collect_house_rent(struct house *house, int cost)
 }
 
 void
-collect_housing_rent()
+collect_housing_rent(void)
 {
     extern bool production_mode;
 
     if (production_mode) {
-        last_house_collection = time(0);
+        last_house_collection = time(NULL);
 
         for (GList * i = houses; i; i = i->next) {
             struct house *house = (struct house *)i->data;

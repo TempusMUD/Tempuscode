@@ -484,7 +484,7 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman, char *arg)
         }
     }
 
-    act("$n starts to write some mail.", true, ch, 0, 0, TO_ROOM);
+    act("$n starts to write some mail.", true, ch, NULL, NULL, TO_ROOM);
     sprintf(buf2, "I'll take %d coins for the postage.", total_cost);
     perform_tell(mailman, ch, buf2);
 
@@ -555,8 +555,8 @@ postmaster_receive_mail(struct creature *ch, struct creature *mailman)
         to_room = tmp_strcat(to_room, ".", NULL);
     }
 
-    act(to_char, false, mailman, 0, ch, TO_VICT);
-    act(to_room, false, mailman, 0, ch, TO_NOTVICT);
+    act(to_char, false, mailman, NULL, ch, TO_VICT);
+    act(to_room, false, mailman, NULL, ch, TO_NOTVICT);
 
     crashsave(ch);
 }

@@ -389,7 +389,7 @@ ASPELL(song_lament_of_longing)
         GET_LEVEL(ch) < GET_LEVEL(victim)) {
         send_to_char(ch, "Cannot find the target of your spell!\r\n");
         act("$n has sung a song of longing for you.", false,
-            ch, 0, victim, TO_VICT);
+            ch, NULL, victim, TO_VICT);
     }
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)) {
@@ -427,7 +427,7 @@ ASPELL(song_lament_of_longing)
         (ZONE_FLAGGED(victim->in_room->zone, ZONE_ISOLATED) ||
             ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) {
         act("The place $E exists is completely isolated from this.",
-            false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_CHAR);
         return;
     }
 
@@ -578,7 +578,7 @@ ASPELL(song_hymn_of_peace)
     }
 
     send_to_char(ch, "Your song brings a feeling of peacefulness.\r\n");
-    act("A feeling of peacefulness is heralded by $n's song.", false, ch, 0, 0,
+    act("A feeling of peacefulness is heralded by $n's song.", false, ch, NULL, NULL,
         TO_ROOM);
 
     gain_skill_prof(ch, SONG_HYMN_OF_PEACE);

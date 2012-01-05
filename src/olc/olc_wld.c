@@ -351,7 +351,7 @@ save_room(struct creature *ch, struct room_data *room, FILE * file)
 bool
 save_wld(struct creature * ch, struct zone_data * zone)
 {
-    FILE *file = 0;
+    FILE *file = NULL;
     char *tmp_fname, *real_fname;
 
     real_fname = tmp_sprintf("world/wld/%d.wld", zone->number);
@@ -519,7 +519,7 @@ do_destroy_room(struct creature *ch, int vnum)
             char_to_room(vict, r_mortal_start_room, false);
 
         look_at_room(vict, vict->in_room, 0);
-        act("$n appears from a void in reality.", true, ch, 0, 0, TO_ROOM);
+        act("$n appears from a void in reality.", true, ch, NULL, NULL, TO_ROOM);
 
     }
 
@@ -802,10 +802,10 @@ do_olc_rset(struct creature *ch, char *argument)
 
     case 1:                    /* rdescription */
         if (ch->in_room->description) {
-            act("$n begins to edit a room description.", true, ch, 0, 0,
+            act("$n begins to edit a room description.", true, ch, NULL, NULL,
                 TO_ROOM);
         } else {
-            act("$n begins to write a room description.", true, ch, 0, 0,
+            act("$n begins to write a room description.", true, ch, NULL, NULL,
                 TO_ROOM);
         }
         start_editing_text(ch->desc, &ch->in_room->description, 4096);
@@ -890,9 +890,9 @@ do_olc_rset(struct creature *ch, char *argument)
         }
 
         if (ch->in_room->sounds == NULL) {
-            act("$n begins to create a sound.", true, ch, 0, 0, TO_ROOM);
+            act("$n begins to create a sound.", true, ch, NULL, NULL, TO_ROOM);
         } else {
-            act("$n begins to edit a sound.", true, ch, 0, 0, TO_ROOM);
+            act("$n begins to edit a sound.", true, ch, NULL, NULL, TO_ROOM);
         }
         start_editing_text(ch->desc, &ch->in_room->sounds, 4096);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
@@ -994,7 +994,7 @@ do_olc_rset(struct creature *ch, char *argument)
         } else {
             start_editing_text(ch->desc, &ch->in_room->func_param, 4096);
             SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-            act("$n begins to write a room spec param.", true, ch, 0, 0,
+            act("$n begins to write a room spec param.", true, ch, NULL, NULL,
                 TO_ROOM);
         }
 
@@ -1002,7 +1002,7 @@ do_olc_rset(struct creature *ch, char *argument)
     case 9:
         start_editing_prog(ch->desc, ch->in_room, PROG_TYPE_ROOM);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-        act("$n begins to write a room prog.", true, ch, 0, 0, TO_ROOM);
+        act("$n begins to write a room prog.", true, ch, NULL, NULL, TO_ROOM);
         break;
     default:
         send_to_char(ch,
@@ -1072,14 +1072,14 @@ do_olc_rexdesc(struct creature *ch, char *argument, bool is_hedit)
             &ch->in_room->ex_description->description, 4096);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
-        act("$n begins to write an extra description.", true, ch, 0, 0,
+        act("$n begins to write an extra description.", true, ch, NULL, NULL,
             TO_ROOM);
         return;
     } else if (is_abbrev(buf, "edit")) {
         if ((desc = locate_exdesc(argument, ch->in_room->ex_description, 1))) {
             start_editing_text(ch->desc, &desc->description, 4096);
             SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-            act("$n begins to write an extra description.", true, ch, 0, 0,
+            act("$n begins to write an extra description.", true, ch, NULL, NULL,
                 TO_ROOM);
         } else
             send_to_char(ch,

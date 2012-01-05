@@ -75,9 +75,9 @@ texteditor_finalize(struct editor *editor, const char *text)
     if (IS_PLAYING(editor->desc)) {
         if (PLR_FLAGGED(editor->desc->creature, PLR_OLC))
             act("$n nods with satisfaction as $e saves $s work.", true,
-                editor->desc->creature, 0, 0, TO_NOTVICT);
+                editor->desc->creature, NULL, NULL, TO_NOTVICT);
         else
-            act("$n finishes writing.", true, editor->desc->creature, 0, 0,
+            act("$n finishes writing.", true, editor->desc->creature, NULL, NULL,
                 TO_NOTVICT);
     }
     free_texteditor(editor);

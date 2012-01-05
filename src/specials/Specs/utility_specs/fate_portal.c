@@ -29,7 +29,7 @@ SPECIAL(fate_portal)
             return 0;
         }
     }
-    act("$n is repulsed by $p.", false, ch, portal, 0, TO_ROOM);
-    act("You are repulsed by $p.", false, ch, portal, 0, TO_CHAR);
+    act("$n is repulsed by $p.", false, ch, portal, NULL, TO_ROOM);
+    act("You are repulsed by $p.", false, ch, portal, NULL, TO_CHAR);
     return 1;
 }

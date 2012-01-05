@@ -147,8 +147,8 @@ SPECIAL(guard)
         return false;
 
     // Set to deny if undecided
-    act(to_vict, false, self, 0, ch, TO_VICT);
-    act(to_room, false, self, 0, ch, TO_NOTVICT);
+    act(to_vict, false, self, NULL, ch, TO_VICT);
+    act(to_room, false, self, NULL, ch, TO_NOTVICT);
     if (!err && attack && !self->fighting && IS_PC(ch)
         && !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
         add_combat(self, ch, false);

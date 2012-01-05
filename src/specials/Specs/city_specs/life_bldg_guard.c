@@ -15,8 +15,8 @@ SPECIAL(life_bldg_guard)
     if (!can_see_creature(guard, ch) || !AWAKE(guard))
         return 0;
 
-    act("$N snickers at $n and pushes $m back.", true, ch, 0, guard, TO_ROOM);
-    act("$N snickers at you and pushes you back.", true, ch, 0, guard,
+    act("$N snickers at $n and pushes $m back.", true, ch, NULL, guard, TO_ROOM);
+    act("$N snickers at you and pushes you back.", true, ch, NULL, guard,
         TO_CHAR);
     return true;
 }

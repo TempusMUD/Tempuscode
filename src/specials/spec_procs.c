@@ -170,8 +170,6 @@ sort_skills(void)
 char *
 how_good(int percent)
 {
-    static char buf[256];
-
     if (percent < 0)
         strcpy(buf, " (terrible)");
     else if (percent == 0)
@@ -441,7 +439,7 @@ SPECIAL(guild)
         GET_GOLD(ch) -= cost;
     }
 
-    act("$n practices for a while.", true, ch, 0, 0, TO_ROOM);
+    act("$n practices for a while.", true, ch, NULL, NULL, TO_ROOM);
     WAIT_STATE(ch, 2 RL_SEC);
 
     percent = GET_SKILL(ch, skill_num);
@@ -468,7 +466,7 @@ SPECIAL(dump)
 
     for (k = ch->in_room->contents; k; k = next_obj) {
         next_obj = k->next_content;
-        act("$p vanishes in a puff of smoke!", false, 0, k, 0, TO_ROOM);
+        act("$p vanishes in a puff of smoke!", false, NULL, k, NULL, TO_ROOM);
         extract_obj(k);
     }
 
@@ -479,15 +477,15 @@ SPECIAL(dump)
 
     for (k = ch->in_room->contents; k; k = next_obj) {
         next_obj = k->next_content;
-        act("$p vanishes in a puff of smoke!", false, 0, k, 0, TO_ROOM);
+        act("$p vanishes in a puff of smoke!", false, NULL, k, NULL, TO_ROOM);
         value += MAX(1, MIN(50, GET_OBJ_COST(k) / 10));
         extract_obj(k);
     }
 
     if (value) {
-        act("You are awarded for outstanding performance.", false, ch, 0, 0,
+        act("You are awarded for outstanding performance.", false, ch, NULL, NULL,
             TO_CHAR);
-        act("$n has been awarded for being a good citizen.", true, ch, 0, 0,
+        act("$n has been awarded for being a good citizen.", true, ch, NULL, NULL,
             TO_ROOM);
 
         if (GET_LEVEL(ch) < 3)
@@ -543,6 +541,7 @@ SPECIAL(venom_attack)
     const char *err = NULL;
     int lineno, perc_damaged;
     char *line, *param_key;
+    struct creature *target;
 
     if (spec_mode != SPECIAL_TICK)
         return 0;
@@ -577,12 +576,12 @@ SPECIAL(venom_attack)
     else
         return false;
 
-    struct creature *target = random_opponent(ch);
+    target = random_opponent(ch);
     if (target && (target->in_room == ch->in_room) &&
         number(0, 75) < perc_damaged) {
-        act(act_tovict, 1, ch, 0, target, TO_VICT);
-        act(act_toroom, 1, ch, 0, target, TO_NOTVICT);
-        call_magic(ch, target, 0, NULL, SPELL_POISON, GET_LEVEL(ch),
+        act(act_tovict, 1, ch, NULL, target, TO_VICT);
+        act(act_toroom, 1, ch, NULL, target, TO_NOTVICT);
+        call_magic(ch, target, NULL, NULL, SPELL_POISON, GET_LEVEL(ch),
             CAST_SPELL);
         return true;
     }
@@ -614,6 +613,7 @@ SPECIAL(thief)
 SPECIAL(magic_user)
 {
     struct creature *vict = NULL;
+    bool found;
 
     if (spec_mode != SPECIAL_TICK)
         return 0;
@@ -626,7 +626,7 @@ SPECIAL(magic_user)
     if (vict == NULL)
         return 0;
 
-    bool found = true;
+    found = true;
 
     if ((GET_LEVEL(ch) > 5) && (number(0, 8) == 0) &&
         !affected_by_spell(ch, SPELL_ARMOR)) {
@@ -713,13 +713,13 @@ SPECIAL(magic_user)
 
 SPECIAL(battle_cleric)
 {
+    struct creature *vict = NULL;
+    bool found = true;
 
     if (spec_mode != SPECIAL_TICK)
         return 0;
     if (cmd || GET_POSITION(ch) != POS_FIGHTING)
         return false;
-
-    struct creature *vict = NULL;
 
     /* pseudo-randomly choose someone in the room who is fighting me */
     vict = random_opponent(ch);
@@ -727,7 +727,6 @@ SPECIAL(battle_cleric)
     if (vict == NULL)
         return 0;
 
-    bool found = true;
     if ((GET_LEVEL(ch) > 2) && (number(0, 8) == 0) &&
         !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
@@ -802,13 +801,13 @@ SPECIAL(battle_cleric)
 
 SPECIAL(barbarian)
 {
+    struct creature *vict = NULL;
+    bool found = true;
 
     if (spec_mode != SPECIAL_TICK)
         return 0;
     if (cmd || GET_POSITION(ch) != POS_FIGHTING)
         return false;
-
-    struct creature *vict = NULL;
 
     /* pseudo-randomly choose someone in the room who is fighting me */
     vict = random_opponent(ch);
@@ -817,7 +816,6 @@ SPECIAL(barbarian)
     if (vict == NULL)
         return 0;
 
-    bool found = true;
     if ((GET_LEVEL(ch) > 2) && (number(0, 12) == 0)) {
         damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_PUNCH, -1);
     } else if ((GET_LEVEL(ch) > 5) && (number(0, 8) == 0)) {
@@ -921,42 +919,42 @@ SPECIAL(fido)
 
     switch (number(0, 70)) {
     case 0:
-        act("$n scratches at some fleas.", true, ch, 0, 0, TO_ROOM);
+        act("$n scratches at some fleas.", true, ch, NULL, NULL, TO_ROOM);
         break;
     case 1:
-        act("$n starts howling mournfully.", false, ch, 0, 0, TO_ROOM);
+        act("$n starts howling mournfully.", false, ch, NULL, NULL, TO_ROOM);
         break;
     case 2:
-        act("$n licks $s chops.", true, ch, 0, 0, TO_ROOM);
+        act("$n licks $s chops.", true, ch, NULL, NULL, TO_ROOM);
         break;
     case 3:
-        act("$n pukes all over the place.", false, ch, 0, 0, TO_ROOM);
+        act("$n pukes all over the place.", false, ch, NULL, NULL, TO_ROOM);
         break;
     case 4:
         if (!IS_NPC(vict) || GET_NPC_SPEC(vict) != fido) {
-            act("$n takes a leak on $N's shoes.", false, ch, 0, vict,
+            act("$n takes a leak on $N's shoes.", false, ch, NULL, vict,
                 TO_NOTVICT);
-            act("$n takes a leak on your shoes.", false, ch, 0, vict, TO_VICT);
+            act("$n takes a leak on your shoes.", false, ch, NULL, vict, TO_VICT);
         }
         break;
     case 5:
         if (IS_MALE(ch) && !number(0, 1))
-            act("$n licks $s balls.", true, ch, 0, 0, TO_ROOM);
+            act("$n licks $s balls.", true, ch, NULL, NULL, TO_ROOM);
         else
-            act("$n licks $s ass.", true, ch, 0, 0, TO_ROOM);
+            act("$n licks $s ass.", true, ch, NULL, NULL, TO_ROOM);
         break;
     case 6:
-        act("$n sniffs your crotch.", true, ch, 0, vict, TO_VICT);
-        act("$n sniffs $N's crotch.", true, ch, 0, vict, TO_NOTVICT);
+        act("$n sniffs your crotch.", true, ch, NULL, vict, TO_VICT);
+        act("$n sniffs $N's crotch.", true, ch, NULL, vict, TO_NOTVICT);
         break;
     case 7:
         if (!IS_NPC(vict) || GET_NPC_SPEC(vict) != fido) {
-            act("$n slobbers on your hand.", true, ch, 0, vict, TO_VICT);
-            act("$n slobbers on $N's hand.", true, ch, 0, vict, TO_NOTVICT);
+            act("$n slobbers on your hand.", true, ch, NULL, vict, TO_VICT);
+            act("$n slobbers on $N's hand.", true, ch, NULL, vict, TO_NOTVICT);
         }
         break;
     case 8:
-        act("$n starts biting on $s leg.", true, ch, 0, 0, TO_ROOM);
+        act("$n starts biting on $s leg.", true, ch, NULL, NULL, TO_ROOM);
         break;
     default:
         return false;
@@ -976,7 +974,7 @@ SPECIAL(buzzard)
 
     for (i = ch->in_room->contents; i; i = i->next_content) {
         if (IS_OBJ_TYPE(i, ITEM_CONTAINER) && GET_OBJ_VAL(i, 3)) {
-            act("$n descends on $p and devours it.", false, ch, i, 0, TO_ROOM);
+            act("$n descends on $p and devours it.", false, ch, i, NULL, TO_ROOM);
             for (temp = i->contains; temp; temp = next_obj) {
                 next_obj = temp->next_content;
                 if (IS_IMPLANT(temp)) {
@@ -998,26 +996,26 @@ SPECIAL(buzzard)
 
     switch (number(0, 70)) {
     case 0:
-        act("$n emits a terrible croaking noise.", false, ch, 0, 0, TO_ROOM);
+        act("$n emits a terrible croaking noise.", false, ch, NULL, NULL, TO_ROOM);
         break;
     case 1:
-        act("You begin to notice a foul stench coming from $n.", false, ch, 0,
-            0, TO_ROOM);
+        act("You begin to notice a foul stench coming from $n.", false, ch, NULL,
+            NULL, TO_ROOM);
         break;
     case 2:
-        act("$n regurgitates some half-digested carrion.", false, ch, 0, 0,
+        act("$n regurgitates some half-digested carrion.", false, ch, NULL, NULL,
             TO_ROOM);
         break;
     case 3:
-        act("$n glares at you hungrily.", true, ch, 0, vict, TO_VICT);
-        act("$n glares at $N hungrily.", true, ch, 0, vict, TO_NOTVICT);
+        act("$n glares at you hungrily.", true, ch, NULL, vict, TO_VICT);
+        act("$n glares at $N hungrily.", true, ch, NULL, vict, TO_NOTVICT);
         break;
     case 4:
-        act("You notice that $n really is quite putrid.", false, ch, 0, 0,
+        act("You notice that $n really is quite putrid.", false, ch, NULL, NULL,
             TO_ROOM);
         break;
     case 5:
-        act("A hideous stench wafts across your nostrils.", false, ch, 0, 0,
+        act("A hideous stench wafts across your nostrils.", false, ch, NULL, NULL,
             TO_ROOM);
         break;
     default:
@@ -1045,7 +1043,7 @@ SPECIAL(garbage_pile)
             continue;
 
         if (IS_OBJ_TYPE(i, ITEM_CONTAINER) && GET_OBJ_VAL(i, 3)) {
-            act("$n devours $p.", false, ch, i, 0, TO_ROOM);
+            act("$n devours $p.", false, ch, i, NULL, TO_ROOM);
             for (temp = i->contains; temp; temp = next_obj) {
                 next_obj = temp->next_content;
                 if (IS_IMPLANT(temp)) {
@@ -1059,7 +1057,7 @@ SPECIAL(garbage_pile)
             extract_obj(i);
             return true;
         } else if (CAN_WEAR(i, ITEM_WEAR_TAKE) && GET_OBJ_WEIGHT(i) < 5) {
-            act("$n assimilates $p.", false, ch, i, 0, TO_ROOM);
+            act("$n assimilates $p.", false, ch, i, NULL, TO_ROOM);
             if (GET_OBJ_VNUM(i) == 3365)
                 extract_obj(i);
             else {
@@ -1072,7 +1070,7 @@ SPECIAL(garbage_pile)
     }
     switch (number(0, 80)) {
     case 0:
-        act("Some trash falls off of $n.", false, ch, 0, 0, TO_ROOM);
+        act("Some trash falls off of $n.", false, ch, NULL, NULL, TO_ROOM);
         i = read_object(3365);
         if (i)
             obj_to_room(i, ch->in_room);
@@ -1149,7 +1147,7 @@ SPECIAL(elven_janitor)
         if (GET_OBJ_SIGIL_IDNUM(i))
             continue;
 
-        act("$n grumbles as $e picks up $p.", false, ch, i, 0, TO_ROOM);
+        act("$n grumbles as $e picks up $p.", false, ch, i, NULL, TO_ROOM);
         do_get(ch, fname(i->aliases), 0, 0);
         return true;
     }
@@ -1179,9 +1177,9 @@ SPECIAL(gelatinous_blob)
 
         if (GET_NPC_VNUM(ch) == 30068)
             act("$n sucks $p into a holding tank with a WHOOSH!", false, ch, i,
-                0, TO_ROOM);
+                NULL, TO_ROOM);
         else
-            act("$n absorbs $p into $s body.", false, ch, i, 0, TO_ROOM);
+            act("$n absorbs $p into $s body.", false, ch, i, NULL, TO_ROOM);
         obj_from_room(i);
         obj_to_char(i, ch);
         get_check_money(ch, &i, 0);
@@ -1287,11 +1285,11 @@ SPECIAL(pet_shops)
         add_follower(pet, ch);
         if (IS_NPC(pet)) {
             send_to_char(ch, "May you enjoy your pet.\r\n");
-            act("$n buys $N as a pet.", false, ch, 0, pet, TO_ROOM);
+            act("$n buys $N as a pet.", false, ch, NULL, pet, TO_ROOM);
             SET_BIT(NPC_FLAGS(pet), NPC_PET);
         } else {
             send_to_char(ch, "May you enjoy your slave.\r\n");
-            act("$n buys $N as a slave.", false, ch, 0, pet, TO_ROOM);
+            act("$n buys $N as a slave.", false, ch, NULL, pet, TO_ROOM);
         }
         return true;
     }
@@ -1401,7 +1399,7 @@ SPECIAL(bank)
             }
         }
 
-        act("$n makes a bank transaction.", true, ch, 0, false, TO_ROOM);
+        act("$n makes a bank transaction.", true, ch, NULL, NULL, TO_ROOM);
 
     } else if (CMD_IS("withdraw")) {
         if (!strcasecmp(arg, "all")) {
@@ -1448,7 +1446,7 @@ SPECIAL(bank)
             GET_GOLD(ch) += amount;
         send_to_char(ch, "You withdraw %d %s%s.\r\n", amount, CURRENCY(ch),
             PLURAL(amount));
-        act("$n makes a bank transaction.", true, ch, 0, false, TO_ROOM);
+        act("$n makes a bank transaction.", true, ch, NULL, NULL, TO_ROOM);
 
         if (amount > 50000000) {
             mudlog(LVL_IMMORT, NRM, true,
@@ -1524,7 +1522,7 @@ SPECIAL(bank)
 
         send_to_char(ch, "You transfer %d %s%s to %s's account.\r\n",
             amount, CURRENCY(ch), PLURAL(amount), vict_name);
-        act("$n makes a bank transaction.", true, ch, 0, false, TO_ROOM);
+        act("$n makes a bank transaction.", true, ch, NULL, NULL, TO_ROOM);
 
         if (amount > 50000000) {
             mudlog(LVL_IMMORT, NRM, true,

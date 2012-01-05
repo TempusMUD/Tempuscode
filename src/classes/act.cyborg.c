@@ -323,16 +323,16 @@ ACMD(do_recharge)
             return;
         }
         if (!IS_BATTERY(battery)) {
-            act("$p is not a battery.", false, ch, battery, 0, TO_CHAR);
+            act("$p is not a battery.", false, ch, battery, NULL, TO_CHAR);
             return;
         }
         if (CUR_ENERGY(battery) <= 0) {
-            act("$p is depleted of energy.", false, ch, battery, 0, TO_CHAR);
+            act("$p is depleted of energy.", false, ch, battery, NULL, TO_CHAR);
             return;
         }
         if (IS_IMPLANT(battery) && *arg4 &&
             battery != get_object_in_equip_vis(ch, arg4, ch->implants, &i)) {
-            act("ERROR: $p not installed properly.", false, ch, battery, 0,
+            act("ERROR: $p not installed properly.", false, ch, battery, NULL,
                 TO_CHAR);
             return;
         }
@@ -379,12 +379,12 @@ ACMD(do_recharge)
 
         if (battery) {
             if (!IS_BATTERY(battery)) {
-                act("$p is not a battery.", false, ch, battery, 0, TO_CHAR);
+                act("$p is not a battery.", false, ch, battery, NULL, TO_CHAR);
                 return;
             }
 
             if (CUR_ENERGY(battery) <= 0) {
-                act("$p is depleted of energy.", false, ch, battery, 0,
+                act("$p is depleted of energy.", false, ch, battery, NULL,
                     TO_CHAR);
                 return;
             }
@@ -392,7 +392,7 @@ ACMD(do_recharge)
             if (IS_IMPLANT(battery) && *arg4 &&
                 battery != get_object_in_equip_vis(ch, arg4, ch->implants,
                     &i)) {
-                act("ERROR: $p not installed properly.", false, ch, battery, 0,
+                act("ERROR: $p not installed properly.", false, ch, battery, NULL,
                     TO_CHAR);
                 return;
             }
@@ -433,7 +433,7 @@ ACMD(do_recharge)
             return;
         }
         if (CUR_ENERGY(target) >= MAX_ENERGY(target)) {
-            act("$p is already fully energized.", false, ch, target, 0,
+            act("$p is already fully energized.", false, ch, target, NULL,
                 TO_CHAR);
             return;
         }
@@ -477,12 +477,12 @@ ACMD(do_recharge)
 
     if (battery) {
         if (!IS_BATTERY(battery)) {
-            act("$p is not a battery.", false, ch, battery, 0, TO_CHAR);
+            act("$p is not a battery.", false, ch, battery, NULL, TO_CHAR);
             return;
         }
 
         if (CUR_ENERGY(battery) <= 0) {
-            act("$p is depleted of energy.", false, ch, battery, 0, TO_CHAR);
+            act("$p is depleted of energy.", false, ch, battery, NULL, TO_CHAR);
             return;
         }
     } else {
@@ -498,11 +498,11 @@ ACMD(do_recharge)
 
     if (vict) {
         if (!IS_CYBORG(vict)) {
-            act("You cannot recharge $M.", false, ch, 0, vict, TO_CHAR);
+            act("You cannot recharge $M.", false, ch, NULL, vict, TO_CHAR);
             return;
         }
         if (GET_MOVE(vict) >= GET_MAX_MOVE(vict)) {
-            act("$N is fully charged.", false, ch, 0, vict, TO_CHAR);
+            act("$N is fully charged.", false, ch, NULL, vict, TO_CHAR);
             return;
         }
         perform_recharge(ch, battery, vict, NULL, 0);
@@ -511,9 +511,9 @@ ACMD(do_recharge)
 
     if (IS_VEHICLE(target)) {
         if (!target->contains || !IS_ENGINE(target->contains))
-            act("$p is not operational.", false, ch, target, 0, TO_CHAR);
+            act("$p is not operational.", false, ch, target, NULL, TO_CHAR);
         else if (CUR_ENERGY(target->contains) == MAX_ENERGY(target->contains))
-            act("$p is fully energized.", false, ch, target->contains, 0,
+            act("$p is fully energized.", false, ch, target->contains, NULL,
                 TO_CHAR);
         else {
             perform_recharge(ch, battery, NULL, target->contains, 0);
@@ -531,7 +531,7 @@ ACMD(do_recharge)
     }
 
     if (CUR_ENERGY(target) == MAX_ENERGY(target))
-        act("$p is fully energized.", false, ch, target, 0, TO_CHAR);
+        act("$p is fully energized.", false, ch, target, NULL, TO_CHAR);
     else {
         perform_recharge(ch, battery, NULL, target, 0);
     }
@@ -706,7 +706,7 @@ perform_cyborg_activate(struct creature *ch, int16_t mode, int subcmd)
                     send_to_char(ch,
                         "Entering static state.  Halting system processes.\r\n");
                     act("$n lies down and enters a static state.", false, ch,
-                        0, 0, TO_ROOM);
+                        NULL, NULL, TO_ROOM);
                 }
             } else {           /************ deactivate ****************/
                 send_to_char(ch, "An error has occurred.\r\n");
@@ -830,7 +830,7 @@ perform_cyborg_activate(struct creature *ch, int16_t mode, int subcmd)
             if (to_char[1])
                 send_to_char(ch, "%s", to_char[1]);
             if (to_room[1])
-                act(to_room[1], false, ch, 0, 0, TO_ROOM);
+                act(to_room[1], false, ch, NULL, NULL, TO_ROOM);
 
             if (mode == SKILL_ENERGY_FIELD && room_is_watery(ch->in_room)) {
                 for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
@@ -852,7 +852,7 @@ perform_cyborg_activate(struct creature *ch, int16_t mode, int subcmd)
             if (to_char[0])
                 send_to_char(ch, "%s", to_char[0]);
             if (to_room[0])
-                act(to_room[0], false, ch, 0, 0, TO_ROOM);
+                act(to_room[0], false, ch, NULL, NULL, TO_ROOM);
 
         }
     }
@@ -917,15 +917,15 @@ ACMD(do_activate)
         case ITEM_DEVICE:
             if (!subcmd) {
                 if (!ENGINE_STATE(obj))
-                    act("$p is already switched off.", false, ch, obj, 0,
+                    act("$p is already switched off.", false, ch, obj, NULL,
                         TO_CHAR);
                 else {
                     act(tmp_sprintf("You deactivate $p%s.",
                             internal ? " (internal)" : ""),
-                        false, ch, obj, 0, TO_CHAR);
+                        false, ch, obj, NULL, TO_CHAR);
                     act(tmp_sprintf("$n deactivates $p%s.",
                             internal ? " (internal)" : ""),
-                        true, ch, obj, 0, TO_ROOM);
+                        true, ch, obj, NULL, TO_ROOM);
 
                     apply_object_affects(ch, obj, false);
                     ENGINE_STATE(obj) = 0;
@@ -933,21 +933,21 @@ ACMD(do_activate)
                 }
             } else {
                 if (ENGINE_STATE(obj))
-                    act("$p is already switched on.", false, ch, obj, 0,
+                    act("$p is already switched on.", false, ch, obj, NULL,
                         TO_CHAR);
                 else if (CUR_ENERGY(obj) < USE_RATE(obj))
                     act("The energy levels of $p are too low.", false, ch, obj,
-                        0, TO_CHAR);
+                        NULL, TO_CHAR);
                 else {
                     act(tmp_sprintf("You activate $p%s.",
                             internal ? " (internal)" : ""),
-                        false, ch, obj, 0, TO_CHAR);
+                        false, ch, obj, NULL, TO_CHAR);
                     act(tmp_sprintf("$n activates $p%s.",
                             internal ? " (internal)" : ""),
-                        true, ch, obj, 0, TO_ROOM);
+                        true, ch, obj, NULL, TO_ROOM);
 
                     if (obj->action_desc && ch == obj->worn_by)
-                        act(obj->action_desc, false, ch, obj, 0, TO_CHAR);
+                        act(obj->action_desc, false, ch, obj, NULL, TO_CHAR);
                     CUR_ENERGY(obj) -= USE_RATE(obj);
                     ENGINE_STATE(obj) = 1;
                     apply_object_affects(ch, obj, true);
@@ -973,10 +973,10 @@ ACMD(do_activate)
                 send_to_char(ch,
                     "The thought of leaving your master makes you weep.\r\n");
                 if (IS_UNDEAD(ch))
-                    act("$n makes a hollow moaning sound.", false, ch, 0, 0,
+                    act("$n makes a hollow moaning sound.", false, ch, NULL, NULL,
                         TO_ROOM);
                 else
-                    act("$n looks like $e wants to use $p.", false, ch, obj, 0,
+                    act("$n looks like $e wants to use $p.", false, ch, obj, NULL,
                         TO_ROOM);
                 return;
             }
@@ -986,10 +986,10 @@ ACMD(do_activate)
 
             if (CUR_ENERGY(obj) < mass)
                 act("$p lacks the energy to transport you and your gear.",
-                    false, ch, obj, 0, TO_CHAR);
+                    false, ch, obj, NULL, TO_CHAR);
             else if ((targ_room = real_room(TRANS_TO_ROOM(obj))) == NULL)
                 act("$p is not tuned to a real spacetime location.",
-                    false, ch, obj, 0, TO_CHAR);
+                    false, ch, obj, NULL, TO_CHAR);
             else if (ROOM_FLAGGED(targ_room, ROOM_DEATH))
                 send_to_char(ch, "A warning indicator blinks on:\r\n"
                     "Transporter is tuned to a deadly area.\r\n");
@@ -1009,16 +1009,16 @@ ACMD(do_activate)
                 && GET_LEVEL(ch) < LVL_AMBASSADOR) {
                 act("You flip a switch on $p...\r\n"
                     "Only to be slammed down by an invisible force!!!", false,
-                    ch, obj, 0, TO_CHAR);
+                    ch, obj, NULL, TO_CHAR);
                 act("$n flips a switch on $p...\r\n"
                     "And is slammed down by an invisible force!!!", false, ch,
-                    obj, 0, TO_ROOM);
+                    obj, NULL, TO_ROOM);
             } else {
                 CUR_ENERGY(obj) -= mass;
 
                 send_to_char(ch, "You flip a switch and disappear.\r\n");
                 act("$n flips a switch on $p and fades out of existence.",
-                    true, ch, obj, 0, TO_ROOM);
+                    true, ch, obj, NULL, TO_ROOM);
 
                 char_from_room(ch, true);
                 char_to_room(ch, targ_room, true);
@@ -1026,7 +1026,7 @@ ACMD(do_activate)
                 send_to_char(ch,
                     "A buzzing fills your ears as you materialize...\r\n");
                 act("You hear a buzzing sound as $n fades into existence.",
-                    false, ch, 0, 0, TO_ROOM);
+                    false, ch, NULL, NULL, TO_ROOM);
                 look_at_room(ch, ch->in_room, 0);
 
                 if (ROOM_FLAGGED(ch->in_room, ROOM_NULL_MAGIC) &&
@@ -1039,7 +1039,7 @@ ACMD(do_activate)
                             "You are dazed by a blinding flash inside your"
                             " brain!\r\nYou feel different...\r\n");
                         act("Light flashes from behind $n's eyes.", false, ch,
-                            0, 0, TO_ROOM);
+                            NULL, NULL, TO_ROOM);
                         while (ch->affected)
                             affect_remove(ch, ch->affected);
 
@@ -1054,28 +1054,28 @@ ACMD(do_activate)
         case ITEM_SCUBA_MASK:
             if (!obj->aux_obj || GET_OBJ_TYPE(obj->aux_obj) != ITEM_SCUBA_TANK) {
                 act("$p needs to be attached to an air tank first.",
-                    false, ch, obj, 0, TO_CHAR);
+                    false, ch, obj, NULL, TO_CHAR);
                 return;
             }
             if (!subcmd) {
                 if (!GET_OBJ_VAL(obj, 0))
-                    act("$p is already switched off.", false, ch, obj, 0,
+                    act("$p is already switched off.", false, ch, obj, NULL,
                         TO_CHAR);
                 else {
-                    act("You close the air valve on $p.", false, ch, obj, 0,
+                    act("You close the air valve on $p.", false, ch, obj, NULL,
                         TO_CHAR);
-                    act("$n adjusts an air valve on $p.", true, ch, obj, 0,
+                    act("$n adjusts an air valve on $p.", true, ch, obj, NULL,
                         TO_ROOM);
                     GET_OBJ_VAL(obj, 0) = 0;
                 }
             } else {
                 if (GET_OBJ_VAL(obj, 0))
-                    act("$p is already switched on.", false, ch, obj, 0,
+                    act("$p is already switched on.", false, ch, obj, NULL,
                         TO_CHAR);
                 else {
-                    act("You open the air valve on $p.", false, ch, obj, 0,
+                    act("You open the air valve on $p.", false, ch, obj, NULL,
                         TO_CHAR);
-                    act("$n adjusts an air valve on $p.", true, ch, obj, 0,
+                    act("$n adjusts an air valve on $p.", true, ch, obj, NULL,
                         TO_ROOM);
                     GET_OBJ_VAL(obj, 0) = 1;
                 }
@@ -1084,20 +1084,20 @@ ACMD(do_activate)
 
         case ITEM_BOMB:
             if (!obj->contains || !IS_FUSE(obj->contains)) {
-                act("$p is not fitted with a fuse.", false, ch, obj, 0,
+                act("$p is not fitted with a fuse.", false, ch, obj, NULL,
                     TO_CHAR);
             } else if (!subcmd) {
                 if (!FUSE_STATE(obj->contains))
                     act("$p has not yet been activated.",
-                        false, ch, obj->contains, 0, TO_CHAR);
+                        false, ch, obj->contains, NULL, TO_CHAR);
                 else {
-                    act("You deactivate $p.", false, ch, obj, 0, TO_CHAR);
+                    act("You deactivate $p.", false, ch, obj, NULL, TO_CHAR);
                     FUSE_STATE(obj->contains) = 0;
                 }
             } else {
                 if (FUSE_STATE(obj->contains))
                     act("$p is already live!",
-                        false, ch, obj->contains, 0, TO_CHAR);
+                        false, ch, obj->contains, NULL, TO_CHAR);
                 else if (FUSE_IS_BURN(obj->contains))
                     act("$p is fused with $P -- a burning fuse.",
                         false, ch, obj, obj->contains, TO_CHAR);
@@ -1112,7 +1112,7 @@ ACMD(do_activate)
 
         case ITEM_DETONATOR:
             if (!obj->aux_obj)
-                act("$p is not tuned to any explosives.", false, ch, obj, 0,
+                act("$p is not tuned to any explosives.", false, ch, obj, NULL,
                     TO_CHAR);
             else if (!IS_BOMB(obj->aux_obj))
                 send_to_char(ch,
@@ -1129,11 +1129,11 @@ ACMD(do_activate)
                     act("$P's fuse is not active.",
                         false, ch, obj, obj->aux_obj, TO_CHAR);
                 else {
-                    act("$n activates $p.", false, ch, obj, 0, TO_CHAR);
+                    act("$n activates $p.", false, ch, obj, NULL, TO_CHAR);
                     detonate_bomb(obj->aux_obj);
                 }
             } else {
-                act("$n deactivates $p.", false, ch, obj, 0, TO_CHAR);
+                act("$n deactivates $p.", false, ch, obj, NULL, TO_CHAR);
                 send_to_char(ch, "ok.\r\n");
                 obj->aux_obj->aux_obj = NULL;
                 obj->aux_obj = NULL;
@@ -1143,23 +1143,23 @@ ACMD(do_activate)
         case ITEM_COMMUNICATOR:
             if (subcmd) {
                 if (ENGINE_STATE(obj)) {
-                    act("$p is already switched on.", false, ch, obj, 0,
+                    act("$p is already switched on.", false, ch, obj, NULL,
                         TO_CHAR);
                 } else if (CUR_ENERGY(obj) == 0) {
-                    act("$p is depleted of energy.", false, ch, obj, 0,
+                    act("$p is depleted of energy.", false, ch, obj, NULL,
                         TO_CHAR);
                 } else {
-                    act("$n switches $p on.", true, ch, obj, 0, TO_ROOM);
-                    act("You switch $p on.", true, ch, obj, 0, TO_CHAR);
+                    act("$n switches $p on.", true, ch, obj, NULL, TO_ROOM);
+                    act("You switch $p on.", true, ch, obj, NULL, TO_CHAR);
                     ENGINE_STATE(obj) = 1;
                 }
             } else {
                 if (!ENGINE_STATE(obj)) {
-                    act("$p is already switched off.", false, ch, obj, 0,
+                    act("$p is already switched off.", false, ch, obj, NULL,
                         TO_CHAR);
                 } else {
-                    act("$n switches $p off.", true, ch, obj, 0, TO_ROOM);
-                    act("You switch $p off.", true, ch, obj, 0, TO_CHAR);
+                    act("$n switches $p off.", true, ch, obj, NULL, TO_ROOM);
+                    act("You switch $p off.", true, ch, obj, NULL, TO_CHAR);
                     ENGINE_STATE(obj) = 0;
                 }
             }
@@ -1190,7 +1190,7 @@ ACMD(do_cyborg_reboot)
             CHECK_SKILL(ch, SKILL_FASTBOOT));
     }
 
-    act("$n begins a reboot sequence and shuts down.", false, ch, 0, 0,
+    act("$n begins a reboot sequence and shuts down.", false, ch, NULL, NULL,
         TO_ROOM);
 
     if (is_fighting(ch))
@@ -1238,7 +1238,7 @@ ACMD(do_self_destruct)
     if (!IS_CYBORG(ch) || GET_SKILL(ch, SKILL_SELF_DESTRUCT) < 50) {
         send_to_char(ch, "You explode.\r\n");
         act("$n self destructs, spraying you with an awful mess!",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     } else if (!*argument) {
         send_to_char(ch,
             "You must provide a countdown time, in 3-second pulses.\r\n");
@@ -1264,7 +1264,7 @@ ACMD(do_self_destruct)
                 "Use 'selfdestruct abort' to abort process!\r\n");
         } else if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
             act("You fear that your death will grieve $N.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         } else {
             send_to_char(ch,
@@ -1302,7 +1302,7 @@ ACMD(do_bioscan)
 
     send_to_char(ch, "%sBIOSCAN:%s %d life form%s detected in room.\r\n",
         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), count, count > 1 ? "s" : "");
-    act("$n scans the room for lifeforms.", false, ch, 0, 0, TO_ROOM);
+    act("$n scans the room for lifeforms.", false, ch, NULL, NULL, TO_ROOM);
 
     if (count > number(3, 5))
         gain_skill_prof(ch, SKILL_BIOSCAN);
@@ -1326,7 +1326,7 @@ ACMD(do_discharge)
 
     if (!IS_CYBORG(ch) && GET_LEVEL(ch) < LVL_DEMI) {
         send_to_char(ch, "You discharge some smelly gas.\r\n");
-        act("$n discharges some smelly gas.", false, ch, 0, 0, TO_ROOM);
+        act("$n discharges some smelly gas.", false, ch, NULL, NULL, TO_ROOM);
         return;
     }
 
@@ -1436,9 +1436,9 @@ ACMD(do_discharge)
 
     if (ovict) {
         act("$n blasts $p with a stream of pure energy!!",
-            false, ch, ovict, 0, TO_ROOM);
+            false, ch, ovict, NULL, TO_ROOM);
         act("You blast $p with a stream of pure energy!!",
-            false, ch, ovict, 0, TO_CHAR);
+            false, ch, ovict, NULL, TO_CHAR);
 
         dam = amount * (level + dice(GET_INT(ch), 4));
         damage_eq(ch, ovict, dam, -1);
@@ -1507,13 +1507,13 @@ ACMD(do_tune)
         if (CHECK_SKILL(ch, SKILL_ELECTRONICS) < number(10, 50))
             send_to_char(ch, "You can't figure it out.\r\n");
         else if (!GET_OBJ_VAL(obj, 3))
-            act("$p is not tunable.", false, ch, obj, 0, TO_CHAR);
+            act("$p is not tunable.", false, ch, obj, NULL, TO_CHAR);
         else if (!CUR_ENERGY(obj))
-            act("$p is depleted of energy.", false, ch, obj, 0, TO_CHAR);
+            act("$p is depleted of energy.", false, ch, obj, NULL, TO_CHAR);
         else {
             CUR_ENERGY(obj) = MAX(0, CUR_ENERGY(obj) - 10);
             if (!CUR_ENERGY(obj))
-                act("$p buzzes briefly and falls silent.", false, ch, obj, 0,
+                act("$p buzzes briefly and falls silent.", false, ch, obj, NULL,
                     TO_CHAR);
             else {
                 if ((CHECK_SKILL(ch, SKILL_ELECTRONICS) + GET_INT(ch)) <
@@ -1533,9 +1533,9 @@ ACMD(do_tune)
                 if (to_room == NULL)
                     TRANS_TO_ROOM(obj) = ch->in_room->number;
 
-                act("You succesfully tune $p.", false, ch, obj, 0, TO_CHAR);
+                act("You succesfully tune $p.", false, ch, obj, NULL, TO_CHAR);
                 act("$n turns some knobs on $p, which blinks and whines.",
-                    false, ch, obj, 0, TO_ROOM);
+                    false, ch, obj, NULL, TO_ROOM);
                 WAIT_STATE(ch, PULSE_VIOLENCE);
             }
         }
@@ -1546,7 +1546,7 @@ ACMD(do_tune)
             CHECK_SKILL(ch, SKILL_DEMOLITIONS) < number(10, 50))
             send_to_char(ch, "You can't figure it out.\r\n");
         else if (!*arg2)
-            act("Tune $p to what bomb?", false, ch, obj, 0, TO_CHAR);
+            act("Tune $p to what bomb?", false, ch, obj, NULL, TO_CHAR);
         else {
             if (!(obj2 = get_obj_in_list_vis(ch, arg2, ch->carrying)) &&
                 !(obj2 =
@@ -1585,7 +1585,7 @@ ACMD(do_tune)
         else {
             i = atoi(arg2);
             if (i == COMM_CHANNEL(obj)) {
-                act("$p is already tuned to that channel.", false, ch, obj, 0,
+                act("$p is already tuned to that channel.", false, ch, obj, NULL,
                     TO_CHAR);
                 break;
             }
@@ -1728,7 +1728,7 @@ ACMD(do_status)
         send_to_char(ch, "Energy Levels: %d / %d.\r\n", CUR_ENERGY(obj),
             MAX_ENERGY(obj));
         if (real_room(TRANS_TO_ROOM(obj)) == NULL)
-            act("$p is currently untuned.", false, ch, obj, 0, TO_CHAR);
+            act("$p is currently untuned.", false, ch, obj, NULL, TO_CHAR);
         else {
             send_to_char(ch, "Tuned location: %s%s%s\r\n",
                 CCCYN(ch, C_NRM), (CHECK_SKILL(ch, SKILL_ELECTRONICS) +
@@ -1743,13 +1743,13 @@ ACMD(do_status)
                 ISARE(obj->name), GET_OBJ_VAL(obj, 0) < 0 ?
                 100 : GET_OBJ_VAL(obj, 0) == 0 ? 0 : (GET_OBJ_VAL(obj, 1)
                     / GET_OBJ_VAL(obj, 0)
-                    * 100)), false, ch, obj, 0, TO_CHAR);
+                    * 100)), false, ch, obj, NULL, TO_CHAR);
         break;
 
     case ITEM_SCUBA_MASK:
         act(tmp_sprintf("The valve on $p is currently %s.",
                 GET_OBJ_VAL(obj, 0) ? "open" : "closed"),
-            false, ch, obj, 0, TO_CHAR);
+            false, ch, obj, NULL, TO_CHAR);
         break;
 
     case ITEM_DEVICE:
@@ -1760,7 +1760,7 @@ ACMD(do_status)
                 (obj == GET_EQ(ch,
                         obj->worn_on) ? "worn" : "implanted") : "here",
                 ISARE(OBJS(obj, ch)), ENGINE_STATE(obj) ? "" : "de",
-                CUR_ENERGY(obj), MAX_ENERGY(obj)), false, ch, obj, 0, TO_CHAR);
+                CUR_ENERGY(obj), MAX_ENERGY(obj)), false, ch, obj, NULL, TO_CHAR);
         break;
 
     case ITEM_DETONATOR:
@@ -1781,7 +1781,7 @@ ACMD(do_status)
             act(tmp_sprintf("$p is %sfused and %sactive.",
                     (obj->contains && IS_FUSE(obj->contains)) ? "" : "un",
                     (obj->contains && FUSE_STATE(obj->contains)) ? "" : "in"),
-                false, ch, obj, 0, TO_CHAR);
+                false, ch, obj, NULL, TO_CHAR);
         break;
     case ITEM_ENERGY_CELL:
     case ITEM_BATTERY:
@@ -1817,7 +1817,7 @@ ACMD(do_status)
     case ITEM_COMMUNICATOR:
 
         if (!ENGINE_STATE(obj)) {
-            act("$p is switched off.", false, ch, obj, 0, TO_CHAR);
+            act("$p is switched off.", false, ch, obj, NULL, TO_CHAR);
             return;
         }
 
@@ -1919,7 +1919,7 @@ ACMD(do_repair)
                         GET_MOVE(ch) = 0;
                     }
                     send_to_char(ch, "You skillfully repair yourself.\r\n");
-                    act("$n repairs $mself.", true, ch, 0, 0, TO_ROOM);
+                    act("$n repairs $mself.", true, ch, NULL, NULL, TO_ROOM);
                     gain_skill_prof(ch, SKILL_SELFREPAIR);
                     WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 7)));
                 }
@@ -1930,20 +1930,20 @@ ACMD(do_repair)
                     "You have no repair skills for repairing others.\r\n");
             else if (!IS_CYBORG(vict))
                 act("You cannot repair $M.  You can only repair other borgs.",
-                    false, ch, 0, vict, TO_CHAR);
+                    false, ch, NULL, vict, TO_CHAR);
             else if (is_fighting(ch))
                 send_to_char(ch,
                     "You cannot perform repairs on fighting patients.\r\n");
             else if (GET_HIT(vict) == GET_MAX_HIT(vict))
-                act("$N's systems are not currently damaged.", false, ch, 0,
+                act("$N's systems are not currently damaged.", false, ch, NULL,
                     vict, TO_CHAR);
             else {
                 if (number(12, 150) > CHECK_SKILL(ch, SKILL_CYBOREPAIR) +
                     TOOL_MOD(tool) +
                     (CHECK_SKILL(ch, SKILL_ELECTRONICS) >> 1) + GET_INT(ch)) {
-                    act("$n attempts to repair you, but fails.", false, ch, 0,
+                    act("$n attempts to repair you, but fails.", false, ch, NULL,
                         vict, TO_VICT);
-                    act("You fail to repair $M.\r\n", false, ch, 0, vict,
+                    act("You fail to repair $M.\r\n", false, ch, NULL, vict,
                         TO_CHAR);
                 } else {
 
@@ -1965,11 +1965,11 @@ ACMD(do_repair)
                             GET_MANA(ch) += GET_MOVE(ch);
                             GET_MOVE(ch) = 0;
                         }
-                        act("You skillfully repair $N.", false, ch, 0, vict,
+                        act("You skillfully repair $N.", false, ch, NULL, vict,
                             TO_CHAR);
-                        act("$n skillfully makes repairs on $N.", true, ch, 0,
+                        act("$n skillfully makes repairs on $N.", true, ch, NULL,
                             vict, TO_NOTVICT);
-                        act("$n skillfully makes repairs on you.", true, ch, 0,
+                        act("$n skillfully makes repairs on you.", true, ch, NULL,
                             vict, TO_VICT);
                         gain_skill_prof(ch, SKILL_CYBOREPAIR);
                         WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 6)));
@@ -1986,7 +1986,7 @@ ACMD(do_repair)
 
     if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
         act("$p is too severly damaged for you to repair.",
-            false, ch, obj, 0, TO_CHAR);
+            false, ch, obj, NULL, TO_CHAR);
         return;
     }
 
@@ -2015,7 +2015,7 @@ ACMD(do_repair)
     }
 
     if (GET_OBJ_DAM(obj) > GET_OBJ_MAX_DAM(obj) * 3 / 4) {
-        act("$p is not damaged enough to need repair.", false, ch, obj, 0,
+        act("$p is not damaged enough to need repair.", false, ch, obj, NULL,
             TO_CHAR);
         return;
     }
@@ -2034,8 +2034,8 @@ ACMD(do_repair)
 
     GET_OBJ_DAM(obj) = MIN(GET_OBJ_DAM(obj) + dam,
         (GET_OBJ_MAX_DAM(obj) >> 2) * 3);
-    act("You skillfully perform repairs on $p.", false, ch, obj, 0, TO_CHAR);
-    act("$n skillfully performs repairs on $p.", false, ch, obj, 0, TO_ROOM);
+    act("You skillfully perform repairs on $p.", false, ch, obj, NULL, TO_CHAR);
+    act("$n skillfully performs repairs on $p.", false, ch, obj, NULL, TO_ROOM);
     gain_skill_prof(ch, skill);
     WAIT_STATE(ch, 7 RL_SEC);
     return;
@@ -2059,7 +2059,7 @@ ACMD(do_overhaul)
             "You must be holding a cyber repair tool to do this.\r\n");
     } else if (GET_TOT_DAM(vict) <= (max_component_dam(vict) / 3)) {
         act("You cannot make any significant improvements to $S systems.",
-            false, ch, 0, vict, TO_CHAR);
+            false, ch, NULL, vict, TO_CHAR);
     } else if (GET_POSITION(vict) > POS_SITTING) {
         send_to_char(ch, "Your subject must be sitting, at least.\r\n");
     } else if (CHECK_SKILL(ch, SKILL_OVERHAUL) < 10) {
@@ -2079,9 +2079,9 @@ ACMD(do_overhaul)
         repair = MIN(repair, (GET_MOVE(ch) + GET_MANA(ch)) * 100);
 
         act("$n begins to perform a system overhaul on $N.",
-            false, ch, 0, vict, TO_NOTVICT);
+            false, ch, NULL, vict, TO_NOTVICT);
         act("$n begins to perform a system overhaul on you.",
-            false, ch, 0, vict, TO_VICT);
+            false, ch, NULL, vict, TO_VICT);
 
         GET_TOT_DAM(vict) -= repair;
         GET_MOVE(ch) -= (repair / 100);
@@ -2356,7 +2356,7 @@ ACMD(do_insert)
         return;
     }
     if (!(vict = get_char_room_vis(ch, vict_str))) {
-        act("Insert $p in who?", false, ch, obj, 0, TO_CHAR);
+        act("Insert $p in who?", false, ch, obj, NULL, TO_CHAR);
         return;
     }
 
@@ -2412,7 +2412,7 @@ ACMD(do_insert)
     }
 
     if (!CAN_WEAR(obj, wear_bitvectors[pos])) {
-        act("$p cannot be implanted there.", false, ch, obj, 0, TO_CHAR);
+        act("$p cannot be implanted there.", false, ch, obj, NULL, TO_CHAR);
         return;
     }
     if (GET_OBJ_WEIGHT(obj) > GET_STR(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
@@ -2432,7 +2432,7 @@ ACMD(do_insert)
                 (GET_IMPLANT(vict, i) && IS_INTERFACE(GET_IMPLANT(vict, i)) &&
                     INTERFACE_TYPE(GET_IMPLANT(vict, i)) == INTERFACE_CHIPS)) {
                 act("$N is already using an interface.\r\n",
-                    false, ch, 0, vict, TO_CHAR);
+                    false, ch, NULL, vict, TO_CHAR);
                 return;
             }
         }
@@ -2465,11 +2465,11 @@ ACMD(do_insert)
         !IS_IMMORT(ch) && !AFF_FLAGGED(vict, AFF_SLEEP) &&
         !AFF3_FLAGGED(vict, AFF3_STASIS)) {
         act("$N wakes up with a scream as you cut into $M!",
-            false, ch, 0, vict, TO_CHAR);
+            false, ch, NULL, vict, TO_CHAR);
         act("$N wakes up with a scream as $n cuts into $M!",
-            false, ch, 0, vict, TO_NOTVICT);
+            false, ch, NULL, vict, TO_NOTVICT);
         act("$N wakes up with a scream as $n cuts into you!",
-            false, ch, 0, vict, TO_VICT | TO_SLEEP);
+            false, ch, NULL, vict, TO_VICT | TO_SLEEP);
         GET_POSITION(vict) = POS_RESTING;
         //    damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
         return;
@@ -2579,14 +2579,14 @@ ACMD(do_extract)
         }
 
         if (!(obj = get_obj_in_list_vis(ch, obj_str, corpse->contains))) {
-            act("There is no such thing in $p.", false, ch, corpse, 0,
+            act("There is no such thing in $p.", false, ch, corpse, NULL,
                 TO_CHAR);
             return;
         }
 
         if (IS_CORPSE(corpse)) {
             if (!IS_IMPLANT(obj) || CAN_WEAR(obj, ITEM_WEAR_TAKE)) {
-                act("$p is not implanted.", false, ch, obj, 0, TO_CHAR);
+                act("$p is not implanted.", false, ch, obj, NULL, TO_CHAR);
                 return;
             }
         } else if (!IS_BODY_PART(corpse) || !isname("head", corpse->aliases) ||
@@ -2628,7 +2628,7 @@ ACMD(do_extract)
         if (CHECK_SKILL(ch,
                 SKILL_CYBO_SURGERY) + TOOL_MOD(tool) + (GET_DEX(ch) << 2) <
             number(50, 100)) {
-            act("You damage $p during the extraction!", false, ch, obj, 0,
+            act("You damage $p during the extraction!", false, ch, obj, NULL,
                 TO_CHAR);
             damage_eq(ch,
                 obj,
@@ -2684,17 +2684,17 @@ ACMD(do_extract)
         GET_LEVEL(ch) < LVL_AMBASSADOR && !AFF_FLAGGED(vict, AFF_SLEEP) &&
         !AFF3_FLAGGED(vict, AFF3_STASIS)) {
         act("$N wakes up with a scream as you cut into $M!",
-            false, ch, 0, vict, TO_CHAR);
+            false, ch, NULL, vict, TO_CHAR);
         act("$N wakes up with a scream as $n cuts into $M!",
-            false, ch, 0, vict, TO_NOTVICT);
+            false, ch, NULL, vict, TO_NOTVICT);
         act("$N wakes up with a scream as $n cuts into you!",
-            false, ch, 0, vict, TO_VICT | TO_SLEEP);
+            false, ch, NULL, vict, TO_VICT | TO_SLEEP);
         GET_POSITION(vict) = POS_RESTING;
         return;
     }
 
     if (!GET_IMPLANT(vict, pos)) {
-        act("ERROR: $E is not implanted there.", false, ch, 0, vict, TO_CHAR);
+        act("ERROR: $E is not implanted there.", false, ch, NULL, vict, TO_CHAR);
         return;                 // unequip_char(vict, pos, EQUIP_IMPLANT);
     }
 
@@ -2744,7 +2744,7 @@ ACMD(do_extract)
 
     if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
         (GET_DEX(ch) << 2) < number(50, 100)) {
-        act("You damage $p during the extraction!", false, ch, obj, 0,
+        act("You damage $p during the extraction!", false, ch, obj, NULL,
             TO_CHAR);
         damage_eq(ch, obj, MAX((GET_OBJ_DAM(obj) >> 2), (dice(10,
                         10) - CHECK_SKILL(ch,
@@ -2802,20 +2802,20 @@ ACMD(do_cyberscan)
                     && ((CHECK_SKILL(ch, SKILL_CYBERSCAN) + (AFF3_FLAGGED(ch,
                                     AFF3_SONIC_IMAGERY) ? 50 : 0) > number(70,
                                 150)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
-                    act("$p detected.", false, ch, impl, 0, TO_CHAR);
+                    act("$p detected.", false, ch, impl, NULL, TO_CHAR);
                     ++found;
                 }
             if (!found)
-                act("No implants detected in $p.", false, ch, obj, 0, TO_CHAR);
-            act("$n scans $p.", true, ch, obj, 0, TO_ROOM);
+                act("No implants detected in $p.", false, ch, obj, NULL, TO_CHAR);
+            act("$n scans $p.", true, ch, obj, NULL, TO_ROOM);
         } else
             send_to_char(ch, "Cyberscan who?\r\n");
         return;
     }
 
     if (ch != vict && can_see_creature(vict, ch)) {
-        act("$n scans $N.", false, ch, 0, vict, TO_NOTVICT);
-        act("$n scans you.", false, ch, 0, vict, TO_VICT);
+        act("$n scans $N.", false, ch, NULL, vict, TO_NOTVICT);
+        act("$n scans you.", false, ch, NULL, vict, TO_VICT);
     }
 
     send_to_char(ch, "CYBERSCAN RESULTS:\r\n");
@@ -2860,7 +2860,7 @@ ACMD(do_load)
             return;
         }
         if (!*arg2) {
-            act("Load $p into what?", false, ch, obj1, 0, TO_CHAR);
+            act("Load $p into what?", false, ch, obj1, NULL, TO_CHAR);
             return;
         }
         if (!strncmp(arg2, "internal", 8)) {
@@ -2884,7 +2884,7 @@ ACMD(do_load)
             && !(obj2 = get_obj_in_list_vis(ch, arg2, ch->carrying))
             && !(obj2 = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
             act(tmp_sprintf("You don't have any '%s' to load $p into.", arg2),
-                false, ch, obj1, 0, TO_CHAR);
+                false, ch, obj1, NULL, TO_CHAR);
             return;
         }
         if (obj2 == obj1) {
@@ -2992,7 +2992,7 @@ ACMD(do_load)
         obj_from_char(obj1);
         obj_to_obj(obj1, obj2);
         if (IS_CHIP(obj1) && ch == obj2->worn_by && obj1->action_desc)
-            act(obj1->action_desc, false, ch, 0, 0, TO_CHAR);
+            act(obj1->action_desc, false, ch, NULL, NULL, TO_CHAR);
         i = 10 - MIN(8,
             ((CHECK_SKILL(ch, SKILL_SPEED_LOADING) + GET_DEX(ch)) >> 4));
         WAIT_STATE(ch, i);
@@ -3020,19 +3020,19 @@ ACMD(do_load)
             && !(obj2 = get_obj_in_list_vis(ch, arg1, ch->carrying))
             && !(obj2 = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
             act(tmp_sprintf("You can't find %s '%s' to unload.", AN(arg1),
-                    arg1), false, ch, obj1, 0, TO_CHAR);
+                    arg1), false, ch, obj1, NULL, TO_CHAR);
             return;
         }
 
         if (IS_ENERGY_GUN(obj2)) {
             if (!(obj1 = obj2->contains)) {
                 act("$p is not loaded with an energy cell.", false, ch, obj2,
-                    0, TO_CHAR);
+                    NULL, TO_CHAR);
                 return;
             }
         } else if (IS_GUN(obj2) || IS_CLIP(obj2) || IS_INTERFACE(obj2)) {
             if (!(obj1 = obj2->contains)) {
-                act("$p is not loaded.", false, ch, obj2, 0, TO_CHAR);
+                act("$p is not loaded.", false, ch, obj2, NULL, TO_CHAR);
                 return;
             }
         } else {
@@ -3095,12 +3095,12 @@ ACMD(do_refill)
     } else if (!IS_SYRINGE(syr))
         send_to_char(ch, "You can only refill syringes.\r\n");
     else if (GET_OBJ_VAL(syr, 0))
-        act("$p is already full.", false, ch, syr, 0, TO_CHAR);
+        act("$p is already full.", false, ch, syr, NULL, TO_CHAR);
     else if (!(vial = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
         send_to_char(ch, "You can't find %s '%s' to refill from.\r\n",
             AN(arg2), arg2);
     } else if (!GET_OBJ_VAL(vial, 0))
-        act("$p is empty.", false, ch, vial, 0, TO_CHAR);
+        act("$p is empty.", false, ch, vial, NULL, TO_CHAR);
     else {
 
         act("You refill $p from $P.", false, ch, syr, vial, TO_CHAR);
@@ -3171,11 +3171,11 @@ ACMD(do_transmit)
     }
 
     if (!IS_COMMUNICATOR(obj)) {
-        act("$p is not a communication device.", false, ch, obj, 0, TO_CHAR);
+        act("$p is not a communication device.", false, ch, obj, NULL, TO_CHAR);
         return;
     }
     if (!ENGINE_STATE(obj)) {
-        act("$p is not switched on.", false, ch, obj, 0, TO_CHAR);
+        act("$p is not switched on.", false, ch, obj, NULL, TO_CHAR);
         return;
     }
 
@@ -3186,7 +3186,7 @@ ACMD(do_transmit)
 
     if (!obj->worn_by || (obj != GET_IMPLANT(ch, obj->worn_on)))
         act(tmp_sprintf("$n speaks into $p%s.", obj->worn_by ? " (worn)" : ""),
-            false, ch, obj, 0, TO_ROOM);
+            false, ch, obj, NULL, TO_ROOM);
 
     send_to_comm_channel(ch, tmp_sprintf("$n >%s", argument),
         COMM_CHANNEL(obj), false, false);
@@ -3236,33 +3236,33 @@ ACMD(do_overdrain)
     }
     if (IS_IMPLANT(source)
         && source != get_object_in_equip_vis(ch, arg2, ch->implants, &i)) {
-        act("ERROR: $p not installed properly.", false, ch, source, 0,
+        act("ERROR: $p not installed properly.", false, ch, source, NULL,
             TO_CHAR);
         return;
     }
 
     if (!IS_BATTERY(source) && !IS_DEVICE(source)) {
-        act("You cannot draw energy from $p.", false, ch, source, 0, TO_CHAR);
+        act("You cannot draw energy from $p.", false, ch, source, NULL, TO_CHAR);
         return;
     }
 
     if (MAX_ENERGY(source) <= 0) {
-        act("$p has no energy to drain.", false, ch, source, 0, TO_CHAR);
+        act("$p has no energy to drain.", false, ch, source, NULL, TO_CHAR);
         return;
     }
 
     if (CUR_ENERGY(source) <= 0) {
-        act("$p is depleted of energy.", false, ch, source, 0, TO_CHAR);
+        act("$p is depleted of energy.", false, ch, source, NULL, TO_CHAR);
         return;
     }
     if (IS_BATTERY(source) && COST_UNIT(source)) {
-        act("$p is equipped with a power regulator.", false, ch, source, 0,
+        act("$p is equipped with a power regulator.", false, ch, source, NULL,
             TO_CHAR);
         return;
     }
     gain_skill_prof(ch, SKILL_OVERDRAIN);
     amount = number(0, skill_bonus(ch, SKILL_OVERDRAIN));
-    perform_recharge(ch, source, ch, 0, amount);
+    perform_recharge(ch, source, ch, NULL, amount);
     return;
 }
 
@@ -3297,11 +3297,11 @@ ACMD(do_de_energize)
     if (AWAKE(vict) &&
         CHECK_SKILL(ch, SKILL_DE_ENERGIZE) < (number(0, 80) + GET_DEX(vict))) {
         act("You avoid $n's attempt to de-energize you!",
-            false, ch, 0, vict, TO_VICT);
+            false, ch, NULL, vict, TO_VICT);
         act("$N avoid $n's attempt to de-energize $M!",
-            false, ch, 0, vict, TO_NOTVICT);
+            false, ch, NULL, vict, TO_NOTVICT);
         act("$N avoids your attempt to de-energize $M!",
-            false, ch, 0, vict, TO_CHAR);
+            false, ch, NULL, vict, TO_CHAR);
         WAIT_STATE(ch, 2 RL_SEC);
         return;
     }
@@ -3309,22 +3309,22 @@ ACMD(do_de_energize)
     if (mag_savingthrow(vict,
             GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 3), SAVING_ROD)) {
         act("$n attempts to de-energize you, but fails!",
-            false, ch, 0, vict, TO_VICT);
+            false, ch, NULL, vict, TO_VICT);
         act("$n attempts to de-energize $N, but fails!",
-            false, ch, 0, vict, TO_NOTVICT);
+            false, ch, NULL, vict, TO_NOTVICT);
         act("You attempt to de-energize $N, but fail!",
-            false, ch, 0, vict, TO_CHAR);
+            false, ch, NULL, vict, TO_CHAR);
         WAIT_STATE(ch, 4 RL_SEC);
         hit(vict, ch, TYPE_UNDEFINED);
         return;
     }
 
     act("$n grabs you in a cold grip, draining you of energy!",
-        false, ch, 0, vict, TO_VICT);
+        false, ch, NULL, vict, TO_VICT);
     act("You grab $N in a cold grip, draining $M of energy!",
-        false, ch, 0, vict, TO_CHAR);
+        false, ch, NULL, vict, TO_CHAR);
     act("$n grabs $N in a cold grip, draining $M of energy!",
-        false, ch, 0, vict, TO_NOTVICT);
+        false, ch, NULL, vict, TO_NOTVICT);
 
     move = MIN(GET_MOVE(vict), dice(GET_REMORT_GEN(ch) + 5, 20));
 
@@ -3333,11 +3333,11 @@ ACMD(do_de_energize)
     GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + move);
 
     if (!move)                  // vict all drained up
-        act("$N is already completely de-energized!", false, ch, 0, vict,
+        act("$N is already completely de-energized!", false, ch, NULL, vict,
             TO_CHAR);
     else {
         if (!GET_MOVE(vict))
-            act("$N is now completely de-energized!", false, ch, 0, vict,
+            act("$N is now completely de-energized!", false, ch, NULL, vict,
                 TO_CHAR);
         gain_skill_prof(ch, SKILL_DE_ENERGIZE);
     }
@@ -3397,9 +3397,9 @@ ACMD(do_assimilate)
     if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
         (IS_OBJ_STAT(obj, ITEM_DAMNED) && IS_GOOD(ch))) {
         act("You are burned by $p as you try to assimilate it!", false, ch,
-            obj, 0, TO_CHAR);
+            obj, NULL, TO_CHAR);
         act("$n screams in agony as $e tries to assimilate $p!", false, ch,
-            obj, 0, TO_ROOM);
+            obj, NULL, TO_ROOM);
         damd = abs(GET_ALIGNMENT(ch));
         damd >>= 5;
         damd = MAX(5, damd);
@@ -3411,9 +3411,9 @@ ACMD(do_assimilate)
         (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
         (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
         act("You are zapped by $p and instantly let go of it.",
-            false, ch, obj, 0, TO_CHAR);
+            false, ch, obj, NULL, TO_CHAR);
         act("$n is zapped by $p and instantly lets go of it.",
-            false, ch, obj, 0, TO_ROOM);
+            false, ch, obj, NULL, TO_ROOM);
         obj_from_char(obj);
         obj_to_room(obj, ch->in_room);
         return;
@@ -3512,8 +3512,8 @@ ACMD(do_assimilate)
 
     }
 
-    act("You assimilate $p.", false, ch, obj, 0, TO_CHAR);
-    act("$n assimilates $p...", true, ch, obj, 0, TO_ROOM);
+    act("You assimilate $p.", false, ch, obj, NULL, TO_CHAR);
+    act("$n assimilates $p...", true, ch, obj, NULL, TO_ROOM);
 
     // stick the affs on the char
     for (i = 0; i < num_affs; i++) {
@@ -3698,7 +3698,7 @@ ch)) / 2;
    }
 
     act("Buzzing and whirring sounds come from $n's prone body.",
-        true, ch, 0, 0, TO_ROOM);
+        true, ch, NULL, NULL, TO_ROOM);
     if (GET_LEVEL(ch) < LVL_GRGOD)
        WAIT_STATE(ch, 2 RL_SEC);
 }

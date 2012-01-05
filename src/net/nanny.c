@@ -145,7 +145,7 @@ handle_input(struct descriptor_data *d)
                 char_from_room(d->creature, false);
             char_to_room(d->creature, GET_WAS_IN(d->creature), false);
             GET_WAS_IN(d->creature) = NULL;
-            act("$n has returned.", true, d->creature, 0, 0, TO_ROOM);
+            act("$n has returned.", true, d->creature, NULL, NULL, TO_ROOM);
         }
         // run it through aliasing system
         if (!aliased && perform_alias(d, arg))
@@ -414,7 +414,7 @@ handle_input(struct descriptor_data *d)
                         GET_NAME(d->creature));
                     send_to_desc(d,
                         "\r\n\r\nYou take over your own body!\r\n");
-                    act("$n has regained $s link.", true, d->creature, 0, 0,
+                    act("$n has regained $s link.", true, d->creature, NULL, NULL,
                         TO_ROOM);
                 }
 
@@ -1669,7 +1669,7 @@ char_to_game(struct descriptor_data *d)
 {
     struct descriptor_data *k, *next;
     struct room_data *load_room = NULL;
-    time_t now = time(0);
+    time_t now = time(NULL);
     const char *notes = "";
     struct quest *quest;
 
@@ -1862,7 +1862,7 @@ char_to_game(struct descriptor_data *d)
             GET_NAME(d->creature),
             d->creature->in_room->number,
             (d->account->banned) ? " [BANNED]" : "");
-        act("$n has entered the game.", true, d->creature, 0, 0, TO_ROOM);
+        act("$n has entered the game.", true, d->creature, NULL, NULL, TO_ROOM);
     }
 
     // Wait 5-15 seconds before kicking them off for being banned

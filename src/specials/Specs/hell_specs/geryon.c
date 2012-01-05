@@ -35,11 +35,11 @@ SPECIAL(geryon)
     if (!vict || !number(0, 3) || vict == ch)
         vict = random_opponent(ch);
 
-    act("$n stings you with a mighty lash of $s deadly tail!", false, ch, 0,
+    act("$n stings you with a mighty lash of $s deadly tail!", false, ch, NULL,
         vict, TO_VICT);
-    act("$n stings $N with a mighty lash of $s deadly tail!", false, ch, 0,
+    act("$n stings $N with a mighty lash of $s deadly tail!", false, ch, NULL,
         vict, TO_NOTVICT);
     GET_HIT(vict) -= dice(2, 6);
-    call_magic(ch, vict, 0, NULL, SPELL_POISON, GET_LEVEL(ch), CAST_POTION);
+    call_magic(ch, vict, NULL, NULL, SPELL_POISON, GET_LEVEL(ch), CAST_POTION);
     return 1;
 }

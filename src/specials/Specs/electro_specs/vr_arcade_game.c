@@ -94,7 +94,7 @@ SPECIAL(vr_arcade_game)
         "You step into the interface... You are blinded by a bright"
         " light!!\r\n");
     act("$n steps into $p's interface and disappears in a flash!", false, ch,
-        game, 0, TO_ROOM);
+        game, NULL, TO_ROOM);
 
     GET_HOMEROOM(ch) = GET_HOME(ch);
     GET_HOME(ch) = GET_OBJ_VAL(game, 3);
@@ -103,7 +103,7 @@ SPECIAL(vr_arcade_game)
     char_to_room(ch, r_startroom, false);
 
     act("$n appears at the center of the room with a flash!",
-        false, ch, 0, 0, TO_ROOM);
+        false, ch, NULL, NULL, TO_ROOM);
 
     look_at_room(ch, ch->in_room, 0);
 

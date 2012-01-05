@@ -207,7 +207,7 @@ make_quest(long owner_id, int owner_level, int type, const char *name)
     quest->owner_level = owner_level;
 
     quest->flags = QUEST_HIDE;
-    quest->started = time(0);
+    quest->started = time(NULL);
     quest->ended = 0;
 
     quest->description = (char *)malloc(sizeof(char) * 2);
@@ -362,7 +362,7 @@ free_quest(struct quest *quest)
     free(quest->name);
     free(quest->description);
     free(quest->updates);
-    g_list_foreach(quest->players, (GFunc) free, 0);
+    g_list_foreach(quest->players, (GFunc) free, NULL);
     g_list_free(quest->players);
     g_list_free(quest->bans);
     free(quest);
@@ -527,7 +527,7 @@ can_join_quest(struct quest * quest, struct creature * ch)
  * Loads all quest information from the saved quest file.
  **/
 void
-load_quests()
+load_quests(void)
 {
     g_list_foreach(quests, (GFunc) free_quest, NULL);
     g_list_free(quests);
@@ -753,7 +753,7 @@ list_active_quests(struct creature *ch)
             continue;
         questCount++;
 
-        timediff = time(0) - quest->started;
+        timediff = time(NULL) - quest->started;
         snprintf(timestr_a, 16, "%02d:%02d", timediff / 3600,
             (timediff / 60) % 60);
 
@@ -1134,7 +1134,7 @@ do_quest_info(struct creature *ch, char *argument)
         return;
     }
 
-    timediff = time(0) - quest->started;
+    timediff = time(NULL) - quest->started;
     sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
     time_t started = quest->started;
@@ -1180,7 +1180,7 @@ do_quest_status(struct creature *ch)
         if (quest->ended)
             continue;
         if (is_playing_quest(quest, GET_IDNUM(ch))) {
-            timediff = time(0) - quest->started;
+            timediff = time(NULL) - quest->started;
             snprintf(timestr_a, 128, "%02d:%02d", timediff / 3600,
                 (timediff / 60) % 60);
 
@@ -1528,9 +1528,9 @@ do_qcontrol_mload(struct creature *ch, char *argument, int com)
     mob = read_mobile(number);
     char_to_room(mob, ch->in_room, false);
     act("$n makes a quaint, magical gesture with one hand.", true, ch,
-        0, 0, TO_ROOM);
-    act("$n has created $N!", false, ch, 0, mob, TO_ROOM);
-    act("You create $N.", false, ch, 0, mob, TO_CHAR);
+        NULL, NULL, TO_ROOM);
+    act("$n has created $N!", false, ch, NULL, mob, TO_ROOM);
+    act("You create $N.", false, ch, NULL, mob, TO_CHAR);
 
     sprintf(buf, "mloaded %s at %d.", GET_NAME(mob), ch->in_room->number);
     qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), true);
@@ -1669,9 +1669,9 @@ do_qcontrol_oload(struct creature *ch, char *argument, int com)
     obj_to_char(obj, ch);
     crashsave(ch);
     act("$n makes a quaint, magical gesture with one hand.", true, ch,
-        0, 0, TO_ROOM);
-    act("$n has created $p!", false, ch, obj, 0, TO_ROOM);
-    act("You create $p.", false, ch, obj, 0, TO_CHAR);
+        NULL, NULL, TO_ROOM);
+    act("$n has created $p!", false, ch, obj, NULL, TO_ROOM);
+    act("You create $p.", false, ch, obj, NULL, TO_CHAR);
 
     sprintf(buf, "loaded %s at %d.", obj->name, ch->in_room->number);
     qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), true);
@@ -1729,11 +1729,11 @@ do_qcontrol_trans(struct creature *ch, char *argument)
             continue;
         }
         ++transCount;
-        act("$n disappears in a mushroom cloud.", false, vict, 0, 0, TO_ROOM);
+        act("$n disappears in a mushroom cloud.", false, vict, NULL, NULL, TO_ROOM);
         char_from_room(vict, false);
         char_to_room(vict, room, false);
-        act("$n arrives from a puff of smoke.", false, vict, 0, 0, TO_ROOM);
-        act("$n has transferred you!", false, ch, 0, vict, TO_VICT);
+        act("$n arrives from a puff of smoke.", false, vict, NULL, NULL, TO_ROOM);
+        act("$n has transferred you!", false, ch, NULL, vict, TO_VICT);
         look_at_room(vict, room, 0);
     }
     char *buf =
@@ -1773,7 +1773,7 @@ do_qcontrol_purge(struct creature *ch, char *argument)
             send_to_char(ch, "You don't need a quest to purge them!\r\n");
             return;
         }
-        act("$n disintegrates $N.", false, ch, 0, vict, TO_NOTVICT);
+        act("$n disintegrates $N.", false, ch, NULL, vict, TO_NOTVICT);
         sprintf(buf, "has purged %s at %d.",
             GET_NAME(vict), vict->in_room->number);
         qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), true);
@@ -1859,7 +1859,7 @@ do_qcontrol_show(struct creature *ch, char *argument)
     }
     // quest is still active
 
-    timediff = time(0) - quest->started;
+    timediff = time(NULL) - quest->started;
     sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
     acc_sprintf("Owner:  %-30s [%2d]\r\n"
@@ -2000,7 +2000,7 @@ do_qcontrol_end(struct creature *ch, char *argument, int com)
         remove_quest_player(quest, player->idnum);
     }
 
-    quest->ended = time(0);
+    quest->ended = time(NULL);
     qlog(ch, tmp_sprintf("ended quest %d '%s'", quest->vnum, quest->name),
         QLOG_BRIEF, 0, true);
     send_to_char(ch, "Quest ended.\r\n");
@@ -2295,7 +2295,7 @@ do_qcontrol_desc(struct creature *ch, char *argument, int com)
     if (already_being_edited(ch, quest->description))
         return;
 
-    act("$n begins to edit a quest description.\r\n", true, ch, 0, 0, TO_ROOM);
+    act("$n begins to edit a quest description.\r\n", true, ch, NULL, NULL, TO_ROOM);
 
     if (quest->description) {
         sprintf(buf, "began editing description of quest '%s'", quest->name);
@@ -2337,7 +2337,7 @@ do_qcontrol_update(struct creature *ch, char *argument, int com)
     start_editing_text(ch->desc, &quest->updates, MAX_QUEST_UPDATE);
     SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
 
-    act("$n begins to edit a quest update.\r\n", true, ch, 0, 0, TO_ROOM);
+    act("$n begins to edit a quest update.\r\n", true, ch, NULL, NULL, TO_ROOM);
     qlog(ch, buf, QLOG_COMP, LVL_AMBASSADOR, true);
 }
 

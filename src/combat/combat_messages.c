@@ -114,13 +114,13 @@ appear(struct creature *ch, struct creature *vict)
     if (found) {
         if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
             act("$n suddenly appears, seemingly from nowhere.",
-                true, ch, 0, 0, TO_ROOM);
+                true, ch, NULL, NULL, TO_ROOM);
             if (to_char)
                 send_to_char(ch, "%s", to_char);
             else
                 send_to_char(ch, "You fade into visibility.\r\n");
         } else
-            act("You feel a strange presence as $n appears, seemingly from nowhere.", false, ch, 0, 0, TO_ROOM);
+            act("You feel a strange presence as $n appears, seemingly from nowhere.", false, ch, NULL, NULL, TO_ROOM);
     }
 }
 
@@ -139,7 +139,7 @@ load_messages(void)
     for (i = 0; i < MAX_MESSAGES; i++) {
         fight_messages[i].a_type = 0;
         fight_messages[i].number_of_attacks = 0;
-        fight_messages[i].msg = 0;
+        fight_messages[i].msg = NULL;
     }
 
     if (!fgets(chk, 128, fl)) {
@@ -218,25 +218,25 @@ death_cry(struct creature *ch)
 
     if (GET_NPC_SPEC(ch) == fate)
         act("$n dissipates in a cloud of mystery, leaving you to your fate.",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     else if (IS_GHOUL(ch) || IS_WIGHT(ch) || IS_MUMMY(ch))
         act("$n falls lifeless to the floor with a shriek.",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     else if (IS_SKELETON(ch))
         act("$n clatters noisily into a lifeless heap.",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     else if (IS_GHOST(ch) || IS_SHADOW(ch) || IS_WRAITH(ch) || IS_SPECTRE(ch))
         act("$n vanishes into the void with a terrible shriek.",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     else if (IS_VAMPIRE(ch))
         act("$n screams as $e is consumed in a blazing fire!",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     else if (IS_LICH(ch))
         act("A roar fills your ears as $n is ripped into the void!",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     else if (IS_UNDEAD(ch))
         act("Your skin crawls as you hear $n's final shriek.",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     else {
         for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
             struct creature *tch = it->data;
@@ -248,12 +248,12 @@ death_cry(struct creature *ch)
             if (!found && IS_BARB(tch) && !number(0, 1)) {
                 found = 1;
                 act("You feel a rising bloodlust as you hear $n's death cry.",
-                    false, ch, 0, tch, TO_VICT);
+                    false, ch, NULL, tch, TO_VICT);
             }
 
             if (!found)
                 act("Your blood freezes as you hear $n's death cry.",
-                    false, ch, 0, tch, TO_VICT);
+                    false, ch, NULL, tch, TO_VICT);
         }
     }
 
@@ -274,7 +274,7 @@ death_cry(struct creature *ch)
             ch->in_room = was_in->dir_option[door]->to_room;
             act(tmp_sprintf
                 ("Your blood freezes as you hear someone's death cry from %s.",
-                    from_dirs[door]), false, ch, 0, 0, TO_ROOM);
+                    from_dirs[door]), false, ch, NULL, NULL, TO_ROOM);
             adjoin_room = ch->in_room;
             ch->in_room = was_in;
             if (adjoin_room->dir_option[rev_dir[door]] &&
@@ -398,21 +398,21 @@ blood_spray(struct creature *ch, struct creature *victim,
     act(tmp_sprintf(to_char,
             attacktype >= TYPE_HIT ?
             attack_hit_text[attacktype -
-                TYPE_HIT].singular : spell_to_str(attacktype)), false, ch, 0,
+                TYPE_HIT].singular : spell_to_str(attacktype)), false, ch, NULL,
         victim, TO_CHAR);
     send_to_char(ch, "%s", CCNRM(ch, C_NRM));
     send_to_char(victim, "%s", CCRED(victim, C_NRM));
     act(tmp_sprintf(to_vict,
             attacktype >= TYPE_HIT ?
             attack_hit_text[attacktype -
-                TYPE_HIT].singular : spell_to_str(attacktype)), false, ch, 0,
+                TYPE_HIT].singular : spell_to_str(attacktype)), false, ch, NULL,
         victim, TO_VICT);
     send_to_char(victim, "%s", CCNRM(victim, C_NRM));
 
     act(tmp_sprintf(to_notvict,
             attacktype >= TYPE_HIT ?
             attack_hit_text[attacktype -
-                TYPE_HIT].singular : spell_to_str(attacktype)), false, ch, 0,
+                TYPE_HIT].singular : spell_to_str(attacktype)), false, ch, NULL,
         victim, TO_NOTVICT);
 
     //
@@ -426,7 +426,7 @@ blood_spray(struct creature *ch, struct creature *victim,
     }
 
     GList *it = g_list_find_custom(ch->in_room->people,
-                                   0,
+                                   NULL,
                                    (GCompareFunc) pick_soilage_target);
 
     if (it) {
@@ -443,7 +443,7 @@ blood_spray(struct creature *ch, struct creature *victim,
                 msg = tmp_sprintf("$N's blood splatters all over your %s!",
                     wear_description[pos]);
 
-            act(msg, false, tch, 0, victim, TO_CHAR);
+            act(msg, false, tch, NULL, victim, TO_CHAR);
             found = 1;
 
             if (tch == ch && IS_CLERIC(ch) && IS_EVIL(ch)) {

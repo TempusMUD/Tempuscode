@@ -10,7 +10,7 @@ SPECIAL(clone_lab)
     if (!(CMD_IS("push") && strcasecmp(argument, "button")))
         return 0;
 
-    time_t cur_time = time(0);
+    time_t cur_time = time(NULL);
 
     if (cur_time - last_time < CLONE_LAB_TIME)
         return 0;
@@ -25,7 +25,7 @@ SPECIAL(clone_lab)
         return 0;
     }
 
-    last_time = time(0);
+    last_time = time(NULL);
 
     GET_ALIGNMENT(cloned_char) = GET_ALIGNMENT(ch);
     cloned_char->points.max_hit = cloned_char->points.hit = ch->points.max_hit;

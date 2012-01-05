@@ -134,7 +134,7 @@ craft_shop_load(struct craft_shop *shop, xmlNodePtr node)
     shop->keeper_vnum = xmlGetIntProp(node, "keeper", 0);
 
     // Remove all the currently stored items.
-    g_list_foreach(shop->items, (GFunc) free, 0);
+    g_list_foreach(shop->items, (GFunc) free, NULL);
     g_list_free(shop->items);
     shop->items = NULL;
 

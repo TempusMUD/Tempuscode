@@ -52,7 +52,7 @@ int jet_stream_state = true;
 void
 weather_and_time(void)
 {
-    time_t now = time(0);
+    time_t now = time(NULL);
 
     // Advance last sunday time
     if (now - last_sunday_time > (7 * 24 * 60 * 60)) {

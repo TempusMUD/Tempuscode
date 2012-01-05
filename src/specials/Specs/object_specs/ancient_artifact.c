@@ -16,9 +16,9 @@ SPECIAL(ancient_artifact)
         strcpy(buf,
             "A bright blue beam erupts from $p with a screaming roar!");
         send_to_char(ch, "%s", CCCYN(ch, C_NRM));
-        act(buf, false, ch, obj, 0, TO_CHAR);
+        act(buf, false, ch, obj, NULL, TO_CHAR);
         send_to_char(ch, "%s", CCNRM(ch, C_NRM));
-        act(buf, true, ch, obj, 0, TO_ROOM);
+        act(buf, true, ch, obj, NULL, TO_ROOM);
         strcpy(buf, "$N screams silently as $E briefly fades from existence!");
         act(buf, false, ch, obj, random_opponent(ch), TO_CHAR);
         act(buf, true, ch, obj, random_opponent(ch), TO_ROOM);
@@ -27,10 +27,10 @@ SPECIAL(ancient_artifact)
     } else if (number(0, 99)) {
         strcpy(buf, "$p rumbles disquietingly in your hands.");
         send_to_char(ch, "%s", CCCYN(ch, C_NRM));
-        act(buf, false, ch, obj, 0, TO_CHAR);
+        act(buf, false, ch, obj, NULL, TO_CHAR);
         send_to_char(ch, "%s", CCNRM(ch, C_NRM));
         strcpy(buf, "$p rumbles disquietingly in $n's hands.");
-        act(buf, true, ch, obj, 0, TO_ROOM);
+        act(buf, true, ch, obj, NULL, TO_ROOM);
     } else {
         // self-destruct
         struct bomb_radius_list *rad_elem, *next_elem;

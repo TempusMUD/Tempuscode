@@ -74,13 +74,13 @@ SPECIAL(temple_healer)
                     if (GET_NPC_VNUM(self) == 11000 && IS_EVIL(vict)) {
                         if (!number(0, 20)) {
                             act("$n looks at you with distaste.", false, self,
-                                0, vict, TO_VICT);
+                                NULL, vict, TO_VICT);
                             act("$n looks at $N with distaste.", false, self,
-                                0, vict, TO_NOTVICT);
+                                NULL, vict, TO_NOTVICT);
                         } else if (!number(0, 20)) {
-                            act("$n looks at you scornfully.", false, self, 0,
+                            act("$n looks at you scornfully.", false, self, NULL,
                                 vict, TO_VICT);
-                            act("$n looks at $N scornfully.", false, self, 0,
+                            act("$n looks at $N scornfully.", false, self, NULL,
                                 vict, TO_NOTVICT);
                         }
                         continue;
@@ -89,11 +89,11 @@ SPECIAL(temple_healer)
                         continue;
 
                     if (GET_HIT(vict) < GET_MAX_HIT(vict)) {
-                        act("$n touches your forehead, and your pain subsides.", true, self, 0, vict, TO_VICT);
-                        act("$n touches $N, and heals $M.", true, self, 0,
+                        act("$n touches your forehead, and your pain subsides.", true, self, NULL, vict, TO_VICT);
+                        act("$n touches $N, and heals $M.", true, self, NULL,
                             vict, TO_NOTVICT);
 
-                        cast_spell(self, vict, 0, NULL,
+                        cast_spell(self, vict, NULL, NULL,
                             GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
                             GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
                             GET_LEVEL(vict) <=
@@ -117,18 +117,18 @@ SPECIAL(temple_healer)
                         continue;
 
                     if (IS_POISONED(vict) || IS_SICK(vict)) {
-                        act("$n sweeps $s hand over your body, and your sickness ceases.", false, self, 0, vict, TO_VICT);
+                        act("$n sweeps $s hand over your body, and your sickness ceases.", false, self, NULL, vict, TO_VICT);
                         act("$n sweeps $s hand over $N's body.",
-                            true, self, 0, vict, TO_NOTVICT);
+                            true, self, NULL, vict, TO_NOTVICT);
                         act("You sweep your hand over $N's body.",
-                            false, self, 0, vict, TO_CHAR);
+                            false, self, NULL, vict, TO_CHAR);
 
                         if (IS_POISONED(vict))
-                            call_magic(self, vict, 0, NULL,
+                            call_magic(self, vict, NULL, NULL,
                                 SPELL_REMOVE_POISON, GET_LEVEL(self),
                                 CAST_SPELL);
                         if (IS_SICK(vict))
-                            call_magic(self, vict, 0, NULL,
+                            call_magic(self, vict, NULL, NULL,
                                 SPELL_REMOVE_SICKNESS, GET_LEVEL(self),
                                 CAST_SPELL);
                         return true;
@@ -151,12 +151,12 @@ SPECIAL(temple_healer)
                     if (affected_by_spell(vict, SPELL_BLINDNESS) ||
                         affected_by_spell(vict, SKILL_GOUGE)) {
                         act("$n touches your eyes, and your vision returns.",
-                            false, self, 0, vict, TO_VICT);
-                        act("$n touches the eyes of $N.", true, self, 0, vict,
+                            false, self, NULL, vict, TO_VICT);
+                        act("$n touches the eyes of $N.", true, self, NULL, vict,
                             TO_NOTVICT);
-                        act("You touch the eyes of $N.", false, self, 0, vict,
+                        act("You touch the eyes of $N.", false, self, NULL, vict,
                             TO_CHAR);
-                        call_magic(self, vict, 0, NULL, SPELL_CURE_BLIND,
+                        call_magic(self, vict, NULL, NULL, SPELL_CURE_BLIND,
                             GET_LEVEL(self), CAST_SPELL);
                         return true;
 

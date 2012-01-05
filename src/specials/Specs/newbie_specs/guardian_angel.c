@@ -24,7 +24,7 @@ struct angel_data {
     unsigned long flags;
 };
 
-GList *angels = NULL;
+static GList *angels = NULL;
 
 struct angel_chat_data {
     int char_class;             // class restriction of response
@@ -33,7 +33,7 @@ struct angel_chat_data {
     const char *response;       // the actual response
 };
 
-struct angel_chat_data angel_chat[] = {
+static struct angel_chat_data angel_chat[] = {
     // Game mechanics
     {CLASS_NONE, 100, "what hitpoints",
             "respond Hitpoints are a measure of how much punishment you can take before you die.  When your hitpoints hit zero, you go unconscious and are easily slain."},
@@ -274,7 +274,7 @@ struct angel_spell_data {
     const char *text;
 };
 
-struct angel_spell_data angel_spells[] = {
+static struct angel_spell_data angel_spells[] = {
     {SPELL_DETECT_INVIS, "This spell will allow you to see invisible "
             "objects and creatures."},
     {SPELL_RETINA,
@@ -285,7 +285,7 @@ struct angel_spell_data angel_spells[] = {
 };
 
 // returns true if all words in keywords can be found, in order, in ref
-bool
+static bool
 angel_chat_match(const char *key, const char *ref)
 {
     const char *ref_pt, *key_pt;
@@ -320,7 +320,7 @@ angel_chat_match(const char *key, const char *ref)
     return true;
 }
 
-void
+static void
 angel_find_path_to_room(struct creature *angel, struct room_data *dest,
     struct angel_data *data)
 {
@@ -350,7 +350,7 @@ angel_find_path_to_room(struct creature *angel, struct room_data *dest,
         data->action = acc_get_string();
 }
 
-void
+static void
 guardian_angel_action(struct creature *angel, const char *action)
 {
     struct angel_data *data =
@@ -360,7 +360,7 @@ guardian_angel_action(struct creature *angel, const char *action)
     data->counter = 0;
 }
 
-void
+static void
 angel_do_respond(struct creature *self, struct angel_data *data,
     const char *message)
 {
@@ -431,7 +431,7 @@ angel_do_action(struct creature *self, struct creature *charge,
             result = 1;
         } else {
             act("$n shrugs $s shoulders and disappears!", false,
-                self, 0, 0, TO_ROOM);
+                self, NULL, NULL, TO_ROOM);
 
             for (GList * li = angels; li; li = li->next) {
                 struct angel_data *angel = li->data;
@@ -460,11 +460,11 @@ angel_check_charge(struct creature *self, struct creature *charge,
 
     if (self->in_room != charge->in_room) {
         act("$n disappears in a bright flash of light!", false,
-            self, 0, 0, TO_ROOM);
+            self, NULL, NULL, TO_ROOM);
         char_from_room(self, true);
         char_to_room(self, charge->in_room, true);
         act("$n appears in a bright flash of light!", false,
-            self, 0, 0, TO_ROOM);
+            self, NULL, NULL, TO_ROOM);
         do_follow(self, GET_NAME(charge), 0, 0);
         return 1;
     }
@@ -668,7 +668,7 @@ SPECIAL(guardian_angel)
         && isname(tmp_getword(&argument), self->player.name)) {
         perform_tell(self, charge,
             "I see you can get along without my help.  Jerk.");
-        act("$n disappears in a bright flash of light!", false, self, 0, 0,
+        act("$n disappears in a bright flash of light!", false, self, NULL, NULL,
             TO_ROOM);
         creature_purge(self, true);
         return 1;

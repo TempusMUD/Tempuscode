@@ -105,7 +105,7 @@ random_char_class(void)
 void
 randomize_creature(struct creature *ch, int char_class)
 {
-    time_t now = time(0);
+    time_t now = time(NULL);
 
     GET_CLASS(ch) = (char_class == CLASS_UNDEFINED) ? random_char_class():char_class;
 
@@ -197,7 +197,7 @@ make_test_player(const char *acct_name, const char *char_name)
     strcpy(desc->host, "127.0.0.1");
     desc->output = desc->small_outbuf;
     desc->bufspace = SMALL_BUFSIZE - 1;
-    desc->login_time = time(0);
+    desc->login_time = time(NULL);
 
     CREATE(acct, struct account, 1);
     account_initialize(acct, acct_name, desc, 99999);

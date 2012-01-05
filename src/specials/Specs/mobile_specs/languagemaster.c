@@ -61,7 +61,7 @@ SPECIAL(languagemaster)
         CHECK_TONGUE(ch, tongue_idx) + number(3, GET_INT(ch)));
 
     act(tmp_sprintf("Your fluency in %s increases!", tongue_name(tongue_idx)),
-        false, ch, NULL, 0, TO_CHAR);
+        false, ch, NULL, NULL, TO_CHAR);
 
     WAIT_STATE(ch, 2 RL_SEC);
 

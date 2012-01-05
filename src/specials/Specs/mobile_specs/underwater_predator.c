@@ -28,8 +28,8 @@ SPECIAL(underwater_predator)
             !ROOM_FLAGGED(troom, ROOM_GODROOM | ROOM_DEATH | ROOM_PEACEFUL)) {
 
             if (GET_STR(pred) + number(1, 6) > GET_STR(vict)) {
-                act("$n drags you under!!!", false, pred, 0, vict, TO_VICT);
-                act("$n drags $N under!!!", false, pred, 0, vict, TO_NOTVICT);
+                act("$n drags you under!!!", false, pred, NULL, vict, TO_VICT);
+                act("$n drags $N under!!!", false, pred, NULL, vict, TO_NOTVICT);
                 char_from_room(pred, false);
                 char_to_room(pred, troom, false);
                 char_from_room(vict, false);
@@ -37,7 +37,7 @@ SPECIAL(underwater_predator)
                 look_at_room(vict, vict->in_room, 0);
 
                 act("$N is dragged, struggling,  in from above by $n!!",
-                    false, pred, 0, vict, TO_NOTVICT);
+                    false, pred, NULL, vict, TO_NOTVICT);
 
                 WAIT_STATE(pred, PULSE_VIOLENCE);
                 return 1;
@@ -62,12 +62,12 @@ SPECIAL(underwater_predator)
                 continue;
 
             act("$n cruises up out of sight with deadly intention.",
-                true, pred, 0, 0, TO_ROOM);
+                true, pred, NULL, NULL, TO_ROOM);
             char_from_room(pred, false);
 
             char_to_room(pred, troom, false);
             act("$n emerges from the depths and attacks!!!",
-                true, pred, 0, 0, TO_ROOM);
+                true, pred, NULL, NULL, TO_ROOM);
 
             hit(pred, vict, TYPE_UNDEFINED);
             return 1;

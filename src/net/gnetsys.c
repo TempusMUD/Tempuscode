@@ -278,7 +278,7 @@ handle_network(struct descriptor_data *d, char *arg)
         slog("User %s disconnecting from net.", GET_NAME(d->creature));
         set_desc_state(CXN_PLAYING, d);
         SEND_TO_Q("Connection closed.\r\n", d);
-        act("$n disconnects from the network.", true, d->creature, 0, 0,
+        act("$n disconnects from the network.", true, d->creature, NULL, NULL,
             TO_ROOM);
     } else if (IS_CYBORG(d->creature) && is_abbrev(arg1, "list")) {
         perform_net_list(d->creature);

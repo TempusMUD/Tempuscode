@@ -47,7 +47,7 @@ SPECIAL(typo_util)
 
     if ((tcmd = search_block(arg1, typo_util_cmds, false)) < 0) {
         sprintf(buf, "$p: Invalid command '%s'.", arg1);
-        act(buf, false, ch, obj, 0, TO_CHAR);
+        act(buf, false, ch, obj, NULL, TO_CHAR);
         send_to_char(ch, TYPO_UTIL_USAGE);
         return 1;
     }

@@ -7,7 +7,6 @@
 SPECIAL(kata)
 {
     struct creature *kata = (struct creature *)me;
-    char buf[MAX_STRING_LENGTH];
 
     if (kata->master || AFF_FLAGGED(kata, AFF_CHARM))
         return 0;

@@ -58,7 +58,7 @@ progeditor_finalize(struct editor *editor, const char *text)
 
     if (IS_PLAYING(editor->desc))
         act("$n nods with satisfaction as $e saves $s work.",
-            true, editor->desc->creature, 0, 0, TO_NOTVICT);
+            true, editor->desc->creature, NULL, NULL, TO_NOTVICT);
     free(prog_data);
 }
 

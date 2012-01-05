@@ -59,10 +59,10 @@ SPECIAL(roaming_portal)
                 break;
     if (dest != NULL) {
         // Only immortals see this.
-        act("$p disappears suddenly.", false, 0, portal, 0, TO_ROOM);
+        act("$p disappears suddenly.", false, NULL, portal, NULL, TO_ROOM);
         obj_from_room(portal);
         obj_to_room(portal, dest);
-        act("$p appears suddenly.", false, 0, portal, 0, TO_ROOM);
+        act("$p appears suddenly.", false, NULL, portal, NULL, TO_ROOM);
     }
     return 1;
 }

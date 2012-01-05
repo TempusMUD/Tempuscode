@@ -74,7 +74,7 @@ ACMD(do_psidrain)
     if (GET_LEVEL(vict) >= LVL_AMBASSADOR && GET_LEVEL(ch) < GET_LEVEL(vict)) {
         send_to_char(ch, "You cannot locate %s '%s'.\r\n", AN(argument),
             argument);
-        act("$n has just tried to psidrain you.", false, ch, 0, vict, TO_VICT);
+        act("$n has just tried to psidrain you.", false, ch, NULL, vict, TO_VICT);
         return;
     }
     if (!vict)
@@ -93,13 +93,13 @@ ACMD(do_psidrain)
 
     if (ch->in_room != vict->in_room &&
         ch->in_room->zone != vict->in_room->zone) {
-        act("$N is not in your zone.", false, ch, 0, vict, TO_CHAR);
+        act("$N is not in your zone.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
 
     if (ROOM_FLAGGED(vict->in_room, ROOM_NOPSIONICS)
         && GET_LEVEL(ch) < LVL_GOD) {
-        act("Psychic powers are useless where $E is!", false, ch, 0, vict,
+        act("Psychic powers are useless where $E is!", false, ch, NULL, vict,
             TO_CHAR);
         return;
     }
@@ -114,12 +114,12 @@ ACMD(do_psidrain)
 
     if ((dist = find_distance(ch->in_room, vict->in_room)) >
         ((GET_LEVEL(ch) / 6))) {
-        act("$N is out of your psychic range.", false, ch, 0, vict, TO_CHAR);
+        act("$N is out of your psychic range.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
 
     if (NULL_PSI(vict)) {
-        act("It is pointless to attempt this on $M.", false, ch, 0, vict,
+        act("It is pointless to attempt this on $M.", false, ch, NULL, vict,
             TO_CHAR);
         return;
     }
@@ -139,11 +139,11 @@ ACMD(do_psidrain)
 
         if (percent >= prob) {
             act("Your attack is deflected by $N's psishield!",
-                false, ch, 0, vict, TO_CHAR);
+                false, ch, NULL, vict, TO_CHAR);
             act("$n's psychic attack is deflected by your psishield!",
-                false, ch, 0, vict, TO_VICT);
+                false, ch, NULL, vict, TO_VICT);
             act("$n staggers under an unseen force.",
-                true, ch, 0, vict, TO_NOTVICT);
+                true, ch, NULL, vict, TO_NOTVICT);
 
             return;
         }
@@ -151,7 +151,7 @@ ACMD(do_psidrain)
 
     if (GET_MANA(vict) <= 0) {
         act("$E is completely drained of psychic energy.",
-            true, ch, 0, vict, TO_CHAR);
+            true, ch, NULL, vict, TO_CHAR);
         return;
     }
 
@@ -173,7 +173,7 @@ ACMD(do_psidrain)
     if (dist > 0)
         prob -= dist * 3;
 
-    act("$n strains against an unseen force.", false, ch, 0, vict, TO_ROOM);
+    act("$n strains against an unseen force.", false, ch, NULL, vict, TO_ROOM);
 
     //
     // failure
@@ -201,15 +201,15 @@ ACMD(do_psidrain)
     else {
 
         act("A torrent of psychic energy is ripped out of $N's mind!",
-            false, ch, 0, vict, TO_CHAR);
+            false, ch, NULL, vict, TO_CHAR);
         if (ch->in_room != vict->in_room &&
             GET_LEVEL(vict) + number(0, CHECK_SKILL(vict, SKILL_PSIDRAIN)) >
             GET_LEVEL(ch))
             act("Your psychic energy is ripped from you from afar!",
-                false, ch, 0, vict, TO_VICT);
+                false, ch, NULL, vict, TO_VICT);
         else
             act("Your psychic energy is ripped from you by $n!",
-                false, ch, 0, vict, TO_VICT);
+                false, ch, NULL, vict, TO_VICT);
         GET_MANA(vict) -= drain;
         GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + drain);
         GET_MOVE(ch) -= 20;
@@ -389,45 +389,45 @@ psionic_activity(struct creature *ch)
     if (room_is_dark(ch->in_room)
         && !has_dark_sight(ch)
         && can_cast_spell(ch, SPELL_RETINA))
-        cast_spell(ch, ch, 0, NULL, SPELL_RETINA);
+        cast_spell(ch, ch, NULL, NULL, SPELL_RETINA);
     else if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
         if (can_cast_spell(ch, SPELL_CELL_REGEN))
-            cast_spell(ch, ch, 0, NULL, SPELL_CELL_REGEN);
+            cast_spell(ch, ch, NULL, NULL, SPELL_CELL_REGEN);
         else if (can_cast_spell(ch, SPELL_WOUND_CLOSURE))
-            cast_spell(ch, ch, 0, NULL, SPELL_WOUND_CLOSURE);
+            cast_spell(ch, ch, NULL, NULL, SPELL_WOUND_CLOSURE);
     } else if (!AFF_FLAGGED(ch, AFF_NOPAIN)
         && !AFF_FLAGGED(ch, AFF_SANCTUARY)
         && can_cast_spell(ch, SPELL_NOPAIN))
-        cast_spell(ch, ch, 0, NULL, SPELL_NOPAIN);
+        cast_spell(ch, ch, NULL, NULL, SPELL_NOPAIN);
     else if (!room_has_air(ch->in_room) &&
         !can_travel_sector(ch, ch->in_room->sector_type, 0) &&
         can_cast_spell(ch, SPELL_BREATHING_STASIS) &&
         !AFF3_FLAGGED(ch, AFF3_NOBREATHE))
-        cast_spell(ch, ch, 0, NULL, SPELL_BREATHING_STASIS);
+        cast_spell(ch, ch, NULL, NULL, SPELL_BREATHING_STASIS);
     else if (!AFF2_FLAGGED(ch, AFF2_TELEKINESIS)
         && can_cast_spell(ch, SPELL_TELEKINESIS))
-        cast_spell(ch, ch, 0, NULL, SPELL_TELEKINESIS);
+        cast_spell(ch, ch, NULL, NULL, SPELL_TELEKINESIS);
     else if (!affected_by_spell(ch, SPELL_DERMAL_HARDENING)
         && can_cast_spell(ch, SPELL_DERMAL_HARDENING))
-        cast_spell(ch, ch, 0, NULL, SPELL_DERMAL_HARDENING);
+        cast_spell(ch, ch, NULL, NULL, SPELL_DERMAL_HARDENING);
     else if (!AFF3_FLAGGED(ch, AFF3_PSISHIELD)
         && can_cast_spell(ch, SPELL_PSISHIELD))
-        cast_spell(ch, ch, 0, NULL, SPELL_PSISHIELD);
+        cast_spell(ch, ch, NULL, NULL, SPELL_PSISHIELD);
     else if (can_cast_spell(ch, SPELL_PSYCHIC_RESISTANCE) &&
         !affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE))
-        cast_spell(ch, ch, 0, NULL, SPELL_PSYCHIC_RESISTANCE);
+        cast_spell(ch, ch, NULL, NULL, SPELL_PSYCHIC_RESISTANCE);
     else if (can_cast_spell(ch, SPELL_POWER)
         && !affected_by_spell(ch, SPELL_POWER))
-        cast_spell(ch, ch, 0, NULL, SPELL_POWER);
+        cast_spell(ch, ch, NULL, NULL, SPELL_POWER);
     else if (!AFF_FLAGGED(ch, AFF_CONFIDENCE)
         && can_cast_spell(ch, SPELL_CONFIDENCE))
-        cast_spell(ch, ch, 0, NULL, SPELL_CONFIDENCE);
+        cast_spell(ch, ch, NULL, NULL, SPELL_CONFIDENCE);
 }
 
 int
 psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
 {
-    struct creature *vict = 0;
+    struct creature *vict = NULL;
 
     if (!is_fighting(ch))
         return 0;

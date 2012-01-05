@@ -16,12 +16,12 @@ SPECIAL(tiamat)
         return 0;
     if (GET_HIT(ch) < 200 && ch->in_room != lair && lair != NULL) {
         act("$n vanishes in a prismatic blast of light!",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
         remove_all_combat(ch);
         char_from_room(ch, false);
         char_to_room(ch, lair, false);
         act("$n appears in a prismatic blast of light!",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
         return 1;
     }
     switch (number(0, 4)) {
@@ -43,7 +43,7 @@ SPECIAL(tiamat)
     }
 
     struct creature *vict = random_opponent(ch);
-    call_magic(ch, vict, 0, NULL, type, GET_LEVEL(ch), SAVING_BREATH);
+    call_magic(ch, vict, NULL, NULL, type, GET_LEVEL(ch), SAVING_BREATH);
     WAIT_STATE(ch, PULSE_VIOLENCE * 2);
     return 1;
 }

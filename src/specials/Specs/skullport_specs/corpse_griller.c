@@ -76,7 +76,7 @@ SPECIAL(corpse_griller)
     obj_to_char(steak, ch);
     extract_obj(corpse);
 
-    act("You now have $p.", false, ch, steak, 0, TO_CHAR);
-    act("$n now has $p.", false, ch, steak, 0, TO_ROOM);
+    act("You now have $p.", false, ch, steak, NULL, TO_CHAR);
+    act("$n now has $p.", false, ch, steak, NULL, TO_ROOM);
     return 1;
 }

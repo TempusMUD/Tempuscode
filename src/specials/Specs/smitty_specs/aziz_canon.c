@@ -23,33 +23,33 @@ SPECIAL(aziz_canon)
 
         switch (number(0, 30)) {
         case 1:
-            act("$n looks at you and winks.'.", false, ch, 0, vict, TO_VICT);
-            act("$n looks at $N and winks.'.", false, ch, 0, vict, TO_NOTVICT);
+            act("$n looks at you and winks.'.", false, ch, NULL, vict, TO_VICT);
+            act("$n looks at $N and winks.'.", false, ch, NULL, vict, TO_NOTVICT);
             break;
         case 2:
-            act("$n struts around you like a horny rooster.", true, ch, 0,
+            act("$n struts around you like a horny rooster.", true, ch, NULL,
                 vict, TO_VICT);
-            act("$n struts around $N like a horny rooster.", true, ch, 0, vict,
+            act("$n struts around $N like a horny rooster.", true, ch, NULL, vict,
                 TO_NOTVICT);
             break;
         case 3:
-            act("$n farts loudly and smiles sheepishly.", false, ch, 0, 0,
+            act("$n farts loudly and smiles sheepishly.", false, ch, NULL, NULL,
                 TO_ROOM);
             break;
         case 4:
-            act("$n pounds his shoulder against the wall.", true, ch, 0, 0,
+            act("$n pounds his shoulder against the wall.", true, ch, NULL, NULL,
                 TO_ROOM);
             break;
         case 5:
-            act("$n eats a small piece of paper.", true, ch, 0, 0, TO_ROOM);
+            act("$n eats a small piece of paper.", true, ch, NULL, NULL, TO_ROOM);
             break;
         case 6:
-            act("$n rolls a joint and licks it real good.", true, ch, 0, 0,
+            act("$n rolls a joint and licks it real good.", true, ch, NULL, NULL,
                 TO_ROOM);
             break;
         case 7:
             act("$n guzzles a beer and smashes the can against $s forehead.",
-                true, ch, 0, 0, TO_ROOM);
+                true, ch, NULL, NULL, TO_ROOM);
             break;
         }
         return 1;
@@ -57,8 +57,8 @@ SPECIAL(aziz_canon)
     if (is_fighting(ch)) {
         vict = random_opponent(ch);
         if (!number(0, 3)) {
-            act("$n gets in a three point stance and plows his shoulder into you!", false, ch, 0, vict, TO_VICT);
-            act("$n gets in a three point stance and plows his shoulder into $N!", false, ch, 0, vict, TO_NOTVICT);
+            act("$n gets in a three point stance and plows his shoulder into you!", false, ch, NULL, vict, TO_VICT);
+            act("$n gets in a three point stance and plows his shoulder into $N!", false, ch, NULL, vict, TO_NOTVICT);
             if (GET_LEVEL(vict) < LVL_IMMORT) {
                 GET_HIT(vict) -= dice(1, 20);
                 GET_POSITION(vict) = POS_SITTING;

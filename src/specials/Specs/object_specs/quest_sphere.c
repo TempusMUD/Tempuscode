@@ -32,12 +32,12 @@ quest_weapon_enchant(struct creature *ch, struct obj_data *obj, int lvl)
 
     if (IS_GOOD(ch)) {
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
-        act("$p glows a bright blue.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows a bright blue.", false, ch, obj, NULL, TO_CHAR);
     } else if (IS_EVIL(ch)) {
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_GOOD);
-        act("$p glows a bright red.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows a bright red.", false, ch, obj, NULL, TO_CHAR);
     } else {
-        act("$p glows a bright yellow.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows a bright yellow.", false, ch, obj, NULL, TO_CHAR);
     }
 
     SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC | ITEM_GLOW);
@@ -72,12 +72,12 @@ quest_armor_enchant(struct creature *ch, struct obj_data *obj, int lvl)
 
     if (IS_GOOD(ch)) {
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
-        act("$p glows a bright blue.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows a bright blue.", false, ch, obj, NULL, TO_CHAR);
     } else if (IS_EVIL(ch)) {
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_GOOD);
-        act("$p glows a bright red.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows a bright red.", false, ch, obj, NULL, TO_CHAR);
     } else {
-        act("$p glows a bright yellow.", false, ch, obj, 0, TO_CHAR);
+        act("$p glows a bright yellow.", false, ch, obj, NULL, TO_CHAR);
     }
 
     SET_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC | ITEM_GLOW);
@@ -114,13 +114,13 @@ SPECIAL(quest_sphere)
 
         if (!GET_OBJ_VAL(self, 0)) {
             if (self->worn_by) {
-                act("$p dissolves into fine sand, which slips through your fingers...", true, self->worn_by, self, 0, TO_CHAR);
+                act("$p dissolves into fine sand, which slips through your fingers...", true, self->worn_by, self, NULL, TO_CHAR);
                 act("$p dissolves into fine sand in $n's hands.",
-                    true, self->worn_by, self, 0, TO_ROOM);
+                    true, self->worn_by, self, NULL, TO_ROOM);
             } else if (self->carried_by) {
-                act("$p dissolves into fine sand and blows away on the floor...", true, self->carried_by, self, 0, TO_CHAR);
+                act("$p dissolves into fine sand and blows away on the floor...", true, self->carried_by, self, NULL, TO_CHAR);
                 act("$p dissolves into fine sand in $n's hands.",
-                    true, self->carried_by, self, 0, TO_ROOM);
+                    true, self->carried_by, self, NULL, TO_ROOM);
             } else if (self->in_room && self->in_room->people) {
                 send_to_room(tmp_capitalize(tmp_sprintf
                         ("%s dissolves into fine sand and is blown away...\r\n",
@@ -213,7 +213,7 @@ SPECIAL(quest_sphere)
             CAST_SPELL);
 
     if (nobreak) {
-        act("$p becomes immune to breaking!", 1, ch, targ_obj, 0, TO_CHAR);
+        act("$p becomes immune to breaking!", 1, ch, targ_obj, NULL, TO_CHAR);
         GET_OBJ_MAX_DAM(targ_obj) = -1;
         GET_OBJ_DAM(targ_obj) = -1;
     }
@@ -223,9 +223,9 @@ SPECIAL(quest_sphere)
     }
 
     act("$p disappears from your hands in a puff of smoke!",
-        1, ch, self, 0, TO_CHAR);
+        1, ch, self, NULL, TO_CHAR);
     act("$p disappears from $n's hands in a puff of smoke!",
-        0, ch, self, 0, TO_ROOM);
+        0, ch, self, NULL, TO_ROOM);
     if (targ_obj) {
         targ_str = tmp_sprintf("%s qsphere-%d %s", targ_obj->aliases,
             GET_OBJ_COST(self), GET_NAME(ch));

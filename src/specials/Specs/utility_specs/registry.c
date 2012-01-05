@@ -80,8 +80,8 @@ SPECIAL(registry)
                 perform_tell(reg, ch, "But you don't need to be, EVIL scum!");
                 send_to_char(ch,
                     "You are no longer a resident of the Elven Village.\r\n");
-                act("$n just lost $s residence in the village!", true, ch, 0,
-                    0, TO_ROOM);
+                act("$n just lost $s residence in the village!", true, ch, NULL,
+                    NULL, TO_ROOM);
                 population_record[GET_HOME(ch)]--;
                 GET_HOME(ch) = HOME_MODRIAN;
                 population_record[GET_HOME(ch)]++;

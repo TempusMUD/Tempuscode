@@ -17,7 +17,7 @@ SPECIAL(cloak_of_deception)
         send_to_char(ch, "You are already hidden.\r\n");
     else {
         SET_BIT(AFF_FLAGS(ch), AFF_HIDE);
-        act("You wrap $p about your body and disappear.", false, ch, cloak, 0,
+        act("You wrap $p about your body and disappear.", false, ch, cloak, NULL,
             TO_CHAR);
     }
     return 1;

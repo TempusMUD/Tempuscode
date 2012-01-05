@@ -14,7 +14,7 @@ SPECIAL(newbie_fly)
         struct creature *tch = it->data;
         if (AFF_FLAGGED(tch, AFF_INFLIGHT) || !can_see_creature(ch, tch))
             continue;
-        cast_spell(ch, tch, 0, NULL, SPELL_FLY);
+        cast_spell(ch, tch, NULL, NULL, SPELL_FLY);
         return 1;
     }
     return 0;

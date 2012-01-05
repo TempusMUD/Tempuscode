@@ -135,14 +135,14 @@ ACMD(do_action)
         *buf = '\0';
     }
     if (!*buf) {
-        act(action->char_no_arg, false, ch, 0, 0, TO_CHAR);
-        act(action->others_no_arg, action->hide, ch, 0, 0, TO_ROOM);
+        act(action->char_no_arg, false, ch, NULL, NULL, TO_CHAR);
+        act(action->others_no_arg, action->hide, ch, NULL, NULL, TO_ROOM);
         return;
     }
     if (!(vict = get_char_room_vis(ch, buf))) {
         if (!(obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents)) &&
             !(obj = get_obj_in_list_vis(ch, buf, ch->carrying))) {
-            act(action->not_found, action->hide, ch, 0, vict, TO_CHAR);
+            act(action->not_found, action->hide, ch, NULL, vict, TO_CHAR);
             return;
         } else {
             // Convert messages from creature-oriented to object-oriented
@@ -160,22 +160,22 @@ ACMD(do_action)
             others_found_msg = tmp_gsub(others_found_msg, "$S", "its");
             others_found_msg = tmp_gsub(others_found_msg, "$E", "it");
 
-            act(char_found_msg, 0, ch, obj, 0, TO_CHAR | TO_SLEEP);
-            act(others_found_msg, action->hide, ch, obj, 0, TO_ROOM);
+            act(char_found_msg, 0, ch, obj, NULL, TO_CHAR | TO_SLEEP);
+            act(others_found_msg, action->hide, ch, obj, NULL, TO_ROOM);
             return;
         }
     }
     if (vict == ch) {
-        act(action->char_auto, false, ch, 0, 0, TO_CHAR);
-        act(action->others_auto, action->hide, ch, 0, 0, TO_ROOM);
+        act(action->char_auto, false, ch, NULL, NULL, TO_CHAR);
+        act(action->others_auto, action->hide, ch, NULL, NULL, TO_ROOM);
     } else {
         if (GET_POSITION(vict) < action->min_victim_position)
             act("$N is not in a proper position for that.",
-                false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+                false, ch, NULL, vict, TO_CHAR | TO_SLEEP);
         else {
-            act(action->char_found, 0, ch, 0, vict, TO_CHAR | TO_SLEEP);
-            act(action->others_found, action->hide, ch, 0, vict, TO_NOTVICT);
-            act(action->vict_found, action->hide, ch, 0, vict, TO_VICT);
+            act(action->char_found, 0, ch, NULL, vict, TO_CHAR | TO_SLEEP);
+            act(action->others_found, action->hide, ch, NULL, vict, TO_NOTVICT);
+            act(action->vict_found, action->hide, ch, NULL, vict, TO_VICT);
         }
     }
 }
@@ -190,35 +190,35 @@ ACMD(do_point)
     if (!*argument) {
         send_to_char(ch, "You point everywhere!\r\n");
         act("$n points in all directions, seemingly confused.",
-            true, ch, 0, 0, TO_ROOM);
+            true, ch, NULL, NULL, TO_ROOM);
         return;
     }
 
     if ((dir = search_block(argument, dirs, false)) >= 0) {
         sprintf(buf, "$n points %sward.", dirs[dir]);
-        act(buf, true, ch, 0, 0, TO_ROOM);
+        act(buf, true, ch, NULL, NULL, TO_ROOM);
         sprintf(buf, "You point %sward.", dirs[dir]);
-        act(buf, false, ch, 0, 0, TO_CHAR);
+        act(buf, false, ch, NULL, NULL, TO_CHAR);
         return;
     }
 
     if ((vict = get_char_room_vis(ch, argument))) {
         if (vict == ch) {
             send_to_char(ch, "You point at yourself.\r\n");
-            act("$n points at $mself.", true, ch, 0, 0, TO_ROOM);
+            act("$n points at $mself.", true, ch, NULL, NULL, TO_ROOM);
             return;
         }
-        act("You point at $M.", false, ch, 0, vict, TO_CHAR);
-        act("$n points at $N.", true, ch, 0, vict, TO_NOTVICT);
-        act("$n points at you.", true, ch, 0, vict, TO_VICT);
+        act("You point at $M.", false, ch, NULL, vict, TO_CHAR);
+        act("$n points at $N.", true, ch, NULL, vict, TO_NOTVICT);
+        act("$n points at you.", true, ch, NULL, vict, TO_VICT);
         return;
     }
 
     if ((obj = get_object_in_equip_vis(ch, argument, ch->equipment, &i)) ||
         (obj = get_obj_in_list_vis(ch, argument, ch->carrying)) ||
         (obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
-        act("You point at $p.", false, ch, obj, 0, TO_CHAR);
-        act("$n points at $p.", true, ch, obj, 0, TO_ROOM);
+        act("You point at $p.", false, ch, obj, NULL, TO_CHAR);
+        act("$n points at $p.", true, ch, obj, NULL, TO_ROOM);
         return;
     }
 
@@ -241,14 +241,14 @@ ACMD(do_flip)
         }
         if (random_binary()) {
             act("You flip a coin and it comes up tails.", false,
-                ch, 0, 0, TO_CHAR);
+                ch, NULL, NULL, TO_CHAR);
             act("You see $n flip a coin and it comes up tails.", false,
-                ch, 0, 0, TO_ROOM);
+                ch, NULL, NULL, TO_ROOM);
         } else {
             act("You flip a coin and it comes up heads.", false,
-                ch, 0, 0, TO_CHAR);
+                ch, NULL, NULL, TO_CHAR);
             act("You see $n flip a coin and it comes up heads.", false,
-                ch, 0, 0, TO_ROOM);
+                ch, NULL, NULL, TO_ROOM);
         }
     } else {
         // They're not flipping a coin, so just do the social
@@ -274,28 +274,28 @@ ACMD(do_insult)
                     if (GET_SEX(ch) == SEX_MALE) {
                         if (GET_SEX(victim) == SEX_MALE)
                             act("$n accuses you of fighting like a woman!",
-                                false, ch, 0, victim, TO_VICT);
+                                false, ch, NULL, victim, TO_VICT);
                         else
                             act("$n says that women can't fight.", false, ch,
-                                0, victim, TO_VICT);
+                                NULL, victim, TO_VICT);
                     } else {    /* Ch == Woman */
                         if (GET_SEX(victim) == SEX_MALE)
-                            act("$n accuses you of having the smallest... (brain?)", false, ch, 0, victim, TO_VICT);
+                            act("$n accuses you of having the smallest... (brain?)", false, ch, NULL, victim, TO_VICT);
                         else
-                            act("$n tells you that you'd lose a beauty contest against a troll.", false, ch, 0, victim, TO_VICT);
+                            act("$n tells you that you'd lose a beauty contest against a troll.", false, ch, NULL, victim, TO_VICT);
                     }
                     break;
                 case 1:
-                    act("$n calls your mother a bitch!", false, ch, 0, victim,
+                    act("$n calls your mother a bitch!", false, ch, NULL, victim,
                         TO_VICT);
                     break;
                 default:
-                    act("$n tells you to get lost!", false, ch, 0, victim,
+                    act("$n tells you to get lost!", false, ch, NULL, victim,
                         TO_VICT);
                     break;
                 }               /* end switch */
 
-                act("$n insults $N.", true, ch, 0, victim, TO_NOTVICT);
+                act("$n insults $N.", true, ch, NULL, victim, TO_NOTVICT);
             } else {            /* ch == victim */
                 send_to_char(ch, "You feel insulted.\r\n");
             }

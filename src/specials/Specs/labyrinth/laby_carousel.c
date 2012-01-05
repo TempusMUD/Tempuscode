@@ -27,7 +27,7 @@ labyrinth_spin_carousels(struct zone_data *zone)
             continue;
 
         // Knock people down and describe if there are observers
-        act("The floor lurches beneath your feet!", true, 0, 0, 0, TO_ROOM);
+        act("The floor lurches beneath your feet!", true, NULL, NULL, NULL, TO_ROOM);
         for (GList * it = cur_room->people; it; it = it->next) {
             struct creature *vict = it->data;
             if (number(1, 26) > GET_DEX(vict)) {

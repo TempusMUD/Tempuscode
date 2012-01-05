@@ -17,29 +17,29 @@ SPECIAL(cemetary_ghoul)
 
         if (number(0, 2)) {
             if (!number(0, 3))
-                act("$n cowers under the light of the suns.", true, ch, 0, 0,
+                act("$n cowers under the light of the suns.", true, ch, NULL, NULL,
                     TO_ROOM);
             else if (!number(0, 2))
-                act("$n recoils from the light of the sun", true, ch, 0, 0,
+                act("$n recoils from the light of the sun", true, ch, NULL, NULL,
                     TO_ROOM);
             else
                 act("$n screams in agony as the sun burns $s flesh!", true, ch,
-                    0, 0, TO_ROOM);
+                    NULL, NULL, TO_ROOM);
             return 1;
         }
 
         act("$n claws $s way into the ground and disappears!",
-            true, ch, 0, 0, TO_ROOM);
+            true, ch, NULL, NULL, TO_ROOM);
         char_from_room(ch, false);
         char_to_room(ch, r_ghoul_hole, false);
-        act("$n has climbed into the hole.", false, ch, 0, 0, TO_ROOM);
+        act("$n has climbed into the hole.", false, ch, NULL, NULL, TO_ROOM);
         return 1;
 
     } else if (ch->in_room == r_ghoul_hole &&
         ch->in_room->zone->weather->sunlight == SUN_DARK) {
 
         if (number(0, 2)) {
-            act("$n twitches hungrily.", true, ch, 0, 0, TO_ROOM);
+            act("$n twitches hungrily.", true, ch, NULL, NULL, TO_ROOM);
             return 1;
         }
 
@@ -47,10 +47,10 @@ SPECIAL(cemetary_ghoul)
         if (r_cemetary_room == NULL)
             return 1;
 
-        act("$n claws $s way out of the hole.", false, ch, 0, 0, TO_ROOM);
+        act("$n claws $s way out of the hole.", false, ch, NULL, NULL, TO_ROOM);
         char_from_room(ch, false);
         char_to_room(ch, r_cemetary_room, false);
-        act("$n claws $s way out of the ground.", false, ch, 0, 0, TO_ROOM);
+        act("$n claws $s way out of the ground.", false, ch, NULL, NULL, TO_ROOM);
         return 1;
     } else
         return 0;

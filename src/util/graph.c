@@ -66,7 +66,7 @@ struct bfs_queue_struct {
     struct bfs_queue_struct *next;
 };
 
-struct bfs_queue_struct *queue_head = 0, *queue_tail = 0;
+struct bfs_queue_struct *queue_head = NULL, *queue_tail = NULL;
 // Can't be static since it's used in map.
 unsigned char find_first_step_index = 0;
 
@@ -114,7 +114,7 @@ bfs_enqueue(struct room_data *room, char dir)
     CREATE(curr, struct bfs_queue_struct, 1);
     curr->room = room;
     curr->dir = dir;
-    curr->next = 0;
+    curr->next = NULL;
 
     if (queue_tail) {
         queue_tail->next = curr;
@@ -132,7 +132,7 @@ bfs_dequeue(void)
     curr = queue_head;
     queue_head = queue_head->next;
     if (!queue_head)
-        queue_tail = 0;
+        queue_tail = NULL;
 
 #ifdef DMALLOC
     dmalloc_verify(0);
@@ -445,13 +445,13 @@ ACMD(do_psilocate)
     }
     if (ROOM_FLAGGED(vict->in_room, ROOM_NOPSIONICS)
         && GET_LEVEL(ch) < LVL_GOD) {
-        act("Psychic powers are useless where $E is!", false, ch, 0, vict,
+        act("Psychic powers are useless where $E is!", false, ch, NULL, vict,
             TO_CHAR);
         return;
     }
     if (vict && (IS_UNDEAD(vict) || IS_SLIME(vict) || IS_PUDDING(vict) ||
             IS_ROBOT(vict) || IS_PLANT(vict))) {
-        act("It is pointless to attempt this on $M.", false, ch, 0, vict,
+        act("It is pointless to attempt this on $M.", false, ch, NULL, vict,
             TO_CHAR);
         return;
     }
@@ -462,20 +462,20 @@ ACMD(do_psilocate)
 
     GET_MANA(ch) -= mag_manacost(ch, SKILL_PSILOCATE);
     act("$n begins concentrating deeply, on a distant psyche.",
-        true, ch, 0, 0, TO_ROOM);
+        true, ch, NULL, NULL, TO_ROOM);
 
     if ((AFF3_FLAGGED(vict, AFF3_SHROUD_OBSCUREMENT) &&
             ((GET_LEVEL(vict) * 3) >> 2 > number(10, CHECK_SKILL(ch,
                         SKILL_PSILOCATE))))
         || AFF3_FLAGGED(vict, AFF3_PSISHIELD)) {
-        act("You cannot sense $S psi.", false, ch, 0, vict, TO_CHAR);
+        act("You cannot sense $S psi.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
 
     if ((dist = find_distance(ch->in_room, vict->in_room)) +
         (AFF3_FLAGGED(vict, AFF3_PSISHIELD) ? (GET_LEVEL(vict) >> 1) : 0) >
         GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 4) + GET_INT(ch)) {
-        act("$N is out of your psychic range.", false, ch, 0, vict, TO_CHAR);
+        act("$N is out of your psychic range.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
 
@@ -485,14 +485,14 @@ ACMD(do_psilocate)
         return;
     }
     if (dir < 0) {
-        act("You cannot sense $S psi.", false, ch, 0, vict, TO_CHAR);
+        act("You cannot sense $S psi.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
 
     if (CHECK_SKILL(vict, SKILL_PSILOCATE) >
         number(10, CHECK_SKILL(ch, SKILL_PSILOCATE) + GET_LEVEL(ch)))
         act("You feel $n's psyche connect with your mind briefly.",
-            false, ch, 0, vict, TO_VICT);
+            false, ch, NULL, vict, TO_VICT);
     else
         send_to_char(vict,
             "You feel a strange sensation on the periphery of your psyche.\r\n");
@@ -525,7 +525,7 @@ ACMD(do_psilocate)
     dist = MAX(1, dist);
 
     act(tmp_sprintf("$N seems to be about %d rooms away %s.", dist,
-            to_dirs[dir]), false, ch, 0, vict, TO_CHAR);
+            to_dirs[dir]), false, ch, NULL, vict, TO_CHAR);
 }
 
 //
@@ -572,11 +572,11 @@ smart_mobile_move(struct creature *ch, int dir)
             if (can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0))
                 do_fly(ch, tmp_strdup(""), 0, 0);
             else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 33)
-                cast_spell(ch, ch, 0, NULL, SPELL_FLY);
+                cast_spell(ch, ch, NULL, NULL, SPELL_FLY);
             else if (IS_CLERIC(ch) && GET_LEVEL(ch) >= 32)
-                cast_spell(ch, ch, 0, NULL, SPELL_AIR_WALK);
+                cast_spell(ch, ch, NULL, NULL, SPELL_AIR_WALK);
             else if (IS_PHYSIC(ch))
-                cast_spell(ch, ch, 0, NULL, SPELL_TIDAL_SPACEWARP);
+                cast_spell(ch, ch, NULL, NULL, SPELL_TIDAL_SPACEWARP);
             else if (!number(0, 10)) {
                 emit_voice(ch, NULL, VOICE_HUNT_OPENAIR);
                 return 0;
@@ -587,7 +587,7 @@ smart_mobile_move(struct creature *ch, int dir)
             if (AFF_FLAGGED(ch, AFF_INFLIGHT))
                 do_fly(ch, tmp_strdup(""), 0, 0);
             else if (IS_MAGE(ch) && GET_LEVEL(ch) >= 32)
-                cast_spell(ch, ch, 0, NULL, SPELL_WATERWALK);
+                cast_spell(ch, ch, NULL, NULL, SPELL_WATERWALK);
             else if (!number(0, 10)) {
                 emit_voice(ch, NULL, VOICE_HUNT_WATER);
                 return 0;
@@ -658,7 +658,7 @@ hunt_victim(struct creature *ch)
             if ((IS_CLERIC(ch) && GET_LEVEL(ch) > 16) || (IS_MAGE(ch)
                     && GET_LEVEL(ch) > 27)) {
                 if (GET_MANA(ch) < mag_manacost(ch, SPELL_SUMMON)) {
-                    cast_spell(ch, NPC_HUNTING(ch), 0, NULL, SPELL_SUMMON);
+                    cast_spell(ch, NPC_HUNTING(ch), NULL, NULL, SPELL_SUMMON);
                     return;
                 }
             }

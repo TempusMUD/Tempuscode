@@ -563,12 +563,12 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
         SET_BIT(GET_OBJ_EXTRA2(new_obj), ITEM2_IMPLANT);
 
     if ((room = obj->in_room) && obj->in_room->people) {
-        act(msg, false, NULL, obj, 0, TO_CHAR);
-        act(msg, false, NULL, obj, 0, TO_ROOM);
+        act(msg, false, NULL, obj, NULL, TO_CHAR);
+        act(msg, false, NULL, obj, NULL, TO_ROOM);
     } else if ((vict = obj->worn_by))
-        act(msg, false, vict, obj, 0, TO_CHAR);
+        act(msg, false, vict, obj, NULL, TO_CHAR);
     else
-        act(msg, false, ch, obj, 0, TO_CHAR);
+        act(msg, false, ch, obj, NULL, TO_CHAR);
 
     if (!obj->shared->proto) {
         eqdam_extract_obj(obj);
@@ -675,10 +675,10 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
     /* send out messages and unequip if needed */
 
     if (obj->in_room && obj->in_room->people) {
-        act(damage_msg, false, NULL, obj, 0, TO_CHAR);
-        act(damage_msg, false, NULL, obj, 0, TO_ROOM);
+        act(damage_msg, false, NULL, obj, NULL, TO_CHAR);
+        act(damage_msg, false, NULL, obj, NULL, TO_ROOM);
     } else if ((vict = obj->worn_by)) {
-        act(damage_msg, false, vict, obj, 0, TO_CHAR);
+        act(damage_msg, false, vict, obj, NULL, TO_CHAR);
         if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
             if (obj == GET_EQ(vict, obj->worn_on))
                 obj_to_char(unequip_char(vict, obj->worn_on, EQUIP_WORN),
@@ -689,7 +689,7 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
             }
         }
     } else
-        act(damage_msg, false, ch, obj, 0, TO_CHAR);
+        act(damage_msg, false, ch, obj, NULL, TO_CHAR);
 
     GET_OBJ_DAM(obj) -= eq_dam;
     return NULL;
@@ -860,9 +860,9 @@ damage(struct creature *ch, struct creature *victim,
         if (is_newbie(victim) &&
             !is_arena_combat(ch, victim) && GET_LEVEL(ch) < LVL_IMMORT) {
             act("$N is currently under new character protection.",
-                false, ch, 0, victim, TO_CHAR);
+                false, ch, NULL, victim, TO_CHAR);
             act("You are protected by the gods against $n's attack!",
-                false, ch, 0, victim, TO_VICT);
+                false, ch, NULL, victim, TO_VICT);
             slog("%s protected against %s ( damage ) at %d\n",
                 GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
             remove_combat(victim, ch);
@@ -1300,11 +1300,11 @@ damage(struct creature *ch, struct creature *victim,
                 (CHECK_SKILL(ch, attacktype) + GET_LEVEL(ch))
                 < (GET_INT(victim) + number(70, 130 + GET_LEVEL(victim)))) {
                 act("You are deflected by $N's prismatic sphere!",
-                    false, ch, 0, victim, TO_CHAR);
+                    false, ch, NULL, victim, TO_CHAR);
                 act("$n is deflected by $N's prismatic sphere!",
-                    false, ch, 0, victim, TO_NOTVICT);
+                    false, ch, NULL, victim, TO_NOTVICT);
                 act("$n is deflected by your prismatic sphere!",
-                    false, ch, 0, victim, TO_VICT);
+                    false, ch, NULL, victim, TO_VICT);
                 damage(victim, ch, NULL, dice(30, 3) + (dam / 4), SPELL_PRISMATIC_SPHERE, -1);
 
                 if (!is_dead(victim)) {
@@ -1654,7 +1654,7 @@ damage(struct creature *ch, struct creature *victim,
         IS_WEAPON(attacktype) &&
         number(0, 650) <= skill_bonus(ch, GET_CLASS(ch) == CLASS_RANGER)) {
         send_to_char(ch, "CRITICAL HIT!\r\n");
-        act("$n has scored a CRITICAL HIT!", false, ch, 0, victim, TO_VICT);
+        act("$n has scored a CRITICAL HIT!", false, ch, NULL, victim, TO_VICT);
         dam += (dam * (GET_REMORT_GEN(ch) + 4)) / 14;
     }
 
@@ -1692,9 +1692,9 @@ damage(struct creature *ch, struct creature *victim,
             if (do_gun_special(ch, weap) && !CHAR_WITHSTANDS_FIRE(victim) &&
                 !AFF2_FLAGGED(victim, AFF2_ABLAZE)) {
                 act("$n's body suddenly ignites into flame!",
-                    false, victim, 0, 0, TO_ROOM);
+                    false, victim, NULL, NULL, TO_ROOM);
                 act("Your body suddenly ignites into flame!",
-                    false, victim, 0, 0, TO_CHAR);
+                    false, victim, NULL, NULL, TO_CHAR);
                 ignite_creature(victim, ch);
             }
         }
@@ -1703,17 +1703,17 @@ damage(struct creature *ch, struct creature *victim,
             if (do_gun_special(ch, weap)) {
                 do_emp_pulse_char(ch, victim);
                 act("$n's body suddenly ignites into flame!",
-                    false, victim, 0, 0, TO_ROOM);
+                    false, victim, NULL, NULL, TO_ROOM);
                 act("Your body suddenly ignites into flame!",
-                    false, victim, 0, 0, TO_CHAR);
+                    false, victim, NULL, NULL, TO_CHAR);
             }
         }
         //gamma special
         if (attacktype == TYPE_EGUN_GAMMA && dam) {
             if (do_gun_special(ch, weap) && !CHAR_WITHSTANDS_RAD(victim)) {
                 add_rad_sickness(victim, GET_LEVEL(ch));
-                act("$n begins to look sick.", false, victim, 0, 0, TO_ROOM);
-                act("You start to feel sick.", false, victim, 0, 0, TO_CHAR);
+                act("$n begins to look sick.", false, victim, NULL, NULL, TO_ROOM);
+                act("You start to feel sick.", false, victim, NULL, NULL, TO_CHAR);
             }
         }
         //sonic special
@@ -1743,7 +1743,7 @@ damage(struct creature *ch, struct creature *victim,
         // pc caster
         if (ch && !IS_NPC(ch) && GET_IDNUM(ch) == af->modifier) {
             act(tmp_sprintf("You drain %d hitpoints from $N!", dam), false, ch,
-                0, victim, TO_CHAR);
+                NULL, victim, TO_CHAR);
             GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + dam);
             af->duration--;
             if (af->duration <= 0) {
@@ -1759,12 +1759,12 @@ damage(struct creature *ch, struct creature *victim,
                 int manadrain = MIN((int)(dam * 0.90), GET_MANA(victim));
                 if (GET_MOVE(ch) > 0) {
                     act(tmp_sprintf("You drain %d mana from $N!", manadrain),
-                        false, ch, 0, victim, TO_CHAR);
+                        false, ch, NULL, victim, TO_CHAR);
                     GET_MOVE(ch) = MAX(0, GET_MOVE(ch) - (int)(dam * 0.10));
                     GET_MANA(ch) = MIN(GET_MAX_MANA(ch),
                         GET_MANA(ch) + manadrain);
                 } else {
-                    act("You don't have the stamina to drain any mana from $N!", false, ch, 0, victim, TO_CHAR);
+                    act("You don't have the stamina to drain any mana from $N!", false, ch, NULL, victim, TO_CHAR);
                 }
                 af->duration--;
                 if (af->duration <= 0) {
@@ -1772,7 +1772,7 @@ damage(struct creature *ch, struct creature *victim,
                 }
             } else {
                 act("$N is completely drained of mana!", false, ch,
-                    0, victim, TO_CHAR);
+                    NULL, victim, TO_CHAR);
             }
         }
     }
@@ -1870,9 +1870,9 @@ damage(struct creature *ch, struct creature *victim,
             if (!mag_savingthrow(victim, 50, SAVING_BREATH) &&
                 !CHAR_WITHSTANDS_FIRE(victim)) {
                 act("$n's body suddenly ignites into flame!",
-                    false, victim, 0, 0, TO_ROOM);
+                    false, victim, NULL, NULL, TO_ROOM);
                 act("Your body suddenly ignites into flame!",
-                    false, victim, 0, 0, TO_CHAR);
+                    false, victim, NULL, NULL, TO_CHAR);
                 ignite_creature(victim, ch);
             }
         }
@@ -1884,7 +1884,7 @@ damage(struct creature *ch, struct creature *victim,
             if ((IS_SICK(ch) || IS_ZOMBIE(ch)
                     || (ch->in_room->zone->number == 163 && !IS_NPC(victim)))
                 && !IS_SICK(victim) && !IS_UNDEAD(victim)) {
-                call_magic(ch, victim, 0, NULL, SPELL_SICKNESS, GET_LEVEL(ch), CAST_PARA);
+                call_magic(ch, victim, NULL, NULL, SPELL_SICKNESS, GET_LEVEL(ch), CAST_PARA);
             }
         }
     } else if (ch) {
@@ -1974,7 +1974,7 @@ damage(struct creature *ch, struct creature *victim,
         // Mortally wounded
     case POS_MORTALLYW:
         act("$n is badly wounded, but will recover very slowly.",
-            true, victim, 0, 0, TO_ROOM);
+            true, victim, NULL, NULL, TO_ROOM);
         send_to_char(victim,
             "You are badly wounded, but will recover very slowly.\r\n");
         break;
@@ -1982,7 +1982,7 @@ damage(struct creature *ch, struct creature *victim,
         // Incapacitated
     case POS_INCAP:
         act("$n is incapacitated but will probably recover.", true,
-            victim, 0, 0, TO_ROOM);
+            victim, NULL, NULL, TO_ROOM);
         send_to_char(victim,
             "You are incapacitated but will probably recover.\r\n");
         break;
@@ -1990,14 +1990,14 @@ damage(struct creature *ch, struct creature *victim,
         // Stunned
     case POS_STUNNED:
         act("$n is stunned, but will probably regain consciousness again.",
-            true, victim, 0, 0, TO_ROOM);
+            true, victim, NULL, NULL, TO_ROOM);
         send_to_char(victim,
             "You're stunned, but will probably regain consciousness again.\r\n");
         break;
 
         // Dead
     case POS_DEAD:
-        act("$n is dead!  R.I.P.", false, victim, 0, 0, TO_ROOM);
+        act("$n is dead!  R.I.P.", false, victim, NULL, NULL, TO_ROOM);
         send_to_char(victim, "You are dead!  Sorry...\r\n");
         break;
 
@@ -2005,7 +2005,7 @@ damage(struct creature *ch, struct creature *victim,
     default:
         {
             if (dam > (GET_MAX_HIT(victim) / 4))
-                act("That really did HURT!", false, victim, 0, 0, TO_CHAR);
+                act("That really did HURT!", false, victim, NULL, NULL, TO_CHAR);
 
             if (GET_HIT(victim) < (GET_MAX_HIT(victim) / 4) &&
                 GET_HIT(victim) < 200) {
@@ -2059,7 +2059,7 @@ damage(struct creature *ch, struct creature *victim,
                                 GET_BROKE(victim)][GET_OLD_CLASS(victim)],
                             CCRED_BLD(victim, C_NRM), CCNRM(victim, C_NRM));
                         act("$n has auto-initiated self destruct sequence!\r\n"
-                            "CLEAR THE AREA!!!!", false, victim, 0, 0,
+                            "CLEAR THE AREA!!!!", false, victim, NULL, NULL,
                             TO_ROOM | TO_SLEEP);
                         MEDITATE_TIMER(victim) = 4;
                         SET_BIT(AFF3_FLAGS(victim), AFF3_SELF_DESTRUCT);
@@ -2067,8 +2067,8 @@ damage(struct creature *ch, struct creature *victim,
                     }
                 } else {
                     GET_BROKE(victim) = number(1, NUM_COMPS);
-                    act("$n staggers and begins to smoke!", false, victim, 0,
-                        0, TO_ROOM);
+                    act("$n staggers and begins to smoke!", false, victim, NULL,
+                        NULL, TO_ROOM);
                     send_to_char(victim, "Your %s has been damaged!\r\n",
                         component_names[(int)
                             GET_BROKE(victim)][GET_OLD_CLASS(victim)]);
@@ -2170,7 +2170,7 @@ damage(struct creature *ch, struct creature *victim,
     if (!IS_NPC(victim) && !(victim->desc)
         && !is_arena_combat(ch, victim)) {
 
-        act("$n is rescued by divine forces.", false, victim, 0, 0, TO_ROOM);
+        act("$n is rescued by divine forces.", false, victim, NULL, NULL, TO_ROOM);
         GET_WAS_IN(victim) = victim->in_room;
         if (ch) {
             remove_all_combat(victim);
@@ -2178,7 +2178,7 @@ damage(struct creature *ch, struct creature *victim,
         }
         char_from_room(victim, true);
         char_to_room(victim, zone_table->world, false);
-        act("$n is carried in by divine forces.", false, victim, 0, 0,
+        act("$n is carried in by divine forces.", false, victim, NULL, NULL,
             TO_ROOM);
     }
 
@@ -2489,7 +2489,7 @@ hit(struct creature *ch, struct creature *victim, int type)
     if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) && GET_LEVEL(ch) < LVL_ELEMENT) {
         if (!number(0, 2))
             act("You want to fight back against $N's attack, but cannot!",
-                false, ch, 0, victim, TO_CHAR | TO_SLEEP);
+                false, ch, NULL, victim, TO_CHAR | TO_SLEEP);
         else if (!number(0, 1))
             send_to_char(ch,
                 "You have been turned to stone, and cannot fight!\r\n");
@@ -2503,9 +2503,9 @@ hit(struct creature *ch, struct creature *victim, int type)
     if (is_newbie(victim) && !IS_NPC(ch) && !IS_NPC(victim) &&
         !is_arena_combat(ch, victim) && GET_LEVEL(ch) < LVL_IMMORT) {
         act("$N is currently under new character protection.",
-            false, ch, 0, victim, TO_CHAR);
+            false, ch, NULL, victim, TO_CHAR);
         act("You are protected by the gods against $n's attack!",
-            false, ch, 0, victim, TO_VICT);
+            false, ch, NULL, victim, TO_VICT);
         slog("%s protected against %s ( hit ) at %d\n",
             GET_NAME(victim), GET_NAME(ch), victim->in_room->number);
 
@@ -2526,7 +2526,7 @@ hit(struct creature *ch, struct creature *victim, int type)
         REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(victim)), AFF2_MOUNTED);
         dismount(victim);
         act("You are knocked from your mount by $N's attack!",
-            false, victim, 0, ch, TO_CHAR);
+            false, victim, NULL, ch, TO_CHAR);
     }
     if (AFF2_FLAGGED(victim, AFF2_MOUNTED)) {
         REMOVE_BIT(AFF2_FLAGS(victim), AFF2_MOUNTED);
@@ -2535,7 +2535,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 
             if (MOUNTED_BY(tch) && MOUNTED_BY(tch) == victim) {
                 act("You are knocked from your mount by $N's attack!",
-                    false, tch, 0, ch, TO_CHAR);
+                    false, tch, NULL, ch, TO_CHAR);
                 dismount(tch);
                 GET_POSITION(tch) = POS_STANDING;
             }
@@ -2565,7 +2565,7 @@ hit(struct creature *ch, struct creature *victim, int type)
                     GUN_DISCHARGE(weap));
             CUR_ENERGY(weap->contains) -= cost;
             if (CUR_ENERGY(weap->contains) <= 0) {
-                act("$p has been depleted of fuel.  Replace cell before further use.", false, ch, weap, 0, TO_CHAR);
+                act("$p has been depleted of fuel.  Replace cell before further use.", false, ch, weap, NULL, TO_CHAR);
             }
         } else if (IS_OBJ_TYPE(weap, ITEM_WEAPON))
             w_type = GET_OBJ_VAL(weap, 3) + TYPE_HIT;
@@ -2774,9 +2774,9 @@ hit(struct creature *ch, struct creature *victim, int type)
             if (!mag_savingthrow(victim, 10, SAVING_SPELL)
                 && !CHAR_WITHSTANDS_FIRE(victim)) {
                 act("$n's body suddenly ignites into flame!",
-                    false, victim, 0, 0, TO_ROOM);
+                    false, victim, NULL, NULL, TO_ROOM);
                 act("Your body suddenly ignites into flame!",
-                    false, victim, 0, 0, TO_CHAR);
+                    false, victim, NULL, NULL, TO_CHAR);
                 ignite_creature(victim, ch);
             }
         }
@@ -2789,7 +2789,7 @@ hit(struct creature *ch, struct creature *victim, int type)
                 (!IS_OBJ_STAT(weap, ITEM_MAGIC_NODISPEL) ||
                     mag_savingthrow(ch, GET_LEVEL(victim), SAVING_ROD))) {
 
-                act("$p spontaneously oxidizes and crumbles into a pile of rust!", false, ch, weap, 0, TO_CHAR);
+                act("$p spontaneously oxidizes and crumbles into a pile of rust!", false, ch, weap, NULL, TO_CHAR);
                 act("$p crumbles into rust on contact with $N!",
                     false, ch, weap, victim, TO_ROOM);
 
@@ -2857,13 +2857,13 @@ do_casting_weapon(struct creature *ch, struct obj_data *weap)
             weap->worn_on == WEAR_WIELD ||
             weap->worn_on == WEAR_WIELD_2 ? " in your hand" : "");
     send_to_char(ch, "%s", CCCYN(ch, C_NRM));
-    act(action_msg, false, ch, weap, 0, TO_CHAR);
+    act(action_msg, false, ch, weap, NULL, TO_CHAR);
     send_to_char(ch, "%s", CCNRM(ch, C_NRM));
 
     act(tmp_sprintf("$p begins to hum and shake%s!",
             weap->worn_on == WEAR_WIELD ||
             weap->worn_on == WEAR_WIELD_2 ? " in $n's hand" : ""),
-        true, ch, weap, 0, TO_ROOM);
+        true, ch, weap, NULL, TO_ROOM);
     if ((((!IS_DWARF(ch) && !IS_CYBORG(ch)) ||
                 !IS_OBJ_STAT(weap, ITEM_MAGIC) ||
                 !SPELL_IS_MAGIC(GET_OBJ_VAL(weap, 0))) &&
@@ -2873,11 +2873,11 @@ do_casting_weapon(struct creature *ch, struct obj_data *weap)
             IS_SET(spell_info[GET_OBJ_VAL(weap, 0)].targets, TAR_UNPLEASANT)) {
             if (is_fighting(ch)) {
                 struct creature *vict = random_opponent(ch);
-                call_magic(ch, vict, 0, NULL, GET_OBJ_VAL(weap, 0),
+                call_magic(ch, vict, NULL, NULL, GET_OBJ_VAL(weap, 0),
                     GET_LEVEL(ch), CAST_WAND);
             }
         } else if (!affected_by_spell(ch, GET_OBJ_VAL(weap, 0)))
-            call_magic(ch, ch, 0, NULL, GET_OBJ_VAL(weap, 0), GET_LEVEL(ch),
+            call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(weap, 0), GET_LEVEL(ch),
                 CAST_WAND);
     } else {
         // drop the weapon
@@ -2885,7 +2885,7 @@ do_casting_weapon(struct creature *ch, struct obj_data *weap)
                 weap->worn_on == WEAR_WIELD_2) &&
             GET_EQ(ch, weap->worn_on) == weap) {
             act("$p shocks you!  You are forced to drop it!",
-                false, ch, weap, 0, TO_CHAR);
+                false, ch, weap, NULL, TO_CHAR);
 
             // weapon is the 1st of 2 wielded
             if (weap->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2)) {
@@ -2908,10 +2908,10 @@ do_casting_weapon(struct creature *ch, struct obj_data *weap)
         // just shock the victim
         else {
             act("$p blasts the hell out of you!  OUCH!!",
-                false, ch, weap, 0, TO_CHAR);
+                false, ch, weap, NULL, TO_CHAR);
             GET_HIT(ch) -= dice(3, 4);
         }
-        act("$n cries out as $p shocks $m!", false, ch, weap, 0, TO_ROOM);
+        act("$n cries out as $p shocks $m!", false, ch, weap, NULL, TO_ROOM);
     }
     return 0;
 }
@@ -3094,7 +3094,7 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
 void
 perform_violence(void)
 {
-    g_list_foreach(creatures, (GFunc) perform_violence1, 0);
+    g_list_foreach(creatures, (GFunc) perform_violence1, NULL);
 }
 
 

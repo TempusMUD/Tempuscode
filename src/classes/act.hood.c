@@ -103,7 +103,7 @@ ACMD(do_hamstring)
         } else {
             if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
                 act("You open a deep gash in $p's hamstring!", false, ch,
-                    ovict, 0, TO_CHAR);
+                    ovict, NULL, TO_CHAR);
                 return;
             } else {
                 send_to_char(ch, "Hamstring who?\r\n");
@@ -120,7 +120,7 @@ ACMD(do_hamstring)
     if (vict == ch) {
         if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
             act("You fear that your death will grieve $N.",
-                false, ch, 0, ch->master, TO_CHAR);
+                false, ch, NULL, ch->master, TO_CHAR);
             return;
         }
         send_to_char(ch,
@@ -272,7 +272,7 @@ ACMD(do_drag_char)
             && !clan_house_can_enter(ch, target_room))
         || (ROOM_FLAGGED(target_room, ROOM_DEATH))
         || is_npk_combat(ch, vict)) {
-        act("You are unable to drag $M there.", false, ch, 0, vict, TO_CHAR);
+        act("You are unable to drag $M there.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
 
@@ -300,11 +300,11 @@ ACMD(do_drag_char)
     if (prob > percent) {
 
         act(tmp_sprintf("You drag $N to the %s.", to_dirs[dir]),
-            false, ch, 0, vict, TO_CHAR);
+            false, ch, NULL, vict, TO_CHAR);
         act(tmp_sprintf("$n grabs you and drags you %s.", to_dirs[dir]),
-            false, ch, 0, vict, TO_VICT);
+            false, ch, NULL, vict, TO_VICT);
         act(tmp_sprintf("$n drags $N to the %s.", to_dirs[dir]),
-            false, ch, 0, vict, TO_NOTVICT);
+            false, ch, NULL, vict, TO_NOTVICT);
 
         perform_move(ch, dir, MOVE_NORM, 1);
         perform_move(vict, dir, MOVE_DRAG, 1);
@@ -318,11 +318,11 @@ ACMD(do_drag_char)
         }
         return;
     } else {
-        act("$n grabs $N but fails to move $m.", false, ch, 0, vict,
+        act("$n grabs $N but fails to move $m.", false, ch, NULL, vict,
             TO_NOTVICT);
-        act("You attempt to man-handle $N but you fail!", false, ch, 0, vict,
+        act("You attempt to man-handle $N but you fail!", false, ch, NULL, vict,
             TO_CHAR);
-        act("$n attempts to drag you, but you hold your ground.", false, ch, 0,
+        act("$n attempts to drag you, but you hold your ground.", false, ch, NULL,
             vict, TO_VICT);
         WAIT_STATE(ch, PULSE_VIOLENCE);
 
@@ -465,20 +465,20 @@ ACMD(do_snatch)
     // If they succeed the leftover is thier bonus.
     // If they fail thier roll, or choose an empty position
     if (percent > CHECK_SKILL(ch, SKILL_SNATCH) || !obj) {
-        act("$n tries to snatch something from $N but comes away empty handed!", false, ch, 0, vict, TO_NOTVICT);
-        act("$n tries to snatch something from you but comes away empty handed!", false, ch, 0, vict, TO_VICT);
+        act("$n tries to snatch something from $N but comes away empty handed!", false, ch, NULL, vict, TO_NOTVICT);
+        act("$n tries to snatch something from you but comes away empty handed!", false, ch, NULL, vict, TO_VICT);
         act("You try to snatch something from $N but come away empty handed!",
-            false, ch, 0, vict, TO_CHAR);
+            false, ch, NULL, vict, TO_CHAR);
 
         // Monks are cool. They stand up when someone tries to snatch from em.
         if (GET_POSITION(vict) == POS_SITTING
             && AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
             GET_POSITION(vict) = POS_STANDING;
-            act("You jump to your feet, glaring at $s!", false, ch, 0, vict,
+            act("You jump to your feet, glaring at $s!", false, ch, NULL, vict,
                 TO_VICT);
-            act("$N jumps to $S feet, glaring at You!", false, ch, 0, vict,
+            act("$N jumps to $S feet, glaring at You!", false, ch, NULL, vict,
                 TO_CHAR);
-            act("$N jumps to $S feet, glaring at $n!", false, ch, 0, vict,
+            act("$N jumps to $S feet, glaring at $n!", false, ch, NULL, vict,
                 TO_NOTVICT);
         }
 

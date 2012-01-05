@@ -283,12 +283,12 @@ gen_receptionist(struct creature *ch, struct creature *recep,
         return false;
 
     if (!AWAKE(recep)) {
-        act("$E is unable to talk to you...", false, ch, 0, recep, TO_CHAR);
+        act("$E is unable to talk to you...", false, ch, NULL, recep, TO_CHAR);
         return true;
     }
     if (!can_see_creature(recep, ch) && GET_LEVEL(ch) <= LVL_AMBASSADOR) {
         act("$n says, 'I don't deal with people I can't see!'", false, recep,
-            0, 0, TO_ROOM);
+            NULL, NULL, TO_ROOM);
         return true;
     }
     if (free_rent) {
@@ -323,13 +323,13 @@ gen_receptionist(struct creature *ch, struct creature *recep,
             rent_deadline(ch, recep, cost);
 
         act("$n helps $N into $S private chamber.",
-            false, recep, 0, ch, TO_NOTVICT);
+            false, recep, NULL, ch, TO_NOTVICT);
 
         if (mode == RENT_FACTOR) {
-            act("$n stores your belongings and helps you into your private chamber.", false, recep, 0, ch, TO_VICT);
+            act("$n stores your belongings and helps you into your private chamber.", false, recep, NULL, ch, TO_VICT);
             creature_rent(ch);
         } else {                /* cryo */
-            act("$n stores your belongings and helps you into your private chamber.\r\nA white mist appears in the room, chilling you to the bone...\r\nYou begin to lose consciousness...", false, recep, 0, ch, TO_VICT);
+            act("$n stores your belongings and helps you into your private chamber.\r\nA white mist appears in the room, chilling you to the bone...\r\nYou begin to lose consciousness...", false, recep, NULL, ch, TO_VICT);
             if (recep->in_room->zone->time_frame == TIME_ELECTRO)
                 GET_CASH(ch) -= cost;
             else
@@ -339,7 +339,7 @@ gen_receptionist(struct creature *ch, struct creature *recep,
 
     } else {
         offer_rent(ch, recep, mode, true);
-        act("$N gives $n an offer.", false, ch, 0, recep, TO_ROOM);
+        act("$N gives $n an offer.", false, ch, NULL, recep, TO_ROOM);
     }
     return true;
 }

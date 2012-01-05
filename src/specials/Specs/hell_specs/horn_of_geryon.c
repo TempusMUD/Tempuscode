@@ -15,16 +15,16 @@ SPECIAL(horn_of_geryon)
         || IS_OBJ_TYPE(horn, ITEM_PIPE))
         return 0;
 
-    act("$n sounds a clear, ultra low note on $p.", false, ch, horn, 0,
+    act("$n sounds a clear, ultra low note on $p.", false, ch, horn, NULL,
         TO_ROOM);
-    act("You sound a clear, ultra low note on $p.", false, ch, horn, 0,
+    act("You sound a clear, ultra low note on $p.", false, ch, horn, NULL,
         TO_CHAR);
 
     if (GET_OBJ_VAL(horn, 0)) {
         if ((minotaur = read_mobile(16144))) {
             char_to_room(minotaur, ch->in_room, false);
-            act("$n appears from a cold, swirling mist.", false, minotaur, 0,
-                0, TO_ROOM);
+            act("$n appears from a cold, swirling mist.", false, minotaur, NULL,
+                NULL, TO_ROOM);
             add_follower(minotaur, ch);
             SET_BIT(AFF_FLAGS(minotaur), AFF_CHARM);
             SET_BIT(NPC_FLAGS(minotaur), NPC_PET);

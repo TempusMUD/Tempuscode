@@ -126,7 +126,7 @@ ACMD(do_steal)
                     break;
                 }
             if (!obj) {
-                act("$E hasn't got that item.", false, ch, 0, vict, TO_CHAR);
+                act("$E hasn't got that item.", false, ch, NULL, vict, TO_CHAR);
                 return;
             } else {            /* It is equipment */
                 percent += GET_OBJ_WEIGHT(obj); /* Make heavy harder */
@@ -147,7 +147,7 @@ ACMD(do_steal)
                         GET_LEVEL(vict) < GET_LEVEL(ch))
                         percent = 0;
                     if (percent < CHECK_SKILL(ch, SKILL_STEAL)) {
-                        act("You unequip $p and steal it.", false, ch, obj, 0,
+                        act("You unequip $p and steal it.", false, ch, obj, NULL,
                             TO_CHAR);
                         act("$n steals $p from $N.", false, ch, obj, vict,
                             TO_NOTVICT);
@@ -162,7 +162,7 @@ ACMD(do_steal)
                     } else {
                         if (GET_POSITION(vict) == POS_SLEEPING) {
                             act("You wake $N up trying to steal it!",
-                                false, ch, 0, vict, TO_CHAR);
+                                false, ch, NULL, vict, TO_CHAR);
                             send_to_char(vict,
                                 "You are awakened as someone tries to steal your equipment!\r\n");
                             GET_POSITION(vict) = POS_RESTING;
@@ -171,8 +171,8 @@ ACMD(do_steal)
                             AFF2_FLAGGED(vict, AFF2_MEDITATE)) {
 
                             act("You disturb $M in your clumsy attempt.",
-                                false, ch, 0, vict, TO_CHAR);
-                            act("You are disturbed as $n attempts to pilfer your inventory.", false, ch, 0, vict, TO_VICT);
+                                false, ch, NULL, vict, TO_CHAR);
+                            act("You are disturbed as $n attempts to pilfer your inventory.", false, ch, NULL, vict, TO_VICT);
                             REMOVE_BIT(AFF2_FLAGS(vict), AFF2_MEDITATE);
                         } else
                             send_to_char(ch, "You fail to get it.\r\n");
@@ -192,11 +192,11 @@ ACMD(do_steal)
                 (GET_LEVEL(ch) < LVL_AMBASSADOR ||
                     GET_LEVEL(ch) < GET_LEVEL(vict))) {
                 ohoh = true;
-                act("Oops..", false, ch, 0, 0, TO_CHAR);
+                act("Oops..", false, ch, NULL, NULL, TO_CHAR);
                 act("You catch $n trying to steal something from you!",
-                    false, ch, 0, vict, TO_VICT);
+                    false, ch, NULL, vict, TO_VICT);
                 act("$N catches $n trying to steal something from $M.",
-                    true, ch, 0, vict, TO_NOTVICT);
+                    true, ch, NULL, vict, TO_NOTVICT);
             } else {            /* Steal the item */
                 if ((IS_CARRYING_N(ch) + 1 < CAN_CARRY_N(ch))) {
                     if ((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <
@@ -225,10 +225,10 @@ ACMD(do_steal)
             if (AWAKE(vict) && (percent > CHECK_SKILL(ch, SKILL_STEAL)) &&
                 GET_LEVEL(ch) < LVL_IMPL) {
                 ohoh = true;
-                act("Oops..", false, ch, 0, 0, TO_CHAR);
+                act("Oops..", false, ch, NULL, NULL, TO_CHAR);
                 act("You discover that $n has $s hands in your wallet.", false,
-                    ch, 0, vict, TO_VICT);
-                act("$n tries to steal gold from $N.", true, ch, 0, vict,
+                    ch, NULL, vict, TO_VICT);
+                act("$n tries to steal gold from $N.", true, ch, NULL, vict,
                     TO_NOTVICT);
             } else {
                 /* Steal some gold coins */
@@ -251,10 +251,10 @@ ACMD(do_steal)
             if (AWAKE(vict) && (percent > CHECK_SKILL(ch, SKILL_STEAL)) &&
                 GET_LEVEL(ch) < LVL_IMPL) {
                 ohoh = true;
-                act("Oops..", false, ch, 0, 0, TO_CHAR);
+                act("Oops..", false, ch, NULL, NULL, TO_CHAR);
                 act("You discover that $n has $s hands in your wallet.", false,
-                    ch, 0, vict, TO_VICT);
-                act("$n tries to steal cash from $N.", true, ch, 0, vict,
+                    ch, NULL, vict, TO_VICT);
+                act("$n tries to steal cash from $N.", true, ch, NULL, vict,
                     TO_NOTVICT);
             } else {
                 /* Steal some cash credits */
@@ -516,11 +516,11 @@ ACMD(do_disguise)
         GET_WEIGHT(vict) > (GET_WEIGHT(ch) * 1.25) ||
         GET_WEIGHT(vict) < (GET_WEIGHT(ch) * 0.75)) {
         act("Your body size is not similar enough to $N's.",
-            false, ch, 0, vict, TO_CHAR);
+            false, ch, NULL, vict, TO_CHAR);
         return;
     }
     if (GET_LEVEL(vict) > GET_LEVEL(ch) + GET_REMORT_GEN(ch)) {
-        act("You are too puny to pass as $N.", false, ch, 0, vict, TO_CHAR);
+        act("You are too puny to pass as $N.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
     if (GET_MOVE(ch) < GET_LEVEL(vict)) {
@@ -542,9 +542,9 @@ ACMD(do_disguise)
     af.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
     af.owner = GET_IDNUM(ch);
 
-    act("$n disguises $mself as $N.", true, ch, 0, vict, TO_ROOM);
+    act("$n disguises $mself as $N.", true, ch, NULL, vict, TO_ROOM);
     affect_to_char(ch, &af);
-    act("You are now disguised as $N.", false, ch, 0, vict, TO_CHAR);
+    act("You are now disguised as $N.", false, ch, NULL, vict, TO_CHAR);
     gain_skill_prof(ch, SKILL_DISGUISE);
 }
 

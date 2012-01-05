@@ -254,7 +254,7 @@ voting_booth_vote(struct creature *ch, struct obj_data *obj, char *argument)
     poll->count++;
 
     send_to_char(ch, "You have voted for %c) %s", opt->idx, opt->descrip);
-    act("$n votes on $P.", true, ch, 0, obj, TO_ROOM);
+    act("$n votes on $P.", true, ch, NULL, obj, TO_ROOM);
 
     CREATE(new_memory, struct memory_rec, 1);
     new_memory->next = poll->memory;
@@ -415,7 +415,7 @@ voting_booth_write(struct creature *ch, char *argument)
 
     start_editing_poll(ch->desc, argument);
 
-    act("$n starts to add a poll.", true, ch, 0, 0, TO_ROOM);
+    act("$n starts to add a poll.", true, ch, NULL, NULL, TO_ROOM);
 }
 
 void

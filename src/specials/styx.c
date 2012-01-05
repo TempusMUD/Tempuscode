@@ -161,7 +161,7 @@ SPECIAL(underworld_goddess)
     if (!cmd && styx) {
         switch (number(0, 20)) {
         case 0:
-            act("The Goddess of the Underworld kisses $n.", false, styx, 0, 0,
+            act("The Goddess of the Underworld kisses $n.", false, styx, NULL, NULL,
                 TO_ROOM);
             send_to_char(styx, "The goddess kisses you very gently.\r\n");
             break;
@@ -197,7 +197,7 @@ SPECIAL(underworld_goddess)
 
             if (vict) {
                 act("The young priestess starts kissing $n all over his body!",
-                    false, styx, 0, 0, TO_ROOM);
+                    false, styx, NULL, NULL, TO_ROOM);
                 send_to_char(styx,
                     "The young priestess starts kissing you in some very sensitive areas!.\r\n");
                 return true;
@@ -209,7 +209,7 @@ SPECIAL(underworld_goddess)
 
     if (CMD_IS("say") && !strncasecmp(argument, " styx sent me", 13)) {
         act("The Goddess of the Underworld starts stroking $n's inner thigh.",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch,
             "The Goddess of the Underworld gently strokes your inner thigh with feathery touches.\r\n");
         return true;

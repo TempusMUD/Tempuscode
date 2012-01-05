@@ -288,7 +288,7 @@ push_update_to_history(struct creature *ch, dynamic_text_file * dyntext)
         dyntext->last_edit[i] = dyntext->last_edit[i - 1];
 
     dyntext->last_edit[i].idnum = GET_IDNUM(ch);
-    dyntext->last_edit[i].tEdit = time(0);
+    dyntext->last_edit[i].tEdit = time(NULL);
 
     return 0;
 
@@ -591,7 +591,7 @@ ACMD(do_dynedit)
         }
         dyntext->lock = GET_IDNUM(ch);
 
-        act("$n begins editing a dynamic text file.", true, ch, 0, 0, TO_ROOM);
+        act("$n begins editing a dynamic text file.", true, ch, NULL, NULL, TO_ROOM);
 
         // enter the text editor
         start_editing_text(ch->desc, &dyntext->tmp_buffer, MAX_STRING_LENGTH);
@@ -922,7 +922,7 @@ dynedit_update_string(dynamic_text_file * d)
         || !strncmp(d->filename, "arenalist", 9))
         return tmp_strdup("");
     printf("Updating File: %s\r\n", d->filename);
-    t = time(0);
+    t = time(NULL);
     tmTime = *(localtime(&t));
 
     sprintf(buffer,

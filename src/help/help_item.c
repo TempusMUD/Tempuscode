@@ -153,7 +153,7 @@ help_item_edittext(struct help_item *item)
     start_editing_text(item->editor->desc, &item->text, MAX_HELP_TEXT_LENGTH);
     SET_BIT(PLR_FLAGS(item->editor), PLR_OLC);
 
-    act("$n begins to edit a help file.\r\n", true, item->editor, 0, 0,
+    act("$n begins to edit a help file.\r\n", true, item->editor, NULL, NULL,
         TO_ROOM);
 }
 

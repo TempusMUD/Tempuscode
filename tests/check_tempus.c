@@ -16,7 +16,7 @@ main(void)
 {
     int number_failed = 0;
 
-    my_srand(time(0));
+    my_srand(time(NULL));
 
     Suite *s = tmpstr_suite();
     SRunner *sr = srunner_create(s);

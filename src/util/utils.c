@@ -51,7 +51,7 @@
 extern struct follow_type *order_next_k;
 char ANSI[20];
 
-void
+__attribute__((noreturn)) void
 safe_exit(int mode)
 {
     touch("../pause");
@@ -308,7 +308,7 @@ age(struct creature *ch)
     struct race *race = race_by_idnum(GET_RACE(ch));
     int age_adjust = (race) ? race->age_adjust:18;
 
-    player_age = mud_time_passed(time(0), ch->player.time.birth);
+    player_age = mud_time_passed(time(NULL), ch->player.time.birth);
     player_age.year += age_adjust;
 
     return player_age;
@@ -357,19 +357,19 @@ stop_follower(struct creature *ch)
         raise(SIGSEGV);
 
     if (AFF_FLAGGED(ch, AFF_CHARM) && !NPC2_FLAGGED(ch, NPC2_MOUNT)) {
-        act("You realize that $N is a jerk!", false, ch, 0, ch->master,
+        act("You realize that $N is a jerk!", false, ch, NULL, ch->master,
             TO_CHAR);
-        act("$n realizes that $N is a jerk!", false, ch, 0, ch->master,
+        act("$n realizes that $N is a jerk!", false, ch, NULL, ch->master,
             TO_NOTVICT);
-        act("$n hates your guts!", false, ch, 0, ch->master, TO_VICT);
+        act("$n hates your guts!", false, ch, NULL, ch->master, TO_VICT);
         if (affected_by_spell(ch, SPELL_CHARM))
             affect_from_char(ch, SPELL_CHARM);
     } else {
-        act("You stop following $N.", false, ch, 0, ch->master, TO_CHAR);
-        act("$n stops following $N.", true, ch, 0, ch->master, TO_NOTVICT);
+        act("You stop following $N.", false, ch, NULL, ch->master, TO_CHAR);
+        act("$n stops following $N.", true, ch, NULL, ch->master, TO_NOTVICT);
         if (GET_INVIS_LVL(ch) < GET_LEVEL(ch->master)
             && !AFF_FLAGGED(ch, AFF_SNEAK))
-            act("$n stops following you.", true, ch, 0, ch->master, TO_VICT);
+            act("$n stops following you.", true, ch, NULL, ch->master, TO_VICT);
     }
 
     if (ch->master->followers->follower == ch) {    /* Head of follower-list? */
@@ -443,10 +443,10 @@ add_follower(struct creature *ch, struct creature *leader)
     k->next = leader->followers;
     leader->followers = k;
 
-    act("You now follow $N.", false, ch, 0, leader, TO_CHAR);
+    act("You now follow $N.", false, ch, NULL, leader, TO_CHAR);
     if (can_see_creature(leader, ch))
-        act("$n starts following you.", true, ch, 0, leader, TO_VICT);
-    act("$n starts to follow $N.", true, ch, 0, leader, TO_NOTVICT);
+        act("$n starts following you.", true, ch, NULL, leader, TO_VICT);
+    act("$n starts to follow $N.", true, ch, NULL, leader, TO_NOTVICT);
 }
 
 void
@@ -465,11 +465,11 @@ add_stalker(struct creature *ch, struct creature *leader)
     k->next = leader->followers;
     leader->followers = k;
 
-    act("You are now stalking $N.", false, ch, 0, leader, TO_CHAR);
+    act("You are now stalking $N.", false, ch, NULL, leader, TO_CHAR);
     if (can_see_creature(leader, ch)) {
         if (CHECK_SKILL(ch, SKILL_STALK) < (number(0, 80) + GET_WIS(leader))) {
-            act("$n starts following you.", true, ch, 0, leader, TO_VICT);
-            act("$n starts to follow $N.", true, ch, 0, leader, TO_NOTVICT);
+            act("$n starts following you.", true, ch, NULL, leader, TO_VICT);
+            act("$n starts to follow $N.", true, ch, NULL, leader, TO_NOTVICT);
         } else
             gain_skill_prof(ch, SKILL_STALK);
     }

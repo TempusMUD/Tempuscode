@@ -33,7 +33,7 @@ load_oedits(struct creature *ch)
             ++count;
             struct obj_data *o = read_object(obj->shared->vnum);
             obj_to_char(o, ch);
-            act("$p appears in your hands!", false, ch, o, 0, TO_CHAR);
+            act("$p appears in your hands!", false, ch, o, NULL, TO_CHAR);
         }
     }
 
@@ -66,21 +66,21 @@ retrieve_oedits(struct creature *ch)
 
             if (obj->worn_by && obj == GET_EQ(obj->worn_by, obj->worn_on)) {
                 act("$p disappears off of your body!",
-                    false, obj->worn_by, obj, 0, TO_CHAR);
+                    false, obj->worn_by, obj, NULL, TO_CHAR);
                 unequip_char(obj->worn_by, obj->worn_on, EQUIP_WORN);
             } else if (obj->worn_by
                 && obj == GET_IMPLANT(obj->worn_by, obj->worn_on)) {
                 act("$p disappears out of your body!", false, obj->worn_by,
-                    obj, 0, TO_CHAR);
+                    obj, NULL, TO_CHAR);
                 unequip_char(obj->worn_by, obj->worn_on, EQUIP_IMPLANT);
             } else if (obj->worn_by
                 && obj == GET_TATTOO(obj->worn_by, obj->worn_on)) {
-                act("$p fades off of your body!", false, obj->worn_by, obj, 0,
+                act("$p fades off of your body!", false, obj->worn_by, obj, NULL,
                     TO_CHAR);
                 unequip_char(obj->worn_by, obj->worn_on, EQUIP_TATTOO);
             } else if (obj->carried_by) {
                 act("$p disappears out of your hands!", false,
-                    obj->carried_by, obj, 0, TO_CHAR);
+                    obj->carried_by, obj, NULL, TO_CHAR);
                 obj_from_char(obj);
             } else if (obj->in_room) {
                 if (obj->in_room->people) {
@@ -100,7 +100,7 @@ retrieve_oedits(struct creature *ch)
 
             ++count;
             obj_to_char(obj, ch);
-            act("$p appears in your hands!", false, ch, obj, 0, TO_CHAR);
+            act("$p appears in your hands!", false, ch, obj, NULL, TO_CHAR);
         }
     }
     return count;
@@ -121,7 +121,7 @@ SPECIAL(oedit_reloader)
         perform_say(self, "say",
             "If you want me to retrieve your property, just type 'retrieve'.");
     } else if (CMD_IS("retrieve")) {
-        act("$n closes $s eyes in deep concentration.", true, self, 0, false,
+        act("$n closes $s eyes in deep concentration.", true, self, NULL, NULL,
             TO_ROOM);
         int retrieved = retrieve_oedits(ch);
         int existing = load_oedits(ch);

@@ -36,8 +36,8 @@ SPECIAL(fountain_youth)
         return 0;
 
     if (affected_by_spell(ch, SPELL_YOUTH)) {
-        act("You drink from $p.", true, ch, fountain, 0, TO_CHAR);
-        act("$n drinks from $p.", true, ch, fountain, 0, TO_ROOM);
+        act("You drink from $p.", true, ch, fountain, NULL, TO_CHAR);
+        act("$n drinks from $p.", true, ch, fountain, NULL, TO_ROOM);
         return 1;
     }
 
@@ -78,8 +78,8 @@ SPECIAL(fountain_youth)
     affect_to_char(ch, &af3);
 
     act("As you drink from the pool, your reflection becomes visibly younger!",
-        true, ch, 0, 0, TO_CHAR);
+        true, ch, NULL, NULL, TO_CHAR);
     act("As $n drinks from the pool, $e becomes visibly younger!",
-        true, ch, 0, 0, TO_ROOM);
+        true, ch, NULL, NULL, TO_ROOM);
     return 1;
 }

@@ -153,9 +153,9 @@ perform_barb_berserk(struct creature *ch,
 
     struct creature *vict = cit->data;
 
-    act("You go berserk and attack $N!", false, ch, 0, vict, TO_CHAR);
-    act("$n attacks you in a BERSERK rage!!", false, ch, 0, vict, TO_VICT);
-    act("$n attacks $N in a BERSERK rage!!", false, ch, 0, vict, TO_NOTVICT);
+    act("You go berserk and attack $N!", false, ch, NULL, vict, TO_CHAR);
+    act("$n attacks you in a BERSERK rage!!", false, ch, NULL, vict, TO_VICT);
+    act("$n attacks $N in a BERSERK rage!!", false, ch, NULL, vict, TO_NOTVICT);
     hit(ch, vict, TYPE_UNDEFINED);
     if (!is_dead(vict) && who_was_attacked)
         *who_was_attacked = vict;
@@ -192,7 +192,7 @@ ACMD(do_berserk)
         } else {
             affect_from_char(ch, SKILL_BERSERK);
             send_to_char(ch, "You are no longer berserk.\r\n");
-            act("$n calms down by taking deep breaths.", true, ch, 0, 0,
+            act("$n calms down by taking deep breaths.", true, ch, NULL, NULL,
                 TO_ROOM);
         }
         return;
@@ -227,7 +227,7 @@ ACMD(do_berserk)
         affect_to_char(ch, &af3);
 
         send_to_char(ch, "You go BERSERK!\r\n");
-        act("$n goes BERSERK! Run for cover!", true, ch, 0, ch, TO_ROOM);
+        act("$n goes BERSERK! Run for cover!", true, ch, NULL, ch, TO_ROOM);
 
         perform_barb_berserk(ch, NULL);
     } else
@@ -253,7 +253,7 @@ ACMD(do_battlecry)
             "You just feel too damn peaceful here to do that.\r\n");
     } else if (CHECK_SKILL(ch, skillnum) < number(50, 110)) {
         send_to_char(ch, "You emit a feeble warbling sound.\r\n");
-        act("$n makes a feeble warbling sound.", false, ch, 0, 0, TO_ROOM);
+        act("$n makes a feeble warbling sound.", false, ch, NULL, NULL, TO_ROOM);
     } else if (GET_MANA(ch) < 5)
         send_to_char(ch, "You cannot work up the energy to do it.\r\n");
     else if (skillnum == SKILL_CRY_FROM_BEYOND &&
@@ -297,14 +297,14 @@ ACMD(do_battlecry)
         send_to_char(ch,
             "Your fearsome battle cry rings out across the land!\r\n");
         act("$n releases a battle cry that makes your blood run cold!", false,
-            ch, 0, 0, TO_ROOM);
+            ch, NULL, NULL, TO_ROOM);
     } else if (subcmd == SCMD_CRY_FROM_BEYOND) {
         send_to_char(ch, "Your cry from beyond shatters the air!!\r\n");
         act("$n unleashes a cry from beyond that makes your blood run cold!",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     } else {
         send_to_char(ch, "You release an earsplitting 'KIA!'\r\n");
-        act("$n releases an earsplitting 'KIA!'", false, ch, 0, 0, TO_ROOM);
+        act("$n releases an earsplitting 'KIA!'", false, ch, NULL, NULL, TO_ROOM);
     }
 
     sound_gunshots(ch->in_room, skillnum, 1, 1);

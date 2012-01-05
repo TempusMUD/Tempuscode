@@ -49,7 +49,7 @@ findCostliestObj(struct creature *ch)
     struct obj_data *cur_obj, *result;
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
-        return false;
+        return NULL;
 
     result = NULL;
 
@@ -167,7 +167,7 @@ reportUnrentables(struct creature * ch, struct obj_data * obj_list,
         if (!last_obj || !same_obj(last_obj, cur_obj)) {
             if (obj_is_unrentable(cur_obj)) {
                 act(tmp_sprintf("You cannot rent while %s $p!", pos),
-                    true, ch, cur_obj, 0, TO_CHAR);
+                    true, ch, cur_obj, NULL, TO_CHAR);
                 result = true;
             }
         }
@@ -680,7 +680,7 @@ save_player_to_xml(struct creature *ch)
 bool
 crashsave(struct creature *ch)
 {
-    time_t now = time(0);
+    time_t now = time(NULL);
 
     if (IS_NPC(ch))
         return false;
@@ -1063,7 +1063,7 @@ load_player_from_xml(int id)
     // If you're not poisioned and you've been away for more than an hour,
     // we'll set your HMV back to full
     if (!IS_POISONED(ch)
-        && (((long)(time(0) - ch->player.time.logon)) >= SECS_PER_REAL_HOUR)) {
+        && (((long)(time(NULL) - ch->player.time.logon)) >= SECS_PER_REAL_HOUR)) {
         GET_HIT(ch) = GET_MAX_HIT(ch);
         GET_MOVE(ch) = GET_MAX_MOVE(ch);
         GET_MANA(ch) = GET_MAX_MANA(ch);

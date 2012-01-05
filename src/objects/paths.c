@@ -170,7 +170,7 @@ char *
 path_name_by_vnum(int vnum)
 {
     struct path_head *phead = real_path_by_num(vnum);
-    return (phead) ? tmp_strdup(phead->name) : 0;
+    return (phead) ? tmp_strdup(phead->name) : NULL;
 }
 
 void
@@ -886,7 +886,7 @@ add_path_to_vehicle(struct obj_data *obj, int vnum)
 }
 
 void
-free_paths()
+free_paths(void)
 {
     struct path_head *p_head = NULL;
     struct path_link *p_obj = NULL;

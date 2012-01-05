@@ -274,7 +274,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
         GET_OBJ_VAL(locker, 0) = GET_IDNUM(vict);
         if (locker->contains) {
             act("$n removes all your gear and stores it in a strongbox.",
-                false, ch, 0, vict, TO_VICT);
+                false, ch, NULL, vict, TO_VICT);
             struct house *house = find_house_by_room(locker->in_room->number);
             if (house)
                 save_house(house);
@@ -283,10 +283,10 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
         }
     }
 
-    act("$n throws $N into a cell and slams the door!", false, ch, 0, vict,
+    act("$n throws $N into a cell and slams the door!", false, ch, NULL, vict,
         TO_NOTVICT);
     act("$n throws you into a cell and slams the door behind you!\r\n", false,
-        ch, 0, vict, TO_VICT);
+        ch, NULL, vict, TO_VICT);
 
     char_from_room(vict, false);
     char_to_room(vict, cell_room, false);
@@ -294,12 +294,12 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
         cell_room->zone->enter_count++;
 
     act("$n is thrown into the cell, and the door slams shut behind $m!",
-        false, vict, 0, 0, TO_ROOM);
+        false, vict, NULL, NULL, TO_ROOM);
     affect_from_char(vict, SPELL_SLEEP);
     affect_from_char(vict, SPELL_MELATONIC_FLOOD);
     affect_from_char(vict, SKILL_SLEEPER);
     GET_POSITION(vict) = POS_RESTING;
-    act("You wake up in jail, your head pounding.", false, vict, 0, 0,
+    act("You wake up in jail, your head pounding.", false, vict, NULL, NULL,
         TO_CHAR);
 
     if (NPC_HUNTING(ch) && NPC_HUNTING(ch) == vict)
@@ -349,12 +349,12 @@ drag_char_to_jail(struct creature *ch, struct creature *vict,
         return false;
 
     act(tmp_sprintf("You drag a semi-conscious $N %s.", to_dirs[dir]), false,
-        ch, 0, vict, TO_CHAR);
+        ch, NULL, vict, TO_CHAR);
     if (!number(0, 1))
         act("You dimly feel yourself being dragged down the street.", false,
-            ch, 0, vict, TO_VICT | TO_SLEEP);
+            ch, NULL, vict, TO_VICT | TO_SLEEP);
     act(tmp_sprintf("$n drags a semi-conscious $N %s.", to_dirs[dir]), false,
-        ch, 0, vict, TO_NOTVICT);
+        ch, NULL, vict, TO_NOTVICT);
 
     // Get other guards to follow
     for (it = first_living(ch->in_room->people); it; it = next_living(it)) {
@@ -372,7 +372,7 @@ drag_char_to_jail(struct creature *ch, struct creature *vict,
     char_to_room(vict, ch->in_room, false);
 
     act(tmp_sprintf("$n drags $N in from %s.",
-            from_dirs[dir]), false, ch, 0, vict, TO_NOTVICT);
+            from_dirs[dir]), false, ch, NULL, vict, TO_NOTVICT);
     WAIT_STATE(ch, 1 RL_SEC);
     return true;
 }
@@ -549,40 +549,40 @@ SPECIAL(cityguard)
         if (IS_GOOD(self) && IS_THIEF(target)) {
             if (IS_EVIL(target)) {
                 act("$n looks at you suspiciously.", false,
-                    self, 0, target, TO_VICT);
+                    self, NULL, target, TO_VICT);
                 act("$n looks at $N suspiciously.", false,
-                    self, 0, target, TO_NOTVICT);
+                    self, NULL, target, TO_NOTVICT);
             } else {
                 act("$n looks at you skeptically.", false,
-                    self, 0, target, TO_VICT);
+                    self, NULL, target, TO_VICT);
                 act("$n looks at $N skeptically.", false,
-                    self, 0, target, TO_NOTVICT);
+                    self, NULL, target, TO_NOTVICT);
             }
         } else if (cityguard == GET_NPC_SPEC(target)) {
-            act("$n nods at $N.", false, self, 0, target, TO_NOTVICT);
+            act("$n nods at $N.", false, self, NULL, target, TO_NOTVICT);
         } else if (((IS_CLERIC(target) || IS_KNIGHT(target))
                 && IS_EVIL(self) == IS_EVIL(target)
                 && !IS_NEUTRAL(target))
             || GET_LEVEL(target) >= LVL_AMBASSADOR) {
-            act("$n bows before you.", false, self, 0, target, TO_VICT);
-            act("$n bows before $N.", false, self, 0, target, TO_NOTVICT);
+            act("$n bows before you.", false, self, NULL, target, TO_VICT);
+            act("$n bows before $N.", false, self, NULL, target, TO_NOTVICT);
         } else if (IS_EVIL(self) != IS_EVIL(target)) {
             switch (number(0, 2)) {
             case 0:
-                act("$n watches you carefully.", false, self, 0, target,
+                act("$n watches you carefully.", false, self, NULL, target,
                     TO_VICT);
                 act("$n watches $N carefully.", false,
-                    self, 0, target, TO_NOTVICT);
+                    self, NULL, target, TO_NOTVICT);
                 break;
             case 1:
                 act("$n thoroughly examines you.", false,
-                    self, 0, target, TO_VICT);
+                    self, NULL, target, TO_VICT);
                 act("$n thoroughly examines $N.", false,
-                    self, 0, target, TO_NOTVICT);
+                    self, NULL, target, TO_NOTVICT);
                 break;
             case 2:
                 act("$n mutters something under $s breath.",
-                    false, self, 0, target, TO_ROOM);
+                    false, self, NULL, target, TO_ROOM);
                 break;
             }
         }
@@ -592,10 +592,10 @@ SPECIAL(cityguard)
         if (number(0, 8))
             break;
         if (!number(0, 3)) {
-            act("$n growls at you.", false, self, 0, target, TO_VICT);
-            act("$n growls at $N.", false, self, 0, target, TO_NOTVICT);
+            act("$n growls at you.", false, self, NULL, target, TO_VICT);
+            act("$n growls at $N.", false, self, NULL, target, TO_NOTVICT);
         } else if (!number(0, 2)) {
-            act("$n cracks $s knuckles.", false, self, 0, target, TO_ROOM);
+            act("$n cracks $s knuckles.", false, self, NULL, target, TO_ROOM);
         } else if (!number(0, 1) && GET_EQ(self, WEAR_WIELD) &&
             (GET_OBJ_VAL(GET_EQ(self, WEAR_WIELD), 3) ==
                 (TYPE_SLASH - TYPE_HIT) ||
@@ -638,11 +638,11 @@ SPECIAL(cityguard)
         // attack criminal
         if (char_is_arrested(target)) {
             act("$n screams 'HEY!!!  I know who you are!!!!'",
-                false, self, 0, 0, TO_ROOM);
+                false, self, NULL, NULL, TO_ROOM);
             hit(self, target, TYPE_UNDEFINED);
         } else {
             act("$n screams 'HEY!!!  You're one of those CRIMINALS!!!!!!'",
-                false, self, 0, 0, TO_ROOM);
+                false, self, NULL, NULL, TO_ROOM);
             char_under_arrest(target);
             hit(self, target, TYPE_UNDEFINED);
         }

@@ -72,7 +72,7 @@ SPECIAL(courier_imp)
     if (!data) {
         slog("IMP: Couldn't find data!");
         act("$n looks confused for a moment then fades away.", false,
-            self, 0, 0, TO_NOTVICT);
+            self, NULL, NULL, TO_NOTVICT);
         creature_purge(self, true);
         return 1;
     }
@@ -88,7 +88,7 @@ SPECIAL(courier_imp)
             (data->mode == IMP_DELIVER_ITEM) ? "buying" : "selling");
 
         act("$n looks around frantically and frowns.", false,
-            self, 0, 0, TO_NOTVICT);
+            self, NULL, NULL, TO_NOTVICT);
         seeking = load_player_from_xml(data->buyer_id);
         if (!seeking) {
             // WTF?
@@ -187,16 +187,16 @@ SPECIAL(courier_imp)
         char *msg;
         if (data->mode == IMP_DELIVER_ITEM) {
             act("$n grins at $N, showing rows of pointed teeth.", false,
-                self, 0, seeking, TO_NOTVICT);
+                self, NULL, seeking, TO_NOTVICT);
             act("$N grins at you, showing rows of pointed teeth.", false,
-                seeking, 0, self, TO_CHAR);
+                seeking, NULL, self, TO_CHAR);
             if (imp_take_payment(seeking, data)) {
                 msg = tmp_sprintf("$n gives %s to $N and takes its payment.",
                     data->item->name);
-                act(msg, false, self, 0, seeking, TO_NOTVICT);
+                act(msg, false, self, NULL, seeking, TO_NOTVICT);
                 msg = tmp_sprintf("$N gives %s to you and takes its payment.",
                     data->item->name);
-                act(msg, false, seeking, 0, self, TO_CHAR);
+                act(msg, false, seeking, NULL, self, TO_CHAR);
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
                 data->item = NULL;
@@ -207,13 +207,13 @@ SPECIAL(courier_imp)
                 perform_say_to(self, seeking, "You ass!  You made me come "
                     "all the way out here and you can't even "
                     "cover your bill?!?");
-                act("$n roars with rage!", false, self, 0, 0, TO_NOTVICT);
+                act("$n roars with rage!", false, self, NULL, NULL, TO_NOTVICT);
                 act("A ball of light streaks from $N's hand and hits you "
                     "square in the chest, burning you to a cinder!", false,
-                    seeking, 0, self, TO_CHAR);
+                    seeking, NULL, self, TO_CHAR);
                 act("A ball of light streaks from $n's hand and hits $N "
                     "square in the chest, burning $M to a cinder!", false,
-                    self, 0, seeking, TO_NOTVICT);
+                    self, NULL, seeking, TO_NOTVICT);
                 raw_kill(seeking, self, TYPE_SLASH);
                 data->owed = 0;
                 data->mode = IMP_BUYER_BROKE;
@@ -233,8 +233,8 @@ SPECIAL(courier_imp)
                     msg = tmp_sprintf("%s %d cash", msg, paycash);
                 msg = tmp_strcat(msg, ".", NULL);
 
-                act(msg, false, seeking, 0, self, TO_CHAR);
-                act("$n gives $N some money.", false, self, 0, seeking,
+                act(msg, false, seeking, NULL, self, TO_CHAR);
+                act("$n gives $N some money.", false, self, NULL, seeking,
                     TO_NOTVICT);
 
                 perform_say_to(self, seeking, "Thank you for your business!");
@@ -248,11 +248,11 @@ SPECIAL(courier_imp)
                 msg =
                     tmp_sprintf("$n gives $N %s and disappears.",
                     data->item->name);
-                act(msg, false, self, 0, seeking, TO_NOTVICT);
+                act(msg, false, self, NULL, seeking, TO_NOTVICT);
                 msg =
                     tmp_sprintf("$N gives you %s and disappears.",
                     data->item->name);
-                act(msg, false, seeking, 0, self, TO_CHAR);
+                act(msg, false, seeking, NULL, self, TO_CHAR);
                 obj_from_char(data->item);
                 obj_to_char(data->item, seeking);
                 crashsave(seeking);
@@ -289,7 +289,7 @@ SPECIAL(courier_imp)
         char_from_room(self, false);
         char_to_room(self, seeking->in_room, false);
         act("$n appears with a whir and a bright flash of light!", false,
-            self, 0, 0, TO_ROOM);
+            self, NULL, NULL, TO_ROOM);
     }
 
     return 1;

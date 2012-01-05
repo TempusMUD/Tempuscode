@@ -51,7 +51,7 @@ ASPELL(spell_dispel_evil)
             if (!IS_NPC(victim) && IS_EVIL(victim)) {
                 act("You cannot do this because you have chosen not "
                     "to be a pkiller.\r\nYou can toggle this with the "
-                    "command 'pkiller'.", false, ch, 0, victim, TO_CHAR);
+                    "command 'pkiller'.", false, ch, NULL, victim, TO_CHAR);
                 return;
             }
         }
@@ -73,7 +73,7 @@ ASPELL(spell_dispel_evil)
 
     if (obj) {
         if (!IS_OBJ_STAT(obj, ITEM_DAMNED)) {
-            act("This item does not need to be cleansed.", false, ch, 0,
+            act("This item does not need to be cleansed.", false, ch, NULL,
                 NULL, TO_CHAR);
             return;
         }
@@ -118,7 +118,7 @@ ASPELL(spell_dispel_good)
             if (!IS_NPC(victim) && IS_GOOD(victim)) {
                 act("You cannot do this because you have chosen not "
                     "to be a pkiller.\r\nYou can toggle this with the "
-                    "command 'pkiller'.", false, ch, 0, victim, TO_CHAR);
+                    "command 'pkiller'.", false, ch, NULL, victim, TO_CHAR);
                 return;
             }
         }
@@ -141,7 +141,7 @@ ASPELL(spell_dispel_good)
 
     if (obj) {
         if (!IS_OBJ_STAT(obj, ITEM_BLESS)) {
-            act("This item does not need to be defiled.", false, ch, 0,
+            act("This item does not need to be defiled.", false, ch, NULL,
                 NULL, TO_CHAR);
             return;
         }

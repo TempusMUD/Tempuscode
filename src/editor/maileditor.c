@@ -191,7 +191,7 @@ maileditor_finalize(struct editor *editor, const char *text)
         // Presumably, this message is only displayed for imms for
         // pk avoidance reasons.
         act("$n postmarks and dispatches $s mail.", true,
-            editor->desc->creature, 0, 0, TO_NOTVICT);
+            editor->desc->creature, NULL, NULL, TO_NOTVICT);
     }
 
     free_maileditor(editor);

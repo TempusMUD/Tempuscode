@@ -51,21 +51,21 @@ SPECIAL(wagon_obj)
         wagon_room = real_room(10);
         if (!wagon_room) {
             act("You try to leap aboard the wagon, but fall flat on your ass!",
-                true, ch, 0, 0, TO_CHAR);
+                true, ch, NULL, NULL, TO_CHAR);
             act("$n tries to leap aboard the wagon and falls flat on $s ass!",
-                true, ch, 0, 0, TO_ROOM);
+                true, ch, NULL, NULL, TO_ROOM);
             mudlog(LVL_IMMORT, CMP, true, "Wagon can't find its inside");
             return true;
         }
 
         send_to_char(ch, "You deftly leap aboard the wagon.\r\n\r\n");
-        act("$n deftly leaps aboard the wagon.", true, ch, 0, 0, TO_ROOM);
+        act("$n deftly leaps aboard the wagon.", true, ch, NULL, NULL, TO_ROOM);
 
         char_from_room(ch, false);
         char_to_room(ch, wagon_room, false);
         look_at_room(ch, ch->in_room, 1);
 
-        act("$n climbs onto the wagon.", true, ch, 0, 0, TO_ROOM);
+        act("$n climbs onto the wagon.", true, ch, NULL, NULL, TO_ROOM);
         return true;
     }
 

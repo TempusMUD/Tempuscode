@@ -70,7 +70,7 @@ summon_criminal_demons(struct creature *vict)
 
         char_to_room(mob, vict->in_room, true);
         act("The air suddenly cracks open and $n steps out!", false,
-            mob, 0, 0, TO_ROOM);
+            mob, NULL, NULL, TO_ROOM);
     }
 
     if (IS_EVIL(vict))
@@ -208,18 +208,18 @@ SPECIAL(demonic_guard)
     ch = get_char_in_world_by_idnum(vict_id);
     if (!ch || !NPC_HUNTING(self) || GET_REPUTATION(ch) < 700) {
         act("$n vanishes into the mouth of an interplanar conduit.",
-            false, self, 0, 0, TO_ROOM);
+            false, self, NULL, NULL, TO_ROOM);
         creature_purge(self, true);
         return true;
     }
 
     if (NPC_HUNTING(self)->in_room->zone != self->in_room->zone) {
         act("$n vanishes into the mouth of an interplanar conduit.",
-            false, self, 0, 0, TO_ROOM);
+            false, self, NULL, NULL, TO_ROOM);
         char_from_room(self, true);
         char_to_room(self, NPC_HUNTING(self)->in_room, true);
         act("The air suddenly cracks open and $n steps out!",
-            false, self, 0, 0, TO_ROOM);
+            false, self, NULL, NULL, TO_ROOM);
         return true;
     }
 

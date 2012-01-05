@@ -63,7 +63,7 @@ SPECIAL(healing_ranger)
                 vict = it->data;
                 if (AFF_FLAGGED(vict, AFF_POISON)) {
                     if (GET_MANA(ch) > 50) {
-                        cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_POISON);
+                        cast_spell(ch, vict, NULL, NULL, SPELL_REMOVE_POISON);
                         return true;
                     }
                 }
@@ -78,7 +78,7 @@ SPECIAL(healing_ranger)
                 vict = it->data;
                 if (!IS_NPC(vict) && (affected_by_spell(vict, SPELL_BLINDNESS)
                         || affected_by_spell(vict, SKILL_GOUGE))) {
-                    cast_spell(ch, vict, 0, NULL, SPELL_CURE_BLIND);
+                    cast_spell(ch, vict, NULL, NULL, SPELL_CURE_BLIND);
                     return true;
                 }
             }
@@ -96,7 +96,7 @@ SPECIAL(healing_ranger)
                     vict = it->data;
                     if (!affected_by_spell(vict, SPELL_PROT_FROM_LIGHTNING) &&
                         GET_MANA(ch) > 50) {
-                        cast_spell(ch, vict, 0, NULL,
+                        cast_spell(ch, vict, NULL, NULL,
                             SPELL_PROT_FROM_LIGHTNING);
                         return true;
                     }

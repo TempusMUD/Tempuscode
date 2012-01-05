@@ -21,12 +21,12 @@ SPECIAL(entrance_to_brawling)
         case 1:
             send_to_char(ch,
                 "An old timer says, 'You better stay out of there.'\r\n");
-            act("An old timer tells $n something.", true, ch, 0, 0, TO_ROOM);
+            act("An old timer tells $n something.", true, ch, NULL, NULL, TO_ROOM);
             break;
         case 2:
             send_to_char(ch,
                 "As you try to enter, a huge man is thrown through, knocking you down.\r\n");
-            act("$n tries to go north, but is knocked down.", false, ch, 0, 0,
+            act("$n tries to go north, but is knocked down.", false, ch, NULL, NULL,
                 TO_ROOM);
             GET_POSITION(ch) = POS_SITTING;
             break;
@@ -38,12 +38,12 @@ SPECIAL(entrance_to_brawling)
             send_to_char(ch,
                 "You notice some people laughing at you, and change your mind.\r\n");
             act("Some people in the corner start laughing at $n.", false, ch,
-                0, 0, TO_ROOM);
+                NULL, NULL, TO_ROOM);
             break;
         case 5:
             send_to_char(ch, "You slip on a greasy spot on the floor!\r\n");
-            act("$n slips down on a greasy spot on the floor.", false, ch, 0,
-                0, TO_ROOM);
+            act("$n slips down on a greasy spot on the floor.", false, ch, NULL,
+                NULL, TO_ROOM);
             GET_POSITION(ch) = POS_SITTING;
             break;
         case 6:
@@ -55,7 +55,7 @@ SPECIAL(entrance_to_brawling)
         case 7:
             send_to_char(ch,
                 "You trip over your shoelaces before you get to the door.\r\n");
-            act("$n trips over $s shoelaces and falls down.", false, ch, 0, 0,
+            act("$n trips over $s shoelaces and falls down.", false, ch, NULL, NULL,
                 TO_ROOM);
             GET_POSITION(ch) = POS_SITTING;
             break;

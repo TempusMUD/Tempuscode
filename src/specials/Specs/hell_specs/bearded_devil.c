@@ -14,9 +14,9 @@ SPECIAL(bearded_devil)
     if (!number(0, 3)) {
         struct creature *vict = random_opponent(ch);
         act("$n thrusts $s wirelike beard at you!",
-            false, ch, 0, vict, TO_VICT);
+            false, ch, NULL, vict, TO_VICT);
         act("$n thrusts $s wirelike beard at $N!",
-            false, ch, 0, vict, TO_NOTVICT);
+            false, ch, NULL, vict, TO_NOTVICT);
         if (GET_DEX(vict) > number(0, 25))
             damage(ch, vict, NULL, 0, TYPE_RIP, WEAR_FACE);
         else

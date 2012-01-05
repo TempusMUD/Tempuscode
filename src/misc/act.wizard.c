@@ -241,8 +241,8 @@ ACMD(do_echo)
         mort_see = tmp_sprintf("$n%s%s", (*argument == '\'') ? "" : " ",
             act_escape(argument));
 
-        act(mort_see, false, ch, 0, 0, TO_CHAR);
-        act(mort_see, false, ch, 0, 0, TO_ROOM);
+        act(mort_see, false, ch, NULL, NULL, TO_CHAR);
+        act(mort_see, false, ch, NULL, NULL, TO_ROOM);
     } else {
         mort_see = tmp_strdup(argument);
         imm_see = tmp_sprintf("[$n] %s", argument);
@@ -250,9 +250,9 @@ ACMD(do_echo)
         for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             struct creature *tch = it->data;
             if (GET_LEVEL(tch) > GET_LEVEL(ch))
-                act(imm_see, false, ch, 0, tch, TO_VICT);
+                act(imm_see, false, ch, NULL, tch, TO_VICT);
             else
-                act(mort_see, false, ch, 0, tch, TO_VICT);
+                act(mort_see, false, ch, NULL, tch, TO_VICT);
         }
     }
 }
@@ -432,7 +432,7 @@ perform_goto(struct creature *ch, struct room_data *room, bool allow_follow)
     } else
         msg = "$n disappears in a puff of smoke.";
 
-    act(msg, true, ch, 0, 0, TO_ROOM);
+    act(msg, true, ch, NULL, NULL, TO_ROOM);
     char_from_room(ch, false);
     char_to_room(ch, room, false);
     if (room_is_open_air(room))
@@ -447,7 +447,7 @@ perform_goto(struct creature *ch, struct room_data *room, bool allow_follow)
     } else
         msg = "$n appears with an ear-splitting bang.";
 
-    act(msg, true, ch, 0, 0, TO_ROOM);
+    act(msg, true, ch, NULL, NULL, TO_ROOM);
     look_at_room(ch, ch->in_room, 0);
 
     if (allow_follow && ch->followers) {
@@ -510,15 +510,15 @@ ACMD(do_transport)
             send_to_char(ch, "You are in midair and %s isn't flying.\r\n",
                 GET_NAME(victim));
         } else {
-            act("$n disappears in a mushroom cloud.", false, victim, 0, 0,
+            act("$n disappears in a mushroom cloud.", false, victim, NULL, NULL,
                 TO_ROOM);
             was_in = victim->in_room;
 
             char_from_room(victim, false);
             char_to_room(victim, ch->in_room, false);
-            act("$n arrives from a puff of smoke.", false, victim, 0, 0,
+            act("$n arrives from a puff of smoke.", false, victim, NULL, NULL,
                 TO_ROOM);
-            act("$n has transported you!", false, ch, 0, victim, TO_VICT);
+            act("$n has transported you!", false, ch, NULL, victim, TO_VICT);
             look_at_room(victim, victim->in_room, 0);
 
             if (victim->followers) {
@@ -560,11 +560,11 @@ ACMD(do_teleport)
         send_to_char(ch, "Where do you wish to send this person?\r\n");
     else if ((target = find_target_room(ch, buf2)) != NULL) {
         send_to_char(ch, "%s", OK);
-        act("$n disappears in a puff of smoke.", false, victim, 0, 0, TO_ROOM);
+        act("$n disappears in a puff of smoke.", false, victim, NULL, NULL, TO_ROOM);
         char_from_room(victim, false);
         char_to_room(victim, target, false);
-        act("$n arrives from a puff of smoke.", false, victim, 0, 0, TO_ROOM);
-        act("$n has teleported you!", false, ch, 0, victim, TO_VICT);
+        act("$n arrives from a puff of smoke.", false, victim, NULL, NULL, TO_ROOM);
+        act("$n has teleported you!", false, ch, NULL, victim, TO_VICT);
         look_at_room(victim, victim->in_room, 0);
 
         slog("(GC) %s has teleported %s to [%d] %s.", GET_NAME(ch),
@@ -900,7 +900,7 @@ do_stat_trails(struct creature *ch)
         send_to_char(ch, "No trails exist within this room.\r\n");
         return;
     }
-    mytime = time(0);
+    mytime = time(NULL);
     acc_string_clear();
     for (i = 0, trail = ch->in_room->trail; trail; trail = trail->next) {
         timediff = mytime - trail->time;
@@ -981,8 +981,8 @@ do_stat_room(struct creature *ch, char *roomstr)
     struct room_affect_data *aff = NULL;
     struct special_search_data *cur_search = NULL;
     int i, found = 0;
-    struct obj_data *j = 0;
-    struct creature *k = 0;
+    struct obj_data *j = NULL;
+    struct creature *k = NULL;
 
     if (roomstr && *roomstr) {
         if (isdigit(*roomstr) && !strchr(roomstr, '.')) {
@@ -1124,7 +1124,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     if (IS_OBJ_TYPE(j, ITEM_NOTE) && isname("letter", j->aliases)) {
         if (j->carried_by && GET_LEVEL(j->carried_by) > GET_LEVEL(ch)) {
             act("$n just tried to stat your mail.",
-                false, ch, 0, j->carried_by, TO_VICT);
+                false, ch, NULL, j->carried_by, TO_VICT);
             send_to_char(ch, "You're pretty brave, bucko.\r\n");
             return;
         }
@@ -2071,8 +2071,8 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
 
 ACMD(do_stat)
 {
-    struct creature *victim = 0;
-    struct obj_data *object = 0;
+    struct creature *victim = NULL;
+    struct obj_data *object = NULL;
     struct zone_data *zone = NULL;
     int tmp, found;
     char *arg1 = tmp_getword(&argument);
@@ -2329,7 +2329,7 @@ ACMD(do_snoop)
         send_to_char(ch, "You cannot snoop into that place.\r\n");
     } else {
         if (g_list_find(victim->desc->snoop_by, ch->desc)) {
-            act("You're already snooping $M.", false, ch, 0, victim, TO_CHAR);
+            act("You're already snooping $M.", false, ch, NULL, victim, TO_CHAR);
             return;
         }
         if (victim->desc->original)
@@ -2488,7 +2488,7 @@ ACMD(do_return)
             char_from_room(orig, false);
             char_to_room(orig, ch->in_room, false);
             act("$n materializes from a cloud of gas.",
-                false, orig, 0, 0, TO_ROOM);
+                false, orig, NULL, NULL, TO_ROOM);
             if (subcmd != SCMD_NOEXTRACT)
                 creature_purge(ch, true);
         }
@@ -2535,9 +2535,9 @@ ACMD(do_mload)
     char_to_room(mob, ch->in_room, false);
 
     act("$n makes a quaint, magical gesture with one hand.", true, ch,
-        0, 0, TO_ROOM);
-    act("$n has created $N!", false, ch, 0, mob, TO_ROOM);
-    act("You create $N.", false, ch, 0, mob, TO_CHAR);
+        NULL, NULL, TO_ROOM);
+    act("$n has created $N!", false, ch, NULL, mob, TO_ROOM);
+    act("You create $N.", false, ch, NULL, mob, TO_CHAR);
 
     slog("(GC) %s mloaded %s at %d.", GET_NAME(ch), GET_NAME(mob),
         ch->in_room->number);
@@ -2596,17 +2596,17 @@ ACMD(do_oload)
         obj->creator = GET_IDNUM(ch);
         obj_to_room(obj, ch->in_room);
     }
-    act("$n makes a strange magical gesture.", true, ch, 0, 0, TO_ROOM);
+    act("$n makes a strange magical gesture.", true, ch, NULL, NULL, TO_ROOM);
     if (quantity == 1) {
-        act("$n has created $p!", false, ch, obj, 0, TO_ROOM);
-        act("You create $p.", false, ch, obj, 0, TO_CHAR);
+        act("$n has created $p!", false, ch, obj, NULL, TO_ROOM);
+        act("You create $p.", false, ch, obj, NULL, TO_CHAR);
         slog("(GC) %s loaded %s at %d.", GET_NAME(ch),
             obj->name, ch->in_room->number);
     } else {
         act(tmp_sprintf("%s has created %s! (x%d)", GET_NAME(ch), obj->name,
-                quantity), false, ch, obj, 0, TO_ROOM);
+                quantity), false, ch, obj, NULL, TO_ROOM);
         act(tmp_sprintf("You create %s. (x%d)", obj->name, quantity), false,
-            ch, obj, 0, TO_CHAR);
+            ch, obj, NULL, TO_CHAR);
         slog("(GC) %s loaded %s at %d. (x%d)", GET_NAME(ch), obj->name,
             ch->in_room->number, quantity);
     }
@@ -2696,7 +2696,7 @@ ACMD(do_pload)
             obj_to_char(obj, vict);
         }
 
-        act("$n does something suspicious and alters reality.", true, ch, 0, 0,
+        act("$n does something suspicious and alters reality.", true, ch, NULL, NULL,
             TO_ROOM);
 
         //no quantity list if there's only one object.
@@ -2715,7 +2715,7 @@ ACMD(do_pload)
         }
 
     } else {
-        act("$n does something suspicious and alters reality.", true, ch, 0, 0,
+        act("$n does something suspicious and alters reality.", true, ch, NULL, NULL,
             TO_ROOM);
         for (int i = 0; i < quantity; i++) {
             obj = read_object(number);
@@ -2725,10 +2725,10 @@ ACMD(do_pload)
         }
 
         if (quantity == 1) {
-            act("You create $p.", false, ch, obj, 0, TO_CHAR);
+            act("You create $p.", false, ch, obj, NULL, TO_CHAR);
         } else {
             act(tmp_sprintf("You create %s. (x%d)", obj->name,
-                    quantity), false, ch, obj, 0, TO_CHAR);
+                    quantity), false, ch, obj, NULL, TO_CHAR);
         }
     }
     if (quantity == 1) {
@@ -2864,7 +2864,7 @@ ACMD(do_purge)
                 send_to_char(ch, "Fuuuuuuuuu!\r\n");
                 return;
             }
-            act("$n disintegrates $N.", false, ch, 0, vict, TO_NOTVICT);
+            act("$n disintegrates $N.", false, ch, NULL, vict, TO_NOTVICT);
 
             if (!IS_NPC(vict)) {
                 mudlog(LVL_POWER, BRF, true,
@@ -2873,7 +2873,7 @@ ACMD(do_purge)
             }
             creature_purge(vict, false);
         } else if ((obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
-            act("$n destroys $p.", false, ch, obj, 0, TO_ROOM);
+            act("$n destroys $p.", false, ch, obj, NULL, TO_ROOM);
             slog("(GC) %s purged %s at %d.", GET_NAME(ch),
                 obj->name, ch->in_room->number);
             extract_obj(obj);
@@ -2886,7 +2886,7 @@ ACMD(do_purge)
         send_to_char(ch, "%s", OK);
     } else {                    /* no argument. clean out the room */
         act("$n gestures... You are surrounded by scorching flames!",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
         send_to_room("The world seems a little cleaner.\r\n", ch->in_room);
 
         for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
@@ -2962,7 +2962,7 @@ ACMD(do_advance)
             "to the elements of time and space itself.\r\n"
             "Suddenly a silent explosion of light\r\n"
             "snaps you back to reality.\r\n\r\n"
-            "You feel slightly different.", false, ch, 0, victim, TO_VICT);
+            "You feel slightly different.", false, ch, NULL, victim, TO_VICT);
     }
 
     send_to_char(ch, "%s", OK);
@@ -2986,7 +2986,7 @@ ACMD(do_restore)
     } else {
         restore_creature(vict);
         send_to_char(ch, "%s", OK);
-        act("You have been fully healed by $N!", false, vict, 0, ch, TO_CHAR);
+        act("You have been fully healed by $N!", false, vict, NULL, ch, TO_CHAR);
         mudlog(GET_LEVEL(ch), CMP, true,
             "%s has been restored by %s.", GET_NAME(vict), GET_NAME(ch));
     }
@@ -3010,7 +3010,7 @@ perform_vis(struct creature *ch)
             continue;
         if (GET_LEVEL(tch) < level)
             act("you suddenly realize that $n is standing beside you.",
-                false, ch, 0, tch, TO_VICT);
+                false, ch, NULL, tch, TO_VICT);
     }
 
     send_to_char(ch, "You are now fully visible.\r\n");
@@ -3040,19 +3040,19 @@ perform_invis(struct creature *ch, int level)
         if (GET_LEVEL(tch) < old_level && GET_LEVEL(tch) >= level) {
             if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
                 act("you suddenly realize that $n is standing beside you.",
-                    false, ch, 0, tch, TO_VICT);
+                    false, ch, NULL, tch, TO_VICT);
             else if (GET_REMORT_GEN(tch) <= GET_REMORT_GEN(ch))
                 act("$n suddenly appears from the thin air beside you.",
-                    false, ch, 0, tch, TO_VICT);
+                    false, ch, NULL, tch, TO_VICT);
         }
 
         if (GET_LEVEL(tch) >= old_level && GET_LEVEL(tch) < level) {
             if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
                 act("You blink and suddenly realize that $n is gone.",
-                    false, ch, 0, tch, TO_VICT);
+                    false, ch, NULL, tch, TO_VICT);
             else if (GET_REMORT_GEN(tch) <= GET_REMORT_GEN(ch))
                 act("$n suddenly vanishes from your reality.",
-                    false, ch, 0, tch, TO_VICT);
+                    false, ch, NULL, tch, TO_VICT);
         }
     }
 
@@ -3296,7 +3296,7 @@ ACMD(do_date)
     extern time_t boot_time;
 
     if (subcmd == SCMD_DATE)
-        mytime = time(0);
+        mytime = time(NULL);
     else
         mytime = boot_time;
 
@@ -3306,7 +3306,7 @@ ACMD(do_date)
     if (subcmd == SCMD_DATE)
         send_to_char(ch, "Current machine time: %s\r\n", tmstr);
     else {
-        mytime = time(0) - boot_time;
+        mytime = time(NULL) - boot_time;
         d = mytime / 86400;
         h = (mytime / 3600) % 24;
         m = (mytime / 60) % 60;
@@ -3573,7 +3573,7 @@ ACMD(do_zreset)
     if (zone) {
         reset_zone(zone);
         send_to_char(ch, "Reset zone %d : %s.\r\n", zone->number, zone->name);
-        act("$n waves $s hand.", false, ch, 0, 0, TO_ROOM);
+        act("$n waves $s hand.", false, ch, NULL, NULL, TO_ROOM);
         send_to_zone("You feel a strangely refreshing breeze.\r\n", zone, 0);
         slog("(GC) %s %sreset zone %d (%s)", GET_NAME(ch),
             subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
@@ -3705,7 +3705,7 @@ ACMD(do_wizutil)
             send_to_char(ch, "Thawed.\r\n");
             if (vict->in_room)
                 act("A sudden fireball conjured from nowhere thaws $n!", false,
-                    vict, 0, 0, TO_ROOM);
+                    vict, NULL, NULL, TO_ROOM);
             break;
         case SCMD_UNAFFECT:
             perform_unaffect(ch, vict);
@@ -5147,9 +5147,9 @@ ACMD(do_show)
             send_to_char(ch,
                 "Now... what would a mob need with aliases??\r\n");
         else if (GET_LEVEL(vict) > GET_LEVEL(ch)) {
-            act("You cannot determine what $S aliases might be.", false, ch, 0,
+            act("You cannot determine what $S aliases might be.", false, ch, NULL,
                 vict, TO_CHAR);
-            act("$n has attempted to examine your aliases.", false, ch, 0,
+            act("$n has attempted to examine your aliases.", false, ch, NULL,
                 vict, TO_VICT);
         } else {                /* no argument specified -- list currently defined aliases */
             sprintf(buf, "Currently defined aliases for %s:\r\n",
@@ -7636,7 +7636,7 @@ ACMD(do_peace)
     else {
         send_to_char(ch, "You have brought peace to this room.\r\n");
         act("A feeling of peacefulness descends on the room.",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
     }
 }
 
@@ -7763,7 +7763,7 @@ ACMD(do_coderutil)
         point_update();
         send_to_char(ch, "*tick*\r\n");
     } else if (strcmp(token, "sunday") == 0) {
-        last_sunday_time = time(0);
+        last_sunday_time = time(NULL);
         send_to_char(ch, "Ok, it's now Sunday (kinda).\r\n");
     } else if (strcmp(token, "recalc") == 0) {
         token = tmp_getword(&argument);
@@ -8295,7 +8295,7 @@ do_freeze_char(char *argument, struct creature *vict, struct creature *ch)
 
     if (vict->in_room)
         act("A sudden cold wind conjured from nowhere freezes $N!", false,
-            ch, 0, vict, TO_ROOM);
+            ch, NULL, vict, TO_ROOM);
 
     return true;
 }
@@ -8454,13 +8454,13 @@ ACMD(do_edit)
     arg = tmp_getword(&argument);
 
     if (isname(arg, "bugs")) {
-        act("$n begins to edit the bug file.", false, ch, 0, 0, TO_ROOM);
+        act("$n begins to edit the bug file.", false, ch, NULL, NULL, TO_ROOM);
         start_editing_file(ch->desc, BUG_FILE);
     } else if (isname(arg, "typos")) {
-        act("$n begins to edit the typo file.", false, ch, 0, 0, TO_ROOM);
+        act("$n begins to edit the typo file.", false, ch, NULL, NULL, TO_ROOM);
         start_editing_file(ch->desc, TYPO_FILE);
     } else if (isname(arg, "ideas")) {
-        act("$n begins to edit the idea file.", false, ch, 0, 0, TO_ROOM);
+        act("$n begins to edit the idea file.", false, ch, NULL, NULL, TO_ROOM);
         start_editing_file(ch->desc, IDEA_FILE);
     } else
         send_to_char(ch, "Edit what?!?\r\n");

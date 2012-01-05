@@ -183,7 +183,7 @@ banzaii(struct creature *ch)
         return false;
 
     if ((chOpponent = get_victim(ch))) {
-        act("$n roars: 'Protect the Duchy of the Great Duke Araken!  BANZAIIII!!!'", false, ch, 0, 0, TO_ROOM);
+        act("$n roars: 'Protect the Duchy of the Great Duke Araken!  BANZAIIII!!!'", false, ch, NULL, NULL, TO_ROOM);
         hit(ch, chOpponent, TYPE_UNDEFINED);
         return true;
     }
@@ -206,11 +206,11 @@ do_npc_rescue(struct creature *ch_hero, struct creature *ch_victim)
     if (ch_bad_guy) {
         if (ch_bad_guy == ch_hero)
             return false;       /* NO WAY I'll rescue the one I'm fighting! */
-        act("You bravely rescue $N.\r\n", false, ch_hero, 0, ch_victim,
+        act("You bravely rescue $N.\r\n", false, ch_hero, NULL, ch_victim,
             TO_CHAR);
         act("You are rescued by $N, your loyal friend!\r\n", false, ch_victim,
-            0, ch_hero, TO_CHAR);
-        act("$n heroically rescues $N.", false, ch_hero, 0, ch_victim,
+            NULL, ch_hero, TO_CHAR);
+        act("$n heroically rescues $N.", false, ch_hero, NULL, ch_victim,
             TO_NOTVICT);
 
         remove_combat(ch_bad_guy, ch_victim);
@@ -240,9 +240,9 @@ block_way(struct creature *ch, struct creature *guard, int cmd,
     if ((ch->in_room == real_room(iIn_room)) && (cmd == iProhibited_direction)) {
         if (!member_of_staff(ch))
             act("$N roars at $n and pushes $m back.",
-                false, ch, 0, guard, TO_ROOM);
+                false, ch, NULL, guard, TO_ROOM);
         act("$N roars: 'Entrance is Prohibited!', and pushes you back.", false,
-            ch, 0, guard, TO_CHAR);
+            ch, NULL, guard, TO_CHAR);
         return (true);
     }
     return false;
@@ -287,28 +287,28 @@ fry_victim(struct creature *ch)
     case 1:
     case 2:
     case 3:
-        act("You raise your hand in a dramatic gesture.", 1, ch, 0, 0,
+        act("You raise your hand in a dramatic gesture.", 1, ch, NULL, NULL,
             TO_CHAR);
-        act("$n raises $s hand in a dramatic gesture.", 1, ch, 0, 0, TO_ROOM);
-        cast_spell(ch, tch, 0, NULL, SPELL_COLOR_SPRAY);
+        act("$n raises $s hand in a dramatic gesture.", 1, ch, NULL, NULL, TO_ROOM);
+        cast_spell(ch, tch, NULL, NULL, SPELL_COLOR_SPRAY);
         break;
     case 4:
     case 5:
-        act("You concentrate and mumble to yourself.", 1, ch, 0, 0, TO_CHAR);
-        act("$n concentrates, and mumbles to $mself.", 1, ch, 0, 0, TO_ROOM);
-        cast_spell(ch, tch, 0, NULL, SPELL_HARM);
+        act("You concentrate and mumble to yourself.", 1, ch, NULL, NULL, TO_CHAR);
+        act("$n concentrates, and mumbles to $mself.", 1, ch, NULL, NULL, TO_ROOM);
+        cast_spell(ch, tch, NULL, NULL, SPELL_HARM);
         break;
     case 6:
     case 7:
-        act("You look deeply into the eyes of $N.", 1, ch, 0, tch, TO_CHAR);
-        act("$n looks deeply into the eyes of $N.", 1, ch, 0, tch, TO_NOTVICT);
-        act("You see an ill-boding flame in the eye of $n.", 1, ch, 0, tch,
+        act("You look deeply into the eyes of $N.", 1, ch, NULL, tch, TO_CHAR);
+        act("$n looks deeply into the eyes of $N.", 1, ch, NULL, tch, TO_NOTVICT);
+        act("You see an ill-boding flame in the eye of $n.", 1, ch, NULL, tch,
             TO_VICT);
-        cast_spell(ch, tch, 0, NULL, SPELL_FIREBALL);
+        cast_spell(ch, tch, NULL, NULL, SPELL_FIREBALL);
         break;
     default:
         if (!number(0, 1))
-            cast_spell(ch, ch, 0, NULL, SPELL_HEAL);
+            cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
         break;
     }
 
@@ -386,38 +386,38 @@ SPECIAL(duke_araken)
     case 'B':
     case 'C':
     case 'D':
-        act(monolog[path[index] - 'A'], false, ch, 0, 0, TO_ROOM);
+        act(monolog[path[index] - 'A'], false, ch, NULL, NULL, TO_ROOM);
         break;
     case 'P':
         break;
     case 'W':
         GET_POSITION(ch) = POS_STANDING;
-        act("$n awakens and stands up.", false, ch, 0, 0, TO_ROOM);
+        act("$n awakens and stands up.", false, ch, NULL, NULL, TO_ROOM);
         break;
 
     case 'S':
         GET_POSITION(ch) = POS_SLEEPING;
         act("$n lies down on $s beautiful bed and instantly falls asleep.",
-            false, ch, 0, 0, TO_ROOM);
+            false, ch, NULL, NULL, TO_ROOM);
         break;
 
     case 'r':
         GET_POSITION(ch) = POS_SITTING;
-        act("$n sits down on $s great throne.", false, ch, 0, 0, TO_ROOM);
+        act("$n sits down on $s great throne.", false, ch, NULL, NULL, TO_ROOM);
         break;
 
     case 's':
         GET_POSITION(ch) = POS_STANDING;
-        act("$n stands up.", false, ch, 0, 0, TO_ROOM);
+        act("$n stands up.", false, ch, NULL, NULL, TO_ROOM);
         break;
 
     case 'G':
-        act("$n says 'Good morning, trusted friends.'", false, ch, 0, 0,
+        act("$n says 'Good morning, trusted friends.'", false, ch, NULL, NULL,
             TO_ROOM);
         break;
 
     case 'g':
-        act("$n says 'Good morning, dear subjects.'", false, ch, 0, 0,
+        act("$n says 'Good morning, dear subjects.'", false, ch, NULL, NULL,
             TO_ROOM);
         break;
 
@@ -470,73 +470,73 @@ SPECIAL(training_master)
             switch (number(0, 7)) {
             case 0:
                 act("$n hits $N on $s head with a powerful blow.",
-                    false, pupil1, 0, pupil2, TO_NOTVICT);
+                    false, pupil1, NULL, pupil2, TO_NOTVICT);
                 act("You hit $N on $s head with a powerful blow.",
-                    false, pupil1, 0, pupil2, TO_CHAR);
+                    false, pupil1, NULL, pupil2, TO_CHAR);
                 act("$n hits you on your head with a powerful blow.",
-                    false, pupil1, 0, pupil2, TO_VICT);
+                    false, pupil1, NULL, pupil2, TO_VICT);
                 break;
             case 1:
                 act("$n hits $N in $s chest with a thrust.",
-                    false, pupil1, 0, pupil2, TO_NOTVICT);
+                    false, pupil1, NULL, pupil2, TO_NOTVICT);
                 act("You manage to thrust $N in the chest.",
-                    false, pupil1, 0, pupil2, TO_CHAR);
+                    false, pupil1, NULL, pupil2, TO_CHAR);
                 act("$n manages to thrust you in your chest.",
-                    false, pupil1, 0, pupil2, TO_VICT);
+                    false, pupil1, NULL, pupil2, TO_VICT);
                 break;
             case 2:
                 send_to_char(ch, "You command your pupils to bow\r\n.");
-                act("$n commands $s pupils to bow.", false, ch, 0, 0,
+                act("$n commands $s pupils to bow.", false, ch, NULL, NULL,
                     TO_ROOM);
-                act("$n bows before $N.", false, pupil1, 0, pupil2,
+                act("$n bows before $N.", false, pupil1, NULL, pupil2,
                     TO_NOTVICT);
-                act("$N bows before $n.", false, pupil1, 0, pupil2,
+                act("$N bows before $n.", false, pupil1, NULL, pupil2,
                     TO_NOTVICT);
                 act("You bow before $N, who returns your gesture.", false,
-                    pupil1, 0, pupil2, TO_CHAR);
+                    pupil1, NULL, pupil2, TO_CHAR);
                 act("You bow before $n, who returns your gesture.", false,
-                    pupil1, 0, pupil2, TO_VICT);
+                    pupil1, NULL, pupil2, TO_VICT);
                 break;
             case 3:
                 act("$N yells at $n, as $e fumbles and drops $s sword.",
-                    false, pupil1, 0, ch, TO_NOTVICT);
-                act("$n quickly picks up $s weapon.", false, pupil1, 0, 0,
+                    false, pupil1, NULL, ch, TO_NOTVICT);
+                act("$n quickly picks up $s weapon.", false, pupil1, NULL, NULL,
                     TO_ROOM);
                 act("$N yells at you, as you fumble, losing your weapon.",
-                    false, pupil1, 0, ch, TO_CHAR);
+                    false, pupil1, NULL, ch, TO_CHAR);
                 send_to_char(pupil1, "You quickly pick up your weapon again.");
                 act("You yell at $n, as $e fumbles, losing $s weapon.",
-                    false, pupil1, 0, ch, TO_VICT);
+                    false, pupil1, NULL, ch, TO_VICT);
                 break;
             case 4:
                 act("$N tricks $n, and slashes him across the back.",
-                    false, pupil1, 0, pupil2, TO_NOTVICT);
+                    false, pupil1, NULL, pupil2, TO_NOTVICT);
                 act("$N tricks you, and slashes you across your back.",
-                    false, pupil1, 0, pupil2, TO_CHAR);
+                    false, pupil1, NULL, pupil2, TO_CHAR);
                 act("You trick $n, and quickly slash him across $s back.",
-                    false, pupil1, 0, pupil2, TO_VICT);
+                    false, pupil1, NULL, pupil2, TO_VICT);
                 break;
             case 5:
                 act("$n lunges a blow at $N but $N parries skillfully.",
-                    false, pupil1, 0, pupil2, TO_NOTVICT);
+                    false, pupil1, NULL, pupil2, TO_NOTVICT);
                 act("You lunge a blow at $N but $E parries skillfully.",
-                    false, pupil1, 0, pupil2, TO_CHAR);
+                    false, pupil1, NULL, pupil2, TO_CHAR);
                 act("$n lunges a blow at you, but you skillfully parry it.",
-                    false, pupil1, 0, pupil2, TO_VICT);
+                    false, pupil1, NULL, pupil2, TO_VICT);
                 break;
             case 6:
                 act("$n clumsily tries to kick $N, but misses.",
-                    false, pupil1, 0, pupil2, TO_NOTVICT);
+                    false, pupil1, NULL, pupil2, TO_NOTVICT);
                 act("You clumsily miss $N with your poor excuse for a kick.",
-                    false, pupil1, 0, pupil2, TO_CHAR);
+                    false, pupil1, NULL, pupil2, TO_CHAR);
                 act("$n fails an unusually clumsy attempt at kicking you.",
-                    false, pupil1, 0, pupil2, TO_VICT);
+                    false, pupil1, NULL, pupil2, TO_VICT);
                 break;
             default:
                 send_to_char(ch,
                     "You show your pupils an advanced technique.");
-                act("$n shows $s pupils an advanced technique.", false, ch, 0,
-                    0, TO_ROOM);
+                act("$n shows $s pupils an advanced technique.", false, ch, NULL,
+                    NULL, TO_ROOM);
                 break;
             }
         }
@@ -618,8 +618,8 @@ SPECIAL(James)
 
     for (i = ch->in_room->contents; i; i = i->next_content)
         if (is_trash(i)) {
-            act("$n says: 'My oh my!  I ought to fire that lazy cleaning woman!'", false, ch, 0, 0, TO_ROOM);
-            act("$n picks up a piece of trash.", false, ch, 0, 0, TO_ROOM);
+            act("$n says: 'My oh my!  I ought to fire that lazy cleaning woman!'", false, ch, NULL, NULL, TO_ROOM);
+            act("$n picks up a piece of trash.", false, ch, NULL, NULL, TO_ROOM);
             obj_from_room(i);
             obj_to_char(i, ch);
             return true;
@@ -644,7 +644,7 @@ SPECIAL(cleaning)
     for (i = ch->in_room->contents; i; i = next) {
         next = i->next_content;
         if (is_trash(i)) {
-            act("$n picks up some trash.", false, ch, 0, 0, TO_ROOM);
+            act("$n picks up some trash.", false, ch, NULL, NULL, TO_ROOM);
             obj_from_room(i);
             obj_to_char(i, ch);
             return true;
@@ -675,20 +675,20 @@ SPECIAL(sleeping_soldier)
     if (!AWAKE(ch))
         switch (number(0, 60)) {
         case 0:
-            act("$n farts in $s sleep.", false, ch, 0, 0, TO_ROOM);
+            act("$n farts in $s sleep.", false, ch, NULL, NULL, TO_ROOM);
             break;
         case 1:
-            act("$n rolls over fitfully.", false, ch, 0, 0, TO_ROOM);
+            act("$n rolls over fitfully.", false, ch, NULL, NULL, TO_ROOM);
             break;
         case 2:
-            act("$n moans loudly.", false, ch, 0, 0, TO_ROOM);
+            act("$n moans loudly.", false, ch, NULL, NULL, TO_ROOM);
             break;
         case 3:
-            act("$n begins to exhibit Rapid Eye Movement.", true, ch, 0, 0,
+            act("$n begins to exhibit Rapid Eye Movement.", true, ch, NULL, NULL,
                 TO_ROOM);
             break;
         case 4:
-            act("$n drools all over the place.", true, ch, 0, 0, TO_ROOM);
+            act("$n drools all over the place.", true, ch, NULL, NULL, TO_ROOM);
             break;
         }
     if (!AWAKE(ch))
@@ -707,40 +707,40 @@ SPECIAL(lounge_soldier)
     switch (number(0, 60)) {
     case 0:
         act("$n grabs a dirty magazine and starts flipping through the pages.",
-            true, ch, 0, 0, TO_ROOM);
+            true, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You grab a dirty mag.\r\n");
         break;
     case 1:
-        act("$n counts up this month's pay and scowls.", true, ch, 0, 0,
+        act("$n counts up this month's pay and scowls.", true, ch, NULL, NULL,
             TO_ROOM);
         send_to_char(ch, "You count your pay and scowl.\r\n");
         break;
     case 2:
-        act("$n wonders when $s next leave will be.", true, ch, 0, 0, TO_ROOM);
+        act("$n wonders when $s next leave will be.", true, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You wonder about leave.\r\n");
         break;
     case 3:
-        act("$n starts biting $s fingernails.", true, ch, 0, 0, TO_ROOM);
+        act("$n starts biting $s fingernails.", true, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You bite your fingernails.\r\n");
         break;
     case 4:
-        act("$n starts biting $s toenails.", true, ch, 0, 0, TO_ROOM);
+        act("$n starts biting $s toenails.", true, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You bite your toenails.\r\n");
         break;
     case 5:
-        act("$n flexes $s muscles.", true, ch, 0, 0, TO_ROOM);
+        act("$n flexes $s muscles.", true, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You flex.\r\n");
         break;
     case 6:
-        act("$n rolls up a blunt.", true, ch, 0, 0, TO_ROOM);
+        act("$n rolls up a blunt.", true, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You roll a blunt.\r\n");
         break;
     case 7:
-        act("$n starts shadowboxing.", false, ch, 0, 0, TO_ROOM);
+        act("$n starts shadowboxing.", false, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You shadowbox.\r\n");
         break;
     case 8:
-        act("$n scratches $s butt.", true, ch, 0, 0, TO_ROOM);
+        act("$n scratches $s butt.", true, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You scratch your butt.\r\n");
         break;
     }
@@ -759,7 +759,7 @@ SPECIAL(armory_person)
     if (!can_see_creature(guard, ch) || guard->fighting)
         return false;
 
-    act("$n screams, 'This is a RESTRICTED AREA!!!'", false, guard, 0, 0,
+    act("$n screams, 'This is a RESTRICTED AREA!!!'", false, guard, NULL, NULL,
         TO_ROOM);
     hit(guard, ch, TYPE_UNDEFINED);
     return true;
@@ -785,48 +785,48 @@ SPECIAL(peter)
         switch (number(0, 5)) {
         case 0:
             act("$N comes sharply into attention as $n inspects $M.",
-                false, ch, 0, ch_guard, TO_NOTVICT);
+                false, ch, NULL, ch_guard, TO_NOTVICT);
             act("$N comes sharply into attention as you inspect $M.",
-                false, ch, 0, ch_guard, TO_CHAR);
+                false, ch, NULL, ch_guard, TO_CHAR);
             act("You go sharply into attention as $n inspects you.",
-                false, ch, 0, ch_guard, TO_VICT);
+                false, ch, NULL, ch_guard, TO_VICT);
             break;
         case 1:
             act("$N looks very small, as $n roars at $M.",
-                false, ch, 0, ch_guard, TO_NOTVICT);
+                false, ch, NULL, ch_guard, TO_NOTVICT);
             act("$N looks very small as you roar at $M.",
-                false, ch, 0, ch_guard, TO_CHAR);
+                false, ch, NULL, ch_guard, TO_CHAR);
             act("You feel very small as $N roars at you.",
-                false, ch, 0, ch_guard, TO_VICT);
+                false, ch, NULL, ch_guard, TO_VICT);
             break;
         case 2:
             act("$n gives $N some Royal directions.",
-                false, ch, 0, ch_guard, TO_NOTVICT);
+                false, ch, NULL, ch_guard, TO_NOTVICT);
             act("You give $N some Royal directions.",
-                false, ch, 0, ch_guard, TO_CHAR);
+                false, ch, NULL, ch_guard, TO_CHAR);
             act("$n gives you some Royal directions.",
-                false, ch, 0, ch_guard, TO_VICT);
+                false, ch, NULL, ch_guard, TO_VICT);
             break;
         case 3:
-            act("$n looks at you.", false, ch, 0, ch_guard, TO_VICT);
-            act("$n looks at $N.", false, ch, 0, ch_guard, TO_NOTVICT);
+            act("$n looks at you.", false, ch, NULL, ch_guard, TO_VICT);
+            act("$n looks at $N.", false, ch, NULL, ch_guard, TO_NOTVICT);
             act("$n growls: 'Those boots need polishing!'",
-                false, ch, 0, ch_guard, TO_ROOM);
-            act("You growl at $N.", false, ch, 0, ch_guard, TO_CHAR);
+                false, ch, NULL, ch_guard, TO_ROOM);
+            act("You growl at $N.", false, ch, NULL, ch_guard, TO_CHAR);
             break;
         case 4:
-            act("$n looks at you.", false, ch, 0, ch_guard, TO_VICT);
-            act("$n looks at $N.", false, ch, 0, ch_guard, TO_NOTVICT);
+            act("$n looks at you.", false, ch, NULL, ch_guard, TO_VICT);
+            act("$n looks at $N.", false, ch, NULL, ch_guard, TO_NOTVICT);
             act("$n growls: 'Straighten that collar!'",
-                false, ch, 0, ch_guard, TO_ROOM);
-            act("You growl at $N.", false, ch, 0, ch_guard, TO_CHAR);
+                false, ch, NULL, ch_guard, TO_ROOM);
+            act("You growl at $N.", false, ch, NULL, ch_guard, TO_CHAR);
             break;
         default:
-            act("$n looks at you.", false, ch, 0, ch_guard, TO_VICT);
-            act("$n looks at $N.", false, ch, 0, ch_guard, TO_NOTVICT);
+            act("$n looks at you.", false, ch, NULL, ch_guard, TO_VICT);
+            act("$n looks at $N.", false, ch, NULL, ch_guard, TO_NOTVICT);
             act("$n growls: 'That chain mail looks rusty!  CLEAN IT !!!'",
-                false, ch, 0, ch_guard, TO_ROOM);
-            act("You growl at $N.", false, ch, 0, ch_guard, TO_CHAR);
+                false, ch, NULL, ch_guard, TO_ROOM);
+            act("You growl at $N.", false, ch, NULL, ch_guard, TO_CHAR);
             break;
         }
 
@@ -860,46 +860,46 @@ SPECIAL(jerry)
             switch (number(0, 5)) {
             case 0:
                 act("$n rolls the dice and cheers loudly at the result.",
-                    false, gambler1, 0, gambler2, TO_NOTVICT);
+                    false, gambler1, NULL, gambler2, TO_NOTVICT);
                 act("You roll the dice and cheer. GREAT!",
-                    false, gambler1, 0, gambler2, TO_CHAR);
+                    false, gambler1, NULL, gambler2, TO_CHAR);
                 act("$n cheers loudly as $e rolls the dice.",
-                    false, gambler1, 0, gambler2, TO_VICT);
+                    false, gambler1, NULL, gambler2, TO_VICT);
                 break;
             case 1:
-                act("$n curses the Goddess of Luck roundly as $e sees $N's roll.", false, gambler1, 0, gambler2, TO_NOTVICT);
+                act("$n curses the Goddess of Luck roundly as $e sees $N's roll.", false, gambler1, NULL, gambler2, TO_NOTVICT);
                 act("You curse the Goddess of Luck as $N rolls.",
-                    false, gambler1, 0, gambler2, TO_CHAR);
+                    false, gambler1, NULL, gambler2, TO_CHAR);
                 act("$n swears angrily. You are in luck!",
-                    false, gambler1, 0, gambler2, TO_VICT);
+                    false, gambler1, NULL, gambler2, TO_VICT);
                 break;
             case 2:
                 act("$n sighs loudly and gives $N some gold.",
-                    false, gambler1, 0, gambler2, TO_NOTVICT);
-                act("You sigh loudly at the pain of having to give $N some gold.", false, gambler1, 0, gambler2, TO_CHAR);
+                    false, gambler1, NULL, gambler2, TO_NOTVICT);
+                act("You sigh loudly at the pain of having to give $N some gold.", false, gambler1, NULL, gambler2, TO_CHAR);
                 act("$n sighs loudly as $e gives you your rightful win.",
-                    false, gambler1, 0, gambler2, TO_VICT);
+                    false, gambler1, NULL, gambler2, TO_VICT);
                 break;
             case 3:
                 act("$n smiles remorsefully as $N's roll tops his.",
-                    false, gambler1, 0, gambler2, TO_NOTVICT);
+                    false, gambler1, NULL, gambler2, TO_NOTVICT);
                 act("You smile sadly as you see that $N beats you. Again.",
-                    false, gambler1, 0, gambler2, TO_CHAR);
+                    false, gambler1, NULL, gambler2, TO_CHAR);
                 act("$n smiles remorsefully as your roll tops his.",
-                    false, gambler1, 0, gambler2, TO_VICT);
+                    false, gambler1, NULL, gambler2, TO_VICT);
                 break;
             case 4:
                 act("$n excitedly follows the dice with $s eyes.",
-                    false, gambler1, 0, gambler2, TO_NOTVICT);
+                    false, gambler1, NULL, gambler2, TO_NOTVICT);
                 act("You excitedly follow the dice with your eyes.",
-                    false, gambler1, 0, gambler2, TO_CHAR);
+                    false, gambler1, NULL, gambler2, TO_CHAR);
                 act("$n excitedly follows the dice with $s eyes.",
-                    false, gambler1, 0, gambler2, TO_VICT);
+                    false, gambler1, NULL, gambler2, TO_VICT);
                 break;
             default:
-                act("$n says 'Well, my luck has to change soon', as $e shakes the dice.", false, gambler1, 0, gambler2, TO_NOTVICT);
-                act("You say 'Well, my luck has to change soon' and shake the dice.", false, gambler1, 0, gambler2, TO_CHAR);
-                act("$n says 'Well, my luck has to change soon', as $e shakes the dice.", false, gambler1, 0, gambler2, TO_VICT);
+                act("$n says 'Well, my luck has to change soon', as $e shakes the dice.", false, gambler1, NULL, gambler2, TO_NOTVICT);
+                act("You say 'Well, my luck has to change soon' and shake the dice.", false, gambler1, NULL, gambler2, TO_CHAR);
+                act("$n says 'Well, my luck has to change soon', as $e shakes the dice.", false, gambler1, NULL, gambler2, TO_VICT);
                 break;
             }
         }
@@ -910,7 +910,7 @@ SPECIAL(jerry)
 SPECIAL(dukes_chamber)
 {
     struct room_data *other_room;
-    struct room_direction_data *back = 0;
+    struct room_direction_data *back = NULL;
 
     if (!CMD_IS("pull") && !CMD_IS("push") && !CMD_IS("get") && !CMD_IS("take")
         && !CMD_IS("open"))
@@ -932,12 +932,12 @@ SPECIAL(dukes_chamber)
     if ((other_room = EXIT(ch, WEST)->to_room) != NULL)
         if ((back = other_room->dir_option[rev_dir[WEST]]))
             if (back->to_room != ch->in_room) {
-                back = 0;
+                back = NULL;
                 send_to_char(ch, " back= 0");
             }
 
     send_to_char(ch, "You pull firmly on the protruding book...\r\n");
-    act("$n pulls on a book in the bookshelf.", true, ch, 0, 0, TO_ROOM);
+    act("$n pulls on a book in the bookshelf.", true, ch, NULL, NULL, TO_ROOM);
 
     if (IS_SET(EXIT(ch, WEST)->exit_info, EX_CLOSED)) {
         send_to_room

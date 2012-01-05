@@ -67,7 +67,7 @@ cmdlog(char *str)
     time_t ct;
     char *tmstr;
 
-    ct = time(0);
+    ct = time(NULL);
     tmstr = asctime(localtime(&ct));
     tmstr[strlen(tmstr) - 1] = '\0';
     log = tmp_sprintf("%-19.19s _ %s", tmstr, str);
@@ -84,7 +84,7 @@ newbielog(struct creature *ch, const char *cmd, const char *args)
     time_t ct;
     char *tmstr;
 
-    ct = time(0);
+    ct = time(NULL);
     tmstr = asctime(localtime(&ct));
     tmstr[strlen(tmstr) - 1] = '\0';
     log = tmp_sprintf("%-19.19s _ [%05d] %s :: %s %s",
@@ -440,7 +440,7 @@ ACMD(do_ventriloquize);
  */
 
 struct command_info cmd_info[] = {
-    {"RESERVED", 0, 0, 0, 0, 0, 0}, /* this must be first -- for specprocs */
+    {"RESERVED", 0, NULL, 0, 0, 0, 0}, /* this must be first -- for specprocs */
 
     /* directions must come before other commands but after RESERVED */
     {"north", POS_STANDING, do_move, 0, SCMD_NORTH, 0, 0},
@@ -1652,7 +1652,7 @@ struct command_info cmd_info[] = {
     {"wryly", POS_DEAD, do_mood, 0, 0, 0, 0},
     {"valiantly", POS_DEAD, do_mood, 0, 0, 0, 0},
     {"vehemently", POS_DEAD, do_mood, 0, 0, 0, 0},
-    {"\n", 0, 0, 0, 0, 0, 0}
+    {"\n", 0, NULL, 0, 0, 0, 0}
 };                              /* this must be last */
 
 void

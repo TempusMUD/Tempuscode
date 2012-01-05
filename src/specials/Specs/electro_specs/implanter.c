@@ -112,7 +112,7 @@ implanter_implant(struct creature *me, struct creature *ch, char *args)
     if ((IS_OBJ_STAT(implant, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
         (IS_OBJ_STAT(implant, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
         (IS_OBJ_STAT(implant, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
-        act("You are unable to safely utilize $p.", false, ch, implant, 0,
+        act("You are unable to safely utilize $p.", false, ch, implant, NULL,
             TO_CHAR);
         return;
     }

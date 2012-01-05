@@ -35,11 +35,11 @@ SPECIAL(multi_healer)
             continue;
 
         if (IS_POISONED(vict)) {
-            cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_POISON);
+            cast_spell(ch, vict, NULL, NULL, SPELL_REMOVE_POISON);
         } else if (IS_SICK(vict)) {
-            cast_spell(ch, vict, 0, NULL, SPELL_REMOVE_SICKNESS);
+            cast_spell(ch, vict, NULL, NULL, SPELL_REMOVE_SICKNESS);
         } else if (GET_HIT(vict) < GET_MAX_HIT(vict)) {
-            cast_spell(ch, vict, 0, NULL,
+            cast_spell(ch, vict, NULL, NULL,
                 GET_LEVEL(vict) <= 10 ? SPELL_CURE_LIGHT :
                 GET_LEVEL(vict) <= 20 ? SPELL_CURE_CRITIC :
                 GET_LEVEL(vict) <= 30 ? SPELL_HEAL : SPELL_GREATER_HEAL);

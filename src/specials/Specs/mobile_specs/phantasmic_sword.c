@@ -16,7 +16,7 @@ SPECIAL(phantasmic_sword)
         return 0;
     if (is_fighting(ch)) {
         if (!number(0, 8)) {
-            act("$n starts to emit a piercing whine!", false, ch, 0, 0,
+            act("$n starts to emit a piercing whine!", false, ch, NULL, NULL,
                 TO_ROOM);
             af.type = SPELL_STRENGTH;
             if (!AFF_FLAGGED(ch, AFF_ADRENALINE))
@@ -43,7 +43,7 @@ SPECIAL(phantasmic_sword)
             if (ch->in_room == NULL)
                 return 0;
             if (!number(0, 4)) {
-                act("$n departs for the ethereal plane!", true, ch, 0, 0,
+                act("$n departs for the ethereal plane!", true, ch, NULL, NULL,
                     TO_ROOM);
                 creature_purge(ch, true);
                 return 1;
@@ -72,31 +72,31 @@ SPECIAL(phantasmic_sword)
 
         switch (number(0, 70)) {
         case 0:
-            act("$n urges you to join battle.", false, ch, 0, mast, TO_VICT);
-            act("$n urges $N to join battle.", false, ch, 0, mast, TO_NOTVICT);
+            act("$n urges you to join battle.", false, ch, NULL, mast, TO_VICT);
+            act("$n urges $N to join battle.", false, ch, NULL, mast, TO_NOTVICT);
             break;
         case 1:
-            act("$n thrums faintly.", false, ch, 0, 0, TO_ROOM);
+            act("$n thrums faintly.", false, ch, NULL, NULL, TO_ROOM);
             break;
         case 2:
-            act("$n whispers, 'I am hungry for blood...'", false, ch, 0, 0,
+            act("$n whispers, 'I am hungry for blood...'", false, ch, NULL, NULL,
                 TO_ROOM);
             break;
         case 3:
-            act("$n floats slowly past your throat.", true, ch, 0, mast,
+            act("$n floats slowly past your throat.", true, ch, NULL, mast,
                 TO_VICT);
-            act("$n floats slowly past $N's throat.", true, ch, 0, mast,
+            act("$n floats slowly past $N's throat.", true, ch, NULL, mast,
                 TO_NOTVICT);
             break;
         case 4:
-            act("$n emits a humming sound.", false, ch, 0, 0, TO_ROOM);
+            act("$n emits a humming sound.", false, ch, NULL, NULL, TO_ROOM);
             break;
         case 5:
-            act("$n fades out of reality for a moment.", true, ch, 0, 0,
+            act("$n fades out of reality for a moment.", true, ch, NULL, NULL,
                 TO_ROOM);
             break;
         case 6:
-            act("$n starts moaning eerily.", false, ch, 0, 0, TO_ROOM);
+            act("$n starts moaning eerily.", false, ch, NULL, NULL, TO_ROOM);
             break;
         default:
             return 0;

@@ -957,7 +957,7 @@ creature_rent(struct creature *ch)
     ch->player_specials->desc_mode = CXN_UNKNOWN;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
     GET_LOADROOM(ch) = ch->in_room->number;
-    ch->player.time.logon = time(0);
+    ch->player.time.logon = time(NULL);
     save_player_objects(ch);
     save_player_to_xml(ch);
     if (GET_LEVEL(ch) < 50)
@@ -986,7 +986,7 @@ creature_cryo(struct creature * ch)
     ch->player_specials->desc_mode = CXN_UNKNOWN;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
     GET_LOADROOM(ch) = ch->in_room->number;
-    ch->player.time.logon = time(0);
+    ch->player.time.logon = time(NULL);
     save_player_objects(ch);
     save_player_to_xml(ch);
 
@@ -1034,7 +1034,7 @@ creature_quit(struct creature * ch)
             GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj) / 8 - 1;
             SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_BROKEN);
             obj_to_room(obj, ch->in_room);
-            act("$p drops to the ground!", false, 0, obj, 0, TO_ROOM);
+            act("$p drops to the ground!", false, NULL, obj, NULL, TO_ROOM);
         }
     }
 
@@ -1058,7 +1058,7 @@ creature_quit(struct creature * ch)
     ch->player_specials->desc_mode = CXN_UNKNOWN;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
     GET_LOADROOM(ch) = 0;
-    ch->player.time.logon = time(0);
+    ch->player.time.logon = time(NULL);
     save_player_objects(ch);
     save_player_to_xml(ch);
     GET_POSITION(ch) = POS_DEAD;
@@ -1082,7 +1082,7 @@ creature_idle(struct creature * ch)
     ch->player_specials->desc_mode = CXN_UNKNOWN;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
     GET_LOADROOM(ch) = 0;
-    ch->player.time.logon = time(0);
+    ch->player.time.logon = time(NULL);
     save_player_objects(ch);
     save_player_to_xml(ch);
 
@@ -1135,7 +1135,7 @@ creature_die(struct creature * ch)
         ch->player_specials->desc_mode = CXN_AFTERLIFE;
         ch->player_specials->rent_currency = 0;
         GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
-        ch->player.time.logon = time(0);
+        ch->player.time.logon = time(NULL);
         save_player_objects(ch);
 
         if (PLR_FLAGGED(ch, PLR_HARDCORE))
@@ -1160,7 +1160,7 @@ creature_npk_die(struct creature * ch)
         ch->player_specials->desc_mode = CXN_AFTERLIFE;
         ch->player_specials->rent_currency = 0;
         GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
-        ch->player.time.logon = time(0);
+        ch->player.time.logon = time(NULL);
         save_player_objects(ch);
         save_player_to_xml(ch);
     }
@@ -1186,7 +1186,7 @@ creature_arena_die(struct creature * ch)
         ch->player_specials->desc_mode = CXN_UNKNOWN;
         ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
         GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;
-        ch->player.time.logon = time(0);
+        ch->player.time.logon = time(NULL);
         save_player_objects(ch);
         save_player_to_xml(ch);
         if (GET_LEVEL(ch) < 50)
@@ -1235,7 +1235,7 @@ creature_purge(struct creature * ch, bool destroy_obj)
         ch->player_specials->desc_mode = CXN_UNKNOWN;
         ch->player_specials->rent_currency = 0;
         GET_LOADROOM(ch) = 0;
-        ch->player.time.logon = time(0);
+        ch->player.time.logon = time(NULL);
         save_player_objects(ch);
         save_player_to_xml(ch);
     }
@@ -1257,7 +1257,7 @@ creature_remort(struct creature * ch)
     ch->player_specials->desc_mode = CXN_UNKNOWN;
     ch->player_specials->rent_currency = 0;
     GET_LOADROOM(ch) = 0;
-    ch->player.time.logon = time(0);
+    ch->player.time.logon = time(NULL);
     save_player_objects(ch);
     save_player_to_xml(ch);
 
@@ -1539,7 +1539,7 @@ add_combat(struct creature *attacker, struct creature *target, bool initiated __
             send_to_char(DEFENDING(defender),
                          "%s defends you from %s's vicious attack!\r\n",
                          PERS(defender, target), PERS(attacker, target));
-            act("$n comes to $N's defense!", false, defender, 0,
+            act("$n comes to $N's defense!", false, defender, NULL,
                 target, TO_NOTVICT);
 
             if (DEFENDING(defender) == attacker)
@@ -1670,11 +1670,11 @@ stop_defending(struct creature *ch)
     if (!DEFENDING(ch))
         return;
 
-    act("You stop defending $N.", true, ch, 0, DEFENDING(ch), TO_CHAR);
+    act("You stop defending $N.", true, ch, NULL, DEFENDING(ch), TO_CHAR);
     if (ch->in_room == DEFENDING(ch)->in_room) {
         act("$n stops defending you against attacks.",
-            false, ch, 0, DEFENDING(ch), TO_VICT);
-        act("$n stops defending $N.", false, ch, 0, DEFENDING(ch), TO_NOTVICT);
+            false, ch, NULL, DEFENDING(ch), TO_VICT);
+        act("$n stops defending $N.", false, ch, NULL, DEFENDING(ch), TO_NOTVICT);
     }
 
     ch->char_specials.defending = NULL;
@@ -1688,11 +1688,11 @@ start_defending(struct creature *ch, struct creature *vict)
 
     ch->char_specials.defending = vict;
 
-    act("You start defending $N against attacks.", true, ch, 0, vict, TO_CHAR);
+    act("You start defending $N against attacks.", true, ch, NULL, vict, TO_CHAR);
     act("$n starts defending you against attacks.",
-        false, ch, 0, vict, TO_VICT);
+        false, ch, NULL, vict, TO_VICT);
     act("$n starts defending $N against attacks.",
-        false, ch, 0, vict, TO_NOTVICT);
+        false, ch, NULL, vict, TO_NOTVICT);
 }
 
 int

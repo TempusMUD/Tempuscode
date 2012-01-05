@@ -324,7 +324,7 @@ do_mob_medit(struct creature *ch, char *argument)
 
             for (d = descriptor_list; d; d = d->next) {
                 if (d->creature && GET_OLC_MOB(d->creature) == tmp_mob) {
-                    act("$N is already editing that mobile.", false, ch, 0,
+                    act("$N is already editing that mobile.", false, ch, NULL,
                         d->creature, TO_CHAR);
                     return;
                 }
@@ -435,10 +435,10 @@ do_mob_mset(struct creature *ch, char *argument)
         }
     case 3:{                  /** desc **/
             if (mob_p->player.description == NULL) {
-                act("$n starts to write a mobile description.", true, ch, 0, 0,
+                act("$n starts to write a mobile description.", true, ch, NULL, NULL,
                     TO_ROOM);
             } else {
-                act("$n begins to edit a mobile description.", true, ch, 0, 0,
+                act("$n begins to edit a mobile description.", true, ch, NULL, NULL,
                     TO_ROOM);
             }
             start_editing_text(ch->desc, &mob_p->player.description, 8000);
@@ -1131,7 +1131,7 @@ do_mob_mset(struct creature *ch, char *argument)
         // It's ok.  Let em set it.
         start_editing_text(ch->desc, &NPC_SHARED(mob_p)->func_param, 8192);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-        act("$n begins to write a mobile spec param.", true, ch, 0, 0,
+        act("$n begins to write a mobile spec param.", true, ch, NULL, NULL,
             TO_ROOM);
         break;
     case 48:{                  // generation
@@ -1149,7 +1149,7 @@ do_mob_mset(struct creature *ch, char *argument)
     case 49:
         start_editing_text(ch->desc, &NPC_SHARED(mob_p)->load_param, 8192);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-        act("$n begins to write a mobile load param.", true, ch, 0, 0,
+        act("$n begins to write a mobile load param.", true, ch, NULL, NULL,
             TO_ROOM);
         break;
     case 50:{                  // Known language
@@ -1205,7 +1205,7 @@ do_mob_mset(struct creature *ch, char *argument)
     case 52:
         start_editing_prog(ch->desc, mob_p, PROG_TYPE_MOBILE);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-        act("$n begins to write a mobile prog.", true, ch, 0, 0, TO_ROOM);
+        act("$n begins to write a mobile prog.", true, ch, NULL, NULL, TO_ROOM);
         break;
     case 53:
         i = find_voice_idx_by_name(arg2);

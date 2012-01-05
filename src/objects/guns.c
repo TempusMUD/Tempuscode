@@ -213,7 +213,7 @@ ACMD(do_gunset)
     }
 
     if (!IS_ENERGY_GUN(gun) && !IS_GUN(gun)) {
-        act("$p is not a gun.", false, ch, gun, 0, TO_CHAR);
+        act("$p is not a gun.", false, ch, gun, NULL, TO_CHAR);
         return;
     }
 
@@ -258,7 +258,7 @@ ACMD(do_gunset)
             send_to_char(ch,
                 "A zero rate of fire doesn't make much sense.\r\n");
         } else {
-            act("$n adjusts the configuration of $p.", true, ch, gun, 0,
+            act("$n adjusts the configuration of $p.", true, ch, gun, NULL,
                 TO_ROOM);
             CUR_R_O_F(gun) = number;
 

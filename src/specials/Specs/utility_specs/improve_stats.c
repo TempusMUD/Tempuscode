@@ -72,7 +72,7 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
             gold, life_cost, improve_modes[mode]);
         sprintf(buf, "$n considers the implications of improving $s %s.",
             improve_modes[mode]);
-        act(buf, true, ch, 0, 0, TO_ROOM);
+        act(buf, true, ch, NULL, NULL, TO_ROOM);
         if (GET_GOLD(ch) < gold)
             send_to_char(ch,
                 "But you do not have enough gold on you for that.\r\n");
@@ -121,7 +121,7 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
          ch->in_room->number);
 
     send_to_char(ch, "You begin your training.\r\n");
-    act("$n begins to train.", false, ch, 0, 0, TO_ROOM);
+    act("$n begins to train.", false, ch, NULL, NULL, TO_ROOM);
     WAIT_STATE(ch, *real_stat RL_SEC);
 
     return true;

@@ -6,7 +6,7 @@
 
 SPECIAL(stable_room)
 {
-    char buf[MAX_STRING_LENGTH], pet_name[256];
+    char pet_name[256];
     struct room_data *pet_room;
     struct creature *pet = NULL;
     int price;
@@ -65,7 +65,7 @@ SPECIAL(stable_room)
         IS_CARRYING_N(pet) = 100;
 
         send_to_char(ch, "May this mount serve you well.\r\n");
-        act("$n buys $N as a mount.", false, ch, 0, pet, TO_ROOM);
+        act("$n buys $N as a mount.", false, ch, NULL, pet, TO_ROOM);
 
         return 1;
     }
@@ -84,7 +84,7 @@ SPECIAL(stable_room)
             return 1;
         }
         if (!pet->master || pet->master != ch || !AFF_FLAGGED(pet, AFF_CHARM)) {
-            act("You don't have the authority to sell $N.", false, ch, 0, pet,
+            act("You don't have the authority to sell $N.", false, ch, NULL, pet,
                 TO_CHAR);
             return 1;
         }
@@ -95,7 +95,7 @@ SPECIAL(stable_room)
         price = GET_LEVEL(pet) * 10 + GET_MOVE(pet) * 10 + GET_HIT(pet) * 10;
 
         sprintf(buf, "I will pay you %d gold coins for $N.", price);
-        act(buf, false, ch, 0, pet, TO_CHAR);
+        act(buf, false, ch, NULL, pet, TO_CHAR);
         if (CMD_IS("value"))
             return 1;
 
@@ -106,8 +106,8 @@ SPECIAL(stable_room)
         }
         stop_follower(pet);
 
-        act("The stables now owns $N.", false, ch, 0, pet, TO_CHAR);
-        act("$n sells $N to the stables.", false, ch, 0, pet, TO_ROOM);
+        act("The stables now owns $N.", false, ch, NULL, pet, TO_CHAR);
+        act("$n sells $N to the stables.", false, ch, NULL, pet, TO_ROOM);
 
         GET_GOLD(ch) += price;
         GET_EXP(pet) = price >> 1;

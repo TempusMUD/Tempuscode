@@ -135,15 +135,15 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) ||
         ch->in_room->zone->pk_style == ZONE_NO_PK) {
         act("$p feels rather warm to the touch, and shudders violently.",
-            false, ch, obj, 0, TO_CHAR);
+            false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
     dam = number(GET_OBJ_SIGIL_LEVEL(obj), GET_OBJ_SIGIL_LEVEL(obj) << 2);
     if (mag_savingthrow(ch, GET_OBJ_SIGIL_LEVEL(obj), SAVING_SPELL))
         dam >>= 1;
 
-    act("$p explodes when you pick it up!!", false, ch, obj, 0, TO_CHAR);
-    act("$p explodes when $n picks it up!!", false, ch, obj, 0, TO_ROOM);
+    act("$p explodes when you pick it up!!", false, ch, obj, NULL, TO_CHAR);
+    act("$p explodes when $n picks it up!!", false, ch, obj, NULL, TO_ROOM);
 
     dam_object = obj;
 
@@ -211,7 +211,7 @@ explode_all_sigils(struct creature *ch)
 void
 consolidate_char_money(struct creature *ch)
 {
-    struct obj_data *obj = 0, *next_obj = 0;
+    struct obj_data *obj = NULL, *next_obj = NULL;
     money_t num_gold = 0;
     money_t num_credits = 0;
 
@@ -268,7 +268,7 @@ bool
 activate_char_quad(struct creature *ch)
 {
 
-    struct obj_data *obj = 0, *next_obj = 0;
+    struct obj_data *obj = NULL, *next_obj = NULL;
 
     for (obj = ch->carrying; obj; obj = next_obj) {
         next_obj = obj->next_content;
@@ -280,8 +280,8 @@ activate_char_quad(struct creature *ch)
             slog("%s got the Quad Damage at %d.", GET_NAME(ch),
                 ch->in_room->number);
 
-            struct room_data *room = 0;
-            struct zone_data *zone = 0;
+            struct room_data *room = NULL;
+            struct zone_data *zone = NULL;
 
             //
             // notify the world of this momentous event
@@ -346,7 +346,7 @@ perform_put(struct creature * ch, struct obj_data * obj,
                 return false;
             }
             if (capacity <= 0) {
-                act("Sorry, $p is fully packed.", false, ch, cont, 0, TO_CHAR);
+                act("Sorry, $p is fully packed.", false, ch, cont, NULL, TO_CHAR);
                 return false;
             } else {
 
@@ -367,10 +367,10 @@ perform_put(struct creature * ch, struct obj_data * obj,
         }
     } else if (IS_OBJ_TYPE(cont, ITEM_VEHICLE)) {
         if (CAR_CLOSED(cont))
-            act("$p is closed.", false, ch, cont, 0, TO_CHAR);
+            act("$p is closed.", false, ch, cont, NULL, TO_CHAR);
         else if ((to_room = real_room(ROOM_NUMBER(cont))) == NULL)
             act("Sorry, $p doesn't seem to have an interior right now.",
-                false, ch, cont, 0, TO_CHAR);
+                false, ch, cont, NULL, TO_CHAR);
         else {
             if (display) {
                 act("You toss $P into $p.", false, ch, cont, obj, TO_CHAR);
@@ -381,7 +381,7 @@ perform_put(struct creature * ch, struct obj_data * obj,
             obj_to_room(obj, to_room);
 
             if (display)
-                act("$p is tossed into the car by $N.", false, 0, obj, ch,
+                act("$p is tossed into the car by $N.", false, NULL, obj, ch,
                     TO_ROOM);
             return true;
         }
@@ -394,7 +394,7 @@ perform_put(struct creature * ch, struct obj_data * obj,
         else if (IS_OBJ_STAT(obj, ITEM_NODROP)
             && GET_LEVEL(ch) < LVL_TIMEGOD && !NPC_FLAGGED(ch, NPC_UTILITY))
             act("$p must be cursed!  You can't seem to let go of it...", false,
-                ch, obj, 0, TO_CHAR);
+                ch, obj, NULL, TO_CHAR);
         else {
             obj_from_char(obj);
             obj_to_obj(obj, cont);
@@ -447,7 +447,7 @@ ACMD(do_put)
         } else if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER &&
             GET_OBJ_TYPE(cont) != ITEM_VEHICLE &&
             GET_OBJ_TYPE(cont) != ITEM_PIPE)
-            act("$p is not a container.", false, ch, cont, 0, TO_CHAR);
+            act("$p is not a container.", false, ch, cont, NULL, TO_CHAR);
         else if (GET_OBJ_TYPE(cont) != ITEM_PIPE &&
             IS_SET(GET_OBJ_VAL(cont, 1), CONT_CLOSED))
             send_to_char(ch, "You'd better open it first!\r\n");
@@ -560,7 +560,7 @@ can_take_obj(struct creature *ch, struct obj_data *obj, bool check_weight,
     }
 
     if (print)
-        act(buf, false, ch, obj, 0, TO_CHAR);
+        act(buf, false, ch, obj, NULL, TO_CHAR);
 
     return false;
 }
@@ -599,7 +599,7 @@ get_check_money(struct creature *ch, struct obj_data **obj_p, int display)
         }
         extract_obj(obj);
 
-        obj_p = 0;
+        obj_p = NULL;
 
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR && GET_LEVEL(ch) < LVL_GOD) {
             total_coins = 0;
@@ -745,13 +745,13 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
     bool sigil_found = false;
     bool money_found = false;
 
-    char *match_name = 0;       // the char* keyword which matches on .<item>
+    char *match_name = NULL;       // the char* keyword which matches on .<item>
 
     bool check_weight = false;
 
     if (IS_SET(GET_OBJ_VAL(cont, 1), CONT_CLOSED) && !GET_OBJ_VAL(cont, 3) &&
         GET_LEVEL(ch) < LVL_CREATOR) {
-        act("$p is closed.", false, ch, cont, 0, TO_CHAR);
+        act("$p is closed.", false, ch, cont, NULL, TO_CHAR);
         return 0;
     }
 
@@ -765,7 +765,7 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
         if (!(obj = get_obj_in_list_all(ch, arg, cont->contains))) {
             sprintf(buf, "There doesn't seem to be %s %s in $p.", AN(arg),
                 arg);
-            act(buf, false, ch, cont, 0, TO_CHAR);
+            act(buf, false, ch, cont, NULL, TO_CHAR);
             return 0;
         }
         if (IS_IMPLANT(obj) && IS_CORPSE(cont) &&
@@ -773,7 +773,7 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
             if (GET_LEVEL(ch) < LVL_GOD) {
                 sprintf(buf, "There doesn't seem to be %s %s in $p.", AN(arg),
                     arg);
-                act(buf, false, ch, cont, 0, TO_CHAR);
+                act(buf, false, ch, cont, NULL, TO_CHAR);
                 return 0;
             } else {
                 SET_BIT(GET_OBJ_WEAR(obj), ITEM_WEAR_TAKE);
@@ -817,7 +817,7 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
             && CORPSE_IDNUM(cont) != GET_IDNUM(ch)
             && GET_LEVEL(ch) < LVL_AMBASSADOR) {
             sprintf(buf, "You may only take things one at a time from $P.");
-            act(buf, false, ch, 0, cont, TO_CHAR);
+            act(buf, false, ch, NULL, cont, TO_CHAR);
             return 0;
         }
         if (dotmode == FIND_ALLDOT) {
@@ -889,11 +889,11 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
                 sprintf(buf,
                     "You didn't find anything in $P to take that looks like a '%s'",
                     match_name);
-                act(buf, false, ch, 0, cont, TO_CHAR);
+                act(buf, false, ch, NULL, cont, TO_CHAR);
 
             } else {
                 sprintf(buf, "You didn't find anything in $P.");
-                act(buf, false, ch, 0, cont, TO_CHAR);
+                act(buf, false, ch, NULL, cont, TO_CHAR);
             }
             return 0;
         }
@@ -948,8 +948,8 @@ perform_get_from_room(struct creature * ch,
             sprintf(buf, "You get $p. (x%d)", counter);
             sprintf(buf2, "$n gets $p. (x%d)", counter);
         }
-        act(buf, false, ch, obj, 0, TO_CHAR);
-        act(buf2, true, ch, obj, 0, TO_ROOM);
+        act(buf, false, ch, obj, NULL, TO_CHAR);
+        act(buf2, true, ch, obj, NULL, TO_ROOM);
 
     }
 
@@ -973,7 +973,7 @@ get_from_room(struct creature *ch, char *arg)
     bool sigil_found = false;
     bool money_found = false;
 
-    char *match_name = 0;       // the char* keyword which matches
+    char *match_name = NULL;       // the char* keyword which matches
 
     dotmode = find_all_dots(arg);
 
@@ -1138,7 +1138,7 @@ ACMD(do_get)
         }
 
         if (GET_OBJ_TYPE(cont) != ITEM_CONTAINER) {
-            act("$p is not a container.", false, ch, cont, 0, TO_CHAR);
+            act("$p is not a container.", false, ch, cont, NULL, TO_CHAR);
             return;
         }
 
@@ -1146,7 +1146,7 @@ ACMD(do_get)
         return;
     }
 
-    char *match_container_name = 0;
+    char *match_container_name = NULL;
 
     // cont_dotmode != FIND_INDIV
 
@@ -1176,7 +1176,7 @@ ACMD(do_get)
             // container.
             if (!IS_OBJ_TYPE(cont, ITEM_CONTAINER)) {
                 if (match_container_name)
-                    act("$p is not a container.", false, ch, cont, 0, TO_CHAR);
+                    act("$p is not a container.", false, ch, cont, NULL, TO_CHAR);
                 continue;
             }
 
@@ -1206,7 +1206,7 @@ ACMD(do_get)
             // container.
             if (!IS_OBJ_TYPE(cont, ITEM_CONTAINER)) {
                 if (match_container_name)
-                    act("$p is not a container.", false, ch, cont, 0, TO_CHAR);
+                    act("$p is not a container.", false, ch, cont, NULL, TO_CHAR);
                 continue;
             }
 
@@ -1246,19 +1246,19 @@ perform_drop_gold(struct creature *ch, int amount,
             if (mode == SCMD_DONATE) {
                 send_to_char(ch,
                     "You throw some gold into the air where it disappears in a puff of smoke!\r\n");
-                act("$n throws some gold into the air where it disappears in a puff of smoke!", false, ch, 0, 0, TO_ROOM);
+                act("$n throws some gold into the air where it disappears in a puff of smoke!", false, ch, NULL, NULL, TO_ROOM);
                 obj_to_room(obj, RDR);
-                act("$p suddenly appears in a puff of orange smoke!", 0, 0,
-                    obj, 0, TO_ROOM);
+                act("$p suddenly appears in a puff of orange smoke!", 0, NULL,
+                    obj, NULL, TO_ROOM);
             } else {
                 obj_to_room(obj, ch->in_room);
                 send_to_char(ch, "You drop some gold.\r\n");
-                act("$n drops $p.", false, ch, obj, 0, TO_ROOM);
+                act("$n drops $p.", false, ch, obj, NULL, TO_ROOM);
             }
         } else {
             sprintf(buf, "$n drops %s which disappears in a puff of smoke!",
                 money_desc(amount, 0));
-            act(buf, false, ch, 0, 0, TO_ROOM);
+            act(buf, false, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch,
                 "You drop some gold which disappears in a puff of smoke!\r\n");
         }
@@ -1301,19 +1301,19 @@ perform_drop_credits(struct creature *ch, int amount,
             if (mode == SCMD_DONATE) {
                 send_to_char(ch,
                     "You throw some cash into the air where it disappears in a puff of smoke!\r\n");
-                act("$n throws some cash into the air where it disappears in a puff of smoke!", false, ch, 0, 0, TO_ROOM);
+                act("$n throws some cash into the air where it disappears in a puff of smoke!", false, ch, NULL, NULL, TO_ROOM);
                 obj_to_room(obj, RDR);
-                act("$p suddenly appears in a puff of orange smoke!", 0, 0,
-                    obj, 0, TO_ROOM);
+                act("$p suddenly appears in a puff of orange smoke!", 0, NULL,
+                    obj, NULL, TO_ROOM);
             } else {
                 obj_to_room(obj, ch->in_room);
-                act("You drop $p.", false, ch, obj, 0, TO_CHAR);
-                act("$n drops $p.", false, ch, obj, 0, TO_ROOM);
+                act("You drop $p.", false, ch, obj, NULL, TO_CHAR);
+                act("$n drops $p.", false, ch, obj, NULL, TO_ROOM);
             }
         } else {
             sprintf(buf, "$n drops %s which disappears in a puff of smoke!",
                 money_desc(amount, 1));
-            act(buf, false, ch, 0, 0, TO_ROOM);
+            act(buf, false, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch,
                 "You drop some cash which disappears in a puff of smoke!\r\n");
         }
@@ -1374,10 +1374,10 @@ perform_drop(struct creature *ch, struct obj_data *obj,
     if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
         if (GET_LEVEL(ch) < LVL_TIMEGOD && !NPC_FLAGGED(ch, NPC_UTILITY)) {
             sprintf(buf, "You can't %s $p, it must be CURSED!", sname);
-            act(buf, false, ch, obj, 0, TO_CHAR);
+            act(buf, false, ch, obj, NULL, TO_CHAR);
             return 0;
         } else
-            act("You peel $p off your hand...", false, ch, obj, 0, TO_CHAR);
+            act("You peel $p off your hand...", false, ch, obj, NULL, TO_CHAR);
     }
 
     if ((mode == SCMD_DONATE || mode == SCMD_JUNK) &&
@@ -1387,9 +1387,9 @@ perform_drop(struct creature *ch, struct obj_data *obj,
 
     if (display == true) {
         sprintf(buf, "You %s $p.%s", sname, VANISH(mode));
-        act(buf, false, ch, obj, 0, TO_CHAR);
+        act(buf, false, ch, obj, NULL, TO_CHAR);
         sprintf(buf, "$n %ss $p.%s", sname, VANISH(mode));
-        act(buf, true, ch, obj, 0, TO_ROOM);
+        act(buf, true, ch, obj, NULL, TO_ROOM);
     }
 
     if ((mode == SCMD_DONATE) && (IS_OBJ_STAT(obj, ITEM_NODONATE) ||
@@ -1405,20 +1405,20 @@ perform_drop(struct creature *ch, struct obj_data *obj,
             EXIT(ch, DOWN)->to_room &&
             !IS_SET(EXIT(ch, DOWN)->exit_info, EX_CLOSED)) {
             act("$p falls downward through the air, out of sight!",
-                false, ch, obj, 0, TO_ROOM);
+                false, ch, obj, NULL, TO_ROOM);
             act("$p falls downward through the air, out of sight!",
-                false, ch, obj, 0, TO_CHAR);
+                false, ch, obj, NULL, TO_CHAR);
             obj_from_room(obj);
             obj_to_room(obj, EXIT(ch, DOWN)->to_room);
             act("$p falls from the sky and lands by your feet.",
-                false, 0, obj, 0, TO_ROOM);
+                false, NULL, obj, NULL, TO_ROOM);
         }
         return 1;
         break;
     case SCMD_DONATE:
         obj_from_char(obj);
         obj_to_room(obj, RDR);
-        act("$p suddenly appears in a puff a smoke!", false, 0, obj, 0,
+        act("$p suddenly appears in a puff a smoke!", false, NULL, obj, NULL,
             TO_ROOM);
         if (!IS_OBJ_TYPE(obj, ITEM_OTHER) && !IS_OBJ_TYPE(obj, ITEM_TREASURE)
             && !IS_OBJ_TYPE(obj, ITEM_METAL))
@@ -1641,8 +1641,8 @@ ACMD(do_drop)
                         to_room = tmp_sprintf("$n %ss $p.%s (x%d)", sname,
                                               VANISH(mode), counter);
                     }
-                    act(to_char, false, ch, obj, 0, TO_CHAR);
-                    act(to_room, true, ch, obj, 0, TO_ROOM);
+                    act(to_char, false, ch, obj, NULL, TO_CHAR);
+                    act(to_room, true, ch, obj, NULL, TO_ROOM);
                 }
                 counter = 0;
             }
@@ -1658,7 +1658,7 @@ ACMD(do_drop)
 
     if (subcmd == SCMD_JUNK && amount && !IS_IMMORT(ch)) {
         send_to_char(ch, "You have been rewarded by the gods!\r\n");
-        act("$n has been rewarded by the gods!", true, ch, 0, 0, TO_ROOM);
+        act("$n has been rewarded by the gods!", true, ch, NULL, NULL, TO_ROOM);
         GET_GOLD(ch) += amount;
     }
 }
@@ -1671,22 +1671,22 @@ perform_give(struct creature *ch, struct creature *vict,
 
     if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
         if (GET_LEVEL(ch) < LVL_TIMEGOD) {
-            act("You can't let go of $p!!  Yeech!", false, ch, obj, 0,
+            act("You can't let go of $p!!  Yeech!", false, ch, obj, NULL,
                 TO_CHAR);
             return 0;
         } else
-            act("You peel $p off your hand...", false, ch, obj, 0, TO_CHAR);
+            act("You peel $p off your hand...", false, ch, obj, NULL, TO_CHAR);
     }
     if (GET_LEVEL(ch) < LVL_IMMORT && GET_POSITION(vict) <= POS_SLEEPING) {
-        act("$E is currently unconscious.", false, ch, 0, vict, TO_CHAR);
+        act("$E is currently unconscious.", false, ch, NULL, vict, TO_CHAR);
         return 0;
     }
     if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict)) {
-        act("$N seems to have $S hands full.", false, ch, 0, vict, TO_CHAR);
+        act("$N seems to have $S hands full.", false, ch, NULL, vict, TO_CHAR);
         return 0;
     }
     if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
-        act("$E can't carry that much weight.", false, ch, 0, vict, TO_CHAR);
+        act("$E can't carry that much weight.", false, ch, NULL, vict, TO_CHAR);
         return 0;
     }
     obj_from_char(obj);
@@ -1718,7 +1718,7 @@ perform_give(struct creature *ch, struct creature *vict,
                         do_activate(vict, fname(obj->aliases), 0, 1);
                 else {
                     if (GET_POSITION(vict) < POS_FIGHTING)
-                        do_stand(vict, 0, 0, 0);
+                        do_stand(vict, NULL, 0, 0);
                     for (i = 0; i < NUM_DIRS; i++) {
                         if (ch->in_room->dir_option[i] &&
                             ch->in_room->dir_option[i]->to_room && i != UP &&
@@ -1750,15 +1750,15 @@ void
 perform_plant(struct creature *ch, struct creature *vict, struct obj_data *obj)
 {
     if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
-        act("You can't let go of $p!!  Yeech!", false, ch, obj, 0, TO_CHAR);
+        act("You can't let go of $p!!  Yeech!", false, ch, obj, NULL, TO_CHAR);
         return;
     }
     if (IS_CARRYING_N(vict) >= CAN_CARRY_N(vict)) {
-        act("$N seems to have $S hands full.", false, ch, 0, vict, TO_CHAR);
+        act("$N seems to have $S hands full.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
     if (GET_OBJ_WEIGHT(obj) + IS_CARRYING_W(vict) > CAN_CARRY_W(vict)) {
-        act("$E can't carry that much weight.", false, ch, 0, vict, TO_CHAR);
+        act("$E can't carry that much weight.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
     obj_from_char(obj);
@@ -1817,7 +1817,7 @@ transfer_money(struct creature *from, struct creature *to, money_t amt,
 
     if (!plant && GET_LEVEL(from) < LVL_IMMORT
         && GET_POSITION(to) <= POS_SLEEPING) {
-        act("$E is currently unconscious.", false, from, 0, to, TO_CHAR);
+        act("$E is currently unconscious.", false, from, NULL, to, TO_CHAR);
         return;
     }
 
@@ -1828,16 +1828,16 @@ transfer_money(struct creature *from, struct creature *to, money_t amt,
             (number(0, 83) + GET_WIS(to))) {
             act(tmp_sprintf("%" PRId64 " %s%s planted in your pocket by $n.", amt,
                     currency_str, amt == 1 ? "is" : "s are"),
-                false, from, 0, to, TO_VICT);
+                false, from, NULL, to, TO_VICT);
         }
         cmd_str = "planted";
     } else {
         send_to_char(from, "You give %" PRId64 " %s%s to %s\r\n", amt, currency_str,
             amt == 1 ? "" : "s", PERS(to, from));
         act(tmp_sprintf("You are given %" PRId64 " %s%s by $n.", amt, currency_str,
-                amt == 1 ? "" : "s"), false, from, 0, to, TO_VICT);
+                amt == 1 ? "" : "s"), false, from, NULL, to, TO_VICT);
         act(tmp_sprintf("$n gives %s to $N.", money_desc(amt, currency)),
-            true, from, 0, to, TO_NOTVICT);
+            true, from, NULL, to, TO_NOTVICT);
         cmd_str = "given";
     }
 
@@ -2093,7 +2093,7 @@ ACMD(do_drink)
     }
     if (!(temp = get_obj_in_list_all(ch, arg, ch->carrying))) {
         if (!(temp = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-            act("You can't find it!", false, ch, 0, 0, TO_CHAR);
+            act("You can't find it!", false, ch, NULL, NULL, TO_CHAR);
             return;
         } else
             on_ground = 1;
@@ -2115,7 +2115,7 @@ ACMD(do_drink)
         /* The pig is drunk */
         send_to_char(ch,
             "You can't seem to get it close enough to your mouth.\r\n");
-        act("$n tries to drink but misses $s mouth!", true, ch, 0, 0, TO_ROOM);
+        act("$n tries to drink but misses $s mouth!", true, ch, NULL, NULL, TO_ROOM);
         return;
     }
     if ((GET_COND(ch, FULL) > 20) && (GET_COND(ch, THIRST) > 0)) {
@@ -2130,7 +2130,7 @@ ACMD(do_drink)
         if (!ch->desc || !ch->desc->repeat_cmd_count) {
             sprintf(buf, "$n drinks %s from $p.", drinks[GET_OBJ_VAL(temp,
                         2)]);
-            act(buf, true, ch, temp, 0, TO_ROOM);
+            act(buf, true, ch, temp, NULL, TO_ROOM);
         }
 
         if (temp->action_desc && *temp->action_desc)
@@ -2145,7 +2145,7 @@ ACMD(do_drink)
             amount = number(1, 3);
 
     } else {
-        act("$n sips from $p.", true, ch, temp, 0, TO_ROOM);
+        act("$n sips from $p.", true, ch, temp, NULL, TO_ROOM);
         send_to_char(ch, "It tastes like %s.\r\n", drinks[GET_OBJ_VAL(temp,
                     2)]);
         amount = 1;
@@ -2196,10 +2196,10 @@ ACMD(do_drink)
     if (GET_OBJ_VAL(temp, 3)) { // The shit was poisoned !
         send_to_char(ch, "Oops, it tasted rather strange!\r\n");
         if (!number(0, 1))
-            act("$n chokes and utters some strange sounds.", false, ch, 0, 0,
+            act("$n chokes and utters some strange sounds.", false, ch, NULL, NULL,
                 TO_ROOM);
         else
-            act("$n sputters and coughs.", false, ch, 0, 0, TO_ROOM);
+            act("$n sputters and coughs.", false, ch, NULL, NULL, TO_ROOM);
 
         af.location = APPLY_STR;
         af.modifier = -2;
@@ -2272,15 +2272,15 @@ ACMD(do_eat)
         return;
     }
     if (GET_COND(ch, FULL) > 20) {  /* Stomach full */
-        act("Your belly is stuffed to capacity!", false, ch, 0, 0, TO_CHAR);
+        act("Your belly is stuffed to capacity!", false, ch, NULL, NULL, TO_CHAR);
         return;
     }
     if (subcmd == SCMD_EAT) {
-        act("You eat $p.", false, ch, food, 0, TO_CHAR);
-        act("$n eats $p.", true, ch, food, 0, TO_ROOM);
+        act("You eat $p.", false, ch, food, NULL, TO_CHAR);
+        act("$n eats $p.", true, ch, food, NULL, TO_ROOM);
     } else {
-        act("You nibble a little bit of $p.", false, ch, food, 0, TO_CHAR);
-        act("$n tastes a little bit of $p.", true, ch, food, 0, TO_ROOM);
+        act("You nibble a little bit of $p.", false, ch, food, NULL, TO_CHAR);
+        act("$n tastes a little bit of $p.", true, ch, food, NULL, TO_ROOM);
     }
 
     amount = (subcmd == SCMD_EAT ? GET_OBJ_VAL(food, 0) : 1);
@@ -2304,16 +2304,16 @@ ACMD(do_eat)
         }
     }
     if (IS_OBJ_TYPE(food, ITEM_FOOD) && GET_COND(ch, FULL) > 20)
-        act("You are satiated.", false, ch, 0, 0, TO_CHAR);
+        act("You are satiated.", false, ch, NULL, NULL, TO_CHAR);
 
     if (GET_OBJ_VAL(food, 3) && (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
         /* The shit was poisoned ! */
         send_to_char(ch, "Oops, that tasted rather strange!\r\n");
         if (!number(0, 1))
-            act("$n coughs and utters some strange sounds.", false, ch, 0, 0,
+            act("$n coughs and utters some strange sounds.", false, ch, NULL, NULL,
                 TO_ROOM);
         else
-            act("$n sputters and chokes.", false, ch, 0, 0, TO_ROOM);
+            act("$n sputters and chokes.", false, ch, NULL, NULL, TO_ROOM);
 
         af.location = APPLY_STR;
         af.modifier = -2;
@@ -2370,15 +2370,15 @@ ACMD(do_pour)
 
     if (subcmd == SCMD_POUR) {
         if (!*arg1) {           /* No arguments */
-            act("What do you want to pour from?", false, ch, 0, 0, TO_CHAR);
+            act("What do you want to pour from?", false, ch, NULL, NULL, TO_CHAR);
             return;
         }
         if (!(from_obj = get_obj_in_list_all(ch, arg1, ch->carrying))) {
-            act("You can't find it!", false, ch, 0, 0, TO_CHAR);
+            act("You can't find it!", false, ch, NULL, NULL, TO_CHAR);
             return;
         }
         if (GET_OBJ_TYPE(from_obj) != ITEM_DRINKCON) {
-            act("You can't pour from that!", false, ch, 0, 0, TO_CHAR);
+            act("You can't pour from that!", false, ch, NULL, NULL, TO_CHAR);
             return;
         }
     }
@@ -2393,16 +2393,16 @@ ACMD(do_pour)
             return;
         }
         if (GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON) {
-            act("You can't fill $p!", false, ch, to_obj, 0, TO_CHAR);
+            act("You can't fill $p!", false, ch, to_obj, NULL, TO_CHAR);
             return;
         }
         if (GET_OBJ_VAL(to_obj, 0) == -1) {
             act("No need to fill $p, because it never runs dry!",
-                false, ch, to_obj, 0, TO_CHAR);
+                false, ch, to_obj, NULL, TO_CHAR);
             return;
         }
         if (!*arg2) {           /* no 2nd argument */
-            act("What do you want to fill $p from?", false, ch, to_obj, 0,
+            act("What do you want to fill $p from?", false, ch, to_obj, NULL,
                 TO_CHAR);
             return;
         }
@@ -2412,19 +2412,19 @@ ACMD(do_pour)
             return;
         }
         if (GET_OBJ_TYPE(from_obj) != ITEM_FOUNTAIN) {
-            act("You can't fill something from $p.", false, ch, from_obj, 0,
+            act("You can't fill something from $p.", false, ch, from_obj, NULL,
                 TO_CHAR);
             return;
         }
     }
     if (GET_OBJ_VAL(from_obj, 1) == 0) {
-        act("$p is empty.", false, ch, from_obj, 0, TO_CHAR);
+        act("$p is empty.", false, ch, from_obj, NULL, TO_CHAR);
         return;
     }
 
     if (subcmd == SCMD_POUR) {  /* pour */
         if (!*arg2) {
-            act("Where do you want it?  Out or in what?", false, ch, 0, 0,
+            act("Where do you want it?  Out or in what?", false, ch, NULL, NULL,
                 TO_CHAR);
             return;
         }
@@ -2434,8 +2434,8 @@ ACMD(do_pour)
                     "Now that would be an exercise in futility!\r\n");
                 return;
             }
-            act("$n empties $p.", true, ch, from_obj, 0, TO_ROOM);
-            act("You empty $p.", false, ch, from_obj, 0, TO_CHAR);
+            act("$n empties $p.", true, ch, from_obj, NULL, TO_ROOM);
+            act("You empty $p.", false, ch, from_obj, NULL, TO_CHAR);
 
             // Set the weight of the from obj to wehatever the weight of the
             // prototype is to avoid errors.
@@ -2453,33 +2453,33 @@ ACMD(do_pour)
             return;
         }
         if (!(to_obj = get_obj_in_list_all(ch, arg2, ch->carrying))) {
-            act("You can't find it!", false, ch, 0, 0, TO_CHAR);
+            act("You can't find it!", false, ch, NULL, NULL, TO_CHAR);
             return;
         }
         if ((GET_OBJ_TYPE(to_obj) != ITEM_DRINKCON) &&
             (GET_OBJ_TYPE(to_obj) != ITEM_FOUNTAIN)) {
-            act("You can't pour anything into that.", false, ch, 0, 0,
+            act("You can't pour anything into that.", false, ch, NULL, NULL,
                 TO_CHAR);
             return;
         }
     }
     if (to_obj == from_obj) {
-        act("A most unproductive effort.", false, ch, 0, 0, TO_CHAR);
+        act("A most unproductive effort.", false, ch, NULL, NULL, TO_CHAR);
         return;
     }
     if ((GET_OBJ_VAL(to_obj, 1) != 0) &&
         (GET_OBJ_VAL(to_obj, 2) != GET_OBJ_VAL(from_obj, 2))) {
-        act("There is already another liquid in it!", false, ch, 0, 0,
+        act("There is already another liquid in it!", false, ch, NULL, NULL,
             TO_CHAR);
         return;
     }
     if (!(GET_OBJ_VAL(to_obj, 1) < GET_OBJ_VAL(to_obj, 0)) ||
         GET_OBJ_VAL(to_obj, 0) == -1) {
-        act("There is no room for more.", false, ch, 0, 0, TO_CHAR);
+        act("There is no room for more.", false, ch, NULL, NULL, TO_CHAR);
         return;
     }
     if (GET_OBJ_VAL(from_obj, 0) == -1) {
-        act("You cannot seem to pour from $p.", false, ch, from_obj, 0,
+        act("You cannot seem to pour from $p.", false, ch, from_obj, NULL,
             TO_CHAR);
         return;
     }
@@ -2614,8 +2614,8 @@ wear_message(struct creature *ch, struct obj_data *obj, int where)
 
     };
 
-    act(wear_messages[where][0], true, ch, obj, 0, TO_ROOM);
-    act(wear_messages[where][1], false, ch, obj, 0, TO_CHAR);
+    act(wear_messages[where][0], true, ch, obj, NULL, TO_ROOM);
+    act(wear_messages[where][1], false, ch, obj, NULL, TO_CHAR);
 }
 
 /* returns same as equip_char(), true = killed da ho */
@@ -2659,11 +2659,11 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
         return 0;
     }
     if (!CAN_WEAR(obj, wear_bitvectors[where])) {
-        act("You can't wear $p there.", false, ch, obj, 0, TO_CHAR);
+        act("You can't wear $p there.", false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
     if (IS_IMPLANT(obj) && where != WEAR_HOLD) {
-        act("You cannot wear $p.", false, ch, obj, 0, TO_CHAR);
+        act("You cannot wear $p.", false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
     /* for neck, finger, and wrist, ears try pos 2 if pos 1 is already full */
@@ -2673,7 +2673,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
             where++;
 
     if (IS_OBJ_TYPE(obj, ITEM_TATTOO)) {
-        act("You cannot wear $p.", false, ch, obj, 0, TO_CHAR);
+        act("You cannot wear $p.", false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
 
@@ -2683,13 +2683,13 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
     }
     if ((where == WEAR_BELT) && (!GET_EQ(ch, WEAR_WAIST))) {
         act("You need to be WEARING a belt to put $p on it.",
-            false, ch, obj, 0, TO_CHAR);
+            false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
     if (where == WEAR_HANDS && IS_OBJ_STAT2(obj, ITEM2_TWO_HANDED)) {
         if (GET_EQ(ch, WEAR_WIELD)) {
             act("You can't be using your hands for anything else to use $p.",
-                false, ch, obj, 0, TO_CHAR);
+                false, ch, obj, NULL, TO_CHAR);
             return 0;
         }
     }
@@ -2697,11 +2697,11 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
         if (GET_EQ(ch, WEAR_WIELD)) {
             if (IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED)) {
                 act("You can't use $p while wielding your two handed weapon.",
-                    false, ch, obj, 0, TO_CHAR);
+                    false, ch, obj, NULL, TO_CHAR);
                 return 0;
             } else if (GET_EQ(ch, WEAR_WIELD_2)) {
                 act("You can't use $p while dual wielding.",
-                    false, ch, obj, 0, TO_CHAR);
+                    false, ch, obj, NULL, TO_CHAR);
                 return 0;
             } else if (GET_EQ(ch, WEAR_HOLD)) {
                 act("You are currently wielding $p and holding $P.",
@@ -2732,12 +2732,12 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
     }
     if (!OBJ_APPROVED(obj) && GET_LEVEL(ch) < LVL_AMBASSADOR && !is_tester(ch)) {
         act("$p has not been approved for mortal use.",
-            false, ch, obj, 0, TO_CHAR);
+            false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
     if (IS_OBJ_STAT2(obj, ITEM2_BROKEN) && GET_LEVEL(ch) < LVL_GOD) {
         act("$p is broken, and unusable until it is repaired.",
-            false, ch, obj, 0, TO_CHAR);
+            false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
     if ((where == WEAR_WIELD || where == WEAR_WIELD_2) &&
@@ -2752,7 +2752,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
         const char *name = player_name_by_idnum(obj->shared->owner_id);
         char *msg = tmp_sprintf("$p can only be used by %s.",
             name ? name : "someone else");
-        act(msg, false, ch, obj, 0, TO_CHAR);
+        act(msg, false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
 
@@ -2760,7 +2760,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
         !IS_REMORT(ch)) {
         act("You feel a strange sensation as you attempt to use $p.\r\n"
             "The universe slowly spins around you, and the fabric of space\r\n"
-            "and time appears to warp.", false, ch, obj, 0, TO_CHAR);
+            "and time appears to warp.", false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
 
@@ -2768,7 +2768,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
         IS_REMORT(ch)) {
         act("You feel a strange sensation as you attempt to use $p.\r\n"
             "The universe slowly spins around you, and the fabric of space\r\n"
-            "and time appears to warp.", false, ch, obj, 0, TO_CHAR);
+            "and time appears to warp.", false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
 
@@ -2777,7 +2777,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
             if (GET_EQ(ch, i) &&
                 (GET_OBJ_VNUM(GET_EQ(ch, i)) == GET_OBJ_VNUM(obj))) {
                 act("$p:  You cannot use more than one of this item.",
-                    false, ch, obj, 0, TO_CHAR);
+                    false, ch, obj, NULL, TO_CHAR);
                 return 0;
             }
         }
@@ -2786,7 +2786,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
         for (i = 0; i < NUM_WEARS; i++) {
             if (GET_EQ(ch, i) && !IS_OBJ_STAT2(GET_EQ(ch, i), ITEM2_GODEQ)) {
                 act("$p swiftly slides off your body, into your hands.",
-                    false, ch, GET_EQ(ch, i), 0, TO_CHAR);
+                    false, ch, GET_EQ(ch, i), NULL, TO_CHAR);
                 obj_to_char(unequip_char(ch, i, EQUIP_WORN), ch);
             }
         }
@@ -2794,7 +2794,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
         for (i = 0; i < NUM_WEARS; i++) {
             if (GET_EQ(ch, i) && IS_OBJ_STAT2(GET_EQ(ch, i), ITEM2_GODEQ)) {
                 act("$p swiftly leaps off your body, into your hands.",
-                    false, ch, GET_EQ(ch, i), 0, TO_CHAR);
+                    false, ch, GET_EQ(ch, i), NULL, TO_CHAR);
                 obj_to_char(unequip_char(ch, i, EQUIP_WORN), ch);
             }
         }
@@ -2804,7 +2804,7 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
     if ((IS_OBJ_TYPE(obj, ITEM_WORN) ||
             IS_OBJ_TYPE(obj, ITEM_ARMOR) ||
             IS_OBJ_TYPE(obj, ITEM_WEAPON)) && obj->action_desc) {
-        act(obj->action_desc, false, ch, obj, 0, TO_CHAR);
+        act(obj->action_desc, false, ch, obj, NULL, TO_CHAR);
     }
     obj_from_char(obj);
     if (equip_char(ch, obj, where, EQUIP_WORN))
@@ -2890,7 +2890,7 @@ ACMD(do_wear)
         for (obj = ch->carrying; obj; obj = next_obj) {
             next_obj = obj->next_content;
             if (can_see_object(ch, obj)
-                && (where = find_eq_pos(ch, obj, 0)) >= 0) {
+                && (where = find_eq_pos(ch, obj, NULL)) >= 0) {
                 items_worn++;
                 if (perform_wear(ch, obj, where))
                     return;
@@ -2908,11 +2908,11 @@ ACMD(do_wear)
         } else
             while (obj) {
                 next_obj = get_obj_in_list_all(ch, arg1, obj->next_content);
-                if ((where = find_eq_pos(ch, obj, 0)) >= 0) {
+                if ((where = find_eq_pos(ch, obj, NULL)) >= 0) {
                     if (perform_wear(ch, obj, where))
                         return;
                 } else
-                    act("You can't wear $p.", false, ch, obj, 0, TO_CHAR);
+                    act("You can't wear $p.", false, ch, obj, NULL, TO_CHAR);
                 obj = next_obj;
             }
     } else {
@@ -2923,7 +2923,7 @@ ACMD(do_wear)
             if ((where = find_eq_pos(ch, obj, arg2)) >= 0) {
                 perform_wear(ch, obj, where);
             } else if (!*arg2)
-                act("You can't wear $p.", false, ch, obj, 0, TO_CHAR);
+                act("You can't wear $p.", false, ch, obj, NULL, TO_CHAR);
         }
     }
 }
@@ -2980,7 +2980,7 @@ ACMD(do_wield)
     }
 
     if (hands_free != 2 && IS_OBJ_STAT2(obj, ITEM2_TWO_HANDED)) {
-        act("You need both hands free to wield $p.", false, ch, obj, 0,
+        act("You need both hands free to wield $p.", false, ch, obj, NULL,
             TO_CHAR);
         return;
     }
@@ -2988,7 +2988,7 @@ ACMD(do_wield)
     if (GET_EQ(ch, WEAR_HANDS) &&
         IS_OBJ_STAT2(GET_EQ(ch, WEAR_HANDS), ITEM2_TWO_HANDED)) {
         act("You can't wield anything while wearing $p on your hands.",
-            false, ch, GET_EQ(ch, WEAR_HANDS), 0, TO_CHAR);
+            false, ch, GET_EQ(ch, WEAR_HANDS), NULL, TO_CHAR);
         return;
     }
 
@@ -3024,7 +3024,7 @@ ACMD(do_grab)
     } else {
         if (IS_OBJ_TYPE(obj, ITEM_LIGHT)) {
             if (!GET_OBJ_VAL(obj, 2))
-                act("$p is no longer usable as a light.", false, ch, obj, 0,
+                act("$p is no longer usable as a light.", false, ch, obj, NULL,
                     TO_CHAR);
             else
                 perform_wear(ch, obj, WEAR_LIGHT);
@@ -3052,20 +3052,20 @@ perform_remove(struct creature *ch, int pos)
         return;
     }
     if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
-        act("$p: you can't carry that many items!", false, ch, obj, 0,
+        act("$p: you can't carry that many items!", false, ch, obj, NULL,
             TO_CHAR);
     else if ((GET_POSITION(ch) == POS_FLYING)
         && (IS_OBJ_TYPE(ch->equipment[pos], ITEM_WINGS))
         && (!AFF_FLAGGED(ch, AFF_INFLIGHT))) {
         act("$p: you probably shouldn't remove those while flying!", false, ch,
-            obj, 0, TO_CHAR);
+            obj, NULL, TO_CHAR);
     } else if (IS_OBJ_TYPE(obj, ITEM_TATTOO))
         act("$p: you must have this removed by a professional.",
-            false, ch, obj, 0, TO_CHAR);
+            false, ch, obj, NULL, TO_CHAR);
     else if (IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)
         && GET_LEVEL(ch) < LVL_AMBASSADOR)
         act("$p: you cannot convince yourself to stop using it.", false, ch,
-            obj, 0, TO_CHAR);
+            obj, NULL, TO_CHAR);
     else {
         if (pos == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2)) {
             act("You stop using $p, and wield $P.",
@@ -3073,8 +3073,8 @@ perform_remove(struct creature *ch, int pos)
             act("$n stops using $p, and wields $P.",
                 true, ch, obj, GET_EQ(ch, WEAR_WIELD_2), TO_ROOM);
         } else {
-            act("You stop using $p.", false, ch, obj, 0, TO_CHAR);
-            act("$n stops using $p.", true, ch, obj, 0, TO_ROOM);
+            act("You stop using $p.", false, ch, obj, NULL, TO_CHAR);
+            act("$n stops using $p.", true, ch, obj, NULL, TO_ROOM);
         }
         obj_to_char(unequip_char(ch, pos, EQUIP_WORN), ch);
     }
@@ -3172,7 +3172,7 @@ ACMD(do_remove)
                 arg);
         } else if (IS_OBJ_STAT2(obj, ITEM2_NOREMOVE) &&
             GET_LEVEL(ch) < LVL_AMBASSADOR)
-            act("Ack!  You cannot seem to let go of $p!", false, ch, obj, 0,
+            act("Ack!  You cannot seem to let go of $p!", false, ch, obj, NULL,
                 TO_CHAR);
         else
             perform_remove(ch, i);
@@ -3761,7 +3761,7 @@ ACMD(do_attach)
     if (!*arg2) {
         sprintf(buf, "%statch $p %s what?", subcmd ? "De" : "At",
             subcmd ? "from" : "to");
-        act(buf, false, ch, obj1, 0, TO_CHAR);
+        act(buf, false, ch, obj1, NULL, TO_CHAR);
         return;
     }
 
@@ -3810,10 +3810,10 @@ ACMD(do_attach)
                         false, ch, obj2->contains, obj2, TO_CHAR);
             } else if (FUSE_STATE(obj1)) {
                 act("Better not do that -- $p is active!",
-                    false, ch, obj1, 0, TO_CHAR);
+                    false, ch, obj1, NULL, TO_CHAR);
             } else if (!obj1->carried_by) {
                 act("You can't attach $p while you are using it.",
-                    false, ch, obj1, 0, TO_CHAR);
+                    false, ch, obj1, NULL, TO_CHAR);
             } else {
                 obj_from_char(obj1);
                 obj_to_obj(obj1, obj2);
@@ -3870,11 +3870,11 @@ ACMD(do_conceal)
         return;
     }
 
-    act("You conceal $p.", false, ch, obj, 0, TO_CHAR);
+    act("You conceal $p.", false, ch, obj, NULL, TO_CHAR);
     if (obj->in_room)
-        act("$n conceals $p.", true, ch, obj, 0, TO_ROOM);
+        act("$n conceals $p.", true, ch, obj, NULL, TO_ROOM);
     else
-        act("$n conceals something.", true, ch, obj, 0, TO_ROOM);
+        act("$n conceals something.", true, ch, obj, NULL, TO_ROOM);
 
     WAIT_STATE(ch, 1 RL_SEC);
     if (obj->in_room && !CAN_GET_OBJ(ch, obj))
@@ -3913,8 +3913,8 @@ ACMD(do_sacrifice)
     if (is_undisposable(ch, "sacrifice", obj, true))
         return;
 
-    act("$n sacrifices $p.", false, ch, obj, 0, TO_ROOM);
-    act("You sacrifice $p.", false, ch, obj, 0, TO_CHAR);
+    act("$n sacrifices $p.", false, ch, obj, NULL, TO_ROOM);
+    act("You sacrifice $p.", false, ch, obj, NULL, TO_CHAR);
     if (IS_CORPSE(obj)) {
         orig_char = load_corpse_owner(obj);
         if (orig_char) {
@@ -4016,8 +4016,8 @@ ACMD(do_empty)
         }
     }
     if (objs_moved) {
-        act("$n empties the contents of $p.", false, ch, obj, 0, TO_ROOM);
-        act("You carefully empty the contents of $p.", false, ch, obj, 0,
+        act("$n empties the contents of $p.", false, ch, obj, NULL, TO_ROOM);
+        act("You carefully empty the contents of $p.", false, ch, obj, NULL,
             TO_CHAR);
     } else {
         send_to_char(ch, "%s is already empty.\r\n", obj->name);
@@ -4082,12 +4082,12 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
         if (objs_moved) {
             sprintf(buf, "$n carefully empties the contents of $p into %s.",
                 container->name);
-            act(buf, false, ch, obj, 0, TO_ROOM);
+            act(buf, false, ch, obj, NULL, TO_ROOM);
             sprintf(buf, "You carefully empty the contents of $p into %s.",
                 container->name);
-            act(buf, false, ch, obj, 0, TO_CHAR);
+            act(buf, false, ch, obj, NULL, TO_CHAR);
         } else {
-            act("$p couldn't hold anything.", false, ch, container, 0,
+            act("$p couldn't hold anything.", false, ch, container, NULL,
                 TO_CHAR);
             return 0;
         }

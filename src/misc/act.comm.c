@@ -70,9 +70,9 @@ perform_say(struct creature *ch, const char *saystr, const char *message)
 {
     message = act_escape(message);
     act(tmp_sprintf("&BYou %s$a$l, &c'$[%s]'", saystr, message),
-        0, ch, 0, 0, TO_CHAR);
+        0, ch, NULL, NULL, TO_CHAR);
     act(tmp_sprintf("&B$n %ss$a$l, &c'$[%s]'", saystr, message),
-        0, ch, 0, 0, TO_ROOM);
+        0, ch, NULL, NULL, TO_ROOM);
 }
 
 void
@@ -81,9 +81,9 @@ perform_say_to(struct creature *ch, struct creature *target,
 {
     message = act_escape(message);
     act(tmp_sprintf("&BYou$a say to $T$l, &c'$[%s]'", message),
-        0, ch, 0, target, TO_CHAR);
+        0, ch, NULL, target, TO_CHAR);
     act(tmp_sprintf("&B$n$a says to $T$l, &c'$[%s]'", message),
-        0, ch, 0, target, TO_ROOM);
+        0, ch, NULL, target, TO_ROOM);
 }
 
 void
@@ -92,9 +92,9 @@ perform_say_to_obj(struct creature *ch, struct obj_data *obj,
 {
     message = act_escape(message);
     act(tmp_sprintf("&BYou$a say to $p$l, &c'$[%s]'", message),
-        0, ch, obj, 0, TO_CHAR);
+        0, ch, obj, NULL, TO_CHAR);
     act(tmp_sprintf("&B$n$a says to $p$l, &c'$[%s]'", message),
-        0, ch, obj, 0, TO_ROOM);
+        0, ch, obj, NULL, TO_ROOM);
 }
 
 ACMD(do_sayto)
@@ -296,7 +296,7 @@ ACMD(do_gsay)
         if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && can_channel_comm(ch, k)) {
             sprintf(buf, "%s$n tells the group,%s '%s'%s", CCGRN(k, C_NRM),
                 CCYEL(k, C_NRM), argument, CCNRM(k, C_NRM));
-            act(buf, false, ch, 0, k, TO_VICT | TO_SLEEP);
+            act(buf, false, ch, NULL, k, TO_VICT | TO_SLEEP);
         }
         for (f = k->followers; f; f = f->next)
             if (AFF_FLAGGED(f->follower, AFF_GROUP) && (f->follower != ch) &&
@@ -304,12 +304,12 @@ ACMD(do_gsay)
                 sprintf(buf, "%s$n tells the group,%s '%s'%s",
                     CCGRN(f->follower, C_NRM), CCYEL(f->follower, C_NRM),
                     argument, CCNRM(f->follower, C_NRM));
-                act(buf, false, ch, 0, f->follower, TO_VICT | TO_SLEEP);
+                act(buf, false, ch, NULL, f->follower, TO_VICT | TO_SLEEP);
             }
 
         sprintf(buf, "%sYou tell the group,%s '%s'%s", CCGRN(ch, C_NRM),
             CCYEL(ch, C_NRM), argument, CCNRM(ch, C_NRM));
-        act(buf, false, ch, 0, 0, TO_CHAR | TO_SLEEP);
+        act(buf, false, ch, NULL, NULL, TO_CHAR | TO_SLEEP);
     }
 }
 
@@ -319,8 +319,8 @@ perform_tell(struct creature *ch, struct creature *vict, const char *arg)
     char *act_str = tmp_sprintf("&r$t$a tell$%% $T,&n '%s'",
         act_escape(arg));
 
-    act(act_str, false, ch, 0, vict, TO_CHAR | TO_SLEEP);
-    act(act_str, false, ch, 0, vict, TO_VICT | TO_SLEEP);
+    act(act_str, false, ch, NULL, vict, TO_CHAR | TO_SLEEP);
+    act(act_str, false, ch, NULL, vict, TO_VICT | TO_SLEEP);
 
     if (PLR_FLAGGED(vict, PLR_AFK)
         && g_list_find(AFK_NOTIFIES(vict), GINT_TO_POINTER(GET_IDNUM(ch)))) {
@@ -328,9 +328,9 @@ perform_tell(struct creature *ch, struct creature *vict, const char *arg)
             g_list_prepend(AFK_NOTIFIES(vict), GINT_TO_POINTER(GET_IDNUM(ch)));
         if (AFK_REASON(vict))
             act(tmp_sprintf("$N is away from the keyboard: %s",
-                    AFK_REASON(vict)), true, ch, 0, vict, TO_CHAR);
+                    AFK_REASON(vict)), true, ch, NULL, vict, TO_CHAR);
         else
-            act("$N is away from the keyboard.", true, ch, 0, vict, TO_CHAR);
+            act("$N is away from the keyboard.", true, ch, NULL, vict, TO_CHAR);
     }
 
     if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_NPC(ch))
@@ -408,23 +408,23 @@ ACMD(do_tell)
         && GET_LEVEL(ch) < LVL_GRGOD && ch->in_room != vict->in_room)
         send_to_char(ch, "The walls seem to absorb your words.\r\n");
     else if (!IS_NPC(vict) && !vict->desc)  /* linkless */
-        act("$E's linkless at the moment.", false, ch, 0, vict,
+        act("$E's linkless at the moment.", false, ch, NULL, vict,
             TO_CHAR | TO_SLEEP);
     else if (PLR_FLAGGED(vict, PLR_WRITING))
         act("$E's writing a message right now; try again later.",
-            false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+            false, ch, NULL, vict, TO_CHAR | TO_SLEEP);
     else if ((PRF_FLAGGED(vict, PRF_NOTELL) ||
             PLR_FLAGGED(vict, PLR_OLC) ||
             (ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF) &&
                 ch->in_room != vict->in_room)) &&
         !(GET_LEVEL(ch) >= LVL_GRGOD && GET_LEVEL(ch) > GET_LEVEL(vict)))
-        act("$E can't hear you.", false, ch, 0, vict, TO_CHAR | TO_SLEEP);
+        act("$E can't hear you.", false, ch, NULL, vict, TO_CHAR | TO_SLEEP);
     else {
         if (!can_send_tell(ch, vict)) {
             if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
                     affected_by_spell(vict, SPELL_TELEPATHY))) {
                 act("Your telepathic voice cannot reach $M.",
-                    false, ch, 0, vict, TO_CHAR);
+                    false, ch, NULL, vict, TO_CHAR);
                 return;
             }
 
@@ -472,7 +472,7 @@ ACMD(do_reply)
             if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
                     affected_by_spell((tch), SPELL_TELEPATHY))) {
                 act("Your telepathic voice cannot reach $M.",
-                    false, ch, 0, tch, TO_CHAR);
+                    false, ch, NULL, tch, TO_CHAR);
                 return;
             }
 
@@ -516,7 +516,7 @@ ACMD(do_retell)
             if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
                     affected_by_spell((tch), SPELL_TELEPATHY))) {
                 act("Your telepathic voice cannot reach $M.",
-                    false, ch, 0, tch, TO_CHAR);
+                    false, ch, NULL, tch, TO_CHAR);
                 return;
             }
 
@@ -541,10 +541,10 @@ ACMD(do_whisper)
             "You can't get your mouth close enough to your ear...\r\n");
     else {
         act(tmp_sprintf("&yYou$a whisper to $N$l,&n '$[%s]'",
-                act_escape(argument)), false, ch, 0, vict, TO_CHAR);
+                act_escape(argument)), false, ch, NULL, vict, TO_CHAR);
         act(tmp_sprintf("&y$n$a whispers to you$l,&n '$[%s]'",
-                act_escape(argument)), false, ch, 0, vict, TO_VICT);
-        act("$n$a whispers something to $N.", false, ch, 0, vict, TO_NOTVICT);
+                act_escape(argument)), false, ch, NULL, vict, TO_VICT);
+        act("$n$a whispers something to $N.", false, ch, NULL, vict, TO_NOTVICT);
     }
 }
 
@@ -552,7 +552,7 @@ ACMD(do_whisper)
 
 ACMD(do_write)
 {
-    struct obj_data *paper = 0, *pen = 0;
+    struct obj_data *paper = NULL, *pen = NULL;
     char *papername, *penname;
 
     papername = buf1;
@@ -585,7 +585,7 @@ ACMD(do_write)
         }
         if (IS_OBJ_TYPE(paper, ITEM_PEN)) {  /* oops, a pen.. */
             pen = paper;
-            paper = 0;
+            paper = NULL;
         } else if (GET_OBJ_TYPE(paper) != ITEM_NOTE) {
             send_to_char(ch, "That thing has nothing to do with writing.\r\n");
             return;
@@ -609,9 +609,9 @@ ACMD(do_write)
 
     /* ok.. now let's see what kind of stuff we've found */
     if (GET_OBJ_TYPE(pen) != ITEM_PEN) {
-        act("$p is no good for writing with.", false, ch, pen, 0, TO_CHAR);
+        act("$p is no good for writing with.", false, ch, pen, NULL, TO_CHAR);
     } else if (GET_OBJ_TYPE(paper) != ITEM_NOTE) {
-        act("You can't write on $p.", false, ch, paper, 0, TO_CHAR);
+        act("You can't write on $p.", false, ch, paper, NULL, TO_CHAR);
     } else if (paper->action_desc) {
         send_to_char(ch, "There's something written on it already.\r\n");
     } else {
@@ -619,7 +619,7 @@ ACMD(do_write)
             CREATE(paper->action_desc, char, MAX_NOTE_LENGTH);
         start_editing_text(ch->desc, &paper->action_desc, MAX_NOTE_LENGTH);
         SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
-        act("$n begins to jot down a note..", true, ch, 0, 0, TO_ROOM);
+        act("$n begins to jot down a note..", true, ch, NULL, NULL, TO_ROOM);
     }
 }
 
@@ -673,27 +673,27 @@ ACMD(do_chat)
     } else if (IS_PC(vict)) {
         send_to_char(ch, "Use the SAY command to talk with other players.\r\n");
     } else if (!AWAKE(vict)) {
-        act("$n is unconscious and will not speak to you.", false, vict, 0, ch, TO_VICT);
+        act("$n is unconscious and will not speak to you.", false, vict, NULL, ch, TO_VICT);
     } else if (is_fighting(vict)) {
-        act("$n is too busy fighting to talk right now!", false, vict, 0, ch, TO_VICT);
+        act("$n is too busy fighting to talk right now!", false, vict, NULL, ch, TO_VICT);
     } else if ((IS_EVIL(ch) && NPC_FLAGGED(vict, NPC_AGGR_EVIL)) ||
                (IS_GOOD(ch) && NPC_FLAGGED(vict, NPC_AGGR_GOOD)) ||
                (IS_NEUTRAL(ch) && NPC_FLAGGED(vict, NPC_AGGR_NEUTRAL))) {
         if (IS_ANIMAL(vict)) {
-            act("You viciously snarl at $N!", false, vict, 0, ch, TO_CHAR);
-            act("$n viciously snarls at you!", false, vict, 0, ch, TO_VICT);
-            act("$n viciously snarls at $N!", false, vict, 0, ch, TO_NOTVICT);
+            act("You viciously snarl at $N!", false, vict, NULL, ch, TO_CHAR);
+            act("$n viciously snarls at you!", false, vict, NULL, ch, TO_VICT);
+            act("$n viciously snarls at $N!", false, vict, NULL, ch, TO_NOTVICT);
         } else {
             perform_say_to(vict, ch, "You think I'm going to talk with YOU?");
         }
     } else {
         if (!trigger_prog_chat(ch, vict)) {
             if (AFF_FLAGGED(ch, AFF_CHARM)) {
-                act("$n merely stares at you in adoration.", false, vict, 0, ch, TO_VICT);
+                act("$n merely stares at you in adoration.", false, vict, NULL, ch, TO_VICT);
             } else if (NPC_FLAGGED(vict, NPC_AGGRESSIVE)) {
-                act("$n merely stares at you with hate and fury.", false, vict, 0, ch, TO_VICT);
+                act("$n merely stares at you with hate and fury.", false, vict, NULL, ch, TO_VICT);
             } else {
-                act("$n doesn't have much to say to you.", false, vict, 0, ch, TO_VICT);
+                act("$n doesn't have much to say to you.", false, vict, NULL, ch, TO_VICT);
             }
         }
     }
@@ -1123,9 +1123,9 @@ ACMD(do_gen_comm)
         }
 
         if (IS_IMMORT(i->creature)) {
-            act(imm_actstr, false, ch, 0, i->creature, TO_VICT | TO_SLEEP);
+            act(imm_actstr, false, ch, NULL, i->creature, TO_VICT | TO_SLEEP);
         } else {
-            act(actstr, false, ch, 0, i->creature, TO_VICT | TO_SLEEP);
+            act(actstr, false, ch, NULL, i->creature, TO_VICT | TO_SLEEP);
         }
     }
 

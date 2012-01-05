@@ -237,7 +237,7 @@ SPECIAL(reimb)
     for (i = 0; data[i].level > 0; i++) {
         if (!strncasecmp(data[i].name, GET_NAME(ch), strlen(data[i].name))) {
             if (GET_LEVEL(ch) >= data[i].level)
-                act("$n says, 'Piss off, $N.'", false, reimber, 0, ch,
+                act("$n says, 'Piss off, $N.'", false, reimber, NULL, ch,
                     TO_ROOM);
             else if (!*arg)
                 send_to_char(ch,
@@ -248,9 +248,9 @@ SPECIAL(reimb)
                 slog("Bad REIMB pwd attempt for %s from %s.", GET_NAME(ch),
                     ch->desc->host);
             } else {
-                act("$n whaps you upside the head!", false, reimber, 0, ch,
+                act("$n whaps you upside the head!", false, reimber, NULL, ch,
                     TO_VICT);
-                act("$n whaps $N upside the head!", false, reimber, 0, ch,
+                act("$n whaps $N upside the head!", false, reimber, NULL, ch,
                     TO_NOTVICT);
                 ch->real_abils.str = data[i].str;
                 ch->real_abils.str_add = data[i].str_add;

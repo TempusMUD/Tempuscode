@@ -437,10 +437,10 @@ account_create_char(struct account *account, const char *name)
     ch->player.long_descr = NULL;
     ch->player.description = NULL;
 
-    ch->player.time.birth = time(0);
+    ch->player.time.birth = time(NULL);
     ch->player.time.death = 0;
     ch->player.time.played = 0;
-    ch->player.time.logon = time(0);
+    ch->player.time.logon = time(NULL);
 
     for (i = 0; i < MAX_SKILLS; i++)
         ch->player_specials->saved.skills[i] = 0;
@@ -605,7 +605,7 @@ account_initialize(struct account *account,
     if (strlen(account->name) > 20)
         account->name[20] = '\0';
     account->password = NULL;
-    account->creation_time = account->login_time = time(0);
+    account->creation_time = account->login_time = time(NULL);
     account->creation_addr = strdup(d->host);
     account->login_addr = strdup(d->host);
     account->ansi_level = 0;
@@ -845,7 +845,7 @@ account_is_logged_in(struct account * account)
 void
 account_update_last_entry(struct account *account)
 {
-    account->entry_time = time(0);
+    account->entry_time = time(NULL);
     sql_exec("update accounts set entry_time=now() where idnum=%d",
         account->id);
 }

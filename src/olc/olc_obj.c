@@ -608,7 +608,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         if (subcmd == OLC_OSET)
             UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
         act("$n begins to write an object description.",
-            true, ch, 0, 0, TO_ROOM);
+            true, ch, NULL, NULL, TO_ROOM);
         break;
 
     case 4:    /************* obj type ******************/
@@ -1123,7 +1123,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         // It's ok.  Let em set it.
         start_editing_text(ch->desc, &obj_p->shared->func_param, 4096);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
-        act("$n begins to write a object spec param.", true, ch, 0, 0,
+        act("$n begins to write a object spec param.", true, ch, NULL, NULL,
             TO_ROOM);
         break;
     case 25:
