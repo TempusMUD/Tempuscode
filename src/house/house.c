@@ -981,7 +981,7 @@ collect_housing_rent(void)
             if (house->type == PRIVATE || house->type == RENTAL) {
                 // If the player is online, do not charge rent.
                 struct account *account = account_by_idnum(house->owner_id);
-                if (account || account_is_logged_in(account))
+                if (account && account_is_logged_in(account))
                     continue;
             }
             // Cost per minute

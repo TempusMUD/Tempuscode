@@ -35,17 +35,23 @@ enum {
     SNEAK_FAILED,
 };
 
-int check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msgs);
+int check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msgs)
+    __attribute__ ((nonnull));
 
 #define TIMEWARP_FILE "etc/timewarps"
 
 int perform_barb_berserk(struct creature *ch,
-                         struct creature **who_was_attacked);
+                         struct creature **who_was_attacked)
+    __attribute__ ((nonnull (1)));
 
-int max_component_dam(struct creature *ch);
-int room_count(struct creature *ch, struct room_data *room);
-int redundant_skillchip(struct obj_data *chip, struct obj_data *slot);
-void engage_self_destruct(struct creature *ch);
+int max_component_dam(struct creature *ch)
+    __attribute__ ((nonnull));
+int room_count(struct creature *ch, struct room_data *room)
+    __attribute__ ((nonnull));
+int redundant_skillchip(struct obj_data *chip, struct obj_data *slot)
+    __attribute__ ((nonnull));
+void engage_self_destruct(struct creature *ch)
+    __attribute__ ((nonnull));
 
 #define NUM_COMPS               9	/* Number of borg components */
 
@@ -106,18 +112,23 @@ extern const char *interface_types[];
 extern const char *borg_subchar_class_names[];
 extern const char *component_names[][3];
 
-void perform_monk_meditate(struct creature *ch);
+void perform_monk_meditate(struct creature *ch)
+    __attribute__ ((nonnull));
 
-void add_rad_sickness(struct creature *ch, int level);
+void add_rad_sickness(struct creature *ch, int level)
+    __attribute__ ((nonnull));
 int boot_timewarp_data(void);
-void show_timewarps(struct creature *ch);
+void show_timewarps(struct creature *ch)
+    __attribute__ ((nonnull));
 
 typedef struct timewarp_data {
 	int from;
 	int to;
 } timewarp_data;
 
-int mob_fight_psionic(struct creature *ch, struct creature *precious_vict);
-void perform_goto(struct creature *ch, struct room_data *room, bool allow_follow);
+int mob_fight_psionic(struct creature *ch, struct creature *precious_vict)
+    __attribute__ ((nonnull (1)));
+void perform_goto(struct creature *ch, struct room_data *room, bool allow_follow)
+    __attribute__ ((nonnull));
 
 #endif

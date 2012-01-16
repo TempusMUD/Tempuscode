@@ -53,7 +53,8 @@
 
 #define IS_DEFENSE_ATTACK(attacktype)   (attacktype == SPELL_FIRE_SHIELD || attacktype == SPELL_BLADE_BARRIER  || attacktype == SPELL_PRISMATIC_SPHERE || attacktype == SKILL_ENERGY_FIELD || attacktype == SPELL_THORN_SKIN || attacktype == SONG_WOUNDING_WHISPERS)
 
-bool cannot_damage(struct creature *ch, struct creature *vict, struct obj_data *weap, int attacktype);
+bool cannot_damage(struct creature *ch, struct creature *vict, struct obj_data *weap, int attacktype)
+    __attribute__ ((nonnull (2)));
 
 struct CallerDiedException {
 };
@@ -61,34 +62,56 @@ struct CallerDiedException {
 //
 // internal functions
 //
-bool ok_damage_vendor(struct creature *ch, struct creature *victim);
-void update_pos(struct creature *victim);
-struct obj_data *destroy_object(struct creature *ch, struct obj_data *obj, int type);
-struct obj_data *damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type);
+bool ok_damage_vendor(struct creature *ch, struct creature *victim)
+    __attribute__ ((nonnull (2)));
+void update_pos(struct creature *victim)
+    __attribute__ ((nonnull));
+struct obj_data *destroy_object(struct creature *ch, struct obj_data *obj, int type)
+    __attribute__ ((nonnull (2)));
+struct obj_data *damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
+    __attribute__ ((nonnull (2)));
 
 void dam_message(int dam, struct creature *ch, struct creature *victim,
-                 struct obj_data *weapon, int w_type, int location);
+                 struct obj_data *weapon, int w_type, int location)
+    __attribute__ ((nonnull (2,3)));
 
-bool do_gun_special(struct creature *ch, struct obj_data *obj);
+bool do_gun_special(struct creature *ch, struct obj_data *obj)
+    __attribute__ ((nonnull));
 
-void death_cry(struct creature *ch);
-void appear(struct creature *ch, struct creature *vict);
+void death_cry(struct creature *ch)
+    __attribute__ ((nonnull));
+void appear(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
 struct obj_data *make_corpse(struct creature *ch, struct creature *killer,
-                     int attacktype);
-void check_object_killer(struct obj_data *obj, struct creature *vict);
-void raw_kill(struct creature *ch, struct creature *killer, int attacktype);	// prototype
-bool is_arena_combat(struct creature *ch, struct creature *vict);
-bool is_npk_combat(struct creature *ch, struct creature *vict);
-bool ok_to_damage(struct creature *ch, struct creature *vict);
-void count_pkill(struct creature *killer, struct creature *vict);
-void check_attack(struct creature *ch, struct creature *vict);
-void check_thief(struct creature *ch, struct creature *vict);
-void die(struct creature *ch, struct creature *killer, int attacktype);
+                     int attacktype)
+    __attribute__ ((nonnull (1)));
+void check_object_killer(struct obj_data *obj, struct creature *vict)
+    __attribute__ ((nonnull));
+void raw_kill(struct creature *ch, struct creature *killer, int attacktype)
+    __attribute__ ((nonnull (1)));
+bool is_arena_combat(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull (2)));
+bool is_npk_combat(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
+bool ok_to_damage(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
+void count_pkill(struct creature *killer, struct creature *vict)
+    __attribute__ ((nonnull));
+void check_attack(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
+void check_thief(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
+void die(struct creature *ch, struct creature *killer, int attacktype)
+    __attribute__ ((nonnull (1)));
 int calculate_thaco(struct creature *ch, struct creature *victim,
-	struct obj_data *obj);
-bool perform_offensive_skill(struct creature *ch, struct creature *vict, int skill);
-void perform_cleave(struct creature *ch, struct creature *vict);
-void punish_killer_death(struct creature *ch);
+	struct obj_data *obj)
+    __attribute__ ((nonnull (1,2)));
+bool perform_offensive_skill(struct creature *ch, struct creature *vict, int skill)
+    __attribute__ ((nonnull));
+void perform_cleave(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
+void punish_killer_death(struct creature *ch)
+    __attribute__ ((nonnull));
 
 static const int wear_translator[] = {
 	WEAR_LIGHT, WEAR_FINGER_R, WEAR_FINGER_R, WEAR_NECK_1, WEAR_NECK_1,
@@ -145,31 +168,48 @@ extern int mini_mud;
 extern struct combat_data *battles;
 
 /* External procedures */
-char *fread_action(FILE * fl, int nr);
+char *fread_action(FILE * fl, int nr)
+    __attribute__ ((nonnull));
 ACMD(do_flee);
-int char_class_race_hit_bonus(struct creature *ch, struct creature *vict);
+int char_class_race_hit_bonus(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
 int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
-	int pos);
+	int pos)
+    __attribute__ ((nonnull (1)));
 
-int choose_random_limb(struct creature *victim);
+int choose_random_limb(struct creature *victim)
+    __attribute__ ((nonnull));
 
 /* prototypes from fight.c */
-void set_defending(struct creature *ch, struct creature *target);
-void stop_follower(struct creature *ch);
-int hit(struct creature *ch, struct creature *victim, int type);
-void forget(struct creature *ch, struct creature *victim);
-void remember(struct creature *ch, struct creature *victim);
-int char_in_memory(struct creature *victim, struct creature *rememberer);
+void set_defending(struct creature *ch, struct creature *target)
+    __attribute__ ((nonnull));
+void stop_follower(struct creature *ch)
+    __attribute__ ((nonnull));
+int hit(struct creature *ch, struct creature *victim, int type)
+    __attribute__ ((nonnull));
+void forget(struct creature *ch, struct creature *victim)
+    __attribute__ ((nonnull));
+void remember(struct creature *ch, struct creature *victim)
+    __attribute__ ((nonnull));
+int char_in_memory(struct creature *victim, struct creature *rememberer)
+    __attribute__ ((nonnull));
 
 bool damage(struct creature *ch, struct creature *victim,
             struct obj_data *weapon,
-            int dam, int attacktype, int location);
+            int dam, int attacktype, int location)
+    __attribute__ ((nonnull (2)));
 int skill_message(int dam, struct creature *ch, struct creature *vict,
-                  struct obj_data *weapon, int attacktype);
-void best_initial_attack(struct creature *ch, struct creature *vict);
-bool check_infiltrate(struct creature *ch, struct creature *vict);
-void add_blood_to_room(struct room_data *rm, int amount);
-bool ok_to_attack(struct creature *ch, struct creature *vict, bool emit);
-void perform_stun(struct creature *ch, struct creature *vict);
+                  struct obj_data *weapon, int attacktype)
+    __attribute__ ((nonnull (2,3)));
+void best_initial_attack(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
+bool check_infiltrate(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
+void add_blood_to_room(struct room_data *rm, int amount)
+    __attribute__ ((nonnull));
+bool ok_to_attack(struct creature *ch, struct creature *vict, bool emit)
+    __attribute__ ((nonnull));
+void perform_stun(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
 
 #endif							// __fight_h__

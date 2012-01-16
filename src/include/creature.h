@@ -1371,30 +1371,50 @@ NPC_CAN_GO(struct creature * ch, int door)
 	return false;
 }
 
-bool is_fighting(struct creature *ch);
-bool is_newbie(struct creature *ch);
+bool is_fighting(struct creature *ch)
+    __attribute__ ((nonnull));
+bool is_newbie(struct creature *ch)
+    __attribute__ ((nonnull));
 
-void start_hunting(struct creature *ch, struct creature *vict);
-void stop_hunting(struct creature *ch);
+void start_hunting(struct creature *ch, struct creature *vict)
+    __attribute__ ((nonnull));
+void stop_hunting(struct creature *ch)
+    __attribute__ ((nonnull));
 
-void restore_creature(struct creature *ch);
-int unrent(struct creature *ch);
-bool checkLoadCorpse(struct creature *ch);
-int loadCorpse(struct creature *ch);
-void creature_set_reputation(struct creature *ch, int amt);
-void check_position(struct creature *ch);
+void restore_creature(struct creature *ch)
+    __attribute__ ((nonnull));
+int unrent(struct creature *ch)
+    __attribute__ ((nonnull));
+bool checkLoadCorpse(struct creature *ch)
+    __attribute__ ((nonnull));
+int loadCorpse(struct creature *ch)
+    __attribute__ ((nonnull));
+void creature_set_reputation(struct creature *ch, int amt)
+    __attribute__ ((nonnull));
+void check_position(struct creature *ch)
+    __attribute__ ((nonnull));
 
-bool creature_rent(struct creature *ch);
-bool creature_cryo(struct creature *ch);
-bool creature_quit(struct creature *ch);
-bool creature_idle(struct creature *ch);
-bool creature_die(struct creature *ch);
-bool creature_npk_die(struct creature *ch);
-bool creature_arena_die(struct creature *ch);
-bool creature_purge(struct creature *ch, bool destroy_obj);
-bool creature_remort(struct creature *ch);
+bool creature_rent(struct creature *ch)
+    __attribute__ ((nonnull));
+bool creature_cryo(struct creature *ch)
+    __attribute__ ((nonnull));
+bool creature_quit(struct creature *ch)
+    __attribute__ ((nonnull));
+bool creature_idle(struct creature *ch)
+    __attribute__ ((nonnull));
+bool creature_die(struct creature *ch)
+    __attribute__ ((nonnull));
+bool creature_npk_die(struct creature *ch)
+    __attribute__ ((nonnull));
+bool creature_arena_die(struct creature *ch)
+    __attribute__ ((nonnull));
+bool creature_purge(struct creature *ch, bool destroy_obj)
+    __attribute__ ((nonnull));
+bool creature_remort(struct creature *ch)
+    __attribute__ ((nonnull));
 
-int max_creature_attr(struct creature *ch, int mode);
+int max_creature_attr(struct creature *ch, int mode)
+    __attribute__ ((nonnull));
 int strength_damage_bonus(int str);
 int strength_hit_bonus(int str);
 float strength_carry_weight(int str);
@@ -1406,8 +1426,10 @@ int constitution_hitpoint_bonus(int con);
 int constitution_shock_bonus(int con);
 int wisdom_mana_bonus(int intel);
 
-struct aff_stash *stash_creature_affects(struct creature *ch);
+struct aff_stash *stash_creature_affects(struct creature *ch)
+    __attribute__ ((nonnull));
 void restore_creature_affects(struct creature *ch,
-                              struct aff_stash *aff_stash);
+                              struct aff_stash *aff_stash)
+    __attribute__ ((nonnull));
 
 #endif

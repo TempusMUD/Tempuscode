@@ -24,13 +24,17 @@ struct ban_entry {
 extern namestring *nasty_list;
 extern int num_nasty;
 
-int isbanned(char *hostname, char *blocking_hostname);
-bool check_ban_all(int desc, char *hostname);
+int isbanned(char *hostname, char *blocking_hostname)
+    __attribute__((nonnull));
+bool check_ban_all(int desc, char *hostname)
+    __attribute__((nonnull));
 void perform_ban(int flag,
                  const char *site,
                  const char *name,
-                 const char *reason);
+                 const char *reason)
+    __attribute__((nonnull));
 
-bool is_valid_name(char *newname);
+bool is_valid_name(char *newname)
+    __attribute__((nonnull));
 
 #endif

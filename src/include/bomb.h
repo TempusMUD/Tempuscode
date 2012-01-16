@@ -72,10 +72,12 @@ struct bomb_radius_list {
 
 extern struct bomb_radius_list *bomb_rooms;
 
-void add_bomb_room(struct room_data *room, int fromdir, int p_factor);
+void add_bomb_room(struct room_data *room, int fromdir, int p_factor)
+    __attribute__ ((nonnull));
 void sort_rooms();
 void bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int bomb_type, int bomb_power,
     struct room_data *room, int dir, int power,
-	struct creature *precious_vict);
+	struct creature *precious_vict)
+    __attribute__ ((nonnull (3,6)));
 
 #endif

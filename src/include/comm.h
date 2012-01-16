@@ -28,32 +28,49 @@ struct descriptor_data;
 struct txt_q;
 
 /* comm.c */
-void send_to_all(const char *messg);
+void send_to_all(const char *messg)
+    __attribute__ ((nonnull));
 void send_to_char(struct creature *ch, const char *str, ...)
-	__attribute__ ((format (printf, 2, 3)));
+	__attribute__ ((format (printf, 2, 3)))
+    __attribute__ ((nonnull (1,2)));
 void send_to_desc(struct descriptor_data *d, const char *str, ...)
-	__attribute__ ((format (printf, 2, 3)));
-void send_to_room(const char *messg, struct room_data *room);
-void send_to_clerics(int align, const char *messg);
-void send_to_outdoor(const char *messg, int isecho);
-void send_to_clan(const char *messg, int clan);
-void send_to_zone(const char *messg, struct zone_data *zone, int outdoor);
+	__attribute__ ((format (printf, 2, 3)))
+    __attribute__ ((nonnull (1,2)));
+void send_to_room(const char *messg, struct room_data *room)
+    __attribute__ ((nonnull));
+void send_to_clerics(int align, const char *messg)
+    __attribute__ ((nonnull));
+void send_to_outdoor(const char *messg, int isecho)
+    __attribute__ ((nonnull));
+void send_to_clan(const char *messg, int clan)
+    __attribute__ ((nonnull));
+void send_to_zone(const char *messg, struct zone_data *zone, int outdoor)
+    __attribute__ ((nonnull));
 void send_to_comm_channel(struct creature *ch, char *buff, int chan, int mode,
-	int hide_invis);
-void send_to_newbie_helpers(const char *messg);
-void close_socket(struct descriptor_data *d);
+	int hide_invis)
+    __attribute__ ((nonnull));
+void send_to_newbie_helpers(const char *messg)
+    __attribute__ ((nonnull));
+void close_socket(struct descriptor_data *d)
+    __attribute__ ((nonnull));
 
 // Act system
-typedef bool (*act_if_predicate)(struct creature *ch, struct obj_data *obj, void *vict_obj, struct creature *to, int mode);
-char *act_escape(const char *str);
+typedef bool (*act_if_predicate)(struct creature *ch, struct obj_data *obj, void *vict_obj, struct creature *to, int mode)
+    __attribute__ ((nonnull (4)));
+char *act_escape(const char *str)
+    __attribute__ ((nonnull));
 void make_act_str(const char *orig, char *buf, struct creature *ch,
-	struct obj_data *obj, void *vict_obj, struct creature *to);
+	struct obj_data *obj, void *vict_obj, struct creature *to)
+    __attribute__ ((nonnull (1,2,6)));
 void perform_act(const char *orig, struct creature *ch,
-	struct obj_data *obj, void *vict_obj, struct creature *to, int mode);
+	struct obj_data *obj, void *vict_obj, struct creature *to, int mode)
+    __attribute__ ((nonnull (1,5)));
 void act_if(const char *str, int hide_invisible, struct creature *ch,
-	struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred);
+	struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred)
+                   __attribute__ ((nonnull (1)));
 void act(const char *str, int hide_invisible, struct creature *ch,
-	struct obj_data *obj, void *vict_obj, int type);
+         struct obj_data *obj, void *vict_obj, int type)
+                   __attribute__ ((nonnull (1)));
 
 #define TO_ROOM		1
 #define TO_VICT		2
@@ -86,11 +103,15 @@ struct last_command_data {
 #define NUM_SAVE_CMDS 30
 
 typedef void sigfunc(int);
-void write_to_q(char *txt, struct txt_q *queue, int aliased);
-void write_to_output(const char *txt, struct descriptor_data *d);
+void write_to_q(char *txt, struct txt_q *queue, int aliased)
+    __attribute__ ((nonnull));
+void write_to_output(const char *txt, struct descriptor_data *d)
+    __attribute__ ((nonnull));
 void page_string(struct descriptor_data *d, const char *str);
-void show_file(struct creature *ch, const char *fname, int lines);
-void show_account_chars(struct descriptor_data *d, struct account *acct, bool immort, bool brief);
+void show_file(struct creature *ch, const char *fname, int lines)
+    __attribute__ ((nonnull));
+void show_account_chars(struct descriptor_data *d, struct account *acct, bool immort, bool brief)
+    __attribute__ ((nonnull));
 
 
 extern bool suppress_output;

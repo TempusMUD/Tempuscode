@@ -25,23 +25,34 @@ struct room_list_elem;
 bool boot_clans(void);
 struct clan_data *clan_by_owner(int idnum);
 struct clan_data *real_clan(int vnum);
-struct clan_data *clan_by_name(char *arg);
-int clan_owning_room(struct room_data *room);
-bool clan_house_can_enter(struct creature *ch, struct room_data *room);
-void do_show_clan(struct creature *ch, struct clan_data *clan);
-bool save_clans();
+struct clan_data *clan_by_name(char *arg)
+    __attribute__ ((nonnull));
+int clan_owning_room(struct room_data *room)
+    __attribute__ ((nonnull));
+bool clan_house_can_enter(struct creature *ch, struct room_data *room)
+    __attribute__ ((nonnull));
+void do_show_clan(struct creature *ch, struct clan_data *clan)
+    __attribute__ ((nonnull (1)));
+bool save_clans(void);
 struct clan_data *create_clan(int vnum);
-int delete_clan(struct clan_data *clan);
-struct clanmember_data *real_clanmember(long idnum, struct clan_data *clan);
-void sort_clanmembers(struct clan_data *clan);
+int delete_clan(struct clan_data *clan)
+    __attribute__ ((nonnull));
+struct clanmember_data *real_clanmember(long idnum, struct clan_data *clan)
+    __attribute__ ((nonnull));
+void sort_clanmembers(struct clan_data *clan)
+    __attribute__ ((nonnull));
 void remove_member_from_clan(struct clanmember_data *member,
-                             struct clan_data *clan);
+                             struct clan_data *clan)
+    __attribute__ ((nonnull));
 void remove_room_from_clan(struct room_list_elem *rm_list,
-                           struct clan_data *clan);
-void remove_clan_member(struct creature *ch);
+                           struct clan_data *clan)
+    __attribute__ ((nonnull));
+void remove_clan_member(struct creature *ch)
+    __attribute__ ((nonnull));
 void clear_clan_owner(long idnum);
 void remove_char_clan(int clan_idnum, long ch_idnum);
-int clan_id(struct clan_data *clan);
+int clan_id(struct clan_data *clan)
+    __attribute__ ((nonnull));
 
 struct clanmember_data {
 	long idnum;

@@ -27,27 +27,43 @@
 struct creature;
 struct descriptor_data;
 
-void command_interpreter(struct creature *ch, const char *argument);
+void command_interpreter(struct creature *ch, const char *argument)
+    __attribute__ ((nonnull));
 char lower(char c);
-char *one_argument(char *argument, char *first_arg);
-char *any_one_arg(char *argument, char *first_arg);
-char *two_arguments(char *argument, char *first_arg, char *second_arg);
-int fill_word(char *argument);
-void half_chop(char *string, char *arg1, char *arg2);
-void handle_input(struct descriptor_data *d);
-int is_abbrev(const char *arg1, const char *arg2);
-int is_abbrevn(const char *arg1, const char *arg2, int count);
-bool is_number(const char *str);
-int find_command(const char *command);
-int find_command_noabbrev(const char *command);
-void skip_spaces(char **string);
-void skip_spaces_const(const char **string);
-void send_unknown_cmd(struct creature *ch);
+char *one_argument(char *argument, char *first_arg)
+    __attribute__ ((nonnull));
+char *any_one_arg(char *argument, char *first_arg)
+    __attribute__ ((nonnull));
+char *two_arguments(char *argument, char *first_arg, char *second_arg)
+    __attribute__ ((nonnull));
+int fill_word(char *argument)
+    __attribute__ ((nonnull));
+void half_chop(char *string, char *arg1, char *arg2)
+    __attribute__ ((nonnull));
+void handle_input(struct descriptor_data *d)
+    __attribute__ ((nonnull));
+int is_abbrev(const char *arg1, const char *arg2)
+    __attribute__ ((nonnull));
+int is_abbrevn(const char *arg1, const char *arg2, int count)
+    __attribute__ ((nonnull));
+bool is_number(const char *str)
+    __attribute__ ((nonnull));
+int find_command(const char *command)
+    __attribute__ ((nonnull));
+int find_command_noabbrev(const char *command)
+    __attribute__ ((nonnull));
+void skip_spaces(char **string)
+    __attribute__ ((nonnull));
+void skip_spaces_const(const char **string)
+    __attribute__ ((nonnull));
+void send_unknown_cmd(struct creature *ch)
+    __attribute__ ((nonnull));
 
 // from search.c
 struct special_search_data;
 int triggers_search(struct creature *ch, int cmd, char *arg,
-                    struct special_search_data *srch);
+                    struct special_search_data *srch)
+    __attribute__ ((nonnull));
 
 struct command_info {
 	const char *command;
