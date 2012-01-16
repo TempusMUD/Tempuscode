@@ -749,7 +749,7 @@ ACMD(do_cinfo)
             i++;
         acc_sprintf("Information on clan %s%s%s:\r\n\r\n"
             "Clan badge: '%s%s%s', Clan headcount: %d, "
-            "Clan bank account: %" PRId64 "\r\nClan ranks:\r\n",
+            "Clan bank account: %'" PRId64 "\r\nClan ranks:\r\n",
             CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
             CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM),
             i, clan->bank_account);
@@ -1140,7 +1140,7 @@ ACMD(do_cedit)
                     "This clan has no overdraft protection. Negative value invalid.\r\n");
                 return;
             }
-            slog("(cedit) %s set clan %d bank from %" PRId64 " to %" PRId64 ".",
+            slog("(cedit) %s set clan %d bank from %'" PRId64 " to %" PRId64 ".",
                 GET_NAME(ch), clan->number, clan->bank_account, money);
             send_to_char(ch, "Clan bank account set from %" PRId64 " to %" PRId64 "\r\n",
                 clan->bank_account, money);
@@ -1621,7 +1621,7 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
             clan->number, CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
             CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), clan->top_rank);
 
-        acc_sprintf("Bank: %-20" PRId64 " Owner: %s[%ld]\r\n",
+        acc_sprintf("Bank: %'-20" PRId64 " Owner: %s[%ld]\r\n",
             clan->bank_account,
             player_name_by_idnum(clan->owner), clan->owner);
 

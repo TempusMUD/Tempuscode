@@ -47,7 +47,7 @@ SPECIAL(safiir)
         sprintf(buf3, "Please recharge this %s.", argument);
         perform_say(ch, "say", buf3);
         if (GET_GOLD(ch) < cost) {
-            sprintf(buf3, "Hah!  You cannot afford the %d coins i require!",
+            sprintf(buf3, "Hah!  You cannot afford the %'d coins i require!",
                 cost);
             perform_say(safiir, "say", buf3);
             return 1;
@@ -59,7 +59,7 @@ SPECIAL(safiir)
             perform_say(safiir, "say",
                 "Okay, but I usually only do business with mages...");
         }
-        sprintf(buf3, "Here, I take %d of your gold coins.", cost);
+        sprintf(buf3, "Here, I take %'d of your gold coins.", cost);
         perform_say(safiir, "say", buf3);
         GET_GOLD(ch) -= cost;
         GET_OBJ_VAL(wand, 2) = GET_OBJ_VAL(wand, 1);
@@ -70,7 +70,7 @@ SPECIAL(safiir)
     } else if (CMD_IS("offer")) {
         sprintf(buf3, "How much to recharge this %s?", argument);
         perform_say(ch, "say", buf3);
-        sprintf(buf3, "Hmmm... I think I could do it for %d coins.", cost);
+        sprintf(buf3, "Hmmm... I think I could do it for %'d coins.", cost);
         perform_say(safiir, "say", buf3);
         return 1;
     }

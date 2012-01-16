@@ -167,7 +167,7 @@ implanter_implant(struct creature *me, struct creature *ch, char *args)
         cost <<= 1;
 
     if (!in_session && GET_CASH(ch) < cost) {
-        msg = tmp_sprintf("The cost for implanting will be %d credits...  "
+        msg = tmp_sprintf("The cost for implanting will be %'d credits...  "
             "Which you obviously do not have.", cost);
         perform_tell(me, ch, msg);
         perform_tell(me, ch, "Take a hike, luser.");
@@ -276,7 +276,7 @@ implanter_extract(struct creature *me, struct creature *ch, char *args)
         cost >>= 2;
 
     if (!in_session && GET_CASH(ch) < cost) {
-        msg = tmp_sprintf("The cost for extraction will be %d credits...  "
+        msg = tmp_sprintf("The cost for extraction will be %'d credits...  "
             "Which you obviously do not have.", cost);
         perform_tell(me, ch, msg);
         perform_tell(me, ch, "Take a hike, luser.");
@@ -375,7 +375,7 @@ implanter_repair(struct creature *me, struct creature *ch, char *args)
         cost <<= 1;
 
     if (!in_session && GET_CASH(ch) < cost) {
-        msg = tmp_sprintf("The cost for repair will be %d credits...  "
+        msg = tmp_sprintf("The cost for repair will be %'d credits...  "
             "Which you obviously do not have.", cost);
         perform_tell(me, ch, msg);
         perform_tell(me, ch, "Take a hike, luser.");

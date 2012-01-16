@@ -34,7 +34,7 @@ SPECIAL(cyborg_overhaul)
         }
 
         if (CMD_IS("value")) {
-            sprintf(buf2, "Cost of operation: %d credits.", cost);
+            sprintf(buf2, "Cost of operation: %'d credits.", cost);
             perform_tell(borg, ch, buf2);
             act("$N interfaces momentarily with $n.", true, ch, NULL, borg,
                 TO_ROOM);
@@ -42,12 +42,12 @@ SPECIAL(cyborg_overhaul)
         }
 
         if (GET_CASH(ch) < cost) {
-            sprintf(buf2, "You do not have the %d required credits.", cost);
+            sprintf(buf2, "You do not have the %'d required credits.", cost);
             perform_tell(borg, ch, buf2);
             return 1;
         }
 
-        sprintf(buf2, "Your account has been debited %d credits.", cost);
+        sprintf(buf2, "Your account has been debited %'d credits.", cost);
         perform_tell(borg, ch, buf2);
 
         act("$n lies down on the table and enters a static state.\r\n"
@@ -77,7 +77,7 @@ SPECIAL(cyborg_overhaul)
         }
 
         if (CMD_IS("value")) {
-            sprintf(buf2, "Cost of operation: %d credits.", cost);
+            sprintf(buf2, "Cost of operation: %'d credits.", cost);
             perform_tell(borg, ch, buf2);
             act("$N interfaces momentarily with $n.", true, ch, NULL, borg,
                 TO_ROOM);
@@ -85,12 +85,12 @@ SPECIAL(cyborg_overhaul)
         }
 
         if (GET_CASH(ch) < cost) {
-            sprintf(buf2, "You do not have the %d required credits.", cost);
+            sprintf(buf2, "You do not have the %'d required credits.", cost);
             perform_tell(borg, ch, buf2);
             return 1;
         }
 
-        sprintf(buf2, "Your account has been debited %d credits.", cost);
+        sprintf(buf2, "Your account has been debited %'d credits.", cost);
         perform_tell(borg, ch, buf2);
 
         act("$N begins to perform repairs on you.", false, ch, NULL, borg,

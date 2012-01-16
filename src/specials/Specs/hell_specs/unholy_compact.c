@@ -56,7 +56,7 @@ SPECIAL(unholy_compact)
     }
     if (GET_GOLD(ch) < gold) {
         perform_tell(dude, ch, "You think I work for free?!?");
-        sprintf(buf, "Bring me %d gold coins and I will make the compact.",
+        sprintf(buf, "Bring me %'d gold coins and I will make the compact.",
             gold);
         perform_tell(dude, ch, buf);
     } else if (GET_LIFE_POINTS(ch) < life_cost) {

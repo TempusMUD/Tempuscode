@@ -1796,11 +1796,11 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                 C_NRM), GET_SAVE(k, 7), CCNRM(ch, C_NRM));
     }
     if (IS_NPC(k))
-        acc_sprintf("Gold:[%8" PRId64 "], Cash:[%8" PRId64 "], (Total: %" PRId64 ")\r\n",
+        acc_sprintf("Gold:[%'8" PRId64 "], Cash:[%'8" PRId64 "], (Total: %'" PRId64 ")\r\n",
             GET_GOLD(k), GET_CASH(k), GET_GOLD(k) + GET_CASH(k));
     else
         acc_sprintf
-            ("Au:[%8" PRId64 "], Bank:[%9" PRId64 "], Cash:[%8" PRId64 "], Enet:[%9" PRId64 "], (Total: %" PRId64 ")\r\n",
+            ("Au:[%'8" PRId64 "], Bank:[%'9" PRId64 "], Cash:[%'8" PRId64 "], Enet:[%'9" PRId64 "], (Total: %'" PRId64 ")\r\n",
             GET_GOLD(k), GET_PAST_BANK(k), GET_CASH(k), GET_FUTURE_BANK(k),
             GET_GOLD(k) + GET_PAST_BANK(k) + GET_FUTURE_BANK(k) + GET_CASH(k));
 
@@ -3959,7 +3959,7 @@ show_account(struct creature *ch, char *value)
             account->creation_addr, account->login_addr, account->reputation);
     }
     send_to_desc(ch->desc,
-        "&y  Past bank: &n%-12" PRId64 "    &yFuture Bank: &n%-12" PRId64,
+        "&y  Past bank: &n%'-12" PRId64 "    &yFuture Bank: &n%'-12" PRId64,
         account->bank_past, account->bank_future);
     if (is_named_role_member(ch, "Questor")) {
         send_to_desc(ch->desc, "   &yQuest Points: &n%d\r\n",
@@ -4014,7 +4014,7 @@ show_player(struct creature *ch, char *value)
         remort_desc, GET_REMORT_GEN(vict));
     sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
     sprintf(buf,
-        "%sAu: %-8" PRId64 "  Cr: %-8" PRId64 "  Past: %-8" PRId64 "  Fut: %-8" PRId64 "\r\n",
+        "%sAu: %'-8" PRId64 "  Cr: %'-8" PRId64 "  Past: %'-8" PRId64 "  Fut: %'-8" PRId64 "\r\n",
         buf, GET_GOLD(vict), GET_CASH(vict),
         GET_PAST_BANK(vict), GET_FUTURE_BANK(vict));
     // Trim and fit the date to show year but not seconds.
@@ -7380,7 +7380,7 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
             if (GET_GOLD(mob) >= k &&
                 (!j || vendor != mob->mob_specials.shared->func))
                 sprintf(buf,
-                    "%s %3d. [%5d] %-30s (%2d) %2" PRId64 "\r\n",
+                    "%s %3d. [%5d] %-30s (%2d) %'" PRId64 "\r\n",
                     buf, ++i, GET_NPC_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
                     GET_GOLD(mob));
         }
@@ -7463,13 +7463,13 @@ do_show_mobiles(struct creature *ch, char *value, char *arg)
                 continue;
 
             if (i && (GET_CASH(mob) > (GET_LEVEL(mob) * l))) {
-                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6" PRId64 ")\r\n",
+                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%'6" PRId64 ")\r\n",
                     buf, ++k, GET_NPC_VNUM(mob), GET_NAME(mob),
                     GET_LEVEL(mob), GET_GOLD(mob));
 
             } else if (!i && (GET_GOLD(mob) > (GET_LEVEL(mob) * l))) {
 
-                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%6" PRId64 ")\r\n",
+                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%'6" PRId64 ")\r\n",
                     buf, ++k, GET_NPC_VNUM(mob), GET_NAME(mob),
                     GET_LEVEL(mob), GET_GOLD(mob));
             }

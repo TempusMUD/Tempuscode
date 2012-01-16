@@ -32,6 +32,7 @@
 #include <libxml/parser.h>
 #include <time.h>
 #include <glib.h>
+#include <locale.h>
 
 #include "interpreter.h"
 #include "utils.h"
@@ -319,13 +320,15 @@ game_loop(int main_listener, int reader_listener)
     struct descriptor_data *d, *next_d;
     int pulse = 0, mins_since_crashsave = 0, maxdesc;
 
+    /* Initialize locale */
+    setlocale(LC_ALL, "en_US.UTF-8");
+
     /* initialize various time values */
     null_time.tv_sec = 0;
     null_time.tv_usec = 0;
     opt_time.tv_sec = 0;
     opt_time.tv_nsec = OPT_USEC * 1000;
     clock_gettime(CLOCK_MONOTONIC, &last_time);
-
     /* The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The.. */
     while (!circle_shutdown) {
         /* Set up the input, output, and exception sets for select(). */

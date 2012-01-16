@@ -317,7 +317,7 @@ ACMD(do_bidlist)
         acc_sprintf("%sCondition:%s     %s\r\n",
             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     tmp_capitalize(obj_cond_color(item->item, COLOR_LEV(ch))));
-        acc_sprintf("%sStarting Bid:%s  %ld coins/cash\r\n",
+        acc_sprintf("%sStarting Bid:%s  %'ld coins/cash\r\n",
             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), item->start_bid);
         acc_sprintf("%sCurrent Bid:%s   %ld coins/cash\r\n",
             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), item->current_bid);
@@ -391,7 +391,7 @@ auctioneer_tick(struct creature *self)
 
         mood_index = number(0, TOP_MOOD);
         if (item->new_bid) {
-            auc_str = tmp_sprintf("%ld coins heard for item number %d, %s!!",
+            auc_str = tmp_sprintf("%'ld coins heard for item number %d, %s!!",
                 item->current_bid, item_no, item->item->name);
             item->new_bid = false;
             item->announce_count = 0;

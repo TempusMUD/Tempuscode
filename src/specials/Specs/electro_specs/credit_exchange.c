@@ -76,7 +76,7 @@ SPECIAL(gold_exchange)
         return 1;
     }
 
-    act(tmp_sprintf("$N takes your money and gives you %d gold coins.",
+    act(tmp_sprintf("$N takes your money and gives you %'d gold coins.",
             amount), false, ch, NULL, teller, TO_CHAR);
     act("$N takes some cash from $n and gives $m some gold coins.",
         false, ch, NULL, teller, TO_NOTVICT);

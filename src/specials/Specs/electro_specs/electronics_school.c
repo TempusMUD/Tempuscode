@@ -73,7 +73,7 @@ SPECIAL(electronics_school)
 
     if (CMD_IS("offer")) {
         perform_say_to(self, ch,
-            tmp_sprintf("Yeah, I'll give you a lesson for %d creds.",
+            tmp_sprintf("Yeah, I'll give you a lesson for %'d creds.",
                 cred_cost));
         return 1;
     }
@@ -86,7 +86,7 @@ SPECIAL(electronics_school)
 
     if (GET_CASH(ch) < cred_cost) {
         perform_say_to(self, ch,
-            tmp_sprintf("You don't have the %d cred tuition I require.",
+            tmp_sprintf("You don't have the %'d cred tuition I require.",
                 cred_cost));
         return 1;
     }

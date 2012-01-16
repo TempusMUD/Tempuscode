@@ -42,7 +42,7 @@ SPECIAL(newbie_gold_coupler)
                     send_to_room(buf, (real_room(i)));
                 }
                 if (coup->in_room->people) {
-                    sprintf(buf, "%s goes to room %d, compiles %d coins.\r\n",
+                    sprintf(buf, "%s goes to room %d, compiles %'d coins.\r\n",
                         GET_NAME(coup), i, count);
                     send_to_room(buf, coup->in_room);
                 }
@@ -57,7 +57,7 @@ SPECIAL(newbie_gold_coupler)
                     send_to_room(buf, (real_room(i)));
                 }
                 if (coup->in_room->people) {
-                    sprintf(buf, "%s goes to room %d, removes %d coins.\r\n",
+                    sprintf(buf, "%s goes to room %d, removes %'d coins.\r\n",
                         CAP(GET_NAME(coup)), i, count);
                     send_to_room(buf, coup->in_room);
                 }
