@@ -2360,11 +2360,7 @@ fire_projectile_round(struct creature *ch,
             sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,
                 /*GUN_TYPE(gun), */ dam, CUR_R_O_F(gun));
         arrow_name = "";
-        extract_obj(bullet);
     }
-    /* we /must/ have a clip in a clipped gun at this point! */
-    // TODO: fix this
-    bullet = MAX_LOAD(gun) ? gun->contains : gun->contains->contains;
 
     if (number(0, 121) > prob) {
         //
@@ -2450,14 +2446,18 @@ shoot_projectile_gun(struct creature *ch,
         return;
     }
 
-    if (!(bullet = gun->contains)) {
-        act("$p is not loaded.", false, ch, gun, NULL, TO_CHAR);
-        return;
-    }
-
-    if (!MAX_LOAD(gun) && !(bullet = gun->contains->contains)) {
-        act("$P is not loaded.", false, ch, gun, gun->contains, TO_CHAR);
-        return;
+    if (MAX_LOAD(gun)) {
+        bullet = gun->contains;
+        if (!bullet) {
+            act("$p is not loaded.", false, ch, gun, NULL, TO_CHAR);
+            return;
+        }
+    } else {
+        bullet = gun->contains->contains;
+        if (!bullet) {
+            act("$P is not loaded.", false, ch, gun, gun->contains, TO_CHAR);
+            return;
+        }
     }
 
     if (target) {
@@ -2529,6 +2529,10 @@ shoot_projectile_gun(struct creature *ch,
             fire_projectile_round(ch, vict, gun, bullet,
                 bullet_num, prob);
         }
+        if (!IS_ARROW(gun))
+            extract_obj(bullet);
+
+        bullet = MAX_LOAD(gun) ? gun->contains:gun->contains->contains;
         // if the attacker was somehow killed, return immediately
         if (is_dead(ch))
             return;
