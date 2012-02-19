@@ -39,7 +39,7 @@ board_command(struct editor *editor, char cmd, char *args __attribute__((unused)
         editor_undo(editor);
         return true;
     }
-    return false;
+    return editor_do_command(editor, cmd, args);
 }
 
 void
