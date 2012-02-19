@@ -1738,9 +1738,9 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             real_clan(GET_CLAN(k)) ? real_clan(GET_CLAN(k))->name : "NONE",
             CCNRM(ch, C_NRM));
 
-        acc_sprintf("Life: [%d], Thac0: [%d], Reputation: [%4d]",
+        acc_sprintf("Life: [%d], Thac0: [%d], Raw Reputation: [%4d]",
             GET_LIFE_POINTS(k), (int)MIN(THACO(GET_CLASS(k), GET_LEVEL(k)),
-                THACO(GET_REMORT_CLASS(k), GET_LEVEL(k))), GET_REPUTATION(k));
+                THACO(GET_REMORT_CLASS(k), GET_LEVEL(k))), RAW_REPUTATION_OF(k));
 
         if (IS_IMMORT(k))
             acc_sprintf(", Qpoints: [%d/%d]", GET_IMMORT_QP(k),

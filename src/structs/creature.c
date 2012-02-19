@@ -1494,7 +1494,7 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
         return false;
     }
 
-    if (GET_REPUTATION(ch) <= 0) {
+    if (reputation_of(ch) <= 0) {
         send_to_char(ch, "Your reputation is 0.  If you want to be "
             "a player killer, type PK on yes.\r\n");
         send_to_char(vict, "%s has just tried to attack you but was "
@@ -1502,7 +1502,7 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
         return false;
     }
 
-    if (GET_REPUTATION(vict) <= 0) {
+    if (reputation_of(vict) <= 0) {
         send_to_char(ch, "%s's reputation is 0 and %s is immune to player "
             "versus player violence.\r\n", GET_NAME(vict), HSSH(vict));
         send_to_char(vict, "%s has just tried to attack you but was "

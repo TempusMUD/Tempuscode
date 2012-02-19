@@ -105,7 +105,7 @@ pk_reputation_gain(struct creature *perp, struct creature *victim)
              - (GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)) / 5;
 
     // Additional adjustment for killing an innocent
-    if (GET_REPUTATION(victim) == 0)
+    if (reputation_of(victim) == 0)
         gain *= 2;
 
     // Additional adjustment for killing a lower gen

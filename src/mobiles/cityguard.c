@@ -532,7 +532,7 @@ SPECIAL(cityguard)
         }
         if (action < 1 && lawful && can_see_creature(self, tch)
             && !PRF_FLAGGED(tch, PRF_NOHASSLE)
-            && GET_REPUTATION(tch) >= CRIMINAL_REP / 2) {
+            && reputation_of(tch) >= CRIMINAL_REP / 2) {
             action = 1;
             target = tch;
         }

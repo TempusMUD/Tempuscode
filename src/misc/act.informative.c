@@ -4476,7 +4476,7 @@ ACMD(do_pkiller)
 
     if (*arg) {
         if (strcasecmp(arg, "on") == 0) {
-            if (GET_REPUTATION(ch) <= 0) {
+            if (reputation_of(ch) <= 0) {
                 arg = tmp_getword(&argument);
                 if (strcasecmp(arg, "yes")) {
                     send_to_char(ch,

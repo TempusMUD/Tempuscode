@@ -95,7 +95,7 @@ do_pass_remort_test(struct creature *ch)
         GET_REMORT_GEN(ch)++;
 
     // At gen 1 they enter the world of pk, like it or not
-    if (GET_REMORT_GEN(ch) >= 1 && GET_REPUTATION(ch) <= 0)
+    if (GET_REMORT_GEN(ch) >= 1 && RAW_REPUTATION_OF(ch) <= 0)
         gain_reputation(ch, 5);
     // Whack thier remort invis
     GET_WIMP_LEV(ch) = 0;       // wimpy

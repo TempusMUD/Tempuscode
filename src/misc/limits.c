@@ -567,7 +567,7 @@ point_update(void)
             !ROOM_FLAGGED(tch->in_room, ROOM_HOUSE) &&
             !ROOM_FLAGGED(tch->in_room, ROOM_PEACEFUL) &&
             !PLR_FLAGGED(tch, PLR_AFK) &&
-            GET_REPUTATION(tch) > 1 && number(0, 153) == 0)
+            RAW_REPUTATION_OF(tch) > 1 && number(0, 153) == 0)
             gain_reputation(tch, -1);
 
         if (GET_POSITION(tch) >= POS_STUNNED) {

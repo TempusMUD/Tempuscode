@@ -1819,7 +1819,7 @@ char_to_game(struct descriptor_data *d)
             NULL);
     }
     // if their rep is 0 and they are >= gen 5 they gain 5 rep
-    if (GET_REMORT_GEN(d->creature) >= 1 && reputation_of(d->creature) == 0) {
+    if (GET_REMORT_GEN(d->creature) >= 1 && RAW_REPUTATION_OF(d->creature) == 0) {
         gain_reputation(d->creature, 5);
         notes =
             tmp_strcat(notes,

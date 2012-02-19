@@ -98,7 +98,7 @@ SPECIAL(demonic_overmind)
                 continue;
             if (IS_IMMORT(cur_desc->creature))
                 continue;
-            if (GET_REPUTATION(cur_desc->creature) < 700)
+            if (reputation_of(cur_desc->creature) < 700)
                 continue;
 
             vict = cur_desc->creature;
@@ -144,7 +144,7 @@ SPECIAL(demonic_overmind)
             }
 
             if (cur_rec->grace > 0) {
-                cur_rec->grace -= GET_REPUTATION(vict) - 620;
+                cur_rec->grace -= reputation_of(vict) - 620;
                 continue;
             }
             // If they're in an arena or a quest, their grace still
@@ -206,7 +206,7 @@ SPECIAL(demonic_guard)
     vict_id = *((int *)self->mob_specials.func_data);
 
     ch = get_char_in_world_by_idnum(vict_id);
-    if (!ch || !NPC_HUNTING(self) || GET_REPUTATION(ch) < 700) {
+    if (!ch || !NPC_HUNTING(self) || reputation_of(ch) < 700) {
         act("$n vanishes into the mouth of an interplanar conduit.",
             false, self, NULL, NULL, TO_ROOM);
         creature_purge(self, true);

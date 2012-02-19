@@ -54,7 +54,7 @@ SPECIAL(jail_locker)
     if (IS_IMMORT(ch))
         cost = 0;
     else
-        cost = MAX(10000, (GET_REPUTATION(ch) + 1)
+        cost = MAX(10000, (reputation_of(ch) + 1)
             * GET_LEVEL(ch)
             * (GET_REMORT_GEN(ch) + 1)
             * 50);

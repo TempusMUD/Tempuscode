@@ -832,7 +832,7 @@ load_player_from_file(const char *path)
             GET_ARENAKILLS(ch) = xmlGetIntProp(node, "akills", 0);
             GET_MOBKILLS(ch) = xmlGetIntProp(node, "mkills", 0);
             GET_PC_DEATHS(ch) = xmlGetIntProp(node, "deaths", 0);
-            GET_REPUTATION(ch) = xmlGetIntProp(node, "reputation", 0);
+            RAW_REPUTATION_OF(ch) = xmlGetIntProp(node, "reputation", 0);
             GET_SEVERITY(ch) = xmlGetIntProp(node, "severity", 0);
         } else if (xmlMatches(node->name, "attr")) {
             ch->aff_abils.str = ch->real_abils.str =

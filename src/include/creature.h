@@ -1173,7 +1173,7 @@ const char *CURRENCY(struct creature * ch);
 #define GET_PC_DEATHS(ch)       ((ch)->player_specials->saved.deaths)
 #define GET_SEVERITY(ch)		((ch)->player_specials->saved.killer_severity)
 #define SPEED_OF(ch)            ((ch)->player_specials->saved.speed)
-#define GET_REPUTATION(ch)      ((ch)->player_specials->saved.reputation)
+#define RAW_REPUTATION_OF(ch)      ((ch)->player_specials->saved.reputation)
 
 #define GET_INVIS_LVL(ch)        ((ch)->player_specials->saved.invis_level)
 #define GET_BROKE(ch)           ((ch)->player_specials->saved.broken_component)
