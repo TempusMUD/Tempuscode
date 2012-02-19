@@ -70,7 +70,7 @@ cmdlog(char *str)
     ct = time(NULL);
     tmstr = asctime(localtime(&ct));
     tmstr[strlen(tmstr) - 1] = '\0';
-    log = tmp_sprintf("%-19.19s _ %s", tmstr, str);
+    log = tmp_sprintf("%-19.19s :: %s", tmstr, str);
     if (!commandLog)
         commandLog = fopen("log/command.log", "a");
     fputs(log, commandLog);
@@ -1770,7 +1770,7 @@ command_interpreter(struct creature *ch, const char *argument)
             (GET_LEVEL(ch) >= 50 && GET_LEVEL(ch) < 65)) {
             // Don't log movement, that's just silly.
             if (cmd_info[cmd].command_pointer != do_move) {
-                cmdlog(tmp_sprintf("CMD: [%s] %s _%s '%s'\n",
+                cmdlog(tmp_sprintf("CMD: [%s] %s :: %s '%s'\n",
                         (ch->in_room) ? tmp_sprintf("%5d",
                             ch->in_room->number) : "NULL", GET_NAME(ch),
                         cmd_info[cmd].command, cmdargs));
