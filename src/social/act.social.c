@@ -236,7 +236,7 @@ ACMD(do_flip)
                 break;
 
         if (!obj && GET_GOLD(ch) == 0) {
-            send_to_char(ch, "You don't have a coin to flip!.\r\n");
+            send_to_char(ch, "You don't have a coin to flip!\r\n");
             return;
         }
         if (random_binary()) {

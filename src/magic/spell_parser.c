@@ -2151,7 +2151,7 @@ ACMD(do_perform)
     }
 
     if (room_is_underwater(ch->in_room)) {
-        send_to_char(ch, "You can't sing or play underwater!.\r\n");
+        send_to_char(ch, "You can't sing or play underwater!\r\n");
         return;
     }
 

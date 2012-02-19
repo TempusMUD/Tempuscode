@@ -52,7 +52,7 @@ SPECIAL(newbie_gold_coupler)
                 if ((real_room(i))->people) {
                     sprintf(buf,
                         "%s appears from a cloud of colored smoke!\r\n"
-                        "%s gathers up many scattered coins of gold and disappears!.\r\n",
+                        "%s gathers up many scattered coins of gold and disappears!\r\n",
                         CAP(GET_NAME(coup)), CAP(GET_NAME(coup)));
                     send_to_room(buf, (real_room(i)));
                 }

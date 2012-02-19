@@ -218,7 +218,7 @@ ASPELL(spell_local_teleport)
     if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
         act("You feel strange as $n attempts to teleport you.",
             false, ch, NULL, victim, TO_VICT);
-        act("You fail.  $N is in a non-violence zone!.",
+        act("You fail.  $N is in a non-violence zone!",
             false, ch, NULL, victim, TO_CHAR);
         return;
     }
@@ -226,7 +226,7 @@ ASPELL(spell_local_teleport)
         victim->in_room->zone->pk_style == ZONE_NO_PK) {
         act("You feel strange as $n attempts to teleport you.",
             false, ch, NULL, victim, TO_VICT);
-        act("You fail.  $N is in a !PK zone!.", false, ch, NULL, victim, TO_CHAR);
+        act("You fail.  $N is in a !PK zone!", false, ch, NULL, victim, TO_CHAR);
         return;
     }
     if (GET_LEVEL(victim) > LVL_AMBASSADOR
@@ -408,7 +408,7 @@ ASPELL(spell_teleport)
     if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
         act("You feel strange as $n attempts to teleport you.",
             false, ch, NULL, victim, TO_VICT);
-        act("You fail.  $N is in a non-violence zone!.",
+        act("You fail.  $N is in a non-violence zone!",
             false, ch, NULL, victim, TO_CHAR);
         return;
     }
@@ -416,7 +416,7 @@ ASPELL(spell_teleport)
         victim->in_room->zone->pk_style == ZONE_NO_PK) {
         act("You feel strange as $n attempts to teleport you.",
             false, ch, NULL, victim, TO_VICT);
-        act("You fail.  $N is in a !PK zone!.", false, ch, NULL, victim, TO_CHAR);
+        act("You fail.  $N is in a !PK zone!", false, ch, NULL, victim, TO_CHAR);
         return;
     }
     if (GET_LEVEL(victim) > LVL_AMBASSADOR &&
@@ -529,7 +529,7 @@ ASPELL(spell_astral_spell)
     if (ch != victim && ROOM_FLAGGED(victim->in_room, ROOM_PEACEFUL)) {
         act("You feel strange as $n attempts to send you into the astral.",
             false, ch, NULL, victim, TO_VICT);
-        act("You fail.  $N is in a non-violence zone!.",
+        act("You fail.  $N is in a non-violence zone!",
             false, ch, NULL, victim, TO_CHAR);
         return;
     }
@@ -537,7 +537,7 @@ ASPELL(spell_astral_spell)
         victim->in_room->zone->pk_style == ZONE_NO_PK) {
         act("You feel strange as $n attempts to send you into the astral.",
             false, ch, NULL, victim, TO_VICT);
-        act("You fail.  $N is in a !PK zone!.", false, ch, NULL, victim, TO_CHAR);
+        act("You fail.  $N is in a !PK zone!", false, ch, NULL, victim, TO_CHAR);
         return;
     }
 

@@ -199,7 +199,7 @@ SPECIAL(underworld_goddess)
                 act("The young priestess starts kissing $n all over his body!",
                     false, styx, NULL, NULL, TO_ROOM);
                 send_to_char(styx,
-                    "The young priestess starts kissing you in some very sensitive areas!.\r\n");
+                    "The young priestess starts kissing you in some very sensitive areas!\r\n");
                 return true;
             }
         }
