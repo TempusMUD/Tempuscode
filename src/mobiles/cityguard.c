@@ -285,7 +285,7 @@ throw_char_in_jail(struct creature *ch, struct creature *vict)
 
     act("$n throws $N into a cell and slams the door!", false, ch, NULL, vict,
         TO_NOTVICT);
-    act("$n throws you into a cell and slams the door behind you!\r\n", false,
+    act("$n throws you into a cell and slams the door behind you!", false,
         ch, NULL, vict, TO_VICT);
 
     char_from_room(vict, false);
