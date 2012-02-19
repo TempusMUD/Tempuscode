@@ -227,11 +227,12 @@ offer_rent(struct creature *ch, struct creature *receptionist,
     if (display_unrentables(ch))
         return 0;
 
+    cost_per_day = calc_daily_rent(ch, factor, curr, display);
+
     if (display) {
         acc_string_clear();
         acc_sprintf("%s writes up a bill and shows it to you:\r\n",
             tmp_capitalize(PERS(receptionist, ch)));
-        cost_per_day = calc_daily_rent(ch, factor, curr, true);
         if (factor == RENT_FACTOR) {
             if (total_money < cost_per_day)
                 acc_strcat
@@ -244,8 +245,6 @@ offer_rent(struct creature *ch, struct creature *receptionist,
                     total_money / cost_per_day, CCNRM(ch, C_NRM));
         }
         page_string(ch->desc, acc_get_string());
-    } else {
-        cost_per_day = calc_daily_rent(ch, factor, curr, false);
     }
 
     return cost_per_day;
@@ -287,8 +286,7 @@ gen_receptionist(struct creature *ch, struct creature *recep,
         return true;
     }
     if (!can_see_creature(recep, ch) && GET_LEVEL(ch) <= LVL_AMBASSADOR) {
-        act("$n says, 'I don't deal with people I can't see!'", false, recep,
-            NULL, NULL, TO_ROOM);
+        perform_say(recep, "say", "I don't deal with people I can't see!");
         return true;
     }
     if (free_rent) {
