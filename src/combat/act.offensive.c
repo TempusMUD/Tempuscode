@@ -3056,7 +3056,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
     if (IS_ENERGY_GUN(gun)) {
 
         if (!gun->contains || !IS_ENERGY_CELL(gun->contains)) {
-            act("$p doesn't contain an energy cell!.",
+            act("$p doesn't contain an energy cell!",
                 false, ch, gun, NULL, TO_CHAR);
             return -1;
         }
