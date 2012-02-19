@@ -26,14 +26,13 @@
 #ifdef HAS_CONFIG_H
 #endif
 
-#define __char_class_c__
-
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
 #include <glib.h>
+#include <libxml/parser.h>
 
 #include "interpreter.h"
 #include "utils.h"
@@ -52,9 +51,9 @@
 #include "tmpstr.h"
 #include "account.h"
 #include "spells.h"
-#include <libxml/parser.h>
 #include "obj_data.h"
 #include "actions.h"
+#include "char_class.h"
 
 extern struct room_data *world;
 
@@ -81,14 +80,6 @@ extern struct room_data *world;
  * to the character when trying to practice (i.e. "You know of the
  * following spells" vs. "You know of the following skills"
  */
-
-#define SPL        0
-#define SKL        1
-#define TRG     2
-#define ALT     3
-#define PRG     4
-#define ZEN     5
-#define SNG     6
 
 /* #define LEARNED_LEVEL        0  % known which is considered "learned" */
 /* #define MAX_PER_PRAC                1  max percent gain in skill per practice */

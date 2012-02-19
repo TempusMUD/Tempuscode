@@ -7,7 +7,13 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#ifndef __char_class_c__
+#define SPL        0
+#define SKL        1
+#define TRG     2
+#define ALT     3
+#define PRG     4
+#define ZEN     5
+#define SNG     6
 
 extern const char *class_names[];
 extern const char *char_class_abbrevs[];
@@ -16,8 +22,6 @@ extern const float thaco_factor[NUM_CLASSES];
 extern const int exp_scale[LVL_GRIMP + 2];
 extern const char *evil_knight_titles[LVL_GRIMP + 1];
 extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1];
-
-#endif
 
 // Returns a tmpstr allocated char* containing an appropriate ANSI
 // color code for the given target struct creature (tch) with the given
