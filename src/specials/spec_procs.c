@@ -220,10 +220,10 @@ list_skills(struct creature *ch, int mode, int type)
 
     acc_string_clear();
     if ((type == 1 || type == 3) &&
-        ((prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != SPL &&
+        ((prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != SKL &&
           prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != PRG) ||
          (GET_REMORT_CLASS(ch) >= 0 &&
-          (prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(ch)] != SPL &&
+          (prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(ch)] != SKL &&
            prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(ch)] != PRG)))) {
         acc_sprintf("%s%sYou know %sthe following %ss:%s\r\n",
                     CCYEL(ch, C_CMP), CCBLD(ch, C_SPR), mode ? "of " : "", SPLSKL(ch),
