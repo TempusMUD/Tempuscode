@@ -1007,9 +1007,18 @@ SPECIAL(vendor)
     if (CMD_IS("steal")) {
         if (shop->steal_ok && GET_LEVEL(ch) < LVL_IMMORT)
             return false;
-        do_gen_comm(self,
-            tmp_capitalize(tmp_sprintf("%s is a bloody thief!",
-                    GET_NAME(ch))), 0, SCMD_SHOUT);
+        if (AWAKE(self)) {
+            do_gen_comm(self,
+                        tmp_capitalize(tmp_sprintf("%s is a bloody thief!",
+                                                   GET_NAME(ch))), 0, SCMD_SHOUT);
+        } else {
+            act("You mumble about bloody thieves and slaps $n's hand away.", false,
+                self, NULL, ch, TO_CHAR);
+            act("$n mumbles about bloody thieves and slaps your hand away.", false,
+                self, NULL, ch, TO_VICT);
+            act("$n mumbles about bloody thieves and slaps $n's hand away.", false,
+                self, NULL, ch, TO_NOTVICT);
+        }
         return true;
     }
 
