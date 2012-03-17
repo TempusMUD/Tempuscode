@@ -2313,32 +2313,32 @@ mag_affects(int level,
         // Set duration of all affects
         aff[0].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
         aff[1].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
-        aff[0].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
-        aff[1].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
+        aff[2].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
+        aff[3].duration = 8 + (skill_bonus(ch, SPELL_DIVINE_POWER) / 10);
 
         // Set type of all affects
         aff[0].type = SPELL_DIVINE_POWER;
         aff[1].type = SPELL_DIVINE_POWER;
-        aff[0].type = SPELL_DIVINE_POWER;
-        aff[1].type = SPELL_DIVINE_POWER;
+        aff[2].type = SPELL_DIVINE_POWER;
+        aff[3].type = SPELL_DIVINE_POWER;
 
         // Should only need to set the bitvector with one of the affects
         aff[0].bitvector = AFF3_DIVINE_POWER;
         aff[0].aff_index = 3;
         // Set the to_vict message on the first affect
-        to_vict = "Your veins course with the power of your Guiharia!";
+        to_vict = "Your veins course with the power of your goddess Guiharia!";
 
         // The location of each affect
         aff[0].location = APPLY_STR;
         aff[1].location = APPLY_HIT;
-        aff[0].location = APPLY_HIT;
-        aff[1].location = APPLY_HIT;
+        aff[2].location = APPLY_HIT;
+        aff[3].location = APPLY_HIT;
 
-        // The amoune of modification to each affect
+        // The amount of modification to each affect
         aff[0].modifier = (skill_bonus(ch, SPELL_DIVINE_POWER) / 15);
         aff[1].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
-        aff[0].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
-        aff[1].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
+        aff[2].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
+        aff[3].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
 
         if (!AFF3_FLAGGED(ch, AFF3_DIVINE_POWER))
             accum_affect = 1;
