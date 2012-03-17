@@ -300,8 +300,7 @@ death_cry(struct creature *ch)
                             (can_see_room(tch, ch->in_room))) {
 
                             int move_result =
-                                do_simple_move(tch, rev_dir[door], MOVE_RUSH,
-                                1);
+                                perform_move(tch, rev_dir[door], MOVE_RUSH, 1);
 
                             if (move_result == 0) {
                                 break;
