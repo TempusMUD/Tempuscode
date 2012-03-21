@@ -76,7 +76,7 @@ struct obj_data *get_random_uncovered_implant(struct creature *ch, int type);
 int calculate_weapon_probability(struct creature *ch, int prob,
     struct obj_data *weap);
 int do_combat_fire(struct creature *ch, struct creature *vict);
-int do_casting_weapon(struct creature *ch, struct obj_data *weap);
+void do_casting_weapon(struct creature *ch, struct obj_data *weap);
 int calculate_attack_probability(struct creature *ch);
 void do_emp_pulse_char(struct creature *ch, struct creature *vict);
 void perform_autoloot(struct creature *ch, struct obj_data *corpse);
@@ -2720,11 +2720,9 @@ hit(struct creature *ch, struct creature *victim, int type)
                 number(0, (CHECK_SKILL(ch, SKILL_BACKSTAB) - LEARNED(ch)) / 2);
         }
 
-        retval = damage(ch, victim, weap, dam, SKILL_BACKSTAB, WEAR_BACK);
-
-        if (retval) {
-            return retval;
-        }
+        damage(ch, victim, weap, dam, SKILL_BACKSTAB, WEAR_BACK);
+        if (is_dead(ch) || is_dead(victim))
+            return 0;
     } else if (type == SKILL_CIRCLE) {
         if (IS_THIEF(ch)) {
             dam *= MAX(2, (BACKSTAB_MULT(ch) / 2));
@@ -2733,12 +2731,9 @@ hit(struct creature *ch, struct creature *victim, int type)
         }
         gain_skill_prof(ch, type);
 
-        retval = damage(ch, victim, weap, dam, SKILL_CIRCLE, WEAR_BACK);
-
-        if (retval) {
-            return retval;
-        }
-
+        damage(ch, victim, weap, dam, SKILL_CIRCLE, WEAR_BACK);
+        if (is_dead(ch) || is_dead(victim))
+            return 0;
     } else {
         int ablaze_level = 0;
         if (weap && IS_OBJ_TYPE(weap, ITEM_WEAPON)
@@ -2765,10 +2760,8 @@ hit(struct creature *ch, struct creature *victim, int type)
         }
 
         retval = damage(ch, victim, weap, dam, w_type, limb);
-
-        if (retval) {
-            return retval;
-        }
+        if (is_dead(ch) || is_dead(victim))
+            return 0;
         // ignite the victim if applicable
         if (ablaze_level > 0 && !AFF2_FLAGGED(victim, AFF2_ABLAZE)) {
             if (!mag_savingthrow(victim, 10, SAVING_SPELL)
@@ -2806,9 +2799,9 @@ hit(struct creature *ch, struct creature *victim, int type)
             if (GET_OBJ_SPEC(weap)) {
                 GET_OBJ_SPEC(weap) (ch, weap, 0, NULL, SPECIAL_COMBAT);
             } else if (IS_OBJ_STAT2(weap, ITEM2_CAST_WEAPON))
-                retval = do_casting_weapon(ch, weap);
-            if (retval)
-                return retval;
+                do_casting_weapon(ch, weap);
+            if (is_dead(ch) || is_dead(victim))
+                return 0;
         }
     }
 
@@ -2825,29 +2818,29 @@ hit(struct creature *ch, struct creature *victim, int type)
     return 0;
 }
 
-int
+void
 do_casting_weapon(struct creature *ch, struct obj_data *weap)
 {
     struct obj_data *weap2;
 
     if (GET_OBJ_VAL(weap, 0) < 0 || GET_OBJ_VAL(weap, 0) > TOP_SPELL_DEFINE) {
         slog("Invalid spell number detected on weapon %d", GET_OBJ_VNUM(weap));
-        return 0;
+        return;
     }
 
     if ((SPELL_IS_MAGIC(GET_OBJ_VAL(weap, 0)) ||
             IS_OBJ_STAT(weap, ITEM_MAGIC)) &&
         ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC))
-        return 0;
+        return;
     if (SPELL_IS_PHYSICS(GET_OBJ_VAL(weap, 0)) &&
         ROOM_FLAGGED(ch->in_room, ROOM_NOSCIENCE))
-        return 0;
+        return;
     if (SPELL_IS_PSIONIC(GET_OBJ_VAL(weap, 0)) &&
         ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS))
-        return 0;
+        return;
     if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_INT(ch) -
                 (CHECK_SKILL(ch, GET_OBJ_VAL(weap, 0)) / 8))))
-        return 0;
+        return;
 
     const char *action_msg = NULL;
     if (weap->action_desc)
@@ -2894,7 +2887,7 @@ do_casting_weapon(struct creature *ch, struct obj_data *weap)
                     ch->in_room);
                 equip_char(ch, weap2, WEAR_WIELD, EQUIP_WORN);
                 if (is_dead(ch))
-                    return true;
+                    return;
             }
             // weapon should fall to ground
             else if (number(0, 20) > GET_DEX(ch))
@@ -2913,7 +2906,7 @@ do_casting_weapon(struct creature *ch, struct obj_data *weap)
         }
         act("$n cries out as $p shocks $m!", false, ch, weap, NULL, TO_ROOM);
     }
-    return 0;
+    return;
 }
 
 //this function only determines whether a gun special should be performed
