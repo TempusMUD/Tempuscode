@@ -965,24 +965,38 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
         extract_obj(obj);
         break;
     case ITEM_SYRINGE:
-        if (k == FIND_CHAR_ROOM) {
-            if (tch == ch) {
-                act("You jab $p into your arm and press the plunger.",
-                    false, ch, obj, NULL, TO_CHAR);
-                act("$n jabs $p into $s arm and depresses the plunger.",
-                    false, ch, obj, NULL, TO_ROOM);
-            } else {
-                act("You jab $p into $N's arm and press the plunger.",
-                    false, ch, obj, tch, TO_CHAR);
-                act("$n jabs $p into $N's arm and presses the plunger.",
-                    true, ch, obj, tch, TO_NOTVICT);
-                act("$n jabs $p into your arm and presses the plunger.",
-                    true, ch, obj, tch, TO_VICT);
-            }
-        } else {
+        if (k != FIND_CHAR_ROOM) {
             act("Who do you want to inject with $p?", false, ch, obj, NULL,
                 TO_CHAR);
             return 1;
+        }
+
+        if ((affected_by_spell(tch, SPELL_STONESKIN)
+             || (affected_by_spell(tch, SPELL_DERMAL_HARDENING) && random_binary())
+             || (affected_by_spell(tch, SPELL_BARKSKIN) && random_binary()))) {
+            act("$p breaks.", true, ch, obj, tch, TO_CHAR);
+            act("$n breaks $p on your arm!", true, ch, obj, tch,
+                TO_VICT);
+            act("$n breaks $p on $N's arm!", true, ch, obj, tch,
+                TO_NOTVICT);
+            unequip_char(ch, obj->worn_on, EQUIP_WORN);
+            obj->obj_flags.damage = 0;
+            extract_obj(obj);
+            return 1;
+        }
+
+        if (tch == ch) {
+            act("You jab $p into your arm and press the plunger.",
+                false, ch, obj, NULL, TO_CHAR);
+            act("$n jabs $p into $s arm and depresses the plunger.",
+                false, ch, obj, NULL, TO_ROOM);
+        } else {
+            act("You jab $p into $N's arm and press the plunger.",
+                false, ch, obj, tch, TO_CHAR);
+            act("$n jabs $p into $N's arm and presses the plunger.",
+                true, ch, obj, tch, TO_NOTVICT);
+            act("$n jabs $p into your arm and presses the plunger.",
+                true, ch, obj, tch, TO_VICT);
         }
 
         if (obj->action_desc != NULL)

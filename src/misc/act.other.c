@@ -773,25 +773,6 @@ ACMD(do_use)
             send_to_char(ch, "You can only inject with syringes.\r\n");
             return;
         }
-        char *arg1 = tmp_getword(&argument);
-
-        if ((vict = get_char_room(arg1, ch->in_room)) &&
-            (affected_by_spell(vict, SPELL_STONESKIN) ||
-                (affected_by_spell(vict, SPELL_DERMAL_HARDENING)
-                    && random_binary())
-                || (affected_by_spell(vict, SPELL_BARKSKIN) && random_binary())
-            )
-            ) {
-            act("$p breaks.", true, ch, mag_item, vict, TO_CHAR);
-            act("$n breaks $p on your arm!", true, ch, mag_item, vict,
-                TO_VICT);
-            act("$n breaks $p on $N's arm!", true, ch, mag_item, vict,
-                TO_NOTVICT);
-            unequip_char(ch, mag_item->worn_on, EQUIP_WORN);
-            mag_item->obj_flags.damage = 0;
-            extract_obj(mag_item);
-            return;
-        }
         break;
     default:
         errlog("Illegal subcmd passed to do_use.");
