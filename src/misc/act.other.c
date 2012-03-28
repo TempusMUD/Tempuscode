@@ -655,7 +655,6 @@ ACMD(do_split)
 ACMD(do_use)
 {
     struct obj_data *mag_item;
-    struct creature *vict = NULL;
 
     char *arg = tmp_getword(&argument);
     if (!*arg) {
