@@ -2706,7 +2706,7 @@ ACMD(do_gen_points)
             send_to_char(ch, "You are very experienced.\r\n");
             return;
         }
-        send_to_char(ch, "You need %s%d%s exp to level.\r\n",
+        send_to_char(ch, "You need %s%'d%s exp to level.\r\n",
                      CCCYN(ch, C_NRM), ((exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch)),
                      CCNRM(ch, C_NRM));
         break;
@@ -2774,8 +2774,8 @@ do_blind_score(struct creature *ch)
                 GET_MOVE(ch), GET_MAX_MOVE(ch));
 	acc_sprintf("Armor Class: %d/10, ", GET_AC(ch));
 	acc_sprintf("Alignment: %d, ", GET_ALIGNMENT(ch));
-	acc_sprintf("Experience: %d\r\n", GET_EXP(ch));
-	acc_sprintf("Kills: %d, PKills: %d, Arena: %d\r\n",
+	acc_sprintf("Experience: %'d\r\n", GET_EXP(ch));
+	acc_sprintf("Kills: %'d, PKills: %'d, Arena: %'d\r\n",
                 (GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)),
                 GET_PKILLS(ch),
                 GET_ARENAKILLS(ch));
@@ -2786,7 +2786,7 @@ do_blind_score(struct creature *ch)
                 format_weight(GET_WEIGHT(ch), USE_METRIC(ch)));
 	if (IS_PC(ch)) {
 		if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
-			acc_sprintf("Next level in %d more experience\r\n",
+			acc_sprintf("Next level in %'d more experience\r\n",
                         ((exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch)));
 		} else {
 			if (ch->player_specials->poofout) {
@@ -2936,13 +2936,13 @@ ACMD(do_score)
             CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_MANA(ch),
             CCNRM(ch, C_NRM)),
         CCGRN(ch, C_NRM), GET_ALIGNMENT(ch), CCNRM(ch, C_NRM));
-    acc_sprintf("Move Points: %11s           Experience: %s%d%s\r\n",
+    acc_sprintf("Move Points: %11s           Experience: %s%'d%s\r\n",
         tmp_sprintf("(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_MOVE(ch),
             CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_MOVE(ch),
             CCNRM(ch, C_NRM)),
         CCGRN(ch, C_NRM), GET_EXP(ch), CCNRM(ch, C_NRM));
     acc_sprintf
-        ("                                   %sKills%s: %d, %sPKills%s: %d, %sArena%s: %d\r\n",
+        ("                                   %sKills%s: %'d, %sPKills%s: %'d, %sArena%s: %'d\r\n",
         CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
         (GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)), CCRED(ch,
             C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(ch), CCGRN(ch, C_NRM),
@@ -2960,7 +2960,7 @@ ACMD(do_score)
 
     if (!IS_NPC(ch)) {
         if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
-            acc_sprintf("You need %s%d%s exp to reach your next level.\r\n",
+            acc_sprintf("You need %s%'d%s exp to reach your next level.\r\n",
                 CCCYN(ch, C_NRM),
                 ((exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch)), CCNRM(ch,
                     C_NRM));
