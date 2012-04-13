@@ -402,8 +402,9 @@ handle_input(gpointer data)
                     d->creature->desc = d;
                     if (other_desc->text_editor)
                         editor_finish(other_desc->text_editor, false);
-                    close_socket(other_desc);
                     other_desc->creature = NULL;
+                    set_desc_state(CXN_DISCONNECT, other_desc);
+                    close_socket(other_desc);
                     send_to_desc(d,
                         "\r\n\r\nYou take over your own body, already in use!\r\n");
                     mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(d->creature), NRM,

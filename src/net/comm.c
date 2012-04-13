@@ -573,14 +573,15 @@ write_to_output(const char *txt, struct descriptor_data *d)
             SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
         }
     }
+    bool needs_watcher = g_io_channel_write_buffer_empty(d->io);
     error = NULL;
     g_io_channel_write_chars(d->io, txt, -1, &bytes_written, &error);
     if (error) {
         slog("g_io_channel_write_chars: %s", error->message);
         g_error_free(error);
      }
-    if (g_io_channel_get_buffer_condition(d->io) & G_IO_OUT)
-        g_io_add_watch(d->io, G_IO_OUT, process_output, d);
+    if (needs_watcher)
+        d->out_watcher = g_io_add_watch(d->io, G_IO_OUT, process_output, d);
 }
 
 /* ******************************************************************
@@ -1017,14 +1018,14 @@ destroy_socket(struct descriptor_data *d)
         // Lost link in-game
         d->creature->player.time.logon = time(NULL);
         crashsave(d->creature);
-        act("$n has lost $s link.", true, d->creature, NULL, NULL, TO_ROOM);
+        account_logout(d->account, d, true);
+        d->creature->desc = NULL;
+        GET_OLC_OBJ(d->creature) = NULL;
         mlog(ROLE_ADMINBASIC,
             MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)),
             NRM, false, "Closing link to: %s [%s] ", GET_NAME(d->creature),
             d->host);
-        account_logout(d->account, d, true);
-        d->creature->desc = NULL;
-        GET_OLC_OBJ(d->creature) = NULL;
+        act("$n has lost $s link.", true, d->creature, NULL, NULL, TO_ROOM);
     } else if (d->account) {
         if (d->creature) {
             crashsave(d->creature);
@@ -1053,7 +1054,7 @@ close_socket(struct descriptor_data *d)
     GIOStatus status;
     GError *error = NULL;
 
-    status = g_io_channel_shutdown(d->io, true, &error);
+    status = g_io_channel_shutdown(d->io, (g_io_channel_get_flags(d->io) & G_IO_FLAG_IS_WRITEABLE), &error);
     destroy_socket(d);
 }
 
