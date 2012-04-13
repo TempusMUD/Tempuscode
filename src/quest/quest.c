@@ -1778,7 +1778,7 @@ do_qcontrol_purge(struct creature *ch, char *argument)
             GET_NAME(vict), vict->in_room->number);
         qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), true);
         if (vict->desc) {
-            set_desc_state(CXN_DISCONNECT, vict->desc);
+            close_socket(vict->desc);
             vict->desc = NULL;
         }
         creature_purge(vict, false);

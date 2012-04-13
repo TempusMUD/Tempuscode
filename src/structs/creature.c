@@ -1243,7 +1243,7 @@ creature_purge(struct creature * ch, bool destroy_obj)
     GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
     if (ch->desc)
-        set_desc_state(CXN_DISCONNECT, ch->desc);
+        close_socket(ch->desc);
     return true;
 }
 

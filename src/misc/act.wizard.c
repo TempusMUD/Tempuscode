@@ -2478,7 +2478,7 @@ ACMD(do_return)
         /* JE 2/22/95 */
         /* if someone switched into your original body, disconnect them */
         if (ch->desc->original->desc)
-            set_desc_state(CXN_DISCONNECT, ch->desc->original->desc);
+            close_socket(ch->desc->original->desc);
 
         ch->desc->creature = ch->desc->original;
         ch->desc->original = NULL;
@@ -3225,7 +3225,7 @@ ACMD(do_dc)
         send_to_char(ch, "Umm.. maybe that's not such a good idea...\r\n");
         return;
     }
-    set_desc_state(CXN_DISCONNECT, d);
+    close_socket(d);
     send_to_char(ch, "Connection #%d closed.\r\n", num_to_dc);
     slog("(GC) Connection closed by %s.", GET_NAME(ch));
 }
@@ -3247,7 +3247,7 @@ ACMD(do_wizcut)
 
         for (d = descriptor_list; d; d = d->next)
             if (d->creature && GET_LEVEL(d->creature) <= level)
-                set_desc_state(CXN_DISCONNECT, d);
+                close_socket(d);
 
         send_to_char(ch,
             "All players level %d and below have been disconnected.\r\n",

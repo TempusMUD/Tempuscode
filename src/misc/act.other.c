@@ -115,7 +115,7 @@ ACMD(do_quit)
             if (d == ch->desc)
                 continue;
             if (d->creature && (GET_IDNUM(d->creature) == GET_IDNUM(ch)))
-                set_desc_state(CXN_DISCONNECT, d);
+                close_socket(d);
         }
 
         if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR || is_tester(ch)) {
