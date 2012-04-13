@@ -94,7 +94,7 @@ void push_command_onto_list(struct creature *ch, char *comm);
 void flush_q(struct txt_q *queue);
 int _parse_name(char *arg, char *name);
 char *diag_conditions(struct creature *ch);
-int perform_alias(struct descriptor_data *d, char *orig);
+char *expand_player_alias(struct descriptor_data *d, char *orig);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 int parse_player_class(char *arg);
 void save_all_players(void);
@@ -109,17 +109,19 @@ void notify_cleric_moon(struct creature *ch);
 void send_menu(struct descriptor_data *d);
 
 int check_newbie_ban(struct descriptor_data *desc);
-void
-handle_input(struct descriptor_data *d)
+
+gboolean
+handle_input(gpointer data)
 {
+    struct descriptor_data *d = data;
     extern bool production_mode;
-    char arg[MAX_INPUT_LENGTH * 10];
-    int aliased;
     int char_id;
     int i;
 
-    if (!get_from_q(&d->input, arg, &aliased, sizeof(arg)))
-        return;
+    if (g_queue_is_empty(d->input))
+        return true;
+
+    char *arg = g_queue_pop_head(d->input);
 
     // we need a prompt here
     d->need_prompt = true;
@@ -128,7 +130,7 @@ handle_input(struct descriptor_data *d)
 
     if (d->text_editor) {
         editor_handle_input(d->text_editor, arg);
-        return;
+        return true;
     }
 
     switch (d->input_mode) {
@@ -148,14 +150,14 @@ handle_input(struct descriptor_data *d)
             act("$n has returned.", true, d->creature, NULL, NULL, TO_ROOM);
         }
         // run it through aliasing system
-        if (!aliased && perform_alias(d, arg))
-            get_from_q(&d->input, arg, &aliased, sizeof(arg));
+        char *cmd = expand_player_alias(d, arg);
+
         // send it to interpreter
-        command_interpreter(d->creature, arg);
+        command_interpreter(d->creature, cmd);
         break;
     case CXN_ACCOUNT_LOGIN:
         if (!*arg) {
-            set_desc_state(CXN_DISCONNECT, d);
+            close_socket(d);
             break;
         }
         if (strcasecmp(arg, "new")) {
@@ -182,7 +184,7 @@ handle_input(struct descriptor_data *d)
                 send_to_desc(d,
                     "Maximum password attempts reached.  Disconnecting.\r\n");
                 slog("PASSWORD: disconnecting due to too many login attempts");
-                set_desc_state(CXN_DISCONNECT, d);
+                close_socket(d);
             } else {
                 send_to_desc(d, "Invalid password.\r\n");
                 set_desc_state(CXN_ACCOUNT_LOGIN, d);
@@ -238,7 +240,7 @@ handle_input(struct descriptor_data *d)
         i = search_block(arg, ansi_levels, false);
         if (i == -1) {
             send_to_desc(d, "\r\nPlease enter one of the selections.\r\n\r\n");
-            return;
+            return true;
         }
 
         account_set_ansi_level(d->account, i);
@@ -248,7 +250,7 @@ handle_input(struct descriptor_data *d)
         i = search_block(arg, compact_levels, false);
         if (i == -1) {
             send_to_desc(d, "\r\nPlease enter one of the selections.\r\n\r\n");
-            return;
+            return true;
         }
 
         account_set_compact_level(d->account, i);
@@ -289,7 +291,7 @@ handle_input(struct descriptor_data *d)
         case 'l':
         case '0':
             send_to_desc(d, "Goodbye.  Return soon!\r\n");
-            set_desc_state(CXN_DISCONNECT, d);
+            close_socket(d);
             break;
         case 'c':
             if (account_chars_available(d->account) <= 0) {
@@ -383,7 +385,7 @@ handle_input(struct descriptor_data *d)
             if (invalid_char_index(d->account, atoi(arg))) {
                 send_to_desc(d,
                     "\r\nThat character selection doesn't exist.\r\n\r\n");
-                return;
+                return true;
             }
             // Try to reconnect to an existing creature first
             char_id = get_char_by_index(d->account, atoi(arg));
@@ -400,7 +402,7 @@ handle_input(struct descriptor_data *d)
                     d->creature->desc = d;
                     if (other_desc->text_editor)
                         editor_finish(other_desc->text_editor, false);
-                    set_desc_state(CXN_DISCONNECT, other_desc);
+                    close_socket(other_desc);
                     other_desc->creature = NULL;
                     send_to_desc(d,
                         "\r\n\r\nYou take over your own body, already in use!\r\n");
@@ -419,7 +421,7 @@ handle_input(struct descriptor_data *d)
                 }
 
                 set_desc_state(CXN_PLAYING, d);
-                return;
+                return true;
             }
 
             d->creature = load_player_from_xml(char_id);
@@ -433,7 +435,7 @@ handle_input(struct descriptor_data *d)
                     "Sorry.  There was an error processing your request.\r\n");
                 send_to_desc(d,
                     "The gods are not ignorant of your plight.\r\n\r\n");
-                return;
+                return true;
             }
 
             d->creature->desc = d;
@@ -442,7 +444,7 @@ handle_input(struct descriptor_data *d)
             // If they were in the middle of something important
             if (d->creature->player_specials->desc_mode != CXN_UNKNOWN) {
                 set_desc_state(d->creature->player_specials->desc_mode, d);
-                return;
+                return true;
             }
 
             if (production_mode
@@ -451,7 +453,7 @@ handle_input(struct descriptor_data *d)
                     "You can't have another character in the game right now.\r\n");
                 free_creature(d->creature);
                 d->creature = NULL;
-                return;
+                return true;
             }
 
             if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR
@@ -467,7 +469,7 @@ handle_input(struct descriptor_data *d)
                                      "while %s is in a quest.\r\n", GET_NAME(tmp_ch));
                             free_creature(d->creature);
                             d->creature = NULL;
-                            return;
+                            return true;
                         }
                         free_creature(tmp_ch);
                     }
@@ -482,13 +484,13 @@ handle_input(struct descriptor_data *d)
     case CXN_NAME_PROMPT:
         if (!arg[0]) {
             set_desc_state(CXN_MENU, d);
-            return;
+            return true;
         }
 
         if (player_name_exists(arg)) {
             send_to_desc(d,
                 "\r\nThat character name is already taken.\r\n\r\n");
-            return;
+            return true;
         }
 
         if (d->creature) {
@@ -496,12 +498,12 @@ handle_input(struct descriptor_data *d)
             send_to_desc(d,
                 "\r\nSorry, there was an error creating your character.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return;
+            return true;
         }
 
         if (!is_valid_name(arg)) {
             send_to_desc(d, "\r\nThat character name is invalid.\r\n\r\n");
-            return;
+            return true;
         }
 
         d->creature = account_create_char(d->account, arg);
@@ -551,26 +553,26 @@ handle_input(struct descriptor_data *d)
     case CXN_CLASS_PROMPT:
         if (is_abbrev("help", arg)) {
             show_pc_class_help(d, arg);
-            return;
+            return true;
         }
         GET_CLASS(d->creature) = parse_player_class(arg);
         if (GET_CLASS(d->creature) == CLASS_UNDEFINED) {
             SEND_TO_Q(CCRED(d->creature, C_NRM), d);
             SEND_TO_Q("\r\nThat's not a character class.\r\n\r\n", d);
             SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
-            return;
+            return true;
         }
         set_desc_state(CXN_RACE_PROMPT, d);
         break;
     case CXN_RACE_PROMPT:
         if (is_abbrev("help", arg)) {
             show_pc_race_help(d, arg);
-            return;
+            return true;
         }
         GET_RACE(d->creature) = parse_pc_race(d, arg);
         if (GET_RACE(d->creature) == RACE_UNDEFINED) {
             send_to_desc(d, "&gThat's not an allowable race!&n\r\n");
-            return;
+            return true;
         }
 
         for (i = 0; i < NUM_PC_RACES; i++)
@@ -600,14 +602,14 @@ handle_input(struct descriptor_data *d)
     case CXN_CLASS_REMORT:
         if (is_abbrev(arg, "help")) {
             show_pc_class_help(d, arg);
-            return;
+            return true;
         }
         GET_REMORT_CLASS(d->creature) = parse_player_class(arg);
         if (GET_REMORT_CLASS(d->creature) == CLASS_UNDEFINED) {
             SEND_TO_Q(CCRED(d->creature, C_NRM), d);
             SEND_TO_Q("\r\nThat's not a character class.\r\n\r\n", d);
             SEND_TO_Q(CCNRM(d->creature, C_NRM), d);
-            return;
+            return true;
         }
 
         for (i = 0; i < NUM_PC_RACES; i++)
@@ -718,7 +720,7 @@ handle_input(struct descriptor_data *d)
             send_to_desc(d,
                 "\r\nThat character selection doesn't exist.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return;
+            return true;
         }
 
         char_id = get_char_by_index(d->account, atoi(arg));
@@ -729,7 +731,7 @@ handle_input(struct descriptor_data *d)
                 send_to_desc(d,
                     "Sorry.  That character could not be loaded.\r\n");
                 set_desc_state(CXN_WAIT_MENU, d);
-                return;
+                return true;
             }
         }
 
@@ -740,7 +742,7 @@ handle_input(struct descriptor_data *d)
             send_to_desc(d,
                 "\r\nThat character selection doesn't exist.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return;
+            return true;
         }
 
         char_id = get_char_by_index(d->account, atoi(arg));
@@ -748,7 +750,7 @@ handle_input(struct descriptor_data *d)
         if (!d->creature) {
             send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return;
+            return true;
         }
 
         d->creature->desc = d;
@@ -757,7 +759,7 @@ handle_input(struct descriptor_data *d)
     case CXN_DELETE_PW:
         if (account_authenticate(d->account, arg)) {
             set_desc_state(CXN_DELETE_VERIFY, d);
-            return;
+            return true;
         }
 
         send_to_desc(d,
@@ -817,7 +819,7 @@ handle_input(struct descriptor_data *d)
     case CXN_OLDPW_PROMPT:
         if (account_authenticate(d->account, arg)) {
             set_desc_state(CXN_NEWPW_PROMPT, d);
-            return;
+            return true;
         }
 
         send_to_desc(d,
@@ -860,7 +862,7 @@ handle_input(struct descriptor_data *d)
             send_to_desc(d,
                 "\r\nThat character selection doesn't exist.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return;
+            return true;
         }
 
         char_id = get_char_by_index(d->account, atoi(arg));
@@ -868,7 +870,7 @@ handle_input(struct descriptor_data *d)
         if (!d->creature) {
             send_to_desc(d, "Sorry.  That character could not be loaded.\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return;
+            return true;
         }
 
         d->creature->desc = d;
@@ -896,6 +898,7 @@ handle_input(struct descriptor_data *d)
             set_desc_state(CXN_RACE_PROMPT, d);
         break;
     }
+    return true;
 }
 
 void
@@ -904,10 +907,6 @@ send_prompt(struct descriptor_data *d)
     extern bool production_mode;
     char prompt[MAX_INPUT_LENGTH];
     char colorbuf[100];
-
-    // No prompt for the wicked
-    if (d->input_mode == CXN_DISCONNECT)
-        return;
 
     // Check for the text editor being used
     if (d->creature && d->text_editor) {
@@ -1014,7 +1013,6 @@ send_prompt(struct descriptor_data *d)
         sprintf(prompt, "%s%s%s>%s ", prompt, CCWHT(d->creature, C_NRM),
             CCBLD(d->creature, C_CMP), CCNRM(d->creature, C_NRM));
         SEND_TO_Q(prompt, d);
-        d->output_broken = false;
         break;
     case CXN_ACCOUNT_LOGIN:
         send_to_desc(d,
@@ -1198,7 +1196,7 @@ send_menu(struct descriptor_data *d)
         break;
     case CXN_ACCOUNT_PROMPT:
         if (check_newbie_ban(d)) {
-            set_desc_state(CXN_DISCONNECT, d);
+            close_socket(d);
             break;
         }
         send_to_desc(d,
@@ -1574,9 +1572,8 @@ set_desc_state(enum cxn_state state, struct descriptor_data *d)
     if (CXN_AFTERLIFE == state) {
         d->inbuf[0] = '\0';
         d->wait = 5 RL_SEC;
-        if (d->input.head) {
-            flush_q(&d->input);
-        }
+        g_queue_foreach(d->input, (GFunc)g_free, NULL);
+        g_queue_clear(d->input);
     }
 
     send_menu(d);
@@ -1679,7 +1676,7 @@ char_to_game(struct descriptor_data *d)
         if (!k->input_mode && k->creature &&
             !strcasecmp(GET_NAME(k->creature), GET_NAME(d->creature))) {
             SEND_TO_Q("Your character has been deleted.\r\n", d);
-            set_desc_state(CXN_DISCONNECT, d);
+            close_socket(d);
             return;
         }
     }

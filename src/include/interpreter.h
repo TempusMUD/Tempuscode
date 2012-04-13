@@ -40,7 +40,7 @@ int fill_word(char *argument)
     __attribute__ ((nonnull));
 void half_chop(char *string, char *arg1, char *arg2)
     __attribute__ ((nonnull));
-void handle_input(struct descriptor_data *d)
+gboolean handle_input(gpointer data)
     __attribute__ ((nonnull));
 int is_abbrev(const char *arg1, const char *arg2)
     __attribute__ ((nonnull));

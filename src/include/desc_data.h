@@ -74,7 +74,8 @@ struct mail_recipient_data {
 };
 
 struct descriptor_data {
-	int descriptor;				/* file descriptor for socket       */
+	GIOChannel *io;				/* file descriptor for socket       */
+    
 	char host[HOST_LENGTH + 1];	/* hostname             */
 	enum cxn_state input_mode;  /* mode of 'connectedness'      */
 	void *mode_data;			// pointer for misc data needed for input_mode
@@ -84,21 +85,22 @@ struct descriptor_data {
 	char *showstr_head;			/* for paging through texts     */
 	char *showstr_point;		/*      -           */
 	int8_t bad_pws;				/* number of bad pw attempts this login  */
-	int8_t need_prompt;			/* control of prompt-printing       */
+	bool need_prompt;			/* control of prompt-printing       */
 	int max_str;				/*      -           */
 	int repeat_cmd_count;		/* how many times has this command been */
 	struct editor *text_editor;	/*  Pointer to text editor object. */
 	char inbuf[MAX_RAW_INPUT_LENGTH];	/* buffer for raw input       */
 	char last_input[MAX_INPUT_LENGTH];	/* the last input         */
-	struct txt_q input;			/* q of unprocessed input       */
-	char small_outbuf[SMALL_BUFSIZE];	/* standard output buffer     */
-	int bufptr;					/* ptr to end of current output     */
-	int bufspace;				/* space left in the output buffer  */
-	struct txt_block *large_outbuf;	/* ptr to large buffer, if we need it */
+	GQueue *input;			/* q of unprocessed input       */
+    guint in_watcher;
+    guint out_watcher;
+    guint hup_watcher;
+    guint err_watcher;
+    guint pri_watcher;
+    guint nval_watcher;
+    guint input_handler;
 	char last_argument[MAX_INPUT_LENGTH];	/* */
 	int last_cmd;
-	char output_broken;
-	char *output;				/* ptr to the current output buffer */
 	int idle;					// how long idle for
     bool is_blind;
     int ban_dc_counter;         // countdown to disconnection due to ban

@@ -80,7 +80,6 @@ bool production_mode = false;   // Run in production mode
 
 /* local globals */
 struct descriptor_data *descriptor_list = NULL; /* master desc list */
-static struct txt_block *bufpool = NULL; /* pool of large output buffers */
 int buf_largecount = 0;         /* # of large buffers which exist */
 int buf_overflows = 0;          /* # of overflows of output */
 int buf_switches = 0;           /* # of switches from small to large buf */
@@ -112,8 +111,6 @@ void game_loop(int main_listener, int reader_listener);
 int init_socket(int port);
 int new_descriptor(int s, int port);
 int get_avail_descs(void);
-int process_output(struct descriptor_data *t);
-int process_input(struct descriptor_data *t);
 struct timespec timediff(struct timespec *a, struct timespec *b);
 void flush_queues(struct descriptor_data *d);
 void nonblock(int s);
@@ -123,7 +120,18 @@ void record_usage(void);
 void send_prompt(struct descriptor_data *point);
 void bamf_quad_damage(void);
 void descriptor_update(void);
-int write_to_descriptor(int desc, const char *txt);
+gboolean process_input(GIOChannel *io,
+                       GIOCondition condition,
+                       gpointer data);
+gboolean process_output(GIOChannel *io,
+                        GIOCondition condition,
+                        gpointer data);
+gboolean handle_socket_hangup(GIOChannel *io,
+                              GIOCondition condition,
+                              gpointer data);
+gboolean accept_new_connection(GIOChannel *io,
+                               GIOCondition condition,
+                               gpointer data);
 
 /* extern fcnts */
 void boot_world(void);
@@ -145,6 +153,8 @@ void retire_trails(void);
 void set_desc_state(int state, struct descriptor_data *d);
 void save_quests();             // quests.cc - saves quest data
 void save_all_players();
+gboolean update_room_affects(gpointer ignore);
+gboolean update_alignment_ambience(gpointer ignore);
 
 /* *********************************************************************
 *  main game loop and related stuff                                    *
@@ -305,6 +315,108 @@ get_avail_descs(void)
     return max_descs;
 }
 
+gboolean
+mud_wide_tick(gpointer ignore)
+{
+    weather_and_time();
+    affect_update();
+    obj_affect_update();
+    point_update();
+    descriptor_update();
+    help_collection_sync(help);
+    save_quests();
+    return true;
+}
+
+gboolean
+autosave(gpointer ignore)
+{
+    save_all_players();
+    collect_housing_rent();
+    save_houses();
+    update_objects_housed_count();
+    return true;
+}
+
+gboolean
+update_ticks(gpointer ignore)
+{
+    tics++;
+    return true;
+}
+
+gboolean
+update_suppress_output(gpointer ignore)
+{
+    suppress_output = false;
+    return true;
+}
+
+gboolean
+temp_autosave_zones(gpointer ignore)
+{
+    autosave_zones(ZONE_AUTOSAVE);
+    return true;
+}
+
+gboolean
+reap_dead_creatures(gpointer ignore)
+{
+    /* garbage collect dead creatures */
+    void extract_creature(struct creature *ch, enum cxn_state con_state);
+
+    GList *next;
+    for (GList *it = creatures;it;it = next) {
+        next = it->next;
+        struct creature *tch = it->data;
+        if (is_dead(tch)) {
+            if (IS_NPC(tch))
+                g_hash_table_remove(creature_map, GINT_TO_POINTER(-NPC_IDNUM(tch)));
+            else
+                g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(tch)));
+            if (tch->in_room)
+                extract_creature(tch, CXN_AFTERLIFE);
+ 
+            // pull the char from the various lists
+            creatures = g_list_delete_link(creatures, it);
+        }
+    }
+    return true;
+}
+
+gboolean
+autoban_disconnect(struct descriptor_data *desc)
+{
+    close_socket(desc);
+    return false;
+}
+
+gboolean
+repeating_func_wrapper(gpointer func_ptr)
+{
+    void (*func)(void) = func_ptr;
+    func();
+    return true;
+}
+
+/**
+ * g_io_channel_write_buffer_empty:
+ * @channel: A #GIOChannel
+ *
+ * This function returns whether the write buffer of @channel has
+ * pending data.
+ *
+ * Return value: %TRUE when @channel has no buffered data to write.
+ *               Returns %FALSE when @channel has pending writes.
+ **/
+gboolean
+g_io_channel_write_buffer_empty(GIOChannel *channel)
+{
+    g_return_val_if_fail (channel != NULL, FALSE);
+    g_return_val_if_fail (channel->use_buffer, FALSE);
+    return !channel->write_buf || (channel->write_buf->len == 0);
+}
+ 
 /*
  * game_loop contains the main loop which drives the entire MUD.  It
  * cycles once every 0.10 seconds and is responsible for accepting new
@@ -312,313 +424,49 @@ get_avail_descs(void)
  * output and sending it out to players, and calling "heartbeat" functions
  * such as mobile_activity().
  */
+GMainLoop *main_loop = NULL;
 void
 game_loop(int main_listener, int reader_listener)
 {
-    fd_set input_set, output_set, exc_set;
-    struct timespec last_time, now, timespent, timeout, opt_time;
-    struct descriptor_data *d, *next_d;
-    int pulse = 0, mins_since_crashsave = 0, maxdesc;
+    GIOChannel *main_io = g_io_channel_unix_new(main_listener);
+    GIOChannel *reader_io = g_io_channel_unix_new(reader_listener);
 
-    /* Initialize locale */
-    setlocale(LC_ALL, "en_US.UTF-8");
+    main_loop = g_main_loop_new(NULL, false);
 
-    /* initialize various time values */
-    null_time.tv_sec = 0;
-    null_time.tv_usec = 0;
-    opt_time.tv_sec = 0;
-    opt_time.tv_nsec = OPT_USEC * 1000;
-    clock_gettime(CLOCK_MONOTONIC, &last_time);
-    /* The Main Loop.  The Big Cheese.  The Top Dog.  The Head Honcho.  The.. */
-    while (!circle_shutdown) {
-        /* Set up the input, output, and exception sets for select(). */
-        FD_ZERO(&input_set);
-        FD_ZERO(&output_set);
-        FD_ZERO(&exc_set);
-        FD_SET(main_listener, &input_set);
-        FD_SET(reader_listener, &input_set);
-        maxdesc = MAX(main_listener, reader_listener);
-        for (d = descriptor_list; d; d = d->next) {
-            if (d->descriptor > maxdesc)
-                maxdesc = d->descriptor;
-            FD_SET(d->descriptor, &input_set);
-            FD_SET(d->descriptor, &output_set);
-            FD_SET(d->descriptor, &exc_set);
-        }
+    g_io_add_watch(main_io, G_IO_IN, accept_new_connection,
+                   GINT_TO_POINTER(main_port));
+    g_io_add_watch(reader_io, G_IO_IN, accept_new_connection,
+                   GINT_TO_POINTER(reader_port));
 
-        // If we're not doing a stress test, we want to slow the mud
-        // down to 1/10th of a second per pulse, if possible.  If we
-        // ARE doing a stress test, this is skipped so we can load the
-        // mud as fast as possible.
-        if (!stress_test) {
-            while (true) {
-                errno = 0;          // clear error condition
+    g_timeout_add(100, repeating_func_wrapper, prog_update_pending);
+    g_timeout_add(100, repeating_func_wrapper, update_unique_id);
+    g_timeout_add(100, repeating_func_wrapper, update_ticks);
+    g_timeout_add(100, repeating_func_wrapper, sql_gc_queries);
+    g_timeout_add(100, repeating_func_wrapper, tmp_gc_strings);
+    g_timeout_add(100, update_suppress_output, NULL);
+    g_timeout_add(1000, reap_dead_creatures, NULL);
+    g_timeout_add(100 * PULSE_MOBILE, repeating_func_wrapper, mobile_activity);
+    g_timeout_add(100 * PULSE_MOBILE_SPEC, repeating_func_wrapper, mobile_spec);
+    g_timeout_add(100 * SEG_VIOLENCE, repeating_func_wrapper, perform_violence);
+    g_timeout_add(100 * FIRE_TICK, repeating_func_wrapper, burn_update);
+    g_timeout_add(100 * PULSE_FLOWS, repeating_func_wrapper, flow_room);
+    g_timeout_add(5000, update_room_affects, NULL);
+    g_timeout_add(4000, update_alignment_ambience, NULL);
+    g_timeout_add(100 * PULSE_FLOWS, repeating_func_wrapper, dynamic_object_pulse);
+    g_timeout_add(100 * PULSE_FLOWS, repeating_func_wrapper, path_activity);
+    g_timeout_add(100 * PULSE_FLOWS, repeating_func_wrapper, prog_update);
+    g_timeout_add(100 * 130 * PASSES_PER_SEC, repeating_func_wrapper, retire_trails);
+    g_timeout_add(100 * SECS_PER_MUD_HOUR * PASSES_PER_SEC,
+                  mud_wide_tick, NULL);
+    if (auto_save)
+        g_timeout_add(100 * 60 * PASSES_PER_SEC,
+                      autosave, NULL);
+    g_timeout_add(100 * 300 * PASSES_PER_SEC, repeating_func_wrapper, record_usage);
+    g_timeout_add(100 * 900 * PASSES_PER_SEC,
+                  temp_autosave_zones, NULL);
+    g_timeout_add(100 * 666 * PASSES_PER_SEC, repeating_func_wrapper, bamf_quad_damage);
 
-                // figure out for how long we have to sleep
-                clock_gettime(CLOCK_MONOTONIC, &now);
-                timespent = timediff(&now, &last_time);
-                timeout = timediff(&opt_time, &timespent);
-                if (timeout.tv_sec <= 0 && timeout.tv_nsec == 0)
-                    break;
-
-                if (!production_mode && !timeout.tv_sec && !timeout.tv_nsec)
-                    slog("WARNING: Last pulse %d took %lu.%06lu seconds",
-                         pulse, timespent.tv_sec, timespent.tv_nsec / 1000);
-
-                // sleep until the next 0.1 second mark
-                if (clock_nanosleep(CLOCK_MONOTONIC, 0, &timeout, &timeout) < 0) {
-                    if (errno != EINTR) {
-                        perror("clock_nanosleep");
-                        safe_exit(EXIT_FAILURE);
-                    }
-                } else {
-                    break;
-                }
-            }
-        }
-        /* record the time for the next pass */
-        clock_gettime(CLOCK_MONOTONIC, &last_time);
-
-        /* poll (without blocking) for new input, output, and exceptions */
-        if (select(maxdesc + 1, &input_set, &output_set, &exc_set,
-                &null_time) < 0) {
-            if (errno == EINTR)
-                continue;
-            perror("Select poll");
-            return;
-        }
-        /* New connection waiting for us? */
-        if (FD_ISSET(main_listener, &input_set))
-            new_descriptor(main_listener, main_port);
-        if (FD_ISSET(reader_listener, &input_set))
-            new_descriptor(reader_listener, reader_port);
-
-        /* kick out the freaky folks in the exception set */
-        for (d = descriptor_list; d; d = d->next) {
-            if (FD_ISSET(d->descriptor, &exc_set)) {
-                FD_CLR(d->descriptor, &input_set);
-                FD_CLR(d->descriptor, &output_set);
-                set_desc_state(CXN_DISCONNECT, d);
-            }
-        }
-
-        /* process descriptors with input pending */
-        for (d = descriptor_list; d; d = d->next) {
-            if (d->input_mode != CXN_DISCONNECT &&
-                FD_ISSET(d->descriptor, &input_set))
-                if (process_input(d) < 0)
-                    set_desc_state(CXN_DISCONNECT, d);
-        }
-
-        /* process commands we just read from process_input */
-        for (d = descriptor_list; d; d = d->next) {
-            if (d->input_mode != CXN_DISCONNECT) {
-                if (--(d->wait) > 0)
-                    continue;
-                handle_input(d);
-            }
-        }
-
-        /* save all players that need to be immediately */
-        for (d = descriptor_list; d; d = d->next) {
-            if (d->input_mode != CXN_DISCONNECT &&
-                d->creature &&
-                IS_PLAYING(d) &&
-                IS_PC(d->creature) && PLR_FLAGGED(d->creature, PLR_CRASH))
-                crashsave(d->creature);
-        }
-
-        /* handle heartbeat stuff */
-        /* Note: pulse now changes every 0.10 seconds  */
-
-        pulse++;
-
-        if (stress_test) {
-            void random_mob_activity(void);
-
-            slog("Pulse %d", pulse);
-            random_mob_activity();
-        }
-
-        /* Update progs triggered by user input that have not run yet */
-        prog_update_pending();
-
-        if (!(pulse % (PULSE_ZONE)))
-            zone_update();
-        if (!((pulse + 1) % PULSE_MOBILE))
-            mobile_activity();
-        if (!((pulse) % PULSE_MOBILE_SPEC))
-            mobile_spec();
-        if (!(pulse % SEG_VIOLENCE))
-            perform_violence();
-        if (!((pulse + 3) % FIRE_TICK))
-            burn_update();
-
-        if (!(pulse % PULSE_FLOWS))
-            flow_room(pulse);
-        else if (!((pulse + 1) % PULSE_FLOWS))
-            dynamic_object_pulse();
-        else if (!((pulse + 2) % PULSE_FLOWS))
-            path_activity();
-        else if (!((pulse + 3) % PULSE_FLOWS))
-            prog_update();
-
-        if (!(pulse % (SECS_PER_MUD_HOUR * PASSES_PER_SEC))) {
-            weather_and_time();
-            affect_update();
-            obj_affect_update();
-            point_update();
-            descriptor_update();
-            help_collection_sync(help);
-            save_quests();
-        }
-        if (auto_save) {
-            if (!(pulse % (60 * PASSES_PER_SEC))) { /* 1 minute */
-                if (++mins_since_crashsave >= autosave_time) {
-                    mins_since_crashsave = 0;
-                    save_all_players();
-                }
-                collect_housing_rent();
-                save_houses();
-                update_objects_housed_count();
-            }
-        }
-
-        if (!(pulse % (300 * PASSES_PER_SEC)))  // 5 minutes
-            record_usage();
-
-        if (!(pulse % (130 * PASSES_PER_SEC)))  // 2.1 minutes
-            retire_trails();
-        if (!olc_lock && !(pulse % (900 * PASSES_PER_SEC))) // 15 minutes
-            autosave_zones(ZONE_AUTOSAVE);
-
-        if (!(pulse % (666 * PASSES_PER_SEC)))
-            bamf_quad_damage();
-
-        if (pulse >= (30 * 60 * PASSES_PER_SEC))    // 30 minutes
-            pulse = 0;
-
-        if (shutdown_count >= 0 && !(pulse % (PASSES_PER_SEC))) {
-            shutdown_count--;   /* units of seconds */
-
-            if (shutdown_count == 10)
-                send_to_all(":: Tempus REBOOT in 10 seconds ::\r\n");
-            else if (shutdown_count == 30)
-                send_to_all(":: Tempus REBOOT in 30 seconds ::\r\n");
-            else if (shutdown_count && !(shutdown_count % 60)) {
-                sprintf(buf, ":: Tempus REBOOT in %d minute%s ::\r\n",
-                    shutdown_count / 60, shutdown_count == 60 ? "" : "s");
-                send_to_all(buf);
-            } else if (shutdown_count <= 0) {
-                save_all_players();
-                collect_housing_rent();
-                save_houses();
-                xmlCleanupParser();
-
-                autosave_zones(ZONE_RESETSAVE);
-                send_to_all(":: Tempus REBOOTING ::\r\n\r\n"
-                    "You feel your reality fading, as the universe spins away\r\n"
-                    "before your eyes and the icy cold of nothingness settles\r\n"
-                    "into your flesh.  With a jolt, you feel the thread snap,\r\n"
-                    "severing your mind from the world known as Tempus.\r\n\r\n");
-                if (shutdown_mode == SHUTDOWN_DIE
-                    || shutdown_mode == SHUTDOWN_PAUSE) {
-                    send_to_all
-                        ("Shutting down for maintenance, try again in half an hour.\r\n");
-                    if (shutdown_mode == SHUTDOWN_DIE)
-                        touch("../.killscript");
-                    else
-                        touch("../pause");
-                } else {
-                    send_to_all
-                        ("Rebooting now, we will be back online in a few minutes.\r\n");
-                    touch("../.fastboot");
-                }
-
-                send_to_all
-                    ("Please visit our website at http://tempusmud.com\r\n");
-
-                slog("(GC) %s called by %s EXECUTING.",
-                    (shutdown_mode == SHUTDOWN_DIE
-                        || shutdown_mode ==
-                        SHUTDOWN_DIE) ? "Shutdown" : "Reboot",
-                    player_name_by_idnum(shutdown_idnum));
-                circle_shutdown = true;
-                for (d = descriptor_list; d; d = d->next)
-                    if (FD_ISSET(d->descriptor, &output_set) && *(d->output))
-                        process_output(d);
-            }
-        }
-
-        /* give each descriptor an appropriate prompt */
-        for (d = descriptor_list; d; d = d->next) {
-            // New output crlf
-            if (d->creature && d->output[0]
-                && d->account->compact_level < 2)
-                SEND_TO_Q("\r\n", d);
-            if (d->need_prompt) {
-                send_prompt(d);
-                // After prompt crlf
-                if (d->creature && d->output[0]
-                    && (d->account->compact_level == 0
-                        || d->account->compact_level == 2))
-                    SEND_TO_Q("\r\n", d);
-                d->need_prompt = 0;
-            }
-
-        }
-
-        /* garbage collect dead creatures */
-        void extract_creature(struct creature *ch, enum cxn_state con_state);
-
-        GList *next;
-        for (GList *it = creatures;it;it = next) {
-            next = it->next;
-            struct creature *tch = it->data;
-            if (is_dead(tch)) {
-                if (IS_NPC(tch))
-                    g_hash_table_remove(creature_map, GINT_TO_POINTER(-NPC_IDNUM(tch)));
-                else
-                    g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(tch)));
-
-                if (tch->in_room)
-                    extract_creature(tch, CXN_AFTERLIFE);
-
-                // pull the char from the various lists
-                creatures = g_list_delete_link(creatures, it);
-            }
-        }
-
-        /* send queued output out to the operating system (ultimately to user) */
-        for (d = descriptor_list; d; d = d->next) {
-            if (FD_ISSET(d->descriptor, &output_set) && *(d->output)) {
-                if (process_output(d) < 0)
-                    set_desc_state(CXN_DISCONNECT, d);
-            }
-        }
-
-        // Enforce an autoban disconnection
-        for (d = descriptor_list; d; d = d->next) {
-            if (d->ban_dc_counter) {
-                d->ban_dc_counter--;
-                if (!d->ban_dc_counter)
-                    set_desc_state(CXN_DISCONNECT, d);
-            }
-        }
-
-        /* kick out folks in the CXN_DISCONNECT state */
-        for (d = descriptor_list; d; d = next_d) {
-            next_d = d->next;
-            if (d->input_mode == CXN_DISCONNECT)
-                close_socket(d);
-        }
-
-        update_unique_id();
-        tics++;                 /* tics since last checkpoint signal */
-        sql_gc_queries();
-        tmp_gc_strings();
-        suppress_output = false;    // failsafe
-    }                           /* while (!circle_shutdown) */
+    g_main_loop_run(main_loop);
 }
 
 /* ******************************************************************
@@ -688,137 +536,108 @@ record_usage(void)
 }
 
 void
-write_to_q(char *txt, struct txt_q *queue, int aliased)
+write_to_descriptor(struct descriptor_data *d, const char *txt)
 {
-    struct txt_block *new_txt_block;
-
-    CREATE(new_txt_block, struct txt_block, 1);
-    CREATE(new_txt_block->text, char, strlen(txt) + 1);
-    strcpy(new_txt_block->text, txt);
-    new_txt_block->aliased = aliased;
-
-    /* queue empty? */
-    if (!queue->head) {
-        new_txt_block->next = NULL;
-        queue->head = queue->tail = new_txt_block;
-    } else {
-        queue->tail->next = new_txt_block;
-        queue->tail = new_txt_block;
-        new_txt_block->next = NULL;
-    }
-}
-
-int
-get_from_q(struct txt_q *queue, char *dest, int *aliased, int length)
-{
-    struct txt_block *tmp;
-
-    /* queue empty? */
-    if (!queue->head)
-        return 0;
-
-    tmp = queue->head;
-    strncpy(dest, queue->head->text, length);
-    *aliased = queue->head->aliased;
-    queue->head = queue->head->next;
-    free(tmp->text);
-    free(tmp);
-    return 1;
+    write_to_output(txt, d);
 }
 
 void
-flush_q(struct txt_q *queue)
+write_to_output(const char *txt, struct descriptor_data *d)
 {
-    struct txt_block *cur_blk, *next_blk;
-
-    for (cur_blk = queue->head; cur_blk; cur_blk = next_blk) {
-        next_blk = cur_blk->next;
-        free(cur_blk->text);
-        free(cur_blk);
-    }
-    queue->head = NULL;
-}
-
-/* Empty the queues before closing connection */
-void
-flush_queues(struct descriptor_data *d)
-{
-    if (d->large_outbuf) {
-        d->large_outbuf->next = bufpool;
-        bufpool = d->large_outbuf;
-    }
-    flush_q(&d->input);
-}
-
-void
-write_to_output(const char *txt, struct descriptor_data *t)
-{
-    int size;
-
-    size = strlen(txt);
-
-    /* if we're in the overflow state already, ignore this new output */
-    if (t->bufptr < 0)
-        return;
+    GError *error = NULL;
+    gsize bytes_written;
 
     if (suppress_output)
         return;
 
-    if (!t->need_prompt && (!t->creature
-            || PRF2_FLAGGED(t->creature, PRF2_AUTOPROMPT))) {
-        t->need_prompt = true;
+    if (!d->need_prompt
+        && (!d->creature || PRF2_FLAGGED(d->creature, PRF2_AUTOPROMPT))) {
+        d->need_prompt = true;
         // New output crlf
-        if (!t->account
-            || t->account->compact_level == 1
-            || t->account->compact_level == 3)
-            write_to_output("\r\n", t);
+        if (!d->account
+            || d->account->compact_level == 1
+            || d->account->compact_level == 3)
+            write_to_output("\r\n", d);
     }
 
-    /* if we have enough space, just write to buffer and that's it! */
-    if (t->bufspace >= size) {
-        strcpy(t->output + t->bufptr, txt);
-        t->bufspace -= size;
-        t->bufptr += size;
-    } else {                    /* otherwise, try switching to a lrg buffer */
-        if (t->large_outbuf || ((size + strlen(t->output)) > LARGE_BUFSIZE)) {
-            /*
-             * we're already using large buffer, or even the large buffer isn't big
-             * enough -- switch to overflow state
-             */
-            t->bufptr = -1;
-            buf_overflows++;
-            return;
+    /* handle snooping: prepend "% " and send to snooper */
+    if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
+        for (GList * x = d->snoop_by; x; x = x->next) {
+            struct descriptor_data *td = x->data;
+            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
+            SEND_TO_Q("{ ", td);
+            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
+            SEND_TO_Q(txt, td);
+            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
+            SEND_TO_Q(" } ", td);
+            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
         }
-        buf_switches++;
-
-        /* if the pool has a buffer in it, grab it */
-        if (bufpool != NULL) {
-            t->large_outbuf = bufpool;
-            bufpool = bufpool->next;
-        } else {                /* else create a new one */
-            CREATE(t->large_outbuf, struct txt_block, 1);
-            CREATE(t->large_outbuf->text, char, LARGE_BUFSIZE);
-            buf_largecount++;
-        }
-
-        strcpy(t->large_outbuf->text, t->output);   /* copy to big buffer */
-        t->output = t->large_outbuf->text;  /* make big buffer primary */
-        strcat(t->output, txt); /* now add new text */
-
-        /* calculate how much space is left in the buffer */
-        t->bufspace = LARGE_BUFSIZE - 1 - strlen(t->output);
-
-        /* set the pointer for the next write */
-        t->bufptr = strlen(t->output);
     }
+    error = NULL;
+    g_io_channel_write_chars(d->io, txt, -1, &bytes_written, &error);
+    if (error) {
+        slog("g_io_channel_write_chars: %s", error->message);
+        g_error_free(error);
+     }
+    if (g_io_channel_get_buffer_condition(d->io) & G_IO_OUT)
+        g_io_add_watch(d->io, G_IO_OUT, process_output, d);
 }
 
 /* ******************************************************************
 *  socket handling                                                  *
 ****************************************************************** */
 
-int
-new_descriptor(int s, int port)
+void destroy_socket(struct descriptor_data *d);
+
+gboolean
+handle_socket_hangup(GIOChannel *io,
+                     GIOCondition condition,
+                     gpointer data)
+{
+    struct descriptor_data *d = data;
+
+    slog("Received socket hangup");
+    close_socket(d);
+    return false;
+}
+
+gboolean
+handle_socket_error(GIOChannel *io,
+                     GIOCondition condition,
+                     gpointer data)
+{
+    struct descriptor_data *d = data;
+
+    slog("Received socket error event");
+    close_socket(d);
+    return false;
+}
+
+gboolean
+handle_socket_priority(GIOChannel *io,
+                     GIOCondition condition,
+                     gpointer data)
+{
+    struct descriptor_data *d = data;
+
+    slog("Received socket priority read event");
+    close_socket(d);
+    return false;
+}
+
+gboolean
+handle_socket_invalid(GIOChannel *io,
+                      GIOCondition condition,
+                      gpointer data)
+{
+    slog("Received socket invalid event");
+    return false;
+}
+
+gboolean
+accept_new_connection(GIOChannel *listener_io,
+                      GIOCondition condition,
+                      gpointer data)
 {
     int desc, sockets_input_mode = 0;
     static int last_desc = 0;   /* last descriptor number */
@@ -826,31 +645,56 @@ new_descriptor(int s, int port)
     struct sockaddr_storage peer;
     socklen_t addrlen;
     extern const char *GREETINGS[];
+    int s = g_io_channel_unix_get_fd(listener_io);
+    int port = GPOINTER_TO_INT(data);
+    GIOChannel *io;
 
     /* accept the new connection */
     addrlen = sizeof(peer);
     if ((desc = accept(s, (struct sockaddr *)&peer, &addrlen)) < 0) {
         perror("accept");
-        return -1;
+        return true;
     }
-
-    /* keep it from blocking */
-    nonblock(desc);
 
     /* make sure we have room for it */
     for (newd = descriptor_list; newd; newd = newd->next)
         sockets_input_mode++;
 
+    io = g_io_channel_unix_new(desc);
+
     if (sockets_input_mode >= avail_descs) {
-        write_to_descriptor(desc,
-            "Sorry, Tempus is full right now... try again later!  :-)\r\n");
-        close(desc);
-        return 0;
+        g_io_channel_write_chars(io, "Sorry, Tempus is full right now... try again later!  :-)\r\n", -1, NULL, NULL);
+        g_io_channel_shutdown(io, true, NULL);
+        g_io_channel_unref(io);
+        return true;
     }
 
     /* create a new descriptor */
     CREATE(newd, struct descriptor_data, 1);
 
+    newd->io = g_io_channel_unix_new(desc);
+
+    GIOStatus status;
+    GError *error = NULL;
+
+    status = g_io_channel_set_flags(newd->io, G_IO_FLAG_NONBLOCK, &error);
+    if (error) {
+        slog("g_io_channel_set_flags(): %s", error->message);
+        g_error_free(error);
+    }
+    g_io_channel_set_encoding(newd->io, NULL, NULL);
+    g_io_channel_set_line_term(newd->io, "\r\n", 2);
+    g_io_channel_set_buffer_size(newd->io, SMALL_BUFSIZE);
+    newd->in_watcher = g_io_add_watch(newd->io, G_IO_IN, process_input, newd);
+    newd->hup_watcher = g_io_add_watch(newd->io, G_IO_HUP, handle_socket_hangup, newd);
+    newd->err_watcher = g_io_add_watch(newd->io, G_IO_ERR, handle_socket_error, newd);
+    newd->pri_watcher = g_io_add_watch(newd->io, G_IO_PRI, handle_socket_priority, newd);
+    newd->nval_watcher = g_io_add_watch(newd->io, G_IO_NVAL, handle_socket_invalid, newd);
+    newd->input_handler = g_timeout_add(100, handle_input, newd);
+
+    newd->input = g_queue_new();
+ 
+    /* find the site name */
     int info_flags = NI_NUMERICSERV;
     int err;
     if (nameserver_is_slow)
@@ -861,14 +705,14 @@ new_descriptor(int s, int port)
     if (err != 0) {
         fprintf(stderr, "new_descriptor(): %s\n", gai_strerror(err));
         close(s);
-        return 0;
+        return true;
     }
 
     /* determine if the site is banned */
     if (check_ban_all(desc, newd->host)) {
         close(desc);
         free(newd);
-        return 0;
+        return true;
     }
 
     int bantype = isbanned(newd->host, buf2);
@@ -882,11 +726,8 @@ new_descriptor(int s, int port)
          port);
 
     /* initialize descriptor data */
-    newd->descriptor = desc;
     STATE(newd) = CXN_ACCOUNT_LOGIN;
     newd->wait = 1;
-    newd->output = newd->small_outbuf;
-    newd->bufspace = SMALL_BUFSIZE - 1;
     newd->next = descriptor_list;
     newd->login_time = time(NULL);
     newd->text_editor = NULL;
@@ -922,142 +763,70 @@ new_descriptor(int s, int port)
             SEND_TO_Q(GREETINGS[0], newd);
         }
     }
-    return 0;
+    return true;
 }
 
-int
-process_output(struct descriptor_data *d)
+gboolean
+process_output(GIOChannel *io,
+              GIOCondition condition,
+              gpointer data)
 {
-    static int result;
+    struct descriptor_data *d = data;
+    GError *error = NULL;
 
-    result = write_to_descriptor(d->descriptor, d->output);
-
-    /* if we're in the overflow state, notify the user */
-    if (!result && d->bufptr < 0)
-        result = write_to_descriptor(d->descriptor, "**OVERFLOW**");
-
-    /* handle snooping: prepend "% " and send to snooper */
-    if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
-        for (GList * x = d->snoop_by; x; x = x->next) {
-            struct descriptor_data *td = x->data;
-            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
-            SEND_TO_Q("{ ", td);
-            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
-            SEND_TO_Q(d->output, td);
-            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
-            SEND_TO_Q(" } ", td);
-            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
-        }
+    // New output crlf
+    if (d->creature
+        && !g_io_channel_write_buffer_empty(d->io)
+        && d->account->compact_level < 2) {
+        SEND_TO_Q("\r\n", d);
     }
-    /*
-     * if we were using a large buffer, put the large buffer on the buffer pool
-     * and switch back to the small one
-     */
-    if (d->large_outbuf) {
-        d->large_outbuf->next = bufpool;
-        bufpool = d->large_outbuf;
-        d->large_outbuf = NULL;
-        d->output = d->small_outbuf;
+    if (d->need_prompt) {
+        send_prompt(d);
+        // After prompt crlf
+        if (d->creature
+            && !g_io_channel_write_buffer_empty(d->io)
+            && (d->account->compact_level == 0
+                || d->account->compact_level == 2))
+            SEND_TO_Q("\r\n", d);
+        d->need_prompt = false;
     }
-    /* reset total bufspace back to that of a small buffer */
-    d->bufspace = SMALL_BUFSIZE - 1;
-    d->bufptr = 0;
-    *(d->output) = '\0';
 
-    return result;
+    g_io_channel_flush(d->io, &error);
+    if (error) {
+        slog("g_io_channel_flush: %s", error->message);
+        g_error_free(error);
+    }
+ 
+    if (g_io_channel_write_buffer_empty(d->io)) {
+        d->out_watcher = 0;
+        return false;
+    }
+
+    return true;
 }
 
-int
-write_to_descriptor(int desc, const char *txt)
+gboolean
+process_input(GIOChannel *io,
+              GIOCondition condition,
+              gpointer data)
 {
-    int total, int8_ts_written;
+    struct descriptor_data *d = data;
+    GError *error = NULL;
+    gsize eol_pos;
+    gchar *line;
+    GIOStatus status;
 
-    total = strlen(txt);
+    status = g_io_channel_read_line(d->io, &line, NULL, &eol_pos, &error);
+    while (status == G_IO_STATUS_NORMAL) {
+        int space_left, failed_subst;
+        char *ptr, *read_point, *write_point;
+        gchar *eol = line + eol_pos;
+        char tmp[MAX_INPUT_LENGTH + 8];
 
-    do {
-        if ((int8_ts_written = write(desc, txt, total)) < 0) {
-#ifdef EWOULDBLOCK
-            if (errno == EWOULDBLOCK)
-                errno = EAGAIN;
-#endif
-            if (errno == EAGAIN)
-                slog("process_output: socket write would block, about to close");
-            else
-                perror("Write to socket");
-            return -1;
-        } else {
-            txt += int8_ts_written;
-            total -= int8_ts_written;
-        }
-    } while (total > 0);
-
-    return 0;
-}
-
-/*
- * ASSUMPTION: There will be no newlines in the raw input buffer when this
- * function is called.  We must maintain that before returning.
- */
-int
-process_input(struct descriptor_data *t)
-{
-    int buf_length, int8_ts_read, space_left, failed_subst;
-    char *ptr, *read_point, *write_point, *nl_pos = NULL;
-    char tmp[MAX_INPUT_LENGTH + 8];
-
-    /* first, find the point where we left off reading data */
-    buf_length = strlen(t->inbuf);
-    read_point = t->inbuf + buf_length;
-    space_left = MAX_RAW_INPUT_LENGTH - buf_length - 1;
-
-    do {
-        if (space_left <= 0) {
-            slog("process_input: about to close connection: input overflow");
-            return -1;
-        }
-
-        if ((int8_ts_read = read(t->descriptor, read_point, space_left)) < 0) {
-
-#ifdef EWOULDBLOCK
-            if (errno == EWOULDBLOCK)
-                errno = EAGAIN;
-#endif
-            if (errno != EAGAIN) {
-                perror("process_input: about to lose connection");
-                return -1;      /* some error condition was encountered on
-                                 * read */
-            } else
-                return 0;       /* the read would have blocked: just means no
-                                 * data there */
-        } else if (int8_ts_read == 0) {
-            slog("EOF on socket read (connection broken by peer)");
-            return -1;
-        }
-        /* at this point, we know we got some data from the read */
-
-        read_point[int8_ts_read] = '\0';  /* terminate the string */
-
-        /* search for a newline in the data we just read */
-        for (ptr = read_point; *ptr && !nl_pos; ptr++)
-            if (ISNEWL(*ptr))
-                nl_pos = ptr;
-
-        read_point += int8_ts_read;
-        space_left -= int8_ts_read;
-    } while (nl_pos == NULL);
-
-    /*
-     * okay, at this point we have at least one newline in the string; now we
-     * can copy the formatted data to a new array for further processing.
-     */
-
-    read_point = t->inbuf;
-
-    while (nl_pos != NULL) {
         write_point = tmp;
         space_left = MAX_INPUT_LENGTH - 1;
-
-        for (ptr = read_point; (space_left > 0) && (ptr < nl_pos); ptr++) {
+        read_point = line;
+        for (ptr = read_point; space_left > 0 && ptr < eol; ptr++) {
             if (*ptr == '\b') { /* handle backspacing */
                 if (write_point > tmp) {
                     if (*(--write_point) == '$') {
@@ -1074,15 +843,14 @@ process_input(struct descriptor_data *t)
 
         *write_point = '\0';
 
-        if ((space_left <= 0) && (ptr < nl_pos)) {
-            char buffer[MAX_INPUT_LENGTH + 64];
-
-            sprintf(buffer, "Line too long.  Truncated to:\r\n%s\r\n", tmp);
-            if (write_to_descriptor(t->descriptor, buffer) < 0)
-                return -1;
+        if ((space_left <= 0) && (ptr < eol)) {
+            write_to_output(tmp_sprintf("Line too long."
+                                        "Truncated to:\r\n%s\r\n",
+                                        tmp),
+                            d);
         }
-        if (t->snoop_by && t->creature && !IS_NPC(t->creature)) {
-            for (GList * x = t->snoop_by; x; x = x->next) {
+        if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
+            for (GList * x = d->snoop_by; x; x = x->next) {
                 struct descriptor_data *td = x->data;
                 SEND_TO_Q(CCRED(td->creature, C_NRM), td);
                 SEND_TO_Q("[ ", td);
@@ -1096,20 +864,20 @@ process_input(struct descriptor_data *t)
 
         failed_subst = 0;
 
-        if (*tmp == '!' && STATE(t) != CXN_PW_VERIFY) {
-            strcpy(tmp, t->last_input);
+        if (*tmp == '!' && STATE(d) != CXN_PW_VERIFY) {
+            strcpy(tmp, d->last_input);
         } else if (*tmp == '^') {
-            if (!(failed_subst = perform_subst(t, t->last_input, tmp)))
-                strcpy(t->last_input, tmp);
+            if (!(failed_subst = perform_subst(d, d->last_input, tmp)))
+                strcpy(d->last_input, tmp);
         } else
-            strcpy(t->last_input, tmp);
+            strcpy(d->last_input, tmp);
 
-        if (t->repeat_cmd_count > 300 &&
-            (!t->creature || GET_LEVEL(t->creature) < LVL_ETERNAL)) {
-            if (t->creature && t->creature->in_room) {
+        if (d->repeat_cmd_count > 300 &&
+            (!d->creature || GET_LEVEL(d->creature) < LVL_ETERNAL)) {
+            if (d->creature && d->creature->in_room) {
                 act("SAY NO TO SPAM.\r\n"
                     "Begone oh you waster of electrons,"
-                    " ye vile profaner of CPU time!", true, t->creature, NULL, NULL,
+                    " ye vile profaner of CPU time!", true, d->creature, NULL, NULL,
                     TO_ROOM);
                 slog("SPAM-death on the queue!");
                 return (-1);
@@ -1117,41 +885,39 @@ process_input(struct descriptor_data *t)
         }
 
         if (!failed_subst) {
-            if (IS_PLAYING(t) && !strncmp("revo", tmp, 4)) {
+            if (IS_PLAYING(d) && !strncmp("revo", tmp, 4)) {
                 // We want all commands in the queue to be dumped immediately
                 // This has to be here so we can bypass the normal order of
                 // commands
-                t->need_prompt = true;
-                if (t->input.head) {
-                    flush_q(&t->input);
-                    send_to_desc(t, "You reconsider your rash plans.\r\n");
-                    WAIT_STATE(t->creature, 1 RL_SEC);
+                d->need_prompt = true;
+                if (g_queue_is_empty(d->input)) {
+                    send_to_desc(d,
+                                 "You don't have any commands to revoke!\r\n");
                 } else {
-                    send_to_desc(t,
-                        "You don't have any commands to revoke!\r\n");
+                    g_queue_foreach(d->input, (GFunc)g_free, NULL);
+                    g_queue_clear(d->input);
+                    send_to_desc(d, "You reconsider your rash plans.\r\n");
+                    WAIT_STATE(d->creature, 1 RL_SEC);
                 }
-            } else
-                write_to_q(tmp, &t->input, 0);
+            } else {
+                g_queue_push_tail(d->input, strdup(tmp));
+            }
         }
-
-        /* find the end of this line */
-        while (ISNEWL(*nl_pos))
-            nl_pos++;
-
-        /* see if there's another newline in the input buffer */
-        read_point = ptr = nl_pos;
-        for (nl_pos = NULL; *ptr && !nl_pos; ptr++)
-            if (ISNEWL(*ptr))
-                nl_pos = ptr;
+        g_free(line);
+        status = g_io_channel_read_line(d->io, &line, NULL, &eol_pos, &error);
     }
 
-/* now move the rest of the buffer up to the beginning for the next pass */
-    write_point = t->inbuf;
-    while (*read_point)
-        *(write_point++) = *(read_point++);
-    *write_point = '\0';
+    if (status == G_IO_STATUS_EOF) {
+        close_socket(d);
+        return false;
+    } else if (error) {
+         slog("g_io_channel_read_line(): %s", error->message);
+         g_error_free(error);
+        close_socket(d);
+        return false;
+    }
 
-    return 1;
+    return true;
 }
 
 /*
@@ -1211,19 +977,27 @@ perform_subst(struct descriptor_data *t, char *orig, char *subst)
 }
 
 void
-close_socket(struct descriptor_data *d)
+destroy_socket(struct descriptor_data *d)
 {
     struct descriptor_data *temp;
 
-    close(d->descriptor);
-    flush_queues(d);
+    g_source_remove(d->in_watcher);
+    g_source_remove(d->hup_watcher);
+    g_source_remove(d->err_watcher);
+    g_source_remove(d->pri_watcher);
+    g_source_remove(d->nval_watcher);
+    if (d->out_watcher)
+        g_source_remove(d->out_watcher);
+    g_source_remove(d->input_handler);
+
+    g_io_channel_unref(d->io);
 
     // Forget those this descriptor is snooping
     if (d->snooping)
         d->snooping->snoop_by = g_list_remove(d->snooping->snoop_by, d);
 
     // Forget those snooping on this descriptor
-    for (GList * x = d->snoop_by; x; x = x->next) {
+    for (GList *x = d->snoop_by; x; x = x->next) {
         struct descriptor_data *td = x->data;
         SEND_TO_Q("Your victim is no longer among us.\r\n", td);
         td->snooping = NULL;
@@ -1272,6 +1046,17 @@ close_socket(struct descriptor_data *d)
 
     free(d);
 }
+
+void
+close_socket(struct descriptor_data *d)
+{
+    GIOStatus status;
+    GError *error = NULL;
+
+    status = g_io_channel_shutdown(d->io, true, &error);
+    destroy_socket(d);
+}
+
 
 /*
  * I tried to universally convert Circle over to POSIX compliance, but
@@ -2298,7 +2083,7 @@ descriptor_update(void)
                 save_player_to_xml(d->creature);
                 d->creature = NULL;
             }
-            set_desc_state(CXN_DISCONNECT, d);
+            close_socket(d);
         }
     }
 }

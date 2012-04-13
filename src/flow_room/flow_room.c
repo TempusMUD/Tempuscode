@@ -250,66 +250,90 @@ flow_one_creature(struct creature *ch, struct room_data *rnum, int pulse,
     }
 }
 
+gboolean
+update_room_affects(gpointer ignore)
+{
+    register struct zone_data *zone = NULL;
+    register struct room_data *rnum = NULL;
+    struct room_affect_data *aff, *next_aff;
+
+    for (zone = zone_table; zone; zone = zone->next) {
+        if (ZONE_FLAGGED(zone, ZONE_FROZEN) ||
+            zone->idle_time >= ZONE_IDLE_TIME)
+            continue;
+        for (rnum = zone->world; rnum; rnum = rnum->next) {
+            for (aff = rnum->affects; aff; aff = next_aff) {
+                next_aff = aff->next;
+                if (aff->duration > 0)
+                    aff->duration--;
+                if (aff->duration <= 0) {
+                    if (aff->duration < 0) {
+                        errlog(" Room aff type %d has %d duration at %d.",
+                               aff->type, aff->duration, rnum->number);
+                    }
+                    affect_from_room(rnum, aff);
+                }
+            }
+        }
+    }
+    return true;
+}
+
+gboolean
+update_alignment_ambience(gpointer ignore)
+{
+    register struct zone_data *zone = NULL;
+    register struct room_data *rnum = NULL;
+
+    for (zone = zone_table; zone; zone = zone->next) {
+        if (ZONE_FLAGGED(zone, ZONE_FROZEN) ||
+            zone->idle_time >= ZONE_IDLE_TIME)
+            continue;
+        for (rnum = zone->world; rnum; rnum = rnum->next) {
+            if (zone->flags & ZONE_EVIL_AMBIENCE) {
+                for (GList *it = first_living(rnum->people);it;it = next_living(it)) {
+                    struct creature *tch = it->data;
+
+                    if (!IS_NPC(tch) && GET_ALIGNMENT(tch) > -1000 &&
+                        !affected_by_spell(tch,
+                                           SPELL_SHIELD_OF_RIGHTEOUSNESS)) {
+                        GET_ALIGNMENT(tch) -= 1;
+                        check_eq_align(tch);
+                    }
+                }
+            }
+            if (zone->flags & ZONE_GOOD_AMBIENCE) {
+                for (GList *it = first_living(rnum->people);it;it = next_living(it)) {
+                    struct creature *tch = it->data;
+
+                    if (!IS_NPC(tch) && GET_ALIGNMENT(tch) < 1000 &&
+                        !affected_by_spell(tch,
+                                           SPELL_SPHERE_OF_DESECRATION)) {
+                        GET_ALIGNMENT(tch) += 1;
+                        check_eq_align(tch);
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
 void
 flow_room(int pulse)
 {
-
     struct obj_data *obj = NULL, *next_obj = NULL;
     register struct zone_data *zone = NULL;
     register struct room_data *rnum = NULL;
     int dir;
-    struct room_affect_data *aff, *next_aff;
     struct room_trail_data *trail = NULL;
 
     for (zone = zone_table; zone; zone = zone->next) {
-
         if (ZONE_FLAGGED(zone, ZONE_FROZEN) ||
             zone->idle_time >= ZONE_IDLE_TIME)
             continue;
 
         for (rnum = zone->world; rnum; rnum = rnum->next) {
-
-            // Update room affects
-            if (!(pulse % (5 RL_SEC)))
-                for (aff = rnum->affects; aff; aff = next_aff) {
-                    next_aff = aff->next;
-                    if (aff->duration > 0)
-                        aff->duration--;
-                    if (aff->duration <= 0) {
-                        if (aff->duration < 0) {
-                            errlog(" Room aff type %d has %d duration at %d.",
-                                aff->type, aff->duration, rnum->number);
-                        }
-                        affect_from_room(rnum, aff);
-                    }
-                }
-            // Alignment ambience
-            if (!(pulse % (4 RL_SEC))) {
-                if (zone->flags & ZONE_EVIL_AMBIENCE) {
-                    for (GList *it = first_living(rnum->people);it;it = next_living(it)) {
-                        struct creature *tch = it->data;
-
-                        if (!IS_NPC(tch) && GET_ALIGNMENT(tch) > -1000 &&
-                            !affected_by_spell(tch,
-                                SPELL_SHIELD_OF_RIGHTEOUSNESS)) {
-                            GET_ALIGNMENT(tch) -= 1;
-                            check_eq_align(tch);
-                        }
-                    }
-                }
-                if (zone->flags & ZONE_GOOD_AMBIENCE) {
-                    for (GList *it = first_living(rnum->people);it;it = next_living(it)) {
-                        struct creature *tch = it->data;
-
-                        if (!IS_NPC(tch) && GET_ALIGNMENT(tch) < 1000 &&
-                            !affected_by_spell(tch,
-                                SPELL_SPHERE_OF_DESECRATION)) {
-                            GET_ALIGNMENT(tch) += 1;
-                            check_eq_align(tch);
-                        }
-                    }
-                }
-            }
             // Active flows only
             if (!FLOW_SPEED(rnum) || pulse % (PULSE_FLOWS * FLOW_SPEED(rnum))
                 || (!ABS_EXIT(rnum, (dir = (int)FLOW_DIR(rnum)))

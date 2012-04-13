@@ -195,8 +195,6 @@ make_test_player(const char *acct_name, const char *char_name)
     CREATE(desc, struct descriptor_data, 1);
     memset(desc, 0, sizeof(struct descriptor_data));
     strcpy(desc->host, "127.0.0.1");
-    desc->output = desc->small_outbuf;
-    desc->bufspace = SMALL_BUFSIZE - 1;
     desc->login_time = time(NULL);
 
     CREATE(acct, struct account, 1);

@@ -2269,6 +2269,8 @@ ACMD(do_shutdown)
 
         touch("../.killscript");
         circle_shutdown = 1;
+        extern GMainLoop *main_loop;
+        g_main_loop_quit(main_loop);
     } else if (!strcasecmp(arg, "pause")) {
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
         save_all_players();

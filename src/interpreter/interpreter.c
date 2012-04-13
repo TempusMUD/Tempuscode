@@ -1997,15 +1997,15 @@ ACMD(do_unalias)
  */
 #define NUM_TOKENS       9
 
-void
-perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a)
+char *
+perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
 {
-    struct txt_q temp_queue;
+    GList *prev_head = g_queue_peek_head_link(input_q);
     char *tokens[NUM_TOKENS], *temp, *write_point;
     int num_of_tokens = 0, num;
 
     /* First, parse the original string */
-    temp = strtok(strcpy(buf2, orig), " ");
+    temp = strtok(strcpy(buf2, args), " ");
     while (temp != NULL && num_of_tokens < NUM_TOKENS) {
         tokens[num_of_tokens++] = temp;
         temp = strtok(NULL, " ");
@@ -2013,14 +2013,13 @@ perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a)
 
     /* initialize */
     write_point = buf;
-    temp_queue.head = temp_queue.tail = NULL;
 
     /* now parse the alias */
     for (temp = a->replacement; *temp; temp++) {
         if (*temp == ALIAS_SEP_CHAR) {
             *write_point = '\0';
             buf[MAX_INPUT_LENGTH - 1] = '\0';
-            write_to_q(buf, &temp_queue, 1);
+            g_queue_insert_before(input_q, prev_head, strdup(buf));
             write_point = buf;
         } else if (*temp == ALIAS_VAR_CHAR) {
             temp++;
@@ -2028,63 +2027,41 @@ perform_complex_alias(struct txt_q *input_q, char *orig, struct alias_data *a)
                 strcpy(write_point, tokens[num]);
                 write_point += strlen(tokens[num]);
             } else if (*temp == ALIAS_GLOB_CHAR) {
-                strcpy(write_point, orig);
-                write_point += strlen(orig);
-            } else if ((*(write_point++) = *temp) == '$')   /* redouble $ for act safety */
+                strcpy(write_point, args);
+                write_point += strlen(args);
+            } else if ((*(write_point++) = *temp) == '$') {
+                /* redouble $ for act safety */
                 *(write_point++) = '$';
-        } else
+            }
+        } else {
             *(write_point++) = *temp;
+        }
     }
 
     *write_point = '\0';
     buf[MAX_INPUT_LENGTH - 1] = '\0';
-    write_to_q(buf, &temp_queue, 1);
+    g_queue_insert_before(input_q, prev_head, strdup(buf));
 
-    /* push our temp_queue on to the _front_ of the input queue */
-    if (input_q->head == NULL)
-        *input_q = temp_queue;
-    else {
-        temp_queue.tail->next = input_q->head;
-        input_q->head = temp_queue.head;
-    }
+    return g_queue_pop_head(input_q);
 }
 
-/*
- * Given a character and a string, perform alias replacement on it.
- *
- * Return values:
- *   0: String was modified in place; call command_interpreter immediately.
- *   1: String was _not_ modified in place; rather, the expanded aliases
- *      have been placed at the front of the character's input queue.
- */
-int
-perform_alias(struct descriptor_data *d, char *orig)
+char *
+expand_player_alias(struct descriptor_data *d, char *orig)
 {
-    char first_arg[MAX_INPUT_LENGTH], *ptr;
-    struct alias_data *a, *tmp;
+   char *cmdargs = orig;
+   char *cmdstr = tmp_getword(&cmdargs);
+   struct alias_data *a = find_alias(GET_ALIASES(d->creature), cmdstr);
 
-    /* bail out immediately if the guy doesn't have any aliases */
-    if ((tmp = GET_ALIASES(d->creature)) == NULL)
-        return 0;
+   if (!a) {
+       return orig;
+   } else if (a->type == ALIAS_SIMPLE) {
+       free(orig);
+       return strdup(a->replacement);
+   }
+   char *result = perform_complex_alias(d->input, cmdargs, a);
+   free(orig);
 
-    /* find the alias we're supposed to match */
-    ptr = any_one_arg(orig, first_arg);
-
-    /* bail out if it's null */
-    if (!*first_arg)
-        return 0;
-
-    /* if the first arg is not an alias, return without doing anything */
-    if ((a = find_alias(tmp, first_arg)) == NULL)
-        return 0;
-
-    if (a->type == ALIAS_SIMPLE) {
-        strcpy(orig, a->replacement);
-        return 0;
-    } else {
-        perform_complex_alias(&d->input, ptr, a);
-        return 1;
-    }
+   return result;
 }
 
 /***************************************************************************
