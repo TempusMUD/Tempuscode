@@ -101,6 +101,7 @@ extern int nameserver_is_slow;  /* see config.c */
 extern int auto_save;           /* see config.c */
 extern int autosave_time;       /* see config.c */
 struct timeval null_time;       /* zero-valued time structure */
+GMainLoop *main_loop = NULL;
 
 /* functions in this file */
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
@@ -168,6 +169,8 @@ init_game(void)
     void my_srand(unsigned long initial_seed);
     void verify_tempus_integrity(struct creature *ch);
 
+    extern PGconn *sql_cxn;
+
     my_srand(time(NULL));
     boot_db();
 
@@ -193,7 +196,13 @@ init_game(void)
     while (descriptor_list)
         close_socket(descriptor_list);
 
+    autosave_zones(ZONE_RESETSAVE);
+    collect_housing_rent();
+    save_all_players();
+    save_houses();
     save_quests();
+    xmlCleanupParser();
+    PQfinish(sql_cxn);
 
     if (circle_reboot) {
         slog("Rebooting.");
@@ -385,6 +394,56 @@ reap_dead_creatures(gpointer ignore)
 }
 
 gboolean
+update_shutdown_timer(gpointer data)
+{
+    if (shutdown_count < 0)
+        return false;
+
+    shutdown_count--;
+
+    if (shutdown_count == 10)
+        send_to_all(":: Tempus REBOOT in 10 seconds ::\r\n");
+    else if (shutdown_count == 30)
+        send_to_all(":: Tempus REBOOT in 30 seconds ::\r\n");
+    else if (shutdown_count && !(shutdown_count % 60)) {
+        sprintf(buf, ":: Tempus REBOOT in %d minute%s ::\r\n",
+                shutdown_count / 60, shutdown_count == 60 ? "" : "s");
+        send_to_all(buf);
+    } else if (shutdown_count <= 0) {
+        send_to_all(":: Tempus REBOOTING ::\r\n\r\n"
+                    "You feel your reality fading, as the universe spins away\r\n"
+                    "before your eyes and the icy cold of nothingness settles\r\n"
+                    "into your flesh.  With a jolt, you feel the thread snap,\r\n"
+                    "severing your mind from the world known as Tempus.\r\n\r\n");
+        if (shutdown_mode == SHUTDOWN_DIE
+            || shutdown_mode == SHUTDOWN_PAUSE) {
+            send_to_all
+                ("Shutting down for maintenance, try again in half an hour.\r\n");
+            if (shutdown_mode == SHUTDOWN_DIE)
+                touch("../.killscript");
+            else
+                touch("../pause");
+        } else {
+            send_to_all
+                ("Rebooting now, we will be back online in a few minutes.\r\n");
+            touch("../.fastboot");
+        }
+
+        send_to_all
+            ("Please visit our website at http://tempusmud.com\r\n");
+
+        slog("(GC) %s called by %s EXECUTING.",
+             (shutdown_mode == SHUTDOWN_DIE
+              || shutdown_mode ==
+              SHUTDOWN_DIE) ? "Shutdown" : "Reboot",
+             player_name_by_idnum(shutdown_idnum));
+        circle_shutdown = true;
+        g_main_loop_quit(main_loop);
+    }
+    return true;
+}
+
+gboolean
 autoban_disconnect(struct descriptor_data *desc)
 {
     close_socket(desc);
@@ -424,7 +483,6 @@ g_io_channel_write_buffer_empty(GIOChannel *channel)
  * output and sending it out to players, and calling "heartbeat" functions
  * such as mobile_activity().
  */
-GMainLoop *main_loop = NULL;
 void
 game_loop(int main_listener, int reader_listener)
 {
@@ -433,11 +491,13 @@ game_loop(int main_listener, int reader_listener)
 
     main_loop = g_main_loop_new(NULL, false);
 
+    /* Setup network connections */
     g_io_add_watch(main_io, G_IO_IN, accept_new_connection,
                    GINT_TO_POINTER(main_port));
     g_io_add_watch(reader_io, G_IO_IN, accept_new_connection,
                    GINT_TO_POINTER(reader_port));
 
+    /* Set up repeating events */
     g_timeout_add(100, repeating_func_wrapper, prog_update_pending);
     g_timeout_add(100, repeating_func_wrapper, update_unique_id);
     g_timeout_add(100, repeating_func_wrapper, update_ticks);
@@ -456,16 +516,14 @@ game_loop(int main_listener, int reader_listener)
     g_timeout_add(100 * PULSE_FLOWS, repeating_func_wrapper, path_activity);
     g_timeout_add(100 * PULSE_FLOWS, repeating_func_wrapper, prog_update);
     g_timeout_add(100 * 130 * PASSES_PER_SEC, repeating_func_wrapper, retire_trails);
-    g_timeout_add(100 * SECS_PER_MUD_HOUR * PASSES_PER_SEC,
-                  mud_wide_tick, NULL);
-    if (auto_save)
-        g_timeout_add(100 * 60 * PASSES_PER_SEC,
-                      autosave, NULL);
+    g_timeout_add(100 * SECS_PER_MUD_HOUR * PASSES_PER_SEC, mud_wide_tick, NULL);
     g_timeout_add(100 * 300 * PASSES_PER_SEC, repeating_func_wrapper, record_usage);
-    g_timeout_add(100 * 900 * PASSES_PER_SEC,
-                  temp_autosave_zones, NULL);
+    g_timeout_add(100 * 900 * PASSES_PER_SEC, temp_autosave_zones, NULL);
     g_timeout_add(100 * 666 * PASSES_PER_SEC, repeating_func_wrapper, bamf_quad_damage);
+    if (auto_save)
+        g_timeout_add(100 * 60 * PASSES_PER_SEC, autosave, NULL);
 
+    /* Start the game */
     g_main_loop_run(main_loop);
 }
 

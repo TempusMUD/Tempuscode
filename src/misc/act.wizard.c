@@ -2171,16 +2171,18 @@ ACMD(do_stat)
 
 ACMD(do_shutdown)
 {
-    char arg[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-    int count = 0;
-
+    gboolean update_shutdown_timer(gpointer data);
+    extern GMainLoop *main_loop;
     extern int circle_shutdown, circle_reboot, mini_mud, shutdown_idnum;
+    char *arg, *arg2;
+    int count = 0;
 
     if (subcmd != SCMD_SHUTDOWN) {
         send_to_char(ch, "If you want to shut something down, say so!\r\n");
         return;
     }
-    two_arguments(argument, arg, arg2);
+    arg = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
 
     if (*arg2) {
         if (shutdown_count >= 0) {
@@ -2200,11 +2202,6 @@ ACMD(do_shutdown)
             return;
         }
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
-        save_all_players();
-        collect_housing_rent();
-        save_houses();
-        save_quests();
-        autosave_zones(ZONE_RESETSAVE);
         send_to_all("\r\n"
             "As you stand amazed, you see the sun swell and fill the sky,\r\n"
             "and you are overtaken by an intense heat as the particles\r\n"
@@ -2212,7 +2209,8 @@ ACMD(do_shutdown)
             "power of a blinding supernova explosion.\r\n\r\n"
             "Shutting down.\r\n"
             "Please visit our website at http://tempusmud.com\r\n");
-        circle_shutdown = 1;
+        circle_shutdown = true;
+        g_main_loop_quit(main_loop);
     } else if (!strcasecmp(arg, "abort")) {
         if (shutdown_count < 0)
             send_to_char(ch, "Shutdown process is not currently running.\r\n");
@@ -2229,11 +2227,6 @@ ACMD(do_shutdown)
         if (!count) {
             touch("../.fastboot");
             slog("(GC) Reboot by %s.", GET_NAME(ch));
-            save_all_players();
-            collect_housing_rent();
-            save_houses();
-            autosave_zones(ZONE_RESETSAVE);
-            save_quests();
             send_to_all("\r\n"
                 "You stagger under the force of a sudden gale, and cringe in terror\r\n"
                 "as the sky darkens before the gathering stormclouds.  Lightning\r\n"
@@ -2242,7 +2235,8 @@ ACMD(do_shutdown)
                 "the cosmos, only to begin rebuilding once again.\r\n\r\n"
                 "Rebooting... come back in five minutes.\r\n"
                 "Please visit our website at http://tempusmud.com\r\n");
-            circle_shutdown = circle_reboot = 1;
+            circle_shutdown = circle_reboot = true;
+            g_main_loop_quit(main_loop);
         } else {
             slog("(GC) Reboot in [%d] seconds by %s.", count, GET_NAME(ch));
             sprintf(buf, "\007\007_ Tempus REBOOT in %d seconds ::\r\n",
@@ -2251,14 +2245,10 @@ ACMD(do_shutdown)
             shutdown_idnum = GET_IDNUM(ch);
             shutdown_count = count;
             shutdown_mode = SHUTDOWN_REBOOT;
+            g_timeout_add(1000, update_shutdown_timer, NULL);
         }
     } else if (!strcasecmp(arg, "die")) {
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
-        save_all_players();
-        collect_housing_rent();
-        save_houses();
-        autosave_zones(ZONE_RESETSAVE);
-        save_quests();
         send_to_all
             ("As you stand amazed, you see the sun swell and fill the sky,\r\n"
             "and you are overtaken by an intense heat as the particles\r\n"
@@ -2268,16 +2258,10 @@ ACMD(do_shutdown)
             "Please visit our website at http://tempusmud.com\r\n");
 
         touch("../.killscript");
-        circle_shutdown = 1;
-        extern GMainLoop *main_loop;
+        circle_shutdown = true;
         g_main_loop_quit(main_loop);
     } else if (!strcasecmp(arg, "pause")) {
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
-        save_all_players();
-        collect_housing_rent();
-        save_houses();
-        autosave_zones(ZONE_RESETSAVE);
-        save_quests();
         send_to_all
             ("As you stand amazed, you see the sun swell and fill the sky,\r\n"
             "and you are overtaken by an intense heat as the particles\r\n"
@@ -2287,7 +2271,8 @@ ACMD(do_shutdown)
             "Please visit our website at http://tempusmud.com\r\n");
 
         touch("../pause");
-        circle_shutdown = 1;
+        circle_shutdown = true;
+        g_main_loop_quit(main_loop);
     } else
         send_to_char(ch, "Unknown shutdown option.\r\n");
 }
