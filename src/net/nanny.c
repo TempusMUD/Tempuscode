@@ -118,6 +118,9 @@ handle_input(gpointer data)
     int char_id;
     int i;
 
+    if (--(d->wait) > 0)
+        return true;
+
     if (g_queue_is_empty(d->input))
         return true;
 
