@@ -154,6 +154,7 @@ void retire_trails(void);
 void set_desc_state(int state, struct descriptor_data *d);
 void save_quests();             // quests.cc - saves quest data
 void save_all_players();
+void random_mob_activity(void);
 gboolean update_room_affects(gpointer ignore);
 gboolean update_alignment_ambience(gpointer ignore);
 
@@ -522,6 +523,9 @@ game_loop(int main_listener, int reader_listener)
     g_timeout_add(100 * 666 * PASSES_PER_SEC, repeating_func_wrapper, bamf_quad_damage);
     if (auto_save)
         g_timeout_add(100 * 60 * PASSES_PER_SEC, autosave, NULL);
+    if (stress_test) {
+        g_timeout_add(100, repeating_func_wrapper, random_mob_activity);
+    }
 
     /* Start the game */
     g_main_loop_run(main_loop);
@@ -939,7 +943,8 @@ process_input(GIOChannel *io,
                     " ye vile profaner of CPU time!", true, d->creature, NULL, NULL,
                     TO_ROOM);
                 slog("SPAM-death on the queue!");
-                return (-1);
+                close_socket(d);
+                return false;
             }
         }
 
@@ -991,44 +996,44 @@ perform_subst(struct descriptor_data *t, char *orig, char *subst)
 
     char *first, *second, *strpos;
 
-/*
- * first is the position of the beginning of the first string (the one
- * to be replaced
- */
+    /*
+     * first is the position of the beginning of the first string (the one
+     * to be replaced
+     */
     first = subst + 1;
 
-/* now find the second '^' */
+    /* now find the second '^' */
     if (!(second = strchr(first, '^'))) {
         SEND_TO_Q("Invalid substitution.\r\n", t);
         return 1;
     }
 
-/* terminate "first" at the position of the '^' and make 'second' point
- * to the beginning of the second string */
+    /* terminate "first" at the position of the '^' and make 'second' point
+     * to the beginning of the second string */
     *(second++) = '\0';
 
-/* now, see if the contents of the first string appear in the original */
+    /* now, see if the contents of the first string appear in the original */
     if (!(strpos = strstr(orig, first))) {
         SEND_TO_Q("Invalid substitution.\r\n", t);
         return 1;
     }
 
-/* now, we construct the new string for output. */
+    /* now, we construct the new string for output. */
 
-/* first, everything in the original, up to the string to be replaced */
+    /* first, everything in the original, up to the string to be replaced */
     strncpy(new_str, orig, (strpos - orig));
     new_str[(strpos - orig)] = '\0';
 
-/* now, the replacement string */
+    /* now, the replacement string */
     strncat(new_str, second, (MAX_INPUT_LENGTH - strlen(new_str) - 1));
 
-/* now, if there's anything left in the original after the string to
- * replaced, copy that too. */
+    /* now, if there's anything left in the original after the string to
+     * replaced, copy that too. */
     if (((strpos - orig) + strlen(first)) < strlen(orig))
         strncat(new_str, strpos + strlen(first),
-            (MAX_INPUT_LENGTH - strlen(new_str) - 1));
+                (MAX_INPUT_LENGTH - strlen(new_str) - 1));
 
-/* terminate the string in case of an overflow from strncat */
+    /* terminate the string in case of an overflow from strncat */
     new_str[MAX_INPUT_LENGTH - 1] = '\0';
     strcpy(subst, new_str);
 
