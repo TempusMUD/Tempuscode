@@ -135,7 +135,7 @@ burn_update_creature(struct creature *ch)
     if (is_dead(ch))
         return;
 
-    if (ch->in_room == NULL || GET_POSITION(ch) == POS_DEAD) {
+    if (ch->in_room == NULL) {
         errlog("Updating a corpse in burn_update.(%s)",
             GET_NAME(ch) == NULL ? "NULL" : GET_NAME(ch));
         return;
@@ -1485,6 +1485,10 @@ mobile_spec(void)
             errlog("Skipping null mobile in mobile_activity");
             continue;
         }
+
+        if (is_dead(ch))
+            continue;
+
         //
         // Check for mob spec
         //
