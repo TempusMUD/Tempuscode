@@ -253,7 +253,7 @@ START_TEST(test_qcontrol_create)
 {
     quests = NULL;
     GET_LEVEL(ch) = LVL_IMMORT;
-    do_qcontrol(ch, "create trivia Test quest", NULL, 0);
+    do_qcontrol(ch, "create trivia Test quest", 0, 0);
     fail_unless(g_list_length(quests) == 1);
 
     struct quest *q = quests->data;
@@ -301,8 +301,8 @@ START_TEST(test_qcontrol_add)
 
     GET_LEVEL(ch) = LVL_IMMORT;
     do_qcontrol(ch, tmp_sprintf("add Xernst %d", q->vnum), 0, 0);
-    fail_unless(strstr(ch->desc->small_outbuf, "added") != NULL,
-                "qcontrol add yielded output '%s'", ch->desc->small_outbuf);
+    fail_unless(strstr(ch->desc->io->write_buf->str, "added") != NULL,
+                "qcontrol add yielded output '%s'", ch->desc->io->write_buf->str);
     fail_unless(g_list_length(q->players) == 1,
                 "Expected one player, got %d players",
                 g_list_length(q->players));
@@ -333,8 +333,8 @@ START_TEST(test_qcontrol_kick)
 
     GET_LEVEL(ch) = LVL_IMMORT;
     do_qcontrol(ch, tmp_sprintf("kick Xernst %d", q->vnum), 0, 0);
-    fail_unless(strstr(ch->desc->small_outbuf, "kicked") != NULL,
-                "qcontrol kick yielded output '%s'", ch->desc->small_outbuf);
+    fail_unless(strstr(ch->desc->io->write_buf->str, "kicked") != NULL,
+                "qcontrol kick yielded output '%s'", ch->desc->io->write_buf->str);
     fail_unless(g_list_length(q->players) == 0,
                 "Expected 0 players, got %d players",
                 g_list_length(q->players));
@@ -566,7 +566,7 @@ START_TEST(test_can_join_quest_9)
     q->maxlevel = LVL_AMBASSADOR;
     q->minlevel = 0;
 
-    fail_unless(can_join_quest(q, ch), "couldn't join quest: %s", ch->desc->small_outbuf);
+    fail_unless(can_join_quest(q, ch), "couldn't join quest");
 }
 END_TEST
 
@@ -583,8 +583,8 @@ START_TEST(test_quest_list)
 
     quests = g_list_prepend(quests, q);
     do_quest(ch, "list", 0, 0);
-    fail_unless(strstr(ch->desc->small_outbuf, q->name) != NULL,
-                "Quest name not found in '%s'", ch->desc->small_outbuf);
+    fail_unless(strstr(ch->desc->io->write_buf->str, q->name) != NULL,
+                "Quest name not found in '%s'", ch->desc->io->write_buf->str);
     free(q);
     g_list_free(quests);
     quests = NULL;
@@ -606,18 +606,17 @@ START_TEST(test_quest_join_leave)
     do_quest(ch, tmp_sprintf("join %d", q->vnum), 0, 0);
     fail_unless(GET_QUEST(ch) == q->vnum);
     fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
-    fail_unless(strstr(ch->desc->small_outbuf,
+    fail_unless(strstr(ch->desc->io->write_buf->str,
                        "You have joined quest 'Test quest'") != NULL);
 
-    ch->desc->small_outbuf[0] = '\0';
-    ch->desc->bufptr = 0;
-    ch->desc->bufspace = SMALL_BUFSIZE;
+    ch->desc->io->write_buf->str[0] = '\0';
+    ch->desc->io->write_buf->len = 0;
 	do_quest(ch, tmp_sprintf("leave %d", q->vnum), 0, 0);
     fail_unless(GET_QUEST(ch) == 0, "ch's quest == %d", GET_QUEST(ch));
     fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) == NULL);
-    fail_unless(strstr(ch->desc->small_outbuf,
+    fail_unless(strstr(ch->desc->io->write_buf->str,
                        "You have left quest 'Test quest'") != NULL,
-                "quest leave yielded output '%s'", ch->desc->small_outbuf);
+                "quest leave yielded output '%s'", ch->desc->io->write_buf->str);
 }
 END_TEST
 

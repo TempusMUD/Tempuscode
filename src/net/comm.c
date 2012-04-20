@@ -386,7 +386,7 @@ reap_dead_creatures(gpointer ignore)
                 g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(tch)));
             if (tch->in_room)
                 extract_creature(tch, CXN_AFTERLIFE);
- 
+
             // pull the char from the various lists
             creatures = g_list_delete_link(creatures, it);
         }
@@ -476,7 +476,7 @@ g_io_channel_write_buffer_empty(GIOChannel *channel)
     g_return_val_if_fail (channel->use_buffer, FALSE);
     return !channel->write_buf || (channel->write_buf->len == 0);
 }
- 
+
 /*
  * game_loop contains the main loop which drives the entire MUD.  It
  * cycles once every 0.10 seconds and is responsible for accepting new
@@ -737,10 +737,9 @@ accept_new_connection(GIOChannel *listener_io,
 
     newd->io = g_io_channel_unix_new(desc);
 
-    GIOStatus status;
     GError *error = NULL;
 
-    status = g_io_channel_set_flags(newd->io, G_IO_FLAG_NONBLOCK, &error);
+    g_io_channel_set_flags(newd->io, G_IO_FLAG_NONBLOCK, &error);
     if (error) {
         slog("g_io_channel_set_flags(): %s", error->message);
         g_error_free(error);
@@ -756,7 +755,7 @@ accept_new_connection(GIOChannel *listener_io,
     newd->input_handler = g_timeout_add(100, handle_input, newd);
 
     newd->input = g_queue_new();
- 
+
     /* find the site name */
     int info_flags = NI_NUMERICSERV;
     int err;
@@ -859,7 +858,7 @@ process_output(GIOChannel *io,
         slog("g_io_channel_flush: %s", error->message);
         g_error_free(error);
     }
- 
+
     if (g_io_channel_write_buffer_empty(d->io)) {
         d->out_watcher = 0;
         return false;
@@ -1114,10 +1113,9 @@ destroy_socket(struct descriptor_data *d)
 void
 close_socket(struct descriptor_data *d)
 {
-    GIOStatus status;
     GError *error = NULL;
 
-    status = g_io_channel_shutdown(d->io, (g_io_channel_get_flags(d->io) & G_IO_FLAG_IS_WRITEABLE), &error);
+    g_io_channel_shutdown(d->io, (g_io_channel_get_flags(d->io) & G_IO_FLAG_IS_WRITEABLE), &error);
     destroy_socket(d);
 }
 

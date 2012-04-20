@@ -473,8 +473,9 @@ update_objects_in_house(struct house *house, gpointer ignore __attribute__((unus
     for (GList *it = house->rooms;it;it = it->next) {
         room_num room_idnum = GPOINTER_TO_INT(it->data);
         struct room_data *room = real_room(room_idnum);
-        if (room)
+        if (room) {
             update_object_counts(room->contents);
+        }
     }
 }
 
@@ -936,16 +937,6 @@ find_costliest_obj_in_room(struct room_data *room)
     }
 
     return result;
-}
-
-void
-add_repo_note(struct house *house, char *s)
-{
-    struct txt_block *new_note;
-
-    CREATE(new_note, struct txt_block, 1);
-    new_note->next = house->repo_notes;
-    new_note->text = s;
 }
 
 // collects the house's rent, selling off items to meet the

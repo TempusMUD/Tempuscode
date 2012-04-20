@@ -42,6 +42,7 @@ extern PGconn *sql_cxn;
 extern GList *creatures;
 extern GHashTable *creature_map;
 extern GHashTable *rooms;
+extern GMainLoop *main_loop;
 extern FILE *qlogfile;
 
 void boot_tongues(const char *path);
@@ -85,6 +86,8 @@ test_tempus_boot(void)
     struct room_data *room_a = make_room(zone, 1);
     struct room_data *room_b = make_room(zone, 2);
     link_rooms(room_a, room_b, NORTH);
+
+    main_loop = g_main_loop_new(NULL, false);
 }
 
 int
@@ -184,6 +187,19 @@ test_creature_to_world(struct creature *ch)
     GET_POSITION(ch) = POS_STANDING;
 }
 
+gboolean dummy_handler(GIOChannel *io,
+                       GIOCondition condition,
+                       gpointer data)
+{
+    return true;
+}
+
+gboolean dummy_timer(gpointer data)
+{
+    return true;
+}
+
+
 struct creature *
 make_test_player(const char *acct_name, const char *char_name)
 {
@@ -196,6 +212,17 @@ make_test_player(const char *acct_name, const char *char_name)
     memset(desc, 0, sizeof(struct descriptor_data));
     strcpy(desc->host, "127.0.0.1");
     desc->login_time = time(NULL);
+
+
+    desc->io = g_io_channel_new_file("/dev/null", "w+", NULL);
+    desc->in_watcher = g_io_add_watch(desc->io, G_IO_IN, dummy_handler, desc);
+    desc->hup_watcher = g_io_add_watch(desc->io, G_IO_HUP, dummy_handler, desc);
+    desc->err_watcher = g_io_add_watch(desc->io, G_IO_ERR, dummy_handler, desc);
+    desc->pri_watcher = g_io_add_watch(desc->io, G_IO_PRI, dummy_handler, desc);
+    desc->nval_watcher = g_io_add_watch(desc->io, G_IO_NVAL, dummy_handler, desc);
+    desc->input_handler = g_timeout_add(100, dummy_timer, desc);
+
+    desc->input = g_queue_new();
 
     CREATE(acct, struct account, 1);
     account_initialize(acct, acct_name, desc, 99999);
