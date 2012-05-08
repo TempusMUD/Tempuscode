@@ -102,6 +102,8 @@ struct last_command_data {
 
 #define NUM_SAVE_CMDS 30
 
+extern struct last_command_data last_cmd[NUM_SAVE_CMDS];
+
 typedef void sigfunc(int);
 void write_to_q(char *txt, struct txt_q *queue, int aliased)
     __attribute__ ((nonnull));

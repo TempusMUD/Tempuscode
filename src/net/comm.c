@@ -95,8 +95,6 @@ int shutdown_idnum = -1;        /* idnum of person calling shutdown */
 int shutdown_mode = SHUTDOWN_NONE;  /* what type of shutdown */
 bool suppress_output = false;
 
-struct last_command_data last_cmd[NUM_SAVE_CMDS];
-
 extern int nameserver_is_slow;  /* see config.c */
 extern int auto_save;           /* see config.c */
 extern int autosave_time;       /* see config.c */
@@ -2098,29 +2096,6 @@ bamf_quad_damage(void)
         act("$p appears slowly spinning at the center of the room.",
             false, NULL, quad, NULL, TO_ROOM);
 
-}
-
-void
-push_command_onto_list(struct creature *ch, char *string)
-{
-
-    int i;
-
-    for (i = NUM_SAVE_CMDS - 2; i >= 0; i--) {
-        last_cmd[i + 1].idnum = last_cmd[i].idnum;
-        strcpy(last_cmd[i + 1].name, last_cmd[i].name);
-        last_cmd[i + 1].roomnum = last_cmd[i].roomnum;
-        strcpy(last_cmd[i + 1].room, last_cmd[i].room);
-        strcpy(last_cmd[i + 1].string, last_cmd[i].string);
-    }
-
-    last_cmd[0].idnum = GET_IDNUM(ch);
-    strncpy(last_cmd[0].name, GET_NAME(ch), MAX_INPUT_LENGTH);
-    last_cmd[0].roomnum = (ch->in_room) ? ch->in_room->number : -1;
-    strncpy(last_cmd[0].room,
-        (ch->in_room && ch->in_room->name) ?
-        ch->in_room->name : "<NULL>", MAX_INPUT_LENGTH);
-    strncpy(last_cmd[0].string, string, MAX_INPUT_LENGTH);
 }
 
 void

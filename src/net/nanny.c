@@ -90,7 +90,6 @@ int general_search(struct creature *ch, struct special_search_data *srch,
 void roll_real_abils(struct creature *ch);
 void print_attributes_to_buf(struct creature *ch, char *buff);
 void show_character_detail(struct descriptor_data *d);
-void push_command_onto_list(struct creature *ch, char *comm);
 void flush_q(struct txt_q *queue);
 int _parse_name(char *arg, char *name);
 char *diag_conditions(struct creature *ch);
@@ -109,6 +108,31 @@ void notify_cleric_moon(struct creature *ch);
 void send_menu(struct descriptor_data *d);
 
 int check_newbie_ban(struct descriptor_data *desc);
+
+struct last_command_data last_cmd[NUM_SAVE_CMDS];
+
+void
+push_command_onto_list(struct creature *ch, char *string)
+{
+
+    int i;
+
+    for (i = NUM_SAVE_CMDS - 2; i >= 0; i--) {
+        last_cmd[i + 1].idnum = last_cmd[i].idnum;
+        strcpy(last_cmd[i + 1].name, last_cmd[i].name);
+        last_cmd[i + 1].roomnum = last_cmd[i].roomnum;
+        strcpy(last_cmd[i + 1].room, last_cmd[i].room);
+        strcpy(last_cmd[i + 1].string, last_cmd[i].string);
+    }
+
+    last_cmd[0].idnum = GET_IDNUM(ch);
+    strncpy(last_cmd[0].name, GET_NAME(ch), MAX_INPUT_LENGTH);
+    last_cmd[0].roomnum = (ch->in_room) ? ch->in_room->number : -1;
+    strncpy(last_cmd[0].room,
+        (ch->in_room && ch->in_room->name) ?
+        ch->in_room->name : "<NULL>", MAX_INPUT_LENGTH);
+    strncpy(last_cmd[0].string, string, MAX_INPUT_LENGTH);
+}
 
 gboolean
 handle_input(gpointer data)
