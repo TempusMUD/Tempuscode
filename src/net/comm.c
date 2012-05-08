@@ -1088,7 +1088,7 @@ destroy_socket(struct descriptor_data *d)
         act("$n has lost $s link.", true, d->creature, NULL, NULL, TO_ROOM);
     } else if (d->account) {
         if (d->creature) {
-            crashsave(d->creature);
+            save_player_to_xml(d->creature);
             free_creature(d->creature);
             d->creature = NULL;
         }
