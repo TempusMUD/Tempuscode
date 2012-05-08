@@ -2000,9 +2000,12 @@ ACMD(do_unalias)
 char *
 perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
 {
-    GList *prev_head = g_queue_peek_head_link(input_q);
+    GQueue temp_q;
     char *tokens[NUM_TOKENS], *temp, *write_point;
     int num_of_tokens = 0, num;
+
+
+    g_queue_init(&temp_q);
 
     /* First, parse the original string */
     temp = strtok(strcpy(buf2, args), " ");
@@ -2019,7 +2022,7 @@ perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
         if (*temp == ALIAS_SEP_CHAR) {
             *write_point = '\0';
             buf[MAX_INPUT_LENGTH - 1] = '\0';
-            g_queue_insert_before(input_q, prev_head, strdup(buf));
+            g_queue_push_head(&temp_q, strdup(buf));
             write_point = buf;
         } else if (*temp == ALIAS_VAR_CHAR) {
             temp++;
@@ -2040,7 +2043,10 @@ perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
 
     *write_point = '\0';
     buf[MAX_INPUT_LENGTH - 1] = '\0';
-    g_queue_insert_before(input_q, prev_head, strdup(buf));
+    g_queue_push_head(&temp_q, strdup(buf));
+
+    while ((temp = g_queue_pop_head(&temp_q)) != NULL)
+        g_queue_push_head(input_q, temp);
 
     return g_queue_pop_head(input_q);
 }
