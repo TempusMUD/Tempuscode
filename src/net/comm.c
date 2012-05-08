@@ -2101,9 +2101,10 @@ bamf_quad_damage(void)
 void
 descriptor_update(void)
 {
-    struct descriptor_data *d = NULL;
+    struct descriptor_data *d = NULL, *next_d = NULL;
 
-    for (d = descriptor_list; d; d = d->next) {
+    for (d = descriptor_list; d; d = next_d) {
+        next_d = d->next;
 
         // skip the folks that will get hit with point_update()
         if (d->creature && d->input_mode == CXN_PLAYING)
