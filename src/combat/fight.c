@@ -2469,7 +2469,6 @@ hit(struct creature *ch, struct creature *victim, int type)
     int i;
     int8_t limb;
     struct obj_data *weap = NULL;
-    int retval;
 
     if (ch->in_room != victim->in_room) {
         remove_combat(ch, victim);
@@ -2759,7 +2758,7 @@ hit(struct creature *ch, struct creature *victim, int type)
             gain_skill_prof(ch, SKILL_ENERGY_WEAPONS);
         }
 
-        retval = damage(ch, victim, weap, dam, w_type, limb);
+        damage(ch, victim, weap, dam, w_type, limb);
         if (is_dead(ch) || is_dead(victim))
             return 0;
         // ignite the victim if applicable
