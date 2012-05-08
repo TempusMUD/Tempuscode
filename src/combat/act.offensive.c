@@ -124,7 +124,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     int prob = 0;
     bool bad_sect = 0, need_hand = 0;
     struct obj_data *neck = NULL;
-    struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
+    struct obj_data *weap = NULL;
 
     prob = CHECK_SKILL(ch, skillnum);
     if (CHECK_SKILL(ch, skillnum) < LEARNED(ch))
@@ -241,6 +241,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *wait = 2 RL_SEC;
         *loc = WEAR_RANDOM;
         *vict_wait = 1 RL_SEC;
+        weap = GET_EQ(ch, WEAR_WIELD);
         break;
     case SKILL_HEADBUTT:
         if (!affected_by_spell(ch, SKILL_KATA) &&
@@ -608,6 +609,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
         *loc = WEAR_NECK_1;
         *move = 20;
+        weap = GET_EQ(ch, WEAR_WIELD);
 
         prob -= 20;
 
