@@ -219,8 +219,9 @@ struct room_data {
 
 	int8_t light;					// Number of lightsources in room
 	int8_t flow_dir;				// Direction of flow
-	int8_t flow_speed;			// Speed of flow
+	int8_t flow_speed;              // Speed of flow
 	int8_t flow_type;				// Type of flow
+    int8_t flow_pulse;              // Pulse to track flow speed
 	SPECIAL((*func));
 	char *func_param;
 	struct zone_data *zone;		// zone the room is in

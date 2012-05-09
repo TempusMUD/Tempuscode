@@ -140,7 +140,7 @@ void mobile_activity(void);
 void mobile_spec(void);
 void burn_update(void);
 void dynamic_object_pulse();
-void flow_room(int pulse);
+void flow_room(void);
 void path_activity();
 void editor(struct descriptor_data *d, char *buffer);
 void perform_violence(void);

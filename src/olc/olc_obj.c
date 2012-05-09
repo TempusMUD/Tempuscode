@@ -385,7 +385,6 @@ do_create_obj(struct creature *ch, int vnum)
     new_obj->shared->proto = new_obj;
 
     new_obj->in_room = NULL;
-    new_obj->cur_flow_pulse = 0;
     for (i = 0; i < 4; i++)
         new_obj->obj_flags.value[i] = 0;
     new_obj->obj_flags.type_flag = 0;

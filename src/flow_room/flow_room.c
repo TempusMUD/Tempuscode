@@ -180,8 +180,7 @@ const char *obj_flow_msg[NUM_FLOW_TYPES + 1][2] = {
 };
 
 void
-flow_one_creature(struct creature *ch, struct room_data *rnum, int pulse,
-    int dir)
+flow_one_creature(struct creature *ch, struct room_data *rnum, int dir)
 {
     struct room_data *was_in;
     struct obj_data *obj, *next_obj;
@@ -190,8 +189,7 @@ flow_one_creature(struct creature *ch, struct room_data *rnum, int pulse,
     if (!ch)
         return;
 
-    if (CHAR_CUR_PULSE(ch) == pulse ||
-        (IS_NPC(ch) &&
+    if ((IS_NPC(ch) &&
             (NPC2_FLAGGED(ch, NPC2_NO_FLOW) ||
                 IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_NOMOB)
                 || IS_SET(ROOM_FLAGS(ABS_EXIT(rnum,
@@ -211,8 +209,6 @@ flow_one_creature(struct creature *ch, struct room_data *rnum, int pulse,
         return;
     if (!can_enter_house(ch, rnum->number))
         return;
-
-    CHAR_CUR_PULSE(ch) = pulse;
 
     act(tmp_sprintf(char_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1],
             to_dirs[dir]), true, ch, NULL, NULL, TO_ROOM);
@@ -320,7 +316,7 @@ update_alignment_ambience(gpointer ignore)
 }
 
 void
-flow_room(int pulse)
+flow_room(void)
 {
     struct obj_data *obj = NULL, *next_obj = NULL;
     register struct zone_data *zone = NULL;
@@ -335,12 +331,19 @@ flow_room(int pulse)
 
         for (rnum = zone->world; rnum; rnum = rnum->next) {
             // Active flows only
-            if (!FLOW_SPEED(rnum) || pulse % (PULSE_FLOWS * FLOW_SPEED(rnum))
+            if (!FLOW_SPEED(rnum)
                 || (!ABS_EXIT(rnum, (dir = (int)FLOW_DIR(rnum)))
                     || ABS_EXIT(rnum, dir)->to_room == NULL
                     || (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_CLOSED))
                     || (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_NOPASS))))
                 continue;
+
+            if (FLOW_PULSE(rnum) != 0) {
+                FLOW_PULSE(rnum) -= 1;
+                continue;
+            }
+            FLOW_PULSE(rnum) = FLOW_SPEED(rnum);
+
 
             if (FLOW_TYPE(rnum) < 0 || FLOW_TYPE(rnum) >= NUM_FLOW_TYPES)
                 FLOW_TYPE(rnum) = F_TYPE_NONE;
@@ -362,22 +365,19 @@ flow_room(int pulse)
             for (GList *it = first_living(rnum->people), *next;it;it = next)  {
                 struct creature *tch = it->data;
                 next = next_living(it);
-                flow_one_creature(tch, rnum, pulse, dir);
+                flow_one_creature(tch, rnum, dir);
             }
 
             if ((obj = rnum->contents)) {
                 for (; obj; obj = next_obj) {
                     next_obj = obj->next_content;
 
-                    if (OBJ_CUR_PULSE(obj) == pulse ||
-                        (!CAN_WEAR(obj, ITEM_WEAR_TAKE) &&
+                    if ((!CAN_WEAR(obj, ITEM_WEAR_TAKE) &&
                             GET_OBJ_VNUM(obj) != BLOOD_VNUM &&
                             GET_OBJ_VNUM(obj) != ICE_VNUM) ||
                         (GET_OBJ_WEIGHT(obj) > number(5, FLOW_SPEED(rnum) * 10)
                             && !number(0, FLOW_SPEED(rnum))))
                         continue;
-
-                    OBJ_CUR_PULSE(obj) = pulse;
 
                     act(tmp_sprintf(obj_flow_msg[(int)
                                 FLOW_TYPE(rnum)][MSG_TORM_1], to_dirs[dir]),

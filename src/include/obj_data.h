@@ -353,7 +353,6 @@ struct obj_shared_data {
 /* ================== Memory Structure for Objects ================== */
 struct obj_data {
 	struct room_data *in_room;	/* In what room -1 when conta/carr    */
-	int cur_flow_pulse;			/* Keep track of flowing pulse        */
 
 	struct obj_flag_data obj_flags;	/* Object information               */
 	struct obj_affected_type affected[MAX_OBJ_AFFECT];	/* affects */
