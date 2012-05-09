@@ -651,47 +651,17 @@ write_to_output(const char *txt, struct descriptor_data *d)
 void destroy_socket(struct descriptor_data *d);
 
 gboolean
-handle_socket_hangup(GIOChannel *io,
-                     GIOCondition condition,
-                     gpointer data)
-{
-    struct descriptor_data *d = data;
-
-    slog("Received socket hangup");
-    close_socket(d);
-    return false;
-}
-
-gboolean
 handle_socket_error(GIOChannel *io,
                      GIOCondition condition,
                      gpointer data)
 {
     struct descriptor_data *d = data;
 
-    slog("Received socket error event");
+    if (condition == G_IO_ERR)
+        slog("Received socket error event");
+    else
+        slog("Received socket invalid event");
     close_socket(d);
-    return false;
-}
-
-gboolean
-handle_socket_priority(GIOChannel *io,
-                     GIOCondition condition,
-                     gpointer data)
-{
-    struct descriptor_data *d = data;
-
-    slog("Received socket priority read event");
-    close_socket(d);
-    return false;
-}
-
-gboolean
-handle_socket_invalid(GIOChannel *io,
-                      GIOCondition condition,
-                      gpointer data)
-{
-    slog("Received socket invalid event");
     return false;
 }
 
@@ -745,11 +715,8 @@ accept_new_connection(GIOChannel *listener_io,
     g_io_channel_set_encoding(newd->io, NULL, NULL);
     g_io_channel_set_line_term(newd->io, "\r\n", 2);
     g_io_channel_set_buffer_size(newd->io, SMALL_BUFSIZE);
-    newd->in_watcher = g_io_add_watch(newd->io, G_IO_IN, process_input, newd);
-    newd->hup_watcher = g_io_add_watch(newd->io, G_IO_HUP, handle_socket_hangup, newd);
-    newd->err_watcher = g_io_add_watch(newd->io, G_IO_ERR, handle_socket_error, newd);
-    newd->pri_watcher = g_io_add_watch(newd->io, G_IO_PRI, handle_socket_priority, newd);
-    newd->nval_watcher = g_io_add_watch(newd->io, G_IO_NVAL, handle_socket_invalid, newd);
+    newd->in_watcher = g_io_add_watch(newd->io, G_IO_IN | G_IO_HUP, process_input, newd);
+    newd->err_watcher = g_io_add_watch(newd->io, G_IO_ERR | G_IO_NVAL, handle_socket_error, newd);
     newd->input_handler = g_timeout_add(100, handle_input, newd);
 
     newd->input = g_queue_new();
@@ -875,6 +842,11 @@ process_input(GIOChannel *io,
     gsize eol_pos;
     gchar *line;
     GIOStatus status;
+
+    if (condition == G_IO_HUP) {
+        close_socket(d);
+        return false;
+    }
 
     status = g_io_channel_read_line(d->io, &line, NULL, &eol_pos, &error);
     while (status == G_IO_STATUS_NORMAL) {
@@ -1043,10 +1015,7 @@ destroy_socket(struct descriptor_data *d)
     struct descriptor_data *temp;
 
     g_source_remove(d->in_watcher);
-    g_source_remove(d->hup_watcher);
     g_source_remove(d->err_watcher);
-    g_source_remove(d->pri_watcher);
-    g_source_remove(d->nval_watcher);
     if (d->out_watcher)
         g_source_remove(d->out_watcher);
     g_source_remove(d->input_handler);

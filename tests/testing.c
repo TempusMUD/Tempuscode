@@ -215,11 +215,8 @@ make_test_player(const char *acct_name, const char *char_name)
 
 
     desc->io = g_io_channel_new_file("/dev/null", "w+", NULL);
-    desc->in_watcher = g_io_add_watch(desc->io, G_IO_IN, dummy_handler, desc);
-    desc->hup_watcher = g_io_add_watch(desc->io, G_IO_HUP, dummy_handler, desc);
+    desc->in_watcher = g_io_add_watch(desc->io, G_IO_IN | G_IO_HUP, dummy_handler, desc);
     desc->err_watcher = g_io_add_watch(desc->io, G_IO_ERR, dummy_handler, desc);
-    desc->pri_watcher = g_io_add_watch(desc->io, G_IO_PRI, dummy_handler, desc);
-    desc->nval_watcher = g_io_add_watch(desc->io, G_IO_NVAL, dummy_handler, desc);
     desc->input_handler = g_timeout_add(100, dummy_timer, desc);
 
     desc->input = g_queue_new();

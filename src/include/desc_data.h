@@ -75,7 +75,7 @@ struct mail_recipient_data {
 
 struct descriptor_data {
 	GIOChannel *io;				/* file descriptor for socket       */
-    
+
 	char host[HOST_LENGTH + 1];	/* hostname             */
 	enum cxn_state input_mode;  /* mode of 'connectedness'      */
 	void *mode_data;			// pointer for misc data needed for input_mode
@@ -94,10 +94,7 @@ struct descriptor_data {
 	GQueue *input;			/* q of unprocessed input       */
     guint in_watcher;
     guint out_watcher;
-    guint hup_watcher;
     guint err_watcher;
-    guint pri_watcher;
-    guint nval_watcher;
     guint input_handler;
 	char last_argument[MAX_INPUT_LENGTH];	/* */
 	int last_cmd;
