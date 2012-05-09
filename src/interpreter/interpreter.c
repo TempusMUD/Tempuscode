@@ -2015,7 +2015,8 @@ perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
     }
 
     /* initialize */
-    write_point = buf;
+    buf[0] = '\\';
+    write_point = buf + 1;
 
     /* now parse the alias */
     for (temp = a->replacement; *temp; temp++) {
@@ -2023,7 +2024,8 @@ perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
             *write_point = '\0';
             buf[MAX_INPUT_LENGTH - 1] = '\0';
             g_queue_push_head(&temp_q, strdup(buf));
-            write_point = buf;
+            buf[0] = '\\';
+            write_point = buf + 1;
         } else if (*temp == ALIAS_VAR_CHAR) {
             temp++;
             if ((num = *temp - '1') < num_of_tokens && num >= 0) {
@@ -2054,20 +2056,23 @@ perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
 char *
 expand_player_alias(struct descriptor_data *d, char *orig)
 {
-   char *cmdargs = orig;
-   char *cmdstr = tmp_getword(&cmdargs);
-   struct alias_data *a = find_alias(GET_ALIASES(d->creature), cmdstr);
+    if (*orig == '\\')
+        return orig + 1;
 
-   if (!a) {
-       return orig;
-   } else if (a->type == ALIAS_SIMPLE) {
-       free(orig);
-       return strdup(a->replacement);
-   }
-   char *result = perform_complex_alias(d->input, cmdargs, a);
-   free(orig);
+    char *cmdargs = orig;
+    char *cmdstr = tmp_getword(&cmdargs);
+    struct alias_data *a = find_alias(GET_ALIASES(d->creature), cmdstr);
 
-   return result;
+    if (!a) {
+        return orig;
+    } else if (a->type == ALIAS_SIMPLE) {
+        free(orig);
+        return tmp_sprintf("\\%s", a->replacement);
+    }
+    char *result = perform_complex_alias(d->input, cmdargs, a);
+    free(orig);
+
+    return result;
 }
 
 /***************************************************************************
