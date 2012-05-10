@@ -326,6 +326,7 @@ get_avail_descs(void)
 gboolean
 mud_wide_tick(gpointer ignore)
 {
+    zone_update();
     weather_and_time();
     affect_update();
     obj_affect_update();

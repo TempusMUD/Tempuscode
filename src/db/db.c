@@ -2699,46 +2699,34 @@ zone_update(void)
 {
     struct reset_q_element *update_u, *temp;
     struct zone_data *zone;
-    static int timer = 0;
 
-    /* jelson 10/22/92 */
-    if (((++timer * PULSE_ZONE) / PASSES_PER_SEC) >= 60) {
-        /* one minute has passed */
-        /*
-         * NOT accurate unless PULSE_ZONE is a multiple of PASSES_PER_SEC or a
-         * factor of 60
-         */
+    /* increment zone ages */
 
-        timer = 0;
+    for (zone = zone_table; zone; zone = zone->next) {
 
-        /* since one minute has passed, increment zone ages */
+        if (!zone->num_players && !ZONE_FLAGGED(zone, ZONE_NOIDLE))
+            zone->idle_time++;
 
-        for (zone = zone_table; zone; zone = zone->next) {
+        if (zone->age < zone->lifespan && zone->reset_mode)
+            (zone->age)++;
 
-            if (!zone->num_players && !ZONE_FLAGGED(zone, ZONE_NOIDLE))
-                zone->idle_time++;
+        if (zone->age >= zone->lifespan && zone->age > zone->idle_time &&   /* <-- new mod here */
+            zone->age < ZO_DEAD && zone->reset_mode) {
+            /* enqueue zone */
 
-            if (zone->age < zone->lifespan && zone->reset_mode)
-                (zone->age)++;
+            CREATE(update_u, struct reset_q_element, 1);
 
-            if (zone->age >= zone->lifespan && zone->age > zone->idle_time &&   /* <-- new mod here */
-                zone->age < ZO_DEAD && zone->reset_mode) {
-                /* enqueue zone */
+            update_u->zone_to_reset = zone;
+            update_u->next = NULL;
 
-                CREATE(update_u, struct reset_q_element, 1);
-
-                update_u->zone_to_reset = zone;
-                update_u->next = NULL;
-
-                if (!reset_q.head)
-                    reset_q.head = reset_q.tail = update_u;
-                else {
-                    reset_q.tail->next = update_u;
-                    reset_q.tail = update_u;
-                }
-
-                zone->age = ZO_DEAD;
+            if (!reset_q.head)
+                reset_q.head = reset_q.tail = update_u;
+            else {
+                reset_q.tail->next = update_u;
+                reset_q.tail = update_u;
             }
+
+            zone->age = ZO_DEAD;
         }
     }
 
