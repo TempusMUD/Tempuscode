@@ -1305,7 +1305,7 @@ find_spell_targets(struct creature *ch, char *argument,
             if (ptr == s)
                 break;
 
-            targets = tmp_sprintf("%s%s", targets ? targets : "", ptr);
+            targets = tmp_sprintf("%s%s", ptr, targets ? targets : "");
             *ptr = '\0';
 
             spellnum = find_skill_num(s);
@@ -1348,6 +1348,9 @@ find_spell_targets(struct creature *ch, char *argument,
         locate_buf[255] = '\0';
         skip_spaces(&targets);
     }
+
+    targets = tmp_getword(&targets);
+
     if (IS_SET(SINFO.targets, TAR_IGNORE)) {
         *target = true;
     } else if (targets != NULL && *targets) {
