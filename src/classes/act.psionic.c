@@ -39,90 +39,93 @@
 #include "strutil.h"
 #include "mobact.h"
 
-ACMD(do_psidrain)
+bool
+can_psidrain(struct creature *ch, struct creature *vict, int *out_dist, bool msg)
 {
-
-    struct creature *vict = NULL;
-    int dist, drain, prob, percent;
-    int find_distance(struct room_data *tmp, struct room_data *location);
-
-    skip_spaces(&argument);
+    const char *to_char = NULL;
+    const char *to_vict = NULL;
+    int dist;
 
     if (CHECK_SKILL(ch, SKILL_PSIDRAIN) < 30 || !IS_PSIONIC(ch)) {
-        send_to_char(ch, "You have no idea how.\r\n");
-        return;
-    }
-
-    if (!*argument && !(vict = random_opponent(ch))) {
-        send_to_char(ch, "Psidrain who?\r\n");
-        return;
+        to_char = "You have no idea how.";
+        goto failure;
     }
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS) && GET_LEVEL(ch) < LVL_GOD) {
-        send_to_char(ch, "Psychic powers are useless here!\r\n");
-        return;
+        to_char = "Psychic powers are useless here!";
+        goto failure;
     }
 
-    if (*argument) {
-        if (!(vict = get_char_room_vis(ch, argument)) &&
-            !(vict = get_char_vis(ch, argument))) {
-            send_to_char(ch, "You cannot locate %s '%s'.\r\n", AN(argument),
-                argument);
-            return;
-        }
-    }
     if (GET_LEVEL(vict) >= LVL_AMBASSADOR && GET_LEVEL(ch) < GET_LEVEL(vict)) {
-        send_to_char(ch, "You cannot locate %s '%s'.\r\n", AN(argument),
-            argument);
-        act("$n has just tried to psidrain you.", false, ch, NULL, vict, TO_VICT);
-        return;
+        to_char = "You cannot locate them.";
+        to_vict = "$n has just tried to psidrain you.";
+        goto failure;
     }
-    if (!vict)
-        return;
 
     if (vict == ch) {
-        send_to_char(ch, "Ha ha... Funny!\r\n");
-        return;
+        to_char = "Ha ha... Funny!";
+        goto failure;
     }
 
     if (ch->fighting && vict->in_room != ch->in_room) {
-        send_to_char(ch,
-            "You cannot focus outside the room during battle!\r\n");
-        return;
+        to_char = "You cannot focus outside the room during battle!";
+        goto failure;
     }
 
     if (ch->in_room != vict->in_room &&
         ch->in_room->zone != vict->in_room->zone) {
-        act("$N is not in your zone.", false, ch, NULL, vict, TO_CHAR);
-        return;
+        to_char = "$N is not in your zone.";
+        goto failure;
     }
 
     if (ROOM_FLAGGED(vict->in_room, ROOM_NOPSIONICS)
         && GET_LEVEL(ch) < LVL_GOD) {
-        act("Psychic powers are useless where $E is!", false, ch, NULL, vict,
-            TO_CHAR);
-        return;
+        to_char = "Psychic powers are useless where $E is!";
+        goto failure;
     }
 
-    if (!ok_to_attack(ch, vict, true))
-        return;
+    if (!ok_to_attack(ch, vict, msg))
+        return false;
 
     if (GET_MOVE(ch) < 20) {
-        send_to_char(ch, "You are too physically exhausted.\r\n");
-        return;
+        to_char = "You are too physically exhausted.";
+        goto failure;
     }
 
-    if ((dist = find_distance(ch->in_room, vict->in_room)) >
-        ((GET_LEVEL(ch) / 6))) {
-        act("$N is out of your psychic range.", false, ch, NULL, vict, TO_CHAR);
-        return;
+    dist = find_distance(ch->in_room, vict->in_room);
+    if (out_dist)
+        *out_dist = dist;
+    if (dist > ((GET_LEVEL(ch) / 6))) {
+        to_char = "$N is out of your psychic range.";
+        goto failure;
     }
 
     if (NULL_PSI(vict)) {
-        act("It is pointless to attempt this on $M.", false, ch, NULL, vict,
-            TO_CHAR);
-        return;
+        to_char = "It is pointless to attempt this on $M.";
+        goto failure;
     }
+
+    return true;
+
+failure:
+    if (msg) {
+        if (to_char)
+            act(to_char, false, ch, NULL, vict, TO_CHAR);
+        if (to_vict)
+            act(to_vict, false, ch, NULL, vict, TO_VICT);
+    }
+    return false;
+}
+
+void
+perform_psidrain(struct creature *ch, struct creature *vict)
+{
+    int find_distance(struct room_data *tmp, struct room_data *location);
+    int dist, drain, prob, percent;
+
+    if (!can_psidrain(ch, vict, &dist, true))
+        return;
+
 
     if (AFF3_FLAGGED(vict, AFF3_PSISHIELD) && creature_distrusts(vict, ch)) {
         prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch);
@@ -227,6 +230,37 @@ ACMD(do_psidrain)
             }
         }
     }
+}
+
+ACMD(do_psidrain)
+{
+
+    struct creature *vict = NULL;
+
+    skip_spaces(&argument);
+
+    if (!*argument && !(vict = random_opponent(ch))) {
+        send_to_char(ch, "Psidrain who?\r\n");
+        return;
+    }
+
+    if (*argument) {
+        if (!(vict = get_char_room_vis(ch, argument)) &&
+            !(vict = get_char_vis(ch, argument))) {
+            send_to_char(ch, "You cannot locate %s '%s'.\r\n", AN(argument),
+                argument);
+            return;
+        }
+    }
+
+    if (GET_LEVEL(vict) >= LVL_AMBASSADOR && GET_LEVEL(ch) < GET_LEVEL(vict)) {
+        send_to_char(ch, "You cannot locate %s '%s'.\r\n", AN(argument),
+            argument);
+        act("$n has just tried to psidrain you.", false, ch, NULL, vict, TO_VICT);
+        return;
+    }
+
+    perform_psidrain(ch, vict);
 }
 
 int
@@ -465,12 +499,9 @@ psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
     if (aggression > 50) {
         // somewhat aggressive - balance attacking with crippling
         if (GET_MANA(ch) < GET_MAX_MANA(ch) / 2
-            && can_cast_spell(ch, SKILL_PSIDRAIN)) {
-            if (!can_see_creature(ch, vict))
-                // just attack the default opponent
-                do_psidrain(ch, tmp_strdup(""), 0, 0);
-            else
-                do_psidrain(ch, GET_NAME(vict), 0, 0);
+            && can_cast_spell(ch, SKILL_PSIDRAIN)
+            && can_psidrain(ch, vict, NULL, false)) {
+            perform_psidrain(ch, vict);
         } else if (!affected_by_spell(vict, SPELL_PSYCHIC_CRUSH)
             && can_cast_spell(ch, SPELL_PSYCHIC_CRUSH)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_CRUSH);

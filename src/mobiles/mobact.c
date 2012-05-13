@@ -67,6 +67,8 @@ int tarrasque_fight(struct creature *tarr);
 int general_search(struct creature *ch, struct special_search_data *srch,
     int mode);
 int smart_mobile_move(struct creature *ch, int dir);
+bool can_psidrain(struct creature *ch, struct creature *vict, int *out_dist, bool msg);
+void perform_psidrain(struct creature *ch, struct creature *vict);
 
 extern int max_npc_corpse_time, max_pc_corpse_time;
 extern bool production_mode;
@@ -83,7 +85,6 @@ ACMD(do_remove);
 ACMD(do_drop);
 ACMD(do_load);
 ACMD(do_battlecry);
-ACMD(do_psidrain);
 ACMD(do_fly);
 ACMD(do_extinguish);
 ACMD(do_pinch);
@@ -2186,9 +2187,8 @@ single_mobile_activity(struct creature *ch)
                     }
                 }
                 if (found) {
-                    if (IS_PSIONIC(ch) && GET_LEVEL(ch) > 23 &&
-                        GET_MOVE(ch) > 100 && GET_MANA(vict) > 100) {
-                        do_psidrain(ch, fname(vict->player.name), 0, 0);
+                    if (can_cast_spell(ch, SKILL_PSIDRAIN) && can_psidrain(ch, vict, NULL, false)) {
+                        perform_psidrain(ch, vict);
                     } else {
                         perform_move(ch, dir, MOVE_NORM, 1);
                     }
