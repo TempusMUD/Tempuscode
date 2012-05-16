@@ -482,15 +482,18 @@ check_idling(struct creature *ch)
 {
     void set_desc_state(enum cxn_state state, struct descriptor_data *d);
 
-    if (++(ch->char_specials.timer) > 1 && ch->desc)
+    ch->char_specials.timer++;
+
+    if (ch->desc)
         ch->desc->repeat_cmd_count = 0;
 
-    if ((ch->char_specials.timer) > 10 && !PLR_FLAGGED(ch, PLR_OLC)) {
-        if (ch->desc && STATE(ch->desc) == CXN_NETWORK) {
-            send_to_char(ch,
-                "Idle limit reached.  Connection reset by peer.\r\n");
+    if (!PLR_FLAGGED(ch, PLR_OLC)) {
+        if (ch->char_specials.timer > 10
+            && ch->desc
+            && STATE(ch->desc) == CXN_NETWORK) {
+            send_to_char(ch, "Idle limit reached.  Connection reset by peer.\r\n");
             set_desc_state(CXN_PLAYING, ch->desc);
-        } else if (ch->char_specials.timer > 60) {
+        } else if (ch->char_specials.timer > 1) {
             if (GET_LEVEL(ch) > 49) {
                 // Immortals have their afk flag set when idle
                 if (!PLR_FLAGGED(ch, PLR_AFK)) {
@@ -505,7 +508,6 @@ check_idling(struct creature *ch)
                 char_to_room(ch, real_room(3), true);
                 if (ch->desc) {
                     close_socket(ch->desc);
-                    ch->desc->creature = NULL;
                     ch->desc = NULL;
                 }
                 creature_idle(ch);
