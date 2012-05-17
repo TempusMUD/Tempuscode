@@ -493,7 +493,7 @@ check_idling(struct creature *ch)
             && STATE(ch->desc) == CXN_NETWORK) {
             send_to_char(ch, "Idle limit reached.  Connection reset by peer.\r\n");
             set_desc_state(CXN_PLAYING, ch->desc);
-        } else if (ch->char_specials.timer > 1) {
+        } else if (ch->char_specials.timer > 60) {
             if (GET_LEVEL(ch) > 49) {
                 // Immortals have their afk flag set when idle
                 if (!PLR_FLAGGED(ch, PLR_AFK)) {
