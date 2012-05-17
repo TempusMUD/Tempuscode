@@ -1346,10 +1346,8 @@ find_spell_targets(struct creature *ch, char *argument,
         // DL - moved this here so we can handle multiple locate arguments
         strncpy(locate_buf, targets, 255);
         locate_buf[255] = '\0';
-        skip_spaces(&targets);
+        targets = tmp_getword(&targets);
     }
-
-    targets = tmp_getword(&targets);
 
     if (IS_SET(SINFO.targets, TAR_IGNORE)) {
         *target = true;
