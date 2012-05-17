@@ -1153,7 +1153,7 @@ hupsig(int sig __attribute__ ((unused)))
     shutdown_idnum = -1;
     shutdown_count = 60;
     shutdown_mode = SHUTDOWN_REBOOT;
-
+    g_timeout_add(1000, update_shutdown_timer, NULL);
 }
 
 void
