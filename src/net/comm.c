@@ -634,14 +634,13 @@ write_to_output(const char *txt, struct descriptor_data *d)
             SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
         }
     }
-    bool needs_watcher = g_io_channel_write_buffer_empty(d->io);
     error = NULL;
     g_io_channel_write_chars(d->io, txt, -1, &bytes_written, &error);
     if (error) {
         slog("g_io_channel_write_chars: %s", error->message);
         g_error_free(error);
      }
-    if (needs_watcher)
+    if (!d->out_watcher)
         d->out_watcher = g_io_add_watch(d->io, G_IO_OUT, process_output, d);
 }
 
@@ -796,8 +795,8 @@ accept_new_connection(GIOChannel *listener_io,
 
 gboolean
 process_output(GIOChannel *io,
-              GIOCondition condition,
-              gpointer data)
+               GIOCondition condition,
+               gpointer data)
 {
     struct descriptor_data *d = data;
     GError *error = NULL;
@@ -919,11 +918,11 @@ process_input(GIOChannel *io,
         }
 
         if (!failed_subst) {
+            d->need_prompt = true;
             if (IS_PLAYING(d) && !strncmp("revo", tmp, 4)) {
                 // We want all commands in the queue to be dumped immediately
                 // This has to be here so we can bypass the normal order of
                 // commands
-                d->need_prompt = true;
                 if (g_queue_is_empty(d->input)) {
                     send_to_desc(d,
                                  "You don't have any commands to revoke!\r\n");

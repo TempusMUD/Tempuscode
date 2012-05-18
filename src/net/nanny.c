@@ -137,6 +137,8 @@ push_command_onto_list(struct creature *ch, char *string)
 gboolean
 handle_input(gpointer data)
 {
+    gboolean process_output(GIOChannel *io, GIOCondition condition, gpointer data);
+
     struct descriptor_data *d = data;
     extern bool production_mode;
     int char_id;
@@ -152,6 +154,8 @@ handle_input(gpointer data)
 
     // we need a prompt here
     d->need_prompt = true;
+    if (!d->out_watcher)
+        d->out_watcher = g_io_add_watch(d->io, G_IO_OUT, process_output, d);
     d->wait = 1;
     d->idle = 0;
 
