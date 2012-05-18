@@ -572,6 +572,101 @@ ACMD(do_teleport)
     }
 }
 
+gint
+mob_vnum_compare(struct creature *a, struct creature *b, gpointer ignore)
+{
+    if (GET_NPC_VNUM(a) < GET_NPC_VNUM(b))
+        return -1;
+    if (GET_NPC_VNUM(a) > GET_NPC_VNUM(b))
+        return 1;
+    return 0;
+}
+
+void
+vnum_mobile(char *searchname, struct creature *ch)
+{
+    GHashTableIter iter;
+    gpointer key, val;
+    GSequence *found_mobs = g_sequence_new(NULL);
+    int counter = 0;
+
+    g_hash_table_iter_init(&iter, mob_prototypes);
+
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct creature *mob = val;
+        if (namelist_match(searchname, mob->player.name))
+            g_sequence_insert_sorted(found_mobs, mob, (GCompareDataFunc)mob_vnum_compare, NULL);
+    }
+
+    if (g_sequence_get_length(found_mobs)) {
+        acc_string_clear();
+
+        void mob_vnum_output(struct creature *mob, gpointer counter)
+        {
+            acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(int *)counter,
+                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                        mob->mob_specials.shared->vnum,
+                        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
+                        mob->player.short_descr, CCNRM(ch, C_NRM));
+        }
+
+
+        g_sequence_foreach(found_mobs, (GFunc)mob_vnum_output, &counter);
+
+        page_string(ch->desc, acc_get_string());
+    } else {
+        send_to_char(ch, "No mobs found with those search terms.\r\n");
+    }
+
+    g_sequence_free(found_mobs);
+}
+
+gint
+obj_vnum_compare(struct obj_data *a, struct obj_data *b, gpointer ignore)
+{
+    if (GET_OBJ_VNUM(a) < GET_OBJ_VNUM(b))
+        return -1;
+    if (GET_OBJ_VNUM(a) > GET_OBJ_VNUM(b))
+        return 1;
+    return 0;
+}
+
+void
+vnum_object(char *searchname, struct creature *ch)
+{
+    GHashTableIter iter;
+    gpointer key, val;
+    GSequence *found_objs = g_sequence_new(NULL);
+    int counter = 0;
+
+    g_hash_table_iter_init(&iter, obj_prototypes);
+
+    while (g_hash_table_iter_next(&iter, &key, &val)) {
+        struct obj_data *obj = val;
+        if (namelist_match(searchname, obj->aliases))
+            g_sequence_insert_sorted(found_objs, obj, (GCompareDataFunc)obj_vnum_compare, NULL);
+    }
+
+    if (g_sequence_get_length(found_objs)) {
+        acc_string_clear();
+
+        void obj_vnum_output(struct obj_data *obj, gpointer counter)
+        {
+            acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(int *)counter,
+                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                        obj->shared->vnum,
+                        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
+                        obj->name, CCNRM(ch, C_NRM));
+        }
+
+        g_sequence_foreach(found_objs, (GFunc)obj_vnum_output, &counter);
+
+        page_string(ch->desc, acc_get_string());
+    } else {
+        send_to_char(ch, "No objects found with those search terms.\r\n");
+    }
+}
+
 ACMD(do_vnum)
 {
     const char *mode;
@@ -583,12 +678,9 @@ ACMD(do_vnum)
         return;
     }
     if (is_abbrev(mode, "mob"))
-        if (!vnum_mobile(argument, ch))
-            send_to_char(ch, "No mobiles by that name.\r\n");
-
-    if (is_abbrev(mode, "obj"))
-        if (!vnum_object(argument, ch))
-            send_to_char(ch, "No objects by that name.\r\n");
+        vnum_mobile(argument, ch);
+    else if (is_abbrev(mode, "obj"))
+        vnum_object(argument, ch);
 }
 
 #define CHARADD(sum,var) if (var) {sum += strlen(var) +1;}

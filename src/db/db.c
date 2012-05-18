@@ -2288,58 +2288,6 @@ load_zones(FILE * fl, char *zonename)
 /*************************************************************************
 *  procedures for resetting, both play-time and boot-time                  *
 *********************************************************************** */
-
-int
-vnum_mobile(char *searchname, struct creature *ch)
-{
-    int found = 0;
-    GHashTableIter iter;
-    gpointer key, val;
-
-    acc_string_clear();
-
-    g_hash_table_iter_init(&iter, mob_prototypes);
-
-    while (g_hash_table_iter_next(&iter, &key, &val)) {
-        struct creature *mob = val;
-        if (namelist_match(searchname, mob->player.name))
-            acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++found,
-                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                        mob->mob_specials.shared->vnum,
-                        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                        mob->player.short_descr, CCNRM(ch, C_NRM));
-    }
-    if (found)
-        page_string(ch->desc, acc_get_string());
-    return (found);
-}
-
-
-int
-vnum_object(char *searchname, struct creature *ch)
-{
-    int found = 0;
-    GHashTableIter iter;
-    gpointer key, val;
-
-    acc_string_clear();
-
-    g_hash_table_iter_init(&iter, obj_prototypes);
-
-    while (g_hash_table_iter_next(&iter, &key, &val)) {
-        struct obj_data *obj = val;
-        if (namelist_match(searchname, obj->aliases))
-            acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++found,
-                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                        obj->shared->vnum,
-                        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                        obj->name, CCNRM(ch, C_NRM));
-    }
-    if (found)
-        page_string(ch->desc, acc_get_string());
-    return (found);
-}
-
 /* create a new mobile from a prototype */
 struct creature *
 read_mobile(int vnum)
