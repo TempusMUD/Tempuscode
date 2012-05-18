@@ -4796,7 +4796,7 @@ show_zones(struct creature *ch, char *arg, char *value)
         int b = a;
 
         value = tmp_getword(&arg);
-        if (value)
+        if (*value)
             b = atoi(value);
 
         for (zone = zone_table; zone; zone = zone->next)
