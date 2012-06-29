@@ -713,7 +713,7 @@ accept_new_connection(GIOChannel *listener_io,
         g_error_free(error);
     }
     g_io_channel_set_encoding(newd->io, NULL, NULL);
-    g_io_channel_set_line_term(newd->io, "\r\n", 2);
+    g_io_channel_set_line_term(newd->io, NULL, 0);
     g_io_channel_set_buffer_size(newd->io, SMALL_BUFSIZE);
     newd->in_watcher = g_io_add_watch(newd->io, G_IO_IN | G_IO_HUP, process_input, newd);
     newd->err_watcher = g_io_add_watch(newd->io, G_IO_ERR | G_IO_NVAL, handle_socket_error, newd);
