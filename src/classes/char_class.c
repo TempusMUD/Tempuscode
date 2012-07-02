@@ -54,6 +54,8 @@
 #include "obj_data.h"
 #include "actions.h"
 #include "char_class.h"
+#include "libpq-fe.h"
+#include "db.h"
 
 extern struct room_data *world;
 
@@ -941,6 +943,12 @@ do_start(struct creature *ch, int mode)
                 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
             ch->points.cash =
                 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
+        }
+
+        // New players start with a hospital gown
+        struct obj_data *gown = read_object(33800);
+        if (gown) {
+            equip_char(ch, gown, WEAR_ABOUT, EQUIP_WORN);
         }
 
         set_title(ch, "the complete newbie");
