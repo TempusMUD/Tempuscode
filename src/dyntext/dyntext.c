@@ -901,14 +901,8 @@ check_dyntext_updates(struct creature *ch, int mode)
                 || !strncmp(dyntext->filename, "arenalist", 9))
                 continue;
 
-            if (mode == CHECKDYN_RECONNECT)
-                send_to_char(ch,
-                    "%s [ The %s file was updated while you were disconnected. ]%s\r\n",
-                    CCYEL(ch, C_NRM), dyntext->filename, CCNRM(ch, C_NRM));
-            else
-                send_to_char(ch,
-                    "%s [ The %s file has been updated since your last visit. ]%s\r\n",
-                    CCYEL(ch, C_NRM), dyntext->filename, CCNRM(ch, C_NRM));
+            send_to_char(ch, "%s [ The %s file has been updated. Use the %s command to view. ]%s\r\n",
+                         CCYEL(ch, C_NRM), dyntext->filename, CCNRM(ch, C_NRM), dyntext->filename);
 
         }
     }
