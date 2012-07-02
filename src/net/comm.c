@@ -801,6 +801,11 @@ process_output(GIOChannel *io,
     struct descriptor_data *d = data;
     GError *error = NULL;
 
+    if (!IS_SET(g_io_channel_get_flags(d->io), G_IO_FLAG_IS_WRITEABLE)) {
+        d->out_watcher = 0;
+        return false;
+    }
+
     // New output crlf
     if (d->creature
         && !g_io_channel_write_buffer_empty(d->io)
