@@ -42,6 +42,7 @@
 #include "strutil.h"
 #include "prog.h"
 #include "editor.h"
+#include "security.h"
 
 // external variables
 
@@ -892,6 +893,9 @@ check_dyntext_updates(struct creature *ch, int mode)
         if (dyntext->last_edit[0].tEdit > ch->account->entry_time) {
             if (!strcmp(dyntext->filename, "inews")
                 && GET_LEVEL(ch) < LVL_AMBASSADOR)
+                continue;
+            if (!strcmp(dyntext->filename, "tnews")
+                && GET_LEVEL(ch) < LVL_AMBASSADOR && !is_tester(ch))
                 continue;
             if (!strncmp(dyntext->filename, "fate", 4)
                 || !strncmp(dyntext->filename, "arenalist", 9))
