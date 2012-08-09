@@ -227,12 +227,15 @@ offer_rent(struct creature *ch, struct creature *receptionist,
     if (display_unrentables(ch))
         return 0;
 
-    cost_per_day = calc_daily_rent(ch, factor, curr, display);
-
     if (display) {
         acc_string_clear();
         acc_sprintf("%s writes up a bill and shows it to you:\r\n",
             tmp_capitalize(PERS(receptionist, ch)));
+    }
+
+    cost_per_day = calc_daily_rent(ch, factor, curr, display);
+
+    if (display) {
         if (factor == RENT_FACTOR) {
             if (total_money < cost_per_day)
                 acc_strcat
