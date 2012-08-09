@@ -2468,7 +2468,7 @@ acc_append_affects(struct creature *ch, int8_t mode)
         acc_strcat("You can endure extreme cold.\r\n", NULL);
     if (AFF_FLAGGED(ch, AFF_SENSE_LIFE))
         acc_strcat(str,
-            "You are sensitive to the presence of living creatures\r\n", NULL);
+            "You are sensitive to the presence of living creatures.\r\n", NULL);
     if (affected_by_spell(ch, SKILL_EMPOWER))
         acc_strcat("You are empowered.\r\n", NULL);
     if (AFF2_FLAGGED(ch, AFF2_TELEKINESIS))
@@ -2612,7 +2612,7 @@ acc_append_affects(struct creature *ch, int8_t mode)
     if (affected_by_spell(ch, SPELL_THORN_SKIN))
         acc_strcat("There are thorns protruding from your skin.\r\n", NULL);
     if (affected_by_spell(ch, SKILL_NANITE_RECONSTRUCTION))
-        acc_strcat("Your implants are undergoing nanite reconstruction\r\n",
+        acc_strcat("Your implants are undergoing nanite reconstruction.\r\n",
             NULL);
     if (AFF2_FLAGGED(ch, AFF2_PROT_RAD))
         acc_strcat("You are immune to the effects of radiation.\r\n", NULL);
