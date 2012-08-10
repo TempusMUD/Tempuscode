@@ -416,16 +416,12 @@ editor_substitute(struct editor * editor, char *args)
         "There are two formats for substitute:\r\n  &&s [search pattern] [replacement]\r\n  &&s /search pattern/replacement/\r\nIn the first form, you can use (), [], <>, or {}.\r\n";
     // Iterator to the current line in theText
     GList *line;
-    // The string containing the search pattern
-    char *pattern;
-    int pattern_len;
-    // String containing the replace pattern
-    char *replacement;
-    int replacement_len;
+    // The string containing the search and replacement pattern
+    GString *pattern, *replacement;
     // Number of replacements made
     int replaced = 0;
     // read pointer and write pointer.
-    char *temp, end_char;
+    char *start, end_char;
     bool balanced;
     int size_delta;
     guint buffer_size;
@@ -461,8 +457,7 @@ editor_substitute(struct editor * editor, char *args)
     }
     args++;
 
-    temp = args;
-    pattern = args;
+    start = args;
     while (*args && *args != end_char)
         args++;
     if (!*args) {
@@ -470,7 +465,7 @@ editor_substitute(struct editor * editor, char *args)
         return false;
     }
 
-    pattern_len = args - temp;
+    pattern = g_string_new_len(start, args - start);
 
     // If the pattern was specified with a balanced delimiter, then
     // the replacement must be, too
@@ -481,6 +476,7 @@ editor_substitute(struct editor * editor, char *args)
         if (!*args) {
             editor_emit(editor,
                 "If the search pattern uses a balanced delimiter, the replacement must use a balanced\r\ndelimiter as well.\r\n");
+            g_string_free(pattern, true);
             return false;
         }
 
@@ -501,18 +497,16 @@ editor_substitute(struct editor * editor, char *args)
             end_char = *args;
             break;
         }
-        args++;
     }
-
-    temp = args;
-    replacement = temp;
-
+    
+    args++;
+    start = args;
     while (*args && *args != end_char)
         args++;
 
-    replacement_len = args - temp;
+    replacement = g_string_new_len(start, args - start);
 
-    size_delta = strlen(replacement) - strlen(pattern);
+    size_delta = replacement->len - pattern->len;
     buffer_size = editor_buffer_size(editor);
 
     // Find pattern in theText a line at a time and replace each instance.
@@ -521,16 +515,16 @@ editor_substitute(struct editor * editor, char *args)
     for (line = editor->lines;
         line && buffer_size + size_delta < editor->max_size;
         line = line->next) {
-        pos = strstr(((GString *) line->data)->str, pattern);
+        pos = strstr(((GString *) line->data)->str, pattern->str);
         while (pos && buffer_size + size_delta < editor->max_size) {
             g_string_erase((GString *) line->data,
-                pos - ((GString *) line->data)->str, pattern_len);
+                pos - ((GString *) line->data)->str, pattern->len);
             g_string_insert_len((GString *) line->data,
                 pos - ((GString *) line->data)->str,
-                replacement, replacement_len);
+                replacement->str, replacement->len);
             replaced++;
             buffer_size += size_delta;
-            pos = strstr(pos + replacement_len, pattern);
+            pos = strstr(pos + replacement->len, pattern->str);
         }
     }
     if (buffer_size + size_delta > editor->max_size)
@@ -538,11 +532,11 @@ editor_substitute(struct editor * editor, char *args)
     if (replaced > 0) {
         editor_emit(editor,
             tmp_sprintf("Replaced %d occurrence%s of '%s' with '%s'.\r\n",
-                replaced, (replaced == 1) ? "" : "s", pattern, replacement));
+                replaced, (replaced == 1) ? "" : "s", pattern->str, replacement->str));
     } else {
         editor_emit(editor, "Search string not found.\r\n");
     }
-
+    g_string_free(pattern, true);
     return true;
 }
 
