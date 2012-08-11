@@ -1268,14 +1268,34 @@ perform_taint_burn(struct creature *ch, int spellnum)
 
     return 1;
 }
-
-int
-find_spell_targets(struct creature *ch, char *argument,
-    struct creature **tch, struct obj_data **tobj, int *tdir, int *target,
-    int *spellnm, int cmd)
+/**
+ * find_spell_targets:
+ * @ch the casting creature
+ * @cmd the command being used to cast
+ * @argument the full argument to the command
+ * @spellnm id number of spell
+ * @target true if the spell target was found, or none was required
+ * @tch the target creature, NULL if none
+ * @tobj the target object, NULL if none
+ * @tdir the target direction.  -1 if none
+ *
+ * Parses the arguments to casting commands.  The return value is true
+ * when the command should still be processed, and false when the
+ * command execution is complete.
+ *
+ * Returns:
+ *   true when the command should continue processing, false when the
+ *   command is handled
+ *
+ **/
+bool
+find_spell_targets(struct creature *ch, int cmd, char *argument,
+                   int *spellnm, bool *target,
+                   struct creature **tch,
+                   struct obj_data **tobj,
+                   int *tdir)
 {
-    char *s, *targets = NULL, *ptr;
-    char *t2, *t3;
+    char *s, *targets = NULL, *target_word, *ptr;
     int i, spellnum;
 
     *tch = NULL;
@@ -1288,7 +1308,7 @@ find_spell_targets(struct creature *ch, char *argument,
         if (!(strstr(s + 1, "\'"))) {
             send_to_char(ch, "The skill name must be completely enclosed "
                 "in the symbols: '\n");
-            return 0;
+            return false;
         } else {
             s = tmp_getquoted(&argument);
             spellnum = find_skill_num(s);
@@ -1317,7 +1337,7 @@ find_spell_targets(struct creature *ch, char *argument,
     if ((spellnum < 1) || (spellnum > MAX_SPELLS)) {
         act(tmp_sprintf("%s what?!?", cmd_info[cmd].command),
             false, ch, NULL, NULL, TO_CHAR | TO_SLEEP);
-        return 0;
+        return false;
     }
 
     if (GET_LEVEL(ch) < SINFO.min_level[(int)GET_CLASS(ch)] &&
@@ -1329,7 +1349,7 @@ find_spell_targets(struct creature *ch, char *argument,
             SPELL_IS_PHYSICS(spellnum) ? "alteration" :
             SPELL_IS_MERCENARY(spellnum) ? "device" :
             SPELL_IS_BARD(spellnum) ? "song" : "spell");
-        return 0;
+        return false;
     }
 
     if (CHECK_SKILL(ch, spellnum) == 0) {
@@ -1338,63 +1358,59 @@ find_spell_targets(struct creature *ch, char *argument,
             SPELL_IS_PHYSICS(spellnum) ? "alteration" :
             SPELL_IS_MERCENARY(spellnum) ? "device" :
             SPELL_IS_BARD(spellnum) ? "song" : "spell");
-        return 0;
+        return false;
     }
     /* Find the target */
 
-    if (targets != NULL) {
-        // DL - moved this here so we can handle multiple locate arguments
-        strncpy(locate_buf, targets, 255);
-        locate_buf[255] = '\0';
-        targets = tmp_getword(&targets);
-    }
+    strncpy(locate_buf, targets, 255);
+    locate_buf[255] = '\0';
+    target_word = tmp_getword(&targets);
 
     if (IS_SET(SINFO.targets, TAR_IGNORE)) {
         *target = true;
-    } else if (targets != NULL && *targets) {
+    } else if (*target_word) {
         if (!*target && (IS_SET(SINFO.targets, TAR_DIR))) {
-            *tdir = search_block(targets, dirs, false);
+            *tdir = search_block(target_word, dirs, false);
             if (*tdir >= 0)
                 *target = true;
 
         } else if (!*target && (IS_SET(SINFO.targets, TAR_CHAR_ROOM))) {
-            if ((*tch = get_char_room_vis(ch, targets)) != NULL)
+            if ((*tch = get_char_room_vis(ch, target_word)) != NULL)
                 *target = true;
         }
         if (!*target && IS_SET(SINFO.targets, TAR_CHAR_WORLD))
-            if ((*tch = get_char_vis(ch, targets)))
+            if ((*tch = get_char_vis(ch, target_word)))
                 *target = true;
 
         if (!*target && IS_SET(SINFO.targets, TAR_OBJ_INV))
-            if ((*tobj = get_obj_in_list_vis(ch, targets, ch->carrying)))
+            if ((*tobj = get_obj_in_list_vis(ch, target_word, ch->carrying)))
                 *target = true;
 
         if (!*target && IS_SET(SINFO.targets, TAR_OBJ_EQUIP)) {
             for (i = 0; !*target && i < NUM_WEARS; i++)
                 if (GET_EQ(ch, i)
-                    && !strcasecmp(targets, GET_EQ(ch, i)->aliases)) {
+                    && !strcasecmp(target_word, GET_EQ(ch, i)->aliases)) {
                     *tobj = GET_EQ(ch, i);
                     *target = true;
                 }
         }
         if (!*target && IS_SET(SINFO.targets, TAR_OBJ_ROOM))
             if ((*tobj =
-                    get_obj_in_list_vis(ch, targets, ch->in_room->contents)))
+                    get_obj_in_list_vis(ch, target_word, ch->in_room->contents)))
                 *target = true;
 
         if (!*target && IS_SET(SINFO.targets, TAR_OBJ_WORLD))
-            if ((*tobj = get_obj_vis(ch, targets)))
+            if ((*tobj = get_obj_vis(ch, target_word)))
                 *target = true;
 
         if (!*target && IS_SET(SINFO.targets, TAR_DOOR)) {
-            t2 = tmp_getword(&targets);
-            t3 = tmp_getword(&targets);
-            if ((i = find_door(ch, t2, t3,
+            char *t3 = tmp_getword(&targets);
+            if ((i = find_door(ch, target_word, t3,
                         spellnum == SPELL_KNOCK ? "knock" : "cast")) >= 0) {
                 knock_door = ch->in_room->dir_option[i];
                 *target = true;
             } else {
-                return 0;
+                return false;
             }
         }
 
@@ -1423,10 +1439,10 @@ find_spell_targets(struct creature *ch, char *argument,
                 IS_SET(SINFO.targets,
                     TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD) ? "what" :
                 "whom");
-            return 0;
+            return false;
         }
     }
-    return 1;
+    return true;
 }
 
 ACMD(do_cast)
@@ -1434,8 +1450,8 @@ ACMD(do_cast)
     struct creature *tch = NULL;
     int tdir;
     struct obj_data *tobj = NULL, *holy_symbol = NULL, *metal = NULL;
-
-    int mana, spellnum, i, target = 0, prob = 0, metal_wt = 0, num_eq =
+    bool target = false;
+    int mana, spellnum, i, prob = 0, metal_wt = 0, num_eq =
         0, temp = 0;
 
     if (IS_NPC(ch))
@@ -1466,8 +1482,7 @@ ACMD(do_cast)
         return;
     }
 
-    if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target,
-                &spellnum, cmd)))
+    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir)))
         return;
 
     if ((ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) &&
@@ -1732,7 +1747,8 @@ ACMD(do_trigger)
     struct creature *tch = NULL;
     struct obj_data *tobj = NULL;
     int tdir;
-    int mana, spellnum, target = 0, prob = 0, temp = 0;
+    bool target = false;
+    int mana, spellnum, prob = 0, temp = 0;
 
     if (IS_NPC(ch))
         return;
@@ -1752,8 +1768,7 @@ ACMD(do_trigger)
         return;
     }
 
-    if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target,
-                &spellnum, cmd)))
+    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir)))
         return;
 
     if ((ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)) &&
@@ -1867,9 +1882,8 @@ ACMD(do_arm)
 		return;
 	}
 
-	if (!(find_spell_targets(ch, argument, &tch, &tobj, &target, &spellnum,
-				cmd)))
-		return;
+    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &targets, &tch, &tobj, &tdir)))
+        return;
 
 	if (!SPELL_IS_MERCENARY(spellnum)) {
 		act("You don't seem to have that.", false, ch, 0, 0, TO_CHAR);
@@ -1972,8 +1986,9 @@ ACMD(do_alter)
 {
     struct creature *tch = NULL;
     struct obj_data *tobj = NULL;
+    bool target = false;
     int tdir;
-    int mana, spellnum, target = 0, temp = 0;
+    int mana, spellnum, temp = 0;
 
     if (IS_NPC(ch))
         return;
@@ -2002,8 +2017,7 @@ ACMD(do_alter)
         return;
     }
 
-    if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target,
-                &spellnum, cmd)))
+    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir)))
         return;
 
     if ((ROOM_FLAGGED(ch->in_room, ROOM_NOSCIENCE)) &&
@@ -2093,7 +2107,8 @@ ACMD(do_perform)
     struct creature *tch = NULL;
     struct obj_data *tobj = NULL;
     int tdir;
-    int mana, spellnum, target = 0, temp = 0;
+    bool target = false;
+    int mana, spellnum, temp = 0;
 
     extern bool check_instrument(struct creature *ch, int songnum);
     extern char *get_instrument_type(int songnum);
@@ -2117,8 +2132,7 @@ ACMD(do_perform)
         return;
     }
 
-    if (!(find_spell_targets(ch, argument, &tch, &tobj, &tdir, &target,
-                &spellnum, cmd)))
+    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir)))
         return;
 
     // Drunk bastards don't sing very well, do they... -- Nothing 8/28/2004
