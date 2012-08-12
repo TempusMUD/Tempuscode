@@ -238,15 +238,7 @@ ACMD(do_elude)
 
 ACMD(do_practice)
 {
-    void list_skills(struct creature *ch, int mode, int type);
-
-    char *arg = tmp_getword(&argument);
-
-    if (*arg)
-        send_to_char(ch, "You can only practice skills in your guild.\r\n");
-    else {
-        list_skills(ch, 1, 3);
-    }
+    send_to_char(ch, "You can only practice skills in your guild.\r\n");
 }
 
 ACMD(do_improve)
