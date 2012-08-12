@@ -3018,8 +3018,11 @@ reset_zone(struct zone_data *zone)
                     SET_BIT(room->dir_option[dir]->exit_info,
                         EX_HIDDEN);
                 }
-                room->dir_option[dir]->maxdam = calc_door_strength(room, dir);
-                room->dir_option[dir]->damage = room->dir_option[dir]->maxdam;
+                // Only heal doors that were completely busted.
+                if (room->dir_option[dir]->damage == 0) {
+                    room->dir_option[dir]->maxdam = calc_door_strength(room, dir);
+                    room->dir_option[dir]->damage = room->dir_option[dir]->maxdam;
+                }
                 last_cmd = 1;
             }
             break;
