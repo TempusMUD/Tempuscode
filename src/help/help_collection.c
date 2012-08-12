@@ -717,7 +717,7 @@ ACMD(do_hcollect_help)
         help_item_show(cur, ch, gHelpbuf, 2);
         page_string(ch->desc, gHelpbuf);
     } else {
-        help_collection_get_topic(help, ch, argument, 2, false, 0, false);
+        help_collection_get_topic(help, ch, argument, 2, false, HGROUP_PLAYER, false);
     }
 }
 
