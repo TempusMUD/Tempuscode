@@ -1295,7 +1295,7 @@ find_spell_targets(struct creature *ch, int cmd, char *argument,
                    struct obj_data **tobj,
                    int *tdir)
 {
-    char *s, *targets = NULL, *target_word, *ptr;
+    char *s, *targets = "", *target_word, *ptr;
     int i, spellnum;
 
     *tch = NULL;
