@@ -471,7 +471,6 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
             int w_type, int location)
 {
     char *buf;
-    int msgnum;
 
     static struct dam_weapon_type {
         const char *to_room;
@@ -569,7 +568,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
             "$n **ANNIHILATES** your mana shield with $s ultra powerful #w!!"}
     };
 
-    /* second set of possible mssgs, chosen ramdomly. */
+    /* second set of possible mssgs, chosen randomly. */
     static struct dam_weapon_type dam_weapons_2[] = {
 
         {                       // 0: 0
@@ -999,38 +998,18 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
     if (w_type == SKILL_ARCHERY)
         return;
 
-    if (dam == 0)
-        msgnum = 0;
-    else if (dam <= 4)
+    // <7% of maxhit = tickle
+    // 42% of maxhit = annihilate
+    int percent = MIN(dam, GET_MAX_HIT(victim)) * 100 / GET_MAX_HIT(victim);
+    int msg_levels[] = { 0, 1, 2, 3, 5, 7, 11, 13, 17,
+                         19, 23, 29, 31, 37, 41, 100 };
+    int msgnum = 0;
+
+    if (dam > 0) {
         msgnum = 1;
-    else if (dam <= 6)
-        msgnum = 2;
-    else if (dam <= 10)
-        msgnum = 3;
-    else if (dam <= 14)
-        msgnum = 4;
-    else if (dam <= 19)
-        msgnum = 5;
-    else if (dam <= 23)
-        msgnum = 6;
-    else if (dam <= 27)
-        msgnum = 7;             /* fragments  */
-    else if (dam <= 32)
-        msgnum = 8;             /* devastate  */
-    else if (dam <= 37)
-        msgnum = 9;             /* obliterate */
-    else if (dam <= 45)
-        msgnum = 10;            /* demolish   */
-    else if (dam <= 69)
-        msgnum = 11;            /* pulverize  */
-    else if (dam <= 94)
-        msgnum = 12;            /* decimate   */
-    else if (dam <= 129)
-        msgnum = 13;            /* liquefy    */
-    else if (dam <= 169)
-        msgnum = 14;            /* vaporize   */
-    else
-        msgnum = 15;            /* annihilate */
+        while (percent >= msg_levels[msgnum] && msgnum < 15)
+            msgnum++;
+    }
 
     if ((w_type < TYPE_HIT) || (w_type > TOP_ATTACKTYPE))
         w_type = TYPE_HIT;
