@@ -2186,7 +2186,7 @@ ACMD(do_drink)
         send_to_char(ch, "Your thirst has been quenched.\r\n");
 
     if (GET_COND(ch, FULL) > 20)
-        send_to_char(ch, "You belly is satiated.\r\n");
+        send_to_char(ch, "Your belly is satiated.\r\n");
 
     if (GET_OBJ_VAL(temp, 2) == LIQ_STOUT)
         GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + number(0, 3));
