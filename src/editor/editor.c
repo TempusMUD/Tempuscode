@@ -70,7 +70,8 @@ already_being_edited(struct creature *ch, char *buffer)
 void
 editor_import(struct editor *editor, const char *text)
 {
-    gchar **strv, **strp;
+    gchar **strv;
+    gint strv_end;
 
     g_list_free(editor->original);
     editor->original = NULL;
@@ -78,10 +79,11 @@ editor_import(struct editor *editor, const char *text)
     editor->lines = NULL;
 
     strv = g_strsplit(text, "\n", 0);
-    for (strp = strv; *strp; strp++) {
-        editor->original = g_list_prepend(editor->original,
-            g_string_new(*strp));
-        editor->lines = g_list_prepend(editor->lines, g_string_new(*strp));
+    strv_end = g_strv_length(strv) - 1;
+    for (int i = 0;i < strv_end; i++) {
+        g_strchomp(strv[i]);
+        editor->original = g_list_prepend(editor->original, g_string_new(strv[i]));
+        editor->lines = g_list_prepend(editor->lines, g_string_new(strv[i]));
     }
     g_strfreev(strv);
 
@@ -498,7 +500,7 @@ editor_substitute(struct editor * editor, char *args)
             break;
         }
     }
-    
+
     args++;
     start = args;
     while (*args && *args != end_char)
