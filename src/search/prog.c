@@ -1542,11 +1542,13 @@ DEFPROGHANDLER(trans, env, evt, args)
 		zerrlog(room->zone, "Bad *trans argument '%s' in prog in %s",
 			target_arg, prog_get_desc(env));
 
-	for (GList *it = first_living(room->people);it;it = next_living(it)) {
+    GList *people = g_list_copy(room->people);
+	for (GList *it = first_living(people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 		if ((!players || IS_PC(tch)) && (!mobs || IS_NPC(tch)))
 			prog_trans_creature(tch, targ_room);
     }
+    g_list_free(people);
 }
 
 // Set the value for an owner-scoped variable
