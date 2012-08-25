@@ -1565,6 +1565,7 @@ add_combat(struct creature *attacker, struct creature *target, bool initiated __
 
     attacker->fighting = g_list_remove(attacker->fighting, target);
     attacker->fighting = g_list_append(attacker->fighting, target);
+    trigger_prog_fight(attacker, target);
 }
 
 /*
