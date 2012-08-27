@@ -69,6 +69,24 @@ File.open('lib/text/news', 'w') { | ouf|
   ouf.write(news_entry)
 }
 
+# Update dyntext entry for mud news file
+File.open('lib/text/dyn/control/news.dyn') { |inf|
+  File.open('lib/text/dyn/control/news.dyn.new', "w") { |ouf|
+    # Copy filename
+    ouf.write(inf.read(1024))
+    # Write the new history entry
+    ouf.write([2, Time.now.to_i].pack("ll"))
+    # Write older history entries
+    ouf.write(inf.read(8 * 9))
+    # Skip over the last entry
+    inf.read(8)
+    # Rest of file is unchanged
+    ouf.write(inf.read())
+  }
+}
+File.rename('lib/text/dyn/control/news.dyn.new',
+            'lib/text/dyn/control/news.dyn')
+
 # Initiate mud reboot
 Kernel.system("pkill -HUP circle")
 
