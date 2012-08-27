@@ -283,13 +283,11 @@ save_dyntext_control(dynamic_text_file * dyntext)
 int
 push_update_to_history(struct creature *ch, dynamic_text_file * dyntext)
 {
-    int i;
-
-    for (i = DYN_TEXT_HIST_SIZE - 1; i > 0; i--)
+    for (int i = DYN_TEXT_HIST_SIZE - 1; i > 0; i--)
         dyntext->last_edit[i] = dyntext->last_edit[i - 1];
 
-    dyntext->last_edit[i].idnum = GET_IDNUM(ch);
-    dyntext->last_edit[i].tEdit = time(NULL);
+    dyntext->last_edit[0].idnum = GET_IDNUM(ch);
+    dyntext->last_edit[0].tEdit = time(NULL);
 
     return 0;
 
