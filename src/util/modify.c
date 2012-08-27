@@ -187,8 +187,8 @@ show_string(struct descriptor_data *d)
     undisplayed = 0;
     line_pt = read_pt = d->showstr_point;
     while (*read_pt && page_length > 0) {
-        while (*read_pt && *read_pt != '\r') {
-            // nearly all ansi codes end with the first alphabetical character
+        while (*read_pt && *read_pt != '\r' && *read_pt != '\n') {
+            // nearly all ANSI codes end with the first alphabetical character
             // after an escape.  we probably aren't going to use others
             if (*read_pt == '\x1b') {
                 while (*read_pt && !isalpha(*read_pt)) {
@@ -205,9 +205,9 @@ show_string(struct descriptor_data *d)
 
         if (*read_pt) {
             page_length--;
-            read_pt++;
-            if ('\n' == *read_pt || '\r' == *read_pt)
+            while ('\n' != *read_pt)
                 read_pt++;
+            read_pt++;
             line_pt = read_pt;
             undisplayed = 0;
         }
