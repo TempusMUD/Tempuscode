@@ -998,16 +998,31 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
     if (w_type == SKILL_ARCHERY)
         return;
 
-    // <7% of maxhit = tickle
-    // 42% of maxhit = annihilate
-    int percent = MIN(dam, GET_MAX_HIT(victim)) * 100 / GET_MAX_HIT(victim);
-    int msg_levels[] = { 0, 1, 2, 3, 5, 7, 11, 13, 17,
-                         19, 23, 29, 31, 37, 41, 100 };
+
+    int msg_levels[] = { 0,
+                         500,    // tickle
+                         200,    // barely
+                         120,    // hit
+                         110,    // hard
+                         100,    // very hard
+                         90,     // extremely hard
+                         80,     // massacre
+                         70,     // devastate
+                         60,     // obliterate
+                         50,     // demolish
+                         40,     // pulverize
+                         30,     // decimate
+                         20,     // liquefy
+                         10,     // vaporize
+                         1       // annihilate
+                         };
+
     int msgnum = 0;
 
     if (dam > 0) {
+        int hits_to_kill = GET_MAX_HIT(victim) / MIN(dam, GET_MAX_HIT(victim));
         msgnum = 1;
-        while (percent >= msg_levels[msgnum] && msgnum < 15)
+        while (hits_to_kill < msg_levels[msgnum] && msgnum < 15)
             msgnum++;
     }
 
