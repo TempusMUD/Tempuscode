@@ -877,9 +877,10 @@ ACMD(do_dyntext_show)
         color1, CCNRM(ch, C_NRM), color2, color3, humanname, CCNRM(ch, C_NRM),
         color2, CCNRM(ch, C_NRM), color1, CCNRM(ch, C_NRM));
 
-    acc_strcat(tmp_capitalize(tmp_sprintf("%s was last updated on %s", dynname,
-                ctime(&(dyntext->last_edit[0].tEdit)))),
-        dyntext->buffer, NULL);
+    acc_strcat(tmp_capitalize(tmp_sprintf("%s was last updated on %s\r\n", dynname,
+                                          tmp_ctime(dyntext->last_edit[0].tEdit))),
+               dyntext->buffer,
+               NULL);
 
     page_string(ch->desc, acc_get_string());
 }
