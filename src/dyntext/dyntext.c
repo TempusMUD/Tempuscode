@@ -901,7 +901,7 @@ check_dyntext_updates(struct creature *ch, int mode)
                 continue;
 
             send_to_char(ch, "%s [ The %s file has been updated. Use the %s command to view. ]%s\r\n",
-                         CCYEL(ch, C_NRM), dyntext->filename, CCNRM(ch, C_NRM), dyntext->filename);
+                         CCYEL(ch, C_NRM), dyntext->filename, dyntext->filename, CCNRM(ch, C_NRM));
 
         }
     }
