@@ -998,9 +998,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
     if (w_type == SKILL_ARCHERY)
         return;
 
-
+    // lower boundaries of message levels
     int msg_levels[] = { 0,
-                         500,    // tickle
+                         501,    // tickle
                          200,    // barely
                          120,    // hit
                          110,    // hard
@@ -1020,7 +1020,9 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
     int msgnum = 0;
 
     if (dam > 0) {
-        int hits_to_kill = GET_MAX_HIT(victim) / MIN(dam, GET_MAX_HIT(victim));
+        int effective_maxhit = MAX(GET_MAX_HIT(victim), 500);
+        int effective_damage = MIN(dam, effective_maxhit);
+        int hits_to_kill = effective_maxhit / effective_damage;
         msgnum = 1;
         while (hits_to_kill < msg_levels[msgnum] && msgnum < 15)
             msgnum++;
