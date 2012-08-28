@@ -13,6 +13,7 @@
 #include <libpq-fe.h>
 #include <unistd.h>
 #include <glib.h>
+#include <sys/stat.h>
 
 #include "utils.h"
 #include "constants.h"
@@ -41,7 +42,7 @@ extern bool production_mode;
 extern int main_port;
 extern int reader_port;
 
-void verify_environment(void);
+void ensure_environment(void);
 void init_game(void);
 
 int
@@ -202,7 +203,7 @@ main(int argc, char **argv)
 
     slog("Running as %s:%s in %s", pw->pw_name, gr->gr_name, dir);
 
-    verify_environment();
+    ensure_environment();
 
     reader_port = main_port + 1;
     if (scheck) {
@@ -222,4 +223,46 @@ main(int argc, char **argv)
     }
 
     return EXIT_SUCCESS;
+}
+
+void
+ensure_environment(void)
+{
+    char path[PATH_MAX + 1];
+    int idx;
+
+    mkdir("players", 0755);
+    mkdir("players/character", 0755);
+    for (idx = 0; idx < 10; idx++) {
+        snprintf(path, 255, "players/character/%d", idx);
+        mkdir(path, 0755);
+    }
+    mkdir("players/equipment", 0755);
+    for (idx = 0; idx < 10; idx++) {
+        snprintf(path, 255, "players/equipment/%d", idx);
+        mkdir(path, 0755);
+    }
+    mkdir("players/housing", 0755);
+    for (idx = 0; idx < 10; idx++) {
+        snprintf(path, 255, "players/housing/%d", idx);
+        mkdir(path, 0755);
+    }
+    mkdir("players/corpses", 0755);
+    for (idx = 0; idx < 10; idx++) {
+        snprintf(path, 255, "players/corpses/%d", idx);
+        mkdir(path, 0755);
+    }
+    mkdir("world", 0755);
+    mkdir("world/mob", 0755);
+    mkdir("world/mob/olc", 0755);
+    mkdir("world/obj", 0755);
+    mkdir("world/obj/olc", 0755);
+    mkdir("world/wld", 0755);
+    mkdir("world/wld/olc", 0755);
+    mkdir("world/zon", 0755);
+    mkdir("text", 0755);
+    mkdir("text/dyn", 0755);
+    mkdir("text/dyn/control", 0755);
+    mkdir("log", 0755);
+    mkdir("log/parsed", 0755);
 }
