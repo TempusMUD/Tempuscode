@@ -1321,12 +1321,13 @@ save_mobs(struct creature * ch, struct zone_data * zone)
     sprintf(fname, "world/mob/%d.mob", zone->number);
     if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
         mudlog(0, BRF, true,
-            "OLC: ERROR - Main mobile file for zone %d is read-only.",
-            ch->in_room->zone->number);
+               "OLC: ERROR - Main mobile file '%s' for zone %d is read-only.",
+               fname,
+               ch->in_room->zone->number);
     }
     sprintf(fname, "world/mob/olc/%d.mob", zone->number);
     if (!(file = fopen(fname, "w"))) {
-        slog("OLC: ERROR while saving mobile file - %s", strerror(errno));
+        slog("OLC: ERROR while saving %s - %s", fname, strerror(errno));
         return false;
     }
 
