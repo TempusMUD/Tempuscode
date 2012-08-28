@@ -1269,6 +1269,11 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
         return;
     }
 
+    if (!check_sight_self(ch)) {
+        send_to_char(ch, "You can't see anything around you...\r\n");
+        return;
+    }
+
     acc_string_clear();
     acc_sprintf("%s", CCCYN(ch, C_NRM));
     if (PRF_FLAGGED(ch, PRF_ROOMFLAGS) ||
