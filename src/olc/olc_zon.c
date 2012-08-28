@@ -7,6 +7,7 @@
 #ifdef HAS_CONFIG_H
 #endif
 
+#include <errno.h>
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -2458,91 +2459,6 @@ make_zone(int num)
     return new_zone;
 }
 
-/* Create zone structure        */
-/* Create <num>.zon file        */
-/* Add zone <num> to index file */
-
-int
-do_create_zone(struct creature *ch, int num)
-{
-    struct zone_data *zone = NULL, *new_zone = NULL;
-
-    char fname[64];
-    FILE *index;
-    FILE *zone_file;
-
-    /* Check to see if the zone already exists */
-
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (zone->number == num) {
-            send_to_char(ch, "ERROR: Zone already exists.\r\n");
-            return (1);
-        }
-        if (zone->number < num && zone->top > num * 100) {
-            send_to_char(ch, "ERROR: Zone overlaps existing zone.\r\n");
-            return (1);
-        }
-    }
-
-    if (num < 0 || num > 999) {
-        send_to_char(ch, "ERROR:  Zone number must be between 0 and 999.\r\n");
-        return (1);
-    }
-
-    /* Open the index file */
-
-    sprintf(fname, "world/zon/index");
-    if (!(index = fopen(fname, "w"))) {
-        send_to_char(ch,
-            "Could not open index file, zone creation aborted.\r\n");
-        return (1);
-    }
-
-    /* Open the zone file */
-
-    sprintf(fname, "world/zon/%d.zon", num);
-    if (!(zone_file = fopen(fname, "w"))) {
-        send_to_char(ch,
-            "Cound not open %d.zon file, zone creation aborted.\r\n", num);
-        return (1);
-    }
-
-    /* Create the new zone and set the defualts */
-
-    new_zone = make_zone(num);
-
-    send_to_char(ch, "Zone %d structure created OK.\r\n", num);
-
-    /* Write the zone file */
-
-    fprintf(zone_file, "#%d\n", new_zone->number);
-    fprintf(zone_file, "%s~\n", new_zone->name);
-    num2str(buf, new_zone->flags);
-    fprintf(zone_file, "%d %d %d %d %d %s\n", new_zone->top,
-        new_zone->lifespan, new_zone->reset_mode, new_zone->time_frame,
-        new_zone->plane, buf);
-    fprintf(zone_file, "*\n");
-    fprintf(zone_file, "$\n");
-
-    fclose(zone_file);
-
-    send_to_char(ch, "Zone file, %d.zon, created\r\n", num);
-
-    /* Rewrite index file */
-
-    for (zone = zone_table; zone; zone = zone->next)
-        fprintf(index, "%d.zon\n", zone->number);
-
-    fprintf(index, "$\n");
-
-    send_to_char(ch, "Zone index file re-written.\r\n");
-
-    fclose(index);
-
-    slog("Zone %d created by %s.", new_zone->number, GET_NAME(ch));
-    return (0);
-}
-
 bool
 save_zone(struct creature * ch, struct zone_data * zone)
 {
@@ -2558,8 +2474,13 @@ save_zone(struct creature * ch, struct zone_data * zone)
     REMOVE_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 
     sprintf(fname, "world/zon/olc/%d.zon", zone->number);
-    if (!(zone_file = fopen(fname, "w")))
+    if (!(zone_file = fopen(fname, "w"))) {
+        if (ch) {
+            send_to_char(ch, "Couldn't save %s: %s\r\n",
+                         fname, strerror(errno));
+        }
         return false;
+    }
 
     fprintf(zone_file, "#%d\n", zone->number);
     fprintf(zone_file, "%s~\n", zone->name);
@@ -2710,6 +2631,74 @@ save_zone(struct creature * ch, struct zone_data * zone)
 
     fclose(zone_file);
 
+    return true;
+}
+
+/* Create zone structure        */
+/* Create <num>.zon file        */
+/* Add zone <num> to index file */
+bool
+do_create_zone(struct creature *ch, int num)
+{
+    struct zone_data *zone = NULL, *new_zone = NULL;
+
+    char fname[64];
+    FILE *index;
+    FILE *zone_file;
+
+    /* Check to see if the zone already exists */
+
+    for (zone = zone_table; zone; zone = zone->next) {
+        if (zone->number == num) {
+            send_to_char(ch, "ERROR: Zone already exists.\r\n");
+            return false;
+        }
+        if (zone->number < num && zone->top > num * 100) {
+            send_to_char(ch, "ERROR: Zone overlaps existing zone.\r\n");
+            return false;
+        }
+    }
+
+    if (num < 0 || num > 999) {
+        send_to_char(ch, "ERROR:  Zone number must be between 0 and 999.\r\n");
+        return false;
+    }
+
+    /* Open the index file */
+
+    sprintf(fname, "world/zon/index");
+    if (!(index = fopen(fname, "w"))) {
+        send_to_char(ch,
+            "Could not open index file, zone creation aborted.\r\n");
+        return false;
+    }
+
+    /* Open the zone file */
+
+    sprintf(fname, "world/zon/%d.zon", num);
+    if (!(zone_file = fopen(fname, "w"))) {
+        send_to_char(ch,
+            "Could not open %d.zon file, zone creation aborted.\r\n", num);
+        fclose(index);
+        return false;
+    }
+
+    /* Create the new zone and set the defaults */
+
+    new_zone = make_zone(num);
+
+    if (!save_zone(ch, new_zone)) {
+        return false;
+    }
+
+    for (zone = zone_table; zone; zone = zone->next)
+        fprintf(index, "%d.zon\n", zone->number);
+
+    fprintf(index, "$\n");
+    fclose(index);
+
+    send_to_char(ch, "Zone %d created.\r\n", num);
+    slog("Zone %d created by %s.", new_zone->number, GET_NAME(ch));
     return true;
 }
 
