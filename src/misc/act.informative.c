@@ -4049,29 +4049,47 @@ ACMD(do_where)
 
     if (is_authorized(ch, FULL_IMMORT_WHERE, NULL)) {
         perform_immort_where(ch, argument, true);
-    } else if (IS_IMMORT(ch)) {
-        perform_immort_where(ch, argument, false);
-    } else {
-        send_to_char(ch, "You are located: %s%s%s\r\nIn: %s%s%s.\r\n",
-            CCGRN(ch, C_NRM),
-            (room_is_dark(ch->in_room) && !has_dark_sight(ch)) ?
-            "In a very dark place." : ch->in_room->name,
-            CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
-            (room_is_dark(ch->in_room) && !has_dark_sight(ch)) ?
-            "You can't tell for sure." : ch->in_room->zone->name,
-            CCNRM(ch, C_NRM));
-
-        if (ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW))
-            send_to_char(ch, "This place is beyond the reach of law.\r\n");
-        if (!IS_APPR(ch->in_room->zone)) {
-            send_to_char(ch, "This zone is %sUNAPPROVED%s!\r\n", CCRED(ch,
-                    C_NRM), CCNRM(ch, C_NRM));
-        }
-        if (ch->in_room->zone->public_desc)
-            send_to_char(ch, "%s", ch->in_room->zone->public_desc);
-        act("$n ponders the implications of $s location.", true, ch, NULL, NULL,
-            TO_ROOM);
+        return;
     }
+    if (IS_IMMORT(ch)) {
+        perform_immort_where(ch, argument, false);
+        return;
+    }
+
+    if (!can_see_room(ch, ch->in_room)) {
+        if (room_is_dark(ch->in_room)) {
+            send_to_char(ch, "Looks like you're in the dark!\r\n");
+        } else {
+            send_to_char(ch, "You can't tell where you are.\r\n");
+        }
+        return;
+    }
+
+    send_to_char(ch, "You are located: %s%s%s\r\n",
+                 CCGRN(ch, C_NRM),
+                 ch->in_room->name,
+                 CCNRM(ch, C_NRM));
+    send_to_char(ch, "In the area: %s%s%s\r\n",
+                 CCGRN(ch, C_NRM),
+                 ch->in_room->zone->name,
+                 CCNRM(ch, C_NRM));
+    if (ch->in_room->zone->author) {
+        send_to_char(ch, "Authored by: %s%s%s\r\n",
+                     CCGRN(ch, C_NRM),
+                     ch->in_room->zone->author,
+                     CCNRM(ch, C_NRM));
+    }
+    if (ZONE_FLAGGED(ch->in_room->zone, ZONE_NOLAW))
+        send_to_char(ch, "This place is beyond the reach of law.\r\n");
+    if (!IS_APPR(ch->in_room->zone)) {
+        send_to_char(ch, "This zone is %sUNAPPROVED%s!\r\n",
+                     CCRED(ch, C_NRM),
+                     CCNRM(ch, C_NRM));
+    }
+    if (ch->in_room->zone->public_desc)
+        send_to_char(ch, "%s", ch->in_room->zone->public_desc);
+    act("$n ponders the implications of $s location.", true, ch, NULL, NULL,
+        TO_ROOM);
 }
 
 void
