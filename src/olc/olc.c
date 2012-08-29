@@ -2348,7 +2348,9 @@ ACMD(do_unapprove)
             for (int vnum = first; vnum <= last; vnum++) {
                 mob = (struct creature *)g_hash_table_lookup(mob_prototypes,
                     GINT_TO_POINTER(vnum));
-                SET_BIT(NPC2_FLAGS(mob), NPC2_UNAPPROVED);
+                if (mob) {
+                    SET_BIT(NPC2_FLAGS(mob), NPC2_UNAPPROVED);
+                }
             }
             save_mobs(ch, zone);
             send_to_char(ch, "Mobs approved for olc.\r\n");
@@ -2359,9 +2361,9 @@ ACMD(do_unapprove)
             for (int vnum = first; vnum <= last; vnum++) {
                 obj = (struct obj_data *)g_hash_table_lookup(obj_prototypes,
                     GINT_TO_POINTER(vnum));
-
-                SET_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
-
+                if (obj) {
+                    SET_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
+                }
             }
             save_objs(ch, zone);
             send_to_char(ch, "Objects approved for olc.\r\n");
@@ -2518,12 +2520,14 @@ ACMD(do_approve)
             for (int vnum = first; vnum <= last; vnum++) {
                 mob = (struct creature *)g_hash_table_lookup(mob_prototypes,
                     GINT_TO_POINTER(vnum));
-                REMOVE_BIT(NPC2_FLAGS(mob), NPC2_UNAPPROVED);
+                if (mob) {
+                    REMOVE_BIT(NPC2_FLAGS(mob), NPC2_UNAPPROVED);
+                }
             }
 
             save_mobs(ch, zone);
             send_to_char(ch,
-                "Mobs approve for full inclusion in the game.\r\n");
+                "Mobiles approved for full inclusion in the game.\r\n");
             slog("%s approved mobs in zone [%d] %s.", GET_NAME(ch),
                 zone->number, zone->name);
         }
@@ -2531,7 +2535,9 @@ ACMD(do_approve)
             for (int vnum = first; vnum <= last; vnum++) {
                 obj = (struct obj_data *)g_hash_table_lookup(obj_prototypes,
                     GINT_TO_POINTER(vnum));
-                REMOVE_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
+                if (obj) {
+                    REMOVE_BIT(obj->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
+                }
             }
             save_objs(ch, zone);
             send_to_char(ch,
