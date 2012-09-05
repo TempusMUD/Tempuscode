@@ -63,9 +63,6 @@
 extern int corpse_state;
 /* The Fight related routines */
 struct obj_data *get_random_uncovered_implant(struct creature *ch, int type);
-int calculate_weapon_probability(struct creature *ch, int prob,
-    struct obj_data *weap);
-int calculate_attack_probability(struct creature *ch);
 
 //checks for both vendors and utility mobs
 bool
@@ -101,61 +98,6 @@ ok_damage_vendor(struct creature *ch, struct creature *victim)
     }
 
     return true;
-}
-
-int
-calculate_weapon_probability(struct creature *ch, int prob,
-    struct obj_data *weap)
-{
-    int i, weap_weight;
-
-    if (!ch || !weap)
-        return prob;
-
-    // Add in weapon specialization bonus.
-    if (GET_OBJ_VNUM(weap) > 0) {
-        for (i = 0; i < MAX_WEAPON_SPEC; i++) {
-            if (GET_WEAP_SPEC(ch, i).vnum == GET_OBJ_VNUM(weap)) {
-                prob += GET_WEAP_SPEC(ch, i).level << 2;
-                break;
-            }
-        }
-    }
-    // Below this check applies to WIELD and WIELD_2 only!
-    if (weap->worn_on != WEAR_WIELD && weap->worn_on != WEAR_WIELD_2) {
-        return prob;
-    }
-    // Weapon speed
-    for (i = 0, weap_weight = 0; i < MAX_OBJ_AFFECT; i++) {
-        if (weap->affected[i].location == APPLY_WEAPONSPEED) {
-            weap_weight -= weap->affected[i].modifier;
-            break;
-        }
-    }
-    // 1/4 actual weapon weight or effective weapon weight, whichever is higher.
-    weap_weight += GET_OBJ_WEIGHT(weap);
-    weap_weight = MAX((GET_OBJ_WEIGHT(weap) / 4), weap_weight);
-
-    if (weap->worn_on == WEAR_WIELD_2) {
-        prob -=
-            (prob * weap_weight) /
-            MAX(1, (strength_wield_weight(GET_STR(ch)) / 2));
-        if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
-            prob += CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) - 60;
-        } else {
-            if (CHECK_SKILL(ch, SKILL_SECOND_WEAPON) >= LEARNED(ch)) {
-                prob += CHECK_SKILL(ch, SKILL_SECOND_WEAPON) - 60;
-            }
-        }
-    } else {
-        prob -=
-            (prob * weap_weight) /
-            (strength_wield_weight(GET_STR(ch)) * 2);
-        if (IS_BARB(ch)) {
-            prob += (LEARNED(ch) - weapon_prof(ch, weap)) >> 3;
-        }
-    }
-    return prob;
 }
 
 void
@@ -1446,6 +1388,61 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 }
 
 int
+calculate_weapon_probability(struct creature *ch, int prob,
+    struct obj_data *weap)
+{
+    int i, weap_weight;
+
+    if (!ch || !weap)
+        return prob;
+
+    // Add in weapon specialization bonus.
+    if (GET_OBJ_VNUM(weap) > 0) {
+        for (i = 0; i < MAX_WEAPON_SPEC; i++) {
+            if (GET_WEAP_SPEC(ch, i).vnum == GET_OBJ_VNUM(weap)) {
+                prob += GET_WEAP_SPEC(ch, i).level << 2;
+                break;
+            }
+        }
+    }
+    // Below this check applies to WIELD and WIELD_2 only!
+    if (weap->worn_on != WEAR_WIELD && weap->worn_on != WEAR_WIELD_2) {
+        return prob;
+    }
+    // Weapon speed
+    for (i = 0, weap_weight = 0; i < MAX_OBJ_AFFECT; i++) {
+        if (weap->affected[i].location == APPLY_WEAPONSPEED) {
+            weap_weight -= weap->affected[i].modifier;
+            break;
+        }
+    }
+    // 1/4 actual weapon weight or effective weapon weight, whichever is higher.
+    weap_weight += GET_OBJ_WEIGHT(weap);
+    weap_weight = MAX((GET_OBJ_WEIGHT(weap) / 4), weap_weight);
+
+    if (weap->worn_on == WEAR_WIELD_2) {
+        prob -=
+            (prob * weap_weight) /
+            MAX(1, (strength_wield_weight(GET_STR(ch)) / 2));
+        if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
+            prob += CHECK_SKILL(ch, SKILL_NEURAL_BRIDGING) - 60;
+        } else {
+            if (CHECK_SKILL(ch, SKILL_SECOND_WEAPON) >= LEARNED(ch)) {
+                prob += CHECK_SKILL(ch, SKILL_SECOND_WEAPON) - 60;
+            }
+        }
+    } else {
+        prob -=
+            (prob * weap_weight) /
+            (strength_wield_weight(GET_STR(ch)) * 2);
+        if (IS_BARB(ch)) {
+            prob += (LEARNED(ch) - weapon_prof(ch, weap)) >> 3;
+        }
+    }
+    return prob;
+}
+
+int
 calculate_attack_probability(struct creature *ch)
 {
     int prob;
@@ -1454,11 +1451,13 @@ calculate_attack_probability(struct creature *ch)
     if (!is_fighting(ch))
         return 0;
 
-    prob = 1 + (GET_LEVEL(ch) / 7) + (GET_DEX(ch) << 1);
+    prob = 1 + (GET_LEVEL(ch) / 7) + (GET_DEX(ch) * 2);
 
-    if (IS_RANGER(ch) && (!GET_EQ(ch, WEAR_BODY) ||
-            !IS_OBJ_TYPE(GET_EQ(ch, WEAR_BODY), ITEM_ARMOR) ||
-            !IS_METAL_TYPE(GET_EQ(ch, WEAR_BODY))))
+    // Penalize rangers for wearing metal body armor
+    if (IS_RANGER(ch)
+        && GET_EQ(ch, WEAR_BODY)
+        && IS_OBJ_TYPE(GET_EQ(ch, WEAR_BODY), ITEM_ARMOR)
+        && !IS_METAL_TYPE(GET_EQ(ch, WEAR_BODY)))
         prob -= (GET_LEVEL(ch) >> 2);
 
     if (GET_EQ(ch, WEAR_WIELD_2))
