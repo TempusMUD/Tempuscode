@@ -1160,8 +1160,8 @@ ACMD(do_olc)
                         "No allocatable mobiles found in zone.\r\n");
                 }
             } else if (is_abbrev(arg1, "search")) {
-                if ((tmp_search =
-                        do_create_search(ch, strcat(arg2, argument)))) {
+                tmp_search = do_create_search(ch, tmp_strcat(arg2, " ", argument, NULL));
+                if (tmp_search) {
                     GET_OLC_SRCH(ch) = tmp_search;
                     send_to_char(ch, "Search creation successful.\r\n");
                     send_to_char(ch, "Now editing search (%s)/(%s)\r\n",
