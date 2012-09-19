@@ -2758,6 +2758,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <granted class="bard" level="17"/>
     <granted class="monk" level="33"/>
     <granted class="mercenary" level="22"/>
+    <granted class="knight" level="19"/>
   </skill>
   <spell id="104" name="retrieve corpse">
     <granted class="cleric" level="48"/>
@@ -3180,6 +3181,9 @@ His presence is revealed to me.</lyrics>
     <granted class="barbarian" level="28"/>
     <granted class="ranger" level="27"/>
     <granted class="monk" level="25"/>
+  </skill>
+  <skill id="653" name="shieldslam">
+    <granted class="knight" level="34"/>
   </skill>
   <skill id="607" name="swimming">
     <granted class="mage" level="1"/>

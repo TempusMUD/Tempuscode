@@ -347,6 +347,7 @@ ACMD(do_searchfor);
 ACMD(do_send);
 ACMD(do_set);
 ACMD(do_severtell);
+ACMD(do_shieldslam);
 ACMD(do_show);
 ACMD(do_shoot);
 ACMD(do_shutdown);
@@ -1246,6 +1247,7 @@ struct command_info cmd_info[] = {
     {"severtell", POS_DEAD, do_severtell, LVL_IMMORT, 0, 0, 0},
     {"shout", POS_RESTING, do_gen_comm, 0, SCMD_SHOUT, 0, 0},
     {"shake", POS_RESTING, do_action, 0, 0, 0, 0},
+    {"shieldslam", POS_FIGHTING, do_offensive_skill, 0, SKILL_SHIELD_SLAM, 0, 0},
     {"shin", POS_RESTING, do_action, 0, 0, 0, 0},
     {"shiver", POS_RESTING, do_action, 0, 0, 0, 0},
     {"shudder", POS_RESTING, do_action, 0, 0, 0, 0},
