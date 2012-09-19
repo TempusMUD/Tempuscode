@@ -559,6 +559,30 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *vict_wait = 2 RL_SEC;
         break;
 
+    case SKILL_SHIELD_SLAM:
+
+        if ((!affected_by_spell(ch, SKILL_KATA) &&
+                (IS_PUDDING(vict) || IS_SLIME(vict)
+                    || NON_CORPOREAL_MOB(vict)))
+            || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
+            prob = 0;
+
+        if (GET_EQ(ch, WEAR_SHIELD)) {
+
+           *dam = dice(3, GET_OBJ_WEIGHT(ch->equipment[WEAR_SHIELD]));
+           *dam += (*dam * GET_REMORT_GEN(ch)) / 4;
+
+           *wait = 6 RL_SEC;
+           *vict_pos = POS_SITTING;
+           *vict_wait = 2 RL_SEC;
+           *move = 10;
+        } else {
+           send_to_char(ch, "You need a shield equipped to shield slam.\r\n");
+           return -1;
+        }
+        break;
+
+
     case SKILL_BEARHUG:
 
         if (!affected_by_spell(ch, SKILL_KATA) &&
