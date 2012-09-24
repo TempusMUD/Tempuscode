@@ -557,7 +557,7 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
         return;
     }
     cost = vendor_get_value(obj,
-        shop->markdown, -cost_modifier(self, ch), shop->currency);
+        shop->markdown, cost_modifier(self, ch), shop->currency);
     amt_carried = (shop->currency) ? GET_CASH(self) : GET_GOLD(self);
 
     if (amt_carried < cost) {
