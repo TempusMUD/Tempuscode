@@ -171,7 +171,7 @@ do_zcmd(struct creature *ch, char *argument)
                 if_flag = atoi(arg1);
                 if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
                     send_to_char(ch,
-                        "if_flag dependancy flag must be 0, 1 or -1\r\n");
+                        "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
                 }
                 int_arg1 = atoi(arg2);
@@ -275,7 +275,7 @@ do_zcmd(struct creature *ch, char *argument)
                 if_flag = atoi(arg1);
                 if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
                     send_to_char(ch,
-                        "if_flag dependancy flag must be 0, 1 or -1\r\n");
+                        "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
                 }
                 int_arg1 = atoi(arg2);
@@ -380,7 +380,7 @@ do_zcmd(struct creature *ch, char *argument)
                 if_flag = atoi(arg1);
                 if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
                     send_to_char(ch,
-                        "if_flag dependancy flag must be 0, 1 or -1\r\n");
+                        "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
                 }
                 int_arg1 = atoi(arg2);
@@ -479,7 +479,7 @@ do_zcmd(struct creature *ch, char *argument)
                 if_flag = atoi(arg1);
                 if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
                     send_to_char(ch,
-                        "if_flag dependancy flag must be 0, 1 or -1\r\n");
+                        "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
                 }
                 int_arg1 = atoi(arg2);
@@ -579,7 +579,7 @@ do_zcmd(struct creature *ch, char *argument)
                 if_flag = atoi(arg1);
                 if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
                     send_to_char(ch,
-                        "if_flag dependancy flag must be 0, 1 or -1\r\n");
+                        "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
                 }
                 int_arg1 = atoi(arg2);
@@ -693,7 +693,7 @@ do_zcmd(struct creature *ch, char *argument)
                 if_flag = atoi(arg1);
                 if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
                     send_to_char(ch,
-                        "if_flag dependancy flag must be 0, 1 or 1\r\n");
+                        "if_flag dependency flag must be 0, 1 or 1\r\n");
                     return;
                 }
                 int_arg1 = atoi(arg2);
@@ -812,7 +812,7 @@ do_zcmd(struct creature *ch, char *argument)
                 if_flag = atoi(arg1);
                 if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
                     send_to_char(ch,
-                        "if_flag dependancy flag must be 0, 1 or -1\r\n");
+                        "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
                 }
                 int_arg1 = atoi(arg2);
@@ -893,7 +893,7 @@ do_zcmd(struct creature *ch, char *argument)
                 if_flag = atoi(arg1);
                 if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
                     send_to_char(ch,
-                        "if_flag dependancy flag must be 0, 1 or -1\r\n");
+                        "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
                 }
                 int_arg1 = atoi(arg2);

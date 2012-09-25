@@ -1094,7 +1094,7 @@ ACMD(do_olc)
                     tmp_vnum = i;
                 }
                 if (tmp_vnum && do_create_room(ch, tmp_vnum)) {
-                    send_to_char(ch, "Room %d succesfully created.\r\n",
+                    send_to_char(ch, "Room %d successfully created.\r\n",
                         tmp_vnum);
                 } else if (!tmp_vnum && *arg2) {
                     send_to_char(ch,
@@ -1110,7 +1110,7 @@ ACMD(do_olc)
                 else {
                     i = atoi(arg2);
                     if (do_create_zone(ch, i))
-                        send_to_char(ch, "Zone succesfully created.\r\n");
+                        send_to_char(ch, "Zone successfully created.\r\n");
                 }
             } else if (is_abbrev(arg1, "object")) {
                 if (!*arg2) {
@@ -1129,7 +1129,7 @@ ACMD(do_olc)
                 if (tmp_vnum && (tmp_obj = do_create_obj(ch, tmp_vnum))) {
                     GET_OLC_OBJ(ch) = tmp_obj;
                     send_to_char(ch,
-                        "Object %d succesfully created.\r\nNow editing object %d\r\n",
+                        "Object %d successfully created.\r\nNow editing object %d\r\n",
                         tmp_obj->shared->vnum, tmp_obj->shared->vnum);
                 } else if (!tmp_vnum && *arg2) {
                     send_to_char(ch,
@@ -1153,7 +1153,7 @@ ACMD(do_olc)
                 if (tmp_vnum && (tmp_mob = do_create_mob(ch, i))) {
                     GET_OLC_MOB(ch) = tmp_mob;
                     send_to_char(ch,
-                        "Mobile %d succesfully created.\r\nNow editing mobile %d\r\n",
+                        "Mobile %d successfully created.\r\nNow editing mobile %d\r\n",
                         tmp_vnum, tmp_vnum);
                 } else if (!tmp_vnum && *arg2) {
                     send_to_char(ch,
