@@ -626,7 +626,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
         {                       // 13: 100 - 139
                 "$n *LIQUEFIES* $N with a #w from $p!!",
                 "You **LIQUEFY** $N with a #w from $p!!",
-            "$n *LIQUEFIES* you with a #w from $p"},
+            "$n *LIQUEFIES* you with a #w from $p!!"},
         {                       // 14: 140 - 189
                 "$n **VAPORIZES** $N with $p!!",
                 "You **VAPORIZE** $N with a #w from $p!!",
@@ -764,7 +764,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
         {                       // 13: 100 - 139
                 "$n *LIQUEFIES* $N with a #w from $p!!",
                 "You **LIQUEFY** $N with a #w from $p!!",
-            "$n *LIQUEFIES* you with a #w from $p"},
+            "$n *LIQUEFIES* you with a #w from $p!!"},
         {                       // 14: 140 - 189
                 "$n **VAPORIZES** $N with $p!!",
                 "You **VAPORIZE** $N with a #w from $p!!",
