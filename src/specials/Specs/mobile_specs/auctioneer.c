@@ -177,7 +177,7 @@ aucLoadFromXML(struct creature * auc)
                         continue;
                     }
                     new_ai->item = obj;
-                    items = g_list_prepend(items, new_ai);
+                    items = g_list_append(items, new_ai);
                 }
             }
         }
@@ -744,7 +744,7 @@ SPECIAL(do_auctions)
         obj_from_char(obj);
         obj_to_char(obj, self);
         crashsave(ch);
-        items = g_list_prepend(items, new_ai);
+        items = g_list_append(items, new_ai);
         aucSaveToXML(self);
 
         send_to_char(ch, "Your item has been entered for auction.\r\n");
