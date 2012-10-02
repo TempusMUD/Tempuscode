@@ -4005,8 +4005,10 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
                 for (; af != NULL; af = af->next) {
                     if (af->type != SPELL_ELEMENTAL_BRAND)
                         continue;
-                    if (af->weight_mod) {
-                        to_char = "Your branding fails.";
+                    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+                        if (af->affect_loc[i] == APPLY_WEAPONSPEED) {
+                            to_char = "Your branding fails.";
+                        }
                     }
                 }
                 if (to_char != NULL)
