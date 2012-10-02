@@ -60,7 +60,7 @@ $n's lightning disappears as $N makes a simple gesture.
 * Chill Touch
 M
  8
-$N stiffens, and falls dead from your frozen touch.
+$N stiffens, then falls dead from your frozen touch.
 $n touches you, and you succumb to $s frozen touch.
 $n touches $N who slumps to the ground as a dead lump, rather chilly isn't it?
 The atmosphere turns chilly as you miss $N!
@@ -96,13 +96,13 @@ $N is dissolved by your goodness.
 The power of $n's righteous touch dissolves your vile flesh.
 $n completely dissolves $N!
 $N is unaffected by your goodness!
-$n thinks that $e is really good, and tries to dispel you.
+$n thinks that $e is really good and tries to dispel you.
 $N laughs at $n as $e tries to dispel $M!
 $N shivers and suffers from $S evilness!
 $n makes your soul hurt and suffer!
 $n makes $N's evil spirit shiver and suffer!
 Did you really expect $M to suffer?
-$n unfruitfully tries to dispel you.
+$n fruitlessly tries to dispel you.
 $n is stupid...
 
 * Energy Drain
@@ -156,7 +156,7 @@ $N laughs as $n's magic is reflected off $M!
 * Lightning Bolt
 M
  30
-$N is knocked to the floor by the power of your lightning, and doesn't move.
+$N is knocked to the floor by the power of your lightning and doesn't move.
 The last thing you feel is the ground below you as $n's lightning knocks you down.
 $N receives the full blast of a lightning bolt from $n ... and is no more.
 Your aim goes from bad to worse, and your lightning bolt misses $N!
@@ -195,7 +195,7 @@ $N has a few cramps and dies, suffering.
 suffer miss victim - should never see.
 suffer miss room - should never see.
 #
-You feel burning poison in your blood, and suffer.
+You feel burning poison in your blood and suffer.
 $N looks really sick and shivers uncomfortably.
 #
 You have become poisoned somehow.
@@ -224,7 +224,7 @@ $N is dissolved by your evil.
 You scream as the vile taint of $n's soul rips your life from you.
 $n completely dissolves $N!
 $N is unaffected by your evil!
-$n thinks that $e is really evil, and tries to dispel you.
+$n thinks that $e is really evil and tries to dispel you.
 $N laughs at $n as $e tries to dispel $M!
 $N shivers and suffers from $S goodness!
 $n makes your soul hurt and suffer!
@@ -246,7 +246,7 @@ You blast $N with a prismatic spray of light!
 $n nails you hard with a prismatic spray of light!
 $n blasts $N with a prismatic spray of light!
 Your prismatic spray flickers weakly at $M...
-$n tries to spray you with mortal prismatism!  what a fool.
+$n tries to spray you with mortal prismatism!  What a fool.
 $n stupidly attacks the mighty $N with a prismatic spray!
 
 * Fire Shield
@@ -290,7 +290,7 @@ $n conjures a ghostly hammer, which speeds to $N and breaks $S skull!!
 The spiritual hammer swings wide, missing $N!
 $n flings a ghostly hammer at you, it barely misses your forehead!
 $n flings a ghostly hammer at $N, barely missing!
-The spirit hammer speeds toward $N, and smacks $M soundly!
+The spirit hammer speeds toward $N and smacks $M soundly!
 $n throws a spirit hammer at you, knocking you breathless!
 $n sends a spiritual hammer speeding into the head of $N!
 $N catches your puny hammer and eats it!
@@ -302,13 +302,13 @@ M
  81
 A column of flame falls from the skies and consumes $N!!
 You are burned alive as $n calls a pillar of fire down on your head!!
-$n calls down a pillar of fire, which consumes $N!!
-A tongue of flame falls from the skies, but misses $N!
+$n calls down a pillar of fire which consumes $N!!
+A tongue of flame falls from the skies but misses $N!
 $n calls a tongue of flame down from the sky, but you leap aside!
-$n calls flame down from the sky at $N , but $E leaps aside!
-You call down a pillar of blazing fire, which strikes $N!
+$n calls flame down from the sky at $N, but $E leaps aside!
+You call down a pillar of blazing fire which strikes $N!
 $n calls a blazing column of fire down on your head!
-A column of fire falls from the sky onto $N, at the command of $n!
+A column of fire falls from the sky onto $N at the command of $n!
 $n chuckles at your pitiful column of fire.
 $n warms you by calling a pillar of fire onto your head.
 $n brings fire from the skies onto the head of the mighty $N!
@@ -335,7 +335,7 @@ M
 Your symbol of pain sends $N screaming into the depths of hell!!
 $n's symbol of pain sends your soul screaming into the depths of hell!!
 $n's symbol of pain sends $N's soul screaming into the depths of hell!!
-Your symbol of pain seems to have no affect on $N!
+Your symbol of pain seems to have no effect on $N!
 $n blasts at you with a symbol of pain!  You are unaffected!
 $n blasts $N with a symbol of pain!  $E seems to be unaffected!
 $N reels backward in agony, burning under your symbol of pain!
@@ -597,8 +597,8 @@ $N staggers as part of $S body disintegrates!
 Part of your body disintegrates as a result of $n's alteration!
 $N staggers as $n disintegrates part of $S body!
 You can't divide into infinity!
-$n has tried to alter your body's half life!
-$n tries to alter the half life of infinity!
+$n has tried to alter your body's half-life!
+$n tries to alter the half-life of infinity!
 
 * Microwave
 M
@@ -721,7 +721,7 @@ Your vicious stab of $p into the back of $N kills $M!
 $n appears from nowhere and kills you with a backstab!
 $n places $p in the back of $N and kills $M!
 $N sees you coming and spins around, ruining your backstab!
-You see $n sneaking up from behind wielding $p, and spin around!
+You see $n sneaking up from behind wielding $p and spin around!
 $N spins around as $n attempts to sneak up behind $M!
 You sneak up on $N and stab $M in the back with $p!
 $n appears behind you and stabs you in the back with $p!
@@ -978,7 +978,7 @@ $n bites you hard, ripping your flesh open!
 $n bites $N hard, ripping $S flesh open!
 You bite your lip!
 $n bites $s lip as $e tries to bite you!
-$n bites $s lip realizing that its not nice to bite a God!
+$n bites $s lip realizing that it's not nice to bite a God!
 
 
 *Bearhug
@@ -995,7 +995,7 @@ $n squeezes you with $s bearhug!  You can't breathe!
 $n squeezes $N with $s bearhug!  $N can't breathe!
 $E don't want a hug from you...You Freak!
 $n wants to hug you... What a freak!
-$n tried to give $N a hug...Feeling pretty affectionate i guess.
+$n tried to give $N a hug...Feeling pretty affectionate, I guess.
 
 *Headbutt
 M
@@ -1063,7 +1063,7 @@ M
  541
 $p traces a long arc, lopping off the head of $N!!
 $n traces a long, deadly arc with $p, lopping off your head!!
-$n traces a long, deadly arc with $p, and lops off the head of $N!!
+$n traces a long, deadly arc with $p and lops off the head of $N!!
 $N barely evades your deadly arc of destruction!
 You barely manage to evade $n's attempt to lop off your head!!
 $N ducks as $n attempts to behead $M!
@@ -1261,7 +1261,7 @@ $n's rabbit punch to your kidneys kills you instantly!
 $n's rabbit punch to $N's kidneys kills $M instantly!
 Your rabbit punch misses $N!
 $n misses a rabbit punch at your kidneys!
-v$n misses a rabbit punch at $N's kidneys!
+$n misses a rabbit punch at $N's kidneys!
 Your rabbit punch hits $N right in the kidneys!
 $n's rabbit punch hits you right in the kidneys!
 $n's rabbit punch hits $N right in the kidneys!
@@ -1341,7 +1341,7 @@ You stealthily circle around $N and ram $p through $S back!!
 $n suddenly appears behind you and rams $p through your back!!
 $n circles quickly around $N and ram $p through $S back!!
 $N rotates as you attempt to circle $M, foiling your attempt.
-You notice $n trying to circle behind you, and spin in defense.
+You notice $n trying to circle behind you and spin in defense.
 $n attempts to circle behind $N, who quickly spins around.
 You stealthily circle around $N and stab $M in the back!
 $n suddenly appears behind you and stabs $p into your back!  OUCH!
@@ -1406,7 +1406,7 @@ Your whirling foot misses $N completely!
 $s whirling foot misses you completely!
 $n misses $N completely with his whirling foot!
 You blindside $N with your whirling foot!
-Your are blindsided by $n's whirling foot!
+You are blindsided by $n's whirling foot!
 $N is blindsided by $n's whirling foot!
 You feel foolish, since you can't attack a GOD!
 $n tries in vain to hit you with his whirling foot!
@@ -1670,7 +1670,7 @@ $N shrivels and collapses as $n draws $S life away!!
 $n avoids your icy fingers of death!
 You move aside as $n reaches for you with a demonic grin!
 $n reaches for $N, who leaps aside!
-You touch $N's flesh, and absorb $S life force!
+You touch $N's flesh and absorb $S life force!
 You feel your life slipping away as $n grasps you with icy fingers!
 $n grabs $N, who suddenly looks drained!
 $N laughs at your attempt to drain $M!
@@ -1730,8 +1730,8 @@ Your incredible cleave separates $N's upper from $S lower half!
 $n separates your upper and your lower half with $s incredible cleave.
 $n separates $N's upper and lower half from each other!
 Your cleave whistles hopelessly through the air.
-$n swings $p in a enormous arc at you, hitting absolutely nothing.
-$n swings $p in a enormous arc at $N, hitting absolutely nothing.
+$n swings $p in an enormous arc at you, hitting absolutely nothing.
+$n swings $p in an enormous arc at $N, hitting absolutely nothing.
 You swing $p and cleave through $N's body!
 $n cleaves through your body with $p
 $n swings $p and cleaves straight through $N's body!
@@ -2003,7 +2003,7 @@ The boiling oil misses $N.
 The boiling oil hits near you splashing you.
 Boiling oil hits near $N and splashes them.
 #
-The boiling oil falls from above, and covers you in a oily sheen.
+The boiling oil falls from above and covers you in an oily sheen.
 $N is hit with a stream of boiling oil. They look well oiled. $N won't squeak now.
 M
  733
@@ -2046,11 +2046,11 @@ A bolt of lightning streaks from the jet black sky, obliterating $N!
 A bolt of lightning streaks from the sky and blasts the ground by your feet!
 A bolt of lightning blasts into the ground by $N's feet!
 #
-A bolt of lighting streaks from the black sky into your chest!
-A bolt of lighting streaks from the black sky into $N's chest!
+A bolt of lightning streaks from the black sky into your chest!
+A bolt of lightning streaks from the black sky into $N's chest!
 #
-A bolt of lighting streaks from the black sky into your chest!
-A bolt of lighting streaks from the black sky into $N's chest!
+A bolt of lightning streaks from the black sky into your chest!
+A bolt of lightning streaks from the black sky into $N's chest!
 
 * Essence of Evil
 M
@@ -2329,7 +2329,7 @@ drown miss victim - should never see.
 drown miss room - should never see.
 #
 You panic as you realize you are drowning here!
-$N starts to panic, and thrash around wildly!
+$N starts to panic and thrash around wildly!
 #
 #
 #
@@ -2421,7 +2421,7 @@ $N rips the flesh off $S face with $S bare hands!
 #
 #
 #
-No-one ever digs holes in other peoples faces.
+No-one ever digs holes in other people's faces.
 You frantically tear at your eyes, trying to make the visions stop!
 $N frantically tries to tear $S face off!
 #
@@ -2893,7 +2893,7 @@ M
  895
 #
 Your lungs explode as you desperately gasp for a breath.
-$N desperately gasps for a breath, and is suddenly silent.
+$N desperately gasps for a breath and is suddenly silent.
 #
 suffocate miss victim - YOU SHOULDN'T SEE THIS.
 suffocate miss room - YOU SHOULDN'T SEE THIS.
@@ -3003,7 +3003,7 @@ M
  899
 #
 You can only lie still as your last heartbeat ebbs...
-$N suffers from bloodlack, and the lack of a beating heart...
+$N suffers from bloodlack and the lack of a beating heart...
 #
 suffer miss victim - should never see.
 suffer miss room - should never see.

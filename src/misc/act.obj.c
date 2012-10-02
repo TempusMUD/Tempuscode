@@ -1822,7 +1822,7 @@ transfer_money(struct creature *from, struct creature *to, money_t amt,
     }
 
     if (plant) {
-        send_to_char(from, "You plant %'" PRId64 " %s%s on %s\r\n", amt, currency_str,
+        send_to_char(from, "You plant %'" PRId64 " %s%s on %s.\r\n", amt, currency_str,
             amt == 1 ? "" : "s", PERS(to, from));
         if (IS_IMMORT(to) || (GET_SKILL(from, SKILL_PLANT) + GET_DEX(from)) <
             (number(0, 83) + GET_WIS(to))) {
@@ -1832,7 +1832,7 @@ transfer_money(struct creature *from, struct creature *to, money_t amt,
         }
         cmd_str = "planted";
     } else {
-        send_to_char(from, "You give %'" PRId64 " %s%s to %s\r\n", amt, currency_str,
+        send_to_char(from, "You give %'" PRId64 " %s%s to %s.\r\n", amt, currency_str,
             amt == 1 ? "" : "s", PERS(to, from));
         act(tmp_sprintf("You are given %'" PRId64 " %s%s by $n.", amt, currency_str,
                 amt == 1 ? "" : "s"), false, from, NULL, to, TO_VICT);
