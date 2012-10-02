@@ -4005,20 +4005,22 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
                 for (; af != NULL; af = af->next) {
                     if (af->type != SPELL_ELEMENTAL_BRAND)
                         continue;
-                    if (af->weight_mod) {
-                        to_char = "Your branding fails.";
+                    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+                        if (af->affect_loc[i] == APPLY_WEAPONSPEED) {
+                            to_char = "Your branding fails.";
+                        }
                     }
                 }
                 if (to_char != NULL)
                     break;
-		oaf[0].affect_loc[0] = APPLY_WEAPONSPEED;
-		oaf[0].affect_mod[0] = ((int)(GET_OBJ_WEIGHT(obj) * 0.10) + skill_bonus(ch, SPELL_ELEMENTAL_BRAND) / 25);
-		oaf[0].extra_mod = ITEM3_REQ_RANGER;
-		oaf[0].extra_index = 3;
-		oaf[1].extra_mod = ITEM_MAGIC;
-		oaf[1].extra_index = 1;
-		to_char = "The rune of air swirls around $p.";
-		aff_mode = AFF_ADD;
+                oaf[0].affect_loc[0] = APPLY_WEAPONSPEED;
+                oaf[0].affect_mod[0] = ((int)(GET_OBJ_WEIGHT(obj) * 0.10) + skill_bonus(ch, SPELL_ELEMENTAL_BRAND) / 25);
+                oaf[0].extra_mod = ITEM3_REQ_RANGER;
+                oaf[0].extra_index = 3;
+                oaf[1].extra_mod = ITEM_MAGIC;
+                oaf[1].extra_index = 1;
+                to_char = "The rune of air swirls around $p.";
+                aff_mode = AFF_ADD;
                 break;
 
             case 2:            // Fire brand adds item damroll
