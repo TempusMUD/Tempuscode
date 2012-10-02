@@ -243,22 +243,18 @@ do_create_search(struct creature *ch, char *arg)
 {
 
     struct special_search_data *srch = NULL;
-    char triggers[MAX_INPUT_LENGTH], keywords[MAX_INPUT_LENGTH];
+    char *trigger = tmp_getword(&arg);
+    char *keyword = tmp_getword(&arg);
 
-    arg = one_argument(arg, triggers);
-    one_argument(arg, keywords);
-
-    skip_spaces(&arg);
-
-    if (!*triggers) {
-        send_to_char(ch, "USAGE: create search <trigger word> <keyword>\r\n");
+    if (!*trigger) {
+        send_to_char(ch, "USAGE: create search <trigger word> <keywords>\r\n");
         return NULL;
     }
 
     for (srch = ch->in_room->search; srch; srch = srch->next) {
-        if (isname_exact(triggers, srch->command_keys) &&
-            *keywords && srch->keywords
-            && isname_exact(keywords, srch->keywords)) {
+        if (isname_exact(trigger, srch->command_keys) &&
+            *keyword && srch->keywords
+            && isname_exact(keyword, srch->keywords)) {
             send_to_char(ch,
                 "There is already a search here on that trigger.\r\n");
             return NULL;
@@ -272,9 +268,9 @@ do_create_search(struct creature *ch, char *arg)
 
     CREATE(srch, struct special_search_data, 1);
 
-    srch->command_keys = strdup(triggers);
-    if (*arg)
-        srch->keywords = strdup(arg);
+    srch->command_keys = strdup(trigger);
+    if (*keyword)
+        srch->keywords = strdup(keyword);
     else
         srch->keywords = NULL;
     srch->to_room = NULL;
