@@ -614,7 +614,7 @@ enum spell {
 
     SKILL_CHEMISTRY = 651, // merc skill
     SKILL_ADVANCED_CYBO_SURGERY = 652,
-    SKILL_SHIELD_SLAM = 653, //knight knockdown requiring shield
+    SKILL_SLAM = 653, //knight knockdown requiring shield
     SKILL_SPARE4 = 654,
     SKILL_BEGUILE = 655,
     SKILL_SPARE6 = 656,

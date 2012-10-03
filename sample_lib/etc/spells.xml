@@ -3181,7 +3181,7 @@ His presence is revealed to me.</lyrics>
     <granted class="ranger" level="27"/>
     <granted class="monk" level="25"/>
   </skill>
-  <skill id="653" name="shieldslam">
+  <skill id="653" name="shield slam">
     <granted class="knight" level="34"/>
   </skill>
   <skill id="607" name="swimming">
