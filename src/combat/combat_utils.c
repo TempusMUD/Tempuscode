@@ -1457,7 +1457,7 @@ calculate_attack_probability(struct creature *ch)
     if (IS_RANGER(ch)
         && GET_EQ(ch, WEAR_BODY)
         && IS_OBJ_TYPE(GET_EQ(ch, WEAR_BODY), ITEM_ARMOR)
-        && !IS_METAL_TYPE(GET_EQ(ch, WEAR_BODY)))
+        && IS_METAL_TYPE(GET_EQ(ch, WEAR_BODY)))
         prob -= (GET_LEVEL(ch) >> 2);
 
     if (GET_EQ(ch, WEAR_WIELD_2))
