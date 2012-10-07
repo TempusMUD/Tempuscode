@@ -93,8 +93,7 @@ pk_reputation_gain(struct creature *perp, struct creature *victim)
 {
     if (perp == victim
         || IS_NPC(perp)
-        || IS_NPC(victim)
-        || !g_list_find(perp->fighting, victim))
+        || IS_NPC(victim))
         return 0;
 
     // Start with 10 for causing hassle
