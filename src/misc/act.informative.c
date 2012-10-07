@@ -2413,6 +2413,8 @@ acc_append_affects(struct creature *ch, int8_t mode)
         acc_strcat("Your skin is thick and tough like tree bark.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_STONESKIN))
         acc_strcat("Your skin is as hard as granite.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_SPIRIT_TRACK))
+        acc_strcat("You can track by sensing the spirit of your prey.\r\n", NULL);
     if (AFF_FLAGGED(ch, AFF_INFRAVISION))
         acc_strcat("Your eyes are glowing red.\r\n", NULL);
     if (AFF_FLAGGED(ch, AFF_REJUV))
