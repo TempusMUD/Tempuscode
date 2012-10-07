@@ -14,7 +14,8 @@ SPECIAL(increaser)
     struct creature *increaser = (struct creature *)me;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     char status_desc[64];
-    int gold, life_cost, incr;
+    int64_t gold;
+    int life_cost, incr;
     int amount = 0;
     int8_t mode, status = 0;
 
@@ -86,8 +87,9 @@ SPECIAL(increaser)
         return 1;
     }
 
-    if (incr > 100) {
-        return 1;
+    if (incr > 10000) {
+        send_to_char(ch, "Lets try just doing 10,000 for now...\r\n");
+        incr = 10000;
     }
 
     if (mode == MODE_MOVE)
@@ -99,7 +101,7 @@ SPECIAL(increaser)
     gold += (gold * cost_modifier(ch, increaser)) / 100;
 
     send_to_char(ch,
-        "It will cost you %d %s and %d life points to increase your %s by %d.\r\n",
+        "It will cost you %'" PRId64 " %s and %d life points to increase your %s by %d.\r\n",
         gold, CURRENCY(ch), life_cost, arg1, incr);
 
     sprintf(buf, "$n considers the implications of increasing $s %s.", arg1);
@@ -135,7 +137,7 @@ SPECIAL(increaser)
         break;
     }
 
-    slog("%s increased %s %d points at %d.",
+    slog("%s increased %s %'d points at %d.",
         GET_NAME(ch), arg1, incr, ch->in_room->number);
 
     send_to_char(ch, "You begin your improvement.\r\n");
