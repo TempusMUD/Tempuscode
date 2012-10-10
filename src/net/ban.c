@@ -376,7 +376,7 @@ is_valid_name(char *newname)
     if (len > (int)MAX_NAME_LENGTH)
         return 0;
 
-    if (len < 3)
+    if (len < 2)
         return 0;
 
     /* return valid if list doesn't exist */
