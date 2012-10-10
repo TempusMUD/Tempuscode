@@ -88,7 +88,7 @@ SPECIAL(increaser)
     }
 
     if (incr > 10000) {
-        send_to_char(ch, "Lets try just doing 10,000 for now...\r\n");
+        send_to_char(ch, "Let's try just doing 10,000 for now...\r\n");
         incr = 10000;
     }
 
