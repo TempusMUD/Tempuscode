@@ -3,7 +3,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
+
 #include <glib.h>
+#include <libxml/parser.h>
 
 #include "interpreter.h"
 #include "utils.h"
@@ -22,9 +24,9 @@
 #include "tmpstr.h"
 #include "account.h"
 #include "bomb.h"
-#include <libxml/parser.h>
 #include "obj_data.h"
 #include "quest.h"
+#include "screen.h"
 
 bool
 is_arena_combat(struct creature *ch, struct creature *vict)
@@ -93,8 +95,7 @@ pk_reputation_gain(struct creature *perp, struct creature *victim)
 {
     if (perp == victim
         || IS_NPC(perp)
-        || IS_NPC(victim)
-        || !g_list_find(perp->fighting, victim))
+        || IS_NPC(victim))
         return 0;
 
     // Start with 10 for causing hassle
@@ -189,6 +190,10 @@ check_attack(struct creature *attacker, struct creature *victim)
     gain = MAX(1, gain / 5);
     gain_reputation(perp, gain);
 
+    send_to_char(perp, "%sYou have gained %d reputation for viciously attacking %s.%s",
+                 CCRED(perp, C_NRM), gain, GET_NAME(victim), CCNRM(perp, C_NRM));
+    send_to_char(victim, "%s%s has gained %d reputation for viciously attacking you.%s",
+                 CCYEL(victim, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
         "%s gained %d reputation for attacking %s", GET_NAME(perp),
         gain, GET_NAME(victim));
@@ -218,6 +223,10 @@ count_pkill(struct creature *killer, struct creature *victim)
 
     gain_reputation(perp, gain);
 
+    send_to_char(perp, "%sYou have gained %d reputation for heinously murdering %s.%s",
+                 CCRED(killer, C_NRM), gain, GET_NAME(victim), CCNRM(perp, C_NRM));
+    send_to_char(victim, "%s%s has gained %d reputation for heinously murdering you.%s",
+                 CCYEL(killer, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
         "%s gained %d reputation for murdering %s", GET_NAME(perp),
         gain, GET_NAME(victim));
@@ -241,6 +250,10 @@ check_thief(struct creature *ch, struct creature *victim)
     gain = MAX(1, gain / 10);
     gain_reputation(perp, gain);
 
+    send_to_char(perp, "%sYou have gained %d reputation for stealing from %s.%s",
+                 CCRED(perp, C_NRM), gain, GET_NAME(victim), CCNRM(perp, C_NRM));
+    send_to_char(victim, "%s%s has gained %d reputation for stealing from you.%s",
+                 CCYEL(victim, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
         "%s gained %d reputation for stealing from %s", GET_NAME(perp),
         gain, GET_NAME(victim));
