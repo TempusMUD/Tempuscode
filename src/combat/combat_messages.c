@@ -1147,7 +1147,7 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
                     gun_hit_text[guntype].plural, NULL,
                     gun_hit_text[guntype].substance);
         } else if (weapon && IS_GUN(weapon) && w_type == (TYPE_BLAST - TYPE_HIT))
-            buf = replace_string(dam_guns[msgnum].to_char,
+            buf = replace_string(dam_guns[msgnum].to_victim,
                 attack_hit_text[w_type].singular,
                 attack_hit_text[w_type].plural, NULL, NULL);
         else if (location >= 0 && POS_DAMAGE_OK(location) && !number(0, 2)) {
