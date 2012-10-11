@@ -14,6 +14,7 @@
 #include <unistd.h>
 #include <glib.h>
 #include <sys/stat.h>
+#include <locale.h>
 
 #include "utils.h"
 #include "constants.h"
@@ -57,6 +58,8 @@ main(int argc, char **argv)
 
     tmp_string_init();
     acc_string_init();
+
+    setlocale(LC_ALL, "");
 
     int option_idx = 0;
     struct option long_options[] = {

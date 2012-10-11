@@ -32,7 +32,6 @@
 #include <libxml/parser.h>
 #include <time.h>
 #include <glib.h>
-#include <locale.h>
 
 #include "interpreter.h"
 #include "utils.h"
