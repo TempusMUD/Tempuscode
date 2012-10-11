@@ -3484,9 +3484,11 @@ mag_unaffects(int level, struct creature *ch, struct creature *victim,
         spell2 = SKILL_GOUGE;
         to_vict2 = "Your vision returns!";
         to_room2 = "There's a momentary gleam in $n's eyes.";
-        spell3 = SKILL_HAMSTRING;
-        to_vict3 = "The wound on your leg closes!";
-        to_room3 = "The gaping wound on $n's leg closes.";
+        if (spellnum != SPELL_CURE_BLIND) {
+            spell3 = SKILL_HAMSTRING;
+            to_vict3 = "The wound on your leg closes!";
+            to_room3 = "The gaping wound on $n's leg closes.";
+        }
         spell4 = TYPE_MALOVENT_HOLYTOUCH;
         to_vict4 = "Your vision returns!";
         to_room4 = "There's a momentary gleam in $n's eyes.";
