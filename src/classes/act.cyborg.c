@@ -1990,7 +1990,8 @@ ACMD(do_repair)
         return;
     }
 
-    if (IS_OBJ_TYPE(obj, ITEM_ARMOR) || IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
+    if (IS_OBJ_TYPE(obj, ITEM_ARMOR) || IS_OBJ_TYPE(obj, ITEM_WEAPON)
+        || IS_OBJ_TYPE(obj, ITEM_WORN) || IS_OBJ_TYPE(obj, ITEM_TREASURE)) {
         if (IS_METAL_TYPE(obj))
             skill = SKILL_METALWORKING;
         else if (IS_LEATHER_TYPE(obj))
