@@ -1563,8 +1563,8 @@ ACMD(do_screen)
     char *width_str = tmp_getword(&argument);
 
     // Validate the arguments
-    if ((!isnumber(height_str) && strcmp(height_str, "off"))
-        || (*width_str && !isnumber(width_str) && strcmp(width_str, "off"))) {
+    if ((!is_number(height_str) && strcmp(height_str, "off"))
+        || (*width_str && !is_number(width_str) && strcmp(width_str, "off"))) {
         send_to_char(ch,
             "Usage: screen (<terminal height>|off) [(<terminal width>|off)]\r\n");
         return;

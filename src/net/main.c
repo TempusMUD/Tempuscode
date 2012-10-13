@@ -26,6 +26,7 @@
 #include "db.h"
 #include "tmpstr.h"
 #include "accstr.h"
+#include "strutil.h"
 
 extern int DFLT_PORT;
 extern char *DFLT_DIR;
@@ -129,7 +130,7 @@ main(int argc, char **argv)
             group = optarg;
             break;
         case 'p':
-            if (!isnumber(optarg)) {
+            if (!is_number(optarg)) {
                 fprintf(stderr, "%s: port must be numeric\n", argv[0]);
                 safe_exit(EXIT_FAILURE);
             }
