@@ -552,14 +552,18 @@ parse_optional_range(const char *arg, int *start, int *finish)
 
         // Parse range
         str = tmp_substr(arg, 0, dash - arg - 1);
-        if (!isnumber(str))
+        if (!is_number(str))
             return false;
         *start = atoi(str);
+        if (*start < 1)
+            return false;
 
         str = tmp_substr(arg, dash - arg + 1, -1);
-        if (!isnumber(str))
+        if (!is_number(str))
             return false;
         *finish = atoi(str);
+        if (*finish < 1)
+            return false;
 
         if (*start > *finish) {
             int tmp = *finish;
@@ -571,12 +575,12 @@ parse_optional_range(const char *arg, int *start, int *finish)
         return true;
     }
     // Ensure single arg is numeric
-    if (!isnumber(arg))
+    if (!is_number(arg))
         return false;
 
     // Single number
     *start = *finish = atoi(arg);
-    return true;
+    return (*start > 1);
 }
 
 bool
@@ -898,7 +902,7 @@ editor_do_command(struct editor * editor, char cmd, char *args)
             }
 
             arg = tmp_getword(&args);
-            if (!*arg || !isnumber(arg)) {
+            if (!*arg || !is_number(arg)) {
                 editor_emit(editor,
                     "Format for move command is: &&m (<start line>-<end line>|<line #>) <destination>\r\n");
                 break;
@@ -917,7 +921,7 @@ editor_do_command(struct editor * editor, char cmd, char *args)
     case 'r':                  // Refresh Screen
         if (!*args) {
             editor->displaybuffer(editor, 1, 0);
-        } else if (isnumber(args) && (line = atoi(args)) > 0) {
+        } else if (is_number(args) && (line = atoi(args)) > 0) {
             int line_count = editor->desc->account->term_height;
 
             editor->displaybuffer(editor, MAX(1, line - line_count / 2), line_count);

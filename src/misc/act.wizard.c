@@ -4456,7 +4456,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
         }
 
         arg = tmp_getword(&args);
-        if (!*arg || !isnumber(arg)) {
+        if (!*arg || !is_number(arg)) {
             send_to_char(ch,
                 "Usage: show rooms <world | zone> occupancy < < | >  # > \n");
             return -1;
@@ -4486,7 +4486,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
             return -1;
         }
 
-        if (!*arg || !isnumber(arg)) {
+        if (!*arg || !is_number(arg)) {
             send_to_char(ch,
                 "Usage: show rooms <world | zone> mobcount [mobcount]\n");
             return -1;
@@ -4556,7 +4556,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
         }
 
         arg = tmp_getword(&args);
-        if (!*arg || !isnumber(arg)) {
+        if (!*arg || !is_number(arg)) {
             send_to_char(ch,
                 "Usage: show rooms <world | zone> desc_length < < | >  # > \n");
             return -1;
