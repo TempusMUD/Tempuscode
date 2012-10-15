@@ -405,17 +405,17 @@ SPECIAL(gen_board)
 
     // We only handle these command if they're referring to the board
     if ((CMD_IS("read") || CMD_IS("look") || CMD_IS("examine"))
-        && !isnumber(argument)
+        && !is_number(argument)
         && !isname(argument, self->aliases))
         return 0;
 
     // We only handle remove command if it's referring to a message
-    if (CMD_IS("remove") && !isnumber(argument))
+    if (CMD_IS("remove") && !is_number(argument))
         return 0;
 
     // We only handle edit command if it's referring to a message
     arg = argument;
-    if (CMD_IS("edit") && !isnumber(tmp_getword(&arg)))
+    if (CMD_IS("edit") && !is_number(tmp_getword(&arg)))
         return 0;
 
     // If they can't see the board, they can't use it at all
@@ -455,7 +455,7 @@ SPECIAL(gen_board)
         gen_board_remove(board, ch, argument);
     else if (CMD_IS("edit"))
         gen_board_edit(board, ch, argument);
-    else if (isnumber(argument))
+    else if (is_number(argument))
         gen_board_read(board, ch, argument);
     else
         gen_board_list(board, ch);

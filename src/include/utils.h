@@ -582,19 +582,6 @@ double float_number(double from, double to);
 // simulates dice roll
 int dice(int number, int size);
 
-static inline bool
-isnumber(const char *str)
-{
-    if (*str == '\0')
-        return false;
-	while (*str != '\0')
-		if (!isdigit(*str))
-			return false;
-		else
-			str++;
-	return true;
-}
-
 static inline const char *
 SAFETY(const char *str)
 {

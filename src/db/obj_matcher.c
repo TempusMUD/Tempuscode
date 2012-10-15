@@ -307,14 +307,14 @@ make_object_cost_matcher(struct creature *ch,
     } else if (!strcmp(opstr, ">=")) {
         matcher->op = OP_LT;
         matcher->negated = !matcher->negated;
-    } else if (isnumber(opstr)) {
+    } else if (is_number(opstr)) {
         matcher->op = OP_EQ;
         expr = opstr;
     }
 
     matcher->pred = object_matches_cost;
     matcher->info = object_cost_info;
-    if (!isnumber(expr)) {
+    if (!is_number(expr)) {
         send_to_char(ch, "You must specify a number to match the cost against.\r\n");
         return false;
     }
