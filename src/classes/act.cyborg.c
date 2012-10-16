@@ -2222,7 +2222,7 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
                 C_NRM), CCCYN(ch, C_NRM), IS_SET(ENGINE_STATE(obj),
                 ENG_PETROL) ? "Petrol" : IS_SET(ENGINE_STATE(obj),
                 ENG_ELECTRIC) ? "Elect" : IS_SET(ENGINE_STATE(obj),
-                ENG_MAGIC) ? "Magic" : "Fucked", CCNRM(ch, C_NRM),
+                ENG_MAGIC) ? "Magic" : "Unknown", CCNRM(ch, C_NRM),
             CCCYN(ch, C_NRM), USE_RATE(obj), CCNRM(ch, C_NRM));
         break;
     case ITEM_ENERGY_GUN:
