@@ -386,7 +386,7 @@ perform_gain_kill_exp(struct creature *ch, struct creature *victim,
         if (explore_bonus)
             send_to_char(ch, "%sYou've received an exploration bonus!%s\r\n",
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
-        send_to_char(ch, "%s%sYou have gained %d experience.%s\r\n",
+        send_to_char(ch, "%s%sYou have gained %'d experience.%s\r\n",
             CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), exp, CCNRM(ch, C_SPR));
     } else if (exp < 0) {
         send_to_char(ch, "%s%sYou have lost experience.%s\r\n",
