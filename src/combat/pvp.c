@@ -190,9 +190,9 @@ check_attack(struct creature *attacker, struct creature *victim)
     gain = MAX(1, gain / 5);
     gain_reputation(perp, gain);
 
-    send_to_char(perp, "%sYou have gained %d reputation for viciously attacking %s.%s",
+    send_to_char(perp, "%sYou have gained %d reputation for viciously attacking %s.%s\r\n",
                  CCRED(perp, C_NRM), gain, GET_NAME(victim), CCNRM(perp, C_NRM));
-    send_to_char(victim, "%s%s has gained %d reputation for viciously attacking you.%s",
+    send_to_char(victim, "%s%s has gained %d reputation for viciously attacking you.%s\r\n",
                  CCYEL(victim, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
         "%s gained %d reputation for attacking %s", GET_NAME(perp),
@@ -223,9 +223,9 @@ count_pkill(struct creature *killer, struct creature *victim)
 
     gain_reputation(perp, gain);
 
-    send_to_char(perp, "%sYou have gained %d reputation for heinously murdering %s.%s",
+    send_to_char(perp, "%sYou have gained %d reputation for heinously murdering %s.%s\r\n",
                  CCRED(killer, C_NRM), gain, GET_NAME(victim), CCNRM(perp, C_NRM));
-    send_to_char(victim, "%s%s has gained %d reputation for heinously murdering you.%s",
+    send_to_char(victim, "%s%s has gained %d reputation for heinously murdering you.%s\r\n",
                  CCYEL(killer, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
         "%s gained %d reputation for murdering %s", GET_NAME(perp),
@@ -250,9 +250,9 @@ check_thief(struct creature *ch, struct creature *victim)
     gain = MAX(1, gain / 10);
     gain_reputation(perp, gain);
 
-    send_to_char(perp, "%sYou have gained %d reputation for stealing from %s.%s",
+    send_to_char(perp, "%sYou have gained %d reputation for stealing from %s.%s\r\n",
                  CCRED(perp, C_NRM), gain, GET_NAME(victim), CCNRM(perp, C_NRM));
-    send_to_char(victim, "%s%s has gained %d reputation for stealing from you.%s",
+    send_to_char(victim, "%s%s has gained %d reputation for stealing from you.%s\r\n",
                  CCYEL(victim, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
         "%s gained %d reputation for stealing from %s", GET_NAME(perp),
