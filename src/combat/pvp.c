@@ -190,9 +190,9 @@ check_attack(struct creature *attacker, struct creature *victim)
     gain = MAX(1, gain / 5);
     gain_reputation(perp, gain);
 
-    send_to_char(perp, "%sYou have gained %d reputation for viciously attacking %s.%s",
+    send_to_char(perp, "%sYou have gained %d reputation for viciously attacking %s.%s\r\n",
                  CCRED(perp, C_NRM), gain, GET_NAME(victim), CCNRM(perp, C_NRM));
-    send_to_char(victim, "%s%s has gained %d reputation for viciously attacking you.%s",
+    send_to_char(victim, "%s%s has gained %d reputation for viciously attacking you.%s\r\n",
                  CCYEL(victim, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
         "%s gained %d reputation for attacking %s", GET_NAME(perp),
@@ -223,9 +223,9 @@ count_pkill(struct creature *killer, struct creature *victim)
 
     gain_reputation(perp, gain);
 
-    send_to_char(perp, "%sYou have gained %d reputation for heinously murdering %s.%s",
+    send_to_char(perp, "%sYou have gained %d reputation for heinously murdering %s.%s\r\n",
                  CCRED(killer, C_NRM), gain, GET_NAME(victim), CCNRM(perp, C_NRM));
-    send_to_char(victim, "%s%s has gained %d reputation for heinously murdering you.%s",
+    send_to_char(victim, "%s%s has gained %d reputation for heinously murdering you.%s\r\n",
                  CCYEL(killer, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
         "%s gained %d reputation for murdering %s", GET_NAME(perp),
@@ -250,9 +250,9 @@ check_thief(struct creature *ch, struct creature *victim)
     gain = MAX(1, gain / 10);
     gain_reputation(perp, gain);
 
-    send_to_char(perp, "%sYou have gained %d reputation for stealing from %s.%s",
+    send_to_char(perp, "%sYou have gained %d reputation for stealing from %s.%s\r\n",
                  CCRED(perp, C_NRM), gain, GET_NAME(victim), CCNRM(perp, C_NRM));
-    send_to_char(victim, "%s%s has gained %d reputation for stealing from you.%s",
+    send_to_char(victim, "%s%s has gained %d reputation for stealing from you.%s\r\n",
                  CCYEL(victim, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
         "%s gained %d reputation for stealing from %s", GET_NAME(perp),
@@ -280,9 +280,9 @@ g_list_remove_if(GList * list, GCompareFunc func, gpointer user_data)
 }
 
 gint
-matches_player(struct creature *tch, gpointer idnum_ptr)
+matches_grievance(struct grievance *grievance, gpointer idnum_ptr)
 {
-    return (GET_IDNUM(tch) == GPOINTER_TO_INT(idnum_ptr)) ? 0 : -1;
+    return (grievance->player_id == GPOINTER_TO_INT(idnum_ptr)) ? 0 : -1;
 }
 
 void
@@ -312,7 +312,7 @@ perform_pardon(struct creature *ch, struct creature *pardoned)
     }
 
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
-        (GCompareFunc) matches_player, GINT_TO_POINTER(GET_IDNUM(pardoned)));
+        (GCompareFunc) matches_grievance, GINT_TO_POINTER(GET_IDNUM(pardoned)));
 }
 
 gint
@@ -377,7 +377,7 @@ ACMD(do_pardon)
         expire_old_grievances(ch);
         if (!g_list_find_custom(GET_GRIEVANCES(ch),
                 GINT_TO_POINTER(GET_IDNUM(pardoned)),
-                (GCompareFunc) matches_player)) {
+                (GCompareFunc) matches_grievance)) {
             send_to_char(ch, "%s has done nothing for you to pardon.\r\n",
                 GET_NAME(pardoned));
             return;
