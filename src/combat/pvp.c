@@ -280,9 +280,9 @@ g_list_remove_if(GList * list, GCompareFunc func, gpointer user_data)
 }
 
 gint
-matches_player(struct creature *tch, gpointer idnum_ptr)
+matches_grievance(struct grievance *grievance, gpointer idnum_ptr)
 {
-    return (GET_IDNUM(tch) == GPOINTER_TO_INT(idnum_ptr)) ? 0 : -1;
+    return (grievance->player_id == GPOINTER_TO_INT(idnum_ptr)) ? 0 : -1;
 }
 
 void
@@ -312,7 +312,7 @@ perform_pardon(struct creature *ch, struct creature *pardoned)
     }
 
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
-        (GCompareFunc) matches_player, GINT_TO_POINTER(GET_IDNUM(pardoned)));
+        (GCompareFunc) matches_grievance, GINT_TO_POINTER(GET_IDNUM(pardoned)));
 }
 
 gint
@@ -377,7 +377,7 @@ ACMD(do_pardon)
         expire_old_grievances(ch);
         if (!g_list_find_custom(GET_GRIEVANCES(ch),
                 GINT_TO_POINTER(GET_IDNUM(pardoned)),
-                (GCompareFunc) matches_player)) {
+                (GCompareFunc) matches_grievance)) {
             send_to_char(ch, "%s has done nothing for you to pardon.\r\n",
                 GET_NAME(pardoned));
             return;
