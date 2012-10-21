@@ -2168,7 +2168,10 @@ ACMD(do_stat)
     struct zone_data *zone = NULL;
     int tmp, found;
     char *arg1 = tmp_getword(&argument);
+    char *options = argument;
     char *arg2 = tmp_getword(&argument);
+    if (*arg2)
+        options = argument;
 
     if (!*arg1) {
         send_to_char(ch, "Stats on who or what?\r\n");
@@ -2200,7 +2203,7 @@ ACMD(do_stat)
         else {
             if ((victim = get_char_vis(ch, arg2)) &&
                 (IS_NPC(victim) || GET_LEVEL(ch) >= LVL_DEMI))
-                do_stat_character(ch, victim, argument);
+                do_stat_character(ch, victim, options);
             else
                 send_to_char(ch, "No such mobile around.\r\n");
         }
@@ -2209,7 +2212,7 @@ ACMD(do_stat)
             send_to_char(ch, "Stats on which player?\r\n");
         } else {
             if ((victim = get_player_vis(ch, arg2, 0)))
-                do_stat_character(ch, victim, argument);
+                do_stat_character(ch, victim, options);
             else
                 send_to_char(ch, "No such player around.\r\n");
         }
@@ -2226,7 +2229,7 @@ ACMD(do_stat)
             } else {
                 victim = load_player_from_xml(player_idnum_by_name(arg2));
                 if (victim) {
-                    do_stat_character(ch, victim, argument);
+                    do_stat_character(ch, victim, options);
                     free_creature(victim);
                 } else {
                     send_to_char(ch, "Error loading character '%s'\r\n", arg2);
@@ -2248,12 +2251,12 @@ ACMD(do_stat)
         else if ((object = get_obj_in_list_vis(ch, arg1, ch->carrying)))
             do_stat_object(ch, object);
         else if ((victim = get_char_room_vis(ch, arg1)))
-            do_stat_character(ch, victim, argument);
+            do_stat_character(ch, victim, options);
         else if ((object =
                 get_obj_in_list_vis(ch, arg1, ch->in_room->contents)))
             do_stat_object(ch, object);
         else if ((victim = get_char_vis(ch, arg1)))
-            do_stat_character(ch, victim, argument);
+            do_stat_character(ch, victim, options);
         else if ((object = get_obj_vis(ch, arg1)))
             do_stat_object(ch, object);
         else
