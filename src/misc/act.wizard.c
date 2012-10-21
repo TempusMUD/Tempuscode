@@ -1637,7 +1637,7 @@ do_stat_character_kills(struct creature *ch, struct creature *k)
 {
     if (!IS_PC(k)) {
         send_to_char(ch, "Recent kills by a mob are not recorded.\r\n");
-    } else if (GET_RECENT_KILLS(k)) {
+    } else if (!GET_RECENT_KILLS(k)) {
         send_to_char(ch, "This player has not killed anything yet.\r\n");
     } else {
         acc_string_clear();
@@ -1647,7 +1647,7 @@ do_stat_character_kills(struct creature *ch, struct creature *k)
              kill_it = kill_it->next) {
             struct kill_record *kill = kill_it->data;
             struct creature *killed = real_mobile_proto(kill->vnum);
-            acc_sprintf("%s%3d. %-30s %17d%s\r\n",
+            acc_sprintf("%s%5d. %-30s %17d%s\r\n",
                 CCGRN(ch, C_NRM),
                 kill->vnum,
                 (killed) ? GET_NAME(killed) : "<unknown>",
