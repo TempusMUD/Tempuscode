@@ -3927,7 +3927,6 @@ obj_in_house(struct obj_data * obj)
 void
 perform_immort_where(struct creature *ch, char *arg, bool show_morts)
 {
-    register struct creature *i = NULL;
     register struct obj_data *k;
     struct descriptor_data *d;
     int num = 0, found = 0;
@@ -3944,34 +3943,35 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
         for (d = descriptor_list; d; d = d->next) {
             if (STATE(d) != CXN_PLAYING)
                 continue;
-            i = (d->original ? d->original : d->creature);
-            if (i && can_see_creature(ch, i)
-                && (i->in_room != NULL)
-                && (show_morts || IS_IMMORT(i))) {
-                if (d->original)
-                    acc_sprintf
-                        ("%s%-20s%s - %s[%s%5d%s]%s %s%s%s %s(in %s)%s\r\n",
-                        (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch,
-                                C_NRM) : ""), GET_NAME(i),
-                        (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCNRM(ch,
-                                C_NRM) : ""), CCGRN(ch, C_NRM), CCNRM(ch,
-                            C_NRM), d->creature->in_room->number, CCGRN(ch,
-                            C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-                        d->creature->in_room->name, CCNRM(ch, C_NRM), CCRED(ch,
-                            C_CMP), GET_NAME(d->creature), CCNRM(ch, C_CMP));
-                else
-                    acc_sprintf("%s%-20s%s - %s[%s%5d%s]%s %s%s%s\r\n",
-                        (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch,
-                                C_NRM) : ""), GET_NAME(i),
-                        (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCNRM(ch,
-                                C_NRM) : ""), CCGRN(ch, C_NRM), CCNRM(ch,
-                            C_NRM), i->in_room->number, CCGRN(ch, C_NRM),
-                        CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), i->in_room->name,
-                        CCNRM(ch, C_NRM));
+            struct creature *player = (d->original ? d->original : d->creature);
+            struct creature *form = d->creature;
+
+            if (player && player->in_room && (show_morts || IS_IMMORT(player))) {
+                const char *notes = "";
+
+                if (player != form) {
+                    notes = tmp_sprintf("%s (in %s)", CCGRN(ch, C_CMP), GET_NAME(form));
+                }
+                if (ROOM_FLAGGED(form->in_room, ROOM_HOUSE)) {
+                    notes = tmp_sprintf("%s (house)", CCMAG(ch, C_CMP));
+                }
+                if (!IS_APPR(form->in_room->zone)) {
+                    notes = tmp_sprintf("%s (!appr)", CCRED(ch, C_CMP));
+                }
+                acc_sprintf("%s%-20s%s - %s[%s%5d%s]%s %s%s%s%s\r\n",
+                            (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCGRN(ch, C_NRM) : ""),
+                            GET_NAME(player),
+                            (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCNRM(ch, C_NRM) : ""),
+                            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                            form->in_room->number,
+                            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                            CCCYN(ch, C_NRM), form->in_room->name,
+                            notes, CCNRM(ch, C_NRM));
             }
         }
         page_string(ch->desc, acc_get_string());
     } else {
+        register struct creature *i = NULL;
         for (arg1 = tmp_getword(&arg);*arg1;arg1 = tmp_getword(&arg)) {
             if (arg1[0] == '!') {
                 excluded = g_list_prepend(excluded, tmp_strdup(arg1 + 1));
