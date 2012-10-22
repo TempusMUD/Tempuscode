@@ -3559,7 +3559,7 @@ load_familiar(struct creature *ch, int sect_type, int type)
     switch (sect_type) {
     case SECT_CITY:
         result = read_mobile(20 + type);
-        to_room = "$n emerges from a dirty alley.";
+        to_char = to_room = "$n emerges from a dirty alley.";
         break;
     case SECT_MOUNTAIN:
         result = read_mobile(30 + type);
@@ -3568,15 +3568,15 @@ load_familiar(struct creature *ch, int sect_type, int type)
         break;
     case SECT_FIELD:
         result = read_mobile(40 + type);
-        to_room = "$n emerges from the tall grasses.";
+        to_char = to_room = "$n emerges from the tall grasses.";
         break;
     case SECT_FOREST:
         result = read_mobile(50 + type);
-        to_room = "$n leaves the cover of the trees.";
+        to_char = to_room = "$n leaves the cover of the trees.";
         break;
     case SECT_JUNGLE:
         result = read_mobile(60 + type);
-        to_room = "$n emerges from the thick jungle undergrowth.";
+        to_char = to_room = "$n emerges from the thick jungle undergrowth.";
         break;
     case SECT_SWAMP:
         result = read_mobile(70 + type);
@@ -3592,7 +3592,7 @@ load_familiar(struct creature *ch, int sect_type, int type)
 
     char_to_room(result, ch->in_room, true);
     if (to_char)
-        act(to_room, false, result, NULL, ch, TO_CHAR);
+        act(to_char, false, result, NULL, ch, TO_CHAR);
     if (to_room)
         act(to_room, false, result, NULL, ch, TO_ROOM);
 
