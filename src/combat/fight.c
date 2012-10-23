@@ -374,7 +374,8 @@ perform_gain_kill_exp(struct creature *ch, struct creature *victim,
     if (IS_PC(ch) && IS_NPC(victim)) {
         struct kill_record *kill = tally_kill_record(ch, victim);
 
-        exp += calc_explore_bonus(kill, exp);
+        explore_bonus = calc_explore_bonus(kill, exp);
+        exp += explore_bonus;
     }
 
     if (IS_NPC(victim) && !IS_NPC(ch)
