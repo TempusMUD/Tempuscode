@@ -739,8 +739,8 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
             act("The water bubbles and swirls as you extend $p.", false, ch, obj, NULL,
             TO_CHAR);
         else if (room_is_open_air(ch->in_room))
-                act("You swing $p in three broad arcs through the open air.", false, ch, obj, NULL,
-                TO_CHAR);
+            act("You swing $p in three broad arcs through the open air.", false, ch, obj, NULL,
+            TO_CHAR);
         else
             act("You tap $p three times on the ground.", false, ch, obj, NULL,
             TO_CHAR);
@@ -762,8 +762,8 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
             act("The water bubbles and swirls as $n extends $p.", false, ch, obj, NULL,
             TO_ROOM);
         else if (room_is_open_air(ch->in_room))
-                act("$n swings $p in three broad arcs through the open air.", false, ch, obj, NULL,
-                TO_ROOM);
+            act("$n swings $p in three broad arcs through the open air.", false, ch, obj, NULL,
+            TO_ROOM);
         else
             act("$n taps $p three times on the ground.", false, ch, obj, NULL,
             TO_ROOM);
