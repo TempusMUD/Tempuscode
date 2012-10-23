@@ -2205,15 +2205,18 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
         break;
     case ITEM_PILL:
     case ITEM_SYRINGE:
-        if (GET_OBJ_VAL(obj, 1) > 0)
-        acc_sprintf("Effects:              %s%s%s\r\n",
-            CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 1)), CCNRM(ch, C_NRM));
+        acc_sprintf("Effects:              %s", CCCYN(ch, C_NRM));
+        if (GET_OBJ_VAL(obj, 1) == 0) {
+            acc_strcat("None", CCNRM(ch, C_NRM), "\r\n", NULL);
+        } else {
+            acc_sprintf("%s%s%s\r\n",CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 1)), CCNRM(ch, C_NRM));
+        }
         if (GET_OBJ_VAL(obj, 2) > 0 || GET_OBJ_VAL(obj, 3) > 0) {
             acc_sprintf("Side Effects:        %s", CCCYN(ch, C_NRM));
             if (GET_OBJ_VAL(obj, 2) >= 1)
-            acc_sprintf(" %s%s%s",CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 2)), CCNRM(ch, C_NRM));
+                acc_sprintf(" %s%s%s",CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 2)), CCNRM(ch, C_NRM));
             if (GET_OBJ_VAL(obj, 3) >= 1)
-            acc_sprintf(" %s%s%s",CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 3)), CCNRM(ch, C_NRM));
+                acc_sprintf(" %s%s%s",CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 3)), CCNRM(ch, C_NRM));
             acc_sprintf("%s\r\n",CCNRM(ch, C_NRM));
         }
         break;
