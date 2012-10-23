@@ -49,6 +49,7 @@
 #include "strutil.h"
 #include "actions.h"
 #include "guns.h"
+#include "smokes.h"
 
 /* extern variables */
 extern struct room_data *world;
@@ -2193,6 +2194,32 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
     case ITEM_STAFF:
         acc_sprintf("%sERROR:%s no further information available.\r\n",
             CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+        break;
+    case ITEM_TOBACCO:
+        acc_sprintf("Botanical Taxonomy:   %s%s%s\r\n",
+            CCCYN(ch, C_NRM), strlist_aref(SMOKE_TYPE(obj), smoke_types), CCNRM(ch, C_NRM));
+        break;
+    case ITEM_PIPE:
+    case ITEM_CIGARETTE:
+        acc_sprintf("Botanical Contents:   %s%s%s\r\n",
+            CCCYN(ch, C_NRM), strlist_aref(GET_OBJ_VAL(obj, 2), smoke_types), CCNRM(ch, C_NRM));
+        break;
+    case ITEM_PILL:
+    case ITEM_SYRINGE:
+        acc_sprintf("Effects:              %s", CCCYN(ch, C_NRM));
+        if (GET_OBJ_VAL(obj, 1) == 0) {
+            acc_strcat("None", CCNRM(ch, C_NRM), "\r\n", NULL);
+        } else {
+            acc_sprintf("%s%s%s\r\n",CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 1)), CCNRM(ch, C_NRM));
+        }
+        if (GET_OBJ_VAL(obj, 2) > 0 || GET_OBJ_VAL(obj, 3) > 0) {
+            acc_sprintf("Side Effects:        %s", CCCYN(ch, C_NRM));
+            if (GET_OBJ_VAL(obj, 2) >= 1)
+                acc_sprintf(" %s%s%s",CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 2)), CCNRM(ch, C_NRM));
+            if (GET_OBJ_VAL(obj, 3) >= 1)
+                acc_sprintf(" %s%s%s",CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 3)), CCNRM(ch, C_NRM));
+            acc_sprintf("%s\r\n",CCNRM(ch, C_NRM));
+        }
         break;
     case ITEM_WEAPON:
         acc_sprintf("Damage Dice:          %s%dd%d%s\r\n",
