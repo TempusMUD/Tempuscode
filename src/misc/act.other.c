@@ -625,7 +625,7 @@ ACMD(do_split)
             GET_CASH(k) += share;
         else
             GET_GOLD(k) += share;
-        send_to_char(k, "%s splits %d %s; you receive %d.\r\n", GET_NAME(ch),
+        send_to_char(k, "%s splits %'d %s; you receive %'d.\r\n", GET_NAME(ch),
             amount, mode ? "credits" : "coins", share);
     }
     for (f = k->followers; f; f = f->next) {
@@ -636,11 +636,11 @@ ACMD(do_split)
                 GET_CASH(f->follower) += share;
             else
                 GET_GOLD(f->follower) += share;
-            send_to_char(f->follower, "%s splits %d %s; you receive %d.\r\n",
+            send_to_char(f->follower, "%s splits %'d %s; you receive %'d.\r\n",
                 GET_NAME(ch), amount, mode ? "credits" : "coins", share);
         }
     }
-    send_to_char(ch, "You split %d %s among %d member%s -- %d each.\r\n",
+    send_to_char(ch, "You split %'d %s among %d member%s -- %'d each.\r\n",
         amount, mode ? "credits" : "coins", num, (num > 1 ? "s" : ""), share);
 }
 
