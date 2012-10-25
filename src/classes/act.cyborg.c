@@ -213,9 +213,9 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
         "%s>>>        ENERGY TRANSFER         <<<%s\r\n"
         "From:  %s%20s%s\r\n"
         "To:    %s%20s%s\r\n\r\n"
-        "Transfer Amount:       %s%5d Units%s\r\n"
-        "Energy Level(TARGET):  %s%5d Units%s\r\n"
-        "Energy Level(SOURCE):  %s%5d Units%s\r\n",
+        "Transfer Amount:       %s%'5d Units%s\r\n"
+        "Energy Level(TARGET):  %s%'5d Units%s\r\n"
+        "Energy Level(SOURCE):  %s%'5d Units%s\r\n",
         QGRN, QNRM,
         QCYN, battery ? battery->name : "self", QNRM,
         QCYN, vict ? GET_NAME(vict) : engine->name, QNRM,
@@ -224,7 +224,7 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
         QCYN, battery ? CUR_ENERGY(battery) : GET_MOVE(ch), QNRM);
     if (battery) {
         if (IS_OBJ_TYPE(battery, ITEM_BATTERY) && COST_UNIT(battery)) {
-            send_to_char(ch, "Your cost: %d credits.\r\n",
+            send_to_char(ch, "Your cost: %'d credits.\r\n",
                 amount * COST_UNIT(battery));
             GET_CASH(ch) -= amount * COST_UNIT(battery);
         }
@@ -1726,7 +1726,7 @@ ACMD(do_status)
 
     switch (GET_OBJ_TYPE(obj)) {
     case ITEM_TRANSPORTER:
-        send_to_char(ch, "Energy Levels: %d / %d.\r\n", CUR_ENERGY(obj),
+        send_to_char(ch, "Energy Levels: %'d / %'d.\r\n", CUR_ENERGY(obj),
             MAX_ENERGY(obj));
         if (real_room(TRANS_TO_ROOM(obj)) == NULL)
             act("$p is currently untuned.", false, ch, obj, NULL, TO_CHAR);
@@ -1755,7 +1755,7 @@ ACMD(do_status)
 
     case ITEM_DEVICE:
         act(tmp_sprintf("$p (%s) %s currently %sactivated.\r\n"
-                "The energy level is %d/%d units.",
+                "The energy level is %'d/%'d units.",
                 obj->carried_by ? "carried" :
                 obj->worn_by ?
                 (obj == GET_EQ(ch,
@@ -1786,7 +1786,7 @@ ACMD(do_status)
         break;
     case ITEM_ENERGY_CELL:
     case ITEM_BATTERY:
-        send_to_char(ch, "Energy Levels: %d / %d.\r\n", CUR_ENERGY(obj),
+        send_to_char(ch, "Energy Levels: %'d / %'d.\r\n", CUR_ENERGY(obj),
             MAX_ENERGY(obj));
         break;
 
@@ -2132,7 +2132,7 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
         ((ALEV(5) || !checklev) && GET_OBJ_MAX_DAM(obj) > 0) ?
         tmp_sprintf("  [%3d%%]",
                     GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj)) : "");
-    acc_sprintf("Commerce Value:       %s%d coins%s\r\n", CCCYN(ch, C_NRM),
+    acc_sprintf("Commerce Value:       %s%'d coins%s\r\n", CCCYN(ch, C_NRM),
         GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
     acc_sprintf("Total Mass:           %s%s%s\r\n", CCCYN(ch, C_NRM),
                 format_weight(GET_OBJ_WEIGHT(obj), USE_METRIC(ch)), CCNRM(ch, C_NRM));
@@ -2243,7 +2243,7 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
             acc_strcat("Vehicle is not equipped with an engine.\r\n", NULL);
         break;
     case ITEM_ENGINE:
-        acc_sprintf("Max Fuel: %s%d%s, Current Fuel: %s%d%s, Type: %s%s%s, "
+        acc_sprintf("Max Fuel: %s%'d%s, CurrentBUGBUG Fuel: %s%'d%s, Type: %s%s%s, "
             "Eff: %s%d%s\r\n", CCCYN(ch, C_NRM), MAX_ENERGY(obj),
             CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CUR_ENERGY(obj), CCNRM(ch,
                 C_NRM), CCCYN(ch, C_NRM), IS_SET(ENGINE_STATE(obj),
@@ -2263,7 +2263,7 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
         break;
     case ITEM_BATTERY:
         acc_sprintf
-            ("Max Energy: %s%d%s, Current Energy: %s%d%s, Recharge Rate: %s%d%s\r\n",
+            ("Max Energy: %s%'d%s, Current Energy: %s%'d%s, Recharge Rate: %s%'d%s\r\n",
             CCCYN(ch, C_NRM), MAX_ENERGY(obj), CCNRM(ch, C_NRM), CCCYN(ch,
                 C_NRM), CUR_ENERGY(obj), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
             RECH_RATE(obj), CCNRM(ch, C_NRM));
