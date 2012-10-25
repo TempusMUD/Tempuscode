@@ -1630,6 +1630,7 @@ damage(struct creature *ch, struct creature *victim,
     case SPELL_ICY_BLAST:
     case SPELL_FROST_BREATH:
     case TYPE_FREEZING:
+    case SPELL_HELL_FROST:
         if (CHAR_WITHSTANDS_COLD(victim))
             dam /= 2;
         break;
