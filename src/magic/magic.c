@@ -968,7 +968,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             WAIT_STATE(victim, 2 RL_SEC);
         }
     } else if (spellnum == SPELL_CONE_COLD || spellnum == SPELL_HAILSTORM ||
-        spellnum == SPELL_HELL_FROST) {
+        spellnum == SPELL_HELL_FROST || spellnum == SPELL_CHILL_TOUCH || spellnum == SPELL_ICY_BLAST) {
         if (AFF2_FLAGGED(victim, AFF2_ABLAZE)) {
             extinguish_creature(victim);
             act("The flames on your body sizzle out and die.",
@@ -1026,30 +1026,24 @@ mag_affects(int level,
     }
     switch (spellnum) {
 
-    case SPELL_CHILL_TOUCH:
-    case SPELL_CONE_COLD:
-        aff[0].location = APPLY_STR;
-        if (mag_savingthrow(victim, level, savetype))
-            aff[0].duration = 1;
-        else
-            aff[0].duration = 4;
-        aff[0].modifier = -((level / 16) + 1);
-        accum_duration = true;
-        to_vict = "You feel your strength wither!";
-        break;
     case SPELL_HELL_FROST_STORM:
         spellnum = SPELL_HELL_FROST;
     case SPELL_HELL_FROST:
-        aff[0].location = APPLY_STR;
-        if (mag_savingthrow(victim, level, savetype))
-            aff[0].duration = 1;
-        else
-            aff[0].duration = 4;
-        aff[0].modifier = -((level / 16) + 1);
-        accum_duration = true;
-        to_vict = "You feel your strength withered by the cold!";
+    case SPELL_CHILL_TOUCH:
+    case SPELL_CONE_COLD:
+        if (CHAR_WITHSTANDS_COLD(victim)) {
+            return;
+        } else {
+            aff[0].location = APPLY_STR;
+            if (mag_savingthrow(victim, level, savetype))
+                aff[0].duration = 1;
+            else
+                aff[0].duration = 4;
+            aff[0].modifier = -((level / 16) + 1);
+            accum_duration = true;
+            to_vict = "You feel your strength withered by the cold!";
+        }
         break;
-
     case SPELL_TROG_STENCH:
         aff[0].location = APPLY_STR;
         if (mag_savingthrow(victim, level, savetype)) {
