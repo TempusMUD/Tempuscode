@@ -672,7 +672,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         else
             dam = dice(level, 7) + 11;
 
-        if (!CHAR_WITHSTANDS_FIRE(ch))
+        if (!CHAR_WITHSTANDS_FIRE(victim))
             ignite_creature(victim, ch);
         break;
     case SPELL_CONE_COLD:
