@@ -1871,12 +1871,18 @@ ACMD(do_repair)
     }
 
     if (vict) {
-        if (!IS_NPC(ch) && (
-                (!(tool = GET_IMPLANT(ch, WEAR_HOLD)) && !(tool = GET_IMPLANT(ch, WEAR_HANDS)) && !(tool = GET_IMPLANT(ch, WEAR_WRIST_L)) && !(tool = GET_IMPLANT(ch, WEAR_WRIST_R)) && !(tool = GET_IMPLANT(ch, WEAR_FINGER_L)) && !(tool = GET_IMPLANT(ch, WEAR_FINGER_R)) && !(tool = GET_EQ(ch, WEAR_HOLD))) ||
-                !IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBOREPAIR)) {
-            send_to_char(ch,
-                "You must operate a cyborepair tool to do this.\r\n");
-            return;
+        if (!IS_NPC(ch) && 
+           ((!(tool = GET_IMPLANT(ch, WEAR_HOLD)) && \
+           !(tool = GET_IMPLANT(ch, WEAR_HANDS)) && \
+           !(tool = GET_IMPLANT(ch, WEAR_WRIST_L)) && \
+           !(tool = GET_IMPLANT(ch, WEAR_WRIST_R)) && \
+           !(tool = GET_IMPLANT(ch, WEAR_FINGER_L)) && \
+           !(tool = GET_IMPLANT(ch, WEAR_FINGER_R)) && \
+           !(tool = GET_EQ(ch, WEAR_HOLD))) ||
+           !IS_TOOL(tool) || 
+           TOOL_SKILL(tool) != SKILL_CYBOREPAIR)) {
+               send_to_char(ch, "You must operate a cyborepair tool to do this.\r\n");
+               return;
         }
 
         if (vict == ch) {
