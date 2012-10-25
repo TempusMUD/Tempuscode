@@ -91,7 +91,7 @@ implanter_implant(struct creature *me, struct creature *ch, char *args)
     }
 
     if ((pos = search_block(pos_str, wear_implantpos, 0)) < 0 ||
-        (ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(implant, ITEM_TOOL))) {
+        (ILLEGAL_IMPLANTPOS(pos))) {
         msg = tmp_sprintf("'%s' isn't a valid position.", pos_str);
         perform_tell(me, ch, msg);
         implanter_show_pos(me, ch, implant);

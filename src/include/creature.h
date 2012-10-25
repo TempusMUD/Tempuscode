@@ -976,7 +976,7 @@ void remove_combat(struct creature *ch, struct creature *target);
 #define ILLEGAL_IMPLANTPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
       pos == WEAR_WIELD || pos == WEAR_BELT || pos == WEAR_WIELD_2 || \
-	  pos == WEAR_RANDOM)
+	  pos == WEAR_RANDOM || pos == WEAR_HOLD)
 
 #define ILLEGAL_TATTOOPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
