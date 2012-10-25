@@ -1379,7 +1379,7 @@ SPECIAL(bank)
             GET_GOLD(ch) -= amount;
         if (clan) {
             clan->bank_account += amount;
-            send_to_char(ch, "You deposit %d %s%s in the clan account.\r\n",
+            send_to_char(ch, "You deposit %'d %s%s in the clan account.\r\n",
                 amount, CURRENCY(ch), PLURAL(amount));
             sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
                 clan->bank_account, clan->number);
@@ -1390,7 +1390,7 @@ SPECIAL(bank)
                 deposit_future_bank(ch->account, amount);
             else
                 deposit_past_bank(ch->account, amount);
-            send_to_char(ch, "You deposit %d %s%s.\r\n", amount, CURRENCY(ch),
+            send_to_char(ch, "You deposit %'d %s%s.\r\n", amount, CURRENCY(ch),
                 PLURAL(amount));
             if (amount > 50000000) {
                 mudlog(LVL_IMMORT, NRM, true,
@@ -1443,7 +1443,7 @@ SPECIAL(bank)
             GET_CASH(ch) += amount;
         else
             GET_GOLD(ch) += amount;
-        send_to_char(ch, "You withdraw %d %s%s.\r\n", amount, CURRENCY(ch),
+        send_to_char(ch, "You withdraw %'d %s%s.\r\n", amount, CURRENCY(ch),
             PLURAL(amount));
         act("$n makes a bank transaction.", true, ch, NULL, NULL, TO_ROOM);
 
@@ -1519,7 +1519,7 @@ SPECIAL(bank)
         else
             deposit_past_bank(acct, amount);
 
-        send_to_char(ch, "You transfer %d %s%s to %s's account.\r\n",
+        send_to_char(ch, "You transfer %'d %s%s to %s's account.\r\n",
             amount, CURRENCY(ch), PLURAL(amount), vict_name);
         act("$n makes a bank transaction.", true, ch, NULL, NULL, TO_ROOM);
 
