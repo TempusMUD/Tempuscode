@@ -3029,15 +3029,7 @@ ACMD(do_grab)
             else
                 perform_wear(ch, obj, WEAR_LIGHT);
         } else {
-            if (!CAN_WEAR(obj, ITEM_WEAR_HOLD)
-                && GET_OBJ_TYPE(obj) != ITEM_WAND
-                && GET_OBJ_TYPE(obj) != ITEM_STAFF
-                && GET_OBJ_TYPE(obj) != ITEM_SCROLL
-                && GET_OBJ_TYPE(obj) != ITEM_POTION
-                && GET_OBJ_TYPE(obj) != ITEM_SYRINGE)
-                send_to_char(ch, "You can't hold that.\r\n");
-            else
-                perform_wear(ch, obj, WEAR_HOLD);
+            perform_wear(ch, obj, WEAR_HOLD);
         }
     }
 }
