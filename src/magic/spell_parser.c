@@ -727,35 +727,34 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
     switch (GET_OBJ_TYPE(obj)) {
     case ITEM_STAFF:
 
-        if (obj->action_desc)
+        if (obj->action_desc) {
             act(obj->action_desc, false, ch, obj, NULL, TO_ROOM);
-        else
-
-        if (room_is_watery(ch->in_room))
+        } else if (room_is_watery(ch->in_room)) {
             act("The water bubbles and swirls as you extend $p.", false, ch, obj, NULL,
             TO_CHAR);
             act("The water bubbles and swirls as $n extends $p.", false, ch, obj, NULL,
             TO_ROOM);
-        else if (room_is_open_air(ch->in_room))
+        } else if (room_is_open_air(ch->in_room)) {
             act("You swing $p in three broad arcs through the open air.", false, ch, obj, NULL,
             TO_CHAR);
             act("$n swings $p in three broad arcs through the open air.", false, ch, obj, NULL,
             TO_ROOM);
-        else if (SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER)
+        } else if (SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER) {
             act("Fire licks $p as you hold it above the surface.", false, ch, obj, NULL,
             TO_CHAR);
             act("Fire licks $p as $n holds it above the surface.", false, ch, obj, NULL,
             TO_ROOM);
-        else if (SECT_TYPE(ch->in_room) == SECT_PITCH_SUB || SECT_TYPE(ch->in_room) == SECT_PITCH_PIT)
+        } else if (SECT_TYPE(ch->in_room) == SECT_PITCH_SUB || SECT_TYPE(ch->in_room) == SECT_PITCH_PIT) {
             act("You press $p into the viscous pitch.", false, ch, obj, NULL,
             TO_CHAR);
             act("$n presses $p into the viscous pitch.", false, ch, obj, NULL,
             TO_ROOM);
-        else
+        } else {
             act("You tap $p three times on the ground.", false, ch, obj, NULL,
             TO_CHAR);
             act("$n taps $p three times on the ground.", false, ch, obj, NULL,
             TO_ROOM);            
+        }
 
         if (GET_OBJ_VAL(obj, 2) <= 0) {
             act("It seems powerless.", false, ch, obj, NULL, TO_CHAR);
