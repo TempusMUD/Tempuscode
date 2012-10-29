@@ -2423,7 +2423,7 @@ ACMD(do_insert)
 
     pos = search_block(pos_str, wear_implantpos, 0);
     if (pos < 0 || ((GET_LEVEL(ch) < LVL_IMMORT &&
-                ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(obj, ITEM_TOOL)))) {
+                ILLEGAL_IMPLANTPOS(pos)))) {
         send_to_char(ch, "Invalid implant position.\r\n");
         return;
     }
