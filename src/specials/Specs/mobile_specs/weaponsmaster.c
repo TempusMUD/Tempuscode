@@ -89,7 +89,7 @@ SPECIAL(weaponsmaster)
     cost += (cost * cost_modifier(ch, master)) / 100;
 
     send_to_char(ch,
-        "It will cost you %d gold coin%s to train your specialization with %s to level %d.\r\n%s",
+        "It will cost you %'d gold coin%s to train your specialization with %s to level %d.\r\n%s",
         cost, cost == 1 ? "" : "s", weap->name,
         weap_spec.level + 1,
         cost > GET_GOLD(ch) ? "Which you don't have.\r\n" : "");

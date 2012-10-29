@@ -453,7 +453,7 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman, char *arg)
         // gold
         if (ch->in_room->zone->time_frame != TIME_ELECTRO) {
             if (GET_GOLD(ch) < total_cost) {
-                sprintf(buf2, "The postage will cost you %d coins.",
+                sprintf(buf2, "The postage will cost you %'d coins.",
                     total_cost);
                 perform_tell(mailman, ch, buf2);
                 strcpy(buf2, "...which I see you can't afford.");
@@ -468,7 +468,7 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman, char *arg)
             GET_GOLD(ch) -= total_cost;
         } else {                // credits
             if (GET_CASH(ch) < total_cost) {
-                sprintf(buf2, "The postage will cost you %d credits.",
+                sprintf(buf2, "The postage will cost you %'d credits.",
                     total_cost);
                 perform_tell(mailman, ch, buf2);
                 strcpy(buf2, "...which I see you can't afford.");
@@ -485,7 +485,7 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman, char *arg)
     }
 
     act("$n starts to write some mail.", true, ch, NULL, NULL, TO_ROOM);
-    sprintf(buf2, "I'll take %d coins for the postage.", total_cost);
+    sprintf(buf2, "I'll take %'d coins for the postage.", total_cost);
     perform_tell(mailman, ch, buf2);
 
     start_editing_mail(ch->desc, mail_list);

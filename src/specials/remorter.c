@@ -191,8 +191,8 @@ SPECIAL(remorter)
         send_to_char(ch,
             "You do not have sufficient sacrifice to do this.\r\n");
         send_to_char(ch,
-            "The required sacrifice must be worth %d coins.\r\n"
-            "You have only brought a %d coin value.\r\n", level * 5000000,
+            "The required sacrifice must be worth %'d coins.\r\n"
+            "You have only brought a %'d coin value.\r\n", level * 5000000,
             value);
         return 1;
     }

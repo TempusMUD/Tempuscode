@@ -50,12 +50,12 @@ SPECIAL(corpse_griller)
         return 1;
     }
     if (IS_MAT(corpse, MAT_MEAT_COOKED)) {
-        send_to_char(ch, "That's already cooked, phreak.\r\n");
+        send_to_char(ch, "That's already cooked, freak.\r\n");
         return 1;
     }
 
     if (GET_GOLD(ch) < cost) {
-        send_to_char(ch, "It costs %d gold coins to grill, buddy.\r\n", cost);
+        send_to_char(ch, "It costs %'d gold coins to grill, buddy.\r\n", cost);
         return 1;
     }
 

@@ -68,7 +68,7 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
         }
 
         send_to_char(ch,
-            "It will cost you %d coins and %d life points to improve your %s.\r\n",
+            "It will cost you %'d coins and %d life points to improve your %s.\r\n",
             gold, life_cost, improve_modes[mode]);
         sprintf(buf, "$n considers the implications of improving $s %s.",
             improve_modes[mode]);
@@ -96,7 +96,7 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
     }
 
     if (GET_GOLD(ch) < gold) {
-        send_to_char(ch, "You cannot afford it.  The cost is %d coins.\r\n",
+        send_to_char(ch, "You cannot afford it.  The cost is %'d coins.\r\n",
             gold);
         return 1;
     }
