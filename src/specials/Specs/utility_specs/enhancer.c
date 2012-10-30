@@ -62,7 +62,7 @@ SPECIAL(enhancer)
     cost = GET_OBJ_COST(obj);
     cost += (cost * cost_modifier(ch, keeper)) / 100;
 
-    sprintf(buf2, "It will cost you %d %s to have %s enhanced.",
+    sprintf(buf2, "It will cost you %'d %s to have %s enhanced.",
         cost, ch->in_room->zone->time_frame == TIME_ELECTRO ? "credits" :
         "coins", obj->name);
     perform_tell(keeper, ch, buf2);

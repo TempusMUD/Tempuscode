@@ -49,7 +49,7 @@ SPECIAL(languagemaster)
     }
 
     send_to_char(ch,
-        "It will cost you %d gold coins to learn to speak %s%s\r\n", cost,
+        "It will cost you %'d gold coins to learn to speak %s%s\r\n", cost,
         tongue_name(tongue_idx),
         cost > GET_GOLD(ch) ? ", which I see you don't have." : ".");
 

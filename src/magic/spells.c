@@ -1140,7 +1140,7 @@ ASPELL(spell_identify)
         strcat(buf, "\r\n");
         send_to_char(ch, "%s", buf);
 
-        send_to_char(ch, "Weight: %s, Value: %d, Rent: %d\r\n",
+        send_to_char(ch, "Weight: %s, Value: %'d, Rent: %'d\r\n",
                      format_weight(GET_OBJ_WEIGHT(obj), metric),
                      GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
         send_to_char(ch, "Item material is %s.\r\n",
@@ -1310,7 +1310,7 @@ ASPELL(spell_minor_identify)
         sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf);
         send_to_char(ch, "%s\r\n", buf);
 
-        send_to_char(ch, "Weight: %s, Value: %d, Rent: %d\r\n",
+        send_to_char(ch, "Weight: %s, Value: %'d, Rent: %'d\r\n",
                      format_weight(GET_OBJ_WEIGHT(obj), metric),
                      GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
 
