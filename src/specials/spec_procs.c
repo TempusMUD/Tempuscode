@@ -399,7 +399,7 @@ SPECIAL(guild)
     if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
         if (CMD_IS("offer")) {
             perform_tell(master, ch,
-                tmp_sprintf("It will cost you %ld creds to train %s.", cost,
+                tmp_sprintf("It will cost you %'ld creds to train %s.", cost,
                     spell_to_str(skill_num)));
             return 1;
         }
@@ -407,19 +407,19 @@ SPECIAL(guild)
         if (GET_CASH(ch) < cost) {
             perform_tell(master, ch,
                 tmp_sprintf
-                ("You haven't got the %ld creds I require to train %s.", cost,
+                ("You haven't got the %'ld creds I require to train %s.", cost,
                     spell_to_str(skill_num)));
             return 1;
         }
 
         send_to_char(ch,
-            "You buy training for %ld creds and practice for a while...\r\n",
+            "You buy training for %'ld creds and practice for a while...\r\n",
             cost);
         GET_CASH(ch) -= cost;
     } else {
         if (CMD_IS("offer")) {
             perform_tell(master, ch,
-                tmp_sprintf("It will cost you %ld gold to train %s.", cost,
+                tmp_sprintf("It will cost you %'ld gold to train %s.", cost,
                     spell_to_str(skill_num)));
             return 1;
         }
@@ -427,13 +427,13 @@ SPECIAL(guild)
         if (GET_GOLD(ch) < cost) {
             perform_tell(master, ch,
                 tmp_sprintf
-                ("You haven't got the %ld gold I require to train %s.", cost,
+                ("You haven't got the %'ld gold I require to train %s.", cost,
                     spell_to_str(skill_num)));
             return 1;
         }
 
         send_to_char(ch,
-            "You buy training for %ld gold and practice for a while...\r\n",
+            "You buy training for %'ld gold and practice for a while...\r\n",
             cost);
         GET_GOLD(ch) -= cost;
     }

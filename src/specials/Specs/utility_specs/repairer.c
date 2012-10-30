@@ -76,7 +76,7 @@ SPECIAL(repairer)
     currency = (ch->in_room->zone->time_frame == TIME_ELECTRO);
 
     if (CMD_IS("value")) {
-        sprintf(tellbuf, "It will cost you %d %s to repair %s.", cost,
+        sprintf(tellbuf, "It will cost you %'d %s to repair %s.", cost,
             currency ? "credits" : "coins", obj->name);
         perform_tell(repairer, ch, tellbuf);
         return 1;
@@ -84,7 +84,7 @@ SPECIAL(repairer)
 
     if ((currency && cost > GET_CASH(ch)) ||
         (!currency && cost > GET_GOLD(ch))) {
-        sprintf(tellbuf, "You don't have the %d %s I require.", cost,
+        sprintf(tellbuf, "You don't have the %'d %s I require.", cost,
             currency ? "credits" : "gold coins");
         perform_tell(repairer, ch, tellbuf);
         return 1;

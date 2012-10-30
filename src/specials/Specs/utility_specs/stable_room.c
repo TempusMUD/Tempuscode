@@ -94,7 +94,7 @@ SPECIAL(stable_room)
         }
         price = GET_LEVEL(pet) * 10 + GET_MOVE(pet) * 10 + GET_HIT(pet) * 10;
 
-        sprintf(buf, "I will pay you %d gold coins for $N.", price);
+        sprintf(buf, "I will pay you %'d gold coins for $N.", price);
         act(buf, false, ch, NULL, pet, TO_CHAR);
         if (CMD_IS("value"))
             return 1;

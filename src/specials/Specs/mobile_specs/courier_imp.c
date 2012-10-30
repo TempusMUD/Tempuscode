@@ -226,11 +226,11 @@ SPECIAL(courier_imp)
 
                 msg = tmp_sprintf("$N gives you ");
                 if (GET_GOLD(self))
-                    msg = tmp_sprintf("%s%d coins", msg, paygold);
+                    msg = tmp_sprintf("%s%'d coins", msg, paygold);
                 if (GET_GOLD(self) && GET_CASH(self))
                     msg = tmp_strcat(msg, " and", NULL);
                 if (GET_CASH(self))
-                    msg = tmp_sprintf("%s %d cash", msg, paycash);
+                    msg = tmp_sprintf("%s %'d cash", msg, paycash);
                 msg = tmp_strcat(msg, ".", NULL);
 
                 act(msg, false, seeking, NULL, self, TO_CHAR);
