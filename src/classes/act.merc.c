@@ -725,7 +725,7 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
 
     acc_string_clear();
 
-    acc_sprintf("%s is %s\r\n", tmp_capitalize(obj->name),
+    acc_sprintf("%s is %s.\r\n", tmp_capitalize(obj->name),
         strlist_aref(GET_OBJ_TYPE(obj), item_type_descs));
 
     if (skill_lvl > 30) {
@@ -756,7 +756,7 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
                     extra3_bits));
     }
 
-    acc_sprintf("Item weighs around %.2f lbs, and is made of %s.\n",
+    acc_sprintf("Item weighs around %.2f lbs and is made of %s.\n",
         GET_OBJ_WEIGHT(obj), material_names[GET_OBJ_MATERIAL(obj)]);
 
     if (skill_lvl > 100)
@@ -861,7 +861,7 @@ ACMD(do_appraise)
 
     if (!(bits =
             generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, NULL, &obj))) {
-        send_to_char(ch, "You can't find any %s to appraise\r\n.", arg);
+        send_to_char(ch, "You can't find any %s to appraise.\r\n", arg);
         return;
     }
 

@@ -92,7 +92,7 @@ ACMD(do_hamstring)
     }
 
     if (IS_CLERIC(ch) && IS_GOOD(ch)) {
-        send_to_char(ch, "Your diety forbids this.\r\n");
+        send_to_char(ch, "Your deity forbids this.\r\n");
         return;
     }
     // If there's noone in the room that matches your alias
