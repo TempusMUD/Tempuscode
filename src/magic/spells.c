@@ -1120,10 +1120,10 @@ ASPELL(spell_identify)
         if (obj->obj_flags.bitvector[0])
             sprintbit(obj->obj_flags.bitvector[0], affected_bits, buf);
         if (obj->obj_flags.bitvector[1])
-            sprintbit(obj->obj_flags.bitvector[1], affected2_bits, buf);
+            sprintbit(obj->obj_flags.bitvector[1], affected2_bits, buf1);
         if (obj->obj_flags.bitvector[2])
-            sprintbit(obj->obj_flags.bitvector[2], affected3_bits, buf);
-        send_to_char(ch, "%s\r\n", buf);
+            sprintbit(obj->obj_flags.bitvector[2], affected3_bits, buf2);
+        send_to_char(ch, "%s%s%s\r\n", buf, buf1, buf2);
 
         send_to_char(ch, "Item is: ");
         sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf);
