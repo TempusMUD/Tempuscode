@@ -766,7 +766,7 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
     cost = GET_OBJ_COST(obj) + number(0, cost) - cost / 2;
 
     if (cost > 0)
-        acc_sprintf("Item looks to be worth about %ld.\r\n", cost);
+        acc_sprintf("Item looks to be worth about %'ld.\r\n", cost);
     else
         acc_sprintf("Item doesn't look to be worth anything.\r\n");
 
