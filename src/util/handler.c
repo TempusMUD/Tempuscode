@@ -962,6 +962,28 @@ char_to_room(struct creature * ch, struct room_data * room,
     return true;
 }
 
+struct obj_data *
+insert_obj_into_contents(struct obj_data *contents, struct obj_data *object)
+{
+    // Find the last "identical" object in the carry list, and put the new
+    // object after that one if one exists.  Otherwise, append to the
+    // tail of the list.
+    struct obj_data *preceding_obj = NULL;
+    for (struct obj_data *obj = contents;obj;obj = obj->next_content) {
+        if (same_obj(obj, object) || (!preceding_obj && obj->next_content == NULL))
+            preceding_obj = obj;
+    }
+    if (preceding_obj) {
+        object->next_content = preceding_obj->next_content;
+        preceding_obj->next_content = object;
+    } else {
+        object->next_content = NULL;
+        contents = object;
+    }
+
+    return contents;
+}
+
 /* give an object to a char   */
 void
 obj_to_char(struct obj_data *object, struct creature *ch)
@@ -973,11 +995,10 @@ obj_to_char(struct obj_data *object, struct creature *ch)
         return;
     }
 
-    object->next_content = ch->carrying;
-    ch->carrying = object;
-
+    ch->carrying = insert_obj_into_contents(ch->carrying, object);
     object->carried_by = ch;
     object->in_room = NULL;
+
     IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
     IS_CARRYING_N(ch)++;
 
@@ -1460,9 +1481,7 @@ obj_to_room(struct obj_data *object, struct room_data *room)
         return;
     }
 
-    object->next_content = room->contents;
-    room->contents = object;
-
+    room->contents = insert_obj_into_contents(room->contents, object);
     object->in_room = room;
 
     if (ROOM_FLAGGED(room, ROOM_HOUSE))
@@ -1524,8 +1543,8 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
         errlog("NULL object or same src and targ obj passed to obj_to_obj");
         return;
     }
-    obj->next_content = obj_to->contains;
-    obj_to->contains = obj;
+
+    obj_to->contains = insert_obj_into_contents(obj_to->contains, obj);
 
     obj->in_obj = obj_to;
 
