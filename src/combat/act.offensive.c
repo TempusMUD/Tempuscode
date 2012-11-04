@@ -559,7 +559,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *vict_wait = 2 RL_SEC;
         break;
 
-    case SKILL_SLAM:
+    case SKILL_SHIELD_SLAM:
 
         if ((!affected_by_spell(ch, SKILL_KATA) &&
                 (IS_PUDDING(vict) || IS_SLIME(vict)
@@ -1640,8 +1640,6 @@ ACMD(do_bash)
     bash_door(ch, door);
 }
 
-// Synthesis tries to create capability for shield slam to slam doors
-
 void
 slam_door(struct creature *ch, int door)
 {
@@ -1660,19 +1658,19 @@ slam_door(struct creature *ch, int door)
     }
 
     door_str = EXIT(ch, door)->keyword ?
-    fname(EXIT(ch, door)->keyword) : "door";
-    if IS_SET(EXIT(ch, door)->exit_info, EX_HEAVY_DOOR) {
+        fname(EXIT(ch, door)->keyword) : "door";
+    if (IS_SET(EXIT(ch, door)->exit_info, EX_HEAVY_DOOR)) {
         wait_state = 30; // 3 sec
         act(tmp_sprintf("$n grunts as $e slams the %s shut!",
-            door_str), false, ch, NULL, NULL, TO_ROOM);
+                        door_str), false, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You slam the %s shut with a heavy crash!\r\n",
-            door_str);
+                     door_str);
     } else {
         wait_state = 15; // 15 sec
-    act(tmp_sprintf("$n swiftly slams the %s shut!",
-            door_str), false, ch, NULL, NULL, TO_ROOM);
-    send_to_char(ch, "You swiftly slam the %s shut with a crash!\r\n",
-        door_str);
+        act(tmp_sprintf("$n swiftly slams the %s shut!",
+                        door_str), false, ch, NULL, NULL, TO_ROOM);
+        send_to_char(ch, "You swiftly slam the %s shut with a crash!\r\n",
+                     door_str);
     }
 
     SET_BIT(EXIT(ch,door)->exit_info, EX_CLOSED);
@@ -1682,12 +1680,12 @@ slam_door(struct creature *ch, int door)
     if (other_side && other_side->to_room == ch->in_room) {
         SET_BIT(other_side->exit_info, EX_CLOSED);
         send_to_room(tmp_sprintf
-            ("Someone has slammed the %s shut from the other side!!\r\n",
-                other_side->keyword ? fname(other_side->keyword) : "door"),
-            EXIT(ch, door)->to_room);
+                     ("The %s slams shut from the other side!!\r\n",
+                      other_side->keyword ? fname(other_side->keyword) : "door"),
+                     EXIT(ch, door)->to_room);
     }
-    if (wait_state)
-        WAIT_STATE(ch, wait_state);
+
+    WAIT_STATE(ch, wait_state);
 }
 
 ACMD(do_slam)
@@ -1707,7 +1705,7 @@ ACMD(do_slam)
 
     // If we found our victim, it's a combat move
     if (vict) {
-        do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_SLAM);
+        do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_SHIELD_SLAM);
         return;
     }
     // If it's an object in the room, it's just a scary social
@@ -1732,9 +1730,6 @@ ACMD(do_slam)
     }
     slam_door(ch, door);
 }
-
-
-// Synthesis stops trying to create ability for shield slam
 
 
 void
