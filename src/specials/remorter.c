@@ -154,10 +154,10 @@ SPECIAL(remorter)
 
     if (!*arg1) {
         send_to_char(ch,
-            "You must say 'remort' to begin or 'goodbye' to leave.\r\n");
+            "You must say 'remort' to begin or 'reconsider' to leave.\r\n");
         return 1;
     }
-    if (isname_exact(arg1, "goodbye")) {
+    if (isname_exact(arg1, "reconsider")) {
         struct room_data *room = player_loadroom(ch);
         if (room == NULL)
             room = real_room(3061); // modrian dump
@@ -179,8 +179,16 @@ SPECIAL(remorter)
         }
     } else if (!isname_exact(arg1, "remort")) {
         send_to_char(ch,
-            "You must say 'remort' to begin or 'goodbye' to leave.\r\n");
+            "You must say 'remort' to begin or 'reconsider' to leave.\r\n");
         return 1;
+    } else if ((ch->carrying || IS_WEARING_W(ch)) &&
+        !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) &&
+        strncasecmp(argument, "yes", 3)) {
+        send_to_char(ch,
+                "If you remort now, you will lose the items you are carrying.\r\n"
+                "Say 'reconsider' if you need leave and store items.\r\n"
+                "Say 'remort yes' if you still wish to remort.\r\n");
+        return;
     }
 
     value = GET_GOLD(ch);
