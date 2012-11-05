@@ -3955,6 +3955,12 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
                 if (ROOM_FLAGGED(form->in_room, ROOM_HOUSE)) {
                     notes = tmp_sprintf("%s (house)", CCMAG(ch, C_CMP));
                 }
+                if (ROOM_FLAGGED(form->in_room, ROOM_CLAN_HOUSE)) {
+                    notes = tmp_sprintf("%s (clan)", CCCYN(ch, C_CMP));
+                }
+                if (ROOM_FLAGGED(form->in_room, ROOM_ARENA)) {
+                    notes = tmp_sprintf("%s (arena)", CCYEL(ch, C_CMP));
+                }
                 if (!IS_APPR(form->in_room->zone)) {
                     notes = tmp_sprintf("%s (!appr)", CCRED(ch, C_CMP));
                 }
