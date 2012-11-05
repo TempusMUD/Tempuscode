@@ -1110,35 +1110,32 @@ ASPELL(spell_identify)
 
     if (obj) {
         send_to_char(ch, "You feel informed:\r\n");
-        send_to_char(ch, "Object '%s', Item type: ", obj->name);
-        buf[0] = '\0';
-        sprinttype(GET_OBJ_TYPE(obj), item_types, buf);
+        send_to_char(ch, "Object '%s', Item type: %s\r\n",
+                     obj->name,
+                     strlist_aref(GET_OBJ_TYPE(obj), item_types));
 
-        send_to_char(ch,
-            "%s\r\nItem will give you following abilities:  ", buf);
-        strcpy(buf, "");
-        if (obj->obj_flags.bitvector[0])
-            sprintbit(obj->obj_flags.bitvector[0], affected_bits, buf);
-        if (obj->obj_flags.bitvector[1])
-            sprintbit(obj->obj_flags.bitvector[1], affected2_bits, buf1);
-        if (obj->obj_flags.bitvector[2])
-            sprintbit(obj->obj_flags.bitvector[2], affected3_bits, buf2);
-        send_to_char(ch, "%s%s%s\r\n", buf, buf1, buf2);
+        if (obj->obj_flags.bitvector[0]
+            || obj->obj_flags.bitvector[1]
+            || obj->obj_flags.bitvector[2]) {
+            send_to_char(ch, "Item will give you the following abilities:");
+            if (obj->obj_flags.bitvector[0])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[0], affected_bits));
+            if (obj->obj_flags.bitvector[1])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[1], affected2_bits));
+            if (obj->obj_flags.bitvector[2])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[2], affected3_bits));
+            send_to_char(ch, "\r\n");
+        }
 
-        send_to_char(ch, "Item is: ");
-        sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf);
-        strcat(buf, "\r\n");
-        send_to_char(ch, "%s", buf);
-
-        send_to_char(ch, "Item is also: ");
-        sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf);
-        strcat(buf, "\r\n");
-        send_to_char(ch, "%s", buf);
-
-        send_to_char(ch, "Item is also: ");
-        sprintbit(GET_OBJ_EXTRA3(obj), extra3_bits, buf);
-        strcat(buf, "\r\n");
-        send_to_char(ch, "%s", buf);
+        if (GET_OBJ_EXTRA(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits));
+        if (GET_OBJ_EXTRA2(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA2(obj), extra2_bits));
+        if (GET_OBJ_EXTRA3(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits));
 
         send_to_char(ch, "Weight: %s, Value: %'d, Rent: %'d\r\n",
                      format_weight(GET_OBJ_WEIGHT(obj), metric),
@@ -1292,28 +1289,36 @@ ASPELL(spell_minor_identify)
 
     if (obj) {
         send_to_char(ch, "You feel a bit informed:\r\n");
-        send_to_char(ch, "Object '%s', Item type: ", obj->name);
-        sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
-        send_to_char(ch, "%s\r\n", buf2);
+send_to_char(ch, "Object '%s', Item type: %s\r\n",
+                     obj->name,
+                     strlist_aref(GET_OBJ_TYPE(obj), item_types));
 
-        send_to_char(ch, "Item will give you following abilities:  ");
-        if (obj->obj_flags.bitvector[0])
-            sprintbit(obj->obj_flags.bitvector[0], affected_bits, buf);
-        if (obj->obj_flags.bitvector[1])
-            sprintbit(obj->obj_flags.bitvector[1], affected2_bits, buf);
-        if (obj->obj_flags.bitvector[2])
-            sprintbit(obj->obj_flags.bitvector[2], affected3_bits, buf);
-        send_to_char(ch, "%s\r\n", buf);
+        if (obj->obj_flags.bitvector[0]
+            || obj->obj_flags.bitvector[1]
+            || obj->obj_flags.bitvector[2]) {
+            send_to_char(ch, "Item will give you the following abilities:");
+            if (obj->obj_flags.bitvector[0])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[0], affected_bits));
+            if (obj->obj_flags.bitvector[1])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[1], affected2_bits));
+            if (obj->obj_flags.bitvector[2])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[2], affected3_bits));
+            send_to_char(ch, "\r\n");
+        }
 
-        send_to_char(ch, "Item is: ");
-        sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf);
-        sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf);
-        send_to_char(ch, "%s\r\n", buf);
+        if (GET_OBJ_EXTRA(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits));
+        if (GET_OBJ_EXTRA2(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA2(obj), extra2_bits));
+        if (GET_OBJ_EXTRA3(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits));
 
         send_to_char(ch, "Weight: %s, Value: %'d, Rent: %'d\r\n",
                      format_weight(GET_OBJ_WEIGHT(obj), metric),
                      GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
-
         send_to_char(ch, "Item material is %s.\r\n",
                      strlist_aref(GET_OBJ_MATERIAL(obj), material_names));
 
