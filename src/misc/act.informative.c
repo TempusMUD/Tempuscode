@@ -3950,19 +3950,20 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
                 const char *notes = "";
 
                 if (player != form) {
-                    notes = tmp_sprintf("%s (in %s)", CCGRN(ch, C_CMP), GET_NAME(form));
+                    notes = tmp_sprintf("%s%s (in %s)", notes, CCGRN(ch, C_CMP),
+                                        GET_NAME(form));
                 }
                 if (ROOM_FLAGGED(form->in_room, ROOM_HOUSE)) {
-                    notes = tmp_sprintf("%s (house)", CCMAG(ch, C_CMP));
-                }
-                if (ROOM_FLAGGED(form->in_room, ROOM_CLAN_HOUSE)) {
-                    notes = tmp_sprintf("%s (clan)", CCCYN(ch, C_CMP));
+                    notes = tmp_sprintf("%s%s (house)", notes, CCMAG(ch, C_CMP));
                 }
                 if (ROOM_FLAGGED(form->in_room, ROOM_ARENA)) {
-                    notes = tmp_sprintf("%s (arena)", CCYEL(ch, C_CMP));
+                    notes = tmp_sprintf("%s%s (arena)", notes, CCYEL(ch, C_CMP));
                 }
                 if (!IS_APPR(form->in_room->zone)) {
-                    notes = tmp_sprintf("%s (!appr)", CCRED(ch, C_CMP));
+                    notes = tmp_sprintf("%s%s (!appr)", notes, CCRED(ch, C_CMP));
+                }
+                if (ROOM_FLAGGED(form->in_room, ROOM_CLAN_HOUSE)) {
+                    notes = tmp_sprintf("%s%s (clan)", notes, CCCYN(ch, C_CMP));
                 }
                 acc_sprintf("%s%-20s%s - %s[%s%5d%s]%s %s%s%s%s\r\n",
                             (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCGRN(ch, C_NRM) : ""),
