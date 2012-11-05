@@ -116,7 +116,7 @@ do_pass_remort_test(struct creature *ch)
 
 SPECIAL(remorter)
 {
-    int value, level;
+    int value, level, i, found = 0;
 
     if (spec_mode != SPECIAL_CMD)
         return false;
@@ -157,6 +157,15 @@ SPECIAL(remorter)
             "You must say 'remort' to begin or 'reconsider' to leave.\r\n");
         return 1;
     }
+
+    if (!found) {
+        found = 0;
+        for (i = 0; i < NUM_WEARS; i++)
+            if (GET_EQ(ch, i)) {
+                found = 1;
+            }
+    }
+
     if (isname_exact(arg1, "reconsider")) {
         struct room_data *room = player_loadroom(ch);
         if (room == NULL)
@@ -181,15 +190,14 @@ SPECIAL(remorter)
         send_to_char(ch,
             "You must say 'remort' to begin or 'reconsider' to leave.\r\n");
         return 1;
-    } else if ((ch->carrying || IS_WEARING_W(ch)) &&
-        !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) &&
+    } else if ((ch->carrying || (found)) &&
         strncasecmp(argument, "yes", 3)) {
         send_to_char(ch,
                 "If you remort now, you will lose the items you are carrying.\r\n"
                 "Say 'reconsider' if you need leave and store items.\r\n"
                 "Say 'remort yes' if you still wish to remort.\r\n");
         return;
-    }
+    } 
 
     value = GET_GOLD(ch);
 
