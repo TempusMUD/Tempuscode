@@ -2782,8 +2782,10 @@ do_blind_score(struct creature *ch)
 	acc_sprintf("Armor Class: %d/10, ", GET_AC(ch));
 	acc_sprintf("Alignment: %d, ", GET_ALIGNMENT(ch));
 	acc_sprintf("Experience: %'d\r\n", GET_EXP(ch));
-	acc_sprintf("Kills: %'d, PKills: %'d, Arena: %'d\r\n",
-                (GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)),
+	acc_sprintf("Deaths: %'d, Kills: %'d\r\n",
+                GET_PC_DEATHS(ch),
+                (GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)));
+	acc_sprintf("PKills: %'d, Arena: %'d\r\n",
                 GET_PKILLS(ch),
                 GET_ARENAKILLS(ch));
 	acc_sprintf("Life points: %d\r\n", GET_LIFE_POINTS(ch));
@@ -2949,11 +2951,14 @@ ACMD(do_score)
             CCNRM(ch, C_NRM)),
         CCGRN(ch, C_NRM), GET_EXP(ch), CCNRM(ch, C_NRM));
     acc_sprintf
-        ("                                   %sKills%s: %'d, %sPKills%s: %'d, %sArena%s: %'d\r\n",
+        ("                                   %sDeaths%s: %'d, %sKills%s: %'d\r\n",
+        CCRED(ch, C_NRM), CCNRM(ch, C_NRM), GET_PC_DEATHS(ch),
         CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-        (GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)), CCRED(ch,
-            C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(ch), CCGRN(ch, C_NRM),
-        CCNRM(ch, C_NRM), GET_ARENAKILLS(ch));
+        (GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)));
+    acc_sprintf
+        ("                                   %sPKills%s: %'d, %sArena%s: %'d\r\n",
+        CCRED(ch, C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(ch),
+        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_ARENAKILLS(ch));
 
     acc_sprintf
         ("%s*****************************************************************%s\r\n",
