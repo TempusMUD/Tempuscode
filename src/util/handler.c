@@ -962,31 +962,55 @@ char_to_room(struct creature * ch, struct room_data * room,
     return true;
 }
 
-struct obj_data *
+static struct obj_data *
 insert_obj_into_contents(struct obj_data *contents, struct obj_data *object)
 {
-    // Find the last "identical" object in the carry list, and put the new
-    // object after that one if one exists.  Otherwise, append to the
-    // tail of the list.
-    struct obj_data *preceding_obj = NULL;
-    for (struct obj_data *obj = contents;obj;obj = obj->next_content) {
-        if (same_obj(obj, object) || (!preceding_obj && obj->next_content == NULL))
-            preceding_obj = obj;
+    // Find the first "identical" object in the carry list, and put the new
+    // object before that one if one exists.  Otherwise, push onto the
+    // head of the list.
+    if (!contents || same_obj(contents, object)) {
+        object->next_content = contents;
+        return object;
     }
-    if (preceding_obj) {
-        object->next_content = preceding_obj->next_content;
-        preceding_obj->next_content = object;
-    } else {
-        object->next_content = NULL;
-        contents = object;
+
+    for (struct obj_data *obj = contents;obj->next_content;obj = obj->next_content) {
+        if (same_obj(obj->next_content, object)) {
+            object->next_content = obj->next_content;
+            obj->next_content = object;
+            return contents;
+        }
     }
+
+    object->next_content = contents;
+    return object;
+}
+
+static struct obj_data *
+append_obj_to_contents(struct obj_data *contents, struct obj_data *object)
+{
+    object->next_content = NULL;
+
+    if (!contents) {
+        return object;
+    }
+
+    struct obj_data *obj = contents;
+
+    while (obj->next_content)
+        obj = obj->next_content;
+
+    obj->next_content = object;
 
     return contents;
 }
 
+typedef struct obj_data *(*insert_func_t)(struct obj_data *, struct obj_data *);
+
 /* give an object to a char   */
-void
-obj_to_char(struct obj_data *object, struct creature *ch)
+static void
+general_obj_to_char(struct obj_data *object,
+                    struct creature *ch,
+                    insert_func_t insert_func)
 {
     struct zone_data *zn = NULL;
 
@@ -995,7 +1019,7 @@ obj_to_char(struct obj_data *object, struct creature *ch)
         return;
     }
 
-    ch->carrying = insert_obj_into_contents(ch->carrying, object);
+    ch->carrying = insert_func(ch->carrying, object);
     object->carried_by = ch;
     object->in_room = NULL;
 
@@ -1013,6 +1037,18 @@ obj_to_char(struct obj_data *object, struct creature *ch)
     /* set flag for crash-save system */
     if (!IS_NPC(ch))
         SET_BIT(PLR_FLAGS(ch), PLR_CRASH);
+}
+
+void
+obj_to_char(struct obj_data *object, struct creature *ch)
+{
+    general_obj_to_char(object, ch, insert_obj_into_contents);
+}
+
+void
+unsorted_obj_to_char(struct obj_data *object, struct creature *ch)
+{
+    general_obj_to_char(object, ch, append_obj_to_contents);
 }
 
 /* take an object from a char */
@@ -1465,8 +1501,10 @@ same_obj(struct obj_data * obj1, struct obj_data * obj2)
 }
 
 /* put an object in a room */
-void
-obj_to_room(struct obj_data *object, struct room_data *room)
+static void
+general_obj_to_room(struct obj_data *object,
+                    struct room_data *room,
+                    insert_func_t insert_func)
 {
     if (!object || !room) {
         errlog("Illegal %s | %s passed to obj_to_room",
@@ -1481,7 +1519,7 @@ obj_to_room(struct obj_data *object, struct room_data *room)
         return;
     }
 
-    room->contents = insert_obj_into_contents(room->contents, object);
+    room->contents = insert_func(room->contents, object);
     object->in_room = room;
 
     if (ROOM_FLAGGED(room, ROOM_HOUSE))
@@ -1496,6 +1534,18 @@ obj_to_room(struct obj_data *object, struct room_data *room)
         && SMOKE_LIT(object)
         && (room_is_watery(room) || !room_has_air(room)))
         SMOKE_LIT(object) = 0;
+}
+
+void
+obj_to_room(struct obj_data *object, struct room_data *room)
+{
+    general_obj_to_room(object, room, insert_obj_into_contents);
+}
+
+void
+unsorted_obj_to_room(struct obj_data *object, struct room_data *room)
+{
+    general_obj_to_room(object, room, append_obj_to_contents);
 }
 
 /* Take an object from a room */
@@ -1534,8 +1584,8 @@ obj_from_room(struct obj_data *object)
 }
 
 /* put an object in an object (quaint)  */
-void
-obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
+static void
+general_obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, insert_func_t insert_func)
 {
     struct creature *vict = NULL;
 
@@ -1544,8 +1594,7 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
         return;
     }
 
-    obj_to->contains = insert_obj_into_contents(obj_to->contains, obj);
-
+    obj_to->contains = insert_func(obj_to->contains, obj);
     obj->in_obj = obj_to;
 
     /* top level object.  Subtract weight from inventory if necessary. */
@@ -1560,6 +1609,18 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
         apply_object_affects(vict, obj, true);
         affect_total(vict);
     }
+}
+
+void
+obj_to_obj(struct obj_data *object, struct obj_data *obj_to)
+{
+    general_obj_to_obj(object, obj_to, insert_obj_into_contents);
+}
+
+void
+unsorted_obj_to_obj(struct obj_data *object, struct obj_data *obj_to)
+{
+    general_obj_to_obj(object, obj_to, append_obj_to_contents);
 }
 
 /* remove an object from an object */

@@ -87,13 +87,19 @@ struct obj_data *get_obj_num(int nr);
 
 void obj_to_char(struct obj_data *object, struct creature *ch)
     __attribute__ ((nonnull));
+void unsorted_obj_to_char(struct obj_data *object, struct creature *ch)
+    __attribute__ ((nonnull));
 void obj_from_char(struct obj_data *object)
     __attribute__ ((nonnull));
 void obj_to_room(struct obj_data *object, struct room_data *room)
     __attribute__ ((nonnull));
+void unsorted_obj_to_room(struct obj_data *object, struct room_data *room)
+    __attribute__ ((nonnull));
 void obj_from_room(struct obj_data *object)
     __attribute__ ((nonnull));
 void obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
+    __attribute__ ((nonnull));
+void unsorted_obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
     __attribute__ ((nonnull));
 void obj_from_obj(struct obj_data *obj)
     __attribute__ ((nonnull));
