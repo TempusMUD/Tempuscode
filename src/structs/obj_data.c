@@ -674,11 +674,11 @@ load_object_from_xml(struct obj_data *container,
                 } else if (strcmp(type, "tattooed") == 0) {
                     equip_char(victim, obj, position, EQUIP_TATTOO);
                 } else if (container) {
-                    obj_to_obj(obj, container);
+                    unsorted_obj_to_obj(obj, container);
                 } else if (victim) {
-                    obj_to_char(obj, victim);
+                    unsorted_obj_to_char(obj, victim);
                 } else if (room) {
-                    obj_to_room(obj, room);
+                    unsorted_obj_to_room(obj, room);
                 } else {
                     errlog("Don't know where to put object!");
                     extract_obj(obj);
