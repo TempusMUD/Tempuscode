@@ -559,6 +559,30 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *vict_wait = 2 RL_SEC;
         break;
 
+    case SKILL_SHIELD_SLAM:
+
+        if ((!affected_by_spell(ch, SKILL_KATA) &&
+                (IS_PUDDING(vict) || IS_SLIME(vict)
+                    || NON_CORPOREAL_MOB(vict)))
+            || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
+            prob = 0;
+
+        if (GET_EQ(ch, WEAR_SHIELD)) {
+
+           *dam = dice(3, GET_OBJ_WEIGHT(ch->equipment[WEAR_SHIELD]));
+           *dam += (*dam * GET_REMORT_GEN(ch)) / 4;
+
+           *wait = 6 RL_SEC;
+           *vict_pos = POS_SITTING;
+           *vict_wait = 2 RL_SEC;
+           *move = 10;
+        } else {
+           send_to_char(ch, "You need a shield equipped to shield slam.\r\n");
+           return -1;
+        }
+        break;
+
+
     case SKILL_BEARHUG:
 
         if (!affected_by_spell(ch, SKILL_KATA) &&
@@ -1615,6 +1639,98 @@ ACMD(do_bash)
     }
     bash_door(ch, door);
 }
+
+void
+slam_door(struct creature *ch, int door)
+{
+    const char *door_str;
+    int wait_state = 0;
+
+    // We know they're looking for a door at this point
+    if (!IS_SET(EXIT(ch, door)->exit_info, EX_ISDOOR)) {
+        send_to_char(ch, "You cannot slam that!\r\n");
+        return;
+    }
+
+    if (IS_SET(EXIT(ch, door)->exit_info, EX_CLOSED)) {
+        send_to_char(ch, "It's already shut!\r\n");
+        return;
+    }
+
+    door_str = EXIT(ch, door)->keyword ?
+        fname(EXIT(ch, door)->keyword) : "door";
+    if (IS_SET(EXIT(ch, door)->exit_info, EX_HEAVY_DOOR)) {
+        wait_state = 30; // 3 sec
+        act(tmp_sprintf("$n grunts as $e slams the %s shut!",
+                        door_str), false, ch, NULL, NULL, TO_ROOM);
+        send_to_char(ch, "You slam the %s shut with a heavy crash!\r\n",
+                     door_str);
+    } else {
+        wait_state = 15; // 15 sec
+        act(tmp_sprintf("$n swiftly slams the %s shut!",
+                        door_str), false, ch, NULL, NULL, TO_ROOM);
+        send_to_char(ch, "You swiftly slam the %s shut with a crash!\r\n",
+                     door_str);
+    }
+
+    SET_BIT(EXIT(ch,door)->exit_info, EX_CLOSED);
+
+    struct room_direction_data *other_side =
+        EXIT(ch, door)->to_room->dir_option[rev_dir[door]];
+    if (other_side && other_side->to_room == ch->in_room) {
+        SET_BIT(other_side->exit_info, EX_CLOSED);
+        send_to_room(tmp_sprintf
+                     ("The %s slams shut from the other side!!\r\n",
+                      other_side->keyword ? fname(other_side->keyword) : "door"),
+                     EXIT(ch, door)->to_room);
+    }
+
+    WAIT_STATE(ch, wait_state);
+}
+
+ACMD(do_slam)
+{
+    struct creature *vict = NULL;
+    struct obj_data *ovict;
+    char *arg1, *arg2;
+    struct room_data *room = NULL;
+
+    arg1 = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
+
+    if (*arg1)
+        vict = get_char_room_vis(ch, arg1);
+    else
+        vict = random_opponent(ch);
+
+    // If we found our victim, it's a combat move
+    if (vict) {
+        do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_SHIELD_SLAM);
+        return;
+    }
+    // If it's an object in the room, it's just a scary social
+    ovict = get_obj_in_list_vis(ch, arg1, ch->in_room->contents);
+    if (ovict) {
+        act("You slam $p!", false, ch, ovict, NULL, TO_CHAR);
+        act("$n slams $p!", false, ch, ovict, NULL, TO_ROOM);
+        if (IS_OBJ_TYPE(ovict, ITEM_VEHICLE) &&
+            (room = real_room(ROOM_NUMBER(ovict))) != NULL && room->people) {
+            act("$N slams the outside of $p!",
+                false, room->people->data, ovict, ch, TO_ROOM);
+            act("$N slams the outside of $p!",
+                false, room->people->data, ovict, ch, TO_CHAR);
+        }
+        return;
+    }
+    // If it's a door, it's a non-combat skill
+    int door = find_door(ch, arg1, arg2, "slam");
+    if (door < 0) {
+        WAIT_STATE(ch, 4);
+        return;
+    }
+    slam_door(ch, door);
+}
+
 
 void
 perform_stun(struct creature *ch, struct creature *vict)
