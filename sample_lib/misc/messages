@@ -1661,6 +1661,24 @@ $N glares at you and says, 'If you start me up...'
 You howl with delight as you absorb $n's  energy!
 $N howls with delight as $E absorbs $n's energy!
 
+
+*Shieldslam
+M
+ 653
+$N's bones shatter as you slam your shield into $M.
+Your bones shatter as $n slams $s shield into you.
+$N's bones shatter as $n slams $s shield into $M.
+$N sidesteps your shield slam!
+You sidestep $n's shield slam!
+$N sidesteps $n's shield slam!
+Your shield slams into $N, sending $M to the ground!
+$n's shield slams into you, sending you to the ground!
+$n's shield slams into $N, sending $M to the ground!
+Shield slam?  You should shield yourself before $N slams you.
+$n shields $mself from your wrath.
+$n shields $mself from $N's wrath.
+
+
 * Drain (vamps)
 M
  654

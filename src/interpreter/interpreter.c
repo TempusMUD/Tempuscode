@@ -353,6 +353,7 @@ ACMD(do_shutdown);
 ACMD(do_sit);
 ACMD(do_skillset);
 ACMD(do_skills);
+ACMD(do_slam);
 ACMD(do_sleep);
 ACMD(do_sleeper);
 ACMD(do_smoke);
@@ -1270,6 +1271,7 @@ struct command_info cmd_info[] = {
     {"skillset", POS_SLEEPING, do_skillset, LVL_IMMORT, 0, 0, 0},
     {"sleep", POS_SLEEPING, do_sleep, 0, 0, 0, 0},
     {"sleeper", POS_FIGHTING, do_sleeper, 0, 0, 0, 0},
+    {"slam", POS_FIGHTING, do_slam, 1, 0, 0, 0},
     {"slap", POS_RESTING, do_action, 0, 0, 0, 0},
     {"slick", POS_RESTING, do_action, 0, 0, 0, 0},
     {"slist", POS_SLEEPING, do_hcollect_help, 0, SCMD_SKILLS, 0, 0},
