@@ -1,4 +1,3 @@
-
 /************************************************************************
  *   File: char_class.c                                       Part of CircleMUD *
  *  Usage: Source file for char_class-specific code                             *
@@ -945,12 +944,46 @@ do_start(struct creature *ch, int mode)
                 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
         }
 
-        // New players start with a hospital gown
-        struct obj_data *gown = read_object(33800);
+        // New players start with a hospital gown and items most dear to them
+        struct obj_data
+        *gown = read_object(33800),
+        *talisman = read_object(1280),
+        *symbol = read_object(1260),
+        *ring = read_object(1287),
+        *pendant = read_object(1270),
+        *drum = read_object(3220),
+        *lute = read_object(3218);
+
         if (gown) {
             equip_char(ch, gown, WEAR_ABOUT, EQUIP_WORN);
         }
 
+        // Good clerics start with a holy symbol on neck
+        if ((talisman) && (GET_CLASS(ch) == CLASS_CLERIC) && IS_GOOD(ch)) {
+            equip_char(ch, talisman, WEAR_NECK_1, EQUIP_WORN);
+        }
+
+        // Evil clerics start with a holy symbol on hold
+        if ((symbol) && (GET_CLASS(ch) == CLASS_CLERIC) && IS_EVIL(ch)) {
+            equip_char(ch, symbol, WEAR_HOLD, EQUIP_WORN);
+        }
+
+        // Good knights start with a holy symbol on finger
+        if ((ring) && (GET_CLASS(ch) == CLASS_KNIGHT) && IS_GOOD(ch)) {
+            equip_char(ch, ring, WEAR_FINGER_L, EQUIP_WORN);
+        }
+
+        // Evil knights start with a holy symbol on neck
+        if ((pendant) && (GET_CLASS(ch) == CLASS_KNIGHT) && IS_EVIL(ch)) {
+            equip_char(ch, pendant, WEAR_NECK_1, EQUIP_WORN);
+        }
+
+        // Bards start with a percussion instrument held, and stringed in inventory
+        if ((drum) && (GET_CLASS(ch) == CLASS_BARD)) {
+            equip_char(ch, drum, WEAR_HOLD, EQUIP_WORN);
+            obj_to_char(lute, ch);
+        }
+   
         set_title(ch, "the complete newbie");
     }
 
