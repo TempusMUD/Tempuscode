@@ -116,7 +116,8 @@ do_pass_remort_test(struct creature *ch)
 
 SPECIAL(remorter)
 {
-    int value, level, i, found = 0;
+    int value, level, i = 0;
+    bool equip_found = false;
 
     if (spec_mode != SPECIAL_CMD)
         return false;
@@ -158,11 +159,11 @@ SPECIAL(remorter)
         return 1;
     }
 
-    if (!found) {
-        found = 0;
+    if (!equip_found) {
+        equip_found = false;
         for (i = 0; i < NUM_WEARS; i++)
             if (GET_EQ(ch, i)) {
-                found = 1;
+                equip_found = true;
             }
     }
 
@@ -190,7 +191,7 @@ SPECIAL(remorter)
         send_to_char(ch,
             "You must say 'remort' to begin or 'reconsider' to leave.\r\n");
         return 1;
-    } else if ((ch->carrying || (found)) &&
+    } else if ((ch->carrying || (equip_found)) &&
         strncasecmp(argument, "yes", 3)) {
         send_to_char(ch,
                 "If you remort now, you will lose the items you are carrying.\r\n"
