@@ -2379,7 +2379,7 @@ const char *spell_wear_off_msg[] = {
     "!psionic shatter!",
     "!id insinuation!",
     "You feel less sleepy.",
-    "Your muscles stop spasming.",
+    "Your muscles stop convulsing.",
     "Your psychic resistance passes.",  /* 230 */
     "!mass hysteria!",
     "!group confidence!",

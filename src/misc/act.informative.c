@@ -2349,7 +2349,7 @@ acc_append_affects(struct creature *ch, int8_t mode)
     if (AFF_FLAGGED(ch, AFF_CONFUSION))
         acc_strcat("You are very confused.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_MOTOR_SPASM))
-        acc_strcat("Your muscles are twitching uncontrollably!\r\n", NULL);
+        acc_strcat("Your muscles are convulsing uncontrollably!\r\n", NULL);
     if (AFF2_FLAGGED(ch, AFF2_VERTIGO))
         acc_strcat("You are lost in a sea of vertigo.\r\n", NULL);
     if (AFF3_FLAGGED(ch, AFF3_TAINTED))
