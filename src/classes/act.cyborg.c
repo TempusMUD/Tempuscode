@@ -1857,29 +1857,26 @@ ACMD(do_status)
 static struct obj_data *
 find_cyborepair_tool(struct creature *ch)
 {
-#define TOOL_POS_MAX_COUNT  7
-
-    struct obj_data *obj[TOOL_POS_MAX_COUNT] = { NULL };
     struct obj_data *tool = NULL;
-    int len = 0;
 
-    obj[len++] = GET_EQ(ch, WEAR_HOLD);
-    obj[len++] = GET_IMPLANT(ch, WEAR_HOLD);
-    obj[len++] = GET_IMPLANT(ch, WEAR_HANDS);
-    obj[len++] = GET_IMPLANT(ch, WEAR_WRIST_L);
-    obj[len++] = GET_IMPLANT(ch, WEAR_WRIST_R);
-    obj[len++] = GET_IMPLANT(ch, WEAR_FINGER_L);
-    obj[len++] = GET_IMPLANT(ch, WEAR_FINGER_R);
-
-    for (int i = 0;i < len;i++) {
-        if (obj[i]
-            && IS_TOOL(obj[i])
-            && TOOL_SKILL(obj[i]) == SKILL_CYBOREPAIR
-            && (!tool || TOOL_MOD(tool) < TOOL_MOD(obj[i]))) {
-            tool = obj[i];
+    for (int i = 0;i < NUM_WEARS;i++) {
+        struct obj_data *obj = GET_IMPLANT(ch, i);
+        if (obj
+            && IS_TOOL(obj)
+            && TOOL_SKILL(obj) == SKILL_CYBOREPAIR
+            && (!tool || TOOL_MOD(tool) < TOOL_MOD(obj))) {
+            tool = obj;
             break;
         }
     }
+
+    // This logic is duplicated because anything else would be overly
+    // complex and ugly.
+    if (GET_EQ(ch, WEAR_HOLD)
+        && IS_TOOL(GET_EQ(ch, WEAR_HOLD))
+        && TOOL_SKILL(GET_EQ(ch, WEAR_HOLD)) == SKILL_CYBOREPAIR
+        && (!tool || TOOL_MOD(tool) < TOOL_MOD(GET_EQ(ch, WEAR_HOLD))))
+        tool = GET_EQ(ch, WEAR_HOLD);
 
     return tool;
 }
