@@ -1991,7 +1991,7 @@ ACMD(do_repair)
         return;
 
     if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
-        act("$p is too severly damaged for you to repair.",
+        act("$p is too severely damaged for you to repair.",
             false, ch, obj, NULL, TO_CHAR);
         return;
     }
