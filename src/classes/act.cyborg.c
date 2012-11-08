@@ -1854,143 +1854,153 @@ ACMD(do_status)
 
 }
 
-ACMD(do_repair)
+static struct obj_data *
+find_cyborepair_tool(struct creature *ch)
 {
-    struct creature *vict = NULL;
-    struct obj_data *obj = NULL, *tool = NULL;
-    int dam, cost, skill = 0;
+#define TOOL_POS_MAX_COUNT  7
 
-    skip_spaces(&argument);
+    struct obj_data *obj[TOOL_POS_MAX_COUNT] = { NULL };
+    struct obj_data *tool = NULL;
+    int len = 0;
 
-    if (!*argument)
-        vict = ch;
-    else if (!(vict = get_char_room_vis(ch, argument)) &&
-        !(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
-        !(obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
-        send_to_char(ch, "Repair who or what?\r\n");
+    obj[len++] = GET_EQ(ch, WEAR_HOLD);
+    obj[len++] = GET_IMPLANT(ch, WEAR_HOLD);
+    obj[len++] = GET_IMPLANT(ch, WEAR_HANDS);
+    obj[len++] = GET_IMPLANT(ch, WEAR_WRIST_L);
+    obj[len++] = GET_IMPLANT(ch, WEAR_WRIST_R);
+    obj[len++] = GET_IMPLANT(ch, WEAR_FINGER_L);
+    obj[len++] = GET_IMPLANT(ch, WEAR_FINGER_R);
+
+    for (int i = 0;i < len;i++) {
+        if (obj[i]
+            && IS_TOOL(obj[i])
+            && TOOL_SKILL(obj[i]) == SKILL_CYBOREPAIR
+            && (!tool || TOOL_MOD(tool) < TOOL_MOD(obj[i]))) {
+            tool = obj[i];
+            break;
+        }
+    }
+
+    return tool;
+}
+
+static void
+perform_cyborepair(struct creature *ch, struct creature *vict)
+{
+    struct obj_data *tool = find_cyborepair_tool(ch);
+    int dam, cost;
+
+    if (!tool) {
+        send_to_char(ch, "You must operate a cyborepair tool to do this.\r\n");
         return;
     }
 
-    if (vict) {
-        if (!IS_NPC(ch) && 
-           ((!(tool = GET_IMPLANT(ch, WEAR_HOLD)) && \
-           !(tool = GET_IMPLANT(ch, WEAR_HANDS)) && \
-           !(tool = GET_IMPLANT(ch, WEAR_WRIST_L)) && \
-           !(tool = GET_IMPLANT(ch, WEAR_WRIST_R)) && \
-           !(tool = GET_IMPLANT(ch, WEAR_FINGER_L)) && \
-           !(tool = GET_IMPLANT(ch, WEAR_FINGER_R)) && \
-           !(tool = GET_EQ(ch, WEAR_HOLD))) ||
-           !IS_TOOL(tool) || 
-           TOOL_SKILL(tool) != SKILL_CYBOREPAIR)) {
-               send_to_char(ch, "You must operate a cyborepair tool to do this.\r\n");
-               return;
-        }
-
-        if (vict == ch) {
-            if (CHECK_SKILL(ch, SKILL_SELFREPAIR) < 10 || !IS_CYBORG(ch))
+    if (vict == ch) {
+        if (CHECK_SKILL(ch, SKILL_SELFREPAIR) < 10 || !IS_CYBORG(ch)) {
+            send_to_char(ch,
+                         "You have no idea how to repair yourself.\r\n");
+        } else if (GET_HIT(ch) == GET_MAX_HIT(ch)) {
+            send_to_char(ch, "You are not damaged, no repair needed.\r\n");
+        } else if (!IS_NPC(ch)
+                   && number(12, 150) > CHECK_SKILL(ch, SKILL_SELFREPAIR)
+                   + TOOL_MOD(tool)
+                   + (CHECK_SKILL(ch, SKILL_ELECTRONICS) >> 1)
+                   + GET_INT(ch)) {
+            send_to_char(ch, "You fail to repair yourself.\r\n");
+        } else {
+            if (IS_NPC(ch)) {
+                dam = 2 * GET_LEVEL(ch);
+            } else {
+                dam = (GET_LEVEL(ch)) +
+                    ((CHECK_SKILL(ch,
+                                  SKILL_SELFREPAIR) + TOOL_MOD(tool)) >> 2) +
+                    number(0, GET_LEVEL(ch));
+                if (GET_CLASS(ch) == CLASS_CYBORG)
+                    dam += dice(GET_REMORT_GEN(ch), 10);
+                else
+                    dam += dice(GET_REMORT_GEN(ch), 5);
+            }
+            dam = MIN(GET_MAX_HIT(ch) - GET_HIT(ch), dam);
+            cost = dam >> 1;
+            if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)
                 send_to_char(ch,
-                    "You have no idea how to repair yourself.\r\n");
-            else if (GET_HIT(ch) == GET_MAX_HIT(ch))
-                send_to_char(ch, "You are not damaged, no repair needed.\r\n");
-            else if (!IS_NPC(ch)
-                && number(12, 150) > CHECK_SKILL(ch,
-                    SKILL_SELFREPAIR) + TOOL_MOD(tool) + (CHECK_SKILL(ch,
-                        SKILL_ELECTRONICS) >> 1) + GET_INT(ch))
-                send_to_char(ch, "You fail to repair yourself.\r\n");
+                             "You lack the energy required to perform this operation.\r\n");
             else {
-                if (IS_NPC(ch)) {
-                    dam = 2 * GET_LEVEL(ch);
-                } else {
-                    dam = (GET_LEVEL(ch)) +
-                        ((CHECK_SKILL(ch,
-                                SKILL_SELFREPAIR) + TOOL_MOD(tool)) >> 2) +
-                        number(0, GET_LEVEL(ch));
-                    if (GET_CLASS(ch) == CLASS_CYBORG)
-                        dam += dice(GET_REMORT_GEN(ch), 10);
-                    else
-                        dam += dice(GET_REMORT_GEN(ch), 5);
+                GET_HIT(ch) += dam;
+                GET_MOVE(ch) -= cost;
+                if (GET_MOVE(ch) < 0) {
+                    send_to_char(ch,
+                                 "WARNING: Auto-accessing reserve energy.\r\n");
+                    GET_MANA(ch) += GET_MOVE(ch);
+                    GET_MOVE(ch) = 0;
                 }
-                dam = MIN(GET_MAX_HIT(ch) - GET_HIT(ch), dam);
+                send_to_char(ch, "You skillfully repair yourself.\r\n");
+                act("$n repairs $mself.", true, ch, NULL, NULL, TO_ROOM);
+                gain_skill_prof(ch, SKILL_SELFREPAIR);
+                WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 7)));
+            }
+        }
+    } else {
+        if (CHECK_SKILL(ch, SKILL_CYBOREPAIR) < 10)
+            send_to_char(ch, "You have no repair skills for repairing others.\r\n");
+        else if (!IS_CYBORG(vict))
+            act("You cannot repair $M.  You can only repair other borgs.",
+                false, ch, NULL, vict, TO_CHAR);
+        else if (is_fighting(vict))
+            send_to_char(ch, "You cannot perform repairs on fighting patients.\r\n");
+        else if (GET_HIT(vict) == GET_MAX_HIT(vict))
+            act("$N's systems are not currently damaged.", false, ch, NULL,
+                vict, TO_CHAR);
+        else {
+            if (number(12, 150) > CHECK_SKILL(ch, SKILL_CYBOREPAIR) +
+                TOOL_MOD(tool) +
+                (CHECK_SKILL(ch, SKILL_ELECTRONICS) >> 1) + GET_INT(ch)) {
+                act("$n attempts to repair you, but fails.", false, ch, NULL,
+                    vict, TO_VICT);
+                act("You fail to repair $M.\r\n", false, ch, NULL, vict,
+                    TO_CHAR);
+            } else {
+
+                dam = (GET_LEVEL(ch) >> 1) +
+                    ((CHECK_SKILL(ch,
+                                  SKILL_CYBOREPAIR) + TOOL_MOD(tool)) >> 2) +
+                    number(0, GET_LEVEL(ch));
+                dam = MIN(GET_MAX_HIT(vict) - GET_HIT(vict), dam);
                 cost = dam >> 1;
                 if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)
                     send_to_char(ch,
-                        "You lack the energy required to perform this operation.\r\n");
+                                 "You lack the energy required to perform this operation.\r\n");
                 else {
-                    GET_HIT(ch) += dam;
+                    GET_HIT(vict) += dam;
                     GET_MOVE(ch) -= cost;
                     if (GET_MOVE(ch) < 0) {
                         send_to_char(ch,
-                            "WARNING: Auto-accessing reserve energy.\r\n");
+                                     "WARNING: Auto-accessing reserve energy.\r\n");
                         GET_MANA(ch) += GET_MOVE(ch);
                         GET_MOVE(ch) = 0;
                     }
-                    send_to_char(ch, "You skillfully repair yourself.\r\n");
-                    act("$n repairs $mself.", true, ch, NULL, NULL, TO_ROOM);
-                    gain_skill_prof(ch, SKILL_SELFREPAIR);
-                    WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 7)));
-                }
-            }
-        } else {
-            if (CHECK_SKILL(ch, SKILL_CYBOREPAIR) < 10)
-                send_to_char(ch,
-                    "You have no repair skills for repairing others.\r\n");
-            else if (!IS_CYBORG(vict))
-                act("You cannot repair $M.  You can only repair other borgs.",
-                    false, ch, NULL, vict, TO_CHAR);
-            else if (is_fighting(ch))
-                send_to_char(ch,
-                    "You cannot perform repairs on fighting patients.\r\n");
-            else if (GET_HIT(vict) == GET_MAX_HIT(vict))
-                act("$N's systems are not currently damaged.", false, ch, NULL,
-                    vict, TO_CHAR);
-            else {
-                if (number(12, 150) > CHECK_SKILL(ch, SKILL_CYBOREPAIR) +
-                    TOOL_MOD(tool) +
-                    (CHECK_SKILL(ch, SKILL_ELECTRONICS) >> 1) + GET_INT(ch)) {
-                    act("$n attempts to repair you, but fails.", false, ch, NULL,
-                        vict, TO_VICT);
-                    act("You fail to repair $M.\r\n", false, ch, NULL, vict,
+                    act("You skillfully repair $N.", false, ch, NULL, vict,
                         TO_CHAR);
-                } else {
-
-                    dam = (GET_LEVEL(ch) >> 1) +
-                        ((CHECK_SKILL(ch,
-                                SKILL_CYBOREPAIR) + TOOL_MOD(tool)) >> 2) +
-                        number(0, GET_LEVEL(ch));
-                    dam = MIN(GET_MAX_HIT(vict) - GET_HIT(vict), dam);
-                    cost = dam >> 1;
-                    if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)
-                        send_to_char(ch,
-                            "You lack the energy required to perform this operation.\r\n");
-                    else {
-                        GET_HIT(vict) += dam;
-                        GET_MOVE(ch) -= cost;
-                        if (GET_MOVE(ch) < 0) {
-                            send_to_char(ch,
-                                "WARNING: Auto-accessing reserve energy.\r\n");
-                            GET_MANA(ch) += GET_MOVE(ch);
-                            GET_MOVE(ch) = 0;
-                        }
-                        act("You skillfully repair $N.", false, ch, NULL, vict,
-                            TO_CHAR);
-                        act("$n skillfully makes repairs on $N.", true, ch, NULL,
-                            vict, TO_NOTVICT);
-                        act("$n skillfully makes repairs on you.", true, ch, NULL,
-                            vict, TO_VICT);
-                        gain_skill_prof(ch, SKILL_CYBOREPAIR);
-                        WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 6)));
-                        update_pos(vict);
-                    }
+                    act("$n skillfully makes repairs on $N.", true, ch, NULL,
+                        vict, TO_NOTVICT);
+                    act("$n skillfully makes repairs on you.", true, ch, NULL,
+                        vict, TO_VICT);
+                    gain_skill_prof(ch, SKILL_CYBOREPAIR);
+                    WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 6)));
+                    update_pos(vict);
                 }
             }
         }
-        return;      /*** end of character repair ***/
     }
+}
 
-    if (!obj)
-        return;
+static void
+perform_repair(struct creature *ch, struct obj_data *obj)
+{
+    struct obj_data *tool = NULL;
+    int dam, skill = 0;
 
-    if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
+        if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
         act("$p is too severly damaged for you to repair.",
             false, ch, obj, NULL, TO_CHAR);
         return;
@@ -2045,8 +2055,30 @@ ACMD(do_repair)
     act("$n skillfully performs repairs on $p.", false, ch, obj, NULL, TO_ROOM);
     gain_skill_prof(ch, skill);
     WAIT_STATE(ch, 7 RL_SEC);
-    return;
+}
 
+ACMD(do_repair)
+{
+    struct creature *vict = NULL;
+    struct obj_data *obj = NULL;
+
+    skip_spaces(&argument);
+
+    if (!*argument)
+        vict = ch;
+    else if (!(vict = get_char_room_vis(ch, argument)) &&
+        !(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
+        !(obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
+        send_to_char(ch, "Repair who or what?\r\n");
+        return;
+    }
+
+    if (vict) {
+        perform_cyborepair(ch, vict);
+        return;
+    }
+
+    perform_repair(ch, obj);
 }
 
 ACMD(do_overhaul)
