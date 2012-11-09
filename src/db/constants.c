@@ -575,7 +575,7 @@ const char *level_abbrevs[] = {
     "SUPREMO"
 };
 
-const char *diety_names[] = {
+const char *deity_names[] = {
     "NONE",
     "GUIHARIA",
     "PAN",
@@ -2379,7 +2379,7 @@ const char *spell_wear_off_msg[] = {
     "!psionic shatter!",
     "!id insinuation!",
     "You feel less sleepy.",
-    "Your muscles stop spasming.",
+    "Your muscles stop convulsing.",
     "Your psychic resistance passes.",  /* 230 */
     "!mass hysteria!",
     "!group confidence!",
@@ -2455,7 +2455,7 @@ const char *spell_wear_off_msg[] = {
     "You feel more vulnerable to external forces.",
     "Your song bolstered confidence fades.",    /* 360 */
     "!UNUSED!",
-    "The valor of fallen heros leaves you to your own devices.",
+    "The valor of fallen heroes leaves you to your own devices.",
     "!UNUSED!",
     "!UNUSED!",
     "You feel tired as the effect of the music leaves you.",    /* 365 */

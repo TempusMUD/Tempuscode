@@ -486,7 +486,7 @@ burn_update_creature(struct creature *ch)
             if (obj) {
                 send_to_char(ch,
                     "Your muscles are seized in an uncontrollable spasm!\r\n");
-                act("$n begins spasming uncontrollably.", true, ch, NULL, NULL,
+                act("$n begins convulsing uncontrollably.", true, ch, NULL, NULL,
                     TO_ROOM);
                 do_drop(ch, fname(obj->aliases), 0, SCMD_DROP);
             }
@@ -496,7 +496,7 @@ burn_update_creature(struct creature *ch)
             send_to_char(ch,
                 "Your muscles are seized in an uncontrollable spasm!\r\n"
                 "You fall to the ground in agony!\r\n");
-            act("$n begins spasming uncontrollably and falls to the ground.",
+            act("$n begins convulsing uncontrollably and falls to the ground.",
                 true, ch, NULL, NULL, TO_ROOM);
             GET_POSITION(ch) = POS_RESTING;
         }

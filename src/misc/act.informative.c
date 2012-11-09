@@ -2349,7 +2349,7 @@ acc_append_affects(struct creature *ch, int8_t mode)
     if (AFF_FLAGGED(ch, AFF_CONFUSION))
         acc_strcat("You are very confused.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_MOTOR_SPASM))
-        acc_strcat("Your muscles are spasming uncontrollably!\r\n", NULL);
+        acc_strcat("Your muscles are convulsing uncontrollably!\r\n", NULL);
     if (AFF2_FLAGGED(ch, AFF2_VERTIGO))
         acc_strcat("You are lost in a sea of vertigo.\r\n", NULL);
     if (AFF3_FLAGGED(ch, AFF3_TAINTED))
@@ -2634,7 +2634,7 @@ acc_append_affects(struct creature *ch, int8_t mode)
             NULL);
     if (affected_by_spell(ch, SONG_DEFENSE_DITTY))
         acc_strcat
-            ("Harmonic resonance protects you from deleterious affects.\r\n",
+            ("Harmonic resonance protects you from deleterious effects.\r\n",
             NULL);
     if (affected_by_spell(ch, SONG_ALRONS_ARIA))
         acc_strcat("Alron guides your hands.\r\n", NULL);
@@ -2645,13 +2645,13 @@ acc_append_affects(struct creature *ch, int8_t mode)
     if (affected_by_spell(ch, SONG_CHANT_OF_LIGHT))
         acc_strcat("You are surrounded by a warm glow.\r\n", NULL);
     if (affected_by_spell(ch, SONG_ARIA_OF_ASYLUM))
-        acc_strcat("You are enveloped by a gossimer shield.\r\n", NULL);
+        acc_strcat("You are enveloped by a gossamer shield.\r\n", NULL);
     if (affected_by_spell(ch, SONG_RHYTHM_OF_RAGE))
-        acc_strcat("You are consumed by a feril rage!\r\n", NULL);
+        acc_strcat("You are consumed by a feral rage!\r\n", NULL);
     if (affected_by_spell(ch, SONG_POWER_OVERTURE))
         acc_strcat("Your strength is bolstered by song.\r\n", NULL);
     if (affected_by_spell(ch, SONG_GUIHARIAS_GLORY))
-        acc_strcat("The power of dieties is rushing through your veins.\r\n",
+        acc_strcat("The power of deities is rushing through your veins.\r\n",
             NULL);
     if ((af = affected_by_spell(ch, SONG_MIRROR_IMAGE_MELODY)))
         acc_strcat(tmp_sprintf
@@ -4243,7 +4243,7 @@ print_attributes_to_buf(struct creature *ch, char *buff)
     if (mini_mud)
         strcat(buff, tmp_sprintf(" [%d]", dex));
     if (dex <= 5)
-        strcat(buff, "I wouldnt walk too fast if I were you.");
+        strcat(buff, "I wouldn't walk too fast if I were you.");
     else if (dex <= 8)
         strcat(buff, "You're pretty clumsy.");
     else if (dex <= 10)
@@ -4413,7 +4413,7 @@ ACMD(do_consider)
     else if (diff <= 22)
         send_to_char(ch, "Well, you only live once...\r\n");
     else if (diff <= 26)
-        send_to_char(ch, "You must be out of your freakin mind.\r\n");
+        send_to_char(ch, "You must be out of your freakin' mind.\r\n");
     else if (diff <= 30)
         send_to_char(ch, "What?? Are you STUPID or something?!!\r\n");
     else
@@ -4437,7 +4437,7 @@ ACMD(do_consider)
             send_to_char(ch,
                 "You can both take pretty much the same abuse.\r\n");
         else if (diff <= 200)
-            act("$E looks like $E could take a lickin.", false, ch, NULL, victim,
+            act("$E looks like $E could take a lickin'.", false, ch, NULL, victim,
                 TO_CHAR);
         else if (diff <= 600)
             act("Haven't you seen $M breaking bricks on $S head?", false, ch,
@@ -4512,7 +4512,7 @@ ACMD(do_pkiller)
                 arg = tmp_getword(&argument);
                 if (strcasecmp(arg, "yes")) {
                     send_to_char(ch,
-                        "Your reputation is 0.  You must type pk on yes "
+                        "Your reputation is 0.  You must type PK ON YES "
                         "to enter the world of PK.\r\n");
                     return;
                 }

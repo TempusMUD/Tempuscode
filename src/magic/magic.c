@@ -1839,7 +1839,7 @@ mag_affects(int level,
         aff[0].location = APPLY_DEX;
         aff[0].modifier = -(number(0, level / 8));
         aff[0].duration = number(0, level / 16) + 1;
-        to_vict = "Your muscles begin spasming uncontrollably.";
+        to_vict = "Your muscles begin to spasm uncontrollably.";
         break;
 
     case SPELL_PSYCHIC_RESISTANCE:
@@ -2450,7 +2450,7 @@ mag_affects(int level,
         aff[0].modifier =
             5 + skill_bonus(ch, SONG_VERSE_OF_VALOR) / 25 + number(0, 6);
 
-        to_vict = "The valor of heros gone comes crashing into your mind!";
+        to_vict = "The valor of heroes gone comes crashing into your mind!";
         break;
 
     case SONG_WHITE_NOISE:
@@ -2526,7 +2526,7 @@ mag_affects(int level,
             3 + (skill_bonus(ch, SONG_GUIHARIAS_GLORY) / 8);
         aff[0].location = APPLY_DAMROLL;
 
-        to_vict = "You feel the power of dieties flowing in your veins!";
+        to_vict = "You feel the power of deities flowing in your veins!";
         break;
 
     case SONG_UNLADEN_SWALLOW_SONG:
@@ -2643,8 +2643,8 @@ mag_affects(int level,
         else
             aff[0].modifier = GET_IDNUM(ch);
 
-        to_vict = "A gossimer shield of music forms around you.";
-        to_room = "A gossimer shield of music forms around $n";
+        to_vict = "A gossamer shield of music forms around you.";
+        to_room = "A gossamer shield of music forms around $n";
         break;
 
     case SONG_FORTISSIMO:
@@ -3042,7 +3042,7 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
 
         if (vict != ch && !ok_to_attack(ch, vict, false)) {
             if (SPELL_IS_PSIONIC(spellnum)) {
-                send_to_char(ch, "The Universal Psyche decends on your "
+                send_to_char(ch, "The Universal Psyche descends on your "
                     "mind and renders you powerless!\r\n");
                 act("$n concentrates for an instant, and is suddenly "
                     "thrown into mental shock!", false, ch, NULL, NULL, TO_ROOM);
