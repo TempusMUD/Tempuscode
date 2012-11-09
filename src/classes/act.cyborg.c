@@ -1997,8 +1997,8 @@ perform_repair(struct creature *ch, struct obj_data *obj)
     struct obj_data *tool = NULL;
     int dam, skill = 0;
 
-        if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
-        act("$p is too severly damaged for you to repair.",
+    if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
+        act("$p is too severely damaged for you to repair.",
             false, ch, obj, NULL, TO_CHAR);
         return;
     }
