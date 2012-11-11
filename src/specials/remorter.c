@@ -197,7 +197,7 @@ SPECIAL(remorter)
                 "If you remort now, you will lose the items you are carrying.\r\n"
                 "Say 'reconsider' if you need leave and store items.\r\n"
                 "Say 'remort yes' if you still wish to remort.\r\n");
-        return;
+        return 1;
     }
 
     value = GET_GOLD(ch);
