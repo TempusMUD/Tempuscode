@@ -1590,6 +1590,12 @@ set_desc_state(enum cxn_state state, struct descriptor_data *d)
     if (d->mode_data)
         free(d->mode_data);
     d->mode_data = NULL;
+
+    if (state == CXN_DISCONNECT) {
+        d->input_mode = state;
+        return;
+    }
+
     if (d->input_mode == CXN_ACCOUNT_PW ||
         d->input_mode == CXN_PW_PROMPT ||
         d->input_mode == CXN_PW_VERIFY ||
