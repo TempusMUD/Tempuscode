@@ -1892,7 +1892,7 @@ ACMD(do_give)
         if (!vict)
             return;
 
-        if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2))
+        if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2) || !strcasecmp("gold", arg2))
             transfer_money(ch, vict, amount, 0, false);
         else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2))
             transfer_money(ch, vict, amount, 1, false);
