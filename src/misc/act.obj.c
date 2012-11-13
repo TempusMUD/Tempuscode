@@ -1543,7 +1543,7 @@ ACMD(do_drop)
     } else if (is_number(arg1)) {
         amount = atoi(arg1);
 
-        if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2))
+        if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2) || !strcasecmp("gold", arg2))
             perform_drop_gold(ch, amount, mode, RDR);
         else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2))
             perform_drop_credits(ch, amount, mode, RDR);
@@ -1892,7 +1892,7 @@ ACMD(do_give)
         if (!vict)
             return;
 
-        if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2))
+        if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2) || !strcasecmp("gold", arg2))
             transfer_money(ch, vict, amount, 0, false);
         else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2))
             transfer_money(ch, vict, amount, 1, false);
