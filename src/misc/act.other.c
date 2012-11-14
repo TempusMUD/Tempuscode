@@ -138,6 +138,7 @@ ACMD(do_quit)
             strncasecmp(argument, "yes", 3)) {
             send_to_char(ch,
                 "If you quit without renting, you will lose all your things.\r\n"
+                "Furthermore, any implants will be destroyed.\r\n"
                 "If you would rather rent, type HELP INNS to find out where the nearest\r\n"
                 "inn is.  If you are SURE you want to QUIT, type 'quit yes'.\r\n");
             return;
