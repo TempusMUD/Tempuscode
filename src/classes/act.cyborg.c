@@ -2317,7 +2317,10 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
             }
         }
         break;
-
+    case ITEM_TOOL:
+        acc_sprintf("Tool Compatibility:   %s%s%s [+%d modifier]\r\n",
+            CCCYN(ch, C_NRM), spell_to_str(TOOL_SKILL(obj)), CCNRM(ch, C_NRM), TOOL_MOD(obj));
+        break;
     }
     page_string(ch->desc, acc_get_string());
 }
