@@ -284,7 +284,7 @@ vendor_appraise(struct creature *ch, struct obj_data *obj,
     }
 
     perform_say_to(self, ch,
-        tmp_sprintf("That will cost you %lu %s.", cost, currency_str));
+        tmp_sprintf("That will cost you %'lu %s.", cost, currency_str));
 
     if (IS_MAGE(self)) {
         spell_identify(50, ch, NULL, obj, NULL);
@@ -454,11 +454,11 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
     }
 
     perform_say_to(self, ch, tmp_sprintf(shop->msg_buy, cost * num));
-    msg = tmp_sprintf("You sell $p %sto $N for %lu %s.",
+    msg = tmp_sprintf("You sell $p %sto $N for %'lu %s.",
         ((num == 1) ? "" : tmp_sprintf("(x%d) ", num)),
         cost * num, currency_str);
     act(msg, false, self, obj, ch, TO_CHAR);
-    msg = tmp_sprintf("$n sells $p %sto you for %lu %s.",
+    msg = tmp_sprintf("$n sells $p %sto you for %'lu %s.",
         ((num == 1) ? "" : tmp_sprintf("(x%d) ", num)),
         cost * num, currency_str);
     act(msg, false, self, obj, ch, TO_VICT);
@@ -642,11 +642,11 @@ vendor_list_obj(struct creature *ch, struct obj_data *obj, int cnt, int idx,
 
     obj_desc = tmp_capitalize(obj_desc);
     if (cnt < 0)
-        return tmp_sprintf(" %2d%s)  %sUnlimited%s   %-48s %6d\r\n",
+        return tmp_sprintf(" %2d%s)  %sUnlimited%s   %-48s %'7d\r\n",
             idx, CCRED(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
             obj_desc, cost);
 
-    return tmp_sprintf(" %2d%s)  %s%5d%s       %-48s %6d\r\n",
+    return tmp_sprintf(" %2d%s)  %s%5d%s       %-48s %'7d\r\n",
         idx, CCRED(ch, C_NRM), CCYEL(ch, C_NRM), cnt, CCNRM(ch, C_NRM),
         obj_desc, cost);
 }
@@ -752,7 +752,7 @@ vendor_value(struct creature *ch, char *arg, struct creature *self,
     cost = vendor_get_value(obj,
         shop->markdown, cost_modifier(self, ch), shop->currency);
 
-    perform_say_to(self, ch, tmp_sprintf("I'll give you %lu %s for it!", cost,
+    perform_say_to(self, ch, tmp_sprintf("I'll give you %'lu %s for it!", cost,
             shop->currency ? "creds" : "gold"));
 }
 

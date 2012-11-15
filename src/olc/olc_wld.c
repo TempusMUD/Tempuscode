@@ -1242,14 +1242,14 @@ ACMD(do_hedit)
                     cost = room_rent_cost(house, room);
                     tot_cost += cost;
                     tot_num += num;
-                    acc_sprintf("%s%-30s%s      %s%5d%s   %10d\r\n",
+                    acc_sprintf("%s%-30s%s      %s%'5d%s   %'10d\r\n",
                         CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM),
                         (num > MAX_HOUSE_ITEMS) ? CCRED(ch, C_NRM) : "",
                         num, CCNRM(ch, C_NRM), cost);
                 }
                 if (!local)
                     acc_sprintf
-                        ("- Totals -------------------------- %5d   %10d\r\n",
+                        ("- Totals -------------------------- %'5d   %'10d\r\n",
                         tot_num, tot_cost);
                 page_string(ch->desc, acc_get_string());
                 return;
