@@ -1206,6 +1206,9 @@ equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
             return 0;
         }
         GET_IMPLANT(ch, pos) = obj;
+        if (IS_OBJ_TYPE(obj, ITEM_ARMOR))
+            GET_AC(ch) -= GET_OBJ_VAL(obj, 0);
+
         GET_WEIGHT(ch) += (int)GET_OBJ_WEIGHT(obj);
         break;
     case EQUIP_TATTOO:
@@ -1281,6 +1284,8 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
             return NULL;
         }
         obj = GET_IMPLANT(ch, pos);
+        if (IS_OBJ_TYPE(obj, ITEM_ARMOR))
+            GET_AC(ch) += GET_OBJ_VAL(obj, 0);
 
         GET_WEIGHT(ch) -= (int)GET_OBJ_WEIGHT(obj);
         break;
