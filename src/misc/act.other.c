@@ -137,10 +137,10 @@ ACMD(do_quit)
             !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) &&
             strncasecmp(argument, "yes", 3)) {
             send_to_char(ch,
-                "If you quit without renting, you will lose all your things.\r\n"
-                "Furthermore, any implants will be destroyed.\r\n"
-                "If you would rather rent, type HELP INNS to find out where the nearest\r\n"
-                "inn is.  If you are SURE you want to QUIT, type 'quit yes'.\r\n");
+                "   If you quit without renting, you will lose all of your things.  Anything\r\n"
+                "you have implanted will be destroyed.\r\n"
+                "   If you would rather rent, type HELP INNS to find out where the nearest\r\n"
+                "inn is located.  If you are SURE you want to QUIT, type 'quit yes'.\r\n");
             return;
 
         } else if (IS_CARRYING_N(ch) || IS_WEARING_W(ch)
