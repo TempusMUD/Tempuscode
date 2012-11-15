@@ -64,10 +64,10 @@ ACMD(do_pistolwhip)
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-            act("You pistolwhip $p!", false, ch, ovict, NULL, TO_CHAR);
+            act("You pistol-whip $p!", false, ch, ovict, NULL, TO_CHAR);
             return;
         } else {
-            send_to_char(ch, "Pistolwhip who?\r\n");
+            send_to_char(ch, "Pistol-whip who?\r\n");
             return;
         }
     }
@@ -138,7 +138,7 @@ ACMD(do_crossface)
     }
 
     if (!((weap = GET_EQ(ch, WEAR_WIELD)) && LARGE_GUN(weap))) {
-        send_to_char(ch, "You need to be using a two handed gun.\r\n");
+        send_to_char(ch, "You need to be using a two-handed gun.\r\n");
         return;
     }
 
@@ -210,14 +210,15 @@ ACMD(do_crossface)
             if (prev_pos != POS_STUNNED && !is_dead(vict) && !is_dead(ch)) {
                 if (is_fighting(ch)
                     && (!IS_NPC(vict) || !NPC2_FLAGGED(vict, NPC2_NOSTUN))) {
-                    remove_combat(ch, vict);
-                    remove_all_combat(vict);
-                    GET_POSITION(vict) = POS_STUNNED;
                     act("Your crossface has knocked $N senseless!",
                         true, ch, NULL, vict, TO_CHAR);
                     act("$n stuns $N with a vicious crossface!",
-                        true, ch, NULL, vict, TO_ROOM);
-                    act("Your jaw cracks as $n whips $s gun across your face.   Your vision fades...", true, ch, NULL, vict, TO_VICT);
+                        true, ch, NULL, vict, TO_NOTVICT);
+                    act("Your jaw cracks as $n whips $s gun across your face.\r"
+                        "Your vision fades...", true, ch, NULL, vict, TO_VICT);
+                    remove_combat(ch, vict);
+                    remove_all_combat(vict);
+                    GET_POSITION(vict) = POS_STUNNED;
                 }
             }
         }
@@ -229,12 +230,12 @@ ACMD(do_crossface)
             if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
                 && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
                 GET_POSITION(vict) = POS_RESTING;
-                act("Your crossface has knocked $N on $S ass!",
+                act("Your crossface has knocked $N on $S back!",
                     true, ch, NULL, vict, TO_CHAR);
-                act("$n's nasty crossface just knocked $N on $S ass!",
-                    true, ch, NULL, vict, TO_ROOM);
+                act("$n's nasty crossface just knocked $N on $S back!",
+                    true, ch, NULL, vict, TO_NOTVICT);
                 act("Your jaw cracks as $n whips $s gun across your face.\n"
-                    "You stagger and fall to the ground ",
+                    "You stagger and fall to the ground!",
                     true, ch, NULL, vict, TO_VICT);
             }
         }
@@ -248,10 +249,9 @@ ACMD(do_crossface)
                 act("Your crossface has knocked $N's $p from $S head!",
                     true, ch, wear, vict, TO_CHAR);
                 act("$n's nasty crossface just knocked $p from $N's head!",
-                    true, ch, wear, vict, TO_ROOM);
+                    true, ch, wear, vict, TO_NOTVICT);
                 act("Your jaw cracks as $n whips $s gun across your face.\n"
-                    "Your $p flies from your head and lands a short distance\n"
-                    "away.", true, ch, wear, vict, TO_VICT);
+                    "$p flies off your head and lands a short distance away.", true, ch, wear, vict, TO_VICT);
 
                 scraps = damage_eq(vict, wear, dam >> 4, TYPE_HIT);
                 if (scraps) {
@@ -492,12 +492,12 @@ ACMD(do_snipe)
         remove_combat(ch, vict);
         remove_combat(vict, ch);
         send_to_char(ch, "Damn!  You missed!\r\n");
-        act(tmp_sprintf("$n fires $p to %s, and a look of irritation crosses $s face.",
+        act(tmp_sprintf("$n fires $p to %s, then a look of irritation crosses $s face.",
                         to_dirs[snipe_dir]), true, ch, gun, vict, TO_ROOM);
         act(tmp_sprintf("A bullet screams past your head from %s!",
                 from_dirs[snipe_dir]), true, ch, NULL, vict, TO_VICT);
         act(tmp_sprintf("A bullet screams past $n's head from %s!",
-                from_dirs[snipe_dir]), true, vict, NULL, ch, TO_ROOM);
+                from_dirs[snipe_dir]), true, vict, NULL, ch, TO_NOTVICT);
         WAIT_STATE(ch, 3 RL_SEC);
         return;
     } else {
@@ -543,10 +543,11 @@ ACMD(do_snipe)
             dam += dam >> 1;
         }
         if (damage_loc == WEAR_HEAD) {
-            send_to_char(ch, "HEAD SHOT!!\r\n");
+            send_to_char(ch, "BOOM, HEADSHOT!\r\n");
         } else if (damage_loc == WEAR_NECK_1 || damage_loc == WEAR_NECK_2) {
-            send_to_char(ch, "NECK SHOT!!\r\n");
+            act("In the distance, frothy blood flows as your bullet connects with $N's neck.\r\n", false, ch, NULL, vict, TO_CHAR);
         }
+
         if (!IS_NPC(vict) && GET_LEVEL(vict) <= 6) {
             send_to_char(ch, "Hmm. Your gun seems to have jammed...\r\n");
             return;
