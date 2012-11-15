@@ -4648,7 +4648,8 @@ show_all_toggles(struct creature *ch)
         "      Clan hide: %-3s    "
         "      Clan mail: %-3s\r\n"
         "      Anonymous: %-3s    "
-        "        PKILLER: %-3s\r\n",
+        "        PKILLER: %-3s\r\n"
+        "\r\n",
         ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
         ONOFF(PRF_FLAGGED(ch, PRF_DISPMANA)),
         ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
@@ -4688,6 +4689,29 @@ show_all_toggles(struct creature *ch)
         YESNO(gets_clanmail),
         YESNO(PRF2_FLAGGED(ch, PRF2_ANONYMOUS)),
         YESNO(PRF2_FLAGGED(ch, PRF2_PKILLER)));
+
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+        send_to_char(ch,
+        "-- IMMORTAL  -----------------------------------------------------------------\r\n"
+        "    Imm Channel: %-3s    "
+        "       Petition: %-3s    "
+        "         Holler: %-3s\r\n"
+        "       God Echo: %-3s    "
+        "  Display Vnums: %-3s    "
+        "Show Room Flags: %-3s\r\n"
+        "       Nohassle: %-3s    "
+        "          Snoop: %-3s    "
+        "          Debug: %-3s\r\n",
+        ONOFF(!PRF2_FLAGGED(ch, PRF2_NOIMMCHAT)),
+        ONOFF(!PRF_FLAGGED(ch, PRF_NOPETITION)),
+        ONOFF(!PRF2_FLAGGED(ch, PRF2_NOHOLLER)),
+        ONOFF(!PRF2_FLAGGED(ch, PRF2_NOGECHO)),
+        YESNO(PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)),
+        YESNO(PRF_FLAGGED(ch, PRF_ROOMFLAGS)),
+        ONOFF(!PRF_FLAGGED(ch, PRF_NOHASSLE)),
+        YESNO(!PRF_FLAGGED(ch, PRF_NOSNOOP)),
+        ONOFF(PRF2_FLAGGED(ch, PRF2_DEBUG)));
+    }
 
     if (IS_MAGE(ch)) {
         send_to_char(ch, "((Mana shield)) Low:[%ld], Percent:[%ld]\n",
