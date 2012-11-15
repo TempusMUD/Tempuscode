@@ -93,8 +93,9 @@ ACMD(do_pistolwhip)
     percent = ((10 - (GET_AC(vict) / 10)) << 1) + number(1, 101);
     prob = CHECK_SKILL(ch, SKILL_PISTOLWHIP);
 
-    if (IS_PUDDING(vict) || IS_SLIME(vict))
+    if (IS_PUDDING(vict) || IS_SLIME(vict)) {
         prob = 0;
+    }
 
     if (percent > prob) {
         damage(ch, vict, weap, 0, SKILL_PISTOLWHIP, WEAR_BODY);
@@ -631,6 +632,10 @@ ACMD(do_wrench)
 
     if (!can_see_creature(ch, vict)) {
         prob += 10;
+    }
+
+    if (IS_PUDDING(vict) || IS_SLIME(vict)) {
+        prob = 0;
     }
 
     dam = dice(GET_LEVEL(ch), GET_STR(ch));
