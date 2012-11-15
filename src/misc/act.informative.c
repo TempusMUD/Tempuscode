@@ -4636,6 +4636,7 @@ show_all_toggles(struct creature *ch)
         "  Guild Channel: %-3s    "
         "   Clan Channel: %-3s    "
         " Haggle Channel: %-3s\r\n"
+        "   Nasty Speech: %-3s\r\n"
         "\r\n"
         "-- GAMEPLAY ------------------------------------------------------------------\r\n"
         "      Autosplit: %-3s    "
@@ -4678,6 +4679,7 @@ show_all_toggles(struct creature *ch)
         ONOFF(!PRF2_FLAGGED(ch, PRF2_NOGUILDSAY)),
         ONOFF(!PRF_FLAGGED(ch, PRF_NOCLANSAY)),
         ONOFF(!PRF_FLAGGED(ch, PRF_NOHAGGLE)),
+        ONOFF(PRF_FLAGGED(ch, PRF_NASTY)),
         ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)),
         ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOLOOT)),
         buf2,
