@@ -822,7 +822,7 @@ struct command_info cmd_info[] = {
     {"groinkick", POS_FIGHTING, do_offensive_skill, 0, SKILL_GROINKICK, 0, 0},
     {"grope", POS_RESTING, do_action, 0, 0, 0, 0},
     {"grovel", POS_RESTING, do_action, 0, 0, 0, 0},
-    {"growl", POS_RESTING, do_say, 0, 0, 0, 0},
+    {"growl", POS_RESTING, do_action, 0, 0, 0, 0},
     {"grunt", POS_RESTING, do_say, 0, 0, 0, 0},
     {"grumble", POS_RESTING, do_say, 0, 0, 0, 0},
     {"gsay", POS_SLEEPING, do_gsay, 0, 0, 0, 0},
