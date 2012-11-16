@@ -4658,9 +4658,9 @@ show_all_toggles(struct creature *ch)
         ONOFF(PRF2_FLAGGED(ch, PRF2_AUTO_DIAGNOSE)),
         YESNO(PRF2_FLAGGED(ch, PRF2_AUTOPROMPT)),
         ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
+        YESNO(!PRF_FLAGGED(ch, PRF_GAGMISS)),
         (IS_NPC(ch) ? "mob" :
             compact_levels[ch->account->compact_level]),
-        YESNO(!PRF_FLAGGED(ch, PRF_GAGMISS)),
         tmp_sprintf("%dx%d",
             GET_PAGE_LENGTH(ch),
             GET_PAGE_WIDTH(ch)),
