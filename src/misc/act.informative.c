@@ -109,6 +109,7 @@ extern const char *wear_implantpos[];
 extern const char *moon_sky_types[];
 extern const char *soilage_bits[];
 extern const char *wear_description[];
+extern const char *logtypes[];
 extern const struct weap_spec_info weap_spec_char_class[];
 
 int isbanned(char *hostname, char *blocking_hostname);
@@ -126,10 +127,6 @@ ACMD(do_stand);
  ((IS_CIGARETTE(obj) && SMOKE_LIT(obj)) ? 10 : 0)+\
  ((IS_OBJ_STAT(obj, ITEM_MAGIC) &&                \
    AFF_FLAGGED(ch, AFF_DETECT_MAGIC)) ? 20 : 0))
-
-static const char *logtypes[] = {
-    "off", "brief", "normal", "complete", "\n"
-};
 
 static void
 show_obj_extra(struct obj_data *object, struct creature *ch)
