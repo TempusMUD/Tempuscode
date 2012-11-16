@@ -1,4 +1,3 @@
-
 /************************************************************************
  *   File: char_class.c                                       Part of CircleMUD *
  *  Usage: Source file for char_class-specific code                             *
@@ -945,12 +944,52 @@ do_start(struct creature *ch, int mode)
                 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
         }
 
-        // New players start with a hospital gown
+        // New players start with a hospital gown and items most dear to them
         struct obj_data *gown = read_object(33800);
-        if (gown) {
+        if (gown != NULL) {
             equip_char(ch, gown, WEAR_ABOUT, EQUIP_WORN);
         }
 
+        // Good clerics start with a holy symbol on neck
+        if ((GET_CLASS(ch) == CLASS_CLERIC) && IS_GOOD(ch)) {
+            struct obj_data *talisman = read_object(1280);
+            if (talisman != NULL) {
+                equip_char(ch, talisman, WEAR_NECK_1, EQUIP_WORN);
+            }
+        }
+
+        // Evil clerics start with a holy symbol on hold
+        if ((GET_CLASS(ch) == CLASS_CLERIC) && IS_EVIL(ch)) {
+            struct obj_data *symbol = read_object(1260);
+            if (symbol != NULL) {
+                equip_char(ch, symbol, WEAR_HOLD, EQUIP_WORN);
+            }
+        }
+
+        // Good knights start with a holy symbol on finger
+        if ((GET_CLASS(ch) == CLASS_KNIGHT) && IS_GOOD(ch)) {
+            struct obj_data *ring = read_object(1287);
+            if (ring != NULL) {
+                equip_char(ch, ring, WEAR_FINGER_L, EQUIP_WORN);
+            }
+        }
+
+        // Evil knights start with a holy symbol on neck
+        if ((GET_CLASS(ch) == CLASS_KNIGHT) && IS_EVIL(ch)) {
+            struct obj_data *pendant = read_object(1270);
+            if (pendant != NULL) {
+                equip_char(ch, pendant, WEAR_NECK_1, EQUIP_WORN);
+            }
+        }
+
+        // Bards start with a percussion instrument held, and stringed in inventory
+        if ((GET_CLASS(ch) == CLASS_BARD)) {
+            struct obj_data *lute = read_object(3218);
+            if (lute != NULL) {
+                obj_to_char(lute, ch);
+            }
+        }
+   
         set_title(ch, "the complete newbie");
     }
 

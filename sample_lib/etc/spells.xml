@@ -494,7 +494,7 @@ Asylum saves us all!</lyrics>
     <flag value="affects"/>
     <flag value="groups"/>
     <flag value="song"/>
-    <instrument type="percussion"/>
+    <instrument type="string"/>
     <lyrics>Oh sun, sweet kiss of warmth and light,
 Repel the frigid cold of night!</lyrics>
   </spell>
@@ -1069,7 +1069,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="points"/>
     <flag value="groups"/>
     <flag value="song"/>
-    <instrument type="percussion"/>
+    <instrument type="string"/>
     <lyrics>The journey of a thousand miles begins with just one step,
 So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
