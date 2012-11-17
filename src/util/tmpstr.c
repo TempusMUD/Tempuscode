@@ -87,6 +87,22 @@ tmp_alloc_pool(size_t size_req)
     return new_buf;
 }
 
+// Allocate space for a string, creating a new pool if necessary
+static char *
+tmp_alloc(size_t size_req)
+{
+    struct tmp_str_pool *cur_buf = tmp_list_tail;
+
+    if (size_req > cur_buf->space - cur_buf->used)
+        cur_buf = tmp_alloc_pool(size_req);
+
+    char *result = cur_buf->data + cur_buf->used;
+
+    cur_buf->used += size_req;
+
+    return result;
+}
+
 // vsprintf into a temp str
 char *
 tmp_vsprintf(const char *fmt, va_list args)
@@ -137,7 +153,6 @@ tmp_sprintf(const char *fmt, ...)
 char *
 tmp_strcat(const char *src, ...)
 {
-    struct tmp_str_pool *cur_buf;
     char *write_pt, *result;
     const char *read_pt;
     size_t len;
@@ -153,15 +168,7 @@ tmp_strcat(const char *src, ...)
 
     len += 1;
 
-    // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    write_pt = result;
-    cur_buf->used += len;
+    write_pt = result = tmp_alloc(len);
 
     // Copy in the first string
     strcpy(write_pt, src);
@@ -184,7 +191,6 @@ tmp_strcat(const char *src, ...)
 char *
 tmp_gettoken(char **src)
 {
-    struct tmp_str_pool *cur_buf;
     char *read_pt;
     char *result, *write_pt;
     size_t len = 0;
@@ -196,20 +202,12 @@ tmp_gettoken(char **src)
         read_pt++;
     len = (read_pt - *src) + 1;
 
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
+    write_pt = result = tmp_alloc(len);
     read_pt = *src;
-    write_pt = result;
 
     while (*read_pt && !isspace(*read_pt))
         *write_pt++ = *read_pt++;
-    *write_pt = '\0';
 
-    cur_buf->used += len;
     *src = read_pt;
 
     skip_spaces(src);
@@ -253,7 +251,6 @@ tmp_getword_const(const char **src)
 char *
 tmp_getquoted(char **src)
 {
-    struct tmp_str_pool *cur_buf;
     char *read_pt;
     char *result, *write_pt;
     size_t len = 0;
@@ -279,20 +276,12 @@ tmp_getquoted(char **src)
 
     len = (read_pt - *src) + 1;
 
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
+    write_pt = result = tmp_alloc(len);
     read_pt = *src;
-    write_pt = result;
 
     while (*read_pt && delim != *read_pt)
         *write_pt++ = tolower(*read_pt++);
-    *write_pt = '\0';
 
-    cur_buf->used += len;
     *src = read_pt + 1;
     return result;
 }
@@ -300,19 +289,11 @@ tmp_getquoted(char **src)
 char *
 tmp_pad(int c, size_t len)
 {
-    struct tmp_str_pool *cur_buf;
     char *result;
 
-    if (len + 1 > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len + 1);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += len + 1;
+    result = tmp_alloc(len + 1);
     if (len)
         memset(result, c, len);
-    result[len] = '\0';
 
     return result;
 }
@@ -321,7 +302,6 @@ tmp_pad(int c, size_t len)
 char *
 tmp_getline(char **src)
 {
-    struct tmp_str_pool *cur_buf;
     char *read_pt;
     char *result, *write_pt;
     size_t len = 0;
@@ -337,20 +317,12 @@ tmp_getline(char **src)
     if (len == 1 && !*read_pt)
         return NULL;
 
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
+    write_pt = result = tmp_alloc(len);
     read_pt = *src;
-    write_pt = result;
 
     while (*read_pt && '\r' != *read_pt && '\n' != *read_pt)
         *write_pt++ = *read_pt++;
-    *write_pt = '\0';
 
-    cur_buf->used += len;
     if (*read_pt == '\r')
         read_pt++;
     if (*read_pt == '\n')
@@ -425,7 +397,6 @@ tmp_gsub(const char *haystack, const char *needle, const char *sub)
 char *
 tmp_gsubi(const char *haystack, const char *needle, const char *sub)
 {
-    struct tmp_str_pool *cur_buf;
     char *low_stack;
     char *write_pt, *result;
     const char *read_pt, *search_pt;
@@ -450,14 +421,7 @@ tmp_gsubi(const char *haystack, const char *needle, const char *sub)
     // Figure out how much space we'll need
     len = strlen(haystack) + matches * (strlen(sub) - needle_len) + 1;
 
-    // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += len;
+    result = tmp_alloc(len);
 
     // Now copy up to matches
     read_pt = haystack;
@@ -514,29 +478,10 @@ tmp_capitalize(const char *str)
 char *
 tmp_strdup(const char *src)
 {
-    struct tmp_str_pool *cur_buf;
-    char *write_pt, *result;
-    const char *read_pt;
-    size_t len;
+    char *result;
 
-    // Figure out how much space we'll need
-    len = strlen(src) + 1;
-
-    // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += len;
-
-    // Copy in the first string
-    read_pt = src;
-    write_pt = result;
-    while (--len)
-        *write_pt++ = *read_pt++;
-    *write_pt = '\0';
+    result = tmp_alloc(strlen(src) + 1);
+    strcpy(result, src);
 
     return result;
 }
@@ -544,33 +489,19 @@ tmp_strdup(const char *src)
 char *
 tmp_strdupt(const char *src, const char *term_str)
 {
-    struct tmp_str_pool *cur_buf;
-    char *write_pt, *result;
+    char *result;
     const char *read_pt;
     size_t len;
 
     // Figure out how much space we'll need
     read_pt = term_str ? strstr(src, term_str) : NULL;
     if (read_pt)
-        len = read_pt - src + 1;
+        len = read_pt - src;
     else
-        len = strlen(src) + 1;
+        len = strlen(src);
 
-    // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += len;
-
-    // Copy in the first string
-    read_pt = src;
-    write_pt = result;
-    while (--len)
-        *write_pt++ = *read_pt++;
-    *write_pt = '\0';
+    result = tmp_alloc(len + 1);
+    strncpy(result, src, len);
 
     return result;
 }
@@ -578,19 +509,12 @@ tmp_strdupt(const char *src, const char *term_str)
 char *
 tmp_sqlescape(const char *str)
 {
-    struct tmp_str_pool *cur_buf;
     char *result;
     size_t len;
 
     len = strlen(str) * 2 + 1;
-    if (len + 1 > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len + 1);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    len = PQescapeString(result, str, len);
-    cur_buf->used += len + 1;
+    result = tmp_alloc(len + 1);
+    (void)PQescapeString(result, str, len);
 
     return result;
 }
@@ -598,19 +522,10 @@ tmp_sqlescape(const char *str)
 char *
 tmp_ctime(time_t val)
 {
-    struct tmp_str_pool *cur_buf;
     char *result;
-    size_t len;
 
-    len = 26;
-    if (len + 1 > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len + 1);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
+    result = tmp_alloc(27);
     ctime_r(&val, result);
-    cur_buf->used += strlen(result) + 1;
     // last int8_t is, sadly, a newline.  we remove it here
     result[strlen(result) - 1] = '\0';
 
@@ -620,7 +535,6 @@ tmp_ctime(time_t val)
 char *
 tmp_printbits(int val, const char *bit_descs[])
 {
-    struct tmp_str_pool *cur_buf;
     char *write_pt, *result;
     unsigned int idx;
     bool not_first = false;
@@ -635,20 +549,8 @@ tmp_printbits(int val, const char *bit_descs[])
             len += strlen(bit_descs[idx]) + 1;
     len += 1;
 
-    // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
+    write_pt = result = tmp_alloc(len);
 
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += len;
-    write_pt = result;
-
-    // Copy in the first string
-    *write_pt = '\0';
-
-    // Then copy in the rest of the strings
     for (idx = 0;
         idx < sizeof(val) * 8 && bit_descs[idx] && bit_descs[idx][0] != '\n';
         idx++)
@@ -663,15 +565,12 @@ tmp_printbits(int val, const char *bit_descs[])
                 write_pt++;
         }
 
-    *write_pt = '\0';
-
     return result;
 }
 
 char *
 tmp_substr(const char *str, int start_pos, int end_pos)
 {
-    struct tmp_str_pool *cur_buf;
     const char *read_pt;
     char *result, *write_pt;
     int len;
@@ -699,15 +598,7 @@ tmp_substr(const char *str, int start_pos, int end_pos)
     // This is the true result string length
     result_len = end_pos - start_pos + 2;
 
-    // If we don't have the space, we allocate another pool
-    if (result_len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(result_len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += result_len;
-    write_pt = result;
+    write_pt = result = tmp_alloc(result_len);
 
     read_pt = str + start_pos;
     result_len--;
@@ -721,7 +612,6 @@ tmp_substr(const char *str, int start_pos, int end_pos)
 char *
 tmp_trim(const char *str)
 {
-    struct tmp_str_pool *cur_buf;
     const char *read_pt, *start, *end;
     char *result, *write_pt;
     size_t result_len;
@@ -739,15 +629,7 @@ tmp_trim(const char *str)
     // This is the true result string length
     result_len = end - start + 2;
 
-    // If we don't have the space, we allocate another pool
-    if (result_len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(result_len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += result_len;
-    write_pt = result;
+    write_pt = result = tmp_alloc(result_len);
 
     read_pt = start;
     result_len--;
