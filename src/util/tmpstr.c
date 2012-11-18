@@ -639,3 +639,129 @@ tmp_trim(const char *str)
 
     return result;
 }
+
+// Performs the formatting of a string, given a buffer.  Returns the
+// end size of the result.  If buffer is NULL, performs no writing.
+static size_t
+format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_indent, int par_indent, int rest_indent)
+{
+    const char *abbreviations[] = {"Dr.", "Mr." "Ms.", "Mrs.", "Miss.", "Esq.", "Dept.", NULL};
+    const char *read_pt = str;
+    size_t output_size = 0;
+    int line_width = 0;
+    char *write_pt = buf;
+    char *buf_end = buf + buf_size;
+    int padding = first_indent;
+    bool par_end = false;
+
+    // Skip initial spaces in input
+    while (*read_pt && isspace(*read_pt))
+        read_pt++;
+
+    // Outer loop here loops once per word
+    while (*read_pt) {
+        // Skip spaces to beginning of word
+        while (*read_pt && isspace(*read_pt)) {
+            if (*read_pt == '\n')
+                par_end = true;
+            read_pt++;
+        }
+        if (!*read_pt) {
+            par_end = true;
+        }
+
+        // Find end of word.  A word ends before white space or an open
+        // parenthesis, and after any other punctuation.
+        const char *word = read_pt;
+        bool sentence_end = false;
+
+        // Find space or punctuation.
+        while (*read_pt && !isspace(*read_pt) && !ispunct(*read_pt)) {
+            read_pt++;
+        }
+        // Find end of punctuation
+        while (*read_pt && ispunct(*read_pt)) {
+            if (*read_pt == '(') {
+                break;
+            } else if (*read_pt == '.') {
+                // Check for common abbreviations
+                for (int i = 0;abbreviations[i];i++) {
+                    if (strncasecmp(word, abbreviations[i], read_pt - word))
+                        sentence_end = true;
+                }
+            } else if (*read_pt == '?' || *read_pt == '!') {
+                sentence_end = true;
+            }
+            read_pt++;
+        }
+
+        // Check for fit in current line
+        line_width += read_pt - word + padding;
+
+        // Render the line breaks, padding, and word
+        if (par_end || line_width > width) {
+            output_size += 2;
+            if (write_pt != buf_end)
+                *write_pt++ = '\r';
+            if (write_pt != buf_end)
+                *write_pt++ = '\n';
+            padding = (par_end) ? par_indent:rest_indent;
+            line_width = read_pt - word + padding;
+        }
+
+        if (word != read_pt) {
+            output_size += padding;
+
+            if (buf) {
+                while (padding--) {
+                    if (write_pt != buf_end)
+                        *write_pt++ = ' ';
+                }
+            }
+        }
+
+        while (word != read_pt) {
+            output_size += read_pt - word;
+            if (write_pt != buf_end)
+                *write_pt++ = *word;
+            word++;
+        }
+
+        // Prepare for next word
+        padding = (sentence_end) ? 2:1;
+        par_end = false;
+    }
+
+    return output_size;
+}
+
+// returns a string word-wrapped to the given width, the first line
+// indented by first_indent, lines preceded by a line break are
+// indented by par_indent, and the rest of the lines indented
+// by rest_indent
+char *
+tmp_format(const char *str, int width, int first_indent, int par_indent, int rest_indent)
+{
+    struct tmp_str_pool *cur_buf;
+    size_t wanted;
+    char *result;
+
+    cur_buf = tmp_list_tail;
+
+    result = &cur_buf->data[cur_buf->used];
+    wanted = format_buffer(result, cur_buf->space - cur_buf->used, str, width, first_indent, par_indent, rest_indent) + 1;
+
+    // If there was enough space, our work is done here.  If there wasn't enough
+    // space, we allocate another pool, and write into that.  The newer
+    // pool is, of course, always big enough.
+
+    if (cur_buf->space - cur_buf->used < wanted) {
+        cur_buf = tmp_alloc_pool(wanted);
+        result = &cur_buf->data[0];
+        wanted = format_buffer(result, cur_buf->space - cur_buf->used, str, width, first_indent, par_indent, rest_indent) + 1;
+    }
+
+    cur_buf->used += wanted;
+
+    return result;
+}

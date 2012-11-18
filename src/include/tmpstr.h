@@ -68,6 +68,13 @@ char *tmp_substr(const char *str, int start_pos, int end_pos);
 // returns a string with leading and trailing spaces removed
 char *tmp_trim(const char *str);
 
+// returns a string word-wrapped to the given width, the first line
+// indented by first_indent, lines preceded by a line break are
+// indented by par_indent, and the rest of the lines indented
+// by rest_indent
+char *
+tmp_format(const char *str, int width, int first_indent, int par_indent, int rest_indent);
+
 // Initializes the structures used for the temporary string mechanism
 void tmp_string_init(void);
 
