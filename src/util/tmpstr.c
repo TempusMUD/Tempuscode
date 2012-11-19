@@ -184,6 +184,8 @@ tmp_strcat(const char *src, ...)
     }
     va_end(args);
 
+    *write_pt = '\0';
+
     return result;
 }
 
@@ -207,6 +209,8 @@ tmp_gettoken(char **src)
 
     while (*read_pt && !isspace(*read_pt))
         *write_pt++ = *read_pt++;
+
+    *write_pt = '\0';
 
     *src = read_pt;
 
@@ -282,6 +286,8 @@ tmp_getquoted(char **src)
     while (*read_pt && delim != *read_pt)
         *write_pt++ = tolower(*read_pt++);
 
+    *write_pt = '\0';
+
     *src = read_pt + 1;
     return result;
 }
@@ -294,6 +300,8 @@ tmp_pad(int c, size_t len)
     result = tmp_alloc(len + 1);
     if (len)
         memset(result, c, len);
+
+    result[len] = '\0';
 
     return result;
 }
@@ -322,6 +330,8 @@ tmp_getline(char **src)
 
     while (*read_pt && '\r' != *read_pt && '\n' != *read_pt)
         *write_pt++ = *read_pt++;
+
+    *write_pt = '\0';
 
     if (*read_pt == '\r')
         read_pt++;
@@ -450,6 +460,7 @@ tmp_tolower(const char *str)
     result = tmp_strcat(str, NULL);
     for (char *c = result; *c; c++)
         *c = tolower(*c);
+
     return result;
 }
 
@@ -564,6 +575,8 @@ tmp_printbits(int val, const char *bit_descs[])
             while (*write_pt)
                 write_pt++;
         }
+
+    *write_pt = '\0';
 
     return result;
 }
@@ -731,6 +744,8 @@ format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_
         padding = (sentence_end) ? 2:1;
         par_end = false;
     }
+
+    *write_pt = '\0';
 
     return output_size;
 }
