@@ -115,6 +115,15 @@
   <race idnum="16" name="Orc">
     <attributes str="+1" int="-1" wis="-2" con="+2" cha="-3"/>
     <tongue name="orcish"/>
+    <age adjust="13" lifespan="65"/>
+    <sex idnum="1" name="male">
+      <weight min="130" max="180"/>
+      <height min="140" max="190" weight_add="8"/>
+    </sex>
+    <sex idnum="2" name="female">
+      <weight min="90" max="150"/>
+      <height min="140" max="170" weight_add="8"/>
+    </sex>
   </race>
   <race idnum="17" name="Goblin">
     <intrinsic affect="infravision"/>

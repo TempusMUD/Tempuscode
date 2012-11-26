@@ -29,6 +29,27 @@ make_race(void)
     race->lifespan = 100;
     race->tongue = TONGUE_NONE;
 
+    // Neuter defaults
+    race->weight_min[0] = 130;
+    race->weight_max[0] = 180;
+    race->height_min[0] = 140;
+    race->height_max[0] = 190;
+    race->weight_add[0] = 8;
+
+    // Male defaults
+    race->weight_min[1] = 130;
+    race->weight_max[1] = 180;
+    race->height_min[1] = 140;
+    race->height_max[1] = 190;
+    race->weight_add[1] = 8;
+
+    // Female defaults
+    race->weight_min[2] = 90;
+    race->weight_max[2] = 150;
+    race->height_min[2] = 140;
+    race->height_max[2] = 170;
+    race->weight_add[2] = 8;
+
     return race;
 }
 
