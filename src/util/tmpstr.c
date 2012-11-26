@@ -513,6 +513,7 @@ tmp_strdupt(const char *src, const char *term_str)
 
     result = tmp_alloc(len + 1);
     strncpy(result, src, len);
+    result[len] = '\0';
 
     return result;
 }
