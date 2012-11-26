@@ -2172,12 +2172,19 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
                 format_weight(GET_OBJ_WEIGHT(obj), USE_METRIC(ch)), CCNRM(ch, C_NRM));
 
     acc_sprintf("Intrinsic Properties: %s", CCCYN(ch, C_NRM));
-    if (GET_OBJ_EXTRA(obj) == 0 && GET_OBJ_EXTRA2(obj) == 0) {
+    if (GET_OBJ_EXTRA(obj) == 0) {
         acc_strcat("None", CCNRM(ch, C_NRM), "\r\n", NULL);
     } else {
         acc_strcat(tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits),
-            " ",
-            tmp_printbits(GET_OBJ_EXTRA2(obj), extra2_bits),
+            CCNRM(ch, C_NRM), "\r\n", NULL);
+    }
+
+    //making temporary typos
+    acc_sprintf("Integral Properties:  %s", CCCYN(ch, C_NRM));
+    if (GET_OBJ_EXTRA2(obj) == 0) {
+        acc_strcat("None", CCNRM(ch, C_NRM), "\r\n", NULL);
+    } else {
+        acc_strcat(tmp_printbits(GET_OBJ_EXTRA2(obj), extra2_bits),
             CCNRM(ch, C_NRM), "\r\n", NULL);
     }
 
