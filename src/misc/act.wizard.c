@@ -98,6 +98,7 @@ extern struct last_command_data last_cmd[NUM_SAVE_CMDS];
 extern const char *language_names[];
 extern const char *instrument_types[];
 extern const char *zone_pk_flags[];
+extern const char *logtypes[];
 
 char *how_good(int percent);
 extern char *prac_types[];
@@ -135,10 +136,6 @@ void verify_tempus_integrity(struct creature *ch);
 static void do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj);
 
 ACMD(do_equipment);
-
-static const char *logtypes[] = {
-    "off", "brief", "normal", "complete", "\n"
-};
 
 void
 show_char_class_skills(struct creature *ch, int con, int immort, int bits)
