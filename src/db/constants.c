@@ -3396,4 +3396,9 @@ const int wear_bitvectors[] =
 
 const char *grievance_kind_descs[] = { "murder", "theft", "attack", "\n" };
 
+const char *logtypes[] = {
+    "off", "brief", "normal", "complete", "\n"
+};
+
+
 #undef __constants_cc__

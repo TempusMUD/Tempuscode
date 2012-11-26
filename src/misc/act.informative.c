@@ -109,6 +109,7 @@ extern const char *wear_implantpos[];
 extern const char *moon_sky_types[];
 extern const char *soilage_bits[];
 extern const char *wear_description[];
+extern const char *logtypes[];
 extern const struct weap_spec_info weap_spec_char_class[];
 
 int isbanned(char *hostname, char *blocking_hostname);
@@ -4591,6 +4592,7 @@ void
 show_all_toggles(struct creature *ch)
 {
     bool gets_clanmail = false;
+    int tp;
 
     if (IS_NPC(ch) || !ch->desc || !ch->desc->account)
         return;
@@ -4693,6 +4695,8 @@ show_all_toggles(struct creature *ch)
         YESNO(PRF2_FLAGGED(ch, PRF2_PKILLER)));
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+        tp = ((PRF_FLAGGED(ch, PRF_LOG1) ? 1 : 0) +
+            (PRF_FLAGGED(ch, PRF_LOG2) ? 2 : 0));
         send_to_char(ch,
         "-- IMMORTAL  -----------------------------------------------------------------\r\n"
         "    Imm Channel: %-3s    "
@@ -4703,7 +4707,8 @@ show_all_toggles(struct creature *ch)
         "Show Room Flags: %-3s\r\n"
         "       Nohassle: %-3s    "
         "          Snoop: %-3s    "
-        "          Debug: %-3s\r\n",
+        "          Debug: %-3s\r\n"
+        "   Syslog Level: %-8s\r\n",
         ONOFF(!PRF2_FLAGGED(ch, PRF2_NOIMMCHAT)),
         ONOFF(!PRF_FLAGGED(ch, PRF_NOPETITION)),
         ONOFF(!PRF2_FLAGGED(ch, PRF2_NOHOLLER)),
@@ -4712,7 +4717,8 @@ show_all_toggles(struct creature *ch)
         YESNO(PRF_FLAGGED(ch, PRF_ROOMFLAGS)),
         ONOFF(!PRF_FLAGGED(ch, PRF_NOHASSLE)),
         YESNO(!PRF_FLAGGED(ch, PRF_NOSNOOP)),
-        ONOFF(PRF2_FLAGGED(ch, PRF2_DEBUG)));
+        ONOFF(PRF2_FLAGGED(ch, PRF2_DEBUG)),
+        logtypes[tp]);
     }
 
     if (IS_MAGE(ch)) {
