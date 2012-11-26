@@ -501,7 +501,6 @@ implanter_show_pos(struct creature *me, struct creature *ch,
     perform_tell(me, ch, buf);
 }
 
-//This was based on repair
 void
 implanter_analysis(struct creature *me, struct creature *ch, char *args)
 {
@@ -541,9 +540,8 @@ implanter_analysis(struct creature *me, struct creature *ch, char *args)
         return;
     }
 
-    // Synthesis asks, "What does this following statement regarding proto do?
     if (!(proto_implant = real_object_proto(implant->shared->vnum))) {
-        perform_tell(me, ch, "No way am I going to analyze that.");
+        perform_tell(me, ch, "I'm not going to analyze that.");
         return;
     }
 
