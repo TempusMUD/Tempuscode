@@ -852,9 +852,16 @@ do_olc_rset(struct creature *ch, char *argument)
         while (*arg1) {
             if ((flag = search_block(arg1, roomflag_names, false)) == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
-            } else
+            } else if ((1 << flag) == ROOM_GODROOM) {
+                if (is_named_role_member(ch, "WizardFull")) {
+                    send_to_char(ch, "No problem!\r\n");
+                    tmp_flags = tmp_flags | (1 << flag);
+                } else {
+                    send_to_char(ch, "Woh woh woh, you are not a member of WizardFull!\r\n");
+                }
+            } else {
                 tmp_flags = tmp_flags | (1 << flag);
-
+            }
             argument = one_argument(argument, arg1);
         }
 
