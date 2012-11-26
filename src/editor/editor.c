@@ -587,12 +587,8 @@ bool
 editor_wrap(struct editor *editor, char *args)
 {
     const char *usage = "Usage: &&w [<start line #>][-<end line #>]\r\n";
-    GList *line_it, *start_line, *finish_line, *newText = NULL;
-	char *start, *end;
-    GString *newLine = g_string_new("");
-    const char *space;
+    GList *line_it, *start_line, *finish_line;
     int start_lineno, end_lineno;
-
 
     start_lineno = 0;
     end_lineno = g_list_length(editor->lines);
@@ -609,91 +605,28 @@ editor_wrap(struct editor *editor, char *args)
 	start_line = g_list_nth(editor->lines, start_lineno);
     finish_line = g_list_nth(editor->lines, end_lineno);
 
+    GString *old_text = g_string_new("");
+
+    // Build flat string with paragraph breaks
     for (line_it = start_line;
          line_it != finish_line;
          line_it = line_it->next) {
         GString *line = line_it->data;
-        start = line->str;
+        char *start = line->str;
 
-        // Blank lines just cause a paragraph separation
-        if (strcspn(line->str, " ") == 0) {
-            if (newLine->len == 0 && (strcspn(line->str, " ") > 0)) {
-                newText = g_list_prepend(newText, newLine);
-                newLine = g_string_new("");
-            }
-            g_string_assign(newLine, "   ");
-            newText = g_list_prepend(newText, g_string_new(""));
-            continue;
-        }
-
-        // Initial indentation signifies the beginning of a new
-        // paragraph, so we output any line we have left and start a
-        // new one.
         if (isspace(line->str[0])) {
-            if (newLine->len != 0) {
-                newText = g_list_prepend(newText, newLine);
-                newLine = g_string_new("");
-            }
-            g_string_assign(newLine, "   ");
-            while (*start && isspace(*start))
-                ++start;
-            if (*start == '\0') {
-                // line full of whitespace, treat as blank
-                newText = g_list_prepend(newText, g_string_new(""));
-                continue;
-            }
+            g_string_append(old_text, "\n");
+            skip_spaces(&start);
         }
-
-        // Copy word by word into the new line.  If the new line would
-        // wrap, plonk it onto the new buffer and empty it
-        end = start;
-        while (*start) {
-            // Find end of word
-            while (*end && !isspace(*end))
-                ++end;
-
-            // If the line ends with sentence-ending punctuation, we need
-            // to add the right number of spaces afterwards
-            if (newLine->len == 0) {
-                space = "";
-            } else {
-                char lastChar = newLine->str[newLine->len - 1];
-                // Skip quotation mark, if one exists
-                if (strchr("'\"", lastChar) && newLine->len > 1)
-                    lastChar = newLine->str[newLine->len - 2];
-                if (lastChar == ' ')
-                    space = ""; // paragraph indent
-                else if (strchr(".?!", lastChar))
-                    space = "  "; // sentence end
-                else if (ispunct(lastChar) && !strchr("',;)]}", lastChar))
-                    space = ""; // certain punctation
-                else
-                    space = " ";
-            }
-
-            // Check to see if the new word would wrap
-            if (newLine->len + strlen(space) + (end - start) > 72) {
-                newText = g_list_prepend(newText, newLine);
-                newLine = g_string_new("");
-                space = "";
-            }
-            // Copy the space and word
-            g_string_append(newLine, space);
-            g_string_append_len(newLine, start, end - start);
-
-            // Find next word in old text
-            while (*end && isspace(*end))
-                ++end;
-            start = end;
-        }
-	}
-
-    if (newLine->len != 0) {
-        newText = g_list_prepend(newText, newLine);
+        g_string_append(old_text, start);
+        g_string_append(old_text, " ");
     }
 
-    newText = g_list_reverse(newText);
+    // Format flat string
+    int starting_indent = (isspace(((GString *)start_line->data)->str[0])) ? 3:0;
+    char *new_text = tmp_format(old_text->str, 72, starting_indent, 3, 0);
 
+    // Delete old text from buffer
     while (start_line != finish_line) {
         line_it = start_line->next;
         g_string_free(start_line->data, true);
@@ -701,12 +634,19 @@ editor_wrap(struct editor *editor, char *args)
         start_line = line_it;
     }
 
-    for (GList *it = newText;it;it = it->next) {
-        editor->lines = g_list_insert_before(editor->lines,
-                                             start_line,
-                                             it->data);
+    // Insert new text into old position
+    gchar **strv;
+    gint strv_end;
 
+    strv = g_strsplit(new_text, "\n", 0);
+    strv_end = g_strv_length(strv) - 1;
+    for (int i = 0;i < strv_end; i++) {
+        editor->lines = g_list_insert_before(editor->lines, start_line, g_string_new(strv[i]));
     }
+
+    editor_display(editor, start_lineno + 1, g_strv_length(strv));
+
+    g_strfreev(strv);
 
 	return true;
 }
