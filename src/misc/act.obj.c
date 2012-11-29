@@ -2658,6 +2658,14 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
         send_to_char(ch, "Animals don't wear things.\r\n");
         return 0;
     }
+    /* lights are always worn in the light position */
+    if (IS_OBJ_TYPE(obj, ITEM_LIGHT)) {
+        if (!GET_OBJ_VAL(obj, 2)) {
+            act("$p is no longer usable as a light.", false, ch, obj, NULL, TO_CHAR);
+            return 0;
+        }
+        where = WEAR_LIGHT;
+    }
     if (!CAN_WEAR(obj, wear_bitvectors[where])) {
         act("You can't wear $p there.", false, ch, obj, NULL, TO_CHAR);
         return 0;
@@ -3022,15 +3030,7 @@ ACMD(do_grab)
     else if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
         send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
     } else {
-        if (IS_OBJ_TYPE(obj, ITEM_LIGHT)) {
-            if (!GET_OBJ_VAL(obj, 2))
-                act("$p is no longer usable as a light.", false, ch, obj, NULL,
-                    TO_CHAR);
-            else
-                perform_wear(ch, obj, WEAR_LIGHT);
-        } else {
-            perform_wear(ch, obj, WEAR_HOLD);
-        }
+        perform_wear(ch, obj, WEAR_HOLD);
     }
 }
 
