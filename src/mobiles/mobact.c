@@ -476,18 +476,24 @@ burn_update_creature(struct creature *ch)
     if ((af = affected_by_spell(ch, SPELL_MOTOR_SPASM))
         && !NPC_FLAGGED(ch, NPC_NOBASH) && GET_POSITION(ch) < POS_FLYING
         && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-        if ((random_number_zero_low(3 + (af->level >> 2)) + 3) >
-            GET_DEX(ch) && (obj = ch->carrying)) {
-            while (obj) {
-                if (can_see_object(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
+        damager = get_char_in_world_by_idnum(af->owner);
+        if (!damager)
+            damager = ch;
+        obj = NULL;
+        if ((random_number_zero_low(3 + (af->level >> 2)) + 3) > GET_DEX(ch)
+            && ch->carrying
+            && !is_arena_combat(damager, ch)) {
+            for (struct obj_data *o = ch->carrying;o;o = o->next_content) {
+                if (can_see_object(ch, o) && !IS_OBJ_STAT(o, ITEM_NODROP)) {
+                    obj = o;
                     break;
-                obj = obj->next_content;
+                }
             }
             if (obj) {
-                send_to_char(ch,
-                    "Your muscles are seized in an uncontrollable spasm!\r\n");
-                act("$n begins convulsing uncontrollably.", true, ch, NULL, NULL,
-                    TO_ROOM);
+                send_to_char(ch, "Your muscles are seized in an uncontrollable "
+                             "spasm!\r\n");
+                act("$n begins convulsing uncontrollably.", true,
+                    ch, NULL, NULL, TO_ROOM);
                 do_drop(ch, fname(obj->aliases), 0, SCMD_DROP);
             }
         }
