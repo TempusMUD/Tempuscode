@@ -606,16 +606,19 @@ engage_self_destruct(struct creature *ch)
     level = (GET_LEVEL(ch) >> 3) + GET_REMORT_GEN(ch) + (GET_HIT(ch) >> 8);
     room = ch->in_room;
 
+
     // kill the cyborg first
-    for (i = 0; i < NUM_WEARS; i++)
-        if (GET_EQ(ch, i))
-            obj_to_room(unequip_char(ch, i, EQUIP_WORN), ch->in_room);
+    if (!is_arena_combat(ch, ch)) {
+        for (i = 0; i < NUM_WEARS; i++)
+            if (GET_EQ(ch, i))
+                obj_to_room(unequip_char(ch, i, EQUIP_WORN), ch->in_room);
 
-    for (obj = ch->carrying; obj; obj = n_obj) {
-        n_obj = obj->next_content;
+        for (obj = ch->carrying; obj; obj = n_obj) {
+            n_obj = obj->next_content;
 
-        obj_from_char(obj);
-        obj_to_room(obj, ch->in_room);
+            obj_from_char(obj);
+            obj_to_room(obj, ch->in_room);
+        }
     }
 
     GET_HIT(ch) = 0;
