@@ -1147,9 +1147,9 @@ ACMD(do_hit)
         send_to_char(ch, "You hit yourself...OUCH!\r\n");
         act("$n hits $mself, and says OUCH!", false, ch, NULL, vict, TO_ROOM);
     } else if (g_list_find(ch->fighting, vict)) {
-        act("Ok, you will now concentrate your attacks on $N!",
+        act("Okay, you will now concentrate your attacks on $N!",
             0, ch, NULL, vict, TO_CHAR);
-        add_combat(ch, vict, true);
+        ch->fighting = g_list_prepend(g_list_remove(ch->fighting, vict), vict);
     } else if (AFF_FLAGGED(ch, AFF_CHARM) && (ch->master == vict))
         act("$N is just such a good friend, you simply can't hit $M.", false,
             ch, NULL, vict, TO_CHAR);
