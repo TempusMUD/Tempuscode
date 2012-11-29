@@ -1040,11 +1040,15 @@ helper_assist(struct creature *ch, struct creature *vict,
         }
     }
 
-    act("$n jumps to the aid of $N!", true, ch, NULL, fvict, TO_NOTVICT);
-    act("$n jumps to your aid!", true, ch, NULL, fvict, TO_VICT);
 
-    if (prob > random_percentage())
+    if (prob > random_percentage()) {
+        act("$n comes to the rescue of $N!", true, ch, NULL, fvict, TO_NOTVICT);
+        act("$n comes to your rescue!", true, ch, NULL, fvict, TO_VICT);
         remove_combat(vict, fvict);
+    } else {
+        act("$n jumps to the aid of $N!", true, ch, NULL, fvict, TO_NOTVICT);
+        act("$n jumps to your aid!", true, ch, NULL, fvict, TO_VICT);
+    }
 
     return hit(ch, vict, TYPE_UNDEFINED);
 }
