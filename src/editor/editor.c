@@ -606,6 +606,7 @@ editor_wrap(struct editor *editor, char *args)
     finish_line = g_list_nth(editor->lines, end_lineno);
 
     GString *old_text = g_string_new("");
+    bool empty_line_found = false;
 
     // Build flat string with paragraph breaks
     for (line_it = start_line;
@@ -614,12 +615,20 @@ editor_wrap(struct editor *editor, char *args)
         GString *line = line_it->data;
         char *start = line->str;
 
-        if (isspace(line->str[0])) {
+        skip_spaces(&start);
+        if (!*start) {
+            empty_line_found = true;
+            continue;
+        }
+
+        if (isspace(line->str[0]) || empty_line_found) {
             g_string_append(old_text, "\n");
             skip_spaces(&start);
         }
         g_string_append(old_text, start);
         g_string_append(old_text, " ");
+
+        empty_line_found = false;
     }
 
     // Format flat string
