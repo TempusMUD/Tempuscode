@@ -465,6 +465,12 @@ maileditor_addattachment(struct editor *editor, char *obj_name)
         return;
     }
 
+    if (IS_OBJ_TYPE(obj, ITEM_CONTAINER) && obj->contains) {
+        editor_emit(editor,
+            "The postmaster refuses to mail your container.  Perhaps empty it first?\r\n");
+        return;
+    }
+
     if (IS_OBJ_STAT(obj, ITEM_NODROP) || IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM)) {
         editor_emit(editor, tmp_sprintf("You can't let go of %s.\r\n",
                 obj->name));
