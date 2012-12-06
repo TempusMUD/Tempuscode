@@ -153,9 +153,8 @@ isbanned(char *hostname, char *blocking_hostname)
 }
 
 bool
-check_ban_all(int desc, char *hostname)
+check_ban_all(GIOChannel *io, char *hostname)
 {
-    int write_to_descriptor(int desc, const char *txt);
     struct ban_entry *node = NULL;
 
     if (!hostname || !*(hostname))
@@ -175,23 +174,26 @@ check_ban_all(int desc, char *hostname)
     if (!node)
         return false;
 
-    write_to_descriptor(desc,
-        "*******************************************************************************\r\n");
-    write_to_descriptor(desc,
-        "                               T E M P U S  M U D\r\n");
-    write_to_descriptor(desc,
-        "*******************************************************************************\r\n");
+    g_io_channel_write_chars(io,
+                             "*******************************************************************************\r\n"
+                             "                             T E M P U S M U D\r\n"
+                             "*******************************************************************************\r\n",
+                             -1, NULL, NULL);
+    
     if (node->message[0]) {
-        write_to_descriptor(desc, tmp_gsub(node->message, "\n", "\r\n"));
+        g_io_channel_write_chars(io, tmp_gsub(node->message, "\n", "\r\n"),
+                                 -1, NULL, NULL);
     } else {
-        write_to_descriptor(desc,
-            "       We're sorry, we have been forced to ban your IP address.\r\n"
-            "    If you have never played here before, or you feel we have made\r\n"
-            "    a mistake, or perhaps you just got caught in the wake of\r\n"
-            "    someone else's trouble making, please mail unban@tempusmud.com.\r\n"
-            "    Please include your account name and your character name(s)\r\n"
-            "    so we can siteok your IP.  We apologize for the inconvenience,\r\n"
-            "    and we hope to see you soon!\r\n" "\r\n");
+        g_io_channel_write_chars(io,
+                                 "       We're sorry, we have been forced to ban your IP address.\r\n"
+                                 "    If you have never played here before, or you feel we have made\r\n"
+                                 "    a mistake, or perhaps you just got caught in the wake of\r\n"
+                                 "    someone else's trouble making, please mail unban@tempusmud.com.\r\n"
+                                 "    Please include your account name and your character name(s)\r\n"
+                                 "    so we can siteok your IP.  We apologize for the inconvenience,\r\n"
+                                 "    and we hope to see you soon!\r\n"
+                                 "\r\n",
+                                 -1, NULL, NULL);
     }
 
     mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
