@@ -26,7 +26,7 @@ extern int num_nasty;
 
 int isbanned(char *hostname, char *blocking_hostname)
     __attribute__((nonnull));
-bool check_ban_all(int desc, char *hostname)
+bool check_ban_all(GIOChannel *io, char *hostname)
     __attribute__((nonnull));
 void perform_ban(int flag,
                  const char *site,

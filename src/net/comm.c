@@ -702,9 +702,44 @@ accept_new_connection(GIOChannel *listener_io,
     /* create a new descriptor */
     CREATE(newd, struct descriptor_data, 1);
 
-    newd->io = g_io_channel_unix_new(desc);
+    /* find the site name */
+    int info_flags = NI_NUMERICSERV;
+    int err;
+    if (nameserver_is_slow)
+        info_flags |= NI_NUMERICHOST;
+    err = getnameinfo((struct sockaddr *)&peer, addrlen,
+                      newd->host, HOST_LENGTH,
+                      NULL, 0, info_flags);
+    if (err != 0) {
+        errlog("new_descriptor(): %s\n", gai_strerror(err));
+        g_io_channel_shutdown(io, true, NULL);
+        g_io_channel_unref(io);
+        free(newd);
+        return true;
+    }
 
+    /* determine if the site is banned */
+    if (check_ban_all(io, newd->host)) {
+        g_io_channel_shutdown(io, true, NULL);
+        g_io_channel_unref(io);
+        free(newd);
+        return true;
+    }
+
+    int bantype = isbanned(newd->host, buf2);
+
+    /* Log new connections - probably unnecessary, but you may want it */
+    mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
+         "New connection from [%s]%s%s on %d",
+         newd->host,
+         (bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
+         (bantype == BAN_NEW) ? "(NEWBIE BAN)" : "",
+         port);
+
+    /* Set up descriptor I/O channels */
     GError *error = NULL;
+
+    newd->io = g_io_channel_unix_new(desc);
 
     g_io_channel_set_flags(newd->io, G_IO_FLAG_NONBLOCK, &error);
     if (error) {
@@ -719,37 +754,6 @@ accept_new_connection(GIOChannel *listener_io,
     newd->input_handler = g_timeout_add(100, handle_input, newd);
 
     newd->input = g_queue_new();
-
-    /* find the site name */
-    int info_flags = NI_NUMERICSERV;
-    int err;
-    if (nameserver_is_slow)
-        info_flags |= NI_NUMERICHOST;
-    err = getnameinfo((struct sockaddr *)&peer, addrlen,
-                      newd->host, HOST_LENGTH,
-                      NULL, 0, info_flags);
-    if (err != 0) {
-        fprintf(stderr, "new_descriptor(): %s\n", gai_strerror(err));
-        close(s);
-        return true;
-    }
-
-    /* determine if the site is banned */
-    if (check_ban_all(desc, newd->host)) {
-        close(desc);
-        free(newd);
-        return true;
-    }
-
-    int bantype = isbanned(newd->host, buf2);
-
-    /* Log new connections - probably unnecessary, but you may want it */
-    mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
-         "New connection from [%s]%s%s on %d",
-         newd->host,
-         (bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
-         (bantype == BAN_NEW) ? "(NEWBIE BAN)" : "",
-         port);
 
     /* initialize descriptor data */
     STATE(newd) = CXN_ACCOUNT_LOGIN;
