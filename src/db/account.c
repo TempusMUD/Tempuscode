@@ -636,7 +636,7 @@ account_has_password(struct account *account)
 void
 account_set_password(struct account *account, const char *pw)
 {
-    char salt[13] = "$1$........$";
+    char salt[13] = "$6$........$";
     int idx;
 
     for (idx = 3; idx < 12; idx++) {
