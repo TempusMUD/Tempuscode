@@ -1614,7 +1614,7 @@ ACMD(do_bash)
 
     // If we found our victim, it's a combat move
     if (vict) {
-        do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_BASH);
+        perform_offensive_skill(ch, vict, SKILL_BASH);
         return;
     }
     // If it's an object in the room, it's just a scary social
@@ -1705,7 +1705,7 @@ ACMD(do_slam)
 
     // If we found our victim, it's a combat move
     if (vict) {
-        do_offensive_skill(ch, fname(vict->player.name), 0, SKILL_SHIELD_SLAM);
+        perform_offensive_skill(ch, vict, SKILL_SHIELD_SLAM);
         return;
     }
     // If it's an object in the room, it's just a scary social
