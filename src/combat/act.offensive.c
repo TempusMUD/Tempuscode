@@ -1093,18 +1093,19 @@ ACMD(do_offensive_skill)
 ACMD(do_assist)
 {
     struct creature *helpee;
-    char *arg;
+    char *arg1, *arg2;
 
     if (is_fighting(ch)) {
         send_to_char(ch,
             "You're already fighting!  How can you assist someone else?\r\n");
         return;
     }
-    arg = tmp_getword(&argument);
+    arg1 = tmp_getword(&argument);
+    arg2 = argument;
 
-    if (!*arg)
+    if (!*arg1)
         send_to_char(ch, "Whom do you wish to assist?\r\n");
-    else if (!(helpee = get_char_room_vis(ch, arg))) {
+    else if (!(helpee = get_char_room_vis(ch, arg1))) {
         send_to_char(ch, "%s", NOPERSON);
         WAIT_STATE(ch, 4);
     } else if (helpee == ch)
@@ -1122,11 +1123,19 @@ ACMD(do_assist)
                 "flagged NO PK.", false, ch, NULL, (opponent), TO_CHAR);
             return;
         } else {
+            if (*arg2) {
+            send_to_char(ch, "You join the fight!\r\n");
+            act("$N assists you!", 0, helpee, NULL, ch, TO_CHAR);
+            act("$n assists $N.", false, ch, NULL, helpee, TO_NOTVICT);
+            add_combat(ch, opponent, true);
+            command_interpreter(ch, arg2);
+            } else {
             send_to_char(ch, "You join the fight!\r\n");
             act("$N assists you!", 0, helpee, NULL, ch, TO_CHAR);
             act("$n assists $N.", false, ch, NULL, helpee, TO_NOTVICT);
             hit(ch, (opponent), TYPE_UNDEFINED);
             WAIT_STATE(ch, 1 RL_SEC);
+            }
         }
     }
 }
