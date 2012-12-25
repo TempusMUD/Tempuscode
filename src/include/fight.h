@@ -7,8 +7,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define DAM_OBJECT_IDNUM(obj) (IS_BOMB(obj) ? BOMB_IDNUM(obj) : GET_OBJ_SIGIL_IDNUM(obj))
-
 #define BLOODLET_FACTOR(i) \
 (i == SPELL_SPIRIT_HAMMER ? 2 :  i == SKILL_BACKSTAB ? 3 :   \
  i == SKILL_KICK ? 2 :  i == SKILL_PUNCH ? 1 :              \

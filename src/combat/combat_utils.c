@@ -64,6 +64,12 @@ extern int corpse_state;
 /* The Fight related routines */
 struct obj_data *get_random_uncovered_implant(struct creature *ch, int type);
 
+static inline int
+DAM_OBJECT_IDNUM(struct obj_data *obj)
+{
+    return IS_BOMB(obj) ? BOMB_IDNUM(obj) : GET_OBJ_SIGIL_IDNUM(obj);
+}
+
 //checks for both vendors and utility mobs
 bool
 ok_damage_vendor(struct creature *ch, struct creature *victim)
