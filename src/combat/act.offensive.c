@@ -637,9 +637,9 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
         prob -= 20;
 
-        if ((!weap || !SLASHING(weap)) &&
+        if ((!weap || !is_slashing_weapon(weap)) &&
             (!(weap = GET_EQ(ch, WEAR_HANDS)) ||
-                !IS_OBJ_TYPE(weap, ITEM_WEAPON) || !SLASHING(weap))) {
+                !IS_OBJ_TYPE(weap, ITEM_WEAPON) || !is_slashing_weapon(weap))) {
             send_to_char(ch,
                 "You need to wield a good slashing weapon to do this.\r\n");
             return -1;
