@@ -346,13 +346,33 @@ can_charm_more(struct creature * ch)
     return (count < GET_CHA(ch) / 2 + GET_REMORT_GEN(ch));
 }
 
+void
+remove_follower(struct creature *ch)
+{
+    struct follow_type *j, *k;
+
+    if (ch->master->followers->follower == ch) {    /* Head of follower-list? */
+        k = ch->master->followers;
+        ch->master->followers = k->next;
+        free(k);
+    } else {                    /* locate follower who is not head of list */
+        k = ch->master->followers;
+        while (k->next->follower != ch)
+            k = k->next;
+
+        j = k->next;
+        k->next = j->next;
+        free(j);
+    }
+
+    ch->master = NULL;
+}
+
 /* Called when stop following persons, or stopping charm */
 /* This will NOT do if a character quits/dies!!          */
 void
 stop_follower(struct creature *ch)
 {
-    struct follow_type *j, *k;
-
     if (!ch->master)
         raise(SIGSEGV);
 
@@ -371,28 +391,8 @@ stop_follower(struct creature *ch)
             && !AFF_FLAGGED(ch, AFF_SNEAK))
             act("$n stops following you.", true, ch, NULL, ch->master, TO_VICT);
     }
-
-    if (ch->master->followers->follower == ch) {    /* Head of follower-list? */
-        k = ch->master->followers;
-        ch->master->followers = k->next;
-        free(k);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
-    } else {                    /* locate follower who is not head of list */
-        k = ch->master->followers;
-        while (k->next->follower != ch)
-            k = k->next;
-
-        j = k->next;
-        k->next = j->next;
-        free(j);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
-    }
-
-    ch->master = NULL;
+    
+    remove_follower(ch);
     REMOVE_BIT(AFF_FLAGS(ch), AFF_CHARM | AFF_GROUP);
 }
 
@@ -425,15 +425,10 @@ player_in_room(struct room_data *room)
     return false;
 }
 
-/* Do NOT call this before having checked if a circle of followers */
-/* will arise. CH will follow leader                               */
 void
-add_follower(struct creature *ch, struct creature *leader)
+new_follower(struct creature *ch, struct creature *leader)
 {
     struct follow_type *k;
-
-    if (ch->master)
-        raise(SIGSEGV);
 
     ch->master = leader;
 
@@ -442,7 +437,18 @@ add_follower(struct creature *ch, struct creature *leader)
     k->follower = ch;
     k->next = leader->followers;
     leader->followers = k;
+}
 
+/* Do NOT call this before having checked if a circle of followers */
+/* will arise. CH will follow leader                               */
+void
+add_follower(struct creature *ch, struct creature *leader)
+{
+    if (ch->master)
+        raise(SIGSEGV);
+
+    new_follower(ch, leader);
+    
     act("You now follow $N.", false, ch, NULL, leader, TO_CHAR);
     if (can_see_creature(leader, ch))
         act("$n starts following you.", true, ch, NULL, leader, TO_VICT);
