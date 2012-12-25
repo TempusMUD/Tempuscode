@@ -2,7 +2,7 @@
 create table accounts (
 	idnum			integer primary key,
 	name			varchar(20),
-	password		varchar(40),
+	password		varchar(100),
 	email			varchar(60),
 	creation_time	timestamp,
 	creation_addr	varchar(60),
