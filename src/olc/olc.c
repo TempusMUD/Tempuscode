@@ -1187,7 +1187,7 @@ ACMD(do_olc)
         argument = two_arguments(argument, arg1, arg2);
 
         if (is_abbrev(arg1, "search")) {
-            do_destroy_search(ch, strcat(arg2, argument));
+            do_destroy_search(ch, tmp_strcat(arg2, " ", argument, NULL));
             return;
         }
 
