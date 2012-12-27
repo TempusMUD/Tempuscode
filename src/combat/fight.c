@@ -1240,9 +1240,10 @@ damage(struct creature *ch, struct creature *victim,
         if (impl && impl_dam)
             damage_eq(ch, impl, impl_dam, attacktype);
 
-        if (weap && (attacktype != SKILL_PROJ_WEAPONS) &&
-            attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
-            attacktype != SKILL_ENERGY_WEAPONS)
+        if (weap
+            && !(attacktype == SKILL_PROJ_WEAPONS
+                 || attacktype == SKILL_ENERGY_WEAPONS
+                 || (attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP)))
             damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
         return false;
     }
@@ -1906,9 +1907,10 @@ damage(struct creature *ch, struct creature *victim,
         if (impl && impl_dam)
             damage_eq(ch, impl, impl_dam, attacktype);
 
-        if (weap && (attacktype != SKILL_PROJ_WEAPONS) &&
-            attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
-            attacktype != SKILL_ENERGY_WEAPONS)
+        if (weap
+            && !(attacktype == SKILL_PROJ_WEAPONS
+                 || attacktype == SKILL_ENERGY_WEAPONS
+                 || (attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP)))
             damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
 
         //
