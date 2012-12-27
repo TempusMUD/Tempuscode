@@ -237,7 +237,7 @@ tattooist_list_obj(struct creature *ch, struct obj_data *obj, int idx,
     }
 
     obj_desc = tmp_capitalize(obj_desc);
-    return tmp_sprintf(" %2d%s)  %s%-48s %6d\r\n",
+    return tmp_sprintf(" %2d%s)  %s%-48s %'6d\r\n",
         idx, CCRED(ch, C_NRM), CCNRM(ch, C_NRM), obj_desc, cost);
 }
 
