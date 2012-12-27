@@ -183,6 +183,8 @@ int choose_random_limb(struct creature *victim)
 /* prototypes from fight.c */
 void set_defending(struct creature *ch, struct creature *target)
     __attribute__ ((nonnull));
+void remove_follower(struct creature *ch)
+    __attribute__ ((nonnull));
 void stop_follower(struct creature *ch)
     __attribute__ ((nonnull));
 int hit(struct creature *ch, struct creature *victim, int type)
