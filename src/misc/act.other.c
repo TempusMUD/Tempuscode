@@ -480,6 +480,57 @@ ACMD(do_group)
     }
 }
 
+ACMD(do_appoint)
+{
+    struct creature *tch;
+    char *name = tmp_getword(&argument);
+
+    if (ch->master || !AFF_FLAGGED(ch, AFF_GROUP)) {
+        send_to_char(ch , "But you lead no group!\r\n");
+        return;
+    }
+
+    if (!*name) {
+        send_to_char(ch, "Whom do you wish to appoint as the leader of the group?\r\n");
+        return;
+    }
+
+    if (!(tch = get_char_room_vis(ch, name))) {
+        send_to_char(ch, "There is no such person!\r\n");
+        return;
+    }
+
+    if (tch->master != ch) {
+        send_to_char(ch, "That person is not following you!\r\n");
+        return;
+    }
+
+    if (!AFF_FLAGGED(tch, AFF_GROUP)) {
+        send_to_char(ch, "That person isn't in your group.\r\n");
+        return;
+    }
+
+    remove_follower(tch);
+    new_follower(ch, tch);
+
+    act("&gYou appoint $N as the new group leader.", true,
+        ch, NULL, tch, TO_CHAR);
+    act("&g$n has appointed you as the group leader.", true,
+        ch, NULL, tch, TO_VICT);
+    struct follow_type *f, *next_fol;
+    for (f = ch->followers; f; f = next_fol) {
+        next_fol = f->next;
+        struct creature *fch = f->follower;
+
+        if (AFF_FLAGGED(fch, AFF_GROUP)) {
+            remove_follower(fch);
+            new_follower(fch, tch);
+            perform_act("&g$n has appointed $N as the new group leader.",
+                        ch, NULL, tch, fch, 0);
+        }
+    }
+}
+
 ACMD(do_ungroup)
 {
     struct follow_type *f, *next_fol;

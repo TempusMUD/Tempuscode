@@ -115,6 +115,12 @@ void gain_exp_regardless(struct creature *ch, int gain);
 void gain_condition(struct creature *ch, int condition, int value);
 int check_idling(struct creature *ch);
 void point_update(void);
+
+void new_follower(struct creature *ch, struct creature *leader);
+void add_follower(struct creature *ch, struct creature *leader);
+void remove_follower(struct creature *ch);
+void stop_follower(struct creature *ch);
+
 char *GET_DISGUISED_NAME(struct creature *ch, struct creature *tch);
 int CHECK_SKILL(struct creature *ch, int i);
 int CHECK_TONGUE(struct creature *ch, int i);
