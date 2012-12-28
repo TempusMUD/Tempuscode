@@ -826,8 +826,9 @@ struct spell_info_type {
 	char min_level[NUM_CLASSES];
 	char gen[NUM_CLASSES];
 	int routines;
-	char violent;
 	int16_t targets;				/* See below for use with TAR_XXX  */
+	bool violent;
+    bool is_weapon;
 };
 
 struct bard_song {
@@ -889,6 +890,10 @@ static inline int SPELL_LEVEL( int spell, int char_class ) {
 static inline int SPELL_GEN( int spell, int char_class ) {
 	    return spell_info[spell].gen[char_class];
 }
+static inline bool IS_WEAPON(int spell) {
+    return spell_info[spell].is_weapon;
+}
+
 
 bool is_able_to_learn(struct creature *ch, int spl);
 

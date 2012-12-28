@@ -2337,6 +2337,8 @@ load_spell(xmlNodePtr node)
 
             if (!strcmp(value_str, "violent")) {
                 spell_info[idnum].violent = true;
+            } else if (!strcmp(value_str, "weapon")) {
+                spell_info[idnum].is_weapon = true;
             } else if (!strcmp(value_str, "unpleasant")) {
                 spell_info[idnum].targets |= TAR_UNPLEASANT;
             } else {
@@ -2407,6 +2409,7 @@ clear_spells(void)
         spell_info[spl].min_position = 0;
         spell_info[spl].targets = 0;
         spell_info[spl].violent = 0;
+        spell_info[spl].is_weapon = 0;
         spell_info[spl].routines = 0;
         if (songs[spl].lyrics)
             free(songs[spl].lyrics);
