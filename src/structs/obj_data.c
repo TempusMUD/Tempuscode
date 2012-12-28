@@ -25,6 +25,7 @@
 #include "tmpstr.h"
 #include "xml_utils.h"
 #include "obj_data.h"
+#include "spells.h"
 
 extern int no_plrtext;
 
@@ -135,6 +136,13 @@ get_worn_type(struct obj_data *obj)
         return "tattooed";
 
     return "unknown";
+}
+
+bool
+is_slashing_weapon(struct obj_data *obj)
+{
+    return (IS_OBJ_TYPE(obj, ITEM_WEAPON)
+            && (GET_OBJ_VAL(obj, 3) + TYPE_HIT == TYPE_SLASH));
 }
 
 float

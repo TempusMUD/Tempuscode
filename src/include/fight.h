@@ -7,17 +7,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define DAM_OBJECT_IDNUM(obj) (IS_BOMB(obj) ? BOMB_IDNUM(obj) : GET_OBJ_SIGIL_IDNUM(obj))
-
-#define IS_WEAPON(type) ((((type)>=TYPE_HIT) && ((type)<TOP_ATTACKTYPE)) || \
-			 type == SKILL_SECOND_WEAPON || \
-			 type == SKILL_ENERGY_WEAPONS || \
-			 type == SKILL_ARCHERY        || \
-             (((type) >= TYPE_EGUN_LASER) && ((type) <= TYPE_EGUN_TOP)) || \
-			 type == SKILL_PROJ_WEAPONS)
-
-#define SLASHING(weap) (GET_OBJ_VAL(weap, 3) == (TYPE_SLASH-TYPE_HIT))
-
 #define BLOODLET_FACTOR(i) \
 (i == SPELL_SPIRIT_HAMMER ? 2 :  i == SKILL_BACKSTAB ? 3 :   \
  i == SKILL_KICK ? 2 :  i == SKILL_PUNCH ? 1 :              \

@@ -156,6 +156,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
     <granted class="thief" level="14"/>
     <granted class="barbarian" level="24"/>
     <granted class="ranger" level="9"/>
+    <flag value="weapon"/>
   </skill>
   <spell id="340" name="area stasis">
     <granted class="physic" level="40"/>
@@ -1225,6 +1226,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   <skill id="634" name="energy weapons">
     <granted class="cyborg" level="20"/>
     <granted class="mercenary" level="7"/>
+    <flag value="weapon"/>
   </skill>
   <spell id="134" name="entangle">
     <granted class="ranger" level="22" gen="1"/>
@@ -2400,6 +2402,7 @@ A surge of power absolute</lyrics>
   <skill id="635" name="projectile weapons">
     <granted class="cyborg" level="20"/>
     <granted class="mercenary" level="8"/>
+    <flag value="weapon"/>
   </skill>
   <spell id="109" name="protection from devils">
     <manacost initial="40" level_dec="2" minimum="15"/>
@@ -2868,6 +2871,7 @@ His presence is revealed to me.</lyrics>
   <skill id="580" name="second weapon">
     <granted class="ranger" level="14"/>
     <granted class="mercenary" level="18"/>
+    <flag value="weapon"/>
   </skill>
   <skill id="622" name="self destruct">
     <granted class="cyborg" level="12"/>
@@ -3723,5 +3727,89 @@ But blocks true love and harbors sin.</lyrics>
   <spell id="576" name="zeta nerve">
     <granted class="monk" level="32"/>
     <flag value="biologic"/>
+  </spell>
+  <spell id="800" name="hit">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="800" name="sting">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="801" name="whip">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="802" name="slash">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="803" name="bite">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="804" name="bludgeon">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="805" name="crush">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="806" name="crush">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="807" name="pound">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="808" name="claw">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="809" name="maul">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="810" name="thrash">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="811" name="pierce">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="812" name="blast">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="813" name="punch">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="814" name="stab">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="815" name="energy_gun">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="816" name="rip">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="817" name="chop">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="818" name="shoot">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="820" name="egun laser">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="821" name="egun plasma">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="822" name="egun ion">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="823" name="egun photon">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="824" name="egun sonic">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="825" name="egun particle">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="826" name="egun gamma">
+    <flag value="weapon"/>
+  </spell>
+  <spell id="827" name="egun lightning">
+    <flag value="weapon"/>
   </spell>
 </spells>

@@ -408,5 +408,5 @@ const char *obj_cond(struct obj_data *obj);
 const char *obj_cond_color(struct obj_data *obj, int color_level);
 float set_obj_weight(struct obj_data *obj, float new_weight);
 void fix_object_weight(struct obj_data *obj);
-
+bool is_slashing_weapon(struct obj_data *obj);
 #endif
