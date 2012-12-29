@@ -243,11 +243,11 @@ do_create_mob(struct creature *ch, int vnum)
     new_mob->mob_specials.shared->default_pos = POS_STANDING;
     new_mob->player.sex = SEX_NEUTRAL;
 
-    new_mob->player.weight = 200;
-    new_mob->player.height = 198;
-
     new_mob->player.remort_char_class = -1;
-    set_physical_attribs(new_mob);
+    recalculate_based_on_level(new_mob);
+	
+	new_mob->player.weight = 200;
+    new_mob->player.height = 198;
 
     for (j = 0; j < 3; j++)
         GET_COND(new_mob, j) = -1;
@@ -1002,6 +1002,7 @@ do_mob_mset(struct creature *ch, char *argument)
                 send_to_char(ch, "Invalid char_class type, '%s'.\r\n", arg2);
             } else {
                 GET_CLASS(mob_p) = i;
+                recalculate_based_on_level(mob_p);
                 set_physical_attribs(mob_p);
                 send_to_char(ch, "Mobile Class set.\r\n");
             }
@@ -1013,6 +1014,7 @@ do_mob_mset(struct creature *ch, char *argument)
                 send_to_char(ch, "Invalid race, '%s'.\r\n", arg2);
             } else {
                 GET_RACE(mob_p) = race->idnum;
+                recalculate_based_on_level(mob_p);
                 set_physical_attribs(mob_p);
                 set_move_buffer(mob_p);
                 send_to_char(ch, "Mobile Race set.\r\n");
