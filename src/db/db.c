@@ -1487,7 +1487,7 @@ recalculate_based_on_level(struct creature *mob_p)
     int doubleLevel = level + (level * GET_REMORT_GEN(mob_p)) / 10;
     int gen = GET_REMORT_GEN(mob_p);
     
-	GET_MAX_MANA(mob_p) = MAX(100, (GET_LEVEL(mob_p) << 3));
+    GET_MAX_MANA(mob_p) = MAX(100, (GET_LEVEL(mob_p) << 3));
     GET_MAX_MOVE(mob_p) = MAX(100, (GET_LEVEL(mob_p) << 4));
 
     if (IS_CLERIC(mob_p) || IS_MAGE(mob_p) || IS_LICH(mob_p) || IS_PHYSIC(mob_p)
@@ -1586,11 +1586,11 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->mob_specials.shared->default_pos = t[1];
     mobile->player.sex = MAX(0, MIN(2, t[2]));
 
-    mobile->player.weight = 200;
-    mobile->player.height = 198;
-
-    mobile->player.remort_char_class = -1;
-    set_physical_attribs(mobile);
+    new_mob->player.remort_char_class = -1;
+    recalculate_based_on_level(new_mob);
+	
+    new_mob->player.weight = 200;
+    new_mob->player.height = 198;
 
     for (j = 0; j < 3; j++)
         GET_COND(mobile, j) = -1;
