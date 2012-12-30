@@ -689,15 +689,34 @@ format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_
         const char *word = read_pt;
         bool sentence_end = false;
 
-        // Find space or punctuation.
-        while (*read_pt && !isspace(*read_pt) && !ispunct(*read_pt)) {
-            read_pt++;
+        // Find end of number
+        if (isdigit(*read_pt)) {
+            while (*read_pt) {
+                while (*read_pt
+                       && !isspace(*read_pt)
+                       && (isdigit(*read_pt) || !ispunct(*read_pt)))
+                    read_pt++;
+                if (*read_pt != ',' && *read_pt != '.')
+                    break;
+                if (!isdigit(*(read_pt + 1))) {
+                    break;
+                }
+                read_pt++;
+            }
+        } else {
+            // Find end of text word
+            if (*read_pt == '(')
+                read_pt++;
+            while (*read_pt
+                   && !isspace(*read_pt)
+                   && (*read_pt == '\'' || !ispunct(*read_pt))) {
+                read_pt++;
+            }
         }
+
         // Find end of punctuation
-        while (*read_pt && ispunct(*read_pt)) {
-            if (*read_pt == '(') {
-                break;
-            } else if (*read_pt == '.') {
+        while (*read_pt && ispunct(*read_pt) && *read_pt != '(') {
+            if (*read_pt == '.') {
                 // Check for common abbreviations
                 for (int i = 0;abbreviations[i];i++) {
                     if (strncasecmp(word, abbreviations[i], read_pt - word))
