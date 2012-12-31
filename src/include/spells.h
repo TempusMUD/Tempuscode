@@ -786,6 +786,7 @@ enum attack {
     TYPE_BLEED = 897,	// Open wound
     TYPE_OVERLOAD = 898,	// cyborg overloading systems.
     TYPE_SUFFERING = 899,
+    TOP_DAMAGETYPE = 900,
 };
 
 enum saving_throw {

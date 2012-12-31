@@ -147,7 +147,7 @@ static const struct gun_hit_type gun_hit_text[] = {
 };
 
 /* External structures */
-extern struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
+extern struct spell_info_type spell_info[TOP_DAMAGETYPE + 1];
 
 extern struct message_list fight_messages[MAX_MESSAGES];
 extern struct obj_data *dam_object;
