@@ -401,6 +401,20 @@ START_TEST(tmp_format_5)
     ck_assert_str_eq(tmp_format(test_str, 26, 3, 3, 0), expected_str);
 }
 END_TEST
+START_TEST(tmp_format_6)
+{
+    char *test_str = "These are numbers: 1.50 1,000,000 100.  One is 1. Two is 2, but three isn't.";
+    char *expected_str = "These are numbers: 1.50 1,000,000 100.  One is 1.  Two is 2, but three isn't.";
+    ck_assert_str_eq(tmp_format(test_str, 80, 0, 0, 0), expected_str);
+}
+END_TEST
+START_TEST(tmp_format_7)
+{
+    char *test_str = "In a (parenthetical note). Test.";
+    char *expected_str = "In a (parenthetical note).  Test.";
+    ck_assert_str_eq(tmp_format(test_str, 80, 0, 0, 0), expected_str);
+}
+END_TEST
 
 Suite *
 tmpstr_suite(void)
@@ -470,6 +484,8 @@ tmpstr_suite(void)
     tcase_add_test(tc_core, tmp_format_3);
     tcase_add_test(tc_core, tmp_format_4);
     tcase_add_test(tc_core, tmp_format_5);
+    tcase_add_test(tc_core, tmp_format_6);
+    tcase_add_test(tc_core, tmp_format_7);
     suite_add_tcase(s, tc_core);
 
     return s;
