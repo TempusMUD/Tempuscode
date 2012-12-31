@@ -56,8 +56,8 @@
 #include "strutil.h"
 
 char **spells = NULL;
-struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
-struct bard_song songs[TOP_SPELL_DEFINE + 1];
+struct spell_info_type spell_info[TOP_DAMAGETYPE + 1];
+struct bard_song songs[TOP_DAMAGETYPE + 1];
 struct room_direction_data *knock_door = NULL;
 char locate_buf[256];
 
@@ -2240,8 +2240,8 @@ load_spell(xmlNodePtr node)
         errlog("Spell idnum was not specified!");
         return false;
     }
-    if (idnum > TOP_SPELL_DEFINE) {
-        errlog("Spell idnum %d > TOP_SPELL!", idnum);
+    if (idnum > TOP_DAMAGETYPE) {
+        errlog("Spell idnum %d > TOP_DAMAGETYPE!", idnum);
         return false;
     }
     // for defined classes, initialize minimum level to ambassador
@@ -2395,7 +2395,7 @@ clear_spells(void)
     if (!UNUSED_SPELL_NAME)
         UNUSED_SPELL_NAME = strdup("!UNUSED!");
 
-    for (int spl = 1; spl < TOP_SPELL_DEFINE; spl++) {
+    for (int spl = 1; spl < TOP_DAMAGETYPE; spl++) {
         if (spells[spl] != UNUSED_SPELL_NAME)
             free(spells[spl]);
         spells[spl] = UNUSED_SPELL_NAME;
@@ -2420,7 +2420,7 @@ clear_spells(void)
 
     // Initialize string list terminator
     spells[0] = "!RESERVED!";
-    spells[TOP_SPELL_DEFINE] = "\n";
+    spells[TOP_DAMAGETYPE] = "\n";
 }
 
 void
@@ -2431,8 +2431,8 @@ boot_spells(const char *path)
     int num_spells = 0;
 
     free(spells);
-    spells = calloc(TOP_SPELL_DEFINE + 1, sizeof(const char *));
-    memset(spells, 0, sizeof(char *) * (TOP_SPELL_DEFINE + 1));
+    spells = calloc(TOP_DAMAGETYPE + 1, sizeof(const char *));
+    memset(spells, 0, sizeof(char *) * (TOP_DAMAGETYPE + 1));
     memset(spell_info, 0, sizeof(spell_info));
     memset(songs, 0, sizeof(songs));
     clear_spells();
