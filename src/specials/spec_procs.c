@@ -979,7 +979,7 @@ SPECIAL(buzzard)
                 if (IS_IMPLANT(temp)) {
                     SET_BIT(GET_OBJ_WEAR(temp), ITEM_WEAR_TAKE);
                     if (GET_OBJ_DAM(temp) > 0)
-                        GET_OBJ_DAM(temp) >>= 1;
+                        GET_OBJ_DAM(temp) = GET_OBJ_DAM(temp) / 2;
                 }
                 obj_from_obj(temp);
                 obj_to_room(temp, ch->in_room);
@@ -1048,7 +1048,7 @@ SPECIAL(garbage_pile)
                 if (IS_IMPLANT(temp)) {
                     SET_BIT(GET_OBJ_WEAR(temp), ITEM_WEAR_TAKE);
                     if (GET_OBJ_DAM(temp) > 0)
-                        GET_OBJ_DAM(temp) >>= 1;
+                        GET_OBJ_DAM(temp) = GET_OBJ_DAM(temp) / 2;
                 }
                 obj_from_obj(temp);
                 obj_to_room(temp, ch->in_room);

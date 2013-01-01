@@ -87,8 +87,8 @@ SPECIAL(reinforcer)
         false, keeper, obj, ch, TO_NOTVICT);
 
     SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_REINFORCED);
-    GET_OBJ_MAX_DAM(obj) += (GET_OBJ_MAX_DAM(obj) >> 2);
-    GET_OBJ_DAM(obj) += (GET_OBJ_DAM(obj) >> 2);
+    GET_OBJ_MAX_DAM(obj) += (GET_OBJ_MAX_DAM(obj) / 4);
+    GET_OBJ_DAM(obj) += (GET_OBJ_DAM(obj) / 4);
     set_obj_weight(obj, GET_OBJ_WEIGHT(obj) + 1);
     WAIT_STATE(ch, 5 RL_SEC);
     crashsave(ch);

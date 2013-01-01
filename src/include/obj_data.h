@@ -306,8 +306,8 @@ struct obj_flag_data {
 	int timer;					/* Timer for object                 */
 	long bitvector[3];			/* To set chars bits                */
 	int material;				/* material object is made of */
-	int max_dam;
-	int damage;
+	float max_dam;
+	float damage;
 	int sigil_idnum;			// the owner of the sigil
 	int8_t sigil_level;			// the level of the sigil
 };

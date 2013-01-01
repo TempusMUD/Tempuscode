@@ -842,7 +842,7 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
         indent, obj->unique_id, obj->creation_method, obj->creator,
         obj->creation_time);
     fprintf(ouf,
-        "%s<damage current=\"%d\" max=\"%d\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
+        "%s<damage current=\"%f\" max=\"%f\" sigil_id=\"%d\" sigil_level=\"%d\" />\n",
         indent, obj->obj_flags.damage, obj->obj_flags.max_dam,
         obj->obj_flags.sigil_idnum, obj->obj_flags.sigil_level);
     fprintf(ouf, "%s<flags extra=\"%x\" extra2=\"%x\" extra3=\"%x\" />\n",

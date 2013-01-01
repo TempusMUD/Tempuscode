@@ -57,7 +57,7 @@ void update_pos(struct creature *victim)
     __attribute__ ((nonnull));
 struct obj_data *destroy_object(struct creature *ch, struct obj_data *obj, int type)
     __attribute__ ((nonnull (2)));
-struct obj_data *damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
+struct obj_data *damage_eq(struct creature *ch, struct obj_data *obj, float eq_dam, int type)
     __attribute__ ((nonnull (2)));
 
 void dam_message(int dam, struct creature *ch, struct creature *victim,
