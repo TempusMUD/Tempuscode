@@ -1351,7 +1351,7 @@ check_eq_align(struct creature *ch)
                     implant, NULL, TO_CHAR);
                 act("$n screams in horror as $p burns its way out through $s flesh!", false, ch, implant, NULL, TO_ROOM);
 
-                damage_eq(NULL, implant, (GET_OBJ_DAM(implant) >> 1), -1);
+                damage_eq(NULL, implant, (GET_OBJ_DAM(implant) / 2), -1);
 
                 int extraction_damage =
                     MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));

@@ -251,7 +251,7 @@ save_objs(struct creature * ch, struct zone_data * zone)
                 fprintf(file, "\n");
         }
 
-        fprintf(file, "%d %d %d\n", obj->obj_flags.material,
+        fprintf(file, "%d %f %f\n", obj->obj_flags.material,
             obj->obj_flags.max_dam, obj->obj_flags.damage);
 
         fprintf(file, "%f %d %d %d\n", GET_OBJ_WEIGHT(obj),

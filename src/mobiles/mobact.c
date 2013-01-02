@@ -312,7 +312,7 @@ burn_update_creature(struct creature *ch)
                         (skill_bonus(ch, SKILL_NANITE_RECONSTRUCTION) /
                         number(33, 50));
 
-                    GET_OBJ_DAM(obj) += (int)(ceilf(amount));
+                    GET_OBJ_DAM(obj) = MIN(GET_OBJ_MAX_DAM(obj),(GET_OBJ_DAM(obj) + amount));
                 }
             }
         }
@@ -1865,7 +1865,7 @@ single_mobile_activity(struct creature *ch)
                             if (IS_IMPLANT(i)) {
                                 SET_BIT(GET_OBJ_WEAR(i), ITEM_WEAR_TAKE);
                                 if (GET_OBJ_DAM(i) > 0)
-                                    GET_OBJ_DAM(i) >>= 1;
+                                    GET_OBJ_DAM(i) = GET_OBJ_DAM(i) / 2;
                             }
                             obj_from_obj(i);
                             obj_to_room(i, stuff_rm);

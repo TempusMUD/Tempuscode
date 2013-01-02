@@ -367,7 +367,7 @@ implanter_repair(struct creature *me, struct creature *ch, char *args)
     }
 
     if (GET_OBJ_MAX_DAM(implant) == 0 ||
-        GET_OBJ_MAX_DAM(implant) <= (GET_OBJ_MAX_DAM(proto_implant) >> 4)) {
+        GET_OBJ_MAX_DAM(implant) <= (GET_OBJ_MAX_DAM(proto_implant) / 16)) {
         msg = tmp_sprintf("Sorry, %s is damaged beyond repair.",
             implant->name);
         perform_tell(me, ch, msg);

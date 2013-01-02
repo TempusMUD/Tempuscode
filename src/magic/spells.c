@@ -2749,7 +2749,7 @@ ASPELL(spell_animate_dead)
         if (IS_IMPLANT(i))
             SET_BIT(GET_OBJ_WEAR(i), ITEM_WEAR_TAKE);
         if (GET_OBJ_DAM(i) > 0)
-            GET_OBJ_DAM(i) >>= 1;
+            GET_OBJ_DAM(i) = GET_OBJ_DAM(i) / 2;
     }
 
     extract_obj(obj);

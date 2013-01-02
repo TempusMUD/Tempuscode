@@ -1340,7 +1340,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
             (j->aux_obj) ? j->aux_obj->name : "N", CCNRM(ch, C_NRM));
     }
     acc_sprintf
-        ("Material: [%s%s%s (%d)], Maxdamage: [%d (%d)], Damage: [%d]\r\n",
+        ("Material: [%s%s%s (%d)], Maxdamage: [%.2f (%d)], Damage: [%.2f]\r\n",
          CCYEL(ch, C_NRM), strlist_aref(GET_OBJ_MATERIAL(j), material_names), CCNRM(ch,
             C_NRM), GET_OBJ_MATERIAL(j), GET_OBJ_MAX_DAM(j), set_maxdamage(j),
         GET_OBJ_DAM(j));
@@ -5292,7 +5292,7 @@ ACMD(do_show)
         strcpy(buf, "Broken objects in the game:\r\n");
 
         for (obj = object_list, i = 1; obj; obj = obj->next) {
-            if ((GET_OBJ_DAM(obj) < (GET_OBJ_MAX_DAM(obj) >> 1)) ||
+            if ((GET_OBJ_DAM(obj) < (GET_OBJ_MAX_DAM(obj) / 2)) ||
                 IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
 
                 if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_DAM(obj) == -1)

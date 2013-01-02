@@ -2047,7 +2047,7 @@ perform_repair(struct creature *ch, struct obj_data *obj)
         dam += (GET_LEVEL(ch) << 2);
 
     GET_OBJ_DAM(obj) = MIN(GET_OBJ_DAM(obj) + dam,
-        (GET_OBJ_MAX_DAM(obj) >> 2) * 3);
+        (GET_OBJ_MAX_DAM(obj) / 4) * 3);
     act("You skillfully perform repairs on $p.", false, ch, obj, NULL, TO_CHAR);
     act("$n skillfully performs repairs on $p.", false, ch, obj, NULL, TO_ROOM);
     gain_skill_prof(ch, skill);
@@ -2164,7 +2164,7 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
     acc_sprintf("Structural Integrity: %s%-15s%s%s\r\n",
         CCCYN(ch, C_NRM), obj_cond(obj), CCNRM(ch, C_NRM),
         ((ALEV(5) || !checklev) && GET_OBJ_MAX_DAM(obj) > 0) ?
-        tmp_sprintf("  [%3d%%]",
+        tmp_sprintf("  [%.2f%%]",
                     GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj)) : "");
     acc_sprintf("Commerce Value:       %s%'d coins%s\r\n", CCCYN(ch, C_NRM),
         GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
@@ -2697,7 +2697,7 @@ ACMD(do_extract)
                 TO_CHAR);
             damage_eq(ch,
                 obj,
-                MAX((GET_OBJ_DAM(obj) >> 2),
+                MAX((GET_OBJ_DAM(obj) / 4),
                     (dice(10, 10) -
                         CHECK_SKILL(ch, SKILL_CYBO_SURGERY) -
                         (GET_DEX(ch) << 2))), -1);
@@ -2811,7 +2811,7 @@ ACMD(do_extract)
         (GET_DEX(ch) << 2) < number(50, 100)) {
         act("You damage $p during the extraction!", false, ch, obj, NULL,
             TO_CHAR);
-        damage_eq(ch, obj, MAX((GET_OBJ_DAM(obj) >> 2), (dice(10,
+        damage_eq(ch, obj, MAX((GET_OBJ_DAM(obj) / 4), (dice(10,
                         10) - CHECK_SKILL(ch,
                         SKILL_CYBO_SURGERY) - (GET_DEX(ch) << 2))), -1);
     } else

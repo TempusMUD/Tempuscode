@@ -619,7 +619,7 @@ destroy_object(struct creature *ch, struct obj_data *obj, int type)
  */
 
 struct obj_data *
-damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
+damage_eq(struct creature *ch, struct obj_data *obj, float eq_dam, int type)
 {
     struct creature *vict = NULL;
     struct obj_data *inobj = NULL, *next_obj = NULL;
@@ -763,8 +763,9 @@ damage(struct creature *ch, struct creature *victim,
        struct obj_data *weap,
        int dam, int attacktype, int location)
 {
-    int hard_damcap, eq_dam = 0, weap_dam = 0, i, impl_dam = 0,
+    int hard_damcap, i = 0,
         mana_loss, feedback_dam, feedback_mana;
+    float eq_dam = 0, weap_dam = 0, impl_dam = 0;
     struct obj_data *obj = NULL, *impl = NULL;
     struct room_affect_data rm_aff;
     struct affected_type *af = NULL;
@@ -1107,6 +1108,8 @@ damage(struct creature *ch, struct creature *victim,
         impl = GET_IMPLANT(victim, location);
 
         // implants are protected by armor
+        // only ARMOR implants will take damage if covered by
+        // external ARMOR
         if (obj && impl && IS_OBJ_TYPE(obj, ITEM_ARMOR) &&
             !IS_OBJ_TYPE(impl, ITEM_ARMOR))
             impl = NULL;
@@ -1135,34 +1138,34 @@ damage(struct creature *ch, struct creature *victim,
                 if (obj) {
                     if (IS_LEATHER_TYPE(obj) || IS_CLOTH_TYPE(obj) ||
                         IS_FLESH_TYPE(obj))
-                        eq_dam = (int)(eq_dam * 0.7);
+                        eq_dam = (eq_dam * 0.7);
                     else if (IS_METAL_TYPE(obj))
-                        eq_dam = (int)(eq_dam * 1.3);
+                        eq_dam = (eq_dam * 1.3);
                 }
                 if (impl) {
                     if (IS_LEATHER_TYPE(impl) || IS_CLOTH_TYPE(impl) ||
                         IS_FLESH_TYPE(impl))
-                        eq_dam = (int)(eq_dam * 0.7);
+                        eq_dam = (eq_dam * 0.7);
                     else if (IS_METAL_TYPE(impl))
-                        eq_dam = (int)(eq_dam * 1.3);
+                        eq_dam = (eq_dam * 1.3);
                 }
             } else if ((attacktype == TYPE_SLASH || attacktype == TYPE_PIERCE
                     || attacktype == TYPE_CLAW || attacktype == TYPE_STAB
                     || attacktype == TYPE_RIP || attacktype == TYPE_CHOP)) {
                 if (obj && (IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj))) {
-                    eq_dam = (int)(eq_dam * 0.7);
-                    weap_dam = (int)(weap_dam * 1.3);
+                    eq_dam = (eq_dam * 0.7);
+                    weap_dam = (weap_dam * 1.3);
                 }
                 if (impl && (IS_METAL_TYPE(impl) || IS_STONE_TYPE(impl))) {
-                    impl_dam = (int)(impl_dam * 0.7);
-                    weap_dam = (int)(weap_dam * 1.3);
+                    impl_dam = (impl_dam * 0.7);
+                    weap_dam = (weap_dam * 1.3);
                 }
             } else if (attacktype == SKILL_PROJ_WEAPONS) {
                 if (obj) {
                     if (IS_MAT(obj, MAT_KEVLAR))
-                        eq_dam = (int)(eq_dam * 1.6);
+                        eq_dam = (eq_dam * 1.6);
                     else if (IS_METAL_TYPE(obj))
-                        eq_dam = (int)(eq_dam * 1.3);
+                        eq_dam = (eq_dam * 1.3);
                 }
             }
 
@@ -1172,17 +1175,17 @@ damage(struct creature *ch, struct creature *victim,
                 if (IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL))
                     eq_dam /= 2;
                 if (IS_OBJ_STAT(obj, ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED))
-                    eq_dam = (int)(eq_dam * 0.8);
+                    eq_dam = (eq_dam * 0.8);
                 if (IS_OBJ_STAT2(obj, ITEM2_GODEQ | ITEM2_CURSED_PERM))
-                    eq_dam = (int)(eq_dam * 0.7);
+                    eq_dam = (eq_dam * 0.7);
             }
             if (impl) {
                 if (IS_OBJ_STAT(impl, ITEM_MAGIC_NODISPEL))
                     impl_dam /= 2;
                 if (IS_OBJ_STAT(impl, ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED))
-                    impl_dam = (int)(impl_dam * 0.8);
+                    impl_dam = (impl_dam * 0.8);
                 if (IS_OBJ_STAT2(impl, ITEM2_GODEQ | ITEM2_CURSED_PERM))
-                    impl_dam = (int)(impl_dam * 0.7);
+                    impl_dam = (impl_dam * 0.7);
             }
 
             /* here are the object oriented damage specifics */
@@ -1190,12 +1193,12 @@ damage(struct creature *ch, struct creature *victim,
                     attacktype == TYPE_CLAW || attacktype == TYPE_STAB ||
                     attacktype == TYPE_RIP || attacktype == TYPE_CHOP)) {
                 if (obj && (IS_METAL_TYPE(obj) || IS_STONE_TYPE(obj))) {
-                    eq_dam = (int)(eq_dam * 0.7);
-                    weap_dam = (int)(weap_dam * 1.3);
+                    eq_dam = (eq_dam * 0.7);
+                    weap_dam = (weap_dam * 1.3);
                 }
                 if (impl && (IS_METAL_TYPE(impl) || IS_STONE_TYPE(impl))) {
-                    impl_dam = (int)(impl_dam * 0.7);
-                    weap_dam = (int)(weap_dam * 1.3);
+                    impl_dam = (impl_dam * 0.7);
+                    weap_dam = (weap_dam * 1.3);
                 }
             }
             // OXIDIZE Damaging equipment
@@ -1225,10 +1228,10 @@ damage(struct creature *ch, struct creature *victim,
                 if (IS_OBJ_STAT(weap, ITEM_MAGIC_NODISPEL))
                     weap_dam /= 2;
                 if (IS_OBJ_STAT(weap, ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED))
-                    weap_dam = (int)(weap_dam * 0.8);
+                    weap_dam = (weap_dam * 0.8);
                 if (IS_OBJ_STAT2(weap, ITEM2_CAST_WEAPON | ITEM2_GODEQ |
                         ITEM2_CURSED_PERM))
-                    weap_dam = (int)(weap_dam * 0.7);
+                    weap_dam = (weap_dam * 0.7);
             }
         }
     }
@@ -1259,7 +1262,7 @@ damage(struct creature *ch, struct creature *victim,
                 tmp = impl;
             if (obj)
                 tmp = obj;
-            eq_dam = (int)(eq_dam * 1.3);
+            eq_dam = (eq_dam * 1.3);
             if (ch && do_gun_special(ch, weap)) {
                 eq_dam *= 4;
                 dam *= 2;
@@ -1853,8 +1856,7 @@ damage(struct creature *ch, struct creature *victim,
 
         // some "non-weapon" attacks involve a weapon, e.g. backstab
         if (weap)
-            damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
-
+            damage_eq(ch, weap, MAX(weap_dam, dam / 64)/50, attacktype);
         if (obj)
             damage_eq(ch, obj, eq_dam, attacktype);
 
@@ -1911,8 +1913,7 @@ damage(struct creature *ch, struct creature *victim,
             && !(attacktype == SKILL_PROJ_WEAPONS
                  || attacktype == SKILL_ENERGY_WEAPONS
                  || (attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP)))
-            damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
-
+            damage_eq(ch, weap, MAX(weap_dam, dam / 64)/50, attacktype);
         //
         // aliens spray blood all over the room
         //
