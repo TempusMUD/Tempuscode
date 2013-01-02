@@ -312,7 +312,7 @@ burn_update_creature(struct creature *ch)
                         (skill_bonus(ch, SKILL_NANITE_RECONSTRUCTION) /
                         number(33, 50));
 
-                    GET_OBJ_DAM(obj) += amount;
+                    GET_OBJ_DAM(obj) = MIN(GET_OBJ_MAX_DAM(obj),(GET_OBJ_DAM(obj) + amount));
                 }
             }
         }

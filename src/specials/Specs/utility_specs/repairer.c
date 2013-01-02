@@ -12,7 +12,8 @@ SPECIAL(repairer)
 
     struct creature *repairer = (struct creature *)me;
     struct obj_data *obj = NULL, *proto_obj = NULL;
-    int cost, obj_damage;
+    int cost;
+    float obj_damage;
     bool currency;
 
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
@@ -105,7 +106,7 @@ SPECIAL(repairer)
     }
     // Object gets repaired fully, but repairs subtract 2% of the
     // damage off of the max damage
-    GET_OBJ_MAX_DAM(obj) -= MAX(1, obj_damage / 50);
+    GET_OBJ_MAX_DAM(obj) -= MAX(0, obj_damage / 50);
     GET_OBJ_DAM(obj) = GET_OBJ_MAX_DAM(obj);
 
     return 1;

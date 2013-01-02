@@ -1855,11 +1855,8 @@ damage(struct creature *ch, struct creature *victim,
             skill_message(dam, ch, victim, weap, attacktype);
 
         // some "non-weapon" attacks involve a weapon, e.g. backstab
-        if (weap) {
-            damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
-            send_to_char(ch,
-                "WEAPON ATTACK: %f damage\r\n", MAX(weap_dam, dam / 64));
-        }
+        if (weap)
+            damage_eq(ch, weap, MAX(weap_dam, dam / 64)/50, attacktype);
         if (obj)
             damage_eq(ch, obj, eq_dam, attacktype);
 
@@ -1915,11 +1912,8 @@ damage(struct creature *ch, struct creature *victim,
         if (weap
             && !(attacktype == SKILL_PROJ_WEAPONS
                  || attacktype == SKILL_ENERGY_WEAPONS
-                 || (attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP))) {
-            damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
-            send_to_char(ch,
-                "AUTO ATTACK: %f damage\r\n", MAX(weap_dam, dam / 64));
-        }
+                 || (attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP)))
+            damage_eq(ch, weap, MAX(weap_dam, dam / 64)/50, attacktype);
         //
         // aliens spray blood all over the room
         //
