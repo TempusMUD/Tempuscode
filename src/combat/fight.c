@@ -1853,7 +1853,7 @@ damage(struct creature *ch, struct creature *victim,
 
         // some "non-weapon" attacks involve a weapon, e.g. backstab
         if (weap)
-            damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
+            damage_eq(ch, weap, 0, attacktype);
 
         if (obj)
             damage_eq(ch, obj, eq_dam, attacktype);
@@ -1911,7 +1911,7 @@ damage(struct creature *ch, struct creature *victim,
             && !(attacktype == SKILL_PROJ_WEAPONS
                  || attacktype == SKILL_ENERGY_WEAPONS
                  || (attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP)))
-            damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
+            damage_eq(ch, weap, 0, attacktype);
 
         //
         // aliens spray blood all over the room
