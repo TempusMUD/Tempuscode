@@ -1586,11 +1586,11 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->mob_specials.shared->default_pos = t[1];
     mobile->player.sex = MAX(0, MIN(2, t[2]));
 
-    new_mob->player.remort_char_class = -1;
-    recalculate_based_on_level(new_mob);
+    mobile->player.remort_char_class = -1;
+    recalculate_based_on_level(mobile);
 	
-    new_mob->player.weight = 200;
-    new_mob->player.height = 198;
+    mobile->player.weight = 200;
+    mobile->player.height = 198;
 
     for (j = 0; j < 3; j++)
         GET_COND(mobile, j) = -1;
