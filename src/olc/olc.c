@@ -1713,7 +1713,7 @@ recalc_all_mobs(struct creature *ch, const char *argument)
             mobile_experience(mob, outfile);
         } else {
             recalculate_based_on_level(mob);
-			set_physical_attribs(mob);
+            set_physical_attribs(mob);
             GET_EXP(mob) = mobile_experience(mob, NULL);
         }
         count++;
