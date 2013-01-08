@@ -1554,9 +1554,6 @@ ASPELL(spell_greater_enchant)
                 obj->affected[i].location == APPLY_DAMROLL) {
                 obj->affected[i].location = APPLY_NONE;
                 obj->affected[i].modifier = 0;
-            } else if (i < MAX_OBJ_AFFECT - 2 && obj->affected[i].location) {
-                obj->affected[i + 2].location = obj->affected[i].location;
-                obj->affected[i + 2].modifier = obj->affected[i].modifier;
             }
         }
 
