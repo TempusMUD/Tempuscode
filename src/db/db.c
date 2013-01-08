@@ -1351,9 +1351,6 @@ compile_all_progs(void)
 void
 set_physical_attribs(struct creature *ch)
 {
-    GET_MAX_MANA(ch) = MAX(100, (GET_LEVEL(ch) << 3));
-    GET_MAX_MOVE(ch) = MAX(100, (GET_LEVEL(ch) << 4));
-
     struct race *race = race_by_idnum(GET_RACE(ch));
 
     if (!race) {
@@ -1480,18 +1477,6 @@ set_physical_attribs(struct creature *ch)
             ch->real_abils.str = 18;
         }
     }
-    if (IS_CLERIC(ch) || IS_MAGE(ch) || IS_LICH(ch) || IS_PHYSIC(ch)
-        || IS_PSYCHIC(ch))
-        GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 4);
-    else if (IS_KNIGHT(ch) || IS_RANGER(ch))
-        GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 1);
-
-    if (IS_RANGER(ch))
-        GET_MAX_MOVE(ch) += (GET_LEVEL(ch) << 3);
-
-    GET_MAX_MOVE(ch) += (GET_REMORT_GEN(ch) * GET_MAX_MOVE(ch)) / 10;
-    GET_MAX_MANA(ch) += (GET_REMORT_GEN(ch) * GET_MAX_MANA(ch)) / 10;
-
     ch->aff_abils = ch->real_abils;
 }
 
@@ -1501,12 +1486,25 @@ recalculate_based_on_level(struct creature *mob_p)
     int level = GET_LEVEL(mob_p);
     int doubleLevel = level + (level * GET_REMORT_GEN(mob_p)) / 10;
     int gen = GET_REMORT_GEN(mob_p);
+    
+    GET_MAX_MANA(mob_p) = MAX(100, (GET_LEVEL(mob_p) << 3));
+    GET_MAX_MOVE(mob_p) = MAX(100, (GET_LEVEL(mob_p) << 4));
 
-    set_physical_attribs(mob_p);
+    if (IS_CLERIC(mob_p) || IS_MAGE(mob_p) || IS_LICH(mob_p) || IS_PHYSIC(mob_p)
+        || IS_PSYCHIC(mob_p))
+        GET_MAX_MANA(mob_p) += (GET_LEVEL(mob_p) << 4);
+    else if (IS_KNIGHT(mob_p) || IS_RANGER(mob_p))
+        GET_MAX_MANA(mob_p) += (GET_LEVEL(mob_p) << 1);
 
-    GET_HIT(mob_p) = NPC_D1(doubleLevel);   // hitd_num
-    GET_MANA(mob_p) = NPC_D2(level);    // hitd_size
-    GET_MOVE(mob_p) = NPC_MOD(level);   // hitp_mod
+    if (IS_RANGER(mob_p))
+        GET_MAX_MOVE(mob_p) += (GET_LEVEL(mob_p) << 3);
+
+    GET_MAX_MOVE(mob_p) += (GET_REMORT_GEN(mob_p) * GET_MAX_MOVE(mob_p)) / 10;
+    GET_MAX_MANA(mob_p) += (GET_REMORT_GEN(mob_p) * GET_MAX_MANA(mob_p)) / 10;
+
+    GET_HIT(mob_p) = NPC_D1(doubleLevel); // hitd_num
+    GET_MANA(mob_p) = NPC_D2(level); // hitd_size
+    GET_MOVE(mob_p) = NPC_MOD(level); // hitp_mod
     GET_MOVE(mob_p) += (int)(3.26 * (gen * gen) * level);
 
     GET_AC(mob_p) = (100 - (doubleLevel * 3));
@@ -1592,7 +1590,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->player.height = 198;
 
     mobile->player.remort_char_class = -1;
-    set_physical_attribs(mobile);
+    recalculate_based_on_level(mobile);
 
     for (j = 0; j < 3; j++)
         GET_COND(mobile, j) = -1;
