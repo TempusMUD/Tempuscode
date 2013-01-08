@@ -1814,7 +1814,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             GET_ALIGNMENT(k));
     }
 
-	acc_sprintf("Height %s, Weight %s.\r\n",
+    acc_sprintf("Height %s, Weight %s.\r\n",
         format_distance(GET_HEIGHT(k), metric),
         format_weight(GET_WEIGHT(k), metric));
 
