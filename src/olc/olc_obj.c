@@ -511,7 +511,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
     int tmp_flags = 0, state = 0, cur_flags = 0, flag = 0;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     struct extra_descr_data *desc = NULL, *ndesc = NULL;
-	bool metric = USE_METRIC(ch);
+    bool metric = USE_METRIC(ch);
 
     if (!*argument) {
         strcpy(buf, "Valid oset commands:\r\n");
@@ -847,24 +847,19 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
     case 12: /******** weight **********/
         f = atof(arg2);
         //take into account the player's preference of metric or imperial
-        if (!metric)
-        {
+        if (!metric) {
              // reasonal limits on weight of an object
              if (f < .01 || f > 1000000000)
              send_to_char(ch, "Weight must be between .01 and 1,000,000,000 lbs.\r\n");
-             else
-             {
+             else {
                   set_obj_weight(obj_p, f);
                   send_to_char(ch, "Object %d weight set to %f lbs.\r\n", obj_p->shared->vnum, f);
              }
-        }
-        else
-        {
+        } else {
              // reasonable metric equivalents to limits on object weight
              if (f < .01 || f > 454545440)
              send_to_char(ch, "Weight must be between .01 and 454,545,440 kg.\r\n");
-             else
-             {
+             else {
                   set_obj_weight(obj_p, f * 2.2);
                   send_to_char(ch, "Object %d weight set to %f kg.\r\n", obj_p->shared->vnum, f);
              }
