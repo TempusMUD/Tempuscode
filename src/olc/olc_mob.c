@@ -1037,55 +1037,55 @@ do_mob_mset(struct creature *ch, char *argument)
         break;
     case 38:{             /** height **/
         // for setting height by feet and inches
-		char argument1[MAX_STRING_LENGTH], argument2[MAX_STRING_LENGTH];
-		int k = 0;
+        char argument1[MAX_STRING_LENGTH], argument2[MAX_STRING_LENGTH];
+        int k = 0;
 		
-		half_chop(arg2, argument1, argument2);
+        half_chop(arg2, argument1, argument2);
 		
-		i = atoi(argument1);
-		k = atoi(argument2);
+        i = atoi(argument1);
+        k = atoi(argument2);
 		
-		//take into account the player's preference of metric or imperial
-		if (metric) {
-			if (i < 1 || i > 10000)
-			send_to_char(ch, "Height must be between 1 and 10,000 cm.\r\n");
-			else {
-				GET_HEIGHT(mob_p) = i;
-				send_to_char(ch, "Mobile height set.\r\n");
-			}
-		} else {
-			if (i < 0 || i > 327)
-				send_to_char(ch, "Height must be between 0 and 327 feet.\r\n");
-			else if ((i == 0) && (k < 1 || k > 11))
-				send_to_char(ch, "Inches must be between 1 and 11 if feet is zero.\r\n");
-			else if ((i != 0) && (k < 0 || k > 12))
-				send_to_char(ch, "Inches must be between 0 and 11.\r\n");
-			else {
-				// the + 1 is to compensate for a rounding issue
-				GET_HEIGHT(mob_p) = (((i * 12) + k + 1) * 2.54);
-				send_to_char(ch, "Mobile height set.\r\n");
-			}
-		}
+        //take into account the player's preference of metric or imperial
+        if (metric) {
+            if (i < 1 || i > 10000)
+                send_to_char(ch, "Height must be between 1 and 10,000 cm.\r\n");
+            else {
+                GET_HEIGHT(mob_p) = i;
+                send_to_char(ch, "Mobile height set.\r\n");
+            }
+        } else {
+            if (i < 0 || i > 327)
+                send_to_char(ch, "Height must be between 0 and 327 feet.\r\n");
+            else if ((i == 0) && (k < 1 || k > 11))
+                send_to_char(ch, "Inches must be between 1 and 11 if feet is zero.\r\n");
+            else if ((i != 0) && (k < 0 || k > 12))
+                send_to_char(ch, "Inches must be between 0 and 11.\r\n");
+            else {
+                // the + 1 is to compensate for a rounding issue
+                GET_HEIGHT(mob_p) = (((i * 12) + k + 1) * 2.54);
+                send_to_char(ch, "Mobile height set.\r\n");
+            }
+        }
         break;
         }
     case 39:{ /** weight **/
         i = atoi(arg2);
         //take into account the player's preference of metric or imperial
-		if (!metric) {
-			if (i < 1 || i > 32750)
-				send_to_char(ch, "Weight must be between 1 and 32750 lbs.\r\n");
-			else {
-				GET_WEIGHT(mob_p) = i;
-				send_to_char(ch, "Mobile weight set.\r\n");
-			}
-		} else {
-			if (i < 1 || i > 14886)
-				send_to_char(ch, "Weight must be between 1 and 14886 kg.\r\n");
-			else {
-				GET_WEIGHT(mob_p) = i * 2.2;
-				send_to_char(ch, "Mobile weight set.\r\n");
-			}
-		}
+        if (!metric) {
+            if (i < 1 || i > 32750)
+                send_to_char(ch, "Weight must be between 1 and 32750 lbs.\r\n");
+            else {
+                GET_WEIGHT(mob_p) = i;
+                send_to_char(ch, "Mobile weight set.\r\n");
+            }
+        } else {
+            if (i < 1 || i > 14886)
+                send_to_char(ch, "Weight must be between 1 and 14886 kg.\r\n");
+            else {
+                GET_WEIGHT(mob_p) = i * 2.2;
+                send_to_char(ch, "Mobile weight set.\r\n");
+            }
+        }
         break;
         }
     case 40:
