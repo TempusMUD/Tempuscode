@@ -1487,7 +1487,7 @@ recalculate_based_on_level(struct creature *mob_p)
     int doubleLevel = level + (level * GET_REMORT_GEN(mob_p)) / 10;
     int gen = GET_REMORT_GEN(mob_p);
     
-	GET_MAX_MANA(mob_p) = MAX(100, (GET_LEVEL(mob_p) << 3));
+    GET_MAX_MANA(mob_p) = MAX(100, (GET_LEVEL(mob_p) << 3));
     GET_MAX_MOVE(mob_p) = MAX(100, (GET_LEVEL(mob_p) << 4));
 
     if (IS_CLERIC(mob_p) || IS_MAGE(mob_p) || IS_LICH(mob_p) || IS_PHYSIC(mob_p)

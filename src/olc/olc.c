@@ -1572,7 +1572,7 @@ ACMD(do_olc)
                         "There is no monster with that number.\r\n");
                 } else {
                     recalculate_based_on_level(mob);
-					set_physical_attribs(mob);
+                    set_physical_attribs(mob);
                     send_to_char(ch,
                         "Mobile %d statistics recalculated based on level.\r\n",
                         number);
