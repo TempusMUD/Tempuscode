@@ -845,25 +845,17 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         break;
 
     case 12: /******** weight **********/
-        f = atof(arg2);
-        //take into account the player's preference of metric or imperial
-        if (!metric) {
-             // reasonal limits on weight of an object
-             if (f < .01 || f > 1000000000)
-             send_to_char(ch, "Weight must be between .01 and 1,000,000,000 lbs.\r\n");
-             else {
-                  set_obj_weight(obj_p, f);
-                  send_to_char(ch, "Object %d weight set to %f lbs.\r\n", obj_p->shared->vnum, f);
-             }
-        } else {
-             // reasonable metric equivalents to limits on object weight
-             if (f < .01 || f > 454545440)
-             send_to_char(ch, "Weight must be between .01 and 454,545,440 kg.\r\n");
-             else {
-                  set_obj_weight(obj_p, f * 2.2);
-                  send_to_char(ch, "Object %d weight set to %f kg.\r\n", obj_p->shared->vnum, f);
-             }
+        f = parse_weight(arg2, metric);
+        if (f < 0.1 || f > 1000000000) {
+            send_to_char(ch, "Weight must be between %s and %s.\r\n",
+                         format_weight(0.01, metric),
+                         format_weight(1000000000, metric));
+            return;
         }
+        set_obj_weight(obj_p, f);
+        send_to_char(ch, "Object %d weight set to %s.\r\n",
+                     obj_p->shared->vnum,
+                     format_weight(GET_OBJ_WEIGHT(obj_p), metric));
         break;
     case 13:     /******** cost **********/
         if (!is_number(arg2)) {
