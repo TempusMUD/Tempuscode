@@ -613,5 +613,7 @@ hex2dec(const char *s)
 
 char *format_weight(float lbs, bool metric);
 char *format_distance(int cm, bool metric);
+float parse_weight(char *str, bool metric);
+int parse_distance(char *str, bool metric);
 
 #endif
