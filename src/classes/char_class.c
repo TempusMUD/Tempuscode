@@ -1135,8 +1135,8 @@ advance_level(struct creature *ch, int8_t keep_internal)
     }
 
     if (IS_RACE(ch, RACE_HALF_ORC) || IS_RACE(ch, RACE_ORC)) {
-        add_move[0] <<= 1;
-        add_move[1] <<= 1;
+        add_move[0] *= 2;
+        add_move[1] *= 2;
     }
     ch->points.max_hit += MAX(1, add_hp[0]);
     ch->points.max_move += MAX(1, add_move[0]);
@@ -1155,9 +1155,9 @@ advance_level(struct creature *ch, int8_t keep_internal)
                 GET_NAME(ch), add_hp[0], add_hp[1]);
         }
 
-        ch->points.max_hit += add_hp[1] >> 2;
-        ch->points.max_mana += add_mana[1] >> 1;
-        ch->points.max_move += add_move[1] >> 2;
+        ch->points.max_hit += add_hp[1] / 4;
+        ch->points.max_mana += add_mana[1] / 2;
+        ch->points.max_move += add_move[1] / 4;
 
     }
 
@@ -1174,11 +1174,11 @@ advance_level(struct creature *ch, int8_t keep_internal)
     if (CHECK_SKILL(ch, SKILL_READ_SCROLLS) > 10)
         GET_SKILL(ch, SKILL_READ_SCROLLS) =
             MIN(100, CHECK_SKILL(ch, SKILL_READ_SCROLLS) +
-            MIN(10, number(1, GET_INT(ch) >> 1)));
+            MIN(10, number(1, GET_INT(ch) / 2)));
     if (CHECK_SKILL(ch, SKILL_USE_WANDS) > 10)
         GET_SKILL(ch, SKILL_USE_WANDS) =
             MIN(100, CHECK_SKILL(ch, SKILL_USE_WANDS) +
-            MIN(10, number(1, GET_INT(ch) >> 1)));
+            MIN(10, number(1, GET_INT(ch) / 2)));
 
     crashsave(ch);
     int rid = -1;

@@ -272,7 +272,7 @@ void WAIT_STATE(struct creature *ch, int cycle);
 #define GET_OBJ_COST(obj)        ((obj)->shared->cost)
 // can only be used to get the rent, not set
 #define GET_OBJ_RENT(obj)        ((obj)->plrtext_len ? \
-                                  ((int)(obj)->plrtext_len << 3) :  \
+                                  ((int)(obj)->plrtext_len * 8) :  \
                                   (obj)->shared->cost_per_day)
 
 #define GET_OBJ_EXTRA(obj)        ((obj)->obj_flags.extra_flags)

@@ -181,9 +181,9 @@ vendor_get_value(struct obj_data *obj, int percent, int costModifier,
 
     cost = GET_OBJ_COST(obj) * percent / 100;
     if (OBJ_REINFORCED(obj))
-        cost += cost >> 2;
+        cost += cost / 4;
     if (OBJ_ENHANCED(obj))
-        cost += cost >> 2;
+        cost += cost / 4;
 
     cost += (costModifier * (int)cost) / 100;
 

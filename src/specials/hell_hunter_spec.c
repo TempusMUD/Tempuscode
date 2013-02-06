@@ -445,7 +445,7 @@ SPECIAL(hell_hunter_brain)
     } else {
 
         // we fell through, lets check again sooner than freq
-        counter = freq >> 3;
+        counter = freq / 8;
     }
 
     return 0;

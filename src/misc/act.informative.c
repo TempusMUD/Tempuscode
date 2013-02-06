@@ -401,7 +401,7 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct creature *ch,
         }
         if ((GET_LEVEL(ch) < LVL_AMBASSADOR &&
                 GET_LEVEL(ch) + (GET_SKILL(ch,
-                        SKILL_GLANCE) >> ((glance) ? 2 : 0)) < (number(0,
+                        SKILL_GLANCE) * ((glance) ? 4 : 0)) < (number(0,
                         50) + CHECK_SKILL(vict, SKILL_CONCEAL)))
             || (GET_LEVEL(ch) >= LVL_AMBASSADOR
                 && GET_LEVEL(vict) > GET_LEVEL(ch))) {
@@ -1919,7 +1919,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
 
                     if (NPC_FLAGGED(found_char, NPC_AGGRESSIVE) &&
                         (GET_MORALE(found_char) >
-                            number(GET_LEVEL(ch) >> 1, GET_LEVEL(ch))) &&
+                            number(GET_LEVEL(ch) / 2, GET_LEVEL(ch))) &&
                         !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
                         if (GET_POSITION(found_char) >= POS_SITTING) {
                             if (ok_to_attack(found_char, ch, false))

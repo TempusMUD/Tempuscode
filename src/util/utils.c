@@ -576,7 +576,7 @@ CHECK_SKILL(struct creature *ch, int i)
                     level = 50 + GET_LEVEL(ch);
         }
         if (IS_DEVIL(ch))
-            level += GET_LEVEL(ch) >> 1;
+            level += GET_LEVEL(ch) / 2;
     }
     if (level > 0 && (af_ptr = affected_by_spell(ch, SPELL_AMNESIA)))
         level = MAX(0, level - af_ptr->duration);
@@ -601,9 +601,9 @@ WAIT_STATE(struct creature *ch, int cycle)
     wait = cycle;
 
     if (AFF2_FLAGGED(ch, AFF2_HASTE))
-        wait -= cycle >> 2;
+        wait -= cycle / 4;
     if (AFF2_FLAGGED(ch, AFF2_SLOW))
-        wait += cycle >> 2;
+        wait += cycle / 4;
     if (SPEED_OF(ch))
         wait -= (cycle * SPEED_OF(ch)) / 100;
 

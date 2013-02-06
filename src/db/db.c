@@ -1394,11 +1394,11 @@ set_physical_attribs(struct creature *ch)
         }
     } else if (IS_OGRE(ch) || IS_TROLL(ch)) {
         ch->player.weight = 9 * 30 + number(10, 100);
-        ch->player.height = 9 * 31 + (GET_WEIGHT(ch) >> 3);
+        ch->player.height = 9 * 31 + (GET_WEIGHT(ch) / 8);
         ch->real_abils.str = number(16, 18);
     } else if (IS_MINOTAUR(ch)) {
         ch->player.weight = number(400, 640) + GET_STR(ch);
-        ch->player.height = number(200, 425) + (GET_WEIGHT(ch) >> 3);
+        ch->player.height = number(200, 425) + (GET_WEIGHT(ch) / 8);
         ch->real_abils.str = number(15, 19);
     } else if (IS_DRAGON(ch)) {
         if (GET_CLASS(ch) == CLASS_WHITE) {
@@ -1413,22 +1413,22 @@ set_physical_attribs(struct creature *ch)
     } else if (IS_ANIMAL(ch)) {
         if (GET_CLASS(ch) == CLASS_BIRD) {
             ch->player.weight = number(10, 60) + GET_STR(ch);
-            ch->player.height = number(30, 90) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(30, 90) + (GET_WEIGHT(ch) / 8);
         } else if (GET_CLASS(ch) == CLASS_SNAKE) {
             ch->player.weight = number(10, 30) + GET_LEVEL(ch);
-            ch->player.height = number(30, 90) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(30, 90) + (GET_WEIGHT(ch) / 8);
         } else if (GET_CLASS(ch) == CLASS_SMALL) {
             ch->player.weight = number(10, 30) + GET_STR(ch);
-            ch->player.height = number(20, 40) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(20, 40) + (GET_WEIGHT(ch) / 8);
         } else if (GET_CLASS(ch) == CLASS_MEDIUM) {
             ch->player.weight = number(20, 80) + GET_STR(ch);
-            ch->player.height = number(50, 100) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(50, 100) + (GET_WEIGHT(ch) / 8);
         } else if (GET_CLASS(ch) == CLASS_LARGE) {
             ch->player.weight = number(130, 360) + GET_STR(ch);
-            ch->player.height = number(120, 240) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(120, 240) + (GET_WEIGHT(ch) / 8);
         } else {
             ch->player.weight = number(60, 160) + GET_STR(ch);
-            ch->player.height = number(100, 190) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(100, 190) + (GET_WEIGHT(ch) / 8);
         }
     } else if (IS_DEVIL(ch)) {
         if (GET_CLASS(ch) == CLASS_ARCH) {
@@ -1440,7 +1440,7 @@ set_physical_attribs(struct creature *ch)
             ch->real_abils.wis = 23;
             ch->real_abils.dex = 23;
             ch->real_abils.con = 23;
-            GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 3);
+            GET_MAX_MANA(ch) += (GET_LEVEL(ch) * 8);
         } else if (GET_CLASS(ch) == CLASS_DUKE) {
             ch->player.weight = 10 * 40;
             ch->player.height = 10 * 31;
@@ -1450,7 +1450,7 @@ set_physical_attribs(struct creature *ch)
             ch->real_abils.wis = 21;
             ch->real_abils.dex = 21;
             ch->real_abils.con = 21;
-            GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 2);
+            GET_MAX_MANA(ch) += (GET_LEVEL(ch) * 4);
         } else if (GET_CLASS(ch) == CLASS_GREATER) {
             ch->player.weight = 10 * 40;
             ch->player.height = 10 * 31;
@@ -1459,7 +1459,7 @@ set_physical_attribs(struct creature *ch)
             ch->real_abils.wis = 20;
             ch->real_abils.dex = 20;
             ch->real_abils.con = 20;
-            GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 2);
+            GET_MAX_MANA(ch) += (GET_LEVEL(ch) * 4);
         } else if (GET_CLASS(ch) == CLASS_LESSER) {
             ch->player.weight = 6 * 30;
             ch->player.height = 6 * 31;
@@ -1487,17 +1487,17 @@ recalculate_based_on_level(struct creature *mob_p)
     int doubleLevel = level + (level * GET_REMORT_GEN(mob_p)) / 10;
     int gen = GET_REMORT_GEN(mob_p);
     
-    GET_MAX_MANA(mob_p) = MAX(100, (GET_LEVEL(mob_p) << 3));
-    GET_MAX_MOVE(mob_p) = MAX(100, (GET_LEVEL(mob_p) << 4));
+    GET_MAX_MANA(mob_p) = MAX(100, (GET_LEVEL(mob_p) * 8));
+    GET_MAX_MOVE(mob_p) = MAX(100, (GET_LEVEL(mob_p) * 16));
 
     if (IS_CLERIC(mob_p) || IS_MAGE(mob_p) || IS_LICH(mob_p) || IS_PHYSIC(mob_p)
         || IS_PSYCHIC(mob_p))
-        GET_MAX_MANA(mob_p) += (GET_LEVEL(mob_p) << 4);
+        GET_MAX_MANA(mob_p) += (GET_LEVEL(mob_p) * 16);
     else if (IS_KNIGHT(mob_p) || IS_RANGER(mob_p))
-        GET_MAX_MANA(mob_p) += (GET_LEVEL(mob_p) << 1);
+        GET_MAX_MANA(mob_p) += (GET_LEVEL(mob_p) * 2);
 
     if (IS_RANGER(mob_p))
-        GET_MAX_MOVE(mob_p) += (GET_LEVEL(mob_p) << 3);
+        GET_MAX_MOVE(mob_p) += (GET_LEVEL(mob_p) * 8);
 
     GET_MAX_MOVE(mob_p) += (GET_REMORT_GEN(mob_p) * GET_MAX_MOVE(mob_p)) / 10;
     GET_MAX_MANA(mob_p) += (GET_REMORT_GEN(mob_p) * GET_MAX_MANA(mob_p)) / 10;
@@ -1509,8 +1509,8 @@ recalculate_based_on_level(struct creature *mob_p)
 
     GET_AC(mob_p) = (100 - (doubleLevel * 3));
 
-    mob_p->mob_specials.shared->damnodice = ((level * level + 3) >> 7) + 1;
-    mob_p->mob_specials.shared->damsizedice = ((level + 1) >> 3) + 3;
+    mob_p->mob_specials.shared->damnodice = ((level * level + 3) / 128) + 1;
+    mob_p->mob_specials.shared->damsizedice = ((level + 1) / 8) + 3;
     GET_DAMROLL(mob_p) =
         (level / 2) + ((level / 2) * GET_REMORT_GEN(mob_p)) / 10;
     GET_HITROLL(mob_p) = (int)(GET_DAMROLL(mob_p) * 1.25);
@@ -2183,7 +2183,6 @@ load_zones(FILE * fl, char *zonename)
     new_zone->flags = asciiflag_conv(flags);
     new_zone->num_players = 0;
     new_zone->idle_time = 0;
-//    REMOVE_BIT(new_zone->flags, (1 << 12));
 
     CREATE(weather, struct weather_data, 1);
     if (weather) {

@@ -130,7 +130,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     if (CHECK_SKILL(ch, skillnum) < LEARNED(ch))
         prob -= (LEARNED(ch) - CHECK_SKILL(ch, skillnum));
     prob += GET_DEX(ch);
-    prob += (strength_hit_bonus(GET_STR(ch)) + GET_HITROLL(ch)) >> 1;
+    prob += (strength_hit_bonus(GET_STR(ch)) + GET_HITROLL(ch)) / 2;
 
     prob -= ((IS_WEARING_W(ch) + IS_CARRYING_W(ch)) * 15) / CAN_CARRY_W(ch);
 
@@ -138,7 +138,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
     if (GET_POSITION(vict) < POS_FIGHTING) {
         prob += (POS_FIGHTING - GET_POSITION(vict)) * 6;
-        prob -= (GET_DEX(vict) >> 1);
+        prob -= (GET_DEX(vict) / 2);
     }
 
     if (IS_DROW(ch)) {
@@ -167,14 +167,14 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         prob -= 5;
     if (AFF2_FLAGGED(vict, AFF2_DISPLACEMENT) &&
         !AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
-        prob -= GET_LEVEL(vict) >> 1;
+        prob -= GET_LEVEL(vict) / 2;
     if (AFF2_FLAGGED(vict, AFF2_EVADE))
-        prob -= (GET_LEVEL(vict) >> 2) + 5;
+        prob -= (GET_LEVEL(vict) / 4) + 5;
 
     if (IS_BARB(ch)) {
         if (GET_EQ(ch, WEAR_WIELD))
             prob +=
-                (LEARNED(ch) - weapon_prof(ch, GET_EQ(ch, WEAR_WIELD))) >> 2;
+                (LEARNED(ch) - weapon_prof(ch, GET_EQ(ch, WEAR_WIELD))) / 4;
     }
 
     if (room_is_watery(ch->in_room) ||
@@ -211,7 +211,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
             prob = 0;
 
-        *dam = dice(2, (GET_LEVEL(ch) >> 2));
+        *dam = dice(2, (GET_LEVEL(ch) / 4));
         *fail_pos = POS_SITTING;
         *vict_pos = POS_SITTING;
         *vict_wait = 2 RL_SEC;
@@ -249,7 +249,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             )
             prob = 0;
 
-        *dam = dice(3, (GET_LEVEL(ch) >> 3));
+        *dam = dice(3, (GET_LEVEL(ch) / 8));
         ADD_EQ_DAM(ch, WEAR_HEAD);
 
         *vict_wait = 1 RL_SEC;
@@ -280,7 +280,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             )
             prob = 0;
 
-        *dam = dice(6, (GET_LEVEL(ch) >> 4));
+        *dam = dice(6, (GET_LEVEL(ch) / 16));
         *wait = 6 RL_SEC;
         *vict_wait = 1 RL_SEC;
         *loc = WEAR_EYES;
@@ -302,7 +302,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     case SKILL_PILEDRIVE:
         need_hand = 1;
 
-        if (GET_HEIGHT(vict) > (GET_HEIGHT(ch) << 1))
+        if (GET_HEIGHT(vict) > (GET_HEIGHT(ch) * 2))
             prob -= (100 - GET_LEVEL(ch));
 
         if (GET_POSITION(vict) < POS_STANDING)
@@ -332,7 +332,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *move = 20;
         *dam = dice(GET_LEVEL(ch), GET_STR(ch));
         if (!IS_BARB(ch) && GET_LEVEL(ch) < LVL_IMMORT)
-            *dam = *dam >> 2;
+            *dam = *dam / 4;
         ADD_EQ_DAM(ch, WEAR_CROTCH);
         if (!NPC_FLAGGED(vict, NPC_NOBASH))
             *vict_pos = POS_SITTING;
@@ -365,7 +365,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             prob = 0;
 
         need_hand = 1;
-        *dam = dice(10, GET_LEVEL(ch) >> 3);
+        *dam = dice(10, GET_LEVEL(ch) / 8);
         *vict_pos = POS_SITTING;
         *wait = 7 RL_SEC;
         *vict_wait = 2 RL_SEC;
@@ -374,21 +374,21 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
     case SKILL_KICK:
 
-        *dam = dice(2, (GET_LEVEL(ch) >> 2));
+        *dam = dice(2, (GET_LEVEL(ch) / 4));
         ADD_EQ_DAM(ch, WEAR_FEET);
         *wait = 3 RL_SEC;
         break;
 
     case SKILL_SPINKICK:
 
-        *dam = dice(3, (GET_LEVEL(ch) >> 2));
+        *dam = dice(3, (GET_LEVEL(ch) / 4));
         ADD_EQ_DAM(ch, WEAR_FEET);
         *wait = 4 RL_SEC;
         break;
 
     case SKILL_ROUNDHOUSE:
 
-        *dam = dice(4, (GET_LEVEL(ch) >> 2));
+        *dam = dice(4, (GET_LEVEL(ch) / 4));
         ADD_EQ_DAM(ch, WEAR_FEET);
         *wait = 5 RL_SEC;
         break;
@@ -412,7 +412,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             )
             prob = 0;
 
-        *dam = dice(5, (GET_LEVEL(ch) >> 2));
+        *dam = dice(5, (GET_LEVEL(ch) / 4));
         ADD_EQ_DAM(ch, WEAR_FEET);
         *wait = 5 RL_SEC;
         *fail_pos = POS_SITTING;
@@ -427,7 +427,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             )
             prob = 0;
 
-        *dam = dice(3, (GET_LEVEL(ch) >> 2));
+        *dam = dice(3, (GET_LEVEL(ch) / 4));
         ADD_EQ_DAM(ch, WEAR_FEET);
         *wait = 5 RL_SEC;
         break;
@@ -439,7 +439,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         if (GET_LEVEL(ch) >= 67) {
             *dam = 1000;
         } else {
-            *dam = dice(1, GET_LEVEL(ch) >> 3);
+            *dam = dice(1, GET_LEVEL(ch) / 8);
             ADD_EQ_DAM(ch, WEAR_HANDS);
         }
         *wait = 3 RL_SEC;
@@ -449,7 +449,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     case SKILL_CLAW:
 
         need_hand = 1;
-        *dam = dice(2, GET_LEVEL(ch) >> 3);
+        *dam = dice(2, GET_LEVEL(ch) / 8);
         ADD_EQ_DAM(ch, WEAR_HANDS);
         *wait = 3 RL_SEC;
         break;
@@ -458,7 +458,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     case SKILL_RABBITPUNCH:
 
         need_hand = 1;
-        *dam = dice(1, GET_LEVEL(ch) >> 3) + 1;
+        *dam = dice(1, GET_LEVEL(ch) / 8) + 1;
         ADD_EQ_DAM(ch, WEAR_HANDS);
         *wait = 3 RL_SEC;
         break;
@@ -466,7 +466,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     case SKILL_HOOK:
 
         need_hand = 1;
-        *dam = dice(2, GET_LEVEL(ch) >> 3) + 1;
+        *dam = dice(2, GET_LEVEL(ch) / 8) + 1;
         ADD_EQ_DAM(ch, WEAR_HANDS);
         *wait = 3 RL_SEC;
         break;
@@ -474,9 +474,9 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     case SKILL_UPPERCUT:
 
         need_hand = 1;
-        *dam = dice(3, GET_LEVEL(ch) >> 3) + 10;
+        *dam = dice(3, GET_LEVEL(ch) / 8) + 10;
         if (IS_RANGER(ch))
-            *dam <<= 1;
+            *dam *= 2;
         ADD_EQ_DAM(ch, WEAR_HANDS);
         *wait = 4 RL_SEC;
         *loc = WEAR_FACE;
@@ -498,7 +498,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             prob = 0;
 
         need_hand = 1;
-        *dam = dice(8, GET_LEVEL(ch) >> 3) + 1;
+        *dam = dice(8, GET_LEVEL(ch) / 8) + 1;
         ADD_EQ_DAM(ch, WEAR_HANDS);
         *wait = 4 RL_SEC;
         *vict_pos = POS_SITTING;
@@ -508,14 +508,14 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
     case SKILL_ELBOW:
 
-        *dam = dice(2, GET_LEVEL(ch) >> 3);
+        *dam = dice(2, GET_LEVEL(ch) / 8);
         ADD_EQ_DAM(ch, WEAR_ARMS);
         *wait = 4 RL_SEC;
         break;
 
     case SKILL_KNEE:
 
-        *dam = dice(3, GET_LEVEL(ch) >> 3);
+        *dam = dice(3, GET_LEVEL(ch) / 8);
         ADD_EQ_DAM(ch, WEAR_LEGS);
         *wait = 5 RL_SEC;
         break;
@@ -523,7 +523,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     case SKILL_STOMP:
 
         *loc = WEAR_FEET;
-        *dam = dice(5, GET_LEVEL(ch) >> 2);
+        *dam = dice(5, GET_LEVEL(ch) / 4);
         ADD_EQ_DAM(ch, WEAR_FEET);
         *wait = 4 RL_SEC;
         *vict_wait = 1 RL_SEC;
@@ -538,7 +538,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             prob = 0;
 
         *loc = WEAR_NECK_1;
-        *dam = dice(2, GET_LEVEL(ch) >> 3);
+        *dam = dice(2, GET_LEVEL(ch) / 8);
         ADD_EQ_DAM(ch, WEAR_ARMS);
         *wait = 4 RL_SEC;
         *vict_pos = POS_SITTING;
@@ -553,7 +553,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             || NPC_FLAGGED(vict, NPC_NOBASH) || bad_sect)
             prob = 0;
 
-        *dam = dice(2, GET_LEVEL(ch) >> 3);
+        *dam = dice(2, GET_LEVEL(ch) / 8);
         *wait = 5 RL_SEC;
         *vict_pos = POS_SITTING;
         *vict_wait = 2 RL_SEC;
@@ -592,14 +592,14 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
         need_hand = 1;
         *loc = WEAR_BODY;
-        *dam = dice(4, GET_LEVEL(ch) >> 3);
+        *dam = dice(4, GET_LEVEL(ch) / 8);
         *wait = 6 RL_SEC;
         *vict_wait = 3 RL_SEC;
         break;
 
     case SKILL_BITE:
 
-        *dam = dice(2, GET_LEVEL(ch) >> 3);
+        *dam = dice(2, GET_LEVEL(ch) / 8);
         *wait = 4 RL_SEC;
         break;
 
@@ -624,7 +624,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             )
             prob = 0;
         *loc = WEAR_NECK_1;
-        *dam = dice(3, GET_LEVEL(ch) >> 3);
+        *dam = dice(3, GET_LEVEL(ch) / 8);
         *wait = 4 RL_SEC;
         *vict_wait = 2 RL_SEC;
         break;
@@ -648,7 +648,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *dam += dice((int)(GET_LEVEL(ch) * 0.75), 5);
         if (IS_OBJ_STAT2(weap, ITEM2_TWO_HANDED)
             && weap->worn_on == WEAR_WIELD)
-            *dam <<= 1;
+            *dam *= 2;
         else
             *dam = (int)(*dam * 0.80);
 
@@ -657,10 +657,10 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             return -1;
         }
 
-        if ((GET_HEIGHT(ch) < GET_HEIGHT(vict) >> 1) &&
+        if ((GET_HEIGHT(ch) < GET_HEIGHT(vict) / 2) &&
             GET_POSITION(vict) > POS_SITTING) {
             if (AFF_FLAGGED(ch, AFF_INFLIGHT))
-                *dam >>= 2;
+                *dam /= 4;
             else {
                 act("$N is over twice your height!  You can't reach $S head!",
                     false, ch, NULL, vict, TO_CHAR);
@@ -670,7 +670,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
         if (AFF2_FLAGGED(vict, AFF2_NECK_PROTECTED)
             && number(0, GET_LEVEL(vict) * 4) > number(0,
-                (GET_LEVEL(ch) >> 1))) {
+                (GET_LEVEL(ch) / 2))) {
             // Try to find the nobehead eq.
             neck = GET_EQ(vict, WEAR_NECK_1);
             if (neck == NULL || !NOBEHEAD_EQ(neck)) {
@@ -687,7 +687,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
                 // half the damage only if the eq survives.
                 // ( damage_eq returns the mangled object, not the original )
                 if (damage_eq(ch, neck, *dam, TYPE_HIT) != NULL)
-                    *dam >>= 1;
+                    *dam /= 2;
             }
         }
 
@@ -698,13 +698,13 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         break;
 
     case SKILL_SHOOT:
-        prob += (GET_DEX(ch) >> 1);
+        prob += (GET_DEX(ch) / 2);
         prob -= strength_hit_bonus(GET_STR(ch));
 
         break;
 
     case SKILL_ARCHERY:
-        prob += (GET_DEX(ch) >> 1);
+        prob += (GET_DEX(ch) / 2);
         prob -= strength_hit_bonus(GET_STR(ch));
 
         break;
@@ -718,7 +718,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
         need_hand = 1;
         *loc = WEAR_BODY;
-        *dam = dice(GET_LEVEL(ch), GET_STR(ch) >> 2);
+        *dam = dice(GET_LEVEL(ch), GET_STR(ch) / 4);
         ADD_EQ_DAM(ch, WEAR_HANDS);
         *wait = 3 RL_SEC;
         *vict_wait = 1 RL_SEC;
@@ -791,7 +791,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *loc = WEAR_NECK_1;
         *dam = dice(GET_LEVEL(ch), 13);
         *wait = 7 RL_SEC;
-        *vict_wait = (2 + number(0, GET_LEVEL(ch) >> 3)) RL_SEC;
+        *vict_wait = (2 + number(0, GET_LEVEL(ch) / 8)) RL_SEC;
         *move = 35;
         break;
 
@@ -820,7 +820,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
             prob = 0;
 
         need_hand = 1;
-        *dam = dice(3, (GET_LEVEL(ch) >> 2) + GET_STR(ch));
+        *dam = dice(3, (GET_LEVEL(ch) / 4) + GET_STR(ch));
         *wait = 6 RL_SEC;
         *vict_wait = 2 RL_SEC;
         *vict_pos = POS_RESTING;
@@ -840,7 +840,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *dam += CHECK_SKILL(ch, SKILL_PSIBLAST);
 
         if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI))
-            *dam >>= 1;
+            *dam /= 2;
         *wait = 5 RL_SEC;
         *vict_wait = 2 RL_SEC;
         *mana = mag_manacost(ch, SKILL_PSIBLAST);
@@ -864,7 +864,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         }
 
         if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_BREATH))
-            *dam >>= 1;
+            *dam /= 2;
 
         *wait = 5 RL_SEC;
         *vict_wait = 2 RL_SEC;
@@ -926,7 +926,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
     if (CHECK_SKILL(ch, skillnum) > LEARNED(ch))
         *dam *= (LEARNED(ch) +
-            ((CHECK_SKILL(ch, skillnum) - LEARNED(ch)) >> 1));
+            ((CHECK_SKILL(ch, skillnum) - LEARNED(ch)) / 2));
     else
         *dam *= CHECK_SKILL(ch, skillnum);
     *dam /= LEARNED(ch);
@@ -1008,11 +1008,11 @@ perform_offensive_skill(struct creature *ch,
         }
 
         if (move)
-            GET_MOVE(ch) -= (move >> 1);
+            GET_MOVE(ch) -= (move / 2);
         if (mana)
-            GET_MANA(ch) -= (mana >> 1);
+            GET_MANA(ch) -= (mana / 2);
 
-        WAIT_STATE(ch, (wait >> 1));
+        WAIT_STATE(ch, (wait / 2));
 
         return false;
     }
@@ -1311,7 +1311,7 @@ ACMD(do_flee)
         return;
     }
     if (AFF2_FLAGGED(ch, AFF2_BERSERK) && ch->fighting &&
-        !number(0, 1 + (GET_INT(ch) >> 2))) {
+        !number(0, 1 + (GET_INT(ch) / 4))) {
         send_to_char(ch, "You are too enraged to flee!\r\n");
         return;
     }
@@ -1320,15 +1320,15 @@ ACMD(do_flee)
         return;
     }
     if (!IS_NPC(ch) && fighting) {
-        loss = GET_LEVEL(random_opponent(ch)) << 5;
+        loss = GET_LEVEL(random_opponent(ch)) * 32;
         loss += (loss * GET_LEVEL(ch)) / (LVL_GRIMP + 1 - GET_LEVEL(ch));
-        loss >>= 5;
+        loss /= 32;
 
         if (IS_REMORT(ch))
             loss -= loss * GET_REMORT_GEN(ch) / (GET_REMORT_GEN(ch) + 2);
 
         if (IS_THIEF(ch))
-            loss >>= 1;
+            loss /= 2;
     }
     for (i = 0; i < 6; i++) {
         attempt = number(0, NUM_OF_DIRS - 1);   /* Select a random direction */
@@ -1358,7 +1358,7 @@ ACMD(do_flee)
                 send_to_char(ch, "You flee head over heels.\r\n");
                 if (loss && fighting) {
                     gain_exp(ch, -loss);
-                    gain_exp(fighting, (loss >> 5));
+                    gain_exp(fighting, (loss / 32));
                 }
                 if (is_fighting(ch)) {
                     remove_all_combat(ch);
@@ -1768,14 +1768,14 @@ perform_stun(struct creature *ch, struct creature *vict)
     appear(ch, vict);
 
     percent = number(1, 111) + GET_LEVEL(vict); /* 101% is a complete failure */
-    prob = CHECK_SKILL(ch, SKILL_STUN) + (GET_LEVEL(ch) >> 2) +
-        (GET_DEX(ch) << 2);
+    prob = CHECK_SKILL(ch, SKILL_STUN) + (GET_LEVEL(ch) / 4) +
+        (GET_DEX(ch) * 4);
 
     if (AFF_FLAGGED(vict, AFF_ADRENALINE))
         prob -= GET_LEVEL(vict);
 
     if (!can_see_creature(vict, ch))
-        prob += GET_LEVEL(ch) >> 1;
+        prob += GET_LEVEL(ch) / 2;
     if (AFF_FLAGGED(ch, AFF_SNEAK))
         prob += (CHECK_SKILL(ch, SKILL_SNEAK)) / 10;
     if (!AWAKE(vict))
@@ -1784,7 +1784,7 @@ perform_stun(struct creature *ch, struct creature *vict)
         prob -= GET_DEX(vict);
 
     if (!IS_NPC(ch))
-        prob += (GET_REMORT_GEN(ch) << 3);
+        prob += (GET_REMORT_GEN(ch) * 8);
 
     if (IS_PUDDING(vict) || IS_SLIME(vict) || IS_UNDEAD(vict))
         prob = 0;
@@ -2058,10 +2058,10 @@ ACMD(do_tornado_kick)
         return;
     }
 
-    percent = ((40 - (GET_AC(vict) / 10)) >> 1) + number(1, 96);
+    percent = ((40 - (GET_AC(vict) / 10)) / 2) + number(1, 96);
     prob =
         CHECK_SKILL(ch,
-        SKILL_TORNADO_KICK) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
+        SKILL_TORNADO_KICK) + ((GET_DEX(ch) + GET_STR(ch)) / 2);
     if (GET_POSITION(vict) < POS_RESTING)
         prob += 30;
     prob -= GET_DEX(vict);
@@ -2073,7 +2073,7 @@ ACMD(do_tornado_kick)
 
     if (CHECK_SKILL(ch, SKILL_TORNADO_KICK) > LEARNED(ch))
         dam *= (CHECK_SKILL(ch, SKILL_TORNADO_KICK) +
-            ((CHECK_SKILL(ch, SKILL_TORNADO_KICK) - LEARNED(ch)) >> 1));
+            ((CHECK_SKILL(ch, SKILL_TORNADO_KICK) - LEARNED(ch)) / 2));
     else
         dam *= CHECK_SKILL(ch, SKILL_TORNADO_KICK);
     dam /= LEARNED(ch);
@@ -2155,7 +2155,7 @@ ACMD(do_sleeper)
     if (!ok_to_attack(ch, vict, true))
         return;
 
-    percent = ((10 + GET_LEVEL(vict)) >> 1) + number(1, 101);
+    percent = ((10 + GET_LEVEL(vict)) / 2) + number(1, 101);
     prob = CHECK_SKILL(ch, SKILL_SLEEPER);
 
     if (AFF_FLAGGED(vict, AFF_ADRENALINE))
@@ -2291,7 +2291,7 @@ ACMD(do_turn)
             do_flee(vict, tmp_strdup(""), 0, 0);
             gain_skill_prof(ch, SKILL_TURN);
         } else {
-            damage(ch, vict, NULL, GET_LEVEL(ch) >> 1, SKILL_TURN, -1);
+            damage(ch, vict, NULL, GET_LEVEL(ch) / 2, SKILL_TURN, -1);
             WAIT_STATE(ch, PULSE_VIOLENCE * 2);
             gain_skill_prof(ch, SKILL_TURN);
         }
@@ -2351,7 +2351,7 @@ shoot_energy_gun(struct creature *ch,
 
     cost = MIN(CUR_ENERGY(gun->contains), GUN_DISCHARGE(gun));
     if (target) {
-        dam = dice(GUN_DISCHARGE(gun), (cost >> 1));
+        dam = dice(GUN_DISCHARGE(gun), (cost / 2));
 
         CUR_ENERGY(gun->contains) -= cost;
         act(tmp_sprintf("$n blasts %s with $p!", target->name),
@@ -2368,7 +2368,7 @@ shoot_energy_gun(struct creature *ch,
     if (is_dead(ch) || is_dead(vict))
         return;
 
-    prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
+    prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) / 4;
 
     for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
@@ -2457,9 +2457,9 @@ fire_projectile_round(struct creature *ch,
             false, ch, gun->contains ? gun->contains : gun, NULL, TO_CHAR);
 
         if (IS_ARROW(gun) && IS_ELF(ch))
-            WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 2) RL_SEC);
+            WAIT_STATE(ch, (((bullet_num * 2) + 6) / 4) RL_SEC);
         else
-            WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 1) RL_SEC);
+            WAIT_STATE(ch, (((bullet_num * 2) + 6) / 2) RL_SEC);
 
         return;
     }
@@ -2471,7 +2471,7 @@ fire_projectile_round(struct creature *ch,
         obj_from_obj(bullet);
         obj_to_room(bullet, ch->in_room);
         arrow_name = tmp_strdup(bullet->name);
-        damage_eq(NULL, bullet, dam >> 2, TYPE_HIT);
+        damage_eq(NULL, bullet, dam / 4, TYPE_HIT);
     } else {
         if (!bullet_num && !IS_FLAMETHROWER(gun))
             sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,
@@ -2587,7 +2587,7 @@ shoot_projectile_gun(struct creature *ch,
             act("You fire $P into $p!", false, ch, target, bullet, TO_CHAR);
             obj_from_obj(bullet);
             obj_to_room(bullet, ch->in_room);
-            damage_eq(NULL, bullet, dam >> 2, TYPE_HIT);
+            damage_eq(NULL, bullet, dam / 4, TYPE_HIT);
         } else {
             act(tmp_sprintf("$n blasts %s with $p!", target->name),
                 false, ch, gun, NULL, TO_ROOM);
@@ -2604,10 +2604,10 @@ shoot_projectile_gun(struct creature *ch,
                            &dum_ptr, &dum_ptr, &dum_obj, &dum_ptr, af);
 
     if (!IS_ARROW(gun))
-        prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
+        prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) / 8;
     else if (IS_ELF(ch))
-        prob += number(GET_LEVEL(ch) >> 2,
-            GET_LEVEL(ch) >> 1) + (GET_REMORT_GEN(ch) << 2);
+        prob += number(GET_LEVEL(ch) / 4,
+            GET_LEVEL(ch) / 2) + (GET_REMORT_GEN(ch) * 4);
 
     for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
@@ -2657,9 +2657,9 @@ shoot_projectile_gun(struct creature *ch,
     }
 
     if (IS_ARROW(gun) && IS_ELF(ch))
-        WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 2) RL_SEC);
+        WAIT_STATE(ch, (((bullet_num * 2) + 6) / 4) RL_SEC);
     else
-        WAIT_STATE(ch, (((bullet_num << 1) + 6) >> 1) RL_SEC);
+        WAIT_STATE(ch, (((bullet_num * 2) + 6) / 2) RL_SEC);
 }
 
 ACMD(do_shoot)
@@ -2855,7 +2855,7 @@ ACMD(do_disarm)
         if (GET_STR(ch) + number(0, 20) > GET_STR(vict) + GET_DEX(vict)) {
             do_drop(vict, fname(weap->aliases), 0, 0);
             if (IS_NPC(vict) && !GET_NPC_WAIT(vict) && AWAKE(vict) &&
-                number(0, GET_LEVEL(vict)) > (GET_LEVEL(vict) >> 1))
+                number(0, GET_LEVEL(vict)) > (GET_LEVEL(vict) / 2))
                 do_get(vict, fname(weap->aliases), 0, 0);
         }
 
@@ -2937,7 +2937,7 @@ ACMD(do_impale)
     if (!ok_to_attack(ch, vict, true))
         return;
 
-    percent = ((10 - (GET_AC(vict) / 10)) << 1) + number(1, 101);
+    percent = ((10 - (GET_AC(vict) / 10)) * 2) + number(1, 101);
     prob = CHECK_SKILL(ch, SKILL_IMPALE);
 
     if (IS_PUDDING(vict) || IS_SLIME(vict))
@@ -2948,7 +2948,7 @@ ACMD(do_impale)
     dam += dam * skill_bonus(ch, SKILL_IMPALE) / 200;
 
     if (IS_OBJ_STAT2(weap, ITEM2_TWO_HANDED) && weap->worn_on == WEAR_WIELD)
-        dam <<= 1;
+        dam *= 2;
 
     if (NON_CORPOREAL_MOB(vict))
         dam = 0;
@@ -3013,7 +3013,7 @@ ACMD(do_intimidate)
         return;
 
     prob = GET_LEVEL(vict) + number(1, 51) +
-        (IS_NPC(vict) ? (GET_MORALE(vict) >> 1) : GET_LEVEL(vict)) +
+        (IS_NPC(vict) ? (GET_MORALE(vict) / 2) : GET_LEVEL(vict)) +
         (AFF_FLAGGED(vict, AFF_CONFIDENCE) ? GET_LEVEL(vict) : 0);
 
     if (!ok_damage_vendor(ch, vict))
@@ -3185,7 +3185,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
                                &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
                                &dum_ptr, &dum_ptr, &dum_obj, &dum_ptr, af);
 
-        prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) >> 2;
+        prob += CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) / 4;
         prob += dexterity_hit_bonus(GET_DEX(ch));
 
         vict = randomize_target(ch, vict, prob);
@@ -3241,7 +3241,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
                            &dum_ptr, &dum_ptr, &dum_move, &dum_move, &dum_ptr,
                            &dum_ptr, &dum_ptr, &dum_obj, &dum_ptr, af);
 
-    prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) >> 3;
+    prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) / 8;
 
     vict = randomize_target(ch, vict, prob);
 
@@ -3255,7 +3255,7 @@ do_combat_fire(struct creature *ch, struct creature *vict)
     if (IS_ARROW(gun)) {
         obj_from_obj(bullet);
         obj_to_room(bullet, ch->in_room);
-        damage_eq(NULL, bullet, dam >> 2, TYPE_HIT);
+        damage_eq(NULL, bullet, dam / 4, TYPE_HIT);
     } else {
         if (!IS_FLAMETHROWER(gun))
             sound_gunshots(ch->in_room, SKILL_PROJ_WEAPONS,

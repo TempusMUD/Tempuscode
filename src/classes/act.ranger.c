@@ -54,7 +54,7 @@ ACMD(do_bandage)
         }
         mod =
             number(GET_WIS(ch), 2 * GET_LEVEL(ch) + CHECK_SKILL(ch,
-                SKILL_BANDAGE)) >> 4;
+                SKILL_BANDAGE)) / 16;
         if (GET_CLASS(ch) != CLASS_RANGER
             && GET_REMORT_CLASS(ch) != CLASS_RANGER)
             cost = mod * 3;
@@ -82,7 +82,7 @@ ACMD(do_bandage)
                 "Bandage someone who is in battle?  How's that?\r\n");
             return;
         }
-        mod = number((GET_WIS(ch) >> 1),
+        mod = number((GET_WIS(ch) / 2),
             11 + GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_BANDAGE)) / 10;
         if (GET_CLASS(ch) != CLASS_RANGER
             && GET_REMORT_CLASS(ch) != CLASS_RANGER)

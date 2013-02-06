@@ -90,7 +90,7 @@ ACMD(do_pistolwhip)
     if (!ok_to_attack(ch, vict, true))
         return;
 
-    percent = ((10 - (GET_AC(vict) / 10)) << 1) + number(1, 101);
+    percent = ((10 - (GET_AC(vict) / 10)) * 2) + number(1, 101);
     prob = CHECK_SKILL(ch, SKILL_PISTOLWHIP);
 
     if (IS_PUDDING(vict) || IS_SLIME(vict)) {
@@ -170,7 +170,7 @@ ACMD(do_crossface)
     // This beastly function brought to you by Cat, the letter F, and Nothing more
     prob =
         ((GET_LEVEL(ch) + level_bonus(ch, prime_merc)) - (GET_LEVEL(vict) * 2))
-        + (CHECK_SKILL(ch, SKILL_CROSSFACE) >> 2)
+        + (CHECK_SKILL(ch, SKILL_CROSSFACE) / 4)
         + (dex_mod * (GET_DEX(ch) - GET_DEX(vict)))
         + (str_mod * (GET_STR(ch) - GET_STR(vict)));
     percent = number(1, 100);
@@ -243,7 +243,7 @@ ACMD(do_crossface)
         else if (diff >= 20 && !is_arena_combat(ch, vict)) {
             struct obj_data *wear, *scraps;
 
-            damage(ch, vict, weap, dam >> 1, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, weap, dam / 2, SKILL_CROSSFACE, wear_num);
             wear = GET_EQ(vict, wear_num);
             if (wear && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
                 act("Your crossface has knocked $N's $p from $S head!",
@@ -253,7 +253,7 @@ ACMD(do_crossface)
                 act("Your jaw cracks as $n whips $s gun across your face.\n"
                     "$p flies off your head and lands a short distance away.", true, ch, wear, vict, TO_VICT);
 
-                scraps = damage_eq(vict, wear, dam >> 4, TYPE_HIT);
+                scraps = damage_eq(vict, wear, dam / 16, TYPE_HIT);
                 if (scraps) {
                     // Object is destroyed
                     obj_from_char(scraps);
@@ -269,7 +269,7 @@ ACMD(do_crossface)
                 }
             }
         } else {
-            damage(ch, vict, weap, dam >> 1, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, weap, dam / 2, SKILL_CROSSFACE, wear_num);
         }
 
         gain_skill_prof(ch, SKILL_CROSSFACE);
@@ -454,8 +454,8 @@ ACMD(do_snipe)
     // just some level checks.  The victims level matters more
     // because it should be almost impossible to hit a high
     // level character who has been sniped once already
-    prob += (GET_LEVEL(ch) >> 2) + GET_REMORT_GEN(ch);
-    percent += GET_LEVEL(vict) + (GET_REMORT_GEN(vict) >> 2);
+    prob += (GET_LEVEL(ch) / 4) + GET_REMORT_GEN(ch);
+    percent += GET_LEVEL(vict) + (GET_REMORT_GEN(vict) / 4);
     damage_loc = choose_random_limb(vict);
     // we need to extract the bullet so we need an object pointer to
     // it.  However we musn't over look the possibility that gun->contains
@@ -511,14 +511,14 @@ ACMD(do_snipe)
         // seems to crash the mud if you call damage_eq() on a location
         // that doesn't have any eq...hmmm
         if (GET_EQ(vict, damage_loc)) {
-            damage_eq(vict, GET_EQ(vict, damage_loc), dam >> 1, TYPE_HIT);
+            damage_eq(vict, GET_EQ(vict, damage_loc), dam / 2, TYPE_HIT);
         }
         if ((armor = GET_EQ(vict, damage_loc))
             && IS_OBJ_TYPE(armor, ITEM_ARMOR)) {
             if (IS_STONE_TYPE(armor) || IS_METAL_TYPE(armor))
-                dam -= GET_OBJ_VAL(armor, 0) << 4;
+                dam -= GET_OBJ_VAL(armor, 0) * 16;
             else
-                dam -= GET_OBJ_VAL(armor, 0) << 2;
+                dam -= GET_OBJ_VAL(armor, 0) * 4;
         }
 
         add_blood_to_room(vict->in_room, 1);
@@ -536,11 +536,11 @@ ACMD(do_snipe)
         WAIT_STATE(vict, 2 RL_SEC);
         // double damage for a head shot...1 in 27 chance
         if (damage_loc == WEAR_HEAD) {
-            dam = dam << 1;
+            dam = dam * 2;
         }
         // 1.5x damage for a neck shot...2 in 27 chance
         else if (damage_loc == WEAR_NECK_1 || damage_loc == WEAR_NECK_2) {
-            dam += dam >> 1;
+            dam += dam / 2;
         }
         if (damage_loc == WEAR_HEAD) {
             send_to_char(ch, "BOOM, HEADSHOT!\r\n");
@@ -628,7 +628,7 @@ ACMD(do_wrench)
         two_handed = 1;
     }
 
-    percent = ((10 - (GET_AC(vict) / 50)) << 1) + number(1, 101);
+    percent = ((10 - (GET_AC(vict) / 50)) * 2) + number(1, 101);
     prob = CHECK_SKILL(ch, SKILL_WRENCH);
 
     if (!can_see_creature(ch, vict)) {
@@ -651,7 +651,7 @@ ACMD(do_wrench)
 
     if (((neck = GET_IMPLANT(vict, WEAR_NECK_1)) && NOBEHEAD_EQ(neck)) ||
         ((neck = GET_IMPLANT(vict, WEAR_NECK_2)) && NOBEHEAD_EQ(neck))) {
-        dam >>= 1;
+        dam /= 2;
         damage_eq(ch, neck, dam, TYPE_HIT);
     }
 

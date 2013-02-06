@@ -88,7 +88,7 @@ find_action(int cmd)
         return (-1);
 
     while (true) {
-        mid = (bot + top) >> 1;
+        mid = (bot + top) / 2;
 
         if (soc_mess_list[mid].act_nr == cmd)
             return (mid);

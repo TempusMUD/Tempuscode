@@ -125,7 +125,7 @@ select_berserk_victim(struct creature *tch, struct creature *ch)
             && IS_NPC(tch)
             && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS))
         || !can_see_creature(ch, tch)
-        || !number(0, 1 + (GET_LEVEL(ch) >> 4)))
+        || !number(0, 1 + (GET_LEVEL(ch) / 16)))
         return -1;
 
     return 0;
@@ -212,9 +212,9 @@ ACMD(do_berserk)
         af.location = APPLY_INT;
         af2.location = APPLY_WIS;
         af3.location = APPLY_DAMROLL;
-        af.modifier = -(5 + (GET_LEVEL(ch) >> 5));
-        af2.modifier = -(5 + (GET_LEVEL(ch) >> 5));
-        af3.modifier = (2 + GET_REMORT_GEN(ch) + (GET_LEVEL(ch) >> 4));
+        af.modifier = -(5 + (GET_LEVEL(ch) / 32));
+        af2.modifier = -(5 + (GET_LEVEL(ch) / 32));
+        af3.modifier = (2 + GET_REMORT_GEN(ch) + (GET_LEVEL(ch) / 16));
         af.aff_index = 2;
         af.bitvector = AFF2_BERSERK;
         af2.bitvector = 0;
@@ -272,11 +272,10 @@ ACMD(do_battlecry)
 
     } else {
 
-        int trans =
-            CHECK_SKILL(ch,
-            skillnum) + (GET_LEVEL(ch) << GET_REMORT_GEN(ch)) +
-            (GET_CON(ch) << 3);
-        trans -= (trans * GET_HIT(ch)) / (GET_MAX_HIT(ch) << 1);
+        int trans = CHECK_SKILL(ch, skillnum);
+        trans += GET_LEVEL(ch) << GET_REMORT_GEN(ch);
+        trans += GET_CON(ch) * 8;
+        trans -= (trans * GET_HIT(ch)) / (GET_MAX_HIT(ch) * 2);
         trans = MIN(MIN(trans, GET_MANA(ch)), GET_MAX_MOVE(ch) - GET_MOVE(ch));
 
         if (skillnum != SKILL_KIA || IS_NEUTRAL(ch)) {

@@ -59,7 +59,7 @@ SPECIAL(hell_domed_chamber)
     GET_CON(cloned_char) = GET_CON(ch);
     GET_CHA(cloned_char) = GET_CHA(ch);
 
-    GET_EXP(cloned_char) = GET_EXP(ch) >> 4;
+    GET_EXP(cloned_char) = GET_EXP(ch) / 16;
     GET_SEX(cloned_char) = GET_SEX(ch);
 
     char_to_room(cloned_char, ch->in_room, false);

@@ -56,7 +56,7 @@ SPECIAL(watchdog)
             break;
         }
 
-        if (indignation > (GET_CHA(vict) >> 2)) {
+        if (indignation > (GET_CHA(vict) / 4)) {
             hit(dog, vict, TYPE_UNDEFINED);
             indignation = 0;
             vict = NULL;

@@ -59,7 +59,7 @@ ASPELL(spell_dispel_evil)
         }
 
         GET_ALIGNMENT(victim) += MAX(10,
-            skill_bonus(ch, SPELL_DISPEL_EVIL) >> 2);
+            skill_bonus(ch, SPELL_DISPEL_EVIL) / 4);
 
         if (!is_dead(ch))
             WAIT_STATE(ch, 2 RL_SEC);
