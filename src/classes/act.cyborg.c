@@ -955,7 +955,6 @@ ACMD(do_activate)
                     affect_total(ch);
                 }
             }
-            break;
             return;
 
         case ITEM_TRANSPORTER:
@@ -3557,10 +3556,10 @@ ACMD(do_assimilate)
             num_newaffs++;
 
             // create a new aff
-            if (!(affs =
-                    (struct affected_type *)realloc(affs,
-                        sizeof(struct affected_type) * (++num_affs)))) {
+            affs = realloc(affs, sizeof(struct affected_type) * (++num_affs));
+            if (!affs) {
                 errlog("error reallocating affs in do_assimilate.");
+                free(affs);
                 return;
             }
 

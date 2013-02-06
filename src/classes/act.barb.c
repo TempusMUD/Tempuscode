@@ -243,7 +243,7 @@ ACMD(do_berserk)
 
 ACMD(do_battlecry)
 {
-    int trans = 0, skillnum = (subcmd == SCMD_KIA ? SKILL_KIA :
+    int skillnum = (subcmd == SCMD_KIA ? SKILL_KIA :
         (subcmd == SCMD_BATTLE_CRY ? SKILL_BATTLE_CRY :
             SKILL_CRY_FROM_BEYOND));
     int did = 0;
@@ -272,7 +272,7 @@ ACMD(do_battlecry)
 
     } else {
 
-        trans =
+        int trans =
             CHECK_SKILL(ch,
             skillnum) + (GET_LEVEL(ch) << GET_REMORT_GEN(ch)) +
             (GET_CON(ch) << 3);

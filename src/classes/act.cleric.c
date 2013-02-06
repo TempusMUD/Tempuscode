@@ -32,8 +32,6 @@
 
 ASPELL(spell_dispel_evil)
 {
-    int dam = 0;
-
     if (IS_EVIL(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
         send_to_char(ch,
             "Your soul is not righteous enough to cast this spell.\n");
@@ -56,7 +54,7 @@ ASPELL(spell_dispel_evil)
             }
         }
         if (IS_EVIL(victim)) {
-            dam = dice(10, 15) + skill_bonus(ch, SPELL_DISPEL_EVIL);
+            int dam = dice(10, 15) + skill_bonus(ch, SPELL_DISPEL_EVIL);
             damage(ch, victim, NULL, dam, SPELL_DISPEL_EVIL, WEAR_RANDOM);
         }
 
@@ -99,8 +97,6 @@ ASPELL(spell_dispel_evil)
 
 ASPELL(spell_dispel_good)
 {
-    int dam = 0;
-
     if (IS_GOOD(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
         send_to_char(ch,
             "Your soul is not stained enough to cast this spell.\n");
@@ -124,7 +120,7 @@ ASPELL(spell_dispel_good)
         }
 
         if (IS_GOOD(victim)) {
-            dam = dice(15, 20) + skill_bonus(ch, SPELL_DISPEL_GOOD);
+            int dam = dice(15, 20) + skill_bonus(ch, SPELL_DISPEL_GOOD);
             damage(ch, victim, NULL, dam, SPELL_DISPEL_GOOD, WEAR_RANDOM);
         }
 

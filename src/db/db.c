@@ -2438,10 +2438,6 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
         return 4;
     }
     obj = read_object(vnum);
-    obj->creation_method = CREATED_MOB;
-    obj->creator = vnum;
-
-    randomize_object(obj);
     if (obj == NULL) {
         errlog("Mob num %d cannot load equip object #%d.",
             ch->mob_specials.shared->vnum, vnum);
@@ -2450,6 +2446,10 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
                 tmp_sprintf("Loading object %d failed!", vnum));
         return 5;
     }
+    obj->creation_method = CREATED_MOB;
+    obj->creator = vnum;
+
+    randomize_object(obj);
     // Unapproved mobs should load unapproved eq.
     if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)) {
         SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);

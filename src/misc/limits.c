@@ -269,9 +269,9 @@ move_gain(struct creature *ch)
         gain = graf(GET_AGE(ch), GET_RACE(ch), 18, 22, 26, 22, 18, 14, 12);
 
     /* Class/Level calculations */
-    if IS_RANGER
-        (ch) gain += (gain >> 2);
-    gain += (GET_LEVEL(ch) >> 3);
+    if (IS_RANGER(ch))
+        gain += (gain / 4);
+    gain += (GET_LEVEL(ch) / 8);
 
     /* Skill/Spell calculations */
     gain += (GET_CON(ch) >> 2);
