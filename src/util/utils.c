@@ -750,3 +750,32 @@ format_weight(float lbs, bool metric)
             return tmp_sprintf("%'.2f lb", lbs);
     }
 }
+
+int
+parse_distance(char *str, bool metric)
+{
+    if (metric) {
+        return atoi(str);
+    } else {
+        int feet = atoi(tmp_getword(&str));
+        int inches = atoi(tmp_getword(&str));
+
+        inches += feet * 12;
+
+        return (inches + 1) * 2.54;
+    }
+}
+
+float
+parse_weight(char *str, bool metric)
+{
+    if (metric) {
+        float kg = strtof(str, NULL);
+        return kg * 2.2;
+    } else {
+        float lbs = strtof(tmp_getword(&str), NULL);
+        float oz = strtof(tmp_getword(&str), NULL);
+
+        return lbs + oz / 16.0;
+    }
+}

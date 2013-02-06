@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <errno.h>
+#include <math.h>
 #include <inttypes.h>
 #include <unistd.h>
 #include <libpq-fe.h>
@@ -362,6 +363,7 @@ do_mob_mset(struct creature *ch, char *argument)
     struct creature *tmp_mob;
     struct zone_data *zone;
     int i, mset_command, tmp_flags, flag, cur_flags, state;
+    bool metric = USE_METRIC(ch);
 
     if (!mob_p) {
         send_to_char(ch, "You are not currently editing a mobile.\r\n");
@@ -1036,26 +1038,34 @@ do_mob_mset(struct creature *ch, char *argument)
     case 37:             /** stradd **/
         send_to_char(ch, "StrAdd disabled.\r\n");
         break;
-    case 38:{             /** height **/
-            i = atoi(arg2);
-            if (i < 1 || i > 10000)
-                send_to_char(ch, "Height must be between 1 and 10000.\r\n");
-            else {
-                GET_HEIGHT(mob_p) = i;
-                send_to_char(ch, "Mobile height set.\r\n");
-            }
-            break;
+    case 38: {             /** height **/
+        int height = parse_distance(arg2, metric);
+
+        if (height < 0 || height > 10000) {
+            send_to_char(ch, "Mob height must be between 0 and %s",
+                         format_distance(10000, metric));
+            return;
         }
-    case 39:{             /** weight **/
-            i = atoi(arg2);
-            if (i < 1 || i > 50000)
-                send_to_char(ch, "Weight must be between 1 and 50000.\r\n");
-            else {
-                GET_WEIGHT(mob_p) = i;
-                send_to_char(ch, "Mobile weight set.\r\n");
-            }
-            break;
+
+        GET_HEIGHT(mob_p) = height;
+
+        send_to_char(ch, "Mobile height set to %s.\r\n", 
+                     format_distance(GET_HEIGHT(mob_p), metric));
+        break;
+    }
+    case 39:{ /** weight **/
+        float weight = parse_weight(arg2, metric);
+        if (weight < 1 || weight > 32750) {
+            send_to_char(ch, "Weight must be between 1 and %s.\r\n",
+                         format_weight(32750, metric));
+            return;
         }
+
+        GET_WEIGHT(mob_p) = (int)ceilf(weight);
+        send_to_char(ch, "Mobile weight set to %s.\r\n",
+                     format_weight(GET_WEIGHT(mob_p), metric));
+        break;
+    }
     case 40:
         send_to_char(ch, "Removed.  Use a prog instead.\r\n");
         break;

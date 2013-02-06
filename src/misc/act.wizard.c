@@ -1209,6 +1209,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     struct extra_descr_data *desc;
     extern const char *egun_types[];
     struct room_data *rm = NULL;
+    bool metric = USE_METRIC(ch);
 
     if (IS_OBJ_TYPE(j, ITEM_NOTE) && isname("letter", j->aliases)) {
         if (j->carried_by && GET_LEVEL(j->carried_by) > GET_LEVEL(ch)) {
@@ -1320,8 +1321,8 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     acc_sprintf("Extra3 flags: %s\r\n",
         tmp_printbits(GET_OBJ_EXTRA3(j), extra3_bits));
 
-    acc_sprintf("Weight: %.2f, Cost: %d (%d), Rent: %d, Timer: %d\r\n",
-        GET_OBJ_WEIGHT(j), GET_OBJ_COST(j),
+    acc_sprintf("Weight: %s, Cost: %'d (%'d), Rent: %'d, Timer: %d\r\n",
+        format_weight(GET_OBJ_WEIGHT(j), metric), GET_OBJ_COST(j),
         prototype_obj_value(j), GET_OBJ_RENT(j), GET_OBJ_TIMER(j));
 
     if ((rm = where_obj(j))) {
@@ -1340,10 +1341,10 @@ do_stat_object(struct creature *ch, struct obj_data *j)
             (j->aux_obj) ? j->aux_obj->name : "N", CCNRM(ch, C_NRM));
     }
     acc_sprintf
-        ("Material: [%s%s%s (%d)], Maxdamage: [%d (%d)], Damage: [%d]\r\n",
+        ("Material: [%s%s%s (%d)], Maxdamage: [%'d (%'d)], Damage: [%'d]\r\n",
          CCYEL(ch, C_NRM), strlist_aref(GET_OBJ_MATERIAL(j), material_names), CCNRM(ch,
-            C_NRM), GET_OBJ_MATERIAL(j), GET_OBJ_MAX_DAM(j), set_maxdamage(j),
-        GET_OBJ_DAM(j));
+         C_NRM), GET_OBJ_MATERIAL(j), GET_OBJ_MAX_DAM(j), set_maxdamage(j),
+         GET_OBJ_DAM(j));
 
     switch (GET_OBJ_TYPE(j)) {
     case ITEM_LIGHT:
@@ -1706,6 +1707,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     const char *line_buf;
     struct follow_type *fol;
     struct affected_type *aff;
+    bool metric = USE_METRIC(ch);
 
     if (IS_PC(k)
         && !(is_tester(ch) && ch == k)
@@ -1812,8 +1814,9 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             GET_ALIGNMENT(k));
     }
 
-    acc_sprintf("Height:  %d centimeters , Weight: %d lbs.\r\n",
-                GET_HEIGHT(k), GET_WEIGHT(k));
+    acc_sprintf("Height %s, Weight %s.\r\n",
+        format_distance(GET_HEIGHT(k), metric),
+        format_weight(GET_WEIGHT(k), metric));
 
     if (!IS_NPC(k)) {
         strcpy(buf1, (char *)asctime(localtime(&(k->player.time.birth))));
