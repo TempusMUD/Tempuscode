@@ -64,11 +64,11 @@ make_creature(bool pc)
 void
 reset_creature(struct creature *ch)
 {
+    void free_alias(struct alias_data *a);
+
     struct creature *tmp_mob;
     struct alias_data *a;
     bool is_pc;
-
-    void free_alias(struct alias_data *a);
 
     //
     // first make sure the char is no longer in the world

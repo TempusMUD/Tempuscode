@@ -1246,7 +1246,7 @@ const char *CURRENCY(struct creature * ch);
                          ((GET_LEVEL(ch) >= LVL_GOD) ? 100000 : 0) + \
 						 ((GET_LEVEL(ch) >= LVL_IMMORT) ? 1000 : 0) + \
                          (AFF2_FLAGGED(ch, AFF2_TELEKINESIS) ? \
-                          (GET_LEVEL(ch) >> 2) : 0))
+                          (GET_LEVEL(ch) / 4) : 0))
 
 #define AWAKE(ch) (GET_POSITION(ch) > POS_SLEEPING && !AFF2_FLAGGED(ch, AFF2_MEDITATE))
 

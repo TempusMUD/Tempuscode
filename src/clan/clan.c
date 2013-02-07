@@ -738,13 +738,12 @@ ACMD(do_cinfo)
     struct clan_data *clan = real_clan(GET_CLAN(ch));
     struct clanmember_data *member;
     struct room_list_elem *rm_list = NULL;
-    int found = 0;
-    int i;
 
     if (!clan)
         send_to_char(ch, "You are not a member of any clan.\r\n");
     else {
         acc_string_clear();
+        int i;
         for (i = 0, member = clan->member_list; member; member = member->next)
             i++;
         acc_sprintf("Information on clan %s%s%s:\r\n\r\n"
@@ -758,6 +757,7 @@ ACMD(do_cinfo)
                 clan_rankname(clan, i), CCNRM(ch, C_NRM));
         }
 
+        int found = 0;
         acc_strcat("Clan rooms:\r\n", NULL);
         for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
             if (rm_list->room && ROOM_FLAGGED(rm_list->room, ROOM_CLAN_HOUSE)) {
@@ -1613,7 +1613,7 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
 {
     struct clanmember_data *member = NULL;
     struct room_list_elem *rm_list = NULL;
-    int i, num_rooms = 0, num_members = 0;
+    int num_members = 0;
 
     acc_string_clear();
     if (clan) {
@@ -1625,13 +1625,14 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
             clan->bank_account,
             player_name_by_idnum(clan->owner), clan->owner);
 
-        for (i = clan->top_rank; i >= 0; i--) {
+        for (int i = clan->top_rank; i >= 0; i--) {
             acc_sprintf("Rank %2d: %s%s%s\r\n", i,
                 CCYEL(ch, C_NRM), clan_rankname(clan, i), CCNRM(ch, C_NRM));
         }
 
         acc_strcat("ROOMS:\r\n", NULL);
 
+        int num_rooms;
         for (rm_list = clan->room_list, num_rooms = 0;
             rm_list; rm_list = rm_list->next) {
             num_rooms++;

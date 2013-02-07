@@ -622,14 +622,14 @@ affect_join(struct creature *ch, struct affected_type *af,
             if (add_dur)
                 af->duration = MIN(666, af->duration + hjp->duration);
             if (avg_dur)
-                af->duration >>= 1;
+                af->duration /= 2;
 
             if (add_mod) {
                 af->modifier =
                     MIN(MAX(af->modifier + hjp->modifier, -666), 666);
             }
             if (avg_mod)
-                af->modifier >>= 1;
+                af->modifier /= 2;
             affect_remove(ch, hjp);
             affect_to_char(ch, af);
             return;
@@ -1030,7 +1030,7 @@ general_obj_to_char(struct obj_data *object,
         !IS_NPC(ch) && GET_LEVEL(ch) < LVL_IMMORT && !GET_OBJ_TIMER(object)) {
 
         if ((zn = real_zone(zone_number(GET_OBJ_VNUM(object)))))
-            GET_OBJ_TIMER(object) = MAX(2, zn->lifespan >> 1);
+            GET_OBJ_TIMER(object) = MAX(2, zn->lifespan / 2);
         else
             GET_OBJ_TIMER(object) = 15;
     }
@@ -1351,7 +1351,7 @@ check_eq_align(struct creature *ch)
                     implant, NULL, TO_CHAR);
                 act("$n screams in horror as $p burns its way out through $s flesh!", false, ch, implant, NULL, TO_ROOM);
 
-                damage_eq(NULL, implant, (GET_OBJ_DAM(implant) >> 1), -1);
+                damage_eq(NULL, implant, (GET_OBJ_DAM(implant) / 2), -1);
 
                 int extraction_damage =
                     MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
@@ -1359,7 +1359,7 @@ check_eq_align(struct creature *ch)
                     extraction_damage *= 3;
                 else if (pos == WEAR_HEAD || pos == WEAR_LEGS)
                     extraction_damage *= 2;
-                extraction_damage >>= 3;
+                extraction_damage /= 8;
                 return damage(ch, ch, NULL, dice(extraction_damage, 3),
                     TOP_SPELL_DEFINE, pos);
             }
@@ -1378,7 +1378,7 @@ check_eq_align(struct creature *ch)
             act("$n frantically takes off $p as $e screams in agony!", false,
                 ch, obj, NULL, TO_ROOM);
             skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
-            skill >>= 5;
+            skill /= 32;
             skill = MAX(1, skill);
             obj_to_char(unequip_char(ch, pos, false), ch);
 

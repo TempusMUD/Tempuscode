@@ -95,13 +95,13 @@ SPECIAL(enhancer)
         false, keeper, obj, ch, TO_NOTVICT);
 
     SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_ENHANCED);
-    if (((GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1)) >> 1) < 21) {
-        if (((GET_OBJ_VAL(obj, 2) + 1) >> 1) >= GET_OBJ_VAL(obj, 1))
+    if (((GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1)) / 2) < 21) {
+        if (((GET_OBJ_VAL(obj, 2) + 1) / 2) >= GET_OBJ_VAL(obj, 1))
             GET_OBJ_VAL(obj, 1) += 1;
         else
             GET_OBJ_VAL(obj, 2) += 2;
     } else {
-        if (((GET_OBJ_VAL(obj, 2) + 1) >> 1) >= GET_OBJ_VAL(obj, 1))
+        if (((GET_OBJ_VAL(obj, 2) + 1) / 2) >= GET_OBJ_VAL(obj, 1))
             GET_OBJ_VAL(obj, 2) += 2;
         else
             GET_OBJ_VAL(obj, 1) += 1;

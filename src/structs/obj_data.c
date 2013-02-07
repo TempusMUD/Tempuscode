@@ -569,6 +569,7 @@ load_object_from_xml(struct obj_data *container,
     struct creature *victim, struct room_data *room, xmlNodePtr node)
 {
     struct obj_data *obj;
+    struct extra_descr_data *last_desc = NULL;
     int vnum = xmlGetIntProp(node, "vnum", 0);
     bool placed;
     char *str;
@@ -628,14 +629,18 @@ load_object_from_xml(struct obj_data *container,
             desc = locate_exdesc(fname(keyword), obj->ex_description, 1);
             if (!desc) {
                 CREATE(desc, struct extra_descr_data, 1);
-                desc->keyword = keyword;
-                desc->description = (char *)xmlNodeGetContent(cur);
             } else {
-                free(keyword);
+                free(desc->keyword);
                 free(desc->description);
-                desc->description = (char *)xmlNodeGetContent(cur);
             }
-
+            desc->keyword = keyword;
+            desc->description = (char *)xmlNodeGetContent(cur);
+            if (last_desc) {
+                last_desc->next = desc;
+                last_desc = desc;
+            } else {
+                obj->ex_description = desc;
+            }
         } else if (xmlMatches(cur->name, "action_desc")) {
             str = (char *)xmlNodeGetContent(cur);
             obj->action_desc = strdup(tmp_gsub(str, "\n", "\r\n"));

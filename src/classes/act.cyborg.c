@@ -175,7 +175,7 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
     } else {
         if (!amount)
             amount =
-                MIN(GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 3), GET_MOVE(ch));
+                MIN(GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 8), GET_MOVE(ch));
         else
             amount = MIN(amount, GET_MOVE(ch));
     }
@@ -609,7 +609,7 @@ perform_cyborg_activate(struct creature *ch, int16_t mode, int subcmd)
             af[1].aff_index = 1;
             af[1].location = APPLY_SPEED;
             af[1].modifier =
-                1 + (GET_LEVEL(ch) >> 3) + (GET_REMORT_GEN(ch) >> 1);
+                1 + (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) / 2);
 
             to_char[1] = "Shukutei adrenal maximizations enabled.\r\n";
             to_char[0] = "Shukutei adrenal maximizations disabled.\r\n";
@@ -657,7 +657,7 @@ perform_cyborg_activate(struct creature *ch, int16_t mode, int subcmd)
 
             af[1].type = mode;
             af[1].location = APPLY_STR;
-            af[1].modifier = 1 + (GET_LEVEL(ch) >> 4);
+            af[1].modifier = 1 + (GET_LEVEL(ch) / 16);
 
             to_char[1] = "Power boost enabled.\r\n";
             to_room[1] = "$n boosts $s power levels!  Look out!";
@@ -955,7 +955,6 @@ ACMD(do_activate)
                     affect_total(ch);
                 }
             }
-            break;
             return;
 
         case ITEM_TRANSPORTER:
@@ -983,7 +982,7 @@ ACMD(do_activate)
             }
 
             mass = GET_WEIGHT(ch) + IS_CARRYING_W(ch) + IS_WEARING_W(ch);
-            mass >>= 4;
+            mass /= 16;
 
             if (CUR_ENERGY(obj) < mass)
                 act("$p lacks the energy to transport you and your gear.",
@@ -1449,7 +1448,7 @@ ACMD(do_discharge)
     if (!ok_to_attack(ch, vict, true))
         return;
 
-    percent = ((10 - (GET_AC(vict) / 10)) >> 1) + number(1, 91);
+    percent = ((10 - (GET_AC(vict) / 10)) / 2) + number(1, 91);
 
     prob = CHECK_SKILL(ch, SKILL_DISCHARGE);
 
@@ -1901,7 +1900,7 @@ perform_cyborepair(struct creature *ch, struct creature *vict)
         } else if (!IS_NPC(ch)
                    && number(12, 150) > CHECK_SKILL(ch, SKILL_SELFREPAIR)
                    + TOOL_MOD(tool)
-                   + (CHECK_SKILL(ch, SKILL_ELECTRONICS) >> 1)
+                   + (CHECK_SKILL(ch, SKILL_ELECTRONICS) / 2)
                    + GET_INT(ch)) {
             send_to_char(ch, "You fail to repair yourself.\r\n");
         } else {
@@ -1910,7 +1909,7 @@ perform_cyborepair(struct creature *ch, struct creature *vict)
             } else {
                 dam = (GET_LEVEL(ch)) +
                     ((CHECK_SKILL(ch,
-                                  SKILL_SELFREPAIR) + TOOL_MOD(tool)) >> 2) +
+                                  SKILL_SELFREPAIR) + TOOL_MOD(tool)) / 4) +
                     number(0, GET_LEVEL(ch));
                 if (GET_CLASS(ch) == CLASS_CYBORG)
                     dam += dice(GET_REMORT_GEN(ch), 10);
@@ -1918,7 +1917,7 @@ perform_cyborepair(struct creature *ch, struct creature *vict)
                     dam += dice(GET_REMORT_GEN(ch), 5);
             }
             dam = MIN(GET_MAX_HIT(ch) - GET_HIT(ch), dam);
-            cost = dam >> 1;
+            cost = dam / 2;
             if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)
                 send_to_char(ch,
                              "You lack the energy required to perform this operation.\r\n");
@@ -1934,7 +1933,7 @@ perform_cyborepair(struct creature *ch, struct creature *vict)
                 send_to_char(ch, "You skillfully repair yourself.\r\n");
                 act("$n repairs $mself.", true, ch, NULL, NULL, TO_ROOM);
                 gain_skill_prof(ch, SKILL_SELFREPAIR);
-                WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 7)));
+                WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam / 128)));
             }
         }
     } else {
@@ -1951,19 +1950,19 @@ perform_cyborepair(struct creature *ch, struct creature *vict)
         else {
             if (number(12, 150) > CHECK_SKILL(ch, SKILL_CYBOREPAIR) +
                 TOOL_MOD(tool) +
-                (CHECK_SKILL(ch, SKILL_ELECTRONICS) >> 1) + GET_INT(ch)) {
+                (CHECK_SKILL(ch, SKILL_ELECTRONICS) / 2) + GET_INT(ch)) {
                 act("$n attempts to repair you, but fails.", false, ch, NULL,
                     vict, TO_VICT);
                 act("You fail to repair $M.\r\n", false, ch, NULL, vict,
                     TO_CHAR);
             } else {
 
-                dam = (GET_LEVEL(ch) >> 1) +
+                dam = (GET_LEVEL(ch) / 2) +
                     ((CHECK_SKILL(ch,
-                                  SKILL_CYBOREPAIR) + TOOL_MOD(tool)) >> 2) +
+                                  SKILL_CYBOREPAIR) + TOOL_MOD(tool)) / 4) +
                     number(0, GET_LEVEL(ch));
                 dam = MIN(GET_MAX_HIT(vict) - GET_HIT(vict), dam);
-                cost = dam >> 1;
+                cost = dam / 2;
                 if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)
                     send_to_char(ch,
                                  "You lack the energy required to perform this operation.\r\n");
@@ -1983,7 +1982,7 @@ perform_cyborepair(struct creature *ch, struct creature *vict)
                     act("$n skillfully makes repairs on you.", true, ch, NULL,
                         vict, TO_VICT);
                     gain_skill_prof(ch, SKILL_CYBOREPAIR);
-                    WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam >> 6)));
+                    WAIT_STATE(ch, PULSE_VIOLENCE * (1 + (dam / 64)));
                     update_pos(vict);
                 }
             }
@@ -2042,12 +2041,12 @@ perform_repair(struct creature *ch, struct obj_data *obj)
         return;
     }
 
-    dam = ((CHECK_SKILL(ch, skill) + TOOL_MOD(tool)) << 3);
+    dam = ((CHECK_SKILL(ch, skill) + TOOL_MOD(tool)) * 8);
     if (IS_DWARF(ch) && skill == SKILL_METALWORKING)
-        dam += (GET_LEVEL(ch) << 2);
+        dam += (GET_LEVEL(ch) * 4);
 
     GET_OBJ_DAM(obj) = MIN(GET_OBJ_DAM(obj) + dam,
-        (GET_OBJ_MAX_DAM(obj) >> 2) * 3);
+        (GET_OBJ_MAX_DAM(obj) / 4) * 3);
     act("You skillfully perform repairs on $p.", false, ch, obj, NULL, TO_CHAR);
     act("$n skillfully performs repairs on $p.", false, ch, obj, NULL, TO_ROOM);
     gain_skill_prof(ch, skill);
@@ -2541,7 +2540,7 @@ ACMD(do_insert)
     }
 
     if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
-        (GET_DEX(ch) << 2) < number(50, 100)) {
+        (GET_DEX(ch) * 4) < number(50, 100)) {
         send_to_char(ch, "You fail.\r\n");
         return;
     }
@@ -2661,7 +2660,7 @@ ACMD(do_extract)
         }
 
         if (((CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
-                    (GET_DEX(ch) << 2)) < number(50, 100)) ||
+                    (GET_DEX(ch) * 4)) < number(50, 100)) ||
             (IS_OBJ_TYPE(obj, ITEM_SCRIPT) && GET_LEVEL(ch) < 50)) {
             send_to_char(ch, "You fail.\r\n");
             return;
@@ -2691,16 +2690,16 @@ ACMD(do_extract)
         act("You carefully extract $p from $P.", false, ch, obj, corpse,
             TO_CHAR);
         if (CHECK_SKILL(ch,
-                SKILL_CYBO_SURGERY) + TOOL_MOD(tool) + (GET_DEX(ch) << 2) <
+                SKILL_CYBO_SURGERY) + TOOL_MOD(tool) + (GET_DEX(ch) * 4) <
             number(50, 100)) {
             act("You damage $p during the extraction!", false, ch, obj, NULL,
                 TO_CHAR);
             damage_eq(ch,
                 obj,
-                MAX((GET_OBJ_DAM(obj) >> 2),
+                MAX((GET_OBJ_DAM(obj) / 4),
                     (dice(10, 10) -
                         CHECK_SKILL(ch, SKILL_CYBO_SURGERY) -
-                        (GET_DEX(ch) << 2))), -1);
+                        (GET_DEX(ch) * 4))), -1);
         } else
             gain_skill_prof(ch, SKILL_CYBO_SURGERY);
 
@@ -2764,7 +2763,7 @@ ACMD(do_extract)
     }
 
     if ((CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
-            (GET_DEX(ch) << 2) < number(50, 100)) ||
+            (GET_DEX(ch) * 4) < number(50, 100)) ||
         (IS_OBJ_TYPE(obj, ITEM_SCRIPT) && GET_LEVEL(ch) < 50)) {
         send_to_char(ch, "You fail.\r\n");
         return;
@@ -2808,12 +2807,12 @@ ACMD(do_extract)
     }
 
     if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
-        (GET_DEX(ch) << 2) < number(50, 100)) {
+        (GET_DEX(ch) * 4) < number(50, 100)) {
         act("You damage $p during the extraction!", false, ch, obj, NULL,
             TO_CHAR);
-        damage_eq(ch, obj, MAX((GET_OBJ_DAM(obj) >> 2), (dice(10,
+        damage_eq(ch, obj, MAX((GET_OBJ_DAM(obj) / 4), (dice(10,
                         10) - CHECK_SKILL(ch,
-                        SKILL_CYBO_SURGERY) - (GET_DEX(ch) << 2))), -1);
+                        SKILL_CYBO_SURGERY) - (GET_DEX(ch) * 4))), -1);
     } else
         gain_skill_prof(ch, SKILL_CYBO_SURGERY);
 }
@@ -3059,7 +3058,7 @@ ACMD(do_load)
         if (IS_CHIP(obj1) && ch == obj2->worn_by && obj1->action_desc)
             act(obj1->action_desc, false, ch, NULL, NULL, TO_CHAR);
         i = 10 - MIN(8,
-            ((CHECK_SKILL(ch, SKILL_SPEED_LOADING) + GET_DEX(ch)) >> 4));
+            ((CHECK_SKILL(ch, SKILL_SPEED_LOADING) + GET_DEX(ch)) / 16));
         WAIT_STATE(ch, i);
         return;
     }
@@ -3117,7 +3116,7 @@ ACMD(do_load)
         obj_from_obj(obj1);
         obj_to_char(obj1, ch);
         i = 10 - MIN(8,
-            ((CHECK_SKILL(ch, SKILL_SPEED_LOADING) + GET_DEX(ch)) >> 4));
+            ((CHECK_SKILL(ch, SKILL_SPEED_LOADING) + GET_DEX(ch)) / 16));
         WAIT_STATE(ch, i);
 
         return;
@@ -3372,7 +3371,7 @@ ACMD(do_de_energize)
     }
     // victim resists
     if (mag_savingthrow(vict,
-            GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 3), SAVING_ROD)) {
+            GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 8), SAVING_ROD)) {
         act("$n attempts to de-energize you, but fails!",
             false, ch, NULL, vict, TO_VICT);
         act("$n attempts to de-energize $N, but fails!",
@@ -3466,7 +3465,7 @@ ACMD(do_assimilate)
         act("$n screams in agony as $e tries to assimilate $p!", false, ch,
             obj, NULL, TO_ROOM);
         damd = abs(GET_ALIGNMENT(ch));
-        damd >>= 5;
+        damd /= 32;
         damd = MAX(5, damd);
         damage(ch, ch, NULL, dice(damd, 6), TOP_SPELL_DEFINE, -1);
         return;
@@ -3538,12 +3537,12 @@ ACMD(do_assimilate)
                             MIN(affs[j].modifier, obj->affected[i].modifier);
 
                     // reset level and duration
-                    affs[j].level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2);
+                    affs[j].level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4);
 
                     affs[j].duration =
                         ((CHECK_SKILL(ch,
                                 SKILL_ASSIMILATE) / 10) +
-                        (affs[j].level >> 4));
+                        (affs[j].level / 16));
 
                     found = 1;
                     break;
@@ -3557,20 +3556,21 @@ ACMD(do_assimilate)
             num_newaffs++;
 
             // create a new aff
-            if (!(affs =
-                    (struct affected_type *)realloc(affs,
-                        sizeof(struct affected_type) * (++num_affs)))) {
+            struct affected_type *old_affs = affs;
+            affs = realloc(affs, sizeof(struct affected_type) * (++num_affs));
+            if (!affs) {
                 errlog("error reallocating affs in do_assimilate.");
+                free(old_affs);
                 return;
             }
 
             init_affect(&affs[num_affs - 1]);
             affs[num_affs - 1].type = SKILL_ASSIMILATE;
             affs[num_affs - 1].level =
-                GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2);
+                GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4);
             affs[num_affs - 1].duration =
                 (CHECK_SKILL(ch,
-                    SKILL_ASSIMILATE) / 10) + (affs[num_affs - 1].level >> 4);
+                    SKILL_ASSIMILATE) / 10) + (affs[num_affs - 1].level / 16);
             affs[num_affs - 1].modifier = obj->affected[i].modifier;
             affs[num_affs - 1].location = obj->affected[i].location;
         }

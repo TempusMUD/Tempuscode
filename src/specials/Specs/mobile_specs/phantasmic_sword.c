@@ -57,8 +57,7 @@ SPECIAL(phantasmic_sword)
                 if (tch != ch && IS_NPC(tch) &&
                     GET_NPC_VNUM(ch) == GET_NPC_VNUM((tch)) &&
                     !(number(0, GET_LEVEL(mast) +
-                            (GET_CHA(mast) >> (mast->in_room !=
-                                    ch->in_room))))) {
+                             (GET_CHA(mast) >> (mast->in_room != ch->in_room))))) {
                     //set_fighting(ch, tch, true);
                     add_combat(ch, tch, true);
                     add_combat(tch, ch, false);

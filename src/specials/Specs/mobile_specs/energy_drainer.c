@@ -24,7 +24,7 @@ SPECIAL(energy_drainer)
             damage(ch, vict, NULL, 0, SPELL_ENERGY_DRAIN, -1);
         else {
             damage(ch, vict, NULL, number(8, 30), SPELL_ENERGY_DRAIN, -1);
-            loss = GET_EXP(vict) >> 5;
+            loss = GET_EXP(vict) / 64;
             GET_EXP(vict) = MAX(0, GET_EXP(vict) - loss);
             return true;
         }

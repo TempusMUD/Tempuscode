@@ -110,7 +110,7 @@ SPECIAL(stable_room)
         act("$n sells $N to the stables.", false, ch, NULL, pet, TO_ROOM);
 
         GET_GOLD(ch) += price;
-        GET_EXP(pet) = price >> 1;
+        GET_EXP(pet) = price / 2;
 
         char_from_room(pet, false);
         char_to_room(pet, pet_room, false);

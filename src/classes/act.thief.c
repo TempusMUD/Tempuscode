@@ -96,7 +96,7 @@ ACMD(do_steal)
     percent = number(1, 101);
 
     if (CHECK_SKILL(ch, SKILL_STEAL) < 50)
-        percent >>= 1;
+        percent /= 2;
 
     if (!IS_THIEF(ch)) {
         percent = (int)(percent * 0.65);

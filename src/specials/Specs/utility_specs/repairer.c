@@ -58,7 +58,7 @@ SPECIAL(repairer)
     }
 
     if (GET_OBJ_MAX_DAM(obj) == 0 ||
-        GET_OBJ_MAX_DAM(obj) <= (GET_OBJ_MAX_DAM(proto_obj) >> 4)) {
+        GET_OBJ_MAX_DAM(obj) <= (GET_OBJ_MAX_DAM(proto_obj) / 16)) {
         sprintf(tellbuf, "Sorry, %s is damaged beyond repair.", obj->name);
         perform_tell(repairer, ch, tellbuf);
         return 1;

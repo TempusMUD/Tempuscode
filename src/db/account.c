@@ -780,7 +780,7 @@ account_exhume_char(struct account *account, struct creature *exhumer, long id)
     }
     // load char from file
     struct creature *victim;
-    CREATE(victim, struct creature, 1);
+    
     victim = load_player_from_xml(id);
     if (victim) {
         sql_exec

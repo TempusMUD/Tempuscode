@@ -359,8 +359,8 @@ ACMD(do_convert)
         obj->obj_flags.bitvector[2] = 0;
 
         GET_OBJ_VAL(obj, 1) = ((GET_INT(ch) +
-                (CHECK_SKILL(ch, SKILL_PIPEMAKING) >> 3) +
-                GET_LEVEL(ch)) >> 1);
+                (CHECK_SKILL(ch, SKILL_PIPEMAKING) / 8) +
+                GET_LEVEL(ch)) / 2);
         GET_OBJ_VAL(obj, 0) = 0;
         GET_OBJ_VAL(obj, 2) = 0;
         GET_OBJ_VAL(obj, 3) = 0;
