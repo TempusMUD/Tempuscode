@@ -86,9 +86,7 @@ extern struct sort_struct *cmd_sort_info;
 extern int num_of_cmds;
 
 /* necessary for CMD_IS macro */
-#ifndef __interpreter_c__
 extern struct command_info cmd_info[];
-#endif
 
 #define CMD_NAME (cmd_info[cmd].command)
 #define CMD_IS(cmd_name) (!strcmp(cmd_name, cmd_info[cmd].command))

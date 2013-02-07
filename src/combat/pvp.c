@@ -363,7 +363,6 @@ ACMD(do_pardon)
     bool loaded_pardoned = false;
     if (!pardoned) {
         loaded_pardoned = true;
-        CREATE(pardoned, struct creature, 1);
         pardoned = load_player_from_xml(pardoned_idnum);
     }
     if (IS_IMMORT(ch) && is_authorized(ch, PARDON, pardoned)) {

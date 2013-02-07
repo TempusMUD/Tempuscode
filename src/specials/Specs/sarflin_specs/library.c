@@ -33,6 +33,7 @@ read_page(FILE * fh, int page, struct creature *ch)
         if (fread(list, sizeof(long), count, fh) != count) {
             send_to_char(ch, "You can't read the page, try as you might.\r\n");
             errlog("Can't read page data from library book");
+            free(list);
             return;
         }
         fseek(fh, list[page], 0);

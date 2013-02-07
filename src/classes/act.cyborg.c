@@ -3556,10 +3556,11 @@ ACMD(do_assimilate)
             num_newaffs++;
 
             // create a new aff
+            struct affected_type *old_affs = affs;
             affs = realloc(affs, sizeof(struct affected_type) * (++num_affs));
             if (!affs) {
                 errlog("error reallocating affs in do_assimilate.");
-                free(affs);
+                free(old_affs);
                 return;
             }
 

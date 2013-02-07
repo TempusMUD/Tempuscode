@@ -107,6 +107,12 @@ int lunar_day = 0;
 long top_unique_id = 0;
 bool unique_id_changed = true;
 
+char buf[MAX_STRING_LENGTH];
+char buf1[MAX_STRING_LENGTH];
+char buf2[MAX_STRING_LENGTH];
+char arg[MAX_STRING_LENGTH];
+int population_record[NUM_HOMETOWNS];
+
 struct room_data *r_mortal_start_room;  /* rnum of mortal start room   */
 struct room_data *r_electro_start_room; /* Electro Centralis start room  */
 struct room_data *r_immort_start_room;  /* rnum of immort start room   */
@@ -3178,6 +3184,7 @@ file_to_string(const char *name, char *buf)
         if (buflen + len + 1 > MAX_STRING_LENGTH) {
             errlog("fl->strng: string too big (db.c, file_to_string)");
             *buf = '\0';
+            fclose(fl);
             return (-1);
         }
 
@@ -3188,6 +3195,7 @@ file_to_string(const char *name, char *buf)
 
     if (!feof(fl)) {
         perror(tmp_sprintf("Error reading %s", name));
+        fclose(fl);
         return (-1);
     }
 

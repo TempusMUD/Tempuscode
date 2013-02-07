@@ -7918,7 +7918,7 @@ ACMD(do_coderutil)
             send_to_char(ch, "Zone could not be found or reset.\r\n");
         }
     } else if (strcmp(token, "progstat") == 0) {
-        void *owner;
+        void *owner = NULL;
         extern GList *active_progs;
         extern gint prog_tick;
         unsigned char *prog_get_obj(void *owner,

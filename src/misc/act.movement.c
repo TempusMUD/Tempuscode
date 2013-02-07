@@ -2563,18 +2563,19 @@ ACMD(do_dismount)
 
 ACMD(do_stalk)
 {
-    struct creature *vict;
     void add_stalker(struct creature *ch, struct creature *vict);
+    struct creature *vict;
 
     one_argument(argument, buf);
 
-    if (*buf) {
-        if (!(vict = get_char_room_vis(ch, buf))) {
-            send_to_char(ch, "%s", NOPERSON);
-            return;
-        }
-    } else {
+    if (*buf == '\0') {
         send_to_char(ch, "Whom do you wish to stalk?\r\n");
+        return;
+    }
+    
+    vict = get_char_room_vis(ch, buf);
+    if (vict == NULL) {
+        send_to_char(ch, "%s", NOPERSON);
         return;
     }
 
@@ -2607,20 +2608,21 @@ ACMD(do_stalk)
 
 ACMD(do_follow)
 {
-    struct creature *leader;
-
     void stop_follower(struct creature *ch);
     void add_follower(struct creature *ch, struct creature *leader);
 
+    struct creature *leader;
+
     one_argument(argument, buf);
 
-    if (*buf) {
-        if (!(leader = get_char_room_vis(ch, buf))) {
-            send_to_char(ch, "%s", NOPERSON);
-            return;
-        }
-    } else {
+    if (*buf == '\0') {
         send_to_char(ch, "Whom do you wish to follow?\r\n");
+        return;
+    }
+
+    leader = get_char_room_vis(ch, buf);
+    if (leader == NULL) {
+        send_to_char(ch, "%s", NOPERSON);
         return;
     }
 

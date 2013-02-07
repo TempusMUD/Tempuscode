@@ -134,18 +134,12 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
                 QGRN, CUR_ENERGY(gun->contains), MAX_ENERGY(gun->contains),
                 QNRM);
             CAP(buf);
-        } else
-            strcpy(buf, "");
+            send_to_char(ch, "%s", buf);
+        }
 
-        sprintf(buf,
-            "%sGun Classification:    %s[%s]%s\r\n",
-            buf, QGRN, egun_types[MIN(GET_OBJ_VAL(gun, 3), EGUN_TOP)], QNRM);
-
-        send_to_char(ch, "%s", buf);
-    }
-
-    else if (IS_GUN(gun)) {
-
+        send_to_char(ch, "Gun Classification:    %s[%s]%s\r\n",
+                     QGRN, egun_types[MIN(GET_OBJ_VAL(gun, 3), EGUN_TOP)], QNRM);
+    } else if (IS_GUN(gun)) {
         if (MAX_LOAD(gun)) {
             if (gun->contains) {
                 count = count_contained_objs(gun);
