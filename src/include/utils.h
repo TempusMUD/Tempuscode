@@ -82,16 +82,17 @@ bool player_in_room(struct room_data *room);
 void check_bits_32(int bitv, int *newbits);
 
 /* undefine MAX and MIN so that our functions are used instead */
-#ifdef MAX
 #undef MAX
-#endif
-
-#ifdef MIN
 #undef MIN
-#endif
 
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) > (b) ? (b) : (a))
+#define MAX(a,b)                                \
+    ({ __typeof__ (a) _a = (a);                 \
+        __typeof__ (b) _b = (b);                \
+        _a > _b ? _a : _b; })
+#define MIN(a,b)                                \
+    ({ __typeof__ (a) _a = (a);                 \
+        __typeof__ (b) _b = (b);                \
+        _a > _b ? _b : _a; })
 
 /* in magic.c */
 bool circle_follow(struct creature *ch, struct creature *victim);
