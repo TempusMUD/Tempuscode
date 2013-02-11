@@ -71,9 +71,9 @@ int get_max_cha( struct creature *ch )
                                                                 GET_REMORT_CLASS(ch))])
 
 #define LEARNED(ch)     (MAX(MORT_LEARNED(ch), REMORT_LEARNED(ch)) + \
-                     (GET_REMORT_GEN(ch) << 1))
+                     (GET_REMORT_GEN(ch) * 2))
 #define MINGAIN(ch)     (GET_INT(ch) + GET_REMORT_GEN(ch))
-#define MAXGAIN(ch)     ((GET_INT(ch) << 1) + GET_REMORT_GEN(ch))
+#define MAXGAIN(ch)     ((GET_INT(ch) * 2) + GET_REMORT_GEN(ch))
 
 #define SPLSKL(ch)  (GET_CLASS(ch) > NUM_CLASSES ? "spell" :          \
                                  prac_types[prac_params[3][(int)GET_CLASS(ch)]])

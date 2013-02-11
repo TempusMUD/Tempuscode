@@ -428,7 +428,7 @@ help_collection_load_index(struct help_collection * col)
 {
     char *path;
     FILE *inf;
-    struct help_item *n;
+    struct help_item *n = NULL;
     int num_items = 0;
     char line[1024];
     int i;
@@ -475,6 +475,7 @@ help_collection_load_index(struct help_collection * col)
         REMOVE_BIT(n->flags, HFLAG_MODIFIED);
         help_collection_push(col, n);
         num_items++;
+        n = NULL;
     }
     fclose(inf);
     if (num_items == 0) {
@@ -486,6 +487,7 @@ help_collection_load_index(struct help_collection * col)
     return true;
 
 error:
+    free(n);
     errlog("Unable to load help index (%s): %s",
            path, strerror(errno));
     fclose(inf);

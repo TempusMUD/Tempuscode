@@ -93,10 +93,10 @@ SPECIAL(increaser)
     }
 
     if (mode == MODE_MOVE)
-        life_cost = ((incr + 3) >> 2);
+        life_cost = ((incr + 3) / 4);
                                  /** 4 pts/ life point */
     else
-        life_cost = ((incr + 1) >> 1);  /* 2 pts/ life point */
+        life_cost = ((incr + 1) / 2);  /* 2 pts/ life point */
     gold = 10000 * life_cost;
     gold += (gold * cost_modifier(ch, increaser)) / 100;
 

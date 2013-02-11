@@ -5295,7 +5295,7 @@ ACMD(do_show)
         strcpy(buf, "Broken objects in the game:\r\n");
 
         for (obj = object_list, i = 1; obj; obj = obj->next) {
-            if ((GET_OBJ_DAM(obj) < (GET_OBJ_MAX_DAM(obj) >> 1)) ||
+            if ((GET_OBJ_DAM(obj) < (GET_OBJ_MAX_DAM(obj) / 2)) ||
                 IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
 
                 if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_DAM(obj) == -1)
@@ -7921,7 +7921,7 @@ ACMD(do_coderutil)
             send_to_char(ch, "Zone could not be found or reset.\r\n");
         }
     } else if (strcmp(token, "progstat") == 0) {
-        void *owner;
+        void *owner = NULL;
         extern GList *active_progs;
         extern gint prog_tick;
         unsigned char *prog_get_obj(void *owner,

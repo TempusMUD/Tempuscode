@@ -41,10 +41,7 @@ void affect_from_room(struct room_data *room, struct room_affect_data *aff)
     __attribute__ ((nonnull));
 struct room_affect_data *room_affected_by(struct room_data *room, int type)
     __attribute__ ((nonnull));
-#ifndef __flow_room_c__
 
 extern const char *flow_types[];
-
-#endif
 
 #endif

@@ -40,9 +40,9 @@ SPECIAL(javelin_of_lightning)
         if (!ok_to_attack(ch, vict, false))
             return 1;
 
-        if ((GET_SKILL(ch, SKILL_SHOOT) >> 4) +
+        if ((GET_SKILL(ch, SKILL_SHOOT) / 16) +
             GET_INT(ch) + GET_DEX(ch) + number(0, GET_LEVEL(ch) + 5) >
-            (-(GET_AC(vict) >> 3) + GET_DEX(vict) + number(10,
+            (-(GET_AC(vict) / 8) + GET_DEX(vict) + number(10,
                     GET_LEVEL(vict) + 5))) {
             dam = dice(20, 24) + GET_STR(ch);
             damage(ch, vict, jav, dam, JAVELIN_OF_LIGHTNING, -1);

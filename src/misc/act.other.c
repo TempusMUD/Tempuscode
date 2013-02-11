@@ -850,7 +850,7 @@ ACMD(do_wimpy)
             else if (wimp_lev > GET_MAX_HIT(ch))
                 send_to_char(ch,
                     "That doesn't make much sense, now does it?\r\n");
-            else if (wimp_lev > (GET_MAX_HIT(ch) >> 1))
+            else if (wimp_lev > (GET_MAX_HIT(ch) / 2))
                 send_to_char(ch,
                     "You can't set your wimp level above half your hit points.\r\n");
             else {

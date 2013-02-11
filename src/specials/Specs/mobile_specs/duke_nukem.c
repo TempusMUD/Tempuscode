@@ -16,8 +16,8 @@ SPECIAL(duke_nukem)
 
     if (duke->fighting) {
         vict = random_opponent(duke);
-        if (GET_HIT(duke) > (GET_MAX_HIT(duke) >> 2) &&
-            GET_HIT(vict) < (GET_MAX_HIT(vict) >> 1)) {
+        if (GET_HIT(duke) > (GET_MAX_HIT(duke) / 4) &&
+            GET_HIT(vict) < (GET_MAX_HIT(vict) / 2)) {
             if (!number(0, 10))
                 perform_say(duke, "say",
                     "You're an inspiration for birth control.");

@@ -355,10 +355,10 @@ call_magic(struct creature *caster, struct creature *cvict,
                 percent += number(1, 120);
 
                 if (mag_savingthrow(cvict, GET_LEVEL(caster), SAVING_PSI))
-                    percent <<= 1;
+                    percent *= 2;
 
                 if (GET_INT(cvict) < GET_INT(caster))
-                    percent += (GET_INT(cvict) - GET_INT(caster)) << 3;
+                    percent += (GET_INT(cvict) - GET_INT(caster)) * 8;
 
                 if (percent >= prob)
                     failed = true;
@@ -397,7 +397,7 @@ call_magic(struct creature *caster, struct creature *cvict,
                         spell_to_str(spellnum)),
                     false, caster, NULL, cvict, TO_CHAR);
                 GET_MANA(cvict) = MIN(GET_MAX_MANA(cvict),
-                    GET_MANA(cvict) + (level >> 1));
+                    GET_MANA(cvict) + (level / 2));
                 if (casttype == CAST_SPELL) {
                     mana = mag_manacost(caster, spellnum);
                     if (mana > 0)
@@ -405,7 +405,7 @@ call_magic(struct creature *caster, struct creature *cvict,
                             MAX(0, MIN(GET_MAX_MANA(caster),
                                 GET_MANA(caster) - mana));
                 }
-                if ((af_ptr->duration -= (level >> 2)) <= 0) {
+                if ((af_ptr->duration -= (level / 4)) <= 0) {
                     send_to_char(cvict, "Your %s dissolves.\r\n",
                         spell_to_str(af_ptr->type));
                     affect_remove(cvict, af_ptr);
@@ -1217,7 +1217,7 @@ cast_spell(struct creature *ch, struct creature *tch,
     }
 
     int retval = call_magic(ch, tch, tobj, tdir, spellnum,
-                            GET_LEVEL(ch) + (!IS_NPC(ch) ? (GET_REMORT_GEN(ch) << 1) : 0),
+                            GET_LEVEL(ch) + (!IS_NPC(ch) ? (GET_REMORT_GEN(ch) * 2) : 0),
                             (SPELL_IS_PSIONIC(spellnum) ? CAST_PSIONIC :
                              (SPELL_IS_PHYSICS(spellnum) ? CAST_PHYSIC :
                               (SPELL_IS_BARD(spellnum) ? CAST_BARD : CAST_SPELL))));
@@ -1658,7 +1658,7 @@ ACMD(do_cast)
     prob -= (NUM_WEARS - num_eq);
 
     if (tch && GET_POSITION(ch) == POS_FIGHTING)
-        prob += (GET_LEVEL(tch) >> 3);
+        prob += (GET_LEVEL(tch) / 8);
 
     /**** casting probability ends here *****/
 
@@ -1697,7 +1697,7 @@ ACMD(do_cast)
                         if (mana > 0)
                             GET_MANA(ch) =
                                 MAX(0, MIN(GET_MAX_MANA(ch),
-                                    GET_MANA(ch) - (mana >> 1)));
+                                    GET_MANA(ch) - (mana / 2)));
                         WAIT_STATE(ch, 2 RL_SEC);
                         return;
                     }
@@ -1718,7 +1718,7 @@ ACMD(do_cast)
                 cast_spell(ch, ch, tobj, &tdir, spellnum);
                 if (mana > 0)
                     GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) -
-                            (mana >> 1)));
+                            (mana / 2)));
                 WAIT_STATE(ch, 2 RL_SEC);
                 return;
             }
@@ -1748,7 +1748,7 @@ ACMD(do_cast)
 
         if (mana > 0)
             GET_MANA(ch) =
-                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
         /* cast spell returns 1 on success; subtract mana & set waitstate */
         //HERE
     } else {
@@ -1845,8 +1845,8 @@ ACMD(do_trigger)
         return;
     }
     /***** trigger probability calculation *****/
-    prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) << 1) +
-        (GET_REMORT_GEN(ch) << 2);
+    prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) * 2) +
+        (GET_REMORT_GEN(ch) * 4);
     if (IS_SICK(ch))
         prob -= 20;
     if (IS_CONFUSED(ch))
@@ -1858,7 +1858,7 @@ ACMD(do_trigger)
     prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 8) / CAN_CARRY_W(ch);
 
     if (tch && GET_POSITION(ch) == POS_FIGHTING)
-        prob -= (GET_LEVEL(tch) >> 3);
+        prob -= (GET_LEVEL(tch) / 8);
 
     /**** casting probability ends here *****/
 
@@ -1870,7 +1870,7 @@ ACMD(do_trigger)
             send_to_char(ch, "Your concentration was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =
-                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
         if (SINFO.violent && tch && IS_NPC(tch))
             hit(tch, ch, TYPE_UNDEFINED);
     } else {
@@ -1937,8 +1937,8 @@ ACMD(do_arm)
 		return 0;
 	}
 
-	prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) << 1) +
-		(GET_REMORT_GEN(ch) << 2);
+	prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) * 2) +
+		(GET_REMORT_GEN(ch) * 4);
 
 	if (IS_SICK(ch))
 		prob -= 20;
@@ -1949,10 +1949,10 @@ ACMD(do_arm)
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
 		prob -= GET_EQ(ch, GET_OBJ_WEIGHT(WEAR_SHIELD));
 
-	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
+	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 8) / CAN_CARRY_W(ch);
 
 	if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
-		prob -= (GET_LEVEL(FIGHTING(ch)) >> 3);
+		prob -= (GET_LEVEL(FIGHTING(ch)) / 8);
 
 	if (number(0, 111) > prob) {
 		WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -1963,7 +1963,7 @@ ACMD(do_arm)
         }
 
 		if (rpoints > 0)
-			GET_RPOINTS(obj) = MAX(0, GET_RPOINTS(obj) - (rpoints >> 1));
+			GET_RPOINTS(obj) = MAX(0, GET_RPOINTS(obj) - (rpoints / 2));
 
 		if (SINFO.violent && tch && IS_NPC(tch))
 			hit(tch, ch, TYPE_UNDEFINED);
@@ -2110,7 +2110,7 @@ ACMD(do_alter)
             send_to_char(ch, "Your concentration was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =
-                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
         if (SINFO.violent && tch && IS_NPC(tch))
             hit(tch, ch, TYPE_UNDEFINED);
     } else {
@@ -2213,7 +2213,7 @@ ACMD(do_perform)
             send_to_char(ch, "Your song was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =
-                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
         if (SINFO.violent && tch && IS_NPC(tch))
             hit(tch, ch, TYPE_UNDEFINED);
     } else {

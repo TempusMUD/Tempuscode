@@ -138,9 +138,9 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
             false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
-    dam = number(GET_OBJ_SIGIL_LEVEL(obj), GET_OBJ_SIGIL_LEVEL(obj) << 2);
+    dam = number(GET_OBJ_SIGIL_LEVEL(obj), GET_OBJ_SIGIL_LEVEL(obj) * 4);
     if (mag_savingthrow(ch, GET_OBJ_SIGIL_LEVEL(obj), SAVING_SPELL))
-        dam >>= 1;
+        dam /= 2;
 
     act("$p explodes when you pick it up!!", false, ch, obj, NULL, TO_CHAR);
     act("$p explodes when $n picks it up!!", false, ch, obj, NULL, TO_ROOM);
@@ -1426,7 +1426,7 @@ perform_drop(struct creature *ch, struct obj_data *obj,
         return 1;
         break;
     case SCMD_JUNK:
-        value = MAX(1, MIN(200, GET_OBJ_COST(obj) >> 4));
+        value = MAX(1, MIN(200, GET_OBJ_COST(obj) / 16));
         // Don't actually extract the object here, since we may need it for
         // display purposes
         return value;
@@ -2160,7 +2160,7 @@ ACMD(do_drink)
     drunk = (int)drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount;
     drunk /= 4;
     if (IS_MONK(ch))
-        drunk >>= 2;
+        drunk /= 4;
     full = (int)drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount / 4;
     thirst = (int)drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount / 4;
 
@@ -2343,7 +2343,7 @@ ACMD(do_eat)
         }
 
         if (subcmd != SCMD_EAT)
-            af.duration >>= 1;
+            af.duration /= 2;
         affect_join(ch, &af, true, true, true, false);
     }
 
@@ -3196,7 +3196,7 @@ prototype_obj_value(struct obj_data *obj)
 
     case ITEM_CONTAINER:
         value += GET_OBJ_VAL(obj, 0);
-        value <<= 2;
+        value *= 4;
         value += ((30 - GET_OBJ_WEIGHT(obj)) / 4);
         if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSEABLE))
             value += 100;
@@ -3216,15 +3216,15 @@ prototype_obj_value(struct obj_data *obj)
 
         if (GET_OBJ_VAL(obj, 0) && IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON)) {
             prev_value = value;
-            value += MIN(value << 2, 200000);
-            value = (prev_value + value) >> 1;
+            value += MIN(value * 4, 200000);
+            value = (prev_value + value) / 2;
         }
         break;
 
     case ITEM_GUN:
         if (GUN_TYPE(obj) >= 0 && GUN_TYPE(obj) < NUM_GUN_TYPES)
             value += (gun_damage[GUN_TYPE(obj)][0] *
-                gun_damage[GUN_TYPE(obj)][1]) << 4;
+                gun_damage[GUN_TYPE(obj)][1]) * 16;
         if (!MAX_LOAD(obj))
             value *= 15;
         else
@@ -3261,20 +3261,20 @@ prototype_obj_value(struct obj_data *obj)
             value *= 3;
             prev_value = value;
             value += ((50 - GET_OBJ_WEIGHT(obj)) * 8);
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
         } else if (CAN_WEAR(obj, ITEM_WEAR_HEAD)
             || CAN_WEAR(obj, ITEM_WEAR_LEGS)) {
             value *= 2;
             prev_value = value;
             value += ((25 - GET_OBJ_WEIGHT(obj)) * 8);
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
         } else {
             prev_value = value;
             value += ((25 - GET_OBJ_WEIGHT(obj)) * 8);
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
         }
         if (IS_IMPLANT(obj))
-            value <<= 1;
+            value *= 2;
         break;
 
     default:
@@ -3284,7 +3284,7 @@ prototype_obj_value(struct obj_data *obj)
     }
 
     /***** Make sure its not negative... if it is maybe make it pos. **/
-    value = MAX(value, -(value >> 1));
+    value = MAX(value, -(value / 2));
 
     /**** Next the values of the item's affections *****/
     for (j = 0; j < MAX_OBJ_AFFECT; j++) {
@@ -3297,13 +3297,13 @@ prototype_obj_value(struct obj_data *obj)
         case APPLY_CON:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 4;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_CHA:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 5;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_HIT:
@@ -3311,25 +3311,25 @@ prototype_obj_value(struct obj_data *obj)
         case APPLY_MANA:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 25;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_AC:
             prev_value = value;
             value -= (obj->affected[j].modifier) * value / 10;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_HITROLL:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 5;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_DAMROLL:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 4;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_SAVING_PARA:
@@ -3339,7 +3339,7 @@ prototype_obj_value(struct obj_data *obj)
         case APPLY_SAVING_SPELL:
             prev_value = value;
             value -= (obj->affected[j].modifier) * value / 4;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_SNEAK:
@@ -3355,21 +3355,21 @@ prototype_obj_value(struct obj_data *obj)
         case APPLY_THROWING:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 15;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         }
     }
 
     /***** Make sure its not negative... if it is maybe make it pos. **/
-    value = MAX(value, -(value >> 1));
+    value = MAX(value, -(value / 2));
 
     /***** The value of items which set bitvectors ***** */
     for (j = 0; j < 3; j++)
         if (obj->obj_flags.bitvector[j]) {
             prev_value = value;
             value += 120000;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
         }
 
     switch (GET_OBJ_MATERIAL(obj)) {
@@ -3461,19 +3461,19 @@ set_maxdamage(struct obj_data *obj)
     }
 
     if (IS_OBJ_STAT(obj, ITEM_MAGIC))
-        dam <<= 1;
+        dam *= 2;
     if (IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL))
-        dam <<= 2;
+        dam *= 4;
     if (IS_OBJ_STAT(obj, ITEM_BLESS))
-        dam <<= 1;
+        dam *= 2;
     if (IS_OBJ_STAT(obj, ITEM_DAMNED))
-        dam <<= 1;
+        dam *= 2;
     if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON))
-        dam <<= 1;
+        dam *= 2;
     if (IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM))
-        dam <<= 1;
+        dam *= 2;
     if (IS_OBJ_STAT2(obj, ITEM2_GODEQ))
-        dam <<= 1;
+        dam *= 2;
 
     dam = MAX(100, dam);
 

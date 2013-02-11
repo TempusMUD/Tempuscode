@@ -18,8 +18,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#ifndef _NEWDYNCONTROL_			// used by a util
-
 /* arbitrary constants used by index_boot() (must be unique) */
 #define DB_BOOT_WLD	 0
 #define DB_BOOT_MOB	 1
@@ -166,26 +164,14 @@ struct help_index_element {
 
 /* global buffering system */
 
-#ifdef __db_c__
-char buf[MAX_STRING_LENGTH];
-char buf1[MAX_STRING_LENGTH];
-char buf2[MAX_STRING_LENGTH];
-char arg[MAX_STRING_LENGTH];
-int population_record[NUM_HOMETOWNS];
-#else
 extern char buf[MAX_STRING_LENGTH];
 extern char buf1[MAX_STRING_LENGTH];
 extern char buf2[MAX_STRING_LENGTH];
 extern int population_record[NUM_HOMETOWNS];
-#endif
 
-#ifndef __CONFIG_C__
 extern const char *OK;
 extern const char *NOPERSON;
 extern const char *NOEFFECT;
-#endif
-
-#endif							// _NEWDYNCONTROL_
 
 #define DYN_TEXT_HIST_SIZE 10
 #define DYN_TEXT_PERM_SIZE 5
@@ -223,17 +209,11 @@ typedef struct dynamic_text_file {
 	struct dynamic_text_file *next;
 } dynamic_text_file;
 
-#ifndef _NEWDYNCONTROL_
-
-#ifndef __DYNTEXT_C__
 extern dynamic_text_file *dyntext_list;
-#endif
 
 void check_dyntext_updates(struct creature *ch, int mode);
 #define CHECKDYN_UNRENT    0
 #define CHECKDYN_RECONNECT 1
-
-#endif							// _NEWDYNCONTROL_
 
 struct sql_query_data {
 	struct sql_query_data *next;
@@ -252,8 +232,6 @@ PGresult *sql_query(const char *str, ...)
 void sql_gc_queries(void);
 void update_unique_id(void);
 
-#ifndef __db_c__
-
 extern struct time_info_data time_info;
 extern time_t boot_time;
 extern time_t last_sunday_time;
@@ -262,11 +240,9 @@ extern const char *lunar_phases[];
 extern int lunar_day;
 extern struct obj_shared_data *null_obj_shared;
 extern struct shop_data *shop_index;
-//extern struct obj_data *obj_proto;
 extern struct room_data *world;
 extern struct obj_data *object_list;
 extern GHashTable *mob_prototypes;
 extern GHashTable *obj_prototypes;
-#endif							// __db_c__
 
 #endif

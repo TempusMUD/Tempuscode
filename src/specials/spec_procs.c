@@ -444,7 +444,7 @@ SPECIAL(guild)
     percent = GET_SKILL(ch, skill_num);
     percent += skill_gain(ch, true);
     if (percent > LEARNED(ch))
-        percent -= (percent - LEARNED(ch)) >> 1;
+        percent -= (percent - LEARNED(ch)) / 2;
 
     SET_SKILL(ch, skill_num, percent);
 
@@ -730,7 +730,7 @@ SPECIAL(battle_cleric)
         !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
 
-    } else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 1)) {
+    } else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) / 2)) {
         if ((GET_LEVEL(ch) < 12) && (number(0, 4) == 0))
             cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
 
@@ -979,7 +979,7 @@ SPECIAL(buzzard)
                 if (IS_IMPLANT(temp)) {
                     SET_BIT(GET_OBJ_WEAR(temp), ITEM_WEAR_TAKE);
                     if (GET_OBJ_DAM(temp) > 0)
-                        GET_OBJ_DAM(temp) >>= 1;
+                        GET_OBJ_DAM(temp) /= 2;
                 }
                 obj_from_obj(temp);
                 obj_to_room(temp, ch->in_room);
@@ -1048,7 +1048,7 @@ SPECIAL(garbage_pile)
                 if (IS_IMPLANT(temp)) {
                     SET_BIT(GET_OBJ_WEAR(temp), ITEM_WEAR_TAKE);
                     if (GET_OBJ_DAM(temp) > 0)
-                        GET_OBJ_DAM(temp) >>= 1;
+                        GET_OBJ_DAM(temp) /= 2;
                 }
                 obj_from_obj(temp);
                 obj_to_room(temp, ch->in_room);
@@ -1204,7 +1204,7 @@ SPECIAL(pet_shops)
         send_to_char(ch, "Available pets are:\r\n");
         for (GList * cit = pet_room->people; cit; cit = cit->next) {
             struct creature *tch = cit->data;
-            cost = (IS_NPC(tch) ? GET_EXP(tch) * 3 : (GET_EXP(ch) >> 2));
+            cost = (IS_NPC(tch) ? GET_EXP(tch) * 3 : (GET_EXP(ch) / 4));
             send_to_char(ch, "%8d - %s\r\n", cost, GET_NAME(tch));
         }
         return 1;
@@ -1227,7 +1227,7 @@ SPECIAL(pet_shops)
         if (IS_NPC(ch))
             cost = GET_EXP(pet) * 3;
         else
-            cost = GET_EXP(pet) >> 4;
+            cost = GET_EXP(pet) / 16;
 
         //we have no shop keeper so compare charisma with the pet
         cost += (cost * cost_modifier(ch, pet)) / 100;

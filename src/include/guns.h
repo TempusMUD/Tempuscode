@@ -80,11 +80,7 @@ static const int EGUN_TOP = 8;
 #define IS_ARROW(gun)  (GUN_TYPE(gun) == GUN_BOW || GUN_TYPE(gun) == GUN_XBOW)
 #define IS_FLAMETHROWER(gun)  (GUN_TYPE(gun) == GUN_FLAMETHROWER)
 
-#ifndef __guns_c__
-
 extern const char *gun_types[];
 extern const int gun_damage[][2];
-
-#endif
 
 #endif

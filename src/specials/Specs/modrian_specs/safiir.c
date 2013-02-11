@@ -37,9 +37,9 @@ SPECIAL(safiir)
         cost *= GET_OBJ_COST(wand) / GET_OBJ_VAL(wand, 1);
         cost *= GET_OBJ_VAL(wand, 0);
         if (IS_MAGE(ch))
-            cost >>= 3;
+            cost /= 8;
         else
-            cost >>= 2;
+            cost /= 4;
         cost += (cost * cost_modifier(ch, safiir)) / 100;
     }
 

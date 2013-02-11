@@ -144,32 +144,32 @@ mana_gain(struct creature *ch)
 
     if (IS_MAGE(ch) || IS_CLERIC(ch) || IS_PSYCHIC(ch) || IS_PHYSIC(ch) ||
         IS_BARD(ch))
-        gain <<= 1;
+        gain *= 2;
 
     if (AFF_FLAGGED(ch, AFF_POISON))
-        gain >>= 2;
+        gain /= 4;
 
     if ((GET_COND(ch, FULL) == 0) || (GET_COND(ch, THIRST) == 0))
-        gain >>= 2;
+        gain /= 4;
 
     if (ch->in_room && ch->in_room->sector_type == SECT_DESERT &&
         !ROOM_FLAGGED(ch->in_room, ROOM_INDOORS) &&
         ch->in_room->zone->weather->sunlight == SUN_LIGHT)
-        gain >>= 1;
+        gain /= 2;
 
     if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
         if (CHECK_SKILL(ch, ZEN_HEALING) > number(40, 100) ||
             (IS_NPC(ch) && IS_MONK(ch) && GET_LEVEL(ch) > 40))
             gain *= ((16 + GET_LEVEL(ch)) / 22);
         else
-            gain <<= 1;
+            gain *= 2;
     }
 
     if (IS_REMORT(ch) && GET_REMORT_GEN(ch))
         gain += (GET_REMORT_GEN(ch) * gain) / 3;
 
     if (IS_NEUTRAL(ch) && (IS_KNIGHT(ch) || IS_CLERIC(ch)))
-        gain >>= 2;
+        gain /= 4;
 
     return (gain);
 }
@@ -187,15 +187,15 @@ hit_gain(struct creature *ch)
         gain = graf(GET_AGE(ch), GET_RACE(ch), 10, 14, 22, 34, 18, 12, 6);
 
         /* Class/Level calculations */
-        gain += (GET_LEVEL(ch) >> 3);
+        gain += (GET_LEVEL(ch) / 8);
 
     }
 
     /* Skill/Spell calculations */
-    gain += (GET_CON(ch) << 1);
-    gain += (CHECK_SKILL(ch, SKILL_SPEED_HEALING) >> 3);
+    gain += (GET_CON(ch) * 2);
+    gain += (CHECK_SKILL(ch, SKILL_SPEED_HEALING) / 8);
     if (AFF3_FLAGGED(ch, AFF3_DAMAGE_CONTROL))
-        gain += (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_DAMAGE_CONTROL)) >> 2;
+        gain += (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_DAMAGE_CONTROL)) / 4;
 
     // good clerics get a gain bonus, up to 10%
     if (GET_CLASS(ch) == CLASS_CLERIC && IS_GOOD(ch))
@@ -211,46 +211,46 @@ hit_gain(struct creature *ch)
     switch (GET_POSITION(ch)) {
     case POS_SLEEPING:
         if (AFF_FLAGGED(ch, AFF_REJUV))
-            gain += (gain >> 0);    /*  gain + gain  */
+            gain += (gain / 1);    /*  gain + gain  */
         else
-            gain += (gain >> 1);    /* gain + gain/2 */
+            gain += (gain / 2);    /* gain + gain/2 */
         break;
     case POS_RESTING:
         if (AFF_FLAGGED(ch, AFF_REJUV))
-            gain += (gain >> 1);    /* divide by 2 */
+            gain += (gain / 2);    /* divide by 2 */
         else
-            gain += (gain >> 2);    /* Divide by 4 */
+            gain += (gain / 4);    /* Divide by 4 */
         break;
     case POS_SITTING:
         if (AFF_FLAGGED(ch, AFF_REJUV))
-            gain += (gain >> 2);    /* divide by 4 */
+            gain += (gain / 4);    /* divide by 4 */
         else
-            gain += (gain >> 3);    /* Divide by 8 */
+            gain += (gain / 8);    /* Divide by 8 */
         break;
     }
 
     if ((GET_CLASS(ch) == CLASS_MAGIC_USER) || (GET_CLASS(ch) == CLASS_CLERIC))
-        gain >>= 1;
+        gain /= 2;
 
     if (IS_POISONED(ch))
-        gain >>= 2;
+        gain /= 4;
     if (IS_SICK(ch))
-        gain >>= 1;
+        gain /= 2;
 
     if ((GET_COND(ch, FULL) == 0) || (GET_COND(ch, THIRST) == 0))
-        gain >>= 2;
+        gain /= 4;
 
     else if (AFF2_FLAGGED(ch, AFF2_MEDITATE))
-        gain += (gain >> 1);
+        gain += (gain / 2);
 
     if (affected_by_spell(ch, SPELL_METABOLISM))
-        gain += (gain >> 2);
+        gain += (gain / 4);
 
     if (IS_REMORT(ch) && GET_REMORT_GEN(ch))
         gain += (GET_REMORT_GEN(ch) * gain) / 3;
 
     if (IS_NEUTRAL(ch) && (IS_KNIGHT(ch) || IS_CLERIC(ch)))
-        gain >>= 2;
+        gain /= 4;
 
     return (gain);
 }
@@ -264,56 +264,56 @@ move_gain(struct creature *ch)
     if (IS_NPC(ch)) {
         gain = GET_LEVEL(ch);
         if (NPC2_FLAGGED(ch, NPC2_MOUNT))
-            gain <<= 1;
+            gain *= 2;
     } else
         gain = graf(GET_AGE(ch), GET_RACE(ch), 18, 22, 26, 22, 18, 14, 12);
 
     /* Class/Level calculations */
-    if IS_RANGER
-        (ch) gain += (gain >> 2);
-    gain += (GET_LEVEL(ch) >> 3);
+    if (IS_RANGER(ch))
+        gain += (gain / 4);
+    gain += (GET_LEVEL(ch) / 8);
 
     /* Skill/Spell calculations */
-    gain += (GET_CON(ch) >> 2);
+    gain += (GET_CON(ch) / 4);
 
     /* Position calculations    */
     switch (GET_POSITION(ch)) {
     case POS_SLEEPING:
         if (AFF_FLAGGED(ch, AFF_REJUV))
-            gain += (gain >> 0);    /* divide by 1 */
+            gain += (gain / 1);    /* divide by 1 */
         else
-            gain += (gain >> 1);    /* Divide by 2 */
+            gain += (gain / 2);    /* Divide by 2 */
         break;
     case POS_RESTING:
         if (AFF_FLAGGED(ch, AFF_REJUV))
-            gain += (gain >> 1);    /* divide by 2 */
+            gain += (gain / 2);    /* divide by 2 */
         else
-            gain += (gain >> 2);    /* Divide by 4 */
+            gain += (gain / 4);    /* Divide by 4 */
         break;
     case POS_SITTING:
         if (AFF_FLAGGED(ch, AFF_REJUV))
-            gain += (gain >> 2);    /* divide by 4 */
+            gain += (gain / 4);    /* divide by 4 */
         else
-            gain += (gain >> 3);    /* Divide by 8 */
+            gain += (gain / 8);    /* Divide by 8 */
         break;
     }
 
     if (IS_POISONED(ch))
-        gain >>= 2;
+        gain /= 4;
     if (IS_SICK(ch))
-        gain >>= 1;
+        gain /= 2;
 
     if ((GET_COND(ch, FULL) == 0) || (GET_COND(ch, THIRST) == 0))
-        gain >>= 2;
+        gain /= 4;
 
     if (AFF2_FLAGGED(ch, AFF2_MEDITATE))
-        gain += (gain >> 1);
+        gain += (gain / 2);
 
     if (IS_REMORT(ch) && GET_REMORT_GEN(ch))
         gain += (GET_REMORT_GEN(ch) * gain) / 3;
 
     if (IS_NEUTRAL(ch) && (IS_KNIGHT(ch) || IS_CLERIC(ch)))
-        gain >>= 2;
+        gain /= 4;
 
     return (gain);
 }
@@ -369,7 +369,7 @@ gain_exp(struct creature *ch, int gain)
         if ((gain + GET_EXP(ch)) > exp_scale[GET_LEVEL(ch) + 2])
             gain =
                 (((exp_scale[GET_LEVEL(ch) + 2] - exp_scale[GET_LEVEL(ch) +
-                            1]) >> 1) + exp_scale[GET_LEVEL(ch) + 1]) -
+                            1]) / 2) + exp_scale[GET_LEVEL(ch) + 1]) -
                 GET_EXP(ch);
 
         GET_EXP(ch) += gain;
@@ -686,9 +686,9 @@ point_update(void)
 
         if (IS_CYBORG(tch)) {
             if (AFF3_FLAGGED(tch, AFF3_STASIS))
-                full >>= 2;
+                full /= 4;
             else if (GET_LEVEL(tch) > number(10, 60))
-                full >>= 1;
+                full /= 2;
         }
 
         gain_condition(tch, FULL, -full);
@@ -701,9 +701,9 @@ point_update(void)
             thirst += 1;
         if (IS_CYBORG(tch)) {
             if (AFF3_FLAGGED(tch, AFF3_STASIS))
-                thirst >>= 2;
+                thirst /= 4;
             else if (GET_LEVEL(tch) > number(10, 60))
-                thirst >>= 1;
+                thirst /= 2;
         }
 
         gain_condition(tch, THIRST, -thirst);

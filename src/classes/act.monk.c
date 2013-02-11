@@ -50,7 +50,7 @@ perform_monk_meditate(struct creature *ch)
 
     init_affect(&af);
 
-    af.level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2);
+    af.level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4);
     MEDITATE_TIMER(ch)++;
 
     // meditating makes a monk's alignment correct itself
@@ -74,7 +74,7 @@ perform_monk_meditate(struct creature *ch)
         && CHECK_SKILL(ch, ZEN_OBLIVITY) >= LEARNED(ch)) {
         int target =
             MEDITATE_TIMER(ch) + (CHECK_SKILL(ch,
-                ZEN_OBLIVITY) >> 2) + GET_WIS(ch);
+                ZEN_OBLIVITY) / 4) + GET_WIS(ch);
         int test = (mag_manacost(ch, ZEN_OBLIVITY) + number(20, 40));
 
         if (PRF2_FLAGGED(ch, PRF2_DEBUG))
@@ -100,7 +100,7 @@ perform_monk_meditate(struct creature *ch)
     if (!affected_by_spell(ch, ZEN_AWARENESS)
         && CHECK_SKILL(ch, ZEN_AWARENESS) >= LEARNED(ch)) {
         int target =
-            MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_AWARENESS) >> 2);
+            MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_AWARENESS) / 4);
         int test =
             (mag_manacost(ch, ZEN_AWARENESS) + number(6, 40) - GET_WIS(ch));
 
@@ -132,7 +132,7 @@ perform_monk_meditate(struct creature *ch)
     // motion
     if (!affected_by_spell(ch, ZEN_MOTION)
         && CHECK_SKILL(ch, ZEN_MOTION) >= LEARNED(ch)) {
-        int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_MOTION) >> 2);
+        int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_MOTION) / 4);
         int test =
             (mag_manacost(ch, ZEN_MOTION) + number(10, 40) - GET_WIS(ch));
 
@@ -165,7 +165,7 @@ perform_monk_meditate(struct creature *ch)
         && CHECK_SKILL(ch, ZEN_TRANSLOCATION) >= LEARNED(ch)) {
 
         int target =
-            MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_TRANSLOCATION) >> 2);
+            MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_TRANSLOCATION) / 4);
         int test = number(20, 25);
 
         if (PRF2_FLAGGED(ch, PRF2_DEBUG))
@@ -188,7 +188,7 @@ perform_monk_meditate(struct creature *ch)
     // celerity
     if (!affected_by_spell(ch, ZEN_CELERITY)
         && CHECK_SKILL(ch, ZEN_CELERITY) >= LEARNED(ch)) {
-        int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_CELERITY) >> 2);
+        int target = MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_CELERITY) / 4);
         int test = number(20, 25);
 
         if (PRF2_FLAGGED(ch, PRF2_DEBUG))
@@ -213,7 +213,7 @@ perform_monk_meditate(struct creature *ch)
     if (!affected_by_spell(ch, ZEN_DISPASSION)
         && CHECK_SKILL(ch, ZEN_DISPASSION) >= LEARNED(ch)) {
         int target =
-            MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_DISPASSION) >> 2);
+            MEDITATE_TIMER(ch) + (CHECK_SKILL(ch, ZEN_DISPASSION) / 4);
         int test = number(30, 50) - GET_WIS(ch) / 4;
 
         if (PRF2_FLAGGED(ch, PRF2_DEBUG))
@@ -280,7 +280,7 @@ ACMD(do_whirlwind)
         return;
     }
     //101% is a complete failure
-    percent = ((40 - (GET_AC(vict) / 10)) >> 1) + number(1, 86);
+    percent = ((40 - (GET_AC(vict) / 10)) / 2) + number(1, 86);
 
     //adjust for equipment
     for (i = 0; i < NUM_WEARS; i++) {
@@ -300,7 +300,7 @@ ACMD(do_whirlwind)
 
     //check skill and stat modifiers for prob
     prob =
-        CHECK_SKILL(ch, SKILL_WHIRLWIND) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
+        CHECK_SKILL(ch, SKILL_WHIRLWIND) + ((GET_DEX(ch) + GET_STR(ch)) / 2);
 
     //adjust prob based on victims position
     if (GET_POSITION(vict) < POS_STANDING)
@@ -461,7 +461,7 @@ ACMD(do_combo)
         return;
     }
 
-    percent = ((40 - (GET_AC(vict) / 10)) >> 1) + number(1, 86);    /* 101% is a complete
+    percent = ((40 - (GET_AC(vict) / 10)) / 2) + number(1, 86);    /* 101% is a complete
                                                                      * failure */
     for (i = 0; i < NUM_WEARS; i++) {
         struct obj_data *obj = GET_EQ(ch, i);
@@ -477,7 +477,7 @@ ACMD(do_combo)
     if (GET_EQ(ch, WEAR_WIELD))
         percent += (LEARNED(ch) - weapon_prof(ch, GET_EQ(ch, WEAR_WIELD))) / 2;
 
-    prob = CHECK_SKILL(ch, SKILL_COMBO) + ((GET_DEX(ch) + GET_STR(ch)) >> 1);
+    prob = CHECK_SKILL(ch, SKILL_COMBO) + ((GET_DEX(ch) + GET_STR(ch)) / 2);
 
     if (GET_POSITION(vict) < POS_STANDING)
         prob += 30;
@@ -533,8 +533,8 @@ ACMD(do_combo)
         for (i = 0, count = 0; i < 8 && !dead && vict->in_room == ch->in_room;
             i++, count++) {
             if (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_COMBO) > number(100,
-                    120 + (count << 3))) {
-                damage(ch, vict, NULL, dam + (count << 3), which_attack[number(0,
+                    120 + (count * 8))) {
+                damage(ch, vict, NULL, dam + (count * 8), which_attack[number(0,
                             HOW_MANY - 1)], -1);
                 if (is_dead(ch))
                     return;
@@ -731,12 +731,12 @@ ACMD(do_pinch)
             struct affected_type *doomed_aff, *next_aff;
             int level;
 
-            level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 1);
+            level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 2);
             for (doomed_aff = vict->affected; doomed_aff;
                 doomed_aff = next_aff) {
                 next_aff = doomed_aff->next;
                 if (SPELL_IS_BIO(doomed_aff->type)) {
-                    if (doomed_aff->level < number(level >> 1, level << 1)) {
+                    if (doomed_aff->level < number(level / 2, level * 2)) {
                         affect_remove(vict, doomed_aff);
                         happened = true;
                     }
@@ -965,7 +965,7 @@ ACMD(do_evade)
 
     prob += GET_DEX(ch);
 
-    percent = number(0, 101) - (GET_LEVEL(ch) >> 2);
+    percent = number(0, 101) - (GET_LEVEL(ch) / 4);
 
     if (percent < prob)
         SET_BIT(AFF2_FLAGS(ch), AFF2_EVADE);

@@ -82,16 +82,17 @@ bool player_in_room(struct room_data *room);
 void check_bits_32(int bitv, int *newbits);
 
 /* undefine MAX and MIN so that our functions are used instead */
-#ifdef MAX
 #undef MAX
-#endif
-
-#ifdef MIN
 #undef MIN
-#endif
 
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) > (b) ? (b) : (a))
+#define MAX(a,b)                                \
+    ({ __typeof__ (a) _a = (a);                 \
+        __typeof__ (b) _b = (b);                \
+        _a > _b ? _a : _b; })
+#define MIN(a,b)                                \
+    ({ __typeof__ (a) _a = (a);                 \
+        __typeof__ (b) _b = (b);                \
+        _a > _b ? _b : _a; })
 
 /* in magic.c */
 bool circle_follow(struct creature *ch, struct creature *victim);
@@ -272,7 +273,7 @@ void WAIT_STATE(struct creature *ch, int cycle);
 #define GET_OBJ_COST(obj)        ((obj)->shared->cost)
 // can only be used to get the rent, not set
 #define GET_OBJ_RENT(obj)        ((obj)->plrtext_len ? \
-                                  ((int)(obj)->plrtext_len << 3) :  \
+                                  ((int)(obj)->plrtext_len * 8) :  \
                                   (obj)->shared->cost_per_day)
 
 #define GET_OBJ_EXTRA(obj)        ((obj)->obj_flags.extra_flags)

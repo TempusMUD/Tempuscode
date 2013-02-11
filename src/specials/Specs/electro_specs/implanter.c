@@ -170,7 +170,7 @@ implanter_implant(struct creature *me, struct creature *ch, char *args)
     cost += (cost * cost_modifier(ch, me)) / 100;
 
     if (!IS_CYBORG(ch))
-        cost <<= 1;
+        cost *= 2;
 
     if (!in_session && GET_CASH(ch) < cost) {
         msg = tmp_sprintf("The cost for implanting will be %'d credits...  "
@@ -277,9 +277,9 @@ implanter_extract(struct creature *me, struct creature *ch, char *args)
     cost += (cost * cost_modifier(ch, me)) / 100;
 
     if (!obj && !IS_CYBORG(ch))
-        cost <<= 1;
+        cost *= 2;
     if (obj)
-        cost >>= 2;
+        cost /= 4;
 
     if (!in_session && GET_CASH(ch) < cost) {
         msg = tmp_sprintf("The cost for extraction will be %'d credits...  "
@@ -367,7 +367,7 @@ implanter_repair(struct creature *me, struct creature *ch, char *args)
     }
 
     if (GET_OBJ_MAX_DAM(implant) == 0 ||
-        GET_OBJ_MAX_DAM(implant) <= (GET_OBJ_MAX_DAM(proto_implant) >> 4)) {
+        GET_OBJ_MAX_DAM(implant) <= (GET_OBJ_MAX_DAM(proto_implant) / 16)) {
         msg = tmp_sprintf("Sorry, %s is damaged beyond repair.",
             implant->name);
         perform_tell(me, ch, msg);
@@ -378,7 +378,7 @@ implanter_repair(struct creature *me, struct creature *ch, char *args)
     cost += (cost * cost_modifier(ch, me)) / 100;
 
     if (!IS_CYBORG(ch))
-        cost <<= 1;
+        cost *= 2;
 
     if (!in_session && GET_CASH(ch) < cost) {
         msg = tmp_sprintf("The cost for repair will be %'d credits...  "

@@ -130,10 +130,10 @@ save_windy_rooms(void)
 {
     FILE *fl = NULL;
 
-    if (!(fl = fopen(WINDY_FILE, "w"))) {
+    fl = fopen(WINDY_FILE, "w");
+    if (fl == NULL) {
         errlog("error opening WINDY_FILE for write.");
         perror("");
-        fclose(fl);
         return 0;
     }
 

@@ -135,10 +135,10 @@ perform_psidrain(struct creature *ch, struct creature *vict)
         percent += number(1, 120);
 
         if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI))
-            percent <<= 1;
+            percent *= 2;
 
         if (GET_INT(vict) > GET_INT(ch))
-            percent += (GET_INT(vict) - GET_INT(ch)) << 3;
+            percent += (GET_INT(vict) - GET_INT(ch)) * 8;
 
         if (percent >= prob) {
             act("Your attack is deflected by $N's psishield!",
@@ -163,7 +163,7 @@ perform_psidrain(struct creature *ch, struct creature *vict)
     if (dist > 0)
         drain /= dist + 1;
 
-    drain >>= 2;
+    drain /= 4;
 
     drain = MAX(0, MIN(GET_MANA(vict), drain));
 

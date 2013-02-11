@@ -383,7 +383,7 @@ check_sneak(struct creature *ch, struct creature *vict, bool departing,
             (ch->in_room->sector_type == SECT_ROCK) ||
             (ch->in_room->sector_type == SECT_TUNDRA) ||
             (ch->in_room->sector_type == SECT_TRAIL)))
-        sneak_prob += GET_LEVEL(ch) >> 1;
+        sneak_prob += GET_LEVEL(ch) / 2;
     if (IS_ELF(ch))
         sneak_prob += 10;
     sneak_prob -=
@@ -629,7 +629,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
 
     need_movement = (movement_loss[ch->in_room->sector_type] +
         movement_loss[ch->in_room->dir_option[dir]->
-            to_room->sector_type]) >> 1;
+            to_room->sector_type]) / 2;
 
     need_movement += (((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 2) /
         CAN_CARRY_W(ch));
@@ -637,16 +637,16 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
     if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
         SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_WATER_SWIM)
         need_movement +=
-            (number(0, MAX(1, 101 - GET_SKILL(ch, SKILL_SWIMMING))) >> 4);
+            (number(0, MAX(1, 101 - GET_SKILL(ch, SKILL_SWIMMING))) / 16);
 
     if (mount && mount->in_room == ch->in_room)
-        need_movement >>= 1;
+        need_movement /= 2;
     else if (IS_DWARF(ch))
         need_movement = (int)(need_movement * 1.5);
     if (mode == MOVE_CRAWL)
         need_movement = 0;
     if (affected_by_spell(ch, ZEN_MOTION))
-        need_movement >>= 1;
+        need_movement /= 2;
     if (affected_by_spell(ch, SKILL_SNEAK))
         need_movement += 1;
     if (affected_by_spell(ch, SKILL_ELUSION))
@@ -660,11 +660,11 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         && SECT_TYPE(ch->in_room) != SECT_INSIDE
         && SECT_TYPE(EXIT(ch, dir)->to_room) != SECT_INSIDE
         && !ROOM_FLAGGED(ch->in_room, ROOM_INDOORS))
-        need_movement >>= 1;
+        need_movement /= 2;
 
     if (GET_POSITION(ch) != POS_FLYING &&
         SECT_TYPE(ch->in_room) == SECT_MOUNTAIN && (dir == UP || dir == DOWN))
-        need_movement <<= 1;
+        need_movement *= 2;
 
     if (GET_MOVE(ch) < need_movement && !IS_NPC(ch)) {
         if (need_specials_check && ch->master)
@@ -2563,18 +2563,19 @@ ACMD(do_dismount)
 
 ACMD(do_stalk)
 {
-    struct creature *vict;
     void add_stalker(struct creature *ch, struct creature *vict);
+    struct creature *vict;
 
     one_argument(argument, buf);
 
-    if (*buf) {
-        if (!(vict = get_char_room_vis(ch, buf))) {
-            send_to_char(ch, "%s", NOPERSON);
-            return;
-        }
-    } else {
+    if (*buf == '\0') {
         send_to_char(ch, "Whom do you wish to stalk?\r\n");
+        return;
+    }
+    
+    vict = get_char_room_vis(ch, buf);
+    if (vict == NULL) {
+        send_to_char(ch, "%s", NOPERSON);
         return;
     }
 
@@ -2607,20 +2608,21 @@ ACMD(do_stalk)
 
 ACMD(do_follow)
 {
-    struct creature *leader;
-
     void stop_follower(struct creature *ch);
     void add_follower(struct creature *ch, struct creature *leader);
 
+    struct creature *leader;
+
     one_argument(argument, buf);
 
-    if (*buf) {
-        if (!(leader = get_char_room_vis(ch, buf))) {
-            send_to_char(ch, "%s", NOPERSON);
-            return;
-        }
-    } else {
+    if (*buf == '\0') {
         send_to_char(ch, "Whom do you wish to follow?\r\n");
+        return;
+    }
+
+    leader = get_char_room_vis(ch, buf);
+    if (leader == NULL) {
+        send_to_char(ch, "%s", NOPERSON);
         return;
     }
 
@@ -2740,7 +2742,7 @@ ACMD(do_translocate)
         send_to_char(ch, "There doesn't seem to be a way there.\r\n");
         return;
     }
-    if ((num = atoi(arg2)) > (CHECK_SKILL(ch, subcmd) >> 2)) {
+    if ((num = atoi(arg2)) > (CHECK_SKILL(ch, subcmd) / 4)) {
         send_to_char(ch, "You can't go that far.\r\n");
         return;
     }
@@ -2819,7 +2821,7 @@ ACMD(do_translocate)
         look_at_room(ch, ch->in_room, false);
 
         // translocation has expired
-        if (af_ptr && (af_ptr->duration -= ((num << 2) + 10)) <= 0)
+        if (af_ptr && (af_ptr->duration -= ((num * 4) + 10)) <= 0)
             affect_remove(ch, af_ptr);
 
         // we hit a DT
