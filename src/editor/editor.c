@@ -35,6 +35,7 @@
 #include "prog.h"
 #include "help.h"
 #include "editor.h"
+#include "strutil.h"
 
 extern struct descriptor_data *descriptor_list;
 extern struct help_collection *Help;
@@ -545,42 +546,36 @@ editor_substitute(struct editor * editor, char *args)
 bool
 parse_optional_range(const char *arg, int *start, int *finish)
 {
-    const char *dash = strchr(arg, '-');
+    char *endp = NULL;
 
-    if (dash) {
-        char *str;
+    skip_spaces_const(&arg);
+    *start = strtol(arg, &endp, 10);
+    skip_spaces(&endp);
+    if (endp == arg || (*endp != '\0' && *endp != '-') || *start < 1) {
+        return false;
+    }
 
-        // Parse range
-        str = tmp_substr(arg, 0, dash - arg - 1);
-        if (!is_number(str))
-            return false;
-        *start = atoi(str);
-        if (*start < 1)
-            return false;
-
-        str = tmp_substr(arg, dash - arg + 1, -1);
-        if (!is_number(str))
-            return false;
-        *finish = atoi(str);
-        if (*finish < 1)
-            return false;
-
-        if (*start > *finish) {
-            int tmp = *finish;
-
-            *finish = *start;
-            *start = tmp;
-        }
-
+    if (*endp == '\0') {
+        // Single number
+        *finish = *start;
         return true;
     }
-    // Ensure single arg is numeric
-    if (!is_number(arg))
+    // range with a dash
+    arg = endp + 1;
+    skip_spaces_const(&arg);
+    *finish = strtol(arg, &endp, 10);
+    skip_spaces(&endp);
+    if (endp == arg || *endp != '\0' || *finish < 1) {
         return false;
+    }
 
-    // Single number
-    *start = *finish = atoi(arg);
-    return (*start > 1);
+    if (*start > *finish) {
+        int tmp = *finish;
+
+        *finish = *start;
+        *start = tmp;
+    }
+    return true;
 }
 
 bool
