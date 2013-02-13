@@ -7,6 +7,7 @@ check_tempus_SOURCES = \
 			@top_srcdir@/tests/testing.c \
 	        @top_srcdir@/tests/movement_tests.c \
 	        @top_srcdir@/tests/object_tests.c \
+			@top_srcdir@/tests/editor_tests.c \
 			@top_srcdir@/tests/tmpstr_tests.c \
 	        @top_srcdir@/tests/strutil_tests.c \
 	        @top_srcdir@/tests/player_io_tests.c \
