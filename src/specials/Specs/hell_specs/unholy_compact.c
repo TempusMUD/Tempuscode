@@ -22,8 +22,8 @@ SPECIAL(unholy_compact)
         return 1;
     }
     life_cost = 25;
-    gold = 10000 * GET_LEVEL(ch);
-    gold += (gold * cost_modifier(ch, dude)) / 100;
+
+    gold = adjusted_price(ch, dude, 10000 * GET_LEVEL(ch));
 
     if (IS_KNIGHT(ch))
         min_gen = 6;

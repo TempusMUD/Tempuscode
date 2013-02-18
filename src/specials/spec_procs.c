@@ -393,8 +393,7 @@ SPECIAL(guild)
         return 1;
     }
 
-    cost = GET_SKILL_COST(ch, skill_num);
-    cost += (cost * cost_modifier(ch, master)) / 100;
+    cost = adjusted_price(ch, master, GET_SKILL_COST(ch, skill_num));
 
     if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
         if (CMD_IS("offer")) {
@@ -1230,7 +1229,7 @@ SPECIAL(pet_shops)
             cost = GET_EXP(pet) / 16;
 
         //we have no shop keeper so compare charisma with the pet
-        cost += (cost * cost_modifier(ch, pet)) / 100;
+        cost = adjusted_price(ch, pet, cost);
 
         if (GET_GOLD(ch) < cost) {
             send_to_char(ch, "You don't have enough gold!\r\n");

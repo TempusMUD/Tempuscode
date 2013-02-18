@@ -167,7 +167,7 @@ implanter_implant(struct creature *me, struct creature *ch, char *args)
     }
 
     cost = GET_OBJ_COST(implant);
-    cost += (cost * cost_modifier(ch, me)) / 100;
+    cost = adjusted_price(ch, me, cost);
 
     if (!IS_CYBORG(ch))
         cost *= 2;
@@ -274,7 +274,7 @@ implanter_extract(struct creature *me, struct creature *ch, char *args)
     }
 
     cost = GET_OBJ_COST(implant);
-    cost += (cost * cost_modifier(ch, me)) / 100;
+    cost = adjusted_price(ch, me, cost);
 
     if (!obj && !IS_CYBORG(ch))
         cost *= 2;
@@ -375,7 +375,7 @@ implanter_repair(struct creature *me, struct creature *ch, char *args)
     }
     // implant repairs cost 1.5 the amount of insertion/extraction
     cost = GET_OBJ_COST(implant) + GET_OBJ_COST(implant) / 2;
-    cost += (cost * cost_modifier(ch, me)) / 100;
+    cost = adjusted_price(ch, me, cost);
 
     if (!IS_CYBORG(ch))
         cost *= 2;
@@ -547,7 +547,7 @@ implanter_analysis(struct creature *me, struct creature *ch, char *args)
 
     // analyze cost 10% of object value
     cost = GET_OBJ_COST(implant) / 10;
-    cost += (cost * cost_modifier(ch, me)) / 100;
+    cost = adjusted_price(ch, me, cost);
 
     if (!in_session && GET_CASH(ch) < cost) {
         msg = tmp_sprintf("The cost for analysis will be %'d credits...  "

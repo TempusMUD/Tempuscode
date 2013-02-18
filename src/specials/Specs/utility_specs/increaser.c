@@ -98,7 +98,7 @@ SPECIAL(increaser)
     else
         life_cost = ((incr + 1) / 2);  /* 2 pts/ life point */
     gold = 10000 * life_cost;
-    gold += (gold * cost_modifier(ch, increaser)) / 100;
+    gold = adjusted_price(ch, increaser, gold);
 
     send_to_char(ch,
         "It will cost you %'" PRId64 " %s and %d life points to increase your %s by %d.\r\n",

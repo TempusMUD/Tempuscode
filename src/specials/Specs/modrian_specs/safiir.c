@@ -40,7 +40,7 @@ SPECIAL(safiir)
             cost /= 8;
         else
             cost /= 4;
-        cost += (cost * cost_modifier(ch, safiir)) / 100;
+        cost = adjusted_price(ch, safiir, cost);
     }
 
     if (CMD_IS("recharge")) {

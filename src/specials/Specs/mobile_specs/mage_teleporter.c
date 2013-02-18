@@ -42,7 +42,7 @@ SPECIAL(mage_teleporter)
     cost = vstone->shared->cost * GET_LEVEL(ch);
     if (IS_MAGE(ch))
         cost /= 4;
-    cost += (cost * cost_modifier(ch, self)) / 100;
+    cost = adjusted_price(ch, self, cost);
     if (GET_GOLD(ch) < cost || CMD_IS("offer")) {
         if (can_see_creature(self, ch))
             perform_say_to(self, ch,
