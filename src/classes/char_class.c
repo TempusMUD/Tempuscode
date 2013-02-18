@@ -71,7 +71,7 @@ extern struct room_data *world;
  * die throw comes out higher than this number, the gain will only be
  * this number instead.
  *
- * The third line controls the minimu percent gain in learnedness a
+ * The third line controls the minimum percent gain in learnedness a
  * character is allowed per practice -- in other words, if the random
  * die throw comes out below this number, the gain will be set up to
  * this number.
@@ -102,15 +102,15 @@ const int prac_params[4][NUM_CLASSES] = {
 // 2 - class/race combination allowed for primary class
 const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
     //                 MG CL TH WR BR PS PH CY KN RN BD MN VP MR S1 S2 S3
-    {RACE_HUMAN, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
-    {RACE_ELF, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
-    {RACE_DWARF, 0, 2, 2, 0, 2, 1, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0},
-    {RACE_HALF_ORC, 0, 0, 2, 0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0},
-    {RACE_HALFLING, 2, 2, 2, 0, 2, 1, 1, 1, 2, 2, 2, 2, 0, 1, 0, 0, 0},
-    {RACE_TABAXI, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0},
-    {RACE_DROW, 2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 1, 0, 0, 0},
-    {RACE_MINOTAUR, 2, 2, 0, 0, 2, 0, 1, 1, 0, 2, 0, 0, 0, 1, 0, 0, 0},
-    {RACE_ORC, 0, 0, 1, 0, 2, 0, 1, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0},
+    {RACE_HUMAN,       2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
+    {RACE_ELF,         2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
+    {RACE_DWARF,       0, 2, 2, 0, 2, 1, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0},
+    {RACE_HALF_ORC,    0, 0, 2, 0, 2, 0, 2, 2, 0, 2, 1, 0, 0, 2, 0, 0, 0},
+    {RACE_HALFLING,    2, 2, 2, 0, 2, 1, 1, 1, 2, 2, 2, 2, 0, 1, 0, 0, 0},
+    {RACE_TABAXI,      2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0},
+    {RACE_DROW,        2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 1, 0, 0, 0},
+    {RACE_MINOTAUR,    2, 2, 0, 0, 2, 0, 1, 1, 0, 2, 0, 0, 0, 1, 0, 0, 0},
+    {RACE_ORC,         0, 0, 1, 0, 2, 0, 1, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0},
 };
 
 /* THAC0 for char_classes and levels.  (To Hit Armor Class 0) */
