@@ -12,7 +12,7 @@ SPECIAL(repairer)
 
     struct creature *repairer = (struct creature *)me;
     struct obj_data *obj = NULL, *proto_obj = NULL;
-    int cost, obj_damage;
+    money_t cost, obj_damage;
     bool currency;
 
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
@@ -70,13 +70,13 @@ SPECIAL(repairer)
     }
 
     obj_damage = GET_OBJ_MAX_DAM(obj) - GET_OBJ_DAM(obj);
-    cost = (obj_damage * GET_OBJ_COST(obj) / GET_OBJ_MAX_DAM(obj)) / 8;
+    cost = (obj_damage  / 8 * GET_OBJ_COST(obj) / GET_OBJ_MAX_DAM(obj));
     cost = adjusted_price(ch, repairer, cost);
 
     currency = (ch->in_room->zone->time_frame == TIME_ELECTRO);
 
     if (CMD_IS("value")) {
-        sprintf(tellbuf, "It will cost you %'d %s to repair %s.", cost,
+        sprintf(tellbuf, "It will cost you %'" PRId64 " %s to repair %s.", cost,
             currency ? "credits" : "coins", obj->name);
         perform_tell(repairer, ch, tellbuf);
         return 1;
@@ -84,7 +84,7 @@ SPECIAL(repairer)
 
     if ((currency && cost > GET_CASH(ch)) ||
         (!currency && cost > GET_GOLD(ch))) {
-        sprintf(tellbuf, "You don't have the %'d %s I require.", cost,
+        sprintf(tellbuf, "You don't have the %'" PRId64 " %s I require.", cost,
             currency ? "credits" : "gold coins");
         perform_tell(repairer, ch, tellbuf);
         return 1;
