@@ -54,11 +54,12 @@ SPECIAL(jail_locker)
     if (IS_IMMORT(ch))
         cost = 0;
     else
-        cost = MAX(10000, (reputation_of(ch) + 1)
-            * GET_LEVEL(ch)
-            * (GET_REMORT_GEN(ch) + 1)
-            * 50);
-    cost += (cost * cost_modifier(ch, self)) / 100;
+        cost = MAX(10000,
+                   adjusted_price(ch, self,
+                                  (reputation_of(ch) + 1)
+                                  * GET_LEVEL(ch)
+                                  * (GET_REMORT_GEN(ch) + 1)
+                                  * 50));
 
     if (CMD_IS("offer")) {
         perform_say(ch, "say",

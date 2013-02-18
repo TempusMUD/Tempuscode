@@ -19,8 +19,7 @@ SPECIAL(registry)
             "Who's there?  Come visible to register, infidel!");
         return 1;
     }
-    cost = GET_LEVEL(ch) * 100;
-    cost += (cost * cost_modifier(ch, reg)) / 100;
+    cost = adjusted_price(ch, reg, GET_LEVEL(ch) * 100);
 
     if (GET_GOLD(ch) < cost) {
         sprintf(buf2,

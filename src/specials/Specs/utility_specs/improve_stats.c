@@ -52,7 +52,7 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
     gold = *real_stat * GET_LEVEL(ch) * 50;
     if (mode == ATTR_STR && IS_MAGE(ch))
         gold *= 2;
-    gold += (gold * cost_modifier(ch, trainer)) / 100;
+    gold = adjusted_price(ch, trainer, gold);
 
     life_cost = MAX(6, (*real_stat * 2) - (GET_WIS(ch)));
 

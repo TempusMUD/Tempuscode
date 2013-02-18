@@ -164,8 +164,7 @@ vendor_invalid_buy(struct creature *self, struct creature *ch,
 // Gets the value of an object, checking for buyability.
 // costModifier of 0 does nothing.
 static unsigned long
-vendor_get_value(struct obj_data *obj, int percent, int costModifier,
-    int currency)
+vendor_get_value(struct obj_data *obj, int percent, int currency)
 {
     unsigned long cost;
 
@@ -184,8 +183,6 @@ vendor_get_value(struct obj_data *obj, int percent, int costModifier,
         cost += cost / 4;
     if (OBJ_ENHANCED(obj))
         cost += cost / 4;
-
-    cost += (costModifier * (int)cost) / 100;
 
     if (currency == 2)
         return MAX(1, cost);
@@ -372,8 +369,9 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
         }
     }
 
-    cost = vendor_get_value(obj,
-        shop->markup, cost_modifier(ch, self), shop->currency);
+    cost = vendor_get_value(obj, shop->markup, shop->currency);
+    cost = adjusted_price(ch, self, cost);
+
     switch (shop->currency) {
     case 0:
         amt_carried = GET_GOLD(ch);
@@ -556,8 +554,9 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
             "I make these.  Why should I buy it back from you?");
         return;
     }
-    cost = vendor_get_value(obj,
-        shop->markdown, cost_modifier(self, ch), shop->currency);
+    cost = vendor_get_value(obj, shop->markdown, shop->currency);
+    cost = adjusted_price(self, ch, cost);
+
     amt_carried = (shop->currency) ? GET_CASH(self) : GET_GOLD(self);
 
     if (amt_carried < cost) {
@@ -696,8 +695,8 @@ vendor_list(struct creature *ch, char *arg, struct creature *self,
                 if (vendor_is_produced(last_obj, shop))
                     cnt = -1;
                 if (!*arg || namelist_match(arg, last_obj->aliases)) {
-                    cost = vendor_get_value(last_obj,
-                        shop->markup, cost_modifier(ch, self), shop->currency);
+                    cost = vendor_get_value(last_obj, shop->markup, shop->currency);
+                    cost = adjusted_price(ch, self, cost);
                     msg = tmp_strcat(msg,
                         vendor_list_obj(ch, last_obj, cnt, idx, cost), NULL);
                 }
@@ -710,11 +709,11 @@ vendor_list(struct creature *ch, char *arg, struct creature *self,
     if (last_obj) {
         if (vendor_is_produced(last_obj, shop))
             cnt = -1;
-        if (!*arg || namelist_match(arg, last_obj->aliases))
-            msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx,
-                    vendor_get_value(last_obj,
-                        shop->markup,
-                        cost_modifier(ch, self), shop->currency)), NULL);
+        if (!*arg || namelist_match(arg, last_obj->aliases)) {
+            cost = vendor_get_value(last_obj, shop->markup, shop->currency);
+            cost = adjusted_price(ch, self, cost);
+            msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx, cost), NULL);
+        }
     }
 
     act("$n peruses the shop's wares.", false, ch, NULL, NULL, TO_ROOM);
@@ -749,8 +748,8 @@ vendor_value(struct creature *ch, char *arg, struct creature *self,
     if (vendor_invalid_buy(self, ch, shop, obj))
         return;
 
-    cost = vendor_get_value(obj,
-        shop->markdown, cost_modifier(self, ch), shop->currency);
+    cost = vendor_get_value(obj, shop->markdown, shop->currency);
+    cost = adjusted_price(self, ch, cost);
 
     perform_say_to(self, ch, tmp_sprintf("I'll give you %'lu %s for it!", cost,
             shop->currency ? "creds" : "gold"));
