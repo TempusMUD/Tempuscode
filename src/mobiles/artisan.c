@@ -247,10 +247,10 @@ list_commission_item(struct creature *ch,
             NULL);
 
     return tmp_sprintf("%s%s  %s %-43s %11ld\r\n", msg,
-        item_prefix,
-        needed,
-        CAP(tmp_strdup(obj->name)),
-        item->cost + (item->cost * cost_modifier(ch, keeper)) / 100);
+                       item_prefix,
+                       needed,
+                       CAP(tmp_strdup(obj->name)),
+                       adjusted_price(ch, keeper, item->cost));
 
 }
 
@@ -331,7 +331,7 @@ craft_shop_buy(struct craft_shop *shop,
         return;
     }
 
-    long modCost = item->cost + (item->cost * cost_modifier(ch, keeper)) / 100;
+    long modCost = adjusted_price(ch, keeper, item->cost);
 
     needed_str = craft_item_next_requirement(item, keeper);
     if (needed_str) {

@@ -913,6 +913,7 @@ struct room_data *player_loadroom(struct creature *ch);
 bool load_player_objects(struct creature *ch);
 bool save_player_objects(struct creature *ch);
 bool display_unrentables(struct creature *ch);
+money_t adjusted_price(struct creature *buyer, struct creature *seller, money_t base_price);
 int cost_modifier(struct creature *ch, struct creature *seller);
 
 bool creature_trusts_idnum(struct creature *ch, long idnum);
