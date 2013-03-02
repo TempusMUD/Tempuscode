@@ -114,7 +114,7 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
 
     assert(ch != NULL);
 
-    if (attacktype != SKILL_GAROTTE)
+    if (attacktype != SKILL_GARROTE)
         death_cry(ch);
 
     trigger_prog_dying(ch, killer);
