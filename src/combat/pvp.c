@@ -312,7 +312,8 @@ perform_pardon(struct creature *ch, struct creature *pardoned)
     }
 
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
-        (GCompareFunc) matches_grievance, GINT_TO_POINTER(GET_IDNUM(pardoned)));
+                                          (GCompareFunc) matches_grievance,
+                                          GINT_TO_POINTER(GET_IDNUM(pardoned)));
 }
 
 gint
@@ -329,7 +330,8 @@ expire_old_grievances(struct creature *ch)
 {
     time_t min_time = time(NULL) - 86400;
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
-                                          (GCompareFunc) grievance_expired, GINT_TO_POINTER(min_time));
+                                          (GCompareFunc) grievance_expired,
+                                          GINT_TO_POINTER(min_time));
 }
 
 ACMD(do_pardon)
@@ -374,7 +376,7 @@ ACMD(do_pardon)
             "(GC) %s pardoned by %s", GET_NAME(pardoned), GET_NAME(ch));
     } else if (g_list_find_custom(GET_GRIEVANCES(ch),
                                   GINT_TO_POINTER(GET_IDNUM(pardoned)),
-                                  (GCompareFunc) matches_grievance)) {
+                                  (GCompareFunc) matches_grievance) == NULL) {
         send_to_char(ch, "%s has done nothing for you to pardon.\r\n",
                      GET_NAME(pardoned));
     } else {
