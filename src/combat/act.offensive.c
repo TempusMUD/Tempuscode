@@ -872,7 +872,7 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *move = 25;
         break;
 
-    case SKILL_GAROTTE:
+    case SKILL_GARROTE:
         if (!affected_by_spell(ch, SKILL_KATA) &&
             (IS_PUDDING(vict) || IS_SLIME(vict) || NON_CORPOREAL_MOB(vict))
             )

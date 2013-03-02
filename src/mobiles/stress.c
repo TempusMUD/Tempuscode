@@ -189,7 +189,7 @@ const char *cmd_templates[] = {
     "get all #o",
     "gagmiss",
     "gain",
-    "garotte #c",
+    "garrote #c",
     "gasify",
     "give #o #c",
     "glance #c",
