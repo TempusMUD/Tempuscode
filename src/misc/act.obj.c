@@ -547,8 +547,13 @@ bool
 can_take_obj(struct creature *ch, struct obj_data *obj, bool check_weight,
     bool print)
 {
-
-    if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+    if (IS_CORPSE(obj)
+        && CORPSE_IDNUM(obj) != GET_IDNUM(ch)
+        && GET_LEVEL(ch) < LVL_AMBASSADOR
+        && ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK && IS_PC(ch)
+        && CORPSE_IDNUM(obj) > 0) {
+        sprintf(buf, "$p: You can only take player corpses in CPK zones!");
+    } else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
         sprintf(buf, "$p: you can't carry that many items.");
     } else if (check_weight
         && (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)) {
@@ -810,7 +815,7 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
             !IS_NPC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
             IS_CORPSE(cont) &&
             CORPSE_IDNUM(cont) != GET_IDNUM(ch) && CORPSE_IDNUM(cont) > 0) {
-            send_to_char(ch, "You may not loot corpses in NPK zones.\r\n");
+            send_to_char(ch, "You may not loot player corpses in NPK zones.\r\n");
             return 0;
         }
         if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0
@@ -987,15 +992,6 @@ get_from_room(struct creature *ch, char *arg)
             return 0;
         }
 
-        if (IS_CORPSE(obj)
-            && CORPSE_IDNUM(obj) != GET_IDNUM(ch)
-            && GET_LEVEL(ch) < LVL_AMBASSADOR
-            && ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK && IS_PC(ch)
-            && CORPSE_IDNUM(obj) > 0) {
-            send_to_char(ch, "You can only take PC corpses in CPK zones!\r\n");
-            return 0;
-        }
-
         if (!perform_get_from_room(ch, obj, true, 1))
             return 0;
 
@@ -1024,14 +1020,6 @@ get_from_room(struct creature *ch, char *arg)
 
         for (obj = ch->in_room->contents; obj; obj = next_obj) {
             next_obj = obj->next_content;
-
-            if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) != GET_IDNUM(ch) &&
-                GET_LEVEL(ch) < LVL_AMBASSADOR &&
-                ch->in_room->zone->pk_style == ZONE_NEUTRAL_PK &&
-                IS_PC(ch) && CORPSE_IDNUM(obj) > 0) {
-                send_to_char(ch, "You can't take corpses in NPK zones!\r\n");
-                continue;
-            }
 
             if (!can_see_object(ch, obj)) {
                 continue;
