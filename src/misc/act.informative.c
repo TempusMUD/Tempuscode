@@ -804,7 +804,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
         else
             desc = tmp_strcat(tmp_capitalize(desc), " exists here.", NULL);
     } else if (GET_POSITION(i) == POS_FIGHTING) {
-        if (!i->fighting)
+        if (!is_fighting(i))
             desc = tmp_sprintf("%s is here, fighting thin air!", desc);
         else if (random_opponent(i) == ch)
             desc = tmp_sprintf("%s is here, fighting YOU!", desc);
