@@ -670,7 +670,7 @@ path_activity(void)
         }
 
         if (o->type == PMOBILE && (ch = (struct creature *)o->object) &&
-            ((ch->fighting || GET_NPC_WAIT(ch) > 0)))
+            ((is_fighting(ch) || GET_NPC_WAIT(ch) > 0)))
             continue;
 
         o->time = 0;

@@ -10,7 +10,7 @@
 SPECIAL(lawyer)
 {
     struct creature *lawy = (struct creature *)me;
-    if (!cmd || lawy->fighting || IS_NPC(ch))
+    if (!cmd || is_fighting(lawy) || IS_NPC(ch))
         return 0;
 
     if (CMD_IS("buy") || CMD_IS("value")) {

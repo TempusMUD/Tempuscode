@@ -7,7 +7,7 @@ SPECIAL(pit_keeper)
     if (cmd)
         return 0;
 
-    if (!(ch->fighting))
+    if (!(is_fighting(ch)))
         return 0;
 
     vict = random_opponent(ch);

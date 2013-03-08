@@ -75,10 +75,10 @@ reset_creature(struct creature *ch)
     //
     if (ch->in_room != NULL
         || ch->carrying != NULL
-        || ch->fighting || ch->followers != NULL || ch->master != NULL) {
+        || is_fighting(ch) || ch->followers != NULL || ch->master != NULL) {
         errlog("attempted clear of creature: %p %p %p %p %p",
             ch->in_room,
-            ch->carrying, ch->fighting, ch->followers, ch->master);
+               ch->carrying, ch->fighting, ch->followers, ch->master);
         raise(SIGSEGV);
     }
     //
@@ -646,7 +646,7 @@ creature_setPosition(struct creature * ch, int new_pos)
             return false;
         }
     }
-    if (new_pos == POS_STANDING && ch->fighting) {
+    if (new_pos == POS_STANDING && is_fighting(ch)) {
         GET_POSITION(ch) = POS_FIGHTING;
     } else {
         GET_POSITION(ch) = new_pos;

@@ -1108,7 +1108,7 @@ ACMD(do_assist)
         WAIT_STATE(ch, 4);
     } else if (helpee == ch)
         send_to_char(ch, "You can't help yourself any more than this!\r\n");
-    else if (!helpee->fighting)
+    else if (!is_fighting(helpee))
         act("But nobody is fighting $M!", false, ch, NULL, helpee, TO_CHAR);
     else {
         struct creature *opponent = random_opponent(helpee);
@@ -1278,7 +1278,7 @@ ACMD(do_order)
                                 && GET_NPC_VNUM(k->follower) == 5318)
                                 perform_say(vict, "intone",
                                     "As you command, master.");
-                            if (k->follower->fighting) {
+                            if (is_fighting(k->follower)) {
                                 for (GList * cit = first_living(k->follower->fighting);
                                     cit; cit = next_living(cit)) {
                                     struct creature *tch = cit->data;
@@ -1310,7 +1310,7 @@ ACMD(do_flee)
         send_to_char(ch, "You are solid stone!\r\n");
         return;
     }
-    if (AFF2_FLAGGED(ch, AFF2_BERSERK) && ch->fighting &&
+    if (AFF2_FLAGGED(ch, AFF2_BERSERK) && is_fighting(ch) &&
         !number(0, 1 + (GET_INT(ch) / 4))) {
         send_to_char(ch, "You are too enraged to flee!\r\n");
         return;
@@ -1807,7 +1807,7 @@ perform_stun(struct creature *ch, struct creature *vict)
     act("$n strikes a nerve center in your neck!  You are stunned!",
         false, ch, NULL, vict, TO_VICT);
     act("$n stuns $N with a swift blow!", false, ch, NULL, vict, TO_NOTVICT);
-    if (vict->fighting) {
+    if (is_fighting(vict)) {
         remove_all_combat(vict);
         remove_all_combat(ch);
     }
@@ -1845,7 +1845,7 @@ ACMD(do_stun)
         send_to_char(ch, "You're pretty busy right now!\r\n");
         return;
     }
-    if (vict->fighting) {
+    if (is_fighting(vict)) {
         send_to_char(ch, "You aren't able to get the right grip!\r\n");
         return;
     }
@@ -2861,7 +2861,7 @@ ACMD(do_disarm)
 
         GET_EXP(ch) += MIN(100, GET_OBJ_WEIGHT(weap));
         WAIT_STATE(ch, PULSE_VIOLENCE);
-        if (IS_NPC(vict) && !vict->fighting && can_see_creature(vict, ch)) {
+        if (IS_NPC(vict) && !is_fighting(vict) && can_see_creature(vict, ch)) {
             add_combat(ch, vict, true);
             add_combat(vict, ch, false);
         }
@@ -2869,7 +2869,7 @@ ACMD(do_disarm)
         send_to_char(ch, "You fail the disarm!\r\n");
         act("$n tries to disarm you!", false, ch, NULL, vict, TO_VICT);
         WAIT_STATE(ch, PULSE_VIOLENCE);
-        if (IS_NPC(vict) && !vict->fighting) {
+        if (IS_NPC(vict) && !is_fighting(vict)) {
             add_combat(ch, vict, true);
             add_combat(vict, ch, false);
         }
@@ -3107,7 +3107,7 @@ randomize_target(struct creature *ch, struct creature *vict, short prob)
     if (!g_list_find(vict->fighting, ch)) {
         if (number(1, 121) > prob)
             vict = random_opponent(vict);
-    } else if (vict->fighting && number(1, 101) > prob) {
+    } else if (is_fighting(vict) && number(1, 101) > prob) {
         vict = random_fighter(ch->in_room, ch, vict);
 
     } else if (number(1, 81) > prob) {

@@ -8,7 +8,7 @@ SPECIAL(newbie_fly)
 {
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
-    if (cmd || ch->fighting)
+    if (cmd || is_fighting(ch))
         return 0;
     for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;

@@ -1908,7 +1908,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         if (k->in_room)
             acc_sprintf(", %sFT%s: %s, %sHNT%s: %s, Timer: %d",
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                (k->fighting ? GET_NAME(random_opponent(k)) : "N"),
+                        (is_fighting(k) ? GET_NAME(random_opponent(k)) : "N"),
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                 NPC_HUNTING(k) ? PERS(NPC_HUNTING(k), ch) : "N",
                 k->char_specials.timer);
@@ -1916,7 +1916,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
             position_types[(int)GET_POSITION(k)],
             CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-            (k->fighting ? GET_NAME(random_opponent(k)) : "N"),
+                    (is_fighting(k) ? GET_NAME(random_opponent(k)) : "N"),
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
             NPC_HUNTING(k) ? PERS(NPC_HUNTING(k), ch) : "N");
     }
@@ -8957,7 +8957,7 @@ verify_tempus_integrity(struct creature *ch)
                     contained->carried_by);
             }
         }
-        for (GList *it = vict->fighting;it;it = it->next) {
+        for (GList *it = first_living(vict->fighting); it; it = next_living(it)) {
             struct creature *tch = it->data;
             if (!tch->in_room) {
                 check_log(ch,

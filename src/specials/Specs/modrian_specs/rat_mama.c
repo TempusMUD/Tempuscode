@@ -17,7 +17,7 @@ SPECIAL(rat_mama)
     };
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
-    if (cmd || ch->fighting || GET_POSITION(ch) == POS_FIGHTING)
+    if (cmd || is_fighting(ch) || GET_POSITION(ch) == POS_FIGHTING)
         return (0);
 
     for (i = 0; i != -1; i++) {
