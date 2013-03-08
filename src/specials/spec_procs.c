@@ -908,7 +908,7 @@ SPECIAL(fido)
 
     if (spec_mode != SPECIAL_TICK)
         return 0;
-    if (cmd || !AWAKE(ch) || ch->fighting)
+    if (cmd || !AWAKE(ch) || is_fighting(ch))
         return (false);
 
     vict = get_char_random_vis(ch, ch->in_room);

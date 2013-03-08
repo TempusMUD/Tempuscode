@@ -1698,7 +1698,7 @@ perform_give(struct creature *ch, struct creature *vict,
                 && (CHECK_SKILL(vict, SKILL_DEMOLITIONS) < number(10, 50)
                     || (obj->contains && IS_FUSE(obj->contains)
                         && FUSE_STATE(obj->contains)))) {
-                if (!vict->fighting
+                if (!is_fighting(vict)
                     && CHECK_SKILL(vict, SKILL_DEMOLITIONS) > number(40, 60))
                     if (FUSE_IS_BURN(obj->contains))
                         do_extinguish(vict, fname(obj->aliases), 0, 0);

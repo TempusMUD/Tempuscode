@@ -10,7 +10,7 @@ SPECIAL(taunting_frenchman)
 
     if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
         return 0;
-    if (cmd || !AWAKE(ch) || ch->fighting || number(0, 10))
+    if (cmd || !AWAKE(ch) || is_fighting(ch) || number(0, 10))
         return (false);
     for (GList * it = ch->in_room->people; it; it = it->next) {
         vict = it->data;

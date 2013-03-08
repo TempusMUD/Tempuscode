@@ -15,7 +15,7 @@ SPECIAL(healing_ranger)
     if (spec_mode != SPECIAL_TICK)
         return false;
 
-    if (cmd || ch->fighting)
+    if (cmd || is_fighting(ch))
         return false;
 
     switch (number(0, 25)) {

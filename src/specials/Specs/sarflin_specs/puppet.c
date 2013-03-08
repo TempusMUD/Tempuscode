@@ -13,7 +13,7 @@ SPECIAL(puppet)
 
     init_affect(&af);
 
-    if (!cmd && !me2->fighting && !number(0, 3)) {
+    if (!cmd && !is_fighting(me2) && !number(0, 3)) {
         switch (number(0, 10)) {
         case 0:
             act("The puppet says: I am now the willing slave of $N.", false,

@@ -15,7 +15,7 @@ SPECIAL(corpse_retrieval)
     int amt_carried;
 
     if (spec_mode == SPECIAL_TICK) {
-        if (((struct creature *)me)->fighting && !number(0, 4)) {
+        if (is_fighting(((struct creature *)me)) && !number(0, 4)) {
             call_for_help(retriever, random_opponent(retriever));
             return 1;
         }

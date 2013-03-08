@@ -43,7 +43,7 @@ SPECIAL(guard)
     // movement commands
     if (!GET_NPC_PARAM(self)
         || (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
-        || (spec_mode == SPECIAL_TICK && !self->fighting)
+        || (spec_mode == SPECIAL_TICK && !is_fighting(self))
         || (spec_mode == SPECIAL_CMD && !IS_MOVE(cmd)))
         return 0;
 
@@ -98,7 +98,7 @@ SPECIAL(guard)
     }
 
     if (spec_mode == SPECIAL_TICK) {
-        if (callsforhelp && !number(0, 10) && self->fighting) {
+        if (callsforhelp && !number(0, 10) && is_fighting(self)) {
             call_for_help(self, random_opponent(self));
             free_reaction(reaction);
             return true;
@@ -149,7 +149,7 @@ SPECIAL(guard)
     // Set to deny if undecided
     act(to_vict, false, self, NULL, ch, TO_VICT);
     act(to_room, false, self, NULL, ch, TO_NOTVICT);
-    if (!err && attack && !self->fighting && IS_PC(ch)
+    if (!err && attack && !is_fighting(self) && IS_PC(ch)
         && !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
         add_combat(self, ch, false);
         add_combat(ch, self, false);

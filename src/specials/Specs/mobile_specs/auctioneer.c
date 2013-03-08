@@ -494,7 +494,7 @@ SPECIAL(do_auctions)
     }
 
     struct creature *dick;
-    while (self->fighting) {
+    while (is_fighting(self)) {
         dick = random_opponent(self);
         act("A ball of light streaks from $N's hand and hits you "
             "square in the chest, burning you to a cinder!", false,

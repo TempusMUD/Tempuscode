@@ -2157,7 +2157,7 @@ damage(struct creature *ch, struct creature *victim,
                             add_combat(victim, ch, false);
                         }
                     } else {
-                        if (!victim->fighting &&
+                        if (!is_fighting(victim) &&
                             ch->in_room == victim->in_room) {
                             add_combat(victim, ch, false);
                         }

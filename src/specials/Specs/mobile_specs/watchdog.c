@@ -16,7 +16,7 @@ SPECIAL(watchdog)
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
 
-    if (cmd || !AWAKE(dog) || dog->fighting)
+    if (cmd || !AWAKE(dog) || is_fighting(dog))
         return 0;
 
     for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
