@@ -102,4 +102,23 @@ xmlEncodeSpecialTmp( const char* text )
 	return tmp_encoded;
 }
 
+static inline xmlDocPtr
+xmlParseFileWithLog(const char *fname)
+{
+    xmlParserCtxtPtr ctxt = xmlNewParserCtxt();
+    if (ctxt == NULL) {
+        errlog("Can't allocate XML context!");
+        return NULL;
+    }
+
+    xmlDocPtr doc = xmlCtxtReadFile(ctxt, fname, NULL, 0);
+    if (doc == NULL) {
+        xmlErrorPtr err = xmlCtxtGetLastError(ctxt);
+        errlog("Failed to parse %s: %s", fname, err->message);
+    }
+
+    xmlFreeParserCtxt(ctxt);
+    return doc;
+}
+
 #endif							// __TEMPUS_XML_UTILS_H

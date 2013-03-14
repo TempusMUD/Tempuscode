@@ -275,7 +275,6 @@ SPECIAL(mage_teleporter);
 SPECIAL(languagemaster);
 SPECIAL(bounty_clerk);
 SPECIAL(do_auctions);
-SPECIAL(courier_imp);
 SPECIAL(christmas_quest);
 
 #define SPEC_MOB 1

@@ -184,6 +184,7 @@ void assign_artisans(void);
 void boot_dynamic_text(void);
 void boot_tongues(const char *path);
 void boot_voices(void);
+void load_auctions(void);
 
 void reset_zone(struct zone_data *zone);
 int file_to_string(const char *name, char *buf);
@@ -441,6 +442,9 @@ boot_db(void)
 
     slog("Booting timewarp data.");
     boot_timewarp_data();
+
+    slog("Loading auction data.");
+    load_auctions();
 
     if (mini_mud) {
         slog("HOUSE: Mini-mud detected. Houses not loading.");

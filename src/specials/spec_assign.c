@@ -294,12 +294,10 @@ const struct spec_func_data spec_list[] = {
     {"languagemaster", languagemaster, SPEC_MOB},
     {"bounty_clerk", bounty_clerk, SPEC_MOB},
     {"auctioneer", do_auctions, SPEC_MOB},
-    {"courier_imp", courier_imp, SPEC_MOB},
     {NULL, NULL, 0}             //terminator
 };
 
 const char *spec_flags[] = { "MOB", "OBJ", "ROOM", "RESERVED" };
-
 //
 // find_spec_index_ptr - given a spec pointer, return the index
 //
