@@ -1381,6 +1381,9 @@ void start_hunting(struct creature *ch, struct creature *vict)
 void stop_hunting(struct creature *ch)
     __attribute__ ((nonnull));
 
+bool adjust_creature_money(struct creature *ch, money_t amount)
+    __attribute__ ((nonnull));
+
 void restore_creature(struct creature *ch)
     __attribute__ ((nonnull));
 int unrent(struct creature *ch)

@@ -53,7 +53,7 @@ void start_editing_text(struct descriptor_data *d,
     __attribute__ ((nonnull (1)));
 
 void start_editing_mail(struct descriptor_data *d,
-                        struct mail_recipient_data *recipients)
+                        GList *recipients)
     __attribute__ ((nonnull));
 
 void start_editing_prog(struct descriptor_data *d,
