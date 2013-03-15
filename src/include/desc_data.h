@@ -68,11 +68,6 @@ struct txt_q {
 	struct txt_block *tail;
 };
 
-struct mail_recipient_data {
-	long recpt_idnum;			/* Idnum of char to receive mail  */
-	struct mail_recipient_data *next;	/*pointer to next in recpt list. */
-};
-
 struct descriptor_data {
 	GIOChannel *io;				/* file descriptor for socket       */
 

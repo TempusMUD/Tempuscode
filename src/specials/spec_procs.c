@@ -93,6 +93,7 @@
 #include "editor.h"
 #include "boards.h"
 #include "smokes.h"
+#include "mail.h"
 
 /*   external vars  */
 extern struct descriptor_data *descriptor_list;
@@ -1748,7 +1749,6 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/mage_teleporter.c"
 #include "Specs/mobile_specs/languagemaster.c"
 #include "Specs/mobile_specs/auctioneer.c"
-#include "Specs/mobile_specs/courier_imp.c"
 
 /* RADFORD's SPECS */
 #include "Specs/rad_specs/labyrinth.c"

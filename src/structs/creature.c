@@ -306,6 +306,37 @@ calc_penalized_exp(struct creature *ch, int experience,
     return experience;
 }
 
+/**
+ * adjust_creature_money:
+ * @ch: The creature whose money is adjusted
+ * @amount: The amount of money to adjust by
+ *
+ * Adjusts the amount of money the creature is holding.  @amount may
+ * be negative or positive.  @ch must be in the world.  The currency
+ * to use is determined by the time frame of @ch's current location.
+ * If the adjustment would result in a negative amount, the adjustment
+ * does not take place.
+ *
+ * Returns: %true if the creature had enough money, %false if the
+ * adjustment would result in a negative amount
+ **/
+bool
+adjust_creature_money(struct creature *ch, money_t amount)
+{
+    if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
+        if (GET_CASH(ch) + amount < 0) {
+            return false;
+        }
+        GET_CASH(ch) += amount;
+    } else {
+        if (GET_GOLD(ch) + amount < 0) {
+            return false;
+        }
+        GET_GOLD(ch) += amount;
+    }
+    return true;
+}
+
 money_t
 adjusted_price(struct creature *buyer, struct creature *seller, money_t base_price)
 {

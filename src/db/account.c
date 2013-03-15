@@ -707,15 +707,21 @@ account_set_future_bank(struct account *account, money_t amt)
 void
 deposit_past_bank(struct account *account, money_t amt)
 {
-    if (amt > 0)
+    if (amt > 0) {
+        slog("BANK: %'" PRId64 " deposited into past bank of %s [%d]",
+             amt, account->name, account->id);
         account_set_past_bank(account, account->bank_past + amt);
+    }
 }
 
 void
 deposit_future_bank(struct account *account, money_t amt)
 {
-    if (amt > 0)
+    if (amt > 0) {
+        slog("BANK: %'" PRId64 " deposited into future bank of %s [%d]",
+             amt, account->name, account->id);
         account_set_future_bank(account, account->bank_future + amt);
+    }
 }
 
 void
@@ -725,6 +731,8 @@ withdraw_past_bank(struct account *account, money_t amt)
         return;
     if (amt > account->bank_past)
         amt = account->bank_past;
+    slog("BANK: %'" PRId64 " withdrawn from past bank of %s [%d]",
+             amt, account->name, account->id);
     account_set_past_bank(account, account->bank_past - amt);
 }
 
@@ -735,6 +743,8 @@ withdraw_future_bank(struct account *account, money_t amt)
         return;
     if (amt > account->bank_future)
         amt = account->bank_future;
+    slog("BANK: %'" PRId64 " withdrawn from future bank of %s [%d]",
+             amt, account->name, account->id);
     account_set_future_bank(account, account->bank_future - amt);
 }
 
