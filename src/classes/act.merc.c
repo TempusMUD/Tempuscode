@@ -402,7 +402,7 @@ ACMD(do_snipe)
     }
     // if vict is fighting someone you have a 50% chance of hitting the person
     // vict is fighting
-    if (vict->fighting && number(0, 1)) {
+    if (is_fighting(ch) && number(0, 1)) {
         vict = random_opponent(vict);
     }
     // Has vict been sniped once and is vict a sentinel mob?

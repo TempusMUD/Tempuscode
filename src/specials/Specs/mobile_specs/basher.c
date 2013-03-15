@@ -16,7 +16,7 @@ SPECIAL(basher)
     if (number(0, 81) > GET_LEVEL(ch))
         return 0;
 
-    for (GList * it = ch->fighting; it; it = it->next) {
+    for (GList *it = first_living(ch->fighting); it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (IS_MAGE(tch) && number(0, 1)) {
             vict = tch;

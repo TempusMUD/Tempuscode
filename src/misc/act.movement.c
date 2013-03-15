@@ -607,7 +607,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         return 1;
     }
 
-    if (ch->fighting && mode == MOVE_CRAWL) {
+    if (is_fighting(ch) && mode == MOVE_CRAWL) {
         send_to_char(ch, "No way!  You're fighting for your life!\r\n");
         return 1;
     }

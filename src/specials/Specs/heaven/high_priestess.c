@@ -21,7 +21,7 @@ SPECIAL(high_priestess)
         return 0;
     }
 
-    if (hpr->fighting && hpr->in_room != quarters) {
+    if (is_fighting(hpr) && hpr->in_room != quarters) {
         if (GET_HIT(hpr) > 200)
             return 0;
 
@@ -48,7 +48,7 @@ SPECIAL(high_priestess)
         return 1;
     }
 
-    if (!hpr->fighting && hpr->in_room == quarters &&
+    if (!is_fighting(hpr) && hpr->in_room == quarters &&
         GET_HIT(hpr) == GET_MAX_HIT(hpr) &&
         GET_MANA(hpr) > (GET_MAX_MANA(hpr) * 0.75)) {
         act("$n steps onto a flaming golden chariot and disappears into the sky.", false, hpr, NULL, NULL, TO_ROOM);

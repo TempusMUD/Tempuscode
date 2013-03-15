@@ -14,7 +14,7 @@ SPECIAL(duke_nukem)
     if (cmd || !AWAKE(duke))
         return 0;
 
-    if (duke->fighting) {
+    if (is_fighting(duke)) {
         vict = random_opponent(duke);
         if (GET_HIT(duke) > (GET_MAX_HIT(duke) / 4) &&
             GET_HIT(vict) < (GET_MAX_HIT(vict) / 2)) {
@@ -53,11 +53,11 @@ SPECIAL(duke_nukem)
     }
 
     if (!number(0, 5)) {
-        for (GList * it = ch->fighting; it; it = it->next) {
+        for (GList *it = first_living(ch->fighting); it; it = next_living(it)) {
             vict = it->data;
             if (vict == duke || !can_see_creature(duke, vict))
                 continue;
-            if (GET_LEVEL(vict) > 40 && !vict->fighting &&
+            if (GET_LEVEL(vict) > 40 && !is_fighting(vict) &&
                 !PRF_FLAGGED(vict, PRF_NOHASSLE)) {
                 best_initial_attack(duke, vict);
                 return 1;

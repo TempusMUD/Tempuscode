@@ -745,7 +745,7 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
         result = prog_eval_abbrev(evt, args);
 	} else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
-                  && ((struct creature *) env->owner)->fighting);
+                  && is_fighting(((struct creature *) env->owner)));
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
 	} else if (!strcmp(arg, "variable")) {

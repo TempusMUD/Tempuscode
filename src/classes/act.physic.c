@@ -264,7 +264,7 @@ ACMD(do_lecture)
         return;
     }
 
-    if (vict->fighting) {
+    if (is_fighting(vict)) {
         act("$E is busy fighting right now!", false, ch, NULL, vict, TO_CHAR);
         return;
     }

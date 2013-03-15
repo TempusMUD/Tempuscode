@@ -698,7 +698,7 @@ ACMD(do_pinch)
             GET_POSITION(ch) = POS_STUNNED;
             return;
         }
-        if (ch->fighting || vict->fighting || NPC2_FLAGGED(vict, NPC2_NOSTUN)
+        if (is_fighting(ch) || is_fighting(vict) || NPC2_FLAGGED(vict, NPC2_NOSTUN)
             || (AFF_FLAGGED(vict, AFF_ADRENALINE)
                 && number(0, 60) < GET_LEVEL(vict))) {
             send_to_char(ch, "You fail.\r\n");
@@ -712,7 +712,7 @@ ACMD(do_pinch)
         af.type = 0;
         break;
     case SKILL_PINCH_GAMMA:
-        if (ch->fighting || vict->fighting) {
+        if (is_fighting(ch) || is_fighting(vict)) {
             send_to_char(ch, "You fail.\r\n");
             send_to_char(vict, "%s", NOEFFECT);
             return;
@@ -844,7 +844,7 @@ ACMD(do_pinch)
 
     if (which_pinch != SKILL_PINCH_ZETA) {
         check_attack(ch, vict);
-        if (IS_NPC(vict) && !vict->fighting
+        if (IS_NPC(vict) && !is_fighting(vict)
             && GET_POSITION(vict) >= POS_FIGHTING) {
             hit(vict, ch, TYPE_UNDEFINED);
         }

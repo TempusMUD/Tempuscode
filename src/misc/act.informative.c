@@ -1871,7 +1871,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
                 act("$n glances sidelong at $N.", true, ch, NULL, found_char,
                     TO_NOTVICT);
 
-                if (IS_NPC(found_char) && !(found_char->fighting)
+                if (IS_NPC(found_char) && !(is_fighting(found_char))
                     && AWAKE(found_char) && (!found_char->master
                         || found_char->master != ch)) {
                     if (IS_ANIMAL(found_char) || IS_BUGBEAR(found_char)
@@ -1939,7 +1939,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
 static gint
 found_fighting(struct creature *tch, gpointer ignore __attribute__((unused)))
 {
-    return (tch->fighting) ? 0 : -1;
+    return (is_fighting(tch)) ? 0 : -1;
 }
 
 ACMD(do_listen)
@@ -1955,7 +1955,7 @@ ACMD(do_listen)
     for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
 
-        if (tch->fighting) {
+        if (is_fighting(tch)) {
             fighting_vict = tch;
             break;
         }
@@ -3045,7 +3045,7 @@ ACMD(do_score)
                 CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     case POS_FIGHTING:
-        if ((ch->fighting))
+        if ((is_fighting(ch)))
             acc_strcat(CCYEL(ch, C_NRM),
                 "You are fighting ", PERS(random_opponent(ch), ch), ".",
                 CCNRM(ch, C_NRM), "\r\n", NULL);

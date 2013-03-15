@@ -321,7 +321,7 @@ ACMD(do_backstab)
         send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
         return;
     }
-    if (vict->fighting) {
+    if (is_fighting(vict)) {
         send_to_char(ch,
             "Backstab a fighting person? -- they're too alert!\r\n");
         return;

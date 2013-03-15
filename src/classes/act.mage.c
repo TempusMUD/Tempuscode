@@ -292,7 +292,7 @@ area_attack_advisable(struct creature *ch)
         struct creature *tch = it->data;
 
         if (can_see_creature(ch, tch)
-            && !(IS_NPC(tch) && tch->fighting))
+            && !(IS_NPC(tch) && is_fighting(tch)))
             pc_count++;
     }
 
