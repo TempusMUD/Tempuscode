@@ -410,7 +410,8 @@ auction_minimum_bid(struct auction_data *auc)
     struct bid_data *winning_bid = auction_winning_bid(auc);
 
     if (winning_bid != NULL) {
-        min_bid = bid_total(winning_bid) + (auc->start_bid * BID_INCREMENT);
+        money_t inc = auc->start_bid * BID_INCREMENT;
+        min_bid = bid_total(winning_bid) + MAX(1, inc);
     }
 
     return min_bid;
