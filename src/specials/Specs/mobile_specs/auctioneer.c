@@ -1180,7 +1180,6 @@ auctioneer_withdraw(struct creature *self, struct creature *ch, char *argument)
                                   idnum, obj->name), 0, SCMD_AUCTION);
     GET_MOOD(self) = NULL;
 
-    obj_from_char(obj);
     obj_to_char(obj, ch);
     auctions = g_list_remove(auctions, auc);
     crashsave(ch);
