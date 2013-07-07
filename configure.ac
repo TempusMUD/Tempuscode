@@ -3,7 +3,7 @@ AC_INIT([tempusmud],[1.0],[azimuth@tempusmud.com])
 APR_CONFIG_NICE([config.nice])
 AC_CONFIG_SRCDIR([src/clan/clan.c])
 AC_CONFIG_HEADER([config.h])
-AM_INIT_AUTOMAKE([tempusmud], [1.0])
+AM_INIT_AUTOMAKE
 
 # Enable or disable debugging
 AC_ARG_ENABLE(debug,

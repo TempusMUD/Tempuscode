@@ -23,7 +23,7 @@ dnl APR_CONFIG_NICE(filename)
 dnl
 dnl Saves a snapshot of the configure command-line for later reuse
 dnl
-AC_DEFUN(APR_CONFIG_NICE,[
+AC_DEFUN([APR_CONFIG_NICE],[
   rm -f $1
   cat >$1<<EOF
 #! /bin/sh
@@ -90,7 +90,7 @@ dnl baz='${bar}/3'
 dnl APR_EXPAND_VAR(fraz, $baz)
 dnl   $fraz is now "1/2/3"
 dnl 
-AC_DEFUN(APR_EXPAND_VAR,[
+AC_DEFUN([APR_EXPAND_VAR],[
 ap_last=
 ap_cur="$2"
 while test "x${ap_cur}" != "x${ap_last}";
