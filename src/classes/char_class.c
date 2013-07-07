@@ -983,7 +983,7 @@ do_start(struct creature *ch, int mode)
         }
 
         // Bards start with a percussion instrument held, and stringed in inventory
-        if ((GET_CLASS(ch) == CLASS_BARD)) {
+        if (GET_CLASS(ch) == CLASS_BARD) {
             struct obj_data *lute = read_object(3218);
             if (lute != NULL) {
                 obj_to_char(lute, ch);
