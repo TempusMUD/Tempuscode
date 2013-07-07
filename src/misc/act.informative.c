@@ -618,7 +618,8 @@ desc_char_trailers(struct creature *ch, struct creature *i)
 static void
 look_at_char(struct creature *i, struct creature *ch, int cmd)
 {
-    int j, found = 0, app_height, app_weight, h, k, pos;
+    int j, found = 0, app_height, h, k, pos;
+    float app_weight;
     char *description = NULL;
     struct affected_type *af = NULL;
     struct creature *mob = NULL;
