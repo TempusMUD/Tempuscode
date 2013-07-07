@@ -9,8 +9,7 @@ else
   USE_IPV6_FLAG=
 endif
 bin_PROGRAMS = @top_srcdir@/bin/circle
-INCLUDES = -I@top_srcdir@/src/include @POSTGRESQL_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@
-AM_CFLAGS = -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG}
+AM_CFLAGS = -I@top_srcdir@/src/include @POSTGRESQL_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG}
 @top_srcdir@_bin_circle_LDADD = @POSTGRESQL_LDFLAGS@ @XML_LIBS@ @GLIB_LIBS@
 ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^DEFPROGHANDLER(\\([a-zA-Z0-9_]+\\),[^)]+)$/prog_do_\\1/' --regex='/^SPECIAL(\\([a-zA-Z0-9_]+\\))$/\\1/'
 
