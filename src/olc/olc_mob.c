@@ -1451,7 +1451,7 @@ save_mobs(struct creature * ch, struct zone_data * zone)
             if (GET_MAX_MOVE(mob) != 50)
                 fprintf(file, "MaxMove: %d\n", GET_MAX_MOVE(mob));
             if (GET_WEIGHT(mob) != 200)
-                fprintf(file, "Weight: %d\n", GET_WEIGHT(mob));
+                fprintf(file, "Weight: %.2f\n", GET_WEIGHT(mob));
             if (GET_HEIGHT(mob) != 198)
                 fprintf(file, "Height: %d\n", GET_HEIGHT(mob));
             if (GET_TONGUE(mob) != 0)

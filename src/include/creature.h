@@ -635,7 +635,7 @@ struct char_player_data {
 	char *title;				/* PC / NPC's title                     */
 	int16_t char_class;			/* PC / NPC's char_class               */
 	int16_t remort_char_class;	/* PC / NPC REMORT CLASS (-1 for none) */
-	int16_t weight;				/* PC / NPC's weight                    */
+	float weight;				/* PC / NPC's weight                    */
 	int16_t height;				/* PC / NPC's height                    */
 	int16_t hometown;			/* PC s Hometown (zone)                 */
 	int8_t sex;					/* PC / NPC's sex                       */
