@@ -495,7 +495,7 @@ save_player_to_file(struct creature *ch, const char *path)
         ch->points.gold, ch->points.cash, ch->points.exp);
 
     fprintf(ouf,
-        "<stats level=\"%d\" sex=\"%s\" race=\"%s\" height=\"%d\" weight=\"%d\" align=\"%d\"/>\n",
+        "<stats level=\"%d\" sex=\"%s\" race=\"%s\" height=\"%d\" weight=\"%f\" align=\"%d\"/>\n",
         GET_LEVEL(ch), genders[(int)GET_SEX(ch)],
         race_name_by_idnum(GET_RACE(ch)), GET_HEIGHT(ch), GET_WEIGHT(ch),
         GET_ALIGNMENT(ch));
