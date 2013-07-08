@@ -363,7 +363,7 @@ SPECIAL(hell_hunter_brain)
 
         GList *it;
         struct target *target;
-        for (it = targets; it; it = it->next, i++) {
+        for (it = targets; it; it = it->next) {
             target = it->data;
             if (target->o_vnum == GET_OBJ_VNUM(obj)
                 && IS_OBJ_STAT3(obj, ITEM3_HUNTED)) {
@@ -457,7 +457,6 @@ SPECIAL(hell_hunter)
     if (spec_mode != SPECIAL_TICK)
         return 0;
     struct obj_data *obj = NULL, *t_obj = NULL;
-    unsigned int i;
     struct creature *devil = NULL;
 
     if (cmd)
@@ -481,7 +480,7 @@ SPECIAL(hell_hunter)
             }
             continue;
         }
-        for (GList * it = targets; it; it = it->next, i++) {
+        for (GList * it = targets; it; it = it->next) {
             struct target *target = it->data;
             if (target->o_vnum == GET_OBJ_VNUM(obj)) {
                 act("$n takes $p.", false, ch, obj, t_obj, TO_ROOM);
