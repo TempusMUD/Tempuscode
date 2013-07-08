@@ -579,6 +579,21 @@ mob_vnum_compare(struct creature *a, struct creature *b, gpointer ignore)
     return 0;
 }
 
+struct mob_vnum_output_ctx {
+    struct creature *ch;
+    int *counter;
+};
+
+void
+mob_vnum_output(struct creature *mob, struct mob_vnum_output_ctx *ctx)
+{
+    acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(ctx->counter),
+                CCGRN(ctx->ch, C_NRM), CCNRM(ctx->ch, C_NRM),
+                mob->mob_specials.shared->vnum,
+                CCGRN(ctx->ch, C_NRM), CCYEL(ctx->ch, C_NRM),
+                mob->player.short_descr, CCNRM(ctx->ch, C_NRM));
+}
+
 void
 vnum_mobile(char *searchname, struct creature *ch)
 {
@@ -597,18 +612,8 @@ vnum_mobile(char *searchname, struct creature *ch)
 
     if (g_sequence_get_length(found_mobs)) {
         acc_string_clear();
-
-        void mob_vnum_output(struct creature *mob, gpointer counter)
-        {
-            acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(int *)counter,
-                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                        mob->mob_specials.shared->vnum,
-                        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                        mob->player.short_descr, CCNRM(ch, C_NRM));
-        }
-
-
-        g_sequence_foreach(found_mobs, (GFunc)mob_vnum_output, &counter);
+        struct mob_vnum_output_ctx ctx = { .ch = ch, .counter = &counter };
+        g_sequence_foreach(found_mobs, (GFunc)mob_vnum_output, &ctx);
 
         page_string(ch->desc, acc_get_string());
     } else {
@@ -628,7 +633,22 @@ obj_vnum_compare(struct obj_data *a, struct obj_data *b, gpointer ignore)
     return 0;
 }
 
+struct obj_vnum_output_ctx {
+    struct creature *ch;
+    int *counter;
+};
+
 void
+obj_vnum_output(struct obj_data *obj, struct obj_vnum_output_ctx *ctx)
+{
+    acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(ctx->counter),
+                CCGRN(ctx->ch, C_NRM), CCNRM(ctx->ch, C_NRM),
+                obj->shared->vnum,
+                CCGRN(ctx->ch, C_NRM), CCYEL(ctx->ch, C_NRM),
+                obj->name, CCNRM(ctx->ch, C_NRM));
+}
+
+        void
 vnum_object(char *searchname, struct creature *ch)
 {
     GHashTableIter iter;
@@ -647,16 +667,8 @@ vnum_object(char *searchname, struct creature *ch)
     if (g_sequence_get_length(found_objs)) {
         acc_string_clear();
 
-        void obj_vnum_output(struct obj_data *obj, gpointer counter)
-        {
-            acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(int *)counter,
-                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                        obj->shared->vnum,
-                        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                        obj->name, CCNRM(ch, C_NRM));
-        }
-
-        g_sequence_foreach(found_objs, (GFunc)obj_vnum_output, &counter);
+        struct obj_vnum_output_ctx ctx = { .ch = ch, .counter = &counter };
+        g_sequence_foreach(found_objs, (GFunc)obj_vnum_output, &ctx);
 
         page_string(ch->desc, acc_get_string());
     } else {

@@ -599,9 +599,16 @@ SPECIAL(thief)
 
     for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if ((GET_LEVEL(tch) < LVL_AMBASSADOR) && !number(0, 3) &&
-            (GET_LEVEL(ch) + 10 + AWAKE(tch) ? 0 : 20 - GET_LEVEL(ch)) >
-            number(0, 40)) {
+        if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
+            continue;
+        if (!random_fractional_4())
+            continue;
+
+        int target_roll = GET_LEVEL(ch) + 10;
+        if (!AWAKE(tch))
+            target_roll += 20;
+
+        if (target_roll > number(0, 40)) {
             npc_steal(ch, tch);
             return true;
         }
