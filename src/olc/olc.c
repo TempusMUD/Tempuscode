@@ -123,10 +123,15 @@ extern const char *race_language[][2];
 "olc zset [zone] reset <reset mode>\r\n"           \
 "olc zset [zone] tframe <time frame>\r\n"          \
 "olc zset [zone] plane <plane>\r\n"                \
-"olc zset [zone] owner <player name>\r\n"          \
+"olc zset [zone] <owner | co-owner> <player name>\r\n"          \
 "olc zset [zone] flags <+/-> [FLAG FLAG ...]\r\n"  \
+"olc zset [zone] blanket_flags <+/-> [FLAG FLAG ...]\r\n"        \
 "olc zset [zone] <hours | years> <mod>\r\n"        \
 "olc zset [zone] blanket_exp <percent>\r\n"        \
+"olc zset [zone] <min_lvl | max_lvl> <level>\r\n"        \
+"olc zset [zone] <min_gen | max_gen> <gen>\r\n"        \
+"olc zset [zone] <public_desc | private_desc>\r\n"        \
+"olc zset [zone] author <player name>\r\n"        \
 "olc zset [zone] pk_style <no_pk | neutral_pk | chaotic_pk>\r\n"        \
 "Usage: olc zset [zone] command <cmd num> [if|max|prob] <value>\r\n"
 
