@@ -1,6 +1,6 @@
 TESTS = check_tempus
 check_PROGRAMS = check_tempus
-AM_CFLAGS =-I@top_srcdir@/src/include @POSTGRESQL_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @CHECK_CFLAGS@  -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG}
+AM_CFLAGS =-I@top_srcdir@/src/include @POSTGRESQL_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @CHECK_CFLAGS@  -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG} -g -O0
 check_tempus_SOURCES = \
 			@top_srcdir@/tests/check_tempus.c \
 			@top_srcdir@/tests/testing.c \
