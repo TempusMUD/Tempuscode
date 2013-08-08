@@ -179,9 +179,9 @@ test_creature_to_world(struct creature *ch)
 {
     creatures = g_list_prepend(creatures, ch);
     if (IS_NPC(ch))
-        g_hash_table_insert(creature_map, GINT_TO_POINTER(NPC_IDNUM(ch)), ch);
+        g_hash_table_insert(creature_map, GINT_TO_POINTER(-NPC_IDNUM(ch)), ch);
     else
-        g_hash_table_insert(creature_map, GINT_TO_POINTER(-GET_IDNUM(ch)), ch);
+        g_hash_table_insert(creature_map, GINT_TO_POINTER(GET_IDNUM(ch)), ch);
 
     char_to_room(ch, real_room(1), false);
     GET_POSITION(ch) = POS_STANDING;
