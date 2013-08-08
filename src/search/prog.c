@@ -1378,9 +1378,13 @@ DEFPROGHANDLER(doorexit, env, evt, args)
     } else {
         return;
     }
-
-    if (room->dir_option[dir] && target_room)
+    
+    if (room->dir_option[dir]) {
         room->dir_option[dir]->to_room = target_room;
+    } else if (target_room) {
+        CREATE(room->dir_option[dir], struct room_direction_data, 1);
+        room->dir_option[dir]->to_room = target_room;
+    }    
 }
 
 DEFPROGHANDLER(selfpurge, env, evt, args)
