@@ -797,6 +797,7 @@ auctioneer_tick(struct creature *self)
                 auc_str = tmp_sprintf("No bids yet for Item number %d, %s! "
                                       "Do I hear %'" PRId64 " coins?",
                                       auc->idnum, auc->item->name, auc->start_bid);
+                auc->state = AUCTION_NO_BIDS;
             }
             break;
         case AUCTION_NEW_BID:
