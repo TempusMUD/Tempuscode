@@ -86,7 +86,7 @@ SPECIAL(enhancer)
             GET_GOLD(ch) -= cost;
     }
 
-    act("$n takes $p and disappears into the back room for a while.\r\n",
+    act("$n takes $p and disappears into the back room for a while.",
         false, keeper, obj, ch, TO_VICT);
     act("$e returns shortly and presents you with the finished product",
         false, keeper, obj, ch, TO_VICT);
