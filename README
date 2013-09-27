@@ -10,9 +10,9 @@ installed.
 In Debian or Ubuntu, you should be able to install all the necessary
 prerequisites with this command:
 
-apt-get install build-essential postgresql autotools-dev autoconf \
-                libpq-dev libxml2-dev glib2.0-dev check git-core \
-                autoconf-archive
+aptitude install build-essential postgresql autotools-dev autoconf \
+                 libpq-dev libxml2-dev libglib2.0-dev check git \
+                 autoconf-archive
 
 Getting Tempus Code
 ------------------------------------------------------------------------
@@ -23,7 +23,7 @@ and then to git in 2009.  It was placed on github in 2011.
 
 You should be able to get the latest copy with the following:
 
-  git clone git://github.com/dlowe-net/Tempuscode.git
+  git clone git://github.com/TempusMUD/Tempuscode.git
 
 Building Tempus
 ------------------------------------------------------------------------
@@ -65,8 +65,10 @@ Tempuscode uses both the lib/ directory and a postgresql database to
 store its data.  The postgreql database must be set up correctly for
 Tempuscode to run.
 
-   createuser -d -R -S realm
-   createdb -U realm devtempus
+   sudo sed -i "/^# TYPE / a\local   devtempus   realm    trust" /etc/postgresql/*/main/pg_hba.conf
+   sudo /etc/init.d/postgresql reload
+   sudo su - postgres -c 'createuser -d -R -S realm'
+   sudo su - postgres -c 'createdb -O realm devtempus'
    psql -U realm -d devtempus -f sample_lib/etc/tempus.sql
 
 Running Tempuscode
