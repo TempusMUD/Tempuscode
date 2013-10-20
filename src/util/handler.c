@@ -1483,17 +1483,17 @@ same_obj(struct obj_data * obj1, struct obj_data * obj2)
             || obj2->line_desc != obj2->shared->proto->line_desc))
         return false;
 
-    if (obj1->name != obj2->name || strcmp(obj1->name, obj2->name))
+    if (obj1->name != obj2->name && strcmp(obj1->name, obj2->name))
         return false;
 
     if (obj1->line_desc != obj2->line_desc
-        || !obj1->line_desc || !obj2->line_desc
-        || strcmp(obj1->line_desc, obj2->line_desc))
+        && (!obj1->line_desc || !obj2->line_desc
+            || strcmp(obj1->line_desc, obj2->line_desc)))
         return false;
 
     if (obj1->engraving != obj2->engraving
-        || !obj1->engraving || !obj2->engraving
-        || strcmp(obj1->engraving, obj2->engraving))
+        && (!obj1->engraving || !obj2->engraving
+            || strcmp(obj1->engraving, obj2->engraving)))
         return false;
 
     if (GET_OBJ_COST(obj1) != GET_OBJ_COST(obj2) ||
