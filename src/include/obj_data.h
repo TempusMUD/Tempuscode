@@ -361,6 +361,7 @@ struct obj_data {
 	char *aliases;					/* Title of object :get etc.        */
 	char *line_desc;			/* When in room                     */
 	char *action_desc;	/* What to write when used          */
+	char *engraving; /* engraving on object */
 	unsigned int plrtext_len;	/* If contains savable plrtext      */
 	struct extra_descr_data *ex_description;	/* extra descriptions     */
 	struct creature *carried_by;	/* Carried by :NULL in room/conta   */

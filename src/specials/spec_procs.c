@@ -1639,6 +1639,7 @@ SPECIAL(cave_bear)
 #include "Specs/utility_specs/communicator.c"
 #include "Specs/utility_specs/shade_zone.c"
 #include "Specs/utility_specs/bounty_clerk.c"
+#include "Specs/utility_specs/engraver.c"
 
 /* SPECS BY SARFLIN */
 #include "Specs/sarflin_specs/maze_cleaner.c"
