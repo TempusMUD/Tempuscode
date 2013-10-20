@@ -294,6 +294,7 @@ const struct spec_func_data spec_list[] = {
     {"languagemaster", languagemaster, SPEC_MOB},
     {"bounty_clerk", bounty_clerk, SPEC_MOB},
     {"auctioneer", do_auctions, SPEC_MOB},
+    {"engraver", engraver, SPEC_MOB},
     {NULL, NULL, 0}             //terminator
 };
 

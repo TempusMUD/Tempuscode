@@ -70,6 +70,10 @@ free_object(struct obj_data *obj)
             free(obj->action_desc);
             obj->action_desc = NULL;
         }
+        if (obj->engraving) {
+            free(obj->engraving);
+            obj->engraving = NULL;
+        }
         if (obj->ex_description) {
             for (this_desc = obj->ex_description; this_desc;
                 this_desc = next_one) {
@@ -611,6 +615,8 @@ load_object_from_xml(struct obj_data *container,
             free(str);
         } else if (xmlMatches(cur->name, "aliases")) {
             obj->aliases = (char *)xmlNodeGetContent(cur);
+        } else if (xmlMatches(cur->name, "engraving")) {
+            obj->engraving = (char *)xmlNodeGetContent(cur);
         } else if (xmlMatches(cur->name, "line_desc")) {
             str = (char *)xmlNodeGetContent(cur);
             obj->line_desc =
@@ -805,6 +811,13 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
         (proto == NULL || proto->aliases == NULL || strcmp(s, proto->aliases)))
     {
         fprintf(ouf, "%s<aliases>%s</aliases>\n", indent, xmlEncodeTmp(s));
+    }
+
+    s = obj->engraving;
+    if (s != NULL &&
+        (proto == NULL || proto->aliases == NULL || strcmp(s, proto->aliases)))
+    {
+        fprintf(ouf, "%s<engraving>%s</engraving>\n", indent, xmlEncodeTmp(s));
     }
 
     s = obj->line_desc;

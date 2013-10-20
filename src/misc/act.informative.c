@@ -185,6 +185,8 @@ show_obj_extra(struct obj_data *object, struct creature *ch)
 static void
 show_obj_bits(struct obj_data *object, struct creature *ch)
 {
+    if (object->engraving)
+        acc_sprintf(" \"%s\"", object->engraving);
     if (IS_OBJ_STAT2(object, ITEM2_BROKEN))
         acc_sprintf(" %s<broken>", CCNRM(ch, C_NRM));
     if (object->in_obj && IS_CORPSE(object->in_obj) && IS_IMPLANT(object)
