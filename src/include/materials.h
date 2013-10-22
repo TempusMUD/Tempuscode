@@ -25,7 +25,8 @@
 			        obj->obj_flags.material < MAT_GLASS)
 #define IS_GLASS_TYPE(obj)     (obj->obj_flags.material >= MAT_GLASS && \
 				obj->obj_flags.material < MAT_STONE)
-#define IS_STONE_TYPE(obj)     (obj->obj_flags.material >= MAT_STONE)
+#define IS_STONE_TYPE(obj)     (obj->obj_flags.material >= MAT_STONE && \
+                                obj->obj_flags.material <= MAT_BASALT)
 
 #define IS_MAT(obj, mat)       (obj->obj_flags.material == mat)
 

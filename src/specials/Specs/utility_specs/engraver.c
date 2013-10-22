@@ -1,7 +1,20 @@
 #define MAX_ENGRAVING_LEN 20
 
+bool
+can_be_engraved(struct obj_data *obj)
+{
+    return (IS_LEATHER_TYPE(obj)
+            || IS_VEGETABLE_TYPE(obj)
+            || IS_WOOD_TYPE(obj)
+            || IS_METAL_TYPE(obj)
+            || IS_PLASTIC_TYPE(obj)
+            || IS_GLASS_TYPE(obj)
+            || IS_STONE_TYPE(obj));
+}
+
 money_t
-engraving_cost(struct creature *self, struct creature *ch, struct obj_data *obj, const char *message) {
+engraving_cost(struct creature *self, struct creature *ch, struct obj_data *obj, const char *message)
+{
     size_t len = strlen(message);
 
     if (len == 0) {
@@ -11,7 +24,8 @@ engraving_cost(struct creature *self, struct creature *ch, struct obj_data *obj,
 }
 
 money_t
-unengraving_cost(struct creature *self, struct creature *ch, struct obj_data *obj) {
+unengraving_cost(struct creature *self, struct creature *ch, struct obj_data *obj)
+{
     size_t len = obj->engraving ? strlen(obj->engraving):0;
 
     if (len == 0) {
@@ -22,13 +36,14 @@ unengraving_cost(struct creature *self, struct creature *ch, struct obj_data *ob
 
 
 void
-perform_engraving(struct creature *self, struct creature *ch, struct obj_data *obj, const char *message) {
+perform_engraving(struct creature *self, struct creature *ch, struct obj_data *obj, const char *message)
+{
     bool future = (ch->in_room->zone->time_frame == TIME_ELECTRO);
     const char *currency = (future) ? "creds":"gold";
     money_t amt_carried = (future) ? GET_CASH(ch):GET_GOLD(ch);
 
     
-    if (IS_PAPER_TYPE(obj) || IS_CLOTH_TYPE(obj) || IS_FLESH_TYPE(obj)) {
+    if (!can_be_engraved(obj)) {
         perform_tell(self, ch, tmp_sprintf("Sorry, %s won't hold an engraving.", obj->name));
         return;
     }
@@ -69,7 +84,8 @@ perform_engraving(struct creature *self, struct creature *ch, struct obj_data *o
 }
 
 void
-perform_unengraving(struct creature *self, struct creature *ch, struct obj_data *obj) {
+perform_unengraving(struct creature *self, struct creature *ch, struct obj_data *obj)
+{
     bool future = (ch->in_room->zone->time_frame == TIME_ELECTRO);
     const char *currency = (future) ? "creds":"gold";
     money_t amt_carried = (future) ? GET_CASH(ch):GET_GOLD(ch);
@@ -147,10 +163,12 @@ SPECIAL(engraver)
         if (doing_engraving) {
             if (obj->engraving) {
                 perform_say_to(self, ch, "I can't engrave that unless it's been unengraved.");
-            } else if (IS_PAPER_TYPE(obj) || IS_CLOTH_TYPE(obj) || IS_FLESH_TYPE(obj)) {
+            } else if (!can_be_engraved(obj)) {
                 perform_tell(self, ch, tmp_sprintf("Sorry, %s won't hold an engraving.", obj->name));
             } else if (argument[0] == '\0') {
                 perform_say_to(self, ch, "For a blank engraving?  Very cheap, indeed!");
+            } else if (strlen(argument) > MAX_ENGRAVING_LEN) {
+                perform_say_to(self, ch, tmp_sprintf("That message would never fit!  The max is %d characters.", MAX_ENGRAVING_LEN));
             } else {
                 perform_say_to(self, ch, tmp_sprintf("To engrave this message, it will cost %'" PRId64 " %s",
                                                      engraving_cost(self, ch, obj, argument), currency));
