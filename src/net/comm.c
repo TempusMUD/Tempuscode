@@ -840,6 +840,66 @@ process_output(GIOChannel *io,
     return true;
 }
 
+void
+enqueue_line_input(struct descriptor_data *d, char *line)
+{
+    bool failed_subst = false;
+
+    if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
+        for (GList * x = d->snoop_by; x; x = x->next) {
+            struct descriptor_data *td = x->data;
+            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
+            SEND_TO_Q("[ ", td);
+            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
+            SEND_TO_Q(line, td);
+            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
+            SEND_TO_Q(" ]\r\n", td);
+            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
+        }
+    }
+
+    if (*line == '!' && STATE(d) != CXN_PW_VERIFY) {
+        strcpy(line, d->last_input);
+    } else if (*line == '^') {
+        if (!(failed_subst = perform_subst(d, d->last_input, line)))
+            strcpy(d->last_input, line);
+    } else
+        strcpy(d->last_input, line);
+
+    if (d->repeat_cmd_count > 300 &&
+        (!d->creature || GET_LEVEL(d->creature) < LVL_ETERNAL)) {
+        if (d->creature && d->creature->in_room) {
+            act("SAY NO TO SPAM.\r\n"
+                "Begone oh you waster of electrons,"
+                " ye vile profaner of CPU time!", true, d->creature, NULL, NULL,
+                TO_ROOM);
+            slog("SPAM-death on the queue!");
+            close_socket(d);
+            return;
+        }
+    }
+
+    if (!failed_subst) {
+        d->need_prompt = true;
+        if (IS_PLAYING(d) && !strncmp("revo", line, 4)) {
+            // We want all commands in the queue to be dumped immediately
+            // This has to be here so we can bypass the normal order of
+            // commands
+            if (g_queue_is_empty(d->input)) {
+                send_to_desc(d,
+                             "You don't have any commands to revoke!\r\n");
+            } else {
+                g_queue_foreach(d->input, (GFunc)g_free, NULL);
+                g_queue_clear(d->input);
+                send_to_desc(d, "You reconsider your rash plans.\r\n");
+                WAIT_STATE(d->creature, 1 RL_SEC);
+            }
+        } else {
+            g_queue_push_tail(d->input, strdup(line));
+        }
+    }
+}
+
 gboolean
 process_input(GIOChannel *io,
               GIOCondition condition,
@@ -847,8 +907,7 @@ process_input(GIOChannel *io,
 {
     struct descriptor_data *d = data;
     GError *error = NULL;
-    gsize eol_pos;
-    gchar *line;
+    gsize bytes_read;
     GIOStatus status;
 
     if (condition == G_IO_HUP) {
@@ -856,98 +915,11 @@ process_input(GIOChannel *io,
         return false;
     }
 
-    status = g_io_channel_read_line(d->io, &line, NULL, &eol_pos, &error);
-    while (status == G_IO_STATUS_NORMAL) {
-        int space_left, failed_subst;
-        char *ptr, *read_point, *write_point;
-        gchar *eol = line + eol_pos;
-        char tmp[MAX_INPUT_LENGTH + 8];
-
-        write_point = tmp;
-        space_left = MAX_INPUT_LENGTH - 1;
-        read_point = line;
-        for (ptr = read_point; space_left > 0 && ptr < eol; ptr++) {
-            if (*ptr == '\b') { /* handle backspacing */
-                if (write_point > tmp) {
-                    if (*(--write_point) == '$') {
-                        write_point--;
-                        space_left += 2;
-                    } else
-                        space_left++;
-                }
-            } else if (isascii(*ptr) && isprint(*ptr)) {
-                *write_point++ = *ptr;
-                space_left--;
-            }
-        }
-
-        *write_point = '\0';
-
-        if ((space_left <= 0) && (ptr < eol)) {
-            write_to_output(tmp_sprintf("Line too long."
-                                        "Truncated to:\r\n%s\r\n",
-                                        tmp),
-                            d);
-        }
-        if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
-            for (GList * x = d->snoop_by; x; x = x->next) {
-                struct descriptor_data *td = x->data;
-                SEND_TO_Q(CCRED(td->creature, C_NRM), td);
-                SEND_TO_Q("[ ", td);
-                SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
-                SEND_TO_Q(tmp, td);
-                SEND_TO_Q(CCRED(td->creature, C_NRM), td);
-                SEND_TO_Q(" ]\r\n", td);
-                SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
-            }
-        }
-
-        failed_subst = 0;
-
-        if (*tmp == '!' && STATE(d) != CXN_PW_VERIFY) {
-            strcpy(tmp, d->last_input);
-        } else if (*tmp == '^') {
-            if (!(failed_subst = perform_subst(d, d->last_input, tmp)))
-                strcpy(d->last_input, tmp);
-        } else
-            strcpy(d->last_input, tmp);
-
-        if (d->repeat_cmd_count > 300 &&
-            (!d->creature || GET_LEVEL(d->creature) < LVL_ETERNAL)) {
-            if (d->creature && d->creature->in_room) {
-                act("SAY NO TO SPAM.\r\n"
-                    "Begone oh you waster of electrons,"
-                    " ye vile profaner of CPU time!", true, d->creature, NULL, NULL,
-                    TO_ROOM);
-                slog("SPAM-death on the queue!");
-                close_socket(d);
-                return false;
-            }
-        }
-
-        if (!failed_subst) {
-            d->need_prompt = true;
-            if (IS_PLAYING(d) && !strncmp("revo", tmp, 4)) {
-                // We want all commands in the queue to be dumped immediately
-                // This has to be here so we can bypass the normal order of
-                // commands
-                if (g_queue_is_empty(d->input)) {
-                    send_to_desc(d,
-                                 "You don't have any commands to revoke!\r\n");
-                } else {
-                    g_queue_foreach(d->input, (GFunc)g_free, NULL);
-                    g_queue_clear(d->input);
-                    send_to_desc(d, "You reconsider your rash plans.\r\n");
-                    WAIT_STATE(d->creature, 1 RL_SEC);
-                }
-            } else {
-                g_queue_push_tail(d->input, strdup(tmp));
-            }
-        }
-        g_free(line);
-        status = g_io_channel_read_line(d->io, &line, NULL, &eol_pos, &error);
-    }
-
+    status = g_io_channel_read_chars(d->io,
+                                     &d->inbuf[d->inbuf_len],
+                                     MAX_RAW_INPUT_LENGTH - d->inbuf_len,
+                                     &bytes_read,
+                                     &error);
     if (status == G_IO_STATUS_EOF) {
         close_socket(d);
         return false;
@@ -956,6 +928,62 @@ process_input(GIOChannel *io,
          g_error_free(error);
         close_socket(d);
         return false;
+    }
+
+    d->inbuf_len += bytes_read;
+    char *end_pt = d->inbuf + d->inbuf_len;
+    char *last_line_start = d->inbuf;
+    GString *line = g_string_sized_new(80);
+    bool consume_linebreak = false;
+    int ignore_count = 0;
+    for (char *read_pt = d->inbuf;read_pt != end_pt;read_pt++) {
+        if (ignore_count > 0) {
+            ignore_count--;
+            continue;
+        }
+        if (consume_linebreak) {
+            consume_linebreak = false;
+            if (*read_pt == '\n') {
+                last_line_start = read_pt + 1;
+            }
+            continue;
+        }
+        switch (*read_pt) {
+        case '\xff':
+            // telnet handling - telnet codes are always three bytes
+            ignore_count = 2;
+            break;
+        case '\b':
+            // backspacing
+            g_string_truncate(line, line->len - 1);
+            break;
+        case '\r':
+            // CRLF handling
+            consume_linebreak = true;
+            enqueue_line_input(d, line->str);
+            g_string_truncate(line, 0);
+            last_line_start = read_pt + 1;
+            break;
+        case '\n':
+            // bare linefeed handling
+            enqueue_line_input(d, line->str);
+            g_string_truncate(line, 0);
+            last_line_start = read_pt + 1;
+            break;
+        default:
+            g_string_append_c(line, *read_pt);
+        }
+    }
+    g_string_free(line, true);
+
+    if (d->inbuf_len >= MAX_RAW_INPUT_LENGTH) {
+        // Guard against the line buffer overflowing.
+        send_to_desc(d, "WARNING: line too long.  Ignoring.\r\n");
+        d->inbuf_len = 0;
+    } else {
+        // Copy last line fragment to start of input buffer
+        d->inbuf_len = end_pt - last_line_start;
+        memmove(d->inbuf, last_line_start, d->inbuf_len);
     }
 
     return true;
