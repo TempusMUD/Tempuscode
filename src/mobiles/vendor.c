@@ -95,6 +95,20 @@ vendor_inventory(struct obj_data *obj, struct obj_data *obj_list)
     return cnt;
 }
 
+static struct obj_data *
+vendor_items_forsale(struct shop_data *shop, struct creature *self)
+{
+    if (shop->storeroom > 0) {
+        struct room_data *room = real_room(shop->storeroom);
+        if (!room) {
+            errlog("Can't find room %d", shop->storeroom);
+            return NULL;
+        }
+        return room->contents;
+    }
+    return self->carrying;
+}
+
 static bool
 vendor_invalid_buy(struct creature *self, struct creature *ch,
     struct shop_data *shop, struct obj_data *obj)
@@ -146,7 +160,7 @@ vendor_invalid_buy(struct creature *self, struct creature *ch,
         return true;
     }
 
-    if (vendor_inventory(obj, self->carrying) >= MAX_ITEMS) {
+    if (vendor_inventory(obj, vendor_items_forsale(shop, self)) >= MAX_ITEMS) {
         perform_say_to(self, ch,
             "No thanks.  I've got too many of those in stock already.");
         return true;
@@ -191,7 +205,7 @@ vendor_get_value(struct obj_data *obj, int percent, int currency)
 }
 
 struct obj_data *
-vendor_resolve_hash(struct creature *self, char *obj_str)
+vendor_resolve_hash(struct shop_data *shop, struct creature *self, char *obj_str)
 {
     struct obj_data *last_obj = NULL, *cur_obj;
     int num;
@@ -205,7 +219,7 @@ vendor_resolve_hash(struct creature *self, char *obj_str)
     if (num <= 0)
         return NULL;
 
-    for (cur_obj = self->carrying; cur_obj; cur_obj = cur_obj->next_content) {
+    for (cur_obj = vendor_items_forsale(shop, self); cur_obj; cur_obj = cur_obj->next_content) {
         if (!last_obj || !same_obj(last_obj, cur_obj))
             if (--num == 0)
                 return cur_obj;
@@ -216,11 +230,11 @@ vendor_resolve_hash(struct creature *self, char *obj_str)
 }
 
 struct obj_data *
-vendor_resolve_name(struct creature *self, char *obj_str)
+vendor_resolve_name(struct shop_data *shop, struct creature *self, char *obj_str)
 {
     struct obj_data *cur_obj;
 
-    for (cur_obj = self->carrying; cur_obj; cur_obj = cur_obj->next_content)
+    for (cur_obj = vendor_items_forsale(shop, self); cur_obj; cur_obj = cur_obj->next_content)
         if (namelist_match(obj_str, cur_obj->aliases))
             return cur_obj;
 
@@ -338,9 +352,9 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
 
     // Check for hash mark
     if (*obj_str == '#')
-        obj = vendor_resolve_hash(self, obj_str);
+        obj = vendor_resolve_hash(shop, self, obj_str);
     else
-        obj = vendor_resolve_name(self, obj_str);
+        obj = vendor_resolve_name(shop, self, obj_str);
 
     if (!obj) {
         perform_say_to(self, ch, shop->msg_sell_noobj);
@@ -361,7 +375,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
     }
 
     if (num > 1) {
-        int obj_cnt = vendor_inventory(obj, self->carrying);
+        int obj_cnt = vendor_inventory(obj, vendor_items_forsale(shop, self));
         if (!vendor_is_produced(obj, shop) && num > obj_cnt) {
             perform_say_to(self, ch,
                 tmp_sprintf("I only have %d to sell to you.", obj_cnt));
@@ -479,9 +493,16 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
         }
     } else {
         // Actually move the items from vendor to player
+        struct room_data *room = (shop->storeroom == 0) ? NULL:real_room(shop->storeroom);
+
         while (num > 0) {
             next_obj = obj->next_content;
-            obj_from_char(obj);
+            if (room) {
+                obj_from_room(obj);
+            } else {
+                obj_from_char(obj);
+            }
+
             obj_to_char(obj, ch);
             obj = next_obj;
             num--;
@@ -571,7 +592,7 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
     }
 
     if (vendor_inventory(obj, self->carrying) + num > MAX_ITEMS) {
-        num = MAX_ITEMS - vendor_inventory(obj, self->carrying);
+        num = MAX_ITEMS - vendor_inventory(obj, vendor_items_forsale(shop, self));
         perform_say_to(self, ch, tmp_sprintf("I only want to buy %d.", num));
     }
 
@@ -586,13 +607,20 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
         IS_NPC(ch) ? "NPC" : "PC",
         GET_NAME(ch), IS_NPC(ch) ? GET_NPC_VNUM(ch) : GET_IDNUM(ch),
         cost * num, shop->currency ? "creds" : "gold");
+
+    struct room_data *room = (shop->storeroom == 0) ? NULL:real_room(shop->storeroom);
+
     // We've already verified that they have enough of the item via a
     // call to vendor_inventory(), so we can just blindly transfer objects
     while (num-- && obj) {
         // transfer object
         next_obj = obj->next_content;
         obj_from_char(obj);
-        obj_to_char(obj, self);
+        if (room) {
+            obj_to_room(obj, room);
+        } else {
+            obj_to_char(obj, self);
+        }
 
         // repair object
         if (GET_OBJ_DAM(obj) != -1 && GET_OBJ_MAX_DAM(obj) != -1)
@@ -659,7 +687,7 @@ vendor_list(struct creature *ch, char *arg, struct creature *self,
     const char *msg;
     unsigned long cost;
 
-    if (!self->carrying) {
+    if (!vendor_items_forsale(shop, self)) {
         perform_say_to(self, ch, "I'm out of stock at the moment.");
         return;
     }
@@ -687,7 +715,7 @@ vendor_list(struct creature *ch, char *arg, struct creature *self,
 
     last_obj = NULL;
     cnt = idx = 1;
-    for (cur_obj = self->carrying; cur_obj; cur_obj = cur_obj->next_content) {
+    for (cur_obj = vendor_items_forsale(shop, self); cur_obj; cur_obj = cur_obj->next_content) {
         if (last_obj) {
             if (same_obj(last_obj, cur_obj)) {
                 cnt++;
@@ -891,6 +919,12 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
             shop->revenue = atoi(line);
             if (shop->revenue < 0) {
                 err = "a negative revenue";
+                break;
+            }
+        } else if (!strcmp(param_key, "storeroom")) {
+            shop->storeroom = atoi(line);
+            if (!real_room(shop->storeroom)) {
+                err = "a non-existent storeroom";
                 break;
             }
         } else if (!strcmp(param_key, "currency")) {

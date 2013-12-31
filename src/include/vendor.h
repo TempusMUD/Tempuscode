@@ -37,6 +37,7 @@ struct shop_data {
 	int markdown;			// Price decrease when player is selling
 	int currency;			// 0 == gold, 1 == cash, 2 == quest points
 	long revenue;			// Amount added to money every reset
+	int storeroom;          // Room to store inventory in
 	bool steal_ok;
 	bool attack_ok;
 	bool call_for_help;

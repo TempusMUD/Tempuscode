@@ -4666,7 +4666,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
                     if (exit->key && exit->key != -1
                         && !real_object_proto(exit->key)) {
                         show_room_append(ch, room, mode,
-                            tmp_sprintf("non-existant key for %s exit",
+                            tmp_sprintf("non-existent key for %s exit",
                                 dirs[dir]));
                         found = 1;
                     }
