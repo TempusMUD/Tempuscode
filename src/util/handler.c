@@ -1468,6 +1468,9 @@ same_obj(struct obj_data * obj1, struct obj_data * obj2)
     if (GET_OBJ_VNUM(obj1) != GET_OBJ_VNUM(obj2))
         return (false);
 
+    if (obj1->consignor != obj2->consignor)
+        return false;
+
     if (GET_OBJ_SIGIL_IDNUM(obj1) != GET_OBJ_SIGIL_IDNUM(obj2) ||
         GET_OBJ_SIGIL_LEVEL(obj1) != GET_OBJ_SIGIL_LEVEL(obj2))
         return false;

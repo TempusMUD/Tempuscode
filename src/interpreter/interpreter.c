@@ -639,6 +639,7 @@ struct command_info cmd_info[] = {
     {"conspire", POS_RESTING, do_action, 0, 0, 0, 0},
     {"contemplate", POS_RESTING, do_action, 0, 0, 0, 0},
     {"convert", POS_RESTING, do_convert, 0, 0, 0, 0},
+    {"consign", POS_RESTING, do_not_here, 0, 0, 0, 0},
     {"coo", POS_RESTING, do_say, 0, 0, 0, 0},
     {"corner", POS_FIGHTING, do_corner, 0, 0, 0, 0},
     {"cough", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -1422,6 +1423,7 @@ struct command_info cmd_info[] = {
     {"turn", POS_FIGHTING, do_turn, 0, 0, 0, 0},
     {"tune", POS_RESTING, do_tune, 0, 0, 0, 0},
 
+    {"unconsign", POS_RESTING, do_not_here, 0, 0, 0, 0},
     {"unlock", POS_SITTING, do_gen_door, 0, SCMD_UNLOCK, 0, 0},
     {"unload", POS_RESTING, do_load, 0, SCMD_UNLOAD, 0, 0},
     {"ungroup", POS_DEAD, do_ungroup, 0, 0, 0, 0},

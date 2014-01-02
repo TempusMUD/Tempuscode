@@ -1585,6 +1585,13 @@ do_stat_object(struct creature *ch, struct obj_data *j)
             GET_OBJ_SIGIL_IDNUM(j), GET_OBJ_SIGIL_LEVEL(j));
     }
 
+    if (j->consignor) {
+        acc_sprintf("Consigned by %s (%ld) for %'" PRId64 ".\r\n",
+                    player_name_by_idnum(j->consignor),
+                    j->consignor,
+                    j->consign_price);
+    }
+
     do_stat_obj_tmp_affs(ch, j);
 
     page_string(ch->desc, acc_get_string());
@@ -4666,7 +4673,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
                     if (exit->key && exit->key != -1
                         && !real_object_proto(exit->key)) {
                         show_room_append(ch, room, mode,
-                            tmp_sprintf("non-existant key for %s exit",
+                            tmp_sprintf("non-existent key for %s exit",
                                 dirs[dir]));
                         found = 1;
                     }

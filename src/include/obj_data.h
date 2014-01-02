@@ -375,6 +375,10 @@ struct obj_data {
 	int creation_method;
 	long int creator;
 
+    /* consignment */
+    long int consignor;         /* person selling item */
+    money_t consign_price;      /* cost set by consignor */
+
     /* Temp obj affects! */
     struct tmp_obj_affect *tmp_affects;
 	struct obj_data *in_obj;	/* In what object NULL when none    */
