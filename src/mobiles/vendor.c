@@ -539,13 +539,14 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
     act(msg, false, self, obj, ch, TO_VICT);
     act("$n sells $p to $N.", false, self, obj, ch, TO_NOTVICT);
 
-    vendor_log("%s[%d] sold %s[%d] (x%d) to %s %s[%d] for %lu %s",
-        GET_NAME(self), GET_NPC_VNUM(self),
-        obj->name, GET_OBJ_VNUM(obj),
-        num,
-        IS_NPC(ch) ? "NPC" : "PC",
-        GET_NAME(ch), IS_NPC(ch) ? GET_NPC_VNUM(ch) : GET_IDNUM(ch),
-        cost * num, currency_str);
+    vendor_log("%s[%d] sold %s[%d] (x%d) to %s %s[%d] for %lu %s%s",
+               GET_NAME(self), GET_NPC_VNUM(self),
+               obj->name, GET_OBJ_VNUM(obj),
+               num,
+               IS_NPC(ch) ? "NPC" : "PC",
+               GET_NAME(ch), IS_NPC(ch) ? GET_NPC_VNUM(ch) : GET_IDNUM(ch),
+               cost * num, currency_str,
+               (obj->consignor) ? tmp_sprintf(" (on consignment for %s)", player_name_by_idnum(obj->consignor)):"");
 
     if (vendor_is_produced(obj, shop)) {
         // Load all-new identical items
@@ -666,7 +667,7 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
 
     transfer_money(self, ch, cost * num, shop->currency, false);
 
-    vendor_log("%s[%d] bought %s[%d] (x%d) from %s %s[%d] for %lu %s",
+    vendor_log("%s[%d] bought %s[%d] (x%d) from %s %s[%d] for %lu %s%s",
         GET_NAME(self), GET_NPC_VNUM(self),
         obj->name, GET_OBJ_VNUM(obj),
         num,
@@ -912,6 +913,13 @@ vendor_consign(struct creature *ch, char *arg, struct creature *self,
     obj->consignor = GET_IDNUM(ch);
     obj->consign_price = consign_amt;
 
+    slog("%s[%ld] consigns %s to %s for %'" PRId64 " %s.",
+         GET_NAME(ch), GET_IDNUM(ch),
+         obj->name,
+         GET_NAME(self),
+         consign_amt,
+         (shop->currency) ? "credits":"gold");
+
     act("You give $p to $N on consignment.", false, ch, obj, self, TO_CHAR);
     act("$n gives $p to you on consignment.", false, ch, obj, self, TO_VICT);
     act("$n gives $p to $N on consignment.", false, ch, obj, self, TO_NOTVICT);
@@ -966,6 +974,11 @@ vendor_unconsign(struct creature *ch, char *arg, struct creature *self,
         perform_say_to(self, ch, "That isn't under consignment by you.");
         return;
     }
+
+    slog("%s[%ld] unconsigns %s from %s.",
+         GET_NAME(ch), GET_IDNUM(ch),
+         obj->name,
+         GET_NAME(self));
 
     perform_say_to(self, ch, "Here you go.");
     act("You gives $p back to $N.", false, self, obj, ch, TO_CHAR);
