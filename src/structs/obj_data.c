@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <inttypes.h>
 #include <libpq-fe.h>
 #include <libxml/parser.h>
 #include <glib.h>
@@ -668,6 +669,9 @@ load_object_from_xml(struct obj_data *container,
             obj->obj_flags.max_dam = xmlGetIntProp(cur, "max", 0);
             obj->obj_flags.sigil_idnum = xmlGetIntProp(cur, "sigil_id", 0);
             obj->obj_flags.sigil_level = xmlGetIntProp(cur, "sigil_level", 0);
+        } else if (xmlMatches(cur->name, "consignment")) {
+            obj->consignor = xmlGetIntProp(cur, "consignor", 0);
+            obj->consign_price = xmlGetIntProp(cur, "price", 0);
         } else if (xmlMatches(cur->name, "flags")) {
             char *flag = (char *)xmlGetProp(cur, (xmlChar *) "extra");
             obj->obj_flags.extra_flags = hex2dec(flag);
@@ -874,6 +878,11 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
         indent, obj->obj_flags.bitvector[0],
         obj->obj_flags.bitvector[1], obj->obj_flags.bitvector[2]);
 
+    if (obj->consignor) {
+        fprintf(ouf, "%s<consignment consignor=\"%ld\" price=\"%" PRId64 "\" />\n",
+                indent, obj->consignor, obj->consign_price);
+    }
+            
     for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
         if (obj->affected[i].location > 0) {
             fprintf(ouf, "%s<affect modifier=\"%d\" location=\"%d\" />\n",

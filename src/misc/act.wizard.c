@@ -1585,6 +1585,13 @@ do_stat_object(struct creature *ch, struct obj_data *j)
             GET_OBJ_SIGIL_IDNUM(j), GET_OBJ_SIGIL_LEVEL(j));
     }
 
+    if (j->consignor) {
+        acc_sprintf("Consigned by %s (%ld) for %'" PRId64 ".\r\n",
+                    player_name_by_idnum(j->consignor),
+                    j->consignor,
+                    j->consign_price);
+    }
+
     do_stat_obj_tmp_affs(ch, j);
 
     page_string(ch->desc, acc_get_string());

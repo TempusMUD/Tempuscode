@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <inttypes.h>
 #include <ctype.h>
 #include <libpq-fe.h>
 #include <libxml/parser.h>
@@ -34,6 +35,7 @@
 #include "weather.h"
 #include "vendor.h"
 #include "strutil.h"
+#include "mail.h"
 
 #define MAX_ITEMS   10
 #define MIN_COST    12
@@ -175,12 +177,17 @@ vendor_invalid_buy(struct creature *self, struct creature *ch,
     return false;
 }
 
-// Gets the value of an object, checking for buyability.
-// costModifier of 0 does nothing.
+// Gets the selling price of an object
 static unsigned long
-vendor_get_value(struct obj_data *obj, int percent, int currency)
+vendor_get_value(struct creature *buyer, struct creature *seller, struct obj_data *obj, int percent, int currency)
 {
     unsigned long cost;
+
+    // Consigned object sell for the consignment price, unaffected by
+    // charisma or condition
+    if (obj->consignor) {
+        return obj->consign_price;
+    }
 
     // Adjust cost for wear and tear on a direct percentage basis
     if (GET_OBJ_DAM(obj) != -1 && GET_OBJ_MAX_DAM(obj) != -1 &&
@@ -199,9 +206,11 @@ vendor_get_value(struct obj_data *obj, int percent, int currency)
         cost += cost / 4;
 
     if (currency == 2)
-        return MAX(1, cost);
+        cost = MAX(1, cost);
     else
-        return MAX(MIN_COST, cost);
+        cost = MAX(MIN_COST, cost);
+
+    return adjusted_price(buyer, seller, cost);
 }
 
 struct obj_data *
@@ -383,8 +392,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
         }
     }
 
-    cost = vendor_get_value(obj, shop->markup, shop->currency);
-    cost = adjusted_price(ch, self, cost);
+    cost = vendor_get_value(ch, self, obj, shop->markup, shop->currency);
 
     switch (shop->currency) {
     case 0:
@@ -444,15 +452,70 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
         perform_say_to(self, ch, tmp_sprintf("You can only carry %d.", num));
     }
 
+    struct account *acc = NULL;
+    GList *receipt_to = NULL;
+
+    if (obj->consignor) {
+        long acc_id = player_account_by_idnum(obj->consignor);
+        if (acc_id == 0) {
+            slog("WARNING: vendor_sell(), consignor %ld was not found",
+                 obj->consignor);
+            return;
+        }
+        acc = account_by_idnum(acc_id);
+        if (acc == NULL) {
+            slog("WARNING: vendor_sell(), consignor %ld's account was not found",
+                 obj->consignor);
+        }
+
+        receipt_to = g_list_prepend(NULL, GINT_TO_POINTER(obj->consignor));
+    }
+
+    const char *CONSIGN_RECEIPT_TEXT = "\n"
+        "Consignment Sale Receipt\n"
+        "------------------------\n"
+        "\n"
+        "This receipt is to notify you that your item, %s,\n"
+        "has been sold to %s.\n"
+        "%'" PRId64 " %s have been placed into your bank account.\n"
+        "\n"
+        "Have a great day.\n"
+        "\n";
+    
+
     switch (shop->currency) {
     case 0:
         GET_GOLD(ch) -= cost * num;
         GET_GOLD(self) += cost * num;
+
+        if (acc) {
+            deposit_past_bank(acc, cost * num);
+            send_mail(self, receipt_to,
+                      tmp_sprintf(CONSIGN_RECEIPT_TEXT,
+                                  obj->name,
+                                  GET_NAME(ch),
+                                  cost * num,
+                                  "gold coins"),
+                      NULL, NULL);
+        }
+        
         currency_str = "gold";
         break;
     case 1:
         GET_CASH(ch) -= cost * num;
         GET_CASH(self) += cost * num;
+        
+        if (acc) {
+            deposit_future_bank(acc, cost * num);
+            send_mail(self, receipt_to,
+                      tmp_sprintf(CONSIGN_RECEIPT_TEXT,
+                                  obj->name,
+                                  GET_NAME(ch),
+                                  cost * num,
+                                  "credits"),
+                      NULL, NULL);
+        }
+        
         currency_str = "creds";
         break;
     case 2:
@@ -497,6 +560,10 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
 
         while (num > 0) {
             next_obj = obj->next_content;
+            
+            obj->consignor = 0;
+            obj->consign_price = 0;
+
             if (room) {
                 obj_from_room(obj);
             } else {
@@ -575,8 +642,7 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
             "I make these.  Why should I buy it back from you?");
         return;
     }
-    cost = vendor_get_value(obj, shop->markdown, shop->currency);
-    cost = adjusted_price(self, ch, cost);
+    cost = vendor_get_value(self, ch, obj, shop->markdown, shop->currency);
 
     amt_carried = (shop->currency) ? GET_CASH(self) : GET_GOLD(self);
 
@@ -666,6 +732,9 @@ vendor_list_obj(struct creature *ch, struct obj_data *obj, int cnt, int idx,
         if (IS_OBJ_STAT(obj, ITEM_DAMNED))
             obj_desc = tmp_strcat(obj_desc, " (unholy aura)", NULL);
     }
+    if (obj->consignor) {
+        obj_desc = tmp_strcat(obj_desc, " (from ", player_name_by_idnum(obj->consignor), ")", NULL);
+    }
 
     obj_desc = tmp_capitalize(obj_desc);
     if (cnt < 0)
@@ -723,8 +792,7 @@ vendor_list(struct creature *ch, char *arg, struct creature *self,
                 if (vendor_is_produced(last_obj, shop))
                     cnt = -1;
                 if (!*arg || namelist_match(arg, last_obj->aliases)) {
-                    cost = vendor_get_value(last_obj, shop->markup, shop->currency);
-                    cost = adjusted_price(ch, self, cost);
+                    cost = vendor_get_value(ch, self, last_obj, shop->markup, shop->currency);
                     msg = tmp_strcat(msg,
                         vendor_list_obj(ch, last_obj, cnt, idx, cost), NULL);
                 }
@@ -738,8 +806,7 @@ vendor_list(struct creature *ch, char *arg, struct creature *self,
         if (vendor_is_produced(last_obj, shop))
             cnt = -1;
         if (!*arg || namelist_match(arg, last_obj->aliases)) {
-            cost = vendor_get_value(last_obj, shop->markup, shop->currency);
-            cost = adjusted_price(ch, self, cost);
+            cost = vendor_get_value(ch, self, last_obj, shop->markup, shop->currency);
             msg = tmp_strcat(msg, vendor_list_obj(ch, last_obj, cnt, idx, cost), NULL);
         }
     }
@@ -776,11 +843,148 @@ vendor_value(struct creature *ch, char *arg, struct creature *self,
     if (vendor_invalid_buy(self, ch, shop, obj))
         return;
 
-    cost = vendor_get_value(obj, shop->markdown, shop->currency);
-    cost = adjusted_price(self, ch, cost);
+    cost = vendor_get_value(self, ch, obj, shop->markdown, shop->currency);
 
     perform_say_to(self, ch, tmp_sprintf("I'll give you %'lu %s for it!", cost,
             shop->currency ? "creds" : "gold"));
+}
+
+static void
+vendor_consign(struct creature *ch, char *arg, struct creature *self,
+               struct shop_data *shop)
+{
+    const char *USAGE = "Usage: consign <item> <price>\r\n";
+    struct obj_data *obj;
+    char *obj_str;
+    money_t amt_carried;
+
+    if (!shop->consignment || shop->currency == 2) {
+        perform_say_to(self, ch, "Sorry, I don't do consignments.");
+        return;
+    }
+
+    if (!*arg) {
+        send_to_char(ch, "%s", USAGE);
+        return;
+    }
+
+    obj_str = tmp_getword(&arg);
+    obj = get_obj_in_list_all(ch, obj_str, ch->carrying);
+    if (!obj) {
+        send_to_char(ch, "You don't seem to have any '%s'.\r\n", obj_str);
+        return;
+    }
+
+    if (!*arg) {
+        send_to_char(ch, "%s", USAGE);
+        return;
+    }
+
+    money_t consign_amt = atol(tmp_getword(&arg));
+    if (consign_amt < MIN_COST) {
+        perform_say_to(self, ch, tmp_sprintf("You must charge a price of at least %d.", MIN_COST));
+        return;
+    }
+
+    if (vendor_invalid_buy(self, ch, shop, obj))
+        return;
+
+    // calculate consignment fee
+    money_t consign_fee = (consign_amt + 5) / 10;
+
+    amt_carried = (shop->currency) ? GET_CASH(self) : GET_GOLD(self);
+    
+    if (consign_fee > amt_carried) {
+        perform_say_to(self, ch, shop->msg_buyerbroke);
+        return;
+    }
+
+    transfer_money(ch, self, consign_fee, shop->currency, false);
+
+    struct room_data *room = (shop->storeroom == 0) ? NULL:real_room(shop->storeroom);
+
+    obj_from_char(obj);
+    if (room) {
+        obj_to_room(obj, room);
+    } else {
+        obj_to_char(obj, self);
+    }
+    obj->consignor = GET_IDNUM(ch);
+    obj->consign_price = consign_amt;
+
+    act("You give $p to $N on consignment.", false, ch, obj, self, TO_CHAR);
+    act("$n gives $p to you on consignment.", false, ch, obj, self, TO_VICT);
+    act("$n gives $p to $N on consignment.", false, ch, obj, self, TO_NOTVICT);
+}
+
+static void
+vendor_unconsign(struct creature *ch, char *arg, struct creature *self,
+                 struct shop_data *shop)
+{
+    struct obj_data *obj;
+    char *obj_str;
+
+    if (!*arg) {
+        send_to_char(ch, "What do you wish to unconsign?\r\n");
+        return;
+    }
+
+    obj_str = tmp_getword(&arg);
+    
+    // Check for hash mark
+    if (*obj_str == '#')
+        obj = vendor_resolve_hash(shop, self, obj_str);
+    else
+        obj = vendor_resolve_name(shop, self, obj_str);
+
+    if (!obj) {
+        perform_say_to(self, ch, shop->msg_sell_noobj);
+        return;
+    }
+
+    if (IS_CARRYING_N(ch) + 1 > CAN_CARRY_N(ch)) {
+        perform_say_to(self, ch, "You can't carry any more items.");
+        return;
+    }
+
+    if (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj) > CAN_CARRY_W(ch)) {
+        switch (number(0, 2)) {
+        case 0:
+            perform_say_to(self, ch, "You can't carry any more weight.");
+            break;
+        case 1:
+            perform_say_to(self, ch, "You can't carry that much weight.");
+            break;
+        case 2:
+            perform_say_to(self, ch, "You can carry no more weight.");
+            break;
+        }
+        return;
+    }
+
+    if (obj->consignor != GET_IDNUM(ch)) {
+        perform_say_to(self, ch, "That isn't under consignment by you.");
+        return;
+    }
+
+    perform_say_to(self, ch, "Here you go.");
+    act("You gives $p back to $N.", false, self, obj, ch, TO_CHAR);
+    act("$n gives $p back to you.", false, self, obj, ch, TO_VICT);
+    act("$n gives $p back to $N.", false, self, obj, ch, TO_NOTVICT);
+
+    // Actually move the items from vendor to player
+    struct room_data *room = (shop->storeroom == 0) ? NULL:real_room(shop->storeroom);
+
+    obj->consignor = 0;
+    obj->consign_price = 0;
+
+    if (room) {
+        obj_from_room(obj);
+    } else {
+        obj_from_char(obj);
+    }
+
+    obj_to_char(obj, ch);
 }
 
 static void
@@ -826,6 +1030,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
     shop->revenue = 0;
     shop->steal_ok = false;
     shop->attack_ok = false;
+    shop->consignment = false;
     shop->func = NULL;
     shop->reaction = make_reaction();
 
@@ -944,6 +1149,9 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
         } else if (!strcmp(param_key, "attack-ok")) {
             shop->attack_ok = (is_abbrev(line, "yes") || is_abbrev(line, "on")
                 || is_abbrev(line, "1") || is_abbrev(line, "true"));
+        } else if (!strcmp(param_key, "consignment")) {
+            shop->consignment = (is_abbrev(line, "yes") || is_abbrev(line, "on")
+                || is_abbrev(line, "1") || is_abbrev(line, "true"));
         } else if (!strcmp(param_key, "call-for-help")) {
             shop->call_for_help = (is_abbrev(line, "yes")
                 || is_abbrev(line, "on") || is_abbrev(line, "1")
@@ -991,7 +1199,8 @@ SPECIAL(vendor)
 
     if (spec_mode == SPECIAL_CMD &&
         !(CMD_IS("buy") || CMD_IS("sell") || CMD_IS("list") ||
-            CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal"))) {
+          CMD_IS("value") || CMD_IS("offer") || CMD_IS("steal") ||
+          CMD_IS("consign") || CMD_IS("unconsign"))) {
         return 0;
     }
 
@@ -1104,6 +1313,10 @@ SPECIAL(vendor)
         vendor_list(ch, argument, self, shop);
     } else if (CMD_IS("value") || CMD_IS("offer")) {
         vendor_value(ch, argument, self, shop);
+    } else if (CMD_IS("consign")) {
+        vendor_consign(ch, argument, self, shop);
+    } else if (CMD_IS("unconsign")) {
+        vendor_unconsign(ch, argument, self, shop);
     } else {
         mudlog(LVL_IMPL, CMP, true, "Can't happen at %s:%d", __FILE__,
             __LINE__);

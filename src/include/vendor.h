@@ -14,6 +14,8 @@ struct craft_shop {
 /** Loads and/or creates the Craftshop described by the given node. **/
 void load_craft_shop(xmlNodePtr node);
 
+// struct shop_time represents a range of hours for use in marking the
+// times in which a shop is closed
 struct shop_time {
 	int start, end;
 };
@@ -40,6 +42,7 @@ struct shop_data {
 	int storeroom;          // Room to store inventory in
 	bool steal_ok;
 	bool attack_ok;
+	bool consignment;
 	bool call_for_help;
 	SPECIAL((*func));
 	struct reaction *reaction;
