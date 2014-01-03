@@ -59,8 +59,9 @@ vendor_log(const char *fmt, ...)
     }
     if (vendor_log_file) {
         va_start(args, fmt);
-        fprintf(vendor_log_file, "%s _ %s\n",
-            tmp_ctime(time(NULL)), tmp_vsprintf(fmt, args));
+        fprintf(vendor_log_file, "%s :: %s\n",
+                tmp_ctime(time(NULL)),
+                tmp_vsprintf(fmt, args));
         va_end(args);
     }
 }
@@ -667,7 +668,7 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
 
     transfer_money(self, ch, cost * num, shop->currency, false);
 
-    vendor_log("%s[%d] bought %s[%d] (x%d) from %s %s[%d] for %lu %s%s",
+    vendor_log("%s[%d] bought %s[%d] (x%d) from %s %s[%d] for %lu %s",
         GET_NAME(self), GET_NPC_VNUM(self),
         obj->name, GET_OBJ_VNUM(obj),
         num,
@@ -913,7 +914,7 @@ vendor_consign(struct creature *ch, char *arg, struct creature *self,
     obj->consignor = GET_IDNUM(ch);
     obj->consign_price = consign_amt;
 
-    slog("%s[%ld] consigns %s to %s for %'" PRId64 " %s.",
+    vendor_log("%s[%ld] consigns %s to %s for %'" PRId64 " %s.",
          GET_NAME(ch), GET_IDNUM(ch),
          obj->name,
          GET_NAME(self),
@@ -975,7 +976,7 @@ vendor_unconsign(struct creature *ch, char *arg, struct creature *self,
         return;
     }
 
-    slog("%s[%ld] unconsigns %s from %s.",
+    vendor_log("%s[%ld] unconsigns %s from %s.",
          GET_NAME(ch), GET_IDNUM(ch),
          obj->name,
          GET_NAME(self));
