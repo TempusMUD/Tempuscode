@@ -36,6 +36,7 @@
 #include "vendor.h"
 #include "strutil.h"
 #include "mail.h"
+#include "house.h"
 
 #define MAX_ITEMS   10
 #define MIN_COST    12
@@ -576,8 +577,18 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
             obj = next_obj;
             num--;
         }
+
+        if (room && ROOM_FLAGGED(room, ROOM_HOUSE)) {
+            struct house *h = find_house_by_room(room->number);
+            if (h) {
+                save_house(h);
+            }
+        }
     }
 
+    if (GET_IDNUM(ch) > 0) {
+        crashsave(ch);
+    }
 }
 
 static void
@@ -696,6 +707,14 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
 
         obj = next_obj;
     }
+
+    if (room && ROOM_FLAGGED(room, ROOM_HOUSE)) {
+        struct house *h = find_house_by_room(room->number);
+        if (h) {
+            save_house(h);
+        }
+    }
+
     if (GET_IDNUM(ch) > 0) {
         crashsave(ch);
     }
@@ -908,8 +927,17 @@ vendor_consign(struct creature *ch, char *arg, struct creature *self,
     obj_from_char(obj);
     if (room) {
         obj_to_room(obj, room);
+        if (ROOM_FLAGGED(room, ROOM_HOUSE)) {
+            struct house *h = find_house_by_room(room->number);
+            if (h) {
+                save_house(h);
+            }
+        }
     } else {
         obj_to_char(obj, self);
+    }
+    if (GET_IDNUM(ch) > 0) {
+        crashsave(ch);
     }
     obj->consignor = GET_IDNUM(ch);
     obj->consign_price = consign_amt;
@@ -994,11 +1022,20 @@ vendor_unconsign(struct creature *ch, char *arg, struct creature *self,
 
     if (room) {
         obj_from_room(obj);
+        if (ROOM_FLAGGED(room, ROOM_HOUSE)) {
+            struct house *h = find_house_by_room(room->number);
+            if (h) {
+                save_house(h);
+            }
+        }
     } else {
         obj_from_char(obj);
     }
 
     obj_to_char(obj, ch);
+    if (GET_IDNUM(ch) > 0) {
+        crashsave(ch);
+    }
 }
 
 static void
