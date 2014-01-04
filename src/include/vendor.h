@@ -50,5 +50,7 @@ struct shop_data {
 
 SPECIAL(vendor);
 const char *vendor_parse_param(char *param, struct shop_data *shop, int *err_line);
+struct obj_data *vendor_resolve_hash(struct shop_data *shop, struct creature *self, char *obj_str);
+struct obj_data *vendor_resolve_name(struct shop_data *shop, struct creature *self, char *obj_str);
 
 #endif

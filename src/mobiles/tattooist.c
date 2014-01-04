@@ -45,8 +45,6 @@ void call_for_help(struct creature *ch, struct creature *attacker);
 
 // From vendor.cc
 bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
-struct obj_data *vendor_resolve_hash(struct creature *self, char *obj_str);
-struct obj_data *vendor_resolve_name(struct creature *self, char *obj_str);
 void vendor_appraise(struct creature *ch, struct obj_data *obj,
     struct creature *self, struct shop_data *shop);
 
@@ -99,9 +97,9 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self,
     }
     // Check for hash mark
     if (*obj_str == '#')
-        obj = vendor_resolve_hash(self, obj_str);
+        obj = vendor_resolve_hash(shop, self, obj_str);
     else
-        obj = vendor_resolve_name(self, obj_str);
+        obj = vendor_resolve_name(shop, self, obj_str);
 
     if (!obj) {
         perform_say_to(self, ch, shop->msg_sell_noobj);
