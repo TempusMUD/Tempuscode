@@ -308,12 +308,10 @@ vendor_appraise(struct creature *ch, struct obj_data *obj,
     perform_say_to(self, ch,
         tmp_sprintf("That will cost you %'lu %s.", cost, currency_str));
 
-    if (IS_MAGE(self)) {
-        spell_identify(50, ch, NULL, obj, NULL);
-    } else if (IS_PHYSIC(self) || IS_CYBORG(self)) {
+    if (shop->currency == 1) {
         perform_analyze(ch, obj, false);
     } else {
-        perform_appraise(ch, obj, 100);
+        spell_identify(50, ch, NULL, obj, NULL);
     }
 }
 
