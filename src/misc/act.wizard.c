@@ -2155,6 +2155,19 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         }
     }
 
+    if (IS_PC(k)
+        && k->player_specials->tags
+        && g_hash_table_size(k->player_specials->tags) > 0) {
+        acc_sprintf("Tags:");
+
+        g_hash_table_iter_init(&iter, k->player_specials->tags);
+
+        while (g_hash_table_iter_next(&iter, &key, NULL)) {
+            acc_sprintf(" %s", (char *)key);
+        }
+        acc_sprintf("\r\n");
+    }
+
     /* Routine to show what spells a char is affected by */
     if (k->affected) {
         for (aff = k->affected; aff; aff = aff->next) {

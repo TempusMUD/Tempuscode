@@ -87,6 +87,8 @@ static void prog_do_cond_next_handler(struct prog_env *env, struct prog_evt *evt
 static void prog_do_compare_obj_vnum(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_clear_cond(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_trace(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_tag(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_untag(struct prog_env *env, struct prog_evt *evt, char *args);
 
 //external prototypes
 struct creature *real_mobile_proto(int vnum);
@@ -131,6 +133,8 @@ struct prog_command prog_cmds[] = {
 	{"doorset", true, prog_do_doorset},
 	{"doorexit", true, prog_do_doorexit},
 	{"selfpurge", true, prog_do_selfpurge},
+    {"tag", true, prog_do_tag},
+	{"untag", true, prog_do_untag},
 	{NULL, false, prog_do_halt}
 };
 
@@ -820,6 +824,9 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
             result = prog_eval_wearing(env, args);
 		} else if (!strcasecmp(arg, "self")) {
 			result = (env->owner == env->target);
+		} else if (!strcasecmp(arg, "tagged")) {
+            char *tag = tmp_getword(&args);
+            result = (env->target && player_has_tag(env->target, tag));
 		} else if (!strcasecmp(arg, "visible")) {
 			if (env->owner_type == PROG_TYPE_MOBILE)
 				result = can_see_creature(((struct creature *)env->owner), env->target);
@@ -1434,6 +1441,22 @@ DEFPROGHANDLER(nuke, env, evt, args)
 		if (cur_prog != env && cur_prog->owner == env->owner)
 			cur_prog->exec_pt = -1;
     }
+}
+
+DEFPROGHANDLER(tag, env, evt, args)
+{
+    if (!env->target) {
+        return;
+    }
+    add_player_tag(env->target, tmp_getword(&args));
+}
+
+DEFPROGHANDLER(untag, env, evt, args)
+{
+    if (!env->target) {
+        return;
+    }
+    remove_player_tag(env->target, tmp_getword(&args));
 }
 
 static void

@@ -648,6 +648,18 @@ save_player_to_file(struct creature *ch, const char *path)
         }
     }
 
+    
+    if (IS_PC(ch)) {
+        GHashTableIter iter;
+        char *key;
+
+        g_hash_table_iter_init(&iter, ch->player_specials->tags);
+
+        while (g_hash_table_iter_next(&iter, (gpointer *)&key, NULL)) {
+            fprintf(ouf, "<tag tag=\"%s\"/>\n", key);
+        }
+    }
+
     fprintf(ouf, "</creature>\n");
     fclose(ouf);
 
@@ -1029,6 +1041,8 @@ load_player_from_file(const char *path)
                     g_list_prepend(GET_GRIEVANCES(ch), grievance);
             }
             free(txt);
+        } else if (xmlMatches(node->name, "tag")) {
+            add_player_tag(ch, (char *)xmlGetProp(node, (xmlChar *) "tag"));
         }
     }
 
