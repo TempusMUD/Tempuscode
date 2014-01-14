@@ -649,7 +649,7 @@ save_player_to_file(struct creature *ch, const char *path)
     }
 
     
-    if (IS_PC(ch)) {
+    if (IS_PC(ch) && ch->player_specials->tags) {
         GHashTableIter iter;
         char *key;
 
