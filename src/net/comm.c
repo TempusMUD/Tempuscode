@@ -610,6 +610,10 @@ write_to_output(const char *txt, struct descriptor_data *d)
     if (suppress_output)
         return;
 
+    if (!IS_SET(g_io_channel_get_flags(d->io), G_IO_FLAG_IS_WRITEABLE)) {
+        return;
+    }
+
     if (!d->need_prompt
         && (!d->creature || PRF2_FLAGGED(d->creature, PRF2_AUTOPROMPT))) {
         d->need_prompt = true;
@@ -910,7 +914,7 @@ process_input(GIOChannel *io,
     gsize bytes_read;
     GIOStatus status;
 
-    if (condition == G_IO_HUP) {
+    if ((condition & G_IO_HUP) != 0) {
         close_socket(d);
         return false;
     }
@@ -1050,14 +1054,6 @@ destroy_socket(struct descriptor_data *d)
 {
     struct descriptor_data *temp;
 
-    g_source_remove(d->in_watcher);
-    g_source_remove(d->err_watcher);
-    if (d->out_watcher)
-        g_source_remove(d->out_watcher);
-    g_source_remove(d->input_handler);
-
-    g_io_channel_unref(d->io);
-
     // Forget those this descriptor is snooping
     if (d->snooping)
         d->snooping->snoop_by = g_list_remove(d->snooping->snoop_by, d);
@@ -1110,6 +1106,15 @@ destroy_socket(struct descriptor_data *d)
     if (d->showstr_head)
         free(d->showstr_head);
 
+    g_source_remove(d->in_watcher);
+    g_source_remove(d->err_watcher);
+    if (d->out_watcher)
+        g_source_remove(d->out_watcher);
+    g_source_remove(d->input_handler);
+
+    g_io_channel_unref(d->io);
+
+    
     free(d);
 }
 
@@ -1118,7 +1123,8 @@ close_socket(struct descriptor_data *d)
 {
     GError *error = NULL;
 
-    g_io_channel_shutdown(d->io, (g_io_channel_get_flags(d->io) & G_IO_FLAG_IS_WRITEABLE), &error);
+    set_desc_state(CXN_DISCONNECT, d);
+    g_io_channel_shutdown(d->io, (g_io_channel_get_flags(d->io) & G_IO_FLAG_IS_WRITEABLE) != 0, &error);
     destroy_socket(d);
 }
 
