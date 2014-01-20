@@ -810,7 +810,7 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
         if (ch->desc->snoop_by) {
             for (GList * it = ch->desc->snoop_by; it; it = it->next) {
                 struct descriptor_data *d = it->data;
-                send_to_desc(d, "Your victim is no longer among us.\r\n");
+                d_printf(d, "Your victim is no longer among us.\r\n");
                 d->snooping = NULL;
             }
             g_list_free(ch->desc->snoop_by);

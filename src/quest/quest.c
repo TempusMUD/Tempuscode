@@ -855,7 +855,7 @@ qlog(struct creature *ch, const char *str, int type, int min_level, int file)
                     GET_QLOG_LEVEL(d->original) : GET_QLOG_LEVEL(d->creature);
 
                 if (level >= min_level && qlog_level >= type)
-                    send_to_desc(d, "&Y[&g QLOG: %s %s &Y]&n\r\n",
+                    d_printf(d, "&Y[&g QLOG: %s %s &Y]&n\r\n",
                         ch ? PERS(ch, d->creature) : "", str);
             }
         }

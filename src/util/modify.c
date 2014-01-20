@@ -157,7 +157,7 @@ page_string(struct descriptor_data *d, const char *str)
 
     // If term height is zero, just send the string
     if (!d->account->term_height) {
-        send_to_desc(d, "%s", str);
+        d_send(d, str);
         d->showstr_point = d->showstr_head = NULL;
         return;
     }
@@ -216,7 +216,7 @@ show_string(struct descriptor_data *d)
     pt_save = *read_pt;
     *read_pt = '\0';
 
-    SEND_TO_Q(d->showstr_point, d);
+    d_send(d, d->showstr_point);
 
     *read_pt = pt_save;
 
@@ -230,13 +230,11 @@ show_string(struct descriptor_data *d)
     // otherwise we tell em to use the 'more' command
     if (*read_pt) {
         if (d->creature)
-            send_to_desc(d,
-                "&r**** &nUse the 'more' command to continue. &r****&n\r\n");
+            d_printf(d, "&r**** &nUse the 'more' command to continue. &r****&n\r\n");
         else if (STATE(d) == CXN_VIEW_POLICY)
-            send_to_desc(d, "&r**** &nPress return to continue &r****&n");
+            d_printf(d, "&r**** &nPress return to continue &r****&n");
         else
-            send_to_desc(d,
-                "&r**** &nPress return to continue, 'q' to quit &r****&n");
+            d_printf(d, "&r**** &nPress return to continue, 'q' to quit &r****&n");
     } else {
         free(d->showstr_head);
         d->showstr_head = d->showstr_point = NULL;

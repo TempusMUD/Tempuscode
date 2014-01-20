@@ -95,7 +95,7 @@ editor_import(struct editor *editor, const char *text)
 void
 editor_emit(struct editor *editor, const char *text)
 {
-    send_to_desc(editor->desc, "%s", text);
+    d_printf(editor->desc, "%s", text);
 }
 
 void
@@ -103,13 +103,13 @@ emit_editor_startup(struct editor *editor)
 {
     int i;
 
-    send_to_desc(editor->desc,
+    d_printf(editor->desc,
         "&C     * &YTED///  &b]&n Save and exit with @ on a new line. "
         "&&H for help             &C*\r\n");
-    send_to_desc(editor->desc, "     ");
+    d_printf(editor->desc, "     ");
     for (i = 0; i < 7; i++)
-        send_to_desc(editor->desc, "&C%d&B---------", i);
-    send_to_desc(editor->desc, "&C7&n\r\n");
+        d_printf(editor->desc, "&C%d&B---------", i);
+    d_printf(editor->desc, "&C7&n\r\n");
     editor->displaybuffer(editor, 1, 0);
 }
 
@@ -122,7 +122,7 @@ editor_line_count(struct editor *editor)
 void
 editor_send_prompt(struct editor *editor)
 {
-    send_to_desc(editor->desc, "%3d&b]&n ", editor_line_count(editor) + 1);
+    d_printf(editor->desc, "%3d&b]&n ", editor_line_count(editor) + 1);
 }
 
 int
@@ -724,7 +724,7 @@ void
 editor_sendmodalhelp(struct editor *editor)
 {
     // default offers the clear buffer and undo changes options
-    send_to_desc(editor->desc,
+    d_printf(editor->desc,
         "            &YC - &nClear Buffer         &YU - &nUndo Changes  \r\n");
 }
 
@@ -736,7 +736,7 @@ editor_help(struct editor *editor, char *line)
     acc_string_clear();
 
     if (!*line) {
-        send_to_desc(editor->desc,
+        d_printf(editor->desc,
             "     &C*&B-----------------------&Y H E L P &B-----------------------&C*\r\n"
             "            &YR - &nRefresh Screen       &YH - &nHelp         \r\n"
             "            &YE - &nSave and Exit        &YQ - &nQuit (Cancel)\r\n"
@@ -744,7 +744,7 @@ editor_help(struct editor *editor, char *line)
             "            &YI - &nInsert Line          &YM - &nMove Line(s)\r\n"
             "            &YF - &nFind                 &YS - &nSubstitute\r\n");
         editor->sendmodalhelp(editor);
-        send_to_desc(editor->desc,
+        d_printf(editor->desc,
             "     &C*&B-------------------------------------------------------&C*&n\r\n");
     } else {
         struct help_item *help_item;
@@ -755,10 +755,10 @@ editor_help(struct editor *editor, char *line)
             tmp_sprintf("tedii-%c", *command), false, 0, false);
         if (help_item) {
             help_item_load_text(help_item);
-            send_to_desc(editor->desc, "&cTEDII Command '%c'&n\r\n", *command);
-            send_to_desc(editor->desc, "%s", help_item->text);
+            d_printf(editor->desc, "&cTEDII Command '%c'&n\r\n", *command);
+            d_printf(editor->desc, "%s", help_item->text);
         } else {
-            send_to_desc(editor->desc,
+            d_printf(editor->desc,
                 "Sorry.  There is no help on that.\r\n");
         }
     }

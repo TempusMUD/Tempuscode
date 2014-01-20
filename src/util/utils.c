@@ -254,7 +254,7 @@ zerrlog(struct zone_data *zone, const char *fmt, ...)
             display = d->creature->in_room->zone == zone;
 
         if (display)
-            send_to_desc(d, "&y%s&n\r\n", msg);
+            d_printf(d, "&y%s&n\r\n", msg);
     }
 }
 

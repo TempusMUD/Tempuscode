@@ -43,7 +43,7 @@ texteditor_cancel(struct editor *editor)
 {
     // If editing their description.
     if (STATE(editor->desc) == CXN_EDIT_DESC) {
-        send_to_desc(editor->desc, "\033[H\033[J");
+        d_printf(editor->desc, "\033[H\033[J");
         set_desc_state(CXN_MENU, editor->desc);
     }
     free_texteditor(editor);
@@ -64,7 +64,7 @@ texteditor_finalize(struct editor *editor, const char *text)
 
     // If editing their description.
     if (STATE(editor->desc) == CXN_EDIT_DESC) {
-        send_to_desc(editor->desc, "\033[H\033[J");
+        d_printf(editor->desc, "\033[H\033[J");
         save_player_to_xml(editor->desc->creature);
         editor->desc->creature = NULL;
         set_desc_state(CXN_MENU, editor->desc);

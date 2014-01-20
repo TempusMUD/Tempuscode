@@ -4038,41 +4038,41 @@ show_account(struct creature *ch, char *value)
         return;
     }
 
-    send_to_desc(ch->desc, "&y  Account: &n%s [%d]", account->name,
+    d_printf(ch->desc, "&y  Account: &n%s [%d]", account->name,
                  account->id);
     if (account->email && *account->email)
-        send_to_desc(ch->desc, " &c<%s>&n", account->email);
+        d_printf(ch->desc, " &c<%s>&n", account->email);
     struct house *h = find_house_by_owner(account->id);
     if (h)
-        send_to_desc(ch->desc, " &y House: &n%d", h->id);
+        d_printf(ch->desc, " &y House: &n%d", h->id);
     if (account->banned)
-        send_to_desc(ch->desc, " &y(BANNED)&n");
+        d_printf(ch->desc, " &y(BANNED)&n");
     else if (account->quest_banned)
-        send_to_desc(ch->desc, " &y(QBANNED)&n");
-    send_to_desc(ch->desc, "\r\n\r\n");
+        d_printf(ch->desc, " &y(QBANNED)&n");
+    d_printf(ch->desc, "\r\n\r\n");
 
     last = account->login_time;
     creation = account->creation_time;
 
     strftime(created_buf, 29, "%a %b %d, %Y %H:%M:%S", localtime(&creation));
     strftime(last_buf, 29, "%a %b %d, %Y %H:%M:%S", localtime(&last));
-    send_to_desc(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n",
+    d_printf(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n",
         created_buf, last_buf);
     if (is_named_role_member(ch, "AdminFull")) {
-        send_to_desc(ch->desc,
+        d_printf(ch->desc,
             "&y  Created: &n%-15s   &yLast: &n%-15s       &yReputation: &n%d\r\n",
             account->creation_addr, account->login_addr, account->reputation);
     }
-    send_to_desc(ch->desc,
+    d_printf(ch->desc,
         "&y  Past bank: &n%'-12" PRId64 "    &yFuture Bank: &n%'-12" PRId64,
         account->bank_past, account->bank_future);
     if (is_named_role_member(ch, "Questor")) {
-        send_to_desc(ch->desc, "   &yQuest Points: &n%d\r\n",
+        d_printf(ch->desc, "   &yQuest Points: &n%d\r\n",
             account->quest_points);
     } else {
-        send_to_desc(ch->desc, "\r\n");
+        d_printf(ch->desc, "\r\n");
     }
-    send_to_desc(ch->desc,
+    d_printf(ch->desc,
         "&b ----------------------------------------------------------------------------&n\r\n");
 
     show_account_chars(ch->desc, account, true, false);
