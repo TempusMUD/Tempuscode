@@ -596,19 +596,17 @@ record_usage(void)
 }
 
 void
-write_to_descriptor(struct descriptor_data *d, const char *txt)
-{
-    write_to_output(txt, d);
-}
-
-void
-write_to_output(const char *txt, struct descriptor_data *d)
+d_send(struct descriptor_data *d, const char *txt)
 {
     GError *error = NULL;
     gsize bytes_written;
 
     if (suppress_output)
         return;
+
+    if (!IS_SET(g_io_channel_get_flags(d->io), G_IO_FLAG_IS_WRITEABLE)) {
+        return;
+    }
 
     if (!d->need_prompt
         && (!d->creature || PRF2_FLAGGED(d->creature, PRF2_AUTOPROMPT))) {
@@ -617,20 +615,14 @@ write_to_output(const char *txt, struct descriptor_data *d)
         if (!d->account
             || d->account->compact_level == 1
             || d->account->compact_level == 3)
-            write_to_output("\r\n", d);
+            d_send(d, "\r\n");
     }
 
     /* handle snooping: prepend "% " and send to snooper */
     if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
         for (GList * x = d->snoop_by; x; x = x->next) {
             struct descriptor_data *td = x->data;
-            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
-            SEND_TO_Q("{ ", td);
-            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
-            SEND_TO_Q(txt, td);
-            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
-            SEND_TO_Q(" } ", td);
-            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
+            d_printf(td, "&r{ &n%s&r } &n", txt);
         }
     }
     error = NULL;
@@ -772,25 +764,22 @@ accept_new_connection(GIOChannel *listener_io,
     /* prepend to list */
     descriptor_list = newd;
     if (mini_mud) {
-        SEND_TO_Q("(testmud)", newd);
+        d_send(newd, "(testmud)");
     } else if (newd->is_blind) {
-        SEND_TO_Q("Welcome to Tempus MUD!\r\n", newd);
+        d_send(newd, "Welcome to Tempus MUD!\r\n");
     } else {
         // This text is printed just before the screen clear, so most
         // people won't even see it.  Screen readers will read it out
         // loud, though.
-        SEND_TO_Q(tmp_sprintf("If you use a screen reader, you'll want to use port %d",
-                              reader_port),
-                  newd);
-        SEND_TO_Q("\033[H\033[J", newd);
+        d_printf(newd,"If you use a screen reader, you'll want to use port %d&@", reader_port);
         if (number(0, 99)) {
             if (number(0, 10))
-                SEND_TO_Q(GREETINGS[1], newd);
+                d_send(newd, GREETINGS[1]);
             else
-                SEND_TO_Q(GREETINGS[2], newd);
+                d_send(newd, GREETINGS[2]);
         } else {
             // send original greeting 1/100th of the time
-            SEND_TO_Q(GREETINGS[0], newd);
+            d_send(newd, GREETINGS[0]);
         }
     }
     return true;
@@ -813,7 +802,7 @@ process_output(GIOChannel *io,
     if (d->creature
         && !g_io_channel_write_buffer_empty(d->io)
         && d->account->compact_level < 2) {
-        SEND_TO_Q("\r\n", d);
+        d_send(d, "\r\n");
     }
     if (d->need_prompt) {
         send_prompt(d);
@@ -822,7 +811,7 @@ process_output(GIOChannel *io,
             && !g_io_channel_write_buffer_empty(d->io)
             && (d->account->compact_level == 0
                 || d->account->compact_level == 2))
-            SEND_TO_Q("\r\n", d);
+            d_send(d, "\r\n");
         d->need_prompt = false;
     }
 
@@ -848,13 +837,7 @@ enqueue_line_input(struct descriptor_data *d, char *line)
     if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
         for (GList * x = d->snoop_by; x; x = x->next) {
             struct descriptor_data *td = x->data;
-            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
-            SEND_TO_Q("[ ", td);
-            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
-            SEND_TO_Q(line, td);
-            SEND_TO_Q(CCRED(td->creature, C_NRM), td);
-            SEND_TO_Q(" ]\r\n", td);
-            SEND_TO_Q(CCNRM(td->creature, C_NRM), td);
+            d_printf(td, "&r[ &n%s&r ]\r\n&n", line);
         }
     }
 
@@ -886,12 +869,12 @@ enqueue_line_input(struct descriptor_data *d, char *line)
             // This has to be here so we can bypass the normal order of
             // commands
             if (g_queue_is_empty(d->input)) {
-                send_to_desc(d,
+                d_printf(d,
                              "You don't have any commands to revoke!\r\n");
             } else {
                 g_queue_foreach(d->input, (GFunc)g_free, NULL);
                 g_queue_clear(d->input);
-                send_to_desc(d, "You reconsider your rash plans.\r\n");
+                d_printf(d, "You reconsider your rash plans.\r\n");
                 WAIT_STATE(d->creature, 1 RL_SEC);
             }
         } else {
@@ -910,7 +893,7 @@ process_input(GIOChannel *io,
     gsize bytes_read;
     GIOStatus status;
 
-    if (condition == G_IO_HUP) {
+    if ((condition & G_IO_HUP) != 0) {
         close_socket(d);
         return false;
     }
@@ -978,7 +961,7 @@ process_input(GIOChannel *io,
 
     if (d->inbuf_len >= MAX_RAW_INPUT_LENGTH) {
         // Guard against the line buffer overflowing.
-        send_to_desc(d, "WARNING: line too long.  Ignoring.\r\n");
+        d_printf(d, "WARNING: line too long.  Ignoring.\r\n");
         d->inbuf_len = 0;
     } else {
         // Copy last line fragment to start of input buffer
@@ -1009,7 +992,7 @@ perform_subst(struct descriptor_data *t, char *orig, char *subst)
 
     /* now find the second '^' */
     if (!(second = strchr(first, '^'))) {
-        SEND_TO_Q("Invalid substitution.\r\n", t);
+        d_send(t, "Invalid substitution.\r\n");
         return 1;
     }
 
@@ -1019,7 +1002,7 @@ perform_subst(struct descriptor_data *t, char *orig, char *subst)
 
     /* now, see if the contents of the first string appear in the original */
     if (!(strpos = strstr(orig, first))) {
-        SEND_TO_Q("Invalid substitution.\r\n", t);
+        d_send(t, "Invalid substitution.\r\n");
         return 1;
     }
 
@@ -1050,14 +1033,6 @@ destroy_socket(struct descriptor_data *d)
 {
     struct descriptor_data *temp;
 
-    g_source_remove(d->in_watcher);
-    g_source_remove(d->err_watcher);
-    if (d->out_watcher)
-        g_source_remove(d->out_watcher);
-    g_source_remove(d->input_handler);
-
-    g_io_channel_unref(d->io);
-
     // Forget those this descriptor is snooping
     if (d->snooping)
         d->snooping->snoop_by = g_list_remove(d->snooping->snoop_by, d);
@@ -1065,7 +1040,7 @@ destroy_socket(struct descriptor_data *d)
     // Forget those snooping on this descriptor
     for (GList *x = d->snoop_by; x; x = x->next) {
         struct descriptor_data *td = x->data;
-        SEND_TO_Q("Your victim is no longer among us.\r\n", td);
+        d_send(td, "Your victim is no longer among us.\r\n");
         td->snooping = NULL;
     }
 
@@ -1110,6 +1085,15 @@ destroy_socket(struct descriptor_data *d)
     if (d->showstr_head)
         free(d->showstr_head);
 
+    g_source_remove(d->in_watcher);
+    g_source_remove(d->err_watcher);
+    if (d->out_watcher)
+        g_source_remove(d->out_watcher);
+    g_source_remove(d->input_handler);
+
+    g_io_channel_unref(d->io);
+
+    
     free(d);
 }
 
@@ -1118,7 +1102,8 @@ close_socket(struct descriptor_data *d)
 {
     GError *error = NULL;
 
-    g_io_channel_shutdown(d->io, (g_io_channel_get_flags(d->io) & G_IO_FLAG_IS_WRITEABLE), &error);
+    set_desc_state(CXN_DISCONNECT, d);
+    g_io_channel_shutdown(d->io, (g_io_channel_get_flags(d->io) & G_IO_FLAG_IS_WRITEABLE) != 0, &error);
     destroy_socket(d);
 }
 
@@ -1283,11 +1268,11 @@ send_to_char(struct creature *ch, const char *str, ...)
 
     // Everything gets capitalized
     msg_str[0] = toupper(msg_str[0]);
-    SEND_TO_Q(msg_str, ch->desc);
+    d_send(ch->desc, msg_str);
 }
 
 void
-send_to_desc(struct descriptor_data *d, const char *str, ...)
+d_printf(struct descriptor_data *d, const char *str, ...)
 {
     char *msg_str, *read_pt;
     va_list args;
@@ -1309,55 +1294,55 @@ send_to_desc(struct descriptor_data *d, const char *str, ...)
             read_pt++;
         if (*read_pt == '&') {
             *read_pt++ = '\0';
-            SEND_TO_Q(msg_str, d);
+            d_send(d, msg_str);
             if (d->account && d->account->ansi_level > 0) {
                 if (isupper(*read_pt)) {
                     *read_pt = tolower(*read_pt);
                     // A few extra normal tags never hurt anyone...
                     if (d->account->ansi_level > 2)
-                        SEND_TO_Q(KBLD, d);
+                        d_send(d, KBLD);
                 } else if (d->account->ansi_level > 2)
-                    SEND_TO_Q(KNRM, d);
+                    d_send(d, KNRM);
                 switch (*read_pt) {
                 case '@':
-                    SEND_TO_Q("\e[H\e[J", d);
+                    d_send(d, "\e[H\e[J");
                     break;
                 case 'n':
-                    SEND_TO_Q(KNRM, d);
+                    d_send(d, KNRM);
                     break;
                 case 'r':
-                    SEND_TO_Q(KRED, d);
+                    d_send(d, KRED);
                     break;
                 case 'g':
-                    SEND_TO_Q(KGRN, d);
+                    d_send(d, KGRN);
                     break;
                 case 'y':
-                    SEND_TO_Q(KYEL, d);
+                    d_send(d, KYEL);
                     break;
                 case 'm':
-                    SEND_TO_Q(KMAG, d);
+                    d_send(d, KMAG);
                     break;
                 case 'c':
-                    SEND_TO_Q(KCYN, d);
+                    d_send(d, KCYN);
                     break;
                 case 'b':
-                    SEND_TO_Q(KBLU, d);
+                    d_send(d, KBLU);
                     break;
                 case 'w':
-                    SEND_TO_Q(KWHT, d);
+                    d_send(d, KWHT);
                     break;
                 case '&':
-                    SEND_TO_Q("&", d);
+                    d_send(d, "&");
                     break;
                 default:
-                    SEND_TO_Q("&&", d);
+                    d_send(d, "&&");
                 }
             }
             read_pt++;
             msg_str = read_pt;
         }
     }
-    SEND_TO_Q(msg_str, d);
+    d_send(d, msg_str);
 }
 
 void
@@ -1368,7 +1353,7 @@ send_to_all(const char *messg)
     if (messg)
         for (i = descriptor_list; i; i = i->next)
             if (!i->input_mode)
-                SEND_TO_Q(messg, i);
+                d_send(i, messg);
 }
 
 void
@@ -1387,7 +1372,7 @@ send_to_clerics(int align, const char *messg)
             && !IS_NEUTRAL(i->creature)
             && (align != EVIL || IS_EVIL(i->creature))
             && (align != GOOD || IS_GOOD(i->creature))) {
-            SEND_TO_Q(messg, i);
+            d_send(i, messg);
         }
     }
 }
@@ -1406,7 +1391,7 @@ send_to_outdoor(const char *messg, int isecho)
             !PLR_FLAGGED(i->creature, PLR_WRITING) &&
             OUTSIDE(i->creature)
             && PRIME_MATERIAL_ROOM(i->creature->in_room))
-            SEND_TO_Q(messg, i);
+            d_send(i, messg);
 }
 
 void
@@ -1424,10 +1409,7 @@ send_to_newbie_helpers(const char *messg)
             GET_LEVEL(i->creature) > level_can_shout &&
             !(PRF_FLAGGED(i->creature, PRF_LOG1) ||
                 PRF_FLAGGED(i->creature, PRF_LOG2))) {
-            SEND_TO_Q(CCBLD(i->creature, C_CMP), i);
-            SEND_TO_Q(CCYEL(i->creature, C_SPR), i);
-            SEND_TO_Q(messg, i);
-            SEND_TO_Q(CCNRM(i->creature, C_SPR), i);
+            d_printf(i, "&Y%s&n", messg);
         }
 }
 
@@ -1498,7 +1480,7 @@ send_to_zone(const char *messg, struct zone_data *zn, int outdoor)
             (!outdoor ||
                 (OUTSIDE(i->creature) &&
                     PRIME_MATERIAL_ROOM(i->creature->in_room))))
-            SEND_TO_Q(messg, i);
+            d_send(i, messg);
 }
 
 void
@@ -1516,7 +1498,7 @@ send_to_room(const char *messg, struct room_data *room)
     for (GList * it = first_living(room->people); it; it = next_living(it)) {
         i = it->data;
         if (i->desc && !PLR_FLAGGED(i, PLR_WRITING))
-            SEND_TO_Q(messg, i->desc);
+            d_send(i->desc, messg);
     }
     /** check for vehicles in the room **/
     str = tmp_sprintf("(outside) %s", messg);
@@ -1530,7 +1512,7 @@ send_to_room(const char *messg, struct room_data *room)
                     for (GList * it = first_living(obj->in_room->people); it; it = next_living(it)) {
                         i = it->data;
                         if (i->desc && !PLR_FLAGGED(i, PLR_WRITING))
-                            SEND_TO_Q(str, i->desc);
+                            d_send(i->desc, str);
                     }
                 }
             }
@@ -1552,7 +1534,7 @@ send_to_room(const char *messg, struct room_data *room)
                     it; it = next_living(it)) {
                     i = it->data;
                     if (i->desc && !PLR_FLAGGED(i, PLR_OLC))
-                        SEND_TO_Q(str, i->desc);
+                        d_send(i->desc, str);
                 }
             }
     }
@@ -1578,9 +1560,7 @@ send_to_clan(const char *messg, int clan)
             if (!i->input_mode && i->creature
                 && (GET_CLAN(i->creature) == clan)
                 && !PLR_FLAGGED(i->creature, PLR_OLC)) {
-                SEND_TO_Q(CCCYN(i->creature, C_NRM), i);
-                SEND_TO_Q(messg, i);
-                SEND_TO_Q(CCNRM(i->creature, C_NRM), i);
+                d_printf(i, "&c%s&n", messg);
             }
 }
 
@@ -1863,9 +1843,9 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
         strcpy(outbuf, lbuf);
     }
 
-    SEND_TO_Q(outbuf, to->desc);
+    d_send(to->desc, outbuf);
     if (COLOR_LEV(to) > 0)
-        SEND_TO_Q(KNRM, to->desc);
+        d_send(to->desc, KNRM);
 }
 
 #define SENDOK(ch) (AWAKE(ch) || sleep)
@@ -2121,7 +2101,7 @@ descriptor_update(void)
             && STATE(d) != CXN_NETWORK) {
             mlog(ROLE_ADMINBASIC, LVL_IMMORT, CMP, true,
                 "Descriptor idling out after 10 minutes");
-            SEND_TO_Q("Idle time limit reached, disconnecting.\r\n", d);
+            d_send(d, "Idle time limit reached, disconnecting.\r\n");
             if (d->creature) {
                 save_player_to_xml(d->creature);
                 d->creature = NULL;

@@ -92,13 +92,13 @@ start_editing_file(struct descriptor_data *d, const char *fname)
         CREATE(target, char, (size_t)sbuf.st_size + 1);
         if (!target) {
             errlog("Couldn't allocate memory to edit %s", fname);
-            send_to_desc(d, "Internal error #09384\r\n");
+            d_send(d, "Internal error #09384\r\n");
             return;
         }
 
         if (fread(target, sizeof(char), (size_t)sbuf.st_size,
                 inf) != (size_t) sbuf.st_size) {
-            send_to_desc(d, "Internal error #42372\r\n");
+            d_printf(d, "Internal error #42372\r\n");
             free(target);
             fclose(inf);
             return;

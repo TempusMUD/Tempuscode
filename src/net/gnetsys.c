@@ -50,25 +50,19 @@ void set_desc_state(int state, struct descriptor_data *d);
 void
 perform_net_help(struct descriptor_data *d)
 {
-    SEND_TO_Q("       System Help\r\n", d);
-    SEND_TO_Q
-        ("------------------------------------------------------------------\r\n",
-        d);
-    SEND_TO_Q("            logout - disconnects from network\r\n", d);
-    SEND_TO_Q("              exit - synonym for logout\r\n", d);
-    SEND_TO_Q("               who - lists users logged into network\r\n", d);
-    SEND_TO_Q("     finger <user> - displays information about user\r\n", d);
-    SEND_TO_Q("write <user> <msg> - sends a private message to a user\r\n", d);
-    SEND_TO_Q
-        ("       wall <user> - sends a message to all users logged in\r\n", d);
-    SEND_TO_Q("              help - displays this menu\r\n", d);
-    SEND_TO_Q("                 ? - synonym for help\r\n", d);
+    d_printf(d, "       System Help\r\n");
+    d_printf(d, "------------------------------------------------------------------\r\n");
+    d_printf(d, "            logout - disconnects from network\r\n");
+    d_printf(d, "              exit - synonym for logout\r\n");
+    d_printf(d, "               who - lists users logged into network\r\n");
+    d_printf(d, "     finger <user> - displays information about user\r\n");
+    d_printf(d, "write <user> <msg> - sends a private message to a user\r\n");
+    d_printf(d, "       wall <user> - sends a message to all users logged in\r\n");
+    d_printf(d, "              help - displays this menu\r\n");
+    d_printf(d, "                 ? - synonym for help\r\n");
     if (IS_CYBORG(d->creature)) {
-        SEND_TO_Q("              list - lists programs executing locally\r\n",
-            d);
-        SEND_TO_Q
-            ("    load <program> - loads and executes programs into local memory\r\n",
-            d);
+        d_printf(d, "              list - lists programs executing locally\r\n");
+        d_printf(d, "    load <program> - loads and executes programs into local memory\r\n");
     }
 }
 
@@ -82,7 +76,7 @@ perform_net_write(struct descriptor_data *d, char *arg)
     half_chop(arg, targ, msg);
 
     if (!*targ || !*msg) {
-        SEND_TO_Q("Usage: write <user> <message>\r\n", d);
+        d_printf(d, "Usage: write <user> <message>\r\n");
         return;
     }
 
@@ -91,14 +85,12 @@ perform_net_write(struct descriptor_data *d, char *arg)
         vict = get_player_vis(d->creature, targ, 0);
 
     if (!vict || STATE(vict->desc) != CXN_NETWORK) {
-        SEND_TO_Q("Error: user not logged in\r\n", d);
+        d_printf(d, "Error: user not logged in\r\n");
         return;
     }
 
-    sprintf(buf, "Message sent to %s: %s\r\n", GET_NAME(vict), msg);
-    SEND_TO_Q(buf, d);
-    sprintf(buf, "Message from %s: %s\r\n", GET_NAME(d->creature), msg);
-    SEND_TO_Q(buf, vict->desc);
+    d_printf(d, "Message sent to %s: %s\r\n", GET_NAME(vict), msg);
+    d_printf(vict->desc, "Message from %s: %s\r\n", GET_NAME(d->creature), msg);
 }
 
 void
@@ -107,15 +99,14 @@ perform_net_wall(struct descriptor_data *d, char *arg)
     struct descriptor_data *r_d;
 
     if (!*arg) {
-        SEND_TO_Q("Usage: wall <message>\r\n", d);
+        d_printf(d, "Usage: wall <message>\r\n");
         return;
     }
 
     for (r_d = descriptor_list; r_d; r_d = r_d->next) {
         if (STATE(r_d) != CXN_NETWORK)
             continue;
-        sprintf(buf, "%s walls:%s\r\n", GET_NAME(d->creature), arg);
-        SEND_TO_Q(buf, r_d);
+        d_printf(r_d, "%s walls:%s\r\n", GET_NAME(d->creature), arg);
     }
 }
 
@@ -127,15 +118,13 @@ perform_net_load(struct descriptor_data *d, char *arg)
 
     skip_spaces(&arg);
     if (!*arg) {
-        SEND_TO_Q("Usage: load <program>\r\n", d);
+        d_printf(d, "Usage: load <program>\r\n");
         return;
     }
 
     skill_num = find_skill_num(arg);
     if (skill_num < 1) {
-        SEND_TO_Q("Error: program '", d);
-        SEND_TO_Q(arg, d);
-        SEND_TO_Q("' not found\r\n", d);
+        d_printf(d, "Error: program '%s' not found\r\n", arg);
         return;
     }
 
@@ -143,21 +132,21 @@ perform_net_load(struct descriptor_data *d, char *arg)
             && GET_CLASS(d->creature) != CLASS_CYBORG)
         || (GET_REMORT_GEN(d->creature) < SPELL_GEN(skill_num, CLASS_CYBORG))
         || (GET_LEVEL(d->creature) < SPELL_LEVEL(skill_num, CLASS_CYBORG))) {
-        send_to_desc(d, "Error: resources unavailable to load '%s'\r\n", arg);
+        d_printf(d, "Error: resources unavailable to load '%s'\r\n", arg);
         return;
     }
 
     if (GET_SKILL(d->creature, skill_num) >= LEARNED(d->creature)) {
-        SEND_TO_Q("Program fully installed on local system.\r\n", d);
+        d_printf(d, "Program fully installed on local system.\r\n");
         return;
     }
 
     cost = GET_SKILL_COST(d->creature, skill_num);
-    send_to_desc(d, "Program cost: %10ld  Account balance; %'" PRId64 "\r\n",
+    d_printf(d, "Program cost: %10ld  Account balance; %'" PRId64 "\r\n",
         cost, d->account->bank_future);
 
     if (d->account->bank_future < cost) {
-        send_to_desc(d, "Error: insufficient funds in your account\r\n");
+        d_printf(d, "Error: insufficient funds in your account\r\n");
         return;
     }
 
@@ -168,13 +157,13 @@ perform_net_load(struct descriptor_data *d, char *arg)
         GET_SKILL(d->creature, skill_num), percent);
     SET_SKILL(d->creature, skill_num, GET_SKILL(d->creature,
             skill_num) + percent);
-    send_to_desc(d,
+    d_printf(d,
         "Program download: %s terminating, %d percent transfer.\r\n",
         spell_to_str(skill_num), percent);
     if (GET_SKILL(d->creature, skill_num) >= LEARNED(d->creature))
-        send_to_desc(d, "Program fully installed on local system.\r\n");
+        d_printf(d, "Program fully installed on local system.\r\n");
     else
-        send_to_desc(d, "Program %d%% installed on local system.\r\n",
+        d_printf(d, "Program %d%% installed on local system.\r\n",
             GET_SKILL(d->creature, skill_num));
 }
 
@@ -272,12 +261,12 @@ handle_network(struct descriptor_data *d, char *arg)
         if (d->showstr_head)
             show_string(d);
         else
-            SEND_TO_Q("Error: Resource not available\r\n", d);
+            d_printf(d, "Error: Resource not available\r\n");
     } else if (*arg1 == '@' || is_abbrev(arg1, "exit")
         || is_abbrev(arg1, "logout")) {
         slog("User %s disconnecting from net.", GET_NAME(d->creature));
         set_desc_state(CXN_PLAYING, d);
-        SEND_TO_Q("Connection closed.\r\n", d);
+        d_printf(d, "Connection closed.\r\n");
         act("$n disconnects from the network.", true, d->creature, NULL, NULL,
             TO_ROOM);
     } else if (IS_CYBORG(d->creature) && is_abbrev(arg1, "list")) {
@@ -286,8 +275,7 @@ handle_network(struct descriptor_data *d, char *arg)
             || is_abbrev(arg, "download"))) {
         perform_net_load(d, arg);
     } else {
-        SEND_TO_Q(arg1, d);
-        SEND_TO_Q(": command not found\r\n", d);
+        d_printf(d, "%s: command not found\r\n", arg1);
     }
 }
 

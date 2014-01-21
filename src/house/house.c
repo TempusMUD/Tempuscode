@@ -1028,7 +1028,7 @@ display_house(struct house *house, struct creature *ch)
     if (!landlord)
         landlord = "NONE";
 
-    send_to_desc(ch->desc,
+    d_printf(ch->desc,
         "&yHouse[&n%4d&y]  Type:&n %s  &yLandlord:&n %s\r\n", house->id,
         house_type_name(house->type), landlord);
 
@@ -1040,30 +1040,30 @@ display_house(struct house *house, struct creature *ch)
             if (account->email && *account->email) {
                 email = account->email;
             }
-            send_to_desc(ch->desc, "&yOwner:&n %s [%d] &c%s&n\r\n",
+            d_printf(ch->desc, "&yOwner:&n %s [%d] &c%s&n\r\n",
                 account->name, account->id, email);
         }
     } else if (house->type == CLAN) {
         struct clan_data *clan = real_clan(house->owner_id);
         if (clan == NULL) {
-            send_to_desc(ch->desc, "&yOwned by Clan:&n NONE\r\n");
+            d_printf(ch->desc, "&yOwned by Clan:&n NONE\r\n");
         } else {
-            send_to_desc(ch->desc, "&yOwned by Clan:&c %s&n [%d]\r\n",
+            d_printf(ch->desc, "&yOwned by Clan:&c %s&n [%d]\r\n",
                 clan->name, clan->number);
         }
     } else {
-        send_to_desc(ch->desc, "&yOwner:&n NONE\r\n");
+        d_printf(ch->desc, "&yOwner:&n NONE\r\n");
     }
 
     strftime(created_buf, 29, "%a %b %d, %Y %H:%M:%S",
         localtime(&house->created));
-    send_to_desc(ch->desc, "&yCreated:&n %s\r\n", created_buf);
+    d_printf(ch->desc, "&yCreated:&n %s\r\n", created_buf);
     list_house_guests(house, ch);
     list_house_rooms(house, ch, false);
     if (house->repo_notes) {
-        send_to_desc(ch->desc, "&cRepossession Notifications:&n \r\n");
+        d_printf(ch->desc, "&cRepossession Notifications:&n \r\n");
         for (struct txt_block * i = house->repo_notes; i; i = i->next) {
-            send_to_desc(ch->desc, "    %s\r\n", i->text);
+            d_printf(ch->desc, "    %s\r\n", i->text);
         }
     }
 }

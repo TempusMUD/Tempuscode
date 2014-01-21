@@ -33,9 +33,6 @@ void send_to_all(const char *messg)
 void send_to_char(struct creature *ch, const char *str, ...)
 	__attribute__ ((format (printf, 2, 3)))
     __attribute__ ((nonnull (1,2)));
-void send_to_desc(struct descriptor_data *d, const char *str, ...)
-	__attribute__ ((format (printf, 2, 3)))
-    __attribute__ ((nonnull (1,2)));
 void send_to_room(const char *messg, struct room_data *room)
     __attribute__ ((nonnull));
 void send_to_clerics(int align, const char *messg)
@@ -87,10 +84,13 @@ void act(const char *str, int hide_invisible, struct creature *ch,
 
 struct account;
 
-#define SEND_TO_Q(messg, desc)  write_to_output((messg), desc)
-
 #define USING_SMALL(d)	((d)->output == (d)->small_outbuf)
 #define USING_LARGE(d)  (!USING_SMALL(d))
+
+// printf to descriptor with color code expansion
+void d_send(struct descriptor_data *d, const char *txt);
+void d_printf(struct descriptor_data *d, const char *str, ...)
+	__attribute__ ((format (printf, 2, 3)));
 
 struct last_command_data {
 	int idnum;

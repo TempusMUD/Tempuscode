@@ -54,17 +54,17 @@ maileditor_listrecipients(struct editor *editor)
     struct maileditor_data *mail_data =
         (struct maileditor_data *)editor->mode_data;
 
-    send_to_desc(editor->desc, "     &yTo&b: &c");
+    d_printf(editor->desc, "     &yTo&b: &c");
     for (GList *mail_rcpt = mail_data->mail_to; mail_rcpt;
          mail_rcpt = mail_rcpt->next) {
         int recpt_idnum = GPOINTER_TO_INT(mail_rcpt->data);
 
-        send_to_desc(editor->desc, "%s",
+        d_printf(editor->desc, "%s",
             tmp_capitalize(player_name_by_idnum(recpt_idnum)));
         if (mail_rcpt->next)
-            send_to_desc(editor->desc, ", ");
+            d_printf(editor->desc, ", ");
     }
-    send_to_desc(editor->desc, "&n\r\n");
+    d_printf(editor->desc, "&n\r\n");
 }
 
 void
@@ -77,21 +77,21 @@ maileditor_listattachments(struct editor *editor)
     if (!mail_data->obj_list)
         return;
 
-    send_to_desc(editor->desc,
+    d_printf(editor->desc,
         "\r\n     &yPackages attached to this mail&b: &c\r\n");
 
     if (mail_data->obj_list) {
         o = mail_data->obj_list;
         while (o) {
             next_obj = o->next_content;
-            send_to_desc(editor->desc, "       %s", o->name);
+            d_printf(editor->desc, "       %s", o->name);
             o = next_obj;
             if (next_obj) {
-                send_to_desc(editor->desc, ",\r\n");
+                d_printf(editor->desc, ",\r\n");
             }
         }
     }
-    send_to_desc(editor->desc, "&n\r\n");
+    d_printf(editor->desc, "&n\r\n");
 }
 
 void
@@ -100,7 +100,7 @@ maileditor_display(struct editor *editor, unsigned int start_line, unsigned int 
     if (start_line == 1) {
         maileditor_listrecipients(editor);
         maileditor_listattachments(editor);
-        send_to_desc(editor->desc, "\r\n");
+        d_printf(editor->desc, "\r\n");
     }
     editor_display(editor, start_line, line_count);
 }
@@ -172,7 +172,7 @@ maileditor_finalize(struct editor *editor, const char *text)
 void
 maileditor_sendmodalhelp(struct editor *editor)
 {
-    send_to_desc(editor->desc,
+    d_printf(editor->desc,
         "            &YC - &nClear Buffer         &YA - &nAdd Recipient\r\n"
         "            &YT - &nList Recipients      &YE - &nRemove Recipient\r\n"
         "            &YP - &nAttach Package\r\n");
