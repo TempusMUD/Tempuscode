@@ -797,6 +797,7 @@ struct player_special_data {
 	int rent_per_day;
 	enum cxn_state desc_mode;
 	int rent_currency;
+    GHashTable *tags;           /* unordered set of strings mapped to 0x1 */
 };
 
 struct mob_shared_data {
@@ -1370,6 +1371,10 @@ NPC_CAN_GO(struct creature * ch, int door)
 	}
 	return false;
 }
+
+void add_player_tag(struct creature *ch, const char *tag);
+void remove_player_tag(struct creature *ch, const char *tag);
+bool player_has_tag(struct creature *ch, const char *tag);
 
 bool is_fighting(struct creature *ch)
     __attribute__ ((nonnull));

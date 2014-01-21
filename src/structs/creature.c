@@ -250,6 +250,38 @@ account_id(struct creature *ch)
     return ch->account->id;
 }
 
+void
+add_player_tag(struct creature *ch, const char *tag)
+{
+    if (!IS_PC(ch)) {
+        return;
+    }
+    if (ch->player_specials->tags == NULL) {
+        ch->player_specials->tags = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+    }
+    g_hash_table_add(ch->player_specials->tags, g_strdup(tag));
+}
+
+void
+remove_player_tag(struct creature *ch, const char *tag)
+{
+    if (!IS_PC(ch) || ch->player_specials->tags == NULL) {
+        return;
+    }
+    
+    g_hash_table_remove(ch->player_specials->tags, tag);
+}
+
+bool
+player_has_tag(struct creature *ch, const char *tag)
+{
+    if (!IS_PC(ch) || ch->player_specials->tags == NULL) {
+        return false;
+    }
+    
+    return g_hash_table_contains(ch->player_specials->tags, tag);
+}
+
 /**
  * Modifies the given experience to be appropriate for ch character's
  *  level/gen and class.
