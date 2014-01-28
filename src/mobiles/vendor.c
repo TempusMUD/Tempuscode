@@ -37,6 +37,7 @@
 #include "strutil.h"
 #include "mail.h"
 #include "house.h"
+#include "bomb.h"
 
 #define MAX_ITEMS   10
 #define MIN_COST    12
@@ -176,6 +177,67 @@ vendor_invalid_buy(struct creature *self, struct creature *ch,
             return true;
         }
     }
+
+    if (IS_BOMB(obj)
+        && obj->contains
+        && IS_FUSE(obj->contains)
+        && FUSE_STATE(obj->contains)) {
+        perform_say_to(self, ch,
+            "That looks a little too hot to handle for me.");
+        return true;
+    }
+    
+    return false;
+}
+
+static bool
+vendor_invalid_consignment(struct creature *self, struct creature *ch,
+    struct shop_data *shop, struct obj_data *obj)
+{
+    if (!OBJ_APPROVED(obj) || obj->shared->owner_id != 0) {
+        perform_say_to(self, ch, shop->msg_badobj);
+        return true;
+    }
+
+    if (shop->item_types) {
+        bool accepted = false;
+        for (GList * it = shop->item_types; it; it = it->next) {
+            if ((GPOINTER_TO_INT(it->data) & 0xFF) == GET_OBJ_TYPE(obj)
+                || (GPOINTER_TO_INT(it->data) & 0xFF) == 0) {
+                accepted = GPOINTER_TO_INT(it->data) >> 8;
+                break;
+            }
+        }
+        if (!accepted) {
+            perform_say_to(self, ch, shop->msg_badobj);
+            return true;
+        }
+    } else {
+        perform_say_to(self, ch, shop->msg_badobj);
+        return true;
+    }
+
+    if (GET_OBJ_SIGIL_IDNUM(obj)) {
+        perform_say_to(self, ch,
+            "You'll have to remove that warding sigil before I'll bother.");
+        return true;
+    }
+
+    if (vendor_inventory(obj, vendor_items_forsale(shop, self)) >= MAX_ITEMS) {
+        perform_say_to(self, ch,
+            "No thanks.  I've got too many of those in stock already.");
+        return true;
+    }
+
+    if (IS_BOMB(obj)
+        && obj->contains
+        && IS_FUSE(obj->contains)
+        && FUSE_STATE(obj->contains)) {
+        perform_say_to(self, ch,
+            "That looks a little too hot to handle for me.");
+        return true;
+    }
+
     return false;
 }
 
@@ -905,7 +967,7 @@ vendor_consign(struct creature *ch, char *arg, struct creature *self,
         return;
     }
 
-    if (vendor_invalid_buy(self, ch, shop, obj))
+    if (vendor_invalid_consignment(self, ch, shop, obj))
         return;
 
     // calculate consignment fee
