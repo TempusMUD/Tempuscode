@@ -2556,25 +2556,29 @@ ACMD(do_rswitch)
     }
 }
 
-// This NASTY macro written by Nothing, spank me next time you see me if you want... :P
-#define GET_START_ROOM(ch) (GET_HOME(ch) == HOME_MODRIAN ? r_mortal_start_room :\
-                            GET_HOME(ch) == HOME_ELECTRO ? r_electro_start_room :\
-                            GET_HOME(ch) == HOME_NEW_THALOS ? r_new_thalos_start_room :\
-                            GET_HOME(ch) == HOME_KROMGUARD ? r_kromguard_start_room :\
-                            GET_HOME(ch) == HOME_ELVEN_VILLAGE ? r_elven_start_room :\
-                            GET_HOME(ch) == HOME_ISTAN ? r_istan_start_room :\
-                            GET_HOME(ch) == HOME_MONK ? r_monk_start_room :\
-                            GET_HOME(ch) == HOME_ARENA ? r_arena_start_room :\
-                            GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :\
-                            GET_HOME(ch) == HOME_SOLACE_COVE ? r_solace_start_room :\
-                            GET_HOME(ch) == HOME_MAVERNAL ? r_mavernal_start_room :\
-                            GET_HOME(ch) == HOME_DWARVEN_CAVERNS ? r_dwarven_caverns_start_room :\
-                            GET_HOME(ch) == HOME_HUMAN_SQUARE ? r_human_square_start_room :\
-                            GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :\
-                            GET_HOME(ch) == HOME_DROW_ISLE ? r_drow_isle_start_room :\
-                            GET_HOME(ch) == HOME_ASTRAL_MANSE ? r_astral_manse_start_room :\
-                            GET_HOME(ch) == HOME_NEWBIE_SCHOOL ? r_newbie_school_start_room :\
-                            r_mortal_start_room)
+static inline struct room_data *
+get_start_room(struct creature *ch)
+{
+    return (GET_HOME(ch) == HOME_MODRIAN ? r_mortal_start_room :
+            GET_HOME(ch) == HOME_ELECTRO ? r_electro_start_room :
+            GET_HOME(ch) == HOME_NEW_THALOS ? r_new_thalos_start_room :
+            GET_HOME(ch) == HOME_KROMGUARD ? r_kromguard_start_room :
+            GET_HOME(ch) == HOME_ELVEN_VILLAGE ? r_elven_start_room :
+            GET_HOME(ch) == HOME_ISTAN ? r_istan_start_room :
+            GET_HOME(ch) == HOME_MONK ? r_monk_start_room :
+            GET_HOME(ch) == HOME_ARENA ? r_arena_start_room :
+            GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :
+            GET_HOME(ch) == HOME_SOLACE_COVE ? r_solace_start_room :
+            GET_HOME(ch) == HOME_MAVERNAL ? r_mavernal_start_room :
+            GET_HOME(ch) == HOME_DWARVEN_CAVERNS ? r_dwarven_caverns_start_room :
+            GET_HOME(ch) == HOME_HUMAN_SQUARE ? r_human_square_start_room :
+            GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :
+            GET_HOME(ch) == HOME_DROW_ISLE ? r_drow_isle_start_room :
+            GET_HOME(ch) == HOME_ASTRAL_MANSE ? r_astral_manse_start_room :
+            GET_HOME(ch) == HOME_NEWBIE_SCHOOL ? r_newbie_school_start_room :
+            r_mortal_start_room);
+}
+
 ACMD(do_return)
 {
     struct creature *orig = NULL;
@@ -2610,25 +2614,32 @@ ACMD(do_return)
             if (subcmd != SCMD_NOEXTRACT)
                 creature_purge(ch, true);
         }
-    } else if (!IS_NPC(ch) && !IS_REMORT(ch) && (GET_LEVEL(ch) < LVL_IMMORT)) {
-        // Return to newbie start room
-        if (is_fighting(ch)) {
-            send_to_char(ch, "No way!  You're fighting for your life!\r\n");
-        } else if (GET_LEVEL(ch) <= LVL_CAN_RETURN) {
-            act("A whirling globe of multi-colored light appears and whisks you away!", false, ch, NULL, NULL, TO_CHAR);
-            act("A whirling globe of multi-colored light appears and whisks $n away!", false, ch, NULL, NULL, TO_ROOM);
-            char_from_room(ch, false);
-            char_to_room(ch, GET_START_ROOM(ch), false);
-            look_at_room(ch, ch->in_room, 0);
-            act("A whirling globe of multi-colored light appears and deposits $n on the floor!", false, ch, NULL, NULL, TO_ROOM);
-        } else
-            send_to_char(ch, "There is no need to return.\r\n");
-    } else {
-        send_to_char(ch, "There is no need to return.\r\n");
+        return;
     }
-}
 
-#undef GET_START_ROOM
+    if (IS_NPC(ch)) {
+        send_to_char(ch, "Return to where?\r\n");
+        return;
+    }
+
+    if (is_fighting(ch)) {
+        send_to_char(ch, "No way!  You're fighting for your life!\r\n");
+        return;
+    }
+
+    if (GET_LEVEL(ch) > LVL_CAN_RETURN || IS_REMORT(ch)) {
+        send_to_char(ch, "You're too powerful to return home that way. Look for a different way to recall.\r\n");
+        return;
+    }
+
+    // Return to newbie start room
+    act("A whirling globe of multi-colored light appears and whisks you away!", false, ch, NULL, NULL, TO_CHAR);
+    act("A whirling globe of multi-colored light appears and whisks $n away!", false, ch, NULL, NULL, TO_ROOM);
+    char_from_room(ch, false);
+    char_to_room(ch, get_start_room(ch), false);
+    look_at_room(ch, ch->in_room, 0);
+    act("A whirling globe of multi-colored light appears and deposits $n on the floor!", false, ch, NULL, NULL, TO_ROOM);
+}
 
 ACMD(do_mload)
 {
