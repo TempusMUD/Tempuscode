@@ -1831,7 +1831,7 @@ DEFPROGHANDLER(echo, env, evt, args)
         obj = ((struct obj_data *)env->owner); break;
     case PROG_TYPE_ROOM:
 		// if there's no one in the room no point in echoing
-		if (!room->people)
+		if (!first_living(room->people))
 			return;
 		// we just pick the top guy off the people list for rooms.
 		ch = first_living(room->people)->data;
