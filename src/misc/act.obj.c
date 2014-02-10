@@ -4041,12 +4041,14 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
     }
 
     if (obj->contains) {
+        float cont_weight = weigh_contained_objs(obj);
+
         for (next_obj = obj->contains; next_obj; next_obj = o) {
             if (next_obj->in_obj && next_obj) {
                 o = next_obj->next_content;
                 if (!(IS_OBJ_STAT(next_obj, ITEM_NODROP)) &&
                     (IS_SET(GET_OBJ_WEAR(next_obj), ITEM_WEAR_TAKE))) {
-                    if (GET_OBJ_WEIGHT(container) + GET_OBJ_WEIGHT(next_obj) >
+                    if (cont_weight + GET_OBJ_WEIGHT(next_obj) >
                         GET_OBJ_VAL(container, 0)) {
                         can_fit = false;
                     }
@@ -4054,6 +4056,7 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
                         obj_from_obj(next_obj);
                         obj_to_obj(next_obj, container);
                         objs_moved++;
+                        cont_weight += GET_OBJ_WEIGHT(next_obj);
                     }
                     can_fit = true;
                 }
