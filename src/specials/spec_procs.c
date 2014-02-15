@@ -1778,7 +1778,6 @@ SPECIAL(cave_bear)
 #include "Specs/skullport_specs/fountain_youth.c"
 
 /* out specs */
-#include "Specs/out_specs/spirit_priestess.c"
 #include "Specs/out_specs/taunting_frenchman.c"
 
 /* altas specs */
