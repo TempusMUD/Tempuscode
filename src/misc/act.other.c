@@ -96,97 +96,131 @@ ACMD(do_quit)
         send_to_char(ch, "No!  You're trapped!  Muhahahahahah!\r\n");
         return;
     }
-
-    if (subcmd != SCMD_QUIT && GET_LEVEL(ch) < LVL_AMBASSADOR)
+    if (subcmd != SCMD_QUIT && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char(ch, "You have to type quit - no less, to quit!\r\n");
-    else if (GET_POSITION(ch) == POS_FIGHTING)
+        return;
+    }
+    if (GET_POSITION(ch) == POS_FIGHTING) {
         send_to_char(ch, "No way!  You're fighting for your life!\r\n");
-    else if (GET_POSITION(ch) < POS_STUNNED) {
+        return;
+    }
+    if (GET_POSITION(ch) < POS_STUNNED) {
         send_to_char(ch, "You die before your time...\r\n");
         die(ch, NULL, 0);
-    } else {
+        return;
+    }
 
-        /*
-         * kill off all sockets connected to the same player as the one who is
-         * trying to quit.  Helps to maintain sanity as well as prevent duping.
-         */
-        for (d = descriptor_list; d; d = next_d) {
-            next_d = d->next;
-            if (d == ch->desc)
-                continue;
-            if (d->creature && (GET_IDNUM(d->creature) == GET_IDNUM(ch)))
-                close_socket(d);
+    // Check for carried items, equipment, and implants
+    bool has_stuff = false;
+    if (ch->carrying) {
+        has_stuff = true;
+    }
+    if (!has_stuff) {
+        for (int i = 0;i < NUM_WEARS;i++) {
+            if (GET_EQ(ch, i)) {
+                has_stuff = true;
+                break;
+            }
         }
-
-        if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR || is_tester(ch)) {
-            if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-                mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
-                    "%s has departed from the known multiverse", GET_NAME(ch));
-                act("$n steps out of the universe.", true, ch, NULL, NULL, TO_ROOM);
-                send_to_char(ch,
-                    "Goodbye.  We will be awaiting your return.\r\n");
-            } else {
-                send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
-                act("$n flickers out of reality.", true, ch, NULL, NULL, TO_ROOM);
-                mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
-                    "%s has left the game%s", GET_NAME(ch),
-                    is_tester(ch) ? " (tester)" : " naked");
+    }
+    if (!has_stuff) {
+        for (int i = 0;i < NUM_WEARS;i++) {
+            if (GET_IMPLANT(ch, i)) {
+                has_stuff = true;
+                break;
             }
-            creature_rent(ch);
-        } else if ((ch->carrying || IS_WEARING_W(ch)) &&
-            !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE) &&
-            strncasecmp(argument, "yes", 3)) {
+        }
+    }
+
+    /*
+     * kill off all sockets connected to the same player as the one who is
+     * trying to quit.  Helps to maintain sanity as well as prevent duping.
+     */
+    for (d = descriptor_list; d; d = next_d) {
+        next_d = d->next;
+        if (d == ch->desc)
+            continue;
+        if (d->creature && (GET_IDNUM(d->creature) == GET_IDNUM(ch)))
+            close_socket(d);
+    }
+
+    if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR || is_tester(ch)) {
+        if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+            mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+                 "%s has departed from the known multiverse", GET_NAME(ch));
+            act("$n steps out of the universe.", true, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch,
-                "   If you quit without renting, you will lose all of your things.  Anything\r\n"
-                "you have implanted will be destroyed.\r\n"
-                "   If you would rather rent, type HELP INNS to find out where the nearest\r\n"
-                "inn is located.  If you are SURE you want to QUIT, type 'quit yes'.\r\n");
-            return;
-
-        } else if (IS_CARRYING_N(ch) || IS_WEARING_W(ch)
-            || ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
-            if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
-                act("You fear that your death will grieve $N.",
-                    false, ch, NULL, ch->master, TO_CHAR);
-                return;
-            }
-            if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
-                cost = calc_daily_rent(ch, 1, NULL, false);
-
-                if (display_unrentables(ch))
-                    return;
-
-                if (cost < 0) {
-                    send_to_char(ch, "Unable to rent.\r\n");
-                    return;
-                }
-
-                mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
-                    "%s has left the game from house, room %d",
-                    GET_NAME(ch), ch->in_room->number);
-                send_to_char(ch, "You smoothly slip out of existence.\r\n");
-                act("$n smoothly slips out of existence and is gone.",
-                    true, ch, NULL, NULL, TO_ROOM);
-                creature_rent(ch);
-            } else {
-                send_to_char(ch,
-                    "\r\nVery well %s.  You drop all your things and vanish!\r\n",
-                    GET_NAME(ch));
-                act("$n disappears, leaving all $s equipment behind!",
-                    true, ch, NULL, NULL, TO_ROOM);
-                mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
-                    "%s (%d) has quit the game, EQ drop at %d",
-                    GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number);
-                creature_quit(ch);
-            }
+                         "Goodbye.  We will be awaiting your return.\r\n");
         } else {
             send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
             act("$n flickers out of reality.", true, ch, NULL, NULL, TO_ROOM);
             mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
-                "%s has left the game naked", GET_NAME(ch));
-            creature_quit(ch);
+                 "%s has left the game%s", GET_NAME(ch),
+                 is_tester(ch) ? " (tester)" : " naked");
         }
+        creature_rent(ch);
+        return;
     }
+
+    if (has_stuff
+        && !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)
+        && strncasecmp(argument, "yes", 3)) {
+        send_to_char(ch,
+                     "   If you quit without renting, you will lose all of your things.  Anything\r\n"
+                     "you have implanted will be destroyed.\r\n"
+                     "   If you would rather rent, type HELP INNS to find out where the nearest\r\n"
+                     "inn is located.  If you are SURE you want to QUIT, type 'quit yes'.\r\n");
+        return;
+
+    }
+
+    if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
+        act("You fear that your death will grieve $N.",
+            false, ch, NULL, ch->master, TO_CHAR);
+        return;
+    }
+
+    if (IS_CARRYING_N(ch) == 0
+        && IS_WEARING_W(ch) == 0
+        && !ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
+        send_to_char(ch, "\r\nYou flicker out of reality...\r\n");
+        act("$n flickers out of reality.", true, ch, NULL, NULL, TO_ROOM);
+        mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+             "%s has left the game naked", GET_NAME(ch));
+        creature_quit(ch);
+        return;
+    }
+
+    if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
+        cost = calc_daily_rent(ch, 1, NULL, false);
+
+        if (display_unrentables(ch))
+            return;
+
+        if (cost < 0) {
+            send_to_char(ch, "Unable to rent.\r\n");
+            return;
+        }
+
+        mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+             "%s has left the game from house, room %d",
+             GET_NAME(ch), ch->in_room->number);
+        send_to_char(ch, "You smoothly slip out of existence.\r\n");
+        act("$n smoothly slips out of existence and is gone.",
+            true, ch, NULL, NULL, TO_ROOM);
+        creature_rent(ch);
+        return;
+    }
+
+    send_to_char(ch,
+                 "\r\nVery well %s.  You drop all your things and vanish!\r\n",
+                 GET_NAME(ch));
+    act("$n disappears, leaving all $s equipment behind!",
+        true, ch, NULL, NULL, TO_ROOM);
+    mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(ch), NRM, true,
+         "%s (%d) has quit the game, EQ drop at %d",
+         GET_NAME(ch), GET_LEVEL(ch), ch->in_room->number);
+    creature_quit(ch);
 }
 
 ACMD(do_save)
