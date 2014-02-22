@@ -416,6 +416,79 @@ START_TEST(tmp_format_7)
 }
 END_TEST
 
+// Testing tmp_wrap
+START_TEST(tmp_wrap_1)
+{
+    char *test_str = "       This is the main junction of the Holy City of Modrian."
+        "Citizens, travelers, adventurers, priests, and rogues all mingle here "
+        "as they go their separate ways.  The shining temple of Guiharia "
+        "towers to the south through a great silver archway.  Symbolically "
+        "positioned across the square to the north rises Town Hall, a "
+        "converted abbey with an arched facade of blue tile.  Goddess Street "
+        "stretches across the ancient city east to west.   ";
+    char *expected_str = "   This is the main junction of the Holy City of Modrian.Citizens,\r\n"
+        "travelers, adventurers, priests, and rogues all mingle here as they go\r\n"
+        "their separate ways.  The shining temple of Guiharia towers to the south\r\n"
+        "through a great silver archway.  Symbolically positioned across the\r\n"
+        "square to the north rises Town Hall, a converted abbey with an arched\r\n"
+        "facade of blue tile.  Goddess Street stretches across the ancient city\r\n"
+        "east to west.\r\n";
+    ck_assert_str_eq(tmp_wrap(test_str, 72, 3, 3, 0), expected_str);
+}
+END_TEST
+START_TEST(tmp_wrap_2)
+{
+    char *test_str = "Testing\r\nline feed\r\nhandling\r\n";
+    char *expected_str = "Testing\r\nline feed\r\nhandling\r\n";
+    ck_assert_str_eq(tmp_wrap(test_str, 72, 0, 0, 0), expected_str);
+}
+END_TEST
+START_TEST(tmp_wrap_3)
+{
+    char *test_str = "These are flags: ABC DEF GHI JKL MNO PQR STU VWX\r\n";
+    char *expected_str = "These are flags: ABC DEF\r\n"
+        "                 GHI JKL\r\n"
+        "                 MNO PQR\r\n"
+        "                 STU VWX\r\n";
+    ck_assert_str_eq(tmp_wrap(test_str, 26, 0, 0, 17), expected_str);
+}
+END_TEST
+START_TEST(tmp_wrap_4)
+{
+    char *test_str = "This should be across two different lines, indented at first by four, then by one...\r\nThis should be across a few lines, indented by five, and then by one.\r\n";
+    char *expected_str = "    This should be across\r\n"
+        " two different lines,\r\n"
+        " indented at first by\r\n"
+        " four, then by one...\r\n"
+        "     This should be across\r\n"
+        " a few lines, indented by\r\n"
+        " five, and then by one.\r\n";
+    ck_assert_str_eq(tmp_wrap(test_str, 26, 4, 5, 1), expected_str);
+}
+END_TEST
+START_TEST(tmp_wrap_5)
+{
+    char *test_str = "This should be across\r\n\r\nTwo paragraphs.\r\n";
+    char *expected_str = "   This should be across\r\n"
+        "   Two paragraphs.\r\n";
+    ck_assert_str_eq(tmp_wrap(test_str, 26, 3, 3, 0), expected_str);
+}
+END_TEST
+START_TEST(tmp_wrap_6)
+{
+    char *test_str = "These are numbers: 1.50 1,000,000 100.  One is 1. Two is 2, but three isn't.";
+    char *expected_str = "These are numbers: 1.50 1,000,000 100.  One is 1. Two is 2, but three isn't.";
+    ck_assert_str_eq(tmp_wrap(test_str, 80, 0, 0, 0), expected_str);
+}
+END_TEST
+START_TEST(tmp_wrap_7)
+{
+    char *test_str = "In a (parenthetical note). Test.";
+    char *expected_str = "In a (parenthetical note). Test.";
+    ck_assert_str_eq(tmp_wrap(test_str, 80, 0, 0, 0), expected_str);
+}
+END_TEST
+
 Suite *
 tmpstr_suite(void)
 {
@@ -486,6 +559,13 @@ tmpstr_suite(void)
     tcase_add_test(tc_core, tmp_format_5);
     tcase_add_test(tc_core, tmp_format_6);
     tcase_add_test(tc_core, tmp_format_7);
+    tcase_add_test(tc_core, tmp_wrap_1);
+    tcase_add_test(tc_core, tmp_wrap_2);
+    tcase_add_test(tc_core, tmp_wrap_3);
+    tcase_add_test(tc_core, tmp_wrap_4);
+    tcase_add_test(tc_core, tmp_wrap_5);
+    tcase_add_test(tc_core, tmp_wrap_6);
+    tcase_add_test(tc_core, tmp_wrap_7);
     suite_add_tcase(s, tc_core);
 
     return s;
