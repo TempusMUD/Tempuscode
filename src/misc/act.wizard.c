@@ -5889,20 +5889,21 @@ ACMD(do_set)
     struct creature *vict = NULL, *vict2 = NULL;
     char *field, *name;
     char *arg1, *arg2;
-    int on = 0, off = 0, value = 0;
-    char is_file = 0, is_mob = 0, is_player = 0;
+    bool on = false, off = false;
+    int value = 0;
+    bool is_file = false, is_mob = false, is_player = false;
     int parse_char_class(char *arg);
     int parse_race(char *arg);
 
     name = tmp_getword(&argument);
     if (!strcmp(name, "file")) {
-        is_file = 1;
+        is_file = true;
         name = tmp_getword(&argument);
     } else if (!strcasecmp(name, "player")) {
-        is_player = 1;
+        is_player = true;
         name = tmp_getword(&argument);
     } else if (!strcasecmp(name, "mob")) {
-        is_mob = 1;
+        is_mob = true;
         name = tmp_getword(&argument);
     }
     field = tmp_getword(&argument);
@@ -5994,9 +5995,9 @@ ACMD(do_set)
 
     if (fields[l].type == BINARY) {
         if (!strcmp(argument, "on") || !strcmp(argument, "yes"))
-            on = 1;
+            on = true;
         else if (!strcmp(argument, "off") || !strcmp(argument, "no"))
-            off = 1;
+            off = true;
         if (!(on || off)) {
             send_to_char(ch, "Value must be on or off.\r\n");
             return;
@@ -6455,22 +6456,21 @@ ACMD(do_set)
         value = atoi(arg1);
         tp = atoi(arg2);
         tp = MIN(MAX(0, tp), 10);
-        l = 0;
         for (i = 0; i < MAX_WEAPON_SPEC; i++) {
             if (GET_WEAP_SPEC(vict, i).vnum == value) {
-                if (!(GET_WEAP_SPEC(vict, i).level = tp))
+                GET_WEAP_SPEC(vict, i).level = tp;
+                if (tp == 0) {
                     GET_WEAP_SPEC(vict, i).vnum = 0;
-                l = 1;
+                }
+                send_to_char(ch, "[%d] spec level set to %d.\r\n", value, tp);
+                return;
             }
         }
-        if (!l) {
-            send_to_char(ch, "No such spec on this person.\r\n");
-            return;
-        }
-        send_to_char(ch, "[%d] spec level set to %d.\r\n", value, tp);
+
+        send_to_char(ch, "No such spec on this person.\r\n");
         return;
-        // qpoints
     case 74:
+        // qpoints
         GET_QUEST_ALLOWANCE(vict) = RANGE(0, 100);
         break;
     case 75:
@@ -6667,9 +6667,9 @@ ACMD(do_aset)
 
     if (fields[l].type == BINARY) {
         if (!strcmp(argument, "on") || !strcmp(argument, "yes"))
-            on = 1;
+            on = true;
         else if (!strcmp(argument, "off") || !strcmp(argument, "no"))
-            off = 1;
+            off = true;
         if (!(on || off)) {
             send_to_char(ch, "Value must be on or off.\r\n");
             return;
