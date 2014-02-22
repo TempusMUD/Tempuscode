@@ -35,6 +35,7 @@ check_tempus_LDADD = \
 			$(top_builddir)/src/pvp.o \
 			$(top_builddir)/src/account.o \
 			$(top_builddir)/src/obj_matcher.o \
+			$(top_builddir)/src/mob_matcher.o \
 			$(top_builddir)/src/analysis.o \
 			$(top_builddir)/src/constants.o \
 			$(top_builddir)/src/db.o \
