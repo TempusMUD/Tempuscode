@@ -6232,7 +6232,7 @@ ACMD(do_set)
         if (IS_NPC(vict))
             vict->player.short_descr = strdup(argument);
         else
-            (ch)->player.name = strdup(argument);
+            vict->player.name = strdup(argument);
         // Set name
         if (IS_PC(vict)) {
             sql_exec("update players set name='%s' where idnum=%ld",
