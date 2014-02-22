@@ -2170,22 +2170,19 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
     acc_sprintf("Total Mass:           %s%s%s\r\n", CCCYN(ch, C_NRM),
                 format_weight(GET_OBJ_WEIGHT(obj), USE_METRIC(ch)), CCNRM(ch, C_NRM));
 
-    acc_sprintf("Intrinsic Properties: %s", CCCYN(ch, C_NRM));
-    if (GET_OBJ_EXTRA(obj) == 0 && GET_OBJ_EXTRA2(obj) == 0) {
-        acc_strcat("None", CCNRM(ch, C_NRM), "\r\n", NULL);
+    if (GET_OBJ_EXTRA(obj) == 0
+        && GET_OBJ_EXTRA2(obj) == 0
+        && GET_OBJ_EXTRA3(obj) == 0) {
+        acc_sprintf("Intrinsic Properties: %sNone%s\r\n", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
     } else {
-        acc_strcat(tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits),
-            " ",
-            tmp_printbits(GET_OBJ_EXTRA2(obj), extra2_bits),
-            CCNRM(ch, C_NRM), "\r\n", NULL);
-    }
-
-    acc_sprintf("Inherent Properties:  %s", CCCYN(ch, C_NRM));
-    if (GET_OBJ_EXTRA3(obj) == 0) {
-        acc_strcat("None", CCNRM(ch, C_NRM), "\r\n", NULL);
-    } else {
-        acc_strcat(tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits),
-            CCNRM(ch, C_NRM), "\r\n", NULL);
+        char *bits = tmp_strcat(
+            "Intrinsic Properties: ", CCCYN(ch, C_NRM),
+            tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits), " ",
+            tmp_printbits(GET_OBJ_EXTRA2(obj), extra2_bits), " ",
+            tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits), NULL);
+            
+        acc_strcat(tmp_wrap(bits, 72, 0, 0, 22),
+                   CCNRM(ch, C_NRM), "\r\n", NULL);
     }
 
     // check for affections
