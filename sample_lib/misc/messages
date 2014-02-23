@@ -416,11 +416,11 @@ $N collapses as the last of $S blood seeps out through $S burning stigmata.
 The last of your blood seeps painfully out of your burning stigmata, and you collapse to the ground, dead.
 $N collapses as the last of $S blood seeps out through $S burning stigmata.
 #
-stigmata miss victim - should never see.
-stigmata miss room - should never see.
-The bloody stigmata on $N's forehead oozes blood.
-The bloody stigmata on your forehead burns painfully.
-The bloody stigmata on $N's forehead oozes blood.
+The stigmata on your forehead oozes blood.
+The stigmata on $N's forehead oozes blood.
+The stigmata on $N's forehead oozes blood.
+The stigmata on your forehead burns painfully.
+The stigmata on $N's forehead oozes blood.
 #
 #
 #
