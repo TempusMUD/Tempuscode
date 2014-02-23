@@ -2313,26 +2313,34 @@ single_mobile_activity(struct creature *ch)
 
     else if (cur_class == CLASS_CLERIC && random_binary()) {
         if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
-            if (GET_LEVEL(ch) > 23)
+            if (can_cast_spell(ch, SPELL_HEAL))
                 cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
-            else if (GET_LEVEL(ch) > 11)
+            else if (can_cast_spell(ch, SPELL_CURE_CRITIC))
                 cast_spell(ch, ch, NULL, NULL, SPELL_CURE_CRITIC);
-            else
+            else if (can_cast_spell(ch, SPELL_CURE_LIGHT))
                 cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
         } else if (room_is_dark(ch->in_room) &&
-            !has_dark_sight(ch) && GET_LEVEL(ch) > 8) {
+                   !has_dark_sight(ch) && can_cast_spell(ch, SPELL_DIVINE_ILLUMINATION)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_DIVINE_ILLUMINATION);
         } else if ((affected_by_spell(ch, SPELL_BLINDNESS) ||
-                affected_by_spell(ch, SKILL_GOUGE)) && GET_LEVEL(ch) > 6) {
+                    affected_by_spell(ch, SKILL_GOUGE))
+                   && can_cast_spell(ch, SPELL_CURE_BLIND)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_CURE_BLIND);
-        } else if (AFF_FLAGGED(ch, AFF_POISON) && GET_LEVEL(ch) > 7) {
+        } else if (AFF_FLAGGED(ch, AFF_POISON) && can_cast_spell(ch, SPELL_REMOVE_POISON)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_REMOVE_POISON);
-        } else if (AFF_FLAGGED(ch, AFF_CURSE) && GET_LEVEL(ch) > 26) {
+        } else if (AFF_FLAGGED(ch, AFF_CURSE) && can_cast_spell(ch, SPELL_REMOVE_CURSE)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_REMOVE_CURSE);
-        } else if (GET_MANA(ch) > (GET_MAX_MANA(ch) * 0.75) &&
-            GET_LEVEL(ch) >= 28 &&
-            !AFF_FLAGGED(ch, AFF_SANCTUARY) && !AFF_FLAGGED(ch, AFF_NOPAIN))
+        } else if (GET_MANA(ch) > (GET_MAX_MANA(ch) * 0.75)
+                   && can_cast_spell(ch, SPELL_SANCTUARY)
+                   && !AFF_FLAGGED(ch, AFF_SANCTUARY)
+                   && !AFF_FLAGGED(ch, AFF_NOPAIN)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_SANCTUARY);
+        } else if (GET_EQ(ch, WEAR_WIELD)
+                   && IS_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD), ITEM_WEAPON)
+                   && IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_ABLAZE)
+                   && can_cast_spell(ch, SPELL_FLAME_OF_FAITH)) {
+            cast_spell(ch, NULL, GET_EQ(ch, WEAR_WIELD), NULL, SPELL_FLAME_OF_FAITH);
+        }
     }
     //
     // knights spell up
