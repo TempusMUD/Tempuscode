@@ -480,6 +480,7 @@ make_object_matcher(struct creature *ch, char *expr)
         CREATE(result, struct obj_matcher, 1);
         *result = new_matcher;
     } else {
+        send_to_char(ch, "'%s' is not a valid match term.\r\n", term);
         result = NULL;
     }
     return result;
