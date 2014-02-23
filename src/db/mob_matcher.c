@@ -458,6 +458,18 @@ do_show_mobiles(struct creature *ch, char *value, char *argument)
             goto cleanup;
     }
 
+    // Ensure only one of each kind of info function
+    for (GList *needle = matchers;needle;needle = needle->next) {
+        if (((struct mob_matcher*)(needle->data))->info == NULL) {
+            continue;
+        }
+        for (GList *cur = needle->next;cur;cur = cur->next) {
+            if (((struct mob_matcher*)(cur->data))->info == ((struct mob_matcher *)(needle->data))->info) {
+                ((struct mob_matcher*)(cur->data))->info = NULL;
+            }
+        }
+    }
+
     GHashTableIter iter;
     struct creature *mob;
     int vnum, found;
