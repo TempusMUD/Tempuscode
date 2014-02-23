@@ -637,6 +637,8 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
         || obj->in_room == zone_table->world)
         return NULL;
 
+    eq_dam /= 4;                // blatant manual adjustment to equipment damage
+
     /** damage has destroyed object */
     if ((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) / 32)) {
         /* damage interior items */
