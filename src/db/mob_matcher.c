@@ -55,14 +55,16 @@
 extern GHashTable *mob_prototypes;
 
 struct mob_matcher;
-typedef bool (*mob_matcher_func)(struct creature *mob,
-                                 struct mob_matcher *matcher);
-typedef char *(*mob_info_func)(struct creature *ch,
-                               struct creature *mob,
-                               struct mob_matcher *matcher);
-typedef bool (*mob_matcher_constructor)(struct creature *ch,
-                                        struct mob_matcher *matcher,
-                                        char *expr);
+
+enum matcher_varient {
+    MATCHER_STD,
+    MATCHER_GOLD,
+    MATCHER_CASH,
+    MATCHER_HITROLL,
+    MATCHER_DAMROLL,
+    MATCHER_ALIGNMENT,
+    MATCHER_EXP,
+};
 
 enum operator {
     OP_EQ,
@@ -70,48 +72,30 @@ enum operator {
     OP_GT
 };
 
+typedef bool (*mob_matcher_func)(struct creature *mob,
+                                 struct mob_matcher *matcher);
+typedef char *(*mob_info_func)(struct creature *ch,
+                               struct creature *mob,
+                               struct mob_matcher *matcher);
+typedef bool (*mob_matcher_constructor)(struct creature *ch,
+                                        struct mob_matcher *matcher,
+                                        enum matcher_varient varient,
+                                        char *expr);
+
+
 struct mob_matcher {
     mob_matcher_func pred;
     mob_info_func info;
+    enum matcher_varient varient;
     char *str;
     int8_t idx;
-    int num;
+    int64_t num;
     bool negated;
     enum operator op;
 };
 
 int parse_char_class(char *arg);
 int parse_race(char *arg);
-
-bool
-parse_mob_matcher_num_expr(char *expr, struct mob_matcher *matcher)
-{
-    char *opstr = tmp_getword(&expr);
-
-    if (!strcmp(opstr, "=") || !strcmp(opstr, "=="))
-        matcher->op = OP_EQ;
-    else if (!strcmp(opstr, "<"))
-        matcher->op = OP_LT;
-    else if (!strcmp(opstr, ">"))
-        matcher->op = OP_GT;
-    else if (!strcmp(opstr, "<=")) {
-        matcher->op = OP_GT;
-        matcher->negated = !matcher->negated;
-    } else if (!strcmp(opstr, ">=")) {
-        matcher->op = OP_LT;
-        matcher->negated = !matcher->negated;
-    } else if (is_number(opstr)) {
-        matcher->op = OP_EQ;
-        expr = opstr;
-    }
-
-    if (!is_number(expr)) {
-        return false;
-    }
-    matcher->num = atoi(expr);
-
-    return true;
-}
 
 bool
 mobile_matches_name(struct creature *mob, struct mob_matcher *matcher)
@@ -121,8 +105,9 @@ mobile_matches_name(struct creature *mob, struct mob_matcher *matcher)
 
 bool
 make_mobile_name_matcher(struct creature *ch,
-                              struct mob_matcher *matcher,
-                              char *expr)
+                         struct mob_matcher *matcher,
+                         enum matcher_varient varient,
+                         char *expr)
 {
     matcher->pred = mobile_matches_name;
     if (*expr == '\0') {
@@ -142,6 +127,7 @@ mobile_matches_class(struct creature *mob, struct mob_matcher *matcher)
 bool
 make_mobile_class_matcher(struct creature *ch,
                           struct mob_matcher *matcher,
+                          enum matcher_varient varient,
                           char *expr)
 {
     if (*expr == '\0') {
@@ -170,6 +156,7 @@ mobile_matches_race(struct creature *mob, struct mob_matcher *matcher)
 bool
 make_mobile_race_matcher(struct creature *ch,
                          struct mob_matcher *matcher,
+                         enum matcher_varient varient,
                          char *expr)
 {
     if (*expr == '\0') {
@@ -203,8 +190,9 @@ mobile_matches_flags(struct creature *mob, struct mob_matcher *matcher)
 
 bool
 make_mobile_flags_matcher(struct creature *ch,
-                         struct mob_matcher *matcher,
-                         char *expr)
+                          struct mob_matcher *matcher,
+                          enum matcher_varient varient,
+                          char *expr)
 {
     int index, flag;
 
@@ -225,6 +213,47 @@ make_mobile_flags_matcher(struct creature *ch,
     return true;
 }
 
+
+bool
+mobile_matches_affect(struct creature *mob, struct mob_matcher *matcher)
+{
+    switch (matcher->idx) {
+    case 1:
+        return IS_SET(AFF_FLAGS(mob), matcher->num);
+    case 2:
+        return IS_SET(AFF2_FLAGS(mob), matcher->num);
+    case 3:
+        return IS_SET(AFF3_FLAGS(mob), matcher->num);
+    }
+    return false;
+}
+
+bool
+make_mobile_affect_matcher(struct creature *ch,
+                           struct mob_matcher *matcher,
+                           enum matcher_varient varient,
+                           char *expr)
+{
+    int index, flag;
+
+    if (*expr == '\0') {
+        send_to_char(ch, "You must specify an affect to match.\r\n");
+        return false;
+    }
+
+    matcher->pred = mobile_matches_affect;
+    if ((!(index = 1) || (flag = search_block(expr, affected_bits_desc,  0)) < 0)
+        &&  (!(index = 2) || (flag = search_block(expr, affected2_bits_desc, 0)) < 0)
+        &&  (!(index = 3) || (flag = search_block(expr, affected3_bits_desc, 0)) < 0)) {
+        send_to_char(ch, "There is no NPC affect '%s'.\r\n", expr);
+        return false;
+    }
+    matcher->idx = index;
+    matcher->num = 1 << flag;
+
+    return true;
+}
+
 bool
 mobile_matches_special(struct creature *mob, struct mob_matcher *matcher)
 {
@@ -233,8 +262,9 @@ mobile_matches_special(struct creature *mob, struct mob_matcher *matcher)
 
 bool
 make_mobile_special_matcher(struct creature *ch,
-                         struct mob_matcher *matcher,
-                         char *expr)
+                            struct mob_matcher *matcher,
+                            enum matcher_varient varient,
+                            char *expr)
 {
     if (*expr == '\0') {
         send_to_char(ch, "You must specify a mob special to match.\r\n");
@@ -251,195 +281,115 @@ make_mobile_special_matcher(struct creature *ch,
     return true;
 }
 
-bool
-mobile_matches_gold(struct creature *mob, struct mob_matcher *matcher)
+int64_t
+get_mob_value(struct creature *mob, enum matcher_varient varient)
 {
+    switch (varient) {
+    case MATCHER_GOLD:
+        return GET_GOLD(mob);
+    case MATCHER_CASH:
+        return GET_CASH(mob);
+    case MATCHER_HITROLL:
+        return GET_HITROLL(mob);
+    case MATCHER_DAMROLL:
+        return GET_DAMROLL(mob);
+    case MATCHER_ALIGNMENT:
+        return GET_ALIGNMENT(mob);
+    case MATCHER_EXP:
+        return GET_EXP(mob);
+    default:
+        return 0;
+    }
+}
+
+bool
+mobile_matches_num(struct creature *mob, struct mob_matcher *matcher)
+{
+    int64_t value = get_mob_value(mob, matcher->varient);
+
     switch (matcher->op) {
     case OP_EQ:
-        return (GET_GOLD(mob) == matcher->num);
+        return (value == matcher->num);
     case OP_LT:
-        return (GET_GOLD(mob) < matcher->num);
+        return (value < matcher->num);
     case OP_GT:
-        return (GET_GOLD(mob) > matcher->num);
+        return (value > matcher->num);
     }
     return false;
 }
 
 char *
-mobile_gold_info(struct creature *ch,
-                 struct creature *mob,
-                 struct mob_matcher *matcher)
+mobile_num_info(struct creature *ch,
+                struct creature *mob,
+                struct mob_matcher *matcher)
 {
     return tmp_sprintf("%s[%s%11" PRId64 "%s]%s",
                        CCYEL(ch,C_NRM), CCGRN(ch, C_NRM),
-                       GET_GOLD(mob),
+                       get_mob_value(mob, matcher->varient),
                        CCYEL(ch, C_NRM), CCNRM(ch,C_NRM));
 }
 
 bool
-make_mobile_gold_matcher(struct creature *ch,
-                         struct mob_matcher *matcher,
-                         char *expr)
+make_mobile_num_matcher(struct creature *ch,
+                        struct mob_matcher *matcher,
+                        enum matcher_varient varient,
+                        char *expr)
 {
+
     if (*expr == '\0') {
-        send_to_char(ch, "You must specify mobile gold for matching.\r\n");
+        send_to_char(ch, "You must specify a number for matching.\r\n");
         return false;
     }
 
-    matcher->pred = mobile_matches_gold;
-    matcher->info = mobile_gold_info;
-    if (!parse_mob_matcher_num_expr(expr, matcher)) {
+    matcher->pred = mobile_matches_num;
+    matcher->info = mobile_num_info;
+    matcher->varient = varient;
+
+    char *opstr = tmp_getword(&expr);
+
+    if (!strcmp(opstr, "=") || !strcmp(opstr, "=="))
+        matcher->op = OP_EQ;
+    else if (!strcmp(opstr, "<"))
+        matcher->op = OP_LT;
+    else if (!strcmp(opstr, ">"))
+        matcher->op = OP_GT;
+    else if (!strcmp(opstr, "<=")) {
+        matcher->op = OP_GT;
+        matcher->negated = !matcher->negated;
+    } else if (!strcmp(opstr, ">=")) {
+        matcher->op = OP_LT;
+        matcher->negated = !matcher->negated;
+    } else if (is_number(opstr)) {
+        matcher->op = OP_EQ;
+        expr = opstr;
+    }
+
+    if (!is_number(expr)) {
         send_to_char(ch, "You must specify a number to match the gold against.\r\n");
         return false;
     }
-    return true;
-}
+    matcher->num = atoi(expr);
 
-bool
-mobile_matches_cash(struct creature *mob, struct mob_matcher *matcher)
-{
-    switch (matcher->op) {
-    case OP_EQ:
-        return (GET_CASH(mob) == matcher->num);
-    case OP_LT:
-        return (GET_CASH(mob) < matcher->num);
-    case OP_GT:
-        return (GET_CASH(mob) > matcher->num);
-    }
-    return false;
-}
-
-char *
-mobile_cash_info(struct creature *ch,
-                 struct creature *mob,
-                 struct mob_matcher *matcher)
-{
-    return tmp_sprintf("%s[%s%11" PRId64 "%s]%s",
-                       CCYEL(ch,C_NRM), CCGRN(ch, C_NRM),
-                       GET_CASH(mob),
-                       CCYEL(ch, C_NRM), CCNRM(ch,C_NRM));
-}
-
-bool
-make_mobile_cash_matcher(struct creature *ch,
-                         struct mob_matcher *matcher,
-                         char *expr)
-{
-    if (*expr == '\0') {
-        send_to_char(ch, "You must specify mobile cash for matching.\r\n");
-        return false;
-    }
-
-    matcher->pred = mobile_matches_cash;
-    matcher->info = mobile_cash_info;
-    if (!parse_mob_matcher_num_expr(expr, matcher)) {
-        send_to_char(ch, "You must specify a number to match the cash against.\r\n");
-        return false;
-    }
-    return true;
-}
-
-bool
-mobile_matches_hitroll(struct creature *mob, struct mob_matcher *matcher)
-{
-    switch (matcher->op) {
-    case OP_EQ:
-        return (GET_HITROLL(mob) == matcher->num);
-    case OP_LT:
-        return (GET_HITROLL(mob) < matcher->num);
-    case OP_GT:
-        return (GET_HITROLL(mob) > matcher->num);
-    }
-    return false;
-}
-
-char *
-mobile_hitroll_info(struct creature *ch,
-                 struct creature *mob,
-                 struct mob_matcher *matcher)
-{
-    return tmp_sprintf("%s[%s%11d%s]%s",
-                       CCYEL(ch,C_NRM), CCGRN(ch, C_NRM),
-                       GET_HITROLL(mob),
-                       CCYEL(ch, C_NRM), CCNRM(ch,C_NRM));
-}
-
-bool
-make_mobile_hitroll_matcher(struct creature *ch,
-                         struct mob_matcher *matcher,
-                         char *expr)
-{
-    if (*expr == '\0') {
-        send_to_char(ch, "You must specify mobile exp for matching.\r\n");
-        return false;
-    }
-
-    matcher->pred = mobile_matches_hitroll;
-    matcher->info = mobile_hitroll_info;
-    if (!parse_mob_matcher_num_expr(expr, matcher)) {
-        send_to_char(ch, "You must specify a number to match the hitroll against.\r\n");
-        return false;
-    }
-    return true;
-}
-
-bool
-mobile_matches_damroll(struct creature *mob, struct mob_matcher *matcher)
-{
-    switch (matcher->op) {
-    case OP_EQ:
-        return (GET_DAMROLL(mob) == matcher->num);
-    case OP_LT:
-        return (GET_DAMROLL(mob) < matcher->num);
-    case OP_GT:
-        return (GET_DAMROLL(mob) > matcher->num);
-    }
-    return false;
-}
-
-char *
-mobile_damroll_info(struct creature *ch,
-                 struct creature *mob,
-                 struct mob_matcher *matcher)
-{
-    return tmp_sprintf("%s[%s%11d%s]%s",
-                       CCYEL(ch,C_NRM), CCGRN(ch, C_NRM),
-                       GET_DAMROLL(mob),
-                       CCYEL(ch, C_NRM), CCNRM(ch,C_NRM));
-}
-
-bool
-make_mobile_damroll_matcher(struct creature *ch,
-                         struct mob_matcher *matcher,
-                         char *expr)
-{
-    if (*expr == '\0') {
-        send_to_char(ch, "You must specify mobile exp for matching.\r\n");
-        return false;
-    }
-
-    matcher->pred = mobile_matches_damroll;
-    matcher->info = mobile_damroll_info;
-    if (!parse_mob_matcher_num_expr(expr, matcher)) {
-        send_to_char(ch, "You must specify a number to match the damroll against.\r\n");
-        return false;
-    }
     return true;
 }
 
 static struct {
     const char *matcher;
     mob_matcher_constructor constructor;
+    enum matcher_varient varient;
 } match_table[] = {
-    { "name", make_mobile_name_matcher },
-    { "class", make_mobile_class_matcher },
-    { "race", make_mobile_race_matcher },
-    { "flags", make_mobile_flags_matcher },
-    { "special", make_mobile_special_matcher },
-    { "gold", make_mobile_gold_matcher },
-    { "cash", make_mobile_cash_matcher },
-    { "hitroll", make_mobile_hitroll_matcher },
-    { "damroll", make_mobile_damroll_matcher },
+    { "name", make_mobile_name_matcher, MATCHER_STD },
+    { "class", make_mobile_class_matcher, MATCHER_STD },
+    { "race", make_mobile_race_matcher, MATCHER_STD },
+    { "flags", make_mobile_flags_matcher, MATCHER_STD },
+    { "affect", make_mobile_affect_matcher, MATCHER_STD },
+    { "special", make_mobile_special_matcher, MATCHER_STD },
+    { "gold", make_mobile_num_matcher, MATCHER_GOLD },
+    { "cash", make_mobile_num_matcher, MATCHER_CASH },
+    { "hitroll", make_mobile_num_matcher, MATCHER_HITROLL },
+    { "damroll", make_mobile_num_matcher, MATCHER_DAMROLL },
+    { "align", make_mobile_num_matcher, MATCHER_ALIGNMENT },
+    { "exp", make_mobile_num_matcher, MATCHER_EXP },
     { NULL, NULL }
 };
 
@@ -461,7 +411,7 @@ make_mobile_matcher(struct creature *ch, char *expr)
 
     for (int i = 0;match_table[i].matcher && !found;i++) {
         if (!strcasecmp(term, match_table[i].matcher)) {
-            if (!match_table[i].constructor(ch, &new_matcher, expr))
+            if (!match_table[i].constructor(ch, &new_matcher, match_table[i].varient, expr))
                 return NULL;
             found = true;
         }
