@@ -997,7 +997,7 @@ const char *action2_bits_desc[] = {
     "Silent_Hunter",
     "Familiar",
     "NoFlow",
-    "Unnapproved",
+    "Unapproved",
     "Renamed",
     "Noaggro_Race",
     "mugger",
