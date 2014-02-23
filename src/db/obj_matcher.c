@@ -1,6 +1,6 @@
 /* ************************************************************************
 *   File: obj_matcher.cc                            NOT Part of CircleMUD *
-*  Usage: Matcher objects intended to be used to match struct obj_data           *
+*  Usage: Matcher objects intended to be used to match struct obj_data    *
 *         structures in the virtual object list                           *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
@@ -434,7 +434,7 @@ make_object_extra_matcher(struct creature *ch,
     return true;
 }
 
-struct {
+static struct {
     const char *matcher;
     obj_matcher_constructor constructor;
 } match_table[] = {
@@ -480,6 +480,7 @@ make_object_matcher(struct creature *ch, char *expr)
         CREATE(result, struct obj_matcher, 1);
         *result = new_matcher;
     } else {
+        send_to_char(ch, "'%s' is not a valid match term.\r\n", term);
         result = NULL;
     }
     return result;

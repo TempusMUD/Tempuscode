@@ -34,14 +34,15 @@ ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a
                  combat/combat_utils.c \
                  combat/fight.c \
                  combat/pvp.c \
-                 db/account.c \
-                 db/obj_matcher.c \
+				 db/account.c \
                  db/analysis.c \
                  db/constants.c \
                  db/db.c \
+                 db/mob_matcher.c \
+                 db/obj_matcher.c \
                  db/objsave.c \
                  db/xml.c \
-                 dyntext/dyntext.c \
+				 dyntext/dyntext.c \
                  editor/boardeditor.c \
                  editor/fileeditor.c \
                  editor/editor.c \
