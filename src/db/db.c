@@ -1600,7 +1600,6 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->player.height = 198;
 
     mobile->player.remort_char_class = -1;
-    recalculate_based_on_level(mobile);
 
     for (j = 0; j < 3; j++)
         GET_COND(mobile, j) = -1;
