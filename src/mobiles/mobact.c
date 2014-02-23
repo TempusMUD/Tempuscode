@@ -3059,8 +3059,9 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
             if (!(vict = choose_opponent(ch, precious_vict)))
                 return 0;
 
-            if ((GET_LEVEL(ch) > 2) && random_fractional_10() &&
-                !affected_by_spell(ch, SPELL_ARMOR)) {
+            if (random_fractional_10()
+                && can_cast_spell(ch, SPELL_ARMOR)
+                && !affected_by_spell(ch, SPELL_ARMOR)) {
                 cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
                 return 0;
             } else if ((GET_HIT(ch) / MAX(1,
@@ -4236,7 +4237,7 @@ ACMD(do_breathe)
  * into many small functions as opposed to one large one.  Also allows for easeir
  * modifications to mob ai.
  *******************************************************************************/
-
+// cure disease, damn, divine intervention, endure cold, 
 void
 knight_activity(struct creature *ch)
 {
@@ -4270,15 +4271,25 @@ knight_activity(struct creature *ch)
     } else if (can_cast_spell(ch, SPELL_SANCTIFICATION)
         && !affected_by_spell(ch, SPELL_SANCTIFICATION)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_SANCTIFICATION);
+    } else if (can_cast_spell(ch, SPELL_SPHERE_OF_DESECRATION)
+        && !affected_by_spell(ch, SPELL_SPHERE_OF_DESECRATION)) {
+        cast_spell(ch, ch, NULL, NULL, SPELL_SPHERE_OF_DESECRATION);
     } else if (can_cast_spell(ch, SPELL_ARMOR)
         && !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
     } else if (can_cast_spell(ch, SPELL_BLESS)
         && !affected_by_spell(ch, SPELL_BLESS)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_BLESS);
+    } else if (can_cast_spell(ch, SPELL_PROT_FROM_EVIL)) {
+        cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_EVIL);
+    } else if (can_cast_spell(ch, SPELL_PROT_FROM_GOOD)) {
+        cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_GOOD);
     } else if (can_cast_spell(ch, SPELL_PRAY)
         && !affected_by_spell(ch, SPELL_PRAY)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_PRAY);
+    } else if (can_cast_spell(ch, SPELL_MAGICAL_VESTMENT)
+        && !affected_by_spell(ch, SPELL_MAGICAL_VESTMENT)) {
+        cast_spell(ch, ch, NULL, NULL, SPELL_MAGICAL_VESTMENT);
     }
 }
 
@@ -4325,35 +4336,27 @@ knight_battle_activity(struct creature *ch, struct creature *precious_vict)
             cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
             return true;
         }
-    } else if (IS_GOOD(ch) && IS_EVIL(random_opponent(ch)) &&
-        random_fractional_3() &&
-        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-        !affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
-        cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_EVIL);
-        return true;
-    } else if (IS_EVIL(ch) && IS_GOOD(random_opponent(ch)) &&
-        random_fractional_3() && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
-        && !affected_by_spell(ch, SPELL_PROT_FROM_GOOD)) {
-        cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_GOOD);
-        return true;
-    } else if ((GET_LEVEL(ch) > 21) && IS_UNDEAD(ch) &&
-        random_fractional_10() &&
-        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-        !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
+    } else if (random_fractional_10()
+               && can_cast_spell(ch, SPELL_INVIS_TO_UNDEAD)
+               && !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_INVIS_TO_UNDEAD);
         return true;
-    } else if ((GET_LEVEL(ch) > 15) && random_fractional_5()
-        && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+    } else if (random_fractional_5() && can_cast_spell(ch, SPELL_SPIRIT_HAMMER)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_SPIRIT_HAMMER);
         return true;
-    } else if ((GET_LEVEL(ch) > 35) && random_fractional_4()
-        && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+    } else if (random_fractional_4() && can_cast_spell(ch, SPELL_FLAME_STRIKE)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
         return true;
-    } else if (IS_EVIL(ch) && !IS_EVIL(vict) && GET_LEVEL(ch) > 9 &&
-        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-        random_fractional_4() && !affected_by_spell(vict, SPELL_DAMN)) {
+    } else if (!IS_EVIL(vict)
+               && can_cast_spell(ch, SPELL_DAMN)
+               && !affected_by_spell(vict, SPELL_DAMN)
+               && random_fractional_4()) {
         cast_spell(ch, vict, NULL, NULL, SPELL_DAMN);
+    } else if (!IS_EVIL(vict)
+               && can_cast_spell(ch, SPELL_TAINT)
+               && !affected_by_spell(vict, SPELL_TAINT)
+               && random_fractional_4()) {
+        cast_spell(ch, vict, NULL, NULL, SPELL_TAINT);
     } else if ((GET_LEVEL(ch) >= 20) &&
         GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
         random_fractional_3()) {
@@ -4402,14 +4405,13 @@ ranger_activity(struct creature *ch)
             do_firstaid(ch, tmp_strdup("self"), 0, 0);
         else if (GET_LEVEL(ch) > 9)
             do_bandage(ch, tmp_strdup("self"), 0, 0);
-    } else if (AFF_FLAGGED(ch, AFF_POISON) && GET_LEVEL(ch) > 11) {
+    } else if (AFF_FLAGGED(ch, AFF_POISON) && can_cast_spell(ch, SPELL_REMOVE_POISON)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_REMOVE_POISON);
-    } else if (!affected_by_spell(ch, SPELL_STONESKIN) && GET_LEVEL(ch) > 19 &&
-        GET_REMORT_CLASS(ch) != CLASS_RANGER &&
-        GET_REMORT_CLASS(ch) != CLASS_UNDEFINED) {
+    } else if (!affected_by_spell(ch, SPELL_STONESKIN) && can_cast_spell(ch, SPELL_STONESKIN)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_STONESKIN);
-    } else if (!affected_by_spell(ch, SPELL_BARKSKIN) &&
-        !affected_by_spell(ch, SPELL_STONESKIN)) {
+    } else if (!affected_by_spell(ch, SPELL_BARKSKIN)
+               && !affected_by_spell(ch, SPELL_STONESKIN)
+               && can_cast_spell(ch, SPELL_BARKSKIN)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_BARKSKIN);
     }
 }
@@ -4432,21 +4434,13 @@ ranger_battle_activity(struct creature *ch, struct creature *precious_vict)
     if (!(vict = choose_opponent(ch, precious_vict)))
         return true;
 
-    if ((GET_LEVEL(ch) > 4) && random_fractional_5() &&
-        !affected_by_spell(ch, SPELL_BARKSKIN) &&
-        !affected_by_spell(ch, SPELL_STONESKIN)) {
+    if (random_fractional_5()
+        && !affected_by_spell(ch, SPELL_BARKSKIN)
+        && !affected_by_spell(ch, SPELL_STONESKIN)
+        && can_cast_spell(ch, SPELL_BARKSKIN)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_BARKSKIN);
-        WAIT_STATE(ch, PULSE_VIOLENCE);
-        return true;
-    } else if ((GET_LEVEL(ch) > 21) &&
-        random_fractional_5() &&
-        IS_UNDEAD(vict) &&
-        !is_fighting(ch) && !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
-        cast_spell(ch, ch, NULL, NULL, SPELL_INVIS_TO_UNDEAD);
-        WAIT_STATE(ch, PULSE_VIOLENCE);
         return true;
     }
-
     if (GET_LEVEL(ch) >= 27 &&
         (GET_CLASS(vict) == CLASS_MAGIC_USER ||
             GET_CLASS(vict) == CLASS_CLERIC) && random_fractional_3()) {
