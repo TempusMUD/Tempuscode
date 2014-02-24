@@ -4288,9 +4288,11 @@ knight_activity(struct creature *ch)
     } else if (can_cast_spell(ch, SPELL_BLESS)
         && !affected_by_spell(ch, SPELL_BLESS)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_BLESS);
-    } else if (can_cast_spell(ch, SPELL_PROT_FROM_EVIL)) {
+    } else if (can_cast_spell(ch, SPELL_PROT_FROM_EVIL)
+               && !affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_EVIL);
-    } else if (can_cast_spell(ch, SPELL_PROT_FROM_GOOD)) {
+    } else if (can_cast_spell(ch, SPELL_PROT_FROM_GOOD)
+               && !affected_by_spell(ch, SPELL_PROT_FROM_GOOD)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_GOOD);
     } else if (can_cast_spell(ch, SPELL_PRAY)
         && !affected_by_spell(ch, SPELL_PRAY)) {
