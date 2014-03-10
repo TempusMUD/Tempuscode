@@ -323,7 +323,7 @@ get_avail_descs(void)
 }
 
 gboolean
-mud_wide_tick(gpointer ignore)
+mud_wide_tick(__attribute__ ((unused)) gpointer ignore)
 {
     zone_update();
     weather_and_time();
@@ -337,7 +337,7 @@ mud_wide_tick(gpointer ignore)
 }
 
 gboolean
-autosave(gpointer ignore)
+autosave(__attribute__ ((unused)) gpointer ignore)
 {
     save_all_players();
     collect_housing_rent();
@@ -347,28 +347,28 @@ autosave(gpointer ignore)
 }
 
 gboolean
-update_ticks(gpointer ignore)
+update_ticks(__attribute__ ((unused)) gpointer ignore)
 {
     tics++;
     return true;
 }
 
 gboolean
-update_suppress_output(gpointer ignore)
+update_suppress_output(__attribute__ ((unused)) gpointer ignore)
 {
     suppress_output = false;
     return true;
 }
 
 gboolean
-temp_autosave_zones(gpointer ignore)
+temp_autosave_zones(__attribute__ ((unused)) gpointer ignore)
 {
     autosave_zones(ZONE_AUTOSAVE);
     return true;
 }
 
 gboolean
-reap_dead_creatures(gpointer ignore)
+reap_dead_creatures(__attribute__ ((unused)) gpointer ignore)
 {
     /* garbage collect dead creatures */
     void extract_creature(struct creature *ch, enum cxn_state con_state);
@@ -393,7 +393,7 @@ reap_dead_creatures(gpointer ignore)
 }
 
 gboolean
-update_shutdown_timer(gpointer data)
+update_shutdown_timer(__attribute__ ((unused)) gpointer data)
 {
     if (shutdown_count < 0)
         return false;
@@ -642,9 +642,9 @@ d_send(struct descriptor_data *d, const char *txt)
 void destroy_socket(struct descriptor_data *d);
 
 gboolean
-handle_socket_error(GIOChannel *io,
-                     GIOCondition condition,
-                     gpointer data)
+handle_socket_error(__attribute__ ((unused)) GIOChannel *io,
+                    GIOCondition condition,
+                    gpointer data)
 {
     struct descriptor_data *d = data;
 
@@ -658,7 +658,7 @@ handle_socket_error(GIOChannel *io,
 
 gboolean
 accept_new_connection(GIOChannel *listener_io,
-                      GIOCondition condition,
+                      __attribute__ ((unused)) GIOCondition condition,
                       gpointer data)
 {
     int desc, sockets_input_mode = 0;
@@ -786,8 +786,8 @@ accept_new_connection(GIOChannel *listener_io,
 }
 
 gboolean
-process_output(GIOChannel *io,
-               GIOCondition condition,
+process_output(__attribute__ ((unused)) GIOChannel *io,
+               __attribute__ ((unused)) GIOCondition condition,
                gpointer data)
 {
     struct descriptor_data *d = data;
@@ -884,7 +884,7 @@ enqueue_line_input(struct descriptor_data *d, char *line)
 }
 
 gboolean
-process_input(GIOChannel *io,
+process_input(__attribute__ ((unused)) GIOChannel *io,
               GIOCondition condition,
               gpointer data)
 {

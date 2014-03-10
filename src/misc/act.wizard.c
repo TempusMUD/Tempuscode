@@ -570,7 +570,7 @@ ACMD(do_teleport)
 }
 
 gint
-mob_vnum_compare(struct creature *a, struct creature *b, gpointer ignore)
+mob_vnum_compare(struct creature *a, struct creature *b, __attribute__ ((unused)) gpointer ignore)
 {
     if (GET_NPC_VNUM(a) < GET_NPC_VNUM(b))
         return -1;
@@ -624,7 +624,7 @@ vnum_mobile(char *searchname, struct creature *ch)
 }
 
 gint
-obj_vnum_compare(struct obj_data *a, struct obj_data *b, gpointer ignore)
+obj_vnum_compare(struct obj_data *a, struct obj_data *b, __attribute__ ((unused)) gpointer ignore)
 {
     if (GET_OBJ_VNUM(a) < GET_OBJ_VNUM(b))
         return -1;
