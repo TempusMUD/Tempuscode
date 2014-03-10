@@ -3150,16 +3150,16 @@ ACMD(do_refill)
     else if (!*arg2)
         send_to_char(ch, "Usage: refill <to obj> <from obj>\r\n");
     else if (!(syr = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
-        !(syr = get_object_in_equip_vis(ch, arg1, ch->equipment, &i))) {
+             !(syr = get_object_in_equip_vis(ch, arg1, ch->equipment, &i))) {
         send_to_char(ch, "You don't seem to have %s '%s' to refill.\r\n",
-            AN(arg1), arg1);
+                     AN(arg1), arg1);
     } else if (!IS_SYRINGE(syr))
         send_to_char(ch, "You can only refill syringes.\r\n");
     else if (GET_OBJ_VAL(syr, 0))
         act("$p is already full.", false, ch, syr, NULL, TO_CHAR);
     else if (!(vial = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
         send_to_char(ch, "You can't find %s '%s' to refill from.\r\n",
-            AN(arg2), arg2);
+                     AN(arg2), arg2);
     } else if (!GET_OBJ_VAL(vial, 0))
         act("$p is empty.", false, ch, vial, NULL, TO_CHAR);
     else {
@@ -3174,11 +3174,11 @@ ACMD(do_refill)
         if (IS_POTION(vial) || IS_OBJ_STAT(vial, ITEM_MAGIC))
             SET_BIT(GET_OBJ_EXTRA(syr), ITEM_MAGIC);
 
+        char *new_alias = tmp_sprintf("%s %s", fname(vial->aliases), syr->aliases);
         if (!syr->shared->proto || syr->shared->proto->aliases != syr->aliases) {
             free(syr->aliases);
         }
-        syr->aliases =
-            strdup(tmp_sprintf("%s %s", fname(vial->aliases), syr->aliases));
+        syr->aliases = strdup(new_alias);
 
         if (IS_POTION(vial)) {
             act("$P dissolves before your eyes.", false, ch, syr, vial,
