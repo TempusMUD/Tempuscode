@@ -990,14 +990,10 @@ parse_room(FILE * fl, int vnum_nr)
             room->next = NULL;
 
             // Eliminate duplicates
-            // FIXME: This leaks all the memory the room takes up.  Doing it
-            // this way because a) it shouldn't ever happen b) if it does
-            // happen, it'll get fixed the next time the zone is saved and
-            // c) rooms don't take up that much space anyway
             if (real_room(vnum_nr)) {
-                errlog
-                    ("Duplicate room %d detected.  Ignoring second instance.",
-                    vnum_nr);
+                errlog("Duplicate room %d detected.  Ignoring second instance.",
+                       vnum_nr);
+                free_room(room);
                 return;
             }
 
@@ -2217,11 +2213,13 @@ load_zones(FILE * fl, char *zonename)
         ptr = buf;
         skip_spaces(&ptr);
 
+        if (*ptr == '*') {
+            continue;
+        }
+
         CREATE(new_zonecmd, struct reset_com, 1);
 
-        if ((new_zonecmd->command = *ptr) == '*')
-            continue;
-
+        new_zonecmd->command = *ptr;
         ptr++;
 
         if (new_zonecmd->command == 'S' || new_zonecmd->command == '$') {
