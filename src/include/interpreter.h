@@ -19,6 +19,7 @@
 //
 
 #define ACMD(name)  \
+   __attribute__ ((nonnull)) \
    void name(__attribute__ ((unused)) struct creature *ch, \
    	__attribute__ ((unused)) char *argument, \
 	__attribute__ ((unused)) int cmd, \
