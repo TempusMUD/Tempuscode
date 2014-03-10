@@ -1706,7 +1706,7 @@ perform_give(struct creature *ch, struct creature *vict,
                         do_activate(vict, fname(obj->aliases), 0, 1);
                 else {
                     if (GET_POSITION(vict) < POS_FIGHTING)
-                        do_stand(vict, NULL, 0, 0);
+                        do_stand(vict, "", 0, 0);
                     for (i = 0; i < NUM_DIRS; i++) {
                         if (ch->in_room->dir_option[i] &&
                             ch->in_room->dir_option[i]->to_room && i != UP &&
