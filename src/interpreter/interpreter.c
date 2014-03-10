@@ -64,13 +64,8 @@ cmdlog(char *str)
 {
     static FILE *commandLog = NULL;
     static char *log = NULL;
-    time_t ct;
-    char *tmstr;
 
-    ct = time(NULL);
-    tmstr = asctime(localtime(&ct));
-    tmstr[strlen(tmstr) - 1] = '\0';
-    log = tmp_sprintf("%-19.19s :: %s", tmstr, str);
+    log = tmp_sprintf("%-19.19s :: %s\n", tmp_ctime(time(NULL)), str);
     if (!commandLog)
         commandLog = fopen("log/command.log", "a");
     fputs(log, commandLog);
@@ -81,14 +76,11 @@ newbielog(struct creature *ch, const char *cmd, const char *args)
 {
     static FILE *newbieLog = NULL;
     static char *log;
-    time_t ct;
-    char *tmstr;
 
-    ct = time(NULL);
-    tmstr = asctime(localtime(&ct));
-    tmstr[strlen(tmstr) - 1] = '\0';
-    log = tmp_sprintf("%-19.19s _ [%05d] %s :: %s %s",
-        tmstr, ch->in_room->number, GET_NAME(ch), cmd, args);
+    log = tmp_sprintf("%-19.19s _ [%05d] %s :: %s %s\n",
+                      tmp_ctime(time(NULL)),
+                      (ch->in_room) ? ch->in_room->number:-1,
+                      GET_NAME(ch), cmd, args);
     if (!newbieLog)
         newbieLog = fopen("log/newbie.log", "a");
     fputs(log, newbieLog);
