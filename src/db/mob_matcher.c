@@ -106,7 +106,7 @@ mobile_matches_name(struct creature *mob, struct mob_matcher *matcher)
 bool
 make_mobile_name_matcher(struct creature *ch,
                          struct mob_matcher *matcher,
-                         enum matcher_varient varient,
+                         __attribute__ ((unused)) enum matcher_varient varient,
                          char *expr)
 {
     matcher->pred = mobile_matches_name;
@@ -127,7 +127,7 @@ mobile_matches_class(struct creature *mob, struct mob_matcher *matcher)
 bool
 make_mobile_class_matcher(struct creature *ch,
                           struct mob_matcher *matcher,
-                          enum matcher_varient varient,
+                          __attribute__ ((unused)) enum matcher_varient varient,
                           char *expr)
 {
     if (*expr == '\0') {
@@ -156,7 +156,7 @@ mobile_matches_race(struct creature *mob, struct mob_matcher *matcher)
 bool
 make_mobile_race_matcher(struct creature *ch,
                          struct mob_matcher *matcher,
-                         enum matcher_varient varient,
+                         __attribute__ ((unused)) enum matcher_varient varient,
                          char *expr)
 {
     if (*expr == '\0') {
@@ -191,7 +191,7 @@ mobile_matches_flags(struct creature *mob, struct mob_matcher *matcher)
 bool
 make_mobile_flags_matcher(struct creature *ch,
                           struct mob_matcher *matcher,
-                          enum matcher_varient varient,
+                          __attribute__ ((unused)) enum matcher_varient varient,
                           char *expr)
 {
     int index, flag;
@@ -231,7 +231,7 @@ mobile_matches_affect(struct creature *mob, struct mob_matcher *matcher)
 bool
 make_mobile_affect_matcher(struct creature *ch,
                            struct mob_matcher *matcher,
-                           enum matcher_varient varient,
+                           __attribute__ ((unused)) enum matcher_varient varient,
                            char *expr)
 {
     int index, flag;
@@ -263,7 +263,7 @@ mobile_matches_special(struct creature *mob, struct mob_matcher *matcher)
 bool
 make_mobile_special_matcher(struct creature *ch,
                             struct mob_matcher *matcher,
-                            enum matcher_varient varient,
+                            __attribute__ ((unused)) enum matcher_varient varient,
                             char *expr)
 {
     if (*expr == '\0') {
@@ -390,7 +390,7 @@ static struct {
     { "damroll", make_mobile_num_matcher, MATCHER_DAMROLL },
     { "align", make_mobile_num_matcher, MATCHER_ALIGNMENT },
     { "exp", make_mobile_num_matcher, MATCHER_EXP },
-    { NULL, NULL }
+    { NULL, NULL, MATCHER_STD }
 };
 
 struct mob_matcher *
