@@ -1923,7 +1923,7 @@ char_to_game(struct descriptor_data *d)
     notify_cleric_moon(d->creature);
 
     // check for dynamic text updates (news, inews, etc...)
-    check_dyntext_updates(d->creature, CHECKDYN_UNRENT);
+    check_dyntext_updates(d->creature);
 
     // Check for house reposessions
     struct house *house = find_house_by_owner(d->creature->account->id);

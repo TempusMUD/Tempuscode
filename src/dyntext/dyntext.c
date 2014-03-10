@@ -909,7 +909,7 @@ ACMD(do_dyntext_show)
 }
 
 void
-check_dyntext_updates(struct creature *ch, int mode)
+check_dyntext_updates(struct creature *ch)
 {
     dynamic_text_file *dyntext = NULL;
 

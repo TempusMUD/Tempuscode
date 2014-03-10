@@ -211,9 +211,7 @@ typedef struct dynamic_text_file {
 
 extern dynamic_text_file *dyntext_list;
 
-void check_dyntext_updates(struct creature *ch, int mode);
-#define CHECKDYN_UNRENT    0
-#define CHECKDYN_RECONNECT 1
+void check_dyntext_updates(struct creature *ch);
 
 struct sql_query_data {
 	struct sql_query_data *next;
