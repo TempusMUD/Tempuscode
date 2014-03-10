@@ -924,12 +924,14 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
 
     *dam += (*dam * GET_REMORT_GEN(ch)) / 10;
 
-    if (CHECK_SKILL(ch, skillnum) > LEARNED(ch))
+    int skill_lvl = LEARNED(ch);
+
+    if (CHECK_SKILL(ch, skillnum) > skill_lvl)
         *dam *= (LEARNED(ch) +
-            ((CHECK_SKILL(ch, skillnum) - LEARNED(ch)) / 2));
+            ((CHECK_SKILL(ch, skillnum) - skill_lvl) / 2));
     else
         *dam *= CHECK_SKILL(ch, skillnum);
-    *dam /= LEARNED(ch);
+    *dam = (skill_lvl > 0) ? (*dam / skill_lvl):0;
 
     if (!affected_by_spell(ch, SKILL_KATA) && NON_CORPOREAL_MOB(vict))
         *dam = 0;
@@ -2071,12 +2073,14 @@ ACMD(do_tornado_kick)
     if (!IS_NPC(ch))
         dam += (dam * GET_REMORT_GEN(ch)) / 10;
 
-    if (CHECK_SKILL(ch, SKILL_TORNADO_KICK) > LEARNED(ch))
+    int skill_lvl = LEARNED(ch);
+
+    if (CHECK_SKILL(ch, SKILL_TORNADO_KICK) > skill_lvl)
         dam *= (CHECK_SKILL(ch, SKILL_TORNADO_KICK) +
-            ((CHECK_SKILL(ch, SKILL_TORNADO_KICK) - LEARNED(ch)) / 2));
+            ((CHECK_SKILL(ch, SKILL_TORNADO_KICK) - skill_lvl) / 2));
     else
         dam *= CHECK_SKILL(ch, SKILL_TORNADO_KICK);
-    dam /= LEARNED(ch);
+    dam = (skill_lvl > 0) ? (dam / skill_lvl):0;
 
     RAW_EQ_DAM(ch, WEAR_FEET, &dam);
 
@@ -2638,7 +2642,7 @@ shoot_projectile_gun(struct creature *ch,
 
     // loop through ROF of the gun for burst fire
 
-    for (bullet_num = 0; bullet_num < CUR_R_O_F(gun); bullet_num++) {
+    for (bullet_num = 0; bullet && bullet_num < CUR_R_O_F(gun); bullet_num++) {
         if (is_dead(vict)) {
             // if victim was killed, fire at their corpse
             projectile_blast_corpse(ch, gun, bullet);
@@ -2649,11 +2653,9 @@ shoot_projectile_gun(struct creature *ch,
         if (!IS_ARROW(gun))
             extract_obj(bullet);
 
-        bullet = MAX_LOAD(gun) ? gun->contains:gun->contains->contains;
         // if the attacker was somehow killed, return immediately
         if (is_dead(ch))
             return;
-        break;
     }
 
     if (IS_ARROW(gun) && IS_ELF(ch))
