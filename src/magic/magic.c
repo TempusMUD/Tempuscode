@@ -144,20 +144,20 @@ const int8_t saving_throws[8][LVL_GRIMP + 1] = {
         42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0}
 };
 
-int
+bool
 mag_savingthrow(struct creature *ch, int level, int type)
 {
     int save;
 
     if (GET_LEVEL(ch) > LVL_GOD) {
-        return 1;
+        return true;
     }
     // If its > 100 its obviously a search and doesn't need to be saveable.
     if (level > 100) {
-        return 0;
+        return false;
     }
     if (type == SAVING_NONE)
-        return 0;
+        return false;
 
     /* negative apply_saving_throw values make saving throws better! */
 
