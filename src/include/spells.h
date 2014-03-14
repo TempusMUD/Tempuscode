@@ -1004,7 +1004,7 @@ void mag_objects(int level, struct creature *ch, struct obj_data *obj,
 int cast_spell(struct creature *ch, struct creature *tch,
 	struct obj_data *tobj, int *tdir, int spellnum);
 
-int mag_savingthrow(struct creature *ch, int level, int type);
+bool mag_savingthrow(struct creature *ch, int level, int type);
 
 int mag_manacost(struct creature *ch, int spellnum);
 
