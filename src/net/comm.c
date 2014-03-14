@@ -1851,7 +1851,7 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
 #define SENDOK(ch) (AWAKE(ch) || sleep)
 
 void
-act_if(const char *str, int hide_invisible, struct creature *ch,
+act_if(const char *str, bool hide_invisible, struct creature *ch,
     struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred)
 {
     struct obj_data *o, *o2 = NULL;
@@ -2011,7 +2011,7 @@ standard_act_predicate(struct creature *ch __attribute__ ((unused)),
 }
 
 void
-act(const char *str, int hide_invisible, struct creature *ch,
+act(const char *str, bool hide_invisible, struct creature *ch,
     struct obj_data *obj, void *vict_obj, int type)
 {
     act_if(str, hide_invisible, ch, obj, vict_obj, type,

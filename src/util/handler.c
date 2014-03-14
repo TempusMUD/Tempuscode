@@ -54,6 +54,7 @@
 #include "weather.h"
 #include "prog.h"
 #include "smokes.h"
+#include "strutil.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -1449,7 +1450,7 @@ get_char_room(char *name, struct room_data *room)
 }
 
 struct creature *
-get_char_in_world_by_idnum(int nr)
+get_char_in_world_by_idnum(long nr)
 {
     struct creature *result = g_hash_table_lookup(creature_map, GINT_TO_POINTER(nr));
     if (!result || is_dead(result))

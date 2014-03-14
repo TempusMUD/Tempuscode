@@ -48,6 +48,7 @@
 #include "actions.h"
 #include "search.h"
 #include "prog.h"
+#include "strutil.h"
 
 extern int log_cmds;
 struct sort_struct *cmd_sort_info = NULL;

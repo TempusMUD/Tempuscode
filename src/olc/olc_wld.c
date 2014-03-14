@@ -468,8 +468,6 @@ do_destroy_room(struct creature *ch, int vnum)
     struct clan_data *clan = NULL;
     struct room_list_elem *rm_list = NULL;
     int i;
-    void REMOVE_ROOM_FROM_CLAN(struct room_list_elem *rm_list,
-        struct clan_data *clan);
 
     if (!(rm = real_room(vnum))) {
         send_to_char(ch, "ERROR: That room does not exist.\r\n");

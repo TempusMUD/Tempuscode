@@ -33,6 +33,7 @@
 #include "fight.h"
 #include "language.h"
 #include "mobact.h"
+#include "strutil.h"
 
 #define MSHIELD_USAGE "usage: mshield <low|percent> <value>\r\n"
 ACMD(do_mshield)

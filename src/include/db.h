@@ -219,7 +219,7 @@ struct sql_query_data {
 };
 
 // Executes a SQL command, returns true if successful
-bool sql_exec(const char *str, ...)
+void sql_exec(const char *str, ...)
 	__attribute__ ((format (printf, 1, 2)));
 // Executes a SQL query.  Returns the result, which must be deallocated
 // with PQclear() after use

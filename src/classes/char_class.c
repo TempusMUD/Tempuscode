@@ -55,6 +55,7 @@
 #include "char_class.h"
 #include "libpq-fe.h"
 #include "db.h"
+#include "strutil.h"
 
 extern struct room_data *world;
 
