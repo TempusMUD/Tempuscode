@@ -3331,16 +3331,15 @@ get_corpse_file_path(long id)
     return tmp_sprintf("players/corpses/%0ld/%ld.dat", (id % 10), id);
 }
 
-bool
+void
 sql_exec(const char *str, ...)
 {
     PGresult *res;
     char *query;
     va_list args;
-    bool result;
 
     if (!str || !*str)
-        return false;
+        return;
 
     va_start(args, str);
     query = tmp_vsprintf(str, args);
@@ -3351,16 +3350,14 @@ sql_exec(const char *str, ...)
         errlog("FATAL: Couldn't allocate sql result");
         safe_exit(1);
     }
-    result = PQresultStatus(res) == PGRES_COMMAND_OK
-        || PQresultStatus(res) == PGRES_TUPLES_OK;
-    if (!result) {
+    if (PQresultStatus(res) != PGRES_COMMAND_OK
+        && PQresultStatus(res) != PGRES_TUPLES_OK) {
         errlog("FATAL: sql command generated error: %s",
             PQresultErrorMessage(res));
         errlog("FROM SQL: %s", query);
         raise(SIGSEGV);
     }
     PQclear(res);
-    return result;
 }
 
 PGresult *

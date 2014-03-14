@@ -25,6 +25,7 @@
 #include "tmpstr.h"
 #include "spells.h"
 #include "actions.h"
+#include "strutil.h"
 
 void call_for_help(struct creature *, struct creature *);
 

@@ -109,11 +109,11 @@ void extract_obj(struct obj_data *obj)
 
 /* ******* characters ********* */
 
-struct creature *get_char_room(char *name, struct room_data *room)
+/*@keep@*/ struct creature *get_char_room(char *name, struct room_data *room)
     __attribute__ ((nonnull));
-struct creature *get_char(char *name)
+/*@keep@*/ struct creature *get_char(char *name)
     __attribute__ ((nonnull));
-struct creature *get_char_in_world_by_idnum(int nr);
+/*@keep@*/ struct creature *get_char_in_world_by_idnum(long nr);
 
 bool char_from_room(struct creature *ch, bool check_specials)
     __attribute__ ((nonnull));
@@ -121,40 +121,40 @@ bool char_to_room(struct creature *ch, struct room_data *room, bool check_specia
     __attribute__ ((nonnull));
 
 /* find if character can see */
-struct creature *get_char_room_vis(struct creature *ch, const char *name)
+/*@keep@*/ struct creature *get_char_room_vis(struct creature *ch, const char *name)
     __attribute__ ((nonnull));
-struct creature *get_char_random(struct room_data *room)
+/*@keep@*/ struct creature *get_char_random(struct room_data *room)
     __attribute__ ((nonnull));
-struct creature *get_char_random_vis(struct creature *ch, struct room_data *room)
+/*@keep@*/ struct creature *get_char_random_vis(struct creature *ch, struct room_data *room)
     __attribute__ ((nonnull));
-struct creature *get_player_random(struct room_data *room)
+/*@keep@*/ struct creature *get_player_random(struct room_data *room)
     __attribute__ ((nonnull));
-struct creature *get_player_random_vis(struct creature *ch, struct room_data *room)
+/*@keep@*/ struct creature *get_player_random_vis(struct creature *ch, struct room_data *room)
     __attribute__ ((nonnull));
-struct creature *get_char_in_remote_room_vis(struct creature *ch, const char *name,
+/*@keep@*/ struct creature *get_char_in_remote_room_vis(struct creature *ch, const char *name,
 	struct room_data *inroom)
     __attribute__ ((nonnull));
-struct creature *get_player_vis(struct creature *ch, const char *name, int inroom)
+/*@keep@*/ struct creature *get_player_vis(struct creature *ch, const char *name, int inroom)
     __attribute__ ((nonnull));
-struct creature *get_mobile_vis(struct creature *ch, const char *name, int inroom)
+/*@keep@*/ struct creature *get_mobile_vis(struct creature *ch, const char *name, int inroom)
     __attribute__ ((nonnull));
-struct creature *get_char_vis(struct creature *ch, const char *name)
+/*@keep@*/ struct creature *get_char_vis(struct creature *ch, const char *name)
     __attribute__ ((nonnull));
-struct obj_data *get_obj_in_list_vis(struct creature *ch, const char *name,
+/*@keep@*/ struct obj_data *get_obj_in_list_vis(struct creature *ch, const char *name,
 	struct obj_data *list)
     __attribute__ ((nonnull));
-struct obj_data *get_obj_in_list_all(struct creature *ch, const char *name,
+/*@keep@*/ struct obj_data *get_obj_in_list_all(struct creature *ch, const char *name,
 	struct obj_data *list)
     __attribute__ ((nonnull));
-struct obj_data *get_obj_vis(struct creature *ch, const char *name)
+/*@keep@*/ struct obj_data *get_obj_vis(struct creature *ch, const char *name)
     __attribute__ ((nonnull));
-struct obj_data *get_object_in_equip_vis(struct creature *ch,
+/*@keep@*/ struct obj_data *get_object_in_equip_vis(struct creature *ch,
 	const char *arg, struct obj_data *equipment[], int *j)
     __attribute__ ((nonnull));
-struct obj_data *get_object_in_equip_pos(struct creature *ch, const char *arg,
+/*@keep@*/ struct obj_data *get_object_in_equip_pos(struct creature *ch, const char *arg,
 	int pos)
     __attribute__ ((nonnull));
-struct obj_data *get_object_in_equip_all(struct creature *ch, const char *arg,
+/*@keep@*/ struct obj_data *get_object_in_equip_all(struct creature *ch, const char *arg,
 	struct obj_data *equipment[], int *j)
     __attribute__ ((nonnull));
 

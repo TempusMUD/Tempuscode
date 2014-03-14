@@ -62,11 +62,11 @@ void make_act_str(const char *orig, char *buf, struct creature *ch,
 void perform_act(const char *orig, struct creature *ch,
 	struct obj_data *obj, void *vict_obj, struct creature *to, int mode)
     __attribute__ ((nonnull (1,5)));
-void act_if(const char *str, int hide_invisible, struct creature *ch,
+void act_if(const char *str, bool hide_invisible, struct creature *ch,
 	struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred)
                    __attribute__ ((nonnull (1)));
-void act(const char *str, int hide_invisible, struct creature *ch,
-         struct obj_data *obj, void *vict_obj, int type)
+void act(const char *str, bool hide_invisible, struct creature *ch,
+         /*@null@*/ struct obj_data *obj, /*@null@*/ void *vict_obj, int type)
                    __attribute__ ((nonnull (1)));
 
 #define TO_ROOM		1

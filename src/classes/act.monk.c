@@ -42,6 +42,7 @@
 #include "fight.h"
 #include <libxml/parser.h>
 #include "obj_data.h"
+#include "strutil.h"
 
 void
 perform_monk_meditate(struct creature *ch)

@@ -168,22 +168,22 @@ void WAIT_STATE(struct creature *ch, int cycle);
  * a great application for C++ templates but, alas, this is not C++.  Maybe
  * CircleMUD 4.0 will be...
  */
-#define REMOVE_FROM_LIST(item, head, next)          \
-    do {                                            \
-        if ((item) == (head))                       \
-            head = (item)->next;                    \
-        else {                                      \
-            temp = head;                            \
-            while (temp && (temp->next != (item)))  \
-                temp = temp->next;                  \
-            if (temp)                               \
-                temp->next = (item)->next;          \
-        }                                           \
+#define REMOVE_FROM_LIST(item, head, next)                  \
+    do {                                                    \
+        if ((item) == (head))                               \
+            head = (item)->next;                            \
+        else {                                              \
+            temp = head;                                    \
+            while (temp != NULL && (temp->next != (item)))  \
+                temp = temp->next;                          \
+            if (temp != NULL)                               \
+                temp->next = (item)->next;                  \
+        }                                                   \
     } while (false)
 
 /* basic bitvector utils *************************************************/
 
-#define IS_SET(flag,bit)  ((flag) & (bit))
+#define IS_SET(flag,bit)  (((flag) & (bit)) != 0)
 #define SET_BIT(var,bit)  ((var) |= (bit))
 #define REMOVE_BIT(var,bit)  ((var) &= ~((unsigned long)(bit)))
 #define TOGGLE_BIT(var,bit) ((var) = (var) ^ (bit))
@@ -589,7 +589,7 @@ double float_number(double from, double to);
 // simulates dice roll
 int dice(int number, int size);
 
-static inline const char *
+static inline /*@observer@*/ const char *
 SAFETY(const char *str)
 {
 	if (!str) {

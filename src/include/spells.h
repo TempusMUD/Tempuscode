@@ -21,7 +21,7 @@
 extern int max_spell_num;
 extern char **spells;
 
-static inline const char *
+static inline /*@observer@*/ const char *
 spell_to_str(int spell)
 {
 	if (spell < 0 || spell > max_spell_num) {
@@ -39,7 +39,7 @@ str_to_spell(const char *spell)
 		return -1;
 	for(i = 0; i < max_spell_num; i++ ) {
 		if( strcmp(spell, spells[i]) == 0 )
-			return i;
+			return (int)i;
 	}
 	return -1;
 }
@@ -886,10 +886,10 @@ struct gun_hit_type {
 #define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict, dvict);
 
 static inline int SPELL_LEVEL( int spell, int char_class ) {
-	return spell_info[spell].min_level[char_class];
+	return (int)spell_info[spell].min_level[char_class];
 }
 static inline int SPELL_GEN( int spell, int char_class ) {
-	    return spell_info[spell].gen[char_class];
+    return (int)spell_info[spell].gen[char_class];
 }
 static inline bool IS_WEAPON(int spell) {
     return spell_info[spell].is_weapon;

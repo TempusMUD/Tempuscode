@@ -26,6 +26,7 @@
 #include "creature.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "strutil.h"
 
 ACMD(do_hcollect_help);
 

@@ -100,7 +100,7 @@ struct command_info;
 struct affected_type;
 
 bool load_roles_from_db(void);
-bool is_authorized(struct creature *ch, enum privilege priv, void *target);
+bool is_authorized(struct creature *ch, enum privilege priv, /*@null@*/ void *target);
 void send_role_linedesc(struct role *role,struct creature *ch);
 bool is_role_member(struct role *role, long player);
 bool is_role_command(struct role *role, const struct command_info *command);

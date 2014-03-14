@@ -23,9 +23,9 @@ struct room_data;
 struct room_list_elem;
 
 bool boot_clans(void);
-struct clan_data *clan_by_owner(int idnum);
-struct clan_data *real_clan(int vnum);
-struct clan_data *clan_by_name(char *arg)
+/*@keep@*/ struct clan_data *clan_by_owner(int idnum);
+/*@keep@*/ struct clan_data *real_clan(int vnum);
+/*@keep@*/ struct clan_data *clan_by_name(char *arg)
     __attribute__ ((nonnull));
 int clan_owning_room(struct room_data *room)
     __attribute__ ((nonnull));
@@ -34,17 +34,17 @@ bool clan_house_can_enter(struct creature *ch, struct room_data *room)
 void do_show_clan(struct creature *ch, struct clan_data *clan)
     __attribute__ ((nonnull (1)));
 bool save_clans(void);
-struct clan_data *create_clan(int vnum);
-int delete_clan(struct clan_data *clan)
+/*@only@*/ struct clan_data *create_clan(int vnum);
+int delete_clan(/*@only@*/ struct clan_data *clan)
     __attribute__ ((nonnull));
-struct clanmember_data *real_clanmember(long idnum, struct clan_data *clan)
+/*@keep@*/ struct clanmember_data *real_clanmember(long idnum, struct clan_data *clan)
     __attribute__ ((nonnull));
 void sort_clanmembers(struct clan_data *clan)
     __attribute__ ((nonnull));
-void remove_member_from_clan(struct clanmember_data *member,
+void remove_member_from_clan(/*@only@*/ struct clanmember_data *member,
                              struct clan_data *clan)
     __attribute__ ((nonnull));
-void remove_room_from_clan(struct room_list_elem *rm_list,
+void remove_room_from_clan(/*@only@*/ struct room_list_elem *rm_list,
                            struct clan_data *clan)
     __attribute__ ((nonnull));
 void remove_clan_member(struct creature *ch)
@@ -58,12 +58,12 @@ struct clanmember_data {
 	long idnum;
 	int8_t rank;
     bool no_mail;
-	struct clanmember_data *next;
+	/*@owned@*/ struct clanmember_data *next;
 };
 
 struct room_list_elem {
-	struct room_data *room;
-	struct room_list_elem *next;
+	/*@dependent@*/ struct room_data *room;
+	/*@owned@*/ struct room_list_elem *next;
 };
 
 struct clan_data {
@@ -74,10 +74,10 @@ struct clan_data {
 	char *name;					/* official clan name */
 	char *badge;				/* title of clan for who list, etc. */
 	char *password;				/* password of clan */
-	char *ranknames[NUM_CLAN_RANKS];
-	struct clanmember_data *member_list;	/* list of idnums */
-	struct room_list_elem *room_list;	/* list of clan house rooms */
-	struct clan_data *next;
+	/*@owned@*/ char *ranknames[NUM_CLAN_RANKS];
+	/*@owned@*/ struct clanmember_data *member_list;	/* list of idnums */
+	/*@owned@*/ struct room_list_elem *room_list;	/* list of clan house rooms */
+	/*@owned@*/ struct clan_data *next;
 };
 
 ACMD(do_enroll);
