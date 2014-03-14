@@ -36,6 +36,7 @@
 #include "xml_utils.h"
 #include "obj_data.h"
 #include "mail.h"
+#include "strutil.h"
 
 // usage message
 #define HCONTROL_FIND_FORMAT \

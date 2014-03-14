@@ -990,14 +990,10 @@ parse_room(FILE * fl, int vnum_nr)
             room->next = NULL;
 
             // Eliminate duplicates
-            // FIXME: This leaks all the memory the room takes up.  Doing it
-            // this way because a) it shouldn't ever happen b) if it does
-            // happen, it'll get fixed the next time the zone is saved and
-            // c) rooms don't take up that much space anyway
             if (real_room(vnum_nr)) {
-                errlog
-                    ("Duplicate room %d detected.  Ignoring second instance.",
-                    vnum_nr);
+                errlog("Duplicate room %d detected.  Ignoring second instance.",
+                       vnum_nr);
+                free_room(room);
                 return;
             }
 
@@ -2217,11 +2213,13 @@ load_zones(FILE * fl, char *zonename)
         ptr = buf;
         skip_spaces(&ptr);
 
+        if (*ptr == '*') {
+            continue;
+        }
+
         CREATE(new_zonecmd, struct reset_com, 1);
 
-        if ((new_zonecmd->command = *ptr) == '*')
-            continue;
-
+        new_zonecmd->command = *ptr;
         ptr++;
 
         if (new_zonecmd->command == 'S' || new_zonecmd->command == '$') {
@@ -3333,16 +3331,15 @@ get_corpse_file_path(long id)
     return tmp_sprintf("players/corpses/%0ld/%ld.dat", (id % 10), id);
 }
 
-bool
+void
 sql_exec(const char *str, ...)
 {
     PGresult *res;
     char *query;
     va_list args;
-    bool result;
 
     if (!str || !*str)
-        return false;
+        return;
 
     va_start(args, str);
     query = tmp_vsprintf(str, args);
@@ -3353,16 +3350,14 @@ sql_exec(const char *str, ...)
         errlog("FATAL: Couldn't allocate sql result");
         safe_exit(1);
     }
-    result = PQresultStatus(res) == PGRES_COMMAND_OK
-        || PQresultStatus(res) == PGRES_TUPLES_OK;
-    if (!result) {
+    if (PQresultStatus(res) != PGRES_COMMAND_OK
+        && PQresultStatus(res) != PGRES_TUPLES_OK) {
         errlog("FATAL: sql command generated error: %s",
             PQresultErrorMessage(res));
         errlog("FROM SQL: %s", query);
         raise(SIGSEGV);
     }
     PQclear(res);
-    return result;
 }
 
 PGresult *

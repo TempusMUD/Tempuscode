@@ -78,7 +78,7 @@ ACMD(do_split);
 
 const long MONEY_LOG_LIMIT = 50000000;
 
-struct obj_data *
+/*@dependent@*/ /*@null@*/ struct obj_data *
 get_random_uncovered_implant(struct creature *ch, int type)
 {
     int possibles = 0;
@@ -87,7 +87,7 @@ get_random_uncovered_implant(struct creature *ch, int type)
     int i;
     struct obj_data *o = NULL;
 
-    if (!ch)
+    if (ch == NULL)
         return NULL;
     for (i = 0; i < NUM_WEARS; i++) {
         if (IS_WEAR_EXTREMITY(i)) {
@@ -99,7 +99,7 @@ get_random_uncovered_implant(struct creature *ch, int type)
             }
         }
     }
-    if (possibles) {
+    if (possibles > 0) {
         implant = number(1, possibles);
         pos_imp = 0;
         for (i = 0; pos_imp < implant && i < NUM_WEARS; i++) {
@@ -131,6 +131,7 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
     int ret = 0;
     int dam = 0;
     bool loaded = false;
+    int obj_id;
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) ||
         ch->in_room->zone->pk_style == ZONE_NO_PK) {
@@ -147,11 +148,12 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
 
     dam_object = obj;
 
-    int obj_id = GET_OBJ_SIGIL_IDNUM(obj);
-    if (!obj_id)
+    obj_id = GET_OBJ_SIGIL_IDNUM(obj);
+    if (obj_id == 0)
         return 0;
 
-    struct creature *killer = get_char_in_world_by_idnum(obj_id);
+    struct creature *killer;
+    killer = get_char_in_world_by_idnum(obj_id);
 
     // load the bastich from file.
     if (!killer) {
@@ -1706,7 +1708,7 @@ perform_give(struct creature *ch, struct creature *vict,
                         do_activate(vict, fname(obj->aliases), 0, 1);
                 else {
                     if (GET_POSITION(vict) < POS_FIGHTING)
-                        do_stand(vict, NULL, 0, 0);
+                        do_stand(vict, "", 0, 0);
                     for (i = 0; i < NUM_DIRS; i++) {
                         if (ch->in_room->dir_option[i] &&
                             ch->in_room->dir_option[i]->to_room && i != UP &&

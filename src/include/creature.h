@@ -900,8 +900,8 @@ struct aff_stash {
 extern GList *creatures;
 extern GHashTable *creature_map;
 
-struct creature *make_creature(bool pc);
-void free_creature(struct creature *ch);
+/*@only@*/ struct creature *make_creature(bool pc);
+void free_creature(/*@only@*/ struct creature *ch);
 
 int level_bonus(struct creature *ch, bool primary);
 int skill_bonus(struct creature *ch, int skillnum);
@@ -1062,15 +1062,15 @@ is_dead(struct creature *ch)
     return (ch->char_specials.position == POS_DEAD);
 }
 
-inline static GList *
+inline static /*@dependent@*/ /*@null@*/  GList *
 first_living(GList *node)
 {
-    while (node && is_dead((struct creature *)node->data))
+    while (node != NULL && is_dead((struct creature *)node->data))
         node = node->next;
     return node;
 }
 
-inline static GList *
+inline static /*@dependent@*/ /*@null@*/ GList *
 next_living(GList *node)
 {
     if (!node)
@@ -1296,7 +1296,7 @@ static inline bool
 PRF_FLAGGED( struct creature *ch, enum prf_flag flag)
 {
     if( IS_NPC(ch) ) {
-        if(ch->desc && ch->desc->original) {
+        if(ch->desc != NULL && ch->desc->original != NULL) {
             return IS_SET(PRF_FLAGS(ch->desc->original), flag);
         } else {
             return false;
@@ -1309,7 +1309,7 @@ static inline bool
 PRF2_FLAGGED( struct creature *ch, enum prf2_flag flag )
 {
     if( IS_NPC(ch) ) {
-        if(ch->desc && ch->desc->original) {
+        if(ch->desc != NULL && ch->desc->original != NULL) {
             return IS_SET(PRF2_FLAGS(ch->desc->original), flag);
         } else {
             return false;
@@ -1338,35 +1338,49 @@ GET_REPUTATION_RANK(struct creature *ch)
 	return (reputation_of(ch) / 100) + 1;
 }
 
-static inline bool IS_REMORT( const struct creature *ch )
+static inline bool
+IS_REMORT( const struct creature *ch )
 {
 	if( ch == NULL )
 		return false;
 	if( GET_REMORT_CLASS(ch) == CLASS_UNDEFINED )
 		return false;
-	if( IS_PC(ch) && GET_REMORT_GEN(ch) <= 0 )
+	if( IS_PC(ch) && GET_REMORT_GEN(ch) == 0 )
 		return false;
 	return true;
 }
 
-static inline struct room_direction_data* EXIT( struct creature *ch, int dir ) {
+static inline /*@dependent@*/ /*@null@*/ struct room_direction_data*
+EXIT(struct creature *ch, int dir) {
 	return ch->in_room->dir_option[dir];
 }
-static inline struct room_direction_data* _2ND_EXIT( struct creature *ch, int dir ) {
-	return EXIT(ch,dir)->to_room->dir_option[dir];
+static inline /*@dependent@*/ /*@null@*/ struct room_direction_data*
+_2ND_EXIT(struct creature *ch, int dir) {
+    struct room_direction_data *exit = EXIT(ch, dir);
+    if (exit != NULL) {
+        return exit->to_room->dir_option[dir];
+    }
+    return NULL;
 }
-static inline struct room_direction_data* _3RD_EXIT( struct creature *ch, int dir ) {
-	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
+static inline /*@dependent@*/ /*@null@*/ struct room_direction_data*
+_3RD_EXIT(struct creature *ch, int dir) {
+    struct room_direction_data *exit = _2ND_EXIT(ch, dir);
+    if (exit != NULL) {
+        return exit->to_room->dir_option[dir];
+    }
+    return NULL;
 }
 
 static inline bool
 NPC_CAN_GO(struct creature * ch, int door)
 {
-	if (EXIT(ch, door) &&
-		EXIT(ch, door)->to_room &&
-		(!IS_SET(EXIT(ch, door)->exit_info,
-				EX_CLOSED | EX_NOPASS | EX_HIDDEN) ||
-			GET_LEVEL(ch) >= LVL_IMMORT || NON_CORPOREAL_MOB(ch))) {
+    struct room_direction_data *exit = EXIT(ch, door);
+
+	if (exit != NULL
+        && exit->to_room != NULL
+        && (!IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS | EX_HIDDEN)
+            || GET_LEVEL(ch) >= LVL_IMMORT
+            || NON_CORPOREAL_MOB(ch))) {
 		return true;
 	}
 	return false;

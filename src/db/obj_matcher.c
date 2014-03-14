@@ -168,7 +168,7 @@ object_matches_apply(struct obj_data *obj, struct obj_matcher *matcher)
 }
 
 char *
-object_apply_info(struct creature *ch,
+object_apply_info(__attribute__ ((unused)) struct creature *ch,
                   struct obj_data *obj,
                   struct obj_matcher *matcher)
 {
@@ -275,7 +275,7 @@ object_matches_cost(struct obj_data *obj, struct obj_matcher *matcher)
 char *
 object_cost_info(struct creature *ch,
                  struct obj_data *obj,
-                 struct obj_matcher *matcher)
+                 __attribute__ ((unused)) struct obj_matcher *matcher)
 {
     return tmp_sprintf("%s[%s%11d%s]%s",
                        CCYEL(ch,C_NRM), CCGRN(ch, C_NRM),

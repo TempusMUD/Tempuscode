@@ -1516,8 +1516,8 @@ damage(struct creature *ch, struct creature *victim,
         else
             dam -= (int)((dam * GET_ALIGNMENT(ch)) / 10000);
     }
-    //******************* Reduction based on the attacker ********************/
-    //************ Knights, Clerics, and Monks out of alignment **************/
+    /******************* Reduction based on the attacker ********************/
+    /************ Knights, Clerics, and Monks out of alignment **************/
     if (ch) {
         if (IS_NEUTRAL(ch)) {
             if (IS_KNIGHT(ch) || IS_CLERIC(ch))

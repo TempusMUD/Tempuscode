@@ -280,11 +280,9 @@ enum affect_join_flag {
     AFF_NOOP = 3,
 };
 
-static inline const char *
+static inline /*@observer@*/ const char *
 liquid_to_str(int liquid)
 {
-	extern const char *drinks[];
-
 	if (liquid < 0 || liquid > NUM_LIQUID_TYPES) {
 		return tmp_sprintf("!ILLEGAL(%d)!", liquid);
 	}
@@ -390,7 +388,7 @@ struct obj_data {
 };
 /* ======================================================================= */
 
-static inline struct room_direction_data *OEXIT( struct obj_data *obj, int dir ) {
+static inline /*@dependent@*/ struct room_direction_data *OEXIT( struct obj_data *obj, int dir ) {
 	return obj->in_room->dir_option[dir];
 }
 struct obj_data *make_object(void);

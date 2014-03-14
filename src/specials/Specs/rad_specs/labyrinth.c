@@ -311,7 +311,7 @@ SPECIAL(gollum)
     return 0;
 }
 
-//*****************************************************
+// *****************************************************
 // Pendulum description
 // There is a timer mob that does the actual swinging of the pendulum.  It
 // is a mobile primarily because rooms don't receive special ticks.

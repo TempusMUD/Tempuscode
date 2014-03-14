@@ -208,7 +208,7 @@ struct room_data {
     int prog_marker;
     struct prog_state_data *prog_state;
 	struct extra_descr_data *ex_description;	// for examine/look
-	struct room_direction_data *dir_option[NUM_OF_DIRS];	// Directions
+	/*@dependent@*/ struct room_direction_data *dir_option[NUM_OF_DIRS];	// Directions
 	struct special_search_data *search;	// Specials to be searched
 	struct room_affect_data *affects;	// temp. room affects
 	struct room_trail_data *trail;	// tracking data
@@ -287,7 +287,8 @@ bool room_is_sunny(struct room_data *room);
 bool room_is_dark(struct room_data *room);
 bool room_is_light(struct room_data *room);
 
-static inline struct room_direction_data* ABS_EXIT( struct room_data *room, int dir ) {
+static inline /*@dependent@*/ struct room_direction_data*
+ABS_EXIT( struct room_data *room, int dir ) {
 	return room->dir_option[dir];
 }
 

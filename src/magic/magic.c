@@ -144,20 +144,20 @@ const int8_t saving_throws[8][LVL_GRIMP + 1] = {
         42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0}
 };
 
-int
+bool
 mag_savingthrow(struct creature *ch, int level, int type)
 {
     int save;
 
     if (GET_LEVEL(ch) > LVL_GOD) {
-        return 1;
+        return true;
     }
     // If its > 100 its obviously a search and doesn't need to be saveable.
     if (level > 100) {
-        return 0;
+        return false;
     }
     if (type == SAVING_NONE)
-        return 0;
+        return false;
 
     /* negative apply_saving_throw values make saving throws better! */
 
@@ -492,71 +492,6 @@ affect_update(void)
 
         }
     }
-}
-
-/*
- *  mag_materials:
- *  Checks for up to 3 vnums (spell reagents) in the player's inventory.
- *
- * No spells implemented in Circle 3.0 use mag_materials, but you can use
- * it to implement your own spells which require ingredients (i.e., some
- * heal spell which requires a rare herb or some such.)
- */
-int
-mag_materials(struct creature *ch, int item0, int item1, int item2,
-    int extract, int verbose)
-{
-    struct obj_data *tobj;
-    struct obj_data *obj0 = NULL, *obj1 = NULL, *obj2 = NULL;
-
-    for (tobj = ch->carrying; tobj; tobj = tobj->next_content) {
-        if ((item0 > 0) && (GET_OBJ_VNUM(tobj) == item0)) {
-            obj0 = tobj;
-            item0 = -1;
-        } else if ((item1 > 0) && (GET_OBJ_VNUM(tobj) == item1)) {
-            obj1 = tobj;
-            item1 = -1;
-        } else if ((item2 > 0) && (GET_OBJ_VNUM(tobj) == item2)) {
-            obj2 = tobj;
-            item2 = -1;
-        }
-    }
-    if ((item0 > 0) || (item1 > 0) || (item2 > 0)) {
-        if (verbose) {
-            switch (number(0, 2)) {
-            case 0:
-                send_to_char(ch, "A wart sprouts on your nose.\r\n");
-                break;
-            case 1:
-                send_to_char(ch, "Your hair falls out in clumps.\r\n");
-                break;
-            case 2:
-                send_to_char(ch, "A huge corn develops on your big toe.\r\n");
-                break;
-            }
-        }
-        return (false);
-    }
-    if (extract) {
-        if (item0 < 0) {
-            obj_from_char(obj0);
-            extract_obj(obj0);
-        }
-        if (item1 < 0) {
-            obj_from_char(obj1);
-            extract_obj(obj1);
-        }
-        if (item2 < 0) {
-            obj_from_char(obj2);
-            extract_obj(obj2);
-        }
-    }
-    if (verbose) {
-        send_to_char(ch, "A puff of smoke rises from your pack.\r\n");
-        act("A puff of smoke rises from $n's pack.", true, ch, NULL, NULL,
-            TO_ROOM);
-    }
-    return (true);
 }
 
 /*

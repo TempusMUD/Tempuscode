@@ -211,9 +211,7 @@ typedef struct dynamic_text_file {
 
 extern dynamic_text_file *dyntext_list;
 
-void check_dyntext_updates(struct creature *ch, int mode);
-#define CHECKDYN_UNRENT    0
-#define CHECKDYN_RECONNECT 1
+void check_dyntext_updates(struct creature *ch);
 
 struct sql_query_data {
 	struct sql_query_data *next;
@@ -221,7 +219,7 @@ struct sql_query_data {
 };
 
 // Executes a SQL command, returns true if successful
-bool sql_exec(const char *str, ...)
+void sql_exec(const char *str, ...)
 	__attribute__ ((format (printf, 1, 2)));
 // Executes a SQL query.  Returns the result, which must be deallocated
 // with PQclear() after use

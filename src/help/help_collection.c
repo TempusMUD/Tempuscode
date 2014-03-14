@@ -25,6 +25,7 @@
 #include "tmpstr.h"
 #include "account.h"
 #include "help.h"
+#include "strutil.h"
 
 // The global HelpCollection object.
 // Allocated in comm.cc

@@ -81,7 +81,7 @@ void raw_kill(struct creature *ch, struct creature *killer, int attacktype)
 bool is_arena_combat(struct creature *ch, struct creature *vict)
     __attribute__ ((nonnull (2)));
 bool is_npk_combat(struct creature *ch, struct creature *vict)
-    __attribute__ ((nonnull));
+    __attribute__ ((nonnull (2)));
 bool ok_to_damage(struct creature *ch, struct creature *vict)
     __attribute__ ((nonnull));
 void count_pkill(struct creature *killer, struct creature *vict)

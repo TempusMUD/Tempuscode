@@ -15,7 +15,7 @@ size_t player_count(void);
 long top_player_idnum(void);
 
 bool crashsave(struct creature *ch);
-struct creature *load_player_from_xml(int idnum);
+/*@only@*/ /*@null@*/ struct creature *load_player_from_xml(long idnum);
 void save_player_to_xml(struct creature *ch);
 
 #endif

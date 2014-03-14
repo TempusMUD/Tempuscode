@@ -4743,27 +4743,27 @@ ACMD(do_toggle)
     }
 
     if (is_abbrev(arg, "gossip"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOGOSSIP);
+        do_gen_tog(ch, "", cmd, SCMD_NOGOSSIP);
     else if (is_abbrev(arg, "spew"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOSPEW);
+        do_gen_tog(ch, "", cmd, SCMD_NOSPEW);
     else if (is_abbrev(arg, "guild"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOGUILDSAY);
+        do_gen_tog(ch, "", cmd, SCMD_NOGUILDSAY);
     else if (is_abbrev(arg, "clan"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOCLANSAY);
+        do_gen_tog(ch, "", cmd, SCMD_NOCLANSAY);
     else if (is_abbrev(arg, "sing"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOMUSIC);
+        do_gen_tog(ch, "", cmd, SCMD_NOMUSIC);
     else if (is_abbrev(arg, "auction"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOAUCTION);
+        do_gen_tog(ch, "", cmd, SCMD_NOAUCTION);
     else if (is_abbrev(arg, "grats"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOGRATZ);
+        do_gen_tog(ch, "", cmd, SCMD_NOGRATZ);
     else if (is_abbrev(arg, "newbie"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NEWBIE_HELP);
+        do_gen_tog(ch, "", cmd, SCMD_NEWBIE_HELP);
     else if (is_abbrev(arg, "dream"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NODREAM);
+        do_gen_tog(ch, "", cmd, SCMD_NODREAM);
     else if (is_abbrev(arg, "project"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOPROJECT);
+        do_gen_tog(ch, "", cmd, SCMD_NOPROJECT);
     else if (is_abbrev(arg, "brief"))
-        do_gen_tog(ch, NULL, cmd, SCMD_BRIEF);
+        do_gen_tog(ch, "", cmd, SCMD_BRIEF);
     else
         send_to_char(ch, "What is it that you want to toggle?\r\n");
     return;

@@ -42,6 +42,7 @@
 #include "tmpstr.h"
 #include "account.h"
 #include "spells.h"
+#include "strutil.h"
 
 extern int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];
 extern struct descriptor_data *descriptor_list;
