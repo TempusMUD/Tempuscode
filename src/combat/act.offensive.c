@@ -2643,6 +2643,13 @@ shoot_projectile_gun(struct creature *ch,
     // loop through ROF of the gun for burst fire
 
     for (bullet_num = 0; bullet && bullet_num < CUR_R_O_F(gun); bullet_num++) {
+        struct obj_data *next_bullet = bullet->next_content;
+
+        // Search for next bullet/arrow
+        while (next_bullet && !IS_BULLET(next_bullet)) {
+            next_bullet = next_bullet->next_content;
+        }
+
         if (is_dead(vict)) {
             // if victim was killed, fire at their corpse
             projectile_blast_corpse(ch, gun, bullet);
@@ -2652,6 +2659,8 @@ shoot_projectile_gun(struct creature *ch,
         }
         if (!IS_ARROW(gun))
             extract_obj(bullet);
+
+        bullet = next_bullet;
 
         // if the attacker was somehow killed, return immediately
         if (is_dead(ch))
