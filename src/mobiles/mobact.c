@@ -169,8 +169,10 @@ burn_update_creature(struct creature *ch)
             damager = get_char_in_world_by_idnum(af->owner);
         if (!damager)
             damager = ch;
-        if (damage(damager, ch, NULL, dice(6, 5), TYPE_FALLING, WEAR_RANDOM))
+        damage(damager, ch, NULL, dice(6, 5), TYPE_FALLING, WEAR_RANDOM);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // char is flying but unable to return
     if (GET_POSITION(ch) == POS_FLYING && !AFF_FLAGGED(ch, AFF_INFLIGHT)
@@ -402,10 +404,12 @@ burn_update_creature(struct creature *ch)
             damager = get_char_in_world_by_idnum(af->owner);
         if (!damager)
             damager = ch;
-        if (damage(damager, ch, NULL, dice(4, 3) + (affected_by_spell(ch,
-                        SPELL_METABOLISM) ? dice(4, 11) : 0), SPELL_POISON,
-                -1))
+        damage(damager, ch, NULL, dice(4, 3)
+               + (affected_by_spell(ch, SPELL_METABOLISM) ? dice(4, 11) : 0),
+               SPELL_POISON, -1);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // Gravity Well
     if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
@@ -416,11 +420,14 @@ burn_update_creature(struct creature *ch)
             damager = get_char_in_world_by_idnum(af->owner);
         if (!damager)
             damager = ch;
-        if (mag_savingthrow(ch, af ? af->level : GET_LEVEL(ch), SAVING_PHY))
+        if (!mag_savingthrow(ch, af ? af->level : GET_LEVEL(ch), SAVING_PHY)) {
+            damage(damager, ch, NULL,
+                   number(5, (af ? af->level : GET_LEVEL(ch)) / 5),
+                   TYPE_PRESSURE, -1);
+        }
+        if (is_dead(ch)) {
             return;
-        if (damage(damager, ch, NULL, number(5,
-                    (af ? af->level : GET_LEVEL(ch)) / 5), TYPE_PRESSURE, -1))
-            return;
+        }
     }
     // psychic crush
     if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH)) {
@@ -429,20 +436,24 @@ burn_update_creature(struct creature *ch)
             damager = get_char_in_world_by_idnum(af->owner);
         if (!damager)
             damager = ch;
-        if (damage(damager, ch, NULL, mag_savingthrow(ch, 50,
-                    SAVING_PSI) ? 0 : dice(4, 20), SPELL_PSYCHIC_CRUSH,
-                WEAR_HEAD))
+        damage(damager, ch, NULL,
+               mag_savingthrow(ch, 50, SAVING_PSI) ? 0 : dice(4, 20),
+               SPELL_PSYCHIC_CRUSH, WEAR_HEAD);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // character has a stigmata
     if ((af = affected_by_spell(ch, SPELL_STIGMATA))) {
         damager = get_char_in_world_by_idnum(af->owner);
         if (!damager)
             damager = ch;
-        if (damage(damager, ch, NULL, mag_savingthrow(ch, af->level,
-                    SAVING_SPELL) ? 0 : dice(3, af->level), SPELL_STIGMATA,
-                WEAR_FACE))
+        damage(damager, ch, NULL,
+               mag_savingthrow(ch, af->level, SAVING_SPELL) ? 0 : dice(3, af->level),
+               SPELL_STIGMATA, WEAR_FACE);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // character has entropy field
     if ((af = affected_by_spell(ch, SPELL_ENTROPY_FIELD))
@@ -455,10 +466,12 @@ burn_update_creature(struct creature *ch)
             (13 - random_number_zero_low(GET_WIS(ch) / 4)));
         GET_MOVE(ch) = MAX(0, GET_MOVE(ch) -
             (13 - random_number_zero_low(GET_STR(ch) / 4)));
-        if (damage(damager, ch, NULL,
-                (13 - random_number_zero_low(GET_CON(ch) / 4)),
-                SPELL_ENTROPY_FIELD, -1))
+        damage(damager, ch, NULL,
+               (13 - random_number_zero_low(GET_CON(ch) / 4)),
+               SPELL_ENTROPY_FIELD, -1);
+        if (is_dead(ch)) {
             return;
+        }
 
     }
     // character has acidity
@@ -468,9 +481,12 @@ burn_update_creature(struct creature *ch)
             damager = get_char_in_world_by_idnum(af->owner);
         if (!damager)
             damager = ch;
-        if (damage(damager, ch, NULL, mag_savingthrow(ch, 50,
-                    SAVING_PHY) ? 0 : dice(2, 10), TYPE_ACID_BURN, -1))
+        damage(damager, ch, NULL,
+               mag_savingthrow(ch, 50, SAVING_PHY) ? 0 : dice(2, 10),
+               TYPE_ACID_BURN, -1);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // motor spasm
     if ((af = affected_by_spell(ch, SPELL_MOTOR_SPASM))
@@ -521,9 +537,12 @@ burn_update_creature(struct creature *ch)
         && random_fractional_10()) {
         int thedam;
         thedam = dice(2, 3);
-        if (GET_HIT(ch) + 1 > thedam)
-            if (damage(ch, ch, NULL, thedam, TYPE_ANGUISH, -1))
+        if (GET_HIT(ch) + 1 > thedam) {
+            damage(ch, ch, NULL, thedam, TYPE_ANGUISH, -1);
+            if (is_dead(ch)) {
                 return;
+            }
+        }
     }
     //Lich's Lyrics rotting flesh
     if ((af = affected_by_spell(ch, SONG_LICHS_LYRICS))
@@ -574,7 +593,8 @@ burn_update_creature(struct creature *ch)
             act("You absorb some of $n's life force!", false, ch, NULL, damager,
                 TO_VICT);
         }
-        if (damage(damager, ch, NULL, dam, SONG_LICHS_LYRICS, WEAR_RANDOM)) {
+        damage(damager, ch, NULL, dam, SONG_LICHS_LYRICS, WEAR_RANDOM);
+        if (is_dead(ch)) {
             return;
         }
     }
@@ -605,11 +625,18 @@ burn_update_creature(struct creature *ch)
                 damager = get_char_in_world_by_idnum(af->owner);
             if (!damager)
                 damager = ch;
-            if (damage(damager, ch, NULL,
-                    CHAR_WITHSTANDS_FIRE(ch) ? 0 :
-                    ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) ? dice(8,
-                        7) : dice(5, 5), TYPE_ABLAZE, -1))
+            int dam = 0;
+            if (!CHAR_WITHSTANDS_FIRE(ch)) {
+                if (ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED)) {
+                    dam =  dice(8, 7);
+                } else {
+                    dam = dice(5, 5);
+                }
+            }
+            damage(damager, ch, NULL, dam, TYPE_ABLAZE, -1);
+            if (is_dead(ch)) {
                 return;
+            }
         }
     }
     // burning rooms
@@ -621,27 +648,35 @@ burn_update_creature(struct creature *ch)
         act("$n suddenly bursts into flames!", false, ch, NULL, NULL, TO_ROOM);
         GET_MANA(ch) = 0;
         ignite_creature(ch, NULL);
-        if (damage(ch, ch, NULL, dice(4, 5), TYPE_ABLAZE, -1))
+        damage(ch, ch, NULL, dice(4, 5), TYPE_ABLAZE, -1);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // freezing room
     else if (ROOM_FLAGGED(ch->in_room, ROOM_ICE_COLD)
         && !CHAR_WITHSTANDS_COLD(ch)) {
-        if (damage(NULL, ch, NULL, dice(4, 5), TYPE_FREEZING, -1))
+        damage(NULL, ch, NULL, dice(4, 5), TYPE_FREEZING, -1);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // holywater ocean
     else if (ROOM_FLAGGED(ch->in_room, ROOM_HOLYOCEAN) && IS_EVIL(ch)
         && GET_POSITION(ch) < POS_FLYING) {
-        if (damage(ch, ch, NULL, dice(4, 5), TYPE_HOLYOCEAN, WEAR_RANDOM))
+        damage(ch, ch, NULL, dice(4, 5), TYPE_HOLYOCEAN, WEAR_RANDOM);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // boiling pitch
     else if ((ch->in_room->sector_type == SECT_PITCH_PIT
             || ch->in_room->sector_type == SECT_PITCH_SUB)
         && !CHAR_WITHSTANDS_HEAT(ch)) {
-        if (damage(ch, ch, NULL, dice(4, 3), TYPE_BOILING_PITCH, WEAR_RANDOM))
+        damage(ch, ch, NULL, dice(4, 3), TYPE_BOILING_PITCH, WEAR_RANDOM);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // radioactive room
     if (ROOM_FLAGGED(ch->in_room, ROOM_RADIOACTIVE)
@@ -674,8 +709,10 @@ burn_update_creature(struct creature *ch)
     }
 
     if (SECT_TYPE(ch->in_room) == SECT_DEEP_OCEAN) {
-        if (damage(ch, ch, NULL, dice(8, 10), TYPE_CRUSHING_DEPTH, -1))
+        damage(ch, ch, NULL, dice(8, 10), TYPE_CRUSHING_DEPTH, -1);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // no air
     if (!room_has_air(ch->in_room) &&
@@ -691,8 +728,10 @@ burn_update_creature(struct creature *ch)
         } else {
             type = TYPE_DROWNING;
         }
-        if (damage(ch, ch, NULL, dice(4, 5), type, -1))
+        damage(ch, ch, NULL, dice(4, 5), type, -1);
+        if (is_dead(ch)) {
             return;
+        }
 
         if (AFF_FLAGGED(ch, AFF_INFLIGHT) &&
             GET_POSITION(ch) < POS_FLYING &&
@@ -745,9 +784,12 @@ burn_update_creature(struct creature *ch)
     //
 
     if (IS_NPC(ch) &&
-        GET_NPC_VNUM(ch) == ZOMBIE_VNUM && room_is_sunny(ch->in_room))
-        if (damage(ch, ch, NULL, dice(4, 5), TOP_SPELL_DEFINE, -1))
+        GET_NPC_VNUM(ch) == ZOMBIE_VNUM && room_is_sunny(ch->in_room)) {
+        damage(ch, ch, NULL, dice(4, 5), TOP_SPELL_DEFINE, -1);
+        if (is_dead(ch)) {
             return;
+        }
+    }
 
     /* Hunter Mobs */
     if (NPC_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_BLIND) &&
@@ -1564,10 +1606,12 @@ single_mobile_activity(struct creature *ch)
         struct affected_type *af;
         if ((af = affected_by_spell(ch, SPELL_POISON)))
             damager = get_char_in_world_by_idnum(af->owner);
-        if (damage(damager, ch, NULL, dice(4, 3) +
-                (affected_by_spell(ch, SPELL_METABOLISM) ? dice(4,
-                        11) : 0), SPELL_POISON, -1))
+        damage(damager, ch, NULL,
+               dice(4, 3) + (affected_by_spell(ch, SPELL_METABOLISM) ? dice(4, 11) : 0),
+               SPELL_POISON, -1);
+        if (is_dead(ch)) {
             return;
+        }
     }
     // Remorts will act like their secondary class 1/3rd of the time
     if (GET_REMORT_CLASS(ch) != CLASS_UNDEFINED && !random_fractional_3())
