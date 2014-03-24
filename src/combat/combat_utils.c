@@ -558,7 +558,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
     corpse->in_room = NULL;
     corpse->worn_on = -1;
 
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
+    if (attacktype == SPELL_PETRIFY)
         GET_OBJ_MATERIAL(corpse) = MAT_STONE;
     else if (IS_ROBOT(ch))
         GET_OBJ_MATERIAL(corpse) = MAT_FLESH;
@@ -590,7 +590,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         strcpy(namestr, typebuf);
     }
 
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
+    if (attacktype == SPELL_PETRIFY) {
         strcat(namestr, " stone");
         strcpy(adj, "stone ");
         strcat(adj, typebuf);
@@ -608,6 +608,12 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
     }
 
     switch (attacktype) {
+    case SPELL_PETRIFY:
+        corpse->line_desc =
+            strdup(tmp_sprintf("A stone statue of %s is standing here.",
+                GET_NAME(ch)));
+        strcpy(adj, "stone statue");
+        break;
 
     case TYPE_HIT:
     case SKILL_BASH:
@@ -660,18 +666,12 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         leg = make_object();
         leg->shared = null_obj_shared;
         leg->in_room = NULL;
-        if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
-            leg->aliases = strdup("blood leg stone");
-        else
-            leg->aliases = strdup("leg severed");
 
         leg->line_desc =
-            strdup(tmp_sprintf("The severed %sleg of %s %s lying here.",
-                AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
-                isare));
+            strdup(tmp_sprintf("The severed leg of %s %s lying here.",
+                GET_NAME(ch), isare));
         leg->name =
-            strdup(tmp_sprintf("the severed %sleg of %s", AFF2_FLAGGED(ch,
-                    AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch)));
+            strdup(tmp_sprintf("the severed leg of %s", GET_NAME(ch)));
         GET_OBJ_TYPE(leg) = ITEM_WEAPON;
         GET_OBJ_WEAR(leg) = ITEM_WEAR_TAKE + ITEM_WEAR_WIELD;
         GET_OBJ_EXTRA(leg) = ITEM_NODONATE + ITEM_NOSELL;
@@ -978,19 +978,11 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
             spine = make_object();
             spine->shared = null_obj_shared;
             spine->in_room = NULL;
-            if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
-                spine->aliases = strdup("spine spinal column stone");
-                spine->line_desc =
-                    strdup("A stone spinal column is lying here.");
-                spine->name = strdup("a stone spinal column");
-                GET_OBJ_VAL(spine, 1) = 4;
-            } else {
-                spine->aliases = strdup("spine spinal column bloody");
-                spine->line_desc =
-                    strdup("A bloody spinal column is lying here.");
-                spine->name = strdup("a bloody spinal column");
-                GET_OBJ_VAL(spine, 1) = 2;
-            }
+            spine->aliases = strdup("spine spinal column bloody");
+            spine->line_desc =
+                strdup("A bloody spinal column is lying here.");
+            spine->name = strdup("a bloody spinal column");
+            GET_OBJ_VAL(spine, 1) = 2;
 
             GET_OBJ_TYPE(spine) = ITEM_WEAPON;
             GET_OBJ_WEAR(spine) = ITEM_WEAR_TAKE + ITEM_WEAR_WIELD;
@@ -1087,18 +1079,13 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         head = make_object();
         head->shared = null_obj_shared;
         head->in_room = NULL;
-        if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
-            head->aliases = strdup("blood head skull stone");
-        else
-            head->aliases = strdup("blood head skull");
+        head->aliases = strdup("blood head skull");
 
         head->line_desc =
-            strdup(tmp_sprintf("The severed %shead of %s %s lying here.",
-                AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
-                isare));
+            strdup(tmp_sprintf("The severed head of %s %s lying here.",
+                               GET_NAME(ch), isare));
         head->name =
-            strdup(tmp_sprintf("the severed %shead of %s", AFF2_FLAGGED(ch,
-                    AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch)));
+            strdup(tmp_sprintf("the severed head of %s", GET_NAME(ch)));
         GET_OBJ_TYPE(head) = ITEM_DRINKCON;
         GET_OBJ_WEAR(head) = ITEM_WEAR_TAKE;
         GET_OBJ_EXTRA(head) = ITEM_NODONATE | ITEM_NOSELL;
@@ -1109,13 +1096,8 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
 
         head->worn_on = -1;
 
-        if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
-            GET_OBJ_MATERIAL(head) = MAT_STONE;
-            set_obj_weight(head, 25);
-        } else {
-            GET_OBJ_MATERIAL(head) = MAT_FLESH;
-            set_obj_weight(head, 10);
-        }
+        GET_OBJ_MATERIAL(head) = GET_OBJ_MATERIAL(corpse);
+        set_obj_weight(head, 10);
 
         if (IS_NPC(ch))
             GET_OBJ_TIMER(head) = max_npc_corpse_time;
@@ -1176,22 +1158,14 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         heart = make_object();
         heart->shared = null_obj_shared;
         heart->in_room = NULL;
-        if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
-            GET_OBJ_TYPE(heart) = ITEM_OTHER;
-            heart->aliases = strdup("heart stone");
-            heart->name =
-                strdup(tmp_sprintf("the stone heart of %s", GET_NAME(ch)));
-        } else {
-            GET_OBJ_TYPE(heart) = ITEM_FOOD;
-            heart->aliases = strdup("heart bloody");
-            heart->name =
-                strdup(tmp_sprintf("the bloody heart of %s", GET_NAME(ch)));
-        }
+        GET_OBJ_TYPE(heart) = ITEM_FOOD;
+        heart->aliases = strdup("heart bloody");
+        heart->name =
+            strdup(tmp_sprintf("the bloody heart of %s", GET_NAME(ch)));
 
         heart->line_desc =
-            strdup(tmp_sprintf("The %sheart of %s %s lying here.",
-                AFF2_FLAGGED(ch, AFF2_PETRIFIED) ? "stone " : "", GET_NAME(ch),
-                isare));
+            strdup(tmp_sprintf("The heart of %s %s lying here.",
+                               GET_NAME(ch), isare));
 
         GET_OBJ_WEAR(heart) = ITEM_WEAR_TAKE + ITEM_WEAR_HOLD;
         GET_OBJ_EXTRA(heart) = ITEM_NODONATE | ITEM_NOSELL;
@@ -1256,12 +1230,19 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
     }
 
     //  make the short name
-    if (attacktype != TYPE_SWALLOW)
+    switch (attacktype) {
+    case TYPE_SWALLOW:
+        corpse->name = strdup("a bloody pile of bones");
+        break;
+    case SPELL_PETRIFY:
+        corpse->name = strdup(tmp_sprintf("a stone statue of %s", GET_NAME(ch)));
+        break;
+    default:
         corpse->name =
             strdup(tmp_sprintf("the %s%s%s of %s", adj, *adj ? " " : "",
                 typebuf, GET_NAME(ch)));
-    else
-        corpse->name = strdup("a bloody pile of bones");
+        break;
+    }
 
     // make the alias list
     strcat(strcat(strcat(strcat(namestr, " "), adj), " "), ch->player.name);

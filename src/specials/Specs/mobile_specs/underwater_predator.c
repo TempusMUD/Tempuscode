@@ -13,8 +13,7 @@ SPECIAL(underwater_predator)
     if (spec_mode != SPECIAL_TICK)
         return 0;
 
-    if (GET_POSITION(pred) < POS_RESTING ||
-        AFF2_FLAGGED(pred, AFF2_PETRIFIED) || !AWAKE(pred))
+    if (GET_POSITION(pred) < POS_RESTING || !AWAKE(pred))
         return 0;
 
     if ((vict = random_opponent(pred))

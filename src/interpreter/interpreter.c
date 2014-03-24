@@ -1785,22 +1785,9 @@ command_interpreter(struct creature *ch, const char *argument)
         cmd_info[cmd].usage += 1;
     }
 
-    if (PLR_FLAGGED(ch, PLR_FROZEN) && GET_LEVEL(ch) < LVL_GRIMP)
+    if (PLR_FLAGGED(ch, PLR_FROZEN) && GET_LEVEL(ch) < LVL_GRIMP) {
         send_to_char(ch,
             "You try, but the mind-numbing cold prevents you...\r\n");
-    else if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) && !IS_IMMORT(ch)
-        && (!d || !d->original)) {
-        if (!number(0, 3))
-            send_to_char(ch, "You have been turned to stone!\r\n");
-        else if (!number(0, 2))
-            send_to_char(ch,
-                "You are petrified!  You cannot move an inch!\r\n");
-        else if (!number(0, 1))
-            send_to_char(ch,
-                "WTF?!!  Your body has been turned to solid stone!");
-        else
-            send_to_char(ch,
-                "You have been turned to stone, and cannot move.\r\n");
     } else if (cmd_info[cmd].command_pointer == NULL)
         send_to_char(ch,
             "Sorry, that command hasn't been implemented yet.\r\n");

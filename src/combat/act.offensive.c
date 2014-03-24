@@ -1308,10 +1308,6 @@ ACMD(do_flee)
     int i, attempt, loss = 0;
     struct creature *fighting = random_opponent(ch);
 
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
-        send_to_char(ch, "You are solid stone!\r\n");
-        return;
-    }
     if (AFF2_FLAGGED(ch, AFF2_BERSERK) && is_fighting(ch) &&
         !number(0, 1 + (GET_INT(ch) / 4))) {
         send_to_char(ch, "You are too enraged to flee!\r\n");

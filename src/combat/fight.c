@@ -141,8 +141,6 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
         af = ch->affected;
     }
 
-    REMOVE_BIT(AFF2_FLAGS(ch), AFF2_PETRIFIED);
-
     if (IS_NPC(ch))
         ch->mob_specials.shared->kills++;
 
@@ -2495,20 +2493,6 @@ hit(struct creature *ch, struct creature *victim, int type)
         send_to_char(ch, "You are not allowed to attack mobiles!\r\n");
         return false;
     }
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) && GET_LEVEL(ch) < LVL_ELEMENT) {
-        if (!number(0, 2))
-            act("You want to fight back against $N's attack, but cannot!",
-                false, ch, NULL, victim, TO_CHAR | TO_SLEEP);
-        else if (!number(0, 1))
-            send_to_char(ch,
-                "You have been turned to stone, and cannot fight!\r\n");
-        else
-            send_to_char(ch,
-                "You cannot fight back!!  You are petrified!\r\n");
-
-        return false;
-    }
-
     if (is_newbie(victim) && !IS_NPC(ch) && !IS_NPC(victim) &&
         !is_arena_combat(ch, victim) && GET_LEVEL(ch) < LVL_IMMORT) {
         act("$N is currently under new character protection.",
@@ -2965,12 +2949,6 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
     if (g_list_find(ch->fighting, ch)) {    // intentional crash here.
         errlog("fighting self in perform_violence.");
         raise(SIGSEGV);
-    }
-
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED) ||
-        (IS_NPC(ch) && ch->in_room->zone->idle_time >= ZONE_IDLE_TIME)) {
-        remove_all_combat(ch);
-        return;
     }
 
     if (IS_NPC(ch)) {

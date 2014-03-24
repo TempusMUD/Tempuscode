@@ -390,7 +390,6 @@ loadCorpse(struct creature *ch)
     corpse_obj = load_object_from_xml(NULL, ch, NULL, node);
     if (!corpse_obj) {
         xmlFreeDoc(doc);
-        extract_obj(corpse_obj);
         errlog("Could not create corpse object from file %s", path);
         return 1;
     }

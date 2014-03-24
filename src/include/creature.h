@@ -424,7 +424,7 @@ enum aff2_bit {
     AFF2_BLADE_BARRIER = (1 << 25),
     AFF2_OBLIVITY = (1 << 26),
     AFF2_ENERGY_FIELD = (1 << 27),
-    AFF2_PETRIFIED = (1 << 28),
+    AFF2_UNUSED = (1 << 28),
     AFF2_VERTIGO = (1 << 29),
     AFF2_PROT_DEMONS = (1 << 30),
 #define NUM_AFF2_FLAGS          31

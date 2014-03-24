@@ -150,8 +150,7 @@ burn_update_creature(struct creature *ch)
     if (!is_fighting(ch) && GET_NPC_WAIT(ch))
         GET_NPC_WAIT(ch) = MAX(0, GET_NPC_WAIT(ch) - FIRE_TICK);
 
-    if ((IS_NPC(ch) && ZONE_FLAGGED(ch->in_room->zone, ZONE_FROZEN)) ||
-        AFF2_FLAGGED(ch, AFF2_PETRIFIED))
+    if ((IS_NPC(ch) && ZONE_FLAGGED(ch->in_room->zone, ZONE_FROZEN)))
         return;
 
     if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)
@@ -548,8 +547,7 @@ burn_update_creature(struct creature *ch)
     if ((af = affected_by_spell(ch, SONG_LICHS_LYRICS))
         && !random_fractional_10()) {
         int dam = 0;
-        if ((GET_CON(ch) / 2) + 85 > random_number_zero_low(100)
-            || AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
+        if ((GET_CON(ch) / 2) + 85 > random_number_zero_low(100)) {
             dam = (af->level / 8) + dice(2, 5);
             send_to_char(ch, "You feel your life force being drawn away!\r\n");
             act("$n begins to pale as $s life force fades.", false, ch, NULL, NULL,
@@ -1649,6 +1647,24 @@ single_mobile_activity(struct creature *ch)
                     false, ch, obj->aux_obj, NULL, TO_CHAR);
         }
     }
+
+    if (affected_by_spell(ch, SPELL_PETRIFY)) {
+        switch (number(0, 3)) {
+        case 0:
+            send_to_char(ch, "You feel yourself slowing down.\r\n");
+            break;
+        case 1:
+            send_to_char(ch, "Your entire body is beginning to stiffen.\r\n");
+            break;
+        case 2:
+            send_to_char(ch, "Your skin is turning gray.\r\n");
+            break;
+        case 3:
+            send_to_char(ch, "You are slowly turning to stone!\r\n");
+            break;
+        }
+    }
+
     //
     // nothing below this conditional affects FIGHTING characters
     //
@@ -1729,10 +1745,6 @@ single_mobile_activity(struct creature *ch)
     //
 
     if (!IS_NPC(ch) || ch->desc)
-        return;
-
-    // If players can't do anything while petrified, neither can mobs
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
         return;
 
     /** implicit awake && !fighting **/
@@ -2116,8 +2128,7 @@ single_mobile_activity(struct creature *ch)
             vict = it->data;
             if ((IS_NPC(vict) && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS))
                 || !can_see_creature(ch, vict)
-                || PRF_FLAGGED(vict, PRF_NOHASSLE)
-                || AFF2_FLAGGED(vict, AFF2_PETRIFIED))
+                || PRF_FLAGGED(vict, PRF_NOHASSLE))
                 continue;
 
             if (check_infiltrate(vict, ch))
@@ -2156,8 +2167,7 @@ single_mobile_activity(struct creature *ch)
 
             if ((IS_NPC(vict) && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS))
                 || !can_see_creature(ch, vict)
-                || PRF_FLAGGED(vict, PRF_NOHASSLE)
-                || AFF2_FLAGGED(vict, AFF2_PETRIFIED)) {
+                || PRF_FLAGGED(vict, PRF_NOHASSLE)) {
                 continue;
             }
             if (AWAKE(vict) &&
@@ -2696,9 +2706,6 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         errlog("FIGHTING(ch) == precious_vict in mobile_battle_activity()");
         return 0;
     }
-
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
-        return 0;
 
     if (IS_TARRASQUE(ch)) {     /* tarrasque */
         tarrasque_fight(ch);

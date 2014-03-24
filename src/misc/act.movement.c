@@ -499,12 +499,6 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         return 1;
     }
 
-    /* petrified? */
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
-        send_to_char(ch, "You stand as still as the statue you are.\r\n");
-        return 1;
-    }
-
     if ((af_ptr = affected_by_spell(ch, SPELL_ENTANGLE))) {
         if (!GET_MOVE(ch)) {
             send_to_char(ch,

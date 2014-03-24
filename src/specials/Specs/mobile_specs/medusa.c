@@ -21,13 +21,11 @@ SPECIAL(medusa)
             CAST_SPELL);
 
         return true;
-    } else if (vict && !number(0, 4)) {
+    } else if (vict && !AFF_FLAGGED(vict, AFF_BLIND) && !number(0, 4) ) {
         act("$n gazes into your eyes!", false, ch, NULL, vict, TO_VICT);
         act("$n gazes into $N's eyes!", false, ch, NULL, vict, TO_NOTVICT);
         call_magic(ch, vict, NULL, NULL, SPELL_PETRIFY, GET_LEVEL(ch),
             CAST_PETRI);
-        if (AFF2_FLAGGED(vict, AFF2_PETRIFIED))
-            remove_all_combat(ch);
         return 1;
     }
     return false;

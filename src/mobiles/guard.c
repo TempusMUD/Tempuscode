@@ -143,10 +143,6 @@ SPECIAL(guard)
     if (GET_POSITION(self) <= POS_SITTING)
         return false;
 
-    // Petrified guards can't do much
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
-        return false;
-
     // Set to deny if undecided
     act(to_vict, false, self, NULL, ch, TO_VICT);
     act(to_room, false, self, NULL, ch, TO_NOTVICT);

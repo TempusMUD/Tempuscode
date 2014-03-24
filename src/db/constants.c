@@ -1168,7 +1168,7 @@ const char *affected2_bits[] = {
     "BLADE BARRIER",
     "OBLIVITY",
     "NRG_FIELD",
-    "PETRI",
+    "!UNUSED!",
     "VERTIGO",
     "PROT_DEMONS",
     "\n"
@@ -1203,7 +1203,7 @@ const char *affected2_bits_desc[] = {
     "Blade_Barrier",
     "Oblivity",
     "Energy_Field",
-    "Petri",
+    "Unused",
     "Vertigo",
     "Prot_Demons",
     "\n"
@@ -1345,7 +1345,7 @@ const char *affected2_bits_ident[] = {
     "BLADE BARRIER",
     "OBLIVITY",
     "NRG_FIELD",
-    "PETRI",
+    "!UNUSED!",
     "VERTIGO",
     "PROT_DEMONS",
     "\n"

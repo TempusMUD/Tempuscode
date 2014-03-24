@@ -50,6 +50,7 @@
 #include "specs.h"
 #include "actions.h"
 #include "weather.h"
+#include "players.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
@@ -449,6 +450,29 @@ affect_update(void)
             } else if (af->duration == -1)  /* No action */
                 af->duration = -1;  /* GODs only! unlimited */
             else {
+                if (af->type == SPELL_PETRIFY) {
+                    struct creature *owner = NULL;
+                    bool loaded_owner = false;
+
+                    if (af->owner != 0) {
+                        owner = get_char_in_world_by_idnum(af->owner);
+                        if (!owner) {
+                            owner = load_player_from_xml(af->owner);
+                            if (owner) {
+                                loaded_owner = true;
+                            }
+                        }
+                    }
+
+                    act("You have turned entirely to stone!", false, i, NULL, NULL, TO_CHAR);
+                    act("$n has turned entirely to a stone statue!", false, i, NULL, NULL, TO_ROOM);
+                    die(i, owner, SPELL_PETRIFY);
+
+                    if (loaded_owner) {
+                        free_creature(owner);
+                    }
+                    return;
+                }
                 // spell-specific messages here
                 if ((af->type > 0) && (af->type <= MAX_SPELLS) &&
                     !PLR_FLAGGED(i, PLR_WRITING)) {
@@ -1282,15 +1306,12 @@ mag_affects(int level,
         to_room =
             "A shimmering aura appears around $n's body, then dissipates.";
         break;
-    case SPELL_PETRIFY:
-        aff[0].duration = level;
-        aff[0].bitvector = AFF2_PETRIFIED;
-        aff[0].aff_index = 2;
-        to_vict = "You feel petrified as your body TURNS TO STONE!";
-        to_room = "$n suddenly turns to stone and stops in $s tracks!";
-        accum_duration = false;
-        accum_affect = false;
+    case SPELL_PETRIFY: {
+        aff[0].duration = 2;
+        to_vict = "Your skin starts to stiffen.";
+        to_room = "$n's skin takes on a gray tint.";
         break;
+    }
     case SPELL_GAS_BREATH:
         if (!NEEDS_TO_BREATHE(victim))
             return;
@@ -3448,7 +3469,6 @@ mag_unaffects(int level, struct creature *ch, struct creature *victim,
         to_vict = "You don't feel quite so unlucky.";
         break;
     case SPELL_STONE_TO_FLESH:
-        REMOVE_BIT(AFF2_FLAGS(victim), AFF2_PETRIFIED);
         spell = SPELL_PETRIFY;
         spell2 = SPELL_STONESKIN;
         to_vict = "You feel freed as your body changes back to flesh.";

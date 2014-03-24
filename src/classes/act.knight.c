@@ -262,7 +262,6 @@ healing_holytouch(struct creature *ch, struct creature *vict)
             if (gen > 9) {
                 if (affected_by_spell(vict, SPELL_PETRIFY))
                     affect_from_char(vict, SPELL_PETRIFY);
-                REMOVE_BIT(AFF2_FLAGS(vict), AFF2_PETRIFIED);
             }
         }
     } else {
