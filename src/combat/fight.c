@@ -158,6 +158,10 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
 
     if (killer && killer != ch && PRF2_FLAGGED(killer, PRF2_AUTOLOOT))
         perform_autoloot(killer, corpse);
+
+    if (IS_PC(ch) && ch->desc) {
+        set_desc_state(CXN_AFTERLIFE, ch->desc);
+    }
 }
 
 void
