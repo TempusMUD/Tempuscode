@@ -78,7 +78,7 @@ ACMD(do_split);
 
 const long MONEY_LOG_LIMIT = 50000000;
 
-struct obj_data *
+/*@dependent@*/ /*@null@*/ struct obj_data *
 get_random_uncovered_implant(struct creature *ch, int type)
 {
     int possibles = 0;
@@ -87,7 +87,7 @@ get_random_uncovered_implant(struct creature *ch, int type)
     int i;
     struct obj_data *o = NULL;
 
-    if (!ch)
+    if (ch == NULL)
         return NULL;
     for (i = 0; i < NUM_WEARS; i++) {
         if (IS_WEAR_EXTREMITY(i)) {
@@ -99,7 +99,7 @@ get_random_uncovered_implant(struct creature *ch, int type)
             }
         }
     }
-    if (possibles) {
+    if (possibles > 0) {
         implant = number(1, possibles);
         pos_imp = 0;
         for (i = 0; pos_imp < implant && i < NUM_WEARS; i++) {
@@ -131,6 +131,7 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
     int ret = 0;
     int dam = 0;
     bool loaded = false;
+    int obj_id;
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) ||
         ch->in_room->zone->pk_style == ZONE_NO_PK) {
@@ -138,20 +139,21 @@ explode_sigil(struct creature *ch, struct obj_data *obj)
             false, ch, obj, NULL, TO_CHAR);
         return 0;
     }
-    dam = number(GET_OBJ_SIGIL_LEVEL(obj), GET_OBJ_SIGIL_LEVEL(obj) << 2);
+    dam = number(GET_OBJ_SIGIL_LEVEL(obj), GET_OBJ_SIGIL_LEVEL(obj) * 4);
     if (mag_savingthrow(ch, GET_OBJ_SIGIL_LEVEL(obj), SAVING_SPELL))
-        dam >>= 1;
+        dam /= 2;
 
     act("$p explodes when you pick it up!!", false, ch, obj, NULL, TO_CHAR);
     act("$p explodes when $n picks it up!!", false, ch, obj, NULL, TO_ROOM);
 
     dam_object = obj;
 
-    int obj_id = GET_OBJ_SIGIL_IDNUM(obj);
-    if (!obj_id)
+    obj_id = GET_OBJ_SIGIL_IDNUM(obj);
+    if (obj_id == 0)
         return 0;
 
-    struct creature *killer = get_char_in_world_by_idnum(obj_id);
+    struct creature *killer;
+    killer = get_char_in_world_by_idnum(obj_id);
 
     // load the bastich from file.
     if (!killer) {
@@ -547,8 +549,13 @@ bool
 can_take_obj(struct creature *ch, struct obj_data *obj, bool check_weight,
     bool print)
 {
-
-    if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
+    if (IS_CORPSE(obj)
+        && CORPSE_IDNUM(obj) != GET_IDNUM(ch)
+        && GET_LEVEL(ch) < LVL_AMBASSADOR
+        && ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK && IS_PC(ch)
+        && CORPSE_IDNUM(obj) > 0) {
+        sprintf(buf, "$p: You can only take player corpses in CPK zones!");
+    } else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
         sprintf(buf, "$p: you can't carry that many items.");
     } else if (check_weight
         && (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)) {
@@ -810,7 +817,7 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
             !IS_NPC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
             IS_CORPSE(cont) &&
             CORPSE_IDNUM(cont) != GET_IDNUM(ch) && CORPSE_IDNUM(cont) > 0) {
-            send_to_char(ch, "You may not loot corpses in NPK zones.\r\n");
+            send_to_char(ch, "You may not loot player corpses in NPK zones.\r\n");
             return 0;
         }
         if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0
@@ -987,15 +994,6 @@ get_from_room(struct creature *ch, char *arg)
             return 0;
         }
 
-        if (IS_CORPSE(obj)
-            && CORPSE_IDNUM(obj) != GET_IDNUM(ch)
-            && GET_LEVEL(ch) < LVL_AMBASSADOR
-            && ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK && IS_PC(ch)
-            && CORPSE_IDNUM(obj) > 0) {
-            send_to_char(ch, "You can only take PC corpses in CPK zones!\r\n");
-            return 0;
-        }
-
         if (!perform_get_from_room(ch, obj, true, 1))
             return 0;
 
@@ -1024,14 +1022,6 @@ get_from_room(struct creature *ch, char *arg)
 
         for (obj = ch->in_room->contents; obj; obj = next_obj) {
             next_obj = obj->next_content;
-
-            if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) != GET_IDNUM(ch) &&
-                GET_LEVEL(ch) < LVL_AMBASSADOR &&
-                ch->in_room->zone->pk_style == ZONE_NEUTRAL_PK &&
-                IS_PC(ch) && CORPSE_IDNUM(obj) > 0) {
-                send_to_char(ch, "You can't take corpses in NPK zones!\r\n");
-                continue;
-            }
 
             if (!can_see_object(ch, obj)) {
                 continue;
@@ -1426,7 +1416,7 @@ perform_drop(struct creature *ch, struct obj_data *obj,
         return 1;
         break;
     case SCMD_JUNK:
-        value = MAX(1, MIN(200, GET_OBJ_COST(obj) >> 4));
+        value = MAX(1, MIN(200, GET_OBJ_COST(obj) / 16));
         // Don't actually extract the object here, since we may need it for
         // display purposes
         return value;
@@ -1543,7 +1533,7 @@ ACMD(do_drop)
     } else if (is_number(arg1)) {
         amount = atoi(arg1);
 
-        if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2))
+        if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2) || !strcasecmp("gold", arg2))
             perform_drop_gold(ch, amount, mode, RDR);
         else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2))
             perform_drop_credits(ch, amount, mode, RDR);
@@ -1710,7 +1700,7 @@ perform_give(struct creature *ch, struct creature *vict,
                 && (CHECK_SKILL(vict, SKILL_DEMOLITIONS) < number(10, 50)
                     || (obj->contains && IS_FUSE(obj->contains)
                         && FUSE_STATE(obj->contains)))) {
-                if (!vict->fighting
+                if (!is_fighting(vict)
                     && CHECK_SKILL(vict, SKILL_DEMOLITIONS) > number(40, 60))
                     if (FUSE_IS_BURN(obj->contains))
                         do_extinguish(vict, fname(obj->aliases), 0, 0);
@@ -1718,7 +1708,7 @@ perform_give(struct creature *ch, struct creature *vict,
                         do_activate(vict, fname(obj->aliases), 0, 1);
                 else {
                     if (GET_POSITION(vict) < POS_FIGHTING)
-                        do_stand(vict, NULL, 0, 0);
+                        do_stand(vict, "", 0, 0);
                     for (i = 0; i < NUM_DIRS; i++) {
                         if (ch->in_room->dir_option[i] &&
                             ch->in_room->dir_option[i]->to_room && i != UP &&
@@ -1892,7 +1882,7 @@ ACMD(do_give)
         if (!vict)
             return;
 
-        if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2))
+        if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2) || !strcasecmp("gold", arg2))
             transfer_money(ch, vict, amount, 0, false);
         else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2))
             transfer_money(ch, vict, amount, 1, false);
@@ -2160,7 +2150,7 @@ ACMD(do_drink)
     drunk = (int)drink_aff[GET_OBJ_VAL(temp, 2)][DRUNK] * amount;
     drunk /= 4;
     if (IS_MONK(ch))
-        drunk >>= 2;
+        drunk /= 4;
     full = (int)drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount / 4;
     thirst = (int)drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount / 4;
 
@@ -2343,7 +2333,7 @@ ACMD(do_eat)
         }
 
         if (subcmd != SCMD_EAT)
-            af.duration >>= 1;
+            af.duration /= 2;
         affect_join(ch, &af, true, true, true, false);
     }
 
@@ -2657,6 +2647,14 @@ perform_wear(struct creature *ch, struct obj_data *obj, int where)
     if (IS_ANIMAL(ch)) {
         send_to_char(ch, "Animals don't wear things.\r\n");
         return 0;
+    }
+    /* lights are always worn in the light position */
+    if (IS_OBJ_TYPE(obj, ITEM_LIGHT)) {
+        if (!GET_OBJ_VAL(obj, 2)) {
+            act("$p is no longer usable as a light.", false, ch, obj, NULL, TO_CHAR);
+            return 0;
+        }
+        where = WEAR_LIGHT;
     }
     if (!CAN_WEAR(obj, wear_bitvectors[where])) {
         act("You can't wear $p there.", false, ch, obj, NULL, TO_CHAR);
@@ -3022,23 +3020,7 @@ ACMD(do_grab)
     else if (!(obj = get_obj_in_list_all(ch, arg, ch->carrying))) {
         send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg), arg);
     } else {
-        if (IS_OBJ_TYPE(obj, ITEM_LIGHT)) {
-            if (!GET_OBJ_VAL(obj, 2))
-                act("$p is no longer usable as a light.", false, ch, obj, NULL,
-                    TO_CHAR);
-            else
-                perform_wear(ch, obj, WEAR_LIGHT);
-        } else {
-            if (!CAN_WEAR(obj, ITEM_WEAR_HOLD)
-                && GET_OBJ_TYPE(obj) != ITEM_WAND
-                && GET_OBJ_TYPE(obj) != ITEM_STAFF
-                && GET_OBJ_TYPE(obj) != ITEM_SCROLL
-                && GET_OBJ_TYPE(obj) != ITEM_POTION
-                && GET_OBJ_TYPE(obj) != ITEM_SYRINGE)
-                send_to_char(ch, "You can't hold that.\r\n");
-            else
-                perform_wear(ch, obj, WEAR_HOLD);
-        }
+        perform_wear(ch, obj, WEAR_HOLD);
     }
 }
 
@@ -3204,7 +3186,7 @@ prototype_obj_value(struct obj_data *obj)
 
     case ITEM_CONTAINER:
         value += GET_OBJ_VAL(obj, 0);
-        value <<= 2;
+        value *= 4;
         value += ((30 - GET_OBJ_WEIGHT(obj)) / 4);
         if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSEABLE))
             value += 100;
@@ -3224,15 +3206,15 @@ prototype_obj_value(struct obj_data *obj)
 
         if (GET_OBJ_VAL(obj, 0) && IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON)) {
             prev_value = value;
-            value += MIN(value << 2, 200000);
-            value = (prev_value + value) >> 1;
+            value += MIN(value * 4, 200000);
+            value = (prev_value + value) / 2;
         }
         break;
 
     case ITEM_GUN:
         if (GUN_TYPE(obj) >= 0 && GUN_TYPE(obj) < NUM_GUN_TYPES)
             value += (gun_damage[GUN_TYPE(obj)][0] *
-                gun_damage[GUN_TYPE(obj)][1]) << 4;
+                gun_damage[GUN_TYPE(obj)][1]) * 16;
         if (!MAX_LOAD(obj))
             value *= 15;
         else
@@ -3269,20 +3251,20 @@ prototype_obj_value(struct obj_data *obj)
             value *= 3;
             prev_value = value;
             value += ((50 - GET_OBJ_WEIGHT(obj)) * 8);
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
         } else if (CAN_WEAR(obj, ITEM_WEAR_HEAD)
             || CAN_WEAR(obj, ITEM_WEAR_LEGS)) {
             value *= 2;
             prev_value = value;
             value += ((25 - GET_OBJ_WEIGHT(obj)) * 8);
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
         } else {
             prev_value = value;
             value += ((25 - GET_OBJ_WEIGHT(obj)) * 8);
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
         }
         if (IS_IMPLANT(obj))
-            value <<= 1;
+            value *= 2;
         break;
 
     default:
@@ -3292,7 +3274,7 @@ prototype_obj_value(struct obj_data *obj)
     }
 
     /***** Make sure its not negative... if it is maybe make it pos. **/
-    value = MAX(value, -(value >> 1));
+    value = MAX(value, -(value / 2));
 
     /**** Next the values of the item's affections *****/
     for (j = 0; j < MAX_OBJ_AFFECT; j++) {
@@ -3305,13 +3287,13 @@ prototype_obj_value(struct obj_data *obj)
         case APPLY_CON:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 4;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_CHA:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 5;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_HIT:
@@ -3319,25 +3301,25 @@ prototype_obj_value(struct obj_data *obj)
         case APPLY_MANA:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 25;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_AC:
             prev_value = value;
             value -= (obj->affected[j].modifier) * value / 10;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_HITROLL:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 5;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_DAMROLL:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 4;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_SAVING_PARA:
@@ -3347,7 +3329,7 @@ prototype_obj_value(struct obj_data *obj)
         case APPLY_SAVING_SPELL:
             prev_value = value;
             value -= (obj->affected[j].modifier) * value / 4;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         case APPLY_SNEAK:
@@ -3363,21 +3345,21 @@ prototype_obj_value(struct obj_data *obj)
         case APPLY_THROWING:
             prev_value = value;
             value += (obj->affected[j].modifier) * value / 15;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
             break;
 
         }
     }
 
     /***** Make sure its not negative... if it is maybe make it pos. **/
-    value = MAX(value, -(value >> 1));
+    value = MAX(value, -(value / 2));
 
     /***** The value of items which set bitvectors ***** */
     for (j = 0; j < 3; j++)
         if (obj->obj_flags.bitvector[j]) {
             prev_value = value;
             value += 120000;
-            value = (prev_value + value) >> 1;
+            value = (prev_value + value) / 2;
         }
 
     switch (GET_OBJ_MATERIAL(obj)) {
@@ -3469,19 +3451,19 @@ set_maxdamage(struct obj_data *obj)
     }
 
     if (IS_OBJ_STAT(obj, ITEM_MAGIC))
-        dam <<= 1;
+        dam *= 2;
     if (IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL))
-        dam <<= 2;
+        dam *= 4;
     if (IS_OBJ_STAT(obj, ITEM_BLESS))
-        dam <<= 1;
+        dam *= 2;
     if (IS_OBJ_STAT(obj, ITEM_DAMNED))
-        dam <<= 1;
+        dam *= 2;
     if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON))
-        dam <<= 1;
+        dam *= 2;
     if (IS_OBJ_STAT2(obj, ITEM2_CURSED_PERM))
-        dam <<= 1;
+        dam *= 2;
     if (IS_OBJ_STAT2(obj, ITEM2_GODEQ))
-        dam <<= 1;
+        dam *= 2;
 
     dam = MAX(100, dam);
 
@@ -4061,12 +4043,14 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
     }
 
     if (obj->contains) {
+        float cont_weight = weigh_contained_objs(obj);
+
         for (next_obj = obj->contains; next_obj; next_obj = o) {
             if (next_obj->in_obj && next_obj) {
                 o = next_obj->next_content;
                 if (!(IS_OBJ_STAT(next_obj, ITEM_NODROP)) &&
                     (IS_SET(GET_OBJ_WEAR(next_obj), ITEM_WEAR_TAKE))) {
-                    if (GET_OBJ_WEIGHT(container) + GET_OBJ_WEIGHT(next_obj) >
+                    if (cont_weight + GET_OBJ_WEIGHT(next_obj) >
                         GET_OBJ_VAL(container, 0)) {
                         can_fit = false;
                     }
@@ -4074,6 +4058,7 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
                         obj_from_obj(next_obj);
                         obj_to_obj(next_obj, container);
                         objs_moved++;
+                        cont_weight += GET_OBJ_WEIGHT(next_obj);
                     }
                     can_fit = true;
                 }

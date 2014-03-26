@@ -69,11 +69,11 @@
 #define KNRM_CYN  	"\x1B[0m\x1B[36m"
 
 /* conditional color.  pass it a pointer to a struct creature and a color level. */
-#define C_OFF	0
-#define C_SPR	1
-#define C_NRM	2
-#define C_CMP	3
-#define _clrlevel(ch) ((!ch->desc || ch->desc->is_blind) ? 0:ch->desc->account->ansi_level)
+#define C_OFF	(unsigned char)0
+#define C_SPR	(unsigned char)1
+#define C_NRM	(unsigned char)2
+#define C_CMP	(unsigned char)3
+#define _clrlevel(ch) ((!ch->desc || ch->desc->is_blind) ? (unsigned char)0:ch->desc->account->ansi_level)
 #define clr(ch,lvl) (_clrlevel(ch) >= (lvl))
 
 #define CNRM(disp,lvl)  ((disp >= lvl)?KNRM:KNUL)

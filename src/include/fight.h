@@ -7,17 +7,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define DAM_OBJECT_IDNUM(obj) (IS_BOMB(obj) ? BOMB_IDNUM(obj) : GET_OBJ_SIGIL_IDNUM(obj))
-
-#define IS_WEAPON(type) ((((type)>=TYPE_HIT) && ((type)<TOP_ATTACKTYPE)) || \
-			 type == SKILL_SECOND_WEAPON || \
-			 type == SKILL_ENERGY_WEAPONS || \
-			 type == SKILL_ARCHERY        || \
-             (((type) >= TYPE_EGUN_LASER) && ((type) <= TYPE_EGUN_TOP)) || \
-			 type == SKILL_PROJ_WEAPONS)
-
-#define SLASHING(weap) (GET_OBJ_VAL(weap, 3) == (TYPE_SLASH-TYPE_HIT))
-
 #define BLOODLET_FACTOR(i) \
 (i == SPELL_SPIRIT_HAMMER ? 2 :  i == SKILL_BACKSTAB ? 3 :   \
  i == SKILL_KICK ? 2 :  i == SKILL_PUNCH ? 1 :              \
@@ -92,7 +81,7 @@ void raw_kill(struct creature *ch, struct creature *killer, int attacktype)
 bool is_arena_combat(struct creature *ch, struct creature *vict)
     __attribute__ ((nonnull (2)));
 bool is_npk_combat(struct creature *ch, struct creature *vict)
-    __attribute__ ((nonnull));
+    __attribute__ ((nonnull (2)));
 bool ok_to_damage(struct creature *ch, struct creature *vict)
     __attribute__ ((nonnull));
 void count_pkill(struct creature *killer, struct creature *vict)
@@ -158,7 +147,7 @@ static const struct gun_hit_type gun_hit_text[] = {
 };
 
 /* External structures */
-extern struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
+extern struct spell_info_type spell_info[TOP_DAMAGETYPE + 1];
 
 extern struct message_list fight_messages[MAX_MESSAGES];
 extern struct obj_data *dam_object;
@@ -182,6 +171,8 @@ int choose_random_limb(struct creature *victim)
 
 /* prototypes from fight.c */
 void set_defending(struct creature *ch, struct creature *target)
+    __attribute__ ((nonnull));
+void remove_follower(struct creature *ch)
     __attribute__ ((nonnull));
 void stop_follower(struct creature *ch)
     __attribute__ ((nonnull));

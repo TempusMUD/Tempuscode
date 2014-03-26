@@ -64,10 +64,10 @@ ACMD(do_pistolwhip)
             vict = random_opponent(ch);
         } else if ((ovict =
                 get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-            act("You pistolwhip $p!", false, ch, ovict, NULL, TO_CHAR);
+            act("You pistol-whip $p!", false, ch, ovict, NULL, TO_CHAR);
             return;
         } else {
-            send_to_char(ch, "Pistolwhip who?\r\n");
+            send_to_char(ch, "Pistol-whip who?\r\n");
             return;
         }
     }
@@ -90,11 +90,12 @@ ACMD(do_pistolwhip)
     if (!ok_to_attack(ch, vict, true))
         return;
 
-    percent = ((10 - (GET_AC(vict) / 10)) << 1) + number(1, 101);
+    percent = ((10 - (GET_AC(vict) / 10)) * 2) + number(1, 101);
     prob = CHECK_SKILL(ch, SKILL_PISTOLWHIP);
 
-    if (IS_PUDDING(vict) || IS_SLIME(vict))
+    if (IS_PUDDING(vict) || IS_SLIME(vict)) {
         prob = 0;
+    }
 
     if (percent > prob) {
         damage(ch, vict, weap, 0, SKILL_PISTOLWHIP, WEAR_BODY);
@@ -137,7 +138,7 @@ ACMD(do_crossface)
     }
 
     if (!((weap = GET_EQ(ch, WEAR_WIELD)) && LARGE_GUN(weap))) {
-        send_to_char(ch, "You need to be using a two handed gun.\r\n");
+        send_to_char(ch, "You need to be using a two-handed gun.\r\n");
         return;
     }
 
@@ -169,7 +170,7 @@ ACMD(do_crossface)
     // This beastly function brought to you by Cat, the letter F, and Nothing more
     prob =
         ((GET_LEVEL(ch) + level_bonus(ch, prime_merc)) - (GET_LEVEL(vict) * 2))
-        + (CHECK_SKILL(ch, SKILL_CROSSFACE) >> 2)
+        + (CHECK_SKILL(ch, SKILL_CROSSFACE) / 4)
         + (dex_mod * (GET_DEX(ch) - GET_DEX(vict)))
         + (str_mod * (GET_STR(ch) - GET_STR(vict)));
     percent = number(1, 100);
@@ -209,14 +210,15 @@ ACMD(do_crossface)
             if (prev_pos != POS_STUNNED && !is_dead(vict) && !is_dead(ch)) {
                 if (is_fighting(ch)
                     && (!IS_NPC(vict) || !NPC2_FLAGGED(vict, NPC2_NOSTUN))) {
-                    remove_combat(ch, vict);
-                    remove_all_combat(vict);
-                    GET_POSITION(vict) = POS_STUNNED;
                     act("Your crossface has knocked $N senseless!",
                         true, ch, NULL, vict, TO_CHAR);
                     act("$n stuns $N with a vicious crossface!",
-                        true, ch, NULL, vict, TO_ROOM);
-                    act("Your jaw cracks as $n whips $s gun across your face.   Your vision fades...", true, ch, NULL, vict, TO_VICT);
+                        true, ch, NULL, vict, TO_NOTVICT);
+                    act("Your jaw cracks as $n whips $s gun across your face.\r"
+                        "Your vision fades...", true, ch, NULL, vict, TO_VICT);
+                    remove_combat(ch, vict);
+                    remove_all_combat(vict);
+                    GET_POSITION(vict) = POS_STUNNED;
                 }
             }
         }
@@ -228,12 +230,12 @@ ACMD(do_crossface)
             if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
                 && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
                 GET_POSITION(vict) = POS_RESTING;
-                act("Your crossface has knocked $N on $S ass!",
+                act("Your crossface has knocked $N on $S back!",
                     true, ch, NULL, vict, TO_CHAR);
-                act("$n's nasty crossface just knocked $N on $S ass!",
-                    true, ch, NULL, vict, TO_ROOM);
+                act("$n's nasty crossface just knocked $N on $S back!",
+                    true, ch, NULL, vict, TO_NOTVICT);
                 act("Your jaw cracks as $n whips $s gun across your face.\n"
-                    "You stagger and fall to the ground ",
+                    "You stagger and fall to the ground!",
                     true, ch, NULL, vict, TO_VICT);
             }
         }
@@ -241,18 +243,17 @@ ACMD(do_crossface)
         else if (diff >= 20 && !is_arena_combat(ch, vict)) {
             struct obj_data *wear, *scraps;
 
-            damage(ch, vict, weap, dam >> 1, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, weap, dam / 2, SKILL_CROSSFACE, wear_num);
             wear = GET_EQ(vict, wear_num);
             if (wear && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
                 act("Your crossface has knocked $N's $p from $S head!",
                     true, ch, wear, vict, TO_CHAR);
                 act("$n's nasty crossface just knocked $p from $N's head!",
-                    true, ch, wear, vict, TO_ROOM);
+                    true, ch, wear, vict, TO_NOTVICT);
                 act("Your jaw cracks as $n whips $s gun across your face.\n"
-                    "Your $p flies from your head and lands a short distance\n"
-                    "away.", true, ch, wear, vict, TO_VICT);
+                    "$p flies off your head and lands a short distance away.", true, ch, wear, vict, TO_VICT);
 
-                scraps = damage_eq(vict, wear, dam >> 4, TYPE_HIT);
+                scraps = damage_eq(vict, wear, dam / 16, TYPE_HIT);
                 if (scraps) {
                     // Object is destroyed
                     obj_from_char(scraps);
@@ -268,7 +269,7 @@ ACMD(do_crossface)
                 }
             }
         } else {
-            damage(ch, vict, weap, dam >> 1, SKILL_CROSSFACE, wear_num);
+            damage(ch, vict, weap, dam / 2, SKILL_CROSSFACE, wear_num);
         }
 
         gain_skill_prof(ch, SKILL_CROSSFACE);
@@ -401,7 +402,7 @@ ACMD(do_snipe)
     }
     // if vict is fighting someone you have a 50% chance of hitting the person
     // vict is fighting
-    if (vict->fighting && number(0, 1)) {
+    if (is_fighting(ch) && number(0, 1)) {
         vict = random_opponent(vict);
     }
     // Has vict been sniped once and is vict a sentinel mob?
@@ -453,8 +454,8 @@ ACMD(do_snipe)
     // just some level checks.  The victims level matters more
     // because it should be almost impossible to hit a high
     // level character who has been sniped once already
-    prob += (GET_LEVEL(ch) >> 2) + GET_REMORT_GEN(ch);
-    percent += GET_LEVEL(vict) + (GET_REMORT_GEN(vict) >> 2);
+    prob += (GET_LEVEL(ch) / 4) + GET_REMORT_GEN(ch);
+    percent += GET_LEVEL(vict) + (GET_REMORT_GEN(vict) / 4);
     damage_loc = choose_random_limb(vict);
     // we need to extract the bullet so we need an object pointer to
     // it.  However we musn't over look the possibility that gun->contains
@@ -491,12 +492,12 @@ ACMD(do_snipe)
         remove_combat(ch, vict);
         remove_combat(vict, ch);
         send_to_char(ch, "Damn!  You missed!\r\n");
-        act(tmp_sprintf("$n fires $p to %s, and a look of irritation crosses $s face.",
+        act(tmp_sprintf("$n fires $p to %s, then a look of irritation crosses $s face.",
                         to_dirs[snipe_dir]), true, ch, gun, vict, TO_ROOM);
         act(tmp_sprintf("A bullet screams past your head from %s!",
                 from_dirs[snipe_dir]), true, ch, NULL, vict, TO_VICT);
         act(tmp_sprintf("A bullet screams past $n's head from %s!",
-                from_dirs[snipe_dir]), true, vict, NULL, ch, TO_ROOM);
+                from_dirs[snipe_dir]), true, vict, NULL, ch, TO_NOTVICT);
         WAIT_STATE(ch, 3 RL_SEC);
         return;
     } else {
@@ -510,14 +511,14 @@ ACMD(do_snipe)
         // seems to crash the mud if you call damage_eq() on a location
         // that doesn't have any eq...hmmm
         if (GET_EQ(vict, damage_loc)) {
-            damage_eq(vict, GET_EQ(vict, damage_loc), dam >> 1, TYPE_HIT);
+            damage_eq(vict, GET_EQ(vict, damage_loc), dam / 2, TYPE_HIT);
         }
         if ((armor = GET_EQ(vict, damage_loc))
             && IS_OBJ_TYPE(armor, ITEM_ARMOR)) {
             if (IS_STONE_TYPE(armor) || IS_METAL_TYPE(armor))
-                dam -= GET_OBJ_VAL(armor, 0) << 4;
+                dam -= GET_OBJ_VAL(armor, 0) * 16;
             else
-                dam -= GET_OBJ_VAL(armor, 0) << 2;
+                dam -= GET_OBJ_VAL(armor, 0) * 4;
         }
 
         add_blood_to_room(vict->in_room, 1);
@@ -535,17 +536,18 @@ ACMD(do_snipe)
         WAIT_STATE(vict, 2 RL_SEC);
         // double damage for a head shot...1 in 27 chance
         if (damage_loc == WEAR_HEAD) {
-            dam = dam << 1;
+            dam = dam * 2;
         }
         // 1.5x damage for a neck shot...2 in 27 chance
         else if (damage_loc == WEAR_NECK_1 || damage_loc == WEAR_NECK_2) {
-            dam += dam >> 1;
+            dam += dam / 2;
         }
         if (damage_loc == WEAR_HEAD) {
-            send_to_char(ch, "HEAD SHOT!!\r\n");
+            send_to_char(ch, "BOOM, HEADSHOT!\r\n");
         } else if (damage_loc == WEAR_NECK_1 || damage_loc == WEAR_NECK_2) {
-            send_to_char(ch, "NECK SHOT!!\r\n");
+            act("In the distance, frothy blood flows as your bullet connects with $N's neck.\r\n", false, ch, NULL, vict, TO_CHAR);
         }
+
         if (!IS_NPC(vict) && GET_LEVEL(vict) <= 6) {
             send_to_char(ch, "Hmm. Your gun seems to have jammed...\r\n");
             return;
@@ -626,11 +628,15 @@ ACMD(do_wrench)
         two_handed = 1;
     }
 
-    percent = ((10 - (GET_AC(vict) / 50)) << 1) + number(1, 101);
+    percent = ((10 - (GET_AC(vict) / 50)) * 2) + number(1, 101);
     prob = CHECK_SKILL(ch, SKILL_WRENCH);
 
     if (!can_see_creature(ch, vict)) {
         prob += 10;
+    }
+
+    if (IS_PUDDING(vict) || IS_SLIME(vict)) {
+        prob = 0;
     }
 
     dam = dice(GET_LEVEL(ch), GET_STR(ch));
@@ -645,7 +651,7 @@ ACMD(do_wrench)
 
     if (((neck = GET_IMPLANT(vict, WEAR_NECK_1)) && NOBEHEAD_EQ(neck)) ||
         ((neck = GET_IMPLANT(vict, WEAR_NECK_2)) && NOBEHEAD_EQ(neck))) {
-        dam >>= 1;
+        dam /= 2;
         damage_eq(ch, neck, dam, TYPE_HIT);
     }
 
@@ -725,7 +731,7 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
 
     acc_string_clear();
 
-    acc_sprintf("%s is %s\r\n", tmp_capitalize(obj->name),
+    acc_sprintf("%s is %s.\r\n", tmp_capitalize(obj->name),
         strlist_aref(GET_OBJ_TYPE(obj), item_type_descs));
 
     if (skill_lvl > 30) {
@@ -756,8 +762,9 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
                     extra3_bits));
     }
 
-    acc_sprintf("Item weighs around %.2f lbs, and is made of %s.\n",
-        GET_OBJ_WEIGHT(obj), material_names[GET_OBJ_MATERIAL(obj)]);
+    acc_sprintf("Item weighs around %s and is made of %s.\n",
+                format_weight(GET_OBJ_WEIGHT(obj), USE_METRIC(ch)),
+                material_names[GET_OBJ_MATERIAL(obj)]);
 
     if (skill_lvl > 100)
         cost = 0;
@@ -766,7 +773,7 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
     cost = GET_OBJ_COST(obj) + number(0, cost) - cost / 2;
 
     if (cost > 0)
-        acc_sprintf("Item looks to be worth about %ld.\r\n", cost);
+        acc_sprintf("Item looks to be worth about %'ld.\r\n", cost);
     else
         acc_sprintf("Item doesn't look to be worth anything.\r\n");
 
@@ -861,7 +868,7 @@ ACMD(do_appraise)
 
     if (!(bits =
             generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, NULL, &obj))) {
-        send_to_char(ch, "You can't find any %s to appraise\r\n.", arg);
+        send_to_char(ch, "You can't find any %s to appraise.\r\n", arg);
         return;
     }
 

@@ -96,7 +96,7 @@ ACMD(do_steal)
     percent = number(1, 101);
 
     if (CHECK_SKILL(ch, SKILL_STEAL) < 50)
-        percent >>= 1;
+        percent /= 2;
 
     if (!IS_THIEF(ch)) {
         percent = (int)(percent * 0.65);
@@ -321,7 +321,7 @@ ACMD(do_backstab)
         send_to_char(ch, "You need to be using a stabbing weapon.\r\n");
         return;
     }
-    if (vict->fighting) {
+    if (is_fighting(vict)) {
         send_to_char(ch,
             "Backstab a fighting person? -- they're too alert!\r\n");
         return;

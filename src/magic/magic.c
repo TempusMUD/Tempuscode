@@ -144,20 +144,20 @@ const int8_t saving_throws[8][LVL_GRIMP + 1] = {
         42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0}
 };
 
-int
+bool
 mag_savingthrow(struct creature *ch, int level, int type)
 {
     int save;
 
     if (GET_LEVEL(ch) > LVL_GOD) {
-        return 1;
+        return true;
     }
     // If its > 100 its obviously a search and doesn't need to be saveable.
     if (level > 100) {
-        return 0;
+        return false;
     }
     if (type == SAVING_NONE)
-        return 0;
+        return false;
 
     /* negative apply_saving_throw values make saving throws better! */
 
@@ -495,71 +495,6 @@ affect_update(void)
 }
 
 /*
- *  mag_materials:
- *  Checks for up to 3 vnums (spell reagents) in the player's inventory.
- *
- * No spells implemented in Circle 3.0 use mag_materials, but you can use
- * it to implement your own spells which require ingredients (i.e., some
- * heal spell which requires a rare herb or some such.)
- */
-int
-mag_materials(struct creature *ch, int item0, int item1, int item2,
-    int extract, int verbose)
-{
-    struct obj_data *tobj;
-    struct obj_data *obj0 = NULL, *obj1 = NULL, *obj2 = NULL;
-
-    for (tobj = ch->carrying; tobj; tobj = tobj->next_content) {
-        if ((item0 > 0) && (GET_OBJ_VNUM(tobj) == item0)) {
-            obj0 = tobj;
-            item0 = -1;
-        } else if ((item1 > 0) && (GET_OBJ_VNUM(tobj) == item1)) {
-            obj1 = tobj;
-            item1 = -1;
-        } else if ((item2 > 0) && (GET_OBJ_VNUM(tobj) == item2)) {
-            obj2 = tobj;
-            item2 = -1;
-        }
-    }
-    if ((item0 > 0) || (item1 > 0) || (item2 > 0)) {
-        if (verbose) {
-            switch (number(0, 2)) {
-            case 0:
-                send_to_char(ch, "A wart sprouts on your nose.\r\n");
-                break;
-            case 1:
-                send_to_char(ch, "Your hair falls out in clumps.\r\n");
-                break;
-            case 2:
-                send_to_char(ch, "A huge corn develops on your big toe.\r\n");
-                break;
-            }
-        }
-        return (false);
-    }
-    if (extract) {
-        if (item0 < 0) {
-            obj_from_char(obj0);
-            extract_obj(obj0);
-        }
-        if (item1 < 0) {
-            obj_from_char(obj1);
-            extract_obj(obj1);
-        }
-        if (item2 < 0) {
-            obj_from_char(obj2);
-            extract_obj(obj2);
-        }
-    }
-    if (verbose) {
-        send_to_char(ch, "A puff of smoke rises from your pack.\r\n");
-        act("A puff of smoke rises from $n's pack.", true, ch, NULL, NULL,
-            TO_ROOM);
-    }
-    return (true);
-}
-
-/*
  * Every spell that does damage comes through here.  This calculates the
  * amount of damage, adds in any modifiers, determines what the saves are,
  * tests for save and calls damage().
@@ -672,7 +607,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         else
             dam = dice(level, 7) + 11;
 
-        if (!CHAR_WITHSTANDS_FIRE(ch))
+        if (!CHAR_WITHSTANDS_FIRE(victim))
             ignite_creature(victim, ch);
         break;
     case SPELL_CONE_COLD:
@@ -968,7 +903,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             WAIT_STATE(victim, 2 RL_SEC);
         }
     } else if (spellnum == SPELL_CONE_COLD || spellnum == SPELL_HAILSTORM ||
-        spellnum == SPELL_HELL_FROST) {
+        spellnum == SPELL_HELL_FROST || spellnum == SPELL_CHILL_TOUCH || spellnum == SPELL_ICY_BLAST) {
         if (AFF2_FLAGGED(victim, AFF2_ABLAZE)) {
             extinguish_creature(victim);
             act("The flames on your body sizzle out and die.",
@@ -1026,30 +961,24 @@ mag_affects(int level,
     }
     switch (spellnum) {
 
-    case SPELL_CHILL_TOUCH:
-    case SPELL_CONE_COLD:
-        aff[0].location = APPLY_STR;
-        if (mag_savingthrow(victim, level, savetype))
-            aff[0].duration = 1;
-        else
-            aff[0].duration = 4;
-        aff[0].modifier = -((level / 16) + 1);
-        accum_duration = true;
-        to_vict = "You feel your strength wither!";
-        break;
     case SPELL_HELL_FROST_STORM:
         spellnum = SPELL_HELL_FROST;
     case SPELL_HELL_FROST:
-        aff[0].location = APPLY_STR;
-        if (mag_savingthrow(victim, level, savetype))
-            aff[0].duration = 1;
-        else
-            aff[0].duration = 4;
-        aff[0].modifier = -((level / 16) + 1);
-        accum_duration = true;
-        to_vict = "You feel your strength withered by the cold!";
+    case SPELL_CHILL_TOUCH:
+    case SPELL_CONE_COLD:
+        if (CHAR_WITHSTANDS_COLD(victim)) {
+            return;
+        } else {
+            aff[0].location = APPLY_STR;
+            if (mag_savingthrow(victim, level, savetype))
+                aff[0].duration = 1;
+            else
+                aff[0].duration = 4;
+            aff[0].modifier = -((level / 16) + 1);
+            accum_duration = true;
+            to_vict = "You feel your strength withered by the cold!";
+        }
         break;
-
     case SPELL_TROG_STENCH:
         aff[0].location = APPLY_STR;
         if (mag_savingthrow(victim, level, savetype)) {
@@ -1845,7 +1774,7 @@ mag_affects(int level,
         aff[0].location = APPLY_DEX;
         aff[0].modifier = -(number(0, level / 8));
         aff[0].duration = number(0, level / 16) + 1;
-        to_vict = "Your muscles begin spasming uncontrollably.";
+        to_vict = "Your muscles begin to spasm uncontrollably.";
         break;
 
     case SPELL_PSYCHIC_RESISTANCE:
@@ -2456,7 +2385,7 @@ mag_affects(int level,
         aff[0].modifier =
             5 + skill_bonus(ch, SONG_VERSE_OF_VALOR) / 25 + number(0, 6);
 
-        to_vict = "The valor of heros gone comes crashing into your mind!";
+        to_vict = "The valor of heroes gone comes crashing into your mind!";
         break;
 
     case SONG_WHITE_NOISE:
@@ -2532,7 +2461,7 @@ mag_affects(int level,
             3 + (skill_bonus(ch, SONG_GUIHARIAS_GLORY) / 8);
         aff[0].location = APPLY_DAMROLL;
 
-        to_vict = "You feel the power of dieties flowing in your veins!";
+        to_vict = "You feel the power of deities flowing in your veins!";
         break;
 
     case SONG_UNLADEN_SWALLOW_SONG:
@@ -2649,8 +2578,8 @@ mag_affects(int level,
         else
             aff[0].modifier = GET_IDNUM(ch);
 
-        to_vict = "A gossimer shield of music forms around you.";
-        to_room = "A gossimer shield of music forms around $n";
+        to_vict = "A gossamer shield of music forms around you.";
+        to_room = "A gossamer shield of music forms around $n";
         break;
 
     case SONG_FORTISSIMO:
@@ -3048,7 +2977,7 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
 
         if (vict != ch && !ok_to_attack(ch, vict, false)) {
             if (SPELL_IS_PSIONIC(spellnum)) {
-                send_to_char(ch, "The Universal Psyche decends on your "
+                send_to_char(ch, "The Universal Psyche descends on your "
                     "mind and renders you powerless!\r\n");
                 act("$n concentrates for an instant, and is suddenly "
                     "thrown into mental shock!", false, ch, NULL, NULL, TO_ROOM);

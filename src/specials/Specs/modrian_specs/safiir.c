@@ -37,10 +37,10 @@ SPECIAL(safiir)
         cost *= GET_OBJ_COST(wand) / GET_OBJ_VAL(wand, 1);
         cost *= GET_OBJ_VAL(wand, 0);
         if (IS_MAGE(ch))
-            cost >>= 3;
+            cost /= 8;
         else
-            cost >>= 2;
-        cost += (cost * cost_modifier(ch, safiir)) / 100;
+            cost /= 4;
+        cost = adjusted_price(ch, safiir, cost);
     }
 
     if (CMD_IS("recharge")) {

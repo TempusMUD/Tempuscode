@@ -14,6 +14,8 @@ struct craft_shop {
 /** Loads and/or creates the Craftshop described by the given node. **/
 void load_craft_shop(xmlNodePtr node);
 
+// struct shop_time represents a range of hours for use in marking the
+// times in which a shop is closed
 struct shop_time {
 	int start, end;
 };
@@ -37,8 +39,10 @@ struct shop_data {
 	int markdown;			// Price decrease when player is selling
 	int currency;			// 0 == gold, 1 == cash, 2 == quest points
 	long revenue;			// Amount added to money every reset
+	int storeroom;          // Room to store inventory in
 	bool steal_ok;
 	bool attack_ok;
+	bool consignment;
 	bool call_for_help;
 	SPECIAL((*func));
 	struct reaction *reaction;
@@ -46,5 +50,7 @@ struct shop_data {
 
 SPECIAL(vendor);
 const char *vendor_parse_param(char *param, struct shop_data *shop, int *err_line);
+struct obj_data *vendor_resolve_hash(struct shop_data *shop, struct creature *self, char *obj_str);
+struct obj_data *vendor_resolve_name(struct shop_data *shop, struct creature *self, char *obj_str);
 
 #endif

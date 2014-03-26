@@ -3,7 +3,7 @@ AC_INIT([tempusmud],[1.0],[azimuth@tempusmud.com])
 APR_CONFIG_NICE([config.nice])
 AC_CONFIG_SRCDIR([src/clan/clan.c])
 AC_CONFIG_HEADER([config.h])
-AM_INIT_AUTOMAKE([tempusmud], [1.0])
+AM_INIT_AUTOMAKE
 
 # Enable or disable debugging
 AC_ARG_ENABLE(debug,
@@ -45,6 +45,7 @@ PKG_CHECK_MODULES([XML], [libxml-2.0])
 PKG_CHECK_MODULES([CHECK], [check])
 AC_CHECK_LIB([rt], [clock_gettime])
 AC_CHECK_LIB([crypt], [crypt])
+AC_CHECK_LIB([m], [ceilf])
 
 # Checks for header files.
 AC_HEADER_DIRENT

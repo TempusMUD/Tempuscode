@@ -175,7 +175,7 @@ award_bounty(struct creature * killer, struct creature * vict)
     // Award them the amount
     if (!AFF_FLAGGED(killer, AFF_GROUP)) {
         send_to_char(killer,
-            "You have been paid %d gold coins for killing %s!\r\n", amt,
+            "You have been paid %'d gold coins for killing %s!\r\n", amt,
             GET_NAME(vict));
         GET_GOLD(killer) += amt;
         mudlog(LVL_IMMORT, CMP, true, "%s paid %d gold for killing %s",
@@ -196,14 +196,14 @@ award_bounty(struct creature * killer, struct creature * vict)
             amt, GET_NAME(vict));
 
         send_to_char(killer,
-            "You have been paid %d gold coins for your part in killing %s!\r\n",
+            "You have been paid %'d gold coins for your part in killing %s!\r\n",
             amt, GET_NAME(vict));
         GET_GOLD(killer) += amt;
 
         for (f = killer->followers; f; f = f->next)
             if (AFF_FLAGGED(f->follower, AFF_GROUP) && !IS_NPC(f->follower)) {
                 send_to_char(f->follower,
-                    "You have been paid %d gold coins for your part in killing %s!\r\n",
+                    "You have been paid %'d gold coins for your part in killing %s!\r\n",
                     amt, GET_NAME(vict));
                 GET_GOLD(f->follower) += amt;
             }

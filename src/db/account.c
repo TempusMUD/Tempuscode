@@ -636,7 +636,7 @@ account_has_password(struct account *account)
 void
 account_set_password(struct account *account, const char *pw)
 {
-    char salt[13] = "$1$........$";
+    char salt[13] = "$6$........$";
     int idx;
 
     for (idx = 3; idx < 12; idx++) {
@@ -707,15 +707,21 @@ account_set_future_bank(struct account *account, money_t amt)
 void
 deposit_past_bank(struct account *account, money_t amt)
 {
-    if (amt > 0)
+    if (amt > 0) {
+        slog("BANK: %'" PRId64 " deposited into past bank of %s [%d]",
+             amt, account->name, account->id);
         account_set_past_bank(account, account->bank_past + amt);
+    }
 }
 
 void
 deposit_future_bank(struct account *account, money_t amt)
 {
-    if (amt > 0)
+    if (amt > 0) {
+        slog("BANK: %'" PRId64 " deposited into future bank of %s [%d]",
+             amt, account->name, account->id);
         account_set_future_bank(account, account->bank_future + amt);
+    }
 }
 
 void
@@ -725,6 +731,8 @@ withdraw_past_bank(struct account *account, money_t amt)
         return;
     if (amt > account->bank_past)
         amt = account->bank_past;
+    slog("BANK: %'" PRId64 " withdrawn from past bank of %s [%d]",
+             amt, account->name, account->id);
     account_set_past_bank(account, account->bank_past - amt);
 }
 
@@ -735,6 +743,8 @@ withdraw_future_bank(struct account *account, money_t amt)
         return;
     if (amt > account->bank_future)
         amt = account->bank_future;
+    slog("BANK: %'" PRId64 " withdrawn from future bank of %s [%d]",
+             amt, account->name, account->id);
     account_set_future_bank(account, account->bank_future - amt);
 }
 
@@ -780,7 +790,7 @@ account_exhume_char(struct account *account, struct creature *exhumer, long id)
     }
     // load char from file
     struct creature *victim;
-    CREATE(victim, struct creature, 1);
+    
     victim = load_player_from_xml(id);
     if (victim) {
         sql_exec

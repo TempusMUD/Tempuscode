@@ -526,7 +526,7 @@ SPECIAL(cityguard)
         }
         if (action < 2 && can_see_creature(self, tch)
             && !PRF_FLAGGED(tch, PRF_NOHASSLE)
-            && tch->fighting) {
+            && is_fighting(tch)) {
             action = 2;
             target = tch;
         }

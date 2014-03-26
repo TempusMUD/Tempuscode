@@ -56,8 +56,8 @@
 #include "strutil.h"
 
 char **spells = NULL;
-struct spell_info_type spell_info[TOP_SPELL_DEFINE + 1];
-struct bard_song songs[TOP_SPELL_DEFINE + 1];
+struct spell_info_type spell_info[TOP_DAMAGETYPE + 1];
+struct bard_song songs[TOP_DAMAGETYPE + 1];
 struct room_direction_data *knock_door = NULL;
 char locate_buf[256];
 
@@ -355,10 +355,10 @@ call_magic(struct creature *caster, struct creature *cvict,
                 percent += number(1, 120);
 
                 if (mag_savingthrow(cvict, GET_LEVEL(caster), SAVING_PSI))
-                    percent <<= 1;
+                    percent *= 2;
 
                 if (GET_INT(cvict) < GET_INT(caster))
-                    percent += (GET_INT(cvict) - GET_INT(caster)) << 3;
+                    percent += (GET_INT(cvict) - GET_INT(caster)) * 8;
 
                 if (percent >= prob)
                     failed = true;
@@ -397,7 +397,7 @@ call_magic(struct creature *caster, struct creature *cvict,
                         spell_to_str(spellnum)),
                     false, caster, NULL, cvict, TO_CHAR);
                 GET_MANA(cvict) = MIN(GET_MAX_MANA(cvict),
-                    GET_MANA(cvict) + (level >> 1));
+                    GET_MANA(cvict) + (level / 2));
                 if (casttype == CAST_SPELL) {
                     mana = mag_manacost(caster, spellnum);
                     if (mana > 0)
@@ -405,7 +405,7 @@ call_magic(struct creature *caster, struct creature *cvict,
                             MAX(0, MIN(GET_MAX_MANA(caster),
                                 GET_MANA(caster) - mana));
                 }
-                if ((af_ptr->duration -= (level >> 2)) <= 0) {
+                if ((af_ptr->duration -= (level / 4)) <= 0) {
                     send_to_char(cvict, "Your %s dissolves.\r\n",
                         spell_to_str(af_ptr->type));
                     affect_remove(cvict, af_ptr);
@@ -726,13 +726,35 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
 
     switch (GET_OBJ_TYPE(obj)) {
     case ITEM_STAFF:
-        act("You tap $p three times on the ground.", false, ch, obj, NULL,
-            TO_CHAR);
-        if (obj->action_desc)
+
+        if (obj->action_desc) {
             act(obj->action_desc, false, ch, obj, NULL, TO_ROOM);
-        else
+        } else if (room_is_watery(ch->in_room)) {
+            act("The water bubbles and swirls as you extend $p.", false, ch, obj, NULL,
+            TO_CHAR);
+            act("The water bubbles and swirls as $n extends $p.", false, ch, obj, NULL,
+            TO_ROOM);
+        } else if (room_is_open_air(ch->in_room)) {
+            act("You swing $p in three broad arcs through the open air.", false, ch, obj, NULL,
+            TO_CHAR);
+            act("$n swings $p in three broad arcs through the open air.", false, ch, obj, NULL,
+            TO_ROOM);
+        } else if (SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER) {
+            act("Fire licks $p as you hold it above the surface.", false, ch, obj, NULL,
+            TO_CHAR);
+            act("Fire licks $p as $n holds it above the surface.", false, ch, obj, NULL,
+            TO_ROOM);
+        } else if (SECT_TYPE(ch->in_room) == SECT_PITCH_SUB || SECT_TYPE(ch->in_room) == SECT_PITCH_PIT) {
+            act("You press $p into the viscous pitch.", false, ch, obj, NULL,
+            TO_CHAR);
+            act("$n presses $p into the viscous pitch.", false, ch, obj, NULL,
+            TO_ROOM);
+        } else {
+            act("You tap $p three times on the ground.", false, ch, obj, NULL,
+            TO_CHAR);
             act("$n taps $p three times on the ground.", false, ch, obj, NULL,
-                TO_ROOM);
+            TO_ROOM);            
+        }
 
         if (GET_OBJ_VAL(obj, 2) <= 0) {
             act("It seems powerless.", false, ch, obj, NULL, TO_CHAR);
@@ -1195,7 +1217,7 @@ cast_spell(struct creature *ch, struct creature *tch,
     }
 
     int retval = call_magic(ch, tch, tobj, tdir, spellnum,
-                            GET_LEVEL(ch) + (!IS_NPC(ch) ? (GET_REMORT_GEN(ch) << 1) : 0),
+                            GET_LEVEL(ch) + (!IS_NPC(ch) ? (GET_REMORT_GEN(ch) * 2) : 0),
                             (SPELL_IS_PSIONIC(spellnum) ? CAST_PSIONIC :
                              (SPELL_IS_PHYSICS(spellnum) ? CAST_PHYSIC :
                               (SPELL_IS_BARD(spellnum) ? CAST_BARD : CAST_SPELL))));
@@ -1636,7 +1658,7 @@ ACMD(do_cast)
     prob -= (NUM_WEARS - num_eq);
 
     if (tch && GET_POSITION(ch) == POS_FIGHTING)
-        prob += (GET_LEVEL(tch) >> 3);
+        prob += (GET_LEVEL(tch) / 8);
 
     /**** casting probability ends here *****/
 
@@ -1675,7 +1697,7 @@ ACMD(do_cast)
                         if (mana > 0)
                             GET_MANA(ch) =
                                 MAX(0, MIN(GET_MAX_MANA(ch),
-                                    GET_MANA(ch) - (mana >> 1)));
+                                    GET_MANA(ch) - (mana / 2)));
                         WAIT_STATE(ch, 2 RL_SEC);
                         return;
                     }
@@ -1696,7 +1718,7 @@ ACMD(do_cast)
                 cast_spell(ch, ch, tobj, &tdir, spellnum);
                 if (mana > 0)
                     GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) -
-                            (mana >> 1)));
+                            (mana / 2)));
                 WAIT_STATE(ch, 2 RL_SEC);
                 return;
             }
@@ -1726,7 +1748,7 @@ ACMD(do_cast)
 
         if (mana > 0)
             GET_MANA(ch) =
-                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
         /* cast spell returns 1 on success; subtract mana & set waitstate */
         //HERE
     } else {
@@ -1823,8 +1845,8 @@ ACMD(do_trigger)
         return;
     }
     /***** trigger probability calculation *****/
-    prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) << 1) +
-        (GET_REMORT_GEN(ch) << 2);
+    prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) * 2) +
+        (GET_REMORT_GEN(ch) * 4);
     if (IS_SICK(ch))
         prob -= 20;
     if (IS_CONFUSED(ch))
@@ -1836,7 +1858,7 @@ ACMD(do_trigger)
     prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 8) / CAN_CARRY_W(ch);
 
     if (tch && GET_POSITION(ch) == POS_FIGHTING)
-        prob -= (GET_LEVEL(tch) >> 3);
+        prob -= (GET_LEVEL(tch) / 8);
 
     /**** casting probability ends here *****/
 
@@ -1848,7 +1870,7 @@ ACMD(do_trigger)
             send_to_char(ch, "Your concentration was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =
-                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
         if (SINFO.violent && tch && IS_NPC(tch))
             hit(tch, ch, TYPE_UNDEFINED);
     } else {
@@ -1915,8 +1937,8 @@ ACMD(do_arm)
 		return 0;
 	}
 
-	prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) << 1) +
-		(GET_REMORT_GEN(ch) << 2);
+	prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) * 2) +
+		(GET_REMORT_GEN(ch) * 4);
 
 	if (IS_SICK(ch))
 		prob -= 20;
@@ -1927,10 +1949,10 @@ ACMD(do_arm)
 	if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
 		prob -= GET_EQ(ch, GET_OBJ_WEIGHT(WEAR_SHIELD));
 
-	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) << 3) / CAN_CARRY_W(ch);
+	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 8) / CAN_CARRY_W(ch);
 
 	if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
-		prob -= (GET_LEVEL(FIGHTING(ch)) >> 3);
+		prob -= (GET_LEVEL(FIGHTING(ch)) / 8);
 
 	if (number(0, 111) > prob) {
 		WAIT_STATE(ch, PULSE_VIOLENCE);
@@ -1941,7 +1963,7 @@ ACMD(do_arm)
         }
 
 		if (rpoints > 0)
-			GET_RPOINTS(obj) = MAX(0, GET_RPOINTS(obj) - (rpoints >> 1));
+			GET_RPOINTS(obj) = MAX(0, GET_RPOINTS(obj) - (rpoints / 2));
 
 		if (SINFO.violent && tch && IS_NPC(tch))
 			hit(tch, ch, TYPE_UNDEFINED);
@@ -2088,7 +2110,7 @@ ACMD(do_alter)
             send_to_char(ch, "Your concentration was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =
-                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
         if (SINFO.violent && tch && IS_NPC(tch))
             hit(tch, ch, TYPE_UNDEFINED);
     } else {
@@ -2162,7 +2184,7 @@ ACMD(do_perform)
         act("You do not know that song!", false, ch, NULL, NULL, TO_CHAR);
         return;
     }
-    if ((GET_LEVEL(ch) < LVL_AMBASSADOR && (GET_LEVEL(ch) > 10)) &&
+    if ((GET_LEVEL(ch) < LVL_AMBASSADOR) &&
         !check_instrument(ch, spellnum)) {
         send_to_char(ch, "But you're not using a %s instrument!\r\n",
             get_instrument_type(spellnum));
@@ -2191,7 +2213,7 @@ ACMD(do_perform)
             send_to_char(ch, "Your song was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =
-                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana >> 1)));
+                MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
         if (SINFO.violent && tch && IS_NPC(tch))
             hit(tch, ch, TYPE_UNDEFINED);
     } else {
@@ -2218,8 +2240,8 @@ load_spell(xmlNodePtr node)
         errlog("Spell idnum was not specified!");
         return false;
     }
-    if (idnum > TOP_SPELL_DEFINE) {
-        errlog("Spell idnum %d > TOP_SPELL!", idnum);
+    if (idnum > TOP_DAMAGETYPE) {
+        errlog("Spell idnum %d > TOP_DAMAGETYPE!", idnum);
         return false;
     }
     // for defined classes, initialize minimum level to ambassador
@@ -2315,6 +2337,8 @@ load_spell(xmlNodePtr node)
 
             if (!strcmp(value_str, "violent")) {
                 spell_info[idnum].violent = true;
+            } else if (!strcmp(value_str, "weapon")) {
+                spell_info[idnum].is_weapon = true;
             } else if (!strcmp(value_str, "unpleasant")) {
                 spell_info[idnum].targets |= TAR_UNPLEASANT;
             } else {
@@ -2371,7 +2395,7 @@ clear_spells(void)
     if (!UNUSED_SPELL_NAME)
         UNUSED_SPELL_NAME = strdup("!UNUSED!");
 
-    for (int spl = 1; spl < TOP_SPELL_DEFINE; spl++) {
+    for (int spl = 1; spl < TOP_DAMAGETYPE; spl++) {
         if (spells[spl] != UNUSED_SPELL_NAME)
             free(spells[spl]);
         spells[spl] = UNUSED_SPELL_NAME;
@@ -2385,6 +2409,7 @@ clear_spells(void)
         spell_info[spl].min_position = 0;
         spell_info[spl].targets = 0;
         spell_info[spl].violent = 0;
+        spell_info[spl].is_weapon = 0;
         spell_info[spl].routines = 0;
         if (songs[spl].lyrics)
             free(songs[spl].lyrics);
@@ -2395,7 +2420,7 @@ clear_spells(void)
 
     // Initialize string list terminator
     spells[0] = "!RESERVED!";
-    spells[TOP_SPELL_DEFINE] = "\n";
+    spells[TOP_DAMAGETYPE] = "\n";
 }
 
 void
@@ -2406,8 +2431,8 @@ boot_spells(const char *path)
     int num_spells = 0;
 
     free(spells);
-    spells = calloc(TOP_SPELL_DEFINE + 1, sizeof(const char *));
-    memset(spells, 0, sizeof(char *) * (TOP_SPELL_DEFINE + 1));
+    spells = calloc(TOP_DAMAGETYPE + 1, sizeof(const char *));
+    memset(spells, 0, sizeof(char *) * (TOP_DAMAGETYPE + 1));
     memset(spell_info, 0, sizeof(spell_info));
     memset(songs, 0, sizeof(songs));
     clear_spells();

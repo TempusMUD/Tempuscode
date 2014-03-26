@@ -1,4 +1,3 @@
-
 /************************************************************************
  *   File: char_class.c                                       Part of CircleMUD *
  *  Usage: Source file for char_class-specific code                             *
@@ -56,6 +55,7 @@
 #include "char_class.h"
 #include "libpq-fe.h"
 #include "db.h"
+#include "strutil.h"
 
 extern struct room_data *world;
 
@@ -72,7 +72,7 @@ extern struct room_data *world;
  * die throw comes out higher than this number, the gain will only be
  * this number instead.
  *
- * The third line controls the minimu percent gain in learnedness a
+ * The third line controls the minimum percent gain in learnedness a
  * character is allowed per practice -- in other words, if the random
  * die throw comes out below this number, the gain will be set up to
  * this number.
@@ -103,15 +103,15 @@ const int prac_params[4][NUM_CLASSES] = {
 // 2 - class/race combination allowed for primary class
 const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
     //                 MG CL TH WR BR PS PH CY KN RN BD MN VP MR S1 S2 S3
-    {RACE_HUMAN, 2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
-    {RACE_ELF, 2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
-    {RACE_DWARF, 0, 2, 2, 0, 2, 1, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0},
-    {RACE_HALF_ORC, 0, 0, 2, 0, 2, 0, 2, 2, 0, 0, 0, 0, 0, 2, 0, 0, 0},
-    {RACE_HALFLING, 2, 2, 2, 0, 2, 1, 1, 1, 2, 2, 2, 2, 0, 1, 0, 0, 0},
-    {RACE_TABAXI, 2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0},
-    {RACE_DROW, 2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 1, 0, 0, 0},
-    {RACE_MINOTAUR, 2, 2, 0, 0, 2, 0, 1, 1, 0, 2, 0, 0, 0, 1, 0, 0, 0},
-    {RACE_ORC, 0, 0, 1, 0, 2, 0, 1, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0},
+    {RACE_HUMAN,       2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
+    {RACE_ELF,         2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
+    {RACE_DWARF,       0, 2, 2, 0, 2, 1, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0},
+    {RACE_HALF_ORC,    0, 0, 2, 0, 2, 0, 2, 2, 0, 2, 1, 0, 0, 2, 0, 0, 0},
+    {RACE_HALFLING,    2, 2, 2, 0, 2, 1, 1, 1, 2, 2, 2, 2, 0, 1, 0, 0, 0},
+    {RACE_TABAXI,      2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0},
+    {RACE_DROW,        2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 1, 0, 0, 0},
+    {RACE_MINOTAUR,    2, 2, 0, 0, 2, 0, 1, 1, 0, 2, 0, 0, 0, 1, 0, 0, 0},
+    {RACE_ORC,         0, 0, 1, 0, 2, 0, 1, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0},
 };
 
 /* THAC0 for char_classes and levels.  (To Hit Armor Class 0) */
@@ -945,12 +945,52 @@ do_start(struct creature *ch, int mode)
                 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
         }
 
-        // New players start with a hospital gown
+        // New players start with a hospital gown and items most dear to them
         struct obj_data *gown = read_object(33800);
-        if (gown) {
+        if (gown != NULL) {
             equip_char(ch, gown, WEAR_ABOUT, EQUIP_WORN);
         }
 
+        // Good clerics start with a holy symbol on neck
+        if ((GET_CLASS(ch) == CLASS_CLERIC) && IS_GOOD(ch)) {
+            struct obj_data *talisman = read_object(1280);
+            if (talisman != NULL) {
+                equip_char(ch, talisman, WEAR_NECK_1, EQUIP_WORN);
+            }
+        }
+
+        // Evil clerics start with a holy symbol on hold
+        if ((GET_CLASS(ch) == CLASS_CLERIC) && IS_EVIL(ch)) {
+            struct obj_data *symbol = read_object(1260);
+            if (symbol != NULL) {
+                equip_char(ch, symbol, WEAR_HOLD, EQUIP_WORN);
+            }
+        }
+
+        // Good knights start with a holy symbol on finger
+        if ((GET_CLASS(ch) == CLASS_KNIGHT) && IS_GOOD(ch)) {
+            struct obj_data *ring = read_object(1287);
+            if (ring != NULL) {
+                equip_char(ch, ring, WEAR_FINGER_L, EQUIP_WORN);
+            }
+        }
+
+        // Evil knights start with a holy symbol on neck
+        if ((GET_CLASS(ch) == CLASS_KNIGHT) && IS_EVIL(ch)) {
+            struct obj_data *pendant = read_object(1270);
+            if (pendant != NULL) {
+                equip_char(ch, pendant, WEAR_NECK_1, EQUIP_WORN);
+            }
+        }
+
+        // Bards start with a percussion instrument held, and stringed in inventory
+        if (GET_CLASS(ch) == CLASS_BARD) {
+            struct obj_data *lute = read_object(3218);
+            if (lute != NULL) {
+                obj_to_char(lute, ch);
+            }
+        }
+   
         set_title(ch, "the complete newbie");
     }
 
@@ -1096,8 +1136,8 @@ advance_level(struct creature *ch, int8_t keep_internal)
     }
 
     if (IS_RACE(ch, RACE_HALF_ORC) || IS_RACE(ch, RACE_ORC)) {
-        add_move[0] <<= 1;
-        add_move[1] <<= 1;
+        add_move[0] *= 2;
+        add_move[1] *= 2;
     }
     ch->points.max_hit += MAX(1, add_hp[0]);
     ch->points.max_move += MAX(1, add_move[0]);
@@ -1116,9 +1156,9 @@ advance_level(struct creature *ch, int8_t keep_internal)
                 GET_NAME(ch), add_hp[0], add_hp[1]);
         }
 
-        ch->points.max_hit += add_hp[1] >> 2;
-        ch->points.max_mana += add_mana[1] >> 1;
-        ch->points.max_move += add_move[1] >> 2;
+        ch->points.max_hit += add_hp[1] / 4;
+        ch->points.max_mana += add_mana[1] / 2;
+        ch->points.max_move += add_move[1] / 4;
 
     }
 
@@ -1135,11 +1175,11 @@ advance_level(struct creature *ch, int8_t keep_internal)
     if (CHECK_SKILL(ch, SKILL_READ_SCROLLS) > 10)
         GET_SKILL(ch, SKILL_READ_SCROLLS) =
             MIN(100, CHECK_SKILL(ch, SKILL_READ_SCROLLS) +
-            MIN(10, number(1, GET_INT(ch) >> 1)));
+            MIN(10, number(1, GET_INT(ch) / 2)));
     if (CHECK_SKILL(ch, SKILL_USE_WANDS) > 10)
         GET_SKILL(ch, SKILL_USE_WANDS) =
             MIN(100, CHECK_SKILL(ch, SKILL_USE_WANDS) +
-            MIN(10, number(1, GET_INT(ch) >> 1)));
+            MIN(10, number(1, GET_INT(ch) / 2)));
 
     crashsave(ch);
     int rid = -1;

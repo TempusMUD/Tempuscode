@@ -22,7 +22,7 @@ SPECIAL(slaver)
     if (!r_pit_lip || !r_slave_pit)
         return 0;
 
-    if (!slaver->fighting && !ROOM_FLAGGED(slaver->in_room, ROOM_PEACEFUL)) {
+    if (!is_fighting(slaver) && !ROOM_FLAGGED(slaver->in_room, ROOM_PEACEFUL)) {
 
         for (GList * it = slaver->in_room->people; it; it = it->next) {
             vict = it->data;

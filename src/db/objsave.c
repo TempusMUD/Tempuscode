@@ -97,7 +97,7 @@ rent_deadline(struct creature *ch, struct creature *recep, long cost)
 
     const char *msg =
         tmp_sprintf
-        ("You can rent for %ld day%s with the money you have on hand and in the bank.",
+        ("You can rent for %'ld day%s with the money you have on hand and in the bank.",
         rent_deadline, (rent_deadline > 1) ? "s" : "");
     if (recep)
         perform_tell(recep, ch, msg);
@@ -110,10 +110,10 @@ void
 append_obj_rent(const char *currency_str, int count, struct obj_data *obj)
 {
     if (count == 1)
-        acc_sprintf("%10u %s for %s\r\n", GET_OBJ_RENT(obj), currency_str,
+        acc_sprintf("%'10u %s for %s\r\n", GET_OBJ_RENT(obj), currency_str,
             obj->name);
     else
-        acc_sprintf("%10u %s for %s (x%d)\r\n",
+        acc_sprintf("%'10u %s for %s (x%d)\r\n",
             GET_OBJ_RENT(obj) * count, currency_str, obj->name, count);
 }
 
@@ -151,6 +151,21 @@ tally_obj_rent(struct obj_data *obj, const char *currency_str, bool display)
     return total_cost;
 }
 
+static struct creature *
+find_receptionist_in_room(struct room_data *room)
+{
+    for (GList *it = first_living(room->people);it;it = next_living(it)) {
+        struct creature *tch = it->data;
+
+        if (GET_NPC_SPEC(tch) == cryogenicist ||
+            GET_NPC_SPEC(tch) == receptionist) {
+            return tch;
+        }
+    }
+
+    return NULL;
+}
+
 long
 calc_daily_rent(struct creature *ch, int factor, char *currency_str,
     bool display)
@@ -159,7 +174,7 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str,
     struct obj_data *cur_obj;
     int pos;
     long total_cost = 0;
-    float f_factor = factor;
+    struct creature *receptionist = NULL;
     long level_adj;
 
     if (real_room(GET_LOADROOM(ch)) || ch->in_room) {
@@ -169,13 +184,8 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str,
         else
             room = real_room(GET_LOADROOM(ch));
 
-        for (GList *it = first_living(room->people);it;it = next_living(it)) {
-            struct creature *tch = it->data;
-
-            if (GET_NPC_SPEC(tch) == cryogenicist ||
-                GET_NPC_SPEC(tch) == receptionist) {
-                f_factor += (f_factor * cost_modifier(ch, tch)) / 100;
-            }
+        if (room) {
+            receptionist = find_receptionist_in_room(room);
         }
     }
 
@@ -194,15 +204,18 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str,
     level_adj = (3 * total_cost * (10 + GET_LEVEL(ch))) / 100 +
         min_rent_cost * GET_LEVEL(ch) - total_cost;
     total_cost += level_adj;
-    total_cost = (int)((float)total_cost * f_factor);
+    total_cost *= factor;
+    if (receptionist != NULL) {
+        total_cost = adjusted_price(ch, receptionist, total_cost);
+    }
 
     if (display) {
-        acc_sprintf("%10ld %s for level adjustment\r\n",
+        acc_sprintf("%'10ld %s for level adjustment\r\n",
             level_adj, currency_str);
-        if (f_factor != 1)
-            acc_sprintf("        x%.2f for services\r\n", f_factor);
+        if (factor != 1)
+            acc_sprintf("        x%d for services\r\n", factor);
         acc_sprintf("-------------------------------------------\r\n");
-        acc_sprintf("%10ld %s TOTAL\r\n", total_cost, currency_str);
+        acc_sprintf("%'10ld %s TOTAL\r\n", total_cost, currency_str);
     }
 
     return total_cost;
@@ -243,7 +256,7 @@ offer_rent(struct creature *ch, struct creature *receptionist,
                     NULL);
             else if (cost_per_day)
                 acc_sprintf
-                    ("Your %ld %s is enough to rent for %s%ld%s days.\r\n",
+                    ("Your %'ld %s is enough to rent for %s%'ld%s days.\r\n",
                     total_money, curr, CCCYN(ch, C_NRM),
                     total_money / cost_per_day, CCNRM(ch, C_NRM));
         }
@@ -303,10 +316,10 @@ gen_receptionist(struct creature *ch, struct creature *recep,
             return true;
 
         if (mode == RENT_FACTOR)
-            msg = tmp_sprintf("Rent will cost you %d %s per day.", cost, curr);
+            msg = tmp_sprintf("Rent will cost you %'d %s per day.", cost, curr);
         else if (mode == CRYO_FACTOR) {
             msg =
-                tmp_sprintf("It will cost you %d %s to be frozen.", cost,
+                tmp_sprintf("It will cost you %'d %s to be frozen.", cost,
                 curr);
         } else
             msg = "Please report this word: Arbaxyl";

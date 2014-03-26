@@ -254,7 +254,7 @@ zerrlog(struct zone_data *zone, const char *fmt, ...)
             display = d->creature->in_room->zone == zone;
 
         if (display)
-            send_to_desc(d, "&y%s&n\r\n", msg);
+            d_printf(d, "&y%s&n\r\n", msg);
     }
 }
 
@@ -346,13 +346,33 @@ can_charm_more(struct creature * ch)
     return (count < GET_CHA(ch) / 2 + GET_REMORT_GEN(ch));
 }
 
+void
+remove_follower(struct creature *ch)
+{
+    struct follow_type *j, *k;
+
+    if (ch->master->followers->follower == ch) {    /* Head of follower-list? */
+        k = ch->master->followers;
+        ch->master->followers = k->next;
+        free(k);
+    } else {                    /* locate follower who is not head of list */
+        k = ch->master->followers;
+        while (k->next->follower != ch)
+            k = k->next;
+
+        j = k->next;
+        k->next = j->next;
+        free(j);
+    }
+
+    ch->master = NULL;
+}
+
 /* Called when stop following persons, or stopping charm */
 /* This will NOT do if a character quits/dies!!          */
 void
 stop_follower(struct creature *ch)
 {
-    struct follow_type *j, *k;
-
     if (!ch->master)
         raise(SIGSEGV);
 
@@ -371,28 +391,8 @@ stop_follower(struct creature *ch)
             && !AFF_FLAGGED(ch, AFF_SNEAK))
             act("$n stops following you.", true, ch, NULL, ch->master, TO_VICT);
     }
-
-    if (ch->master->followers->follower == ch) {    /* Head of follower-list? */
-        k = ch->master->followers;
-        ch->master->followers = k->next;
-        free(k);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
-    } else {                    /* locate follower who is not head of list */
-        k = ch->master->followers;
-        while (k->next->follower != ch)
-            k = k->next;
-
-        j = k->next;
-        k->next = j->next;
-        free(j);
-#ifdef DMALLOC
-        dmalloc_verify(0);
-#endif
-    }
-
-    ch->master = NULL;
+    
+    remove_follower(ch);
     REMOVE_BIT(AFF_FLAGS(ch), AFF_CHARM | AFF_GROUP);
 }
 
@@ -425,15 +425,10 @@ player_in_room(struct room_data *room)
     return false;
 }
 
-/* Do NOT call this before having checked if a circle of followers */
-/* will arise. CH will follow leader                               */
 void
-add_follower(struct creature *ch, struct creature *leader)
+new_follower(struct creature *ch, struct creature *leader)
 {
     struct follow_type *k;
-
-    if (ch->master)
-        raise(SIGSEGV);
 
     ch->master = leader;
 
@@ -442,7 +437,18 @@ add_follower(struct creature *ch, struct creature *leader)
     k->follower = ch;
     k->next = leader->followers;
     leader->followers = k;
+}
 
+/* Do NOT call this before having checked if a circle of followers */
+/* will arise. CH will follow leader                               */
+void
+add_follower(struct creature *ch, struct creature *leader)
+{
+    if (ch->master)
+        raise(SIGSEGV);
+
+    new_follower(ch, leader);
+    
     act("You now follow $N.", false, ch, NULL, leader, TO_CHAR);
     if (can_see_creature(leader, ch))
         act("$n starts following you.", true, ch, NULL, leader, TO_VICT);
@@ -570,7 +576,7 @@ CHECK_SKILL(struct creature *ch, int i)
                     level = 50 + GET_LEVEL(ch);
         }
         if (IS_DEVIL(ch))
-            level += GET_LEVEL(ch) >> 1;
+            level += GET_LEVEL(ch) / 2;
     }
     if (level > 0 && (af_ptr = affected_by_spell(ch, SPELL_AMNESIA)))
         level = MAX(0, level - af_ptr->duration);
@@ -595,9 +601,9 @@ WAIT_STATE(struct creature *ch, int cycle)
     wait = cycle;
 
     if (AFF2_FLAGGED(ch, AFF2_HASTE))
-        wait -= cycle >> 2;
+        wait -= cycle / 4;
     if (AFF2_FLAGGED(ch, AFF2_SLOW))
-        wait += cycle >> 2;
+        wait += cycle / 4;
     if (SPEED_OF(ch))
         wait -= (cycle * SPEED_OF(ch)) / 100;
 
@@ -714,7 +720,7 @@ char *
 format_distance(int cm, bool metric)
 {
     if (metric) {
-        return tmp_sprintf("%dcm", cm);
+        return tmp_sprintf("%'dcm", cm);
     } else {
         float inches = cm / 2.54;
         if (inches < 1)
@@ -723,7 +729,7 @@ format_distance(int cm, bool metric)
             return tmp_sprintf("%d in", (int)inches);
         else {
             int ft = inches / 12;
-            return tmp_sprintf("%d ft, %d in", ft, (int)(inches - (ft * 12)));
+            return tmp_sprintf("%'d ft, %d in", ft, (int)(inches - (ft * 12)));
         }
     }
 }
@@ -734,13 +740,42 @@ format_weight(float lbs, bool metric)
     if (metric) {
         float kg = lbs / 2.2;
         if (kg < 1.0)
-            return tmp_sprintf("%dg", (int)(kg * 1000));
+            return tmp_sprintf("%'dg", (int)(kg * 1000));
         else
-            return tmp_sprintf("%.2fkg", kg);
+            return tmp_sprintf("%'.2fkg", kg);
     } else {
         if (lbs < 1)
-            return tmp_sprintf("%.2f oz", lbs * 16);
+            return tmp_sprintf("%'.2f oz", lbs * 16);
         else
-            return tmp_sprintf("%.2f lb", lbs);
+            return tmp_sprintf("%'.2f lb", lbs);
+    }
+}
+
+int
+parse_distance(char *str, bool metric)
+{
+    if (metric) {
+        return atoi(str);
+    } else {
+        int feet = atoi(tmp_getword(&str));
+        int inches = atoi(tmp_getword(&str));
+
+        inches += feet * 12;
+
+        return (inches + 1) * 2.54;
+    }
+}
+
+float
+parse_weight(char *str, bool metric)
+{
+    if (metric) {
+        float kg = strtof(str, NULL);
+        return kg * 2.2;
+    } else {
+        float lbs = strtof(tmp_getword(&str), NULL);
+        float oz = strtof(tmp_getword(&str), NULL);
+
+        return lbs + oz / 16.0;
     }
 }

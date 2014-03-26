@@ -15,7 +15,7 @@ SPECIAL(languagemaster)
     int check_only = 0, tongue_idx = TONGUE_NONE;
     int cost = TONGUE_COST;
 
-    cost += (cost * cost_modifier(ch, master)) / 100;
+    cost = adjusted_price(ch, master, cost);
 
     if (spec_mode != SPECIAL_CMD)
         return false;
@@ -49,7 +49,7 @@ SPECIAL(languagemaster)
     }
 
     send_to_char(ch,
-        "It will cost you %d gold coins to learn to speak %s%s\r\n", cost,
+        "It will cost you %'d gold coins to learn to speak %s%s\r\n", cost,
         tongue_name(tongue_idx),
         cost > GET_GOLD(ch) ? ", which I see you don't have." : ".");
 

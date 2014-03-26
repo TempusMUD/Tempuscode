@@ -57,8 +57,8 @@ SPECIAL(electronics_school)
     if (!CMD_IS("learn") && !CMD_IS("train") && !CMD_IS("offer"))
         return 0;
 
-    cred_cost = (GET_LEVEL(ch) << 6) + 2000;
-    cred_cost += (cred_cost * cost_modifier(ch, self)) / 100;
+    cred_cost = (GET_LEVEL(ch) * 64) + 2000;
+    cred_cost = adjusted_price(ch, self, cred_cost);
 
     if (!can_see_creature(self, ch)) {
         perform_say(self, "say", "I can't train ya if I can't see ya, see?");

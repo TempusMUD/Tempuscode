@@ -54,6 +54,7 @@
 #include "weather.h"
 #include "prog.h"
 #include "smokes.h"
+#include "strutil.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
@@ -622,14 +623,14 @@ affect_join(struct creature *ch, struct affected_type *af,
             if (add_dur)
                 af->duration = MIN(666, af->duration + hjp->duration);
             if (avg_dur)
-                af->duration >>= 1;
+                af->duration /= 2;
 
             if (add_mod) {
                 af->modifier =
                     MIN(MAX(af->modifier + hjp->modifier, -666), 666);
             }
             if (avg_mod)
-                af->modifier >>= 1;
+                af->modifier /= 2;
             affect_remove(ch, hjp);
             affect_to_char(ch, af);
             return;
@@ -962,9 +963,55 @@ char_to_room(struct creature * ch, struct room_data * room,
     return true;
 }
 
+static struct obj_data *
+insert_obj_into_contents(struct obj_data *contents, struct obj_data *object)
+{
+    // Find the first "identical" object in the carry list, and put the new
+    // object before that one if one exists.  Otherwise, push onto the
+    // head of the list.
+    if (!contents || same_obj(contents, object)) {
+        object->next_content = contents;
+        return object;
+    }
+
+    for (struct obj_data *obj = contents;obj->next_content;obj = obj->next_content) {
+        if (same_obj(obj->next_content, object)) {
+            object->next_content = obj->next_content;
+            obj->next_content = object;
+            return contents;
+        }
+    }
+
+    object->next_content = contents;
+    return object;
+}
+
+static struct obj_data *
+append_obj_to_contents(struct obj_data *contents, struct obj_data *object)
+{
+    object->next_content = NULL;
+
+    if (!contents) {
+        return object;
+    }
+
+    struct obj_data *obj = contents;
+
+    while (obj->next_content)
+        obj = obj->next_content;
+
+    obj->next_content = object;
+
+    return contents;
+}
+
+typedef struct obj_data *(*insert_func_t)(struct obj_data *, struct obj_data *);
+
 /* give an object to a char   */
-void
-obj_to_char(struct obj_data *object, struct creature *ch)
+static void
+general_obj_to_char(struct obj_data *object,
+                    struct creature *ch,
+                    insert_func_t insert_func)
 {
     struct zone_data *zn = NULL;
 
@@ -973,11 +1020,10 @@ obj_to_char(struct obj_data *object, struct creature *ch)
         return;
     }
 
-    object->next_content = ch->carrying;
-    ch->carrying = object;
-
+    ch->carrying = insert_func(ch->carrying, object);
     object->carried_by = ch;
     object->in_room = NULL;
+
     IS_CARRYING_W(ch) += GET_OBJ_WEIGHT(object);
     IS_CARRYING_N(ch)++;
 
@@ -985,13 +1031,25 @@ obj_to_char(struct obj_data *object, struct creature *ch)
         !IS_NPC(ch) && GET_LEVEL(ch) < LVL_IMMORT && !GET_OBJ_TIMER(object)) {
 
         if ((zn = real_zone(zone_number(GET_OBJ_VNUM(object)))))
-            GET_OBJ_TIMER(object) = MAX(2, zn->lifespan >> 1);
+            GET_OBJ_TIMER(object) = MAX(2, zn->lifespan / 2);
         else
             GET_OBJ_TIMER(object) = 15;
     }
     /* set flag for crash-save system */
     if (!IS_NPC(ch))
         SET_BIT(PLR_FLAGS(ch), PLR_CRASH);
+}
+
+void
+obj_to_char(struct obj_data *object, struct creature *ch)
+{
+    general_obj_to_char(object, ch, insert_obj_into_contents);
+}
+
+void
+unsorted_obj_to_char(struct obj_data *object, struct creature *ch)
+{
+    general_obj_to_char(object, ch, append_obj_to_contents);
 }
 
 /* take an object from a char */
@@ -1149,6 +1207,9 @@ equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
             return 0;
         }
         GET_IMPLANT(ch, pos) = obj;
+        if (IS_OBJ_TYPE(obj, ITEM_ARMOR))
+            GET_AC(ch) -= GET_OBJ_VAL(obj, 0);
+
         GET_WEIGHT(ch) += (int)GET_OBJ_WEIGHT(obj);
         break;
     case EQUIP_TATTOO:
@@ -1224,6 +1285,8 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
             return NULL;
         }
         obj = GET_IMPLANT(ch, pos);
+        if (IS_OBJ_TYPE(obj, ITEM_ARMOR))
+            GET_AC(ch) += GET_OBJ_VAL(obj, 0);
 
         GET_WEIGHT(ch) -= (int)GET_OBJ_WEIGHT(obj);
         break;
@@ -1289,7 +1352,7 @@ check_eq_align(struct creature *ch)
                     implant, NULL, TO_CHAR);
                 act("$n screams in horror as $p burns its way out through $s flesh!", false, ch, implant, NULL, TO_ROOM);
 
-                damage_eq(NULL, implant, (GET_OBJ_DAM(implant) >> 1), -1);
+                damage_eq(NULL, implant, (GET_OBJ_DAM(implant) / 2), -1);
 
                 int extraction_damage =
                     MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
@@ -1297,7 +1360,7 @@ check_eq_align(struct creature *ch)
                     extraction_damage *= 3;
                 else if (pos == WEAR_HEAD || pos == WEAR_LEGS)
                     extraction_damage *= 2;
-                extraction_damage >>= 3;
+                extraction_damage /= 8;
                 return damage(ch, ch, NULL, dice(extraction_damage, 3),
                     TOP_SPELL_DEFINE, pos);
             }
@@ -1316,7 +1379,7 @@ check_eq_align(struct creature *ch)
             act("$n frantically takes off $p as $e screams in agony!", false,
                 ch, obj, NULL, TO_ROOM);
             skill = MAX(GET_ALIGNMENT(ch), -GET_ALIGNMENT(ch));
-            skill >>= 5;
+            skill /= 32;
             skill = MAX(1, skill);
             obj_to_char(unequip_char(ch, pos, false), ch);
 
@@ -1387,7 +1450,7 @@ get_char_room(char *name, struct room_data *room)
 }
 
 struct creature *
-get_char_in_world_by_idnum(int nr)
+get_char_in_world_by_idnum(long nr)
 {
     struct creature *result = g_hash_table_lookup(creature_map, GINT_TO_POINTER(nr));
     if (!result || is_dead(result))
@@ -1406,25 +1469,36 @@ same_obj(struct obj_data * obj1, struct obj_data * obj2)
     if (GET_OBJ_VNUM(obj1) != GET_OBJ_VNUM(obj2))
         return (false);
 
+    if (obj1->consignor != obj2->consignor)
+        return false;
+
     if (GET_OBJ_SIGIL_IDNUM(obj1) != GET_OBJ_SIGIL_IDNUM(obj2) ||
         GET_OBJ_SIGIL_LEVEL(obj1) != GET_OBJ_SIGIL_LEVEL(obj2))
         return false;
 
-    if ((obj1->shared->proto &&
-            (obj1->name != obj1->shared->proto->name
-                || obj1->line_desc != obj1->shared->proto->line_desc))
-        || (obj2->shared->proto
-            && (obj2->name !=
-                obj2->shared->proto->name
-                || obj2->line_desc != obj2->shared->proto->line_desc)))
+    if (obj1->shared->proto
+        && (obj1->name != obj1->shared->proto->name
+            || obj1->line_desc != obj1->shared->proto->line_desc))
         return false;
 
-    if ((obj1->name != obj2->name ||
-            obj1->line_desc != obj2->line_desc) &&
-        (strcasecmp(obj1->name, obj2->name) ||
-            !obj1->line_desc || !obj2->line_desc ||
-            strcasecmp(obj1->line_desc, obj2->line_desc)))
-        return (false);
+            
+    if (obj2->shared->proto
+        && (obj2->name != obj2->shared->proto->name
+            || obj2->line_desc != obj2->shared->proto->line_desc))
+        return false;
+
+    if (obj1->name != obj2->name && strcmp(obj1->name, obj2->name))
+        return false;
+
+    if (obj1->line_desc != obj2->line_desc
+        && (!obj1->line_desc || !obj2->line_desc
+            || strcmp(obj1->line_desc, obj2->line_desc)))
+        return false;
+
+    if (obj1->engraving != obj2->engraving
+        && (!obj1->engraving || !obj2->engraving
+            || strcmp(obj1->engraving, obj2->engraving)))
+        return false;
 
     if (GET_OBJ_COST(obj1) != GET_OBJ_COST(obj2) ||
         GET_OBJ_EXTRA(obj1) != GET_OBJ_EXTRA(obj2) ||
@@ -1444,8 +1518,10 @@ same_obj(struct obj_data * obj1, struct obj_data * obj2)
 }
 
 /* put an object in a room */
-void
-obj_to_room(struct obj_data *object, struct room_data *room)
+static void
+general_obj_to_room(struct obj_data *object,
+                    struct room_data *room,
+                    insert_func_t insert_func)
 {
     if (!object || !room) {
         errlog("Illegal %s | %s passed to obj_to_room",
@@ -1460,9 +1536,7 @@ obj_to_room(struct obj_data *object, struct room_data *room)
         return;
     }
 
-    object->next_content = room->contents;
-    room->contents = object;
-
+    room->contents = insert_func(room->contents, object);
     object->in_room = room;
 
     if (ROOM_FLAGGED(room, ROOM_HOUSE))
@@ -1477,6 +1551,18 @@ obj_to_room(struct obj_data *object, struct room_data *room)
         && SMOKE_LIT(object)
         && (room_is_watery(room) || !room_has_air(room)))
         SMOKE_LIT(object) = 0;
+}
+
+void
+obj_to_room(struct obj_data *object, struct room_data *room)
+{
+    general_obj_to_room(object, room, insert_obj_into_contents);
+}
+
+void
+unsorted_obj_to_room(struct obj_data *object, struct room_data *room)
+{
+    general_obj_to_room(object, room, append_obj_to_contents);
 }
 
 /* Take an object from a room */
@@ -1515,8 +1601,8 @@ obj_from_room(struct obj_data *object)
 }
 
 /* put an object in an object (quaint)  */
-void
-obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
+static void
+general_obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, insert_func_t insert_func)
 {
     struct creature *vict = NULL;
 
@@ -1524,9 +1610,8 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
         errlog("NULL object or same src and targ obj passed to obj_to_obj");
         return;
     }
-    obj->next_content = obj_to->contains;
-    obj_to->contains = obj;
 
+    obj_to->contains = insert_func(obj_to->contains, obj);
     obj->in_obj = obj_to;
 
     /* top level object.  Subtract weight from inventory if necessary. */
@@ -1541,6 +1626,18 @@ obj_to_obj(struct obj_data *obj, struct obj_data *obj_to)
         apply_object_affects(vict, obj, true);
         affect_total(vict);
     }
+}
+
+void
+obj_to_obj(struct obj_data *object, struct obj_data *obj_to)
+{
+    general_obj_to_obj(object, obj_to, insert_obj_into_contents);
+}
+
+void
+unsorted_obj_to_obj(struct obj_data *object, struct obj_data *obj_to)
+{
+    general_obj_to_obj(object, obj_to, append_obj_to_contents);
 }
 
 /* remove an object from an object */

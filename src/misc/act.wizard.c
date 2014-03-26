@@ -98,6 +98,7 @@ extern struct last_command_data last_cmd[NUM_SAVE_CMDS];
 extern const char *language_names[];
 extern const char *instrument_types[];
 extern const char *zone_pk_flags[];
+extern const char *logtypes[];
 
 char *how_good(int percent);
 extern char *prac_types[];
@@ -115,7 +116,7 @@ void autosave_zones(int SAVE_TYPE);
 void perform_oset(struct creature *ch, struct obj_data *obj_p,
     char *argument, int8_t subcmd);
 void do_show_objects(struct creature *ch, char *value, char *arg);
-static void do_show_mobiles(struct creature *ch, char *value, char *arg);
+void do_show_mobiles(struct creature *ch, char *value, char *argument);
 void show_searches(struct creature *ch, char *value, char *arg);
 static void show_rooms(struct creature *ch, char *value, char *arg);
 void do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg);
@@ -135,10 +136,6 @@ void verify_tempus_integrity(struct creature *ch);
 static void do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj);
 
 ACMD(do_equipment);
-
-static const char *logtypes[] = {
-    "off", "brief", "normal", "complete", "\n"
-};
 
 void
 show_char_class_skills(struct creature *ch, int con, int immort, int bits)
@@ -573,13 +570,28 @@ ACMD(do_teleport)
 }
 
 gint
-mob_vnum_compare(struct creature *a, struct creature *b, gpointer ignore)
+mob_vnum_compare(struct creature *a, struct creature *b, __attribute__ ((unused)) gpointer ignore)
 {
     if (GET_NPC_VNUM(a) < GET_NPC_VNUM(b))
         return -1;
     if (GET_NPC_VNUM(a) > GET_NPC_VNUM(b))
         return 1;
     return 0;
+}
+
+struct mob_vnum_output_ctx {
+    struct creature *ch;
+    int *counter;
+};
+
+void
+mob_vnum_output(struct creature *mob, struct mob_vnum_output_ctx *ctx)
+{
+    acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(ctx->counter),
+                CCGRN(ctx->ch, C_NRM), CCNRM(ctx->ch, C_NRM),
+                mob->mob_specials.shared->vnum,
+                CCGRN(ctx->ch, C_NRM), CCYEL(ctx->ch, C_NRM),
+                mob->player.short_descr, CCNRM(ctx->ch, C_NRM));
 }
 
 void
@@ -600,18 +612,8 @@ vnum_mobile(char *searchname, struct creature *ch)
 
     if (g_sequence_get_length(found_mobs)) {
         acc_string_clear();
-
-        void mob_vnum_output(struct creature *mob, gpointer counter)
-        {
-            acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(int *)counter,
-                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                        mob->mob_specials.shared->vnum,
-                        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                        mob->player.short_descr, CCNRM(ch, C_NRM));
-        }
-
-
-        g_sequence_foreach(found_mobs, (GFunc)mob_vnum_output, &counter);
+        struct mob_vnum_output_ctx ctx = { .ch = ch, .counter = &counter };
+        g_sequence_foreach(found_mobs, (GFunc)mob_vnum_output, &ctx);
 
         page_string(ch->desc, acc_get_string());
     } else {
@@ -622,7 +624,7 @@ vnum_mobile(char *searchname, struct creature *ch)
 }
 
 gint
-obj_vnum_compare(struct obj_data *a, struct obj_data *b, gpointer ignore)
+obj_vnum_compare(struct obj_data *a, struct obj_data *b, __attribute__ ((unused)) gpointer ignore)
 {
     if (GET_OBJ_VNUM(a) < GET_OBJ_VNUM(b))
         return -1;
@@ -631,7 +633,22 @@ obj_vnum_compare(struct obj_data *a, struct obj_data *b, gpointer ignore)
     return 0;
 }
 
+struct obj_vnum_output_ctx {
+    struct creature *ch;
+    int *counter;
+};
+
 void
+obj_vnum_output(struct obj_data *obj, struct obj_vnum_output_ctx *ctx)
+{
+    acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(ctx->counter),
+                CCGRN(ctx->ch, C_NRM), CCNRM(ctx->ch, C_NRM),
+                obj->shared->vnum,
+                CCGRN(ctx->ch, C_NRM), CCYEL(ctx->ch, C_NRM),
+                obj->name, CCNRM(ctx->ch, C_NRM));
+}
+
+        void
 vnum_object(char *searchname, struct creature *ch)
 {
     GHashTableIter iter;
@@ -650,16 +667,8 @@ vnum_object(char *searchname, struct creature *ch)
     if (g_sequence_get_length(found_objs)) {
         acc_string_clear();
 
-        void obj_vnum_output(struct obj_data *obj, gpointer counter)
-        {
-            acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(int *)counter,
-                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                        obj->shared->vnum,
-                        CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                        obj->name, CCNRM(ch, C_NRM));
-        }
-
-        g_sequence_foreach(found_objs, (GFunc)obj_vnum_output, &counter);
+        struct obj_vnum_output_ctx ctx = { .ch = ch, .counter = &counter };
+        g_sequence_foreach(found_objs, (GFunc)obj_vnum_output, &ctx);
 
         page_string(ch->desc, acc_get_string());
     } else {
@@ -1212,6 +1221,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     struct extra_descr_data *desc;
     extern const char *egun_types[];
     struct room_data *rm = NULL;
+    bool metric = USE_METRIC(ch);
 
     if (IS_OBJ_TYPE(j, ITEM_NOTE) && isname("letter", j->aliases)) {
         if (j->carried_by && GET_LEVEL(j->carried_by) > GET_LEVEL(ch)) {
@@ -1323,8 +1333,8 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     acc_sprintf("Extra3 flags: %s\r\n",
         tmp_printbits(GET_OBJ_EXTRA3(j), extra3_bits));
 
-    acc_sprintf("Weight: %.2f, Cost: %d (%d), Rent: %d, Timer: %d\r\n",
-        GET_OBJ_WEIGHT(j), GET_OBJ_COST(j),
+    acc_sprintf("Weight: %s, Cost: %'d (%'d), Rent: %'d, Timer: %d\r\n",
+        format_weight(GET_OBJ_WEIGHT(j), metric), GET_OBJ_COST(j),
         prototype_obj_value(j), GET_OBJ_RENT(j), GET_OBJ_TIMER(j));
 
     if ((rm = where_obj(j))) {
@@ -1343,10 +1353,10 @@ do_stat_object(struct creature *ch, struct obj_data *j)
             (j->aux_obj) ? j->aux_obj->name : "N", CCNRM(ch, C_NRM));
     }
     acc_sprintf
-        ("Material: [%s%s%s (%d)], Maxdamage: [%d (%d)], Damage: [%d]\r\n",
+        ("Material: [%s%s%s (%d)], Maxdamage: [%'d (%'d)], Damage: [%'d]\r\n",
          CCYEL(ch, C_NRM), strlist_aref(GET_OBJ_MATERIAL(j), material_names), CCNRM(ch,
-            C_NRM), GET_OBJ_MATERIAL(j), GET_OBJ_MAX_DAM(j), set_maxdamage(j),
-        GET_OBJ_DAM(j));
+         C_NRM), GET_OBJ_MATERIAL(j), GET_OBJ_MAX_DAM(j), set_maxdamage(j),
+         GET_OBJ_DAM(j));
 
     switch (GET_OBJ_TYPE(j)) {
     case ITEM_LIGHT:
@@ -1382,16 +1392,20 @@ do_stat_object(struct creature *ch, struct obj_data *j)
         break;
     case ITEM_WEAPON:
         acc_sprintf
-            ("Spell: %s (%d), Todam: %dd%d (av %d), Damage Type: %s (%d)\r\n",
-            ((GET_OBJ_VAL(j, 0) > 0
-                    && GET_OBJ_VAL(j,
-                        0) < TOP_NPC_SPELL) ? spell_to_str((int)GET_OBJ_VAL(j,
-                        0)) : "NONE"), GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1),
-            GET_OBJ_VAL(j, 2), (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j,
-                        2) + 1)) / 2, (GET_OBJ_VAL(j, 3) >= 0
-                && GET_OBJ_VAL(j,
-                    3) < 19) ? attack_hit_text[(int)GET_OBJ_VAL(j,
-                    3)].plural : "bunk", GET_OBJ_VAL(j, 3));
+            ("Spell: %s (%d), Todam: %dd%d (%savg %d%s [%d-%d]), Damage Type: %s (%d)\r\n",
+    			((GET_OBJ_VAL(j, 0) > 0
+                  && GET_OBJ_VAL(j, 0) < TOP_NPC_SPELL) ? spell_to_str((int)GET_OBJ_VAL(j, 0)) : "NONE"), 
+				GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), 
+				CCGRN(ch, C_NRM),(GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j, 2) + 1)) / 2, CCNRM(ch, C_NRM),
+			// for displaying the max/min avg from the obj prototype			
+				((GET_OBJ_VAL(j->shared->proto, 1) - (GET_OBJ_VAL(j->shared->proto, 1) / 4)) * 
+				((GET_OBJ_VAL(j->shared->proto, 2) - (GET_OBJ_VAL(j->shared->proto, 2) / 4)) + 1)) / 2,
+				((GET_OBJ_VAL(j->shared->proto, 1) + (GET_OBJ_VAL(j->shared->proto, 1) / 4)) * 
+				((GET_OBJ_VAL(j->shared->proto, 2) + (GET_OBJ_VAL(j->shared->proto, 2) / 4)) + 1)) / 2,	
+						
+				(GET_OBJ_VAL(j, 3) >= 0 
+				  && GET_OBJ_VAL(j, 3) < 19) ? attack_hit_text[(int)GET_OBJ_VAL(j, 3)].plural : "bunk", 
+				GET_OBJ_VAL(j, 3));
         break;
     case ITEM_CAMERA:
         acc_sprintf("Targ room: %d\r\n", GET_OBJ_VAL(j, 0));
@@ -1571,6 +1585,13 @@ do_stat_object(struct creature *ch, struct obj_data *j)
             GET_OBJ_SIGIL_IDNUM(j), GET_OBJ_SIGIL_LEVEL(j));
     }
 
+    if (j->consignor) {
+        acc_sprintf("Consigned by %s (%ld) for %'" PRId64 ".\r\n",
+                    player_name_by_idnum(j->consignor),
+                    j->consignor,
+                    j->consign_price);
+    }
+
     do_stat_obj_tmp_affs(ch, j);
 
     page_string(ch->desc, acc_get_string());
@@ -1637,7 +1658,7 @@ do_stat_character_kills(struct creature *ch, struct creature *k)
 {
     if (!IS_PC(k)) {
         send_to_char(ch, "Recent kills by a mob are not recorded.\r\n");
-    } else if (GET_RECENT_KILLS(k)) {
+    } else if (!GET_RECENT_KILLS(k)) {
         send_to_char(ch, "This player has not killed anything yet.\r\n");
     } else {
         acc_string_clear();
@@ -1647,7 +1668,7 @@ do_stat_character_kills(struct creature *ch, struct creature *k)
              kill_it = kill_it->next) {
             struct kill_record *kill = kill_it->data;
             struct creature *killed = real_mobile_proto(kill->vnum);
-            acc_sprintf("%s%3d. %-30s %17d%s\r\n",
+            acc_sprintf("%s%5d. %-30s %17d%s\r\n",
                 CCGRN(ch, C_NRM),
                 kill->vnum,
                 (killed) ? GET_NAME(killed) : "<unknown>",
@@ -1705,6 +1726,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     const char *line_buf;
     struct follow_type *fol;
     struct affected_type *aff;
+    bool metric = USE_METRIC(ch);
 
     if (IS_PC(k)
         && !(is_tester(ch) && ch == k)
@@ -1811,8 +1833,9 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             GET_ALIGNMENT(k));
     }
 
-    acc_sprintf("Height:  %d centimeters , Weight: %d lbs.\r\n",
-                GET_HEIGHT(k), GET_WEIGHT(k));
+    acc_sprintf("Height %s, Weight %s.\r\n",
+        format_distance(GET_HEIGHT(k), metric),
+        format_weight(GET_WEIGHT(k), metric));
 
     if (!IS_NPC(k)) {
         strcpy(buf1, (char *)asctime(localtime(&(k->player.time.birth))));
@@ -1904,7 +1927,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         if (k->in_room)
             acc_sprintf(", %sFT%s: %s, %sHNT%s: %s, Timer: %d",
                 CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                (k->fighting ? GET_NAME(random_opponent(k)) : "N"),
+                        (is_fighting(k) ? GET_NAME(random_opponent(k)) : "N"),
                 CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                 NPC_HUNTING(k) ? PERS(NPC_HUNTING(k), ch) : "N",
                 k->char_specials.timer);
@@ -1912,7 +1935,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
             position_types[(int)GET_POSITION(k)],
             CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-            (k->fighting ? GET_NAME(random_opponent(k)) : "N"),
+                    (is_fighting(k) ? GET_NAME(random_opponent(k)) : "N"),
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
             NPC_HUNTING(k) ? PERS(NPC_HUNTING(k), ch) : "N");
     }
@@ -2132,6 +2155,19 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         }
     }
 
+    if (IS_PC(k)
+        && k->player_specials->tags
+        && g_hash_table_size(k->player_specials->tags) > 0) {
+        acc_sprintf("Tags:");
+
+        g_hash_table_iter_init(&iter, k->player_specials->tags);
+
+        while (g_hash_table_iter_next(&iter, &key, NULL)) {
+            acc_sprintf(" %s", (char *)key);
+        }
+        acc_sprintf("\r\n");
+    }
+
     /* Routine to show what spells a char is affected by */
     if (k->affected) {
         for (aff = k->affected; aff; aff = aff->next) {
@@ -2168,7 +2204,10 @@ ACMD(do_stat)
     struct zone_data *zone = NULL;
     int tmp, found;
     char *arg1 = tmp_getword(&argument);
+    char *options = argument;
     char *arg2 = tmp_getword(&argument);
+    if (*arg2)
+        options = argument;
 
     if (!*arg1) {
         send_to_char(ch, "Stats on who or what?\r\n");
@@ -2200,7 +2239,7 @@ ACMD(do_stat)
         else {
             if ((victim = get_char_vis(ch, arg2)) &&
                 (IS_NPC(victim) || GET_LEVEL(ch) >= LVL_DEMI))
-                do_stat_character(ch, victim, argument);
+                do_stat_character(ch, victim, options);
             else
                 send_to_char(ch, "No such mobile around.\r\n");
         }
@@ -2209,7 +2248,7 @@ ACMD(do_stat)
             send_to_char(ch, "Stats on which player?\r\n");
         } else {
             if ((victim = get_player_vis(ch, arg2, 0)))
-                do_stat_character(ch, victim, argument);
+                do_stat_character(ch, victim, options);
             else
                 send_to_char(ch, "No such player around.\r\n");
         }
@@ -2226,7 +2265,7 @@ ACMD(do_stat)
             } else {
                 victim = load_player_from_xml(player_idnum_by_name(arg2));
                 if (victim) {
-                    do_stat_character(ch, victim, argument);
+                    do_stat_character(ch, victim, options);
                     free_creature(victim);
                 } else {
                     send_to_char(ch, "Error loading character '%s'\r\n", arg2);
@@ -2248,12 +2287,12 @@ ACMD(do_stat)
         else if ((object = get_obj_in_list_vis(ch, arg1, ch->carrying)))
             do_stat_object(ch, object);
         else if ((victim = get_char_room_vis(ch, arg1)))
-            do_stat_character(ch, victim, argument);
+            do_stat_character(ch, victim, options);
         else if ((object =
                 get_obj_in_list_vis(ch, arg1, ch->in_room->contents)))
             do_stat_object(ch, object);
         else if ((victim = get_char_vis(ch, arg1)))
-            do_stat_character(ch, victim, argument);
+            do_stat_character(ch, victim, options);
         else if ((object = get_obj_vis(ch, arg1)))
             do_stat_object(ch, object);
         else
@@ -2517,25 +2556,29 @@ ACMD(do_rswitch)
     }
 }
 
-// This NASTY macro written by Nothing, spank me next time you see me if you want... :P
-#define GET_START_ROOM(ch) (GET_HOME(ch) == HOME_MODRIAN ? r_mortal_start_room :\
-                            GET_HOME(ch) == HOME_ELECTRO ? r_electro_start_room :\
-                            GET_HOME(ch) == HOME_NEW_THALOS ? r_new_thalos_start_room :\
-                            GET_HOME(ch) == HOME_KROMGUARD ? r_kromguard_start_room :\
-                            GET_HOME(ch) == HOME_ELVEN_VILLAGE ? r_elven_start_room :\
-                            GET_HOME(ch) == HOME_ISTAN ? r_istan_start_room :\
-                            GET_HOME(ch) == HOME_MONK ? r_monk_start_room :\
-                            GET_HOME(ch) == HOME_ARENA ? r_arena_start_room :\
-                            GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :\
-                            GET_HOME(ch) == HOME_SOLACE_COVE ? r_solace_start_room :\
-                            GET_HOME(ch) == HOME_MAVERNAL ? r_mavernal_start_room :\
-                            GET_HOME(ch) == HOME_DWARVEN_CAVERNS ? r_dwarven_caverns_start_room :\
-                            GET_HOME(ch) == HOME_HUMAN_SQUARE ? r_human_square_start_room :\
-                            GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :\
-                            GET_HOME(ch) == HOME_DROW_ISLE ? r_drow_isle_start_room :\
-                            GET_HOME(ch) == HOME_ASTRAL_MANSE ? r_astral_manse_start_room :\
-                            GET_HOME(ch) == HOME_NEWBIE_SCHOOL ? r_newbie_school_start_room :\
-                            r_mortal_start_room)
+static inline struct room_data *
+get_start_room(struct creature *ch)
+{
+    return (GET_HOME(ch) == HOME_MODRIAN ? r_mortal_start_room :
+            GET_HOME(ch) == HOME_ELECTRO ? r_electro_start_room :
+            GET_HOME(ch) == HOME_NEW_THALOS ? r_new_thalos_start_room :
+            GET_HOME(ch) == HOME_KROMGUARD ? r_kromguard_start_room :
+            GET_HOME(ch) == HOME_ELVEN_VILLAGE ? r_elven_start_room :
+            GET_HOME(ch) == HOME_ISTAN ? r_istan_start_room :
+            GET_HOME(ch) == HOME_MONK ? r_monk_start_room :
+            GET_HOME(ch) == HOME_ARENA ? r_arena_start_room :
+            GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :
+            GET_HOME(ch) == HOME_SOLACE_COVE ? r_solace_start_room :
+            GET_HOME(ch) == HOME_MAVERNAL ? r_mavernal_start_room :
+            GET_HOME(ch) == HOME_DWARVEN_CAVERNS ? r_dwarven_caverns_start_room :
+            GET_HOME(ch) == HOME_HUMAN_SQUARE ? r_human_square_start_room :
+            GET_HOME(ch) == HOME_SKULLPORT ? r_skullport_start_room :
+            GET_HOME(ch) == HOME_DROW_ISLE ? r_drow_isle_start_room :
+            GET_HOME(ch) == HOME_ASTRAL_MANSE ? r_astral_manse_start_room :
+            GET_HOME(ch) == HOME_NEWBIE_SCHOOL ? r_newbie_school_start_room :
+            r_mortal_start_room);
+}
+
 ACMD(do_return)
 {
     struct creature *orig = NULL;
@@ -2571,25 +2614,32 @@ ACMD(do_return)
             if (subcmd != SCMD_NOEXTRACT)
                 creature_purge(ch, true);
         }
-    } else if (!IS_NPC(ch) && !IS_REMORT(ch) && (GET_LEVEL(ch) < LVL_IMMORT)) {
-        // Return to newbie start room
-        if (is_fighting(ch)) {
-            send_to_char(ch, "No way!  You're fighting for your life!\r\n");
-        } else if (GET_LEVEL(ch) <= LVL_CAN_RETURN) {
-            act("A whirling globe of multi-colored light appears and whisks you away!", false, ch, NULL, NULL, TO_CHAR);
-            act("A whirling globe of multi-colored light appears and whisks $n away!", false, ch, NULL, NULL, TO_ROOM);
-            char_from_room(ch, false);
-            char_to_room(ch, GET_START_ROOM(ch), false);
-            look_at_room(ch, ch->in_room, 0);
-            act("A whirling globe of multi-colored light appears and deposits $n on the floor!", false, ch, NULL, NULL, TO_ROOM);
-        } else
-            send_to_char(ch, "There is no need to return.\r\n");
-    } else {
-        send_to_char(ch, "There is no need to return.\r\n");
+        return;
     }
-}
 
-#undef GET_START_ROOM
+    if (IS_NPC(ch)) {
+        send_to_char(ch, "Return to where?\r\n");
+        return;
+    }
+
+    if (is_fighting(ch)) {
+        send_to_char(ch, "No way!  You're fighting for your life!\r\n");
+        return;
+    }
+
+    if (GET_LEVEL(ch) > LVL_CAN_RETURN || IS_REMORT(ch)) {
+        send_to_char(ch, "You're too powerful to return home that way. Look for a different way to recall.\r\n");
+        return;
+    }
+
+    // Return to newbie start room
+    act("A whirling globe of multi-colored light appears and whisks you away!", false, ch, NULL, NULL, TO_CHAR);
+    act("A whirling globe of multi-colored light appears and whisks $n away!", false, ch, NULL, NULL, TO_ROOM);
+    char_from_room(ch, false);
+    char_to_room(ch, get_start_room(ch), false);
+    look_at_room(ch, ch->in_room, 0);
+    act("A whirling globe of multi-colored light appears and deposits $n on the floor!", false, ch, NULL, NULL, TO_ROOM);
+}
 
 ACMD(do_mload)
 {
@@ -4012,41 +4062,41 @@ show_account(struct creature *ch, char *value)
         return;
     }
 
-    send_to_desc(ch->desc, "&y  Account: &n%s [%d]", account->name,
+    d_printf(ch->desc, "&y  Account: &n%s [%d]", account->name,
                  account->id);
     if (account->email && *account->email)
-        send_to_desc(ch->desc, " &c<%s>&n", account->email);
+        d_printf(ch->desc, " &c<%s>&n", account->email);
     struct house *h = find_house_by_owner(account->id);
     if (h)
-        send_to_desc(ch->desc, " &y House: &n%d", h->id);
+        d_printf(ch->desc, " &y House: &n%d", h->id);
     if (account->banned)
-        send_to_desc(ch->desc, " &y(BANNED)&n");
+        d_printf(ch->desc, " &y(BANNED)&n");
     else if (account->quest_banned)
-        send_to_desc(ch->desc, " &y(QBANNED)&n");
-    send_to_desc(ch->desc, "\r\n\r\n");
+        d_printf(ch->desc, " &y(QBANNED)&n");
+    d_printf(ch->desc, "\r\n\r\n");
 
     last = account->login_time;
     creation = account->creation_time;
 
     strftime(created_buf, 29, "%a %b %d, %Y %H:%M:%S", localtime(&creation));
     strftime(last_buf, 29, "%a %b %d, %Y %H:%M:%S", localtime(&last));
-    send_to_desc(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n",
+    d_printf(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n",
         created_buf, last_buf);
     if (is_named_role_member(ch, "AdminFull")) {
-        send_to_desc(ch->desc,
+        d_printf(ch->desc,
             "&y  Created: &n%-15s   &yLast: &n%-15s       &yReputation: &n%d\r\n",
             account->creation_addr, account->login_addr, account->reputation);
     }
-    send_to_desc(ch->desc,
+    d_printf(ch->desc,
         "&y  Past bank: &n%'-12" PRId64 "    &yFuture Bank: &n%'-12" PRId64,
         account->bank_past, account->bank_future);
     if (is_named_role_member(ch, "Questor")) {
-        send_to_desc(ch->desc, "   &yQuest Points: &n%d\r\n",
+        d_printf(ch->desc, "   &yQuest Points: &n%d\r\n",
             account->quest_points);
     } else {
-        send_to_desc(ch->desc, "\r\n");
+        d_printf(ch->desc, "\r\n");
     }
-    send_to_desc(ch->desc,
+    d_printf(ch->desc,
         "&b ----------------------------------------------------------------------------&n\r\n");
 
     show_account_chars(ch->desc, account, true, false);
@@ -4647,7 +4697,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
                     if (exit->key && exit->key != -1
                         && !real_object_proto(exit->key)) {
                         show_room_append(ch, room, mode,
-                            tmp_sprintf("non-existant key for %s exit",
+                            tmp_sprintf("non-existent key for %s exit",
                                 dirs[dir]));
                         found = 1;
                     }
@@ -5288,7 +5338,7 @@ ACMD(do_show)
         strcpy(buf, "Broken objects in the game:\r\n");
 
         for (obj = object_list, i = 1; obj; obj = obj->next) {
-            if ((GET_OBJ_DAM(obj) < (GET_OBJ_MAX_DAM(obj) >> 1)) ||
+            if ((GET_OBJ_DAM(obj) < (GET_OBJ_MAX_DAM(obj) / 2)) ||
                 IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
 
                 if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_DAM(obj) == -1)
@@ -5839,20 +5889,21 @@ ACMD(do_set)
     struct creature *vict = NULL, *vict2 = NULL;
     char *field, *name;
     char *arg1, *arg2;
-    int on = 0, off = 0, value = 0;
-    char is_file = 0, is_mob = 0, is_player = 0;
+    bool on = false, off = false;
+    int value = 0;
+    bool is_file = false, is_mob = false, is_player = false;
     int parse_char_class(char *arg);
     int parse_race(char *arg);
 
     name = tmp_getword(&argument);
     if (!strcmp(name, "file")) {
-        is_file = 1;
+        is_file = true;
         name = tmp_getword(&argument);
     } else if (!strcasecmp(name, "player")) {
-        is_player = 1;
+        is_player = true;
         name = tmp_getword(&argument);
     } else if (!strcasecmp(name, "mob")) {
-        is_mob = 1;
+        is_mob = true;
         name = tmp_getword(&argument);
     }
     field = tmp_getword(&argument);
@@ -5944,9 +5995,9 @@ ACMD(do_set)
 
     if (fields[l].type == BINARY) {
         if (!strcmp(argument, "on") || !strcmp(argument, "yes"))
-            on = 1;
+            on = true;
         else if (!strcmp(argument, "off") || !strcmp(argument, "no"))
-            off = 1;
+            off = true;
         if (!(on || off)) {
             send_to_char(ch, "Value must be on or off.\r\n");
             return;
@@ -6182,7 +6233,7 @@ ACMD(do_set)
         if (IS_NPC(vict))
             vict->player.short_descr = strdup(argument);
         else
-            (ch)->player.name = strdup(argument);
+            vict->player.name = strdup(argument);
         // Set name
         if (IS_PC(vict)) {
             sql_exec("update players set name='%s' where idnum=%ld",
@@ -6405,22 +6456,21 @@ ACMD(do_set)
         value = atoi(arg1);
         tp = atoi(arg2);
         tp = MIN(MAX(0, tp), 10);
-        l = 0;
         for (i = 0; i < MAX_WEAPON_SPEC; i++) {
             if (GET_WEAP_SPEC(vict, i).vnum == value) {
-                if (!(GET_WEAP_SPEC(vict, i).level = tp))
+                GET_WEAP_SPEC(vict, i).level = tp;
+                if (tp == 0) {
                     GET_WEAP_SPEC(vict, i).vnum = 0;
-                l = 1;
+                }
+                send_to_char(ch, "[%d] spec level set to %d.\r\n", value, tp);
+                return;
             }
         }
-        if (!l) {
-            send_to_char(ch, "No such spec on this person.\r\n");
-            return;
-        }
-        send_to_char(ch, "[%d] spec level set to %d.\r\n", value, tp);
+
+        send_to_char(ch, "No such spec on this person.\r\n");
         return;
-        // qpoints
     case 74:
+        // qpoints
         GET_QUEST_ALLOWANCE(vict) = RANGE(0, 100);
         break;
     case 75:
@@ -6617,9 +6667,9 @@ ACMD(do_aset)
 
     if (fields[l].type == BINARY) {
         if (!strcmp(argument, "on") || !strcmp(argument, "yes"))
-            on = 1;
+            on = true;
         else if (!strcmp(argument, "off") || !strcmp(argument, "no"))
-            off = 1;
+            off = true;
         if (!(on || off)) {
             send_to_char(ch, "Value must be on or off.\r\n");
             return;
@@ -7381,290 +7431,6 @@ ACMD(do_oset)
 
 }
 
-const char *show_mob_keys[] = {
-    "hitroll",
-    "damroll",
-    "gold",
-    "flags",
-    "extreme",
-    "special",
-    "race",
-    "class",
-    "\n"
-};
-
-#define NUM_SHOW_MOB 8
-
-void
-do_show_mobiles(struct creature *ch, char *value, char *arg)
-{
-
-    int i, j, k, l, command;
-    struct creature *mob = NULL;
-    char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
-
-    if (!*value || (command = search_block(value, show_mob_keys, 0)) < 0) {
-        send_to_char(ch,
-            "Show mobiles:  utility to search the mobile prototype list.\r\n"
-            "Usage: show mob <option> <argument>\r\n" "Options:\r\n");
-        for (i = 0; i < NUM_SHOW_MOB; i++) {
-            send_to_char(ch, "%s\r\n", show_mob_keys[i]);
-        }
-        return;
-    }
-
-    GList *protos = g_hash_table_get_values(mob_prototypes);
-    GList *cit = protos;
-
-    switch (command) {
-    case 0:                    /* hitroll */
-        if (!*arg) {
-            send_to_char(ch, "What hitroll minimum?\r\n");
-            goto escape;
-        }
-        k = atoi(arg);
-
-        sprintf(buf, "Mobs with hitroll greater than %d:r\n", k);
-        for (i = 0; cit && strlen(buf) < (MAX_STRING_LENGTH - 128);
-            cit = cit->next) {
-            mob = cit->data;
-            if (GET_HITROLL(mob) >= k)
-                sprintf(buf,
-                    "%s %3d. [%5d] %-30s (%2d) %2d\r\n",
-                    buf, ++i, GET_NPC_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
-                    GET_HITROLL(mob));
-        }
-        page_string(ch->desc, buf);
-        break;
-    case 2:                    /* gold */
-        arg = two_arguments(arg, arg1, arg2);
-        if (!*arg1) {
-            send_to_char(ch, "What gold minimum?\r\n");
-            goto escape;
-        }
-        k = atoi(arg1);
-
-        if (*arg2 && !strcmp(arg2, "noshop"))
-            j = 1;
-        else
-            j = 0;
-
-        sprintf(buf, "Mobs with gold greater than %d:r\n", k);
-        for (i = 0; cit && strlen(buf) < (MAX_STRING_LENGTH - 128);
-            cit = cit->next) {
-            mob = cit->data;
-
-            if (NPC2_FLAGGED(mob, NPC2_UNAPPROVED))
-                continue;
-            if (GET_GOLD(mob) >= k &&
-                (!j || vendor != mob->mob_specials.shared->func))
-                sprintf(buf,
-                    "%s %3d. [%5d] %-30s (%2d) %'" PRId64 "\r\n",
-                    buf, ++i, GET_NPC_VNUM(mob), GET_NAME(mob), GET_LEVEL(mob),
-                    GET_GOLD(mob));
-        }
-        page_string(ch->desc, buf);
-        break;
-    case 3:                    /* flags */
-
-        if (!*arg) {
-            send_to_char(ch, "Show mobiles with what flag?\r\n");
-            goto escape;
-        }
-
-        skip_spaces(&arg);
-
-        if ((!(i = 1) || (j = search_block(arg, action_bits_desc, 0)) < 0) &&
-            (!(i = 2) || (j = search_block(arg, action2_bits_desc, 0)) < 0)) {
-            send_to_char(ch, "There is no mobile flag '%s'.\r\n", arg);
-            goto escape;
-        }
-
-        sprintf(buf, "Mobiles with flag %s%s%s:\r\n", CCYEL(ch, C_NRM),
-            (i == 1) ? action_bits_desc[j] : action2_bits_desc[j],
-            CCNRM(ch, C_NRM));
-
-        for (k = 0; cit; cit = cit->next) {
-            mob = cit->data;
-
-            if ((i == 1 && NPC_FLAGGED(mob, (1 << j))) ||
-                (i == 2 && NPC2_FLAGGED(mob, (1 << j)))) {
-                sprintf(buf2, "%3d. %s[%s%5d%s]%s %40s%s%s\r\n", ++k,
-                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_NPC_VNUM(mob),
-                    CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                    GET_NAME(mob), CCNRM(ch, C_NRM),
-                    NPC2_FLAGGED(mob, NPC2_UNAPPROVED) ? " (!appr)" : "");
-                if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
-                    strcat(buf, "**OVERFLOW**\r\n");
-                    break;
-                }
-                strcat(buf, buf2);
-            }
-        }
-
-        page_string(ch->desc, buf);
-        break;
-    case 4:                    /* extreme gold */
-
-        if (GET_LEVEL(ch) < LVL_GOD)
-            break;
-
-        arg = two_arguments(arg, arg1, arg2);
-        if (!*arg1) {
-            send_to_char(ch,
-                "Usage: show mob extreme <gold | cash> [multiplier]\r\n");
-            goto escape;
-        }
-
-        if (is_abbrev(arg1, "gold"))
-            i = 0;
-        else if (is_abbrev(arg1, "cash"))
-            i = 1;
-        else {
-            sprintf(buf,
-                "You must specify gold or cash.  '%s' is not valid.\r\n",
-                arg1);
-            send_to_char(ch, "%s", buf);
-            goto escape;
-        }
-
-        if (!*arg2)
-            l = 1000;
-        else
-            l = atoi(arg2);
-
-        sprintf(buf, "Mobs with extreme %s >= (level * %d):\r\n",
-            i ? "cash" : "gold", l);
-
-        for (k = 0; cit; cit = cit->next) {
-            mob = cit->data;
-            if (NPC2_FLAGGED(mob, NPC2_UNAPPROVED))
-                continue;
-
-            if (i && (GET_CASH(mob) > (GET_LEVEL(mob) * l))) {
-                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%'6" PRId64 ")\r\n",
-                    buf, ++k, GET_NPC_VNUM(mob), GET_NAME(mob),
-                    GET_LEVEL(mob), GET_GOLD(mob));
-
-            } else if (!i && (GET_GOLD(mob) > (GET_LEVEL(mob) * l))) {
-
-                sprintf(buf, "%s %3d. [%5d] %30s (%2d) (%'6" PRId64 ")\r\n",
-                    buf, ++k, GET_NPC_VNUM(mob), GET_NAME(mob),
-                    GET_LEVEL(mob), GET_GOLD(mob));
-            }
-
-        }
-        page_string(ch->desc, buf);
-        break;
-
-    case 5:                    // special
-
-        if (!*arg) {
-            send_to_char(ch, "Show mobiles with what special?\r\n");
-            goto escape;
-        }
-
-        skip_spaces(&arg);
-
-        if ((i = find_spec_index_arg(arg)) < 0) {
-            send_to_char(ch, "Type show specials for a valid list.\r\n");
-            goto escape;
-        }
-
-        sprintf(buf, "Mobiles with special %s%s%s:\r\n", CCYEL(ch, C_NRM),
-            spec_list[i].tag, CCNRM(ch, C_NRM));
-
-        for (j = 0; cit; cit = cit->next) {
-            mob = cit->data;
-            if (spec_list[i].func == GET_NPC_SPEC(mob)) {
-                sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
-                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_NPC_VNUM(mob),
-                    CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                    GET_NAME(mob), CCNRM(ch, C_NRM));
-                if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
-                    strcat(buf, "**OVERFLOW**\r\n");
-                    break;
-                }
-                strcat(buf, buf2);
-            }
-        }
-        page_string(ch->desc, buf);
-
-        break;
-    case 6:                    // race
-        if (!*arg) {
-            send_to_char(ch, "Show mobiles with what race?\r\n");
-            goto escape;
-
-        }
-        skip_spaces(&arg);
-
-        struct race *race = race_by_name(arg, false);
-        if (!race) {
-            send_to_char(ch, "Type olchelp race for a valid list.\r\n");
-            goto escape;
-        }
-
-        sprintf(buf, "Mobiles with race %s%s%s:\r\n", CCYEL(ch, C_NRM),
-                race->name, CCNRM(ch, C_NRM));
-
-        for (j = 0; cit; cit = cit->next) {
-            mob = cit->data;
-            if (race->idnum == GET_RACE(mob)) {
-                sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
-                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_NPC_VNUM(mob),
-                    CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                    GET_NAME(mob), CCNRM(ch, C_NRM));
-                if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
-                    strcat(buf, "**OVERFLOW**\r\n");
-                    break;
-                }
-                strcat(buf, buf2);
-            }
-        }
-        page_string(ch->desc, buf);
-        break;
-    case 7:                    // class
-        if (!*arg) {
-            send_to_char(ch, "Show mobiles with what class?\r\n");
-            goto escape;
-
-        }
-        skip_spaces(&arg);
-
-        if ((i = search_block(arg, class_names, false)) < 0) {
-            send_to_char(ch, "Type olchelp class for a valid list.\r\n");
-            goto escape;
-        }
-
-        sprintf(buf, "Mobiles with class %s%s%s:\r\n", CCYEL(ch, C_NRM),
-            class_names[i], CCNRM(ch, C_NRM));
-
-        for (j = 0; cit; cit = cit->next) {
-            mob = cit->data;
-            if (i == GET_CLASS(mob) || mob->player.remort_char_class == i) {
-                sprintf(buf2, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++j,
-                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_NPC_VNUM(mob),
-                    CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                    GET_NAME(mob), CCNRM(ch, C_NRM));
-                if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
-                    strcat(buf, "**OVERFLOW**\r\n");
-                    break;
-                }
-                strcat(buf, buf2);
-            }
-        }
-        page_string(ch->desc, buf);
-        break;
-    default:
-        send_to_char(ch, "DOH!!!!\r\n");
-        break;
-    }
-
-  escape:
-    g_list_free(protos);
-}
-
 ACMD(do_xlag)
 {
 
@@ -7914,7 +7680,7 @@ ACMD(do_coderutil)
             send_to_char(ch, "Zone could not be found or reset.\r\n");
         }
     } else if (strcmp(token, "progstat") == 0) {
-        void *owner;
+        void *owner = NULL;
         extern GList *active_progs;
         extern gint prog_tick;
         unsigned char *prog_get_obj(void *owner,
@@ -8950,7 +8716,7 @@ verify_tempus_integrity(struct creature *ch)
                     contained->carried_by);
             }
         }
-        for (GList *it = vict->fighting;it;it = it->next) {
+        for (GList *it = first_living(vict->fighting); it; it = next_living(it)) {
             struct creature *tch = it->data;
             if (!tch->in_room) {
                 check_log(ch,

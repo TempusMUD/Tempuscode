@@ -67,7 +67,7 @@ can_psidrain(struct creature *ch, struct creature *vict, int *out_dist, bool msg
         goto failure;
     }
 
-    if (ch->fighting && vict->in_room != ch->in_room) {
+    if (is_fighting(ch) && vict->in_room != ch->in_room) {
         to_char = "You cannot focus outside the room during battle!";
         goto failure;
     }
@@ -135,10 +135,10 @@ perform_psidrain(struct creature *ch, struct creature *vict)
         percent += number(1, 120);
 
         if (mag_savingthrow(vict, GET_LEVEL(ch), SAVING_PSI))
-            percent <<= 1;
+            percent *= 2;
 
         if (GET_INT(vict) > GET_INT(ch))
-            percent += (GET_INT(vict) - GET_INT(ch)) << 3;
+            percent += (GET_INT(vict) - GET_INT(ch)) * 8;
 
         if (percent >= prob) {
             act("Your attack is deflected by $N's psishield!",
@@ -163,14 +163,14 @@ perform_psidrain(struct creature *ch, struct creature *vict)
     if (dist > 0)
         drain /= dist + 1;
 
-    drain >>= 2;
+    drain /= 4;
 
     drain = MAX(0, MIN(GET_MANA(vict), drain));
 
     prob = CHECK_SKILL(ch, SKILL_PSIDRAIN) + GET_INT(ch) +
         (AFF3_FLAGGED(vict, AFF3_PSISHIELD) ? -20 : 0);
 
-    if (vict->fighting)
+    if (is_fighting(vict))
         prob += 15;
 
     if (dist > 0)
@@ -186,7 +186,7 @@ perform_psidrain(struct creature *ch, struct creature *vict)
         send_to_char(ch, "You are unable to create the drainage link!\r\n");
         WAIT_STATE(ch, 2 RL_SEC);
 
-        if (IS_NPC(vict) && !vict->fighting) {
+        if (IS_NPC(vict) && !is_fighting(vict)) {
 
             if (ch->in_room == vict->in_room) {
                 add_combat(vict, ch, false);
@@ -220,7 +220,7 @@ perform_psidrain(struct creature *ch, struct creature *vict)
         WAIT_STATE(ch, 5 RL_SEC);
         gain_skill_prof(ch, SKILL_PSIDRAIN);
 
-        if (IS_NPC(vict) && !(vict->fighting)) {
+        if (IS_NPC(vict) && !(is_fighting(vict))) {
             if (ch->in_room == vict->in_room) {
                 remember(vict, ch);
                 if (NPC2_FLAGGED(vict, NPC2_HUNT))

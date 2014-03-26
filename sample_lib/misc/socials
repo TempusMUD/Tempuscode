@@ -68,7 +68,7 @@ You bark loudly.
 $n barks like a dog.  WOOF!
 You bark at $N scaring $M silly -- SHAME ON YOU!
 $n barks at $N scaring $M senseless.
-$n barks loudly at you  You back away because $e might bite too!!
+$n barks loudly at you.  You back away because $e might bite, too!!
 Bark at who?
 You bark at yourself and jump back in fear.
 $n barks at $mself and cowers in fear.
@@ -2408,7 +2408,7 @@ You spam yourself --- You MUST be a Masochist!
 $n spams $mself!  $n MUST be a Masochist!
 
 spasm 1 0
-You begin spasming${ wildly}.
+You begin convulsing${ wildly}.
 $n begins to spasm${ wildly}.
 #
 

@@ -18,11 +18,12 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define ACMD(name)  \
-   void name(__attribute__ ((unused)) struct creature *ch, \
-   	__attribute__ ((unused)) char *argument, \
-	__attribute__ ((unused)) int cmd, \
-	__attribute__ ((unused)) int subcmd)
+#define ACMD(name)                                                      \
+    __attribute__ ((nonnull))                                           \
+    void name(__attribute__ ((unused)) /*@unused@*/ struct creature *ch, \
+              __attribute__ ((unused)) /*@unused@*/ char *argument,     \
+              __attribute__ ((unused)) /*@unused@*/ int cmd,            \
+              __attribute__ ((unused)) /*@unused@*/ int subcmd)
 
 struct creature;
 struct descriptor_data;
@@ -41,10 +42,6 @@ int fill_word(char *argument)
 void half_chop(char *string, char *arg1, char *arg2)
     __attribute__ ((nonnull));
 gboolean handle_input(gpointer data)
-    __attribute__ ((nonnull));
-int is_abbrev(const char *arg1, const char *arg2)
-    __attribute__ ((nonnull));
-int is_abbrevn(const char *arg1, const char *arg2, int count)
     __attribute__ ((nonnull));
 bool is_number(const char *str)
     __attribute__ ((nonnull));
@@ -86,9 +83,7 @@ extern struct sort_struct *cmd_sort_info;
 extern int num_of_cmds;
 
 /* necessary for CMD_IS macro */
-#ifndef __interpreter_c__
 extern struct command_info cmd_info[];
-#endif
 
 #define CMD_NAME (cmd_info[cmd].command)
 #define CMD_IS(cmd_name) (!strcmp(cmd_name, cmd_info[cmd].command))

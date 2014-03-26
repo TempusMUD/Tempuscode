@@ -121,9 +121,9 @@ mail_box_status(long id)
 }
 
 // Returns true if mail was successfully stored
-bool
-store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
-    struct obj_data *obj_list)
+static bool
+store_mail(const char *from_name, long to_id, const char *txt, GList *cc_list,
+           struct obj_data *obj_list, char **error)
 {
     char *mail_file_path;
     FILE *ofile;
@@ -134,20 +134,19 @@ store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
 
     // NO zero length mail!
     // This should never happen.
-    if (!txt || !strlen(txt)) {
-        send_to_char(get_char_in_world_by_idnum(from_id),
-            "Why would you send a blank message?\r\n");
+    if (!txt || strlen(txt) == 0) {
+        *error = "Why would you send a blank message?";
         return false;
     }
     // Recipient is frozen, buried, or deleted
     if (!can_receive_mail(to_id)) {
-        send_to_char(get_char_in_world_by_idnum(from_id),
-            "%s doesn't seem to be able to receive mail.\r\n",
-            player_name_by_idnum(to_id));
+        *error = tmp_sprintf("%s doesn't seem to be able to receive mail.",
+                             player_name_by_idnum(to_id));
         return false;
     }
 
     if (!player_idnum_exists(to_id)) {
+        *error = "Sorry, you hit a bug in the mailing system.";
         errlog("Toss_Mail Error, recipient idnum %ld invalid.", to_id);
         return false;
     }
@@ -165,7 +164,7 @@ store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
     acc_string_clear();
     acc_sprintf(" * * * *  Tempus Mail System  * * * *\r\n"
         "Date: %s\r\n  To: %s\r\nFrom: %s",
-        time_str, player_name_by_idnum(to_id), player_name_by_idnum(from_id));
+        time_str, player_name_by_idnum(to_id), from_name);
 
     if (!cc_list) {
         GList *si;
@@ -216,6 +215,45 @@ store_mail(long to_id, long from_id, const char *txt, GList * cc_list,
     }
 
     return true;
+}
+
+bool
+send_mail(struct creature *from,
+          GList *recipients,
+          const char *txt,
+          struct obj_data *obj_list,
+          char **error)
+{
+    GList *cc_list = NULL;
+    bool all_sent = true;
+
+    for (GList *mail_rcpt = recipients; mail_rcpt; mail_rcpt = mail_rcpt->next) {
+        const char *name = player_name_by_idnum(GPOINTER_TO_INT(mail_rcpt->data));
+        cc_list = g_list_prepend(cc_list, g_string_new(name));
+    }
+
+    for (GList *it = recipients;it;it = it->next) {
+        long to_id = GPOINTER_TO_INT(it->data);
+        bool sent_this = store_mail(GET_NAME(from), to_id, txt, cc_list, obj_list, error);
+        if (sent_this) {
+            for (struct descriptor_data *r_d = descriptor_list; r_d; r_d = r_d->next) {
+                if (IS_PLAYING(r_d) && r_d->creature &&
+                    (r_d->creature != from) &&
+                    (GET_IDNUM(r_d->creature) == to_id) &&
+                    (!PLR_FLAGGED(r_d->creature, PLR_WRITING))) {
+                    send_to_char(r_d->creature,
+                                 "A strange voice in your head says, "
+                                 "'You have new mail.'\r\n");
+                }
+            }
+        } else {
+            all_sent = false;
+        }
+    }
+    g_list_foreach(cc_list, (GFunc)g_string_free, NULL);
+    g_list_free(cc_list);
+
+    return all_sent;
 }
 
 bool
@@ -358,33 +396,29 @@ SPECIAL(postmaster)
 }
 
 void
-postmaster_send_mail(struct creature *ch, struct creature *mailman, char *arg)
+postmaster_send_mail(struct creature *ch, struct creature *mailman, char *args)
 {
     long recipient;
-    char buf[MAX_STRING_LENGTH];
-    struct mail_recipient_data *mail_list, *n_mail_to;
+    GList *mail_list = NULL;
     int total_cost = 0;
     struct clan_data *clan = NULL;
     struct clanmember_data *member = NULL;
     int status = 0;
 
     if (GET_LEVEL(ch) < MIN_MAIL_LEVEL) {
-        sprintf(buf2, "Sorry, you have to be level %d to send mail!",
-            MIN_MAIL_LEVEL);
-        perform_tell(mailman, ch, buf2);
-        return;
-    }
-    arg = one_argument(arg, buf);
-
-    if (!*buf) {                /* you'll get no argument from me! */
-        strcpy(buf2, "You need to specify an addressee!");
-        perform_tell(mailman, ch, buf2);
+        perform_tell(mailman, ch,
+                     tmp_sprintf("Sorry, you have to be level %d to send mail!",
+                                 MIN_MAIL_LEVEL));
         return;
     }
 
-    mail_list = NULL;
+    char *arg = tmp_getword(&args);
+    if (!*arg) {                /* you'll get no argument from me! */
+        perform_tell(mailman, ch, "You need to specify an addressee!");
+        return;
+    }
 
-    if (!strcasecmp(buf, "clan")) {
+    if (!strcasecmp(arg, "clan")) {
         if (!(clan = real_clan(GET_CLAN(ch)))) {
             perform_tell(mailman, ch, "You are not a member of any clan!");
             return;
@@ -392,102 +426,79 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman, char *arg)
         for (member = clan->member_list; member; member = member->next) {
             if (!member->no_mail) {
                 total_cost += STAMP_PRICE;
-                CREATE(n_mail_to, struct mail_recipient_data, 1);
-                n_mail_to->next = mail_list;
-                n_mail_to->recpt_idnum = member->idnum;
-                mail_list = n_mail_to;
+                mail_list = g_list_append(mail_list, GINT_TO_POINTER(member->idnum));
             }
         }
     } else {
-
-        while (*buf) {
-            if ((recipient = player_idnum_by_name(buf)) <= 0) {
+        GHashTable *unique_names = g_hash_table_new(g_str_hash, g_str_equal);
+        for (;*arg;arg = tmp_getword(&args)) {
+            if (g_hash_table_contains(unique_names, arg)) {
                 perform_tell(mailman, ch,
-                    tmp_sprintf("No one by the name '%s' is registered here!",
-                        buf));
-            } else if ((status = mail_box_status(recipient)) > 0) {
+                    tmp_sprintf("You seem to have listed %s more than once...", arg));
+                continue;
+            }
+            g_hash_table_add(unique_names, arg);
+            recipient = player_idnum_by_name(arg);
+            if (recipient <= 0) {
+                perform_tell(mailman, ch,
+                    tmp_sprintf("No one by the name '%s' is registered here!", arg));
+                continue;
+            } 
+            status = mail_box_status(recipient);
+            if (status > 0) {
                 // 0 is normal
                 // 1 is frozen
                 // 2 is buried
                 // 3 is deleted
                 switch (status) {
                 case 1:
-                    sprintf(buf2, "%s's mailbox is frozen shut!", buf);
+                    perform_tell(mailman, ch, tmp_sprintf("%s's mailbox is frozen shut!", arg));
                     break;
                 case 2:
-                    sprintf(buf2, "%s is buried! Go put it on their grave!",
-                        buf);
+                    perform_tell(mailman, ch, tmp_sprintf("%s is buried! Go put it on their grave!", arg));
                     break;
                 case 3:
-                    sprintf(buf2,
-                        "No one by the name '%s' is registered here!", buf);
+                    perform_tell(mailman, ch, tmp_sprintf("No one by the name '%s' is registered here!", arg));
                     break;
                 default:
-                    sprintf(buf2,
-                        "I don't have an address for %s. Try back later!",
-                        buf);
+                    perform_tell(mailman, ch, tmp_sprintf("I don't have an address for %s. Try back later!", arg));
                 }
-                perform_tell(mailman, ch, buf2);
-            } else {
-                if (recipient == 1) // fireball
-                    total_cost += 1000000;
-                else
-                    total_cost += STAMP_PRICE;
-
-                CREATE(n_mail_to, struct mail_recipient_data, 1);
-                n_mail_to->next = mail_list;
-                n_mail_to->recpt_idnum = recipient;
-                mail_list = n_mail_to;
+                continue;
             }
-            arg = one_argument(arg, buf);
+            if (recipient == 1) // fireball
+                total_cost += 1000000;
+            else
+                total_cost += STAMP_PRICE;
+            
+            mail_list = g_list_append(mail_list, GINT_TO_POINTER(recipient));
         }
+        g_hash_table_destroy(unique_names);
     }
-    if (!total_cost || !mail_list) {
+
+    if (!mail_list) {
         perform_tell(mailman, ch,
-            "Sorry, you're going to have to specify some valid recipients!");
+                     "Sorry, you're going to have to specify some valid recipients!");
         return;
     }
+
     // deduct cost of mailing
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
-
-        // gold
-        if (ch->in_room->zone->time_frame != TIME_ELECTRO) {
-            if (GET_GOLD(ch) < total_cost) {
-                sprintf(buf2, "The postage will cost you %d coins.",
-                    total_cost);
-                perform_tell(mailman, ch, buf2);
-                strcpy(buf2, "...which I see you can't afford.");
-                perform_tell(mailman, ch, buf2);
-                while (mail_list) {
-                    n_mail_to = mail_list->next;
-                    free(mail_list);
-                    mail_list = n_mail_to;
-                }
-                return;
-            }
-            GET_GOLD(ch) -= total_cost;
-        } else {                // credits
-            if (GET_CASH(ch) < total_cost) {
-                sprintf(buf2, "The postage will cost you %d credits.",
-                    total_cost);
-                perform_tell(mailman, ch, buf2);
-                strcpy(buf2, "...which I see you can't afford.");
-                perform_tell(mailman, ch, buf2);
-                while (mail_list) {
-                    n_mail_to = mail_list->next;
-                    free(mail_list);
-                    mail_list = n_mail_to;
-                }
-                return;
-            }
-            GET_CASH(ch) -= total_cost;
+    if (total_cost > 0) {
+        if (!adjust_creature_money(ch, -total_cost)) {
+            perform_tell(mailman, ch,
+                         tmp_sprintf("The postage will cost you %'d %ss.",
+                                     total_cost, CURRENCY(ch)));
+            perform_tell(mailman, ch, "...which I see you can't afford.");
+            g_list_free(mail_list);
+            return;
         }
+
+        perform_tell(mailman, ch,
+                 tmp_sprintf("I'll take %'d coins for the postage.", 
+                             total_cost));
     }
-
+        
     act("$n starts to write some mail.", true, ch, NULL, NULL, TO_ROOM);
-    sprintf(buf2, "I'll take %d coins for the postage.", total_cost);
-    perform_tell(mailman, ch, buf2);
-
+    
     start_editing_mail(ch->desc, mail_list);
 }
 

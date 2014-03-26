@@ -280,11 +280,9 @@ enum affect_join_flag {
     AFF_NOOP = 3,
 };
 
-static inline const char *
+static inline /*@observer@*/ const char *
 liquid_to_str(int liquid)
 {
-	extern const char *drinks[];
-
 	if (liquid < 0 || liquid > NUM_LIQUID_TYPES) {
 		return tmp_sprintf("!ILLEGAL(%d)!", liquid);
 	}
@@ -361,6 +359,7 @@ struct obj_data {
 	char *aliases;					/* Title of object :get etc.        */
 	char *line_desc;			/* When in room                     */
 	char *action_desc;	/* What to write when used          */
+	char *engraving; /* engraving on object */
 	unsigned int plrtext_len;	/* If contains savable plrtext      */
 	struct extra_descr_data *ex_description;	/* extra descriptions     */
 	struct creature *carried_by;	/* Carried by :NULL in room/conta   */
@@ -374,6 +373,10 @@ struct obj_data {
 	int creation_method;
 	long int creator;
 
+    /* consignment */
+    long int consignor;         /* person selling item */
+    money_t consign_price;      /* cost set by consignor */
+
     /* Temp obj affects! */
     struct tmp_obj_affect *tmp_affects;
 	struct obj_data *in_obj;	/* In what object NULL when none    */
@@ -385,7 +388,7 @@ struct obj_data {
 };
 /* ======================================================================= */
 
-static inline struct room_direction_data *OEXIT( struct obj_data *obj, int dir ) {
+static inline /*@dependent@*/ struct room_direction_data *OEXIT( struct obj_data *obj, int dir ) {
 	return obj->in_room->dir_option[dir];
 }
 struct obj_data *make_object(void);
@@ -408,5 +411,5 @@ const char *obj_cond(struct obj_data *obj);
 const char *obj_cond_color(struct obj_data *obj, int color_level);
 float set_obj_weight(struct obj_data *obj, float new_weight);
 void fix_object_weight(struct obj_data *obj);
-
+bool is_slashing_weapon(struct obj_data *obj);
 #endif

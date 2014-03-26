@@ -123,10 +123,15 @@ extern const char *race_language[][2];
 "olc zset [zone] reset <reset mode>\r\n"           \
 "olc zset [zone] tframe <time frame>\r\n"          \
 "olc zset [zone] plane <plane>\r\n"                \
-"olc zset [zone] owner <player name>\r\n"          \
+"olc zset [zone] <owner | co-owner> <player name>\r\n"          \
 "olc zset [zone] flags <+/-> [FLAG FLAG ...]\r\n"  \
+"olc zset [zone] blanket_flags <+/-> [FLAG FLAG ...]\r\n"        \
 "olc zset [zone] <hours | years> <mod>\r\n"        \
 "olc zset [zone] blanket_exp <percent>\r\n"        \
+"olc zset [zone] <min_lvl | max_lvl> <level>\r\n"        \
+"olc zset [zone] <min_gen | max_gen> <gen>\r\n"        \
+"olc zset [zone] <public_desc | private_desc>\r\n"        \
+"olc zset [zone] author <player name>\r\n"        \
 "olc zset [zone] pk_style <no_pk | neutral_pk | chaotic_pk>\r\n"        \
 "Usage: olc zset [zone] command <cmd num> [if|max|prob] <value>\r\n"
 
@@ -1187,7 +1192,7 @@ ACMD(do_olc)
         argument = two_arguments(argument, arg1, arg2);
 
         if (is_abbrev(arg1, "search")) {
-            do_destroy_search(ch, strcat(arg2, argument));
+            do_destroy_search(ch, tmp_strcat(arg2, " ", argument, NULL));
             return;
         }
 
@@ -1572,6 +1577,7 @@ ACMD(do_olc)
                         "There is no monster with that number.\r\n");
                 } else {
                     recalculate_based_on_level(mob);
+                    set_physical_attribs(mob);
                     send_to_char(ch,
                         "Mobile %d statistics recalculated based on level.\r\n",
                         number);
@@ -1712,6 +1718,7 @@ recalc_all_mobs(struct creature *ch, const char *argument)
             mobile_experience(mob, outfile);
         } else {
             recalculate_based_on_level(mob);
+            set_physical_attribs(mob);
             GET_EXP(mob) = mobile_experience(mob, NULL);
         }
         count++;

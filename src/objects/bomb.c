@@ -150,7 +150,7 @@ add_bomb_room(struct room_data *room, int fromdir, int p_factor)
                 && !IS_SET(room->dir_option[dir]->exit_info, EX_ONEWAY)
                 && (fromdir < 0 || rev_dir[fromdir] != dir)) {
                 new_factor = p_factor - (p_factor / 10) -
-                    (movement_loss[room->sector_type] << 4) -
+                    (movement_loss[room->sector_type] * 16) -
                     (IS_SET(room->dir_option[dir]->exit_info,
                         EX_ISDOOR) ? 5 : 0) -
                     (IS_SET(room->dir_option[dir]->exit_info,
@@ -191,14 +191,14 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
     if (ROOM_FLAGGED(room, ROOM_PEACEFUL) || power <= bomb_power * 0.25)
         dam = 0;
     else
-        dam = dice(power, MAX(10, (power >> 1)));
+        dam = dice(power, MAX(10, (power / 2)));
 
     if (dir == BFS_ALREADY_THERE) {
         switch (bomb_type) {
         case BOMB_CONCUSSION:
             sprintf(buf, "A shockwave blasts you as %s explodes!!", bomb_name);
             damage_type = TYPE_CRUSH;
-            dam >>= 1;
+            dam /= 2;
             break;
         case BOMB_INCENDIARY:
             sprintf(buf,
@@ -207,7 +207,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
             damage_type = TYPE_ABLAZE;
             break;
         case SKILL_SELF_DESTRUCT:
-            dam <<= 3;
+            dam *= 8;
             // fall through
         case BOMB_FRAGMENTATION:
             sprintf(buf,
@@ -297,7 +297,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
             case BOMB_CONCUSSION:
                 strcpy(buf, "You are rocked by a concussive blast");
                 damage_type = TYPE_CRUSH;
-                dam >>= 1;
+                dam /= 2;
                 break;
             case BOMB_FRAGMENTATION:
                 strcpy(buf, "You are ripped by a blast of shrapnel");
@@ -389,7 +389,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
             !AFF_FLAGGED(vict, AFF_BLIND) && !NPC_FLAGGED(vict, NPC_NOBLIND)) {
             af.type = SPELL_BLINDNESS;
             af.bitvector = AFF_BLIND;
-            af.duration = MAX(1, (power >> 1));
+            af.duration = MAX(1, (power / 2));
             af.aff_index = 1;
             af.level = 30;
             af.owner = damager_id;
@@ -412,7 +412,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
                 room->dir_option[rev_dir[dir]] &&
                 room->dir_option[rev_dir[dir]]->to_room &&
                 !IS_SET(room->dir_option[rev_dir[dir]]->exit_info, EX_CLOSED)
-                && (power << 5) > number(0,
+                && (power * 32) > number(0,
                     GET_WEIGHT(vict) + IS_CARRYING_W(vict) +
                     IS_WEARING_W(vict) + CAN_CARRY_W(vict))) {
                 send_to_char(vict,
@@ -424,7 +424,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
 
                 sprintf(buf, "$n is blown in from %s!", from_dirs[dir]);
                 act(buf, false, vict, NULL, NULL, TO_ROOM);
-            } else if (GET_POSITION(vict) > POS_SITTING && (power << 5) >
+            } else if (GET_POSITION(vict) > POS_SITTING && (power * 32) >
                 GET_WEIGHT(vict) + CAN_CARRY_W(vict)) {
                 send_to_char(vict,
                     "You are blown to the ground by the blast!!\r\n");
@@ -455,8 +455,8 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
         !room_is_watery(room) && !ROOM_FLAGGED(room, ROOM_FLAME_FILLED)) {
         rm_aff.description =
             strdup("   The room is ablaze with raging flames!\r\n");
-        rm_aff.duration = 1 + number(power >> 3, power);
-        rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
+        rm_aff.duration = 1 + number(power / 8, power);
+        rm_aff.level = MIN(power / 2, LVL_AMBASSADOR);
         rm_aff.type = RM_AFF_FLAGS;
         rm_aff.flags = ROOM_FLAME_FILLED;
         rm_aff.owner = damager_id;
@@ -464,9 +464,9 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
     } else if (bomb_type == BOMB_NUCLEAR &&
         !ROOM_FLAGGED(room, ROOM_RADIOACTIVE)) {
         rm_aff.description = strdup("   You feel a warm glowing feeling.\r\n");
-        rm_aff.duration = number(power << 1, power << 4);
+        rm_aff.duration = number(power * 2, power * 16);
         rm_aff.type = RM_AFF_FLAGS;
-        rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
+        rm_aff.level = MIN(power / 2, LVL_AMBASSADOR);
         rm_aff.flags = ROOM_RADIOACTIVE;
         rm_aff.owner = damager_id;
         affect_to_room(room, &rm_aff);
@@ -475,9 +475,9 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
         rm_aff.description =
             strdup
             ("   The room is filled with thick smoke, hindering your vision.\r\n");
-        rm_aff.duration = number(power, power << 1);
+        rm_aff.duration = number(power, power * 2);
         rm_aff.type = RM_AFF_FLAGS;
-        rm_aff.level = MIN(power >> 1, LVL_AMBASSADOR);
+        rm_aff.level = MIN(power / 2, LVL_AMBASSADOR);
         rm_aff.flags = ROOM_SMOKE_FILLED | ROOM_NOTRACK;
         rm_aff.owner = damager_id;
         affect_to_room(room, &rm_aff);
@@ -603,19 +603,22 @@ engage_self_destruct(struct creature *ch)
     send_to_char(ch,
         "Self-destruct point reached.  Stand by for termination...\r\n");
 
-    level = (GET_LEVEL(ch) >> 3) + GET_REMORT_GEN(ch) + (GET_HIT(ch) >> 8);
+    level = (GET_LEVEL(ch) / 8) + GET_REMORT_GEN(ch) + (GET_HIT(ch) / 256);
     room = ch->in_room;
 
+
     // kill the cyborg first
-    for (i = 0; i < NUM_WEARS; i++)
-        if (GET_EQ(ch, i))
-            obj_to_room(unequip_char(ch, i, EQUIP_WORN), ch->in_room);
+    if (!is_arena_combat(ch, ch)) {
+        for (i = 0; i < NUM_WEARS; i++)
+            if (GET_EQ(ch, i))
+                obj_to_room(unequip_char(ch, i, EQUIP_WORN), ch->in_room);
 
-    for (obj = ch->carrying; obj; obj = n_obj) {
-        n_obj = obj->next_content;
+        for (obj = ch->carrying; obj; obj = n_obj) {
+            n_obj = obj->next_content;
 
-        obj_from_char(obj);
-        obj_to_room(obj, ch->in_room);
+            obj_from_char(obj);
+            obj_to_room(obj, ch->in_room);
+        }
     }
 
     GET_HIT(ch) = 0;

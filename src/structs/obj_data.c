@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <inttypes.h>
 #include <libpq-fe.h>
 #include <libxml/parser.h>
 #include <glib.h>
@@ -25,6 +26,7 @@
 #include "tmpstr.h"
 #include "xml_utils.h"
 #include "obj_data.h"
+#include "spells.h"
 
 extern int no_plrtext;
 
@@ -68,6 +70,10 @@ free_object(struct obj_data *obj)
         if (obj->action_desc) {
             free(obj->action_desc);
             obj->action_desc = NULL;
+        }
+        if (obj->engraving) {
+            free(obj->engraving);
+            obj->engraving = NULL;
         }
         if (obj->ex_description) {
             for (this_desc = obj->ex_description; this_desc;
@@ -135,6 +141,13 @@ get_worn_type(struct obj_data *obj)
         return "tattooed";
 
     return "unknown";
+}
+
+bool
+is_slashing_weapon(struct obj_data *obj)
+{
+    return (IS_OBJ_TYPE(obj, ITEM_WEAPON)
+            && (GET_OBJ_VAL(obj, 3) + TYPE_HIT == TYPE_SLASH));
 }
 
 float
@@ -561,6 +574,7 @@ load_object_from_xml(struct obj_data *container,
     struct creature *victim, struct room_data *room, xmlNodePtr node)
 {
     struct obj_data *obj;
+    struct extra_descr_data *last_desc = NULL;
     int vnum = xmlGetIntProp(node, "vnum", 0);
     bool placed;
     char *str;
@@ -602,6 +616,8 @@ load_object_from_xml(struct obj_data *container,
             free(str);
         } else if (xmlMatches(cur->name, "aliases")) {
             obj->aliases = (char *)xmlNodeGetContent(cur);
+        } else if (xmlMatches(cur->name, "engraving")) {
+            obj->engraving = (char *)xmlNodeGetContent(cur);
         } else if (xmlMatches(cur->name, "line_desc")) {
             str = (char *)xmlNodeGetContent(cur);
             obj->line_desc =
@@ -620,14 +636,18 @@ load_object_from_xml(struct obj_data *container,
             desc = locate_exdesc(fname(keyword), obj->ex_description, 1);
             if (!desc) {
                 CREATE(desc, struct extra_descr_data, 1);
-                desc->keyword = keyword;
-                desc->description = (char *)xmlNodeGetContent(cur);
             } else {
-                free(keyword);
+                free(desc->keyword);
                 free(desc->description);
-                desc->description = (char *)xmlNodeGetContent(cur);
             }
-
+            desc->keyword = keyword;
+            desc->description = (char *)xmlNodeGetContent(cur);
+            if (last_desc) {
+                last_desc->next = desc;
+                last_desc = desc;
+            } else {
+                obj->ex_description = desc;
+            }
         } else if (xmlMatches(cur->name, "action_desc")) {
             str = (char *)xmlNodeGetContent(cur);
             obj->action_desc = strdup(tmp_gsub(str, "\n", "\r\n"));
@@ -649,6 +669,9 @@ load_object_from_xml(struct obj_data *container,
             obj->obj_flags.max_dam = xmlGetIntProp(cur, "max", 0);
             obj->obj_flags.sigil_idnum = xmlGetIntProp(cur, "sigil_id", 0);
             obj->obj_flags.sigil_level = xmlGetIntProp(cur, "sigil_level", 0);
+        } else if (xmlMatches(cur->name, "consignment")) {
+            obj->consignor = xmlGetIntProp(cur, "consignor", 0);
+            obj->consign_price = xmlGetIntProp(cur, "price", 0);
         } else if (xmlMatches(cur->name, "flags")) {
             char *flag = (char *)xmlGetProp(cur, (xmlChar *) "extra");
             obj->obj_flags.extra_flags = hex2dec(flag);
@@ -674,11 +697,11 @@ load_object_from_xml(struct obj_data *container,
                 } else if (strcmp(type, "tattooed") == 0) {
                     equip_char(victim, obj, position, EQUIP_TATTOO);
                 } else if (container) {
-                    obj_to_obj(obj, container);
+                    unsorted_obj_to_obj(obj, container);
                 } else if (victim) {
-                    obj_to_char(obj, victim);
+                    unsorted_obj_to_char(obj, victim);
                 } else if (room) {
-                    obj_to_room(obj, room);
+                    unsorted_obj_to_room(obj, room);
                 } else {
                     errlog("Don't know where to put object!");
                     extract_obj(obj);
@@ -794,6 +817,13 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
         fprintf(ouf, "%s<aliases>%s</aliases>\n", indent, xmlEncodeTmp(s));
     }
 
+    s = obj->engraving;
+    if (s != NULL &&
+        (proto == NULL || proto->aliases == NULL || strcmp(s, proto->aliases)))
+    {
+        fprintf(ouf, "%s<engraving>%s</engraving>\n", indent, xmlEncodeTmp(s));
+    }
+
     s = obj->line_desc;
     if (s != NULL &&
         (proto == NULL || proto->line_desc == NULL
@@ -848,6 +878,11 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
         indent, obj->obj_flags.bitvector[0],
         obj->obj_flags.bitvector[1], obj->obj_flags.bitvector[2]);
 
+    if (obj->consignor) {
+        fprintf(ouf, "%s<consignment consignor=\"%ld\" price=\"%" PRId64 "\" />\n",
+                indent, obj->consignor, obj->consign_price);
+    }
+            
     for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
         if (obj->affected[i].location > 0) {
             fprintf(ouf, "%s<affect modifier=\"%d\" location=\"%d\" />\n",

@@ -16,12 +16,11 @@ SPECIAL(nohunger_dude)
     skip_spaces(&argument);
 
     life_cost = MAX(10, 70 - GET_INT(ch) - GET_WIS(ch) - GET_CON(ch));
-    gold = 10000 * GET_LEVEL(ch);
-    gold += (gold * cost_modifier(ch, dude)) / 100;
+    gold = adjusted_price(ch, dude, GET_LEVEL(ch) * 10000);
 
     if (!*argument) {
         send_to_char(ch, "Gain what?\r\n"
-            "It will cost you %d life points and %d gold coins to gain\r\n"
+            "It will cost you %d life points and %'d gold coins to gain\r\n"
             "nohunger, nothirst, or nodrunk.\r\n", life_cost, gold);
     } else if (GET_LEVEL(ch) < LVL_CAN_GAIN_NOHUNGER && !IS_REMORT(ch))
         send_to_char(ch, "You are not yet ready to gain this.\r\n");
@@ -49,7 +48,7 @@ SPECIAL(nohunger_dude)
 
         if (GET_GOLD(ch) < gold) {
             sprintf(buf,
-                "You don't have the %d gold coins I require for that.", gold);
+                "You don't have the %'d gold coins I require for that.", gold);
             perform_tell(dude, ch, buf);
         } else if (GET_LIFE_POINTS(ch) < life_cost) {
             sprintf(buf,

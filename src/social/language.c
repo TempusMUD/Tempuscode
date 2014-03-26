@@ -38,6 +38,7 @@
 #include "account.h"
 #include "xml_utils.h"
 #include "language.h"
+#include "strutil.h"
 
 struct tongue *
 make_tongue(void)

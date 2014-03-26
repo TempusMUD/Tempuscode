@@ -59,10 +59,9 @@ SPECIAL(enhancer)
         return 1;
     }
 
-    cost = GET_OBJ_COST(obj);
-    cost += (cost * cost_modifier(ch, keeper)) / 100;
+    cost = adjusted_price(ch, keeper, GET_OBJ_COST(obj));
 
-    sprintf(buf2, "It will cost you %d %s to have %s enhanced.",
+    sprintf(buf2, "It will cost you %'d %s to have %s enhanced.",
         cost, ch->in_room->zone->time_frame == TIME_ELECTRO ? "credits" :
         "coins", obj->name);
     perform_tell(keeper, ch, buf2);
@@ -87,7 +86,7 @@ SPECIAL(enhancer)
             GET_GOLD(ch) -= cost;
     }
 
-    act("$n takes $p and disappears into the back room for a while.\r\n",
+    act("$n takes $p and disappears into the back room for a while.",
         false, keeper, obj, ch, TO_VICT);
     act("$e returns shortly and presents you with the finished product",
         false, keeper, obj, ch, TO_VICT);
@@ -95,13 +94,13 @@ SPECIAL(enhancer)
         false, keeper, obj, ch, TO_NOTVICT);
 
     SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_ENHANCED);
-    if (((GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1)) >> 1) < 21) {
-        if (((GET_OBJ_VAL(obj, 2) + 1) >> 1) >= GET_OBJ_VAL(obj, 1))
+    if (((GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1)) / 2) < 21) {
+        if (((GET_OBJ_VAL(obj, 2) + 1) / 2) >= GET_OBJ_VAL(obj, 1))
             GET_OBJ_VAL(obj, 1) += 1;
         else
             GET_OBJ_VAL(obj, 2) += 2;
     } else {
-        if (((GET_OBJ_VAL(obj, 2) + 1) >> 1) >= GET_OBJ_VAL(obj, 1))
+        if (((GET_OBJ_VAL(obj, 2) + 1) / 2) >= GET_OBJ_VAL(obj, 1))
             GET_OBJ_VAL(obj, 2) += 2;
         else
             GET_OBJ_VAL(obj, 1) += 1;

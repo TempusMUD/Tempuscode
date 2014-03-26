@@ -120,30 +120,27 @@ random_quest(void)
     q->description = strdup("This is a test quest.");
     q->updates = strdup("Test quest updates");
 
+    return q;
+}
+
+void
+add_test_questor(struct quest *q, int idnum, int flags, int deaths, int mobkills, int pkills) {
     struct qplayer_data *qp;
 
     CREATE(qp, struct qplayer_data, 1);
-    qp->idnum = 2;
-    qp->flags = QP_IGNORE;
-    qp->deaths = 3;
-    qp->mobkills = 4;
-    qp->pkills = 5;
+    qp->idnum = idnum;
+    qp->flags = flags;
+    qp->deaths = deaths;
+    qp->mobkills = mobkills;
+    qp->pkills = pkills;
 
     q->players = g_list_prepend(q->players, qp);
+}
 
-    CREATE(qp, struct qplayer_data, 1);
-     qp->idnum = 5;
-    qp->flags = QP_MUTE;
-    qp->deaths = 6;
-    qp->mobkills = 7;
-    qp->pkills = 8;
-
-    q->players = g_list_prepend(q->players, qp);
-
-    q->bans = g_list_prepend(q->bans, GINT_TO_POINTER(6));
-    q->bans = g_list_prepend(q->bans, GINT_TO_POINTER(7));
-
-    return q;
+void
+add_test_quest_ban(struct quest *q, int idnum)
+{
+    q->bans = g_list_prepend(q->bans, GINT_TO_POINTER(idnum));
 }
 
 void
@@ -201,6 +198,11 @@ START_TEST(test_save_load_quest)
 {
     struct quest *q = random_quest();
 
+    add_test_questor(q, 2, QP_IGNORE, 3, 4, 5);
+    add_test_questor(q, 5, QP_MUTE, 6, 7, 8);
+    add_test_quest_ban(q, 6);
+    add_test_quest_ban(q, 7);
+
     FILE *out = fopen("/tmp/quest.test", "w");
 
     save_quest(q, out);
@@ -220,6 +222,8 @@ START_TEST(test_quest_player_by_idnum)
     struct quest *q = random_quest();
     struct qplayer_data *qp;
 
+    add_test_questor(q, 2, QP_IGNORE, 3, 4, 5);
+
     qp = quest_player_by_idnum(q, 100);
     fail_unless(qp == NULL);
 
@@ -233,6 +237,9 @@ START_TEST(test_banned_from_quest)
 {
     struct quest *q = random_quest();
 
+    add_test_questor(q, 2, QP_IGNORE, 3, 4, 5);
+    add_test_quest_ban(q, 7);
+
     fail_if(banned_from_quest(q, 2));
     fail_unless(banned_from_quest(q, 7));
 }
@@ -241,11 +248,13 @@ END_TEST
 START_TEST(test_add_remove_quest_player)
 {
     struct quest *q = random_quest();
+    
+    test_creature_to_world(ch);
 
     add_quest_player(q, GET_IDNUM(ch));
     fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
     remove_quest_player(q, GET_IDNUM(ch));
-    fail_if(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
+    fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) == NULL);
 }
 END_TEST
 

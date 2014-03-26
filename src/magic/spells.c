@@ -761,14 +761,14 @@ ASPELL(spell_summon)
     for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         if (AFF3_FLAGGED(tch, AFF3_SHROUD_OBSCUREMENT))
-            prob += (tch == victim ? GET_LEVEL(tch) : (GET_LEVEL(tch) >> 1));
+            prob += (tch == victim ? GET_LEVEL(tch) : (GET_LEVEL(tch) / 2));
     }
 
     if (GET_PLANE(victim->in_room) != GET_PLANE(ch->in_room))
-        prob += GET_LEVEL(victim) >> 1;
+        prob += GET_LEVEL(victim) / 2;
 
     if (GET_TIME_FRAME(ch->in_room) != GET_TIME_FRAME(victim->in_room))
-        prob += GET_LEVEL(victim) >> 1;
+        prob += GET_LEVEL(victim) / 2;
 
     if (prob > number(10, CHECK_SKILL(ch, SPELL_SUMMON))) {
         send_to_char(ch,
@@ -808,8 +808,8 @@ ASPELL(spell_locate_object)
     int found;
     int extracost;
 
-    j = level >> 1;
-    k = level >> 2;
+    j = level / 2;
+    k = level / 4;
 
     *buf = *buf2 = '\0';
 
@@ -914,7 +914,7 @@ ASPELL(spell_locate_object)
         strcat(which_str, buf3);
     }
 
-    if (j == level >> 1 && k == level >> 2)
+    if (j == level / 2 && k == level / 4)
         send_to_char(ch, "You sense nothing.\r\n");
 
     else {
@@ -1110,37 +1110,34 @@ ASPELL(spell_identify)
 
     if (obj) {
         send_to_char(ch, "You feel informed:\r\n");
-        send_to_char(ch, "Object '%s', Item type: ", obj->name);
-        buf[0] = '\0';
-        sprinttype(GET_OBJ_TYPE(obj), item_types, buf);
+        send_to_char(ch, "Object '%s', Item type: %s\r\n",
+                     obj->name,
+                     strlist_aref(GET_OBJ_TYPE(obj), item_types));
 
-        send_to_char(ch,
-            "%s\r\nItem will give you following abilities:  ", buf);
-        strcpy(buf, "");
-        if (obj->obj_flags.bitvector[0])
-            sprintbit(obj->obj_flags.bitvector[0], affected_bits, buf);
-        if (obj->obj_flags.bitvector[1])
-            sprintbit(obj->obj_flags.bitvector[1], affected2_bits, buf);
-        if (obj->obj_flags.bitvector[2])
-            sprintbit(obj->obj_flags.bitvector[2], affected3_bits, buf);
-        send_to_char(ch, "%s\r\n", buf);
+        if (obj->obj_flags.bitvector[0]
+            || obj->obj_flags.bitvector[1]
+            || obj->obj_flags.bitvector[2]) {
+            send_to_char(ch, "Item will give you the following abilities:");
+            if (obj->obj_flags.bitvector[0])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[0], affected_bits));
+            if (obj->obj_flags.bitvector[1])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[1], affected2_bits));
+            if (obj->obj_flags.bitvector[2])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[2], affected3_bits));
+            send_to_char(ch, "\r\n");
+        }
 
-        send_to_char(ch, "Item is: ");
-        sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf);
-        strcat(buf, "\r\n");
-        send_to_char(ch, "%s", buf);
+        if (GET_OBJ_EXTRA(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits));
+        if (GET_OBJ_EXTRA2(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA2(obj), extra2_bits));
+        if (GET_OBJ_EXTRA3(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits));
 
-        send_to_char(ch, "Item is also: ");
-        sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf);
-        strcat(buf, "\r\n");
-        send_to_char(ch, "%s", buf);
-
-        send_to_char(ch, "Item is also: ");
-        sprintbit(GET_OBJ_EXTRA3(obj), extra3_bits, buf);
-        strcat(buf, "\r\n");
-        send_to_char(ch, "%s", buf);
-
-        send_to_char(ch, "Weight: %s, Value: %d, Rent: %d\r\n",
+        send_to_char(ch, "Weight: %s, Value: %'d, Rent: %'d\r\n",
                      format_weight(GET_OBJ_WEIGHT(obj), metric),
                      GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
         send_to_char(ch, "Item material is %s.\r\n",
@@ -1292,28 +1289,36 @@ ASPELL(spell_minor_identify)
 
     if (obj) {
         send_to_char(ch, "You feel a bit informed:\r\n");
-        send_to_char(ch, "Object '%s', Item type: ", obj->name);
-        sprinttype(GET_OBJ_TYPE(obj), item_types, buf2);
-        send_to_char(ch, "%s\r\n", buf2);
+send_to_char(ch, "Object '%s', Item type: %s\r\n",
+                     obj->name,
+                     strlist_aref(GET_OBJ_TYPE(obj), item_types));
 
-        send_to_char(ch, "Item will give you following abilities:  ");
-        if (obj->obj_flags.bitvector[0])
-            sprintbit(obj->obj_flags.bitvector[0], affected_bits, buf);
-        if (obj->obj_flags.bitvector[1])
-            sprintbit(obj->obj_flags.bitvector[1], affected2_bits, buf);
-        if (obj->obj_flags.bitvector[2])
-            sprintbit(obj->obj_flags.bitvector[2], affected3_bits, buf);
-        send_to_char(ch, "%s\r\n", buf);
+        if (obj->obj_flags.bitvector[0]
+            || obj->obj_flags.bitvector[1]
+            || obj->obj_flags.bitvector[2]) {
+            send_to_char(ch, "Item will give you the following abilities:");
+            if (obj->obj_flags.bitvector[0])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[0], affected_bits));
+            if (obj->obj_flags.bitvector[1])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[1], affected2_bits));
+            if (obj->obj_flags.bitvector[2])
+                send_to_char(ch, " %s",
+                             tmp_printbits(obj->obj_flags.bitvector[2], affected3_bits));
+            send_to_char(ch, "\r\n");
+        }
 
-        send_to_char(ch, "Item is: ");
-        sprintbit(GET_OBJ_EXTRA(obj), extra_bits, buf);
-        sprintbit(GET_OBJ_EXTRA2(obj), extra2_bits, buf);
-        send_to_char(ch, "%s\r\n", buf);
+        if (GET_OBJ_EXTRA(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits));
+        if (GET_OBJ_EXTRA2(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA2(obj), extra2_bits));
+        if (GET_OBJ_EXTRA3(obj))
+            send_to_char(ch, "Item is: %s\r\n", tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits));
 
-        send_to_char(ch, "Weight: %s, Value: %d, Rent: %d\r\n",
+        send_to_char(ch, "Weight: %s, Value: %'d, Rent: %'d\r\n",
                      format_weight(GET_OBJ_WEIGHT(obj), metric),
                      GET_OBJ_COST(obj), GET_OBJ_RENT(obj));
-
         send_to_char(ch, "Item material is %s.\r\n",
                      strlist_aref(GET_OBJ_MATERIAL(obj), material_names));
 
@@ -1423,25 +1428,22 @@ ASPELL(spell_enchant_weapon)
                 obj->affected[i].location == APPLY_DAMROLL) {
                 obj->affected[i].location = APPLY_NONE;
                 obj->affected[i].modifier = 0;
-            } else if (i < MAX_OBJ_AFFECT - 2 && obj->affected[i].location) {
-                obj->affected[i + 2].location = obj->affected[i].location;
-                obj->affected[i + 2].modifier = obj->affected[i].modifier;
-            }
+           }
         }
 
-        max = GET_INT(ch) >> 2;
-        max += number(GET_LEVEL(ch) >> 3, GET_LEVEL(ch) >> 2);
-        max += CHECK_SKILL(ch, SPELL_ENCHANT_WEAPON) >> 3;
-        max = MIN(4, max >> 3);
+        max = GET_INT(ch) / 4;
+        max += number(GET_LEVEL(ch) / 8, GET_LEVEL(ch) / 4);
+        max += CHECK_SKILL(ch, SPELL_ENCHANT_WEAPON) / 8;
+        max = MIN(4, max / 8);
         max = MAX(1, max);
 
         obj->affected[0].location = APPLY_HITROLL;
-        obj->affected[0].modifier = MAX(1, number(max >> 1, max)) +
+        obj->affected[0].modifier = MAX(1, number(max / 2, max)) +
             (GET_LEVEL(ch) >= 50) + (GET_LEVEL(ch) >= 56) + (GET_LEVEL(ch) >=
             60)
             + (GET_LEVEL(ch) >= 66);
         obj->affected[1].location = APPLY_DAMROLL;
-        obj->affected[1].modifier = MAX(1, number(max >> 1, max)) +
+        obj->affected[1].modifier = MAX(1, number(max / 2, max)) +
             (GET_LEVEL(ch) >= 50) + (GET_LEVEL(ch) >= 56) + (GET_LEVEL(ch) >=
             60)
             + (GET_LEVEL(ch) >= 66);
@@ -1491,14 +1493,14 @@ ASPELL(spell_enchant_armor)
             (level >= 45) + (level > 69) + (level > 75));
 
         obj->affected[0].location = APPLY_AC;
-        obj->affected[0].modifier = -((level >> 3) + 1);
+        obj->affected[0].modifier = -((level / 8) + 1);
 
         obj->affected[1].location = APPLY_SAVING_BREATH;
         obj->affected[1].modifier = saveMod;
 
         if (IS_IMPLANT(obj)) {
-            obj->affected[0].modifier >>= 1;
-            obj->affected[1].modifier >>= 1;
+            obj->affected[0].modifier /= 2;
+            obj->affected[1].modifier /= 2;
         }
 
         if (!IS_IMPLANT(obj)) {
@@ -1552,24 +1554,21 @@ ASPELL(spell_greater_enchant)
                 obj->affected[i].location == APPLY_DAMROLL) {
                 obj->affected[i].location = APPLY_NONE;
                 obj->affected[i].modifier = 0;
-            } else if (i < MAX_OBJ_AFFECT - 2 && obj->affected[i].location) {
-                obj->affected[i + 2].location = obj->affected[i].location;
-                obj->affected[i + 2].modifier = obj->affected[i].modifier;
             }
         }
 
-        max = GET_INT(ch) >> 2;
-        max += number(GET_LEVEL(ch) >> 3, GET_LEVEL(ch) >> 2);
-        max += CHECK_SKILL(ch, SPELL_ENCHANT_WEAPON) >> 3;
-        max = MIN(4, max >> 3);
+        max = GET_INT(ch) / 4;
+        max += number(GET_LEVEL(ch) / 8, GET_LEVEL(ch) / 4);
+        max += CHECK_SKILL(ch, SPELL_ENCHANT_WEAPON) / 8;
+        max = MIN(4, max / 8);
         max = MAX(1, max);
 
         obj->affected[0].location = APPLY_HITROLL;
-        obj->affected[0].modifier = MAX(2, number(max >> 1, max)) +
+        obj->affected[0].modifier = MAX(2, number(max / 2, max)) +
             (GET_LEVEL(ch) >= 50) + (GET_LEVEL(ch) >= 56) +
             (GET_LEVEL(ch) >= 60) + (GET_LEVEL(ch) >= 67);
         obj->affected[1].location = APPLY_DAMROLL;
-        obj->affected[1].modifier = MAX(2, number(max >> 1, max)) +
+        obj->affected[1].modifier = MAX(2, number(max / 2, max)) +
             (GET_LEVEL(ch) >= 50) + (GET_LEVEL(ch) >= 56) +
             (GET_LEVEL(ch) >= 60) + (GET_LEVEL(ch) >= 67);
 
@@ -1706,7 +1705,7 @@ ASPELL(spell_magical_vestment)
 
     obj->affected[0].location = APPLY_AC;
     obj->affected[0].modifier =
-        -(char)(2 + ((int)(level * multiplier + GET_WIS(ch)) >> 4));
+        -(char)(2 + ((int)(level * multiplier + GET_WIS(ch)) / 16));
 
     obj->affected[1].location = APPLY_SAVING_PARA;
     obj->affected[1].modifier = -(char)(1 + ((level * multiplier) / 20));
@@ -1742,14 +1741,14 @@ ASPELL(spell_clairvoyance)
     for (GList * it = first_living(victim->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         if (AFF3_FLAGGED(tch, AFF3_SHROUD_OBSCUREMENT))
-            prob += (tch == victim ? (GET_LEVEL(tch) << 1) : (GET_LEVEL(tch)));
+            prob += (tch == victim ? (GET_LEVEL(tch) * 2) : (GET_LEVEL(tch)));
     }
 
     if (GET_PLANE(victim->in_room) != GET_PLANE(ch->in_room))
-        prob += GET_LEVEL(victim) >> 1;
+        prob += GET_LEVEL(victim) / 2;
 
     if (GET_TIME_FRAME(ch->in_room) != GET_TIME_FRAME(victim->in_room))
-        prob += GET_LEVEL(victim) >> 1;
+        prob += GET_LEVEL(victim) / 2;
 
     if (prob > number(10, CHECK_SKILL(ch, SPELL_CLAIRVOYANCE))) {
         send_to_char(ch,
@@ -2059,10 +2058,10 @@ ASPELL(spell_sword)
     SET_BIT(NPC_FLAGS(sword), NPC_PET);
     IS_CARRYING_N(sword) = CAN_CARRY_N(sword);
 
-    GET_HITROLL(sword) = (GET_LEVEL(ch) >> 2) + 5;
-    GET_DAMROLL(sword) = (GET_LEVEL(ch) >> 3) + 4;
+    GET_HITROLL(sword) = (GET_LEVEL(ch) / 4) + 5;
+    GET_DAMROLL(sword) = (GET_LEVEL(ch) / 8) + 4;
     /*
-       if (number((GET_LEVEL(ch) >> 1), GET_LEVEL(ch)) > 40)
+       if (number((GET_LEVEL(ch) / 2), GET_LEVEL(ch)) > 40)
        AFF_FLAGS(sword) = AFF_SANCTUARY;
        else
        AFF_FLAGS(sword) = 0;
@@ -2329,7 +2328,7 @@ ASPELL(spell_vestigial_rune)
         GET_OBJ_VAL(obj, 0) = ch->in_room->number;
         GET_OBJ_VAL(obj, 1) = GET_IDNUM(ch);
         if (GET_OBJ_VAL(obj, 2) >= 0)
-            GET_OBJ_VAL(obj, 2) = (level >> 2);
+            GET_OBJ_VAL(obj, 2) = (level / 4);
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_GLOW);
         act("$p glows briefly with a faint light.", false, ch, obj, NULL,
             TO_ROOM);
@@ -2744,7 +2743,7 @@ ASPELL(spell_animate_dead)
         if (IS_IMPLANT(i))
             SET_BIT(GET_OBJ_WEAR(i), ITEM_WEAR_TAKE);
         if (GET_OBJ_DAM(i) > 0)
-            GET_OBJ_DAM(i) >>= 1;
+            GET_OBJ_DAM(i) /= 2;
     }
 
     extract_obj(obj);
@@ -3107,7 +3106,7 @@ ASPELL(spell_inferno)
         rm_aff.level = level;
         rm_aff.type = RM_AFF_FLAGS;
         rm_aff.flags = ROOM_FLAME_FILLED;
-        rm_aff.duration = level >> 3;
+        rm_aff.duration = level / 8;
         affect_to_room(ch->in_room, &rm_aff);
 
     }
@@ -3119,7 +3118,7 @@ ASPELL(spell_inferno)
         if (PRF_FLAGGED(tch, PRF_NOHASSLE))
             continue;
 
-        damage(ch, tch, NULL, dice(level, 6) + (level << 2), TYPE_ABLAZE, -1);
+        damage(ch, tch, NULL, dice(level, 6) + (level * 4), TYPE_ABLAZE, -1);
     }
 
 }
@@ -3399,7 +3398,7 @@ ASPELL(spell_bless)
             if (GET_LEVEL(ch) >= 37) {
                 obj->affected[0].location = APPLY_AC;
                 obj->affected[0].modifier =
-                    -(char)(2 + ((int)(level + GET_WIS(ch)) >> 4));
+                    -(char)(2 + ((int)(level + GET_WIS(ch)) / 16));
             }
         }
 
@@ -3416,12 +3415,12 @@ ASPELL(spell_bless)
         memset(&af2, 0, sizeof(struct affected_type));
         af.type = SPELL_BLESS;
         af.location = APPLY_HITROLL;
-        af.modifier = 2 + (level >> 4);
+        af.modifier = 2 + (level / 16);
         af.duration = 6;
         af.owner = GET_IDNUM(ch);
         af2.type = SPELL_BLESS;
         af2.location = APPLY_SAVING_SPELL;
-        af2.modifier = -(1 + (level >> 5));
+        af2.modifier = -(1 + (level / 32));
         af2.owner = GET_IDNUM(ch);
         af2.duration = 6;
         affect_join(victim, &af, true, false, false, false);
@@ -3500,7 +3499,7 @@ ASPELL(spell_damn)
         if (GET_LEVEL(ch) >= 37) {
             obj->affected[0].location = APPLY_AC;
             obj->affected[0].modifier =
-                -(char)(2 + ((int)(level + GET_WIS(ch)) >> 4));
+                -(char)(2 + ((int)(level + GET_WIS(ch)) / 16));
         }
 
         if (level > number(35, 53))
@@ -3521,12 +3520,12 @@ ASPELL(spell_damn)
         memset(&af2, 0, sizeof(struct affected_type));
         af.type = SPELL_DAMN;
         af.location = APPLY_HITROLL;
-        af.modifier = -(2 + (level >> 4));
+        af.modifier = -(2 + (level / 16));
         af.duration = 6;
         af.owner = GET_IDNUM(ch);
         af2.type = SPELL_DAMN;
         af2.location = APPLY_SAVING_SPELL;
-        af2.modifier = +(1 + (level >> 5));
+        af2.modifier = +(1 + (level / 32));
         af2.owner = GET_IDNUM(ch);
         af2.duration = 6;
         affect_join(victim, &af, true, false, false, false);

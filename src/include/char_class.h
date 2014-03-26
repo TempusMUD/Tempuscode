@@ -61,19 +61,30 @@ int get_max_cha( struct creature *ch )
 #define NEUTRAL     2
 #define EVIL        3
 #define NUM_NEWBIE_EQ 10
-#define MORT_LEARNED(ch) \
-                       (prac_params[0][MIN(NUM_CLASSES-1, \
-                                                                        GET_CLASS(ch))])
 
-#define REMORT_LEARNED(ch) \
-                       (!IS_REMORT(ch) ? 0 : \
-                                    prac_params[0][MIN(NUM_CLASSES-1, \
-                                                                GET_REMORT_CLASS(ch))])
+static inline int
+MORT_LEARNED(struct creature *ch)
+{
+    return prac_params[0][MIN(NUM_CLASSES-1, GET_CLASS(ch))];
+}
 
-#define LEARNED(ch)     (MAX(MORT_LEARNED(ch), REMORT_LEARNED(ch)) + \
-                     (GET_REMORT_GEN(ch) << 1))
+static inline int
+REMORT_LEARNED(struct creature *ch)
+{
+    if (!IS_REMORT(ch)) {
+        return 0;
+    }
+    return prac_params[0][MIN(NUM_CLASSES-1, GET_REMORT_CLASS(ch))];
+}
+
+static inline int
+LEARNED(struct creature *ch)
+{
+    return MAX(MORT_LEARNED(ch), REMORT_LEARNED(ch)) + (GET_REMORT_GEN(ch) * 2);
+}
+
 #define MINGAIN(ch)     (GET_INT(ch) + GET_REMORT_GEN(ch))
-#define MAXGAIN(ch)     ((GET_INT(ch) << 1) + GET_REMORT_GEN(ch))
+#define MAXGAIN(ch)     ((GET_INT(ch) * 2) + GET_REMORT_GEN(ch))
 
 #define SPLSKL(ch)  (GET_CLASS(ch) > NUM_CLASSES ? "spell" :          \
                                  prac_types[prac_params[3][(int)GET_CLASS(ch)]])

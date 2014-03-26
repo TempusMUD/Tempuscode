@@ -37,7 +37,7 @@ SPECIAL(gen_locker)
         cost_factor = 75;
     }
 
-    cost_factor += (cost_factor * cost_modifier(ch, atten)) / 100;
+    cost_factor = adjusted_price(ch, atten, cost_factor);
 
     skip_spaces(&argument);
 
@@ -108,8 +108,8 @@ SPECIAL(gen_locker)
         rent = (rent * cost_factor) / 100;
 
         send_to_char(ch,
-            "The down payment will be %d %s.\r\n"
-            "I will store your stuff for %d %s per day.\r\n",
+            "The down payment will be %'d %s.\r\n"
+            "I will store your stuff for %'d %s per day.\r\n",
             cost_factor * 10,
             ch->in_room->zone->time_frame ==
             TIME_ELECTRO ? "credits" : "coins", rent,
@@ -144,13 +144,13 @@ SPECIAL(gen_locker)
         if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
             if (GET_CASH(ch) < cost_factor * 10) {
                 send_to_char(ch,
-                    "You don't have the %d credit down payment required.\r\n",
+                    "You don't have the %'d credit down payment required.\r\n",
                     cost_factor * 10);
                 return 1;
             }
         } else if (GET_GOLD(ch) < cost_factor * 10) {
             send_to_char(ch,
-                "You don't have the %d coin down payment required.\r\n",
+                "You don't have the %'d coin down payment required.\r\n",
                 cost_factor * 10);
             return 1;
         }
@@ -221,7 +221,7 @@ SPECIAL(gen_locker)
 
         if (GET_OBJ_VAL(locker, 1)) {
             send_to_char(ch,
-                "It will cost %d %s per day to keep the locker.\r\n",
+                "It will cost %'d %s per day to keep the locker.\r\n",
                 GET_OBJ_VAL(locker, 1),
                 ch->in_room->zone->time_frame ==
                 TIME_ELECTRO ? "credits" : "coins");
@@ -270,18 +270,18 @@ SPECIAL(gen_locker)
             if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
                 if (GET_CASH(ch) < rent) {
                     send_to_char(ch,
-                        "You don't have the %d credits required.\r\n", rent);
+                        "You don't have the %'d credits required.\r\n", rent);
                     return 1;
                 } else
                     GET_CASH(ch) -= rent;
             } else if (GET_GOLD(ch) < rent) {
-                send_to_char(ch, "You don't have the %d coins required.\r\n",
+                send_to_char(ch, "You don't have the %'d coins required.\r\n",
                     rent);
                 return 1;
             } else
                 GET_GOLD(ch) -= rent;
 
-            send_to_char(ch, "The cost will be %d %s.\r\n", rent,
+            send_to_char(ch, "The cost will be %'d %s.\r\n", rent,
                 ch->in_room->zone->time_frame == TIME_ELECTRO ?
                 "credits" : "coins");
 

@@ -109,6 +109,7 @@ extern const char *wear_implantpos[];
 extern const char *moon_sky_types[];
 extern const char *soilage_bits[];
 extern const char *wear_description[];
+extern const char *logtypes[];
 extern const struct weap_spec_info weap_spec_char_class[];
 
 int isbanned(char *hostname, char *blocking_hostname);
@@ -184,6 +185,8 @@ show_obj_extra(struct obj_data *object, struct creature *ch)
 static void
 show_obj_bits(struct obj_data *object, struct creature *ch)
 {
+    if (object->engraving)
+        acc_sprintf(" \"%s\"", object->engraving);
     if (IS_OBJ_STAT2(object, ITEM2_BROKEN))
         acc_sprintf(" %s<broken>", CCNRM(ch, C_NRM));
     if (object->in_obj && IS_CORPSE(object->in_obj) && IS_IMPLANT(object)
@@ -400,7 +403,7 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct creature *ch,
         }
         if ((GET_LEVEL(ch) < LVL_AMBASSADOR &&
                 GET_LEVEL(ch) + (GET_SKILL(ch,
-                        SKILL_GLANCE) >> ((glance) ? 2 : 0)) < (number(0,
+                        SKILL_GLANCE) * ((glance) ? 4 : 0)) < (number(0,
                         50) + CHECK_SKILL(vict, SKILL_CONCEAL)))
             || (GET_LEVEL(ch) >= LVL_AMBASSADOR
                 && GET_LEVEL(vict) > GET_LEVEL(ch))) {
@@ -617,7 +620,8 @@ desc_char_trailers(struct creature *ch, struct creature *i)
 static void
 look_at_char(struct creature *i, struct creature *ch, int cmd)
 {
-    int j, found = 0, app_height, app_weight, h, k, pos;
+    int j, found = 0, app_height, h, k, pos;
+    float app_weight;
     char *description = NULL;
     struct affected_type *af = NULL;
     struct creature *mob = NULL;
@@ -803,7 +807,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
         else
             desc = tmp_strcat(tmp_capitalize(desc), " exists here.", NULL);
     } else if (GET_POSITION(i) == POS_FIGHTING) {
-        if (!i->fighting)
+        if (!is_fighting(i))
             desc = tmp_sprintf("%s is here, fighting thin air!", desc);
         else if (random_opponent(i) == ch)
             desc = tmp_sprintf("%s is here, fighting YOU!", desc);
@@ -1870,7 +1874,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
                 act("$n glances sidelong at $N.", true, ch, NULL, found_char,
                     TO_NOTVICT);
 
-                if (IS_NPC(found_char) && !(found_char->fighting)
+                if (IS_NPC(found_char) && !(is_fighting(found_char))
                     && AWAKE(found_char) && (!found_char->master
                         || found_char->master != ch)) {
                     if (IS_ANIMAL(found_char) || IS_BUGBEAR(found_char)
@@ -1918,7 +1922,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
 
                     if (NPC_FLAGGED(found_char, NPC_AGGRESSIVE) &&
                         (GET_MORALE(found_char) >
-                            number(GET_LEVEL(ch) >> 1, GET_LEVEL(ch))) &&
+                            number(GET_LEVEL(ch) / 2, GET_LEVEL(ch))) &&
                         !PRF_FLAGGED(ch, PRF_NOHASSLE)) {
                         if (GET_POSITION(found_char) >= POS_SITTING) {
                             if (ok_to_attack(found_char, ch, false))
@@ -1938,7 +1942,7 @@ glance_at_target(struct creature *ch, char *arg, int cmd)
 static gint
 found_fighting(struct creature *tch, gpointer ignore __attribute__((unused)))
 {
-    return (tch->fighting) ? 0 : -1;
+    return (is_fighting(tch)) ? 0 : -1;
 }
 
 ACMD(do_listen)
@@ -1954,7 +1958,7 @@ ACMD(do_listen)
     for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
 
-        if (tch->fighting) {
+        if (is_fighting(tch)) {
             fighting_vict = tch;
             break;
         }
@@ -2349,7 +2353,7 @@ acc_append_affects(struct creature *ch, int8_t mode)
     if (AFF_FLAGGED(ch, AFF_CONFUSION))
         acc_strcat("You are very confused.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_MOTOR_SPASM))
-        acc_strcat("Your muscles are spasming uncontrollably!\r\n", NULL);
+        acc_strcat("Your muscles are convulsing uncontrollably!\r\n", NULL);
     if (AFF2_FLAGGED(ch, AFF2_VERTIGO))
         acc_strcat("You are lost in a sea of vertigo.\r\n", NULL);
     if (AFF3_FLAGGED(ch, AFF3_TAINTED))
@@ -2634,7 +2638,7 @@ acc_append_affects(struct creature *ch, int8_t mode)
             NULL);
     if (affected_by_spell(ch, SONG_DEFENSE_DITTY))
         acc_strcat
-            ("Harmonic resonance protects you from deleterious affects.\r\n",
+            ("Harmonic resonance protects you from deleterious effects.\r\n",
             NULL);
     if (affected_by_spell(ch, SONG_ALRONS_ARIA))
         acc_strcat("Alron guides your hands.\r\n", NULL);
@@ -2645,13 +2649,13 @@ acc_append_affects(struct creature *ch, int8_t mode)
     if (affected_by_spell(ch, SONG_CHANT_OF_LIGHT))
         acc_strcat("You are surrounded by a warm glow.\r\n", NULL);
     if (affected_by_spell(ch, SONG_ARIA_OF_ASYLUM))
-        acc_strcat("You are enveloped by a gossimer shield.\r\n", NULL);
+        acc_strcat("You are enveloped by a gossamer shield.\r\n", NULL);
     if (affected_by_spell(ch, SONG_RHYTHM_OF_RAGE))
-        acc_strcat("You are consumed by a feril rage!\r\n", NULL);
+        acc_strcat("You are consumed by a feral rage!\r\n", NULL);
     if (affected_by_spell(ch, SONG_POWER_OVERTURE))
         acc_strcat("Your strength is bolstered by song.\r\n", NULL);
     if (affected_by_spell(ch, SONG_GUIHARIAS_GLORY))
-        acc_strcat("The power of dieties is rushing through your veins.\r\n",
+        acc_strcat("The power of deities is rushing through your veins.\r\n",
             NULL);
     if ((af = affected_by_spell(ch, SONG_MIRROR_IMAGE_MELODY)))
         acc_strcat(tmp_sprintf
@@ -3044,7 +3048,7 @@ ACMD(do_score)
                 CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     case POS_FIGHTING:
-        if ((ch->fighting))
+        if ((is_fighting(ch)))
             acc_strcat(CCYEL(ch, C_NRM),
                 "You are fighting ", PERS(random_opponent(ch), ch), ".",
                 CCNRM(ch, C_NRM), "\r\n", NULL);
@@ -3223,7 +3227,7 @@ ACMD(do_equipment)
 
                     if (IS_DEVICE(GET_IMPLANT(ch, pos)) ||
                         IS_COMMUNICATOR(GET_IMPLANT(ch, pos)))
-                        str = tmp_sprintf(" %10s %s(%s%d%s/%s%d%s)%s",
+                        str = tmp_sprintf(" %10s %s(%s%'d%s/%s%'d%s)%s",
                             active_buf[(ENGINE_STATE(GET_IMPLANT(ch,
                                             pos))) ? 1 : 0], CCGRN(ch, C_NRM),
                             CCNRM(ch, C_NRM), CUR_ENERGY(GET_IMPLANT(ch, pos)),
@@ -3927,7 +3931,6 @@ obj_in_house(struct obj_data * obj)
 void
 perform_immort_where(struct creature *ch, char *arg, bool show_morts)
 {
-    register struct creature *i = NULL;
     register struct obj_data *k;
     struct descriptor_data *d;
     int num = 0, found = 0;
@@ -3944,34 +3947,42 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
         for (d = descriptor_list; d; d = d->next) {
             if (STATE(d) != CXN_PLAYING)
                 continue;
-            i = (d->original ? d->original : d->creature);
-            if (i && can_see_creature(ch, i)
-                && (i->in_room != NULL)
-                && (show_morts || IS_IMMORT(i))) {
-                if (d->original)
-                    acc_sprintf
-                        ("%s%-20s%s - %s[%s%5d%s]%s %s%s%s %s(in %s)%s\r\n",
-                        (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch,
-                                C_NRM) : ""), GET_NAME(i),
-                        (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCNRM(ch,
-                                C_NRM) : ""), CCGRN(ch, C_NRM), CCNRM(ch,
-                            C_NRM), d->creature->in_room->number, CCGRN(ch,
-                            C_NRM), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-                        d->creature->in_room->name, CCNRM(ch, C_NRM), CCRED(ch,
-                            C_CMP), GET_NAME(d->creature), CCNRM(ch, C_CMP));
-                else
-                    acc_sprintf("%s%-20s%s - %s[%s%5d%s]%s %s%s%s\r\n",
-                        (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCGRN(ch,
-                                C_NRM) : ""), GET_NAME(i),
-                        (GET_LEVEL(i) >= LVL_AMBASSADOR ? CCNRM(ch,
-                                C_NRM) : ""), CCGRN(ch, C_NRM), CCNRM(ch,
-                            C_NRM), i->in_room->number, CCGRN(ch, C_NRM),
-                        CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), i->in_room->name,
-                        CCNRM(ch, C_NRM));
+            struct creature *player = (d->original ? d->original : d->creature);
+            struct creature *form = d->creature;
+
+            if (player && player->in_room && (show_morts || IS_IMMORT(player))) {
+                const char *notes = "";
+
+                if (player != form) {
+                    notes = tmp_sprintf("%s%s (in %s)", notes, CCGRN(ch, C_CMP),
+                                        GET_NAME(form));
+                }
+                if (ROOM_FLAGGED(form->in_room, ROOM_HOUSE)) {
+                    notes = tmp_sprintf("%s%s (house)", notes, CCMAG(ch, C_CMP));
+                }
+                if (ROOM_FLAGGED(form->in_room, ROOM_ARENA)) {
+                    notes = tmp_sprintf("%s%s (arena)", notes, CCYEL(ch, C_CMP));
+                }
+                if (!IS_APPR(form->in_room->zone)) {
+                    notes = tmp_sprintf("%s%s (!appr)", notes, CCRED(ch, C_CMP));
+                }
+                if (ROOM_FLAGGED(form->in_room, ROOM_CLAN_HOUSE)) {
+                    notes = tmp_sprintf("%s%s (clan)", notes, CCCYN(ch, C_CMP));
+                }
+                acc_sprintf("%s%-20s%s - %s[%s%5d%s]%s %s%s%s%s\r\n",
+                            (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCGRN(ch, C_NRM) : ""),
+                            GET_NAME(player),
+                            (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCNRM(ch, C_NRM) : ""),
+                            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                            form->in_room->number,
+                            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                            CCCYN(ch, C_NRM), form->in_room->name,
+                            notes, CCNRM(ch, C_NRM));
             }
         }
         page_string(ch->desc, acc_get_string());
     } else {
+        register struct creature *i = NULL;
         for (arg1 = tmp_getword(&arg);*arg1;arg1 = tmp_getword(&arg)) {
             if (arg1[0] == '!') {
                 excluded = g_list_prepend(excluded, tmp_strdup(arg1 + 1));
@@ -4236,7 +4247,7 @@ print_attributes_to_buf(struct creature *ch, char *buff)
     if (mini_mud)
         strcat(buff, tmp_sprintf(" [%d]", dex));
     if (dex <= 5)
-        strcat(buff, "I wouldnt walk too fast if I were you.");
+        strcat(buff, "I wouldn't walk too fast if I were you.");
     else if (dex <= 8)
         strcat(buff, "You're pretty clumsy.");
     else if (dex <= 10)
@@ -4406,7 +4417,7 @@ ACMD(do_consider)
     else if (diff <= 22)
         send_to_char(ch, "Well, you only live once...\r\n");
     else if (diff <= 26)
-        send_to_char(ch, "You must be out of your freakin mind.\r\n");
+        send_to_char(ch, "You must be out of your freakin' mind.\r\n");
     else if (diff <= 30)
         send_to_char(ch, "What?? Are you STUPID or something?!!\r\n");
     else
@@ -4430,7 +4441,7 @@ ACMD(do_consider)
             send_to_char(ch,
                 "You can both take pretty much the same abuse.\r\n");
         else if (diff <= 200)
-            act("$E looks like $E could take a lickin.", false, ch, NULL, victim,
+            act("$E looks like $E could take a lickin'.", false, ch, NULL, victim,
                 TO_CHAR);
         else if (diff <= 600)
             act("Haven't you seen $M breaking bricks on $S head?", false, ch,
@@ -4505,7 +4516,7 @@ ACMD(do_pkiller)
                 arg = tmp_getword(&argument);
                 if (strcasecmp(arg, "yes")) {
                     send_to_char(ch,
-                        "Your reputation is 0.  You must type pk on yes "
+                        "Your reputation is 0.  You must type PK ON YES "
                         "to enter the world of PK.\r\n");
                     return;
                 }
@@ -4584,6 +4595,7 @@ void
 show_all_toggles(struct creature *ch)
 {
     bool gets_clanmail = false;
+    int tp;
 
     if (IS_NPC(ch) || !ch->desc || !ch->desc->account)
         return;
@@ -4629,6 +4641,7 @@ show_all_toggles(struct creature *ch)
         "  Guild Channel: %-3s    "
         "   Clan Channel: %-3s    "
         " Haggle Channel: %-3s\r\n"
+        "   Nasty Speech: %-3s\r\n"
         "\r\n"
         "-- GAMEPLAY ------------------------------------------------------------------\r\n"
         "      Autosplit: %-3s    "
@@ -4641,7 +4654,8 @@ show_all_toggles(struct creature *ch)
         "      Clan hide: %-3s    "
         "      Clan mail: %-3s\r\n"
         "      Anonymous: %-3s    "
-        "        PKILLER: %-3s\r\n",
+        "        PKILLER: %-3s\r\n"
+        "\r\n",
         ONOFF(PRF_FLAGGED(ch, PRF_DISPHP)),
         ONOFF(PRF_FLAGGED(ch, PRF_DISPMANA)),
         ONOFF(PRF_FLAGGED(ch, PRF_DISPMOVE)),
@@ -4649,9 +4663,9 @@ show_all_toggles(struct creature *ch)
         ONOFF(PRF2_FLAGGED(ch, PRF2_AUTO_DIAGNOSE)),
         YESNO(PRF2_FLAGGED(ch, PRF2_AUTOPROMPT)),
         ONOFF(PRF_FLAGGED(ch, PRF_BRIEF)),
+        YESNO(!PRF_FLAGGED(ch, PRF_GAGMISS)),
         (IS_NPC(ch) ? "mob" :
             compact_levels[ch->account->compact_level]),
-        YESNO(!PRF_FLAGGED(ch, PRF_GAGMISS)),
         tmp_sprintf("%dx%d",
             GET_PAGE_LENGTH(ch),
             GET_PAGE_WIDTH(ch)),
@@ -4670,6 +4684,7 @@ show_all_toggles(struct creature *ch)
         ONOFF(!PRF2_FLAGGED(ch, PRF2_NOGUILDSAY)),
         ONOFF(!PRF_FLAGGED(ch, PRF_NOCLANSAY)),
         ONOFF(!PRF_FLAGGED(ch, PRF_NOHAGGLE)),
+        ONOFF(PRF_FLAGGED(ch, PRF_NASTY)),
         ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOSPLIT)),
         ONOFF(PRF2_FLAGGED(ch, PRF2_AUTOLOOT)),
         buf2,
@@ -4681,6 +4696,33 @@ show_all_toggles(struct creature *ch)
         YESNO(gets_clanmail),
         YESNO(PRF2_FLAGGED(ch, PRF2_ANONYMOUS)),
         YESNO(PRF2_FLAGGED(ch, PRF2_PKILLER)));
+
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
+        tp = ((PRF_FLAGGED(ch, PRF_LOG1) ? 1 : 0) +
+            (PRF_FLAGGED(ch, PRF_LOG2) ? 2 : 0));
+        send_to_char(ch,
+        "-- IMMORTAL  -----------------------------------------------------------------\r\n"
+        "    Imm Channel: %-3s    "
+        "       Petition: %-3s    "
+        "         Holler: %-3s\r\n"
+        "       God Echo: %-3s    "
+        "  Display Vnums: %-3s    "
+        "Show Room Flags: %-3s\r\n"
+        "       Nohassle: %-3s    "
+        "          Snoop: %-3s    "
+        "          Debug: %-3s\r\n"
+        "   Syslog Level: %-8s\r\n",
+        ONOFF(!PRF2_FLAGGED(ch, PRF2_NOIMMCHAT)),
+        ONOFF(!PRF_FLAGGED(ch, PRF_NOPETITION)),
+        ONOFF(!PRF2_FLAGGED(ch, PRF2_NOHOLLER)),
+        ONOFF(!PRF2_FLAGGED(ch, PRF2_NOGECHO)),
+        YESNO(PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)),
+        YESNO(PRF_FLAGGED(ch, PRF_ROOMFLAGS)),
+        ONOFF(!PRF_FLAGGED(ch, PRF_NOHASSLE)),
+        YESNO(!PRF_FLAGGED(ch, PRF_NOSNOOP)),
+        ONOFF(PRF2_FLAGGED(ch, PRF2_DEBUG)),
+        logtypes[tp]);
+    }
 
     if (IS_MAGE(ch)) {
         send_to_char(ch, "((Mana shield)) Low:[%ld], Percent:[%ld]\n",
@@ -4701,27 +4743,27 @@ ACMD(do_toggle)
     }
 
     if (is_abbrev(arg, "gossip"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOGOSSIP);
+        do_gen_tog(ch, "", cmd, SCMD_NOGOSSIP);
     else if (is_abbrev(arg, "spew"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOSPEW);
+        do_gen_tog(ch, "", cmd, SCMD_NOSPEW);
     else if (is_abbrev(arg, "guild"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOGUILDSAY);
+        do_gen_tog(ch, "", cmd, SCMD_NOGUILDSAY);
     else if (is_abbrev(arg, "clan"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOCLANSAY);
+        do_gen_tog(ch, "", cmd, SCMD_NOCLANSAY);
     else if (is_abbrev(arg, "sing"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOMUSIC);
+        do_gen_tog(ch, "", cmd, SCMD_NOMUSIC);
     else if (is_abbrev(arg, "auction"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOAUCTION);
+        do_gen_tog(ch, "", cmd, SCMD_NOAUCTION);
     else if (is_abbrev(arg, "grats"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOGRATZ);
+        do_gen_tog(ch, "", cmd, SCMD_NOGRATZ);
     else if (is_abbrev(arg, "newbie"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NEWBIE_HELP);
+        do_gen_tog(ch, "", cmd, SCMD_NEWBIE_HELP);
     else if (is_abbrev(arg, "dream"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NODREAM);
+        do_gen_tog(ch, "", cmd, SCMD_NODREAM);
     else if (is_abbrev(arg, "project"))
-        do_gen_tog(ch, NULL, cmd, SCMD_NOPROJECT);
+        do_gen_tog(ch, "", cmd, SCMD_NOPROJECT);
     else if (is_abbrev(arg, "brief"))
-        do_gen_tog(ch, NULL, cmd, SCMD_BRIEF);
+        do_gen_tog(ch, "", cmd, SCMD_BRIEF);
     else
         send_to_char(ch, "What is it that you want to toggle?\r\n");
     return;

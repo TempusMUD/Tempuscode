@@ -51,10 +51,10 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
 
     gold = *real_stat * GET_LEVEL(ch) * 50;
     if (mode == ATTR_STR && IS_MAGE(ch))
-        gold <<= 1;
-    gold += (gold * cost_modifier(ch, trainer)) / 100;
+        gold *= 2;
+    gold = adjusted_price(ch, trainer, gold);
 
-    life_cost = MAX(6, (*real_stat << 1) - (GET_WIS(ch)));
+    life_cost = MAX(6, (*real_stat * 2) - (GET_WIS(ch)));
 
     skip_spaces(&argument);
 
@@ -68,7 +68,7 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
         }
 
         send_to_char(ch,
-            "It will cost you %d coins and %d life points to improve your %s.\r\n",
+            "It will cost you %'d coins and %d life points to improve your %s.\r\n",
             gold, life_cost, improve_modes[mode]);
         sprintf(buf, "$n considers the implications of improving $s %s.",
             improve_modes[mode]);
@@ -96,7 +96,7 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
     }
 
     if (GET_GOLD(ch) < gold) {
-        send_to_char(ch, "You cannot afford it.  The cost is %d coins.\r\n",
+        send_to_char(ch, "You cannot afford it.  The cost is %'d coins.\r\n",
             gold);
         return 1;
     }

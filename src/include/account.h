@@ -50,8 +50,7 @@ struct account *account_create(const char *name, struct descriptor_data *d)
     __attribute__ ((nonnull));
 struct account *account_by_name(char *name)
     __attribute__ ((nonnull));
-struct account *account_by_idnum(int id)
-    __attribute__ ((nonnull));
+struct account *account_by_idnum(int id);
 struct account *account_by_creature(struct creature *ch)
     __attribute__ ((nonnull));
 void preload_accounts(const char *conditions)

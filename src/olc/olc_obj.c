@@ -511,6 +511,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
     int tmp_flags = 0, state = 0, cur_flags = 0, flag = 0;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     struct extra_descr_data *desc = NULL, *ndesc = NULL;
+    bool metric = USE_METRIC(ch);
 
     if (!*argument) {
         strcpy(buf, "Valid oset commands:\r\n");
@@ -843,21 +844,18 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         }
         break;
 
-    case 12:     /******** weight **********/
-        if (!is_number(arg2)) {
-            send_to_char(ch, "The argument must be a number.\r\n");
+    case 12: /******** weight **********/
+        f = parse_weight(arg2, metric);
+        if (f < 0.1 || f > 1000000000) {
+            send_to_char(ch, "Weight must be between %s and %s.\r\n",
+                         format_weight(0.01, metric),
+                         format_weight(1000000000, metric));
             return;
-        } else {
-            f = atof(arg2);
-            if (f < 0) {
-                send_to_char(ch, "Object weight out of range.\r\n");
-                return;
-            } else {
-                set_obj_weight(obj_p, f);
-                send_to_char(ch, "Object %d weight set to %f.\r\n",
-                    obj_p->shared->vnum, f);
-            }
         }
+        set_obj_weight(obj_p, f);
+        send_to_char(ch, "Object %d weight set to %s.\r\n",
+                     obj_p->shared->vnum,
+                     format_weight(GET_OBJ_WEIGHT(obj_p), metric));
         break;
     case 13:     /******** cost **********/
         if (!is_number(arg2)) {

@@ -182,7 +182,6 @@ const struct spec_func_data spec_list[] = {
     {"taunting_frenchman", taunting_frenchman, SPEC_MOB},
     {"nude_guard", nude_guard, SPEC_MOB},
     {"increaser", increaser, SPEC_MOB | SPEC_RES},
-    {"spirit_priestess", spirit_priestess, SPEC_MOB | SPEC_RES},
     {"corpse_griller", corpse_griller, SPEC_MOB | SPEC_RES},
     {"head_shrinker", head_shrinker, SPEC_MOB | SPEC_RES},
     {"multi_healer", multi_healer, SPEC_MOB | SPEC_RES},
@@ -294,12 +293,11 @@ const struct spec_func_data spec_list[] = {
     {"languagemaster", languagemaster, SPEC_MOB},
     {"bounty_clerk", bounty_clerk, SPEC_MOB},
     {"auctioneer", do_auctions, SPEC_MOB},
-    {"courier_imp", courier_imp, SPEC_MOB},
+    {"engraver", engraver, SPEC_MOB},
     {NULL, NULL, 0}             //terminator
 };
 
 const char *spec_flags[] = { "MOB", "OBJ", "ROOM", "RESERVED" };
-
 //
 // find_spec_index_ptr - given a spec pointer, return the index
 //

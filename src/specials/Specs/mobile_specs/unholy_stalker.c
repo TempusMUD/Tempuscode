@@ -11,14 +11,14 @@ SPECIAL(unholy_stalker)
 
     struct creature *mob = (struct creature *)me;
 
-    if (!NPC_HUNTING(mob) && !mob->fighting) {
+    if (!NPC_HUNTING(mob) && !is_fighting(mob)) {
         act("$n dematerializes, returning to the negative planes.", true, mob,
             NULL, NULL, TO_ROOM);
         creature_purge(mob, true);
         return 1;
     }
 
-    if (mob->fighting) {
+    if (is_fighting(mob)) {
         if (!number(0, 3)) {
             call_magic(mob, random_opponent(mob), NULL, NULL, SPELL_CHILL_TOUCH,
                 GET_LEVEL(mob) + 10, CAST_SPELL);

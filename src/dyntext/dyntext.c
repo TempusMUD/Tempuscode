@@ -49,15 +49,13 @@
 // local variables
 dynamic_text_file *dyntext_list = NULL;
 
-char *dynedit_update_string(dynamic_text_file *);
-
 /***
  *
  * Dynamic text file functions
  *
  ***/
 
-int
+static int
 load_dyntext_buffer(dynamic_text_file * dyntext)
 {
     FILE *fl;
@@ -160,7 +158,7 @@ boot_dynamic_text(void)
 
 }
 
-int
+static int
 create_dyntext_backup(dynamic_text_file * dyntext)
 {
 
@@ -215,7 +213,7 @@ create_dyntext_backup(dynamic_text_file * dyntext)
     return 0;
 }
 
-int
+static int
 save_dyntext_buffer(dynamic_text_file * dyntext)
 {
     FILE *fl = NULL;
@@ -243,7 +241,7 @@ save_dyntext_buffer(dynamic_text_file * dyntext)
 
 }
 
-int
+static int
 save_dyntext_control(dynamic_text_file * dyntext)
 {
     FILE *fl = NULL;
@@ -280,7 +278,7 @@ save_dyntext_control(dynamic_text_file * dyntext)
     return 0;
 }
 
-int
+static int
 push_update_to_history(struct creature *ch, dynamic_text_file * dyntext)
 {
     for (int i = DYN_TEXT_HIST_SIZE - 1; i > 0; i--)
@@ -293,7 +291,7 @@ push_update_to_history(struct creature *ch, dynamic_text_file * dyntext)
 
 }
 
-const char *dynedit_options[][2] = {
+static const char *dynedit_options[][2] = {
     {"show", "[ <filename> [old|new|perms|last] ]"},
     {"set", "<filename> <level> <arg>"},
     {"add", "<filename> <idnum>"},
@@ -307,7 +305,7 @@ const char *dynedit_options[][2] = {
     {NULL, NULL}
 };
 
-void
+static void
 show_dynedit_options(struct creature *ch)
 {
     int i = 0;
@@ -320,7 +318,7 @@ show_dynedit_options(struct creature *ch)
 
 }
 
-void
+static void
 set_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
 {
 
@@ -359,7 +357,7 @@ set_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
         send_to_char(ch, "Control file saved.\r\n");
 }
 
-void
+static void
 show_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
 {
     int i;
@@ -428,7 +426,7 @@ show_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
 
 }
 
-bool
+static bool
 dyntext_edit_ok(struct creature *ch, dynamic_text_file * dyntext)
 {
     int i;
@@ -444,9 +442,10 @@ dyntext_edit_ok(struct creature *ch, dynamic_text_file * dyntext)
     return !already_being_edited(ch, dyntext->tmp_buffer);
 }
 
-int
-dynedit_check_dyntext(struct creature *ch, dynamic_text_file * dyntext,
-    char *arg)
+static int
+dynedit_check_dyntext(struct creature *ch,
+                      dynamic_text_file *dyntext,
+                      char *arg)
 {
     if (!dyntext) {
         if (*arg) {
@@ -457,6 +456,29 @@ dynedit_check_dyntext(struct creature *ch, dynamic_text_file * dyntext,
         return 1;
     }
     return 0;
+}
+
+static char *
+dynedit_update_string(dynamic_text_file * d)
+{
+
+    struct tm tmTime;
+    time_t t;
+    static char buffer[1024];
+
+    if (!strncmp(d->filename, "fate", 4)
+        || !strncmp(d->filename, "arenalist", 9))
+        return tmp_strdup("");
+    printf("Updating File: %s\r\n", d->filename);
+    t = time(NULL);
+    tmTime = *(localtime(&t));
+
+    sprintf(buffer,
+        "\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\r\n",
+        tmp_toupper(d->filename), tmTime.tm_mon + 1, tmTime.tm_mday);
+
+    return buffer;
+
 }
 
 ACMD(do_dynedit)
@@ -503,6 +525,9 @@ ACMD(do_dynedit)
         show_dyntext(ch, dyntext, argument);
         break;
     case 1:                    // set
+        if (dynedit_check_dyntext(ch, dyntext, arg2)) {
+            return;
+        }
         set_dyntext(ch, dyntext, argument);
         break;
     case 2:                    // add
@@ -884,7 +909,7 @@ ACMD(do_dyntext_show)
 }
 
 void
-check_dyntext_updates(struct creature *ch, int mode)
+check_dyntext_updates(struct creature *ch)
 {
     dynamic_text_file *dyntext = NULL;
 
@@ -905,27 +930,4 @@ check_dyntext_updates(struct creature *ch, int mode)
 
         }
     }
-}
-
-char *
-dynedit_update_string(dynamic_text_file * d)
-{
-
-    struct tm tmTime;
-    time_t t;
-    static char buffer[1024];
-
-    if (!strncmp(d->filename, "fate", 4)
-        || !strncmp(d->filename, "arenalist", 9))
-        return tmp_strdup("");
-    printf("Updating File: %s\r\n", d->filename);
-    t = time(NULL);
-    tmTime = *(localtime(&t));
-
-    sprintf(buffer,
-        "\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\r\n",
-        tmp_toupper(d->filename), tmTime.tm_mon + 1, tmTime.tm_mday);
-
-    return buffer;
-
 }

@@ -59,7 +59,7 @@ quest_armor_enchant(struct creature *ch, struct obj_data *obj, int lvl)
     }
 
     obj->affected[0].location = APPLY_AC;
-    obj->affected[0].modifier = -(lvl >> 3) - 5;
+    obj->affected[0].modifier = -(lvl / 8) - 5;
 
     obj->affected[1].location = APPLY_SAVING_PARA;
     obj->affected[1].modifier = -(4 + (lvl >= 53));

@@ -87,6 +87,22 @@ tmp_alloc_pool(size_t size_req)
     return new_buf;
 }
 
+// Allocate space for a string, creating a new pool if necessary
+static char *
+tmp_alloc(size_t size_req)
+{
+    struct tmp_str_pool *cur_buf = tmp_list_tail;
+
+    if (size_req > cur_buf->space - cur_buf->used)
+        cur_buf = tmp_alloc_pool(size_req);
+
+    char *result = cur_buf->data + cur_buf->used;
+
+    cur_buf->used += size_req;
+
+    return result;
+}
+
 // vsprintf into a temp str
 char *
 tmp_vsprintf(const char *fmt, va_list args)
@@ -137,7 +153,6 @@ tmp_sprintf(const char *fmt, ...)
 char *
 tmp_strcat(const char *src, ...)
 {
-    struct tmp_str_pool *cur_buf;
     char *write_pt, *result;
     const char *read_pt;
     size_t len;
@@ -153,15 +168,7 @@ tmp_strcat(const char *src, ...)
 
     len += 1;
 
-    // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    write_pt = result;
-    cur_buf->used += len;
+    write_pt = result = tmp_alloc(len);
 
     // Copy in the first string
     strcpy(write_pt, src);
@@ -177,6 +184,8 @@ tmp_strcat(const char *src, ...)
     }
     va_end(args);
 
+    *write_pt = '\0';
+
     return result;
 }
 
@@ -184,7 +193,6 @@ tmp_strcat(const char *src, ...)
 char *
 tmp_gettoken(char **src)
 {
-    struct tmp_str_pool *cur_buf;
     char *read_pt;
     char *result, *write_pt;
     size_t len = 0;
@@ -196,20 +204,14 @@ tmp_gettoken(char **src)
         read_pt++;
     len = (read_pt - *src) + 1;
 
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
+    write_pt = result = tmp_alloc(len);
     read_pt = *src;
-    write_pt = result;
 
     while (*read_pt && !isspace(*read_pt))
         *write_pt++ = *read_pt++;
+
     *write_pt = '\0';
 
-    cur_buf->used += len;
     *src = read_pt;
 
     skip_spaces(src);
@@ -253,7 +255,6 @@ tmp_getword_const(const char **src)
 char *
 tmp_getquoted(char **src)
 {
-    struct tmp_str_pool *cur_buf;
     char *read_pt;
     char *result, *write_pt;
     size_t len = 0;
@@ -279,20 +280,14 @@ tmp_getquoted(char **src)
 
     len = (read_pt - *src) + 1;
 
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
+    write_pt = result = tmp_alloc(len);
     read_pt = *src;
-    write_pt = result;
 
     while (*read_pt && delim != *read_pt)
         *write_pt++ = tolower(*read_pt++);
+
     *write_pt = '\0';
 
-    cur_buf->used += len;
     *src = read_pt + 1;
     return result;
 }
@@ -300,18 +295,12 @@ tmp_getquoted(char **src)
 char *
 tmp_pad(int c, size_t len)
 {
-    struct tmp_str_pool *cur_buf;
     char *result;
 
-    if (len + 1 > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len + 1);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += len + 1;
+    result = tmp_alloc(len + 1);
     if (len)
         memset(result, c, len);
+
     result[len] = '\0';
 
     return result;
@@ -321,7 +310,6 @@ tmp_pad(int c, size_t len)
 char *
 tmp_getline(char **src)
 {
-    struct tmp_str_pool *cur_buf;
     char *read_pt;
     char *result, *write_pt;
     size_t len = 0;
@@ -337,20 +325,14 @@ tmp_getline(char **src)
     if (len == 1 && !*read_pt)
         return NULL;
 
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
+    write_pt = result = tmp_alloc(len);
     read_pt = *src;
-    write_pt = result;
 
     while (*read_pt && '\r' != *read_pt && '\n' != *read_pt)
         *write_pt++ = *read_pt++;
+
     *write_pt = '\0';
 
-    cur_buf->used += len;
     if (*read_pt == '\r')
         read_pt++;
     if (*read_pt == '\n')
@@ -425,7 +407,6 @@ tmp_gsub(const char *haystack, const char *needle, const char *sub)
 char *
 tmp_gsubi(const char *haystack, const char *needle, const char *sub)
 {
-    struct tmp_str_pool *cur_buf;
     char *low_stack;
     char *write_pt, *result;
     const char *read_pt, *search_pt;
@@ -450,14 +431,7 @@ tmp_gsubi(const char *haystack, const char *needle, const char *sub)
     // Figure out how much space we'll need
     len = strlen(haystack) + matches * (strlen(sub) - needle_len) + 1;
 
-    // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += len;
+    result = tmp_alloc(len);
 
     // Now copy up to matches
     read_pt = haystack;
@@ -486,6 +460,7 @@ tmp_tolower(const char *str)
     result = tmp_strcat(str, NULL);
     for (char *c = result; *c; c++)
         *c = tolower(*c);
+
     return result;
 }
 
@@ -514,29 +489,10 @@ tmp_capitalize(const char *str)
 char *
 tmp_strdup(const char *src)
 {
-    struct tmp_str_pool *cur_buf;
-    char *write_pt, *result;
-    const char *read_pt;
-    size_t len;
+    char *result;
 
-    // Figure out how much space we'll need
-    len = strlen(src) + 1;
-
-    // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += len;
-
-    // Copy in the first string
-    read_pt = src;
-    write_pt = result;
-    while (--len)
-        *write_pt++ = *read_pt++;
-    *write_pt = '\0';
+    result = tmp_alloc(strlen(src) + 1);
+    strcpy(result, src);
 
     return result;
 }
@@ -544,33 +500,20 @@ tmp_strdup(const char *src)
 char *
 tmp_strdupt(const char *src, const char *term_str)
 {
-    struct tmp_str_pool *cur_buf;
-    char *write_pt, *result;
+    char *result;
     const char *read_pt;
     size_t len;
 
     // Figure out how much space we'll need
     read_pt = term_str ? strstr(src, term_str) : NULL;
     if (read_pt)
-        len = read_pt - src + 1;
+        len = read_pt - src;
     else
-        len = strlen(src) + 1;
+        len = strlen(src);
 
-    // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += len;
-
-    // Copy in the first string
-    read_pt = src;
-    write_pt = result;
-    while (--len)
-        *write_pt++ = *read_pt++;
-    *write_pt = '\0';
+    result = tmp_alloc(len + 1);
+    strncpy(result, src, len);
+    result[len] = '\0';
 
     return result;
 }
@@ -578,19 +521,12 @@ tmp_strdupt(const char *src, const char *term_str)
 char *
 tmp_sqlescape(const char *str)
 {
-    struct tmp_str_pool *cur_buf;
     char *result;
     size_t len;
 
     len = strlen(str) * 2 + 1;
-    if (len + 1 > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len + 1);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    len = PQescapeString(result, str, len);
-    cur_buf->used += len + 1;
+    result = tmp_alloc(len + 1);
+    (void)PQescapeString(result, str, len);
 
     return result;
 }
@@ -598,19 +534,10 @@ tmp_sqlescape(const char *str)
 char *
 tmp_ctime(time_t val)
 {
-    struct tmp_str_pool *cur_buf;
     char *result;
-    size_t len;
 
-    len = 26;
-    if (len + 1 > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len + 1);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
+    result = tmp_alloc(27);
     ctime_r(&val, result);
-    cur_buf->used += strlen(result) + 1;
     // last int8_t is, sadly, a newline.  we remove it here
     result[strlen(result) - 1] = '\0';
 
@@ -620,7 +547,6 @@ tmp_ctime(time_t val)
 char *
 tmp_printbits(int val, const char *bit_descs[])
 {
-    struct tmp_str_pool *cur_buf;
     char *write_pt, *result;
     unsigned int idx;
     bool not_first = false;
@@ -635,20 +561,8 @@ tmp_printbits(int val, const char *bit_descs[])
             len += strlen(bit_descs[idx]) + 1;
     len += 1;
 
-    // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(len);
-    else
-        cur_buf = tmp_list_tail;
+    write_pt = result = tmp_alloc(len);
 
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += len;
-    write_pt = result;
-
-    // Copy in the first string
-    *write_pt = '\0';
-
-    // Then copy in the rest of the strings
     for (idx = 0;
         idx < sizeof(val) * 8 && bit_descs[idx] && bit_descs[idx][0] != '\n';
         idx++)
@@ -671,7 +585,6 @@ tmp_printbits(int val, const char *bit_descs[])
 char *
 tmp_substr(const char *str, int start_pos, int end_pos)
 {
-    struct tmp_str_pool *cur_buf;
     const char *read_pt;
     char *result, *write_pt;
     int len;
@@ -699,15 +612,7 @@ tmp_substr(const char *str, int start_pos, int end_pos)
     // This is the true result string length
     result_len = end_pos - start_pos + 2;
 
-    // If we don't have the space, we allocate another pool
-    if (result_len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(result_len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += result_len;
-    write_pt = result;
+    write_pt = result = tmp_alloc(result_len);
 
     read_pt = str + start_pos;
     result_len--;
@@ -721,7 +626,6 @@ tmp_substr(const char *str, int start_pos, int end_pos)
 char *
 tmp_trim(const char *str)
 {
-    struct tmp_str_pool *cur_buf;
     const char *read_pt, *start, *end;
     char *result, *write_pt;
     size_t result_len;
@@ -739,21 +643,279 @@ tmp_trim(const char *str)
     // This is the true result string length
     result_len = end - start + 2;
 
-    // If we don't have the space, we allocate another pool
-    if (result_len > tmp_list_tail->space - tmp_list_tail->used)
-        cur_buf = tmp_alloc_pool(result_len);
-    else
-        cur_buf = tmp_list_tail;
-
-    result = cur_buf->data + cur_buf->used;
-    cur_buf->used += result_len;
-    write_pt = result;
+    write_pt = result = tmp_alloc(result_len);
 
     read_pt = start;
     result_len--;
     while (result_len--)
         *write_pt++ = *read_pt++;
     *write_pt = '\0';
+
+    return result;
+}
+
+// Performs the formatting of a string, given a buffer.  Returns the
+// end size of the result.  If buffer is NULL, performs no writing.
+static size_t
+format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_indent, int par_indent, int rest_indent)
+{
+    const char *abbreviations[] = {"Dr.", "Mr." "Ms.", "Mrs.", "Miss.", "Esq.", "Dept.", NULL};
+    const char *read_pt = str;
+    size_t output_size = 0;
+    int line_width = 0;
+    char *write_pt = buf;
+    char *buf_end = buf + buf_size;
+    int padding = first_indent;
+    bool par_end = false;
+
+    // Skip initial spaces in input
+    while (*read_pt && isspace(*read_pt))
+        read_pt++;
+
+    // Outer loop here loops once per word
+    while (*read_pt) {
+        // Skip spaces to beginning of word
+        while (*read_pt && isspace(*read_pt)) {
+            if (*read_pt == '\n')
+                par_end = true;
+            read_pt++;
+        }
+        if (!*read_pt) {
+            par_end = true;
+        }
+
+        // Find end of word.  A word ends before white space or an open
+        // parenthesis, and after any other punctuation.
+        const char *word = read_pt;
+        bool sentence_end = false;
+
+        // Find end of number
+        if (isdigit(*read_pt)) {
+            while (*read_pt) {
+                while (*read_pt
+                       && !isspace(*read_pt)
+                       && (isdigit(*read_pt) || !ispunct(*read_pt)))
+                    read_pt++;
+                if (*read_pt != ',' && *read_pt != '.')
+                    break;
+                if (!isdigit(*(read_pt + 1))) {
+                    break;
+                }
+                read_pt++;
+            }
+        } else {
+            // Find end of text word
+            if (*read_pt == '(')
+                read_pt++;
+            while (*read_pt
+                   && !isspace(*read_pt)
+                   && (*read_pt == '\'' || !ispunct(*read_pt))) {
+                read_pt++;
+            }
+        }
+
+        // Find end of punctuation
+        while (*read_pt && ispunct(*read_pt) && *read_pt != '(') {
+            if (*read_pt == '.') {
+                // Check for common abbreviations
+                for (int i = 0;abbreviations[i];i++) {
+                    if (strncasecmp(word, abbreviations[i], read_pt - word))
+                        sentence_end = true;
+                }
+            } else if (*read_pt == '?' || *read_pt == '!') {
+                sentence_end = true;
+            }
+            read_pt++;
+        }
+
+        // Check for fit in current line
+        line_width += read_pt - word + padding;
+
+        // Render the line breaks, padding, and word
+        if (par_end || line_width > width) {
+            output_size += 2;
+            if (write_pt != buf_end)
+                *write_pt++ = '\r';
+            if (write_pt != buf_end)
+                *write_pt++ = '\n';
+            padding = (par_end) ? par_indent:rest_indent;
+            line_width = read_pt - word + padding;
+        }
+
+        if (word != read_pt) {
+            output_size += padding;
+
+            if (buf) {
+                while (padding--) {
+                    if (write_pt != buf_end)
+                        *write_pt++ = ' ';
+                }
+            }
+        }
+
+        while (word != read_pt) {
+            output_size += read_pt - word;
+            if (write_pt != buf_end)
+                *write_pt++ = *word;
+            word++;
+        }
+
+        // Prepare for next word
+        padding = (sentence_end) ? 2:1;
+        par_end = false;
+    }
+
+    *write_pt = '\0';
+
+    return output_size;
+}
+
+// returns a formatted string word-wrapped to the given width, the
+// first line indented by first_indent, lines preceded by a line break
+// are indented by par_indent, and the rest of the lines indented by
+// rest_indent.  Attempts to correct spacing between punctuation and
+// words.
+char *
+tmp_format(const char *str, int width, int first_indent, int par_indent, int rest_indent)
+{
+    struct tmp_str_pool *cur_buf;
+    size_t wanted;
+    char *result;
+
+    cur_buf = tmp_list_tail;
+
+    result = &cur_buf->data[cur_buf->used];
+    wanted = format_buffer(result, cur_buf->space - cur_buf->used, str, width, first_indent, par_indent, rest_indent) + 1;
+
+    // If there was enough space, our work is done here.  If there wasn't enough
+    // space, we allocate another pool, and write into that.  The newer
+    // pool is, of course, always big enough.
+
+    if (cur_buf->space - cur_buf->used < wanted) {
+        cur_buf = tmp_alloc_pool(wanted);
+        result = &cur_buf->data[0];
+        wanted = format_buffer(result, cur_buf->space - cur_buf->used, str, width, first_indent, par_indent, rest_indent) + 1;
+    }
+
+    cur_buf->used += wanted;
+
+    return result;
+}
+
+// Word-wraps a string, given a buffer.  Returns the end size of the
+// result.  If buffer is NULL, performs no writing.
+static size_t
+wrap_buffer(char *buf, size_t buf_size, const char *str, int width, int first_indent, int par_indent, int rest_indent)
+{
+    const char *read_pt = str;
+    size_t output_size = 0;
+    int line_width = 0;
+    char *write_pt = buf;
+    char *buf_end = buf + buf_size;
+    int padding = first_indent;
+    bool par_end = false;
+
+    // Skip initial spaces in input
+    while (*read_pt && isspace(*read_pt))
+        read_pt++;
+
+    // Outer loop here loops once per word
+    while (*read_pt) {
+        // Skip spaces to beginning of word
+        while (*read_pt && isspace(*read_pt)) {
+            if (*read_pt == '\n')
+                par_end = true;
+            padding++;
+            read_pt++;
+        }
+        if (!*read_pt) {
+            par_end = true;
+        }
+
+        // Find end of word.  A word ends before white space
+        const char *word = read_pt;
+        int nonprinting = 0;
+
+        while (*read_pt && !isspace(*read_pt)) {
+            read_pt++;
+            if (*read_pt == '\e') {
+                nonprinting++;
+                while (*read_pt < '@' || *read_pt > '~') {
+                    nonprinting++;
+                    read_pt++;
+                }
+            }
+        }
+
+        // Check for fit in current line
+        line_width += read_pt - word - nonprinting + padding;
+
+        // Render the line breaks, padding, and word
+        if (par_end || line_width > width) {
+            output_size += 2;
+            if (write_pt != buf_end)
+                *write_pt++ = '\r';
+            if (write_pt != buf_end)
+                *write_pt++ = '\n';
+            padding = (par_end) ? par_indent:rest_indent;
+            line_width = read_pt - word + padding;
+        }
+
+        if (word != read_pt) {
+            output_size += padding;
+
+            if (buf) {
+                while (padding--) {
+                    if (write_pt != buf_end)
+                        *write_pt++ = ' ';
+                }
+            }
+        }
+
+        while (word != read_pt) {
+            output_size += read_pt - word;
+            if (write_pt != buf_end)
+                *write_pt++ = *word;
+            word++;
+        }
+
+        // Prepare for next word
+        padding = 0;
+        par_end = false;
+    }
+
+    *write_pt = '\0';
+
+    return output_size;
+}
+
+// returns a string word-wrapped to the given width, the first line
+// indented by first_indent, lines preceded by a line break are
+// indented by par_indent, and the rest of the lines indented
+// by rest_indent.
+char *
+tmp_wrap(const char *str, int width, int first_indent, int par_indent, int rest_indent)
+{
+    struct tmp_str_pool *cur_buf;
+    size_t wanted;
+    char *result;
+
+    cur_buf = tmp_list_tail;
+
+    result = &cur_buf->data[cur_buf->used];
+    wanted = wrap_buffer(result, cur_buf->space - cur_buf->used, str, width, first_indent, par_indent, rest_indent) + 1;
+
+    // If there was enough space, our work is done here.  If there wasn't enough
+    // space, we allocate another pool, and write into that.  The newer
+    // pool is, of course, always big enough.
+
+    if (cur_buf->space - cur_buf->used < wanted) {
+        cur_buf = tmp_alloc_pool(wanted);
+        result = &cur_buf->data[0];
+        wanted = wrap_buffer(result, cur_buf->space - cur_buf->used, str, width, first_indent, par_indent, rest_indent) + 1;
+    }
+
+    cur_buf->used += wanted;
 
     return result;
 }

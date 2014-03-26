@@ -635,7 +635,7 @@ struct char_player_data {
 	char *title;				/* PC / NPC's title                     */
 	int16_t char_class;			/* PC / NPC's char_class               */
 	int16_t remort_char_class;	/* PC / NPC REMORT CLASS (-1 for none) */
-	int16_t weight;				/* PC / NPC's weight                    */
+	float weight;				/* PC / NPC's weight                    */
 	int16_t height;				/* PC / NPC's height                    */
 	int16_t hometown;			/* PC s Hometown (zone)                 */
 	int8_t sex;					/* PC / NPC's sex                       */
@@ -797,6 +797,7 @@ struct player_special_data {
 	int rent_per_day;
 	enum cxn_state desc_mode;
 	int rent_currency;
+    GHashTable *tags;           /* unordered set of strings mapped to 0x1 */
 };
 
 struct mob_shared_data {
@@ -899,8 +900,8 @@ struct aff_stash {
 extern GList *creatures;
 extern GHashTable *creature_map;
 
-struct creature *make_creature(bool pc);
-void free_creature(struct creature *ch);
+/*@only@*/ struct creature *make_creature(bool pc);
+void free_creature(/*@only@*/ struct creature *ch);
 
 int level_bonus(struct creature *ch, bool primary);
 int skill_bonus(struct creature *ch, int skillnum);
@@ -913,6 +914,7 @@ struct room_data *player_loadroom(struct creature *ch);
 bool load_player_objects(struct creature *ch);
 bool save_player_objects(struct creature *ch);
 bool display_unrentables(struct creature *ch);
+money_t adjusted_price(struct creature *buyer, struct creature *seller, money_t base_price);
 int cost_modifier(struct creature *ch, struct creature *seller);
 
 bool creature_trusts_idnum(struct creature *ch, long idnum);
@@ -976,7 +978,7 @@ void remove_combat(struct creature *ch, struct creature *target);
 #define ILLEGAL_IMPLANTPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
       pos == WEAR_WIELD || pos == WEAR_BELT || pos == WEAR_WIELD_2 || \
-	  pos == WEAR_RANDOM)
+	  pos == WEAR_RANDOM || pos == WEAR_HOLD)
 
 #define ILLEGAL_TATTOOPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
@@ -1060,15 +1062,15 @@ is_dead(struct creature *ch)
     return (ch->char_specials.position == POS_DEAD);
 }
 
-inline static GList *
+inline static /*@dependent@*/ /*@null@*/  GList *
 first_living(GList *node)
 {
-    while (node && is_dead((struct creature *)node->data))
+    while (node != NULL && is_dead((struct creature *)node->data))
         node = node->next;
     return node;
 }
 
-inline static GList *
+inline static /*@dependent@*/ /*@null@*/ GList *
 next_living(GList *node)
 {
     if (!node)
@@ -1246,7 +1248,7 @@ const char *CURRENCY(struct creature * ch);
                          ((GET_LEVEL(ch) >= LVL_GOD) ? 100000 : 0) + \
 						 ((GET_LEVEL(ch) >= LVL_IMMORT) ? 1000 : 0) + \
                          (AFF2_FLAGGED(ch, AFF2_TELEKINESIS) ? \
-                          (GET_LEVEL(ch) >> 2) : 0))
+                          (GET_LEVEL(ch) / 4) : 0))
 
 #define AWAKE(ch) (GET_POSITION(ch) > POS_SLEEPING && !AFF2_FLAGGED(ch, AFF2_MEDITATE))
 
@@ -1294,7 +1296,7 @@ static inline bool
 PRF_FLAGGED( struct creature *ch, enum prf_flag flag)
 {
     if( IS_NPC(ch) ) {
-        if(ch->desc && ch->desc->original) {
+        if(ch->desc != NULL && ch->desc->original != NULL) {
             return IS_SET(PRF_FLAGS(ch->desc->original), flag);
         } else {
             return false;
@@ -1307,7 +1309,7 @@ static inline bool
 PRF2_FLAGGED( struct creature *ch, enum prf2_flag flag )
 {
     if( IS_NPC(ch) ) {
-        if(ch->desc && ch->desc->original) {
+        if(ch->desc != NULL && ch->desc->original != NULL) {
             return IS_SET(PRF2_FLAGS(ch->desc->original), flag);
         } else {
             return false;
@@ -1336,39 +1338,57 @@ GET_REPUTATION_RANK(struct creature *ch)
 	return (reputation_of(ch) / 100) + 1;
 }
 
-static inline bool IS_REMORT( const struct creature *ch )
+static inline bool
+IS_REMORT( const struct creature *ch )
 {
 	if( ch == NULL )
 		return false;
 	if( GET_REMORT_CLASS(ch) == CLASS_UNDEFINED )
 		return false;
-	if( IS_PC(ch) && GET_REMORT_GEN(ch) <= 0 )
+	if( IS_PC(ch) && GET_REMORT_GEN(ch) == 0 )
 		return false;
 	return true;
 }
 
-static inline struct room_direction_data* EXIT( struct creature *ch, int dir ) {
+static inline /*@dependent@*/ /*@null@*/ struct room_direction_data*
+EXIT(struct creature *ch, int dir) {
 	return ch->in_room->dir_option[dir];
 }
-static inline struct room_direction_data* _2ND_EXIT( struct creature *ch, int dir ) {
-	return EXIT(ch,dir)->to_room->dir_option[dir];
+static inline /*@dependent@*/ /*@null@*/ struct room_direction_data*
+_2ND_EXIT(struct creature *ch, int dir) {
+    struct room_direction_data *exit = EXIT(ch, dir);
+    if (exit != NULL) {
+        return exit->to_room->dir_option[dir];
+    }
+    return NULL;
 }
-static inline struct room_direction_data* _3RD_EXIT( struct creature *ch, int dir ) {
-	return _2ND_EXIT(ch,dir)->to_room->dir_option[dir];
+static inline /*@dependent@*/ /*@null@*/ struct room_direction_data*
+_3RD_EXIT(struct creature *ch, int dir) {
+    struct room_direction_data *exit = _2ND_EXIT(ch, dir);
+    if (exit != NULL) {
+        return exit->to_room->dir_option[dir];
+    }
+    return NULL;
 }
 
 static inline bool
 NPC_CAN_GO(struct creature * ch, int door)
 {
-	if (EXIT(ch, door) &&
-		EXIT(ch, door)->to_room &&
-		(!IS_SET(EXIT(ch, door)->exit_info,
-				EX_CLOSED | EX_NOPASS | EX_HIDDEN) ||
-			GET_LEVEL(ch) >= LVL_IMMORT || NON_CORPOREAL_MOB(ch))) {
+    struct room_direction_data *exit = EXIT(ch, door);
+
+	if (exit != NULL
+        && exit->to_room != NULL
+        && (!IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS | EX_HIDDEN)
+            || GET_LEVEL(ch) >= LVL_IMMORT
+            || NON_CORPOREAL_MOB(ch))) {
 		return true;
 	}
 	return false;
 }
+
+void add_player_tag(struct creature *ch, const char *tag);
+void remove_player_tag(struct creature *ch, const char *tag);
+bool player_has_tag(struct creature *ch, const char *tag);
 
 bool is_fighting(struct creature *ch)
     __attribute__ ((nonnull));
@@ -1378,6 +1398,9 @@ bool is_newbie(struct creature *ch)
 void start_hunting(struct creature *ch, struct creature *vict)
     __attribute__ ((nonnull));
 void stop_hunting(struct creature *ch)
+    __attribute__ ((nonnull));
+
+bool adjust_creature_money(struct creature *ch, money_t amount)
     __attribute__ ((nonnull));
 
 void restore_creature(struct creature *ch)

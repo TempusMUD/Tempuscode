@@ -43,7 +43,7 @@ SPECIAL(hell_ressurector)
                 NULL, TO_ROOM);
             extract_obj(corpse);
             GET_MANA(ch) =
-                MIN(GET_MAX_MANA(ch), GET_MANA(ch) + (GET_LEVEL(vict) << 1));
+                MIN(GET_MAX_MANA(ch), GET_MANA(ch) + (GET_LEVEL(vict) * 2));
             return 1;
         }
         //

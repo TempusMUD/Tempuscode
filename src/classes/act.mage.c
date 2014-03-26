@@ -33,6 +33,7 @@
 #include "fight.h"
 #include "language.h"
 #include "mobact.h"
+#include "strutil.h"
 
 #define MSHIELD_USAGE "usage: mshield <low|percent> <value>\r\n"
 ACMD(do_mshield)
@@ -102,27 +103,27 @@ ACMD(do_empower)
         return;
     }
     old_mana = GET_MANA(ch);
-    val1 = MIN(GET_LEVEL(ch), (GET_HIT(ch) >> 2));
-    val2 = MIN(GET_LEVEL(ch), (GET_MOVE(ch) >> 2));
+    val1 = MIN(GET_LEVEL(ch), (GET_HIT(ch) / 4));
+    val2 = MIN(GET_LEVEL(ch), (GET_MOVE(ch) / 4));
 
     af.level = af2.level = af3.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
     af.bitvector = af2.bitvector = af3.bitvector = 0;
     af.is_instant = af2.is_instant = af3.is_instant = false;
 
     af.type = SKILL_EMPOWER;
-    af.duration = (GET_INT(ch) >> 1);
+    af.duration = (GET_INT(ch) / 2);
     af.location = APPLY_MANA;
     af.modifier = (val1 + val2 - 5);
     af.owner = GET_IDNUM(ch);
 
     af2.type = SKILL_EMPOWER;
-    af2.duration = (GET_INT(ch) >> 1);
+    af2.duration = (GET_INT(ch) / 2);
     af2.location = APPLY_HIT;
     af2.modifier = -(val1);
     af2.owner = GET_IDNUM(ch);
 
     af3.type = SKILL_EMPOWER;
-    af3.duration = (GET_INT(ch) >> 1);
+    af3.duration = (GET_INT(ch) / 2);
     af3.location = APPLY_MOVE;
     af3.modifier = -(val2);
     af3.owner = GET_IDNUM(ch);
@@ -146,11 +147,11 @@ ACMD(do_empower)
     affect_join(ch, &af2, 0, 0, 1, 0);
     affect_join(ch, &af3, 0, 0, 1, 0);
 
-    if ((GET_MAX_HIT(ch) >> 1) < GET_WIMP_LEV(ch)) {
+    if ((GET_MAX_HIT(ch) / 2) < GET_WIMP_LEV(ch)) {
         send_to_char(ch,
             "Your wimpy level has been changed from %d to %d ... wimp!\r\n",
-            GET_WIMP_LEV(ch), GET_MAX_HIT(ch) >> 1);
-        GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) >> 1;
+            GET_WIMP_LEV(ch), GET_MAX_HIT(ch) / 2);
+        GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) / 2;
     }
     act("$n concentrates deeply.", true, ch, NULL, NULL, TO_ROOM);
     if (GET_LEVEL(ch) < LVL_GRGOD)
@@ -292,7 +293,7 @@ area_attack_advisable(struct creature *ch)
         struct creature *tch = it->data;
 
         if (can_see_creature(ch, tch)
-            && !(IS_NPC(tch) && tch->fighting))
+            && !(IS_NPC(tch) && is_fighting(tch)))
             pc_count++;
     }
 

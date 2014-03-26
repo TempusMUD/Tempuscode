@@ -1,12 +1,12 @@
 TESTS = check_tempus
 check_PROGRAMS = check_tempus
-INCLUDES = -I@top_srcdir@/src/include @POSTGRESQL_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @CHECK_CFLAGS@
-AM_CFLAGS = -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG}
+AM_CFLAGS =-I@top_srcdir@/src/include @POSTGRESQL_CFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @CHECK_CFLAGS@  -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG} -g -O0
 check_tempus_SOURCES = \
 			@top_srcdir@/tests/check_tempus.c \
 			@top_srcdir@/tests/testing.c \
 	        @top_srcdir@/tests/movement_tests.c \
 	        @top_srcdir@/tests/object_tests.c \
+			@top_srcdir@/tests/editor_tests.c \
 			@top_srcdir@/tests/tmpstr_tests.c \
 	        @top_srcdir@/tests/strutil_tests.c \
 	        @top_srcdir@/tests/player_io_tests.c \
@@ -35,6 +35,7 @@ check_tempus_LDADD = \
 			$(top_builddir)/src/pvp.o \
 			$(top_builddir)/src/account.o \
 			$(top_builddir)/src/obj_matcher.o \
+			$(top_builddir)/src/mob_matcher.o \
 			$(top_builddir)/src/analysis.o \
 			$(top_builddir)/src/constants.o \
 			$(top_builddir)/src/db.o \

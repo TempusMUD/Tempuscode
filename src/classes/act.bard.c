@@ -284,7 +284,7 @@ ASPELL(song_instant_audience)
         add_follower(member, ch);
 
         af.type = SPELL_CHARM;
-        af.duration = 5 + (skill_bonus(ch, SONG_INSTANT_AUDIENCE) >> 2);
+        af.duration = 5 + (skill_bonus(ch, SONG_INSTANT_AUDIENCE) / 4);
 
         if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(0, 120))
             af.duration = (int)(af.duration * 1.5);
@@ -461,7 +461,7 @@ ASPELL(song_lament_of_longing)
         return;
     }
 
-    GET_OBJ_TIMER(rift1) = (1 + skill_bonus(ch, SONG_LAMENT_OF_LONGING)) >> 5;
+    GET_OBJ_TIMER(rift1) = (1 + skill_bonus(ch, SONG_LAMENT_OF_LONGING)) / 32;
     GET_OBJ_TIMER(rift2) = GET_OBJ_TIMER(rift1);
 
     rift1->line_desc =

@@ -64,21 +64,21 @@ make_creature(bool pc)
 void
 reset_creature(struct creature *ch)
 {
+    void free_alias(struct alias_data *a);
+
     struct creature *tmp_mob;
     struct alias_data *a;
     bool is_pc;
-
-    void free_alias(struct alias_data *a);
 
     //
     // first make sure the char is no longer in the world
     //
     if (ch->in_room != NULL
         || ch->carrying != NULL
-        || ch->fighting || ch->followers != NULL || ch->master != NULL) {
+        || is_fighting(ch) || ch->followers != NULL || ch->master != NULL) {
         errlog("attempted clear of creature: %p %p %p %p %p",
             ch->in_room,
-            ch->carrying, ch->fighting, ch->followers, ch->master);
+               ch->carrying, ch->fighting, ch->followers, ch->master);
         raise(SIGSEGV);
     }
     //
@@ -250,6 +250,38 @@ account_id(struct creature *ch)
     return ch->account->id;
 }
 
+void
+add_player_tag(struct creature *ch, const char *tag)
+{
+    if (!IS_PC(ch)) {
+        return;
+    }
+    if (ch->player_specials->tags == NULL) {
+        ch->player_specials->tags = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+    }
+    g_hash_table_add(ch->player_specials->tags, g_strdup(tag));
+}
+
+void
+remove_player_tag(struct creature *ch, const char *tag)
+{
+    if (!IS_PC(ch) || ch->player_specials->tags == NULL) {
+        return;
+    }
+    
+    g_hash_table_remove(ch->player_specials->tags, tag);
+}
+
+bool
+player_has_tag(struct creature *ch, const char *tag)
+{
+    if (!IS_PC(ch) || ch->player_specials->tags == NULL) {
+        return false;
+    }
+    
+    return g_hash_table_contains(ch->player_specials->tags, tag);
+}
+
 /**
  * Modifies the given experience to be appropriate for ch character's
  *  level/gen and class.
@@ -306,12 +338,44 @@ calc_penalized_exp(struct creature *ch, int experience,
     return experience;
 }
 
-//Positive or negative percent modifier based on buyer vs seller charisma.
-int
-cost_modifier(struct creature *ch, struct creature *seller)
+/**
+ * adjust_creature_money:
+ * @ch: The creature whose money is adjusted
+ * @amount: The amount of money to adjust by
+ *
+ * Adjusts the amount of money the creature is holding.  @amount may
+ * be negative or positive.  @ch must be in the world.  The currency
+ * to use is determined by the time frame of @ch's current location.
+ * If the adjustment would result in a negative amount, the adjustment
+ * does not take place.
+ *
+ * Returns: %true if the creature had enough money, %false if the
+ * adjustment would result in a negative amount
+ **/
+bool
+adjust_creature_money(struct creature *ch, money_t amount)
 {
-    int cost_modifier = (GET_CHA(seller) - GET_CHA(ch)) * 2;
-    return cost_modifier;
+    if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
+        if (GET_CASH(ch) + amount < 0) {
+            return false;
+        }
+        GET_CASH(ch) += amount;
+    } else {
+        if (GET_GOLD(ch) + amount < 0) {
+            return false;
+        }
+        GET_GOLD(ch) += amount;
+    }
+    return true;
+}
+
+money_t
+adjusted_price(struct creature *buyer, struct creature *seller, money_t base_price)
+{
+    int cost_modifier = (GET_CHA(seller) - GET_CHA(buyer)) * 2;
+    money_t price = base_price + (base_price * cost_modifier) / 100;
+
+    return MAX(1, price);
 }
 
 int
@@ -645,7 +709,7 @@ creature_setPosition(struct creature * ch, int new_pos)
             return false;
         }
     }
-    if (new_pos == POS_STANDING && ch->fighting) {
+    if (new_pos == POS_STANDING && is_fighting(ch)) {
         GET_POSITION(ch) = POS_FIGHTING;
     } else {
         GET_POSITION(ch) = new_pos;
@@ -778,7 +842,7 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
         if (ch->desc->snoop_by) {
             for (GList * it = ch->desc->snoop_by; it; it = it->next) {
                 struct descriptor_data *d = it->data;
-                send_to_desc(d, "Your victim is no longer among us.\r\n");
+                d_printf(d, "Your victim is no longer among us.\r\n");
                 d->snooping = NULL;
             }
             g_list_free(ch->desc->snoop_by);

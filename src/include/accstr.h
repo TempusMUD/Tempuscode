@@ -26,7 +26,7 @@ void acc_strcat(const char *str, ...)
 size_t acc_get_length(void);
 
 // Grab the string after we've gotten everything out of it
-char *acc_get_string(void);
+/*@shared@*/ char *acc_get_string(void);
 
 extern size_t acc_str_space;
 

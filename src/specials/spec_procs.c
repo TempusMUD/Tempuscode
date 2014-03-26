@@ -93,6 +93,7 @@
 #include "editor.h"
 #include "boards.h"
 #include "smokes.h"
+#include "mail.h"
 
 /*   external vars  */
 extern struct descriptor_data *descriptor_list;
@@ -393,13 +394,12 @@ SPECIAL(guild)
         return 1;
     }
 
-    cost = GET_SKILL_COST(ch, skill_num);
-    cost += (cost * cost_modifier(ch, master)) / 100;
+    cost = adjusted_price(ch, master, GET_SKILL_COST(ch, skill_num));
 
     if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
         if (CMD_IS("offer")) {
             perform_tell(master, ch,
-                tmp_sprintf("It will cost you %ld creds to train %s.", cost,
+                tmp_sprintf("It will cost you %'ld creds to train %s.", cost,
                     spell_to_str(skill_num)));
             return 1;
         }
@@ -407,19 +407,19 @@ SPECIAL(guild)
         if (GET_CASH(ch) < cost) {
             perform_tell(master, ch,
                 tmp_sprintf
-                ("You haven't got the %ld creds I require to train %s.", cost,
+                ("You haven't got the %'ld creds I require to train %s.", cost,
                     spell_to_str(skill_num)));
             return 1;
         }
 
         send_to_char(ch,
-            "You buy training for %ld creds and practice for a while...\r\n",
+            "You buy training for %'ld creds and practice for a while...\r\n",
             cost);
         GET_CASH(ch) -= cost;
     } else {
         if (CMD_IS("offer")) {
             perform_tell(master, ch,
-                tmp_sprintf("It will cost you %ld gold to train %s.", cost,
+                tmp_sprintf("It will cost you %'ld gold to train %s.", cost,
                     spell_to_str(skill_num)));
             return 1;
         }
@@ -427,13 +427,13 @@ SPECIAL(guild)
         if (GET_GOLD(ch) < cost) {
             perform_tell(master, ch,
                 tmp_sprintf
-                ("You haven't got the %ld gold I require to train %s.", cost,
+                ("You haven't got the %'ld gold I require to train %s.", cost,
                     spell_to_str(skill_num)));
             return 1;
         }
 
         send_to_char(ch,
-            "You buy training for %ld gold and practice for a while...\r\n",
+            "You buy training for %'ld gold and practice for a while...\r\n",
             cost);
         GET_GOLD(ch) -= cost;
     }
@@ -444,7 +444,7 @@ SPECIAL(guild)
     percent = GET_SKILL(ch, skill_num);
     percent += skill_gain(ch, true);
     if (percent > LEARNED(ch))
-        percent -= (percent - LEARNED(ch)) >> 1;
+        percent -= (percent - LEARNED(ch)) / 2;
 
     SET_SKILL(ch, skill_num, percent);
 
@@ -599,9 +599,16 @@ SPECIAL(thief)
 
     for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if ((GET_LEVEL(tch) < LVL_AMBASSADOR) && !number(0, 3) &&
-            (GET_LEVEL(ch) + 10 + AWAKE(tch) ? 0 : 20 - GET_LEVEL(ch)) >
-            number(0, 40)) {
+        if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
+            continue;
+        if (!random_fractional_4())
+            continue;
+
+        int target_roll = GET_LEVEL(ch) + 10;
+        if (!AWAKE(tch))
+            target_roll += 20;
+
+        if (target_roll > number(0, 40)) {
             npc_steal(ch, tch);
             return true;
         }
@@ -730,7 +737,7 @@ SPECIAL(battle_cleric)
         !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
 
-    } else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) >> 1)) {
+    } else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) / 2)) {
         if ((GET_LEVEL(ch) < 12) && (number(0, 4) == 0))
             cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
 
@@ -909,7 +916,7 @@ SPECIAL(fido)
 
     if (spec_mode != SPECIAL_TICK)
         return 0;
-    if (cmd || !AWAKE(ch) || ch->fighting)
+    if (cmd || !AWAKE(ch) || is_fighting(ch))
         return (false);
 
     vict = get_char_random_vis(ch, ch->in_room);
@@ -979,7 +986,7 @@ SPECIAL(buzzard)
                 if (IS_IMPLANT(temp)) {
                     SET_BIT(GET_OBJ_WEAR(temp), ITEM_WEAR_TAKE);
                     if (GET_OBJ_DAM(temp) > 0)
-                        GET_OBJ_DAM(temp) >>= 1;
+                        GET_OBJ_DAM(temp) /= 2;
                 }
                 obj_from_obj(temp);
                 obj_to_room(temp, ch->in_room);
@@ -1048,7 +1055,7 @@ SPECIAL(garbage_pile)
                 if (IS_IMPLANT(temp)) {
                     SET_BIT(GET_OBJ_WEAR(temp), ITEM_WEAR_TAKE);
                     if (GET_OBJ_DAM(temp) > 0)
-                        GET_OBJ_DAM(temp) >>= 1;
+                        GET_OBJ_DAM(temp) /= 2;
                 }
                 obj_from_obj(temp);
                 obj_to_room(temp, ch->in_room);
@@ -1204,7 +1211,7 @@ SPECIAL(pet_shops)
         send_to_char(ch, "Available pets are:\r\n");
         for (GList * cit = pet_room->people; cit; cit = cit->next) {
             struct creature *tch = cit->data;
-            cost = (IS_NPC(tch) ? GET_EXP(tch) * 3 : (GET_EXP(ch) >> 2));
+            cost = (IS_NPC(tch) ? GET_EXP(tch) * 3 : (GET_EXP(ch) / 4));
             send_to_char(ch, "%8d - %s\r\n", cost, GET_NAME(tch));
         }
         return 1;
@@ -1227,10 +1234,10 @@ SPECIAL(pet_shops)
         if (IS_NPC(ch))
             cost = GET_EXP(pet) * 3;
         else
-            cost = GET_EXP(pet) >> 4;
+            cost = GET_EXP(pet) / 16;
 
         //we have no shop keeper so compare charisma with the pet
-        cost += (cost * cost_modifier(ch, pet)) / 100;
+        cost = adjusted_price(ch, pet, cost);
 
         if (GET_GOLD(ch) < cost) {
             send_to_char(ch, "You don't have enough gold!\r\n");
@@ -1379,7 +1386,7 @@ SPECIAL(bank)
             GET_GOLD(ch) -= amount;
         if (clan) {
             clan->bank_account += amount;
-            send_to_char(ch, "You deposit %d %s%s in the clan account.\r\n",
+            send_to_char(ch, "You deposit %'d %s%s in the clan account.\r\n",
                 amount, CURRENCY(ch), PLURAL(amount));
             sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
                 clan->bank_account, clan->number);
@@ -1390,7 +1397,7 @@ SPECIAL(bank)
                 deposit_future_bank(ch->account, amount);
             else
                 deposit_past_bank(ch->account, amount);
-            send_to_char(ch, "You deposit %d %s%s.\r\n", amount, CURRENCY(ch),
+            send_to_char(ch, "You deposit %'d %s%s.\r\n", amount, CURRENCY(ch),
                 PLURAL(amount));
             if (amount > 50000000) {
                 mudlog(LVL_IMMORT, NRM, true,
@@ -1443,7 +1450,7 @@ SPECIAL(bank)
             GET_CASH(ch) += amount;
         else
             GET_GOLD(ch) += amount;
-        send_to_char(ch, "You withdraw %d %s%s.\r\n", amount, CURRENCY(ch),
+        send_to_char(ch, "You withdraw %'d %s%s.\r\n", amount, CURRENCY(ch),
             PLURAL(amount));
         act("$n makes a bank transaction.", true, ch, NULL, NULL, TO_ROOM);
 
@@ -1519,7 +1526,7 @@ SPECIAL(bank)
         else
             deposit_past_bank(acct, amount);
 
-        send_to_char(ch, "You transfer %d %s%s to %s's account.\r\n",
+        send_to_char(ch, "You transfer %'d %s%s to %s's account.\r\n",
             amount, CURRENCY(ch), PLURAL(amount), vict_name);
         act("$n makes a bank transaction.", true, ch, NULL, NULL, TO_ROOM);
 
@@ -1632,6 +1639,7 @@ SPECIAL(cave_bear)
 #include "Specs/utility_specs/communicator.c"
 #include "Specs/utility_specs/shade_zone.c"
 #include "Specs/utility_specs/bounty_clerk.c"
+#include "Specs/utility_specs/engraver.c"
 
 /* SPECS BY SARFLIN */
 #include "Specs/sarflin_specs/maze_cleaner.c"
@@ -1749,7 +1757,6 @@ SPECIAL(cave_bear)
 #include "Specs/mobile_specs/mage_teleporter.c"
 #include "Specs/mobile_specs/languagemaster.c"
 #include "Specs/mobile_specs/auctioneer.c"
-#include "Specs/mobile_specs/courier_imp.c"
 
 /* RADFORD's SPECS */
 #include "Specs/rad_specs/labyrinth.c"
@@ -1771,7 +1778,6 @@ SPECIAL(cave_bear)
 #include "Specs/skullport_specs/fountain_youth.c"
 
 /* out specs */
-#include "Specs/out_specs/spirit_priestess.c"
 #include "Specs/out_specs/taunting_frenchman.c"
 
 /* altas specs */

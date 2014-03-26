@@ -285,7 +285,7 @@ show_trails_to_char(struct creature *ch, char *str)
                     prob -= 40;
             }
             if (IS_TABAXI(ch))
-                prob += GET_LEVEL(ch) >> 1;
+                prob += GET_LEVEL(ch) / 2;
             if (number(0, 101) < MIN(100, prob))
                 continue;
         }
@@ -465,7 +465,7 @@ ACMD(do_psilocate)
         true, ch, NULL, NULL, TO_ROOM);
 
     if ((AFF3_FLAGGED(vict, AFF3_SHROUD_OBSCUREMENT) &&
-            ((GET_LEVEL(vict) * 3) >> 2 > number(10, CHECK_SKILL(ch,
+            ((GET_LEVEL(vict) * 3) / 4 > number(10, CHECK_SKILL(ch,
                         SKILL_PSILOCATE))))
         || AFF3_FLAGGED(vict, AFF3_PSISHIELD)) {
         act("You cannot sense $S psi.", false, ch, NULL, vict, TO_CHAR);
@@ -473,8 +473,8 @@ ACMD(do_psilocate)
     }
 
     if ((dist = find_distance(ch->in_room, vict->in_room)) +
-        (AFF3_FLAGGED(vict, AFF3_PSISHIELD) ? (GET_LEVEL(vict) >> 1) : 0) >
-        GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 4) + GET_INT(ch)) {
+        (AFF3_FLAGGED(vict, AFF3_PSISHIELD) ? (GET_LEVEL(vict) / 2) : 0) >
+        GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 16) + GET_INT(ch)) {
         act("$N is out of your psychic range.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
@@ -558,11 +558,11 @@ smart_mobile_move(struct creature *ch, int dir)
                     CHECK_SKILL(ch, SKILL_PICK_LOCK) > 30)
                     do_gen_door(ch, doorbuf, 0, SCMD_PICK);
                 else if (IS_MAGE(ch) && CHECK_SKILL(ch, SPELL_KNOCK) &&
-                    GET_MANA(ch) > (GET_MAX_MANA(ch) >> 1)) {
+                    GET_MANA(ch) > (GET_MAX_MANA(ch) / 2)) {
                     sprintf(doorbuf, "'knock' %s", doorbuf);
                     do_cast(ch, doorbuf, 0, 0);
                 } else if (CHECK_SKILL(ch, SKILL_BREAK_DOOR) > 30 &&
-                    GET_HIT(ch) > (GET_MAX_HIT(ch) >> 1))
+                    GET_HIT(ch) > (GET_MAX_HIT(ch) / 2))
                     do_bash(ch, doorbuf, 0, 0);
             } else
                 do_gen_door(ch, doorbuf, 0, SCMD_OPEN);

@@ -12,7 +12,7 @@ SPECIAL(corpse_griller)
     struct creature *griller = (struct creature *)me;
     char arg[MAX_INPUT_LENGTH];
     int cost = GRILL_COST;
-    cost += (cost * cost_modifier(ch, griller)) / 100;
+    cost = adjusted_price(ch, griller, cost);
 
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
@@ -50,12 +50,12 @@ SPECIAL(corpse_griller)
         return 1;
     }
     if (IS_MAT(corpse, MAT_MEAT_COOKED)) {
-        send_to_char(ch, "That's already cooked, phreak.\r\n");
+        send_to_char(ch, "That's already cooked, freak.\r\n");
         return 1;
     }
 
     if (GET_GOLD(ch) < cost) {
-        send_to_char(ch, "It costs %d gold coins to grill, buddy.\r\n", cost);
+        send_to_char(ch, "It costs %'d gold coins to grill, buddy.\r\n", cost);
         return 1;
     }
 

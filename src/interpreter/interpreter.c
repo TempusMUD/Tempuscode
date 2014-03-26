@@ -48,6 +48,7 @@
 #include "actions.h"
 #include "search.h"
 #include "prog.h"
+#include "strutil.h"
 
 extern int log_cmds;
 struct sort_struct *cmd_sort_info = NULL;
@@ -64,13 +65,8 @@ cmdlog(char *str)
 {
     static FILE *commandLog = NULL;
     static char *log = NULL;
-    time_t ct;
-    char *tmstr;
 
-    ct = time(NULL);
-    tmstr = asctime(localtime(&ct));
-    tmstr[strlen(tmstr) - 1] = '\0';
-    log = tmp_sprintf("%-19.19s :: %s", tmstr, str);
+    log = tmp_sprintf("%-19.19s :: %s\n", tmp_ctime(time(NULL)), str);
     if (!commandLog)
         commandLog = fopen("log/command.log", "a");
     fputs(log, commandLog);
@@ -81,14 +77,11 @@ newbielog(struct creature *ch, const char *cmd, const char *args)
 {
     static FILE *newbieLog = NULL;
     static char *log;
-    time_t ct;
-    char *tmstr;
 
-    ct = time(NULL);
-    tmstr = asctime(localtime(&ct));
-    tmstr[strlen(tmstr) - 1] = '\0';
-    log = tmp_sprintf("%-19.19s _ [%05d] %s :: %s %s",
-        tmstr, ch->in_room->number, GET_NAME(ch), cmd, args);
+    log = tmp_sprintf("%-19.19s _ [%05d] %s :: %s %s\n",
+                      tmp_ctime(time(NULL)),
+                      (ch->in_room) ? ch->in_room->number:-1,
+                      GET_NAME(ch), cmd, args);
     if (!newbieLog)
         newbieLog = fopen("log/newbie.log", "a");
     fputs(log, newbieLog);
@@ -109,6 +102,7 @@ ACMD(do_alias);
 ACMD(do_alter);
 ACMD(do_ambush);
 ACMD(do_analyze);
+ACMD(do_appoint);
 ACMD(do_approve);
 ACMD(do_appraise);
 ACMD(do_arm);
@@ -353,6 +347,7 @@ ACMD(do_shutdown);
 ACMD(do_sit);
 ACMD(do_skillset);
 ACMD(do_skills);
+ACMD(do_slam);
 ACMD(do_sleep);
 ACMD(do_sleeper);
 ACMD(do_smoke);
@@ -482,6 +477,7 @@ struct command_info cmd_info[] = {
     {"annoy", POS_RESTING, do_action, 0, 0, 0, 0},
     {"anticipate", POS_RESTING, do_action, 0, 0, 0, 0},
     {"apologize", POS_RESTING, do_say, 0, 0, 0, 0},
+    {"appoint", POS_RESTING, do_appoint, 0, 0, 0, 0},
     {"applaud", POS_RESTING, do_action, 0, 0, 0, 0},
     {"approve", POS_DEAD, do_approve, LVL_IMMORT, 0, 0, 0},
     {"appraise", POS_RESTING, do_appraise, 0, 0, 0, 0},
@@ -636,6 +632,7 @@ struct command_info cmd_info[] = {
     {"conspire", POS_RESTING, do_action, 0, 0, 0, 0},
     {"contemplate", POS_RESTING, do_action, 0, 0, 0, 0},
     {"convert", POS_RESTING, do_convert, 0, 0, 0, 0},
+    {"consign", POS_RESTING, do_not_here, 0, 0, 0, 0},
     {"coo", POS_RESTING, do_say, 0, 0, 0, 0},
     {"corner", POS_FIGHTING, do_corner, 0, 0, 0, 0},
     {"cough", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -791,7 +788,7 @@ struct command_info cmd_info[] = {
     {"gagmiss", POS_SLEEPING, do_gen_tog, 0, SCMD_GAGMISS, 0, 0},
     {"gack", POS_RESTING, do_action, 0, 0, 0, 0},
     {"gain", POS_STANDING, do_not_here, 0, 0, 0, 0},
-    {"garotte", POS_STANDING, do_offensive_skill, 0, SKILL_GAROTTE, 0, 0},
+    {"garrote", POS_STANDING, do_offensive_skill, 0, SKILL_GARROTE, 0, 0},
     {"gasp", POS_RESTING, do_action, 0, 0, 0, 0},
     {"gasify", POS_RESTING, do_gasify, 50, 0, 0, 0},
     {"gecho", POS_DEAD, do_gecho, LVL_IMMORT, 0, 0, 0},
@@ -821,7 +818,7 @@ struct command_info cmd_info[] = {
     {"groinkick", POS_FIGHTING, do_offensive_skill, 0, SKILL_GROINKICK, 0, 0},
     {"grope", POS_RESTING, do_action, 0, 0, 0, 0},
     {"grovel", POS_RESTING, do_action, 0, 0, 0, 0},
-    {"growl", POS_RESTING, do_say, 0, 0, 0, 0},
+    {"growl", POS_RESTING, do_action, 0, 0, 0, 0},
     {"grunt", POS_RESTING, do_say, 0, 0, 0, 0},
     {"grumble", POS_RESTING, do_say, 0, 0, 0, 0},
     {"gsay", POS_SLEEPING, do_gsay, 0, 0, 0, 0},
@@ -1270,6 +1267,7 @@ struct command_info cmd_info[] = {
     {"skillset", POS_SLEEPING, do_skillset, LVL_IMMORT, 0, 0, 0},
     {"sleep", POS_SLEEPING, do_sleep, 0, 0, 0, 0},
     {"sleeper", POS_FIGHTING, do_sleeper, 0, 0, 0, 0},
+    {"slam", POS_FIGHTING, do_slam, 1, 0, 0, 0},
     {"slap", POS_RESTING, do_action, 0, 0, 0, 0},
     {"slick", POS_RESTING, do_action, 0, 0, 0, 0},
     {"slist", POS_SLEEPING, do_hcollect_help, 0, SCMD_SKILLS, 0, 0},
@@ -1280,7 +1278,7 @@ struct command_info cmd_info[] = {
     {"smack", POS_SLEEPING, do_action, 0, 0, 0, 0},
     {"smell", POS_RESTING, do_action, 0, 0, 0, 0},
     {"smile", POS_RESTING, do_action, 0, 0, 0, 0},
-    {"smirk", POS_RESTING, do_say, 0, 0, 0, 0},
+    {"smirk", POS_RESTING, do_action, 0, 0, 0, 0},
     {"smooch", POS_RESTING, do_action, 0, 0, 0, 0},
     {"smoke", POS_RESTING, do_smoke, 0, 0, 0, 0},
     {"smush", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -1418,6 +1416,7 @@ struct command_info cmd_info[] = {
     {"turn", POS_FIGHTING, do_turn, 0, 0, 0, 0},
     {"tune", POS_RESTING, do_tune, 0, 0, 0, 0},
 
+    {"unconsign", POS_RESTING, do_not_here, 0, 0, 0, 0},
     {"unlock", POS_SITTING, do_gen_door, 0, SCMD_UNLOCK, 0, 0},
     {"unload", POS_RESTING, do_load, 0, SCMD_UNLOAD, 0, 0},
     {"ungroup", POS_DEAD, do_ungroup, 0, 0, 0, 0},

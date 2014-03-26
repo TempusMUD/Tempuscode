@@ -247,7 +247,7 @@ flow_one_creature(struct creature *ch, struct room_data *rnum, int dir)
 }
 
 gboolean
-update_room_affects(gpointer ignore)
+update_room_affects(__attribute__ ((unused)) gpointer ignore)
 {
     register struct zone_data *zone = NULL;
     register struct room_data *rnum = NULL;
@@ -276,7 +276,7 @@ update_room_affects(gpointer ignore)
 }
 
 gboolean
-update_alignment_ambience(gpointer ignore)
+update_alignment_ambience(__attribute__ ((unused)) gpointer ignore)
 {
     register struct zone_data *zone = NULL;
     register struct room_data *rnum = NULL;

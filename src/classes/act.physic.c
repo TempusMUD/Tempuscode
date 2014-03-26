@@ -264,7 +264,7 @@ ACMD(do_lecture)
         return;
     }
 
-    if (vict->fighting) {
+    if (is_fighting(vict)) {
         act("$E is busy fighting right now!", false, ch, NULL, vict, TO_CHAR);
         return;
     }
@@ -280,7 +280,7 @@ ACMD(do_lecture)
     appear(ch, vict);
     check_attack(ch, vict);
 
-    prob = skill_bonus(ch, SKILL_LECTURE) + (GET_INT(ch) << 1);
+    prob = skill_bonus(ch, SKILL_LECTURE) + (GET_INT(ch) * 2);
     if (AFF_FLAGGED(ch, AFF_CONFUSION))
         prob -= 60;
 
@@ -293,7 +293,7 @@ ACMD(do_lecture)
     act(tmp_sprintf("$n begins lecturing you %s", lecture_topics[index]),
         false, ch, NULL, vict, TO_VICT);
 
-    percent = (GET_LEVEL(vict) >> 1) + GET_REMORT_GEN(vict) + GET_INT(vict);
+    percent = (GET_LEVEL(vict) / 2) + GET_REMORT_GEN(vict) + GET_INT(vict);
     percent += number(0, 60);
 
     if (affected_by_spell(vict, SPELL_ENDURANCE))
@@ -318,7 +318,7 @@ ACMD(do_lecture)
         act("$n immediately dozes off to sleep.", true, vict, NULL, NULL, TO_ROOM);
         send_to_char(vict, "You start to feel very sleepy...\r\n");
         GET_POSITION(vict) = POS_SLEEPING;
-        wait = 2 RL_SEC + ((prob - percent) >> 1);
+        wait = 2 RL_SEC + ((prob - percent) / 2);
         WAIT_STATE(vict, wait);
         gain_skill_prof(ch, SKILL_LECTURE);
     }
@@ -353,7 +353,7 @@ ACMD(do_evaluate)
     if (!(vict = check_char_room_vis(ch, argument)))
         return;
 
-    cost = (GET_LEVEL(vict) >> 2) + GET_REMORT_GEN(vict);
+    cost = (GET_LEVEL(vict) / 4) + GET_REMORT_GEN(vict);
 
     if (GET_MOVE(ch) < cost) {
         send_to_char(ch, "You don't have the %d move points needed.\r\n",
@@ -390,7 +390,7 @@ add_rad_sickness(struct creature *ch, int level)
     newaff.type = TYPE_RAD_SICKNESS;
     newaff.is_instant = 0;
     newaff.duration = MIN(level, 100);
-    newaff.modifier = -(level >> 4);
+    newaff.modifier = -(level / 16);
     newaff.location = APPLY_CON;
     newaff.level = level;
     newaff.bitvector = 0;
@@ -818,7 +818,7 @@ recurs_econvert_points(struct obj_data *obj, bool top)
     switch (GET_OBJ_TYPE(obj)) {
         // double points for money
     case ITEM_MONEY:
-        num_points <<= 1;
+        num_points *= 2;
         break;
         // batteries and devices get stored energy tacked on
     case ITEM_DEVICE:
@@ -829,7 +829,7 @@ recurs_econvert_points(struct obj_data *obj, bool top)
         break;
         // bombs add 8x bomb power
     case ITEM_BOMB:
-        num_points += BOMB_POWER(obj) << 3;
+        num_points += BOMB_POWER(obj) * 8;
         break;
     }
 
@@ -904,13 +904,13 @@ ACMD(do_econvert)
     // adjust it for skill level (  x ( skill lev / 100 ) )
     num_points = (num_points * CHECK_SKILL(ch, SKILL_ENERGY_CONVERSION)) / 100;
     // adjust it for exceptional intelligence ( int x 2 )
-    num_points += (GET_INT(ch) - 18) << 1;
+    num_points += (GET_INT(ch) - 18) * 2;
     // adjust it for secondary phys
     if (GET_CLASS(ch) != CLASS_PHYSIC)
         num_points /= 2;
 
     // adjust it for remort gen ( gen x 2 )
-    // num_points += GET_REMORT_GEN( ch ) << 1;
+    // num_points += GET_REMORT_GEN( ch ) * 2;
 
     act("E=mc^2.... Voila!  You convert $p into raw energy.", false, ch, obj,
         NULL, TO_CHAR);

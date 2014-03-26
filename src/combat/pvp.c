@@ -312,7 +312,8 @@ perform_pardon(struct creature *ch, struct creature *pardoned)
     }
 
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
-        (GCompareFunc) matches_grievance, GINT_TO_POINTER(GET_IDNUM(pardoned)));
+                                          (GCompareFunc) matches_grievance,
+                                          GINT_TO_POINTER(GET_IDNUM(pardoned)));
 }
 
 gint
@@ -329,7 +330,8 @@ expire_old_grievances(struct creature *ch)
 {
     time_t min_time = time(NULL) - 86400;
     GET_GRIEVANCES(ch) = g_list_remove_if(GET_GRIEVANCES(ch),
-                                          (GCompareFunc) grievance_expired, GINT_TO_POINTER(min_time));
+                                          (GCompareFunc) grievance_expired,
+                                          GINT_TO_POINTER(min_time));
 }
 
 ACMD(do_pardon)
@@ -357,44 +359,38 @@ ACMD(do_pardon)
         return;
     }
 
+    expire_old_grievances(ch);
+
     struct creature *pardoned = get_char_in_world_by_idnum(pardoned_idnum);
     bool loaded_pardoned = false;
     if (!pardoned) {
         loaded_pardoned = true;
-        CREATE(pardoned, struct creature, 1);
         pardoned = load_player_from_xml(pardoned_idnum);
     }
-    // Do the imm pardon
     if (IS_IMMORT(ch) && is_authorized(ch, PARDON, pardoned)) {
+        // Do the imm pardon
         perform_pardon(ch, pardoned);
         send_to_char(ch, "Pardoned.\r\n");
         send_to_char(pardoned, "You have been pardoned by the Gods!\r\n");
         mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true,
             "(GC) %s pardoned by %s", GET_NAME(pardoned), GET_NAME(ch));
+    } else if (g_list_find_custom(GET_GRIEVANCES(ch),
+                                  GINT_TO_POINTER(GET_IDNUM(pardoned)),
+                                  (GCompareFunc) matches_grievance) == NULL) {
+        send_to_char(ch, "%s has done nothing for you to pardon.\r\n",
+                     GET_NAME(pardoned));
     } else {
-
-        // Find out if the player has a valid grievance against the pardoned
-        expire_old_grievances(ch);
-        if (!g_list_find_custom(GET_GRIEVANCES(ch),
-                GINT_TO_POINTER(GET_IDNUM(pardoned)),
-                (GCompareFunc) matches_grievance)) {
-            send_to_char(ch, "%s has done nothing for you to pardon.\r\n",
-                GET_NAME(pardoned));
-            return;
-        }
         send_to_char(ch, "You pardon %s of %s crimes against you.\r\n",
-            GET_NAME(pardoned), HSHR(pardoned));
+                     GET_NAME(pardoned), HSHR(pardoned));
         send_to_char(pardoned, "%s pardons your crimes against %s.\r\n",
-            GET_NAME(ch), HMHR(ch));
+                     GET_NAME(ch), HMHR(ch));
         perform_pardon(ch, pardoned);
+        crashsave(ch);
+        save_player_to_xml(pardoned);
     }
 
-    crashsave(ch);
     if (loaded_pardoned) {
-        save_player_to_xml(pardoned);
         free_creature(pardoned);
-    } else {
-        crashsave(pardoned);
     }
 }
 

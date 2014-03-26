@@ -114,7 +114,7 @@ raw_kill(struct creature *ch, struct creature *killer, int attacktype)
 
     assert(ch != NULL);
 
-    if (attacktype != SKILL_GAROTTE)
+    if (attacktype != SKILL_GARROTE)
         death_cry(ch);
 
     trigger_prog_dying(ch, killer);
@@ -374,7 +374,8 @@ perform_gain_kill_exp(struct creature *ch, struct creature *victim,
     if (IS_PC(ch) && IS_NPC(victim)) {
         struct kill_record *kill = tally_kill_record(ch, victim);
 
-        exp += calc_explore_bonus(kill, exp);
+        explore_bonus = calc_explore_bonus(kill, exp);
+        exp += explore_bonus;
     }
 
     if (IS_NPC(victim) && !IS_NPC(ch)
@@ -635,6 +636,8 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
         || (IS_OBJ_TYPE(obj, ITEM_SCRIPT))
         || obj->in_room == zone_table->world)
         return NULL;
+
+    eq_dam /= 4;                // blatant manual adjustment to equipment damage
 
     /** damage has destroyed object */
     if ((GET_OBJ_DAM(obj) - eq_dam) < (GET_OBJ_MAX_DAM(obj) / 32)) {
@@ -1239,9 +1242,10 @@ damage(struct creature *ch, struct creature *victim,
         if (impl && impl_dam)
             damage_eq(ch, impl, impl_dam, attacktype);
 
-        if (weap && (attacktype != SKILL_PROJ_WEAPONS) &&
-            attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
-            attacktype != SKILL_ENERGY_WEAPONS)
+        if (weap
+            && !(attacktype == SKILL_PROJ_WEAPONS
+                 || attacktype == SKILL_ENERGY_WEAPONS
+                 || (attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP)))
             damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
         return false;
     }
@@ -1512,8 +1516,8 @@ damage(struct creature *ch, struct creature *victim,
         else
             dam -= (int)((dam * GET_ALIGNMENT(ch)) / 10000);
     }
-    //******************* Reduction based on the attacker ********************/
-    //************ Knights, Clerics, and Monks out of alignment **************/
+    /******************* Reduction based on the attacker ********************/
+    /************ Knights, Clerics, and Monks out of alignment **************/
     if (ch) {
         if (IS_NEUTRAL(ch)) {
             if (IS_KNIGHT(ch) || IS_CLERIC(ch))
@@ -1630,6 +1634,7 @@ damage(struct creature *ch, struct creature *victim,
     case SPELL_ICY_BLAST:
     case SPELL_FROST_BREATH:
     case TYPE_FREEZING:
+    case SPELL_HELL_FROST:
         if (CHAR_WITHSTANDS_COLD(victim))
             dam /= 2;
         break;
@@ -1850,7 +1855,7 @@ damage(struct creature *ch, struct creature *victim,
 
         // some "non-weapon" attacks involve a weapon, e.g. backstab
         if (weap)
-            damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
+            damage_eq(ch, weap, 0, attacktype);
 
         if (obj)
             damage_eq(ch, obj, eq_dam, attacktype);
@@ -1904,10 +1909,11 @@ damage(struct creature *ch, struct creature *victim,
         if (impl && impl_dam)
             damage_eq(ch, impl, impl_dam, attacktype);
 
-        if (weap && (attacktype != SKILL_PROJ_WEAPONS) &&
-            attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP &&
-            attacktype != SKILL_ENERGY_WEAPONS)
-            damage_eq(ch, weap, MAX(weap_dam, dam / 64), attacktype);
+        if (weap
+            && !(attacktype == SKILL_PROJ_WEAPONS
+                 || attacktype == SKILL_ENERGY_WEAPONS
+                 || (attacktype >= TYPE_EGUN_LASER && attacktype <= TYPE_EGUN_TOP)))
+            damage_eq(ch, weap, 0, attacktype);
 
         //
         // aliens spray blood all over the room
@@ -2153,7 +2159,7 @@ damage(struct creature *ch, struct creature *victim,
                             add_combat(victim, ch, false);
                         }
                     } else {
-                        if (!victim->fighting &&
+                        if (!is_fighting(victim) &&
                             ch->in_room == victim->in_room) {
                             add_combat(victim, ch, false);
                         }

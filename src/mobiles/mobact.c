@@ -218,9 +218,9 @@ burn_update_creature(struct creature *ch)
                     || SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER
                     || SECT_TYPE(ch->in_room) == SECT_PITCH_PIT
                     || SECT_TYPE(ch->in_room) == SECT_PITCH_SUB) {
-                    dam >>= 1;
+                    dam /= 2;
                     if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL))
-                        dam <<= 2;
+                        dam *= 4;
 
                     act("$n makes an enormous splash!", true, ch, NULL, NULL,
                         TO_ROOM);
@@ -276,23 +276,23 @@ burn_update_creature(struct creature *ch)
     if (AFF3_FLAGGED(ch, AFF3_MANA_TAP))
         GET_MANA(ch) =
             MIN(GET_MAX_MANA(ch),
-            GET_MANA(ch) + 1 + random_number_zero_low(GET_WIS(ch) >> 2));
+            GET_MANA(ch) + 1 + random_number_zero_low(GET_WIS(ch) / 4));
 
     // mana leak
     if (AFF3_FLAGGED(ch, AFF3_MANA_LEAK))
         GET_MANA(ch) = MAX(0, GET_MANA(ch) -
-            (1 + random_number_zero_low(GET_WIS(ch) >> 2)));
+            (1 + random_number_zero_low(GET_WIS(ch) / 4)));
 
     // energy tap
     if (AFF3_FLAGGED(ch, AFF3_ENERGY_TAP))
         GET_MOVE(ch) =
             MIN(GET_MAX_MOVE(ch),
-            GET_MOVE(ch) + 1 + random_number_zero_low(GET_CON(ch) >> 2));
+            GET_MOVE(ch) + 1 + random_number_zero_low(GET_CON(ch) / 4));
 
     // energy leak
     if (AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK))
         GET_MOVE(ch) = MAX(0, GET_MOVE(ch) -
-            (1 + random_number_zero_low(GET_CON(ch) >> 2)));
+            (1 + random_number_zero_low(GET_CON(ch) / 4)));
 
     // nanite reconstruction
     if (affected_by_spell(ch, SKILL_NANITE_RECONSTRUCTION)) {
@@ -452,11 +452,11 @@ burn_update_creature(struct creature *ch)
         if (!damager)
             damager = ch;
         GET_MANA(ch) = MAX(0, GET_MANA(ch) -
-            (13 - random_number_zero_low(GET_WIS(ch) >> 2)));
+            (13 - random_number_zero_low(GET_WIS(ch) / 4)));
         GET_MOVE(ch) = MAX(0, GET_MOVE(ch) -
-            (13 - random_number_zero_low(GET_STR(ch) >> 2)));
+            (13 - random_number_zero_low(GET_STR(ch) / 4)));
         if (damage(damager, ch, NULL,
-                (13 - random_number_zero_low(GET_CON(ch) >> 2)),
+                (13 - random_number_zero_low(GET_CON(ch) / 4)),
                 SPELL_ENTROPY_FIELD, -1))
             return;
 
@@ -476,27 +476,33 @@ burn_update_creature(struct creature *ch)
     if ((af = affected_by_spell(ch, SPELL_MOTOR_SPASM))
         && !NPC_FLAGGED(ch, NPC_NOBASH) && GET_POSITION(ch) < POS_FLYING
         && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-        if ((random_number_zero_low(3 + (af->level >> 2)) + 3) >
-            GET_DEX(ch) && (obj = ch->carrying)) {
-            while (obj) {
-                if (can_see_object(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP))
+        damager = get_char_in_world_by_idnum(af->owner);
+        if (!damager)
+            damager = ch;
+        obj = NULL;
+        if ((random_number_zero_low(3 + (af->level / 4)) + 3) > GET_DEX(ch)
+            && ch->carrying
+            && !is_arena_combat(damager, ch)) {
+            for (struct obj_data *o = ch->carrying;o;o = o->next_content) {
+                if (can_see_object(ch, o) && !IS_OBJ_STAT(o, ITEM_NODROP)) {
+                    obj = o;
                     break;
-                obj = obj->next_content;
+                }
             }
             if (obj) {
-                send_to_char(ch,
-                    "Your muscles are seized in an uncontrollable spasm!\r\n");
-                act("$n begins spasming uncontrollably.", true, ch, NULL, NULL,
-                    TO_ROOM);
+                send_to_char(ch, "Your muscles are seized in an uncontrollable "
+                             "spasm!\r\n");
+                act("$n begins convulsing uncontrollably.", true,
+                    ch, NULL, NULL, TO_ROOM);
                 do_drop(ch, fname(obj->aliases), 0, SCMD_DROP);
             }
         }
-        if (!obj && random_number_zero_low(12 + (af->level >> 2)) > GET_DEX(ch)
+        if (!obj && random_number_zero_low(12 + (af->level / 4)) > GET_DEX(ch)
             && GET_POSITION(ch) > POS_SITTING) {
             send_to_char(ch,
                 "Your muscles are seized in an uncontrollable spasm!\r\n"
                 "You fall to the ground in agony!\r\n");
-            act("$n begins spasming uncontrollably and falls to the ground.",
+            act("$n begins convulsing uncontrollably and falls to the ground.",
                 true, ch, NULL, NULL, TO_ROOM);
             GET_POSITION(ch) = POS_RESTING;
         }
@@ -523,9 +529,9 @@ burn_update_creature(struct creature *ch)
     if ((af = affected_by_spell(ch, SONG_LICHS_LYRICS))
         && !random_fractional_10()) {
         int dam = 0;
-        if ((GET_CON(ch) >> 1) + 85 > random_number_zero_low(100)
+        if ((GET_CON(ch) / 2) + 85 > random_number_zero_low(100)
             || AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
-            dam = (af->level >> 3) + dice(2, 5);
+            dam = (af->level / 8) + dice(2, 5);
             send_to_char(ch, "You feel your life force being drawn away!\r\n");
             act("$n begins to pale as $s life force fades.", false, ch, NULL, NULL,
                 TO_ROOM);
@@ -563,7 +569,7 @@ burn_update_creature(struct creature *ch)
         }
         damager = get_char_in_world_by_idnum(af->owner);
         if (damager && damager->in_room == ch->in_room) {
-            GET_HIT(damager) += (dam >> 2);
+            GET_HIT(damager) += (dam / 4);
             GET_HIT(damager) = MIN(GET_HIT(damager), GET_MAX_HIT(damager));
             act("You absorb some of $n's life force!", false, ch, NULL, damager,
                 TO_VICT);
@@ -749,7 +755,7 @@ burn_update_creature(struct creature *ch)
         if (NPC_FLAGGED(ch, NPC_WIMPY)) {
             if ((GET_HIT(ch) < MIN(500, GET_MAX_HIT(ch)) * 0.80)
                 || (100 - ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch))) >
-                GET_MORALE(ch) + number(-5, 10 + (GET_INT(ch) >> 2))) {
+                GET_MORALE(ch) + number(-5, 10 + (GET_INT(ch) / 4))) {
                 if (ch->in_room == ch->char_specials.hunting->in_room)
                     do_flee(ch, tmp_strdup(""), 0, 0);
             }
@@ -1000,7 +1006,7 @@ helper_assist(struct creature *ch, struct creature *vict,
     }
 
     if (GET_RACE(ch) == GET_RACE(fvict))
-        prob += 10 + (GET_LEVEL(ch) >> 1);
+        prob += 10 + (GET_LEVEL(ch) / 2);
     else if (GET_RACE(ch) != GET_RACE(vict))
         prob -= 10;
     else if (IS_DEVIL(ch) || IS_KNIGHT(ch) || IS_WARRIOR(ch) || IS_RANGER(ch))
@@ -1034,11 +1040,15 @@ helper_assist(struct creature *ch, struct creature *vict,
         }
     }
 
-    act("$n jumps to the aid of $N!", true, ch, NULL, fvict, TO_NOTVICT);
-    act("$n jumps to your aid!", true, ch, NULL, fvict, TO_VICT);
 
-    if (prob > random_percentage())
+    if (prob > random_percentage()) {
+        act("$n comes to the rescue of $N!", true, ch, NULL, fvict, TO_NOTVICT);
+        act("$n comes to your rescue!", true, ch, NULL, fvict, TO_VICT);
         remove_combat(vict, fvict);
+    } else {
+        act("$n jumps to the aid of $N!", true, ch, NULL, fvict, TO_NOTVICT);
+        act("$n jumps to your aid!", true, ch, NULL, fvict, TO_VICT);
+    }
 
     return hit(ch, vict, TYPE_UNDEFINED);
 }
@@ -1568,15 +1578,15 @@ single_mobile_activity(struct creature *ch)
     // bleed
     if (GET_HIT(ch) &&
         CHAR_HAS_BLOOD(ch) &&
-        GET_HIT(ch) < ((GET_MAX_HIT(ch) >> 3) +
-            random_number_zero_low(MAX(1, GET_MAX_HIT(ch) >> 4))))
+        GET_HIT(ch) < ((GET_MAX_HIT(ch) / 8) +
+            random_number_zero_low(MAX(1, GET_MAX_HIT(ch) / 16))))
         add_blood_to_room(ch->in_room, 1);
 
     // Zen of Motion effect
     if (IS_NEUTRAL(ch) && affected_by_spell(ch, ZEN_MOTION))
         GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch),
             GET_MOVE(ch) +
-            random_number_zero_low(MAX(1, CHECK_SKILL(ch, ZEN_MOTION) >> 3)));
+            random_number_zero_low(MAX(1, CHECK_SKILL(ch, ZEN_MOTION) / 8)));
 
     // Deplete scuba tanks
     if ((obj = ch->equipment[WEAR_FACE]) &&
@@ -1855,7 +1865,7 @@ single_mobile_activity(struct creature *ch)
                             if (IS_IMPLANT(i)) {
                                 SET_BIT(GET_OBJ_WEAR(i), ITEM_WEAR_TAKE);
                                 if (GET_OBJ_DAM(i) > 0)
-                                    GET_OBJ_DAM(i) >>= 1;
+                                    GET_OBJ_DAM(i) /= 2;
                             }
                             obj_from_obj(i);
                             obj_to_room(i, stuff_rm);
@@ -2073,7 +2083,7 @@ single_mobile_activity(struct creature *ch)
                 continue;
 
             if (GET_MORALE(ch) + GET_LEVEL(ch) <
-                number(GET_LEVEL(vict), (GET_LEVEL(vict) << 2) +
+                number(GET_LEVEL(vict), (GET_LEVEL(vict) * 4) +
                     (MAX(1, (GET_HIT(vict)) * GET_LEVEL(vict))
                         / MAX(1, GET_MAX_HIT(vict)))) && AWAKE(vict))
                 continue;
@@ -2108,8 +2118,8 @@ single_mobile_activity(struct creature *ch)
             }
             if (AWAKE(vict) &&
                 GET_MORALE(ch) <
-                (random_number_zero_low(GET_LEVEL(vict) << 1) + 35 +
-                    (GET_LEVEL(vict) >> 1)))
+                (random_number_zero_low(GET_LEVEL(vict) * 2) + 35 +
+                    (GET_LEVEL(vict) / 2)))
                 continue;
 
             if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master
@@ -2224,7 +2234,7 @@ single_mobile_activity(struct creature *ch)
                            && ((GET_LEVEL(vict)
                                 + ((50 * GET_HIT(vict))
                                    / MAX(1, GET_MAX_HIT(vict)))) >
-                               GET_LEVEL(ch) + (GET_MORALE(ch) >> 1)
+                               GET_LEVEL(ch) + (GET_MORALE(ch) / 2)
                                + random_percentage())) {
                     emit_voice(ch, vict, VOICE_PANICKING);
                     do_flee(ch, tmp_strdup(""), 0, 0);
@@ -2303,26 +2313,34 @@ single_mobile_activity(struct creature *ch)
 
     else if (cur_class == CLASS_CLERIC && random_binary()) {
         if (GET_HIT(ch) < GET_MAX_HIT(ch) * 0.80) {
-            if (GET_LEVEL(ch) > 23)
+            if (can_cast_spell(ch, SPELL_HEAL))
                 cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
-            else if (GET_LEVEL(ch) > 11)
+            else if (can_cast_spell(ch, SPELL_CURE_CRITIC))
                 cast_spell(ch, ch, NULL, NULL, SPELL_CURE_CRITIC);
-            else
+            else if (can_cast_spell(ch, SPELL_CURE_LIGHT))
                 cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
         } else if (room_is_dark(ch->in_room) &&
-            !has_dark_sight(ch) && GET_LEVEL(ch) > 8) {
+                   !has_dark_sight(ch) && can_cast_spell(ch, SPELL_DIVINE_ILLUMINATION)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_DIVINE_ILLUMINATION);
         } else if ((affected_by_spell(ch, SPELL_BLINDNESS) ||
-                affected_by_spell(ch, SKILL_GOUGE)) && GET_LEVEL(ch) > 6) {
+                    affected_by_spell(ch, SKILL_GOUGE))
+                   && can_cast_spell(ch, SPELL_CURE_BLIND)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_CURE_BLIND);
-        } else if (AFF_FLAGGED(ch, AFF_POISON) && GET_LEVEL(ch) > 7) {
+        } else if (AFF_FLAGGED(ch, AFF_POISON) && can_cast_spell(ch, SPELL_REMOVE_POISON)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_REMOVE_POISON);
-        } else if (AFF_FLAGGED(ch, AFF_CURSE) && GET_LEVEL(ch) > 26) {
+        } else if (AFF_FLAGGED(ch, AFF_CURSE) && can_cast_spell(ch, SPELL_REMOVE_CURSE)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_REMOVE_CURSE);
-        } else if (GET_MANA(ch) > (GET_MAX_MANA(ch) * 0.75) &&
-            GET_LEVEL(ch) >= 28 &&
-            !AFF_FLAGGED(ch, AFF_SANCTUARY) && !AFF_FLAGGED(ch, AFF_NOPAIN))
+        } else if (GET_MANA(ch) > (GET_MAX_MANA(ch) * 0.75)
+                   && can_cast_spell(ch, SPELL_SANCTUARY)
+                   && !AFF_FLAGGED(ch, AFF_SANCTUARY)
+                   && !AFF_FLAGGED(ch, AFF_NOPAIN)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_SANCTUARY);
+        } else if (GET_EQ(ch, WEAR_WIELD)
+                   && IS_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD), ITEM_WEAPON)
+                   && IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_ABLAZE)
+                   && can_cast_spell(ch, SPELL_FLAME_OF_FAITH)) {
+            cast_spell(ch, NULL, GET_EQ(ch, WEAR_WIELD), NULL, SPELL_FLAME_OF_FAITH);
+        }
     }
     //
     // knights spell up
@@ -2699,11 +2717,11 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
     /** RACIAL ATTACKS FIRST **/
 
     // wemics 'leap' out of battle, only to return via the hunt for the kill
-    if (IS_RACE(ch, RACE_WEMIC) && GET_MOVE(ch) > (GET_MAX_MOVE(ch) >> 1)) {
+    if (IS_RACE(ch, RACE_WEMIC) && GET_MOVE(ch) > (GET_MAX_MOVE(ch) / 2)) {
 
         // leap
         if (random_fractional_3()) {
-            if (GET_HIT(ch) > (GET_MAX_HIT(ch) >> 1) &&
+            if (GET_HIT(ch) > (GET_MAX_HIT(ch) / 2) &&
                 !ROOM_FLAGGED(ch->in_room, ROOM_NOTRACK)) {
 
                 for (int dir = 0; dir < NUM_DIRS; ++dir) {
@@ -2962,7 +2980,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
         prob =
             GET_LEVEL(ch) - GET_LEVEL(vict) + GET_AC(vict) + GET_HITROLL(ch);
         if (prob > (random_percentage() - 50))
-            dam = random_number_zero_low(GET_LEVEL(ch)) + (GET_LEVEL(ch) >> 1);
+            dam = random_number_zero_low(GET_LEVEL(ch)) + (GET_LEVEL(ch) / 2);
         else
             dam = 0;
         switch (GET_CLASS(ch)) {
@@ -3049,12 +3067,13 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
             if (!(vict = choose_opponent(ch, precious_vict)))
                 return 0;
 
-            if ((GET_LEVEL(ch) > 2) && random_fractional_10() &&
-                !affected_by_spell(ch, SPELL_ARMOR)) {
+            if (random_fractional_10()
+                && can_cast_spell(ch, SPELL_ARMOR)
+                && !affected_by_spell(ch, SPELL_ARMOR)) {
                 cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
                 return 0;
             } else if ((GET_HIT(ch) / MAX(1,
-                        GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) >> 2)) {
+                        GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) / 4)) {
                 if (can_cast_spell(ch, SPELL_CURE_LIGHT)
                     && random_fractional_10()) {
                     cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
@@ -3229,7 +3248,7 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
 
     if (cur_class == CLASS_MONK) {
         if (GET_LEVEL(ch) >= 23 &&
-            GET_MOVE(ch) < (GET_MAX_MOVE(ch) >> 1) && GET_MANA(ch) > 100
+            GET_MOVE(ch) < (GET_MAX_MOVE(ch) / 2) && GET_MANA(ch) > 100
             && random_fractional_5()) {
             do_battlecry(ch, tmp_strdup(""), 1, SCMD_KIA);
             return 0;
@@ -3582,7 +3601,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
                 vict = it->data;
                 if (g_list_find(vict->fighting, ch) &&
                     GET_LEVEL(vict) < LVL_AMBASSADOR &&
-                    !mag_savingthrow(vict, GET_LEVEL(ch) << 2, SAVING_SPELL) &&
+                    !mag_savingthrow(vict, GET_LEVEL(ch) * 4, SAVING_SPELL) &&
                     !AFF_FLAGGED(vict, AFF_CONFIDENCE))
                     do_flee(vict, tmp_strdup(""), 0, 0);
             }
@@ -4226,7 +4245,7 @@ ACMD(do_breathe)
  * into many small functions as opposed to one large one.  Also allows for easeir
  * modifications to mob ai.
  *******************************************************************************/
-
+// cure disease, damn, divine intervention, endure cold, 
 void
 knight_activity(struct creature *ch)
 {
@@ -4260,15 +4279,27 @@ knight_activity(struct creature *ch)
     } else if (can_cast_spell(ch, SPELL_SANCTIFICATION)
         && !affected_by_spell(ch, SPELL_SANCTIFICATION)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_SANCTIFICATION);
+    } else if (can_cast_spell(ch, SPELL_SPHERE_OF_DESECRATION)
+        && !affected_by_spell(ch, SPELL_SPHERE_OF_DESECRATION)) {
+        cast_spell(ch, ch, NULL, NULL, SPELL_SPHERE_OF_DESECRATION);
     } else if (can_cast_spell(ch, SPELL_ARMOR)
         && !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
     } else if (can_cast_spell(ch, SPELL_BLESS)
         && !affected_by_spell(ch, SPELL_BLESS)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_BLESS);
+    } else if (can_cast_spell(ch, SPELL_PROT_FROM_EVIL)
+               && !affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
+        cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_EVIL);
+    } else if (can_cast_spell(ch, SPELL_PROT_FROM_GOOD)
+               && !affected_by_spell(ch, SPELL_PROT_FROM_GOOD)) {
+        cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_GOOD);
     } else if (can_cast_spell(ch, SPELL_PRAY)
         && !affected_by_spell(ch, SPELL_PRAY)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_PRAY);
+    } else if (can_cast_spell(ch, SPELL_MAGICAL_VESTMENT)
+        && !affected_by_spell(ch, SPELL_MAGICAL_VESTMENT)) {
+        cast_spell(ch, ch, NULL, NULL, SPELL_MAGICAL_VESTMENT);
     }
 }
 
@@ -4301,7 +4332,7 @@ knight_battle_activity(struct creature *ch, struct creature *precious_vict)
         cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
         return true;
     } else if ((GET_HIT(ch) / MAX(1,
-                GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) >> 2)) {
+                GET_MAX_HIT(ch))) < (GET_MAX_HIT(ch) / 4)) {
         if (can_cast_spell(ch, SPELL_CURE_LIGHT)
             && random_fractional_10()) {
             cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
@@ -4315,35 +4346,27 @@ knight_battle_activity(struct creature *ch, struct creature *precious_vict)
             cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
             return true;
         }
-    } else if (IS_GOOD(ch) && IS_EVIL(random_opponent(ch)) &&
-        random_fractional_3() &&
-        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-        !affected_by_spell(ch, SPELL_PROT_FROM_EVIL)) {
-        cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_EVIL);
-        return true;
-    } else if (IS_EVIL(ch) && IS_GOOD(random_opponent(ch)) &&
-        random_fractional_3() && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
-        && !affected_by_spell(ch, SPELL_PROT_FROM_GOOD)) {
-        cast_spell(ch, ch, NULL, NULL, SPELL_PROT_FROM_GOOD);
-        return true;
-    } else if ((GET_LEVEL(ch) > 21) && IS_UNDEAD(ch) &&
-        random_fractional_10() &&
-        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-        !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
+    } else if (random_fractional_10()
+               && can_cast_spell(ch, SPELL_INVIS_TO_UNDEAD)
+               && !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_INVIS_TO_UNDEAD);
         return true;
-    } else if ((GET_LEVEL(ch) > 15) && random_fractional_5()
-        && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+    } else if (random_fractional_5() && can_cast_spell(ch, SPELL_SPIRIT_HAMMER)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_SPIRIT_HAMMER);
         return true;
-    } else if ((GET_LEVEL(ch) > 35) && random_fractional_4()
-        && !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
+    } else if (random_fractional_4() && can_cast_spell(ch, SPELL_FLAME_STRIKE)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
         return true;
-    } else if (IS_EVIL(ch) && !IS_EVIL(vict) && GET_LEVEL(ch) > 9 &&
-        !ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC) &&
-        random_fractional_4() && !affected_by_spell(vict, SPELL_DAMN)) {
+    } else if (!IS_EVIL(vict)
+               && can_cast_spell(ch, SPELL_DAMN)
+               && !affected_by_spell(vict, SPELL_DAMN)
+               && random_fractional_4()) {
         cast_spell(ch, vict, NULL, NULL, SPELL_DAMN);
+    } else if (!IS_EVIL(vict)
+               && can_cast_spell(ch, SPELL_TAINT)
+               && !affected_by_spell(vict, SPELL_TAINT)
+               && random_fractional_4()) {
+        cast_spell(ch, vict, NULL, NULL, SPELL_TAINT);
     } else if ((GET_LEVEL(ch) >= 20) &&
         GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
         random_fractional_3()) {
@@ -4392,14 +4415,13 @@ ranger_activity(struct creature *ch)
             do_firstaid(ch, tmp_strdup("self"), 0, 0);
         else if (GET_LEVEL(ch) > 9)
             do_bandage(ch, tmp_strdup("self"), 0, 0);
-    } else if (AFF_FLAGGED(ch, AFF_POISON) && GET_LEVEL(ch) > 11) {
+    } else if (AFF_FLAGGED(ch, AFF_POISON) && can_cast_spell(ch, SPELL_REMOVE_POISON)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_REMOVE_POISON);
-    } else if (!affected_by_spell(ch, SPELL_STONESKIN) && GET_LEVEL(ch) > 19 &&
-        GET_REMORT_CLASS(ch) != CLASS_RANGER &&
-        GET_REMORT_CLASS(ch) != CLASS_UNDEFINED) {
+    } else if (!affected_by_spell(ch, SPELL_STONESKIN) && can_cast_spell(ch, SPELL_STONESKIN)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_STONESKIN);
-    } else if (!affected_by_spell(ch, SPELL_BARKSKIN) &&
-        !affected_by_spell(ch, SPELL_STONESKIN)) {
+    } else if (!affected_by_spell(ch, SPELL_BARKSKIN)
+               && !affected_by_spell(ch, SPELL_STONESKIN)
+               && can_cast_spell(ch, SPELL_BARKSKIN)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_BARKSKIN);
     }
 }
@@ -4422,21 +4444,13 @@ ranger_battle_activity(struct creature *ch, struct creature *precious_vict)
     if (!(vict = choose_opponent(ch, precious_vict)))
         return true;
 
-    if ((GET_LEVEL(ch) > 4) && random_fractional_5() &&
-        !affected_by_spell(ch, SPELL_BARKSKIN) &&
-        !affected_by_spell(ch, SPELL_STONESKIN)) {
+    if (random_fractional_5()
+        && !affected_by_spell(ch, SPELL_BARKSKIN)
+        && !affected_by_spell(ch, SPELL_STONESKIN)
+        && can_cast_spell(ch, SPELL_BARKSKIN)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_BARKSKIN);
-        WAIT_STATE(ch, PULSE_VIOLENCE);
-        return true;
-    } else if ((GET_LEVEL(ch) > 21) &&
-        random_fractional_5() &&
-        IS_UNDEAD(vict) &&
-        !is_fighting(ch) && !affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
-        cast_spell(ch, ch, NULL, NULL, SPELL_INVIS_TO_UNDEAD);
-        WAIT_STATE(ch, PULSE_VIOLENCE);
         return true;
     }
-
     if (GET_LEVEL(ch) >= 27 &&
         (GET_CLASS(vict) == CLASS_MAGIC_USER ||
             GET_CLASS(vict) == CLASS_CLERIC) && random_fractional_3()) {
@@ -4512,12 +4526,12 @@ barbarian_activity(struct creature *ch)
                 act("$n belches loudly and grins.", false, ch, NULL, NULL, TO_ROOM);
         }
     } else if (IS_BARB(ch) && GET_LEVEL(ch) >= 42 &&
-        GET_HIT(ch) < (GET_MAX_HIT(ch) >> 1) && GET_MANA(ch) > 30
+        GET_HIT(ch) < (GET_MAX_HIT(ch) / 2) && GET_MANA(ch) > 30
         && random_fractional_4()) {
         do_battlecry(ch, tmp_strdup(""), 0, SCMD_CRY_FROM_BEYOND);
         return;
     } else if (IS_BARB(ch) && GET_LEVEL(ch) >= 30 &&
-        GET_MOVE(ch) < (GET_MAX_MOVE(ch) >> 2) && GET_MANA(ch) > 30
+        GET_MOVE(ch) < (GET_MAX_MOVE(ch) / 4) && GET_MANA(ch) > 30
         && random_fractional_4()) {
         do_battlecry(ch, tmp_strdup(""), 0, SCMD_BATTLE_CRY);
         return;
@@ -4544,7 +4558,7 @@ barbarian_battle_activity(struct creature * ch,
         return true;
 
     if (IS_BARB(ch) && GET_LEVEL(ch) >= 42 &&
-        GET_HIT(ch) < (GET_MAX_HIT(ch) >> 1) && GET_MANA(ch) > 30
+        GET_HIT(ch) < (GET_MAX_HIT(ch) / 2) && GET_MANA(ch) > 30
         && random_fractional_4()) {
         do_battlecry(ch, tmp_strdup(""), 0, SCMD_CRY_FROM_BEYOND);
         return true;

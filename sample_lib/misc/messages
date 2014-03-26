@@ -416,11 +416,11 @@ $N collapses as the last of $S blood seeps out through $S burning stigmata.
 The last of your blood seeps painfully out of your burning stigmata, and you collapse to the ground, dead.
 $N collapses as the last of $S blood seeps out through $S burning stigmata.
 #
-stigmata miss victim - should never see.
-stigmata miss room - should never see.
-The bloody stigmata on $N's forehead oozes blood.
-The bloody stigmata on your forehead burns painfully.
-The bloody stigmata on $N's forehead oozes blood.
+The stigmata on your forehead oozes blood.
+The stigmata on $N's forehead oozes blood.
+The stigmata on $N's forehead oozes blood.
+The stigmata on your forehead burns painfully.
+The stigmata on $N's forehead oozes blood.
 #
 #
 #
@@ -1511,18 +1511,18 @@ $n's psiblast courses past your mind, just off its mark!
 *Pistolwhip
 M
  594
-$N's head explodes on impact with an expertly placed blow to their head.
+$N's head explodes on impact with an expertly placed blow to the head.
 $n reduces your brain to mush with an expertly placed blow to your head.
-Brains look neat!  $N falls dead from $n's whip to the head.
-You shoot yourself in the foot as $p slips from your fingers!
-What a fool!  You laugh at $n as $e shoots $mself in the foot.
-You laugh at $n as $e shoots $mself in the foot.
-Damn, that must've hurt.  Your expert whip to $N's head lands on target!
-You reel in pain as $n's whip to your head lands on target!
-$N's head slams back as $n whips $p into $S head.
-You shoot yourself in the foot as $p slips from your fingers!
-What a fool!  You laugh at $n as $e shoots $mself in the foot.
-You laugh at $n as $e shoots $mself in the foot.
+Brains look neat!  $N falls dead from $n's pistol-whip to the head.
+You nearly shoot yourself in the foot as $p slips from your fingers!
+What a fool!  You laugh at $n as $e nearly shoots $mself in the foot.
+You laugh at $n as $e nearly shoots $mself in the foot.
+Damn, that must've hurt.  Your expert pistol-whip to $N's head lands on target!
+You reel in pain as $n's pistol-whip to your head lands on target!
+$N's head slams back as $n pistol-whips $m with $p!
+You nearly shoot yourself in the foot as $p slips from your fingers!
+What a fool!  You laugh at $n as $e nearly shoots $mself in the foot.
+You laugh at $n as $e nearly shoots $mself in the foot.
 
 *Crossface
 M
@@ -1544,17 +1544,18 @@ The stock of $n's gun misses $N's head by a hair!
 M
  596
 $N falls into a lifeless heap as you hear a sickening crack.
-$n expertly places $s arms around your neck and....*CRACK*
+$n expertly places $s arms around your neck and... *CRACK*
 $N collapses as $n expertly snaps $S neck.
 You can't quite get your hands into the proper position to snap $N's neck.
 You easily shake off $n's attempt to snap your neck.
 $N slips out of $n's grip.
 $N screeches as you nearly break $S neck.
-$n wrenches your neck nearly severing your spinal cord!
+$n wrenches your neck, nearly severing your spinal cord!
 $N screeches in pain as $n wrenches $S neck.
 You can't even get your puny hands around $S neck!
 You easily shake off $n's attempt to snap your neck.
 $N just laughs as $n attempts to wrench $s infinitely large neck.
+
 *Turn
 M
  601
@@ -1661,6 +1662,24 @@ $N glares at you and says, 'If you start me up...'
 You howl with delight as you absorb $n's  energy!
 $N howls with delight as $E absorbs $n's energy!
 
+
+*Shieldslam
+M
+ 653
+$N's bones shatter as you slam your shield into $M.
+Your bones shatter as $n slams $s shield into you.
+$N's bones shatter as $n slams $s shield into $M.
+$N sidesteps your shield slam!
+You sidestep $n's shield slam!
+$N sidesteps $n's shield slam!
+Your shield slams into $N, sending $M to the ground!
+$n's shield slams into you, sending you to the ground!
+$n's shield slams into $N, sending $M to the ground!
+Shield slam?  You should shield yourself before $N slams you.
+$n shields $mself from your wrath.
+$n shields $mself from $N's wrath.
+
+
 * Drain (vamps)
 M
  654
@@ -1702,9 +1721,9 @@ $N's head explodes into a bloody cloud from the power of $n's mighty scream!
 You try to scream at $N but the sound catches in your throat!
 $n tries to scream at you, but all that emerges is a feeble squeak!
 $n tries to scream at $N, but all that emerges is a feeble squeak!
-$N falls to $S knees as your piercing scream invades $S senses!
+$N wails as your piercing scream invades $S senses!
 You feel like your head is going to explode as $n's scream echoes around you!
-$N falls to $S knees as $n's piercing scream invades $S senses!
+$N wails as $n's piercing scream invades $S senses!
 You scream and whine, but $N still says no.
 $n is screaming and whining at you like a child.  Better tell $m no.
 $n screams and whines at $N who doesn't look moved.

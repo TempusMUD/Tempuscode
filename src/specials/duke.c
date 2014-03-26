@@ -132,7 +132,7 @@ find_guard(struct creature *chAtChar)
 
     for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if (!tch->fighting && member_of_royal_guard(tch))
+        if (!is_fighting(tch) && member_of_royal_guard(tch))
             return tch;
     }
     return NULL;
@@ -149,7 +149,7 @@ get_victim(struct creature *chAtChar)
     int iNum_bad_guys = 0, iVictim;
     for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if (tch->fighting && member_of_staff(random_opponent(tch)))
+        if (is_fighting(tch) && member_of_staff(random_opponent(tch)))
             iNum_bad_guys++;
     }
     if (!iNum_bad_guys)
@@ -162,7 +162,7 @@ get_victim(struct creature *chAtChar)
     iNum_bad_guys = 0;
     for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if (tch->fighting &&
+        if (is_fighting(tch) &&
             member_of_staff(random_opponent(tch)) &&
             ++iNum_bad_guys == iVictim)
             return tch;
@@ -461,7 +461,7 @@ SPECIAL(training_master)
     if (!banzaii(ch) && !number(0, 2)) {
         if ((pupil1 = find_npc_by_name(ch, "Brian", 5)) &&
             (pupil2 = find_npc_by_name(ch, "Mick", 4)) &&
-            (!pupil1->fighting && !pupil2->fighting)) {
+            (!is_fighting(pupil1) && !is_fighting(pupil2))) {
             if (number(0, 1)) {
                 tch = pupil1;
                 pupil1 = pupil2;
@@ -560,12 +560,12 @@ SPECIAL(tom)
     if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
         if (!ch->master)
             do_follow(ch, tmp_strdup("Duke Araken"), 0, 0);
-        if (king->fighting)
+        if (is_fighting(king))
             do_npc_rescue(ch, king);
     }
     if (!cmd)
         if ((tim = find_npc_by_name(ch, "Tim", 3)))
-            if (tim->fighting && 2 * GET_HIT(tim) < GET_HIT(ch))
+            if (is_fighting(tim) && 2 * GET_HIT(tim) < GET_HIT(ch))
                 do_npc_rescue(ch, tim);
 
     if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
@@ -590,12 +590,12 @@ SPECIAL(tim)
     if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
         if (!ch->master)
             do_follow(ch, tmp_strdup("Duke Araken"), 0, 0);
-        if (king->fighting)
+        if (is_fighting(king))
             do_npc_rescue(ch, king);
     }
     if (!cmd)
         if ((tom = find_npc_by_name(ch, "Tom", 3)))
-            if (tom->fighting && 2 * GET_HIT(tom) < GET_HIT(ch))
+            if (is_fighting(tom) && 2 * GET_HIT(tom) < GET_HIT(ch))
                 do_npc_rescue(ch, tom);
 
     if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
@@ -756,7 +756,7 @@ SPECIAL(armory_person)
     if (!cmd || IS_NPC(ch))
         return false;
 
-    if (!can_see_creature(guard, ch) || guard->fighting)
+    if (!can_see_creature(guard, ch) || is_fighting(guard))
         return false;
 
     act("$n screams, 'This is a RESTRICTED AREA!!!'", false, guard, NULL, NULL,
@@ -851,7 +851,7 @@ SPECIAL(jerry)
     if (!banzaii(ch) && !number(0, 2)) {
         if ((gambler1 = ch) &&
             (gambler2 = find_npc_by_name(ch, "Michael", 7)) &&
-            (!gambler1->fighting && !gambler2->fighting)) {
+            (!is_fighting(gambler1) && !is_fighting(gambler2))) {
             if (number(0, 1)) {
                 tch = gambler1;
                 gambler1 = gambler2;

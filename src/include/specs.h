@@ -275,8 +275,8 @@ SPECIAL(mage_teleporter);
 SPECIAL(languagemaster);
 SPECIAL(bounty_clerk);
 SPECIAL(do_auctions);
-SPECIAL(courier_imp);
 SPECIAL(christmas_quest);
+SPECIAL(engraver);
 
 #define SPEC_MOB 1
 #define SPEC_OBJ 2

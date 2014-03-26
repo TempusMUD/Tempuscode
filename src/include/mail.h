@@ -55,8 +55,12 @@ void string_add(struct descriptor_data *d, char *str);
 
 // Mail system internal functions.
 bool has_mail(long recipient);
-bool store_mail(long to_id, long from_id, const char *txt, GList *cc_list,
-               struct obj_data *obj_list);
+bool send_mail(struct creature *ch,
+               GList *recipients,
+               const char *txt,
+               struct obj_data *obj_list,
+               char **error);
+
 int receive_mail(struct creature * ch, GList *olist);
 bool purge_mail(long idnum);
 

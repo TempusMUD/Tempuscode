@@ -50,11 +50,9 @@ SPECIAL(reinforcer)
         perform_tell(keeper, ch, "I cannot reinforce it further.");
         return 1;
     }
+    cost = adjusted_price(ch, keeper, GET_OBJ_COST(obj));
 
-    cost = GET_OBJ_COST(obj);
-    cost += (cost * cost_modifier(ch, keeper)) / 100;
-
-    sprintf(buf2, "It will cost you %d %s to have %s reinforced.",
+    sprintf(buf2, "It will cost you %'d %s to have %s reinforced.",
         cost, ch->in_room->zone->time_frame == TIME_ELECTRO ? "credits" :
         "coins", obj->name);
     perform_tell(keeper, ch, buf2);
@@ -87,8 +85,8 @@ SPECIAL(reinforcer)
         false, keeper, obj, ch, TO_NOTVICT);
 
     SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_REINFORCED);
-    GET_OBJ_MAX_DAM(obj) += (GET_OBJ_MAX_DAM(obj) >> 2);
-    GET_OBJ_DAM(obj) += (GET_OBJ_DAM(obj) >> 2);
+    GET_OBJ_MAX_DAM(obj) += (GET_OBJ_MAX_DAM(obj) / 4);
+    GET_OBJ_DAM(obj) += (GET_OBJ_DAM(obj) / 4);
     set_obj_weight(obj, GET_OBJ_WEIGHT(obj) + 1);
     WAIT_STATE(ch, 5 RL_SEC);
     crashsave(ch);

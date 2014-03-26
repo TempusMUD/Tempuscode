@@ -9,12 +9,16 @@ GList *implanter_sessions;      // ids of players with implant sessions
 void implanter_implant(struct creature *me, struct creature *ch, char *args);
 void implanter_extract(struct creature *me, struct creature *ch, char *args);
 void implanter_repair(struct creature *me, struct creature *ch, char *args);
+void implanter_analysis(struct creature *me, struct creature *ch, char *args);
 void implanter_redeem(struct creature *me, struct creature *ch, char *args);
 bool implanter_in_session(struct creature *ch);
 void implanter_end_sess(struct creature *ch);
 void implanter_show_args(struct creature *me, struct creature *ch);
 void implanter_show_pos(struct creature *me, struct creature *ch,
     struct obj_data *obj);
+
+// From act.comm.cc
+void perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev);
 
 const long TICKET_VNUM = 92277;
 
@@ -41,6 +45,8 @@ SPECIAL(implanter)
                 implanter_extract(self, ch, argument);
             else if (!strcasecmp(buy_str, "repair"))
                 implanter_repair(self, ch, argument);
+            else if (!strcasecmp(buy_str, "analysis"))
+                implanter_analysis(self, ch, argument);
             else
                 implanter_show_args(self, ch);
             return 1;
@@ -91,7 +97,7 @@ implanter_implant(struct creature *me, struct creature *ch, char *args)
     }
 
     if ((pos = search_block(pos_str, wear_implantpos, 0)) < 0 ||
-        (ILLEGAL_IMPLANTPOS(pos) && !IS_OBJ_TYPE(implant, ITEM_TOOL))) {
+        (ILLEGAL_IMPLANTPOS(pos))) {
         msg = tmp_sprintf("'%s' isn't a valid position.", pos_str);
         perform_tell(me, ch, msg);
         implanter_show_pos(me, ch, implant);
@@ -161,10 +167,10 @@ implanter_implant(struct creature *me, struct creature *ch, char *args)
     }
 
     cost = GET_OBJ_COST(implant);
-    cost += (cost * cost_modifier(ch, me)) / 100;
+    cost = adjusted_price(ch, me, cost);
 
     if (!IS_CYBORG(ch))
-        cost <<= 1;
+        cost *= 2;
 
     if (!in_session && GET_CASH(ch) < cost) {
         msg = tmp_sprintf("The cost for implanting will be %'d credits...  "
@@ -268,12 +274,12 @@ implanter_extract(struct creature *me, struct creature *ch, char *args)
     }
 
     cost = GET_OBJ_COST(implant);
-    cost += (cost * cost_modifier(ch, me)) / 100;
+    cost = adjusted_price(ch, me, cost);
 
     if (!obj && !IS_CYBORG(ch))
-        cost <<= 1;
+        cost *= 2;
     if (obj)
-        cost >>= 2;
+        cost /= 4;
 
     if (!in_session && GET_CASH(ch) < cost) {
         msg = tmp_sprintf("The cost for extraction will be %'d credits...  "
@@ -361,7 +367,7 @@ implanter_repair(struct creature *me, struct creature *ch, char *args)
     }
 
     if (GET_OBJ_MAX_DAM(implant) == 0 ||
-        GET_OBJ_MAX_DAM(implant) <= (GET_OBJ_MAX_DAM(proto_implant) >> 4)) {
+        GET_OBJ_MAX_DAM(implant) <= (GET_OBJ_MAX_DAM(proto_implant) / 16)) {
         msg = tmp_sprintf("Sorry, %s is damaged beyond repair.",
             implant->name);
         perform_tell(me, ch, msg);
@@ -369,10 +375,10 @@ implanter_repair(struct creature *me, struct creature *ch, char *args)
     }
     // implant repairs cost 1.5 the amount of insertion/extraction
     cost = GET_OBJ_COST(implant) + GET_OBJ_COST(implant) / 2;
-    cost += (cost * cost_modifier(ch, me)) / 100;
+    cost = adjusted_price(ch, me, cost);
 
     if (!IS_CYBORG(ch))
-        cost <<= 1;
+        cost *= 2;
 
     if (!in_session && GET_CASH(ch) < cost) {
         msg = tmp_sprintf("The cost for repair will be %'d credits...  "
@@ -469,6 +475,7 @@ implanter_show_args(struct creature *me, struct creature *ch)
     perform_tell(me, ch, "buy implant <implant> <position> or");
     perform_tell(me, ch, "buy extract <'me' | object> <implant> [pos] or");
     perform_tell(me, ch, "buy repair <implant> [pos] or");
+    perform_tell(me, ch, "buy analysis <implant> [pos] or");
     perform_tell(me, ch, "redeem < ticket | qpoint >");
     return;
 }
@@ -492,4 +499,71 @@ implanter_show_pos(struct creature *me, struct creature *ch,
         }
 
     perform_tell(me, ch, buf);
+}
+
+void
+implanter_analysis(struct creature *me, struct creature *ch, char *args)
+{
+    struct obj_data *implant = NULL, *proto_implant = NULL;
+    char *obj_str, *pos_str, *msg;
+    int cost = 0, pos = 0;
+    bool in_session;
+
+    in_session = implanter_in_session(ch);
+    obj_str = tmp_getword(&args);
+    pos_str = tmp_getword(&args);
+
+    if (!*obj_str) {
+        perform_tell(me, ch, "Analyze which implant in your body?");
+        return;
+    }
+
+    if (!*pos_str) {
+        perform_tell(me, ch, "Analyze an implant in what position?");
+        return;
+    }
+    if ((pos = search_block(pos_str, wear_implantpos, 0)) < 0) {
+        msg = tmp_sprintf("'%s' is not a valid implant position.", pos_str);
+        perform_tell(me, ch, msg);
+        return;
+    }
+    if (!(implant = GET_IMPLANT(ch, pos))) {
+        msg = tmp_sprintf("You are not implanted with anything at %s.",
+            wear_implantpos[pos]);
+        perform_tell(me, ch, msg);
+        return;
+    }
+    if (!isname(obj_str, implant->aliases)) {
+        msg = tmp_sprintf("%s is implanted at %s... not '%s'.",
+            implant->name, wear_implantpos[pos], obj_str);
+        perform_tell(me, ch, msg);
+        return;
+    }
+
+    if (!(proto_implant = real_object_proto(implant->shared->vnum))) {
+        perform_tell(me, ch, "I'm not going to analyze that.");
+        return;
+    }
+
+    // analyze cost 10% of object value
+    cost = GET_OBJ_COST(implant) / 10;
+    cost = adjusted_price(ch, me, cost);
+
+    if (!in_session && GET_CASH(ch) < cost) {
+        msg = tmp_sprintf("The cost for analysis will be %'d credits...  "
+            "Which you obviously do not have.", cost);
+        perform_tell(me, ch, msg);
+        perform_tell(me, ch, "Take a hike, loser.");
+        return;
+    }
+
+    if (!in_session)
+        GET_CASH(ch) -= cost;
+
+    act("$n takes your cash and analyzes $p:", false, me, implant, ch, TO_VICT);
+    act("$n analyzes an implant inside $N.", false, me, implant, ch, TO_NOTVICT);
+    perform_analyze(ch, implant, false);
+    WAIT_STATE(ch, 2 RL_SEC);
+
+    return;
 }

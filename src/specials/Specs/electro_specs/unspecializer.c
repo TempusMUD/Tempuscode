@@ -62,7 +62,7 @@ SPECIAL(unspecializer)
 
     lp_cost = GET_WEAP_SPEC(ch, i).level;
     cash_cost = GET_WEAP_SPEC(ch, i).level * 200000;
-    cash_cost += (cash_cost * cost_modifier(ch, self)) / 100;
+    cash_cost = adjusted_price(ch, self, cash_cost);
 
     msg =
         tmp_sprintf

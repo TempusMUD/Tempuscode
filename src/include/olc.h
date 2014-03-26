@@ -32,8 +32,8 @@
 #define NORMAL_OSET 1
 
 #define NPC_D1(lev)    (lev + 1)
-#define NPC_D2(lev)    (6 + (lev >> 1))
-#define NPC_MOD(lev)   (((lev*lev*lev*lev*lev) >> 15) + lev + 6)
+#define NPC_D2(lev)    (6 + (lev / 2))
+#define NPC_MOD(lev)   (((lev*lev*lev*lev*lev) / 32768) + lev + 6)
 void set_physical_attribs(struct creature *ch);
 //recalculates the given mob prototype's statistics based on it's current level.
 void recalculate_based_on_level(struct creature *mob_p);

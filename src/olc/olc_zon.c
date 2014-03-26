@@ -2664,6 +2664,16 @@ do_create_zone(struct creature *ch, int num)
         return false;
     }
 
+    /* Create the zone file to check that we can */
+
+    sprintf(fname, "world/zon/%d.zon", num);
+    if (!(zone_file = fopen(fname, "w"))) {
+        send_to_char(ch,
+            "Could not open %d.zon file, zone creation aborted.\r\n", num);
+        return false;
+    }
+    fclose(zone_file);
+
     /* Open the index file */
 
     sprintf(fname, "world/zon/index");
@@ -2673,24 +2683,15 @@ do_create_zone(struct creature *ch, int num)
         return false;
     }
 
-    /* Open the zone file */
-
-    sprintf(fname, "world/zon/%d.zon", num);
-    if (!(zone_file = fopen(fname, "w"))) {
-        send_to_char(ch,
-            "Could not open %d.zon file, zone creation aborted.\r\n", num);
-        fclose(index);
-        return false;
-    }
-
     /* Create the new zone and set the defaults */
 
     new_zone = make_zone(num);
 
     if (!save_zone(ch, new_zone)) {
+        fclose(index);
         return false;
     }
-
+        
     for (zone = zone_table; zone; zone = zone->next)
         fprintf(index, "%d.zon\n", zone->number);
 

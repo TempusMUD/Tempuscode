@@ -68,11 +68,6 @@ struct txt_q {
 	struct txt_block *tail;
 };
 
-struct mail_recipient_data {
-	long recpt_idnum;			/* Idnum of char to receive mail  */
-	struct mail_recipient_data *next;	/*pointer to next in recpt list. */
-};
-
 struct descriptor_data {
 	GIOChannel *io;				/* file descriptor for socket       */
 
@@ -90,6 +85,7 @@ struct descriptor_data {
 	int repeat_cmd_count;		/* how many times has this command been */
 	struct editor *text_editor;	/*  Pointer to text editor object. */
 	char inbuf[MAX_RAW_INPUT_LENGTH];	/* buffer for raw input       */
+	size_t inbuf_len;
 	char last_input[MAX_INPUT_LENGTH];	/* the last input         */
 	GQueue *input;			/* q of unprocessed input       */
     guint in_watcher;

@@ -468,8 +468,6 @@ do_destroy_room(struct creature *ch, int vnum)
     struct clan_data *clan = NULL;
     struct room_list_elem *rm_list = NULL;
     int i;
-    void REMOVE_ROOM_FROM_CLAN(struct room_list_elem *rm_list,
-        struct clan_data *clan);
 
     if (!(rm = real_room(vnum))) {
         send_to_char(ch, "ERROR: That room does not exist.\r\n");
@@ -852,9 +850,16 @@ do_olc_rset(struct creature *ch, char *argument)
         while (*arg1) {
             if ((flag = search_block(arg1, roomflag_names, false)) == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
-            } else
+            } else if ((1 << flag) == ROOM_GODROOM) {
+                if (is_named_role_member(ch, "WizardFull")) {
+                    send_to_char(ch, "No problem!\r\n");
+                    tmp_flags = tmp_flags | (1 << flag);
+                } else {
+                    send_to_char(ch, "Woh woh woh, you are not a member of WizardFull!\r\n");
+                }
+            } else {
                 tmp_flags = tmp_flags | (1 << flag);
-
+            }
             argument = one_argument(argument, arg1);
         }
 
@@ -1242,14 +1247,14 @@ ACMD(do_hedit)
                     cost = room_rent_cost(house, room);
                     tot_cost += cost;
                     tot_num += num;
-                    acc_sprintf("%s%-30s%s      %s%5d%s   %10d\r\n",
+                    acc_sprintf("%s%-30s%s      %s%'5d%s   %'10d\r\n",
                         CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM),
                         (num > MAX_HOUSE_ITEMS) ? CCRED(ch, C_NRM) : "",
                         num, CCNRM(ch, C_NRM), cost);
                 }
                 if (!local)
                     acc_sprintf
-                        ("- Totals -------------------------- %5d   %10d\r\n",
+                        ("- Totals -------------------------- %'5d   %'10d\r\n",
                         tot_num, tot_cost);
                 page_string(ch->desc, acc_get_string());
                 return;

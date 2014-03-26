@@ -106,7 +106,7 @@ SPECIAL(arena_object)
             SET_BIT(NPC_FLAGS(new_mob), NPC_AGGRESSIVE);
             REMOVE_BIT(NPC_FLAGS(new_mob), NPC_WIMPY);
             GET_GOLD(ch) = 0;
-            GET_EXP(new_mob) >>= 2;
+            GET_EXP(new_mob) /= 4;
             char_to_room(new_mob, IN_ROOM(me2), false);
         } else
             printf("NULL\n");

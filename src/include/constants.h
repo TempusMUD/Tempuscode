@@ -100,7 +100,7 @@ extern const char *search_cmd_short[];
 extern const char *home_town_abbrevs[];
 extern const char *home_towns[];
 extern const char *level_abbrevs[];
-extern const char *diety_names[];
+extern const char *deity_names[];
 extern const char *alignments[];
 extern const char *room_bits[];
 extern const char *roomflag_names[];
@@ -167,6 +167,7 @@ extern const char *material_names[];
 extern const int weapon_proficiencies[];
 extern const char *soilage_bits[];
 extern const char *grievance_kind_descs[];
+extern const char *logtypes[];
 
 extern const char *trail_flags[];
 extern const char *spell_bits[];

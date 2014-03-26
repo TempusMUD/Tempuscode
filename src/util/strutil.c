@@ -43,7 +43,7 @@ sprintbit(long vektor, const char *names[], char *result)
         strcpy(result, "SPRINTBIT ERROR!");
         return;
     }
-    for (nr = 0; vektor; vektor >>= 1) {
+    for (nr = 0; vektor; vektor /= 2) {
         if ((1 & vektor) != 0) {
             if (*names[nr] != '\n') {
                 strcat(result, names[nr]);

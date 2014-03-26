@@ -8,6 +8,8 @@
 #define MODE_MANA 2
 #define MODE_MOVE 4
 
+#define PLURAL(num) (num == 1 ? "" : "s")
+
 SPECIAL(increaser)
 {
 
@@ -93,16 +95,19 @@ SPECIAL(increaser)
     }
 
     if (mode == MODE_MOVE)
-        life_cost = ((incr + 3) >> 2);
+        life_cost = ((incr + 3) / 4);
                                  /** 4 pts/ life point */
     else
-        life_cost = ((incr + 1) >> 1);  /* 2 pts/ life point */
+        life_cost = ((incr + 1) / 2);  /* 2 pts/ life point */
     gold = 10000 * life_cost;
-    gold += (gold * cost_modifier(ch, increaser)) / 100;
+    gold = adjusted_price(ch, increaser, gold);
 
     send_to_char(ch,
-        "It will cost you %'" PRId64 " %s and %d life points to increase your %s by %d.\r\n",
-        gold, CURRENCY(ch), life_cost, arg1, incr);
+                 "It will cost you %'" PRId64
+                 " %s%s and %d life point%s to increase your %s by %d.\r\n",
+                 gold, CURRENCY(ch), PLURAL(gold),
+                 life_cost, PLURAL(life_cost),
+                 arg1, incr);
 
     sprintf(buf, "$n considers the implications of increasing $s %s.", arg1);
 

@@ -15,7 +15,7 @@ SPECIAL(head_shrinker)
     char *s = NULL;
     char arg[MAX_INPUT_LENGTH];
     int cost = SHRINKER_COST;
-    cost += (cost * cost_modifier(ch, shrinker)) / 100;
+    cost = adjusted_price(ch, shrinker, cost);
 
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
@@ -52,7 +52,7 @@ SPECIAL(head_shrinker)
         return 1;
     }
     if (IS_MAT(corpse, MAT_MEAT_COOKED)) {
-        send_to_char(ch, "That's a cooked corpse, crazy man.\r\n");
+        send_to_char(ch, "That's a cooked corpse.  Are you crazy?\r\n");
         return 1;
     }
     if (!strncmp(corpse->name, "the headless", 12)) {
@@ -60,7 +60,7 @@ SPECIAL(head_shrinker)
     }
     if (GET_GOLD(ch) < cost) {
         send_to_char(ch,
-            "It costs %d gold coins to shrink a head, buddy.\r\n", cost);
+            "It costs %'d gold coins to shrink a head, buddy.\r\n", cost);
         return 1;
     }
 

@@ -82,16 +82,17 @@ bool player_in_room(struct room_data *room);
 void check_bits_32(int bitv, int *newbits);
 
 /* undefine MAX and MIN so that our functions are used instead */
-#ifdef MAX
 #undef MAX
-#endif
-
-#ifdef MIN
 #undef MIN
-#endif
 
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define MIN(a, b) ((a) > (b) ? (b) : (a))
+#define MAX(a,b)                                \
+    ({ __typeof__ (a) _a = (a);                 \
+        __typeof__ (b) _b = (b);                \
+        _a > _b ? _a : _b; })
+#define MIN(a,b)                                \
+    ({ __typeof__ (a) _a = (a);                 \
+        __typeof__ (b) _b = (b);                \
+        _a > _b ? _b : _a; })
 
 /* in magic.c */
 bool circle_follow(struct creature *ch, struct creature *victim);
@@ -115,6 +116,12 @@ void gain_exp_regardless(struct creature *ch, int gain);
 void gain_condition(struct creature *ch, int condition, int value);
 int check_idling(struct creature *ch);
 void point_update(void);
+
+void new_follower(struct creature *ch, struct creature *leader);
+void add_follower(struct creature *ch, struct creature *leader);
+void remove_follower(struct creature *ch);
+void stop_follower(struct creature *ch);
+
 char *GET_DISGUISED_NAME(struct creature *ch, struct creature *tch);
 int CHECK_SKILL(struct creature *ch, int i);
 int CHECK_TONGUE(struct creature *ch, int i);
@@ -161,22 +168,22 @@ void WAIT_STATE(struct creature *ch, int cycle);
  * a great application for C++ templates but, alas, this is not C++.  Maybe
  * CircleMUD 4.0 will be...
  */
-#define REMOVE_FROM_LIST(item, head, next)          \
-    do {                                            \
-        if ((item) == (head))                       \
-            head = (item)->next;                    \
-        else {                                      \
-            temp = head;                            \
-            while (temp && (temp->next != (item)))  \
-                temp = temp->next;                  \
-            if (temp)                               \
-                temp->next = (item)->next;          \
-        }                                           \
+#define REMOVE_FROM_LIST(item, head, next)                  \
+    do {                                                    \
+        if ((item) == (head))                               \
+            head = (item)->next;                            \
+        else {                                              \
+            temp = head;                                    \
+            while (temp != NULL && (temp->next != (item)))  \
+                temp = temp->next;                          \
+            if (temp != NULL)                               \
+                temp->next = (item)->next;                  \
+        }                                                   \
     } while (false)
 
 /* basic bitvector utils *************************************************/
 
-#define IS_SET(flag,bit)  ((flag) & (bit))
+#define IS_SET(flag,bit)  (((flag) & (bit)) != 0)
 #define SET_BIT(var,bit)  ((var) |= (bit))
 #define REMOVE_BIT(var,bit)  ((var) &= ~((unsigned long)(bit)))
 #define TOGGLE_BIT(var,bit) ((var) = (var) ^ (bit))
@@ -266,7 +273,7 @@ void WAIT_STATE(struct creature *ch, int cycle);
 #define GET_OBJ_COST(obj)        ((obj)->shared->cost)
 // can only be used to get the rent, not set
 #define GET_OBJ_RENT(obj)        ((obj)->plrtext_len ? \
-                                  ((int)(obj)->plrtext_len << 3) :  \
+                                  ((int)(obj)->plrtext_len * 8) :  \
                                   (obj)->shared->cost_per_day)
 
 #define GET_OBJ_EXTRA(obj)        ((obj)->obj_flags.extra_flags)
@@ -582,7 +589,7 @@ double float_number(double from, double to);
 // simulates dice roll
 int dice(int number, int size);
 
-static inline const char *
+static inline /*@observer@*/ const char *
 SAFETY(const char *str)
 {
 	if (!str) {
@@ -607,5 +614,7 @@ hex2dec(const char *s)
 
 char *format_weight(float lbs, bool metric);
 char *format_distance(int cm, bool metric);
+float parse_weight(char *str, bool metric);
+int parse_distance(char *str, bool metric);
 
 #endif

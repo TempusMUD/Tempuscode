@@ -107,6 +107,12 @@ int lunar_day = 0;
 long top_unique_id = 0;
 bool unique_id_changed = true;
 
+char buf[MAX_STRING_LENGTH];
+char buf1[MAX_STRING_LENGTH];
+char buf2[MAX_STRING_LENGTH];
+char arg[MAX_STRING_LENGTH];
+int population_record[NUM_HOMETOWNS];
+
 struct room_data *r_mortal_start_room;  /* rnum of mortal start room   */
 struct room_data *r_electro_start_room; /* Electro Centralis start room  */
 struct room_data *r_immort_start_room;  /* rnum of immort start room   */
@@ -178,6 +184,7 @@ void assign_artisans(void);
 void boot_dynamic_text(void);
 void boot_tongues(const char *path);
 void boot_voices(void);
+void load_auctions(void);
 
 void reset_zone(struct zone_data *zone);
 int file_to_string(const char *name, char *buf);
@@ -435,6 +442,9 @@ boot_db(void)
 
     slog("Booting timewarp data.");
     boot_timewarp_data();
+
+    slog("Loading auction data.");
+    load_auctions();
 
     if (mini_mud) {
         slog("HOUSE: Mini-mud detected. Houses not loading.");
@@ -980,14 +990,10 @@ parse_room(FILE * fl, int vnum_nr)
             room->next = NULL;
 
             // Eliminate duplicates
-            // FIXME: This leaks all the memory the room takes up.  Doing it
-            // this way because a) it shouldn't ever happen b) if it does
-            // happen, it'll get fixed the next time the zone is saved and
-            // c) rooms don't take up that much space anyway
             if (real_room(vnum_nr)) {
-                errlog
-                    ("Duplicate room %d detected.  Ignoring second instance.",
-                    vnum_nr);
+                errlog("Duplicate room %d detected.  Ignoring second instance.",
+                       vnum_nr);
+                free_room(room);
                 return;
             }
 
@@ -1351,9 +1357,6 @@ compile_all_progs(void)
 void
 set_physical_attribs(struct creature *ch)
 {
-    GET_MAX_MANA(ch) = MAX(100, (GET_LEVEL(ch) << 3));
-    GET_MAX_MOVE(ch) = MAX(100, (GET_LEVEL(ch) << 4));
-
     struct race *race = race_by_idnum(GET_RACE(ch));
 
     if (!race) {
@@ -1397,11 +1400,11 @@ set_physical_attribs(struct creature *ch)
         }
     } else if (IS_OGRE(ch) || IS_TROLL(ch)) {
         ch->player.weight = 9 * 30 + number(10, 100);
-        ch->player.height = 9 * 31 + (GET_WEIGHT(ch) >> 3);
+        ch->player.height = 9 * 31 + (GET_WEIGHT(ch) / 8);
         ch->real_abils.str = number(16, 18);
     } else if (IS_MINOTAUR(ch)) {
         ch->player.weight = number(400, 640) + GET_STR(ch);
-        ch->player.height = number(200, 425) + (GET_WEIGHT(ch) >> 3);
+        ch->player.height = number(200, 425) + (GET_WEIGHT(ch) / 8);
         ch->real_abils.str = number(15, 19);
     } else if (IS_DRAGON(ch)) {
         if (GET_CLASS(ch) == CLASS_WHITE) {
@@ -1416,22 +1419,22 @@ set_physical_attribs(struct creature *ch)
     } else if (IS_ANIMAL(ch)) {
         if (GET_CLASS(ch) == CLASS_BIRD) {
             ch->player.weight = number(10, 60) + GET_STR(ch);
-            ch->player.height = number(30, 90) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(30, 90) + (GET_WEIGHT(ch) / 8);
         } else if (GET_CLASS(ch) == CLASS_SNAKE) {
             ch->player.weight = number(10, 30) + GET_LEVEL(ch);
-            ch->player.height = number(30, 90) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(30, 90) + (GET_WEIGHT(ch) / 8);
         } else if (GET_CLASS(ch) == CLASS_SMALL) {
             ch->player.weight = number(10, 30) + GET_STR(ch);
-            ch->player.height = number(20, 40) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(20, 40) + (GET_WEIGHT(ch) / 8);
         } else if (GET_CLASS(ch) == CLASS_MEDIUM) {
             ch->player.weight = number(20, 80) + GET_STR(ch);
-            ch->player.height = number(50, 100) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(50, 100) + (GET_WEIGHT(ch) / 8);
         } else if (GET_CLASS(ch) == CLASS_LARGE) {
             ch->player.weight = number(130, 360) + GET_STR(ch);
-            ch->player.height = number(120, 240) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(120, 240) + (GET_WEIGHT(ch) / 8);
         } else {
             ch->player.weight = number(60, 160) + GET_STR(ch);
-            ch->player.height = number(100, 190) + (GET_WEIGHT(ch) >> 3);
+            ch->player.height = number(100, 190) + (GET_WEIGHT(ch) / 8);
         }
     } else if (IS_DEVIL(ch)) {
         if (GET_CLASS(ch) == CLASS_ARCH) {
@@ -1443,7 +1446,7 @@ set_physical_attribs(struct creature *ch)
             ch->real_abils.wis = 23;
             ch->real_abils.dex = 23;
             ch->real_abils.con = 23;
-            GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 3);
+            GET_MAX_MANA(ch) += (GET_LEVEL(ch) * 8);
         } else if (GET_CLASS(ch) == CLASS_DUKE) {
             ch->player.weight = 10 * 40;
             ch->player.height = 10 * 31;
@@ -1453,7 +1456,7 @@ set_physical_attribs(struct creature *ch)
             ch->real_abils.wis = 21;
             ch->real_abils.dex = 21;
             ch->real_abils.con = 21;
-            GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 2);
+            GET_MAX_MANA(ch) += (GET_LEVEL(ch) * 4);
         } else if (GET_CLASS(ch) == CLASS_GREATER) {
             ch->player.weight = 10 * 40;
             ch->player.height = 10 * 31;
@@ -1462,7 +1465,7 @@ set_physical_attribs(struct creature *ch)
             ch->real_abils.wis = 20;
             ch->real_abils.dex = 20;
             ch->real_abils.con = 20;
-            GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 2);
+            GET_MAX_MANA(ch) += (GET_LEVEL(ch) * 4);
         } else if (GET_CLASS(ch) == CLASS_LESSER) {
             ch->player.weight = 6 * 30;
             ch->player.height = 6 * 31;
@@ -1480,18 +1483,6 @@ set_physical_attribs(struct creature *ch)
             ch->real_abils.str = 18;
         }
     }
-    if (IS_CLERIC(ch) || IS_MAGE(ch) || IS_LICH(ch) || IS_PHYSIC(ch)
-        || IS_PSYCHIC(ch))
-        GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 4);
-    else if (IS_KNIGHT(ch) || IS_RANGER(ch))
-        GET_MAX_MANA(ch) += (GET_LEVEL(ch) << 1);
-
-    if (IS_RANGER(ch))
-        GET_MAX_MOVE(ch) += (GET_LEVEL(ch) << 3);
-
-    GET_MAX_MOVE(ch) += (GET_REMORT_GEN(ch) * GET_MAX_MOVE(ch)) / 10;
-    GET_MAX_MANA(ch) += (GET_REMORT_GEN(ch) * GET_MAX_MANA(ch)) / 10;
-
     ch->aff_abils = ch->real_abils;
 }
 
@@ -1501,18 +1492,31 @@ recalculate_based_on_level(struct creature *mob_p)
     int level = GET_LEVEL(mob_p);
     int doubleLevel = level + (level * GET_REMORT_GEN(mob_p)) / 10;
     int gen = GET_REMORT_GEN(mob_p);
+    
+    GET_MAX_MANA(mob_p) = MAX(100, (GET_LEVEL(mob_p) * 8));
+    GET_MAX_MOVE(mob_p) = MAX(100, (GET_LEVEL(mob_p) * 16));
 
-    set_physical_attribs(mob_p);
+    if (IS_CLERIC(mob_p) || IS_MAGE(mob_p) || IS_LICH(mob_p) || IS_PHYSIC(mob_p)
+        || IS_PSYCHIC(mob_p))
+        GET_MAX_MANA(mob_p) += (GET_LEVEL(mob_p) * 16);
+    else if (IS_KNIGHT(mob_p) || IS_RANGER(mob_p))
+        GET_MAX_MANA(mob_p) += (GET_LEVEL(mob_p) * 2);
 
-    GET_HIT(mob_p) = NPC_D1(doubleLevel);   // hitd_num
-    GET_MANA(mob_p) = NPC_D2(level);    // hitd_size
-    GET_MOVE(mob_p) = NPC_MOD(level);   // hitp_mod
+    if (IS_RANGER(mob_p))
+        GET_MAX_MOVE(mob_p) += (GET_LEVEL(mob_p) * 8);
+
+    GET_MAX_MOVE(mob_p) += (GET_REMORT_GEN(mob_p) * GET_MAX_MOVE(mob_p)) / 10;
+    GET_MAX_MANA(mob_p) += (GET_REMORT_GEN(mob_p) * GET_MAX_MANA(mob_p)) / 10;
+
+    GET_HIT(mob_p) = NPC_D1(doubleLevel); // hitd_num
+    GET_MANA(mob_p) = NPC_D2(level); // hitd_size
+    GET_MOVE(mob_p) = NPC_MOD(level); // hitp_mod
     GET_MOVE(mob_p) += (int)(3.26 * (gen * gen) * level);
 
     GET_AC(mob_p) = (100 - (doubleLevel * 3));
 
-    mob_p->mob_specials.shared->damnodice = ((level * level + 3) >> 7) + 1;
-    mob_p->mob_specials.shared->damsizedice = ((level + 1) >> 3) + 3;
+    mob_p->mob_specials.shared->damnodice = ((level * level + 3) / 128) + 1;
+    mob_p->mob_specials.shared->damsizedice = ((level + 1) / 8) + 3;
     GET_DAMROLL(mob_p) =
         (level / 2) + ((level / 2) * GET_REMORT_GEN(mob_p)) / 10;
     GET_HITROLL(mob_p) = (int)(GET_DAMROLL(mob_p) * 1.25);
@@ -1592,7 +1596,6 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->player.height = 198;
 
     mobile->player.remort_char_class = -1;
-    set_physical_attribs(mobile);
 
     for (j = 0; j < 3; j++)
         GET_COND(mobile, j) = -1;
@@ -2185,7 +2188,6 @@ load_zones(FILE * fl, char *zonename)
     new_zone->flags = asciiflag_conv(flags);
     new_zone->num_players = 0;
     new_zone->idle_time = 0;
-//    REMOVE_BIT(new_zone->flags, (1 << 12));
 
     CREATE(weather, struct weather_data, 1);
     if (weather) {
@@ -2211,11 +2213,13 @@ load_zones(FILE * fl, char *zonename)
         ptr = buf;
         skip_spaces(&ptr);
 
+        if (*ptr == '*') {
+            continue;
+        }
+
         CREATE(new_zonecmd, struct reset_com, 1);
 
-        if ((new_zonecmd->command = *ptr) == '*')
-            continue;
-
+        new_zonecmd->command = *ptr;
         ptr++;
 
         if (new_zonecmd->command == 'S' || new_zonecmd->command == '$') {
@@ -2440,10 +2444,6 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
         return 4;
     }
     obj = read_object(vnum);
-    obj->creation_method = CREATED_MOB;
-    obj->creator = vnum;
-
-    randomize_object(obj);
     if (obj == NULL) {
         errlog("Mob num %d cannot load equip object #%d.",
             ch->mob_specials.shared->vnum, vnum);
@@ -2452,6 +2452,10 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
                 tmp_sprintf("Loading object %d failed!", vnum));
         return 5;
     }
+    obj->creation_method = CREATED_MOB;
+    obj->creator = vnum;
+
+    randomize_object(obj);
     // Unapproved mobs should load unapproved eq.
     if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)) {
         SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
@@ -3181,6 +3185,7 @@ file_to_string(const char *name, char *buf)
         if (buflen + len + 1 > MAX_STRING_LENGTH) {
             errlog("fl->strng: string too big (db.c, file_to_string)");
             *buf = '\0';
+            fclose(fl);
             return (-1);
         }
 
@@ -3191,6 +3196,7 @@ file_to_string(const char *name, char *buf)
 
     if (!feof(fl)) {
         perror(tmp_sprintf("Error reading %s", name));
+        fclose(fl);
         return (-1);
     }
 
@@ -3325,16 +3331,15 @@ get_corpse_file_path(long id)
     return tmp_sprintf("players/corpses/%0ld/%ld.dat", (id % 10), id);
 }
 
-bool
+void
 sql_exec(const char *str, ...)
 {
     PGresult *res;
     char *query;
     va_list args;
-    bool result;
 
     if (!str || !*str)
-        return false;
+        return;
 
     va_start(args, str);
     query = tmp_vsprintf(str, args);
@@ -3345,16 +3350,14 @@ sql_exec(const char *str, ...)
         errlog("FATAL: Couldn't allocate sql result");
         safe_exit(1);
     }
-    result = PQresultStatus(res) == PGRES_COMMAND_OK
-        || PQresultStatus(res) == PGRES_TUPLES_OK;
-    if (!result) {
+    if (PQresultStatus(res) != PGRES_COMMAND_OK
+        && PQresultStatus(res) != PGRES_TUPLES_OK) {
         errlog("FATAL: sql command generated error: %s",
             PQresultErrorMessage(res));
         errlog("FROM SQL: %s", query);
         raise(SIGSEGV);
     }
     PQclear(res);
-    return result;
 }
 
 PGresult *

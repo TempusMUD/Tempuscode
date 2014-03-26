@@ -103,7 +103,7 @@ SPECIAL(cuckoo)
     if (spec_mode != SPECIAL_TICK)
         return 0;
 
-    if (cmd || bird->fighting || !AWAKE(bird))
+    if (cmd || is_fighting(bird) || !AWAKE(bird))
         return 0;
 
     /* check if cuckoo is in room 66236 */
@@ -254,7 +254,7 @@ SPECIAL(gollum)
     struct room_data *to_room = NULL;
 
     /* check if gollum is in room and not fighting */
-    if (gollum->in_room->number != 66163 || gollum->fighting)
+    if (gollum->in_room->number != 66163 || is_fighting(gollum))
         return 0;
 
     if (CMD_IS("say") || CMD_IS("'")) {
@@ -311,7 +311,7 @@ SPECIAL(gollum)
     return 0;
 }
 
-//*****************************************************
+// *****************************************************
 // Pendulum description
 // There is a timer mob that does the actual swinging of the pendulum.  It
 // is a mobile primarily because rooms don't receive special ticks.

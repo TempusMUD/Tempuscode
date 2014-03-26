@@ -87,6 +87,8 @@ static void prog_do_cond_next_handler(struct prog_env *env, struct prog_evt *evt
 static void prog_do_compare_obj_vnum(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_clear_cond(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_trace(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_tag(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_untag(struct prog_env *env, struct prog_evt *evt, char *args);
 
 //external prototypes
 struct creature *real_mobile_proto(int vnum);
@@ -131,6 +133,8 @@ struct prog_command prog_cmds[] = {
 	{"doorset", true, prog_do_doorset},
 	{"doorexit", true, prog_do_doorexit},
 	{"selfpurge", true, prog_do_selfpurge},
+    {"tag", true, prog_do_tag},
+	{"untag", true, prog_do_untag},
 	{NULL, false, prog_do_halt}
 };
 
@@ -745,7 +749,7 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
         result = prog_eval_abbrev(evt, args);
 	} else if (!strcmp(arg, "fighting")) {
 		result = (env->owner_type == PROG_TYPE_MOBILE
-                  && ((struct creature *) env->owner)->fighting);
+                  && is_fighting(((struct creature *) env->owner)));
 	} else if (!strcmp(arg, "randomly")) {
 		result = number(0, 100) < atoi(args);
 	} else if (!strcmp(arg, "variable")) {
@@ -791,10 +795,11 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
 	} else if (!strcasecmp(arg, "target")) {
         // These are all subsets of the *require target <attribute> directive
 		arg = tmp_getword(&args);
-		if (!strcasecmp(arg, "class")) {
+        if (arg[0] == '\0') {
+            result = (env->target != NULL);
+        } else if (!strcasecmp(arg, "class")) {
             result = prog_eval_class(env, args);
-		}
-        else if (!strcmp(arg, "position")) {
+		} else if (!strcmp(arg, "position")) {
             int pos = search_block(args, position_types, false);
 
             if (pos < 0) {
@@ -805,32 +810,27 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
             } else {
                 result = (pos == GET_POSITION(env->target));
             }
-        }
-        else if (!strcasecmp(arg, "player")) {
+        } else if (!strcasecmp(arg, "player")) {
 			result = env->target && IS_PC(env->target);
-		}
-        else if (!strcasecmp(arg, "vnum")) {
+		} else if (!strcasecmp(arg, "vnum")) {
             result = prog_eval_vnum(env, args);
-		}
-        else if (!strcasecmp(arg, "level")) {
+		} else if (!strcasecmp(arg, "level")) {
             result = prog_eval_level(env, args);
-		}
-        else if (!strcasecmp(arg, "gen")) {
+		} else if (!strcasecmp(arg, "gen")) {
             result = prog_eval_gen(env, args);
-		}
-        else if (!strcasecmp(arg, "holding")) {
+		} else if (!strcasecmp(arg, "holding")) {
             result = prog_eval_tar_holding(env, args);
-		}
-        else if (!strcasecmp(arg, "wearing")) {
+		} else if (!strcasecmp(arg, "wearing")) {
             result = prog_eval_wearing(env, args);
-		}
-        else if (!strcasecmp(arg, "self")) {
+		} else if (!strcasecmp(arg, "self")) {
 			result = (env->owner == env->target);
-		}
-		else if (!strcasecmp(arg, "visible")) {
+		} else if (!strcasecmp(arg, "tagged")) {
+            char *tag = tmp_getword(&args);
+            result = (env->target && player_has_tag(env->target, tag));
+		} else if (!strcasecmp(arg, "visible")) {
 			if (env->owner_type == PROG_TYPE_MOBILE)
 				result = can_see_creature(((struct creature *)env->owner), env->target);
-			else
+            else
 				result = true;
 		}
 	}
@@ -1378,9 +1378,13 @@ DEFPROGHANDLER(doorexit, env, evt, args)
     } else {
         return;
     }
-
-    if (room->dir_option[dir] && target_room)
+    
+    if (room->dir_option[dir]) {
         room->dir_option[dir]->to_room = target_room;
+    } else if (target_room) {
+        CREATE(room->dir_option[dir], struct room_direction_data, 1);
+        room->dir_option[dir]->to_room = target_room;
+    }    
 }
 
 DEFPROGHANDLER(selfpurge, env, evt, args)
@@ -1437,6 +1441,22 @@ DEFPROGHANDLER(nuke, env, evt, args)
 		if (cur_prog != env && cur_prog->owner == env->owner)
 			cur_prog->exec_pt = -1;
     }
+}
+
+DEFPROGHANDLER(tag, env, evt, args)
+{
+    if (!env->target) {
+        return;
+    }
+    add_player_tag(env->target, tmp_getword(&args));
+}
+
+DEFPROGHANDLER(untag, env, evt, args)
+{
+    if (!env->target) {
+        return;
+    }
+    remove_player_tag(env->target, tmp_getword(&args));
 }
 
 static void
@@ -1788,18 +1808,33 @@ DEFPROGHANDLER(echo, env, evt, args)
 
 	arg = tmp_getword(&args);
     room = prog_get_owner_room(env);
+    
+    if (!strcasecmp(arg, "zone")) {
+        // We handle zone echos by iterating through connections here,
+        // not through every creature.  This differs from the other cases,
+        // which are room-bound.
+		for (struct descriptor_data * pt = descriptor_list; pt; pt = pt->next) {
+			if (pt->input_mode == CXN_PLAYING &&
+				pt->creature && pt->creature->in_room
+				&& pt->creature->in_room->zone == room->zone
+				&& !PLR_FLAGGED(pt->creature, PLR_WRITING)) {
+				act(args, false, pt->creature, obj, target, TO_CHAR);
+			}
+		}
+        return;
+	}
+
     switch (env->owner_type) {
     case PROG_TYPE_MOBILE:
         ch = ((struct creature *)env->owner); break;
     case PROG_TYPE_OBJECT:
         obj = ((struct obj_data *)env->owner); break;
     case PROG_TYPE_ROOM:
-		// if there's noone in the room and it's not a zecho,
-        // no point in echoing
-		if (!room->people && strcasecmp(arg, "zone"))
+		// if there's no one in the room no point in echoing
+		if (!first_living(room->people))
 			return;
 		// we just pick the top guy off the people list for rooms.
-		ch = ((struct room_data *) env->owner)->people->data;
+		ch = first_living(room->people)->data;
         break;
     default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__); break;
@@ -1816,16 +1851,7 @@ DEFPROGHANDLER(echo, env, evt, args)
         if (ch != target) {
             act(args, false, ch, obj, target, TO_CHAR);
         }
-    } else if (!strcasecmp(arg, "zone")) {
-		for (struct descriptor_data * pt = descriptor_list; pt; pt = pt->next) {
-			if (pt->input_mode == CXN_PLAYING &&
-				pt->creature && pt->creature->in_room
-				&& pt->creature->in_room->zone == room->zone
-				&& !PLR_FLAGGED(pt->creature, PLR_WRITING)) {
-				act(args, false, pt->creature, obj, target, TO_CHAR);
-			}
-		}
-	}
+    }
 }
 
 static void

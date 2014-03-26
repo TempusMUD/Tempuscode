@@ -43,7 +43,7 @@ SPECIAL(underwater_predator)
                 return 1;
             }
         }
-    } else if (!pred->fighting && NPC_FLAGGED(pred, NPC_AGGRESSIVE) &&
+    } else if (!is_fighting(pred) && NPC_FLAGGED(pred, NPC_AGGRESSIVE) &&
         (SECT_TYPE(pred->in_room) == SECT_UNDERWATER
             || SECT_TYPE(pred->in_room) == SECT_DEEP_OCEAN) &&
         EXIT(pred, UP) &&

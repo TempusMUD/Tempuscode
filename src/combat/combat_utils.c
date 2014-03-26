@@ -64,6 +64,12 @@ extern int corpse_state;
 /* The Fight related routines */
 struct obj_data *get_random_uncovered_implant(struct creature *ch, int type);
 
+static inline int
+DAM_OBJECT_IDNUM(struct obj_data *obj)
+{
+    return IS_BOMB(obj) ? BOMB_IDNUM(obj) : GET_OBJ_SIGIL_IDNUM(obj);
+}
+
 //checks for both vendors and utility mobs
 bool
 ok_damage_vendor(struct creature *ch, struct creature *victim)
@@ -237,8 +243,8 @@ calculate_thaco(struct creature *ch, struct creature *victim,
     else
         calc_thaco -= 20;
 
-    calc_thaco -= (int)((GET_INT(ch) - 12) >> 1);   /* Intelligence helps! */
-    calc_thaco -= (int)((GET_WIS(ch) - 10) >> 2);   /* So does wisdom */
+    calc_thaco -= (int)((GET_INT(ch) - 12) / 2);   /* Intelligence helps! */
+    calc_thaco -= (int)((GET_WIS(ch) - 10) / 4);   /* So does wisdom */
 
     if (AWAKE(victim))
         calc_thaco -= dexterity_defense_bonus(GET_DEX(victim));
@@ -283,9 +289,9 @@ calculate_thaco(struct creature *ch, struct creature *victim,
              ((GET_LEVEL(ch) * strength_wield_weight(GET_STR(ch)) /
                         100)
                     + (strength_wield_weight(GET_STR(ch)) / 2))))
-            calc_thaco += (wpn_wgt >> 2);
-        else if (IS_THIEF(ch) && (wpn_wgt > 12 + (GET_STR(ch) >> 2)))
-            calc_thaco += (wpn_wgt >> 3);
+            calc_thaco += (wpn_wgt / 4);
+        else if (IS_THIEF(ch) && (wpn_wgt > 12 + (GET_STR(ch) / 4)))
+            calc_thaco += (wpn_wgt / 8);
 
         if (IS_BARB(ch))
             calc_thaco += (LEARNED(ch) - weapon_prof(ch, weap)) / 8;
@@ -1201,7 +1207,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
                 GET_OBJ_VAL(heart, 1) = GET_LEVEL(ch);
                 GET_OBJ_VAL(heart, 2) = SPELL_ESSENCE_OF_EVIL;
                 if (GET_CLASS(ch) == CLASS_LESSER) {
-                    GET_OBJ_VAL(heart, 1) >>= 1;
+                    GET_OBJ_VAL(heart, 1) /= 2;
                 }
             } else {
                 GET_OBJ_VAL(heart, 1) = 0;
@@ -1400,7 +1406,7 @@ calculate_weapon_probability(struct creature *ch, int prob,
     if (GET_OBJ_VNUM(weap) > 0) {
         for (i = 0; i < MAX_WEAPON_SPEC; i++) {
             if (GET_WEAP_SPEC(ch, i).vnum == GET_OBJ_VNUM(weap)) {
-                prob += GET_WEAP_SPEC(ch, i).level << 2;
+                prob += GET_WEAP_SPEC(ch, i).level * 4;
                 break;
             }
         }
@@ -1436,7 +1442,7 @@ calculate_weapon_probability(struct creature *ch, int prob,
             (prob * weap_weight) /
             (strength_wield_weight(GET_STR(ch)) * 2);
         if (IS_BARB(ch)) {
-            prob += (LEARNED(ch) - weapon_prof(ch, weap)) >> 3;
+            prob += (LEARNED(ch) - weapon_prof(ch, weap)) / 8;
         }
     }
     return prob;
@@ -1458,7 +1464,7 @@ calculate_attack_probability(struct creature *ch)
         && GET_EQ(ch, WEAR_BODY)
         && IS_OBJ_TYPE(GET_EQ(ch, WEAR_BODY), ITEM_ARMOR)
         && IS_METAL_TYPE(GET_EQ(ch, WEAR_BODY)))
-        prob -= (GET_LEVEL(ch) >> 2);
+        prob -= (GET_LEVEL(ch) / 4);
 
     if (GET_EQ(ch, WEAR_WIELD_2))
         prob =
@@ -1470,7 +1476,7 @@ calculate_attack_probability(struct creature *ch)
     if (GET_EQ(ch, WEAR_HANDS))
         prob = calculate_weapon_probability(ch, prob, GET_EQ(ch, WEAR_HANDS));
 
-    prob += ((POS_FIGHTING - (GET_POSITION(random_opponent(ch)))) << 1);
+    prob += ((POS_FIGHTING - (GET_POSITION(random_opponent(ch)))) * 2);
 
     if (CHECK_SKILL(ch, SKILL_DBL_ATTACK))
         prob += (int)((CHECK_SKILL(ch, SKILL_DBL_ATTACK) * 0.15) +
@@ -1506,18 +1512,18 @@ calculate_attack_probability(struct creature *ch)
         prob = (int)(prob * 0.70);
 
     if (AFF2_FLAGGED(ch, AFF2_BERSERK))
-        prob += (GET_LEVEL(ch) + (GET_REMORT_GEN(ch) << 2)) >> 1;
+        prob += (GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4)) / 2;
 
     if (IS_MONK(ch))
-        prob += GET_LEVEL(ch) >> 2;
+        prob += GET_LEVEL(ch) / 4;
 
     if (AFF3_FLAGGED(ch, AFF3_DIVINE_POWER))
         prob += (skill_bonus(ch, SPELL_DIVINE_POWER) / 3);
 
     if (ch->desc)
-        prob -= ((MAX(0, ch->desc->wait >> 1)) * prob) / 100;
+        prob -= ((MAX(0, ch->desc->wait / 2)) * prob) / 100;
     else
-        prob -= ((MAX(0, GET_NPC_WAIT(ch) >> 1)) * prob) / 100;
+        prob -= ((MAX(0, GET_NPC_WAIT(ch) / 2)) * prob) / 100;
 
     prob -= ((((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 32) * prob) /
         (CAN_CARRY_W(ch) * 85));

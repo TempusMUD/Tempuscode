@@ -21,7 +21,7 @@
 extern int max_spell_num;
 extern char **spells;
 
-static inline const char *
+static inline /*@observer@*/ const char *
 spell_to_str(int spell)
 {
 	if (spell < 0 || spell > max_spell_num) {
@@ -39,7 +39,7 @@ str_to_spell(const char *spell)
 		return -1;
 	for(i = 0; i < max_spell_num; i++ ) {
 		if( strcmp(spell, spells[i]) == 0 )
-			return i;
+			return (int)i;
 	}
 	return -1;
 }
@@ -614,7 +614,7 @@ enum spell {
 
     SKILL_CHEMISTRY = 651, // merc skill
     SKILL_ADVANCED_CYBO_SURGERY = 652,
-    SKILL_SPARE3 = 653,
+    SKILL_SHIELD_SLAM = 653, //knight knockdown requiring shield
     SKILL_SPARE4 = 654,
     SKILL_BEGUILE = 655,
     SKILL_SPARE6 = 656,
@@ -667,7 +667,7 @@ enum spell {
     SKILL_CLEAVE = 694,
     SKILL_GREAT_CLEAVE = 695,
     SKILL_APPRAISE = 696,
-    SKILL_GAROTTE = 697,
+    SKILL_GARROTE = 697,
     SKILL_SHIELD_MASTERY = 698,
     SKILL_UNCANNY_DODGE = 699,
 /*
@@ -786,6 +786,7 @@ enum attack {
     TYPE_BLEED = 897,	// Open wound
     TYPE_OVERLOAD = 898,	// cyborg overloading systems.
     TYPE_SUFFERING = 899,
+    TOP_DAMAGETYPE = 900,
 };
 
 enum saving_throw {
@@ -826,8 +827,9 @@ struct spell_info_type {
 	char min_level[NUM_CLASSES];
 	char gen[NUM_CLASSES];
 	int routines;
-	char violent;
 	int16_t targets;				/* See below for use with TAR_XXX  */
+	bool violent;
+    bool is_weapon;
 };
 
 struct bard_song {
@@ -884,11 +886,15 @@ struct gun_hit_type {
 #define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict, dvict);
 
 static inline int SPELL_LEVEL( int spell, int char_class ) {
-	return spell_info[spell].min_level[char_class];
+	return (int)spell_info[spell].min_level[char_class];
 }
 static inline int SPELL_GEN( int spell, int char_class ) {
-	    return spell_info[spell].gen[char_class];
+    return (int)spell_info[spell].gen[char_class];
 }
+static inline bool IS_WEAPON(int spell) {
+    return spell_info[spell].is_weapon;
+}
+
 
 bool is_able_to_learn(struct creature *ch, int spl);
 
@@ -998,7 +1004,7 @@ void mag_objects(int level, struct creature *ch, struct obj_data *obj,
 int cast_spell(struct creature *ch, struct creature *tch,
 	struct obj_data *tobj, int *tdir, int spellnum);
 
-int mag_savingthrow(struct creature *ch, int level, int type);
+bool mag_savingthrow(struct creature *ch, int level, int type);
 
 int mag_manacost(struct creature *ch, int spellnum);
 

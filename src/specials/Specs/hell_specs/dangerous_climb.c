@@ -18,7 +18,7 @@ SPECIAL(dangerous_climb)
         send_to_char(ch,
             "A rock shifts under your feet sending you tumbling down the path!\r\n"
             "Your body crashes painfully against the rocks below!!\r\n");
-        dam = dice(5, 8) + (GET_WEIGHT(ch) >> 4);
+        dam = dice(5, 8) + (GET_WEIGHT(ch) / 16);
         dam -= (dam * (100 - GET_AC(ch))) / 400;
         if (damage(ch, ch, NULL, dam, TYPE_FALLING, -1))
             return 1;

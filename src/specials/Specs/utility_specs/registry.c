@@ -19,12 +19,11 @@ SPECIAL(registry)
             "Who's there?  Come visible to register, infidel!");
         return 1;
     }
-    cost = GET_LEVEL(ch) * 100;
-    cost += (cost * cost_modifier(ch, reg)) / 100;
+    cost = adjusted_price(ch, reg, GET_LEVEL(ch) * 100);
 
     if (GET_GOLD(ch) < cost) {
         sprintf(buf2,
-            "It costs %d coins to register here, which you do not have.",
+            "It costs %'d coins to register here, which you do not have.",
             cost);
         perform_tell(reg, ch, buf2);
         return 1;
@@ -124,7 +123,7 @@ SPECIAL(registry)
     GET_GOLD(ch) -= cost;
     sprintf(buf3, "Welcome to %s, %s.", home_towns[home], GET_NAME(ch));
     perform_say(reg, "say", buf3);
-    sprintf(buf2, "That will be %d coins.", cost);
+    sprintf(buf2, "That will be %'d coins.", cost);
     perform_tell(reg, ch, buf2);
 
     if ((cert = read_object(vcert))) {

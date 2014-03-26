@@ -13,7 +13,7 @@ SPECIAL(temple_healer)
     if (spec_mode != SPECIAL_TICK)
         return false;
 
-    if (self->fighting) {
+    if (is_fighting(self)) {
         vict = random_opponent(self);
 
         if (vict->in_room == self->in_room) {
@@ -43,7 +43,7 @@ SPECIAL(temple_healer)
         }
     }
 
-    if (GET_POSITION(self) != POS_FIGHTING && !self->fighting) {
+    if (GET_POSITION(self) != POS_FIGHTING && !is_fighting(self)) {
         switch (number(0, 18)) {
         case 0:
             perform_say(self, "say",
