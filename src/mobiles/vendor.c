@@ -715,7 +715,7 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
             "I make these.  Why should I buy it back from you?");
         return;
     }
-    cost = vendor_get_value(ch, self, obj, shop->markdown, shop->currency);
+    cost = vendor_get_value(self, ch, obj, shop->markdown, shop->currency);
 
     amt_carried = (shop->currency) ? GET_CASH(self) : GET_GOLD(self);
 
