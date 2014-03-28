@@ -3440,16 +3440,29 @@ ASPELL(spell_bless)
 
 ASPELL(spell_calm)
 {
-    if (!victim) {
-        send_to_char(ch, "Something that shouldn't have "
-            "happened just did.\r\n");
-        errlog("NULL victim in spell_calm()");
+    struct room_affect_data rm_aff;
+
+    if ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL) {
+        send_to_char(ch, "It's already rather peaceful here.\r\n");
         return;
     }
 
-    remove_all_combat(victim);
+    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
+        struct creature *tch = it->data;
+        remove_all_combat(tch);
+    }
+    
 
-    return;
+    rm_aff.description = strdup("   A sacred calm permeates the air.\r\n");
+    rm_aff.level = level;
+    rm_aff.spell_type = SPELL_CALM;
+    rm_aff.type = RM_AFF_FLAGS;
+    rm_aff.duration = (skill_bonus(ch, SPELL_CALM)/2);
+    rm_aff.owner = GET_IDNUM(ch);
+    rm_aff.flags = ROOM_PEACEFUL;
+    affect_to_room(ch->in_room, &rm_aff);
+
+    gain_skill_prof(ch, SPELL_CALM);
 }
 
 ASPELL(spell_damn)
