@@ -3452,6 +3452,7 @@ ASPELL(spell_calm)
         remove_all_combat(tch);
     }
     
+    send_to_room("A sacred calm permeates the air.\r\n", ch->in_room);
 
     rm_aff.description = strdup("   A sacred calm permeates the air.\r\n");
     rm_aff.level = level;
