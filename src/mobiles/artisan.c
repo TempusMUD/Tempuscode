@@ -8,6 +8,7 @@
 #include <libpq-fe.h>
 #include <libxml/parser.h>
 #include <glib.h>
+#include <inttypes.h>
 
 #include "interpreter.h"
 #include "utils.h"
@@ -246,7 +247,7 @@ list_commission_item(struct creature *ch,
             tmp_strcat(CCGRN(ch, C_NRM), " Available ", CCNRM(ch, C_NRM),
             NULL);
 
-    return tmp_sprintf("%s%s  %s %-43s %11ld\r\n", msg,
+    return tmp_sprintf("%s%s  %s %-43s %" PRId64 "\r\n", msg,
                        item_prefix,
                        needed,
                        CAP(tmp_strdup(obj->name)),
