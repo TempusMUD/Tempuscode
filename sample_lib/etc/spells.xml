@@ -458,6 +458,7 @@ Asylum saves us all!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
     <flag value="divine"/>
+    <flag value="good"/>
   </spell>
   <spell id="324" name="capacitance boost">
     <granted class="physic" level="6"/>

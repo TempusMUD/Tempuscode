@@ -796,6 +796,7 @@ update_trail(struct creature *ch, struct room_data *room, int dir, int mode)
 bool
 char_from_room(struct creature *ch, bool check_specials)
 {
+    struct room_affect_data *rm_aff = NULL, *next_aff = NULL;
 
     if (ch == NULL || ch->in_room == NULL) {
         errlog("NULL or NOWHERE in handler.c, char_from_room");
@@ -827,6 +828,16 @@ char_from_room(struct creature *ch, bool check_specials)
 
     if (GET_OLC_SRCH(ch))
         GET_OLC_SRCH(ch) = NULL;
+
+    //Remove a knight's calm effect
+    for (rm_aff = ch->in_room->affects; rm_aff; rm_aff = next_aff) {
+        next_aff=rm_aff->next;
+        if (rm_aff->spell_type == SPELL_CALM && rm_aff->owner==GET_IDNUM(ch)) {
+            affect_from_room(ch->in_room, rm_aff);
+            send_to_char(ch, "Your departure dissolves the divine peace.\r\n");
+            act("$n's departure causes the divine peace to wither and fade.", false, ch, NULL, NULL, TO_ROOM);
+            }
+    }
 
     // Some specials improperly deal with SPECIAL_LEAVE mode
     // by returning a true value.  This should take care of that.
