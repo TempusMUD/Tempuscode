@@ -1535,7 +1535,7 @@ ACMD(do_drop)
 
         if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2) || !strcasecmp("gold", arg2))
             perform_drop_gold(ch, amount, mode, RDR);
-        else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2))
+        else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2) || !strcasecmp("cash", arg2))
             perform_drop_credits(ch, amount, mode, RDR);
         else {
             /* code to drop multiple items.  anyone want to write it? -je */
@@ -1884,7 +1884,7 @@ ACMD(do_give)
 
         if (!strcasecmp("coins", arg2) || !strcasecmp("coin", arg2) || !strcasecmp("gold", arg2))
             transfer_money(ch, vict, amount, 0, false);
-        else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2))
+        else if (!strcasecmp("credits", arg2) || !strcasecmp("credit", arg2) || !strcasecmp("cash", arg2))
             transfer_money(ch, vict, amount, 1, false);
         else
             /* code to give multiple items.  anyone want to write it? -je */
@@ -1981,12 +1981,12 @@ ACMD(do_plant)
     else if (is_number(arg)) {
         amount = atoi(arg);
         argument = one_argument(argument, arg);
-        if (!strcasecmp("coins", arg) || !strcasecmp("coin", arg)) {
+        if (!strcasecmp("coins", arg) || !strcasecmp("coin", arg) || !strcasecmp("gold", arg)) {
             argument = one_argument(argument, arg);
             if ((vict = give_find_vict(ch, arg)))
                 transfer_money(ch, vict, amount, 0, true);
             return;
-        } else if (!strcasecmp("credits", arg) || !strcasecmp("credit", arg)) {
+        } else if (!strcasecmp("credits", arg) || !strcasecmp("credit", arg) || !strcasecmp("cash", arg)) {
             argument = one_argument(argument, arg);
             if ((vict = give_find_vict(ch, arg)))
                 transfer_money(ch, vict, amount, 1, true);
