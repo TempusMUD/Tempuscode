@@ -229,6 +229,11 @@ save_objs(struct creature * ch, struct zone_data * zone)
 
         if (obj->action_desc) {
             tmp = strlen(obj->action_desc);
+
+            if (tmp >= 2 && obj->action_desc[tmp-2] == '\r' && obj->action_desc[tmp-1] == '\n') {
+                obj->action_desc[tmp-2] = '\0';
+            }
+
             for (i = 0; i < tmp; i++)
                 if (obj->action_desc[i] != '\r')
                     fputc(obj->action_desc[i], file);
