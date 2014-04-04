@@ -446,6 +446,8 @@ SPECIAL(guild)
     if (percent > LEARNED(ch))
         percent -= (percent - LEARNED(ch)) / 2;
 
+    percent = MIN(percent, 125); //At most, set to 125 to avoid overflow
+
     SET_SKILL(ch, skill_num, percent);
 
     if (GET_SKILL(ch, skill_num) >= LEARNED(ch))
