@@ -458,17 +458,17 @@ psionic_activity(struct creature *ch)
         cast_spell(ch, ch, NULL, NULL, SPELL_CONFIDENCE);
 }
 
-int
+bool
 psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
 {
     struct creature *vict = NULL;
 
     if (!is_fighting(ch))
-        return 0;
+        return false;
 
     // pick an enemy
     if (!(vict = choose_opponent(ch, precious_vict)))
-        return 0;
+        return false;
 
     int aggression = calculate_mob_aggression(ch, vict);
 
@@ -476,24 +476,24 @@ psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
     if (AFF3_FLAGGED(vict, AFF3_PSISHIELD)
         && can_cast_spell(ch, SPELL_PSIONIC_SHATTER)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_PSIONIC_SHATTER);
-        return 1;
+        return true;
     }
     // Prioritize healing with aggression
     if (GET_HIT(ch) < (GET_MAX_HIT(ch) * MIN(20, MAX(80, aggression)) / 100)
         && can_cast_spell(ch, SPELL_WOUND_CLOSURE)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_WOUND_CLOSURE);
-        return 1;
+        return true;
     }
 
     if (aggression > 75) {
         // extremely aggressive - just attack hard
         if (can_cast_spell(ch, SKILL_PSIBLAST)) {
             perform_offensive_skill(ch, vict, SKILL_PSIBLAST);
-            return 1;
+            return true;
         } else if (GET_POSITION(vict) > POS_SITTING
             && can_cast_spell(ch, SPELL_EGO_WHIP)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP);
-            return 1;
+            return true;
         }
     }
     if (aggression > 50) {
@@ -502,24 +502,26 @@ psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
             && can_cast_spell(ch, SKILL_PSIDRAIN)
             && can_psidrain(ch, vict, NULL, false)) {
             perform_psidrain(ch, vict);
+            return true;
         } else if (!affected_by_spell(vict, SPELL_PSYCHIC_CRUSH)
             && can_cast_spell(ch, SPELL_PSYCHIC_CRUSH)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_CRUSH);
-            return 1;
+            return true;
         } else if (!affected_by_spell(vict, SPELL_MOTOR_SPASM)
             && can_cast_spell(ch, SPELL_MOTOR_SPASM)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_MOTOR_SPASM);
-            return 1;
+            return true;
         } else if (!affected_by_spell(ch, SPELL_ADRENALINE)
             && can_cast_spell(ch, SPELL_ADRENALINE)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_ADRENALINE);
+            return true;
         } else if (GET_POSITION(vict) > POS_SITTING
             && can_cast_spell(ch, SPELL_EGO_WHIP)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_EGO_WHIP);
-            return 1;
+            return true;
         } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
             perform_offensive_skill(ch, vict, SKILL_PSIBLAST);
-            return 1;
+            return true;
         }
     }
     if (aggression > 25) {
@@ -528,39 +530,40 @@ psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
             && !affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE)
             && can_cast_spell(ch, SPELL_PSYCHIC_RESISTANCE)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_PSYCHIC_RESISTANCE);
+            return true;
         } else if (!IS_CONFUSED(vict)
             && can_cast_spell(ch, SPELL_CONFUSION)
             && (IS_MAGE(vict) || IS_PSIONIC(vict) || IS_CLERIC(vict) ||
                 IS_KNIGHT(vict) || IS_PHYSIC(vict))) {
             cast_spell(ch, vict, NULL, NULL, SPELL_CONFUSION);
-            return 1;
+            return true;
         } else if (GET_MOVE(ch) < GET_MAX_MOVE(ch) / 4
             && can_cast_spell(ch, SPELL_ENDURANCE)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_ENDURANCE);
-            return 1;
+            return true;
         } else if (GET_MOVE(ch) < GET_MAX_MOVE(ch) / 4
             && can_cast_spell(ch, SPELL_DERMAL_HARDENING)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_DERMAL_HARDENING);
-            return 1;
+            return true;
         } else if (!AFF2_FLAGGED(ch, AFF2_VERTIGO)
             && can_cast_spell(ch, SPELL_VERTIGO)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_VERTIGO);
-            return 1;
+            return true;
         } else if (!affected_by_spell(vict, SPELL_PSYCHIC_FEEDBACK)
             && can_cast_spell(ch, SPELL_PSYCHIC_FEEDBACK)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_PSYCHIC_FEEDBACK);
-            return 1;
+            return true;
         } else if (!affected_by_spell(vict, SPELL_WEAKNESS)
             && can_cast_spell(ch, SPELL_WEAKNESS)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_WEAKNESS);
-            return 1;
+            return true;
         } else if (!affected_by_spell(vict, SPELL_CLUMSINESS)
             && can_cast_spell(ch, SPELL_CLUMSINESS)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_CLUMSINESS);
-            return 1;
+            return true;
         } else if (can_cast_spell(ch, SKILL_PSIBLAST)) {
             perform_offensive_skill(ch, vict, SKILL_PSIBLAST);
-            return 1;
+            return true;
         }
     }
     if (aggression > 5) {
@@ -568,18 +571,18 @@ psionic_mob_fight(struct creature *ch, struct creature *precious_vict)
         if (GET_POSITION(vict) > POS_SLEEPING
             && can_cast_spell(ch, SPELL_MELATONIC_FLOOD)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_MELATONIC_FLOOD);
-            return 1;
+            return true;
         } else if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_ASTRAL_SPELL);
-            return 1;
+            return true;
         } else if (can_cast_spell(ch, SPELL_AMNESIA)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_AMNESIA);
-            return 1;
+            return true;
         } else if (can_cast_spell(ch, SPELL_FEAR)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_FEAR);
-            return 1;
+            return true;
         }
     }
 
-    return 0;
+    return false;
 }

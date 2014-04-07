@@ -416,12 +416,14 @@ mage_best_attack(struct creature *ch, struct creature *vict)
     if (aggression > 25) {
         // not very aggressive - play more defensively
         if (can_cast_spell(ch, SPELL_DISPEL_MAGIC)
-            && dispel_is_advisable(vict))
+            && dispel_is_advisable(vict)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_MAGIC);
-        else if (!AFF2_FLAGGED(vict, AFF2_SLOW)
-            && can_cast_spell(ch, SPELL_SLOW))
+            return;
+        } else if (!AFF2_FLAGGED(vict, AFF2_SLOW)
+            && can_cast_spell(ch, SPELL_SLOW)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_SLOW);
-        else if (mage_damaging_attack(ch, vict))
+            return;
+        } else if (mage_damaging_attack(ch, vict))
             return;
     }
     if (aggression > 5) {

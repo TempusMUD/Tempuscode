@@ -3104,14 +3104,17 @@ mobile_battle_activity(struct creature *ch, struct creature *precious_vict)
             if (random_fractional_5()) {
                 if (can_cast_spell(ch, SPELL_SPIRIT_HAMMER)) {
                     cast_spell(ch, vict, NULL, NULL, SPELL_SPIRIT_HAMMER);
+                return 0;
                 } else if (can_cast_spell(ch, SPELL_CALL_LIGHTNING)) {
                     cast_spell(ch, vict, NULL, NULL, SPELL_CALL_LIGHTNING);
+                return 0;
                 } else if (can_cast_spell(ch, SPELL_HARM)) {
                     cast_spell(ch, vict, NULL, NULL, SPELL_HARM);
+                return 0;
                 } else if (can_cast_spell(ch, SPELL_FLAME_STRIKE)) {
                     cast_spell(ch, vict, NULL, NULL, SPELL_FLAME_STRIKE);
-                }
                 return 0;
+                }
             }
         }
     }
@@ -4362,11 +4365,13 @@ knight_battle_activity(struct creature *ch, struct creature *precious_vict)
                && !affected_by_spell(vict, SPELL_DAMN)
                && random_fractional_4()) {
         cast_spell(ch, vict, NULL, NULL, SPELL_DAMN);
+        return true;
     } else if (!IS_EVIL(vict)
                && can_cast_spell(ch, SPELL_TAINT)
                && !affected_by_spell(vict, SPELL_TAINT)
                && random_fractional_4()) {
         cast_spell(ch, vict, NULL, NULL, SPELL_TAINT);
+        return true;
     } else if ((GET_LEVEL(ch) >= 20) &&
         GET_EQ(ch, WEAR_WIELD) && GET_EQ(vict, WEAR_WIELD) &&
         random_fractional_3()) {

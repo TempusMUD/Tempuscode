@@ -27,7 +27,7 @@ bool barbarian_battle_activity(struct creature * ch, struct creature *precious_v
 
 void psionic_activity(struct creature *ch);
 void psionic_best_attack(struct creature *ch, struct creature *vict);
-int psionic_mob_fight(struct creature *ch, struct creature *precious_vict);
+bool psionic_mob_fight(struct creature *ch, struct creature *precious_vict);
 
 void mage_best_attack(struct creature *ch, struct creature *vict);
 void mage_activity(struct creature *ch);
