@@ -2216,7 +2216,7 @@ damage(struct creature *ch, struct creature *victim,
         bool arena = is_arena_combat(ch, victim);
 
         if (ch) {
-            if (attacktype != SKILL_SNIPE) {
+            if (attacktype != SKILL_SNIPE && attacktype != SPELL_PETRIFY) {
                 gain_kill_exp(ch, victim);
             }
 
