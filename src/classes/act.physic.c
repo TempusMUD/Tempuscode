@@ -1115,7 +1115,7 @@ ASPELL(spell_area_stasis)
     }
 
     rm_aff.description =
-        strdup("    The room seems to be physically stable.\r\n");
+        strdup("   The room seems to be physically stable.\r\n");
     rm_aff.level = skill_bonus(ch, SPELL_AREA_STASIS);
     rm_aff.type = RM_AFF_FLAGS;
     rm_aff.flags = ROOM_NOPHYSIC;
