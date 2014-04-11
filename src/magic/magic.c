@@ -2553,8 +2553,8 @@ mag_affects(int level,
                 if (ch == tch || !can_see_creature(ch, tch))
                     continue;
 
-                int percent = (number(1, 101) - GET_LEVEL(ch));
-                if (percent < CHECK_SKILL(ch, SKILL_BERSERK))
+                int percent = (number(1, 101) + GET_LEVEL(ch));
+                if (percent < CHECK_SKILL(ch, SONG_RHYTHM_OF_RAGE))
                     continue;
                 else {
                     act("You attack $N in your berserk rage!!!",
