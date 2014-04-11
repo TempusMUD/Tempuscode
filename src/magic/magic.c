@@ -1404,6 +1404,7 @@ mag_affects(int level,
         aff[0].location = APPLY_DEX;
         aff[0].modifier = -number(0, (level / 16));
         to_vict = "Your movements slow to a tortured crawl.";
+        to_room = "$n's movements slow to a tortured crawl.";
         break;
 
     case SPELL_PROT_FROM_EVIL:
@@ -1996,6 +1997,7 @@ mag_affects(int level,
             skill_bonus(ch, SPELL_TEMPORAL_DILATION) / 25);
         to_vict =
             "Time seems to speed up around you as your movements slow to a crawl.";
+        to_room = "$n's movements slow to a tortured crawl.";
         break;
 
     case SPELL_DIMENSIONAL_SHIFT:
