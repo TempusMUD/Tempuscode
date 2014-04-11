@@ -37,7 +37,7 @@
 #include "spells.h"
 #include "fight.h"
 
-int holytouch_after_effect(long owner, struct creature *vict, int level);
+bool holytouch_after_effect(long owner, struct creature *vict, int level);
 void healing_holytouch(struct creature *ch, struct creature *vict);
 void malovent_holy_touch(struct creature *ch, struct creature *vict);
 ACMD(do_holytouch)
@@ -86,7 +86,7 @@ ACMD(do_holytouch)
         - falls to knees screaming
         - eyeballs appear on death
 */
-int
+bool
 holytouch_after_effect(long owner, struct creature *vict, int level)
 {
     int dam = level * 2;
@@ -105,7 +105,7 @@ holytouch_after_effect(long owner, struct creature *vict, int level)
         obj_to_char(unequip_char(vict, WEAR_EYES, EQUIP_WORN), vict);
 
     if (damage(vict, vict, NULL, dam, TYPE_MALOVENT_HOLYTOUCH, WEAR_EYES))
-        return 1;
+        return true;
     if (!IS_NPC(vict) || !NPC_FLAGGED(vict, NPC_NOBLIND)) {
         struct affected_type af;
 
@@ -123,7 +123,7 @@ holytouch_after_effect(long owner, struct creature *vict, int level)
         affect_to_char(vict, &af);
     }
 
-    return 0;
+    return false;
 }
 
 /*
@@ -262,7 +262,6 @@ healing_holytouch(struct creature *ch, struct creature *vict)
             if (gen > 9) {
                 if (affected_by_spell(vict, SPELL_PETRIFY))
                     affect_from_char(vict, SPELL_PETRIFY);
-                REMOVE_BIT(AFF2_FLAGS(vict), AFF2_PETRIFIED);
             }
         }
     } else {

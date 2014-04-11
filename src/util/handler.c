@@ -507,11 +507,11 @@ affect_to_char(struct creature *ch, struct affected_type *af)
  * reaches zero). Pointer *af must never be NIL!  Frees mem and calls
  * affect_location_apply
  */
-int holytouch_after_effect(long owner, struct creature *vict, int level);
+bool holytouch_after_effect(long owner, struct creature *vict, int level);
 int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
     int pos);
 
-int
+bool
 affect_remove(struct creature *ch, struct affected_type *af)
 {
     struct affected_type *temp;
@@ -531,7 +531,7 @@ affect_remove(struct creature *ch, struct affected_type *af)
 
     if (!ch->affected) {
         errlog("!ch->affected in affect_remove()");
-        return 0;
+        return false;
     }
     if (af->type == SPELL_TAINT) {
         apply_soil_to_char(ch, GET_EQ(ch, WEAR_HEAD), SOIL_BLOOD, WEAR_HEAD);
@@ -557,21 +557,21 @@ affect_remove(struct creature *ch, struct affected_type *af)
             break;
         }
     }
-    return 0;
+    return true;
 }
 
 /* Call affect_remove with every spell of spelltype "skill" */
-int
+bool
 affect_from_char(struct creature *ch, int16_t type)
 {
     struct affected_type *hjp = NULL, *next_hjp = NULL;
-    int found = 0;
+    bool found = false;
 
     for (hjp = ch->affected; hjp; hjp = next_hjp) {
         next_hjp = hjp->next;
         if (hjp->type == type) {
             affect_remove(ch, hjp);
-            found = 1;
+            found = true;
         }
     }
     return found;

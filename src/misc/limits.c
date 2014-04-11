@@ -528,6 +528,89 @@ save_all_players(void)
     }
 }
 
+static void
+decay_corpse(struct obj_data *corpse)
+{
+    if (corpse->carried_by)
+        act("$p decays in your hands.", false, corpse->carried_by, corpse, NULL,
+            TO_CHAR);
+    if (corpse->worn_by)
+        act("$p disintegrates as you are wearing it.", false,
+            corpse->worn_by, corpse, NULL, TO_CHAR);
+    else if ((corpse->in_room != NULL) && (corpse->in_room->people)) {
+        const char *msg =
+            "$p decays into nothing right before your eyes.";
+
+        if (ROOM_FLAGGED(corpse->in_room, ROOM_FLAME_FILLED) ||
+            SECT_TYPE(corpse->in_room) == SECT_FIRE_RIVER ||
+            GET_PLANE(corpse->in_room) == PLANE_HELL_4 ||
+            GET_PLANE(corpse->in_room) == PLANE_HELL_1
+            || !number(0, 50)) {
+            msg = "$p spontaneously combusts and is devoured by flames.";
+        } else if (ROOM_FLAGGED(corpse->in_room, ROOM_ICE_COLD)
+                   || GET_PLANE(corpse->in_room) == PLANE_HELL_5
+                   || !number(0, 250)) {
+            msg = "$p freezes and shatters into dust.";
+        } else if (GET_PLANE(corpse->in_room) == PLANE_ASTRAL
+                   || !number(0, 250)) {
+            msg = "A sudden psychic wind rips through $p.";
+        } else if (GET_TIME_FRAME(corpse->in_room) == TIME_TIMELESS
+                   || !number(0, 250)) {
+            msg =
+                "$p is pulled into a timeless void and nullified.";
+        } else if (SECT_TYPE(corpse->in_room) == SECT_WATER_SWIM
+                   || SECT_TYPE(corpse->in_room) == SECT_WATER_NOSWIM) {
+            msg = "$p sinks beneath the surface and is gone.";
+        } else if (IS_METAL_TYPE(corpse)
+                   || IS_GLASS_TYPE(corpse)
+                   || IS_WOOD_TYPE(corpse)
+                   || IS_PLASTIC_TYPE(corpse)) {
+            msg = "$p disintegrates before your eyes.";
+        } else if (IS_STONE_TYPE(corpse)
+                   || GET_OBJ_MATERIAL(corpse) == MAT_BONE) {
+            msg = "$p disintegrates into dust and is blown away.";
+        } else if (room_is_underwater(corpse->in_room)) {
+            msg = "A school of small fish appears and devours $p.";
+        } else if (!ROOM_FLAGGED(corpse->in_room, ROOM_INDOORS)
+                   && !number(0, 2)) {
+            msg = "A flock of carrion birds hungrily devours $p.";
+        } else if (number(0, 3)) {
+            msg = "A quivering horde of maggots consumes $p.";
+        } else {
+            msg = "$p decays into nothing before your eyes.";
+        }
+
+        act(msg, true, NULL, corpse, NULL, TO_ROOM);
+        act(msg, true, NULL, corpse, NULL, TO_CHAR);
+    }
+
+    struct obj_data *next_obj;
+    for (struct obj_data *obj = corpse->contains; obj; obj = next_obj) {
+        next_obj = obj->next_content; /* Next in inventory */
+        obj_from_obj(obj);
+
+        if (corpse->in_obj)
+            obj_to_obj(obj, corpse->in_obj);
+        else if (corpse->carried_by)
+            obj_to_char(obj, corpse->carried_by);
+        else if (corpse->worn_by)
+            obj_to_char(obj, corpse->worn_by);
+        else if (corpse->in_room != NULL)
+            obj_to_room(obj, corpse->in_room);
+        else
+            raise(SIGSEGV);
+
+        if (IS_IMPLANT(obj) && !CAN_WEAR(obj, ITEM_WEAR_TAKE)) {
+            SET_BIT(obj->obj_flags.wear_flags, ITEM_WEAR_TAKE);
+            if (!IS_OBJ_TYPE(obj, ITEM_ARMOR))
+                damage_eq(NULL, obj, (GET_OBJ_DAM(obj) / 4), -1);
+            else
+                damage_eq(NULL, obj, (GET_OBJ_DAM(obj) / 2), -1);
+        }
+    }
+    extract_obj(corpse);
+}
+
 /* Update PCs, NPCs, objects, and shadow zones */
 void
 point_update(void)
@@ -751,87 +834,8 @@ point_update(void)
             if (GET_OBJ_TIMER(j) > 0)
                 GET_OBJ_TIMER(j)--;
 
-            if (GET_OBJ_TIMER(j) <= 0) {
-                if (j->carried_by)
-                    act("$p decays in your hands.", false, j->carried_by, j, NULL,
-                        TO_CHAR);
-                if (j->worn_by)
-                    act("$p disintegrates as you are wearing it.", false,
-                        j->worn_by, j, NULL, TO_CHAR);
-                else if ((j->in_room != NULL) && (j->in_room->people)) {
-                    const char *msg =
-                        "$p decays into nothing right before your eyes.";
-
-                    if (ROOM_FLAGGED(j->in_room, ROOM_FLAME_FILLED) ||
-                        SECT_TYPE(j->in_room) == SECT_FIRE_RIVER ||
-                        GET_PLANE(j->in_room) == PLANE_HELL_4 ||
-                        GET_PLANE(j->in_room) == PLANE_HELL_1
-                        || !number(0, 50)) {
-                        msg =
-                            "$p spontaneously combusts and is devoured by flames.";
-                    } else if (ROOM_FLAGGED(j->in_room, ROOM_ICE_COLD)
-                        || GET_PLANE(j->in_room) == PLANE_HELL_5
-                        || !number(0, 250)) {
-                        msg = "$p freezes and shatters into dust.";
-                    } else if (GET_PLANE(j->in_room) == PLANE_ASTRAL
-                        || !number(0, 250)) {
-                        msg = "A sudden psychic wind rips through $p.";
-                    } else if (GET_TIME_FRAME(j->in_room) == TIME_TIMELESS
-                        || !number(0, 250)) {
-                        msg =
-                            "$p is pulled into a timeless void and nullified.";
-                    } else if (SECT_TYPE(j->in_room) == SECT_WATER_SWIM
-                        || SECT_TYPE(j->in_room) == SECT_WATER_NOSWIM) {
-                        msg = "$p sinks beneath the surface and is gone.";
-                    } else if (IS_METAL_TYPE(j)
-                        || IS_GLASS_TYPE(j)
-                        || IS_WOOD_TYPE(j)
-                        || IS_PLASTIC_TYPE(j)) {
-                        msg = "$p disintegrates before your eyes.";
-                    } else if (IS_STONE_TYPE(j)
-                        || GET_OBJ_MATERIAL(j) == MAT_BONE) {
-                        msg = "$p disintegrates into dust and is blown away.";
-                    } else if (room_is_underwater(j->in_room)) {
-                        msg = "A school of small fish appears and devours $p.";
-                    } else if (!ROOM_FLAGGED(j->in_room, ROOM_INDOORS)
-                        && !number(0, 2)) {
-                        msg = "A flock of carrion birds hungrily devours $p.";
-                    } else if (number(0, 3)) {
-                        msg = "A quivering horde of maggots consumes $p.";
-                    } else {
-                        msg = "$p decays into nothing before your eyes.";
-                    }
-
-                    act(msg, true, NULL, j, NULL, TO_ROOM);
-                    act(msg, true, NULL, j, NULL, TO_CHAR);
-                }
-
-                for (jj = j->contains; jj; jj = next_thing2) {
-                    next_thing2 = jj->next_content; /* Next in inventory */
-                    obj_from_obj(jj);
-
-                    if (j->in_obj)
-                        obj_to_obj(jj, j->in_obj);
-                    else if (j->carried_by)
-                        obj_to_char(jj, j->carried_by);
-                    else if (j->worn_by)
-                        obj_to_char(jj, j->worn_by);
-                    else if (j->in_room != NULL)
-                        obj_to_room(jj, j->in_room);
-                    else
-                        raise(SIGSEGV);
-
-                    if (IS_IMPLANT(jj) && !CAN_WEAR(jj, ITEM_WEAR_TAKE)) {
-
-                        SET_BIT(jj->obj_flags.wear_flags, ITEM_WEAR_TAKE);
-
-                        if (!IS_OBJ_TYPE(jj, ITEM_ARMOR))
-                            damage_eq(NULL, jj, (GET_OBJ_DAM(jj) / 4), -1);
-                        else
-                            damage_eq(NULL, jj, (GET_OBJ_DAM(jj) / 2), -1);
-                    }
-                }
-                extract_obj(j);
+            if (GET_OBJ_TIMER(j) == 0) {
+                decay_corpse(j);
             }
         } else if (GET_OBJ_VNUM(j) < 0 &&
             ((IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("head", j->aliases)) ||

@@ -568,10 +568,6 @@ desc_char_trailers(struct creature *ch, struct creature *i)
         acc_strcat("...", HSSH(i),
             " is followed by a malodorous stench...\r\n", NULL);
 
-    if (AFF2_FLAGGED(i, AFF2_PETRIFIED))
-        acc_strcat("...", HSSH(i),
-            " is petrified into solid stone.\r\n", NULL);
-
     if (affected_by_spell(i, SPELL_ENTANGLE)) {
         if (i->in_room->sector_type == SECT_CITY
             || i->in_room->sector_type == SECT_CRACKED_ROAD)
@@ -2276,8 +2272,9 @@ acc_append_affects(struct creature *ch, int8_t mode)
         || AFF3_FLAGGED(ch, AFF3_POISON_2)
         || AFF3_FLAGGED(ch, AFF3_POISON_3))
         acc_strcat("You are poisoned!\r\n", NULL);
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
-        acc_strcat("You have been turned to stone.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_PETRIFY))
+        acc_sprintf("You are turning into %sSTONE%s!\r\n",
+                    CCNRM_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
     if (AFF3_FLAGGED(ch, AFF3_RADIOACTIVE))
         acc_strcat("You are radioactive.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_GAMMA_RAY))

@@ -32,9 +32,9 @@ void affect_modify(struct creature *ch, int16_t loc, int16_t mod, long bitv,
     __attribute__ ((nonnull));
 void affect_to_char(struct creature *ch, struct affected_type *af)
     __attribute__ ((nonnull));
-int affect_remove(struct creature *ch, struct affected_type *af)
+bool affect_remove(struct creature *ch, struct affected_type *af)
     __attribute__ ((nonnull));
-int affect_from_char(struct creature *ch, int16_t type)
+bool affect_from_char(struct creature *ch, int16_t type)
     __attribute__ ((nonnull));
 struct affected_type *affected_by_spell(struct creature *ch, int16_t type)
     __attribute__ ((nonnull));

@@ -579,11 +579,6 @@ damage_reduction(struct creature *ch, struct creature *attacker)
     else if ((taf = affected_by_spell(ch, SPELL_DERMAL_HARDENING)))
         dam_reduction += (taf->level) / 6;
 
-    // ************************** Petrification **************************
-    // *******************************************************************
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED))
-        dam_reduction += 75;
-
     if (attacker) {
         /// ****************** Various forms of protection ***************
         if (IS_EVIL(attacker) && AFF_FLAGGED(ch, AFF_PROTECT_EVIL))
@@ -699,16 +694,6 @@ creature_setPosition(struct creature * ch, int new_pos)
         return false;
     if (new_pos < BOTTOM_POS || new_pos > TOP_POS)
         return false;
-    // Petrified
-    if (AFF2_FLAGGED(ch, AFF2_PETRIFIED)) {
-        // Stoners can stop fighting
-        if (GET_POSITION(ch) == POS_FIGHTING && new_pos == POS_STANDING) {
-            GET_POSITION(ch) = new_pos;
-            return true;
-        } else if (new_pos > GET_POSITION(ch)) {
-            return false;
-        }
-    }
     if (new_pos == POS_STANDING && is_fighting(ch)) {
         GET_POSITION(ch) = POS_FIGHTING;
     } else {
