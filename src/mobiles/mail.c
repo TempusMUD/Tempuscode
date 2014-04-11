@@ -166,7 +166,7 @@ store_mail(const char *from_name, long to_id, const char *txt, GList *cc_list,
         "Date: %s\r\n  To: %s\r\nFrom: %s",
         time_str, player_name_by_idnum(to_id), from_name);
 
-    if (!cc_list) {
+    if (cc_list != NULL) {
         GList *si;
 
         for (si = cc_list; si; si = si->next)
