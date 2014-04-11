@@ -1441,8 +1441,8 @@ calculate_weapon_probability(struct creature *ch, int prob,
         prob -=
             (prob * weap_weight) /
             (strength_wield_weight(GET_STR(ch)) * 2);
-        if (IS_BARB(ch)) {
-            prob += (LEARNED(ch) - weapon_prof(ch, weap)) / 8;
+        if (IS_BARB(ch) && weapon_prof(ch, weap) > LEARNED(ch)) {
+            prob += (weapon_prof(ch, weap) - LEARNED(ch)) / 6;
         }
     }
     return prob;
