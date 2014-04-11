@@ -1271,13 +1271,20 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         corpse->obj_flags.max_dam = corpse->obj_flags.damage = -1;  //!break player corpses
     }
 
-    if (killer) {
-        if (IS_NPC(killer))
-            CORPSE_KILLER(corpse) = -GET_NPC_VNUM(killer);
-        else
-            CORPSE_KILLER(corpse) = GET_IDNUM(killer);
-    } else if (dam_object)
-        CORPSE_KILLER(corpse) = DAM_OBJECT_IDNUM(dam_object);
+    if (attacktype == SPELL_PETRIFY) {
+        GET_OBJ_TIMER(corpse) = -1; // statues never decay
+        set_obj_weight(corpse, GET_WEIGHT(ch) * 10);
+    }
+
+    if (killer == NULL) {
+        if (dam_object) {
+            CORPSE_KILLER(corpse) = DAM_OBJECT_IDNUM(dam_object);
+        }
+    } else if (IS_NPC(killer)) {
+        CORPSE_KILLER(corpse) = -GET_NPC_VNUM(killer);
+    } else {
+        CORPSE_KILLER(corpse) = GET_IDNUM(killer);
+    }
 
     // if non-arena room, transfer eq to corpse
     bool lose_eq = (!is_arena_combat(killer, ch) || IS_NPC(ch))
