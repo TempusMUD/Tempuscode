@@ -2109,7 +2109,7 @@ ACMD(do_drink)
         return;
     }
     if ((GET_COND(ch, FULL) > 20) && (GET_COND(ch, THIRST) > 0)) {
-        send_to_char(ch, "Your stomach can't contain anymore!\r\n");
+        send_to_char(ch, "Your stomach can't contain any more!\r\n");
         return;
     }
     if (!GET_OBJ_VAL(temp, 1)) {
@@ -3937,7 +3937,7 @@ ACMD(do_empty)
     }
 
     if (!(bits = generic_find(arg1, FIND_OBJ_INV, ch, NULL, &obj))) {
-        send_to_char(ch, "You can't find any %s to empty\r\n.", arg1);
+        send_to_char(ch, "You can't find any %s to empty.\r\n", arg1);
         return;
     }
 
