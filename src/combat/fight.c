@@ -97,6 +97,22 @@ is_bad_attack_type(int attacktype)
     return false;
 }
 
+static inline bool
+KNOCKDOWN_SKILL(int attacktype)
+{
+    int knockdown_skills[] = { SPELL_EARTHQUAKE, SPELL_PSYCHIC_SURGE, SPELL_EGO_WHIP,
+                               SKILL_BASH, SKILL_PILEDRIVE, SKILL_BODYSLAM,
+                               SKILL_LUNGE_PUNCH, SKILL_CLOTHESLINE, SKILL_SWEEPKICK,
+                               SKILL_TRIP, SKILL_HIP_TOSS, SKILL_SHOULDER_THROW,
+                               SKILL_SIDEKICK, SKILL_SHIELD_SLAM, SKILL_HAMSTRING,
+                               0 };
+    for (int i = 0; knockdown_skills[i]; i++)
+        if (attacktype == knockdown_skills[i])
+            return true;
+
+    return false;
+}
+
 /* When ch kills victim */
 void
 change_alignment(struct creature *ch, struct creature *victim)
