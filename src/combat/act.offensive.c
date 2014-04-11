@@ -1610,6 +1610,12 @@ ACMD(do_bash)
         vict = random_opponent(ch);
 
     // If we found our victim, it's a combat move
+
+    if (vict == ch) {
+        send_to_char(ch, "You bash yourself on the head, again and again.\r\n");
+        return;
+    }
+
     if (vict) {
         perform_offensive_skill(ch, vict, SKILL_BASH);
         return;
@@ -1701,6 +1707,11 @@ ACMD(do_slam)
         vict = random_opponent(ch);
 
     // If we found our victim, it's a combat move
+    if (vict == ch) {
+        send_to_char(ch, "You slam yourself with harsh criticisms.\r\n");
+        return;
+    }
+
     if (vict) {
         perform_offensive_skill(ch, vict, SKILL_SHIELD_SLAM);
         return;
