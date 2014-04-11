@@ -65,12 +65,8 @@ ACMD(do_steal)
         return;
     }
 
-    if (!ok_to_attack(ch, vict, false)) {
-        send_to_char(ch, "You can't do that here!\r\n");
-        send_to_char(vict, "%s has just tried to steal from you!\r\n",
-            GET_NAME(ch));
+    if (!ok_to_attack(ch, vict, true))
         return;
-    }
 
     if (vict->in_room->zone->pk_style == ZONE_NEUTRAL_PK &&
         IS_PC(ch) && IS_PC(vict)) {
