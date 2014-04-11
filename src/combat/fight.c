@@ -2097,7 +2097,7 @@ damage(struct creature *ch, struct creature *victim,
                         "You wimp out, and attempt to flee!\r\n");
                     if (KNOCKDOWN_SKILL(attacktype) && dam)
                         GET_POSITION(victim) = POS_SITTING;
-
+                    add_combat(ch, victim, true);
                     do_flee(victim, tmp_strdup(""), 0, 0);
                     if (is_dead(ch))
                         return true;
@@ -2112,7 +2112,7 @@ damage(struct creature *ch, struct creature *victim,
                     && GET_HIT(victim) > 0) {
                     if (KNOCKDOWN_SKILL(attacktype) && dam)
                         GET_POSITION(victim) = POS_SITTING;
-
+                    add_combat(ch, victim, true);
                     do_flee(victim, tmp_strdup(""), 0, 0);
                     if (is_dead(ch))
                         return true;
