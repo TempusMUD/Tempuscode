@@ -2646,9 +2646,9 @@ mag_affects(int level,
     if (IS_NPC(victim)) {
         for (int x = 0; x < 8; x++) {
             if (aff[x].bitvector
-                && ((aff[x].aff_index == 0 && AFF_FLAGGED(victim, aff[x].bitvector))
-                    || (aff[x].aff_index == 1 && AFF2_FLAGGED(victim, aff[x].bitvector))
-                    || (aff[x].aff_index == 2 && AFF3_FLAGGED(victim, aff[x].bitvector)))
+                && ((aff[x].aff_index == 1 && AFF_FLAGGED(victim, aff[x].bitvector))
+                    || (aff[x].aff_index == 2 && AFF2_FLAGGED(victim, aff[x].bitvector))
+                    || (aff[x].aff_index == 3 && AFF3_FLAGGED(victim, aff[x].bitvector)))
                 && !affected_by_spell(victim, spellnum)) {
                 send_to_char(ch, "%s", NOEFFECT);
                 return;
