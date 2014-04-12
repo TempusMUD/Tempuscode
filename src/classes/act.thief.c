@@ -48,6 +48,7 @@ ACMD(do_steal)
     char obj_name[MAX_INPUT_LENGTH];
     int percent, gold, eq_pos;
     bool ohoh = false;
+    bool sigil_found = false;
 
     argument = one_argument(argument, obj_name);
     one_argument(argument, vict_name);
@@ -157,6 +158,9 @@ ACMD(do_steal)
                             slog("%s stole %s from %s.",
                                 GET_NAME(ch), obj->name, GET_NAME(vict));
                         }
+                        if (GET_OBJ_SIGIL_IDNUM(obj) && GET_OBJ_SIGIL_IDNUM(obj) != GET_IDNUM(ch)) {
+                            sigil_found = true;
+                        }
                     } else {
                         if (GET_POSITION(vict) == POS_SLEEPING) {
                             act("You wake $N up trying to steal it!",
@@ -208,6 +212,9 @@ ACMD(do_steal)
                         if (GET_LEVEL(ch) >= LVL_AMBASSADOR || !IS_NPC(vict)) {
                             slog("%s stole %s from %s.",
                                 GET_NAME(ch), obj->name, GET_NAME(vict));
+                        }
+                        if (GET_OBJ_SIGIL_IDNUM(obj) && GET_OBJ_SIGIL_IDNUM(obj) != GET_IDNUM(ch)) {
+                            sigil_found = true;
                         }
                     } else
                         send_to_char(ch,
@@ -284,6 +291,10 @@ ACMD(do_steal)
 
     if (ohoh && IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict))
         hit(vict, ch, TYPE_UNDEFINED);
+
+    if (sigil_found) {
+        explode_all_sigils(ch);
+    }
 }
 
 ACMD(do_backstab)
