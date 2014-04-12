@@ -67,8 +67,6 @@ ACMD(do_steal)
 
     if (!ok_to_attack(ch, vict, false)) {
         send_to_char(ch, "You can't do that here!\r\n");
-        send_to_char(vict, "%s has just tried to steal from you!\r\n",
-            GET_NAME(ch));
         return;
     }
 
