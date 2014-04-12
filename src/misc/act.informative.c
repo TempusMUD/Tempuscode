@@ -1225,7 +1225,7 @@ ACMD(do_exits)
         } else if ((AFF_FLAGGED(ch, AFF_BLIND)
                 || ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED))
             && AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
-            send_to_char(ch, "%s%s%-8s%s - Out of range\r\n", CCBLD(ch, C_SPR),
+            send_to_char(ch, "%s%s%-8s%s - Out of sonic imaging range\r\n", CCBLD(ch, C_SPR),
                 CCBLU(ch, C_NRM), tmp_capitalize(dirs[door]), CCNRM(ch,
                     C_SPR));
         } else if (!check_sight_room(ch, EXIT(ch, door)->to_room)
