@@ -3556,6 +3556,7 @@ mag_unaffects(int level, struct creature *ch, struct creature *victim,
         spell = SPELL_BLINDNESS;
         spell2 = SPELL_POISON;
         spell3 = SPELL_SICKNESS;
+        spell4 = TYPE_RAD_SICKNESS;
         to_vict = "You feel cleansed of all your illnesses.";
         break;
 
