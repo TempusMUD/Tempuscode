@@ -416,7 +416,7 @@ enum aff2_bit {
     AFF2_TELEKINESIS = (1 << 17),	/* Char can carry more stuff */
     AFF2_PROT_RAD = (1 << 18),	/* Enables Autoexits ! :)    */
     AFF2_ABLAZE = (1 << 19),
-    AFF2_NECK_PROTECTED = (1 << 20),	/* Can't be beheaded         */
+    AFF2_NECK_PROTECTED = (1 << 20),
     AFF2_DISPLACEMENT = (1 << 21),
     AFF2_PROT_DEVILS = (1 << 22),
     AFF2_MEDITATE = (1 << 23),
