@@ -596,6 +596,13 @@ SPECIAL(thief)
     if (cmd)
         return false;
 
+    if (GET_NPC_SPEC(ch) != vendor || GET_NPC_SPEC(ch) != tattooist ||
+        GET_NPC_SPEC(ch) != postmaster || GET_NPC_SPEC(ch) != increaser ||
+        GET_NPC_SPEC(ch) != engraver || GET_NPC_SPEC(ch) != languagemaster ||
+        GET_NPC_SPEC(ch) != repairer || GET_NPC_SPEC(ch) != reinforcer || 
+        GET_NPC_SPEC(ch) != enhancer || GET_NPC_SPEC(ch) != implanter)
+        return false;
+
     if (GET_POSITION(ch) != POS_STANDING)
         return false;
 
