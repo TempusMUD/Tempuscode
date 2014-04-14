@@ -131,6 +131,8 @@ tmp_vsprintf(const char *fmt, va_list args)
 
     cur_buf->used += wanted;
 
+    va_end(args_copy);
+
     return result;
 }
 

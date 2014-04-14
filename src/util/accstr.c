@@ -71,6 +71,7 @@ acc_vsprintf(const char *fmt, va_list args)
     }
 
     acc_str_len += wanted;
+    va_end(args_copy);
 }
 
 // sprintf into the string accumulator
