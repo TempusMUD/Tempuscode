@@ -1112,6 +1112,10 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         }
         // Check to see that they can set the spec param
         i = find_spec_index_ptr(GET_OBJ_SPEC(obj_p));
+        if (i < 0) {
+            send_to_char(ch, "Couldn't find special in index.\r\n");
+            break;
+        }
         if (IS_SET(spec_list[i].flags, SPEC_RES)
             && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL)) {
             send_to_char(ch, "This special is reserved.\r\n");
