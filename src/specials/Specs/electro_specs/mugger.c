@@ -187,6 +187,7 @@ SPECIAL(mugger)
         errlog("Mugger's desired object not found in database");
         free(mug);
         self->mob_specials.func_data = NULL;
+        return 0;
     }
 
     switch (mug->timer) {
