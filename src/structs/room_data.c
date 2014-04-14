@@ -97,6 +97,8 @@ free_room(struct room_data *room)
     free(room->prog);
     free(room->progobj);
     prog_state_free(room->prog_state);
+
+    free(room);
 }
 
 int
