@@ -307,7 +307,7 @@ find_spec_index_ptr(SPECIAL((*func)))
 {
     int i;
 
-    for (i = 0; spec_list[i].tag != NULL && i < 300; i++)
+    for (i = 0; spec_list[i].tag != NULL; i++)
         if (func == spec_list[i].func)
             return (i);
 
@@ -445,7 +445,7 @@ do_show_specials(struct creature *ch, char *arg)
     }
 
     strcpy(outbuf, "SPECIAL PROCEDURES_                FLAGS::\r\n");
-    for (i = 0; spec_list[i].tag && i < 300; i++) {
+    for (i = 0; spec_list[i].tag; i++) {
         if (!mode_all &&
             (!mode_mob || !IS_SET(spec_list[i].flags, SPEC_MOB)) &&
             (!mode_obj || !IS_SET(spec_list[i].flags, SPEC_OBJ)) &&
