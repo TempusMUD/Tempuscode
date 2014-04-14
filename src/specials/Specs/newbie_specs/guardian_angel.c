@@ -436,8 +436,8 @@ angel_do_action(struct creature *self, struct creature *charge,
             for (GList * li = angels; li; li = li->next) {
                 struct angel_data *angel = li->data;
                 if (data->charge_id == angel->charge_id) {
-                    free(angel);
                     angels = g_list_remove(angels, angel);
+                    free(angel);
                     break;
                 }
             }
