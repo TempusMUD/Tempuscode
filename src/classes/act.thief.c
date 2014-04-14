@@ -39,6 +39,7 @@
 #include "obj_data.h"
 
 int check_mob_reaction(struct creature *ch, struct creature *vict);
+int explode_all_sigils(struct creature *ch);
 
 ACMD(do_steal)
 {
