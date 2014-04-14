@@ -92,7 +92,6 @@ do_zcmd(struct creature *ch, char *argument)
     struct zone_data *zone = NULL, *tmp_zone;
     struct reset_com *zonecmd, *tmp_zonecmd, *zcmd = NULL;
     struct room_data *room;
-    char command[2];
     int cur_door_flags, tmp_door_flags, tmp_flag;
     int i, line, found, if_flag, int_arg1, int_arg2, int_arg3, int_arg4;
 
@@ -141,8 +140,6 @@ do_zcmd(struct creature *ch, char *argument)
         send_to_char(ch, "Zone commands are not approved for this zone.\r\n");
         return;
     }
-
-    strcpy(command, arg2);
 
     if (is_abbrev(arg2, "cmdremove")) {
         skip_spaces(&argument);
