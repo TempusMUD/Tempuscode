@@ -2115,7 +2115,9 @@ const char drink_aff[][3] = {
     {0, 1, 6},                  /* cappucino */
     {10, 0, 2},                 /* rum */
     {12, 0, 2},                 /* sake */
-    {0, 3, 6},                  // chocolate milk
+    {0, 1, 5},                  // chocolate milk
+    {0, 3, 7},                  // juice
+    {8, 0, 3},                  // mead
     {-1, -1, -1},
 };
 
