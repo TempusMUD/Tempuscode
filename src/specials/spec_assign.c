@@ -110,7 +110,6 @@ const struct spec_func_data spec_list[] = {
     {"newbie_gold_coupler", newbie_gold_coupler, SPEC_MOB | SPEC_RES},
     {"maze_switcher", maze_switcher, SPEC_MOB | SPEC_RES},
     {"maze_cleaner", maze_cleaner, SPEC_MOB | SPEC_RES},
-    {"darom", darom, SPEC_MOB | SPEC_RES},
     {"puppet", puppet, SPEC_MOB | SPEC_RES},
     {"oracle", oracle, SPEC_MOB | SPEC_RES},
     {"dt_cleaner", dt_cleaner, SPEC_MOB | SPEC_RES},

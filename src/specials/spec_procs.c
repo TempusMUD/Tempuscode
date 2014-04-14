@@ -1653,7 +1653,6 @@ SPECIAL(cave_bear)
 /* SPECS BY SARFLIN */
 #include "Specs/sarflin_specs/maze_cleaner.c"
 #include "Specs/sarflin_specs/maze_switcher.c"
-#include "Specs/sarflin_specs/darom.c"
 #include "Specs/sarflin_specs/puppet.c"
 #include "Specs/sarflin_specs/oracle.c"
 #include "Specs/sarflin_specs/fountain_heal.c"
