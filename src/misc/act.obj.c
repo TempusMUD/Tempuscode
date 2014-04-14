@@ -3986,8 +3986,7 @@ ACMD(do_empty)
         for (next_obj = obj->contains; next_obj; next_obj = o) {
             if (next_obj->in_obj) {
                 o = next_obj->next_content;
-                if (!(IS_OBJ_STAT(next_obj, ITEM_NODROP)) &&
-                    (IS_SET(GET_OBJ_WEAR(next_obj), ITEM_WEAR_TAKE))) {
+                if (IS_SET(GET_OBJ_WEAR(next_obj), ITEM_WEAR_TAKE)) {
                     obj_from_obj(next_obj);
                     obj_to_room(next_obj, ch->in_room);
                     objs_moved++;
