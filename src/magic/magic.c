@@ -4228,7 +4228,7 @@ mag_creations(int level __attribute__((unused)), struct creature *ch, int spelln
 
 int
 mag_exits(int level, struct creature *caster, struct room_data *room,
-    int spellnum)
+          int spellnum)
 {
 
     int dir = -1;
@@ -4249,16 +4249,14 @@ mag_exits(int level, struct creature *caster, struct room_data *room,
         return 0;
     }
 
-    rm_aff.level = level;
-    rm_aff.type = dir;
+    init_room_affect(&rm_aff, level, spellnum, GET_IDNUM(caster));
 
-    if ((o_room = room->dir_option[dir]->to_room) &&
-        o_room->dir_option[rev_dir[dir]] &&
-        room == o_room->dir_option[rev_dir[dir]]->to_room) {
-        o_rm_aff.level = rm_aff.level;
-        o_rm_aff.type = rev_dir[dir];
-    } else
+    o_room = room->dir_option[dir]->to_room;
+    if (o_room != NULL
+        && (o_room->dir_option[rev_dir[dir]] == NULL
+            || room != o_room->dir_option[rev_dir[dir]]->to_room)) {
         o_room = NULL;
+    }
 
     const char *aff_desc = NULL;
 
@@ -4277,16 +4275,16 @@ mag_exits(int level, struct creature *caster, struct room_data *room,
     rm_aff.description =
         strdup(tmp_sprintf("%s %s.\r\n", aff_desc, to_dirs[dir]));
 
+    affect_to_room(room, &rm_aff);
+
     if (o_room) {
+        o_rm_aff = rm_aff;
+        o_rm_aff.type = rev_dir[dir];
         o_rm_aff.description =
             strdup(tmp_sprintf("%s %s.\r\n", aff_desc,
                 to_dirs[(int)o_rm_aff.type]));
-        o_rm_aff.duration = rm_aff.duration;
-        o_rm_aff.flags = EX_WALL_THORNS;
         affect_to_room(o_room, &o_rm_aff);
     }
-
-    affect_to_room(room, &rm_aff);
     return 1;
 }
 

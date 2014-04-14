@@ -22,6 +22,29 @@
 #include "flow_room.h"
 
 /**
+ * init_room_affect:
+ * @raff room affect to initialize
+ *
+ * Sets the fields of the room affect to their initial values.
+ **/
+void
+init_room_affect(struct room_affect_data *raff, int level, int spell, int owner)
+{
+    raff->level = level;
+    raff->spell_type = spell;
+	raff->owner = owner;
+	raff->flags = 0;
+	raff->type = 0;
+	raff->duration = 0;
+    for (int i = 0;i < 4;i++) {
+        raff->val[i] = 0;
+    }
+
+	raff->description = NULL;
+    raff->next = NULL;
+}
+
+/**
  * free_room:
  * @room the #room_data to free
  *
