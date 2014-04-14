@@ -99,59 +99,61 @@ boot_dynamic_text(void)
     }
 
     while ((dirp = readdir(dir))) {
+        size_t br;
 
-        if ((strlen(dirp->d_name) > 4) &&
-            !strcmp(dirp->d_name + strlen(dirp->d_name) - 4, ".dyn")) {
-
-            sprintf(filename, "%s/%s", DYN_TEXT_CONTROL_DIR, dirp->d_name);
-
-            if (!(fl = fopen(filename, "r"))) {
-                errlog("error opening dynamic control file '%s'.", filename);
-                perror("fopen:");
-                continue;
-            }
-
-            if (!(newdyn =
-                    (dynamic_text_file *) malloc(sizeof(dynamic_text_file)))) {
-                errlog("error allocating dynamic control block, aborting.");
-                closedir(dir);
-                fclose(fl);
-                return;
-            }
-
-            if (!(fread(&savedyn, sizeof(dynamic_text_file_save), 1, fl))) {
-                errlog("error reading information from '%s'.", filename);
-                free(newdyn);
-                fclose(fl);
-                continue;
-            }
-
-            fclose(fl);
-
-            strcpy(newdyn->filename, savedyn.filename);
-            for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
-                newdyn->last_edit[i].idnum = savedyn.last_edit[i].idnum;
-                newdyn->last_edit[i].tEdit = savedyn.last_edit[i].tEdit;
-            }
-            for (i = 0; i < DYN_TEXT_PERM_SIZE; i++)
-                newdyn->perms[i] = savedyn.perms[i];
-
-            newdyn->level = savedyn.level;
-            newdyn->lock = 0;
-            newdyn->next = NULL;
-            newdyn->buffer = NULL;
-            newdyn->tmp_buffer = NULL;
-
-            if (load_dyntext_buffer(newdyn) == 0) {
-                slog("dyntext BOOTED %s.", dirp->d_name);
-            } else {
-                errlog("dyntext FAILED TO BOOT %s.", dirp->d_name);
-            }
-
-            newdyn->next = dyntext_list;
-            dyntext_list = newdyn;
-
+        if ((strlen(dirp->d_name) < 4)
+            || !strcmp(dirp->d_name + strlen(dirp->d_name) - 4, ".dyn")) {
+            continue;
         }
+
+        sprintf(filename, "%s/%s", DYN_TEXT_CONTROL_DIR, dirp->d_name);
+
+        fl = fopen(filename, "r");
+        if (fl == NULL) {
+            errlog("error opening dynamic control file '%s'.", filename);
+            perror("fopen:");
+            continue;
+        }
+
+        newdyn = malloc(sizeof(dynamic_text_file));
+        if (newdyn == NULL) {
+            errlog("error allocating dynamic control block, aborting.");
+            closedir(dir);
+            fclose(fl);
+            return;
+        }
+
+        br = fread(&savedyn, sizeof(dynamic_text_file_save), 1, fl);
+        if (br == 0) {
+            errlog("error reading information from '%s'.", filename);
+            free(newdyn);
+            fclose(fl);
+            continue;
+        }
+        fclose(fl);
+
+        strcpy(newdyn->filename, savedyn.filename);
+        for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
+            newdyn->last_edit[i].idnum = savedyn.last_edit[i].idnum;
+            newdyn->last_edit[i].tEdit = savedyn.last_edit[i].tEdit;
+        }
+        for (i = 0; i < DYN_TEXT_PERM_SIZE; i++)
+            newdyn->perms[i] = savedyn.perms[i];
+
+        newdyn->level = savedyn.level;
+        newdyn->lock = 0;
+        newdyn->next = NULL;
+        newdyn->buffer = NULL;
+        newdyn->tmp_buffer = NULL;
+
+        if (load_dyntext_buffer(newdyn) == 0) {
+            slog("dyntext BOOTED %s.", dirp->d_name);
+        } else {
+            errlog("dyntext FAILED TO BOOT %s.", dirp->d_name);
+        }
+
+        newdyn->next = dyntext_list;
+        dyntext_list = newdyn;
     }
 
     closedir(dir);
