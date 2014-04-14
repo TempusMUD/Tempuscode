@@ -604,7 +604,7 @@ do_zcmd(struct creature *ch, char *argument)
                     return;
                 }
                 int_arg3 = atoi(arg2);
-                if (int_arg3 < 0 || int_arg3 > NUM_WEARS) {
+                if (int_arg3 < 0 || int_arg3 >= NUM_WEARS) {
                     send_to_char(ch,
                         "Invalid wear position, %d, must be 0-27\r\n",
                         int_arg3);
@@ -720,7 +720,7 @@ do_zcmd(struct creature *ch, char *argument)
                     return;
                 }
                 int_arg3 = atoi(arg2);
-                if (int_arg3 < 0 || int_arg3 > NUM_WEARS) {
+                if (int_arg3 < 0 || int_arg3 >= NUM_WEARS) {
                     send_to_char(ch,
                         "Invalid implant position, %d, must be 0-27\r\n",
                         int_arg3);
@@ -2706,8 +2706,9 @@ do_create_zone(struct creature *ch, int num)
         return false;
     }
         
-    for (zone = zone_table; zone; zone = zone->next)
+    for (zone = zone_table; zone; zone = zone->next) {
         fprintf(index, "%d.zon\n", zone->number);
+    }
 
     fprintf(index, "$\n");
     fclose(index);

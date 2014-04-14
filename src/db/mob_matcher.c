@@ -140,7 +140,7 @@ make_mobile_class_matcher(struct creature *ch,
         matcher->num = atoi(expr);
     else
         matcher->num = parse_char_class(expr);
-    if (matcher->num < 0 || matcher->num > NUM_CLASSES) {
+    if (matcher->num < 0 || matcher->num >= NUM_CLASSES) {
         send_to_char(ch, "Type olc help class for a valid list of classes.\r\n");
         return false;
     }

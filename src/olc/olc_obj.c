@@ -620,7 +620,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         } else
             i = atoi(arg2);
 
-        if (i < 0 || i > NUM_ITEM_TYPES) {
+        if (i < 0 || i >= NUM_ITEM_TYPES) {
             send_to_char(ch, "Object type out of range.\r\n");
             return;
         }
@@ -907,7 +907,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 
         j = atoi(arg2);
 
-        if (i < 0 || i > NUM_APPLIES) {
+        if (i < 0 || i >= NUM_APPLIES) {
             send_to_char(ch, "Location out of range.  Try 'olc h apply'.\r\n");
             return;
         } else if (j < -125 || j > 125) {

@@ -114,7 +114,7 @@ valid_class_race(struct creature *ch, int char_class, bool remort)
         return false;
 
     // restrict any invalid classes
-    if (char_class > NUM_CLASSES)
+    if (char_class >= NUM_CLASSES)
         return false;
 
     for (i = 0; i < NUM_PC_RACES; i++) {

@@ -283,7 +283,7 @@ enum affect_join_flag {
 static inline /*@observer@*/ const char *
 liquid_to_str(int liquid)
 {
-	if (liquid < 0 || liquid > NUM_LIQUID_TYPES) {
+	if (liquid < 0 || liquid >= NUM_LIQUID_TYPES) {
 		return tmp_sprintf("!ILLEGAL(%d)!", liquid);
 	}
 

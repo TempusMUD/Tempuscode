@@ -1968,7 +1968,7 @@ show_olc_help(struct creature *ch, char *arg)
                 }
             } else
                 i = atoi(arg2);
-            if (i < 0 || i > NUM_ITEM_TYPES) {
+            if (i < 0 || i >= NUM_ITEM_TYPES) {
                 send_to_char(ch, "Object type out of range.\r\n");
                 return;
             }
