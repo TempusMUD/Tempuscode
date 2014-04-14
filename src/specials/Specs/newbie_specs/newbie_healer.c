@@ -8,7 +8,6 @@ SPECIAL(newbie_healer)
 {
     ACMD(do_drop);
     struct creature *i;
-    struct obj_data *p;
 
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
@@ -40,7 +39,9 @@ SPECIAL(newbie_healer)
             return 1;
         }
     }
-    for (p = ch->carrying; p; p = p->next_content) {
+
+    struct obj_data *p = ch->carrying;
+    if (p != NULL) {
         act("$p.", false, ch, p, NULL, TO_CHAR);
         if (IS_OBJ_TYPE(p, ITEM_WORN))
             cast_spell(ch, NULL, p, NULL, SPELL_MAGICAL_VESTMENT);
