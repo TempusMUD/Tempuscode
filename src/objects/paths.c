@@ -337,7 +337,7 @@ add_path(char *spath, int save)
         free(phead);
         return 2;
     }
-    strncpy(phead->name, buf, 64);
+    snprintf(phead->name, 64, "%s", buf);
 
     /* Get the path owner */
     spath = one_argument(spath, buf);

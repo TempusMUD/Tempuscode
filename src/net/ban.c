@@ -386,7 +386,7 @@ is_valid_name(char *newname)
         return 1;
 
     /* change to lowercase */
-    strncpy(tempname, newname, MAX_NAME_LENGTH);
+    snprintf(tempname, MAX_NAME_LENGTH, "%s", newname);
     for (i = 0; i < len; i++) {
         if (!isalpha(tempname[i]) && tempname[i] != '\'')
             return 0;

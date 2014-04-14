@@ -126,12 +126,12 @@ push_command_onto_list(struct creature *ch, char *string)
     }
 
     last_cmd[0].idnum = GET_IDNUM(ch);
-    strncpy(last_cmd[0].name, GET_NAME(ch), MAX_INPUT_LENGTH);
     last_cmd[0].roomnum = (ch->in_room) ? ch->in_room->number : -1;
-    strncpy(last_cmd[0].room,
-        (ch->in_room && ch->in_room->name) ?
-        ch->in_room->name : "<NULL>", MAX_INPUT_LENGTH);
-    strncpy(last_cmd[0].string, string, MAX_INPUT_LENGTH);
+    snprintf(last_cmd[0].name, MAX_INPUT_LENGTH, "%s", GET_NAME(ch));
+    snprintf(last_cmd[0].room, MAX_INPUT_LENGTH, "%s",
+             (ch->in_room && ch->in_room->name) ?
+             ch->in_room->name : "<NULL>");
+    snprintf(last_cmd[0].string, MAX_INPUT_LENGTH, "%s", string);
 }
 
 gboolean
