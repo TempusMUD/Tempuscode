@@ -803,7 +803,7 @@ ASPELL(spell_locate_object)
     char *which_str;
     struct room_data *rm = NULL;
     char buf3[MAX_STRING_LENGTH];
-    char terms[MAX_LOCATE_TERMS][MAX_INPUT_LENGTH];
+    char terms[MAX_LOCATE_TERMS + 1][MAX_INPUT_LENGTH];
     int term_idx, term_count = 0;
     int found;
     int extracost;
