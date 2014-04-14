@@ -1722,6 +1722,7 @@ const char *wear_description[] = {
     "right ear",
     "!wield2!",
     "!ass!",
+    "!random!",
     "\n"
 };
 
@@ -3386,8 +3387,8 @@ const struct weap_spec_info weap_spec_char_class[NUM_CLASSES] = {
         1.5, 6}                 // spare3
 };
 
-const int wear_bitvectors[] =
-    { ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_FINGER,
+const int wear_bitvectors[] = {
+    ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_FINGER,
     ITEM_WEAR_NECK, ITEM_WEAR_NECK, ITEM_WEAR_BODY,
     ITEM_WEAR_HEAD, ITEM_WEAR_LEGS, ITEM_WEAR_FEET,
     ITEM_WEAR_HANDS, ITEM_WEAR_ARMS, ITEM_WEAR_SHIELD,
@@ -3395,7 +3396,7 @@ const int wear_bitvectors[] =
     ITEM_WEAR_WRIST, ITEM_WEAR_WIELD, ITEM_WEAR_HOLD,
     ITEM_WEAR_CROTCH, ITEM_WEAR_EYES, ITEM_WEAR_BACK,
     ITEM_WEAR_BELT, ITEM_WEAR_FACE, ITEM_WEAR_EAR,
-    ITEM_WEAR_EAR, ITEM_WEAR_WIELD, ITEM_WEAR_ASS
+    ITEM_WEAR_EAR, ITEM_WEAR_WIELD, ITEM_WEAR_ASS,
 };
 
 const char *grievance_kind_descs[] = { "murder", "theft", "attack", "\n" };

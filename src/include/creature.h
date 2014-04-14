@@ -957,8 +957,7 @@ void remove_combat(struct creature *ch, struct creature *target);
 #define ILLEGAL_SOILPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
       pos == WEAR_WIELD || pos == WEAR_HOLD || pos == WEAR_BELT ||    \
-      pos == WEAR_WIELD_2 || pos == WEAR_ASS || pos == WEAR_NECK_2 || \
-      pos == WEAR_RANDOM)
+      pos == WEAR_WIELD_2 || pos == WEAR_ASS || pos == WEAR_NECK_2)
 
 #define IS_WEAR_EXTREMITY(pos) \
     (        pos == WEAR_FINGER_L || pos == WEAR_FINGER_R \
@@ -978,14 +977,14 @@ void remove_combat(struct creature *ch, struct creature *target);
 #define ILLEGAL_IMPLANTPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
       pos == WEAR_WIELD || pos == WEAR_BELT || pos == WEAR_WIELD_2 || \
-	  pos == WEAR_RANDOM || pos == WEAR_HOLD)
+	  pos == WEAR_HOLD)
 
 #define ILLEGAL_TATTOOPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
       pos == WEAR_WIELD || pos == WEAR_HOLD || pos == WEAR_BELT ||    \
       pos == WEAR_WIELD_2 || pos == WEAR_ASS || pos == WEAR_NECK_2 || \
       pos == WEAR_FINGER_L || pos == WEAR_FINGER_R ||                 \
-      pos == WEAR_EYES || pos == WEAR_RANDOM)
+      pos == WEAR_EYES)
 
 #define GET_ROWS(ch)    ((ch)->player_specials->saved.page_length)
 #define GET_COLS(ch)    ((ch)->player_specials->saved.columns)
