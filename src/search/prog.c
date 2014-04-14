@@ -2305,19 +2305,21 @@ trigger_prog_give(struct creature *ch, struct creature * self, struct obj_data *
 bool
 trigger_prog_chat(struct creature *ch, struct creature * self)
 {
-	struct prog_env *env;
-	struct prog_evt evt;
+    struct prog_env *env;
+    struct prog_evt evt;
 
-	if (!self || !self->in_room || !GET_NPC_PROGOBJ(self))
-		return false;
+    if (!self || !self->in_room || !GET_NPC_PROGOBJ(self))
+        return false;
 
-	evt.phase = PROG_EVT_HANDLE;
-	evt.kind = PROG_EVT_CHAT;
-	evt.cmd = -1;
-	evt.subject = ch;
-	strcpy(evt.args, "");
+    evt.phase = PROG_EVT_HANDLE;
+    evt.kind = PROG_EVT_CHAT;
+    evt.cmd = -1;
+    evt.subject = ch;
+    evt.object = NULL;
+    evt.object_type = PROG_TYPE_NONE;
+    strcpy(evt.args, "");
 
-	env = prog_start(PROG_TYPE_MOBILE, self, ch, &evt);
+    env = prog_start(PROG_TYPE_MOBILE, self, ch, &evt);
     if (env)
         prog_execute(env);
     return (env && env->executed);
