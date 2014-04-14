@@ -114,6 +114,7 @@ help_item_load_text(struct help_item *item)
     if (inf) {
         if (fscanf(inf, "%d %zu\n", &idnum, &textlen) != 2) {
             errlog("Format problem with help file %s", fname);
+            fclose(inf);
             goto error;
         }
 
@@ -121,6 +122,7 @@ help_item_load_text(struct help_item *item)
             textlen = MAX_HELP_TEXT_LENGTH - 1;
         if (!fgets(buf, sizeof(buf), inf)) {
             errlog("Can't get text length with help file %s", fname);
+            fclose(inf);
             goto error;
         }
 
@@ -130,6 +132,7 @@ help_item_load_text(struct help_item *item)
             errlog("Expected %zu int8_ts, got %zu in help file %s", textlen, read_int8_ts, fname);
             free(item->text);
             item->text = NULL;
+            fclose(inf);
             goto error;
         }
 
