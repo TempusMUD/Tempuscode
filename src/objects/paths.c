@@ -250,6 +250,8 @@ print_path(struct path_head *phead, char *str)
                 sprintf(buf, "C%d ", cmdl);
             }
             break;
+        default:
+            sprintf(buf, "???");
         }
 
         if ((ll + strlen(buf)) > 79) {
