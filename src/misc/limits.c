@@ -322,7 +322,7 @@ void
 set_title(struct creature *ch, const char *title)
 {
     if (title == NULL) {
-        title = strdup("");
+        title = "";
     }
 
     if (strlen(title) > MAX_TITLE_LENGTH)
