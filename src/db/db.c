@@ -482,7 +482,7 @@ reset_time(void)
     long epoch = 650336715;
     time_t now = time(NULL);
     struct tm *sun_tm;
-    char sun_str[30];
+    char sun_str[56];
 
     sun_tm = localtime(&now);
     sun_tm->tm_mday -= sun_tm->tm_wday;
