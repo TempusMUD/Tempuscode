@@ -18,24 +18,62 @@
 #include "race.h"
 #include "creature.h"
 #include "prog.h"
+#include "search.h"
+#include "flow_room.h"
 
+/**
+ * free_room:
+ * @room the #room_data to free
+ *
+ * Frees the memory occupied by a room, extracting all the objects
+ * within.
+ **/
 void
 free_room(struct room_data *room)
 {
+    for (struct extra_descr_data *exd = room->ex_description;
+         exd != NULL;
+         exd = room->ex_description) {
+        room->ex_description = exd->next;
+        free(exd->keyword);
+        free(exd->description);
+        free(exd);
+    }
+    for (struct special_search_data *srch = room->search;
+         srch != NULL;
+         srch = room->search) {
+        room->search = srch->next;
+        free(srch->command_keys);
+        free(srch->keywords);
+        free(srch->to_room);
+        free(srch->to_vict);
+        free(srch);
+    }
+    for (struct room_trail_data *trail = room->trail;
+         trail != NULL;
+         trail = room->trail) {
+        room->trail = trail->next;
+        free(trail->name);
+        free(trail->aliases);
+        free(trail);
+    }
+    for (int i = 0; i < NUM_DIRS; i++) {
+        if (!room->dir_option[i]) {
+            free(room->dir_option[i]->general_description);
+            free(room->dir_option[i]->keyword);
+        }
+    }
+
+    while (room->affects) {
+        affect_from_room(room, room->affects);
+    }
+
     free(room->name);
     free(room->description);
     free(room->sounds);
     free(room->prog);
     free(room->progobj);
     prog_state_free(room->prog_state);
-    struct extra_descr_data *exd, *next_exd;
-    for (exd = room->ex_description; exd; exd = next_exd) {
-        next_exd = exd->next;
-        free(exd->keyword);
-        free(exd->description);
-        free(exd);
-    }
-
 }
 
 int

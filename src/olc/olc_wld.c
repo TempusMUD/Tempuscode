@@ -462,9 +462,6 @@ do_destroy_room(struct creature *ch, int vnum)
     struct room_data *rm = NULL, *t_rm = NULL;
     struct zone_data *zone = NULL;
     struct creature *vict = NULL;
-    struct obj_data *obj = NULL, *next_obj = NULL;
-    struct special_search_data *srch = NULL;
-    struct extra_descr_data *desc = NULL;
     struct clan_data *clan = NULL;
     struct room_list_elem *rm_list = NULL;
     int i;
@@ -521,8 +518,10 @@ do_destroy_room(struct creature *ch, int vnum)
 
     }
 
-    for (obj = rm->contents; obj; obj = next_obj) {
-        next_obj = obj->next_content;
+    for (struct obj_data *obj = rm->contents;
+         obj != NULL;
+         obj = rm->contents) {
+        rm->contents = obj->next_content;
         extract_obj(obj);
     }
 
@@ -533,49 +532,9 @@ do_destroy_room(struct creature *ch, int vnum)
                 break;
             }
 
-    if (rm->name)
-        free(rm->name);
-    if (rm->description)
-        free(rm->description);
-    if (rm->sounds)
-        free(rm->sounds);
     if (rm->prog) {
         destroy_attached_progs(rm);
-        free(rm->prog);
     }
-    while ((desc = rm->ex_description)) {
-        rm->ex_description = desc->next;
-        if (desc->keyword)
-            free(desc->keyword);
-        if (desc->description)
-            free(desc->description);
-        free(desc);
-    }
-
-    while ((srch = rm->search)) {
-        rm->search = srch->next;
-        if (srch->command_keys)
-            free(srch->command_keys);
-        if (srch->keywords)
-            free(srch->keywords);
-        if (srch->to_room)
-            free(srch->to_room);
-        if (srch->to_vict)
-            free(srch->to_vict);
-        free(srch);
-    }
-
-    for (i = 0; i < NUM_DIRS; i++) {
-        if (!rm->dir_option[i])
-            continue;
-        if (rm->dir_option[i]->general_description)
-            free(rm->dir_option[i]->general_description);
-        if (rm->dir_option[i]->keyword)
-            free(rm->dir_option[i]->keyword);
-    }
-
-    while (rm->affects)
-        affect_from_room(rm, rm->affects);
 
     for (zone = zone_table; zone; zone = zone->next)
         for (t_rm = zone->world; t_rm; t_rm = t_rm->next)
