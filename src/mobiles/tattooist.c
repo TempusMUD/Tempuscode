@@ -56,7 +56,7 @@ tattooist_show_pos(struct creature *me, struct creature *ch,
     bool not_first = false;
 
     strcpy(buf, "You can have tattoos in these positions: ");
-    for (pos = 0; wear_tattoopos[pos][0] != '\n'; pos++)
+    for (pos = 0; pos < NUM_WEARS; pos++)
         if (!ILLEGAL_TATTOOPOS(pos) && CAN_WEAR(obj, wear_bitvectors[pos])) {
             if (not_first)
                 strcat(buf, ", ");

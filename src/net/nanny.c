@@ -610,11 +610,19 @@ handle_input(gpointer data)
             return true;
         }
 
-        for (i = 0; i < NUM_PC_RACES; i++)
-            if (race_restr[i][0] == GET_RACE(d->creature))
+        int race_idx = -1;
+        for (i = 0; i < NUM_PC_RACES; i++) {
+            if (race_restr[i][0] == GET_RACE(d->creature)) {
+                race_idx = i;
                 break;
+            }
+        }
+        if (race_idx == -1) {
+            d_printf(d, "&gThat's not an allowable race!&n\r\n");
+            break;
+        }
 
-        if (race_restr[i][GET_CLASS(d->creature) + 1] != 2) {
+        if (race_restr[race_idx][GET_CLASS(d->creature) + 1] != 2) {
             d_send(d, CCGRN(d->creature, C_NRM));
             d_send(d, "\r\nThat race is not allowed to your character class!\r\n");
             d_send(d, CCNRM(d->creature, C_NRM));
