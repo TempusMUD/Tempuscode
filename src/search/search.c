@@ -327,8 +327,9 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
             }
 
             return 1;
-        } else if (srch->arg[1] == 1) {
+        }
 
+        if (srch->arg[1] == 1) {
             if (srch->to_vict)
                 act(srch->to_vict, false, ch, obj, mob, TO_CHAR);
             else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
@@ -361,6 +362,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
             g_list_free(trans_list);
             return rc;
         }
+        break;
     case SEARCH_COM_DOOR:
         /************  Targ Room nonexistent ************/
         if ((targ_room = real_room(srch->arg[0])) == NULL) {
