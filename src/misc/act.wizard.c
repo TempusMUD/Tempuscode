@@ -7754,9 +7754,11 @@ ACMD(do_coderutil)
                     (prog->target) ? GET_NAME(prog->target) : "<none>",
                     prog->next_tick - prog_tick, prog_cmds[cmd].str, (char *)exec + arg_addr);
         }
+        fclose(ouf);
         send_to_char(ch, "Dumped.\r\n");
-    } else
+    } else {
         send_to_char(ch, "%s", CODER_UTIL_USAGE);
+    }
 }
 
 const char *ACCOUNT_USAGE =
