@@ -320,9 +320,7 @@ find_spec_index_ptr(SPECIAL((*func)))
 int
 find_spec_index_arg(char *arg)
 {
-    int i;
-
-    for (i = 0; spec_list[i].tag != NULL && i < 300; i++) {
+    for (int i = 0; spec_list[i].tag != NULL; i++) {
         if (!strncmp(spec_list[i].tag, arg, strlen(arg))) {
             return (i);
         }
@@ -331,10 +329,15 @@ find_spec_index_arg(char *arg)
     return (-1);
 }
 
-//
-// do_specasiign_save - make a snapshot of mob,obj, or room spec assignments
-//                      to the files etc/spec_ass_{mob,obj,room}
-//
+/**
+ * do_specassign_save:
+ * @ch creature initiating the save
+ * @mode special assignments to save
+ *
+ * Make a snapshot of mob,obj, or room spec assignments to the files
+ * etc/spec_ass_{mob,obj,room}.  @mode should be one of 0, SPEC_MOB,
+ * SPEC_OBJ, or SPEC_RM.  All three kinds are saved when @mode is 0.
+ **/
 
 int
 do_specassign_save(struct creature *ch, int mode)
