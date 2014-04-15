@@ -395,15 +395,12 @@ int
 apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
     int pos)
 {
-
-    int cnt, idx;
-
     if (pos == WEAR_RANDOM) {
-        cnt = 0;
-        for (idx = 0; idx < NUM_WEARS; idx++) {
+        int cnt = 0;
+        for (int idx = 0; idx < NUM_WEARS; idx++) {
             if (ILLEGAL_SOILPOS(idx))
                 continue;
-            if (!GET_EQ(ch, idx) && CHAR_SOILED(ch, pos, type))
+            if (!GET_EQ(ch, idx) && CHAR_SOILED(ch, idx, type))
                 continue;
             if (GET_EQ(ch, idx) && (OBJ_SOILED(GET_EQ(ch, idx), type) ||
                     IS_OBJ_STAT2(GET_EQ(ch, idx), ITEM2_NOSOIL)))
