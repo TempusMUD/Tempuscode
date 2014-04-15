@@ -481,7 +481,7 @@ prog_eval_alias(struct prog_evt *evt, char *args)
 
     if (!(alias_list = prog_get_alias_list(args)))
         result = false;
-    if (evt->args && alias_list) {
+    if (*evt->args != '\0' && alias_list) {
         str = evt->args;
         arg = tmp_getword(&str);
         while (*arg) {
@@ -501,7 +501,7 @@ prog_eval_keyword(struct prog_evt *evt, char *args) {
     bool result = false;
     char *str, *arg;
 
-    if (evt->args) {
+    if (*evt->args != '\0') {
         str = evt->args;
         arg = tmp_getword(&str);
         while (*arg) {
@@ -521,7 +521,7 @@ prog_eval_abbrev(struct prog_evt *evt, char *args) {
     bool result = false;
     char *str, *arg;
 
-    if (evt->args) {
+    if (*evt->args != '\0') {
         str = evt->args;
         arg = tmp_getword(&str);
         while (*arg) {
@@ -738,7 +738,7 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
 	}
 
 	if (!strcmp(arg, "argument")) {
-		result = (evt->args && !strcasecmp(args, evt->args));
+		result = (*evt->args != '\0' && !strcasecmp(args, evt->args));
 		// Mobs using "alias"
 		// 1200 3062 90800
 	} else if (!strcmp(arg, "alias")) {
@@ -1690,14 +1690,19 @@ DEFPROGHANDLER(mload, env, evt, args)
 	} else {
         room = prog_get_owner_room(env);
 	}
-	if (*arg && !strcasecmp(arg, "max"))
+	if (*arg && !strcasecmp(arg, "max")) {
 		max_load = atoi(tmp_getword(&args));
+    }
 
 	if (max_load == -1 || mob->mob_specials.shared->number < max_load) {
 		mob = read_mobile(vnum);
+        if (mob == NULL) {
+            return;
+        }
 		char_to_room(mob, room, true);
-		if (GET_NPC_PROG(mob))
+		if (GET_NPC_PROG(mob)) {
 			trigger_prog_load(mob);
+        }
 	}
 }
 
