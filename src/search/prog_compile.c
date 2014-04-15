@@ -260,7 +260,7 @@ prog_lexify(struct prog_compiler_state *compiler)
         line_start++;
     line_end = line_start;
 
-    while (line_start && *line_start) {
+    while (*line_start) {
         // Find the end of the line
         while (*line_end && *line_end != '\n' && *line_end != '\r')
             line_end++;
