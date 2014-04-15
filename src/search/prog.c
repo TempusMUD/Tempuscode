@@ -344,7 +344,7 @@ prog_set_var(struct prog_env *env, bool local, const char *key, const char *arg)
 
 	if (!var) {
 		CREATE(var, struct prog_var, 1);
-		strcpy(var->key, key);
+		snprintf(var->key, sizeof(var->key), "%s", key);
 
         // Sort by key length descending so inexact matches will work
         // properly
@@ -360,7 +360,7 @@ prog_set_var(struct prog_env *env, bool local, const char *key, const char *arg)
         }
 	}
 
-	strcpy(var->value, arg);
+    snprintf(var->value, sizeof(var->value), "%s", key);
 }
 
 static void
@@ -2026,7 +2026,7 @@ trigger_prog_cmd(void *owner, enum prog_evt_type owner_type, struct creature * c
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
     skip_spaces(&argument);
-	strcpy(evt.args, argument);
+	snprintf(evt.args, sizeof(evt.args), "%s", argument);
 	env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(env);
 
@@ -2037,7 +2037,7 @@ trigger_prog_cmd(void *owner, enum prog_evt_type owner_type, struct creature * c
     }
 
 	evt.phase = PROG_EVT_HANDLE;
-	strcpy(evt.args, argument);
+	snprintf(evt.args, sizeof(evt.args), "%s", argument);
 	handler_env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(handler_env);
 
@@ -2048,7 +2048,7 @@ trigger_prog_cmd(void *owner, enum prog_evt_type owner_type, struct creature * c
     }
 
 	evt.phase = PROG_EVT_AFTER;
-	strcpy(evt.args, argument);
+	snprintf(evt.args, sizeof(evt.args), "%s", argument);
 	prog_start(owner_type, owner, ch, &evt);
 	// note that we don't start executing yet...
 
