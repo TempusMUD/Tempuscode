@@ -1807,7 +1807,7 @@ DEFPROGHANDLER(resume, env, evt, args)
 DEFPROGHANDLER(echo, env, evt, args)
 {
 	char *arg;
-	struct creature *ch = NULL, *target = NULL;
+	struct creature *ch = NULL;
 	struct obj_data *obj = NULL;
 	struct room_data *room = NULL;
 
@@ -1818,12 +1818,12 @@ DEFPROGHANDLER(echo, env, evt, args)
         // We handle zone echos by iterating through connections here,
         // not through every creature.  This differs from the other cases,
         // which are room-bound.
-		for (struct descriptor_data * pt = descriptor_list; pt; pt = pt->next) {
+		for (struct descriptor_data *pt = descriptor_list; pt; pt = pt->next) {
 			if (pt->input_mode == CXN_PLAYING &&
 				pt->creature && pt->creature->in_room
 				&& pt->creature->in_room->zone == room->zone
 				&& !PLR_FLAGGED(pt->creature, PLR_WRITING)) {
-				act(args, false, pt->creature, obj, target, TO_CHAR);
+				act(args, false, pt->creature, NULL, env->target, TO_CHAR);
 			}
 		}
         return;
@@ -1835,26 +1835,31 @@ DEFPROGHANDLER(echo, env, evt, args)
     case PROG_TYPE_OBJECT:
         obj = ((struct obj_data *)env->owner); break;
     case PROG_TYPE_ROOM:
-		// if there's no one in the room no point in echoing
-		if (!first_living(room->people))
-			return;
-		// we just pick the top guy off the people list for rooms.
-		ch = first_living(room->people)->data;
         break;
     default:
 		errlog("Can't happen at %s:%d", __FILE__, __LINE__); break;
     }
 
-	target = env->target;
+    if (ch == NULL) {
+        ch = env->target;
+    }
+    if (ch == NULL) {
+        // if there's no one in the room no point in echoing
+		if (!first_living(room->people))
+			return;
+		// we just pick the top guy off the people list for rooms.
+		ch = first_living(room->people)->data;
+    }
+
 	if (!strcasecmp(arg, "room")) {
-		act(args, false, ch, obj, target, TO_CHAR);
-		act(args, false, ch, obj, target, TO_ROOM);
+		act(args, false, ch, obj, env->target, TO_CHAR);
+		act(args, false, ch, obj, env->target, TO_ROOM);
 	} else if (!strcasecmp(arg, "target")) {
-		act(args, false, ch, obj, target, TO_VICT);
+		act(args, false, ch, obj, env->target, TO_VICT);
     } else if (!strcasecmp(arg, "!target")) {
-		act(args, false, ch, obj, target, TO_NOTVICT);
-        if (ch != target) {
-            act(args, false, ch, obj, target, TO_CHAR);
+		act(args, false, ch, obj, env->target, TO_NOTVICT);
+        if (ch != env->target) {
+            act(args, false, ch, obj, env->target, TO_CHAR);
         }
     }
 }
