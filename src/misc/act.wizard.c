@@ -3854,6 +3854,23 @@ ACMD(do_wizutil)
 
 #define PRAC_TYPE        3      /* should it say 'spell' or 'skill'? */
 
+
+inline bool should_display_skill(struct creature *vict, int i) {
+    if (CHECK_SKILL(vict, i) != 0) {
+        return true;
+    }
+    if (GET_CLASS(vict) >= NUM_CLASSES) {
+        return false;
+    }
+    if (GET_LEVEL(vict) >= spell_info[i].min_level[(int)GET_CLASS(vict)]) {
+        return true;
+    }
+    if (CHECK_REMORT_CLASS(vict) == 0) {
+        return false;
+    }
+    return (GET_LEVEL(vict) >= spell_info[i].min_level[(int)GET_REMORT_CLASS(vict)]);
+}
+
 void
 list_skills_to_char(struct creature *ch, struct creature *vict)
 {
@@ -3876,13 +3893,7 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
                 break;
             }
             sprintf(buf3, "%s[%3d]", CCYEL(ch, C_NRM), GET_SKILL(vict, i));
-            if (CHECK_SKILL(vict, i) ||
-                (GET_LEVEL(vict) >=
-                    spell_info[i].min_level[(int)GET_CLASS(vict)]
-                    || (CHECK_REMORT_CLASS(vict) >= 0
-                        && GET_LEVEL(vict) >=
-                        spell_info[i].min_level[(int)GET_REMORT_CLASS(vict)])))
-            {
+            if (should_display_skill(vict, i)) {
                 sprintf(buf, "%s%3d.%-20s %s%-17s%s %s(%3d mana)%s\r\n",
                     CCGRN(ch, C_NRM), i, spell_to_str(i), CCBLD(ch, C_SPR),
                     how_good(GET_SKILL(vict, i)),
@@ -3908,15 +3919,12 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
         }
         sprintf(buf3, "%s[%3d]%s",
             CCYEL(ch, C_NRM), GET_SKILL(vict, i), CCNRM(ch, NRM));
-        if (CHECK_SKILL(vict, i) ||
-            (GET_LEVEL(vict) >= spell_info[i].min_level[(int)GET_CLASS(vict)]
-                || (CHECK_REMORT_CLASS(vict) >= 0
-                    && GET_LEVEL(vict) >=
-                    spell_info[i].min_level[(int)GET_REMORT_CLASS(vict)]))) {
-            sprintf(buf, "%s%3d.%-20s %s%-17s%s%s\r\n", CCGRN(ch, C_NRM), i,
-                spell_to_str(i), CCBLD(ch, C_SPR), how_good(GET_SKILL(vict,
-                        i)), GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCNRM(ch,
-                    C_SPR));
+        if (should_display_skill(vict, i)) {
+            sprintf(buf, "%s%3d.%-20s %s%-17s%s%s\r\n",
+                    CCGRN(ch, C_NRM), i, spell_to_str(i), CCBLD(ch, C_SPR),
+                    how_good(GET_SKILL(vict, i)),
+                    GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "",
+                    CCNRM(ch, C_SPR));
             strcat(buf2, buf);
         }
     }
