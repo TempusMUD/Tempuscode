@@ -634,6 +634,9 @@ ACMD(do_access)
 
             sql_exec("insert into sgroups (idnum, name, descrip) "
                 "values (%d, '%s', 'No description.')", role_id, token);
+
+            roles = g_list_prepend(roles, role);
+
             send_to_char(ch, "Role created.\r\n");
             slog("Security:  Role '%s' created by %s.", token, GET_NAME(ch));
         } else {
