@@ -2421,7 +2421,7 @@ get_next_weap(struct creature *ch)
     // Check for implanted weapons in hands
     cur_weap = GET_IMPLANT(ch, WEAR_HANDS);
     if (cur_weap && !GET_EQ(ch, WEAR_HANDS) &&
-        (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || (IS_ENERGY_GUN(cur_weap) && ((cur_weap->contains && CUR_ENERGY(cur_weap->contains) > 0))))
+        (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || (IS_ENERGY_GUN(cur_weap) && EGUN_CUR_ENERGY(cur_weap)))
         && !number(0, 2))
         return cur_weap;
 
@@ -2563,9 +2563,7 @@ hit(struct creature *ch, struct creature *victim, int type)
 
     if (weap) {
         if ((IS_ENERGY_GUN(weap)
-             && (!weap->contains
-                 || (weap->contains
-                     && CUR_ENERGY(weap->contains) <= 0)))
+             && !EGUN_CUR_ENERGY(weap))
             || IS_GUN(weap)) {
             w_type = TYPE_BLUDGEON;
         } else if (IS_ENERGY_GUN(weap) && weap->contains) {

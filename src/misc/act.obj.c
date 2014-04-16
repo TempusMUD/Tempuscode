@@ -93,7 +93,7 @@ get_implant_weap(struct creature *ch)
         if (IS_WEAR_EXTREMITY(i) && !GET_EQ(ch, i)) {
             if ((o = GET_IMPLANT(ch, i))) {
                 if (IS_OBJ_TYPE(o, ITEM_WEAPON) ||
-                    (IS_ENERGY_GUN(o) && ((o->contains && CUR_ENERGY(o->contains) > 0)))) {
+                    (IS_ENERGY_GUN(o) && EGUN_CUR_ENERGY(o))) {
                     possibles++;
                 }
             }
@@ -107,7 +107,7 @@ get_implant_weap(struct creature *ch)
             if (IS_WEAR_EXTREMITY(i) && !GET_EQ(ch, i)) {
                 if ((o = GET_IMPLANT(ch, i))) {
                     if (IS_OBJ_TYPE(o, ITEM_WEAPON) || 
-                        (IS_ENERGY_GUN(o) && ((o->contains && CUR_ENERGY(o->contains) > 0)))) {
+                        (IS_ENERGY_GUN(o) && EGUN_CUR_ENERGY(o))) {
                         pos_imp++;
                     }
                 }
