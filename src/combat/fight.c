@@ -1690,8 +1690,11 @@ damage(struct creature *ch, struct creature *victim,
         //photon special
         if (attacktype == TYPE_EGUN_PHOTON && dam) {
             if (do_gun_special(ch, weap)) {
+                if (AFF_FLAGGED(victim, AFF_BLIND) || NPC_FLAGGED(victim, NPC_NOBLIND)) {
+                    return false;
+                }
                 mag_affects(skill_bonus(ch, SKILL_ENERGY_WEAPONS), ch, victim,
-                    NULL, SPELL_BLINDNESS, SAVING_ROD);
+                    NULL, SPELL_BLINDNESS, SAVING_NONE);
             }
         }
         //plasma special
@@ -1717,7 +1720,8 @@ damage(struct creature *ch, struct creature *victim,
         }
         //gamma special
         if (attacktype == TYPE_EGUN_GAMMA && dam) {
-            if (do_gun_special(ch, weap) && !CHAR_WITHSTANDS_RAD(victim)) {
+            if (do_gun_special(ch, weap) && !CHAR_WITHSTANDS_RAD(victim) && 
+                !affected_by_spell(victim, TYPE_RAD_SICKNESS)) {
                 add_rad_sickness(victim, GET_LEVEL(ch));
                 act("$n begins to look sick.", false, victim, NULL, NULL, TO_ROOM);
                 act("You start to feel sick.", false, victim, NULL, NULL, TO_CHAR);
@@ -1729,7 +1733,7 @@ damage(struct creature *ch, struct creature *victim,
                 struct affected_type sonicAf;
                 init_affect(&sonicAf);
                 sonicAf.location = APPLY_DEX;
-                sonicAf.modifier = -1;
+                sonicAf.modifier = -(GET_LEVEL(ch)/16);
                 sonicAf.owner = GET_IDNUM(ch);
                 sonicAf.duration = 1;
                 sonicAf.level = skill_bonus(ch, SKILL_ENERGY_WEAPONS);
@@ -2911,31 +2915,38 @@ do_gun_special(struct creature * ch, struct obj_data * obj)
     if (!IS_ENERGY_GUN(obj) || !EGUN_CUR_ENERGY(obj)) {
         return false;
     }
-    //calculation code here, future skills could and should affect this
-    if (GET_OBJ_VAL(obj, 3) == EGUN_PARTICLE) {
-        int penetrate = MAX(3, 35 - (GET_HITROLL(ch) / 10) - GET_DEX(ch));
-        if (number(0, penetrate)) {
-            return false;
-        }
 
+    int hit_bonus = ((GET_HITROLL(ch) * 50) / (GET_HITROLL(ch) + 50));
+    int dex_bonus = ((GET_DEX(ch) * 25) / (GET_DEX(ch) + 25));
+
+    if (GET_OBJ_VAL(obj, 3) == EGUN_PLASMA) {
+        return !number(0, MAX(0, (180 - skill_bonus(ch, SKILL_ENERGY_WEAPONS) - hit_bonus - dex_bonus)));
+    } else if (GET_OBJ_VAL(obj, 3) == EGUN_ION) {
+        return !number(0, MAX(0, (250 - skill_bonus(ch, SKILL_ENERGY_WEAPONS) - hit_bonus - dex_bonus)));
+    } else if (GET_OBJ_VAL(obj, 3) == EGUN_PHOTON) {
+        return !number(0, MAX(0, (250 - skill_bonus(ch, SKILL_ENERGY_WEAPONS) - hit_bonus - dex_bonus)));
+    } else if (GET_OBJ_VAL(obj, 3) == EGUN_SONIC) {
+        return !number(0, MAX(0, (210 - skill_bonus(ch, SKILL_ENERGY_WEAPONS) - hit_bonus - dex_bonus)));
+    } else if (GET_OBJ_VAL(obj, 3) == EGUN_PARTICLE) {
+        int penetrate = (125 - hit_bonus - dex_bonus);                                                
+        if (!number(0, penetrate)) {
+            return true;
+        }
+    } else if (GET_OBJ_VAL(obj, 3) == EGUN_GAMMA) {
+        return !number(0, MAX(0, (180 - skill_bonus(ch, SKILL_ENERGY_WEAPONS) - hit_bonus - dex_bonus)));
     } else if (GET_OBJ_VAL(obj, 3) == EGUN_LIGHTNING) {
-        //basic chance to chain
         bool chain =
             !number(0, MAX(5,
-                LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) - (CHECK_SKILL(ch,
-                        SKILL_ENERGY_WEAPONS) / 8)));
-        //in water we get a second chance
-        if (room_is_watery(ch->in_room) && !number(0, 3))
+                150 - GET_LEVEL(ch) - GET_DEX(ch) - (CHECK_SKILL(ch,
+                        SKILL_ENERGY_WEAPONS) / 15)));
+        if (room_is_watery(ch->in_room) && !number(0, 3)) {
             chain = true;
-        return chain;
-    } else if (GET_OBJ_VAL(obj, 3) == EGUN_PLASMA) {
-        return number(0, MAX(0, skill_bonus(ch, SKILL_ENERGY_WEAPONS)) / 20);   //almost always ignite if applicable
-    } else if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_DEX(ch) -
-                (CHECK_SKILL(ch, SKILL_ENERGY_WEAPONS) / 8)))) {
-        return false;
+            return chain;
+        }
+    } else {
+        errlog("Missing EGUN type in do_gun_special()");
     }
-
-    return true;
+    return false;
 }
 
 void
