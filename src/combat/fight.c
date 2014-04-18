@@ -772,6 +772,7 @@ damage(struct creature *ch, struct creature *victim,
     struct obj_data *obj = NULL, *impl = NULL;
     struct room_affect_data rm_aff;
     struct affected_type *af = NULL;
+    struct zone_data *zone = NULL;
     bool deflected = false;
     bool mshield_hit = false;
 
@@ -780,6 +781,20 @@ damage(struct creature *ch, struct creature *victim,
         errlog("Attempt to damage a corpse--ch=%s,vict=%s,type=%d.",
             ch ? GET_NAME(ch) : "NULL", GET_NAME(victim), attacktype);
         return false;
+    }
+
+    //apply zone damage modifier to NPCs
+    if (IS_NPC(ch)) {
+        for (zone = zone_table; zone; zone = zone->next) {
+            if (GET_NPC_VNUM(ch) >= zone->number * 100 && GET_NPC_VNUM(ch) <= zone->top)
+                break;
+        }
+
+        if (!zone) {
+            slog("OLC: ERROR finding zone for mob %d in damage().", GET_NPC_VNUM(ch));
+        } else {
+            dam = (dam * zone->dam_mod) / 100;
+        }
     }
 
     if (victim->in_room == NULL) {

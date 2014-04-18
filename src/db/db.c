@@ -2172,15 +2172,18 @@ load_zones(FILE * fl, char *zonename)
         line_num += get_line(fl, buf);
     }
 
-    int result = sscanf(buf, " %d %d %d %d %d %s %d %d %d", &new_zone->top,
+    int result = sscanf(buf, " %d %d %d %d %d %s %d %d %d %d", &new_zone->top,
         &new_zone->lifespan, &new_zone->reset_mode,
         &new_zone->time_frame, &new_zone->plane, flags,
         &new_zone->hour_mod, &new_zone->year_mod,
-        &new_zone->pk_style);
+        &new_zone->pk_style, &new_zone->dam_mod);
     if (result == 8) {
         new_zone->pk_style = ZONE_CHAOTIC_PK;
-    } else if (result != 9) {
-        fprintf(stderr, "Format error in 9-constant line of %s\n", zname);
+        new_zone->dam_mod = 100;
+    } else if (result == 9) {
+        new_zone->dam_mod = 100;
+    } else if (result != 10) {
+        fprintf(stderr, "Format error in 10-constant line of %s\n", zname);
         fprintf(stderr, "Line was: %s", buf);
         safe_exit(0);
     }

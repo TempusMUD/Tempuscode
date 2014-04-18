@@ -47,13 +47,13 @@ const char *olc_zset_keys[] = {
     "top",
     "reset",
     "tframe",
-    "plane",                /** 5**/
+    "plane",         /** 5**/
     "owner",
     "flags",
-    "command",              /** 8 **/
+    "command",
     "hours",
-    "years",
-    "blanket_exp",           /** 11 **/
+    "years",         /** 10 **/
+    "blanket_exp",
     "co-owner",
     "blanket_flags",
     "respawn_pt",
@@ -62,9 +62,10 @@ const char *olc_zset_keys[] = {
     "max_lvl",
     "max_gen",
     "public_desc",
-    "private_desc", /** 20 **/
-    "pk_style", /** 21 **/
+    "private_desc",  /** 20 **/
+    "pk_style",
     "author",
+    "dam_mod",       /** 23 **/
     "\n"
 };
 
@@ -2402,6 +2403,22 @@ do_zset_command(struct creature *ch, char *argument)
             zone->author = NULL;
             send_to_char(ch, "Zone author cleared\r\n");
         }
+    case 23:
+        if (!is_number(argument)) {
+            send_to_char(ch,
+                "You must supply a numerical argument from 50 to 150.\r\n");
+            return;
+        }
+        num = atoi(argument);
+        if (num < 50 || num > 150) {
+            send_to_char(ch,
+                "You must supply a numerical argument from 50 to 150.\r\n");
+            return;
+        }
+        zone->dam_mod = atoi(argument);
+        send_to_char(ch,
+            "Zone damage modifier set. Rebalance mobs soon then return to 100.\r\n");
+        break;
     }
 }
 
@@ -2517,10 +2534,10 @@ save_zone(struct creature * ch, struct zone_data * zone)
     tmp = zone->flags;
 
     num2str(buf, tmp);
-    fprintf(zone_file, "%d %d %d %d %d %s %d %d %d\n",
+    fprintf(zone_file, "%d %d %d %d %d %s %d %d %d %d\n",
         zone->top, zone->lifespan,
         zone->reset_mode, zone->time_frame, zone->plane, buf,
-        zone->hour_mod, zone->year_mod, zone->pk_style);
+        zone->hour_mod, zone->year_mod, zone->pk_style, zone->dam_mod);
 
     for (zcmd = zone->cmd; zcmd; zcmd = zcmd->next) {
         if (zcmd->command == 'D') {

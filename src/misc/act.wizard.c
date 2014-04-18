@@ -949,6 +949,8 @@ do_stat_zone(struct creature *ch, struct zone_data *zone)
         send_to_char(ch, "Public Description:\r\n%s", zone->public_desc);
     if (zone->private_desc)
         send_to_char(ch, "Private Description:\r\n%s", zone->private_desc);
+    if (zone->dam_mod != 100)
+        send_to_char(ch, "Damage modifier: %d percent", zone->dam_mod);
 
     for (obj = object_list; obj; obj = obj->next)
         if (obj->in_room && obj->in_room->zone == zone)
