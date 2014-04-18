@@ -38,6 +38,7 @@
 #include <libxml/parser.h>
 #include "obj_data.h"
 #include "strutil.h"
+#include "zone_data.h"
 
 int check_mob_reaction(struct creature *ch, struct creature *vict);
 int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
@@ -258,19 +259,28 @@ ACMD(do_drag_char)
     if (!CAN_GO(ch, dir)
         || !can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)
         || !CAN_GO(vict, dir)) {
-        send_to_char(ch, "Sorry you can't go in that direction.\r\n");
+        send_to_char(ch, "Sorry, you can't go in that direction.\r\n");
         return;
     }
 
     target_room = EXIT(ch, dir)->to_room;
 
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        act("You are unable to drag $M away from this peaceful area.", false, ch, NULL, vict, TO_CHAR);
+        return;
+    }
+
     if ((ROOM_FLAGGED(target_room, ROOM_HOUSE)
             && !can_enter_house(ch, target_room->number))
         || (ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
             && !clan_house_can_enter(ch, target_room))
-        || (ROOM_FLAGGED(target_room, ROOM_DEATH))
-        || is_npk_combat(ch, vict)) {
+        || (ROOM_FLAGGED(target_room, ROOM_DEATH))) {
         act("You are unable to drag $M there.", false, ch, NULL, vict, TO_CHAR);
+        return;
+    }
+
+    if (ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+        act("You are unable to drag players except in CPK areas.", false, ch, NULL, vict, TO_CHAR);
         return;
     }
 
@@ -318,7 +328,7 @@ ACMD(do_drag_char)
     } else {
         act("$n grabs $N but fails to move $m.", false, ch, NULL, vict,
             TO_NOTVICT);
-        act("You attempt to man-handle $N but you fail!", false, ch, NULL, vict,
+        act("You attempt to drag $N, but you fail!", false, ch, NULL, vict,
             TO_CHAR);
         act("$n attempts to drag you, but you hold your ground.", false, ch, NULL,
             vict, TO_VICT);

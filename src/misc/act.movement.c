@@ -2852,13 +2852,23 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
     int dir = -1;
     int drag_wait = 0;
     int mvm_cost = 0;
-    char *arg1;
+    char *arg1, *arg2;
     struct room_data *theroom = NULL;
 
     arg1 = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
 
     // a character can drag an object twice the weight of his maximum
     // encumberance + a little luck
+
+    if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) != GET_IDNUM(ch) &&
+            ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK &&
+            !IS_NPC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
+            CORPSE_IDNUM(obj) > 0) {
+            send_to_char(ch, "You may not drag player corpses except in CPK zones.\r\n");
+            return 0;
+        }
+
     drag_wait = MAX(1, (GET_OBJ_WEIGHT(obj) / 100));
     drag_wait = MIN(drag_wait, 3);
 
@@ -2879,40 +2889,41 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
         return 0;
     }
     // Find out which direction the player wants to drag in
-    if (is_abbrev(arg1, "north")) {
+
+    if (is_abbrev(arg2, "north")) {
         dir = 0;
     }
 
-    else if (is_abbrev(arg1, "east")) {
+    else if (is_abbrev(arg2, "east")) {
         dir = 1;
     }
 
-    else if (is_abbrev(arg1, "south")) {
+    else if (is_abbrev(arg2, "south")) {
         dir = 2;
     }
 
-    else if (is_abbrev(arg1, "west")) {
+    else if (is_abbrev(arg2, "west")) {
         dir = 3;
     }
 
-    else if (is_abbrev(arg1, "up")) {
+    else if (is_abbrev(arg2, "up")) {
         dir = 4;
     }
 
-    else if (is_abbrev(arg1, "down")) {
+    else if (is_abbrev(arg2, "down")) {
         dir = 5;
     }
 
-    else if (is_abbrev(arg1, "future")) {
+    else if (is_abbrev(arg2, "future")) {
         dir = 6;
     }
 
-    else if (is_abbrev(arg1, "past")) {
+    else if (is_abbrev(arg2, "past")) {
         dir = 7;
     }
 
     else {
-        send_to_char(ch, "Sorry, that's not a valid direction.\r\n");
+        send_to_char(ch, "That's not a valid direction.\r\n");
         WAIT_STATE(ch, 1 RL_SEC);
         return 0;
     }
@@ -2939,14 +2950,13 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
         SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ||
         SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
         SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_FIRE) {
-
-        send_to_char(ch, "You are unable to drag objects here.\r\n");
-        WAIT_STATE(ch, 1 RL_SEC);
-        return 0;
+            send_to_char(ch, "You are unable to drag objects here.\r\n");
+            WAIT_STATE(ch, 1 RL_SEC);
+            return 0;
     }
     //now check to make sure the character can go in the specified direction
     if (!CAN_GO(ch, dir) || !can_travel_sector(ch, SECT_TYPE(theroom), 0)) {
-        send_to_char(ch, "Sorry you can't go in that direction.\r\n");
+        send_to_char(ch, "You can't go in that direction.\r\n");
         WAIT_STATE(ch, 1 RL_SEC);
         return 0;
     }
@@ -2961,8 +2971,7 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
             && !can_enter_house(ch, theroom->number))
         || (ROOM_FLAGGED(theroom, ROOM_CLAN_HOUSE)
             && !clan_house_can_enter(ch, theroom))) {
-
-        act("You are unable to drag $p there.\r\n", false, ch, obj, NULL,
+        act("You can't go there, so neither can $p.\r\n", false, ch, obj, NULL,
             TO_CHAR);
         WAIT_STATE(ch, 1 RL_SEC);
         return 0;
@@ -2974,8 +2983,7 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
         IS_OBJ_TYPE(obj, ITEM_V_WINDOW) || IS_OBJ_TYPE(obj, ITEM_V_CONSOLE) ||
         IS_OBJ_TYPE(obj, ITEM_V_DOOR) || IS_OBJ_TYPE(obj, ITEM_SCRIPT) ||
         !OBJ_APPROVED(obj)) {
-
-        act("You can't drag $p you buffoon!", false, ch, obj, NULL, TO_CHAR);
+        act("Try as you might, you can't drag $p!", false, ch, obj, NULL, TO_CHAR);
         WAIT_STATE(ch, 1 RL_SEC);
         return 0;
     }
