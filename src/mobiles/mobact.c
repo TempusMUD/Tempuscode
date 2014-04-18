@@ -639,12 +639,11 @@ burn_update_creature(struct creature *ch)
     }
     // burning rooms
     else if ((ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED) &&
-            (!CHAR_WITHSTANDS_FIRE(ch) ||
-                ROOM_FLAGGED(ch->in_room, ROOM_GODROOM))) ||
-        (IS_VAMPIRE(ch) && room_is_sunny(ch->in_room))) {
+             (!CHAR_WITHSTANDS_FIRE(ch) ||
+             ROOM_FLAGGED(ch->in_room, ROOM_GODROOM))) ||
+             (IS_VAMPIRE(ch) && room_is_sunny(ch->in_room))) {
         send_to_char(ch, "Your body suddenly bursts into flames!\r\n");
         act("$n suddenly bursts into flames!", false, ch, NULL, NULL, TO_ROOM);
-        GET_MANA(ch) = 0;
         ignite_creature(ch, NULL);
         damage(ch, ch, NULL, dice(4, 5), TYPE_ABLAZE, -1);
         if (is_dead(ch)) {
