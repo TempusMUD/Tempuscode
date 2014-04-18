@@ -79,7 +79,7 @@ ACMD(do_split);
 const long MONEY_LOG_LIMIT = 50000000;
 
 /*@dependent@*/ /*@null@*/ struct obj_data *
-get_random_uncovered_implant(struct creature *ch, int type)
+get_implant_weap(struct creature *ch)
 {
     int possibles = 0;
     int implant = 0;
@@ -90,28 +90,30 @@ get_random_uncovered_implant(struct creature *ch, int type)
     if (ch == NULL)
         return NULL;
     for (i = 0; i < NUM_WEARS; i++) {
-        if (IS_WEAR_EXTREMITY(i)) {
+        if (IS_WEAR_EXTREMITY(i) && !GET_EQ(ch, i)) {
             if ((o = GET_IMPLANT(ch, i))) {
-                if (type != -1 && !IS_OBJ_TYPE(o, type))
-                    continue;
-                else
+                if (IS_OBJ_TYPE(o, ITEM_WEAPON) ||
+                    (IS_ENERGY_GUN(o) && EGUN_CUR_ENERGY(o))) {
                     possibles++;
+                }
             }
         }
     }
+
     if (possibles > 0) {
         implant = number(1, possibles);
         pos_imp = 0;
         for (i = 0; pos_imp < implant && i < NUM_WEARS; i++) {
             if (IS_WEAR_EXTREMITY(i) && !GET_EQ(ch, i)) {
                 if ((o = GET_IMPLANT(ch, i))) {
-                    if (type != -1 && !IS_OBJ_TYPE(o, type))
-                        continue;
-                    else
+                    if (IS_OBJ_TYPE(o, ITEM_WEAPON) || 
+                        (IS_ENERGY_GUN(o) && EGUN_CUR_ENERGY(o))) {
                         pos_imp++;
+                    }
                 }
             }
         }
+
         if (pos_imp == implant) {
             o = GET_IMPLANT(ch, i - 1);
             return o;

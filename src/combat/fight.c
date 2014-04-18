@@ -72,7 +72,7 @@ extern bool LOG_DEATHS;
 int corpse_state = 0;
 
 /* The Fight related routines */
-struct obj_data *get_random_uncovered_implant(struct creature *ch, int type);
+struct obj_data *get_implant_weap(struct creature *ch);
 int calculate_weapon_probability(struct creature *ch, int prob,
     struct obj_data *weap);
 int do_combat_fire(struct creature *ch, struct creature *vict);
@@ -2423,7 +2423,7 @@ get_next_weap(struct creature *ch)
     // Check for implanted weapons in hands
     cur_weap = GET_IMPLANT(ch, WEAR_HANDS);
     if (cur_weap && !GET_EQ(ch, WEAR_HANDS) &&
-        (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || IS_ENERGY_GUN(cur_weap))
+        (IS_OBJ_TYPE(cur_weap, ITEM_WEAPON) || (IS_ENERGY_GUN(cur_weap) && EGUN_CUR_ENERGY(cur_weap)))
         && !number(0, 2))
         return cur_weap;
 
@@ -2537,18 +2537,21 @@ hit(struct creature *ch, struct creature *victim, int type)
 
     if (type == SKILL_BACKSTAB
         || type == SKILL_CIRCLE
-        || type == SKILL_CLEAVE)
+        || type == SKILL_CLEAVE) {
         weap = GET_EQ(ch, WEAR_WIELD);
-    else if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W)
-        weap = get_random_uncovered_implant(ch, ITEM_WEAPON);
-    else
+    } else if (type == SKILL_IMPLANT_W || type == SKILL_ADV_IMPLANT_W) {
+        weap = get_implant_weap(ch);
+        //character has implant weapon skill but no valid uncovered weapon
+        if (weap==NULL) {
+            return false;
+        }
+    } else {
         weap = get_next_weap(ch);
+    }
 
     if (weap) {
         if ((IS_ENERGY_GUN(weap)
-             && (!weap->contains
-                 || (weap->contains
-                     && CUR_ENERGY(weap->contains) <= 0)))
+             && !EGUN_CUR_ENERGY(weap))
             || IS_GUN(weap)) {
             w_type = TYPE_BLUDGEON;
         } else if (IS_ENERGY_GUN(weap) && weap->contains) {
