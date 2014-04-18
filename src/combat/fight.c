@@ -1295,7 +1295,8 @@ damage(struct creature *ch, struct creature *victim,
             (attacktype < MAX_SKILLS || attacktype >= TYPE_HIT) &&
             (attacktype > MAX_SPELLS
                 || IS_SET(spell_info[attacktype].routines, MAG_TOUCH))
-            && !SPELL_IS_PSIONIC(attacktype) && !SPELL_IS_BARD(attacktype)) {
+            && !SPELL_IS_PSIONIC(attacktype) && !SPELL_IS_BARD(attacktype)
+            && !is_bad_attack_type(attacktype)) {
 
             //
             // vict has prismatic sphere
