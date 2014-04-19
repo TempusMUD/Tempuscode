@@ -2980,6 +2980,9 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
         struct creature *vict = (struct creature *)it->data;
         if (vict == ch)
             continue;
+        if (AFF_FLAGGED(ch, AFF_GROUP) && AFF_FLAGGED(vict, AFF_GROUP)
+            && (vict->master == ch || vict->master == ch->master || ch->master == vict))
+            continue;
         if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE))
             continue;
         if (!IS_NPC(ch) && IS_NPC(vict) && AFF_FLAGGED(vict, AFF_CHARM))
@@ -3036,6 +3039,9 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
         //          non-living chars if spell is lich's lyric
 
         if (vict == ch)
+            continue;
+        if (AFF_FLAGGED(ch, AFF_GROUP) && AFF_FLAGGED(vict, AFF_GROUP)
+            && (vict->master == ch || vict->master == ch->master || ch->master == vict))
             continue;
         if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE))
             continue;
