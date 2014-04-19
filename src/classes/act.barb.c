@@ -128,6 +128,10 @@ select_berserk_victim(struct creature *tch, struct creature *ch)
         || !number(0, 1 + (GET_LEVEL(ch) / 16)))
         return -1;
 
+    if (AFF_FLAGGED(ch, AFF_GROUP) && AFF_FLAGGED(tch, AFF_GROUP)
+        && (tch->master == ch || tch->master == ch->master || ch->master == tch))
+        return -1;
+
     return 0;
 }
 
