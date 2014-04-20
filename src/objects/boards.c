@@ -252,7 +252,7 @@ gen_board_read(struct board_data *board, struct creature *ch, char *argument)
     }
     acc_string_clear();
     post_time = atol(PQgetvalue(res, 0, 0));
-    strftime(time_buf, 30, "%a %b %e", localtime(&post_time));
+    strftime(time_buf, 30, "%a %b %e %Y", localtime(&post_time));
     acc_sprintf("%sMessage %s : %s %-12s :: %s%s\r\n\r\n%s\r\n",
         CCBLD(ch, C_CMP),
         argument,
