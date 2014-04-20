@@ -2279,6 +2279,7 @@ ASPELL(spell_gust_of_wind)
             if (rm_aff->type == RM_AFF_FLAGS &&
                 IS_SET(rm_aff->flags, ROOM_SMOKE_FILLED)) {
                 affect_from_room(ch->in_room, rm_aff);
+                send_to_room("The rushing wind clears the smoke from the air.\r\n", ch->in_room);
                 break;
             }
     }
