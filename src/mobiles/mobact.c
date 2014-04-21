@@ -4230,6 +4230,7 @@ ACMD(do_breathe)
                 if (fire->duration <= 0)
                     affect_remove(ch, fire);
             }
+            WAIT_STATE(ch, 2 RL_SEC);
         } else if (frost != NULL) {
             call_magic(ch, vict, NULL, NULL, SPELL_FROST_BREATH, GET_LEVEL(ch),
                 CAST_BREATH);
@@ -4239,6 +4240,7 @@ ACMD(do_breathe)
                 if (frost->duration <= 0)
                     affect_remove(ch, frost);
             }
+            WAIT_STATE(ch, 2 RL_SEC);
         } else {
             send_to_char(ch, "ERROR: No breath type found.\r\n");
         }
