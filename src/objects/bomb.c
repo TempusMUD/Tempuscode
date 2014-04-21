@@ -322,7 +322,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
                 break;
             case BOMB_SMOKE:
                 strcpy(buf, "Clouds of smoke begin to billow in");
-                dam = MAX(1, dam);
+                dam = 0;
                 damage_type = TYPE_DROWNING;
                 break;
             case BOMB_ARTIFACT:
@@ -332,7 +332,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
                 damage_type = 0;
                 break;
             case SKILL_SELF_DESTRUCT:
-                strcpy(buf, "You are showered with a rain of fiery debris!");
+                strcpy(buf, "You are showered with a rain of fiery debris");
                 damage_type = TYPE_RIP;
                 break;
 
@@ -353,108 +353,122 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
         send_to_room(buf, room);
     }
 
-    if (!dam)
+    if ROOM_FLAGGED(room, ROOM_PEACEFUL) {
         return;
+    }
+
+    //smoke bombs are non-damaging, non-explosive, so handle it here then return
+    if (bomb_type == BOMB_SMOKE &&
+        !ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)) {
+        rm_aff.description =
+            strdup
+            ("   The room is filled with thick smoke, hindering your vision.\r\n");
+        rm_aff.duration = number(power, power * 2);
+        rm_aff.type = RM_AFF_FLAGS;
+        rm_aff.level = MIN(power / 2, LVL_AMBASSADOR);
+        rm_aff.flags = ROOM_SMOKE_FILLED | ROOM_NOTRACK;
+        rm_aff.owner = damager_id;
+        affect_to_room(room, &rm_aff);
+        return;
+    }
 
     //make sure we really do want to do damage in this room
-    for (GList * it = first_living(room->people); it; it = next_living(it)) {
-        vict = it->data;
-        if (damager && damager != vict && !ok_to_attack(damager, vict, false)) {
-            //display the message to everyone in victs room except damager
-            act("A divine shield flashes into existence protecting you from $N's bomb.", false, vict, NULL, damager, TO_NOTVICT);
-            act("A divine shield flashes into existence protecting you from $N's bomb.", false, vict, NULL, damager, TO_CHAR);
-            if (damager->in_room == vict->in_room)
-                send_to_char(damager,
-                    "A divine shield flashes into existence absorbing the blast.\r\n");
-            return;
-        }
-    }
-
-    for (GList * it = first_living(room->people); it; it = next_living(it)) {
-        vict = it->data;
-
-        if (vict == precious_vict)
-            continue;
-
-        if (damage(damager, vict, NULL, dam, damage_type, WEAR_RANDOM))
-            continue;
-
-        if (bomb_type == BOMB_INCENDIARY &&
-            !CHAR_WITHSTANDS_FIRE(vict) && !AFF2_FLAGGED(vict, AFF2_ABLAZE))
-            ignite_creature(vict, damager);
-
-        if ((bomb_type == BOMB_ARTIFACT || bomb_type == BOMB_FLASH) &&
-            AWAKE(vict) && GET_LEVEL(vict) < LVL_AMBASSADOR &&
-            !mag_savingthrow(vict, 40, SAVING_PETRI) &&
-            !AFF_FLAGGED(vict, AFF_BLIND) && !NPC_FLAGGED(vict, NPC_NOBLIND)) {
-            af.type = SPELL_BLINDNESS;
-            af.bitvector = AFF_BLIND;
-            af.duration = MAX(1, (power / 2));
-            af.aff_index = 1;
-            af.level = 30;
-            af.owner = damager_id;
-            affect_to_char(vict, &af);
+    if (dam) {
+        for (GList * it = first_living(room->people); it; it = next_living(it)) {
+            vict = it->data;
+            if (damager && damager != vict && !ok_to_attack(damager, vict, false)) {
+                //display the message to everyone in victs room except damager
+                act("A divine shield flashes into existence protecting you from $N's bomb.", false, vict, NULL, damager, TO_NOTVICT);
+                act("A divine shield flashes into existence protecting you from $N's bomb.", false, vict, NULL, damager, TO_CHAR);
+                if (damager->in_room == vict->in_room)
+                    send_to_char(damager,
+                        "A divine shield flashes into existence absorbing the blast.\r\n");
+                return;
+            }
         }
 
-        if (cannot_damage(NULL, vict, NULL, damage_type))
-            continue;
+        for (GList * it = first_living(room->people); it; it = next_living(it)) {
+            vict = it->data;
 
-        if (GET_STR(vict) < number(3, power)) {
-            send_to_char(vict,
-                "You are blown to the ground by the explosive blast!\r\n");
-            GET_POSITION(vict) = POS_SITTING;
-        } else if (GET_POSITION(vict) > POS_STUNNED &&
-            (bomb_type == BOMB_CONCUSSION || power > number(2, 12)) &&
-            number(5, 5 + power) > GET_CON(vict)) {
+            if (vict == precious_vict)
+                continue;
 
-            if (ROOM_FLAGGED(room, ROOM_PEACEFUL) &&
-                (dir >= 0 || (dir = number(0, NUM_DIRS - 1)) >= 0) &&
-                room->dir_option[rev_dir[dir]] &&
-                room->dir_option[rev_dir[dir]]->to_room &&
-                !IS_SET(room->dir_option[rev_dir[dir]]->exit_info, EX_CLOSED)
-                && (power * 32) > number(0,
-                    GET_WEIGHT(vict) + IS_CARRYING_W(vict) +
-                    IS_WEARING_W(vict) + CAN_CARRY_W(vict))) {
-                send_to_char(vict,
-                    "You are blown out of the room by the blast!!\r\n");
-                char_from_room(vict, false);
-                char_to_room(vict, room->dir_option[rev_dir[dir]]->to_room,
-                    false);
-                look_at_room(vict, vict->in_room, 0);
-
-                sprintf(buf, "$n is blown in from %s!", from_dirs[dir]);
-                act(buf, false, vict, NULL, NULL, TO_ROOM);
-            } else if (GET_POSITION(vict) > POS_SITTING && (power * 32) >
-                GET_WEIGHT(vict) + CAN_CARRY_W(vict)) {
-                send_to_char(vict,
-                    "You are blown to the ground by the blast!!\r\n");
-                GET_POSITION(vict) = POS_RESTING;
+            if (cannot_damage(NULL, vict, NULL, damage_type)) {
+                continue;
             }
 
-            if (ROOM_FLAGGED(room, ROOM_PEACEFUL) &&
-                !mag_savingthrow(vict, 40, SAVING_ROD))
-                GET_POSITION(vict) = POS_STUNNED;
+            damage(damager, vict, NULL, dam, damage_type, WEAR_RANDOM);
+
+            if (bomb_type == BOMB_INCENDIARY &&
+                !CHAR_WITHSTANDS_FIRE(vict) && !AFF2_FLAGGED(vict, AFF2_ABLAZE))
+                ignite_creature(vict, damager);
+
+            if ((bomb_type == BOMB_ARTIFACT || bomb_type == BOMB_FLASH) &&
+                AWAKE(vict) && GET_LEVEL(vict) < LVL_AMBASSADOR &&
+                !mag_savingthrow(vict, 40, SAVING_PETRI) &&
+                !AFF_FLAGGED(vict, AFF_BLIND) && !NPC_FLAGGED(vict, NPC_NOBLIND)) {
+                af.type = SPELL_BLINDNESS;
+                af.bitvector = AFF_BLIND;
+                af.duration = MAX(1, (power / 2));
+                af.aff_index = 1;
+                af.level = 30;
+                af.owner = damager_id;
+                affect_to_char(vict, &af);
+            }
+
+            if (GET_STR(vict) < number(3, power) && GET_POSITION(vict) > POS_SITTING) {
+                send_to_char(vict,
+                    "You are blown to the ground by the explosive blast!\r\n");
+                GET_POSITION(vict) = POS_SITTING;
+            } else if (GET_POSITION(vict) > POS_STUNNED &&
+                (bomb_type == BOMB_CONCUSSION || power > number(2, 12)) &&
+                number(5, 5 + power) > GET_CON(vict)) {
+                if ((dir == -2 || (dir = number(0, NUM_DIRS - 1)) >= 0) &&
+                    room->dir_option[rev_dir[dir]] &&
+                    room->dir_option[rev_dir[dir]]->to_room &&
+                    !IS_SET(room->dir_option[rev_dir[dir]]->exit_info, EX_CLOSED)
+                    && (power * 32) > number(0,
+                        GET_WEIGHT(vict) + IS_CARRYING_W(vict) +
+                        IS_WEARING_W(vict) + CAN_CARRY_W(vict))) {
+                    send_to_char(vict,
+                        "You are blown out of the room by the blast!!\r\n");
+                    char_from_room(vict, false);
+                    char_to_room(vict, room->dir_option[rev_dir[dir]]->to_room,
+                        false);
+                    look_at_room(vict, vict->in_room, 0);
+
+                    sprintf(buf, "$n is blown in from %s!", from_dirs[dir]);
+                    act(buf, false, vict, NULL, NULL, TO_ROOM);
+                } else if (GET_POSITION(vict) > POS_SITTING && (power * 32) >
+                    GET_WEIGHT(vict) + CAN_CARRY_W(vict)) {
+                    send_to_char(vict,
+                        "You are blown to the ground by the blast!!\r\n");
+                    GET_POSITION(vict) = POS_RESTING;
+                }
+
+                if (!mag_savingthrow(vict, 40, SAVING_ROD))
+                    GET_POSITION(vict) = POS_STUNNED;
+            }
+        }
+
+        // Objects in an explosion should also be damaged
+        struct obj_data *obj, *next_obj;
+        for (obj = room->contents; obj; obj = next_obj) {
+            next_obj = obj->next_content;
+
+            if (!IS_BOMB(obj)       // Do not damage lit bombs
+                || obj->contains == NULL || !IS_FUSE(obj->contains)
+                || FUSE_STATE(obj->contains) == 0) {
+                damage_eq(NULL, obj, dam, damage_type);
+            }
         }
     }
 
-    // Objects in an explosion should also be damaged
-    struct obj_data *obj, *next_obj;
-    for (obj = room->contents; obj; obj = next_obj) {
-        next_obj = obj->next_content;
-
-        if (!IS_BOMB(obj)       // Do not damage lit bombs
-            || obj->contains == NULL || !IS_FUSE(obj->contains)
-            || FUSE_STATE(obj->contains) == 0) {
-            damage_eq(NULL, obj, dam, damage_type);
-        }
-    }
-
-    // room affects here
+    // remaining room affects here
 
     if (bomb_type == BOMB_INCENDIARY &&
         !room_is_watery(room) && !ROOM_FLAGGED(room, ROOM_FLAME_FILLED)) {
-        rm_aff.description =
-            strdup("   The room is ablaze with raging flames!\r\n");
+        rm_aff.description =  strdup("   The room is ablaze with raging flames!\r\n");
         rm_aff.duration = 1 + number(power / 8, power);
         rm_aff.level = MIN(power / 2, LVL_AMBASSADOR);
         rm_aff.type = RM_AFF_FLAGS;
@@ -468,17 +482,6 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
         rm_aff.type = RM_AFF_FLAGS;
         rm_aff.level = MIN(power / 2, LVL_AMBASSADOR);
         rm_aff.flags = ROOM_RADIOACTIVE;
-        rm_aff.owner = damager_id;
-        affect_to_room(room, &rm_aff);
-    } else if (bomb_type == BOMB_SMOKE &&
-        !ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)) {
-        rm_aff.description =
-            strdup
-            ("   The room is filled with thick smoke, hindering your vision.\r\n");
-        rm_aff.duration = number(power, power * 2);
-        rm_aff.type = RM_AFF_FLAGS;
-        rm_aff.level = MIN(power / 2, LVL_AMBASSADOR);
-        rm_aff.flags = ROOM_SMOKE_FILLED | ROOM_NOTRACK;
         rm_aff.owner = damager_id;
         affect_to_room(room, &rm_aff);
     }
