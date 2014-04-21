@@ -183,8 +183,6 @@ ACMD(do_berserk)
 
     percent = (number(1, 101) - GET_LEVEL(ch));
 
-    perform_barb_berserk(ch, NULL);
-
     if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
         if (percent > CHECK_SKILL(ch, SKILL_BERSERK)) {
             send_to_char(ch, "You cannot calm down!!\r\n");
