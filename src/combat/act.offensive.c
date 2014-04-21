@@ -1969,14 +1969,15 @@ ACMD(do_tag)
 
 ACMD(do_rescue)
 {
-    struct creature *vict = NULL, *tmp_ch;
-    int percent, prob;
+    struct creature *vict = NULL;
+    int percent, prob, foes = 0;
+    bool attackers = false;
     char *arg;
 
     arg = tmp_getword(&argument);
 
     if (!(vict = get_char_room_vis(ch, arg))) {
-        send_to_char(ch, "Who do you want to rescue?\r\n");
+        send_to_char(ch, "Whom do you want to rescue?\r\n");
         return;
     }
     if (vict == ch) {
@@ -1988,44 +1989,58 @@ ACMD(do_rescue)
             "How can you rescue someone you are trying to kill?\r\n");
         return;
     }
-    tmp_ch = random_opponent(vict);
 
-    if (!tmp_ch) {
+    for (GList * it = first_living(vict->in_room->people); it; it = next_living(it)) {
+        struct creature *tch = (struct creature *)it->data;
+
+        if (tch == vict || !g_list_find(tch->fighting, vict))
+            continue;
+        if (!IS_NPC(ch) && !IS_NPC(tch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
+            act("That rescue would entail attacking $N, but you are flagged NO PK.", false, ch, NULL, tch, TO_CHAR);
+            return;
+        }
+        attackers = true;
+        foes++;
+    }
+
+    if (!attackers) {
         act("But nobody is fighting $M!", false, ch, NULL, vict, TO_CHAR);
         return;
     }
-    // check for PKILLER flag
-    if (!IS_NPC(ch) && !IS_NPC(tmp_ch) && !PRF2_FLAGGED(ch, PRF2_PKILLER)) {
-        act("That rescue would entail attacking $N, but you are flagged NO PK.", false, ch, NULL, tmp_ch, TO_CHAR);
+
+    percent = number(70,101);
+    percent += MIN(10, foes);
+    if (ch->char_specials.saved.act & NPC_ISNPC)
+        prob = 101;
+    else
+        prob = CHECK_SKILL(ch, SKILL_RESCUE);
+
+    if (percent > prob) {
+        send_to_char(ch, "You fail the rescue!\r\n");
+        WAIT_STATE(ch, PULSE_VIOLENCE);
         return;
-    }
+    } else {
+        for (GList * it = first_living(vict->in_room->people); it; it = next_living(it)) {
+            struct creature *tch = (struct creature *)it->data;
 
-    if (GET_CLASS(ch) == CLASS_MAGIC_USER && (GET_REMORT_CLASS(ch) < 0
-            || GET_REMORT_CLASS(ch) == CLASS_MAGIC_USER))
-        send_to_char(ch, "But only true warriors can do this!");
-    else {
-        percent = number(1, 101);   /* 101% is a complete failure */
-        // Temp hack until mobs actually have skills
-        if (ch->char_specials.saved.act & NPC_ISNPC)
-            prob = 101;
-        else
-            prob = CHECK_SKILL(ch, SKILL_RESCUE);
-
-        if (percent > prob) {
-            send_to_char(ch, "You fail the rescue!\r\n");
-            return;
+            if (tch == vict || !g_list_find(tch->fighting, vict))
+                continue;
+            remove_combat(tch, vict);
+            remove_combat(vict, tch);
+            add_combat(ch, tch, true);
+            add_combat(tch, ch, false);
         }
+
         send_to_char(ch, "Banzai!  To the rescue...\r\n");
-        act("You are rescued by $N, you are confused!", false, vict, NULL, ch,
+        act("You are rescued by $N!", false, vict, NULL, ch,
             TO_CHAR);
         act("$n heroically rescues $N!", false, ch, NULL, vict, TO_NOTVICT);
 
-        remove_combat(tmp_ch, vict);
-        remove_combat(vict, tmp_ch);
-
-        add_combat(ch, tmp_ch, true);
-        add_combat(tmp_ch, ch, false);
-        WAIT_STATE(vict, 2 * PULSE_VIOLENCE);
+        if (foes >= 5) {
+            WAIT_STATE(ch, 2 * PULSE_VIOLENCE);
+        } else {
+            WAIT_STATE(ch, PULSE_VIOLENCE);
+        }
         gain_skill_prof(ch, SKILL_RESCUE);
     }
 }
