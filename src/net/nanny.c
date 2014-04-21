@@ -403,6 +403,9 @@ handle_input(gpointer data)
         case 'v':
             set_desc_state(CXN_VIEW_BG, d);
             break;
+        case 'u':
+            set_desc_state(CXN_EMAIL_VERIFY, d);
+            break;
         case '?':
         case '\0':
             send_menu(d);
@@ -918,6 +921,25 @@ handle_input(gpointer data)
         } else
             set_desc_state(CXN_RACE_PROMPT, d);
         break;
+    case CXN_EMAIL_VERIFY:
+        if (account_authenticate(d->account, arg)) {
+            set_desc_state(CXN_NEWEMAIL_PROMPT, d);
+            return true;
+        }
+
+        d_printf(d,
+            "\r\nWrong password!  Email change cancelled.\r\n\r\n");
+        set_desc_state(CXN_WAIT_MENU, d);
+        break;
+    case CXN_NEWEMAIL_PROMPT:
+        if (arg[0]) {
+            account_set_email_addr(d->account, arg);
+            set_desc_state(CXN_WAIT_MENU, d);
+        } else {
+            d_printf(d, "\r\nEmail change cancelled!\r\n\r\n");
+            set_desc_state(CXN_WAIT_MENU, d);
+        }
+        break;
     }
     return true;
 }
@@ -1176,6 +1198,13 @@ send_prompt(struct descriptor_data *d)
         d_printf(d,
             "                      &cWhich character do you want to view:&n ");
         break;
+    case CXN_EMAIL_VERIFY:
+        d_printf(d,
+            "For security purposes, please enter your password: ");
+        break;
+    case CXN_NEWEMAIL_PROMPT:
+        d_printf(d, "Please enter your updated email address: ");
+        break;
     case CXN_NETWORK:
         d_printf(d, "> ");
         break;
@@ -1393,6 +1422,7 @@ send_menu(struct descriptor_data *d)
             d_printf(d, "P. Change your account password\r\n");
             d_printf(d, "D. Delete an existing character\r\n");
             d_printf(d, "V. View the background story\r\n");
+            d_printf(d, "U. Update your email address\r\n");
 			d_printf(d, "\r\n");
 
             return;
@@ -1419,12 +1449,13 @@ send_menu(struct descriptor_data *d)
 
         d_printf(d,
             "    &b[&yP&b] &cChange your account password     &b[&yV&b] &cView the background story\r\n");
-        d_printf(d, "    &b[&yC&b] &cCreate a new character");
+        d_printf(d, "    &b[&yC&b] &cCreate a new character           &b[&yU&b] &cUpdate your e-mail address\r\n");
+
         if (account_char_count(d->account) > 0) {
             d_printf(d,
-                "           &b[&yS&b] &cShow character details\r\n");
+                "    &b[&yS&b] &cShow character details           &b[&yE&b] &cEdit a character's description\r\n");
             d_printf(d,
-                "    &b[&yE&b] &cEdit a character's description   &b[&yD&b] &cDelete an existing character\r\n");
+                "    &b[&yD&b] &cDelete an existing character\r\n");
         } else {
             d_printf(d, "\r\n");
         }
@@ -1554,6 +1585,14 @@ send_menu(struct descriptor_data *d)
         if (!d->showstr_head)
             d_printf(d,
                 "&r**** &nPress return to go back to race selection &r****&n\r\n");
+        break;
+    case CXN_EMAIL_VERIFY:
+        d_printf(d,
+            "&@&c\r\n                                    CHANGE EMAIL\r\n*******************************************************************************\r\n\r\n&n");
+        break;
+    case CXN_NEWEMAIL_PROMPT:
+        d_printf(d,
+            "&@&c\r\n                                       SET EMAIL\r\n*******************************************************************************\r\n\r\n&n");
         break;
     default:
         slog("Unhandled input_mode %d in send_menu()", d->input_mode);

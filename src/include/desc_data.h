@@ -55,7 +55,9 @@ enum cxn_state {
 	CXN_EDIT_DESC,				// Describe your char
 	CXN_NETWORK,				// Cyborg interfaced to network
 	CXN_CLASS_HELP,
-	CXN_RACE_HELP
+	CXN_RACE_HELP,
+        CXN_EMAIL_VERIFY,                       // Verify password before changing e-mail
+        CXN_NEWEMAIL_PROMPT                     // Enter new e-mail address
 };
 
 #define IS_PLAYING(desc)	((desc)->input_mode == CXN_PLAYING || \
