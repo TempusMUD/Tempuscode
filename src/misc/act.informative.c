@@ -2395,6 +2395,8 @@ acc_append_affects(struct creature *ch, int8_t mode)
         acc_strcat("You are infiltrating.\r\n", NULL);
     if (AFF_FLAGGED(ch, AFF_INVISIBLE))
         acc_strcat("You are invisible.\r\n", NULL);
+    if (AFF_FLAGGED(ch, AFF2_INVIS_TO_UNDEAD))
+        acc_strcat("You are invisible to the undead.\r\n", NULL);
     if (AFF2_FLAGGED(ch, AFF2_TRANSPARENT))
         acc_strcat("You are transparent.\r\n", NULL);
     if (AFF_FLAGGED(ch, AFF_DETECT_INVIS))
