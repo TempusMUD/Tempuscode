@@ -1047,17 +1047,9 @@ do_emp_pulse_char(struct creature *ch, struct creature *vict)
     do_emp_pulse_olist(vict->carrying, ch, vict);
 }
 
-gint
-invalid_emp_target(struct creature *tch, gpointer ch)
-{
-    if (tch != ch && !ok_to_attack(ch, tch, true))
-        return 0;
-    return -1;
-}
-
-    // Shuts off devices, communicators
-// deactivats all cyborg programs
-// blocked by emp shield
+// Shuts off devices, communicators, implants
+// deactivates all cyborg programs
+// Blocked by albedo shield
 ASPELL(spell_emp_pulse)
 {
 
@@ -1068,19 +1060,28 @@ ASPELL(spell_emp_pulse)
             "You are unable to alter physical reality in this space.\r\n");
         return;
     }
-    // Make sure non-pkillers don't get killer flags.
-    if (g_list_find_custom(ch->in_room->people, ch,
-            (GCompareFunc) invalid_emp_target))
-        return;
-
-    send_to_room("An electromagnetic pulse jolts the room!\r\n", ch->in_room);
 
     for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
         struct creature *tch = it->data;
 
+        if (AFF_FLAGGED(ch, AFF_GROUP) && AFF_FLAGGED(tch, AFF_GROUP)
+            && (tch->master == ch || tch->master == ch->master || ch->master == tch))
+            continue;
+
+        if (tch != ch && !ok_to_attack(ch, tch, true)) {
+            send_to_char(ch, "The Supernatural Reality prevents you "
+                "from twisting nature in that way!\r\n");
+            act("$n attempts to violently alter reality, but is "
+                "restrained by the whole of the universe.", false,
+                ch, NULL, NULL, TO_ROOM);
+            return;
+        }
+
         if (tch != ch && GET_LEVEL(tch) < LVL_IMMORT)
             do_emp_pulse_char(ch, tch);
     }
+
+    send_to_room("An electromagnetic pulse jolts the room!\r\n", ch->in_room);
 
     if (ch->in_room->contents)
         do_emp_pulse_olist(ch->in_room->contents, ch, NULL);
