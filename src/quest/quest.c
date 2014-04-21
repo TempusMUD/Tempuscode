@@ -160,6 +160,7 @@ const char *qp_bits[] = {
 };
 
 #define QUEST_PATH "etc/quest.xml"
+#define PLURAL(num) (num == 1 ? "" : "s")
 
 GList *quests = NULL;
 
@@ -2914,6 +2915,8 @@ do_qcontrol_award(struct creature *ch, char *argument, int com)
         crashsave(ch);
         crashsave(vict);
         sprintf(buf, "awarded player %s %d qpoints.", GET_NAME(vict), award);
+        send_to_char(vict, "Congratulations! You have been awarded %d qpoint%s!\r\n", award, PLURAL(award));
+        send_to_char(ch, "You award %d qpoint%s.\r\n", award, PLURAL(award));
         qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
             true);
         if (*argument) {
