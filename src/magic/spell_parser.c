@@ -1172,6 +1172,7 @@ cast_spell(struct creature *ch, struct creature *tch,
             SPELL_IS_PSIONIC(spellnum) ? "trigger any psi!" :
             SPELL_IS_MERCENARY(spellnum) ? "construct any devices!" :
             SPELL_IS_BARD(spellnum) ? "sing any songs!" : "cast any spells!");
+        WAIT_STATE(ch, 2 RL_SEC);
         return 0;
     }
     if (IS_SET(SINFO.routines, MAG_GROUPS) && !AFF_FLAGGED(ch, AFF_GROUP) &&
