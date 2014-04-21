@@ -403,12 +403,12 @@ ACMD(do_track)
         break;
     case BFS_NO_PATH:
         send_to_char(ch, "You can't sense a trail to %s from here.\r\n",
-            HMHR(vict));
+            GET_NAME(vict));
         break;
     default:
         if (!number(0, 99))
             gain_skill_prof(ch, SKILL_TRACK);
-        send_to_char(ch, "You sense a trail %s from here!\r\n", dirs[dir]);
+        send_to_char(ch, "You sense %s's trail %s from here!\r\n", GET_NAME(vict), dirs[dir]);
         WAIT_STATE(ch, 6);
         break;
     }
