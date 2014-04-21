@@ -1708,19 +1708,19 @@ damage(struct creature *ch, struct creature *victim,
         //ion special
         if (attacktype == TYPE_EGUN_ION && dam) {
             if (do_gun_special(ch, weap)) {
+                act("A wave of electromagnetic energy washes over $n from $p!",
+                    false, victim, weap, NULL, TO_ROOM);
+                act("A wave of electromagnetic energy washes over you from $p!",
+                    false, victim, weap, NULL, TO_CHAR);
                 do_emp_pulse_char(ch, victim);
-                act("$n's body suddenly ignites into flame!",
-                    false, victim, NULL, NULL, TO_ROOM);
-                act("Your body suddenly ignites into flame!",
-                    false, victim, NULL, NULL, TO_CHAR);
             }
         }
         //gamma special
         if (attacktype == TYPE_EGUN_GAMMA && dam) {
             if (do_gun_special(ch, weap) && !CHAR_WITHSTANDS_RAD(victim)) {
+                act("$n begins to look sick from $p's gamma radiation.", false, victim, weap, NULL, TO_ROOM);
+                act("You start to feel sick from $p's gamma radiation.", false, victim, weap, NULL, TO_CHAR);
                 add_rad_sickness(victim, GET_LEVEL(ch));
-                act("$n begins to look sick.", false, victim, NULL, NULL, TO_ROOM);
-                act("You start to feel sick.", false, victim, NULL, NULL, TO_CHAR);
             }
         }
         //sonic special
@@ -1734,11 +1734,11 @@ damage(struct creature *ch, struct creature *victim,
                 sonicAf.duration = 1;
                 sonicAf.level = skill_bonus(ch, SKILL_ENERGY_WEAPONS);
                 sonicAf.type = TYPE_EGUN_SPEC_SONIC;
+                affect_join(victim, &sonicAf, false, false, true, false);
                 act("You become disoriented!", false, ch, NULL, victim,
                     TO_VICT);
                 act("$N becomes disoriented!", false, ch, NULL, victim,
-                    TO_NOTVICT);
-                affect_join(victim, &sonicAf, false, false, true, false);
+                    TO_CHAR);
             }
         }
     }
