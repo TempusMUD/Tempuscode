@@ -876,7 +876,7 @@ damage(struct creature *ch, struct creature *victim,
     /* newbie protection and PLR_NOPK check */
     if (ch && ch != victim && ((!IS_NPC(ch) && !IS_NPC(victim)) ||
             (!IS_NPC(victim) && IS_NPC(ch) && ch->master
-                && !IS_NPC(ch->master)))) {
+                && !IS_NPC(ch->master))) && !IS_DEFENSE_ATTACK(attacktype)) {
         if (!is_arena_combat(ch, victim)) {
             if (PLR_FLAGGED(ch, PLR_NOPK)) {
                 send_to_char(ch,
