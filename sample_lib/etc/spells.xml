@@ -1332,6 +1332,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="violent"/>
     <flag value="damage"/>
     <flag value="nowater"/>
+    <flag value="magic"/>
   </spell>
   <spell id="158" name="fire breathing">
     <granted class="mage" level="35" gen="1"/>
