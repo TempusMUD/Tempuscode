@@ -61,8 +61,6 @@ struct bard_song songs[TOP_DAMAGETYPE + 1];
 struct room_direction_data *knock_door = NULL;
 char locate_buf[256];
 
-#define SINFO spell_info[spellnum]
-
 extern int mini_mud;
 
 extern struct room_data *world;
@@ -2341,6 +2339,8 @@ load_spell(xmlNodePtr node)
                 spell_info[idnum].is_weapon = true;
             } else if (!strcmp(value_str, "unpleasant")) {
                 spell_info[idnum].targets |= TAR_UNPLEASANT;
+            } else if (!strcmp(value_str, "defensive")) {
+                spell_info[idnum].defensive = true;
             } else {
                 int flag = search_block(value_str, spell_bit_keywords, true);
                 if (flag < 0) {

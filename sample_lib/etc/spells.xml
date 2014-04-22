@@ -312,6 +312,7 @@ Asylum saves us all!</lyrics>
     <flag value="evil"/>
   </spell>
   <skill id="735" name="blade barrier">
+    <flag value="defensive"/>
   </skill>
   <skill id="686" name="blasting weapons">
     <granted class="barbarian" level="42"/>
@@ -1152,6 +1153,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <flag value="defensive"/>
   </spell>
   <spell id="156" name="elemental branding">
     <granted class="ranger" level="31" gen="1"/>
@@ -1223,6 +1225,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   <spell id="617" name="energy field">
     <granted class="cyborg" level="32"/>
     <flag value="cybernetic"/>
+    <flag value="defensive"/>
   </spell>
   <skill id="634" name="energy weapons">
     <granted class="cyborg" level="20"/>
@@ -1353,6 +1356,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <flag value="nowater"/>
+    <flag value="defensive"/>
   </spell>
   <spell id="26" name="fireball">
     <granted class="mage" level="31"/>
@@ -2389,6 +2393,7 @@ A surge of power absolute</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <flag value="defensive"/>
   </spell>
   <spell id="64" name="prismatic spray">
     <granted class="mage" level="42"/>
@@ -3288,6 +3293,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <flag value="defensive"/>
   </spell>
   <skill id="157" name="thorn skin casting">
   </skill>
@@ -3678,6 +3684,7 @@ And to our packs a lightness bring!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="song"/>
+    <flag value="defensive"/>
     <instrument type="percussion"/>
     <lyrics>The whispered lies and gossip told
 Come back to haunt the young and old.
