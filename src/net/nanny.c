@@ -560,14 +560,19 @@ handle_input(gpointer data)
         switch (tolower(arg[0])) {
         case 'm':
             GET_SEX(d->creature) = 1;
-            set_desc_state(CXN_HARDCORE_PROMPT, d);
             break;
         case 'f':
             GET_SEX(d->creature) = 2;
-            set_desc_state(CXN_HARDCORE_PROMPT, d);
             break;
         default:
             d_printf(d, "\r\nPlease enter male or female.\r\n\r\n");
+            break;
+        }
+        if (account_char_count(d->account) > 1) {
+            set_desc_state(CXN_HARDCORE_PROMPT, d);
+            break;
+        } else {
+            set_desc_state(CXN_CLASS_PROMPT, d);
             break;
         }
         break;
