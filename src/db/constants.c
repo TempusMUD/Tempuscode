@@ -130,6 +130,8 @@ const char *desc_modes[] = {
     "network",
     "class-help",
     "race-help",
+    "new-email-verify",
+    "new-email-prompt",
     "\n"
 };
 
