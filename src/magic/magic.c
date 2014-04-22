@@ -3676,6 +3676,18 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             to_char = "$p briefly glows blue.";
         }
         break;
+
+    case SPELL_REMOVE_POISON:
+        if ((IS_OBJ_TYPE(obj, ITEM_FOOD) || IS_OBJ_TYPE(obj, ITEM_DRINKCON)) && GET_OBJ_VAL(obj, 3) > 0) {
+            GET_OBJ_VAL(obj, 3) -= MIN(GET_OBJ_VAL(obj, 3),
+                1 + (level > number(10, 40)) + (level > number(40, 60)));
+            if (GET_OBJ_VAL(obj, 3) == 0)
+                to_char = "You free $p of noxious poisons.";
+            else
+                to_char = "$p looks less poisonous.";
+        }
+        break;
+
     case SPELL_ENCHANT_WEAPON:
     case SPELL_ENCHANT_ARMOR:
     case SPELL_GREATER_ENCHANT:

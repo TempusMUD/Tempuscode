@@ -2705,6 +2705,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <target type="object" scope="inventory"/>
     <target type="object" scope="room"/>
     <flag value="unaffects"/>
+    <flag value="alterations"/>
     <flag value="divine"/>
   </spell>
   <spell id="116" name="remove sickness">
