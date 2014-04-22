@@ -123,6 +123,7 @@ struct zone_data {
     char *author;               // Author string
 	unsigned char num_players;	/* number of players in zone */
 	unsigned short int idle_time;	/* num tics idle */
+        int dam_mod;                            // Zone-wide modifier to damage
 
 	struct room_data *world;	/* Pointer to first room in world      */
 	struct reset_com *cmd;		/* command table for reset             */

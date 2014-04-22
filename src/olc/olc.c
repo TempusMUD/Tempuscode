@@ -133,6 +133,7 @@ extern const char *race_language[][2];
 "olc zset [zone] <public_desc | private_desc>\r\n"        \
 "olc zset [zone] author <player name>\r\n"        \
 "olc zset [zone] pk_style <no_pk | neutral_pk | chaotic_pk>\r\n"        \
+"old zset [zone] dam_mod <number>\r\n" \
 "Usage: olc zset [zone] command <cmd num> [if|max|prob] <value>\r\n"
 
 #define OLC_ZCMD_USAGE "Usage:\r\n"                                      \
