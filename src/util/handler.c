@@ -488,6 +488,7 @@ affect_to_char(struct creature *ch, struct affected_type *af)
 
     affect_modify(ch, af->location, af->modifier,
         af->bitvector, af->aff_index, true);
+    affect_total(ch);
 	if (af->type == SPELL_QUAD_DAMAGE
         && ch->in_room
         && !AFF_FLAGGED(ch, AFF_GLOWLIGHT)
@@ -547,6 +548,7 @@ affect_remove(struct creature *ch, struct affected_type *af)
         false);
     REMOVE_FROM_LIST(af, ch->affected, next);
     free(af);
+    affect_total(ch);
 
     if (is_instant && duration == 0 && ch->in_room) {
         switch (type) {
@@ -1235,6 +1237,7 @@ equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
     obj->worn_on = pos;
 
     apply_object_affects(ch, obj, true);
+    affect_total(ch);
 
     return 0;
 }
@@ -1333,6 +1336,8 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
 
     obj->worn_by = NULL;
     obj->worn_on = -1;
+
+    affect_total(ch);
 
     return (obj);
 }
@@ -1630,6 +1635,7 @@ general_obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, insert_func_t 
         && (vict = obj_to->worn_by)
         && obj_to == GET_IMPLANT(vict, obj_to->worn_on)) {
         apply_object_affects(vict, obj, true);
+        affect_total(vict);
     }
 }
 
@@ -1672,6 +1678,7 @@ obj_from_obj(struct obj_data *obj)
         && (vict = obj_from->worn_by)
         && obj_from == GET_IMPLANT(vict, obj_from->worn_on)) {
         apply_object_affects(vict, obj, false);
+        affect_total(vict);
     }
 
     if (obj_from->in_room && ROOM_FLAGGED(obj_from->in_room, ROOM_HOUSE))
