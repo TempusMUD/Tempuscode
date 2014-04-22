@@ -3746,7 +3746,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             oaf[0].type = SPELL_ITEM_ATTRACTION_FIELD;
             af.type = oaf[0].type;
             oaf[0].duration = 20 + skill_bonus(ch, SPELL_ATTRACTION_FIELD) / 2;
-            af.duration = oaf[0].duration;
+            af.duration = oaf[0].duration - 1;
 
             if (IS_OBJ_TYPE(obj, ITEM_WEAPON)
                 || IS_OBJ_TYPE(obj, ITEM_ENERGY_GUN)) {
@@ -3810,7 +3810,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         oaf[0].type = SPELL_ITEM_REPULSION_FIELD;
         af.type = oaf[0].type;
         oaf[0].duration = 20 + skill_bonus(ch, SPELL_REPULSION_FIELD) / 2;
-        af.duration = oaf[0].duration;
+        af.duration = oaf[0].duration - 1;
 
         if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
             int levelBonus = skill_bonus(ch, SPELL_REPULSION_FIELD);
