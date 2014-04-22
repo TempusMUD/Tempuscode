@@ -171,7 +171,7 @@ store_mail(const char *from_name, long to_id, const char *txt, GList *cc_list,
 
         for (si = cc_list; si; si = si->next)
             acc_strcat((si == cc_list) ? "\r\n  CC: " : ", ",
-                (char *)si->data, NULL);
+                ((GString *)si->data)->str, NULL);
     }
     if (obj_list) {
         acc_strcat("\r\nPackages attached to this mail:\r\n", NULL);
