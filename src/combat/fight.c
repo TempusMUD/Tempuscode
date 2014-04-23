@@ -800,7 +800,7 @@ damage(struct creature *ch, struct creature *victim,
     }
 
     //apply zone damage modifier to NPCs
-    if (IS_NPC(ch)) {
+    if (ch && IS_NPC(ch)) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (GET_NPC_VNUM(ch) >= zone->number * 100 && GET_NPC_VNUM(ch) <= zone->top)
                 break;
