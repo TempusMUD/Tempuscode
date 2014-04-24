@@ -1936,6 +1936,14 @@ do_zset_command(struct creature *ch, char *argument)
         return;
     }
 
+    if (!is_authorized(ch, EDIT_ZONE, zone)) {
+        send_to_char(ch, "You don't have authorization for zone %d.\r\n", zone->number);
+        mudlog(GET_INVIS_LVL(ch), NRM, true,
+            "Failed attempt for %s to edit zone %d.",
+            GET_NAME(ch), zone->number);
+        return;
+    }
+
     if ((zset_command = search_block(arg2, olc_zset_keys, false)) < 0) {
         send_to_char(ch, "Invalid zset command '%s'.\r\n", arg2);
         return;
