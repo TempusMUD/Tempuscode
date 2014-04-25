@@ -804,7 +804,7 @@ ACMD(do_help_collection_command)
         help_collection_create_item(help, ch);
         break;
     case 2:                    // Edit
-        argument = one_argument(argument, linebuf);
+        one_argument(argument, linebuf);
         if (isdigit(*linebuf)) {
             id = atoi(linebuf);
             help_collection_edit_item(help, ch, id);
