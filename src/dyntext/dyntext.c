@@ -58,13 +58,10 @@ dynamic_text_file *dyntext_list = NULL;
 static int
 load_dyntext_buffer(dynamic_text_file * dyntext)
 {
-    FILE *fl;
-    char filename[1024];
-
-    sprintf(filename, "text/%s", dyntext->filename);
-
-    if (!(fl = fopen(filename, "r"))) {
-        errlog("unable to open dynamic text file '%s'.", filename);
+    char *path = tmp_sprintf("text/%s", dyntext->filename);
+    FILE *fl = fopen(path, "r");
+    if (fl == NULL) {
+        errlog("unable to open dynamic text file '%s'.", path);
         perror("dyntext fopen:");
         return -1;
     }
@@ -89,8 +86,6 @@ boot_dynamic_text(void)
     struct dirent *dirp;
     dynamic_text_file *newdyn = NULL;
     dynamic_text_file_save savedyn;
-    FILE *fl;
-    char filename[1024];
     unsigned int i;
 
     if (!(dir = opendir(DYN_TEXT_CONTROL_DIR))) {
@@ -106,16 +101,15 @@ boot_dynamic_text(void)
             continue;
         }
 
-        sprintf(filename, "%s/%s", DYN_TEXT_CONTROL_DIR, dirp->d_name);
-
-        fl = fopen(filename, "r");
+        char *path = tmp_sprintf("%s/%s", DYN_TEXT_CONTROL_DIR, dirp->d_name);
+        FILE *fl = fopen(path, "r");
         if (fl == NULL) {
-            errlog("error opening dynamic control file '%s'.", filename);
+            errlog("error opening dynamic control file '%s'.", path);
             perror("fopen:");
             continue;
         }
 
-        newdyn = malloc(sizeof(dynamic_text_file));
+        CREATE(newdyn, dynamic_text_file, 1);
         if (newdyn == NULL) {
             errlog("error allocating dynamic control block, aborting.");
             closedir(dir);
@@ -125,7 +119,7 @@ boot_dynamic_text(void)
 
         br = fread(&savedyn, sizeof(dynamic_text_file_save), 1, fl);
         if (br == 0) {
-            errlog("error reading information from '%s'.", filename);
+            errlog("error reading information from '%s'.", path);
             free(newdyn);
             fclose(fl);
             continue;
