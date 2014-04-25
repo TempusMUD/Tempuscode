@@ -3314,16 +3314,6 @@ mag_points(int level,
             number(0, GET_WIS(ch)) + (GET_REMORT_GEN(ch) * 4);
         break;
 
-    case SPELL_SATIATION:
-        hunger = dice(3, MIN(3, (1 + (level / 4))));
-        to_vict = "You feel satiated.";
-        break;
-
-    case SPELL_QUENCH:
-        thirst = dice(3, MIN(3, (1 + (level / 4))));
-        to_vict = "Your thirst is quenched.";
-        break;
-
     case SPELL_WOUND_CLOSURE:
         hit = dice(3, 6 + (CHECK_SKILL(ch, SPELL_WOUND_CLOSURE) / 32)) +
             number(level / 2, level);

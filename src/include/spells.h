@@ -294,8 +294,6 @@ enum spell {
     SPELL_INTELLECT = 202,
     SPELL_CONFUSION = 203,
     SPELL_FEAR = 204,
-    SPELL_SATIATION = 205,	/* fills hunger */
-    SPELL_QUENCH = 206,	/* fills thirst */
     SPELL_CONFIDENCE = 207,	/* sets nopain */
     SPELL_NOPAIN = 208,
     SPELL_DERMAL_HARDENING = 209,

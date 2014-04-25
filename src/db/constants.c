@@ -2357,8 +2357,8 @@ const char *spell_wear_off_msg[] = {
     "Your mental center of logic relaxes.",
     "You feel a sense of mental clarity return.",
     "You feel less afraid.",
-    "!Satiation!",              /* 205 */
-    "!Quench!",
+    "!UNUSED!",              /* 205 */
+    "!UNUSED!",
     "You feel less confident now.",
     "Your body suddenly becomes aware of pain again.",
     "Your skin relaxes, and thins back out.",
