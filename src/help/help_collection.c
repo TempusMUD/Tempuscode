@@ -565,7 +565,7 @@ help_collection_approve_item(struct help_collection *col, struct creature *ch,
     int idnum = 0;
     struct help_item *cur;
     skip_spaces(&argument);
-    argument = one_argument(argument, arg1);
+    one_argument(argument, arg1);
     if (isdigit(arg1[0]))
         idnum = atoi(arg1);
     if (idnum > col->top_id || idnum < 1) {
@@ -594,7 +594,7 @@ help_collection_unapprove_item(struct help_collection *col,
     int idnum = 0;
     struct help_item *cur;
     skip_spaces(&argument);
-    argument = one_argument(argument, arg1);
+    one_argument(argument, arg1);
     if (isdigit(arg1[0]))
         idnum = atoi(arg1);
     if (idnum > col->top_id || idnum < 1) {
@@ -832,7 +832,7 @@ ACMD(do_help_collection_command)
         help_collection_set(help, ch, argument);
         break;
     case 7:                    // Stat
-        argument = one_argument(argument, linebuf);
+        one_argument(argument, linebuf);
         if (*linebuf && isdigit(linebuf[0])) {
             id = atoi(linebuf);
             if (id < 0 || id > help->top_id) {
