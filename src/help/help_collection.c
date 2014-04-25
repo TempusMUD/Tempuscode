@@ -447,6 +447,7 @@ help_collection_load_index(struct help_collection * col)
 
     if (col->top_id < 0 || col->top_id > 4000) {
         errlog("Invalid top ID while booting help .");
+        fclose(inf);
         return false;
     }
 
