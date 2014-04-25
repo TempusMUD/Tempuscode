@@ -105,11 +105,6 @@ help_item_load_text(struct help_item *item)
 
     fname = tmp_sprintf("%s/%04d.topic", HELP_DIRECTORY, item->idnum);
 
-    if (access(fname, F_OK) < 0) {
-        // no file found. Likely just a new entry
-        return true;
-    }
-
     inf = fopen(fname, "r");
     if (inf) {
         if (fscanf(inf, "%d %zu\n", &idnum, &textlen) != 2) {
