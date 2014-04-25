@@ -386,8 +386,9 @@ prog_var_equal(struct prog_env *env, char *key, char *arg)
 	struct prog_var *var;
 
     var = prog_get_var(env, key, true);
-	if (!var || !var->key)
+	if (var == NULL) {
 		return !(*arg);
+    }
 	return !strcasecmp(var->value, arg);
 }
 
