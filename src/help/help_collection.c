@@ -506,18 +506,18 @@ bool
 help_collection_set(struct help_collection *col __attribute__((unused)), struct creature * ch,
     char *argument)
 {
-    char arg1[256];
+    char *arg1;
 
     if (!GET_OLC_HELP(ch)) {
         send_to_char(ch, "You have to be editing an item to set it.\r\n");
         return false;
     }
-    if (!argument || !*argument) {
+    if (!*argument) {
         send_to_char(ch,
             "hcollect set <groups[+/-]|flags[+/-]|name|keywords|description> [args]\r\n");
         return false;
     }
-    argument = one_argument(argument, arg1);
+    arg1 = tmp_getword(&argument);
     if (!strncmp(arg1, "groups", strlen(arg1))) {
         help_item_setgroups(GET_OLC_HELP(ch), argument);
         return true;
@@ -684,7 +684,7 @@ ACMD(do_immhelp)
 
     // Take care of all the special cases.
     // Default help file
-    if (!argument || !*argument) {
+    if (!*argument) {
         cur = help_collection_find_item_by_id(help, 699);
     }
     // If we have a special case, do it, otherwise try to get it normally.
@@ -717,7 +717,7 @@ ACMD(do_hcollect_help)
     } else if (subcmd == SCMD_HANDBOOK) {
         cur = help_collection_find_item_by_id(help, 999);
         // Default help file
-    } else if (!argument || !*argument) {
+    } else if (!*argument) {
         cur = help_collection_find_item_by_id(help, 666);
     }
     // If we have a special case, do it, otherwise try to get it normally.
@@ -737,7 +737,7 @@ do_qcontrol_help(struct creature *ch, char *argument)
     skip_spaces(&argument);
 
     // Take care of all the special cases.
-    if (!argument || !*argument) {
+    if (!*argument) {
         cur = help_collection_find_item_by_id(help, 900);
     }
     // If we have a special case, do it, otherwise try to get it normally.
@@ -757,7 +757,7 @@ ACMD(do_olchelp)
     skip_spaces(&argument);
 
     // Take care of all the special cases.
-    if (!argument || !*argument) {
+    if (!*argument) {
         cur = help_collection_find_item_by_id(help, 700);
     }
     // If we have a special case, do it, otherwise try to get it normally.
