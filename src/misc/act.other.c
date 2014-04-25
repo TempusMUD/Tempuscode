@@ -67,9 +67,9 @@ void set_desc_state(enum cxn_state state, struct descriptor_data *d);
 void look_at_target(struct creature *ch, char *arg, int cmd);
 int find_door(struct creature *ch, char *type, char *dir, const char *cmdname);
 void weather_change(void);
-int drag_object(struct creature *ch, struct obj_data *obj, char *argument);
+void drag_object(struct creature *ch, struct obj_data *obj, int dir);
+void drag_char(struct creature *ch, struct creature *obj, int dir);
 void ice_room(struct room_data *room, int amount);
-ACMD(do_drag_char);
 
 ACMD(do_show_more)
 {
@@ -2294,24 +2294,37 @@ ACMD(do_drag)
 {
     struct creature *found_char;
     struct obj_data *found_obj;
-    char *args = argument;
-    char *target_str = tmp_getword(&args);
-
+    char *target_str = tmp_getword(&argument);
+    char *dir_str = tmp_getword(&argument);
     int bits;
+
+    if (!*dir_str) {
+        send_to_char(ch, "Which direction do you wish to drag them?\r\n");
+        return;
+    }
 
     bits = generic_find(target_str, FIND_OBJ_ROOM | FIND_CHAR_ROOM, ch,
         &found_char, &found_obj);
 
+    int dir = search_block(dir_str, dirs, false);
+    if (dir < 0) {
+        send_to_char(ch, "Sorry, that's not a valid direction.\r\n");
+        return;
+    }
+
+    if (!CAN_GO(ch, dir)
+        || !can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)) {
+        send_to_char(ch, "Sorry, you can't go in that direction.\r\n");
+        return;
+    }
+
     //Target is a character
     if (!bits) {
         send_to_char(ch, "What do you want to drag?\r\n");
-        return;
     } else if (found_char) {
-        do_drag_char(ch, argument, 0, 0);
-        return;
+        drag_char(ch, found_char, dir);
     } else if (found_obj) {
-        drag_object(ch, found_obj, argument);
-        return;
+        drag_object(ch, found_obj, dir);
     }
 
 }

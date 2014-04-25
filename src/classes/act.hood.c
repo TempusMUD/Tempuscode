@@ -216,49 +216,22 @@ ACMD(do_hamstring)
     }
 }
 
-ACMD(do_drag_char)
+void
+drag_char(struct creature *ch, struct creature *vict, int dir)
 {
-    struct creature *vict = NULL;
     struct room_data *target_room = NULL;
-
     int percent, prob;
-    char *arg, *arg2;
-
-    int dir = -1;
-
-    arg = tmp_getword(&argument);
-    arg2 = tmp_getword(&argument);
-
-    if (!(vict = get_char_room_vis(ch, arg))) {
-        send_to_char(ch, "Who do you want to drag?\r\n");
-        WAIT_STATE(ch, 3);
-        return;
-    }
 
     if (vict == ch) {
         send_to_char(ch, "You can't drag yourself!\r\n");
         return;
     }
 
-    if (!*arg2) {
-        send_to_char(ch, "Which direction do you wish to drag them?\r\n");
-        WAIT_STATE(ch, 3);
-        return;
-    }
-
     if (!ok_to_attack(ch, vict, true)) {
         return;
     }
-    // Find out which direction the player wants to drag in
-    dir = search_block(arg2, dirs, false);
-    if (dir < 0) {
-        send_to_char(ch, "Sorry, that's not a valid direction.\r\n");
-        return;
-    }
 
-    if (!CAN_GO(ch, dir)
-        || !can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)
-        || !CAN_GO(vict, dir)) {
+    if (!CAN_GO(vict, dir)) {
         send_to_char(ch, "Sorry, you can't go in that direction.\r\n");
         return;
     }

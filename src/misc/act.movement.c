@@ -2844,19 +2844,14 @@ ACMD(do_translocate)
 #undef TL_VANISH
 #undef TL_APPEAR
 
-int
-drag_object(struct creature *ch, struct obj_data *obj, char *argument)
+void
+drag_object(struct creature *ch, struct obj_data *obj, int dir)
 {
 
     int max_drag = 0;
-    int dir = -1;
     int drag_wait = 0;
     int mvm_cost = 0;
-    char *arg1, *arg2;
     struct room_data *theroom = NULL;
-
-    arg1 = tmp_getword(&argument);
-    arg2 = tmp_getword(&argument);
 
     // a character can drag an object twice the weight of his maximum
     // encumberance + a little luck
@@ -2866,7 +2861,7 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
             !IS_NPC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR &&
             CORPSE_IDNUM(obj) > 0) {
             send_to_char(ch, "You may not drag player corpses except in CPK zones.\r\n");
-            return 0;
+            return;
         }
 
     drag_wait = MAX(1, (GET_OBJ_WEIGHT(obj) / 100));
@@ -2886,60 +2881,13 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
         send_to_char(ch, "You don't have the strength to drag %s.\r\n",
             obj->name);
         WAIT_STATE(ch, 1 RL_SEC);
-        return 0;
-    }
-    // Find out which direction the player wants to drag in
-
-    if (is_abbrev(arg2, "north")) {
-        dir = 0;
-    }
-
-    else if (is_abbrev(arg2, "east")) {
-        dir = 1;
-    }
-
-    else if (is_abbrev(arg2, "south")) {
-        dir = 2;
-    }
-
-    else if (is_abbrev(arg2, "west")) {
-        dir = 3;
-    }
-
-    else if (is_abbrev(arg2, "up")) {
-        dir = 4;
-    }
-
-    else if (is_abbrev(arg2, "down")) {
-        dir = 5;
-    }
-
-    else if (is_abbrev(arg2, "future")) {
-        dir = 6;
-    }
-
-    else if (is_abbrev(arg2, "past")) {
-        dir = 7;
-    }
-
-    else {
-        send_to_char(ch, "That's not a valid direction.\r\n");
-        WAIT_STATE(ch, 1 RL_SEC);
-        return 0;
-    }
-
-    if (EXIT(ch, dir) && EXIT(ch, dir)->to_room) {
-        theroom = EXIT(ch, dir)->to_room;
-    } else {
-        send_to_char(ch, "You can't go in that direction.\r\n");
-        WAIT_STATE(ch, 1 RL_SEC);
-        return 0;
+        return;
     }
 
     if ((GET_OBJ_WEIGHT(obj)) > max_drag) {
         send_to_char(ch, "You don't have the strength to drag %s.", obj->name);
         WAIT_STATE(ch, 1 RL_SEC);
-        return 0;
+        return;
     }
     // check for sectors
     if (SECT_TYPE(ch->in_room) == SECT_FLYING ||
@@ -2952,13 +2900,7 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
         SECT_TYPE(ch->in_room) == SECT_ELEMENTAL_FIRE) {
             send_to_char(ch, "You are unable to drag objects here.\r\n");
             WAIT_STATE(ch, 1 RL_SEC);
-            return 0;
-    }
-    //now check to make sure the character can go in the specified direction
-    if (!CAN_GO(ch, dir) || !can_travel_sector(ch, SECT_TYPE(theroom), 0)) {
-        send_to_char(ch, "You can't go in that direction.\r\n");
-        WAIT_STATE(ch, 1 RL_SEC);
-        return 0;
+            return;
     }
 
     if (room_is_underwater(ch->in_room) ||
@@ -2974,7 +2916,7 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
         act("You can't go there, so neither can $p.\r\n", false, ch, obj, NULL,
             TO_CHAR);
         WAIT_STATE(ch, 1 RL_SEC);
-        return 0;
+        return;
     }
 
     if (!CAN_WEAR(obj, ITEM_WEAR_TAKE) || IS_OBJ_TYPE(obj, ITEM_MONEY) ||
@@ -2985,7 +2927,7 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
         !OBJ_APPROVED(obj)) {
         act("Try as you might, you can't drag $p!", false, ch, obj, NULL, TO_CHAR);
         WAIT_STATE(ch, 1 RL_SEC);
-        return 0;
+        return;
     }
     // Now we're going to move the character and the object from the
     // original room to the new one
@@ -3016,6 +2958,4 @@ drag_object(struct creature *ch, struct obj_data *obj, char *argument)
         // Leave object where it is
         break;
     }
-
-    return 1;
 }
