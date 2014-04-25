@@ -327,13 +327,14 @@ help_collection_find_items(struct help_collection *col,
     for (b = args; *b; b++)
         *b = tolower(*b);
     length = strlen(args);
+
     for (GList * hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
         if (IS_SET(cur->flags, HFLAG_UNAPPROVED) && !find_no_approve)
             continue;
         if (thegroup && !help_item_in_group(cur, thegroup))
             continue;
-        strcpy(stack, cur->keys);
+        snprintf(stack, sizeof(stack), "%s", cur->keys);
         b = stack;
         while (*b) {
             b = one_word(b, bit);
