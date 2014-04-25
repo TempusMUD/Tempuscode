@@ -149,9 +149,6 @@ mana_gain(struct creature *ch)
     if (AFF_FLAGGED(ch, AFF_POISON))
         gain /= 4;
 
-    if ((GET_COND(ch, FULL) == 0) || (GET_COND(ch, THIRST) == 0))
-        gain /= 4;
-
     if (ch->in_room && ch->in_room->sector_type == SECT_DESERT &&
         !ROOM_FLAGGED(ch->in_room, ROOM_INDOORS) &&
         ch->in_room->zone->weather->sunlight == SUN_LIGHT)
@@ -237,9 +234,6 @@ hit_gain(struct creature *ch)
     if (IS_SICK(ch))
         gain /= 2;
 
-    if ((GET_COND(ch, FULL) == 0) || (GET_COND(ch, THIRST) == 0))
-        gain /= 4;
-
     else if (AFF2_FLAGGED(ch, AFF2_MEDITATE))
         gain += (gain / 2);
 
@@ -302,9 +296,6 @@ move_gain(struct creature *ch)
         gain /= 4;
     if (IS_SICK(ch))
         gain /= 2;
-
-    if ((GET_COND(ch, FULL) == 0) || (GET_COND(ch, THIRST) == 0))
-        gain /= 4;
 
     if (AFF2_FLAGGED(ch, AFF2_MEDITATE))
         gain += (gain / 2);
@@ -434,12 +425,8 @@ gain_exp_regardless(struct creature *ch, int gain)
 void
 gain_condition(struct creature *ch, int condition, int value)
 {
-    int intoxicated = 0;
 
     if (GET_COND(ch, condition) < 0 || !value)  /* No change */
-        return;
-
-    intoxicated = (GET_COND(ch, DRUNK) > 0);
 
     GET_COND(ch, condition) += value;
 
@@ -449,32 +436,8 @@ gain_condition(struct creature *ch, int condition, int value)
     if (GET_COND(ch, condition) || PLR_FLAGGED(ch, PLR_WRITING))
         return;
 
-    if (ch->desc && !STATE(ch->desc)) {
-        switch (condition) {
-        case FULL:
-            if (!number(0, 3))
-                send_to_char(ch, "You feel quite hungry.\r\n");
-            else if (!number(0, 2))
-                send_to_char(ch, "You are famished.\r\n");
-            else
-                send_to_char(ch, "You are hungry.\r\n");
-            return;
-        case THIRST:
-            if (IS_VAMPIRE(ch))
-                send_to_char(ch, "You feel a thirst for blood...\r\n");
-            else if (!number(0, 1))
-                send_to_char(ch, "Your throat is parched.\r\n");
-            else
-                send_to_char(ch, "You are thirsty.\r\n");
-            return;
-        case DRUNK:
-            if (intoxicated)
-                send_to_char(ch, "You are now sober.\r\n");
-            return;
-        default:
-            break;
-        }
-    }
+    if (ch->desc && !STATE(ch->desc) && GET_COND(ch, DRUNK) > 0)
+        send_to_char(ch, "You are now sober.\r\n");
 }
 
 int

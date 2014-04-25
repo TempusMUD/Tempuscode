@@ -183,8 +183,6 @@ select_say_cmd(struct creature *ch, const char *message)
         return "wheeze";
     if (GET_COND(ch, DRUNK) > 10)
         return "slur";
-    if (GET_COND(ch, THIRST) == 0)
-        return "rasp";
     if (strcasestr(message, "y'all") || strstr(message, "ain't"))
         return "drawl";
     if (AFF2_FLAGGED(ch, AFF2_BERSERK))

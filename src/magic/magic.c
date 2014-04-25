@@ -3242,8 +3242,6 @@ mag_points(int level,
     int move = 0;
     int mana = 0;
     int align = 0;
-    int hunger = 0;
-    int thirst = 0;
     const char *to_vict = NULL, *to_room = NULL;
     int skill;
 
@@ -3277,10 +3275,6 @@ mag_points(int level,
         break;
     case SPELL_RESTORATION:
         hit = MIN(GET_MAX_HIT(victim), (level * 32));
-        if (GET_COND(victim, FULL) >= 0)
-            GET_COND(victim, FULL) = 24;
-        if (GET_COND(victim, THIRST) >= 0)
-            GET_COND(victim, THIRST) = 24;
         to_vict = "You feel totally healed!";
         break;
     case SPELL_REFRESH:
@@ -3376,10 +3370,6 @@ mag_points(int level,
     GET_MANA(victim) = MIN(GET_MAX_MANA(victim), GET_MANA(victim) + mana);
     GET_ALIGNMENT(victim) =
         MAX(MIN(GET_ALIGNMENT(victim) + align, 1000), -1000);
-    if (hunger)
-        gain_condition(victim, FULL, hunger);
-    if (thirst)
-        gain_condition(victim, THIRST, thirst);
     if (to_vict)
         act(to_vict, false, ch, NULL, victim, TO_VICT);
     if (to_room)
