@@ -2358,18 +2358,6 @@ mag_affects(int level,
         to_vict = "The power of the song infuses your spirit!";
         break;
 
-    case SONG_REGALERS_RHAPSODY:
-        aff[0].location = APPLY_NOHUNGER;
-        aff[0].duration =
-            (skill_bonus(ch, SONG_REGALERS_RHAPSODY) / 4) + 10;
-        aff[0].modifier = 1;
-
-        aff[1].location = APPLY_NOTHIRST;
-        aff[1].duration = aff[0].duration;
-        aff[1].modifier = 1;
-        to_vict = "The uplifting tune drains away your hunger and thirst.";
-        break;
-
     case SONG_DEFENSE_DITTY:
         aff[0].location = APPLY_SAVING_PSI;
         aff[0].duration = (skill_bonus(ch, SONG_DEFENSE_DITTY) / 8) + 20;
@@ -2764,9 +2752,6 @@ perform_mag_groups(int level, struct creature *ch,
         break;
     case SONG_MELODY_OF_METTLE:
         mag_affects(level, ch, tch, tdir, SONG_MELODY_OF_METTLE, savetype);
-        break;
-    case SONG_REGALERS_RHAPSODY:
-        mag_affects(level, ch, tch, tdir, SONG_REGALERS_RHAPSODY, savetype);
         break;
     case SONG_DEFENSE_DITTY:
         mag_affects(level, ch, tch, tdir, SONG_DEFENSE_DITTY, savetype);

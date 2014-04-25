@@ -2451,7 +2451,7 @@ const char *spell_wear_off_msg[] = {
     "Your armor returns to normal harness.",
     "!exposure overture!",
     "!UNUSED!",                 /* 355 */
-    "You start to feel hungry again.",
+    "!UNUSED!",
     "The effects of the melody of mettle dissipate.",
     "!lustration melisma!",
     "You feel more vulnerable to external forces.",

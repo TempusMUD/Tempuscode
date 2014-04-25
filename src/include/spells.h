@@ -398,7 +398,6 @@ enum spell {
     SONG_VERSE_OF_VULNERABILITY = 353, // lowers AC of target
     SONG_EXPOSURE_OVERTURE = 354, // Area affect, causes targets to vis
     SONG_VERSE_OF_VIBRATION = 355, // motor spasm++
-    SONG_REGALERS_RHAPSODY = 356, // caster and groupies get satiated
     SONG_MELODY_OF_METTLE = 357, // caster and group get con and maxhit
     SONG_LUSTRATION_MELISMA = 358, // caster and group cleansed of blindness, poison, sickness
     SONG_DEFENSE_DITTY = 359, // save spell, psi, psy based on gen

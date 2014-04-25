@@ -2638,17 +2638,6 @@ Is it tomorrow or just the end of time?</lyrics>
     <flag value="points"/>
     <flag value="magic"/>
   </spell>
-  <spell id="356" name="regalers rhapsody">
-    <granted class="bard" level="5"/>
-    <manacost initial="37" level_dec="1" minimum="15"/>
-    <position minimum="standing"/>
-    <flag value="affects"/>
-    <flag value="groups"/>
-    <flag value="song"/>
-    <instrument type="string"/>
-    <lyrics>A morsel of a melody keeps appetites in line,
-For when the battle's finally won, we all will drink and dine!</lyrics>
-  </spell>
   <spell id="85" name="regenerate">
     <granted class="mage" level="49"/>
     <granted class="cleric" level="45"/>
