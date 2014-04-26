@@ -2851,7 +2851,7 @@ drag_object(struct creature *ch, struct obj_data *obj, int dir)
     int max_drag = 0;
     int drag_wait = 0;
     int mvm_cost = 0;
-    struct room_data *theroom = NULL;
+    struct room_data *target_room = EXIT(ch, dir)->to_room;
 
     // a character can drag an object twice the weight of his maximum
     // encumberance + a little luck
@@ -2909,10 +2909,10 @@ drag_object(struct creature *ch, struct obj_data *obj, int dir)
         drag_wait = drag_wait * 2;
     }
 
-    if ((ROOM_FLAGGED(theroom, ROOM_HOUSE)
-            && !can_enter_house(ch, theroom->number))
-        || (ROOM_FLAGGED(theroom, ROOM_CLAN_HOUSE)
-            && !clan_house_can_enter(ch, theroom))) {
+    if ((ROOM_FLAGGED(target_room, ROOM_HOUSE)
+            && !can_enter_house(ch, target_room->number))
+        || (ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
+            && !clan_house_can_enter(ch, target_room))) {
         act("You can't go there, so neither can $p.\r\n", false, ch, obj, NULL,
             TO_CHAR);
         WAIT_STATE(ch, 1 RL_SEC);
@@ -2942,7 +2942,7 @@ drag_object(struct creature *ch, struct obj_data *obj, int dir)
     // previous position.
     struct room_data *orig_room = obj->in_room;
     obj_from_room(obj);
-    obj_to_room(obj, theroom);
+    obj_to_room(obj, target_room);
     switch (perform_move(ch, dir, MOVE_NORM, 1)) {
     case 0:                    // Success
         act(tmp_sprintf("$n drags $p in from %s.", from_dirs[dir]),
