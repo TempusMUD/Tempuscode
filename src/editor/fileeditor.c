@@ -77,7 +77,21 @@ start_editing_file(struct descriptor_data *d, const char *fname)
         return;
     }
     
-    off_t len = lseek(fileno(inf), 0, SEEK_END);
+    int err = fseek(inf, 0, SEEK_END);
+    if (err < 0) {
+        errlog("Call to fseek() failed: %s", strerror(errno));
+        d_printf(d, "Couldn't open file.  Sorry.\r\n");
+        fclose(inf);
+        return;
+    }
+
+    long len = ftell(inf);
+    if (len < 0) {
+        errlog("Call to ftell() failed: %s", strerror(errno));
+        d_printf(d, "Couldn't open file.  Sorry.\r\n");
+        fclose(inf);
+        return;
+    }
 
     rewind(inf);
 
