@@ -2300,9 +2300,6 @@ do_zset_command(struct creature *ch, char *argument)
         } else
             send_to_char(ch, "You must supply a room number or 'none'.\r\n");
         break;
-    default:
-        send_to_char(ch, "Unsupported olc zset command.\r\n");
-        break;
     case 15:                   // minimum target level
         if (!is_number(argument)) {
             send_to_char(ch,
@@ -2400,6 +2397,7 @@ do_zset_command(struct creature *ch, char *argument)
             zone->author = NULL;
             send_to_char(ch, "Zone author cleared\r\n");
         }
+        break;
     case 23:
         if (!is_number(argument)) {
             send_to_char(ch,
@@ -2415,6 +2413,10 @@ do_zset_command(struct creature *ch, char *argument)
         zone->dam_mod = atoi(argument);
         send_to_char(ch,
             "Zone damage modifier set. Rebalance mobs soon then return to 100.\r\n");
+        break;
+    default:
+        errlog("Unsupported olc zset command.");
+        send_to_char(ch, "Unsupported olc zset command.\r\n");
         break;
     }
 }
