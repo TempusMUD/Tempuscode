@@ -1630,7 +1630,6 @@ SPECIAL(cave_bear)
 #include "Specs/utility_specs/stable_room.c"
 #include "Specs/utility_specs/increaser.c"
 #include "Specs/utility_specs/donation_room.c"
-#include "Specs/utility_specs/tester_util.c"
 #include "Specs/utility_specs/typo_util.c"
 #include "Specs/utility_specs/newspaper.c"
 #include "Specs/utility_specs/prac_manual.c"
