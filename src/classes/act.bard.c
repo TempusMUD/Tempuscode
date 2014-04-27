@@ -374,12 +374,12 @@ ASPELL(song_exposure_overture)
 
 ASPELL(song_lament_of_longing)
 {
-    struct room_data *targ_room = victim->in_room;
-
     if (ch == NULL || victim == NULL || ch == victim)
         return;
 
-    if (ch->in_room == victim->in_room) {
+    struct room_data *targ_room = victim->in_room;
+
+    if (ch->in_room == targ_room) {
         act("$N appears to be touched by your longing for $M.",
             false, ch, NULL, victim, TO_CHAR);
         return;
@@ -407,7 +407,7 @@ ASPELL(song_lament_of_longing)
         return;
     }
 
-    if (!will_fit_in_room(ch, victim->in_room)) {
+    if (!will_fit_in_room(ch, targ_room)) {
         send_to_char(ch, "But there is no room for you there!\r\n");
         return;
     }
@@ -417,22 +417,22 @@ ASPELL(song_lament_of_longing)
         return;
     }
 
-    if (ROOM_FLAGGED(victim->in_room, ROOM_CLAN_HOUSE) &&
-        !clan_house_can_enter(ch, victim->in_room)) {
+    if (ROOM_FLAGGED(targ_room, ROOM_CLAN_HOUSE) &&
+        !clan_house_can_enter(ch, targ_room)) {
         send_to_char(ch, "You are not allowed in that clan house!\r\n");
         return;
     }
 
-    if (victim->in_room->zone != ch->in_room->zone &&
-        (ZONE_FLAGGED(victim->in_room->zone, ZONE_ISOLATED) ||
+    if (targ_room->zone != ch->in_room->zone &&
+        (ZONE_FLAGGED(targ_room->zone, ZONE_ISOLATED) ||
             ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) {
         act("The place $E exists is completely isolated from this.",
             false, ch, NULL, victim, TO_CHAR);
         return;
     }
 
-    if (GET_PLANE(ch->in_room) != GET_PLANE(victim->in_room)) {
-        if (GET_PLANE(victim->in_room) != PLANE_ASTRAL) {
+    if (GET_PLANE(ch->in_room) != GET_PLANE(targ_room)) {
+        if (GET_PLANE(targ_room) != PLANE_ASTRAL) {
             if (number(0, 120) > (CHECK_SKILL(ch, SONG_LAMENT_OF_LONGING) +
                     (GET_CHA(ch) / 2))) {
                 if ((targ_room = real_room(number(41100, 41863))) == NULL)

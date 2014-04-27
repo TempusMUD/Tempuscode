@@ -376,7 +376,7 @@ ACMD(do_whirlwind)
         //our initially chosen victim as long as he's alive
         if (!is_dead(vict)) {
             for (; i < hits; i++) {
-                if (vict && vict->in_room == ch->in_room) {
+                if (vict->in_room == ch->in_room) {
                     dam = 0;
                     if (CHECK_SKILL(ch, SKILL_WHIRLWIND) > number(40,
                             80) + GET_DEX(vict)) {

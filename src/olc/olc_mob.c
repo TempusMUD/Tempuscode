@@ -1550,7 +1550,7 @@ save_mobs(struct creature * ch, struct zone_data * zone)
     return true;
 }
 
-int
+bool
 do_destroy_mobile(struct creature *ch, int vnum)
 {
 
@@ -1561,7 +1561,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
 
     if (!(mob = real_mobile_proto(vnum))) {
         send_to_char(ch, "ERROR: That mobile does not exist.\r\n");
-        return 1;
+        return true;
     }
 
     for (zone = zone_table; zone; zone = zone->next)
@@ -1571,7 +1571,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
     if (!zone) {
         send_to_char(ch, "That mobile does not belong to any zone!!\r\n");
         errlog("mobile not in any zone.");
-        return 1;
+        return true;
     }
 
     if (!is_authorized(ch, EDIT_ZONE, zone)) {
@@ -1579,7 +1579,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
         mudlog(GET_INVIS_LVL(ch), BRF, true,
             "OLC: %s failed attempt to DESTROY mobile %d.",
             GET_NAME(ch), GET_NPC_VNUM(mob));
-        return 1;
+        return true;
     }
     for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
@@ -1628,12 +1628,9 @@ do_destroy_mobile(struct creature *ch, int vnum)
         free(mem_r);
     }
 
-    if (mob->mob_specials.shared) {
-        free(mob->mob_specials.shared);
-    }
-
+    free(mob->mob_specials.shared);
     free_creature(mob);
-    return 0;
+    return false;
 }
 
 int
