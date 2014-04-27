@@ -21,15 +21,26 @@ const char *fill_words[] = {
     "\n"
 };
 
-// removes all occurances of the specified character c from char * str,
-// replacing each occurance with a char c_to
-int
+/**
+ * remove_from_cstring:
+ * @param str String to modify
+ * @param c Character to search for
+ * @param c_to Replacement character
+ *
+ * Replaces all occurrences of a character in a string with another.
+ **/
+void
 remove_from_cstring(char *str, char c, char c_to)
 {
-    for (char *p = str; p && *p; ++p)
-        if (*p == c)
+    if (!str) {
+        return;
+    }
+
+    for (char *p = str;*p; ++p) {
+        if (*p == c) {
             *p = c_to;
-    return 0;
+        }
+    }
 }
 
 void

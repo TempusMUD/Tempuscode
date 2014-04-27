@@ -24,8 +24,7 @@ static inline char *CAP(/*@returned@*/ char *st)
     return st;
 }
 
-int remove_from_cstring(char *str, char c, char c_to)
-    __attribute__ ((nonnull));
+void remove_from_cstring(char *str, char c, char c_to);
 void sprintbit(long vektor, const char *names[], char *result);
 const char *strlist_aref(int idx, const char **names);
 void sprinttype(int type, const char *names[], char *result);
