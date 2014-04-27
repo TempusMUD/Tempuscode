@@ -127,31 +127,6 @@ char* get_equipment_file_path( long id );
 **/
 char* get_corpse_file_path( long id );
 
-/* structure for the reset commands */
-struct reset_com {
-	char command;				/* current command                      */
-
-	int if_flag;				/* if true: exe only if preceding exe'd */
-	int arg1;					/*                                      */
-	int arg2;					/* Arguments to the command             */
-	int arg3;					/*                                      */
-	int line;					/* line number this command appears on  */
-	int prob;
-	struct reset_com *next;
-
-	/*
-	 *  Commands:              *
-	 *  'M': Read a mobile     *
-	 *  'O': Read an object    *
-	 *  'G': Give obj to mob   *
-	 *  'P': Put obj in obj    *
-	 *  'G': Obj to char       *
-	 *  'E': Obj to char equip *
-	 *  'D': Set state of door *
-	 *  'V': Set Path on obj   *
-	 */
-};
-
 struct player_index_element {
 	char *name;
 	long id;

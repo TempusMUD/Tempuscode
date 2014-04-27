@@ -2382,16 +2382,15 @@ process_load_param(struct creature *ch)
             // 0 == "Do regardless of previous"
 
             if (*vnum && *pos && *max && *p) {
-                last_cmd =
-                    on_load_equip(ch, atoi(vnum), pos, atoi(max), atoi(p));
+                last_cmd = on_load_equip(ch, atoi(vnum), pos,
+                                         atoi(max), atoi(p));
                 if (last_cmd == 100) {
                     slog("Mob number %d killed during load param processing line %d.\r\n", mob_id, lineno);
                     return true;
                 }
             } else {
-                char *msg =
-                    tmp_sprintf
-                    ("Line %d of my load param has the wrong format!", lineno);
+                char *msg = tmp_sprintf (
+                    "Line %d of my load param has the wrong format!", lineno);
                 perform_say(ch, "yell", msg);
             }
         }
@@ -2715,7 +2714,13 @@ zone_update(void)
 void
 reset_zone(struct zone_data *zone)
 {
-    int cmd_no = 0, last_cmd = 0, prob_override = 0;
+    enum {
+        LAST_CMD_SUCCESS,       // Succeeded
+        LAST_CMD_FAILURE,       // Didn't execute
+        LAST_CMD_IGNORED,       // Ignored due to percentage failure
+    };
+    int cmd_no = 0, last_cmd = LAST_CMD_FAILURE;
+    bool prob_override = false;
     struct creature *mob = NULL, *tmob = NULL;
     struct obj_data *obj = NULL, *obj_to = NULL, *tobj = NULL;
     struct reset_com *zonecmd;
@@ -2732,102 +2737,97 @@ reset_zone(struct zone_data *zone)
         }
     }
 
-    for (zonecmd = zone->cmd; zonecmd && zonecmd->command != 'S';
-        zonecmd = zonecmd->next, cmd_no++) {
+    for (zonecmd = zone->cmd;
+         zonecmd && zonecmd->command != 'S';
+         zonecmd = zonecmd->next, cmd_no++) {
         // if_flag
         // 0 == "Do regardless of previous"
-        // 1 == "Do if previous succeded"
+        // 1 == "Do if previous succeeded"
         // 2 == "Do if previous failed"
-        // last_cmd
-        // 1 == "Last command succeded"
-        // 0 == "Last command had an error"
-        //-1 == "Last command's percentage failed"
 
-        if (zonecmd->if_flag == 1 && last_cmd != 1)
+        if (zonecmd->if_flag == IF_FLAG_SUCCEEDED && last_cmd != LAST_CMD_SUCCESS)
             continue;
-        else if (zonecmd->if_flag == -1 && last_cmd != -1)
+        if (zonecmd->if_flag == IF_FLAG_UNIGNORED && last_cmd != LAST_CMD_IGNORED)
             continue;
-
         if (!prob_override && number(1, 100) > zonecmd->prob) {
-            last_cmd = -1;
+            last_cmd = LAST_CMD_IGNORED;
             continue;
         } else {
-            prob_override = 0;
+            prob_override = false;
         }
-// WARNING: FUNKY INDENTATION
         switch (zonecmd->command) {
         case '*':              /* ignore command */
-            last_cmd = -1;
+            last_cmd = LAST_CMD_IGNORED;
             break;
         case 'M':{             /* read a mobile */
-                tmob = real_mobile_proto(zonecmd->arg1);
-                if (tmob != NULL
-                    && tmob->mob_specials.shared->number < zonecmd->arg2) {
-                    room = real_room(zonecmd->arg3);
-                    if (room) {
-                        mob = read_mobile(zonecmd->arg1);
-                    } else {
-                        last_cmd = 0;
-                        break;
-                    }
-                    if (mob) {
-                        char_to_room(mob, room, false);
-                        if (GET_NPC_LEADER(mob) > 0) {
-                            for (GList *it = first_living(mob->in_room->people);it;it = next_living(it)) {
-                                    struct creature *tch = it->data;
-
-                                    if (tch != mob
-                                        && !mob->master
-                                        && IS_NPC(tch)
-                                        && GET_NPC_VNUM(tch) == GET_NPC_LEADER(mob)
-                                        && !circle_follow(mob, tch))
-                                        add_follower(mob, tch);
-                            }
-                        }
-                        if (process_load_param(mob)) {  // true on death
-                            last_cmd = 0;
-                        } else {
-                            last_cmd = 1;
-                        }
-                        if (GET_NPC_PROGOBJ(mob))
-                            trigger_prog_load(mob);
-                    } else {
-                        last_cmd = 0;
-                    }
+            tmob = real_mobile_proto(zonecmd->arg1);
+            if (tmob != NULL
+                && tmob->mob_specials.shared->number < zonecmd->arg2) {
+                room = real_room(zonecmd->arg3);
+                if (room) {
+                    mob = read_mobile(zonecmd->arg1);
                 } else {
-                    last_cmd = 0;
+                    last_cmd = LAST_CMD_FAILURE;
+                    break;
                 }
+                if (mob) {
+                    char_to_room(mob, room, false);
+                    if (GET_NPC_LEADER(mob) > 0) {
+                        for (GList *it = first_living(mob->in_room->people);it;it = next_living(it)) {
+                            struct creature *tch = it->data;
+
+                            if (tch != mob
+                                && !mob->master
+                                && IS_NPC(tch)
+                                && GET_NPC_VNUM(tch) == GET_NPC_LEADER(mob)
+                                && !circle_follow(mob, tch))
+                                add_follower(mob, tch);
+                        }
+                    }
+                    if (process_load_param(mob)) {  // true on death
+                        last_cmd = LAST_CMD_FAILURE;
+                    } else {
+                        last_cmd = LAST_CMD_SUCCESS;
+                    }
+                    if (GET_NPC_PROGOBJ(mob))
+                        trigger_prog_load(mob);
+                } else {
+                    last_cmd = LAST_CMD_FAILURE;
+                }
+            } else {
+                last_cmd = LAST_CMD_FAILURE;
+            }
+            break;
+        }
+        case 'O':              /* read an object */
+            last_cmd = LAST_CMD_FAILURE;
+            tobj = real_object_proto(zonecmd->arg1);
+            if (tobj == NULL
+                || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+                || zonecmd->arg3 < 0) {
                 break;
             }
-        case 'O':              /* read an object */
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj != NULL &&
-                tobj->shared->number - tobj->shared->house_count <
-                zonecmd->arg2) {
-                if (zonecmd->arg3 >= 0) {
-                    room = real_room(zonecmd->arg3);
-                    if (room && !ROOM_FLAGGED(room, ROOM_HOUSE)) {
-                        obj = read_object(zonecmd->arg1);
-                        obj->creation_method = CREATED_ZONE;
-                        obj->creator = zone->number;
-                        randomize_object(obj);
-                        if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                            GET_OBJ_TIMER(obj) = 60;
-                        }
-                    } else {
-                        last_cmd = 0;
-                        break;
-                    }
-                    if (obj) {
-                        obj_to_room(obj, room);
-                        last_cmd = 1;
-                    } else
-                        last_cmd = 0;
-                } else
-                    last_cmd = 0;
-            } else
-                last_cmd = 0;
+
+            room = real_room(zonecmd->arg3);
+            if (room == NULL || ROOM_FLAGGED(room, ROOM_HOUSE)) {
+                break;
+            }
+
+            obj = read_object(zonecmd->arg1);
+            if (obj == NULL) {
+                break;
+            }
+
+            obj->creation_method = CREATED_ZONE;
+            obj->creator = zone->number;
+            randomize_object(obj);
+
+            if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
+                SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+                GET_OBJ_TIMER(obj) = 60;
+            }
+            obj_to_room(obj, room);
+            last_cmd = LAST_CMD_SUCCESS;
             break;
 
         case 'P':              /* object to object */
@@ -2854,13 +2854,13 @@ reset_zone(struct zone_data *zone)
                     break;
                 }
                 obj_to_obj(obj, obj_to);
-                last_cmd = 1;
+                last_cmd = LAST_CMD_SUCCESS;
             } else
-                last_cmd = 0;
+                last_cmd = LAST_CMD_FAILURE;
             break;
 
         case 'V':              /* add path to vehicle */
-            last_cmd = 0;
+            last_cmd = LAST_CMD_FAILURE;
             if (!(tobj = get_obj_num(zonecmd->arg3))) {
                 ZONE_ERROR("target obj not found");
                 break;
@@ -2870,12 +2870,12 @@ reset_zone(struct zone_data *zone)
                 break;
             }
             if (add_path_to_vehicle(tobj, zonecmd->arg1))
-                last_cmd = 1;
+                last_cmd = LAST_CMD_SUCCESS;
             break;
 
         case 'G':              /* obj_to_char */
             if (!mob) {
-                if (last_cmd == 1)
+                if (last_cmd == LAST_CMD_FAILURE)
                     ZONE_ERROR("attempt to give obj to nonexistent mob");
                 break;
             }
@@ -2893,18 +2893,18 @@ reset_zone(struct zone_data *zone)
                     GET_OBJ_TIMER(obj) = 60;
                 }
                 obj_to_char(obj, mob);
-                last_cmd = 1;
+                last_cmd = LAST_CMD_SUCCESS;
             } else
-                last_cmd = 0;
+                last_cmd = LAST_CMD_FAILURE;
             break;
 
         case 'E':              /* object to equipment list */
             if (!mob) {
-                if (last_cmd)
+                if (last_cmd == LAST_CMD_FAILURE)
                     ZONE_ERROR("trying to equip nonexistent mob");
                 break;
             }
-            last_cmd = 0;
+            last_cmd = LAST_CMD_FAILURE;
             tobj = real_object_proto(zonecmd->arg1);
             if (tobj != NULL &&
                 tobj->shared->number - tobj->shared->house_count <
@@ -2926,19 +2926,19 @@ reset_zone(struct zone_data *zone)
                     }
                     if (equip_char(mob, obj, zonecmd->arg3, EQUIP_WORN)) {
                         mob = NULL;
-                        last_cmd = 0;
+                        last_cmd = LAST_CMD_FAILURE;
                     } else
-                        last_cmd = 1;
+                        last_cmd = LAST_CMD_SUCCESS;
                 }
             }
             break;
         case 'I':              /* object to equipment list */
             if (!mob) {
-                if (last_cmd)
+                if (last_cmd == LAST_CMD_FAILURE)
                     ZONE_ERROR("trying to implant nonexistent mob");
                 break;
             }
-            last_cmd = 0;
+            last_cmd = LAST_CMD_FAILURE;
             tobj = real_object_proto(zonecmd->arg1);
             if (tobj != NULL &&
                 tobj->shared->number - tobj->shared->number < zonecmd->arg2) {
@@ -2959,17 +2959,17 @@ reset_zone(struct zone_data *zone)
                     }
                     if (equip_char(mob, obj, zonecmd->arg3, EQUIP_IMPLANT)) {
                         mob = NULL;
-                        last_cmd = 0;
+                        last_cmd = LAST_CMD_FAILURE;
                     } else
-                        last_cmd = 1;
+                        last_cmd = LAST_CMD_SUCCESS;
                 }
             }
             break;
         case 'W':
             if (!mob) {
-                if (last_cmd)
+                if (last_cmd == LAST_CMD_FAILURE)
                     ZONE_ERROR("trying to assign path to nonexistent mob");
-                last_cmd = 0;
+                last_cmd = LAST_CMD_FAILURE;
                 break;
             }
             if (!path_vnum_exists(zonecmd->arg1)) {
@@ -2979,7 +2979,7 @@ reset_zone(struct zone_data *zone)
             if (!add_path_to_mob(mob, zonecmd->arg1)) {
                 ZONE_ERROR("unable to attach path to mob");
             } else
-                last_cmd = 1;
+                last_cmd = LAST_CMD_SUCCESS;
             break;
 
         case 'R':              /* rem obj from room */
@@ -2989,10 +2989,10 @@ reset_zone(struct zone_data *zone)
                 !ROOM_FLAGGED(room, ROOM_HOUSE)) {
                 obj_from_room(obj);
                 extract_obj(obj);
-                last_cmd = 1;
-                prob_override = 1;
+                last_cmd = LAST_CMD_SUCCESS;
+                prob_override = true;
             } else
-                last_cmd = 0;
+                last_cmd = LAST_CMD_FAILURE;
 
             break;
 
@@ -3005,32 +3005,32 @@ reset_zone(struct zone_data *zone)
                 int dir = zonecmd->arg2;
                 if (IS_SET(zonecmd->arg3, DOOR_OPEN)) {
                     REMOVE_BIT(room->dir_option[dir]->exit_info,
-                        EX_LOCKED);
+                               EX_LOCKED);
                     REMOVE_BIT(room->dir_option[dir]->exit_info,
-                        EX_CLOSED);
+                               EX_CLOSED);
                 }
                 if (IS_SET(zonecmd->arg3, DOOR_CLOSED)) {
                     SET_BIT(room->dir_option[dir]->exit_info,
-                        EX_CLOSED);
+                            EX_CLOSED);
                     REMOVE_BIT(room->dir_option[dir]->exit_info,
-                        EX_LOCKED);
+                               EX_LOCKED);
                 }
                 if (IS_SET(zonecmd->arg3, DOOR_LOCKED)) {
                     SET_BIT(room->dir_option[dir]->exit_info,
-                        EX_LOCKED);
+                            EX_LOCKED);
                     SET_BIT(room->dir_option[dir]->exit_info,
-                        EX_CLOSED);
+                            EX_CLOSED);
                 }
                 if (IS_SET(zonecmd->arg3, DOOR_HIDDEN)) {
                     SET_BIT(room->dir_option[dir]->exit_info,
-                        EX_HIDDEN);
+                            EX_HIDDEN);
                 }
                 // Only heal doors that were completely busted.
                 if (room->dir_option[dir]->damage == 0) {
                     room->dir_option[dir]->maxdam = calc_door_strength(room, dir);
                     room->dir_option[dir]->damage = room->dir_option[dir]->maxdam;
                 }
-                last_cmd = 1;
+                last_cmd = LAST_CMD_SUCCESS;
             }
             break;
 

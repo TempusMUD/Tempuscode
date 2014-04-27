@@ -94,6 +94,38 @@ enum {
     ZONE_CHAOTIC_PK  = 2,
 };
 
+/* structure for the reset commands */
+enum if_flag_t {
+    IF_FLAG_UNIGNORED = -1,
+    IF_FLAG_ALWAYS = 0,
+    IF_FLAG_SUCCEEDED = 1,
+    IF_FLAG_FAILED = 2,
+};
+    
+struct reset_com {
+	char command;				/* current command                      */
+
+	enum if_flag_t if_flag;     /* if true: exe only if preceding exe'd */
+	int arg1;					/*                                      */
+	int arg2;					/* Arguments to the command             */
+	int arg3;					/*                                      */
+	int line;					/* line number this command appears on  */
+	int prob;
+	struct reset_com *next;
+
+	/*
+	 *  Commands:              *
+	 *  'M': Read a mobile     *
+	 *  'O': Read an object    *
+	 *  'G': Give obj to mob   *
+	 *  'P': Put obj in obj    *
+	 *  'G': Obj to char       *
+	 *  'E': Obj to char equip *
+	 *  'D': Set state of door *
+	 *  'V': Set Path on obj   *
+	 */
+};
+
 /* zone definition structure. for the 'zone-table'   */
 struct zone_data {
 	char *name;					/* name of this zone                  */
