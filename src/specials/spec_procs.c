@@ -1791,7 +1791,6 @@ SPECIAL(cave_bear)
 /** OTHERS **/
 
 #include "Specs/disaster_specs/boulder_thrower.c"
-#include "Specs/disaster_specs/windy_room.c"
 #include "Specs/javelin_specs/clone_lab.c"
 
 SPECIAL(weapon_lister)

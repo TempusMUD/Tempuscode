@@ -273,7 +273,6 @@ const struct spec_func_data spec_list[] = {
     {"malbolge_bridge", malbolge_bridge, SPEC_RM | SPEC_RES},
     {"abandoned_cavern", abandoned_cavern, SPEC_RM | SPEC_RES},
     {"dangerous_climb", dangerous_climb, SPEC_RM},
-    {"windy_room", windy_room, SPEC_RM},
     {"killzone_room", killzone_room, SPEC_RM | SPEC_RES},
     {"hell_domed_chamber", hell_domed_chamber, SPEC_RM | SPEC_RES},
     {"malagard_lightning_room", malagard_lightning_room, SPEC_RM | SPEC_RES},

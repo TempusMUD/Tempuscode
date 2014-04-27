@@ -174,7 +174,6 @@ SPECIAL(new_mavernal_talker);
 
 // disaster_specs
 SPECIAL(boulder_thrower);
-SPECIAL(windy_room);
 
 // utility specs
 SPECIAL(gen_board);
