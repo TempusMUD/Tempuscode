@@ -1656,7 +1656,6 @@ SPECIAL(cave_bear)
 #include "Specs/sarflin_specs/oracle.c"
 #include "Specs/sarflin_specs/fountain_heal.c"
 #include "Specs/sarflin_specs/fountain_restore.c"
-#include "Specs/sarflin_specs/library.c"
 #include "Specs/sarflin_specs/arena.c"
 #include "Specs/sarflin_specs/gingwatzim_rm.c"
 #include "Specs/sarflin_specs/dwarven_hermit.c"

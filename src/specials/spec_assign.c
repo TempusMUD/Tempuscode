@@ -209,7 +209,6 @@ const struct spec_func_data spec_list[] = {
     {"loud_speaker", loud_speaker, SPEC_OBJ | SPEC_RES},
     {"fountain_heal", fountain_heal, SPEC_OBJ},
     {"fountain_restore", fountain_restore, SPEC_OBJ | SPEC_RES},
-    {"library", library, SPEC_OBJ},
     {"arena_object", arena_object, SPEC_OBJ | SPEC_RES},
     {"javelin_of_lightning", javelin_of_lightning, SPEC_OBJ},
     {"modrian_fountain_obj", modrian_fountain_obj, SPEC_OBJ | SPEC_RES},
