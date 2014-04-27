@@ -470,15 +470,6 @@ do_destroy_object(struct creature *ch, int vnum)
     dmalloc_verify(0);
 #endif
 
-    if (obj->aliases)
-        free(obj->aliases);
-    if (obj->line_desc)
-        free(obj->line_desc);
-    if (obj->name)
-        free(obj->name);
-    if (obj->action_desc)
-        free(obj->action_desc);
-
     while ((desc = obj->ex_description)) {
         obj->ex_description = desc->next;
         if (desc->keyword)
@@ -488,9 +479,12 @@ do_destroy_object(struct creature *ch, int vnum)
         free(desc);
     }
 
-    if (obj->shared)
-        free(obj->shared);
+    free(obj->aliases);
+    free(obj->line_desc);
+    free(obj->name);
+    free(obj->action_desc);
 
+    free(obj->shared);
     free(obj);
 
 #ifdef DMALLOC
