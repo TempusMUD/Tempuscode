@@ -1037,12 +1037,12 @@ helper_assist(struct creature *ch, struct creature *vict,
     struct creature *fvict)
 {
     int prob = 0;
-    struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
-
     if (!ch || !vict || !fvict) {
         errlog("Illegal value(s) passed to helper_assist().");
         return 0;
     }
+
+    struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
 
     if (GET_RACE(ch) == GET_RACE(fvict))
         prob += 10 + (GET_LEVEL(ch) / 2);
@@ -1564,11 +1564,6 @@ single_mobile_activity(struct creature *ch)
     int dir, max, k;
     struct room_data *room = NULL;
     int cur_class = 0;
-
-    if (!ch) {
-        errlog("Skipping null mobile in mobile_activity");
-        return;
-    }
 
     if (!ch->in_room) {
         errlog("Skipping mobile in null room");
