@@ -3484,9 +3484,8 @@ choose_material(struct obj_data *obj)
             return (i);
 
     strcpy(aliases, obj->name);
-    ptr = aliases;
 
-    ptr = one_argument(ptr, name);
+    ptr = one_argument(aliases, name);
     while (*name) {
         if (strcasecmp(name, "a") && strcasecmp(name, "an")
             && strcasecmp(name, "the")
@@ -3679,7 +3678,7 @@ choose_material(struct obj_data *obj)
             || isname("breastplate", obj->aliases)
             || isname("shield", obj->aliases) || isname("mail", obj->aliases)
             || ((isname("scale", obj->aliases)
-                    || isname("scales", obj->aliases)) && obj->name
+                    || isname("scales", obj->aliases))
                 && !isname("dragon", obj->name)
                 && !isname("dragons", obj->name)
                 && !isname("dragon's", obj->name)
@@ -3927,11 +3926,11 @@ ACMD(do_empty)
     struct obj_data *container = NULL;
     int bits;
     int bits2;
-    char arg1[MAX_INPUT_LENGTH];
-    char arg2[MAX_INPUT_LENGTH];
+    char *arg1, *arg2;
     int objs_moved = 0;
 
-    two_arguments(argument, arg1, arg2);
+    arg1 = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
 
     if (!*arg1) {
         send_to_char(ch, "What do you want to empty?\r\n");
@@ -3970,18 +3969,17 @@ ACMD(do_empty)
         return;
     }
 
-    if (*arg2 && obj) {
-
-        if (!(bits2 =
-                generic_find(arg2,
-                    FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM, ch, NULL,
-                    &container))) {
+    if (*arg2) {
+        bits2 = generic_find(arg2,
+                             FIND_OBJ_EQUIP | FIND_OBJ_INV | FIND_OBJ_ROOM,
+                             ch, NULL, &container);
+        if (!bits2) {
             send_to_char(ch, "Empty %s into what?\r\n", obj->name);
             return;
-        } else {
-            empty_to_obj(obj, container, ch);
-            return;
         }
+
+        empty_to_obj(obj, container, ch);
+        return;
     }
 
     if (obj->contains) {
