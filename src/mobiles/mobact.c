@@ -1519,11 +1519,6 @@ mobile_spec(void)
         if (!IS_NPC(ch))
             continue;
 
-        if (!ch) {
-            errlog("Skipping null mobile in mobile_activity");
-            continue;
-        }
-
         if (!ch->in_room) {
             errlog("Skipping mobile in null room");
             continue;
