@@ -477,7 +477,6 @@ account_create_char(struct account *account, const char *name)
         GET_SAVE(ch, i) = 0;
 
     GET_COND(ch, FULL) = (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 24);
-    GET_COND(ch, THIRST) = (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 24);
     GET_COND(ch, DRUNK) = (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 0);
 
     POOFIN(ch) = NULL;
