@@ -1372,6 +1372,12 @@ perform_drop(struct creature *ch, struct obj_data *obj,
             act("You peel $p off your hand...", false, ch, obj, NULL, TO_CHAR);
     }
 
+    if ((mode == SCMD_DONATE) && (IS_OBJ_STAT(obj, ITEM_NODONATE) ||
+            !OBJ_APPROVED(obj))) {
+        send_to_char(ch, "You can't donate this item. Try junking it, perhaps?\r\n");
+        return 0;
+    }
+
     if ((mode == SCMD_DONATE || mode == SCMD_JUNK) &&
         is_undisposable(ch, (mode == SCMD_JUNK) ? "junk" : "donate", obj,
             true))
@@ -1383,10 +1389,6 @@ perform_drop(struct creature *ch, struct obj_data *obj,
         sprintf(buf, "$n %ss $p.%s", sname, VANISH(mode));
         act(buf, true, ch, obj, NULL, TO_ROOM);
     }
-
-    if ((mode == SCMD_DONATE) && (IS_OBJ_STAT(obj, ITEM_NODONATE) ||
-            !OBJ_APPROVED(obj)))
-        mode = SCMD_JUNK;
 
     switch (mode) {
     case SCMD_DROP:
