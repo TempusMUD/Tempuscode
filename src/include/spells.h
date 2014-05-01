@@ -116,6 +116,8 @@ enum magic_flag {
 #define SPELL_FLAGS(splnm)     (spell_info[splnm].routines)
 #define SPELL_FLAGGED(splnm, flag) (IS_SET(SPELL_FLAGS(splnm), flag))
 
+#define SINFO spell_info[spellnum]
+
 enum spell {
     TYPE_UNDEFINED = -1,
     SPELL_RESERVED_DBC = 0,	/* SKILL NUMBER ZERO -- RESERVED */
@@ -826,7 +828,8 @@ struct spell_info_type {
 	int routines;
 	int16_t targets;				/* See below for use with TAR_XXX  */
 	bool violent;
-    bool is_weapon;
+        bool is_weapon;
+        bool defensive;
 };
 
 struct bard_song {
@@ -891,7 +894,6 @@ static inline int SPELL_GEN( int spell, int char_class ) {
 static inline bool IS_WEAPON(int spell) {
     return spell_info[spell].is_weapon;
 }
-
 
 bool is_able_to_learn(struct creature *ch, int spl);
 

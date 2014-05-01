@@ -40,7 +40,9 @@
  location != WEAR_WIELD && location != WEAR_WIELD_2 && \
  location != WEAR_ASS)
 
-#define IS_DEFENSE_ATTACK(attacktype)   (attacktype == SPELL_FIRE_SHIELD || attacktype == SPELL_BLADE_BARRIER  || attacktype == SPELL_PRISMATIC_SPHERE || attacktype == SKILL_ENERGY_FIELD || attacktype == SPELL_THORN_SKIN || attacktype == SONG_WOUNDING_WHISPERS)
+static inline bool IS_DEFENSE_ATTACK(int attacktype) {
+    return spell_info[attacktype].defensive;
+}
 
 bool cannot_damage(struct creature *ch, struct creature *vict, struct obj_data *weap, int attacktype)
     __attribute__ ((nonnull (2)));
