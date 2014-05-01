@@ -2672,8 +2672,6 @@ acc_append_affects(struct creature *ch, int8_t mode)
         acc_strcat("Other are impressed by your beautiful voice.\r\n", NULL);
     if (affected_by_spell(ch, SONG_FORTISSIMO))
         acc_strcat("Your voice reverberates with vigor!\r\n", NULL);
-    if (affected_by_spell(ch, SONG_REGALERS_RHAPSODY))
-        acc_strcat("A tune has soothed your hunger and thirst.\r\n", NULL);
     if (affected_by_spell(ch, SONG_WOUNDING_WHISPERS))
         acc_strcat("You are surrounded by whirling slivers of sound.\r\n",
             NULL);
@@ -2882,16 +2880,6 @@ do_blind_score(struct creature *ch)
 
 	if (GET_COND(ch, DRUNK) > 10)
 		acc_strcat("You are intoxicated\r\n", NULL);
-	if (GET_COND(ch, FULL) == 0)
-		acc_strcat("You are hungry.\r\n", NULL);
-	if (GET_COND(ch, THIRST) == 0) {
-		if (IS_VAMPIRE(ch))
-			acc_strcat("You have an intense thirst for blood.\r\n", NULL);
-		else
-			acc_strcat("You are thirsty.\r\n", NULL);
-	} else if (IS_VAMPIRE(ch) && GET_COND(ch, THIRST) < 4)
-		acc_strcat("You feel the onset of your bloodlust.\r\n", NULL);
-
 	if (GET_LEVEL(ch) >= LVL_AMBASSADOR && PLR_FLAGGED(ch, PLR_MORTALIZED))
 		acc_strcat("You are mortalized.\r\n", NULL);
 
@@ -3079,15 +3067,6 @@ ACMD(do_score)
 
     if (GET_COND(ch, DRUNK) > 10)
         acc_strcat("You are intoxicated\r\n", NULL);
-    if (GET_COND(ch, FULL) == 0)
-        acc_strcat("You are hungry.\r\n", NULL);
-    if (GET_COND(ch, THIRST) == 0) {
-        if (IS_VAMPIRE(ch))
-            acc_strcat("You have an intense thirst for blood.\r\n", NULL);
-        else
-            acc_strcat("You are thirsty.\r\n", NULL);
-    } else if (IS_VAMPIRE(ch) && GET_COND(ch, THIRST) < 4)
-        acc_strcat("You feel the onset of your bloodlust.\r\n", NULL);
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR && PLR_FLAGGED(ch, PLR_MORTALIZED))
         acc_strcat("You are mortalized.\r\n", NULL);

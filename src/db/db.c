@@ -1597,7 +1597,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
 
     mobile->player.remort_char_class = -1;
 
-    for (j = 0; j < 3; j++)
+    for (j = 0; j < 2; j++)
         GET_COND(mobile, j) = -1;
 
     /*

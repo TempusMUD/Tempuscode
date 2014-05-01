@@ -4,45 +4,36 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define LVL_CAN_GAIN_NOHUNGER  40   /* <-----Set desired level here */
+#define LVL_CAN_GAIN_NODRUNK  40   /* <-----Set desired level here */
 
 SPECIAL(nohunger_dude)
 {
     struct creature *dude = (struct creature *)me;
-    int gold, life_cost, mode;
+    int gold, life_cost;
 
     if (!CMD_IS("gain"))
         return 0;
     skip_spaces(&argument);
 
-    life_cost = MAX(10, 70 - GET_INT(ch) - GET_WIS(ch) - GET_CON(ch));
+    life_cost = MAX(10, 70 - GET_CON(ch));
     gold = adjusted_price(ch, dude, GET_LEVEL(ch) * 10000);
 
     if (!*argument) {
         send_to_char(ch, "Gain what?\r\n"
-            "It will cost you %d life points and %'d gold coins to gain\r\n"
-            "nohunger, nothirst, or nodrunk.\r\n", life_cost, gold);
-    } else if (GET_LEVEL(ch) < LVL_CAN_GAIN_NOHUNGER && !IS_REMORT(ch))
+            "It will cost you %d life points and %'d gold coins to gain alcoholic immunity.\r\n",
+            life_cost, gold);
+    } else if (GET_LEVEL(ch) < LVL_CAN_GAIN_NODRUNK && !IS_REMORT(ch)) {
         send_to_char(ch, "You are not yet ready to gain this.\r\n");
-    else {
-        if (!is_abbrev(argument, "nohunger")) {
-            if (!is_abbrev(argument, "nothirst")) {
-                if (!is_abbrev(argument, "nodrunk")) {
-                    perform_tell(dude, ch,
-                        "You can only gain 'nohunger', 'nothirst', or 'nodrunk'.");
-                    return 1;
-                } else
-                    mode = DRUNK;
-            } else
-                mode = THIRST;
-        } else
-            mode = FULL;
+    } else {
+        if (!is_abbrev(argument, "nodrunk")) {
+            perform_tell(dude, ch,
+                "You can only gain 'nodrunk'.");
+            return 1;
+        }
 
-        if (GET_COND(ch, mode) < 0) {
-            sprintf(buf, "You are already unaffected by %s.",
-                mode == DRUNK ? "alcohol" : mode ==
-                THIRST ? "thirst" : "hunger");
-            perform_tell(ch, dude, buf);
+        if (GET_COND(ch, DRUNK) < 0) {
+            perform_tell(dude, ch,
+                "You are already unaffected by alcohol.");
             return 1;
         }
 
@@ -58,19 +49,15 @@ SPECIAL(nohunger_dude)
         } else {
             act("$n outstretches $s arms in supplication to the powers that be.", true, dude, NULL, NULL, TO_ROOM);
             send_to_char(ch,
-                "You feel a strange sensation pass through your soul.\r\n");
+                "You feel a strange sensation pass through your liver.\r\n");
             act("A strange expression crosses $N's face...", true, dude, NULL, ch,
                 TO_NOTVICT);
             GET_LIFE_POINTS(ch) -= life_cost;
             GET_GOLD(ch) -= gold;
-            GET_COND(ch, mode) = -1;
-            send_to_char(ch, "You will no longer be affected by %s!\r\n",
-                mode == DRUNK ? "alcohol" : mode ==
-                THIRST ? "thirst" : "hunger");
+            GET_COND(ch, DRUNK) = -1;
+            send_to_char(ch, "You will no longer be affected by alcohol!\r\n");
 
-            slog("%s has gained %s.", GET_NAME(ch),
-                mode == DRUNK ? "nodrunk" : mode == THIRST ? "nothirst" :
-                "nohunger");
+            slog("%s has gained nodrunk.", GET_NAME(ch));
 
             return 1;
         }

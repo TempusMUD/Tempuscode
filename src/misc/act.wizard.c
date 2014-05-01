@@ -2031,9 +2031,9 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         }
     }
     if (!IS_NPC(k)) {
-        acc_sprintf("%sHunger: %d, Thirst: %d, Drunk: %d\r\n",
+        acc_sprintf("%sHunger: %d, Drunk: %d\r\n",
             found ? ", " : "",
-            GET_COND(k, FULL), GET_COND(k, THIRST), GET_COND(k, DRUNK));
+            GET_COND(k, FULL), GET_COND(k, DRUNK));
     } else if (found)
         acc_strcat("\r\n", NULL);
 
@@ -5828,7 +5828,6 @@ ACMD(do_set)
         {"nowho", LVL_IMMORT, PC, BINARY, "WizardFull"},
         {"drunk", LVL_IMMORT, BOTH, MISC, "WizardFull"},
         {"hunger", LVL_IMMORT, BOTH, MISC, "WizardFull"},
-        {"thirst", LVL_IMMORT, BOTH, MISC, "WizardFull"},
         {"level", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"room", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"roomflag", LVL_IMMORT, PC, BINARY, "WizardFull"},
@@ -7895,7 +7894,7 @@ ACMD(do_tester)
         "    generation\r\n"
         "    debug\r\n"
         "    loadroom <val>\r\n"
-        "    hunger|thirst|drunk <val>|off\r\n"
+        "    hunger|drunk <val>|off\r\n"
         "    str|con|int|wis|dex|cha <val>\r\n";
 
     static const char *tester_cmds[] = {
@@ -7914,18 +7913,17 @@ ACMD(do_tester)
         "nohassle",
         "roomflags",
         "align",
-        "generation",
+        "generation",           /* 15 */
         "debug",
         "str",
         "int",
         "wis",
-        "con",
+        "con",                  /* 20 */
         "dex",
         "cha",
         "maxstat",
         "hunger",
-        "thirst",
-        "drunk",
+        "drunk",                /* 25 */
         "loadroom",
         "\n"
     };
@@ -8047,9 +8045,8 @@ ACMD(do_tester)
     case 21:                   // dexterity
     case 22:                   // charisma
     case 24:                   // Hunger
-    case 25:                   // Thirst
-    case 26:                   // Drunk
-    case 27:                   // Loadroom
+    case 25:                   // Drunk
+    case 26:                   // Loadroom
         do_set(ch, tmp_sprintf("self %s %s", arg1, arg2), 0,
             SCMD_TESTER_SET);
         break;

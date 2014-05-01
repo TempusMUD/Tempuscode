@@ -1897,12 +1897,11 @@ show_olc_help(struct creature *ch, char *arg)
         page_string(ch->desc, buf);
         break;
     case 8:
-        strcpy(buf, "##  LIQUID            Drunk     Hunger   Thirst\r\n");
+        strcpy(buf, "##  LIQUID            Drunk     Hunger\r\n");
         for (i = 0; i < NUM_LIQUID_TYPES; i++) {
-            sprintf(buf2, "%2d  %s%-20s%s  %3d   %3d  %3d\r\n",
+            sprintf(buf2, "%2d  %s%-20s%s  %3d   %3d\r\n",
                 i, CCCYN(ch, C_NRM), drinks[i], CCNRM(ch, C_NRM),
-                (int)drink_aff[i][0], (int)drink_aff[i][1],
-                (int)drink_aff[i][2]);
+                (int)drink_aff[i][0], (int)drink_aff[i][1]);
             strcat(buf, buf2);
         }
         page_string(ch->desc, buf);
