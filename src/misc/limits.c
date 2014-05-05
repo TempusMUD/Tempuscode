@@ -426,7 +426,8 @@ void
 gain_condition(struct creature *ch, int condition, int value)
 {
 
-    if (GET_COND(ch, DRUNK) < 0 || !value || (GET_COND(ch, FULL) < 0 && GET_LEVEL(ch) >= LVL_AMBASSADOR))  /* No change */
+    if ((GET_COND(ch, DRUNK) < 0 && condition == 0) || !value || (GET_COND(ch, FULL) < 0 && condition == 1 && GET_LEVEL(ch) >= LVL_AMBASSADOR))  /* No change */
+        return;
 
     GET_COND(ch, condition) += value;
 
@@ -728,12 +729,8 @@ point_update(void)
         if (affected_by_spell(tch, SPELL_METABOLISM))
             full += 1;
 
-        if (IS_CYBORG(tch)) {
-            if (AFF3_FLAGGED(tch, AFF3_STASIS))
-                full /= 4;
-            else if (GET_LEVEL(tch) > number(10, 60))
-                full /= 2;
-        }
+        if (IS_CYBORG(tch) && AFF3_FLAGGED(tch, AFF3_STASIS))
+            full /= 4;
 
         gain_condition(tch, FULL, -full);
 
