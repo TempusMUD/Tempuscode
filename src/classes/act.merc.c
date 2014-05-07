@@ -991,3 +991,170 @@ ACMD(do_combine)
     act("$n mixes two potions together and creates $p!",
         false, ch, new_potion, NULL, TO_ROOM);
 }
+
+struct obj_data *
+find_hamstring_weapon(struct creature *ch)
+{
+    struct obj_data *weap = NULL;
+    if ((weap = GET_EQ(ch, WEAR_WIELD)) && is_slashing_weapon(weap)) {
+        return weap;
+    } else if ((weap = GET_EQ(ch, WEAR_WIELD_2)) && is_slashing_weapon(weap)) {
+        return weap;
+    } else if ((weap = GET_EQ(ch, WEAR_HANDS)) && is_slashing_weapon(weap)) {
+        return weap;
+    } else if ((weap = GET_EQ(ch, WEAR_ARMS)) && is_slashing_weapon(weap)) {
+        return weap;
+    } else if ((weap = GET_IMPLANT(ch, WEAR_HANDS))
+               && is_slashing_weapon(weap)
+               && GET_EQ(ch, WEAR_HANDS) == NULL) {
+        return weap;
+    } else if ((weap = GET_IMPLANT(ch, WEAR_ARMS))
+               && is_slashing_weapon(weap)
+               && GET_EQ(ch, WEAR_ARMS) == NULL) {
+        return weap;
+    }
+    return NULL;
+}
+
+ACMD(do_hamstring)
+{
+    struct creature *vict = NULL;
+    struct obj_data *ovict = NULL, *weap = NULL;
+    int percent, prob, dam;
+    struct affected_type af;
+    char *arg;
+
+    init_affect(&af);
+
+    arg = tmp_getword(&argument);
+    if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 50) {
+        send_to_char(ch,
+            "Even if you knew what that was, you wouldn't do it.\r\n");
+        return;
+    }
+
+    if (IS_CLERIC(ch) && IS_GOOD(ch)) {
+        send_to_char(ch, "Your deity forbids this.\r\n");
+        return;
+    }
+    // If there's noone in the room that matches your alias
+    // Then it must be an object.
+    if (!(vict = get_char_room_vis(ch, arg))) {
+        if (is_fighting(ch)) {
+            vict = random_opponent(ch);
+        } else {
+            if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+                act("You open a deep gash in $p's hamstring!", false, ch,
+                    ovict, NULL, TO_CHAR);
+                return;
+            } else {
+                send_to_char(ch, "Hamstring who?\r\n");
+                return;
+            }
+        }
+    }
+
+    weap = find_hamstring_weapon(ch);
+    if (weap == NULL) {
+        send_to_char(ch, "You need to be using a slashing weapon.\r\n");
+        return;
+    }
+    if (vict == ch) {
+        if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
+            act("You fear that your death will grieve $N.",
+                false, ch, NULL, ch->master, TO_CHAR);
+            return;
+        }
+        send_to_char(ch,
+            "Cutting off your own leg just doesn't sound like fun.\r\n");
+        return;
+    }
+    if (!ok_to_attack(ch, vict, true))
+        return;
+
+    if (GET_POSITION(vict) == POS_SITTING) {
+        send_to_char(ch, "How can you cut it when they're sitting on it!\r\n");
+        return;
+    }
+    if (GET_POSITION(vict) == POS_RESTING) {
+        send_to_char(ch, "How can you cut it when they're laying on it!\r\n");
+        return;
+    }
+    prob = CHECK_SKILL(ch, SKILL_HAMSTRING) + GET_REMORT_GEN(ch);
+    percent = number(0, 125);
+    if (affected_by_spell(vict, ZEN_AWARENESS)) {
+        percent += 25;
+    }
+    if (AFF2_FLAGGED(vict, AFF2_HASTE) && !AFF2_FLAGGED(ch, AFF2_HASTE)) {
+        percent += 30;
+    }
+
+    if (GET_DEX(ch) > GET_DEX(vict)) {
+        prob += 3 * (GET_DEX(ch) - GET_DEX(vict));
+    } else {
+        percent += 3 * (GET_DEX(vict) - GET_DEX(ch));
+    }
+    // If they're wearing anything usefull on thier legs make it harder to hurt em.
+    if ((ovict = GET_EQ(vict, WEAR_LEGS)) && IS_OBJ_TYPE(ovict, ITEM_ARMOR)) {
+        if (IS_STONE_TYPE(ovict) || IS_METAL_TYPE(ovict))
+            percent += GET_OBJ_VAL(ovict, 0) * 3;
+        else
+            percent += GET_OBJ_VAL(ovict, 0);
+    }
+
+    if (GET_LEVEL(ch) > GET_LEVEL(vict)) {
+        prob += GET_LEVEL(ch) - GET_LEVEL(vict);
+    } else {
+        percent += GET_LEVEL(vict) - GET_LEVEL(ch);
+    }
+
+    if (IS_PUDDING(vict) || IS_SLIME(vict)
+        || NON_CORPOREAL_MOB(vict) || IS_ELEMENTAL(vict))
+        prob = 0;
+    if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 30) {
+        prob = 0;
+    }
+
+    if (percent > prob) {
+        damage(ch, vict, weap, 0, SKILL_HAMSTRING, WEAR_LEGS);
+        WAIT_STATE(ch, 2 RL_SEC);
+        return;
+    } else {
+        int level = 0, gen = 0;
+        level = GET_LEVEL(ch);
+        gen = GET_REMORT_GEN(ch);
+        // For proper behavior, the mob has to be set sitting _before_ we
+        // damage it.  However, we don't want it to deal the extra damage.
+        // Sitting damage is 5/3rds of fighting damage, so we multiply by
+        // 3/5ths to cancel out the multiplier
+        dam = dice(level, 15 + gen / 2) * 3 / 5;
+        add_blood_to_room(vict->in_room, 1);
+        apply_soil_to_char(vict, GET_EQ(vict, WEAR_LEGS), SOIL_BLOOD,
+            WEAR_LEGS);
+        apply_soil_to_char(vict, GET_EQ(vict, WEAR_FEET), SOIL_BLOOD,
+            WEAR_FEET);
+        if (!affected_by_spell(vict, SKILL_HAMSTRING)) {
+            af.type = SKILL_HAMSTRING;
+            af.bitvector = AFF3_HAMSTRUNG;
+            af.aff_index = 3;
+            af.level = level + gen;
+            af.duration = level + gen / 10;
+            af.location = APPLY_DEX;
+            af.modifier = 0 - (level / 2 + dice(7, 7) + dice(gen, 5))
+                * (CHECK_SKILL(ch, SKILL_HAMSTRING)) / 1000;
+            af.owner = GET_IDNUM(ch);
+            affect_to_char(vict, &af);
+            WAIT_STATE(vict, 3 RL_SEC);
+            GET_POSITION(vict) = POS_RESTING;
+            damage(ch, vict, weap, dam, SKILL_HAMSTRING, WEAR_LEGS);
+        } else {
+            WAIT_STATE(vict, 2 RL_SEC);
+            GET_POSITION(vict) = POS_SITTING;
+            damage(ch, vict, weap, dam / 2, SKILL_HAMSTRING, WEAR_LEGS);
+        }
+        if (!is_dead(ch)) {
+            gain_skill_prof(ch, SKILL_HAMSTRING);
+            WAIT_STATE(ch, 5 RL_SEC);
+        }
+    }
+}
