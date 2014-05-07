@@ -165,7 +165,7 @@ reportUnrentables(struct creature * ch, struct obj_data * obj_list,
     cur_obj = obj_list;
     while (cur_obj) {
         if (!last_obj || !same_obj(last_obj, cur_obj)) {
-            if (obj_is_unrentable(cur_obj)) {
+            if (obj_is_unrentable(cur_obj) || ((cur_obj->shared->owner_id) && cur_obj->shared->owner_id != GET_IDNUM(ch))) {
                 act(tmp_sprintf("You cannot rent while %s $p!", pos),
                     true, ch, cur_obj, NULL, TO_CHAR);
                 result = true;
