@@ -67,7 +67,25 @@ Some enterprising soul has mixed together a potion.~
 10 dq 0 a 0
 0 0 0 0
 160 100 100
-1 0 0 0
+0.500000 0 1 0
+#18
+mail paper letter piece~
+a piece of mail~
+A piece of mail has been left behind.~
+~
+16 0 0 ao 0
+0 0 0 0
+10 100 100
+0.010000 30 10000 0
+#19
+canvas mail bag~
+a mail bag~
+A canvas mail bag marked "C. P. S." is slumped over onto the floor.~
+~
+15 0 0 a 0
+0 0 0 0
+31 100 100
+1.000000 0 1 0
 #66
 bouquet~
 Lovely's Valentine's Bouquet from Fishbone~
