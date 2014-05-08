@@ -1881,7 +1881,6 @@ damage(struct creature *ch, struct creature *victim,
             check_attack(ch, victim);
         }
     }
-    update_pos(victim);
 
     /*
      * skill_message sends a message from the messages file in lib/misc.
@@ -1989,6 +1988,8 @@ damage(struct creature *ch, struct creature *victim,
             }
         }
     }
+
+    update_pos(victim);
 
     //psychic feedback - now that we've taken damage we return some of it
     if (ch && (af = affected_by_spell(victim, SPELL_PSYCHIC_FEEDBACK)) &&
