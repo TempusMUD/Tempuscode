@@ -206,19 +206,20 @@ ACMD(do_crossface)
         // Wow!  vict really took one hell of a shot.  Stun that bastard!
         if (diff >= 70 && !GET_EQ(vict, wear_num)) {
             prev_pos = GET_POSITION(vict);
-            damage(ch, vict, weap, dam, SKILL_CROSSFACE, wear_num);
-            if (prev_pos != POS_STUNNED && !is_dead(vict) && !is_dead(ch)) {
-                if (is_fighting(ch)
-                    && (!IS_NPC(vict) || !NPC2_FLAGGED(vict, NPC2_NOSTUN))) {
-                    act("Your crossface has knocked $N senseless!",
-                        true, ch, NULL, vict, TO_CHAR);
-                    act("$n stuns $N with a vicious crossface!",
-                        true, ch, NULL, vict, TO_NOTVICT);
-                    act("Your jaw cracks as $n whips $s gun across your face.\r"
-                        "Your vision fades...", true, ch, NULL, vict, TO_VICT);
-                    remove_combat(ch, vict);
-                    remove_all_combat(vict);
-                    GET_POSITION(vict) = POS_STUNNED;
+            if (damage(ch, vict, weap, dam, SKILL_CROSSFACE, wear_num)) {
+                if (prev_pos != POS_STUNNED && !is_dead(vict) && !is_dead(ch)) {
+                    if (is_fighting(ch)
+                        && (!IS_NPC(vict) || !NPC2_FLAGGED(vict, NPC2_NOSTUN))) {
+                        act("Your crossface has knocked $N senseless!",
+                            true, ch, NULL, vict, TO_CHAR);
+                        act("$n stuns $N with a vicious crossface!",
+                            true, ch, NULL, vict, TO_NOTVICT);
+                        act("Your jaw cracks as $n whips $s gun across your face.\r"
+                            "Your vision fades...", true, ch, NULL, vict, TO_VICT);
+                        remove_combat(ch, vict);
+                        remove_all_combat(vict);
+                        GET_POSITION(vict) = POS_STUNNED;
+                    }
                 }
             }
         }
@@ -226,46 +227,48 @@ ACMD(do_crossface)
         else if (diff >= 55) {
             dam = (int)(dam * 0.75);
             prev_pos = GET_POSITION(vict);
-            damage(ch, vict, weap, dam, SKILL_CROSSFACE, wear_num);
-            if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
-                && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
-                GET_POSITION(vict) = POS_RESTING;
-                act("Your crossface has knocked $N on $S back!",
-                    true, ch, NULL, vict, TO_CHAR);
-                act("$n's nasty crossface just knocked $N on $S back!",
-                    true, ch, NULL, vict, TO_NOTVICT);
-                act("Your jaw cracks as $n whips $s gun across your face.\n"
-                    "You stagger and fall to the ground!",
-                    true, ch, NULL, vict, TO_VICT);
+            if (damage(ch, vict, weap, dam, SKILL_CROSSFACE, wear_num)) {
+                if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
+                    && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
+                    GET_POSITION(vict) = POS_RESTING;
+                    act("Your crossface has knocked $N on $S back!",
+                        true, ch, NULL, vict, TO_CHAR);
+                    act("$n's nasty crossface just knocked $N on $S back!",
+                        true, ch, NULL, vict, TO_NOTVICT);
+                    act("Your jaw cracks as $n whips $s gun across your face.\n"
+                        "You stagger and fall to the ground!",
+                        true, ch, NULL, vict, TO_VICT);
+                }
             }
         }
         // vict pretty much caught a grazing blow, knock off some eq
         else if (diff >= 20 && !is_arena_combat(ch, vict)) {
             struct obj_data *wear, *scraps;
 
-            damage(ch, vict, weap, dam / 2, SKILL_CROSSFACE, wear_num);
-            wear = GET_EQ(vict, wear_num);
-            if (wear && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
-                act("Your crossface has knocked $N's $p from $S head!",
-                    true, ch, wear, vict, TO_CHAR);
-                act("$n's nasty crossface just knocked $p from $N's head!",
-                    true, ch, wear, vict, TO_NOTVICT);
-                act("Your jaw cracks as $n whips $s gun across your face.\n"
-                    "$p flies off your head and lands a short distance away.", true, ch, wear, vict, TO_VICT);
+            if (damage(ch, vict, weap, dam / 2, SKILL_CROSSFACE, wear_num)) {
+                wear = GET_EQ(vict, wear_num);
+                if (wear && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
+                    act("Your crossface has knocked $N's $p from $S head!",
+                        true, ch, wear, vict, TO_CHAR);
+                    act("$n's nasty crossface just knocked $p from $N's head!",
+                        true, ch, wear, vict, TO_NOTVICT);
+                    act("Your jaw cracks as $n whips $s gun across your face.\n"
+                        "$p flies off your head and lands a short distance away.", true, ch, wear, vict, TO_VICT);
 
-                scraps = damage_eq(vict, wear, dam / 16, TYPE_HIT);
-                if (scraps) {
-                    // Object is destroyed
-                    obj_from_char(scraps);
-                    obj_to_room(scraps, vict->in_room);
-                } else if (GET_EQ(vict, wear_num)) {
-                    // Object is still being worn (not broken)
-                    obj_to_room(unequip_char(vict, wear_num, EQUIP_WORN),
-                        vict->in_room);
-                } else {
-                    // Object was broken and is in inventory
-                    obj_from_char(wear);
-                    obj_to_room(wear, vict->in_room);
+                    scraps = damage_eq(vict, wear, dam / 16, TYPE_HIT);
+                    if (scraps) {
+                        // Object is destroyed
+                        obj_from_char(scraps);
+                        obj_to_room(scraps, vict->in_room);
+                    } else if (GET_EQ(vict, wear_num)) {
+                        // Object is still being worn (not broken)
+                        obj_to_room(unequip_char(vict, wear_num, EQUIP_WORN),
+                            vict->in_room);
+                    } else {
+                        // Object was broken and is in inventory
+                        obj_from_char(wear);
+                        obj_to_room(wear, vict->in_room);
+                    }
                 }
             }
         } else {
