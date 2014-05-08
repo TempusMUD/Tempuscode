@@ -1123,11 +1123,7 @@ ACMD(do_hamstring)
         int level = 0, gen = 0;
         level = GET_LEVEL(ch);
         gen = GET_REMORT_GEN(ch);
-        // For proper behavior, the mob has to be set sitting _before_ we
-        // damage it.  However, we don't want it to deal the extra damage.
-        // Sitting damage is 5/3rds of fighting damage, so we multiply by
-        // 3/5ths to cancel out the multiplier
-        dam = dice(level, 15 + gen / 2) * 3 / 5;
+        dam = dice(level, 15 + gen / 2);
         add_blood_to_room(vict->in_room, 1);
         apply_soil_to_char(vict, GET_EQ(vict, WEAR_LEGS), SOIL_BLOOD,
             WEAR_LEGS);
@@ -1145,12 +1141,12 @@ ACMD(do_hamstring)
             af.owner = GET_IDNUM(ch);
             affect_to_char(vict, &af);
             WAIT_STATE(vict, 3 RL_SEC);
-            GET_POSITION(vict) = POS_RESTING;
-            damage(ch, vict, weap, dam, SKILL_HAMSTRING, WEAR_LEGS);
+            if (damage(ch, vict, weap, dam, SKILL_HAMSTRING, WEAR_LEGS))
+                GET_POSITION(vict) = POS_RESTING;
         } else {
             WAIT_STATE(vict, 2 RL_SEC);
-            GET_POSITION(vict) = POS_SITTING;
-            damage(ch, vict, weap, dam / 2, SKILL_HAMSTRING, WEAR_LEGS);
+            if (damage(ch, vict, weap, dam / 2, SKILL_HAMSTRING, WEAR_LEGS))
+                GET_POSITION(vict) = POS_SITTING;
         }
         if (!is_dead(ch)) {
             gain_skill_prof(ch, SKILL_HAMSTRING);
