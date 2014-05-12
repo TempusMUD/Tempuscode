@@ -315,8 +315,7 @@ maileditor_addattachment(struct editor *editor, char *obj_name)
         return;
     }
 
-    if (IS_OBJ_STAT(obj, ITEM_NORENT) || (IS_BOMB(obj) && obj->contains &&
-        IS_FUSE(obj->contains) && FUSE_STATE(obj->contains))) {
+    if (obj_is_unrentable(obj) || (obj->shared->owner_id)) {
         editor_emit(editor,
             "The postmaster refuses to mail your package.\r\n");
         return;
