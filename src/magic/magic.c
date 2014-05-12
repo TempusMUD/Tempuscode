@@ -753,11 +753,15 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         break;
     case SPELL_FIRE_BREATH:
         audible = true;
+        dam = dice(level, 15) + level;
+        break;
+    case SPELL_DRAGONS_BREATH:
+        audible = true;
         dam = dice(level, 8) + (level / 2);
         break;
     case SPELL_FROST_BREATH:
         audible = true;
-        dam = dice(level, 4) + (level / 2);
+        dam = dice(level, 7) + level;
         ice_room(ch->in_room, level);
         break;
     case SPELL_ACID_BREATH:

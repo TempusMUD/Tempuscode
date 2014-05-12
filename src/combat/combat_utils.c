@@ -844,6 +844,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
     case SPELL_LIGHTNING_BOLT:
     case SPELL_MICROWAVE:
     case SPELL_FIRE_BREATH:
+    case SPELL_DRAGONS_BREATH:
     case SPELL_LIGHTNING_BREATH:
     case SPELL_FIRE_ELEMENTAL:
     case TYPE_ABLAZE:

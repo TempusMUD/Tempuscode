@@ -290,6 +290,7 @@ enum spell {
     SPELL_FROST_BREATHING = 159,
     SPELL_FLAME_OF_FAITH = 160,
     SPELL_ABLAZE = 161, // Only here to allow an ablaze affect
+    SPELL_DRAGONS_BREATH = 162,
 
   /************************** Psionic Triggers ***************/
     SPELL_POWER = 201,	/* Strength                */
@@ -676,7 +677,6 @@ enum spell {
  *  associated with objects (such as SPELL_IDENTIFY used with scrolls of
  *  identify) or non-players (such as NPC-only spells).
  */
-
     SPELL_FIRE_BREATH = 702,
     SPELL_GAS_BREATH = 703,
     SPELL_FROST_BREATH = 704,
