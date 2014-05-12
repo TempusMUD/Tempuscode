@@ -5799,87 +5799,87 @@ ACMD(do_show)
 ACMD(do_set)
 {
     static struct set_struct fields[] = {
-        {"brief", LVL_IMMORT, PC, BINARY, "WizardFull"},
+        {"brief", LVL_IMMORT, PC, BINARY, "WizardFull"},        /* 0 */
         {"invstart", LVL_IMMORT, PC, BINARY, "WizardFull"},
         {"title", LVL_IMMORT, PC, MISC, "AdminBasic"},
         {"maxhit", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"maxmana", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
-        {"maxmove", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
+        {"maxmove", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},    /* 5 */
         {"hit", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"mana", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"move", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"align", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
-        {"str", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
+        {"str", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},        /* 10 */
         {"stradd", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"int", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"wis", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"dex", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
-        {"con", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
+        {"con", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},        /* 15 */
         {"cha", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"sex", LVL_IMMORT, BOTH, MISC, "WizardFull"},
         {"ac", LVL_IMMORT, BOTH, NUMBER, "Coder"},
         {"gold", LVL_IMMORT, BOTH, NUMBER, "AdminFull"},
-        {"exp", LVL_IMMORT, BOTH, NUMBER, "Coder"},
+        {"exp", LVL_IMMORT, BOTH, NUMBER, "Coder"},             /* 20 */
         {"hitroll", LVL_IMMORT, BOTH, NUMBER, "Coder"},
         {"damroll", LVL_IMMORT, BOTH, NUMBER, "Coder"},
         {"invis", LVL_IMMORT, PC, NUMBER, "WizardFull"},
         {"nohassle", LVL_IMMORT, PC, BINARY, "WizardFull"},
-        {"frozen", LVL_IMMORT, PC, BINARY, "AdminFull"},
+        {"frozen", LVL_IMMORT, PC, BINARY, "AdminFull"},        /* 25 */
         {"nowho", LVL_IMMORT, PC, BINARY, "WizardFull"},
         {"drunk", LVL_IMMORT, BOTH, MISC, "WizardFull"},
         {"hunger", LVL_IMMORT, BOTH, MISC, "WizardFull"},
         {"level", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
-        {"room", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
+        {"room", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},       /* 30 */
         {"roomflag", LVL_IMMORT, PC, BINARY, "WizardFull"},
         {"siteok", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"name", LVL_IMMORT, BOTH, MISC, "AdminFull"},
         {"class", LVL_IMMORT, BOTH, MISC, "WizardFull"},
-        {"remort_class", LVL_IMMORT, BOTH, MISC, "WizardFull"},
+        {"remort_class", LVL_IMMORT, BOTH, MISC, "WizardFull"}, /* 35 */
         {"homeroom", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"nodelete", LVL_IMMORT, PC, BINARY, "WizardFull"},
         {"loadroom", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"race", LVL_IMMORT, BOTH, MISC, "WizardFull"},
-        {"height", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
+        {"height", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},     /* 40 */
         {"weight", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"nosnoop", LVL_ENTITY, PC, BINARY, "WizardAdmin"},
         {"clan", LVL_IMMORT, PC, MISC, "WizardFull"},
         {"leader", LVL_IMMORT, PC, BINARY, "WizardFull"},
-        {"life", LVL_IMMORT, PC, NUMBER, "AdminFull"},
+        {"life", LVL_IMMORT, PC, NUMBER, "AdminFull"},          /* 45 */
         {"debug", LVL_IMMORT, PC, BINARY, "WizardBasic"},
         {"hunting", LVL_IMMORT, NPC, MISC, "Coder"},
         {"fighting", LVL_IMMORT, BOTH, MISC, "Coder"},
         {"mobkills", LVL_IMMORT, PC, NUMBER, "Coder"},
-        {"pkills", LVL_IMMORT, PC, NUMBER, "AdminFull"},
+        {"pkills", LVL_IMMORT, PC, NUMBER, "AdminFull"},        /* 50 */
         {"akills", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"newbiehelper", LVL_ETERNAL, PC, BINARY, "Coder"},
         {"holylight", LVL_IMMORT, PC, BINARY, "Coder"},
         {"notitle", LVL_IMMORT, PC, BINARY, "AdminFull"},
-        {"remortinvis", LVL_IMMORT, PC, NUMBER, "AdminBasic"},
+        {"remortinvis", LVL_IMMORT, PC, NUMBER, "AdminBasic"},  /* 55 */
         {"halted", LVL_IMMORT, PC, BINARY, "WizardFull"},
         {"syslog", LVL_IMMORT, PC, MISC, "WizardFull"},
         {"broken", LVL_IMMORT, PC, NUMBER, "WizardFull"},
         {"totaldamage", LVL_IMMORT, PC, NUMBER, "Coder"},
-        {"olcgod", LVL_IMMORT, PC, BINARY, "OLCAdmin"},
+        {"olcgod", LVL_IMMORT, PC, BINARY, "OLCAdmin"},         /* 60 */
         {"tester", LVL_IMMORT, PC, BINARY, "OlcWorldWrite"},
         {"mortalized", LVL_IMPL, PC, BINARY, "Coder"},
         {"noaffects", LVL_IMMORT, PC, BINARY, "Coder"},
         {"age_adjust", LVL_IMMORT, PC, NUMBER, "Coder"},
-        {"cash", LVL_IMMORT, BOTH, NUMBER, "AdminFull"},
+        {"cash", LVL_IMMORT, BOTH, NUMBER, "AdminFull"},        /* 65 */
         {"generation", LVL_IMMORT, BOTH, NUMBER, "WizardFull"},
         {"path", LVL_LUCIFER, NPC, NUMBER, "Coder"},
         {"nopost", LVL_IMMORT, PC, BINARY, "AdminBasic"},
         {"logging", LVL_IMMORT, PC, BINARY, "WizardAdmin"},
-        {"nopk", LVL_IMMORT, PC, BINARY, "AdminFull"},
+        {"nopk", LVL_IMMORT, PC, BINARY, "AdminFull"},          /* 70 */
         {"soilage", LVL_IMMORT, PC, MISC, "WizardBasic"},
         {"specialization", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"qpallow", LVL_IMMORT, PC, NUMBER, "QuestorAdmin,WizardFull"},
         {"soulless", LVL_IMMORT, BOTH, BINARY, "WizardFull"},
-        {"buried", LVL_IMMORT, PC, BINARY, "AdminFull"},
+        {"buried", LVL_IMMORT, PC, BINARY, "AdminFull"},        /* 75 */
         {"speed", LVL_IMMORT, PC, NUMBER, "Coder"},
         {"badge", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"skill", LVL_IMMORT, PC, MISC, "WizardFull"},
         {"reputation", LVL_IMMORT, PC, NUMBER, "AdminFull"},
-        {"language", LVL_IMMORT, BOTH, MISC, "AdminFull"},
+        {"language", LVL_IMMORT, BOTH, MISC, "AdminFull"},      /* 80 */
         {"hardcore", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"rentcode", LVL_DEMI, PC, MISC, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""}
@@ -6163,7 +6163,6 @@ ACMD(do_set)
         break;
     case 27:
     case 28:
-    case 29:
         if (!strcasecmp(argument, "off")) {
             GET_COND(vict, (l - 27)) = (char)-1;
             sprintf(buf, "%s's %s now off.", GET_NAME(vict), fields[l].cmd);
@@ -6178,7 +6177,7 @@ ACMD(do_set)
             return;
         }
         break;
-    case 30:
+    case 29:
         if ((value > GET_LEVEL(ch) && GET_IDNUM(ch) != 1) || value > LVL_GRIMP) {
             send_to_char(ch, "You can't do that.\r\n");
             return;
@@ -6193,7 +6192,7 @@ ACMD(do_set)
 
         vict->player.level = (int8_t) value;
         break;
-    case 31:
+    case 30:
         if ((room = real_room(value)) == NULL) {
             send_to_char(ch, "No room exists with that number.\r\n");
             return;
@@ -6201,16 +6200,16 @@ ACMD(do_set)
         char_from_room(vict, false);
         char_to_room(vict, room, false);
         break;
-    case 32:
+    case 31:
         SET_OR_REMOVE(PRF_FLAGS(vict), PRF_ROOMFLAGS);
         break;
-    case 33:
+    case 32:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_SITEOK);
         slog("(GC) %s %ssiteok'd %s.", GET_NAME(ch), PLR_FLAGGED(vict,
                 PLR_SITEOK) ? "" : "UN-", GET_NAME(vict));
 
         break;
-    case 34:
+    case 33:
         if (IS_PC(vict)) {
             if (!(is_named_role_member(ch, "AdminFull")
                     && is_valid_name(argument))) {
@@ -6242,20 +6241,20 @@ ACMD(do_set)
             crashsave(vict);
         }
         break;
-    case 35:
+    case 34:
         if ((i = parse_char_class(argument)) == CLASS_UNDEFINED) {
             send_to_char(ch, "'%s' is not a char class.\r\n", argument);
             return;
         }
         GET_CLASS(vict) = i;
         break;
-    case 36:
+    case 35:
         if ((i = parse_char_class(argument)) == CLASS_UNDEFINED) {
             send_to_char(ch, "That is not a char_class.\r\n");
         }
         GET_REMORT_CLASS(vict) = i;
         break;
-    case 37:
+    case 36:
         if (real_room(value) != NULL) {
             GET_HOMEROOM(vict) = value;
             sprintf(buf, "%s will enter at %d.", GET_NAME(vict),
@@ -6263,10 +6262,10 @@ ACMD(do_set)
         } else
             sprintf(buf, "That room does not exist!");
         break;
-    case 38:
+    case 37:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NODELETE);
         break;
-    case 39:
+    case 38:
         if (real_room(value) != NULL) {
             GET_LOADROOM(vict) = value;
             sprintf(buf, "%s will enter the game at %d.", GET_NAME(vict),
@@ -6274,28 +6273,28 @@ ACMD(do_set)
         } else
             sprintf(buf, "That room does not exist!");
         break;
-    case 40:
+    case 39:
         if ((i = parse_race(argument)) == RACE_UNDEFINED) {
             send_to_char(ch, "That is not a race.\r\n");
             return;
         }
         GET_RACE(vict) = i;
         break;
-    case 41:
+    case 40:
         if ((value > 400) && (GET_LEVEL(ch) < LVL_CREATOR)) {
             send_to_char(ch, "That is too tall.\r\n");
             return;
         } else
             GET_HEIGHT(vict) = value;
         break;
-    case 42:
+    case 41:
         if ((value > 800) && (GET_LEVEL(ch) < LVL_CREATOR)) {
             send_to_char(ch, "That is too heavy.\r\n");
             return;
         } else
             GET_WEIGHT(vict) = value;
         break;
-    case 43:
+    case 42:
         SET_OR_REMOVE(PRF_FLAGS(vict), PRF_NOSNOOP);
         if (!is_file && vict->desc->snoop_by) {
             for (GList * x = vict->desc->snoop_by; x; x = x->next) {
@@ -6306,7 +6305,7 @@ ACMD(do_set)
             }
         }
         break;
-    case 44:{
+    case 43:{
             struct clan_data *clan = real_clan(GET_CLAN(ch));
 
             if (is_number(argument) && !atoi(argument)) {
@@ -6324,16 +6323,16 @@ ACMD(do_set)
             }
             break;
         }
-    case 45:
+    case 44:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_CLAN_LEADER);
         break;
-    case 46:
+    case 45:
         GET_LIFE_POINTS(vict) = RANGE(0, 100);
         break;
-    case 47:
+    case 46:
         SET_OR_REMOVE(PRF2_FLAGS(vict), PRF2_DEBUG);
         break;
-    case 48:
+    case 47:
         if (!(vict2 = get_char_vis(ch, argument))) {
             send_to_char(ch, "No such target character around.\r\n");
         } else {
@@ -6342,7 +6341,7 @@ ACMD(do_set)
                 GET_NAME(vict2));
         }
         return;
-    case 49:
+    case 48:
         if (!(vict2 = get_char_vis(ch, argument))) {
             send_to_char(ch, "No such target character around.\r\n");
         } else {
@@ -6351,31 +6350,31 @@ ACMD(do_set)
                 GET_NAME(vict2));
         }
         return;
-    case 50:
+    case 49:
         GET_MOBKILLS(vict) = value;
         break;
-    case 51:
+    case 50:
         GET_PKILLS(vict) = value;
         break;
-    case 52:
+    case 51:
         GET_ARENAKILLS(vict) = value;
         break;
-    case 53:
+    case 52:
         SET_OR_REMOVE(PRF2_FLAGS(vict), PRF2_NEWBIE_HELPER);
         break;
-    case 54:
+    case 53:
         SET_OR_REMOVE(PRF_FLAGS(vict), PRF_HOLYLIGHT);
         break;
-    case 55:
+    case 54:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOTITLE);
         break;
-    case 56:
+    case 55:
         GET_INVIS_LVL(vict) = RANGE(0, GET_LEVEL(vict));
         break;
-    case 57:
+    case 56:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_HALT);
         break;
-    case 58:
+    case 57:
         if (((tp = search_block(argument, logtypes, false)) == -1)) {
             send_to_char(ch,
                 "Usage: syslog { Off | Brief | Normal | Complete }\r\n");
@@ -6388,53 +6387,53 @@ ACMD(do_set)
         send_to_char(ch, "%s's syslog is now %s.\r\n", GET_NAME(vict),
             logtypes[tp]);
         break;
-    case 59:
+    case 58:
         GET_BROKE(vict) = RANGE(0, NUM_COMPS);
         break;
-    case 60:
+    case 59:
         GET_TOT_DAM(vict) = RANGE(0, 1000000000);
         break;
-    case 61:
+    case 60:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_OLCGOD);
         break;
-    case 62:
+    case 61:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_TESTER);
         break;
-    case 63:
+    case 62:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_MORTALIZED);
         break;
-    case 64:
+    case 63:
         SET_OR_REMOVE(PRF2_FLAGS(vict), PRF2_NOAFFECTS);
         break;
-    case 65:
+    case 64:
         vict->player.age_adjust = (int8_t) RANGE(-125, 125);
         break;
-    case 66:
+    case 65:
         GET_CASH(vict) = RANGE(0, 1000000000);
         break;
-    case 67:
+    case 66:
         GET_REMORT_GEN(vict) = RANGE(0, 10);
         break;
-    case 68:
+    case 67:
         if (add_path_to_mob(vict, value)) {
             sprintf(buf, "%s now follows the path titled: %s.",
                 GET_NAME(vict), argument);
         } else
             sprintf(buf, "Could not assign that path to mobile.");
         break;
-    case 69:
+    case 68:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOPOST);
         break;
-    case 70:
+    case 69:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_LOG);
         slog("(GC) Logging %sactivated for %s by %s.",
             PLR_FLAGGED(vict, PLR_LOG) ? "" : "de-",
             GET_NAME(ch), GET_NAME(vict));
         break;
-    case 71:
+    case 70:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOPK);
         break;
-    case 72:
+    case 71:
         arg1 = tmp_getword(&argument);
         arg2 = tmp_getword(&argument);
         if (!*arg1 || !*arg2) {
@@ -6447,7 +6446,7 @@ ACMD(do_set)
         }
         CHAR_SOILAGE(vict, i) = atoi(arg2);
         break;
-    case 73:                   // specialization
+    case 72:                   // specialization
         arg1 = tmp_getword(&argument);
         arg2 = tmp_getword(&argument);
         if (!*arg1 || !*arg2) {
@@ -6470,28 +6469,28 @@ ACMD(do_set)
 
         send_to_char(ch, "No such spec on this person.\r\n");
         return;
-    case 74:
+    case 73:
         // qpoints
         GET_QUEST_ALLOWANCE(vict) = RANGE(0, 100);
         break;
-    case 75:
+    case 74:
         if (IS_NPC(vict)) {
             SET_OR_REMOVE(NPC_FLAGS(vict), NPC_SOULLESS);
         } else {
             SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_SOULLESS);
         }
         break;
-    case 76:
+    case 75:
         if (IS_PC(vict)) {
             SET_OR_REMOVE(PLR2_FLAGS(vict), PLR2_BURIED);
         } else {
             send_to_char(ch, "You can't really bury mobs.");
         }
         break;
-    case 77:                   // Set Speed
+    case 76:                   // Set Speed
         SPEED_OF(vict) = RANGE(0, 100);
         break;
-    case 78:
+    case 77:
         if (!argument || !*argument) {
             send_to_char(ch, "You have to specify the badge.\r\n");
             return;
@@ -6514,16 +6513,16 @@ ACMD(do_set)
 
         break;
 
-    case 79:
+    case 78:
         name = tmp_getquoted(&argument);
         arg1 = tmp_getword(&argument);
         perform_skillset(ch, vict, name, atoi(arg1));
         break;
 
-    case 80:
+    case 79:
         creature_set_reputation(vict, RANGE(0, 1000));
         break;
-    case 81:
+    case 80:
         arg1 = tmp_getword(&argument);
         arg2 = tmp_getword(&argument);
 
@@ -6548,9 +6547,9 @@ ACMD(do_set)
             return;
         }
         break;
-    case 82:
+    case 81:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_HARDCORE); break;
-    case 83:
+    case 82:
         if (is_file) {
             const char *rent_codes[] = {
                 "undefined",
