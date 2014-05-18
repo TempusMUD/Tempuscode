@@ -3084,10 +3084,9 @@ pread_string(FILE * fl, char *str, size_t buf_size, bool comments, const char *e
         buf_size -= line_size;
 
         if (buf_size <= 1) {
-            errlog("fl->strng: string too big (db.c, file_to_string)");
+            errlog("string too big (db.c, pread_string)");
             *buf = '\0';
-            fclose(fl);
-            return (-1);
+            return -1;
         }
         str += line_size;
     }

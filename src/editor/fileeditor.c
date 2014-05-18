@@ -98,6 +98,7 @@ start_editing_file(struct descriptor_data *d, const char *fname)
     if (len > MAX_EDIT_FILESIZE) {
         errlog("Attempt to edit file too large for editor!");
         d_printf(d, "%s is too large. Bug this.\r\n", fname);
+        fclose(inf);
         return;
     }
 
@@ -106,6 +107,7 @@ start_editing_file(struct descriptor_data *d, const char *fname)
     if (!target) {
         errlog("Couldn't allocate memory to edit %s", fname);
         d_send(d, "Internal error #09384\r\n");
+        fclose(inf);
         return;
     }
 
