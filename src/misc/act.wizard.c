@@ -4113,7 +4113,7 @@ show_account(struct creature *ch, char *value)
 }
 
 void
-show_player(struct creature *ch, char *value)
+show_player(struct creature *ch, const char *value)
 {
     struct creature *vict;
     char birth[80];
@@ -4128,7 +4128,7 @@ show_player(struct creature *ch, char *value)
 
     /* added functionality for show player by idnum */
     if (is_number(value) && player_name_by_idnum(atoi(value))) {
-        strcpy_s(value, sizeof(value), player_name_by_idnum(atoi(value)));
+        value = player_name_by_idnum(atoi(value));
     }
     if (!player_name_exists(value)) {
         send_to_char(ch, "There is no such player.\r\n");

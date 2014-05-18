@@ -2375,8 +2375,7 @@ damage(struct creature *ch, struct creature *victim,
                 // If it's arena, log it for complete only
                 // and tag it
                 if (arena) {
-                    strcat_s(logmsg, sizeof(logmsg), " [ARENA]");
-                    qlog(NULL, logmsg, QLOG_COMP, GET_INVIS_LVL(victim), true);
+                    qlog(NULL, tmp_sprintf("%s [ARENA]", logmsg), QLOG_COMP, GET_INVIS_LVL(victim), true);
                 } else {
                     mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", logmsg);
                 }

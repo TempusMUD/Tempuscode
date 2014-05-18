@@ -3235,7 +3235,7 @@ mag_summons(int level __attribute__ ((unused)),
         act(mag_summon_msgs[fmsg], false, ch, NULL, mob, TO_ROOM);
         if (spellnum == SPELL_CLONE) {
             strcpy_s(GET_NAME(mob), sizeof(GET_NAME(mob)), GET_NAME(ch));
-            strcpy_s(mob->player.short_descr, sizeof(mob->player.short_descr), GET_NAME(ch));
+            mob->player.short_descr = strdup(GET_NAME(ch));
         }
     }
     if (handle_corpse) {
