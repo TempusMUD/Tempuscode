@@ -78,10 +78,10 @@ do_olc_xset(struct creature *ch, char *argument)
     if (!*arg1) {
         sprintf(buf, "Valid xset commands:\r\n%s", CCYEL(ch, C_NRM));
         for (i = 0; i < NUM_XSET_COMMANDS; i++) {
-            strcat(buf, olc_xset_keys[i]);
-            strcat(buf, "\r\n");
+            strcat_s(buf, sizeof(buf), olc_xset_keys[i]);
+            strcat_s(buf, sizeof(buf), "\r\n");
         }
-        strcat(buf, CCYEL(ch, C_NRM));
+        strcat_s(buf, sizeof(buf), CCYEL(ch, C_NRM));
         page_string(ch->desc, buf);
         return;
     }

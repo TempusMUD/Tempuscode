@@ -112,7 +112,7 @@ int get_avail_descs(void);
 struct timespec timediff(struct timespec *a, struct timespec *b);
 void flush_queues(struct descriptor_data *d);
 void nonblock(int s);
-int perform_subst(struct descriptor_data *t, char *orig, char *subst);
+char *perform_subst(struct descriptor_data *t, char *orig, const char *subst);
 int perform_alias(struct descriptor_data *d, char *orig);
 void record_usage(void);
 void send_prompt(struct descriptor_data *point);
@@ -718,7 +718,7 @@ accept_new_connection(GIOChannel *listener_io,
         return true;
     }
 
-    int bantype = isbanned(newd->host, buf2);
+    int bantype = isbanned(newd->host, buf2, sizeof(buf2));
 
     /* Log new connections - probably unnecessary, but you may want it */
     mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
@@ -830,10 +830,10 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
 }
 
 void
-enqueue_line_input(struct descriptor_data *d, char *line)
+enqueue_line_input(struct descriptor_data *d, const char *line)
 {
-    bool failed_subst = false;
-
+    d->need_prompt = true;
+    
     if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
         for (GList * x = d->snoop_by; x; x = x->next) {
             struct descriptor_data *td = x->data;
@@ -841,13 +841,18 @@ enqueue_line_input(struct descriptor_data *d, char *line)
         }
     }
 
-    if (*line == '!' && STATE(d) != CXN_PW_VERIFY) {
-        strcpy(line, d->last_input);
+    if (*line == '!' && IS_PLAYING(d)) {
+        line = d->last_input;
     } else if (*line == '^') {
-        if (!(failed_subst = perform_subst(d, d->last_input, line)))
-            strcpy(d->last_input, line);
-    } else
-        strcpy(d->last_input, line);
+        char *sub = perform_subst(d, d->last_input, line);
+        if (sub == NULL) {
+            return;
+        }
+        strcpy_s(d->last_input, sizeof(d->last_input), sub);
+        line = d->last_input;
+    } else {
+        strcpy_s(d->last_input, sizeof(d->last_input), line);
+    }
 
     if (d->repeat_cmd_count > 300 &&
         (!d->creature || GET_LEVEL(d->creature) < LVL_ETERNAL)) {
@@ -862,24 +867,21 @@ enqueue_line_input(struct descriptor_data *d, char *line)
         }
     }
 
-    if (!failed_subst) {
-        d->need_prompt = true;
-        if (IS_PLAYING(d) && !strncmp("revo", line, 4)) {
-            // We want all commands in the queue to be dumped immediately
-            // This has to be here so we can bypass the normal order of
-            // commands
-            if (g_queue_is_empty(d->input)) {
-                d_printf(d,
-                             "You don't have any commands to revoke!\r\n");
-            } else {
-                g_queue_foreach(d->input, (GFunc)g_free, NULL);
-                g_queue_clear(d->input);
-                d_printf(d, "You reconsider your rash plans.\r\n");
-                WAIT_STATE(d->creature, 1 RL_SEC);
-            }
+    if (IS_PLAYING(d) && !strncmp("revo", line, 4)) {
+        // We want all commands in the queue to be dumped immediately
+        // This has to be here so we can bypass the normal order of
+        // commands
+        if (g_queue_is_empty(d->input)) {
+            d_printf(d,
+                     "You don't have any commands to revoke!\r\n");
         } else {
-            g_queue_push_tail(d->input, strdup(line));
+            g_queue_foreach(d->input, (GFunc)g_free, NULL);
+            g_queue_clear(d->input);
+            d_printf(d, "You reconsider your rash plans.\r\n");
+            WAIT_STATE(d->creature, 1 RL_SEC);
         }
+    } else {
+        g_queue_push_tail(d->input, strdup(line));
     }
 }
 
@@ -977,55 +979,16 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
  * orig is the orig string (i.e. the one being modified.
  * subst contains the substition string, i.e. "^telm^tell"
  */
-int
-perform_subst(struct descriptor_data *t, char *orig, char *subst)
+char *
+perform_subst(struct descriptor_data *t, char *orig, const char *subst)
 {
-    char new_str[MAX_INPUT_LENGTH + 5];
+    char *needle = tmp_strdupt(subst + 1, "^");
 
-    char *first, *second, *strpos;
-
-    /*
-     * first is the position of the beginning of the first string (the one
-     * to be replaced
-     */
-    first = subst + 1;
-
-    /* now find the second '^' */
-    if (!(second = strchr(first, '^'))) {
-        d_send(t, "Invalid substitution.\r\n");
-        return 1;
+    if (strstr(orig, needle) == NULL) {
+        return NULL;
     }
 
-    /* terminate "first" at the position of the '^' and make 'second' point
-     * to the beginning of the second string */
-    *(second++) = '\0';
-
-    /* now, see if the contents of the first string appear in the original */
-    if (!(strpos = strstr(orig, first))) {
-        d_send(t, "Invalid substitution.\r\n");
-        return 1;
-    }
-
-    /* now, we construct the new string for output. */
-
-    /* first, everything in the original, up to the string to be replaced */
-    strncpy(new_str, orig, (strpos - orig));
-    new_str[(strpos - orig)] = '\0';
-
-    /* now, the replacement string */
-    strncat(new_str, second, (MAX_INPUT_LENGTH - strlen(new_str) - 1));
-
-    /* now, if there's anything left in the original after the string to
-     * replaced, copy that too. */
-    if (((strpos - orig) + strlen(first)) < strlen(orig))
-        strncat(new_str, strpos + strlen(first),
-                (MAX_INPUT_LENGTH - strlen(new_str) - 1));
-
-    /* terminate the string in case of an overflow from strncat */
-    new_str[MAX_INPUT_LENGTH - 1] = '\0';
-    strcpy(subst, new_str);
-
-    return 0;
+    return tmp_gsub(orig, needle, subst + strlen(needle) + 2);
 }
 
 void
@@ -1564,11 +1527,6 @@ send_to_clan(const char *messg, int clan)
             }
 }
 
-const char *ACTNULL = "<NULL>";
-
-#define CHECK_NULL(pointer, expression) \
-if ((pointer) == NULL) i = ACTNULL; else i = (expression);
-
 /* higher-level communication: the act() function */
 char *
 act_escape(const char *str)
@@ -1637,6 +1595,11 @@ make_act_str(const char *orig,
              void *vict_obj,
              struct creature *to)
 {
+    const char *ACTNULL = "<NULL>";
+
+#define CHECK_NULL(pointer, expression)                     \
+    if ((pointer) == NULL) i = ACTNULL; else i = (expression);
+
     const char *s = orig;
     const char *i = NULL;
     char *first_printed_char = NULL;
@@ -1802,6 +1765,7 @@ make_act_str(const char *orig,
                 break;
         }
     }
+    
     if (first_printed_char)
         *first_printed_char = toupper(*first_printed_char);
 
@@ -1828,9 +1792,9 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
     make_act_str(orig, lbuf, ch, obj, vict_obj, to);
 
     if (mode == 1) {
-        sprintf(outbuf, "(outside) %s", lbuf);
+        snprintf(outbuf, sizeof(outbuf), "(outside) %s", lbuf);
     } else if (mode == 2) {
-        sprintf(outbuf, "(remote) %s", lbuf);
+        snprintf(outbuf, sizeof(outbuf), "(remote) %s", lbuf);
     } else if (mode == 3) {
         struct room_data *toroom = NULL;
         if (ch != NULL && ch->in_room != NULL) {
@@ -1838,9 +1802,9 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
         } else if (obj != NULL && obj->in_room != NULL) {
             toroom = obj->in_room;
         }
-        sprintf(outbuf, "(%s) %s", (toroom) ? toroom->name : "remote", lbuf);
+        snprintf(outbuf, sizeof(outbuf), "(%s) %s", (toroom) ? toroom->name : "remote", lbuf);
     } else {
-        strcpy(outbuf, lbuf);
+        strcpy_s(outbuf, sizeof(outbuf), lbuf);
     }
 
     d_send(to->desc, outbuf);

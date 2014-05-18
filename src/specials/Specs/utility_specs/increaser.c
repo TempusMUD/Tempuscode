@@ -41,15 +41,15 @@ SPECIAL(increaser)
 
     switch (status) {
     case MODE_MOVE:
-        strcpy(status_desc, "move");
+        strcpy_s(status_desc, sizeof(status_desc), "move");
         amount = 4;
         break;
     case MODE_HITP:
-        strcpy(status_desc, "hit");
+        strcpy_s(status_desc, sizeof(status_desc), "hit");
         amount = 2;
         break;
     case MODE_MANA:
-        strcpy(status_desc, "mana");
+        strcpy_s(status_desc, sizeof(status_desc), "mana");
         amount = 2;
         break;
     }

@@ -32,6 +32,7 @@
 #include "tmpstr.h"
 #include "account.h"
 #include "obj_data.h"
+#include "strutil.h"
 
 void
 do_pre_test(struct creature *ch)

@@ -123,7 +123,7 @@ do_zcmd(struct creature *ch, char *argument)
         argument = one_argument(argument, arg2);
     } else {
         zone = ch->in_room->zone;
-        strcpy(arg2, arg1);
+        strcpy_s(arg2, sizeof(arg2), arg1);
     }
 
     if (is_abbrev(arg2, "list")) {
@@ -1933,7 +1933,7 @@ do_zset_command(struct creature *ch, char *argument)
         argument = one_argument(argument, arg2);
     } else {
         zone = ch->in_room->zone;
-        strcpy(arg2, arg1);
+        strcpy_s(arg2, sizeof(arg2), arg1);
     }
 
     if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
@@ -2558,65 +2558,65 @@ save_zone(struct creature * ch, struct zone_data * zone)
             case 'M':
                 if ((mob = real_mobile_proto(zcmd->arg1))) {
                     if (mob && mob->player.short_descr)
-                        strcpy(comment, mob->player.short_descr);
+                        strcpy_s(comment, sizeof(comment), mob->player.short_descr);
                     else
-                        strcpy(comment, " ");
+                        strcpy_s(comment, sizeof(comment), " ");
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'O':
                 if ((obj = real_object_proto(zcmd->arg1))) {
                     if (obj && obj->name)
-                        strcpy(comment, obj->name);
+                        strcpy_s(comment, sizeof(comment), obj->name);
                     else
-                        strcpy(comment, " ");
+                        strcpy_s(comment, sizeof(comment), " ");
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'E':
             case 'I':
                 if ((obj = real_object_proto(zcmd->arg1))) {
                     if (obj && obj->name)
-                        strcpy(comment, obj->name);
+                        strcpy_s(comment, sizeof(comment), obj->name);
                     else
-                        strcpy(comment, " ");
+                        strcpy_s(comment, sizeof(comment), " ");
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'P':
                 if ((obj = real_object_proto(zcmd->arg1))) {
                     if (obj && obj->name)
-                        strcpy(comment, obj->name);
+                        strcpy_s(comment, sizeof(comment), obj->name);
                     else
-                        strcpy(comment, " ");
+                        strcpy_s(comment, sizeof(comment), " ");
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'V':
                 if ((obj = real_object_proto(zcmd->arg3))
                     && path_vnum_exists(zcmd->arg1)) {
-                    strcpy(comment, path_name_by_vnum(zcmd->arg1));
+                    strcpy_s(comment, sizeof(comment), path_name_by_vnum(zcmd->arg1));
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'W':
                 if ((mob = real_mobile_proto(zcmd->arg3))
                     && path_vnum_exists(zcmd->arg1)) {
-                    strcpy(comment, path_name_by_vnum(zcmd->arg1));
+                    strcpy_s(comment, sizeof(comment), path_name_by_vnum(zcmd->arg1));
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'G':
                 if ((obj = real_object_proto(zcmd->arg1))) {
                     if (obj->name)
-                        strcpy(comment, obj->name);
+                        strcpy_s(comment, sizeof(comment), obj->name);
                     else
-                        strcpy(comment, " ");
+                        strcpy_s(comment, sizeof(comment), " ");
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             default:
-                strcpy(comment, " ---");
+                strcpy_s(comment, sizeof(comment), " ---");
                 break;
             }
 
@@ -2877,7 +2877,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         if (mode_range && (i < startcmd || i > endcmd))
             continue;
 
-        strcpy(buf, "");
+        strcpy_s(buf, sizeof(buf), "");
         switch (zcmd->command) {
         case 'M':
             if (!mode_all && !mode_mob)
@@ -3014,10 +3014,10 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         }
 
         if (strlen(out_buf) + strlen(buf) > MAX_STRING_LENGTH - 128) {
-            strcat(out_buf, "**OVERFLOW**\r\n");
+            strcat_s(out_buf, sizeof(out_buf), "**OVERFLOW**\r\n");
             break;
         } else
-            strcat(out_buf, buf);
+            strcat_s(out_buf, sizeof(out_buf), buf);
     }
 
     page_string(ch->desc, out_buf);

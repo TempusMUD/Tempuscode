@@ -40,6 +40,7 @@
 #include "xml_utils.h"
 #include "obj_data.h"
 #include "specs.h"
+#include "strutil.h"
 #include "hell_hunter_spec.h"
 
 /*   external vars  */

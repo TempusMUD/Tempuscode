@@ -51,7 +51,7 @@ sprintbit(long vektor, const char *names[], char *result)
     *result = '\0';
 
     if (vektor < 0) {
-        strcpy(result, "SPRINTBIT ERROR!");
+        strcpy_s(result, sizeof(result), "SPRINTBIT ERROR!");
         return;
     }
     for (nr = 0; vektor; vektor /= 2) {
@@ -88,7 +88,7 @@ strlist_aref(int idx, const char **names)
 void
 sprinttype(int type, const char *names[], char *result)
 {
-    strcpy(result, strlist_aref(type, names));
+    strcpy_s(result, sizeof(result), strlist_aref(type, names));
 }
 
 const char *

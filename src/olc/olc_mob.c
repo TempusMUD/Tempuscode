@@ -371,15 +371,15 @@ do_mob_mset(struct creature *ch, char *argument)
     }
 
     if (!*argument) {
-        strcpy(buf, "Valid mset commands:\r\n");
-        strcat(buf, CCYEL(ch, C_NRM));
+        strcpy_s(buf, sizeof(buf), "Valid mset commands:\r\n");
+        strcat_s(buf, sizeof(buf), CCYEL(ch, C_NRM));
         i = 0;
         while (*olc_mset_keys[i] != '\n') {
-            strcat(buf, olc_mset_keys[i]);
-            strcat(buf, "\r\n");
+            strcat_s(buf, sizeof(buf), olc_mset_keys[i]);
+            strcat_s(buf, sizeof(buf), "\r\n");
             i++;
         }
-        strcat(buf, CCNRM(ch, C_NRM));
+        strcat_s(buf, sizeof(buf), CCNRM(ch, C_NRM));
         page_string(ch->desc, buf);
         return;
     }
@@ -428,7 +428,7 @@ do_mob_mset(struct creature *ch, char *argument)
             if (arg2[0] == '~')
                 mob_p->player.long_descr = NULL;
             else {
-                strcpy(buf, arg2);
+                strcpy_s(buf, sizeof(buf), arg2);
                 mob_p->player.long_descr = strdup(buf);
             }
             send_to_char(ch, "Mobile long description set.\r\n");

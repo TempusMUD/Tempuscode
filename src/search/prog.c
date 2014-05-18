@@ -344,7 +344,7 @@ prog_set_var(struct prog_env *env, bool local, const char *key, const char *arg)
 
 	if (!var) {
 		CREATE(var, struct prog_var, 1);
-		snprintf(var->key, sizeof(var->key), "%s", key);
+		strcpy_s(var->key, sizeof(var->key), key);
 
         // Sort by key length descending so inexact matches will work
         // properly
@@ -360,7 +360,7 @@ prog_set_var(struct prog_env *env, bool local, const char *key, const char *arg)
         }
 	}
 
-    snprintf(var->value, sizeof(var->value), "%s", key);
+    strcpy_s(var->value, sizeof(var->value), key);
 }
 
 static void
@@ -2037,7 +2037,7 @@ trigger_prog_cmd(void *owner, enum prog_evt_type owner_type, struct creature * c
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
     skip_spaces(&argument);
-	snprintf(evt.args, sizeof(evt.args), "%s", argument);
+	strcpy_s(evt.args, sizeof(evt.args), argument);
 	env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(env);
 
@@ -2048,7 +2048,7 @@ trigger_prog_cmd(void *owner, enum prog_evt_type owner_type, struct creature * c
     }
 
 	evt.phase = PROG_EVT_HANDLE;
-	snprintf(evt.args, sizeof(evt.args), "%s", argument);
+	strcpy_s(evt.args, sizeof(evt.args), argument);
 	handler_env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(handler_env);
 
@@ -2059,7 +2059,7 @@ trigger_prog_cmd(void *owner, enum prog_evt_type owner_type, struct creature * c
     }
 
 	evt.phase = PROG_EVT_AFTER;
-	snprintf(evt.args, sizeof(evt.args), "%s", argument);
+	strcpy_s(evt.args, sizeof(evt.args), argument);
 	prog_start(owner_type, owner, ch, &evt);
 	// note that we don't start executing yet...
 
@@ -2099,7 +2099,7 @@ trigger_prog_spell(void *owner, enum prog_evt_type owner_type, struct creature *
 	evt.subject = ch;
 	evt.object = NULL;			//this should perhaps be updated to hold the target of the spell
 	evt.object_type = PROG_TYPE_NONE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 	env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(env);
 
@@ -2110,7 +2110,7 @@ trigger_prog_spell(void *owner, enum prog_evt_type owner_type, struct creature *
     }
 
 	evt.phase = PROG_EVT_HANDLE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 	handler_env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(handler_env);
 
@@ -2121,7 +2121,7 @@ trigger_prog_spell(void *owner, enum prog_evt_type owner_type, struct creature *
     }
 
 	evt.phase = PROG_EVT_AFTER;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 	prog_start(owner_type, owner, ch, &evt);
 	// note that we don't start executing yet...
 
@@ -2162,7 +2162,7 @@ trigger_prog_move(void *owner, enum prog_evt_type owner_type, struct creature * 
 	evt.subject = ch;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 	env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(env);
 
@@ -2173,7 +2173,7 @@ trigger_prog_move(void *owner, enum prog_evt_type owner_type, struct creature * 
     }
 
 	evt.phase = PROG_EVT_HANDLE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 	handler_env = prog_start(owner_type, owner, ch, &evt);
 	prog_execute(handler_env);
 
@@ -2184,7 +2184,7 @@ trigger_prog_move(void *owner, enum prog_evt_type owner_type, struct creature * 
     }
 
 	evt.phase = PROG_EVT_AFTER;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 	prog_start(owner_type, owner, ch, &evt);
 	// note that we don't start executing yet...  prog_update_pending()
 	// gets called by interpret_command(), after all command processing
@@ -2214,7 +2214,7 @@ trigger_prog_fight(struct creature * ch, struct creature * self)
 	evt.subject = ch;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 
 	env = prog_start(PROG_TYPE_MOBILE, self, ch, &evt);
 	prog_execute(env);
@@ -2244,7 +2244,7 @@ trigger_prog_dying(struct creature *owner, struct creature *killer)
 	evt.subject = killer;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 	env = prog_start(PROG_TYPE_MOBILE, owner, NULL, &evt);
 	prog_execute(env);
 
@@ -2275,7 +2275,7 @@ trigger_prog_death(void *owner, enum prog_evt_type owner_type, struct creature *
 	evt.subject = doomed;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);
 
@@ -2307,7 +2307,7 @@ trigger_prog_give(struct creature *ch, struct creature * self, struct obj_data *
 	evt.subject = ch;
 	evt.object = obj;
 	evt.object_type = PROG_TYPE_OBJECT;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 
 	env = prog_start(PROG_TYPE_MOBILE, self, ch, &evt);
 	prog_execute(env);
@@ -2328,7 +2328,7 @@ trigger_prog_chat(struct creature *ch, struct creature * self)
     evt.subject = ch;
     evt.object = NULL;
     evt.object_type = PROG_TYPE_NONE;
-    strcpy(evt.args, "");
+    strcpy_s(evt.args, sizeof(evt.args), "");
 
     env = prog_start(PROG_TYPE_MOBILE, self, ch, &evt);
     if (env)
@@ -2353,7 +2353,7 @@ trigger_prog_idle(void *owner, enum prog_evt_type owner_type)
 	evt.subject = NULL;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 
 	// We start an idle mobprog here
 	env = prog_start(owner_type, owner, NULL, &evt);
@@ -2380,7 +2380,7 @@ trigger_prog_combat(void *owner, enum prog_evt_type owner_type)
 	evt.subject = NULL;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 
 	// We start a combat prog here
 	env = prog_start(owner_type, owner, NULL, &evt);
@@ -2405,7 +2405,7 @@ trigger_prog_load(struct creature * owner)
 	evt.subject = owner;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 
 	env = prog_start(PROG_TYPE_MOBILE, owner, NULL, &evt);
 	prog_execute(env);
@@ -2428,7 +2428,7 @@ trigger_prog_tick(void *owner, enum prog_evt_type owner_type)
 	evt.subject = NULL;
 	evt.object = NULL;
 	evt.object_type = PROG_TYPE_NONE;
-	strcpy(evt.args, "");
+	strcpy_s(evt.args, sizeof(evt.args), "");
 
 	env = prog_start(owner_type, owner, NULL, &evt);
 	prog_execute(env);

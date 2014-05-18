@@ -43,6 +43,7 @@
 #include "accstr.h"
 #include "xml_utils.h"
 #include "ban.h"
+#include "strutil.h"
 
 GList *ban_list = NULL;
 
@@ -65,19 +66,19 @@ load_banned_entry(xmlNodePtr node)
     for (child = node->children; child; child = child->next) {
         if (xmlMatches(child->name, "site")) {
             text = (char *)xmlNodeGetContent(child);
-            strcpy(ban->site, text);
+            strcpy_s(ban->site, sizeof(ban->site), text);
             free(text);
         } else if (xmlMatches(child->name, "name")) {
             text = (char *)xmlNodeGetContent(child);
-            strcpy(ban->name, text);
+            strcpy_s(ban->name, sizeof(ban->name), text);
             free(text);
         } else if (xmlMatches(child->name, "reason")) {
             text = (char *)xmlNodeGetContent(child);
-            strcpy(ban->reason, text);
+            strcpy_s(ban->reason, sizeof(ban->reason), text);
             free(text);
         } else if (xmlMatches(child->name, "message")) {
             text = (char *)xmlNodeGetContent(child);
-            strcpy(ban->message, text);
+            strcpy_s(ban->message, sizeof(ban->message), text);
             free(text);
         } else if (xmlMatches(child->name, "type")) {
             text = (char *)xmlNodeGetContent(child);
@@ -132,7 +133,7 @@ load_banned(void)
 }
 
 int
-isbanned(char *hostname, char *blocking_hostname)
+isbanned(char *hostname, char *blocking_hostname, size_t buf_size)
 {
     int i = BAN_NOT;
 
@@ -145,7 +146,7 @@ isbanned(char *hostname, char *blocking_hostname)
         struct ban_entry *node = it->data;
         if (!strncmp(hostname, node->site, strlen(node->site))) {
             i = MAX(i, node->type);
-            strcpy(blocking_hostname, node->reason);
+            strcpy_s(blocking_hostname, buf_size, node->reason);
         }
     }
 
@@ -236,11 +237,11 @@ perform_ban(int flag, const char *site, const char *name, const char *reason)
 {
     struct ban_entry *ban;
     CREATE(ban, struct ban_entry, 1);
-    strcpy(ban->site, site);
+    strcpy_s(ban->site, sizeof(ban->site), site);
     ban->type = flag;
     ban->date = time(NULL);
-    strcpy(ban->name, name);
-    strcpy(ban->reason, reason);
+    strcpy_s(ban->name, sizeof(ban->name), name);
+    strcpy_s(ban->reason, sizeof(ban->reason), reason);
     ban_list = g_list_append(ban_list, ban);
     write_ban_list();
 }
@@ -266,7 +267,7 @@ show_bans(struct creature *ch)
         if (node->date) {
             strftime(timestr, 29, "%a %m/%d/%Y", localtime(&node->date));
         } else
-            strcpy(timestr, "Unknown");
+            strcpy_s(timestr, sizeof(timestr), "Unknown");
         acc_sprintf("%c %-15s  %-14s  %-10s  %-30s\r\n",
             toupper(ban_types[node->type][0]), node->site,
             timestr, node->name, node->reason);
@@ -307,7 +308,7 @@ ACMD(do_ban)
         }
     }
 
-    if (isbanned(site, buf)) {
+    if (isbanned(site, buf, sizeof(buf))) {
         send_to_char(ch, "That site is already blocked as '%s'.\r\n", buf);
         return;
     }
@@ -437,7 +438,7 @@ Nasty_Words(const char *words)
         return false;
 
     /* change to lowercase */
-    strcpy(tempword, words);
+    strcpy_s(tempword, sizeof(tempword), words);
     for (i = 0; tempword[i]; i++)
         tempword[i] = tolower(tempword[i]);
 

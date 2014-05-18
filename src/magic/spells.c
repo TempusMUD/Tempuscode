@@ -817,7 +817,7 @@ ASPELL(spell_locate_object)
     char *read_pt = locate_buf;
     char *token = tmp_getword(&read_pt);
     while (*token && term_count <= MAX_LOCATE_TERMS) {
-        strcpy(terms[term_count], token);
+        strcpy_s(terms[term_count], sizeof(terms[term_count]), token);
         term_count++;
         token = tmp_getword(&read_pt);
     }
@@ -911,7 +911,7 @@ ASPELL(spell_locate_object)
         if (strlen(which_str) + strlen(buf3) > MAX_STRING_LENGTH - 64)
             break;
 
-        strcat(which_str, buf3);
+        strcat_s(which_str, sizeof(which_str), buf3);
     }
 
     if (j == level / 2 && k == level / 4)
@@ -919,8 +919,8 @@ ASPELL(spell_locate_object)
 
     else {
         if (*buf2 && strlen(buf) + strlen(buf2) < MAX_STRING_LENGTH - 1) {
-            strcat(buf, "-----------\r\n");
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), "-----------\r\n");
+            strcat_s(buf, sizeof(buf), buf2);
         }
 
         page_string(ch->desc, buf);
@@ -1457,8 +1457,8 @@ ASPELL(spell_enchant_weapon)
 
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
             sprintf(buf, " imm %senchant", GET_NAME(ch));
-            strcpy(buf2, obj->aliases);
-            strcat(buf2, buf);
+            strcpy_s(buf2, sizeof(buf2), obj->aliases);
+            strcat_s(buf2, sizeof(buf2), buf);
             obj->aliases = strdup(buf2);
             mudlog(GET_LEVEL(ch), CMP, true,
                 "ENCHANT: %s by %s.", obj->name, GET_NAME(ch));
@@ -1520,8 +1520,8 @@ ASPELL(spell_enchant_armor)
 
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
             sprintf(buf, " imm %senchant", GET_NAME(ch));
-            strcpy(buf2, obj->aliases);
-            strcat(buf2, buf);
+            strcpy_s(buf2, sizeof(buf2), obj->aliases);
+            strcat_s(buf2, sizeof(buf2), buf);
             obj->aliases = strdup(buf2);
             mudlog(GET_LEVEL(ch), CMP, true,
                 "ENCHANT: %s by %s.", obj->name, GET_NAME(ch));
@@ -1613,8 +1613,8 @@ ASPELL(spell_greater_enchant)
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
         sprintf(buf, " imm %senchant", GET_NAME(ch));
-        strcpy(buf2, obj->aliases);
-        strcat(buf2, buf);
+        strcpy_s(buf2, sizeof(buf2), obj->aliases);
+        strcat_s(buf2, sizeof(buf2), buf);
         obj->aliases = strdup(buf2);
         mudlog(GET_LEVEL(ch), CMP, true,
             "ENCHANT: %s by %s.", obj->name, GET_NAME(ch));
@@ -1940,9 +1940,9 @@ ASPELL(spell_knock)
     }
 
     if (!knock_door->keyword)
-        strcpy(dname, "door");
+        strcpy_s(dname, sizeof(dname), "door");
     else
-        strcpy(dname, fname(knock_door->keyword));
+        strcpy_s(dname, sizeof(dname), fname(knock_door->keyword));
 
     if (!IS_SET(knock_door->exit_info, EX_ISDOOR)) {
         send_to_char(ch, "That ain't knockable!\r\n");
@@ -2644,8 +2644,8 @@ ASPELL(spell_animate_dead)
     sprintf(buf2, "%s zombie animated", obj->aliases);
     zombie->player.name = strdup(buf2);
     zombie->player.short_descr = strdup(obj->name);
-    strcpy(buf, obj->name);
-    strcat(buf, " is standing here.");
+    strcpy_s(buf, sizeof(buf), obj->name);
+    strcat_s(buf, sizeof(buf), " is standing here.");
     CAP(buf);
     zombie->player.long_descr = strdup(buf);
     zombie->player.description = NULL;

@@ -547,7 +547,7 @@ smart_mobile_move(struct creature *ch, int dir)
             if (IS_SET(EXIT(ch, dir)->exit_info, EX_SPECIAL))   // can't open here
                 return 0;
             if (EXIT(ch, dir)->keyword)
-                strcpy(doorbuf, fname(EXIT(ch, dir)->keyword));
+                strcpy_s(doorbuf, sizeof(doorbuf), fname(EXIT(ch, dir)->keyword));
             else
                 sprintf(doorbuf, "door %s", dirs[dir]);
 

@@ -508,15 +508,15 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
     bool metric = USE_METRIC(ch);
 
     if (!*argument) {
-        strcpy(buf, "Valid oset commands:\r\n");
-        strcat(buf, CCYEL(ch, C_NRM));
+        strcpy_s(buf, sizeof(buf), "Valid oset commands:\r\n");
+        strcat_s(buf, sizeof(buf), CCYEL(ch, C_NRM));
         i = 0;
         while (*olc_oset_keys[i] != '\n') {
-            strcat(buf, olc_oset_keys[i]);
-            strcat(buf, "\r\n");
+            strcat_s(buf, sizeof(buf), olc_oset_keys[i]);
+            strcat_s(buf, sizeof(buf), "\r\n");
             i++;
         }
-        strcat(buf, CCNRM(ch, C_NRM));
+        strcat_s(buf, sizeof(buf), CCNRM(ch, C_NRM));
         page_string(ch->desc, buf);
         return;
     }

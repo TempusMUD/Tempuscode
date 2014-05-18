@@ -187,7 +187,7 @@ void boot_voices(void);
 void load_auctions(void);
 
 void reset_zone(struct zone_data *zone);
-int file_to_string(const char *name, char *buf);
+int file_to_string(const char *name, char *buf, size_t buf_size);
 int file_to_string_alloc(const char *name, char **buf);
 void check_start_rooms(void);
 void renum_world(void);
@@ -744,7 +744,7 @@ discrete_load(FILE * fl, int mode)
          * no end-of-record marker :(
          */
         if (mode != DB_BOOT_OBJ || nr < 0)
-            if (!get_line(fl, line)) {
+            if (!get_line(fl, line, sizeof(line))) {
                 fprintf(stderr, "Format error after %s #%d\n", modes[mode],
                     nr);
                 safe_exit(1);
@@ -770,7 +770,7 @@ discrete_load(FILE * fl, int mode)
                     parse_mobile(fl, nr);
                     break;
                 case DB_BOOT_OBJ:
-                    strcpy(line, parse_object(fl, nr));
+                    strcpy_s(line, sizeof(line), parse_object(fl, nr));
                     break;
                 }
         } else {
@@ -835,7 +835,7 @@ parse_room(FILE * fl, int vnum_nr)
     room->description = fread_string(fl, buf2);
     room->sounds = NULL;
 
-    if (!get_line(fl, line)
+    if (!get_line(fl, line, sizeof(line))
         || sscanf(line, " %d %s %d ", t, flags, &t[2]) != 3) {
         fprintf(stderr, "Format error in room #%d\n", vnum_nr);
         safe_exit(1);
@@ -855,7 +855,7 @@ parse_room(FILE * fl, int vnum_nr)
     sprintf(buf, "Format error in room #%d (expecting D/E/S)", vnum_nr);
 
     while (true) {
-        if (!get_line(fl, line)) {
+        if (!get_line(fl, line, sizeof(line))) {
             fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, buf);
             safe_exit(1);
         }
@@ -899,7 +899,7 @@ parse_room(FILE * fl, int vnum_nr)
             room->sounds = fread_string(fl, buf2);
             break;
         case 'F':
-            if (!get_line(fl, line)
+            if (!get_line(fl, line, sizeof(line))
                 || sscanf(line, "%d %d %d", t, t + 1, t + 2) != 3) {
                 fprintf(stderr, "Flow field incorrect in room #%d.\n",
                     vnum_nr);
@@ -936,7 +936,7 @@ parse_room(FILE * fl, int vnum_nr)
             new_search->to_room = fread_string(fl, buf2);
             new_search->to_remote = fread_string(fl, buf2);
 
-            if (!get_line(fl, line)) {
+            if (!get_line(fl, line, sizeof(line))) {
                 fprintf(stderr, "Search error in room #%d.", vnum_nr);
                 safe_exit(1);
             }
@@ -1062,7 +1062,7 @@ setup_dir(FILE * fl, struct room_data *room, int dir)
     room->dir_option[dir]->general_description = fread_string(fl, buf2);
     room->dir_option[dir]->keyword = fread_string(fl, buf2);
 
-    if (!get_line(fl, line)) {
+    if (!get_line(fl, line, sizeof(line))) {
         fprintf(stderr, "Format error, %s\n", buf2);
         safe_exit(1);
     }
@@ -1535,7 +1535,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->real_abils.con = 11;
     mobile->real_abils.cha = 11;
 
-    get_line(mob_f, line);
+    get_line(mob_f, line, sizeof(line));
     if (sscanf(line, " %d %d %d %dd%d+%d %dd%d+%d ",
             t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6, t + 7, t + 8) != 9) {
         fprintf(stderr, "Format error in mob #%d, first line after S flag\n"
@@ -1571,7 +1571,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->mob_specials.shared->kills = 0;
     mobile->mob_specials.shared->loaded = 0;
 
-    get_line(mob_f, line);
+    get_line(mob_f, line, sizeof(line));
     if (sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3) == 4) {
         mobile->player.char_class = t[3];
         mobile->player.race = t[2];
@@ -1582,7 +1582,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     GET_GOLD(mobile) = t[0];
     GET_EXP(mobile) = t[1];
 
-    get_line(mob_f, line);
+    get_line(mob_f, line, sizeof(line));
     if (sscanf(line, " %d %d %d %d ", t, t + 1, t + 2, t + 3) == 4)
         mobile->mob_specials.shared->attack_type = t[3];
     else
@@ -1781,7 +1781,7 @@ parse_enhanced_mob(FILE * mob_f, struct creature *mobile, int nr)
 
     parse_simple_mob(mob_f, mobile, nr);
 
-    while (get_line(mob_f, line)) {
+    while (get_line(mob_f, line, sizeof(line))) {
         if (!strcmp(line, "SpecParam:")) {  /* multi-line specparam */
             NPC_SHARED(mobile)->func_param = fread_string(mob_f, buf2);
         } else if (!strcmp(line, "LoadParam:")) {   /* multi-line load param */
@@ -1843,7 +1843,7 @@ parse_mobile(FILE * mob_f, int nr)
     mobile->player.title = NULL;
 
     /* *** Numeric data *** */
-    get_line(mob_f, line);
+    get_line(mob_f, line, sizeof(line));
     sscanf(line, "%s %s %s %s %s %d %c", f1, f2, f3, f4, f5, t + 5, &letter);
     NPC_FLAGS(mobile) = asciiflag_conv(f1);
     NPC2_FLAGS(mobile) = asciiflag_conv(f2);
@@ -1870,7 +1870,7 @@ parse_mobile(FILE * mob_f, int nr)
 
 /*      load reply structors till 'S' incountered */
     do {
-        get_line(mob_f, line);
+        get_line(mob_f, line, sizeof(line));
         switch (line[0]) {
         case 'R':              /* reply text - no longer used */
             free(fread_string(mob_f, buf2));
@@ -1940,7 +1940,7 @@ parse_object(FILE * obj_f, int nr)
     obj->action_desc = fread_string(obj_f, buf2);
 
     /* *** numeric data *** */
-    if (!get_line(obj_f, line)) {
+    if (!get_line(obj_f, line, sizeof(line))) {
         fprintf(stderr, "Unable to read first numeric line for object %d.\n",
             nr);
         safe_exit(1);
@@ -1968,7 +1968,7 @@ parse_object(FILE * obj_f, int nr)
         safe_exit(1);
     }
 
-    if (!get_line(obj_f, line) ||
+    if (!get_line(obj_f, line, sizeof(line)) ||
         (retval = sscanf(line, "%d %d %d %d", t, t + 1, t + 2, t + 3)) != 4) {
         fprintf(stderr,
             "Format error in second numeric line (expecting 4 args, got %d), %s\n",
@@ -1980,7 +1980,7 @@ parse_object(FILE * obj_f, int nr)
     obj->obj_flags.value[2] = t[2];
     obj->obj_flags.value[3] = t[3];
 
-    if (!get_line(obj_f, line) ||
+    if (!get_line(obj_f, line, sizeof(line)) ||
         (retval = sscanf(line, "%d %d %d", t, t + 1, t + 2)) != 3) {
         fprintf(stderr,
             "Format error in third numeric line (expecting 3 args, got %d), %s\n",
@@ -1993,7 +1993,7 @@ parse_object(FILE * obj_f, int nr)
 
     t[3] = 0;
     float f;
-    if (!get_line(obj_f, line) ||
+    if (!get_line(obj_f, line, sizeof(line)) ||
         (retval = sscanf(line, "%f %d %d %d", &f, t + 1, t + 2, t + 3)) < 3) {
         fprintf(stderr,
             "Format error in fourth numeric line (expecting 3 or 4 args, got %d), %s\n",
@@ -2024,11 +2024,11 @@ parse_object(FILE * obj_f, int nr)
     obj->obj_flags.bitvector[1] = 0;
     obj->obj_flags.bitvector[2] = 0;
 
-    strcat(buf2, ", after numeric constants (expecting E/A/#xxx)");
+    strcat_s(buf2, sizeof(buf2), ", after numeric constants (expecting E/A/#xxx)");
     j = 0;
 
     while (true) {
-        if (!get_line(obj_f, line)) {
+        if (!get_line(obj_f, line, sizeof(line))) {
             fprintf(stderr, "Format error in %s\n", buf2);
             safe_exit(1);
         }
@@ -2046,7 +2046,7 @@ parse_object(FILE * obj_f, int nr)
                     MAX_OBJ_AFFECT, buf2);
                 safe_exit(1);
             }
-            get_line(obj_f, line);
+            get_line(obj_f, line, sizeof(line));
             sscanf(line, " %d %d ", t, t + 1);
             obj->affected[j].location = t[0];
             obj->affected[j].modifier = t[1];
@@ -2056,7 +2056,7 @@ parse_object(FILE * obj_f, int nr)
             sscanf(line + 1, " %ld ", &(obj->shared->owner_id));
             break;
         case 'V':
-            get_line(obj_f, line);
+            get_line(obj_f, line, sizeof(line));
             sscanf(line, " %d %s ", t, f1);
             if (t[0] < 1 || t[0] > 3)
                 break;
@@ -2098,9 +2098,9 @@ load_zones(FILE * fl, char *zonename)
 
     CREATE(new_zone, struct zone_data, 1);
 
-    strcpy(zname, zonename);
+    strcpy_s(zname, sizeof(zname), zonename);
 
-    while (get_line(fl, buf))
+    while (get_line(fl, buf, sizeof(buf)))
         num_of_cmds++;          /* this should be correct within 3 or so */
     rewind(fl);
 
@@ -2109,7 +2109,7 @@ load_zones(FILE * fl, char *zonename)
         safe_exit(0);
     }
 
-    line_num += get_line(fl, buf);
+    line_num += get_line(fl, buf, sizeof(buf));
 
     if (sscanf(buf, "#%d", &new_zone->number) != 1) {
         fprintf(stderr, "Format error in %s, line %d\n", zname, line_num);
@@ -2117,28 +2117,28 @@ load_zones(FILE * fl, char *zonename)
     }
     sprintf(buf2, "beginning of zone #%d", new_zone->number);
 
-    line_num += get_line(fl, buf);
+    line_num += get_line(fl, buf, sizeof(buf));
     if ((ptr = strchr(buf, '~')) != NULL)   /* take off the '~' if it's there */
         *ptr = '\0';
 
     new_zone->name = strdup(buf);
 
-    line_num += get_line(fl, buf);
+    line_num += get_line(fl, buf, sizeof(buf));
     if (!strncmp(buf, "C ", 2)) {
         new_zone->owner_idnum = atoi(buf + 2);
-        line_num += get_line(fl, buf);
+        line_num += get_line(fl, buf, sizeof(buf));
     } else
         new_zone->owner_idnum = -1;
 
     if (!strncmp(buf, "C2 ", 3)) {
         new_zone->co_owner_idnum = atoi(buf + 3);
-        line_num += get_line(fl, buf);
+        line_num += get_line(fl, buf, sizeof(buf));
     } else
         new_zone->co_owner_idnum = -1;
 
     if (!strncmp(buf, "RP ", 3)) {
         new_zone->respawn_pt = atoi(buf + 3);
-        line_num += get_line(fl, buf);
+        line_num += get_line(fl, buf, sizeof(buf));
     } else
         new_zone->respawn_pt = 0;
 
@@ -2169,7 +2169,7 @@ load_zones(FILE * fl, char *zonename)
         else
             break;
 
-        line_num += get_line(fl, buf);
+        line_num += get_line(fl, buf, sizeof(buf));
     }
 
     int result = sscanf(buf, " %d %d %d %d %d %s %d %d %d %d", &new_zone->top,
@@ -2207,7 +2207,7 @@ load_zones(FILE * fl, char *zonename)
     }
 
     while (true) {
-        if ((tmp = get_line(fl, buf)) == 0) {
+        if ((tmp = get_line(fl, buf, sizeof(buf))) == 0) {
             fprintf(stderr, "Format error in %s - premature end of file\n",
                 zname);
             safe_exit(0);
@@ -3053,92 +3053,73 @@ reset_zone(struct zone_data *zone)
 *  funcs of a (more or less) general utility nature                        *
 ********************************************************************** */
 
-/* read and allocate space for a '~'-terminated string from a given file */
-char *
-fread_string(FILE * fl, char *error)
-{
-    char buf[MAX_STRING_LENGTH], tmp[512], *rslt;
-    register char *point;
-    unsigned int length = 0, templength = 0;
-    bool done = false;
-
-    *buf = '\0';
-
-    do {
-        if (!fgets(tmp, 512, fl)) {
-            errlog("fread_string: format error at or near %s\n", error);
-            safe_exit(1);
-        }
-        /* If there is a '~', end the string; else put an "\r\n" over the '\n'. */
-        if ((point = strchr(tmp, '~')) != NULL) {
-            *point = '\0';
-            done = true;
-        } else {
-            point = tmp + strlen(tmp) - 1;
-            *(point++) = '\r';
-            *(point++) = '\n';
-            *point = '\0';
-        }
-
-        templength = strlen(tmp);
-
-        if (length + templength >= MAX_STRING_LENGTH) {
-            errlog("fread_string: string too large (db.c)");
-            safe_exit(1);
-        } else {
-            strcat(buf + length, tmp);
-            length += templength;
-        }
-    } while (!done);
-
-    /* allocate space for the new string and copy it */
-    if (strlen(buf) > 0) {
-        CREATE(rslt, char, length + 1);
-        strcpy(rslt, buf);
-    } else
-        rslt = NULL;
-
-    return rslt;
-}
 
 /* read and copy for a '~'-terminated string from a given file
    copying it into str, returning 1 on success or 0 on failure  */
-int
-pread_string(FILE * fl, char *str, const char *error)
+bool
+pread_string(FILE * fl, char *str, size_t buf_size, bool comments, const char *error)
 {
-    char tmp[512];
-    register char *point;
-    unsigned int length = 0, templength = 0;
-    bool done = false;
-
     *str = '\0';
 
-    do {
-        if (!fgets(tmp, 512, fl)) {
-            return 0;
-        }
-        /* lines that start with # are comments  */
-        if (*tmp == '#')
+    while (fgets(str, buf_size, fl)) {
+        if (comments && *str == '#') {
             continue;
+        }
 
-        /* If there is a '~', end the string; else put an "\r\n" over the '\n'. */
-        if ((point = strchr(tmp, '~')) != NULL) {
+        /* replace trailing newline with crlf */
+        char *c = strchr(str, '\n');
+        if (c) {
+            *c++ = '\r';
+            *c++ = '\n';
+            *c = '\0';
+        }
+
+        char *point = strchr(str, '~');
+        if (point) {
             *point = '\0';
-            done = true;
+            return true;
         }
 
-        templength = strlen(tmp);
+        size_t line_size = strlen(str);
+        buf_size -= line_size;
 
-        if (length + templength >= MAX_STRING_LENGTH) {
-            errlog("pread_string: string too large: %s\n", error);
-            return 0;
-        } else {
-            strcat(str + length, tmp);
-            length += templength;
+        if (buf_size <= 1) {
+            errlog("fl->strng: string too big (db.c, file_to_string)");
+            *buf = '\0';
+            fclose(fl);
+            return (-1);
         }
-    } while (!done);
+        str += line_size;
+    }
 
-    return 1;
+    return false;
+}
+
+/**
+ * fread_string
+ * @param fl The file to read from
+ * @param error The location for error reporting
+ * @return an allocated string or %NULL
+ *
+ * Read and allocate space for a '~'-terminated string from a given
+ * file.  Returns %NULL if the string returned would be empty.
+ **/
+/*  */
+char *
+fread_string(FILE * fl, char *error)
+{
+    char buf[MAX_STRING_LENGTH];
+
+    if (!pread_string(fl, buf, sizeof(buf), false, error)) {
+        errlog("fread_string: format error at or near %s\n", error);
+        safe_exit(1);
+    }
+
+    if (buf[0] == '\0') {
+        return NULL;
+    }
+
+    return strdup(buf);
 }
 
 /* read contets of a text file, alloc space, point buf to it */
@@ -3150,7 +3131,7 @@ file_to_string_alloc(const char *name, char **buf)
     if (*buf)
         free(*buf);
 
-    if (file_to_string(name, temp) < 0) {
+    if (file_to_string(name, temp, sizeof(temp)) < 0) {
         *buf = NULL;
         return -1;
     } else {
@@ -3163,11 +3144,10 @@ file_to_string_alloc(const char *name, char **buf)
 
 /* read contents of a text file, and place in buf */
 int
-file_to_string(const char *name, char *buf)
+file_to_string(const char *name, char *buf, size_t buf_size)
 {
     FILE *fl;
     char tmp[READ_SIZE + 2];
-    size_t buflen = 0;
 
     *buf = '\0';
 
@@ -3175,7 +3155,8 @@ file_to_string(const char *name, char *buf)
         perror(tmp_sprintf("Error reading %s", name));
         return (-1);
     }
-    while (fgets(tmp, READ_SIZE, fl)) {
+    
+    while (fgets(buf, buf_size, fl)) {
         /* replace trailing newline with crlf */
         char *c = strchr(tmp, '\n');
         if (c) {
@@ -3183,18 +3164,16 @@ file_to_string(const char *name, char *buf)
             *c++ = '\n';
             *c = '\0';
         }
+        size_t line_size = strlen(buf);
+        buf_size -= line_size;
 
-        size_t len = strlen(tmp);
-        if (buflen + len + 1 > MAX_STRING_LENGTH) {
+        if (buf_size <= 1) {
             errlog("fl->strng: string too big (db.c, file_to_string)");
             *buf = '\0';
             fclose(fl);
             return (-1);
         }
-
-        strcpy(buf, tmp);
-        buflen += len;
-        buf += len;
+        buf += line_size;
     }
 
     if (!feof(fl)) {

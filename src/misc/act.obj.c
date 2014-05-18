@@ -680,8 +680,8 @@ perform_get_from_container(struct creature * ch,
 
     if (display == true && counter > 0) {
         if (counter == 1) {
-            strcpy(buf, "You get $p from $P.");
-            strcpy(buf2, "$n gets $p from $P.");
+            strcpy_s(buf, sizeof(buf), "You get $p from $P.");
+            strcpy_s(buf2, sizeof(buf2), "$n gets $p from $P.");
         } else {
             sprintf(buf, "You get $p from $P. (x%d)", counter);
             sprintf(buf2, "$n gets $p from $P. (x%d)", counter);
@@ -951,8 +951,8 @@ perform_get_from_room(struct creature * ch,
 
     if (display == true && counter > 0) {
         if (counter == 1) {
-            strcpy(buf, "You get $p.");
-            strcpy(buf2, "$n gets $p.");
+            strcpy_s(buf, sizeof(buf), "You get $p.");
+            strcpy_s(buf2, sizeof(buf2), "$n gets $p.");
         } else {
             sprintf(buf, "You get $p. (x%d)", counter);
             sprintf(buf2, "$n gets $p. (x%d)", counter);
@@ -3483,7 +3483,7 @@ choose_material(struct obj_data *obj)
         if (isname(material_names[i], obj->aliases))
             return (i);
 
-    strcpy(aliases, obj->name);
+    strcpy_s(aliases, sizeof(aliases), obj->name);
 
     ptr = one_argument(aliases, name);
     while (*name) {
@@ -3500,7 +3500,7 @@ choose_material(struct obj_data *obj)
     }
 
     if (obj->line_desc) {
-        strcpy(aliases, obj->line_desc);
+        strcpy_s(aliases, sizeof(aliases), obj->line_desc);
         ptr = aliases;
 
         ptr = one_argument(ptr, name);

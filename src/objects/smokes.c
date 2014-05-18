@@ -384,8 +384,8 @@ ACMD(do_convert)
 
         sprintf(buf, "a pipe made from %s", obj->name);
         obj->name = strdup(buf);
-        strcpy(buf, "pipe ");
-        strcat(buf, obj->aliases);
+        strcpy_s(buf, sizeof(buf), "pipe ");
+        strcat_s(buf, sizeof(buf), obj->aliases);
         obj->aliases = strdup(buf);
 
     }

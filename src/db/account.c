@@ -431,7 +431,7 @@ account_create_char(struct account *account, const char *name)
     }
     ch->player_specials->rentcode = RENT_CREATING;
 
-    set_title(ch, NULL);
+    set_title(ch, "");
 
     ch->player.short_descr = NULL;
     ch->player.long_descr = NULL;

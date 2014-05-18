@@ -174,7 +174,7 @@ perform_net_who(struct creature *ch, const char *arg __attribute__ ((unused)))
     struct descriptor_data *d = NULL;
     int count = 0;
 
-    strcpy(buf, "Visible users of the global net:\r\n");
+    strcpy_s(buf, sizeof(buf), "Visible users of the global net:\r\n");
     for (d = descriptor_list; d; d = d->next) {
         if (STATE(d) != CXN_NETWORK)
             continue;
@@ -221,19 +221,19 @@ perform_net_list(struct creature *ch)
 {
     int i, sortpos;
 
-    strcpy(buf2, "Directory listing for local programs.\r\n\r\n");
+    strcpy_s(buf2, sizeof(buf2), "Directory listing for local programs.\r\n\r\n");
 
     for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
         i = skill_sort_info[sortpos];
         if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
-            strcat(buf2, "**OVERFLOW**\r\n");
+            strcat_s(buf2, sizeof(buf2), "**OVERFLOW**\r\n");
             return;
         }
         if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
             SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
             sprintf(buf, "%-30s [%3d] percent installed.\r\n",
                 spell_to_str(i), GET_SKILL(ch, i));
-            strcat(buf2, buf);
+            strcat_s(buf2, sizeof(buf2), buf);
         }
     }
 

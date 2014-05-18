@@ -14,8 +14,8 @@
 //
 
 struct trans_pair {
-    char pattern[10];
-    char replacement[10];
+    char pattern[15];
+    char replacement[15];
 };
 struct tongue {
     int idnum;

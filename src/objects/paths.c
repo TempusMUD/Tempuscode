@@ -34,6 +34,7 @@
 #include "obj_data.h"
 #include "paths.h"
 #include "accstr.h"
+#include "strutil.h"
 
 const char *PATH_FILE = "etc/paths";
 
@@ -232,7 +233,7 @@ print_path(struct path_head *phead, char *str)
             sprintf(buf, "D%c ", *(dirs[phead->path[i].data]));
             break;
         case PATH_EXIT:
-            strcpy(buf, "X ");
+            strcpy_s(buf, sizeof(buf), "X ");
             break;
         case PATH_CMD:
             cmd = path_command_list;
@@ -255,17 +256,17 @@ print_path(struct path_head *phead, char *str)
         }
 
         if ((ll + strlen(buf)) > 79) {
-            strcat(str, "\n");
+            strcat_s(str, sizeof(str), "\n");
             ll = 0;
         }
         ll += strlen(buf);
-        strcat(str, buf);
+        strcat_s(str, sizeof(str), buf);
     }
 
     if (IS_SET(phead->flags, PATH_REVERSIBLE))
-        strcat(str, "R");
+        strcat_s(str, sizeof(str), "R");
 
-    strcat(str, "\n~\n");
+    strcat_s(str, sizeof(str), "\n~\n");
 }
 
 void
@@ -277,7 +278,7 @@ show_path(struct creature *ch, char *arg)
 
     if (!*arg) {                /* show all paths */
 
-        strcpy(outbuf, "Full path listing:\r\n");
+        strcpy_s(outbuf, sizeof(outbuf), "Full path listing:\r\n");
 
         for (path_head = first_path; path_head;
             path_head = (struct path_head *)path_head->next, i++) {
@@ -288,7 +289,7 @@ show_path(struct creature *ch, char *arg)
                     owner) ? player_name_by_idnum(path_head->owner) : "NULL",
                 path_head->wait_time, path_head->flags, path_head->length,
                 path_head->find_first_step_calls);
-            strcat(outbuf, buf);
+            strcat_s(outbuf, sizeof(outbuf), buf);
         }
     } else if (!(path_head = real_path(arg)))
         sprintf(outbuf, "No such path, '%s'.\r\n", arg);
@@ -298,9 +299,9 @@ show_path(struct creature *ch, char *arg)
            path_head->name, path_head->wait_time,
            path_head->flags, path_head->length);
          */
-        strcpy(outbuf, "VNUM NAME OWNER <wait> <length> list...\r\n");
+        strcpy_s(outbuf, sizeof(outbuf), "VNUM NAME OWNER <wait> <length> list...\r\n");
         print_path(path_head, buf);
-        strcat(outbuf, buf);
+        strcat_s(outbuf, sizeof(outbuf), buf);
     }
 
     page_string(ch->desc, outbuf);
@@ -337,7 +338,7 @@ add_path(char *spath, int save)
         free(phead);
         return 2;
     }
-    snprintf(phead->name, 64, "%s", buf);
+    strcpy_s(phead->name, sizeof(phead->name), buf);
 
     /* Get the path owner */
     spath = one_argument(spath, buf);
@@ -494,8 +495,8 @@ add_path(char *spath, int save)
                 }
                 buf[strlen(buf) - 1] = '\0';
                 CREATE(ncmd, struct path_link, 1);
-                CREATE(ncmd->object, char, strlen(buf) - 1);
-                strcpy((char *)ncmd->object, buf + 2);
+                ncmd->object = strdup(buf + 2);
+
                 if (path_command_length == 0) {
                     path_command_list = ncmd;
                     path_command_length++;
@@ -583,7 +584,7 @@ load_paths(void)
     }
     path_command_length = 0;
 
-    while ((pread_string(pathfile, buf, "paths."))) {
+    while (pread_string(pathfile, buf, sizeof(buf), true, "paths.")) {
         line++;
         for (char *tc = strchr(buf, '\n'); tc; tc = strchr(tc, '\n'))
             *tc = ' ';

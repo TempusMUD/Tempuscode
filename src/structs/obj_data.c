@@ -27,6 +27,7 @@
 #include "xml_utils.h"
 #include "obj_data.h"
 #include "spells.h"
+#include "strutil.h"
 
 extern int no_plrtext;
 
@@ -800,7 +801,7 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
     struct tmp_obj_affect *af_head = NULL;
     static char indent[512] = "  ";
     fprintf(ouf, "%s<object vnum=\"%d\">\n", indent, obj->shared->vnum);
-    strcat(indent, "  ");
+    strcat_s(indent, sizeof(indent), "  ");
 
     struct obj_data *proto = obj->shared->proto;
 

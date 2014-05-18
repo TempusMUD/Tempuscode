@@ -150,14 +150,14 @@ editor_finish(struct editor *editor, bool save)
 
         length = editor_buffer_size(editor);
         text = (char *)malloc(length + 1);
-        strcpy(text, "");
+        strcpy_s(text, length + 1, "");
         write_pt = text;
         for (GList *it = editor->lines;it;it = it->next) {
             GString *line = it->data;
 
-            strcpy(write_pt, line->str);
+            strcpy_s(write_pt, length - (write_pt - text), line->str);
             write_pt += line->len;
-            strcpy(write_pt, "\r\n");
+            strcpy_s(write_pt, length - (write_pt - text), "\r\n");
             write_pt += 2;
         }
 

@@ -262,9 +262,9 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
                     IS_SET(room->dir_option[dir]->exit_info,
                         EX_PICKPROOF) ? 10 : 1)) {
                 if (room->dir_option[dir]->keyword)
-                    strcpy(dname, room->dir_option[dir]->keyword);
+                    strcpy_s(dname, sizeof(dname), room->dir_option[dir]->keyword);
                 else
-                    strcpy(dname, "door");
+                    strcpy_s(dname, sizeof(dname), "door");
 
                 if (room->dir_option[dir]->to_room &&
                     room->dir_option[dir]->to_room->dir_option[rev_dir[dir]] &&
@@ -287,69 +287,69 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
         }
 
         if (power <= bomb_power * 0.10)
-            strcpy(buf, "You hear an explosion");
+            strcpy_s(buf, sizeof(buf), "You hear an explosion");
         else if (power <= bomb_power * 0.20)
-            strcpy(buf, "You hear a loud explosion");
+            strcpy_s(buf, sizeof(buf), "You hear a loud explosion");
         else if (power <= bomb_power * 0.25)
-            strcpy(buf, "There is a deafening explosion");
+            strcpy_s(buf, sizeof(buf), "There is a deafening explosion");
         else {
             switch (bomb_type) {
             case BOMB_CONCUSSION:
-                strcpy(buf, "You are rocked by a concussive blast");
+                strcpy_s(buf, sizeof(buf), "You are rocked by a concussive blast");
                 damage_type = TYPE_CRUSH;
                 dam /= 2;
                 break;
             case BOMB_FRAGMENTATION:
-                strcpy(buf, "You are ripped by a blast of shrapnel");
+                strcpy_s(buf, sizeof(buf), "You are ripped by a blast of shrapnel");
                 damage_type = TYPE_RIP;
                 break;
             case BOMB_INCENDIARY:
-                strcpy(buf, "You are engulfed by a blast of flame");
+                strcpy_s(buf, sizeof(buf), "You are engulfed by a blast of flame");
                 damage_type = TYPE_ABLAZE;
                 break;
             case BOMB_DISRUPTION:
-                strcpy(buf, "You are rocked by a disruption blast");
+                strcpy_s(buf, sizeof(buf), "You are rocked by a disruption blast");
                 damage_type = SPELL_DISRUPTION;
                 break;
             case BOMB_NUCLEAR:
-                strcpy(buf, "You are engulfed by a nuclear blast");
+                strcpy_s(buf, sizeof(buf), "You are engulfed by a nuclear blast");
                 damage_type = SPELL_FISSION_BLAST;
                 break;
             case BOMB_FLASH:
-                strcpy(buf, "There is a flash of light");
+                strcpy_s(buf, sizeof(buf), "There is a flash of light");
                 damage_type = TYPE_ENERGY_GUN;
                 dam = MIN(1, dam);
                 break;
             case BOMB_SMOKE:
-                strcpy(buf, "Clouds of smoke begin to billow in");
+                strcpy_s(buf, sizeof(buf), "Clouds of smoke begin to billow in");
                 dam = 0;
                 damage_type = TYPE_DROWNING;
                 break;
             case BOMB_ARTIFACT:
-                strcpy(buf,
+                strcpy_s(buf, sizeof(buf),
                     "You are engulfed by a blinding bright blue light");
                 dam = (dam > 0) ? 30000 : 0;
                 damage_type = 0;
                 break;
             case SKILL_SELF_DESTRUCT:
-                strcpy(buf, "You are showered with a rain of fiery debris");
+                strcpy_s(buf, sizeof(buf), "You are showered with a rain of fiery debris");
                 damage_type = TYPE_RIP;
                 break;
 
             default:
-                strcpy(buf, "You are rocked by an explosion");
+                strcpy_s(buf, sizeof(buf), "You are rocked by an explosion");
                 damage_type = TYPE_CRUSH;
                 break;
             }
         }
 
         if (dir >= 0) {
-            strcpy(dname, from_dirs[rev_dir[dir]]);
-            strcat(buf, " from ");
-            strcat(buf, dname);
+            strcpy_s(dname, sizeof(dname), from_dirs[rev_dir[dir]]);
+            strcat_s(buf, sizeof(buf), " from ");
+            strcat_s(buf, sizeof(buf), dname);
         }
 
-        strcat(buf, ".\r\n");
+        strcat_s(buf, sizeof(buf), ".\r\n");
         send_to_room(buf, room);
     }
 
@@ -713,7 +713,7 @@ ACMD(do_bomb)
     }
     bomb_rooms = new_list;
 
-    strcpy(buf, "BOMB AFFECTS:\r\n");
+    strcpy_s(buf, sizeof(buf), "BOMB AFFECTS:\r\n");
     for (rad_elem = bomb_rooms; rad_elem; rad_elem = next_elem) {
         next_elem = rad_elem->next;
         if (!overflow) {
@@ -722,9 +722,9 @@ ACMD(do_bomb)
                 rad_elem->room->name, CCNRM(ch, C_NRM));
             if (strlen(buf) + strlen(buf2) > MAX_STRING_LENGTH - 128) {
                 overflow = true;
-                strcat(buf, "OVERFLOW\r\n");
+                strcat_s(buf, sizeof(buf), "OVERFLOW\r\n");
             } else
-                strcat(buf, buf2);
+                strcat_s(buf, sizeof(buf), buf2);
         }
         bomb_rooms = next_elem;
         free(rad_elem);

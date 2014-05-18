@@ -29,6 +29,7 @@
 #include "tmpstr.h"
 #include "account.h"
 #include "quest.h"
+#include "strutil.h"
 
  /**
   *
@@ -107,7 +108,7 @@ void
 send_access_options(struct creature *ch)
 {
     int i = 0;
-    strcpy(out_buf, "access usage :\r\n");
+    strcpy_s(out_buf, sizeof(out_buf), "access usage :\r\n");
     while (1) {
         if (!access_cmds[i].command)
             break;

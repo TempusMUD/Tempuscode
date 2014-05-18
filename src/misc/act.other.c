@@ -288,7 +288,7 @@ ACMD(do_board)
 
 ACMD(do_palette)
 {
-    strcpy(buf, "Available Colors:\r\n");
+    strcpy_s(buf, sizeof(buf), "Available Colors:\r\n");
     sprintf(buf,
         "%s%sRED %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KRED, KBLD, KNRM, KRED, KUND, KNRM, KRED, KBLK, KBLD, KNRM, KRED,
@@ -2043,9 +2043,9 @@ ACMD(do_knock)
     // Ok... not an object.  Maybe a door?
     if ((dir = find_door(ch, arg1, arg2, "knock on")) >= 0) {
         if (EXIT(ch, dir)->keyword)
-            strcpy(dname, fname(EXIT(ch, dir)->keyword));
+            strcpy_s(dname, sizeof(dname), fname(EXIT(ch, dir)->keyword));
         else
-            strcpy(dname, "door");
+            strcpy_s(dname, sizeof(dname), "door");
 
         sprintf(buf, "$n knocks on the %s.", dname);
         act(buf, false, ch, NULL, NULL, TO_ROOM);
@@ -2056,10 +2056,10 @@ ACMD(do_knock)
             other_room->dir_option[rev_dir[dir]]->to_room == ch->in_room &&
             other_room->people) {
             if (other_room->dir_option[rev_dir[dir]]->keyword)
-                strcpy(dname,
+                strcpy_s(dname, sizeof(dname),
                     fname(other_room->dir_option[rev_dir[dir]]->keyword));
             else
-                strcpy(dname, "door");
+                strcpy_s(dname, sizeof(dname), "door");
 
             sprintf(buf, "Someone knocks on the %s from the other side.",
                 dname);
@@ -2180,16 +2180,16 @@ ACMD(do_clean)
             return;
         }
         if ((pos = search_block(arg2, wear_eqpos, false)) < 0) {
-            strcpy(buf, "Invalid position.  Valid positions are:\r\n");
+            strcpy_s(buf, sizeof(buf), "Invalid position.  Valid positions are:\r\n");
             for (i = 0, j = 0; i < NUM_WEARS; i++) {
                 if (ILLEGAL_SOILPOS(i))
                     continue;
                 j++;
-                strcat(buf, wear_eqpos[i]);
+                strcat_s(buf, sizeof(buf), wear_eqpos[i]);
                 if (i < WEAR_EAR_R)
-                    strcat(buf, ", ");
+                    strcat_s(buf, sizeof(buf), ", ");
                 else
-                    strcat(buf, ".\r\n");
+                    strcat_s(buf, sizeof(buf), ".\r\n");
             }
             send_to_char(ch, "%s", buf);
             return;
@@ -2223,7 +2223,7 @@ ACMD(do_clean)
             act(buf, false, ch, NULL, vict, TO_VICT);
         }
         found = 0;
-        strcpy(buf, "no longer ");
+        strcpy_s(buf, sizeof(buf), "no longer ");
 
         for (k = 0, j = 0; j < 16; j++)
             if (CHAR_SOILED(vict, pos, (1 << j)))
@@ -2233,11 +2233,11 @@ ACMD(do_clean)
             if (CHAR_SOILED(vict, pos, (1 << j))) {
                 found++;
                 if (found > 1) {
-                    strcat(buf, ", ");
+                    strcat_s(buf, sizeof(buf), ", ");
                     if (found == k)
-                        strcat(buf, "or ");
+                        strcat_s(buf, sizeof(buf), "or ");
                 }
-                strcat(buf, soilage_bits[j]);
+                strcat_s(buf, sizeof(buf), soilage_bits[j]);
             }
         }
         sprintf(buf2, "Your %s %s %s.", wear_description[pos],
@@ -2266,7 +2266,7 @@ ACMD(do_clean)
         act(buf, false, ch, obj, NULL, TO_CHAR);
 
         found = 0;
-        strcpy(buf, "$p is no longer ");
+        strcpy_s(buf, sizeof(buf), "$p is no longer ");
 
         for (k = 0, j = 0; j < 17; j++)
             if (OBJ_SOILED(obj, (1 << j)))
@@ -2276,14 +2276,14 @@ ACMD(do_clean)
             if (OBJ_SOILED(obj, (1 << j))) {
                 found++;
                 if (found > 1) {
-                    strcat(buf, ", ");
+                    strcat_s(buf, sizeof(buf), ", ");
                     if (found == k)
-                        strcat(buf, "or ");
+                        strcat_s(buf, sizeof(buf), "or ");
                 }
-                strcat(buf, soilage_bits[j]);
+                strcat_s(buf, sizeof(buf), soilage_bits[j]);
             }
         }
-        strcat(buf, ".");
+        strcat_s(buf, sizeof(buf), ".");
         act(buf, false, ch, obj, NULL, TO_CHAR);
         act(buf, false, ch, obj, NULL, TO_ROOM);
         OBJ_SOILAGE(obj) = 0;

@@ -126,7 +126,7 @@ boot_dynamic_text(void)
         }
         fclose(fl);
 
-        strcpy(newdyn->filename, savedyn.filename);
+        strcpy_s(newdyn->filename, sizeof(newdyn->filename), savedyn.filename);
         for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
             newdyn->last_edit[i].idnum = savedyn.last_edit[i].idnum;
             newdyn->last_edit[i].tEdit = savedyn.last_edit[i].tEdit;
@@ -252,7 +252,7 @@ save_dyntext_control(dynamic_text_file * dyntext)
         return 1;
     }
 
-    strcpy(savedyn.filename, dyntext->filename);
+    strcpy_s(savedyn.filename, sizeof(savedyn.filename), dyntext->filename);
     for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
         savedyn.last_edit[i].idnum = dyntext->last_edit[i].idnum;
         savedyn.last_edit[i].tEdit = dyntext->last_edit[i].tEdit;
@@ -688,8 +688,8 @@ ACMD(do_dynedit)
 
         *newbuf = '\0';
 
-        strcat(newbuf, s);
-        strcat(newbuf, dyntext->buffer);
+        strcat_s(newbuf, sizeof(newbuf), s);
+        strcat_s(newbuf, sizeof(newbuf), dyntext->buffer);
         free(dyntext->buffer);
         dyntext->buffer = newbuf;
 
@@ -756,8 +756,8 @@ ACMD(do_dynedit)
                     return;
                 }
                 *newbuf = '\0';
-                strcat(newbuf, dyntext->buffer);
-                strcat(newbuf, dyntext->tmp_buffer);
+                strcat_s(newbuf, sizeof(newbuf), dyntext->buffer);
+                strcat_s(newbuf, sizeof(newbuf), dyntext->tmp_buffer);
                 free(dyntext->tmp_buffer);
                 dyntext->tmp_buffer = newbuf;
             }
@@ -805,8 +805,8 @@ ACMD(do_dynedit)
                     return;
                 }
                 *newbuf = '\0';
-                strcat(newbuf, dyntext->tmp_buffer);
-                strcat(newbuf, dyntext->buffer);
+                strcat_s(newbuf, sizeof(newbuf), dyntext->tmp_buffer);
+                strcat_s(newbuf, sizeof(newbuf), dyntext->buffer);
                 free(dyntext->tmp_buffer);
                 dyntext->tmp_buffer = newbuf;
             }
@@ -879,9 +879,9 @@ ACMD(do_dyntext_show)
         sprintf(color2, "\x1B[%dm", number(31, 37));
         sprintf(color3, "\x1B[%dm", number(31, 37));
     } else {
-        strcpy(color1, "");
-        strcpy(color2, color1);
-        strcpy(color3, color1);
+        strcpy_s(color1, sizeof(color1), "");
+        strcpy_s(color2, sizeof(color2), color1);
+        strcpy_s(color3, sizeof(color3), color1);
     }
 
     acc_string_clear();

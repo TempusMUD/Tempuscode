@@ -1840,8 +1840,8 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         format_weight(GET_WEIGHT(k), metric));
 
     if (!IS_NPC(k)) {
-        strcpy(buf1, (char *)asctime(localtime(&(k->player.time.birth))));
-        strcpy(buf2, (char *)asctime(localtime(&(k->player.time.logon))));
+        strcpy_s(buf1, sizeof(buf1), (char *)asctime(localtime(&(k->player.time.birth))));
+        strcpy_s(buf2, sizeof(buf2), (char *)asctime(localtime(&(k->player.time.logon))));
         buf1[10] = buf2[10] = '\0';
 
         acc_sprintf
@@ -3884,12 +3884,12 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
             CCYEL(ch, C_CMP), PERS(vict, ch), CCBLD(ch, C_SPR),
             SPLSKL(vict), CCNRM(ch, C_SPR));
 
-        strcpy(buf2, buf);
+        strcpy_s(buf2, sizeof(buf2), buf);
 
         for (sortpos = 1; sortpos < MAX_SPELLS; sortpos++) {
             i = spell_sort_info[sortpos];
             if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
-                strcat(buf2, "**OVERFLOW**\r\n");
+                strcat_s(buf2, sizeof(buf2), "**OVERFLOW**\r\n");
                 break;
             }
             sprintf(buf3, "%s[%3d]", CCYEL(ch, C_NRM), GET_SKILL(vict, i));
@@ -3899,22 +3899,22 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
                     how_good(GET_SKILL(vict, i)),
                     GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCRED(ch, C_SPR),
                     mag_manacost(vict, i), CCNRM(ch, C_SPR));
-                strcat(buf2, buf);
+                strcat_s(buf2, sizeof(buf2), buf);
             }
         }
         sprintf(buf3, "\r\n%s%s knows of the following skills:%s\r\n",
             CCYEL(ch, C_CMP), PERS(vict, ch), CCNRM(ch, C_SPR));
-        strcat(buf2, buf3);
+        strcat_s(buf2, sizeof(buf2), buf3);
     } else {
         sprintf(buf, "%s%s%s knows of the following skills:%s\r\n",
             buf, CCYEL(ch, C_CMP), PERS(vict, ch), CCNRM(ch, C_SPR));
-        strcpy(buf2, buf);
+        strcpy_s(buf2, sizeof(buf2), buf);
     }
 
     for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
         i = skill_sort_info[sortpos];
         if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
-            strcat(buf2, "**OVERFLOW**\r\n");
+            strcat_s(buf2, sizeof(buf2), "**OVERFLOW**\r\n");
             break;
         }
         sprintf(buf3, "%s[%3d]%s",
@@ -3925,7 +3925,7 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
                     how_good(GET_SKILL(vict, i)),
                     GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "",
                     CCNRM(ch, C_SPR));
-            strcat(buf2, buf);
+            strcat_s(buf2, sizeof(buf2), buf);
         }
     }
     page_string(ch->desc, buf2);
@@ -4128,7 +4128,7 @@ show_player(struct creature *ch, char *value)
 
     /* added functionality for show player by idnum */
     if (is_number(value) && player_name_by_idnum(atoi(value))) {
-        strcpy(value, player_name_by_idnum(atoi(value)));
+        strcpy_s(value, sizeof(value), player_name_by_idnum(atoi(value)));
     }
     if (!player_name_exists(value)) {
         send_to_char(ch, "There is no such player.\r\n");
@@ -4140,10 +4140,10 @@ show_player(struct creature *ch, char *value)
     vict->account = account_by_idnum(player_account_by_idnum(idnum));
 
     if (GET_REMORT_GEN(vict) <= 0) {
-        strcpy(remort_desc, "");
+        remort_desc[0] = '\0';
     } else {
         sprintf(remort_desc, "/%s",
-            char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
+                char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
     }
     sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d",
         GET_IDNUM(vict), GET_NAME(vict),
@@ -4157,13 +4157,13 @@ show_player(struct creature *ch, char *value)
         buf, GET_GOLD(vict), GET_CASH(vict),
         GET_PAST_BANK(vict), GET_FUTURE_BANK(vict));
     // Trim and fit the date to show year but not seconds.
-    strcpy(birth, ctime(&vict->player.time.birth));
+    strcpy_s(birth, sizeof(birth), ctime(&vict->player.time.birth));
     memmove(birth + 16, birth + 19, strlen(birth + 19) + 1);
     if (GET_LEVEL(vict) > GET_LEVEL(ch)) {
-        strcpy(last_login, "Unknown");
+        strcpy_s(last_login, sizeof(last_login), "Unknown");
     } else {
         // Trim and fit the date to show year but not seconds.
-        strcpy(last_login, ctime(&vict->player.time.logon));
+        strcpy_s(last_login, sizeof(last_login), ctime(&vict->player.time.logon));
         memmove(birth + 16, birth + 19, strlen(birth + 19) + 1);
     }
     sprintf(buf,
@@ -4897,7 +4897,7 @@ show_mlevels(struct creature *ch, char *value, char *arg)
 
             *buf2 = '\0';
             for (j = 0; j < to; j++)
-                strcat(buf2, "+");
+                strcat_s(buf2, sizeof(buf2), "+");
 
             acc_sprintf("%2d] %-60s %5d\r\n", i, buf2, count[i]);
         }
@@ -4910,7 +4910,7 @@ show_mlevels(struct creature *ch, char *value, char *arg)
 
             *buf2 = '\0';
             for (j = 0; j < to; j++)
-                strcat(buf2, "+");
+                strcat_s(buf2, sizeof(buf2), "+");
 
             acc_sprintf("%2d-%2d] %-60s %5d\r\n", i * 5,
                 (i + 1) * 5 - 1, buf2, count[i]);
@@ -5196,7 +5196,7 @@ ACMD(do_show)
         gen_board_show(ch);
         break;
     case 6:
-        strcpy(buf, "Death Traps\r\n-----------\r\n");
+        strcpy_s(buf, sizeof(buf), "Death Traps\r\n-----------\r\n");
         for (zone = zone_table; zone; zone = zone->next)
             for (j = 0, room = zone->world; room; room = room->next)
                 if (IS_SET(ROOM_FLAGS(room), ROOM_DEATH)) {
@@ -5204,9 +5204,9 @@ ACMD(do_show)
                         CCRED(ch, C_NRM), room->number, CCCYN(ch, C_NRM),
                         room->name, CCNRM(ch, C_NRM));
                     if (room->contents)
-                        strcat(buf, "  (has objects)\r\n");
+                        strcat_s(buf, sizeof(buf), "  (has objects)\r\n");
                     else
-                        strcat(buf, "\r\n");
+                        strcat_s(buf, sizeof(buf), "\r\n");
                 }
         page_string(ch->desc, buf);
         break;
@@ -5272,8 +5272,8 @@ ACMD(do_show)
         }
         break;
     case 13:                   // zone commands
-        strcpy(buf, value);
-        strcat(buf, argument);
+        strcpy_s(buf, sizeof(buf), value);
+        strcat_s(buf, sizeof(buf), argument);
         do_zone_cmdlist(ch, ch->in_room->zone, buf);
         break;
     case 14:
@@ -5294,7 +5294,7 @@ ACMD(do_show)
             sprintf(buf, "Currently defined aliases for %s:\r\n",
                 GET_NAME(vict));
             if ((a = GET_ALIASES(vict)) == NULL)
-                strcat(buf, " None.\r\n");
+                strcat_s(buf, sizeof(buf), " None.\r\n");
             else {
                 while (a != NULL) {
                     sprintf(buf, "%s%s%-15s%s %s\r\n", buf, CCCYN(ch, C_NRM),
@@ -5318,7 +5318,7 @@ ACMD(do_show)
         show_topzones(ch, tmp_strcat(value, argument, NULL));
         break;
     case 20:                   /* nomaterial */
-        strcpy(buf, "Objects without material types:\r\n");
+        strcpy_s(buf, sizeof(buf), "Objects without material types:\r\n");
         protos = g_hash_table_get_values(obj_prototypes);
 
         for (i = 1, oi = protos; oi; oi = oi->next) {
@@ -5326,7 +5326,7 @@ ACMD(do_show)
             if (GET_OBJ_MATERIAL(obj) == MAT_NONE &&
                 !IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
                 if (strlen(buf) > (MAX_STRING_LENGTH - 130)) {
-                    strcat(buf, "**OVERFLOW**\r\n");
+                    strcat_s(buf, sizeof(buf), "**OVERFLOW**\r\n");
                     break;
                 }
                 sprintf(buf, "%s%3d. [%5d] %s%-36s%s  (%s)\r\n", buf, i,
@@ -5345,7 +5345,7 @@ ACMD(do_show)
 
     case 22: /** broken **/
 
-        strcpy(buf, "Broken objects in the game:\r\n");
+        strcpy_s(buf, sizeof(buf), "Broken objects in the game:\r\n");
 
         for (obj = object_list, i = 1; obj; obj = obj->next) {
             if ((GET_OBJ_DAM(obj) < (GET_OBJ_MAX_DAM(obj) / 2)) ||
@@ -5364,10 +5364,10 @@ ACMD(do_show)
                     CCNRM(ch, C_NRM),
                     j, IS_OBJ_STAT2(obj, ITEM2_BROKEN) ? "<broken>" : "");
                 if ((strlen(buf) + strlen(buf2) + 128) > MAX_STRING_LENGTH) {
-                    strcat(buf, "**OVERFLOW**\r\n");
+                    strcat_s(buf, sizeof(buf), "**OVERFLOW**\r\n");
                     break;
                 }
-                strcat(buf, buf2);
+                strcat_s(buf, sizeof(buf), buf2);
                 i++;
             }
         }
@@ -5391,7 +5391,7 @@ ACMD(do_show)
         show_pathobjs(ch);
         break;
     case 27:                   /* str_app */
-        strcpy(buf, "STR      to_hit    to_dam    max_encum    max_weap\r\n");
+        strcpy_s(buf, sizeof(buf), "STR      to_hit    to_dam    max_encum    max_weap\r\n");
         for (i = 0; i <= 50; i++) {
             sprintf(buf,
                 "%s%-5d     %2d         %2d         %4f          %2f\r\n",
@@ -5428,7 +5428,7 @@ ACMD(do_show)
                 }
             }
             if (strlen(buf) > (size_t) (MAX_STRING_LENGTH * (11 + j)) / 16) {
-                strcat(buf, "STOP\r\n");
+                strcat_s(buf, sizeof(buf), "STOP\r\n");
                 break;
             }
         }
@@ -5451,7 +5451,7 @@ ACMD(do_show)
             return;
         }
 
-        strcpy(buf, "Free_create for this zone:\r\n");
+        strcpy_s(buf, sizeof(buf), "Free_create for this zone:\r\n");
 
         for (i = ch->in_room->zone->number * 100; i < ch->in_room->zone->top;
             i++) {
@@ -5485,7 +5485,7 @@ ACMD(do_show)
                 "Increment too large.  Stay smaller than 200.\r\n");
             return;
         }
-        strcpy(buf, "Mobs with exp in given range:\r\n");
+        strcpy_s(buf, sizeof(buf), "Mobs with exp in given range:\r\n");
         protos = g_hash_table_get_values(mob_prototypes);
         for (mit = protos; mit; mit = mit->next) {
             mob = mit->data;
@@ -5497,7 +5497,7 @@ ACMD(do_show)
 
             if (percent >= k && percent <= j) {
                 if (strlen(buf) + 256 > MAX_STRING_LENGTH) {
-                    strcat(buf, "**OVERFOW**\r\n");
+                    strcat_s(buf, sizeof(buf), "**OVERFOW**\r\n");
                     break;
                 }
                 i++;
@@ -5529,13 +5529,13 @@ ACMD(do_show)
             return;
         }
 
-        strcpy(buf, "");
+        strcpy_s(buf, sizeof(buf), "");
         protos = g_hash_table_get_values(obj_prototypes);
         for (oi = protos; oi; oi = oi->next) {
             obj = oi->data;
             if (obj->shared->number >= k) {
                 if (strlen(buf) + 256 > MAX_STRING_LENGTH) {
-                    strcat(buf, "**OVERFOW**\r\n");
+                    strcat_s(buf, sizeof(buf), "**OVERFOW**\r\n");
                     break;
                 }
                 sprintf(buf,
@@ -5554,7 +5554,7 @@ ACMD(do_show)
 
     case 32:{                  /* fighting */
             /*
-               strcpy(buf, "Fighting characters:\r\n");
+               strcpy_s(buf, sizeof(buf), "Fighting characters:\r\n");
 
                CombatDataList_iterator it;
                cit = combatList.begin();
@@ -5592,7 +5592,7 @@ ACMD(do_show)
         }
     case 33:                   /* quad */
 
-        strcpy(buf, "Characters with Quad Damage:\r\n");
+        strcpy_s(buf, sizeof(buf), "Characters with Quad Damage:\r\n");
 
         for (cit = first_living(creatures); cit; cit = next_living(cit)) {
             vict = cit->data;
@@ -5618,7 +5618,7 @@ ACMD(do_show)
 
     case 35:                   /* hunting */
 
-        strcpy(buf, "Characters hunting:\r\n");
+        strcpy_s(buf, sizeof(buf), "Characters hunting:\r\n");
         for (cit = first_living(creatures); cit; cit = next_living(cit)) {
             vict = cit->data;
             if (!NPC_HUNTING(vict) || !NPC_HUNTING(vict)->in_room
@@ -5639,7 +5639,7 @@ ACMD(do_show)
 
     case 36:                   /* last_cmd */
 
-        strcpy(buf, "Last cmds:\r\n");
+        strcpy_s(buf, sizeof(buf), "Last cmds:\r\n");
         for (i = 0; i < NUM_SAVE_CMDS; i++)
             sprintf(buf, "%s %2d. (%4d) %25s - '%s'\r\n", buf,
                 i, last_cmd[i].idnum, player_name_by_idnum(last_cmd[i].idnum),
@@ -5650,7 +5650,7 @@ ACMD(do_show)
 
     case 37:                   // duperooms
 
-        strcpy(buf,
+        strcpy_s(buf, sizeof(buf),
             " Zone  Name                          Rooms       Bytes\r\n");
         for (zone = zone_table, k = con = tot_rms = 0; zone; zone = zone->next) {
             i = j = 0;
@@ -6016,7 +6016,7 @@ ACMD(do_set)
         value = atoi(argument);
     }
 
-    strcpy(buf, "Okay.");       /* can't use OK macro here 'cause of \r\n */
+    strcpy_s(buf, sizeof(buf), "Okay.");       /* can't use OK macro here 'cause of \r\n */
 
     switch (l) {
     case 0:
@@ -6515,7 +6515,7 @@ ACMD(do_set)
                 "The badge must not be more than seven characters.\r\n");
             return;
         }
-        strcpy(BADGE(vict), argument);
+        strcpy_s(BADGE(vict), sizeof(BADGE(vict)), argument);
         // Convert to uppercase
         for (arg1 = BADGE(vict); *arg1; arg1++)
             *arg1 = toupper(*arg1);
@@ -6688,7 +6688,7 @@ ACMD(do_aset)
         value = atoll(argument);
     }
 
-    strcpy(buf, "Okay.");       /* can't use OK macro here 'cause of \r\n */
+    strcpy_s(buf, sizeof(buf), "Okay.");       /* can't use OK macro here 'cause of \r\n */
 
     switch (l) {
     case 0:
@@ -7049,7 +7049,7 @@ ACMD(do_rename)
             obj->name, argument);
         obj->name = strdup(argument);
         sprintf(buf, "%s has been left here.", argument);
-        strcpy(buf, CAP(buf));
+        strcpy_s(buf, sizeof(buf), CAP(buf));
         obj->line_desc = strdup(buf);
     } else if (vict) {
         sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch),
@@ -7059,7 +7059,7 @@ ACMD(do_rename)
             sprintf(buf, "%s is hovering here.", argument);
         else
             sprintf(buf, "%s is standing here.", argument);
-        strcpy(buf, CAP(buf));
+        strcpy_s(buf, sizeof(buf), CAP(buf));
         vict->player.long_descr = strdup(buf);
     }
     send_to_char(ch, "Okay, you do it.\r\n");
@@ -7125,7 +7125,7 @@ ACMD(do_addname)
             }
 
             sprintf(buf, "%s ", new_name);
-            strcat(buf, vict->player.name);
+            strcat_s(buf, sizeof(buf), vict->player.name);
             vict->player.name = strdup(tmp_sprintf("%s %s",
                     vict->player.name, new_name));
         }
@@ -7603,7 +7603,7 @@ load_single_zone(int zone_num)
 
 ACMD(do_coderutil)
 {
-    int idx, cmd_num, len = 0;
+    int idx, cmd_num;
     char *token;
 
     skip_spaces(&argument);
@@ -7624,34 +7624,35 @@ ACMD(do_coderutil)
         token = tmp_getword(&argument);
         recalc_all_mobs(ch, token);
     } else if (strcmp(token, "cmdusage") == 0) {
+        acc_string_clear();
         for (idx = 1; idx < num_of_cmds; idx++) {
             cmd_num = cmd_sort_info[idx].sort_pos;
             if (!cmd_info[cmd_num].usage)
                 continue;
 
-            len += sprintf(buf + len, "%-15s %7lu   ",
-                cmd_info[cmd_num].command, cmd_info[cmd_num].usage);
-            if (!(idx % 3)) {
-                strcpy(buf + len, "\r\n");
-                len += 2;
+            acc_sprintf("%-15s %7lu   ",
+                        cmd_info[cmd_num].command,
+                        cmd_info[cmd_num].usage);
+            if (idx % 3 == 0) {
+                acc_strcat("\r\n", NULL);
             }
         }
-        strcpy(buf + len, "\r\n");
-        page_string(ch->desc, buf);
+        acc_strcat("\r\n", NULL);
+        page_string(ch->desc, acc_get_string());
     } else if (strcmp(token, "unusedcmds") == 0) {
+        acc_string_clear();
         for (idx = 1; idx < num_of_cmds; idx++) {
             cmd_num = cmd_sort_info[idx].sort_pos;
             if (cmd_info[cmd_num].usage)
                 continue;
 
-            len += sprintf(buf + len, "%-16s", cmd_info[cmd_num].command);
+            acc_sprintf("%-16s", cmd_info[cmd_num].command);
             if (!(idx % 5)) {
-                strcpy(buf + len, "\r\n");
-                len += 2;
+                acc_strcat("\r\n", NULL);
             }
         }
-        strcpy(buf + len, "\r\n");
-        page_string(ch->desc, buf);
+        acc_strcat("\r\n", NULL);
+        page_string(ch->desc, acc_get_string());
     } else if (strcmp(token, "verify") == 0) {
         verify_tempus_integrity(ch);
     } else if (strcmp(token, "chaos") == 0) {
@@ -8282,15 +8283,18 @@ ACMD(do_users)
         acc_sprintf("%4d %-12s %s %-15s %-2s %-8s ",
             d->desc_num, account_name, char_name, state, idletime, timebuf);
 
-        if (d->host && *d->host)
-            acc_sprintf("%s%s%s\r\n", isbanned(d->host,
-                    buf) ? (d->creature
-                    && PLR_FLAGGED(d->creature, PLR_SITEOK) ? CCMAG(ch,
-                        C_NRM) : CCRED(ch, C_SPR)) : CCGRN(ch, C_NRM), d->host,
-                CCNRM(ch, C_SPR));
-        else
-            acc_strcat(CCRED_BLD(ch, C_SPR),
-                "[unknown]\r\n", CCNRM(ch, C_SPR), NULL);
+        if (*d->host) {
+            if (!isbanned(d->host, buf, sizeof(buf))) {
+                acc_strcat(CCGRN(ch, C_NRM), NULL);
+            } else if (d->creature && PLR_FLAGGED(d->creature, PLR_SITEOK)) {
+                acc_strcat(CCMAG(ch, C_NRM), NULL);
+            } else {
+                acc_strcat(CCRED(ch, C_NRM), NULL);
+            }
+            acc_sprintf("%s%s", d->host, CCNRM(ch, C_NRM));
+        } else {
+            acc_strcat(CCRED_BLD(ch, C_SPR), "[unknown]\r\n", CCNRM(ch, C_SPR), NULL);
+        }
 
         num_can_see++;
     }
@@ -8398,7 +8402,7 @@ ACMD(do_badge)
             "Sorry, badges can't be longer than %d characters.\r\n",
             MAX_BADGE_LENGTH);
     } else {
-        strcpy(BADGE(ch), argument);
+        strcpy_s(BADGE(ch), sizeof(BADGE(ch)), argument);
         // Convert to uppercase
         for (char *cp = BADGE(ch); *cp; cp++)
             *cp = toupper(*cp);

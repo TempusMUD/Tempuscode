@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <glib.h>
+#include <libxml/parser.h>
 
 #include "interpreter.h"
 #include "structs.h"
@@ -38,9 +39,9 @@
 #include "spells.h"
 #include "flow_room.h"
 #include "fight.h"
-#include <libxml/parser.h>
 #include "obj_data.h"
 #include "specs.h"
+#include "strutil.h"
 
 extern const char *instrument_types[];
 

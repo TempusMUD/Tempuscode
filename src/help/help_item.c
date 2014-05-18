@@ -336,20 +336,18 @@ help_item_save(struct help_item * item)
 // buffer is output buffer.
 void
 help_item_show(struct help_item *item, struct creature *ch, char *buffer,
-    int mode)
+               size_t buf_size, int mode)
 {
     char bitbuf[256];
     char groupbuf[256];
     switch (mode) {
     case 0:                    // 0 == One Line Listing.
-        sprintf(buffer, "Name: %s\r\n    (%s)\r\n", item->name, item->keys);
-        strcpy(buffer, "");
+        snprintf(buffer, buf_size, "Name: %s\r\n    (%s)\r\n", item->name, item->keys);
         break;
     case 1:                    // 1 == One Line Stat
         sprintbit(item->flags, help_bit_descs, bitbuf);
         sprintbit(item->groups, help_group_bits, groupbuf);
-        strcpy(buffer, "");
-        sprintf(buffer, "%s%3d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s\r\n",
+        snprintf(buffer, buf_size, "%s%3d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s\r\n",
             CCCYN(ch, C_NRM), item->idnum, CCYEL(ch, C_NRM),
             item->name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
             groupbuf, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), bitbuf);
@@ -357,8 +355,7 @@ help_item_show(struct help_item *item, struct creature *ch, char *buffer,
     case 2:                    // 2 == Entire Entry
         if (!item->text)
             help_item_load_text(item);
-        strcpy(buffer, "");
-        sprintf(buffer, "\r\n%s%s%s\r\n%s\r\n",
+        snprintf(buffer, buf_size, "\r\n%s%s%s\r\n%s\r\n",
             CCCYN(ch, C_NRM), item->name, CCNRM(ch, C_NRM), item->text);
         item->counter++;
         break;
@@ -367,8 +364,7 @@ help_item_show(struct help_item *item, struct creature *ch, char *buffer,
             help_item_load_text(item);
         sprintbit(item->flags, help_bit_descs, bitbuf);
         sprintbit(item->groups, help_group_bits, groupbuf);
-        strcpy(buffer, "");
-        sprintf(buffer,
+        snprintf(buffer, buf_size,
             "\r\n%s%d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s \r\n        %s"
             "Keywords: [ %s%s%s ]\r\n%s%s\r\n",
             CCCYN(ch, C_NRM), item->idnum, CCYEL(ch, C_NRM),

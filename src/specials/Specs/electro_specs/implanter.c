@@ -487,15 +487,15 @@ implanter_show_pos(struct creature *me, struct creature *ch,
     int pos;
     bool not_first = false;
 
-    strcpy(buf, "You can implant it in these positions: ");
+    strcpy_s(buf, sizeof(buf), "You can implant it in these positions: ");
     for (pos = 0; wear_implantpos[pos][0] != '\n'; pos++)
         if (!ILLEGAL_IMPLANTPOS(pos) && CAN_WEAR(obj, wear_bitvectors[pos])) {
             if (not_first)
-                strcat(buf, ", ");
+                strcat_s(buf, sizeof(buf), ", ");
             else
                 not_first = true;
 
-            strcat(buf, wear_implantpos[pos]);
+            strcat_s(buf, sizeof(buf), wear_implantpos[pos]);
         }
 
     perform_tell(me, ch, buf);

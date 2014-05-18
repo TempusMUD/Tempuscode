@@ -863,9 +863,9 @@ do_olc_rset(struct creature *ch, char *argument)
         break;
     case 5:                    /*  flow  */
         if (!*arg2) {
-            strcpy(buf, "Current flow state:");
+            strcpy_s(buf, sizeof(buf), "Current flow state:");
             if (!FLOW_SPEED(ch->in_room))
-                strcat(buf, " None.\r\n");
+                strcat_s(buf, sizeof(buf), " None.\r\n");
             else {
                 send_to_char(ch,
                     "Direction: %s, Speed: %d, Type: %s (%d).\r\n",
@@ -877,7 +877,7 @@ do_olc_rset(struct creature *ch, char *argument)
             return;
         }
         half_chop(arg2, arg1, arg2);    /* sneaky trix */
-        strcpy(argument, arg2);
+        strcpy_s(argument, sizeof(argument), arg2);
         half_chop(argument, arg2, arg3);
         if (!*arg2) {
             if (*arg1 && is_abbrev(arg1, "remove")) {
@@ -1058,9 +1058,7 @@ do_olc_rexdesc(struct creature *ch, char *argument, bool is_hedit)
                     "What??  How about giving me some keywords to add...\r\n");
                 return;
             } else {
-                strcpy(buf, desc->keyword);
-                strcat(buf, " ");
-                strcat(buf, arg2);
+                snprintf(buf, sizeof(buf), "%s %s", desc->keyword, arg2);
                 free(desc->keyword);
                 desc->keyword = strdup(buf);
                 send_to_char(ch, "Keywords added.\r\n");

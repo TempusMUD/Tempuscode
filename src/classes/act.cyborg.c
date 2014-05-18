@@ -1484,7 +1484,7 @@ ACMD(do_tune)
     arg2 = tmp_getword(&argument);
 
     if (!strncmp(arg1, "internal", 8)) {
-        strcpy(arg1, arg2);
+        strcpy_s(arg1, sizeof(arg1), arg2);
         if (!(obj = get_object_in_equip_vis(ch, arg1, ch->implants, &i))) {
             send_to_char(ch, "You are not implanted with '%s'.\r\n", arg1);
             return;

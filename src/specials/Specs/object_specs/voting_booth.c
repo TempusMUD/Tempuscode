@@ -479,8 +479,8 @@ voting_add_poll(const char *header, const char *text)
                 }
             }
 
-            strcat(buf, line_pt);
-            strcat(buf, "\r\n");
+            strcat_s(buf, sizeof(buf), line_pt);
+            strcat_s(buf, sizeof(buf), "\r\n");
 
             while (*read_pt && ('\r' == *read_pt || '\n' == *read_pt))
                 read_pt++;

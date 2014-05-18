@@ -146,9 +146,9 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
                 sprintf(buf, "$p is loaded with %s[%d/%d]%s cartridge%s",
                     QGRN, count, MAX_LOAD(gun), QNRM, count == 1 ? "" : "s");
             } else
-                strcpy(buf, "$p is not loaded.");
+                strcpy_s(buf, sizeof(buf), "$p is not loaded.");
         } else if (!gun->contains)
-            strcpy(buf, "$p is not loaded.");
+            strcpy_s(buf, sizeof(buf), "$p is not loaded.");
         else {
             count = count_contained_objs(gun->contains);
             sprintf(buf, "$p is loaded with $P,\r\n"

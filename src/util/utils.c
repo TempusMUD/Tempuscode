@@ -47,6 +47,7 @@
 #include "account.h"
 #include "spells.h"
 #include "obj_data.h"
+#include "strutil.h"
 
 extern struct follow_type *order_next_k;
 char ANSI[20];
@@ -489,7 +490,7 @@ add_stalker(struct creature *ch, struct creature *leader)
  * Returns the number of lines advanced in the file or 0 if EOF.
  */
 int
-get_line(FILE * fl, char *buf)
+get_line(FILE *fl, char *buf, size_t buf_size)
 {
     char temp[256] = "";
     int lines = 0;
@@ -506,7 +507,7 @@ get_line(FILE * fl, char *buf)
     if (c)
         *c = '\0';
 
-    strcpy(buf, temp);
+    strcpy_s(buf, buf_size, temp);
     return lines;
 }
 
@@ -514,7 +515,7 @@ void
 num2str(char *str, int num)
 {
     if (num == 0) {
-        strcpy(str, "0");
+        strcpy_s(str, sizeof(str), "0");
         return;
     }
 

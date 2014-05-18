@@ -58,6 +58,7 @@
 #include "weather.h"
 #include "search.h"
 #include "voice.h"
+#include "strutil.h"
 
 /* external structs */
 void npc_steal(struct creature *ch, struct creature *victim);
@@ -1073,7 +1074,7 @@ helper_assist(struct creature *ch, struct creature *vict,
             GUN_LOADED(weap)) {
             CUR_R_O_F(weap) = MAX_R_O_F(weap);
             sprintf(buf, "%s ", fname(weap->aliases));
-            strcat(buf, fname(vict->player.name));
+            strcat_s(buf, sizeof(buf), fname(vict->player.name));
             do_shoot(ch, buf, 0, 0);
             return 0;
         }
@@ -1099,7 +1100,7 @@ mob_load_unit_gun(struct creature *ch, struct obj_data *clip,
     char loadbuf[1024];
     sprintf(loadbuf, "%s %s", fname(clip->aliases),
         internal ? "internal " : "");
-    strcat(loadbuf, fname(gun->aliases));
+    strcat_s(loadbuf, sizeof(loadbuf), fname(gun->aliases));
     do_load(ch, loadbuf, 0, SCMD_LOAD);
     if (GET_NPC_VNUM(ch) == 1516 && IS_CLIP(clip) && random_binary())
         perform_say(ch, "say", "Let's Rock.");
@@ -1169,7 +1170,7 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
                     continue;
                 if ((bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
                     sprintf(buf, "%s ", fname(bul->aliases));
-                    strcat(buf, fname(cont->aliases));
+                    strcat_s(buf, sizeof(buf), fname(cont->aliases));
                     do_get(ch, buf, 0, 0);
                     mob_load_unit_gun(ch, bul, clip, false);
                     count++;
@@ -1183,7 +1184,7 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
                     && !CAR_CLOSED(cont)
                     && (bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
                     sprintf(buf, "%s ", fname(bul->aliases));
-                    strcat(buf, fname(cont->aliases));
+                    strcat_s(buf, sizeof(buf), fname(cont->aliases));
                     do_get(ch, buf, 0, 0);
                     mob_load_unit_gun(ch, bul, clip, false);
                     count++;
@@ -1213,7 +1214,7 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
                 continue;
             if ((bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
                 sprintf(buf, "%s ", fname(bul->aliases));
-                strcat(buf, fname(cont->aliases));
+                strcat_s(buf, sizeof(buf), fname(cont->aliases));
                 do_get(ch, buf, 0, 0);
                 mob_load_unit_gun(ch, bul, gun, internal);
             }
@@ -1223,7 +1224,7 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
                 !CAR_CLOSED(cont) &&
                 (bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
                 sprintf(buf, "%s ", fname(bul->aliases));
-                strcat(buf, fname(cont->aliases));
+                strcat_s(buf, sizeof(buf), fname(cont->aliases));
                 do_get(ch, buf, 0, 0);
                 mob_load_unit_gun(ch, bul, gun, internal);
                 return;
@@ -1857,7 +1858,7 @@ single_mobile_activity(struct creature *ch)
                     max = GET_OBJ_COST(obj);
                 }
             if (best_obj != NULL) {
-                strcpy(buf, fname(best_obj->aliases));
+                strcpy_s(buf, sizeof(buf), fname(best_obj->aliases));
                 do_get(ch, buf, 0, 0);
             }
         }
@@ -1973,7 +1974,7 @@ single_mobile_activity(struct creature *ch)
                             strength_wield_weight(GET_STR(ch)))
                         && GET_OBJ_COST(obj) > GET_OBJ_COST(GET_EQ(ch,
                                 WEAR_WIELD))) {
-                        strcpy(buf, fname(obj->aliases));
+                        strcpy_s(buf, sizeof(buf), fname(obj->aliases));
                         do_remove(ch, buf, 0, 0);
                     }
                     if (!GET_EQ(ch, WEAR_WIELD)) {

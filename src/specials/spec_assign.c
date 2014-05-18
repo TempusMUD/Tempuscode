@@ -443,7 +443,7 @@ do_show_specials(struct creature *ch, char *arg)
         }
     }
 
-    strcpy(outbuf, "SPECIAL PROCEDURES_                FLAGS::\r\n");
+    strcpy_s(outbuf, sizeof(outbuf), "SPECIAL PROCEDURES_                FLAGS::\r\n");
     for (i = 0; spec_list[i].tag; i++) {
         if (!mode_all &&
             (!mode_mob || !IS_SET(spec_list[i].flags, SPEC_MOB)) &&
@@ -453,16 +453,16 @@ do_show_specials(struct creature *ch, char *arg)
         if (spec_list[i].flags)
             sprintbit(spec_list[i].flags, spec_flags, buf2);
         else
-            strcpy(buf2, "NONE");
+            strcpy_s(buf2, sizeof(buf2), "NONE");
 
         sprintf(buf, "  %s%-30s%s   (%s%s%s)\r\n",
             CCYEL(ch, C_NRM), spec_list[i].tag, CCNRM(ch, C_NRM),
             CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
         if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {
-            strcat(outbuf, "**OVERFLOW**\r\n");
+            strcat_s(outbuf, sizeof(outbuf), "**OVERFLOW**\r\n");
             break;
         } else
-            strcat(outbuf, buf);
+            strcat_s(outbuf, sizeof(outbuf), buf);
     }
     page_string(ch->desc, outbuf);
 }
@@ -526,7 +526,7 @@ assign_mobiles(void)
     }
 
     while (!feof(file) && !ferror(file)) {
-        if (!get_line(file, buf))
+        if (!get_line(file, buf, sizeof(buf)))
             break;
 
         // eliminate comments
@@ -583,7 +583,7 @@ assign_objects(void)
     }
 
     while (!feof(file) && !ferror(file)) {
-        if (!get_line(file, buf))
+        if (!get_line(file, buf, sizeof(buf)))
             break;
         // eliminate comments
         str = strstr(buf, "##");
@@ -635,7 +635,7 @@ assign_rooms(void)
     }
 
     while (!feof(file) && !ferror(file)) {
-        if (!get_line(file, buf))
+        if (!get_line(file, buf, sizeof(buf)))
             break;
 
         // eliminate comments

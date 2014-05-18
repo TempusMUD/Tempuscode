@@ -24,6 +24,41 @@ static inline char *CAP(/*@returned@*/ char *st)
     return st;
 }
 
+#ifndef strcpy_s
+static inline int strcpy_s(char *dest, size_t dest_size, const char *src)
+{
+    int len = snprintf(dest, dest_size, "%s", src);
+    
+    if (len >= dest_size) {
+        errlog("Buffer overrun detected in strcpy_s");
+        return 1;
+    } 
+    return 0;
+}
+#endif
+
+#ifndef strcat_s
+static inline int strcat_s(char *dest, size_t dest_size, const char *src)
+{
+    while (*dest && dest_size > 0) {
+        dest++;
+        dest_size--;
+    }
+    if (dest_size == 0) {
+        errlog("Unterminated string detected in strcat_s");
+        return 1;
+    }
+
+    int len = snprintf(dest, dest_size, "%s", src);
+    
+    if (len >= dest_size) {
+        errlog("Buffer overrun detected in strcat_s");
+        return 1;
+    } 
+    return 0;
+}
+#endif
+
 void remove_from_cstring(char *str, char c, char c_to);
 void sprintbit(long vektor, const char *names[], char *result);
 const char *strlist_aref(int idx, const char **names);

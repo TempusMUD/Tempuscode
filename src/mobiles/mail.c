@@ -56,6 +56,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include "prog.h"
 #include "mail.h"
 #include "editor.h"
+#include "strutil.h"
 
 // From cityguard.cc
 void call_for_help(struct creature *ch, struct creature *attacker);
@@ -508,9 +509,9 @@ postmaster_check_mail(struct creature *ch, struct creature *mailman)
     char buf2[256];
 
     if (has_mail(GET_IDNUM(ch))) {
-        strcpy(buf2, "You have mail waiting.");
+        strcpy_s(buf2, sizeof(buf2), "You have mail waiting.");
     } else
-        strcpy(buf2, "Sorry, you don't have any mail waiting.");
+        strcpy_s(buf2, sizeof(buf2), "Sorry, you don't have any mail waiting.");
     perform_tell(mailman, ch, buf2);
 }
 

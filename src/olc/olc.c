@@ -849,9 +849,7 @@ ACMD(do_olc)
                         "What??  How about giving me some keywords to add...\r\n");
                     return;
                 } else {
-                    strcpy(buf, desc->keyword);
-                    strcat(buf, " ");
-                    strcat(buf, arg2);
+                    snprintf(buf, sizeof(buf), "%s %s", desc->keyword, arg2);
                     free(desc->keyword);
                     desc->keyword = strdup(buf);
                     UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
@@ -1529,12 +1527,12 @@ ACMD(do_olc)
                             sprintf(buf2, "%s%s%c%s ", buf2, CCYEL(ch, C_NRM),
                                 dirs[i][0], CCNRM(ch, C_NRM));
                     } else
-                        strcat(buf2, "  ");
+                        strcat_s(buf2, sizeof(buf2), "  ");
                 }
 
                 if (found) {
-                    strcat(buf2, "]\n");
-                    strcat(buf, buf2);
+                    strcat_s(buf2, sizeof(buf2), "]\n");
+                    strcat_s(buf, sizeof(buf), buf2);
                 }
             }
 
@@ -1799,14 +1797,14 @@ show_olc_help(struct creature *ch, char *arg)
 
     half_chop(arg, arg1, arg2);
     if (!*arg1) {
-        strcpy(buf, "Valid help keywords:\r\n");
-        strcat(buf, CCYEL(ch, C_NRM));
+        strcpy_s(buf, sizeof(buf), "Valid help keywords:\r\n");
+        strcat_s(buf, sizeof(buf), CCYEL(ch, C_NRM));
         while (i < NUM_OLC_HELPS) {
-            strcat(buf, olc_help_keys[i]);
-            strcat(buf, "\r\n");
+            strcat_s(buf, sizeof(buf), olc_help_keys[i]);
+            strcat_s(buf, sizeof(buf), "\r\n");
             i++;
         }
-        strcat(buf, CCNRM(ch, C_NRM));
+        strcat_s(buf, sizeof(buf), CCNRM(ch, C_NRM));
         page_string(ch->desc, buf);
         return;
     } else if ((which_help = search_block(arg1, olc_help_keys, false)) < 0) {
@@ -1816,145 +1814,145 @@ show_olc_help(struct creature *ch, char *arg)
     }
     switch (which_help) {
     case 0:       /******* rflags ********/
-        strcpy(buf, "ROOM FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "ROOM FLAGS:\r\n");
         for (i = 0; i < NUM_ROOM_FLAGS; i++) {
             num2str(smallbuf, (1 << i));
             sprintf(buf2, "  %s         %s%-10s %-10s%s\r\n", smallbuf,
                 CCCYN(ch, C_NRM), room_bits[i], roomflag_names[i], CCNRM(ch,
                     C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 1:      /********* rsector **********/
-        strcpy(buf, "ROOM SECTOR TYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "ROOM SECTOR TYPES:\r\n");
         for (i = 0; i < NUM_SECT_TYPES; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n", i, CCCYN(ch, C_NRM),
                 sector_types[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 2:
-        strcpy(buf, "ROOM FLOW TYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "ROOM FLOW TYPES:\r\n");
         for (i = 0; i < NUM_FLOW_TYPES; i++) {
             sprintf(buf2, "%2d         %s%-20s%s  '%s'\r\n", i, CCCYN(ch,
                     C_NRM), flow_types[i], CCNRM(ch, C_NRM),
                 char_flow_msg[i][2]);
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 3:
-        strcpy(buf, "DOOR FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "DOOR FLAGS:\r\n");
         for (i = 0; i < NUM_DOORFLAGS; i++) {
             num2str(smallbuf, (1 << i));
             sprintf(buf2, "  %s         %s%s%s\r\n", smallbuf, CCCYN(ch,
                     C_NRM), exit_bits[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 4:
-        strcpy(buf, "ITEM TYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "ITEM TYPES:\r\n");
         for (i = 0; i < NUM_ITEM_TYPES; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n", i, CCCYN(ch, C_NRM),
                 item_types[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 5:
-        strcpy(buf, "OBJ EXTRA1 FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "OBJ EXTRA1 FLAGS:\r\n");
         for (i = 0; i < NUM_EXTRA_FLAGS; i++) {
             num2str(smallbuf, (1 << i));
             sprintf(buf2, "  %s         %s%-10s %-10s %s\r\n",
                 smallbuf, CCCYN(ch, C_NRM),
                 extra_bits[i], extra_names[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 6:
-        strcpy(buf, "OBJ EXTRA2 FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "OBJ EXTRA2 FLAGS:\r\n");
         for (i = 0; i < NUM_EXTRA2_FLAGS; i++) {
             num2str(smallbuf, (1 << i));
             sprintf(buf2, "  %s         %s%-10s %-10s%s\r\n",
                 smallbuf, CCCYN(ch, C_NRM),
                 extra2_bits[i], extra2_names[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 7:
-        strcpy(buf, "OBJ WEAR FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "OBJ WEAR FLAGS:\r\n");
         for (i = 0; i < NUM_WEAR_FLAGS; i++) {
             num2str(smallbuf, (1 << i));
             sprintf(buf2, "  %s         %s%s%s\r\n", smallbuf, CCCYN(ch,
                     C_NRM), wear_bits[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 8:
-        strcpy(buf, "##  LIQUID            Drunk     Hunger   Thirst\r\n");
+        strcpy_s(buf, sizeof(buf), "##  LIQUID            Drunk     Hunger   Thirst\r\n");
         for (i = 0; i < NUM_LIQUID_TYPES; i++) {
             sprintf(buf2, "%2d  %s%-20s%s  %3d   %3d  %3d\r\n",
                 i, CCCYN(ch, C_NRM), drinks[i], CCNRM(ch, C_NRM),
                 (int)drink_aff[i][0], (int)drink_aff[i][1],
                 (int)drink_aff[i][2]);
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 9:
-        strcpy(buf, "ITEM APPLIES:\r\n");
+        strcpy_s(buf, sizeof(buf), "ITEM APPLIES:\r\n");
         for (i = 0; i < NUM_APPLIES; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), apply_types[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 10:
-        strcpy(buf, "RACES:\r\n");
+        strcpy_s(buf, sizeof(buf), "RACES:\r\n");
         for (i = 0; i < NUM_RACES; i++) {
             struct race *race = race_by_idnum(i);
             if (race) {
                 sprintf(buf2, "%2d         %s%s%s\r\n",
                         i, CCCYN(ch, C_NRM), race->name, CCNRM(ch, C_NRM));
-                strcat(buf, buf2);
+                strcat_s(buf, sizeof(buf), buf2);
             }
         }
         page_string(ch->desc, buf);
         break;
     case 11:
-        strcpy(buf, "AFF FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "AFF FLAGS:\r\n");
         for (i = 0; i < NUM_AFF_FLAGS; i++) {
             num2str(smallbuf, (1 << i));
             sprintf(buf2, "  %s         %s%s%s\r\n", smallbuf, CCCYN(ch,
                     C_NRM), affected_bits_desc[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 12:
-        strcpy(buf, "AFF2 FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "AFF2 FLAGS:\r\n");
         for (i = 0; i < NUM_AFF2_FLAGS; i++) {
             num2str(smallbuf, (1 << i));
             sprintf(buf2, "  %s         %s%s%s\r\n", smallbuf, CCCYN(ch,
                     C_NRM), affected2_bits_desc[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 13:
-        strcpy(buf, "AFF3 FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "AFF3 FLAGS:\r\n");
         for (i = 0; i < NUM_AFF3_FLAGS; i++) {
             num2str(smallbuf, (1 << i));
             sprintf(buf2, "  %s         %s%s%s\r\n", smallbuf, CCCYN(ch,
                     C_NRM), affected3_bits_desc[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
@@ -2012,24 +2010,24 @@ show_olc_help(struct creature *ch, char *arg)
             return;
         }
 
-        strcpy(buf, "SPELLS:\r\n");
+        strcpy_s(buf, sizeof(buf), "SPELLS:\r\n");
         for (i = 1; i < TOP_NPC_SPELL; i++) {
             if (strcmp(spell_to_str(i), "!UNUSED!")) {
                 sprintf(buf2, "%3d         %s%s%s\r\n",
                     i, CCCYN(ch, C_NRM), spell_to_str(i), CCNRM(ch, C_NRM));
-                strcat(buf, buf2);
+                strcat_s(buf, sizeof(buf), buf2);
             }
         }
         page_string(ch->desc, buf);
         break;
 
     case 16:
-        strcpy(buf, "ATTACKTYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "ATTACKTYPES:\r\n");
         for (i = 0; i < (TOP_ATTACKTYPE - TOP_SPELL_DEFINE - 1); i++) {
             sprintf(buf2, "%2d         %s%10s  %-10s%s\r\n",
                 i, CCCYN(ch, C_NRM), attack_hit_text[i].singular,
                 attack_hit_text[i].plural, CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
 
         page_string(ch->desc, buf);
@@ -2045,12 +2043,12 @@ show_olc_help(struct creature *ch, char *arg)
             j = TOT_ZONE_FLAGS;
         else
             j = NUM_ZONE_FLAGS;
-        strcpy(buf, "ZONE FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "ZONE FLAGS:\r\n");
         for (i = 0; i < j; i++) {
             if (!is_number(zone_flags[i])) {
                 sprintf(buf2, "%2d         %s%s%s\r\n",
                     i, CCCYN(ch, C_NRM), zone_flags[i], CCNRM(ch, C_NRM));
-                strcat(buf, buf2);
+                strcat_s(buf, sizeof(buf), buf2);
             }
         }
         page_string(ch->desc, buf);
@@ -2074,93 +2072,93 @@ show_olc_help(struct creature *ch, char *arg)
             return;
         }
 
-        strcpy(buf, "MATERIALS:\r\n");
+        strcpy_s(buf, sizeof(buf), "MATERIALS:\r\n");
         for (i = 0; i < TOP_MATERIAL; i++) {
             if (strcasecmp(material_names[i], "*")) {
                 sprintf(buf2, "%2d         %s%s%s\r\n",
                     i, CCYEL(ch, C_NRM), material_names[i], CCNRM(ch, C_NRM));
                 if ((strlen(buf2) + strlen(buf) + 128) > MAX_STRING_LENGTH) {
-                    strcat(buf2, "***OVERFLOW***\r\n");
+                    strcat_s(buf2, sizeof(buf2), "***OVERFLOW***\r\n");
                     break;
                 }
-                strcat(buf, buf2);
+                strcat_s(buf, sizeof(buf), buf2);
             }
         }
         page_string(ch->desc, buf);
         break;
 
     case 20:          /** bomb types **/
-        strcpy(buf, "BOMB TYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "BOMB TYPES:\r\n");
         for (i = 0; i < MAX_BOMB_TYPES; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), bomb_types[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 21:          /** fuse types **/
-        strcpy(buf, "FUSE TYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "FUSE TYPES:\r\n");
         for (i = 0; i <= FUSE_MOTION; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), fuse_types[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 22:          /** mob flags **/
-        strcpy(buf, "MOB FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "MOB FLAGS:\r\n");
         for (i = 0; i < NUM_NPC_FLAGS; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), action_bits_desc[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 23:          /** mob flags2 **/
-        strcpy(buf, "MOB FLAGS2:\r\n");
+        strcpy_s(buf, sizeof(buf), "MOB FLAGS2:\r\n");
         for (i = 0; i < NUM_NPC2_FLAGS; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), action2_bits_desc[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 24:          /** position **/
-        strcpy(buf, "POSITIONS:\r\n");
+        strcpy_s(buf, sizeof(buf), "POSITIONS:\r\n");
         for (i = 0; i <= NUM_POSITIONS; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), position_types[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 25:          /** sex **/
-        strcpy(buf, "GENDERS:\r\n");
+        strcpy_s(buf, sizeof(buf), "GENDERS:\r\n");
         for (i = 0; i <= 2; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), genders[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 26:          /** char_class **/
-        strcpy(buf, "CLASSES:\r\n");
+        strcpy_s(buf, sizeof(buf), "CLASSES:\r\n");
         for (i = 0; i < TOP_CLASS; i++) {
             if (strcasecmp(class_names[i], "ILL")) {
                 sprintf(buf2, "%2d         %s%s%s\r\n",
                     i, CCCYN(ch, C_NRM), class_names[i], CCNRM(ch, C_NRM));
-                strcat(buf, buf2);
+                strcat_s(buf, sizeof(buf), buf2);
             }
         }
         page_string(ch->desc, buf);
         break;
     case 27:          /** itemtypes **/
-        strcpy(buf, "ITEM TYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "ITEM TYPES:\r\n");
         for (i = 0; i < NUM_ITEM_TYPES; i++) {
             if (strcasecmp(item_types[i], "ILL")) {
                 sprintf(buf2, "%2d         %s%s%s\r\n",
                     i, CCCYN(ch, C_NRM), item_types[i], CCNRM(ch, C_NRM));
-                strcat(buf, buf2);
+                strcat_s(buf, sizeof(buf), buf2);
             }
         }
         page_string(ch->desc, buf);
@@ -2171,52 +2169,52 @@ show_olc_help(struct creature *ch, char *arg)
     case 29:          /** tradewith **/
         send_to_char(ch, "Disabled.\r\n");
     case 30:/** implantpos **/
-        strcpy(buf, "IMPLANT POSITIONS:\r\n");
+        strcpy_s(buf, sizeof(buf), "IMPLANT POSITIONS:\r\n");
         for (i = 0; i < NUM_WEARS; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), wear_implantpos[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
 
     case 31:/** smokes **/
-        strcpy(buf, "SMOKE TYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "SMOKE TYPES:\r\n");
         for (i = 0; i < NUM_SMOKES; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), smoke_types[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
 
     case 32:/** temper **/
-        strcpy(buf, "SHOP TEMPER:\r\n");
+        strcpy_s(buf, sizeof(buf), "SHOP TEMPER:\r\n");
         for (i = 0; i < NUM_SHOP_TEMPER; i++) {
             sprintf(buf2, "%2d         %s%s%s\r\n",
                 i, CCCYN(ch, C_NRM), temper_str[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
 
     case 33:/** vehicles **/
-        strcpy(buf, "VEHICLE TYPE BITZ:\r\n");
+        strcpy_s(buf, sizeof(buf), "VEHICLE TYPE BITZ:\r\n");
         for (i = 0; i < NUM_VEHICLE_TYPES; i++) {
             sprintf(buf2, "%4d         %s%s%s\r\n",
                 (1 << i), CCCYN(ch, C_NRM), vehicle_types[i], CCNRM(ch,
                     C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
 
     case 34:/** engines **/
-        strcpy(buf, "ENGINE BITZ:\r\n");
+        strcpy_s(buf, sizeof(buf), "ENGINE BITZ:\r\n");
         for (i = 0; i < NUM_ENGINE_FLAGS; i++) {
             sprintf(buf2, "%4d         %s%s%s\r\n",
                 (1 << i), CCCYN(ch, C_NRM), engine_flags[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
@@ -2226,7 +2224,7 @@ show_olc_help(struct creature *ch, char *arg)
         break;
 
     case 36:/** guntypes **/
-        strcpy(buf, "GUN TYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "GUN TYPES:\r\n");
         for (i = 0; i < NUM_GUN_TYPES; i++) {
             sprintf(buf2,
                 "%2d     %s%15s%s ----  %2d d %-3d  (avg. %3d, max %3d)\r\n",
@@ -2234,51 +2232,51 @@ show_olc_help(struct creature *ch, char *arg)
                 gun_damage[i][0], gun_damage[i][1],
                 (gun_damage[i][0] * (gun_damage[i][1] + 1)) / 2,
                 gun_damage[i][0] * gun_damage[i][1]);
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
 
     case 37:/** interfaces **/
-        strcpy(buf, "INTERFACE TYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "INTERFACE TYPES:\r\n");
         for (i = 0; i < NUM_INTERFACES; i++) {
             sprintf(buf2,
                 "%2d     %s%10s%s\r\n",
                 i, CCCYN(ch, C_NRM), interface_types[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
 
     case 38:/**  microchips **/
-        strcpy(buf, "MICROCHIP TYPES:\r\n");
+        strcpy_s(buf, sizeof(buf), "MICROCHIP TYPES:\r\n");
         for (i = 0; i < NUM_CHIPS; i++) {
             sprintf(buf2,
                 "%2d     %s%10s%s\r\n",
                 i, CCCYN(ch, C_NRM), microchip_types[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
 
     case 39:/** searchflags **/
-        strcpy(buf, "SEARCH BITS:\r\n");
+        strcpy_s(buf, sizeof(buf), "SEARCH BITS:\r\n");
         for (i = 0; i < NUM_SRCH_BITS; i++) {
             sprintf(buf2, " %s%-15s%s  -  %s\r\n",
                 CCCYN(ch, C_NRM), search_bits[i], CCNRM(ch, C_NRM),
                 searchflag_help[i]);
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;
     case 40:
-        strcpy(buf, "OBJ EXTRA3 FLAGS:\r\n");
+        strcpy_s(buf, sizeof(buf), "OBJ EXTRA3 FLAGS:\r\n");
         for (i = 0; i < NUM_EXTRA3_FLAGS; i++) {
             num2str(smallbuf, (1 << i));
             sprintf(buf2, "  %s         %s%-10s %-10s%s\r\n",
                 smallbuf, CCCYN(ch, C_NRM),
                 extra3_bits[i], extra3_names[i], CCNRM(ch, C_NRM));
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
         break;

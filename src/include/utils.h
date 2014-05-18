@@ -60,7 +60,7 @@ void show_string(struct descriptor_data *desc);
 int number(int from, int to);
 double float_number(double from, double to);
 int dice(int number, int size);
-int get_line(FILE * fl, char *buf);
+int get_line(FILE *fl, char *buf, size_t buf_size);
 void perform_skillset(struct creature *ch, struct creature *vict, char *skill_str, int value);
 float total_obj_weight(struct obj_data *obj);
 
@@ -110,7 +110,8 @@ int mana_gain(struct creature *ch);
 int hit_gain(struct creature *ch);
 int move_gain(struct creature *ch);
 void advance_level(struct creature *ch, int8_t keep_internal);
-void set_title(struct creature *ch, const char *title);
+void set_title(struct creature *ch, const char *title)
+    __attribute__ ((nonnull));
 void gain_exp(struct creature *ch, int gain);
 void gain_exp_regardless(struct creature *ch, int gain);
 void gain_condition(struct creature *ch, int condition, int value);

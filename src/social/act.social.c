@@ -306,9 +306,9 @@ ACMD(do_insult)
 }
 
 char *
-fread_action(FILE * fl, int nr)
+fread_action(FILE *fl, int nr)
 {
-    char buf[MAX_STRING_LENGTH], *rslt;
+    char buf[MAX_STRING_LENGTH];
 
     if (!fgets(buf, MAX_STRING_LENGTH, fl)) {
         perror(tmp_sprintf("fread_action - unexpected EOF near action #%d",
@@ -319,14 +319,12 @@ fread_action(FILE * fl, int nr)
         fprintf(stderr, "fread_action - unexpected EOF near action #%d", nr);
         safe_exit(1);
     }
-    if (*buf == '#')
-        return (NULL);
-    else {
-        buf[strlen(buf) - 1] = '\0';
-        CREATE(rslt, char, strlen(buf) + 1);
-        strcpy(rslt, buf);
-        return (rslt);
+
+    if (buf[0] == '#') {
+        return NULL;
     }
+
+    return strdup(buf);
 }
 
 #define MAX_SOCIALS 500

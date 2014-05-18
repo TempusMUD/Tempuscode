@@ -161,6 +161,8 @@ bool char_to_room(struct creature *ch, struct room_data *room, bool check_specia
 int weapon_prof(struct creature *ch, struct obj_data *obj)
     __attribute__ ((nonnull));
 
+void print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size);
+
 /* Generic Find */
 
 int generic_find(char *arg, int bitvector, struct creature *ch,

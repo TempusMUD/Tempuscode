@@ -65,7 +65,6 @@ long special(struct creature *ch, int cmd, int subcmd, char *arg,
 void path_remove_object(void *object);
 void free_paths();
 void free_socials();
-void print_attributes_to_buf(struct creature *ch, char *buff);
 extern struct clan_data *clan_list;
 
 void
@@ -1880,7 +1879,7 @@ get_char_room_vis(struct creature *ch, const char *name)
     struct affected_type *af = NULL;
 
     /* 0.<name> means PC with name */
-    strcpy(tmp, name);
+    strcpy_s(tmpname, sizeof(tmpname), name);
     number = get_number(&tmp);
 
     if (number == 0)
@@ -2017,7 +2016,7 @@ get_char_vis(struct creature *ch, const char *name)
         return i;
 
     // 0.name means player only
-    strcpy(tmp, name);
+    strcpy_s(tmpname, sizeof(tmpname), name);
     if (!(number = get_number(&tmp)))
         return get_player_vis(ch, tmp, 0);
 
@@ -2039,7 +2038,7 @@ get_obj_in_list_vis(struct creature *ch, const char *name,
     char tmpname[MAX_INPUT_LENGTH];
     char *tmp = tmpname;
 
-    strcpy(tmp, name);
+    strcpy_s(tmpname, sizeof(tmpname), name);
     if (!(number = get_number(&tmp)))
         return NULL;
 
@@ -2061,7 +2060,7 @@ get_obj_in_list_all(struct creature *ch, const char *name,
     char tmpname[MAX_INPUT_LENGTH];
     char *tmp = tmpname;
 
-    strcpy(tmp, name);
+    strcpy_s(tmpname, sizeof(tmpname), name);
     if (!(number = get_number(&tmp)))
         return NULL;
 
@@ -2098,7 +2097,7 @@ get_obj_vis(struct creature *ch, const char *name)
         if ((i = get_obj_in_list_vis(ch, name, ch->in_room->contents)))
             return i;
 
-        strcpy(tmp, name);
+        strcpy_s(tmpname, sizeof(tmpname), name);
         if (!(number = get_number(&tmp)))
             return NULL;
 
@@ -2133,7 +2132,7 @@ get_object_in_equip_vis(struct creature *ch,
     char tmpname[MAX_INPUT_LENGTH];
     char *tmp = tmpname;
 
-    strcpy(tmp, arg);
+    strcpy_s(tmpname, sizeof(tmpname), arg);
     if (!(number = get_number(&tmp)))
         return NULL;
 
@@ -2156,7 +2155,7 @@ get_object_in_equip_all(struct creature *ch,
     char tmpname[MAX_INPUT_LENGTH];
     char *tmp = tmpname;
 
-    strcpy(tmp, arg);
+    strcpy_s(tmpname, sizeof(tmpname), arg);
     if (!(number = get_number(&tmp)))
         return NULL;
 

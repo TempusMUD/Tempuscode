@@ -88,7 +88,6 @@ void handle_network(struct descriptor_data *d, char *arg);
 int general_search(struct creature *ch, struct special_search_data *srch,
     int mode);
 void roll_real_abils(struct creature *ch);
-void print_attributes_to_buf(struct creature *ch, char *buff);
 void show_character_detail(struct descriptor_data *d);
 void flush_q(struct txt_q *queue);
 int _parse_name(char *arg, char *name);
@@ -119,19 +118,18 @@ push_command_onto_list(struct creature *ch, char *string)
 
     for (i = NUM_SAVE_CMDS - 2; i >= 0; i--) {
         last_cmd[i + 1].idnum = last_cmd[i].idnum;
-        strcpy(last_cmd[i + 1].name, last_cmd[i].name);
+        strcpy_s(last_cmd[i + 1].name, sizeof(last_cmd[i + 1].name), last_cmd[i].name);
         last_cmd[i + 1].roomnum = last_cmd[i].roomnum;
-        strcpy(last_cmd[i + 1].room, last_cmd[i].room);
-        strcpy(last_cmd[i + 1].string, last_cmd[i].string);
+        strcpy_s(last_cmd[i + 1].room, sizeof(last_cmd[i + 1].room), last_cmd[i].room);
+        strcpy_s(last_cmd[i + 1].string, sizeof(last_cmd[i + 1].string), last_cmd[i].string);
     }
 
     last_cmd[0].idnum = GET_IDNUM(ch);
     last_cmd[0].roomnum = (ch->in_room) ? ch->in_room->number : -1;
-    snprintf(last_cmd[0].name, MAX_INPUT_LENGTH, "%s", GET_NAME(ch));
-    snprintf(last_cmd[0].room, MAX_INPUT_LENGTH, "%s",
-             (ch->in_room && ch->in_room->name) ?
-             ch->in_room->name : "<NULL>");
-    snprintf(last_cmd[0].string, MAX_INPUT_LENGTH, "%s", string);
+    strcpy_s(last_cmd[0].name, sizeof(last_cmd[0].name), GET_NAME(ch));
+    strcpy_s(last_cmd[0].room, sizeof(last_cmd[0].room),
+             (ch->in_room && ch->in_room->name) ? ch->in_room->name : "<NULL>");
+    strcpy_s(last_cmd[0].string, sizeof(last_cmd[0].string), string);
 }
 
 gboolean
@@ -1147,7 +1145,7 @@ send_prompt(struct descriptor_data *d)
         break;
     case CXN_STATISTICS_ROLL:
         roll_real_abils(d->creature);
-        print_attributes_to_buf(d->creature, buf2);
+        print_attributes_to_buf(d->creature, buf2, sizeof(buf2));
         d_printf(d,
             "&@&c\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n");
         d_printf(d, "%s\r\n", buf2);
@@ -2220,7 +2218,7 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
 int
 check_newbie_ban(struct descriptor_data *desc)
 {
-    int bantype = isbanned(desc->host, buf2);
+    int bantype = isbanned(desc->host, buf2, sizeof(buf2));
     if (bantype == BAN_NEW) {
         d_printf(desc, "**************************************************"
             "******************************\r\n");

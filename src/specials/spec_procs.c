@@ -172,29 +172,29 @@ char *
 how_good(int percent)
 {
     if (percent < 0)
-        strcpy(buf, " (terrible)");
+        strcpy_s(buf, sizeof(buf), " (terrible)");
     else if (percent == 0)
-        strcpy(buf, " (not learned)");
+        strcpy_s(buf, sizeof(buf), " (not learned)");
     else if (percent <= 10)
-        strcpy(buf, " (awful)");
+        strcpy_s(buf, sizeof(buf), " (awful)");
     else if (percent <= 20)
-        strcpy(buf, " (bad)");
+        strcpy_s(buf, sizeof(buf), " (bad)");
     else if (percent <= 40)
-        strcpy(buf, " (poor)");
+        strcpy_s(buf, sizeof(buf), " (poor)");
     else if (percent <= 55)
-        strcpy(buf, " (average)");
+        strcpy_s(buf, sizeof(buf), " (average)");
     else if (percent <= 70)
-        strcpy(buf, " (fair)");
+        strcpy_s(buf, sizeof(buf), " (fair)");
     else if (percent <= 80)
-        strcpy(buf, " (good)");
+        strcpy_s(buf, sizeof(buf), " (good)");
     else if (percent <= 85)
-        strcpy(buf, " (very good)");
+        strcpy_s(buf, sizeof(buf), " (very good)");
     else if (percent <= 100)
-        strcpy(buf, " (superb)");
+        strcpy_s(buf, sizeof(buf), " (superb)");
     else if (percent <= 150)
-        strcpy(buf, " (extraordinary)");
+        strcpy_s(buf, sizeof(buf), " (extraordinary)");
     else
-        strcpy(buf, " (superhuman)");
+        strcpy_s(buf, sizeof(buf), " (superhuman)");
 
     return (buf);
 }
@@ -1805,7 +1805,7 @@ SPECIAL(weapon_lister)
     for (i = 0; i < 60; i++)
         avg_dam[i] = 0;
 
-    strcpy(buf3, "");
+    strcpy_s(buf3, sizeof(buf3), "");
     GHashTableIter iter;
     gpointer key, val;
 
@@ -1831,7 +1831,7 @@ SPECIAL(weapon_lister)
         else if (dam > 0)
             sprintf(buf, "%s-%-2d", buf, -dam);
         else
-            strcat(buf, "   ");
+            strcat_s(buf, sizeof(buf), "   ");
 
         sprintf(buf, "%s (%2d) %3.2f lb ", buf,
             (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam,
@@ -1844,7 +1844,7 @@ SPECIAL(weapon_lister)
                             2) + 1) / 2) + dam]++;
 
         if (IS_TWO_HAND(obj))
-            strcat(buf, "2-H ");
+            strcat_s(buf, sizeof(buf), "2-H ");
 
         if (GET_OBJ_VAL(obj, 0))
             sprintf(buf, "%sCast:%s ", buf, spell_to_str(GET_OBJ_VAL(obj, 0)));
@@ -1852,7 +1852,7 @@ SPECIAL(weapon_lister)
         for (i = 0, found = 0; i < 3; i++)
             if (obj->obj_flags.bitvector[i]) {
                 if (!found)
-                    strcat(buf, "Set: ");
+                    strcat_s(buf, sizeof(buf), "Set: ");
                 found = 1;
                 if (i == 0)
                     sprintbit(obj->obj_flags.bitvector[i], affected_bits,
@@ -1863,8 +1863,8 @@ SPECIAL(weapon_lister)
                 else
                     sprintbit(obj->obj_flags.bitvector[i], affected3_bits,
                         buf2);
-                strcat(buf, buf2);
-                strcat(buf, " ");
+                strcat_s(buf, sizeof(buf), buf2);
+                strcat_s(buf, sizeof(buf), " ");
             }
 
         for (i = 0; i < MAX_OBJ_AFFECT; i++)
@@ -1875,11 +1875,11 @@ SPECIAL(weapon_lister)
                     obj->affected[i].modifier > 0 ? "+" : "",
                     obj->affected[i].modifier);
 
-        strcat(buf, "\r\n");
-        strcat(buf3, buf);
+        strcat_s(buf, sizeof(buf), "\r\n");
+        strcat_s(buf3, sizeof(buf3), buf);
     }
 
-    strcat(buf3, "\r\n\r\n");
+    strcat_s(buf3, sizeof(buf3), "\r\n\r\n");
 
     for (i = 0; i < 60; i++)
         sprintf(buf3, "%s%2d -- [ %2d] weapons\r\n", buf3, i, avg_dam[i]);

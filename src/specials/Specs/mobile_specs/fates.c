@@ -63,15 +63,15 @@ SPECIAL(fate)
     // Who is she?
     switch (GET_NPC_VNUM(fate)) {
     case FATE_VNUM_LOW:
-        strcpy(dyn_name, "fatelow");
+        strcpy_s(dyn_name, sizeof(dyn_name), "fatelow");
         which_fate = 0;
         break;
     case FATE_VNUM_MID:
-        strcpy(dyn_name, "fatemid");
+        strcpy_s(dyn_name, sizeof(dyn_name), "fatemid");
         which_fate = 1;
         break;
     case FATE_VNUM_HIGH:
-        strcpy(dyn_name, "fatehigh");
+        strcpy_s(dyn_name, sizeof(dyn_name), "fatehigh");
         which_fate = 2;
         break;
     default:
@@ -102,9 +102,10 @@ SPECIAL(fate)
         return 1;
     }
     // Grab the rooms out of the buffer
-    CREATE(roomlist_buf_top, char, strlen(dyntext->buffer) + 1);
+    size_t len = strlen(dyntext->buffer);
+    CREATE(roomlist_buf_top, char, len + 1);
     roomlist_buf = roomlist_buf_top;
-    strcpy(roomlist_buf, dyntext->buffer);
+    strcpy_s(roomlist_buf, len + 1, dyntext->buffer);
 
     // Copy over the buf, ignoring all non numbers
     while (*roomlist_buf) {

@@ -721,7 +721,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
                 || (SECT_TYPE(ch->in_room) != SECT_PITCH_SUB
                     && SECT_TYPE(EXIT(ch, dir)->to_room) == SECT_PITCH_SUB))
             && dir == DOWN)
-            strcpy(buf, "$n disappears below the surface.");
+            strcpy_s(buf, sizeof(buf), "$n disappears below the surface.");
         else if (IS_FISH(ch)) {
             sprintf(buf, "$n swims %s.", to_dirs[dir]);
         } else {
@@ -972,7 +972,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
                 || (SECT_TYPE(ch->in_room) != SECT_PITCH_SUB
                     && SECT_TYPE(was_in) == SECT_PITCH_SUB))
             && dir == UP)
-            strcpy(buf, "$n appears from below the surface.");
+            strcpy_s(buf, sizeof(buf), "$n appears from below the surface.");
         else if (AFF_FLAGGED(ch, AFF_WATERWALK) && !IS_FISH(ch) &&
             SECT_TYPE(ch->in_room) != SECT_PITCH_SUB &&
             SECT_TYPE(ch->in_room) != SECT_UNDERWATER)
@@ -1645,7 +1645,7 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
         if (back)
             LOCK_DOOR(other_room, obj, rev_dir[door]);
         send_to_char(ch, "The lock quickly yields to your skills.\r\n");
-        strcpy(buf, "$n skillfully picks the lock on ");
+        strcpy_s(buf, sizeof(buf), "$n skillfully picks the lock on ");
         wait_state = 30;        // 3 sec
         break;
     case SCMD_HACK:
@@ -1653,7 +1653,7 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
         if (back)
             LOCK_DOOR(other_room, obj, rev_dir[door]);
         send_to_char(ch, "The system quickly yields to your skills.\r\n");
-        strcpy(buf, "$n skillfully hacks access to ");
+        strcpy_s(buf, sizeof(buf), "$n skillfully hacks access to ");
         wait_state = 30;        // 3 sec
         break;
 
@@ -1674,11 +1674,11 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
 
     /* Notify the room */
     if (obj)
-        strcpy(buf + strlen(buf), "$p.");
+        strcat_s(buf, sizeof(buf), "$p.");
     else if (EXIT(ch, door)->keyword)
-        sprintf(buf + strlen(buf), "the %s.", fname(EXIT(ch, door)->keyword));
+        strcat_s(buf, sizeof(buf), tmp_sprintf("the %s", fname(EXIT(ch, door)->keyword)));
     else
-        strcpy(buf + strlen(buf), "the door.");
+        strcat_s(buf, sizeof(buf), "the door.");
 
     if (!(obj) || (obj->in_room != NULL))
         act(buf, false, ch, obj, NULL, TO_ROOM);
@@ -1699,7 +1699,6 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
             SET_BIT(ROOM_FLAGS(EXIT(ch, door)->to_room), ROOM_HOUSE_CRASH);
 
     }
-
 }
 
 int
@@ -1807,9 +1806,9 @@ ACMD(do_gen_door)
                  (IS_SET(flags_door[subcmd], NEED_CLOSED)) &&
                  ((dice(2, 7) + strength_damage_bonus(GET_STR(ch))) < 12)) {
             if (EXIT(ch, door)->keyword)
-                strcpy(dname, fname(EXIT(ch, door)->keyword));
+                strcpy_s(dname, sizeof(dname), fname(EXIT(ch, door)->keyword));
             else
-                strcpy(dname, "door");
+                strcpy_s(dname, sizeof(dname), "door");
 
             if (GET_MOVE(ch) < 10) {
                 send_to_char(ch, "You are too exhausted.\r\n");

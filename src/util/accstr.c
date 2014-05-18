@@ -5,7 +5,6 @@
 #include <signal.h>
 #include <libxml/parser.h>
 
-
 const size_t DEFAULT_ACCUM_SIZE = 65536;    // 64k to start with
 const size_t MAX_STR_ALLOC = 20 * 1024 * 1024;  // 20MB hard maximum
 

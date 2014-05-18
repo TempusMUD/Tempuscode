@@ -10,6 +10,8 @@
 
 #include "interpreter.h"
 #include "tmpstr.h"
+#include "utils.h"
+#include "strutil.h"
 
 struct tmp_str_pool {
     struct tmp_str_pool *next;  // Ptr to next in linked list

@@ -51,6 +51,7 @@
 #include "actions.h"
 #include "weather.h"
 #include "players.h"
+#include "strutil.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
@@ -3233,8 +3234,8 @@ mag_summons(int level __attribute__ ((unused)),
         add_follower(mob, ch);
         act(mag_summon_msgs[fmsg], false, ch, NULL, mob, TO_ROOM);
         if (spellnum == SPELL_CLONE) {
-            strcpy(GET_NAME(mob), GET_NAME(ch));
-            strcpy(mob->player.short_descr, GET_NAME(ch));
+            strcpy_s(GET_NAME(mob), sizeof(GET_NAME(mob)), GET_NAME(ch));
+            strcpy_s(mob->player.short_descr, sizeof(mob->player.short_descr), GET_NAME(ch));
         }
     }
     if (handle_corpse) {

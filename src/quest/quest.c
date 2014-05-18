@@ -778,8 +778,8 @@ list_quest_players(struct creature *ch, struct quest *quest, char *outbuf)
     struct creature *vict = NULL;
     char bitbuf[1024];
 
-    strcpy(buf, "  -Online Players------------------------------------\r\n");
-    strcpy(buf2, "  -Offline Players-----------------------------------\r\n");
+    strcpy_s(buf, sizeof(buf), "  -Online Players------------------------------------\r\n");
+    strcpy_s(buf2, sizeof(buf2), "  -Offline Players-----------------------------------\r\n");
 
     num_online = num_offline = 0;
     for (GList * pit = quest->players; pit; pit = pit->next) {
@@ -787,8 +787,8 @@ list_quest_players(struct creature *ch, struct quest *quest, char *outbuf)
         const char *name = player_name_by_idnum(player->idnum);
 
         if (!name) {
-            strcat(buf, "BOGUS player idnum!\r\n");
-            strcat(buf2, "BOGUS player idnum!\r\n");
+            strcat_s(buf, sizeof(buf), "BOGUS player idnum!\r\n");
+            strcat_s(buf2, sizeof(buf2), "BOGUS player idnum!\r\n");
             errlog("bogus player idnum in list_quest_players.");
             break;
         }
@@ -796,7 +796,7 @@ list_quest_players(struct creature *ch, struct quest *quest, char *outbuf)
         if (player->flags) {
             sprintbit(player->flags, qp_bits, bitbuf);
         } else {
-            strcpy(bitbuf, "");
+            strcpy_s(bitbuf, sizeof(bitbuf), "");
         }
 
         // player is in world and visible
@@ -828,10 +828,10 @@ list_quest_players(struct creature *ch, struct quest *quest, char *outbuf)
 
     // only gods may see the offline players
     if (PRF_FLAGGED(ch, PRF_HOLYLIGHT))
-        strcat(buf, buf2);
+        strcat_s(buf, sizeof(buf), buf2);
 
     if (outbuf)
-        strcpy(outbuf, buf);
+        strcpy_s(outbuf, sizeof(outbuf), buf);
     else
         page_string(ch->desc, buf);
 
@@ -909,8 +909,8 @@ ACMD(do_qlog)
     if ((i = search_block(argument, qlog_types, false)) < 0) {
         buf[0] = '\0';
         for (i = 0; *qlog_types[i] != '\n'; i++) {
-            strcat(buf, qlog_types[i]);
-            strcat(buf, " ");
+            strcat_s(buf, sizeof(buf), qlog_types[i]);
+            strcat_s(buf, sizeof(buf), " ");
         }
         send_to_char(ch, "Unknown qlog type '%s'.  Options are: %s\r\n",
             argument, buf);
@@ -1470,7 +1470,7 @@ do_qcontrol_options(struct creature *ch)
 {
     int i = 0;
 
-    strcpy(buf, "qcontrol options:\r\n");
+    strcpy_s(buf, sizeof(buf), "qcontrol options:\r\n");
     while (1) {
         if (!qc_options[i].keyword)
             break;

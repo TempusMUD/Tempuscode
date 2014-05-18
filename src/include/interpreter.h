@@ -30,28 +30,11 @@ struct descriptor_data;
 
 void command_interpreter(struct creature *ch, const char *argument)
     __attribute__ ((nonnull));
-char lower(char c);
-char *one_argument(char *argument, char *first_arg)
-    __attribute__ ((nonnull));
-char *any_one_arg(char *argument, char *first_arg)
-    __attribute__ ((nonnull));
-char *two_arguments(char *argument, char *first_arg, char *second_arg)
-    __attribute__ ((nonnull));
-int fill_word(char *argument)
-    __attribute__ ((nonnull));
-void half_chop(char *string, char *arg1, char *arg2)
-    __attribute__ ((nonnull));
 gboolean handle_input(gpointer data)
-    __attribute__ ((nonnull));
-bool is_number(const char *str)
     __attribute__ ((nonnull));
 int find_command(const char *command)
     __attribute__ ((nonnull));
 int find_command_noabbrev(const char *command)
-    __attribute__ ((nonnull));
-void skip_spaces(char **string)
-    __attribute__ ((nonnull));
-void skip_spaces_const(const char **string)
     __attribute__ ((nonnull));
 void send_unknown_cmd(struct creature *ch)
     __attribute__ ((nonnull));

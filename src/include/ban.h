@@ -24,7 +24,7 @@ struct ban_entry {
 extern namestring *nasty_list;
 extern int num_nasty;
 
-int isbanned(char *hostname, char *blocking_hostname)
+int isbanned(char *hostname, char *blocking_hostname, size_t buf_size)
     __attribute__((nonnull));
 bool check_ban_all(GIOChannel *io, char *hostname)
     __attribute__((nonnull));

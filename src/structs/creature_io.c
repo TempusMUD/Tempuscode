@@ -1110,7 +1110,7 @@ set_player_field(struct creature *ch, const char *key, const char *val)
     else if (!strcmp(key, "poofout"))
         POOFOUT(ch) = strdup(val);
     else if (!strcmp(key, "immbadge"))
-        strcpy(BADGE(ch), val);
+        strcpy_s(BADGE(ch), sizeof(BADGE(ch)), val);
     else if (!strcmp(key, "sex"))
         GET_SEX(ch) = atoi(val);
     else if (!strcmp(key, "hitp"))

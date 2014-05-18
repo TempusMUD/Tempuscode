@@ -29,6 +29,7 @@
 #include "obj_data.h"
 #include "prog.h"
 #include "editor.h"
+#include "strutil.h"
 
 struct board_data {
     const char *name;

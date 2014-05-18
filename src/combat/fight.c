@@ -29,6 +29,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <glib.h>
+#include <libxml/parser.h>
 
 #include "interpreter.h"
 #include "structs.h"
@@ -57,7 +58,6 @@
 #include "flow_room.h"
 #include "bomb.h"
 #include "fight.h"
-#include <libxml/parser.h>
 #include "obj_data.h"
 #include "specs.h"
 #include "actions.h"
@@ -66,6 +66,7 @@
 #include "weather.h"
 #include "prog.h"
 #include "quest.h"
+#include "strutil.h"
 
 extern bool LOG_DEATHS;
 
@@ -2374,7 +2375,7 @@ damage(struct creature *ch, struct creature *victim,
                 // If it's arena, log it for complete only
                 // and tag it
                 if (arena) {
-                    strcat(logmsg, " [ARENA]");
+                    strcat_s(logmsg, sizeof(logmsg), " [ARENA]");
                     qlog(NULL, logmsg, QLOG_COMP, GET_INVIS_LVL(victim), true);
                 } else {
                     mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", logmsg);

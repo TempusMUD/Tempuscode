@@ -197,14 +197,14 @@ help_collection_list(struct help_collection *col,
             break;
         if (cur->idnum < start)
             continue;
-        help_item_show(cur, ch, linebuf, 1);
-        strcat(gHelpbuf, linebuf);
+        help_item_show(cur, ch, linebuf, sizeof(linebuf), 1);
+        strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
         space_left -= strlen(linebuf);
         if (space_left <= 0) {
             sprintf(linebuf,
                 "Maximum buffer size reached at item # %d. \r\nUse \"range\" param for higher numbered items.\r\n",
                 cur->idnum);
-            strcat(gHelpbuf, linebuf);
+            strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
             break;
         }
     }
@@ -389,17 +389,17 @@ help_collection_get_topic(struct help_collection *col,
     }
     // Normal plain old help. One item at a time.
     if (searchmode == false) {
-        help_item_show(cur, ch, gHelpbuf, mode);
+        help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), mode);
     } else {                    // Searching for multiple items.
         space_left -= strlen(gHelpbuf);
         for (; cur; cur = cur->next_show) {
-            help_item_show(cur, ch, linebuf, 1);
-            strcat(gHelpbuf, linebuf);
+            help_item_show(cur, ch, linebuf, sizeof(linebuf), 1);
+            strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
             space_left -= strlen(linebuf);
             if (space_left <= 0) {
                 sprintf(linebuf, "Maximum buffer size reached at item # %d.",
                     cur->idnum);
-                strcat(gHelpbuf, linebuf);
+                strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
                 break;
             }
         }
@@ -656,7 +656,7 @@ do_hcollect_cmds(struct creature *ch)
 {
     int i;
 
-    strcpy(gHelpbuf, "hcollect commands:\r\n");
+    strcpy_s(gHelpbuf, sizeof(gHelpbuf), "hcollect commands:\r\n");
     for (i = 0; hc_cmds[i].keyword; i++) {
         if (GET_LEVEL(ch) < hc_cmds[i].level)
             continue;
@@ -691,7 +691,7 @@ ACMD(do_immhelp)
     }
     // If we have a special case, do it, otherwise try to get it normally.
     if (cur) {
-        help_item_show(cur, ch, gHelpbuf, 2);
+        help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 2);
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_IMMHELP,
@@ -724,7 +724,7 @@ ACMD(do_hcollect_help)
     }
     // If we have a special case, do it, otherwise try to get it normally.
     if (cur) {
-        help_item_show(cur, ch, gHelpbuf, 2);
+        help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 2);
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_PLAYER, false);
@@ -744,7 +744,7 @@ do_qcontrol_help(struct creature *ch, char *argument)
     }
     // If we have a special case, do it, otherwise try to get it normally.
     if (cur) {
-        help_item_show(cur, ch, gHelpbuf, 2);
+        help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 2);
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false,
@@ -764,7 +764,7 @@ ACMD(do_olchelp)
     }
     // If we have a special case, do it, otherwise try to get it normally.
     if (cur) {
-        help_item_show(cur, ch, gHelpbuf, 2);
+        help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 2);
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_OLC,
@@ -843,7 +843,7 @@ ACMD(do_help_collection_command)
             for (GList * hit = help->items; hit; hit = hit->next) {
                 cur = hit->data;
                 if (cur->idnum == id) {
-                    help_item_show(cur, ch, gHelpbuf, 3);
+                    help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 3);
                     page_string(ch->desc, gHelpbuf);
                     return;
                 }
@@ -852,7 +852,7 @@ ACMD(do_help_collection_command)
             return;
         }
         if (GET_OLC_HELP(ch)) {
-            help_item_show(GET_OLC_HELP(ch), ch, gHelpbuf, 3);
+            help_item_show(GET_OLC_HELP(ch), ch, gHelpbuf, sizeof(gHelpbuf), 3);
             page_string(ch->desc, gHelpbuf);
         } else {
             send_to_char(ch, "Stat what item?\r\n");

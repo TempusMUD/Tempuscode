@@ -55,6 +55,7 @@
 #include "language.h"
 #include "weather.h"
 #include "prog.h"
+#include "strutil.h"
 
 extern struct obj_data *object_list;
 extern struct room_data *world;
@@ -321,9 +322,7 @@ move_gain(struct creature *ch)
 void
 set_title(struct creature *ch, const char *title)
 {
-    if (title == NULL) {
-        title = "";
-    }
+    skip_spaces_const(&title);
 
     if (strlen(title) > MAX_TITLE_LENGTH)
         title = tmp_substr(title, 0, MAX_TITLE_LENGTH);
@@ -332,16 +331,13 @@ set_title(struct creature *ch, const char *title)
 
     while (*title && ' ' == *title)
         title++;
-    GET_TITLE(ch) = (char *)malloc(strlen(title) + 2);
-    if (*title) {
-        if (!strncmp(title, "'s", 2)) {
-            strcpy(GET_TITLE(ch), title);
-        } else {
-            strcpy(GET_TITLE(ch), " ");
-            strcat(GET_TITLE(ch), title);
-        }
-    } else
-        *GET_TITLE(ch) = '\0';
+    if (*title == '\0') {
+        GET_TITLE(ch) = strdup("");
+    } else if (!strncmp(title, "'s", 2)) {
+        GET_TITLE(ch) = strdup(title);
+    } else {
+        GET_TITLE(ch) = strdup(tmp_sprintf(" %s", title));
+    }
 }
 
 void
