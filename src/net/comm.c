@@ -105,8 +105,8 @@ int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 void flush_q(struct txt_q *queue);
 void init_game(void);
 void signal_setup(void);
-void game_loop(int main_listener, int reader_listener);
-int init_socket(int port);
+void game_loop(GIOChannel * main_listener, GIOChannel *reader_listener);
+GIOChannel *init_socket(int port);
 int new_descriptor(int s, int port);
 int get_avail_descs(void);
 struct timespec timediff(struct timespec *a, struct timespec *b);
@@ -163,7 +163,6 @@ gboolean update_alignment_ambience(gpointer ignore);
 void
 init_game(void)
 {
-    int main_listener, reader_listener;
     void my_srand(unsigned long initial_seed);
     void verify_tempus_integrity(struct creature *ch);
 
@@ -175,9 +174,9 @@ init_game(void)
     slog("Testing internal integrity");
     verify_tempus_integrity(NULL);
 
-    slog("Opening mother connection.");
-    main_listener = init_socket(main_port);
-    reader_listener = init_socket(reader_port);
+    slog("Opening listener sockets.");
+    GIOChannel *main_io = init_socket(main_port);
+    GIOChannel *reader_io = init_socket(reader_port);
 
     avail_descs = get_avail_descs();
 
@@ -185,12 +184,11 @@ init_game(void)
     signal_setup();
 
     slog("Entering game loop.");
-
-    game_loop(main_listener, reader_listener);
+    game_loop(main_io, reader_io);
 
     slog("Closing all sockets.");
-    close(main_listener);
-    close(reader_listener);
+    g_io_channel_unref(main_io);
+    g_io_channel_unref(reader_io);
     while (descriptor_list)
         close_socket(descriptor_list);
 
@@ -213,7 +211,7 @@ init_game(void)
  * init_socket sets up the mother descriptor - creates the socket, sets
  * its options up, binds it, and listens.
  */
-int
+GIOChannel *
 init_socket(int port)
 {
     struct addrinfo *info, hints;
@@ -298,7 +296,8 @@ init_socket(int port)
 
     nonblock(s);
     listen(s, 5);
-    return s;
+
+    return g_io_channel_unix_new(s);
 }
 
 int
@@ -483,17 +482,14 @@ g_io_channel_write_buffer_empty(GIOChannel *channel)
  * such as mobile_activity().
  */
 void
-game_loop(int main_listener, int reader_listener)
+game_loop(GIOChannel *main_listener, GIOChannel *reader_listener)
 {
-    GIOChannel *main_io = g_io_channel_unix_new(main_listener);
-    GIOChannel *reader_io = g_io_channel_unix_new(reader_listener);
-
     main_loop = g_main_loop_new(NULL, false);
 
     /* Setup network connections */
-    g_io_add_watch(main_io, G_IO_IN, accept_new_connection,
+    g_io_add_watch(main_listener, G_IO_IN, accept_new_connection,
                    GINT_TO_POINTER(main_port));
-    g_io_add_watch(reader_io, G_IO_IN, accept_new_connection,
+    g_io_add_watch(reader_listener, G_IO_IN, accept_new_connection,
                    GINT_TO_POINTER(reader_port));
 
     /* Set up repeating events */
@@ -669,7 +665,6 @@ accept_new_connection(GIOChannel *listener_io,
     extern const char *GREETINGS[];
     int s = g_io_channel_unix_get_fd(listener_io);
     int port = GPOINTER_TO_INT(data);
-    GIOChannel *io;
 
     /* accept the new connection */
     addrlen = sizeof(peer);
@@ -682,17 +677,17 @@ accept_new_connection(GIOChannel *listener_io,
     for (newd = descriptor_list; newd; newd = newd->next)
         sockets_input_mode++;
 
-    io = g_io_channel_unix_new(desc);
-
-    if (sockets_input_mode >= avail_descs) {
-        g_io_channel_write_chars(io, "Sorry, Tempus is full right now... try again later!  :-)\r\n", -1, NULL, NULL);
-        g_io_channel_shutdown(io, true, NULL);
-        g_io_channel_unref(io);
-        return true;
-    }
-
     /* create a new descriptor */
     CREATE(newd, struct descriptor_data, 1);
+    newd->io = g_io_channel_unix_new(desc);
+
+    if (sockets_input_mode >= avail_descs) {
+        g_io_channel_write_chars(newd->io, "Sorry, Tempus is full right now... try again later!  :-)\r\n", -1, NULL, NULL);
+        g_io_channel_shutdown(newd->io, true, NULL);
+        g_io_channel_unref(newd->io);
+        free(newd);
+        return true;
+    }
 
     /* find the site name */
     int info_flags = NI_NUMERICSERV;
@@ -704,16 +699,16 @@ accept_new_connection(GIOChannel *listener_io,
                       NULL, 0, info_flags);
     if (err != 0) {
         errlog("new_descriptor(): %s\n", gai_strerror(err));
-        g_io_channel_shutdown(io, true, NULL);
-        g_io_channel_unref(io);
+        g_io_channel_shutdown(newd->io, true, NULL);
+        g_io_channel_unref(newd->io);
         free(newd);
         return true;
     }
 
     /* determine if the site is banned */
-    if (check_ban_all(io, newd->host)) {
-        g_io_channel_shutdown(io, true, NULL);
-        g_io_channel_unref(io);
+    if (check_ban_all(newd->io, newd->host)) {
+        g_io_channel_shutdown(newd->io, true, NULL);
+        g_io_channel_unref(newd->io);
         free(newd);
         return true;
     }
@@ -730,8 +725,6 @@ accept_new_connection(GIOChannel *listener_io,
 
     /* Set up descriptor I/O channels */
     GError *error = NULL;
-
-    newd->io = g_io_channel_unix_new(desc);
 
     g_io_channel_set_flags(newd->io, G_IO_FLAG_NONBLOCK, &error);
     if (error) {
@@ -1055,7 +1048,6 @@ destroy_socket(struct descriptor_data *d)
     g_source_remove(d->input_handler);
 
     g_io_channel_unref(d->io);
-
     
     free(d);
 }
