@@ -3146,7 +3146,6 @@ int
 file_to_string(const char *name, char *buf, size_t buf_size)
 {
     FILE *fl;
-    char tmp[READ_SIZE + 2];
 
     *buf = '\0';
 
@@ -3157,7 +3156,7 @@ file_to_string(const char *name, char *buf, size_t buf_size)
     
     while (fgets(buf, buf_size, fl)) {
         /* replace trailing newline with crlf */
-        char *c = strchr(tmp, '\n');
+        char *c = strchr(buf, '\n');
         if (c) {
             *c++ = '\r';
             *c++ = '\n';
