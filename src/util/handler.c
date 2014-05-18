@@ -140,8 +140,7 @@ apply_object_affects(struct creature *ch, struct obj_data *obj, bool add)
 }
 
 #define APPLY_SKILL(ch, skill, mod) \
-GET_SKILL(ch, skill) = \
-MIN(GET_SKILL(ch, skill) + mod, 125)
+    SET_SKILL(ch, skill, MIN(GET_SKILL(ch, skill) + mod, 125))
 
 void
 affect_modify(struct creature *ch, int16_t loc, int16_t mod, long bitv,

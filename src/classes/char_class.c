@@ -163,7 +163,7 @@ gain_skill_prof(struct creature *ch, int skl)
 
     if (GET_SKILL(ch, skl) >= (learned - 10))
         if ((GET_SKILL(ch, skl) - GET_LEVEL(ch)) <= 66)
-            GET_SKILL(ch, skl) += 1;
+            SET_SKILL(ch, skl, GET_SKILL(ch, skl) + 1);
 }
 
 /* Names first */
@@ -1172,13 +1172,13 @@ advance_level(struct creature *ch, int8_t keep_internal)
 
     // special section for improving read_scrolls and use_wands
     if (CHECK_SKILL(ch, SKILL_READ_SCROLLS) > 10)
-        GET_SKILL(ch, SKILL_READ_SCROLLS) =
-            MIN(100, CHECK_SKILL(ch, SKILL_READ_SCROLLS) +
-            MIN(10, number(1, GET_INT(ch) / 2)));
+        SET_SKILL(ch, SKILL_READ_SCROLLS, 
+                  MIN(100, CHECK_SKILL(ch, SKILL_READ_SCROLLS) +
+                      MIN(10, number(1, GET_INT(ch) / 2))));
     if (CHECK_SKILL(ch, SKILL_USE_WANDS) > 10)
-        GET_SKILL(ch, SKILL_USE_WANDS) =
-            MIN(100, CHECK_SKILL(ch, SKILL_USE_WANDS) +
-            MIN(10, number(1, GET_INT(ch) / 2)));
+        SET_SKILL(ch, SKILL_USE_WANDS,
+                  MIN(100, CHECK_SKILL(ch, SKILL_USE_WANDS) +
+                      MIN(10, number(1, GET_INT(ch) / 2))));
 
     crashsave(ch);
     int rid = -1;

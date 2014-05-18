@@ -93,9 +93,9 @@ SPECIAL(electronics_school)
 
     GET_CASH(ch) -= cred_cost;
 
-    GET_SKILL(ch, SKILL_ELECTRONICS) =
-        MIN(LEARNED(ch), GET_SKILL(ch,
-            SKILL_ELECTRONICS) + (30 + GET_INT(ch)));
+    SET_SKILL(ch, SKILL_ELECTRONICS,
+              MIN(LEARNED(ch),
+                  GET_SKILL(ch, SKILL_ELECTRONICS) + (30 + GET_INT(ch))));
 
     send_to_char(ch,
         "You pay %d creds to %s and are given a short electronics lesson.\r\n",

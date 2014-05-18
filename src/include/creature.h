@@ -1211,8 +1211,6 @@ const char *CURRENCY(struct creature * ch);
 #define GET_OLC_SRCH(ch)        ((ch)->player_specials->olc_srch)
 #define GET_OLC_HANDLER(ch)     ((ch)->player_specials->olc_handler)
 
-#define SET_SKILL(ch, i, pct)        \
-                             {(ch)->player_specials->saved.skills[i] = pct; }
 #define SET_TONGUE(ch, i, pct)        \
                              {(ch)->language_data.tongues[i] = pct; }
 

@@ -7990,7 +7990,7 @@ ACMD(do_tester)
                         && spell_info[i].
                         min_level[(int)CHECK_REMORT_CLASS(ch)] <=
                         GET_LEVEL(ch))) {
-                    GET_SKILL(ch, i) = LEARNED(ch);
+                    SET_SKILL(ch, i, LEARNED(ch));
                 }
             }
             GET_HIT(ch) = GET_MAX_HIT(ch);

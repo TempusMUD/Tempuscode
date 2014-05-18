@@ -553,32 +553,57 @@ GET_DISGUISED_NAME(struct creature *ch, struct creature *tch)
 }
 
 int
+GET_SKILL(struct creature *ch, int i)
+{
+    if (i < 0 || i > MAX_SKILLS) {
+        return 0;
+    }
+    return ch->player_specials->saved.skills[i];
+}
+
+void
+SET_SKILL(struct creature *ch, int i, int val)
+{
+    if (i < 0 || i > MAX_SKILLS) {
+        return;
+    }
+    ch->player_specials->saved.skills[i] = val;
+}
+
+int
 CHECK_SKILL(struct creature *ch, int i)
 {
     int level = 0;
     struct affected_type *af_ptr = NULL;
 
-    if (!IS_NPC(ch)) {
-        level = ch->player_specials->saved.skills[i];
-    } else {
-        if (GET_CLASS(ch) < NUM_CLASSES) {
-            if (GET_LEVEL(ch) >= spell_info[i].min_level[(int)GET_CLASS(ch)])
-                level = 50 + GET_LEVEL(ch);
-        }
-        if (!level &&
-            GET_REMORT_CLASS(ch) < NUM_CLASSES && GET_REMORT_CLASS(ch) >= 0) {
-            if (GET_LEVEL(ch) >=
-                spell_info[i].min_level[(int)GET_REMORT_CLASS(ch)])
-                level = 50 + GET_LEVEL(ch);
-        }
-        if (!level) {
-            if (IS_GIANT(ch))
-                if (GET_LEVEL(ch) >= spell_info[i].min_level[CLASS_BARB])
-                    level = 50 + GET_LEVEL(ch);
-        }
-        if (IS_DEVIL(ch))
-            level += GET_LEVEL(ch) / 2;
+    if (i > MAX_SKILLS) {
+        errlog("Invalid skill %d passed to CHECK_SKILL", i);
+        return 0;
     }
+
+    if (!IS_NPC(ch)) {
+        return ch->player_specials->saved.skills[i];
+    }
+
+    if (GET_CLASS(ch) < NUM_CLASSES) {
+        if (GET_LEVEL(ch) >= spell_info[i].min_level[(int)GET_CLASS(ch)])
+            level = 50 + GET_LEVEL(ch);
+    }
+
+    if (!level &&
+        GET_REMORT_CLASS(ch) < NUM_CLASSES && GET_REMORT_CLASS(ch) >= 0) {
+        if (GET_LEVEL(ch) >=
+            spell_info[i].min_level[(int)GET_REMORT_CLASS(ch)])
+            level = 50 + GET_LEVEL(ch);
+    }
+    if (!level) {
+        if (IS_GIANT(ch))
+            if (GET_LEVEL(ch) >= spell_info[i].min_level[CLASS_BARB])
+                level = 50 + GET_LEVEL(ch);
+    }
+    if (IS_DEVIL(ch))
+        level += GET_LEVEL(ch) / 2;
+
     if (level > 0 && (af_ptr = affected_by_spell(ch, SPELL_AMNESIA)))
         level = MAX(0, level - af_ptr->duration);
 

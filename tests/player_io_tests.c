@@ -174,7 +174,7 @@ START_TEST(test_load_save_mage)
 
     randomize_creature(ch, CLASS_MAGE);
 
-    GET_SKILL(ch, SPELL_MANA_SHIELD) = 1;
+    SET_SKILL(ch, SPELL_MANA_SHIELD, 1);
     ch->player_specials->saved.mana_shield_low = number(0, 100);
     ch->player_specials->saved.mana_shield_pct = number(0, 100);
 

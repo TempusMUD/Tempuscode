@@ -967,7 +967,7 @@ load_player_from_file(const char *path)
             char *spellName = (char *)xmlGetProp(node, (xmlChar *) "name");
             int index = str_to_spell(spellName);
             if (index >= 0) {
-                GET_SKILL(ch, index) = xmlGetIntProp(node, "level", 0);
+                SET_SKILL(ch, index, xmlGetIntProp(node, "level", 0));
             }
             free(spellName);
         } else if (xmlMatches(node->name, "tongue")) {

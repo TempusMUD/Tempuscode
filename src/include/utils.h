@@ -355,7 +355,8 @@ void WAIT_STATE(struct creature *ch, int cycle);
 #define ANA(obj) (strchr("aeiouyAEIOUY", *(obj)->aliases) ? "An" : "A")
 #define SANA(obj) (strchr("aeiouyAEIOUY", *(obj)->aliases) ? "an" : "a")
 
-#define GET_SKILL(ch, i)        ((ch)->player_specials->saved.skills[i])
+int GET_SKILL(struct creature *ch, int i);
+void SET_SKILL(struct creature *ch, int i, int val);
 long GET_SKILL_COST(struct creature *ch, int skill);
 
 #define CLASS_ABBR(ch) (char_class_abbrevs[(int)GET_CLASS(ch)])
