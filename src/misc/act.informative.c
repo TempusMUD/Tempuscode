@@ -4560,9 +4560,10 @@ ACMD(do_compact)
     }
     ch->account->compact_level = tp;
 
-    send_to_char(ch, "Your %scompact setting%s is now %s%s%s%s.\r\n", CCRED(ch,
-            C_SPR), CCNRM(ch, C_OFF), CCYEL(ch, C_NRM), CCBLD(ch, C_CMP),
-        compact_levels[tp], CCNRM(ch, C_NRM));
+    send_to_char(ch, "Your %scompact setting%s is now %s%s%s%s.\r\n",
+                 CCRED(ch, C_SPR), CCNRM(ch, C_SPR),
+                 CCYEL(ch, C_NRM), CCBLD(ch, C_CMP),
+                 compact_levels[tp], CCNRM(ch, C_NRM));
 }
 
 ACMD(do_color)
