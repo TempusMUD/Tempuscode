@@ -35,6 +35,7 @@ SPECIAL(temple_healer)
                         CAST_SPELL);
                     return true;
                 }
+                break;
             case 8:
                 cast_spell(self, self, NULL, NULL, SPELL_GREATER_HEAL);
                 return true;

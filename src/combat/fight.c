@@ -1681,6 +1681,7 @@ damage(struct creature *ch, struct creature *victim,
     case TYPE_BOILING_PITCH:
         if (AFF3_FLAGGED(victim, AFF3_PROT_HEAT))
             dam /= 2;
+        break;
     case TYPE_ACID_BURN:
     case SPELL_ACIDITY:
     case SPELL_ACID_BREATH:

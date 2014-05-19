@@ -2168,6 +2168,7 @@ show_olc_help(struct creature *ch, char *arg)
         break;
     case 29:          /** tradewith **/
         send_to_char(ch, "Disabled.\r\n");
+        break;
     case 30:/** implantpos **/
         strcpy_s(buf, sizeof(buf), "IMPLANT POSITIONS:\r\n");
         for (i = 0; i < NUM_WEARS; i++) {

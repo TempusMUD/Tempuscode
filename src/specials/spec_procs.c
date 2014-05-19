@@ -689,6 +689,7 @@ SPECIAL(magic_user)
     case 18:
     case 19:
         cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
+        break;
     case 20:
     case 21:
     case 22:

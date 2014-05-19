@@ -1277,9 +1277,11 @@ do_stat_object(struct creature *ch, struct obj_data *j)
         case CREATED_MOB:
             acc_sprintf("Loaded onto mob #%ld on %s\r\n",
                 j->creator, tmp_ctime(j->creation_time));
+            break;
         case CREATED_SEARCH:
             acc_sprintf("Created by search in room #%ld on %s\r\n",
                 j->creator, tmp_ctime(j->creation_time));
+            break;
         case CREATED_IMM:
             acc_sprintf("Loaded by %s on %s\r\n",
                 player_name_by_idnum(j->creator), tmp_ctime(j->creation_time));
@@ -3589,6 +3591,7 @@ ACMD(do_wiznet)
     switch (*argument) {
     case '*':
         emote = true;
+        break;
     case '#':
         one_argument(argument + 1, buf1);
         if (is_number(buf1)) {
