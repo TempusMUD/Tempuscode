@@ -26,8 +26,6 @@ SPECIAL(implanter)
 {
     struct creature *self = (struct creature *)me;
 
-    if (spec_mode != SPECIAL_LEAVE && spec_mode != SPECIAL_CMD)
-        return 0;
     if (IS_NPC(ch))
         return 0;
 
@@ -56,7 +54,9 @@ SPECIAL(implanter)
             return 1;
         }
         return 0;
-    } else if (spec_mode == SPECIAL_LEAVE) {
+    }
+
+    if (spec_mode == SPECIAL_LEAVE) {
         implanter_end_sess(ch);
         return 0;
     }

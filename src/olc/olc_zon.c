@@ -2256,20 +2256,21 @@ do_zset_command(struct creature *ch, char *argument)
 
             argument = one_argument(argument, arg1);
             while (*arg1) {
-                if ((tmp_flags =
-                        search_block(arg1, roomflag_names, false)) == -1
-                    || (tmp_flags >= NUM_ROOM_FLAGS
-                        && !is_authorized(ch, WORLDWRITE, NULL))) {
+                tmp_flags = search_block(arg1, roomflag_names, false);
+                if (!(tmp_flags >= 0
+                      && tmp_flags < NUM_ROOM_FLAGS
+                      && is_authorized(ch, WORLDWRITE, NULL))) {
                     send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
-                } else
-                    tmp_room_flags = tmp_room_flags | (1 << tmp_flags);
-
-                if (tmp_room_flags == 0) {
-                    send_to_char(ch,
-                        "No valid flags specified...hard drive crash imminent.\r\n");
-                    return;
+                    continue;
                 }
+                tmp_room_flags = tmp_room_flags | (1 << tmp_flags);
                 argument = one_argument(argument, arg1);
+            }
+
+            if (tmp_room_flags == 0) {
+                send_to_char(ch,
+                             "No valid flags specified...hard drive crash imminent.\r\n");
+                return;
             }
 
             for (count = bottom; count <= top; ++count) {
