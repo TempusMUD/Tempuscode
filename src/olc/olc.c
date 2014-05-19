@@ -1173,7 +1173,8 @@ ACMD(do_olc)
                 }
             } else if (is_abbrev(arg1, "path")
                 && is_authorized(ch, WORLDWRITE, NULL)) {
-                if (!add_path(strcat(arg2, argument), true))
+                strcat_s(arg2, sizeof(arg2), argument);
+                if (!add_path(arg2, true))
                     send_to_char(ch, "Path added.\r\n");
             } else
                 send_to_char(ch,
