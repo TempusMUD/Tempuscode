@@ -308,16 +308,13 @@ apply_object_affect(struct obj_data *obj, struct tmp_obj_affect *af, bool add)
                         obj->affected[j].modifier -= af->affect_mod[i];
                     break;
                 }
-
-                if (found) {
-                    if (obj->affected[j].modifier == 0) {
-                        obj->affected[j].location = APPLY_NONE;
-                    }
-                }
             }
 
             if (!found) {
                 for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+                    if (obj->affected[j].modifier == 0) {
+                        obj->affected[j].location = APPLY_NONE;
+                    }
                     if (obj->affected[j].location == APPLY_NONE) {
                         found = true;
                         obj->affected[j].location = af->affect_loc[i];
