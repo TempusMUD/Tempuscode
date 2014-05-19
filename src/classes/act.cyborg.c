@@ -2326,15 +2326,23 @@ ACMD(do_analyze)
 
     struct obj_data *obj = NULL;
     struct creature *vict = NULL;
-    skip_spaces(&argument);
 
-    if (!*argument ||
-        (!(vict = get_char_room_vis(ch, argument)) &&
-            !(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
-            !(obj =
-                get_obj_in_list_vis(ch, argument, ch->in_room->contents)))) {
-        send_to_char(ch, "Analyze what?\r\n");
+    skip_spaces(&argument);
+    if (!*argument) {
+        send_to_char(ch, "Missing analysis parameter.\r\n");
         return;
+    }
+
+    vict = get_char_room_vis(ch, argument);
+    if (vict == NULL) {
+        obj = get_obj_in_list_vis(ch, argument, ch->carrying);
+        if (obj == NULL) {
+            obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents);
+        }
+        if (obj == NULL) {
+            send_to_char(ch, "Analysis target undetected.\r\n");
+            return;
+        }
     }
 
     if (CHECK_SKILL(ch, SKILL_ANALYZE) < 10) {
@@ -2359,41 +2367,35 @@ ACMD(do_analyze)
         return;
     }
 
-    if (vict) {
-        acc_string_clear();
+    acc_string_clear();
 
-        acc_sprintf("       %s***************************************\r\n",
-            CCGRN(ch, C_NRM));
-        acc_sprintf("       %s>>>     ENTITY ANALYSIS RESULTS:    <<<\r\n",
-            CCCYN(ch, C_NRM));
-        acc_sprintf("       %s***************************************%s\r\n",
-            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-        acc_sprintf("Name:                  %s%s%s\r\n", CCCYN(ch,
-                C_NRM), GET_NAME(vict), CCNRM(ch, C_NRM));
-        acc_sprintf("Racial Classification: %s%s%s\r\n", CCCYN(ch, C_NRM),
-                    race_name_by_idnum(GET_RACE(vict)), CCNRM(ch, C_NRM));
-        if (GET_CLASS(vict) < NUM_CLASSES) {
-            acc_sprintf("Primary Occupation:    %s%s%s\r\n", CCCYN(ch, C_NRM),
-                        strlist_aref((int)GET_CLASS(vict), class_names),
-                        CCNRM(ch, C_NRM));
-        } else {
-            acc_sprintf("Primary Type:          %s%s%s\r\n", CCCYN(ch, C_NRM),
-                        strlist_aref((int)GET_CLASS(vict), class_names),
-                        CCNRM(ch, C_NRM));
-        }
-        if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
-            acc_sprintf("Secondary Occupation:  %s%s%s\r\n",
-                        CCCYN(ch, C_NRM),
-                        strlist_aref((int)GET_REMORT_CLASS(vict), class_names),
-                        CCNRM(ch, C_NRM));
-
-        GET_MOVE(ch) -= 10;
-        page_string(ch->desc, acc_get_string());
-        return;
+    acc_sprintf("       %s***************************************\r\n",
+                CCGRN(ch, C_NRM));
+    acc_sprintf("       %s>>>     ENTITY ANALYSIS RESULTS:    <<<\r\n",
+                CCCYN(ch, C_NRM));
+    acc_sprintf("       %s***************************************%s\r\n",
+                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+    acc_sprintf("Name:                  %s%s%s\r\n", CCCYN(ch,
+                                                           C_NRM), GET_NAME(vict), CCNRM(ch, C_NRM));
+    acc_sprintf("Racial Classification: %s%s%s\r\n", CCCYN(ch, C_NRM),
+                race_name_by_idnum(GET_RACE(vict)), CCNRM(ch, C_NRM));
+    if (GET_CLASS(vict) < NUM_CLASSES) {
+        acc_sprintf("Primary Occupation:    %s%s%s\r\n", CCCYN(ch, C_NRM),
+                    strlist_aref((int)GET_CLASS(vict), class_names),
+                    CCNRM(ch, C_NRM));
+    } else {
+        acc_sprintf("Primary Type:          %s%s%s\r\n", CCCYN(ch, C_NRM),
+                    strlist_aref((int)GET_CLASS(vict), class_names),
+                    CCNRM(ch, C_NRM));
     }
+    if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
+        acc_sprintf("Secondary Occupation:  %s%s%s\r\n",
+                    CCCYN(ch, C_NRM),
+                    strlist_aref((int)GET_REMORT_CLASS(vict), class_names),
+                    CCNRM(ch, C_NRM));
 
-    send_to_char(ch, "Error.\r\n");
-
+    GET_MOVE(ch) -= 10;
+    page_string(ch->desc, acc_get_string());
 }
 
 ACMD(do_insert)
