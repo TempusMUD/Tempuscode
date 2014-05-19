@@ -305,21 +305,24 @@ SPECIAL(hell_hunter_brain)
         } else if (CMD_IS("activate")) {
             skip_spaces(&argument);
 
-            if (*argument && isdigit(*argument)) {
+            if (!*argument) {
+                return 0;
+            }
+
+            if (isdigit(*argument)) {
                 freq = atoi(argument);
                 send_to_char(ch, "Frequency set to %d.\n", freq);
                 counter = freq;
                 return 1;
-            } else if (*argument && strcmp(argument, "now") == 1) {
+            }
+
+            if (strcmp(argument, "now") == 0) {
                 sprintf(buf, "Counter set to 1.\r\n");
                 counter = 1;
                 return 1;
-            } else {
-                return 0;
             }
-        } else {
-            return 0;
         }
+        return 0;
     }
 
     if (--counter > 0) {
