@@ -688,8 +688,8 @@ ACMD(do_dynedit)
 
         *newbuf = '\0';
 
-        strcat_s(newbuf, sizeof(newbuf), s);
-        strcat_s(newbuf, sizeof(newbuf), dyntext->buffer);
+        strcat_s(newbuf, i, s);
+        strcat_s(newbuf, i, dyntext->buffer);
         free(dyntext->buffer);
         dyntext->buffer = newbuf;
 
@@ -746,9 +746,10 @@ ACMD(do_dynedit)
                         "Resulting string would exceed maximum string length, aborting.\r\n");
                     return;
                 }
+                size_t newbuf_size = strlen(dyntext->buffer) +
+                    strlen(dyntext->tmp_buffer) + 1;
                 if (!(newbuf =
-                        (char *)malloc(strlen(dyntext->buffer) +
-                            strlen(dyntext->tmp_buffer) + 1))) {
+                        (char *)malloc(newbuf_size))) {
                     errlog
                         ("unable to malloc buffer for prepend in do_dynedit.");
                     send_to_char(ch,
@@ -756,8 +757,8 @@ ACMD(do_dynedit)
                     return;
                 }
                 *newbuf = '\0';
-                strcat_s(newbuf, sizeof(newbuf), dyntext->buffer);
-                strcat_s(newbuf, sizeof(newbuf), dyntext->tmp_buffer);
+                strcat_s(newbuf, newbuf_size, dyntext->buffer);
+                strcat_s(newbuf, newbuf_size, dyntext->tmp_buffer);
                 free(dyntext->tmp_buffer);
                 dyntext->tmp_buffer = newbuf;
             }
