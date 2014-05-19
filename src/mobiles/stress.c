@@ -505,6 +505,10 @@ random_active_creature(struct creature *ch)
                 for (GList *cit = first_living(ch->in_room->people);cit;cit = next_living(cit))
                     if (can_see_creature(ch, cit->data) && !number(0, i++))
                         tch = cit->data;
+                if (tch == NULL) {
+                    /* Don't try this command if alone */
+                    return;
+                }
                 strcpy_s(d, sizeof(buf) - (d - buf), fname(tch->player.name));
                 d += strlen(fname(tch->player.name));
                 break;
