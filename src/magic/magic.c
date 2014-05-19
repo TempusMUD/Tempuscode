@@ -553,12 +553,14 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
     switch (spellnum) {
     case SPELL_HELL_FIRE_STORM:
         spellnum = SPELL_HELL_FIRE;
+        /* fallthrough */
     case SPELL_HELL_FIRE:
         dam = dice(GET_LEVEL(ch) / 3, 4) + GET_LEVEL(ch);
         audible = true;
         break;
     case SPELL_HELL_FROST_STORM:
         spellnum = SPELL_HELL_FROST;
+        /* fallthrough */
     case SPELL_HELL_FROST:
         dam = dice(GET_LEVEL(ch) / 3, 4) + GET_LEVEL(ch);
         audible = true;
@@ -611,6 +613,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         break;
     case SPELL_CHAIN_LIGHTNING:
         spellnum = SPELL_LIGHTNING_BOLT;
+        /* fallthrough */
     case SPELL_LIGHTNING_BOLT:
         audible = true;
         if (is_mage)
@@ -742,6 +745,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         break;
     case SPELL_ICE_STORM:
         spellnum = SPELL_ICY_BLAST;
+        /* fallthrough */
     case SPELL_ICY_BLAST:
         audible = true;
         if (is_cleric || is_ranger || is_knight)
@@ -989,6 +993,7 @@ mag_affects(int level,
 
     case SPELL_HELL_FROST_STORM:
         spellnum = SPELL_HELL_FROST;
+        /* fallthrough */
     case SPELL_HELL_FROST:
     case SPELL_CHILL_TOUCH:
     case SPELL_CONE_COLD:
