@@ -147,10 +147,6 @@ SPECIAL(increaser)
 
     send_to_char(ch, "You begin your improvement.\r\n");
     act("$n begins to improve.", false, ch, NULL, NULL, TO_ROOM);
-    if (GET_COND(ch, FULL) != -1)
-        GET_COND(ch, FULL) = 1;
-    if (GET_COND(ch, THIRST) != -1)
-        GET_COND(ch, THIRST) = 1;
     WAIT_STATE(ch, PULSE_VIOLENCE * 5);
     crashsave(ch);
     return true;

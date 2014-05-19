@@ -18,7 +18,6 @@ check_tempus_LDADD = \
                  $(top_builddir)/src/classes/act.cleric.o \
                  $(top_builddir)/src/classes/act.bard.o \
                  $(top_builddir)/src/classes/act.cyborg.o \
-                 $(top_builddir)/src/classes/act.hood.o \
                  $(top_builddir)/src/classes/act.knight.o \
                  $(top_builddir)/src/classes/act.mage.o \
                  $(top_builddir)/src/classes/act.merc.o \

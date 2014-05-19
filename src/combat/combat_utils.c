@@ -673,6 +673,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
                 GET_NAME(ch), isare));
         leg->name =
             strdup(tmp_sprintf("the severed leg of %s", GET_NAME(ch)));
+        leg->aliases = strdup("severed leg");
         GET_OBJ_TYPE(leg) = ITEM_WEAPON;
         GET_OBJ_WEAR(leg) = ITEM_WEAR_TAKE + ITEM_WEAR_WIELD;
         GET_OBJ_EXTRA(leg) = ITEM_NODONATE + ITEM_NOSELL;
@@ -844,6 +845,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
     case SPELL_LIGHTNING_BOLT:
     case SPELL_MICROWAVE:
     case SPELL_FIRE_BREATH:
+    case SPELL_DRAGONS_BREATH:
     case SPELL_LIGHTNING_BREATH:
     case SPELL_FIRE_ELEMENTAL:
     case TYPE_ABLAZE:

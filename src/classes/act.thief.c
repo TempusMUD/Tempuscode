@@ -62,6 +62,13 @@ ACMD(do_steal)
         send_to_char(ch, "Come on now, that's rather stupid!\r\n");
         return;
     }
+
+    if (GET_LEVEL(vict) >= LVL_IMMORT && GET_LEVEL(ch) <= GET_LEVEL(vict)) {
+        send_to_char(ch, "Steal from a greater immortal?  Have you lost your wits?\r\n");
+        send_to_char(vict, "%s has just tried to steal from you!\r\n", GET_NAME(ch));
+        return;
+    }
+
     if (GET_LEVEL(ch) < LVL_IMMORT && IS_NPC(vict)
         && NPC2_FLAGGED(vict, NPC2_SELLER)) {
         send_to_char(ch, "That's probably a bad idea.\r\n");

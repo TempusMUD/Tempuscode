@@ -206,19 +206,20 @@ ACMD(do_crossface)
         // Wow!  vict really took one hell of a shot.  Stun that bastard!
         if (diff >= 70 && !GET_EQ(vict, wear_num)) {
             prev_pos = GET_POSITION(vict);
-            damage(ch, vict, weap, dam, SKILL_CROSSFACE, wear_num);
-            if (prev_pos != POS_STUNNED && !is_dead(vict) && !is_dead(ch)) {
-                if (is_fighting(ch)
-                    && (!IS_NPC(vict) || !NPC2_FLAGGED(vict, NPC2_NOSTUN))) {
-                    act("Your crossface has knocked $N senseless!",
-                        true, ch, NULL, vict, TO_CHAR);
-                    act("$n stuns $N with a vicious crossface!",
-                        true, ch, NULL, vict, TO_NOTVICT);
-                    act("Your jaw cracks as $n whips $s gun across your face.\r"
-                        "Your vision fades...", true, ch, NULL, vict, TO_VICT);
-                    remove_combat(ch, vict);
-                    remove_all_combat(vict);
-                    GET_POSITION(vict) = POS_STUNNED;
+            if (damage(ch, vict, weap, dam, SKILL_CROSSFACE, wear_num)) {
+                if (prev_pos != POS_STUNNED && !is_dead(vict) && !is_dead(ch)) {
+                    if (is_fighting(ch)
+                        && (!IS_NPC(vict) || !NPC2_FLAGGED(vict, NPC2_NOSTUN))) {
+                        act("Your crossface has knocked $N senseless!",
+                            true, ch, NULL, vict, TO_CHAR);
+                        act("$n stuns $N with a vicious crossface!",
+                            true, ch, NULL, vict, TO_NOTVICT);
+                        act("Your jaw cracks as $n whips $s gun across your face.\r"
+                            "Your vision fades...", true, ch, NULL, vict, TO_VICT);
+                        remove_combat(ch, vict);
+                        remove_all_combat(vict);
+                        GET_POSITION(vict) = POS_STUNNED;
+                    }
                 }
             }
         }
@@ -226,46 +227,48 @@ ACMD(do_crossface)
         else if (diff >= 55) {
             dam = (int)(dam * 0.75);
             prev_pos = GET_POSITION(vict);
-            damage(ch, vict, weap, dam, SKILL_CROSSFACE, wear_num);
-            if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
-                && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
-                GET_POSITION(vict) = POS_RESTING;
-                act("Your crossface has knocked $N on $S back!",
-                    true, ch, NULL, vict, TO_CHAR);
-                act("$n's nasty crossface just knocked $N on $S back!",
-                    true, ch, NULL, vict, TO_NOTVICT);
-                act("Your jaw cracks as $n whips $s gun across your face.\n"
-                    "You stagger and fall to the ground!",
-                    true, ch, NULL, vict, TO_VICT);
+            if (damage(ch, vict, weap, dam, SKILL_CROSSFACE, wear_num)) {
+                if ((prev_pos != POS_RESTING && prev_pos != POS_STUNNED)
+                    && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
+                    GET_POSITION(vict) = POS_RESTING;
+                    act("Your crossface has knocked $N on $S back!",
+                        true, ch, NULL, vict, TO_CHAR);
+                    act("$n's nasty crossface just knocked $N on $S back!",
+                        true, ch, NULL, vict, TO_NOTVICT);
+                    act("Your jaw cracks as $n whips $s gun across your face.\n"
+                        "You stagger and fall to the ground!",
+                        true, ch, NULL, vict, TO_VICT);
+                }
             }
         }
         // vict pretty much caught a grazing blow, knock off some eq
         else if (diff >= 20 && !is_arena_combat(ch, vict)) {
             struct obj_data *wear, *scraps;
 
-            damage(ch, vict, weap, dam / 2, SKILL_CROSSFACE, wear_num);
-            wear = GET_EQ(vict, wear_num);
-            if (wear && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
-                act("Your crossface has knocked $N's $p from $S head!",
-                    true, ch, wear, vict, TO_CHAR);
-                act("$n's nasty crossface just knocked $p from $N's head!",
-                    true, ch, wear, vict, TO_NOTVICT);
-                act("Your jaw cracks as $n whips $s gun across your face.\n"
-                    "$p flies off your head and lands a short distance away.", true, ch, wear, vict, TO_VICT);
+            if (damage(ch, vict, weap, dam / 2, SKILL_CROSSFACE, wear_num)) {
+                wear = GET_EQ(vict, wear_num);
+                if (wear && !is_dead(ch) && !is_dead(vict) && is_fighting(ch)) {
+                    act("Your crossface has knocked $N's $p from $S head!",
+                        true, ch, wear, vict, TO_CHAR);
+                    act("$n's nasty crossface just knocked $p from $N's head!",
+                        true, ch, wear, vict, TO_NOTVICT);
+                    act("Your jaw cracks as $n whips $s gun across your face.\n"
+                        "$p flies off your head and lands a short distance away.", true, ch, wear, vict, TO_VICT);
 
-                scraps = damage_eq(vict, wear, dam / 16, TYPE_HIT);
-                if (scraps) {
-                    // Object is destroyed
-                    obj_from_char(scraps);
-                    obj_to_room(scraps, vict->in_room);
-                } else if (GET_EQ(vict, wear_num)) {
-                    // Object is still being worn (not broken)
-                    obj_to_room(unequip_char(vict, wear_num, EQUIP_WORN),
-                        vict->in_room);
-                } else {
-                    // Object was broken and is in inventory
-                    obj_from_char(wear);
-                    obj_to_room(wear, vict->in_room);
+                    scraps = damage_eq(vict, wear, dam / 16, TYPE_HIT);
+                    if (scraps) {
+                        // Object is destroyed
+                        obj_from_char(scraps);
+                        obj_to_room(scraps, vict->in_room);
+                    } else if (GET_EQ(vict, wear_num)) {
+                        // Object is still being worn (not broken)
+                        obj_to_room(unequip_char(vict, wear_num, EQUIP_WORN),
+                            vict->in_room);
+                    } else {
+                        // Object was broken and is in inventory
+                        obj_from_char(wear);
+                        obj_to_room(wear, vict->in_room);
+                    }
                 }
             }
         } else {
@@ -990,4 +993,167 @@ ACMD(do_combine)
         false, ch, new_potion, NULL, TO_CHAR);
     act("$n mixes two potions together and creates $p!",
         false, ch, new_potion, NULL, TO_ROOM);
+}
+
+struct obj_data *
+find_hamstring_weapon(struct creature *ch)
+{
+    struct obj_data *weap = NULL;
+    if ((weap = GET_EQ(ch, WEAR_WIELD)) && is_slashing_weapon(weap)) {
+        return weap;
+    } else if ((weap = GET_EQ(ch, WEAR_WIELD_2)) && is_slashing_weapon(weap)) {
+        return weap;
+    } else if ((weap = GET_EQ(ch, WEAR_HANDS)) && is_slashing_weapon(weap)) {
+        return weap;
+    } else if ((weap = GET_EQ(ch, WEAR_ARMS)) && is_slashing_weapon(weap)) {
+        return weap;
+    } else if ((weap = GET_IMPLANT(ch, WEAR_HANDS))
+               && is_slashing_weapon(weap)
+               && GET_EQ(ch, WEAR_HANDS) == NULL) {
+        return weap;
+    } else if ((weap = GET_IMPLANT(ch, WEAR_ARMS))
+               && is_slashing_weapon(weap)
+               && GET_EQ(ch, WEAR_ARMS) == NULL) {
+        return weap;
+    }
+    return NULL;
+}
+
+ACMD(do_hamstring)
+{
+    struct creature *vict = NULL;
+    struct obj_data *ovict = NULL, *weap = NULL;
+    int percent, prob, dam;
+    struct affected_type af;
+    char *arg;
+
+    init_affect(&af);
+
+    arg = tmp_getword(&argument);
+    if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 50) {
+        send_to_char(ch,
+            "Even if you knew what that was, you wouldn't do it.\r\n");
+        return;
+    }
+
+    if (IS_CLERIC(ch) && IS_GOOD(ch)) {
+        send_to_char(ch, "Your deity forbids this.\r\n");
+        return;
+    }
+    // If there's noone in the room that matches your alias
+    // Then it must be an object.
+    if (!(vict = get_char_room_vis(ch, arg))) {
+        if (is_fighting(ch)) {
+            vict = random_opponent(ch);
+        } else {
+            if ((ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+                act("You open a deep gash in $p's hamstring!", false, ch,
+                    ovict, NULL, TO_CHAR);
+                return;
+            } else {
+                send_to_char(ch, "Hamstring who?\r\n");
+                return;
+            }
+        }
+    }
+
+    weap = find_hamstring_weapon(ch);
+    if (weap == NULL) {
+        send_to_char(ch, "You need to be using a slashing weapon.\r\n");
+        return;
+    }
+    if (vict == ch) {
+        if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
+            act("You fear that your death will grieve $N.",
+                false, ch, NULL, ch->master, TO_CHAR);
+            return;
+        }
+        send_to_char(ch,
+            "Cutting off your own leg just doesn't sound like fun.\r\n");
+        return;
+    }
+    if (!ok_to_attack(ch, vict, true))
+        return;
+
+    if (GET_POSITION(vict) == POS_SITTING) {
+        send_to_char(ch, "How can you cut it when they're sitting on it!\r\n");
+        return;
+    }
+    if (GET_POSITION(vict) == POS_RESTING) {
+        send_to_char(ch, "How can you cut it when they're laying on it!\r\n");
+        return;
+    }
+    prob = CHECK_SKILL(ch, SKILL_HAMSTRING) + GET_REMORT_GEN(ch);
+    percent = number(0, 125);
+    if (affected_by_spell(vict, ZEN_AWARENESS)) {
+        percent += 25;
+    }
+    if (AFF2_FLAGGED(vict, AFF2_HASTE) && !AFF2_FLAGGED(ch, AFF2_HASTE)) {
+        percent += 30;
+    }
+
+    if (GET_DEX(ch) > GET_DEX(vict)) {
+        prob += 3 * (GET_DEX(ch) - GET_DEX(vict));
+    } else {
+        percent += 3 * (GET_DEX(vict) - GET_DEX(ch));
+    }
+    // If they're wearing anything usefull on thier legs make it harder to hurt em.
+    if ((ovict = GET_EQ(vict, WEAR_LEGS)) && IS_OBJ_TYPE(ovict, ITEM_ARMOR)) {
+        if (IS_STONE_TYPE(ovict) || IS_METAL_TYPE(ovict))
+            percent += GET_OBJ_VAL(ovict, 0) * 3;
+        else
+            percent += GET_OBJ_VAL(ovict, 0);
+    }
+
+    if (GET_LEVEL(ch) > GET_LEVEL(vict)) {
+        prob += GET_LEVEL(ch) - GET_LEVEL(vict);
+    } else {
+        percent += GET_LEVEL(vict) - GET_LEVEL(ch);
+    }
+
+    if (IS_PUDDING(vict) || IS_SLIME(vict)
+        || NON_CORPOREAL_MOB(vict) || IS_ELEMENTAL(vict))
+        prob = 0;
+    if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 30) {
+        prob = 0;
+    }
+
+    if (percent > prob) {
+        damage(ch, vict, weap, 0, SKILL_HAMSTRING, WEAR_LEGS);
+        WAIT_STATE(ch, 2 RL_SEC);
+        return;
+    } else {
+        int level = 0, gen = 0;
+        level = GET_LEVEL(ch);
+        gen = GET_REMORT_GEN(ch);
+        dam = dice(level, 15 + gen / 2);
+        add_blood_to_room(vict->in_room, 1);
+        apply_soil_to_char(vict, GET_EQ(vict, WEAR_LEGS), SOIL_BLOOD,
+            WEAR_LEGS);
+        apply_soil_to_char(vict, GET_EQ(vict, WEAR_FEET), SOIL_BLOOD,
+            WEAR_FEET);
+        if (!affected_by_spell(vict, SKILL_HAMSTRING)) {
+            af.type = SKILL_HAMSTRING;
+            af.bitvector = AFF3_HAMSTRUNG;
+            af.aff_index = 3;
+            af.level = level + gen;
+            af.duration = level + gen / 10;
+            af.location = APPLY_DEX;
+            af.modifier = 0 - (level / 2 + dice(7, 7) + dice(gen, 5))
+                * (CHECK_SKILL(ch, SKILL_HAMSTRING)) / 1000;
+            af.owner = GET_IDNUM(ch);
+            affect_to_char(vict, &af);
+            WAIT_STATE(vict, 3 RL_SEC);
+            if (damage(ch, vict, weap, dam, SKILL_HAMSTRING, WEAR_LEGS))
+                GET_POSITION(vict) = POS_RESTING;
+        } else {
+            WAIT_STATE(vict, 2 RL_SEC);
+            if (damage(ch, vict, weap, dam / 2, SKILL_HAMSTRING, WEAR_LEGS))
+                GET_POSITION(vict) = POS_SITTING;
+        }
+        if (!is_dead(ch)) {
+            gain_skill_prof(ch, SKILL_HAMSTRING);
+            WAIT_STATE(ch, 5 RL_SEC);
+        }
+    }
 }

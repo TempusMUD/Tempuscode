@@ -37,6 +37,7 @@
 #include "defs.h"
 #include "desc_data.h"
 #include "macros.h"
+#include "zone_data.h"
 #include "room_data.h"
 #include "race.h"
 #include "creature.h"
@@ -2287,6 +2288,105 @@ ACMD(do_clean)
         act(buf, false, ch, obj, NULL, TO_CHAR);
         act(buf, false, ch, obj, NULL, TO_ROOM);
         OBJ_SOILAGE(obj) = 0;
+    }
+}
+
+void
+drag_char(struct creature *ch, struct creature *vict, int dir)
+{
+    struct room_data *target_room = NULL;
+    int percent, prob;
+
+    if (vict == ch) {
+        send_to_char(ch, "You can't drag yourself!\r\n");
+        return;
+    }
+
+    if (!ok_to_attack(ch, vict, true)) {
+        return;
+    }
+
+    if (!CAN_GO(vict, dir)) {
+        send_to_char(ch, "Sorry, you can't go in that direction.\r\n");
+        return;
+    }
+
+    target_room = EXIT(ch, dir)->to_room;
+
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        act("You are unable to drag $M away from this peaceful area.", false, ch, NULL, vict, TO_CHAR);
+        return;
+    }
+
+    if ((ROOM_FLAGGED(target_room, ROOM_HOUSE)
+            && !can_enter_house(ch, target_room->number))
+        || (ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
+            && !clan_house_can_enter(ch, target_room))
+        || (ROOM_FLAGGED(target_room, ROOM_DEATH))) {
+        act("You are unable to drag $M there.", false, ch, NULL, vict, TO_CHAR);
+        return;
+    }
+
+    if (ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+        act("You are unable to drag players except in CPK areas.", false, ch, NULL, vict, TO_CHAR);
+        return;
+    }
+
+    percent = ((GET_LEVEL(vict)) + number(1, 101));
+    percent -= (GET_WEIGHT(ch) - GET_WEIGHT(vict)) / 5;
+    percent -= (GET_STR(ch));
+
+    prob =
+        MAX(0, (GET_LEVEL(ch) + (CHECK_SKILL(ch,
+                    SKILL_DRAG)) - GET_STR(vict)));
+    prob = MIN(prob, 100);
+
+    if (NPC_FLAGGED(vict, NPC_SENTINEL)) {
+        percent = 101;
+    }
+
+    if (CHECK_SKILL(ch, SKILL_DRAG) < 30) {
+        percent = 101;
+    }
+
+    if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
+        percent = 101;
+    }
+
+    if (prob > percent) {
+
+        act(tmp_sprintf("You drag $N to the %s.", to_dirs[dir]),
+            false, ch, NULL, vict, TO_CHAR);
+        act(tmp_sprintf("$n grabs you and drags you %s.", to_dirs[dir]),
+            false, ch, NULL, vict, TO_VICT);
+        act(tmp_sprintf("$n drags $N to the %s.", to_dirs[dir]),
+            false, ch, NULL, vict, TO_NOTVICT);
+
+        perform_move(ch, dir, MOVE_NORM, 1);
+        perform_move(vict, dir, MOVE_DRAG, 1);
+
+        WAIT_STATE(ch, (PULSE_VIOLENCE * 2));
+        WAIT_STATE(vict, PULSE_VIOLENCE);
+
+        if (IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict)) {
+            hit(vict, ch, TYPE_UNDEFINED);
+            WAIT_STATE(ch, 2 RL_SEC);
+        }
+        return;
+    } else {
+        act("$n grabs $N but fails to move $m.", false, ch, NULL, vict,
+            TO_NOTVICT);
+        act("You attempt to drag $N, but you fail!", false, ch, NULL, vict,
+            TO_CHAR);
+        act("$n attempts to drag you, but you hold your ground.", false, ch, NULL,
+            vict, TO_VICT);
+        WAIT_STATE(ch, PULSE_VIOLENCE);
+
+        if (IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict)) {
+            hit(vict, ch, TYPE_UNDEFINED);
+            WAIT_STATE(ch, 2 RL_SEC);
+        }
+        return;
     }
 }
 

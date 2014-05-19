@@ -61,8 +61,6 @@ struct bard_song songs[TOP_DAMAGETYPE + 1];
 struct room_direction_data *knock_door = NULL;
 char locate_buf[256];
 
-#define SINFO spell_info[spellnum]
-
 extern int mini_mud;
 
 extern struct room_data *world;
@@ -960,6 +958,22 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
         break;
     case ITEM_POTION:
         tch = ch;
+
+        if (GET_COND(ch, FULL) > 23) {
+            act("You couldn't possibly quaff that potion -- you're stuffed!", false, ch, NULL, NULL, TO_CHAR);
+            return 1;
+        }
+
+        gain_condition(ch, FULL, 1);
+
+        if (IS_OBJ_TYPE(obj, ITEM_POTION) && GET_COND(ch, FULL) > 20) {
+            if (!number(0,2)) {
+                act("Your stomach is reaching capacity!", false, ch, NULL, NULL, TO_CHAR);
+            } else {
+                act("Your stomach is becoming quite full.", false, ch, NULL, NULL, TO_CHAR);
+            }
+        }
+
         act("You quaff $p.", false, ch, obj, NULL, TO_CHAR);
         if (obj->action_desc)
             act(obj->action_desc, false, ch, obj, NULL, TO_ROOM);
@@ -2342,6 +2356,8 @@ load_spell(xmlNodePtr node)
                 spell_info[idnum].is_weapon = true;
             } else if (!strcmp(value_str, "unpleasant")) {
                 spell_info[idnum].targets |= TAR_UNPLEASANT;
+            } else if (!strcmp(value_str, "defensive")) {
+                spell_info[idnum].defensive = true;
             } else {
                 int flag = search_block(value_str, spell_bit_keywords, true);
                 if (flag < 0) {

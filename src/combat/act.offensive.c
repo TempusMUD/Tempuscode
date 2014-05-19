@@ -2206,36 +2206,32 @@ ACMD(do_sleeper)
 
     else {
         gain_skill_prof(ch, SKILL_SLEEPER);
-        damage(ch, vict, NULL, 18, SKILL_SLEEPER, WEAR_NECK_1);
-        // FIXME: don't do anything if the attack failed
+        if (damage(ch, vict, NULL, 18, SKILL_SLEEPER, WEAR_NECK_1)) {
+            if (!is_dead(vict)) {
+                struct affected_type af;
 
-        //
-        // put the victim to sleep if he's still alive
-        //
-        if (!is_dead(vict)) {
-            struct affected_type af;
+                init_affect(&af);
 
-            init_affect(&af);
+                remove_all_combat(vict);
 
-            remove_all_combat(vict);
+                WAIT_STATE(vict, 4 RL_SEC);
+                GET_POSITION(vict) = POS_SLEEPING;
 
-            WAIT_STATE(vict, 4 RL_SEC);
-            GET_POSITION(vict) = POS_SLEEPING;
+                af.is_instant = false;
+                af.duration = 2;
+                af.bitvector = AFF_SLEEP;
+                af.type = SKILL_SLEEPER;
+                af.aff_index = 1;
+                af.level = GET_LEVEL(ch);
+                af.owner = GET_IDNUM(ch);
+                affect_join(vict, &af, false, false, false, false);
 
-            af.is_instant = false;
-            af.duration = 2;
-            af.bitvector = AFF_SLEEP;
-            af.type = SKILL_SLEEPER;
-            af.aff_index = 1;
-            af.level = GET_LEVEL(ch);
-            af.owner = GET_IDNUM(ch);
-            affect_join(vict, &af, false, false, false, false);
+                if (is_dead(ch))
+                    return;
 
-            if (is_dead(ch))
-                return;
-
-            remove_combat(ch, vict);
-            remember(vict, ch);
+                remove_combat(ch, vict);
+                remember(vict, ch);
+            }
         }
     }
 }

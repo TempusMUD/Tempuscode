@@ -2076,50 +2076,50 @@ const char *drinknames[] = {
     "\n"
 };
 
-/* effect of drinks on hunger, thirst, and drunkenness -- see values.doc */
-/* (DRUNK, HUNGER, THIRST)*/
-const char drink_aff[][3] = {
-    {0, 1, 10},                 /*water */
-    {3, 2, 5},                  /* beer */
-    {5, 2, 5},                  /* wine */
-    {2, 2, 5},                  /* ale */
-    {1, 2, 5},                  /* darkale */
-    {6, 1, 4},                  /* whiskey *//* 5 */
-    {0, 1, 8},                  /* lemonade */
-    {10, 0, 0},                 /* firebreather */
-    {3, 3, 3},                  /* local specialty */
-    {0, 4, -8},                 /* slime */
-    {0, 3, 6},                  /* milk *//* 10 */
-    {0, 1, 6},                  /* tea */
-    {0, 1, 6},                  /* coffee */
-    {0, 2, -1},                 /* blood */
-    {0, 1, -2},                 /* saltwater */
-    {0, 0, 13},                 /* clear water *//* 15 */
-    {0, 1, 10},                 /* coke */
-    {10, 0, 1},                 /* fire talon */
-    {0, 5, 5},                  /* soup */
-    {0, 3, -2},                 /* mud */
-    {0, 1, 10},                 /* holy water *//* 20 */
-    {0, 2, 8},                  /* orange juice */
-    {0, 3, 8},                  /* goatsmilk */
-    {0, 3, -5},                 /* mucus */
-    {0, 1, 0},                  /* pus */
-    {0, 1, 10},                 /* sprite *//* 25 */
-    {0, 1, 10},                 /* diet coke */
-    {0, 1, 10},                 /* root beer */
-    {12, 0, 2},                 /* vodka */
-    {1, 1, 6},                  /* city beer */
-    {0, 0, -2},                 /* urine *//* 30 */
-    {5, 3, 6},                  /* stout  */
-    {2, 1, 8},                  /* souls */
-    {1, 2, 2},                  /* champagne */
-    {0, 1, 6},                  /* cappucino */
-    {10, 0, 2},                 /* rum */
-    {12, 0, 2},                 /* sake */
-    {0, 1, 5},                  // chocolate milk
-    {0, 3, 7},                  // juice
-    {8, 0, 3},                  // mead
-    {-1, -1, -1},
+/* effect of drinks on hunger and drunkenness -- see values.doc */
+/* (DRUNK, HUNGER)*/
+const char drink_aff[][2] = {
+    {0, 1},                     /*water */
+    {3, 2},                     /* beer */
+    {5, 1},                     /* wine */
+    {2, 2},                     /* ale */
+    {1, 2},                     /* darkale */
+    {6, 1},                     /* whiskey *//* 5 */
+    {0, 1},                     /* lemonade */
+    {10, 1},                    /* firebreather */
+    {3, 1},                     /* local specialty */
+    {0, 3},                     /* slime */
+    {0, 2},                     /* milk *//* 10 */
+    {0, 1},                     /* tea */
+    {0, 1},                     /* coffee */
+    {0, 1},                     /* blood */
+    {0, 1},                     /* saltwater */
+    {0, 1},                     /* clear water *//* 15 */
+    {0, 2},                     /* coke */
+    {10, 1},                    /* fire talon */
+    {0, 3},                     /* soup */
+    {0, 2},                     /* mud */
+    {0, 1},                     /* holy water *//* 20 */
+    {0, 1},                     /* orange juice */
+    {0, 2},                     /* goatsmilk */
+    {0, 3},                     /* mucus */
+    {0, 3},                     /* pus */
+    {0, 2},                     /* sprite *//* 25 */
+    {0, 2},                     /* diet coke */
+    {0, 2},                     /* root beer */
+    {12, 1},                    /* vodka */
+    {1, 1},                     /* city beer */
+    {0, 1},                     /* urine *//* 30 */
+    {5, 2},                     /* stout  */
+    {2, 1},                     /* souls */
+    {1, 2},                     /* champagne */
+    {0, 1},                     /* cappucino */
+    {10, 1},                    /* rum *//* 35 */
+    {12, 1},                    /* sake */
+    {0, 2},                     /* chocolate milk */
+    {0, 3},                     /* juice */
+    {8, 0},                     /* mead */
+    {-1, -1},
 };
 
 /* color of the various drinks */
@@ -2360,8 +2360,8 @@ const char *spell_wear_off_msg[] = {
     "Your mental center of logic relaxes.",
     "You feel a sense of mental clarity return.",
     "You feel less afraid.",
-    "!Satiation!",              /* 205 */
-    "!Quench!",
+    "!UNUSED!",              /* 205 */
+    "!UNUSED!",
     "You feel less confident now.",
     "Your body suddenly becomes aware of pain again.",
     "Your skin relaxes, and thins back out.",
@@ -2454,7 +2454,7 @@ const char *spell_wear_off_msg[] = {
     "Your armor returns to normal harness.",
     "!exposure overture!",
     "!UNUSED!",                 /* 355 */
-    "You start to feel hungry again.",
+    "!UNUSED!",
     "The effects of the melody of mettle dissipate.",
     "!lustration melisma!",
     "You feel more vulnerable to external forces.",

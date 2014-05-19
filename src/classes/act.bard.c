@@ -1,5 +1,5 @@
 //
-// File: act.hood.c                     -- Part of TempusMUD
+// File: act.bard.c                     -- Part of TempusMUD
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //

@@ -319,7 +319,7 @@ SPECIAL(guild)
     if (!*argument) {
         if (CMD_IS("offer"))
             perform_tell(master, ch,
-                "For what skill would you like to know the price of training?");
+                "For what ability would you like to know the price of training?");
         else
             list_skills(ch, 1, 3);
         return 1;
@@ -361,14 +361,17 @@ SPECIAL(guild)
             (!IS_REMORT(master) ||
                 GET_LEVEL(master) <
                 SPELL_LEVEL(skill_num, GET_REMORT_CLASS(master))))) {
-        perform_tell(master, ch, "I am not able to teach you that skill.");
+        perform_tell(master, ch,
+            tmp_sprintf("I am not able to teach you that %s.",
+                SPLSKL(ch)));
         return 1;
     }
 
     if (GET_CLASS(master) < NUM_CLASSES &&
         (SPELL_GEN(skill_num, GET_CLASS(master)) && !IS_REMORT(master))) {
         perform_tell(master, ch,
-            "You must go elsewhere to learn that remort skill.");
+            tmp_sprintf("You must go elsewhere to learn that advanced %s.",
+                SPLSKL(ch)));
         return 1;
     }
 
@@ -448,8 +451,23 @@ SPECIAL(guild)
 
     SET_SKILL(ch, skill_num, percent);
 
-    if (GET_SKILL(ch, skill_num) >= LEARNED(ch))
-        send_to_char(ch, "You are now well learned in that area.\r\n");
+    if (GET_SKILL(ch, skill_num) >= LEARNED(ch)) {
+        perform_tell(master, ch,
+            tmp_sprintf("I've taught you everything I know about %s.",
+                spell_to_str(skill_num)));
+    } else {
+        if (random_fractional_3()) {
+            perform_tell(master, ch,
+                tmp_sprintf("I can teach you more, if you have time and %s.",
+                    (ch->in_room->zone->time_frame == TIME_ELECTRO ? "cash" : "coin")));
+        } else if (random_binary()) {
+            perform_tell(master, ch,
+                tmp_sprintf("Would you like another lesson on %s?",
+                    spell_to_str(skill_num)));
+        } else {
+            perform_tell(master, ch, "You still have more to learn.");
+        }
+    }
 
     return 1;
 }

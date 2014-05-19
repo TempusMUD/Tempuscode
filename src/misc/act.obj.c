@@ -1372,6 +1372,12 @@ perform_drop(struct creature *ch, struct obj_data *obj,
             act("You peel $p off your hand...", false, ch, obj, NULL, TO_CHAR);
     }
 
+    if ((mode == SCMD_DONATE) && (IS_OBJ_STAT(obj, ITEM_NODONATE) ||
+            !OBJ_APPROVED(obj))) {
+        send_to_char(ch, "You can't donate this item. Try junking it, perhaps?\r\n");
+        return 0;
+    }
+
     if ((mode == SCMD_DONATE || mode == SCMD_JUNK) &&
         is_undisposable(ch, (mode == SCMD_JUNK) ? "junk" : "donate", obj,
             true))
@@ -1383,10 +1389,6 @@ perform_drop(struct creature *ch, struct obj_data *obj,
         sprintf(buf, "$n %ss $p.%s", sname, VANISH(mode));
         act(buf, true, ch, obj, NULL, TO_ROOM);
     }
-
-    if ((mode == SCMD_DONATE) && (IS_OBJ_STAT(obj, ITEM_NODONATE) ||
-            !OBJ_APPROVED(obj)))
-        mode = SCMD_JUNK;
 
     switch (mode) {
     case SCMD_DROP:
@@ -2072,7 +2074,7 @@ ACMD(do_drink)
     struct affected_type af;
     int amount;
     float weight;
-    int drunk = 0, full = 0, thirst = 0;
+    int drunk = 0, full = 0;
     int on_ground = 0;
 
     init_affect(&af);
@@ -2110,7 +2112,7 @@ ACMD(do_drink)
         act("$n tries to drink but misses $s mouth!", true, ch, NULL, NULL, TO_ROOM);
         return;
     }
-    if ((GET_COND(ch, FULL) > 20) && (GET_COND(ch, THIRST) > 0)) {
+    if (GET_COND(ch, FULL) > 20) {
         send_to_char(ch, "Your stomach can't contain any more!\r\n");
         return;
     }
@@ -2154,16 +2156,14 @@ ACMD(do_drink)
     if (IS_MONK(ch))
         drunk /= 4;
     full = (int)drink_aff[GET_OBJ_VAL(temp, 2)][FULL] * amount / 4;
-    thirst = (int)drink_aff[GET_OBJ_VAL(temp, 2)][THIRST] * amount / 4;
 
     if (PRF2_FLAGGED(ch, PRF2_DEBUG))
         send_to_char(ch,
-            "%s[DRINK] amount:%d   drunk:%d   full:%d   thirst:%d%s\r\n",
-            CCCYN(ch, C_NRM), amount, drunk, full, thirst, CCCYN(ch, C_NRM));
+            "%s[DRINK] amount:%d   drunk:%d   full:%d%s\r\n",
+            CCCYN(ch, C_NRM), amount, drunk, full, CCCYN(ch, C_NRM));
 
     gain_condition(ch, DRUNK, drunk);
     gain_condition(ch, FULL, full);
-    gain_condition(ch, THIRST, thirst);
 
     if (GET_COND(ch, DRUNK) > GET_CON(ch) || GET_COND(ch, DRUNK) == 24)
         send_to_char(ch, "You are on the verge of passing out!\r\n");
@@ -2173,9 +2173,6 @@ ACMD(do_drink)
         send_to_char(ch, "You feel pretty damn drunk.\r\n");
     else if (GET_COND(ch, DRUNK) > GET_CON(ch) / 4)
         send_to_char(ch, "You feel pretty good.\r\n");
-
-    if (GET_COND(ch, THIRST) > 20)
-        send_to_char(ch, "Your thirst has been quenched.\r\n");
 
     if (GET_COND(ch, FULL) > 20)
         send_to_char(ch, "Your belly is satiated.\r\n");

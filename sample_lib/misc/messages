@@ -472,6 +472,22 @@ Thorns pop out of $n's skin effortlessly.
 #
 $n chuckles as thorns effortlessly pop out of $s skin.
 
+* Dragons Breath
+M
+ 162
+You blast $N's body into ash with your fiery breath!
+Your body is blasted to ash by the fiery breath of $n!
+$n blasts $N to ash with $s fiery breath!
+$N dodges your jet of fiery breath!
+$n breathes fire at you, but you leap aside!
+$N dodges a jet of fiery breath from $n!
+You blast $N with a jet of fiery breath.
+$n blasts you full force with $s fiery breath!
+$N staggers under a blast of flame as $n breathes on $M!
+$N sneers at your offensive breath.
+$n warms you with a breath of fire.
+$n warms $N with $s fiery breath.
+
 * Psychic Surge
 M
  224
@@ -1807,6 +1823,7 @@ $N staggers under a blast of flame as $n breathes on $M!
 $N sneers at your offensive breath.
 $n warms you with a breath of fire.
 $n warms $N with $s fiery breath.
+
 * Gas Breath
 M
  703

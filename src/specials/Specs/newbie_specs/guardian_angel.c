@@ -85,10 +85,6 @@ static struct angel_chat_data angel_chat[] = {
             "respond Fear not!  I will cast spells on you as you need them."},
     {CLASS_NONE, 100, "money",
             "respond You can get money by looting corpses, selling items, and of course, begging from other players."},
-    {CLASS_NONE, 100, "where eat", "respond You can find food at the bakery"},
-    {CLASS_NONE, 100, "hungry", "respond You need to get some food to eat."},
-    {CLASS_NONE, 100, "thirsty",
-            "respond You need to get something to drink.  There are fountains to drink from or you can buy drinks at shops."},
     {CLASS_NONE, 100, "what do i do",
             "respond Go out and explore!  Talk to people!  Increase in power and wealth!  Meet interesting and exotic creatures and kill them!"},
     {CLASS_NONE, 100, "where do i go",
@@ -487,14 +483,6 @@ angel_check_charge(struct creature *self, struct creature *charge,
     // Everything below here only applies to not fighting
     if (is_fighting(charge))
         return 0;
-
-    if ((!GET_COND(charge, FULL) || !GET_COND(charge, THIRST))
-        && !IS_SET(data->flags, ANGEL_CONSUME)) {
-        perform_say_to(self, charge,
-            "You regenerate hitpoints, mana, and move much faster if you aren't hungry or thirsty.");
-        SET_BIT(data->flags, ANGEL_CONSUME);
-        return 1;
-    }
 
     if (GET_EQ(charge, WEAR_WIELD_2)) {
         if (!IS_SET(data->flags, ANGEL_DUAL_WIELD)) {

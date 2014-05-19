@@ -150,7 +150,6 @@ randomize_creature(struct creature *ch, int char_class)
     ch->real_abils.con = number(3, 25);
     ch->real_abils.cha = number(3, 25);
     GET_COND(ch, FULL) = number(0, 20);
-    GET_COND(ch, THIRST) = number(0, 20);
     GET_COND(ch, DRUNK) = number(0, 20);
     GET_WIMP_LEV(ch) = number(0, GET_MAX_HIT(ch) / 2);
     GET_LIFE_POINTS(ch) = number(0, 100);
@@ -275,7 +274,6 @@ compare_creatures(struct creature *ch, struct creature *tch)
     fail_unless(!memcmp(&ch->player.time, &tch->player.time, sizeof(ch->player.time)));
     fail_unless(!memcmp(&ch->real_abils, &tch->real_abils, sizeof(ch->real_abils)));
     fail_unless(GET_COND(ch, FULL) == GET_COND(tch, FULL));
-    fail_unless(GET_COND(ch, THIRST) == GET_COND(tch, THIRST));
     fail_unless(GET_COND(ch, DRUNK) == GET_COND(tch, DRUNK));
     fail_unless(GET_WIMP_LEV(ch) == GET_WIMP_LEV(tch));
     fail_unless(GET_LIFE_POINTS(ch) == GET_LIFE_POINTS(tch));

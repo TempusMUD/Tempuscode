@@ -28,6 +28,7 @@
 #include "obj_data.h"
 #include "spells.h"
 #include "strutil.h"
+#include "bomb.h"
 
 extern int no_plrtext;
 
@@ -183,7 +184,9 @@ obj_is_unrentable(struct obj_data * obj)
     if (IS_OBJ_STAT(obj, ITEM_NORENT)
         || !OBJ_APPROVED(obj) || GET_OBJ_VNUM(obj) <= NOTHING
         || (IS_OBJ_TYPE(obj, ITEM_KEY) && GET_OBJ_VAL(obj, 1) == 0)
-        || (IS_OBJ_TYPE(obj, ITEM_CIGARETTE) && GET_OBJ_VAL(obj, 3))) {
+        || (IS_OBJ_TYPE(obj, ITEM_CIGARETTE) && GET_OBJ_VAL(obj, 3))
+        || (IS_BOMB(obj) && obj->contains &&
+        IS_FUSE(obj->contains) && FUSE_STATE(obj->contains))) {
         return true;
     }
 

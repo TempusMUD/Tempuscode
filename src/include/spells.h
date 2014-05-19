@@ -116,6 +116,8 @@ enum magic_flag {
 #define SPELL_FLAGS(splnm)     (spell_info[splnm].routines)
 #define SPELL_FLAGGED(splnm, flag) (IS_SET(SPELL_FLAGS(splnm), flag))
 
+#define SINFO spell_info[spellnum]
+
 enum spell {
     TYPE_UNDEFINED = -1,
     SPELL_RESERVED_DBC = 0,	/* SKILL NUMBER ZERO -- RESERVED */
@@ -288,14 +290,13 @@ enum spell {
     SPELL_FROST_BREATHING = 159,
     SPELL_FLAME_OF_FAITH = 160,
     SPELL_ABLAZE = 161, // Only here to allow an ablaze affect
+    SPELL_DRAGONS_BREATH = 162,
 
   /************************** Psionic Triggers ***************/
     SPELL_POWER = 201,	/* Strength                */
     SPELL_INTELLECT = 202,
     SPELL_CONFUSION = 203,
     SPELL_FEAR = 204,
-    SPELL_SATIATION = 205,	/* fills hunger */
-    SPELL_QUENCH = 206,	/* fills thirst */
     SPELL_CONFIDENCE = 207,	/* sets nopain */
     SPELL_NOPAIN = 208,
     SPELL_DERMAL_HARDENING = 209,
@@ -400,7 +401,6 @@ enum spell {
     SONG_VERSE_OF_VULNERABILITY = 353, // lowers AC of target
     SONG_EXPOSURE_OVERTURE = 354, // Area affect, causes targets to vis
     SONG_VERSE_OF_VIBRATION = 355, // motor spasm++
-    SONG_REGALERS_RHAPSODY = 356, // caster and groupies get satiated
     SONG_MELODY_OF_METTLE = 357, // caster and group get con and maxhit
     SONG_LUSTRATION_MELISMA = 358, // caster and group cleansed of blindness, poison, sickness
     SONG_DEFENSE_DITTY = 359, // save spell, psi, psy based on gen
@@ -677,7 +677,6 @@ enum spell {
  *  associated with objects (such as SPELL_IDENTIFY used with scrolls of
  *  identify) or non-players (such as NPC-only spells).
  */
-
     SPELL_FIRE_BREATH = 702,
     SPELL_GAS_BREATH = 703,
     SPELL_FROST_BREATH = 704,
@@ -829,7 +828,8 @@ struct spell_info_type {
 	int routines;
 	int16_t targets;				/* See below for use with TAR_XXX  */
 	bool violent;
-    bool is_weapon;
+        bool is_weapon;
+        bool defensive;
 };
 
 struct bard_song {
@@ -894,7 +894,6 @@ static inline int SPELL_GEN( int spell, int char_class ) {
 static inline bool IS_WEAPON(int spell) {
     return spell_info[spell].is_weapon;
 }
-
 
 bool is_able_to_learn(struct creature *ch, int spl);
 

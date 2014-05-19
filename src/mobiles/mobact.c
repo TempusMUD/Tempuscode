@@ -4213,7 +4213,9 @@ ACMD(do_breathe)
 
     if (IS_PC(ch)) {
         if (fire != NULL) {
-            call_magic(ch, vict, NULL, NULL, SPELL_FIRE_BREATH, GET_LEVEL(ch),
+            if (GET_SKILL(ch, SPELL_DRAGONS_BREATH) < GET_SKILL(ch, SPELL_FIRE_BREATHING))
+                SET_SKILL(ch, SPELL_DRAGONS_BREATH, GET_SKILL(ch, SPELL_FIRE_BREATHING));
+            call_magic(ch, vict, NULL, NULL, SPELL_DRAGONS_BREATH, GET_LEVEL(ch),
                 CAST_BREATH);
             fire = affected_by_spell(ch, SPELL_FIRE_BREATHING);
             if (fire) {
@@ -4223,15 +4225,7 @@ ACMD(do_breathe)
             }
             WAIT_STATE(ch, 1 RL_SEC);
         } else if (frost != NULL) {
-            call_magic(ch, vict, NULL, NULL, SPELL_FROST_BREATH, GET_LEVEL(ch),
-                CAST_BREATH);
-            frost = affected_by_spell(ch, SPELL_FROST_BREATH);
-            if (frost) {
-                frost->duration -= 5;
-                if (frost->duration <= 0)
-                    affect_remove(ch, frost);
-            }
-            WAIT_STATE(ch, 1 RL_SEC);
+            send_to_char(ch, "ERROR: Frost breath not found.\r\n");
         } else {
             send_to_char(ch, "ERROR: No breath type found.\r\n");
         }
