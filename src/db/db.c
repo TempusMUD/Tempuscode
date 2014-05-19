@@ -1616,7 +1616,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
  */
 
 #define CASE(test) if (!matched && !strcasecmp(keyword, test) && (matched = true))
-#define RANGE(low, high) (num_arg = MAX((low), MIN((high), (num_arg))))
+#define RANGE(low, high) do { num_arg = MAX((low), MIN((high), (num_arg))); } while (false)
 
 void
 interpret_espec(char *keyword, const char *value, struct creature *mobile,
@@ -1637,7 +1637,7 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
     }
 
     CASE("Str") {
-        RANGE(3, 35);
+        RANGE(3, 50);
         if (num_arg <= 18)
             mobile->real_abils.str = (int)num_arg;
         else

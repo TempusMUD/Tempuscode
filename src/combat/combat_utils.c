@@ -376,9 +376,13 @@ add_blood_to_room(struct room_data *rm, int amount)
         if (GET_OBJ_VNUM(blood) == BLOOD_VNUM)
             break;
 
-    if (!blood && (new_blood = true) && !(blood = read_object(BLOOD_VNUM))) {
-        errlog("Unable to load blood.");
-        return;
+    if (blood == NULL) {
+        new_blood = true;
+        blood = read_object(BLOOD_VNUM);
+        if (blood == NULL) {
+            errlog("Unable to load blood.");
+            return;
+        }
     }
 
     if (GET_OBJ_TIMER(blood) > 50)
