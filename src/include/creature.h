@@ -1098,7 +1098,6 @@ next_living(GList *node)
 
 #define GET_CLASS(ch)   ((ch)->player.char_class)
 #define GET_REMORT_CLASS(ch)  ((ch)->player.remort_char_class)
-#define CHECK_REMORT_CLASS(ch)  ((ch)->player.remort_char_class)
 #define GET_RACE(ch)        ((ch)->player.race)
 #define GET_HOME(ch)        ((ch)->player.hometown)
 #define GET_HEIGHT(ch)        ((ch)->player.height)

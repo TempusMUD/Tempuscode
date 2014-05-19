@@ -3865,7 +3865,7 @@ inline bool should_display_skill(struct creature *vict, int i) {
     if (GET_LEVEL(vict) >= spell_info[i].min_level[(int)GET_CLASS(vict)]) {
         return true;
     }
-    if (CHECK_REMORT_CLASS(vict) == 0) {
+    if (GET_REMORT_CLASS(vict) == 0) {
         return false;
     }
     return (GET_LEVEL(vict) >= spell_info[i].min_level[(int)GET_REMORT_CLASS(vict)]);
@@ -3878,7 +3878,7 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
     int i, sortpos;
 
     if (prac_params[PRAC_TYPE][(int)GET_CLASS(vict)] != 1 ||
-        (CHECK_REMORT_CLASS(vict) >= 0 &&
+        (GET_REMORT_CLASS(vict) >= 0 &&
             prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(vict)] != 1)) {
         sprintf(buf, "%s%s%s%s knows of the following %ss:%s\r\n", buf,
             CCYEL(ch, C_CMP), PERS(vict, ch), CCBLD(ch, C_SPR),
@@ -7988,7 +7988,7 @@ ACMD(do_tester)
                     GET_LEVEL(ch)
                     || (IS_REMORT(ch)
                         && spell_info[i].
-                        min_level[(int)CHECK_REMORT_CLASS(ch)] <=
+                        min_level[(int)GET_REMORT_CLASS(ch)] <=
                         GET_LEVEL(ch))) {
                     SET_SKILL(ch, i, LEARNED(ch));
                 }

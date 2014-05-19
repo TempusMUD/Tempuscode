@@ -4149,17 +4149,17 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj, int spellnum)
         if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
             obj->affected[0].location = APPLY_HITROLL;
             obj->affected[0].modifier = 1 + (level / 12) +
-                (CHECK_REMORT_CLASS(ch) >= 0) * (level / 18);
+                (GET_REMORT_CLASS(ch) >= 0) * (level / 18);
             obj->affected[1].location = APPLY_DAMROLL;
             obj->affected[1].modifier = 1 + (level / 18) +
-                (CHECK_REMORT_CLASS(ch) >= 0) * (level / 24);
+                (GET_REMORT_CLASS(ch) >= 0) * (level / 24);
         } else if (IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
             obj->affected[0].location = APPLY_AC;
             obj->affected[0].modifier = -(1 + (level / 12) +
-                (CHECK_REMORT_CLASS(ch) >= 0) * (level / 28));
+                (GET_REMORT_CLASS(ch) >= 0) * (level / 28));
             obj->affected[1].location = APPLY_SAVING_SPELL;
             obj->affected[1].modifier = -(1 + (level / 18) +
-                (CHECK_REMORT_CLASS(ch) >= 0) * (level / 28));
+                (GET_REMORT_CLASS(ch) >= 0) * (level / 28));
         } else
             return;
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {

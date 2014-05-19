@@ -329,11 +329,9 @@ SPECIAL(guild)
             || GET_LEVEL(ch) > LVL_CAN_RETURN
             || GET_REMORT_GEN(ch) > 0) &&
         GET_CLASS(ch) != GET_CLASS(master) &&
-        GET_CLASS(master) != CHECK_REMORT_CLASS(ch) &&
+        GET_CLASS(master) != GET_REMORT_CLASS(ch) &&
         (!IS_REMORT(master) ||
-            CHECK_REMORT_CLASS(ch) != GET_CLASS(ch)) &&
-        (!IS_REMORT(master) ||
-            CHECK_REMORT_CLASS(ch) != CHECK_REMORT_CLASS(ch))) {
+            GET_REMORT_CLASS(ch) != GET_CLASS(ch))) {
         perform_tell(master, ch, "Go to your own guild to practice!");
         return 1;
     }
