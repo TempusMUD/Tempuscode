@@ -3576,12 +3576,10 @@ ACMD(do_wiznet)
     if (!*argument) {
         if (subcmd == SCMD_IMMCHAT)
             send_to_char(ch,
-                "Usage: imm <text> | #<level> <text> | *<emotetext> |\r\n "
-                "       imm @<level> *<emotetext> | imm @\r\n");
+                "Usage: imm <text> | #<level> <text> | *<emotetext> |\r\n ");
         else
             send_to_char(ch,
-                "Usage: wiz <text> | #<level> <text> | *<emotetext> |\r\n "
-                "       wiz @<level> *<emotetext> | wiz @\r\n");
+                "Usage: wiz <text> | #<level> <text> | *<emotetext> |\r\n");
         return;
     }
 
@@ -3602,8 +3600,7 @@ ACMD(do_wiznet)
                     subcmd == SCMD_IMMCHAT ? "immchat" : "wiznet");
                 return;
             }
-        } else if (emote)
-            argument++;
+        }
         break;
     case '\\':
         ++argument;
