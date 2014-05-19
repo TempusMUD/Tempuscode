@@ -451,7 +451,7 @@ do_show_specials(struct creature *ch, char *arg)
             (!mode_room || !IS_SET(spec_list[i].flags, SPEC_RM)))
             continue;
         if (spec_list[i].flags)
-            sprintbit(spec_list[i].flags, spec_flags, buf2);
+            sprintbit(spec_list[i].flags, spec_flags, buf2, sizeof(buf2));
         else
             strcpy_s(buf2, sizeof(buf2), "NONE");
 

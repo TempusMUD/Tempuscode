@@ -795,18 +795,16 @@ ACMD(do_dynedit)
                         "Resulting string would exceed maximum string length, aborting.\r\n");
                     return;
                 }
-                if (!(newbuf =
-                        (char *)malloc(strlen(dyntext->buffer) +
-                            strlen(dyntext->tmp_buffer) + 1))) {
-                    errlog
-                        ("unable to malloc buffer for append in do_dynedit.");
-                    send_to_char(ch,
-                        "Unable to allocate memory for the new buffer.\r\n");
+                size_t newbuf_size = strlen(dyntext->buffer) + strlen(dyntext->tmp_buffer) + 1;
+                newbuf = (char *)malloc(newbuf_size);
+                if (newbuf == NULL) {
+                    errlog("unable to malloc buffer for append in do_dynedit.");
+                    send_to_char(ch, "Unable to allocate memory for the new buffer.\r\n");
                     return;
                 }
                 *newbuf = '\0';
-                strcat_s(newbuf, sizeof(newbuf), dyntext->tmp_buffer);
-                strcat_s(newbuf, sizeof(newbuf), dyntext->buffer);
+                strcat_s(newbuf, newbuf_size, dyntext->tmp_buffer);
+                strcat_s(newbuf, newbuf_size, dyntext->buffer);
                 free(dyntext->tmp_buffer);
                 dyntext->tmp_buffer = newbuf;
             }

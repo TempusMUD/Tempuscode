@@ -345,8 +345,8 @@ help_item_show(struct help_item *item, struct creature *ch, char *buffer,
         snprintf(buffer, buf_size, "Name: %s\r\n    (%s)\r\n", item->name, item->keys);
         break;
     case 1:                    // 1 == One Line Stat
-        sprintbit(item->flags, help_bit_descs, bitbuf);
-        sprintbit(item->groups, help_group_bits, groupbuf);
+        sprintbit(item->flags, help_bit_descs, bitbuf, sizeof(bitbuf));
+        sprintbit(item->groups, help_group_bits, groupbuf, sizeof(groupbuf));
         snprintf(buffer, buf_size, "%s%3d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s\r\n",
             CCCYN(ch, C_NRM), item->idnum, CCYEL(ch, C_NRM),
             item->name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -362,8 +362,8 @@ help_item_show(struct help_item *item, struct creature *ch, char *buffer,
     case 3:                    // 3 == Entire Entry Stat
         if (!item->text)
             help_item_load_text(item);
-        sprintbit(item->flags, help_bit_descs, bitbuf);
-        sprintbit(item->groups, help_group_bits, groupbuf);
+        sprintbit(item->flags, help_bit_descs, bitbuf, sizeof(bitbuf));
+        sprintbit(item->groups, help_group_bits, groupbuf, sizeof(groupbuf));
         snprintf(buffer, buf_size,
             "\r\n%s%d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s \r\n        %s"
             "Keywords: [ %s%s%s ]\r\n%s%s\r\n",

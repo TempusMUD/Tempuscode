@@ -58,7 +58,6 @@ extern struct clan_data *clan_list;
 
 long asciiflag_conv(char *buf);
 
-void num2str(char *str, int num);
 void do_stat_object(struct creature *ch, struct obj_data *obj);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
@@ -212,7 +211,7 @@ save_room(struct creature *ch, struct room_data *room, FILE * file)
         if (rm_aff->type == RM_AFF_FLAGS)
             REMOVE_BIT(tmp, rm_aff->flags);
 
-    num2str(buf, tmp);
+    num2str(buf, sizeof(buf), tmp);
     fprintf(file, "%d %s %d\n", room->zone->number, buf, room->sector_type);
 
     for (i = 0; i < NUM_DIRS; i++) {
@@ -236,7 +235,7 @@ save_room(struct creature *ch, struct room_data *room, FILE * file)
                 if ((unsigned int)rm_aff->type == i)
                     REMOVE_BIT(tmp, rm_aff->flags);
 
-            num2str(buf, tmp);
+            num2str(buf, sizeof(buf), tmp);
 
             fprintf(file, "%s %d %d\n", buf, room->dir_option[i]->key,
                 room->dir_option[i]->to_room ? room->dir_option[i]->
@@ -877,8 +876,8 @@ do_olc_rset(struct creature *ch, char *argument)
             return;
         }
         half_chop(arg2, arg1, arg2);    /* sneaky trix */
-        strcpy_s(argument, sizeof(argument), arg2);
-        half_chop(argument, arg2, arg3);
+        strcpy_s(arg3, sizeof(arg3), arg2);
+        half_chop(arg3, arg2, arg3);
         if (!*arg2) {
             if (*arg1 && is_abbrev(arg1, "remove")) {
                 FLOW_SPEED(ch->in_room) = 0;

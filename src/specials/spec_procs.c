@@ -1855,14 +1855,11 @@ SPECIAL(weapon_lister)
                     strcat_s(buf, sizeof(buf), "Set: ");
                 found = 1;
                 if (i == 0)
-                    sprintbit(obj->obj_flags.bitvector[i], affected_bits,
-                        buf2);
+                    sprintbit(obj->obj_flags.bitvector[i], affected_bits, buf2, sizeof(buf2));
                 else if (i == 1)
-                    sprintbit(obj->obj_flags.bitvector[i], affected2_bits,
-                        buf2);
+                    sprintbit(obj->obj_flags.bitvector[i], affected2_bits, buf2, sizeof(buf2));
                 else
-                    sprintbit(obj->obj_flags.bitvector[i], affected3_bits,
-                        buf2);
+                    sprintbit(obj->obj_flags.bitvector[i], affected3_bits, buf2, sizeof(buf2));
                 strcat_s(buf, sizeof(buf), buf2);
                 strcat_s(buf, sizeof(buf), " ");
             }

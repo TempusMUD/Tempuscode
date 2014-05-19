@@ -512,18 +512,22 @@ get_line(FILE *fl, char *buf, size_t buf_size)
 }
 
 void
-num2str(char *str, int num)
+num2str(char *str, size_t size, int num)
 {
     if (num == 0) {
-        strcpy_s(str, sizeof(str), "0");
+        strcpy_s(str, size, "0");
         return;
     }
 
     const char *encoding = "abcdefghijklmnopqrstuvwxyzABCDEF";
     const char *c = encoding;
-    for (int i = 0; i < 32; i++, c++)
-        if (num & (1 << i))
+    for (int i = 0; size > 1 && i < 32; i++, c++) {
+        if (num & (1 << i)) {
             *str++ = *c;
+            size--;
+        }
+        
+    }
 
     *str++ = '\0';
 }

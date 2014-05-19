@@ -573,7 +573,7 @@ print_search_data_to_buf(struct creature *ch, struct room_data *room,
             cur_search->arg[1], cur_search->arg[2]);
         break;
     }
-    sprintbit(cur_search->flags, search_bits, buf2);
+    sprintbit(cur_search->flags, search_bits, buf2, sizeof(buf2));
     sprintf(buf, "%s Flags: %s%s%s\r\n",
         buf, CCBLU_BLD(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 }

@@ -1419,7 +1419,7 @@ look_in_direction(struct creature *ch, int dir)
             else if (EXNUMB->name) {
                 acc_sprintf("%s", CCCYN(ch, C_NRM));
                 if (PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
-                    sprintbit((long)ROOM_FLAGS(EXNUMB), room_bits, buf);
+                    sprintbit((long)ROOM_FLAGS(EXNUMB), room_bits, buf, sizeof(buf));
                     acc_sprintf("[%5d] %s [ %s] [ %s ]", EXNUMB->number,
                         EXNUMB->name, buf, sector_types[EXNUMB->sector_type]);
                 } else

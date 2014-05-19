@@ -771,7 +771,7 @@ list_active_quests(struct creature *ch)
 }
 
 void
-list_quest_players(struct creature *ch, struct quest *quest, char *outbuf)
+list_quest_players(struct creature *ch, struct quest *quest, char *outbuf, size_t size)
 {
     char buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH];
     int num_online, num_offline;
@@ -794,7 +794,7 @@ list_quest_players(struct creature *ch, struct quest *quest, char *outbuf)
         }
 
         if (player->flags) {
-            sprintbit(player->flags, qp_bits, bitbuf);
+            sprintbit(player->flags, qp_bits, bitbuf, sizeof(bitbuf));
         } else {
             strcpy_s(bitbuf, sizeof(bitbuf), "");
         }
@@ -831,7 +831,7 @@ list_quest_players(struct creature *ch, struct quest *quest, char *outbuf)
         strcat_s(buf, sizeof(buf), buf2);
 
     if (outbuf)
-        strcpy_s(outbuf, sizeof(outbuf), buf);
+        strcpy_s(outbuf, size, buf);
     else
         page_string(ch->desc, buf);
 
@@ -1234,7 +1234,7 @@ do_quest_who(struct creature *ch, char *argument)
         return;
     }
 
-    list_quest_players(ch, quest, NULL);
+    list_quest_players(ch, quest, NULL, 0);
 
 }
 
@@ -1890,7 +1890,7 @@ do_qcontrol_show(struct creature *ch, char *argument)
         g_list_length(quest->players), quest->max_players, quest->awarded);
 
     if (quest->players) {
-        list_quest_players(ch, quest, buf2);
+        list_quest_players(ch, quest, buf2, sizeof(buf2));
         acc_strcat(buf2, NULL);
     }
 
@@ -2233,7 +2233,7 @@ do_qcontrol_flags(struct creature *ch, char *argument, int com)
     quest->flags = cur_flags;
 
     tmp_flags = old_flags ^ cur_flags;
-    sprintbit(tmp_flags, quest_bits, buf2);
+    sprintbit(tmp_flags, quest_bits, buf2, sizeof(buf2));
 
     if (tmp_flags == 0) {
         send_to_char(ch, "Flags for quest %d not altered.\r\n", quest->vnum);

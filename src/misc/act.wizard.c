@@ -207,7 +207,7 @@ show_char_class_skills(struct creature *ch, int con, int immort, int bits)
                 }
 
                 if (GET_LEVEL(ch) >= LVL_IMMORT) {
-                    sprintbit(spell_info[skl].routines, spell_bits, buf2);
+                    sprintbit(spell_info[skl].routines, spell_bits, buf2, sizeof(buf2));
                     acc_sprintf("%3d  %3d  %2d   %s%s%s",
                         spell_info[skl].mana_max,
                         spell_info[skl].mana_min, spell_info[skl].mana_change,
@@ -937,7 +937,7 @@ do_stat_zone(struct creature *ch, struct zone_data *zone)
         zone->weather->moonlight,
         zone->weather->pressure, zone->weather->change);
 
-    sprintbit(zone->flags, zone_flags, buf2);
+    sprintbit(zone->flags, zone_flags, buf2, sizeof(buf2));
     send_to_char(ch, "Flags: %s%s%s%s\r\n", CCGRN(ch, C_NRM), buf2,
         zone_pk_flags[zone->pk_style], CCNRM(ch, C_NRM));
 
@@ -1007,7 +1007,7 @@ do_stat_trails(struct creature *ch)
     acc_string_clear();
     for (i = 0, trail = ch->in_room->trail; trail; trail = trail->next) {
         timediff = mytime - trail->time;
-        sprintbit(trail->flags, trail_flags, buf2);
+        sprintbit(trail->flags, trail_flags, buf2, sizeof(buf2));
         acc_sprintf(" [%2d] -- Name: '%s', (%s), Idnum: [%5d]\r\n"
             "         Time Passed: %ld minutes, %ld seconds.\r\n"
             "         From dir: %s, To dir: %s, Track: [%2d]\r\n"
@@ -1952,26 +1952,26 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         acc_sprintf("Mount: %s\r\n", GET_NAME(MOUNTED_BY(k)));
 
     if (IS_NPC(k)) {
-        sprintbit(NPC_FLAGS(k), action_bits, buf);
+        sprintbit(NPC_FLAGS(k), action_bits, buf, sizeof(buf));
         acc_sprintf("NPC flags: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
-        sprintbit(NPC2_FLAGS(k), action2_bits, buf);
+        sprintbit(NPC2_FLAGS(k), action2_bits, buf, sizeof(buf));
         acc_sprintf("NPC flags(2): %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
     } else {
         if (GET_LEVEL(ch) >= LVL_CREATOR)
-            sprintbit(PLR_FLAGS(k), player_bits, buf);
+            sprintbit(PLR_FLAGS(k), player_bits, buf, sizeof(buf));
         else
-            sprintbit(PLR_FLAGS(k) & ~PLR_LOG, player_bits, buf);
+            sprintbit(PLR_FLAGS(k) & ~PLR_LOG, player_bits, buf, sizeof(buf));
         acc_sprintf("PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
-        sprintbit(PLR2_FLAGS(k), player2_bits, buf);
+        sprintbit(PLR2_FLAGS(k), player2_bits, buf, sizeof(buf));
         acc_sprintf("PLR2: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
-        sprintbit(PRF_FLAGS(k), preference_bits, buf);
+        sprintbit(PRF_FLAGS(k), preference_bits, buf, sizeof(buf));
         acc_sprintf("PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
-        sprintbit(PRF2_FLAGS(k), preference2_bits, buf);
+        sprintbit(PRF2_FLAGS(k), preference2_bits, buf, sizeof(buf));
         acc_sprintf("PRF2: %s%s%s\r\n", CCGRN(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
         if (PLR_FLAGGED(k, PLR_FROZEN)) {
@@ -2064,17 +2064,17 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     }
     /* Showing the bitvector */
     if (AFF_FLAGS(k)) {
-        sprintbit(AFF_FLAGS(k), affected_bits, buf);
+        sprintbit(AFF_FLAGS(k), affected_bits, buf, sizeof(buf));
         acc_sprintf("AFF: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
     }
     if (AFF2_FLAGS(k)) {
-        sprintbit(AFF2_FLAGS(k), affected2_bits, buf);
+        sprintbit(AFF2_FLAGS(k), affected2_bits, buf, sizeof(buf));
         acc_sprintf("AFF2: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
     }
     if (AFF3_FLAGS(k)) {
-        sprintbit(AFF3_FLAGS(k), affected3_bits, buf);
+        sprintbit(AFF3_FLAGS(k), affected3_bits, buf, sizeof(buf));
         acc_sprintf("AFF3: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
             CCNRM(ch, C_NRM));
     }
@@ -2186,11 +2186,11 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
 
             if (aff->bitvector) {
                 if (aff->aff_index == 3)
-                    sprintbit(aff->bitvector, affected3_bits, buf);
+                    sprintbit(aff->bitvector, affected3_bits, buf, sizeof(buf));
                 else if (aff->aff_index == 2)
-                    sprintbit(aff->bitvector, affected2_bits, buf);
+                    sprintbit(aff->bitvector, affected2_bits, buf, sizeof(buf));
                 else
-                    sprintbit(aff->bitvector, affected_bits, buf);
+                    sprintbit(aff->bitvector, affected_bits, buf, sizeof(buf));
                 acc_strcat("sets ", buf, NULL);
             }
             acc_strcat("\r\n", NULL);

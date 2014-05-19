@@ -207,7 +207,7 @@ show_pathobjs(struct creature *ch)
 }
 
 void
-print_path(struct path_head *phead, char *str)
+print_path(struct path_head *phead, char *str, size_t len)
 {
     char buf[MAX_STRING_LENGTH];
     int i, j, ll;
@@ -256,17 +256,17 @@ print_path(struct path_head *phead, char *str)
         }
 
         if ((ll + strlen(buf)) > 79) {
-            strcat_s(str, sizeof(str), "\n");
+            strcat_s(str, len, "\n");
             ll = 0;
         }
         ll += strlen(buf);
-        strcat_s(str, sizeof(str), buf);
+        strcat_s(str, len, buf);
     }
 
     if (IS_SET(phead->flags, PATH_REVERSIBLE))
-        strcat_s(str, sizeof(str), "R");
+        strcat_s(str, len, "R");
 
-    strcat_s(str, sizeof(str), "\n~\n");
+    strcat_s(str, len, "\n~\n");
 }
 
 void
@@ -300,8 +300,7 @@ show_path(struct creature *ch, char *arg)
            path_head->flags, path_head->length);
          */
         strcpy_s(outbuf, sizeof(outbuf), "VNUM NAME OWNER <wait> <length> list...\r\n");
-        print_path(path_head, buf);
-        strcat_s(outbuf, sizeof(outbuf), buf);
+        print_path(path_head, outbuf, sizeof(outbuf));
     }
 
     page_string(ch->desc, outbuf);

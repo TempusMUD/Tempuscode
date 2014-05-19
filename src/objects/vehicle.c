@@ -121,9 +121,9 @@ display_status(struct creature *ch, struct obj_data *car,
         "%s*******************************************************%s\r\n",
         QBLU, QNRM);
     send_to_char(ch, "%s", buf);
-    sprintbit(ENGINE_STATE(engine), engine_state_bits, buf2);
+    sprintbit(ENGINE_STATE(engine), engine_state_bits, buf2, sizeof(buf2));
     send_to_char(ch, "%sEngine State:%s    %s\r\n", QCYN, QNRM, buf2);
-    sprintbit(DOOR_STATE(car), container_bits, buf2);
+    sprintbit(DOOR_STATE(car), container_bits, buf2, sizeof(buf2));
     send_to_char(ch, "%sDoor State:%s      %s\r\n", QCYN, QNRM, buf2);
     sprintf(buf,
         "%sEnergy Status:%s   [%s%d / %d%s]%s\r\n"

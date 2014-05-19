@@ -2541,7 +2541,7 @@ save_zone(struct creature * ch, struct zone_data * zone)
 
     tmp = zone->flags;
 
-    num2str(buf, tmp);
+    num2str(buf, sizeof(buf), tmp);
     fprintf(zone_file, "%d %d %d %d %d %s %d %d %d %d\n",
         zone->top, zone->lifespan,
         zone->reset_mode, zone->time_frame, zone->plane, buf,
@@ -2549,7 +2549,7 @@ save_zone(struct creature * ch, struct zone_data * zone)
 
     for (zcmd = zone->cmd; zcmd; zcmd = zcmd->next) {
         if (zcmd->command == 'D') {
-            num2str(buf, zcmd->arg3);
+            num2str(buf, sizeof(buf), zcmd->arg3);
             fprintf(zone_file, "%c %d %3d %5d %5d %5s\n",
                 zcmd->command, zcmd->if_flag, zcmd->prob,
                 zcmd->arg1, zcmd->arg2, buf);
@@ -2996,7 +2996,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         case 'D':
             if (!mode_all && !mode_door)
                 break;
-            sprintbit(zcmd->arg3, exit_bits, door_flg);
+            sprintbit(zcmd->arg3, exit_bits, door_flg, sizeof(door_flg));
             tmp_rom = real_room(zcmd->arg1);
             sprintf(buf,
                 "%3d. %sDoor%s  : % d [%3d] %5d dir  %5s,          (%s)\r\n",

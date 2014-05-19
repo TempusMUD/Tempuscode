@@ -44,30 +44,30 @@ remove_from_cstring(char *str, char c, char c_to)
 }
 
 void
-sprintbit(long vektor, const char *names[], char *result)
+sprintbit(long vektor, const char *names[], char *result, size_t size)
 {
     long nr;
 
     *result = '\0';
 
     if (vektor < 0) {
-        strcpy_s(result, sizeof(result), "SPRINTBIT ERROR!");
+        strcpy_s(result, size, "SPRINTBIT ERROR!");
         return;
     }
     for (nr = 0; vektor; vektor /= 2) {
         if ((1 & vektor) != 0) {
             if (*names[nr] != '\n') {
-                strcat(result, names[nr]);
-                strcat(result, " ");
+                strcat_s(result, size, names[nr]);
+                strcat_s(result, size, " ");
             } else
-                strcat(result, "UNDEFINED ");
+                strcat_s(result, size, "UNDEFINED ");
         }
         if (*names[nr] != '\n')
             nr++;
     }
 
     if (!*result)
-        strcat(result, "NOBITS ");
+        strcat_s(result, size, "NOBITS ");
 }
 
 const char *
@@ -86,9 +86,9 @@ strlist_aref(int idx, const char **names)
 }
 
 void
-sprinttype(int type, const char *names[], char *result)
+sprinttype(int type, const char *names[], char *result, size_t size)
 {
-    strcpy_s(result, sizeof(result), strlist_aref(type, names));
+    strcpy_s(result, size, strlist_aref(type, names));
 }
 
 const char *

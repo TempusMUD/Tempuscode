@@ -801,6 +801,7 @@ ASPELL(spell_locate_object)
     extern char locate_buf[256];
     int j, k;
     char *which_str;
+    size_t which_str_size;
     struct room_data *rm = NULL;
     char buf3[MAX_STRING_LENGTH];
     char terms[MAX_LOCATE_TERMS + 1][MAX_INPUT_LENGTH];
@@ -880,10 +881,12 @@ ASPELL(spell_locate_object)
 
         if (rm && ROOM_FLAGGED(rm, ROOM_HOUSE)) {
             which_str = buf2;
+            which_str_size = sizeof(buf2);
             if (k-- <= 0)
                 continue;
         } else {
             which_str = buf;
+            which_str_size = sizeof(buf);
             if (j-- <= 0)
                 continue;
         }
@@ -911,7 +914,7 @@ ASPELL(spell_locate_object)
         if (strlen(which_str) + strlen(buf3) > MAX_STRING_LENGTH - 64)
             break;
 
-        strcat_s(which_str, sizeof(which_str), buf3);
+        strcat_s(which_str, which_str_size, buf3);
     }
 
     if (j == level / 2 && k == level / 4)
@@ -1219,7 +1222,7 @@ ASPELL(spell_identify)
                     send_to_char(ch, "Can affect you as :\r\n");
                     found = true;
                 }
-                sprinttype(obj->affected[i].location, apply_types, buf2);
+                sprinttype(obj->affected[i].location, apply_types, buf2, sizeof(buf2));
                 send_to_char(ch, "   Affects: %s By %d\r\n", buf2,
                     obj->affected[i].modifier);
             }
@@ -1375,7 +1378,7 @@ send_to_char(ch, "Object '%s', Item type: %s\r\n",
                     send_to_char(ch, "Can affect you as :\r\n");
                     found = true;
                 }
-                sprinttype(obj->affected[i].location, apply_types, buf2);
+                sprinttype(obj->affected[i].location, apply_types, buf2, sizeof(buf2));
                 send_to_char(ch, "   Affects: %s\r\n", buf2);
             }
         }

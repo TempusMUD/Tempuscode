@@ -74,15 +74,15 @@ END_TEST
 START_TEST(test_sprintbit)
 {
     char str[1024] = "";
-    sprintbit(0x0001, bit_descs, str);
+    sprintbit(0x0001, bit_descs, str, sizeof(str));
     fail_unless(!strcmp(str, "BIT_00 "), "sprintbit 0x1 gives \"%s\"", str);
-    sprintbit(0x0003, bit_descs, str);
+    sprintbit(0x0003, bit_descs, str, sizeof(str));
     fail_unless(!strcmp(str, "BIT_00 BIT_01 "), "sprintbit 0x3 gives \"%s\"", str);
-    sprintbit(0x0010, bit_descs, str);
+    sprintbit(0x0010, bit_descs, str, sizeof(str));
     fail_unless(!strcmp(str, "BIT_04 "), "sprintbit 0x10 gives \"%s\"", str);
-    sprintbit(0, bit_descs, str);
+    sprintbit(0, bit_descs, str, sizeof(str));
     fail_unless(!strcmp(str, "NOBITS "), "sprintbit 0 gives \"%s\"", str);
-    sprintbit(0x10000, bit_descs, str);
+    sprintbit(0x10000, bit_descs, str, sizeof(str));
     fail_unless(!strcmp(str, "UNDEFINED "), "sprintbit 0x10000 gives \"%s\"", str);
 }
 END_TEST
@@ -102,11 +102,11 @@ START_TEST(test_sprinttype)
     const char *strlist[] = {"alpha", "beta", "gamma", "delta", "\n"};
     char str[1024] = "";
 
-    sprinttype(0, strlist, str);
+    sprinttype(0, strlist, str, sizeof(str));
     fail_unless(!strcmp(str, "alpha"));
-    sprinttype(2, strlist, str);
+    sprinttype(2, strlist, str, sizeof(str));
     fail_unless(!strcmp(strlist_aref(1, strlist), "beta"));
-    sprinttype(5, strlist, str);
+    sprinttype(5, strlist, str, sizeof(str));
     fail_unless(!strcmp(strlist_aref(5, strlist), "UNDEFINED(5)"));
 }
 END_TEST

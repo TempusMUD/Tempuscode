@@ -53,7 +53,6 @@ extern int *obj_index;
 extern char *olc_guide;
 long asciiflag_conv(char *buf);
 
-void num2str(char *str, int num);
 void do_stat_object(struct creature *ch, struct obj_data *obj);
 
 int prototype_obj_value(struct obj_data *obj);
@@ -235,10 +234,10 @@ save_objs(struct creature * ch, struct zone_data * zone)
         }
         fprintf(file, "~\n");
 
-        num2str(sbuf1, obj->obj_flags.extra_flags);
-        num2str(sbuf2, obj->obj_flags.extra2_flags);
-        num2str(sbuf3, obj->obj_flags.wear_flags);
-        num2str(sbuf4, obj->obj_flags.extra3_flags);
+        num2str(sbuf1, sizeof(sbuf1), obj->obj_flags.extra_flags);
+        num2str(sbuf2, sizeof(sbuf2), obj->obj_flags.extra2_flags);
+        num2str(sbuf3, sizeof(sbuf3), obj->obj_flags.wear_flags);
+        num2str(sbuf4, sizeof(sbuf4), obj->obj_flags.extra3_flags);
 
         fprintf(file, "%d %s %s %s %s\n", obj->obj_flags.type_flag,
             sbuf1, sbuf2, sbuf3, sbuf4);
@@ -289,7 +288,7 @@ save_objs(struct creature * ch, struct zone_data * zone)
 
         for (i = 0; i < 3; i++) {
             if (obj->obj_flags.bitvector[i]) {
-                num2str(sbuf1, obj->obj_flags.bitvector[i]);
+                num2str(sbuf1, sizeof(sbuf1), obj->obj_flags.bitvector[i]);
                 fprintf(file, "V\n");
                 fprintf(file, "%zd %s\n", (i + 1), sbuf1);
             }

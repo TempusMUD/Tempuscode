@@ -55,7 +55,6 @@ extern const char *language_names[];
 
 long asciiflag_conv(char *buf);
 
-void num2str(char *str, int num);
 void set_physical_attribs(struct creature *ch);
 void do_stat_character(struct creature *ch, struct creature *k,
     const char *options);
@@ -1406,11 +1405,11 @@ save_mobs(struct creature * ch, struct zone_data * zone)
         fprintf(file, "~\n");
 
         REMOVE_BIT(NPC_FLAGS(mob), NPC_WIMPY);
-        num2str(sbuf1, NPC_FLAGS(mob));
-        num2str(sbuf2, NPC2_FLAGS(mob));
-        num2str(sbuf3, AFF_FLAGS(mob));
-        num2str(sbuf4, AFF2_FLAGS(mob));
-        num2str(sbuf5, AFF3_FLAGS(mob));
+        num2str(sbuf1, sizeof(sbuf1), NPC_FLAGS(mob));
+        num2str(sbuf2, sizeof(sbuf2), NPC2_FLAGS(mob));
+        num2str(sbuf3, sizeof(sbuf3), AFF_FLAGS(mob));
+        num2str(sbuf4, sizeof(sbuf4), AFF2_FLAGS(mob));
+        num2str(sbuf5, sizeof(sbuf5), AFF3_FLAGS(mob));
 
         fprintf(file, "%s %s %s %s %s %d ", sbuf1, sbuf2, sbuf3,
             sbuf4, sbuf5, GET_ALIGNMENT(mob));
