@@ -202,11 +202,17 @@ make_mobile_flags_matcher(struct creature *ch,
     }
 
     matcher->pred = mobile_matches_flags;
-    if ((!(index = 1) || (flag = search_block(expr, action_bits_desc,  0)) < 0)
-        &&  (!(index = 2) || (flag = search_block(expr, action2_bits_desc, 0)) < 0)) {
+    index = 1;
+    flag = search_block(expr, action_bits_desc,  0);
+    if (flag < 0) {
+        index = 2;
+        flag = search_block(expr, action2_bits_desc,  0);
+    }
+    if (flag < 0) {
         send_to_char(ch, "There is no NPC flag '%s'.\r\n", expr);
         return false;
     }
+    
     matcher->idx = index;
     matcher->num = 1 << flag;
 
@@ -242,12 +248,21 @@ make_mobile_affect_matcher(struct creature *ch,
     }
 
     matcher->pred = mobile_matches_affect;
-    if ((!(index = 1) || (flag = search_block(expr, affected_bits_desc,  0)) < 0)
-        &&  (!(index = 2) || (flag = search_block(expr, affected2_bits_desc, 0)) < 0)
-        &&  (!(index = 3) || (flag = search_block(expr, affected3_bits_desc, 0)) < 0)) {
+    index = 1;
+    flag = search_block(expr, affected_bits_desc,  0);
+    if (flag < 0) {
+        index = 2;
+        flag = search_block(expr, affected2_bits_desc,  0);
+    }
+    if (flag < 0) {
+        index = 3;
+        flag = search_block(expr, affected3_bits_desc,  0);
+    }
+    if (flag < 0) {
         send_to_char(ch, "There is no NPC affect '%s'.\r\n", expr);
         return false;
     }
+    
     matcher->idx = index;
     matcher->num = 1 << flag;
 

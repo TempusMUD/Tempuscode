@@ -247,13 +247,22 @@ make_object_affect_matcher(struct creature *ch,
 
     int index, affect;
     matcher->pred = object_matches_affect;
-    if( (!(index = 1) || (affect = search_block(expr, affected_bits_desc,  0)) < 0)
-        &&  (!(index = 2) || (affect = search_block(expr, affected2_bits_desc, 0)) < 0)
-        &&  (!(index = 3) || (affect = search_block(expr, affected3_bits_desc, 0)) < 0)) {
+
+    index = 1;
+    affect = search_block(expr, affected_bits_desc,  0);
+    if (affect < 0) {
+        index = 2;
+        affect = search_block(expr, affected2_bits_desc,  0);
+    }
+    if (affect < 0) {
+        index = 3;
+        affect = search_block(expr, affected3_bits_desc,  0);
+    }
+    if (affect < 0) {
         send_to_char(ch, "There is no affect '%s'.\r\n", expr);
         return false;
     }
-
+    
     matcher->idx = index;
     matcher->num = 1 << affect;
     return true;
@@ -422,13 +431,21 @@ make_object_extra_matcher(struct creature *ch,
     }
 
     matcher->pred = object_matches_extra;
-    if( (!(index = 1) || (flag = search_block(expr, extra_names,  0)) < 0)
-        &&  (!(index = 2) || (flag = search_block(expr, extra2_names, 0)) < 0)
-        &&  (!(index = 3) || (flag = search_block(expr, extra3_names, 0)) < 0)) {
+    index = 1;
+    flag = search_block(expr, extra_names,  0);
+    if (flag < 0) {
+        index = 2;
+        flag = search_block(expr, extra2_names,  0);
+    }
+    if (flag < 0) {
+        index = 3;
+        flag = search_block(expr, extra3_names,  0);
+    }
+    if (flag < 0) {
         send_to_char(ch, "There is no extra flag '%s'.\r\n", expr);
         return false;
     }
-
+    
     matcher->idx = index;
     matcher->num = 1 << flag;
     return true;

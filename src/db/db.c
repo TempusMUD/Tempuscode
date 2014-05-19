@@ -1740,7 +1740,7 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
     }
     CASE("CurLang") {
         // deprecated conversion
-        GET_TONGUE(mobile) = num_arg + 1;
+        SET_TONGUE(mobile, num_arg + 1, 100);
     }
     CASE("CurTongue") {
         GET_TONGUE(mobile) = num_arg;

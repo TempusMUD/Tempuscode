@@ -2335,7 +2335,7 @@ ice_room(struct room_data *room, int amount)
     struct obj_data *ice;
     int new_ice = false;
 
-    if ((!(room)) || amount <= 0) {
+    if (room == NULL || amount <= 0) {
         return;
     }
 
@@ -2345,9 +2345,13 @@ ice_room(struct room_data *room, int amount)
         }
     }
 
-    if (!ice && (new_ice = true) && !(ice = read_object(ICE_VNUM))) {
-        errlog("Unable to load ice.");
-        return;
+    if (ice == NULL) {
+        new_ice = true;
+        ice = read_object(ICE_VNUM);
+        if (ice == NULL) {
+            errlog("Unable to load ice.");
+            return;
+        }
     }
 
     if (GET_OBJ_TIMER(ice) > 50) {
