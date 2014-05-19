@@ -3030,8 +3030,7 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
         send_to_char(ch,
             "%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
             CCCYN(ch, C_NRM), GET_NAME(ch), prob, die_roll,
-            IS_NPC(ch) ? GET_NPC_WAIT(ch) : (CHECK_WAIT(ch) ? ch->
-                desc->wait : 0), CCNRM(ch, C_NRM));
+            IS_NPC(ch) ? GET_NPC_WAIT(ch) : ch->desc->wait, CCNRM(ch, C_NRM));
     }
     //
     // it's an attack!
@@ -3042,7 +3041,7 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
             if (!is_fighting(ch) || GET_LEVEL(ch) < (i * 8))
                 break;
             if (GET_POSITION(ch) < POS_FIGHTING) {
-                if (CHECK_WAIT(ch) < 10)
+                if (CHECK_WAIT(ch))
                     send_to_char(ch, "You can't fight while sitting!!\r\n");
                 break;
             }
@@ -3062,7 +3061,7 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
                 return;
 
             if (GET_POSITION(ch) < POS_FIGHTING) {
-                if (CHECK_WAIT(ch) < 10)
+                if (CHECK_WAIT(ch))
                     send_to_char(ch, "You can't fight while sitting!!\r\n");
                 return;
             }
