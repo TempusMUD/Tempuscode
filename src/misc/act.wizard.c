@@ -5248,31 +5248,41 @@ ACMD(do_show)
         break;
     case 12:
         if (!*value) {
-            send_to_char(ch, "View who's skills?\r\n");
-        } else if (!(vict = get_player_vis(ch, value, 0))) {
+            send_to_char(ch, "View whose skills?\r\n");
+            return;
+        }
+
+        vict = get_player_vis(ch, value, 0);
+        if (vict == NULL) {
             if (!is_named_role_member(ch, "AdminBasic")) {
                 send_to_char(ch,
                     "Getting that data from file requires basic administrative rights.\r\n");
-            } else {
-                if (!player_name_exists(value))
-                    send_to_char(ch, "There is no such player.\r\n");
-                else if (!(vict =
-                        load_player_from_xml(player_idnum_by_name(value))))
-                    send_to_char(ch, "Error loading player.\r\n");
-                else if (GET_LEVEL(vict) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1)
-                    send_to_char(ch, "Sorry, you can't do that.\r\n");
-                else
-                    list_skills_to_char(ch, vict);
-                free_creature(vict);
-                vict = NULL;
+                return;
             }
-        } else if (IS_NPC(vict)) {
+            if (!player_name_exists(value)) {
+                send_to_char(ch, "There is no such player.\r\n");
+                return;
+            } 
+            if (!(vict = load_player_from_xml(player_idnum_by_name(value)))) {
+                send_to_char(ch, "Error loading player.\r\n");
+                return;
+            } 
+            if (GET_LEVEL(vict) > GET_LEVEL(ch) && GET_IDNUM(ch) != 1) {
+                send_to_char(ch, "Sorry, you can't do that.\r\n");
+                return;
+            }
+            list_skills_to_char(ch, vict);
+            free_creature(vict);
+            return;
+        } 
+        if (IS_NPC(vict)) {
             send_to_char(ch,
                 "Mobs don't have skills.  All mobs are assumed to\r\n"
                 "have a (50 + level)%% skill proficiency.\r\n");
-        } else {
-            list_skills_to_char(ch, vict);
+            return;
         }
+
+        list_skills_to_char(ch, vict);
         break;
     case 13:                   // zone commands
         strcpy_s(buf, sizeof(buf), value);
