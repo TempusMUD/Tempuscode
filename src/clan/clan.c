@@ -163,6 +163,8 @@ char_can_dismiss(struct creature *ch, struct creature *vict,
     // Dismissal conditions that don't apply to clan administrators
     else if (clan == NULL)
         send_to_char(ch, "Try joining a clan first.\r\n");
+    else if (ch_member == NULL)
+        send_to_char(ch, "You are not properly in a clan.\r\n");
     else if (!vict_member || GET_CLAN(vict) != GET_CLAN(ch))
         send_to_char(ch, "Umm, why don't you check the clan list, okay?\r\n");
     else if (clan->owner == GET_IDNUM(ch))
@@ -190,7 +192,9 @@ char_can_promote(struct creature *ch, struct creature *vict,
 
     if (AFF_FLAGGED(ch, AFF_CHARM))
         send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-    else if (!vict_member)
+    else if (ch_member == NULL)
+        send_to_char(ch, "You are not properly in a clan.\r\n");
+    else if (vict_member == NULL)
         send_to_char(ch, "You are not a member of that person's clan!\r\n");
     else if (vict_member->rank >= clan->top_rank
         && PLR_FLAGGED(vict, PLR_CLAN_LEADER))

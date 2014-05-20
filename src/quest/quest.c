@@ -1527,6 +1527,10 @@ do_qcontrol_mload(struct creature *ch, char *argument, int com)
         return;
     }
     mob = read_mobile(number);
+    if (mob == NULL) {
+        send_to_char(ch, "The mobile couldn't be loaded.\r\n");
+        return;
+    }
     char_to_room(mob, ch->in_room, false);
     act("$n makes a quaint, magical gesture with one hand.", true, ch,
         NULL, NULL, TO_ROOM);

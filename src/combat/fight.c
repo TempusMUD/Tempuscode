@@ -642,19 +642,39 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
 {
     struct creature *vict = NULL;
     struct obj_data *inobj = NULL, *next_obj = NULL;
+    struct quest *quest;
 
     /* test to see if item should take damage */
-    if ((IS_OBJ_TYPE(obj, ITEM_MONEY)) || GET_OBJ_DAM(obj) < 0 ||
-        GET_OBJ_MAX_DAM(obj) < 0 ||
-        (ch && GET_LEVEL(ch) < LVL_IMMORT && !CAN_WEAR(obj, ITEM_WEAR_TAKE)) ||
-        (ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) ||
-        (obj->in_room && ROOM_FLAGGED(obj->in_room, ROOM_ARENA)) ||
-        (obj->worn_by && GET_QUEST(obj->worn_by) &&
-            QUEST_FLAGGED(quest_by_vnum(GET_QUEST(obj->worn_by)), QUEST_ARENA))
-        || (IS_OBJ_TYPE(obj, ITEM_KEY))
-        || (IS_OBJ_TYPE(obj, ITEM_SCRIPT))
-        || obj->in_room == zone_table->world)
+    if (IS_OBJ_TYPE(obj, ITEM_MONEY)
+        || IS_OBJ_TYPE(obj, ITEM_KEY)
+        || IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
         return NULL;
+    }
+    if (GET_OBJ_DAM(obj) < 0 || GET_OBJ_MAX_DAM(obj) < 0) {
+        return NULL;
+    }
+    if (ch) {
+        if (GET_LEVEL(ch) < LVL_IMMORT && !CAN_WEAR(obj, ITEM_WEAR_TAKE)) {
+            return NULL;
+        }
+        if (ch->in_room != NULL && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
+            return NULL;
+        }
+    }
+    if (obj->in_room && ROOM_FLAGGED(obj->in_room, ROOM_ARENA)) {
+            return NULL;
+    }
+    if (obj->in_room == zone_table->world) {
+        return NULL;
+    }
+
+    if (obj->worn_by && GET_QUEST(obj->worn_by)) {
+        struct quest *q = quest_by_vnum(GET_QUEST(obj->worn_by));
+        
+        if (q && QUEST_FLAGGED(q, QUEST_ARENA)) {
+            return NULL;
+        }
+    }
 
     eq_dam /= 4;                // blatant manual adjustment to equipment damage
 

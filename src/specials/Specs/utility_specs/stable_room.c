@@ -24,7 +24,7 @@ SPECIAL(stable_room)
                 continue;
             send_to_char(ch, "%8d - %s\r\n", 3 * GET_EXP(tch), GET_NAME(tch));
         }
-        return (true);
+        return true;
     } else if (CMD_IS("buy")) {
 
         argument = one_argument(argument, buf);
@@ -32,19 +32,23 @@ SPECIAL(stable_room)
 
         if (!(pet = get_char_room(buf, pet_room))) {
             send_to_char(ch, "There is no such mount!\r\n");
-            return (true);
+            return true;
         }
         if (!IS_NPC(pet)) {
             send_to_char(ch, "Funny.  Real funny.  Ha ha.\r\n");
-            return (true);
+            return true;
         }
         if (GET_GOLD(ch) < (GET_EXP(pet) * 3)) {
             send_to_char(ch, "You don't have enough gold!\r\n");
-            return (true);
+            return true;
         }
         GET_GOLD(ch) -= GET_EXP(pet) * 3;
 
         pet = read_mobile(GET_NPC_VNUM(pet));
+        if (pet == NULL) {
+            send_to_char(ch, "We're having a little trouble wrangling that one...\r\n");
+            return true;
+        }
         GET_EXP(pet) = 0;
         SET_BIT(AFF_FLAGS(pet), AFF_CHARM);
 

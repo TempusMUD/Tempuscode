@@ -35,6 +35,9 @@ SPECIAL(rat_mama)
         }
         if (real_room(rat_rooms[i])->people && !number(0, 1)) {
             rat = read_mobile(number(4206, 4208));
+            if (rat == NULL) {
+                return false;
+            }
             char_to_room(rat, real_room(rat_rooms[i]), false);
             act("$n climbs out of a hole in the wall.", false, rat, NULL, NULL,
                 TO_ROOM);

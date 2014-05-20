@@ -1285,6 +1285,10 @@ SPECIAL(pet_shops)
 
         if (IS_NPC(pet)) {
             pet = read_mobile(GET_NPC_VNUM(pet));
+            if (pet == NULL) {
+                send_to_char(ch, "Couldn't find your pet back there.\r\n");
+                return 1;
+            }
             GET_EXP(pet) = 0;
 
             if (*pet_name) {

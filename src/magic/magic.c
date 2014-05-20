@@ -3222,6 +3222,9 @@ mag_summons(int level __attribute__ ((unused)),
     }
     for (i = 0; i < num; i++) {
         mob = read_mobile(mob_num);
+        if (mob == NULL) {
+            continue;
+        }
         char_to_room(mob, ch->in_room, true);
         IS_CARRYING_W(mob) = 0;
         IS_CARRYING_N(mob) = 0;
@@ -3229,6 +3232,7 @@ mag_summons(int level __attribute__ ((unused)),
         add_follower(mob, ch);
         act(mag_summon_msgs[fmsg], false, ch, NULL, mob, TO_ROOM);
         if (spellnum == SPELL_CLONE) {
+            free(mob->player.short_descr);
             mob->player.short_descr = strdup(GET_NAME(ch));
         }
     }

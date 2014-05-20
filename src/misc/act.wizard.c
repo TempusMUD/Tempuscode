@@ -2665,6 +2665,10 @@ ACMD(do_mload)
         return;
     }
     mob = read_mobile(number);
+    if (mob == NULL) {
+        send_to_char(ch, "The mobile couldn't be created.\r\n");
+        return;
+    }
     char_to_room(mob, ch->in_room, false);
 
     act("$n makes a quaint, magical gesture with one hand.", true, ch,
@@ -7751,6 +7755,10 @@ ACMD(do_coderutil)
         FILE *ouf;
 
         ouf = fopen("progdump.txt", "w");
+        if (ouf == NULL) {
+            send_to_char(ch, "Couldn't open file.\r\n");
+            return;
+        }
         fprintf(ouf, "owner        progid    trigger   target          wait statement\r\n");
         fprintf(ouf, "------------ --------- --------- --------------- ---- ----------------------------\r\n");
         const char *prog_event_kind_desc[] =

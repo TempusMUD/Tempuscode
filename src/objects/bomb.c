@@ -512,7 +512,7 @@ detonate_bomb(struct obj_data *bomb)
     dam_object = bomb;
 
     if (ch) {
-        if (!ok_to_attack(damager, ch, false)) {
+        if (damager && !ok_to_attack(damager, ch, false)) {
             act(tmp_sprintf("$p fizzles and dies in %s!", (internal ? "body!" :
                         (cont ? "$P" : "your inventory"))),
                 false, ch, bomb, cont, TO_CHAR);
