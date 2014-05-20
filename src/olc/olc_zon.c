@@ -3045,7 +3045,7 @@ do_zpath_cmd(struct creature *ch, char *argument)
     struct creature *mob = NULL;
     struct zone_data *zone = ch->in_room->zone;
     struct reset_com *zonecmd, *tmp_zonecmd;
-    bool obj_mode = 0, mob_mode = 0, found = 0;
+    bool mob_mode = false, found = false;
     int line = 0;
 
     if (!is_authorized(ch, EDIT_ZONE, zone)) {
@@ -3068,11 +3068,9 @@ do_zpath_cmd(struct creature *ch, char *argument)
         return;
     }
 
-    if (is_abbrev(buf, "object"))
-        obj_mode = 1;
-    else if (is_abbrev(buf, "mobile"))
-        mob_mode = 1;
-    else {
+    if (is_abbrev(buf, "mobile")) {
+        mob_mode = true;
+    } else if (!is_abbrev(buf, "object")) {
         send_to_char(ch, ZPATH_USAGE);
         return;
     }
@@ -3094,7 +3092,7 @@ do_zpath_cmd(struct creature *ch, char *argument)
     if (mob_mode) {
         if (!(mob = get_char_room_vis(ch, buf))) {
             send_to_char(ch, "You see no mob by the name of '%s' here.\r\n",
-                buf);
+                         buf);
             return;
         }
 
@@ -3121,29 +3119,29 @@ do_zpath_cmd(struct creature *ch, char *argument)
         zonecmd->next = NULL;
 
         if (zone->cmd) {
-            for (line = 0, found = 0, tmp_zonecmd = zone->cmd; tmp_zonecmd;
-                line++, tmp_zonecmd = tmp_zonecmd->next) {
+            for (line = 0, found = false, tmp_zonecmd = zone->cmd; tmp_zonecmd;
+                 line++, tmp_zonecmd = tmp_zonecmd->next) {
                 if (found)
                     tmp_zonecmd->line++;
                 else if (tmp_zonecmd->command == 'M' &&
-                    tmp_zonecmd->arg1 == mob->mob_specials.shared->vnum) {
+                         tmp_zonecmd->arg1 == mob->mob_specials.shared->vnum) {
                     zonecmd->line = tmp_zonecmd->line;
                     zonecmd->next = tmp_zonecmd->next;
                     tmp_zonecmd->next = zonecmd;
-                    found = 1;
+                    found = true;
                 }
             }
-            if (found == 0) {
+            if (!found) {
                 send_to_char(ch,
-                    "zmob command required for mobile (V) %d before this can be set.\r\n",
-                    mob->mob_specials.shared->vnum);
+                             "zmob command required for mobile (V) %d before this can be set.\r\n",
+                             mob->mob_specials.shared->vnum);
                 free(zonecmd);
                 return;
             }
         } else {
             send_to_char(ch,
-                "zmob command required for mobile (V) %d before this can be set.\r\n",
-                mob->mob_specials.shared->vnum);
+                         "zmob command required for mobile (V) %d before this can be set.\r\n",
+                         mob->mob_specials.shared->vnum);
             free(zonecmd);
             return;
         }
@@ -3154,61 +3152,58 @@ do_zpath_cmd(struct creature *ch, char *argument)
         return;
     }
 
-    if (obj_mode) {
-
-        if (!(obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
-            send_to_char(ch, "You see no mob by the name of '%s' here.\r\n",
-                buf);
-            return;
-        }
-
-        if (!add_path_to_vehicle(obj, path_vnum)) {
-            send_to_char(ch, "Cannot add that path to that object.\r\n");
-            return;
-        }
-        path_remove_object(obj);
-
-        CREATE(zonecmd, struct reset_com, 1);
-
-        zonecmd->command = 'V';
-        zonecmd->if_flag = 1;
-        zonecmd->arg1 = path_vnum;
-        zonecmd->arg2 = 0;
-        zonecmd->arg3 = GET_OBJ_VNUM(obj);
-        zonecmd->prob = 100;
-
-        zonecmd->next = NULL;
-
-        if (zone->cmd) {
-            for (line = 0, found = 0, tmp_zonecmd = zone->cmd;
-                tmp_zonecmd && found != 1;
-                line++, tmp_zonecmd = tmp_zonecmd->next)
-                if (tmp_zonecmd->command == 'O' &&
-                    tmp_zonecmd->arg1 == GET_OBJ_VNUM(obj)) {
-                    zonecmd->line = ++line;
-                    zonecmd->next = tmp_zonecmd->next;
-                    tmp_zonecmd->next = zonecmd;
-                    found = 1;
-                    break;
-                }
-            if (found == 0) {
-                send_to_char(ch,
-                    "Zone command O required for %d before this can be set.\r\n",
-                    GET_OBJ_VNUM(obj));
-                free(zonecmd);
-                return;
-            }
-        } else {
-            send_to_char(ch,
-                "Zone command O required for %d before this can be set.\r\n",
-                GET_OBJ_VNUM(obj));
-            free(zonecmd);
-            return;
-        }
-
-        SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-        add_path_to_vehicle(obj, path_vnum);
-        send_to_char(ch, "Command completed ok.\r\n");
+    if (!(obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
+        send_to_char(ch, "You see no mob by the name of '%s' here.\r\n",
+                     buf);
         return;
     }
+
+    if (!add_path_to_vehicle(obj, path_vnum)) {
+        send_to_char(ch, "Cannot add that path to that object.\r\n");
+        return;
+    }
+    path_remove_object(obj);
+
+    CREATE(zonecmd, struct reset_com, 1);
+
+    zonecmd->command = 'V';
+    zonecmd->if_flag = 1;
+    zonecmd->arg1 = path_vnum;
+    zonecmd->arg2 = 0;
+    zonecmd->arg3 = GET_OBJ_VNUM(obj);
+    zonecmd->prob = 100;
+
+    zonecmd->next = NULL;
+
+    if (zone->cmd == 0) {
+        send_to_char(ch,
+                     "Zone command O required for %d before this can be set.\r\n",
+                     GET_OBJ_VNUM(obj));
+        free(zonecmd);
+        return;
+    }
+
+    for (line = 0, found = false, tmp_zonecmd = zone->cmd;
+         tmp_zonecmd && found != true;
+         line++, tmp_zonecmd = tmp_zonecmd->next) {
+        if (tmp_zonecmd->command == 'O' && tmp_zonecmd->arg1 == GET_OBJ_VNUM(obj)) {
+            zonecmd->line = ++line;
+            zonecmd->next = tmp_zonecmd->next;
+            tmp_zonecmd->next = zonecmd;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        send_to_char(ch,
+                     "Zone command O required for %d before this can be set.\r\n",
+                     GET_OBJ_VNUM(obj));
+        free(zonecmd);
+        return;
+    }
+
+    SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
+    add_path_to_vehicle(obj, path_vnum);
+    send_to_char(ch, "Command completed ok.\r\n");
 }

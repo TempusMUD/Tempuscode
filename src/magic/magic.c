@@ -2060,8 +2060,6 @@ mag_affects(int level,
         break;
 
     case SPELL_TRANSMITTANCE:
-        if (!victim)
-            victim = ch;
         to_room = "$n's body slowly becomes completely transparent.";
         to_vict = "You become transparent.";
 

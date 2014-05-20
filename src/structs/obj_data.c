@@ -645,10 +645,10 @@ load_object_from_xml(struct obj_data *container,
             desc->description = (char *)xmlNodeGetContent(cur);
             if (last_desc) {
                 last_desc->next = desc;
-                last_desc = desc;
             } else {
                 obj->ex_description = desc;
             }
+            last_desc = desc;
         } else if (xmlMatches(cur->name, "action_desc")) {
             str = (char *)xmlNodeGetContent(cur);
             obj->action_desc = strdup(tmp_gsub(str, "\n", "\r\n"));
@@ -690,12 +690,12 @@ load_object_from_xml(struct obj_data *container,
             int position = xmlGetIntProp(cur, "pos", 0);
 
             char *type = (char *)xmlGetProp(cur, (xmlChar *) "type");
-            if (type != NULL && victim != NULL) {
-                if (strcmp(type, "equipped") == 0) {
+            if (type != NULL) {
+                if (victim && strcmp(type, "equipped") == 0) {
                     equip_char(victim, obj, position, EQUIP_WORN);
-                } else if (strcmp(type, "implanted") == 0) {
+                } else if (victim && strcmp(type, "implanted") == 0) {
                     equip_char(victim, obj, position, EQUIP_IMPLANT);
-                } else if (strcmp(type, "tattooed") == 0) {
+                } else if (victim && strcmp(type, "tattooed") == 0) {
                     equip_char(victim, obj, position, EQUIP_TATTOO);
                 } else if (container) {
                     unsorted_obj_to_obj(obj, container);
@@ -703,10 +703,6 @@ load_object_from_xml(struct obj_data *container,
                     unsorted_obj_to_char(obj, victim);
                 } else if (room) {
                     unsorted_obj_to_room(obj, room);
-                } else {
-                    errlog("Don't know where to put object!");
-                    extract_obj(obj);
-                    return NULL;
                 }
                 placed = true;
             }
@@ -783,9 +779,9 @@ load_object_from_xml(struct obj_data *container,
         return NULL;
     }
     if (!placed) {
-        if (victim) {
+        if (victim != NULL) {
             obj_to_char(obj, victim);
-        } else if (container) {
+        } else if (container != NULL) {
             obj_to_obj(obj, container);
         } else if (room != NULL) {
             obj_to_room(obj, room);

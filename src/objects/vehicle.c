@@ -572,6 +572,21 @@ SPECIAL(vehicle_door)
     return 0;
 }
 
+static struct creature *
+find_driver(struct obj_data *console) {
+    struct creature *driver = NULL;
+    
+    for (GList * it = first_living(console->in_room->people); it; it = next_living(it)) {
+           driver = it->data;
+           if ((V_CONSOLE_IDNUM(console) > 0 &&
+                GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
+               (V_CONSOLE_IDNUM(console) < 0 &&
+                GET_NPC_VNUM(driver) == -V_CONSOLE_IDNUM(console)))
+               return driver;
+    }
+    return NULL;
+ }
+
 SPECIAL(vehicle_console)
 {
 
@@ -597,7 +612,8 @@ SPECIAL(vehicle_console)
 
     cur_car = vehicle;
 
-    if (!(engine = vehicle->contains) || !IS_ENGINE(engine))
+    engine = vehicle->contains;
+    if (!IS_ENGINE(engine))
         engine = NULL;
 
     if (V_CONSOLE_IDNUM(console)) {
@@ -606,17 +622,9 @@ SPECIAL(vehicle_console)
                 "You have to put the console IN the vehicle to use it.\r\n");
             return 1;
         }
-        for (GList * it = first_living(console->in_room->people); it; it = next_living(it)) {
-            struct creature *driver = it->data;
-            if ((V_CONSOLE_IDNUM(console) > 0 &&
-                    GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
-                (V_CONSOLE_IDNUM(console) < 0 &&
-                    GET_NPC_VNUM(driver) == -V_CONSOLE_IDNUM(console)))
-                break;
-        }
-    } else {
-        driver = NULL;
+        driver = find_driver(console);
     }
+
     skip_spaces(&argument);
 
     if (CMD_IS("exits")) {

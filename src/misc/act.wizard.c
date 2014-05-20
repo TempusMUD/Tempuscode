@@ -847,6 +847,7 @@ do_stat_memory(struct creature *ch)
             sum += sizeof(struct affected_type);
             af = af->next;
         }
+        desc = chars->desc;
         if (desc) {
             sum += sizeof(struct descriptor_data);
         }

@@ -34,7 +34,7 @@ SPECIAL(gen_locker)
     } else {
         locker_room = ch->in_room->next;
         if (locker_room == NULL) {
-            return;
+            return 0;
         }
         locker_vnum = locker_room->number;
         cost_factor = 75;
