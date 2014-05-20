@@ -145,20 +145,20 @@ editor_finish(struct editor *editor, bool save)
     struct descriptor_data *desc = editor->desc;
 
     if (save) {
-        int length;
-        char *text, *write_pt;
+        int length = editor_buffer_size(editor);
+        size_t buf_size = length + 1;
+        char *text = (char *)malloc(buf_size);
+        char *write_pt = text;
 
-        length = editor_buffer_size(editor);
-        text = (char *)malloc(length + 1);
-        strcpy_s(text, length + 1, "");
-        write_pt = text;
         for (GList *it = editor->lines;it;it = it->next) {
             GString *line = it->data;
 
-            strcpy_s(write_pt, length - (write_pt - text), line->str);
+            strcpy_s(write_pt, buf_size, line->str);
             write_pt += line->len;
-            strcpy_s(write_pt, length - (write_pt - text), "\r\n");
+            buf_size -= line->len;
+            strcpy_s(write_pt, buf_size, "\r\n");
             write_pt += 2;
+            buf_size -= 2;
         }
 
         // Call the finalizer
