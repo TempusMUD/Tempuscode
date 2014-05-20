@@ -377,6 +377,10 @@ angel_do_action(struct creature *self, struct creature *charge,
     char *cmd, *action;
     int result = 0;
 
+    if (charge == NULL) {
+        return 0;
+    }
+
     action = data->action;
     cmd = tmp_getword(&action);
     if (!strcmp(cmd, "respond")) {
@@ -645,6 +649,8 @@ SPECIAL(guardian_angel)
     if (spec_mode == SPECIAL_TICK) {
         if (data->counter > 0)
             data->counter--;
+        else if (charge == NULL)
+            return 0;
         else if (data->counter < 0)
             return angel_check_charge(self, charge, data);
         else {

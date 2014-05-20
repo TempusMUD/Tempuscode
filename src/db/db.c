@@ -2412,6 +2412,8 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
     int percent)
 {
     struct obj_data *obj = real_object_proto(vnum);
+    bool equipped = true;
+
     if (obj == NULL) {
         errlog("Mob num %d: equip object %d nonexistent.",
             ch->mob_specials.shared->vnum, vnum);
@@ -2429,14 +2431,14 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
     }
     int pos = -1;
     if (strcasecmp(position, "take") == 0) {
-        pos = ITEM_WEAR_TAKE;
+        equipped = false;
     } else if (IS_OBJ_STAT2(obj, ITEM2_IMPLANT)) {
         pos = search_block(position, wear_implantpos, false);
     } else {
         pos = search_block(position, wear_eqpos, false);
     }
 
-    if (pos < 0 || pos >= NUM_WEARS) {
+    if (equipped && (pos < 0 || pos >= NUM_WEARS)) {
         if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
             perform_say(ch, "yell",
                 tmp_sprintf("%s is not a valid position!", position));
@@ -2458,31 +2460,35 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
     obj->creator = vnum;
 
     randomize_object(obj);
+
     // Unapproved mobs should load unapproved eq.
     if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)) {
         SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
     }
-    if (pos == ITEM_WEAR_TAKE) {
-        obj_to_char(obj, ch);
-    } else {
-        int mode = EQUIP_WORN;
-        if (IS_OBJ_STAT2(obj, ITEM2_IMPLANT)) {
-            mode = EQUIP_IMPLANT;
-            if (ch->implants[pos]) {
-                extract_obj(obj);
-                return 2;
-            }
-        } else {
-            if (ch->equipment[pos]) {
-                extract_obj(obj);
-                return 2;
-            }
-        }
 
-        if (equip_char(ch, obj, pos, mode)) {
-            return 100;
+    if (!equipped) {
+        obj_to_char(obj, ch);
+        return 0;
+    }
+    
+    int mode = EQUIP_WORN;
+    if (IS_OBJ_STAT2(obj, ITEM2_IMPLANT)) {
+        mode = EQUIP_IMPLANT;
+        if (ch->implants[pos]) {
+            extract_obj(obj);
+            return 2;
+        }
+    } else {
+        if (ch->equipment[pos]) {
+            extract_obj(obj);
+            return 2;
         }
     }
+    
+    if (equip_char(ch, obj, pos, mode)) {
+        return 100;
+    }
+
     return 0;
 }
 

@@ -564,8 +564,9 @@ refund_bid(struct bid_data *bid)
     }
     struct account *acc = account_by_idnum(acc_id);
     if (acc == NULL) {
-        slog("WARNING: refund_bid(), bidder %ld's account was not found",
-             bid->bidder_id);
+        errlog("WARNING: refund_bid(), bidder %ld's account was not found",
+               bid->bidder_id);
+        return;
     }
     if (bid->past_amount != 0) {
         deposit_past_bank(acc, bid->past_amount);

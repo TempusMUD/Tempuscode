@@ -1634,8 +1634,8 @@ ACMD(do_compare)
 ACMD(do_screen)
 {
     if (ch->desc == NULL || ch->desc->account == NULL) {
-        send_to_char(ch,
-            "You don't have an account to put the screen in.\r\n");
+        send_to_char(ch, "You don't have an account to put the screen in.\r\n");
+        return;
     }
 
     skip_spaces(&argument);
