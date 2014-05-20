@@ -61,7 +61,7 @@ bool send_mail(struct creature *ch,
                struct obj_data *obj_list,
                char **error);
 
-int receive_mail(struct creature * ch, GList *olist);
+GList *receive_mail(struct creature * ch, int *num_mails);
 bool purge_mail(long idnum);
 
 // The actual mail file entry struct.
