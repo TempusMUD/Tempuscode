@@ -2060,21 +2060,26 @@ ACMD(do_repair)
 
     skip_spaces(&argument);
 
-    if (!*argument)
+    if (!*argument) {
         vict = ch;
-    else if (!(vict = get_char_room_vis(ch, argument)) &&
-        !(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
-        !(obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
+    } else {
+        vict = get_char_room_vis(ch, argument);
+        if (vict == NULL) {
+            obj = get_obj_in_list_vis(ch, argument, ch->carrying);
+            if (obj == NULL) {
+                obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents);
+            }
+        }
+    }
+
+    if (vict != NULL) {
+        perform_cyborepair(ch, vict);
+    } else if (obj != NULL) {
+        perform_repair(ch, obj);
+    } else {
         send_to_char(ch, "Repair who or what?\r\n");
         return;
     }
-
-    if (vict) {
-        perform_cyborepair(ch, vict);
-        return;
-    }
-
-    perform_repair(ch, obj);
 }
 
 ACMD(do_overhaul)
