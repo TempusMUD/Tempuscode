@@ -954,7 +954,6 @@ void
 send_prompt(struct descriptor_data *d)
 {
     extern bool production_mode;
-    char prompt[MAX_INPUT_LENGTH];
     char colorbuf[100];
 
     // Check for the text editor being used
@@ -975,35 +974,36 @@ send_prompt(struct descriptor_data *d)
         }
         if (d->is_blind)
             return;
-        *prompt = '\0';
+
+        acc_string_clear();
 
         if (!production_mode)
-            snprintf(prompt, sizeof(prompt), "%s%s(debug)%s ", prompt,
+            acc_sprintf("%s(debug)%s ",
                 CCBLU(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
         if (GET_INVIS_LVL(d->creature))
-            snprintf(prompt, sizeof(prompt), "%s%s(%si%d%s)%s ", prompt, CCMAG(d->creature,
+            acc_sprintf("%s(%si%d%s)%s ", CCMAG(d->creature,
                     C_NRM), CCRED(d->creature, C_NRM),
                 GET_INVIS_LVL(d->creature), CCMAG(d->creature, C_NRM),
                 CCNRM(d->creature, C_NRM));
         else if (IS_NPC(d->creature))
-            snprintf(prompt, sizeof(prompt), "%s%s[NPC]%s ", prompt,
+            acc_sprintf("%s[NPC]%s ",
                 CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 
         if (PRF_FLAGGED(d->creature, PRF_DISPHP))
-            snprintf(prompt, sizeof(prompt), "%s%s%s< %s%d%s%sH%s ", prompt,
+            acc_sprintf("%s%s< %s%d%s%sH%s ",
                 CCWHT(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
                 CCGRN(d->creature, C_SPR), GET_HIT(d->creature),
                 CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
 
         if (PRF_FLAGGED(d->creature, PRF_DISPMANA))
-            snprintf(prompt, sizeof(prompt), "%s%s%s%d%s%sM%s ", prompt,
+            acc_sprintf("%s%s%d%s%sM%s ",
                 CCBLD(d->creature, C_CMP), CCMAG(d->creature, C_SPR),
                 GET_MANA(d->creature), CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
 
         if (PRF_FLAGGED(d->creature, PRF_DISPMOVE))
-            snprintf(prompt, sizeof(prompt), "%s%s%s%d%s%sV%s ", prompt,
+            acc_sprintf("%s%s%d%s%sV%s ",
                 CCCYN(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
                 GET_MOVE(d->creature), CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
@@ -1018,7 +1018,7 @@ send_prompt(struct descriptor_data *d)
                 snprintf(colorbuf, sizeof(colorbuf), "%s", CCWHT(d->creature, C_SPR));
             }
 
-            snprintf(prompt, sizeof(prompt), "%s%s%s%d%s%sA%s ", prompt,
+            acc_sprintf("%s%s%d%s%sA%s ",
                 colorbuf, CCBLD(d->creature, C_CMP),
                 GET_ALIGNMENT(d->creature), CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
@@ -1026,7 +1026,7 @@ send_prompt(struct descriptor_data *d)
 
         if (PRF2_FLAGGED(d->creature, PRF2_DISPTIME)) {
             if (d->creature->in_room->zone->time_frame == TIME_TIMELESS) {
-                snprintf(prompt, sizeof(prompt), "%s%s%s%s", prompt, CCYEL_BLD(d->creature,
+                acc_sprintf("%s%s%s", CCYEL_BLD(d->creature,
                         C_CMP), "!TIME ", CCNRM(d->creature, C_SPR));
             } else {
                 struct time_info_data local_time;
@@ -1044,7 +1044,7 @@ send_prompt(struct descriptor_data *d)
                             C_CMP));
                 }
 
-                snprintf(prompt, sizeof(prompt), "%s%s%d%s%s%s%s ", prompt, colorbuf,
+                acc_sprintf("%s%d%s%s%s%s ", colorbuf,
                     ((local_time.hours % 12 ==
                             0) ? 12 : ((local_time.hours) % 12)),
                     CCNRM(d->creature, C_SPR), CCYEL_BLD(d->creature, C_CMP),
@@ -1055,13 +1055,13 @@ send_prompt(struct descriptor_data *d)
 
         if (is_fighting(d->creature) &&
             PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE))
-            snprintf(prompt, sizeof(prompt), "%s%s(%s)%s ", prompt, CCRED(d->creature, C_NRM),
+            acc_sprintf("%s(%s)%s ", CCRED(d->creature, C_NRM),
                 diag_conditions(random_opponent(d->creature)),
                 CCNRM(d->creature, C_NRM));
 
-        snprintf(prompt, sizeof(prompt), "%s%s%s>%s ", prompt, CCWHT(d->creature, C_NRM),
+        acc_sprintf("%s%s>%s ", CCWHT(d->creature, C_NRM),
             CCBLD(d->creature, C_CMP), CCNRM(d->creature, C_NRM));
-        d_send(d, prompt);
+        d_send(d, acc_get_string());
         break;
     case CXN_ACCOUNT_LOGIN:
         d_printf(d,
