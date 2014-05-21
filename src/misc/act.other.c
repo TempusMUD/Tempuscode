@@ -910,93 +910,84 @@ ACMD(do_wimpy)
 
 ACMD(do_display)
 {
-    char *arg1;
-    char *arg2;
     unsigned int i;
 
-    arg1 = buf1;
-    arg2 = buf2;
-
     if (IS_NPC(ch)) {
-        send_to_char(ch, "Mosters don't need displays.  Go away.\r\n");
+        send_to_char(ch, "Monsters don't need displays.  Go away.\r\n");
         return;
     }
     skip_spaces(&argument);
-    argument = two_arguments(argument, arg1, arg2);
+    char *arg1 = tmp_getword(&argument);
+    char *arg2 = tmp_getword(&argument);
 
-    if (!*arg1) {
+    if (*arg1 == '\0') {
         send_to_char(ch,
             "Usage: prompt { H | M | V | A | T | all | normal | none %s}\r\n",
             GET_LEVEL(ch) > LVL_IMMORT ? "| vnums" : "");
         return;
     }
 
-    if (arg2 != NULL) {
-        if (is_abbrev(arg1, "rows")) {
-
-            if (is_number(arg2)) {
-                GET_ROWS(ch) = atoi(arg2);
-                return;
-            }
-
-            else {
-                send_to_char(ch, "Usage: display rows <number>\r\n");
-                return;
-            }
-
-        } else if (is_abbrev(arg1, "cols")) {
-
-            if (is_number(arg2)) {
-                GET_COLS(ch) = atoi(arg2);
-                return;
-            }
-
-            else {
-                send_to_char(ch, "Usage: display cols <number>\r\n");
-                return;
-            }
-
+    if (strcasecmp(arg1, "rows") == 0) {
+        if (is_number(arg2)) {
+            GET_ROWS(ch) = atoi(arg2);
+            send_to_char(ch, "Screen rows set to %d characters.\r\n", GET_ROWS(ch));
+        } else {
+            send_to_char(ch, "Usage: display rows <number>\r\n");
         }
-
+        return;
     }
 
+    if (strcasecmp(arg1, "cols") == 0) {
+        if (is_number(arg2)) {
+            GET_COLS(ch) = atoi(arg2);
+            send_to_char(ch, "Screen cols set to %d characters.\r\n", GET_COLS(ch));
+        } else {
+            send_to_char(ch, "Usage: display cols <number>\r\n");
+        }
+        return;
+    }
     if ((!strcasecmp(arg1, "on")) || (!strcasecmp(arg1, "normal"))) {
         REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
         SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
+        send_to_char(ch, "%s", OK);
+        return;
     }
 
-    else if ((!strcasecmp(arg1, "all"))) {
+    if ((!strcasecmp(arg1, "all"))) {
         SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
         SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
+        send_to_char(ch, "%s", OK);
+        return;
     }
 
-    else if ((!strcasecmp(arg1, "vnums"))) {
+    if ((!strcasecmp(arg1, "vnums"))) {
         if (PRF2_FLAGS(ch) & PRF2_DISP_VNUMS)
             REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISP_VNUMS);
         else
             SET_BIT(PRF2_FLAGS(ch), PRF2_DISP_VNUMS);
-    } else {
-        REMOVE_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
-        REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
+        send_to_char(ch, "%s", OK);
+        return;
+    }
+    REMOVE_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
+    REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
 
-        for (i = 0; i < strlen(arg1); i++) {
-            switch (tolower(arg1[i])) {
-            case 'h':
-                SET_BIT(PRF_FLAGS(ch), PRF_DISPHP);
-                break;
-            case 'm':
-                SET_BIT(PRF_FLAGS(ch), PRF_DISPMANA);
-                break;
-            case 'v':
-                SET_BIT(PRF_FLAGS(ch), PRF_DISPMOVE);
-                break;
-            case 'a':
-                SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN);
-                break;
-            case 't':
-                SET_BIT(PRF2_FLAGS(ch), PRF2_DISPTIME);
-                break;
-            }
+    for (i = 0; i < strlen(arg1); i++) {
+        switch (tolower(arg1[i])) {
+        case 'h':
+            SET_BIT(PRF_FLAGS(ch), PRF_DISPHP);
+            break;
+        case 'm':
+            SET_BIT(PRF_FLAGS(ch), PRF_DISPMANA);
+            break;
+        case 'v':
+            SET_BIT(PRF_FLAGS(ch), PRF_DISPMOVE);
+            break;
+        case 'a':
+            SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN);
+            break;
+        case 't':
+            SET_BIT(PRF2_FLAGS(ch), PRF2_DISPTIME);
+            break;
         }
     }
 
