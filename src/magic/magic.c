@@ -690,7 +690,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         break;
     case SPELL_GRAVITY_WELL:
         dam = dice(level / 2, 5);
-        if (!GET_CLASS(ch) == CLASS_PHYSIC)
+        if (GET_CLASS(ch) != CLASS_PHYSIC)
             dam = dam / 2;
         if (AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL))
             dam = dam / 2;
