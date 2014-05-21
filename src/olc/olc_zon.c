@@ -1162,7 +1162,7 @@ do_zmob_cmd(struct creature *ch, char *argument)
 
     SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
     mob = read_mobile(int_arg1);
-    if (mob != NULL) {
+    if (mob == NULL) {
         send_to_char(ch, "Mobile could not be loaded.\r\n");
         return;
     }
