@@ -50,7 +50,7 @@ struct clan_data * clan_by_name(char *arg);
 struct clan_data *clan_list;
 extern FILE *player_fl;
 
-void
+__attribute__ ((nonnull)) void
 remove_room_from_clan(struct room_list_elem *rm_list, struct clan_data *clan)
 {
     /*@dependent@*/ struct room_list_elem *temp;
@@ -58,7 +58,7 @@ remove_room_from_clan(struct room_list_elem *rm_list, struct clan_data *clan)
     free(rm_list);
 }
 
-void
+__attribute__ ((nonnull)) void
 remove_member_from_clan(/*@only@*/ struct clanmember_data *member, struct clan_data *clan)
 {
     struct clanmember_data *temp;
@@ -66,7 +66,7 @@ remove_member_from_clan(/*@only@*/ struct clanmember_data *member, struct clan_d
     free(member);
 }
 
-static int
+__attribute__ ((nonnull)) static int
 clan_member_count(struct clan_data *clan)
 {
     struct clanmember_data *member = NULL;
@@ -77,7 +77,7 @@ clan_member_count(struct clan_data *clan)
     return result;
 }
 
-static /*@observer@*/ const char *
+__attribute__ ((nonnull)) static /*@observer@*/ const char *
 clan_rankname(struct clan_data *clan, int rank)
 {
     if (clan->ranknames[rank])
@@ -87,9 +87,9 @@ clan_rankname(struct clan_data *clan, int rank)
     return "the member";
 }
 
-static bool
+__attribute__ ((nonnull)) static bool
 char_can_enroll(struct creature *ch, struct creature *vict,
-    struct clan_data *clan)
+                struct clan_data *clan)
 {
     // Ensure data integrity between clan structures
     if (GET_CLAN(vict) != 0 && real_clan(GET_CLAN(vict)) != NULL) {
@@ -147,9 +147,8 @@ char_can_enroll(struct creature *ch, struct creature *vict,
     return false;
 }
 
-static bool
-char_can_dismiss(struct creature *ch, struct creature *vict,
-    struct clan_data *clan)
+__attribute__ ((nonnull)) static bool
+char_can_dismiss(struct creature *ch, struct creature *vict, struct clan_data *clan)
 {
     struct clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
     struct clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
@@ -161,8 +160,6 @@ char_can_dismiss(struct creature *ch, struct creature *vict,
     else if (is_authorized(ch, EDIT_CLAN, NULL))
         return true;
     // Dismissal conditions that don't apply to clan administrators
-    else if (clan == NULL)
-        send_to_char(ch, "Try joining a clan first.\r\n");
     else if (ch_member == NULL)
         send_to_char(ch, "You are not properly in a clan.\r\n");
     else if (!vict_member || GET_CLAN(vict) != GET_CLAN(ch))
@@ -182,9 +179,9 @@ char_can_dismiss(struct creature *ch, struct creature *vict,
     return false;
 }
 
-static bool
+__attribute__ ((nonnull)) static bool
 char_can_promote(struct creature *ch, struct creature *vict,
-    struct clan_data *clan)
+                 struct clan_data *clan)
 {
     struct clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
     struct clanmember_data *vict_member =
@@ -202,8 +199,6 @@ char_can_promote(struct creature *ch, struct creature *vict,
     else if (is_authorized(ch, EDIT_CLAN, NULL))
         return true;
     // Promotion conditions that don't apply to clan administrators
-    else if (!clan)
-        send_to_char(ch, "Try joining a clan first.\r\n");
     else if (real_clan(GET_CLAN(vict)) != clan)
         send_to_char(ch, "You are not a member of that person's clan!\r\n");
     else if (clan->owner == GET_IDNUM(ch))
