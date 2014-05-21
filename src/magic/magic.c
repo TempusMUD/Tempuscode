@@ -1269,8 +1269,6 @@ mag_affects(int level,
         to_room = "A ghostly light appears around $n.";
         break;
     case SPELL_INVISIBLE:
-        if (!victim)
-            victim = ch;
         aff[0].duration = 12 + (level / 4);
         aff[0].modifier = -20;
         aff[0].location = APPLY_AC;

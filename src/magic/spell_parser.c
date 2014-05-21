@@ -1281,7 +1281,7 @@ perform_taint_burn(struct creature *ch, int spellnum)
     if (number(1, attribute) < number(mana / 2, mana)) {
         weenie = true;
     }
-    if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG))
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG))
         send_to_char(ch,
             "%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
             CCCYN(ch, C_NRM), GET_NAME(ch), attribute,

@@ -2298,7 +2298,7 @@ acc_append_affects(struct creature *ch, int8_t mode)
     }
     // radiation sickness
 
-    if ((af = affected_by_spell(ch, TYPE_RAD_SICKNESS))) {
+    if (affected_by_spell(ch, TYPE_RAD_SICKNESS)) {
         if (!number(0, 2))
             acc_strcat("You feel nauseous.\r\n", NULL);
         else if (!number(0, 1))

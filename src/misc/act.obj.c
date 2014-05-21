@@ -1986,12 +1986,12 @@ ACMD(do_plant)
         amount = atoi(arg);
         argument = one_argument(argument, arg);
         if (!strcasecmp("coins", arg) || !strcasecmp("coin", arg) || !strcasecmp("gold", arg)) {
-            argument = one_argument(argument, arg);
+            one_argument(argument, arg);
             if ((vict = give_find_vict(ch, arg)))
                 transfer_money(ch, vict, amount, 0, true);
             return;
         } else if (!strcasecmp("credits", arg) || !strcasecmp("credit", arg) || !strcasecmp("cash", arg)) {
-            argument = one_argument(argument, arg);
+            one_argument(argument, arg);
             if ((vict = give_find_vict(ch, arg)))
                 transfer_money(ch, vict, amount, 1, true);
             return;
