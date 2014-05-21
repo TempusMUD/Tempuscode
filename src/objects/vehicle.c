@@ -613,7 +613,7 @@ SPECIAL(vehicle_console)
     cur_car = vehicle;
 
     engine = vehicle->contains;
-    if (!IS_ENGINE(engine))
+    if (engine && !IS_ENGINE(engine))
         engine = NULL;
 
     if (V_CONSOLE_IDNUM(console)) {
