@@ -377,6 +377,10 @@ angel_do_action(struct creature *self, struct creature *charge,
     char *cmd, *action;
     int result = 0;
 
+    if (charge == NULL) {
+        return 0;
+    }
+
     action = data->action;
     cmd = tmp_getword(&action);
     if (!strcmp(cmd, "respond")) {
@@ -397,16 +401,19 @@ angel_do_action(struct creature *self, struct creature *charge,
     } else if (!strcmp(cmd, "answer")) {
         char *question = tmp_getword(&action);
         struct creature *ch = get_char_in_world_by_idnum(data->respond_to);
-        if (!strcmp(question, "whoami"))
+        if (ch == NULL) {
+            angel_do_respond(self, data, "I have no idea.");
+        } else if (!strcmp(question, "whoami")) {
             angel_do_respond(self, data,
                 tmp_sprintf("You are %s, %s %s",
                     GET_NAME(ch),
                     IS_GOOD(ch) ? "a good" :
                     IS_EVIL(ch) ? "an evil" : "a neutral",
                     strlist_aref(GET_CLASS(ch), class_names)));
-        else if (!strcmp(question, "whereami"))
+        } else if (!strcmp(question, "whereami")) {
             angel_do_respond(self, data,
                 tmp_sprintf("You are in %s.", ch->in_room->zone->name));
+        }
     } else if (!strcmp(cmd, "directions")) {
         char *room_num = tmp_getword(&action);
         struct room_data *room = real_room(atoi(room_num));
@@ -432,8 +439,8 @@ angel_do_action(struct creature *self, struct creature *charge,
             for (GList * li = angels; li; li = li->next) {
                 struct angel_data *angel = li->data;
                 if (data->charge_id == angel->charge_id) {
-                    free(angel);
                     angels = g_list_remove(angels, angel);
+                    free(angel);
                     break;
                 }
             }
@@ -642,6 +649,8 @@ SPECIAL(guardian_angel)
     if (spec_mode == SPECIAL_TICK) {
         if (data->counter > 0)
             data->counter--;
+        else if (charge == NULL)
+            return 0;
         else if (data->counter < 0)
             return angel_check_charge(self, charge, data);
         else {

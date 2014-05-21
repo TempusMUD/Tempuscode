@@ -260,7 +260,7 @@ prog_lexify(struct prog_compiler_state *compiler)
         line_start++;
     line_end = line_start;
 
-    while (line_start && *line_start) {
+    while (*line_start) {
         // Find the end of the line
         while (*line_end && *line_end != '\n' && *line_end != '\r')
             line_end++;
@@ -421,6 +421,12 @@ prog_compile_handler(struct prog_compiler_state *compiler)
     // Retrieve the handler phase
     cmd_token = compiler->cur_token;
     phase = search_block(cmd_token->sym, prog_phase_strs, true);
+    if (phase < 0) {
+        prog_compile_error(compiler, compiler->cur_token->linenum,
+            "Invalid handler phase '%s'", cmd_token->sym);
+        goto err;
+    }
+
     switch (phase) {
     case PROG_EVT_BEGIN:
         prog_compiler_emit(compiler, PROG_CMD_BEFORE, NULL, 0);

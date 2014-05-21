@@ -45,6 +45,7 @@
 #include "spells.h"
 #include "fight.h"
 #include "obj_data.h"
+#include "strutil.h"
 
 /*   external vars  */
 extern struct room_data *world;
@@ -616,15 +617,15 @@ SPECIAL(James)
     if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
         return (false);
 
-    for (i = ch->in_room->contents; i; i = i->next_content)
+    for (i = ch->in_room->contents; i; i = i->next_content) {
         if (is_trash(i)) {
             act("$n says: 'My oh my!  I ought to fire that lazy cleaning woman!'", false, ch, NULL, NULL, TO_ROOM);
             act("$n picks up a piece of trash.", false, ch, NULL, NULL, TO_ROOM);
             obj_from_room(i);
             obj_to_char(i, ch);
             return true;
-        } else
-            return false;
+        }
+    }
 
     return false;
 }

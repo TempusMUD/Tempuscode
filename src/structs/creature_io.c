@@ -966,7 +966,7 @@ load_player_from_file(const char *path)
             char *spellName = (char *)xmlGetProp(node, (xmlChar *) "name");
             int index = str_to_spell(spellName);
             if (index >= 0) {
-                GET_SKILL(ch, index) = xmlGetIntProp(node, "level", 0);
+                SET_SKILL(ch, index, xmlGetIntProp(node, "level", 0));
             }
             free(spellName);
         } else if (xmlMatches(node->name, "tongue")) {
@@ -1109,7 +1109,7 @@ set_player_field(struct creature *ch, const char *key, const char *val)
     else if (!strcmp(key, "poofout"))
         POOFOUT(ch) = strdup(val);
     else if (!strcmp(key, "immbadge"))
-        strcpy(BADGE(ch), val);
+        strcpy_s(BADGE(ch), sizeof(BADGE(ch)), val);
     else if (!strcmp(key, "sex"))
         GET_SEX(ch) = atoi(val);
     else if (!strcmp(key, "hitp"))

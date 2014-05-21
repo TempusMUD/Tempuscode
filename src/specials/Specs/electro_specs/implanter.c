@@ -26,8 +26,6 @@ SPECIAL(implanter)
 {
     struct creature *self = (struct creature *)me;
 
-    if (spec_mode != SPECIAL_LEAVE && spec_mode != SPECIAL_CMD)
-        return 0;
     if (IS_NPC(ch))
         return 0;
 
@@ -56,7 +54,9 @@ SPECIAL(implanter)
             return 1;
         }
         return 0;
-    } else if (spec_mode == SPECIAL_LEAVE) {
+    }
+
+    if (spec_mode == SPECIAL_LEAVE) {
         implanter_end_sess(ch);
         return 0;
     }
@@ -487,15 +487,15 @@ implanter_show_pos(struct creature *me, struct creature *ch,
     int pos;
     bool not_first = false;
 
-    strcpy(buf, "You can implant it in these positions: ");
+    strcpy_s(buf, sizeof(buf), "You can implant it in these positions: ");
     for (pos = 0; wear_implantpos[pos][0] != '\n'; pos++)
         if (!ILLEGAL_IMPLANTPOS(pos) && CAN_WEAR(obj, wear_bitvectors[pos])) {
             if (not_first)
-                strcat(buf, ", ");
+                strcat_s(buf, sizeof(buf), ", ");
             else
                 not_first = true;
 
-            strcat(buf, wear_implantpos[pos]);
+            strcat_s(buf, sizeof(buf), wear_implantpos[pos]);
         }
 
     perform_tell(me, ch, buf);

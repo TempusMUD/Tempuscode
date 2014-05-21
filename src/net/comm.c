@@ -62,6 +62,7 @@
 #include "help.h"
 #include "editor.h"
 #include "ban.h"
+#include "paths.h"
 
 /* externs */
 extern struct help_collection *Help;
@@ -105,14 +106,14 @@ int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 void flush_q(struct txt_q *queue);
 void init_game(void);
 void signal_setup(void);
-void game_loop(int main_listener, int reader_listener);
-int init_socket(int port);
+void game_loop(GIOChannel * main_listener, GIOChannel *reader_listener);
+GIOChannel *init_socket(int port);
 int new_descriptor(int s, int port);
 int get_avail_descs(void);
 struct timespec timediff(struct timespec *a, struct timespec *b);
 void flush_queues(struct descriptor_data *d);
 void nonblock(int s);
-int perform_subst(struct descriptor_data *t, char *orig, char *subst);
+char *perform_subst(struct descriptor_data *t, char *orig, const char *subst);
 int perform_alias(struct descriptor_data *d, char *orig);
 void record_usage(void);
 void send_prompt(struct descriptor_data *point);
@@ -140,7 +141,6 @@ void mobile_spec(void);
 void burn_update(void);
 void dynamic_object_pulse();
 void flow_room(void);
-void path_activity();
 void editor(struct descriptor_data *d, char *buffer);
 void perform_violence(void);
 void show_string(struct descriptor_data *d);
@@ -163,7 +163,6 @@ gboolean update_alignment_ambience(gpointer ignore);
 void
 init_game(void)
 {
-    int main_listener, reader_listener;
     void my_srand(unsigned long initial_seed);
     void verify_tempus_integrity(struct creature *ch);
 
@@ -175,9 +174,9 @@ init_game(void)
     slog("Testing internal integrity");
     verify_tempus_integrity(NULL);
 
-    slog("Opening mother connection.");
-    main_listener = init_socket(main_port);
-    reader_listener = init_socket(reader_port);
+    slog("Opening listener sockets.");
+    GIOChannel *main_io = init_socket(main_port);
+    GIOChannel *reader_io = init_socket(reader_port);
 
     avail_descs = get_avail_descs();
 
@@ -185,12 +184,11 @@ init_game(void)
     signal_setup();
 
     slog("Entering game loop.");
-
-    game_loop(main_listener, reader_listener);
+    game_loop(main_io, reader_io);
 
     slog("Closing all sockets.");
-    close(main_listener);
-    close(reader_listener);
+    g_io_channel_unref(main_io);
+    g_io_channel_unref(reader_io);
     while (descriptor_list)
         close_socket(descriptor_list);
 
@@ -213,7 +211,7 @@ init_game(void)
  * init_socket sets up the mother descriptor - creates the socket, sets
  * its options up, binds it, and listens.
  */
-int
+GIOChannel *
 init_socket(int port)
 {
     struct addrinfo *info, hints;
@@ -229,7 +227,7 @@ init_socket(int port)
 #endif
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE | AI_NUMERICSERV;
-    sprintf(portstr, "%d", port);
+    snprintf(portstr, sizeof(portstr), "%d", port);
     err = getaddrinfo(NULL, portstr, &hints, &info);
     if (err != 0) {
         fprintf(stderr, "init_socket(): %s\n", gai_strerror(err));
@@ -298,7 +296,8 @@ init_socket(int port)
 
     nonblock(s);
     listen(s, 5);
-    return s;
+
+    return g_io_channel_unix_new(s);
 }
 
 int
@@ -405,7 +404,7 @@ update_shutdown_timer(__attribute__ ((unused)) gpointer data)
     else if (shutdown_count == 30)
         send_to_all(":: Tempus REBOOT in 30 seconds ::\r\n");
     else if (shutdown_count && !(shutdown_count % 60)) {
-        sprintf(buf, ":: Tempus REBOOT in %d minute%s ::\r\n",
+        snprintf(buf, sizeof(buf), ":: Tempus REBOOT in %d minute%s ::\r\n",
                 shutdown_count / 60, shutdown_count == 60 ? "" : "s");
         send_to_all(buf);
     } else if (shutdown_count <= 0) {
@@ -483,17 +482,14 @@ g_io_channel_write_buffer_empty(GIOChannel *channel)
  * such as mobile_activity().
  */
 void
-game_loop(int main_listener, int reader_listener)
+game_loop(GIOChannel *main_listener, GIOChannel *reader_listener)
 {
-    GIOChannel *main_io = g_io_channel_unix_new(main_listener);
-    GIOChannel *reader_io = g_io_channel_unix_new(reader_listener);
-
     main_loop = g_main_loop_new(NULL, false);
 
     /* Setup network connections */
-    g_io_add_watch(main_io, G_IO_IN, accept_new_connection,
+    g_io_add_watch(main_listener, G_IO_IN, accept_new_connection,
                    GINT_TO_POINTER(main_port));
-    g_io_add_watch(reader_io, G_IO_IN, accept_new_connection,
+    g_io_add_watch(reader_listener, G_IO_IN, accept_new_connection,
                    GINT_TO_POINTER(reader_port));
 
     /* Set up repeating events */
@@ -669,7 +665,6 @@ accept_new_connection(GIOChannel *listener_io,
     extern const char *GREETINGS[];
     int s = g_io_channel_unix_get_fd(listener_io);
     int port = GPOINTER_TO_INT(data);
-    GIOChannel *io;
 
     /* accept the new connection */
     addrlen = sizeof(peer);
@@ -682,17 +677,17 @@ accept_new_connection(GIOChannel *listener_io,
     for (newd = descriptor_list; newd; newd = newd->next)
         sockets_input_mode++;
 
-    io = g_io_channel_unix_new(desc);
-
-    if (sockets_input_mode >= avail_descs) {
-        g_io_channel_write_chars(io, "Sorry, Tempus is full right now... try again later!  :-)\r\n", -1, NULL, NULL);
-        g_io_channel_shutdown(io, true, NULL);
-        g_io_channel_unref(io);
-        return true;
-    }
-
     /* create a new descriptor */
     CREATE(newd, struct descriptor_data, 1);
+    newd->io = g_io_channel_unix_new(desc);
+
+    if (sockets_input_mode >= avail_descs) {
+        g_io_channel_write_chars(newd->io, "Sorry, Tempus is full right now... try again later!  :-)\r\n", -1, NULL, NULL);
+        g_io_channel_shutdown(newd->io, true, NULL);
+        g_io_channel_unref(newd->io);
+        free(newd);
+        return true;
+    }
 
     /* find the site name */
     int info_flags = NI_NUMERICSERV;
@@ -704,21 +699,21 @@ accept_new_connection(GIOChannel *listener_io,
                       NULL, 0, info_flags);
     if (err != 0) {
         errlog("new_descriptor(): %s\n", gai_strerror(err));
-        g_io_channel_shutdown(io, true, NULL);
-        g_io_channel_unref(io);
+        g_io_channel_shutdown(newd->io, true, NULL);
+        g_io_channel_unref(newd->io);
         free(newd);
         return true;
     }
 
     /* determine if the site is banned */
-    if (check_ban_all(io, newd->host)) {
-        g_io_channel_shutdown(io, true, NULL);
-        g_io_channel_unref(io);
+    if (check_ban_all(newd->io, newd->host)) {
+        g_io_channel_shutdown(newd->io, true, NULL);
+        g_io_channel_unref(newd->io);
         free(newd);
         return true;
     }
 
-    int bantype = isbanned(newd->host, buf2);
+    int bantype = isbanned(newd->host, buf2, sizeof(buf2));
 
     /* Log new connections - probably unnecessary, but you may want it */
     mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
@@ -730,8 +725,6 @@ accept_new_connection(GIOChannel *listener_io,
 
     /* Set up descriptor I/O channels */
     GError *error = NULL;
-
-    newd->io = g_io_channel_unix_new(desc);
 
     g_io_channel_set_flags(newd->io, G_IO_FLAG_NONBLOCK, &error);
     if (error) {
@@ -830,10 +823,10 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
 }
 
 void
-enqueue_line_input(struct descriptor_data *d, char *line)
+enqueue_line_input(struct descriptor_data *d, const char *line)
 {
-    bool failed_subst = false;
-
+    d->need_prompt = true;
+    
     if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
         for (GList * x = d->snoop_by; x; x = x->next) {
             struct descriptor_data *td = x->data;
@@ -841,13 +834,18 @@ enqueue_line_input(struct descriptor_data *d, char *line)
         }
     }
 
-    if (*line == '!' && STATE(d) != CXN_PW_VERIFY) {
-        strcpy(line, d->last_input);
+    if (*line == '!' && IS_PLAYING(d)) {
+        line = d->last_input;
     } else if (*line == '^') {
-        if (!(failed_subst = perform_subst(d, d->last_input, line)))
-            strcpy(d->last_input, line);
-    } else
-        strcpy(d->last_input, line);
+        char *sub = perform_subst(d, d->last_input, line);
+        if (sub == NULL) {
+            return;
+        }
+        strcpy_s(d->last_input, sizeof(d->last_input), sub);
+        line = d->last_input;
+    } else {
+        strcpy_s(d->last_input, sizeof(d->last_input), line);
+    }
 
     if (d->repeat_cmd_count > 300 &&
         (!d->creature || GET_LEVEL(d->creature) < LVL_ETERNAL)) {
@@ -862,24 +860,21 @@ enqueue_line_input(struct descriptor_data *d, char *line)
         }
     }
 
-    if (!failed_subst) {
-        d->need_prompt = true;
-        if (IS_PLAYING(d) && !strncmp("revo", line, 4)) {
-            // We want all commands in the queue to be dumped immediately
-            // This has to be here so we can bypass the normal order of
-            // commands
-            if (g_queue_is_empty(d->input)) {
-                d_printf(d,
-                             "You don't have any commands to revoke!\r\n");
-            } else {
-                g_queue_foreach(d->input, (GFunc)g_free, NULL);
-                g_queue_clear(d->input);
-                d_printf(d, "You reconsider your rash plans.\r\n");
-                WAIT_STATE(d->creature, 1 RL_SEC);
-            }
+    if (IS_PLAYING(d) && !strncmp("revo", line, 4)) {
+        // We want all commands in the queue to be dumped immediately
+        // This has to be here so we can bypass the normal order of
+        // commands
+        if (g_queue_is_empty(d->input)) {
+            d_printf(d,
+                     "You don't have any commands to revoke!\r\n");
         } else {
-            g_queue_push_tail(d->input, strdup(line));
+            g_queue_foreach(d->input, (GFunc)g_free, NULL);
+            g_queue_clear(d->input);
+            d_printf(d, "You reconsider your rash plans.\r\n");
+            WAIT_STATE(d->creature, 1 RL_SEC);
         }
+    } else {
+        g_queue_push_tail(d->input, strdup(line));
     }
 }
 
@@ -977,55 +972,16 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
  * orig is the orig string (i.e. the one being modified.
  * subst contains the substition string, i.e. "^telm^tell"
  */
-int
-perform_subst(struct descriptor_data *t, char *orig, char *subst)
+char *
+perform_subst(struct descriptor_data *t, char *orig, const char *subst)
 {
-    char new_str[MAX_INPUT_LENGTH + 5];
+    char *needle = tmp_strdupt(subst + 1, "^");
 
-    char *first, *second, *strpos;
-
-    /*
-     * first is the position of the beginning of the first string (the one
-     * to be replaced
-     */
-    first = subst + 1;
-
-    /* now find the second '^' */
-    if (!(second = strchr(first, '^'))) {
-        d_send(t, "Invalid substitution.\r\n");
-        return 1;
+    if (strstr(orig, needle) == NULL) {
+        return NULL;
     }
 
-    /* terminate "first" at the position of the '^' and make 'second' point
-     * to the beginning of the second string */
-    *(second++) = '\0';
-
-    /* now, see if the contents of the first string appear in the original */
-    if (!(strpos = strstr(orig, first))) {
-        d_send(t, "Invalid substitution.\r\n");
-        return 1;
-    }
-
-    /* now, we construct the new string for output. */
-
-    /* first, everything in the original, up to the string to be replaced */
-    strncpy(new_str, orig, (strpos - orig));
-    new_str[(strpos - orig)] = '\0';
-
-    /* now, the replacement string */
-    strncat(new_str, second, (MAX_INPUT_LENGTH - strlen(new_str) - 1));
-
-    /* now, if there's anything left in the original after the string to
-     * replaced, copy that too. */
-    if (((strpos - orig) + strlen(first)) < strlen(orig))
-        strncat(new_str, strpos + strlen(first),
-                (MAX_INPUT_LENGTH - strlen(new_str) - 1));
-
-    /* terminate the string in case of an overflow from strncat */
-    new_str[MAX_INPUT_LENGTH - 1] = '\0';
-    strcpy(subst, new_str);
-
-    return 0;
+    return tmp_gsub(orig, needle, subst + strlen(needle) + 2);
 }
 
 void
@@ -1092,7 +1048,6 @@ destroy_socket(struct descriptor_data *d)
     g_source_remove(d->input_handler);
 
     g_io_channel_unref(d->io);
-
     
     free(d);
 }
@@ -1564,11 +1519,6 @@ send_to_clan(const char *messg, int clan)
             }
 }
 
-const char *ACTNULL = "<NULL>";
-
-#define CHECK_NULL(pointer, expression) \
-if ((pointer) == NULL) i = ACTNULL; else i = (expression);
-
 /* higher-level communication: the act() function */
 char *
 act_escape(const char *str)
@@ -1637,6 +1587,11 @@ make_act_str(const char *orig,
              void *vict_obj,
              struct creature *to)
 {
+    const char *ACTNULL = "<NULL>";
+
+#define CHECK_NULL(pointer, expression)                     \
+    if ((pointer) == NULL) i = ACTNULL; else i = (expression);
+
     const char *s = orig;
     const char *i = NULL;
     char *first_printed_char = NULL;
@@ -1802,6 +1757,7 @@ make_act_str(const char *orig,
                 break;
         }
     }
+    
     if (first_printed_char)
         *first_printed_char = toupper(*first_printed_char);
 
@@ -1828,9 +1784,9 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
     make_act_str(orig, lbuf, ch, obj, vict_obj, to);
 
     if (mode == 1) {
-        sprintf(outbuf, "(outside) %s", lbuf);
+        snprintf(outbuf, sizeof(outbuf), "(outside) %s", lbuf);
     } else if (mode == 2) {
-        sprintf(outbuf, "(remote) %s", lbuf);
+        snprintf(outbuf, sizeof(outbuf), "(remote) %s", lbuf);
     } else if (mode == 3) {
         struct room_data *toroom = NULL;
         if (ch != NULL && ch->in_room != NULL) {
@@ -1838,9 +1794,9 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
         } else if (obj != NULL && obj->in_room != NULL) {
             toroom = obj->in_room;
         }
-        sprintf(outbuf, "(%s) %s", (toroom) ? toroom->name : "remote", lbuf);
+        snprintf(outbuf, sizeof(outbuf), "(%s) %s", (toroom) ? toroom->name : "remote", lbuf);
     } else {
-        strcpy(outbuf, lbuf);
+        strcpy_s(outbuf, sizeof(outbuf), lbuf);
     }
 
     d_send(to->desc, outbuf);

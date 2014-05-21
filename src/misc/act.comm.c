@@ -292,20 +292,20 @@ ACMD(do_gsay)
 
         argument = act_escape(argument);
         if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && can_channel_comm(ch, k)) {
-            sprintf(buf, "%s$n tells the group,%s '%s'%s", CCGRN(k, C_NRM),
+            snprintf(buf, sizeof(buf), "%s$n tells the group,%s '%s'%s", CCGRN(k, C_NRM),
                 CCYEL(k, C_NRM), argument, CCNRM(k, C_NRM));
             act(buf, false, ch, NULL, k, TO_VICT | TO_SLEEP);
         }
         for (f = k->followers; f; f = f->next)
             if (AFF_FLAGGED(f->follower, AFF_GROUP) && (f->follower != ch) &&
                 can_channel_comm(ch, f->follower)) {
-                sprintf(buf, "%s$n tells the group,%s '%s'%s",
+                snprintf(buf, sizeof(buf), "%s$n tells the group,%s '%s'%s",
                     CCGRN(f->follower, C_NRM), CCYEL(f->follower, C_NRM),
                     argument, CCNRM(f->follower, C_NRM));
                 act(buf, false, ch, NULL, f->follower, TO_VICT | TO_SLEEP);
             }
 
-        sprintf(buf, "%sYou tell the group,%s '%s'%s", CCGRN(ch, C_NRM),
+        snprintf(buf, sizeof(buf), "%sYou tell the group,%s '%s'%s", CCGRN(ch, C_NRM),
             CCYEL(ch, C_NRM), argument, CCNRM(ch, C_NRM));
         act(buf, false, ch, NULL, NULL, TO_CHAR | TO_SLEEP);
     }

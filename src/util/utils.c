@@ -47,6 +47,7 @@
 #include "account.h"
 #include "spells.h"
 #include "obj_data.h"
+#include "strutil.h"
 
 extern struct follow_type *order_next_k;
 char ANSI[20];
@@ -62,14 +63,14 @@ safe_exit(int mode)
 char *
 VT_GOPOS(int x, int y)
 {
-    sprintf(ANSI, "\x1B[%d;%dH", x, y);
+    snprintf(ANSI, sizeof(ANSI), "\x1B[%d;%dH", x, y);
     return (ANSI);
 }
 
 char *
 VT_RPPOS(int x, int y)
 {
-    sprintf(ANSI, "\x1B[%d;%dr", x, y);
+    snprintf(ANSI, sizeof(ANSI), "\x1B[%d;%dr", x, y);
     return (ANSI);
 }
 
@@ -489,40 +490,43 @@ add_stalker(struct creature *ch, struct creature *leader)
  * Returns the number of lines advanced in the file or 0 if EOF.
  */
 int
-get_line(FILE * fl, char *buf)
+get_line(FILE *fl, char *buf, size_t buf_size)
 {
-    char temp[256] = "";
     int lines = 0;
 
-    while (fgets(temp, 255, fl)) {
+    while (fgets(buf, buf_size, fl)) {
         lines++;
-        if (temp[0] && temp[0] != '*')
+        if (buf[0] && buf[0] != '*')
             break;
     }
     if (feof(fl))
         return 0;
 
-    char *c = strchr(temp, '\n');
-    if (c)
+    char *c = strchr(buf, '\n');
+    if (c) {
         *c = '\0';
+    }
 
-    strcpy(buf, temp);
     return lines;
 }
 
 void
-num2str(char *str, int num)
+num2str(char *str, size_t size, int num)
 {
     if (num == 0) {
-        strcpy(str, "0");
+        strcpy_s(str, size, "0");
         return;
     }
 
     const char *encoding = "abcdefghijklmnopqrstuvwxyzABCDEF";
     const char *c = encoding;
-    for (int i = 0; i < 32; i++, c++)
-        if (num & (1 << i))
+    for (int i = 0; size > 1 && i < 32; i++, c++) {
+        if (num & (1 << i)) {
             *str++ = *c;
+            size--;
+        }
+        
+    }
 
     *str++ = '\0';
 }
@@ -544,11 +548,29 @@ GET_DISGUISED_NAME(struct creature *ch, struct creature *tch)
         return GET_NAME(tch);
 
     if (CAN_DETECT_DISGUISE(ch, tch, af->duration)) {
-        sprintf(buf, "%s (disguised as %s)", GET_NAME(tch), GET_NAME(mob));
+        snprintf(buf, sizeof(buf), "%s (disguised as %s)", GET_NAME(tch), GET_NAME(mob));
         return (buf);
     }
     gain_skill_prof(tch, SKILL_DISGUISE);
     return GET_NAME(mob);
+}
+
+int
+GET_SKILL(struct creature *ch, int i)
+{
+    if (i < 0 || i > MAX_SKILLS) {
+        return 0;
+    }
+    return ch->player_specials->saved.skills[i];
+}
+
+void
+SET_SKILL(struct creature *ch, int i, int val)
+{
+    if (i < 0 || i > MAX_SKILLS) {
+        return;
+    }
+    ch->player_specials->saved.skills[i] = val;
 }
 
 int
@@ -557,27 +579,33 @@ CHECK_SKILL(struct creature *ch, int i)
     int level = 0;
     struct affected_type *af_ptr = NULL;
 
-    if (!IS_NPC(ch)) {
-        level = ch->player_specials->saved.skills[i];
-    } else {
-        if (GET_CLASS(ch) < NUM_CLASSES) {
-            if (GET_LEVEL(ch) >= spell_info[i].min_level[(int)GET_CLASS(ch)])
-                level = 50 + GET_LEVEL(ch);
-        }
-        if (!level &&
-            GET_REMORT_CLASS(ch) < NUM_CLASSES && GET_REMORT_CLASS(ch) >= 0) {
-            if (GET_LEVEL(ch) >=
-                spell_info[i].min_level[(int)GET_REMORT_CLASS(ch)])
-                level = 50 + GET_LEVEL(ch);
-        }
-        if (!level) {
-            if (IS_GIANT(ch))
-                if (GET_LEVEL(ch) >= spell_info[i].min_level[CLASS_BARB])
-                    level = 50 + GET_LEVEL(ch);
-        }
-        if (IS_DEVIL(ch))
-            level += GET_LEVEL(ch) / 2;
+    if (i > MAX_SKILLS) {
+        return 0;
     }
+
+    if (!IS_NPC(ch)) {
+        return ch->player_specials->saved.skills[i];
+    }
+
+    if (GET_CLASS(ch) < NUM_CLASSES) {
+        if (GET_LEVEL(ch) >= spell_info[i].min_level[(int)GET_CLASS(ch)])
+            level = 50 + GET_LEVEL(ch);
+    }
+
+    if (!level &&
+        GET_REMORT_CLASS(ch) < NUM_CLASSES && GET_REMORT_CLASS(ch) >= 0) {
+        if (GET_LEVEL(ch) >=
+            spell_info[i].min_level[(int)GET_REMORT_CLASS(ch)])
+            level = 50 + GET_LEVEL(ch);
+    }
+    if (!level) {
+        if (IS_GIANT(ch))
+            if (GET_LEVEL(ch) >= spell_info[i].min_level[CLASS_BARB])
+                level = 50 + GET_LEVEL(ch);
+    }
+    if (IS_DEVIL(ch))
+        level += GET_LEVEL(ch) / 2;
+
     if (level > 0 && (af_ptr = affected_by_spell(ch, SPELL_AMNESIA)))
         level = MAX(0, level - af_ptr->duration);
 
@@ -619,30 +647,33 @@ WAIT_STATE(struct creature *ch, int cycle)
 const char *
 OBJN(struct obj_data *obj, struct creature *vict)
 {
+    if (obj == NULL)
+        return "<NULL>";
     if (can_see_object(vict, obj))
         return fname((obj)->aliases);
-    else
-        return "something";
+    return "something";
 }
 
 const char *
 OBJS(struct obj_data *obj, struct creature *vict)
 {
-    if (can_see_object((vict), (obj)))
+    if (obj == NULL)
+        return "<NULL>";
+    if (can_see_object(vict, obj))
         return obj->name;
-    else
-        return "something";
+    return "something";
 }
 
 const char *
 PERS(struct creature *ch, struct creature *sub)
 {
+    if (ch == NULL)
+        return "<NULL>";
     if (can_see_creature(sub, ch))
         return GET_DISGUISED_NAME(sub, ch);
-    else if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
         return "a divine presence";
-    else
-        return "someone";
+    return "someone";
 }
 
 const char *

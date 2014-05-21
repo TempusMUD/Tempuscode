@@ -36,6 +36,7 @@
 #include "account.h"
 #include "spells.h"
 #include "fight.h"
+#include "strutil.h"
 
 bool holytouch_after_effect(long owner, struct creature *vict, int level);
 void healing_holytouch(struct creature *ch, struct creature *vict);

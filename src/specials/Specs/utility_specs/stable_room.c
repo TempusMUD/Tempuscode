@@ -24,7 +24,7 @@ SPECIAL(stable_room)
                 continue;
             send_to_char(ch, "%8d - %s\r\n", 3 * GET_EXP(tch), GET_NAME(tch));
         }
-        return (true);
+        return true;
     } else if (CMD_IS("buy")) {
 
         argument = one_argument(argument, buf);
@@ -32,27 +32,31 @@ SPECIAL(stable_room)
 
         if (!(pet = get_char_room(buf, pet_room))) {
             send_to_char(ch, "There is no such mount!\r\n");
-            return (true);
+            return true;
         }
         if (!IS_NPC(pet)) {
             send_to_char(ch, "Funny.  Real funny.  Ha ha.\r\n");
-            return (true);
+            return true;
         }
         if (GET_GOLD(ch) < (GET_EXP(pet) * 3)) {
             send_to_char(ch, "You don't have enough gold!\r\n");
-            return (true);
+            return true;
         }
         GET_GOLD(ch) -= GET_EXP(pet) * 3;
 
         pet = read_mobile(GET_NPC_VNUM(pet));
+        if (pet == NULL) {
+            send_to_char(ch, "We're having a little trouble wrangling that one...\r\n");
+            return true;
+        }
         GET_EXP(pet) = 0;
         SET_BIT(AFF_FLAGS(pet), AFF_CHARM);
 
         if (*pet_name) {
-            sprintf(buf, "%s %s", pet->player.name, pet_name);
+            snprintf(buf, sizeof(buf), "%s %s", pet->player.name, pet_name);
             pet->player.name = strdup(buf);
 
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%sA small sign on a chain around the neck says 'My name is %s'\r\n",
                 pet->player.description, pet_name);
             pet->player.description = strdup(buf);
@@ -75,7 +79,7 @@ SPECIAL(stable_room)
         skip_spaces(&argument);
 
         if (!*argument) {
-            sprintf(buf, "%s what mount?\r\n",
+            snprintf(buf, sizeof(buf), "%s what mount?\r\n",
                 CMD_IS("sell") ? "Sell" : "Value");
             return 1;
         }
@@ -94,7 +98,7 @@ SPECIAL(stable_room)
         }
         price = GET_LEVEL(pet) * 10 + GET_MOVE(pet) * 10 + GET_HIT(pet) * 10;
 
-        sprintf(buf, "I will pay you %'d gold coins for $N.", price);
+        snprintf(buf, sizeof(buf), "I will pay you %'d gold coins for $N.", price);
         act(buf, false, ch, NULL, pet, TO_CHAR);
         if (CMD_IS("value"))
             return 1;

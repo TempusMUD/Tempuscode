@@ -74,24 +74,24 @@ SPECIAL(head_shrinker)
     GET_GOLD(ch) -= cost;
 
     if (!strncmp(corpse->name, "the severed head of", 19)) {
-        sprintf(buf, "the shrunken head of%s", corpse->name + 19);
+        snprintf(buf, sizeof(buf), "the shrunken head of%s", corpse->name + 19);
     } else if ((s = strstr(corpse->name, "corpse of"))) {
         s += 9;
         if (!*s) {
             return 1;
         }
         skip_spaces(&s);
-        sprintf(buf, "the shrunken head of %s", s);
+        snprintf(buf, sizeof(buf), "the shrunken head of %s", s);
     } else {
-        sprintf(buf, "the shrunken head of %s", corpse->name);
+        snprintf(buf, sizeof(buf), "the shrunken head of %s", corpse->name);
     }
 
     head->name = strdup(buf);
 
-    sprintf(buf, "talisman head shrunken %s", corpse->aliases);
+    snprintf(buf, sizeof(buf), "talisman head shrunken %s", corpse->aliases);
     head->aliases = strdup(buf);
 
-    sprintf(buf, "%s is here.", head->name);
+    snprintf(buf, sizeof(buf), "%s is here.", head->name);
     head->line_desc = strdup(buf);
 
     obj_to_char(head, ch);

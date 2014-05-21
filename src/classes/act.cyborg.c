@@ -1484,7 +1484,7 @@ ACMD(do_tune)
     arg2 = tmp_getword(&argument);
 
     if (!strncmp(arg1, "internal", 8)) {
-        strcpy(arg1, arg2);
+        arg1 = arg2;
         if (!(obj = get_object_in_equip_vis(ch, arg1, ch->implants, &i))) {
             send_to_char(ch, "You are not implanted with '%s'.\r\n", arg1);
             return;
@@ -2060,21 +2060,26 @@ ACMD(do_repair)
 
     skip_spaces(&argument);
 
-    if (!*argument)
+    if (!*argument) {
         vict = ch;
-    else if (!(vict = get_char_room_vis(ch, argument)) &&
-        !(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
-        !(obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
+    } else {
+        vict = get_char_room_vis(ch, argument);
+        if (vict == NULL) {
+            obj = get_obj_in_list_vis(ch, argument, ch->carrying);
+            if (obj == NULL) {
+                obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents);
+            }
+        }
+    }
+
+    if (vict != NULL) {
+        perform_cyborepair(ch, vict);
+    } else if (obj != NULL) {
+        perform_repair(ch, obj);
+    } else {
         send_to_char(ch, "Repair who or what?\r\n");
         return;
     }
-
-    if (vict) {
-        perform_cyborepair(ch, vict);
-        return;
-    }
-
-    perform_repair(ch, obj);
 }
 
 ACMD(do_overhaul)
@@ -2326,15 +2331,23 @@ ACMD(do_analyze)
 
     struct obj_data *obj = NULL;
     struct creature *vict = NULL;
-    skip_spaces(&argument);
 
-    if (!*argument ||
-        (!(vict = get_char_room_vis(ch, argument)) &&
-            !(obj = get_obj_in_list_vis(ch, argument, ch->carrying)) &&
-            !(obj =
-                get_obj_in_list_vis(ch, argument, ch->in_room->contents)))) {
-        send_to_char(ch, "Analyze what?\r\n");
+    skip_spaces(&argument);
+    if (!*argument) {
+        send_to_char(ch, "Missing analysis parameter.\r\n");
         return;
+    }
+
+    vict = get_char_room_vis(ch, argument);
+    if (vict == NULL) {
+        obj = get_obj_in_list_vis(ch, argument, ch->carrying);
+        if (obj == NULL) {
+            obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents);
+        }
+        if (obj == NULL) {
+            send_to_char(ch, "Analysis target undetected.\r\n");
+            return;
+        }
     }
 
     if (CHECK_SKILL(ch, SKILL_ANALYZE) < 10) {
@@ -2359,41 +2372,35 @@ ACMD(do_analyze)
         return;
     }
 
-    if (vict) {
-        acc_string_clear();
+    acc_string_clear();
 
-        acc_sprintf("       %s***************************************\r\n",
-            CCGRN(ch, C_NRM));
-        acc_sprintf("       %s>>>     ENTITY ANALYSIS RESULTS:    <<<\r\n",
-            CCCYN(ch, C_NRM));
-        acc_sprintf("       %s***************************************%s\r\n",
-            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
-        acc_sprintf("Name:                  %s%s%s\r\n", CCCYN(ch,
-                C_NRM), GET_NAME(vict), CCNRM(ch, C_NRM));
-        acc_sprintf("Racial Classification: %s%s%s\r\n", CCCYN(ch, C_NRM),
-                    race_name_by_idnum(GET_RACE(vict)), CCNRM(ch, C_NRM));
-        if (GET_CLASS(vict) < NUM_CLASSES) {
-            acc_sprintf("Primary Occupation:    %s%s%s\r\n", CCCYN(ch, C_NRM),
-                        strlist_aref((int)GET_CLASS(vict), class_names),
-                        CCNRM(ch, C_NRM));
-        } else {
-            acc_sprintf("Primary Type:          %s%s%s\r\n", CCCYN(ch, C_NRM),
-                        strlist_aref((int)GET_CLASS(vict), class_names),
-                        CCNRM(ch, C_NRM));
-        }
-        if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
-            acc_sprintf("Secondary Occupation:  %s%s%s\r\n",
-                        CCCYN(ch, C_NRM),
-                        strlist_aref((int)GET_REMORT_CLASS(vict), class_names),
-                        CCNRM(ch, C_NRM));
-
-        GET_MOVE(ch) -= 10;
-        page_string(ch->desc, acc_get_string());
-        return;
+    acc_sprintf("       %s***************************************\r\n",
+                CCGRN(ch, C_NRM));
+    acc_sprintf("       %s>>>     ENTITY ANALYSIS RESULTS:    <<<\r\n",
+                CCCYN(ch, C_NRM));
+    acc_sprintf("       %s***************************************%s\r\n",
+                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+    acc_sprintf("Name:                  %s%s%s\r\n", CCCYN(ch,
+                                                           C_NRM), GET_NAME(vict), CCNRM(ch, C_NRM));
+    acc_sprintf("Racial Classification: %s%s%s\r\n", CCCYN(ch, C_NRM),
+                race_name_by_idnum(GET_RACE(vict)), CCNRM(ch, C_NRM));
+    if (GET_CLASS(vict) < NUM_CLASSES) {
+        acc_sprintf("Primary Occupation:    %s%s%s\r\n", CCCYN(ch, C_NRM),
+                    strlist_aref((int)GET_CLASS(vict), class_names),
+                    CCNRM(ch, C_NRM));
+    } else {
+        acc_sprintf("Primary Type:          %s%s%s\r\n", CCCYN(ch, C_NRM),
+                    strlist_aref((int)GET_CLASS(vict), class_names),
+                    CCNRM(ch, C_NRM));
     }
+    if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
+        acc_sprintf("Secondary Occupation:  %s%s%s\r\n",
+                    CCCYN(ch, C_NRM),
+                    strlist_aref((int)GET_REMORT_CLASS(vict), class_names),
+                    CCNRM(ch, C_NRM));
 
-    send_to_char(ch, "Error.\r\n");
-
+    GET_MOVE(ch) -= 10;
+    page_string(ch->desc, acc_get_string());
 }
 
 ACMD(do_insert)
@@ -3407,6 +3414,165 @@ ACMD(do_de_energize)
     hit(vict, ch, TYPE_UNDEFINED);
 }
 
+bool
+perform_assimilate(struct creature *ch, struct obj_data *obj)
+{
+    struct affected_type *aff = NULL, *affs = NULL;
+    int num_affs = 0;
+    int num_newaffs = 0;
+    int i, j;
+    bool found = false;
+
+    // count the existing affs on the char
+    for (aff = ch->affected; aff; aff = aff->next)
+        if (aff->type == SKILL_ASSIMILATE)
+            num_affs++;
+
+    // allocate affs if needed
+    if (num_affs > 0) {
+        CREATE(affs, struct affected_type, num_affs);
+
+        // make a copy of the old assimilate affs
+        for (i = 0, aff = ch->affected; aff; aff = aff->next)
+            if (aff->type == SKILL_ASSIMILATE)
+                affs[i++] = *aff;
+    }
+
+    // remove all the old affs
+    affect_from_char(ch, SKILL_ASSIMILATE);
+
+    // scan the list of affs on the object
+    for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+
+        if (obj->affected[i].location == APPLY_NONE)
+            continue;
+
+        found = false;
+
+        // scan the list of old affs
+        for (j = 0; j < num_affs && !found; j++) {
+            // see if the affs match
+            if (affs[j].location != obj->affected[i].location) {
+                continue;
+            }
+
+            // opposite signs, combine
+            if ((affs[j].modifier > 0 && obj->affected[i].modifier < 0)
+                || (affs[j].modifier < 0 && obj->affected[i].modifier > 0)) {
+                affs[j].modifier += obj->affected[i].modifier;
+            }
+            // same signs, choose extreme value
+            else if (affs[j].modifier > 0)
+                affs[j].modifier =
+                    MAX(affs[j].modifier, obj->affected[i].modifier);
+            else
+                affs[j].modifier =
+                    MIN(affs[j].modifier, obj->affected[i].modifier);
+
+            // reset level and duration
+            affs[j].level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4);
+
+            affs[j].duration = ((CHECK_SKILL(ch, SKILL_ASSIMILATE) / 10) +
+                                (affs[j].level / 16));
+
+            found = true;
+            break;
+        }
+
+        if (found) {
+            // If an old affect was found, we don't need to add a new one.
+            continue;
+        }
+
+        num_newaffs++;
+
+        // create a new aff
+        struct affected_type *old_affs = affs;
+        affs = realloc(affs, sizeof(struct affected_type) * (num_affs + 1));
+        if (!affs) {
+            errlog("error reallocating affs in do_assimilate.");
+            free(old_affs);
+            return 0;
+        }
+
+        init_affect(&affs[num_affs]);
+        affs[num_affs].type = SKILL_ASSIMILATE;
+        affs[num_affs].level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4);
+        affs[num_affs].duration = (CHECK_SKILL(ch, SKILL_ASSIMILATE) / 10)
+            + (affs[num_affs - 1].level / 16);
+        affs[num_affs].modifier = obj->affected[i].modifier;
+        affs[num_affs].location = obj->affected[i].location;
+        num_affs++;
+    }
+
+    // stick the affs on the char
+    for (i = 0; i < num_affs; i++) {
+        if (affs[i].modifier != 0) {
+            affect_to_char(ch, affs + i);
+        }
+    }
+
+    free(affs);
+
+    return num_newaffs > 0;
+}
+
+void
+attempt_assimilate(struct creature *ch, struct obj_data *obj)
+{
+    int manacost = MIN(10, GET_OBJ_WEIGHT(obj));
+
+    if (GET_MANA(ch) < manacost) {
+        send_to_char(ch, "You lack the mana required to assimilate this.\r\n");
+        return;
+    }
+
+    GET_MANA(ch) -= manacost;
+
+    // see if it can be assimilated
+    if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_DAMNED) && IS_GOOD(ch))) {
+        act("You are burned by $p as you try to assimilate it!", false, ch,
+            obj, NULL, TO_CHAR);
+        act("$n screams in agony as $e tries to assimilate $p!", false, ch,
+            obj, NULL, TO_ROOM);
+        int damd = abs(GET_ALIGNMENT(ch));
+        damd /= 32;
+        damd = MAX(5, damd);
+        damage(ch, ch, NULL, dice(damd, 6), TOP_SPELL_DEFINE, -1);
+        return;
+    }
+
+    if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
+        (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
+        act("You are zapped by $p and instantly let go of it.",
+            false, ch, obj, NULL, TO_CHAR);
+        act("$n is zapped by $p and instantly lets go of it.",
+            false, ch, obj, NULL, TO_ROOM);
+        obj_from_char(obj);
+        obj_to_room(obj, ch->in_room);
+        return;
+    }
+
+    // do the affect calculations only if the char_class flags are valid for the char
+    bool got_newaffs = false;
+
+    if (!invalid_char_class(ch, obj)) {
+        got_newaffs = perform_assimilate(ch, obj);
+    }
+
+    act("You assimilate $p.", false, ch, obj, NULL, TO_CHAR);
+    act("$n assimilates $p...", true, ch, obj, NULL, TO_ROOM);
+
+    if (got_newaffs) {
+        send_to_char(ch, "You feel... different.\r\n");
+        gain_skill_prof(ch, SKILL_ASSIMILATE);
+    }
+
+    extract_obj(obj);
+}
+
 /**
  * Function to allow cyborgs to assimilate objects
  *
@@ -3414,13 +3580,6 @@ ACMD(do_de_energize)
 ACMD(do_assimilate)
 {
     struct obj_data *obj = NULL;
-    struct affected_type *aff = NULL, *affs = NULL;
-    int manacost;
-    int num_affs = 0;
-    int i, j;
-    int found = 0;
-    int num_newaffs = 0;
-    int damd = 0;
 
     if (!IS_CYBORG(ch)) {
         send_to_char(ch, "Only the Borg may assimilate.\r\n");
@@ -3445,151 +3604,7 @@ ACMD(do_assimilate)
         return;
     }
 
-    manacost = MIN(10, GET_OBJ_WEIGHT(obj));
-
-    if (GET_MANA(ch) < manacost) {
-        send_to_char(ch, "You lack the mana required to assimilate this.\r\n");
-        return;
-    }
-
-    GET_MANA(ch) -= manacost;
-
-    // see if it can be assimilated
-    if ((IS_OBJ_STAT(obj, ITEM_BLESS) && IS_EVIL(ch)) ||
-        (IS_OBJ_STAT(obj, ITEM_DAMNED) && IS_GOOD(ch))) {
-        act("You are burned by $p as you try to assimilate it!", false, ch,
-            obj, NULL, TO_CHAR);
-        act("$n screams in agony as $e tries to assimilate $p!", false, ch,
-            obj, NULL, TO_ROOM);
-        damd = abs(GET_ALIGNMENT(ch));
-        damd /= 32;
-        damd = MAX(5, damd);
-        damage(ch, ch, NULL, dice(damd, 6), TOP_SPELL_DEFINE, -1);
-        return;
-    }
-
-    if ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
-        (IS_OBJ_STAT(obj, ITEM_ANTI_GOOD) && IS_GOOD(ch)) ||
-        (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))) {
-        act("You are zapped by $p and instantly let go of it.",
-            false, ch, obj, NULL, TO_CHAR);
-        act("$n is zapped by $p and instantly lets go of it.",
-            false, ch, obj, NULL, TO_ROOM);
-        obj_from_char(obj);
-        obj_to_room(obj, ch->in_room);
-        return;
-    }
-    // do the affect calculations only if the char_class flags are valid for the char
-    if (!invalid_char_class(ch, obj)) {
-
-        // count the existing affs on the char
-        for (aff = ch->affected; aff; aff = aff->next)
-            if (aff->type == SKILL_ASSIMILATE)
-                num_affs++;
-
-        // allocate affs if needed
-        if (num_affs
-            && !(affs =
-                (struct affected_type *)malloc(sizeof(struct affected_type) *
-                    num_affs))) {
-            errlog("unable to allocate affs in do_assimilate.");
-            return;
-        }
-        // make a copy of the old assimilate affs
-        for (i = 0, aff = ch->affected; aff; aff = aff->next)
-            if (aff->type == SKILL_ASSIMILATE)
-                affs[i++] = *aff;
-
-        // remove all the old affs
-        affect_from_char(ch, SKILL_ASSIMILATE);
-
-        // scan the list of affs on the object
-        for (i = 0; i < MAX_OBJ_AFFECT; i++) {
-
-            if (obj->affected[i].location == APPLY_NONE)
-                continue;
-
-            found = 0;
-
-            // scan the list of old affs
-            for (j = 0; j < num_affs && !found; j++) {
-
-                // see if the affs match
-                if (affs[j].location == obj->affected[i].location) {
-
-                    // opposite signs, combine
-                    if ((affs[j].modifier > 0 && obj->affected[i].modifier < 0)
-                        || (affs[j].modifier < 0
-                            && obj->affected[i].modifier > 0)) {
-
-                        affs[j].modifier += obj->affected[i].modifier;
-
-                    }
-                    // same signs, choose extreme value
-                    else if (affs[j].modifier > 0)
-                        affs[j].modifier =
-                            MAX(affs[j].modifier, obj->affected[i].modifier);
-                    else
-                        affs[j].modifier =
-                            MIN(affs[j].modifier, obj->affected[i].modifier);
-
-                    // reset level and duration
-                    affs[j].level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4);
-
-                    affs[j].duration =
-                        ((CHECK_SKILL(ch,
-                                SKILL_ASSIMILATE) / 10) +
-                        (affs[j].level / 16));
-
-                    found = 1;
-                    break;
-
-                }
-
-            }
-            if (found)
-                continue;
-
-            num_newaffs++;
-
-            // create a new aff
-            struct affected_type *old_affs = affs;
-            affs = realloc(affs, sizeof(struct affected_type) * (++num_affs));
-            if (!affs) {
-                errlog("error reallocating affs in do_assimilate.");
-                free(old_affs);
-                return;
-            }
-
-            init_affect(&affs[num_affs - 1]);
-            affs[num_affs - 1].type = SKILL_ASSIMILATE;
-            affs[num_affs - 1].level =
-                GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4);
-            affs[num_affs - 1].duration =
-                (CHECK_SKILL(ch,
-                    SKILL_ASSIMILATE) / 10) + (affs[num_affs - 1].level / 16);
-            affs[num_affs - 1].modifier = obj->affected[i].modifier;
-            affs[num_affs - 1].location = obj->affected[i].location;
-        }
-
-    }
-
-    act("You assimilate $p.", false, ch, obj, NULL, TO_CHAR);
-    act("$n assimilates $p...", true, ch, obj, NULL, TO_ROOM);
-
-    // stick the affs on the char
-    for (i = 0; i < num_affs; i++) {
-        if (affs[i].modifier)
-            affect_to_char(ch, affs + i);
-    }
-
-    if (num_newaffs) {
-        send_to_char(ch, "You feel... different.\r\n");
-        gain_skill_prof(ch, SKILL_ASSIMILATE);
-    }
-
-    free(affs);
-    extract_obj(obj);
+    attempt_assimilate(ch, obj);
 }
 
 ACMD(do_deassimilate)

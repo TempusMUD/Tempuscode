@@ -871,9 +871,9 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
             act("$p flashes and smokes for a moment, then is gone.", false, ch,
                 obj, NULL, TO_CHAR);
             act("$p flashes and smokes for a moment before dissolving.", false,
+
                 ch, obj, NULL, TO_ROOM);
-            if (obj)
-                extract_obj(obj);
+            extract_obj(obj);
             return 1;
         }
 
@@ -1051,7 +1051,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
                 GET_OBJ_VAL(obj, 0),
                 IS_OBJ_STAT(obj, ITEM_MAGIC) ? CAST_SPELL :
                 CAST_INTERNAL);
-            if (is_dead(ch) || (tch && is_dead(tch)))
+            if (is_dead(ch) || is_dead(tch))
                 break;
         }
         extract_obj(obj);
@@ -1281,7 +1281,7 @@ perform_taint_burn(struct creature *ch, int spellnum)
     if (number(1, attribute) < number(mana / 2, mana)) {
         weenie = true;
     }
-    if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG))
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG))
         send_to_char(ch,
             "%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
             CCCYN(ch, C_NRM), GET_NAME(ch), attribute,

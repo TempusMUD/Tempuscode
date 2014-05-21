@@ -41,15 +41,15 @@ SPECIAL(increaser)
 
     switch (status) {
     case MODE_MOVE:
-        strcpy(status_desc, "move");
+        strcpy_s(status_desc, sizeof(status_desc), "move");
         amount = 4;
         break;
     case MODE_HITP:
-        strcpy(status_desc, "hit");
+        strcpy_s(status_desc, sizeof(status_desc), "hit");
         amount = 2;
         break;
     case MODE_MANA:
-        strcpy(status_desc, "mana");
+        strcpy_s(status_desc, sizeof(status_desc), "mana");
         amount = 2;
         break;
     }
@@ -109,7 +109,7 @@ SPECIAL(increaser)
                  life_cost, PLURAL(life_cost),
                  arg1, incr);
 
-    sprintf(buf, "$n considers the implications of increasing $s %s.", arg1);
+    snprintf(buf, sizeof(buf), "$n considers the implications of increasing $s %s.", arg1);
 
     if (CASH_MONEY(ch) < gold) {
         send_to_char(ch,

@@ -43,7 +43,7 @@ is_arena_combat(struct creature *ch, struct creature *vict)
             struct quest *quest;
 
             quest = quest_by_vnum(GET_QUEST(vict));
-            if (QUEST_FLAGGED(quest, QUEST_ARENA))
+            if (quest && QUEST_FLAGGED(quest, QUEST_ARENA))
                 return true;
         }
     }
@@ -60,7 +60,7 @@ is_arena_combat(struct creature *ch, struct creature *vict)
             struct quest *quest;
 
             quest = quest_by_vnum(GET_QUEST(ch));
-            if (QUEST_FLAGGED(quest, QUEST_ARENA))
+            if (quest && QUEST_FLAGGED(quest, QUEST_ARENA))
                 return true;
         }
     }

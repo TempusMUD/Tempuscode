@@ -22,6 +22,7 @@
 #include "tmpstr.h"
 #include "spells.h"
 #include "obj_data.h"
+#include "strutil.h"
 
 /*
  * Templates:
@@ -504,7 +505,11 @@ random_active_creature(struct creature *ch)
                 for (GList *cit = first_living(ch->in_room->people);cit;cit = next_living(cit))
                     if (can_see_creature(ch, cit->data) && !number(0, i++))
                         tch = cit->data;
-                strcpy(d, fname(tch->player.name));
+                if (tch == NULL) {
+                    /* Don't try this command if alone */
+                    return;
+                }
+                strcpy_s(d, sizeof(buf) - (d - buf), fname(tch->player.name));
                 d += strlen(fname(tch->player.name));
                 break;
             case 'o':           /* object */
@@ -527,43 +532,43 @@ random_active_creature(struct creature *ch)
                         && !number(0, i++))
                         tob = GET_IMPLANT(ch, pos);
                 if (tob) {
-                    strcpy(d, fname(tob->aliases));
+                    strcpy_s(d, sizeof(buf) - (d - buf), fname(tob->aliases));
                     d += strlen(fname(tob->aliases));
                 }
                 break;
             case 'a':           /* alteration */
                 i = alterations[number(0, alter_count)];
-                strcpy(d, spells[i]);
+                strcpy_s(d, sizeof(buf) - (d - buf), spells[i]);
                 d += strlen(spells[i]);
                 break;
             case 't':           /* trigger */
                 i = triggers[number(0, trigger_count)];
-                strcpy(d, spells[i]);
+                strcpy_s(d, sizeof(buf) - (d - buf), spells[i]);
                 d += strlen(spells[i]);
                 break;
             case 's':           /* spell */
                 i = magic_spells[number(0, spell_count)];
-                strcpy(d, spells[i]);
+                strcpy_s(d, sizeof(buf) - (d - buf), spells[i]);
                 d += strlen(spells[i]);
                 break;
             case 'g':           /* song */
                 i = songs[number(0, song_count)];
-                strcpy(d, spells[i]);
+                strcpy_s(d, sizeof(buf) - (d - buf), spells[i]);
                 d += strlen(spells[i]);
                 break;
             case 'd':           /* direction */
                 i = number(0, NUM_DIRS);
-                strcpy(d, dirs[i]);
+                strcpy_s(d, sizeof(buf) - (d - buf), dirs[i]);
                 d += strlen(dirs[i]);
                 break;
             case 'p':           /* position */
                 i = number(0, 28);
-                strcpy(d, wear_eqpos[i]);
+                strcpy_s(d, sizeof(buf) - (d - buf), wear_eqpos[i]);
                 d += strlen(wear_eqpos[i]);
                 break;
             case 'i':
                 i = number(0, 28);
-                strcpy(d, wear_implantpos[i]);
+                strcpy_s(d, sizeof(buf) - (d - buf), wear_implantpos[i]);
                 d += strlen(wear_implantpos[i]);
                 break;
             default:

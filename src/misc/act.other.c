@@ -37,6 +37,7 @@
 #include "defs.h"
 #include "desc_data.h"
 #include "macros.h"
+#include "zone_data.h"
 #include "room_data.h"
 #include "race.h"
 #include "creature.h"
@@ -67,9 +68,9 @@ void set_desc_state(enum cxn_state state, struct descriptor_data *d);
 void look_at_target(struct creature *ch, char *arg, int cmd);
 int find_door(struct creature *ch, char *type, char *dir, const char *cmdname);
 void weather_change(void);
-int drag_object(struct creature *ch, struct obj_data *obj, char *argument);
+void drag_object(struct creature *ch, struct obj_data *obj, int dir);
+void drag_char(struct creature *ch, struct creature *obj, int dir);
 void ice_room(struct room_data *room, int amount);
-ACMD(do_drag_char);
 
 ACMD(do_show_more)
 {
@@ -288,32 +289,32 @@ ACMD(do_board)
 
 ACMD(do_palette)
 {
-    strcpy(buf, "Available Colors:\r\n");
-    sprintf(buf,
+    strcpy_s(buf, sizeof(buf), "Available Colors:\r\n");
+    snprintf(buf, sizeof(buf),
         "%s%sRED %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KRED, KBLD, KNRM, KRED, KUND, KNRM, KRED, KBLK, KBLD, KNRM, KRED,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sGRN %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KGRN, KBLD, KNRM, KGRN, KUND, KNRM, KGRN, KBLK, KBLD, KNRM, KGRN,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sYEL %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KYEL, KBLD, KNRM, KYEL, KUND, KNRM, KYEL, KBLK, KBLD, KNRM, KYEL,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sBLU %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KBLU, KBLD, KNRM, KBLU, KUND, KNRM, KBLU, KBLK, KBLD, KNRM, KBLU,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sMAG %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KMAG, KBLD, KNRM, KMAG, KUND, KNRM, KMAG, KBLK, KBLD, KNRM, KMAG,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sCYN %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KCYN, KBLD, KNRM, KCYN, KUND, KNRM, KCYN, KBLK, KBLD, KNRM, KCYN,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sWHT %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KWHT, KBLD, KNRM, KWHT, KUND, KNRM, KWHT, KBLK, KBLD, KNRM, KWHT,
         KREV, KBLD, KNRM);
@@ -426,7 +427,7 @@ print_group(struct creature *ch)
         k = (ch->master ? ch->master : ch);
 
         if (AFF_FLAGGED(k, AFF_GROUP)) {
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N %s(%sHead of group%s)%s",
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                 GET_HIT(k), GET_MANA(k), GET_MOVE(k), GET_ALIGNMENT(k),
@@ -445,7 +446,7 @@ print_group(struct creature *ch)
             if (!AFF_FLAGGED(f->follower, AFF_GROUP))
                 continue;
 
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N",
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_HIT(f->follower),
                 GET_MANA(f->follower), GET_MOVE(f->follower),
@@ -629,7 +630,7 @@ ACMD(do_report)
         send_to_char(ch, "But you are not a member of any group!\r\n");
         return;
     }
-    sprintf(buf, "%s reports: %d/%dH, %d/%dM, %d/%dV, %dA\r\n",
+    snprintf(buf, sizeof(buf), "%s reports: %d/%dH, %d/%dM, %d/%dV, %dA\r\n",
         GET_NAME(ch), GET_HIT(ch), GET_MAX_HIT(ch),
         GET_MANA(ch), GET_MAX_MANA(ch),
         GET_MOVE(ch), GET_MAX_MOVE(ch), GET_ALIGNMENT(ch));
@@ -888,7 +889,7 @@ ACMD(do_wimpy)
                 send_to_char(ch,
                     "You can't set your wimp level above half your hit points.\r\n");
             else {
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "Okay, you'll wimp out if you drop below %d hit points.\r\n",
                     wimp_lev);
                 send_to_char(ch, "%s", buf);
@@ -909,93 +910,84 @@ ACMD(do_wimpy)
 
 ACMD(do_display)
 {
-    char *arg1;
-    char *arg2;
     unsigned int i;
 
-    arg1 = buf1;
-    arg2 = buf2;
-
     if (IS_NPC(ch)) {
-        send_to_char(ch, "Mosters don't need displays.  Go away.\r\n");
+        send_to_char(ch, "Monsters don't need displays.  Go away.\r\n");
         return;
     }
     skip_spaces(&argument);
-    argument = two_arguments(argument, arg1, arg2);
+    char *arg1 = tmp_getword(&argument);
+    char *arg2 = tmp_getword(&argument);
 
-    if (!*arg1) {
+    if (*arg1 == '\0') {
         send_to_char(ch,
             "Usage: prompt { H | M | V | A | T | all | normal | none %s}\r\n",
             GET_LEVEL(ch) > LVL_IMMORT ? "| vnums" : "");
         return;
     }
 
-    if (arg2 != NULL) {
-        if (is_abbrev(arg1, "rows")) {
-
-            if (is_number(arg2)) {
-                GET_ROWS(ch) = atoi(arg2);
-                return;
-            }
-
-            else {
-                send_to_char(ch, "Usage: display rows <number>\r\n");
-                return;
-            }
-
-        } else if (is_abbrev(arg1, "cols")) {
-
-            if (is_number(arg2)) {
-                GET_COLS(ch) = atoi(arg2);
-                return;
-            }
-
-            else {
-                send_to_char(ch, "Usage: display cols <number>\r\n");
-                return;
-            }
-
+    if (strcasecmp(arg1, "rows") == 0) {
+        if (is_number(arg2)) {
+            GET_ROWS(ch) = atoi(arg2);
+            send_to_char(ch, "Screen rows set to %d characters.\r\n", GET_ROWS(ch));
+        } else {
+            send_to_char(ch, "Usage: display rows <number>\r\n");
         }
-
+        return;
     }
 
+    if (strcasecmp(arg1, "cols") == 0) {
+        if (is_number(arg2)) {
+            GET_COLS(ch) = atoi(arg2);
+            send_to_char(ch, "Screen cols set to %d characters.\r\n", GET_COLS(ch));
+        } else {
+            send_to_char(ch, "Usage: display cols <number>\r\n");
+        }
+        return;
+    }
     if ((!strcasecmp(arg1, "on")) || (!strcasecmp(arg1, "normal"))) {
         REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
         SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
+        send_to_char(ch, "%s", OK);
+        return;
     }
 
-    else if ((!strcasecmp(arg1, "all"))) {
+    if ((!strcasecmp(arg1, "all"))) {
         SET_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
         SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
+        send_to_char(ch, "%s", OK);
+        return;
     }
 
-    else if ((!strcasecmp(arg1, "vnums"))) {
+    if ((!strcasecmp(arg1, "vnums"))) {
         if (PRF2_FLAGS(ch) & PRF2_DISP_VNUMS)
             REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISP_VNUMS);
         else
             SET_BIT(PRF2_FLAGS(ch), PRF2_DISP_VNUMS);
-    } else {
-        REMOVE_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
-        REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
+        send_to_char(ch, "%s", OK);
+        return;
+    }
+    REMOVE_BIT(PRF_FLAGS(ch), PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE);
+    REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN | PRF2_DISPTIME);
 
-        for (i = 0; i < strlen(arg1); i++) {
-            switch (tolower(arg1[i])) {
-            case 'h':
-                SET_BIT(PRF_FLAGS(ch), PRF_DISPHP);
-                break;
-            case 'm':
-                SET_BIT(PRF_FLAGS(ch), PRF_DISPMANA);
-                break;
-            case 'v':
-                SET_BIT(PRF_FLAGS(ch), PRF_DISPMOVE);
-                break;
-            case 'a':
-                SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN);
-                break;
-            case 't':
-                SET_BIT(PRF2_FLAGS(ch), PRF2_DISPTIME);
-                break;
-            }
+    for (i = 0; i < strlen(arg1); i++) {
+        switch (tolower(arg1[i])) {
+        case 'h':
+            SET_BIT(PRF_FLAGS(ch), PRF_DISPHP);
+            break;
+        case 'm':
+            SET_BIT(PRF_FLAGS(ch), PRF_DISPMANA);
+            break;
+        case 'v':
+            SET_BIT(PRF_FLAGS(ch), PRF_DISPMOVE);
+            break;
+        case 'a':
+            SET_BIT(PRF2_FLAGS(ch), PRF2_DISPALIGN);
+            break;
+        case 't':
+            SET_BIT(PRF2_FLAGS(ch), PRF2_DISPTIME);
+            break;
         }
     }
 
@@ -1312,14 +1304,14 @@ ACMD(do_gen_tog)
 
     case SCMD_LOGALL:
         TOGGLE_BIT(log_cmds, 1);
-        sprintf(buf, "%s has toggled logall %s", GET_NAME(ch),
+        snprintf(buf, sizeof(buf), "%s has toggled logall %s", GET_NAME(ch),
             ONOFF(log_cmds));
         mudlog(MAX(LVL_LOGALL, GET_INVIS_LVL(ch)), BRF, true, "%s", buf);
         send_to_char(ch, "%s\r\n", buf);
         return;
     case SCMD_JET_STREAM:
         TOGGLE_BIT(jet_stream_state, 1);
-        sprintf(buf, "%s has toggled jet_stream_state %s", GET_NAME(ch),
+        snprintf(buf, sizeof(buf), "%s has toggled jet_stream_state %s", GET_NAME(ch),
             ONOFF(jet_stream_state));
         mudlog(GET_INVIS_LVL(ch), BRF, true, "%s", buf);
         send_to_char(ch, "%s\r\n", buf);
@@ -1633,8 +1625,8 @@ ACMD(do_compare)
 ACMD(do_screen)
 {
     if (ch->desc == NULL || ch->desc->account == NULL) {
-        send_to_char(ch,
-            "You don't have an account to put the screen in.\r\n");
+        send_to_char(ch, "You don't have an account to put the screen in.\r\n");
+        return;
     }
 
     skip_spaces(&argument);
@@ -1765,11 +1757,11 @@ ACMD(do_throw)
                 if (obj->worn_by)
                     obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 
-                sprintf(buf, "$n throws $p %sward against the closed %s.",
+                snprintf(buf, sizeof(buf), "$n throws $p %sward against the closed %s.",
                     dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
                     fname(EXIT(ch, dir - 1)->keyword) : "door");
                 act(buf, false, ch, obj, NULL, TO_ROOM);
-                sprintf(buf, "You throw $p %sward against the closed %s.",
+                snprintf(buf, sizeof(buf), "You throw $p %sward against the closed %s.",
                     dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
                     fname(EXIT(ch, dir - 1)->keyword) : "door");
                 act(buf, false, ch, obj, NULL, TO_CHAR);
@@ -1789,25 +1781,25 @@ ACMD(do_throw)
             if (obj->worn_by)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 
-            sprintf(buf, "$n throws $p %sward.", dirs[(int)(dir - 1)]);
+            snprintf(buf, sizeof(buf), "$n throws $p %sward.", dirs[(int)(dir - 1)]);
             act(buf, false, ch, obj, NULL, TO_ROOM);
-            sprintf(buf, "You throw $p %sward.", dirs[(int)(dir - 1)]);
+            snprintf(buf, sizeof(buf), "You throw $p %sward.", dirs[(int)(dir - 1)]);
             act(buf, false, ch, obj, NULL, TO_CHAR);
             obj_from_char(obj);
             obj_to_room(obj, r_toroom);
             if (target_vict) {
-                sprintf(buf, "$p flies in from %s and hits you in the head!",
+                snprintf(buf, sizeof(buf), "$p flies in from %s and hits you in the head!",
                     from_dirs[(int)(dir - 1)]);
                 act(buf, false, NULL, obj, target_vict, TO_VICT);
-                sprintf(buf, "$p flies in from %s and hits $N in the head!",
+                snprintf(buf, sizeof(buf), "$p flies in from %s and hits $N in the head!",
                     from_dirs[(int)(dir - 1)]);
                 act(buf, false, NULL, obj, target_vict, TO_NOTVICT);
             } else if (target_obj) {
-                sprintf(buf, "$p flies in from %s and slams into %s!",
+                snprintf(buf, sizeof(buf), "$p flies in from %s and slams into %s!",
                     from_dirs[(int)(dir - 1)], target_obj->name);
                 act(buf, false, NULL, obj, target_vict, TO_ROOM);
             } else {
-                sprintf(buf, "$p flies in from %s and lands by your feet.",
+                snprintf(buf, sizeof(buf), "$p flies in from %s and lands by your feet.",
                     from_dirs[(int)(dir - 1)]);
                 act(buf, false, NULL, obj, NULL, TO_ROOM);
             }
@@ -1908,10 +1900,10 @@ ACMD(do_throw)
         } else if (target_obj) {
             if (obj->worn_by)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
-            sprintf(buf, "$n hurls $p up against %s with brute force!",
+            snprintf(buf, sizeof(buf), "$n hurls $p up against %s with brute force!",
                 target_obj->name);
             act(buf, false, ch, obj, NULL, TO_ROOM);
-            sprintf(buf, "You hurl $p up against %s with brute force!",
+            snprintf(buf, sizeof(buf), "You hurl $p up against %s with brute force!",
                 target_obj->name);
             act(buf, false, ch, obj, NULL, TO_CHAR);
         }
@@ -2043,11 +2035,11 @@ ACMD(do_knock)
     // Ok... not an object.  Maybe a door?
     if ((dir = find_door(ch, arg1, arg2, "knock on")) >= 0) {
         if (EXIT(ch, dir)->keyword)
-            strcpy(dname, fname(EXIT(ch, dir)->keyword));
+            strcpy_s(dname, sizeof(dname), fname(EXIT(ch, dir)->keyword));
         else
-            strcpy(dname, "door");
+            strcpy_s(dname, sizeof(dname), "door");
 
-        sprintf(buf, "$n knocks on the %s.", dname);
+        snprintf(buf, sizeof(buf), "$n knocks on the %s.", dname);
         act(buf, false, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You knock on the %s.\r\n", dname);
 
@@ -2056,12 +2048,12 @@ ACMD(do_knock)
             other_room->dir_option[rev_dir[dir]]->to_room == ch->in_room &&
             other_room->people) {
             if (other_room->dir_option[rev_dir[dir]]->keyword)
-                strcpy(dname,
+                strcpy_s(dname, sizeof(dname),
                     fname(other_room->dir_option[rev_dir[dir]]->keyword));
             else
-                strcpy(dname, "door");
+                strcpy_s(dname, sizeof(dname), "door");
 
-            sprintf(buf, "Someone knocks on the %s from the other side.",
+            snprintf(buf, sizeof(buf), "Someone knocks on the %s from the other side.",
                 dname);
             act(buf, false, other_room->people->data, NULL, NULL,
                 TO_CHAR | TO_SLEEP);
@@ -2180,16 +2172,16 @@ ACMD(do_clean)
             return;
         }
         if ((pos = search_block(arg2, wear_eqpos, false)) < 0) {
-            strcpy(buf, "Invalid position.  Valid positions are:\r\n");
+            strcpy_s(buf, sizeof(buf), "Invalid position.  Valid positions are:\r\n");
             for (i = 0, j = 0; i < NUM_WEARS; i++) {
                 if (ILLEGAL_SOILPOS(i))
                     continue;
                 j++;
-                strcat(buf, wear_eqpos[i]);
+                strcat_s(buf, sizeof(buf), wear_eqpos[i]);
                 if (i < WEAR_EAR_R)
-                    strcat(buf, ", ");
+                    strcat_s(buf, sizeof(buf), ", ");
                 else
-                    strcat(buf, ".\r\n");
+                    strcat_s(buf, sizeof(buf), ".\r\n");
             }
             send_to_char(ch, "%s", buf);
             return;
@@ -2200,30 +2192,30 @@ ACMD(do_clean)
             return;
         }
         if (!CHAR_SOILAGE(vict, pos)) {
-            sprintf(buf, "%s not soiled there.",
+            snprintf(buf, sizeof(buf), "%s not soiled there.",
                 ch == vict ? "You are" : "$E is");
             act(buf, false, ch, NULL, vict, TO_CHAR);
             return;
         }
 
         if (vict == ch) {
-            sprintf(buf, "$n carefully cleans $s %s.", wear_description[pos]);
+            snprintf(buf, sizeof(buf), "$n carefully cleans $s %s.", wear_description[pos]);
             act(buf, true, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch, "You carefully clean your %s.\r\n",
                 wear_description[pos]);
         } else {
-            sprintf(buf, "$n carefully cleans $N's %s.",
+            snprintf(buf, sizeof(buf), "$n carefully cleans $N's %s.",
                 wear_description[pos]);
             act(buf, true, ch, NULL, vict, TO_NOTVICT);
-            sprintf(buf, "You carefully clean $N's %s.",
+            snprintf(buf, sizeof(buf), "You carefully clean $N's %s.",
                 wear_description[pos]);
             act(buf, false, ch, NULL, vict, TO_CHAR);
-            sprintf(buf, "$n carefully cleans your %s.",
+            snprintf(buf, sizeof(buf), "$n carefully cleans your %s.",
                 wear_description[pos]);
             act(buf, false, ch, NULL, vict, TO_VICT);
         }
         found = 0;
-        strcpy(buf, "no longer ");
+        strcpy_s(buf, sizeof(buf), "no longer ");
 
         for (k = 0, j = 0; j < 16; j++)
             if (CHAR_SOILED(vict, pos, (1 << j)))
@@ -2233,17 +2225,17 @@ ACMD(do_clean)
             if (CHAR_SOILED(vict, pos, (1 << j))) {
                 found++;
                 if (found > 1) {
-                    strcat(buf, ", ");
+                    strcat_s(buf, sizeof(buf), ", ");
                     if (found == k)
-                        strcat(buf, "or ");
+                        strcat_s(buf, sizeof(buf), "or ");
                 }
-                strcat(buf, soilage_bits[j]);
+                strcat_s(buf, sizeof(buf), soilage_bits[j]);
             }
         }
-        sprintf(buf2, "Your %s %s %s.", wear_description[pos],
+        snprintf(buf2, sizeof(buf2), "Your %s %s %s.", wear_description[pos],
             pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
         act(buf2, false, ch, obj, vict, TO_VICT);
-        sprintf(buf2, "$N's %s %s %s.", wear_description[pos],
+        snprintf(buf2, sizeof(buf2), "$N's %s %s %s.", wear_description[pos],
             pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
         act(buf2, true, ch, obj, vict, TO_NOTVICT);
         if (ch != vict)
@@ -2258,15 +2250,15 @@ ACMD(do_clean)
     if (!OBJ_SOILAGE(obj))
         act("$p is not soiled.", false, ch, obj, NULL, TO_CHAR);
     else {
-        sprintf(buf, "$n carefully cleans $p. (%s)",
+        snprintf(buf, sizeof(buf), "$n carefully cleans $p. (%s)",
             obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
         act(buf, true, ch, obj, NULL, TO_ROOM);
-        sprintf(buf, "You carefully clean $p. (%s)",
+        snprintf(buf, sizeof(buf), "You carefully clean $p. (%s)",
             obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
         act(buf, false, ch, obj, NULL, TO_CHAR);
 
         found = 0;
-        strcpy(buf, "$p is no longer ");
+        strcpy_s(buf, sizeof(buf), "$p is no longer ");
 
         for (k = 0, j = 0; j < 17; j++)
             if (OBJ_SOILED(obj, (1 << j)))
@@ -2276,17 +2268,116 @@ ACMD(do_clean)
             if (OBJ_SOILED(obj, (1 << j))) {
                 found++;
                 if (found > 1) {
-                    strcat(buf, ", ");
+                    strcat_s(buf, sizeof(buf), ", ");
                     if (found == k)
-                        strcat(buf, "or ");
+                        strcat_s(buf, sizeof(buf), "or ");
                 }
-                strcat(buf, soilage_bits[j]);
+                strcat_s(buf, sizeof(buf), soilage_bits[j]);
             }
         }
-        strcat(buf, ".");
+        strcat_s(buf, sizeof(buf), ".");
         act(buf, false, ch, obj, NULL, TO_CHAR);
         act(buf, false, ch, obj, NULL, TO_ROOM);
         OBJ_SOILAGE(obj) = 0;
+    }
+}
+
+void
+drag_char(struct creature *ch, struct creature *vict, int dir)
+{
+    struct room_data *target_room = NULL;
+    int percent, prob;
+
+    if (vict == ch) {
+        send_to_char(ch, "You can't drag yourself!\r\n");
+        return;
+    }
+
+    if (!ok_to_attack(ch, vict, true)) {
+        return;
+    }
+
+    if (!CAN_GO(vict, dir)) {
+        send_to_char(ch, "Sorry, you can't go in that direction.\r\n");
+        return;
+    }
+
+    target_room = EXIT(ch, dir)->to_room;
+
+    if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
+        act("You are unable to drag $M away from this peaceful area.", false, ch, NULL, vict, TO_CHAR);
+        return;
+    }
+
+    if ((ROOM_FLAGGED(target_room, ROOM_HOUSE)
+            && !can_enter_house(ch, target_room->number))
+        || (ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
+            && !clan_house_can_enter(ch, target_room))
+        || (ROOM_FLAGGED(target_room, ROOM_DEATH))) {
+        act("You are unable to drag $M there.", false, ch, NULL, vict, TO_CHAR);
+        return;
+    }
+
+    if (ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+        act("You are unable to drag players except in CPK areas.", false, ch, NULL, vict, TO_CHAR);
+        return;
+    }
+
+    percent = ((GET_LEVEL(vict)) + number(1, 101));
+    percent -= (GET_WEIGHT(ch) - GET_WEIGHT(vict)) / 5;
+    percent -= (GET_STR(ch));
+
+    prob =
+        MAX(0, (GET_LEVEL(ch) + (CHECK_SKILL(ch,
+                    SKILL_DRAG)) - GET_STR(vict)));
+    prob = MIN(prob, 100);
+
+    if (NPC_FLAGGED(vict, NPC_SENTINEL)) {
+        percent = 101;
+    }
+
+    if (CHECK_SKILL(ch, SKILL_DRAG) < 30) {
+        percent = 101;
+    }
+
+    if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
+        percent = 101;
+    }
+
+    if (prob > percent) {
+
+        act(tmp_sprintf("You drag $N to the %s.", to_dirs[dir]),
+            false, ch, NULL, vict, TO_CHAR);
+        act(tmp_sprintf("$n grabs you and drags you %s.", to_dirs[dir]),
+            false, ch, NULL, vict, TO_VICT);
+        act(tmp_sprintf("$n drags $N to the %s.", to_dirs[dir]),
+            false, ch, NULL, vict, TO_NOTVICT);
+
+        perform_move(ch, dir, MOVE_NORM, 1);
+        perform_move(vict, dir, MOVE_DRAG, 1);
+
+        WAIT_STATE(ch, (PULSE_VIOLENCE * 2));
+        WAIT_STATE(vict, PULSE_VIOLENCE);
+
+        if (IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict)) {
+            hit(vict, ch, TYPE_UNDEFINED);
+            WAIT_STATE(ch, 2 RL_SEC);
+        }
+        return;
+    } else {
+        act("$n grabs $N but fails to move $m.", false, ch, NULL, vict,
+            TO_NOTVICT);
+        act("You attempt to drag $N, but you fail!", false, ch, NULL, vict,
+            TO_CHAR);
+        act("$n attempts to drag you, but you hold your ground.", false, ch, NULL,
+            vict, TO_VICT);
+        WAIT_STATE(ch, PULSE_VIOLENCE);
+
+        if (IS_NPC(vict) && AWAKE(vict) && check_mob_reaction(ch, vict)) {
+            hit(vict, ch, TYPE_UNDEFINED);
+            WAIT_STATE(ch, 2 RL_SEC);
+        }
+        return;
     }
 }
 
@@ -2294,24 +2385,37 @@ ACMD(do_drag)
 {
     struct creature *found_char;
     struct obj_data *found_obj;
-    char *args = argument;
-    char *target_str = tmp_getword(&args);
-
+    char *target_str = tmp_getword(&argument);
+    char *dir_str = tmp_getword(&argument);
     int bits;
+
+    if (!*dir_str) {
+        send_to_char(ch, "Which direction do you wish to drag them?\r\n");
+        return;
+    }
 
     bits = generic_find(target_str, FIND_OBJ_ROOM | FIND_CHAR_ROOM, ch,
         &found_char, &found_obj);
 
+    int dir = search_block(dir_str, dirs, false);
+    if (dir < 0) {
+        send_to_char(ch, "Sorry, that's not a valid direction.\r\n");
+        return;
+    }
+
+    if (!CAN_GO(ch, dir)
+        || !can_travel_sector(ch, SECT_TYPE(EXIT(ch, dir)->to_room), 0)) {
+        send_to_char(ch, "Sorry, you can't go in that direction.\r\n");
+        return;
+    }
+
     //Target is a character
     if (!bits) {
         send_to_char(ch, "What do you want to drag?\r\n");
-        return;
     } else if (found_char) {
-        do_drag_char(ch, argument, 0, 0);
-        return;
+        drag_char(ch, found_char, dir);
     } else if (found_obj) {
-        drag_object(ch, found_obj, argument);
-        return;
+        drag_object(ch, found_obj, dir);
     }
 
 }
@@ -2322,7 +2426,7 @@ ice_room(struct room_data *room, int amount)
     struct obj_data *ice;
     int new_ice = false;
 
-    if ((!(room)) || amount <= 0) {
+    if (room == NULL || amount <= 0) {
         return;
     }
 
@@ -2332,9 +2436,13 @@ ice_room(struct room_data *room, int amount)
         }
     }
 
-    if (!ice && (new_ice = true) && !(ice = read_object(ICE_VNUM))) {
-        errlog("Unable to load ice.");
-        return;
+    if (ice == NULL) {
+        new_ice = true;
+        ice = read_object(ICE_VNUM);
+        if (ice == NULL) {
+            errlog("Unable to load ice.");
+            return;
+        }
     }
 
     if (GET_OBJ_TIMER(ice) > 50) {

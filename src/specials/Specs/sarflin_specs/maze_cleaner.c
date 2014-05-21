@@ -25,7 +25,7 @@ SPECIAL(maze_cleaner)
             return 0;
         half_chop(argument, buf, buf2);
         if (!strncasecmp(buf, "status", 6)) {
-            sprintf(buf, "my stats is : %d,%d,%d,%d\r\n",
+            snprintf(buf, sizeof(buf), "my stats is : %d,%d,%d,%d\r\n",
                 GET_OBJ_VAL(od, 0), GET_OBJ_VAL(od, 1),
                 GET_OBJ_VAL(od, 2), GET_OBJ_VAL(od, 3));
             send_to_char(ch, "%s", buf);

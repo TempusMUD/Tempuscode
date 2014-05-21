@@ -107,8 +107,7 @@ SPECIAL(mugger)
                 continue;
 
             perform_say_to(self, vict,
-                tmp_sprintf
-                ("I see you are using %s.  I believe I could appreciate it much more than you.  Give it to me now.",
+                tmp_sprintf("I see you are using %s.  I believe I could appreciate it much more than you.  Give it to me now.",
                     obj->name));
             CREATE(mug, struct mob_mugger_data, 1);
             mug->idnum = GET_IDNUM(vict);
@@ -187,6 +186,7 @@ SPECIAL(mugger)
         errlog("Mugger's desired object not found in database");
         free(mug);
         self->mob_specials.func_data = NULL;
+        return 0;
     }
 
     switch (mug->timer) {
@@ -211,10 +211,8 @@ SPECIAL(mugger)
         mug->timer = 3;
         best_initial_attack(self, vict);
         break;
-
-        mug->timer++;
-        return 1;
     }
 
-    return 0;
+    mug->timer++;
+    return 1;
 }

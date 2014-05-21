@@ -22,7 +22,7 @@ SPECIAL(elven_registry)
     cost = GET_LEVEL(ch) * 50;
     cost = adjusted_price->cost_modifie, costr;
     if (GET_GOLD(ch) < cost) {
-        sprintf(buf2,
+        snprintf(buf2, sizeof(buf2),
             "It costs %'d coins to register with us, which you do not have.",
             cost);
         perform_tell(reg, ch, buf2);
@@ -41,22 +41,22 @@ SPECIAL(elven_registry)
         return 1;
     }
     if (PLR_FLAGGED(ch, PLR_KILLER)) {
-        sprintf(buf2, "We don't take MURDERERS here, %s!", GET_NAME(ch));
+        snprintf(buf2, sizeof(buf2), "We don't take MURDERERS here, %s!", GET_NAME(ch));
         do_gen_comm(reg, buf2, 0, SCMD_HOLLER);
         return 1;
     }
     if (PLR_FLAGGED(ch, PLR_THIEF)) {
-        sprintf(buf2, "We don't take THIEVES in our fair city, %s!",
+        snprintf(buf2, sizeof(buf2), "We don't take THIEVES in our fair city, %s!",
             GET_NAME(ch));
         do_gen_comm(reg, buf2, 0, SCMD_HOLLER);
         return 1;
     }
     if (IS_EVIL(ch)) {
-        sprintf(buf2, "We don't need your kind here, %s.", GET_NAME(ch));
+        snprintf(buf2, sizeof(buf2), "We don't need your kind here, %s.", GET_NAME(ch));
         perform_tell(reg, ch, buf2);
         return 1;
     } else if (!IS_ELF(ch) && !IS_GOOD(ch)) {
-        sprintf(buf2, "Sorry %s, we cannot accept you.", GET_NAME(ch));
+        snprintf(buf2, sizeof(buf2), "Sorry %s, we cannot accept you.", GET_NAME(ch));
         perform_tell(reg, ch, buf2);
         return 1;
     }
@@ -66,10 +66,10 @@ SPECIAL(elven_registry)
 
     GET_HOME(ch) = HOME_ELVEN_VILLAGE;
     GET_GOLD(ch) -= cost;
-    sprintf(buf3, "You are now a resident of our fine village, %s.",
+    snprintf(buf3, sizeof(buf3), "You are now a resident of our fine village, %s.",
         GET_NAME(ch));
     perform_say(reg, "say", buf3);
-    sprintf(buf2, "That will be %'d coins.", cost);
+    snprintf(buf2, sizeof(buf2), "That will be %'d coins.", cost);
     perform_tell(reg, ch, buf2);
     if ((cert = read_object(19099))) {
         act("$n presents $N with $p.", false, reg, cert, ch, TO_NOTVICT);

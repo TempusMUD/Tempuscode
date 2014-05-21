@@ -29,6 +29,7 @@
 #include "tmpstr.h"
 #include "account.h"
 #include "quest.h"
+#include "strutil.h"
 
  /**
   *
@@ -107,11 +108,11 @@ void
 send_access_options(struct creature *ch)
 {
     int i = 0;
-    strcpy(out_buf, "access usage :\r\n");
+    strcpy_s(out_buf, sizeof(out_buf), "access usage :\r\n");
     while (1) {
         if (!access_cmds[i].command)
             break;
-        sprintf(out_buf, "%s  %-15s %s\r\n", out_buf, access_cmds[i].command,
+        snprintf_cat(out_buf, sizeof(out_buf), "  %-15s %s\r\n", access_cmds[i].command,
             access_cmds[i].usage);
         i++;
     }
@@ -634,6 +635,9 @@ ACMD(do_access)
 
             sql_exec("insert into sgroups (idnum, name, descrip) "
                 "values (%d, '%s', 'No description.')", role_id, token);
+
+            roles = g_list_prepend(roles, role);
+
             send_to_char(ch, "Role created.\r\n");
             slog("Security:  Role '%s' created by %s.", token, GET_NAME(ch));
         } else {

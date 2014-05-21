@@ -13,23 +13,23 @@ SPECIAL(ancient_artifact)
 
     if ((number(0, 1) || GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
         // mega-blast makes mob lose 10% of current hp
-        strcpy(buf,
+        strcpy_s(buf, sizeof(buf),
             "A bright blue beam erupts from $p with a screaming roar!");
         send_to_char(ch, "%s", CCCYN(ch, C_NRM));
         act(buf, false, ch, obj, NULL, TO_CHAR);
         send_to_char(ch, "%s", CCNRM(ch, C_NRM));
         act(buf, true, ch, obj, NULL, TO_ROOM);
-        strcpy(buf, "$N screams silently as $E briefly fades from existence!");
+        strcpy_s(buf, sizeof(buf), "$N screams silently as $E briefly fades from existence!");
         act(buf, false, ch, obj, random_opponent(ch), TO_CHAR);
         act(buf, true, ch, obj, random_opponent(ch), TO_ROOM);
         struct creature *target = random_opponent(ch);
         GET_HIT(target) -= GET_HIT(target) / 10;
     } else if (number(0, 99)) {
-        strcpy(buf, "$p rumbles disquietingly in your hands.");
+        strcpy_s(buf, sizeof(buf), "$p rumbles disquietingly in your hands.");
         send_to_char(ch, "%s", CCCYN(ch, C_NRM));
         act(buf, false, ch, obj, NULL, TO_CHAR);
         send_to_char(ch, "%s", CCNRM(ch, C_NRM));
-        strcpy(buf, "$p rumbles disquietingly in $n's hands.");
+        strcpy_s(buf, sizeof(buf), "$p rumbles disquietingly in $n's hands.");
         act(buf, true, ch, obj, NULL, TO_ROOM);
     } else {
         // self-destruct

@@ -86,13 +86,21 @@ void do_zone_cmdrem(struct creature *ch, struct zone_data *zone, int num);
 void do_zone_cmdmove(struct creature *ch, struct zone_data *zone,
     char *argument);
 
+static bool
+is_valid_if_flag(int flag)
+{
+    return (flag == IF_FLAG_UNIGNORED
+            || flag == IF_FLAG_ALWAYS
+            || flag == IF_FLAG_SUCCEEDED
+            || flag == IF_FLAG_FAILED);
+}
+
 void
 do_zcmd(struct creature *ch, char *argument)
 {
     struct zone_data *zone = NULL, *tmp_zone;
     struct reset_com *zonecmd, *tmp_zonecmd, *zcmd = NULL;
     struct room_data *room;
-    char command[2];
     int cur_door_flags, tmp_door_flags, tmp_flag;
     int i, line, found, if_flag, int_arg1, int_arg2, int_arg3, int_arg4;
 
@@ -115,7 +123,7 @@ do_zcmd(struct creature *ch, char *argument)
         argument = one_argument(argument, arg2);
     } else {
         zone = ch->in_room->zone;
-        strcpy(arg2, arg1);
+        strcpy_s(arg2, sizeof(arg2), arg1);
     }
 
     if (is_abbrev(arg2, "list")) {
@@ -141,8 +149,6 @@ do_zcmd(struct creature *ch, char *argument)
         send_to_char(ch, "Zone commands are not approved for this zone.\r\n");
         return;
     }
-
-    strcpy(command, arg2);
 
     if (is_abbrev(arg2, "cmdremove")) {
         skip_spaces(&argument);
@@ -170,9 +176,9 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
+                if (is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
-                        "if_flag dependency flag must be 0, 1 or -1\r\n");
+                        "if_flag dependency flag must be 0, 1, 2, or -1\r\n");
                     return;
                 }
                 int_arg1 = atoi(arg2);
@@ -274,7 +280,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
+                if (is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                         "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -379,7 +385,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
+                if (is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                         "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -478,7 +484,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
+                if (is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                         "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -578,7 +584,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
+                if (is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                         "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -607,7 +613,7 @@ do_zcmd(struct creature *ch, char *argument)
                     return;
                 }
                 int_arg3 = atoi(arg2);
-                if (int_arg3 < 0 || int_arg3 > NUM_WEARS) {
+                if (int_arg3 < 0 || int_arg3 >= NUM_WEARS) {
                     send_to_char(ch,
                         "Invalid wear position, %d, must be 0-27\r\n",
                         int_arg3);
@@ -692,7 +698,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
+                if (is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                         "if_flag dependency flag must be 0, 1 or 1\r\n");
                     return;
@@ -723,7 +729,7 @@ do_zcmd(struct creature *ch, char *argument)
                     return;
                 }
                 int_arg3 = atoi(arg2);
-                if (int_arg3 < 0 || int_arg3 > NUM_WEARS) {
+                if (int_arg3 < 0 || int_arg3 >= NUM_WEARS) {
                     send_to_char(ch,
                         "Invalid implant position, %d, must be 0-27\r\n",
                         int_arg3);
@@ -811,7 +817,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
+                if (is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                         "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -892,7 +898,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (if_flag != 0 && if_flag != 1 && if_flag != -1) {
+                if (is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                         "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -1155,10 +1161,14 @@ do_zmob_cmd(struct creature *ch, char *argument)
     }
 
     SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-    send_to_char(ch, "Command completed ok.\r\n");
     mob = read_mobile(int_arg1);
-    char_to_room(mob, ch->in_room, false);
+    if (mob == NULL) {
+        send_to_char(ch, "Mobile could not be loaded.\r\n");
+        return;
+    }
 
+    char_to_room(mob, ch->in_room, false);
+    send_to_char(ch, "Command completed ok.\r\n");
 }
 
 #define ZPUT_USAGE "Usage: olc zput <obj name> <obj vnum> <max loaded> [prob]\r\n"
@@ -1927,7 +1937,7 @@ do_zset_command(struct creature *ch, char *argument)
         argument = one_argument(argument, arg2);
     } else {
         zone = ch->in_room->zone;
-        strcpy(arg2, arg1);
+        strcpy_s(arg2, sizeof(arg2), arg1);
     }
 
     if (!OLC_EDIT_OK(ch, zone, ZONE_ZCMDS_APPROVED)) {
@@ -2258,20 +2268,21 @@ do_zset_command(struct creature *ch, char *argument)
 
             argument = one_argument(argument, arg1);
             while (*arg1) {
-                if ((tmp_flags =
-                        search_block(arg1, roomflag_names, false)) == -1
-                    || (tmp_flags >= NUM_ROOM_FLAGS
-                        && !is_authorized(ch, WORLDWRITE, NULL))) {
+                tmp_flags = search_block(arg1, roomflag_names, false);
+                if (!(tmp_flags >= 0
+                      && tmp_flags < NUM_ROOM_FLAGS
+                      && is_authorized(ch, WORLDWRITE, NULL))) {
                     send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
-                } else
-                    tmp_room_flags = tmp_room_flags | (1 << tmp_flags);
-
-                if (tmp_room_flags == 0) {
-                    send_to_char(ch,
-                        "No valid flags specified...hard drive crash imminent.\r\n");
-                    return;
+                    continue;
                 }
+                tmp_room_flags = tmp_room_flags | (1 << tmp_flags);
                 argument = one_argument(argument, arg1);
+            }
+
+            if (tmp_room_flags == 0) {
+                send_to_char(ch,
+                             "No valid flags specified...hard drive crash imminent.\r\n");
+                return;
             }
 
             for (count = bottom; count <= top; ++count) {
@@ -2310,9 +2321,6 @@ do_zset_command(struct creature *ch, char *argument)
                     zone->respawn_pt);
         } else
             send_to_char(ch, "You must supply a room number or 'none'.\r\n");
-        break;
-    default:
-        send_to_char(ch, "Unsupported olc zset command.\r\n");
         break;
     case 15:                   // minimum target level
         if (!is_number(argument)) {
@@ -2411,6 +2419,7 @@ do_zset_command(struct creature *ch, char *argument)
             zone->author = NULL;
             send_to_char(ch, "Zone author cleared\r\n");
         }
+        break;
     case 23:
         if (!is_number(argument)) {
             send_to_char(ch,
@@ -2426,6 +2435,10 @@ do_zset_command(struct creature *ch, char *argument)
         zone->dam_mod = atoi(argument);
         send_to_char(ch,
             "Zone damage modifier set. Rebalance mobs soon then return to 100.\r\n");
+        break;
+    default:
+        errlog("Unsupported olc zset command.");
+        send_to_char(ch, "Unsupported olc zset command.\r\n");
         break;
     }
 }
@@ -2498,7 +2511,7 @@ save_zone(struct creature * ch, struct zone_data * zone)
 
     REMOVE_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 
-    sprintf(fname, "world/zon/olc/%d.zon", zone->number);
+    snprintf(fname, sizeof(fname), "world/zon/olc/%d.zon", zone->number);
     if (!(zone_file = fopen(fname, "w"))) {
         if (ch) {
             send_to_char(ch, "Couldn't save %s: %s\r\n",
@@ -2541,7 +2554,7 @@ save_zone(struct creature * ch, struct zone_data * zone)
 
     tmp = zone->flags;
 
-    num2str(buf, tmp);
+    num2str(buf, sizeof(buf), tmp);
     fprintf(zone_file, "%d %d %d %d %d %s %d %d %d %d\n",
         zone->top, zone->lifespan,
         zone->reset_mode, zone->time_frame, zone->plane, buf,
@@ -2549,7 +2562,7 @@ save_zone(struct creature * ch, struct zone_data * zone)
 
     for (zcmd = zone->cmd; zcmd; zcmd = zcmd->next) {
         if (zcmd->command == 'D') {
-            num2str(buf, zcmd->arg3);
+            num2str(buf, sizeof(buf), zcmd->arg3);
             fprintf(zone_file, "%c %d %3d %5d %5d %5s\n",
                 zcmd->command, zcmd->if_flag, zcmd->prob,
                 zcmd->arg1, zcmd->arg2, buf);
@@ -2558,65 +2571,65 @@ save_zone(struct creature * ch, struct zone_data * zone)
             case 'M':
                 if ((mob = real_mobile_proto(zcmd->arg1))) {
                     if (mob && mob->player.short_descr)
-                        strcpy(comment, mob->player.short_descr);
+                        strcpy_s(comment, sizeof(comment), mob->player.short_descr);
                     else
-                        strcpy(comment, " ");
+                        strcpy_s(comment, sizeof(comment), " ");
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'O':
                 if ((obj = real_object_proto(zcmd->arg1))) {
                     if (obj && obj->name)
-                        strcpy(comment, obj->name);
+                        strcpy_s(comment, sizeof(comment), obj->name);
                     else
-                        strcpy(comment, " ");
+                        strcpy_s(comment, sizeof(comment), " ");
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'E':
             case 'I':
                 if ((obj = real_object_proto(zcmd->arg1))) {
                     if (obj && obj->name)
-                        strcpy(comment, obj->name);
+                        strcpy_s(comment, sizeof(comment), obj->name);
                     else
-                        strcpy(comment, " ");
+                        strcpy_s(comment, sizeof(comment), " ");
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'P':
                 if ((obj = real_object_proto(zcmd->arg1))) {
                     if (obj && obj->name)
-                        strcpy(comment, obj->name);
+                        strcpy_s(comment, sizeof(comment), obj->name);
                     else
-                        strcpy(comment, " ");
+                        strcpy_s(comment, sizeof(comment), " ");
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'V':
                 if ((obj = real_object_proto(zcmd->arg3))
                     && path_vnum_exists(zcmd->arg1)) {
-                    strcpy(comment, path_name_by_vnum(zcmd->arg1));
+                    strcpy_s(comment, sizeof(comment), path_name_by_vnum(zcmd->arg1));
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'W':
                 if ((mob = real_mobile_proto(zcmd->arg3))
                     && path_vnum_exists(zcmd->arg1)) {
-                    strcpy(comment, path_name_by_vnum(zcmd->arg1));
+                    strcpy_s(comment, sizeof(comment), path_name_by_vnum(zcmd->arg1));
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             case 'G':
                 if ((obj = real_object_proto(zcmd->arg1))) {
                     if (obj->name)
-                        strcpy(comment, obj->name);
+                        strcpy_s(comment, sizeof(comment), obj->name);
                     else
-                        strcpy(comment, " ");
+                        strcpy_s(comment, sizeof(comment), " ");
                 } else
-                    strcpy(comment, " BOGUS");
+                    strcpy_s(comment, sizeof(comment), " BOGUS");
                 break;
             default:
-                strcpy(comment, " ---");
+                strcpy_s(comment, sizeof(comment), " ---");
                 break;
             }
 
@@ -2631,11 +2644,11 @@ save_zone(struct creature * ch, struct zone_data * zone)
 
     slog("OLC: %s zsaved %d.", GET_NAME(ch), zone->number);
 
-    sprintf(fname, "world/zon/%d.zon", zone->number);
+    snprintf(fname, sizeof(fname), "world/zon/%d.zon", zone->number);
     realfile = fopen(fname, "w");
     if (realfile) {
         fclose(zone_file);
-        sprintf(fname, "world/zon/olc/%d.zon", zone->number);
+        snprintf(fname, sizeof(fname), "world/zon/olc/%d.zon", zone->number);
         if (!(zone_file = fopen(fname, "r"))) {
             errlog("Failure to reopen olc zon file.");
             fclose(realfile);
@@ -2691,7 +2704,7 @@ do_create_zone(struct creature *ch, int num)
 
     /* Create the zone file to check that we can */
 
-    sprintf(fname, "world/zon/%d.zon", num);
+    snprintf(fname, sizeof(fname), "world/zon/%d.zon", num);
     if (!(zone_file = fopen(fname, "w"))) {
         send_to_char(ch,
             "Could not open %d.zon file, zone creation aborted.\r\n", num);
@@ -2701,7 +2714,7 @@ do_create_zone(struct creature *ch, int num)
 
     /* Open the index file */
 
-    sprintf(fname, "world/zon/index");
+    snprintf(fname, sizeof(fname), "world/zon/index");
     if (!(index = fopen(fname, "w"))) {
         send_to_char(ch,
             "Could not open index file, zone creation aborted.\r\n");
@@ -2717,8 +2730,9 @@ do_create_zone(struct creature *ch, int num)
         return false;
     }
         
-    for (zone = zone_table; zone; zone = zone->next)
+    for (zone = zone_table; zone; zone = zone->next) {
         fprintf(index, "%d.zon\n", zone->number);
+    }
 
     fprintf(index, "$\n");
     fclose(index);
@@ -2868,7 +2882,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             || mode_error || mode_implant || mode_path))
         mode_all = 0;
 
-    sprintf(out_buf, "Command list for zone %d :\r\n\r\n", zone->number);
+    snprintf(out_buf, sizeof(out_buf), "Command list for zone %d :\r\n\r\n", zone->number);
 
     for (i = 0, zcmd = zone->cmd; zcmd && zcmd->command != 'S';
         i++, zcmd = zcmd->next) {
@@ -2876,13 +2890,13 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         if (mode_range && (i < startcmd || i > endcmd))
             continue;
 
-        strcpy(buf, "");
+        strcpy_s(buf, sizeof(buf), "");
         switch (zcmd->command) {
         case 'M':
             if (!mode_all && !mode_mob)
                 break;
             tmp_mob = real_mobile_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d. %sMobile%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2, CCYEL(ch,
@@ -2895,7 +2909,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
             tmp_rom = real_room(zcmd->arg3);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d. %sObject%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, zcmd->arg1, tmp_rom ? tmp_rom->number : (-1),
@@ -2907,7 +2921,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_put)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.    %sPut%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
                 zcmd->if_flag, zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2,
@@ -2918,7 +2932,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         case 'V':
             if (!mode_all && !mode_path)
                 break;
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.  %sPath%s : % d [%3d] %5d   to obj %5d     : (%s%s%s)\r\n",
                 zcmd->line,
                 CCYEL_REV(ch, C_NRM),
@@ -2933,7 +2947,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         case 'W':
             if (!mode_all && !mode_path)
                 break;
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.   %sPath%s: % d [%3d] %5d to mob %5d   : (%s%s%s)\r\n",
                 zcmd->line,
                 CCYEL_REV(ch, C_NRM),
@@ -2949,7 +2963,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_give)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.   %sGive%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
                 zcmd->if_flag, zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2,
@@ -2961,7 +2975,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_eq)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.  %sEquip%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCMAG(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2, CCGRN(ch,
@@ -2973,7 +2987,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_implant)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.%sImplant%s: % d [%3d] %5d to      %2d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCMAG(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2, CCGRN(ch,
@@ -2985,7 +2999,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_rem)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d. %sRem Obj%s % d [%3d] %5d from %5d,          (%s%s%s)\r\n",
                 zcmd->line, CCRED(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, zcmd->arg1, zcmd->arg2, CCGRN(ch, C_NRM), (tmp_obj
@@ -2995,9 +3009,9 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         case 'D':
             if (!mode_all && !mode_door)
                 break;
-            sprintbit(zcmd->arg3, exit_bits, door_flg);
+            sprintbit(zcmd->arg3, exit_bits, door_flg, sizeof(door_flg));
             tmp_rom = real_room(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d. %sDoor%s  : % d [%3d] %5d dir  %5s,          (%s)\r\n",
                 zcmd->line, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, tmp_rom ? tmp_rom->number : (-1), dirs[zcmd->arg2],
@@ -3006,17 +3020,17 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         default:
             if (!mode_all && !mode_error)
                 break;
-            sprintf(buf, "%3d. %c     : % d [%3d] %5d    %5d    %5d\r\n",
+            snprintf(buf, sizeof(buf), "%3d. %c     : % d [%3d] %5d    %5d    %5d\r\n",
                 zcmd->line, zcmd->command, zcmd->if_flag, zcmd->prob,
                 zcmd->arg1, zcmd->arg2, zcmd->arg3);
             break;
         }
 
         if (strlen(out_buf) + strlen(buf) > MAX_STRING_LENGTH - 128) {
-            strcat(out_buf, "**OVERFLOW**\r\n");
+            strcat_s(out_buf, sizeof(out_buf), "**OVERFLOW**\r\n");
             break;
         } else
-            strcat(out_buf, buf);
+            strcat_s(out_buf, sizeof(out_buf), buf);
     }
 
     page_string(ch->desc, out_buf);
@@ -3031,7 +3045,7 @@ do_zpath_cmd(struct creature *ch, char *argument)
     struct creature *mob = NULL;
     struct zone_data *zone = ch->in_room->zone;
     struct reset_com *zonecmd, *tmp_zonecmd;
-    bool obj_mode = 0, mob_mode = 0, found = 0;
+    bool mob_mode = false, found = false;
     int line = 0;
 
     if (!is_authorized(ch, EDIT_ZONE, zone)) {
@@ -3054,11 +3068,9 @@ do_zpath_cmd(struct creature *ch, char *argument)
         return;
     }
 
-    if (is_abbrev(buf, "object"))
-        obj_mode = 1;
-    else if (is_abbrev(buf, "mobile"))
-        mob_mode = 1;
-    else {
+    if (is_abbrev(buf, "mobile")) {
+        mob_mode = true;
+    } else if (!is_abbrev(buf, "object")) {
         send_to_char(ch, ZPATH_USAGE);
         return;
     }
@@ -3080,7 +3092,7 @@ do_zpath_cmd(struct creature *ch, char *argument)
     if (mob_mode) {
         if (!(mob = get_char_room_vis(ch, buf))) {
             send_to_char(ch, "You see no mob by the name of '%s' here.\r\n",
-                buf);
+                         buf);
             return;
         }
 
@@ -3107,29 +3119,29 @@ do_zpath_cmd(struct creature *ch, char *argument)
         zonecmd->next = NULL;
 
         if (zone->cmd) {
-            for (line = 0, found = 0, tmp_zonecmd = zone->cmd; tmp_zonecmd;
-                line++, tmp_zonecmd = tmp_zonecmd->next) {
+            for (line = 0, found = false, tmp_zonecmd = zone->cmd; tmp_zonecmd;
+                 line++, tmp_zonecmd = tmp_zonecmd->next) {
                 if (found)
                     tmp_zonecmd->line++;
                 else if (tmp_zonecmd->command == 'M' &&
-                    tmp_zonecmd->arg1 == mob->mob_specials.shared->vnum) {
+                         tmp_zonecmd->arg1 == mob->mob_specials.shared->vnum) {
                     zonecmd->line = tmp_zonecmd->line;
                     zonecmd->next = tmp_zonecmd->next;
                     tmp_zonecmd->next = zonecmd;
-                    found = 1;
+                    found = true;
                 }
             }
-            if (found == 0) {
+            if (!found) {
                 send_to_char(ch,
-                    "zmob command required for mobile (V) %d before this can be set.\r\n",
-                    mob->mob_specials.shared->vnum);
+                             "zmob command required for mobile (V) %d before this can be set.\r\n",
+                             mob->mob_specials.shared->vnum);
                 free(zonecmd);
                 return;
             }
         } else {
             send_to_char(ch,
-                "zmob command required for mobile (V) %d before this can be set.\r\n",
-                mob->mob_specials.shared->vnum);
+                         "zmob command required for mobile (V) %d before this can be set.\r\n",
+                         mob->mob_specials.shared->vnum);
             free(zonecmd);
             return;
         }
@@ -3140,61 +3152,58 @@ do_zpath_cmd(struct creature *ch, char *argument)
         return;
     }
 
-    if (obj_mode) {
-
-        if (!(obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
-            send_to_char(ch, "You see no mob by the name of '%s' here.\r\n",
-                buf);
-            return;
-        }
-
-        if (!add_path_to_vehicle(obj, path_vnum)) {
-            send_to_char(ch, "Cannot add that path to that object.\r\n");
-            return;
-        }
-        path_remove_object(obj);
-
-        CREATE(zonecmd, struct reset_com, 1);
-
-        zonecmd->command = 'V';
-        zonecmd->if_flag = 1;
-        zonecmd->arg1 = path_vnum;
-        zonecmd->arg2 = 0;
-        zonecmd->arg3 = GET_OBJ_VNUM(obj);
-        zonecmd->prob = 100;
-
-        zonecmd->next = NULL;
-
-        if (zone->cmd) {
-            for (line = 0, found = 0, tmp_zonecmd = zone->cmd;
-                tmp_zonecmd && found != 1;
-                line++, tmp_zonecmd = tmp_zonecmd->next)
-                if (tmp_zonecmd->command == 'O' &&
-                    tmp_zonecmd->arg1 == GET_OBJ_VNUM(obj)) {
-                    zonecmd->line = ++line;
-                    zonecmd->next = tmp_zonecmd->next;
-                    tmp_zonecmd->next = zonecmd;
-                    found = 1;
-                    break;
-                }
-            if (found == 0) {
-                send_to_char(ch,
-                    "Zone command O required for %d before this can be set.\r\n",
-                    GET_OBJ_VNUM(obj));
-                free(zonecmd);
-                return;
-            }
-        } else {
-            send_to_char(ch,
-                "Zone command O required for %d before this can be set.\r\n",
-                GET_OBJ_VNUM(obj));
-            free(zonecmd);
-            return;
-        }
-
-        SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-        add_path_to_vehicle(obj, path_vnum);
-        send_to_char(ch, "Command completed ok.\r\n");
+    if (!(obj = get_obj_in_list_vis(ch, buf, ch->in_room->contents))) {
+        send_to_char(ch, "You see no mob by the name of '%s' here.\r\n",
+                     buf);
         return;
     }
+
+    if (!add_path_to_vehicle(obj, path_vnum)) {
+        send_to_char(ch, "Cannot add that path to that object.\r\n");
+        return;
+    }
+    path_remove_object(obj);
+
+    CREATE(zonecmd, struct reset_com, 1);
+
+    zonecmd->command = 'V';
+    zonecmd->if_flag = 1;
+    zonecmd->arg1 = path_vnum;
+    zonecmd->arg2 = 0;
+    zonecmd->arg3 = GET_OBJ_VNUM(obj);
+    zonecmd->prob = 100;
+
+    zonecmd->next = NULL;
+
+    if (zone->cmd == 0) {
+        send_to_char(ch,
+                     "Zone command O required for %d before this can be set.\r\n",
+                     GET_OBJ_VNUM(obj));
+        free(zonecmd);
+        return;
+    }
+
+    for (line = 0, found = false, tmp_zonecmd = zone->cmd;
+         tmp_zonecmd && found != true;
+         line++, tmp_zonecmd = tmp_zonecmd->next) {
+        if (tmp_zonecmd->command == 'O' && tmp_zonecmd->arg1 == GET_OBJ_VNUM(obj)) {
+            zonecmd->line = ++line;
+            zonecmd->next = tmp_zonecmd->next;
+            tmp_zonecmd->next = zonecmd;
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        send_to_char(ch,
+                     "Zone command O required for %d before this can be set.\r\n",
+                     GET_OBJ_VNUM(obj));
+        free(zonecmd);
+        return;
+    }
+
+    SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
+    add_path_to_vehicle(obj, path_vnum);
+    send_to_char(ch, "Command completed ok.\r\n");
 }

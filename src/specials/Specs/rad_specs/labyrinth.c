@@ -558,7 +558,7 @@ SPECIAL(astrolabe)
         send_to_char(ch,
             "You fiddle with some controls on your astrolabe.\r\n");
         ROOM_NUMBER(astrolabe) = ch->in_room->number;
-        sprintf(buf, "$p is good for %d more use%s.",
+        snprintf(buf, sizeof(buf), "$p is good for %d more use%s.",
             MAX(1, NUM_USES(astrolabe)), NUM_USES(astrolabe) > 1 ? "s" : "");
         act(buf, false, ch, astrolabe, NULL, TO_CHAR);
     } else if (CMD_IS("use")) {

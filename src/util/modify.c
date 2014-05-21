@@ -43,6 +43,7 @@
 #include "accstr.h"
 #include "account.h"
 #include "spells.h"
+#include "strutil.h"
 
 /* External Variables */
 
@@ -163,7 +164,7 @@ page_string(struct descriptor_data *d, const char *str)
     }
     // Create a new paged string
     CREATE(d->showstr_head, char, strlen(str) + 1);
-    strcpy(d->showstr_head, str);
+    strcpy_s(d->showstr_head, strlen(str) + 1, str);
     d->showstr_point = d->showstr_head;
 
     // Show the first page

@@ -445,33 +445,33 @@ diag_char_to_char(struct creature *i, struct creature *ch)
     else
         percent = -1;           /* How could MAX_HIT be < 1?? */
 
-    strcpy(buf, CCYEL(ch, C_NRM));
+    strcpy_s(buf, sizeof(buf), CCYEL(ch, C_NRM));
 
-    strcpy(buf2, PERS(i, ch));
+    strcpy_s(buf2, sizeof(buf2), PERS(i, ch));
     CAP(buf2);
 
-    strcat(buf, buf2);
+    strcat_s(buf, sizeof(buf), buf2);
 
     if (percent >= 100)
-        strcat(buf, " is in excellent condition.\r\n");
+        strcat_s(buf, sizeof(buf), " is in excellent condition.\r\n");
     else if (percent >= 90)
-        strcat(buf, " has a few scratches.\r\n");
+        strcat_s(buf, sizeof(buf), " has a few scratches.\r\n");
     else if (percent >= 75)
-        strcat(buf, " has some small wounds and bruises.\r\n");
+        strcat_s(buf, sizeof(buf), " has some small wounds and bruises.\r\n");
     else if (percent >= 50)
-        strcat(buf, " has quite a few wounds.\r\n");
+        strcat_s(buf, sizeof(buf), " has quite a few wounds.\r\n");
     else if (percent >= 30)
-        strcat(buf, " has some big nasty wounds and scratches.\r\n");
+        strcat_s(buf, sizeof(buf), " has some big nasty wounds and scratches.\r\n");
     else if (percent >= 15)
-        strcat(buf, " looks pretty hurt.\r\n");
+        strcat_s(buf, sizeof(buf), " looks pretty hurt.\r\n");
     else if (percent >= 5)
-        strcat(buf, " is in awful condition.\r\n");
+        strcat_s(buf, sizeof(buf), " is in awful condition.\r\n");
     else if (percent >= 0)
-        strcat(buf, " is on the brink of death.\r\n");
+        strcat_s(buf, sizeof(buf), " is on the brink of death.\r\n");
     else
-        strcat(buf, " is bleeding awfully from big wounds.\r\n");
+        strcat_s(buf, sizeof(buf), " is bleeding awfully from big wounds.\r\n");
 
-    strcat(buf, CCNRM(ch, C_NRM));
+    strcat_s(buf, sizeof(buf), CCNRM(ch, C_NRM));
 
     send_to_char(ch, "%s", buf);
 }
@@ -481,7 +481,7 @@ diag_conditions(struct creature *ch)
 {
 
     if (!ch) {
-        strcpy(buf, "(NULL)");
+        strcpy_s(buf, sizeof(buf), "(NULL)");
         return buf;
     }
     int percent;
@@ -491,23 +491,23 @@ diag_conditions(struct creature *ch)
         percent = -1;           /* How could MAX_HIT be < 1?? */
 
     if (percent >= 100)
-        strcpy(buf, "excellent");
+        strcpy_s(buf, sizeof(buf), "excellent");
     else if (percent >= 90)
-        strcpy(buf, "few scratches");
+        strcpy_s(buf, sizeof(buf), "few scratches");
     else if (percent >= 75)
-        strcpy(buf, "small wounds");
+        strcpy_s(buf, sizeof(buf), "small wounds");
     else if (percent >= 50)
-        strcpy(buf, "quite a few");
+        strcpy_s(buf, sizeof(buf), "quite a few");
     else if (percent >= 30)
-        strcpy(buf, "big nasty");
+        strcpy_s(buf, sizeof(buf), "big nasty");
     else if (percent >= 15)
-        strcpy(buf, "pretty hurt");
+        strcpy_s(buf, sizeof(buf), "pretty hurt");
     else if (percent >= 5)
-        strcpy(buf, "awful");
+        strcpy_s(buf, sizeof(buf), "awful");
     else if (percent >= 0)
-        strcpy(buf, "the brink of death");
+        strcpy_s(buf, sizeof(buf), "the brink of death");
     else
-        strcpy(buf, "bleeding awfully");
+        strcpy_s(buf, sizeof(buf), "bleeding awfully");
     return (buf);
 }
 
@@ -667,7 +667,7 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
                     continue;
                 }
                 found = false;
-                sprintf(buf2, "%s %s %s ", HSHR(i),
+                snprintf(buf2, sizeof(buf2), "%s %s %s ", HSHR(i),
                     wear_description[pos],
                     pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]));
 
@@ -679,14 +679,14 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
                     if (CHAR_SOILED(i, pos, (1 << j))) {
                         found++;
                         if (found > 1) {
-                            strcat(buf2, ", ");
+                            strcat_s(buf2, sizeof(buf2), ", ");
                             if (found == k)
-                                strcat(buf2, "and ");
+                                strcat_s(buf2, sizeof(buf2), "and ");
                         }
-                        strcat(buf2, soilage_bits[j]);
+                        strcat_s(buf2, sizeof(buf2), soilage_bits[j]);
                     }
                 }
-                strcat(buf, strcat(CAP(buf2), ".\r\n"));
+                strcat_s(buf, sizeof(buf), strcat(CAP(buf2), ".\r\n"));
             }
         }
         if (found)
@@ -1419,7 +1419,7 @@ look_in_direction(struct creature *ch, int dir)
             else if (EXNUMB->name) {
                 acc_sprintf("%s", CCCYN(ch, C_NRM));
                 if (PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
-                    sprintbit((long)ROOM_FLAGS(EXNUMB), room_bits, buf);
+                    sprintbit((long)ROOM_FLAGS(EXNUMB), room_bits, buf, sizeof(buf));
                     acc_sprintf("[%5d] %s [ %s] [ %s ]", EXNUMB->number,
                         EXNUMB->name, buf, sector_types[EXNUMB->sector_type]);
                 } else
@@ -1464,7 +1464,7 @@ look_in_direction(struct creature *ch, int dir)
                                 dir)->keyword)));
                 if (EXNUMB != NULL && room_is_dark(EXNUMB) &&
                     !EXIT(ch, dir)->general_description) {
-                    sprintf(buf,
+                    snprintf(buf, sizeof(buf),
                         "It's too dark through the %s to see anything.\r\n",
                         fname(EXIT(ch, dir)->keyword));
                     acc_sprintf("%s", buf);
@@ -2168,7 +2168,7 @@ ACMD(do_examine)
             act("$p looks like it has been enhanced.",
                 false, ch, tmp_object, NULL, TO_CHAR);
 
-        sprintf(buf, "$p seems to be in %s condition.",
+        snprintf(buf, sizeof(buf), "$p seems to be in %s condition.",
                 obj_cond_color(tmp_object, COLOR_LEV(ch)));
         act(buf, false, ch, tmp_object, NULL, TO_CHAR);
 
@@ -2298,7 +2298,7 @@ acc_append_affects(struct creature *ch, int8_t mode)
     }
     // radiation sickness
 
-    if ((af = affected_by_spell(ch, TYPE_RAD_SICKNESS))) {
+    if (affected_by_spell(ch, TYPE_RAD_SICKNESS)) {
         if (!number(0, 2))
             acc_strcat("You feel nauseous.\r\n", NULL);
         else if (!number(0, 1))
@@ -2696,11 +2696,11 @@ ACMD(do_gen_points)
     switch (subcmd) {
     case SCMD_ALIGNMENT:
         if (GET_ALIGNMENT(ch) < -300) {
-            sprintf(cbuf, "%s", CCRED(ch, C_NRM));
+            snprintf(cbuf, sizeof(cbuf), "%s", CCRED(ch, C_NRM));
         } else if (GET_ALIGNMENT(ch) > 300) {
-            sprintf(cbuf, "%s", CCCYN(ch, C_NRM));
+            snprintf(cbuf, sizeof(cbuf), "%s", CCCYN(ch, C_NRM));
         } else {
-            sprintf(cbuf, "%s", CCYEL(ch, C_NRM));
+            snprintf(cbuf, sizeof(cbuf), "%s", CCYEL(ch, C_NRM));
         }
         send_to_char(ch, "%sYour alignment is%s %s%d%s.\r\n", CCWHT(ch, C_NRM),
                      CCNRM(ch, C_NRM), cbuf, GET_ALIGNMENT(ch), CCNRM(ch, C_NRM));
@@ -2738,7 +2738,7 @@ ACMD(do_gen_points)
                      CCCYN(ch, C_NRM), GET_MAX_MOVE(ch), CCNRM(ch, C_NRM));
         break;
     case SCMD_REPUTATION:
-        strcpy(cbuf, reputation_msg[GET_REPUTATION_RANK(ch)]);
+        strcpy_s(cbuf, sizeof(cbuf), reputation_msg[GET_REPUTATION_RANK(ch)]);
         send_to_char(ch, "You have %s %s reputation.\r\n", AN(cbuf), cbuf);
         break;
     default:
@@ -3258,8 +3258,8 @@ ACMD(do_time)
     /* 35 days in a month */
     weekday = ((35 * local_time.month) + local_time.day + 1) % 7;
 
-    strcat(buf, weekdays[weekday]);
-    strcat(buf, "\r\n");
+    strcat_s(buf, sizeof(buf), weekdays[weekday]);
+    strcat_s(buf, sizeof(buf), "\r\n");
 
     day = local_time.day + 1;   /* day in [1..35] */
 
@@ -4084,7 +4084,7 @@ ACMD(do_where)
 }
 
 void
-print_attributes_to_buf(struct creature *ch, char *buff)
+print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
 {
 
     int8_t str, intel, wis, dex, con, cha;
@@ -4094,225 +4094,223 @@ print_attributes_to_buf(struct creature *ch, char *buff)
     dex = GET_DEX(ch);
     con = GET_CON(ch);
     cha = GET_CHA(ch);
-    sprintf(buf2, " %s%s(augmented)%s",
+    snprintf(buf2, sizeof(buf2), " %s%s(augmented)%s",
         CCBLD(ch, C_SPR), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 
-    sprintf(buff, "      %s%sStrength:%s ",
+    snprintf(buff, buff_size, "      %s%sStrength:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
-        strcat(buff, tmp_sprintf(" [%d]", str));
+        strcat_s(buff, buff_size, tmp_sprintf(" [%d]", str));
 
     if (str <= 3)
-        strcat(buff, "You can barely stand up under your own weight.");
+        strcat_s(buff, buff_size, "You can barely stand up under your own weight.");
     else if (str <= 4)
-        strcat(buff, "You couldn't beat your way out of a paper bag.");
+        strcat_s(buff, buff_size, "You couldn't beat your way out of a paper bag.");
     else if (str <= 5)
-        strcat(buff, "You are laughed at by ten year olds.");
+        strcat_s(buff, buff_size, "You are laughed at by ten year olds.");
     else if (str <= 6)
-        strcat(buff, "You are a weakling.");
+        strcat_s(buff, buff_size, "You are a weakling.");
     else if (str <= 7)
-        strcat(buff,
+        strcat_s(buff, buff_size,
             "You can pick up large rocks without breathing too hard.");
     else if (str <= 8)
-        strcat(buff, "You are not very strong.");
+        strcat_s(buff, buff_size, "You are not very strong.");
     else if (str <= 10)
-        strcat(buff, "You are of average strength.");
+        strcat_s(buff, buff_size, "You are of average strength.");
     else if (str <= 12)
-        strcat(buff, "You are fairly strong.");
+        strcat_s(buff, buff_size, "You are fairly strong.");
     else if (str <= 15)
-        strcat(buff, "You are a nice specimen.");
+        strcat_s(buff, buff_size, "You are a nice specimen.");
     else if (str <= 16)
-        strcat(buff, "You are a damn nice specimen.");
+        strcat_s(buff, buff_size, "You are a damn nice specimen.");
     else if (str < 18)
-        strcat(buff, "You are very strong.");
+        strcat_s(buff, buff_size, "You are very strong.");
     else if (str <= 20)
-        strcat(buff, "You are extremely strong.");
+        strcat_s(buff, buff_size, "You are extremely strong.");
     else if (str <= 23)
-        strcat(buff, "You are exceptionally strong.");
+        strcat_s(buff, buff_size, "You are exceptionally strong.");
     else if (str <= 25)
-        strcat(buff, "Your strength is awe inspiring.");
+        strcat_s(buff, buff_size, "Your strength is awe inspiring.");
     else if (str <= 27)
-        strcat(buff, "Your strength is super-human.");
+        strcat_s(buff, buff_size, "Your strength is super-human.");
     else if (str == 28)
-        strcat(buff, "Your strength is at the human peak!");
+        strcat_s(buff, buff_size, "Your strength is at the human peak!");
     else if (str == 29)
-        strcat(buff, "You have the strength of a hill giant!");
+        strcat_s(buff, buff_size, "You have the strength of a hill giant!");
     else if (str == 30)
-        strcat(buff, "You have the strength of a stone giant!");
+        strcat_s(buff, buff_size, "You have the strength of a stone giant!");
     else if (str == 31)
-        strcat(buff, "You have the strength of a frost giant!");
+        strcat_s(buff, buff_size, "You have the strength of a frost giant!");
     else if (str == 32)
-        strcat(buff, "You can toss boulders with ease!");
+        strcat_s(buff, buff_size, "You can toss boulders with ease!");
     else if (str == 33)
-        strcat(buff, "You have the strength of a cloud giant!");
+        strcat_s(buff, buff_size, "You have the strength of a cloud giant!");
     else if (str == 34)
-        strcat(buff, "You possess a herculean might!");
-    else if (str >= 35)
-        strcat(buff, "You have the strength of a god!");
+        strcat_s(buff, buff_size, "You possess a herculean might!");
     else
-        strcat(buff, "Your strength is SKREWD.");
+        strcat_s(buff, buff_size, "You have the strength of a god!");
 
     if (str != ch->real_abils.str)
-        strcat(buff, buf2);
-    strcat(buff, "\r\n");
+        strcat_s(buff, buff_size, buf2);
+    strcat_s(buff, buff_size, "\r\n");
 
-    sprintf(buff, "%s  %s%sIntelligence:%s ", buff,
+    snprintf_cat(buff, buff_size, "  %s%sIntelligence:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
-        strcat(buff, tmp_sprintf(" [%d]", intel));
+        strcat_s(buff, buff_size, tmp_sprintf(" [%d]", intel));
     if (intel <= 5)
-        strcat(buff, "You lose arguments with inanimate objects.");
+        strcat_s(buff, buff_size, "You lose arguments with inanimate objects.");
     else if (intel <= 8)
-        strcat(buff, "You're about as smart as a rock.");
+        strcat_s(buff, buff_size, "You're about as smart as a rock.");
     else if (intel <= 10)
-        strcat(buff, "You are a bit slow-witted.");
+        strcat_s(buff, buff_size, "You are a bit slow-witted.");
     else if (intel <= 12)
-        strcat(buff, "Your intelligence is average.");
+        strcat_s(buff, buff_size, "Your intelligence is average.");
     else if (intel <= 13)
-        strcat(buff, "You are fairly intelligent.");
+        strcat_s(buff, buff_size, "You are fairly intelligent.");
     else if (intel <= 14)
-        strcat(buff, "You are very smart.");
+        strcat_s(buff, buff_size, "You are very smart.");
     else if (intel <= 16)
-        strcat(buff, "You are exceptionally smart.");
+        strcat_s(buff, buff_size, "You are exceptionally smart.");
     else if (intel <= 17)
-        strcat(buff, "You possess a formidable intellect.");
+        strcat_s(buff, buff_size, "You possess a formidable intellect.");
     else if (intel <= 18)
-        strcat(buff, "You are a powerhouse of logic.");
+        strcat_s(buff, buff_size, "You are a powerhouse of logic.");
     else if (intel <= 19)
-        strcat(buff, "You are an absolute genius!");
+        strcat_s(buff, buff_size, "You are an absolute genius!");
     else if (intel <= 20)
-        strcat(buff, "You are a suuuuper-geniuus!");
+        strcat_s(buff, buff_size, "You are a suuuuper-geniuus!");
     else
-        strcat(buff,
+        strcat_s(buff, buff_size,
             "You solve nonlinear higher dimensional systems in your sleep.");
     if (intel != ch->real_abils.intel)
-        strcat(buff, buf2);
-    strcat(buff, "\r\n");
+        strcat_s(buff, buff_size, buf2);
+    strcat_s(buff, buff_size, "\r\n");
 
-    sprintf(buff, "%s        %s%sWisdom:%s ", buff,
+    snprintf_cat(buff, buff_size, "        %s%sWisdom:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
-        strcat(buff, tmp_sprintf(" [%d]", wis));
+        strcat_s(buff, buff_size, tmp_sprintf(" [%d]", wis));
     if (wis <= 5)
-        strcat(buff, "Yoda you are not.");
+        strcat_s(buff, buff_size, "Yoda you are not.");
     else if (wis <= 6)
-        strcat(buff, "You are pretty foolish.");
+        strcat_s(buff, buff_size, "You are pretty foolish.");
     else if (wis <= 8)
-        strcat(buff, "You are fairly foolhardy.");
+        strcat_s(buff, buff_size, "You are fairly foolhardy.");
     else if (wis <= 10)
-        strcat(buff, "Your wisdom is average.");
+        strcat_s(buff, buff_size, "Your wisdom is average.");
     else if (wis <= 12)
-        strcat(buff, "You are fairly wise.");
+        strcat_s(buff, buff_size, "You are fairly wise.");
     else if (wis <= 15)
-        strcat(buff, "You are very wise.");
+        strcat_s(buff, buff_size, "You are very wise.");
     else if (wis <= 18)
-        strcat(buff, "You are exceptionally wise.");
+        strcat_s(buff, buff_size, "You are exceptionally wise.");
     else if (wis <= 19)
-        strcat(buff, "You have the wisdom of a god!");
+        strcat_s(buff, buff_size, "You have the wisdom of a god!");
     else
-        strcat(buff, "God himself comes to you for advice.");
+        strcat_s(buff, buff_size, "God himself comes to you for advice.");
 
     if (wis != ch->real_abils.wis)
-        strcat(buff, buf2);
-    strcat(buff, "\r\n");
+        strcat_s(buff, buff_size, buf2);
+    strcat_s(buff, buff_size, "\r\n");
 
-    sprintf(buff, "%s     %s%sDexterity:%s ", buff,
+    snprintf_cat(buff, buff_size, "     %s%sDexterity:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
-        strcat(buff, tmp_sprintf(" [%d]", dex));
+        strcat_s(buff, buff_size, tmp_sprintf(" [%d]", dex));
     if (dex <= 5)
-        strcat(buff, "I wouldn't walk too fast if I were you.");
+        strcat_s(buff, buff_size, "I wouldn't walk too fast if I were you.");
     else if (dex <= 8)
-        strcat(buff, "You're pretty clumsy.");
+        strcat_s(buff, buff_size, "You're pretty clumsy.");
     else if (dex <= 10)
-        strcat(buff, "Your agility is pretty average.");
+        strcat_s(buff, buff_size, "Your agility is pretty average.");
     else if (dex <= 12)
-        strcat(buff, "You are fairly agile.");
+        strcat_s(buff, buff_size, "You are fairly agile.");
     else if (dex <= 15)
-        strcat(buff, "You are very agile.");
+        strcat_s(buff, buff_size, "You are very agile.");
     else if (dex <= 18)
-        strcat(buff, "You are exceptionally agile.");
+        strcat_s(buff, buff_size, "You are exceptionally agile.");
     else
-        strcat(buff, "You have the agility of a god!");
+        strcat_s(buff, buff_size, "You have the agility of a god!");
     if (dex != ch->real_abils.dex)
-        strcat(buff, buf2);
-    strcat(buff, "\r\n");
+        strcat_s(buff, buff_size, buf2);
+    strcat_s(buff, buff_size, "\r\n");
 
-    sprintf(buff, "%s  %s%sConstitution:%s ", buff,
+    snprintf_cat(buff, buff_size, "  %s%sConstitution:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
-        strcat(buff, tmp_sprintf(" [%d] ", con));
+        strcat_s(buff, buff_size, tmp_sprintf(" [%d] ", con));
     if (con <= 3)
-        strcat(buff, "You are dead, but haven't realized it yet.");
+        strcat_s(buff, buff_size, "You are dead, but haven't realized it yet.");
     else if (con <= 5)
-        strcat(buff, "You're as healthy as a rabid dog.");
+        strcat_s(buff, buff_size, "You're as healthy as a rabid dog.");
     else if (con <= 7)
-        strcat(buff,
+        strcat_s(buff, buff_size,
             "A child poked you once, and you have the scars to prove it.");
     else if (con <= 8)
-        strcat(buff, "You're pretty skinny and sick looking.");
+        strcat_s(buff, buff_size, "You're pretty skinny and sick looking.");
     else if (con <= 10)
-        strcat(buff, "Your health is average.");
+        strcat_s(buff, buff_size, "Your health is average.");
     else if (con <= 12)
-        strcat(buff, "You are fairly healthy.");
+        strcat_s(buff, buff_size, "You are fairly healthy.");
     else if (con <= 15)
-        strcat(buff, "You are very healthy.");
+        strcat_s(buff, buff_size, "You are very healthy.");
     else if (con <= 18)
-        strcat(buff, "You are exceptionally healthy.");
+        strcat_s(buff, buff_size, "You are exceptionally healthy.");
     else if (con <= 19)
-        strcat(buff, "You are practically immortal!");
+        strcat_s(buff, buff_size, "You are practically immortal!");
     else
-        strcat(buff, "You can eat pathogens for breakfast.");
+        strcat_s(buff, buff_size, "You can eat pathogens for breakfast.");
 
     if (con != ch->real_abils.con)
-        strcat(buff, buf2);
-    strcat(buff, "\r\n");
+        strcat_s(buff, buff_size, buf2);
+    strcat_s(buff, buff_size, "\r\n");
 
-    sprintf(buff, "%s      %s%sCharisma:%s ", buff,
+    snprintf_cat(buff, buff_size, "      %s%sCharisma:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
-        strcat(buff, tmp_sprintf(" [%d] ", cha));
+        strcat_s(buff, buff_size, tmp_sprintf(" [%d] ", cha));
     if (cha <= 5)
-        strcat(buff, "U-G-L-Y");
+        strcat_s(buff, buff_size, "U-G-L-Y");
     else if (cha <= 6)
-        strcat(buff, "Your face could turn a family of elephants to stone.");
+        strcat_s(buff, buff_size, "Your face could turn a family of elephants to stone.");
     else if (cha <= 7)
-        strcat(buff, "Small children run away from you screaming.");
+        strcat_s(buff, buff_size, "Small children run away from you screaming.");
     else if (cha <= 8)
-        strcat(buff, "You are totally unattractive.");
+        strcat_s(buff, buff_size, "You are totally unattractive.");
     else if (cha <= 9)
-        strcat(buff, "You are slightly unattractive.");
+        strcat_s(buff, buff_size, "You are slightly unattractive.");
     else if (cha <= 10)
-        strcat(buff, "You are not too unpleasant to deal with.");
+        strcat_s(buff, buff_size, "You are not too unpleasant to deal with.");
     else if (cha <= 12)
-        strcat(buff, "You are a pleasant person.");
+        strcat_s(buff, buff_size, "You are a pleasant person.");
     else if (cha <= 15)
-        strcat(buff, "You are exceptionally attractive.");
+        strcat_s(buff, buff_size, "You are exceptionally attractive.");
     else if (cha <= 16)
-        strcat(buff, "You have a magnetic personality.");
+        strcat_s(buff, buff_size, "You have a magnetic personality.");
     else if (cha <= 17)
-        strcat(buff, "Others eat from the palm of your hand.");
+        strcat_s(buff, buff_size, "Others eat from the palm of your hand.");
     else if (cha <= 18)
-        strcat(buff, "Your image should be chiseled in marble!");
+        strcat_s(buff, buff_size, "Your image should be chiseled in marble!");
     else if (cha <= 22)
-        strcat(buff, "Others eat from the palm of your hand.  Literally.");
+        strcat_s(buff, buff_size, "Others eat from the palm of your hand.  Literally.");
     else
-        strcat(buff,
+        strcat_s(buff, buff_size,
             "If the gods made better they'd have kept it for themselves.");
     if (cha != ch->real_abils.cha)
-        strcat(buff, buf2);
-    strcat(buff, "\r\n");
+        strcat_s(buff, buff_size, buf2);
+    strcat_s(buff, buff_size, "\r\n");
 }
 
 ACMD(do_attributes)
 {
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "\r\n%s********************************** %sAttributes %s*********************************%s\r\n",
         CCBLU(ch, C_SPR), CCYEL(ch, C_SPR), CCBLU(ch, C_SPR), CCWHT(ch,
             C_SPR));
@@ -4324,10 +4322,10 @@ ACMD(do_attributes)
         CCRED(ch, C_SPR), class_names[(int)GET_CLASS(ch)], CCWHT(ch, C_SPR),
         CCRED(ch, C_SPR), GET_LEVEL(ch), CCWHT(ch, C_SPR));
 
-    print_attributes_to_buf(ch, buf);
+    print_attributes_to_buf(ch, buf, sizeof(buf));
 
     send_to_char(ch, "%s", buf);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "\r\n%s*******************************************************************************%s\r\n",
         CCBLU(ch, C_SPR), CCWHT(ch, C_SPR));
     send_to_char(ch, "%s", buf);
@@ -4539,9 +4537,10 @@ ACMD(do_compact)
     }
     ch->account->compact_level = tp;
 
-    send_to_char(ch, "Your %scompact setting%s is now %s%s%s%s.\r\n", CCRED(ch,
-            C_SPR), CCNRM(ch, C_OFF), CCYEL(ch, C_NRM), CCBLD(ch, C_CMP),
-        compact_levels[tp], CCNRM(ch, C_NRM));
+    send_to_char(ch, "Your %scompact setting%s is now %s%s%s%s.\r\n",
+                 CCRED(ch, C_SPR), CCNRM(ch, C_SPR),
+                 CCYEL(ch, C_NRM), CCBLD(ch, C_CMP),
+                 compact_levels[tp], CCNRM(ch, C_NRM));
 }
 
 ACMD(do_color)
@@ -4578,9 +4577,9 @@ show_all_toggles(struct creature *ch)
     if (IS_NPC(ch) || !ch->desc || !ch->desc->account)
         return;
     if (GET_WIMP_LEV(ch) == 0)
-        strcpy(buf2, "OFF");
+        strcpy_s(buf2, sizeof(buf2), "OFF");
     else
-        sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
+        snprintf(buf2, sizeof(buf2), "%-3d", GET_WIMP_LEV(ch));
 
     if (GET_CLAN(ch)) {
         struct clan_data *clan = real_clan(GET_CLAN(ch));
@@ -4786,7 +4785,7 @@ ACMD(do_commands)
     else if (subcmd == SCMD_WIZHELP)
         wizhelp = 1;
 
-    sprintf(buf, "The following %s%s are available to %s:\r\n",
+    snprintf(buf, sizeof(buf), "The following %s%s are available to %s:\r\n",
         wizhelp ? "privileged " : "",
         socials ? "socials" : moods ? "moods" : "commands",
         (vict && vict == ch) ? "you" : vict ? GET_NAME(vict) : "that level");
@@ -4806,13 +4805,13 @@ ACMD(do_commands)
             continue;
         if (moods != cmd_sort_info[i].is_mood)
             continue;
-        sprintf(buf + strlen(buf), "%-16s", cmd_info[i].command);
+        snprintf(buf + strlen(buf), sizeof(buf + strlen(buf)), "%-16s", cmd_info[i].command);
         if (!(no % 5))
-            strcat(buf, "\r\n");
+            strcat_s(buf, sizeof(buf), "\r\n");
         no++;
     }
 
-    strcat(buf, "\r\n");
+    strcat_s(buf, sizeof(buf), "\r\n");
     page_string(ch->desc, buf);
 }
 
@@ -4820,14 +4819,14 @@ ACMD(do_soilage)
 {
     int i, j, k, pos, found = 0;
 
-    strcpy(buf, "Soilage status:\r\n");
+    strcpy_s(buf, sizeof(buf), "Soilage status:\r\n");
 
     for (i = 0; i < NUM_WEARS; i++) {
         pos = (int)eq_pos_order[i];
 
         if (GET_EQ(ch, pos) && OBJ_SOILAGE(GET_EQ(ch, pos))) {
             found = 0;
-            sprintf(buf2, "Your %s%s%s %s ", CCGRN(ch, C_NRM),
+            snprintf(buf2, sizeof(buf2), "Your %s%s%s %s ", CCGRN(ch, C_NRM),
                 OBJS(GET_EQ(ch, pos), ch), CCNRM(ch, C_NRM),
                 ISARE(OBJS(GET_EQ(ch, pos), ch)));
 
@@ -4839,14 +4838,14 @@ ACMD(do_soilage)
                 if (OBJ_SOILED(GET_EQ(ch, pos), (1 << j))) {
                     found++;
                     if (found > 1) {
-                        strcat(buf2, ", ");
+                        strcat_s(buf2, sizeof(buf2), ", ");
                         if (found == k)
-                            strcat(buf2, "and ");
+                            strcat_s(buf2, sizeof(buf2), "and ");
                     }
-                    strcat(buf2, soilage_bits[j]);
+                    strcat_s(buf2, sizeof(buf2), soilage_bits[j]);
                 }
             }
-            strcat(buf, strcat(buf2, ".\r\n"));
+            strcat_s(buf, sizeof(buf), strcat(buf2, ".\r\n"));
 
         } else if (CHAR_SOILAGE(ch, pos)) {
             if (ILLEGAL_SOILPOS(pos)) {
@@ -4854,7 +4853,7 @@ ACMD(do_soilage)
                 continue;
             }
             found = false;
-            sprintf(buf2, "Your %s %s ", wear_description[pos],
+            snprintf(buf2, sizeof(buf2), "Your %s %s ", wear_description[pos],
                 pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]));
 
             for (k = 0, j = 0; j < TOP_SOIL; j++)
@@ -4865,14 +4864,14 @@ ACMD(do_soilage)
                 if (CHAR_SOILED(ch, pos, (1 << j))) {
                     found++;
                     if (found > 1) {
-                        strcat(buf2, ", ");
+                        strcat_s(buf2, sizeof(buf2), ", ");
                         if (found == k)
-                            strcat(buf2, "and ");
+                            strcat_s(buf2, sizeof(buf2), "and ");
                     }
-                    strcat(buf2, soilage_bits[j]);
+                    strcat_s(buf2, sizeof(buf2), soilage_bits[j]);
                 }
             }
-            strcat(buf, strcat(buf2, ".\r\n"));
+            strcat_s(buf, sizeof(buf), strcat(buf2, ".\r\n"));
 
         }
     }

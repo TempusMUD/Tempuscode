@@ -195,9 +195,9 @@ ACMD(do_point)
     }
 
     if ((dir = search_block(argument, dirs, false)) >= 0) {
-        sprintf(buf, "$n points %sward.", dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n points %sward.", dirs[dir]);
         act(buf, true, ch, NULL, NULL, TO_ROOM);
-        sprintf(buf, "You point %sward.", dirs[dir]);
+        snprintf(buf, sizeof(buf), "You point %sward.", dirs[dir]);
         act(buf, false, ch, NULL, NULL, TO_CHAR);
         return;
     }
@@ -306,9 +306,9 @@ ACMD(do_insult)
 }
 
 char *
-fread_action(FILE * fl, int nr)
+fread_action(FILE *fl, int nr)
 {
-    char buf[MAX_STRING_LENGTH], *rslt;
+    char buf[MAX_STRING_LENGTH];
 
     if (!fgets(buf, MAX_STRING_LENGTH, fl)) {
         perror(tmp_sprintf("fread_action - unexpected EOF near action #%d",
@@ -319,14 +319,12 @@ fread_action(FILE * fl, int nr)
         fprintf(stderr, "fread_action - unexpected EOF near action #%d", nr);
         safe_exit(1);
     }
-    if (*buf == '#')
-        return (NULL);
-    else {
-        buf[strlen(buf) - 1] = '\0';
-        CREATE(rslt, char, strlen(buf) + 1);
-        strcpy(rslt, buf);
-        return (rslt);
+
+    if (buf[0] == '#') {
+        return NULL;
     }
+
+    return strdup(buf);
 }
 
 #define MAX_SOCIALS 500
@@ -341,7 +339,7 @@ boot_social_messages(void)
 
     /* open social file */
     if (!(fl = fopen(SOCMESS_FILE, "r"))) {
-        sprintf(buf, "Can't open socials file '%s'", SOCMESS_FILE);
+        snprintf(buf, sizeof(buf), "Can't open socials file '%s'", SOCMESS_FILE);
         perror(buf);
         safe_exit(1);
     }
@@ -448,23 +446,23 @@ show_social_messages(struct creature *ch, char *arg)
         else {
             action = &soc_mess_list[j];
 
-            sprintf(buf, "Action '%s', Hide-invis : %s, Min Vict Pos: %d\r\n",
+            snprintf(buf, sizeof(buf), "Action '%s', Hide-invis : %s, Min Vict Pos: %d\r\n",
                 cmd_info[i].command, YESNO(action->hide),
                 action->min_victim_position);
-            sprintf(buf, "%schar_no_arg  : %s\r\n", buf, action->char_no_arg);
-            sprintf(buf, "%sothers_no_arg: %s\r\n", buf,
+            snprintf_cat(buf, sizeof(buf), "char_no_arg  : %s\r\n", action->char_no_arg);
+            snprintf_cat(buf, sizeof(buf), "others_no_arg: %s\r\n",
                 action->others_no_arg);
-            sprintf(buf, "%schar_found   : %s\r\n", buf, action->char_found);
+            snprintf_cat(buf, sizeof(buf), "char_found   : %s\r\n", action->char_found);
             if (action->others_found) {
-                sprintf(buf, "%sothers_found : %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "others_found : %s\r\n",
                     action->others_found);
-                sprintf(buf, "%svict_found   : %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "vict_found   : %s\r\n",
                     action->vict_found);
-                sprintf(buf, "%snot_found    : %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "not_found    : %s\r\n",
                     action->not_found);
-                sprintf(buf, "%schar_auto    : %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "char_auto    : %s\r\n",
                     action->char_auto);
-                sprintf(buf, "%sothers_auto  : %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "others_auto  : %s\r\n",
                     action->others_auto);
             }
             send_to_char(ch, "%s", buf);

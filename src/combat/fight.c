@@ -29,6 +29,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <glib.h>
+#include <libxml/parser.h>
 
 #include "interpreter.h"
 #include "structs.h"
@@ -57,7 +58,6 @@
 #include "flow_room.h"
 #include "bomb.h"
 #include "fight.h"
-#include <libxml/parser.h>
 #include "obj_data.h"
 #include "specs.h"
 #include "actions.h"
@@ -66,6 +66,7 @@
 #include "weather.h"
 #include "prog.h"
 #include "quest.h"
+#include "strutil.h"
 
 extern bool LOG_DEATHS;
 
@@ -643,17 +644,36 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
     struct obj_data *inobj = NULL, *next_obj = NULL;
 
     /* test to see if item should take damage */
-    if ((IS_OBJ_TYPE(obj, ITEM_MONEY)) || GET_OBJ_DAM(obj) < 0 ||
-        GET_OBJ_MAX_DAM(obj) < 0 ||
-        (ch && GET_LEVEL(ch) < LVL_IMMORT && !CAN_WEAR(obj, ITEM_WEAR_TAKE)) ||
-        (ch && ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) ||
-        (obj->in_room && ROOM_FLAGGED(obj->in_room, ROOM_ARENA)) ||
-        (obj->worn_by && GET_QUEST(obj->worn_by) &&
-            QUEST_FLAGGED(quest_by_vnum(GET_QUEST(obj->worn_by)), QUEST_ARENA))
-        || (IS_OBJ_TYPE(obj, ITEM_KEY))
-        || (IS_OBJ_TYPE(obj, ITEM_SCRIPT))
-        || obj->in_room == zone_table->world)
+    if (IS_OBJ_TYPE(obj, ITEM_MONEY)
+        || IS_OBJ_TYPE(obj, ITEM_KEY)
+        || IS_OBJ_TYPE(obj, ITEM_SCRIPT)) {
         return NULL;
+    }
+    if (GET_OBJ_DAM(obj) < 0 || GET_OBJ_MAX_DAM(obj) < 0) {
+        return NULL;
+    }
+    if (ch) {
+        if (GET_LEVEL(ch) < LVL_IMMORT && !CAN_WEAR(obj, ITEM_WEAR_TAKE)) {
+            return NULL;
+        }
+        if (ch->in_room != NULL && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
+            return NULL;
+        }
+    }
+    if (obj->in_room && ROOM_FLAGGED(obj->in_room, ROOM_ARENA)) {
+            return NULL;
+    }
+    if (obj->in_room == zone_table->world) {
+        return NULL;
+    }
+
+    if (obj->worn_by && GET_QUEST(obj->worn_by)) {
+        struct quest *q = quest_by_vnum(GET_QUEST(obj->worn_by));
+        
+        if (q && QUEST_FLAGGED(q, QUEST_ARENA)) {
+            return NULL;
+        }
+    }
 
     eq_dam /= 4;                // blatant manual adjustment to equipment damage
 
@@ -1681,6 +1701,7 @@ damage(struct creature *ch, struct creature *victim,
     case TYPE_BOILING_PITCH:
         if (AFF3_FLAGGED(victim, AFF3_PROT_HEAT))
             dam /= 2;
+        break;
     case TYPE_ACID_BURN:
     case SPELL_ACIDITY:
     case SPELL_ACID_BREATH:
@@ -2377,8 +2398,7 @@ damage(struct creature *ch, struct creature *victim,
                 // If it's arena, log it for complete only
                 // and tag it
                 if (arena) {
-                    strcat(logmsg, " [ARENA]");
-                    qlog(NULL, logmsg, QLOG_COMP, GET_INVIS_LVL(victim), true);
+                    qlog(NULL, tmp_sprintf("%s [ARENA]", logmsg), QLOG_COMP, GET_INVIS_LVL(victim), true);
                 } else {
                     mudlog(GET_INVIS_LVL(victim), BRF, true, "%s", logmsg);
                 }
@@ -3032,8 +3052,7 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
         send_to_char(ch,
             "%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
             CCCYN(ch, C_NRM), GET_NAME(ch), prob, die_roll,
-            IS_NPC(ch) ? GET_NPC_WAIT(ch) : (CHECK_WAIT(ch) ? ch->
-                desc->wait : 0), CCNRM(ch, C_NRM));
+            IS_NPC(ch) ? GET_NPC_WAIT(ch) : ch->desc->wait, CCNRM(ch, C_NRM));
     }
     //
     // it's an attack!
@@ -3044,7 +3063,7 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
             if (!is_fighting(ch) || GET_LEVEL(ch) < (i * 8))
                 break;
             if (GET_POSITION(ch) < POS_FIGHTING) {
-                if (CHECK_WAIT(ch) < 10)
+                if (CHECK_WAIT(ch))
                     send_to_char(ch, "You can't fight while sitting!!\r\n");
                 break;
             }
@@ -3064,7 +3083,7 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
                 return;
 
             if (GET_POSITION(ch) < POS_FIGHTING) {
-                if (CHECK_WAIT(ch) < 10)
+                if (CHECK_WAIT(ch))
                     send_to_char(ch, "You can't fight while sitting!!\r\n");
                 return;
             }

@@ -85,7 +85,7 @@ void qp_reload(int sig);
 void qlog(struct creature *ch, const char *str, int type, int level, int file);
 
 struct creature *check_char_vis(struct creature *ch, char *name);
-void list_quest_players(struct creature *ch, struct quest *quest, char *outbuf);
+void list_quest_players(struct creature *ch, struct quest *quest, char *outbuf, size_t size);
 int boot_quests(void);
 void save_quests();
 

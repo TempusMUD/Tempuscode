@@ -46,13 +46,13 @@ SPECIAL(wagon_driver)
 
         act("$n twitches the reins.", true, driver, NULL, NULL, TO_ROOM);
         act("The wagon driver twitches the reins.", true, NULL, i, NULL, TO_ROOM);
-        sprintf(buf, "$p rolls off to the %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$p rolls off to the %s.", to_dirs[dir]);
         act(buf, true, NULL, i, NULL, TO_ROOM);
 
         obj_from_room(i);
         obj_to_room(i, destination);
 
-        sprintf(buf, "$p drives in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$p drives in from %s.", from_dirs[dir]);
         act(buf, false, NULL, i, NULL, TO_ROOM);
 
         return 1;

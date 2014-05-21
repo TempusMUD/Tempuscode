@@ -1722,6 +1722,7 @@ const char *wear_description[] = {
     "right ear",
     "!wield2!",
     "!ass!",
+    "!random!",
     "\n"
 };
 
@@ -2075,47 +2076,49 @@ const char *drinknames[] = {
     "\n"
 };
 
-/* effect of drinks on hunger, and drunkenness -- see values.doc */
+/* effect of drinks on hunger and drunkenness -- see values.doc */
 /* (DRUNK, HUNGER)*/
 const char drink_aff[][2] = {
-    {0, 1},                 /*water */
-    {3, 2},                  /* beer */
-    {5, 1},                  /* wine */
-    {2, 2},                  /* ale */
-    {1, 2},                  /* darkale */
-    {6, 1},                  /* whiskey *//* 5 */
-    {0, 1},                  /* lemonade */
-    {10, 1},                 /* firebreather */
-    {3, 1},                  /* local specialty */
-    {0, 3},                 /* slime */
-    {0, 2},                  /* milk *//* 10 */
-    {0, 1},                  /* tea */
-    {0, 1},                  /* coffee */
-    {0, 1},                 /* blood */
-    {0, 1},                 /* saltwater */
-    {0, 1},                 /* clear water *//* 15 */
-    {0, 2},                 /* coke */
-    {10, 1},                 /* fire talon */
-    {0, 3},                  /* soup */
-    {0, 2},                 /* mud */
-    {0, 1},                 /* holy water *//* 20 */
-    {0, 1},                  /* orange juice */
-    {0, 2},                  /* goatsmilk */
-    {0, 3},                 /* mucus */
-    {0, 3},                  /* pus */
-    {0, 2},                 /* sprite *//* 25 */
-    {0, 2},                 /* diet coke */
-    {0, 2},                 /* root beer */
-    {12, 1},                 /* vodka */
-    {1, 1},                  /* city beer */
-    {0, 1},                 /* urine *//* 30 */
-    {5, 2},                  /* stout  */
-    {2, 1},                  /* souls */
-    {1, 2},                  /* champagne */
-    {0, 1},                  /* cappucino */
-    {10, 1},                 /* rum *//* 35 */
-    {12, 1},                 /* sake */
-    {0, 2},                  // chocolate milk
+    {0, 1},                     /*water */
+    {3, 2},                     /* beer */
+    {5, 1},                     /* wine */
+    {2, 2},                     /* ale */
+    {1, 2},                     /* darkale */
+    {6, 1},                     /* whiskey *//* 5 */
+    {0, 1},                     /* lemonade */
+    {10, 1},                    /* firebreather */
+    {3, 1},                     /* local specialty */
+    {0, 3},                     /* slime */
+    {0, 2},                     /* milk *//* 10 */
+    {0, 1},                     /* tea */
+    {0, 1},                     /* coffee */
+    {0, 1},                     /* blood */
+    {0, 1},                     /* saltwater */
+    {0, 1},                     /* clear water *//* 15 */
+    {0, 2},                     /* coke */
+    {10, 1},                    /* fire talon */
+    {0, 3},                     /* soup */
+    {0, 2},                     /* mud */
+    {0, 1},                     /* holy water *//* 20 */
+    {0, 1},                     /* orange juice */
+    {0, 2},                     /* goatsmilk */
+    {0, 3},                     /* mucus */
+    {0, 3},                     /* pus */
+    {0, 2},                     /* sprite *//* 25 */
+    {0, 2},                     /* diet coke */
+    {0, 2},                     /* root beer */
+    {12, 1},                    /* vodka */
+    {1, 1},                     /* city beer */
+    {0, 1},                     /* urine *//* 30 */
+    {5, 2},                     /* stout  */
+    {2, 1},                     /* souls */
+    {1, 2},                     /* champagne */
+    {0, 1},                     /* cappucino */
+    {10, 1},                    /* rum *//* 35 */
+    {12, 1},                    /* sake */
+    {0, 2},                     /* chocolate milk */
+    {0, 3},                     /* juice */
+    {8, 0},                     /* mead */
     {-1, -1},
 };
 
@@ -3384,8 +3387,8 @@ const struct weap_spec_info weap_spec_char_class[NUM_CLASSES] = {
         1.5, 6}                 // spare3
 };
 
-const int wear_bitvectors[] =
-    { ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_FINGER,
+const int wear_bitvectors[] = {
+    ITEM_WEAR_TAKE, ITEM_WEAR_FINGER, ITEM_WEAR_FINGER,
     ITEM_WEAR_NECK, ITEM_WEAR_NECK, ITEM_WEAR_BODY,
     ITEM_WEAR_HEAD, ITEM_WEAR_LEGS, ITEM_WEAR_FEET,
     ITEM_WEAR_HANDS, ITEM_WEAR_ARMS, ITEM_WEAR_SHIELD,
@@ -3393,7 +3396,7 @@ const int wear_bitvectors[] =
     ITEM_WEAR_WRIST, ITEM_WEAR_WIELD, ITEM_WEAR_HOLD,
     ITEM_WEAR_CROTCH, ITEM_WEAR_EYES, ITEM_WEAR_BACK,
     ITEM_WEAR_BELT, ITEM_WEAR_FACE, ITEM_WEAR_EAR,
-    ITEM_WEAR_EAR, ITEM_WEAR_WIELD, ITEM_WEAR_ASS
+    ITEM_WEAR_EAR, ITEM_WEAR_WIELD, ITEM_WEAR_ASS,
 };
 
 const char *grievance_kind_descs[] = { "murder", "theft", "attack", "\n" };

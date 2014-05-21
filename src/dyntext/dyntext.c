@@ -58,13 +58,10 @@ dynamic_text_file *dyntext_list = NULL;
 static int
 load_dyntext_buffer(dynamic_text_file * dyntext)
 {
-    FILE *fl;
-    char filename[1024];
-
-    sprintf(filename, "text/%s", dyntext->filename);
-
-    if (!(fl = fopen(filename, "r"))) {
-        errlog("unable to open dynamic text file '%s'.", filename);
+    char *path = tmp_sprintf("text/%s", dyntext->filename);
+    FILE *fl = fopen(path, "r");
+    if (fl == NULL) {
+        errlog("unable to open dynamic text file '%s'.", path);
         perror("dyntext fopen:");
         return -1;
     }
@@ -89,8 +86,6 @@ boot_dynamic_text(void)
     struct dirent *dirp;
     dynamic_text_file *newdyn = NULL;
     dynamic_text_file_save savedyn;
-    FILE *fl;
-    char filename[1024];
     unsigned int i;
 
     if (!(dir = opendir(DYN_TEXT_CONTROL_DIR))) {
@@ -99,59 +94,60 @@ boot_dynamic_text(void)
     }
 
     while ((dirp = readdir(dir))) {
+        size_t br;
 
-        if ((strlen(dirp->d_name) > 4) &&
-            !strcmp(dirp->d_name + strlen(dirp->d_name) - 4, ".dyn")) {
-
-            sprintf(filename, "%s/%s", DYN_TEXT_CONTROL_DIR, dirp->d_name);
-
-            if (!(fl = fopen(filename, "r"))) {
-                errlog("error opening dynamic control file '%s'.", filename);
-                perror("fopen:");
-                continue;
-            }
-
-            if (!(newdyn =
-                    (dynamic_text_file *) malloc(sizeof(dynamic_text_file)))) {
-                errlog("error allocating dynamic control block, aborting.");
-                closedir(dir);
-                fclose(fl);
-                return;
-            }
-
-            if (!(fread(&savedyn, sizeof(dynamic_text_file_save), 1, fl))) {
-                errlog("error reading information from '%s'.", filename);
-                free(newdyn);
-                fclose(fl);
-                continue;
-            }
-
-            fclose(fl);
-
-            strcpy(newdyn->filename, savedyn.filename);
-            for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
-                newdyn->last_edit[i].idnum = savedyn.last_edit[i].idnum;
-                newdyn->last_edit[i].tEdit = savedyn.last_edit[i].tEdit;
-            }
-            for (i = 0; i < DYN_TEXT_PERM_SIZE; i++)
-                newdyn->perms[i] = savedyn.perms[i];
-
-            newdyn->level = savedyn.level;
-            newdyn->lock = 0;
-            newdyn->next = NULL;
-            newdyn->buffer = NULL;
-            newdyn->tmp_buffer = NULL;
-
-            if (load_dyntext_buffer(newdyn) == 0) {
-                slog("dyntext BOOTED %s.", dirp->d_name);
-            } else {
-                errlog("dyntext FAILED TO BOOT %s.", dirp->d_name);
-            }
-
-            newdyn->next = dyntext_list;
-            dyntext_list = newdyn;
-
+        if ((strlen(dirp->d_name) < 4)
+            || !strcmp(dirp->d_name + strlen(dirp->d_name) - 4, ".dyn")) {
+            continue;
         }
+
+        char *path = tmp_sprintf("%s/%s", DYN_TEXT_CONTROL_DIR, dirp->d_name);
+        FILE *fl = fopen(path, "r");
+        if (fl == NULL) {
+            errlog("error opening dynamic control file '%s'.", path);
+            perror("fopen:");
+            continue;
+        }
+
+        CREATE(newdyn, dynamic_text_file, 1);
+        if (newdyn == NULL) {
+            errlog("error allocating dynamic control block, aborting.");
+            closedir(dir);
+            fclose(fl);
+            return;
+        }
+
+        br = fread(&savedyn, sizeof(dynamic_text_file_save), 1, fl);
+        if (br == 0) {
+            errlog("error reading information from '%s'.", path);
+            free(newdyn);
+            fclose(fl);
+            continue;
+        }
+        fclose(fl);
+
+        strcpy_s(newdyn->filename, sizeof(newdyn->filename), savedyn.filename);
+        for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
+            newdyn->last_edit[i].idnum = savedyn.last_edit[i].idnum;
+            newdyn->last_edit[i].tEdit = savedyn.last_edit[i].tEdit;
+        }
+        for (i = 0; i < DYN_TEXT_PERM_SIZE; i++)
+            newdyn->perms[i] = savedyn.perms[i];
+
+        newdyn->level = savedyn.level;
+        newdyn->lock = 0;
+        newdyn->next = NULL;
+        newdyn->buffer = NULL;
+        newdyn->tmp_buffer = NULL;
+
+        if (load_dyntext_buffer(newdyn) == 0) {
+            slog("dyntext BOOTED %s.", dirp->d_name);
+        } else {
+            errlog("dyntext FAILED TO BOOT %s.", dirp->d_name);
+        }
+
+        newdyn->next = dyntext_list;
+        dyntext_list = newdyn;
     }
 
     closedir(dir);
@@ -192,7 +188,7 @@ create_dyntext_backup(dynamic_text_file * dyntext)
 
     closedir(dir);
 
-    sprintf(filename, "%s/%s.%02d", DYN_TEXT_BACKUP_DIR, dyntext->filename,
+    snprintf(filename, sizeof(filename), "%s/%s.%02d", DYN_TEXT_BACKUP_DIR, dyntext->filename,
         maxnum + 1);
 
     if (!(fl = fopen(filename, "w"))) {
@@ -220,7 +216,7 @@ save_dyntext_buffer(dynamic_text_file * dyntext)
     char filename[1024];
     char *ptr = NULL;
 
-    sprintf(filename, "text/%s", dyntext->filename);
+    snprintf(filename, sizeof(filename), "text/%s", dyntext->filename);
 
     if (!(fl = fopen(filename, "w"))) {
         errlog("Unable to open '%s' for write.", filename);
@@ -249,14 +245,14 @@ save_dyntext_control(dynamic_text_file * dyntext)
     dynamic_text_file_save savedyn;
     int i;
 
-    sprintf(filename, "%s/%s.dyn", DYN_TEXT_CONTROL_DIR, dyntext->filename);
+    snprintf(filename, sizeof(filename), "%s/%s.dyn", DYN_TEXT_CONTROL_DIR, dyntext->filename);
 
     if (!(fl = fopen(filename, "w"))) {
         errlog("Unable to open '%s' for write.", filename);
         return 1;
     }
 
-    strcpy(savedyn.filename, dyntext->filename);
+    strcpy_s(savedyn.filename, sizeof(savedyn.filename), dyntext->filename);
     for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
         savedyn.last_edit[i].idnum = dyntext->last_edit[i].idnum;
         savedyn.last_edit[i].tEdit = dyntext->last_edit[i].tEdit;
@@ -473,7 +469,7 @@ dynedit_update_string(dynamic_text_file * d)
     t = time(NULL);
     tmTime = *(localtime(&t));
 
-    sprintf(buffer,
+    snprintf(buffer, sizeof(buffer),
         "\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\r\n",
         tmp_toupper(d->filename), tmTime.tm_mon + 1, tmTime.tm_mday);
 
@@ -692,8 +688,8 @@ ACMD(do_dynedit)
 
         *newbuf = '\0';
 
-        strcat(newbuf, s);
-        strcat(newbuf, dyntext->buffer);
+        strcat_s(newbuf, i, s);
+        strcat_s(newbuf, i, dyntext->buffer);
         free(dyntext->buffer);
         dyntext->buffer = newbuf;
 
@@ -750,9 +746,10 @@ ACMD(do_dynedit)
                         "Resulting string would exceed maximum string length, aborting.\r\n");
                     return;
                 }
+                size_t newbuf_size = strlen(dyntext->buffer) +
+                    strlen(dyntext->tmp_buffer) + 1;
                 if (!(newbuf =
-                        (char *)malloc(strlen(dyntext->buffer) +
-                            strlen(dyntext->tmp_buffer) + 1))) {
+                        (char *)malloc(newbuf_size))) {
                     errlog
                         ("unable to malloc buffer for prepend in do_dynedit.");
                     send_to_char(ch,
@@ -760,8 +757,8 @@ ACMD(do_dynedit)
                     return;
                 }
                 *newbuf = '\0';
-                strcat(newbuf, dyntext->buffer);
-                strcat(newbuf, dyntext->tmp_buffer);
+                strcat_s(newbuf, newbuf_size, dyntext->buffer);
+                strcat_s(newbuf, newbuf_size, dyntext->tmp_buffer);
                 free(dyntext->tmp_buffer);
                 dyntext->tmp_buffer = newbuf;
             }
@@ -799,18 +796,16 @@ ACMD(do_dynedit)
                         "Resulting string would exceed maximum string length, aborting.\r\n");
                     return;
                 }
-                if (!(newbuf =
-                        (char *)malloc(strlen(dyntext->buffer) +
-                            strlen(dyntext->tmp_buffer) + 1))) {
-                    errlog
-                        ("unable to malloc buffer for append in do_dynedit.");
-                    send_to_char(ch,
-                        "Unable to allocate memory for the new buffer.\r\n");
+                size_t newbuf_size = strlen(dyntext->buffer) + strlen(dyntext->tmp_buffer) + 1;
+                newbuf = (char *)malloc(newbuf_size);
+                if (newbuf == NULL) {
+                    errlog("unable to malloc buffer for append in do_dynedit.");
+                    send_to_char(ch, "Unable to allocate memory for the new buffer.\r\n");
                     return;
                 }
                 *newbuf = '\0';
-                strcat(newbuf, dyntext->tmp_buffer);
-                strcat(newbuf, dyntext->buffer);
+                strcat_s(newbuf, newbuf_size, dyntext->tmp_buffer);
+                strcat_s(newbuf, newbuf_size, dyntext->buffer);
                 free(dyntext->tmp_buffer);
                 dyntext->tmp_buffer = newbuf;
             }
@@ -879,13 +874,13 @@ ACMD(do_dyntext_show)
     }
 
     if (clr(ch, C_NRM)) {
-        sprintf(color1, "\x1B[%dm", number(31, 37));
-        sprintf(color2, "\x1B[%dm", number(31, 37));
-        sprintf(color3, "\x1B[%dm", number(31, 37));
+        snprintf(color1, sizeof(color1), "\x1B[%dm", number(31, 37));
+        snprintf(color2, sizeof(color2), "\x1B[%dm", number(31, 37));
+        snprintf(color3, sizeof(color3), "\x1B[%dm", number(31, 37));
     } else {
-        strcpy(color1, "");
-        strcpy(color2, color1);
-        strcpy(color3, color1);
+        strcpy_s(color1, sizeof(color1), "");
+        strcpy_s(color2, sizeof(color2), color1);
+        strcpy_s(color3, sizeof(color3), color1);
     }
 
     acc_string_clear();

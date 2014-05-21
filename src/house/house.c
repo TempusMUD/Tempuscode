@@ -416,7 +416,11 @@ can_enter_house(struct creature * ch, room_num room_vnum)
 bool
 can_hedit_room(struct creature * ch, struct room_data * room)
 {
-    return is_authorized(ch, EDIT_HOUSE, find_house_by_room(room->number));
+    struct house *h = find_house_by_room(room->number);
+    if (h == NULL) {
+        return false;
+    }
+    return is_authorized(ch, EDIT_HOUSE, h);
 }
 
 bool

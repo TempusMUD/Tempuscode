@@ -174,7 +174,6 @@ SPECIAL(new_mavernal_talker);
 
 // disaster_specs
 SPECIAL(boulder_thrower);
-SPECIAL(windy_room);
 
 // utility specs
 SPECIAL(gen_board);
@@ -182,7 +181,6 @@ SPECIAL(wagon_obj);
 SPECIAL(fountain_heal);
 SPECIAL(fountain_restore);
 SPECIAL(loud_speaker);
-SPECIAL(library);
 SPECIAL(arena_object);
 SPECIAL(javelin_of_lightning);
 SPECIAL(modrian_fountain_obj);
@@ -202,7 +200,6 @@ SPECIAL(fate_cauldron);
 SPECIAL(fate_portal);
 SPECIAL(quantum_rift);
 SPECIAL(roaming_portal);
-SPECIAL(tester_util);
 SPECIAL(typo_util);
 SPECIAL(labyrinth_clock);
 SPECIAL(drink_me_bottle);

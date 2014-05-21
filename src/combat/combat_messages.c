@@ -65,8 +65,7 @@ char *replace_string(const char *str,
 void
 appear(struct creature *ch, struct creature *vict)
 {
-    char *to_char = NULL;
-    int found = 0;
+    int found = false;
 
     // Sonic imagery and retina detects transparent creatures
     if (affected_by_spell(ch, SPELL_TRANSMITTANCE) &&
@@ -76,7 +75,7 @@ appear(struct creature *ch, struct creature *vict)
             affected_by_spell(vict, ZEN_AWARENESS))) {
         affect_from_char(ch, SPELL_TRANSMITTANCE);
         send_to_char(ch, "Your transparency has expired.\r\n");
-        found = 1;
+        found = true;
     }
     // True seeing and detect invisibility counteract all magical invis
     if (affected_by_spell(ch, SPELL_INVISIBLE) &&
@@ -84,23 +83,23 @@ appear(struct creature *ch, struct creature *vict)
             AFF_FLAGGED(vict, AFF_DETECT_INVIS))) {
         affect_from_char(ch, SPELL_INVISIBLE);
         send_to_char(ch, "Your invisibility spell has expired.\r\n");
-        found = 1;
+        found = true;
     }
 
     if (IS_ANIMAL(vict) && affected_by_spell(ch, SPELL_ANIMAL_KIN)) {
         affect_from_char(ch, SPELL_ANIMAL_KIN);
         send_to_char(ch, "You no longer feel kinship with animals.\r\n");
-        found = 1;
+        found = true;
     }
     if (IS_UNDEAD(vict) && affected_by_spell(ch, SPELL_INVIS_TO_UNDEAD)) {
         affect_from_char(ch, SPELL_INVIS_TO_UNDEAD);
         send_to_char(ch, "Your invisibility to undead has expired.\r\n");
-        found = 1;
+        found = true;
     }
 
     if (AFF_FLAGGED(ch, AFF_HIDE)) {
         REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
-        found = 1;
+        found = true;
     }
 
     if (!IS_NPC(vict) && !IS_NPC(ch) &&
@@ -108,19 +107,17 @@ appear(struct creature *ch, struct creature *vict)
         GET_INVIS_LVL(ch) > GET_LEVEL(vict)) {
         GET_INVIS_LVL(ch) = GET_LEVEL(vict);
         send_to_char(ch, "You feel a bit more visible.\n");
-        found = 1;
+        found = true;
     }
 
     if (found) {
         if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
             act("$n suddenly appears, seemingly from nowhere.",
                 true, ch, NULL, NULL, TO_ROOM);
-            if (to_char)
-                send_to_char(ch, "%s", to_char);
-            else
-                send_to_char(ch, "You fade into visibility.\r\n");
-        } else
+            send_to_char(ch, "You fade into visibility.\r\n");
+        } else {
             act("You feel a strange presence as $n appears, seemingly from nowhere.", false, ch, NULL, NULL, TO_ROOM);
+        }
     }
 }
 
@@ -214,7 +211,6 @@ death_cry(struct creature *ch)
     struct room_data *adjoin_room = NULL;
     int door;
     struct room_data *was_in = NULL;
-    int found = 0;
 
     if (GET_NPC_SPEC(ch) == fate)
         act("$n dissipates in a cloud of mystery, leaving you to your fate.",
@@ -243,17 +239,14 @@ death_cry(struct creature *ch)
 
             if (tch == ch)
                 return;
-            found = 0;
 
-            if (!found && IS_BARB(tch) && !number(0, 1)) {
-                found = 1;
+            if (IS_BARB(tch) && !number(0, 1)) {
                 act("You feel a rising bloodlust as you hear $n's death cry.",
                     false, ch, NULL, tch, TO_VICT);
-            }
-
-            if (!found)
+            } else {
                 act("Your blood freezes as you hear $n's death cry.",
                     false, ch, NULL, tch, TO_VICT);
+            }
         }
     }
 
@@ -269,7 +262,7 @@ death_cry(struct creature *ch)
 
     was_in = ch->in_room;
 
-    for (door = 0; door < NUM_OF_DIRS && !found; door++) {
+    for (door = 0; door < NUM_OF_DIRS; door++) {
         if (CAN_GO(ch, door) && ch->in_room != EXIT(ch, door)->to_room) {
             ch->in_room = was_in->dir_option[door]->to_room;
             act(tmp_sprintf
@@ -284,8 +277,6 @@ death_cry(struct creature *ch)
                 for (GList *it = first_living(tmplist);it;it = next_living(it)) {
                     struct creature *tch = it->data;
 
-                    if (found)
-                        break;
                     if (IS_NPC(tch)
                         && !NPC_FLAGGED(tch, NPC_SENTINEL)
                         && !is_fighting(tch)
@@ -297,7 +288,7 @@ death_cry(struct creature *ch)
                                 CHAR_WITHSTANDS_FIRE(tch)) &&
                             (!ROOM_FLAGGED(ch->in_room, ROOM_ICE_COLD) ||
                                 CHAR_WITHSTANDS_COLD(tch)) &&
-                            (can_see_room(tch, ch->in_room))) {
+                            can_see_room(tch, ch->in_room)) {
 
                             int move_result =
                                 perform_move(tch, rev_dir[door], MOVE_RUSH, 1);
@@ -334,7 +325,7 @@ blood_spray(struct creature *ch, struct creature *victim,
             int dam __attribute__ ((unused)), int attacktype)
 {
     const char *to_char, *to_vict, *to_notvict;
-    int pos, found = 0;
+    int pos, found = false;
 
     // some creatures don't have blood
     if (!CHAR_HAS_BLOOD(victim))
@@ -443,7 +434,7 @@ blood_spray(struct creature *ch, struct creature *victim,
                     wear_description[pos]);
 
             act(msg, false, tch, NULL, victim, TO_CHAR);
-            found = 1;
+            found = true;
 
             if (tch == ch && IS_CLERIC(ch) && IS_EVIL(ch)) {
                 GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + 20);

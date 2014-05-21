@@ -85,10 +85,10 @@ load_tongue(xmlNodePtr node)
         if (xmlMatches(child->name, "syllable")) {
             char *s;
             s = (char *)xmlGetProp(child, (xmlChar *) "pattern");
-            strcpy(tongue->syllables[syllable_idx].pattern, s);
+            strcpy_s(tongue->syllables[syllable_idx].pattern, sizeof(tongue->syllables[syllable_idx].pattern), s);
             free(s);
             s = (char *)xmlGetProp(child, (xmlChar *) "replacement");
-            strcpy(tongue->syllables[syllable_idx].replacement, s);
+            strcpy_s(tongue->syllables[syllable_idx].replacement, sizeof(tongue->syllables[syllable_idx].replacement), s);
             free(s);
             syllable_idx++;
         } else if (xmlMatches(child->name, "letter")) {

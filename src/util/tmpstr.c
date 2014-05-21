@@ -10,6 +10,8 @@
 
 #include "interpreter.h"
 #include "tmpstr.h"
+#include "utils.h"
+#include "strutil.h"
 
 struct tmp_str_pool {
     struct tmp_str_pool *next;  // Ptr to next in linked list
@@ -130,6 +132,8 @@ tmp_vsprintf(const char *fmt, va_list args)
     }
 
     cur_buf->used += wanted;
+
+    va_end(args_copy);
 
     return result;
 }

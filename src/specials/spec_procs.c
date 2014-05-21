@@ -172,29 +172,29 @@ char *
 how_good(int percent)
 {
     if (percent < 0)
-        strcpy(buf, " (terrible)");
+        strcpy_s(buf, sizeof(buf), " (terrible)");
     else if (percent == 0)
-        strcpy(buf, " (not learned)");
+        strcpy_s(buf, sizeof(buf), " (not learned)");
     else if (percent <= 10)
-        strcpy(buf, " (awful)");
+        strcpy_s(buf, sizeof(buf), " (awful)");
     else if (percent <= 20)
-        strcpy(buf, " (bad)");
+        strcpy_s(buf, sizeof(buf), " (bad)");
     else if (percent <= 40)
-        strcpy(buf, " (poor)");
+        strcpy_s(buf, sizeof(buf), " (poor)");
     else if (percent <= 55)
-        strcpy(buf, " (average)");
+        strcpy_s(buf, sizeof(buf), " (average)");
     else if (percent <= 70)
-        strcpy(buf, " (fair)");
+        strcpy_s(buf, sizeof(buf), " (fair)");
     else if (percent <= 80)
-        strcpy(buf, " (good)");
+        strcpy_s(buf, sizeof(buf), " (good)");
     else if (percent <= 85)
-        strcpy(buf, " (very good)");
+        strcpy_s(buf, sizeof(buf), " (very good)");
     else if (percent <= 100)
-        strcpy(buf, " (superb)");
+        strcpy_s(buf, sizeof(buf), " (superb)");
     else if (percent <= 150)
-        strcpy(buf, " (extraordinary)");
+        strcpy_s(buf, sizeof(buf), " (extraordinary)");
     else
-        strcpy(buf, " (superhuman)");
+        strcpy_s(buf, sizeof(buf), " (superhuman)");
 
     return (buf);
 }
@@ -329,11 +329,9 @@ SPECIAL(guild)
             || GET_LEVEL(ch) > LVL_CAN_RETURN
             || GET_REMORT_GEN(ch) > 0) &&
         GET_CLASS(ch) != GET_CLASS(master) &&
-        GET_CLASS(master) != CHECK_REMORT_CLASS(ch) &&
+        GET_CLASS(master) != GET_REMORT_CLASS(ch) &&
         (!IS_REMORT(master) ||
-            CHECK_REMORT_CLASS(ch) != GET_CLASS(ch)) &&
-        (!IS_REMORT(master) ||
-            CHECK_REMORT_CLASS(ch) != CHECK_REMORT_CLASS(ch))) {
+            GET_REMORT_CLASS(ch) != GET_CLASS(ch))) {
         perform_tell(master, ch, "Go to your own guild to practice!");
         return 1;
     }
@@ -540,14 +538,14 @@ npc_steal(struct creature *ch, struct creature *victim)
                 break;
 
         if (obj) {
-            sprintf(buf, "%s %s", fname(obj->aliases), victim->player.name);
+            snprintf(buf, sizeof(buf), "%s %s", fname(obj->aliases), victim->player.name);
             do_steal(ch, buf, 0, 0);
             return;
         }
 
     }
 
-    sprintf(buf, "gold %s", victim->player.name);
+    snprintf(buf, sizeof(buf), "gold %s", victim->player.name);
     do_steal(ch, buf, 0, 0);
 
 }
@@ -709,6 +707,7 @@ SPECIAL(magic_user)
     case 18:
     case 19:
         cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
+        break;
     case 20:
     case 21:
     case 22:
@@ -1286,6 +1285,10 @@ SPECIAL(pet_shops)
 
         if (IS_NPC(pet)) {
             pet = read_mobile(GET_NPC_VNUM(pet));
+            if (pet == NULL) {
+                send_to_char(ch, "Couldn't find your pet back there.\r\n");
+                return 1;
+            }
             GET_EXP(pet) = 0;
 
             if (*pet_name) {
@@ -1648,7 +1651,6 @@ SPECIAL(cave_bear)
 #include "Specs/utility_specs/stable_room.c"
 #include "Specs/utility_specs/increaser.c"
 #include "Specs/utility_specs/donation_room.c"
-#include "Specs/utility_specs/tester_util.c"
 #include "Specs/utility_specs/typo_util.c"
 #include "Specs/utility_specs/newspaper.c"
 #include "Specs/utility_specs/prac_manual.c"
@@ -1671,12 +1673,10 @@ SPECIAL(cave_bear)
 /* SPECS BY SARFLIN */
 #include "Specs/sarflin_specs/maze_cleaner.c"
 #include "Specs/sarflin_specs/maze_switcher.c"
-#include "Specs/sarflin_specs/darom.c"
 #include "Specs/sarflin_specs/puppet.c"
 #include "Specs/sarflin_specs/oracle.c"
 #include "Specs/sarflin_specs/fountain_heal.c"
 #include "Specs/sarflin_specs/fountain_restore.c"
-#include "Specs/sarflin_specs/library.c"
 #include "Specs/sarflin_specs/arena.c"
 #include "Specs/sarflin_specs/gingwatzim_rm.c"
 #include "Specs/sarflin_specs/dwarven_hermit.c"
@@ -1812,22 +1812,22 @@ SPECIAL(cave_bear)
 /** OTHERS **/
 
 #include "Specs/disaster_specs/boulder_thrower.c"
-#include "Specs/disaster_specs/windy_room.c"
 #include "Specs/javelin_specs/clone_lab.c"
 
 SPECIAL(weapon_lister)
 {
-    int dam, i, found = 0;
+    bool found = false;
     char buf3[MAX_STRING_LENGTH];
     unsigned int avg_dam[60];
 
     if (!CMD_IS("list"))
         return 0;
 
-    for (i = 0; i < 60; i++)
+    for (int i = 0; i < 60; i++) {
         avg_dam[i] = 0;
+    }
 
-    strcpy(buf3, "");
+    strcpy_s(buf3, sizeof(buf3), "");
     GHashTableIter iter;
     gpointer key, val;
 
@@ -1841,21 +1841,24 @@ SPECIAL(weapon_lister)
         if (!OBJ_APPROVED(obj))
             continue;
 
-        for (i = 0, dam = 0; i < MAX_OBJ_AFFECT; i++)
-            if (obj->affected[i].location == APPLY_DAMROLL)
+        int dam = 0;
+        for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+            if (obj->affected[i].location == APPLY_DAMROLL) {
                 dam += obj->affected[i].modifier;
+            }
+        }
 
-        sprintf(buf, "[%5d] %-30s %2dd%-2d", GET_OBJ_VNUM(obj),
-            obj->name, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
+        snprintf(buf, sizeof(buf), "[%5d] %-30s %2dd%-2d", GET_OBJ_VNUM(obj),
+                obj->name, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 
         if (dam > 0)
-            sprintf(buf, "%s+%-2d", buf, dam);
-        else if (dam > 0)
-            sprintf(buf, "%s-%-2d", buf, -dam);
+            snprintf_cat(buf, sizeof(buf), "+%-2d", dam);
+        else if (dam < 0)
+            snprintf_cat(buf, sizeof(buf), "-%-2d", -dam);
         else
-            strcat(buf, "   ");
+            strcat_s(buf, sizeof(buf), "   ");
 
-        sprintf(buf, "%s (%2d) %3.2f lb ", buf,
+        snprintf_cat(buf, sizeof(buf), " (%2d) %3.2f lb ",
             (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam,
             GET_OBJ_WEIGHT(obj));
 
@@ -1866,45 +1869,43 @@ SPECIAL(weapon_lister)
                             2) + 1) / 2) + dam]++;
 
         if (IS_TWO_HAND(obj))
-            strcat(buf, "2-H ");
+            strcat_s(buf, sizeof(buf), "2-H ");
 
         if (GET_OBJ_VAL(obj, 0))
-            sprintf(buf, "%sCast:%s ", buf, spell_to_str(GET_OBJ_VAL(obj, 0)));
+            snprintf_cat(buf, sizeof(buf), "Cast:%s ", spell_to_str(GET_OBJ_VAL(obj, 0)));
 
-        for (i = 0, found = 0; i < 3; i++)
+        found = false;
+        for (int i = 0; i < 3; i++)
             if (obj->obj_flags.bitvector[i]) {
                 if (!found)
-                    strcat(buf, "Set: ");
-                found = 1;
+                    strcat_s(buf, sizeof(buf), "Set: ");
+                found = true;
                 if (i == 0)
-                    sprintbit(obj->obj_flags.bitvector[i], affected_bits,
-                        buf2);
+                    sprintbit(obj->obj_flags.bitvector[i], affected_bits, buf2, sizeof(buf2));
                 else if (i == 1)
-                    sprintbit(obj->obj_flags.bitvector[i], affected2_bits,
-                        buf2);
+                    sprintbit(obj->obj_flags.bitvector[i], affected2_bits, buf2, sizeof(buf2));
                 else
-                    sprintbit(obj->obj_flags.bitvector[i], affected3_bits,
-                        buf2);
-                strcat(buf, buf2);
-                strcat(buf, " ");
+                    sprintbit(obj->obj_flags.bitvector[i], affected3_bits, buf2, sizeof(buf2));
+                strcat_s(buf, sizeof(buf), buf2);
+                strcat_s(buf, sizeof(buf), " ");
             }
 
-        for (i = 0; i < MAX_OBJ_AFFECT; i++)
+        for (int i = 0; i < MAX_OBJ_AFFECT; i++)
             if (obj->affected[i].location && obj->affected[i].modifier &&
                 obj->affected[i].location != APPLY_DAMROLL)
-                sprintf(buf, "%s%s%s%d ", buf,
+                snprintf_cat(buf, sizeof(buf), "%s%s%d ",
                     apply_types[(int)obj->affected[i].location],
                     obj->affected[i].modifier > 0 ? "+" : "",
                     obj->affected[i].modifier);
 
-        strcat(buf, "\r\n");
-        strcat(buf3, buf);
+        strcat_s(buf, sizeof(buf), "\r\n");
+        strcat_s(buf3, sizeof(buf3), buf);
     }
 
-    strcat(buf3, "\r\n\r\n");
+    strcat_s(buf3, sizeof(buf3), "\r\n\r\n");
 
-    for (i = 0; i < 60; i++)
-        sprintf(buf3, "%s%2d -- [ %2d] weapons\r\n", buf3, i, avg_dam[i]);
+    for (int i = 0; i < 60; i++)
+        snprintf_cat(buf3, sizeof(buf3), "%2d -- [ %2d] weapons\r\n", i, avg_dam[i]);
 
     page_string(ch->desc, buf3);
     return 1;

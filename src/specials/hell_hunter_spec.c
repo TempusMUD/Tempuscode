@@ -40,6 +40,7 @@
 #include "xml_utils.h"
 #include "obj_data.h"
 #include "specs.h"
+#include "strutil.h"
 #include "hell_hunter_spec.h"
 
 /*   external vars  */
@@ -259,14 +260,17 @@ SPECIAL(hell_hunter_brain)
     struct creature *mob = NULL, *vict = NULL;
     unsigned int i;
     int num_devils = 0, regulator = 0;
+
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
+
     if (!data_loaded) {
         if (!load_hunter_data())
             return 0;
         data_loaded = true;
         slog("Hell Hunter Brain data successfully loaded.");
     }
+
     if (cmd) {
         if (CMD_IS("reload")) {
             if (!load_hunter_data()) {
@@ -281,7 +285,7 @@ SPECIAL(hell_hunter_brain)
             return 1;
         } else if (CMD_IS("status")) {
             send_to_char(ch, "Counter is at %d, freq %d.\r\n", counter, freq);
-            sprintf(buf, "     [vnum] %30s exist/housed\r\n", "Object Name");
+            snprintf(buf, sizeof(buf), "     [vnum] %30s exist/housed\r\n", "Object Name");
             i = 1;
             for (GList * it = targets; it; it = it->next, i++) {
                 struct target *target = it->data;
@@ -304,21 +308,24 @@ SPECIAL(hell_hunter_brain)
         } else if (CMD_IS("activate")) {
             skip_spaces(&argument);
 
-            if (*argument && isdigit(*argument)) {
+            if (!*argument) {
+                return 0;
+            }
+
+            if (isdigit(*argument)) {
                 freq = atoi(argument);
                 send_to_char(ch, "Frequency set to %d.\n", freq);
                 counter = freq;
                 return 1;
-            } else if (*argument && strcmp(argument, "now") == 1) {
-                sprintf(buf, "Counter set to 1.\r\n");
+            }
+
+            if (strcmp(argument, "now") == 0) {
+                snprintf(buf, sizeof(buf), "Counter set to 1.\r\n");
                 counter = 1;
                 return 1;
-            } else {
-                return 0;
             }
-        } else {
-            return 0;
         }
+        return 0;
     }
 
     if (--counter > 0) {
@@ -328,15 +335,26 @@ SPECIAL(hell_hunter_brain)
     counter = freq;
 
     for (obj = object_list; obj; vict = NULL, obj = obj->next) {
-
-        if (!obj->in_room && !(vict = obj->carried_by)
-            && !(vict = obj->worn_by))
-            continue;
         if (!IS_OBJ_STAT3(obj, ITEM3_HUNTED)) {
             continue;
         }
 
-        if (vict && (IS_NPC(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
+        if (obj->in_room == NULL) {
+            vict = obj->carried_by;
+            if (vict == NULL) {
+                vict = obj->worn_by;
+            }
+            if (vict == NULL) {
+                continue;
+            }
+        }
+        if (vict != NULL) {
+            if (IS_SOULLESS(vict)) {
+                send_to_char(ch, "You feel the eyes of hell look down upon you.\r\n");
+                continue;
+            }
+
+            if (IS_NPC(vict) || PRF_FLAGGED(vict, PRF_NOHASSLE) ||
                 // some rooms are safe
                 ROOM_FLAGGED(vict->in_room, SAFE_ROOM_BITS) ||
                 // no players in quest
@@ -346,13 +364,10 @@ SPECIAL(hell_hunter_brain)
                 // ignore shopkeepers
                 (IS_NPC(vict) && vendor == GET_NPC_SPEC(vict)) ||
                 // don't go to heaven
-                isBlindSpot(vict->in_room->zone))) {
-            continue;
-        }
-        if (vict && IS_SOULLESS(vict)) {
-            send_to_char(ch,
-                "You feel the eyes of hell look down upon you.\r\n");
-            continue;
+                isBlindSpot(vict->in_room->zone)) {
+                continue;
+            }
+            
         }
 
         if (obj->in_room &&
@@ -362,7 +377,7 @@ SPECIAL(hell_hunter_brain)
         }
 
         GList *it;
-        struct target *target;
+        struct target *target = NULL;
         for (it = targets; it; it = it->next) {
             target = it->data;
             if (target->o_vnum == GET_OBJ_VNUM(obj)
@@ -370,7 +385,7 @@ SPECIAL(hell_hunter_brain)
                 break;
             }
         }
-        if (!it)
+        if (target == NULL)
             continue;
 
         // try to skip the first person sometimes
@@ -410,15 +425,16 @@ SPECIAL(hell_hunter_brain)
         if (vict && !IS_NPC(vict) && GET_REMORT_GEN(vict)
             && number(0, GET_REMORT_GEN(vict)) > 1) {
 
-            if (!(mob = read_mobile(H_REGULATOR)))
-                errlog
-                    ("Unable to load hell hunter regulator in hell_hunter_brain.");
-            else {
-                regulator = 1;
-                start_hunting(mob, vict);
-                char_to_room(mob, vict->in_room, false);
-                act("$n materializes suddenly from a stream of hellish energy!", false, mob, NULL, NULL, TO_ROOM);
+            mob = read_mobile(H_REGULATOR);
+            if (mob == NULL) {
+                errlog("Unable to load hell hunter regulator in hell_hunter_brain.");
+                return 1;
             }
+
+            regulator = 1;
+            start_hunting(mob, vict);
+            char_to_room(mob, vict->in_room, false);
+            act("$n materializes suddenly from a stream of hellish energy!", false, mob, NULL, NULL, TO_ROOM);
         }
 
         mudlog(vict ? GET_INVIS_LVL(vict) : 0, CMP, true,
@@ -429,24 +445,21 @@ SPECIAL(hell_hunter_brain)
             vict ? GET_NAME(vict) : "Nobody",
             obj->in_room ? obj->in_room->number :
             (vict && vict->in_room) ? vict->in_room->number : -1);
-        sprintf(buf, "%d Devils%s sent after obj %s (%s@%d)",
+        snprintf(buf, sizeof(buf), "%d Devils%s sent after obj %s (%s@%d)",
             num_devils,
             regulator ? " (+reg)" : "",
             obj->name, vict ? "$N" : "Nobody",
             obj->in_room ? obj->in_room->number :
             (vict && vict->in_room) ? vict->in_room->number : -1);
+
         act(buf, false, ch, NULL, vict, TO_ROOM);
         act(buf, false, ch, NULL, vict, TO_CHAR);
+
         return 1;
     }
 
-    if (cmd) {
-        send_to_char(ch, "Falling through, no match.\r\n");
-    } else {
-
-        // we fell through, lets check again sooner than freq
-        counter = freq / 8;
-    }
+    // we fell through, lets check again sooner than freq
+    counter = freq / 8;
 
     return 0;
 }

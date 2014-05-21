@@ -58,7 +58,6 @@ extern struct clan_data *clan_list;
 
 long asciiflag_conv(char *buf);
 
-void num2str(char *str, int num);
 void do_stat_object(struct creature *ch, struct obj_data *obj);
 
 char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
@@ -108,7 +107,7 @@ write_wld_index(struct creature *ch, struct zone_data *zone)
     free(wld_index);
     wld_index = new_index;
 
-    sprintf(fname, "world/wld/index");
+    snprintf(fname, sizeof(fname), "world/wld/index");
     if (!(index = fopen(fname, "w"))) {
         send_to_char(ch, "Could not open index file, world save aborted.\r\n");
         return (0);
@@ -212,7 +211,7 @@ save_room(struct creature *ch, struct room_data *room, FILE * file)
         if (rm_aff->type == RM_AFF_FLAGS)
             REMOVE_BIT(tmp, rm_aff->flags);
 
-    num2str(buf, tmp);
+    num2str(buf, sizeof(buf), tmp);
     fprintf(file, "%d %s %d\n", room->zone->number, buf, room->sector_type);
 
     for (i = 0; i < NUM_DIRS; i++) {
@@ -236,7 +235,7 @@ save_room(struct creature *ch, struct room_data *room, FILE * file)
                 if ((unsigned int)rm_aff->type == i)
                     REMOVE_BIT(tmp, rm_aff->flags);
 
-            num2str(buf, tmp);
+            num2str(buf, sizeof(buf), tmp);
 
             fprintf(file, "%s %d %d\n", buf, room->dir_option[i]->key,
                 room->dir_option[i]->to_room ? room->dir_option[i]->
@@ -462,9 +461,6 @@ do_destroy_room(struct creature *ch, int vnum)
     struct room_data *rm = NULL, *t_rm = NULL;
     struct zone_data *zone = NULL;
     struct creature *vict = NULL;
-    struct obj_data *obj = NULL, *next_obj = NULL;
-    struct special_search_data *srch = NULL;
-    struct extra_descr_data *desc = NULL;
     struct clan_data *clan = NULL;
     struct room_list_elem *rm_list = NULL;
     int i;
@@ -521,8 +517,10 @@ do_destroy_room(struct creature *ch, int vnum)
 
     }
 
-    for (obj = rm->contents; obj; obj = next_obj) {
-        next_obj = obj->next_content;
+    for (struct obj_data *obj = rm->contents;
+         obj != NULL;
+         obj = rm->contents) {
+        rm->contents = obj->next_content;
         extract_obj(obj);
     }
 
@@ -533,49 +531,9 @@ do_destroy_room(struct creature *ch, int vnum)
                 break;
             }
 
-    if (rm->name)
-        free(rm->name);
-    if (rm->description)
-        free(rm->description);
-    if (rm->sounds)
-        free(rm->sounds);
     if (rm->prog) {
         destroy_attached_progs(rm);
-        free(rm->prog);
     }
-    while ((desc = rm->ex_description)) {
-        rm->ex_description = desc->next;
-        if (desc->keyword)
-            free(desc->keyword);
-        if (desc->description)
-            free(desc->description);
-        free(desc);
-    }
-
-    while ((srch = rm->search)) {
-        rm->search = srch->next;
-        if (srch->command_keys)
-            free(srch->command_keys);
-        if (srch->keywords)
-            free(srch->keywords);
-        if (srch->to_room)
-            free(srch->to_room);
-        if (srch->to_vict)
-            free(srch->to_vict);
-        free(srch);
-    }
-
-    for (i = 0; i < NUM_DIRS; i++) {
-        if (!rm->dir_option[i])
-            continue;
-        if (rm->dir_option[i]->general_description)
-            free(rm->dir_option[i]->general_description);
-        if (rm->dir_option[i]->keyword)
-            free(rm->dir_option[i]->keyword);
-    }
-
-    while (rm->affects)
-        affect_from_room(rm, rm->affects);
 
     for (zone = zone_table; zone; zone = zone->next)
         for (t_rm = zone->world; t_rm; t_rm = t_rm->next)
@@ -904,9 +862,9 @@ do_olc_rset(struct creature *ch, char *argument)
         break;
     case 5:                    /*  flow  */
         if (!*arg2) {
-            strcpy(buf, "Current flow state:");
+            strcpy_s(buf, sizeof(buf), "Current flow state:");
             if (!FLOW_SPEED(ch->in_room))
-                strcat(buf, " None.\r\n");
+                strcat_s(buf, sizeof(buf), " None.\r\n");
             else {
                 send_to_char(ch,
                     "Direction: %s, Speed: %d, Type: %s (%d).\r\n",
@@ -918,8 +876,8 @@ do_olc_rset(struct creature *ch, char *argument)
             return;
         }
         half_chop(arg2, arg1, arg2);    /* sneaky trix */
-        strcpy(argument, arg2);
-        half_chop(argument, arg2, arg3);
+        strcpy_s(arg3, sizeof(arg3), arg2);
+        half_chop(arg3, arg2, arg3);
         if (!*arg2) {
             if (*arg1 && is_abbrev(arg1, "remove")) {
                 FLOW_SPEED(ch->in_room) = 0;
@@ -1099,9 +1057,7 @@ do_olc_rexdesc(struct creature *ch, char *argument, bool is_hedit)
                     "What??  How about giving me some keywords to add...\r\n");
                 return;
             } else {
-                strcpy(buf, desc->keyword);
-                strcat(buf, " ");
-                strcat(buf, arg2);
+                snprintf(buf, sizeof(buf), "%s %s", desc->keyword, arg2);
                 free(desc->keyword);
                 desc->keyword = strdup(buf);
                 send_to_char(ch, "Keywords added.\r\n");
@@ -1179,15 +1135,15 @@ ACMD(do_hedit)
             send_to_char(ch, "That's a bit long. Dont you think?\r\n");
             return;
         }
-        sprintf(buf, "title %s", argument);
+        snprintf(buf, sizeof(buf), "title %s", argument);
         do_olc_rset(ch, buf);
         break;
     case 1:                    // desc
-        sprintf(buf, "desc %s", argument);
+        snprintf(buf, sizeof(buf), "desc %s", argument);
         do_olc_rset(ch, buf);
         break;
     case 3:                    // sound
-        sprintf(buf, "sound %s", argument);
+        snprintf(buf, sizeof(buf), "sound %s", argument);
         do_olc_rset(ch, buf);
         break;
     case 2:                    // extra

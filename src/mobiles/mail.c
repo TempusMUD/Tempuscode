@@ -56,6 +56,7 @@ Rewritten by John Rothe (forget@tempusmud.com)
 #include "prog.h"
 #include "mail.h"
 #include "editor.h"
+#include "strutil.h"
 
 // From cityguard.cc
 void call_for_help(struct creature *ch, struct creature *attacker);
@@ -266,28 +267,27 @@ purge_mail(long idnum)
 // Create the "letters" from the file, and plant them on him without
 //     telling him.  We'll let the spec say what it wants.
 // Returns the number of mails received.
-int
-receive_mail(struct creature *ch, GList *olist)
+GList *
+receive_mail(struct creature *ch, int *num_letters)
 {
-    int num_letters = 0;
     int counter = 0;
     char *path = get_mail_file_path(GET_IDNUM(ch));
     struct obj_data *container = NULL;
-    GList *mailBag;
-    GList *oi;
+    GList *olist = NULL;
 
 
-    mailBag = load_mail(path);
+    GList *mailBag = load_mail(path);
 
     if (g_list_length(mailBag) > MAIL_BAG_THRESH)
         container = read_object(MAIL_BAG_OBJ_VNUM);
 
-    for (oi = mailBag; oi; oi = oi->next) {
+    *num_letters = 0;
+    for (GList *oi = mailBag; oi; oi = oi->next) {
         struct obj_data *obj = oi->data;
         counter++;
 
         if (GET_OBJ_VNUM(obj) == MAIL_OBJ_VNUM)
-            num_letters++;
+            (*num_letters)++;
         else
             olist = g_list_append(olist, obj);
 
@@ -308,7 +308,7 @@ receive_mail(struct creature *ch, GList *olist)
 
     unlink(path);
 
-    return num_letters;
+    return olist;
 }
 
 GList *
@@ -508,9 +508,9 @@ postmaster_check_mail(struct creature *ch, struct creature *mailman)
     char buf2[256];
 
     if (has_mail(GET_IDNUM(ch))) {
-        strcpy(buf2, "You have mail waiting.");
+        strcpy_s(buf2, sizeof(buf2), "You have mail waiting.");
     } else
-        strcpy(buf2, "Sorry, you don't have any mail waiting.");
+        strcpy_s(buf2, sizeof(buf2), "Sorry, you don't have any mail waiting.");
     perform_tell(mailman, ch, buf2);
 }
 
@@ -519,7 +519,6 @@ postmaster_receive_mail(struct creature *ch, struct creature *mailman)
 {
     char *to_char = NULL, *to_room = NULL;
     int num_mails = 0;
-    GList *olist = NULL;
 
     if (!has_mail(GET_IDNUM(ch))) {
         to_char = tmp_sprintf("Sorry, you don't have any mail waiting.");
@@ -527,7 +526,7 @@ postmaster_receive_mail(struct creature *ch, struct creature *mailman)
         return;
     }
 
-    num_mails = receive_mail(ch, olist);
+    GList *olist = receive_mail(ch, &num_mails);
 
     if (num_mails == 0) {
         to_char = tmp_sprintf("Sorry, you don't have any mail waiting.");

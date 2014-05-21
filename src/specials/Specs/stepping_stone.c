@@ -18,7 +18,7 @@ SPECIAL(stepping_stone)
                 act("$p flares up suddenly with a bright light!",
                     false, ch, ruby, NULL, TO_ROOM);
                 send_to_char(ch, "You feel a strange sensation...\r\n");
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "A voice BOOMS out, 'Welcome to the Arena, %s!'\r\n",
                     GET_NAME(ch));
                 send_to_zone(buf, ch->in_room->zone, 0);
@@ -48,7 +48,7 @@ SPECIAL(portal_out)
     if (isname(argument, portal->aliases)) {
         send_to_room("A loud buzzing sound fills the room.\r\n", ch->in_room);
         GET_LOADROOM(ch) = 0;
-        sprintf(buf, "A voice BOOMS out, '%s has left the arena.'\r\n",
+        snprintf(buf, sizeof(buf), "A voice BOOMS out, '%s has left the arena.'\r\n",
             GET_NAME(ch));
         send_to_zone(buf, ch->in_room->zone, 0);
         call_magic(ch, ch, NULL, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP,

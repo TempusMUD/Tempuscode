@@ -21,7 +21,7 @@ SPECIAL(newbie_tower_rm)
             !strncasecmp(arg, "map", 3) || !strncasecmp(arg, "at map", 6)) {
             cur = help_collection_find_item_by_id(help, 196);
             if (cur) {
-                help_item_show(cur, ch, buf, 2);
+                help_item_show(cur, ch, buf, sizeof(buf), 2);
                 page_string(ch->desc, buf);
             }
             /*
@@ -37,7 +37,7 @@ SPECIAL(newbie_tower_rm)
         if (!strncasecmp(arg, "plate", 5)) {
             cur = help_collection_find_item_by_id(help, 196);
             if (cur) {
-                help_item_show(cur, ch, buf, 2);
+                help_item_show(cur, ch, buf, sizeof(buf), 2);
                 page_string(ch->desc, buf);
             }
             return 1;

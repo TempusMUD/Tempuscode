@@ -3273,11 +3273,6 @@ do_combat_fire(struct creature *ch, struct creature *vict)
     prob += CHECK_SKILL(ch, SKILL_PROJ_WEAPONS) / 8;
 
     vict = randomize_target(ch, vict, prob);
-
-    if (!bullet) {
-        return -1;
-    }
-
     dam = dice(gun_damage[GUN_TYPE(gun)][0], gun_damage[GUN_TYPE(gun)][1]);
     dam += BUL_DAM_MOD(bullet);
 

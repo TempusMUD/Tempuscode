@@ -17,12 +17,12 @@ SPECIAL(newbie_improve)
         return 0;
 
     if (GET_LEVEL(ch) > 7 || GET_REMORT_GEN(ch) > 0) {
-        sprintf(buf3, "Get out of here, %s.  I cannot help you.",
+        snprintf(buf3, sizeof(buf3), "Get out of here, %s.  I cannot help you.",
             GET_NAME(ch));
         perform_say(impro, "say", buf3);
         return 1;
     } else if (GET_LEVEL(ch) > 5) {
-        sprintf(buf3, "I am no longer able to train you, %s.", GET_NAME(ch));
+        snprintf(buf3, sizeof(buf3), "I am no longer able to train you, %s.", GET_NAME(ch));
         perform_say(impro, "say", buf3);
         return 1;
     }

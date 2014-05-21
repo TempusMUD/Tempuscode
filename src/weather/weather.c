@@ -283,7 +283,7 @@ another_hour(void)
             zone->weather->moonlight = MOON_SKY_RISE;
             if (zone->weather->sky || !lunar_day)
                 return;
-            sprintf(buf, "The %s moon rises in the east.\r\n",
+            snprintf(buf, sizeof(buf), "The %s moon rises in the east.\r\n",
                 lunar_phases[lunar_phase]);
             send_to_zone(buf, zone, 1);
         }
@@ -297,7 +297,7 @@ another_hour(void)
 
             if (zone->weather->sky || !lunar_day)
                 return;
-            sprintf(buf, "The %s moon is directly overhead.\r\n",
+            snprintf(buf, sizeof(buf), "The %s moon is directly overhead.\r\n",
                 lunar_phases[lunar_phase]);
             send_to_zone(buf, zone, 1);
 
@@ -309,7 +309,7 @@ another_hour(void)
         if (local_time.hours == LUNAR_RISE_TIME + 13 ||
             local_time.hours == LUNAR_RISE_TIME - 11) {
             zone->weather->moonlight = MOON_SKY_SET;
-            sprintf(buf, "The %s moon begins to sink low in the west.\r\n",
+            snprintf(buf, sizeof(buf), "The %s moon begins to sink low in the west.\r\n",
                 lunar_phases[lunar_phase]);
             send_to_zone(buf, zone, 1);
 
@@ -319,7 +319,7 @@ another_hour(void)
             zone->weather->moonlight = MOON_SKY_NONE;
             if (zone->weather->sky || !lunar_day)
                 return;
-            sprintf(buf, "The %s moon sets in the west.\r\n",
+            snprintf(buf, sizeof(buf), "The %s moon sets in the west.\r\n",
                 lunar_phases[lunar_phase]);
             send_to_zone(buf, zone, 1);
         }

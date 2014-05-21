@@ -21,7 +21,7 @@ SPECIAL(safiir)
         send_to_char(ch, "What wand are you talking about?\r\n");
         return 1;
     } else if (!(wand = get_obj_in_list_vis(ch, argument, ch->carrying))) {
-        sprintf(buf3, "You are not carrying any %s.", argument);
+        snprintf(buf3, sizeof(buf3), "You are not carrying any %s.", argument);
         perform_say(safiir, "say", buf3);
         return 1;
     } else if ((GET_OBJ_TYPE(wand) != ITEM_WAND) &&
@@ -44,22 +44,22 @@ SPECIAL(safiir)
     }
 
     if (CMD_IS("recharge")) {
-        sprintf(buf3, "Please recharge this %s.", argument);
+        snprintf(buf3, sizeof(buf3), "Please recharge this %s.", argument);
         perform_say(ch, "say", buf3);
         if (GET_GOLD(ch) < cost) {
-            sprintf(buf3, "Hah!  You cannot afford the %'d coins i require!",
+            snprintf(buf3, sizeof(buf3), "Hah!  You cannot afford the %'d coins i require!",
                 cost);
             perform_say(safiir, "say", buf3);
             return 1;
         } else if (IS_MAGE(ch)) {
-            sprintf(buf3, "I am happy to do business with you, %s.", PERS(ch,
+            snprintf(buf3, sizeof(buf3), "I am happy to do business with you, %s.", PERS(ch,
                     safiir));
             perform_say(safiir, "say", buf3);
         } else {
             perform_say(safiir, "say",
                 "Okay, but I usually only do business with mages...");
         }
-        sprintf(buf3, "Here, I take %'d of your gold coins.", cost);
+        snprintf(buf3, sizeof(buf3), "Here, I take %'d of your gold coins.", cost);
         perform_say(safiir, "say", buf3);
         GET_GOLD(ch) -= cost;
         GET_OBJ_VAL(wand, 2) = GET_OBJ_VAL(wand, 1);
@@ -68,9 +68,9 @@ SPECIAL(safiir)
         send_to_room("A bright light fills the room!\r\n", ch->in_room);
         return 1;
     } else if (CMD_IS("offer")) {
-        sprintf(buf3, "How much to recharge this %s?", argument);
+        snprintf(buf3, sizeof(buf3), "How much to recharge this %s?", argument);
         perform_say(ch, "say", buf3);
-        sprintf(buf3, "Hmmm... I think I could do it for %'d coins.", cost);
+        snprintf(buf3, sizeof(buf3), "Hmmm... I think I could do it for %'d coins.", cost);
         perform_say(safiir, "say", buf3);
         return 1;
     }

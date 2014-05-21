@@ -74,7 +74,7 @@ SPECIAL(abandoned_cavern)
 
         for (i = 0; i < NUM_DIRS; i++)
             if (cavern->dir_option[i] && cavern->dir_option[i]->to_room) {
-                sprintf(buf, "You hear the sound of a cave-in from %s!\r\n",
+                snprintf(buf, sizeof(buf), "You hear the sound of a cave-in from %s!\r\n",
                     from_dirs[i]);
                 send_to_room(buf, cavern->dir_option[i]->to_room);
             }

@@ -27,6 +27,7 @@
 #include "xml_utils.h"
 #include "obj_data.h"
 #include "spells.h"
+#include "strutil.h"
 #include "bomb.h"
 
 extern int no_plrtext;
@@ -310,16 +311,13 @@ apply_object_affect(struct obj_data *obj, struct tmp_obj_affect *af, bool add)
                         obj->affected[j].modifier -= af->affect_mod[i];
                     break;
                 }
-
-                if (found) {
-                    if (obj->affected[j].modifier == 0) {
-                        obj->affected[j].location = APPLY_NONE;
-                    }
-                }
             }
 
             if (!found) {
                 for (int j = 0; j < MAX_OBJ_AFFECT; j++) {
+                    if (obj->affected[j].modifier == 0) {
+                        obj->affected[j].location = APPLY_NONE;
+                    }
                     if (obj->affected[j].location == APPLY_NONE) {
                         found = true;
                         obj->affected[j].location = af->affect_loc[i];
@@ -647,10 +645,10 @@ load_object_from_xml(struct obj_data *container,
             desc->description = (char *)xmlNodeGetContent(cur);
             if (last_desc) {
                 last_desc->next = desc;
-                last_desc = desc;
             } else {
                 obj->ex_description = desc;
             }
+            last_desc = desc;
         } else if (xmlMatches(cur->name, "action_desc")) {
             str = (char *)xmlNodeGetContent(cur);
             obj->action_desc = strdup(tmp_gsub(str, "\n", "\r\n"));
@@ -692,12 +690,12 @@ load_object_from_xml(struct obj_data *container,
             int position = xmlGetIntProp(cur, "pos", 0);
 
             char *type = (char *)xmlGetProp(cur, (xmlChar *) "type");
-            if (type != NULL && victim != NULL) {
-                if (strcmp(type, "equipped") == 0) {
+            if (type != NULL) {
+                if (victim && strcmp(type, "equipped") == 0) {
                     equip_char(victim, obj, position, EQUIP_WORN);
-                } else if (strcmp(type, "implanted") == 0) {
+                } else if (victim && strcmp(type, "implanted") == 0) {
                     equip_char(victim, obj, position, EQUIP_IMPLANT);
-                } else if (strcmp(type, "tattooed") == 0) {
+                } else if (victim && strcmp(type, "tattooed") == 0) {
                     equip_char(victim, obj, position, EQUIP_TATTOO);
                 } else if (container) {
                     unsorted_obj_to_obj(obj, container);
@@ -705,10 +703,6 @@ load_object_from_xml(struct obj_data *container,
                     unsorted_obj_to_char(obj, victim);
                 } else if (room) {
                     unsorted_obj_to_room(obj, room);
-                } else {
-                    errlog("Don't know where to put object!");
-                    extract_obj(obj);
-                    return NULL;
                 }
                 placed = true;
             }
@@ -785,9 +779,9 @@ load_object_from_xml(struct obj_data *container,
         return NULL;
     }
     if (!placed) {
-        if (victim) {
+        if (victim != NULL) {
             obj_to_char(obj, victim);
-        } else if (container) {
+        } else if (container != NULL) {
             obj_to_obj(obj, container);
         } else if (room != NULL) {
             obj_to_room(obj, room);
@@ -803,7 +797,7 @@ save_object_to_xml(struct obj_data *obj, FILE * ouf)
     struct tmp_obj_affect *af_head = NULL;
     static char indent[512] = "  ";
     fprintf(ouf, "%s<object vnum=\"%d\">\n", indent, obj->shared->vnum);
-    strcat(indent, "  ");
+    strcat_s(indent, sizeof(indent), "  ");
 
     struct obj_data *proto = obj->shared->proto;
 

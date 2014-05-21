@@ -110,7 +110,6 @@ const struct spec_func_data spec_list[] = {
     {"newbie_gold_coupler", newbie_gold_coupler, SPEC_MOB | SPEC_RES},
     {"maze_switcher", maze_switcher, SPEC_MOB | SPEC_RES},
     {"maze_cleaner", maze_cleaner, SPEC_MOB | SPEC_RES},
-    {"darom", darom, SPEC_MOB | SPEC_RES},
     {"puppet", puppet, SPEC_MOB | SPEC_RES},
     {"oracle", oracle, SPEC_MOB | SPEC_RES},
     {"dt_cleaner", dt_cleaner, SPEC_MOB | SPEC_RES},
@@ -210,7 +209,6 @@ const struct spec_func_data spec_list[] = {
     {"loud_speaker", loud_speaker, SPEC_OBJ | SPEC_RES},
     {"fountain_heal", fountain_heal, SPEC_OBJ},
     {"fountain_restore", fountain_restore, SPEC_OBJ | SPEC_RES},
-    {"library", library, SPEC_OBJ},
     {"arena_object", arena_object, SPEC_OBJ | SPEC_RES},
     {"javelin_of_lightning", javelin_of_lightning, SPEC_OBJ},
     {"modrian_fountain_obj", modrian_fountain_obj, SPEC_OBJ | SPEC_RES},
@@ -230,7 +228,6 @@ const struct spec_func_data spec_list[] = {
     {"fate_portal", fate_portal, SPEC_OBJ | SPEC_RES},
     {"quantum_rift", quantum_rift, SPEC_OBJ | SPEC_RES},
     {"roaming_portal", roaming_portal, SPEC_OBJ | SPEC_RES},
-    {"tester_util", tester_util, SPEC_OBJ | SPEC_RES},
     {"typo_util", typo_util, SPEC_OBJ | SPEC_RES},
     {"labyrinth_clock", labyrinth_clock, SPEC_OBJ | SPEC_RES},
     {"drink_me_bottle", drink_me_bottle, SPEC_OBJ | SPEC_RES},
@@ -276,7 +273,6 @@ const struct spec_func_data spec_list[] = {
     {"malbolge_bridge", malbolge_bridge, SPEC_RM | SPEC_RES},
     {"abandoned_cavern", abandoned_cavern, SPEC_RM | SPEC_RES},
     {"dangerous_climb", dangerous_climb, SPEC_RM},
-    {"windy_room", windy_room, SPEC_RM},
     {"killzone_room", killzone_room, SPEC_RM | SPEC_RES},
     {"hell_domed_chamber", hell_domed_chamber, SPEC_RM | SPEC_RES},
     {"malagard_lightning_room", malagard_lightning_room, SPEC_RM | SPEC_RES},
@@ -307,7 +303,7 @@ find_spec_index_ptr(SPECIAL((*func)))
 {
     int i;
 
-    for (i = 0; spec_list[i].tag != NULL && i < 300; i++)
+    for (i = 0; spec_list[i].tag != NULL; i++)
         if (func == spec_list[i].func)
             return (i);
 
@@ -321,9 +317,7 @@ find_spec_index_ptr(SPECIAL((*func)))
 int
 find_spec_index_arg(char *arg)
 {
-    int i;
-
-    for (i = 0; spec_list[i].tag != NULL && i < 300; i++) {
+    for (int i = 0; spec_list[i].tag != NULL; i++) {
         if (!strncmp(spec_list[i].tag, arg, strlen(arg))) {
             return (i);
         }
@@ -332,10 +326,15 @@ find_spec_index_arg(char *arg)
     return (-1);
 }
 
-//
-// do_specasiign_save - make a snapshot of mob,obj, or room spec assignments
-//                      to the files etc/spec_ass_{mob,obj,room}
-//
+/**
+ * do_specassign_save:
+ * @ch creature initiating the save
+ * @mode special assignments to save
+ *
+ * Make a snapshot of mob,obj, or room spec assignments to the files
+ * etc/spec_ass_{mob,obj,room}.  @mode should be one of 0, SPEC_MOB,
+ * SPEC_OBJ, or SPEC_RM.  All three kinds are saved when @mode is 0.
+ **/
 
 int
 do_specassign_save(struct creature *ch, int mode)
@@ -444,26 +443,26 @@ do_show_specials(struct creature *ch, char *arg)
         }
     }
 
-    strcpy(outbuf, "SPECIAL PROCEDURES_                FLAGS::\r\n");
-    for (i = 0; spec_list[i].tag && i < 300; i++) {
+    strcpy_s(outbuf, sizeof(outbuf), "SPECIAL PROCEDURES_                FLAGS::\r\n");
+    for (i = 0; spec_list[i].tag; i++) {
         if (!mode_all &&
             (!mode_mob || !IS_SET(spec_list[i].flags, SPEC_MOB)) &&
             (!mode_obj || !IS_SET(spec_list[i].flags, SPEC_OBJ)) &&
             (!mode_room || !IS_SET(spec_list[i].flags, SPEC_RM)))
             continue;
         if (spec_list[i].flags)
-            sprintbit(spec_list[i].flags, spec_flags, buf2);
+            sprintbit(spec_list[i].flags, spec_flags, buf2, sizeof(buf2));
         else
-            strcpy(buf2, "NONE");
+            strcpy_s(buf2, sizeof(buf2), "NONE");
 
-        sprintf(buf, "  %s%-30s%s   (%s%s%s)\r\n",
+        snprintf(buf, sizeof(buf), "  %s%-30s%s   (%s%s%s)\r\n",
             CCYEL(ch, C_NRM), spec_list[i].tag, CCNRM(ch, C_NRM),
             CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
         if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {
-            strcat(outbuf, "**OVERFLOW**\r\n");
+            strcat_s(outbuf, sizeof(outbuf), "**OVERFLOW**\r\n");
             break;
         } else
-            strcat(outbuf, buf);
+            strcat_s(outbuf, sizeof(outbuf), buf);
     }
     page_string(ch->desc, outbuf);
 }
@@ -527,7 +526,7 @@ assign_mobiles(void)
     }
 
     while (!feof(file) && !ferror(file)) {
-        if (!get_line(file, buf))
+        if (!get_line(file, buf, sizeof(buf)))
             break;
 
         // eliminate comments
@@ -584,7 +583,7 @@ assign_objects(void)
     }
 
     while (!feof(file) && !ferror(file)) {
-        if (!get_line(file, buf))
+        if (!get_line(file, buf, sizeof(buf)))
             break;
         // eliminate comments
         str = strstr(buf, "##");
@@ -636,7 +635,7 @@ assign_rooms(void)
     }
 
     while (!feof(file) && !ferror(file)) {
-        if (!get_line(file, buf))
+        if (!get_line(file, buf, sizeof(buf)))
             break;
 
         // eliminate comments

@@ -171,7 +171,7 @@ struct room_affect_data {
 	int8_t type;
 	int duration;
     int val[4];
-  int owner;
+    int owner;
     int spell_type;
 	struct room_affect_data *next;
 };
@@ -316,6 +316,7 @@ extern struct room_data *r_zul_dane_start_room;
 extern struct room_data *r_zul_dane_newbie_start_room;
 extern struct room_data *r_newbie_school_start_room;
 
+void init_room_affect(struct room_affect_data *raff, int level, int spell, int owner);
 int count_room_exits(struct room_data *room);
 struct room_data *make_room(struct zone_data *zone, int num);
 void free_room(struct room_data *room);

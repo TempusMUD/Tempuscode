@@ -647,7 +647,7 @@ skill_bonus(struct creature *ch, int skill)
         return 100;
 
     // Irregular skill #s get 1
-    if (skill > TOP_SPELL_DEFINE || skill < 0)
+    if (skill < 0 || skill > MAX_SKILLS)
         return 1;
 
     if (IS_NPC(ch) && GET_CLASS(ch) >= NUM_CLASSES) {

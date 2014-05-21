@@ -189,7 +189,7 @@ help_collection_list(struct help_collection *col,
         if (isdigit(linebuf[0]))
             end = atoi(linebuf);
     }
-    sprintf(gHelpbuf, "Help Topics (%d,%d):\r\n", start, end);
+    snprintf(gHelpbuf, sizeof(gHelpbuf), "Help Topics (%d,%d):\r\n", start, end);
     space_left -= strlen(gHelpbuf);
     for (GList * hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
@@ -197,14 +197,14 @@ help_collection_list(struct help_collection *col,
             break;
         if (cur->idnum < start)
             continue;
-        help_item_show(cur, ch, linebuf, 1);
-        strcat(gHelpbuf, linebuf);
+        help_item_show(cur, ch, linebuf, sizeof(linebuf), 1);
+        strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
         space_left -= strlen(linebuf);
         if (space_left <= 0) {
-            sprintf(linebuf,
+            snprintf(linebuf, sizeof(linebuf),
                 "Maximum buffer size reached at item # %d. \r\nUse \"range\" param for higher numbered items.\r\n",
                 cur->idnum);
-            strcat(gHelpbuf, linebuf);
+            strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
             break;
         }
     }
@@ -327,13 +327,14 @@ help_collection_find_items(struct help_collection *col,
     for (b = args; *b; b++)
         *b = tolower(*b);
     length = strlen(args);
+
     for (GList * hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
         if (IS_SET(cur->flags, HFLAG_UNAPPROVED) && !find_no_approve)
             continue;
         if (thegroup && !help_item_in_group(cur, thegroup))
             continue;
-        strcpy(stack, cur->keys);
+        snprintf(stack, sizeof(stack), "%s", cur->keys);
         b = stack;
         while (*b) {
             b = one_word(b, bit);
@@ -388,17 +389,17 @@ help_collection_get_topic(struct help_collection *col,
     }
     // Normal plain old help. One item at a time.
     if (searchmode == false) {
-        help_item_show(cur, ch, gHelpbuf, mode);
+        help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), mode);
     } else {                    // Searching for multiple items.
         space_left -= strlen(gHelpbuf);
         for (; cur; cur = cur->next_show) {
-            help_item_show(cur, ch, linebuf, 1);
-            strcat(gHelpbuf, linebuf);
+            help_item_show(cur, ch, linebuf, sizeof(linebuf), 1);
+            strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
             space_left -= strlen(linebuf);
             if (space_left <= 0) {
-                sprintf(linebuf, "Maximum buffer size reached at item # %d.",
+                snprintf(linebuf, sizeof(linebuf), "Maximum buffer size reached at item # %d.",
                     cur->idnum);
-                strcat(gHelpbuf, linebuf);
+                strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
                 break;
             }
         }
@@ -443,6 +444,12 @@ help_collection_load_index(struct help_collection * col)
 
     if (!fscanf(inf, "%d\n", &col->top_id))
         goto error;
+
+    if (col->top_id < 0 || col->top_id > 4000) {
+        errlog("Invalid top ID while booting help .");
+        fclose(inf);
+        return false;
+    }
 
     slog("help top id = %d", col->top_id);
 
@@ -501,18 +508,18 @@ bool
 help_collection_set(struct help_collection *col __attribute__((unused)), struct creature * ch,
     char *argument)
 {
-    char arg1[256];
+    char *arg1;
 
     if (!GET_OLC_HELP(ch)) {
         send_to_char(ch, "You have to be editing an item to set it.\r\n");
         return false;
     }
-    if (!argument || !*argument) {
+    if (!*argument) {
         send_to_char(ch,
             "hcollect set <groups[+/-]|flags[+/-]|name|keywords|description> [args]\r\n");
         return false;
     }
-    argument = one_argument(argument, arg1);
+    arg1 = tmp_getword(&argument);
     if (!strncmp(arg1, "groups", strlen(arg1))) {
         help_item_setgroups(GET_OLC_HELP(ch), argument);
         return true;
@@ -559,7 +566,7 @@ help_collection_approve_item(struct help_collection *col, struct creature *ch,
     int idnum = 0;
     struct help_item *cur;
     skip_spaces(&argument);
-    argument = one_argument(argument, arg1);
+    one_argument(argument, arg1);
     if (isdigit(arg1[0]))
         idnum = atoi(arg1);
     if (idnum > col->top_id || idnum < 1) {
@@ -588,7 +595,7 @@ help_collection_unapprove_item(struct help_collection *col,
     int idnum = 0;
     struct help_item *cur;
     skip_spaces(&argument);
-    argument = one_argument(argument, arg1);
+    one_argument(argument, arg1);
     if (isdigit(arg1[0]))
         idnum = atoi(arg1);
     if (idnum > col->top_id || idnum < 1) {
@@ -649,11 +656,11 @@ do_hcollect_cmds(struct creature *ch)
 {
     int i;
 
-    strcpy(gHelpbuf, "hcollect commands:\r\n");
+    strcpy_s(gHelpbuf, sizeof(gHelpbuf), "hcollect commands:\r\n");
     for (i = 0; hc_cmds[i].keyword; i++) {
         if (GET_LEVEL(ch) < hc_cmds[i].level)
             continue;
-        sprintf(gHelpbuf, "%s  %-15s %s\r\n", gHelpbuf,
+        snprintf_cat(gHelpbuf, sizeof(gHelpbuf), "  %-15s %s\r\n",
             hc_cmds[i].keyword, hc_cmds[i].usage);
     }
     page_string(ch->desc, gHelpbuf);
@@ -679,12 +686,12 @@ ACMD(do_immhelp)
 
     // Take care of all the special cases.
     // Default help file
-    if (!argument || !*argument) {
+    if (!*argument) {
         cur = help_collection_find_item_by_id(help, 699);
     }
     // If we have a special case, do it, otherwise try to get it normally.
     if (cur) {
-        help_item_show(cur, ch, gHelpbuf, 2);
+        help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 2);
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_IMMHELP,
@@ -712,12 +719,12 @@ ACMD(do_hcollect_help)
     } else if (subcmd == SCMD_HANDBOOK) {
         cur = help_collection_find_item_by_id(help, 999);
         // Default help file
-    } else if (!argument || !*argument) {
+    } else if (!*argument) {
         cur = help_collection_find_item_by_id(help, 666);
     }
     // If we have a special case, do it, otherwise try to get it normally.
     if (cur) {
-        help_item_show(cur, ch, gHelpbuf, 2);
+        help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 2);
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_PLAYER, false);
@@ -732,12 +739,12 @@ do_qcontrol_help(struct creature *ch, char *argument)
     skip_spaces(&argument);
 
     // Take care of all the special cases.
-    if (!argument || !*argument) {
+    if (!*argument) {
         cur = help_collection_find_item_by_id(help, 900);
     }
     // If we have a special case, do it, otherwise try to get it normally.
     if (cur) {
-        help_item_show(cur, ch, gHelpbuf, 2);
+        help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 2);
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false,
@@ -752,12 +759,12 @@ ACMD(do_olchelp)
     skip_spaces(&argument);
 
     // Take care of all the special cases.
-    if (!argument || !*argument) {
+    if (!*argument) {
         cur = help_collection_find_item_by_id(help, 700);
     }
     // If we have a special case, do it, otherwise try to get it normally.
     if (cur) {
-        help_item_show(cur, ch, gHelpbuf, 2);
+        help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 2);
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_OLC,
@@ -797,7 +804,7 @@ ACMD(do_help_collection_command)
         help_collection_create_item(help, ch);
         break;
     case 2:                    // Edit
-        argument = one_argument(argument, linebuf);
+        one_argument(argument, linebuf);
         if (isdigit(*linebuf)) {
             id = atoi(linebuf);
             help_collection_edit_item(help, ch, id);
@@ -826,7 +833,7 @@ ACMD(do_help_collection_command)
         help_collection_set(help, ch, argument);
         break;
     case 7:                    // Stat
-        argument = one_argument(argument, linebuf);
+        one_argument(argument, linebuf);
         if (*linebuf && isdigit(linebuf[0])) {
             id = atoi(linebuf);
             if (id < 0 || id > help->top_id) {
@@ -836,7 +843,7 @@ ACMD(do_help_collection_command)
             for (GList * hit = help->items; hit; hit = hit->next) {
                 cur = hit->data;
                 if (cur->idnum == id) {
-                    help_item_show(cur, ch, gHelpbuf, 3);
+                    help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 3);
                     page_string(ch->desc, gHelpbuf);
                     return;
                 }
@@ -845,7 +852,7 @@ ACMD(do_help_collection_command)
             return;
         }
         if (GET_OLC_HELP(ch)) {
-            help_item_show(GET_OLC_HELP(ch), ch, gHelpbuf, 3);
+            help_item_show(GET_OLC_HELP(ch), ch, gHelpbuf, sizeof(gHelpbuf), 3);
             page_string(ch->desc, gHelpbuf);
         } else {
             send_to_char(ch, "Stat what item?\r\n");

@@ -24,6 +24,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <glib.h>
+#include <libxml/parser.h>
 
 #include "interpreter.h"
 #include "utils.h"
@@ -45,9 +46,9 @@
 #include "accstr.h"
 #include "account.h"
 #include "spells.h"
-#include <libxml/parser.h>
 #include "obj_data.h"
 #include "actions.h"
+#include "strutil.h"
 
 /* these factors should be unique integers */
 #define RENT_FACTOR         1
@@ -230,10 +231,10 @@ offer_rent(struct creature *ch, struct creature *receptionist,
     char curr[64];
 
     if (receptionist->in_room->zone->time_frame == TIME_ELECTRO) {
-        strcpy(curr, "credits");
+        strcpy_s(curr, sizeof(curr), "credits");
         total_money = GET_CASH(ch) + GET_FUTURE_BANK(ch);
     } else {
-        strcpy(curr, "coins");
+        strcpy_s(curr, sizeof(curr), "coins");
         total_money = GET_GOLD(ch) + GET_PAST_BANK(ch);
     }
 

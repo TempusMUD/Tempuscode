@@ -435,7 +435,7 @@ SPECIAL(artisan)
 
     if (CMD_IS("steal") && GET_LEVEL(ch) < LVL_IMMORT) {
         do_action(keeper, GET_NAME(ch), cmd_slap, 0);
-        sprintf(buf, "%s is a bloody thief!", GET_NAME(ch));
+        snprintf(buf, sizeof(buf), "%s is a bloody thief!", GET_NAME(ch));
         buf[0] = (char)toupper(buf[0]);
         perform_say(keeper, "shout", buf);
         return true;
@@ -456,7 +456,7 @@ SPECIAL(artisan)
 
 /*
 	if (!shop->accepts(ch) && shop->refuses(ch)) {
-		sprintf(buf, "I don't deal with your type.");
+		snprintf(buf, sizeof(buf), "I don't deal with your type.");
 		perform_say_to(keeper, ch, buf);
 		do_action(keeper, GET_NAME(ch), cmd_smirk, 0);
 		return true;

@@ -1759,7 +1759,7 @@ command_interpreter(struct creature *ch, const char *argument)
             d->repeat_cmd_count++;
         else
             d->repeat_cmd_count = 0;
-        strcpy(d->last_argument, cmdargs);
+        strcpy_s(d->last_argument, sizeof(d->last_argument), cmdargs);
         d->last_cmd = cmd;
 
         // Log commands
@@ -1992,7 +1992,8 @@ perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
     g_queue_init(&temp_q);
 
     /* First, parse the original string */
-    temp = strtok(strcpy(buf2, args), " ");
+    strcpy_s(buf2, sizeof(buf2), args);
+    temp = strtok(buf2, " ");
     while (temp != NULL && num_of_tokens < NUM_TOKENS) {
         tokens[num_of_tokens++] = temp;
         temp = strtok(NULL, " ");
@@ -2013,10 +2014,10 @@ perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
         } else if (*temp == ALIAS_VAR_CHAR) {
             temp++;
             if ((num = *temp - '1') < num_of_tokens && num >= 0) {
-                strcpy(write_point, tokens[num]);
+                strcpy_s(write_point, sizeof(buf) - (write_point - buf), tokens[num]);
                 write_point += strlen(tokens[num]);
             } else if (*temp == ALIAS_GLOB_CHAR) {
-                strcpy(write_point, args);
+                strcpy_s(write_point, sizeof(buf) - (write_point - buf), args);
                 write_point += strlen(args);
             } else if ((*(write_point++) = *temp) == '$') {
                 /* redouble $ for act safety */
@@ -2121,7 +2122,7 @@ special(struct creature *ch, int cmd, int subcmd __attribute__((unused)), char *
     }
 
     /* search special in room */
-    strcpy(tmp_arg, arg);       /* don't mess up the arg, in case of special */
+    strcpy_s(tmp_arg, sizeof(tmp_arg), arg);       /* don't mess up the arg, in case of special */
 
     for (srch = ch->in_room->search; srch; srch = srch->next) {
         if (triggers_search(ch, cmd, tmp_arg, srch)) {

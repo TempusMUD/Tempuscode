@@ -203,12 +203,12 @@ START_TEST(test_save_load_quest)
     add_test_quest_ban(q, 6);
     add_test_quest_ban(q, 7);
 
-    FILE *out = fopen("/tmp/quest.test", "w");
+    FILE *out = fopen(test_path("quest.test"), "w");
 
     save_quest(q, out);
     fclose(out);
 
-    xmlDocPtr doc = xmlParseFile("/tmp/quest.test");
+    xmlDocPtr doc = xmlParseFile(test_path("quest.test"));
     xmlNodePtr root = xmlDocGetRootElement(doc);
 
     struct quest *lq = load_quest(root, doc);

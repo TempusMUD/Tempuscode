@@ -70,7 +70,7 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
         send_to_char(ch,
             "It will cost you %'d coins and %d life points to improve your %s.\r\n",
             gold, life_cost, improve_modes[mode]);
-        sprintf(buf, "$n considers the implications of improving $s %s.",
+        snprintf(buf, sizeof(buf), "$n considers the implications of improving $s %s.",
             improve_modes[mode]);
         act(buf, true, ch, NULL, NULL, TO_ROOM);
         if (GET_GOLD(ch) < gold)
@@ -101,7 +101,7 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
         return 1;
     }
     if (GET_LIFE_POINTS(ch) < life_cost) {
-        sprintf(buf,
+        snprintf(buf, sizeof(buf),
             "You have not gained sufficient life points to do this.\r\n"
             "It requires %d.\r\n", life_cost);
         send_to_char(ch, "%s", buf);

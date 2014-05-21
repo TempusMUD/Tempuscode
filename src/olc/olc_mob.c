@@ -55,7 +55,6 @@ extern const char *language_names[];
 
 long asciiflag_conv(char *buf);
 
-void num2str(char *str, int num);
 void set_physical_attribs(struct creature *ch);
 void do_stat_character(struct creature *ch, struct creature *k,
     const char *options);
@@ -371,15 +370,15 @@ do_mob_mset(struct creature *ch, char *argument)
     }
 
     if (!*argument) {
-        strcpy(buf, "Valid mset commands:\r\n");
-        strcat(buf, CCYEL(ch, C_NRM));
+        strcpy_s(buf, sizeof(buf), "Valid mset commands:\r\n");
+        strcat_s(buf, sizeof(buf), CCYEL(ch, C_NRM));
         i = 0;
         while (*olc_mset_keys[i] != '\n') {
-            strcat(buf, olc_mset_keys[i]);
-            strcat(buf, "\r\n");
+            strcat_s(buf, sizeof(buf), olc_mset_keys[i]);
+            strcat_s(buf, sizeof(buf), "\r\n");
             i++;
         }
-        strcat(buf, CCNRM(ch, C_NRM));
+        strcat_s(buf, sizeof(buf), CCNRM(ch, C_NRM));
         page_string(ch->desc, buf);
         return;
     }
@@ -428,7 +427,7 @@ do_mob_mset(struct creature *ch, char *argument)
             if (arg2[0] == '~')
                 mob_p->player.long_descr = NULL;
             else {
-                strcpy(buf, arg2);
+                strcpy_s(buf, sizeof(buf), arg2);
                 mob_p->player.long_descr = strdup(buf);
             }
             send_to_char(ch, "Mobile long description set.\r\n");
@@ -1135,6 +1134,10 @@ do_mob_mset(struct creature *ch, char *argument)
         }
         // Check to see that they can set the spec param
         i = find_spec_index_ptr(GET_NPC_SPEC(mob_p));
+        if (i < 0) {
+            send_to_char(ch, "Couldn't find special in index.\r\n");
+            break;
+        }
         if (IS_SET(spec_list[i].flags, SPEC_RES)
             && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL)) {
             send_to_char(ch, "This special is reserved.\r\n");
@@ -1293,7 +1296,7 @@ write_mob_index(struct creature *ch, struct zone_data *zone)
 
     mob_index = new_index;
 
-    sprintf(fname, "world/mob/index");
+    snprintf(fname, sizeof(fname), "world/mob/index");
     if (!(index = fopen(fname, "w"))) {
         send_to_char(ch,
             "Could not open index file, mobile save aborted.\r\n");
@@ -1330,14 +1333,14 @@ save_mobs(struct creature * ch, struct zone_data * zone)
         return false;
     }
 
-    sprintf(fname, "world/mob/%d.mob", zone->number);
+    snprintf(fname, sizeof(fname), "world/mob/%d.mob", zone->number);
     if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
         mudlog(0, BRF, true,
                "OLC: ERROR - Main mobile file '%s' for zone %d is read-only.",
                fname,
                ch->in_room->zone->number);
     }
-    sprintf(fname, "world/mob/olc/%d.mob", zone->number);
+    snprintf(fname, sizeof(fname), "world/mob/olc/%d.mob", zone->number);
     if (!(file = fopen(fname, "w"))) {
         slog("OLC: ERROR while saving %s - %s", fname, strerror(errno));
         return false;
@@ -1402,11 +1405,11 @@ save_mobs(struct creature * ch, struct zone_data * zone)
         fprintf(file, "~\n");
 
         REMOVE_BIT(NPC_FLAGS(mob), NPC_WIMPY);
-        num2str(sbuf1, NPC_FLAGS(mob));
-        num2str(sbuf2, NPC2_FLAGS(mob));
-        num2str(sbuf3, AFF_FLAGS(mob));
-        num2str(sbuf4, AFF2_FLAGS(mob));
-        num2str(sbuf5, AFF3_FLAGS(mob));
+        num2str(sbuf1, sizeof(sbuf1), NPC_FLAGS(mob));
+        num2str(sbuf2, sizeof(sbuf2), NPC2_FLAGS(mob));
+        num2str(sbuf3, sizeof(sbuf3), AFF_FLAGS(mob));
+        num2str(sbuf4, sizeof(sbuf4), AFF2_FLAGS(mob));
+        num2str(sbuf5, sizeof(sbuf5), AFF3_FLAGS(mob));
 
         fprintf(file, "%s %s %s %s %s %d ", sbuf1, sbuf2, sbuf3,
             sbuf4, sbuf5, GET_ALIGNMENT(mob));
@@ -1510,11 +1513,11 @@ save_mobs(struct creature * ch, struct zone_data * zone)
 
     slog("OLC: %s msaved %d.", GET_NAME(ch), zone->number);
 
-    sprintf(fname, "world/mob/%d.mob", zone->number);
+    snprintf(fname, sizeof(fname), "world/mob/%d.mob", zone->number);
     realfile = fopen(fname, "w");
     if (realfile) {
         fclose(file);
-        sprintf(fname, "world/mob/olc/%d.mob", zone->number);
+        snprintf(fname, sizeof(fname), "world/mob/olc/%d.mob", zone->number);
         if (!(file = fopen(fname, "r"))) {
             errlog("Failure to reopen olc mob file.");
             send_to_char(ch,
@@ -1546,7 +1549,7 @@ save_mobs(struct creature * ch, struct zone_data * zone)
     return true;
 }
 
-int
+bool
 do_destroy_mobile(struct creature *ch, int vnum)
 {
 
@@ -1557,7 +1560,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
 
     if (!(mob = real_mobile_proto(vnum))) {
         send_to_char(ch, "ERROR: That mobile does not exist.\r\n");
-        return 1;
+        return true;
     }
 
     for (zone = zone_table; zone; zone = zone->next)
@@ -1567,7 +1570,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
     if (!zone) {
         send_to_char(ch, "That mobile does not belong to any zone!!\r\n");
         errlog("mobile not in any zone.");
-        return 1;
+        return true;
     }
 
     if (!is_authorized(ch, EDIT_ZONE, zone)) {
@@ -1575,7 +1578,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
         mudlog(GET_INVIS_LVL(ch), BRF, true,
             "OLC: %s failed attempt to DESTROY mobile %d.",
             GET_NAME(ch), GET_NPC_VNUM(mob));
-        return 1;
+        return true;
     }
     for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
@@ -1624,12 +1627,9 @@ do_destroy_mobile(struct creature *ch, int vnum)
         free(mem_r);
     }
 
-    if (mob->mob_specials.shared) {
-        free(mob->mob_specials.shared);
-    }
-
+    free(mob->mob_specials.shared);
     free_creature(mob);
-    return 0;
+    return false;
 }
 
 int

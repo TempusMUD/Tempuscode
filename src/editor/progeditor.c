@@ -51,6 +51,9 @@ progeditor_finalize(struct editor *editor, const char *text)
         break;
     default:
         errlog("Can't happen");
+        free(prog_data);
+        free(new_prog);
+        return;
     }
 
     prog_compile(editor->desc->creature, prog_data->owner,

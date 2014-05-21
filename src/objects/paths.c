@@ -34,6 +34,7 @@
 #include "obj_data.h"
 #include "paths.h"
 #include "accstr.h"
+#include "strutil.h"
 
 const char *PATH_FILE = "etc/paths";
 
@@ -96,13 +97,17 @@ struct path_head *first_path = NULL;
 struct path_link *path_object_list = NULL;
 struct path_link *path_command_list = NULL;
 int path_command_length = 0;
-int path_locked = 1;
+bool path_locked = true;
 
 int move_car(struct creature *ch, struct obj_data *car, int dir);
 
-void
-PATH_MOVE(struct path_object *o)
+static void
+path_move(struct path_object *o)
 {
+    if (o->phead->length != 1) {
+        return;
+    }
+
     o->pos += o->step;
 
     if (o->pos >= o->phead->length) {
@@ -119,7 +124,7 @@ PATH_MOVE(struct path_object *o)
     }
 }
 
-struct path_head *
+static struct path_head *
 real_path(const char *str)
 {
     struct path_head *path_head = NULL;
@@ -135,7 +140,7 @@ real_path(const char *str)
     return (NULL);
 }
 
-struct path_head *
+static struct path_head *
 real_path_by_num(int vnum)
 {
     struct path_head *path_head = NULL;
@@ -145,7 +150,7 @@ real_path_by_num(int vnum)
         if (path_head->number == vnum)
             return (path_head);
 
-    return (NULL);
+    return NULL;
 }
 
 bool
@@ -167,11 +172,11 @@ path_vnum_by_name(const char *name)
     return (phead) ? phead->number : 0;
 }
 
-char *
+const char *
 path_name_by_vnum(int vnum)
 {
     struct path_head *phead = real_path_by_num(vnum);
-    return (phead) ? tmp_strdup(phead->name) : NULL;
+    return (phead) ? phead->name : NULL;
 }
 
 void
@@ -205,8 +210,8 @@ show_pathobjs(struct creature *ch)
     page_string(ch->desc, acc_get_string());
 }
 
-void
-print_path(struct path_head *phead, char *str)
+static void
+print_path(struct path_head *phead, char *str, size_t len)
 {
     char buf[MAX_STRING_LENGTH];
     int i, j, ll;
@@ -216,23 +221,23 @@ print_path(struct path_head *phead, char *str)
     if (!phead)
         return;
 
-    sprintf(str, "%d %s %ld %d %d ", phead->number, phead->name, phead->owner,
-        phead->wait_time, phead->length);
+    snprintf(str, len, "%d %s %ld %d %d ", phead->number, phead->name, phead->owner,
+             phead->wait_time, phead->length);
     ll = strlen(str);
 
     for (i = 0; i < phead->length; i++) {
         switch (phead->path[i].type) {
         case PATH_ROOM:
-            sprintf(buf, "%d ", phead->path[i].data);
+            snprintf(buf, sizeof(buf), "%d ", phead->path[i].data);
             break;
         case PATH_WAIT:
-            sprintf(buf, "W%d ", phead->path[i].data);
+            snprintf(buf, sizeof(buf), "W%d ", phead->path[i].data);
             break;
         case PATH_DIR:
-            sprintf(buf, "D%c ", *(dirs[phead->path[i].data]));
+            snprintf(buf, sizeof(buf), "D%c ", *(dirs[phead->path[i].data]));
             break;
         case PATH_EXIT:
-            strcpy(buf, "X ");
+            strcpy_s(buf, sizeof(buf), "X ");
             break;
         case PATH_CMD:
             cmd = path_command_list;
@@ -244,26 +249,28 @@ print_path(struct path_head *phead, char *str)
 
                 for (j = 1; j < cmdl; j++)
                     cmd = cmd->next;
-                sprintf(buf, "C\"%s\" ", (char *)(cmd->object));
+                snprintf(buf, sizeof(buf), "C\"%s\" ", (char *)(cmd->object));
             } else {
                 cmdl = phead->path[i].data - fcmd + 1;
-                sprintf(buf, "C%d ", cmdl);
+                snprintf(buf, sizeof(buf), "C%d ", cmdl);
             }
             break;
+        default:
+            snprintf(buf, sizeof(buf), "???");
         }
 
         if ((ll + strlen(buf)) > 79) {
-            strcat(str, "\n");
+            strcat_s(str, len, "\n");
             ll = 0;
         }
         ll += strlen(buf);
-        strcat(str, buf);
+        strcat_s(str, len, buf);
     }
 
     if (IS_SET(phead->flags, PATH_REVERSIBLE))
-        strcat(str, "R");
+        strcat_s(str, len, "R");
 
-    strcat(str, "\n~\n");
+    strcat_s(str, len, "\n~\n");
 }
 
 void
@@ -275,30 +282,24 @@ show_path(struct creature *ch, char *arg)
 
     if (!*arg) {                /* show all paths */
 
-        strcpy(outbuf, "Full path listing:\r\n");
+        strcpy_s(outbuf, sizeof(outbuf), "Full path listing:\r\n");
 
         for (path_head = first_path; path_head;
             path_head = (struct path_head *)path_head->next, i++) {
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d. %-15s  Own:[%-12s]  Wt:[%3d]  Flags:[%3d]  Len:[%3d]  BFS:[%9d]\r\n",
                 path_head->number, path_head->name,
                 player_idnum_exists(path_head->
                     owner) ? player_name_by_idnum(path_head->owner) : "NULL",
                 path_head->wait_time, path_head->flags, path_head->length,
                 path_head->find_first_step_calls);
-            strcat(outbuf, buf);
+            strcat_s(outbuf, sizeof(outbuf), buf);
         }
-    } else if (!(path_head = real_path(arg)))
-        sprintf(outbuf, "No such path, '%s'.\r\n", arg);
-    else {
-        /*
-           sprintf(outbuf, "PATH: %-20s  Wait:[%3d]  Flags:[%3d]  Length:[%3d]\r\n",
-           path_head->name, path_head->wait_time,
-           path_head->flags, path_head->length);
-         */
-        strcpy(outbuf, "VNUM NAME OWNER <wait> <length> list...\r\n");
-        print_path(path_head, buf);
-        strcat(outbuf, buf);
+    } else if ((path_head = real_path(arg)) != NULL) {
+        strcpy_s(outbuf, sizeof(outbuf), "VNUM NAME OWNER <wait> <length> list...\r\n");
+        print_path(path_head, outbuf, sizeof(outbuf));
+    } else {
+        snprintf(outbuf, sizeof(outbuf), "No such path, '%s'.\r\n", arg);
     }
 
     page_string(ch->desc, outbuf);
@@ -335,7 +336,7 @@ add_path(char *spath, int save)
         free(phead);
         return 2;
     }
-    strncpy(phead->name, buf, 64);
+    strcpy_s(phead->name, sizeof(phead->name), buf);
 
     /* Get the path owner */
     spath = one_argument(spath, buf);
@@ -492,8 +493,8 @@ add_path(char *spath, int save)
                 }
                 buf[strlen(buf) - 1] = '\0';
                 CREATE(ncmd, struct path_link, 1);
-                CREATE(ncmd->object, char, strlen(buf) - 1);
-                strcpy((char *)ncmd->object, buf + 2);
+                ncmd->object = strdup(buf + 2);
+
                 if (path_command_length == 0) {
                     path_command_list = ncmd;
                     path_command_length++;
@@ -523,96 +524,98 @@ add_path(char *spath, int save)
         }
     }
 
-    if (*buf) {
-        if ((*buf == 'r') || (*buf == 'R'))
-            SET_BIT(phead->flags, PATH_REVERSIBLE);
+    if (*buf && tolower(*buf) == 'r') {
+        SET_BIT(phead->flags, PATH_REVERSIBLE);
     }
 
-    if (save)
+    if (save) {
         SET_BIT(phead->flags, PATH_SAVE);
+    }
 
     phead->next = first_path;
     first_path = phead;
     return 0;
 }
 
-void
-clear_path_objects(struct path_head *phead)
+static void
+free_paths(void)
 {
-    struct path_link *lnk, *next_lnk;
-
-    for (lnk = path_object_list; lnk; lnk = next_lnk) {
-        next_lnk = lnk->next;
-        if (lnk->object && ((struct path_object *)lnk->object)->phead == phead) {
-            path_remove_object(((struct path_object *)lnk->object)->object);
-        }
+    struct path_head *p_head = NULL;
+    struct path_link *p_obj = NULL;
+    
+    while ((p_head = first_path)) {
+        first_path = (struct path_head *)first_path->next;
+        free(p_head->path);
+        free(p_head);
     }
-}
+
+    while ((p_obj = path_object_list)) {
+        path_object_list = path_object_list->next;
+        free(p_obj->object);
+        free(p_obj);
+    }
+
+    while ((p_obj = path_command_list)) {
+        path_command_list = path_command_list->next;
+        free(p_obj->object);
+        free(p_obj);
+    }
+
+    path_command_length = 0;
+    path_object_list = NULL;
+    first_path = NULL;
+    path_command_list = NULL;
+ }
 
 void
 load_paths(void)
 {
     FILE *pathfile;
-    int line = 0, fail, ret;
-    struct path_link *obj_link = NULL;
-    struct path_head *path_head = NULL;
-    static int virgin = 1;
+    int line = 0;
+    static bool virgin = true;
 
-    path_locked = 0;
+    path_locked = false;
 
-    if (!(pathfile = fopen(PATH_FILE, "r")))
+    pathfile = fopen(PATH_FILE, "r");
+    if (pathfile == NULL) {
         return;
-    while ((obj_link = path_object_list)) {
-        path_object_list = path_object_list->next;
-        free(obj_link->object);
-        free(obj_link);
     }
 
-    while ((path_head = first_path)) {
-        first_path = (struct path_head *)first_path->next;
-        free(path_head->path);
-        free(path_head);
-    }
+    free_paths();
 
-    while ((obj_link = path_command_list)) {
-        path_command_list = path_command_list->next;
-        free(obj_link->object);
-        free(obj_link);
-    }
-    path_command_length = 0;
-
-    while ((pread_string(pathfile, buf, "paths."))) {
+    while (pread_string(pathfile, buf, sizeof(buf), true, "paths.")) {
         line++;
         for (char *tc = strchr(buf, '\n'); tc; tc = strchr(tc, '\n'))
             *tc = ' ';
 
-        fail = 0;
-        switch ((ret = add_path(buf, true))) {
+        bool fail = false;
+        int ret = add_path(buf, true);
+        switch (ret) {
         case 0:
             break;
         case 1:
-            sprintf(buf, "Path %d in vnum position.", line);
-            fail = 1;
+            snprintf(buf, sizeof(buf), "Path %d in vnum position.", line);
+            fail = true;
             break;
         case 2:
-            sprintf(buf, "Path %d in title position.", line);
-            fail = 1;
+            snprintf(buf, sizeof(buf), "Path %d in title position.", line);
+            fail = true;
             break;
         case 3:
-            sprintf(buf, "Path %d in owner position.", line);
-            fail = 1;
+            snprintf(buf, sizeof(buf), "Path %d in owner position.", line);
+            fail = true;
             break;
         case 4:
-            sprintf(buf, "Path %d in wait time position.", line);
-            fail = 1;
+            snprintf(buf, sizeof(buf), "Path %d in wait time position.", line);
+            fail = true;
             break;
         case 5:
-            sprintf(buf, "Path %d in length position.", line);
-            fail = 1;
+            snprintf(buf, sizeof(buf), "Path %d in length position.", line);
+            fail = true;
             break;
         default:
-            sprintf(buf, "Path %d in path position %d.", line, ret - 5);
-            fail = 1;
+            snprintf(buf, sizeof(buf), "Path %d in path position %d.", line, ret - 5);
+            fail = true;
         }
 
         if (fail && virgin) {
@@ -623,19 +626,22 @@ load_paths(void)
         }
     }
 
-    virgin = 0;
+    virgin = false;
     fclose(pathfile);
 }
 
-void
+static void
 path_do_echo(char *echo)
 {
-    char *tmp;
-    int vnum;
-
-    if (!echo || !*echo || (*echo != 'r' && *echo != 'R') ||
-        !(vnum = strtol(echo + 1, &tmp, 10)) || *tmp != ' ')
+    if (!*echo || tolower(*echo) != 'r') {
         return;
+    }
+    
+    char *tmp;
+    int vnum = strtol(echo + 1, &tmp, 10);
+    if (vnum == 0 || *tmp != ' ') {
+        return;
+    }
 
     errlog("error in path_do_echo.");
 }
@@ -685,8 +691,8 @@ path_activity(void)
                     errlog("Found NULL ch in path object in path_activity()");
                     break;
                 }
-                if ((room == ch->in_room) && (o->phead->length != 1)) {
-                    PATH_MOVE(o);
+                if (ch->in_room == room) {
+                    path_move(o);
                     break;
                 }
                 if (GET_POSITION(ch) < POS_STANDING)
@@ -696,8 +702,8 @@ path_activity(void)
 
                 if ((dir = find_first_step(ch->in_room, room, GOD_TRACK)) >= 0)
                     perform_move(ch, dir, MOVE_NORM, 1);
-                if ((ch->in_room == room) && (o->phead->length != 1))
-                    PATH_MOVE(o);
+                if (ch->in_room == room)
+                    path_move(o);
             } else if ((o->type == PVEHICLE) && room &&
                 (obj = (struct obj_data *)o->object)->in_room) {
 
@@ -706,8 +712,8 @@ path_activity(void)
                 if ((dir =
                         find_first_step(obj->in_room, room, GOD_TRACK)) >= 0)
                     move_car(NULL, obj, dir);
-                if ((obj->in_room == room) && (o->phead->length != 1))
-                    PATH_MOVE(o);
+                if (obj->in_room == room)
+                    path_move(o);
             }
             break;
         case PATH_DIR:
@@ -723,13 +729,11 @@ path_activity(void)
                     GET_POSITION(ch) = POS_STANDING;
 
                 perform_move(ch, dir, MOVE_NORM, 1);
-                if (o->phead->length != 1)
-                    PATH_MOVE(o);
+                path_move(o);
             } else if ((o->type == PVEHICLE) &&
                 (obj = (struct obj_data *)o->object)->in_room) {
                 move_car(NULL, obj, dir);
-                if (o->phead->length != 1)
-                    PATH_MOVE(o);
+                path_move(o);
             }
             break;
         case PATH_CMD:
@@ -742,8 +746,7 @@ path_activity(void)
                     cmd = cmd->next;
                 command_interpreter(ch, (char *)cmd->object);
             }
-            if (o->phead->length != 1)
-                PATH_MOVE(o);
+            path_move(o);
             break;
         case PATH_ECHO:
 
@@ -752,13 +755,12 @@ path_activity(void)
             } else {
                 path_do_echo(o->phead->path[o->pos].str);
             }
-            if (o->phead->length != 1)
-                PATH_MOVE(o);
+            path_move(o);
             break;
         case PATH_WAIT:
 
             if (o->phead->length != 1) {
-                PATH_MOVE(o);
+                path_move(o);
             } else
                 SET_BIT(o->flags, POBJECT_STALLED);
             break;
@@ -800,7 +802,7 @@ path_remove_object(void *object)
     free(i);
 }
 
-int
+bool
 add_path_to_mob(struct creature *mob, int vnum)
 {
     struct path_head *phead;
@@ -808,7 +810,7 @@ add_path_to_mob(struct creature *mob, int vnum)
     struct path_object *o;
 
     if (!vnum || !mob)
-        return 0;
+        return false;
 
     /* Find the requested path */
     for (phead = first_path; phead; phead = (struct path_head *)phead->next)
@@ -816,13 +818,13 @@ add_path_to_mob(struct creature *mob, int vnum)
             break;
 
     if (!phead)
-        return 0;
+        return false;
 
     /* See if the mob already has a path */
     for (i = path_object_list; i; i = i->next) {
         o = (struct path_object *)i->object;
         if ((o->type == PMOBILE) && (o->object == mob))
-            return 0;
+            return false;
     }
 
     CREATE(i, struct path_link, 1);
@@ -841,10 +843,10 @@ add_path_to_mob(struct creature *mob, int vnum)
     o->step = 1;
     o->pos = 0;
 
-    return 1;
+    return true;
 }
 
-int
+bool
 add_path_to_vehicle(struct obj_data *obj, int vnum)
 {
     struct path_head *phead;
@@ -852,7 +854,7 @@ add_path_to_vehicle(struct obj_data *obj, int vnum)
     struct path_object *o;
 
     if (!obj || !vnum || !IS_VEHICLE(obj))
-        return 0;
+        return false;
 
     /* Find the requested path */
     for (phead = first_path; phead; phead = (struct path_head *)phead->next)
@@ -860,13 +862,13 @@ add_path_to_vehicle(struct obj_data *obj, int vnum)
             break;
 
     if (!phead)
-        return 0;
+        return false;
 
     /* See if the car already has a path */
     for (i = path_object_list; i; i = i->next) {
         o = (struct path_object *)i->object;
         if ((o->type == PVEHICLE) && (o->object == obj))
-            return 0;
+            return false;
     }
 
     CREATE(i, struct path_link, 1);
@@ -884,30 +886,5 @@ add_path_to_vehicle(struct obj_data *obj, int vnum)
     o->wait_time = phead->wait_time;
     o->step = 1;
 
-    return 1;
-}
-
-void
-free_paths(void)
-{
-    struct path_head *p_head = NULL;
-    struct path_link *p_obj = NULL;
-
-    while ((p_obj = path_object_list)) {
-        path_object_list = path_object_list->next;
-        free(p_obj->object);
-        free(p_obj);
-    }
-
-    while ((p_head = first_path)) {
-        first_path = (struct path_head *)first_path->next;
-        free(p_head->path);
-        free(p_head);
-    }
-
-    while ((p_obj = path_command_list)) {
-        path_command_list = path_command_list->next;
-        free(p_obj->object);
-        free(p_obj);
-    }
+    return true;
 }

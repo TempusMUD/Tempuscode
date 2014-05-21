@@ -53,14 +53,12 @@ extern int *obj_index;
 extern char *olc_guide;
 long asciiflag_conv(char *buf);
 
-void num2str(char *str, int num);
 void do_stat_object(struct creature *ch, struct obj_data *obj);
 
 int prototype_obj_value(struct obj_data *obj);
 int set_maxdamage(struct obj_data *obj);
 char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
 
-int add_path_to_vehicle(struct obj_data *obj, int vnum);
 int choose_material(struct obj_data *obj);
 
 struct extra_descr_data *locate_exdesc(char *word,
@@ -144,7 +142,7 @@ write_obj_index(struct creature *ch, struct zone_data *zone)
 
     obj_index = new_index;
 
-    sprintf(fname, "world/obj/index");
+    snprintf(fname, sizeof(fname), "world/obj/index");
     if (!(index = fopen(fname, "w"))) {
         send_to_char(ch,
             "Could not open index file, object save aborted.\r\n");
@@ -182,14 +180,14 @@ save_objs(struct creature * ch, struct zone_data * zone)
         return false;
     }
 
-    sprintf(fname, "world/obj/%d.obj", zone->number);
+    snprintf(fname, sizeof(fname), "world/obj/%d.obj", zone->number);
     if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
         mudlog(0, BRF, true,
             "OLC: ERROR - Main object file for zone %d is read-only.",
             zone->number);
     }
 
-    sprintf(fname, "world/obj/olc/%d.obj", zone->number);
+    snprintf(fname, sizeof(fname), "world/obj/olc/%d.obj", zone->number);
     if (!(file = fopen(fname, "w")))
         return false;
 
@@ -235,10 +233,10 @@ save_objs(struct creature * ch, struct zone_data * zone)
         }
         fprintf(file, "~\n");
 
-        num2str(sbuf1, obj->obj_flags.extra_flags);
-        num2str(sbuf2, obj->obj_flags.extra2_flags);
-        num2str(sbuf3, obj->obj_flags.wear_flags);
-        num2str(sbuf4, obj->obj_flags.extra3_flags);
+        num2str(sbuf1, sizeof(sbuf1), obj->obj_flags.extra_flags);
+        num2str(sbuf2, sizeof(sbuf2), obj->obj_flags.extra2_flags);
+        num2str(sbuf3, sizeof(sbuf3), obj->obj_flags.wear_flags);
+        num2str(sbuf4, sizeof(sbuf4), obj->obj_flags.extra3_flags);
 
         fprintf(file, "%d %s %s %s %s\n", obj->obj_flags.type_flag,
             sbuf1, sbuf2, sbuf3, sbuf4);
@@ -289,7 +287,7 @@ save_objs(struct creature * ch, struct zone_data * zone)
 
         for (i = 0; i < 3; i++) {
             if (obj->obj_flags.bitvector[i]) {
-                num2str(sbuf1, obj->obj_flags.bitvector[i]);
+                num2str(sbuf1, sizeof(sbuf1), obj->obj_flags.bitvector[i]);
                 fprintf(file, "V\n");
                 fprintf(file, "%zd %s\n", (i + 1), sbuf1);
             }
@@ -312,11 +310,11 @@ save_objs(struct creature * ch, struct zone_data * zone)
 
     slog("OLC: %s osaved %d.", GET_NAME(ch), zone->number);
 
-    sprintf(fname, "world/obj/%d.obj", zone->number);
+    snprintf(fname, sizeof(fname), "world/obj/%d.obj", zone->number);
     realfile = fopen(fname, "w");
     if (realfile) {
         fclose(file);
-        sprintf(fname, "world/obj/olc/%d.obj", zone->number);
+        snprintf(fname, sizeof(fname), "world/obj/olc/%d.obj", zone->number);
         if (!(file = fopen(fname, "r"))) {
             fclose(realfile);
             errlog("Failure to reopen olc obj file.");
@@ -470,15 +468,6 @@ do_destroy_object(struct creature *ch, int vnum)
     dmalloc_verify(0);
 #endif
 
-    if (obj->aliases)
-        free(obj->aliases);
-    if (obj->line_desc)
-        free(obj->line_desc);
-    if (obj->name)
-        free(obj->name);
-    if (obj->action_desc)
-        free(obj->action_desc);
-
     while ((desc = obj->ex_description)) {
         obj->ex_description = desc->next;
         if (desc->keyword)
@@ -488,9 +477,12 @@ do_destroy_object(struct creature *ch, int vnum)
         free(desc);
     }
 
-    if (obj->shared)
-        free(obj->shared);
+    free(obj->aliases);
+    free(obj->line_desc);
+    free(obj->name);
+    free(obj->action_desc);
 
+    free(obj->shared);
     free(obj);
 
 #ifdef DMALLOC
@@ -514,15 +506,15 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
     bool metric = USE_METRIC(ch);
 
     if (!*argument) {
-        strcpy(buf, "Valid oset commands:\r\n");
-        strcat(buf, CCYEL(ch, C_NRM));
+        strcpy_s(buf, sizeof(buf), "Valid oset commands:\r\n");
+        strcat_s(buf, sizeof(buf), CCYEL(ch, C_NRM));
         i = 0;
         while (*olc_oset_keys[i] != '\n') {
-            strcat(buf, olc_oset_keys[i]);
-            strcat(buf, "\r\n");
+            strcat_s(buf, sizeof(buf), olc_oset_keys[i]);
+            strcat_s(buf, sizeof(buf), "\r\n");
             i++;
         }
-        strcat(buf, CCNRM(ch, C_NRM));
+        strcat_s(buf, sizeof(buf), CCNRM(ch, C_NRM));
         page_string(ch->desc, buf);
         return;
     }
@@ -620,7 +612,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         } else
             i = atoi(arg2);
 
-        if (i < 0 || i > NUM_ITEM_TYPES) {
+        if (i < 0 || i >= NUM_ITEM_TYPES) {
             send_to_char(ch, "Object type out of range.\r\n");
             return;
         }
@@ -907,7 +899,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 
         j = atoi(arg2);
 
-        if (i < 0 || i > NUM_APPLIES) {
+        if (i < 0 || i >= NUM_APPLIES) {
             send_to_char(ch, "Location out of range.  Try 'olc h apply'.\r\n");
             return;
         } else if (j < -125 || j > 125) {
@@ -1112,6 +1104,10 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         }
         // Check to see that they can set the spec param
         i = find_spec_index_ptr(GET_OBJ_SPEC(obj_p));
+        if (i < 0) {
+            send_to_char(ch, "Couldn't find special in index.\r\n");
+            break;
+        }
         if (IS_SET(spec_list[i].flags, SPEC_RES)
             && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL)) {
             send_to_char(ch, "This special is reserved.\r\n");

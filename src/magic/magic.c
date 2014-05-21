@@ -51,6 +51,7 @@
 #include "actions.h"
 #include "weather.h"
 #include "players.h"
+#include "strutil.h"
 
 extern struct room_data *world;
 extern struct obj_data *object_list;
@@ -552,12 +553,14 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
     switch (spellnum) {
     case SPELL_HELL_FIRE_STORM:
         spellnum = SPELL_HELL_FIRE;
+        /* fallthrough */
     case SPELL_HELL_FIRE:
         dam = dice(GET_LEVEL(ch) / 3, 4) + GET_LEVEL(ch);
         audible = true;
         break;
     case SPELL_HELL_FROST_STORM:
         spellnum = SPELL_HELL_FROST;
+        /* fallthrough */
     case SPELL_HELL_FROST:
         dam = dice(GET_LEVEL(ch) / 3, 4) + GET_LEVEL(ch);
         audible = true;
@@ -610,6 +613,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         break;
     case SPELL_CHAIN_LIGHTNING:
         spellnum = SPELL_LIGHTNING_BOLT;
+        /* fallthrough */
     case SPELL_LIGHTNING_BOLT:
         audible = true;
         if (is_mage)
@@ -680,12 +684,13 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         break;
     case SPELL_ENTROPY_FIELD:
         dam = 10 + dice(level / 5, 3);
-        if (!GET_CLASS(ch) == CLASS_PHYSIC)
+        if (GET_CLASS(ch) != CLASS_PHYSIC) {
             dam = dam / 2;
+        }
         break;
     case SPELL_GRAVITY_WELL:
         dam = dice(level / 2, 5);
-        if (!GET_CLASS(ch) == CLASS_PHYSIC)
+        if (GET_CLASS(ch) != CLASS_PHYSIC)
             dam = dam / 2;
         if (AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL))
             dam = dam / 2;
@@ -740,6 +745,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         break;
     case SPELL_ICE_STORM:
         spellnum = SPELL_ICY_BLAST;
+        /* fallthrough */
     case SPELL_ICY_BLAST:
         audible = true;
         if (is_cleric || is_ranger || is_knight)
@@ -991,6 +997,7 @@ mag_affects(int level,
 
     case SPELL_HELL_FROST_STORM:
         spellnum = SPELL_HELL_FROST;
+        /* fallthrough */
     case SPELL_HELL_FROST:
     case SPELL_CHILL_TOUCH:
     case SPELL_CONE_COLD:
@@ -1262,8 +1269,6 @@ mag_affects(int level,
         to_room = "A ghostly light appears around $n.";
         break;
     case SPELL_INVISIBLE:
-        if (!victim)
-            victim = ch;
         aff[0].duration = 12 + (level / 4);
         aff[0].modifier = -20;
         aff[0].location = APPLY_AC;
@@ -2053,8 +2058,6 @@ mag_affects(int level,
         break;
 
     case SPELL_TRANSMITTANCE:
-        if (!victim)
-            victim = ch;
         to_room = "$n's body slowly becomes completely transparent.";
         to_vict = "You become transparent.";
 
@@ -3174,14 +3177,12 @@ mag_summons(int level __attribute__ ((unused)),
     struct creature *ch,
     struct obj_data *obj, int spellnum, int savetype __attribute__ ((unused)))
 {
-    struct creature *mob = NULL;
-    struct obj_data *tobj, *next_obj;
     int pfail = 0;
     int fmsg = 0;
     int num = 1;
     int a, i;
     int mob_num = 0;
-    int handle_corpse = 0;
+    bool handle_corpse = false;
 
     if (ch == NULL)
         return;
@@ -3193,14 +3194,15 @@ mag_summons(int level __attribute__ ((unused)),
             act(mag_summon_fail_msgs[7], false, ch, NULL, NULL, TO_CHAR);
             return;
         }
-        handle_corpse = 1;
+        handle_corpse = true;
         mob_num = NPC_ZOMBIE;
         a = number(0, 5);
         if (a)
             mob_num++;
         pfail = 8;
         break;
-
+    case SPELL_CLONE:
+        break;
     default:
         return;
     }
@@ -3213,8 +3215,12 @@ mag_summons(int level __attribute__ ((unused)),
         send_to_char(ch, "%s", mag_summon_fail_msgs[fmsg]);
         return;
     }
+    
     for (i = 0; i < num; i++) {
-        mob = read_mobile(mob_num);
+        struct creature *mob = read_mobile(mob_num);
+        if (mob == NULL) {
+            continue;
+        }
         char_to_room(mob, ch->in_room, true);
         IS_CARRYING_W(mob) = 0;
         IS_CARRYING_N(mob) = 0;
@@ -3222,17 +3228,19 @@ mag_summons(int level __attribute__ ((unused)),
         add_follower(mob, ch);
         act(mag_summon_msgs[fmsg], false, ch, NULL, mob, TO_ROOM);
         if (spellnum == SPELL_CLONE) {
-            strcpy(GET_NAME(mob), GET_NAME(ch));
-            strcpy(mob->player.short_descr, GET_NAME(ch));
+            free(mob->player.short_descr);
+            mob->player.short_descr = strdup(GET_NAME(ch));
         }
-    }
-    if (handle_corpse) {
-        for (tobj = obj->contains; tobj; tobj = next_obj) {
-            next_obj = tobj->next_content;
-            obj_from_obj(tobj);
-            obj_to_char(tobj, mob);
+
+        if (handle_corpse) {
+            struct obj_data *next_obj;
+            for (struct obj_data *tobj = obj->contains; tobj; tobj = next_obj) {
+                next_obj = tobj->next_content;
+                obj_from_obj(tobj);
+                obj_to_char(tobj, mob);
+            }
+            extract_obj(obj);
         }
-        extract_obj(obj);
     }
 }
 
@@ -4118,17 +4126,17 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj, int spellnum)
         if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
             obj->affected[0].location = APPLY_HITROLL;
             obj->affected[0].modifier = 1 + (level / 12) +
-                (CHECK_REMORT_CLASS(ch) >= 0) * (level / 18);
+                (GET_REMORT_CLASS(ch) >= 0) * (level / 18);
             obj->affected[1].location = APPLY_DAMROLL;
             obj->affected[1].modifier = 1 + (level / 18) +
-                (CHECK_REMORT_CLASS(ch) >= 0) * (level / 24);
+                (GET_REMORT_CLASS(ch) >= 0) * (level / 24);
         } else if (IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
             obj->affected[0].location = APPLY_AC;
             obj->affected[0].modifier = -(1 + (level / 12) +
-                (CHECK_REMORT_CLASS(ch) >= 0) * (level / 28));
+                (GET_REMORT_CLASS(ch) >= 0) * (level / 28));
             obj->affected[1].location = APPLY_SAVING_SPELL;
             obj->affected[1].modifier = -(1 + (level / 18) +
-                (CHECK_REMORT_CLASS(ch) >= 0) * (level / 28));
+                (GET_REMORT_CLASS(ch) >= 0) * (level / 28));
         } else
             return;
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
@@ -4197,7 +4205,7 @@ mag_creations(int level __attribute__((unused)), struct creature *ch, int spelln
 
 int
 mag_exits(int level, struct creature *caster, struct room_data *room,
-    int spellnum)
+          int spellnum)
 {
 
     int dir = -1;
@@ -4218,16 +4226,14 @@ mag_exits(int level, struct creature *caster, struct room_data *room,
         return 0;
     }
 
-    rm_aff.level = level;
-    rm_aff.type = dir;
+    init_room_affect(&rm_aff, level, spellnum, GET_IDNUM(caster));
 
-    if ((o_room = room->dir_option[dir]->to_room) &&
-        o_room->dir_option[rev_dir[dir]] &&
-        room == o_room->dir_option[rev_dir[dir]]->to_room) {
-        o_rm_aff.level = rm_aff.level;
-        o_rm_aff.type = rev_dir[dir];
-    } else
+    o_room = room->dir_option[dir]->to_room;
+    if (o_room != NULL
+        && (o_room->dir_option[rev_dir[dir]] == NULL
+            || room != o_room->dir_option[rev_dir[dir]]->to_room)) {
         o_room = NULL;
+    }
 
     const char *aff_desc = NULL;
 
@@ -4246,16 +4252,16 @@ mag_exits(int level, struct creature *caster, struct room_data *room,
     rm_aff.description =
         strdup(tmp_sprintf("%s %s.\r\n", aff_desc, to_dirs[dir]));
 
+    affect_to_room(room, &rm_aff);
+
     if (o_room) {
+        o_rm_aff = rm_aff;
+        o_rm_aff.type = rev_dir[dir];
         o_rm_aff.description =
             strdup(tmp_sprintf("%s %s.\r\n", aff_desc,
                 to_dirs[(int)o_rm_aff.type]));
-        o_rm_aff.duration = rm_aff.duration;
-        o_rm_aff.flags = EX_WALL_THORNS;
         affect_to_room(o_room, &o_rm_aff);
     }
-
-    affect_to_room(room, &rm_aff);
     return 1;
 }
 

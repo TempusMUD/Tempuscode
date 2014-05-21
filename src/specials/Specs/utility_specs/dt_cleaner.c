@@ -21,7 +21,7 @@ SPECIAL(dt_cleaner)
             if (IS_SET(ROOM_FLAGS(room), ROOM_DEATH) && !room->people) {
                 if (room->contents) {
                     found = 1;
-                    sprintf(buf, "Room %d : %s cleared.\r\n", room->number,
+                    snprintf(buf, sizeof(buf), "Room %d : %s cleared.\r\n", room->number,
                         room->name);
                     send_to_room(buf, ch->in_room);
                 }

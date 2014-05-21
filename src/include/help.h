@@ -65,9 +65,10 @@ struct help_collection {
 struct help_item *make_help_item(void);
 void free_help_item(struct help_item *item);
 void help_item_show(struct help_item *item,
-                   struct creature *ch,
-                   char *buffer,
-                   int mode);
+                    struct creature *ch,
+                    char *buffer,
+                    size_t buf_size,
+                    int mode);
 bool help_item_save(struct help_item *item);
 bool help_item_edit(struct help_item *item, struct creature *ch);
 void help_item_clear(struct help_item *item);

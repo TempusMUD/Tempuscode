@@ -801,9 +801,10 @@ ASPELL(spell_locate_object)
     extern char locate_buf[256];
     int j, k;
     char *which_str;
+    size_t which_str_size;
     struct room_data *rm = NULL;
     char buf3[MAX_STRING_LENGTH];
-    char terms[MAX_LOCATE_TERMS][MAX_INPUT_LENGTH];
+    char terms[MAX_LOCATE_TERMS + 1][MAX_INPUT_LENGTH];
     int term_idx, term_count = 0;
     int found;
     int extracost;
@@ -817,7 +818,7 @@ ASPELL(spell_locate_object)
     char *read_pt = locate_buf;
     char *token = tmp_getword(&read_pt);
     while (*token && term_count <= MAX_LOCATE_TERMS) {
-        strcpy(terms[term_count], token);
+        strcpy_s(terms[term_count], sizeof(terms[term_count]), token);
         term_count++;
         token = tmp_getword(&read_pt);
     }
@@ -880,38 +881,40 @@ ASPELL(spell_locate_object)
 
         if (rm && ROOM_FLAGGED(rm, ROOM_HOUSE)) {
             which_str = buf2;
+            which_str_size = sizeof(buf2);
             if (k-- <= 0)
                 continue;
         } else {
             which_str = buf;
+            which_str_size = sizeof(buf);
             if (j-- <= 0)
                 continue;
         }
 
         if (IS_OBJ_STAT2(i, ITEM2_NOLOCATE))
-            sprintf(buf3, "The location of %s is indeterminable.\r\n",
+            snprintf(buf3, sizeof(buf3), "The location of %s is indeterminable.\r\n",
                 i->name);
         else if (IS_OBJ_STAT2(i, ITEM2_HIDDEN))
-            sprintf(buf3, "%s is hidden somewhere.\r\n", i->name);
+            snprintf(buf3, sizeof(buf3), "%s is hidden somewhere.\r\n", i->name);
         else if (i->carried_by)
-            sprintf(buf3, "%s is being carried by %s.\r\n",
+            snprintf(buf3, sizeof(buf3), "%s is being carried by %s.\r\n",
                 i->name, PERS(i->carried_by, ch));
         else if (i->in_room != NULL && !ROOM_FLAGGED(i->in_room, ROOM_HOUSE)) {
-            sprintf(buf3, "%s is in %s.\r\n", i->name, i->in_room->name);
+            snprintf(buf3, sizeof(buf3), "%s is in %s.\r\n", i->name, i->in_room->name);
         } else if (i->in_obj)
-            sprintf(buf3, "%s is in %s.\r\n", i->name, i->in_obj->name);
+            snprintf(buf3, sizeof(buf3), "%s is in %s.\r\n", i->name, i->in_obj->name);
         else if (i->worn_by)
-            sprintf(buf3, "%s is being worn by %s.\r\n",
+            snprintf(buf3, sizeof(buf3), "%s is being worn by %s.\r\n",
                 i->name, PERS(i->worn_by, ch));
         else
-            sprintf(buf3, "%s's location is uncertain.\r\n", i->name);
+            snprintf(buf3, sizeof(buf3), "%s's location is uncertain.\r\n", i->name);
 
         (void)CAP(buf3);
 
         if (strlen(which_str) + strlen(buf3) > MAX_STRING_LENGTH - 64)
             break;
 
-        strcat(which_str, buf3);
+        strcat_s(which_str, which_str_size, buf3);
     }
 
     if (j == level / 2 && k == level / 4)
@@ -919,8 +922,8 @@ ASPELL(spell_locate_object)
 
     else {
         if (*buf2 && strlen(buf) + strlen(buf2) < MAX_STRING_LENGTH - 1) {
-            strcat(buf, "-----------\r\n");
-            strcat(buf, buf2);
+            strcat_s(buf, sizeof(buf), "-----------\r\n");
+            strcat_s(buf, sizeof(buf), buf2);
         }
 
         page_string(ch->desc, buf);
@@ -1219,7 +1222,7 @@ ASPELL(spell_identify)
                     send_to_char(ch, "Can affect you as :\r\n");
                     found = true;
                 }
-                sprinttype(obj->affected[i].location, apply_types, buf2);
+                sprinttype(obj->affected[i].location, apply_types, buf2, sizeof(buf2));
                 send_to_char(ch, "   Affects: %s By %d\r\n", buf2,
                     obj->affected[i].modifier);
             }
@@ -1375,7 +1378,7 @@ send_to_char(ch, "Object '%s', Item type: %s\r\n",
                     send_to_char(ch, "Can affect you as :\r\n");
                     found = true;
                 }
-                sprinttype(obj->affected[i].location, apply_types, buf2);
+                sprinttype(obj->affected[i].location, apply_types, buf2, sizeof(buf2));
                 send_to_char(ch, "   Affects: %s\r\n", buf2);
             }
         }
@@ -1456,9 +1459,9 @@ ASPELL(spell_enchant_weapon)
         gain_skill_prof(ch, SPELL_ENCHANT_WEAPON);
 
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
-            sprintf(buf, " imm %senchant", GET_NAME(ch));
-            strcpy(buf2, obj->aliases);
-            strcat(buf2, buf);
+            snprintf(buf, sizeof(buf), " imm %senchant", GET_NAME(ch));
+            strcpy_s(buf2, sizeof(buf2), obj->aliases);
+            strcat_s(buf2, sizeof(buf2), buf);
             obj->aliases = strdup(buf2);
             mudlog(GET_LEVEL(ch), CMP, true,
                 "ENCHANT: %s by %s.", obj->name, GET_NAME(ch));
@@ -1519,9 +1522,9 @@ ASPELL(spell_enchant_armor)
         gain_skill_prof(ch, SPELL_ENCHANT_ARMOR);
 
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
-            sprintf(buf, " imm %senchant", GET_NAME(ch));
-            strcpy(buf2, obj->aliases);
-            strcat(buf2, buf);
+            snprintf(buf, sizeof(buf), " imm %senchant", GET_NAME(ch));
+            strcpy_s(buf2, sizeof(buf2), obj->aliases);
+            strcat_s(buf2, sizeof(buf2), buf);
             obj->aliases = strdup(buf2);
             mudlog(GET_LEVEL(ch), CMP, true,
                 "ENCHANT: %s by %s.", obj->name, GET_NAME(ch));
@@ -1612,9 +1615,9 @@ ASPELL(spell_greater_enchant)
     gain_skill_prof(ch, SPELL_GREATER_ENCHANT);
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
-        sprintf(buf, " imm %senchant", GET_NAME(ch));
-        strcpy(buf2, obj->aliases);
-        strcat(buf2, buf);
+        snprintf(buf, sizeof(buf), " imm %senchant", GET_NAME(ch));
+        strcpy_s(buf2, sizeof(buf2), obj->aliases);
+        strcat_s(buf2, sizeof(buf2), buf);
         obj->aliases = strdup(buf2);
         mudlog(GET_LEVEL(ch), CMP, true,
             "ENCHANT: %s by %s.", obj->name, GET_NAME(ch));
@@ -1940,9 +1943,9 @@ ASPELL(spell_knock)
     }
 
     if (!knock_door->keyword)
-        strcpy(dname, "door");
+        strcpy_s(dname, sizeof(dname), "door");
     else
-        strcpy(dname, fname(knock_door->keyword));
+        strcpy_s(dname, sizeof(dname), fname(knock_door->keyword));
 
     if (!IS_SET(knock_door->exit_info, EX_ISDOOR)) {
         send_to_char(ch, "That ain't knockable!\r\n");
@@ -1972,7 +1975,7 @@ ASPELL(spell_knock)
         REMOVE_BIT(knock_door->exit_info, EX_CLOSED);
         REMOVE_BIT(knock_door->exit_info, EX_LOCKED);
         send_to_char(ch, "Opened.\r\n");
-        sprintf(buf, "The %s %s flung open suddenly.", dname, ISARE(dname));
+        snprintf(buf, sizeof(buf), "The %s %s flung open suddenly.", dname, ISARE(dname));
         act(buf, false, ch, NULL, NULL, TO_ROOM);
 
         for (i = 0; i < NUM_DIRS; i++) {
@@ -1997,7 +2000,7 @@ ASPELL(spell_knock)
                 REMOVE_BIT(toroom->dir_option[kdir]->exit_info, EX_CLOSED);
                 REMOVE_BIT(toroom->dir_option[kdir]->exit_info, EX_LOCKED);
 
-                sprintf(buf, "The %s %s flung open from the other side.",
+                snprintf(buf, sizeof(buf), "The %s %s flung open from the other side.",
                     dname, ISARE(dname));
                 send_to_room(buf, toroom);
 
@@ -2163,7 +2166,7 @@ ASPELL(spell_gust_of_wind)
                         can_enter_house(ch, target_room->number)) &&
                     (!ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE) ||
                         clan_house_can_enter(ch, target_room))) {
-                    sprintf(buf,
+                    snprintf(buf, sizeof(buf),
                         "A sudden gust of wind blows $p out of sight to the %s!",
                         dirs[attempt]);
                     act(buf, true, ch, obj, NULL, TO_ROOM);
@@ -2171,7 +2174,7 @@ ASPELL(spell_gust_of_wind)
                     obj_from_room(obj);
                     obj_to_room(obj, target_room);
                     if (obj->in_room->people) {
-                        sprintf(buf,
+                        snprintf(buf, sizeof(buf),
                             "$p is blown in on a gust of wind from the %s!",
                             from_dirs[attempt]);
                         act(buf, false, NULL, obj, NULL, TO_ROOM);
@@ -2243,7 +2246,7 @@ ASPELL(spell_gust_of_wind)
                 && (!ROOM_FLAGGED(target_room, ROOM_NOTEL)
                     || !target_room->people)) {
                 if (can_travel_sector(victim, SECT_TYPE(target_room), 0)) {
-                    sprintf(buf,
+                    snprintf(buf, sizeof(buf),
                         "A sudden gust of wind blows $N out of sight to the %s!",
                         dirs[attempt]);
                     act(buf, true, ch, NULL, victim, TO_NOTVICT);
@@ -2254,7 +2257,7 @@ ASPELL(spell_gust_of_wind)
                     char_from_room(victim, true);
                     char_to_room(victim, target_room, true);
                     look_at_room(victim, victim->in_room, 0);
-                    sprintf(buf,
+                    snprintf(buf, sizeof(buf),
                         "$n is blown in on a gust of wind from the %s!",
                         from_dirs[attempt]);
                     act(buf, false, victim, NULL, NULL, TO_ROOM);
@@ -2641,11 +2644,11 @@ ASPELL(spell_animate_dead)
     //
     // strings
     //
-    sprintf(buf2, "%s zombie animated", obj->aliases);
+    snprintf(buf2, sizeof(buf2), "%s zombie animated", obj->aliases);
     zombie->player.name = strdup(buf2);
     zombie->player.short_descr = strdup(obj->name);
-    strcpy(buf, obj->name);
-    strcat(buf, " is standing here.");
+    strcpy_s(buf, sizeof(buf), obj->name);
+    strcat_s(buf, sizeof(buf), " is standing here.");
     CAP(buf);
     zombie->player.long_descr = strdup(buf);
     zombie->player.description = NULL;

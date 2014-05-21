@@ -88,7 +88,6 @@ void handle_network(struct descriptor_data *d, char *arg);
 int general_search(struct creature *ch, struct special_search_data *srch,
     int mode);
 void roll_real_abils(struct creature *ch);
-void print_attributes_to_buf(struct creature *ch, char *buff);
 void show_character_detail(struct descriptor_data *d);
 void flush_q(struct txt_q *queue);
 int _parse_name(char *arg, char *name);
@@ -119,19 +118,18 @@ push_command_onto_list(struct creature *ch, char *string)
 
     for (i = NUM_SAVE_CMDS - 2; i >= 0; i--) {
         last_cmd[i + 1].idnum = last_cmd[i].idnum;
-        strcpy(last_cmd[i + 1].name, last_cmd[i].name);
+        strcpy_s(last_cmd[i + 1].name, sizeof(last_cmd[i + 1].name), last_cmd[i].name);
         last_cmd[i + 1].roomnum = last_cmd[i].roomnum;
-        strcpy(last_cmd[i + 1].room, last_cmd[i].room);
-        strcpy(last_cmd[i + 1].string, last_cmd[i].string);
+        strcpy_s(last_cmd[i + 1].room, sizeof(last_cmd[i + 1].room), last_cmd[i].room);
+        strcpy_s(last_cmd[i + 1].string, sizeof(last_cmd[i + 1].string), last_cmd[i].string);
     }
 
     last_cmd[0].idnum = GET_IDNUM(ch);
-    strncpy(last_cmd[0].name, GET_NAME(ch), MAX_INPUT_LENGTH);
     last_cmd[0].roomnum = (ch->in_room) ? ch->in_room->number : -1;
-    strncpy(last_cmd[0].room,
-        (ch->in_room && ch->in_room->name) ?
-        ch->in_room->name : "<NULL>", MAX_INPUT_LENGTH);
-    strncpy(last_cmd[0].string, string, MAX_INPUT_LENGTH);
+    strcpy_s(last_cmd[0].name, sizeof(last_cmd[0].name), GET_NAME(ch));
+    strcpy_s(last_cmd[0].room, sizeof(last_cmd[0].room),
+             (ch->in_room && ch->in_room->name) ? ch->in_room->name : "<NULL>");
+    strcpy_s(last_cmd[0].string, sizeof(last_cmd[0].string), string);
 }
 
 gboolean
@@ -610,11 +608,19 @@ handle_input(gpointer data)
             return true;
         }
 
-        for (i = 0; i < NUM_PC_RACES; i++)
-            if (race_restr[i][0] == GET_RACE(d->creature))
+        int race_idx = -1;
+        for (i = 0; i < NUM_PC_RACES; i++) {
+            if (race_restr[i][0] == GET_RACE(d->creature)) {
+                race_idx = i;
                 break;
+            }
+        }
+        if (race_idx == -1) {
+            d_printf(d, "&gThat's not an allowable race!&n\r\n");
+            break;
+        }
 
-        if (race_restr[i][GET_CLASS(d->creature) + 1] != 2) {
+        if (race_restr[race_idx][GET_CLASS(d->creature) + 1] != 2) {
             d_send(d, CCGRN(d->creature, C_NRM));
             d_send(d, "\r\nThat race is not allowed to your character class!\r\n");
             d_send(d, CCNRM(d->creature, C_NRM));
@@ -948,7 +954,6 @@ void
 send_prompt(struct descriptor_data *d)
 {
     extern bool production_mode;
-    char prompt[MAX_INPUT_LENGTH];
     char colorbuf[100];
 
     // Check for the text editor being used
@@ -969,35 +974,36 @@ send_prompt(struct descriptor_data *d)
         }
         if (d->is_blind)
             return;
-        *prompt = '\0';
+
+        acc_string_clear();
 
         if (!production_mode)
-            sprintf(prompt, "%s%s(debug)%s ", prompt,
+            acc_sprintf("%s(debug)%s ",
                 CCBLU(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
         if (GET_INVIS_LVL(d->creature))
-            sprintf(prompt, "%s%s(%si%d%s)%s ", prompt, CCMAG(d->creature,
+            acc_sprintf("%s(%si%d%s)%s ", CCMAG(d->creature,
                     C_NRM), CCRED(d->creature, C_NRM),
                 GET_INVIS_LVL(d->creature), CCMAG(d->creature, C_NRM),
                 CCNRM(d->creature, C_NRM));
         else if (IS_NPC(d->creature))
-            sprintf(prompt, "%s%s[NPC]%s ", prompt,
+            acc_sprintf("%s[NPC]%s ",
                 CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 
         if (PRF_FLAGGED(d->creature, PRF_DISPHP))
-            sprintf(prompt, "%s%s%s< %s%d%s%sH%s ", prompt,
+            acc_sprintf("%s%s< %s%d%s%sH%s ",
                 CCWHT(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
                 CCGRN(d->creature, C_SPR), GET_HIT(d->creature),
                 CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
 
         if (PRF_FLAGGED(d->creature, PRF_DISPMANA))
-            sprintf(prompt, "%s%s%s%d%s%sM%s ", prompt,
+            acc_sprintf("%s%s%d%s%sM%s ",
                 CCBLD(d->creature, C_CMP), CCMAG(d->creature, C_SPR),
                 GET_MANA(d->creature), CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
 
         if (PRF_FLAGGED(d->creature, PRF_DISPMOVE))
-            sprintf(prompt, "%s%s%s%d%s%sV%s ", prompt,
+            acc_sprintf("%s%s%d%s%sV%s ",
                 CCCYN(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
                 GET_MOVE(d->creature), CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
@@ -1005,14 +1011,14 @@ send_prompt(struct descriptor_data *d)
         if (PRF2_FLAGGED(d->creature, PRF2_DISPALIGN)) {
 
             if (IS_GOOD(d->creature)) {
-                sprintf(colorbuf, "%s", CCCYN(d->creature, C_SPR));
+                snprintf(colorbuf, sizeof(colorbuf), "%s", CCCYN(d->creature, C_SPR));
             } else if (IS_EVIL(d->creature)) {
-                sprintf(colorbuf, "%s", CCRED(d->creature, C_SPR));
+                snprintf(colorbuf, sizeof(colorbuf), "%s", CCRED(d->creature, C_SPR));
             } else {
-                sprintf(colorbuf, "%s", CCWHT(d->creature, C_SPR));
+                snprintf(colorbuf, sizeof(colorbuf), "%s", CCWHT(d->creature, C_SPR));
             }
 
-            sprintf(prompt, "%s%s%s%d%s%sA%s ", prompt,
+            acc_sprintf("%s%s%d%s%sA%s ",
                 colorbuf, CCBLD(d->creature, C_CMP),
                 GET_ALIGNMENT(d->creature), CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
@@ -1020,25 +1026,25 @@ send_prompt(struct descriptor_data *d)
 
         if (PRF2_FLAGGED(d->creature, PRF2_DISPTIME)) {
             if (d->creature->in_room->zone->time_frame == TIME_TIMELESS) {
-                sprintf(prompt, "%s%s%s%s", prompt, CCYEL_BLD(d->creature,
+                acc_sprintf("%s%s%s", CCYEL_BLD(d->creature,
                         C_CMP), "!TIME ", CCNRM(d->creature, C_SPR));
             } else {
                 struct time_info_data local_time;
                 set_local_time(d->creature->in_room->zone, &local_time);
-                sprintf(colorbuf, "%s%s", CCNRM(d->creature, C_SPR),
+                snprintf(colorbuf, sizeof(colorbuf), "%s%s", CCNRM(d->creature, C_SPR),
                     CCYEL(d->creature, C_NRM));
                 if (local_time.hours > 8 && local_time.hours < 18) {    //day
-                    sprintf(colorbuf, "%s%s%s", colorbuf, CCWHT(d->creature,
+                    snprintf_cat(colorbuf, sizeof(colorbuf), "%s%s", CCWHT(d->creature,
                             C_CMP), CCBLD(d->creature, C_CMP));
                 } else if (local_time.hours >= 6 && local_time.hours <= 20) {   //dawn/dusk
-                    sprintf(colorbuf, "%s%s", colorbuf, CCCYN_BLD(d->creature,
+                    snprintf_cat(colorbuf, sizeof(colorbuf), "%s", CCCYN_BLD(d->creature,
                             C_CMP));
                 } else {        //night
-                    sprintf(colorbuf, "%s%s", colorbuf, CCBLU_BLD(d->creature,
+                    snprintf_cat(colorbuf, sizeof(colorbuf), "%s", CCBLU_BLD(d->creature,
                             C_CMP));
                 }
 
-                sprintf(prompt, "%s%s%d%s%s%s%s ", prompt, colorbuf,
+                acc_sprintf("%s%d%s%s%s%s ", colorbuf,
                     ((local_time.hours % 12 ==
                             0) ? 12 : ((local_time.hours) % 12)),
                     CCNRM(d->creature, C_SPR), CCYEL_BLD(d->creature, C_CMP),
@@ -1049,13 +1055,13 @@ send_prompt(struct descriptor_data *d)
 
         if (is_fighting(d->creature) &&
             PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE))
-            sprintf(prompt, "%s%s(%s)%s ", prompt, CCRED(d->creature, C_NRM),
+            acc_sprintf("%s(%s)%s ", CCRED(d->creature, C_NRM),
                 diag_conditions(random_opponent(d->creature)),
                 CCNRM(d->creature, C_NRM));
 
-        sprintf(prompt, "%s%s%s>%s ", prompt, CCWHT(d->creature, C_NRM),
+        acc_sprintf("%s%s>%s ", CCWHT(d->creature, C_NRM),
             CCBLD(d->creature, C_CMP), CCNRM(d->creature, C_NRM));
-        d_send(d, prompt);
+        d_send(d, acc_get_string());
         break;
     case CXN_ACCOUNT_LOGIN:
         d_printf(d,
@@ -1139,7 +1145,7 @@ send_prompt(struct descriptor_data *d)
         break;
     case CXN_STATISTICS_ROLL:
         roll_real_abils(d->creature);
-        print_attributes_to_buf(d->creature, buf2);
+        print_attributes_to_buf(d->creature, buf2, sizeof(buf2));
         d_printf(d,
             "&@&c\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n");
         d_printf(d, "%s\r\n", buf2);
@@ -2212,7 +2218,7 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
 int
 check_newbie_ban(struct descriptor_data *desc)
 {
-    int bantype = isbanned(desc->host, buf2);
+    int bantype = isbanned(desc->host, buf2, sizeof(buf2));
     if (bantype == BAN_NEW) {
         d_printf(desc, "**************************************************"
             "******************************\r\n");

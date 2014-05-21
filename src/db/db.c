@@ -67,7 +67,7 @@
 #include "strutil.h"
 
 #define ZONE_ERROR(message) \
-{ zerrlog(zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); last_cmd = 0; }
+{ zerrlog(state->zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); state->last_cmd = 0; }
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -176,7 +176,6 @@ void parse_room(FILE * fl, int vnum_nr);
 void parse_mobile(FILE * mob_f, int nr);
 char *parse_object(FILE * obj_f, int nr);
 void load_zones(FILE * fl, char *zonename);
-void load_paths(void);
 void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
@@ -187,7 +186,7 @@ void boot_voices(void);
 void load_auctions(void);
 
 void reset_zone(struct zone_data *zone);
-int file_to_string(const char *name, char *buf);
+int file_to_string(const char *name, char *buf, size_t buf_size);
 int file_to_string_alloc(const char *name, char **buf);
 void check_start_rooms(void);
 void renum_world(void);
@@ -482,7 +481,7 @@ reset_time(void)
     long epoch = 650336715;
     time_t now = time(NULL);
     struct tm *sun_tm;
-    char sun_str[30];
+    char sun_str[56];
 
     sun_tm = localtime(&now);
     sun_tm->tm_mday -= sun_tm->tm_wday;
@@ -744,7 +743,7 @@ discrete_load(FILE * fl, int mode)
          * no end-of-record marker :(
          */
         if (mode != DB_BOOT_OBJ || nr < 0)
-            if (!get_line(fl, line)) {
+            if (!get_line(fl, line, sizeof(line))) {
                 fprintf(stderr, "Format error after %s #%d\n", modes[mode],
                     nr);
                 safe_exit(1);
@@ -770,7 +769,7 @@ discrete_load(FILE * fl, int mode)
                     parse_mobile(fl, nr);
                     break;
                 case DB_BOOT_OBJ:
-                    strcpy(line, parse_object(fl, nr));
+                    strcpy_s(line, sizeof(line), parse_object(fl, nr));
                     break;
                 }
         } else {
@@ -817,7 +816,7 @@ parse_room(FILE * fl, int vnum_nr)
     struct zone_data *zone = NULL;
     struct room_data *room = NULL, *tmp_room = NULL;
 
-    sprintf(buf2, "room #%d", vnum_nr);
+    snprintf(buf2, sizeof(buf2), "room #%d", vnum_nr);
 
     zone = zone_table;
 
@@ -835,7 +834,7 @@ parse_room(FILE * fl, int vnum_nr)
     room->description = fread_string(fl, buf2);
     room->sounds = NULL;
 
-    if (!get_line(fl, line)
+    if (!get_line(fl, line, sizeof(line))
         || sscanf(line, " %d %s %d ", t, flags, &t[2]) != 3) {
         fprintf(stderr, "Format error in room #%d\n", vnum_nr);
         safe_exit(1);
@@ -852,10 +851,10 @@ parse_room(FILE * fl, int vnum_nr)
         safe_exit(1);
     }
 
-    sprintf(buf, "Format error in room #%d (expecting D/E/S)", vnum_nr);
+    snprintf(buf, sizeof(buf), "Format error in room #%d (expecting D/E/S)", vnum_nr);
 
     while (true) {
-        if (!get_line(fl, line)) {
+        if (!get_line(fl, line, sizeof(line))) {
             fprintf(stderr, "%s:%d: %s\n", __FILE__, __LINE__, buf);
             safe_exit(1);
         }
@@ -899,7 +898,7 @@ parse_room(FILE * fl, int vnum_nr)
             room->sounds = fread_string(fl, buf2);
             break;
         case 'F':
-            if (!get_line(fl, line)
+            if (!get_line(fl, line, sizeof(line))
                 || sscanf(line, "%d %d %d", t, t + 1, t + 2) != 3) {
                 fprintf(stderr, "Flow field incorrect in room #%d.\n",
                     vnum_nr);
@@ -936,7 +935,7 @@ parse_room(FILE * fl, int vnum_nr)
             new_search->to_room = fread_string(fl, buf2);
             new_search->to_remote = fread_string(fl, buf2);
 
-            if (!get_line(fl, line)) {
+            if (!get_line(fl, line, sizeof(line))) {
                 fprintf(stderr, "Search error in room #%d.", vnum_nr);
                 safe_exit(1);
             }
@@ -1051,7 +1050,7 @@ setup_dir(FILE * fl, struct room_data *room, int dir)
     int t[5];
     char line[256], flags[128];
 
-    sprintf(buf2, "room #%d, direction D%d", room->number, dir);
+    snprintf(buf2, sizeof(buf2), "room #%d, direction D%d", room->number, dir);
 
     if (dir >= NUM_DIRS) {
         errlog("Room direction > NUM_DIRS in room #%d", room->number);
@@ -1062,7 +1061,7 @@ setup_dir(FILE * fl, struct room_data *room, int dir)
     room->dir_option[dir]->general_description = fread_string(fl, buf2);
     room->dir_option[dir]->keyword = fread_string(fl, buf2);
 
-    if (!get_line(fl, line)) {
+    if (!get_line(fl, line, sizeof(line))) {
         fprintf(stderr, "Format error, %s\n", buf2);
         safe_exit(1);
     }
@@ -1535,7 +1534,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->real_abils.con = 11;
     mobile->real_abils.cha = 11;
 
-    get_line(mob_f, line);
+    get_line(mob_f, line, sizeof(line));
     if (sscanf(line, " %d %d %d %dd%d+%d %dd%d+%d ",
             t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6, t + 7, t + 8) != 9) {
         fprintf(stderr, "Format error in mob #%d, first line after S flag\n"
@@ -1571,7 +1570,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->mob_specials.shared->kills = 0;
     mobile->mob_specials.shared->loaded = 0;
 
-    get_line(mob_f, line);
+    get_line(mob_f, line, sizeof(line));
     if (sscanf(line, " %d %d %d %d", t, t + 1, t + 2, t + 3) == 4) {
         mobile->player.char_class = t[3];
         mobile->player.race = t[2];
@@ -1582,7 +1581,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     GET_GOLD(mobile) = t[0];
     GET_EXP(mobile) = t[1];
 
-    get_line(mob_f, line);
+    get_line(mob_f, line, sizeof(line));
     if (sscanf(line, " %d %d %d %d ", t, t + 1, t + 2, t + 3) == 4)
         mobile->mob_specials.shared->attack_type = t[3];
     else
@@ -1616,7 +1615,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
  */
 
 #define CASE(test) if (!matched && !strcasecmp(keyword, test) && (matched = true))
-#define RANGE(low, high) (num_arg = MAX((low), MIN((high), (num_arg))))
+#define RANGE(low, high) do { num_arg = MAX((low), MIN((high), (num_arg))); } while (false)
 
 void
 interpret_espec(char *keyword, const char *value, struct creature *mobile,
@@ -1637,7 +1636,7 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
     }
 
     CASE("Str") {
-        RANGE(3, 35);
+        RANGE(3, 50);
         if (num_arg <= 18)
             mobile->real_abils.str = (int)num_arg;
         else
@@ -1740,7 +1739,7 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
     }
     CASE("CurLang") {
         // deprecated conversion
-        GET_TONGUE(mobile) = num_arg + 1;
+        SET_TONGUE(mobile, num_arg + 1, 100);
     }
     CASE("CurTongue") {
         GET_TONGUE(mobile) = num_arg;
@@ -1781,7 +1780,7 @@ parse_enhanced_mob(FILE * mob_f, struct creature *mobile, int nr)
 
     parse_simple_mob(mob_f, mobile, nr);
 
-    while (get_line(mob_f, line)) {
+    while (get_line(mob_f, line, sizeof(line))) {
         if (!strcmp(line, "SpecParam:")) {  /* multi-line specparam */
             NPC_SHARED(mobile)->func_param = fread_string(mob_f, buf2);
         } else if (!strcmp(line, "LoadParam:")) {   /* multi-line load param */
@@ -1804,7 +1803,6 @@ parse_enhanced_mob(FILE * mob_f, struct creature *mobile, int nr)
 void
 parse_mobile(FILE * mob_f, int nr)
 {
-    bool done = false;
     int j, t[10];
     char line[256], *tmpptr, letter;
     char f1[128], f2[128], f3[128], f4[128], f5[128];
@@ -1820,7 +1818,7 @@ parse_mobile(FILE * mob_f, int nr)
     mobile->mob_specials.shared->proto = mobile;
 
     mobile->player_specials = &dummy_mob;
-    sprintf(buf2, "mob vnum %d", nr);
+    snprintf(buf2, sizeof(buf2), "mob vnum %d", nr);
 
     /***** String data *** */
     mobile->player.name = fread_string(mob_f, buf2);
@@ -1843,7 +1841,7 @@ parse_mobile(FILE * mob_f, int nr)
     mobile->player.title = NULL;
 
     /* *** Numeric data *** */
-    get_line(mob_f, line);
+    get_line(mob_f, line, sizeof(line));
     sscanf(line, "%s %s %s %s %s %d %c", f1, f2, f3, f4, f5, t + 5, &letter);
     NPC_FLAGS(mobile) = asciiflag_conv(f1);
     NPC2_FLAGS(mobile) = asciiflag_conv(f2);
@@ -1868,21 +1866,18 @@ parse_mobile(FILE * mob_f, int nr)
         break;
     }
 
-/*      load reply structors till 'S' incountered */
+    /* advance to end of mobile */
     do {
-        get_line(mob_f, line);
-        switch (line[0]) {
-        case 'R':              /* reply text - no longer used */
-            free(fread_string(mob_f, buf2));
-            free(fread_string(mob_f, buf2));
-            break;
-        case '$':
-        case '#':              /* we hit a # so there is no end of replys */
-            fseek(mob_f, 0 - (strlen(line) + 1), SEEK_CUR);
-            done = true;
+        if (get_line(mob_f, line, sizeof(line)) == 0) {
+            // Actual end of file
             break;
         }
-    } while (!done);
+        if (line[0] == '#' || line[0] == '$') {
+            // Record or file terminator
+            fseek(mob_f, 0 - (strlen(line) + 1), SEEK_CUR);
+            break;
+        }
+    } while (true);
 
     mobile->aff_abils = mobile->real_abils;
 
@@ -1921,7 +1916,7 @@ parse_object(FILE * obj_f, int nr)
     obj->in_room = NULL;
     obj->worn_on = -1;
 
-    sprintf(buf2, "object #%d", nr);
+    snprintf(buf2, sizeof(buf2), "object #%d", nr);
 
     /* *** string data *** */
     if ((obj->aliases = fread_string(obj_f, buf2)) == NULL) {
@@ -1940,7 +1935,7 @@ parse_object(FILE * obj_f, int nr)
     obj->action_desc = fread_string(obj_f, buf2);
 
     /* *** numeric data *** */
-    if (!get_line(obj_f, line)) {
+    if (!get_line(obj_f, line, sizeof(line))) {
         fprintf(stderr, "Unable to read first numeric line for object %d.\n",
             nr);
         safe_exit(1);
@@ -1968,7 +1963,7 @@ parse_object(FILE * obj_f, int nr)
         safe_exit(1);
     }
 
-    if (!get_line(obj_f, line) ||
+    if (!get_line(obj_f, line, sizeof(line)) ||
         (retval = sscanf(line, "%d %d %d %d", t, t + 1, t + 2, t + 3)) != 4) {
         fprintf(stderr,
             "Format error in second numeric line (expecting 4 args, got %d), %s\n",
@@ -1980,7 +1975,7 @@ parse_object(FILE * obj_f, int nr)
     obj->obj_flags.value[2] = t[2];
     obj->obj_flags.value[3] = t[3];
 
-    if (!get_line(obj_f, line) ||
+    if (!get_line(obj_f, line, sizeof(line)) ||
         (retval = sscanf(line, "%d %d %d", t, t + 1, t + 2)) != 3) {
         fprintf(stderr,
             "Format error in third numeric line (expecting 3 args, got %d), %s\n",
@@ -1993,7 +1988,7 @@ parse_object(FILE * obj_f, int nr)
 
     t[3] = 0;
     float f;
-    if (!get_line(obj_f, line) ||
+    if (!get_line(obj_f, line, sizeof(line)) ||
         (retval = sscanf(line, "%f %d %d %d", &f, t + 1, t + 2, t + 3)) < 3) {
         fprintf(stderr,
             "Format error in fourth numeric line (expecting 3 or 4 args, got %d), %s\n",
@@ -2024,11 +2019,11 @@ parse_object(FILE * obj_f, int nr)
     obj->obj_flags.bitvector[1] = 0;
     obj->obj_flags.bitvector[2] = 0;
 
-    strcat(buf2, ", after numeric constants (expecting E/A/#xxx)");
+    strcat_s(buf2, sizeof(buf2), ", after numeric constants (expecting E/A/#xxx)");
     j = 0;
 
     while (true) {
-        if (!get_line(obj_f, line)) {
+        if (!get_line(obj_f, line, sizeof(line))) {
             fprintf(stderr, "Format error in %s\n", buf2);
             safe_exit(1);
         }
@@ -2046,7 +2041,7 @@ parse_object(FILE * obj_f, int nr)
                     MAX_OBJ_AFFECT, buf2);
                 safe_exit(1);
             }
-            get_line(obj_f, line);
+            get_line(obj_f, line, sizeof(line));
             sscanf(line, " %d %d ", t, t + 1);
             obj->affected[j].location = t[0];
             obj->affected[j].modifier = t[1];
@@ -2056,7 +2051,7 @@ parse_object(FILE * obj_f, int nr)
             sscanf(line + 1, " %ld ", &(obj->shared->owner_id));
             break;
         case 'V':
-            get_line(obj_f, line);
+            get_line(obj_f, line, sizeof(line));
             sscanf(line, " %d %s ", t, f1);
             if (t[0] < 1 || t[0] > 3)
                 break;
@@ -2098,9 +2093,9 @@ load_zones(FILE * fl, char *zonename)
 
     CREATE(new_zone, struct zone_data, 1);
 
-    strcpy(zname, zonename);
+    strcpy_s(zname, sizeof(zname), zonename);
 
-    while (get_line(fl, buf))
+    while (get_line(fl, buf, sizeof(buf)))
         num_of_cmds++;          /* this should be correct within 3 or so */
     rewind(fl);
 
@@ -2109,36 +2104,36 @@ load_zones(FILE * fl, char *zonename)
         safe_exit(0);
     }
 
-    line_num += get_line(fl, buf);
+    line_num += get_line(fl, buf, sizeof(buf));
 
     if (sscanf(buf, "#%d", &new_zone->number) != 1) {
         fprintf(stderr, "Format error in %s, line %d\n", zname, line_num);
         safe_exit(0);
     }
-    sprintf(buf2, "beginning of zone #%d", new_zone->number);
+    snprintf(buf2, sizeof(buf2), "beginning of zone #%d", new_zone->number);
 
-    line_num += get_line(fl, buf);
+    line_num += get_line(fl, buf, sizeof(buf));
     if ((ptr = strchr(buf, '~')) != NULL)   /* take off the '~' if it's there */
         *ptr = '\0';
 
     new_zone->name = strdup(buf);
 
-    line_num += get_line(fl, buf);
+    line_num += get_line(fl, buf, sizeof(buf));
     if (!strncmp(buf, "C ", 2)) {
         new_zone->owner_idnum = atoi(buf + 2);
-        line_num += get_line(fl, buf);
+        line_num += get_line(fl, buf, sizeof(buf));
     } else
         new_zone->owner_idnum = -1;
 
     if (!strncmp(buf, "C2 ", 3)) {
         new_zone->co_owner_idnum = atoi(buf + 3);
-        line_num += get_line(fl, buf);
+        line_num += get_line(fl, buf, sizeof(buf));
     } else
         new_zone->co_owner_idnum = -1;
 
     if (!strncmp(buf, "RP ", 3)) {
         new_zone->respawn_pt = atoi(buf + 3);
-        line_num += get_line(fl, buf);
+        line_num += get_line(fl, buf, sizeof(buf));
     } else
         new_zone->respawn_pt = 0;
 
@@ -2169,7 +2164,7 @@ load_zones(FILE * fl, char *zonename)
         else
             break;
 
-        line_num += get_line(fl, buf);
+        line_num += get_line(fl, buf, sizeof(buf));
     }
 
     int result = sscanf(buf, " %d %d %d %d %d %s %d %d %d %d", &new_zone->top,
@@ -2207,7 +2202,7 @@ load_zones(FILE * fl, char *zonename)
     }
 
     while (true) {
-        if ((tmp = get_line(fl, buf)) == 0) {
+        if ((tmp = get_line(fl, buf, sizeof(buf))) == 0) {
             fprintf(stderr, "Format error in %s - premature end of file\n",
                 zname);
             safe_exit(0);
@@ -2302,7 +2297,7 @@ read_mobile(int vnum)
     struct creature *mob = NULL, *tmp_mob;
 
     if (!(tmp_mob = real_mobile_proto(vnum))) {
-        sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
+        snprintf(buf, sizeof(buf), "Mobile (V) %d does not exist in database.", vnum);
         return (NULL);
     }
     CREATE(mob, struct creature, 1);
@@ -2382,16 +2377,15 @@ process_load_param(struct creature *ch)
             // 0 == "Do regardless of previous"
 
             if (*vnum && *pos && *max && *p) {
-                last_cmd =
-                    on_load_equip(ch, atoi(vnum), pos, atoi(max), atoi(p));
+                last_cmd = on_load_equip(ch, atoi(vnum), pos,
+                                         atoi(max), atoi(p));
                 if (last_cmd == 100) {
                     slog("Mob number %d killed during load param processing line %d.\r\n", mob_id, lineno);
                     return true;
                 }
             } else {
-                char *msg =
-                    tmp_sprintf
-                    ("Line %d of my load param has the wrong format!", lineno);
+                char *msg = tmp_sprintf (
+                    "Line %d of my load param has the wrong format!", lineno);
                 perform_say(ch, "yell", msg);
             }
         }
@@ -2413,6 +2407,8 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
     int percent)
 {
     struct obj_data *obj = real_object_proto(vnum);
+    bool equipped = true;
+
     if (obj == NULL) {
         errlog("Mob num %d: equip object %d nonexistent.",
             ch->mob_specials.shared->vnum, vnum);
@@ -2430,14 +2426,14 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
     }
     int pos = -1;
     if (strcasecmp(position, "take") == 0) {
-        pos = ITEM_WEAR_TAKE;
+        equipped = false;
     } else if (IS_OBJ_STAT2(obj, ITEM2_IMPLANT)) {
         pos = search_block(position, wear_implantpos, false);
     } else {
         pos = search_block(position, wear_eqpos, false);
     }
 
-    if (pos < 0 || pos >= NUM_WEARS) {
+    if (equipped && (pos < 0 || pos >= NUM_WEARS)) {
         if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
             perform_say(ch, "yell",
                 tmp_sprintf("%s is not a valid position!", position));
@@ -2459,31 +2455,35 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
     obj->creator = vnum;
 
     randomize_object(obj);
+
     // Unapproved mobs should load unapproved eq.
     if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)) {
         SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
     }
-    if (pos == ITEM_WEAR_TAKE) {
-        obj_to_char(obj, ch);
-    } else {
-        int mode = EQUIP_WORN;
-        if (IS_OBJ_STAT2(obj, ITEM2_IMPLANT)) {
-            mode = EQUIP_IMPLANT;
-            if (ch->implants[pos]) {
-                extract_obj(obj);
-                return 2;
-            }
-        } else {
-            if (ch->equipment[pos]) {
-                extract_obj(obj);
-                return 2;
-            }
-        }
 
-        if (equip_char(ch, obj, pos, mode)) {
-            return 100;
+    if (!equipped) {
+        obj_to_char(obj, ch);
+        return 0;
+    }
+    
+    int mode = EQUIP_WORN;
+    if (IS_OBJ_STAT2(obj, ITEM2_IMPLANT)) {
+        mode = EQUIP_IMPLANT;
+        if (ch->implants[pos]) {
+            extract_obj(obj);
+            return 2;
+        }
+    } else {
+        if (ch->equipment[pos]) {
+            extract_obj(obj);
+            return 2;
         }
     }
+    
+    if (equip_char(ch, obj, pos, mode)) {
+        return 100;
+    }
+
     return 0;
 }
 
@@ -2711,16 +2711,371 @@ zone_update(void)
         }
 }
 
+enum if_flag {
+    LAST_CMD_SUCCESS,       // Succeeded
+    LAST_CMD_FAILURE,       // Didn't execute
+    LAST_CMD_IGNORED,       // Ignored due to percentage failure
+};
+
+struct reset_state {
+    enum if_flag last_cmd;
+    bool prob_override;
+    int cmd_num;
+    struct zone_data *zone;
+    struct creature *last_mob;
+    struct obj_data *last_obj;
+};
+    
+void
+execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
+{
+    struct obj_data *obj, *tobj, *obj_to;
+    struct room_data *room;
+
+    switch (zonecmd->command) {
+    case '*':              /* ignore command */
+        state->last_cmd = LAST_CMD_IGNORED;
+        break;
+    case 'M':{             /* read a mobile */
+        state->last_cmd = LAST_CMD_FAILURE;
+        struct creature *tmob = real_mobile_proto(zonecmd->arg1);
+        if (tmob == NULL
+            || tmob->mob_specials.shared->number >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            state->last_mob = NULL;
+            break;
+        }
+
+        room = real_room(zonecmd->arg3);
+        if (room == NULL) {
+            state->last_mob = NULL;
+            break;
+        }
+
+        struct creature *mob = read_mobile(zonecmd->arg1);
+        if (mob == NULL) {
+            state->last_mob = NULL;
+            break;
+        }
+        
+        char_to_room(mob, room, false);
+        if (GET_NPC_LEADER(mob) > 0) {
+            for (GList *it = first_living(mob->in_room->people);it;it = next_living(it)) {
+                struct creature *tch = it->data;
+
+                if (tch != mob
+                    && !mob->master
+                    && IS_NPC(tch)
+                    && GET_NPC_VNUM(tch) == GET_NPC_LEADER(mob)
+                    && !circle_follow(mob, tch))
+                    add_follower(mob, tch);
+            }
+        }
+
+        if (process_load_param(mob)) {  // true on death
+            state->last_cmd = LAST_CMD_FAILURE;
+        } else {
+            state->last_cmd = LAST_CMD_SUCCESS;
+        }
+
+        if (GET_NPC_PROGOBJ(mob))
+            trigger_prog_load(mob);
+
+        state->last_mob = mob;
+        break;
+    }
+    case 'O':              /* read an object */
+        state->last_cmd = LAST_CMD_FAILURE;
+        tobj = real_object_proto(zonecmd->arg1);
+        if (tobj == NULL
+            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            break;
+        }
+
+        room = real_room(zonecmd->arg3);
+        if (room == NULL || ROOM_FLAGGED(room, ROOM_HOUSE)) {
+            break;
+        }
+
+        obj = read_object(zonecmd->arg1);
+        if (obj == NULL) {
+            break;
+        }
+
+        obj->creation_method = CREATED_ZONE;
+        obj->creator = state->zone->number;
+        randomize_object(obj);
+
+        if (ZONE_FLAGGED(state->zone, ZONE_ZCMDS_APPROVED)) {
+            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+            GET_OBJ_TIMER(obj) = 60;
+        }
+        obj_to_room(obj, room);
+        state->last_cmd = LAST_CMD_SUCCESS;
+        break;
+
+    case 'P':              /* object to object */
+        state->last_cmd = LAST_CMD_FAILURE;
+        tobj = real_object_proto(zonecmd->arg1);
+        if (tobj == NULL
+            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            break;
+        }
+
+        obj_to = get_obj_num(zonecmd->arg3);
+        if (obj_to == NULL) {
+            ZONE_ERROR("target obj not found");
+            break;
+        }
+
+        obj = read_object(zonecmd->arg1);
+        if (obj == NULL) {
+            break;
+        }
+
+        obj->creation_method = CREATED_ZONE;
+        obj->creator = state->zone->number;
+        randomize_object(obj);
+
+        if (ZONE_FLAGGED(state->zone, ZONE_ZCMDS_APPROVED)) {
+            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+            GET_OBJ_TIMER(obj) = 60;
+        }
+        obj_to_obj(obj, obj_to);
+        state->last_cmd = LAST_CMD_SUCCESS;
+        break;
+
+    case 'G':              /* obj_to_char */
+        state->last_cmd = LAST_CMD_FAILURE;
+        if (state->last_mob == NULL) {
+            if (state->last_cmd == LAST_CMD_FAILURE)
+                ZONE_ERROR("attempt to give obj to nonexistent mob");
+            break;
+        }
+
+        tobj = real_object_proto(zonecmd->arg1);
+        if (tobj == NULL
+            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            break;
+        }
+
+        obj = read_object(zonecmd->arg1);
+        if (obj == NULL) {
+            break;
+        }
+
+        obj->creation_method = CREATED_ZONE;
+        obj->creator = state->zone->number;
+
+        if (GET_NPC_SPEC(state->last_mob) != vendor) {
+            randomize_object(obj);
+        }
+
+        if (ZONE_FLAGGED(state->zone, ZONE_ZCMDS_APPROVED)) {
+            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+            GET_OBJ_TIMER(obj) = 60;
+        }
+
+        obj_to_char(obj, state->last_mob);
+        state->last_cmd = LAST_CMD_SUCCESS;
+        break;
+
+    case 'E':              /* object to equipment list */
+        state->last_cmd = LAST_CMD_FAILURE;
+        if (state->last_mob == NULL) {
+            if (state->last_cmd == LAST_CMD_FAILURE)
+                ZONE_ERROR("attempt to give obj to nonexistent mob");
+            break;
+        }
+
+        tobj = real_object_proto(zonecmd->arg1);
+        if (tobj == NULL
+            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            break;
+        }
+
+        if (zonecmd->arg3 < 0 || zonecmd->arg3 >= NUM_WEARS) {
+            ZONE_ERROR("invalid equipment pos number");
+            break;
+        }
+        if (!CAN_WEAR(tobj, wear_bitvectors[zonecmd->arg3])) {
+            ZONE_ERROR("invalid eq pos for obj");
+            break;
+        }
+        if (GET_EQ(state->last_mob, zonecmd->arg3)) {
+            ZONE_ERROR("char already equipped in position");
+            break;
+        }
+
+        obj = read_object(zonecmd->arg1);
+        if (obj == NULL) {
+            break;
+        }
+
+        obj->creation_method = CREATED_ZONE;
+        obj->creator = state->zone->number;
+        randomize_object(obj);
+
+        if (ZONE_FLAGGED(state->zone, ZONE_ZCMDS_APPROVED)) {
+            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+            GET_OBJ_TIMER(obj) = 60;
+        }
+
+        if (equip_char(state->last_mob, obj, zonecmd->arg3, EQUIP_WORN)) {
+            state->last_mob = NULL;
+        } else {
+            state->last_cmd = LAST_CMD_SUCCESS;
+        }
+        break;
+    case 'I':              /* object to equipment list */
+        state->last_cmd = LAST_CMD_FAILURE;
+        if (state->last_mob == NULL) {
+            if (state->last_cmd == LAST_CMD_FAILURE)
+                ZONE_ERROR("attempt to implant nonexistent mob");
+            break;
+        }
+
+        tobj = real_object_proto(zonecmd->arg1);
+        if (tobj == NULL
+            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            break;
+        }
+
+        if (zonecmd->arg3 < 0 || zonecmd->arg3 >= NUM_WEARS) {
+            ZONE_ERROR("invalid implant pos number");
+            break;
+        }
+        if (!CAN_WEAR(tobj, wear_bitvectors[zonecmd->arg3])) {
+            ZONE_ERROR("invalid implant pos for obj");
+            break;
+        }
+        if (GET_IMPLANT(state->last_mob, zonecmd->arg3)) {
+            ZONE_ERROR("char already implanted in position");
+            break;
+        }
+
+        obj = read_object(zonecmd->arg1);
+        if (obj == NULL) {
+            break;
+        }
+
+        obj->creation_method = CREATED_ZONE;
+        obj->creator = state->zone->number;
+        randomize_object(obj);
+
+        if (ZONE_FLAGGED(state->zone, ZONE_ZCMDS_APPROVED)) {
+            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+            GET_OBJ_TIMER(obj) = 60;
+        }
+
+        if (equip_char(state->last_mob, obj, zonecmd->arg3, EQUIP_IMPLANT)) {
+            state->last_mob = NULL;
+        } else {
+            state->last_cmd = LAST_CMD_SUCCESS;
+        }
+        break;
+    case 'V':              /* add path to vehicle */
+        state->last_cmd = LAST_CMD_FAILURE;
+        tobj = get_obj_num(zonecmd->arg3);
+        if (tobj == NULL) {
+            ZONE_ERROR("target obj not found");
+            break;
+        }
+        if (!path_vnum_exists(zonecmd->arg1)) {
+            ZONE_ERROR("path not found");
+            break;
+        }
+        if (add_path_to_vehicle(tobj, zonecmd->arg1)) {
+            state->last_cmd = LAST_CMD_SUCCESS;
+        }
+        break;
+
+    case 'W':
+        if (!state->last_mob) {
+            if (state->last_cmd == LAST_CMD_FAILURE)
+                ZONE_ERROR("trying to assign path to nonexistent mob");
+            state->last_cmd = LAST_CMD_FAILURE;
+            break;
+        }
+        if (!path_vnum_exists(zonecmd->arg1)) {
+            ZONE_ERROR("invalid path vnum");
+            break;
+        }
+        if (!add_path_to_mob(state->last_mob, zonecmd->arg1)) {
+            ZONE_ERROR("unable to attach path to mob");
+        } else
+            state->last_cmd = LAST_CMD_SUCCESS;
+        break;
+
+    case 'R':              /* rem obj from room */
+        room = real_room(zonecmd->arg2);
+        if (room &&
+            (obj = get_obj_in_list_num(zonecmd->arg1, room->contents)) &&
+            !ROOM_FLAGGED(room, ROOM_HOUSE)) {
+            obj_from_room(obj);
+            extract_obj(obj);
+            state->last_cmd = LAST_CMD_SUCCESS;
+            state->prob_override = true;
+        } else
+            state->last_cmd = LAST_CMD_FAILURE;
+
+        break;
+
+    case 'D':              /* set state of door */
+        room = real_room(zonecmd->arg1);
+        if (!room || zonecmd->arg2 < 0 || zonecmd->arg2 >= NUM_OF_DIRS ||
+            (room->dir_option[zonecmd->arg2] == NULL)) {
+            ZONE_ERROR("door does not exist");
+        } else {
+            int dir = zonecmd->arg2;
+            if (IS_SET(zonecmd->arg3, DOOR_OPEN)) {
+                REMOVE_BIT(room->dir_option[dir]->exit_info,
+                           EX_LOCKED);
+                REMOVE_BIT(room->dir_option[dir]->exit_info,
+                           EX_CLOSED);
+            }
+            if (IS_SET(zonecmd->arg3, DOOR_CLOSED)) {
+                SET_BIT(room->dir_option[dir]->exit_info,
+                        EX_CLOSED);
+                REMOVE_BIT(room->dir_option[dir]->exit_info,
+                           EX_LOCKED);
+            }
+            if (IS_SET(zonecmd->arg3, DOOR_LOCKED)) {
+                SET_BIT(room->dir_option[dir]->exit_info,
+                        EX_LOCKED);
+                SET_BIT(room->dir_option[dir]->exit_info,
+                        EX_CLOSED);
+            }
+            if (IS_SET(zonecmd->arg3, DOOR_HIDDEN)) {
+                SET_BIT(room->dir_option[dir]->exit_info,
+                        EX_HIDDEN);
+            }
+            // Only heal doors that were completely busted.
+            if (room->dir_option[dir]->damage == 0) {
+                room->dir_option[dir]->maxdam = calc_door_strength(room, dir);
+                room->dir_option[dir]->damage = room->dir_option[dir]->maxdam;
+            }
+            state->last_cmd = LAST_CMD_SUCCESS;
+        }
+        break;
+
+    default:
+        ZONE_ERROR("unknown cmd in reset table! cmd disabled");
+        zonecmd->command = '*';
+        break;
+    }
+}
+
 /* execute the reset command table of a given zone */
 void
 reset_zone(struct zone_data *zone)
 {
-    int cmd_no = 0, last_cmd = 0, prob_override = 0;
-    struct creature *mob = NULL, *tmob = NULL;
-    struct obj_data *obj = NULL, *obj_to = NULL, *tobj = NULL;
-    struct reset_com *zonecmd;
-    struct room_data *room;
-    struct special_search_data *srch = NULL;
+    struct reset_state state;
 
     // Send SPECIAL_RESET notification to all mobiles with specials
     for (GList *it = first_living(creatures);it;it = next_living(it)) {
@@ -2732,320 +3087,43 @@ reset_zone(struct zone_data *zone)
         }
     }
 
-    for (zonecmd = zone->cmd; zonecmd && zonecmd->command != 'S';
-        zonecmd = zonecmd->next, cmd_no++) {
+    state.zone = zone;
+    state.cmd_num = 0;
+    state.last_cmd = LAST_CMD_FAILURE;
+    state.last_mob = NULL;
+    state.last_obj = NULL;
+    state.prob_override = false;
+
+    for (struct reset_com *zonecmd = zone->cmd;
+         zonecmd && zonecmd->command != 'S';
+         zonecmd = zonecmd->next) {
+
+        state.cmd_num++;
+
         // if_flag
         // 0 == "Do regardless of previous"
-        // 1 == "Do if previous succeded"
+        // 1 == "Do if previous succeeded"
         // 2 == "Do if previous failed"
-        // last_cmd
-        // 1 == "Last command succeded"
-        // 0 == "Last command had an error"
-        //-1 == "Last command's percentage failed"
 
-        if (zonecmd->if_flag == 1 && last_cmd != 1)
+        if (zonecmd->if_flag == IF_FLAG_SUCCEEDED && state.last_cmd != LAST_CMD_SUCCESS)
             continue;
-        else if (zonecmd->if_flag == -1 && last_cmd != -1)
+        if (zonecmd->if_flag == IF_FLAG_UNIGNORED && state.last_cmd != LAST_CMD_IGNORED)
             continue;
-
-        if (!prob_override && number(1, 100) > zonecmd->prob) {
-            last_cmd = -1;
+        if (!state.prob_override && number(1, 100) > zonecmd->prob) {
+            state.last_cmd = LAST_CMD_IGNORED;
             continue;
         } else {
-            prob_override = 0;
+            state.prob_override = false;
         }
-// WARNING: FUNKY INDENTATION
-        switch (zonecmd->command) {
-        case '*':              /* ignore command */
-            last_cmd = -1;
-            break;
-        case 'M':{             /* read a mobile */
-                tmob = real_mobile_proto(zonecmd->arg1);
-                if (tmob != NULL
-                    && tmob->mob_specials.shared->number < zonecmd->arg2) {
-                    room = real_room(zonecmd->arg3);
-                    if (room) {
-                        mob = read_mobile(zonecmd->arg1);
-                    } else {
-                        last_cmd = 0;
-                        break;
-                    }
-                    if (mob) {
-                        char_to_room(mob, room, false);
-                        if (GET_NPC_LEADER(mob) > 0) {
-                            for (GList *it = first_living(mob->in_room->people);it;it = next_living(it)) {
-                                    struct creature *tch = it->data;
 
-                                    if (tch != mob
-                                        && !mob->master
-                                        && IS_NPC(tch)
-                                        && GET_NPC_VNUM(tch) == GET_NPC_LEADER(mob)
-                                        && !circle_follow(mob, tch))
-                                        add_follower(mob, tch);
-                            }
-                        }
-                        if (process_load_param(mob)) {  // true on death
-                            last_cmd = 0;
-                        } else {
-                            last_cmd = 1;
-                        }
-                        if (GET_NPC_PROGOBJ(mob))
-                            trigger_prog_load(mob);
-                    } else {
-                        last_cmd = 0;
-                    }
-                } else {
-                    last_cmd = 0;
-                }
-                break;
-            }
-        case 'O':              /* read an object */
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj != NULL &&
-                tobj->shared->number - tobj->shared->house_count <
-                zonecmd->arg2) {
-                if (zonecmd->arg3 >= 0) {
-                    room = real_room(zonecmd->arg3);
-                    if (room && !ROOM_FLAGGED(room, ROOM_HOUSE)) {
-                        obj = read_object(zonecmd->arg1);
-                        obj->creation_method = CREATED_ZONE;
-                        obj->creator = zone->number;
-                        randomize_object(obj);
-                        if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                            GET_OBJ_TIMER(obj) = 60;
-                        }
-                    } else {
-                        last_cmd = 0;
-                        break;
-                    }
-                    if (obj) {
-                        obj_to_room(obj, room);
-                        last_cmd = 1;
-                    } else
-                        last_cmd = 0;
-                } else
-                    last_cmd = 0;
-            } else
-                last_cmd = 0;
-            break;
-
-        case 'P':              /* object to object */
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj != NULL &&
-                tobj->shared->number - tobj->shared->house_count <
-                zonecmd->arg2) {
-                obj = read_object(zonecmd->arg1);
-                obj->creation_method = CREATED_ZONE;
-                obj->creator = zone->number;
-                randomize_object(obj);
-                if (!(obj_to = get_obj_num(zonecmd->arg3))) {
-                    ZONE_ERROR("target obj not found");
-                    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                        SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                        GET_OBJ_TIMER(obj) = 60;
-                    }
-                    extract_obj(obj);
-                    break;
-                }
-                if (obj == obj_to) {
-                    ZONE_ERROR("target object cannot be put into itself");
-                    extract_obj(obj);
-                    break;
-                }
-                obj_to_obj(obj, obj_to);
-                last_cmd = 1;
-            } else
-                last_cmd = 0;
-            break;
-
-        case 'V':              /* add path to vehicle */
-            last_cmd = 0;
-            if (!(tobj = get_obj_num(zonecmd->arg3))) {
-                ZONE_ERROR("target obj not found");
-                break;
-            }
-            if (!path_vnum_exists(zonecmd->arg1)) {
-                ZONE_ERROR("path not found");
-                break;
-            }
-            if (add_path_to_vehicle(tobj, zonecmd->arg1))
-                last_cmd = 1;
-            break;
-
-        case 'G':              /* obj_to_char */
-            if (!mob) {
-                if (last_cmd == 1)
-                    ZONE_ERROR("attempt to give obj to nonexistent mob");
-                break;
-            }
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj != NULL &&
-                tobj->shared->number - tobj->shared->house_count <
-                zonecmd->arg2) {
-                obj = read_object(zonecmd->arg1);
-                obj->creation_method = CREATED_ZONE;
-                obj->creator = zone->number;
-                if (GET_NPC_SPEC(mob) != vendor)
-                    randomize_object(obj);
-                if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                    SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                    GET_OBJ_TIMER(obj) = 60;
-                }
-                obj_to_char(obj, mob);
-                last_cmd = 1;
-            } else
-                last_cmd = 0;
-            break;
-
-        case 'E':              /* object to equipment list */
-            if (!mob) {
-                if (last_cmd)
-                    ZONE_ERROR("trying to equip nonexistent mob");
-                break;
-            }
-            last_cmd = 0;
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj != NULL &&
-                tobj->shared->number - tobj->shared->house_count <
-                zonecmd->arg2) {
-                if (zonecmd->arg3 < 0 || zonecmd->arg3 >= NUM_WEARS) {
-                    ZONE_ERROR("invalid equipment pos number");
-                } else if (!CAN_WEAR(tobj, wear_bitvectors[zonecmd->arg3])) {
-                    ZONE_ERROR("invalid eq pos for obj");
-                } else if (GET_EQ(mob, zonecmd->arg3)) {
-                    ZONE_ERROR("char already equipped in position");
-                } else {
-                    obj = read_object(zonecmd->arg1);
-                    obj->creation_method = CREATED_ZONE;
-                    obj->creator = zone->number;
-                    randomize_object(obj);
-                    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                        SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                        GET_OBJ_TIMER(obj) = 60;
-                    }
-                    if (equip_char(mob, obj, zonecmd->arg3, EQUIP_WORN)) {
-                        mob = NULL;
-                        last_cmd = 0;
-                    } else
-                        last_cmd = 1;
-                }
-            }
-            break;
-        case 'I':              /* object to equipment list */
-            if (!mob) {
-                if (last_cmd)
-                    ZONE_ERROR("trying to implant nonexistent mob");
-                break;
-            }
-            last_cmd = 0;
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj != NULL &&
-                tobj->shared->number - tobj->shared->number < zonecmd->arg2) {
-                if (zonecmd->arg3 < 0 || zonecmd->arg3 >= NUM_WEARS) {
-                    ZONE_ERROR("invalid implant pos number");
-                } else if (!CAN_WEAR(tobj, wear_bitvectors[zonecmd->arg3])) {
-                    ZONE_ERROR("invalid implant pos for obj");
-                } else if (GET_IMPLANT(mob, zonecmd->arg3)) {
-                    ZONE_ERROR("char already implanted in position");
-                } else {
-                    obj = read_object(zonecmd->arg1);
-                    obj->creation_method = CREATED_ZONE;
-                    obj->creator = zone->number;
-                    randomize_object(obj);
-                    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                        SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                        GET_OBJ_TIMER(obj) = 60;
-                    }
-                    if (equip_char(mob, obj, zonecmd->arg3, EQUIP_IMPLANT)) {
-                        mob = NULL;
-                        last_cmd = 0;
-                    } else
-                        last_cmd = 1;
-                }
-            }
-            break;
-        case 'W':
-            if (!mob) {
-                if (last_cmd)
-                    ZONE_ERROR("trying to assign path to nonexistent mob");
-                last_cmd = 0;
-                break;
-            }
-            if (!path_vnum_exists(zonecmd->arg1)) {
-                ZONE_ERROR("invalid path vnum");
-                break;
-            }
-            if (!add_path_to_mob(mob, zonecmd->arg1)) {
-                ZONE_ERROR("unable to attach path to mob");
-            } else
-                last_cmd = 1;
-            break;
-
-        case 'R':              /* rem obj from room */
-            room = real_room(zonecmd->arg2);
-            if (room &&
-                (obj = get_obj_in_list_num(zonecmd->arg1, room->contents)) &&
-                !ROOM_FLAGGED(room, ROOM_HOUSE)) {
-                obj_from_room(obj);
-                extract_obj(obj);
-                last_cmd = 1;
-                prob_override = 1;
-            } else
-                last_cmd = 0;
-
-            break;
-
-        case 'D':              /* set state of door */
-            room = real_room(zonecmd->arg1);
-            if (!room || zonecmd->arg2 < 0 || zonecmd->arg2 >= NUM_OF_DIRS ||
-                (room->dir_option[zonecmd->arg2] == NULL)) {
-                ZONE_ERROR("door does not exist");
-            } else {
-                int dir = zonecmd->arg2;
-                if (IS_SET(zonecmd->arg3, DOOR_OPEN)) {
-                    REMOVE_BIT(room->dir_option[dir]->exit_info,
-                        EX_LOCKED);
-                    REMOVE_BIT(room->dir_option[dir]->exit_info,
-                        EX_CLOSED);
-                }
-                if (IS_SET(zonecmd->arg3, DOOR_CLOSED)) {
-                    SET_BIT(room->dir_option[dir]->exit_info,
-                        EX_CLOSED);
-                    REMOVE_BIT(room->dir_option[dir]->exit_info,
-                        EX_LOCKED);
-                }
-                if (IS_SET(zonecmd->arg3, DOOR_LOCKED)) {
-                    SET_BIT(room->dir_option[dir]->exit_info,
-                        EX_LOCKED);
-                    SET_BIT(room->dir_option[dir]->exit_info,
-                        EX_CLOSED);
-                }
-                if (IS_SET(zonecmd->arg3, DOOR_HIDDEN)) {
-                    SET_BIT(room->dir_option[dir]->exit_info,
-                        EX_HIDDEN);
-                }
-                // Only heal doors that were completely busted.
-                if (room->dir_option[dir]->damage == 0) {
-                    room->dir_option[dir]->maxdam = calc_door_strength(room, dir);
-                    room->dir_option[dir]->damage = room->dir_option[dir]->maxdam;
-                }
-                last_cmd = 1;
-            }
-            break;
-
-        default:
-            ZONE_ERROR("unknown cmd in reset table! cmd disabled");
-            zonecmd->command = '*';
-            break;
-        }
+        execute_zone_cmd(zonecmd, &state);
     }
 
     zone->age = 0;
 
     /* reset all search status */
-    for (room = zone->world; room; room = room->next)
-        for (srch = room->search; srch; srch = srch->next)
+    for (struct room_data *room = zone->world; room; room = room->next)
+        for (struct special_search_data *srch = room->search; srch; srch = srch->next)
             REMOVE_BIT(srch->flags, SRCH_TRIPPED);
 }
 
@@ -3053,92 +3131,72 @@ reset_zone(struct zone_data *zone)
 *  funcs of a (more or less) general utility nature                        *
 ********************************************************************** */
 
-/* read and allocate space for a '~'-terminated string from a given file */
-char *
-fread_string(FILE * fl, char *error)
-{
-    char buf[MAX_STRING_LENGTH], tmp[512], *rslt;
-    register char *point;
-    unsigned int length = 0, templength = 0;
-    bool done = false;
-
-    *buf = '\0';
-
-    do {
-        if (!fgets(tmp, 512, fl)) {
-            errlog("fread_string: format error at or near %s\n", error);
-            safe_exit(1);
-        }
-        /* If there is a '~', end the string; else put an "\r\n" over the '\n'. */
-        if ((point = strchr(tmp, '~')) != NULL) {
-            *point = '\0';
-            done = true;
-        } else {
-            point = tmp + strlen(tmp) - 1;
-            *(point++) = '\r';
-            *(point++) = '\n';
-            *point = '\0';
-        }
-
-        templength = strlen(tmp);
-
-        if (length + templength >= MAX_STRING_LENGTH) {
-            errlog("fread_string: string too large (db.c)");
-            safe_exit(1);
-        } else {
-            strcat(buf + length, tmp);
-            length += templength;
-        }
-    } while (!done);
-
-    /* allocate space for the new string and copy it */
-    if (strlen(buf) > 0) {
-        CREATE(rslt, char, length + 1);
-        strcpy(rslt, buf);
-    } else
-        rslt = NULL;
-
-    return rslt;
-}
 
 /* read and copy for a '~'-terminated string from a given file
    copying it into str, returning 1 on success or 0 on failure  */
-int
-pread_string(FILE * fl, char *str, const char *error)
+bool
+pread_string(FILE * fl, char *str, size_t buf_size, bool comments, const char *error)
 {
-    char tmp[512];
-    register char *point;
-    unsigned int length = 0, templength = 0;
-    bool done = false;
-
     *str = '\0';
 
-    do {
-        if (!fgets(tmp, 512, fl)) {
-            return 0;
-        }
-        /* lines that start with # are comments  */
-        if (*tmp == '#')
+    while (fgets(str, buf_size, fl)) {
+        if (comments && *str == '#') {
             continue;
+        }
 
-        /* If there is a '~', end the string; else put an "\r\n" over the '\n'. */
-        if ((point = strchr(tmp, '~')) != NULL) {
+        /* replace trailing newline with crlf */
+        char *c = strchr(str, '\n');
+        if (c) {
+            *c++ = '\r';
+            *c++ = '\n';
+            *c = '\0';
+        }
+
+        char *point = strchr(str, '~');
+        if (point) {
             *point = '\0';
-            done = true;
+            return true;
         }
 
-        templength = strlen(tmp);
+        size_t line_size = strlen(str);
+        buf_size -= line_size;
 
-        if (length + templength >= MAX_STRING_LENGTH) {
-            errlog("pread_string: string too large: %s\n", error);
-            return 0;
-        } else {
-            strcat(str + length, tmp);
-            length += templength;
+        if (buf_size <= 1) {
+            errlog("string too big (db.c, pread_string)");
+            *buf = '\0';
+            return -1;
         }
-    } while (!done);
+        str += line_size;
+    }
 
-    return 1;
+    return false;
+}
+
+/**
+ * fread_string
+ * @param fl The file to read from
+ * @param error The location for error reporting
+ * @return an allocated string or %NULL
+ *
+ * Read and allocate space for a '~'-terminated string from a given
+ * file.  Returns %NULL if the string returned would be empty.
+ **/
+/*  */
+char *
+fread_string(FILE * fl, char *error)
+{
+    char buf[MAX_STRING_LENGTH];
+
+    if (!pread_string(fl, buf, sizeof(buf), false, error)) {
+        errlog("fread_string: format error at or near %s\n", error);
+        safe_exit(1);
+    }
+
+    if (buf[0] == '\0') {
+        return NULL;
+    }
+
+    return strdup(buf);
 }
 
 /* read contets of a text file, alloc space, point buf to it */
@@ -3150,7 +3208,7 @@ file_to_string_alloc(const char *name, char **buf)
     if (*buf)
         free(*buf);
 
-    if (file_to_string(name, temp) < 0) {
+    if (file_to_string(name, temp, sizeof(temp)) < 0) {
         *buf = NULL;
         return -1;
     } else {
@@ -3163,11 +3221,9 @@ file_to_string_alloc(const char *name, char **buf)
 
 /* read contents of a text file, and place in buf */
 int
-file_to_string(const char *name, char *buf)
+file_to_string(const char *name, char *buf, size_t buf_size)
 {
     FILE *fl;
-    char tmp[READ_SIZE + 2];
-    size_t buflen = 0;
 
     *buf = '\0';
 
@@ -3175,26 +3231,25 @@ file_to_string(const char *name, char *buf)
         perror(tmp_sprintf("Error reading %s", name));
         return (-1);
     }
-    while (fgets(tmp, READ_SIZE, fl)) {
+    
+    while (fgets(buf, buf_size, fl)) {
         /* replace trailing newline with crlf */
-        char *c = strchr(tmp, '\n');
+        char *c = strchr(buf, '\n');
         if (c) {
             *c++ = '\r';
             *c++ = '\n';
             *c = '\0';
         }
+        size_t line_size = strlen(buf);
+        buf_size -= line_size;
 
-        size_t len = strlen(tmp);
-        if (buflen + len + 1 > MAX_STRING_LENGTH) {
+        if (buf_size <= 1) {
             errlog("fl->strng: string too big (db.c, file_to_string)");
             *buf = '\0';
             fclose(fl);
             return (-1);
         }
-
-        strcpy(buf, tmp);
-        buflen += len;
-        buf += len;
+        buf += line_size;
     }
 
     if (!feof(fl)) {

@@ -86,8 +86,9 @@ LEARNED(struct creature *ch)
 #define MINGAIN(ch)     (GET_INT(ch) + GET_REMORT_GEN(ch))
 #define MAXGAIN(ch)     ((GET_INT(ch) * 2) + GET_REMORT_GEN(ch))
 
-#define SPLSKL(ch)  (GET_CLASS(ch) > NUM_CLASSES ? "spell" :          \
-                                 prac_types[prac_params[3][(int)GET_CLASS(ch)]])
+#define SPLSKL(ch)  (GET_CLASS(ch) < NUM_CLASSES ? \
+                     prac_types[prac_params[3][(int)GET_CLASS(ch)]] \
+                     : "spell")
 
 #define PAST_CLASS(i)  (i == CLASS_MAGIC_USER || \
                     i == CLASS_CLERIC || \

@@ -60,7 +60,7 @@ void show_string(struct descriptor_data *desc);
 int number(int from, int to);
 double float_number(double from, double to);
 int dice(int number, int size);
-int get_line(FILE * fl, char *buf);
+int get_line(FILE *fl, char *buf, size_t buf_size);
 void perform_skillset(struct creature *ch, struct creature *vict, char *skill_str, int value);
 float total_obj_weight(struct obj_data *obj);
 
@@ -110,7 +110,8 @@ int mana_gain(struct creature *ch);
 int hit_gain(struct creature *ch);
 int move_gain(struct creature *ch);
 void advance_level(struct creature *ch, int8_t keep_internal);
-void set_title(struct creature *ch, const char *title);
+void set_title(struct creature *ch, const char *title)
+    __attribute__ ((nonnull));
 void gain_exp(struct creature *ch, int gain);
 void gain_exp_regardless(struct creature *ch, int gain);
 void gain_condition(struct creature *ch, int condition, int value);
@@ -354,7 +355,8 @@ void WAIT_STATE(struct creature *ch, int cycle);
 #define ANA(obj) (strchr("aeiouyAEIOUY", *(obj)->aliases) ? "An" : "A")
 #define SANA(obj) (strchr("aeiouyAEIOUY", *(obj)->aliases) ? "an" : "a")
 
-#define GET_SKILL(ch, i)        ((ch)->player_specials->saved.skills[i])
+int GET_SKILL(struct creature *ch, int i);
+void SET_SKILL(struct creature *ch, int i, int val);
 long GET_SKILL_COST(struct creature *ch, int skill);
 
 #define CLASS_ABBR(ch) (char_class_abbrevs[(int)GET_CLASS(ch)])

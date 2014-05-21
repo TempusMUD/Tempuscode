@@ -24,11 +24,46 @@ static inline char *CAP(/*@returned@*/ char *st)
     return st;
 }
 
-int remove_from_cstring(char *str, char c, char c_to)
-    __attribute__ ((nonnull));
-void sprintbit(long vektor, const char *names[], char *result);
+#ifndef strcpy_s
+static inline int strcpy_s(char *dest, size_t dest_size, const char *src)
+{
+    int len = snprintf(dest, dest_size, "%s", src);
+    
+    if (len >= dest_size) {
+        errlog("Buffer overrun detected in strcpy_s");
+        return 1;
+    } 
+    return 0;
+}
+#endif
+
+#ifndef strcat_s
+static inline int strcat_s(char *dest, size_t dest_size, const char *src)
+{
+    while (*dest && dest_size > 0) {
+        dest++;
+        dest_size--;
+    }
+    if (dest_size == 0) {
+        errlog("Unterminated string detected in strcat_s");
+        return 1;
+    }
+
+    int len = snprintf(dest, dest_size, "%s", src);
+    
+    if (len >= dest_size) {
+        errlog("Buffer overrun detected in strcat_s");
+        return 1;
+    } 
+    return 0;
+}
+#endif
+
+int snprintf_cat(char *dest, size_t size, const char *fmt, ...);
+void remove_from_cstring(char *str, char c, char c_to);
+void sprintbit(long vektor, const char *names[], char *result, size_t size);
 const char *strlist_aref(int idx, const char **names);
-void sprinttype(int type, const char *names[], char *result);
+void sprinttype(int type, const char *names[], char *result, size_t size);
 const char *AN(const char *str)
     __attribute__ ((nonnull));
 const char *YESNO(bool a);
@@ -83,7 +118,7 @@ int search_block_no_lower(char *arg, const char **list, bool exact)
     __attribute__ ((nonnull));
 int fill_word_no_lower(char *argument)
     __attribute__ ((nonnull));
-void num2str(char *str, int num)
+void num2str(char *str, size_t size, int num)
     __attribute__ ((nonnull));
 
 #endif

@@ -956,8 +956,7 @@ void remove_combat(struct creature *ch, struct creature *target);
 #define ILLEGAL_SOILPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
       pos == WEAR_WIELD || pos == WEAR_HOLD || pos == WEAR_BELT ||    \
-      pos == WEAR_WIELD_2 || pos == WEAR_ASS || pos == WEAR_NECK_2 || \
-      pos == WEAR_RANDOM)
+      pos == WEAR_WIELD_2 || pos == WEAR_ASS || pos == WEAR_NECK_2)
 
 #define IS_WEAR_EXTREMITY(pos) \
     (        pos == WEAR_FINGER_L || pos == WEAR_FINGER_R \
@@ -977,14 +976,14 @@ void remove_combat(struct creature *ch, struct creature *target);
 #define ILLEGAL_IMPLANTPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
       pos == WEAR_WIELD || pos == WEAR_BELT || pos == WEAR_WIELD_2 || \
-	  pos == WEAR_RANDOM || pos == WEAR_HOLD)
+	  pos == WEAR_HOLD)
 
 #define ILLEGAL_TATTOOPOS(pos) \
      (pos == WEAR_LIGHT || pos == WEAR_SHIELD || pos == WEAR_ABOUT || \
       pos == WEAR_WIELD || pos == WEAR_HOLD || pos == WEAR_BELT ||    \
       pos == WEAR_WIELD_2 || pos == WEAR_ASS || pos == WEAR_NECK_2 || \
       pos == WEAR_FINGER_L || pos == WEAR_FINGER_R ||                 \
-      pos == WEAR_EYES || pos == WEAR_RANDOM)
+      pos == WEAR_EYES)
 
 #define GET_ROWS(ch)    ((ch)->player_specials->saved.page_length)
 #define GET_COLS(ch)    ((ch)->player_specials->saved.columns)
@@ -1098,7 +1097,6 @@ next_living(GList *node)
 
 #define GET_CLASS(ch)   ((ch)->player.char_class)
 #define GET_REMORT_CLASS(ch)  ((ch)->player.remort_char_class)
-#define CHECK_REMORT_CLASS(ch)  ((ch)->player.remort_char_class)
 #define GET_RACE(ch)        ((ch)->player.race)
 #define GET_HOME(ch)        ((ch)->player.hometown)
 #define GET_HEIGHT(ch)        ((ch)->player.height)
@@ -1211,8 +1209,6 @@ const char *CURRENCY(struct creature * ch);
 #define GET_OLC_SRCH(ch)        ((ch)->player_specials->olc_srch)
 #define GET_OLC_HANDLER(ch)     ((ch)->player_specials->olc_handler)
 
-#define SET_SKILL(ch, i, pct)        \
-                             {(ch)->player_specials->saved.skills[i] = pct; }
 #define SET_TONGUE(ch, i, pct)        \
                              {(ch)->language_data.tongues[i] = pct; }
 

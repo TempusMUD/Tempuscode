@@ -32,7 +32,10 @@ SPECIAL(gen_locker)
         locker_vnum = 30189;
         cost_factor = -1;
     } else {
-        locker_room = ch->in_room->next ? ch->in_room->next : NULL;
+        locker_room = ch->in_room->next;
+        if (locker_room == NULL) {
+            return 0;
+        }
         locker_vnum = locker_room->number;
         cost_factor = 75;
     }

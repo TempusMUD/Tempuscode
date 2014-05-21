@@ -11,7 +11,7 @@ SPECIAL(life_point_potion)
         return 0;
     skip_spaces(&argument);
     if (!isname(argument, potion->aliases)) {
-        sprintf(buf, "Argument (%s), Name (%s)\r\n", argument,
+        snprintf(buf, sizeof(buf), "Argument (%s), Name (%s)\r\n", argument,
             potion->aliases);
         return 0;
     }

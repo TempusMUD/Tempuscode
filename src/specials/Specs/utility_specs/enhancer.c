@@ -33,7 +33,7 @@ SPECIAL(enhancer)
     }
 
     if (!*arg2) {
-        sprintf(buf2, "%s what item?", cmd_type == ENHANCE_BUY ?
+        snprintf(buf2, sizeof(buf2), "%s what item?", cmd_type == ENHANCE_BUY ?
             "Perform structural enhancement on" :
             "Get an offer on structural enhancement for");
         perform_tell(keeper, ch, buf2);
@@ -41,7 +41,7 @@ SPECIAL(enhancer)
     }
 
     if (!(obj = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
-        sprintf(buf2, "You don't have %s '%s'.", AN(arg2), arg2);
+        snprintf(buf2, sizeof(buf2), "You don't have %s '%s'.", AN(arg2), arg2);
         perform_tell(keeper, ch, buf2);
         return 1;
     }
@@ -61,7 +61,7 @@ SPECIAL(enhancer)
 
     cost = adjusted_price(ch, keeper, GET_OBJ_COST(obj));
 
-    sprintf(buf2, "It will cost you %'d %s to have %s enhanced.",
+    snprintf(buf2, sizeof(buf2), "It will cost you %'d %s to have %s enhanced.",
         cost, ch->in_room->zone->time_frame == TIME_ELECTRO ? "credits" :
         "coins", obj->name);
     perform_tell(keeper, ch, buf2);

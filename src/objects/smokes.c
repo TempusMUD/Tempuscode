@@ -55,14 +55,11 @@ roll_joint(struct obj_data *tobac, struct obj_data *paper)
     obj->shared = null_obj_shared;
     CREATE(new_descr, struct extra_descr_data, 1);
 
-    sprintf(buf, "cig cigarette joint %s", fname(tobac->aliases));
+    snprintf(buf, sizeof(buf), "cig cigarette joint %s", fname(tobac->aliases));
     obj->aliases = strdup(buf);
-    sprintf(buf, "a %s cigarette", fname(tobac->aliases));
+    snprintf(buf, sizeof(buf), "a %s cigarette", fname(tobac->aliases));
     obj->name = strdup(buf);
-    sprintf(buf, "%s has been dropped here.", buf);
-    obj->line_desc = strdup(buf);
-    new_descr->keyword = strdup("cig cigarette joint");
-    sprintf(buf, "It looks like a %s cigarette, waiting to be smoked.",
+    snprintf_cat(buf, sizeof(buf), " has been dropped here.", sizeof(buf), "It looks like a %s cigarette, waiting to be smoked.",
         fname(tobac->aliases));
     new_descr->description = strdup(buf);
     new_descr->next = NULL;
@@ -382,10 +379,10 @@ ACMD(do_convert)
 
         gain_skill_prof(ch, SKILL_PIPEMAKING);
 
-        sprintf(buf, "a pipe made from %s", obj->name);
+        snprintf(buf, sizeof(buf), "a pipe made from %s", obj->name);
         obj->name = strdup(buf);
-        strcpy(buf, "pipe ");
-        strcat(buf, obj->aliases);
+        strcpy_s(buf, sizeof(buf), "pipe ");
+        strcat_s(buf, sizeof(buf), obj->aliases);
         obj->aliases = strdup(buf);
 
     }

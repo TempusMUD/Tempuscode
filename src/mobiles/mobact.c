@@ -58,6 +58,7 @@
 #include "weather.h"
 #include "search.h"
 #include "voice.h"
+#include "strutil.h"
 
 /* external structs */
 void npc_steal(struct creature *ch, struct creature *victim);
@@ -564,10 +565,10 @@ burn_update_creature(struct creature *ch)
             flesh->shared = null_obj_shared;
             flesh->in_room = NULL;
             flesh->aliases = strdup("decaying flesh hunk");
-            sprintf(desc, "A decaying hunk of %s's flesh is lying here.",
+            snprintf(desc, sizeof(desc), "A decaying hunk of %s's flesh is lying here.",
                 GET_NAME(ch));
             flesh->line_desc = strdup(desc);
-            sprintf(desc, "a decaying hunk of %s's flesh", GET_NAME(ch));
+            snprintf(desc, sizeof(desc), "a decaying hunk of %s's flesh", GET_NAME(ch));
             flesh->name = strdup(desc);
             GET_OBJ_TYPE(flesh) = ITEM_FOOD;
             GET_OBJ_WEAR(flesh) = ITEM_WEAR_TAKE;
@@ -1037,12 +1038,12 @@ helper_assist(struct creature *ch, struct creature *vict,
     struct creature *fvict)
 {
     int prob = 0;
-    struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
-
     if (!ch || !vict || !fvict) {
         errlog("Illegal value(s) passed to helper_assist().");
         return 0;
     }
+
+    struct obj_data *weap = GET_EQ(ch, WEAR_WIELD);
 
     if (GET_RACE(ch) == GET_RACE(fvict))
         prob += 10 + (GET_LEVEL(ch) / 2);
@@ -1072,8 +1073,8 @@ helper_assist(struct creature *ch, struct creature *vict,
         if (IS_GUN(weap) && CHECK_SKILL(ch, SKILL_SHOOT) > 40 &&
             GUN_LOADED(weap)) {
             CUR_R_O_F(weap) = MAX_R_O_F(weap);
-            sprintf(buf, "%s ", fname(weap->aliases));
-            strcat(buf, fname(vict->player.name));
+            snprintf(buf, sizeof(buf), "%s ", fname(weap->aliases));
+            strcat_s(buf, sizeof(buf), fname(vict->player.name));
             do_shoot(ch, buf, 0, 0);
             return 0;
         }
@@ -1097,9 +1098,9 @@ mob_load_unit_gun(struct creature *ch, struct obj_data *clip,
     struct obj_data *gun, bool internal)
 {
     char loadbuf[1024];
-    sprintf(loadbuf, "%s %s", fname(clip->aliases),
+    snprintf(loadbuf, sizeof(loadbuf), "%s %s", fname(clip->aliases),
         internal ? "internal " : "");
-    strcat(loadbuf, fname(gun->aliases));
+    strcat_s(loadbuf, sizeof(loadbuf), fname(gun->aliases));
     do_load(ch, loadbuf, 0, SCMD_LOAD);
     if (GET_NPC_VNUM(ch) == 1516 && IS_CLIP(clip) && random_binary())
         perform_say(ch, "say", "Let's Rock.");
@@ -1135,7 +1136,7 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
     if (IS_GUN(gun)) {
         if (!MAX_LOAD(gun)) {   /** a gun that uses a clip **/
             if (gun->contains) {
-                sprintf(buf, "%s%s", internal ? "internal " : "",
+                snprintf(buf, sizeof(buf), "%s%s", internal ? "internal " : "",
                     fname(gun->aliases));
                 do_load(ch, buf, 0, SCMD_UNLOAD);
             }
@@ -1168,8 +1169,8 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
                     || !IS_OBJ_TYPE(cont, ITEM_CONTAINER) || CAR_CLOSED(cont))
                     continue;
                 if ((bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-                    sprintf(buf, "%s ", fname(bul->aliases));
-                    strcat(buf, fname(cont->aliases));
+                    snprintf(buf, sizeof(buf), "%s ", fname(bul->aliases));
+                    strcat_s(buf, sizeof(buf), fname(cont->aliases));
                     do_get(ch, buf, 0, 0);
                     mob_load_unit_gun(ch, bul, clip, false);
                     count++;
@@ -1182,8 +1183,8 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
                 if ((cont = GET_EQ(ch, i)) && IS_OBJ_TYPE(cont, ITEM_CONTAINER)
                     && !CAR_CLOSED(cont)
                     && (bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-                    sprintf(buf, "%s ", fname(bul->aliases));
-                    strcat(buf, fname(cont->aliases));
+                    snprintf(buf, sizeof(buf), "%s ", fname(bul->aliases));
+                    strcat_s(buf, sizeof(buf), fname(cont->aliases));
                     do_get(ch, buf, 0, 0);
                     mob_load_unit_gun(ch, bul, clip, false);
                     count++;
@@ -1212,8 +1213,8 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
                 || CAR_CLOSED(cont))
                 continue;
             if ((bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-                sprintf(buf, "%s ", fname(bul->aliases));
-                strcat(buf, fname(cont->aliases));
+                snprintf(buf, sizeof(buf), "%s ", fname(bul->aliases));
+                strcat_s(buf, sizeof(buf), fname(cont->aliases));
                 do_get(ch, buf, 0, 0);
                 mob_load_unit_gun(ch, bul, gun, internal);
             }
@@ -1222,8 +1223,8 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
             if ((cont = GET_EQ(ch, i)) && IS_OBJ_TYPE(cont, ITEM_CONTAINER) &&
                 !CAR_CLOSED(cont) &&
                 (bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-                sprintf(buf, "%s ", fname(bul->aliases));
-                strcat(buf, fname(cont->aliases));
+                snprintf(buf, sizeof(buf), "%s ", fname(bul->aliases));
+                strcat_s(buf, sizeof(buf), fname(cont->aliases));
                 do_get(ch, buf, 0, 0);
                 mob_load_unit_gun(ch, bul, gun, internal);
                 return;
@@ -1519,11 +1520,6 @@ mobile_spec(void)
         if (!IS_NPC(ch))
             continue;
 
-        if (!ch) {
-            errlog("Skipping null mobile in mobile_activity");
-            continue;
-        }
-
         if (!ch->in_room) {
             errlog("Skipping mobile in null room");
             continue;
@@ -1569,11 +1565,6 @@ single_mobile_activity(struct creature *ch)
     int dir, max, k;
     struct room_data *room = NULL;
     int cur_class = 0;
-
-    if (!ch) {
-        errlog("Skipping null mobile in mobile_activity");
-        return;
-    }
 
     if (!ch->in_room) {
         errlog("Skipping mobile in null room");
@@ -1867,7 +1858,7 @@ single_mobile_activity(struct creature *ch)
                     max = GET_OBJ_COST(obj);
                 }
             if (best_obj != NULL) {
-                strcpy(buf, fname(best_obj->aliases));
+                strcpy_s(buf, sizeof(buf), fname(best_obj->aliases));
                 do_get(ch, buf, 0, 0);
             }
         }
@@ -1983,7 +1974,7 @@ single_mobile_activity(struct creature *ch)
                             strength_wield_weight(GET_STR(ch)))
                         && GET_OBJ_COST(obj) > GET_OBJ_COST(GET_EQ(ch,
                                 WEAR_WIELD))) {
-                        strcpy(buf, fname(obj->aliases));
+                        strcpy_s(buf, sizeof(buf), fname(obj->aliases));
                         do_remove(ch, buf, 0, 0);
                     }
                     if (!GET_EQ(ch, WEAR_WIELD)) {
@@ -4223,7 +4214,7 @@ ACMD(do_breathe)
     if (IS_PC(ch)) {
         if (fire != NULL) {
             if (GET_SKILL(ch, SPELL_DRAGONS_BREATH) < GET_SKILL(ch, SPELL_FIRE_BREATHING))
-                GET_SKILL(ch, SPELL_DRAGONS_BREATH) = GET_SKILL(ch, SPELL_FIRE_BREATHING);
+                SET_SKILL(ch, SPELL_DRAGONS_BREATH, GET_SKILL(ch, SPELL_FIRE_BREATHING));
             call_magic(ch, vict, NULL, NULL, SPELL_DRAGONS_BREATH, GET_LEVEL(ch),
                 CAST_BREATH);
             fire = affected_by_spell(ch, SPELL_FIRE_BREATHING);

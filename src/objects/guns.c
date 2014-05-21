@@ -126,7 +126,7 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
 
     if (IS_ENERGY_GUN(gun)) {
         if (gun->contains && IS_ENERGY_CELL(gun->contains)) {
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%s is loaded with %s.\r\n"
                 "The potential energy of %s is:  %s[%3d/%3d]%s units.\r\n",
                 gun->name, gun->contains->name,
@@ -143,15 +143,15 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
         if (MAX_LOAD(gun)) {
             if (gun->contains) {
                 count = count_contained_objs(gun);
-                sprintf(buf, "$p is loaded with %s[%d/%d]%s cartridge%s",
+                snprintf(buf, sizeof(buf), "$p is loaded with %s[%d/%d]%s cartridge%s",
                     QGRN, count, MAX_LOAD(gun), QNRM, count == 1 ? "" : "s");
             } else
-                strcpy(buf, "$p is not loaded.");
+                strcpy_s(buf, sizeof(buf), "$p is not loaded.");
         } else if (!gun->contains)
-            strcpy(buf, "$p is not loaded.");
+            strcpy_s(buf, sizeof(buf), "$p is not loaded.");
         else {
             count = count_contained_objs(gun->contains);
-            sprintf(buf, "$p is loaded with $P,\r\n"
+            snprintf(buf, sizeof(buf), "$p is loaded with $P,\r\n"
                 "which contains %s[%d/%d]%s cartridge%s",
                 QGRN, count, MAX_LOAD(gun->contains), QNRM,
                 count == 1 ? "" : "s");
@@ -175,7 +175,6 @@ ACMD(do_gunset)
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     struct obj_data *gun;
     int number, i = 0;
-    int mode = 0;
 
     argument = one_argument(argument, arg1);
 
@@ -218,9 +217,7 @@ ACMD(do_gunset)
         return;
     }
 
-    if (is_abbrev(arg1, "rate") || is_abbrev(arg1, "rof"))
-        mode = GUNSET_RATE;
-    else {
+    if (!is_abbrev(arg1, "rate") && !is_abbrev(arg1, "rof")) {
         send_to_char(ch, "usage: gunset <rate> <value>\r\n");
         return;
     }
@@ -239,29 +236,25 @@ ACMD(do_gunset)
         return;
     }
 
-    if (mode == GUNSET_RATE) {
-        if (IS_ENERGY_GUN(gun)) {
-            send_to_char(ch,
-                "You may not set the rate of fire for energy weapons.\r\n");
-            return;
-        }
-        if (number > MAX_R_O_F(gun)) {
-            send_to_char(ch, "The maximum rate of fire of %s is %d.\r\n",
-                gun->name, MAX_R_O_F(gun));
-        } else if (!number) {
-            send_to_char(ch,
-                "A zero rate of fire doesn't make much sense.\r\n");
-        } else {
-            act("$n adjusts the configuration of $p.", true, ch, gun, NULL,
-                TO_ROOM);
-            CUR_R_O_F(gun) = number;
-
-            send_to_char(ch, "The rate of fire of %s set to %d/%d.\r\n",
-                gun->name, CUR_R_O_F(gun), MAX_R_O_F(gun));
-        }
+    if (IS_ENERGY_GUN(gun)) {
+        send_to_char(ch,
+                     "You may not set the rate of fire for energy weapons.\r\n");
         return;
     }
-    return;
+
+    if (number > MAX_R_O_F(gun)) {
+        send_to_char(ch, "The maximum rate of fire of %s is %d.\r\n",
+                     gun->name, MAX_R_O_F(gun));
+    } else if (!number) {
+        send_to_char(ch, "A zero rate of fire doesn't make much sense.\r\n");
+    } else {
+        act("$n adjusts the configuration of $p.", true, ch, gun, NULL,
+            TO_ROOM);
+        CUR_R_O_F(gun) = number;
+
+        send_to_char(ch, "The rate of fire of %s set to %d/%d.\r\n",
+                     gun->name, CUR_R_O_F(gun), MAX_R_O_F(gun));
+    }
 }
 
 #undef __guns_c__

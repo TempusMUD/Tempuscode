@@ -55,17 +55,15 @@
 #include "prog.h"
 #include "smokes.h"
 #include "strutil.h"
+#include "paths.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
 
 /* external functions */
 long special(struct creature *ch, int cmd, int subcmd, char *arg,
-    enum special_mode spec_mode);
-void path_remove_object(void *object);
-void free_paths();
+             enum special_mode spec_mode);
 void free_socials();
-void print_attributes_to_buf(struct creature *ch, char *buff);
 extern struct clan_data *clan_list;
 
 void
@@ -141,8 +139,7 @@ apply_object_affects(struct creature *ch, struct obj_data *obj, bool add)
 }
 
 #define APPLY_SKILL(ch, skill, mod) \
-GET_SKILL(ch, skill) = \
-MIN(GET_SKILL(ch, skill) + mod, 125)
+    SET_SKILL(ch, skill, MIN(GET_SKILL(ch, skill) + mod, 125))
 
 void
 affect_modify(struct creature *ch, int16_t loc, int16_t mod, long bitv,
@@ -784,9 +781,9 @@ char_from_room(struct creature *ch, bool check_specials)
     if (ch == NULL || ch->in_room == NULL) {
         errlog("NULL or NOWHERE in handler.c, char_from_room");
         if (ch) {
-            sprintf(buf, "Char is %s\r\n", GET_NAME(ch));
+            snprintf(buf, sizeof(buf), "Char is %s\r\n", GET_NAME(ch));
             if (ch->in_room != NULL)
-                sprintf(buf, "Char is in_room %d\r\n", ch->in_room->number);
+                snprintf(buf, sizeof(buf), "Char is in_room %d\r\n", ch->in_room->number);
         }
         exit(1);
     }
@@ -1064,7 +1061,7 @@ obj_from_char(struct obj_data *object)
     }
 #ifdef TRACK_OBJS
     object->obj_flags.tracker.lost_time = time(0);
-    sprintf(buf, "carried by %s", GET_NAME(object->carried_by));
+    snprintf(buf, sizeof(buf), "carried by %s", GET_NAME(object->carried_by));
     strncpy(object->obj_flags.tracker.string, buf, TRACKER_STR_LEN - 1);
 #endif
 
@@ -1298,7 +1295,7 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
 
 #ifdef TRACK_OBJS
     obj->obj_flags.tracker.lost_time = time(0);
-    sprintf(buf, "%s %s @ %d", internal ? "implanted" : "worn",
+    snprintf(buf, sizeof(buf), "%s %s @ %d", internal ? "implanted" : "worn",
         GET_NAME(obj->worn_by), pos);
     strncpy(obj->obj_flags.tracker.string, buf, TRACKER_STR_LEN - 1);
 #endif
@@ -1577,7 +1574,7 @@ obj_from_room(struct obj_data *object)
     }
 #ifdef TRACK_OBJS
     object->obj_flags.tracker.lost_time = time(0);
-    sprintf(object->obj_flags.tracker.string, "inroom %d",
+    snprintf(object->obj_flags.tracker.string, sizeof(object->obj_flags.tracker.string), "inroom %d",
         object->in_room->number);
 #endif
 
@@ -1648,7 +1645,7 @@ obj_from_obj(struct obj_data *obj)
     }
 #ifdef TRACK_OBJS
     obj->obj_flags.tracker.lost_time = time(0);
-    sprintf(obj->obj_flags.tracker.string, "in obj %s", obj->in_obj->name);
+    snprintf(obj->obj_flags.tracker.string, sizeof(obj->obj_flags.tracker.string), "in obj %s", obj->in_obj->name);
 #endif
 
     obj_from = obj->in_obj;
@@ -1863,7 +1860,7 @@ get_char_room_vis(struct creature *ch, const char *name)
     struct affected_type *af = NULL;
 
     /* 0.<name> means PC with name */
-    strcpy(tmp, name);
+    strcpy_s(tmpname, sizeof(tmpname), name);
     number = get_number(&tmp);
 
     if (number == 0)
@@ -2000,7 +1997,7 @@ get_char_vis(struct creature *ch, const char *name)
         return i;
 
     // 0.name means player only
-    strcpy(tmp, name);
+    strcpy_s(tmpname, sizeof(tmpname), name);
     if (!(number = get_number(&tmp)))
         return get_player_vis(ch, tmp, 0);
 
@@ -2022,7 +2019,7 @@ get_obj_in_list_vis(struct creature *ch, const char *name,
     char tmpname[MAX_INPUT_LENGTH];
     char *tmp = tmpname;
 
-    strcpy(tmp, name);
+    strcpy_s(tmpname, sizeof(tmpname), name);
     if (!(number = get_number(&tmp)))
         return NULL;
 
@@ -2044,7 +2041,7 @@ get_obj_in_list_all(struct creature *ch, const char *name,
     char tmpname[MAX_INPUT_LENGTH];
     char *tmp = tmpname;
 
-    strcpy(tmp, name);
+    strcpy_s(tmpname, sizeof(tmpname), name);
     if (!(number = get_number(&tmp)))
         return NULL;
 
@@ -2081,7 +2078,7 @@ get_obj_vis(struct creature *ch, const char *name)
         if ((i = get_obj_in_list_vis(ch, name, ch->in_room->contents)))
             return i;
 
-        strcpy(tmp, name);
+        strcpy_s(tmpname, sizeof(tmpname), name);
         if (!(number = get_number(&tmp)))
             return NULL;
 
@@ -2116,7 +2113,7 @@ get_object_in_equip_vis(struct creature *ch,
     char tmpname[MAX_INPUT_LENGTH];
     char *tmp = tmpname;
 
-    strcpy(tmp, arg);
+    strcpy_s(tmpname, sizeof(tmpname), arg);
     if (!(number = get_number(&tmp)))
         return NULL;
 
@@ -2139,7 +2136,7 @@ get_object_in_equip_all(struct creature *ch,
     char tmpname[MAX_INPUT_LENGTH];
     char *tmp = tmpname;
 
-    strcpy(tmp, arg);
+    strcpy_s(tmpname, sizeof(tmpname), arg);
     if (!(number = get_number(&tmp)))
         return NULL;
 

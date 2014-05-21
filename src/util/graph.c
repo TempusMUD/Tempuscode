@@ -547,9 +547,9 @@ smart_mobile_move(struct creature *ch, int dir)
             if (IS_SET(EXIT(ch, dir)->exit_info, EX_SPECIAL))   // can't open here
                 return 0;
             if (EXIT(ch, dir)->keyword)
-                strcpy(doorbuf, fname(EXIT(ch, dir)->keyword));
+                strcpy_s(doorbuf, sizeof(doorbuf), fname(EXIT(ch, dir)->keyword));
             else
-                sprintf(doorbuf, "door %s", dirs[dir]);
+                snprintf(doorbuf, sizeof(doorbuf), "door %s", dirs[dir]);
 
             if (IS_SET(EXIT(ch, dir)->exit_info, EX_LOCKED)) {
                 if (has_key(ch, EXIT(ch, dir)->key))
@@ -559,8 +559,7 @@ smart_mobile_move(struct creature *ch, int dir)
                     do_gen_door(ch, doorbuf, 0, SCMD_PICK);
                 else if (IS_MAGE(ch) && CHECK_SKILL(ch, SPELL_KNOCK) &&
                     GET_MANA(ch) > (GET_MAX_MANA(ch) / 2)) {
-                    sprintf(doorbuf, "'knock' %s", doorbuf);
-                    do_cast(ch, doorbuf, 0, 0);
+                    snprintf_cat(doorbuf, sizeof(doorbuf), "nock' %s", doorbuf, 0, 0);
                 } else if (CHECK_SKILL(ch, SKILL_BREAK_DOOR) > 30 &&
                     GET_HIT(ch) > (GET_MAX_HIT(ch) / 2))
                     do_bash(ch, doorbuf, 0, 0);

@@ -327,8 +327,9 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
             }
 
             return 1;
-        } else if (srch->arg[1] == 1) {
+        }
 
+        if (srch->arg[1] == 1) {
             if (srch->to_vict)
                 act(srch->to_vict, false, ch, obj, mob, TO_CHAR);
             else if (!SRCH_FLAGGED(srch, SRCH_NOMESSAGE))
@@ -361,6 +362,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
             g_list_free(trans_list);
             return rc;
         }
+        break;
     case SEARCH_COM_DOOR:
         /************  Targ Room nonexistent ************/
         if ((targ_room = real_room(srch->arg[0])) == NULL) {
@@ -698,86 +700,6 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
         return 1;
     else
         return 0;
-}
-
-void
-show_searches(struct creature *ch, char *value, char *argument)
-{
-
-    struct special_search_data *srch = NULL;
-    struct room_data *room = NULL;
-    struct zone_data *zone = NULL, *zn = NULL;
-    int count = 0, srch_type = -1;
-    char outbuf[MAX_STRING_LENGTH], arg1[MAX_INPUT_LENGTH];
-    bool overflow = 0, found = 0;
-
-    strcpy(argument, strcat(value, argument));
-    argument = one_argument(argument, arg1);
-    while ((*arg1)) {
-        if (is_abbrev(arg1, "zone")) {
-            argument = one_argument(argument, arg1);
-            if (!*arg1) {
-                send_to_char(ch, "No zone specified.\r\n");
-                return;
-            }
-            if (!(zn = real_zone(atoi(arg1)))) {
-                send_to_char(ch, "No such zone ( %s ).\r\n", arg1);
-                return;
-            }
-        }
-        if (is_abbrev(arg1, "type")) {
-            argument = one_argument(argument, arg1);
-            if (!*arg1) {
-                send_to_char(ch, "No type specified.\r\n");
-                return;
-            }
-            if ((srch_type = search_block(arg1, search_commands, false)) < 0) {
-                send_to_char(ch, "No such search type ( %s ).\r\n", arg1);
-                return;
-            }
-        }
-        argument = one_argument(argument, arg1);
-    }
-
-    strcpy(outbuf, "Searches:\r\n");
-
-    for (zone = zone_table; zone && !overflow; zone = zone->next) {
-
-        if (zn) {
-            if (zone == zn->next)
-                break;
-            if (zn != zone)
-                continue;
-        }
-
-        for (room = zone->world, found = false; room && !overflow;
-            found = false, room = room->next) {
-
-            for (srch = room->search, count = 0; srch && !overflow;
-                srch = srch->next, count++) {
-
-                if (srch_type >= 0 && srch_type != srch->command)
-                    continue;
-
-                if (!found) {
-                    sprintf(buf, "Room [%s%5d%s]:\n", CCCYN(ch, C_NRM),
-                        room->number, CCNRM(ch, C_NRM));
-                    strcat(outbuf, buf);
-                    found = true;
-                }
-
-                print_search_data_to_buf(ch, room, srch, buf);
-
-                if (strlen(outbuf) + strlen(buf) > MAX_STRING_LENGTH - 128) {
-                    overflow = 1;
-                    strcat(outbuf, "**OVERFLOW**\r\n");
-                    break;
-                }
-                strcat(outbuf, buf);
-            }
-        }
-    }
-    page_string(ch->desc, outbuf);
 }
 
 int
