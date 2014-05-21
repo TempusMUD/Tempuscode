@@ -877,7 +877,7 @@ ACMD(do_econvert)
     }
     // check for a battery to store in
     if (*arg2) {
-        argument = one_argument(argument, arg3);
+        one_argument(argument, arg3);
         // Is it an internal energy destination?
         if (!strcmp(arg2, "internal") && *arg3 &&
             (battery = get_object_in_equip_vis(ch, arg3, ch->implants, &i))) {
