@@ -1803,7 +1803,6 @@ parse_enhanced_mob(FILE * mob_f, struct creature *mobile, int nr)
 void
 parse_mobile(FILE * mob_f, int nr)
 {
-    bool done = false;
     int j, t[10];
     char line[256], *tmpptr, letter;
     char f1[128], f2[128], f3[128], f4[128], f5[128];
@@ -1867,21 +1866,18 @@ parse_mobile(FILE * mob_f, int nr)
         break;
     }
 
-/*      load reply structors till 'S' incountered */
+    /* advance to end of mobile */
     do {
-        get_line(mob_f, line, sizeof(line));
-        switch (line[0]) {
-        case 'R':              /* reply text - no longer used */
-            free(fread_string(mob_f, buf2));
-            free(fread_string(mob_f, buf2));
-            break;
-        case '$':
-        case '#':              /* we hit a # so there is no end of replys */
-            fseek(mob_f, 0 - (strlen(line) + 1), SEEK_CUR);
-            done = true;
+        if (get_line(mob_f, line, sizeof(line)) == 0) {
+            // Actual end of file
             break;
         }
-    } while (!done);
+        if (line[0] == '#' || line[0] == '$') {
+            // Record or file terminator
+            fseek(mob_f, 0 - (strlen(line) + 1), SEEK_CUR);
+            break;
+        }
+    } while (true);
 
     mobile->aff_abils = mobile->real_abils;
 
