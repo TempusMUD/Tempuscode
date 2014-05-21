@@ -581,7 +581,6 @@ CHECK_SKILL(struct creature *ch, int i)
     struct affected_type *af_ptr = NULL;
 
     if (i > MAX_SKILLS) {
-        errlog("Invalid skill %d passed to CHECK_SKILL", i);
         return 0;
     }
 
