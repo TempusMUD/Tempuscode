@@ -648,30 +648,33 @@ WAIT_STATE(struct creature *ch, int cycle)
 const char *
 OBJN(struct obj_data *obj, struct creature *vict)
 {
+    if (obj == NULL)
+        return "<NULL>";
     if (can_see_object(vict, obj))
         return fname((obj)->aliases);
-    else
-        return "something";
+    return "something";
 }
 
 const char *
 OBJS(struct obj_data *obj, struct creature *vict)
 {
-    if (can_see_object((vict), (obj)))
+    if (obj == NULL)
+        return "<NULL>";
+    if (can_see_object(vict, obj))
         return obj->name;
-    else
-        return "something";
+    return "something";
 }
 
 const char *
 PERS(struct creature *ch, struct creature *sub)
 {
+    if (ch == NULL)
+        return "<NULL>";
     if (can_see_creature(sub, ch))
         return GET_DISGUISED_NAME(sub, ch);
-    else if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
         return "a divine presence";
-    else
-        return "someone";
+    return "someone";
 }
 
 const char *
