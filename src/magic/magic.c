@@ -3179,14 +3179,12 @@ mag_summons(int level __attribute__ ((unused)),
     struct creature *ch,
     struct obj_data *obj, int spellnum, int savetype __attribute__ ((unused)))
 {
-    struct creature *mob = NULL;
-    struct obj_data *tobj, *next_obj;
     int pfail = 0;
     int fmsg = 0;
     int num = 1;
     int a, i;
     int mob_num = 0;
-    int handle_corpse = 0;
+    bool handle_corpse = false;
 
     if (ch == NULL)
         return;
@@ -3198,14 +3196,15 @@ mag_summons(int level __attribute__ ((unused)),
             act(mag_summon_fail_msgs[7], false, ch, NULL, NULL, TO_CHAR);
             return;
         }
-        handle_corpse = 1;
+        handle_corpse = true;
         mob_num = NPC_ZOMBIE;
         a = number(0, 5);
         if (a)
             mob_num++;
         pfail = 8;
         break;
-
+    case SPELL_CLONE:
+        break;
     default:
         return;
     }
@@ -3218,8 +3217,9 @@ mag_summons(int level __attribute__ ((unused)),
         send_to_char(ch, "%s", mag_summon_fail_msgs[fmsg]);
         return;
     }
+    
     for (i = 0; i < num; i++) {
-        mob = read_mobile(mob_num);
+        struct creature *mob = read_mobile(mob_num);
         if (mob == NULL) {
             continue;
         }
@@ -3233,14 +3233,16 @@ mag_summons(int level __attribute__ ((unused)),
             free(mob->player.short_descr);
             mob->player.short_descr = strdup(GET_NAME(ch));
         }
-    }
-    if (handle_corpse) {
-        for (tobj = obj->contains; tobj; tobj = next_obj) {
-            next_obj = tobj->next_content;
-            obj_from_obj(tobj);
-            obj_to_char(tobj, mob);
+
+        if (handle_corpse) {
+            struct obj_data *next_obj;
+            for (struct obj_data *tobj = obj->contains; tobj; tobj = next_obj) {
+                next_obj = tobj->next_content;
+                obj_from_obj(tobj);
+                obj_to_char(tobj, mob);
+            }
+            extract_obj(obj);
         }
-        extract_obj(obj);
     }
 }
 
