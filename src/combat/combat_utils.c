@@ -1096,9 +1096,6 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         GET_OBJ_VAL(head, 0) = 5;   /* Head full of blood */
         GET_OBJ_VAL(head, 1) = 5;
         GET_OBJ_VAL(head, 2) = 13;
-
-        head->worn_on = -1;
-
         GET_OBJ_MATERIAL(head) = GET_OBJ_MATERIAL(corpse);
         set_obj_weight(head, 10);
 
