@@ -2355,6 +2355,11 @@ ACMD(do_pour)
     int amount;
     float weight;
 
+    if (subcmd != SCMD_POUR && subcmd != SCMD_FILL) {
+        errlog("Invalid subcmd %d in do_pour", subcmd);
+        return;
+    }
+
     two_arguments(argument, arg1, arg2);
 
     if (subcmd == SCMD_POUR) {
@@ -2512,8 +2517,6 @@ ACMD(do_pour)
         weight += GET_OBJ_VAL(to_obj, 1) / 10;
         set_obj_weight(to_obj, weight);
     }
-
-    return;
 }
 
 void
