@@ -457,6 +457,21 @@ START_TEST(test_one_argument_no_lower)
 }
 END_TEST
 
+START_TEST(test_snprintf_cat)
+{
+    char buf[1024] = "";
+    int result = 0;
+
+    result = snprintf_cat(buf, sizeof(buf), "ab%c", 'c');
+    fail_unless(result == 3);
+    fail_unless(!strcmp(buf, "abc"));
+
+    result = snprintf_cat(buf, sizeof(buf), "def");
+    fail_unless(result == 6);
+    fail_unless(!strcmp(buf, "abcdef"));
+}
+END_TEST
+
 Suite *
 strutil_suite(void)
 {
@@ -495,6 +510,7 @@ strutil_suite(void)
     tcase_add_test(tc_core, test_search_block_no_lower);
     tcase_add_test(tc_core, test_fill_word_no_lower);
     tcase_add_test(tc_core, test_one_argument_no_lower);
+    tcase_add_test(tc_core, test_snprintf_cat);
     suite_add_tcase(s, tc_core);
 
     return s;

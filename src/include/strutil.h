@@ -59,6 +59,7 @@ static inline int strcat_s(char *dest, size_t dest_size, const char *src)
 }
 #endif
 
+int snprintf_cat(char *dest, size_t size, const char *fmt, ...);
 void remove_from_cstring(char *str, char c, char c_to);
 void sprintbit(long vektor, const char *names[], char *result, size_t size);
 const char *strlist_aref(int idx, const char **names);

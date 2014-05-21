@@ -22,6 +22,32 @@ const char *fill_words[] = {
 };
 
 /**
+ * snprintf_cat:
+ * @param dest Destination buffer
+ * @param size Size of destination buffer
+ * @param fmt Format string for snprintf(2)
+ * 
+ * Acts as a concatenating version of snprintf().  Returns the total
+ * length of the string if it fits into the buffer size.  Otherwise
+ * returns the length the string that would have been written.
+ **/
+int
+snprintf_cat(char *dest, size_t size, const char *fmt, ...)
+{
+    va_list args;
+    size_t len = strlen(dest);
+
+    va_start(args, fmt);
+    
+    int result = vsnprintf(dest + len, size - len, fmt, args);
+
+    va_end(args);
+
+    return result + len;
+}
+
+
+/**
  * remove_from_cstring:
  * @param str String to modify
  * @param c Character to search for
