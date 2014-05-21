@@ -59,10 +59,7 @@ roll_joint(struct obj_data *tobac, struct obj_data *paper)
     obj->aliases = strdup(buf);
     snprintf(buf, sizeof(buf), "a %s cigarette", fname(tobac->aliases));
     obj->name = strdup(buf);
-    snprintf(buf, sizeof(buf), "%s has been dropped here.", buf);
-    obj->line_desc = strdup(buf);
-    new_descr->keyword = strdup("cig cigarette joint");
-    snprintf(buf, sizeof(buf), "It looks like a %s cigarette, waiting to be smoked.",
+    snprintf_cat(buf, sizeof(buf), " has been dropped here.", sizeof(buf), "It looks like a %s cigarette, waiting to be smoked.",
         fname(tobac->aliases));
     new_descr->description = strdup(buf);
     new_descr->next = NULL;

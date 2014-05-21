@@ -112,7 +112,7 @@ send_access_options(struct creature *ch)
     while (1) {
         if (!access_cmds[i].command)
             break;
-        snprintf(out_buf, sizeof(out_buf), "%s  %-15s %s\r\n", out_buf, access_cmds[i].command,
+        snprintf_cat(out_buf, sizeof(out_buf), "  %-15s %s\r\n", access_cmds[i].command,
             access_cmds[i].usage);
         i++;
     }

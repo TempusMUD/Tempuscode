@@ -1852,13 +1852,13 @@ SPECIAL(weapon_lister)
                 obj->name, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 
         if (dam > 0)
-            snprintf(buf, sizeof(buf), "%s+%-2d", buf, dam);
+            snprintf_cat(buf, sizeof(buf), "+%-2d", dam);
         else if (dam < 0)
-            snprintf(buf, sizeof(buf), "%s-%-2d", buf, -dam);
+            snprintf_cat(buf, sizeof(buf), "-%-2d", -dam);
         else
             strcat_s(buf, sizeof(buf), "   ");
 
-        snprintf(buf, sizeof(buf), "%s (%2d) %3.2f lb ", buf,
+        snprintf_cat(buf, sizeof(buf), " (%2d) %3.2f lb ",
             (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam,
             GET_OBJ_WEIGHT(obj));
 
@@ -1872,7 +1872,7 @@ SPECIAL(weapon_lister)
             strcat_s(buf, sizeof(buf), "2-H ");
 
         if (GET_OBJ_VAL(obj, 0))
-            snprintf(buf, sizeof(buf), "%sCast:%s ", buf, spell_to_str(GET_OBJ_VAL(obj, 0)));
+            snprintf_cat(buf, sizeof(buf), "Cast:%s ", spell_to_str(GET_OBJ_VAL(obj, 0)));
 
         found = false;
         for (int i = 0; i < 3; i++)
@@ -1893,7 +1893,7 @@ SPECIAL(weapon_lister)
         for (int i = 0; i < MAX_OBJ_AFFECT; i++)
             if (obj->affected[i].location && obj->affected[i].modifier &&
                 obj->affected[i].location != APPLY_DAMROLL)
-                snprintf(buf, sizeof(buf), "%s%s%s%d ", buf,
+                snprintf_cat(buf, sizeof(buf), "%s%s%d ",
                     apply_types[(int)obj->affected[i].location],
                     obj->affected[i].modifier > 0 ? "+" : "",
                     obj->affected[i].modifier);
@@ -1905,7 +1905,7 @@ SPECIAL(weapon_lister)
     strcat_s(buf3, sizeof(buf3), "\r\n\r\n");
 
     for (int i = 0; i < 60; i++)
-        snprintf(buf3, sizeof(buf3), "%s%2d -- [ %2d] weapons\r\n", buf3, i, avg_dam[i]);
+        snprintf_cat(buf3, sizeof(buf3), "%2d -- [ %2d] weapons\r\n", i, avg_dam[i]);
 
     page_string(ch->desc, buf3);
     return 1;

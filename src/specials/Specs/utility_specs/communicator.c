@@ -64,8 +64,8 @@ SPECIAL(master_communicator)
                 if (((vict = tmpo->carried_by) || (vict = tmpo->worn_by)) &&
                     can_see_creature(ch, vict))
 
-                    snprintf(buf, sizeof(buf), "%s     %3d. %20s %10s %5s\r\n",
-                        buf, ++i, PERS(vict, ch),
+                    snprintf_cat(buf, sizeof(buf), "     %3d. %20s %10s %5s\r\n",
+                        ++i, PERS(vict, ch),
                         !ENGINE_STATE(tmpo) ? "[inactive]" : "",
                         !COMM_UNIT_SEND_OK(vict, ch) ? "(cantsend)" : "");
 

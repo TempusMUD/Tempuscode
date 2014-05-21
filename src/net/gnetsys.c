@@ -182,11 +182,11 @@ perform_net_who(struct creature *ch, const char *arg __attribute__ ((unused)))
             continue;
 
         count++;
-        snprintf(buf, sizeof(buf), "%s   (%03d)     %s\r\n", buf, count,
+        snprintf_cat(buf, sizeof(buf), "   (%03d)     %s\r\n", count,
             GET_NAME(d->creature));
         continue;
     }
-    snprintf(buf, sizeof(buf), "%s\r\n%d users detected.\r\n", buf, count);
+    snprintf_cat(buf, sizeof(buf), "\r\n%d users detected.\r\n", count);
     page_string(ch->desc, buf);
 }
 

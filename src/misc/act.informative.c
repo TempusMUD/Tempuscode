@@ -4097,7 +4097,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
     snprintf(buf2, sizeof(buf2), " %s%s(augmented)%s",
         CCBLD(ch, C_SPR), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 
-    snprintf(buff, sizeof(buff), "      %s%sStrength:%s ",
+    snprintf(buff, buff_size, "      %s%sStrength:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4155,7 +4155,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
         strcat_s(buff, buff_size, buf2);
     strcat_s(buff, buff_size, "\r\n");
 
-    snprintf(buff, sizeof(buff), "%s  %s%sIntelligence:%s ", buff,
+    snprintf_cat(buff, buff_size, "  %s%sIntelligence:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4189,7 +4189,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
         strcat_s(buff, buff_size, buf2);
     strcat_s(buff, buff_size, "\r\n");
 
-    snprintf(buff, sizeof(buff), "%s        %s%sWisdom:%s ", buff,
+    snprintf_cat(buff, buff_size, "        %s%sWisdom:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4217,7 +4217,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
         strcat_s(buff, buff_size, buf2);
     strcat_s(buff, buff_size, "\r\n");
 
-    snprintf(buff, sizeof(buff), "%s     %s%sDexterity:%s ", buff,
+    snprintf_cat(buff, buff_size, "     %s%sDexterity:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4240,7 +4240,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
         strcat_s(buff, buff_size, buf2);
     strcat_s(buff, buff_size, "\r\n");
 
-    snprintf(buff, sizeof(buff), "%s  %s%sConstitution:%s ", buff,
+    snprintf_cat(buff, buff_size, "  %s%sConstitution:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4271,7 +4271,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
         strcat_s(buff, buff_size, buf2);
     strcat_s(buff, buff_size, "\r\n");
 
-    snprintf(buff, sizeof(buff), "%s      %s%sCharisma:%s ", buff,
+    snprintf_cat(buff, buff_size, "      %s%sCharisma:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)

@@ -559,8 +559,7 @@ smart_mobile_move(struct creature *ch, int dir)
                     do_gen_door(ch, doorbuf, 0, SCMD_PICK);
                 else if (IS_MAGE(ch) && CHECK_SKILL(ch, SPELL_KNOCK) &&
                     GET_MANA(ch) > (GET_MAX_MANA(ch) / 2)) {
-                    snprintf(doorbuf, sizeof(doorbuf), "'knock' %s", doorbuf);
-                    do_cast(ch, doorbuf, 0, 0);
+                    snprintf_cat(doorbuf, sizeof(doorbuf), "nock' %s", doorbuf, 0, 0);
                 } else if (CHECK_SKILL(ch, SKILL_BREAK_DOOR) > 30 &&
                     GET_HIT(ch) > (GET_MAX_HIT(ch) / 2))
                     do_bash(ch, doorbuf, 0, 0);

@@ -811,17 +811,17 @@ list_quest_players(struct creature *ch, struct quest *quest, char *outbuf, size_
                     vict->in_room->number, player->deaths, player->mobkills,
                     player->pkills, vict->desc ? "" : "   (linkless)");
             } else if (QUEST_FLAGGED(quest, QUEST_WHOWHERE)) {
-                snprintf(buf, sizeof(buf), "%s  %2d. %-15s - %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "  %2d. %-15s - %s\r\n",
                     ++num_online, name, vict->in_room->name);
             } else {
-                snprintf(buf, sizeof(buf), "%s  %2d. %-15s - %-10s\r\n", buf, ++num_online,
+                snprintf_cat(buf, sizeof(buf), "  %2d. %-15s - %-10s\r\n", ++num_online,
                     name, bitbuf);
             }
 
         }
         // player is either offline or invisible
         else if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-            snprintf(buf2, sizeof(buf2), "%s  %2d. %-15s - %-10s\r\n", buf2, ++num_offline,
+            snprintf_cat(buf2, sizeof(buf2), "  %2d. %-15s - %-10s\r\n", ++num_offline,
                 name, bitbuf);
         }
     }
@@ -1474,7 +1474,7 @@ do_qcontrol_options(struct creature *ch)
     while (1) {
         if (!qc_options[i].keyword)
             break;
-        snprintf(buf, sizeof(buf), "%s  %-15s %s\r\n", buf, qc_options[i].keyword,
+        snprintf_cat(buf, sizeof(buf), "  %-15s %s\r\n", qc_options[i].keyword,
             qc_options[i].usage);
         i++;
     }

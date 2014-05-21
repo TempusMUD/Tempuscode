@@ -3883,7 +3883,7 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
     if (prac_params[PRAC_TYPE][(int)GET_CLASS(vict)] != 1 ||
         (GET_REMORT_CLASS(vict) >= 0 &&
             prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(vict)] != 1)) {
-        snprintf(buf, sizeof(buf), "%s%s%s%s knows of the following %ss:%s\r\n", buf,
+        snprintf_cat(buf, sizeof(buf), "%s%s%s knows of the following %ss:%s\r\n",
             CCYEL(ch, C_CMP), PERS(vict, ch), CCBLD(ch, C_SPR),
             SPLSKL(vict), CCNRM(ch, C_SPR));
 
@@ -4154,7 +4154,7 @@ show_player(struct creature *ch, const char *value)
         genders[(int)GET_SEX(vict)], GET_LEVEL(vict),
         race_name_by_idnum(GET_RACE(vict)), char_class_abbrevs[GET_CLASS(vict)],
         remort_desc, GET_REMORT_GEN(vict));
-    snprintf(buf, sizeof(buf), "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
+    snprintf_cat(buf, sizeof(buf), "  Rent: Unknown%s\r\n", CCNRM(ch, C_NRM));
     snprintf(buf, sizeof(buf),
         "%sAu: %'-8" PRId64 "  Cr: %'-8" PRId64 "  Past: %'-8" PRId64 "  Fut: %'-8" PRId64 "\r\n",
         buf, GET_GOLD(vict), GET_CASH(vict),
@@ -4175,11 +4175,11 @@ show_player(struct creature *ch, const char *value)
         (int)(vict->player.time.played / 60 % 60));
 
     if (IS_SET(vict->char_specials.saved.act, PLR_FROZEN))
-        snprintf(buf, sizeof(buf), "%s%s%s is FROZEN!%s\r\n", buf, CCCYN(ch, C_NRM),
+        snprintf_cat(buf, sizeof(buf), "%s%s is FROZEN!%s\r\n", CCCYN(ch, C_NRM),
             GET_NAME(vict), CCNRM(ch, C_NRM));
 
     if (IS_SET(vict->player_specials->saved.plr2_bits, PLR2_BURIED))
-        snprintf(buf, sizeof(buf), "%s%s%s is BURIED!%s\r\n", buf, CCGRN(ch, C_NRM),
+        snprintf_cat(buf, sizeof(buf), "%s%s is BURIED!%s\r\n", CCGRN(ch, C_NRM),
             GET_NAME(vict), CCNRM(ch, C_NRM));
 
     send_to_char(ch, "%s", buf);
@@ -5203,7 +5203,7 @@ ACMD(do_show)
         for (zone = zone_table; zone; zone = zone->next)
             for (j = 0, room = zone->world; room; room = room->next)
                 if (IS_SET(ROOM_FLAGS(room), ROOM_DEATH)) {
-                    snprintf(buf, sizeof(buf), "%s%2d: %s[%5d]%s %s%s", buf, ++j,
+                    snprintf_cat(buf, sizeof(buf), "%2d: %s[%5d]%s %s%s", ++j,
                         CCRED(ch, C_NRM), room->number, CCCYN(ch, C_NRM),
                         room->name, CCNRM(ch, C_NRM));
                     if (room->contents)
@@ -5310,7 +5310,7 @@ ACMD(do_show)
                 strcat_s(buf, sizeof(buf), " None.\r\n");
             else {
                 while (a != NULL) {
-                    snprintf(buf, sizeof(buf), "%s%s%-15s%s %s\r\n", buf, CCCYN(ch, C_NRM),
+                    snprintf_cat(buf, sizeof(buf), "%s%-15s%s %s\r\n", CCCYN(ch, C_NRM),
                         a->alias, CCNRM(ch, C_NRM), a->replacement);
                     a = a->next;
                 }
@@ -5342,7 +5342,7 @@ ACMD(do_show)
                     strcat_s(buf, sizeof(buf), "**OVERFLOW**\r\n");
                     break;
                 }
-                snprintf(buf, sizeof(buf), "%s%3d. [%5d] %s%-36s%s  (%s)\r\n", buf, i,
+                snprintf_cat(buf, sizeof(buf), "%3d. [%5d] %s%-36s%s  (%s)\r\n", i,
                     GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
                     obj->name, CCNRM(ch, C_NRM), obj->aliases);
                 i++;
@@ -5434,9 +5434,9 @@ ACMD(do_show)
             for (zone = zone_table; zone; zone = zone->next) {
                 if (zone->time_frame == i && zone->hour_mod == j) {
                     if (!found)
-                        snprintf(buf, sizeof(buf), "%s\r\nTime zone (%d):\r\n", buf, j);
+                        snprintf_cat(buf, sizeof(buf), "\r\nTime zone (%d):\r\n", j);
                     ++found;
-                    snprintf(buf, sizeof(buf), "%s%3d. %25s   weather: [%d]\r\n", buf,
+                    snprintf_cat(buf, sizeof(buf), "%3d. %25s   weather: [%d]\r\n",
                         zone->number, zone->name, zone->weather->sky);
                 }
             }
@@ -5470,11 +5470,11 @@ ACMD(do_show)
             i++) {
 
             if (sfc_mode == SFC_OBJ && !real_object_proto(i))
-                snprintf(buf, sizeof(buf), "%s[%5d]\r\n", buf, i);
+                snprintf_cat(buf, sizeof(buf), "[%5d]\r\n", i);
             else if (sfc_mode == SFC_MOB && !real_mobile_proto(i))
-                snprintf(buf, sizeof(buf), "%s[%5d]\r\n", buf, i);
+                snprintf_cat(buf, sizeof(buf), "[%5d]\r\n", i);
             else if (sfc_mode == SFC_ROOM && !real_room(i))
-                snprintf(buf, sizeof(buf), "%s[%5d]\r\n", buf, i);
+                snprintf_cat(buf, sizeof(buf), "[%5d]\r\n", i);
         }
         page_string(ch->desc, buf);
         return;
@@ -5580,7 +5580,7 @@ ACMD(do_show)
                if (strlen(buf) > MAX_STRING_LENGTH - 128)
                break;
 
-               snprintf(buf, sizeof(buf), "%s%3d: %s[%s%5d%s] %s%s%s\r\n", buf, ++i,
+               snprintf_cat(buf, sizeof(buf), "%3d: %s[%s%5d%s] %s%s%s\r\n", ++i,
                CCRED(ch, C_NRM),
                CCGRN(ch, C_NRM),
                vict->in_room->number,
@@ -5591,7 +5591,7 @@ ACMD(do_show)
 
                it = vict->getCombatList()->begin();
                for (; it != vict->getCombatList()->end(); ++it) {
-               snprintf(buf, sizeof(buf), "%s             - %s%s%s\r\n", buf,
+               snprintf_cat(buf, sizeof(buf), "             - %s%s%s\r\n",
                CCWHT(ch, C_NRM),
                GET_NAME(it->getOpponent()),
                CCNRM(ch, C_NRM));
@@ -5617,7 +5617,7 @@ ACMD(do_show)
             if (strlen(buf) > MAX_STRING_LENGTH - 128)
                 break;
 
-            snprintf(buf, sizeof(buf), "%s %3d. %28s --- %s [%d]\r\n", buf, ++i,
+            snprintf_cat(buf, sizeof(buf), " %3d. %28s --- %s [%d]\r\n", ++i,
                 GET_NAME(vict), vict->in_room->name, vict->in_room->number);
 
         }
@@ -5641,7 +5641,7 @@ ACMD(do_show)
             if (strlen(buf) > MAX_STRING_LENGTH - 128)
                 break;
 
-            snprintf(buf, sizeof(buf), "%s %3d. %23s [%5d] ---> %20s [%5d]\r\n", buf, ++i,
+            snprintf_cat(buf, sizeof(buf), " %3d. %23s [%5d] ---> %20s [%5d]\r\n", ++i,
                 GET_NAME(vict), vict->in_room->number,
                 GET_NAME(NPC_HUNTING(vict)),
                 NPC_HUNTING(vict)->in_room->number);
@@ -5654,7 +5654,7 @@ ACMD(do_show)
 
         strcpy_s(buf, sizeof(buf), "Last cmds:\r\n");
         for (i = 0; i < NUM_SAVE_CMDS; i++)
-            snprintf(buf, sizeof(buf), "%s %2d. (%4d) %25s - '%s'\r\n", buf,
+            snprintf_cat(buf, sizeof(buf), " %2d. (%4d) %25s - '%s'\r\n",
                 i, last_cmd[i].idnum, player_name_by_idnum(last_cmd[i].idnum),
                 last_cmd[i].string);
 
@@ -5691,7 +5691,7 @@ ACMD(do_show)
             k += i;             // number of duplicate rooms total;
             con += j;           // total length of duplicates in world;
             if (i) {
-                snprintf(buf, sizeof(buf), "%s [%3d] %s%-30s%s  %3d/%3d  %6d\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), " [%3d] %s%-30s%s  %3d/%3d  %6d\r\n",
                     zone->number, CCCYN(ch, C_NRM), zone->name,
                     CCNRM(ch, C_NRM), i, num_rms, j);
             }
@@ -5712,7 +5712,7 @@ ACMD(do_show)
         for (obj = NULL, i = 0; i < MAX_WEAPON_SPEC; i++, obj = NULL) {
             if (GET_WEAP_SPEC(vict, i).vnum > 0)
                 obj = real_object_proto(GET_WEAP_SPEC(vict, i).vnum);
-            snprintf(buf, sizeof(buf), "%s [%5d] %-30s [%2d]\r\n", buf,
+            snprintf_cat(buf, sizeof(buf), " [%5d] %-30s [%2d]\r\n",
                 GET_WEAP_SPEC(vict, i).vnum,
                 obj ? obj->name : "--- ---", GET_WEAP_SPEC(vict, i).level);
         }

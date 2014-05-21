@@ -660,7 +660,7 @@ do_hcollect_cmds(struct creature *ch)
     for (i = 0; hc_cmds[i].keyword; i++) {
         if (GET_LEVEL(ch) < hc_cmds[i].level)
             continue;
-        snprintf(gHelpbuf, sizeof(gHelpbuf), "%s  %-15s %s\r\n", gHelpbuf,
+        snprintf_cat(gHelpbuf, sizeof(gHelpbuf), "  %-15s %s\r\n",
             hc_cmds[i].keyword, hc_cmds[i].usage);
     }
     page_string(ch->desc, gHelpbuf);

@@ -449,20 +449,20 @@ show_social_messages(struct creature *ch, char *arg)
             snprintf(buf, sizeof(buf), "Action '%s', Hide-invis : %s, Min Vict Pos: %d\r\n",
                 cmd_info[i].command, YESNO(action->hide),
                 action->min_victim_position);
-            snprintf(buf, sizeof(buf), "%schar_no_arg  : %s\r\n", buf, action->char_no_arg);
-            snprintf(buf, sizeof(buf), "%sothers_no_arg: %s\r\n", buf,
+            snprintf_cat(buf, sizeof(buf), "char_no_arg  : %s\r\n", action->char_no_arg);
+            snprintf_cat(buf, sizeof(buf), "others_no_arg: %s\r\n",
                 action->others_no_arg);
-            snprintf(buf, sizeof(buf), "%schar_found   : %s\r\n", buf, action->char_found);
+            snprintf_cat(buf, sizeof(buf), "char_found   : %s\r\n", action->char_found);
             if (action->others_found) {
-                snprintf(buf, sizeof(buf), "%sothers_found : %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "others_found : %s\r\n",
                     action->others_found);
-                snprintf(buf, sizeof(buf), "%svict_found   : %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "vict_found   : %s\r\n",
                     action->vict_found);
-                snprintf(buf, sizeof(buf), "%snot_found    : %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "not_found    : %s\r\n",
                     action->not_found);
-                snprintf(buf, sizeof(buf), "%schar_auto    : %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "char_auto    : %s\r\n",
                     action->char_auto);
-                snprintf(buf, sizeof(buf), "%sothers_auto  : %s\r\n", buf,
+                snprintf_cat(buf, sizeof(buf), "others_auto  : %s\r\n",
                     action->others_auto);
             }
             send_to_char(ch, "%s", buf);

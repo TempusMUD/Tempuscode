@@ -1034,13 +1034,13 @@ send_prompt(struct descriptor_data *d)
                 snprintf(colorbuf, sizeof(colorbuf), "%s%s", CCNRM(d->creature, C_SPR),
                     CCYEL(d->creature, C_NRM));
                 if (local_time.hours > 8 && local_time.hours < 18) {    //day
-                    snprintf(colorbuf, sizeof(colorbuf), "%s%s%s", colorbuf, CCWHT(d->creature,
+                    snprintf_cat(colorbuf, sizeof(colorbuf), "%s%s", CCWHT(d->creature,
                             C_CMP), CCBLD(d->creature, C_CMP));
                 } else if (local_time.hours >= 6 && local_time.hours <= 20) {   //dawn/dusk
-                    snprintf(colorbuf, sizeof(colorbuf), "%s%s", colorbuf, CCCYN_BLD(d->creature,
+                    snprintf_cat(colorbuf, sizeof(colorbuf), "%s", CCCYN_BLD(d->creature,
                             C_CMP));
                 } else {        //night
-                    snprintf(colorbuf, sizeof(colorbuf), "%s%s", colorbuf, CCBLU_BLD(d->creature,
+                    snprintf_cat(colorbuf, sizeof(colorbuf), "%s", CCBLU_BLD(d->creature,
                             C_CMP));
                 }
 

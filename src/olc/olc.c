@@ -1465,7 +1465,7 @@ ACMD(do_olc)
             for (struct room_data * room = ch->in_room->zone->world; room;
                 room = room->next) {
                 if (!room->sounds) {
-                    snprintf(buf, sizeof(buf), "%s[ %6d ] %s\n", buf, room->number,
+                    snprintf_cat(buf, sizeof(buf), "[ %6d ] %s\n", room->number,
                         room->name);
                 }
             }
@@ -1479,7 +1479,7 @@ ACMD(do_olc)
             for (struct room_data * room = ch->in_room->zone->world; room;
                 room = room->next) {
                 if (!room->description) {
-                    snprintf(buf, sizeof(buf), "%s[ %6d ] %s\n", buf, room->number,
+                    snprintf_cat(buf, sizeof(buf), "[ %6d ] %s\n", room->number,
                         room->name);
                 }
             }
@@ -1522,10 +1522,10 @@ ACMD(do_olc)
 
                         found = true;
                         if (exit && exit->to_room)
-                            snprintf(buf2, sizeof(buf2), "%s%s%c%s ", buf2, CCGRN(ch, C_NRM),
+                            snprintf_cat(buf2, sizeof(buf2), "%s%c%s ", CCGRN(ch, C_NRM),
                                 dirs[i][0], CCNRM(ch, C_NRM));
                         else
-                            snprintf(buf2, sizeof(buf2), "%s%s%c%s ", buf2, CCYEL(ch, C_NRM),
+                            snprintf_cat(buf2, sizeof(buf2), "%s%c%s ", CCYEL(ch, C_NRM),
                                 dirs[i][0], CCNRM(ch, C_NRM));
                     } else
                         strcat_s(buf2, sizeof(buf2), "  ");
@@ -1984,7 +1984,7 @@ show_olc_help(struct creature *ch, char *arg)
             "      Value 2      Value 3%s\r\n",
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
         for (i = 0; i < NUM_ITEM_TYPES; i++) {
-            snprintf(buf, sizeof(buf), "%s%2d  %s%12s%s  %12s %12s %12s %12s\r\n", buf,
+            snprintf_cat(buf, sizeof(buf), "%2d  %s%12s%s  %12s %12s %12s %12s\r\n",
                 i, CCCYN(ch, C_NRM), item_types[i], CCNRM(ch, C_NRM),
                 item_value_types[i][0], item_value_types[i][1],
                 item_value_types[i][2], item_value_types[i][3]);
