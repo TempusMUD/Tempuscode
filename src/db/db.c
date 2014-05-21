@@ -67,7 +67,7 @@
 #include "strutil.h"
 
 #define ZONE_ERROR(message) \
-{ zerrlog(zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); last_cmd = 0; }
+{ zerrlog(state->zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); state->last_cmd = 0; }
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -2711,22 +2711,371 @@ zone_update(void)
         }
 }
 
+enum if_flag {
+    LAST_CMD_SUCCESS,       // Succeeded
+    LAST_CMD_FAILURE,       // Didn't execute
+    LAST_CMD_IGNORED,       // Ignored due to percentage failure
+};
+
+struct reset_state {
+    enum if_flag last_cmd;
+    bool prob_override;
+    int cmd_num;
+    struct zone_data *zone;
+    struct creature *last_mob;
+    struct obj_data *last_obj;
+};
+    
+void
+execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
+{
+    struct obj_data *obj, *tobj, *obj_to;
+    struct room_data *room;
+
+    switch (zonecmd->command) {
+    case '*':              /* ignore command */
+        state->last_cmd = LAST_CMD_IGNORED;
+        break;
+    case 'M':{             /* read a mobile */
+        state->last_cmd = LAST_CMD_FAILURE;
+        struct creature *tmob = real_mobile_proto(zonecmd->arg1);
+        if (tmob == NULL
+            || tmob->mob_specials.shared->number >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            state->last_mob = NULL;
+            break;
+        }
+
+        room = real_room(zonecmd->arg3);
+        if (room == NULL) {
+            state->last_mob = NULL;
+            break;
+        }
+
+        struct creature *mob = read_mobile(zonecmd->arg1);
+        if (mob == NULL) {
+            state->last_mob = NULL;
+            break;
+        }
+        
+        char_to_room(mob, room, false);
+        if (GET_NPC_LEADER(mob) > 0) {
+            for (GList *it = first_living(mob->in_room->people);it;it = next_living(it)) {
+                struct creature *tch = it->data;
+
+                if (tch != mob
+                    && !mob->master
+                    && IS_NPC(tch)
+                    && GET_NPC_VNUM(tch) == GET_NPC_LEADER(mob)
+                    && !circle_follow(mob, tch))
+                    add_follower(mob, tch);
+            }
+        }
+
+        if (process_load_param(mob)) {  // true on death
+            state->last_cmd = LAST_CMD_FAILURE;
+        } else {
+            state->last_cmd = LAST_CMD_SUCCESS;
+        }
+
+        if (GET_NPC_PROGOBJ(mob))
+            trigger_prog_load(mob);
+
+        state->last_mob = mob;
+        break;
+    }
+    case 'O':              /* read an object */
+        state->last_cmd = LAST_CMD_FAILURE;
+        tobj = real_object_proto(zonecmd->arg1);
+        if (tobj == NULL
+            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            break;
+        }
+
+        room = real_room(zonecmd->arg3);
+        if (room == NULL || ROOM_FLAGGED(room, ROOM_HOUSE)) {
+            break;
+        }
+
+        obj = read_object(zonecmd->arg1);
+        if (obj == NULL) {
+            break;
+        }
+
+        obj->creation_method = CREATED_ZONE;
+        obj->creator = state->zone->number;
+        randomize_object(obj);
+
+        if (ZONE_FLAGGED(state->zone, ZONE_ZCMDS_APPROVED)) {
+            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+            GET_OBJ_TIMER(obj) = 60;
+        }
+        obj_to_room(obj, room);
+        state->last_cmd = LAST_CMD_SUCCESS;
+        break;
+
+    case 'P':              /* object to object */
+        state->last_cmd = LAST_CMD_FAILURE;
+        tobj = real_object_proto(zonecmd->arg1);
+        if (tobj == NULL
+            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            break;
+        }
+
+        obj_to = get_obj_num(zonecmd->arg3);
+        if (obj_to == NULL) {
+            ZONE_ERROR("target obj not found");
+            break;
+        }
+
+        obj = read_object(zonecmd->arg1);
+        if (obj == NULL) {
+            break;
+        }
+
+        obj->creation_method = CREATED_ZONE;
+        obj->creator = state->zone->number;
+        randomize_object(obj);
+
+        if (ZONE_FLAGGED(state->zone, ZONE_ZCMDS_APPROVED)) {
+            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+            GET_OBJ_TIMER(obj) = 60;
+        }
+        obj_to_obj(obj, obj_to);
+        state->last_cmd = LAST_CMD_SUCCESS;
+        break;
+
+    case 'G':              /* obj_to_char */
+        state->last_cmd = LAST_CMD_FAILURE;
+        if (state->last_mob == NULL) {
+            if (state->last_cmd == LAST_CMD_FAILURE)
+                ZONE_ERROR("attempt to give obj to nonexistent mob");
+            break;
+        }
+
+        tobj = real_object_proto(zonecmd->arg1);
+        if (tobj == NULL
+            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            break;
+        }
+
+        obj = read_object(zonecmd->arg1);
+        if (obj == NULL) {
+            break;
+        }
+
+        obj->creation_method = CREATED_ZONE;
+        obj->creator = state->zone->number;
+
+        if (GET_NPC_SPEC(state->last_mob) != vendor) {
+            randomize_object(obj);
+        }
+
+        if (ZONE_FLAGGED(state->zone, ZONE_ZCMDS_APPROVED)) {
+            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+            GET_OBJ_TIMER(obj) = 60;
+        }
+
+        obj_to_char(obj, state->last_mob);
+        state->last_cmd = LAST_CMD_SUCCESS;
+        break;
+
+    case 'E':              /* object to equipment list */
+        state->last_cmd = LAST_CMD_FAILURE;
+        if (state->last_mob == NULL) {
+            if (state->last_cmd == LAST_CMD_FAILURE)
+                ZONE_ERROR("attempt to give obj to nonexistent mob");
+            break;
+        }
+
+        tobj = real_object_proto(zonecmd->arg1);
+        if (tobj == NULL
+            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            break;
+        }
+
+        if (zonecmd->arg3 < 0 || zonecmd->arg3 >= NUM_WEARS) {
+            ZONE_ERROR("invalid equipment pos number");
+            break;
+        }
+        if (!CAN_WEAR(tobj, wear_bitvectors[zonecmd->arg3])) {
+            ZONE_ERROR("invalid eq pos for obj");
+            break;
+        }
+        if (GET_EQ(state->last_mob, zonecmd->arg3)) {
+            ZONE_ERROR("char already equipped in position");
+            break;
+        }
+
+        obj = read_object(zonecmd->arg1);
+        if (obj == NULL) {
+            break;
+        }
+
+        obj->creation_method = CREATED_ZONE;
+        obj->creator = state->zone->number;
+        randomize_object(obj);
+
+        if (ZONE_FLAGGED(state->zone, ZONE_ZCMDS_APPROVED)) {
+            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+            GET_OBJ_TIMER(obj) = 60;
+        }
+
+        if (equip_char(state->last_mob, obj, zonecmd->arg3, EQUIP_WORN)) {
+            state->last_mob = NULL;
+        } else {
+            state->last_cmd = LAST_CMD_SUCCESS;
+        }
+        break;
+    case 'I':              /* object to equipment list */
+        state->last_cmd = LAST_CMD_FAILURE;
+        if (state->last_mob == NULL) {
+            if (state->last_cmd == LAST_CMD_FAILURE)
+                ZONE_ERROR("attempt to implant nonexistent mob");
+            break;
+        }
+
+        tobj = real_object_proto(zonecmd->arg1);
+        if (tobj == NULL
+            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || zonecmd->arg3 < 0) {
+            break;
+        }
+
+        if (zonecmd->arg3 < 0 || zonecmd->arg3 >= NUM_WEARS) {
+            ZONE_ERROR("invalid implant pos number");
+            break;
+        }
+        if (!CAN_WEAR(tobj, wear_bitvectors[zonecmd->arg3])) {
+            ZONE_ERROR("invalid implant pos for obj");
+            break;
+        }
+        if (GET_IMPLANT(state->last_mob, zonecmd->arg3)) {
+            ZONE_ERROR("char already implanted in position");
+            break;
+        }
+
+        obj = read_object(zonecmd->arg1);
+        if (obj == NULL) {
+            break;
+        }
+
+        obj->creation_method = CREATED_ZONE;
+        obj->creator = state->zone->number;
+        randomize_object(obj);
+
+        if (ZONE_FLAGGED(state->zone, ZONE_ZCMDS_APPROVED)) {
+            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
+            GET_OBJ_TIMER(obj) = 60;
+        }
+
+        if (equip_char(state->last_mob, obj, zonecmd->arg3, EQUIP_IMPLANT)) {
+            state->last_mob = NULL;
+        } else {
+            state->last_cmd = LAST_CMD_SUCCESS;
+        }
+        break;
+    case 'V':              /* add path to vehicle */
+        state->last_cmd = LAST_CMD_FAILURE;
+        tobj = get_obj_num(zonecmd->arg3);
+        if (tobj == NULL) {
+            ZONE_ERROR("target obj not found");
+            break;
+        }
+        if (!path_vnum_exists(zonecmd->arg1)) {
+            ZONE_ERROR("path not found");
+            break;
+        }
+        if (add_path_to_vehicle(tobj, zonecmd->arg1)) {
+            state->last_cmd = LAST_CMD_SUCCESS;
+        }
+        break;
+
+    case 'W':
+        if (!state->last_mob) {
+            if (state->last_cmd == LAST_CMD_FAILURE)
+                ZONE_ERROR("trying to assign path to nonexistent mob");
+            state->last_cmd = LAST_CMD_FAILURE;
+            break;
+        }
+        if (!path_vnum_exists(zonecmd->arg1)) {
+            ZONE_ERROR("invalid path vnum");
+            break;
+        }
+        if (!add_path_to_mob(state->last_mob, zonecmd->arg1)) {
+            ZONE_ERROR("unable to attach path to mob");
+        } else
+            state->last_cmd = LAST_CMD_SUCCESS;
+        break;
+
+    case 'R':              /* rem obj from room */
+        room = real_room(zonecmd->arg2);
+        if (room &&
+            (obj = get_obj_in_list_num(zonecmd->arg1, room->contents)) &&
+            !ROOM_FLAGGED(room, ROOM_HOUSE)) {
+            obj_from_room(obj);
+            extract_obj(obj);
+            state->last_cmd = LAST_CMD_SUCCESS;
+            state->prob_override = true;
+        } else
+            state->last_cmd = LAST_CMD_FAILURE;
+
+        break;
+
+    case 'D':              /* set state of door */
+        room = real_room(zonecmd->arg1);
+        if (!room || zonecmd->arg2 < 0 || zonecmd->arg2 >= NUM_OF_DIRS ||
+            (room->dir_option[zonecmd->arg2] == NULL)) {
+            ZONE_ERROR("door does not exist");
+        } else {
+            int dir = zonecmd->arg2;
+            if (IS_SET(zonecmd->arg3, DOOR_OPEN)) {
+                REMOVE_BIT(room->dir_option[dir]->exit_info,
+                           EX_LOCKED);
+                REMOVE_BIT(room->dir_option[dir]->exit_info,
+                           EX_CLOSED);
+            }
+            if (IS_SET(zonecmd->arg3, DOOR_CLOSED)) {
+                SET_BIT(room->dir_option[dir]->exit_info,
+                        EX_CLOSED);
+                REMOVE_BIT(room->dir_option[dir]->exit_info,
+                           EX_LOCKED);
+            }
+            if (IS_SET(zonecmd->arg3, DOOR_LOCKED)) {
+                SET_BIT(room->dir_option[dir]->exit_info,
+                        EX_LOCKED);
+                SET_BIT(room->dir_option[dir]->exit_info,
+                        EX_CLOSED);
+            }
+            if (IS_SET(zonecmd->arg3, DOOR_HIDDEN)) {
+                SET_BIT(room->dir_option[dir]->exit_info,
+                        EX_HIDDEN);
+            }
+            // Only heal doors that were completely busted.
+            if (room->dir_option[dir]->damage == 0) {
+                room->dir_option[dir]->maxdam = calc_door_strength(room, dir);
+                room->dir_option[dir]->damage = room->dir_option[dir]->maxdam;
+            }
+            state->last_cmd = LAST_CMD_SUCCESS;
+        }
+        break;
+
+    default:
+        ZONE_ERROR("unknown cmd in reset table! cmd disabled");
+        zonecmd->command = '*';
+        break;
+    }
+}
+
 /* execute the reset command table of a given zone */
 void
 reset_zone(struct zone_data *zone)
 {
-    enum {
-        LAST_CMD_SUCCESS,       // Succeeded
-        LAST_CMD_FAILURE,       // Didn't execute
-        LAST_CMD_IGNORED,       // Ignored due to percentage failure
-    };
-    int cmd_no = 0, last_cmd = LAST_CMD_FAILURE;
-    bool prob_override = false;
-    struct creature *mob = NULL, *tmob = NULL;
-    struct obj_data *obj = NULL, *obj_to = NULL, *tobj = NULL;
-    struct reset_com *zonecmd;
-    struct room_data *room;
-    struct special_search_data *srch = NULL;
+    struct reset_state state;
 
     // Send SPECIAL_RESET notification to all mobiles with specials
     for (GList *it = first_living(creatures);it;it = next_living(it)) {
@@ -2738,315 +3087,43 @@ reset_zone(struct zone_data *zone)
         }
     }
 
-    for (zonecmd = zone->cmd;
+    state.zone = zone;
+    state.cmd_num = 0;
+    state.last_cmd = LAST_CMD_FAILURE;
+    state.last_mob = NULL;
+    state.last_obj = NULL;
+    state.prob_override = false;
+
+    for (struct reset_com *zonecmd = zone->cmd;
          zonecmd && zonecmd->command != 'S';
-         zonecmd = zonecmd->next, cmd_no++) {
+         zonecmd = zonecmd->next) {
+
+        state.cmd_num++;
+
         // if_flag
         // 0 == "Do regardless of previous"
         // 1 == "Do if previous succeeded"
         // 2 == "Do if previous failed"
 
-        if (zonecmd->if_flag == IF_FLAG_SUCCEEDED && last_cmd != LAST_CMD_SUCCESS)
+        if (zonecmd->if_flag == IF_FLAG_SUCCEEDED && state.last_cmd != LAST_CMD_SUCCESS)
             continue;
-        if (zonecmd->if_flag == IF_FLAG_UNIGNORED && last_cmd != LAST_CMD_IGNORED)
+        if (zonecmd->if_flag == IF_FLAG_UNIGNORED && state.last_cmd != LAST_CMD_IGNORED)
             continue;
-        if (!prob_override && number(1, 100) > zonecmd->prob) {
-            last_cmd = LAST_CMD_IGNORED;
+        if (!state.prob_override && number(1, 100) > zonecmd->prob) {
+            state.last_cmd = LAST_CMD_IGNORED;
             continue;
         } else {
-            prob_override = false;
+            state.prob_override = false;
         }
-        switch (zonecmd->command) {
-        case '*':              /* ignore command */
-            last_cmd = LAST_CMD_IGNORED;
-            break;
-        case 'M':{             /* read a mobile */
-            tmob = real_mobile_proto(zonecmd->arg1);
-            if (tmob != NULL
-                && tmob->mob_specials.shared->number < zonecmd->arg2) {
-                room = real_room(zonecmd->arg3);
-                if (room) {
-                    mob = read_mobile(zonecmd->arg1);
-                } else {
-                    last_cmd = LAST_CMD_FAILURE;
-                    break;
-                }
-                if (mob) {
-                    char_to_room(mob, room, false);
-                    if (GET_NPC_LEADER(mob) > 0) {
-                        for (GList *it = first_living(mob->in_room->people);it;it = next_living(it)) {
-                            struct creature *tch = it->data;
 
-                            if (tch != mob
-                                && !mob->master
-                                && IS_NPC(tch)
-                                && GET_NPC_VNUM(tch) == GET_NPC_LEADER(mob)
-                                && !circle_follow(mob, tch))
-                                add_follower(mob, tch);
-                        }
-                    }
-                    if (process_load_param(mob)) {  // true on death
-                        last_cmd = LAST_CMD_FAILURE;
-                    } else {
-                        last_cmd = LAST_CMD_SUCCESS;
-                    }
-                    if (GET_NPC_PROGOBJ(mob))
-                        trigger_prog_load(mob);
-                } else {
-                    last_cmd = LAST_CMD_FAILURE;
-                }
-            } else {
-                last_cmd = LAST_CMD_FAILURE;
-            }
-            break;
-        }
-        case 'O':              /* read an object */
-            last_cmd = LAST_CMD_FAILURE;
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj == NULL
-                || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
-                || zonecmd->arg3 < 0) {
-                break;
-            }
-
-            room = real_room(zonecmd->arg3);
-            if (room == NULL || ROOM_FLAGGED(room, ROOM_HOUSE)) {
-                break;
-            }
-
-            obj = read_object(zonecmd->arg1);
-            if (obj == NULL) {
-                break;
-            }
-
-            obj->creation_method = CREATED_ZONE;
-            obj->creator = zone->number;
-            randomize_object(obj);
-
-            if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                GET_OBJ_TIMER(obj) = 60;
-            }
-            obj_to_room(obj, room);
-            last_cmd = LAST_CMD_SUCCESS;
-            break;
-
-        case 'P':              /* object to object */
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj != NULL &&
-                tobj->shared->number - tobj->shared->house_count <
-                zonecmd->arg2) {
-                obj = read_object(zonecmd->arg1);
-                obj->creation_method = CREATED_ZONE;
-                obj->creator = zone->number;
-                randomize_object(obj);
-                if (!(obj_to = get_obj_num(zonecmd->arg3))) {
-                    ZONE_ERROR("target obj not found");
-                    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                        SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                        GET_OBJ_TIMER(obj) = 60;
-                    }
-                    extract_obj(obj);
-                    break;
-                }
-                if (obj == obj_to) {
-                    ZONE_ERROR("target object cannot be put into itself");
-                    extract_obj(obj);
-                    break;
-                }
-                obj_to_obj(obj, obj_to);
-                last_cmd = LAST_CMD_SUCCESS;
-            } else
-                last_cmd = LAST_CMD_FAILURE;
-            break;
-
-        case 'V':              /* add path to vehicle */
-            last_cmd = LAST_CMD_FAILURE;
-            if (!(tobj = get_obj_num(zonecmd->arg3))) {
-                ZONE_ERROR("target obj not found");
-                break;
-            }
-            if (!path_vnum_exists(zonecmd->arg1)) {
-                ZONE_ERROR("path not found");
-                break;
-            }
-            if (add_path_to_vehicle(tobj, zonecmd->arg1))
-                last_cmd = LAST_CMD_SUCCESS;
-            break;
-
-        case 'G':              /* obj_to_char */
-            if (!mob) {
-                if (last_cmd == LAST_CMD_FAILURE)
-                    ZONE_ERROR("attempt to give obj to nonexistent mob");
-                break;
-            }
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj != NULL &&
-                tobj->shared->number - tobj->shared->house_count <
-                zonecmd->arg2) {
-                obj = read_object(zonecmd->arg1);
-                obj->creation_method = CREATED_ZONE;
-                obj->creator = zone->number;
-                if (GET_NPC_SPEC(mob) != vendor)
-                    randomize_object(obj);
-                if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                    SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                    GET_OBJ_TIMER(obj) = 60;
-                }
-                obj_to_char(obj, mob);
-                last_cmd = LAST_CMD_SUCCESS;
-            } else
-                last_cmd = LAST_CMD_FAILURE;
-            break;
-
-        case 'E':              /* object to equipment list */
-            if (!mob) {
-                if (last_cmd == LAST_CMD_FAILURE)
-                    ZONE_ERROR("trying to equip nonexistent mob");
-                break;
-            }
-            last_cmd = LAST_CMD_FAILURE;
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj != NULL &&
-                tobj->shared->number - tobj->shared->house_count <
-                zonecmd->arg2) {
-                if (zonecmd->arg3 < 0 || zonecmd->arg3 >= NUM_WEARS) {
-                    ZONE_ERROR("invalid equipment pos number");
-                } else if (!CAN_WEAR(tobj, wear_bitvectors[zonecmd->arg3])) {
-                    ZONE_ERROR("invalid eq pos for obj");
-                } else if (GET_EQ(mob, zonecmd->arg3)) {
-                    ZONE_ERROR("char already equipped in position");
-                } else {
-                    obj = read_object(zonecmd->arg1);
-                    obj->creation_method = CREATED_ZONE;
-                    obj->creator = zone->number;
-                    randomize_object(obj);
-                    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                        SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                        GET_OBJ_TIMER(obj) = 60;
-                    }
-                    if (equip_char(mob, obj, zonecmd->arg3, EQUIP_WORN)) {
-                        mob = NULL;
-                        last_cmd = LAST_CMD_FAILURE;
-                    } else
-                        last_cmd = LAST_CMD_SUCCESS;
-                }
-            }
-            break;
-        case 'I':              /* object to equipment list */
-            if (!mob) {
-                if (last_cmd == LAST_CMD_FAILURE)
-                    ZONE_ERROR("trying to implant nonexistent mob");
-                break;
-            }
-            last_cmd = LAST_CMD_FAILURE;
-            tobj = real_object_proto(zonecmd->arg1);
-            if (tobj != NULL &&
-                tobj->shared->number - tobj->shared->number < zonecmd->arg2) {
-                if (zonecmd->arg3 < 0 || zonecmd->arg3 >= NUM_WEARS) {
-                    ZONE_ERROR("invalid implant pos number");
-                } else if (!CAN_WEAR(tobj, wear_bitvectors[zonecmd->arg3])) {
-                    ZONE_ERROR("invalid implant pos for obj");
-                } else if (GET_IMPLANT(mob, zonecmd->arg3)) {
-                    ZONE_ERROR("char already implanted in position");
-                } else {
-                    obj = read_object(zonecmd->arg1);
-                    obj->creation_method = CREATED_ZONE;
-                    obj->creator = zone->number;
-                    randomize_object(obj);
-                    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                        SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-                        GET_OBJ_TIMER(obj) = 60;
-                    }
-                    if (equip_char(mob, obj, zonecmd->arg3, EQUIP_IMPLANT)) {
-                        mob = NULL;
-                        last_cmd = LAST_CMD_FAILURE;
-                    } else
-                        last_cmd = LAST_CMD_SUCCESS;
-                }
-            }
-            break;
-        case 'W':
-            if (!mob) {
-                if (last_cmd == LAST_CMD_FAILURE)
-                    ZONE_ERROR("trying to assign path to nonexistent mob");
-                last_cmd = LAST_CMD_FAILURE;
-                break;
-            }
-            if (!path_vnum_exists(zonecmd->arg1)) {
-                ZONE_ERROR("invalid path vnum");
-                break;
-            }
-            if (!add_path_to_mob(mob, zonecmd->arg1)) {
-                ZONE_ERROR("unable to attach path to mob");
-            } else
-                last_cmd = LAST_CMD_SUCCESS;
-            break;
-
-        case 'R':              /* rem obj from room */
-            room = real_room(zonecmd->arg2);
-            if (room &&
-                (obj = get_obj_in_list_num(zonecmd->arg1, room->contents)) &&
-                !ROOM_FLAGGED(room, ROOM_HOUSE)) {
-                obj_from_room(obj);
-                extract_obj(obj);
-                last_cmd = LAST_CMD_SUCCESS;
-                prob_override = true;
-            } else
-                last_cmd = LAST_CMD_FAILURE;
-
-            break;
-
-        case 'D':              /* set state of door */
-            room = real_room(zonecmd->arg1);
-            if (!room || zonecmd->arg2 < 0 || zonecmd->arg2 >= NUM_OF_DIRS ||
-                (room->dir_option[zonecmd->arg2] == NULL)) {
-                ZONE_ERROR("door does not exist");
-            } else {
-                int dir = zonecmd->arg2;
-                if (IS_SET(zonecmd->arg3, DOOR_OPEN)) {
-                    REMOVE_BIT(room->dir_option[dir]->exit_info,
-                               EX_LOCKED);
-                    REMOVE_BIT(room->dir_option[dir]->exit_info,
-                               EX_CLOSED);
-                }
-                if (IS_SET(zonecmd->arg3, DOOR_CLOSED)) {
-                    SET_BIT(room->dir_option[dir]->exit_info,
-                            EX_CLOSED);
-                    REMOVE_BIT(room->dir_option[dir]->exit_info,
-                               EX_LOCKED);
-                }
-                if (IS_SET(zonecmd->arg3, DOOR_LOCKED)) {
-                    SET_BIT(room->dir_option[dir]->exit_info,
-                            EX_LOCKED);
-                    SET_BIT(room->dir_option[dir]->exit_info,
-                            EX_CLOSED);
-                }
-                if (IS_SET(zonecmd->arg3, DOOR_HIDDEN)) {
-                    SET_BIT(room->dir_option[dir]->exit_info,
-                            EX_HIDDEN);
-                }
-                // Only heal doors that were completely busted.
-                if (room->dir_option[dir]->damage == 0) {
-                    room->dir_option[dir]->maxdam = calc_door_strength(room, dir);
-                    room->dir_option[dir]->damage = room->dir_option[dir]->maxdam;
-                }
-                last_cmd = LAST_CMD_SUCCESS;
-            }
-            break;
-
-        default:
-            ZONE_ERROR("unknown cmd in reset table! cmd disabled");
-            zonecmd->command = '*';
-            break;
-        }
+        execute_zone_cmd(zonecmd, &state);
     }
 
     zone->age = 0;
 
     /* reset all search status */
-    for (room = zone->world; room; room = room->next)
-        for (srch = room->search; srch; srch = srch->next)
+    for (struct room_data *room = zone->world; room; room = room->next)
+        for (struct special_search_data *srch = room->search; srch; srch = srch->next)
             REMOVE_BIT(srch->flags, SRCH_TRIPPED);
 }
 
