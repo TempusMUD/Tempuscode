@@ -1,6 +1,7 @@
 #ifndef __TESTING__
 #define __TESTING__
 
+const char *test_path(char *relpath);
 void test_tempus_boot(void);
 
 struct creature *make_test_player(const char *acct_name, const char *char_name);

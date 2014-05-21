@@ -141,8 +141,8 @@ START_TEST(test_load_save_creature)
 
     randomize_creature(ch, CLASS_UNDEFINED);
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    tch = load_player_from_file("/tmp/test_player.xml");
+    save_player_to_file(ch, test_path("test_player.xml"));
+    tch = load_player_from_file(test_path("test_player.xml"));
 
     compare_creatures(ch, tch);
 
@@ -157,8 +157,8 @@ START_TEST(test_load_save_cyborg)
 
     randomize_creature(ch, CLASS_CYBORG);
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    tch = load_player_from_file("/tmp/test_player.xml");
+    save_player_to_file(ch, test_path("test_player.xml"));
+    tch = load_player_from_file(test_path("test_player.xml"));
 
     compare_creatures(ch, tch);
 
@@ -178,8 +178,8 @@ START_TEST(test_load_save_mage)
     ch->player_specials->saved.mana_shield_low = number(0, 100);
     ch->player_specials->saved.mana_shield_pct = number(0, 100);
 
-    save_player_to_file(ch, "/tmp/test_player_mage.xml");
-    tch = load_player_from_file("/tmp/test_player_mage.xml");
+    save_player_to_file(ch, test_path("test_player_mage.xml"));
+    tch = load_player_from_file(test_path("test_player_mage.xml"));
 
     compare_creatures(ch, tch);
 
@@ -202,8 +202,8 @@ START_TEST(test_load_save_immort)
     POOFIN(ch) = strdup("poofs in.");
     POOFOUT(ch) = strdup("poofs out.");
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    tch = load_player_from_file("/tmp/test_player.xml");
+    save_player_to_file(ch, test_path("test_player.xml"));
+    tch = load_player_from_file(test_path("test_player.xml"));
 
     compare_creatures(ch, tch);
 
@@ -224,8 +224,8 @@ START_TEST(test_load_save_title)
     randomize_creature(ch, CLASS_UNDEFINED);
     set_title(ch, " test title");
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    tch = load_player_from_file("/tmp/test_player.xml");
+    save_player_to_file(ch, test_path("test_player.xml"));
+    tch = load_player_from_file(test_path("test_player.xml"));
 
     compare_creatures(ch, tch);
 }
@@ -240,8 +240,8 @@ START_TEST(test_load_save_frozen)
     ch->player_specials->thaw_time = time(NULL) + number(0, 65535);
     ch->player_specials->freezer_id = number(0, 65535);
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    tch = load_player_from_file("/tmp/test_player.xml");
+    save_player_to_file(ch, test_path("test_player.xml"));
+    tch = load_player_from_file(test_path("test_player.xml"));
 
     compare_creatures(ch, tch);
 
@@ -261,11 +261,11 @@ START_TEST(test_load_save_objects_carried)
     obj_to_char(carried_item, ch);
     fail_unless(ch->char_specials.carry_weight == carried_item->obj_flags.weight);
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    save_player_objects_to_file(ch, "/tmp/test_items.xml");
+    save_player_to_file(ch, test_path("test_player.xml"));
+    save_player_objects_to_file(ch, test_path("test_items.xml"));
 
-    tch = load_player_from_file("/tmp/test_player.xml");
-    load_player_objects_from_file(tch, "/tmp/test_items.xml");
+    tch = load_player_from_file(test_path("test_player.xml"));
+    load_player_objects_from_file(tch, test_path("test_items.xml"));
 
     struct obj_data *obj_a = ch->carrying;
     struct obj_data *obj_b = tch->carrying;
@@ -298,11 +298,11 @@ START_TEST(test_load_save_objects_equipped)
     equip_char(ch, equipped_item, equipped_pos, EQUIP_WORN);
     fail_unless(ch->char_specials.worn_weight == equipped_item->obj_flags.weight);
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    save_player_objects_to_file(ch, "/tmp/test_items.xml");
+    save_player_to_file(ch, test_path("test_player.xml"));
+    save_player_objects_to_file(ch, test_path("test_items.xml"));
 
-    tch = load_player_from_file("/tmp/test_player.xml");
-    load_player_objects_from_file(tch, "/tmp/test_items.xml");
+    tch = load_player_from_file(test_path("test_player.xml"));
+    load_player_objects_from_file(tch, test_path("test_items.xml"));
 
     for (int i = 0;i < NUM_WEARS;i++) {
         struct obj_data *obj_a = GET_EQ(ch, i);
@@ -339,11 +339,11 @@ START_TEST(test_load_save_objects_implanted)
 
     equip_char(ch, implanted_item, equipped_pos, EQUIP_IMPLANT);
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    save_player_objects_to_file(ch, "/tmp/test_items.xml");
+    save_player_to_file(ch, test_path("test_player.xml"));
+    save_player_objects_to_file(ch, test_path("test_items.xml"));
 
-    tch = load_player_from_file("/tmp/test_player.xml");
-    load_player_objects_from_file(tch, "/tmp/test_items.xml");
+    tch = load_player_from_file(test_path("test_player.xml"));
+    load_player_objects_from_file(tch, test_path("test_items.xml"));
 
     for (int i = 0;i < NUM_WEARS;i++) {
         struct obj_data *obj_a = GET_IMPLANT(ch, i);
@@ -378,11 +378,11 @@ START_TEST(test_load_save_objects_tattooed)
 
     equip_char(ch, tattooed_item, equipped_pos, EQUIP_TATTOO);
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    save_player_objects_to_file(ch, "/tmp/test_items.xml");
+    save_player_to_file(ch, test_path("test_player.xml"));
+    save_player_objects_to_file(ch, test_path("test_items.xml"));
 
-    tch = load_player_from_file("/tmp/test_player.xml");
-    load_player_objects_from_file(tch, "/tmp/test_items.xml");
+    tch = load_player_from_file(test_path("test_player.xml"));
+    load_player_objects_from_file(tch, test_path("test_items.xml"));
 
     for (int i = 0;i < NUM_WEARS;i++) {
         struct obj_data *obj_a = GET_TATTOO(ch, i);
@@ -424,11 +424,11 @@ START_TEST(test_load_save_objects_contained)
 
     fail_unless(ch->char_specials.carry_weight == GET_OBJ_WEIGHT(carried_item));
 
-    save_player_to_file(ch, "/tmp/test_player.xml");
-    save_player_objects_to_file(ch, "/tmp/test_items.xml");
+    save_player_to_file(ch, test_path("test_player.xml"));
+    save_player_objects_to_file(ch, test_path("test_items.xml"));
 
-    tch = load_player_from_file("/tmp/test_player.xml");
-    load_player_objects_from_file(tch, "/tmp/test_items.xml");
+    tch = load_player_from_file(test_path("test_player.xml"));
+    load_player_objects_from_file(tch, test_path("test_items.xml"));
 
     struct obj_data *obj_a = ch->carrying;
     struct obj_data *obj_b = tch->carrying;
@@ -485,7 +485,7 @@ START_TEST(test_load_save_objects_affected)
 
     fail_unless(GET_OBJ_WEIGHT(obj_a) == orig_weight + 5);
 
-    ouf = fopen("/tmp/test_items.xml", "w");
+    ouf = fopen(test_path("test_items.xml"), "w");
     if (!ouf) {
         fail("Couldn't open file to save object");
         return;
@@ -497,7 +497,7 @@ START_TEST(test_load_save_objects_affected)
 
     fail_unless(GET_OBJ_WEIGHT(obj_a) == orig_weight + 5);
 
-    xmlDocPtr doc = xmlParseFile("/tmp/test_items.xml");
+    xmlDocPtr doc = xmlParseFile(test_path("test_items.xml"));
     if (!doc) {
         fail("Couldn't open file to load object");
         return;

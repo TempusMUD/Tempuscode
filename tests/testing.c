@@ -7,6 +7,8 @@
 #include <glib.h>
 #include <check.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <sys/types.h>
 
 #include "interpreter.h"
 #include "utils.h"
@@ -49,6 +51,18 @@ void boot_tongues(const char *path);
 void boot_spells(const char *path);
 void extract_creature(struct creature *ch, enum cxn_state con_state);
 void free_account(struct account *acct);
+
+const char *
+test_path(char *relpath)
+{
+    static char buf[PATH_MAX + 1];
+
+    snprintf(buf, sizeof(buf), "/tmp/tempustest-%s/", getenv("LOGNAME"));
+    (void)mkdir(buf, 0755);
+    strcat_s(buf, sizeof(buf), relpath);
+
+    return buf;
+}
 
 void
 test_tempus_boot(void)
