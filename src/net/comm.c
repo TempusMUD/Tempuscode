@@ -62,6 +62,7 @@
 #include "help.h"
 #include "editor.h"
 #include "ban.h"
+#include "paths.h"
 
 /* externs */
 extern struct help_collection *Help;
@@ -140,7 +141,6 @@ void mobile_spec(void);
 void burn_update(void);
 void dynamic_object_pulse();
 void flow_room(void);
-void path_activity();
 void editor(struct descriptor_data *d, char *buffer);
 void perform_violence(void);
 void show_string(struct descriptor_data *d);

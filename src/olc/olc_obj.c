@@ -59,7 +59,6 @@ int prototype_obj_value(struct obj_data *obj);
 int set_maxdamage(struct obj_data *obj);
 char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
 
-int add_path_to_vehicle(struct obj_data *obj, int vnum);
 int choose_material(struct obj_data *obj);
 
 struct extra_descr_data *locate_exdesc(char *word,

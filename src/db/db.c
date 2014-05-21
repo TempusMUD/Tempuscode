@@ -176,7 +176,6 @@ void parse_room(FILE * fl, int vnum_nr);
 void parse_mobile(FILE * mob_f, int nr);
 char *parse_object(FILE * obj_f, int nr);
 void load_zones(FILE * fl, char *zonename);
-void load_paths(void);
 void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);

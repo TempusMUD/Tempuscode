@@ -55,15 +55,14 @@
 #include "prog.h"
 #include "smokes.h"
 #include "strutil.h"
+#include "paths.h"
 
 /* external vars */
 extern struct descriptor_data *descriptor_list;
 
 /* external functions */
 long special(struct creature *ch, int cmd, int subcmd, char *arg,
-    enum special_mode spec_mode);
-void path_remove_object(void *object);
-void free_paths();
+             enum special_mode spec_mode);
 void free_socials();
 extern struct clan_data *clan_list;
 
