@@ -492,22 +492,21 @@ add_stalker(struct creature *ch, struct creature *leader)
 int
 get_line(FILE *fl, char *buf, size_t buf_size)
 {
-    char temp[256] = "";
     int lines = 0;
 
-    while (fgets(temp, 255, fl)) {
+    while (fgets(buf, buf_size, fl)) {
         lines++;
-        if (temp[0] && temp[0] != '*')
+        if (buf[0] && buf[0] != '*')
             break;
     }
     if (feof(fl))
         return 0;
 
-    char *c = strchr(temp, '\n');
-    if (c)
+    char *c = strchr(buf, '\n');
+    if (c) {
         *c = '\0';
+    }
 
-    strcpy_s(buf, buf_size, temp);
     return lines;
 }
 
