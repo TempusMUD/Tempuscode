@@ -1452,31 +1452,31 @@ ACMD(do_move)
     int dir = -1;
     char arg1[MAX_INPUT_LENGTH];
 
-    if (subcmd == SCMD_MOVE || subcmd == SCMD_JUMP || subcmd == SCMD_CRAWL) {
-        argument = one_argument(argument, arg1);
-        if (!*arg1) {
-            if (subcmd == SCMD_MOVE)
-                do_gen_points(ch, arg1, cmd, subcmd);
-            else
-                send_to_char(ch, "In which direction?\r\n");
-            return;
-        }
-        if ((dir = search_block(arg1, dirs, false)) < 0) {
-            send_to_char(ch, "'%s' is not a valid direction.\r\n", arg1);
-            return;
-        }
-        if (subcmd == SCMD_MOVE)
-            perform_move(ch, dir, MOVE_NORM, 1);
-        else if (subcmd == SCMD_JUMP)
-            perform_move(ch, dir, MOVE_JUMP, 1);
-        else if (subcmd == SCMD_CRAWL)
-            perform_move(ch, dir, MOVE_CRAWL, 1);
-        else {
-            send_to_char(ch, "This motion is not implenented.\r\n");
-            return;
-        }
+    if (subcmd != SCMD_MOVE && subcmd != SCMD_JUMP && subcmd != SCMD_CRAWL) {
+        perform_move(ch, cmd - 1, MOVE_NORM, 0);
+        return;
     }
-    perform_move(ch, cmd - 1, MOVE_NORM, 0);
+
+    argument = one_argument(argument, arg1);
+    if (!*arg1) {
+        if (subcmd == SCMD_MOVE)
+            do_gen_points(ch, arg1, cmd, subcmd);
+        else
+            send_to_char(ch, "In which direction?\r\n");
+        return;
+    }
+    if ((dir = search_block(arg1, dirs, false)) < 0) {
+        send_to_char(ch, "'%s' is not a valid direction.\r\n", arg1);
+        return;
+    }
+    switch (subcmd) {
+    case SCMD_MOVE:
+        perform_move(ch, dir, MOVE_NORM, 1); break;
+    case SCMD_JUMP:
+        perform_move(ch, dir, MOVE_JUMP, 1); break;
+    case SCMD_CRAWL:
+        perform_move(ch, dir, MOVE_CRAWL, 1); break;
+    }
 }
 
 int

@@ -1816,15 +1816,16 @@ SPECIAL(cave_bear)
 
 SPECIAL(weapon_lister)
 {
-    int dam, i, found = 0;
+    bool found = false;
     char buf3[MAX_STRING_LENGTH];
     unsigned int avg_dam[60];
 
     if (!CMD_IS("list"))
         return 0;
 
-    for (i = 0; i < 60; i++)
+    for (int i = 0; i < 60; i++) {
         avg_dam[i] = 0;
+    }
 
     strcpy_s(buf3, sizeof(buf3), "");
     GHashTableIter iter;
@@ -1840,17 +1841,20 @@ SPECIAL(weapon_lister)
         if (!OBJ_APPROVED(obj))
             continue;
 
-        for (i = 0, dam = 0; i < MAX_OBJ_AFFECT; i++)
-            if (obj->affected[i].location == APPLY_DAMROLL)
+        int dam = 0;
+        for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+            if (obj->affected[i].location == APPLY_DAMROLL) {
                 dam += obj->affected[i].modifier;
+            }
+        }
 
         sprintf(buf, "[%5d] %-30s %2dd%-2d", GET_OBJ_VNUM(obj),
-            obj->name, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
+                obj->name, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 
         if (dam > 0)
-            sprintf(buf, "%s+%-2d", buf, dam);
-        else if (dam > 0)
-            sprintf(buf, "%s-%-2d", buf, -dam);
+            snprintf(buf, sizeof(buf), "%s+%-2d", buf, dam);
+        else if (dam < 0)
+            snprintf(buf, sizeof(buf), "%s-%-2d", buf, -dam);
         else
             strcat_s(buf, sizeof(buf), "   ");
 
@@ -1870,11 +1874,12 @@ SPECIAL(weapon_lister)
         if (GET_OBJ_VAL(obj, 0))
             sprintf(buf, "%sCast:%s ", buf, spell_to_str(GET_OBJ_VAL(obj, 0)));
 
-        for (i = 0, found = 0; i < 3; i++)
+        found = false;
+        for (int i = 0; i < 3; i++)
             if (obj->obj_flags.bitvector[i]) {
                 if (!found)
                     strcat_s(buf, sizeof(buf), "Set: ");
-                found = 1;
+                found = true;
                 if (i == 0)
                     sprintbit(obj->obj_flags.bitvector[i], affected_bits, buf2, sizeof(buf2));
                 else if (i == 1)
@@ -1885,7 +1890,7 @@ SPECIAL(weapon_lister)
                 strcat_s(buf, sizeof(buf), " ");
             }
 
-        for (i = 0; i < MAX_OBJ_AFFECT; i++)
+        for (int i = 0; i < MAX_OBJ_AFFECT; i++)
             if (obj->affected[i].location && obj->affected[i].modifier &&
                 obj->affected[i].location != APPLY_DAMROLL)
                 sprintf(buf, "%s%s%s%d ", buf,
@@ -1899,7 +1904,7 @@ SPECIAL(weapon_lister)
 
     strcat_s(buf3, sizeof(buf3), "\r\n\r\n");
 
-    for (i = 0; i < 60; i++)
+    for (int i = 0; i < 60; i++)
         sprintf(buf3, "%s%2d -- [ %2d] weapons\r\n", buf3, i, avg_dam[i]);
 
     page_string(ch->desc, buf3);

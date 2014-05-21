@@ -33,35 +33,32 @@ SPECIAL(watchdog)
 
     indignation++;
 
-    if (vict) {
-        switch (number(0, 4)) {
-        case 0:
-            act("$n growls menacingly at $N.", false, dog, NULL, vict,
-                TO_NOTVICT);
-            act("$n growls menacingly at you.", false, dog, NULL, vict, TO_VICT);
-            break;
-        case 1:
-            act("$n barks loudly at $N.", false, dog, NULL, vict, TO_NOTVICT);
-            act("$n barks loudly at you.", false, dog, NULL, vict, TO_VICT);
-            break;
-        case 2:
-            act("$n growls at $N.", false, dog, NULL, vict, TO_NOTVICT);
-            act("$n growls at you.", false, dog, NULL, vict, TO_VICT);
-            break;
-        case 3:
-            act("$n snarls at $N.", false, dog, NULL, vict, TO_NOTVICT);
-            act("$n snarls at you.", false, dog, NULL, vict, TO_VICT);
-            break;
-        default:
-            break;
-        }
-
-        if (indignation > (GET_CHA(vict) / 4)) {
-            hit(dog, vict, TYPE_UNDEFINED);
-            indignation = 0;
-            vict = NULL;
-        }
-        return 1;
+    switch (number(0, 4)) {
+    case 0:
+        act("$n growls menacingly at $N.", false, dog, NULL, vict,
+            TO_NOTVICT);
+        act("$n growls menacingly at you.", false, dog, NULL, vict, TO_VICT);
+        break;
+    case 1:
+        act("$n barks loudly at $N.", false, dog, NULL, vict, TO_NOTVICT);
+        act("$n barks loudly at you.", false, dog, NULL, vict, TO_VICT);
+        break;
+    case 2:
+        act("$n growls at $N.", false, dog, NULL, vict, TO_NOTVICT);
+        act("$n growls at you.", false, dog, NULL, vict, TO_VICT);
+        break;
+    case 3:
+        act("$n snarls at $N.", false, dog, NULL, vict, TO_NOTVICT);
+        act("$n snarls at you.", false, dog, NULL, vict, TO_VICT);
+        break;
+    default:
+        break;
     }
-    return 0;
+
+    if (indignation > (GET_CHA(vict) / 4)) {
+        hit(dog, vict, TYPE_UNDEFINED);
+        indignation = 0;
+        vict = NULL;
+    }
+    return 1;
 }

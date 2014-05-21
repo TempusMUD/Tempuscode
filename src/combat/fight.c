@@ -642,7 +642,6 @@ damage_eq(struct creature *ch, struct obj_data *obj, int eq_dam, int type)
 {
     struct creature *vict = NULL;
     struct obj_data *inobj = NULL, *next_obj = NULL;
-    struct quest *quest;
 
     /* test to see if item should take damage */
     if (IS_OBJ_TYPE(obj, ITEM_MONEY)

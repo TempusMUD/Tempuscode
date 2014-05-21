@@ -6,8 +6,6 @@
 
 SPECIAL(rat_mama)
 {
-    struct creature *rat;
-    int i;
     int rat_rooms[] = {
         2940,
         2941,
@@ -18,30 +16,36 @@ SPECIAL(rat_mama)
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
         return 0;
     if (cmd || is_fighting(ch) || GET_POSITION(ch) == POS_FIGHTING)
-        return (0);
+        return 0;
 
-    for (i = 0; i != -1; i++) {
-        for (GList *it = first_living(real_room(rat_rooms[i])->people); it;
-             it = next_living(it)) {
-                 struct creature *tch = it->data;
-             if (!number(0, 1) == 0 && IS_NPC(tch)
-                 && isname("rat", tch->player.name)) {
-                 act("$n climbs into a hole in the wall.", false, tch, NULL, NULL,
-                     TO_ROOM);
-                 char_from_room(tch, true);
-                 creature_purge(tch, true);
-                 return true;
-            }
+    for (int i = 0; rat_rooms[i] != -1; i++) {
+        struct room_data *room = real_room(rat_rooms[i]);
+        if (room == NULL) {
+            errlog("Invalid room %d in rat_mama special", rat_rooms[i]);
+            continue;
         }
-        if (real_room(rat_rooms[i])->people && !number(0, 1)) {
-            rat = read_mobile(number(4206, 4208));
-            if (rat == NULL) {
-                return false;
+        for (GList *it = first_living(room->people); it; it = next_living(it)) {
+            struct creature *tch = it->data;
+            if (number(0, 1) == 0
+                || IS_PC(tch)
+                || !isname("rat", tch->player.name)) {
+                continue;
             }
-            char_to_room(rat, real_room(rat_rooms[i]), false);
+
+            act("$n climbs into a hole in the wall.", false, tch, NULL, NULL,
+                TO_ROOM);
+            char_from_room(tch, true);
+            creature_purge(tch, true);
+        }
+
+        if (room->people && !number(0, 1)) {
+            struct creature *rat = read_mobile(number(4206, 4208));
+            if (rat == NULL) {
+                continue;
+            }
+            char_to_room(rat, room, false);
             act("$n climbs out of a hole in the wall.", false, rat, NULL, NULL,
                 TO_ROOM);
-            return true;
         }
     }
     return false;
