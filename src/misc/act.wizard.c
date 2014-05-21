@@ -776,9 +776,6 @@ do_stat_memory(struct creature *ch)
             sum += sizeof(struct affected_type);
             af = af->next;
         }
-        if (desc) {
-            sum += sizeof(struct descriptor_data);
-        }
         fol = mob->followers;
         while (fol) {
             sum += sizeof(struct follow_type);
@@ -803,6 +800,7 @@ do_stat_memory(struct creature *ch)
             sum += sizeof(struct affected_type);
             af = af->next;
         }
+        desc = chars->desc;
         if (desc) {
             sum += sizeof(struct descriptor_data);
         }
