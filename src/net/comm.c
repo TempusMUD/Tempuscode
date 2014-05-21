@@ -227,7 +227,7 @@ init_socket(int port)
 #endif
     hints.ai_socktype = SOCK_STREAM;
     hints.ai_flags = AI_PASSIVE | AI_NUMERICSERV;
-    sprintf(portstr, "%d", port);
+    snprintf(portstr, sizeof(portstr), "%d", port);
     err = getaddrinfo(NULL, portstr, &hints, &info);
     if (err != 0) {
         fprintf(stderr, "init_socket(): %s\n", gai_strerror(err));
@@ -404,7 +404,7 @@ update_shutdown_timer(__attribute__ ((unused)) gpointer data)
     else if (shutdown_count == 30)
         send_to_all(":: Tempus REBOOT in 30 seconds ::\r\n");
     else if (shutdown_count && !(shutdown_count % 60)) {
-        sprintf(buf, ":: Tempus REBOOT in %d minute%s ::\r\n",
+        snprintf(buf, sizeof(buf), ":: Tempus REBOOT in %d minute%s ::\r\n",
                 shutdown_count / 60, shutdown_count == 60 ? "" : "s");
         send_to_all(buf);
     } else if (shutdown_count <= 0) {

@@ -60,13 +60,13 @@ SPECIAL(underworld_goddess)
         /* And maybe say something nice! */
         switch (number(0, 7)) {
         case 0:
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "The goddess tells you, 'You are a fool to fight me %s.'\r\n",
                 GET_NAME(vict));
             send_to_char(vict, "%s", buf);
             break;
         case 1:
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "The goddess tells you, 'Fool!  Now watch yourself perish!'\r\n");
             send_to_char(vict, "%s", buf);
             break;

@@ -565,10 +565,10 @@ burn_update_creature(struct creature *ch)
             flesh->shared = null_obj_shared;
             flesh->in_room = NULL;
             flesh->aliases = strdup("decaying flesh hunk");
-            sprintf(desc, "A decaying hunk of %s's flesh is lying here.",
+            snprintf(desc, sizeof(desc), "A decaying hunk of %s's flesh is lying here.",
                 GET_NAME(ch));
             flesh->line_desc = strdup(desc);
-            sprintf(desc, "a decaying hunk of %s's flesh", GET_NAME(ch));
+            snprintf(desc, sizeof(desc), "a decaying hunk of %s's flesh", GET_NAME(ch));
             flesh->name = strdup(desc);
             GET_OBJ_TYPE(flesh) = ITEM_FOOD;
             GET_OBJ_WEAR(flesh) = ITEM_WEAR_TAKE;
@@ -1073,7 +1073,7 @@ helper_assist(struct creature *ch, struct creature *vict,
         if (IS_GUN(weap) && CHECK_SKILL(ch, SKILL_SHOOT) > 40 &&
             GUN_LOADED(weap)) {
             CUR_R_O_F(weap) = MAX_R_O_F(weap);
-            sprintf(buf, "%s ", fname(weap->aliases));
+            snprintf(buf, sizeof(buf), "%s ", fname(weap->aliases));
             strcat_s(buf, sizeof(buf), fname(vict->player.name));
             do_shoot(ch, buf, 0, 0);
             return 0;
@@ -1098,7 +1098,7 @@ mob_load_unit_gun(struct creature *ch, struct obj_data *clip,
     struct obj_data *gun, bool internal)
 {
     char loadbuf[1024];
-    sprintf(loadbuf, "%s %s", fname(clip->aliases),
+    snprintf(loadbuf, sizeof(loadbuf), "%s %s", fname(clip->aliases),
         internal ? "internal " : "");
     strcat_s(loadbuf, sizeof(loadbuf), fname(gun->aliases));
     do_load(ch, loadbuf, 0, SCMD_LOAD);
@@ -1136,7 +1136,7 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
     if (IS_GUN(gun)) {
         if (!MAX_LOAD(gun)) {   /** a gun that uses a clip **/
             if (gun->contains) {
-                sprintf(buf, "%s%s", internal ? "internal " : "",
+                snprintf(buf, sizeof(buf), "%s%s", internal ? "internal " : "",
                     fname(gun->aliases));
                 do_load(ch, buf, 0, SCMD_UNLOAD);
             }
@@ -1169,7 +1169,7 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
                     || !IS_OBJ_TYPE(cont, ITEM_CONTAINER) || CAR_CLOSED(cont))
                     continue;
                 if ((bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-                    sprintf(buf, "%s ", fname(bul->aliases));
+                    snprintf(buf, sizeof(buf), "%s ", fname(bul->aliases));
                     strcat_s(buf, sizeof(buf), fname(cont->aliases));
                     do_get(ch, buf, 0, 0);
                     mob_load_unit_gun(ch, bul, clip, false);
@@ -1183,7 +1183,7 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
                 if ((cont = GET_EQ(ch, i)) && IS_OBJ_TYPE(cont, ITEM_CONTAINER)
                     && !CAR_CLOSED(cont)
                     && (bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-                    sprintf(buf, "%s ", fname(bul->aliases));
+                    snprintf(buf, sizeof(buf), "%s ", fname(bul->aliases));
                     strcat_s(buf, sizeof(buf), fname(cont->aliases));
                     do_get(ch, buf, 0, 0);
                     mob_load_unit_gun(ch, bul, clip, false);
@@ -1213,7 +1213,7 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
                 || CAR_CLOSED(cont))
                 continue;
             if ((bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-                sprintf(buf, "%s ", fname(bul->aliases));
+                snprintf(buf, sizeof(buf), "%s ", fname(bul->aliases));
                 strcat_s(buf, sizeof(buf), fname(cont->aliases));
                 do_get(ch, buf, 0, 0);
                 mob_load_unit_gun(ch, bul, gun, internal);
@@ -1223,7 +1223,7 @@ mob_reload_gun(struct creature *ch, struct obj_data *gun)
             if ((cont = GET_EQ(ch, i)) && IS_OBJ_TYPE(cont, ITEM_CONTAINER) &&
                 !CAR_CLOSED(cont) &&
                 (bul = find_bullet(ch, GUN_TYPE(gun), cont->contains))) {
-                sprintf(buf, "%s ", fname(bul->aliases));
+                snprintf(buf, sizeof(buf), "%s ", fname(bul->aliases));
                 strcat_s(buf, sizeof(buf), fname(cont->aliases));
                 do_get(ch, buf, 0, 0);
                 mob_load_unit_gun(ch, bul, gun, internal);

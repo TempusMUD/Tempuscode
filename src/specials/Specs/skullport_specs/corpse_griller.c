@@ -64,13 +64,13 @@ SPECIAL(corpse_griller)
     if (!(steak = read_object(PROTOSTEAK)))
         return 0;
 
-    sprintf(buf, "a steak made from %s", corpse->name);
+    snprintf(buf, sizeof(buf), "a steak made from %s", corpse->name);
     steak->name = strdup(buf);
 
-    sprintf(buf, "steak meat %s", corpse->aliases);
+    snprintf(buf, sizeof(buf), "steak meat %s", corpse->aliases);
     steak->aliases = strdup(buf);
 
-    sprintf(buf, "%s is here.", steak->name);
+    snprintf(buf, sizeof(buf), "%s is here.", steak->name);
     steak->line_desc = strdup(buf);
 
     obj_to_char(steak, ch);

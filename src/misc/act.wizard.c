@@ -2375,7 +2375,7 @@ ACMD(do_shutdown)
             g_main_loop_quit(main_loop);
         } else {
             slog("(GC) Reboot in [%d] seconds by %s.", count, GET_NAME(ch));
-            sprintf(buf, "\007\007_ Tempus REBOOT in %d seconds ::\r\n",
+            snprintf(buf, sizeof(buf), "\007\007_ Tempus REBOOT in %d seconds ::\r\n",
                 count);
             send_to_all(buf);
             shutdown_idnum = GET_IDNUM(ch);
@@ -3638,19 +3638,19 @@ ACMD(do_wiznet)
 
     if ((subcmd == SCMD_IMMCHAT && level > LVL_AMBASSADOR) ||
         (subcmd == SCMD_WIZNET && level > LVL_IMMORT)) {
-        sprintf(buf1, "%s%s: <%d> %s\r\n", GET_NAME(ch),
+        snprintf(buf1, sizeof(buf1), "%s%s: <%d> %s\r\n", GET_NAME(ch),
             subcmd_desc, level, argument);
-        sprintf(buf2, "Someone%s: <%d> %s\r\n", subcmd_desc, level, argument);
+        snprintf(buf2, sizeof(buf2), "Someone%s: <%d> %s\r\n", subcmd_desc, level, argument);
     } else {
         if (emote) {
-            sprintf(buf1, "<%s> %s%s%s\r\n",
+            snprintf(buf1, sizeof(buf1), "<%s> %s%s%s\r\n",
                 subcmd_str, GET_NAME(ch),
                 (*argument != '\'') ? " " : "", argument);
-            sprintf(buf2, "<%s> Someone%s%s\r\n", subcmd_str,
+            snprintf(buf2, sizeof(buf2), "<%s> Someone%s%s\r\n", subcmd_str,
                 (*argument != '\'') ? " " : "", argument);
         } else {
-            sprintf(buf1, "%s%s: %s\r\n", GET_NAME(ch), subcmd_desc, argument);
-            sprintf(buf2, "Someone%s: %s\r\n", subcmd_desc, argument);
+            snprintf(buf1, sizeof(buf1), "%s%s: %s\r\n", GET_NAME(ch), subcmd_desc, argument);
+            snprintf(buf2, sizeof(buf2), "Someone%s: %s\r\n", subcmd_desc, argument);
         }
     }
 
@@ -3827,7 +3827,7 @@ ACMD(do_wizutil)
                 break;
             }
             if (GET_FREEZE_LEV(vict) > GET_LEVEL(ch)) {
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "Sorry, a level %d God froze %s... you can't unfreeze %s.\r\n",
                     GET_FREEZE_LEV(vict), GET_NAME(vict), HMHR(vict));
                 send_to_char(ch, "%s", buf);
@@ -3885,7 +3885,7 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
     if (prac_params[PRAC_TYPE][(int)GET_CLASS(vict)] != 1 ||
         (GET_REMORT_CLASS(vict) >= 0 &&
             prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(vict)] != 1)) {
-        sprintf(buf, "%s%s%s%s knows of the following %ss:%s\r\n", buf,
+        snprintf(buf, sizeof(buf), "%s%s%s%s knows of the following %ss:%s\r\n", buf,
             CCYEL(ch, C_CMP), PERS(vict, ch), CCBLD(ch, C_SPR),
             SPLSKL(vict), CCNRM(ch, C_SPR));
 
@@ -3897,9 +3897,9 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
                 strcat_s(buf2, sizeof(buf2), "**OVERFLOW**\r\n");
                 break;
             }
-            sprintf(buf3, "%s[%3d]", CCYEL(ch, C_NRM), GET_SKILL(vict, i));
+            snprintf(buf3, sizeof(buf3), "%s[%3d]", CCYEL(ch, C_NRM), GET_SKILL(vict, i));
             if (should_display_skill(vict, i)) {
-                sprintf(buf, "%s%3d.%-20s %s%-17s%s %s(%3d mana)%s\r\n",
+                snprintf(buf, sizeof(buf), "%s%3d.%-20s %s%-17s%s %s(%3d mana)%s\r\n",
                     CCGRN(ch, C_NRM), i, spell_to_str(i), CCBLD(ch, C_SPR),
                     how_good(GET_SKILL(vict, i)),
                     GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCRED(ch, C_SPR),
@@ -3907,11 +3907,11 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
                 strcat_s(buf2, sizeof(buf2), buf);
             }
         }
-        sprintf(buf3, "\r\n%s%s knows of the following skills:%s\r\n",
+        snprintf(buf3, sizeof(buf3), "\r\n%s%s knows of the following skills:%s\r\n",
             CCYEL(ch, C_CMP), PERS(vict, ch), CCNRM(ch, C_SPR));
         strcat_s(buf2, sizeof(buf2), buf3);
     } else {
-        sprintf(buf, "%s%s%s knows of the following skills:%s\r\n",
+        snprintf(buf, sizeof(buf), "%s%s%s knows of the following skills:%s\r\n",
             buf, CCYEL(ch, C_CMP), PERS(vict, ch), CCNRM(ch, C_SPR));
         strcpy_s(buf2, sizeof(buf2), buf);
     }
@@ -3922,10 +3922,10 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
             strcat_s(buf2, sizeof(buf2), "**OVERFLOW**\r\n");
             break;
         }
-        sprintf(buf3, "%s[%3d]%s",
+        snprintf(buf3, sizeof(buf3), "%s[%3d]%s",
             CCYEL(ch, C_NRM), GET_SKILL(vict, i), CCNRM(ch, NRM));
         if (should_display_skill(vict, i)) {
-            sprintf(buf, "%s%3d.%-20s %s%-17s%s%s\r\n",
+            snprintf(buf, sizeof(buf), "%s%3d.%-20s %s%-17s%s%s\r\n",
                     CCGRN(ch, C_NRM), i, spell_to_str(i), CCBLD(ch, C_SPR),
                     how_good(GET_SKILL(vict, i)),
                     GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "",
@@ -4147,17 +4147,17 @@ show_player(struct creature *ch, const char *value)
     if (GET_REMORT_GEN(vict) <= 0) {
         remort_desc[0] = '\0';
     } else {
-        sprintf(remort_desc, "/%s",
+        snprintf(remort_desc, sizeof(remort_desc), "/%s",
                 char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
     }
-    sprintf(buf, "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d",
+    snprintf(buf, sizeof(buf), "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d",
         GET_IDNUM(vict), GET_NAME(vict),
         player_account_by_idnum(GET_IDNUM(vict)),
         genders[(int)GET_SEX(vict)], GET_LEVEL(vict),
         race_name_by_idnum(GET_RACE(vict)), char_class_abbrevs[GET_CLASS(vict)],
         remort_desc, GET_REMORT_GEN(vict));
-    sprintf(buf, "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
-    sprintf(buf,
+    snprintf(buf, sizeof(buf), "%s  Rent: Unknown%s\r\n", buf, CCNRM(ch, C_NRM));
+    snprintf(buf, sizeof(buf),
         "%sAu: %'-8" PRId64 "  Cr: %'-8" PRId64 "  Past: %'-8" PRId64 "  Fut: %'-8" PRId64 "\r\n",
         buf, GET_GOLD(vict), GET_CASH(vict),
         GET_PAST_BANK(vict), GET_FUTURE_BANK(vict));
@@ -4171,17 +4171,17 @@ show_player(struct creature *ch, const char *value)
         strcpy_s(last_login, sizeof(last_login), ctime(&vict->player.time.logon));
         memmove(birth + 16, birth + 19, strlen(birth + 19) + 1);
     }
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%sStarted: %-22.21s Last: %-22.21s Played: %3dh %2dm\r\n",
         buf, birth, last_login, (int)(vict->player.time.played / 3600),
         (int)(vict->player.time.played / 60 % 60));
 
     if (IS_SET(vict->char_specials.saved.act, PLR_FROZEN))
-        sprintf(buf, "%s%s%s is FROZEN!%s\r\n", buf, CCCYN(ch, C_NRM),
+        snprintf(buf, sizeof(buf), "%s%s%s is FROZEN!%s\r\n", buf, CCCYN(ch, C_NRM),
             GET_NAME(vict), CCNRM(ch, C_NRM));
 
     if (IS_SET(vict->player_specials->saved.plr2_bits, PLR2_BURIED))
-        sprintf(buf, "%s%s%s is BURIED!%s\r\n", buf, CCGRN(ch, C_NRM),
+        snprintf(buf, sizeof(buf), "%s%s%s is BURIED!%s\r\n", buf, CCGRN(ch, C_NRM),
             GET_NAME(vict), CCNRM(ch, C_NRM));
 
     send_to_char(ch, "%s", buf);
@@ -4201,11 +4201,11 @@ show_zoneusage(struct creature *ch, char *value)
         i = -2;
     else
         i = atoi(value);
-    sprintf(buf, "ZONE USAGE RECORD:\r\n");
+    snprintf(buf, sizeof(buf), "ZONE USAGE RECORD:\r\n");
     for (zone = zone_table; zone; zone = zone->next) {
         if ((i >= 0 && i != zone->number) || (i == -2 && !zone->num_players))
             continue;
-        sprintf(buf,
+        snprintf(buf, sizeof(buf),
             "%s[%s%3d%s] %s%-30s%s %s[%s%6d%s]%s acc, [%3d] idle  Owner: %s%s%s\r\n",
             buf, CCYEL(ch, C_NRM), zone->number, CCNRM(ch, C_NRM), CCCYN(ch,
                 C_NRM), zone->name, CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
@@ -5205,7 +5205,7 @@ ACMD(do_show)
         for (zone = zone_table; zone; zone = zone->next)
             for (j = 0, room = zone->world; room; room = room->next)
                 if (IS_SET(ROOM_FLAGS(room), ROOM_DEATH)) {
-                    sprintf(buf, "%s%2d: %s[%5d]%s %s%s", buf, ++j,
+                    snprintf(buf, sizeof(buf), "%s%2d: %s[%5d]%s %s%s", buf, ++j,
                         CCRED(ch, C_NRM), room->number, CCCYN(ch, C_NRM),
                         room->name, CCNRM(ch, C_NRM));
                     if (room->contents)
@@ -5306,13 +5306,13 @@ ACMD(do_show)
             act("$n has attempted to examine your aliases.", false, ch, NULL,
                 vict, TO_VICT);
         } else {                /* no argument specified -- list currently defined aliases */
-            sprintf(buf, "Currently defined aliases for %s:\r\n",
+            snprintf(buf, sizeof(buf), "Currently defined aliases for %s:\r\n",
                 GET_NAME(vict));
             if ((a = GET_ALIASES(vict)) == NULL)
                 strcat_s(buf, sizeof(buf), " None.\r\n");
             else {
                 while (a != NULL) {
-                    sprintf(buf, "%s%s%-15s%s %s\r\n", buf, CCCYN(ch, C_NRM),
+                    snprintf(buf, sizeof(buf), "%s%s%-15s%s %s\r\n", buf, CCCYN(ch, C_NRM),
                         a->alias, CCNRM(ch, C_NRM), a->replacement);
                     a = a->next;
                 }
@@ -5344,7 +5344,7 @@ ACMD(do_show)
                     strcat_s(buf, sizeof(buf), "**OVERFLOW**\r\n");
                     break;
                 }
-                sprintf(buf, "%s%3d. [%5d] %s%-36s%s  (%s)\r\n", buf, i,
+                snprintf(buf, sizeof(buf), "%s%3d. [%5d] %s%-36s%s  (%s)\r\n", buf, i,
                     GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
                     obj->name, CCNRM(ch, C_NRM), obj->aliases);
                 i++;
@@ -5373,7 +5373,7 @@ ACMD(do_show)
                 else
                     j = (GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj));
 
-                sprintf(buf2, "%3d. [%5d] %s%-34s%s [%3d percent] %s\r\n",
+                snprintf(buf2, sizeof(buf2), "%3d. [%5d] %s%-34s%s [%3d percent] %s\r\n",
                     i, GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
                     obj->name,
                     CCNRM(ch, C_NRM),
@@ -5408,7 +5408,7 @@ ACMD(do_show)
     case 27:                   /* str_app */
         strcpy_s(buf, sizeof(buf), "STR      to_hit    to_dam    max_encum    max_weap\r\n");
         for (i = 0; i <= 50; i++) {
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%s%-5d     %2d         %2d         %4f          %2f\r\n",
                     buf,
                     i,
@@ -5429,16 +5429,16 @@ ACMD(do_show)
             send_to_char(ch, "That is not a valid time frame.\r\n");
             return;
         }
-        sprintf(buf, "TIME ZONES for: %s PRIME.\r\n", time_frames[i]);
+        snprintf(buf, sizeof(buf), "TIME ZONES for: %s PRIME.\r\n", time_frames[i]);
 
         /* j is hour mod index, i is time_frame value */
         for (j = -3, found = 0; j < 3; found = 0, j++) {
             for (zone = zone_table; zone; zone = zone->next) {
                 if (zone->time_frame == i && zone->hour_mod == j) {
                     if (!found)
-                        sprintf(buf, "%s\r\nTime zone (%d):\r\n", buf, j);
+                        snprintf(buf, sizeof(buf), "%s\r\nTime zone (%d):\r\n", buf, j);
                     ++found;
-                    sprintf(buf, "%s%3d. %25s   weather: [%d]\r\n", buf,
+                    snprintf(buf, sizeof(buf), "%s%3d. %25s   weather: [%d]\r\n", buf,
                         zone->number, zone->name, zone->weather->sky);
                 }
             }
@@ -5472,11 +5472,11 @@ ACMD(do_show)
             i++) {
 
             if (sfc_mode == SFC_OBJ && !real_object_proto(i))
-                sprintf(buf, "%s[%5d]\r\n", buf, i);
+                snprintf(buf, sizeof(buf), "%s[%5d]\r\n", buf, i);
             else if (sfc_mode == SFC_MOB && !real_mobile_proto(i))
-                sprintf(buf, "%s[%5d]\r\n", buf, i);
+                snprintf(buf, sizeof(buf), "%s[%5d]\r\n", buf, i);
             else if (sfc_mode == SFC_ROOM && !real_room(i))
-                sprintf(buf, "%s[%5d]\r\n", buf, i);
+                snprintf(buf, sizeof(buf), "%s[%5d]\r\n", buf, i);
         }
         page_string(ch->desc, buf);
         return;
@@ -5516,7 +5516,7 @@ ACMD(do_show)
                     break;
                 }
                 i++;
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "%s%4d. %s[%s%5d%s]%s %35s%s exp:[%9d] pct:%s[%s%3d%s]%s\r\n",
                     buf, i,
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -5553,7 +5553,7 @@ ACMD(do_show)
                     strcat_s(buf, sizeof(buf), "**OVERFOW**\r\n");
                     break;
                 }
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "%s%4d. %s[%s%5d%s] %40s%s Tot:[%4d], House:[%4d]\r\n",
                     buf, ++i, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                     GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
@@ -5582,7 +5582,7 @@ ACMD(do_show)
                if (strlen(buf) > MAX_STRING_LENGTH - 128)
                break;
 
-               sprintf(buf, "%s%3d: %s[%s%5d%s] %s%s%s\r\n", buf, ++i,
+               snprintf(buf, sizeof(buf), "%s%3d: %s[%s%5d%s] %s%s%s\r\n", buf, ++i,
                CCRED(ch, C_NRM),
                CCGRN(ch, C_NRM),
                vict->in_room->number,
@@ -5593,7 +5593,7 @@ ACMD(do_show)
 
                it = vict->getCombatList()->begin();
                for (; it != vict->getCombatList()->end(); ++it) {
-               sprintf(buf, "%s             - %s%s%s\r\n", buf,
+               snprintf(buf, sizeof(buf), "%s             - %s%s%s\r\n", buf,
                CCWHT(ch, C_NRM),
                GET_NAME(it->getOpponent()),
                CCNRM(ch, C_NRM));
@@ -5619,7 +5619,7 @@ ACMD(do_show)
             if (strlen(buf) > MAX_STRING_LENGTH - 128)
                 break;
 
-            sprintf(buf, "%s %3d. %28s --- %s [%d]\r\n", buf, ++i,
+            snprintf(buf, sizeof(buf), "%s %3d. %28s --- %s [%d]\r\n", buf, ++i,
                 GET_NAME(vict), vict->in_room->name, vict->in_room->number);
 
         }
@@ -5643,7 +5643,7 @@ ACMD(do_show)
             if (strlen(buf) > MAX_STRING_LENGTH - 128)
                 break;
 
-            sprintf(buf, "%s %3d. %23s [%5d] ---> %20s [%5d]\r\n", buf, ++i,
+            snprintf(buf, sizeof(buf), "%s %3d. %23s [%5d] ---> %20s [%5d]\r\n", buf, ++i,
                 GET_NAME(vict), vict->in_room->number,
                 GET_NAME(NPC_HUNTING(vict)),
                 NPC_HUNTING(vict)->in_room->number);
@@ -5656,7 +5656,7 @@ ACMD(do_show)
 
         strcpy_s(buf, sizeof(buf), "Last cmds:\r\n");
         for (i = 0; i < NUM_SAVE_CMDS; i++)
-            sprintf(buf, "%s %2d. (%4d) %25s - '%s'\r\n", buf,
+            snprintf(buf, sizeof(buf), "%s %2d. (%4d) %25s - '%s'\r\n", buf,
                 i, last_cmd[i].idnum, player_name_by_idnum(last_cmd[i].idnum),
                 last_cmd[i].string);
 
@@ -5693,12 +5693,12 @@ ACMD(do_show)
             k += i;             // number of duplicate rooms total;
             con += j;           // total length of duplicates in world;
             if (i) {
-                sprintf(buf, "%s [%3d] %s%-30s%s  %3d/%3d  %6d\r\n", buf,
+                snprintf(buf, sizeof(buf), "%s [%3d] %s%-30s%s  %3d/%3d  %6d\r\n", buf,
                     zone->number, CCCYN(ch, C_NRM), zone->name,
                     CCNRM(ch, C_NRM), i, num_rms, j);
             }
         }
-        sprintf(buf,
+        snprintf(buf, sizeof(buf),
             "%s------------------------------------------------------\r\n"
             " Totals:                              %4d/%3d  %6d\r\n", buf, k,
             tot_rms, con);
@@ -5710,11 +5710,11 @@ ACMD(do_show)
             send_to_char(ch, "You cannot see any such person.\r\n");
             return;
         }
-        sprintf(buf, "Weapon specialization for %s:\r\n", GET_NAME(vict));
+        snprintf(buf, sizeof(buf), "Weapon specialization for %s:\r\n", GET_NAME(vict));
         for (obj = NULL, i = 0; i < MAX_WEAPON_SPEC; i++, obj = NULL) {
             if (GET_WEAP_SPEC(vict, i).vnum > 0)
                 obj = real_object_proto(GET_WEAP_SPEC(vict, i).vnum);
-            sprintf(buf, "%s [%5d] %-30s [%2d]\r\n", buf,
+            snprintf(buf, sizeof(buf), "%s [%5d] %-30s [%2d]\r\n", buf,
                 GET_WEAP_SPEC(vict, i).vnum,
                 obj ? obj->name : "--- ---", GET_WEAP_SPEC(vict, i).level);
         }
@@ -6041,7 +6041,7 @@ ACMD(do_set)
         break;
     case 2:
         set_title(vict, argument);
-        sprintf(buf, "%s's title is now: %s", GET_NAME(vict), GET_TITLE(vict));
+        snprintf(buf, sizeof(buf), "%s's title is now: %s", GET_NAME(vict), GET_TITLE(vict));
         slog("%s has changed %s's title to : '%s'.", GET_NAME(ch),
             GET_NAME(vict), GET_TITLE(vict));
         break;
@@ -6188,12 +6188,12 @@ ACMD(do_set)
     case 28:
         if (!strcasecmp(argument, "off")) {
             GET_COND(vict, (l - 27)) = (char)-1;
-            sprintf(buf, "%s's %s now off.", GET_NAME(vict), fields[l].cmd);
+            snprintf(buf, sizeof(buf), "%s's %s now off.", GET_NAME(vict), fields[l].cmd);
         } else if (is_number(argument)) {
             value = atoi(argument);
             RANGE(0, 24);
             GET_COND(vict, (l - 27)) = (char)value;
-            sprintf(buf, "%s's %s set to %d.", GET_NAME(vict), fields[l].cmd,
+            snprintf(buf, sizeof(buf), "%s's %s set to %d.", GET_NAME(vict), fields[l].cmd,
                 value);
         } else {
             send_to_char(ch, "Must be 'off' or a value from 0 to 24.\r\n");
@@ -6280,10 +6280,10 @@ ACMD(do_set)
     case 36:
         if (real_room(value) != NULL) {
             GET_HOMEROOM(vict) = value;
-            sprintf(buf, "%s will enter at %d.", GET_NAME(vict),
+            snprintf(buf, sizeof(buf), "%s will enter at %d.", GET_NAME(vict),
                 GET_HOMEROOM(vict));
         } else
-            sprintf(buf, "That room does not exist!");
+            snprintf(buf, sizeof(buf), "That room does not exist!");
         break;
     case 37:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NODELETE);
@@ -6291,10 +6291,10 @@ ACMD(do_set)
     case 38:
         if (real_room(value) != NULL) {
             GET_LOADROOM(vict) = value;
-            sprintf(buf, "%s will enter the game at %d.", GET_NAME(vict),
+            snprintf(buf, sizeof(buf), "%s will enter the game at %d.", GET_NAME(vict),
                 GET_LOADROOM(vict));
         } else
-            sprintf(buf, "That room does not exist!");
+            snprintf(buf, sizeof(buf), "That room does not exist!");
         break;
     case 39:
         if ((i = parse_race(argument)) == RACE_UNDEFINED) {
@@ -6439,10 +6439,10 @@ ACMD(do_set)
         break;
     case 67:
         if (add_path_to_mob(vict, value)) {
-            sprintf(buf, "%s now follows the path titled: %s.",
+            snprintf(buf, sizeof(buf), "%s now follows the path titled: %s.",
                 GET_NAME(vict), argument);
         } else
-            sprintf(buf, "Could not assign that path to mobile.");
+            snprintf(buf, sizeof(buf), "Could not assign that path to mobile.");
         break;
     case 68:
         SET_OR_REMOVE(PLR_FLAGS(vict), PLR_NOPOST);
@@ -6532,7 +6532,7 @@ ACMD(do_set)
         // Convert to uppercase
         for (arg1 = BADGE(vict); *arg1; arg1++)
             *arg1 = toupper(*arg1);
-        sprintf(buf, "You set %s's badge to %s", GET_NAME(vict), BADGE(vict));
+        snprintf(buf, sizeof(buf), "You set %s's badge to %s", GET_NAME(vict), BADGE(vict));
 
         break;
 
@@ -6561,7 +6561,7 @@ ACMD(do_set)
                 return;
             } else {
                 SET_TONGUE(vict, i, value);
-                sprintf(buf, "You set %s's fluency in %s to %d",
+                snprintf(buf, sizeof(buf), "You set %s's fluency in %s to %d",
                     GET_NAME(vict), tongue_name(i), value);
             }
         } else {
@@ -6589,7 +6589,7 @@ ACMD(do_set)
             i = search_block(argument, rent_codes, false);
             if (i >= 0) {
                 vict->player_specials->rentcode = i;
-                sprintf(buf, "%s's rent code set to %s.",
+                snprintf(buf, sizeof(buf), "%s's rent code set to %s.",
                         GET_NAME(vict), rent_codes[i]);
             } else {
                 send_to_char(ch, "Valid rent codes are:\r\n");
@@ -6604,7 +6604,7 @@ ACMD(do_set)
         }
         break;
     default:
-        sprintf(buf, "Can't set that!");
+        snprintf(buf, sizeof(buf), "Can't set that!");
         break;
     }
 
@@ -6721,7 +6721,7 @@ ACMD(do_aset)
         break;
     case 5:
         account_set_password(account, argument);
-        sprintf(buf, "Password for account %s[%d] has been set.",
+        snprintf(buf, sizeof(buf), "Password for account %s[%d] has been set.",
             account->name, account->id);
         slog("(GC) %s set password for account %s[%d]",
             GET_NAME(ch), account->name, account->id);
@@ -6729,7 +6729,7 @@ ACMD(do_aset)
     case 6:
         free(account->email);
         account->email = strdup(argument);
-        sprintf(buf, "Email for account %s[%d] has been set to <%s>",
+        snprintf(buf, sizeof(buf), "Email for account %s[%d] has been set to <%s>",
             account->name, account->id, account->email);
         slog("(GC) %s set email for account %s[%d] to %s",
             GET_NAME(ch), account->name, account->id, account->email);
@@ -6738,7 +6738,7 @@ ACMD(do_aset)
         account->banned = on;
         break;
     default:
-        sprintf(buf, "Can't set that!");
+        snprintf(buf, sizeof(buf), "Can't set that!");
         break;
     }
 
@@ -7058,20 +7058,20 @@ ACMD(do_rename)
     }
 
     if (obj) {
-        sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch),
+        snprintf(logbuf, sizeof(logbuf), "%s has renamed %s '%s'.", GET_NAME(ch),
             obj->name, argument);
         obj->name = strdup(argument);
-        sprintf(buf, "%s has been left here.", argument);
+        snprintf(buf, sizeof(buf), "%s has been left here.", argument);
         strcpy_s(buf, sizeof(buf), CAP(buf));
         obj->line_desc = strdup(buf);
     } else if (vict) {
-        sprintf(logbuf, "%s has renamed %s '%s'.", GET_NAME(ch),
+        snprintf(logbuf, sizeof(logbuf), "%s has renamed %s '%s'.", GET_NAME(ch),
             GET_NAME(vict), argument);
         vict->player.short_descr = strdup(argument);
         if (GET_POSITION(vict) == POS_FLYING)
-            sprintf(buf, "%s is hovering here.", argument);
+            snprintf(buf, sizeof(buf), "%s is hovering here.", argument);
         else
-            sprintf(buf, "%s is standing here.", argument);
+            snprintf(buf, sizeof(buf), "%s is standing here.", argument);
         strcpy_s(buf, sizeof(buf), CAP(buf));
         vict->player.long_descr = strdup(buf);
     }
@@ -7137,7 +7137,7 @@ ACMD(do_addname)
                 continue;
             }
 
-            sprintf(buf, "%s ", new_name);
+            snprintf(buf, sizeof(buf), "%s ", new_name);
             strcat_s(buf, sizeof(buf), vict->player.name);
             vict->player.name = strdup(tmp_sprintf("%s %s",
                     vict->player.name, new_name));
@@ -7247,19 +7247,19 @@ ACMD(do_mudwipe)
 
     if (!strncasecmp(argument, "tempus clean", 12)) {
         mode = 0;
-        sprintf(buf, "Mud WIPE CLEAN called by %s.", GET_NAME(ch));
+        snprintf(buf, sizeof(buf), "Mud WIPE CLEAN called by %s.", GET_NAME(ch));
     } else if (!strncasecmp(argument, "tempus objects", 14)) {
         mode = 1;
-        sprintf(buf, "Mud WIPE objects called by %s.", GET_NAME(ch));
+        snprintf(buf, sizeof(buf), "Mud WIPE objects called by %s.", GET_NAME(ch));
     } else if (!strncasecmp(argument, "tempus mobiles", 14)) {
         mode = 2;
-        sprintf(buf, "Mud WIPE mobiles called by %s.", GET_NAME(ch));
+        snprintf(buf, sizeof(buf), "Mud WIPE mobiles called by %s.", GET_NAME(ch));
     } else if (!strncasecmp(argument, "tempus fullmobs", 15)) {
         mode = 3;
-        sprintf(buf, "Mud WIPE fullmobs called by %s.", GET_NAME(ch));
+        snprintf(buf, sizeof(buf), "Mud WIPE fullmobs called by %s.", GET_NAME(ch));
     } else if (!strncasecmp(argument, "tempus trails", 13)) {
         mode = 4;
-        sprintf(buf, "Mud WIPE trails called by %s.", GET_NAME(ch));
+        snprintf(buf, sizeof(buf), "Mud WIPE trails called by %s.", GET_NAME(ch));
     } else {
         send_to_char(ch, "Improper syntax.  Options are:\r\n"
             "objects, mobiles, fullmobs, or clean.\r\n");
@@ -7366,7 +7366,7 @@ ACMD(do_zonepurge)
         send_to_char(ch, "Zone %d cleared of %d objects.\r\n", zone->number,
             obj_count);
 
-        sprintf(buf, "(GC) %s %spurged zone %d (%s)", GET_NAME(ch),
+        snprintf(buf, sizeof(buf), "(GC) %s %spurged zone %d (%s)", GET_NAME(ch),
             subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
         if (subcmd != SCMD_OLC) {
             mudlog(GET_INVIS_LVL(ch),
@@ -7399,7 +7399,7 @@ ACMD(do_searchfor)
             obj_found = true;
 
 #ifdef TRACK_OBJS
-            sprintf(buf, "Object: %s [%s] %s", obj->name,
+            snprintf(buf, sizeof(buf), "Object: %s [%s] %s", obj->name,
                 obj->obj_flags.tracker.string,
                 ctime(&obj->obj_flags.tracker.lost_time));
 #else
@@ -8039,7 +8039,7 @@ ACMD(do_tester)
     case 9:                    /* maxhit */
     case 10:                   /* maxmana */
     case 11:                   /* maxmove */
-        sprintf(buf, "self %s %s", arg1, arg2);
+        snprintf(buf, sizeof(buf), "self %s %s", arg1, arg2);
         do_set(ch, buf, 0, SCMD_TESTER_SET);
         break;
     case 12:
@@ -8088,7 +8088,7 @@ ACMD(do_tester)
         do_set(ch, tmp_strdup("self cha 50"), 0, SCMD_TESTER_SET);
         break;
     default:
-        sprintf(buf, "$p: Invalid command '%s'.", arg1);
+        snprintf(buf, sizeof(buf), "$p: Invalid command '%s'.", arg1);
         send_to_char(ch, "%s", TESTER_UTIL_USAGE);
         break;
     }
@@ -8273,11 +8273,11 @@ ACMD(do_users)
         if (d->creature && STATE(d) == CXN_PLAYING &&
             (GET_LEVEL(d->creature) < GET_LEVEL(ch)
                 || GET_LEVEL(ch) >= LVL_LUCIFER))
-            sprintf(idletime, "%2d",
+            snprintf(idletime, sizeof(idletime), "%2d",
                 d->creature->char_specials.timer * SECS_PER_MUD_HOUR /
                 SECS_PER_REAL_MIN);
         else
-            sprintf(idletime, "%2d", d->idle);
+            snprintf(idletime, sizeof(idletime), "%2d", d->idle);
 
         if (!d->creature)
             char_name = "      -      ";

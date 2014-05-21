@@ -24,7 +24,7 @@ SPECIAL(kata)
         return 1;
     }
 
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "Thank you for rescuing me, %s!  I will be a loyal companion.",
         GET_NAME(ch));
     perform_say(kata, "say", buf);

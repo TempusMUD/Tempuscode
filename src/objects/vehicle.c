@@ -109,7 +109,7 @@ display_status(struct creature *ch, struct obj_data *car,
 
     send_to_char(ch, "You examine the instrument panel.\r\n");
     if (!number(0, 5)) {
-        sprintf(buf,
+        snprintf(buf, sizeof(buf),
             "%sThe %sinstrument %spanel %sblinks %sfor %sa %smoment%s.", QGRN,
             QBLU, QMAG, QYEL, QCYN, QYEL, QBLU, QNRM);
         act(buf, false, ch, NULL, NULL, TO_ROOM);
@@ -117,7 +117,7 @@ display_status(struct creature *ch, struct obj_data *car,
     send_to_char(ch,
         "\r\n%s<<<<<<<<%sSYSTEM STATUS UPDATE (%s)%s>>>>>>>>>%s\r\n", QRED,
         QNRM, car->name, QRED, QNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s*******************************************************%s\r\n",
         QBLU, QNRM);
     send_to_char(ch, "%s", buf);
@@ -125,7 +125,7 @@ display_status(struct creature *ch, struct obj_data *car,
     send_to_char(ch, "%sEngine State:%s    %s\r\n", QCYN, QNRM, buf2);
     sprintbit(DOOR_STATE(car), container_bits, buf2, sizeof(buf2));
     send_to_char(ch, "%sDoor State:%s      %s\r\n", QCYN, QNRM, buf2);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%sEnergy Status:%s   [%s%d / %d%s]%s\r\n"
         "%sHeadlights are:%s  %s\r\n"
         "%sDriver is:%s       %s\r\n"
@@ -246,28 +246,28 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
         CUR_ENERGY(engine) = MAX(0, CUR_ENERGY(engine) - energy_cost);
 
         if (IS_ENGINE_SET(engine, ENG_PETROL)) {
-            sprintf(lbuf, "$p leaves noisily to the %s.", dirs[dir]);
-            sprintf(abuf, "$p arrives noisily from %s.", from_dirs[dir]);
+            snprintf(lbuf, sizeof(lbuf), "$p leaves noisily to the %s.", dirs[dir]);
+            snprintf(abuf, sizeof(abuf), "$p arrives noisily from %s.", from_dirs[dir]);
         } else if (IS_ENGINE_SET(engine, ENG_ELECTRIC)) {
-            sprintf(lbuf, "$p hums off to the %s.", dirs[dir]);
-            sprintf(abuf, "$p hums in from %s.", from_dirs[dir]);
+            snprintf(lbuf, sizeof(lbuf), "$p hums off to the %s.", dirs[dir]);
+            snprintf(abuf, sizeof(abuf), "$p hums in from %s.", from_dirs[dir]);
         } else {
-            sprintf(lbuf, "$p moves off to the %s.", dirs[dir]);
-            sprintf(abuf, "$p moves in from %s.", from_dirs[dir]);
+            snprintf(lbuf, sizeof(lbuf), "$p moves off to the %s.", dirs[dir]);
+            snprintf(abuf, sizeof(abuf), "$p moves in from %s.", from_dirs[dir]);
         }
     } else if (IS_BOAT(car)) {
-        sprintf(lbuf, "$p is rowed off to the %s.", dirs[dir]);
-        sprintf(abuf, "$p is rowed in from %s.", from_dirs[dir]);
+        snprintf(lbuf, sizeof(lbuf), "$p is rowed off to the %s.", dirs[dir]);
+        snprintf(abuf, sizeof(abuf), "$p is rowed in from %s.", from_dirs[dir]);
     } else {
-        sprintf(lbuf, "$p moves off to the %s.", dirs[dir]);
-        sprintf(abuf, "$p moves in from %s.", from_dirs[dir]);
+        snprintf(lbuf, sizeof(lbuf), "$p moves off to the %s.", dirs[dir]);
+        snprintf(abuf, sizeof(abuf), "$p moves in from %s.", from_dirs[dir]);
     }
     if (IS_SKYCAR(car)) {
-        sprintf(lbuf, "$p flies off to the %s.", dirs[dir]);
-        sprintf(abuf, "$p flies in from %s.", from_dirs[dir]);
+        snprintf(lbuf, sizeof(lbuf), "$p flies off to the %s.", dirs[dir]);
+        snprintf(abuf, sizeof(abuf), "$p flies in from %s.", from_dirs[dir]);
     } else if (IS_BOAT(car)) {
-        sprintf(lbuf, "$p sails off to the %s.", dirs[dir]);
-        sprintf(abuf, "$p sails in from %s.", from_dirs[dir]);
+        snprintf(lbuf, sizeof(lbuf), "$p sails off to the %s.", dirs[dir]);
+        snprintf(abuf, sizeof(abuf), "$p sails in from %s.", from_dirs[dir]);
     }
 
     act(lbuf, false, NULL, car, NULL, TO_ROOM | ACT_HIDECAR);
@@ -279,13 +279,13 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
 
     if (car->action_desc && OCAN_GO(car, dir) &&
         (other_rm = OEXIT(car, dir)->to_room) && other_rm->people) {
-        sprintf(buf, "%s %s.", car->action_desc, from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "%s %s.", car->action_desc, from_dirs[dir]);
         act(buf, false, other_rm->people->data, car, NULL, TO_ROOM);
         act(buf, false, other_rm->people->data, car, NULL, TO_CHAR);
     }
 
     if (ch) {
-        sprintf(buf, "$n drives $p %s.", dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n drives $p %s.", dirs[dir]);
         act(buf, false, ch, car, NULL, TO_ROOM);
 
         if (IS_SKYCAR(car))
@@ -299,7 +299,7 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
                 look_at_room(tch, car->in_room, 0);
         }
     } else if ((other_rm = real_room(ROOM_NUMBER(car))) && other_rm->people) {
-        sprintf(buf, "$p travels %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$p travels %s.", to_dirs[dir]);
         act(buf, false, other_rm->people->data, car, NULL, TO_ROOM);
         act(buf, false, other_rm->people->data, car, NULL, TO_CHAR);
     }

@@ -805,23 +805,23 @@ list_quest_players(struct creature *ch, struct quest *quest, char *outbuf, size_
 
             // see if we can see the locations of the players
             if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "%s  %2d. %-15s - %-10s %s[%5d] D%d/MK%d/PK%d %s\r\n", buf,
                     ++num_online, name, bitbuf, vict->in_room->name,
                     vict->in_room->number, player->deaths, player->mobkills,
                     player->pkills, vict->desc ? "" : "   (linkless)");
             } else if (QUEST_FLAGGED(quest, QUEST_WHOWHERE)) {
-                sprintf(buf, "%s  %2d. %-15s - %s\r\n", buf,
+                snprintf(buf, sizeof(buf), "%s  %2d. %-15s - %s\r\n", buf,
                     ++num_online, name, vict->in_room->name);
             } else {
-                sprintf(buf, "%s  %2d. %-15s - %-10s\r\n", buf, ++num_online,
+                snprintf(buf, sizeof(buf), "%s  %2d. %-15s - %-10s\r\n", buf, ++num_online,
                     name, bitbuf);
             }
 
         }
         // player is either offline or invisible
         else if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-            sprintf(buf2, "%s  %2d. %-15s - %-10s\r\n", buf2, ++num_offline,
+            snprintf(buf2, sizeof(buf2), "%s  %2d. %-15s - %-10s\r\n", buf2, ++num_offline,
                 name, bitbuf);
         }
     }
@@ -1045,12 +1045,12 @@ do_quest_join(struct creature *ch, char *argument)
     GET_QUEST(ch) = quest->vnum;
     crashsave(ch);
 
-    sprintf(buf, "joined quest %d '%s'.", quest->vnum, quest->name);
+    snprintf(buf, sizeof(buf), "joined quest %d '%s'.", quest->vnum, quest->name);
     qlog(ch, buf, QLOG_COMP, 0, true);
 
     send_to_char(ch, "You have joined quest '%s'.\r\n", quest->name);
 
-    sprintf(buf, "%s has joined the quest.", GET_NAME(ch));
+    snprintf(buf, sizeof(buf), "%s has joined the quest.", GET_NAME(ch));
     send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(ch), 0), QCOMM_ECHO);
 }
 
@@ -1136,7 +1136,7 @@ do_quest_info(struct creature *ch, char *argument)
     }
 
     timediff = time(NULL) - quest->started;
-    sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
+    snprintf(timestr_a, sizeof(timestr_a), "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
     time_t started = quest->started;
     timestr_s = asctime(localtime(&started));
@@ -1474,7 +1474,7 @@ do_qcontrol_options(struct creature *ch)
     while (1) {
         if (!qc_options[i].keyword)
             break;
-        sprintf(buf, "%s  %-15s %s\r\n", buf, qc_options[i].keyword,
+        snprintf(buf, sizeof(buf), "%s  %-15s %s\r\n", buf, qc_options[i].keyword,
             qc_options[i].usage);
         i++;
     }
@@ -1537,7 +1537,7 @@ do_qcontrol_mload(struct creature *ch, char *argument, int com)
     act("$n has created $N!", false, ch, NULL, mob, TO_ROOM);
     act("You create $N.", false, ch, NULL, mob, TO_CHAR);
 
-    sprintf(buf, "mloaded %s at %d.", GET_NAME(mob), ch->in_room->number);
+    snprintf(buf, sizeof(buf), "mloaded %s at %d.", GET_NAME(mob), ch->in_room->number);
     qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), true);
 
 }
@@ -1588,7 +1588,7 @@ do_qcontrol_loadroom(struct creature *ch, char *argument, int com)
     quest->loadroom = number;
     send_to_char(ch, "Okay, quest loadroom is now %d\r\n", number);
 
-    sprintf(buf, "%s set quest loadroom to: (%d)", GET_NAME(ch), number);
+    snprintf(buf, sizeof(buf), "%s set quest loadroom to: (%d)", GET_NAME(ch), number);
     qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), true);
 }
 
@@ -1678,7 +1678,7 @@ do_qcontrol_oload(struct creature *ch, char *argument, int com)
     act("$n has created $p!", false, ch, obj, NULL, TO_ROOM);
     act("You create $p.", false, ch, obj, NULL, TO_CHAR);
 
-    sprintf(buf, "loaded %s at %d.", obj->name, ch->in_room->number);
+    snprintf(buf, sizeof(buf), "loaded %s at %d.", obj->name, ch->in_room->number);
     qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), true);
 
 }
@@ -1779,7 +1779,7 @@ do_qcontrol_purge(struct creature *ch, char *argument)
             return;
         }
         act("$n disintegrates $N.", false, ch, NULL, vict, TO_NOTVICT);
-        sprintf(buf, "has purged %s at %d.",
+        snprintf(buf, sizeof(buf), "has purged %s at %d.",
             GET_NAME(vict), vict->in_room->number);
         qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_IMMORT), true);
         if (vict->desc) {
@@ -1829,7 +1829,7 @@ do_qcontrol_show(struct creature *ch, char *argument)
     if (quest->ended) {
 
         timediff = quest->ended - quest->started;
-        sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
+        snprintf(timestr_a, sizeof(timestr_a), "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
         time_t started = quest->started;
         timestr_e = asctime(localtime(&started));
@@ -1865,7 +1865,7 @@ do_qcontrol_show(struct creature *ch, char *argument)
     // quest is still active
 
     timediff = time(NULL) - quest->started;
-    sprintf(timestr_a, "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
+    snprintf(timestr_a, sizeof(timestr_a), "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
     acc_sprintf("Owner:  %-30s [%2d]\r\n"
         "Name:   %s\r\n"
@@ -2066,7 +2066,7 @@ do_qcontrol_add(struct creature *ch, char *argument, int com)
     send_to_char(vict, "%s has added you to quest %d.\r\n", GET_NAME(ch),
         quest->vnum);
 
-    sprintf(buf, "%s is now part of the quest.", GET_NAME(vict));
+    snprintf(buf, sizeof(buf), "%s is now part of the quest.", GET_NAME(vict));
     send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(vict), LVL_AMBASSADOR),
         QCOMM_ECHO);
 }
@@ -2144,7 +2144,7 @@ do_qcontrol_kick(struct creature *ch, char *argument, int com)
 
     send_to_char(ch, "%s kicked from quest %d.\r\n", vict_name, quest->vnum);
     if (vict) {
-        sprintf(buf, "kicked %s from quest %d '%s'.",
+        snprintf(buf, sizeof(buf), "kicked %s from quest %d '%s'.",
             vict_name, quest->vnum, quest->name);
         qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(vict), LVL_AMBASSADOR),
             true);
@@ -2152,15 +2152,15 @@ do_qcontrol_kick(struct creature *ch, char *argument, int com)
         send_to_char(vict, "%s kicked you from quest %d.\r\n",
             GET_NAME(ch), quest->vnum);
 
-        sprintf(buf, "%s has been kicked from the quest.", vict_name);
+        snprintf(buf, sizeof(buf), "%s has been kicked from the quest.", vict_name);
         send_to_quest(NULL, buf, quest, MAX(GET_INVIS_LVL(vict),
                 LVL_AMBASSADOR), QCOMM_ECHO);
     } else {
-        sprintf(buf, "kicked %s from quest %d '%s'.",
+        snprintf(buf, sizeof(buf), "kicked %s from quest %d '%s'.",
             vict_name, quest->vnum, quest->name);
         qlog(ch, buf, QLOG_BRIEF, LVL_AMBASSADOR, true);
 
-        sprintf(buf, "%s has been kicked from the quest.", vict_name);
+        snprintf(buf, sizeof(buf), "%s has been kicked from the quest.", vict_name);
         send_to_quest(NULL, buf, quest, LVL_AMBASSADOR, QCOMM_ECHO);
     }
 
@@ -2245,7 +2245,7 @@ do_qcontrol_flags(struct creature *ch, char *argument, int com)
         send_to_char(ch, "[%s] flags %s for quest %d.\r\n", buf2,
             state == 1 ? "added" : "removed", quest->vnum);
 
-        sprintf(buf, "%s [%s] flags for quest %d '%s'.",
+        snprintf(buf, sizeof(buf), "%s [%s] flags for quest %d '%s'.",
             state == 1 ? "added" : "removed", buf2, quest->vnum, quest->name);
         qlog(ch, buf, QLOG_COMP, LVL_AMBASSADOR, true);
     }
@@ -2271,7 +2271,7 @@ do_qcontrol_comment(struct creature *ch, char *argument, int com)
     if (!is_authorized(ch, EDIT_QUEST, quest))
         return;
 
-    sprintf(buf, "comments on quest %d '%s': %s",
+    snprintf(buf, sizeof(buf), "comments on quest %d '%s': %s",
         quest->vnum, quest->name, argument);
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
     send_to_char(ch, "Comment logged as '%s'", argument);
@@ -2303,9 +2303,9 @@ do_qcontrol_desc(struct creature *ch, char *argument, int com)
     act("$n begins to edit a quest description.\r\n", true, ch, NULL, NULL, TO_ROOM);
 
     if (quest->description) {
-        sprintf(buf, "began editing description of quest '%s'", quest->name);
+        snprintf(buf, sizeof(buf), "began editing description of quest '%s'", quest->name);
     } else {
-        sprintf(buf, "began writing description of quest '%s'", quest->name);
+        snprintf(buf, sizeof(buf), "began writing description of quest '%s'", quest->name);
     }
 
     start_editing_text(ch->desc, &quest->description, MAX_QUEST_DESC);
@@ -2334,9 +2334,9 @@ do_qcontrol_update(struct creature *ch, char *argument, int com)
         return;
 
     if (quest->description) {
-        sprintf(buf, "began editing update of quest '%s'", quest->name);
+        snprintf(buf, sizeof(buf), "began editing update of quest '%s'", quest->name);
     } else {
-        sprintf(buf, "began writing the update of quest '%s'", quest->name);
+        snprintf(buf, sizeof(buf), "began writing the update of quest '%s'", quest->name);
     }
 
     start_editing_text(ch->desc, &quest->updates, MAX_QUEST_UPDATE);
@@ -2403,7 +2403,7 @@ do_qcontrol_ban(struct creature *ch, char *argument, int com)
         } else {
             account_set_quest_banned(account, true);    //ban
 
-            sprintf(buf, "banned %s from all quests.", GET_NAME(vict));
+            snprintf(buf, sizeof(buf), "banned %s from all quests.", GET_NAME(vict));
             qlog(ch, buf, QLOG_COMP, 0, true);
 
             send_to_char(ch, "%s is now banned from all quests.\r\n",
@@ -2434,7 +2434,7 @@ do_qcontrol_ban(struct creature *ch, char *argument, int com)
             } else {
                 send_to_char(ch, "%s auto-kicked from quest.\r\n", arg1);
 
-                sprintf(buf, "auto-kicked %s from quest %d '%s'.",
+                snprintf(buf, sizeof(buf), "auto-kicked %s from quest %d '%s'.",
                     vict ? GET_NAME(vict) : arg1, quest->vnum, quest->name);
                 qlog(ch, buf, QLOG_COMP, 0, true);
             }
@@ -2450,7 +2450,7 @@ do_qcontrol_ban(struct creature *ch, char *argument, int com)
                 quest->name);
         }
 
-        sprintf(buf, "banned %s from quest %d '%s'.",
+        snprintf(buf, sizeof(buf), "banned %s from quest %d '%s'.",
             vict ? GET_NAME(vict) : arg1, quest->vnum, quest->name);
         qlog(ch, buf, QLOG_COMP, 0, true);
 
@@ -2518,7 +2518,7 @@ do_qcontrol_unban(struct creature *ch, char *argument, int com)
 
             account_set_quest_banned(account, false);   //unban
 
-            sprintf(buf, "unbanned %s from all quests.", GET_NAME(vict));
+            snprintf(buf, sizeof(buf), "unbanned %s from all quests.", GET_NAME(vict));
             qlog(ch, buf, QLOG_COMP, 0, true);
 
             send_to_char(ch, "%s unbanned from all quests.\r\n",
@@ -2550,7 +2550,7 @@ do_qcontrol_unban(struct creature *ch, char *argument, int com)
             return;
         }
 
-        sprintf(buf, "unbanned %s from %d quest '%s'.",
+        snprintf(buf, sizeof(buf), "unbanned %s from %d quest '%s'.",
             vict ? GET_NAME(vict) : arg1, quest->vnum, quest->name);
         qlog(ch, buf, QLOG_COMP, 0, true);
 
@@ -2583,7 +2583,7 @@ do_qcontrol_level(struct creature *ch, char *argument, int com)
 
     quest->owner_level = atoi(arg2);
 
-    sprintf(buf, "set quest %d '%s' access level to %d",
+    snprintf(buf, sizeof(buf), "set quest %d '%s' access level to %d",
         quest->vnum, quest->name, quest->owner_level);
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
     send_to_char(ch, "%s", buf);
@@ -2609,7 +2609,7 @@ do_qcontrol_minlev(struct creature *ch, char *argument, int com)
 
     quest->minlevel = MIN(LVL_GRIMP, MAX(0, atoi(arg2)));
 
-    sprintf(buf, "set quest %d '%s' minimum level to %d",
+    snprintf(buf, sizeof(buf), "set quest %d '%s' minimum level to %d",
         quest->vnum, quest->name, quest->minlevel);
 
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
@@ -2636,7 +2636,7 @@ do_qcontrol_maxlev(struct creature *ch, char *argument, int com)
 
     quest->maxlevel = MIN(LVL_GRIMP, MAX(0, atoi(arg2)));
 
-    sprintf(buf, "set quest %d '%s' maximum level to %d",
+    snprintf(buf, sizeof(buf), "set quest %d '%s' maximum level to %d",
         quest->vnum, quest->name, quest->maxlevel);
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
     send_to_char(ch, "%s", buf);
@@ -2662,7 +2662,7 @@ do_qcontrol_mingen(struct creature *ch, char *argument, int com)
 
     quest->mingen = MIN(10, MAX(0, atoi(arg2)));
 
-    sprintf(buf, "set quest %d '%s' minimum gen to %d",
+    snprintf(buf, sizeof(buf), "set quest %d '%s' minimum gen to %d",
         quest->vnum, quest->name, quest->mingen);
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
     send_to_char(ch, "%s", buf);
@@ -2688,7 +2688,7 @@ do_qcontrol_maxgen(struct creature *ch, char *argument, int com)
 
     quest->maxgen = MIN(10, MAX(0, atoi(arg2)));
 
-    sprintf(buf, "set quest %d '%s' maximum gen to %d",
+    snprintf(buf, sizeof(buf), "set quest %d '%s' maximum gen to %d",
         quest->vnum, quest->name, quest->maxgen);
     qlog(ch, buf, QLOG_NORM, LVL_AMBASSADOR, true);
     send_to_char(ch, "%s", buf);
@@ -2738,7 +2738,7 @@ do_qcontrol_mute(struct creature *ch, char *argument, int com)
 
     SET_BIT(player->flags, QP_MUTE);
 
-    sprintf(buf, "muted %s in %d quest '%s'.", arg1, quest->vnum, quest->name);
+    snprintf(buf, sizeof(buf), "muted %s in %d quest '%s'.", arg1, quest->vnum, quest->name);
     qlog(ch, buf, QLOG_COMP, 0, true);
 
     send_to_char(ch, "%s muted for quest %d.\r\n", arg1, quest->vnum);
@@ -2789,7 +2789,7 @@ do_qcontrol_unmute(struct creature *ch, char *argument, int com)
 
     REMOVE_BIT(player->flags, QP_MUTE);
 
-    sprintf(buf, "unmuted %s in quest %d '%s'.", arg1, quest->vnum,
+    snprintf(buf, sizeof(buf), "unmuted %s in quest %d '%s'.", arg1, quest->vnum,
         quest->name);
     qlog(ch, buf, QLOG_COMP, 0, true);
 
@@ -2918,13 +2918,13 @@ do_qcontrol_award(struct creature *ch, char *argument, int com)
         quest->awarded += award;
         crashsave(ch);
         crashsave(vict);
-        sprintf(buf, "awarded player %s %d qpoints.", GET_NAME(vict), award);
+        snprintf(buf, sizeof(buf), "awarded player %s %d qpoints.", GET_NAME(vict), award);
         send_to_char(vict, "Congratulations! You have been awarded %d qpoint%s!\r\n", award, PLURAL(award));
         send_to_char(ch, "You award %d qpoint%s.\r\n", award, PLURAL(award));
         qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
             true);
         if (*argument) {
-            sprintf(buf, "'s Award Comments: %s", argument);
+            snprintf(buf, sizeof(buf), "'s Award Comments: %s", argument);
             qlog(ch, buf, QLOG_COMP, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
                 true);
         }
@@ -3002,12 +3002,12 @@ do_qcontrol_penalize(struct creature *ch, char *argument, int com)
             GET_NAME(ch));
         send_to_char(ch, "%d quest points transferred from %s.\r\n", penalty,
             GET_NAME(vict));
-        sprintf(buf, "penalized player %s %d qpoints.", GET_NAME(vict),
+        snprintf(buf, sizeof(buf), "penalized player %s %d qpoints.", GET_NAME(vict),
             penalty);
         qlog(ch, buf, QLOG_BRIEF, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
             true);
         if (*argument) {
-            sprintf(buf, "'s Penalty Comments: %s", argument);
+            snprintf(buf, sizeof(buf), "'s Penalty Comments: %s", argument);
             qlog(ch, buf, QLOG_COMP, MAX(GET_INVIS_LVL(ch), LVL_AMBASSADOR),
                 true);
         }

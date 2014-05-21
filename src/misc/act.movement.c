@@ -697,20 +697,20 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
 
     if (mode == MOVE_JUMP) {
         if (!number(0, 1))
-            sprintf(buf, "$n jumps %sward.", dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n jumps %sward.", dirs[dir]);
         else
-            sprintf(buf, "$n takes a flying leap %sward.", dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n takes a flying leap %sward.", dirs[dir]);
     } else if (mode == MOVE_FLEE) {
-        sprintf(buf, "$n flees %sward.", dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n flees %sward.", dirs[dir]);
     } else if (mode == MOVE_RETREAT) {
-        sprintf(buf, "$n retreats %sward.", dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n retreats %sward.", dirs[dir]);
     } else if (mode == MOVE_CRAWL) {
-        sprintf(buf, "$n crawls slowly %sward.", dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n crawls slowly %sward.", dirs[dir]);
     } else if (GET_POSITION(ch) == POS_FLYING || room_is_open_air(ch->in_room)
         || room_is_open_air(EXIT(ch, dir)->to_room)) {
-        sprintf(buf, "$n flies %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n flies %s.", to_dirs[dir]);
     } else if (ch->in_room->sector_type == SECT_ASTRAL) {
-        sprintf(buf, "$n travels what seems to be %sward.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n travels what seems to be %sward.", to_dirs[dir]);
     } else if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM ||
         SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ||
         SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ||
@@ -723,78 +723,78 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
             && dir == DOWN)
             strcpy_s(buf, sizeof(buf), "$n disappears below the surface.");
         else if (IS_FISH(ch)) {
-            sprintf(buf, "$n swims %s.", to_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n swims %s.", to_dirs[dir]);
         } else {
             if (AFF_FLAGGED(ch, AFF_WATERWALK) &&
                 SECT_TYPE(ch->in_room) != SECT_UNDERWATER &&
                 SECT_TYPE(ch->in_room) != SECT_DEEP_OCEAN &&
                 SECT_TYPE(ch->in_room) != SECT_PITCH_SUB) {
-                sprintf(buf, "$n walks %s across the %s.", to_dirs[dir],
+                snprintf(buf, sizeof(buf), "$n walks %s across the %s.", to_dirs[dir],
                     SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ? "flames" :
                     SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ? "pitch" :
                     "water");
             } else if ((IS_DWARF(ch) ||
                     SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
                     SECT_TYPE(ch->in_room) == SECT_PITCH_PIT))
-                sprintf(buf, "$n struggles %s.", to_dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n struggles %s.", to_dirs[dir]);
             else
-                sprintf(buf, "$n swims %s.", to_dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n swims %s.", to_dirs[dir]);
         }
     } else if (SECT_TYPE(ch->in_room) == SECT_WATER_NOSWIM) {
         if (AFF_FLAGGED(ch, AFF_WATERWALK) && !IS_FISH(ch))
-            sprintf(buf, "$n walks %s across the water.", to_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n walks %s across the water.", to_dirs[dir]);
         else
-            sprintf(buf, "$n swims %s.", to_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n swims %s.", to_dirs[dir]);
     } else if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
-        sprintf(buf, "$n staggers %s, covered in flames.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n staggers %s, covered in flames.", to_dirs[dir]);
     } else if (GET_COND(ch, DRUNK) > GET_CON(ch) / 2) {
-        sprintf(buf, "$n staggers %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n staggers %s.", to_dirs[dir]);
     } else if (AFF_FLAGGED(ch, AFF_SNEAK)) {
-        sprintf(buf, "$n sneaks off %sward.", dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n sneaks off %sward.", dirs[dir]);
     } else if (IS_NPC(ch) && NPC_SHARED(ch)->move_buf) {
-        sprintf(buf, "$n %s off %s.", NPC_SHARED(ch)->move_buf, to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n %s off %s.", NPC_SHARED(ch)->move_buf, to_dirs[dir]);
     } else if (IS_DRAGON(ch)) {
-        sprintf(buf, "$n lumbers off %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n lumbers off %s.", to_dirs[dir]);
     } else if (IS_GIANT(ch)) {
-        sprintf(buf, "$n stomps off %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n stomps off %s.", to_dirs[dir]);
     } else if (IS_TABAXI(ch) && !number(0, 4)) {
-        sprintf(buf, "$n slinks off %sward.", dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n slinks off %sward.", dirs[dir]);
     } else if (GET_CLASS(ch) == CLASS_SNAKE ||
         (IS_NPC(ch) && GET_NPC_VNUM(ch) == 3066)) {
-        sprintf(buf, "$n slithers %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n slithers %s.", to_dirs[dir]);
     } else if ((IS_NPC(ch) && GET_NPC_VNUM(ch) == 3068) ||
         IS_LEMURE(ch) || IS_PUDDING(ch) || IS_SLIME(ch)) {
-        sprintf(buf, "$n oozes %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n oozes %s.", to_dirs[dir]);
     } else if (IS_GHOST(ch)) {
-        sprintf(buf, "$n drifts off %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n drifts off %s.", to_dirs[dir]);
     } else if (GET_CLASS(ch) == CLASS_TURTLE) {
-        sprintf(buf, "$n waddles %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n waddles %s.", to_dirs[dir]);
     } else if (IS_TARRASQUE(ch)) {
-        sprintf(buf, "$n rampages off %sward.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n rampages off %sward.", to_dirs[dir]);
     } else {
         if (is_fighting(ch))
-            sprintf(buf, "$n splits %s!", to_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n splits %s!", to_dirs[dir]);
         else if (GET_RACE(ch) != RACE_MOBILE && !IS_SPECTRE(ch) &&
             !IS_WRAITH(ch) && !IS_SHADOW(ch)) {
             if (SECT(ch->in_room) == SECT_ASTRAL ||
                 (!number(0, 3) && (SECT(ch->in_room) == SECT_ROAD)))
-                sprintf(buf, "$n travels %sward.", to_dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n travels %sward.", to_dirs[dir]);
             else if (!number(0, 3) && (SECT(ch->in_room) == SECT_CITY ||
                     SECT(ch->in_room) == SECT_INSIDE ||
                     SECT(ch->in_room) == SECT_ROAD))
-                sprintf(buf, "$n strolls %s.", to_dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n strolls %s.", to_dirs[dir]);
             else if (!number(0, 2))
-                sprintf(buf, "$n walks %s.", to_dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n walks %s.", to_dirs[dir]);
             else if (!number(0, 2))
-                sprintf(buf, "$n departs %sward.", dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n departs %sward.", dirs[dir]);
             else
-                sprintf(buf, "$n leaves %s.", to_dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n leaves %s.", to_dirs[dir]);
         } else
-            sprintf(buf, "$n leaves %s.", to_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n leaves %s.", to_dirs[dir]);
     }
 
     if (mount)
-        sprintf(buf + strlen(buf) - 1, ", carrying $N.");
+        snprintf(buf + strlen(buf) - 1, sizeof(buf + strlen(buf) - 1), ", carrying $N.");
     if (blur_msg) {
         if (mount && !AFF_FLAGGED(ch, AFF_BLUR))
             blur_msg = tmp_strcat(blur_msg, ", carrying $N.", NULL);
@@ -929,38 +929,38 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
 
     if (mode == MOVE_JUMP) {
         if (!number(0, 1))
-            sprintf(buf, "$n jumps in from %s.", from_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n jumps in from %s.", from_dirs[dir]);
         else
-            sprintf(buf, "$n leaps in from %s.", from_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n leaps in from %s.", from_dirs[dir]);
     } else if (mode == MOVE_FLEE) {
-        sprintf(buf, "$n runs in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n runs in from %s.", from_dirs[dir]);
     } else if (mode == MOVE_DRAG) {
-        sprintf(buf, "$n is dragged in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n is dragged in from %s.", from_dirs[dir]);
     } else if (mode == MOVE_CRAWL) {
-        sprintf(buf, "$n crawls slowly in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n crawls slowly in from %s.", from_dirs[dir]);
     } else if (GET_POSITION(ch) == POS_FLYING || room_is_open_air(ch->in_room)) {
         if (!AFF2_FLAGGED(ch, AFF2_ABLAZE))
-            sprintf(buf, "$n flies in from %s.", from_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n flies in from %s.", from_dirs[dir]);
         else
-            sprintf(buf, "$n flies in from %s, covered in flames.",
+            snprintf(buf, sizeof(buf), "$n flies in from %s, covered in flames.",
                 from_dirs[dir]);
     } else if (SECT_TYPE(ch->in_room) == SECT_ASTRAL) {
         if (!number(0, 1))
-            sprintf(buf, "$n moves into view from what might be %s.",
+            snprintf(buf, sizeof(buf), "$n moves into view from what might be %s.",
                 from_dirs[dir]);
         else
-            sprintf(buf, "$n arrives from what appears to be %s.",
+            snprintf(buf, sizeof(buf), "$n arrives from what appears to be %s.",
                 from_dirs[dir]);
     } else if (AFF3_FLAGGED(ch, AFF3_HAMSTRUNG)
         && GET_POSITION(ch) == POS_STANDING) {
-        sprintf(buf, "$n limps in from the %s, bleeding profusely.",
+        snprintf(buf, sizeof(buf), "$n limps in from the %s, bleeding profusely.",
             from_dirs[dir]);
         add_blood_to_room(ch->in_room, 5);
     } else if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
-        sprintf(buf, "$n staggers in from %s, covered in flames.",
+        snprintf(buf, sizeof(buf), "$n staggers in from %s, covered in flames.",
             from_dirs[dir]);
     } else if (GET_COND(ch, DRUNK) > GET_CON(ch) / 2) {
-        sprintf(buf, "$n staggers in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n staggers in from %s.", from_dirs[dir]);
     } else if (SECT_TYPE(ch->in_room) == SECT_WATER_SWIM
         || SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER
         || SECT_TYPE(ch->in_room) == SECT_PITCH_PIT
@@ -976,63 +976,63 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         else if (AFF_FLAGGED(ch, AFF_WATERWALK) && !IS_FISH(ch) &&
             SECT_TYPE(ch->in_room) != SECT_PITCH_SUB &&
             SECT_TYPE(ch->in_room) != SECT_UNDERWATER)
-            sprintf(buf, "$n walks across the %s from the %s.",
+            snprintf(buf, sizeof(buf), "$n walks across the %s from the %s.",
                 SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER ? "flames" :
                 SECT_TYPE(ch->in_room) == SECT_PITCH_PIT ? "pitch" :
                 "water", to_dirs[dir]);
         else if ((IS_DWARF(ch) ||
                 SECT_TYPE(ch->in_room) == SECT_PITCH_SUB ||
                 SECT_TYPE(ch->in_room) == SECT_PITCH_PIT) && !IS_FISH(ch))
-            sprintf(buf, "$n struggles in from %s.", from_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n struggles in from %s.", from_dirs[dir]);
         else
-            sprintf(buf, "$n swims in from %s.", from_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n swims in from %s.", from_dirs[dir]);
     } else if (AFF_FLAGGED(ch, AFF_SNEAK)) {
         if (!number(0, 1))
-            sprintf(buf, "$n sneaks in from %s.", from_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n sneaks in from %s.", from_dirs[dir]);
         else
-            sprintf(buf, "$n edges in from %s.", from_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n edges in from %s.", from_dirs[dir]);
         /* most racial defaults now */
     } else if (IS_NPC(ch) && NPC_SHARED(ch)->move_buf) {
-        sprintf(buf, "$n %s in from %s.",
+        snprintf(buf, sizeof(buf), "$n %s in from %s.",
             NPC_SHARED(ch)->move_buf, from_dirs[dir]);
     } else if (IS_DRAGON(ch)) {
-        sprintf(buf, "$n lumbers in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n lumbers in from %s.", from_dirs[dir]);
     } else if (IS_GIANT(ch)) {
-        sprintf(buf, "$n stomps in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n stomps in from %s.", from_dirs[dir]);
     } else if (IS_TABAXI(ch) && !number(0, 4)) {
-        sprintf(buf, "$n slinks in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n slinks in from %s.", from_dirs[dir]);
     } else if ((GET_CLASS(ch) == CLASS_SNAKE) ||
         (IS_NPC(ch) && GET_NPC_VNUM(ch) == 3066)) {
-        sprintf(buf, "$n slithers in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n slithers in from %s.", from_dirs[dir]);
     } else if ((IS_NPC(ch) && GET_NPC_VNUM(ch) == 3068) ||
         IS_LEMURE(ch) || IS_PUDDING(ch) || IS_SLIME(ch)) {
-        sprintf(buf, "$n oozes in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n oozes in from %s.", from_dirs[dir]);
     } else if (IS_GHOST(ch)) {
-        sprintf(buf, "$n drifts in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n drifts in from %s.", from_dirs[dir]);
     } else if (GET_CLASS(ch) == CLASS_TURTLE) {
-        sprintf(buf, "$n waddles in from %s.", to_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n waddles in from %s.", to_dirs[dir]);
     } else if (IS_TARRASQUE(ch)) {
-        sprintf(buf, "$n rampages in from %s.", from_dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n rampages in from %s.", from_dirs[dir]);
     } else {
         if (GET_RACE(ch) != RACE_MOBILE && !IS_SPECTRE(ch) &&
             !IS_WRAITH(ch) && !IS_SHADOW(ch)) {
             if (SECT(ch->in_room) == SECT_ASTRAL ||
                 (!number(0, 2) && SECT_TYPE(ch->in_room) == SECT_ROAD))
-                sprintf(buf, "$n travels in from %s.", from_dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n travels in from %s.", from_dirs[dir]);
             else if (!number(0, 3))
-                sprintf(buf, "$n walks in from %s.", from_dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n walks in from %s.", from_dirs[dir]);
             else if (!number(0, 2) && (SECT(ch->in_room) == SECT_CITY ||
                     SECT(ch->in_room) == SECT_INSIDE ||
                     SECT(ch->in_room) == SECT_ROAD))
-                sprintf(buf, "$n strolls in from %s.", from_dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n strolls in from %s.", from_dirs[dir]);
             else
-                sprintf(buf, "$n has arrived from %s.", from_dirs[dir]);
+                snprintf(buf, sizeof(buf), "$n has arrived from %s.", from_dirs[dir]);
         } else
-            sprintf(buf, "$n has arrived from %s.", from_dirs[dir]);
+            snprintf(buf, sizeof(buf), "$n has arrived from %s.", from_dirs[dir]);
     }
 
     if (mount)
-        sprintf(buf + strlen(buf) - 1, ", carrying $N.");
+        snprintf(buf + strlen(buf) - 1, sizeof(buf + strlen(buf) - 1), ", carrying $N.");
     if (blur_msg) {
         if (mount && !AFF_FLAGGED(ch, AFF_BLUR))
             blur_msg = tmp_strcat(blur_msg, ", carrying $N.", NULL);
@@ -1208,7 +1208,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
             GET_DEX(ch) + number(0, 10) < GET_OBJ_TIMER(obj)) {
             if (apply_soil_to_char(ch, GET_EQ(ch, WEAR_FEET), SOIL_BLOOD,
                     WEAR_FEET)) {
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "You walk through the blood and get it all over your %s.\r\n",
                     GET_EQ(ch, WEAR_FEET) ? OBJS(GET_EQ(ch, WEAR_FEET),
                         ch) : "feet");
@@ -1591,7 +1591,7 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
     struct room_direction_data *back = NULL;
     int wait_state = 0;
 
-    sprintf(buf, "$n %ss ", cmd_door[scmd]);
+    snprintf(buf, sizeof(buf), "$n %ss ", cmd_door[scmd]);
     if (!obj && ((other_room = EXIT(ch, door)->to_room) != NULL))
         if ((back = other_room->dir_option[rev_dir[door]]))
             if (back->to_room != ch->in_room)
@@ -1665,7 +1665,7 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
     /* If we're opening a car, notify the interior */
     if (obj && IS_VEHICLE(obj)) {
         if ((other_room = real_room(ROOM_NUMBER(obj))) && other_room->people) {
-            sprintf(buf2, "The door of the %s is %sed from the outside.\r\n",
+            snprintf(buf2, sizeof(buf2), "The door of the %s is %sed from the outside.\r\n",
                 fname(obj->aliases), cmd_door[scmd]);
             send_to_room(buf2, other_room);
         }
@@ -1689,7 +1689,7 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
 
     /* Notify the other room */
     if (((scmd == SCMD_OPEN) || (scmd == SCMD_CLOSE)) && (back)) {
-        sprintf(buf, "The %s is %s%s from the other side.\r\n",
+        snprintf(buf, sizeof(buf), "The %s is %s%s from the other side.\r\n",
             (back->keyword ? fname(back->keyword) : "door"), cmd_door[scmd],
             (scmd == SCMD_CLOSE) ? "d" : "ed");
         send_to_room(buf, EXIT(ch, door)->to_room);
@@ -1818,26 +1818,26 @@ ACMD(do_gen_door)
             case 0:
                 send_to_char(ch, "The %s %s too heavy for you to open!\r\n",
                     dname, ISARE(dname));
-                sprintf(buf, "$n attempts to open the %s.", dname);
+                snprintf(buf, sizeof(buf), "$n attempts to open the %s.", dname);
                 break;
             case 1:
                 send_to_char(ch,
                     "You push against the %s, but %s barely budge%s.\r\n",
                     dname, IT_THEY(dname), PLUR(dname) ? "" : "s");
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "$n pushes against the %s, but %s barely budge%s.", dname,
                     IT_THEY(dname), PLUR(dname) ? "" : "s");
                 break;
             case 2:
                 send_to_char(ch, "You strain against the %s, to no avail.\r\n",
                     dname);
-                sprintf(buf, "$n strains against the %s, to no avail.", dname);
+                snprintf(buf, sizeof(buf), "$n strains against the %s, to no avail.", dname);
                 break;
             default:
                 send_to_char(ch,
                     "You throw yourself against the heavy %s in an attempt to open %s.\r\n",
                     dname, IT_THEM(dname));
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "$n throws $mself against the heavy %s in an attempt to open %s.\r\n",
                     dname, IT_THEM(dname));
                 break;

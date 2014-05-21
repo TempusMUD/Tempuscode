@@ -107,7 +107,7 @@ write_wld_index(struct creature *ch, struct zone_data *zone)
     free(wld_index);
     wld_index = new_index;
 
-    sprintf(fname, "world/wld/index");
+    snprintf(fname, sizeof(fname), "world/wld/index");
     if (!(index = fopen(fname, "w"))) {
         send_to_char(ch, "Could not open index file, world save aborted.\r\n");
         return (0);
@@ -1135,15 +1135,15 @@ ACMD(do_hedit)
             send_to_char(ch, "That's a bit long. Dont you think?\r\n");
             return;
         }
-        sprintf(buf, "title %s", argument);
+        snprintf(buf, sizeof(buf), "title %s", argument);
         do_olc_rset(ch, buf);
         break;
     case 1:                    // desc
-        sprintf(buf, "desc %s", argument);
+        snprintf(buf, sizeof(buf), "desc %s", argument);
         do_olc_rset(ch, buf);
         break;
     case 3:                    // sound
-        sprintf(buf, "sound %s", argument);
+        snprintf(buf, sizeof(buf), "sound %s", argument);
         do_olc_rset(ch, buf);
         break;
     case 2:                    // extra

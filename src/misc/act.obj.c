@@ -497,16 +497,16 @@ ACMD(do_put)
                         && strcasecmp(save_obj->name,
                             obj->name) != 0 && counter > 0) {
                         if (counter == 1)
-                            sprintf(cntbuf, "You put $p in $P.");
+                            snprintf(cntbuf, sizeof(cntbuf), "You put $p in $P.");
                         else
-                            sprintf(cntbuf, "You put $p in $P. (x%d)",
+                            snprintf(cntbuf, sizeof(cntbuf), "You put $p in $P. (x%d)",
                                 counter);
                         act(cntbuf, false, ch, save_obj, cont, TO_CHAR);
 
                         if (counter == 1)
-                            sprintf(cntbuf, "$n puts $p in $P.");
+                            snprintf(cntbuf, sizeof(cntbuf), "$n puts $p in $P.");
                         else
-                            sprintf(cntbuf, "$n puts $p in $P. (x%d)",
+                            snprintf(cntbuf, sizeof(cntbuf), "$n puts $p in $P. (x%d)",
                                 counter);
                         act(cntbuf, true, ch, save_obj, cont, TO_ROOM);
                         counter = 0;
@@ -518,14 +518,14 @@ ACMD(do_put)
                 }
                 if (found && counter > 0) {
                     if (counter == 1)
-                        sprintf(cntbuf, "You put $p in $P.");
+                        snprintf(cntbuf, sizeof(cntbuf), "You put $p in $P.");
                     else
-                        sprintf(cntbuf, "You put $p in $P. (x%d)", counter);
+                        snprintf(cntbuf, sizeof(cntbuf), "You put $p in $P. (x%d)", counter);
                     act(cntbuf, false, ch, save_obj, cont, TO_CHAR);
                     if (counter == 1)
-                        sprintf(cntbuf, "$n puts $p in $P.");
+                        snprintf(cntbuf, sizeof(cntbuf), "$n puts $p in $P.");
                     else
-                        sprintf(cntbuf, "$n puts $p in $P. (x%d)", counter);
+                        snprintf(cntbuf, sizeof(cntbuf), "$n puts $p in $P. (x%d)", counter);
                     act(cntbuf, true, ch, save_obj, cont, TO_ROOM);
                 }
                 if (!found && !bomb) {
@@ -556,14 +556,14 @@ can_take_obj(struct creature *ch, struct obj_data *obj, bool check_weight,
         && GET_LEVEL(ch) < LVL_AMBASSADOR
         && ch->in_room->zone->pk_style != ZONE_CHAOTIC_PK && IS_PC(ch)
         && CORPSE_IDNUM(obj) > 0) {
-        sprintf(buf, "$p: You can only take player corpses in CPK zones!");
+        snprintf(buf, sizeof(buf), "$p: You can only take player corpses in CPK zones!");
     } else if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
-        sprintf(buf, "$p: you can't carry that many items.");
+        snprintf(buf, sizeof(buf), "$p: you can't carry that many items.");
     } else if (check_weight
         && (IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) > CAN_CARRY_W(ch)) {
-        sprintf(buf, "$p: you can't carry that much weight.");
+        snprintf(buf, sizeof(buf), "$p: you can't carry that much weight.");
     } else if (!(CAN_WEAR(obj, ITEM_WEAR_TAKE)) && GET_LEVEL(ch) < LVL_GOD) {
-        sprintf(buf, "$p: you can't take that!");
+        snprintf(buf, sizeof(buf), "$p: you can't take that!");
     } else {
         return true;
     }
@@ -683,8 +683,8 @@ perform_get_from_container(struct creature * ch,
             strcpy_s(buf, sizeof(buf), "You get $p from $P.");
             strcpy_s(buf2, sizeof(buf2), "$n gets $p from $P.");
         } else {
-            sprintf(buf, "You get $p from $P. (x%d)", counter);
-            sprintf(buf2, "$n gets $p from $P. (x%d)", counter);
+            snprintf(buf, sizeof(buf), "You get $p from $P. (x%d)", counter);
+            snprintf(buf2, sizeof(buf2), "$n gets $p from $P. (x%d)", counter);
         }
         act(buf, false, ch, obj, cont, TO_CHAR);
         act(buf2, true, ch, obj, cont, TO_ROOM);
@@ -772,7 +772,7 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
     if (dotmode == FIND_INDIV) {
 
         if (!(obj = get_obj_in_list_all(ch, arg, cont->contains))) {
-            sprintf(buf, "There doesn't seem to be %s %s in $p.", AN(arg),
+            snprintf(buf, sizeof(buf), "There doesn't seem to be %s %s in $p.", AN(arg),
                 arg);
             act(buf, false, ch, cont, NULL, TO_CHAR);
             return 0;
@@ -780,7 +780,7 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
         if (IS_IMPLANT(obj) && IS_CORPSE(cont) &&
             !CAN_WEAR(obj, ITEM_WEAR_TAKE)) {
             if (GET_LEVEL(ch) < LVL_GOD) {
-                sprintf(buf, "There doesn't seem to be %s %s in $p.", AN(arg),
+                snprintf(buf, sizeof(buf), "There doesn't seem to be %s %s in $p.", AN(arg),
                     arg);
                 act(buf, false, ch, cont, NULL, TO_CHAR);
                 return 0;
@@ -825,7 +825,7 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
         if (IS_CORPSE(cont) && CORPSE_IDNUM(cont) > 0
             && CORPSE_IDNUM(cont) != GET_IDNUM(ch)
             && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-            sprintf(buf, "You may only take things one at a time from $P.");
+            snprintf(buf, sizeof(buf), "You may only take things one at a time from $P.");
             act(buf, false, ch, NULL, cont, TO_CHAR);
             return 0;
         }
@@ -895,13 +895,13 @@ get_from_container(struct creature *ch, struct obj_data *cont, char *arg)
         if (!found) {
 
             if (match_name) {
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "You didn't find anything in $P to take that looks like a '%s'",
                     match_name);
                 act(buf, false, ch, NULL, cont, TO_CHAR);
 
             } else {
-                sprintf(buf, "You didn't find anything in $P.");
+                snprintf(buf, sizeof(buf), "You didn't find anything in $P.");
                 act(buf, false, ch, NULL, cont, TO_CHAR);
             }
             return 0;
@@ -954,8 +954,8 @@ perform_get_from_room(struct creature * ch,
             strcpy_s(buf, sizeof(buf), "You get $p.");
             strcpy_s(buf2, sizeof(buf2), "$n gets $p.");
         } else {
-            sprintf(buf, "You get $p. (x%d)", counter);
-            sprintf(buf2, "$n gets $p. (x%d)", counter);
+            snprintf(buf, sizeof(buf), "You get $p. (x%d)", counter);
+            snprintf(buf2, sizeof(buf2), "$n gets $p. (x%d)", counter);
         }
         act(buf, false, ch, obj, NULL, TO_CHAR);
         act(buf2, true, ch, obj, NULL, TO_ROOM);
@@ -1067,7 +1067,7 @@ get_from_room(struct creature *ch, char *arg)
         if (!found) {
 
             if (match_name) {
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "You didn't find anything to take that looks like a '%s'.\r\n",
                     match_name);
                 send_to_char(ch, "%s", buf);
@@ -1248,7 +1248,7 @@ perform_drop_gold(struct creature *ch, int amount,
                 act("$n drops $p.", false, ch, obj, NULL, TO_ROOM);
             }
         } else {
-            sprintf(buf, "$n drops %s which disappears in a puff of smoke!",
+            snprintf(buf, sizeof(buf), "$n drops %s which disappears in a puff of smoke!",
                 money_desc(amount, 0));
             act(buf, false, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch,
@@ -1303,7 +1303,7 @@ perform_drop_credits(struct creature *ch, int amount,
                 act("$n drops $p.", false, ch, obj, NULL, TO_ROOM);
             }
         } else {
-            sprintf(buf, "$n drops %s which disappears in a puff of smoke!",
+            snprintf(buf, sizeof(buf), "$n drops %s which disappears in a puff of smoke!",
                 money_desc(amount, 1));
             act(buf, false, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch,
@@ -1365,7 +1365,7 @@ perform_drop(struct creature *ch, struct obj_data *obj,
 
     if (IS_OBJ_STAT(obj, ITEM_NODROP)) {
         if (GET_LEVEL(ch) < LVL_TIMEGOD && !NPC_FLAGGED(ch, NPC_UTILITY)) {
-            sprintf(buf, "You can't %s $p, it must be CURSED!", sname);
+            snprintf(buf, sizeof(buf), "You can't %s $p, it must be CURSED!", sname);
             act(buf, false, ch, obj, NULL, TO_CHAR);
             return 0;
         } else
@@ -1384,9 +1384,9 @@ perform_drop(struct creature *ch, struct obj_data *obj,
         return 0;
 
     if (display == true) {
-        sprintf(buf, "You %s $p.%s", sname, VANISH(mode));
+        snprintf(buf, sizeof(buf), "You %s $p.%s", sname, VANISH(mode));
         act(buf, false, ch, obj, NULL, TO_CHAR);
-        sprintf(buf, "$n %ss $p.%s", sname, VANISH(mode));
+        snprintf(buf, sizeof(buf), "$n %ss $p.%s", sname, VANISH(mode));
         act(buf, true, ch, obj, NULL, TO_ROOM);
     }
 
@@ -1718,14 +1718,14 @@ perform_give(struct creature *ch, struct creature *vict,
                             ch->in_room->dir_option[i]->to_room && i != UP &&
                             !IS_SET(ch->in_room->dir_option[i]->exit_info,
                                 EX_CLOSED)) {
-                            sprintf(buf, "%s %s", fname(obj->aliases),
+                            snprintf(buf, sizeof(buf), "%s %s", fname(obj->aliases),
                                 dirs[i]);
                             do_throw(vict, buf, 0, 0);
                             return 1;
                         }
                     }
                     if (can_see_creature(vict, ch)) {
-                        sprintf(buf, "%s %s", fname(obj->aliases),
+                        snprintf(buf, sizeof(buf), "%s %s", fname(obj->aliases),
                             fname(ch->player.name));
                         do_give(vict, buf, 0, 0);
                     } else
@@ -2122,7 +2122,7 @@ ACMD(do_drink)
     }
     if (subcmd == SCMD_DRINK) {
         if (!ch->desc || !ch->desc->repeat_cmd_count) {
-            sprintf(buf, "$n drinks %s from $p.", drinks[GET_OBJ_VAL(temp,
+            snprintf(buf, sizeof(buf), "$n drinks %s from $p.", drinks[GET_OBJ_VAL(temp,
                         2)]);
             act(buf, true, ch, temp, NULL, TO_ROOM);
         }
@@ -3739,7 +3739,7 @@ ACMD(do_attach)
     }
 
     if (!*arg2) {
-        sprintf(buf, "%statch $p %s what?", subcmd ? "De" : "At",
+        snprintf(buf, sizeof(buf), "%statch $p %s what?", subcmd ? "De" : "At",
             subcmd ? "from" : "to");
         act(buf, false, ch, obj1, NULL, TO_CHAR);
         return;
@@ -4061,10 +4061,10 @@ empty_to_obj(struct obj_data *obj, struct obj_data *container,
             }
         }
         if (objs_moved) {
-            sprintf(buf, "$n carefully empties the contents of $p into %s.",
+            snprintf(buf, sizeof(buf), "$n carefully empties the contents of $p into %s.",
                 container->name);
             act(buf, false, ch, obj, NULL, TO_ROOM);
-            sprintf(buf, "You carefully empty the contents of $p into %s.",
+            snprintf(buf, sizeof(buf), "You carefully empty the contents of $p into %s.",
                 container->name);
             act(buf, false, ch, obj, NULL, TO_CHAR);
         } else {

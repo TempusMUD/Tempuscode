@@ -1010,7 +1010,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
             corpse->line_desc =
                 strdup(tmp_sprintf("The smoking %s of %s %s lying here.",
                     typebuf, GET_NAME(ch), isare));
-            sprintf(adj, "smoking");
+            snprintf(adj, sizeof(adj), "smoking");
             break;
         } else {
             // attack that rips the victim's head off
@@ -1018,7 +1018,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
                 strdup(tmp_sprintf
                 ("The headless smoking %s of %s %s lying here.", typebuf,
                     GET_NAME(ch), isare));
-            sprintf(adj, "headless smoking");
+            snprintf(adj, sizeof(adj), "headless smoking");
         }
 
         if (!is_arena_combat(killer, ch) &&
@@ -1074,7 +1074,7 @@ make_corpse(struct creature *ch, struct creature *killer, int attacktype)
         corpse->line_desc =
             strdup(tmp_sprintf("The headless %s of %s %s lying here.", typebuf,
                 GET_NAME(ch), isare));
-        sprintf(adj, "headless");
+        snprintf(adj, sizeof(adj), "headless");
 
         if (IS_RACE(ch, RACE_BEHOLDER) || NON_CORPOREAL_MOB(ch))
             break;

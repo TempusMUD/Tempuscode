@@ -49,20 +49,20 @@ SPECIAL(unholy_compact)
         return 1;
     }
     if (PLR2_FLAGGED(ch, PLR2_SOULLESS)) {
-        sprintf(buf,
+        snprintf(buf, sizeof(buf),
             "I appreciate your devotion sir. But you only had one soul to sell.");
         perform_tell(dude, ch, buf);
         return 1;
     }
     if (GET_GOLD(ch) < gold) {
         perform_tell(dude, ch, "You think I work for free?!?");
-        sprintf(buf, "Bring me %'d gold coins and I will make the compact.",
+        snprintf(buf, sizeof(buf), "Bring me %'d gold coins and I will make the compact.",
             gold);
         perform_tell(dude, ch, buf);
     } else if (GET_LIFE_POINTS(ch) < life_cost) {
         perform_tell(dude, ch, "Your essence cannot sustain the compact.");
     } else if (ch->real_abils.con < con_cost + 3) {
-        sprintf(buf, "Your body cannot survive without it's soul. Yet.");
+        snprintf(buf, sizeof(buf), "Your body cannot survive without it's soul. Yet.");
         perform_tell(dude, ch, buf);
     } else {
         act("$n burns the mark of evil into $N's forehead.", true, dude, NULL, ch,

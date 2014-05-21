@@ -38,11 +38,11 @@ SPECIAL(nohunger_dude)
         }
 
         if (GET_GOLD(ch) < gold) {
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "You don't have the %'d gold coins I require for that.", gold);
             perform_tell(dude, ch, buf);
         } else if (GET_LIFE_POINTS(ch) < life_cost) {
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "You haven't gained the %d life points you need to do that.",
                 life_cost);
             perform_tell(dude, ch, buf);

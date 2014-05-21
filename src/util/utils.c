@@ -63,14 +63,14 @@ safe_exit(int mode)
 char *
 VT_GOPOS(int x, int y)
 {
-    sprintf(ANSI, "\x1B[%d;%dH", x, y);
+    snprintf(ANSI, sizeof(ANSI), "\x1B[%d;%dH", x, y);
     return (ANSI);
 }
 
 char *
 VT_RPPOS(int x, int y)
 {
-    sprintf(ANSI, "\x1B[%d;%dr", x, y);
+    snprintf(ANSI, sizeof(ANSI), "\x1B[%d;%dr", x, y);
     return (ANSI);
 }
 
@@ -549,7 +549,7 @@ GET_DISGUISED_NAME(struct creature *ch, struct creature *tch)
         return GET_NAME(tch);
 
     if (CAN_DETECT_DISGUISE(ch, tch, af->duration)) {
-        sprintf(buf, "%s (disguised as %s)", GET_NAME(tch), GET_NAME(mob));
+        snprintf(buf, sizeof(buf), "%s (disguised as %s)", GET_NAME(tch), GET_NAME(mob));
         return (buf);
     }
     gain_skill_prof(tch, SKILL_DISGUISE);

@@ -33,7 +33,7 @@ SPECIAL(newbie_gold_coupler)
                 money = create_money(count, 0);
                 obj_to_room(money, (real_room(i)));
                 if ((real_room(i))->people) {
-                    sprintf(buf,
+                    snprintf(buf, sizeof(buf),
                         "%s appears from a cloud of colored smoke!\r\n"
                         "%s gathers up many scattered coins of gold.\r\n"
                         "%s drops %s and disappears suddenly!\r\n",
@@ -42,7 +42,7 @@ SPECIAL(newbie_gold_coupler)
                     send_to_room(buf, (real_room(i)));
                 }
                 if (coup->in_room->people) {
-                    sprintf(buf, "%s goes to room %d, compiles %'d coins.\r\n",
+                    snprintf(buf, sizeof(buf), "%s goes to room %d, compiles %'d coins.\r\n",
                         GET_NAME(coup), i, count);
                     send_to_room(buf, coup->in_room);
                 }
@@ -50,14 +50,14 @@ SPECIAL(newbie_gold_coupler)
                 continue;
             } else if (count) {
                 if ((real_room(i))->people) {
-                    sprintf(buf,
+                    snprintf(buf, sizeof(buf),
                         "%s appears from a cloud of colored smoke!\r\n"
                         "%s gathers up many scattered coins of gold and disappears!\r\n",
                         CAP(GET_NAME(coup)), CAP(GET_NAME(coup)));
                     send_to_room(buf, (real_room(i)));
                 }
                 if (coup->in_room->people) {
-                    sprintf(buf, "%s goes to room %d, removes %'d coins.\r\n",
+                    snprintf(buf, sizeof(buf), "%s goes to room %d, removes %'d coins.\r\n",
                         CAP(GET_NAME(coup)), i, count);
                     send_to_room(buf, coup->in_room);
                 }

@@ -143,7 +143,7 @@ write_obj_index(struct creature *ch, struct zone_data *zone)
 
     obj_index = new_index;
 
-    sprintf(fname, "world/obj/index");
+    snprintf(fname, sizeof(fname), "world/obj/index");
     if (!(index = fopen(fname, "w"))) {
         send_to_char(ch,
             "Could not open index file, object save aborted.\r\n");
@@ -181,14 +181,14 @@ save_objs(struct creature * ch, struct zone_data * zone)
         return false;
     }
 
-    sprintf(fname, "world/obj/%d.obj", zone->number);
+    snprintf(fname, sizeof(fname), "world/obj/%d.obj", zone->number);
     if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
         mudlog(0, BRF, true,
             "OLC: ERROR - Main object file for zone %d is read-only.",
             zone->number);
     }
 
-    sprintf(fname, "world/obj/olc/%d.obj", zone->number);
+    snprintf(fname, sizeof(fname), "world/obj/olc/%d.obj", zone->number);
     if (!(file = fopen(fname, "w")))
         return false;
 
@@ -311,11 +311,11 @@ save_objs(struct creature * ch, struct zone_data * zone)
 
     slog("OLC: %s osaved %d.", GET_NAME(ch), zone->number);
 
-    sprintf(fname, "world/obj/%d.obj", zone->number);
+    snprintf(fname, sizeof(fname), "world/obj/%d.obj", zone->number);
     realfile = fopen(fname, "w");
     if (realfile) {
         fclose(file);
-        sprintf(fname, "world/obj/olc/%d.obj", zone->number);
+        snprintf(fname, sizeof(fname), "world/obj/olc/%d.obj", zone->number);
         if (!(file = fopen(fname, "r"))) {
             fclose(realfile);
             errlog("Failure to reopen olc obj file.");

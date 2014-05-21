@@ -189,7 +189,7 @@ help_collection_list(struct help_collection *col,
         if (isdigit(linebuf[0]))
             end = atoi(linebuf);
     }
-    sprintf(gHelpbuf, "Help Topics (%d,%d):\r\n", start, end);
+    snprintf(gHelpbuf, sizeof(gHelpbuf), "Help Topics (%d,%d):\r\n", start, end);
     space_left -= strlen(gHelpbuf);
     for (GList * hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
@@ -201,7 +201,7 @@ help_collection_list(struct help_collection *col,
         strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
         space_left -= strlen(linebuf);
         if (space_left <= 0) {
-            sprintf(linebuf,
+            snprintf(linebuf, sizeof(linebuf),
                 "Maximum buffer size reached at item # %d. \r\nUse \"range\" param for higher numbered items.\r\n",
                 cur->idnum);
             strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
@@ -397,7 +397,7 @@ help_collection_get_topic(struct help_collection *col,
             strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
             space_left -= strlen(linebuf);
             if (space_left <= 0) {
-                sprintf(linebuf, "Maximum buffer size reached at item # %d.",
+                snprintf(linebuf, sizeof(linebuf), "Maximum buffer size reached at item # %d.",
                     cur->idnum);
                 strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
                 break;
@@ -660,7 +660,7 @@ do_hcollect_cmds(struct creature *ch)
     for (i = 0; hc_cmds[i].keyword; i++) {
         if (GET_LEVEL(ch) < hc_cmds[i].level)
             continue;
-        sprintf(gHelpbuf, "%s  %-15s %s\r\n", gHelpbuf,
+        snprintf(gHelpbuf, sizeof(gHelpbuf), "%s  %-15s %s\r\n", gHelpbuf,
             hc_cmds[i].keyword, hc_cmds[i].usage);
     }
     page_string(ch->desc, gHelpbuf);

@@ -978,32 +978,32 @@ send_prompt(struct descriptor_data *d)
         *prompt = '\0';
 
         if (!production_mode)
-            sprintf(prompt, "%s%s(debug)%s ", prompt,
+            snprintf(prompt, sizeof(prompt), "%s%s(debug)%s ", prompt,
                 CCBLU(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
         if (GET_INVIS_LVL(d->creature))
-            sprintf(prompt, "%s%s(%si%d%s)%s ", prompt, CCMAG(d->creature,
+            snprintf(prompt, sizeof(prompt), "%s%s(%si%d%s)%s ", prompt, CCMAG(d->creature,
                     C_NRM), CCRED(d->creature, C_NRM),
                 GET_INVIS_LVL(d->creature), CCMAG(d->creature, C_NRM),
                 CCNRM(d->creature, C_NRM));
         else if (IS_NPC(d->creature))
-            sprintf(prompt, "%s%s[NPC]%s ", prompt,
+            snprintf(prompt, sizeof(prompt), "%s%s[NPC]%s ", prompt,
                 CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
 
         if (PRF_FLAGGED(d->creature, PRF_DISPHP))
-            sprintf(prompt, "%s%s%s< %s%d%s%sH%s ", prompt,
+            snprintf(prompt, sizeof(prompt), "%s%s%s< %s%d%s%sH%s ", prompt,
                 CCWHT(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
                 CCGRN(d->creature, C_SPR), GET_HIT(d->creature),
                 CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
 
         if (PRF_FLAGGED(d->creature, PRF_DISPMANA))
-            sprintf(prompt, "%s%s%s%d%s%sM%s ", prompt,
+            snprintf(prompt, sizeof(prompt), "%s%s%s%d%s%sM%s ", prompt,
                 CCBLD(d->creature, C_CMP), CCMAG(d->creature, C_SPR),
                 GET_MANA(d->creature), CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
 
         if (PRF_FLAGGED(d->creature, PRF_DISPMOVE))
-            sprintf(prompt, "%s%s%s%d%s%sV%s ", prompt,
+            snprintf(prompt, sizeof(prompt), "%s%s%s%d%s%sV%s ", prompt,
                 CCCYN(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
                 GET_MOVE(d->creature), CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
@@ -1011,14 +1011,14 @@ send_prompt(struct descriptor_data *d)
         if (PRF2_FLAGGED(d->creature, PRF2_DISPALIGN)) {
 
             if (IS_GOOD(d->creature)) {
-                sprintf(colorbuf, "%s", CCCYN(d->creature, C_SPR));
+                snprintf(colorbuf, sizeof(colorbuf), "%s", CCCYN(d->creature, C_SPR));
             } else if (IS_EVIL(d->creature)) {
-                sprintf(colorbuf, "%s", CCRED(d->creature, C_SPR));
+                snprintf(colorbuf, sizeof(colorbuf), "%s", CCRED(d->creature, C_SPR));
             } else {
-                sprintf(colorbuf, "%s", CCWHT(d->creature, C_SPR));
+                snprintf(colorbuf, sizeof(colorbuf), "%s", CCWHT(d->creature, C_SPR));
             }
 
-            sprintf(prompt, "%s%s%s%d%s%sA%s ", prompt,
+            snprintf(prompt, sizeof(prompt), "%s%s%s%d%s%sA%s ", prompt,
                 colorbuf, CCBLD(d->creature, C_CMP),
                 GET_ALIGNMENT(d->creature), CCNRM(d->creature, C_SPR),
                 CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
@@ -1026,25 +1026,25 @@ send_prompt(struct descriptor_data *d)
 
         if (PRF2_FLAGGED(d->creature, PRF2_DISPTIME)) {
             if (d->creature->in_room->zone->time_frame == TIME_TIMELESS) {
-                sprintf(prompt, "%s%s%s%s", prompt, CCYEL_BLD(d->creature,
+                snprintf(prompt, sizeof(prompt), "%s%s%s%s", prompt, CCYEL_BLD(d->creature,
                         C_CMP), "!TIME ", CCNRM(d->creature, C_SPR));
             } else {
                 struct time_info_data local_time;
                 set_local_time(d->creature->in_room->zone, &local_time);
-                sprintf(colorbuf, "%s%s", CCNRM(d->creature, C_SPR),
+                snprintf(colorbuf, sizeof(colorbuf), "%s%s", CCNRM(d->creature, C_SPR),
                     CCYEL(d->creature, C_NRM));
                 if (local_time.hours > 8 && local_time.hours < 18) {    //day
-                    sprintf(colorbuf, "%s%s%s", colorbuf, CCWHT(d->creature,
+                    snprintf(colorbuf, sizeof(colorbuf), "%s%s%s", colorbuf, CCWHT(d->creature,
                             C_CMP), CCBLD(d->creature, C_CMP));
                 } else if (local_time.hours >= 6 && local_time.hours <= 20) {   //dawn/dusk
-                    sprintf(colorbuf, "%s%s", colorbuf, CCCYN_BLD(d->creature,
+                    snprintf(colorbuf, sizeof(colorbuf), "%s%s", colorbuf, CCCYN_BLD(d->creature,
                             C_CMP));
                 } else {        //night
-                    sprintf(colorbuf, "%s%s", colorbuf, CCBLU_BLD(d->creature,
+                    snprintf(colorbuf, sizeof(colorbuf), "%s%s", colorbuf, CCBLU_BLD(d->creature,
                             C_CMP));
                 }
 
-                sprintf(prompt, "%s%s%d%s%s%s%s ", prompt, colorbuf,
+                snprintf(prompt, sizeof(prompt), "%s%s%d%s%s%s%s ", prompt, colorbuf,
                     ((local_time.hours % 12 ==
                             0) ? 12 : ((local_time.hours) % 12)),
                     CCNRM(d->creature, C_SPR), CCYEL_BLD(d->creature, C_CMP),
@@ -1055,11 +1055,11 @@ send_prompt(struct descriptor_data *d)
 
         if (is_fighting(d->creature) &&
             PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE))
-            sprintf(prompt, "%s%s(%s)%s ", prompt, CCRED(d->creature, C_NRM),
+            snprintf(prompt, sizeof(prompt), "%s%s(%s)%s ", prompt, CCRED(d->creature, C_NRM),
                 diag_conditions(random_opponent(d->creature)),
                 CCNRM(d->creature, C_NRM));
 
-        sprintf(prompt, "%s%s%s>%s ", prompt, CCWHT(d->creature, C_NRM),
+        snprintf(prompt, sizeof(prompt), "%s%s%s>%s ", prompt, CCWHT(d->creature, C_NRM),
             CCBLD(d->creature, C_CMP), CCNRM(d->creature, C_NRM));
         d_send(d, prompt);
         break;

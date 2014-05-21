@@ -455,7 +455,7 @@ do_show_specials(struct creature *ch, char *arg)
         else
             strcpy_s(buf2, sizeof(buf2), "NONE");
 
-        sprintf(buf, "  %s%-30s%s   (%s%s%s)\r\n",
+        snprintf(buf, sizeof(buf), "  %s%-30s%s   (%s%s%s)\r\n",
             CCYEL(ch, C_NRM), spec_list[i].tag, CCNRM(ch, C_NRM),
             CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
         if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {

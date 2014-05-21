@@ -538,14 +538,14 @@ npc_steal(struct creature *ch, struct creature *victim)
                 break;
 
         if (obj) {
-            sprintf(buf, "%s %s", fname(obj->aliases), victim->player.name);
+            snprintf(buf, sizeof(buf), "%s %s", fname(obj->aliases), victim->player.name);
             do_steal(ch, buf, 0, 0);
             return;
         }
 
     }
 
-    sprintf(buf, "gold %s", victim->player.name);
+    snprintf(buf, sizeof(buf), "gold %s", victim->player.name);
     do_steal(ch, buf, 0, 0);
 
 }
@@ -1848,7 +1848,7 @@ SPECIAL(weapon_lister)
             }
         }
 
-        sprintf(buf, "[%5d] %-30s %2dd%-2d", GET_OBJ_VNUM(obj),
+        snprintf(buf, sizeof(buf), "[%5d] %-30s %2dd%-2d", GET_OBJ_VNUM(obj),
                 obj->name, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 
         if (dam > 0)
@@ -1858,7 +1858,7 @@ SPECIAL(weapon_lister)
         else
             strcat_s(buf, sizeof(buf), "   ");
 
-        sprintf(buf, "%s (%2d) %3.2f lb ", buf,
+        snprintf(buf, sizeof(buf), "%s (%2d) %3.2f lb ", buf,
             (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam,
             GET_OBJ_WEIGHT(obj));
 
@@ -1872,7 +1872,7 @@ SPECIAL(weapon_lister)
             strcat_s(buf, sizeof(buf), "2-H ");
 
         if (GET_OBJ_VAL(obj, 0))
-            sprintf(buf, "%sCast:%s ", buf, spell_to_str(GET_OBJ_VAL(obj, 0)));
+            snprintf(buf, sizeof(buf), "%sCast:%s ", buf, spell_to_str(GET_OBJ_VAL(obj, 0)));
 
         found = false;
         for (int i = 0; i < 3; i++)
@@ -1893,7 +1893,7 @@ SPECIAL(weapon_lister)
         for (int i = 0; i < MAX_OBJ_AFFECT; i++)
             if (obj->affected[i].location && obj->affected[i].modifier &&
                 obj->affected[i].location != APPLY_DAMROLL)
-                sprintf(buf, "%s%s%s%d ", buf,
+                snprintf(buf, sizeof(buf), "%s%s%s%d ", buf,
                     apply_types[(int)obj->affected[i].location],
                     obj->affected[i].modifier > 0 ? "+" : "",
                     obj->affected[i].modifier);
@@ -1905,7 +1905,7 @@ SPECIAL(weapon_lister)
     strcat_s(buf3, sizeof(buf3), "\r\n\r\n");
 
     for (int i = 0; i < 60; i++)
-        sprintf(buf3, "%s%2d -- [ %2d] weapons\r\n", buf3, i, avg_dam[i]);
+        snprintf(buf3, sizeof(buf3), "%s%2d -- [ %2d] weapons\r\n", buf3, i, avg_dam[i]);
 
     page_string(ch->desc, buf3);
     return 1;

@@ -114,7 +114,7 @@ SPECIAL(corpse_retrieval)
         return 1;
     }
 
-    sprintf(buf2, "Very well.  I will retrieve your corpse for %d %s.",
+    snprintf(buf2, sizeof(buf2), "Very well.  I will retrieve your corpse for %d %s.",
         price, currency);
     perform_tell(retriever, ch, buf2);
     obj_to_char(corpse, ch);

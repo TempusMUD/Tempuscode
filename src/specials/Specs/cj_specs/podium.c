@@ -37,7 +37,7 @@ SPECIAL(beer_tree)
 
     obj_to_char(obj, ch);
 
-    sprintf(buf, "You pick %s from the tree.\r\n", obj->name);
+    snprintf(buf, sizeof(buf), "You pick %s from the tree.\r\n", obj->name);
 
     return 1;
 }

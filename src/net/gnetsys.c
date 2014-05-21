@@ -182,11 +182,11 @@ perform_net_who(struct creature *ch, const char *arg __attribute__ ((unused)))
             continue;
 
         count++;
-        sprintf(buf, "%s   (%03d)     %s\r\n", buf, count,
+        snprintf(buf, sizeof(buf), "%s   (%03d)     %s\r\n", buf, count,
             GET_NAME(d->creature));
         continue;
     }
-    sprintf(buf, "%s\r\n%d users detected.\r\n", buf, count);
+    snprintf(buf, sizeof(buf), "%s\r\n%d users detected.\r\n", buf, count);
     page_string(ch->desc, buf);
 }
 
@@ -231,7 +231,7 @@ perform_net_list(struct creature *ch)
         }
         if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
             SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
-            sprintf(buf, "%-30s [%3d] percent installed.\r\n",
+            snprintf(buf, sizeof(buf), "%-30s [%3d] percent installed.\r\n",
                 spell_to_str(i), GET_SKILL(ch, i));
             strcat_s(buf2, sizeof(buf2), buf);
         }

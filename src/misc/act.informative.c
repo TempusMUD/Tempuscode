@@ -667,7 +667,7 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
                     continue;
                 }
                 found = false;
-                sprintf(buf2, "%s %s %s ", HSHR(i),
+                snprintf(buf2, sizeof(buf2), "%s %s %s ", HSHR(i),
                     wear_description[pos],
                     pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]));
 
@@ -1464,7 +1464,7 @@ look_in_direction(struct creature *ch, int dir)
                                 dir)->keyword)));
                 if (EXNUMB != NULL && room_is_dark(EXNUMB) &&
                     !EXIT(ch, dir)->general_description) {
-                    sprintf(buf,
+                    snprintf(buf, sizeof(buf),
                         "It's too dark through the %s to see anything.\r\n",
                         fname(EXIT(ch, dir)->keyword));
                     acc_sprintf("%s", buf);
@@ -2168,7 +2168,7 @@ ACMD(do_examine)
             act("$p looks like it has been enhanced.",
                 false, ch, tmp_object, NULL, TO_CHAR);
 
-        sprintf(buf, "$p seems to be in %s condition.",
+        snprintf(buf, sizeof(buf), "$p seems to be in %s condition.",
                 obj_cond_color(tmp_object, COLOR_LEV(ch)));
         act(buf, false, ch, tmp_object, NULL, TO_CHAR);
 
@@ -2696,11 +2696,11 @@ ACMD(do_gen_points)
     switch (subcmd) {
     case SCMD_ALIGNMENT:
         if (GET_ALIGNMENT(ch) < -300) {
-            sprintf(cbuf, "%s", CCRED(ch, C_NRM));
+            snprintf(cbuf, sizeof(cbuf), "%s", CCRED(ch, C_NRM));
         } else if (GET_ALIGNMENT(ch) > 300) {
-            sprintf(cbuf, "%s", CCCYN(ch, C_NRM));
+            snprintf(cbuf, sizeof(cbuf), "%s", CCCYN(ch, C_NRM));
         } else {
-            sprintf(cbuf, "%s", CCYEL(ch, C_NRM));
+            snprintf(cbuf, sizeof(cbuf), "%s", CCYEL(ch, C_NRM));
         }
         send_to_char(ch, "%sYour alignment is%s %s%d%s.\r\n", CCWHT(ch, C_NRM),
                      CCNRM(ch, C_NRM), cbuf, GET_ALIGNMENT(ch), CCNRM(ch, C_NRM));
@@ -4094,10 +4094,10 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
     dex = GET_DEX(ch);
     con = GET_CON(ch);
     cha = GET_CHA(ch);
-    sprintf(buf2, " %s%s(augmented)%s",
+    snprintf(buf2, sizeof(buf2), " %s%s(augmented)%s",
         CCBLD(ch, C_SPR), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
 
-    sprintf(buff, "      %s%sStrength:%s ",
+    snprintf(buff, sizeof(buff), "      %s%sStrength:%s ",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4155,7 +4155,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
         strcat_s(buff, buff_size, buf2);
     strcat_s(buff, buff_size, "\r\n");
 
-    sprintf(buff, "%s  %s%sIntelligence:%s ", buff,
+    snprintf(buff, sizeof(buff), "%s  %s%sIntelligence:%s ", buff,
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4189,7 +4189,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
         strcat_s(buff, buff_size, buf2);
     strcat_s(buff, buff_size, "\r\n");
 
-    sprintf(buff, "%s        %s%sWisdom:%s ", buff,
+    snprintf(buff, sizeof(buff), "%s        %s%sWisdom:%s ", buff,
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4217,7 +4217,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
         strcat_s(buff, buff_size, buf2);
     strcat_s(buff, buff_size, "\r\n");
 
-    sprintf(buff, "%s     %s%sDexterity:%s ", buff,
+    snprintf(buff, sizeof(buff), "%s     %s%sDexterity:%s ", buff,
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4240,7 +4240,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
         strcat_s(buff, buff_size, buf2);
     strcat_s(buff, buff_size, "\r\n");
 
-    sprintf(buff, "%s  %s%sConstitution:%s ", buff,
+    snprintf(buff, sizeof(buff), "%s  %s%sConstitution:%s ", buff,
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4271,7 +4271,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
         strcat_s(buff, buff_size, buf2);
     strcat_s(buff, buff_size, "\r\n");
 
-    sprintf(buff, "%s      %s%sCharisma:%s ", buff,
+    snprintf(buff, sizeof(buff), "%s      %s%sCharisma:%s ", buff,
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     if (mini_mud)
@@ -4310,7 +4310,7 @@ print_attributes_to_buf(struct creature *ch, char *buff, size_t buff_size)
 
 ACMD(do_attributes)
 {
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "\r\n%s********************************** %sAttributes %s*********************************%s\r\n",
         CCBLU(ch, C_SPR), CCYEL(ch, C_SPR), CCBLU(ch, C_SPR), CCWHT(ch,
             C_SPR));
@@ -4325,7 +4325,7 @@ ACMD(do_attributes)
     print_attributes_to_buf(ch, buf, sizeof(buf));
 
     send_to_char(ch, "%s", buf);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "\r\n%s*******************************************************************************%s\r\n",
         CCBLU(ch, C_SPR), CCWHT(ch, C_SPR));
     send_to_char(ch, "%s", buf);
@@ -4579,7 +4579,7 @@ show_all_toggles(struct creature *ch)
     if (GET_WIMP_LEV(ch) == 0)
         strcpy_s(buf2, sizeof(buf2), "OFF");
     else
-        sprintf(buf2, "%-3d", GET_WIMP_LEV(ch));
+        snprintf(buf2, sizeof(buf2), "%-3d", GET_WIMP_LEV(ch));
 
     if (GET_CLAN(ch)) {
         struct clan_data *clan = real_clan(GET_CLAN(ch));
@@ -4785,7 +4785,7 @@ ACMD(do_commands)
     else if (subcmd == SCMD_WIZHELP)
         wizhelp = 1;
 
-    sprintf(buf, "The following %s%s are available to %s:\r\n",
+    snprintf(buf, sizeof(buf), "The following %s%s are available to %s:\r\n",
         wizhelp ? "privileged " : "",
         socials ? "socials" : moods ? "moods" : "commands",
         (vict && vict == ch) ? "you" : vict ? GET_NAME(vict) : "that level");
@@ -4805,7 +4805,7 @@ ACMD(do_commands)
             continue;
         if (moods != cmd_sort_info[i].is_mood)
             continue;
-        sprintf(buf + strlen(buf), "%-16s", cmd_info[i].command);
+        snprintf(buf + strlen(buf), sizeof(buf + strlen(buf)), "%-16s", cmd_info[i].command);
         if (!(no % 5))
             strcat_s(buf, sizeof(buf), "\r\n");
         no++;
@@ -4826,7 +4826,7 @@ ACMD(do_soilage)
 
         if (GET_EQ(ch, pos) && OBJ_SOILAGE(GET_EQ(ch, pos))) {
             found = 0;
-            sprintf(buf2, "Your %s%s%s %s ", CCGRN(ch, C_NRM),
+            snprintf(buf2, sizeof(buf2), "Your %s%s%s %s ", CCGRN(ch, C_NRM),
                 OBJS(GET_EQ(ch, pos), ch), CCNRM(ch, C_NRM),
                 ISARE(OBJS(GET_EQ(ch, pos), ch)));
 
@@ -4853,7 +4853,7 @@ ACMD(do_soilage)
                 continue;
             }
             found = false;
-            sprintf(buf2, "Your %s %s ", wear_description[pos],
+            snprintf(buf2, sizeof(buf2), "Your %s %s ", wear_description[pos],
                 pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]));
 
             for (k = 0, j = 0; j < TOP_SOIL; j++)

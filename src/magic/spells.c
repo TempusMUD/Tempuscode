@@ -892,22 +892,22 @@ ASPELL(spell_locate_object)
         }
 
         if (IS_OBJ_STAT2(i, ITEM2_NOLOCATE))
-            sprintf(buf3, "The location of %s is indeterminable.\r\n",
+            snprintf(buf3, sizeof(buf3), "The location of %s is indeterminable.\r\n",
                 i->name);
         else if (IS_OBJ_STAT2(i, ITEM2_HIDDEN))
-            sprintf(buf3, "%s is hidden somewhere.\r\n", i->name);
+            snprintf(buf3, sizeof(buf3), "%s is hidden somewhere.\r\n", i->name);
         else if (i->carried_by)
-            sprintf(buf3, "%s is being carried by %s.\r\n",
+            snprintf(buf3, sizeof(buf3), "%s is being carried by %s.\r\n",
                 i->name, PERS(i->carried_by, ch));
         else if (i->in_room != NULL && !ROOM_FLAGGED(i->in_room, ROOM_HOUSE)) {
-            sprintf(buf3, "%s is in %s.\r\n", i->name, i->in_room->name);
+            snprintf(buf3, sizeof(buf3), "%s is in %s.\r\n", i->name, i->in_room->name);
         } else if (i->in_obj)
-            sprintf(buf3, "%s is in %s.\r\n", i->name, i->in_obj->name);
+            snprintf(buf3, sizeof(buf3), "%s is in %s.\r\n", i->name, i->in_obj->name);
         else if (i->worn_by)
-            sprintf(buf3, "%s is being worn by %s.\r\n",
+            snprintf(buf3, sizeof(buf3), "%s is being worn by %s.\r\n",
                 i->name, PERS(i->worn_by, ch));
         else
-            sprintf(buf3, "%s's location is uncertain.\r\n", i->name);
+            snprintf(buf3, sizeof(buf3), "%s's location is uncertain.\r\n", i->name);
 
         (void)CAP(buf3);
 
@@ -1459,7 +1459,7 @@ ASPELL(spell_enchant_weapon)
         gain_skill_prof(ch, SPELL_ENCHANT_WEAPON);
 
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
-            sprintf(buf, " imm %senchant", GET_NAME(ch));
+            snprintf(buf, sizeof(buf), " imm %senchant", GET_NAME(ch));
             strcpy_s(buf2, sizeof(buf2), obj->aliases);
             strcat_s(buf2, sizeof(buf2), buf);
             obj->aliases = strdup(buf2);
@@ -1522,7 +1522,7 @@ ASPELL(spell_enchant_armor)
         gain_skill_prof(ch, SPELL_ENCHANT_ARMOR);
 
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
-            sprintf(buf, " imm %senchant", GET_NAME(ch));
+            snprintf(buf, sizeof(buf), " imm %senchant", GET_NAME(ch));
             strcpy_s(buf2, sizeof(buf2), obj->aliases);
             strcat_s(buf2, sizeof(buf2), buf);
             obj->aliases = strdup(buf2);
@@ -1615,7 +1615,7 @@ ASPELL(spell_greater_enchant)
     gain_skill_prof(ch, SPELL_GREATER_ENCHANT);
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
-        sprintf(buf, " imm %senchant", GET_NAME(ch));
+        snprintf(buf, sizeof(buf), " imm %senchant", GET_NAME(ch));
         strcpy_s(buf2, sizeof(buf2), obj->aliases);
         strcat_s(buf2, sizeof(buf2), buf);
         obj->aliases = strdup(buf2);
@@ -1975,7 +1975,7 @@ ASPELL(spell_knock)
         REMOVE_BIT(knock_door->exit_info, EX_CLOSED);
         REMOVE_BIT(knock_door->exit_info, EX_LOCKED);
         send_to_char(ch, "Opened.\r\n");
-        sprintf(buf, "The %s %s flung open suddenly.", dname, ISARE(dname));
+        snprintf(buf, sizeof(buf), "The %s %s flung open suddenly.", dname, ISARE(dname));
         act(buf, false, ch, NULL, NULL, TO_ROOM);
 
         for (i = 0; i < NUM_DIRS; i++) {
@@ -2000,7 +2000,7 @@ ASPELL(spell_knock)
                 REMOVE_BIT(toroom->dir_option[kdir]->exit_info, EX_CLOSED);
                 REMOVE_BIT(toroom->dir_option[kdir]->exit_info, EX_LOCKED);
 
-                sprintf(buf, "The %s %s flung open from the other side.",
+                snprintf(buf, sizeof(buf), "The %s %s flung open from the other side.",
                     dname, ISARE(dname));
                 send_to_room(buf, toroom);
 
@@ -2166,7 +2166,7 @@ ASPELL(spell_gust_of_wind)
                         can_enter_house(ch, target_room->number)) &&
                     (!ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE) ||
                         clan_house_can_enter(ch, target_room))) {
-                    sprintf(buf,
+                    snprintf(buf, sizeof(buf),
                         "A sudden gust of wind blows $p out of sight to the %s!",
                         dirs[attempt]);
                     act(buf, true, ch, obj, NULL, TO_ROOM);
@@ -2174,7 +2174,7 @@ ASPELL(spell_gust_of_wind)
                     obj_from_room(obj);
                     obj_to_room(obj, target_room);
                     if (obj->in_room->people) {
-                        sprintf(buf,
+                        snprintf(buf, sizeof(buf),
                             "$p is blown in on a gust of wind from the %s!",
                             from_dirs[attempt]);
                         act(buf, false, NULL, obj, NULL, TO_ROOM);
@@ -2246,7 +2246,7 @@ ASPELL(spell_gust_of_wind)
                 && (!ROOM_FLAGGED(target_room, ROOM_NOTEL)
                     || !target_room->people)) {
                 if (can_travel_sector(victim, SECT_TYPE(target_room), 0)) {
-                    sprintf(buf,
+                    snprintf(buf, sizeof(buf),
                         "A sudden gust of wind blows $N out of sight to the %s!",
                         dirs[attempt]);
                     act(buf, true, ch, NULL, victim, TO_NOTVICT);
@@ -2257,7 +2257,7 @@ ASPELL(spell_gust_of_wind)
                     char_from_room(victim, true);
                     char_to_room(victim, target_room, true);
                     look_at_room(victim, victim->in_room, 0);
-                    sprintf(buf,
+                    snprintf(buf, sizeof(buf),
                         "$n is blown in on a gust of wind from the %s!",
                         from_dirs[attempt]);
                     act(buf, false, victim, NULL, NULL, TO_ROOM);
@@ -2644,7 +2644,7 @@ ASPELL(spell_animate_dead)
     //
     // strings
     //
-    sprintf(buf2, "%s zombie animated", obj->aliases);
+    snprintf(buf2, sizeof(buf2), "%s zombie animated", obj->aliases);
     zombie->player.name = strdup(buf2);
     zombie->player.short_descr = strdup(obj->name);
     strcpy_s(buf, sizeof(buf), obj->name);

@@ -188,7 +188,7 @@ create_dyntext_backup(dynamic_text_file * dyntext)
 
     closedir(dir);
 
-    sprintf(filename, "%s/%s.%02d", DYN_TEXT_BACKUP_DIR, dyntext->filename,
+    snprintf(filename, sizeof(filename), "%s/%s.%02d", DYN_TEXT_BACKUP_DIR, dyntext->filename,
         maxnum + 1);
 
     if (!(fl = fopen(filename, "w"))) {
@@ -216,7 +216,7 @@ save_dyntext_buffer(dynamic_text_file * dyntext)
     char filename[1024];
     char *ptr = NULL;
 
-    sprintf(filename, "text/%s", dyntext->filename);
+    snprintf(filename, sizeof(filename), "text/%s", dyntext->filename);
 
     if (!(fl = fopen(filename, "w"))) {
         errlog("Unable to open '%s' for write.", filename);
@@ -245,7 +245,7 @@ save_dyntext_control(dynamic_text_file * dyntext)
     dynamic_text_file_save savedyn;
     int i;
 
-    sprintf(filename, "%s/%s.dyn", DYN_TEXT_CONTROL_DIR, dyntext->filename);
+    snprintf(filename, sizeof(filename), "%s/%s.dyn", DYN_TEXT_CONTROL_DIR, dyntext->filename);
 
     if (!(fl = fopen(filename, "w"))) {
         errlog("Unable to open '%s' for write.", filename);
@@ -469,7 +469,7 @@ dynedit_update_string(dynamic_text_file * d)
     t = time(NULL);
     tmTime = *(localtime(&t));
 
-    sprintf(buffer,
+    snprintf(buffer, sizeof(buffer),
         "\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\r\n",
         tmp_toupper(d->filename), tmTime.tm_mon + 1, tmTime.tm_mday);
 
@@ -874,9 +874,9 @@ ACMD(do_dyntext_show)
     }
 
     if (clr(ch, C_NRM)) {
-        sprintf(color1, "\x1B[%dm", number(31, 37));
-        sprintf(color2, "\x1B[%dm", number(31, 37));
-        sprintf(color3, "\x1B[%dm", number(31, 37));
+        snprintf(color1, sizeof(color1), "\x1B[%dm", number(31, 37));
+        snprintf(color2, sizeof(color2), "\x1B[%dm", number(31, 37));
+        snprintf(color3, sizeof(color3), "\x1B[%dm", number(31, 37));
     } else {
         strcpy_s(color1, sizeof(color1), "");
         strcpy_s(color2, sizeof(color2), color1);

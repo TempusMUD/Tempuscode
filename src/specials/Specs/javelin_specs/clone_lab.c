@@ -34,13 +34,13 @@ SPECIAL(clone_lab)
     cloned_char->points.max_move = cloned_char->points.move =
         ch->points.max_move;
 
-    sprintf(buf, "cloned-%s cloned %s", GET_NAME(ch), GET_NAME(ch));
+    snprintf(buf, sizeof(buf), "cloned-%s cloned %s", GET_NAME(ch), GET_NAME(ch));
     cloned_char->player.name = strdup(buf);
 
-    sprintf(buf, "a clone of %s", GET_NAME(ch));
+    snprintf(buf, sizeof(buf), "a clone of %s", GET_NAME(ch));
     cloned_char->player.short_descr = strdup(buf);
 
-    sprintf(buf, "%s stands before you.\n", CAP(buf));
+    snprintf(buf, sizeof(buf), "%s stands before you.\n", CAP(buf));
     cloned_char->player.long_descr = strdup(buf);
 
     cloned_char->player.description = NULL;

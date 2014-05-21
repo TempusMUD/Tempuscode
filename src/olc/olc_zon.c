@@ -2511,7 +2511,7 @@ save_zone(struct creature * ch, struct zone_data * zone)
 
     REMOVE_BIT(zone->flags, ZONE_ZONE_MODIFIED);
 
-    sprintf(fname, "world/zon/olc/%d.zon", zone->number);
+    snprintf(fname, sizeof(fname), "world/zon/olc/%d.zon", zone->number);
     if (!(zone_file = fopen(fname, "w"))) {
         if (ch) {
             send_to_char(ch, "Couldn't save %s: %s\r\n",
@@ -2644,11 +2644,11 @@ save_zone(struct creature * ch, struct zone_data * zone)
 
     slog("OLC: %s zsaved %d.", GET_NAME(ch), zone->number);
 
-    sprintf(fname, "world/zon/%d.zon", zone->number);
+    snprintf(fname, sizeof(fname), "world/zon/%d.zon", zone->number);
     realfile = fopen(fname, "w");
     if (realfile) {
         fclose(zone_file);
-        sprintf(fname, "world/zon/olc/%d.zon", zone->number);
+        snprintf(fname, sizeof(fname), "world/zon/olc/%d.zon", zone->number);
         if (!(zone_file = fopen(fname, "r"))) {
             errlog("Failure to reopen olc zon file.");
             fclose(realfile);
@@ -2704,7 +2704,7 @@ do_create_zone(struct creature *ch, int num)
 
     /* Create the zone file to check that we can */
 
-    sprintf(fname, "world/zon/%d.zon", num);
+    snprintf(fname, sizeof(fname), "world/zon/%d.zon", num);
     if (!(zone_file = fopen(fname, "w"))) {
         send_to_char(ch,
             "Could not open %d.zon file, zone creation aborted.\r\n", num);
@@ -2714,7 +2714,7 @@ do_create_zone(struct creature *ch, int num)
 
     /* Open the index file */
 
-    sprintf(fname, "world/zon/index");
+    snprintf(fname, sizeof(fname), "world/zon/index");
     if (!(index = fopen(fname, "w"))) {
         send_to_char(ch,
             "Could not open index file, zone creation aborted.\r\n");
@@ -2882,7 +2882,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             || mode_error || mode_implant || mode_path))
         mode_all = 0;
 
-    sprintf(out_buf, "Command list for zone %d :\r\n\r\n", zone->number);
+    snprintf(out_buf, sizeof(out_buf), "Command list for zone %d :\r\n\r\n", zone->number);
 
     for (i = 0, zcmd = zone->cmd; zcmd && zcmd->command != 'S';
         i++, zcmd = zcmd->next) {
@@ -2896,7 +2896,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_mob)
                 break;
             tmp_mob = real_mobile_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d. %sMobile%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2, CCYEL(ch,
@@ -2909,7 +2909,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
             tmp_rom = real_room(zcmd->arg3);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d. %sObject%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, zcmd->arg1, tmp_rom ? tmp_rom->number : (-1),
@@ -2921,7 +2921,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_put)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.    %sPut%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
                 zcmd->if_flag, zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2,
@@ -2932,7 +2932,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         case 'V':
             if (!mode_all && !mode_path)
                 break;
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.  %sPath%s : % d [%3d] %5d   to obj %5d     : (%s%s%s)\r\n",
                 zcmd->line,
                 CCYEL_REV(ch, C_NRM),
@@ -2947,7 +2947,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         case 'W':
             if (!mode_all && !mode_path)
                 break;
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.   %sPath%s: % d [%3d] %5d to mob %5d   : (%s%s%s)\r\n",
                 zcmd->line,
                 CCYEL_REV(ch, C_NRM),
@@ -2963,7 +2963,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_give)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.   %sGive%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM),
                 zcmd->if_flag, zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2,
@@ -2975,7 +2975,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_eq)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.  %sEquip%s: % d [%3d] %5d to   %5d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCMAG(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2, CCGRN(ch,
@@ -2987,7 +2987,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_implant)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d.%sImplant%s: % d [%3d] %5d to      %2d, max %3d: (%s%s%s)\r\n",
                 zcmd->line, CCMAG(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, zcmd->arg1, zcmd->arg3, zcmd->arg2, CCGRN(ch,
@@ -2999,7 +2999,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
             if (!mode_all && !mode_rem)
                 break;
             tmp_obj = real_object_proto(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d. %sRem Obj%s % d [%3d] %5d from %5d,          (%s%s%s)\r\n",
                 zcmd->line, CCRED(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, zcmd->arg1, zcmd->arg2, CCGRN(ch, C_NRM), (tmp_obj
@@ -3011,7 +3011,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
                 break;
             sprintbit(zcmd->arg3, exit_bits, door_flg, sizeof(door_flg));
             tmp_rom = real_room(zcmd->arg1);
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d. %sDoor%s  : % d [%3d] %5d dir  %5s,          (%s)\r\n",
                 zcmd->line, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), zcmd->if_flag,
                 zcmd->prob, tmp_rom ? tmp_rom->number : (-1), dirs[zcmd->arg2],
@@ -3020,7 +3020,7 @@ do_zone_cmdlist(struct creature *ch, struct zone_data *zone, char *arg)
         default:
             if (!mode_all && !mode_error)
                 break;
-            sprintf(buf, "%3d. %c     : % d [%3d] %5d    %5d    %5d\r\n",
+            snprintf(buf, sizeof(buf), "%3d. %c     : % d [%3d] %5d    %5d    %5d\r\n",
                 zcmd->line, zcmd->command, zcmd->if_flag, zcmd->prob,
                 zcmd->arg1, zcmd->arg2, zcmd->arg3);
             break;

@@ -195,9 +195,9 @@ ACMD(do_point)
     }
 
     if ((dir = search_block(argument, dirs, false)) >= 0) {
-        sprintf(buf, "$n points %sward.", dirs[dir]);
+        snprintf(buf, sizeof(buf), "$n points %sward.", dirs[dir]);
         act(buf, true, ch, NULL, NULL, TO_ROOM);
-        sprintf(buf, "You point %sward.", dirs[dir]);
+        snprintf(buf, sizeof(buf), "You point %sward.", dirs[dir]);
         act(buf, false, ch, NULL, NULL, TO_CHAR);
         return;
     }
@@ -339,7 +339,7 @@ boot_social_messages(void)
 
     /* open social file */
     if (!(fl = fopen(SOCMESS_FILE, "r"))) {
-        sprintf(buf, "Can't open socials file '%s'", SOCMESS_FILE);
+        snprintf(buf, sizeof(buf), "Can't open socials file '%s'", SOCMESS_FILE);
         perror(buf);
         safe_exit(1);
     }
@@ -446,23 +446,23 @@ show_social_messages(struct creature *ch, char *arg)
         else {
             action = &soc_mess_list[j];
 
-            sprintf(buf, "Action '%s', Hide-invis : %s, Min Vict Pos: %d\r\n",
+            snprintf(buf, sizeof(buf), "Action '%s', Hide-invis : %s, Min Vict Pos: %d\r\n",
                 cmd_info[i].command, YESNO(action->hide),
                 action->min_victim_position);
-            sprintf(buf, "%schar_no_arg  : %s\r\n", buf, action->char_no_arg);
-            sprintf(buf, "%sothers_no_arg: %s\r\n", buf,
+            snprintf(buf, sizeof(buf), "%schar_no_arg  : %s\r\n", buf, action->char_no_arg);
+            snprintf(buf, sizeof(buf), "%sothers_no_arg: %s\r\n", buf,
                 action->others_no_arg);
-            sprintf(buf, "%schar_found   : %s\r\n", buf, action->char_found);
+            snprintf(buf, sizeof(buf), "%schar_found   : %s\r\n", buf, action->char_found);
             if (action->others_found) {
-                sprintf(buf, "%sothers_found : %s\r\n", buf,
+                snprintf(buf, sizeof(buf), "%sothers_found : %s\r\n", buf,
                     action->others_found);
-                sprintf(buf, "%svict_found   : %s\r\n", buf,
+                snprintf(buf, sizeof(buf), "%svict_found   : %s\r\n", buf,
                     action->vict_found);
-                sprintf(buf, "%snot_found    : %s\r\n", buf,
+                snprintf(buf, sizeof(buf), "%snot_found    : %s\r\n", buf,
                     action->not_found);
-                sprintf(buf, "%schar_auto    : %s\r\n", buf,
+                snprintf(buf, sizeof(buf), "%schar_auto    : %s\r\n", buf,
                     action->char_auto);
-                sprintf(buf, "%sothers_auto  : %s\r\n", buf,
+                snprintf(buf, sizeof(buf), "%sothers_auto  : %s\r\n", buf,
                     action->others_auto);
             }
             send_to_char(ch, "%s", buf);

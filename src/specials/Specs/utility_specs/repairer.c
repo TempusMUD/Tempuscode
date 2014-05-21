@@ -52,14 +52,14 @@ SPECIAL(repairer)
     }
 
     if (GET_OBJ_DAM(obj) <= -1 || GET_OBJ_MAX_DAM(obj) <= -1) {
-        sprintf(tellbuf, "There is no point... %s is unbreakable.", obj->name);
+        snprintf(tellbuf, sizeof(tellbuf), "There is no point... %s is unbreakable.", obj->name);
         perform_tell(repairer, ch, tellbuf);
         return 1;
     }
 
     if (GET_OBJ_MAX_DAM(obj) == 0 ||
         GET_OBJ_MAX_DAM(obj) <= (GET_OBJ_MAX_DAM(proto_obj) / 16)) {
-        sprintf(tellbuf, "Sorry, %s is damaged beyond repair.", obj->name);
+        snprintf(tellbuf, sizeof(tellbuf), "Sorry, %s is damaged beyond repair.", obj->name);
         perform_tell(repairer, ch, tellbuf);
         return 1;
     }
@@ -76,7 +76,7 @@ SPECIAL(repairer)
     currency = (ch->in_room->zone->time_frame == TIME_ELECTRO);
 
     if (CMD_IS("value")) {
-        sprintf(tellbuf, "It will cost you %'" PRId64 " %s to repair %s.", cost,
+        snprintf(tellbuf, sizeof(tellbuf), "It will cost you %'" PRId64 " %s to repair %s.", cost,
             currency ? "credits" : "coins", obj->name);
         perform_tell(repairer, ch, tellbuf);
         return 1;
@@ -84,7 +84,7 @@ SPECIAL(repairer)
 
     if ((currency && cost > GET_CASH(ch)) ||
         (!currency && cost > GET_GOLD(ch))) {
-        sprintf(tellbuf, "You don't have the %'" PRId64 " %s I require.", cost,
+        snprintf(tellbuf, sizeof(tellbuf), "You don't have the %'" PRId64 " %s I require.", cost,
             currency ? "credits" : "gold coins");
         perform_tell(repairer, ch, tellbuf);
         return 1;

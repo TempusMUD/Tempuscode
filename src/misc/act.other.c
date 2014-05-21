@@ -290,31 +290,31 @@ ACMD(do_board)
 ACMD(do_palette)
 {
     strcpy_s(buf, sizeof(buf), "Available Colors:\r\n");
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sRED %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KRED, KBLD, KNRM, KRED, KUND, KNRM, KRED, KBLK, KBLD, KNRM, KRED,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sGRN %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KGRN, KBLD, KNRM, KGRN, KUND, KNRM, KGRN, KBLK, KBLD, KNRM, KGRN,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sYEL %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KYEL, KBLD, KNRM, KYEL, KUND, KNRM, KYEL, KBLK, KBLD, KNRM, KYEL,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sBLU %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KBLU, KBLD, KNRM, KBLU, KUND, KNRM, KBLU, KBLK, KBLD, KNRM, KBLU,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sMAG %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KMAG, KBLD, KNRM, KMAG, KUND, KNRM, KMAG, KBLK, KBLD, KNRM, KMAG,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sCYN %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KCYN, KBLD, KNRM, KCYN, KUND, KNRM, KCYN, KBLK, KBLD, KNRM, KCYN,
         KREV, KBLD, KNRM);
-    sprintf(buf,
+    snprintf(buf, sizeof(buf),
         "%s%sWHT %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
         buf, KWHT, KBLD, KNRM, KWHT, KUND, KNRM, KWHT, KBLK, KBLD, KNRM, KWHT,
         KREV, KBLD, KNRM);
@@ -427,7 +427,7 @@ print_group(struct creature *ch)
         k = (ch->master ? ch->master : ch);
 
         if (AFF_FLAGGED(k, AFF_GROUP)) {
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N %s(%sHead of group%s)%s",
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                 GET_HIT(k), GET_MANA(k), GET_MOVE(k), GET_ALIGNMENT(k),
@@ -446,7 +446,7 @@ print_group(struct creature *ch)
             if (!AFF_FLAGGED(f->follower, AFF_GROUP))
                 continue;
 
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N",
                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_HIT(f->follower),
                 GET_MANA(f->follower), GET_MOVE(f->follower),
@@ -630,7 +630,7 @@ ACMD(do_report)
         send_to_char(ch, "But you are not a member of any group!\r\n");
         return;
     }
-    sprintf(buf, "%s reports: %d/%dH, %d/%dM, %d/%dV, %dA\r\n",
+    snprintf(buf, sizeof(buf), "%s reports: %d/%dH, %d/%dM, %d/%dV, %dA\r\n",
         GET_NAME(ch), GET_HIT(ch), GET_MAX_HIT(ch),
         GET_MANA(ch), GET_MAX_MANA(ch),
         GET_MOVE(ch), GET_MAX_MOVE(ch), GET_ALIGNMENT(ch));
@@ -889,7 +889,7 @@ ACMD(do_wimpy)
                 send_to_char(ch,
                     "You can't set your wimp level above half your hit points.\r\n");
             else {
-                sprintf(buf,
+                snprintf(buf, sizeof(buf),
                     "Okay, you'll wimp out if you drop below %d hit points.\r\n",
                     wimp_lev);
                 send_to_char(ch, "%s", buf);
@@ -1313,14 +1313,14 @@ ACMD(do_gen_tog)
 
     case SCMD_LOGALL:
         TOGGLE_BIT(log_cmds, 1);
-        sprintf(buf, "%s has toggled logall %s", GET_NAME(ch),
+        snprintf(buf, sizeof(buf), "%s has toggled logall %s", GET_NAME(ch),
             ONOFF(log_cmds));
         mudlog(MAX(LVL_LOGALL, GET_INVIS_LVL(ch)), BRF, true, "%s", buf);
         send_to_char(ch, "%s\r\n", buf);
         return;
     case SCMD_JET_STREAM:
         TOGGLE_BIT(jet_stream_state, 1);
-        sprintf(buf, "%s has toggled jet_stream_state %s", GET_NAME(ch),
+        snprintf(buf, sizeof(buf), "%s has toggled jet_stream_state %s", GET_NAME(ch),
             ONOFF(jet_stream_state));
         mudlog(GET_INVIS_LVL(ch), BRF, true, "%s", buf);
         send_to_char(ch, "%s\r\n", buf);
@@ -1766,11 +1766,11 @@ ACMD(do_throw)
                 if (obj->worn_by)
                     obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 
-                sprintf(buf, "$n throws $p %sward against the closed %s.",
+                snprintf(buf, sizeof(buf), "$n throws $p %sward against the closed %s.",
                     dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
                     fname(EXIT(ch, dir - 1)->keyword) : "door");
                 act(buf, false, ch, obj, NULL, TO_ROOM);
-                sprintf(buf, "You throw $p %sward against the closed %s.",
+                snprintf(buf, sizeof(buf), "You throw $p %sward against the closed %s.",
                     dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
                     fname(EXIT(ch, dir - 1)->keyword) : "door");
                 act(buf, false, ch, obj, NULL, TO_CHAR);
@@ -1790,25 +1790,25 @@ ACMD(do_throw)
             if (obj->worn_by)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
 
-            sprintf(buf, "$n throws $p %sward.", dirs[(int)(dir - 1)]);
+            snprintf(buf, sizeof(buf), "$n throws $p %sward.", dirs[(int)(dir - 1)]);
             act(buf, false, ch, obj, NULL, TO_ROOM);
-            sprintf(buf, "You throw $p %sward.", dirs[(int)(dir - 1)]);
+            snprintf(buf, sizeof(buf), "You throw $p %sward.", dirs[(int)(dir - 1)]);
             act(buf, false, ch, obj, NULL, TO_CHAR);
             obj_from_char(obj);
             obj_to_room(obj, r_toroom);
             if (target_vict) {
-                sprintf(buf, "$p flies in from %s and hits you in the head!",
+                snprintf(buf, sizeof(buf), "$p flies in from %s and hits you in the head!",
                     from_dirs[(int)(dir - 1)]);
                 act(buf, false, NULL, obj, target_vict, TO_VICT);
-                sprintf(buf, "$p flies in from %s and hits $N in the head!",
+                snprintf(buf, sizeof(buf), "$p flies in from %s and hits $N in the head!",
                     from_dirs[(int)(dir - 1)]);
                 act(buf, false, NULL, obj, target_vict, TO_NOTVICT);
             } else if (target_obj) {
-                sprintf(buf, "$p flies in from %s and slams into %s!",
+                snprintf(buf, sizeof(buf), "$p flies in from %s and slams into %s!",
                     from_dirs[(int)(dir - 1)], target_obj->name);
                 act(buf, false, NULL, obj, target_vict, TO_ROOM);
             } else {
-                sprintf(buf, "$p flies in from %s and lands by your feet.",
+                snprintf(buf, sizeof(buf), "$p flies in from %s and lands by your feet.",
                     from_dirs[(int)(dir - 1)]);
                 act(buf, false, NULL, obj, NULL, TO_ROOM);
             }
@@ -1909,10 +1909,10 @@ ACMD(do_throw)
         } else if (target_obj) {
             if (obj->worn_by)
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
-            sprintf(buf, "$n hurls $p up against %s with brute force!",
+            snprintf(buf, sizeof(buf), "$n hurls $p up against %s with brute force!",
                 target_obj->name);
             act(buf, false, ch, obj, NULL, TO_ROOM);
-            sprintf(buf, "You hurl $p up against %s with brute force!",
+            snprintf(buf, sizeof(buf), "You hurl $p up against %s with brute force!",
                 target_obj->name);
             act(buf, false, ch, obj, NULL, TO_CHAR);
         }
@@ -2048,7 +2048,7 @@ ACMD(do_knock)
         else
             strcpy_s(dname, sizeof(dname), "door");
 
-        sprintf(buf, "$n knocks on the %s.", dname);
+        snprintf(buf, sizeof(buf), "$n knocks on the %s.", dname);
         act(buf, false, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "You knock on the %s.\r\n", dname);
 
@@ -2062,7 +2062,7 @@ ACMD(do_knock)
             else
                 strcpy_s(dname, sizeof(dname), "door");
 
-            sprintf(buf, "Someone knocks on the %s from the other side.",
+            snprintf(buf, sizeof(buf), "Someone knocks on the %s from the other side.",
                 dname);
             act(buf, false, other_room->people->data, NULL, NULL,
                 TO_CHAR | TO_SLEEP);
@@ -2201,25 +2201,25 @@ ACMD(do_clean)
             return;
         }
         if (!CHAR_SOILAGE(vict, pos)) {
-            sprintf(buf, "%s not soiled there.",
+            snprintf(buf, sizeof(buf), "%s not soiled there.",
                 ch == vict ? "You are" : "$E is");
             act(buf, false, ch, NULL, vict, TO_CHAR);
             return;
         }
 
         if (vict == ch) {
-            sprintf(buf, "$n carefully cleans $s %s.", wear_description[pos]);
+            snprintf(buf, sizeof(buf), "$n carefully cleans $s %s.", wear_description[pos]);
             act(buf, true, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch, "You carefully clean your %s.\r\n",
                 wear_description[pos]);
         } else {
-            sprintf(buf, "$n carefully cleans $N's %s.",
+            snprintf(buf, sizeof(buf), "$n carefully cleans $N's %s.",
                 wear_description[pos]);
             act(buf, true, ch, NULL, vict, TO_NOTVICT);
-            sprintf(buf, "You carefully clean $N's %s.",
+            snprintf(buf, sizeof(buf), "You carefully clean $N's %s.",
                 wear_description[pos]);
             act(buf, false, ch, NULL, vict, TO_CHAR);
-            sprintf(buf, "$n carefully cleans your %s.",
+            snprintf(buf, sizeof(buf), "$n carefully cleans your %s.",
                 wear_description[pos]);
             act(buf, false, ch, NULL, vict, TO_VICT);
         }
@@ -2241,10 +2241,10 @@ ACMD(do_clean)
                 strcat_s(buf, sizeof(buf), soilage_bits[j]);
             }
         }
-        sprintf(buf2, "Your %s %s %s.", wear_description[pos],
+        snprintf(buf2, sizeof(buf2), "Your %s %s %s.", wear_description[pos],
             pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
         act(buf2, false, ch, obj, vict, TO_VICT);
-        sprintf(buf2, "$N's %s %s %s.", wear_description[pos],
+        snprintf(buf2, sizeof(buf2), "$N's %s %s %s.", wear_description[pos],
             pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
         act(buf2, true, ch, obj, vict, TO_NOTVICT);
         if (ch != vict)
@@ -2259,10 +2259,10 @@ ACMD(do_clean)
     if (!OBJ_SOILAGE(obj))
         act("$p is not soiled.", false, ch, obj, NULL, TO_CHAR);
     else {
-        sprintf(buf, "$n carefully cleans $p. (%s)",
+        snprintf(buf, sizeof(buf), "$n carefully cleans $p. (%s)",
             obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
         act(buf, true, ch, obj, NULL, TO_ROOM);
-        sprintf(buf, "You carefully clean $p. (%s)",
+        snprintf(buf, sizeof(buf), "You carefully clean $p. (%s)",
             obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
         act(buf, false, ch, obj, NULL, TO_CHAR);
 

@@ -53,10 +53,10 @@ SPECIAL(stable_room)
         SET_BIT(AFF_FLAGS(pet), AFF_CHARM);
 
         if (*pet_name) {
-            sprintf(buf, "%s %s", pet->player.name, pet_name);
+            snprintf(buf, sizeof(buf), "%s %s", pet->player.name, pet_name);
             pet->player.name = strdup(buf);
 
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%sA small sign on a chain around the neck says 'My name is %s'\r\n",
                 pet->player.description, pet_name);
             pet->player.description = strdup(buf);
@@ -79,7 +79,7 @@ SPECIAL(stable_room)
         skip_spaces(&argument);
 
         if (!*argument) {
-            sprintf(buf, "%s what mount?\r\n",
+            snprintf(buf, sizeof(buf), "%s what mount?\r\n",
                 CMD_IS("sell") ? "Sell" : "Value");
             return 1;
         }
@@ -98,7 +98,7 @@ SPECIAL(stable_room)
         }
         price = GET_LEVEL(pet) * 10 + GET_MOVE(pet) * 10 + GET_HIT(pet) * 10;
 
-        sprintf(buf, "I will pay you %'d gold coins for $N.", price);
+        snprintf(buf, sizeof(buf), "I will pay you %'d gold coins for $N.", price);
         act(buf, false, ch, NULL, pet, TO_CHAR);
         if (CMD_IS("value"))
             return 1;

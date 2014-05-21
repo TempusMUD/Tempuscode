@@ -46,7 +46,7 @@ SPECIAL(typo_util)
     }
 
     if ((tcmd = search_block(arg1, typo_util_cmds, false)) < 0) {
-        sprintf(buf, "$p: Invalid command '%s'.", arg1);
+        snprintf(buf, sizeof(buf), "$p: Invalid command '%s'.", arg1);
         act(buf, false, ch, obj, NULL, TO_CHAR);
         send_to_char(ch, TYPO_UTIL_USAGE);
         return 1;
@@ -54,15 +54,15 @@ SPECIAL(typo_util)
 
     switch (tcmd) {
     case 0:                    // Room
-        sprintf(arg1, "description%s", argument);
+        snprintf(arg1, sizeof(arg1), "description%s", argument);
         do_olc_rset(ch, arg1);
         break;
     case 1:                    // title
-        sprintf(arg1, "title%s", argument);
+        snprintf(arg1, sizeof(arg1), "title%s", argument);
         do_olc_rset(ch, arg1);
         break;
     case 2:                    // sound
-        sprintf(arg1, "sound%s", argument);
+        snprintf(arg1, sizeof(arg1), "sound%s", argument);
         do_olc_rset(ch, arg1);
         break;
     case 3:                    // Save
@@ -70,7 +70,7 @@ SPECIAL(typo_util)
         }
         break;
     default:
-        sprintf(buf, "$p: Invalid command '%s'.", arg1);
+        snprintf(buf, sizeof(buf), "$p: Invalid command '%s'.", arg1);
         send_to_char(ch, TYPO_UTIL_USAGE);
         break;
     }

@@ -817,7 +817,7 @@ parse_room(FILE * fl, int vnum_nr)
     struct zone_data *zone = NULL;
     struct room_data *room = NULL, *tmp_room = NULL;
 
-    sprintf(buf2, "room #%d", vnum_nr);
+    snprintf(buf2, sizeof(buf2), "room #%d", vnum_nr);
 
     zone = zone_table;
 
@@ -852,7 +852,7 @@ parse_room(FILE * fl, int vnum_nr)
         safe_exit(1);
     }
 
-    sprintf(buf, "Format error in room #%d (expecting D/E/S)", vnum_nr);
+    snprintf(buf, sizeof(buf), "Format error in room #%d (expecting D/E/S)", vnum_nr);
 
     while (true) {
         if (!get_line(fl, line, sizeof(line))) {
@@ -1051,7 +1051,7 @@ setup_dir(FILE * fl, struct room_data *room, int dir)
     int t[5];
     char line[256], flags[128];
 
-    sprintf(buf2, "room #%d, direction D%d", room->number, dir);
+    snprintf(buf2, sizeof(buf2), "room #%d, direction D%d", room->number, dir);
 
     if (dir >= NUM_DIRS) {
         errlog("Room direction > NUM_DIRS in room #%d", room->number);
@@ -1820,7 +1820,7 @@ parse_mobile(FILE * mob_f, int nr)
     mobile->mob_specials.shared->proto = mobile;
 
     mobile->player_specials = &dummy_mob;
-    sprintf(buf2, "mob vnum %d", nr);
+    snprintf(buf2, sizeof(buf2), "mob vnum %d", nr);
 
     /***** String data *** */
     mobile->player.name = fread_string(mob_f, buf2);
@@ -1921,7 +1921,7 @@ parse_object(FILE * obj_f, int nr)
     obj->in_room = NULL;
     obj->worn_on = -1;
 
-    sprintf(buf2, "object #%d", nr);
+    snprintf(buf2, sizeof(buf2), "object #%d", nr);
 
     /* *** string data *** */
     if ((obj->aliases = fread_string(obj_f, buf2)) == NULL) {
@@ -2115,7 +2115,7 @@ load_zones(FILE * fl, char *zonename)
         fprintf(stderr, "Format error in %s, line %d\n", zname, line_num);
         safe_exit(0);
     }
-    sprintf(buf2, "beginning of zone #%d", new_zone->number);
+    snprintf(buf2, sizeof(buf2), "beginning of zone #%d", new_zone->number);
 
     line_num += get_line(fl, buf, sizeof(buf));
     if ((ptr = strchr(buf, '~')) != NULL)   /* take off the '~' if it's there */
@@ -2302,7 +2302,7 @@ read_mobile(int vnum)
     struct creature *mob = NULL, *tmp_mob;
 
     if (!(tmp_mob = real_mobile_proto(vnum))) {
-        sprintf(buf, "Mobile (V) %d does not exist in database.", vnum);
+        snprintf(buf, sizeof(buf), "Mobile (V) %d does not exist in database.", vnum);
         return (NULL);
     }
     CREATE(mob, struct creature, 1);

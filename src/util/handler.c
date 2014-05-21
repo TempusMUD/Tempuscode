@@ -782,9 +782,9 @@ char_from_room(struct creature *ch, bool check_specials)
     if (ch == NULL || ch->in_room == NULL) {
         errlog("NULL or NOWHERE in handler.c, char_from_room");
         if (ch) {
-            sprintf(buf, "Char is %s\r\n", GET_NAME(ch));
+            snprintf(buf, sizeof(buf), "Char is %s\r\n", GET_NAME(ch));
             if (ch->in_room != NULL)
-                sprintf(buf, "Char is in_room %d\r\n", ch->in_room->number);
+                snprintf(buf, sizeof(buf), "Char is in_room %d\r\n", ch->in_room->number);
         }
         exit(1);
     }
@@ -1062,7 +1062,7 @@ obj_from_char(struct obj_data *object)
     }
 #ifdef TRACK_OBJS
     object->obj_flags.tracker.lost_time = time(0);
-    sprintf(buf, "carried by %s", GET_NAME(object->carried_by));
+    snprintf(buf, sizeof(buf), "carried by %s", GET_NAME(object->carried_by));
     strncpy(object->obj_flags.tracker.string, buf, TRACKER_STR_LEN - 1);
 #endif
 
@@ -1296,7 +1296,7 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
 
 #ifdef TRACK_OBJS
     obj->obj_flags.tracker.lost_time = time(0);
-    sprintf(buf, "%s %s @ %d", internal ? "implanted" : "worn",
+    snprintf(buf, sizeof(buf), "%s %s @ %d", internal ? "implanted" : "worn",
         GET_NAME(obj->worn_by), pos);
     strncpy(obj->obj_flags.tracker.string, buf, TRACKER_STR_LEN - 1);
 #endif
@@ -1575,7 +1575,7 @@ obj_from_room(struct obj_data *object)
     }
 #ifdef TRACK_OBJS
     object->obj_flags.tracker.lost_time = time(0);
-    sprintf(object->obj_flags.tracker.string, "inroom %d",
+    snprintf(object->obj_flags.tracker.string, sizeof(object->obj_flags.tracker.string), "inroom %d",
         object->in_room->number);
 #endif
 
@@ -1646,7 +1646,7 @@ obj_from_obj(struct obj_data *obj)
     }
 #ifdef TRACK_OBJS
     obj->obj_flags.tracker.lost_time = time(0);
-    sprintf(obj->obj_flags.tracker.string, "in obj %s", obj->in_obj->name);
+    snprintf(obj->obj_flags.tracker.string, sizeof(obj->obj_flags.tracker.string), "in obj %s", obj->in_obj->name);
 #endif
 
     obj_from = obj->in_obj;

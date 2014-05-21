@@ -285,7 +285,7 @@ SPECIAL(hell_hunter_brain)
             return 1;
         } else if (CMD_IS("status")) {
             send_to_char(ch, "Counter is at %d, freq %d.\r\n", counter, freq);
-            sprintf(buf, "     [vnum] %30s exist/housed\r\n", "Object Name");
+            snprintf(buf, sizeof(buf), "     [vnum] %30s exist/housed\r\n", "Object Name");
             i = 1;
             for (GList * it = targets; it; it = it->next, i++) {
                 struct target *target = it->data;
@@ -320,7 +320,7 @@ SPECIAL(hell_hunter_brain)
             }
 
             if (strcmp(argument, "now") == 0) {
-                sprintf(buf, "Counter set to 1.\r\n");
+                snprintf(buf, sizeof(buf), "Counter set to 1.\r\n");
                 counter = 1;
                 return 1;
             }
@@ -445,7 +445,7 @@ SPECIAL(hell_hunter_brain)
             vict ? GET_NAME(vict) : "Nobody",
             obj->in_room ? obj->in_room->number :
             (vict && vict->in_room) ? vict->in_room->number : -1);
-        sprintf(buf, "%d Devils%s sent after obj %s (%s@%d)",
+        snprintf(buf, sizeof(buf), "%d Devils%s sent after obj %s (%s@%d)",
             num_devils,
             regulator ? " (+reg)" : "",
             obj->name, vict ? "$N" : "Nobody",

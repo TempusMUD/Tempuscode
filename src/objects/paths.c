@@ -217,20 +217,20 @@ print_path(struct path_head *phead, char *str, size_t len)
     if (!phead)
         return;
 
-    sprintf(str, "%d %s %ld %d %d ", phead->number, phead->name, phead->owner,
+    snprintf(str, sizeof(str), "%d %s %ld %d %d ", phead->number, phead->name, phead->owner,
         phead->wait_time, phead->length);
     ll = strlen(str);
 
     for (i = 0; i < phead->length; i++) {
         switch (phead->path[i].type) {
         case PATH_ROOM:
-            sprintf(buf, "%d ", phead->path[i].data);
+            snprintf(buf, sizeof(buf), "%d ", phead->path[i].data);
             break;
         case PATH_WAIT:
-            sprintf(buf, "W%d ", phead->path[i].data);
+            snprintf(buf, sizeof(buf), "W%d ", phead->path[i].data);
             break;
         case PATH_DIR:
-            sprintf(buf, "D%c ", *(dirs[phead->path[i].data]));
+            snprintf(buf, sizeof(buf), "D%c ", *(dirs[phead->path[i].data]));
             break;
         case PATH_EXIT:
             strcpy_s(buf, sizeof(buf), "X ");
@@ -245,14 +245,14 @@ print_path(struct path_head *phead, char *str, size_t len)
 
                 for (j = 1; j < cmdl; j++)
                     cmd = cmd->next;
-                sprintf(buf, "C\"%s\" ", (char *)(cmd->object));
+                snprintf(buf, sizeof(buf), "C\"%s\" ", (char *)(cmd->object));
             } else {
                 cmdl = phead->path[i].data - fcmd + 1;
-                sprintf(buf, "C%d ", cmdl);
+                snprintf(buf, sizeof(buf), "C%d ", cmdl);
             }
             break;
         default:
-            sprintf(buf, "???");
+            snprintf(buf, sizeof(buf), "???");
         }
 
         if ((ll + strlen(buf)) > 79) {
@@ -282,7 +282,7 @@ show_path(struct creature *ch, char *arg)
 
         for (path_head = first_path; path_head;
             path_head = (struct path_head *)path_head->next, i++) {
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%3d. %-15s  Own:[%-12s]  Wt:[%3d]  Flags:[%3d]  Len:[%3d]  BFS:[%9d]\r\n",
                 path_head->number, path_head->name,
                 player_idnum_exists(path_head->
@@ -292,10 +292,10 @@ show_path(struct creature *ch, char *arg)
             strcat_s(outbuf, sizeof(outbuf), buf);
         }
     } else if (!(path_head = real_path(arg)))
-        sprintf(outbuf, "No such path, '%s'.\r\n", arg);
+        snprintf(outbuf, sizeof(outbuf), "No such path, '%s'.\r\n", arg);
     else {
         /*
-           sprintf(outbuf, "PATH: %-20s  Wait:[%3d]  Flags:[%3d]  Length:[%3d]\r\n",
+           snprintf(outbuf, sizeof(outbuf), "PATH: %-20s  Wait:[%3d]  Flags:[%3d]  Length:[%3d]\r\n",
            path_head->name, path_head->wait_time,
            path_head->flags, path_head->length);
          */
@@ -593,27 +593,27 @@ load_paths(void)
         case 0:
             break;
         case 1:
-            sprintf(buf, "Path %d in vnum position.", line);
+            snprintf(buf, sizeof(buf), "Path %d in vnum position.", line);
             fail = 1;
             break;
         case 2:
-            sprintf(buf, "Path %d in title position.", line);
+            snprintf(buf, sizeof(buf), "Path %d in title position.", line);
             fail = 1;
             break;
         case 3:
-            sprintf(buf, "Path %d in owner position.", line);
+            snprintf(buf, sizeof(buf), "Path %d in owner position.", line);
             fail = 1;
             break;
         case 4:
-            sprintf(buf, "Path %d in wait time position.", line);
+            snprintf(buf, sizeof(buf), "Path %d in wait time position.", line);
             fail = 1;
             break;
         case 5:
-            sprintf(buf, "Path %d in length position.", line);
+            snprintf(buf, sizeof(buf), "Path %d in length position.", line);
             fail = 1;
             break;
         default:
-            sprintf(buf, "Path %d in path position %d.", line, ret - 5);
+            snprintf(buf, sizeof(buf), "Path %d in path position %d.", line, ret - 5);
             fail = 1;
         }
 

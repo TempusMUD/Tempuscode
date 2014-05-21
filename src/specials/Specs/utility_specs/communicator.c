@@ -52,7 +52,7 @@ SPECIAL(master_communicator)
             chan[num] = COMM_CHANNEL(o);
             num++;
 
-            sprintf(buf, "%sEntities monitoring channel [%d]:\r\n",
+            snprintf(buf, sizeof(buf), "%sEntities monitoring channel [%d]:\r\n",
                 buf, COMM_CHANNEL(o));
 
             for (tmpo = o, i = 0; tmpo; tmpo = tmpo->next) {
@@ -64,7 +64,7 @@ SPECIAL(master_communicator)
                 if (((vict = tmpo->carried_by) || (vict = tmpo->worn_by)) &&
                     can_see_creature(ch, vict))
 
-                    sprintf(buf, "%s     %3d. %20s %10s %5s\r\n",
+                    snprintf(buf, sizeof(buf), "%s     %3d. %20s %10s %5s\r\n",
                         buf, ++i, PERS(vict, ch),
                         !ENGINE_STATE(tmpo) ? "[inactive]" : "",
                         !COMM_UNIT_SEND_OK(vict, ch) ? "(cantsend)" : "");

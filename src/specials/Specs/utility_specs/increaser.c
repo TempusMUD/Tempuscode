@@ -109,7 +109,7 @@ SPECIAL(increaser)
                  life_cost, PLURAL(life_cost),
                  arg1, incr);
 
-    sprintf(buf, "$n considers the implications of increasing $s %s.", arg1);
+    snprintf(buf, sizeof(buf), "$n considers the implications of increasing $s %s.", arg1);
 
     if (CASH_MONEY(ch) < gold) {
         send_to_char(ch,

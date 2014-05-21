@@ -126,7 +126,7 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
 
     if (IS_ENERGY_GUN(gun)) {
         if (gun->contains && IS_ENERGY_CELL(gun->contains)) {
-            sprintf(buf,
+            snprintf(buf, sizeof(buf),
                 "%s is loaded with %s.\r\n"
                 "The potential energy of %s is:  %s[%3d/%3d]%s units.\r\n",
                 gun->name, gun->contains->name,
@@ -143,7 +143,7 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
         if (MAX_LOAD(gun)) {
             if (gun->contains) {
                 count = count_contained_objs(gun);
-                sprintf(buf, "$p is loaded with %s[%d/%d]%s cartridge%s",
+                snprintf(buf, sizeof(buf), "$p is loaded with %s[%d/%d]%s cartridge%s",
                     QGRN, count, MAX_LOAD(gun), QNRM, count == 1 ? "" : "s");
             } else
                 strcpy_s(buf, sizeof(buf), "$p is not loaded.");
@@ -151,7 +151,7 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
             strcpy_s(buf, sizeof(buf), "$p is not loaded.");
         else {
             count = count_contained_objs(gun->contains);
-            sprintf(buf, "$p is loaded with $P,\r\n"
+            snprintf(buf, sizeof(buf), "$p is loaded with $P,\r\n"
                 "which contains %s[%d/%d]%s cartridge%s",
                 QGRN, count, MAX_LOAD(gun->contains), QNRM,
                 count == 1 ? "" : "s");

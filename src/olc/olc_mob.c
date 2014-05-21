@@ -1296,7 +1296,7 @@ write_mob_index(struct creature *ch, struct zone_data *zone)
 
     mob_index = new_index;
 
-    sprintf(fname, "world/mob/index");
+    snprintf(fname, sizeof(fname), "world/mob/index");
     if (!(index = fopen(fname, "w"))) {
         send_to_char(ch,
             "Could not open index file, mobile save aborted.\r\n");
@@ -1333,14 +1333,14 @@ save_mobs(struct creature * ch, struct zone_data * zone)
         return false;
     }
 
-    sprintf(fname, "world/mob/%d.mob", zone->number);
+    snprintf(fname, sizeof(fname), "world/mob/%d.mob", zone->number);
     if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
         mudlog(0, BRF, true,
                "OLC: ERROR - Main mobile file '%s' for zone %d is read-only.",
                fname,
                ch->in_room->zone->number);
     }
-    sprintf(fname, "world/mob/olc/%d.mob", zone->number);
+    snprintf(fname, sizeof(fname), "world/mob/olc/%d.mob", zone->number);
     if (!(file = fopen(fname, "w"))) {
         slog("OLC: ERROR while saving %s - %s", fname, strerror(errno));
         return false;
@@ -1513,11 +1513,11 @@ save_mobs(struct creature * ch, struct zone_data * zone)
 
     slog("OLC: %s msaved %d.", GET_NAME(ch), zone->number);
 
-    sprintf(fname, "world/mob/%d.mob", zone->number);
+    snprintf(fname, sizeof(fname), "world/mob/%d.mob", zone->number);
     realfile = fopen(fname, "w");
     if (realfile) {
         fclose(file);
-        sprintf(fname, "world/mob/olc/%d.mob", zone->number);
+        snprintf(fname, sizeof(fname), "world/mob/olc/%d.mob", zone->number);
         if (!(file = fopen(fname, "r"))) {
             errlog("Failure to reopen olc mob file.");
             send_to_char(ch,
