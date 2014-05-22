@@ -4748,26 +4748,28 @@ ACMD(do_toggle)
 
 ACMD(do_commands)
 {
-    int no, i, cmd_num;
-    int wizhelp = 0, socials = 0, moods = 0, level = 0;
-    struct creature *vict = NULL;
+    int no, i, cmd_num, level = 0;
+    bool wizhelp = 0, socials = 0, moods = 0;
     char *arg = tmp_getword(&argument);
+    struct creature *vict = NULL;
 
-    if (*arg) {
-        if (!(vict = get_char_vis(ch, arg)) || IS_NPC(vict)) {
-            if (is_number(arg)) {
-                level = atoi(arg);
-            } else {
+    if (*arg && is_authorized(ch, STAT_PLAYERS, NULL)) {
+        if (is_number(arg)) {
+            level = atoi(arg);
+        } else {
+            vict = get_char_vis(ch, arg);
+            if (vict == NULL || IS_NPC(vict)) {
                 send_to_char(ch, "Who is that?\r\n");
                 return;
             }
-        } else
             level = GET_LEVEL(vict);
+        }
 
         if (level < 0) {
             send_to_char(ch, "What a comedian.\r\n");
             return;
         }
+
         if (GET_LEVEL(ch) < level) {
             send_to_char(ch,
                 "You can't see the commands of people above your level.\r\n");
@@ -4779,13 +4781,15 @@ ACMD(do_commands)
     }
 
     if (subcmd == SCMD_SOCIALS)
-        socials = 1;
+        socials = true;
     else if (subcmd == SCMD_MOODS)
-        moods = 1;
+        moods = true;
     else if (subcmd == SCMD_WIZHELP)
-        wizhelp = 1;
+        wizhelp = true;
 
-    snprintf(buf, sizeof(buf), "The following %s%s are available to %s:\r\n",
+    acc_string_clear();
+
+    acc_sprintf("The following %s%s are available to %s:\r\n",
         wizhelp ? "privileged " : "",
         socials ? "socials" : moods ? "moods" : "commands",
         (vict && vict == ch) ? "you" : vict ? GET_NAME(vict) : "that level");
@@ -4805,14 +4809,14 @@ ACMD(do_commands)
             continue;
         if (moods != cmd_sort_info[i].is_mood)
             continue;
-        snprintf(buf + strlen(buf), sizeof(buf + strlen(buf)), "%-16s", cmd_info[i].command);
+        acc_sprintf("%-16s", cmd_info[i].command);
         if (!(no % 5))
-            strcat_s(buf, sizeof(buf), "\r\n");
+            acc_strcat("\r\n", NULL);
         no++;
     }
 
-    strcat_s(buf, sizeof(buf), "\r\n");
-    page_string(ch->desc, buf);
+    acc_strcat("\r\n", NULL);
+    page_string(ch->desc, acc_get_string());
 }
 
 ACMD(do_soilage)
