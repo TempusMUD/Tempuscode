@@ -310,7 +310,7 @@ fread_action(FILE *fl, int nr)
 {
     char buf[MAX_STRING_LENGTH];
 
-    if (!fgets(buf, MAX_STRING_LENGTH, fl)) {
+    if (!fgets(buf, sizeof(buf), fl)) {
         perror(tmp_sprintf("fread_action - unexpected EOF near action #%d",
                 nr));
         safe_exit(1);
@@ -323,6 +323,9 @@ fread_action(FILE *fl, int nr)
     if (buf[0] == '#') {
         return NULL;
     }
+
+    // Remove newline at end
+    buf[strlen(buf) - 1] = '\0';
 
     return strdup(buf);
 }
