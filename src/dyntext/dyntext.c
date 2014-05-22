@@ -97,7 +97,7 @@ boot_dynamic_text(void)
         size_t br;
 
         if ((strlen(dirp->d_name) < 4)
-            || !strcmp(dirp->d_name + strlen(dirp->d_name) - 4, ".dyn")) {
+            || strcmp(dirp->d_name + strlen(dirp->d_name) - 4, ".dyn") != 0) {
             continue;
         }
 
