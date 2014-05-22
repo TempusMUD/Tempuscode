@@ -86,7 +86,8 @@ void acc_format_search_data(struct creature *ch,
 void print_search_data_to_buf(struct creature *ch,
                               struct room_data *room,
                               struct special_search_data *cur_search,
-                              char *buf);
+                              char *buf,
+                              size_t buf_size);
 
 void show_olc_help(struct creature *ch, char *arg);
 int mobile_experience(struct creature *mob, FILE *outfile);
