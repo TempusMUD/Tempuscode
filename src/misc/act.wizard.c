@@ -3592,7 +3592,7 @@ ACMD(do_wiznet)
     switch (*argument) {
     case '*':
         emote = true;
-        break;
+        /* fallthrough */
     case '#':
         one_argument(argument + 1, buf1);
         if (is_number(buf1)) {
