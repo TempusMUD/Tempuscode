@@ -6915,7 +6915,7 @@ ACMD(do_xlist)
                 found = true;
             }
 
-            print_search_data_to_buf(ch, room, srch, buf);
+            print_search_data_to_buf(ch, room, srch, buf, sizeof(buf));
             acc_strcat(buf, NULL);
         }
     }

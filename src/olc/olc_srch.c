@@ -474,41 +474,41 @@ acc_format_search_data(struct creature *ch,
 
 void
 print_search_data_to_buf(struct creature *ch, struct room_data *room,
-    struct special_search_data *cur_search, char *buf)
+                         struct special_search_data *cur_search, char *buf, size_t buf_size)
 {
 
     struct obj_data *obj = NULL;
     struct creature *mob = NULL;
 
-    snprintf(buf, sizeof(buf), "%sCommand triggers:%s %s, %skeywords:%s %s\r\n",
+    snprintf(buf, buf_size, "%sCommand triggers:%s %s, %skeywords:%s %s\r\n",
         CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
         cur_search->command_keys ? cur_search->command_keys : "None.",
         CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
         (SRCH_FLAGGED(cur_search, SRCH_CLANPASSWD) && room &&
             !clan_house_can_enter(ch, room)) ? "*******" :
         (cur_search->keywords ? cur_search->keywords : "None."));
-    snprintf_cat(buf, sizeof(buf), " To_vict  : %s\r\n To_room  : %s\r\n To_remote: %s\r\n",
+    snprintf_cat(buf, buf_size, " To_vict  : %s\r\n To_room  : %s\r\n To_remote: %s\r\n",
         cur_search->to_vict ? cur_search->to_vict : "None",
         cur_search->to_room ? cur_search->to_room : "None",
         cur_search->to_remote ? cur_search->to_remote : "None");
 
-    snprintf_cat(buf, sizeof(buf), " Fail_chance: %d\r\n", cur_search->fail_chance);
+    snprintf_cat(buf, buf_size, " Fail_chance: %d\r\n", cur_search->fail_chance);
 
     switch (cur_search->command) {
     case SEARCH_COM_DOOR:
-        snprintf_cat(buf, sizeof(buf), " DOOR  Room #: %d, Direction: %d, Mode: %d.\r\n",
+        snprintf_cat(buf, buf_size, " DOOR  Room #: %d, Direction: %d, Mode: %d.\r\n",
             cur_search->arg[0], cur_search->arg[1], cur_search->arg[2]);
         break;
     case SEARCH_COM_MOBILE:
         mob = real_mobile_proto(cur_search->arg[0]);
-        snprintf_cat(buf, sizeof(buf), " MOB  Vnum : %d (%s%s%s), to room: %d, Max: %d.\r\n",
+        snprintf_cat(buf, buf_size, " MOB  Vnum : %d (%s%s%s), to room: %d, Max: %d.\r\n",
             cur_search->arg[0], CCYEL(ch, C_NRM),
             mob ? GET_NAME(mob) : "NULL", CCNRM(ch, C_NRM), cur_search->arg[1],
             cur_search->arg[2]);
         break;
     case SEARCH_COM_OBJECT:
         obj = real_object_proto(cur_search->arg[0]);
-        snprintf_cat(buf, sizeof(buf), " OBJECT Vnum : %d (%s%s%s), to room: %d, Max: %d.\r\n",
+        snprintf_cat(buf, buf_size, " OBJECT Vnum : %d (%s%s%s), to room: %d, Max: %d.\r\n",
             cur_search->arg[0],
             CCGRN(ch, C_NRM),
             obj ? obj->name : "NULL", CCNRM(ch, C_NRM),
@@ -516,7 +516,7 @@ print_search_data_to_buf(struct creature *ch, struct room_data *room,
         break;
     case SEARCH_COM_REMOVE:
         obj = real_object_proto(cur_search->arg[0]);
-        snprintf_cat(buf, sizeof(buf),
+        snprintf_cat(buf, buf_size,
             " REMOVE  Obj Vnum : %d (%s%s%s), Room # : %d, Val 2: %d.\r\n",
             cur_search->arg[0], CCGRN(ch, C_NRM),
             obj ? obj->name : "NULL", CCNRM(ch, C_NRM),
@@ -524,57 +524,57 @@ print_search_data_to_buf(struct creature *ch, struct room_data *room,
         break;
     case SEARCH_COM_EQUIP:
         obj = real_object_proto(cur_search->arg[1]);
-        snprintf_cat(buf, sizeof(buf),
+        snprintf_cat(buf, buf_size,
             " EQUIP  ----- : %d, Obj Vnum : %d (%s%s%s), Pos : %d.\r\n",
             cur_search->arg[0], cur_search->arg[1], CCGRN(ch, C_NRM),
             obj ? obj->name : "NULL", CCNRM(ch, C_NRM), cur_search->arg[2]);
         break;
     case SEARCH_COM_GIVE:
         obj = real_object_proto(cur_search->arg[1]);
-        snprintf_cat(buf, sizeof(buf),
+        snprintf_cat(buf, buf_size,
             " GIVE  ----- : %d, Obj Vnum : %d (%s%s%s), Max : %d.\r\n",
             cur_search->arg[0], cur_search->arg[1], CCGRN(ch, C_NRM),
             obj ? obj->name : "NULL", CCNRM(ch, C_NRM), cur_search->arg[2]);
         break;
     case SEARCH_COM_NONE:
-        snprintf_cat(buf, sizeof(buf), " NONE       %5d        %5d        %5d\r\n",
+        snprintf_cat(buf, buf_size, " NONE       %5d        %5d        %5d\r\n",
             cur_search->arg[0], cur_search->arg[1], cur_search->arg[2]);
         break;
     case SEARCH_COM_TRANSPORT:
-        snprintf_cat(buf, sizeof(buf), " TRANS      %5d        %5d        %5d\r\n",
+        snprintf_cat(buf, buf_size, " TRANS      %5d        %5d        %5d\r\n",
             cur_search->arg[0], cur_search->arg[1], cur_search->arg[2]);
         break;
     case SEARCH_COM_SPELL:
-        snprintf_cat(buf, sizeof(buf), " SPELL      %5d        %5d        %5d (%s)\r\n",
+        snprintf_cat(buf, buf_size, " SPELL      %5d        %5d        %5d (%s)\r\n",
             cur_search->arg[0],
             cur_search->arg[1], cur_search->arg[2],
             (cur_search->arg[2] > 0 && cur_search->arg[2] < TOP_NPC_SPELL) ?
             spell_to_str(cur_search->arg[2]) : "NULL");
         break;
     case SEARCH_COM_DAMAGE:
-        snprintf_cat(buf, sizeof(buf), " DAMAGE      %5d        %5d        %5d (%s)\r\n",
+        snprintf_cat(buf, buf_size, " DAMAGE      %5d        %5d        %5d (%s)\r\n",
             cur_search->arg[0],
             cur_search->arg[1], cur_search->arg[2],
             (cur_search->arg[2] > 0 && cur_search->arg[2] < TYPE_SUFFERING) ?
             spell_to_str(cur_search->arg[2]) : "NULL");
         break;
     case SEARCH_COM_SPAWN:
-        snprintf_cat(buf, sizeof(buf), " SPAWN  Spawn_rm: %5d   Targ_rm:%5d   Hunt: %5d\r\n",
+        snprintf_cat(buf, buf_size, " SPAWN  Spawn_rm: %5d   Targ_rm:%5d   Hunt: %5d\r\n",
             cur_search->arg[0], cur_search->arg[1], cur_search->arg[2]);
         break;
     case SEARCH_COM_LOADROOM:
-        snprintf_cat(buf, sizeof(buf), " LOADROOM  NewLoad: %5d    MaxLevel:%5d    %5d\r\n",
+        snprintf_cat(buf, buf_size, " LOADROOM  NewLoad: %5d    MaxLevel:%5d    %5d\r\n",
             cur_search->arg[0], cur_search->arg[1], cur_search->arg[2]);
         break;
 
     default:
-        snprintf_cat(buf, sizeof(buf), " ERROR (%d)  %5d        %5d        %5d\r\n",
+        snprintf_cat(buf, buf_size, " ERROR (%d)  %5d        %5d        %5d\r\n",
             cur_search->command, cur_search->arg[0],
             cur_search->arg[1], cur_search->arg[2]);
         break;
     }
     sprintbit(cur_search->flags, search_bits, buf2, sizeof(buf2));
-    snprintf_cat(buf, sizeof(buf), " Flags: %s%s%s\r\n",
+    snprintf_cat(buf, buf_size, " Flags: %s%s%s\r\n",
         CCBLU_BLD(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
 }
 
@@ -585,7 +585,7 @@ do_olc_xstat(struct creature *ch)
         send_to_char(ch, "You are not currently editing a search.\r\n");
         return;
     }
-    print_search_data_to_buf(ch, ch->in_room, GET_OLC_SRCH(ch), buf);
+    print_search_data_to_buf(ch, ch->in_room, GET_OLC_SRCH(ch), buf, sizeof(buf));
     send_to_char(ch, "%s", buf);
 
 }
