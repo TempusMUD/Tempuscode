@@ -1,6 +1,5 @@
 AC_PREREQ([2.67])
 AC_INIT([tempusmud],[1.0],[azimuth@tempusmud.com])
-APR_CONFIG_NICE([config.nice])
 AC_CONFIG_SRCDIR([src/clan/clan.c])
 AC_CONFIG_HEADER([config.h])
 AM_INIT_AUTOMAKE([subdir-objects])
@@ -69,5 +68,5 @@ AC_FUNC_MKTIME
 AC_FUNC_REALLOC
 AC_CHECK_FUNCS([bzero gethostbyaddr gettimeofday isascii memmove memset mkdir select socket strcasecmp strchr strdup strerror strncasecmp strpbrk strspn strstr strtol])
 
-AC_CONFIG_FILES([Makefile m4/Makefile src/Makefile tests/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile])
 AC_OUTPUT

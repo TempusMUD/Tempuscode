@@ -3592,7 +3592,7 @@ ACMD(do_wiznet)
     switch (*argument) {
     case '*':
         emote = true;
-        break;
+        /* fallthrough */
     case '#':
         one_argument(argument + 1, buf1);
         if (is_number(buf1)) {
@@ -4148,30 +4148,29 @@ show_player(struct creature *ch, const char *value)
         snprintf(remort_desc, sizeof(remort_desc), "/%s",
                 char_class_abbrevs[(int)GET_REMORT_CLASS(vict)]);
     }
-    snprintf(buf, sizeof(buf), "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d",
+    snprintf(buf, sizeof(buf), "Player: [%ld] %-12s Act[%ld] (%s) [%2d %s %s%s]  Gen: %d\r\n",
         GET_IDNUM(vict), GET_NAME(vict),
         player_account_by_idnum(GET_IDNUM(vict)),
         genders[(int)GET_SEX(vict)], GET_LEVEL(vict),
         race_name_by_idnum(GET_RACE(vict)), char_class_abbrevs[GET_CLASS(vict)],
         remort_desc, GET_REMORT_GEN(vict));
-    snprintf_cat(buf, sizeof(buf), "  Rent: Unknown%s\r\n", CCNRM(ch, C_NRM));
-    snprintf(buf, sizeof(buf),
-        "%sAu: %'-8" PRId64 "  Cr: %'-8" PRId64 "  Past: %'-8" PRId64 "  Fut: %'-8" PRId64 "\r\n",
-        buf, GET_GOLD(vict), GET_CASH(vict),
+    snprintf_cat(buf, sizeof(buf),
+        "Au: %'-8" PRId64 "  Cr: %'-8" PRId64 "  Past: %'-8" PRId64 "  Fut: %'-8" PRId64 "\r\n",
+        GET_GOLD(vict), GET_CASH(vict),
         GET_PAST_BANK(vict), GET_FUTURE_BANK(vict));
     // Trim and fit the date to show year but not seconds.
-    strcpy_s(birth, sizeof(birth), ctime(&vict->player.time.birth));
-    memmove(birth + 16, birth + 19, strlen(birth + 19) + 1);
+    strftime(birth, sizeof(birth), "%Y-%m-%d %H:%M",
+             localtime(&vict->player.time.birth));
     if (GET_LEVEL(vict) > GET_LEVEL(ch)) {
         strcpy_s(last_login, sizeof(last_login), "Unknown");
     } else {
         // Trim and fit the date to show year but not seconds.
-        strcpy_s(last_login, sizeof(last_login), ctime(&vict->player.time.logon));
-        memmove(birth + 16, birth + 19, strlen(birth + 19) + 1);
+        strftime(last_login, sizeof(last_login), "%Y-%m-%d %H:%M",
+                 localtime(&vict->player.time.logon));
     }
-    snprintf(buf, sizeof(buf),
-        "%sStarted: %-22.21s Last: %-22.21s Played: %3dh %2dm\r\n",
-        buf, birth, last_login, (int)(vict->player.time.played / 3600),
+    snprintf_cat(buf, sizeof(buf),
+        "Started: %-17s Last: %-17s Played: %dh %dm\r\n",
+        birth, last_login, (int)(vict->player.time.played / 3600),
         (int)(vict->player.time.played / 60 % 60));
 
     if (IS_SET(vict->char_specials.saved.act, PLR_FROZEN))
