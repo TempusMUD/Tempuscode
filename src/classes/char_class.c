@@ -1001,7 +1001,8 @@ do_start(struct creature *ch, int mode)
     GET_MANA(ch) = GET_MAX_MANA(ch);
     GET_MOVE(ch) = GET_MAX_MOVE(ch);
 
-    GET_COND(ch, FULL) = 12;
+    GET_COND(ch, THIRST) = 24;
+    GET_COND(ch, FULL) = 24;
     GET_COND(ch, DRUNK) = 0;
 
     if (new_player) {
@@ -1161,7 +1162,7 @@ advance_level(struct creature *ch, int8_t keep_internal)
     }
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-        for (i = 0; i < 2; i++)
+        for (i = 0; i < 3; i++)
             GET_COND(ch, i) = -1;
         SET_BIT(PRF_FLAGS(ch), PRF_HOLYLIGHT);
         SET_BIT(PRF_FLAGS(ch), PRF_NOHASSLE);

@@ -146,7 +146,7 @@ extern const char *apply_types[];
 extern const char *container_bits[];
 extern const char *drinks[];
 extern const char *drinknames[];
-extern const char drink_aff[][2];
+extern const char drink_aff[][3];
 extern const char *color_liquid[];
 extern const char *fullness[];
 extern const char *spell_wear_off_msg[];

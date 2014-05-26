@@ -2589,6 +2589,14 @@ Is it tomorrow or just the end of time?</lyrics>
     <flag value="manual"/>
     <flag value="physics"/>
   </spell>
+  <spell id="206" name="quench">
+    <granted class="psionic" level="4"/>
+    <manacost initial="35" level_dec="1" minimum="15"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="psionic"/>
+  </spell>
   <skill id="554" name="rabbitpunch">
     <granted class="thief" level="10"/>
   </skill>
@@ -2652,6 +2660,17 @@ Is it tomorrow or just the end of time?</lyrics>
     <target type="creature" scope="room"/>
     <flag value="points"/>
     <flag value="magic"/>
+  </spell>
+  <spell id="356" name="regalers rhapsody">
+    <granted class="bard" level="5"/>
+    <manacost initial="37" level_dec="1" minimum="15"/>
+    <position minimum="standing"/>
+    <flag value="affects"/>
+    <flag value="groups"/>
+    <flag value="song"/>
+    <instrument type="string"/>
+    <lyrics>A morsel of a melody keeps appetites in line,
+For when the battle's finally won, we all will drink and dine!</lyrics>
   </spell>
   <spell id="85" name="regenerate">
     <granted class="mage" level="49"/>
@@ -2843,6 +2862,14 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="divine"/>
+  </spell>
+  <spell id="205" name="satiation">
+    <granted class="psionic" level="3"/>
+    <manacost initial="30" level_dec="1" minimum="10"/>
+    <position minimum="standing"/>
+    <target type="creature" scope="room"/>
+    <flag value="points"/>
+    <flag value="psionic"/>
   </spell>
   <skill id="581" name="scanning">
     <granted class="thief" level="31"/>

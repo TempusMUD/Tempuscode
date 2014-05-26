@@ -972,8 +972,11 @@ restore_creature(struct creature *ch)
     GET_MANA(ch) = GET_MAX_MANA(ch);
     GET_MOVE(ch) = GET_MAX_MOVE(ch);
 
-    GET_COND(ch, FULL) = 12;
-    
+    if (GET_COND(ch, FULL) >= 0)
+        GET_COND(ch, FULL) = 24;
+    if (GET_COND(ch, THIRST) >= 0)
+        GET_COND(ch, THIRST) = 24;
+
     if ((GET_LEVEL(ch) >= LVL_GRGOD)
         && (GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
         for (i = 1; i <= MAX_SKILLS; i++)

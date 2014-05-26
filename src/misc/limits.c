@@ -1,6 +1,6 @@
 /**************************************************************************
 *   File: limits.c                                      Part of CircleMUD *
-*  Usage: limits & gain funcs for HMV, exp, hunger, drunk, idle time      *
+*  Usage: limits & gain funcs for HMV, exp, hunger/thirst, idle time      *
 *                                                                         *
 *  All rights reserved.  See license.doc for complete information.        *
 *                                                                         *
@@ -422,7 +422,7 @@ void
 gain_condition(struct creature *ch, int condition, int value)
 {
 
-    if ((GET_COND(ch, DRUNK) < 0 && condition == 0) || !value || (GET_COND(ch, FULL) < 0 && condition == 1 && GET_LEVEL(ch) >= LVL_AMBASSADOR))  /* No change */
+    if (GET_COND(ch, condition) < 0 || !value)  /* No change */
         return;
 
     GET_COND(ch, condition) += value;
@@ -580,7 +580,7 @@ point_update(void)
     register struct obj_data *j, *next_thing, *jj, *next_thing2;
     struct room_data *rm;
     struct zone_data *zone;
-    int full = 0, drunk = 0, z, out_of_zone = 0;
+    int full = 0, thirst = 0, drunk = 0, z, out_of_zone = 0;
 
     /* shadow zones */
     for (zone = zone_table; zone; zone = zone->next) {
@@ -603,6 +603,7 @@ point_update(void)
         struct creature *tch = cit->data;
 
         full = 1;
+        thirst = 1;
         drunk = 1;
         //reputation should slowly decrease when not in a house, clan, arena, or afk
         if (IS_PC(tch) &&
@@ -634,6 +635,7 @@ point_update(void)
                 && !number(0, 4)) {
                 // You lose a lot when you puke
                 full = 10;
+                thirst = 10;
                 switch (number(0, 6)) {
                 case 0:
                     act("You puke all over the place.",
@@ -729,6 +731,21 @@ point_update(void)
             full /= 4;
 
         gain_condition(tch, FULL, -full);
+
+        if (SECT_TYPE(tch->in_room) == SECT_DESERT)
+            thirst += 2;
+        if (ROOM_FLAGGED(tch->in_room, ROOM_FLAME_FILLED))
+            thirst += 2;
+        if (affected_by_spell(tch, SPELL_METABOLISM))
+            thirst += 1;
+        if (IS_CYBORG(tch)) {
+            if (AFF3_FLAGGED(tch, AFF3_STASIS))
+                thirst /= 4;
+            else if (GET_LEVEL(tch) > number(10, 60))
+                thirst /= 2;
+        }
+
+        gain_condition(tch, THIRST, -thirst);
 
         if (IS_MONK(tch))
             drunk += 1;

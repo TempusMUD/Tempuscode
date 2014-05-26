@@ -568,6 +568,7 @@ enum apply {
 enum player_condition {
     DRUNK = 0,
     FULL = 1,
+    THIRST = 2,
 };
 
 /* other #defined constants **********************************************/

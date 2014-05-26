@@ -350,10 +350,27 @@ affect_modify(struct creature *ch, int16_t loc, int16_t mod, long bitv,
     case APPLY_DISGUISE:       // special usage
         break;
 
-    case APPLY_NOTHIRST:       // deprecated
-    case APPLY_NOHUNGER:       // deprecated
+        // never set items with negative nothirst, nohunger, or nodrunk
+    case APPLY_NOTHIRST:
+        if (IS_NPC(ch))
+            break;
+        if (GET_COND(ch, THIRST) != -1) {
+            if (mod > 0)
+                GET_COND(ch, THIRST) = -2;
+            else
+                GET_COND(ch, THIRST) = 0;
+        }
         break;
-        // never set items with negative nodrunk
+    case APPLY_NOHUNGER:
+        if (IS_NPC(ch))
+            break;
+        if (GET_COND(ch, FULL) != -1) {
+            if (mod > 0)
+                GET_COND(ch, FULL) = -2;
+            else
+                GET_COND(ch, FULL) = 0;
+            break;
+        }
     case APPLY_NODRUNK:
         if (IS_NPC(ch))
             break;
