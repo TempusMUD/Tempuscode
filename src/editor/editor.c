@@ -150,6 +150,8 @@ editor_finish(struct editor *editor, bool save)
         char *text = (char *)malloc(buf_size);
         char *write_pt = text;
 
+        *write_pt = '\0';
+
         for (GList *it = editor->lines;it;it = it->next) {
             GString *line = it->data;
 
@@ -768,7 +770,7 @@ bool
 editor_do_command(struct editor * editor, char cmd, char *args)
 {
     int line, start_line, end_line, dest_line;
-    char *first_arg;
+    char command[MAX_INPUT_LENGTH];
 
     switch (tolower(cmd)) {
     case 'h':                  // Help
@@ -791,13 +793,13 @@ editor_do_command(struct editor * editor, char cmd, char *args)
         editor_emit(editor, "Cleared.\r\n");
         break;
     case 'l':                  // Replace Line
-         first_arg = tmp_getword(&args);
-        if (!isdigit(*first_arg)) {
+        args = one_argument(args, command);
+        if (!isdigit(*command)) {
             editor_emit(editor,
                 "Format for Replace Line is: &&l <line #> <text>\r\n");
             break;
         }
-        line = atoi(first_arg);
+        line = atoi(command);
         if (line < 1) {
             editor_emit(editor,
                 "Format for Replace Line is: &&l <line #> <text>\r\n");
@@ -806,13 +808,13 @@ editor_do_command(struct editor * editor, char cmd, char *args)
         editor_replace_line(editor, line, args);
         break;
     case 'i':                  // Insert Line
-         first_arg = tmp_getword(&args);
-        if (!isdigit(*first_arg)) {
+        args = one_argument(args, command);
+        if (!isdigit(*command)) {
             editor_emit(editor,
                 "Format for insert command is: &&i <line #> <text>\r\n");
             break;
         }
-        line = atoi(first_arg);
+        line = atoi(command);
         if (line < 1) {
             editor_emit(editor,
                 "Format for insert command is: &&i <line #><text>\r\n");
@@ -821,8 +823,8 @@ editor_do_command(struct editor * editor, char cmd, char *args)
         editor_insert(editor, line, args);
         break;
     case 'd':                  // Delete Line
-        first_arg = tmp_getword(&args);;
-        if (!parse_optional_range(first_arg, &start_line, &end_line)) {
+        args = one_argument(args, command);
+        if (!parse_optional_range(command, &start_line, &end_line)) {
             editor_emit(editor,
                 "Format for delete command is: &&d <line #>\r\n");
             break;
