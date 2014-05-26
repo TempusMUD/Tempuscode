@@ -2365,6 +2365,18 @@ mag_affects(int level,
         to_vict = "The power of the song infuses your spirit!";
         break;
 
+    case SONG_REGALERS_RHAPSODY:
+        aff[0].location = APPLY_NOHUNGER;
+        aff[0].duration =
+            (skill_bonus(ch, SONG_REGALERS_RHAPSODY) / 4) + 10;
+        aff[0].modifier = 1;
+
+        aff[1].location = APPLY_NOTHIRST;
+        aff[1].duration = aff[0].duration;
+        aff[1].modifier = 1;
+        to_vict = "The uplifting tune drains away your hunger and thirst.";
+        break;
+
     case SONG_DEFENSE_DITTY:
         aff[0].location = APPLY_SAVING_PSI;
         aff[0].duration = (skill_bonus(ch, SONG_DEFENSE_DITTY) / 8) + 20;
@@ -2759,6 +2771,9 @@ perform_mag_groups(int level, struct creature *ch,
         break;
     case SONG_MELODY_OF_METTLE:
         mag_affects(level, ch, tch, tdir, SONG_MELODY_OF_METTLE, savetype);
+        break;
+    case SONG_REGALERS_RHAPSODY:
+        mag_affects(level, ch, tch, tdir, SONG_REGALERS_RHAPSODY, savetype);
         break;
     case SONG_DEFENSE_DITTY:
         mag_affects(level, ch, tch, tdir, SONG_DEFENSE_DITTY, savetype);
@@ -3254,6 +3269,8 @@ mag_points(int level,
     int move = 0;
     int mana = 0;
     int align = 0;
+    int hunger = 0;
+    int thirst = 0;
     const char *to_vict = NULL, *to_room = NULL;
     int skill;
 
@@ -3303,6 +3320,16 @@ mag_points(int level,
     case SPELL_PSYCHIC_CONDUIT:
         mana = level + (CHECK_SKILL(ch, SPELL_PSYCHIC_CONDUIT) / 20) +
             number(0, GET_WIS(ch)) + (GET_REMORT_GEN(ch) * 4);
+        break;
+
+    case SPELL_SATIATION:
+        hunger = dice(3, MIN(3, (1 + (level / 4))));
+        to_vict = "You feel satiated.";
+        break;
+
+    case SPELL_QUENCH:
+        thirst = dice(3, MIN(3, (1 + (level / 4))));
+        to_vict = "Your thirst is quenched.";
         break;
 
     case SPELL_WOUND_CLOSURE:
@@ -3382,6 +3409,10 @@ mag_points(int level,
     GET_MANA(victim) = MIN(GET_MAX_MANA(victim), GET_MANA(victim) + mana);
     GET_ALIGNMENT(victim) =
         MAX(MIN(GET_ALIGNMENT(victim) + align, 1000), -1000);
+    if (hunger)
+        gain_condition(victim, FULL, hunger);
+    if (thirst)
+        gain_condition(victim, THIRST, thirst);
     if (to_vict)
         act(to_vict, false, ch, NULL, victim, TO_VICT);
     if (to_room)

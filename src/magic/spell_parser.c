@@ -958,22 +958,6 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
         break;
     case ITEM_POTION:
         tch = ch;
-
-        if (GET_COND(ch, FULL) > 23) {
-            act("You couldn't possibly quaff that potion -- you're stuffed!", false, ch, NULL, NULL, TO_CHAR);
-            return 1;
-        }
-
-        gain_condition(ch, FULL, 1);
-
-        if (IS_OBJ_TYPE(obj, ITEM_POTION) && GET_COND(ch, FULL) > 20) {
-            if (!number(0,2)) {
-                act("Your stomach is reaching capacity!", false, ch, NULL, NULL, TO_CHAR);
-            } else {
-                act("Your stomach is becoming quite full.", false, ch, NULL, NULL, TO_CHAR);
-            }
-        }
-
         act("You quaff $p.", false, ch, obj, NULL, TO_CHAR);
         if (obj->action_desc)
             act(obj->action_desc, false, ch, obj, NULL, TO_ROOM);

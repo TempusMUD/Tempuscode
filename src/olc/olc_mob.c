@@ -249,7 +249,7 @@ do_create_mob(struct creature *ch, int vnum)
     new_mob->player.remort_char_class = -1;
     recalculate_based_on_level(new_mob);
 
-    for (j = 0; j < 2; j++)
+    for (j = 0; j < 3; j++)
         GET_COND(new_mob, j) = -1;
 
     for (j = 0; j < 5; j++)

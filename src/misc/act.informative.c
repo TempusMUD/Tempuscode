@@ -2672,6 +2672,8 @@ acc_append_affects(struct creature *ch, int8_t mode)
         acc_strcat("Other are impressed by your beautiful voice.\r\n", NULL);
     if (affected_by_spell(ch, SONG_FORTISSIMO))
         acc_strcat("Your voice reverberates with vigor!\r\n", NULL);
+    if (affected_by_spell(ch, SONG_REGALERS_RHAPSODY))
+        acc_strcat("A tune has soothed your hunger and thirst.\r\n", NULL);
     if (affected_by_spell(ch, SONG_WOUNDING_WHISPERS))
         acc_strcat("You are surrounded by whirling slivers of sound.\r\n",
             NULL);

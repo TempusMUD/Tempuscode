@@ -58,8 +58,11 @@ do_pre_test(struct creature *ch)
 		 extract_obj(obj);
 	}
 
-        GET_COND(ch, FULL) = 24;
-	
+	if (GET_COND(ch, FULL) >= 0)
+		GET_COND(ch, FULL) = 24;
+	if (GET_COND(ch, THIRST) >= 0)
+		GET_COND(ch, THIRST) = 24;
+
 	SET_BIT(ch->in_room->room_flags, ROOM_NORECALL);
 }
 
@@ -84,6 +87,7 @@ do_pass_remort_test(struct creature *ch)
     GET_INVIS_LVL(ch) = 0;
     GET_COND(ch, DRUNK) = 0;
     GET_COND(ch, FULL) = 0;
+    GET_COND(ch, THIRST) = 0;
 
     // Give em another gen
     if (GET_REMORT_GEN(ch) == 10)

@@ -310,7 +310,7 @@ load_xml_mobile(xmlNodePtr node)
 	NPC_SHARED(mob)->proto = mob;
 
 	mob->player.title = NULL;
-	GET_COND(mob, 0) = GET_COND(mob, 1) = -1;
+	GET_COND(mob, 0) = GET_COND(mob, 1) = GET_COND(mob, 2) = -1;
 	REMOVE_BIT(NPC2_FLAGS(mob), NPC2_RENAMED);
 	SET_BIT(NPC_FLAGS(mob), NPC_ISNPC);
 	if (!mob->mob_specials.shared->morale)

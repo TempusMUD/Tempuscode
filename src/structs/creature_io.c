@@ -538,8 +538,8 @@ save_player_to_file(struct creature *ch, const char *path)
             ch->real_abils.str, ch->real_abils.intel, ch->real_abils.wis,
             ch->real_abils.dex, ch->real_abils.con, ch->real_abils.cha);
 
-    fprintf(ouf, "<condition hunger=\"%d\" drunk=\"%d\"/>\n",
-        GET_COND(ch, FULL), GET_COND(ch, DRUNK));
+    fprintf(ouf, "<condition hunger=\"%d\" thirst=\"%d\" drunk=\"%d\"/>\n",
+        GET_COND(ch, FULL), GET_COND(ch, THIRST), GET_COND(ch, DRUNK));
 
     fprintf(ouf, "<player wimpy=\"%d\" lp=\"%d\" clan=\"%d\"/>\n",
         GET_WIMP_LEV(ch), GET_LIFE_POINTS(ch), GET_CLAN(ch));
@@ -861,6 +861,7 @@ load_player_from_file(const char *path)
             ch->aff_abils.cha = ch->real_abils.cha =
                 xmlGetIntProp(node, "cha", 0);
         } else if (xmlMatches(node->name, "condition")) {
+            GET_COND(ch, THIRST) = xmlGetIntProp(node, "thirst", 0);
             GET_COND(ch, FULL) = xmlGetIntProp(node, "hunger", 0);
             GET_COND(ch, DRUNK) = xmlGetIntProp(node, "drunk", 0);
         } else if (xmlMatches(node->name, "player")) {
@@ -1172,6 +1173,8 @@ set_player_field(struct creature *ch, const char *key, const char *val)
         ch->aff_abils.cha = ch->real_abils.cha = atoi(val);
     else if (!strcmp(key, "hunger"))
         GET_COND(ch, FULL) = atoi(val);
+    else if (!strcmp(key, "thirst"))
+        GET_COND(ch, THIRST) = atoi(val);
     else if (!strcmp(key, "drunk"))
         GET_COND(ch, DRUNK) = atoi(val);
     else
