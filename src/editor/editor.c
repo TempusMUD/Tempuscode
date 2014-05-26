@@ -150,6 +150,8 @@ editor_finish(struct editor *editor, bool save)
         char *text = (char *)malloc(buf_size);
         char *write_pt = text;
 
+        *write_pt = '\0';
+
         for (GList *it = editor->lines;it;it = it->next) {
             GString *line = it->data;
 
