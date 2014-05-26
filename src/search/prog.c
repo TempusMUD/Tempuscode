@@ -1461,7 +1461,7 @@ DEFPROGHANDLER(untag, env, evt, args)
 }
 
 static void
-prog_trans_creature(struct creature * ch, struct room_data * targ_room)
+prog_trans_creature(struct creature *ch, struct room_data *targ_room)
 {
     if (!is_authorized(ch, ENTER_ROOM, targ_room))
 		return;
@@ -1507,9 +1507,10 @@ DEFPROGHANDLER(trans, env, evt, args)
 	target_arg = tmp_getword(&args);
 
 	targ_num = atoi(tmp_getword(&args));
-	if ((targ_room = real_room(targ_num)) == NULL) {
+    targ_room = real_room(targ_num);
+	if (targ_room == NULL) {
 		errlog("trans target room %d nonexistent in prog in %s",
-			targ_num, prog_get_desc(env));
+               targ_num, prog_get_desc(env));
 		return;
 	}
 
@@ -1532,7 +1533,7 @@ DEFPROGHANDLER(trans, env, evt, args)
 			obj_to_room(obj, targ_room);
 			break;
 		case PROG_TYPE_MOBILE:
-			prog_trans_creature((struct creature *) env->owner, targ_room);
+			prog_trans_creature((struct creature *)env->owner, targ_room);
 			break;
 		case PROG_TYPE_ROOM:
 			break;

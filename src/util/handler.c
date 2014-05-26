@@ -795,14 +795,14 @@ char_from_room(struct creature *ch, bool check_specials)
 {
     struct room_affect_data *rm_aff = NULL, *next_aff = NULL;
 
-    if (ch == NULL || ch->in_room == NULL) {
-        errlog("NULL or NOWHERE in handler.c, char_from_room");
-        if (ch) {
-            snprintf(buf, sizeof(buf), "Char is %s\r\n", GET_NAME(ch));
-            if (ch->in_room != NULL)
-                snprintf(buf, sizeof(buf), "Char is in_room %d\r\n", ch->in_room->number);
-        }
-        exit(1);
+    if (ch == NULL) {
+        errlog("NULL character in handler.c, char_from_room");
+        raise(SIGSEGV);
+    }
+
+    if (ch->in_room == NULL) {
+        errlog("NOWHERE character %s in handler.c, char_from_room", GET_NAME(ch));
+        raise(SIGSEGV);
     }
 
     remove_all_combat(ch);
@@ -883,7 +883,7 @@ char_to_room(struct creature * ch, struct room_data * room,
         return false;
     }
 
-    if (!ch || room == NULL) {
+    if (ch == NULL || room == NULL) {
         errlog("Illegal value(s) passed to char_to_room");
         raise(SIGSEGV);
         return false;

@@ -268,7 +268,7 @@ remove_player_tag(struct creature *ch, const char *tag)
     if (!IS_PC(ch) || ch->player_specials->tags == NULL) {
         return;
     }
-    
+
     g_hash_table_remove(ch->player_specials->tags, tag);
 }
 
@@ -278,7 +278,7 @@ player_has_tag(struct creature *ch, const char *tag)
     if (!IS_PC(ch) || ch->player_specials->tags == NULL) {
         return false;
     }
-    
+
     return g_hash_table_contains(ch->player_specials->tags, tag);
 }
 
@@ -775,14 +775,10 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
         return;
     }
 
-    if (ch->in_room == NULL) {
-        errlog("NOWHERE extracting char. (handler.c, extract_char)");
-        slog("...extract char = %s", GET_NAME(ch));
-        raise(SIGSEGV);
+    if (ch->followers || ch->master) {
+        die_follower(ch);
     }
 
-    if (ch->followers || ch->master)
-        die_follower(ch);
     // remove fighters, defenders, hunters and mounters
     GList *cit;
     for (cit = first_living(creatures); cit; cit = next_living(cit)) {
@@ -812,11 +808,13 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
         REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(ch)), AFF2_MOUNTED);
         dismount(ch);
     }
+
     // Make sure they aren't editing a help topic.
     if (GET_OLC_HELP(ch)) {
         GET_OLC_HELP(ch)->editor = NULL;
         GET_OLC_HELP(ch) = NULL;
     }
+
     // Forget snooping, if applicable
     if (ch->desc) {
         if (ch->desc->snooping) {
@@ -833,6 +831,7 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
             g_list_free(ch->desc->snoop_by);
         }
     }
+
     // destroy all that equipment
     for (idx = 0; idx < NUM_WEARS; idx++) {
         if (GET_EQ(ch, idx))
@@ -853,17 +852,22 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
     if (ch->desc && ch->desc->original)
         do_return(ch, tmp_strdup(""), 0, SCMD_NOEXTRACT);
 
-    char_from_room(ch, false);
+    if (ch->in_room != NULL) {
+        char_from_room(ch, false);
+    }
 
     // remove any paths
     path_remove_object(ch);
 
     if (IS_NPC(ch)) {
+        g_hash_table_remove(creature_map, GINT_TO_POINTER(-NPC_IDNUM(ch)));
         if (GET_NPC_VNUM(ch) > -1)  // if mobile
             ch->mob_specials.shared->number--;
         clear_memory(ch);       // Only NPC's can have memory
         free_creature(ch);
         return;
+    } else {
+        g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(ch)));
     }
 
     if (ch->desc) {             // PC's have descriptors. Take care of them
@@ -1253,7 +1257,7 @@ creature_arena_die(struct creature * ch)
 }
 
 bool
-creature_purge(struct creature * ch, bool destroy_obj)
+creature_purge(struct creature *ch, bool destroy_obj)
 {
     struct obj_data *obj, *next_obj;
 
@@ -1289,10 +1293,10 @@ creature_purge(struct creature * ch, bool destroy_obj)
         save_player_to_xml(ch);
     }
 
-    GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
-    if (ch->desc)
-        close_socket(ch->desc);
+    extract_creature(ch, CXN_DISCONNECT);
+    creatures = g_list_remove(creatures, ch);
+
     return true;
 }
 

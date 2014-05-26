@@ -377,12 +377,7 @@ reap_dead_creatures(__attribute__ ((unused)) gpointer ignore)
         next = it->next;
         struct creature *tch = it->data;
         if (is_dead(tch)) {
-            if (IS_NPC(tch))
-                g_hash_table_remove(creature_map, GINT_TO_POINTER(-NPC_IDNUM(tch)));
-            else
-                g_hash_table_remove(creature_map, GINT_TO_POINTER(GET_IDNUM(tch)));
-            if (tch->in_room)
-                extract_creature(tch, CXN_AFTERLIFE);
+            extract_creature(tch, CXN_AFTERLIFE);
 
             // pull the char from the various lists
             creatures = g_list_delete_link(creatures, it);
