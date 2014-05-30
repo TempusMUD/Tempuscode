@@ -53,7 +53,7 @@ news.gsub!(/^#.*\n/, '')     # remove commented lines
 # Post the news to realm
 sql = PG.connect(:user => "realm", :dbname => "tempus")
 post_title = Time.now.strftime("%Y-%m-%d Reboot")
-sql.exec("insert into forum_topics (forum, subject, last_updated, locked) values (9, $1, now(), false)", [post_title])
+sql.exec("insert into forum_topics (forum, subject, last_updated, locked) values (10, $1, now(), false)", [post_title])
 res = sql.exec('select lastval()')
 topic_id = res.values[0][0].to_i
 sql.exec("insert into forum_messages (topic, author, post_time, name, body) values ($1, 2, now(), $2, $3)",
