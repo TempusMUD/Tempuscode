@@ -1317,6 +1317,8 @@ creature_remort(struct creature * ch)
     GET_POSITION(ch) = POS_DEAD;
     destroy_attached_progs(ch);
     extract_creature(ch, CXN_REMORT_AFTERLIFE);
+    creatures = g_list_remove(creatures, ch);
+
     return true;
 }
 
