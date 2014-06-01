@@ -944,7 +944,9 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
             last_line_start = read_pt + 1;
             break;
         default:
-            g_string_append_c(line, *read_pt);
+            if (*read_pt > 0x1f && *read_pt < 0x7f) {
+                g_string_append_c(line, *read_pt);
+            }
         }
     }
     g_string_free(line, true);
