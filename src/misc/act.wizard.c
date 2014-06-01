@@ -3592,6 +3592,7 @@ ACMD(do_wiznet)
     switch (*argument) {
     case '*':
         emote = true;
+        argument++;
         /* fallthrough */
     case '#':
         one_argument(argument + 1, buf1);
@@ -3606,7 +3607,7 @@ ACMD(do_wiznet)
         }
         break;
     case '\\':
-        ++argument;
+        argument++;
         break;
     default:
         break;
