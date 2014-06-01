@@ -360,7 +360,7 @@ prog_set_var(struct prog_env *env, bool local, const char *key, const char *arg)
         }
 	}
 
-    strcpy_s(var->value, sizeof(var->value), key);
+    strcpy_s(var->value, sizeof(var->value), arg);
 }
 
 static void
