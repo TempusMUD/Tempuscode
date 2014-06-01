@@ -43,6 +43,7 @@ struct account {
     bool metric_units;
     money_t bank_past;
     money_t bank_future;
+    int trust;
 };
 
 void account_boot(void);

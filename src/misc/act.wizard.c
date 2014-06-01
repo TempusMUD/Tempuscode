@@ -4087,7 +4087,8 @@ show_account(struct creature *ch, char *value)
         d_printf(ch->desc, " &y(BANNED)&n");
     else if (account->quest_banned)
         d_printf(ch->desc, " &y(QBANNED)&n");
-    d_printf(ch->desc, "\r\n\r\n");
+    d_printf(ch->desc, "\r\n");
+    d_printf(ch->desc, "    &yTrust: &n%d\r\n", account->trust);
 
     last = account->login_time;
     creation = account->creation_time;
@@ -4095,7 +4096,7 @@ show_account(struct creature *ch, char *value)
     strftime(created_buf, 29, "%a %b %d, %Y %H:%M:%S", localtime(&creation));
     strftime(last_buf, 29, "%a %b %d, %Y %H:%M:%S", localtime(&last));
     d_printf(ch->desc, "&y  Started: &n%s   &yLast login: &n%s\r\n",
-        created_buf, last_buf);
+             created_buf, last_buf);
     if (is_named_role_member(ch, "AdminFull")) {
         d_printf(ch->desc,
             "&y  Created: &n%-15s   &yLast: &n%-15s       &yReputation: &n%d\r\n",
@@ -6637,6 +6638,7 @@ ACMD(do_aset)
         {"password", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"email", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"banned", LVL_IMMORT, PC, BINARY, "AdminFull"},
+        {"trust", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"\n", 0, BOTH, MISC, ""}
     };
     char *name, *field;
@@ -6736,6 +6738,9 @@ ACMD(do_aset)
         break;
     case 7:
         account->banned = on;
+        break;
+    case 8:
+        account->trust = value;
         break;
     default:
         snprintf(buf, sizeof(buf), "Can't set that!");
