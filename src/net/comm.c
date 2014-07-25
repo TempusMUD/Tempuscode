@@ -760,15 +760,13 @@ accept_new_connection(GIOChannel *listener_io,
         // people won't even see it.  Screen readers will read it out
         // loud, though.
         d_printf(newd,"If you use a screen reader, you'll want to use port %d&@", reader_port);
-        if (number(0, 99)) {
-            if (number(0, 10))
-                d_send(newd, GREETINGS[1]);
-            else
-                d_send(newd, GREETINGS[2]);
-        } else {
-            // send original greeting 1/100th of the time
-            d_send(newd, GREETINGS[0]);
-        }
+		
+		// print out the greeting text, from comm.c, with a 50/50 chance between the two
+		int random_greeting = number(1, 100);
+        if (random_greeting > 50)
+			d_send(newd, GREETINGS[0]);
+		else
+			d_send(newd, GREETINGS[1]);
     }
     return true;
 }
@@ -944,7 +942,9 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
             last_line_start = read_pt + 1;
             break;
         default:
-            g_string_append_c(line, *read_pt);
+            if (*read_pt > 0x1f && *read_pt < 0x7f) {
+                g_string_append_c(line, *read_pt);
+            }
         }
     }
     g_string_free(line, true);
