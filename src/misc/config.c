@@ -313,7 +313,7 @@ const char *GREETINGS[] = {
     ". . . . . . . . .ohmmhs+/--...-:/oydNds:`\r\n"
     ". . . . . . . . . . ./+syhdmmddhyo/-`      .   .   .   .   .   .   .   .   .\r\n"
     "\r\n"
-	,
+    ,
     "\n"
 };
 
