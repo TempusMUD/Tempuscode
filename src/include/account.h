@@ -139,6 +139,10 @@ void account_set_term_width(struct account *account, int width)
     __attribute__ ((nonnull));
 void account_set_metric(struct account *account, bool metric)
     __attribute__ ((nonnull));
+void account_set_banned(struct account *account, bool banned)
+    __attribute__ ((nonnull));
+void account_set_trust(struct account *account, int trust)
+    __attribute__ ((nonnull));
 
 void account_set_password(struct account *account, const char *password)
     __attribute__ ((nonnull));

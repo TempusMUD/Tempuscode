@@ -6737,10 +6737,10 @@ ACMD(do_aset)
             GET_NAME(ch), account->name, account->id, account->email);
         break;
     case 7:
-        account->banned = on;
+        account_set_banned(account, on);
         break;
     case 8:
-        account->trust = value;
+        account_set_trust(account, value);
         break;
     default:
         snprintf(buf, sizeof(buf), "Can't set that!");
