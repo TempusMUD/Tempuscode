@@ -972,6 +972,13 @@ account_set_metric(struct account *account, bool metric)
     sql_exec("update accounts set metric_units='%s' where idnum=%d",
         metric ? "T" : "F", account->id);
 }
+void
+account_set_trust(struct account *account, int trust)
+{
+    account->trust = trust;
+    sql_exec("update accounts set trust=%d where idnum=%d",
+             trust, account->id);
+}
 
 int
 hasCharLevel(struct account *account, int level)
