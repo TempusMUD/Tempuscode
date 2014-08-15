@@ -18,7 +18,7 @@ if not File.exists?('/tmp/tempus.reboot.news.txt')
     else
       ouf.print changes
     end
-    ouf.print "\n\n: Azi :\n"
+    ouf.print "\n\n* Wish *\n"
   }
 end
 
@@ -34,7 +34,7 @@ Process.fork {
   end
 }
 
-Kernel.system('/usr/bin/vim /tmp/tempus.reboot.news.txt')
+Kernel.system('${EDITOR} /tmp/tempus.reboot.news.txt')
 
 # Make sure the build succeeded
 pid, status = Process.wait2()
@@ -56,8 +56,8 @@ post_title = Time.now.strftime("%Y-%m-%d Reboot")
 sql.exec("insert into forum_topics (forum, subject, last_updated, locked) values (10, $1, now(), false)", [post_title])
 res = sql.exec('select lastval()')
 topic_id = res.values[0][0].to_i
-sql.exec("insert into forum_messages (topic, author, post_time, name, body) values ($1, 2, now(), $2, $3)",
-         [topic_id, 'Azimuth', news])
+sql.exec("insert into forum_messages (topic, author, post_time, name, body) values ($1, 104, now(), $2, $3)",
+         [topic_id, 'Wish', news])
 
 # Post the news to the mud news file
 old_news = IO.read('lib/text/news')
