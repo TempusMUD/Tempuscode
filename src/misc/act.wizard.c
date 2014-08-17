@@ -1394,21 +1394,33 @@ do_stat_object(struct creature *ch, struct obj_data *j)
             spell_to_str((int)GET_OBJ_VAL(j, 3)));
         break;
     case ITEM_WEAPON:
-        acc_sprintf
-            ("Spell: %s (%d), Todam: %dd%d (%savg %d%s [%d-%d]), Damage Type: %s (%d)\r\n",
-    			((GET_OBJ_VAL(j, 0) > 0
-                  && GET_OBJ_VAL(j, 0) < TOP_NPC_SPELL) ? spell_to_str((int)GET_OBJ_VAL(j, 0)) : "NONE"), 
-				GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), 
-				CCGRN(ch, C_NRM),(GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j, 2) + 1)) / 2, CCNRM(ch, C_NRM),
-			// for displaying the max/min avg from the obj prototype			
-				((GET_OBJ_VAL(j->shared->proto, 1) - (GET_OBJ_VAL(j->shared->proto, 1) / 4)) * 
-				((GET_OBJ_VAL(j->shared->proto, 2) - (GET_OBJ_VAL(j->shared->proto, 2) / 4)) + 1)) / 2,
-				((GET_OBJ_VAL(j->shared->proto, 1) + (GET_OBJ_VAL(j->shared->proto, 1) / 4)) * 
-				((GET_OBJ_VAL(j->shared->proto, 2) + (GET_OBJ_VAL(j->shared->proto, 2) / 4)) + 1)) / 2,	
-						
-				(GET_OBJ_VAL(j, 3) >= 0 
-				  && GET_OBJ_VAL(j, 3) < 19) ? attack_hit_text[(int)GET_OBJ_VAL(j, 3)].plural : "bunk", 
-				GET_OBJ_VAL(j, 3));
+        if (j->shared->proto) {
+            acc_sprintf
+                ("Spell: %s (%d), Todam: %dd%d (%savg %d%s [%d-%d]), Damage Type: %s (%d)\r\n",
+                    ((GET_OBJ_VAL(j, 0) > 0
+                    && GET_OBJ_VAL(j, 0) < TOP_NPC_SPELL) ? spell_to_str((int)GET_OBJ_VAL(j, 0)) : "NONE"), GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
+                    CCGRN(ch, C_NRM),(GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j, 2) + 1)) / 2, CCNRM(ch, C_NRM),
+
+                    // for displaying the max/min avg from the obj prototype
+                    ((GET_OBJ_VAL(j->shared->proto, 1) - (GET_OBJ_VAL(j->shared->proto, 1) / 4)) *
+                    ((GET_OBJ_VAL(j->shared->proto, 2) - (GET_OBJ_VAL(j->shared->proto, 2) / 4)) + 1)) / 2,
+                    ((GET_OBJ_VAL(j->shared->proto, 1) + (GET_OBJ_VAL(j->shared->proto, 1) / 4)) *
+                    ((GET_OBJ_VAL(j->shared->proto, 2) + (GET_OBJ_VAL(j->shared->proto, 2) / 4)) + 1)) / 2,
+
+                    (GET_OBJ_VAL(j, 3) >= 0
+                    && GET_OBJ_VAL(j, 3) < 19) ? attack_hit_text[(int)GET_OBJ_VAL(j, 3)].plural : "bunk",
+                    GET_OBJ_VAL(j, 3));
+        } else {
+            acc_sprintf
+                ("Spell: %s (%d), Todam: %dd%d, Damage Type: %s (%d)\r\n",
+                    ((GET_OBJ_VAL(j, 0) > 0
+                    && GET_OBJ_VAL(j, 0) < TOP_NPC_SPELL) ? spell_to_str((int)GET_OBJ_VAL(j, 0)) : "NONE"), GET_OBJ_VAL(j, 0),
+                    GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
+                    (GET_OBJ_VAL(j, 3) >= 0
+                    && GET_OBJ_VAL(j, 3) < 19) ? attack_hit_text[(int)GET_OBJ_VAL(j, 3)].plural : "bunk",
+                    GET_OBJ_VAL(j, 3));
+        }
         break;
     case ITEM_CAMERA:
         acc_sprintf("Targ room: %d\r\n", GET_OBJ_VAL(j, 0));
