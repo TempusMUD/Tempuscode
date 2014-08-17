@@ -1864,8 +1864,7 @@ ACMD(do_trigger)
     /* You throws the dice and you takes your chances.. 101% is total failure */
     if (number(0, 111) > prob) {
         WAIT_STATE(ch, PULSE_VIOLENCE);
-        if (!tch || spellnum == SPELL_ELECTROSTATIC_FIELD
-            || !skill_message(0, ch, tch, NULL, spellnum))
+        if (!tch || !skill_message(0, ch, tch, NULL, spellnum))
             send_to_char(ch, "Your concentration was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =
@@ -2105,7 +2104,8 @@ ACMD(do_alter)
     /* You throws the dice and you takes your chances.. 101% is total failure */
     if (number(0, 101) > GET_SKILL(ch, spellnum)) {
         WAIT_STATE(ch, PULSE_VIOLENCE);
-        if (!tch || !skill_message(0, ch, tch, NULL, spellnum))
+        if (!tch || spellnum == SPELL_ELECTROSTATIC_FIELD
+            || !skill_message(0, ch, tch, NULL, spellnum))
             send_to_char(ch, "Your concentration was disturbed!\r\n");
         if (mana > 0)
             GET_MANA(ch) =
