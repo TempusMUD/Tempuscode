@@ -144,6 +144,7 @@ room_num skullport_newbie_start_room = 23100;
 room_num zul_dane_newbie_start_room = 53306;
 room_num zul_dane_start_room = 53172;
 room_num newbie_school_start_room = 301;
+room_num newbie_tutorial_complete_start_room = 333;
 
 room_num astral_manse_start_room = 42500;
 

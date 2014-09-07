@@ -912,11 +912,8 @@ player_loadroom(struct creature *ch)
                 GET_HOME(ch) = HOME_MODRIAN;
                 population_record[HOME_MODRIAN]--;
                 load_room = r_mortal_start_room;
-            } else {
+            } else 
                 load_room = r_newbie_school_start_room;
-            }
-        } else if (GET_HOME(ch) == HOME_ELECTRO) {
-            load_room = r_electro_start_room;
         } else if (GET_HOME(ch) == HOME_NEWBIE_TOWER) {
             if (GET_LEVEL(ch) > 5) {
                 population_record[HOME_NEWBIE_TOWER]--;
@@ -925,6 +922,17 @@ player_loadroom(struct creature *ch)
                 load_room = r_mortal_start_room;
             } else
                 load_room = r_tower_modrian_start_room;
+        } else if (GET_HOME(ch) == HOME_NEWBIE_TUTORIAL_COMPLETE) {
+            if (GET_LEVEL(ch) > 5) {
+                population_record[HOME_NEWBIE_TUTORIAL_COMPLETE]--;
+                GET_HOME(ch) = HOME_MODRIAN;
+                population_record[HOME_MODRIAN]--;
+                load_room = r_mortal_start_room;
+            } else
+                load_room = r_newbie_tutorial_complete_start_room;
+                
+        } else if (GET_HOME(ch) == HOME_ELECTRO) {
+            load_room = r_electro_start_room;
         } else if (GET_HOME(ch) == HOME_NEW_THALOS) {
             load_room = r_new_thalos_start_room;
         } else if (GET_HOME(ch) == HOME_KROMGUARD) {
