@@ -2591,6 +2591,7 @@ get_start_room(struct creature *ch)
             GET_HOME(ch) == HOME_DROW_ISLE ? r_drow_isle_start_room :
             GET_HOME(ch) == HOME_ASTRAL_MANSE ? r_astral_manse_start_room :
             GET_HOME(ch) == HOME_NEWBIE_SCHOOL ? r_newbie_school_start_room :
+            GET_HOME(ch) == HOME_NEWBIE_TUTORIAL_COMPLETE ? r_newbie_tutorial_complete_start_room :
             r_mortal_start_room);
 }
 

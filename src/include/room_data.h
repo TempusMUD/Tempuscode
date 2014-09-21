@@ -315,6 +315,7 @@ extern struct room_data *r_astral_manse_start_room;
 extern struct room_data *r_zul_dane_start_room;
 extern struct room_data *r_zul_dane_newbie_start_room;
 extern struct room_data *r_newbie_school_start_room;
+extern struct room_data *r_newbie_tutorial_complete_start_room;
 
 void init_room_affect(struct room_affect_data *raff, int level, int spell, int owner);
 int count_room_exits(struct room_data *room);
