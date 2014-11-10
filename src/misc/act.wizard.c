@@ -8325,7 +8325,7 @@ ACMD(do_users)
             } else {
                 acc_strcat(CCRED(ch, C_NRM), NULL);
             }
-            acc_sprintf("%s%s", d->host, CCNRM(ch, C_NRM));
+            acc_sprintf("%s%s\r\n", d->host, CCNRM(ch, C_NRM));
         } else {
             acc_strcat(CCRED_BLD(ch, C_SPR), "[unknown]\r\n", CCNRM(ch, C_SPR), NULL);
         }
