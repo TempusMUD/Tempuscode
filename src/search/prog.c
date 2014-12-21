@@ -599,6 +599,22 @@ prog_eval_phase(char *args) {
 }
 
 bool
+prog_eval_alignment(struct prog_env *env, char *args) {
+    bool result = false;
+    char *str;
+
+    str = tmp_getword(&args);
+    if (!strcasecmp(str, "evil") && IS_EVIL(env->target))
+        result = true;
+    else if (!strcasecmp(str, "good") && IS_GOOD(env->target))
+        result = true;
+    else if (!strcasecmp(str, "neutral") && IS_NEUTRAL(env->target))
+        result = true;
+
+    return result;
+}
+
+bool
 prog_eval_class(struct prog_env *env, char *args) {
     bool result = false;
     // Required class
@@ -800,6 +816,8 @@ prog_eval_condition(struct prog_env * env, struct prog_evt * evt, char *args)
             result = (env->target != NULL);
         } else if (!strcasecmp(arg, "class")) {
             result = prog_eval_class(env, args);
+        } else if (!strcasecmp(arg, "alignment")) {
+            result = prog_eval_alignment(env, args);
 		} else if (!strcmp(arg, "position")) {
             int pos = search_block(args, position_types, false);
 
