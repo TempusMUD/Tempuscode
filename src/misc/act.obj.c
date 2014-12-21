@@ -1481,9 +1481,15 @@ ACMD(do_drop)
             switch (number(0, 18)) {
             case 0:
             case 1:
+            /*
+            This was designed to allow a chance that an object donated would instead be junked.
+            With this removed, donate only donates, and with an even higher chance of landing in Modrian.
+            If added again, make sure to change the extract_obj() call near the end of this function to
+            also include SCMD_JUNK for mode as well as for subcmd, otherwise it won't actually junk.
                 mode = SCMD_JUNK;
                 RDR = NULL;
                 break;
+            */
             case 2:
             case 3:
             case 4:
