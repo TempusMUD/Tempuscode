@@ -2412,6 +2412,8 @@ acc_append_affects(struct creature *ch, int8_t mode)
         acc_strcat("You are protected by Sanctuary.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_ARMOR))
         acc_strcat("You feel protected.\r\n", NULL);
+    if (affected_by_spell(ch, SPELL_STRENGTH))
+        acc_strcat("Your physical strength is magically augmented.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_BARKSKIN))
         acc_strcat("Your skin is thick and tough like tree bark.\r\n", NULL);
     if (affected_by_spell(ch, SPELL_STONESKIN))
