@@ -761,12 +761,17 @@ accept_new_connection(GIOChannel *listener_io,
         // loud, though.
         d_printf(newd,"If you use a screen reader, you'll want to use port %d&@", reader_port);
 		
-        // print out the greeting text, from comm.c, with a 50/50 chance between the two
-        int random_greeting = number(1, 100);
-        if (random_greeting > 50)
-            d_send(newd, GREETINGS[0]);
-        else
-            d_send(newd, GREETINGS[1]);
+        // We have moved to a single greeting/login screen. The old random selection between
+        // multiple screens has been left for reference and/or future use.
+            /*
+            print out the greeting text, from comm.c, with a 50/50 chance between the two
+            int random_greeting = number(1, 100);
+            if (random_greeting > 50)
+                d_send(newd, GREETINGS[0]);
+            else
+                d_send(newd, GREETINGS[1]);
+            */
+        d_send(newd, GREETINGS[1]);
     }
     return true;
 }
