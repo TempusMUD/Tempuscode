@@ -1064,16 +1064,6 @@ To answer the mysteries one's life can bring.</lyrics>
   <skill id="668" name="drag">
     <granted class="barbarian" level="40"/>
   </skill>
-  <spell id="162" name="dragons breath">
-    <manacost initial="0" level_dec="0" minimum="0"/>
-    <position minimum="fighting"/>
-    <target type="creature" scope="room"/>
-    <target type="creature" scope="fighting"/>
-    <flag value="violent"/>
-    <flag value="damage"/>
-    <flag value="nowater"/>
-    <flag value="magic"/>
-  </spell>
   <spell id="365" name="drifters ditty">
     <granted class="bard" level="4"/>
     <manacost initial="30" level_dec="2" minimum="15"/>

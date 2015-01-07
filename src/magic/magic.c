@@ -761,10 +761,6 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         audible = true;
         dam = dice(level, 15) + level;
         break;
-    case SPELL_DRAGONS_BREATH:
-        audible = true;
-        dam = dice(level, 8) + (level / 2);
-        break;
     case SPELL_FROST_BREATH:
         audible = true;
         dam = dice(level, 7) + level;

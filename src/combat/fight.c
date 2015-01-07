@@ -1647,7 +1647,6 @@ damage(struct creature *ch, struct creature *victim,
     case SPELL_FLAME_STRIKE:
     case SPELL_FIRE_ELEMENTAL:
     case SPELL_FIRE_BREATH:
-    case SPELL_DRAGONS_BREATH:
     case TYPE_ABLAZE:
     case SPELL_FIRE_SHIELD:
     case TYPE_FLAMETHROWER:
@@ -1934,7 +1933,6 @@ damage(struct creature *ch, struct creature *victim,
         if (!AFF2_FLAGGED(victim, AFF2_ABLAZE) &&
             (attacktype == SPELL_FIREBALL ||
                 attacktype == SPELL_FIRE_BREATH ||
-                attacktype == SPELL_DRAGONS_BREATH ||
                 attacktype == SPELL_HELL_FIRE ||
                 attacktype == SPELL_FLAME_STRIKE ||
                 attacktype == SPELL_METEOR_STORM ||
