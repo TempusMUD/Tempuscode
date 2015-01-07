@@ -290,7 +290,6 @@ enum spell {
     SPELL_FROST_BREATHING = 159,
     SPELL_FLAME_OF_FAITH = 160,
     SPELL_ABLAZE = 161, // Only here to allow an ablaze affect
-    SPELL_DRAGONS_BREATH = 162,
 
   /************************** Psionic Triggers ***************/
     SPELL_POWER = 201,	/* Strength                */
