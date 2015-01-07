@@ -1904,6 +1904,8 @@ damage(struct creature *ch, struct creature *victim,
         }
     }
 
+    update_pos(victim);
+    
     /*
      * skill_message sends a message from the messages file in lib/misc.
      * dam_message just sends a generic "You hit $n extremely hard.".
