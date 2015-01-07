@@ -4223,8 +4223,7 @@ ACMD(do_breathe)
                 if (fire->duration <= 0)
                     affect_remove(ch, fire);
             }
-            // the infamous fire breathing wait-state, currently not implemented
-            // WAIT_STATE(ch, 1 RL_SEC);
+            WAIT_STATE(ch, 1 RL_SEC);
         } else if (frost != NULL) {
             send_to_char(ch, "ERROR: Frost breath not found.\r\n");
         } else {
