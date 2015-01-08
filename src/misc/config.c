@@ -242,7 +242,7 @@ int DFLT_PORT = 4040;
 unsigned int MAX_PLAYERS = 300;
 
 /* maximum size of bug, typo and idea files (to prevent bombing) */
-int max_filesize = 50000;
+int max_filesize = 55000;
 
 /* maximum number of password attempts before disconnection */
 int max_bad_pws = 2;
