@@ -1676,7 +1676,7 @@ do_doorcmd(struct creature *ch, struct obj_data *obj, int door, int scmd)
     if (obj)
         strcat_s(buf, sizeof(buf), "$p.");
     else if (EXIT(ch, door)->keyword)
-        strcat_s(buf, sizeof(buf), tmp_sprintf("the %s", fname(EXIT(ch, door)->keyword)));
+        strcat_s(buf, sizeof(buf), tmp_sprintf("the %s.", fname(EXIT(ch, door)->keyword)));
     else
         strcat_s(buf, sizeof(buf), "the door.");
 
