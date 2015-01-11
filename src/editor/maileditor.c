@@ -341,7 +341,7 @@ maileditor_addattachment(struct editor *editor, char *obj_name)
 
     if (mail_data->num_attachments >= MAX_MAIL_ATTACHMENTS) {
         editor_emit(editor, "You may not attach any more packages to "
-            "this mail\r\n");
+            "this mail.\r\n");
         return;
     }
 
