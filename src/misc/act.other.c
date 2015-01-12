@@ -1001,7 +1001,7 @@ ACMD(do_display)
 ACMD(do_gen_write)
 {
     FILE *fl;
-    char *tmp;
+    char time_buf[30];
     const char *filename;
     struct stat fbuf;
     extern int max_filesize;
@@ -1026,7 +1026,7 @@ ACMD(do_gen_write)
     }
 
     ct = time(NULL);
-    tmp = asctime(localtime(&ct));
+    strftime(time_buf, 30, "%b %e, %Y", localtime(&ct));
 
     if (IS_NPC(ch)) {
         send_to_char(ch, "Monsters can't have ideas - Go away.\r\n");
@@ -1057,7 +1057,7 @@ ACMD(do_gen_write)
         send_to_char(ch, "Could not open the file.  Sorry.\r\n");
         return;
     }
-    fprintf(fl, "%-8s (%6.6s) [%5d] %s\n", GET_NAME(ch), (tmp + 4),
+    fprintf(fl, "%-8s (%s) [%5d] %s\n", GET_NAME(ch), time_buf,
         ch->in_room->number, argument);
     fclose(fl);
     send_to_char(ch, "Okay.  Thanks!\r\n");
