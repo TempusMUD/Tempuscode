@@ -627,6 +627,15 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
             description = mob->player.description;
     }
     if (!CMD_IS("glance")) {
+        if ((IS_NPC(i) && (GET_LEVEL(ch) >= LVL_IMMORT || is_tester(ch))) &&
+            PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)) {
+                send_to_char(ch, "%s<%s%s%s> <%s%d%s>%s\r\n",
+                    CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
+                    GET_NAME(i), 
+                    CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
+                    GET_NPC_VNUM(i),
+                    CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+        }
         if (description)
             send_to_char(ch, "%s", description);
         else if (!mob && i->player.description)
