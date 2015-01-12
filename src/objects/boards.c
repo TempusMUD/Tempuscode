@@ -290,7 +290,7 @@ gen_board_list(struct board_data *board, struct creature *ch)
 
     for (idx = 0; idx < count; idx++) {
         post_time = atol(PQgetvalue(res, idx, 0));
-        strftime(time_buf, 30, "%a %b %e", localtime(&post_time));
+        strftime(time_buf, 30, "%b %e, %Y", localtime(&post_time));
         acc_sprintf("%s%-2d %s:%s %s %-12s :: %s\r\n",
             CCGRN(ch, C_NRM), count - idx, CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
             time_buf, tmp_sprintf("(%s)", PQgetvalue(res, idx, 1)),
