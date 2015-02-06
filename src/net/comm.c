@@ -260,15 +260,6 @@ init_socket(int port)
         }
 #endif
 
-#ifdef SO_REUSEPORT
-        opt = 1;
-        err = setsockopt(s, SOL_SOCKET, SO_REUSEPORT, (char *)&opt, sizeof(opt));
-        if (err < 0) {
-            perror("setsockopt REUSEPORT");
-            safe_exit(EXIT_FAILURE);
-        }
-#endif
-
 #ifdef SO_LINGER
         {
             struct linger ld;

@@ -32,7 +32,7 @@ while [ ! -e .killscript ]; do
 
     echo "autoscript starting game $DATE" >> syslog
 
-    bin/circle $FLAGS /opt/tempus/lib > syslog 2>&1 &
+    bin/circle $FLAGS lib > syslog 2>&1 &
     PID=$!
     echo $PID >/var/run/tempus.pid
 
@@ -94,13 +94,13 @@ while [ ! -e .killscript ]; do
         # We died as a result of a signal here: this pretty much means
         # a segfault
         if [ ! -x ./bin/crash_report.sh ]; then
-            echo "A crash was detected but the crash report permissions were wrong." | mail -s "TempusMUD CRASH REPORT" coders
+            echo "A crash was detected but the crash report permissions were wrong." | mail -s "TempusMUD CRASH REPORT" dlowe
         elif [ ! -e ./lib/core ]; then
-            echo "A crash was detected but no core file was made." | mail -s "TempusMUD CRASH REPORT" coders
+            echo "A crash was detected but no core file was made." | mail -s "TempusMUD CRASH REPORT" dlowe
         else
             ./bin/crash_report.sh lib/core log/$DATE-system.log >log/$DATE-crashreport.txt
             mv lib/core log/$DATE-core
-            cat log/$DATE-crashreport.txt | mail -s "TempusMUD CRASH REPORT" coders
+            cat log/$DATE-crashreport.txt | mail -s "TempusMUD CRASH REPORT" dlowe
         fi
 
         # Check to see if the mud ever actually started.  If the mud
@@ -116,7 +116,7 @@ while [ ! -e .killscript ]; do
         exit
     else
         # Peaceful process death - a reboot is desired
-        echo "Reboot requested." | mail -s "TempusMUD Reboot Notification" coders
+        echo "Reboot requested." | mail -s "TempusMUD Reboot Notification" dlowe
     fi
 
     sleep 5
