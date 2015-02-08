@@ -86,87 +86,95 @@ has_car_key(struct creature *ch, room_num car_room)
 {
     struct obj_data *key = NULL;
 
-    if (GET_LEVEL(ch) > LVL_GRGOD)
+    if (GET_LEVEL(ch) > LVL_GRGOD) {
         return 1;
+    }
 
-    for (key = ch->carrying; key; key = key->next_content)
-        if (KEY_TO_CAR(key) == car_room)
+    for (key = ch->carrying; key; key = key->next_content) {
+        if (KEY_TO_CAR(key) == car_room) {
             return 1;
+        }
+    }
 
-    if ((key = GET_EQ(ch, WEAR_HOLD)))
-        if (KEY_TO_CAR(key) == car_room)
+    if ((key = GET_EQ(ch, WEAR_HOLD))) {
+        if (KEY_TO_CAR(key) == car_room) {
             return 1;
+        }
+    }
 
     return 0;
 }
 
 void
 display_status(struct creature *ch, struct obj_data *car,
-    struct creature *driver, struct obj_data *engine)
+               struct creature *driver, struct obj_data *engine)
 {
-    if (!ch || !engine || !car)
+    if (!ch || !engine || !car) {
         return;
+    }
 
     send_to_char(ch, "You examine the instrument panel.\r\n");
     if (!number(0, 5)) {
         snprintf(buf, sizeof(buf),
-            "%sThe %sinstrument %spanel %sblinks %sfor %sa %smoment%s.", QGRN,
-            QBLU, QMAG, QYEL, QCYN, QYEL, QBLU, QNRM);
+                 "%sThe %sinstrument %spanel %sblinks %sfor %sa %smoment%s.", QGRN,
+                 QBLU, QMAG, QYEL, QCYN, QYEL, QBLU, QNRM);
         act(buf, false, ch, NULL, NULL, TO_ROOM);
     }
     send_to_char(ch,
-        "\r\n%s<<<<<<<<%sSYSTEM STATUS UPDATE (%s)%s>>>>>>>>>%s\r\n", QRED,
-        QNRM, car->name, QRED, QNRM);
+                 "\r\n%s<<<<<<<<%sSYSTEM STATUS UPDATE (%s)%s>>>>>>>>>%s\r\n", QRED,
+                 QNRM, car->name, QRED, QNRM);
     snprintf(buf, sizeof(buf),
-        "%s*******************************************************%s\r\n",
-        QBLU, QNRM);
+             "%s*******************************************************%s\r\n",
+             QBLU, QNRM);
     send_to_char(ch, "%s", buf);
     sprintbit(ENGINE_STATE(engine), engine_state_bits, buf2, sizeof(buf2));
     send_to_char(ch, "%sEngine State:%s    %s\r\n", QCYN, QNRM, buf2);
     sprintbit(DOOR_STATE(car), container_bits, buf2, sizeof(buf2));
     send_to_char(ch, "%sDoor State:%s      %s\r\n", QCYN, QNRM, buf2);
     snprintf(buf, sizeof(buf),
-        "%sEnergy Status:%s   [%s%d / %d%s]%s\r\n"
-        "%sHeadlights are:%s  %s\r\n"
-        "%sDriver is:%s       %s\r\n"
-        "%sVhcl is located:%s %s\r\n"
-        "%sThe weather outside is:%s    %s\r\n",
-        QCYN, QRED, QNRM, CUR_ENERGY(engine), MAX_ENERGY(engine), QRED, QNRM,
-        QCYN, QNRM, (HEADLIGHTS_ON(engine) ? "ON" : "OFF"),
-        QCYN, QNRM, driver ? PERS(ch, driver) : "No-one",
-        QCYN, QNRM, car->in_room->name,
-        QCYN, QNRM, outside_weather[(int)car->in_room->zone->weather->sky]);
+             "%sEnergy Status:%s   [%s%d / %d%s]%s\r\n"
+             "%sHeadlights are:%s  %s\r\n"
+             "%sDriver is:%s       %s\r\n"
+             "%sVhcl is located:%s %s\r\n"
+             "%sThe weather outside is:%s    %s\r\n",
+             QCYN, QRED, QNRM, CUR_ENERGY(engine), MAX_ENERGY(engine), QRED, QNRM,
+             QCYN, QNRM, (HEADLIGHTS_ON(engine) ? "ON" : "OFF"),
+             QCYN, QNRM, driver ? PERS(ch, driver) : "No-one",
+             QCYN, QNRM, car->in_room->name,
+             QCYN, QNRM, outside_weather[(int)car->in_room->zone->weather->sky]);
     send_to_char(ch, "%s", buf);
     if (LOW_ENERGY(engine)) {
         send_to_char(ch, "A %sWARNING%s indicator lights up.", QRED, QNRM);
         act(buf, false, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch, "%s***%sWARNING%s***%s (Low Energy Level).\r\n", QGRN,
-            QRED, QGRN, QNRM);
+                     QRED, QGRN, QNRM);
     }
 
     send_to_char(ch,
-        "%s*******************************************************%s\r\n",
-        QBLU, QNRM);
+                 "%s*******************************************************%s\r\n",
+                 QBLU, QNRM);
 }
 
 void
 start_engine(struct creature *ch, struct obj_data *car,
-    struct obj_data *engine, struct obj_data *console)
+             struct obj_data *engine, struct obj_data *console)
 {
 
-    if (!IS_NPC(ch))
+    if (!IS_NPC(ch)) {
         V_CONSOLE_IDNUM(console) = GET_IDNUM(ch);
-    else
+    } else {
         V_CONSOLE_IDNUM(console) = -(GET_NPC_VNUM(ch));
+    }
 
     if (ENGINE_ON(engine)) {
         act("The starter squeals as you try to crank $p!",
             false, ch, car, NULL, TO_CHAR);
         act("The starter squeals as $n tries to crank $p!",
             false, ch, car, NULL, TO_ROOM);
-        if (car->in_room->people)
+        if (car->in_room->people) {
             act("You hear a loud squealing from under the hood of $p.",
                 false, NULL, car, NULL, TO_ROOM);
+        }
         return;
     }
     if (CUR_ENERGY(engine) == 0) {
@@ -175,9 +183,10 @@ start_engine(struct creature *ch, struct obj_data *car,
             false, ch, engine, NULL, TO_ROOM);
         act("$p turns over and over sluggishly.", false, ch, engine, NULL,
             TO_CHAR);
-        if (car->in_room->people)
+        if (car->in_room->people) {
             act("$p's engine turns over and over sluggishly.",
                 false, NULL, car, NULL, TO_ROOM);
+        }
         return;
     }
     if (LOW_ENERGY(engine)) {
@@ -186,9 +195,10 @@ start_engine(struct creature *ch, struct obj_data *car,
             false, ch, engine, NULL, TO_ROOM);
         act("$p turns over sluggishly and sputters to life.",
             false, ch, engine, NULL, TO_CHAR);
-        if (car->in_room->people)
+        if (car->in_room->people) {
             act("$p's engine turns over sluggishly and sputters to life.",
                 false, NULL, car, NULL, TO_ROOM);
+        }
         TOGGLE_BIT(ENGINE_STATE(engine), ENG_RUN);
         CUR_ENERGY(engine) = MAX(0, CUR_ENERGY(engine) - USE_RATE(engine) * 2);
         return;
@@ -196,12 +206,12 @@ start_engine(struct creature *ch, struct obj_data *car,
     act("$n tries to crank $p.", true, ch, car, NULL, TO_ROOM);
     act("$p turns over and roars to life.", false, ch, engine, NULL, TO_ROOM);
     act("$p turns over and roars to life.", false, ch, engine, NULL, TO_CHAR);
-    if (car->in_room->people)
+    if (car->in_room->people) {
         act("$p's engine turns over and roars to life.",
             false, NULL, car, NULL, TO_ROOM);
+    }
     TOGGLE_BIT(ENGINE_STATE(engine), ENG_RUN);
     CUR_ENERGY(engine) = MAX(0, CUR_ENERGY(engine) - USE_RATE(engine) * 2);
-    return;
 }
 
 int
@@ -214,33 +224,38 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
 
     cur_car = car;
 
-    if (!OEXIT(car, dir) || !(dest = OEXIT(car, dir)->to_room))
+    if (!OEXIT(car, dir) || !(dest = OEXIT(car, dir)->to_room)) {
         return ERR_NULL_DEST;
-    if (IS_SET(OEXIT(car, dir)->exit_info, EX_CLOSED))
+    }
+    if (IS_SET(OEXIT(car, dir)->exit_info, EX_CLOSED)) {
         return ERR_CLOSED_EX;
+    }
 
-    if (engine && !IS_ENGINE(engine))
+    if (engine && !IS_ENGINE(engine)) {
         engine = NULL;
+    }
 
     if ((IS_ROADCAR(car) && (SECT_TYPE(dest) != SECT_CITY &&
-                SECT_TYPE(dest) != SECT_ROAD &&
-                SECT_TYPE(dest) != SECT_INSIDE &&
-                SECT_TYPE(dest) != SECT_FIELD)) ||
+                             SECT_TYPE(dest) != SECT_ROAD &&
+                             SECT_TYPE(dest) != SECT_INSIDE &&
+                             SECT_TYPE(dest) != SECT_FIELD)) ||
         (IS_SKYCAR(car) && room_is_underwater(dest))) {
         return ERR_NODRIVE;
     }
 
     if (ROOM_FLAGGED(dest, ROOM_HOUSE) && ch
-        && !can_enter_house(ch, dest->number))
+        && !can_enter_house(ch, dest->number)) {
         return ERR_HOUSE;
+    }
 
     if (ROOM_FLAGGED(dest, ROOM_CLAN_HOUSE) && ch &&
-        !clan_house_can_enter(ch, dest))
+        !clan_house_can_enter(ch, dest)) {
         return ERR_CLAN;
+    }
 
     if (engine) {
         energy_cost = ((movement_loss[car->in_room->sector_type] +
-                movement_loss[dest->sector_type]) * USE_RATE(engine));
+                        movement_loss[dest->sector_type]) * USE_RATE(engine));
         REMOVE_BIT(ENGINE_STATE(engine), ENG_PARK);
 
         CUR_ENERGY(engine) = MAX(0, CUR_ENERGY(engine) - energy_cost);
@@ -288,15 +303,17 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
         snprintf(buf, sizeof(buf), "$n drives $p %s.", dirs[dir]);
         act(buf, false, ch, car, NULL, TO_ROOM);
 
-        if (IS_SKYCAR(car))
+        if (IS_SKYCAR(car)) {
             send_to_room("You see as you fly up: \r\n", ch->in_room);
-        else
+        } else {
             send_to_room("You see as you drive up: \r\n", ch->in_room);
+        }
 
-        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+        for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
             struct creature *tch = it->data;
-            if (AWAKE(tch))
+            if (AWAKE(tch)) {
                 look_at_room(tch, car->in_room, 0);
+            }
         }
     } else if ((other_rm = real_room(ROOM_NUMBER(car))) && other_rm->people) {
         snprintf(buf, sizeof(buf), "$p travels %s.", to_dirs[dir]);
@@ -316,8 +333,9 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
                 act("$p sputters and dies.", false, NULL, car, NULL, TO_ROOM);
             }
 
-            if (ENGINE_ON(engine))
+            if (ENGINE_ON(engine)) {
                 REMOVE_BIT(ENGINE_STATE(engine), ENG_RUN);
+            }
             if (HEADLIGHTS_ON(engine)) {
                 REMOVE_BIT(ENGINE_STATE(engine), ENG_LIGHTS);
                 car->in_room->light--;
@@ -433,25 +451,28 @@ ACMD(do_uninstall)
 }
 
 /********************************************************
-*        The Room Specials vl1                                *
-*********************************************************/
+ *        The Room Specials vl1                                *
+ *********************************************************/
 SPECIAL(vehicle_door)
 {
 
     struct obj_data *v_door = (struct obj_data *)me;
     struct obj_data *vehicle = NULL;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (!(vehicle = find_vehicle(v_door)))
+    if (!(vehicle = find_vehicle(v_door))) {
         return 0;
+    }
 
     skip_spaces(&argument);
 
     if (*argument && !isname(argument, vehicle->aliases) &&
-        !isname(argument, v_door->aliases))
+        !isname(argument, v_door->aliases)) {
         return 0;
+    }
 
     if (CMD_IS("exit") || CMD_IS("leave")) {
 
@@ -465,14 +486,14 @@ SPECIAL(vehicle_door)
         if (ROOM_FLAGGED(vehicle->in_room, ROOM_HOUSE)
             && !can_enter_house(ch, vehicle->in_room->number)) {
             send_to_char(ch,
-                "That's private property -- you can't go there.\r\n");
+                         "That's private property -- you can't go there.\r\n");
             return 1;
         }
 
         if (ROOM_FLAGGED(vehicle->in_room, ROOM_CLAN_HOUSE) &&
             !clan_house_can_enter(ch, vehicle->in_room)) {
             send_to_char(ch,
-                "That is clan property -- you aren't allowed to go there.\r\n");
+                         "That is clan property -- you aren't allowed to go there.\r\n");
             return 1;
         }
 
@@ -573,19 +594,21 @@ SPECIAL(vehicle_door)
 }
 
 static struct creature *
-find_driver(struct obj_data *console) {
+find_driver(struct obj_data *console)
+{
     struct creature *driver = NULL;
-    
-    for (GList * it = first_living(console->in_room->people); it; it = next_living(it)) {
-           driver = it->data;
-           if ((V_CONSOLE_IDNUM(console) > 0 &&
-                GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
-               (V_CONSOLE_IDNUM(console) < 0 &&
-                GET_NPC_VNUM(driver) == -V_CONSOLE_IDNUM(console)))
-               return driver;
+
+    for (GList *it = first_living(console->in_room->people); it; it = next_living(it)) {
+        driver = it->data;
+        if ((V_CONSOLE_IDNUM(console) > 0 &&
+             GET_IDNUM(driver) == V_CONSOLE_IDNUM(console)) ||
+            (V_CONSOLE_IDNUM(console) < 0 &&
+             GET_NPC_VNUM(driver) == -V_CONSOLE_IDNUM(console))) {
+            return driver;
+        }
     }
     return NULL;
- }
+}
 
 SPECIAL(vehicle_console)
 {
@@ -599,27 +622,31 @@ SPECIAL(vehicle_console)
         !CMD_IS("crank") && !CMD_IS("hotwire") && !CMD_IS("park") &&
         !CMD_IS("shutoff") && !CMD_IS("deactivate") && !CMD_IS("activate") &&
         !CMD_IS("honk") && !CMD_IS("headlights") && !CMD_IS("listen") &&
-        !CMD_IS("exits") && !CMD_IS("rev") && !CMD_IS("spinout"))
+        !CMD_IS("exits") && !CMD_IS("rev") && !CMD_IS("spinout")) {
         return 0;
-
-    for (vehicle = object_list; vehicle; vehicle = vehicle->next) {
-        if (GET_OBJ_VNUM(vehicle) == V_CAR_VNUM(console) && vehicle->in_room)
-            break;
     }
 
-    if (!vehicle)
+    for (vehicle = object_list; vehicle; vehicle = vehicle->next) {
+        if (GET_OBJ_VNUM(vehicle) == V_CAR_VNUM(console) && vehicle->in_room) {
+            break;
+        }
+    }
+
+    if (!vehicle) {
         return 0;
+    }
 
     cur_car = vehicle;
 
     engine = vehicle->contains;
-    if (engine && !IS_ENGINE(engine))
+    if (engine && !IS_ENGINE(engine)) {
         engine = NULL;
+    }
 
     if (V_CONSOLE_IDNUM(console)) {
         if (!console->in_room) {
             send_to_char(ch,
-                "You have to put the console IN the vehicle to use it.\r\n");
+                         "You have to put the console IN the vehicle to use it.\r\n");
             return 1;
         }
         driver = find_driver(console);
@@ -629,25 +656,28 @@ SPECIAL(vehicle_console)
 
     if (CMD_IS("exits")) {
         send_to_char(ch,
-            "These are the exits from the room the car is in:\r\n");
+                     "These are the exits from the room the car is in:\r\n");
         ch->in_room = vehicle->in_room;
         do_exits(ch, tmp_strdup(""), 0, 0);
         ch->in_room = console->in_room;
         return 1;
     }
     if (CMD_IS("status")) {
-        if (!engine)
+        if (!engine) {
             return 0;
-        if (*argument && !isname(argument, console->aliases))
+        }
+        if (*argument && !isname(argument, console->aliases)) {
             return 0;
+        }
 
         display_status(ch, vehicle, driver, engine);
         act("$n checks the vehicle status.", true, ch, NULL, NULL, TO_ROOM);
         return 1;
     }
 
-    if (!engine)
+    if (!engine) {
         return 0;
+    }
 
     if (CMD_IS("listen")) {
         if (ENGINE_ON(engine)) {
@@ -704,15 +734,16 @@ SPECIAL(vehicle_console)
     if (CMD_IS("headlights")) {
 
         if (!*argument) {
-            if (HEADLIGHTS_ON(engine))
+            if (HEADLIGHTS_ON(engine)) {
                 send_to_char(ch, "Headlight status: ON\r\n");
-            else
+            } else {
                 send_to_char(ch, "Headlight status: OFF\r\n");
+            }
             return 1;
         } else if (!strncasecmp(argument, "on", 2)) {
-            if (HEADLIGHTS_ON(engine))
+            if (HEADLIGHTS_ON(engine)) {
                 send_to_char(ch, "The headlights are already on.\r\n");
-            else {
+            } else {
                 act("You activate the exterior lights of $p.",
                     false, ch, vehicle, NULL, TO_CHAR);
                 act("$n activates the exterior lights of $p.",
@@ -723,9 +754,9 @@ SPECIAL(vehicle_console)
             }
             return 1;
         } else if (!strncasecmp(argument, "off", 3)) {
-            if (!HEADLIGHTS_ON(engine))
+            if (!HEADLIGHTS_ON(engine)) {
                 send_to_char(ch, "The headlights are already off.\r\n");
-            else {
+            } else {
                 act("You turn off the exterior lights of $p.",
                     false, ch, vehicle, NULL, TO_CHAR);
                 act("$n turns off the exterior lights of $p.",
@@ -760,14 +791,14 @@ SPECIAL(vehicle_console)
         if (!vehicle->in_room->dir_option[dir] ||
             !vehicle->in_room->dir_option[dir]->to_room ||
             ROOM_FLAGGED(vehicle->in_room->dir_option[dir]->to_room,
-                ROOM_DEATH)
+                         ROOM_DEATH)
             || IS_SET(vehicle->in_room->dir_option[dir]->exit_info, EX_CLOSED)) {
             send_to_char(ch, "You can't drive that way.\r\n");
             return 1;
         }
         if (IS_SET(ABS_EXIT(vehicle->in_room, dir)->exit_info, EX_ISDOOR) &&
             ROOM_FLAGGED(vehicle->in_room->dir_option[dir]->to_room,
-                ROOM_INDOORS)) {
+                         ROOM_INDOORS)) {
             send_to_char(ch, "You can't go through there!\r\n");
             return 1;
         }
@@ -782,11 +813,11 @@ SPECIAL(vehicle_console)
             break;
         case ERR_HOUSE:
             send_to_char(ch,
-                "That's private property -- you can't go there.\r\n");
+                         "That's private property -- you can't go there.\r\n");
             break;
         case ERR_CLAN:
             send_to_char(ch,
-                "That is clan property -- you aren't allowed to go there.\r\n");
+                         "That is clan property -- you aren't allowed to go there.\r\n");
             break;
         case ERR_NONE:
         default:
@@ -796,8 +827,9 @@ SPECIAL(vehicle_console)
     }
 
     if (*argument && !isname(argument, vehicle->aliases) &&
-        !isname(argument, console->aliases))
+        !isname(argument, console->aliases)) {
         return 0;
+    }
 
     if (CMD_IS("crank") || CMD_IS("activate")) {
 
@@ -874,8 +906,9 @@ find_vehicle(struct obj_data *v_door)
 
     for (vehicle = object_list; vehicle; vehicle = vehicle->next) {
         if (ROOM_NUMBER(vehicle) == ROOM_NUMBER(v_door) &&
-            GET_OBJ_VNUM(vehicle) == V_CAR_VNUM(v_door) && vehicle->in_room)
+            GET_OBJ_VNUM(vehicle) == V_CAR_VNUM(v_door) && vehicle->in_room) {
             return vehicle;
+        }
     }
     return NULL;
 }

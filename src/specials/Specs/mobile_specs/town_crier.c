@@ -19,8 +19,9 @@ town_crier_shout(struct creature *self, struct town_crier_data *data)
     char *str;
 
     str = tmp_getline(&data->msg_pos);
-    if (str && *str)
+    if (str && *str) {
         do_gen_comm(self, str, 0, SCMD_SHOUT);
+    }
 
     if (!*data->msg_pos) {
         free(data->msg_head);
@@ -38,8 +39,8 @@ town_crier_select(struct town_crier_data *data)
     // Get the number of things we could shout
     res =
         sql_query
-        ("select COUNT(*) from board_messages where board='town_crier' and not idnum=%d",
-        data->last_msg);
+            ("select COUNT(*) from board_messages where board='town_crier' and not idnum=%d",
+            data->last_msg);
     count = atol(PQgetvalue(res, 0, 0));
     if (!count) {
         data->last_msg = 0;
@@ -48,8 +49,8 @@ town_crier_select(struct town_crier_data *data)
 
     res =
         sql_query
-        ("select idnum, body from board_messages where board='town_crier' and not idnum=%d limit 1 offset %d",
-        data->last_msg, number(0, count - 1));
+            ("select idnum, body from board_messages where board='town_crier' and not idnum=%d limit 1 offset %d",
+            data->last_msg, number(0, count - 1));
     if (PQntuples(res) != 1) {
         errlog("town_crier found %d tuples from selection\n", PQntuples(res));
         return false;
@@ -79,8 +80,8 @@ SPECIAL(town_crier)
     if (spec_mode == SPECIAL_CMD && IS_IMMORT(ch)) {
         if (CMD_IS("status")) {
             send_to_char(ch, "Town crier status:\r\n"
-                "  Counter: %d\r\n"
-                "  Last message: %d\r\n", data->counter, data->last_msg);
+                             "  Counter: %d\r\n"
+                             "  Last message: %d\r\n", data->counter, data->last_msg);
             if (data->msg_pos) {
                 str = data->msg_pos;
                 send_to_char(ch, "Next shout: %s\r\n", tmp_getline(&str));
@@ -90,14 +91,17 @@ SPECIAL(town_crier)
         } else if (CMD_IS("poke") && isname(argument, self->player.name)) {
             data->counter = 0;
             return 0;
-        } else
+        } else {
             return 0;
+        }
         return 1;
-    } else if (spec_mode != SPECIAL_TICK)
+    } else if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (GET_POSITION(self) < POS_STANDING)
+    if (GET_POSITION(self) < POS_STANDING) {
         return 0;
+    }
 
     // If we're already shouting something, shout the next line
     if (data->msg_head) {
@@ -106,8 +110,9 @@ SPECIAL(town_crier)
     }
     // If we're not currently shouting, decrement the counter until it's
     // time to shout something again
-    if (data->counter--)
+    if (data->counter--) {
         return 0;
+    }
 
     // Try to select a new message.  If no message was selected, keep the
     // counter at 0 and return

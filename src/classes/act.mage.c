@@ -43,7 +43,7 @@ ACMD(do_mshield)
 
     if (!affected_by_spell(ch, SPELL_MANA_SHIELD)) {
         send_to_char(ch,
-            "You are not under the affects of a mana shield.\r\n");
+                     "You are not under the affects of a mana shield.\r\n");
         return;
     }
 
@@ -59,7 +59,7 @@ ACMD(do_mshield)
         i = atoi(arg2);
         if (i < 0 || i > GET_MANA(ch)) {
             send_to_char(ch,
-                "The low must be between 0 and your current mana.\r\n");
+                         "The low must be between 0 and your current mana.\r\n");
             return;
         }
         GET_MSHIELD_LOW(ch) = i;
@@ -99,7 +99,7 @@ ACMD(do_empower)
     }
     if (GET_HIT(ch) < 15 || GET_MOVE(ch) < 15) {
         send_to_char(ch,
-            "You are unable to call upon any resources of power!\r\n");
+                     "You are unable to call upon any resources of power!\r\n");
         return;
     }
     old_mana = GET_MANA(ch);
@@ -149,13 +149,14 @@ ACMD(do_empower)
 
     if ((GET_MAX_HIT(ch) / 2) < GET_WIMP_LEV(ch)) {
         send_to_char(ch,
-            "Your wimpy level has been changed from %d to %d ... wimp!\r\n",
-            GET_WIMP_LEV(ch), GET_MAX_HIT(ch) / 2);
+                     "Your wimpy level has been changed from %d to %d ... wimp!\r\n",
+                     GET_WIMP_LEV(ch), GET_MAX_HIT(ch) / 2);
         GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) / 2;
     }
     act("$n concentrates deeply.", true, ch, NULL, NULL, TO_ROOM);
-    if (GET_LEVEL(ch) < LVL_GRGOD)
+    if (GET_LEVEL(ch) < LVL_GRGOD) {
         WAIT_STATE(ch, PULSE_VIOLENCE * (1 + ((val1 + val2) > 100)));
+    }
 }
 
 // It's kind of silly to put this here, but I couldn't think of a
@@ -178,7 +179,7 @@ ACMD(do_teach)
     if ((s = strstr(argument, "\'"))) {
         if (!(strstr(s + 1, "\'"))) {
             send_to_char(ch, "The skill name must be completely enclosed "
-                "in the symbols: '\n");
+                             "in the symbols: '\n");
             return;
         } else {
             skill_str = tmp_getquoted(&argument);
@@ -203,7 +204,7 @@ ACMD(do_teach)
     target = get_char_room_vis(ch, target_str);
     if (!target) {
         send_to_char(ch, "You don't see anyone here named '%s'.\r\n",
-            target_str);
+                     target_str);
         return;
     }
 
@@ -218,7 +219,7 @@ ACMD(do_teach)
 
     if (ch == target) {
         send_to_char(ch,
-            "You teach yourself with experience, not lessons.\r\n");
+                     "You teach yourself with experience, not lessons.\r\n");
         return;
     }
 
@@ -227,7 +228,7 @@ ACMD(do_teach)
         skill_name = tongue_name(num);
         if (CHECK_TONGUE(target, num) >= CHECK_TONGUE(ch, num) / 2) {
             act(tmp_sprintf
-                ("$E already knows as much as you can teach $M of '%s'.",
+                    ("$E already knows as much as you can teach $M of '%s'.",
                     skill_name), false, ch, NULL, target, TO_CHAR);
             return;
         }
@@ -241,7 +242,7 @@ ACMD(do_teach)
         }
         if (CHECK_SKILL(target, num) >= CHECK_SKILL(ch, num) / 2) {
             act(tmp_sprintf
-                ("$E already knows as much as you can teach $M of '%s'.",
+                    ("$E already knows as much as you can teach $M of '%s'.",
                     skill_name), false, ch, NULL, target, TO_CHAR);
             return;
         }
@@ -253,14 +254,14 @@ ACMD(do_teach)
     WAIT_STATE(ch, 2 RL_SEC);
 
     if (number(0,
-            100) >
+               100) >
         GET_WIS(ch) + GET_INT(ch) + GET_WIS(target) + GET_INT(target)) {
         // Teaching failure
         act(tmp_sprintf
-            ("You try to teach '%s' to $N, but $E doesn't seem to get it.",
+                ("You try to teach '%s' to $N, but $E doesn't seem to get it.",
                 skill_name), false, ch, NULL, target, TO_CHAR);
         act(tmp_sprintf
-            ("$n tries to teach you '%s', but you don't really understand the lesson.",
+                ("$n tries to teach you '%s', but you don't really understand the lesson.",
                 skill_name), false, ch, NULL, target, TO_VICT);
         act("$n gives a lesson to $N.", false, ch, NULL, target, TO_NOTVICT);
         return;
@@ -268,12 +269,12 @@ ACMD(do_teach)
     // Teaching success
     if (is_skill) {
         SET_SKILL(target, num, MIN(CHECK_SKILL(ch, num) / 2,
-                CHECK_SKILL(target, num)
-                + number(1, GET_INT(target))));
+                                   CHECK_SKILL(target, num)
+                                   + number(1, GET_INT(target))));
     } else {
         SET_TONGUE(target, num, MIN(CHECK_TONGUE(ch, num) / 2,
-                CHECK_TONGUE(target, num)
-                + number(1, GET_INT(target))));
+                                    CHECK_TONGUE(target, num)
+                                    + number(1, GET_INT(target))));
     }
 
     act(tmp_sprintf("You give a quick lesson to $N on '%s'.", skill_name),
@@ -289,30 +290,33 @@ area_attack_advisable(struct creature *ch)
     // Area attacks are advisable when there are more than one PC and
     // no other non-fighting NPCs
     int pc_count = 0;
-    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (can_see_creature(ch, tch)
-            && !(IS_NPC(tch) && is_fighting(tch)))
+            && !(IS_NPC(tch) && is_fighting(tch))) {
             pc_count++;
+        }
     }
 
     return (pc_count > 1);
 }
 
 bool
-group_attack_advisable(struct creature * ch)
+group_attack_advisable(struct creature *ch)
 {
     int attacker_count = 0;
 
     // Group attacks are advisable when more than one creature is
     // attacking
-    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
-        if (!g_list_find(tch->fighting, ch))
+        if (!g_list_find(tch->fighting, ch)) {
             continue;
-        if (attacker_count)
+        }
+        if (attacker_count) {
             return true;
+        }
         attacker_count++;
     }
 
@@ -326,39 +330,40 @@ group_attack_advisable(struct creature * ch)
 
 // return true if the attack was made, otherwise return false
 bool
-mage_damaging_attack(struct creature * ch, struct creature * vict)
+mage_damaging_attack(struct creature *ch, struct creature *vict)
 {
     if (area_attack_advisable(ch)
-        && can_cast_spell(ch, SPELL_METEOR_STORM))
+        && can_cast_spell(ch, SPELL_METEOR_STORM)) {
         cast_spell(ch, NULL, NULL, NULL, SPELL_METEOR_STORM);
-    else if (group_attack_advisable(ch)
-        && can_cast_spell(ch, SPELL_CHAIN_LIGHTNING))
+    } else if (group_attack_advisable(ch)
+               && can_cast_spell(ch, SPELL_CHAIN_LIGHTNING)) {
         cast_spell(ch, NULL, NULL, NULL, SPELL_CHAIN_LIGHTNING);
-    else if (can_cast_spell(ch, SPELL_LIGHTNING_BOLT) && IS_CYBORG(vict))
+    } else if (can_cast_spell(ch, SPELL_LIGHTNING_BOLT) && IS_CYBORG(vict)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
-    else if (can_cast_spell(ch, SPELL_PRISMATIC_SPRAY))
+    } else if (can_cast_spell(ch, SPELL_PRISMATIC_SPRAY)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_PRISMATIC_SPRAY);
-    else if (can_cast_spell(ch, SPELL_CONE_COLD))
+    } else if (can_cast_spell(ch, SPELL_CONE_COLD)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_CONE_COLD);
-    else if (can_cast_spell(ch, SPELL_FIREBALL))
+    } else if (can_cast_spell(ch, SPELL_FIREBALL)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_FIREBALL);
-    else if (can_cast_spell(ch, SPELL_ENERGY_DRAIN))
+    } else if (can_cast_spell(ch, SPELL_ENERGY_DRAIN)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN);
-    else if (can_cast_spell(ch, SPELL_COLOR_SPRAY))
+    } else if (can_cast_spell(ch, SPELL_COLOR_SPRAY)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_COLOR_SPRAY);
-    else if (can_cast_spell(ch, SPELL_LIGHTNING_BOLT))
+    } else if (can_cast_spell(ch, SPELL_LIGHTNING_BOLT)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_LIGHTNING_BOLT);
-    else if (can_cast_spell(ch, SPELL_BURNING_HANDS)
-        && !CHAR_WITHSTANDS_FIRE(vict))
+    } else if (can_cast_spell(ch, SPELL_BURNING_HANDS)
+               && !CHAR_WITHSTANDS_FIRE(vict)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_BURNING_HANDS);
-    else if (can_cast_spell(ch, SPELL_SHOCKING_GRASP))
+    } else if (can_cast_spell(ch, SPELL_SHOCKING_GRASP)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_SHOCKING_GRASP);
-    else if (can_cast_spell(ch, SPELL_CHILL_TOUCH))
+    } else if (can_cast_spell(ch, SPELL_CHILL_TOUCH)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_CHILL_TOUCH);
-    else if (can_cast_spell(ch, SPELL_MAGIC_MISSILE))
+    } else if (can_cast_spell(ch, SPELL_MAGIC_MISSILE)) {
         cast_spell(ch, vict, NULL, NULL, SPELL_MAGIC_MISSILE);
-    else
+    } else {
         return false;
+    }
     return true;
 }
 
@@ -369,14 +374,15 @@ dispel_is_advisable(struct creature *vict)
     int curses = 0;
 
     // Return true if magical debuffs are found
-    for (struct affected_type *af = vict->affected;af;af = af->next) {
+    for (struct affected_type *af = vict->affected; af; af = af->next) {
         if (SPELL_IS_MAGIC(af->type) || SPELL_IS_DIVINE(af->type)) {
             if (!SPELL_FLAGGED(af->type, MAG_DAMAGE)
                 && !spell_info[af->type].violent
-                && !(spell_info[af->type].targets & TAR_UNPLEASANT))
+                && !(spell_info[af->type].targets & TAR_UNPLEASANT)) {
                 blessings++;
-            else
+            } else {
                 curses++;
+            }
         }
     }
     return (blessings > curses * 2);
@@ -390,8 +396,9 @@ mage_best_attack(struct creature *ch, struct creature *vict)
 
     if (aggression > 75) {
         // extremely aggressive - just attack hard
-        if (mage_damaging_attack(ch, vict))
+        if (mage_damaging_attack(ch, vict)) {
             return;
+        }
     }
     if (aggression > 50) {
         // somewhat aggressive - balance attacking with crippling
@@ -400,15 +407,15 @@ mage_best_attack(struct creature *ch, struct creature *vict)
             cast_spell(ch, vict, NULL, NULL, SPELL_WORD_STUN);
             return;
         } else if (GET_POSITION(vict) > POS_SLEEPING
-            && can_cast_spell(ch, SPELL_SLEEP)) {
+                   && can_cast_spell(ch, SPELL_SLEEP)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_SLEEP);
             return;
         } else if (!AFF_FLAGGED(vict, AFF_BLIND)
-            && can_cast_spell(ch, SPELL_BLINDNESS)) {
+                   && can_cast_spell(ch, SPELL_BLINDNESS)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_BLINDNESS);
             return;
         } else if (!AFF_FLAGGED(vict, AFF_CURSE)
-            && can_cast_spell(ch, SPELL_CURSE)) {
+                   && can_cast_spell(ch, SPELL_CURSE)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_CURSE);
             return;
         }
@@ -420,11 +427,12 @@ mage_best_attack(struct creature *ch, struct creature *vict)
             cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_MAGIC);
             return;
         } else if (!AFF2_FLAGGED(vict, AFF2_SLOW)
-            && can_cast_spell(ch, SPELL_SLOW)) {
+                   && can_cast_spell(ch, SPELL_SLOW)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_SLOW);
             return;
-        } else if (mage_damaging_attack(ch, vict))
+        } else if (mage_damaging_attack(ch, vict)) {
             return;
+        }
     }
     if (aggression > 5) {
         if (can_cast_spell(ch, SPELL_ASTRAL_SPELL)) {
@@ -439,12 +447,13 @@ mage_best_attack(struct creature *ch, struct creature *vict)
         }
     }
     // desperation - just attack full force, as hard as possible
-    if (mage_damaging_attack(ch, vict))
+    if (mage_damaging_attack(ch, vict)) {
         return;
-    else if (can_cast_spell(ch, SKILL_PUNCH))
+    } else if (can_cast_spell(ch, SKILL_PUNCH)) {
         perform_offensive_skill(ch, vict, SKILL_PUNCH);
-    else
+    } else {
         hit(ch, vict, TYPE_UNDEFINED);
+    }
 }
 
 void
@@ -454,36 +463,36 @@ mage_activity(struct creature *ch)
         can_cast_spell(ch, SPELL_INFRAVISION) && !has_dark_sight(ch)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_INFRAVISION);
     } else if (room_is_dark(ch->in_room) &&
-        can_cast_spell(ch, SPELL_GLOWLIGHT) && !has_dark_sight(ch)) {
+               can_cast_spell(ch, SPELL_GLOWLIGHT) && !has_dark_sight(ch)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_GLOWLIGHT);
     } else if (can_cast_spell(ch, SPELL_PRISMATIC_SPHERE)
-        && !AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE)) {
+               && !AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_PRISMATIC_SPHERE);
     } else if (can_cast_spell(ch, SPELL_ANTI_MAGIC_SHELL)
-        && !affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL)) {
+               && !affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_ANTI_MAGIC_SHELL);
     } else if (can_cast_spell(ch, SPELL_HASTE)
-        && !AFF2_FLAGGED(ch, AFF2_HASTE)) {
+               && !AFF2_FLAGGED(ch, AFF2_HASTE)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_HASTE);
     } else if (can_cast_spell(ch, SPELL_DISPLACEMENT)
-        && !AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)) {
+               && !AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_DISPLACEMENT);
     } else if (can_cast_spell(ch, SPELL_TRUE_SEEING)
-        && !AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)) {
+               && !AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_TRUE_SEEING);
     } else if (can_cast_spell(ch, SPELL_REGENERATE)
-        && !AFF_FLAGGED(ch, AFF_REGEN)) {
+               && !AFF_FLAGGED(ch, AFF_REGEN)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_REGENERATE);
     } else if (can_cast_spell(ch, SPELL_FIRE_SHIELD)
-        && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
+               && !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
     } else if (can_cast_spell(ch, SPELL_STRENGTH)
-        && !affected_by_spell(ch, SPELL_STRENGTH)) {
+               && !affected_by_spell(ch, SPELL_STRENGTH)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_STRENGTH);
     } else if (can_cast_spell(ch, SPELL_BLUR) && !AFF_FLAGGED(ch, AFF_BLUR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
     } else if (can_cast_spell(ch, SPELL_ARMOR)
-        && !affected_by_spell(ch, SPELL_ARMOR)) {
+               && !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
     }
 }
@@ -494,19 +503,22 @@ mage_mob_fight(struct creature *ch, struct creature *precious_vict)
     int calculate_mob_aggression(struct creature *ch, struct creature *vict);
     struct creature *vict = NULL;
 
-    if (!is_fighting(ch))
+    if (!is_fighting(ch)) {
         return false;
+    }
 
     // pick an enemy
-    if (!(vict = choose_opponent(ch, precious_vict)))
+    if (!(vict = choose_opponent(ch, precious_vict))) {
         return false;
+    }
 
     int aggression = calculate_mob_aggression(ch, vict);
 
     if (aggression > 75) {
         // extremely aggressive - just attack hard
-        if (mage_damaging_attack(ch, vict))
+        if (mage_damaging_attack(ch, vict)) {
             return true;
+        }
     }
     if (aggression > 50) {
         // somewhat aggressive - balance attacking with crippling
@@ -532,8 +544,9 @@ mage_mob_fight(struct creature *ch, struct creature *precious_vict)
             cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
             return true;
         }
-        if (mage_damaging_attack(ch, vict))
+        if (mage_damaging_attack(ch, vict)) {
             return true;
+        }
     }
     if (aggression > 5) {
         // attempt to neutralize or get away
@@ -549,7 +562,8 @@ mage_mob_fight(struct creature *ch, struct creature *precious_vict)
         }
     }
 
-    if (mage_damaging_attack(ch, vict))
+    if (mage_damaging_attack(ch, vict)) {
         return true;
+    }
     return false;
 }

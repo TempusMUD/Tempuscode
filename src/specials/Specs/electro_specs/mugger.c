@@ -24,8 +24,9 @@ SPECIAL(mugger)
     struct creature *vict, *found_vict;
     struct obj_data *obj;
 
-    if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
     mug = (struct mob_mugger_data *)self->mob_specials.func_data;
 
@@ -39,16 +40,17 @@ SPECIAL(mugger)
                     vict = random_opponent(self);
                     if (is_fighting(self) && !IS_NPC(vict)) {
                         perform_say(self, "say",
-                            tmp_sprintf
-                            ("Ha!  Let this be a lesson to you, %s!",
-                                GET_DISGUISED_NAME(self, vict)));
+                                    tmp_sprintf
+                                        ("Ha!  Let this be a lesson to you, %s!",
+                                        GET_DISGUISED_NAME(self, vict)));
                         remove_all_combat(self);
                     } else {
                         perform_say(self, "say", tmp_sprintf("Good move, %s!",
-                                GET_DISGUISED_NAME(self, ch)));
+                                                             GET_DISGUISED_NAME(self, ch)));
                     }
-                } else
+                } else {
                     perform_say(self, "say", "Ok, that will work.");
+                }
                 free(self->mob_specials.func_data);
                 self->mob_specials.func_data = NULL;
                 return 1;
@@ -57,19 +59,22 @@ SPECIAL(mugger)
         return 1;
     }
 
-    if (spec_mode == SPECIAL_CMD)
+    if (spec_mode == SPECIAL_CMD) {
         return 0;
+    }
 
-    if (is_fighting(self) || NPC_HUNTING(self))
+    if (is_fighting(self) || NPC_HUNTING(self)) {
         return 0;
+    }
 
     // We're not mugging anyone, so look for a new victim
     if (!mug) {
         found_vict = NULL;
-        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+        for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
             vict = it->data;
-            if (check_infiltrate(vict, ch))
+            if (check_infiltrate(vict, ch)) {
                 continue;
+            }
             if (IS_NPC(vict)
                 && can_see_creature(ch, vict)
                 && cityguard == GET_NPC_SPEC(vict)) {
@@ -81,16 +86,19 @@ SPECIAL(mugger)
                 || !AWAKE(vict)
                 || GET_LEVEL(vict) < 7
                 || GET_LEVEL(vict) > (GET_LEVEL(self) + 5)
-                || GET_LEVEL(vict) + 15 < GET_LEVEL(self))
+                || GET_LEVEL(vict) + 15 < GET_LEVEL(self)) {
                 continue;
+            }
             if (!found_vict || GET_LEVEL(vict) < GET_LEVEL(found_vict)
                 || GET_HIT(vict) < GET_HIT(found_vict)
-                || !random_fractional_3())
+                || !random_fractional_3()) {
                 found_vict = vict;
+            }
         }
 
-        if (!found_vict)
+        if (!found_vict) {
             return 0;
+        }
 
         vict = found_vict;
         act("You examine $N.", true, ch, NULL, vict, TO_CHAR);
@@ -103,12 +111,13 @@ SPECIAL(mugger)
                 || IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)
                 || !can_see_object(self, obj)
                 || !obj->shared->proto
-                || obj->name != obj->shared->proto->name)
+                || obj->name != obj->shared->proto->name) {
                 continue;
+            }
 
             perform_say_to(self, vict,
-                tmp_sprintf("I see you are using %s.  I believe I could appreciate it much more than you.  Give it to me now.",
-                    obj->name));
+                           tmp_sprintf("I see you are using %s.  I believe I could appreciate it much more than you.  Give it to me now.",
+                                       obj->name));
             CREATE(mug, struct mob_mugger_data, 1);
             mug->idnum = GET_IDNUM(vict);
             mug->vnum = GET_OBJ_VNUM(obj);
@@ -128,9 +137,9 @@ SPECIAL(mugger)
 
             if (obj->in_obj) {
                 act(tmp_sprintf("You snicker and loot $p from %s",
-                        obj->in_obj->name), false, self, obj, NULL, TO_CHAR);
+                                obj->in_obj->name), false, self, obj, NULL, TO_CHAR);
                 act(tmp_sprintf("$n snickers and loots $p from %s",
-                        obj->in_obj->name), false, self, obj, NULL, TO_ROOM);
+                                obj->in_obj->name), false, self, obj, NULL, TO_ROOM);
                 obj_from_obj(obj);
             } else {
                 act("You snicker and pick up $p.", false, self, obj, NULL,
@@ -145,22 +154,24 @@ SPECIAL(mugger)
             return 1;
         }
         // Search through corpses
-        if (obj->contains)
+        if (obj->contains) {
             obj = obj->contains;
-        else if (!obj->next_content && obj->in_obj)
+        } else if (!obj->next_content && obj->in_obj) {
             obj = obj->in_obj->next;
-        else
+        } else {
             obj = obj->next_content;
+        }
     }
 
     // A mugging is in progress
     vict = NULL;
-    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         vict = it->data;
         if (!IS_NPC(vict)
             && can_see_creature(self, vict)
-            && GET_IDNUM(vict) == mug->idnum)
+            && GET_IDNUM(vict) == mug->idnum) {
             break;
+        }
     }
     if (!vict) {
         vict = get_char_in_world_by_idnum(mug->idnum);
@@ -175,7 +186,7 @@ SPECIAL(mugger)
 
         if (NPC_HUNTING(self) != vict) {
             do_gen_comm(ch, tmp_sprintf("You're asking for it, %s!",
-                    GET_NAME(vict)), 0, SCMD_SHOUT);
+                                        GET_NAME(vict)), 0, SCMD_SHOUT);
             start_hunting(self, vict);
         }
         return 1;
@@ -192,19 +203,19 @@ SPECIAL(mugger)
     switch (mug->timer) {
     case 1:
         perform_say_to(ch, vict,
-            tmp_sprintf
-            ("I'm warning you.  Give %s to me now or face the consequences!",
-                obj->name));
-        // Fall through
+                       tmp_sprintf
+                           ("I'm warning you.  Give %s to me now or face the consequences!",
+                           obj->name));
+    // Fall through
     case 2:
     case 3:
         perform_say_to(ch, vict,
-            tmp_sprintf("You've got %d seconds to give it to me!",
-                (5 - mug->timer) * 4));
+                       tmp_sprintf("You've got %d seconds to give it to me!",
+                                   (5 - mug->timer) * 4));
         break;
     case 4:
         perform_say_to(ch, vict,
-            "You've got 4 seconds to give it to me, OR ELSE!");
+                       "You've got 4 seconds to give it to me, OR ELSE!");
         break;
     case 5:
         perform_say_to(ch, vict, "You asked for it!");

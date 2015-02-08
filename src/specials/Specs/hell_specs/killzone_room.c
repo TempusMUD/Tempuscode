@@ -7,24 +7,29 @@ SPECIAL(killzone_room)
     GList *cit;
     int retval = 0;
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (IS_NPC(ch) || number(0, 4))
+    if (IS_NPC(ch) || number(0, 4)) {
         return 0;
+    }
 
-    if (ch->in_room->number == 17001)
+    if (ch->in_room->number == 17001) {
         uproom = real_room(17007);
-    else
+    } else {
         uproom = real_room(17008);
+    }
 
-    if (!uproom)
+    if (!uproom) {
         return 0;
+    }
 
     // mix up the victims a bit so it doesnt feel like commands are triggering it as much
     cit = first_living(ch->in_room->people);
-    if (!cit)
+    if (!cit) {
         return 0;
+    }
     vict = cit->data;
 
     for (cit = first_living(uproom->people); cit; cit = next_living(cit)) {
@@ -32,7 +37,7 @@ SPECIAL(killzone_room)
         if (IS_NPC(devil) && IS_DEVIL(devil)) {
 
             int is_miss = mag_savingthrow(vict, GET_LEVEL(devil), SAVING_ROD)
-                && random_binary();
+                          && random_binary();
 
             switch (number(0, 3)) {
             case 0:            // lightning bolt
@@ -46,7 +51,7 @@ SPECIAL(killzone_room)
                     act("A bolt of lightning blasts down from above and hits $n!", false, vict, NULL, NULL, TO_ROOM);
                     retval =
                         damage(NULL, vict, NULL, dice(20, 20), SPELL_LIGHTNING_BOLT,
-                        WEAR_HEAD);
+                               WEAR_HEAD);
 
                     return (ch == vict ? retval : 0);
                 }
@@ -62,7 +67,7 @@ SPECIAL(killzone_room)
                     act("A fireball comes hurtling in from above, explosively slamming into you!", false, vict, NULL, NULL, TO_CHAR);
                     retval =
                         damage(NULL, vict, NULL, dice(25, 20), SPELL_FIREBALL,
-                        WEAR_HEAD);
+                               WEAR_HEAD);
                     return (ch == vict ? retval : 0);
 
                 }
@@ -78,7 +83,7 @@ SPECIAL(killzone_room)
                     act("A rain of burning javelins flies in from above, puncturing you mercilessly!", false, vict, NULL, NULL, TO_CHAR);
                     retval =
                         damage(NULL, vict, NULL, dice(25, 20), TYPE_PIERCE,
-                        WEAR_HEAD);
+                               WEAR_HEAD);
                     return (ch == vict ? retval : 0);
 
                 }
@@ -96,7 +101,7 @@ SPECIAL(killzone_room)
                     act("A torrent of boiling pitch pours onto you from above!!", false, vict, NULL, NULL, TO_CHAR);
                     retval =
                         damage(NULL, vict, NULL, dice(25, 20), TYPE_BOILING_PITCH,
-                        WEAR_HEAD);
+                               WEAR_HEAD);
                     return (ch == vict ? retval : 0);
 
                 }

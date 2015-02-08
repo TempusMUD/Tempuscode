@@ -9,7 +9,7 @@ bool save_wld(struct creature *ch, struct zone_data *zone);
 /**
  *    a util for editing various descriptions.
  *
-**/
+ **/
 const char *typo_util_cmds[] = {
     "description",              // edit a room desc
     "title",                    // Room title
@@ -19,11 +19,11 @@ const char *typo_util_cmds[] = {
 };
 
 #define TYPO_UTIL_USAGE \
-"Options are:\r\n"                \
-"    description\r\n"\
-"    title\r\n"\
-"    sound\r\n"\
-"    save\r\n"
+    "Options are:\r\n"                \
+    "    description\r\n" \
+    "    title\r\n" \
+    "    sound\r\n" \
+    "    save\r\n"
 
 SPECIAL(typo_util)
 {
@@ -32,11 +32,13 @@ SPECIAL(typo_util)
     char arg1[MAX_INPUT_LENGTH];
     int8_t tcmd;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (!cmd || GET_LEVEL(ch) < 51 || !CMD_IS("write"))
+    if (!cmd || GET_LEVEL(ch) < 51 || !CMD_IS("write")) {
         return 0;
+    }
 
     argument = one_argument(argument, arg1);
 
@@ -66,8 +68,7 @@ SPECIAL(typo_util)
         do_olc_rset(ch, arg1);
         break;
     case 3:                    // Save
-        if (save_wld(ch, ch->in_room->zone) == 0) {
-        }
+        if (save_wld(ch, ch->in_room->zone) == 0) {}
         break;
     default:
         snprintf(buf, sizeof(buf), "$p: Invalid command '%s'.", arg1);

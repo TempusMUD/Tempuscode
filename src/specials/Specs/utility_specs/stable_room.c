@@ -18,10 +18,11 @@ SPECIAL(stable_room)
 
     if (CMD_IS("list")) {
         send_to_char(ch, "Available mounts are:\r\n");
-        for (GList * it = pet_room->people; it; it = it->next) {
+        for (GList *it = pet_room->people; it; it = it->next) {
             struct creature *tch = it->data;
-            if (!IS_NPC(tch))
+            if (!IS_NPC(tch)) {
                 continue;
+            }
             send_to_char(ch, "%8d - %s\r\n", 3 * GET_EXP(tch), GET_NAME(tch));
         }
         return true;
@@ -57,8 +58,8 @@ SPECIAL(stable_room)
             pet->player.name = strdup(buf);
 
             snprintf(buf, sizeof(buf),
-                "%sA small sign on a chain around the neck says 'My name is %s'\r\n",
-                pet->player.description, pet_name);
+                     "%sA small sign on a chain around the neck says 'My name is %s'\r\n",
+                     pet->player.description, pet_name);
             pet->player.description = strdup(buf);
         }
         char_to_room(pet, ch->in_room, false);
@@ -80,7 +81,7 @@ SPECIAL(stable_room)
 
         if (!*argument) {
             snprintf(buf, sizeof(buf), "%s what mount?\r\n",
-                CMD_IS("sell") ? "Sell" : "Value");
+                     CMD_IS("sell") ? "Sell" : "Value");
             return 1;
         }
         if (!(pet = get_char_room_vis(ch, argument))) {
@@ -100,8 +101,9 @@ SPECIAL(stable_room)
 
         snprintf(buf, sizeof(buf), "I will pay you %'d gold coins for $N.", price);
         act(buf, false, ch, NULL, pet, TO_CHAR);
-        if (CMD_IS("value"))
+        if (CMD_IS("value")) {
             return 1;
+        }
 
         if (MOUNTED_BY(ch) && MOUNTED_BY(ch) == pet) {
             dismount(ch);
@@ -118,7 +120,7 @@ SPECIAL(stable_room)
 
         char_from_room(pet, false);
         char_to_room(pet, pet_room, false);
-        for (GList * it = pet_room->people; it; it = it->next) {
+        for (GList *it = pet_room->people; it; it = it->next) {
             struct creature *tch = it->data;
             if (tch != pet && IS_NPC(tch)
                 && GET_NPC_VNUM(tch) == GET_NPC_VNUM(pet)) {

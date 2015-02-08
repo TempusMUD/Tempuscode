@@ -68,7 +68,7 @@ parse_racial_sex(struct race *race, xmlNodePtr node)
             race->weight_add[sex_id] = xmlGetIntProp(child, "weight_add", 8);
         }
     }
- }
+}
 
 static struct race *
 load_race(xmlNodePtr node)
@@ -138,18 +138,20 @@ race_name_abbrev(gpointer key, struct race *race, const char *name)
 struct race *
 race_by_name(char *name, bool exact)
 {
-    if (exact)
+    if (exact) {
         return g_hash_table_find(races, (GHRFunc)race_name_matches, name);
-    else
+    } else {
         return g_hash_table_find(races, (GHRFunc)race_name_abbrev, name);
+    }
 }
 
 const char *
 race_name_by_idnum(int idnum)
 {
     struct race *race = race_by_idnum(idnum);
-    if (race)
+    if (race) {
         return race->name;
+    }
     return "ILLEGAL";
 }
 
@@ -187,8 +189,9 @@ boot_races(const char *path)
             struct race *race;
 
             race = load_race(node);
-            if (race)
+            if (race) {
                 g_hash_table_insert(races, GINT_TO_POINTER(idnum), race);
+            }
         }
         node = node->next;
     }

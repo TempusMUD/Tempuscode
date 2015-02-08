@@ -28,7 +28,7 @@ START_TEST(test_parse_optional_range)
     int start;
     int finish;
 
-    for (int i = 0;cases[i].str != NULL;i++) {
+    for (int i = 0; cases[i].str != NULL; i++) {
         if (cases[i].valid) {
             ck_assert(parse_optional_range(cases[i].str, &start, &finish));
             ck_assert_int_eq(start, cases[i].start);

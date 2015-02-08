@@ -8,26 +8,26 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define NOWHERE    -1			/* nil reference for room-database        */
-#define NOTHING           -1	/* nil reference for objects                */
-#define NOBODY           -1		/* nil reference for mobiles                */
+#define NOWHERE    -1           /* nil reference for room-database        */
+#define NOTHING           -1    /* nil reference for objects                */
+#define NOBODY           -1     /* nil reference for mobiles                */
 
 enum special_mode {
-	SPECIAL_CMD =    0,	// special command response
-	SPECIAL_TICK =   1,	// special periodic action
-	SPECIAL_DEATH =  2,	// special death notification
-	SPECIAL_FIGHT =  3,	// special fight starting
-	SPECIAL_COMBAT = 4,	// special in-combat ability
-	SPECIAL_ENTER =  5,	// special upon entrance
-	SPECIAL_LEAVE =  6,	// special upon exit
-	SPECIAL_RESET =  7, // zone reset
+    SPECIAL_CMD =    0, // special command response
+    SPECIAL_TICK =   1, // special periodic action
+    SPECIAL_DEATH =  2, // special death notification
+    SPECIAL_FIGHT =  3, // special fight starting
+    SPECIAL_COMBAT = 4, // special in-combat ability
+    SPECIAL_ENTER =  5, // special upon entrance
+    SPECIAL_LEAVE =  6, // special upon exit
+    SPECIAL_RESET =  7, // zone reset
 };
 
 /* other miscellaneous defines *******************************************/
 
-#define OPT_USEC        100000	/* 10 passes per second */
+#define OPT_USEC        100000  /* 10 passes per second */
 #define PASSES_PER_SEC  (1000000 / OPT_USEC)
-#define RL_SEC          * PASSES_PER_SEC
+#define RL_SEC          *PASSES_PER_SEC
 
 #define PULSE_ZONE      (10 RL_SEC)
 #define PULSE_MOBILE    (4 RL_SEC)
@@ -38,42 +38,42 @@ enum special_mode {
 #define PULSE_FLOWS     (1 RL_SEC)
 
 enum {
-    MAX_POOF_LENGTH =   	256,
-    MAX_NAME_LENGTH =   	20,
-    MAX_PWD_LENGTH =    	10,
-    MAX_TITLE_LENGTH =  	60,
-    MAX_BADGE_LENGTH =		 7,
+    MAX_POOF_LENGTH =       256,
+    MAX_NAME_LENGTH =       20,
+    MAX_PWD_LENGTH =        10,
+    MAX_TITLE_LENGTH =      60,
+    MAX_BADGE_LENGTH =       7,
     MAX_AFK_LENGTH =       20,
-    HOST_LENGTH =       	63,
+    HOST_LENGTH =           63,
 
-    SMALL_BUFSIZE =     	4096,
-    LARGE_BUFSIZE =     	65536,
-    GARBAGE_SPACE =     	64,
+    SMALL_BUFSIZE =         4096,
+    LARGE_BUFSIZE =         65536,
+    GARBAGE_SPACE =         64,
     MAX_STRING_LENGTH =    65536,
-    MAX_INPUT_LENGTH =  	2048,
-    MAX_RAW_INPUT_LENGTH =	32767,
-    EXDSCR_LENGTH =     	240,
-    MAX_MESSAGES =      		200,
-    MAX_CHAR_DESC =     		1023,
-    MAX_TONGUES =        		50,
-    MAX_SKILLS =        		700,
-    MAX_AFFECT =        		96,
-    MAX_OBJ_AFFECT =    		16,
+    MAX_INPUT_LENGTH =      2048,
+    MAX_RAW_INPUT_LENGTH =  32767,
+    EXDSCR_LENGTH =         240,
+    MAX_MESSAGES =              200,
+    MAX_CHAR_DESC =             1023,
+    MAX_TONGUES =               50,
+    MAX_SKILLS =                700,
+    MAX_AFFECT =                96,
+    MAX_OBJ_AFFECT =            16,
 
-    CRIMINAL_REP =            300,	// minimum rep to be a criminal
+    CRIMINAL_REP =            300,  // minimum rep to be a criminal
 };
 
 struct dex_skill_type {
-	int16_t p_pocket;
-	int16_t p_locks;
-	int16_t traps;
-	int16_t sneak;
-	int16_t hide;
+    int16_t p_pocket;
+    int16_t p_locks;
+    int16_t traps;
+    int16_t sneak;
+    int16_t hide;
 };
 
 struct weap_spec_info {
-	double multiplier;
-	int max;
+    double multiplier;
+    int max;
 };
 
 extern const struct dex_skill_type dex_app_skill[];

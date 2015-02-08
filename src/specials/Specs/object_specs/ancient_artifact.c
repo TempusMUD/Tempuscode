@@ -4,17 +4,19 @@ SPECIAL(ancient_artifact)
 {
     struct obj_data *obj = (struct obj_data *)me;
 
-    if (spec_mode != SPECIAL_COMBAT || !is_fighting(ch))
+    if (spec_mode != SPECIAL_COMBAT || !is_fighting(ch)) {
         return 0;
+    }
 
     // Same algorithm as do_casting_objon uses
-    if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_INT(ch))))
+    if (number(0, MAX(2, LVL_GRIMP + 28 - GET_LEVEL(ch) - GET_INT(ch)))) {
         return 0;
+    }
 
     if ((number(0, 1) || GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
         // mega-blast makes mob lose 10% of current hp
         strcpy_s(buf, sizeof(buf),
-            "A bright blue beam erupts from $p with a screaming roar!");
+                 "A bright blue beam erupts from $p with a screaming roar!");
         send_to_char(ch, "%s", CCCYN(ch, C_NRM));
         act(buf, false, ch, obj, NULL, TO_CHAR);
         send_to_char(ch, "%s", CCNRM(ch, C_NRM));
@@ -43,11 +45,11 @@ SPECIAL(ancient_artifact)
             next_elem = rad_elem->next;
 
             bomb_damage_room(NULL, 0, obj->name,
-                BOMB_ARTIFACT,
-                35,
-                rad_elem->room,
-                find_first_step(rad_elem->room, room, GOD_TRACK),
-                rad_elem->power, NULL);
+                             BOMB_ARTIFACT,
+                             35,
+                             rad_elem->room,
+                             find_first_step(rad_elem->room, room, GOD_TRACK),
+                             rad_elem->power, NULL);
             free(rad_elem);
             bomb_rooms = next_elem;
         }

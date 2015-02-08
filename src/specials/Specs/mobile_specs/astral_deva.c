@@ -6,10 +6,12 @@
 
 SPECIAL(astral_deva)
 {
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (!is_fighting(ch) || cmd)
+    }
+    if (!is_fighting(ch) || cmd) {
         return 0;
+    }
 
     struct creature *vict = random_opponent(ch);
     if (affected_by_spell(vict, SPELL_GREATER_INVIS) &&

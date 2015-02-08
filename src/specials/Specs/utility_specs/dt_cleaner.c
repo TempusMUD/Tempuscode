@@ -13,16 +13,17 @@ SPECIAL(dt_cleaner)
     int found = 0;
 
     if (!CMD_IS("clear") || (cmd && GET_LEVEL(ch) < LVL_ELEMENT) ||
-        (!cmd && !(time_info.hours % 3)))
+        (!cmd && !(time_info.hours % 3))) {
         return 0;
+    }
 
-    for (zone = zone_table; zone; zone = zone->next)
+    for (zone = zone_table; zone; zone = zone->next) {
         for (room = zone->world; room; room = room->next) {
             if (IS_SET(ROOM_FLAGS(room), ROOM_DEATH) && !room->people) {
                 if (room->contents) {
                     found = 1;
                     snprintf(buf, sizeof(buf), "Room %d : %s cleared.\r\n", room->number,
-                        room->name);
+                             room->name);
                     send_to_room(buf, ch->in_room);
                 }
                 obj = room->contents;
@@ -33,7 +34,9 @@ SPECIAL(dt_cleaner)
                 }
             }
         }
-    if (!found)
+    }
+    if (!found) {
         send_to_room("All DT's are clear.\r\n", ch->in_room);
+    }
     return 1;
 }

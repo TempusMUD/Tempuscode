@@ -9,12 +9,14 @@ SPECIAL(archon)
 
     struct room_data *room = real_room(43252);
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd)
+    }
+    if (cmd) {
         return 0;
+    }
     if (!is_fighting(ch) && ch->in_room->zone->plane != PLANE_HEAVEN) {
-        for (GList * it = ch->in_room->people; it; it = it->next) {
+        for (GList *it = ch->in_room->people; it; it = it->next) {
             struct creature *tch = it->data;
             if (tch != ch && IS_ARCHON(tch) && is_fighting(tch)) {
                 do_rescue(ch, fname(tch->player.name), 0, 0);

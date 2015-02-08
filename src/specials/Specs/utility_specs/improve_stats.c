@@ -32,7 +32,7 @@ real_stat_ptr(struct creature *ch, int mode)
 
 int
 do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
-    int mode, char *argument)
+               int mode, char *argument)
 {
 
     int gold, life_cost;
@@ -40,8 +40,9 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
     int8_t old_stat = *real_stat;
     int max_stat;
 
-    if ((!CMD_IS("improve") && !CMD_IS("train")) || IS_NPC(ch))
+    if ((!CMD_IS("improve") && !CMD_IS("train")) || IS_NPC(ch)) {
         return false;
+    }
 
     if (GET_LEVEL(ch) < 10) {
         send_to_char(ch, "You are not yet ready to improve this way.\r\n");
@@ -50,8 +51,9 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
     }
 
     gold = *real_stat * GET_LEVEL(ch) * 50;
-    if (mode == ATTR_STR && IS_MAGE(ch))
+    if (mode == ATTR_STR && IS_MAGE(ch)) {
         gold *= 2;
+    }
     gold = adjusted_price(ch, trainer, gold);
 
     life_cost = MAX(6, (*real_stat * 2) - (GET_WIS(ch)));
@@ -63,47 +65,48 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
     if (!*argument) {
         if (*real_stat >= max_stat) {
             send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
-                CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
+                         CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
             return true;
         }
 
         send_to_char(ch,
-            "It will cost you %'d coins and %d life points to improve your %s.\r\n",
-            gold, life_cost, improve_modes[mode]);
+                     "It will cost you %'d coins and %d life points to improve your %s.\r\n",
+                     gold, life_cost, improve_modes[mode]);
         snprintf(buf, sizeof(buf), "$n considers the implications of improving $s %s.",
-            improve_modes[mode]);
+                 improve_modes[mode]);
         act(buf, true, ch, NULL, NULL, TO_ROOM);
-        if (GET_GOLD(ch) < gold)
+        if (GET_GOLD(ch) < gold) {
             send_to_char(ch,
-                "But you do not have enough gold on you for that.\r\n");
-        else if (GET_LIFE_POINTS(ch) < life_cost)
+                         "But you do not have enough gold on you for that.\r\n");
+        } else if (GET_LIFE_POINTS(ch) < life_cost) {
             send_to_char(ch,
-                "But you do not have enough life points for that.\r\n");
+                         "But you do not have enough life points for that.\r\n");
+        }
 
         return true;
     }
 
     if (!is_abbrev(argument, improve_modes[mode])) {
         send_to_char(ch, "The only thing you can improve here is %s.\r\n",
-            improve_modes[mode]);
+                     improve_modes[mode]);
         return true;
     }
 
     if (*real_stat >= max_stat) {
         send_to_char(ch, "%sYour %s cannot be improved further.%s\r\n",
-            CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
+                     CCCYN(ch, C_NRM), improve_modes[mode], CCNRM(ch, C_NRM));
         return true;
     }
 
     if (GET_GOLD(ch) < gold) {
         send_to_char(ch, "You cannot afford it.  The cost is %'d coins.\r\n",
-            gold);
+                     gold);
         return 1;
     }
     if (GET_LIFE_POINTS(ch) < life_cost) {
         snprintf(buf, sizeof(buf),
-            "You have not gained sufficient life points to do this.\r\n"
-            "It requires %d.\r\n", life_cost);
+                 "You have not gained sufficient life points to do this.\r\n"
+                 "It requires %d.\r\n", life_cost);
         send_to_char(ch, "%s", buf);
         return 1;
     }
@@ -130,35 +133,35 @@ do_gen_improve(struct creature *ch, struct creature *trainer, int cmd,
 SPECIAL(improve_dex)
 {
     return (do_gen_improve(ch, (struct creature *)me, cmd, ATTR_DEX,
-            argument));
+                           argument));
 }
 
 SPECIAL(improve_str)
 {
     return (do_gen_improve(ch, (struct creature *)me, cmd, ATTR_STR,
-            argument));
+                           argument));
 }
 
 SPECIAL(improve_int)
 {
     return (do_gen_improve(ch, (struct creature *)me, cmd, ATTR_INT,
-            argument));
+                           argument));
 }
 
 SPECIAL(improve_wis)
 {
     return (do_gen_improve(ch, (struct creature *)me, cmd, ATTR_WIS,
-            argument));
+                           argument));
 }
 
 SPECIAL(improve_con)
 {
     return (do_gen_improve(ch, (struct creature *)me, cmd, ATTR_CON,
-            argument));
+                           argument));
 }
 
 SPECIAL(improve_cha)
 {
     return (do_gen_improve(ch, (struct creature *)me, cmd, ATTR_CHA,
-            argument));
+                           argument));
 }

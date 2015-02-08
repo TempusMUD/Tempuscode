@@ -115,14 +115,15 @@ ACMD(do_get);
 *  Special procedures for mobiles                                     *
 ******************************************************************** */
 // skill_gain: mode==true means to return a skill gain value
-//             mode==false means to return an average value
+// mode==false means to return an average value
 int
 skill_gain(struct creature *ch, int mode)
 {
-    if (mode)
+    if (mode) {
         return (number(MINGAIN(ch), MAXGAIN(ch)));
-    else                        // average (for stat)
+    } else {                    // average (for stat)
         return ((MAXGAIN(ch) + MINGAIN(ch)) / 2);
+    }
 }
 
 extern int spell_sort_info[MAX_SPELLS + 1];
@@ -134,18 +135,21 @@ sort_spells(void)
     int a, b, tmp;
 
     /* initialize array */
-    for (a = 1; a < MAX_SPELLS; a++)
+    for (a = 1; a < MAX_SPELLS; a++) {
         spell_sort_info[a] = a;
+    }
 
     /* Sort.  'a' starts at 1, not 0, to remove 'RESERVED' */
-    for (a = 1; a < MAX_SPELLS - 1; a++)
-        for (b = a + 1; b < MAX_SPELLS; b++)
+    for (a = 1; a < MAX_SPELLS - 1; a++) {
+        for (b = a + 1; b < MAX_SPELLS; b++) {
             if (strcmp(spell_to_str(spell_sort_info[a]),
-                    spell_to_str(spell_sort_info[b])) > 0) {
+                       spell_to_str(spell_sort_info[b])) > 0) {
                 tmp = spell_sort_info[a];
                 spell_sort_info[a] = spell_sort_info[b];
                 spell_sort_info[b] = tmp;
             }
+        }
+    }
 }
 
 void
@@ -154,47 +158,51 @@ sort_skills(void)
     int a, b, tmp;
 
     /* initialize array */
-    for (a = 1; a < MAX_SKILLS - MAX_SPELLS; a++)
+    for (a = 1; a < MAX_SKILLS - MAX_SPELLS; a++) {
         skill_sort_info[a] = a + MAX_SPELLS;
+    }
 
     /* Sort.  'a' starts at 1, not 0, to remove 'RESERVED' */
-    for (a = 1; a < MAX_SKILLS - MAX_SPELLS - 1; a++)
-        for (b = a + 1; b < MAX_SKILLS - MAX_SPELLS; b++)
+    for (a = 1; a < MAX_SKILLS - MAX_SPELLS - 1; a++) {
+        for (b = a + 1; b < MAX_SKILLS - MAX_SPELLS; b++) {
             if (strcmp(spell_to_str(skill_sort_info[a]),
-                    spell_to_str(skill_sort_info[b])) > 0) {
+                       spell_to_str(skill_sort_info[b])) > 0) {
                 tmp = skill_sort_info[a];
                 skill_sort_info[a] = skill_sort_info[b];
                 skill_sort_info[b] = tmp;
             }
+        }
+    }
 }
 
 char *
 how_good(int percent)
 {
-    if (percent < 0)
+    if (percent < 0) {
         strcpy_s(buf, sizeof(buf), " (terrible)");
-    else if (percent == 0)
+    } else if (percent == 0) {
         strcpy_s(buf, sizeof(buf), " (not learned)");
-    else if (percent <= 10)
+    } else if (percent <= 10) {
         strcpy_s(buf, sizeof(buf), " (awful)");
-    else if (percent <= 20)
+    } else if (percent <= 20) {
         strcpy_s(buf, sizeof(buf), " (bad)");
-    else if (percent <= 40)
+    } else if (percent <= 40) {
         strcpy_s(buf, sizeof(buf), " (poor)");
-    else if (percent <= 55)
+    } else if (percent <= 55) {
         strcpy_s(buf, sizeof(buf), " (average)");
-    else if (percent <= 70)
+    } else if (percent <= 70) {
         strcpy_s(buf, sizeof(buf), " (fair)");
-    else if (percent <= 80)
+    } else if (percent <= 80) {
         strcpy_s(buf, sizeof(buf), " (good)");
-    else if (percent <= 85)
+    } else if (percent <= 85) {
         strcpy_s(buf, sizeof(buf), " (very good)");
-    else if (percent <= 100)
+    } else if (percent <= 100) {
         strcpy_s(buf, sizeof(buf), " (superb)");
-    else if (percent <= 150)
+    } else if (percent <= 150) {
         strcpy_s(buf, sizeof(buf), " (extraordinary)");
-    else
+    } else {
         strcpy_s(buf, sizeof(buf), " (superhuman)");
+    }
 
     return (buf);
 }
@@ -234,9 +242,10 @@ list_skills(struct creature *ch, int mode, int type)
             i = spell_sort_info[sortpos];
             if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
                 SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
-                if (!mode && !CHECK_SKILL(ch, i))   // !mode => list only learned
+                if (!mode && !CHECK_SKILL(ch, i)) { // !mode => list only learned
                     continue;
-                if (IS_IMMORT(ch))
+                }
+                if (IS_IMMORT(ch)) {
                     acc_sprintf("%s%s%-30s %s%-17s%s %s(%3d mana)%s\r\n",
                                 CCGRN(ch, C_NRM),
                                 tmp_sprintf("%3d. ", i), spell_to_str(i),
@@ -244,12 +253,13 @@ list_skills(struct creature *ch, int mode, int type)
                                 tmp_sprintf("%s[%3d]", CCYEL(ch, C_NRM),
                                             CHECK_SKILL(ch, i)), CCRED(ch, C_SPR),
                                 mag_manacost(ch, i), CCNRM(ch, C_SPR));
-                else
+                } else {
                     acc_sprintf("%s%-30s %s%-17s %s(%3d mana)%s\r\n",
                                 CCGRN(ch, C_NRM), spell_to_str(i),
                                 CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, i)),
                                 CCRED(ch, C_SPR), mag_manacost(ch, i),
                                 CCNRM(ch, C_SPR));
+                }
             }
         }
 
@@ -273,8 +283,9 @@ list_skills(struct creature *ch, int mode, int type)
         i = skill_sort_info[sortpos];
         if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
             SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
-            if (!mode && !CHECK_SKILL(ch, i))   // !mode => list only learned
+            if (!mode && !CHECK_SKILL(ch, i)) { // !mode => list only learned
                 continue;
+            }
 
             if (IS_IMMORT(ch)) {
                 acc_sprintf("%s%s%-30s %s%-17s%s%s\r\n",
@@ -300,10 +311,12 @@ SPECIAL(guild)
     struct creature *master = (struct creature *)me;
     long int cost;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
-    if (!AWAKE(ch) || !AWAKE(master))
+    }
+    if (!AWAKE(ch) || !AWAKE(master)) {
         return 0;
+    }
 
     if (CMD_IS("list")) {
         list_skills(ch, 1, 3);
@@ -311,27 +324,29 @@ SPECIAL(guild)
     }
 
     if (!(CMD_IS("practice") ||
-            CMD_IS("train") || CMD_IS("learn") || CMD_IS("offer")))
+          CMD_IS("train") || CMD_IS("learn") || CMD_IS("offer"))) {
         return 0;
+    }
 
     skip_spaces(&argument);
 
     if (!*argument) {
-        if (CMD_IS("offer"))
+        if (CMD_IS("offer")) {
             perform_tell(master, ch,
-                "For what ability would you like to know the price of training?");
-        else
+                         "For what ability would you like to know the price of training?");
+        } else {
             list_skills(ch, 1, 3);
+        }
         return 1;
     }
 
     if ((GET_CLASS(master) != CLASS_NORMAL
-            || GET_LEVEL(ch) > LVL_CAN_RETURN
-            || GET_REMORT_GEN(ch) > 0) &&
+         || GET_LEVEL(ch) > LVL_CAN_RETURN
+         || GET_REMORT_GEN(ch) > 0) &&
         GET_CLASS(ch) != GET_CLASS(master) &&
         GET_CLASS(master) != GET_REMORT_CLASS(ch) &&
         (!IS_REMORT(master) ||
-            GET_REMORT_CLASS(ch) != GET_CLASS(ch))) {
+         GET_REMORT_CLASS(ch) != GET_CLASS(ch))) {
         perform_tell(master, ch, "Go to your own guild to practice!");
         return 1;
     }
@@ -340,46 +355,47 @@ SPECIAL(guild)
 
     if (skill_num < 1) {
         perform_tell(master, ch,
-            tmp_sprintf("You do not know of that %s!", SPLSKL(ch)));
+                     tmp_sprintf("You do not know of that %s!", SPLSKL(ch)));
         return 1;
     }
     if (!is_able_to_learn(ch, skill_num)) {
-        if (CHECK_SKILL(ch, skill_num))
+        if (CHECK_SKILL(ch, skill_num)) {
             perform_tell(master, ch,
-                tmp_sprintf("I cannot teach you %s yet.",
-                    spell_to_str(skill_num)));
-        else
+                         tmp_sprintf("I cannot teach you %s yet.",
+                                     spell_to_str(skill_num)));
+        } else {
             perform_tell(master, ch,
-                tmp_sprintf("You are not yet ready to practice %s.",
-                    spell_to_str(skill_num)));
+                         tmp_sprintf("You are not yet ready to practice %s.",
+                                     spell_to_str(skill_num)));
+        }
         return 1;
     }
 
     if (skill_num < 1 ||
         (GET_CLASS(master) != CLASS_NORMAL &&
-            GET_LEVEL(master) < SPELL_LEVEL(skill_num, GET_CLASS(master)) &&
-            (!IS_REMORT(master) ||
-                GET_LEVEL(master) <
-                SPELL_LEVEL(skill_num, GET_REMORT_CLASS(master))))) {
+         GET_LEVEL(master) < SPELL_LEVEL(skill_num, GET_CLASS(master)) &&
+         (!IS_REMORT(master) ||
+          GET_LEVEL(master) <
+          SPELL_LEVEL(skill_num, GET_REMORT_CLASS(master))))) {
         perform_tell(master, ch,
-            tmp_sprintf("I am not able to teach you that %s.",
-                SPLSKL(ch)));
+                     tmp_sprintf("I am not able to teach you that %s.",
+                                 SPLSKL(ch)));
         return 1;
     }
 
     if (GET_CLASS(master) < NUM_CLASSES &&
         (SPELL_GEN(skill_num, GET_CLASS(master)) && !IS_REMORT(master))) {
         perform_tell(master, ch,
-            tmp_sprintf("You must go elsewhere to learn that advanced %s.",
-                SPLSKL(ch)));
+                     tmp_sprintf("You must go elsewhere to learn that advanced %s.",
+                                 SPLSKL(ch)));
         return 1;
     }
 
     if ((skill_num == SKILL_READ_SCROLLS || skill_num == SKILL_USE_WANDS) &&
         CHECK_SKILL(ch, skill_num) > 10) {
         perform_tell(master, ch,
-            tmp_sprintf("You cannot practice %s any further.",
-                spell_to_str(skill_num)));
+                     tmp_sprintf("You cannot practice %s any further.",
+                                 spell_to_str(skill_num)));
         return 1;
     }
 
@@ -391,7 +407,7 @@ SPECIAL(guild)
     if ((SPELL_IS_GOOD(skill_num) && !IS_GOOD(ch)) ||
         (SPELL_IS_EVIL(skill_num) && !IS_EVIL(ch))) {
         perform_tell(master, ch,
-            "You have no business dealing with such magic.");
+                     "You have no business dealing with such magic.");
         return 1;
     }
 
@@ -400,42 +416,42 @@ SPECIAL(guild)
     if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
         if (CMD_IS("offer")) {
             perform_tell(master, ch,
-                tmp_sprintf("It will cost you %'ld creds to train %s.", cost,
-                    spell_to_str(skill_num)));
+                         tmp_sprintf("It will cost you %'ld creds to train %s.", cost,
+                                     spell_to_str(skill_num)));
             return 1;
         }
 
         if (GET_CASH(ch) < cost) {
             perform_tell(master, ch,
-                tmp_sprintf
-                ("You haven't got the %'ld creds I require to train %s.", cost,
-                    spell_to_str(skill_num)));
+                         tmp_sprintf
+                             ("You haven't got the %'ld creds I require to train %s.", cost,
+                             spell_to_str(skill_num)));
             return 1;
         }
 
         send_to_char(ch,
-            "You buy training for %'ld creds and practice for a while...\r\n",
-            cost);
+                     "You buy training for %'ld creds and practice for a while...\r\n",
+                     cost);
         GET_CASH(ch) -= cost;
     } else {
         if (CMD_IS("offer")) {
             perform_tell(master, ch,
-                tmp_sprintf("It will cost you %'ld gold to train %s.", cost,
-                    spell_to_str(skill_num)));
+                         tmp_sprintf("It will cost you %'ld gold to train %s.", cost,
+                                     spell_to_str(skill_num)));
             return 1;
         }
 
         if (GET_GOLD(ch) < cost) {
             perform_tell(master, ch,
-                tmp_sprintf
-                ("You haven't got the %'ld gold I require to train %s.", cost,
-                    spell_to_str(skill_num)));
+                         tmp_sprintf
+                             ("You haven't got the %'ld gold I require to train %s.", cost,
+                             spell_to_str(skill_num)));
             return 1;
         }
 
         send_to_char(ch,
-            "You buy training for %'ld gold and practice for a while...\r\n",
-            cost);
+                     "You buy training for %'ld gold and practice for a while...\r\n",
+                     cost);
         GET_GOLD(ch) -= cost;
     }
 
@@ -444,26 +460,27 @@ SPECIAL(guild)
 
     percent = GET_SKILL(ch, skill_num);
     percent += skill_gain(ch, true);
-    if (percent > LEARNED(ch))
+    if (percent > LEARNED(ch)) {
         percent -= (percent - LEARNED(ch)) / 2;
+    }
 
-    percent = MIN(percent, 125); //At most, set to 125 to avoid overflow
+    percent = MIN(percent, 125); // At most, set to 125 to avoid overflow
 
     SET_SKILL(ch, skill_num, percent);
 
     if (GET_SKILL(ch, skill_num) >= LEARNED(ch)) {
         perform_tell(master, ch,
-            tmp_sprintf("I've taught you everything I know about %s.",
-                spell_to_str(skill_num)));
+                     tmp_sprintf("I've taught you everything I know about %s.",
+                                 spell_to_str(skill_num)));
     } else {
         if (random_fractional_3()) {
             perform_tell(master, ch,
-                tmp_sprintf("I can teach you more, if you have time and %s.",
-                    (ch->in_room->zone->time_frame == TIME_ELECTRO ? "cash" : "coin")));
+                         tmp_sprintf("I can teach you more, if you have time and %s.",
+                                     (ch->in_room->zone->time_frame == TIME_ELECTRO ? "cash" : "coin")));
         } else if (random_binary()) {
             perform_tell(master, ch,
-                tmp_sprintf("Would you like another lesson on %s?",
-                    spell_to_str(skill_num)));
+                         tmp_sprintf("Would you like another lesson on %s?",
+                                     spell_to_str(skill_num)));
         } else {
             perform_tell(master, ch, "You still have more to learn.");
         }
@@ -478,8 +495,9 @@ SPECIAL(dump)
     int value = 0;
 
     ACMD(do_drop);
-    if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
     for (k = ch->in_room->contents; k; k = next_obj) {
         next_obj = k->next_content;
@@ -487,8 +505,9 @@ SPECIAL(dump)
         extract_obj(k);
     }
 
-    if (!CMD_IS("drop"))
+    if (!CMD_IS("drop")) {
         return 0;
+    }
 
     do_drop(ch, argument, cmd, 0);
 
@@ -505,10 +524,11 @@ SPECIAL(dump)
         act("$n has been awarded for being a good citizen.", true, ch, NULL, NULL,
             TO_ROOM);
 
-        if (GET_LEVEL(ch) < 3)
+        if (GET_LEVEL(ch) < 3) {
             gain_exp(ch, value);
-        else
+        } else {
             GET_GOLD(ch) += value;
+        }
     }
     return 1;
 }
@@ -522,20 +542,24 @@ npc_steal(struct creature *ch, struct creature *victim)
 {
     struct obj_data *obj = NULL;
 
-    if (GET_POSITION(ch) < POS_STANDING)
+    if (GET_POSITION(ch) < POS_STANDING) {
         return;
+    }
 
-    if (GET_LEVEL(victim) >= LVL_AMBASSADOR)
+    if (GET_LEVEL(victim) >= LVL_AMBASSADOR) {
         return;
+    }
 
     if ((GET_LEVEL(ch) + 20 - GET_LEVEL(victim) + (AWAKE(victim) ? 0 : 20)) >
         number(10, 70)) {
 
-        for (obj = victim->carrying; obj; obj = obj->next_content)
+        for (obj = victim->carrying; obj; obj = obj->next_content) {
             if (can_see_object(ch, obj) && !IS_OBJ_STAT(obj, ITEM_NODROP) &&
                 GET_OBJ_COST(obj) > number(10, GET_LEVEL(ch) * 10) &&
-                GET_OBJ_WEIGHT(obj) < GET_LEVEL(ch) * 5)
+                GET_OBJ_WEIGHT(obj) < GET_LEVEL(ch) * 5) {
                 break;
+            }
+        }
 
         if (obj) {
             snprintf(buf, sizeof(buf), "%s %s", fname(obj->aliases), victim->player.name);
@@ -560,38 +584,42 @@ SPECIAL(venom_attack)
     char *line, *param_key;
     struct creature *target;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (GET_POSITION(ch) != POS_FIGHTING)
+    if (GET_POSITION(ch) != POS_FIGHTING) {
         return false;
+    }
 
     if (GET_NPC_PARAM(ch)) {
         str = GET_NPC_PARAM(ch);
         for (line = tmp_getline(&str), lineno = 1; line;
-            line = tmp_getline(&str), lineno++) {
+             line = tmp_getline(&str), lineno++) {
             param_key = tmp_getword(&line);
-            if (!strcmp(param_key, "toroom"))
+            if (!strcmp(param_key, "toroom")) {
                 act_toroom = line;
-            else if (!strcmp(param_key, "tovict"))
+            } else if (!strcmp(param_key, "tovict")) {
                 act_tovict = line;
-            else
+            } else {
                 err = "first word in param must be toroom or tovict";
+            }
         }
         if (err) {
             mudlog(LVL_IMMORT, NRM, true,
-                "ERR: Mobile %d has %s in line %d of specparam",
-                GET_NPC_VNUM(ch), err, lineno);
+                   "ERR: Mobile %d has %s in line %d of specparam",
+                   GET_NPC_VNUM(ch), err, lineno);
 
             return 1;
         }
     }
     // As with real creatures, become more likely to use poison
     // as threat to survival increases
-    if (GET_MAX_HIT(ch) && GET_HIT(ch) > 0)
+    if (GET_MAX_HIT(ch) && GET_HIT(ch) > 0) {
         perc_damaged = 100 - GET_HIT(ch) * 100 / GET_MAX_HIT(ch);
-    else
+    } else {
         return false;
+    }
 
     target = random_opponent(ch);
     if (target && (target->in_room == ch->in_room) &&
@@ -599,7 +627,7 @@ SPECIAL(venom_attack)
         act(act_tovict, 1, ch, NULL, target, TO_VICT);
         act(act_toroom, 1, ch, NULL, target, TO_NOTVICT);
         call_magic(ch, target, NULL, NULL, SPELL_POISON, GET_LEVEL(ch),
-            CAST_SPELL);
+                   CAST_SPELL);
         return true;
     }
     return false;
@@ -607,31 +635,38 @@ SPECIAL(venom_attack)
 
 SPECIAL(thief)
 {
-    if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER)
+    if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER) {
         return 0;
-    if (cmd)
+    }
+    if (cmd) {
         return false;
+    }
 
     if (GET_NPC_SPEC(ch) != vendor || GET_NPC_SPEC(ch) != tattooist ||
         GET_NPC_SPEC(ch) != postmaster || GET_NPC_SPEC(ch) != increaser ||
         GET_NPC_SPEC(ch) != engraver || GET_NPC_SPEC(ch) != languagemaster ||
-        GET_NPC_SPEC(ch) != repairer || GET_NPC_SPEC(ch) != reinforcer || 
-        GET_NPC_SPEC(ch) != enhancer || GET_NPC_SPEC(ch) != implanter)
+        GET_NPC_SPEC(ch) != repairer || GET_NPC_SPEC(ch) != reinforcer ||
+        GET_NPC_SPEC(ch) != enhancer || GET_NPC_SPEC(ch) != implanter) {
         return false;
+    }
 
-    if (GET_POSITION(ch) != POS_STANDING)
+    if (GET_POSITION(ch) != POS_STANDING) {
         return false;
+    }
 
-    for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
+    for (GList *cit = ch->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if (GET_LEVEL(tch) >= LVL_AMBASSADOR)
+        if (GET_LEVEL(tch) >= LVL_AMBASSADOR) {
             continue;
-        if (!random_fractional_4())
+        }
+        if (!random_fractional_4()) {
             continue;
+        }
 
         int target_roll = GET_LEVEL(ch) + 10;
-        if (!AWAKE(tch))
+        if (!AWAKE(tch)) {
             target_roll += 20;
+        }
 
         if (target_roll > number(0, 40)) {
             npc_steal(ch, tch);
@@ -646,16 +681,19 @@ SPECIAL(magic_user)
     struct creature *vict = NULL;
     bool found;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || GET_POSITION(ch) != POS_FIGHTING)
+    }
+    if (cmd || GET_POSITION(ch) != POS_FIGHTING) {
         return false;
+    }
 
     /* pseudo-randomly choose someone in the room who is fighting me */
     vict = random_opponent(ch);
 
-    if (vict == NULL)
+    if (vict == NULL) {
         return 0;
+    }
 
     found = true;
 
@@ -663,23 +701,25 @@ SPECIAL(magic_user)
         !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
     } else if ((GET_LEVEL(ch) > 14) && (number(0, 8) == 0)
-        && !AFF_FLAGGED(ch, AFF_BLUR)) {
+               && !AFF_FLAGGED(ch, AFF_BLUR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_BLUR);
     } else if ((GET_LEVEL(ch) > 18) && (number(0, 8) == 0) &&
-        !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
+               !AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_FIRE_SHIELD);
     } else if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
-        if (IS_EVIL(ch))
+        if (IS_EVIL(ch)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_ENERGY_DRAIN);
-        else if (IS_GOOD(ch) && IS_EVIL(vict))
+        } else if (IS_GOOD(ch) && IS_EVIL(vict)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL);
+        }
     } else if (number(0, 4)) {
         // do nothing
     } else {
         found = false;
     }
-    if (found)
+    if (found) {
         return true;
+    }
 
     switch (GET_LEVEL(ch)) {
     case 4:
@@ -748,38 +788,40 @@ SPECIAL(battle_cleric)
     struct creature *vict = NULL;
     bool found = true;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || GET_POSITION(ch) != POS_FIGHTING)
+    }
+    if (cmd || GET_POSITION(ch) != POS_FIGHTING) {
         return false;
+    }
 
     /* pseudo-randomly choose someone in the room who is fighting me */
     vict = random_opponent(ch);
 
-    if (vict == NULL)
+    if (vict == NULL) {
         return 0;
+    }
 
     if ((GET_LEVEL(ch) > 2) && (number(0, 8) == 0) &&
         !affected_by_spell(ch, SPELL_ARMOR)) {
         cast_spell(ch, ch, NULL, NULL, SPELL_ARMOR);
 
     } else if ((GET_HIT(ch) / GET_MAX_HIT(ch)) < (GET_MAX_HIT(ch) / 2)) {
-        if ((GET_LEVEL(ch) < 12) && (number(0, 4) == 0))
+        if ((GET_LEVEL(ch) < 12) && (number(0, 4) == 0)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_CURE_LIGHT);
-
-        else if ((GET_LEVEL(ch) < 24) && (number(0, 4) == 0))
+        } else if ((GET_LEVEL(ch) < 24) && (number(0, 4) == 0)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_CURE_CRITIC);
-
-        else if ((GET_LEVEL(ch) < 34) && (number(0, 4) == 0))
+        } else if ((GET_LEVEL(ch) < 34) && (number(0, 4) == 0)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
-
-        else if ((GET_LEVEL(ch) > 34) && (number(0, 4) == 0))
+        } else if ((GET_LEVEL(ch) > 34) && (number(0, 4) == 0)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_GREATER_HEAL);
+        }
     } else if ((GET_LEVEL(ch) > 12) && (number(0, 12) == 0)) {
-        if (IS_EVIL(ch))
+        if (IS_EVIL(ch)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_GOOD);
-        else if (IS_GOOD(ch) && IS_EVIL(vict))
+        } else if (IS_GOOD(ch) && IS_EVIL(vict)) {
             cast_spell(ch, vict, NULL, NULL, SPELL_DISPEL_EVIL);
+        }
     } else if (number(0, 4)) {
         // do nothing this round
     } else {
@@ -836,17 +878,20 @@ SPECIAL(barbarian)
     struct creature *vict = NULL;
     bool found = true;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || GET_POSITION(ch) != POS_FIGHTING)
+    }
+    if (cmd || GET_POSITION(ch) != POS_FIGHTING) {
         return false;
+    }
 
     /* pseudo-randomly choose someone in the room who is fighting me */
     vict = random_opponent(ch);
 
     /* if I didn't pick any of those, then just slam the guy I'm fighting */
-    if (vict == NULL)
+    if (vict == NULL) {
         return 0;
+    }
 
     if ((GET_LEVEL(ch) > 2) && (number(0, 12) == 0)) {
         damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_PUNCH, -1);
@@ -858,7 +903,7 @@ SPECIAL(barbarian)
         damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_ELBOW, -1);
     } else if ((GET_LEVEL(ch) > 20) && (number(0, 8) == 0)) {
         damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_CLOTHESLINE,
-            WEAR_NECK_1);
+               WEAR_NECK_1);
     } else if ((GET_LEVEL(ch) > 27) && (number(0, 14) == 0)) {
         damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_SLEEPER, -1);
     } else if ((GET_LEVEL(ch) > 22) && (number(0, 6) == 0)) {
@@ -911,7 +956,7 @@ SPECIAL(barbarian)
     case 23:
     case 24:
         damage(ch, vict, NULL, number(0, GET_LEVEL(ch)), SKILL_CLOTHESLINE,
-            WEAR_NECK_1);
+               WEAR_NECK_1);
         break;
     case 25:
     case 26:
@@ -940,14 +985,17 @@ SPECIAL(fido)
 {
     struct creature *vict;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !AWAKE(ch) || is_fighting(ch))
+    }
+    if (cmd || !AWAKE(ch) || is_fighting(ch)) {
         return (false);
+    }
 
     vict = get_char_random_vis(ch, ch->in_room);
-    if (!vict || vict == ch)
+    if (!vict || vict == ch) {
         return 0;
+    }
 
     switch (number(0, 70)) {
     case 0:
@@ -970,10 +1018,11 @@ SPECIAL(fido)
         }
         break;
     case 5:
-        if (IS_MALE(ch) && !number(0, 1))
+        if (IS_MALE(ch) && !number(0, 1)) {
             act("$n licks $s balls.", true, ch, NULL, NULL, TO_ROOM);
-        else
+        } else {
             act("$n licks $s ass.", true, ch, NULL, NULL, TO_ROOM);
+        }
         break;
     case 6:
         act("$n sniffs your crotch.", true, ch, NULL, vict, TO_VICT);
@@ -999,10 +1048,12 @@ SPECIAL(buzzard)
     struct obj_data *i, *temp, *next_obj;
     struct creature *vict = NULL;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !AWAKE(ch) || random_opponent(ch))
+    }
+    if (cmd || !AWAKE(ch) || random_opponent(ch)) {
         return (false);
+    }
 
     for (i = ch->in_room->contents; i; i = i->next_content) {
         if (IS_OBJ_TYPE(i, ITEM_CONTAINER) && GET_OBJ_VAL(i, 3)) {
@@ -1011,8 +1062,9 @@ SPECIAL(buzzard)
                 next_obj = temp->next_content;
                 if (IS_IMPLANT(temp)) {
                     SET_BIT(GET_OBJ_WEAR(temp), ITEM_WEAR_TAKE);
-                    if (GET_OBJ_DAM(temp) > 0)
+                    if (GET_OBJ_DAM(temp) > 0) {
                         GET_OBJ_DAM(temp) /= 2;
+                    }
                 }
                 obj_from_obj(temp);
                 obj_to_room(temp, ch->in_room);
@@ -1023,8 +1075,9 @@ SPECIAL(buzzard)
     }
     vict = random_opponent(ch);
 
-    if (!vict || vict == ch)
+    if (!vict || vict == ch) {
         return 0;
+    }
 
     switch (number(0, 70)) {
     case 0:
@@ -1061,18 +1114,22 @@ SPECIAL(garbage_pile)
 
     struct obj_data *i, *temp, *next_obj;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !AWAKE(ch))
+    }
+    if (cmd || !AWAKE(ch)) {
         return (false);
+    }
 
     for (i = ch->in_room->contents; i; i = i->next_content) {
-        if (GET_OBJ_VNUM(i) == QUAD_VNUM)
+        if (GET_OBJ_VNUM(i) == QUAD_VNUM) {
             continue;
+        }
 
         // don't get sigilized items
-        if (GET_OBJ_SIGIL_IDNUM(i))
+        if (GET_OBJ_SIGIL_IDNUM(i)) {
             continue;
+        }
 
         if (IS_OBJ_TYPE(i, ITEM_CONTAINER) && GET_OBJ_VAL(i, 3)) {
             act("$n devours $p.", false, ch, i, NULL, TO_ROOM);
@@ -1080,8 +1137,9 @@ SPECIAL(garbage_pile)
                 next_obj = temp->next_content;
                 if (IS_IMPLANT(temp)) {
                     SET_BIT(GET_OBJ_WEAR(temp), ITEM_WEAR_TAKE);
-                    if (GET_OBJ_DAM(temp) > 0)
+                    if (GET_OBJ_DAM(temp) > 0) {
                         GET_OBJ_DAM(temp) /= 2;
+                    }
                 }
                 obj_from_obj(temp);
                 obj_to_room(temp, ch->in_room);
@@ -1090,9 +1148,9 @@ SPECIAL(garbage_pile)
             return true;
         } else if (CAN_WEAR(i, ITEM_WEAR_TAKE) && GET_OBJ_WEIGHT(i) < 5) {
             act("$n assimilates $p.", false, ch, i, NULL, TO_ROOM);
-            if (GET_OBJ_VNUM(i) == 3365)
+            if (GET_OBJ_VNUM(i) == 3365) {
                 extract_obj(i);
-            else {
+            } else {
                 obj_from_room(i);
                 obj_to_char(i, ch);
                 get_check_money(ch, &i, 0);
@@ -1104,8 +1162,9 @@ SPECIAL(garbage_pile)
     case 0:
         act("Some trash falls off of $n.", false, ch, NULL, NULL, TO_ROOM);
         i = read_object(3365);
-        if (i)
+        if (i) {
             obj_to_room(i, ch->in_room);
+        }
         break;
     default:
         return false;
@@ -1118,33 +1177,38 @@ SPECIAL(janitor)
     struct obj_data *i;
     int ahole = 0;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || !AWAKE(ch))
+    if (cmd || !AWAKE(ch)) {
         return (false);
+    }
 
     for (i = ch->in_room->contents; i; i = i->next_content) {
         if (GET_OBJ_VNUM(i) == QUAD_VNUM ||
             !CAN_WEAR(i, ITEM_WEAR_TAKE) || !can_see_object(ch, i) ||
             (GET_OBJ_WEIGHT(i) + IS_CARRYING_W(ch)) > CAN_CARRY_W(ch) ||
-            (GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 150))
+            (GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 150)) {
             continue;
+        }
 
         // don't get sigilized items
-        if (GET_OBJ_SIGIL_IDNUM(i))
+        if (GET_OBJ_SIGIL_IDNUM(i)) {
             continue;
+        }
 
         if (!number(0, 5)) {
             ahole = 1;
             perform_say(ch, "bellow", "You assholes must like LAG.");
-        } else if (!number(0, 5))
+        } else if (!number(0, 5)) {
             perform_say(ch, "say", "Why don't you guys junk this crap?");
+        }
 
         do_get(ch, fname(i->aliases), 0, 0);
 
         if (ahole && IS_MALE(ch)) {
-            for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
+            for (GList *cit = ch->in_room->people; cit; cit = cit->next) {
                 struct creature *tch = cit->data;
                 if (tch != ch && IS_FEMALE(tch) && can_see_creature(ch, tch)) {
                     perform_say_to(ch, tch, "Excuse me, ma'am.");
@@ -1162,22 +1226,26 @@ SPECIAL(elven_janitor)
 {
     struct obj_data *i;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || !AWAKE(ch))
+    if (cmd || !AWAKE(ch)) {
         return (false);
+    }
 
     for (i = ch->in_room->contents; i; i = i->next_content) {
         if (GET_OBJ_VNUM(i) == QUAD_VNUM ||
             !CAN_WEAR(i, ITEM_WEAR_TAKE) || !can_see_object(ch, i) ||
             (GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 50) ||
-            IS_OBJ_STAT(i, ITEM_NODROP))
+            IS_OBJ_STAT(i, ITEM_NODROP)) {
             continue;
+        }
 
         // don't get sigilized items
-        if (GET_OBJ_SIGIL_IDNUM(i))
+        if (GET_OBJ_SIGIL_IDNUM(i)) {
             continue;
+        }
 
         act("$n grumbles as $e picks up $p.", false, ch, i, NULL, TO_ROOM);
         do_get(ch, fname(i->aliases), 0, 0);
@@ -1191,27 +1259,32 @@ SPECIAL(gelatinous_blob)
 {
     struct obj_data *i;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || !AWAKE(ch))
+    if (cmd || !AWAKE(ch)) {
         return (false);
+    }
 
     for (i = ch->in_room->contents; i; i = i->next_content) {
         if (GET_OBJ_VNUM(i) == QUAD_VNUM ||
             !CAN_WEAR(i, ITEM_WEAR_TAKE) || !can_see_object(ch, i) ||
-            (GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 50))
+            (GET_OBJ_TYPE(i) != ITEM_DRINKCON && GET_OBJ_COST(i) >= 50)) {
             continue;
+        }
 
         // don't get sigilized items
-        if (GET_OBJ_SIGIL_IDNUM(i))
+        if (GET_OBJ_SIGIL_IDNUM(i)) {
             continue;
+        }
 
-        if (GET_NPC_VNUM(ch) == 30068)
+        if (GET_NPC_VNUM(ch) == 30068) {
             act("$n sucks $p into a holding tank with a WHOOSH!", false, ch, i,
                 NULL, TO_ROOM);
-        else
+        } else {
             act("$n absorbs $p into $s body.", false, ch, i, NULL, TO_ROOM);
+        }
         obj_from_room(i);
         obj_to_char(i, ch);
         get_check_money(ch, &i, 0);
@@ -1228,14 +1301,15 @@ SPECIAL(pet_shops)
     char *pet_name, *pet_kind;
     int cost;
 
-    if (SPECIAL_CMD != spec_mode)
+    if (SPECIAL_CMD != spec_mode) {
         return false;
+    }
 
     pet_room = real_room(ch->in_room->number + 1);
 
     if (CMD_IS("list")) {
         send_to_char(ch, "Available pets are:\r\n");
-        for (GList * cit = pet_room->people; cit; cit = cit->next) {
+        for (GList *cit = pet_room->people; cit; cit = cit->next) {
             struct creature *tch = cit->data;
             cost = (IS_NPC(tch) ? GET_EXP(tch) * 3 : (GET_EXP(ch) / 4));
             send_to_char(ch, "%8d - %s\r\n", cost, GET_NAME(tch));
@@ -1257,12 +1331,13 @@ SPECIAL(pet_shops)
             return true;
         }
 
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             cost = GET_EXP(pet) * 3;
-        else
+        } else {
             cost = GET_EXP(pet) / 16;
+        }
 
-        //we have no shop keeper so compare charisma with the pet
+        // we have no shop keeper so compare charisma with the pet
         cost = adjusted_price(ch, pet, cost);
 
         if (GET_GOLD(ch) < cost) {
@@ -1299,10 +1374,11 @@ SPECIAL(pet_shops)
 
                 tmp =
                     tmp_sprintf
-                    ("A small sign on a chain around the neck says 'My name is %s\r\n'",
-                    pet_name);
-                if (pet->player.description != NULL)
+                        ("A small sign on a chain around the neck says 'My name is %s\r\n'",
+                        pet_name);
+                if (pet->player.description != NULL) {
                     tmp = tmp_strcat(pet->player.description, tmp, NULL);
+                }
                 pet->player.description = strdup(tmp);
             }
             char_to_room(pet, ch->in_room, false);
@@ -1348,8 +1424,9 @@ SPECIAL(bank)
     char *arg;
     int amount = 0;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
     if (!CMD_IS("balance") && !CMD_IS("withdraw") && !CMD_IS("deposit")
         && !CMD_IS("transfer")) {
@@ -1362,7 +1439,7 @@ SPECIAL(bank)
         member = (clan) ? real_clanmember(GET_IDNUM(ch), clan) : NULL;
 
         if (!member || (CMD_IS("withdraw")
-                && !PLR_FLAGGED(ch, PLR_CLAN_LEADER))) {
+                        && !PLR_FLAGGED(ch, PLR_CLAN_LEADER))) {
             send_to_char(ch, "You can't do that.\r\n");
             return 1;
         }
@@ -1398,7 +1475,7 @@ SPECIAL(bank)
         if (!strcasecmp(arg, "all")) {
             if (!CASH_MONEY(ch)) {
                 send_to_char(ch, "You don't have any %ss to deposit!\r\n",
-                    CURRENCY(ch));
+                             CURRENCY(ch));
                 return 1;
             }
             amount = CASH_MONEY(ch);
@@ -1406,32 +1483,34 @@ SPECIAL(bank)
 
         if (CASH_MONEY(ch) < amount) {
             send_to_char(ch, "You don't have that many %ss!\r\n",
-                CURRENCY(ch));
+                         CURRENCY(ch));
             return 1;
         }
 
-        if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+        if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
             GET_CASH(ch) -= amount;
-        else
+        } else {
             GET_GOLD(ch) -= amount;
+        }
         if (clan) {
             clan->bank_account += amount;
             send_to_char(ch, "You deposit %'d %s%s in the clan account.\r\n",
-                amount, CURRENCY(ch), PLURAL(amount));
+                         amount, CURRENCY(ch), PLURAL(amount));
             sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
-                clan->bank_account, clan->number);
+                     clan->bank_account, clan->number);
             slog("CLAN: %s clandep (%s) %d.", GET_NAME(ch),
-                clan->name, amount);
+                 clan->name, amount);
         } else {
-            if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+            if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
                 deposit_future_bank(ch->account, amount);
-            else
+            } else {
                 deposit_past_bank(ch->account, amount);
+            }
             send_to_char(ch, "You deposit %'d %s%s.\r\n", amount, CURRENCY(ch),
-                PLURAL(amount));
+                         PLURAL(amount));
             if (amount > 50000000) {
                 mudlog(LVL_IMMORT, NRM, true,
-                    "%s deposited %d into the bank", GET_NAME(ch), amount);
+                       "%s deposited %d into the bank", GET_NAME(ch), amount);
             }
         }
 
@@ -1442,7 +1521,7 @@ SPECIAL(bank)
             amount = (clan) ? clan->bank_account : BANK_MONEY(ch);
             if (!amount) {
                 send_to_char(ch,
-                    "There's nothing there for you to withdraw!\r\n");
+                             "There's nothing there for you to withdraw!\r\n");
                 return 1;
             }
         }
@@ -1450,44 +1529,46 @@ SPECIAL(bank)
         if (AFF_FLAGGED(ch, AFF_CHARM)) {
             send_to_char(ch, "You can't do that while charmed!\r\n");
             send_to_char(ch->master,
-                "You can't force %s to do that, even while charmed!\r\n",
-                ch->player.name);
+                         "You can't force %s to do that, even while charmed!\r\n",
+                         ch->player.name);
             return 1;
         }
 
         if (clan) {
             if (clan->bank_account < amount) {
                 send_to_char(ch,
-                    "The clan doesn't have that much deposited.\r\n");
+                             "The clan doesn't have that much deposited.\r\n");
                 return 1;
             }
             clan->bank_account -= amount;
             sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
-                clan->bank_account, clan->number);
+                     clan->bank_account, clan->number);
         } else {
             if (BANK_MONEY(ch) < amount) {
                 send_to_char(ch, "You don't have that many %ss deposited!\r\n",
-                    CURRENCY(ch));
+                             CURRENCY(ch));
                 return 1;
             }
-            if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+            if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
                 withdraw_future_bank(ch->account, amount);
-            else
+            } else {
                 withdraw_past_bank(ch->account, amount);
+            }
         }
 
-        if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+        if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
             GET_CASH(ch) += amount;
-        else
+        } else {
             GET_GOLD(ch) += amount;
+        }
         send_to_char(ch, "You withdraw %'d %s%s.\r\n", amount, CURRENCY(ch),
-            PLURAL(amount));
+                     PLURAL(amount));
         act("$n makes a bank transaction.", true, ch, NULL, NULL, TO_ROOM);
 
         if (amount > 50000000) {
             mudlog(LVL_IMMORT, NRM, true,
-                "%s withdrew %d from %s",
-                GET_NAME(ch), amount, (clan) ? "clan account" : "bank");
+                   "%s withdrew %d from %s",
+                   GET_NAME(ch), amount, (clan) ? "clan account" : "bank");
         }
 
     } else if (CMD_IS("transfer")) {
@@ -1495,7 +1576,7 @@ SPECIAL(bank)
             amount = (clan) ? clan->bank_account : BANK_MONEY(ch);
             if (!amount) {
                 send_to_char(ch,
-                    "There's nothing there for you to transfer!\r\n");
+                             "There's nothing there for you to transfer!\r\n");
                 return 1;
             }
         }
@@ -1508,7 +1589,7 @@ SPECIAL(bank)
 
         if (!player_name_exists(arg)) {
             send_to_char(ch,
-                "You can't transfer money to someone who doesn't exist!\r\n");
+                         "You can't transfer money to someone who doesn't exist!\r\n");
             return 1;
         }
 
@@ -1517,70 +1598,75 @@ SPECIAL(bank)
 
         if (!clan && acct == ch->account) {
             send_to_char(ch,
-                "Transferring money to your own account?  Odd...\r\n");
+                         "Transferring money to your own account?  Odd...\r\n");
             return 1;
         }
 
         if (AFF_FLAGGED(ch, AFF_CHARM)) {
             send_to_char(ch, "You can't do that while charmed!\r\n");
-            if (ch->master)
+            if (ch->master) {
                 send_to_char(ch->master,
-                    "You can't force %s to do that, even while charmed!\r\n",
-                    GET_NAME(ch));
+                             "You can't force %s to do that, even while charmed!\r\n",
+                             GET_NAME(ch));
+            }
             return 1;
         }
 
         if (clan) {
             if (clan->bank_account < amount) {
                 send_to_char(ch,
-                    "The clan doesn't have that much deposited.\r\n");
+                             "The clan doesn't have that much deposited.\r\n");
                 return 1;
             }
             clan->bank_account -= amount;
             sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
-                clan->bank_account, clan->number);
+                     clan->bank_account, clan->number);
         } else {
             if (BANK_MONEY(ch) < amount) {
                 send_to_char(ch, "You don't have that many %ss deposited!\r\n",
-                    CURRENCY(ch));
+                             CURRENCY(ch));
                 return 1;
             }
-            if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+            if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
                 withdraw_future_bank(ch->account, amount);
-            else
+            } else {
                 withdraw_past_bank(ch->account, amount);
+            }
         }
 
-        if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+        if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
             deposit_future_bank(acct, amount);
-        else
+        } else {
             deposit_past_bank(acct, amount);
+        }
 
         send_to_char(ch, "You transfer %'d %s%s to %s's account.\r\n",
-            amount, CURRENCY(ch), PLURAL(amount), vict_name);
+                     amount, CURRENCY(ch), PLURAL(amount), vict_name);
         act("$n makes a bank transaction.", true, ch, NULL, NULL, TO_ROOM);
 
         if (amount > 50000000) {
             mudlog(LVL_IMMORT, NRM, true,
-                "%s transferred %d from %s to %s's account",
-                GET_NAME(ch), amount, (clan) ? "clan account" : "bank",
-                vict_name);
+                   "%s transferred %d from %s to %s's account",
+                   GET_NAME(ch), amount, (clan) ? "clan account" : "bank",
+                   vict_name);
         }
     }
 
     crashsave(ch);
     if (clan) {
-        if (clan->bank_account > 0)
+        if (clan->bank_account > 0) {
             send_to_char(ch, "The current clan balance is %'" PRId64 " %s%s.\r\n",
-                clan->bank_account, CURRENCY(ch), PLURAL(clan->bank_account));
-        else
+                         clan->bank_account, CURRENCY(ch), PLURAL(clan->bank_account));
+        } else {
             send_to_char(ch, "The clan currently has no money deposited.\r\n");
+        }
     } else {
-        if (BANK_MONEY(ch) > 0)
+        if (BANK_MONEY(ch) > 0) {
             send_to_char(ch, "Your current balance is %'" PRId64 " %s%s.\r\n",
-                BANK_MONEY(ch), CURRENCY(ch), PLURAL(BANK_MONEY(ch)));
-        else
+                         BANK_MONEY(ch), CURRENCY(ch), PLURAL(BANK_MONEY(ch)));
+        } else {
             send_to_char(ch, "You currently have no money deposited.\r\n");
+        }
     }
     return 1;
 }
@@ -1590,22 +1676,24 @@ SPECIAL(bank)
 SPECIAL(cave_bear)
 {
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !is_fighting(ch))
+    }
+    if (cmd || !is_fighting(ch)) {
         return false;
+    }
 
     if (!number(0, 12)) {
         damage(ch, random_opponent(ch), NULL,
-            number(0, 1 + GET_LEVEL(ch)), SKILL_BEARHUG, WEAR_BODY);
+               number(0, 1 + GET_LEVEL(ch)), SKILL_BEARHUG, WEAR_BODY);
         return true;
     }
     return false;
 }
 
 /************************************************************************
-  Included special procedures
-*************************************************************************/
+   Included special procedures
+ *************************************************************************/
 /* MODRIAN SPECIALS */
 #include "Specs/modrian_specs/shimmering_portal.c"
 #include "Specs/modrian_specs/wagon_obj.c"
@@ -1820,8 +1908,9 @@ SPECIAL(weapon_lister)
     char buf3[MAX_STRING_LENGTH];
     unsigned int avg_dam[60];
 
-    if (!CMD_IS("list"))
+    if (!CMD_IS("list")) {
         return 0;
+    }
 
     for (int i = 0; i < 60; i++) {
         avg_dam[i] = 0;
@@ -1835,11 +1924,13 @@ SPECIAL(weapon_lister)
     while (g_hash_table_iter_next(&iter, &key, &val)) {
         struct obj_data *obj = val;
 
-        if (GET_OBJ_TYPE(obj) != ITEM_WEAPON)
+        if (GET_OBJ_TYPE(obj) != ITEM_WEAPON) {
             continue;
+        }
 
-        if (!OBJ_APPROVED(obj))
+        if (!OBJ_APPROVED(obj)) {
             continue;
+        }
 
         int dam = 0;
         for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
@@ -1849,54 +1940,63 @@ SPECIAL(weapon_lister)
         }
 
         snprintf(buf, sizeof(buf), "[%5d] %-30s %2dd%-2d", GET_OBJ_VNUM(obj),
-                obj->name, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
+                 obj->name, GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2));
 
-        if (dam > 0)
+        if (dam > 0) {
             snprintf_cat(buf, sizeof(buf), "+%-2d", dam);
-        else if (dam < 0)
+        } else if (dam < 0) {
             snprintf_cat(buf, sizeof(buf), "-%-2d", -dam);
-        else
+        } else {
             strcat_s(buf, sizeof(buf), "   ");
+        }
 
         snprintf_cat(buf, sizeof(buf), " (%2d) %3.2f lb ",
-            (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam,
-            GET_OBJ_WEIGHT(obj));
+                     (GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam,
+                     GET_OBJ_WEIGHT(obj));
 
         if (((GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj, 2) + 1) / 2) + dam > 0 &&
-                GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj,
-                        2) + 1) / 2) + dam < 60)
+             GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj,
+                                                2) + 1) / 2) + dam < 60) {
             avg_dam[(int)(GET_OBJ_VAL(obj, 1) * (GET_OBJ_VAL(obj,
-                            2) + 1) / 2) + dam]++;
+                                                             2) + 1) / 2) + dam]++;
+        }
 
-        if (IS_TWO_HAND(obj))
+        if (IS_TWO_HAND(obj)) {
             strcat_s(buf, sizeof(buf), "2-H ");
+        }
 
-        if (GET_OBJ_VAL(obj, 0))
+        if (GET_OBJ_VAL(obj, 0)) {
             snprintf_cat(buf, sizeof(buf), "Cast:%s ", spell_to_str(GET_OBJ_VAL(obj, 0)));
+        }
 
         found = false;
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++) {
             if (obj->obj_flags.bitvector[i]) {
-                if (!found)
+                if (!found) {
                     strcat_s(buf, sizeof(buf), "Set: ");
+                }
                 found = true;
-                if (i == 0)
+                if (i == 0) {
                     sprintbit(obj->obj_flags.bitvector[i], affected_bits, buf2, sizeof(buf2));
-                else if (i == 1)
+                } else if (i == 1) {
                     sprintbit(obj->obj_flags.bitvector[i], affected2_bits, buf2, sizeof(buf2));
-                else
+                } else {
                     sprintbit(obj->obj_flags.bitvector[i], affected3_bits, buf2, sizeof(buf2));
+                }
                 strcat_s(buf, sizeof(buf), buf2);
                 strcat_s(buf, sizeof(buf), " ");
             }
+        }
 
-        for (int i = 0; i < MAX_OBJ_AFFECT; i++)
+        for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
             if (obj->affected[i].location && obj->affected[i].modifier &&
-                obj->affected[i].location != APPLY_DAMROLL)
+                obj->affected[i].location != APPLY_DAMROLL) {
                 snprintf_cat(buf, sizeof(buf), "%s%s%d ",
-                    apply_types[(int)obj->affected[i].location],
-                    obj->affected[i].modifier > 0 ? "+" : "",
-                    obj->affected[i].modifier);
+                             apply_types[(int)obj->affected[i].location],
+                             obj->affected[i].modifier > 0 ? "+" : "",
+                             obj->affected[i].modifier);
+            }
+        }
 
         strcat_s(buf, sizeof(buf), "\r\n");
         strcat_s(buf3, sizeof(buf3), buf);
@@ -1904,8 +2004,9 @@ SPECIAL(weapon_lister)
 
     strcat_s(buf3, sizeof(buf3), "\r\n\r\n");
 
-    for (int i = 0; i < 60; i++)
+    for (int i = 0; i < 60; i++) {
         snprintf_cat(buf3, sizeof(buf3), "%2d -- [ %2d] weapons\r\n", i, avg_dam[i]);
+    }
 
     page_string(ch->desc, buf3);
     return 1;

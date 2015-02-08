@@ -6,8 +6,9 @@
 
 SPECIAL(grandmaster)
 {
-    if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     if (cmd || !AWAKE(ch)) {
         return 0;
     }

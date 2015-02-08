@@ -31,37 +31,43 @@
 bool
 is_arena_combat(struct creature *ch, struct creature *vict)
 {
-    if (!vict->in_room)
+    if (!vict->in_room) {
         return false;
+    }
 
-    if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA))
+    if (ROOM_FLAGGED(vict->in_room, ROOM_ARENA)) {
         return true;
+    }
 
-    //mobs don't quest
+    // mobs don't quest
     if (!IS_NPC(vict)) {
         if (GET_QUEST(vict)) {
             struct quest *quest;
 
             quest = quest_by_vnum(GET_QUEST(vict));
-            if (quest && QUEST_FLAGGED(quest, QUEST_ARENA))
+            if (quest && QUEST_FLAGGED(quest, QUEST_ARENA)) {
                 return true;
+            }
         }
     }
 
-    if (!ch || !ch->in_room)
+    if (!ch || !ch->in_room) {
         return false;
+    }
 
-    if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
+    if (ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
         return true;
+    }
 
-    //mobs don't quest
+    // mobs don't quest
     if (!IS_NPC(ch)) {
         if (GET_QUEST(ch)) {
             struct quest *quest;
 
             quest = quest_by_vnum(GET_QUEST(ch));
-            if (quest && QUEST_FLAGGED(quest, QUEST_ARENA))
+            if (quest && QUEST_FLAGGED(quest, QUEST_ARENA)) {
                 return true;
+            }
         }
     }
 
@@ -69,17 +75,19 @@ is_arena_combat(struct creature *ch, struct creature *vict)
 }
 
 bool
-is_npk_combat(struct creature * ch, struct creature * vict)
+is_npk_combat(struct creature *ch, struct creature *vict)
 {
     if (!ch || !vict) {
         return false;
     }
 
-    if (IS_NPC(ch) || IS_NPC(vict))
+    if (IS_NPC(ch) || IS_NPC(vict)) {
         return false;
+    }
 
-    if (PLR_FLAGGED(vict, PLR_HARDCORE))
+    if (PLR_FLAGGED(vict, PLR_HARDCORE)) {
         return false;
+    }
 
     if (vict->in_room->zone->pk_style == ZONE_NEUTRAL_PK) {
         return true;
@@ -95,8 +103,9 @@ pk_reputation_gain(struct creature *perp, struct creature *victim)
 {
     if (perp == victim
         || IS_NPC(perp)
-        || IS_NPC(victim))
+        || IS_NPC(victim)) {
         return 0;
+    }
 
     // Start with 10 for causing hassle
     int gain = 10;
@@ -106,15 +115,18 @@ pk_reputation_gain(struct creature *perp, struct creature *victim)
              - (GET_LEVEL(victim) + GET_REMORT_GEN(victim) * 50)) / 5;
 
     // Additional adjustment for killing an innocent
-    if (reputation_of(victim) == 0)
+    if (reputation_of(victim) == 0) {
         gain *= 2;
+    }
 
     // Additional adjustment for killing a lower gen
-    if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim))
+    if (GET_REMORT_GEN(perp) > GET_REMORT_GEN(victim)) {
         gain += (GET_REMORT_GEN(perp) - GET_REMORT_GEN(victim)) * 9;
+    }
 
-    if (IS_CRIMINAL(victim))
+    if (IS_CRIMINAL(victim)) {
         gain /= 4;
+    }
 
     gain = MAX(1, gain);
 
@@ -131,20 +143,26 @@ find_responsible_party(struct creature *attacker, struct creature *victim)
     // them die.  Charming can potentially be chained, so we find the
     // "top" master who is a PC in the same room here.
     for (ch = victim; AFF_FLAGGED(ch, AFF_CHARM)
-        && ch->master && ch->in_room == ch->master->in_room; ch = ch->master)
-        if (IS_PC(ch))
+         && ch->master && ch->in_room == ch->master->in_room; ch = ch->master) {
+        if (IS_PC(ch)) {
             perp = ch;
-    if (perp)
+        }
+    }
+    if (perp) {
         return perp;
+    }
 
     // if the attacker is charmed, their master is responsible for
     // their behavior.  We also handle chained charms here.
     for (ch = attacker; AFF_FLAGGED(ch, AFF_CHARM)
-        && ch->master && ch->in_room == ch->master->in_room; ch = ch->master)
-        if (IS_PC(ch))
+         && ch->master && ch->in_room == ch->master->in_room; ch = ch->master) {
+        if (IS_PC(ch)) {
             perp = ch;
-    if (perp)
+        }
+    }
+    if (perp) {
         return perp;
+    }
 
     // if neither was charmed, the attacker acted alone and is solely
     // responsible
@@ -154,7 +172,7 @@ find_responsible_party(struct creature *attacker, struct creature *victim)
 
 void
 create_grievance(struct creature *ch,
-    struct creature *perp, int gain, enum grievance_kind kind)
+                 struct creature *perp, int gain, enum grievance_kind kind)
 {
     struct grievance *grievance;
 
@@ -173,19 +191,22 @@ check_attack(struct creature *attacker, struct creature *victim)
     struct creature *perp;
 
     // No reputation for attacking in arena
-    if (is_arena_combat(attacker, victim))
+    if (is_arena_combat(attacker, victim)) {
         return;
+    }
 
     perp = find_responsible_party(attacker, victim);
 
     // no reputation for attacking a bountied person
-    if (is_bountied(perp, victim))
+    if (is_bountied(perp, victim)) {
         return;
+    }
 
     int gain = pk_reputation_gain(perp, victim);
 
-    if (!gain)
+    if (!gain) {
         return;
+    }
 
     gain = MAX(1, gain / 5);
     gain_reputation(perp, gain);
@@ -195,8 +216,8 @@ check_attack(struct creature *attacker, struct creature *victim)
     send_to_char(victim, "%s%s has gained %d reputation for viciously attacking you.%s\r\n",
                  CCYEL(victim, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
-        "%s gained %d reputation for attacking %s", GET_NAME(perp),
-        gain, GET_NAME(victim));
+           "%s gained %d reputation for attacking %s", GET_NAME(perp),
+           gain, GET_NAME(victim));
     create_grievance(victim, perp, gain, ATTACK);
 }
 
@@ -206,20 +227,23 @@ count_pkill(struct creature *killer, struct creature *victim)
     bool award_bounty(struct creature *, struct creature *);
     struct creature *perp;
 
-    if (is_arena_combat(killer, victim))
+    if (is_arena_combat(killer, victim)) {
         return;
+    }
 
     perp = find_responsible_party(killer, victim);
 
     GET_PKILLS(perp)++;
 
-    if (award_bounty(perp, victim))
+    if (award_bounty(perp, victim)) {
         return;
+    }
 
     int gain = pk_reputation_gain(perp, victim);
 
-    if (!gain)
+    if (!gain) {
         return;
+    }
 
     gain_reputation(perp, gain);
 
@@ -228,8 +252,8 @@ count_pkill(struct creature *killer, struct creature *victim)
     send_to_char(victim, "%s%s has gained %d reputation for heinously murdering you.%s\r\n",
                  CCYEL(killer, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
-        "%s gained %d reputation for murdering %s", GET_NAME(perp),
-        gain, GET_NAME(victim));
+           "%s gained %d reputation for murdering %s", GET_NAME(perp),
+           gain, GET_NAME(victim));
     create_grievance(victim, perp, gain, MURDER);
 }
 
@@ -244,8 +268,9 @@ check_thief(struct creature *ch, struct creature *victim)
 
     int gain = pk_reputation_gain(perp, victim);
 
-    if (!gain)
+    if (!gain) {
         return;
+    }
 
     gain = MAX(1, gain / 10);
     gain_reputation(perp, gain);
@@ -255,25 +280,27 @@ check_thief(struct creature *ch, struct creature *victim)
     send_to_char(victim, "%s%s has gained %d reputation for stealing from you.%s\r\n",
                  CCYEL(victim, C_NRM), GET_NAME(perp), gain, CCNRM(victim, C_NRM));
     mudlog(LVL_IMMORT, CMP, true,
-        "%s gained %d reputation for stealing from %s", GET_NAME(perp),
-        gain, GET_NAME(victim));
+           "%s gained %d reputation for stealing from %s", GET_NAME(perp),
+           gain, GET_NAME(victim));
     create_grievance(victim, perp, gain, THEFT);
 
-    if (is_arena_combat(ch, victim))
+    if (is_arena_combat(ch, victim)) {
         mudlog(LVL_POWER, CMP, true,
-            "%s pstealing from %s in arena", GET_NAME(perp), GET_NAME(victim));
+               "%s pstealing from %s in arena", GET_NAME(perp), GET_NAME(victim));
+    }
 }
 
 GList *
-g_list_remove_if(GList * list, GCompareFunc func, gpointer user_data)
+g_list_remove_if(GList *list, GCompareFunc func, gpointer user_data)
 {
     GList *cur = list;
     GList *next;
 
     while (cur) {
         next = g_list_next(cur);
-        if (!func(cur->data, user_data))
+        if (!func(cur->data, user_data)) {
             list = g_list_delete_link(list, cur);
+        }
         cur = next;
     }
     return list;
@@ -288,23 +315,23 @@ matches_grievance(struct grievance *grievance, gpointer idnum_ptr)
 void
 perform_pardon(struct creature *ch, struct creature *pardoned)
 {
-    for (GList *it = GET_GRIEVANCES(ch);it;it = it->next) {
+    for (GList *it = GET_GRIEVANCES(ch); it; it = it->next) {
         struct grievance *grievance = it->data;
 
         if (grievance->player_id == GET_IDNUM(pardoned)) {
 
             if (grievance->grievance == MURDER) {
                 mudlog(LVL_IMMORT, CMP, true,
-                    "%s recovered %d reputation for murdering %s",
-                    GET_NAME(pardoned), grievance->rep, GET_NAME(ch));
+                       "%s recovered %d reputation for murdering %s",
+                       GET_NAME(pardoned), grievance->rep, GET_NAME(ch));
             } else if (grievance->grievance == ATTACK) {
                 mudlog(LVL_IMMORT, CMP, true,
-                    "%s recovered %d reputation for attacking %s",
-                    GET_NAME(pardoned), grievance->rep, GET_NAME(ch));
+                       "%s recovered %d reputation for attacking %s",
+                       GET_NAME(pardoned), grievance->rep, GET_NAME(ch));
             } else {
                 mudlog(LVL_IMMORT, CMP, true,
-                    "%s recovered %d reputation for stealing from %s",
-                    GET_NAME(pardoned), grievance->rep, GET_NAME(ch));
+                       "%s recovered %d reputation for stealing from %s",
+                       GET_NAME(pardoned), grievance->rep, GET_NAME(ch));
             }
 
             gain_reputation(pardoned, -(grievance->rep));
@@ -373,7 +400,7 @@ ACMD(do_pardon)
         send_to_char(ch, "Pardoned.\r\n");
         send_to_char(pardoned, "You have been pardoned by the Gods!\r\n");
         mudlog(MAX(LVL_GOD, GET_INVIS_LVL(ch)), NRM, true,
-            "(GC) %s pardoned by %s", GET_NAME(pardoned), GET_NAME(ch));
+               "(GC) %s pardoned by %s", GET_NAME(pardoned), GET_NAME(ch));
     } else if (g_list_find_custom(GET_GRIEVANCES(ch),
                                   GINT_TO_POINTER(GET_IDNUM(pardoned)),
                                   (GCompareFunc) matches_grievance) == NULL) {
@@ -404,22 +431,24 @@ check_object_killer(struct obj_data *obj, struct creature *vict)
     if (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)) {
         return;
     }
-    if (IS_NPC(vict))
+    if (IS_NPC(vict)) {
         return;
+    }
 
     slog("Checking object killer %s -> %s. ", obj->name, GET_NAME(vict));
 
-    if (IS_BOMB(obj))
+    if (IS_BOMB(obj)) {
         obj_id = BOMB_IDNUM(obj);
-    else if (GET_OBJ_SIGIL_IDNUM(obj))
+    } else if (GET_OBJ_SIGIL_IDNUM(obj)) {
         obj_id = GET_OBJ_SIGIL_IDNUM(obj);
-    else {
+    } else {
         errlog("unknown damager in check_object_killer.");
         return;
     }
 
-    if (!obj_id)
+    if (!obj_id) {
         return;
+    }
 
     killer = get_char_in_world_by_idnum(obj_id);
 
@@ -435,7 +464,7 @@ check_object_killer(struct obj_data *obj, struct creature *vict)
     // the piece o shit has a bogus killer idnum on it!
     if (!killer) {
         errlog("bogus idnum %d on object %s damaging %s.",
-            obj_id, obj->name, GET_NAME(vict));
+               obj_id, obj->name, GET_NAME(vict));
         return;
     }
 
@@ -444,6 +473,7 @@ check_object_killer(struct obj_data *obj, struct creature *vict)
     // save the sonuvabitch to file
     crashsave(killer);
 
-    if (loaded_killer)
+    if (loaded_killer) {
         free_creature(killer);
+    }
 }

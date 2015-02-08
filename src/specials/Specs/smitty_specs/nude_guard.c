@@ -10,14 +10,18 @@ SPECIAL(nude_guard)
     int i;
     int found = 0;
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (!CMD_IS("west") || GET_LEVEL(ch) >= LVL_IMMORT)
+    }
+    if (!CMD_IS("west") || GET_LEVEL(ch) >= LVL_IMMORT) {
         return 0;
+    }
 
-    for (i = 0; i < NUM_WEARS && !found; i++)
-        if (GET_EQ(ch, i))
+    for (i = 0; i < NUM_WEARS && !found; i++) {
+        if (GET_EQ(ch, i)) {
             found = 1;
+        }
+    }
 
     if (found || ch->carrying) {
         perform_tell(guard, ch, "You can't take a bath with your clothes on!");

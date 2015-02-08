@@ -32,28 +32,28 @@ int touch(const char *path);
 
 enum log_type
 {
-	OFF = 0,
-	BRF = 1,
-	NRM = 2,
-	CMP = 3
+    OFF = 0,
+    BRF = 1,
+    NRM = 2,
+    CMP = 3
 };
 
 // mudlog() and slog() are shorter interfaces to mlog()
 void mudlog(int8_t level, enum log_type type, bool file, const char *fmt, ...)
-	__attribute__ ((format (printf, 4, 5)));
+__attribute__ ((format (printf, 4, 5)));
 void slog(const char *str, ...)
-	__attribute__ ((format (printf, 1, 2)));
+__attribute__ ((format (printf, 1, 2)));
 void errlog(const char *str, ...)
-	__attribute__ ((format (printf, 1, 2)));
+__attribute__ ((format (printf, 1, 2)));
 void zerrlog(struct zone_data *zone, const char *str, ...)
-	__attribute__ ((format (printf, 2, 3)));
+__attribute__ ((format (printf, 2, 3)));
 
 void mlog(const char *group,
-		int8_t level,
-		enum log_type type,
-		bool file,
-		const char *fmt, ...)
-	__attribute__ ((format (printf, 5, 6)));
+          int8_t level,
+          enum log_type type,
+          bool file,
+          const char *fmt, ...)
+__attribute__ ((format (printf, 5, 6)));
 
 void log_death_trap(struct creature *ch);
 void show_string(struct descriptor_data *desc);
@@ -66,9 +66,9 @@ float total_obj_weight(struct obj_data *obj);
 
 enum track_mode
 {
-	STD_TRACK = 0,
-	GOD_TRACK = 1,
-	PSI_TRACK = 2
+    STD_TRACK = 0,
+    GOD_TRACK = 1,
+    PSI_TRACK = 2
 };
 int find_first_step(struct room_data *start, struct room_data *dest, enum track_mode mode);
 int find_distance(struct room_data *start, struct room_data *dest);
@@ -86,13 +86,13 @@ void check_bits_32(int bitv, int *newbits);
 #undef MIN
 
 #define MAX(a,b)                                \
-    ({ __typeof__ (a) _a = (a);                 \
-        __typeof__ (b) _b = (b);                \
-        _a > _b ? _a : _b; })
+    ({ __typeof__ (a)_a = (a);                 \
+       __typeof__ (b)_b = (b);                \
+       _a > _b ? _a : _b; })
 #define MIN(a,b)                                \
-    ({ __typeof__ (a) _a = (a);                 \
-        __typeof__ (b) _b = (b);                \
-        _a > _b ? _b : _a; })
+    ({ __typeof__ (a)_a = (a);                 \
+       __typeof__ (b)_b = (b);                \
+       _a > _b ? _b : _a; })
 
 /* in magic.c */
 bool circle_follow(struct creature *ch, struct creature *victim);
@@ -111,7 +111,7 @@ int hit_gain(struct creature *ch);
 int move_gain(struct creature *ch);
 void advance_level(struct creature *ch, int8_t keep_internal);
 void set_title(struct creature *ch, const char *title)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 void gain_exp(struct creature *ch, int gain);
 void gain_exp_regardless(struct creature *ch, int gain);
 void gain_condition(struct creature *ch, int condition, int value);
@@ -152,13 +152,13 @@ void WAIT_STATE(struct creature *ch, int cycle);
 
 /* memory utils **********************************************************/
 
-#define CREATE(result, type, number)  do {\
+#define CREATE(result, type, number)  do { \
         if (!((result) = (type *)(calloc ((number), sizeof(type)))))    \
-        { perror("malloc failure"); abort(); } } while(0)
+        { perror("malloc failure"); abort(); } } while (0)
 
-#define RECREATE(result,type,number) do {\
+#define RECREATE(result,type,number) do { \
         if (!((result) = (type *)(realloc ((result), sizeof(type) * (number))))) \
-                { perror("realloc failure"); abort(); } } while(0)
+        { perror("realloc failure"); abort(); } } while (0)
 
 /*
  * the source previously used the same code in many places to remove an item
@@ -171,14 +171,14 @@ void WAIT_STATE(struct creature *ch, int cycle);
  */
 #define REMOVE_FROM_LIST(item, head, next)                  \
     do {                                                    \
-        if ((item) == (head))                               \
-            head = (item)->next;                            \
+        if ((item) == (head)) {                               \
+            head = (item)->next; }                            \
         else {                                              \
             temp = head;                                    \
-            while (temp != NULL && (temp->next != (item)))  \
-                temp = temp->next;                          \
-            if (temp != NULL)                               \
-                temp->next = (item)->next;                  \
+            while (temp != NULL && (temp->next != (item))) {  \
+                temp = temp->next; }                          \
+            if (temp != NULL) {                               \
+                temp->next = (item)->next; }                  \
         }                                                   \
     } while (false)
 
@@ -192,7 +192,7 @@ void WAIT_STATE(struct creature *ch, int cycle);
 /* room utils ************************************************************/
 #define ROOM_FLAGS(loc)           ((loc)->room_flags)
 #define NOFLEE(loc)          (ROOM_FLAGGED(loc,ROOM_NOFLEE) \
-                                && !(random_fractional_10()))
+                              && !(random_fractional_10()))
 #define SECT_TYPE(room)           ((room)->sector_type)
 #define GET_PLANE(room)           ((room)->zone->plane)
 #define GET_ZONE(room)            ((room)->zone->number)
@@ -210,25 +210,25 @@ void WAIT_STATE(struct creature *ch, int cycle);
 
 #define SRCH_FLAGGED(srch, flag)   (IS_SET(srch->flags, flag))
 #define SRCH_OK(ch, srch) \
-   ((!IS_EVIL(ch) || !SRCH_FLAGGED(srch, SRCH_NOEVIL)) && \
-    (!IS_NEUTRAL(ch) || !SRCH_FLAGGED(srch, SRCH_NONEUTRAL)) && \
-    (!IS_GOOD(ch) || !SRCH_FLAGGED(srch, SRCH_NOGOOD)) && \
-    (GET_POSITION(ch) < POS_FLYING || !SRCH_FLAGGED(srch, SRCH_NOTRIG_FLY)) && \
-    (!IS_NPC(ch) || !SRCH_FLAGGED(srch, SRCH_NOMOB)) &&        \
-    ( IS_NPC(ch) || !SRCH_FLAGGED(srch, SRCH_NOPLAYER)) &&        \
-	(!AFF_FLAGGED(ch, AFF_CHARM) || !SRCH_FLAGGED(srch, SRCH_NOPLAYER)) &&	  \
-    (!IS_MAGE(ch)   || !SRCH_FLAGGED(srch, SRCH_NOMAGE)) &&    \
-    (!IS_CLERIC(ch) || !SRCH_FLAGGED(srch, SRCH_NOCLERIC)) && \
-    (!IS_THIEF(ch)  || !SRCH_FLAGGED(srch, SRCH_NOTHIEF)) &&  \
-    (!IS_BARB(ch)   || !SRCH_FLAGGED(srch, SRCH_NOBARB)) &&   \
-    (!IS_RANGER(ch) || !SRCH_FLAGGED(srch, SRCH_NORANGER)) && \
-    (!IS_KNIGHT(ch) || !SRCH_FLAGGED(srch, SRCH_NOKNIGHT)) && \
-    (!IS_MONK(ch)   || !SRCH_FLAGGED(srch, SRCH_NOMONK)) &&   \
-    (!IS_PSIONIC(ch) || !SRCH_FLAGGED(srch, SRCH_NOPSIONIC)) && \
-    (!IS_PHYSIC(ch) || !SRCH_FLAGGED(srch, SRCH_NOPHYSIC)) && \
-    (!IS_MERC(ch)   || !SRCH_FLAGGED(srch, SRCH_NOMERC)) &&   \
-    (!IS_BARD(ch)   || !SRCH_FLAGGED(srch, SRCH_NOBARD)) &&   \
-    !SRCH_FLAGGED(srch, SRCH_TRIPPED))
+    ((!IS_EVIL(ch) || !SRCH_FLAGGED(srch, SRCH_NOEVIL)) && \
+     (!IS_NEUTRAL(ch) || !SRCH_FLAGGED(srch, SRCH_NONEUTRAL)) && \
+     (!IS_GOOD(ch) || !SRCH_FLAGGED(srch, SRCH_NOGOOD)) && \
+     (GET_POSITION(ch) < POS_FLYING || !SRCH_FLAGGED(srch, SRCH_NOTRIG_FLY)) && \
+     (!IS_NPC(ch) || !SRCH_FLAGGED(srch, SRCH_NOMOB)) &&        \
+     (IS_NPC(ch) || !SRCH_FLAGGED(srch, SRCH_NOPLAYER)) &&        \
+     (!AFF_FLAGGED(ch, AFF_CHARM) || !SRCH_FLAGGED(srch, SRCH_NOPLAYER)) &&    \
+     (!IS_MAGE(ch)   || !SRCH_FLAGGED(srch, SRCH_NOMAGE)) &&    \
+     (!IS_CLERIC(ch) || !SRCH_FLAGGED(srch, SRCH_NOCLERIC)) && \
+     (!IS_THIEF(ch)  || !SRCH_FLAGGED(srch, SRCH_NOTHIEF)) &&  \
+     (!IS_BARB(ch)   || !SRCH_FLAGGED(srch, SRCH_NOBARB)) &&   \
+     (!IS_RANGER(ch) || !SRCH_FLAGGED(srch, SRCH_NORANGER)) && \
+     (!IS_KNIGHT(ch) || !SRCH_FLAGGED(srch, SRCH_NOKNIGHT)) && \
+     (!IS_MONK(ch)   || !SRCH_FLAGGED(srch, SRCH_NOMONK)) &&   \
+     (!IS_PSIONIC(ch) || !SRCH_FLAGGED(srch, SRCH_NOPSIONIC)) && \
+     (!IS_PHYSIC(ch) || !SRCH_FLAGGED(srch, SRCH_NOPHYSIC)) && \
+     (!IS_MERC(ch)   || !SRCH_FLAGGED(srch, SRCH_NOMERC)) &&   \
+     (!IS_BARD(ch)   || !SRCH_FLAGGED(srch, SRCH_NOBARD)) &&   \
+     !SRCH_FLAGGED(srch, SRCH_TRIPPED))
 
 #define IN_ICY_HELL(ch)  (ch->in_room->zone->plane == PLANE_HELL_5)
 #define HELL_PLANE(zone, num)  ((zone)->plane == (PLANE_HELL_1 - 1 + num))
@@ -240,20 +240,20 @@ void WAIT_STATE(struct creature *ch, int cycle);
 /******************* ASLEEP ZONE STUFF ********************/
 #define ZONE_IS_ASLEEP(zone)  ((zone)->number == 445 || \
                                (zone)->number == 446 || \
-							   (zone)->number == 447)
+                               (zone)->number == 447)
 
 /***************** END  SHADOW PLANE STUFF *****************/
 
 #define ZONE_IS_HELL(zone) \
-                          (zone->plane >= PLANE_HELL_1 && zone->plane <= PLANE_HELL_9)
+    (zone->plane >= PLANE_HELL_1 && zone->plane <= PLANE_HELL_9)
 
 #define NOGRAV_ZONE(zone) ((zone->plane >= PLANE_ELEM_WATER && \
-                             zone->plane <= PLANE_ELEM_NEG) || \
-                            zone->plane == PLANE_ASTRAL || zone->plane == PLANE_PELEM_MAGMA \
-                            || zone->plane == PLANE_PELEM_OOZE )
+                            zone->plane <= PLANE_ELEM_NEG) || \
+                           zone->plane == PLANE_ASTRAL || zone->plane == PLANE_PELEM_MAGMA \
+                           || zone->plane == PLANE_PELEM_OOZE)
 
 /*  character utils ******************************************************/
-	  /* room utils *********************************************************** */
+/* room utils *********************************************************** */
 
 #define GET_ROOM_SPEC(room) ((room)->func)
 #define GET_ROOM_PARAM(room) ((room)->func_param)
@@ -320,7 +320,7 @@ void WAIT_STATE(struct creature *ch, int cycle);
 
 #define OBJ_APPROVED(obj) (!IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED))
 #define P_OBJ_APPROVED(p_obj) (!IS_SET(p_obj->obj_flags.extra2_flags, \
-                                      ITEM2_UNAPPROVED))
+                                       ITEM2_UNAPPROVED))
 
 #define OBJ_IS_RAD(obj) (IS_OBJ_STAT2(obj, ITEM2_RADIOACTIVE))
 
@@ -331,7 +331,7 @@ void WAIT_STATE(struct creature *ch, int cycle);
 #define ICE_VNUM   1576
 
 #define OBJ_IS_SOILAGE(obj) (GET_OBJ_VNUM(obj) == BLOOD_VNUM || \
-							 GET_OBJ_VNUM(obj) == ICE_VNUM)
+                             GET_OBJ_VNUM(obj) == ICE_VNUM)
 
 #define CHAR_HAS_BLOOD(ch)  (!IS_UNDEAD(ch) && !IS_ELEMENTAL(ch) && \
                              !IS_GOLEM(ch) && !IS_ROBOT(ch) && \
@@ -342,15 +342,15 @@ void WAIT_STATE(struct creature *ch, int cycle);
 #define OBJ_ENHANCED(obj) (IS_OBJ_STAT2(obj, ITEM2_ENHANCED))
 
 #define ANTI_ALIGN_OBJ(ch, obj) \
-     ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL | ITEM_BLESS) && IS_EVIL(ch)) ||    \
-      (IS_OBJ_STAT(obj,ITEM_ANTI_GOOD | ITEM_DAMNED) && IS_GOOD(ch)) ||\
-      (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))
+    ((IS_OBJ_STAT(obj, ITEM_ANTI_EVIL | ITEM_BLESS) && IS_EVIL(ch)) ||    \
+     (IS_OBJ_STAT(obj,ITEM_ANTI_GOOD | ITEM_DAMNED) && IS_GOOD(ch)) || \
+     (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))
 
 /* compound utilities and other macros **********************************/
 
-#define HSHR(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "his":"her") :"its")
-#define HSSH(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "he" :"she") : "it")
-#define HMHR(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "him":"her") : "it")
+#define HSHR(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "his" : "her") : "its")
+#define HSSH(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "he" : "she") : "it")
+#define HMHR(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "him" : "her") : "it")
 
 #define ANA(obj) (strchr("aeiouyAEIOUY", *(obj)->aliases) ? "An" : "A")
 #define SANA(obj) (strchr("aeiouyAEIOUY", *(obj)->aliases) ? "an" : "a")
@@ -363,7 +363,7 @@ long GET_SKILL_COST(struct creature *ch, int skill);
 #define LEV_ABBR(ch) (IS_NPC(ch) ? "--" : level_abbrevs[(int)GET_LEVEL(ch)-50])
 
 #define IS_CLASS(ch, char_class)     (GET_CLASS(ch) == char_class || \
-                                 GET_REMORT_CLASS(ch) == char_class)
+                                      GET_REMORT_CLASS(ch) == char_class)
 
 #define IS_MAGIC_USER(ch)           IS_CLASS(ch, CLASS_MAGIC_USER)
 #define IS_MAGE(ch)                IS_MAGIC_USER(ch)
@@ -396,28 +396,28 @@ long GET_SKILL_COST(struct creature *ch, int skill);
 #define IS_LICH(ch)              IS_CLASS(ch, CLASS_LICH)
 #define IS_ZOMBIE(ch)                  IS_CLASS(ch, CLASS_ZOMBIE)
 #define IS_UNDEAD(ch)            (IS_RACE(ch, RACE_UNDEAD) || \
-                                 IS_SKELETON(ch) || \
-                                 IS_GHOUL(ch) || \
-                                 IS_SHADOW(ch) || \
-                                 IS_WIGHT(ch) || \
-                                 IS_WRAITH(ch) || \
-                                 IS_MUMMY(ch) || \
-                                 IS_SPECTRE(ch) || \
-                                 IS_VAMPIRE(ch) || \
-                                 IS_GHOST(ch) || \
-                                 IS_LICH(ch) || \
-                                 IS_ZOMBIE(ch))
+                                  IS_SKELETON(ch) || \
+                                  IS_GHOUL(ch) || \
+                                  IS_SHADOW(ch) || \
+                                  IS_WIGHT(ch) || \
+                                  IS_WRAITH(ch) || \
+                                  IS_MUMMY(ch) || \
+                                  IS_SPECTRE(ch) || \
+                                  IS_VAMPIRE(ch) || \
+                                  IS_GHOST(ch) || \
+                                  IS_LICH(ch) || \
+                                  IS_ZOMBIE(ch))
 
 #define NON_CORPOREAL_MOB(ch) \
-            ((IS_SHADOW(ch) || IS_WIGHT(ch) ||   \
-            IS_WRAITH(ch) || IS_SPECTRE(ch) || \
-            IS_GHOST(ch))                      \
-            || (GET_RACE(ch) == RACE_ELEMENTAL &&       \
-                (                                       \
-                GET_CLASS(ch) == CLASS_AIR ||           \
-                GET_CLASS(ch) == CLASS_WATER ||         \
-                GET_CLASS(ch) == CLASS_FIRE             \
-                )))
+    ((IS_SHADOW(ch) || IS_WIGHT(ch) ||   \
+      IS_WRAITH(ch) || IS_SPECTRE(ch) || \
+      IS_GHOST(ch))                      \
+     || (GET_RACE(ch) == RACE_ELEMENTAL &&       \
+         (                                       \
+             GET_CLASS(ch) == CLASS_AIR ||           \
+             GET_CLASS(ch) == CLASS_WATER ||         \
+             GET_CLASS(ch) == CLASS_FIRE             \
+         )))
 
 #define IS_HUMAN(ch)                     (GET_RACE(ch) == RACE_HUMAN)
 #define IS_ELF(ch)                     (GET_RACE(ch) == RACE_ELF)
@@ -455,7 +455,7 @@ long GET_SKILL_COST(struct creature *ch, int skill);
 #define IS_ROWLAHR(ch)         (GET_RACE(ch) == RACE_ROWLAHR)
 #define IS_RACE(ch, race)       (GET_RACE(ch) == race)
 
-#define IS_CELESTIAL(ch)		(IS_ARCHON(ch) || IS_GUARDINAL(ch))
+#define IS_CELESTIAL(ch)        (IS_ARCHON(ch) || IS_GUARDINAL(ch))
 #define IS_GREATER_DEVIL(ch) (IS_DEVIL(ch) \
                               && (GET_CLASS(ch) == CLASS_GREATER \
                                   || GET_CLASS(ch) == CLASS_ARCH \
@@ -491,7 +491,7 @@ long GET_SKILL_COST(struct creature *ch, int skill);
 #define LIFE_FORM(ch)           (!IS_ROBOT(ch) && !IS_UNDEAD(ch))
 
 #define OUTSIDE(ch) (!ROOM_FLAGGED((ch)->in_room, ROOM_INDOORS) && \
-                                        (ch)->in_room->sector_type != SECT_INSIDE )
+                     (ch)->in_room->sector_type != SECT_INSIDE)
 bool has_dark_sight(struct creature *self);
 bool check_sight_self(struct creature *self);
 bool check_sight_room(struct creature *self, struct room_data *room);
@@ -504,19 +504,19 @@ bool can_see_room(struct creature *self, struct room_data *room);
 
 #define CAN_CARRY_OBJ(ch,obj)  \
     (((IS_CARRYING_W(ch) + GET_OBJ_WEIGHT(obj)) <= CAN_CARRY_W(ch)) && \
-    ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
+     ((IS_CARRYING_N(ch) + 1) <= CAN_CARRY_N(ch)))
 
 #define CAN_GET_OBJ(ch, obj)   \
-   ((CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
-    can_see_object((ch),(obj))) || GET_LEVEL(ch) > LVL_CREATOR)
+    ((CAN_WEAR((obj), ITEM_WEAR_TAKE) && CAN_CARRY_OBJ((ch),(obj)) && \
+      can_see_object((ch),(obj))) || GET_LEVEL(ch) > LVL_CREATOR)
 
 #define CAN_DETECT_DISGUISE(ch, vict, level) \
-                          (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || \
-                           AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ||\
-                           (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
+    (PRF_FLAGGED(ch, PRF_HOLYLIGHT) || \
+     AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) || \
+     (GET_INT(ch)+GET_WIS(ch)) > (level+GET_CHA(vict)))
 
-bool CAN_GO(struct creature * ch, int door);
-bool OCAN_GO(struct obj_data * obj, int door);
+bool CAN_GO(struct creature *ch, int door);
+bool OCAN_GO(struct obj_data *obj, int door);
 
 struct extra_descr_data *exdesc_list_dup(struct extra_descr_data *list);
 int smart_mobile_move(struct creature *ch, int dir);
@@ -586,24 +586,24 @@ int dice(int number, int size);
 static inline /*@observer@*/ const char *
 SAFETY(const char *str)
 {
-	if (!str) {
-		errlog("Attempt to print null string");
-		return "<NULLS>";
-	}
-	return str;
+    if (!str) {
+        errlog("Attempt to print null string");
+        return "<NULLS>";
+    }
+    return str;
 }
 
 static inline unsigned int
 hex2dec(const char *s)
 {
-	unsigned int i = 0;
+    unsigned int i = 0;
 
-	while (isxdigit(*s)) {
-		int n = toupper(*s);
-		i = i << 4 | (n - ((n >= (int)'A') ? (int)'7':(int)'0'));
-		s++;
-	}
-	return i;
+    while (isxdigit(*s)) {
+        int n = toupper(*s);
+        i = i << 4 | (n - ((n >= (int)'A') ? (int)'7' : (int)'0'));
+        s++;
+    }
+    return i;
 }
 
 char *format_weight(float lbs, bool metric);

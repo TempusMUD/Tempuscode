@@ -13,10 +13,12 @@ SPECIAL(rat_mama)
         2943,
         -1
     };
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || is_fighting(ch) || GET_POSITION(ch) == POS_FIGHTING)
+    }
+    if (cmd || is_fighting(ch) || GET_POSITION(ch) == POS_FIGHTING) {
         return 0;
+    }
 
     for (int i = 0; rat_rooms[i] != -1; i++) {
         struct room_data *room = real_room(rat_rooms[i]);

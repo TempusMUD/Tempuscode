@@ -9,8 +9,9 @@ SPECIAL(keymaster)
     struct creature *keymaster = (struct creature *)me;
     struct obj_data *key = NULL;
     room_num v_home_pad = 1595, r_home_pad = NOWHERE;
-    if (FIGHTING(keymaster))
+    if (FIGHTING(keymaster)) {
         return 0;
+    }
     if (!cmd && spinal->in_room != (r_home_pad = real_room(v_home_pad)) &&
         r_home_pad != NOWHERE && !FIGHTING(ch)) {
         act("$n unlocks a dimensional door and steps into it.", false,
@@ -34,12 +35,14 @@ SPECIAL(keymaster)
             } else {
                 return 0;
             }
-        } else
+        } else {
             break;
+        }
     }
 
-    if (!key)
+    if (!key) {
         return 0;
+    }
     if (!key->carried_by && key->carried_by != key) {
         if (key->carried_by->in_room != NOWHERE &&
             GET_LEVEL(key->carried_by) < LVL_IMMORT) {

@@ -29,7 +29,7 @@ extern const char *ROLE_WIZARDFULL;
 extern const char *ROLE_WORLDADMIN;
 
 struct role {
-        /* A one line description of this role */
+    /* A one line description of this role */
     char *description;
     /* The one word name for this role */
     char *name;

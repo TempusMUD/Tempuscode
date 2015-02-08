@@ -21,10 +21,11 @@ retrieve_oedits(struct creature *ch, struct obj_data *inc_obj)
 {
     int count = 0;
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return 0;
+    }
 
-    for (struct obj_data * obj = object_list; obj; obj = obj->next) {
+    for (struct obj_data *obj = object_list; obj; obj = obj->next) {
         if (inc_obj->shared->vnum == obj->shared->vnum && obj->shared->owner_id == GET_IDNUM(ch)) {
             if (obj->worn_by == ch || obj->carried_by == ch) {
                 send_to_char(ch, "%s glows bright orange.\r\n", obj->name);
@@ -48,13 +49,13 @@ retrieve_oedits(struct creature *ch, struct obj_data *inc_obj)
                 unequip_char(obj->worn_by, obj->worn_on, EQUIP_WORN);
                 count++;
             } else if (obj->worn_by
-                && obj == GET_IMPLANT(obj->worn_by, obj->worn_on)) {
+                       && obj == GET_IMPLANT(obj->worn_by, obj->worn_on)) {
                 act("$p disappears out of your body!", false, obj->worn_by,
                     obj, NULL, TO_CHAR);
                 unequip_char(obj->worn_by, obj->worn_on, EQUIP_IMPLANT);
                 count++;
             } else if (obj->worn_by
-                && obj == GET_TATTOO(obj->worn_by, obj->worn_on)) {
+                       && obj == GET_TATTOO(obj->worn_by, obj->worn_on)) {
                 act("$p fades off of your body!", false, obj->worn_by, obj, NULL,
                     TO_CHAR);
                 unequip_char(obj->worn_by, obj->worn_on, EQUIP_TATTOO);
@@ -78,8 +79,9 @@ retrieve_oedits(struct creature *ch, struct obj_data *inc_obj)
 
             if (prev_obj_room && ROOM_FLAGGED(prev_obj_room, ROOM_HOUSE)) {
                 struct house *h = find_house_by_room(prev_obj_room->number);
-                if (h)
+                if (h) {
                     save_house(h);
+                }
             }
 
             obj_to_char(obj, ch);
@@ -97,8 +99,9 @@ load_oedits(struct creature *ch)
     gpointer key, val;
     int count = 0;
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return 0;
+    }
 
     g_hash_table_iter_init(&iter, obj_prototypes);
     while (g_hash_table_iter_next(&iter, &key, &val)) {
@@ -130,7 +133,7 @@ SPECIAL(oedit_reloader)
 
     if (CMD_IS("help") && !*argument) {
         perform_say(self, "say",
-            "If you want me to retrieve your property, just type 'retrieve'.");
+                    "If you want me to retrieve your property, just type 'retrieve'.");
     } else if (CMD_IS("retrieve")) {
         act("$n closes $s eyes in deep concentration.", true, self, NULL, NULL,
             TO_ROOM);

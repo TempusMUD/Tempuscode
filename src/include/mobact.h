@@ -9,21 +9,21 @@
 //
 
 struct creature *choose_opponent(struct creature *ch,
-	struct creature *ignore_vict);
+                                 struct creature *ignore_vict);
 int mobile_battle_activity(struct creature *ch,
-	struct creature *previous_vict);
+                           struct creature *previous_vict);
 
 int mob_fight_slaad(struct creature *ch, struct creature *precious_vict);
 int mob_fight_devil(struct creature *ch, struct creature *precious_vict);
 int mob_fight_celestial(struct creature *ch, struct creature *precious_vict);
 int mob_fight_guardinal(struct creature *ch, struct creature *precious_vict);
 int mob_fight_demon(struct creature *ch, struct creature *precious_vict);
-void knight_activity(struct creature * ch);
-bool knight_battle_activity(struct creature * ch, struct creature * precious_vict);
+void knight_activity(struct creature *ch);
+bool knight_battle_activity(struct creature *ch, struct creature *precious_vict);
 void ranger_activity(struct creature *ch);
-bool ranger_battle_activity(struct creature * ch, struct creature *precious_vict);
+bool ranger_battle_activity(struct creature *ch, struct creature *precious_vict);
 void barbarian_activity(struct creature *ch);
-bool barbarian_battle_activity(struct creature * ch, struct creature *precious_vict);
+bool barbarian_battle_activity(struct creature *ch, struct creature *precious_vict);
 
 void psionic_activity(struct creature *ch);
 void psionic_best_attack(struct creature *ch, struct creature *vict);

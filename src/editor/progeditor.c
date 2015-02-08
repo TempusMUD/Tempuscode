@@ -39,14 +39,16 @@ progeditor_finalize(struct editor *editor, const char *text)
 
     switch (prog_data->owner_type) {
     case PROG_TYPE_MOBILE:
-        if (GET_NPC_PROG((struct creature *)prog_data->owner))
+        if (GET_NPC_PROG((struct creature *)prog_data->owner)) {
             free(GET_NPC_PROG((struct creature *)prog_data->owner));
+        }
         ((struct creature *)prog_data->owner)->mob_specials.shared->prog =
             new_prog;
         break;
     case PROG_TYPE_ROOM:
-        if (GET_ROOM_PROG((struct room_data *)prog_data->owner))
+        if (GET_ROOM_PROG((struct room_data *)prog_data->owner)) {
             free(((struct room_data *)prog_data->owner)->prog);
+        }
         ((struct room_data *)prog_data->owner)->prog = new_prog;
         break;
     default:
@@ -57,11 +59,12 @@ progeditor_finalize(struct editor *editor, const char *text)
     }
 
     prog_compile(editor->desc->creature, prog_data->owner,
-        prog_data->owner_type);
+                 prog_data->owner_type);
 
-    if (IS_PLAYING(editor->desc))
+    if (IS_PLAYING(editor->desc)) {
         act("$n nods with satisfaction as $e saves $s work.",
             true, editor->desc->creature, NULL, NULL, TO_NOTVICT);
+    }
     free(prog_data);
 }
 
@@ -73,7 +76,7 @@ progeditor_cancel(struct editor *editor)
 
 void
 start_editing_prog(struct descriptor_data *d,
-    void *owner, enum prog_evt_type owner_type)
+                   void *owner, enum prog_evt_type owner_type)
 {
     struct progeditor_data *prog_data;
     if (d->text_editor) {
@@ -95,8 +98,9 @@ start_editing_prog(struct descriptor_data *d,
     prog_data->owner_type = owner_type;
 
     char *text = prog_get_text(owner, owner_type);
-    if (text)
+    if (text) {
         editor_import(d->text_editor, text);
+    }
 
     emit_editor_startup(d->text_editor);
 }

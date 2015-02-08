@@ -76,17 +76,17 @@ mag_manacost(struct creature *ch, int spellnum)
     int mana, mana2;
 
     mana = MAX(SINFO.mana_max -
-        (SINFO.mana_change *
-            (GET_LEVEL(ch) -
-                SINFO.min_level[(int)MIN(NUM_CLASSES - 1, GET_CLASS(ch))])),
-        SINFO.mana_min);
+               (SINFO.mana_change *
+                (GET_LEVEL(ch) -
+                 SINFO.min_level[(int)MIN(NUM_CLASSES - 1, GET_CLASS(ch))])),
+               SINFO.mana_min);
 
     if (GET_REMORT_CLASS(ch) >= 0) {
         mana2 = MAX(SINFO.mana_max -
-            (SINFO.mana_change *
-                (GET_LEVEL(ch) -
-                    SINFO.min_level[(int)MIN(NUM_CLASSES - 1,
-                            GET_REMORT_CLASS(ch))])), SINFO.mana_min);
+                    (SINFO.mana_change *
+                     (GET_LEVEL(ch) -
+                      SINFO.min_level[(int)MIN(NUM_CLASSES - 1,
+                                               GET_REMORT_CLASS(ch))])), SINFO.mana_min);
         mana = MIN(mana2, mana);
     }
 
@@ -94,42 +94,42 @@ mag_manacost(struct creature *ch, int spellnum)
 }
 
 bool
-is_able_to_learn(struct creature * ch, int spl)
+is_able_to_learn(struct creature *ch, int spl)
 {
     // Return true if the creature ch is able to learn the spell spl
     return ((GET_REMORT_GEN(ch) >= SPELL_GEN(spl, GET_CLASS(ch))
-            && GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_CLASS(ch)))
-        || (IS_REMORT(ch)
-            && GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_REMORT_CLASS(ch))
-            && !SPELL_GEN(spl, GET_REMORT_CLASS(ch))));
+             && GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_CLASS(ch)))
+            || (IS_REMORT(ch)
+                && GET_LEVEL(ch) >= SPELL_LEVEL(spl, GET_REMORT_CLASS(ch))
+                && !SPELL_GEN(spl, GET_REMORT_CLASS(ch))));
 }
 
 // Returns true if there's a reasonable chance that casting the spell
 // will work.  Used for NPC AI
 bool
-can_cast_spell(struct creature * ch, int spellnum)
+can_cast_spell(struct creature *ch, int spellnum)
 {
     struct room_data *room = ch->in_room;
 
     return (is_able_to_learn(ch, spellnum)
-        && (GET_POSITION(ch) >= SINFO.min_position)
-        && GET_MANA(ch) >= mag_manacost(ch, spellnum)
-        && !(SPELL_IS_EVIL(spellnum) && !IS_EVIL(ch))
-        && !(SPELL_IS_GOOD(spellnum) && !IS_GOOD(ch))
+            && (GET_POSITION(ch) >= SINFO.min_position)
+            && GET_MANA(ch) >= mag_manacost(ch, spellnum)
+            && !(SPELL_IS_EVIL(spellnum) && !IS_EVIL(ch))
+            && !(SPELL_IS_GOOD(spellnum) && !IS_GOOD(ch))
 
-        && !(SPELL_FLAGGED(spellnum, MAG_NOSUN) && !room_is_sunny(ch->in_room))
-        && !(SPELL_FLAGGED(spellnum, MAG_NOWATER) && room_is_underwater(room))
-        && !(SPELL_FLAGGED(spellnum, MAG_OUTDOORS)
-            && ROOM_FLAGGED(ch->in_room, ROOM_INDOORS))
-        && !(SPELL_IS_PSIONIC(spellnum) && ROOM_FLAGGED(room, ROOM_NOPSIONICS))
-        && !(SPELL_IS_MAGIC(spellnum) && ROOM_FLAGGED(room, ROOM_NOMAGIC))
-        && !(SPELL_IS_PHYSICS(spellnum) && ROOM_FLAGGED(room, ROOM_NOSCIENCE))
-        && !(SPELL_USES_GRAVITY(spellnum) && NOGRAV_ZONE(room->zone)));
+            && !(SPELL_FLAGGED(spellnum, MAG_NOSUN) && !room_is_sunny(ch->in_room))
+            && !(SPELL_FLAGGED(spellnum, MAG_NOWATER) && room_is_underwater(room))
+            && !(SPELL_FLAGGED(spellnum, MAG_OUTDOORS)
+                 && ROOM_FLAGGED(ch->in_room, ROOM_INDOORS))
+            && !(SPELL_IS_PSIONIC(spellnum) && ROOM_FLAGGED(room, ROOM_NOPSIONICS))
+            && !(SPELL_IS_MAGIC(spellnum) && ROOM_FLAGGED(room, ROOM_NOMAGIC))
+            && !(SPELL_IS_PHYSICS(spellnum) && ROOM_FLAGGED(room, ROOM_NOSCIENCE))
+            && !(SPELL_USES_GRAVITY(spellnum) && NOGRAV_ZONE(room->zone)));
 }
 
 void
 say_spell(struct creature *ch,
-    int spellnum, struct creature *tch, struct obj_data *tobj)
+          int spellnum, struct creature *tch, struct obj_data *tobj)
 {
     const char *to_char = NULL, *to_vict = NULL, *to_room = NULL;
 
@@ -166,8 +166,8 @@ say_spell(struct creature *ch,
     } else {
         char *spellname =
             translate_with_tongue(find_tongue_by_idnum(TONGUE_ARCANUM),
-            spell_to_str(spellnum),
-            0);
+                                  spell_to_str(spellnum),
+                                  0);
 
         if (tobj != NULL && tobj->in_room == ch->in_room) {
             to_char = "You stare at $p and utter the words, '%s'.";
@@ -183,23 +183,29 @@ say_spell(struct creature *ch,
             to_vict = "$n stares at you and utters, '%s'.";
             to_room = "$n stares at $N and utters, '%s'.";
         }
-        if (to_char)
+        if (to_char) {
             to_char = tmp_sprintf(to_char, spellname);
-        if (to_vict)
+        }
+        if (to_vict) {
             to_vict = tmp_sprintf(to_vict, spellname);
-        if (to_room)
+        }
+        if (to_room) {
             to_room = tmp_sprintf(to_room, spellname);
+        }
     }
 
-    if (to_char)
+    if (to_char) {
         act(tmp_sprintf(to_char, spell_to_str(spellnum)), false,
             ch, tobj, tch, TO_CHAR);
-    if (to_vict)
+    }
+    if (to_vict) {
         act(tmp_sprintf(to_vict, spell_to_str(spellnum)), false,
             ch, tobj, tch, TO_VICT);
-    if (to_room)
+    }
+    if (to_room) {
         act(tmp_sprintf(to_room, spell_to_str(spellnum)), false,
             ch, tobj, tch, TO_NOTVICT);
+    }
 }
 
 int
@@ -211,22 +217,25 @@ find_skill_num(char *name)
     char first[256], first2[256];
 
     while (*spell_to_str(++index) != '\n') {
-        if (is_abbrev(name, spell_to_str(index)))
+        if (is_abbrev(name, spell_to_str(index))) {
             return index;
+        }
 
         ok = 1;
         strncpy(spellname, spell_to_str(index), 255);
         temp = any_one_arg(spellname, first);
         temp2 = any_one_arg(name, first2);
         while (*first && *first2 && ok) {
-            if (!is_abbrev(first2, first))
+            if (!is_abbrev(first2, first)) {
                 ok = 0;
+            }
             temp = any_one_arg(temp, first);
             temp2 = any_one_arg(temp2, first2);
         }
 
-        if (ok && !*first2)
+        if (ok && !*first2) {
             return index;
+        }
     }
 
     return -1;
@@ -244,23 +253,24 @@ find_skill_num(char *name)
  */
 int
 call_magic(struct creature *caster, struct creature *cvict,
-    struct obj_data *ovict, int *dvict, int spellnum, int level, int casttype)
+           struct obj_data *ovict, int *dvict, int spellnum, int level, int casttype)
 {
 
     int savetype, mana = -1;
     struct affected_type *af_ptr = NULL;
 
-    if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE)
+    if (spellnum < 1 || spellnum > TOP_SPELL_DEFINE) {
         return 0;
+    }
 
     if (GET_ROOM_PROGOBJ(caster->in_room) != NULL) {
         if (trigger_prog_spell(caster->in_room, PROG_TYPE_ROOM, caster,
-                spellnum)) {
-            return 0;           //handled
+                               spellnum)) {
+            return 0;           // handled
         }
     }
 
-    for (GList * it = first_living(caster->in_room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(caster->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         if (GET_NPC_PROGOBJ(tch) != NULL) {
             if (trigger_prog_spell(tch, PROG_TYPE_MOBILE, caster, spellnum)) {
@@ -301,16 +311,16 @@ call_magic(struct creature *caster, struct creature *cvict,
             !ok_to_attack(caster, cvict, false)) {
             if (SPELL_IS_PSIONIC(spellnum)) {
                 send_to_char(caster,
-                    "The Universal Psyche descends on your mind and "
-                    "renders you powerless!\r\n");
+                             "The Universal Psyche descends on your mind and "
+                             "renders you powerless!\r\n");
                 act("$n concentrates for an instant, and is suddenly thrown "
                     "into mental shock!\r\n", false, caster, NULL, NULL, TO_ROOM);
                 return 0;
             }
             if (SPELL_IS_PHYSICS(spellnum)) {
                 send_to_char(caster,
-                    "The Supernatural Reality prevents you from twisting "
-                    "nature in that way!\r\n");
+                             "The Supernatural Reality prevents you from twisting "
+                             "nature in that way!\r\n");
                 act("$n attempts to violently alter reality, but is restrained " "by the whole of the universe.", false, caster, NULL, NULL, TO_ROOM);
                 return 0;
             }
@@ -322,20 +332,21 @@ call_magic(struct creature *caster, struct creature *cvict,
                 return 0;
             } else {
                 send_to_char(caster,
-                    "A flash of white light fills the room, dispelling your "
-                    "violent magic!\r\n");
+                             "A flash of white light fills the room, dispelling your "
+                             "violent magic!\r\n");
                 act("White light from no particular source suddenly fills the room, " "then vanishes.", false, caster, NULL, NULL, TO_ROOM);
                 return 0;
             }
         }
 
         if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE)) &&
-            !ok_damage_vendor(caster, cvict))
+            !ok_damage_vendor(caster, cvict)) {
             return 0;
+        }
 
         if ((SINFO.violent || IS_SET(SINFO.routines, MAG_DAMAGE))) {
             check_attack(caster, cvict);
-            //Try to make this a little more sane...
+            // Try to make this a little more sane...
             if (creature_distrusts(cvict, caster) &&
                 AFF3_FLAGGED(cvict, AFF3_PSISHIELD) &&
                 (SPELL_IS_PSIONIC(spellnum) || casttype == CAST_PSIONIC)) {
@@ -343,8 +354,9 @@ call_magic(struct creature *caster, struct creature *cvict,
                 int prob, percent;
 
                 if (spellnum == SPELL_PSIONIC_SHATTER &&
-                    !mag_savingthrow(cvict, level, SAVING_PSI))
+                    !mag_savingthrow(cvict, level, SAVING_PSI)) {
                     failed = true;
+                }
 
                 prob = CHECK_SKILL(caster, spellnum) + GET_INT(caster);
                 prob += skill_bonus(caster, spellnum);
@@ -352,14 +364,17 @@ call_magic(struct creature *caster, struct creature *cvict,
                 percent = skill_bonus(cvict, SPELL_PSISHIELD);
                 percent += number(1, 120);
 
-                if (mag_savingthrow(cvict, GET_LEVEL(caster), SAVING_PSI))
+                if (mag_savingthrow(cvict, GET_LEVEL(caster), SAVING_PSI)) {
                     percent *= 2;
+                }
 
-                if (GET_INT(cvict) < GET_INT(caster))
+                if (GET_INT(cvict) < GET_INT(caster)) {
                     percent += (GET_INT(cvict) - GET_INT(caster)) * 8;
+                }
 
-                if (percent >= prob)
+                if (percent >= prob) {
                     failed = true;
+                }
 
                 if (failed) {
                     act("Your psychic attack is deflected by $N's psishield!",
@@ -374,38 +389,42 @@ call_magic(struct creature *caster, struct creature *cvict,
         }
         if (creature_distrusts(cvict, caster)) {
             af_ptr = NULL;
-            if (SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum))
+            if (SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum)) {
                 af_ptr = affected_by_spell(cvict, SPELL_ANTI_MAGIC_SHELL);
-            if (!af_ptr && IS_EVIL(caster) && SPELL_IS_DIVINE(spellnum))
+            }
+            if (!af_ptr && IS_EVIL(caster) && SPELL_IS_DIVINE(spellnum)) {
                 af_ptr = affected_by_spell(cvict, SPELL_DIVINE_INTERVENTION);
-            if (!af_ptr && IS_GOOD(caster) && SPELL_IS_DIVINE(spellnum))
+            }
+            if (!af_ptr && IS_GOOD(caster) && SPELL_IS_DIVINE(spellnum)) {
                 af_ptr = affected_by_spell(cvict, SPELL_SPHERE_OF_DESECRATION);
+            }
 
             if (af_ptr && number(0, af_ptr->level) > number(0, level)) {
                 act(tmp_sprintf("$N's %s absorbs $n's %s!",
-                        spell_to_str(af_ptr->type),
-                        spell_to_str(spellnum)),
+                                spell_to_str(af_ptr->type),
+                                spell_to_str(spellnum)),
                     false, caster, NULL, cvict, TO_NOTVICT);
                 act(tmp_sprintf("Your %s absorbs $n's %s!",
-                        spell_to_str(af_ptr->type),
-                        spell_to_str(spellnum)),
+                                spell_to_str(af_ptr->type),
+                                spell_to_str(spellnum)),
                     false, caster, NULL, cvict, TO_VICT);
                 act(tmp_sprintf("$N's %s absorbs your %s!",
-                        spell_to_str(af_ptr->type),
-                        spell_to_str(spellnum)),
+                                spell_to_str(af_ptr->type),
+                                spell_to_str(spellnum)),
                     false, caster, NULL, cvict, TO_CHAR);
                 GET_MANA(cvict) = MIN(GET_MAX_MANA(cvict),
-                    GET_MANA(cvict) + (level / 2));
+                                      GET_MANA(cvict) + (level / 2));
                 if (casttype == CAST_SPELL) {
                     mana = mag_manacost(caster, spellnum);
-                    if (mana > 0)
+                    if (mana > 0) {
                         GET_MANA(caster) =
                             MAX(0, MIN(GET_MAX_MANA(caster),
-                                GET_MANA(caster) - mana));
+                                       GET_MANA(caster) - mana));
+                    }
                 }
                 if ((af_ptr->duration -= (level / 4)) <= 0) {
                     send_to_char(cvict, "Your %s dissolves.\r\n",
-                        spell_to_str(af_ptr->type));
+                                 spell_to_str(af_ptr->type));
                     affect_remove(cvict, af_ptr);
                 }
                 return 0;
@@ -461,40 +480,50 @@ call_magic(struct creature *caster, struct creature *cvict,
         }
     }
 
-    if (IS_SET(SINFO.routines, MAG_EXITS) && knock_door)
+    if (IS_SET(SINFO.routines, MAG_EXITS) && knock_door) {
         mag_exits(level, caster, caster->in_room, spellnum);
+    }
 
-    if (IS_SET(SINFO.routines, MAG_AFFECTS))
+    if (IS_SET(SINFO.routines, MAG_AFFECTS)) {
         mag_affects(level, caster, cvict, dvict, spellnum, savetype);
+    }
 
-    if (IS_SET(SINFO.routines, MAG_UNAFFECTS))
+    if (IS_SET(SINFO.routines, MAG_UNAFFECTS)) {
         mag_unaffects(level, caster, cvict, spellnum, savetype);
+    }
 
-    if (IS_SET(SINFO.routines, MAG_POINTS))
+    if (IS_SET(SINFO.routines, MAG_POINTS)) {
         mag_points(level, caster, cvict, dvict, spellnum, savetype);
+    }
 
-    if (IS_SET(SINFO.routines, MAG_ALTER_OBJS))
+    if (IS_SET(SINFO.routines, MAG_ALTER_OBJS)) {
         mag_alter_objs(level, caster, ovict, spellnum, savetype);
+    }
 
-    if (IS_SET(SINFO.routines, MAG_GROUPS))
+    if (IS_SET(SINFO.routines, MAG_GROUPS)) {
         mag_groups(level, caster, spellnum, savetype);
+    }
 
-    if (IS_SET(SINFO.routines, MAG_MASSES))
+    if (IS_SET(SINFO.routines, MAG_MASSES)) {
         mag_masses(level, caster, spellnum, savetype);
+    }
 
     if (IS_SET(SINFO.routines, MAG_AREAS)) {
         mag_areas(level, caster, spellnum, savetype);
     }
-    if (IS_SET(SINFO.routines, MAG_SUMMONS))
+    if (IS_SET(SINFO.routines, MAG_SUMMONS)) {
         mag_summons(level, caster, ovict, spellnum, savetype);
+    }
 
-    if (IS_SET(SINFO.routines, MAG_CREATIONS))
+    if (IS_SET(SINFO.routines, MAG_CREATIONS)) {
         mag_creations(level, caster, spellnum);
+    }
 
-    if (IS_SET(SINFO.routines, MAG_OBJECTS) && ovict)
+    if (IS_SET(SINFO.routines, MAG_OBJECTS) && ovict) {
         mag_objects(level, caster, ovict, spellnum);
+    }
 
-    if (IS_SET(SINFO.routines, MAG_MANUAL))
+    if (IS_SET(SINFO.routines, MAG_MANUAL)) {
         switch (spellnum) {
         case SPELL_ASTRAL_SPELL:
             MANUAL_SPELL(spell_astral_spell);
@@ -682,6 +711,7 @@ call_magic(struct creature *caster, struct creature *cvict,
             break;
 
         }
+    }
 
     knock_door = NULL;
     return 1;
@@ -705,7 +735,7 @@ call_magic(struct creature *caster, struct creature *cvict,
 
 int
 mag_objectmagic(struct creature *ch, struct obj_data *obj,
-    char *argument)
+                char *argument)
 {
     int i, k, level;
     struct creature *tch = NULL;
@@ -720,7 +750,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
     char *arg = tmp_getword(&argument);
 
     k = generic_find(arg, FIND_CHAR_ROOM | FIND_OBJ_INV | FIND_OBJ_ROOM |
-        FIND_OBJ_EQUIP, ch, &tch, &tobj);
+                     FIND_OBJ_EQUIP, ch, &tch, &tobj);
 
     switch (GET_OBJ_TYPE(obj)) {
     case ITEM_STAFF:
@@ -729,29 +759,29 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
             act(obj->action_desc, false, ch, obj, NULL, TO_ROOM);
         } else if (room_is_watery(ch->in_room)) {
             act("The water bubbles and swirls as you extend $p.", false, ch, obj, NULL,
-            TO_CHAR);
+                TO_CHAR);
             act("The water bubbles and swirls as $n extends $p.", false, ch, obj, NULL,
-            TO_ROOM);
+                TO_ROOM);
         } else if (room_is_open_air(ch->in_room)) {
             act("You swing $p in three broad arcs through the open air.", false, ch, obj, NULL,
-            TO_CHAR);
+                TO_CHAR);
             act("$n swings $p in three broad arcs through the open air.", false, ch, obj, NULL,
-            TO_ROOM);
+                TO_ROOM);
         } else if (SECT_TYPE(ch->in_room) == SECT_FIRE_RIVER) {
             act("Fire licks $p as you hold it above the surface.", false, ch, obj, NULL,
-            TO_CHAR);
+                TO_CHAR);
             act("Fire licks $p as $n holds it above the surface.", false, ch, obj, NULL,
-            TO_ROOM);
+                TO_ROOM);
         } else if (SECT_TYPE(ch->in_room) == SECT_PITCH_SUB || SECT_TYPE(ch->in_room) == SECT_PITCH_PIT) {
             act("You press $p into the viscous pitch.", false, ch, obj, NULL,
-            TO_CHAR);
+                TO_CHAR);
             act("$n presses $p into the viscous pitch.", false, ch, obj, NULL,
-            TO_ROOM);
+                TO_ROOM);
         } else {
             act("You tap $p three times on the ground.", false, ch, obj, NULL,
-            TO_CHAR);
+                TO_CHAR);
             act("$n taps $p three times on the ground.", false, ch, obj, NULL,
-            TO_ROOM);            
+                TO_ROOM);
         }
 
         if (GET_OBJ_VAL(obj, 2) <= 0) {
@@ -762,7 +792,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
             if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
                 || invalid_char_class(ch, obj)
                 || (GET_INT(ch) + CHECK_SKILL(ch,
-                        SKILL_USE_WANDS)) < number(20, 100)) {
+                                              SKILL_USE_WANDS)) < number(20, 100)) {
                 act("$p flashes and shakes for a moment, but nothing else happens.", false, ch, obj, NULL, TO_CHAR);
                 act("$p flashes and shakes for a moment, but nothing else happens.", false, ch, obj, NULL, TO_ROOM);
                 GET_OBJ_VAL(obj, 2)--;
@@ -776,16 +806,18 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
                 (GET_OBJ_VAL(obj, 0) * CHECK_SKILL(ch, SKILL_USE_WANDS)) / 100;
             level = MIN(level, LVL_AMBASSADOR);
 
-            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+            for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 struct creature *tch = (struct creature *)it->data;
-                if (ch == tch && spell_info[GET_OBJ_VAL(obj, 3)].violent)
+                if (ch == tch && spell_info[GET_OBJ_VAL(obj, 3)].violent) {
                     continue;
-                if (level)
+                }
+                if (level) {
                     call_magic(ch, tch, NULL, NULL, GET_OBJ_VAL(obj, 3),
-                        level, CAST_STAFF);
-                else
+                               level, CAST_STAFF);
+                } else {
                     call_magic(ch, tch, NULL, NULL, GET_OBJ_VAL(obj, 3),
-                        DEFAULT_STAFF_LVL, CAST_STAFF);
+                               DEFAULT_STAFF_LVL, CAST_STAFF);
+                }
             }
         }
         break;
@@ -796,19 +828,20 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
                 act("$n points $p at $mself.", false, ch, obj, NULL, TO_ROOM);
             } else {
                 act("You point $p at $N.", false, ch, obj, tch, TO_CHAR);
-                if (obj->action_desc != NULL)
+                if (obj->action_desc != NULL) {
                     act(obj->action_desc, false, ch, obj, tch, TO_ROOM);
-                else {
+                } else {
                     act("$n points $p at $N.", true, ch, obj, tch, TO_NOTVICT);
                     act("$n points $p at you.", true, ch, obj, tch, TO_VICT);
                 }
             }
         } else if (tobj != NULL) {
             act("You point $p at $P.", false, ch, obj, tobj, TO_CHAR);
-            if (obj->action_desc != NULL)
+            if (obj->action_desc != NULL) {
                 act(obj->action_desc, false, ch, obj, tobj, TO_ROOM);
-            else
+            } else {
                 act("$n points $p at $P.", true, ch, obj, tobj, TO_ROOM);
+            }
         } else {
             act("At what should $p be pointed?", false, ch, obj, NULL,
                 TO_CHAR);
@@ -824,7 +857,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
         if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
             || invalid_char_class(ch, obj)
             || (GET_INT(ch) + CHECK_SKILL(ch, SKILL_USE_WANDS)) < number(20,
-                100)) {
+                                                                         100)) {
             act("$p flashes and shakes for a moment, but nothing else happens.", false, ch, obj, NULL, TO_CHAR);
             act("$p flashes and shakes for a moment, but nothing else happens.", false, ch, obj, NULL, TO_ROOM);
             GET_OBJ_VAL(obj, 2)--;
@@ -838,7 +871,7 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
         GET_OBJ_VAL(obj, 2)--;
         WAIT_STATE(ch, PULSE_VIOLENCE);
         return (call_magic(ch, tch, tobj, NULL, GET_OBJ_VAL(obj, 3),
-                level ? level : DEFAULT_WAND_LVL, CAST_WAND));
+                           level ? level : DEFAULT_WAND_LVL, CAST_WAND));
         break;
     case ITEM_SCROLL:
         if (*arg) {
@@ -847,13 +880,14 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
                     ch, obj, NULL, TO_CHAR);
                 return 1;
             }
-        } else
+        } else {
             tch = ch;
+        }
 
         act("You recite $p which dissolves.", true, ch, obj, NULL, TO_CHAR);
-        if (obj->action_desc)
+        if (obj->action_desc) {
             act(obj->action_desc, false, ch, obj, NULL, TO_ROOM);
-        else if (tch && tch != ch) {
+        } else if (tch && tch != ch) {
             act("$n recites $p in your direction.", false, ch, obj, tch,
                 TO_VICT);
             act("$n recites $p in $N's direction.", false, ch, obj, tch,
@@ -861,13 +895,14 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
         } else if (tobj) {
             act("$n looks at $P and recites $p.", false, ch, obj, tobj,
                 TO_ROOM);
-        } else
+        } else {
             act("$n recites $p.", false, ch, obj, NULL, TO_ROOM);
+        }
 
         if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
             || invalid_char_class(ch, obj)
             || (GET_INT(ch) + CHECK_SKILL(ch, SKILL_READ_SCROLLS)) < number(20,
-                100)) {
+                                                                            100)) {
             act("$p flashes and smokes for a moment, then is gone.", false, ch,
                 obj, NULL, TO_CHAR);
             act("$p flashes and smokes for a moment before dissolving.", false,
@@ -885,16 +920,18 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
         gain_skill_prof(ch, SKILL_READ_SCROLLS);
 
         // Remove object in case it's destroyed by its own spells
-        if (obj->worn_by)
+        if (obj->worn_by) {
             unequip_char(ch, obj->worn_on, EQUIP_WORN);
-        else if (obj->carried_by)
+        } else if (obj->carried_by) {
             obj_from_char(obj);
+        }
 
         for (i = 1; i < 4; i++) {
             call_magic(ch, tch, tobj, NULL, GET_OBJ_VAL(obj, i),
-                level, CAST_SCROLL);
-            if (is_dead(ch) || (tch && is_dead(tch)))
+                       level, CAST_SCROLL);
+            if (is_dead(ch) || (tch && is_dead(tch))) {
                 break;
+            }
         }
         extract_obj(obj);
         break;
@@ -904,11 +941,12 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
             break;
         }
 
-        if (obj->action_desc)
+        if (obj->action_desc) {
             act(obj->action_desc, false, ch, obj, NULL, TO_ROOM);
-        else
+        } else {
             act("$n opens $p and studies it carefully.", true, ch, obj, NULL,
                 TO_ROOM);
+        }
 
         if (ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)
             || invalid_char_class(ch, obj)) {
@@ -924,25 +962,28 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
         WAIT_STATE(ch, 2 RL_SEC);
 
         // Remove object in case it's destroyed by its own spells
-        if (obj->worn_by)
+        if (obj->worn_by) {
             unequip_char(ch, obj->worn_on, EQUIP_WORN);
-        else if (obj->carried_by)
+        } else if (obj->carried_by) {
             obj_from_char(obj);
+        }
         // Save the room too
         was_in = ch->in_room;
 
         for (i = 1; i < 4; i++) {
             call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, i),
-                level, CAST_SCROLL);
-            if (is_dead(ch))
+                       level, CAST_SCROLL);
+            if (is_dead(ch)) {
                 break;
+            }
         }
 
         // Stick it in the room
-        if (ch->in_room)
+        if (ch->in_room) {
             obj_to_room(obj, ch->in_room);
-        else
+        } else {
             obj_to_room(obj, was_in);
+        }
 
         act("$p bursts into flame and disappears!", true, ch, obj, NULL,
             TO_ROOM);
@@ -953,33 +994,37 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
             act("You feel a strange sensation as you eat $p...", false,
                 ch, obj, NULL, TO_CHAR);
             return (call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, 2),
-                    GET_OBJ_VAL(obj, 1), CAST_POTION));
+                               GET_OBJ_VAL(obj, 1), CAST_POTION));
         }
         break;
     case ITEM_POTION:
         tch = ch;
         act("You quaff $p.", false, ch, obj, NULL, TO_CHAR);
-        if (obj->action_desc)
+        if (obj->action_desc) {
             act(obj->action_desc, false, ch, obj, NULL, TO_ROOM);
-        else
+        } else {
             act("$n quaffs $p.", true, ch, obj, NULL, TO_ROOM);
+        }
 
         WAIT_STATE(ch, PULSE_VIOLENCE);
 
         // Remove object in case it's destroyed by its own spells
-        if (obj->worn_by)
+        if (obj->worn_by) {
             unequip_char(ch, obj->worn_on, EQUIP_WORN);
-        else if (obj->carried_by)
+        } else if (obj->carried_by) {
             obj_from_char(obj);
+        }
 
         if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
             for (i = 1; i < 4; i++) {
-                if (!ch->in_room)
+                if (!ch->in_room) {
                     break;
+                }
                 call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, i),
                            GET_OBJ_VAL(obj, 0), CAST_POTION);
-                if (is_dead(ch))
+                if (is_dead(ch)) {
                     break;
+                }
             }
         }
         extract_obj(obj);
@@ -1019,24 +1064,27 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
                 true, ch, obj, tch, TO_VICT);
         }
 
-        if (obj->action_desc != NULL)
+        if (obj->action_desc != NULL) {
             act(obj->action_desc, false, ch, obj, tch, TO_VICT);
+        }
 
         WAIT_STATE(ch, PULSE_VIOLENCE);
 
         // Remove object in case it's destroyed by its own spells
-        if (obj->worn_by)
+        if (obj->worn_by) {
             unequip_char(ch, obj->worn_on, EQUIP_WORN);
-        else if (obj->carried_by)
+        } else if (obj->carried_by) {
             obj_from_char(obj);
+        }
 
         for (i = 1; i < 4; i++) {
             call_magic(ch, tch, NULL, NULL, GET_OBJ_VAL(obj, i),
-                GET_OBJ_VAL(obj, 0),
-                IS_OBJ_STAT(obj, ITEM_MAGIC) ? CAST_SPELL :
-                CAST_INTERNAL);
-            if (is_dead(ch) || is_dead(tch))
+                       GET_OBJ_VAL(obj, 0),
+                       IS_OBJ_STAT(obj, ITEM_MAGIC) ? CAST_SPELL :
+                       CAST_INTERNAL);
+            if (is_dead(ch) || is_dead(tch)) {
                 break;
+            }
         }
         extract_obj(obj);
         break;
@@ -1044,24 +1092,27 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
     case ITEM_PILL:
         tch = ch;
         act("You swallow $p.", false, ch, obj, NULL, TO_CHAR);
-        if (obj->action_desc)
+        if (obj->action_desc) {
             act(obj->action_desc, false, ch, obj, NULL, TO_ROOM);
-        else
+        } else {
             act("$n swallows $p.", true, ch, obj, NULL, TO_ROOM);
+        }
 
         WAIT_STATE(ch, PULSE_VIOLENCE);
 
         // Remove object in case it's destroyed by its own spells
-        if (obj->worn_by)
+        if (obj->worn_by) {
             unequip_char(ch, obj->worn_on, EQUIP_WORN);
-        else if (obj->carried_by)
+        } else if (obj->carried_by) {
             obj_from_char(obj);
+        }
 
         for (i = 1; i < 4; i++) {
             call_magic(ch, ch, NULL, NULL, GET_OBJ_VAL(obj, i),
-                GET_OBJ_VAL(obj, 0), CAST_INTERNAL);
-            if (is_dead(ch))
+                       GET_OBJ_VAL(obj, 0), CAST_INTERNAL);
+            if (is_dead(ch)) {
                 break;
+            }
         }
         extract_obj(obj);
         break;
@@ -1084,11 +1135,11 @@ mag_objectmagic(struct creature *ch, struct obj_data *obj,
 
 int
 cast_spell(struct creature *ch, struct creature *tch,
-    struct obj_data *tobj, int *tdir, int spellnum)
+           struct obj_data *tobj, int *tdir, int spellnum)
 {
 
     void sing_song(struct creature *ch, struct creature *vict,
-        struct obj_data *ovict, int spellnum);
+                   struct obj_data *ovict, int spellnum);
 
     //
     // subtract npc mana first, since this is the entry point for npc spells
@@ -1096,9 +1147,9 @@ cast_spell(struct creature *ch, struct creature *tch,
     //
 
     if (IS_NPC(ch)) {
-        if (GET_MANA(ch) < mag_manacost(ch, spellnum))
+        if (GET_MANA(ch) < mag_manacost(ch, spellnum)) {
             return 0;
-        else {
+        } else {
             GET_MANA(ch) -= mag_manacost(ch, spellnum);
             if (!ch->desc) {
                 WAIT_STATE(ch, (3 RL_SEC));
@@ -1112,14 +1163,17 @@ cast_spell(struct creature *ch, struct creature *tch,
     if (GET_POSITION(ch) < SINFO.min_position) {
         switch (GET_POSITION(ch)) {
         case POS_SLEEPING:
-            if (SPELL_IS_PHYSICS(spellnum))
+            if (SPELL_IS_PHYSICS(spellnum)) {
                 send_to_char(ch, "You dream about great physical powers.\r\n");
-            if (SPELL_IS_PSIONIC(spellnum))
+            }
+            if (SPELL_IS_PSIONIC(spellnum)) {
                 send_to_char(ch, "You dream about great psionic powers.\r\n");
-            if (SPELL_IS_BARD(spellnum))
+            }
+            if (SPELL_IS_BARD(spellnum)) {
                 send_to_char(ch, "You dream about great musical talent.\r\n");
-            else
+            } else {
                 send_to_char(ch, "You dream about great magical powers.\r\n");
+            }
             break;
         case POS_RESTING:
             send_to_char(ch, "You cannot concentrate while resting.\r\n");
@@ -1131,7 +1185,7 @@ cast_spell(struct creature *ch, struct creature *tch,
             send_to_char(ch, "Impossible!  You can't concentrate enough!\r\n");
             if (IS_NPC(ch)) {
                 errlog("%s tried to cast spell %d in battle.",
-                    GET_NAME(ch), spellnum);
+                       GET_NAME(ch), spellnum);
             }
             break;
         default:
@@ -1147,29 +1201,29 @@ cast_spell(struct creature *ch, struct creature *tch,
     if ((tch != ch) && IS_SET(SINFO.targets, TAR_SELF_ONLY) &&
         GET_LEVEL(ch) < LVL_CREATOR) {
         send_to_char(ch, "You can only %s yourself!\r\n",
-            SPELL_IS_PHYSICS(spellnum) ? "alter this reality on" :
-            SPELL_IS_PSIONIC(spellnum) ? "trigger this psi on" :
-            SPELL_IS_MERCENARY(spellnum) ? "apply this device to" :
-            SPELL_IS_BARD(spellnum) ? "evoke this song on" :
-            "cast this spell upon");
+                     SPELL_IS_PHYSICS(spellnum) ? "alter this reality on" :
+                     SPELL_IS_PSIONIC(spellnum) ? "trigger this psi on" :
+                     SPELL_IS_MERCENARY(spellnum) ? "apply this device to" :
+                     SPELL_IS_BARD(spellnum) ? "evoke this song on" :
+                     "cast this spell upon");
         return 0;
     }
     if ((tch == ch) && IS_SET(SINFO.targets, TAR_NOT_SELF)) {
         send_to_char(ch, "You cannot %s yourself!\r\n",
-            SPELL_IS_PHYSICS(spellnum) ? "alter this reality on" :
-            SPELL_IS_PSIONIC(spellnum) ? "trigger this psi on" :
-            SPELL_IS_MERCENARY(spellnum) ? "apply this device to" :
-            SPELL_IS_BARD(spellnum) ? "evoke this song on" :
-            "cast this spell upon");
+                     SPELL_IS_PHYSICS(spellnum) ? "alter this reality on" :
+                     SPELL_IS_PSIONIC(spellnum) ? "trigger this psi on" :
+                     SPELL_IS_MERCENARY(spellnum) ? "apply this device to" :
+                     SPELL_IS_BARD(spellnum) ? "evoke this song on" :
+                     "cast this spell upon");
         return 0;
     }
     if (IS_CONFUSED(ch) &&
         CHECK_SKILL(ch, spellnum) + GET_INT(ch) < number(90, 180)) {
         send_to_char(ch, "You are too confused to %s\r\n",
-            SPELL_IS_PHYSICS(spellnum) ? "alter any reality!" :
-            SPELL_IS_PSIONIC(spellnum) ? "trigger any psi!" :
-            SPELL_IS_MERCENARY(spellnum) ? "construct any devices!" :
-            SPELL_IS_BARD(spellnum) ? "sing any songs!" : "cast any spells!");
+                     SPELL_IS_PHYSICS(spellnum) ? "alter any reality!" :
+                     SPELL_IS_PSIONIC(spellnum) ? "trigger any psi!" :
+                     SPELL_IS_MERCENARY(spellnum) ? "construct any devices!" :
+                     SPELL_IS_BARD(spellnum) ? "sing any songs!" : "cast any spells!");
         WAIT_STATE(ch, 2 RL_SEC);
         return 0;
     }
@@ -1196,23 +1250,25 @@ cast_spell(struct creature *ch, struct creature *tch,
     if (ch != NULL && GET_LEVEL(ch) < LVL_AMBASSADOR
         && AFF3_FLAGGED(ch, AFF3_TAINTED)) {
         int rflags;
-        if (!(rflags = perform_taint_burn(ch, spellnum)))
+        if (!(rflags = perform_taint_burn(ch, spellnum))) {
             return rflags;
+        }
     }
 
-    if (SPELL_IS_BARD(spellnum))
+    if (SPELL_IS_BARD(spellnum)) {
         sing_song(ch, tch, tobj, spellnum);
-    else
+    } else {
         say_spell(ch, spellnum, tch, tobj);
+    }
 
     if (!IS_NPC(ch) && GET_LEVEL(ch) >= LVL_AMBASSADOR &&
         GET_LEVEL(ch) < LVL_GOD && !mini_mud &&
         (!tch || GET_LEVEL(tch) < LVL_AMBASSADOR) && (ch != tch)) {
         slog("ImmCast: %s called %s on %s.", GET_NAME(ch),
-            spell_to_str(spellnum), tch ? GET_NAME(tch) : tobj ?
-            tobj->name : knock_door ?
-            (knock_door->keyword ? fname(knock_door->keyword) :
-                "door") : "NULL");
+             spell_to_str(spellnum), tch ? GET_NAME(tch) : tobj ?
+             tobj->name : knock_door ?
+             (knock_door->keyword ? fname(knock_door->keyword) :
+              "door") : "NULL");
     }
 
     int retval = call_magic(ch, tch, tobj, tdir, spellnum,
@@ -1221,10 +1277,12 @@ cast_spell(struct creature *ch, struct creature *tch,
                              (SPELL_IS_PHYSICS(spellnum) ? CAST_PHYSIC :
                               (SPELL_IS_BARD(spellnum) ? CAST_BARD : CAST_SPELL))));
 
-    if (is_dead(ch))
+    if (is_dead(ch)) {
         return 0;
-    if (tch && is_dead(tch))
+    }
+    if (tch && is_dead(tch)) {
         return 1;
+    }
 
     if (tch
         && ch != tch
@@ -1235,8 +1293,9 @@ cast_spell(struct creature *ch, struct creature *tch,
         && GET_POSITION(tch) > POS_SLEEPING
         && (!AFF_FLAGGED(tch, AFF_CHARM) || ch != tch->master)) {
         hit(tch, ch, TYPE_UNDEFINED);
-        if (is_dead(ch))
+        if (is_dead(ch)) {
             return 0;
+        }
     }
 
     return (retval);
@@ -1254,8 +1313,9 @@ perform_taint_burn(struct creature *ch, int spellnum)
     af = affected_by_spell(ch, SPELL_TAINT);
 
     // Max dam based on level and gen of caster. (level_bonus(taint))
-    if (af != NULL)
+    if (af != NULL) {
         dam = dam * af->level / 100;
+    }
 
     if (damage(ch, ch, NULL, dam, TYPE_TAINT_BURN, WEAR_HEAD)) {
         return 0;
@@ -1265,11 +1325,12 @@ perform_taint_burn(struct creature *ch, int spellnum)
     if (number(1, attribute) < number(mana / 2, mana)) {
         weenie = true;
     }
-    if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
         send_to_char(ch,
-            "%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
-            CCCYN(ch, C_NRM), GET_NAME(ch), attribute,
-            weenie ? "t" : "f", mana, dam, CCNRM(ch, C_NRM));
+                     "%s[TAINT] %s attribute:%d   weenie:%s   mana:%d   damage:%d%s\r\n",
+                     CCCYN(ch, C_NRM), GET_NAME(ch), attribute,
+                     weenie ? "t" : "f", mana, dam, CCNRM(ch, C_NRM));
+    }
 
     if (af != NULL) {
         af->duration -= mana;
@@ -1328,7 +1389,7 @@ find_spell_targets(struct creature *ch, int cmd, char *argument,
     if ((s = strstr(argument, "\'"))) {
         if (!(strstr(s + 1, "\'"))) {
             send_to_char(ch, "The skill name must be completely enclosed "
-                "in the symbols: '\n");
+                             "in the symbols: '\n");
             return false;
         } else {
             s = tmp_getquoted(&argument);
@@ -1341,10 +1402,12 @@ find_spell_targets(struct creature *ch, int cmd, char *argument,
         spellnum = find_skill_num(s);
         while (spellnum == -1 && *s) {
             ptr = s + strlen(s) - 1;
-            while (*ptr != '\0' && *ptr != ' ' && ptr != s)
+            while (*ptr != '\0' && *ptr != ' ' && ptr != s) {
                 ptr--;
-            if (ptr == s)
+            }
+            if (ptr == s) {
                 break;
+            }
 
             targets = tmp_sprintf("%s%s", ptr, targets ? targets : "");
             *ptr = '\0';
@@ -1363,22 +1426,22 @@ find_spell_targets(struct creature *ch, int cmd, char *argument,
 
     if (GET_LEVEL(ch) < SINFO.min_level[(int)GET_CLASS(ch)] &&
         (!IS_REMORT(ch) ||
-            GET_LEVEL(ch) < SINFO.min_level[(int)GET_REMORT_CLASS(ch)]) &&
+         GET_LEVEL(ch) < SINFO.min_level[(int)GET_REMORT_CLASS(ch)]) &&
         CHECK_SKILL(ch, spellnum) < 30) {
         send_to_char(ch, "You do not know that %s!\r\n",
-            SPELL_IS_PSIONIC(spellnum) ? "trigger" :
-            SPELL_IS_PHYSICS(spellnum) ? "alteration" :
-            SPELL_IS_MERCENARY(spellnum) ? "device" :
-            SPELL_IS_BARD(spellnum) ? "song" : "spell");
+                     SPELL_IS_PSIONIC(spellnum) ? "trigger" :
+                     SPELL_IS_PHYSICS(spellnum) ? "alteration" :
+                     SPELL_IS_MERCENARY(spellnum) ? "device" :
+                     SPELL_IS_BARD(spellnum) ? "song" : "spell");
         return false;
     }
 
     if (CHECK_SKILL(ch, spellnum) == 0) {
         send_to_char(ch, "You are unfamiliar with that %s.\r\n",
-            SPELL_IS_PSIONIC(spellnum) ? "trigger" :
-            SPELL_IS_PHYSICS(spellnum) ? "alteration" :
-            SPELL_IS_MERCENARY(spellnum) ? "device" :
-            SPELL_IS_BARD(spellnum) ? "song" : "spell");
+                     SPELL_IS_PSIONIC(spellnum) ? "trigger" :
+                     SPELL_IS_PHYSICS(spellnum) ? "alteration" :
+                     SPELL_IS_MERCENARY(spellnum) ? "device" :
+                     SPELL_IS_BARD(spellnum) ? "song" : "spell");
         return false;
     }
     /* Find the target */
@@ -1392,42 +1455,53 @@ find_spell_targets(struct creature *ch, int cmd, char *argument,
     } else if (*target_word) {
         if (!*target && (IS_SET(SINFO.targets, TAR_DIR))) {
             *tdir = search_block(target_word, dirs, false);
-            if (*tdir >= 0)
+            if (*tdir >= 0) {
                 *target = true;
+            }
 
         } else if (!*target && (IS_SET(SINFO.targets, TAR_CHAR_ROOM))) {
-            if ((*tch = get_char_room_vis(ch, target_word)) != NULL)
+            if ((*tch = get_char_room_vis(ch, target_word)) != NULL) {
                 *target = true;
+            }
         }
-        if (!*target && IS_SET(SINFO.targets, TAR_CHAR_WORLD))
-            if ((*tch = get_char_vis(ch, target_word)))
+        if (!*target && IS_SET(SINFO.targets, TAR_CHAR_WORLD)) {
+            if ((*tch = get_char_vis(ch, target_word))) {
                 *target = true;
+            }
+        }
 
-        if (!*target && IS_SET(SINFO.targets, TAR_OBJ_INV))
-            if ((*tobj = get_obj_in_list_vis(ch, target_word, ch->carrying)))
+        if (!*target && IS_SET(SINFO.targets, TAR_OBJ_INV)) {
+            if ((*tobj = get_obj_in_list_vis(ch, target_word, ch->carrying))) {
                 *target = true;
+            }
+        }
 
         if (!*target && IS_SET(SINFO.targets, TAR_OBJ_EQUIP)) {
-            for (i = 0; !*target && i < NUM_WEARS; i++)
+            for (i = 0; !*target && i < NUM_WEARS; i++) {
                 if (GET_EQ(ch, i)
                     && !strcasecmp(target_word, GET_EQ(ch, i)->aliases)) {
                     *tobj = GET_EQ(ch, i);
                     *target = true;
                 }
+            }
         }
-        if (!*target && IS_SET(SINFO.targets, TAR_OBJ_ROOM))
+        if (!*target && IS_SET(SINFO.targets, TAR_OBJ_ROOM)) {
             if ((*tobj =
-                    get_obj_in_list_vis(ch, target_word, ch->in_room->contents)))
+                     get_obj_in_list_vis(ch, target_word, ch->in_room->contents))) {
                 *target = true;
+            }
+        }
 
-        if (!*target && IS_SET(SINFO.targets, TAR_OBJ_WORLD))
-            if ((*tobj = get_obj_vis(ch, target_word)))
+        if (!*target && IS_SET(SINFO.targets, TAR_OBJ_WORLD)) {
+            if ((*tobj = get_obj_vis(ch, target_word))) {
                 *target = true;
+            }
+        }
 
         if (!*target && IS_SET(SINFO.targets, TAR_DOOR)) {
             char *t3 = tmp_getword(&targets);
             if ((i = find_door(ch, target_word, t3,
-                        spellnum == SPELL_KNOCK ? "knock" : "cast")) >= 0) {
+                               spellnum == SPELL_KNOCK ? "knock" : "cast")) >= 0) {
                 knock_door = ch->in_room->dir_option[i];
                 *target = true;
             } else {
@@ -1436,16 +1510,18 @@ find_spell_targets(struct creature *ch, int cmd, char *argument,
         }
 
     } else {                    /* if target string is empty */
-        if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_SELF))
+        if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_SELF)) {
             if (is_fighting(ch)) {
                 *tch = ch;
                 *target = true;
             }
-        if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_VICT))
+        }
+        if (!*target && IS_SET(SINFO.targets, TAR_FIGHT_VICT)) {
             if (is_fighting(ch)) {
                 *tch = random_opponent(ch);
                 *target = true;
             }
+        }
         /* if no target specified,
            and the spell isn't violent, i
            default to self */
@@ -1457,9 +1533,9 @@ find_spell_targets(struct creature *ch, int cmd, char *argument,
 
         if (!*target) {
             send_to_char(ch, "Upon %s should the spell be cast?\r\n",
-                IS_SET(SINFO.targets,
-                    TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD) ? "what" :
-                "whom");
+                         IS_SET(SINFO.targets,
+                                TAR_OBJ_ROOM | TAR_OBJ_INV | TAR_OBJ_WORLD) ? "what" :
+                         "whom");
             return false;
         }
     }
@@ -1475,8 +1551,9 @@ ACMD(do_cast)
     int mana, spellnum, i, prob = 0, metal_wt = 0, num_eq =
         0, temp = 0;
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return;
+    }
 
     skip_spaces(&argument);
     if (!*argument) {
@@ -1493,22 +1570,23 @@ ACMD(do_cast)
     if (GET_LEVEL(ch) < LVL_AMBASSADOR &&
         IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.90)) {
         send_to_char(ch,
-            "Your equipment is too heavy and bulky to cast anything useful!\r\n");
+                     "Your equipment is too heavy and bulky to cast anything useful!\r\n");
         return;
     }
     if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_WIELD) &&
         IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED)) {
         send_to_char(ch,
-            "You can't cast spells while wielding a two handed weapon!\r\n");
+                     "You can't cast spells while wielding a two handed weapon!\r\n");
         return;
     }
 
-    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir)))
+    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir))) {
         return;
+    }
 
     if ((ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) &&
         GET_LEVEL(ch) < LVL_TIMEGOD && (SPELL_IS_MAGIC(spellnum) ||
-            SPELL_IS_DIVINE(spellnum))) {
+                                        SPELL_IS_DIVINE(spellnum))) {
         send_to_char(ch, "Your magic fizzles out and dies.\r\n");
         act("$n's magic fizzles out and dies.", false, ch, NULL, NULL, TO_ROOM);
         return;
@@ -1517,7 +1595,7 @@ ACMD(do_cast)
     if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
         if (temp < 34) {
             send_to_char(ch,
-                "Your mind is too clouded to cast any spells!\r\n");
+                         "Your mind is too clouded to cast any spells!\r\n");
             return;
         } else {
             send_to_char(ch, "You feel your concentration slipping!\r\n");
@@ -1525,7 +1603,7 @@ ACMD(do_cast)
             spellnum = number(1, MAX_SPELLS);
             if (!SPELL_IS_MAGIC(spellnum) && !SPELL_IS_DIVINE(spellnum)) {
                 send_to_char(ch,
-                    "Your concentration slips away entirely.\r\n");
+                             "Your concentration slips away entirely.\r\n");
                 return;
             }
         }
@@ -1561,10 +1639,11 @@ ACMD(do_cast)
         bool need_symbol = true;
         int gen = GET_REMORT_GEN(ch);
         if (IS_EVIL(ch) && IS_SOULLESS(ch)) {
-            if (GET_CLASS(ch) == CLASS_CLERIC && gen >= 4)
+            if (GET_CLASS(ch) == CLASS_CLERIC && gen >= 4) {
                 need_symbol = false;
-            else if (GET_CLASS(ch) == CLASS_KNIGHT && gen >= 6)
+            } else if (GET_CLASS(ch) == CLASS_KNIGHT && gen >= 6) {
                 need_symbol = false;
+            }
         }
         if (need_symbol) {
             for (i = 0; i < NUM_WEARS; i++) {
@@ -1577,24 +1656,24 @@ ACMD(do_cast)
             }
             if (!holy_symbol) {
                 send_to_char(ch,
-                    "You do not even wear the symbol of your faith!\r\n");
+                             "You do not even wear the symbol of your faith!\r\n");
                 return;
             }
             if ((IS_GOOD(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 2)) ||
                 (IS_EVIL(ch) && (GET_OBJ_VAL(holy_symbol, 0) == 0))) {
                 send_to_char(ch,
-                    "You are not aligned with your holy symbol!\r\n");
+                             "You are not aligned with your holy symbol!\r\n");
                 return;
             }
             if (GET_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1) &&
                 GET_REMORT_CLASS(ch) != GET_OBJ_VAL(holy_symbol, 1)) {
                 send_to_char(ch,
-                    "The holy symbol you wear is not of your faith!\r\n");
+                             "The holy symbol you wear is not of your faith!\r\n");
                 return;
             }
             if (GET_LEVEL(ch) < GET_OBJ_VAL(holy_symbol, 2)) {
                 send_to_char(ch,
-                    "You are not powerful enough to utilize your holy symbol!\r\n");
+                             "You are not powerful enough to utilize your holy symbol!\r\n");
                 return;
             }
             if (GET_LEVEL(ch) > GET_OBJ_VAL(holy_symbol, 3)) {
@@ -1608,21 +1687,26 @@ ACMD(do_cast)
     /***** casting probability calculation *****/
     if ((IS_CLERIC(ch) || IS_KNIGHT(ch)) && SPELL_IS_DIVINE(spellnum)) {
         prob -= (GET_WIS(ch) + (abs(GET_ALIGNMENT(ch) / 70)));
-        if (IS_NEUTRAL(ch))
+        if (IS_NEUTRAL(ch)) {
             prob += 30;
+        }
     }
     if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch))
-        && SPELL_IS_MAGIC(spellnum))
+        && SPELL_IS_MAGIC(spellnum)) {
         prob -= (GET_INT(ch) + GET_DEX(ch));
+    }
 
-    if (IS_SICK(ch))
+    if (IS_SICK(ch)) {
         prob += 20;
+    }
 
-    if (IS_CONFUSED(ch))
+    if (IS_CONFUSED(ch)) {
         prob += number(35, 55) - GET_INT(ch);
+    }
 
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD)) {
         prob += GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD));
+    }
 
     prob += ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 8) / CAN_CARRY_W(ch);
 
@@ -1634,16 +1718,18 @@ ACMD(do_cast)
                 metal_wt += GET_OBJ_WEIGHT(ch->equipment[i]);
                 if (!metal || !number(0, 8) ||
                     (GET_OBJ_WEIGHT(ch->equipment[i]) > GET_OBJ_WEIGHT(metal)
-                        && !number(0, 1)))
+                     && !number(0, 1))) {
                     metal = ch->equipment[i];
+                }
             }
             if (ch->implants[i]) {
                 if (IS_METAL_TYPE(ch->equipment[i])) {
                     metal_wt += GET_OBJ_WEIGHT(ch->equipment[i]);
                     if (!metal || !number(0, 8) ||
                         (GET_OBJ_WEIGHT(ch->implants[i]) >
-                            GET_OBJ_WEIGHT(metal) && !number(0, 1)))
+                         GET_OBJ_WEIGHT(metal) && !number(0, 1))) {
                         metal = ch->implants[i];
+                    }
                 }
             }
         }
@@ -1651,13 +1737,15 @@ ACMD(do_cast)
 
     if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch))
         && SPELL_IS_MAGIC(spellnum)
-        && GET_LEVEL(ch) < LVL_ETERNAL)
+        && GET_LEVEL(ch) < LVL_ETERNAL) {
         prob += metal_wt;
+    }
 
     prob -= (NUM_WEARS - num_eq);
 
-    if (tch && GET_POSITION(ch) == POS_FIGHTING)
+    if (tch && GET_POSITION(ch) == POS_FIGHTING) {
         prob += (GET_LEVEL(tch) / 8);
+    }
 
     /**** casting probability ends here *****/
 
@@ -1676,7 +1764,7 @@ ACMD(do_cast)
                 (prob + number(0, 111)) > CHECK_SKILL(ch, spellnum)) {
                 /* misdirect */
 
-                for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+                for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
                     struct creature *new_vict = (struct creature *)it->data;
 
                     if (new_vict != ch
@@ -1686,17 +1774,19 @@ ACMD(do_cast)
 
                         if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch))
                             && metal && SPELL_IS_MAGIC(spellnum)
-                            && metal_wt > number(5, 80))
+                            && metal_wt > number(5, 80)) {
                             act("$p has misdirected your spell toward $N!!",
                                 false, ch, metal, tch, TO_CHAR);
-                        else
+                        } else {
                             act("Your spell has been misdirected toward $N!!",
                                 false, ch, NULL, tch, TO_CHAR);
+                        }
                         cast_spell(ch, tch, tobj, &tdir, spellnum);
-                        if (mana > 0)
+                        if (mana > 0) {
                             GET_MANA(ch) =
                                 MAX(0, MIN(GET_MAX_MANA(ch),
-                                    GET_MANA(ch) - (mana / 2)));
+                                           GET_MANA(ch) - (mana / 2)));
+                        }
                         WAIT_STATE(ch, 2 RL_SEC);
                         return;
                     }
@@ -1709,54 +1799,61 @@ ACMD(do_cast)
                 /* backfire */
 
                 if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && metal
-                    && SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 80))
+                    && SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 80)) {
                     act("$p has caused your spell to backfire!!", false, ch,
                         metal, NULL, TO_CHAR);
-                else
+                } else {
                     send_to_char(ch, "Your spell has backfired!!\r\n");
+                }
                 cast_spell(ch, ch, tobj, &tdir, spellnum);
-                if (mana > 0)
+                if (mana > 0) {
                     GET_MANA(ch) = MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) -
-                            (mana / 2)));
+                                              (mana / 2)));
+                }
                 WAIT_STATE(ch, 2 RL_SEC);
                 return;
             }
 
             /* plain dud */
             if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) && metal &&
-                SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 100))
+                SPELL_IS_MAGIC(spellnum) && metal_wt > number(5, 100)) {
                 act("$p has interfered with your spell!",
                     false, ch, metal, NULL, TO_CHAR);
-            else
+            } else {
                 send_to_char(ch, "You lost your concentration!\r\n");
+            }
             if (!skill_message(0, ch, tch, NULL, spellnum)) {
                 send_to_char(ch, "%s", NOEFFECT);
             }
 
             if (((IS_SET(SINFO.routines, MAG_DAMAGE) || SINFO.violent)) &&
                 IS_NPC(tch) && !PRF_FLAGGED(ch, PRF_NOHASSLE) &&
-                can_see_creature(tch, ch))
+                can_see_creature(tch, ch)) {
                 hit(tch, ch, TYPE_UNDEFINED);
+            }
 
         } else if ((IS_MAGE(ch) || IS_RANGER(ch) || IS_VAMPIRE(ch)) &&
-            SPELL_IS_MAGIC(spellnum) && metal && metal_wt > number(5, 90))
+                   SPELL_IS_MAGIC(spellnum) && metal && metal_wt > number(5, 90)) {
             act("$p has interfered with your spell!",
                 false, ch, metal, NULL, TO_CHAR);
-        else
+        } else {
             send_to_char(ch, "You lost your concentration!\r\n");
+        }
 
-        if (mana > 0)
+        if (mana > 0) {
             GET_MANA(ch) =
                 MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
+        }
         /* cast spell returns 1 on success; subtract mana & set waitstate */
-        //HERE
+        // HERE
     } else {
         if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
             WAIT_STATE(ch, ((3 RL_SEC) - (GET_CLASS(ch) == CLASS_MAGIC_USER ?
-                        GET_REMORT_GEN(ch) : 0)));
-            if (mana > 0)
+                                          GET_REMORT_GEN(ch) : 0)));
+            if (mana > 0) {
                 GET_MANA(ch) =
                     MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
+            }
             gain_skill_prof(ch, spellnum);
 
         }
@@ -1771,8 +1868,9 @@ ACMD(do_trigger)
     bool target = false;
     int mana, spellnum, prob = 0, temp = 0;
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return;
+    }
 
     if (!*argument) {
         send_to_char(ch, "You were going to trigger a psionic potential?\r\n");
@@ -1785,12 +1883,13 @@ ACMD(do_trigger)
     }
     if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
         send_to_char(ch,
-            "Your equipment is too heavy and bulky for you to concentrate!\r\n");
+                     "Your equipment is too heavy and bulky for you to concentrate!\r\n");
         return;
     }
 
-    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir)))
+    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir))) {
         return;
+    }
 
     if ((ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)) &&
         GET_LEVEL(ch) < LVL_TIMEGOD && SPELL_IS_PSIONIC(spellnum)) {
@@ -1803,7 +1902,7 @@ ACMD(do_trigger)
     if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
         if (temp < 34) {
             send_to_char(ch,
-                "Your mind is too clouded to make any triggers!\r\n");
+                         "Your mind is too clouded to make any triggers!\r\n");
             return;
         } else {
             send_to_char(ch, "You feel your concentration slipping!\r\n");
@@ -1811,7 +1910,7 @@ ACMD(do_trigger)
             spellnum = number(1, MAX_SPELLS);
             if (!SPELL_IS_PSIONIC(spellnum)) {
                 send_to_char(ch,
-                    "Your concentration slips away entirely.\r\n");
+                             "Your concentration slips away entirely.\r\n");
                 return;
             }
         }
@@ -1833,7 +1932,7 @@ ACMD(do_trigger)
     }
 
     if (tch && (IS_UNDEAD(tch) || IS_SLIME(tch) || IS_PUDDING(tch) ||
-            IS_ROBOT(tch) || IS_PLANT(tch))) {
+                IS_ROBOT(tch) || IS_PLANT(tch))) {
         act("You cannot make a mindlink with $N!", false, ch, NULL, tch, TO_CHAR);
         return;
     }
@@ -1845,38 +1944,46 @@ ACMD(do_trigger)
     }
     /***** trigger probability calculation *****/
     prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) * 2) +
-        (GET_REMORT_GEN(ch) * 4);
-    if (IS_SICK(ch))
+           (GET_REMORT_GEN(ch) * 4);
+    if (IS_SICK(ch)) {
         prob -= 20;
-    if (IS_CONFUSED(ch))
+    }
+    if (IS_CONFUSED(ch)) {
         prob -= number(35, 55) + GET_INT(ch);
+    }
 
-    if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD)) {
         prob -= GET_OBJ_WEIGHT(GET_EQ(ch, WEAR_SHIELD));
+    }
 
     prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 8) / CAN_CARRY_W(ch);
 
-    if (tch && GET_POSITION(ch) == POS_FIGHTING)
+    if (tch && GET_POSITION(ch) == POS_FIGHTING) {
         prob -= (GET_LEVEL(tch) / 8);
+    }
 
     /**** casting probability ends here *****/
 
     /* You throws the dice and you takes your chances.. 101% is total failure */
     if (number(0, 111) > prob) {
         WAIT_STATE(ch, PULSE_VIOLENCE);
-        if (!tch || !skill_message(0, ch, tch, NULL, spellnum))
+        if (!tch || !skill_message(0, ch, tch, NULL, spellnum)) {
             send_to_char(ch, "Your concentration was disturbed!\r\n");
-        if (mana > 0)
+        }
+        if (mana > 0) {
             GET_MANA(ch) =
                 MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
-        if (SINFO.violent && tch && IS_NPC(tch))
+        }
+        if (SINFO.violent && tch && IS_NPC(tch)) {
             hit(tch, ch, TYPE_UNDEFINED);
+        }
     } else {
         if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
             WAIT_STATE(ch, PULSE_VIOLENCE);
-            if (mana > 0)
+            if (mana > 0) {
                 GET_MANA(ch) =
                     MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
+            }
             gain_skill_prof(ch, spellnum);
         }
     }
@@ -1885,37 +1992,37 @@ ACMD(do_trigger)
 ACMD(do_arm)
 {
 /*	struct creature *tch = NULL;
-	struct obj_data *tobj = NULL, *resource = NULL;
-	int rpints, spellnum, target = 0, prob = 0;
+    struct obj_data *tobj = NULL, *resource = NULL;
+    int rpints, spellnum, target = 0, prob = 0;
 
-	if (IS_NPC(ch))
-		return;
+    if (IS_NPC(ch))
+        return;
 
-	if (!IS_MERC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
-		send_to_char(ch, "You are not able arm devices!\r\n");
-		return;
-	}
+    if (!IS_MERC(ch) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+        send_to_char(ch, "You are not able arm devices!\r\n");
+        return;
+    }
 
-	if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
-		send_to_char(ch,
-			"Your equipment is too heavy and bulky to arm anything!\r\n");
-		return;
-	}
+    if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
+        send_to_char(ch,
+            "Your equipment is too heavy and bulky to arm anything!\r\n");
+        return;
+    }
 
     if (!(find_spell_targets(ch, cmd, argument, &spellnum, &targets, &tch, &tobj, &tdir)))
         return;
 
-	if (!SPELL_IS_MERCENARY(spellnum)) {
-		act("You don't seem to have that.", false, ch, 0, 0, TO_CHAR);
-		return;
-	}
+    if (!SPELL_IS_MERCENARY(spellnum)) {
+        act("You don't seem to have that.", false, ch, 0, 0, TO_CHAR);
+        return;
+    }
 
-	if (!target) {
-		send_to_char(ch, "I cannot find your target!\r\n");
-		return;
-	}
+    if (!target) {
+        send_to_char(ch, "I cannot find your target!\r\n");
+        return;
+    }
 
-	rpoints = mag_manacost(ch, spellnum);
+    rpoints = mag_manacost(ch, spellnum);
     resource = find_item_kit(ch);
 
     if (!resource && GET_LEVEL(ch) < LVL_AMBASSADOR) {
@@ -1923,56 +2030,56 @@ ACMD(do_arm)
         return;
     }
 
-	if ((rpoints > 0) && (GET_RPOINTS(resource) < rpoints)
-		&& (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
-		send_to_char(ch, "You haven't the resources!\r\n");
-		return;
-	}
+    if ((rpoints > 0) && (GET_RPOINTS(resource) < rpoints)
+        && (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
+        send_to_char(ch, "You haven't the resources!\r\n");
+        return;
+    }
 
-	if (room_is_underwater(ch->in_room)
+    if (room_is_underwater(ch->in_room)
         && SPELL_FLAGGED(spellnum, MAG_NOWATER)) {
-		send_to_char(ch, "This device will not function underwater.\r\n");
-		return 0;
-	}
+        send_to_char(ch, "This device will not function underwater.\r\n");
+        return 0;
+    }
 
-	prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) * 2) +
-		(GET_REMORT_GEN(ch) * 4);
+    prob = CHECK_SKILL(ch, spellnum) + (GET_INT(ch) * 2) +
+        (GET_REMORT_GEN(ch) * 4);
 
-	if (IS_SICK(ch))
-		prob -= 20;
+    if (IS_SICK(ch))
+        prob -= 20;
 
-	if (IS_CONFUSED(ch))
-		prob -= number(35, 55) + GET_INT(ch);
+    if (IS_CONFUSED(ch))
+        prob -= number(35, 55) + GET_INT(ch);
 
-	if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
-		prob -= GET_EQ(ch, GET_OBJ_WEIGHT(WEAR_SHIELD));
+    if (GET_LEVEL(ch) < LVL_AMBASSADOR && GET_EQ(ch, WEAR_SHIELD))
+        prob -= GET_EQ(ch, GET_OBJ_WEIGHT(WEAR_SHIELD));
 
-	prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 8) / CAN_CARRY_W(ch);
+    prob -= ((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 8) / CAN_CARRY_W(ch);
 
-	if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
-		prob -= (GET_LEVEL(FIGHTING(ch)) / 8);
+    if (FIGHTING(ch) && (FIGHTING(ch))->getPosition() == POS_FIGHTING)
+        prob -= (GET_LEVEL(FIGHTING(ch)) / 8);
 
-	if (number(0, 111) > prob) {
-		WAIT_STATE(ch, PULSE_VIOLENCE);
-		if (!tch || !skill_message(0, ch, tch, spellnum)) {
+    if (number(0, 111) > prob) {
+        WAIT_STATE(ch, PULSE_VIOLENCE);
+        if (!tch || !skill_message(0, ch, tch, spellnum)) {
             act("You fumble around in $p and come up with nothing!", false,
                 ch, resource, NULL, TO_CHAR);
             return;
         }
 
-		if (rpoints > 0)
-			GET_RPOINTS(obj) = MAX(0, GET_RPOINTS(obj) - (rpoints / 2));
+        if (rpoints > 0)
+            GET_RPOINTS(obj) = MAX(0, GET_RPOINTS(obj) - (rpoints / 2));
 
-		if (SINFO.violent && tch && IS_NPC(tch))
-			hit(tch, ch, TYPE_UNDEFINED);
-	} else {
-		if (cast_spell(ch, tch, tobj, spellnum)) {
-			WAIT_STATE(ch, PULSE_VIOLENCE);
-			if (rpoints > 0)
-				GET_RPOINTS(obj) = MAX(0, GET_RPOINTS(obj) - mana);
-			gain_skill_prof(ch, spellnum);
-		}
-	}*/
+        if (SINFO.violent && tch && IS_NPC(tch))
+            hit(tch, ch, TYPE_UNDEFINED);
+    } else {
+        if (cast_spell(ch, tch, tobj, spellnum)) {
+            WAIT_STATE(ch, PULSE_VIOLENCE);
+            if (rpoints > 0)
+                GET_RPOINTS(obj) = MAX(0, GET_RPOINTS(obj) - mana);
+            gain_skill_prof(ch, spellnum);
+        }
+    }*/
 }
 
 struct obj_data *
@@ -2010,8 +2117,9 @@ ACMD(do_alter)
     int tdir;
     int mana, spellnum, temp = 0;
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return;
+    }
 
     if (!*argument) {
         send_to_char(ch, "You were going to alter a physical law?\r\n");
@@ -2022,28 +2130,29 @@ ACMD(do_alter)
         GET_REMORT_CLASS(ch) != CLASS_PHYSIC
         && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char(ch,
-            "You are not able to alter the fabric of reality.\r\n");
+                     "You are not able to alter the fabric of reality.\r\n");
         return;
     }
     if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
         send_to_char(ch,
-            "Your equipment is too heavy and bulky to alter reality!\r\n");
+                     "Your equipment is too heavy and bulky to alter reality!\r\n");
         return;
     }
     if (GET_EQ(ch, WEAR_WIELD) &&
         IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_TWO_HANDED)) {
         send_to_char(ch,
-            "You can't alter while wielding a two handed weapon!\r\n");
+                     "You can't alter while wielding a two handed weapon!\r\n");
         return;
     }
 
-    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir)))
+    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir))) {
         return;
+    }
 
     if ((ROOM_FLAGGED(ch->in_room, ROOM_NOSCIENCE)) &&
         SPELL_IS_PHYSICS(spellnum)) {
         send_to_char(ch,
-            "You are unable to alter physical reality in this space.\r\n");
+                     "You are unable to alter physical reality in this space.\r\n");
         act("$n tries to solve an elaborate equation, but fails.", false,
             ch, NULL, NULL, TO_ROOM);
         return;
@@ -2060,7 +2169,7 @@ ACMD(do_alter)
     if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
         if (temp < 34) {
             send_to_char(ch,
-                "Your mind is too clouded to alter the fabric of reality!\r\n");
+                         "Your mind is too clouded to alter the fabric of reality!\r\n");
             return;
         } else {
             send_to_char(ch, "You feel your concentration slipping!\r\n");
@@ -2068,7 +2177,7 @@ ACMD(do_alter)
             spellnum = number(1, MAX_SPELLS);
             if (!SPELL_IS_PHYSICS(spellnum)) {
                 send_to_char(ch,
-                    "Your concentration slips away entirely.\r\n");
+                             "Your concentration slips away entirely.\r\n");
                 return;
             }
         }
@@ -2087,7 +2196,7 @@ ACMD(do_alter)
     if ((mana > 0) && (GET_MANA(ch) < mana)
         && (GET_LEVEL(ch) < LVL_AMBASSADOR)) {
         send_to_char(ch,
-            "You haven't the energy to make that alteration!\r\n");
+                     "You haven't the energy to make that alteration!\r\n");
         return;
     }
 
@@ -2105,19 +2214,23 @@ ACMD(do_alter)
     if (number(0, 101) > GET_SKILL(ch, spellnum)) {
         WAIT_STATE(ch, PULSE_VIOLENCE);
         if (!tch || spellnum == SPELL_ELECTROSTATIC_FIELD
-            || !skill_message(0, ch, tch, NULL, spellnum))
+            || !skill_message(0, ch, tch, NULL, spellnum)) {
             send_to_char(ch, "Your concentration was disturbed!\r\n");
-        if (mana > 0)
+        }
+        if (mana > 0) {
             GET_MANA(ch) =
                 MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
-        if (SINFO.violent && tch && IS_NPC(tch))
+        }
+        if (SINFO.violent && tch && IS_NPC(tch)) {
             hit(tch, ch, TYPE_UNDEFINED);
+        }
     } else {
         if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
             WAIT_STATE(ch, PULSE_VIOLENCE);
-            if (mana > 0)
+            if (mana > 0) {
                 GET_MANA(ch) =
                     MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
+            }
             gain_skill_prof(ch, spellnum);
         }
     }
@@ -2134,8 +2247,9 @@ ACMD(do_perform)
     extern bool check_instrument(struct creature *ch, int songnum);
     extern char *get_instrument_type(int songnum);
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return;
+    }
 
     if (!*argument) {
         send_to_char(ch, "You were going to perform something?\r\n");
@@ -2149,12 +2263,13 @@ ACMD(do_perform)
     }
     if (IS_WEARING_W(ch) > (CAN_CARRY_W(ch) * 0.80)) {
         send_to_char(ch,
-            "Your heavy equipment prevents you from breathing properly!\r\n");
+                     "Your heavy equipment prevents you from breathing properly!\r\n");
         return;
     }
 
-    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir)))
+    if (!(find_spell_targets(ch, cmd, argument, &spellnum, &target, &tch, &tobj, &tdir))) {
         return;
+    }
 
     // Drunk bastards don't sing very well, do they... -- Nothing 8/28/2004
     if ((GET_COND(ch, DRUNK) > 5) && (temp = number(1, 35)) > GET_INT(ch)) {
@@ -2163,12 +2278,12 @@ ACMD(do_perform)
             return;
         } else {
             send_to_char(ch,
-                "You begin to play but you can't hold the tune!\r\n");
+                         "You begin to play but you can't hold the tune!\r\n");
             WAIT_STATE(ch, 2 RL_SEC);
             spellnum = number(1, MAX_SPELLS);
             if (!SPELL_IS_BARD(spellnum)) {
                 send_to_char(ch,
-                    "Your concentration slips away entirely.\r\n");
+                             "Your concentration slips away entirely.\r\n");
                 return;
             }
         }
@@ -2186,7 +2301,7 @@ ACMD(do_perform)
     if ((GET_LEVEL(ch) < LVL_AMBASSADOR) &&
         !check_instrument(ch, spellnum)) {
         send_to_char(ch, "But you're not using a %s instrument!\r\n",
-            get_instrument_type(spellnum));
+                     get_instrument_type(spellnum));
         return;
     }
     if (!target) {
@@ -2208,19 +2323,23 @@ ACMD(do_perform)
     /* You throws the dice and you takes your chances.. 101% is total failure */
     if (number(0, 101) > GET_SKILL(ch, spellnum)) {
         WAIT_STATE(ch, PULSE_VIOLENCE);
-        if (!tch || !skill_message(0, ch, tch, NULL, spellnum))
+        if (!tch || !skill_message(0, ch, tch, NULL, spellnum)) {
             send_to_char(ch, "Your song was disturbed!\r\n");
-        if (mana > 0)
+        }
+        if (mana > 0) {
             GET_MANA(ch) =
                 MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - (mana / 2)));
-        if (SINFO.violent && tch && IS_NPC(tch))
+        }
+        if (SINFO.violent && tch && IS_NPC(tch)) {
             hit(tch, ch, TYPE_UNDEFINED);
+        }
     } else {
         if (cast_spell(ch, tch, tobj, &tdir, spellnum)) {
             WAIT_STATE(ch, PULSE_VIOLENCE);
-            if (mana > 0)
+            if (mana > 0) {
                 GET_MANA(ch) =
                     MAX(0, MIN(GET_MAX_MANA(ch), GET_MANA(ch) - mana));
+            }
             gain_skill_prof(ch, spellnum);
         }
     }
@@ -2244,8 +2363,9 @@ load_spell(xmlNodePtr node)
         return false;
     }
     // for defined classes, initialize minimum level to ambassador
-    for (int class_idx = 0; class_idx < NUM_CLASSES; class_idx++)
+    for (int class_idx = 0; class_idx < NUM_CLASSES; class_idx++) {
         spell_info[idnum].min_level[class_idx] = LVL_AMBASSADOR;
+    }
 
     spells[idnum] = (char *)xmlGetProp(node, (xmlChar *) "name");
     for (child = node->children; child; child = child->next) {
@@ -2257,7 +2377,7 @@ load_spell(xmlNodePtr node)
 
             if (class_idx < 0) {
                 errlog("Granted class '%s' is not a valid class in spell!",
-                    class_str);
+                       class_str);
                 free(class_str);
                 return false;
             }
@@ -2304,12 +2424,13 @@ load_spell(xmlNodePtr node)
             } else if (!strcmp(type_str, "direction")) {
                 spell_info[idnum].targets |= TAR_DIR;
             } else if (!strcmp(type_str, "self")) {
-                if (!strcmp(scope_str, "fighting"))
+                if (!strcmp(scope_str, "fighting")) {
                     spell_info[idnum].targets |= TAR_FIGHT_SELF;
-                else if (!strcmp(scope_str, "only"))
+                } else if (!strcmp(scope_str, "only")) {
                     spell_info[idnum].targets |= TAR_SELF_ONLY;
-                else if (!strcmp(scope_str, "never"))
+                } else if (!strcmp(scope_str, "never")) {
                     spell_info[idnum].targets |= TAR_NOT_SELF;
+                }
             } else if (!strcmp(type_str, "creature")) {
                 if (!strcmp(scope_str, "room")) {
                     spell_info[idnum].targets |= TAR_CHAR_ROOM;
@@ -2382,8 +2503,9 @@ load_spell(xmlNodePtr node)
         }
     }
 
-    if (!spell_info[idnum].targets)
+    if (!spell_info[idnum].targets) {
         spell_info[idnum].targets = TAR_IGNORE;
+    }
 
     return true;
 }
@@ -2393,12 +2515,14 @@ char *UNUSED_SPELL_NAME = NULL;
 void
 clear_spells(void)
 {
-    if (!UNUSED_SPELL_NAME)
+    if (!UNUSED_SPELL_NAME) {
         UNUSED_SPELL_NAME = strdup("!UNUSED!");
+    }
 
     for (int spl = 1; spl < TOP_DAMAGETYPE; spl++) {
-        if (spells[spl] != UNUSED_SPELL_NAME)
+        if (spells[spl] != UNUSED_SPELL_NAME) {
             free(spells[spl]);
+        }
         spells[spl] = UNUSED_SPELL_NAME;
         for (int class_idx = 0; class_idx < NUM_CLASSES; class_idx++) {
             spell_info[spl].min_level[class_idx] = LVL_GRIMP + 1;
@@ -2412,8 +2536,9 @@ clear_spells(void)
         spell_info[spl].violent = 0;
         spell_info[spl].is_weapon = 0;
         spell_info[spl].routines = 0;
-        if (songs[spl].lyrics)
+        if (songs[spl].lyrics) {
             free(songs[spl].lyrics);
+        }
         songs[spl].lyrics = NULL;
         songs[spl].instrumental = false;
         songs[spl].type = 0;
@@ -2454,11 +2579,13 @@ boot_spells(const char *path)
     for (node = node->children; node; node = node->next) {
         // Parse different nodes here.
         if (!xmlMatches(node->name, "spell") &&
-            !xmlMatches(node->name, "skill"))
+            !xmlMatches(node->name, "skill")) {
             continue;
+        }
 
-        if (load_spell(node))
+        if (load_spell(node)) {
             num_spells++;
+        }
     }
 
     xmlFreeDoc(doc);

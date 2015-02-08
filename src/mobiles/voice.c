@@ -78,11 +78,12 @@ load_voice(xmlNodePtr node)
     voice->name = (char *)xmlGetProp(node, (xmlChar *) "name");
     voice->emits = g_hash_table_new(g_direct_hash, g_direct_equal);
     for (child = node->children; child; child = child->next) {
-        if (xmlMatches(child->name, "text"))
+        if (xmlMatches(child->name, "text")) {
             continue;
+        }
         int emit_idx = search_block((const char *)child->name,
-            voice_emit_categories,
-            true);
+                                    voice_emit_categories,
+                                    true);
         if (emit_idx < 0) {
             errlog("Invalid node %s in voices.xml", child->name);
             free_voice(voice);
@@ -92,10 +93,10 @@ load_voice(xmlNodePtr node)
         GList *new_emits;
         new_emits =
             g_list_prepend(g_hash_table_lookup(voice->emits,
-                GINT_TO_POINTER(emit_idx)), strdup(tmp_trim(str)));
+                                               GINT_TO_POINTER(emit_idx)), strdup(tmp_trim(str)));
 
         g_hash_table_insert(voice->emits, GINT_TO_POINTER(emit_idx),
-            new_emits);
+                            new_emits);
         free(str);
     }
     return voice;
@@ -103,12 +104,13 @@ load_voice(xmlNodePtr node)
 
 void
 voice_perform(struct voice *voice,
-    struct creature *ch, void *vict, enum voice_situation situation)
+              struct creature *ch, void *vict, enum voice_situation situation)
 {
     GList *emits = g_hash_table_lookup(voice->emits,
-        GINT_TO_POINTER(situation));
-    if (!emits)
+                                       GINT_TO_POINTER(situation));
+    if (!emits) {
         return;
+    }
 
     int cmd_idx = number(0, g_list_length(emits) - 1);
     char buf[MAX_STRING_LENGTH];
@@ -120,18 +122,21 @@ voice_perform(struct voice *voice,
 void
 emit_voice(struct creature *ch, void *vict, enum voice_situation situation)
 {
-    if (!IS_NPC(ch))
+    if (!IS_NPC(ch)) {
         return;
+    }
 
     int voice_idx = GET_VOICE(ch);
 
-    if (!voice_idx)
+    if (!voice_idx) {
         voice_idx = IS_ANIMAL(ch) ? VOICE_ANIMAL : VOICE_MOBILE;
+    }
 
     struct voice *voice = g_hash_table_lookup(voices,
-        GINT_TO_POINTER(voice_idx));
-    if (voice)
+                                              GINT_TO_POINTER(voice_idx));
+    if (voice) {
         voice_perform(voice, ch, vict, situation);
+    }
 }
 
 void
@@ -168,10 +173,11 @@ boot_voices(void)
             struct voice *voice;
 
             voice = load_voice(node);
-            if (voice)
+            if (voice) {
                 g_hash_table_insert(voices, GINT_TO_POINTER(idnum), voice);
-            else
+            } else {
                 safe_exit(1);
+            }
         }
         node = node->next;
     }
@@ -189,8 +195,9 @@ find_voice_idx_by_name(const char *voice_name)
 
     if (is_number(voice_name)) {
         result = atoi(voice_name);
-        if (g_hash_table_lookup(voices, GINT_TO_POINTER(result)))
+        if (g_hash_table_lookup(voices, GINT_TO_POINTER(result))) {
             return result;
+        }
         return VOICE_NONE;
     }
 
@@ -198,9 +205,10 @@ find_voice_idx_by_name(const char *voice_name)
 
     g_hash_table_iter_init(&it, voices);
     while (g_hash_table_iter_next(&it, (gpointer) & result,
-            (gpointer) & voice)) {
-        if (is_abbrev(voice_name, voice->name))
+                                  (gpointer) & voice)) {
+        if (is_abbrev(voice_name, voice->name)) {
             return result;
+        }
     }
 
     return VOICE_NONE;
@@ -209,12 +217,14 @@ find_voice_idx_by_name(const char *voice_name)
 const char *
 voice_name(int voice_idx)
 {
-    if (voice_idx == VOICE_NONE)
+    if (voice_idx == VOICE_NONE) {
         return "<none>";
+    }
     struct voice *voice = g_hash_table_lookup(voices,
-        GINT_TO_POINTER(voice_idx));
-    if (!voice)
+                                              GINT_TO_POINTER(voice_idx));
+    if (!voice) {
         return tmp_sprintf("<#%d>", voice_idx);
+    }
     return voice->name;
 }
 
@@ -232,7 +242,7 @@ show_voices(struct creature *ch)
     g_hash_table_iter_init(&it, voices);
     while (g_hash_table_iter_next(&it, (gpointer) & idnum, (gpointer) & voice)) {
         acc_sprintf("%2d         %s%-10s%s\r\n",
-            idnum, CCCYN(ch, C_NRM), voice->name, CCNRM(ch, C_NRM));
+                    idnum, CCCYN(ch, C_NRM), voice->name, CCNRM(ch, C_NRM));
     }
     page_string(ch->desc, acc_get_string());
 }

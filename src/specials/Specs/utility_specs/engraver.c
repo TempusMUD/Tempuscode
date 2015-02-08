@@ -26,7 +26,7 @@ engraving_cost(struct creature *self, struct creature *ch, struct obj_data *obj,
 money_t
 unengraving_cost(struct creature *self, struct creature *ch, struct obj_data *obj)
 {
-    size_t len = obj->engraving ? strlen(obj->engraving):0;
+    size_t len = obj->engraving ? strlen(obj->engraving) : 0;
 
     if (len == 0) {
         return 0;
@@ -39,10 +39,10 @@ void
 perform_engraving(struct creature *self, struct creature *ch, struct obj_data *obj, const char *message)
 {
     bool future = (ch->in_room->zone->time_frame == TIME_ELECTRO);
-    const char *currency = (future) ? "creds":"gold";
-    money_t amt_carried = (future) ? GET_CASH(ch):GET_GOLD(ch);
+    const char *currency = (future) ? "creds" : "gold";
+    money_t amt_carried = (future) ? GET_CASH(ch) : GET_GOLD(ch);
 
-    
+
     if (!can_be_engraved(obj)) {
         perform_tell(self, ch, tmp_sprintf("Sorry, %s won't hold an engraving.", obj->name));
         return;
@@ -87,8 +87,8 @@ void
 perform_unengraving(struct creature *self, struct creature *ch, struct obj_data *obj)
 {
     bool future = (ch->in_room->zone->time_frame == TIME_ELECTRO);
-    const char *currency = (future) ? "creds":"gold";
-    money_t amt_carried = (future) ? GET_CASH(ch):GET_GOLD(ch);
+    const char *currency = (future) ? "creds" : "gold";
+    money_t amt_carried = (future) ? GET_CASH(ch) : GET_GOLD(ch);
 
     if (!obj->engraving) {
         perform_say_to(self, ch, tmp_sprintf("%s doesn't have any engravings on it!", obj->name));
@@ -123,7 +123,7 @@ perform_unengraving(struct creature *self, struct creature *ch, struct obj_data 
 SPECIAL(engraver)
 {
     struct creature *self = (struct creature *)me;
-    
+
     if (CMD_IS("list")) {
         send_to_char(ch, "I will engrave a message on objects of most materials.  The cost will\r\n");
         send_to_char(ch, "depend on the value of the object and length of the message.\r\n");
@@ -159,7 +159,7 @@ SPECIAL(engraver)
 
     if (CMD_IS("value")) {
         bool future = (ch->in_room->zone->time_frame == TIME_ELECTRO);
-        const char *currency = (future) ? "creds":"gold";
+        const char *currency = (future) ? "creds" : "gold";
         if (doing_engraving) {
             if (obj->engraving) {
                 perform_say_to(self, ch, "I can't engrave that unless it's been unengraved.");

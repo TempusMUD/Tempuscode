@@ -24,24 +24,26 @@ extern char **spells;
 static inline /*@observer@*/ const char *
 spell_to_str(int spell)
 {
-	if (spell < 0 || spell > max_spell_num) {
-		return tmp_sprintf("!ILLEGAL(%d)!", spell);
-	}
+    if (spell < 0 || spell > max_spell_num) {
+        return tmp_sprintf("!ILLEGAL(%d)!", spell);
+    }
 
-	return spells[spell];
+    return spells[spell];
 }
 
 static inline int
 str_to_spell(const char *spell)
 {
     int i;
-	if( spell == NULL || *spell == '\0' )
-		return -1;
-	for(i = 0; i < max_spell_num; i++ ) {
-		if( strcmp(spell, spells[i]) == 0 )
-			return (int)i;
-	}
-	return -1;
+    if (spell == NULL || *spell == '\0') {
+        return -1;
+    }
+    for (i = 0; i < max_spell_num; i++) {
+        if (strcmp(spell, spells[i]) == 0) {
+            return (int)i;
+        }
+    }
+    return -1;
 }
 
 enum {
@@ -120,64 +122,64 @@ enum magic_flag {
 
 enum spell {
     TYPE_UNDEFINED = -1,
-    SPELL_RESERVED_DBC = 0,	/* SKILL NUMBER ZERO -- RESERVED */
+    SPELL_RESERVED_DBC = 0, /* SKILL NUMBER ZERO -- RESERVED */
 
     UNHOLY_STALKER_VNUM = 1513,
     ZOMBIE_VNUM = 1512,
 
-  /* PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS */
+    /* PLAYER SPELLS -- Numbered from 1 to MAX_SPELLS */
 
-    SPELL_ARMOR = 1,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_TELEPORT = 2,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_BLESS = 3,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_BLINDNESS = 4,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_BURNING_HANDS = 5,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CALL_LIGHTNING = 6,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CHARM = 7,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CHILL_TOUCH = 8,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CLONE = 9,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_COLOR_SPRAY = 10,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CONTROL_WEATHER = 11,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CREATE_FOOD = 12,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CREATE_WATER = 13,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CURE_BLIND = 14,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CURE_CRITIC = 15,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CURE_LIGHT = 16,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_CURSE = 17,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_DETECT_ALIGN = 18,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_DETECT_INVIS = 19,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_DETECT_MAGIC = 20,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_DETECT_POISON = 21,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_DISPEL_EVIL = 22,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_EARTHQUAKE = 23,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_ENCHANT_WEAPON = 24,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_ENERGY_DRAIN = 25,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_FIREBALL = 26,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_HARM = 27,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_HEAL = 28,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_INVISIBLE = 29,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_LIGHTNING_BOLT = 30,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_LOCATE_OBJECT = 31,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_MAGIC_MISSILE = 32,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_POISON = 33,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_PROT_FROM_EVIL = 34,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_REMOVE_CURSE = 35,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_SANCTUARY = 36,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_SHOCKING_GRASP = 37,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_SLEEP = 38,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_STRENGTH = 39,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_SUMMON = 40,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_VENTRILOQUATE = 41,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_WORD_OF_RECALL = 42,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_REMOVE_POISON = 43,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_SENSE_LIFE = 44,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_ANIMATE_DEAD = 45,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_DISPEL_GOOD = 46,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_GROUP_ARMOR = 47,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_GROUP_HEAL = 48,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_GROUP_RECALL = 49,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_INFRAVISION = 50,	/* Reserved Skill[] DO NOT CHANGE */
-    SPELL_WATERWALK = 51,	/* Reserved Skill[] DO NOT CHANGE */
+    SPELL_ARMOR = 1,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_TELEPORT = 2, /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_BLESS = 3,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_BLINDNESS = 4,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_BURNING_HANDS = 5,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CALL_LIGHTNING = 6,   /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CHARM = 7,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CHILL_TOUCH = 8,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CLONE = 9,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_COLOR_SPRAY = 10, /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CONTROL_WEATHER = 11, /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CREATE_FOOD = 12, /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CREATE_WATER = 13,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CURE_BLIND = 14,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CURE_CRITIC = 15, /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CURE_LIGHT = 16,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_CURSE = 17,   /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_DETECT_ALIGN = 18,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_DETECT_INVIS = 19,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_DETECT_MAGIC = 20,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_DETECT_POISON = 21,   /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_DISPEL_EVIL = 22, /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_EARTHQUAKE = 23,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_ENCHANT_WEAPON = 24,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_ENERGY_DRAIN = 25,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_FIREBALL = 26,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_HARM = 27,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_HEAL = 28,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_INVISIBLE = 29,   /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_LIGHTNING_BOLT = 30,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_LOCATE_OBJECT = 31,   /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_MAGIC_MISSILE = 32,   /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_POISON = 33,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_PROT_FROM_EVIL = 34,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_REMOVE_CURSE = 35,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_SANCTUARY = 36,   /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_SHOCKING_GRASP = 37,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_SLEEP = 38,   /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_STRENGTH = 39,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_SUMMON = 40,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_VENTRILOQUATE = 41,   /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_WORD_OF_RECALL = 42,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_REMOVE_POISON = 43,   /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_SENSE_LIFE = 44,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_ANIMATE_DEAD = 45,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_DISPEL_GOOD = 46, /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_GROUP_ARMOR = 47, /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_GROUP_HEAL = 48,  /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_GROUP_RECALL = 49,    /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_INFRAVISION = 50, /* Reserved Skill[] DO NOT CHANGE */
+    SPELL_WATERWALK = 51,   /* Reserved Skill[] DO NOT CHANGE */
     SPELL_MANA_SHIELD = 52,
     SPELL_IDENTIFY = 53,
     SPELL_GLOWLIGHT = 54,
@@ -255,29 +257,29 @@ enum spell {
     SPELL_CHAIN_LIGHTNING = 126,
     SPELL_HAILSTORM = 127,
     SPELL_ICE_STORM = 128,
-    SPELL_SHIELD_OF_RIGHTEOUSNESS = 129,	// group protection
-    SPELL_BLACKMANTLE = 130,	// blocks healing spells
-    SPELL_SANCTIFICATION = 131,	// 2x dam vs. evil
-    SPELL_STIGMATA = 132,	// causes a bleeding wound
-    SPELL_SUMMON_LEGION = 133,	// knights summon devils
-    SPELL_ENTANGLE = 134,	// rangers entangle in veg.
+    SPELL_SHIELD_OF_RIGHTEOUSNESS = 129,    // group protection
+    SPELL_BLACKMANTLE = 130,    // blocks healing spells
+    SPELL_SANCTIFICATION = 131, // 2x dam vs. evil
+    SPELL_STIGMATA = 132,   // causes a bleeding wound
+    SPELL_SUMMON_LEGION = 133,  // knights summon devils
+    SPELL_ENTANGLE = 134,   // rangers entangle in veg.
     SPELL_ANTI_MAGIC_SHELL = 135,
     SPELL_DIVINE_INTERVENTION = 136,
     SPELL_SPHERE_OF_DESECRATION = 137,
-    SPELL_MALEFIC_VIOLATION = 138,	// cuts thru good sanct
-    SPELL_RIGHTEOUS_PENETRATION = 139,	// cuts thru evil sanct
-    SPELL_UNHOLY_STALKER = 140,	// evil cleric hunter mob
-    SPELL_INFERNO = 141,	// evil cleric room affect
-    SPELL_VAMPIRIC_REGENERATION = 142,	// evil cleric vamp. regen
-    SPELL_BANISHMENT = 143,	// evil cleric sends devils away
-    SPELL_CONTROL_UNDEAD = 144,	// evil clerics charm undead
-    SPELL_STONESKIN = 145,	// remort rangers stone skin
-    SPELL_SUN_RAY = 146,	// Good cleric remort,
-											 // destroys undead.
-    SPELL_TAINT = 147,	// Evil knight remort spell, taint.
-    SPELL_LOCUST_REGENERATION = 148,	// Mage remort skill, drains mana
-    SPELL_DIVINE_POWER = 149,	// Good cleric remort skill.
-    SPELL_DEATH_KNELL = 150,	// Evil cleric remort skill.
+    SPELL_MALEFIC_VIOLATION = 138,  // cuts thru good sanct
+    SPELL_RIGHTEOUS_PENETRATION = 139,  // cuts thru evil sanct
+    SPELL_UNHOLY_STALKER = 140, // evil cleric hunter mob
+    SPELL_INFERNO = 141,    // evil cleric room affect
+    SPELL_VAMPIRIC_REGENERATION = 142,  // evil cleric vamp. regen
+    SPELL_BANISHMENT = 143, // evil cleric sends devils away
+    SPELL_CONTROL_UNDEAD = 144, // evil clerics charm undead
+    SPELL_STONESKIN = 145,  // remort rangers stone skin
+    SPELL_SUN_RAY = 146,    // Good cleric remort,
+    // destroys undead.
+    SPELL_TAINT = 147,  // Evil knight remort spell, taint.
+    SPELL_LOCUST_REGENERATION = 148,    // Mage remort skill, drains mana
+    SPELL_DIVINE_POWER = 149,   // Good cleric remort skill.
+    SPELL_DEATH_KNELL = 150,    // Evil cleric remort skill.
     SPELL_TELEPATHY = 151,
     SPELL_DAMN = 152,
     SPELL_CALM = 153,
@@ -292,14 +294,14 @@ enum spell {
     SPELL_ABLAZE = 161, // Only here to allow an ablaze affect
     SPELL_DRAGONS_BREATH = 162,
 
-  /************************** Psionic Triggers ***************/
-    SPELL_POWER = 201,	/* Strength                */
+    /************************** Psionic Triggers ***************/
+    SPELL_POWER = 201,  /* Strength                */
     SPELL_INTELLECT = 202,
     SPELL_CONFUSION = 203,
     SPELL_FEAR = 204,
-    SPELL_SATIATION = 205,	/* fills hunger */
-    SPELL_QUENCH = 206,	/* fills thirst */
-    SPELL_CONFIDENCE = 207,	/* sets nopain */
+    SPELL_SATIATION = 205,  /* fills hunger */
+    SPELL_QUENCH = 206, /* fills thirst */
+    SPELL_CONFIDENCE = 207, /* sets nopain */
     SPELL_NOPAIN = 208,
     SPELL_DERMAL_HARDENING = 209,
     SPELL_WOUND_CLOSURE = 210,
@@ -308,11 +310,11 @@ enum spell {
     SPELL_ADRENALINE = 213,
     SPELL_BREATHING_STASIS = 214,
     SPELL_VERTIGO = 215,
-    SPELL_METABOLISM = 216,	/* Increased healing, hunger, thirst */
+    SPELL_METABOLISM = 216, /* Increased healing, hunger, thirst */
     SPELL_EGO_WHIP = 217,
     SPELL_PSYCHIC_CRUSH = 218,
-    SPELL_RELAXATION = 219,	/* speeds mana regen, weakens char */
-    SPELL_WEAKNESS = 220,	/* minus str */
+    SPELL_RELAXATION = 219, /* speeds mana regen, weakens char */
+    SPELL_WEAKNESS = 220,   /* minus str */
     SPELL_FORTRESS_OF_WILL = 221,
     SPELL_CELL_REGEN = 222,
     SPELL_PSISHIELD = 223,
@@ -327,8 +329,8 @@ enum spell {
     SPELL_GROUP_CONFIDENCE = 232,
     SPELL_CLUMSINESS = 233,
     SPELL_ENDURANCE = 234,
-    SPELL_AMNESIA = 235,	// psi remorts
-    SPELL_NULLPSI = 236,	// remove psi affects
+    SPELL_AMNESIA = 235,    // psi remorts
+    SPELL_NULLPSI = 236,    // remove psi affects
     SPELL_PSIONIC_SHOCKWAVE = 237,
     SPELL_DISTRACTION = 238,
     SPELL_CALL_RODENT = 239,
@@ -339,9 +341,9 @@ enum spell {
     SPELL_SPIRIT_TRACK = 244,
     SPELL_PSYCHIC_FEEDBACK = 245,
 
-  /**************************  Mercenary Devices ******************/
+    /**************************  Mercenary Devices ******************/
     SPELL_DECOY = 237,
-  /*************************** Physic Alterations *****************/
+    /*************************** Physic Alterations *****************/
     SPELL_ACIDITY = 301,
     SPELL_ATTRACTION_FIELD = 302,
     SPELL_NUCLEAR_WASTELAND = 303,
@@ -350,47 +352,47 @@ enum spell {
     SPELL_HALFLIFE = 306,
     SPELL_MICROWAVE = 307,
     SPELL_OXIDIZE = 308,
-    SPELL_RANDOM_COORDINATES = 309,	// random teleport
+    SPELL_RANDOM_COORDINATES = 309, // random teleport
     SPELL_REPULSION_FIELD = 310,
-    SPELL_TRANSMITTANCE = 311,	// transparency
-    SPELL_SPACETIME_IMPRINT = 312,	// sets room as teleport spot
-    SPELL_SPACETIME_RECALL = 313,	// teleports to imprint telep spot
-    SPELL_TIME_WARP = 314,	// random teleport into other time
-    SPELL_TIDAL_SPACEWARP = 315,	// fly
-    SPELL_FISSION_BLAST = 316,	// full-room damage
-    SPELL_REFRACTION = 317,	// like displacement
-    SPELL_ELECTROSHIELD = 318,	// prot_lightning
-    SPELL_VACUUM_SHROUD = 319,	// eliminates breathing and fire
-    SPELL_DENSIFY = 320,	// increase weight of obj & char
-    SPELL_CHEMICAL_STABILITY = 321,	// prevent/stop acidity
-    SPELL_ENTROPY_FIELD = 322,	// drains move on victim (time effect)
-    SPELL_GRAVITY_WELL = 323,	// time effect crushing damage
-    SPELL_CAPACITANCE_BOOST = 324,	// increase maxmv
-    SPELL_ELECTRIC_ARC = 325,	// lightning bolt
-    SPELL_SONIC_BOOM = 326,	// area damage + wait state
-    SPELL_LATTICE_HARDENING = 327,	// dermal hard or increase obj maxdam
-    SPELL_NULLIFY = 328,	// like dispel magic
-    SPELL_FORCE_WALL = 329,	// sets up an exit blocker
+    SPELL_TRANSMITTANCE = 311,  // transparency
+    SPELL_SPACETIME_IMPRINT = 312,  // sets room as teleport spot
+    SPELL_SPACETIME_RECALL = 313,   // teleports to imprint telep spot
+    SPELL_TIME_WARP = 314,  // random teleport into other time
+    SPELL_TIDAL_SPACEWARP = 315,    // fly
+    SPELL_FISSION_BLAST = 316,  // full-room damage
+    SPELL_REFRACTION = 317, // like displacement
+    SPELL_ELECTROSHIELD = 318,  // prot_lightning
+    SPELL_VACUUM_SHROUD = 319,  // eliminates breathing and fire
+    SPELL_DENSIFY = 320,    // increase weight of obj & char
+    SPELL_CHEMICAL_STABILITY = 321, // prevent/stop acidity
+    SPELL_ENTROPY_FIELD = 322,  // drains move on victim (time effect)
+    SPELL_GRAVITY_WELL = 323,   // time effect crushing damage
+    SPELL_CAPACITANCE_BOOST = 324,  // increase maxmv
+    SPELL_ELECTRIC_ARC = 325,   // lightning bolt
+    SPELL_SONIC_BOOM = 326, // area damage + wait state
+    SPELL_LATTICE_HARDENING = 327,  // dermal hard or increase obj maxdam
+    SPELL_NULLIFY = 328,    // like dispel magic
+    SPELL_FORCE_WALL = 329, // sets up an exit blocker
     SPELL_UNUSED_330 = 330,
-    SPELL_PHASING = 331,	// invuln.
-    SPELL_ABSORPTION_SHIELD = 332,	// works like mana shield
-    SPELL_TEMPORAL_COMPRESSION = 333,	// works like haste
-    SPELL_TEMPORAL_DILATION = 334,	// works like slow
-    SPELL_GAUSS_SHIELD = 335,	// half damage from metal
-    SPELL_ALBEDO_SHIELD = 336,	// reflects e/m attacks
-    SPELL_THERMOSTATIC_FIELD = 337,	// sets prot_heat + end_cold
-    SPELL_RADIOIMMUNITY = 338,	// sets prot_rad
-    SPELL_TRANSDIMENSIONALITY = 339,	// randomly teleport to another plane
-    SPELL_AREA_STASIS = 340,	// sets !phy room flag
-    SPELL_ELECTROSTATIC_FIELD = 341,	// protective static field does damage to attackers
-    SPELL_EMP_PULSE = 342,	// Shuts off devices, communicators
-										// deactivats all cyborg programs
-										// blocked by emp shield
-    SPELL_QUANTUM_RIFT = 343,	// Shuts off devices, communicators
+    SPELL_PHASING = 331,    // invuln.
+    SPELL_ABSORPTION_SHIELD = 332,  // works like mana shield
+    SPELL_TEMPORAL_COMPRESSION = 333,   // works like haste
+    SPELL_TEMPORAL_DILATION = 334,  // works like slow
+    SPELL_GAUSS_SHIELD = 335,   // half damage from metal
+    SPELL_ALBEDO_SHIELD = 336,  // reflects e/m attacks
+    SPELL_THERMOSTATIC_FIELD = 337, // sets prot_heat + end_cold
+    SPELL_RADIOIMMUNITY = 338,  // sets prot_rad
+    SPELL_TRANSDIMENSIONALITY = 339,    // randomly teleport to another plane
+    SPELL_AREA_STASIS = 340,    // sets !phy room flag
+    SPELL_ELECTROSTATIC_FIELD = 341,    // protective static field does damage to attackers
+    SPELL_EMP_PULSE = 342,  // Shuts off devices, communicators
+    // deactivats all cyborg programs
+    // blocked by emp shield
+    SPELL_QUANTUM_RIFT = 343,   // Shuts off devices, communicators
     SPELL_ITEM_REPULSION_FIELD = 344,
     SPELL_ITEM_ATTRACTION_FIELD = 345,
-    SPELL_DIMENSIONAL_SHIFT = 498, //added at top of spells to avoid interference with future bard songs
-    SPELL_DIMENSIONAL_VOID = 499, //This is the negative affect thrown by dimensional shift
+    SPELL_DIMENSIONAL_SHIFT = 498, // added at top of spells to avoid interference with future bard songs
+    SPELL_DIMENSIONAL_VOID = 499, // This is the negative affect thrown by dimensional shift
 
 // *********************** Bard songs HERE man
 
@@ -413,7 +415,7 @@ enum spell {
     SONG_HYMN_OF_PEACE = 363, // stops fighting in room, counters req of rage
     SONG_SONG_OF_SILENCE = 364, // Area, disallow speaking, casting. singing
     SONG_DRIFTERS_DITTY = 365, // self/group increases move
-    SONG_UNRAVELLING_DIAPASON = 366, //dispel magic
+    SONG_UNRAVELLING_DIAPASON = 366, // dispel magic
     SONG_RHAPSODY_OF_DEPRESSION = 367, // Area, slow all but grouped
     SONG_CHANT_OF_LIGHT = 368, // group, light and prot_cold
     SONG_ARIA_OF_ASYLUM = 369, // self/group/target up to 25 percent dam reduction
@@ -444,7 +446,7 @@ enum spell {
 
 // if you add a new bard skill/song here, change the NUM_BARD_SONGS const in act.bard.cc
 
-  /*********************  MONK ZENS  *******************/
+    /*********************  MONK ZENS  *******************/
     ZEN_HEALING = 401,
     ZEN_AWARENESS = 402,
     ZEN_OBLIVITY = 403,
@@ -455,16 +457,16 @@ enum spell {
     MAX_SPELLS = 500,
 
 /* PLAYER SKILLS - Numbered from MAX_SPELLS+1 to MAX_SKILLS */
-    SKILL_BACKSTAB = 501,	/* Reserved Skill[] DO NOT CHANGE */
-    SKILL_BASH = 502,	/* Reserved Skill[] DO NOT CHANGE */
-    SKILL_HIDE = 503,	/* Reserved Skill[] DO NOT CHANGE */
-    SKILL_KICK = 504,	/* Reserved Skill[] DO NOT CHANGE */
-    SKILL_PICK_LOCK = 505,	/* Reserved Skill[] DO NOT CHANGE */
-    SKILL_PUNCH = 506,	/* Reserved Skill[] DO NOT CHANGE */
-    SKILL_RESCUE = 507,	/* Reserved Skill[] DO NOT CHANGE */
-    SKILL_SNEAK = 508,	/* Reserved Skill[] DO NOT CHANGE */
-    SKILL_STEAL = 509,	/* Reserved Skill[] DO NOT CHANGE */
-    SKILL_TRACK = 510,	/* Reserved Skill[] DO NOT CHANGE */
+    SKILL_BACKSTAB = 501,   /* Reserved Skill[] DO NOT CHANGE */
+    SKILL_BASH = 502,   /* Reserved Skill[] DO NOT CHANGE */
+    SKILL_HIDE = 503,   /* Reserved Skill[] DO NOT CHANGE */
+    SKILL_KICK = 504,   /* Reserved Skill[] DO NOT CHANGE */
+    SKILL_PICK_LOCK = 505,  /* Reserved Skill[] DO NOT CHANGE */
+    SKILL_PUNCH = 506,  /* Reserved Skill[] DO NOT CHANGE */
+    SKILL_RESCUE = 507, /* Reserved Skill[] DO NOT CHANGE */
+    SKILL_SNEAK = 508,  /* Reserved Skill[] DO NOT CHANGE */
+    SKILL_STEAL = 509,  /* Reserved Skill[] DO NOT CHANGE */
+    SKILL_TRACK = 510,  /* Reserved Skill[] DO NOT CHANGE */
     SKILL_PILEDRIVE = 511,
     SKILL_SLEEPER = 512,
     SKILL_ELBOW = 513,
@@ -516,7 +518,7 @@ enum spell {
     SKILL_CIRCLE = 559,
     SKILL_TRIPLE_ATTACK = 560,
 
-  /*******************  MONK SKILLS  *******************/
+    /*******************  MONK SKILLS  *******************/
     SKILL_PALM_STRIKE = 561,
     SKILL_THROAT_STRIKE = 562,
     SKILL_WHIRLWIND = 563,
@@ -542,100 +544,100 @@ enum spell {
     SKILL_CURE_DISEASE = 582,
     SKILL_BATTLE_CRY = 583,
     SKILL_AUTOPSY = 584,
-    SKILL_TRANSMUTE = 585,	/* physic transmute objs */
+    SKILL_TRANSMUTE = 585,  /* physic transmute objs */
     SKILL_METALWORKING = 586,
     SKILL_LEATHERWORKING = 587,
     SKILL_DEMOLITIONS = 588,
     SKILL_PSIBLAST = 589,
     SKILL_PSILOCATE = 590,
-    SKILL_PSIDRAIN = 591,	/* drain mana from vict */
-    SKILL_GUNSMITHING = 592,	/* repair gunz */
-    SKILL_ELUSION = 593,	/* !track */
+    SKILL_PSIDRAIN = 591,   /* drain mana from vict */
+    SKILL_GUNSMITHING = 592,    /* repair gunz */
+    SKILL_ELUSION = 593,    /* !track */
     SKILL_PISTOLWHIP = 594,
-    SKILL_CROSSFACE = 595,	/* rifle whip */
-    SKILL_WRENCH = 596,	/* break neck */
+    SKILL_CROSSFACE = 595,  /* rifle whip */
+    SKILL_WRENCH = 596, /* break neck */
     SKILL_CRY_FROM_BEYOND = 597,
     SKILL_KIA = 598,
-    SKILL_WORMHOLE = 599,	// physic's wormhole
-    SKILL_LECTURE = 600,	// physic's boring-ass lecture
+    SKILL_WORMHOLE = 599,   // physic's wormhole
+    SKILL_LECTURE = 600,    // physic's boring-ass lecture
 
-    SKILL_TURN = 601,	/* Cleric's turn               */
-    SKILL_ANALYZE = 602,	/* Physic's analysis           */
-    SKILL_EVALUATE = 603,	/* Physic's evaluation      */
-    SKILL_HOLY_TOUCH = 604,	/* Knight's skill              */
+    SKILL_TURN = 601,   /* Cleric's turn               */
+    SKILL_ANALYZE = 602,    /* Physic's analysis           */
+    SKILL_EVALUATE = 603,   /* Physic's evaluation      */
+    SKILL_HOLY_TOUCH = 604, /* Knight's skill              */
     SKILL_NIGHT_VISION = 605,
     SKILL_EMPOWER = 606,
     SKILL_SWIMMING = 607,
     SKILL_THROWING = 608,
     SKILL_RIDING = 609,
-    SKILL_PIPEMAKING = 610,	//Make a pipe!
-    SKILL_CHARGE = 611,	// BANG!
+    SKILL_PIPEMAKING = 610, // Make a pipe!
+    SKILL_CHARGE = 611, // BANG!
     SKILL_COUNTER_ATTACK = 612,
 
-  /*****************  CYBORG SKILLS  ********************/
-    SKILL_RECONFIGURE = 613,	// Re-allocate stats
-    SKILL_REBOOT = 614,	// Start over from scratch
-    SKILL_MOTION_SENSOR = 615,	// Detect Entries into room
-    SKILL_STASIS = 616,	// State of rapid healing
-    SKILL_ENERGY_FIELD = 617,	// Protective field
-    SKILL_REFLEX_BOOST = 618,	// Speeds up processes
-    SKILL_POWER_BOOST = 619,	// Increases Strength
-    SKILL_UNUSED_1 = 620,	//
-    SKILL_FASTBOOT = 621,	// Reboots are faster
-    SKILL_SELF_DESTRUCT = 622,	// Effective self destructs
-    SKILL_UNUSED_2 = 623,	//
-    SKILL_BIOSCAN = 624,	// Sense Life scan
-    SKILL_DISCHARGE = 625,	// Discharge attack
-    SKILL_SELFREPAIR = 626,	// Repair hit points
-    SKILL_CYBOREPAIR = 627,	// Repair other borgs
-    SKILL_OVERHAUL = 628,	// Overhaul other borgs
-    SKILL_DAMAGE_CONTROL = 629,	// Damage Control System
-    SKILL_ELECTRONICS = 630,	// Operation of Electronics
-    SKILL_HACKING = 631,	// hack electronic systems
-    SKILL_CYBERSCAN = 632,	// scan others for implants
-    SKILL_CYBO_SURGERY = 633,	// implant objects
-    SKILL_ENERGY_WEAPONS = 634,	// energy weapon use
-    SKILL_PROJ_WEAPONS = 635,	// projectile weapon use
-    SKILL_SPEED_LOADING = 636,	// speed load weapons
-    SKILL_HYPERSCAN = 637,	// aware of hidden objs and traps
-    SKILL_OVERDRAIN = 638,	// overdrain batteries
-    SKILL_DE_ENERGIZE = 639,	// drain energy from chars
-    SKILL_ASSIMILATE = 640,	// assimilate objects
-    SKILL_RADIONEGATION = 641,	// immunity to radiation
-    SKILL_IMPLANT_W = 642,	// Extra attacks with implant weapons.
-    SKILL_ADV_IMPLANT_W = 643,	// ""
-    SKILL_OFFENSIVE_POS = 644,	// Offensive Posturing
-    SKILL_DEFENSIVE_POS = 645,	// Defensive Posturing
-    SKILL_MELEE_COMBAT_TAC = 646,	// Melee combat tactics
-    SKILL_NEURAL_BRIDGING = 647,	// Cogenic Neural Bridging
-										// (Ambidextarity)
+    /*****************  CYBORG SKILLS  ********************/
+    SKILL_RECONFIGURE = 613,    // Re-allocate stats
+    SKILL_REBOOT = 614, // Start over from scratch
+    SKILL_MOTION_SENSOR = 615,  // Detect Entries into room
+    SKILL_STASIS = 616, // State of rapid healing
+    SKILL_ENERGY_FIELD = 617,   // Protective field
+    SKILL_REFLEX_BOOST = 618,   // Speeds up processes
+    SKILL_POWER_BOOST = 619,    // Increases Strength
+    SKILL_UNUSED_1 = 620,   //
+    SKILL_FASTBOOT = 621,   // Reboots are faster
+    SKILL_SELF_DESTRUCT = 622,  // Effective self destructs
+    SKILL_UNUSED_2 = 623,   //
+    SKILL_BIOSCAN = 624,    // Sense Life scan
+    SKILL_DISCHARGE = 625,  // Discharge attack
+    SKILL_SELFREPAIR = 626, // Repair hit points
+    SKILL_CYBOREPAIR = 627, // Repair other borgs
+    SKILL_OVERHAUL = 628,   // Overhaul other borgs
+    SKILL_DAMAGE_CONTROL = 629, // Damage Control System
+    SKILL_ELECTRONICS = 630,    // Operation of Electronics
+    SKILL_HACKING = 631,    // hack electronic systems
+    SKILL_CYBERSCAN = 632,  // scan others for implants
+    SKILL_CYBO_SURGERY = 633,   // implant objects
+    SKILL_ENERGY_WEAPONS = 634, // energy weapon use
+    SKILL_PROJ_WEAPONS = 635,   // projectile weapon use
+    SKILL_SPEED_LOADING = 636,  // speed load weapons
+    SKILL_HYPERSCAN = 637,  // aware of hidden objs and traps
+    SKILL_OVERDRAIN = 638,  // overdrain batteries
+    SKILL_DE_ENERGIZE = 639,    // drain energy from chars
+    SKILL_ASSIMILATE = 640, // assimilate objects
+    SKILL_RADIONEGATION = 641,  // immunity to radiation
+    SKILL_IMPLANT_W = 642,  // Extra attacks with implant weapons.
+    SKILL_ADV_IMPLANT_W = 643,  // ""
+    SKILL_OFFENSIVE_POS = 644,  // Offensive Posturing
+    SKILL_DEFENSIVE_POS = 645,  // Defensive Posturing
+    SKILL_MELEE_COMBAT_TAC = 646,   // Melee combat tactics
+    SKILL_NEURAL_BRIDGING = 647,    // Cogenic Neural Bridging
+    // (Ambidextarity)
 // Cyborg skills continue around 675
 
-    SKILL_RETREAT = 648,	// controlled flee
-    SKILL_DISGUISE = 649,	// look like a mob
-    SKILL_AMBUSH = 650,	// surprise victim
+    SKILL_RETREAT = 648,    // controlled flee
+    SKILL_DISGUISE = 649,   // look like a mob
+    SKILL_AMBUSH = 650, // surprise victim
 
     SKILL_CHEMISTRY = 651, // merc skill
     SKILL_ADVANCED_CYBO_SURGERY = 652,
-    SKILL_SHIELD_SLAM = 653, //knight knockdown requiring shield
+    SKILL_SHIELD_SLAM = 653, // knight knockdown requiring shield
     SKILL_SPARE4 = 654,
     SKILL_BEGUILE = 655,
     SKILL_SPARE6 = 656,
     SKILL_SPARE7 = 657,
     SKILL_SPARE8 = 658,
 
-//-------------  Hood Skillz... yeah. Just two
+// -------------  Hood Skillz... yeah. Just two
     SKILL_SNATCH = 667,
     SKILL_DRAG = 668,
 
-//    SKILL_TAUNT = 669,
+// SKILL_TAUNT = 669,
 
-//------------  Mercenary Skills -------------------
+// ------------  Mercenary Skills -------------------
     SKILL_HAMSTRING = 666,
-    SKILL_SNIPE = 669,	// sniper skill for mercs
-    SKILL_INFILTRATE = 670,	// merc skill, improvement on sneak
-    SKILL_SHOULDER_THROW = 671,	// grounding skill between hiptoss
-										 // and sweepkick
+    SKILL_SNIPE = 669,  // sniper skill for mercs
+    SKILL_INFILTRATE = 670, // merc skill, improvement on sneak
+    SKILL_SHOULDER_THROW = 671, // grounding skill between hiptoss
+    // and sweepkick
 
 // Bard Skills
     SKILL_SCREAM = 672, // damage like psiblast, chance to stun
@@ -644,14 +646,14 @@ enum spell {
     SKILL_LINGERING_SONG = 676, // increases duration of song affects
 
 // Overflow Cyborg
-    SKILL_NANITE_RECONSTRUCTION = 675,	// repairs implants
-//    SKILL_ARTERIAL_FLOW = 676,	// Arterial Flow Enhancements
-    SKILL_OPTIMMUNAL_RESP = 677,	// Genetek Optimmunal Node
-    SKILL_ADRENAL_MAXIMIZER = 678,	// Shukutei Adrenal Maximizer
+    SKILL_NANITE_RECONSTRUCTION = 675,  // repairs implants
+// SKILL_ARTERIAL_FLOW = 676,	// Arterial Flow Enhancements
+    SKILL_OPTIMMUNAL_RESP = 677,    // Genetek Optimmunal Node
+    SKILL_ADRENAL_MAXIMIZER = 678,  // Shukutei Adrenal Maximizer
 
-    SKILL_ENERGY_CONVERSION = 679,	// physic's energy conversion
+    SKILL_ENERGY_CONVERSION = 679,  // physic's energy conversion
 
-  /******************  PROFICENCIES  *******************/
+    /******************  PROFICENCIES  *******************/
     SKILL_PROF_POUND = 681,
     SKILL_PROF_WHIP = 682,
     SKILL_PROF_PIERCE = 683,
@@ -731,7 +733,7 @@ enum spell {
     SPELL_ZHENGIS_FIST_OF_ANNIHILATION = 764,
     TYPE_RAD_SICKNESS = 765,
     TYPE_FLAMETHROWER = 766,
-    TYPE_MALOVENT_HOLYTOUCH = 767,	// When holytouch wears off.
+    TYPE_MALOVENT_HOLYTOUCH = 767,  // When holytouch wears off.
     SPELL_YOUTH = 768,
     TYPE_SWALLOW = 769,
     TOP_NPC_SPELL = 770,
@@ -765,7 +767,7 @@ enum attack {
     TOP_ATTACKTYPE = 819,
 /* new attack types can be added here - up to TYPE_SUFFERING */
 
-//energy weapon attack types
+// energy weapon attack types
     TYPE_EGUN_LASER = 820,
     TYPE_EGUN_PLASMA = 821,
     TYPE_EGUN_ION = 822,
@@ -776,17 +778,17 @@ enum attack {
     TYPE_EGUN_LIGHTNING = 827,
     TYPE_EGUN_TOP = 828,
 
-//energy weapon spec types
+// energy weapon spec types
     TYPE_EGUN_SPEC_LIGHTNING = 831,
     TYPE_EGUN_SPEC_SONIC = 832,
 
-    TYPE_CRUSHING_DEPTH = 892,	// in deep ocean without vehicle
-    TYPE_TAINT_BURN = 893,	// casting while tainted
+    TYPE_CRUSHING_DEPTH = 892,  // in deep ocean without vehicle
+    TYPE_TAINT_BURN = 893,  // casting while tainted
     TYPE_PRESSURE = 894,
     TYPE_SUFFOCATING = 895,
-    TYPE_ANGUISH = 896,	// Soulless and good aligned. dumbass.
-    TYPE_BLEED = 897,	// Open wound
-    TYPE_OVERLOAD = 898,	// cyborg overloading systems.
+    TYPE_ANGUISH = 896, // Soulless and good aligned. dumbass.
+    TYPE_BLEED = 897,   // Open wound
+    TYPE_OVERLOAD = 898,    // cyborg overloading systems.
     TYPE_SUFFERING = 899,
     TOP_DAMAGETYPE = 900,
 };
@@ -809,8 +811,8 @@ enum target_flag {
     TAR_CHAR_WORLD = 4,
     TAR_FIGHT_SELF = 8,
     TAR_FIGHT_VICT = 16,
-    TAR_SELF_ONLY = 32,	/* Only a check, use with i.e. TAR_CHAR_ROOM */
-    TAR_NOT_SELF = 64,	/* Only a check, use with i.e. TAR_CHAR_ROOM */
+    TAR_SELF_ONLY = 32, /* Only a check, use with i.e. TAR_CHAR_ROOM */
+    TAR_NOT_SELF = 64,  /* Only a check, use with i.e. TAR_CHAR_ROOM */
     TAR_OBJ_INV = 128,
     TAR_OBJ_ROOM = 256,
     TAR_OBJ_WORLD = 512,
@@ -821,18 +823,18 @@ enum target_flag {
 };
 
 struct spell_info_type {
-	char min_position;			/* Position for caster   */
-	int16_t mana_min;			/* Min amount of mana used by a spell (highest lev) */
-	int16_t mana_max;			/* Max amount of mana used by a spell (lowest lev) */
-	char mana_change;			/* Change in mana used by spell from lev to lev */
+    char min_position;          /* Position for caster   */
+    int16_t mana_min;           /* Min amount of mana used by a spell (highest lev) */
+    int16_t mana_max;           /* Max amount of mana used by a spell (lowest lev) */
+    char mana_change;           /* Change in mana used by spell from lev to lev */
 
-	char min_level[NUM_CLASSES];
-	char gen[NUM_CLASSES];
-	int routines;
-	int16_t targets;				/* See below for use with TAR_XXX  */
-	bool violent;
-        bool is_weapon;
-        bool defensive;
+    char min_level[NUM_CLASSES];
+    char gen[NUM_CLASSES];
+    int routines;
+    int16_t targets;                /* See below for use with TAR_XXX  */
+    bool violent;
+    bool is_weapon;
+    bool defensive;
 };
 
 struct bard_song {
@@ -857,7 +859,7 @@ extern struct bard_song songs[];
    bit 8 : If fighting, and no argument, select tar_char as victim (fighting)
    bit 9 : If no argument, select self, if argument check that it IS self.
 
-*/
+ */
 enum spell_type {
     SPELL_TYPE_SPELL = 0,
     SPELL_TYPE_POTION = 1,
@@ -869,8 +871,8 @@ enum spell_type {
 /* Attacktypes with grammar */
 
 struct attack_hit_type {
-	const char *singular;
-	const char *plural;
+    const char *singular;
+    const char *plural;
 };
 
 struct gun_hit_type {
@@ -880,21 +882,27 @@ struct gun_hit_type {
 };
 
 #define ASPELL(spellname) \
-	void spellname(__attribute__ ((unused)) uint8_t level, \
-		__attribute__ ((unused)) struct creature *ch, \
-		__attribute__ ((unused))  struct creature *victim, \
-		__attribute__ ((unused)) struct obj_data *obj, \
-		__attribute__ ((unused)) int *dir)
+    void spellname(__attribute__ ((unused)) uint8_t level, \
+                   __attribute__ ((unused)) struct creature *ch, \
+                   __attribute__ ((unused))  struct creature *victim, \
+                   __attribute__ ((unused)) struct obj_data *obj, \
+                   __attribute__ ((unused)) int *dir)
 
-#define MANUAL_SPELL(spellname)	spellname(level, caster, cvict, ovict, dvict);
+#define MANUAL_SPELL(spellname) spellname(level, caster, cvict, ovict, dvict)
 
-static inline int SPELL_LEVEL( int spell, int char_class ) {
-	return (int)spell_info[spell].min_level[char_class];
+static inline int
+SPELL_LEVEL(int spell, int char_class)
+{
+    return (int)spell_info[spell].min_level[char_class];
 }
-static inline int SPELL_GEN( int spell, int char_class ) {
+static inline int
+SPELL_GEN(int spell, int char_class)
+{
     return (int)spell_info[spell].gen[char_class];
 }
-static inline bool IS_WEAPON(int spell) {
+static inline bool
+IS_WEAPON(int spell)
+{
     return spell_info[spell].is_weapon;
 }
 
@@ -963,16 +971,16 @@ int find_skill_num(char *name);
 bool can_cast_spell(struct creature *ch, int spellnum);
 
 int mag_damage(int level, struct creature *ch, struct creature *victim,
-	int spellnum, int savetype);
+               int spellnum, int savetype);
 
 int mag_exits(int level, struct creature *caster, struct room_data *room,
-	int spellnum);
+              int spellnum);
 
 void mag_affects(int level, struct creature *ch, struct creature *victim,
-	int *dir, int spellnum, int savetype);
+                 int *dir, int spellnum, int savetype);
 
 void mag_group_switch(int level, struct creature *ch, struct creature *tch,
-	int spellnum, int savetype);
+                      int spellnum, int savetype);
 
 void mag_groups(int level, struct creature *ch, int spellnum, int savetype);
 
@@ -981,30 +989,30 @@ void mag_masses(int8_t level, struct creature *ch, int spellnum, int savetype);
 int mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype);
 
 void mag_summons(int level, struct creature *ch, struct obj_data *obj,
-	int spellnum, int savetype);
+                 int spellnum, int savetype);
 
 void mag_points(int level, struct creature *ch, struct creature *victim,
-	int *dir, int spellnum, int savetype);
+                int *dir, int spellnum, int savetype);
 
 void mag_unaffects(int level, struct creature *ch, struct creature *victim,
-	int spellnum, int type);
+                   int spellnum, int type);
 
 void mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
-	int spellnum, int type);
+                    int spellnum, int type);
 
 void mag_creations(int level, struct creature *ch, int spellnum);
 
 int call_magic(struct creature *caster, struct creature *cvict,
-	struct obj_data *ovict, int *dvict, int spellnum, int level, int casttype);
+               struct obj_data *ovict, int *dvict, int spellnum, int level, int casttype);
 
 int mag_objectmagic(struct creature *ch, struct obj_data *obj,
-	char *argument);
+                    char *argument);
 
 void mag_objects(int level, struct creature *ch, struct obj_data *obj,
-	int spellnum);
+                 int spellnum);
 
 int cast_spell(struct creature *ch, struct creature *tch,
-	struct obj_data *tobj, int *tdir, int spellnum);
+               struct obj_data *tobj, int *tdir, int spellnum);
 
 bool mag_savingthrow(struct creature *ch, int level, int type);
 

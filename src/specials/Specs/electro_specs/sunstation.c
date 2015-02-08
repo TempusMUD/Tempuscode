@@ -10,8 +10,9 @@ SPECIAL(sunstation)
 {
     struct obj_data *sun = (struct obj_data *)me;
 
-    if (spec_mode != SPECIAL_CMD || !ch->desc || !CMD_IS("login"))
+    if (spec_mode != SPECIAL_CMD || !ch->desc || !CMD_IS("login")) {
         return 0;
+    }
 
     act("You log in on $p.", false, ch, sun, NULL, TO_CHAR);
     act("$n logs in on $p.", false, ch, sun, NULL, TO_ROOM);

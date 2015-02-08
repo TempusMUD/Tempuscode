@@ -11,14 +11,17 @@ SPECIAL(beer_tree)
     char *beers[] = { "heineken", "grolsch", "becks", "\n" };
     skip_spaces(&argument);
 
-    if (!(CMD_IS("get") || CMD_IS("pick")))
+    if (!(CMD_IS("get") || CMD_IS("pick"))) {
         return 0;
+    }
 
-    if (!*argument)
+    if (!*argument) {
         return 0;
+    }
 
-    if ((beer = search_block(argument, beers, false)) < 0)
+    if ((beer = search_block(argument, beers, false)) < 0) {
         return 0;
+    }
 
     switch (beer) {
     case 0:
@@ -32,8 +35,9 @@ SPECIAL(beer_tree)
         break;
     }
 
-    if (!obj)
+    if (!obj) {
         return 0;
+    }
 
     obj_to_char(obj, ch);
 

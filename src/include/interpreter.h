@@ -29,36 +29,36 @@ struct creature;
 struct descriptor_data;
 
 void command_interpreter(struct creature *ch, const char *argument)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 gboolean handle_input(gpointer data)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 int find_command(const char *command)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 int find_command_noabbrev(const char *command)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 void send_unknown_cmd(struct creature *ch)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 
 // from search.c
 struct special_search_data;
 int triggers_search(struct creature *ch, int cmd, char *arg,
                     struct special_search_data *srch)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 
 struct command_info {
-	const char *command;
-	int8_t minimum_position;
+    const char *command;
+    int8_t minimum_position;
     ACMD((*command_pointer));
-	int16_t minimum_level;
-	int subcmd;
-	int role_count;
-	unsigned long usage;
+    int16_t minimum_level;
+    int subcmd;
+    int role_count;
+    unsigned long usage;
 };
 
 struct sort_struct {
-	int sort_pos;
-	bool is_social;
-	bool is_mood;
+    int sort_pos;
+    bool is_social;
+    bool is_mood;
 };
 
 extern struct sort_struct *cmd_sort_info;
@@ -73,30 +73,30 @@ extern struct command_info cmd_info[];
 #define IS_MOVE(cmdnum) (cmdnum >= 1 && cmdnum <= 6)
 
 struct alias_data {
-	char *alias;
-	char *replacement;
-	int type;
-	struct alias_data *next;
+    char *alias;
+    char *replacement;
+    int type;
+    struct alias_data *next;
 };
 
-#define ALIAS_SIMPLE	0
-#define ALIAS_COMPLEX	1
+#define ALIAS_SIMPLE    0
+#define ALIAS_COMPLEX   1
 
-#define ALIAS_SEP_CHAR	';'
-#define ALIAS_VAR_CHAR	'$'
-#define ALIAS_GLOB_CHAR	'*'
+#define ALIAS_SEP_CHAR  ';'
+#define ALIAS_VAR_CHAR  '$'
+#define ALIAS_GLOB_CHAR '*'
 
 struct show_struct {
-	const char *cmd;
-	const char level;
-	const char *role;
+    const char *cmd;
+    const char level;
+    const char *role;
 };
 struct set_struct {
-	const char *cmd;
-	char level;
-	char pcnpc;
-	char type;
-	const char *role;
+    const char *cmd;
+    char level;
+    char pcnpc;
+    char type;
+    const char *role;
 };
 
 /*
@@ -106,12 +106,12 @@ struct set_struct {
  */
 
 /* directions */
-#define SCMD_NORTH	1
-#define SCMD_EAST	2
-#define SCMD_SOUTH	3
-#define SCMD_WEST	4
-#define SCMD_UP		5
-#define SCMD_DOWN	6
+#define SCMD_NORTH  1
+#define SCMD_EAST   2
+#define SCMD_SOUTH  3
+#define SCMD_WEST   4
+#define SCMD_UP     5
+#define SCMD_DOWN   6
 #define SCMD_FUTURE     7
 #define SCMD_PAST       8
 #define SCMD_MOVE       9
@@ -125,10 +125,10 @@ struct set_struct {
 #define SCMD_WIZLIST    3
 #define SCMD_VERSION    4
 #define SCMD_IMMLIST    5
-#define SCMD_MOTD	6
-#define SCMD_IMOTD	7
-#define SCMD_CLEAR	8
-#define SCMD_WHOAMI	9
+#define SCMD_MOTD   6
+#define SCMD_IMOTD  7
+#define SCMD_CLEAR  8
+#define SCMD_WHOAMI 9
 
 /* do_gen_tog */
 #define CMD_TESTER 1
@@ -136,19 +136,19 @@ struct set_struct {
 #define SCMD_NOHASSLE   1
 #define SCMD_BRIEF      2
 #define SCMD_UNUSED     3
-#define SCMD_NOTELL	4
-#define SCMD_NOAUCTION	5
-#define SCMD_DEAF	6
-#define SCMD_NOGOSSIP	7
-#define SCMD_NOGRATZ	8
-#define SCMD_NOWIZ	9
-#define SCMD_ROOMFLAGS	10
-#define SCMD_HOLYLIGHT	11
-#define SCMD_SLOWNS	12
-#define SCMD_AUTOEXIT	13
+#define SCMD_NOTELL 4
+#define SCMD_NOAUCTION  5
+#define SCMD_DEAF   6
+#define SCMD_NOGOSSIP   7
+#define SCMD_NOGRATZ    8
+#define SCMD_NOWIZ  9
+#define SCMD_ROOMFLAGS  10
+#define SCMD_HOLYLIGHT  11
+#define SCMD_SLOWNS 12
+#define SCMD_AUTOEXIT   13
 #define SCMD_AFK        14
 #define SCMD_NOMUSIC    15
-#define SCMD_NOSPEW	16
+#define SCMD_NOSPEW 16
 #define SCMD_GAGMISS    17
 #define SCMD_AUTOPAGE   18
 #define SCMD_NOCLANSAY  19
@@ -174,7 +174,7 @@ struct set_struct {
 #define SCMD_AUTOSPLIT  39
 #define SCMD_AUTOLOOT   40
 #define SCMD_PKILLER    41
-#define SCMD_NOGECHO	42
+#define SCMD_NOGECHO    42
 #define SCMD_AUTOWRAP   43
 #define SCMD_WORLDWRITE 44
 #define SCMD_DEATHLOG   45
@@ -186,106 +186,106 @@ struct set_struct {
 #define SCMD_METRIC     51
 
 /* do_wizutil */
-#define SCMD_REROLL	0
+#define SCMD_REROLL 0
 #define SCMD_PARDON     1
 #define SCMD_NOTITLE    2
 #define SCMD_SQUELCH    3
-#define SCMD_FREEZE	4
-#define SCMD_THAW	5
-#define SCMD_UNAFFECT	6
+#define SCMD_FREEZE 4
+#define SCMD_THAW   5
+#define SCMD_UNAFFECT   6
 #define SCMD_NOPOST     7
 
 /* do_set */
 #define SCMD_TESTER_SET 1
 
 /* do_gen_com */
-#define SCMD_HOLLER		0
-#define SCMD_SHOUT		1
-#define SCMD_GOSSIP		2
-#define SCMD_AUCTION	3
-#define SCMD_GRATZ		4
+#define SCMD_HOLLER     0
+#define SCMD_SHOUT      1
+#define SCMD_GOSSIP     2
+#define SCMD_AUCTION    3
+#define SCMD_GRATZ      4
 #define SCMD_MUSIC      5
-#define SCMD_SPEW		6
+#define SCMD_SPEW       6
 #define SCMD_DREAM      7
 #define SCMD_PROJECT    8
 #define SCMD_NEWBIE     9
-#define SCMD_CLANSAY	10
-#define SCMD_GUILDSAY	11
-#define SCMD_CLANEMOTE	12
-#define SCMD_PETITION	13
-#define SCMD_HAGGLE 	14
+#define SCMD_CLANSAY    10
+#define SCMD_GUILDSAY   11
+#define SCMD_CLANEMOTE  12
+#define SCMD_PETITION   13
+#define SCMD_HAGGLE     14
 #define SCMD_PLUG       15
 
 /* do_shutdown */
-#define SCMD_SHUTDOW	0
+#define SCMD_SHUTDOW    0
 #define SCMD_SHUTDOWN   1
 
 /* do_quit */
-#define SCMD_QUI	0
-#define SCMD_QUIT	1
+#define SCMD_QUI    0
+#define SCMD_QUIT   1
 
 /* do_date */
-#define SCMD_DATE	0
-#define SCMD_UPTIME	1
+#define SCMD_DATE   0
+#define SCMD_UPTIME 1
 
 /* do_commands */
-#define SCMD_COMMANDS	0
-#define SCMD_SOCIALS	1
-#define SCMD_WIZHELP	2
-#define SCMD_MOODS  	3
+#define SCMD_COMMANDS   0
+#define SCMD_SOCIALS    1
+#define SCMD_WIZHELP    2
+#define SCMD_MOODS      3
 
 /* do_drop */
-#define SCMD_DROP	0
-#define SCMD_JUNK	1
-#define SCMD_DONATE	2
+#define SCMD_DROP   0
+#define SCMD_JUNK   1
+#define SCMD_DONATE 2
 #define SCMD_GUILD_DONATE 3
 
 /* do_gen_write */
-#define SCMD_BUG	0
-#define SCMD_TYPO	1
-#define SCMD_IDEA	2
-#define SCMD_BAD_IDEA	3
+#define SCMD_BUG    0
+#define SCMD_TYPO   1
+#define SCMD_IDEA   2
+#define SCMD_BAD_IDEA   3
 
 /* do_look */
-#define SCMD_LOOK	0
+#define SCMD_LOOK   0
 
 /* do_qcomm */
-#define SCMD_QSAY	0
-#define SCMD_QECHO	1
+#define SCMD_QSAY   0
+#define SCMD_QECHO  1
 
 /* do_clan_comm */
 #define SCMD_CLAN_SAY   0
 #define SCMD_CLAN_ECHO  1
 
 /* do_pour */
-#define SCMD_POUR	0
-#define SCMD_FILL	1
+#define SCMD_POUR   0
+#define SCMD_FILL   1
 
 /* do_poof */
-#define SCMD_POOFIN	0
-#define SCMD_POOFOUT	1
+#define SCMD_POOFIN 0
+#define SCMD_POOFOUT    1
 
 /* do_hit */
-#define SCMD_HIT	0
-#define SCMD_MURDER	1
+#define SCMD_HIT    0
+#define SCMD_MURDER 1
 
 /* do_eat */
-#define SCMD_EAT	0
-#define SCMD_TASTE	1
-#define SCMD_DRINK	2
-#define SCMD_SIP	3
+#define SCMD_EAT    0
+#define SCMD_TASTE  1
+#define SCMD_DRINK  2
+#define SCMD_SIP    3
 
 /* do_use */
-#define SCMD_USE	0
-#define SCMD_QUAFF	1
-#define SCMD_RECITE	2
+#define SCMD_USE    0
+#define SCMD_QUAFF  1
+#define SCMD_RECITE 2
 #define SCMD_INJECT     3
 #define SCMD_SWALLOW    4
-#define SCMD_READ	5
+#define SCMD_READ   5
 
 /* do_echo */
-#define SCMD_ECHO	0
-#define SCMD_EMOTE	1
+#define SCMD_ECHO   0
+#define SCMD_EMOTE  1
 
 /* do_gen_door */
 #define SCMD_OPEN       0
@@ -303,18 +303,18 @@ struct set_struct {
 #define SCMD_POLICIES   5
 
 /* do_send_color  */
-#define SCMD_KRED	1
-#define SCMD_KGRN	2
-#define SCMD_KYEL	3
+#define SCMD_KRED   1
+#define SCMD_KGRN   2
+#define SCMD_KYEL   3
 #define SCMD_KBLU       4
 #define SCMD_KMAG       5
-#define SCMD_KCYN	6
-#define SCMD_KWHT	7
-#define SCMD_KBLD 	8
-#define SCMD_KUND	9
-#define SCMD_KBLK	10
-#define SCMD_KREV	11
-#define SCMD_KNRM	12
+#define SCMD_KCYN   6
+#define SCMD_KWHT   7
+#define SCMD_KBLD   8
+#define SCMD_KUND   9
+#define SCMD_KBLK   10
+#define SCMD_KREV   11
+#define SCMD_KNRM   12
 
 /* command do_kill */
 #define SCMD_SLAY       1
@@ -393,4 +393,4 @@ enum {
     SCMD_REPUTATION,
 };
 
-#endif							//TEMPUSMUD_INTERPRETER_H
+#endif                          // TEMPUSMUD_INTERPRETER_H

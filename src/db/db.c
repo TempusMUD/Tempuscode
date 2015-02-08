@@ -67,7 +67,7 @@
 #include "strutil.h"
 
 #define ZONE_ERROR(message) \
-{ zerrlog(state->zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); state->last_cmd = 0; }
+    { zerrlog(state->zone, "%s (cmd %c, num %d)", message, zonecmd->command, zonecmd->line); state->last_cmd = 0; }
 
 /**************************************************************************
 *  declarations of most of the 'global' variables                         *
@@ -169,13 +169,13 @@ PGconn *sql_cxn = NULL;
 struct sql_query_data *sql_query_list = NULL;
 
 /* local functions */
-void setup_dir(FILE * fl, struct room_data *room, int dir);
+void setup_dir(FILE *fl, struct room_data *room, int dir);
 void index_boot(int mode);
-void discrete_load(FILE * fl, int mode);
-void parse_room(FILE * fl, int vnum_nr);
-void parse_mobile(FILE * mob_f, int nr);
-char *parse_object(FILE * obj_f, int nr);
-void load_zones(FILE * fl, char *zonename);
+void discrete_load(FILE *fl, int mode);
+void parse_room(FILE *fl, int vnum_nr);
+void parse_mobile(FILE *mob_f, int nr);
+char *parse_object(FILE *obj_f, int nr);
+void load_zones(FILE *fl, char *zonename);
 void assign_mobiles(void);
 void assign_objects(void);
 void assign_rooms(void);
@@ -282,15 +282,15 @@ ACMD(do_reboot)
     } else {
         send_to_char(ch, "Unknown reboot option.\r\n");
         send_to_char(ch,
-            "Options: all    *         credits     motd     imotd      info\r\n");
+                     "Options: all    *         credits     motd     imotd      info\r\n");
         send_to_char(ch,
-            "         areas  olc_guide quest_guide handbook background paths\r\n");
+                     "         areas  olc_guide quest_guide handbook background paths\r\n");
         send_to_char(ch, "         trails timewarps xml      socials\r\n");
         return;
     }
     send_to_char(ch, "%s", OK);
     mudlog(GET_INVIS_LVL(ch), NRM, true,
-        "%s has reloaded %s file", GET_NAME(ch), arg);
+           "%s has reloaded %s file", GET_NAME(ch), arg);
 }
 
 void
@@ -323,8 +323,9 @@ boot_world(void)
     renum_zone_table();
 
     /* for quad damage bamfing */
-    if (!(default_quad_zone = real_zone(25)))
+    if (!(default_quad_zone = real_zone(25))) {
         default_quad_zone = zone_table;
+    }
 }
 
 /* body of the booting system */
@@ -340,10 +341,11 @@ boot_db(void)
     reset_time();
 
     slog("Connecting to postgres.");
-    if (production_mode)
+    if (production_mode) {
         sql_cxn = PQconnectdb("user=realm dbname=tempus");
-    else
+    } else {
         sql_cxn = PQconnectdb("user=realm dbname=devtempus");
+    }
     if (!sql_cxn) {
         slog("Couldn't allocate postgres connection!");
         safe_exit(1);
@@ -419,8 +421,9 @@ boot_db(void)
     }
     slog("   Spells.");
     boot_spells("etc/spells.xml");
-    while (spells[max_spell_num][0] != '\n')
+    while (spells[max_spell_num][0] != '\n') {
         max_spell_num++;
+    }
 
     slog("Sorting command list and spells.");
     sort_commands();
@@ -455,17 +458,18 @@ boot_db(void)
     if (!no_initial_zreset) {
         for (zone = zone_table; zone; zone = zone->next) {
             slog("Resetting %s (rms %d-%d).",
-                zone->name, zone->number * 100, zone->top);
+                 zone->name, zone->number * 100, zone->top);
             reset_zone(zone);
         }
     }
 
     slog("Booting help system.");
     help = make_help_collection();
-    if (help_collection_load_index(help))
+    if (help_collection_load_index(help)) {
         slog("Help system boot succeeded.");
-    else
+    } else {
         errlog("Help System Boot FAILED.");
+    }
 
     reset_q.head = reset_q.tail = NULL;
 
@@ -494,11 +498,11 @@ reset_time(void)
     time_info = mud_time_passed(now, epoch);
 
     slog("   Current Gametime (global): %dH %dD %dM %dY.",
-        time_info.hours, time_info.day, time_info.month, time_info.year);
+         time_info.hours, time_info.day, time_info.month, time_info.year);
 
     lunar_day = ((now - epoch) / SECS_PER_MUD_DAY) % 24;
     slog("   Current lunar day: %d (%s)",
-        lunar_day, lunar_phases[get_lunar_phase(lunar_day)]);
+         lunar_day, lunar_phases[get_lunar_phase(lunar_day)]);
 }
 
 void
@@ -510,34 +514,37 @@ reset_zone_weather(void)
     for (zone = zone_table; zone; zone = zone->next) {
         set_local_time(zone, &local_time);
 
-        if (local_time.hours <= 4)
+        if (local_time.hours <= 4) {
             zone->weather->sunlight = SUN_DARK;
-        else if (local_time.hours == 5)
+        } else if (local_time.hours == 5) {
             zone->weather->sunlight = SUN_RISE;
-        else if (local_time.hours <= 20)
+        } else if (local_time.hours <= 20) {
             zone->weather->sunlight = SUN_LIGHT;
-        else if (local_time.hours == 21)
+        } else if (local_time.hours == 21) {
             zone->weather->sunlight = SUN_SET;
-        else
+        } else {
             zone->weather->sunlight = SUN_DARK;
+        }
 
         zone->weather->pressure = 960;
 
-        if ((local_time.month >= 7) && (local_time.month <= 12))
+        if ((local_time.month >= 7) && (local_time.month <= 12)) {
             zone->weather->pressure += dice(1, 50);
-        else
+        } else {
             zone->weather->pressure += dice(1, 80);
+        }
 
         zone->weather->change = 0;
 
-        if (zone->weather->pressure <= 980)
+        if (zone->weather->pressure <= 980) {
             zone->weather->sky = SKY_LIGHTNING;
-        else if (zone->weather->pressure <= 1000)
+        } else if (zone->weather->pressure <= 1000) {
             zone->weather->sky = SKY_RAINING;
-        else if (zone->weather->pressure <= 1020)
+        } else if (zone->weather->pressure <= 1020) {
             zone->weather->sky = SKY_CLOUDY;
-        else
+        } else {
             zone->weather->sky = SKY_CLOUDLESS;
+        }
     }
 
     slog("Zone weather set.");
@@ -546,14 +553,16 @@ reset_zone_weather(void)
 
 /* function to count how many hash-mark delimited records exist in a file */
 int
-count_hash_records(FILE * fl)
+count_hash_records(FILE *fl)
 {
     char buf[128];
     int count = 0;
 
-    while (fgets(buf, 128, fl))
-        if (*buf == '#')
+    while (fgets(buf, 128, fl)) {
+        if (*buf == '#') {
             count++;
+        }
+    }
 
     return count;
 }
@@ -587,10 +596,11 @@ index_boot(int mode)
         break;
     }
 
-    if (mini_mud)
+    if (mini_mud) {
         index_filename = MINDEX_FILE;
-    else
+    } else {
         index_filename = INDEX_FILE;
+    }
 
     index_path = tmp_sprintf("%s/%s", prefix, index_filename);
 
@@ -614,15 +624,16 @@ index_boot(int mode)
             perror(tmp_sprintf("Unable to open: %s", file_path));
             safe_exit(1);
         }
-        if (mode == DB_BOOT_ZON)
+        if (mode == DB_BOOT_ZON) {
             rec_count++;
-        else
+        } else {
             rec_count += count_hash_records(db_file);
+        }
         index_count++;
         fclose(db_file);
         if (fscanf(index, "%s\n", line) != 1) {
             errlog("Format error reading %s, line %d", index_path,
-                index_count + 1);
+                   index_count + 1);
             safe_exit(1);
         }
     }
@@ -659,12 +670,13 @@ index_boot(int mode)
 
     if (mode != DB_BOOT_ZON) {
         rewind(index);
-        if (mode == DB_BOOT_OBJ)
+        if (mode == DB_BOOT_OBJ) {
             CREATE(obj_index, int, index_count + 1);
-        else if (mode == DB_BOOT_MOB)
+        } else if (mode == DB_BOOT_MOB) {
             CREATE(mob_index, int, index_count + 1);
-        else if (mode == DB_BOOT_WLD)
+        } else if (mode == DB_BOOT_WLD) {
             CREATE(wld_index, int, index_count + 1);
+        }
 
         for (i = 0; i < index_count; i++) {
             if (mode == DB_BOOT_OBJ) {
@@ -688,12 +700,13 @@ index_boot(int mode)
             }
         }
 
-        if (mode == DB_BOOT_OBJ)
+        if (mode == DB_BOOT_OBJ) {
             obj_index[index_count] = -1;
-        else if (mode == DB_BOOT_MOB)
+        } else if (mode == DB_BOOT_MOB) {
             mob_index[index_count] = -1;
-        else if (mode == DB_BOOT_WLD)
+        } else if (mode == DB_BOOT_WLD) {
             wld_index[index_count] = -1;
+        }
     }
 
     rewind(index);
@@ -730,7 +743,7 @@ index_boot(int mode)
 }
 
 void
-discrete_load(FILE * fl, int mode)
+discrete_load(FILE *fl, int mode)
 {
     int nr = -1, last = 0;
     char line[256];
@@ -742,25 +755,27 @@ discrete_load(FILE * fl, int mode)
          * we have to do special processing with the obj files because they have
          * no end-of-record marker :(
          */
-        if (mode != DB_BOOT_OBJ || nr < 0)
+        if (mode != DB_BOOT_OBJ || nr < 0) {
             if (!get_line(fl, line, sizeof(line))) {
                 fprintf(stderr, "Format error after %s #%d\n", modes[mode],
-                    nr);
+                        nr);
                 safe_exit(1);
             }
-        if (*line == '$')
+        }
+        if (*line == '$') {
             return;
+        }
 
         if (*line == '#') {
             last = nr;
             if (sscanf(line, "#%d", &nr) != 1) {
                 fprintf(stderr, "Format error after %s #%d\n", modes[mode],
-                    last);
+                        last);
                 safe_exit(1);
             }
-            if (nr >= 99999)
+            if (nr >= 99999) {
                 return;
-            else
+            } else {
                 switch (mode) {
                 case DB_BOOT_WLD:
                     parse_room(fl, nr);
@@ -772,9 +787,10 @@ discrete_load(FILE * fl, int mode)
                     strcpy_s(line, sizeof(line), parse_object(fl, nr));
                     break;
                 }
+            }
         } else {
             fprintf(stderr, "Format error in %s file near %s #%d\n",
-                modes[mode], modes[mode], nr);
+                    modes[mode], modes[mode], nr);
             fprintf(stderr, "Offending line: '%s'\n", line);
             safe_exit(1);
         }
@@ -789,24 +805,27 @@ asciiflag_conv(char *flag)
     register char *p;
 
     for (p = flag; *p; p++) {
-        if (islower(*p))
+        if (islower(*p)) {
             flags |= 1 << (*p - 'a');
-        else if (isupper(*p))
+        } else if (isupper(*p)) {
             flags |= 1 << (26 + (*p - 'A'));
+        }
 
-        if (!isdigit(*p))
+        if (!isdigit(*p)) {
             is_number = 0;
+        }
     }
 
-    if (is_number)
+    if (is_number) {
         flags = atol(flag);
+    }
 
     return flags;
 }
 
 /* load the rooms */
 void
-parse_room(FILE * fl, int vnum_nr)
+parse_room(FILE *fl, int vnum_nr)
 {
     static int room_nr = 0;
     int t[10];
@@ -876,11 +895,11 @@ parse_room(FILE * fl, int vnum_nr)
             /* put the new exdesc at the end of the linked list, not head */
 
             new_descr->next = NULL;
-            if (!room->ex_description)
+            if (!room->ex_description) {
                 room->ex_description = new_descr;
-            else {
+            } else {
                 for (t_exdesc = room->ex_description; t_exdesc;
-                    t_exdesc = t_exdesc->next) {
+                     t_exdesc = t_exdesc->next) {
                     if (!(t_exdesc->next)) {
                         t_exdesc->next = new_descr;
                         break;
@@ -889,7 +908,7 @@ parse_room(FILE * fl, int vnum_nr)
 
                 if (!t_exdesc) {
                     fprintf(stderr, "Error building exdesc list in room %d.",
-                        vnum_nr);
+                            vnum_nr);
                     safe_exit(1);
                 }
             }
@@ -901,29 +920,30 @@ parse_room(FILE * fl, int vnum_nr)
             if (!get_line(fl, line, sizeof(line))
                 || sscanf(line, "%d %d %d", t, t + 1, t + 2) != 3) {
                 fprintf(stderr, "Flow field incorrect in room #%d.\n",
-                    vnum_nr);
+                        vnum_nr);
                 safe_exit(1);
             }
             if (FLOW_SPEED(room)) {
                 errlog("Multiple flow states assigned to room #%d.\n",
-                    vnum_nr);
+                       vnum_nr);
             }
             if (t[0] < 0 || t[0] >= NUM_DIRS) {
                 fprintf(stderr,
-                    "Direction '%d' in room #%d flow field BUNK!\n", t[0],
-                    vnum_nr);
+                        "Direction '%d' in room #%d flow field BUNK!\n", t[0],
+                        vnum_nr);
                 safe_exit(1);
             }
             if (t[1] < 0) {
                 fprintf(stderr, "Negative speed in room #%d flow field!\n",
-                    vnum_nr);
+                        vnum_nr);
                 safe_exit(1);
             }
             if (t[2] < 0 || t[2] >= NUM_FLOW_TYPES) {
                 errlog("Illegal flow type in room #%d.", vnum_nr);
                 FLOW_TYPE(room) = F_TYPE_NONE;
-            } else
+            } else {
                 FLOW_TYPE(room) = t[2];
+            }
             FLOW_DIR(room) = t[0];
             FLOW_SPEED(room) = t[1];
             break;
@@ -945,7 +965,7 @@ parse_room(FILE * fl, int vnum_nr)
                 if ((sscanf(line, "%d %d %d %d %d",
                             t + 5, t + 1, t + 2, t + 3, t + 4) != 5)) {
                     fprintf(stderr, "Search Field format error in room #%d\n",
-                        vnum_nr);
+                            vnum_nr);
                     safe_exit(1);
                 }
                 t[6] = 0;
@@ -962,19 +982,20 @@ parse_room(FILE * fl, int vnum_nr)
 
             new_search->next = NULL;
 
-            if (!(room->search))
+            if (!(room->search)) {
                 room->search = new_search;
-            else {
-                for (t_srch = room->search; t_srch; t_srch = t_srch->next)
+            } else {
+                for (t_srch = room->search; t_srch; t_srch = t_srch->next) {
                     if (!(t_srch->next)) {
                         t_srch->next = new_search;
                         break;
                     }
+                }
 
                 if (!t_srch) {
                     fprintf(stderr,
-                        "Error building main search list in room %d.",
-                        vnum_nr);
+                            "Error building main search list in room %d.",
+                            vnum_nr);
                     safe_exit(1);
                 }
             }
@@ -998,13 +1019,15 @@ parse_room(FILE * fl, int vnum_nr)
 
             if (zone->world) {
                 for (tmp_room = zone->world; tmp_room;
-                    tmp_room = tmp_room->next)
+                     tmp_room = tmp_room->next) {
                     if (!tmp_room->next) {
                         tmp_room->next = room;
                         break;
                     }
-            } else
+                }
+            } else {
                 zone->world = room;
+            }
 
             return;
             break;
@@ -1045,7 +1068,7 @@ calc_door_strength(struct room_data *room, int dir)
 
 /* read direction data */
 void
-setup_dir(FILE * fl, struct room_data *room, int dir)
+setup_dir(FILE *fl, struct room_data *room, int dir)
 {
     int t[5];
     char line[256], flags[128];
@@ -1110,119 +1133,140 @@ check_start_rooms(void)
         r_mortal_start_room = real_room(0);
     }
     if ((r_electro_start_room = real_room(electro_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Electro Centralis start room does not exist.");
+        }
         r_electro_start_room = r_mortal_start_room;
     }
     if ((r_immort_start_room = real_room(immort_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Immort start room does not exist.");
+        }
         r_immort_start_room = r_mortal_start_room;
     }
     if ((r_frozen_start_room = real_room(frozen_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Frozen start room does not exist.");
+        }
         r_frozen_start_room = r_mortal_start_room;
     }
     if ((r_new_thalos_start_room = real_room(new_thalos_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: New Thalos start room does not exist.");
+        }
         r_new_thalos_start_room = r_mortal_start_room;
     }
     if ((r_kromguard_start_room = real_room(kromguard_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Kromguard start room does not exist.");
+        }
         r_kromguard_start_room = r_mortal_start_room;
     }
     if ((r_elven_start_room = real_room(elven_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Elven Village start room does not exist.");
+        }
         r_elven_start_room = r_mortal_start_room;
     }
     if ((r_istan_start_room = real_room(istan_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Istan start room does not exist.");
+        }
         r_istan_start_room = r_mortal_start_room;
     }
     if ((r_arena_start_room = real_room(arena_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Arena start room does not exist.");
+        }
         r_arena_start_room = r_mortal_start_room;
     }
     if ((r_tower_modrian_start_room =
-            real_room(tower_modrian_start_room)) == NULL) {
-        if (!mini_mud)
+             real_room(tower_modrian_start_room)) == NULL) {
+        if (!mini_mud) {
             errlog(" Warning: Arena start room does not exist.");
+        }
         r_tower_modrian_start_room = r_mortal_start_room;
     }
     if ((r_monk_start_room = real_room(monk_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Monk start room does not exist.");
+        }
         r_monk_start_room = r_mortal_start_room;
     }
     if ((r_skullport_newbie_start_room =
-            real_room(skullport_newbie_start_room)) == NULL) {
-        if (!mini_mud)
+             real_room(skullport_newbie_start_room)) == NULL) {
+        if (!mini_mud) {
             errlog
                 (" Warning: Skullport Newbie Academy start room does not exist.");
+        }
         r_skullport_newbie_start_room = r_mortal_start_room;
     }
     if ((r_solace_start_room = real_room(solace_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Solace Cove start room does not exist.");
+        }
         r_solace_start_room = r_mortal_start_room;
     }
     if ((r_mavernal_start_room = real_room(mavernal_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Mavernal start room does not exist.");
+        }
         r_mavernal_start_room = r_mortal_start_room;
     }
     if ((r_dwarven_caverns_start_room =
-            real_room(dwarven_caverns_start_room)) == NULL) {
-        if (!mini_mud)
+             real_room(dwarven_caverns_start_room)) == NULL) {
+        if (!mini_mud) {
             errlog(" Warning: Dwarven Caverns  start room does not exist.");
+        }
         r_dwarven_caverns_start_room = r_mortal_start_room;
     }
     if ((r_human_square_start_room =
-            real_room(human_square_start_room)) == NULL) {
-        if (!mini_mud)
+             real_room(human_square_start_room)) == NULL) {
+        if (!mini_mud) {
             errlog(" Warning: Human Square start room does not exist.");
+        }
         r_human_square_start_room = r_mortal_start_room;
     }
     if ((r_skullport_start_room = real_room(skullport_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Skullport start room does not exist.");
+        }
         r_skullport_start_room = r_mortal_start_room;
     }
     if ((r_drow_isle_start_room = real_room(drow_isle_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Drow Isle start room does not exist.");
+        }
         r_drow_isle_start_room = r_mortal_start_room;
     }
     if ((r_astral_manse_start_room =
-            real_room(astral_manse_start_room)) == NULL) {
-        if (!mini_mud)
+             real_room(astral_manse_start_room)) == NULL) {
+        if (!mini_mud) {
             errlog(" Warning: Astral Manse start room does not exist.");
+        }
         r_astral_manse_start_room = r_mortal_start_room;
     }
 
     if ((r_zul_dane_start_room = real_room(zul_dane_start_room)) == NULL) {
-        if (!mini_mud)
+        if (!mini_mud) {
             errlog(" Warning: Zul Dane start room does not exist.");
+        }
         r_zul_dane_start_room = r_mortal_start_room;
     }
 
     if ((r_zul_dane_newbie_start_room =
-            real_room(zul_dane_newbie_start_room)) == NULL) {
-        if (!mini_mud)
+             real_room(zul_dane_newbie_start_room)) == NULL) {
+        if (!mini_mud) {
             errlog(" Warning: Zul Dane newbie start room does not exist.");
+        }
         // set it to the normal zul dane room ...
         r_zul_dane_newbie_start_room = r_zul_dane_start_room;
     }
     if ((r_newbie_school_start_room =
-            real_room(newbie_school_start_room)) == NULL) {
-        if (!mini_mud)
+             real_room(newbie_school_start_room)) == NULL) {
+        if (!mini_mud) {
             errlog(" Warning: Zul Dane newbie start room does not exist.");
+        }
         // set it to the normal zul dane room ...
         r_newbie_school_start_room = r_mortal_start_room;
     }
@@ -1271,26 +1315,28 @@ renum_zone_table(void)
     struct reset_com *zonecmd;
     struct room_data *room;
 
-    for (zone = zone_table; zone; zone = zone->next)
+    for (zone = zone_table; zone; zone = zone->next) {
         for (zonecmd = zone->cmd; zonecmd && zonecmd->command != 'S';
-            zonecmd = zonecmd->next) {
+             zonecmd = zonecmd->next) {
             a = b = 0;
             switch (zonecmd->command) {
             case 'M':
                 a = zonecmd->arg1;
                 room = real_room(zonecmd->arg3);
-                if (room != NULL)
+                if (room != NULL) {
                     b = zonecmd->arg3 = room->number;
-                else
+                } else {
                     b = NOWHERE;
+                }
                 break;
             case 'O':
                 a = zonecmd->arg1;
                 room = real_room(zonecmd->arg3);
-                if (room != NULL)
+                if (room != NULL) {
                     b = room->number;
-                else
+                } else {
                     b = NOWHERE;
+                }
                 break;
             case 'G':
                 a = zonecmd->arg1;
@@ -1307,35 +1353,43 @@ renum_zone_table(void)
                 break;
             case 'D':
                 room = real_room(zonecmd->arg1);
-                if (room != NULL)
+                if (room != NULL) {
                     a = zonecmd->arg1 = room->number;
-                else
+                } else {
                     a = NOWHERE;
+                }
                 break;
             case 'R':          /* rem obj from room */
                 a = zonecmd->arg1;
                 room = real_room(zonecmd->arg2);
-                if (room != NULL)
+                if (room != NULL) {
                     b = zonecmd->arg2 = room->number;
-                else
+                } else {
                     b = NOWHERE;
+                }
                 break;
             }
             if (!mini_mud) {
-                if (a < 0)
+                if (a < 0) {
                     zerrlog(zone, "Invalid vnum %d - cmd disabled", a);
-                if (b < 0)
+                }
+                if (b < 0) {
                     zerrlog(zone, "Invalid vnum %d - cmd disabled", b);
-                if (a < 0 || b < 0)
+                }
+                if (a < 0 || b < 0) {
                     zonecmd->command = '*';
+                }
             }
         }
+    }
 }
 
-void maybe_compile_prog(gpointer key __attribute__((unused)), struct creature *mob, gpointer ignore __attribute__((unused)))
+void
+maybe_compile_prog(gpointer key __attribute__((unused)), struct creature *mob, gpointer ignore __attribute__((unused)))
 {
-    if (NPC_SHARED(mob)->prog)
+    if (NPC_SHARED(mob)->prog) {
         prog_compile(NULL, mob, PROG_TYPE_MOBILE);
+    }
 }
 
 void
@@ -1344,10 +1398,13 @@ compile_all_progs(void)
     // Compile all room progs
     struct zone_data *zone;
     struct room_data *room;
-    for (zone = zone_table; zone; zone = zone->next)
-        for (room = zone->world; room; room = room->next)
-            if (room->prog)
+    for (zone = zone_table; zone; zone = zone->next) {
+        for (room = zone->world; room; room = room->next) {
+            if (room->prog) {
                 prog_compile(NULL, room, PROG_TYPE_ROOM);
+            }
+        }
+    }
 
     // Compile all mob progs
     g_hash_table_foreach(mob_prototypes, (GHFunc) maybe_compile_prog, NULL);
@@ -1367,8 +1424,9 @@ set_physical_attribs(struct creature *ch)
     ch->player.weight += GET_STR(ch) / 2;
     ch->player.height = number(race->height_min[GET_SEX(ch)],
                                race->height_max[GET_SEX(ch)]);
-    if (race->weight_add[GET_SEX(ch)])
+    if (race->weight_add[GET_SEX(ch)]) {
         ch->player.height += GET_WEIGHT(ch) / race->weight_add[GET_SEX(ch)];
+    }
 
     if (GET_RACE(ch) == RACE_GIANT) {
         if (GET_CLASS(ch) == CLASS_STONE) {
@@ -1491,18 +1549,20 @@ recalculate_based_on_level(struct creature *mob_p)
     int level = GET_LEVEL(mob_p);
     int doubleLevel = level + (level * GET_REMORT_GEN(mob_p)) / 10;
     int gen = GET_REMORT_GEN(mob_p);
-    
+
     GET_MAX_MANA(mob_p) = MAX(100, (GET_LEVEL(mob_p) * 8));
     GET_MAX_MOVE(mob_p) = MAX(100, (GET_LEVEL(mob_p) * 16));
 
     if (IS_CLERIC(mob_p) || IS_MAGE(mob_p) || IS_LICH(mob_p) || IS_PHYSIC(mob_p)
-        || IS_PSYCHIC(mob_p))
+        || IS_PSYCHIC(mob_p)) {
         GET_MAX_MANA(mob_p) += (GET_LEVEL(mob_p) * 16);
-    else if (IS_KNIGHT(mob_p) || IS_RANGER(mob_p))
+    } else if (IS_KNIGHT(mob_p) || IS_RANGER(mob_p)) {
         GET_MAX_MANA(mob_p) += (GET_LEVEL(mob_p) * 2);
+    }
 
-    if (IS_RANGER(mob_p))
+    if (IS_RANGER(mob_p)) {
         GET_MAX_MOVE(mob_p) += (GET_LEVEL(mob_p) * 8);
+    }
 
     GET_MAX_MOVE(mob_p) += (GET_REMORT_GEN(mob_p) * GET_MAX_MOVE(mob_p)) / 10;
     GET_MAX_MANA(mob_p) += (GET_REMORT_GEN(mob_p) * GET_MAX_MANA(mob_p)) / 10;
@@ -1522,7 +1582,7 @@ recalculate_based_on_level(struct creature *mob_p)
 }
 
 void
-parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
+parse_simple_mob(FILE *mob_f, struct creature *mobile, int nr)
 {
     int j, t[10];
     char line[256];
@@ -1536,9 +1596,9 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
 
     get_line(mob_f, line, sizeof(line));
     if (sscanf(line, " %d %d %d %dd%d+%d %dd%d+%d ",
-            t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6, t + 7, t + 8) != 9) {
+               t, t + 1, t + 2, t + 3, t + 4, t + 5, t + 6, t + 7, t + 8) != 9) {
         fprintf(stderr, "Format error in mob #%d, first line after S flag\n"
-            "...expecting line of form '# # # #d#+# #d#+#'\n", nr);
+                        "...expecting line of form '# # # #d#+# #d#+#'\n", nr);
         safe_exit(1);
     }
     GET_LEVEL(mobile) = t[0];
@@ -1558,10 +1618,11 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     mobile->mob_specials.shared->damsizedice = t[7];
     mobile->points.damroll = t[8];
 
-    if (NPC_FLAGGED(mobile, NPC_WIMPY))
+    if (NPC_FLAGGED(mobile, NPC_WIMPY)) {
         mobile->mob_specials.shared->morale = MAX(30, GET_LEVEL(mobile));
-    else
+    } else {
         mobile->mob_specials.shared->morale = 100;
+    }
 
     mobile->mob_specials.shared->lair = -1;
     mobile->mob_specials.shared->leader = -1;
@@ -1582,10 +1643,11 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
     GET_EXP(mobile) = t[1];
 
     get_line(mob_f, line, sizeof(line));
-    if (sscanf(line, " %d %d %d %d ", t, t + 1, t + 2, t + 3) == 4)
+    if (sscanf(line, " %d %d %d %d ", t, t + 1, t + 2, t + 3) == 4) {
         mobile->mob_specials.shared->attack_type = t[3];
-    else
+    } else {
         mobile->mob_specials.shared->attack_type = 0;
+    }
 
     mobile->char_specials.position = t[0];
     mobile->mob_specials.shared->default_pos = t[1];
@@ -1596,15 +1658,17 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
 
     mobile->player.remort_char_class = -1;
 
-    for (j = 0; j < 3; j++)
+    for (j = 0; j < 3; j++) {
         GET_COND(mobile, j) = -1;
+    }
 
     /*
      * these are now save applies; base save numbers for MOBs are now from
      * the warrior save table.
      */
-    for (j = 0; j < 5; j++)
+    for (j = 0; j < 5; j++) {
         GET_SAVE(mobile, j) = 0;
+    }
 }
 
 /*
@@ -1619,7 +1683,7 @@ parse_simple_mob(FILE * mob_f, struct creature *mobile, int nr)
 
 void
 interpret_espec(char *keyword, const char *value, struct creature *mobile,
-    int nr)
+                int nr)
 {
     money_t num_arg;
     bool matched = false;
@@ -1637,10 +1701,11 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
 
     CASE("Str") {
         RANGE(3, 50);
-        if (num_arg <= 18)
+        if (num_arg <= 18) {
             mobile->real_abils.str = (int)num_arg;
-        else
+        } else {
             mobile->real_abils.str = (int)num_arg + 10;
+        }
     }
 
     CASE("StrAdd") {
@@ -1692,8 +1757,9 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
     CASE("RemortClass") {
         RANGE(0, 1000);
         mobile->player.remort_char_class = (int)num_arg;
-        if (GET_REMORT_GEN(mobile) == 0)
+        if (GET_REMORT_GEN(mobile) == 0) {
             GET_REMORT_GEN(mobile) = 1;
+        }
     }
     CASE("Class") {
         RANGE(0, 1000);
@@ -1733,9 +1799,11 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
     CASE("KnownLang") {
         // deprecated conversion
         int i;
-        for (i = 0; i < 32; i++)
-            if ((1 << i) & num_arg)
+        for (i = 0; i < 32; i++) {
+            if ((1 << i) & num_arg) {
                 SET_TONGUE(mobile, i + 1, 100);
+            }
+        }
     }
     CASE("CurLang") {
         // deprecated conversion
@@ -1752,7 +1820,7 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
     }
     if (!matched) {
         fprintf(stderr, "Warning: unrecognized espec keyword %s in mob #%d\n",
-            keyword, nr);
+                keyword, nr);
     }
 }
 
@@ -1766,15 +1834,17 @@ parse_espec(char *buf, struct creature *mobile, int nr)
 
     if ((ptr = strchr(buf, ':')) != NULL) {
         *(ptr++) = '\0';
-        while (isspace(*ptr))
+        while (isspace(*ptr)) {
             ptr++;
+        }
         interpret_espec(buf, ptr, mobile, nr);
-    } else
+    } else {
         interpret_espec(buf, "", mobile, nr);
+    }
 }
 
 void
-parse_enhanced_mob(FILE * mob_f, struct creature *mobile, int nr)
+parse_enhanced_mob(FILE *mob_f, struct creature *mobile, int nr)
 {
     char line[256];
 
@@ -1787,13 +1857,14 @@ parse_enhanced_mob(FILE * mob_f, struct creature *mobile, int nr)
             NPC_SHARED(mobile)->load_param = fread_string(mob_f, buf2);
         } else if (!strcmp(line, "Prog:")) {    /* multi-line prog */
             NPC_SHARED(mobile)->prog = fread_string(mob_f, buf2);
-        } else if (!strcmp(line, "E"))  /* end of the ehanced section */
+        } else if (!strcmp(line, "E")) { /* end of the ehanced section */
             return;
-        else if (*line == '#') {    /* we've hit the next mob, maybe? */
+        } else if (*line == '#') {  /* we've hit the next mob, maybe? */
             fprintf(stderr, "Unterminated E section in mob #%d\n", nr);
             safe_exit(1);
-        } else
+        } else {
             parse_espec(line, mobile, nr);
+        }
     }
 
     fprintf(stderr, "Unexpected end of file reached after mob #%d\n", nr);
@@ -1801,7 +1872,7 @@ parse_enhanced_mob(FILE * mob_f, struct creature *mobile, int nr)
 }
 
 void
-parse_mobile(FILE * mob_f, int nr)
+parse_mobile(FILE *mob_f, int nr)
 {
     int j, t[10];
     char line[256], *tmpptr, letter;
@@ -1823,19 +1894,23 @@ parse_mobile(FILE * mob_f, int nr)
     /***** String data *** */
     mobile->player.name = fread_string(mob_f, buf2);
     tmpptr = mobile->player.short_descr = fread_string(mob_f, buf2);
-    if (tmpptr && *tmpptr)
+    if (tmpptr && *tmpptr) {
         if (!strcasecmp(fname(tmpptr), "a") || !strcasecmp(fname(tmpptr), "an")
-            || !strcasecmp(fname(tmpptr), "the"))
+            || !strcasecmp(fname(tmpptr), "the")) {
             *tmpptr = tolower(*tmpptr);
+        }
+    }
     mobile->player.long_descr = fread_string(mob_f, buf2);
     if (mobile->player.long_descr) {
         char *read_pt;
 
         read_pt = mobile->player.long_descr;
-        while (*read_pt)
+        while (*read_pt) {
             read_pt++;
-        if ('\n' == read_pt[-1] && '\r' == read_pt[-2])
+        }
+        if ('\n' == read_pt[-1] && '\r' == read_pt[-2]) {
             read_pt[-2] = '\0';
+        }
     }
     mobile->player.description = fread_string(mob_f, buf2);
     mobile->player.title = NULL;
@@ -1859,7 +1934,7 @@ parse_mobile(FILE * mob_f, int nr)
     case 'E':                  /* Circle3 Enhanced monsters */
         parse_enhanced_mob(mob_f, mobile, nr);
         break;
-        /* add new mob types here.. */
+    /* add new mob types here.. */
     default:
         fprintf(stderr, "Unsupported mob type '%c' in mob #%d\n", letter, nr);
         safe_exit(1);
@@ -1881,19 +1956,20 @@ parse_mobile(FILE * mob_f, int nr)
 
     mobile->aff_abils = mobile->real_abils;
 
-    for (j = 0; j < NUM_WEARS; j++)
+    for (j = 0; j < NUM_WEARS; j++) {
         mobile->equipment[j] = NULL;
+    }
 
     mobile->desc = NULL;
     set_initial_tongue(mobile);
 
     g_hash_table_insert(mob_prototypes,
-        GINT_TO_POINTER(GET_NPC_VNUM(mobile)), mobile);
+                        GINT_TO_POINTER(GET_NPC_VNUM(mobile)), mobile);
 }
 
 /* read all objects from obj file; generate index and prototypes */
 char *
-parse_object(FILE * obj_f, int nr)
+parse_object(FILE *obj_f, int nr)
 {
     static char line[256];
     int retval;
@@ -1924,20 +2000,23 @@ parse_object(FILE * obj_f, int nr)
         safe_exit(1);
     }
     tmpptr = obj->name = fread_string(obj_f, buf2);
-    if (tmpptr && *tmpptr)
+    if (tmpptr && *tmpptr) {
         if (!strcasecmp(fname(tmpptr), "a") || !strcasecmp(fname(tmpptr), "an")
-            || !strcasecmp(fname(tmpptr), "the"))
+            || !strcasecmp(fname(tmpptr), "the")) {
             *tmpptr = tolower(*tmpptr);
+        }
+    }
 
     tmpptr = obj->line_desc = fread_string(obj_f, buf2);
-    if (tmpptr && *tmpptr)
+    if (tmpptr && *tmpptr) {
         *tmpptr = toupper(*tmpptr);
+    }
     obj->action_desc = fread_string(obj_f, buf2);
 
     /* *** numeric data *** */
     if (!get_line(obj_f, line, sizeof(line))) {
         fprintf(stderr, "Unable to read first numeric line for object %d.\n",
-            nr);
+                nr);
         safe_exit(1);
     }
 
@@ -1958,16 +2037,16 @@ parse_object(FILE * obj_f, int nr)
     // wrong number of fields
     else {
         fprintf(stderr,
-            "Format error in first numeric line (expecting 4 or 5 args, got %d), %s\n",
-            retval, buf2);
+                "Format error in first numeric line (expecting 4 or 5 args, got %d), %s\n",
+                retval, buf2);
         safe_exit(1);
     }
 
     if (!get_line(obj_f, line, sizeof(line)) ||
         (retval = sscanf(line, "%d %d %d %d", t, t + 1, t + 2, t + 3)) != 4) {
         fprintf(stderr,
-            "Format error in second numeric line (expecting 4 args, got %d), %s\n",
-            retval, buf2);
+                "Format error in second numeric line (expecting 4 args, got %d), %s\n",
+                retval, buf2);
         safe_exit(1);
     }
     obj->obj_flags.value[0] = t[0];
@@ -1978,8 +2057,8 @@ parse_object(FILE * obj_f, int nr)
     if (!get_line(obj_f, line, sizeof(line)) ||
         (retval = sscanf(line, "%d %d %d", t, t + 1, t + 2)) != 3) {
         fprintf(stderr,
-            "Format error in third numeric line (expecting 3 args, got %d), %s\n",
-            retval, buf2);
+                "Format error in third numeric line (expecting 3 args, got %d), %s\n",
+                retval, buf2);
         safe_exit(1);
     }
     obj->obj_flags.material = t[0];
@@ -1991,22 +2070,24 @@ parse_object(FILE * obj_f, int nr)
     if (!get_line(obj_f, line, sizeof(line)) ||
         (retval = sscanf(line, "%f %d %d %d", &f, t + 1, t + 2, t + 3)) < 3) {
         fprintf(stderr,
-            "Format error in fourth numeric line (expecting 3 or 4 args, got %d), %s\n",
-            retval, buf2);
+                "Format error in fourth numeric line (expecting 3 or 4 args, got %d), %s\n",
+                retval, buf2);
         safe_exit(1);
     }
     obj->obj_flags.weight = f;
     obj->shared->cost = t[1];
     obj->shared->cost_per_day = MAX(1, t[2]);
-    if (t[3] < 0)
+    if (t[3] < 0) {
         t[3] = 0;
+    }
     obj->obj_flags.timer = t[3];
 
     /* check to make sure that weight of containers exceeds curr. quantity */
     if (obj->obj_flags.type_flag == ITEM_DRINKCON ||
         obj->obj_flags.type_flag == ITEM_FOUNTAIN) {
-        if (obj->obj_flags.weight < obj->obj_flags.value[1])
+        if (obj->obj_flags.weight < obj->obj_flags.value[1]) {
             obj->obj_flags.weight = obj->obj_flags.value[1] + 5;
+        }
     }
 
     /* *** extra descriptions and affect fields *** */
@@ -2038,7 +2119,7 @@ parse_object(FILE * obj_f, int nr)
         case 'A':
             if (j >= MAX_OBJ_AFFECT) {
                 fprintf(stderr, "Too many A fields (%d max), %s\n",
-                    MAX_OBJ_AFFECT, buf2);
+                        MAX_OBJ_AFFECT, buf2);
                 safe_exit(1);
             }
             get_line(obj_f, line, sizeof(line));
@@ -2053,8 +2134,9 @@ parse_object(FILE * obj_f, int nr)
         case 'V':
             get_line(obj_f, line, sizeof(line));
             sscanf(line, " %d %s ", t, f1);
-            if (t[0] < 1 || t[0] > 3)
+            if (t[0] < 1 || t[0] > 3) {
                 break;
+            }
             obj->obj_flags.bitvector[t[0] - 1] = asciiflag_conv(f1);
             break;
         case 'P':
@@ -2065,7 +2147,7 @@ parse_object(FILE * obj_f, int nr)
             obj->next = NULL;
             fix_object_weight(obj);
             g_hash_table_insert(obj_prototypes,
-                GINT_TO_POINTER(GET_OBJ_VNUM(obj)), obj);
+                                GINT_TO_POINTER(GET_OBJ_VNUM(obj)), obj);
             return line;
             break;
         default:
@@ -2080,7 +2162,7 @@ parse_object(FILE * obj_f, int nr)
 
 /* load the zone table and command tables */
 void
-load_zones(FILE * fl, char *zonename)
+load_zones(FILE *fl, char *zonename)
 {
     int num_of_cmds = 0, line_num = 0, tmp, tmp2, error, cmd_num = 0;
     char *ptr, buf[256], zname[256], flags[128];
@@ -2095,8 +2177,9 @@ load_zones(FILE * fl, char *zonename)
 
     strcpy_s(zname, sizeof(zname), zonename);
 
-    while (get_line(fl, buf, sizeof(buf)))
+    while (get_line(fl, buf, sizeof(buf))) {
         num_of_cmds++;          /* this should be correct within 3 or so */
+    }
     rewind(fl);
 
     if (num_of_cmds == 0) {
@@ -2113,8 +2196,9 @@ load_zones(FILE * fl, char *zonename)
     snprintf(buf2, sizeof(buf2), "beginning of zone #%d", new_zone->number);
 
     line_num += get_line(fl, buf, sizeof(buf));
-    if ((ptr = strchr(buf, '~')) != NULL)   /* take off the '~' if it's there */
+    if ((ptr = strchr(buf, '~')) != NULL) { /* take off the '~' if it's there */
         *ptr = '\0';
+    }
 
     new_zone->name = strdup(buf);
 
@@ -2122,56 +2206,60 @@ load_zones(FILE * fl, char *zonename)
     if (!strncmp(buf, "C ", 2)) {
         new_zone->owner_idnum = atoi(buf + 2);
         line_num += get_line(fl, buf, sizeof(buf));
-    } else
+    } else {
         new_zone->owner_idnum = -1;
+    }
 
     if (!strncmp(buf, "C2 ", 3)) {
         new_zone->co_owner_idnum = atoi(buf + 3);
         line_num += get_line(fl, buf, sizeof(buf));
-    } else
+    } else {
         new_zone->co_owner_idnum = -1;
+    }
 
     if (!strncmp(buf, "RP ", 3)) {
         new_zone->respawn_pt = atoi(buf + 3);
         line_num += get_line(fl, buf, sizeof(buf));
-    } else
+    } else {
         new_zone->respawn_pt = 0;
+    }
 
     // New format reading starts now.
     while (true) {
         arg2 = buf;
         arg1 = tmp_getword(&arg2);
-        if (!strcmp(arg1, "owner:"))
+        if (!strcmp(arg1, "owner:")) {
             new_zone->owner_idnum = atoi(arg2);
-        else if (!strcmp(arg1, "co-owner:"))
+        } else if (!strcmp(arg1, "co-owner:")) {
             new_zone->co_owner_idnum = atoi(arg2);
-        else if (!strcmp(arg1, "respawn-pt:"))
+        } else if (!strcmp(arg1, "respawn-pt:")) {
             new_zone->respawn_pt = atoi(arg2);
-        else if (!strcmp(arg1, "minimum-level:"))
+        } else if (!strcmp(arg1, "minimum-level:")) {
             new_zone->min_lvl = atoi(arg2);
-        else if (!strcmp(arg1, "minimum-gen:"))
+        } else if (!strcmp(arg1, "minimum-gen:")) {
             new_zone->min_gen = atoi(arg2);
-        else if (!strcmp(arg1, "maximum-level:"))
+        } else if (!strcmp(arg1, "maximum-level:")) {
             new_zone->max_lvl = atoi(arg2);
-        else if (!strcmp(arg1, "maximum-gen:"))
+        } else if (!strcmp(arg1, "maximum-gen:")) {
             new_zone->max_gen = atoi(arg2);
-        else if (!strcmp(arg1, "public-desc:"))
+        } else if (!strcmp(arg1, "public-desc:")) {
             new_zone->public_desc = fread_string(fl, buf2);
-        else if (!strcmp(arg1, "private-desc:"))
+        } else if (!strcmp(arg1, "private-desc:")) {
             new_zone->private_desc = fread_string(fl, buf2);
-        else if (!strcmp(arg1, "author:"))
+        } else if (!strcmp(arg1, "author:")) {
             new_zone->author = strdup(arg2);
-        else
+        } else {
             break;
+        }
 
         line_num += get_line(fl, buf, sizeof(buf));
     }
 
     int result = sscanf(buf, " %d %d %d %d %d %s %d %d %d %d", &new_zone->top,
-        &new_zone->lifespan, &new_zone->reset_mode,
-        &new_zone->time_frame, &new_zone->plane, flags,
-        &new_zone->hour_mod, &new_zone->year_mod,
-        &new_zone->pk_style, &new_zone->dam_mod);
+                        &new_zone->lifespan, &new_zone->reset_mode,
+                        &new_zone->time_frame, &new_zone->plane, flags,
+                        &new_zone->hour_mod, &new_zone->year_mod,
+                        &new_zone->pk_style, &new_zone->dam_mod);
     if (result == 8) {
         new_zone->pk_style = ZONE_CHAOTIC_PK;
         new_zone->dam_mod = 100;
@@ -2204,7 +2292,7 @@ load_zones(FILE * fl, char *zonename)
     while (true) {
         if ((tmp = get_line(fl, buf, sizeof(buf))) == 0) {
             fprintf(stderr, "Format error in %s - premature end of file\n",
-                zname);
+                    zname);
             safe_exit(0);
         }
         line_num += tmp;
@@ -2230,21 +2318,25 @@ load_zones(FILE * fl, char *zonename)
         error = 0;
         if (strchr("MOEPDIVW", new_zonecmd->command) == NULL) {
             if (sscanf(ptr, " %d %d %d %d ", &tmp, &tmp2,
-                    &new_zonecmd->arg1, &new_zonecmd->arg2) != 4)
+                       &new_zonecmd->arg1, &new_zonecmd->arg2) != 4) {
                 error = 1;
+            }
         } else {
             if (new_zonecmd->command == 'D') {
                 if (sscanf(ptr, " %d %d %d %d %s ", &tmp, &tmp2,
-                        &new_zonecmd->arg1, &new_zonecmd->arg2, flags) != 5)
+                           &new_zonecmd->arg1, &new_zonecmd->arg2, flags) != 5) {
                     error = 1;
-                if (error != 1)
+                }
+                if (error != 1) {
                     new_zonecmd->arg3 = asciiflag_conv(flags);
+                }
 
             } else {
                 if (sscanf(ptr, " %d %d %d %d %d ", &tmp, &tmp2,
-                        &new_zonecmd->arg1,
-                        &new_zonecmd->arg2, &new_zonecmd->arg3) != 5)
+                           &new_zonecmd->arg1,
+                           &new_zonecmd->arg2, &new_zonecmd->arg3) != 5) {
                     error = 1;
+                }
             }
         }
         new_zonecmd->if_flag = tmp;
@@ -2252,19 +2344,21 @@ load_zones(FILE * fl, char *zonename)
 
         if (error) {
             fprintf(stderr, "Format error in %s, line %d: '%s'\n", zname,
-                line_num, buf);
+                    line_num, buf);
             safe_exit(0);
         }
         new_zonecmd->line = cmd_num;
 
         if (new_zone->cmd) {
-            for (zonecmd = new_zone->cmd; zonecmd; zonecmd = zonecmd->next)
+            for (zonecmd = new_zone->cmd; zonecmd; zonecmd = zonecmd->next) {
                 if (!zonecmd->next) {
                     zonecmd->next = new_zonecmd;
                     break;
                 }
-        } else
+            }
+        } else {
             new_zone->cmd = new_zonecmd;
+        }
 
         cmd_num++;
     }
@@ -2274,13 +2368,15 @@ load_zones(FILE * fl, char *zonename)
     new_zone->next = NULL;
 
     if (zone_table) {
-        for (zone = zone_table; zone; zone = zone->next)
+        for (zone = zone_table; zone; zone = zone->next) {
             if (!zone->next || (zone->next->number > new_zone->number)) {
                 zone->next = new_zone;
                 break;
             }
-    } else
+        }
+    } else {
         zone_table = new_zone;
+    }
 
     top_of_zone_table++;
 }
@@ -2309,9 +2405,10 @@ read_mobile(int vnum)
 
     if (!mob->points.max_hit) {
         mob->points.max_hit = dice(mob->points.hit, mob->points.mana) +
-            mob->points.move;
-    } else
+                              mob->points.move;
+    } else {
         mob->points.max_hit = number(mob->points.hit, mob->points.mana);
+    }
 
     mob->points.hit = mob->points.max_hit;
     mob->points.mana = mob->points.max_mana;
@@ -2325,15 +2422,17 @@ read_mobile(int vnum)
     NPC_IDNUM(mob) = (++current_mob_idnum);
 
     // unapproved mobs load without money or exp
-    if (NPC2_FLAGGED(mob, NPC2_UNAPPROVED))
+    if (NPC2_FLAGGED(mob, NPC2_UNAPPROVED)) {
         GET_GOLD(mob) = GET_CASH(mob) = GET_EXP(mob) = 0;
-    else {                      // randomize mob gold and cash
-        if (GET_GOLD(mob) > 0)
+    } else {                    // randomize mob gold and cash
+        if (GET_GOLD(mob) > 0) {
             GET_GOLD(mob) = rand_value(GET_GOLD(mob),
-                (int)(GET_GOLD(mob) * 0.15), -1, -1);
-        if (GET_CASH(mob) > 0)
+                                       (int)(GET_GOLD(mob) * 0.15), -1, -1);
+        }
+        if (GET_CASH(mob) > 0) {
             GET_CASH(mob) = rand_value(GET_CASH(mob),
-                (int)(GET_CASH(mob) * 0.15), -1, -1);
+                                       (int)(GET_CASH(mob) * 0.15), -1, -1);
+        }
     }
 
     creatures = g_list_prepend(creatures, mob);
@@ -2343,7 +2442,7 @@ read_mobile(int vnum)
 }
 
 int on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
-    int percent);
+                  int percent);
 
 // Processes the given mobile's load_parameter, executing the commands in it.
 // returns true if the creature dies
@@ -2355,8 +2454,9 @@ process_load_param(struct creature *ch)
     int mob_id = ch->mob_specials.shared->vnum;
     int lineno = 0;
     int last_cmd = 0;
-    if (str == NULL)
+    if (str == NULL) {
         return false;
+    }
 
     for (line = tmp_getline_const(&str); line; line = tmp_getline_const(&str)) {
         ++lineno;
@@ -2364,16 +2464,18 @@ process_load_param(struct creature *ch)
         if (strcasecmp(param_key, "LOAD") == 0) {
             char *vnum = tmp_getword(&line);    // vnum
             char *pos = tmp_getword(&line); // position
-            char *max = tmp_getword(&line); //max loaded
+            char *max = tmp_getword(&line); // max loaded
             char *p = tmp_getword(&line);   // percent
             int if_flag = atoi(tmp_getword(&line)); // if flag
             // if_flag
             // 1 == "Do if previous succeded"
-            if (if_flag == 1 && last_cmd == 1)
+            if (if_flag == 1 && last_cmd == 1) {
                 continue;
-            //-1 == "Do if previous failed" by percentage
-            if (if_flag == -1 && last_cmd != 1)
+            }
+            // -1 == "Do if previous failed" by percentage
+            if (if_flag == -1 && last_cmd != 1) {
                 continue;
+            }
             // 0 == "Do regardless of previous"
 
             if (*vnum && *pos && *max && *p) {
@@ -2404,17 +2506,18 @@ process_load_param(struct creature *ch)
 // 100, struct creature died in equip process
 int
 on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
-    int percent)
+              int percent)
 {
     struct obj_data *obj = real_object_proto(vnum);
     bool equipped = true;
 
     if (obj == NULL) {
         errlog("Mob num %d: equip object %d nonexistent.",
-            ch->mob_specials.shared->vnum, vnum);
-        if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
+               ch->mob_specials.shared->vnum, vnum);
+        if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)) {
             perform_say(ch, "yell",
-                tmp_sprintf("Object %d doesn't exist!", vnum));
+                        tmp_sprintf("Object %d doesn't exist!", vnum));
+        }
         return 3;
     }
     if (obj->shared->number - obj->shared->house_count >= maxload) {
@@ -2434,21 +2537,23 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
     }
 
     if (equipped && (pos < 0 || pos >= NUM_WEARS)) {
-        if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
+        if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)) {
             perform_say(ch, "yell",
-                tmp_sprintf("%s is not a valid position!", position));
+                        tmp_sprintf("%s is not a valid position!", position));
+        }
 
         errlog("Mob num %d trying to equip obj %d to badpos: '%s'",
-            ch->mob_specials.shared->vnum, obj->shared->vnum, position);
+               ch->mob_specials.shared->vnum, obj->shared->vnum, position);
         return 4;
     }
     obj = read_object(vnum);
     if (obj == NULL) {
         errlog("Mob num %d cannot load equip object #%d.",
-            ch->mob_specials.shared->vnum, vnum);
-        if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED))
+               ch->mob_specials.shared->vnum, vnum);
+        if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)) {
             perform_say(ch, "yell",
-                tmp_sprintf("Loading object %d failed!", vnum));
+                        tmp_sprintf("Loading object %d failed!", vnum));
+        }
         return 5;
     }
     obj->creation_method = CREATED_MOB;
@@ -2465,7 +2570,7 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
         obj_to_char(obj, ch);
         return 0;
     }
-    
+
     int mode = EQUIP_WORN;
     if (IS_OBJ_STAT2(obj, ITEM2_IMPLANT)) {
         mode = EQUIP_IMPLANT;
@@ -2479,7 +2584,7 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
             return 2;
         }
     }
-    
+
     if (equip_char(ch, obj, pos, mode)) {
         return 100;
     }
@@ -2493,7 +2598,7 @@ randomize_object(struct obj_data *obj)
     int idx, bit, total_affs = 0;
 
     // Applies
-    for (idx = 0; idx < MAX_OBJ_AFFECT; idx++)
+    for (idx = 0; idx < MAX_OBJ_AFFECT; idx++) {
         if (obj->affected[idx].location != APPLY_NONE
             && obj->affected[idx].location != APPLY_CLASS
             && obj->affected[idx].location != APPLY_RACE
@@ -2502,72 +2607,79 @@ randomize_object(struct obj_data *obj)
             && obj->affected[idx].location != APPLY_NOTHIRST
             && obj->affected[idx].location != APPLY_NOHUNGER
             && obj->affected[idx].location != APPLY_NODRUNK) {
-            if (obj->affected[idx].modifier > 0)
+            if (obj->affected[idx].modifier > 0) {
                 obj->affected[idx].modifier =
                     number(0, obj->affected[idx].modifier);
-            else if (obj->affected[idx].modifier < 0)
+            } else if (obj->affected[idx].modifier < 0) {
                 obj->affected[idx].modifier =
                     -number(0, -obj->affected[idx].modifier);
-            if (!obj->affected[idx].modifier)
+            }
+            if (!obj->affected[idx].modifier) {
                 obj->affected[idx].location = APPLY_NONE;
-            else
+            } else {
                 total_affs++;
+            }
         }
+    }
     normalize_applies(obj);
 
     // Affects
     for (idx = 0; idx < 32; idx++) {
         bit = (1 << idx);
         if (IS_SET(obj->obj_flags.bitvector[0], bit)) {
-            if (!number(0, 10))
+            if (!number(0, 10)) {
                 REMOVE_BIT(obj->obj_flags.bitvector[0], bit);
-            else
+            } else {
                 total_affs++;
+            }
         }
         if (IS_SET(obj->obj_flags.bitvector[1], bit)) {
-            if (!number(0, 10))
+            if (!number(0, 10)) {
                 REMOVE_BIT(obj->obj_flags.bitvector[1], bit);
-            else
+            } else {
                 total_affs++;
+            }
         }
         if (IS_SET(obj->obj_flags.bitvector[2], bit)) {
-            if (!number(0, 10))
+            if (!number(0, 10)) {
                 REMOVE_BIT(obj->obj_flags.bitvector[2], bit);
-            else
+            } else {
                 total_affs++;
+            }
         }
     }
 
     // Remove magicalness if no affects are left
-    if (!total_affs)
+    if (!total_affs) {
         REMOVE_BIT(GET_OBJ_EXTRA(obj), ITEM_MAGIC | ITEM_BLESS | ITEM_DAMNED);
+    }
 
     switch (GET_OBJ_TYPE(obj)) {
-        // Spell level in first value
+    // Spell level in first value
     case ITEM_SCROLL:
     case ITEM_PILL:
     case ITEM_POTION:
     case ITEM_SYRINGE:
         GET_OBJ_VAL(obj, 0) = rand_value(GET_OBJ_VAL(obj, 0), 10, 1, 49);
         break;
-        // Spell level in first, max charges in second
+    // Spell level in first, max charges in second
     case ITEM_WAND:
     case ITEM_STAFF:
         GET_OBJ_VAL(obj, 0) = rand_value(GET_OBJ_VAL(obj, 0), 10, 1, 49);
         GET_OBJ_VAL(obj, 1) = rand_value(GET_OBJ_VAL(obj, 1),
-            GET_OBJ_VAL(obj, 1) / 4, 1, -1);
+                                         GET_OBJ_VAL(obj, 1) / 4, 1, -1);
         GET_OBJ_VAL(obj, 2) = rand_value(GET_OBJ_VAL(obj, 2),
-            GET_OBJ_VAL(obj, 2) / 4, 1, GET_OBJ_VAL(obj, 1));
+                                         GET_OBJ_VAL(obj, 2) / 4, 1, GET_OBJ_VAL(obj, 1));
         break;
-        // First value just needs some variation
+    // First value just needs some variation
     case ITEM_CHIT:
     case ITEM_ARMOR:
     case ITEM_CONTAINER:
     case ITEM_MONEY:
         GET_OBJ_VAL(obj, 0) = rand_value(GET_OBJ_VAL(obj, 0),
-            GET_OBJ_VAL(obj, 0) / 4, 1, -1);
+                                         GET_OBJ_VAL(obj, 0) / 4, 1, -1);
         break;
-        // First value is max charges, second is current
+    // First value is max charges, second is current
     case ITEM_BATTERY:
     case ITEM_DEVICE:
     case ITEM_ENERGY_CELL:
@@ -2576,33 +2688,33 @@ randomize_object(struct obj_data *obj)
     case ITEM_TRANSPORTER:
         if (GET_OBJ_VAL(obj, 0) > 0) {
             GET_OBJ_VAL(obj, 0) = rand_value(GET_OBJ_VAL(obj, 0),
-                GET_OBJ_VAL(obj, 0) / 4, 1, -1);
+                                             GET_OBJ_VAL(obj, 0) / 4, 1, -1);
         }
         if (GET_OBJ_VAL(obj, 1) > 0) {
             GET_OBJ_VAL(obj, 1) = rand_value(GET_OBJ_VAL(obj, 1),
-                GET_OBJ_VAL(obj, 1) / 4, 1, GET_OBJ_VAL(obj, 0));
+                                             GET_OBJ_VAL(obj, 1) / 4, 1, GET_OBJ_VAL(obj, 0));
         }
         break;
-        // Weapon damage dice
+    // Weapon damage dice
     case ITEM_ENERGY_GUN:
-        GET_OBJ_VAL(obj, 0) = rand_value(   //randomize the drain rate
+        GET_OBJ_VAL(obj, 0) = rand_value(   // randomize the drain rate
             GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 0) / 4, 1, -1);
-        //no break here because we want to randomize the damage dice as well
+    // no break here because we want to randomize the damage dice as well
     case ITEM_WEAPON:
         GET_OBJ_VAL(obj, 1) = rand_value(GET_OBJ_VAL(obj, 1),
-            GET_OBJ_VAL(obj, 1) / 4, 1, -1);
+                                         GET_OBJ_VAL(obj, 1) / 4, 1, -1);
         GET_OBJ_VAL(obj, 2) = rand_value(GET_OBJ_VAL(obj, 2),
-            GET_OBJ_VAL(obj, 2) / 4, 1, -1);
+                                         GET_OBJ_VAL(obj, 2) / 4, 1, -1);
         break;
-        // Vstone and portal charges
+    // Vstone and portal charges
     case ITEM_VSTONE:
         GET_OBJ_VAL(obj, 2) = rand_value(GET_OBJ_VAL(obj, 2),
-            GET_OBJ_VAL(obj, 2) / 4, 1, -1);
+                                         GET_OBJ_VAL(obj, 2) / 4, 1, -1);
         break;
     case ITEM_PORTAL:
         if (GET_OBJ_VAL(obj, 3) > 0) {
             GET_OBJ_VAL(obj, 3) = rand_value(GET_OBJ_VAL(obj, 3),
-                GET_OBJ_VAL(obj, 3) / 4, 1, -1);
+                                             GET_OBJ_VAL(obj, 3) / 4, 1, -1);
         }
         break;
     }
@@ -2615,7 +2727,7 @@ read_object(int vnum)
     struct obj_data *obj = NULL, *tmp_obj = NULL;
 
     if (!(tmp_obj =
-            g_hash_table_lookup(obj_prototypes, GINT_TO_POINTER(vnum)))) {
+              g_hash_table_lookup(obj_prototypes, GINT_TO_POINTER(vnum)))) {
         slog("Object (V) %d does not exist in database.", vnum);
         return NULL;
     }
@@ -2640,8 +2752,9 @@ read_object(int vnum)
     obj->next = object_list;
     object_list = obj;
 
-    if (IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED))
+    if (IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED)) {
         GET_OBJ_TIMER(obj) = 60;
+    }
 
     return obj;
 }
@@ -2659,11 +2772,13 @@ zone_update(void)
 
     for (zone = zone_table; zone; zone = zone->next) {
 
-        if (!zone->num_players && !ZONE_FLAGGED(zone, ZONE_NOIDLE))
+        if (!zone->num_players && !ZONE_FLAGGED(zone, ZONE_NOIDLE)) {
             zone->idle_time++;
+        }
 
-        if (zone->age < zone->lifespan && zone->reset_mode)
+        if (zone->age < zone->lifespan && zone->reset_mode) {
             (zone->age)++;
+        }
 
         if (zone->age >= zone->lifespan && zone->age > zone->idle_time &&   /* <-- new mod here */
             zone->age < ZO_DEAD && zone->reset_mode) {
@@ -2674,9 +2789,9 @@ zone_update(void)
             update_u->zone_to_reset = zone;
             update_u->next = NULL;
 
-            if (!reset_q.head)
+            if (!reset_q.head) {
                 reset_q.head = reset_q.tail = update_u;
-            else {
+            } else {
                 reset_q.tail->next = update_u;
                 reset_q.tail = update_u;
             }
@@ -2688,27 +2803,30 @@ zone_update(void)
     /* end - one minute has passed */
     /* dequeue zones (if possible) and reset */
     /* this code is executed every 10 seconds (i.e. PULSE_ZONE) */
-    for (update_u = reset_q.head; update_u; update_u = update_u->next)
+    for (update_u = reset_q.head; update_u; update_u = update_u->next) {
         if (update_u->zone_to_reset->reset_mode == 2 ||
             !update_u->zone_to_reset->num_players) {
             reset_zone(update_u->zone_to_reset);
             slog("Auto zone reset: %s", update_u->zone_to_reset->name);
             /* dequeue */
-            if (update_u == reset_q.head)
+            if (update_u == reset_q.head) {
                 reset_q.head = reset_q.head->next;
-            else {
+            } else {
                 temp = reset_q.head;
-                while (temp->next != update_u)
+                while (temp->next != update_u) {
                     temp = temp->next;
+                }
 
-                if (!update_u->next)
+                if (!update_u->next) {
                     reset_q.tail = temp;
+                }
 
                 temp->next = update_u->next;
             }
             free(update_u);
             break;
         }
+    }
 }
 
 enum if_flag {
@@ -2725,7 +2843,7 @@ struct reset_state {
     struct creature *last_mob;
     struct obj_data *last_obj;
 };
-    
+
 void
 execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
 {
@@ -2736,7 +2854,7 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
     case '*':              /* ignore command */
         state->last_cmd = LAST_CMD_IGNORED;
         break;
-    case 'M':{             /* read a mobile */
+    case 'M': {             /* read a mobile */
         state->last_cmd = LAST_CMD_FAILURE;
         struct creature *tmob = real_mobile_proto(zonecmd->arg1);
         if (tmob == NULL
@@ -2757,18 +2875,19 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
             state->last_mob = NULL;
             break;
         }
-        
+
         char_to_room(mob, room, false);
         if (GET_NPC_LEADER(mob) > 0) {
-            for (GList *it = first_living(mob->in_room->people);it;it = next_living(it)) {
+            for (GList *it = first_living(mob->in_room->people); it; it = next_living(it)) {
                 struct creature *tch = it->data;
 
                 if (tch != mob
                     && !mob->master
                     && IS_NPC(tch)
                     && GET_NPC_VNUM(tch) == GET_NPC_LEADER(mob)
-                    && !circle_follow(mob, tch))
+                    && !circle_follow(mob, tch)) {
                     add_follower(mob, tch);
+                }
             }
         }
 
@@ -2778,8 +2897,9 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
             state->last_cmd = LAST_CMD_SUCCESS;
         }
 
-        if (GET_NPC_PROGOBJ(mob))
+        if (GET_NPC_PROGOBJ(mob)) {
             trigger_prog_load(mob);
+        }
 
         state->last_mob = mob;
         break;
@@ -2850,8 +2970,9 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
     case 'G':              /* obj_to_char */
         state->last_cmd = LAST_CMD_FAILURE;
         if (state->last_mob == NULL) {
-            if (state->last_cmd == LAST_CMD_FAILURE)
+            if (state->last_cmd == LAST_CMD_FAILURE) {
                 ZONE_ERROR("attempt to give obj to nonexistent mob");
+            }
             break;
         }
 
@@ -2886,8 +3007,9 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
     case 'E':              /* object to equipment list */
         state->last_cmd = LAST_CMD_FAILURE;
         if (state->last_mob == NULL) {
-            if (state->last_cmd == LAST_CMD_FAILURE)
+            if (state->last_cmd == LAST_CMD_FAILURE) {
                 ZONE_ERROR("attempt to give obj to nonexistent mob");
+            }
             break;
         }
 
@@ -2934,8 +3056,9 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
     case 'I':              /* object to equipment list */
         state->last_cmd = LAST_CMD_FAILURE;
         if (state->last_mob == NULL) {
-            if (state->last_cmd == LAST_CMD_FAILURE)
+            if (state->last_cmd == LAST_CMD_FAILURE) {
                 ZONE_ERROR("attempt to implant nonexistent mob");
+            }
             break;
         }
 
@@ -2997,8 +3120,9 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
 
     case 'W':
         if (!state->last_mob) {
-            if (state->last_cmd == LAST_CMD_FAILURE)
+            if (state->last_cmd == LAST_CMD_FAILURE) {
                 ZONE_ERROR("trying to assign path to nonexistent mob");
+            }
             state->last_cmd = LAST_CMD_FAILURE;
             break;
         }
@@ -3008,8 +3132,9 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
         }
         if (!add_path_to_mob(state->last_mob, zonecmd->arg1)) {
             ZONE_ERROR("unable to attach path to mob");
-        } else
+        } else {
             state->last_cmd = LAST_CMD_SUCCESS;
+        }
         break;
 
     case 'R':              /* rem obj from room */
@@ -3021,8 +3146,9 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
             extract_obj(obj);
             state->last_cmd = LAST_CMD_SUCCESS;
             state->prob_override = true;
-        } else
+        } else {
             state->last_cmd = LAST_CMD_FAILURE;
+        }
 
         break;
 
@@ -3078,7 +3204,7 @@ reset_zone(struct zone_data *zone)
     struct reset_state state;
 
     // Send SPECIAL_RESET notification to all mobiles with specials
-    for (GList *it = first_living(creatures);it;it = next_living(it)) {
+    for (GList *it = first_living(creatures); it; it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch->in_room->zone == zone && NPC_FLAGGED(tch, NPC_SPEC)
@@ -3105,10 +3231,12 @@ reset_zone(struct zone_data *zone)
         // 1 == "Do if previous succeeded"
         // 2 == "Do if previous failed"
 
-        if (zonecmd->if_flag == IF_FLAG_SUCCEEDED && state.last_cmd != LAST_CMD_SUCCESS)
+        if (zonecmd->if_flag == IF_FLAG_SUCCEEDED && state.last_cmd != LAST_CMD_SUCCESS) {
             continue;
-        if (zonecmd->if_flag == IF_FLAG_UNIGNORED && state.last_cmd != LAST_CMD_IGNORED)
+        }
+        if (zonecmd->if_flag == IF_FLAG_UNIGNORED && state.last_cmd != LAST_CMD_IGNORED) {
             continue;
+        }
         if (!state.prob_override && number(1, 100) > zonecmd->prob) {
             state.last_cmd = LAST_CMD_IGNORED;
             continue;
@@ -3122,9 +3250,11 @@ reset_zone(struct zone_data *zone)
     zone->age = 0;
 
     /* reset all search status */
-    for (struct room_data *room = zone->world; room; room = room->next)
-        for (struct special_search_data *srch = room->search; srch; srch = srch->next)
+    for (struct room_data *room = zone->world; room; room = room->next) {
+        for (struct special_search_data *srch = room->search; srch; srch = srch->next) {
             REMOVE_BIT(srch->flags, SRCH_TRIPPED);
+        }
+    }
 }
 
 /************************************************************************
@@ -3135,7 +3265,7 @@ reset_zone(struct zone_data *zone)
 /* read and copy for a '~'-terminated string from a given file
    copying it into str, returning 1 on success or 0 on failure  */
 bool
-pread_string(FILE * fl, char *str, size_t buf_size, bool comments, const char *error)
+pread_string(FILE *fl, char *str, size_t buf_size, bool comments, const char *error)
 {
     *str = '\0';
 
@@ -3183,7 +3313,7 @@ pread_string(FILE * fl, char *str, size_t buf_size, bool comments, const char *e
  **/
 /*  */
 char *
-fread_string(FILE * fl, char *error)
+fread_string(FILE *fl, char *error)
 {
     char buf[MAX_STRING_LENGTH];
 
@@ -3205,8 +3335,9 @@ file_to_string_alloc(const char *name, char **buf)
 {
     char temp[MAX_STRING_LENGTH];
 
-    if (*buf)
+    if (*buf) {
         free(*buf);
+    }
 
     if (file_to_string(name, temp, sizeof(temp)) < 0) {
         *buf = NULL;
@@ -3231,7 +3362,7 @@ file_to_string(const char *name, char *buf, size_t buf_size)
         perror(tmp_sprintf("Error reading %s", name));
         return (-1);
     }
-    
+
     while (fgets(buf, buf_size, fl)) {
         /* replace trailing newline with crlf */
         char *c = strchr(buf, '\n');
@@ -3277,10 +3408,11 @@ real_zone(int number)
 
     for (zone = zone_table; zone; zone = zone->next) {
         if (zone->number >= number) {
-            if (zone->number == number)
+            if (zone->number == number) {
                 return (zone);
-            else
+            } else {
                 return NULL;
+            }
         }
     }
     return (NULL);
@@ -3311,8 +3443,9 @@ purge_trails(struct creature *ch)
             while ((trl = rm->trail)) {
                 rm->trail = trl->next;
                 i++;
-                if (trl->name)
+                if (trl->name) {
                     free(trl->name);
+                }
                 free(trl);
             }
         }
@@ -3333,35 +3466,44 @@ int
 zone_number(int nr)
 {
     struct zone_data *zone;
-    for (zone = zone_table; zone; zone = zone->next)
-        if (zone->number * 100 <= nr && zone->top >= nr)
+    for (zone = zone_table; zone; zone = zone->next) {
+        if (zone->number * 100 <= nr && zone->top >= nr) {
             return (zone->number);
+        }
+    }
     return -1;
 }
 
 struct room_data *
 where_obj(struct obj_data *obj)
 {
-    if (obj->in_room)
+    if (obj->in_room) {
         return (obj->in_room);
-    if (obj->in_obj)
+    }
+    if (obj->in_obj) {
         return (where_obj(obj->in_obj));
-    if (obj->carried_by)
+    }
+    if (obj->carried_by) {
         return (obj->carried_by->in_room);
-    if (obj->worn_by)
+    }
+    if (obj->worn_by) {
         return (obj->worn_by->in_room);
+    }
     return NULL;
 }
 
 struct creature *
 obj_owner(struct obj_data *obj)
 {
-    if (obj->carried_by)
+    if (obj->carried_by) {
         return (obj->carried_by);
-    if (obj->worn_by)
+    }
+    if (obj->worn_by) {
         return (obj->worn_by);
-    if (obj->in_obj)
+    }
+    if (obj->in_obj) {
         return (obj_owner(obj->in_obj));
+    }
     return NULL;
 }
 
@@ -3396,8 +3538,9 @@ sql_exec(const char *str, ...)
     char *query;
     va_list args;
 
-    if (!str || !*str)
+    if (!str || !*str) {
         return;
+    }
 
     va_start(args, str);
     query = tmp_vsprintf(str, args);
@@ -3411,7 +3554,7 @@ sql_exec(const char *str, ...)
     if (PQresultStatus(res) != PGRES_COMMAND_OK
         && PQresultStatus(res) != PGRES_TUPLES_OK) {
         errlog("FATAL: sql command generated error: %s",
-            PQresultErrorMessage(res));
+               PQresultErrorMessage(res));
         errlog("FROM SQL: %s", query);
         raise(SIGSEGV);
     }
@@ -3425,8 +3568,9 @@ sql_query(const char *str, ...)
     char *query;
     va_list args;
 
-    if (!str || !*str)
+    if (!str || !*str) {
         return NULL;
+    }
 
     va_start(args, str);
     query = tmp_vsprintf(str, args);
@@ -3440,7 +3584,7 @@ sql_query(const char *str, ...)
 
     if (PQresultStatus(res) != PGRES_TUPLES_OK) {
         slog("WARNING: sql expression generated error: %s",
-            PQresultErrorMessage(res));
+             PQresultErrorMessage(res));
         slog("FROM SQL: %s", query);
     }
 

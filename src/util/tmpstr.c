@@ -25,7 +25,7 @@ size_t tmp_max_used = 0;        // Tracks maximum tmp str space used
 
 static struct tmp_str_pool *tmp_list_head;  // Always points to the initial pool
 static struct tmp_str_pool *tmp_list_tail;  // Points to the end of the linked
-                                    // list of pools
+// list of pools
 
 struct tmp_str_pool *tmp_alloc_pool(size_t size_req);
 // Initializes the structures used for the temporary string mechanism
@@ -78,8 +78,9 @@ tmp_alloc_pool(size_t size_req)
     new_buf =
         (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + size);
     new_buf->next = NULL;
-    if (tmp_list_tail)
+    if (tmp_list_tail) {
         tmp_list_tail->next = new_buf;
+    }
     tmp_list_tail = new_buf;
     new_buf->space = size;
     new_buf->used = 0;
@@ -95,8 +96,9 @@ tmp_alloc(size_t size_req)
 {
     struct tmp_str_pool *cur_buf = tmp_list_tail;
 
-    if (size_req > cur_buf->space - cur_buf->used)
+    if (size_req > cur_buf->space - cur_buf->used) {
         cur_buf = tmp_alloc_pool(size_req);
+    }
 
     char *result = cur_buf->data + cur_buf->used;
 
@@ -166,8 +168,9 @@ tmp_strcat(const char *src, ...)
     len = strlen(src);
 
     va_start(args, src);
-    while ((read_pt = va_arg(args, const char *)) != NULL)
-         len += strlen(read_pt);
+    while ((read_pt = va_arg(args, const char *)) != NULL) {
+        len += strlen(read_pt);
+    }
     va_end(args);
 
     len += 1;
@@ -176,15 +179,17 @@ tmp_strcat(const char *src, ...)
 
     // Copy in the first string
     strcpy(write_pt, src);
-    while (*write_pt)
+    while (*write_pt) {
         write_pt++;
+    }
 
     // Then copy in the rest of the strings
     va_start(args, src);
     while ((read_pt = va_arg(args, const char *)) != NULL) {
         strcpy(write_pt, read_pt);
-        while (*write_pt)
+        while (*write_pt) {
             write_pt++;
+        }
     }
     va_end(args);
 
@@ -204,15 +209,17 @@ tmp_gettoken(char **src)
     skip_spaces(src);
 
     read_pt = *src;
-    while (*read_pt && !isspace(*read_pt))
+    while (*read_pt && !isspace(*read_pt)) {
         read_pt++;
+    }
     len = (read_pt - *src) + 1;
 
     write_pt = result = tmp_alloc(len);
     read_pt = *src;
 
-    while (*read_pt && !isspace(*read_pt))
+    while (*read_pt && !isspace(*read_pt)) {
         *write_pt++ = *read_pt++;
+    }
 
     *write_pt = '\0';
 
@@ -240,8 +247,9 @@ tmp_getword(char **src)
     char *result = tmp_gettoken(src);
     char *c;
 
-    for (c = result; *c; c++)
+    for (c = result; *c; c++) {
         *c = tolower(*c);
+    }
     return result;
 }
 
@@ -269,26 +277,30 @@ tmp_getquoted(char **src)
     delim = **src;
 
     // No quote mark at the beginning
-    if (delim != '\'' && delim != '"')
+    if (delim != '\'' && delim != '"') {
         return tmp_getword(src);
+    }
 
     read_pt = *src + 1;
     *src = read_pt;
 
-    while (*read_pt && delim != *read_pt)
+    while (*read_pt && delim != *read_pt) {
         read_pt++;
+    }
 
     // No terminating quote, so we act just like tmp_getword
-    if (delim != *read_pt)
+    if (delim != *read_pt) {
         return tmp_getword(src);
+    }
 
     len = (read_pt - *src) + 1;
 
     write_pt = result = tmp_alloc(len);
     read_pt = *src;
 
-    while (*read_pt && delim != *read_pt)
+    while (*read_pt && delim != *read_pt) {
         *write_pt++ = tolower(*read_pt++);
+    }
 
     *write_pt = '\0';
 
@@ -302,8 +314,9 @@ tmp_pad(int c, size_t len)
     char *result;
 
     result = tmp_alloc(len + 1);
-    if (len)
+    if (len) {
         memset(result, c, len);
+    }
 
     result[len] = '\0';
 
@@ -318,29 +331,35 @@ tmp_getline(char **src)
     char *result, *write_pt;
     size_t len = 0;
 
-    if (!*src)
+    if (!*src) {
         return NULL;
+    }
 
     read_pt = *src;
-    while (*read_pt && '\r' != *read_pt && '\n' != *read_pt)
+    while (*read_pt && '\r' != *read_pt && '\n' != *read_pt) {
         read_pt++;
+    }
     len = (read_pt - *src) + 1;
 
-    if (len == 1 && !*read_pt)
+    if (len == 1 && !*read_pt) {
         return NULL;
+    }
 
     write_pt = result = tmp_alloc(len);
     read_pt = *src;
 
-    while (*read_pt && '\r' != *read_pt && '\n' != *read_pt)
+    while (*read_pt && '\r' != *read_pt && '\n' != *read_pt) {
         *write_pt++ = *read_pt++;
+    }
 
     *write_pt = '\0';
 
-    if (*read_pt == '\r')
+    if (*read_pt == '\r') {
         read_pt++;
-    if (*read_pt == '\n')
+    }
+    if (*read_pt == '\n') {
         read_pt++;
+    }
     *src = read_pt;
 
     return result;
@@ -367,8 +386,9 @@ tmp_gsub(const char *haystack, const char *needle, const char *sub)
     int matches;
 
     // An empty string matches nothing
-    if (!*needle)
+    if (!*needle) {
         return tmp_strdup(haystack);
+    }
 
     // Count number of occurences of needle in haystack
     matches = 0;
@@ -382,10 +402,11 @@ tmp_gsub(const char *haystack, const char *needle, const char *sub)
     len = strlen(haystack) + matches * (strlen(sub) - strlen(needle)) + 1;
 
     // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used)
+    if (len > tmp_list_tail->space - tmp_list_tail->used) {
         cur_buf = tmp_alloc_pool(len);
-    else
+    } else {
         cur_buf = tmp_list_tail;
+    }
 
     result = cur_buf->data + cur_buf->used;
     cur_buf->used += len;
@@ -394,11 +415,13 @@ tmp_gsub(const char *haystack, const char *needle, const char *sub)
     read_pt = haystack;
     write_pt = result;
     while ((search_pt = strstr(read_pt, needle)) != NULL) {
-        while (read_pt != search_pt)
+        while (read_pt != search_pt) {
             *write_pt++ = *read_pt++;
+        }
         read_pt = sub;
-        while (*read_pt)
+        while (*read_pt) {
             *write_pt++ = *read_pt++;
+        }
         search_pt += strlen(needle);
         read_pt = search_pt;
     }
@@ -418,8 +441,9 @@ tmp_gsubi(const char *haystack, const char *needle, const char *sub)
     int matches;
 
     // Head off an infinite loop at the pass
-    if (!*needle)
+    if (!*needle) {
         return tmp_strdup(haystack);
+    }
 
     // Count number of occurences of needle in haystack
     matches = 0;
@@ -442,11 +466,13 @@ tmp_gsubi(const char *haystack, const char *needle, const char *sub)
     search_pt = low_stack;
     write_pt = result;
     while ((search_pt = strstr(search_pt, needle)) != NULL) {
-        while (read_pt - haystack < search_pt - low_stack)
+        while (read_pt - haystack < search_pt - low_stack) {
             *write_pt++ = *read_pt++;
+        }
         read_pt = sub;
-        while (*read_pt)
+        while (*read_pt) {
             *write_pt++ = *read_pt++;
+        }
         search_pt += needle_len;
         read_pt = haystack + (search_pt - low_stack);
     }
@@ -462,8 +488,9 @@ tmp_tolower(const char *str)
     char *result;
 
     result = tmp_strcat(str, NULL);
-    for (char *c = result; *c; c++)
+    for (char *c = result; *c; c++) {
         *c = tolower(*c);
+    }
 
     return result;
 }
@@ -474,8 +501,9 @@ tmp_toupper(const char *str)
     char *result;
 
     result = tmp_strcat(str, NULL);
-    for (char *c = result; *c; c++)
+    for (char *c = result; *c; c++) {
         *c = toupper(*c);
+    }
     return result;
 }
 
@@ -485,8 +513,9 @@ tmp_capitalize(const char *str)
     char *result;
 
     result = tmp_strcat(str, NULL);
-    if (*result)
+    if (*result) {
         *result = toupper(*result);
+    }
     return result;
 }
 
@@ -510,10 +539,11 @@ tmp_strdupt(const char *src, const char *term_str)
 
     // Figure out how much space we'll need
     read_pt = term_str ? strstr(src, term_str) : NULL;
-    if (read_pt)
+    if (read_pt) {
         len = read_pt - src;
-    else
+    } else {
         len = strlen(src);
+    }
 
     result = tmp_alloc(len + 1);
     strncpy(result, src, len);
@@ -559,27 +589,32 @@ tmp_printbits(int val, const char *bit_descs[])
     // Figure out how much space we'll need
     len = 0;
     for (idx = 0;
-        idx < sizeof(val) * 8 && bit_descs[idx] && bit_descs[idx][0] != '\n';
-        idx++)
-        if ((val >> idx) & 1)
+         idx < sizeof(val) * 8 && bit_descs[idx] && bit_descs[idx][0] != '\n';
+         idx++) {
+        if ((val >> idx) & 1) {
             len += strlen(bit_descs[idx]) + 1;
+        }
+    }
     len += 1;
 
     write_pt = result = tmp_alloc(len);
 
     for (idx = 0;
-        idx < sizeof(val) * 8 && bit_descs[idx] && bit_descs[idx][0] != '\n';
-        idx++)
+         idx < sizeof(val) * 8 && bit_descs[idx] && bit_descs[idx][0] != '\n';
+         idx++) {
         if ((val >> idx) & 1) {
-            if (not_first)
+            if (not_first) {
                 *write_pt++ = ' ';
-            else
+            } else {
                 not_first = true;
+            }
 
             strcpy(write_pt, bit_descs[idx]);
-            while (*write_pt)
+            while (*write_pt) {
                 write_pt++;
+            }
         }
+    }
 
     *write_pt = '\0';
 
@@ -598,20 +633,24 @@ tmp_substr(const char *str, int start_pos, int end_pos)
     // Check bounds for end_pos
     if (end_pos < 0) {
         end_pos = len + end_pos;
-        if (end_pos < 0)
+        if (end_pos < 0) {
             end_pos = 0;
+        }
     }
-    if (end_pos > len)
+    if (end_pos > len) {
         end_pos = len;
+    }
 
     // Check bounds for start_pos
     if (start_pos < 0) {
         start_pos = len + start_pos;
-        if (start_pos < 0)
+        if (start_pos < 0) {
             start_pos = 0;
+        }
     }
-    if (start_pos > len)
+    if (start_pos > len) {
         start_pos = len;
+    }
 
     // This is the true result string length
     result_len = end_pos - start_pos + 2;
@@ -620,8 +659,9 @@ tmp_substr(const char *str, int start_pos, int end_pos)
 
     read_pt = str + start_pos;
     result_len--;
-    while (result_len--)
+    while (result_len--) {
         *write_pt++ = *read_pt++;
+    }
     *write_pt = '\0';
 
     return result;
@@ -636,13 +676,15 @@ tmp_trim(const char *str)
 
     // Find beginning of trimmed string
     start = str;
-    while (*start && isspace(*start))
+    while (*start && isspace(*start)) {
         start++;
+    }
 
     // Find end of trimmed string
     end = str + strlen(str) - 1;
-    while (end > start && isspace(*end))
+    while (end > start && isspace(*end)) {
         end--;
+    }
 
     // This is the true result string length
     result_len = end - start + 2;
@@ -651,8 +693,9 @@ tmp_trim(const char *str)
 
     read_pt = start;
     result_len--;
-    while (result_len--)
+    while (result_len--) {
         *write_pt++ = *read_pt++;
+    }
     *write_pt = '\0';
 
     return result;
@@ -673,15 +716,17 @@ format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_
     bool par_end = false;
 
     // Skip initial spaces in input
-    while (*read_pt && isspace(*read_pt))
+    while (*read_pt && isspace(*read_pt)) {
         read_pt++;
+    }
 
     // Outer loop here loops once per word
     while (*read_pt) {
         // Skip spaces to beginning of word
         while (*read_pt && isspace(*read_pt)) {
-            if (*read_pt == '\n')
+            if (*read_pt == '\n') {
                 par_end = true;
+            }
             read_pt++;
         }
         if (!*read_pt) {
@@ -698,10 +743,12 @@ format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_
             while (*read_pt) {
                 while (*read_pt
                        && !isspace(*read_pt)
-                       && (isdigit(*read_pt) || !ispunct(*read_pt)))
+                       && (isdigit(*read_pt) || !ispunct(*read_pt))) {
                     read_pt++;
-                if (*read_pt != ',' && *read_pt != '.')
+                }
+                if (*read_pt != ',' && *read_pt != '.') {
                     break;
+                }
                 if (!isdigit(*(read_pt + 1))) {
                     break;
                 }
@@ -709,8 +756,9 @@ format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_
             }
         } else {
             // Find end of text word
-            if (*read_pt == '(')
+            if (*read_pt == '(') {
                 read_pt++;
+            }
             while (*read_pt
                    && !isspace(*read_pt)
                    && (*read_pt == '\'' || !ispunct(*read_pt))) {
@@ -722,9 +770,10 @@ format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_
         while (*read_pt && ispunct(*read_pt) && *read_pt != '(') {
             if (*read_pt == '.') {
                 // Check for common abbreviations
-                for (int i = 0;abbreviations[i];i++) {
-                    if (strncasecmp(word, abbreviations[i], read_pt - word))
+                for (int i = 0; abbreviations[i]; i++) {
+                    if (strncasecmp(word, abbreviations[i], read_pt - word)) {
                         sentence_end = true;
+                    }
                 }
             } else if (*read_pt == '?' || *read_pt == '!') {
                 sentence_end = true;
@@ -738,11 +787,13 @@ format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_
         // Render the line breaks, padding, and word
         if (par_end || line_width > width) {
             output_size += 2;
-            if (write_pt != buf_end)
+            if (write_pt != buf_end) {
                 *write_pt++ = '\r';
-            if (write_pt != buf_end)
+            }
+            if (write_pt != buf_end) {
                 *write_pt++ = '\n';
-            padding = (par_end) ? par_indent:rest_indent;
+            }
+            padding = (par_end) ? par_indent : rest_indent;
             line_width = read_pt - word + padding;
         }
 
@@ -751,21 +802,23 @@ format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_
 
             if (buf) {
                 while (padding--) {
-                    if (write_pt != buf_end)
+                    if (write_pt != buf_end) {
                         *write_pt++ = ' ';
+                    }
                 }
             }
         }
 
         while (word != read_pt) {
             output_size += read_pt - word;
-            if (write_pt != buf_end)
+            if (write_pt != buf_end) {
                 *write_pt++ = *word;
+            }
             word++;
         }
 
         // Prepare for next word
-        padding = (sentence_end) ? 2:1;
+        padding = (sentence_end) ? 2 : 1;
         par_end = false;
     }
 
@@ -820,15 +873,17 @@ wrap_buffer(char *buf, size_t buf_size, const char *str, int width, int first_in
     bool par_end = false;
 
     // Skip initial spaces in input
-    while (*read_pt && isspace(*read_pt))
+    while (*read_pt && isspace(*read_pt)) {
         read_pt++;
+    }
 
     // Outer loop here loops once per word
     while (*read_pt) {
         // Skip spaces to beginning of word
         while (*read_pt && isspace(*read_pt)) {
-            if (*read_pt == '\n')
+            if (*read_pt == '\n') {
                 par_end = true;
+            }
             padding++;
             read_pt++;
         }
@@ -857,11 +912,13 @@ wrap_buffer(char *buf, size_t buf_size, const char *str, int width, int first_in
         // Render the line breaks, padding, and word
         if (par_end || line_width > width) {
             output_size += 2;
-            if (write_pt != buf_end)
+            if (write_pt != buf_end) {
                 *write_pt++ = '\r';
-            if (write_pt != buf_end)
+            }
+            if (write_pt != buf_end) {
                 *write_pt++ = '\n';
-            padding = (par_end) ? par_indent:rest_indent;
+            }
+            padding = (par_end) ? par_indent : rest_indent;
             line_width = read_pt - word + padding;
         }
 
@@ -870,16 +927,18 @@ wrap_buffer(char *buf, size_t buf_size, const char *str, int width, int first_in
 
             if (buf) {
                 while (padding--) {
-                    if (write_pt != buf_end)
+                    if (write_pt != buf_end) {
                         *write_pt++ = ' ';
+                    }
                 }
             }
         }
 
         while (word != read_pt) {
             output_size += read_pt - word;
-            if (write_pt != buf_end)
+            if (write_pt != buf_end) {
                 *write_pt++ = *word;
+            }
             word++;
         }
 

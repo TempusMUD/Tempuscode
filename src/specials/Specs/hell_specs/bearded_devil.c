@@ -6,10 +6,12 @@
 
 SPECIAL(bearded_devil)
 {
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return false;
-    if (!is_fighting(ch) || !AWAKE(ch) || GET_NPC_WAIT(ch) > 0)
+    }
+    if (!is_fighting(ch) || !AWAKE(ch) || GET_NPC_WAIT(ch) > 0) {
         return false;
+    }
 
     if (!number(0, 3)) {
         struct creature *vict = random_opponent(ch);
@@ -17,10 +19,11 @@ SPECIAL(bearded_devil)
             false, ch, NULL, vict, TO_VICT);
         act("$n thrusts $s wirelike beard at $N!",
             false, ch, NULL, vict, TO_NOTVICT);
-        if (GET_DEX(vict) > number(0, 25))
+        if (GET_DEX(vict) > number(0, 25)) {
             damage(ch, vict, NULL, 0, TYPE_RIP, WEAR_FACE);
-        else
+        } else {
             damage(ch, vict, NULL, dice(8, 8), TYPE_RIP, WEAR_FACE);
+        }
         WAIT_STATE(ch, 2 RL_SEC);
         return 1;
     }

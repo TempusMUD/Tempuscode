@@ -74,11 +74,11 @@ const char *prog_event_strs[] = {
 
 // Function prototypes
 void prog_compile_error(struct prog_compiler_state *compiler,
-    int linenum, const char *str, ...)
-    __attribute__ ((format(printf, 3, 4)));
+                        int linenum, const char *str, ...)
+__attribute__ ((format(printf, 3, 4)));
 void prog_compile_warning(struct prog_compiler_state *compiler,
-    int linenum, const char *str, ...)
-    __attribute__ ((format(printf, 3, 4)));
+                          int linenum, const char *str, ...)
+__attribute__ ((format(printf, 3, 4)));
 
 char *
 prog_get_text(void *owner, enum prog_evt_type owner_type)
@@ -91,7 +91,7 @@ prog_get_text(void *owner, enum prog_evt_type owner_type)
             return GET_NPC_PROG(((struct creature *)owner));
         } else {
             errlog("Mobile Prog with no owner - Can't happen at %s:%d",
-                __FILE__, __LINE__);
+                   __FILE__, __LINE__);
             return NULL;
         }
     case PROG_TYPE_ROOM:
@@ -104,7 +104,7 @@ prog_get_text(void *owner, enum prog_evt_type owner_type)
 
 void
 prog_compile_message(struct prog_compiler_state *compiler,
-    int level, int linenum, const char *str, va_list args)
+                     int level, int linenum, const char *str, va_list args)
 {
     const char *severity = "";
     const char *place = NULL;
@@ -113,17 +113,18 @@ prog_compile_message(struct prog_compiler_state *compiler,
 
     msg = tmp_vsprintf(str, args);
 
-    if (linenum)
+    if (linenum) {
         linestr = tmp_sprintf(", line %d", linenum);
+    }
 
     switch (compiler->owner_type) {
     case PROG_TYPE_MOBILE:
         place = tmp_sprintf("mobile %d%s",
-            GET_NPC_VNUM(((struct creature *)compiler->owner)), linestr);
+                            GET_NPC_VNUM(((struct creature *)compiler->owner)), linestr);
         break;
     case PROG_TYPE_ROOM:
         place = tmp_sprintf("room %d%s",
-            ((struct room_data *)compiler->owner)->number, linestr);
+                            ((struct room_data *)compiler->owner)->number, linestr);
         break;
     default:
         place = "an unknown location";
@@ -141,16 +142,17 @@ prog_compile_message(struct prog_compiler_state *compiler,
         break;
     }
 
-    if (compiler->ch)
+    if (compiler->ch) {
         send_to_char(compiler->ch, "Prog %s in %s: %s\r\n",
-            severity, place, msg);
-    else
+                     severity, place, msg);
+    } else {
         slog("Prog %s in %s: %s", severity, place, msg);
+    }
 }
 
 void
 prog_compile_error(struct prog_compiler_state *compiler,
-    int linenum, const char *str, ...)
+                   int linenum, const char *str, ...)
 {
     va_list args;
 
@@ -163,7 +165,7 @@ prog_compile_error(struct prog_compiler_state *compiler,
 
 void
 prog_compile_warning(struct prog_compiler_state *compiler,
-    int linenum, const char *str, ...)
+                     int linenum, const char *str, ...)
 {
     va_list args;
 
@@ -174,15 +176,15 @@ prog_compile_warning(struct prog_compiler_state *compiler,
 
 bool
 prog_push_new_token(struct prog_compiler_state *compiler,
-    enum prog_token_kind kind, int linenum, const char *value)
+                    enum prog_token_kind kind, int linenum, const char *value)
 {
     struct prog_token *new_token;
 
     CREATE(new_token, struct prog_token, 1);
     if (!new_token) {
         prog_compile_error(compiler,
-            compiler->cur_token->linenum,
-            "Out of memory while creating symbol");
+                           compiler->cur_token->linenum,
+                           "Out of memory while creating symbol");
         return false;
     }
 
@@ -204,15 +206,16 @@ prog_push_new_token(struct prog_compiler_state *compiler,
     default:
         errlog("Can't happen");
         prog_compile_error(compiler,
-            compiler->cur_token->linenum, "Internal Compiler Error #194");
+                           compiler->cur_token->linenum, "Internal Compiler Error #194");
         free(new_token);
         return false;
     }
 
-    if (compiler->token_tail)
+    if (compiler->token_tail) {
         compiler->token_tail = compiler->token_tail->next = new_token;
-    else
+    } else {
         compiler->token_list = compiler->token_tail = new_token;
+    }
 
     return true;
 }
@@ -229,13 +232,15 @@ prog_free_compiler(struct prog_compiler_state *compiler)
         free(cur_token);
     }
 
-    for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++)
-        for (event_idx = 0; event_idx < PROG_EVT_COUNT; event_idx++)
+    for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++) {
+        for (event_idx = 0; event_idx < PROG_EVT_COUNT; event_idx++) {
             for (cur_code = compiler->handlers[phase_idx][event_idx];
-                cur_code; cur_code = next_code) {
+                 cur_code; cur_code = next_code) {
                 next_code = cur_code->next;
                 free(cur_code);
             }
+        }
+    }
 }
 
 //
@@ -256,19 +261,21 @@ prog_lexify(struct prog_compiler_state *compiler)
     line = tmp_strdup("");
 
     // Skip initial spaces and blank lines in prog
-    while (isspace(*line_start))
+    while (isspace(*line_start)) {
         line_start++;
+    }
     line_end = line_start;
 
     while (*line_start) {
         // Find the end of the line
-        while (*line_end && *line_end != '\n' && *line_end != '\r')
+        while (*line_end && *line_end != '\n' && *line_end != '\r') {
             line_end++;
+        }
 
         // Grab a temporary version of the line
         line =
             tmp_strcat(line, tmp_substr(line_start, 0,
-                line_end - line_start - 1), NULL);
+                                        line_end - line_start - 1), NULL);
         // If the line ends with a backslash, do nothing and the next
         // line will be appended.  If it doesn't, we can process the
         // line now
@@ -286,32 +293,38 @@ prog_lexify(struct prog_compiler_state *compiler)
                 cmd_str = tmp_getword(&line) + 1;
                 if (!strcasecmp(cmd_str, "before")
                     || !strcasecmp(cmd_str, "handle")
-                    || !strcasecmp(cmd_str, "after"))
+                    || !strcasecmp(cmd_str, "after")) {
                     ok = prog_push_new_token(compiler,
-                        PROG_TOKEN_HANDLER, linenum, cmd_str);
-                else
+                                             PROG_TOKEN_HANDLER, linenum, cmd_str);
+                } else {
                     ok = prog_push_new_token(compiler,
-                        PROG_TOKEN_SYM, linenum, cmd_str);
-                if (!ok)
+                                             PROG_TOKEN_SYM, linenum, cmd_str);
+                }
+                if (!ok) {
                     return false;
+                }
             }
             // if we have an argument to the command, tokenize it
-            if (*line)
+            if (*line) {
                 if (!prog_push_new_token(compiler, PROG_TOKEN_STR, linenum,
-                        line))
+                                         line)) {
                     return false;
+                }
+            }
 
             // The end-of-line is a language token in progs
-            if (!prog_push_new_token(compiler, PROG_TOKEN_EOL, linenum, line))
+            if (!prog_push_new_token(compiler, PROG_TOKEN_EOL, linenum, line)) {
                 return false;
+            }
 
             // Set line to empty string so it won't be concatenated again
             line = tmp_strdup("");
         }
 
         while (isspace(*line_end)) {
-            if (*line_end == '\n')
+            if (*line_end == '\n') {
                 linenum++;
+            }
             line_end++;
         }
         line_start = line_end;
@@ -324,7 +337,7 @@ prog_lexify(struct prog_compiler_state *compiler)
 
 void
 prog_compiler_emit(struct prog_compiler_state *compiler, int instr, void *data,
-    size_t data_len)
+                   size_t data_len)
 {
     *compiler->code->code_pt++ = instr;
     if (data_len) {
@@ -349,12 +362,13 @@ prog_compile_statement(struct prog_compiler_state *compiler)
     case PROG_TOKEN_SYM:
         // Find the prog command
         cmd = prog_cmds + 1;
-        while (cmd->str && strcasecmp(cmd->str, compiler->cur_token->sym))
+        while (cmd->str && strcasecmp(cmd->str, compiler->cur_token->sym)) {
             cmd++;
+        }
         if (!cmd->str) {
             prog_compile_error(compiler,
-                compiler->cur_token->linenum,
-                "Unknown command '%s'", compiler->cur_token->sym);
+                               compiler->cur_token->linenum,
+                               "Unknown command '%s'", compiler->cur_token->sym);
             return;
         }
         // Advance to the next token
@@ -362,9 +376,9 @@ prog_compile_statement(struct prog_compiler_state *compiler)
 
         if (compiler->cur_token && compiler->cur_token->kind == PROG_TOKEN_STR) {
             prog_compiler_emit(compiler,
-                cmd - prog_cmds,
-                compiler->cur_token->str,
-                strlen(compiler->cur_token->str) + 1);
+                               cmd - prog_cmds,
+                               compiler->cur_token->str,
+                               strlen(compiler->cur_token->str) + 1);
             compiler->cur_token = compiler->cur_token->next;
         } else {
             prog_compiler_emit(compiler, cmd - prog_cmds, NULL, 0);
@@ -373,13 +387,13 @@ prog_compile_statement(struct prog_compiler_state *compiler)
     case PROG_TOKEN_STR:
         if (compiler->owner_type != PROG_TYPE_MOBILE) {
             prog_compile_error(compiler, compiler->cur_token->linenum,
-                "Non-mobs cannot perform in-game commands.");
+                               "Non-mobs cannot perform in-game commands.");
             return;
         }
         // It's an in-game command with a mob, so emit the *do command
         prog_compiler_emit(compiler,
-            PROG_CMD_DO,
-            compiler->cur_token->str, strlen(compiler->cur_token->str) + 1);
+                           PROG_CMD_DO,
+                           compiler->cur_token->str, strlen(compiler->cur_token->str) + 1);
         compiler->cur_token = compiler->cur_token->next;
         break;
     default:
@@ -389,7 +403,7 @@ prog_compile_statement(struct prog_compiler_state *compiler)
     if (compiler->cur_token) {
         if (compiler->cur_token->kind != PROG_TOKEN_EOL) {
             prog_compile_error(compiler, compiler->cur_token->linenum,
-                "Expected end of line");
+                               "Expected end of line");
             return;
         }
         compiler->cur_token = compiler->cur_token->next;
@@ -406,7 +420,7 @@ prog_compile_handler(struct prog_compiler_state *compiler)
     // Make sure the code starts with a handler
     if (compiler->cur_token->kind != PROG_TOKEN_HANDLER) {
         prog_compile_error(compiler, compiler->cur_token->linenum,
-            "Command without handler");
+                           "Command without handler");
         return;
     }
     // Set up new code block
@@ -423,7 +437,7 @@ prog_compile_handler(struct prog_compiler_state *compiler)
     phase = search_block(cmd_token->sym, prog_phase_strs, true);
     if (phase < 0) {
         prog_compile_error(compiler, compiler->cur_token->linenum,
-            "Invalid handler phase '%s'", cmd_token->sym);
+                           "Invalid handler phase '%s'", cmd_token->sym);
         goto err;
     }
 
@@ -445,7 +459,7 @@ prog_compile_handler(struct prog_compiler_state *compiler)
     compiler->cur_token = cmd_token->next;
     if (!compiler->cur_token || compiler->cur_token->kind != PROG_TOKEN_STR) {
         prog_compile_error(compiler, cmd_token->linenum,
-            "Expected parameter to *%s", cmd_token->sym);
+                           "Expected parameter to *%s", cmd_token->sym);
         goto err;
     }
     // Retrieve the event type
@@ -454,7 +468,7 @@ prog_compile_handler(struct prog_compiler_state *compiler)
     event = search_block(arg, prog_event_strs, true);
     if (event < 0) {
         prog_compile_error(compiler, compiler->cur_token->linenum,
-            "Invalid parameter '%s' to *%s", arg, cmd_token->sym);
+                           "Invalid parameter '%s' to *%s", arg, cmd_token->sym);
         goto err;
     }
     // Add code to handle any other conditions attached to the handler
@@ -463,7 +477,7 @@ prog_compile_handler(struct prog_compiler_state *compiler)
         arg = tmp_getword(&args);
         if (!*arg) {
             prog_compile_error(compiler, compiler->cur_token->linenum,
-                "No command specified for *%s command", cmd_token->sym);
+                               "No command specified for *%s command", cmd_token->sym);
             goto err;
         }
         prog_compiler_emit(compiler, PROG_CMD_CLRCOND, NULL, 0);
@@ -471,7 +485,7 @@ prog_compile_handler(struct prog_compiler_state *compiler)
             cmd = find_command(arg);
             if (cmd < 0) {
                 prog_compile_error(compiler, compiler->cur_token->linenum,
-                    "'%s' is not a valid command", arg);
+                                   "'%s' is not a valid command", arg);
                 goto err;
             }
             prog_compiler_emit(compiler, PROG_CMD_CMPCMD, &cmd, sizeof(int));
@@ -485,20 +499,20 @@ prog_compile_handler(struct prog_compiler_state *compiler)
         arg = tmp_getword(&args);
         if (!*arg) {
             prog_compile_error(compiler, compiler->cur_token->linenum,
-                "No spell numbers specified for *%s spell", cmd_token->sym);
+                               "No spell numbers specified for *%s spell", cmd_token->sym);
             goto err;
         }
         prog_compiler_emit(compiler, PROG_CMD_CLRCOND, NULL, 0);
         while (*arg) {
             if (!is_number(arg)) {
                 prog_compile_error(compiler, compiler->cur_token->linenum,
-                    "Spell number expected, got '%s'", arg);
+                                   "Spell number expected, got '%s'", arg);
                 goto err;
             }
             cmd = atoi(arg);
             if (cmd < 0 || cmd > max_spell_num || spells[cmd][0] == '!') {
                 prog_compile_error(compiler, compiler->cur_token->linenum,
-                    "%s is not a valid spell number", arg);
+                                   "%s is not a valid spell number", arg);
                 goto err;
             }
 
@@ -514,22 +528,23 @@ prog_compile_handler(struct prog_compiler_state *compiler)
         if (*arg) {
             if (!is_number(arg)) {
                 prog_compile_error(compiler, compiler->cur_token->linenum,
-                    "Object vnum expected, got '%s'", arg);
+                                   "Object vnum expected, got '%s'", arg);
                 goto err;
             }
             cmd = atoi(arg);
             if (cmd < 0) {
                 prog_compile_error(compiler, compiler->cur_token->linenum,
-                    "%s is not a valid object vnum", arg);
+                                   "%s is not a valid object vnum", arg);
                 goto err;
             }
-            if (!real_object_proto(cmd))
+            if (!real_object_proto(cmd)) {
                 prog_compile_warning(compiler, compiler->cur_token->linenum,
-                    "No object %s exists.", arg);
+                                     "No object %s exists.", arg);
+            }
 
             prog_compiler_emit(compiler, PROG_CMD_CLRCOND, NULL, 0);
             prog_compiler_emit(compiler, PROG_CMD_CMPOBJVNUM, &cmd,
-                sizeof(int));
+                               sizeof(int));
             prog_compiler_emit(compiler, PROG_CMD_CONDNEXTHANDLER, NULL, 0);
 
         }
@@ -541,7 +556,7 @@ prog_compile_handler(struct prog_compiler_state *compiler)
     // Ensure there's another token to get to
     if (!compiler->cur_token->next) {
         prog_compile_error(compiler, compiler->cur_token->linenum,
-            "End of line expected.");
+                           "End of line expected.");
         goto err;
     }
     // Advance token and ensure that it's an end of line
@@ -549,14 +564,15 @@ prog_compile_handler(struct prog_compiler_state *compiler)
 
     if (compiler->cur_token->kind != PROG_TOKEN_EOL) {
         prog_compile_error(compiler, compiler->cur_token->linenum,
-            "End of line expected.");
+                           "End of line expected.");
         goto err;
     }
     // Compile statements until an error or the next event handler
     compiler->cur_token = compiler->cur_token->next;
     while (compiler->cur_token
-        && compiler->cur_token->kind != PROG_TOKEN_HANDLER && !compiler->error)
+           && compiler->cur_token->kind != PROG_TOKEN_HANDLER && !compiler->error) {
         prog_compile_statement(compiler);
+    }
 
     // If an entry in the event handler table already exists, append
     // the new code to the end
@@ -564,8 +580,9 @@ prog_compile_handler(struct prog_compiler_state *compiler)
         struct prog_code_block *prev_block;
 
         prev_block = compiler->handlers[phase][event];
-        while (prev_block->next)
+        while (prev_block->next) {
             prev_block = prev_block->next;
+        }
         prev_block->next = compiler->code;
     } else {
         // otherwise, just add an entry to the table
@@ -575,7 +592,7 @@ prog_compile_handler(struct prog_compiler_state *compiler)
     compiler->code = NULL;
     return;
 
-  err:
+err:
     free(compiler->code);
     compiler->code = NULL;
 }
@@ -588,32 +605,35 @@ prog_display_obj(struct creature *ch, unsigned char *exec)
     int phase_idx, event_idx;
 
     cmd_count = 0;
-    while (prog_cmds[cmd_count].str)
+    while (prog_cmds[cmd_count].str) {
         cmd_count++;
+    }
 
-    for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++)
+    for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++) {
         for (event_idx = 0; event_idx < PROG_EVT_COUNT; event_idx++) {
             read_pt =
                 *((short *)exec + phase_idx * PROG_EVT_COUNT + event_idx);
             if (read_pt) {
                 send_to_char(ch, "-- %s %s -------------------------\r\n",
-                    tmp_toupper(prog_phase_strs[phase_idx]),
-                    tmp_toupper(prog_event_strs[event_idx]));
+                             tmp_toupper(prog_phase_strs[phase_idx]),
+                             tmp_toupper(prog_event_strs[event_idx]));
                 while (read_pt >= 0 && *((short *)&exec[read_pt])) {
                     // Get the command and the arg address
                     cmd = *((short *)(exec + read_pt));
                     arg_addr = *((short *)(exec + read_pt) + 1);
                     // Set the execution point to the next command by default
                     read_pt += sizeof(short) * 2;
-                    if (cmd < 0 || cmd >= cmd_count)
+                    if (cmd < 0 || cmd >= cmd_count) {
                         send_to_char(ch, "<INVALID CMD #%d>\r\n", cmd);
-                    else
+                    } else {
                         send_to_char(ch, "%-9s %s\n",
-                            tmp_toupper(prog_cmds[cmd].str),
-                            (char *)(exec + arg_addr));
+                                     tmp_toupper(prog_cmds[cmd].str),
+                                     (char *)(exec + arg_addr));
+                    }
                 }
             }
         }
+    }
 }
 
 unsigned char *
@@ -632,19 +652,20 @@ prog_map_to_block(struct prog_compiler_state *compiler)
     data_len = 0;
 
     // Add all code and data segments from all event handlers
-    for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++)
+    for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++) {
         for (event_idx = 0; event_idx < PROG_EVT_COUNT; event_idx++) {
             if (compiler->handlers[phase_idx][event_idx]) {
                 for (cur_code = compiler->handlers[phase_idx][event_idx];
-                    cur_code; cur_code = cur_code->next) {
+                     cur_code; cur_code = cur_code->next) {
                     code_len +=
                         (cur_code->code_pt -
-                        cur_code->code_seg) * sizeof(unsigned short);
+                         cur_code->code_seg) * sizeof(unsigned short);
                     data_len += (cur_code->data_pt - cur_code->data_seg);
                 }
                 code_len += 2;  // add size of halt command
             }
         }
+    }
 
     // Add length for the end of prog marker
     code_len += 2;
@@ -658,28 +679,30 @@ prog_map_to_block(struct prog_compiler_state *compiler)
     data_offset = code_offset + code_len * sizeof(unsigned short);
 
     // Iterate through event handling table
-    for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++)
+    for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++) {
         for (event_idx = 0; event_idx < PROG_EVT_COUNT; event_idx++) {
             // Go to next event handler if no code attached to it
-            if (!compiler->handlers[phase_idx][event_idx])
+            if (!compiler->handlers[phase_idx][event_idx]) {
                 continue;
+            }
             // Assign current code offset to event table entry
             *((short *)block + phase_idx * PROG_EVT_COUNT + event_idx) =
                 code_offset;
 
             // Concatenate and relocate code and data segments
             for (cur_code = compiler->handlers[phase_idx][event_idx];
-                cur_code; cur_code = cur_code->next) {
+                 cur_code; cur_code = cur_code->next) {
                 // Copy the data segment
                 memcpy(&block[data_offset], cur_code->data_seg,
-                    cur_code->data_pt - cur_code->data_seg);
+                       cur_code->data_pt - cur_code->data_seg);
                 // Backpatch the data addresses
                 for (code_pt = cur_code->code_seg + 1;
-                    code_pt < cur_code->code_pt; code_pt += 2)
+                     code_pt < cur_code->code_pt; code_pt += 2) {
                     *code_pt += data_offset;
+                }
                 // Copy the code segment
                 memcpy(&block[code_offset], cur_code->code_seg,
-                    (cur_code->code_pt - cur_code->code_seg) * sizeof(short));
+                       (cur_code->code_pt - cur_code->code_seg) * sizeof(short));
 
                 // Update code and data offsets
                 code_offset +=
@@ -692,6 +715,7 @@ prog_map_to_block(struct prog_compiler_state *compiler)
             *((short *)&block[code_offset + sizeof(short)]) = 0;
             code_offset += 2 * sizeof(short);
         }
+    }
 
     // Concatenate end-of-prog marker to code.
     *((short *)&block[code_offset]) = PROG_CMD_ENDOFPROG;
@@ -702,13 +726,14 @@ prog_map_to_block(struct prog_compiler_state *compiler)
 
 unsigned char *
 prog_compile_prog(struct creature *ch,
-    char *prog_text, void *owner, enum prog_evt_type owner_type)
+                  char *prog_text, void *owner, enum prog_evt_type owner_type)
 {
     struct prog_compiler_state state;
     unsigned char *obj = NULL;
 
-    if (!prog_text || !*prog_text)
+    if (!prog_text || !*prog_text) {
         return NULL;
+    }
 
     memset(&state, 0, sizeof(state));
 
@@ -719,19 +744,22 @@ prog_compile_prog(struct creature *ch,
     state.code = NULL;
 
     // Get a list of tokens from the prog
-    if (!prog_lexify(&state))
+    if (!prog_lexify(&state)) {
         goto error;
+    }
 
     // We can have a prog that doesn't do anything... in those cases,
     // we should just clear the prog
-    if (!state.token_list)
+    if (!state.token_list) {
         return NULL;
+    }
 
     // Run through tokens until no more tokens are left or a fatal
     // compiler error occurs.
     state.error = 0;
-    while (state.cur_token && !state.error)
+    while (state.cur_token && !state.error) {
         prog_compile_handler(&state);
+    }
 
     if (!state.error) {
         // No error occurred - map entry table, object code, and data to
@@ -742,7 +770,7 @@ prog_compile_prog(struct creature *ch,
         obj = NULL;
     }
 
-  error:
+error:
 
     // Free compiler structures
     prog_free_compiler(&state);

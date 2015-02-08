@@ -8,16 +8,18 @@ SPECIAL(arena_object)
 {
     struct obj_data *me2 = (struct obj_data *)me;
     struct creature *new_mob = NULL;
-    if (!CMD_IS("say") && !CMD_IS("'"))
+    if (!CMD_IS("say") && !CMD_IS("'")) {
         return 0;
+    }
     skip_spaces(&argument);
-    if (!*argument)
+    if (!*argument) {
         return 0;
+    }
     half_chop(argument, buf, buf2);
 
     if (!strncasecmp(buf, "reset", 5)) {
         send_to_room("Games room reset. Say release to each opponent!\n",
-            IN_ROOM(me2));
+                     IN_ROOM(me2));
         GET_OBJ_VAL(me2, 0) = 0;
         return 1;
     }
@@ -93,14 +95,14 @@ SPECIAL(arena_object)
             new_mob = read_mobile(13406);
             break;              /* death knight */
         default:
-            {
+        {
 
-                send_to_room
-                    ("I am sorry you have exceeded the maximum power of this device\n",
-                    IN_ROOM(me2));
-                send_to_room("Say reset to start again.", IN_ROOM(me2));
-                break;
-            }
+            send_to_room
+                ("I am sorry you have exceeded the maximum power of this device\n",
+                IN_ROOM(me2));
+            send_to_room("Say reset to start again.", IN_ROOM(me2));
+            break;
+        }
         }
         if (new_mob != NULL) {
             SET_BIT(NPC_FLAGS(new_mob), NPC_AGGRESSIVE);
@@ -108,8 +110,9 @@ SPECIAL(arena_object)
             GET_GOLD(ch) = 0;
             GET_EXP(new_mob) /= 4;
             char_to_room(new_mob, IN_ROOM(me2), false);
-        } else
+        } else {
             printf("NULL\n");
+        }
         return 1;
     }
     return 0;

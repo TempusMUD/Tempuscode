@@ -11,10 +11,12 @@ SPECIAL(morkoth)
 
     struct creature *morkoth = (struct creature *)me;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
-    if (!cmd || morkoth->in_room->number != GET_NPC_LAIR(morkoth))
+    }
+    if (!cmd || morkoth->in_room->number != GET_NPC_LAIR(morkoth)) {
         return 0;
+    }
 
     if (CMD_IS("down")) {
         act("$n prevents you from going down the tunnel.",

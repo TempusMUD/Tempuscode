@@ -8,19 +8,23 @@ SPECIAL(wagon_room)
 {
     struct obj_data *i;
     int wagon_obj_rnum = 10;
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (!CMD_IS("disembark") && !CMD_IS("leave") && !CMD_IS("look"))
+    if (!CMD_IS("disembark") && !CMD_IS("leave") && !CMD_IS("look")) {
         return 0;
+    }
 
-    for (i = object_list; i; i = i->next)
-        if (wagon_obj_rnum == GET_OBJ_VNUM(i) && i->in_room != NULL)
+    for (i = object_list; i; i = i->next) {
+        if (wagon_obj_rnum == GET_OBJ_VNUM(i) && i->in_room != NULL) {
             break;
+        }
+    }
 
     if (!i) {
         mudlog(LVL_DEMI, BRF, true,
-            "WARNING: Chars may be trapped in wagon (room 10)!");
+               "WARNING: Chars may be trapped in wagon (room 10)!");
         act("You suddenly realize that reality is not what it seems to be...",
             false, ch, NULL, NULL, TO_CHAR);
         return 1;
@@ -28,10 +32,12 @@ SPECIAL(wagon_room)
 
     if (CMD_IS("look")) {
         skip_spaces(&argument);
-        if (!*argument)
+        if (!*argument) {
             return 0;
-        if (strncasecmp(argument, "out", 3))
+        }
+        if (strncasecmp(argument, "out", 3)) {
             return 0;
+        }
         send_to_char(ch, "You look off the side of the wagon...\r\n\r\n");
         look_at_room(ch, i->in_room, 1);
         return true;

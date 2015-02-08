@@ -128,10 +128,12 @@ get_component_name(int comp, int sub_class)
 {
     int idx = 0;
 
-    if (sub_class < 0 || sub_class > 2)
+    if (sub_class < 0 || sub_class > 2) {
         sub_class = 0;
-    while (idx < comp && component_names[idx][0][0] != '\n')
+    }
+    while (idx < comp && component_names[idx][0][0] != '\n') {
         idx++;
+    }
 
     return component_names[idx][sub_class];
 }
@@ -152,15 +154,17 @@ max_component_dam(struct creature *ch)
 
 void
 perform_recharge(struct creature *ch, struct obj_data *battery,
-    struct creature *vict, struct obj_data *engine, int amount)
+                 struct creature *vict, struct obj_data *engine, int amount)
 {
     int wait = 0;
     if (battery) {
-        if (!amount)
+        if (!amount) {
             amount = RECH_RATE(battery);
+        }
 
-        if ((CUR_ENERGY(battery) - amount) < 0)
+        if ((CUR_ENERGY(battery) - amount) < 0) {
             amount = CUR_ENERGY(battery);
+        }
 
         if (IS_OBJ_TYPE(battery, ITEM_BATTERY)
             && COST_UNIT(battery) * amount > GET_CASH(ch)) {
@@ -168,16 +172,17 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
 
             if (!amount) {
                 send_to_char(ch,
-                    "You do not have the cash to pay for the energy.\r\n");
+                             "You do not have the cash to pay for the energy.\r\n");
                 return;
             }
         }
     } else {
-        if (!amount)
+        if (!amount) {
             amount =
                 MIN(GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 8), GET_MOVE(ch));
-        else
+        } else {
             amount = MIN(amount, GET_MOVE(ch));
+        }
     }
 
     if (!engine && !vict) {
@@ -186,57 +191,63 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
     }
 
     if (vict) {
-        if (GET_MOVE(vict) + amount > GET_MAX_MOVE(vict))
+        if (GET_MOVE(vict) + amount > GET_MAX_MOVE(vict)) {
             amount = GET_MAX_MOVE(vict) - GET_MOVE(vict);
+        }
 
         GET_MOVE(vict) = MIN(GET_MAX_MOVE(vict), GET_MOVE(vict) + amount);
 
-        if (battery)
+        if (battery) {
             CUR_ENERGY(battery) = MAX(0, CUR_ENERGY(battery) - amount);
-        else
+        } else {
             GET_MOVE(ch) -= amount;
+        }
 
     } else {  /** recharging an engine **/
 
-        if ((CUR_ENERGY(engine) + amount) > MAX_ENERGY(engine))
+        if ((CUR_ENERGY(engine) + amount) > MAX_ENERGY(engine)) {
             amount = MAX_ENERGY(engine) - CUR_ENERGY(engine);
+        }
         CUR_ENERGY(engine) =
             MIN(MAX_ENERGY(engine), CUR_ENERGY(engine) + amount);
 
-        if (battery)
+        if (battery) {
             CUR_ENERGY(battery) = MAX(0, CUR_ENERGY(battery) - amount);
-        else
+        } else {
             GET_MOVE(ch) -= amount;
+        }
     }
 
     send_to_char(ch,
-        "%s>>>        ENERGY TRANSFER         <<<%s\r\n"
-        "From:  %s%20s%s\r\n"
-        "To:    %s%20s%s\r\n\r\n"
-        "Transfer Amount:       %s%'5d Units%s\r\n"
-        "Energy Level(TARGET):  %s%'5d Units%s\r\n"
-        "Energy Level(SOURCE):  %s%'5d Units%s\r\n",
-        QGRN, QNRM,
-        QCYN, battery ? battery->name : "self", QNRM,
-        QCYN, vict ? GET_NAME(vict) : engine->name, QNRM,
-        QCYN, amount, QNRM,
-        QCYN, vict ? GET_MOVE(vict) : CUR_ENERGY(engine), QNRM,
-        QCYN, battery ? CUR_ENERGY(battery) : GET_MOVE(ch), QNRM);
+                 "%s>>>        ENERGY TRANSFER         <<<%s\r\n"
+                 "From:  %s%20s%s\r\n"
+                 "To:    %s%20s%s\r\n\r\n"
+                 "Transfer Amount:       %s%'5d Units%s\r\n"
+                 "Energy Level(TARGET):  %s%'5d Units%s\r\n"
+                 "Energy Level(SOURCE):  %s%'5d Units%s\r\n",
+                 QGRN, QNRM,
+                 QCYN, battery ? battery->name : "self", QNRM,
+                 QCYN, vict ? GET_NAME(vict) : engine->name, QNRM,
+                 QCYN, amount, QNRM,
+                 QCYN, vict ? GET_MOVE(vict) : CUR_ENERGY(engine), QNRM,
+                 QCYN, battery ? CUR_ENERGY(battery) : GET_MOVE(ch), QNRM);
     if (battery) {
         if (IS_OBJ_TYPE(battery, ITEM_BATTERY) && COST_UNIT(battery)) {
             send_to_char(ch, "Your cost: %'d credits.\r\n",
-                amount * COST_UNIT(battery));
+                         amount * COST_UNIT(battery));
             GET_CASH(ch) -= amount * COST_UNIT(battery);
         }
     }
     if ((battery && CUR_ENERGY(battery) <= 0) ||
-        (!battery && GET_MOVE(ch) <= 0))
+        (!battery && GET_MOVE(ch) <= 0)) {
         send_to_char(ch, "STATUS: %sSOURCE DEPLETED%s\r\n", QRED, QNRM);
+    }
 
     if ((vict && GET_MOVE(vict) == GET_MAX_MOVE(vict)) ||
-        (engine && CUR_ENERGY(engine) == MAX_ENERGY(engine)))
+        (engine && CUR_ENERGY(engine) == MAX_ENERGY(engine))) {
         send_to_char(ch, "STATUS: %sTARGET NOW FULLY ENERGIZED%s\r\n",
-            QRED, QNRM);
+                     QRED, QNRM);
+    }
 
     wait = 10 + MIN((amount / 5), 90);
 
@@ -258,22 +269,25 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
                 false, ch, battery, vict, TO_NOTVICT);
         }
     } else if (ch == vict) {
-        if (battery)
+        if (battery) {
             act("$n recharges $mself from $p.",
                 false, ch, battery, vict, TO_ROOM);
-        else
+        } else {
             send_to_room("BING!  Something weird just happened.\r\n",
-                ch->in_room);
+                         ch->in_room);
+        }
     } else if (engine) {
-        if (battery)
+        if (battery) {
             act("$n recharges $p from $P.", true, ch, engine, battery,
                 TO_ROOM);
-        else
+        } else {
             act("$n recharges $p from $s internal supply.",
                 true, ch, engine, vict, TO_ROOM);
+        }
     }
-    if (battery && IS_OBJ_TYPE(battery, ITEM_BATTERY))
+    if (battery && IS_OBJ_TYPE(battery, ITEM_BATTERY)) {
         amount -= RECH_RATE(battery);
+    }
     if (amount < 0) {
         amount = 0;
     }
@@ -284,9 +298,9 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
 
     if ((battery && amount) &&
         (IS_OBJ_TYPE(battery, ITEM_BATTERY)
-            || IS_OBJ_TYPE(battery, ITEM_DEVICE))) {
+         || IS_OBJ_TYPE(battery, ITEM_DEVICE))) {
         send_to_char(ch, "%sERROR: %s damaged during transfer!\r\n", QRED,
-            battery->name);
+                     battery->name);
         damage_eq(ch, battery, amount, -1);
     }
 }
@@ -317,9 +331,9 @@ ACMD(do_recharge)
         if (battery == NULL
             && !(battery = get_obj_in_list_vis(ch, arg2, ch->carrying))
             && !(battery =
-                get_object_in_equip_vis(ch, arg2, ch->equipment, &i))
+                     get_object_in_equip_vis(ch, arg2, ch->equipment, &i))
             && !(battery =
-                get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
+                     get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
             send_to_char(ch, "You need a battery to do that.\r\n");
             return;
         }
@@ -339,7 +353,7 @@ ACMD(do_recharge)
         }
         if (GET_MOVE(ch) == GET_MAX_MOVE(ch)) {
             send_to_char(ch,
-                "You are already operating at maximum energy.\r\n");
+                         "You are already operating at maximum energy.\r\n");
             return;
         }
         perform_recharge(ch, battery, ch, NULL, 0);
@@ -349,13 +363,13 @@ ACMD(do_recharge)
     if (*arg1 && !strcasecmp(arg1, "internal")) {
         if (!*arg2 || !*arg3) {
             send_to_char(ch,
-                "USAGE:  Recharge internal <component> energy_source\r\n");
+                         "USAGE:  Recharge internal <component> energy_source\r\n");
             return;
         }
 
         if (!(target = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
             send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-                AN(arg2), arg2);
+                         AN(arg2), arg2);
             return;
         }
         if (*arg3 && !strcmp(arg3, "internal")) {
@@ -363,18 +377,18 @@ ACMD(do_recharge)
                 send_to_char(ch, "Recharge from an internal what?\r\n");
                 return;
             } else if (!(battery =
-                    get_object_in_equip_vis(ch, arg4, ch->implants, &i))) {
+                             get_object_in_equip_vis(ch, arg4, ch->implants, &i))) {
                 send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-                    AN(arg4), arg4);
+                             AN(arg4), arg4);
                 return;
             }
         } else if (strncmp(arg3, "self", 4) &&
-            !(battery = get_obj_in_list_vis(ch, arg3, ch->carrying)) &&
-            !(battery = get_object_in_equip_vis(ch, arg3, ch->equipment, &i))
-            && !(battery =
-                get_obj_in_list_vis(ch, arg3, ch->in_room->contents))) {
+                   !(battery = get_obj_in_list_vis(ch, arg3, ch->carrying)) &&
+                   !(battery = get_object_in_equip_vis(ch, arg3, ch->equipment, &i))
+                   && !(battery =
+                            get_obj_in_list_vis(ch, arg3, ch->in_room->contents))) {
             send_to_char(ch, "You can't find any '%s' to recharge from.\r\n",
-                arg3);
+                         arg3);
             return;
         }
 
@@ -392,7 +406,7 @@ ACMD(do_recharge)
 
             if (IS_IMPLANT(battery) && *arg4 &&
                 battery != get_object_in_equip_vis(ch, arg4, ch->implants,
-                    &i)) {
+                                                   &i)) {
                 act("ERROR: $p not installed properly.", false, ch, battery, NULL,
                     TO_CHAR);
                 return;
@@ -400,27 +414,29 @@ ACMD(do_recharge)
         } else {
             if (!IS_CYBORG(ch)) {
                 send_to_char(ch,
-                    "You cannot recharge things from yourself.\r\n");
+                             "You cannot recharge things from yourself.\r\n");
                 return;
             }
             if (GET_MOVE(ch) <= 0) {
                 send_to_char(ch,
-                    "You do not have any energy to transfer.\r\n");
+                             "You do not have any energy to transfer.\r\n");
                 return;
             }
         }
 
         if (!IS_CYBORG(ch)) {
-            for (i = 0; i < NUM_WEARS; i++)
+            for (i = 0; i < NUM_WEARS; i++) {
                 if ((GET_IMPLANT(ch, i) && IS_INTERFACE(GET_IMPLANT(ch, i)) &&
-                        INTERFACE_TYPE(GET_IMPLANT(ch, i)) == INTERFACE_POWER)
+                     INTERFACE_TYPE(GET_IMPLANT(ch, i)) == INTERFACE_POWER)
                     || (GET_EQ(ch, i) && IS_INTERFACE(GET_EQ(ch, i))
-                        && INTERFACE_TYPE(GET_EQ(ch, i)) == INTERFACE_POWER))
+                        && INTERFACE_TYPE(GET_EQ(ch, i)) == INTERFACE_POWER)) {
                     break;
+                }
+            }
 
             if (i >= NUM_WEARS) {
                 send_to_char(ch,
-                    "You are not using an appropriate power interface.\r\n");
+                             "You are not using an appropriate power interface.\r\n");
                 return;
             }
         }
@@ -453,7 +469,7 @@ ACMD(do_recharge)
         !(target = get_obj_in_list_vis(ch, arg1, ch->in_room->contents)) &&
         !(vict = get_char_room_vis(ch, arg1))) {
         send_to_char(ch, "You can't find %s '%s' here to recharge.\r\n",
-            AN(arg1), arg1);
+                     AN(arg1), arg1);
         return;
     }
 
@@ -462,17 +478,17 @@ ACMD(do_recharge)
             send_to_char(ch, "Recharge from an internal what?\r\n");
             return;
         } else if (!(battery =
-                get_object_in_equip_vis(ch, arg3, ch->implants, &i))) {
+                         get_object_in_equip_vis(ch, arg3, ch->implants, &i))) {
             send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-                AN(arg3), arg3);
+                         AN(arg3), arg3);
             return;
         }
     } else if (strncmp(arg2, "self", 4) &&
-        !(battery = get_obj_in_list_vis(ch, arg2, ch->carrying)) &&
-        !(battery = get_object_in_equip_vis(ch, arg2, ch->equipment, &i)) &&
-        !(battery = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
+               !(battery = get_obj_in_list_vis(ch, arg2, ch->carrying)) &&
+               !(battery = get_object_in_equip_vis(ch, arg2, ch->equipment, &i)) &&
+               !(battery = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
         send_to_char(ch, "You can't find %s '%s' here to recharge from.\r\n",
-            AN(arg2), arg2);
+                     AN(arg2), arg2);
         return;
     }
 
@@ -511,12 +527,12 @@ ACMD(do_recharge)
     }
 
     if (IS_VEHICLE(target)) {
-        if (!target->contains || !IS_ENGINE(target->contains))
+        if (!target->contains || !IS_ENGINE(target->contains)) {
             act("$p is not operational.", false, ch, target, NULL, TO_CHAR);
-        else if (CUR_ENERGY(target->contains) == MAX_ENERGY(target->contains))
+        } else if (CUR_ENERGY(target->contains) == MAX_ENERGY(target->contains)) {
             act("$p is fully energized.", false, ch, target->contains, NULL,
                 TO_CHAR);
-        else {
+        } else {
             perform_recharge(ch, battery, NULL, target->contains, 0);
         }
         return;
@@ -531,9 +547,9 @@ ACMD(do_recharge)
         return;
     }
 
-    if (CUR_ENERGY(target) == MAX_ENERGY(target))
+    if (CUR_ENERGY(target) == MAX_ENERGY(target)) {
         act("$p is fully energized.", false, ch, target, NULL, TO_CHAR);
-    else {
+    } else {
         perform_recharge(ch, battery, NULL, target, 0);
     }
     return;
@@ -555,12 +571,12 @@ perform_cyborg_activate(struct creature *ch, int16_t mode, int subcmd)
     init_affect(&af[1]);
     init_affect(&af[2]);
 
-    if (!CHECK_SKILL(ch, mode))
+    if (!CHECK_SKILL(ch, mode)) {
         send_to_char(ch, "You do not have this program in memory.\r\n");
-    else if (CHECK_SKILL(ch, mode) < 40)
+    } else if (CHECK_SKILL(ch, mode) < 40) {
         send_to_char(ch,
-            "Partial installation insufficient for operation.\r\n");
-    else {
+                     "Partial installation insufficient for operation.\r\n");
+    } else {
 
         to_room[0] = NULL;
         to_room[1] = NULL;
@@ -615,9 +631,9 @@ perform_cyborg_activate(struct creature *ch, int16_t mode, int subcmd)
             to_char[0] = "Shukutei adrenal maximizations disabled.\r\n";
             break;
 
-            //    case SKILL_OPTIMMUNAL_RESP:
-            //
-            //        break;
+        // case SKILL_OPTIMMUNAL_RESP:
+        //
+        // break;
 
         case SKILL_ENERGY_FIELD:
             af[0].bitvector = AFF2_ENERGY_FIELD;
@@ -698,14 +714,14 @@ perform_cyborg_activate(struct creature *ch, int16_t mode, int subcmd)
             break;
         case SKILL_STASIS:
             if (subcmd) {           /************ activate ****************/
-                if (GET_POSITION(ch) >= POS_FLYING)
+                if (GET_POSITION(ch) >= POS_FLYING) {
                     send_to_char(ch, "Go into stasis while flying?!?!?\r\n");
-                else {
+                } else {
                     TOGGLE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
                     GET_POSITION(ch) = POS_SLEEPING;
                     WAIT_STATE(ch, PULSE_VIOLENCE * 5);
                     send_to_char(ch,
-                        "Entering static state.  Halting system processes.\r\n");
+                                 "Entering static state.  Halting system processes.\r\n");
                     act("$n lies down and enters a static state.", false, ch,
                         NULL, NULL, TO_ROOM);
                 }
@@ -792,68 +808,74 @@ perform_cyborg_activate(struct creature *ch, int16_t mode, int subcmd)
 
         if (subcmd && affected_by_spell(ch, mode)) {
             send_to_char(ch, "%sERROR:%s %s %s already activated.\r\n",
-                CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                spell_to_str(mode), ISARE(spell_to_str(mode)));
+                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                         spell_to_str(mode), ISARE(spell_to_str(mode)));
             return;
         } else if (subcmd
-            && opposite_mode && affected_by_spell(ch, opposite_mode)) {
+                   && opposite_mode && affected_by_spell(ch, opposite_mode)) {
             send_to_char(ch, "%sERROR:%s %s %s already activated.\r\n",
-                CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                spell_to_str(opposite_mode),
-                ISARE(spell_to_str(opposite_mode)));
+                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                         spell_to_str(opposite_mode),
+                         ISARE(spell_to_str(opposite_mode)));
             return;
         } else if (!subcmd && !affected_by_spell(ch, mode)) {
             send_to_char(ch, "%sERROR:%s %s %s not currently activated.\r\n",
-                CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                spell_to_str(mode), ISARE(spell_to_str(mode)));
+                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                         spell_to_str(mode), ISARE(spell_to_str(mode)));
             return;
         }
 
         if (subcmd) {
 
             if ((af[0].location == APPLY_MOVE
-                    && (GET_MOVE(ch) + af[0].modifier) < 0)
+                 && (GET_MOVE(ch) + af[0].modifier) < 0)
                 || (af[1].location == APPLY_MOVE
                     && (GET_MOVE(ch) + af[1].modifier) < 0)) {
                 send_to_char(ch,
-                    "%sERROR:%s Energy levels too low to activate %s.\r\n",
-                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), spell_to_str(mode));
+                             "%sERROR:%s Energy levels too low to activate %s.\r\n",
+                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), spell_to_str(mode));
                 return;
             }
 
             affect_join(ch, &af[0], 0, false, 1, false);
-            if (af[1].type)
+            if (af[1].type) {
                 affect_join(ch, &af[1], 0, false, 1, false);
+            }
 
-            if (af[2].type)
+            if (af[2].type) {
                 affect_join(ch, &af[2], 0, false, 1, false);
+            }
 
-            if (to_char[1])
+            if (to_char[1]) {
                 send_to_char(ch, "%s", to_char[1]);
-            if (to_room[1])
+            }
+            if (to_room[1]) {
                 act(to_room[1], false, ch, NULL, NULL, TO_ROOM);
+            }
 
             if (mode == SKILL_ENERGY_FIELD && room_is_watery(ch->in_room)) {
-                for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
+                for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
                     struct creature *tch = it->data;
 
                     if (tch != ch) {
                         damage(ch, tch, NULL, dice(4, GET_LEVEL(ch)),
-                            SKILL_ENERGY_FIELD, -1);
+                               SKILL_ENERGY_FIELD, -1);
                         WAIT_STATE(ch, 1 RL_SEC);
                     }
                 }
 
                 send_to_char(ch,
-                    "DANGER: Hazardous short detected!!  Energy fields shutting down.\r\n");
+                             "DANGER: Hazardous short detected!!  Energy fields shutting down.\r\n");
                 affect_from_char(ch, mode);
             }
         } else {
             affect_from_char(ch, mode);
-            if (to_char[0])
+            if (to_char[0]) {
                 send_to_char(ch, "%s", to_char[0]);
-            if (to_room[0])
+            }
+            if (to_room[0]) {
                 act(to_room[0], false, ch, NULL, NULL, TO_ROOM);
+            }
 
         }
     }
@@ -880,12 +902,13 @@ ACMD(do_activate)
         return;
     }
     if (IS_CYBORG(ch)) {
-        for (i = MAX_SPELLS; i < MAX_SKILLS; i++)
+        for (i = MAX_SPELLS; i < MAX_SKILLS; i++) {
             if (!strncasecmp(argument, spell_to_str(i), strlen(argument) - 1)
                 && IS_SET(spell_info[i].routines, CYB_ACTIVATE)) {
                 mode = i;
                 break;
             }
+        }
     }
 
     if (!mode) {          /*** not a skill activation ***/
@@ -903,29 +926,29 @@ ACMD(do_activate)
             }
             if (!(obj = get_object_in_equip_all(ch, arg, ch->implants, &i))) {
                 send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-                    AN(arg), arg);
+                             AN(arg), arg);
                 return;
             }
         } else if (!(obj = get_object_in_equip_vis(ch, arg, ch->equipment, &i))
-            && !(obj = get_obj_in_list_vis(ch, arg, ch->carrying))
-            && !(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+                   && !(obj = get_obj_in_list_vis(ch, arg, ch->carrying))
+                   && !(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
             send_to_char(ch, "You don't seem to have %s '%s'.\r\n", AN(arg),
-                arg);
+                         arg);
             return;
         }
 
         switch (GET_OBJ_TYPE(obj)) {
         case ITEM_DEVICE:
             if (!subcmd) {
-                if (!ENGINE_STATE(obj))
+                if (!ENGINE_STATE(obj)) {
                     act("$p is already switched off.", false, ch, obj, NULL,
                         TO_CHAR);
-                else {
+                } else {
                     act(tmp_sprintf("You deactivate $p%s.",
-                            internal ? " (internal)" : ""),
+                                    internal ? " (internal)" : ""),
                         false, ch, obj, NULL, TO_CHAR);
                     act(tmp_sprintf("$n deactivates $p%s.",
-                            internal ? " (internal)" : ""),
+                                    internal ? " (internal)" : ""),
                         true, ch, obj, NULL, TO_ROOM);
 
                     apply_object_affects(ch, obj, false);
@@ -933,22 +956,23 @@ ACMD(do_activate)
                     affect_total(ch);
                 }
             } else {
-                if (ENGINE_STATE(obj))
+                if (ENGINE_STATE(obj)) {
                     act("$p is already switched on.", false, ch, obj, NULL,
                         TO_CHAR);
-                else if (CUR_ENERGY(obj) < USE_RATE(obj))
+                } else if (CUR_ENERGY(obj) < USE_RATE(obj)) {
                     act("The energy levels of $p are too low.", false, ch, obj,
                         NULL, TO_CHAR);
-                else {
+                } else {
                     act(tmp_sprintf("You activate $p%s.",
-                            internal ? " (internal)" : ""),
+                                    internal ? " (internal)" : ""),
                         false, ch, obj, NULL, TO_CHAR);
                     act(tmp_sprintf("$n activates $p%s.",
-                            internal ? " (internal)" : ""),
+                                    internal ? " (internal)" : ""),
                         true, ch, obj, NULL, TO_ROOM);
 
-                    if (obj->action_desc && ch == obj->worn_by)
+                    if (obj->action_desc && ch == obj->worn_by) {
                         act(obj->action_desc, false, ch, obj, NULL, TO_CHAR);
+                    }
                     CUR_ENERGY(obj) -= USE_RATE(obj);
                     ENGINE_STATE(obj) = 1;
                     apply_object_affects(ch, obj, true);
@@ -971,42 +995,43 @@ ACMD(do_activate)
             if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master &&
                 ch->in_room == ch->master->in_room) {
                 send_to_char(ch,
-                    "The thought of leaving your master makes you weep.\r\n");
-                if (IS_UNDEAD(ch))
+                             "The thought of leaving your master makes you weep.\r\n");
+                if (IS_UNDEAD(ch)) {
                     act("$n makes a hollow moaning sound.", false, ch, NULL, NULL,
                         TO_ROOM);
-                else
+                } else {
                     act("$n looks like $e wants to use $p.", false, ch, obj, NULL,
                         TO_ROOM);
+                }
                 return;
             }
 
             mass = GET_WEIGHT(ch) + IS_CARRYING_W(ch) + IS_WEARING_W(ch);
             mass /= 16;
 
-            if (CUR_ENERGY(obj) < mass)
+            if (CUR_ENERGY(obj) < mass) {
                 act("$p lacks the energy to transport you and your gear.",
                     false, ch, obj, NULL, TO_CHAR);
-            else if ((targ_room = real_room(TRANS_TO_ROOM(obj))) == NULL)
+            } else if ((targ_room = real_room(TRANS_TO_ROOM(obj))) == NULL) {
                 act("$p is not tuned to a real spacetime location.",
                     false, ch, obj, NULL, TO_CHAR);
-            else if (ROOM_FLAGGED(targ_room, ROOM_DEATH))
+            } else if (ROOM_FLAGGED(targ_room, ROOM_DEATH)) {
                 send_to_char(ch, "A warning indicator blinks on:\r\n"
-                    "Transporter is tuned to a deadly area.\r\n");
-            else if ((ROOM_FLAGGED(targ_room, ROOM_GODROOM | ROOM_NORECALL |
-                        ROOM_NOTEL |
-                        ROOM_NOMAGIC) && GET_LEVEL(ch) < LVL_GRGOD))
+                                 "Transporter is tuned to a deadly area.\r\n");
+            } else if ((ROOM_FLAGGED(targ_room, ROOM_GODROOM | ROOM_NORECALL |
+                                     ROOM_NOTEL |
+                                     ROOM_NOMAGIC) && GET_LEVEL(ch) < LVL_GRGOD)) {
                 send_to_char(ch,
-                    "Transporter ERROR: Unable to transport.\r\n");
-            else if (targ_room->zone->plane != ch->in_room->zone->plane)
+                             "Transporter ERROR: Unable to transport.\r\n");
+            } else if (targ_room->zone->plane != ch->in_room->zone->plane) {
                 send_to_char(ch, "An indicator flashes on:\r\n"
-                    "Transporter destination plane does not intersect current spacial field.\r\n");
-            else if ((ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)
-                    || (targ_room->zone != ch->in_room->zone
-                        && (ZONE_FLAGGED(targ_room->zone, ZONE_ISOLATED)
-                            || ZONE_FLAGGED(ch->in_room->zone,
-                                ZONE_ISOLATED))))
-                && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+                                 "Transporter destination plane does not intersect current spacial field.\r\n");
+            } else if ((ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)
+                        || (targ_room->zone != ch->in_room->zone
+                            && (ZONE_FLAGGED(targ_room->zone, ZONE_ISOLATED)
+                                || ZONE_FLAGGED(ch->in_room->zone,
+                                                ZONE_ISOLATED))))
+                       && GET_LEVEL(ch) < LVL_AMBASSADOR) {
                 act("You flip a switch on $p...\r\n"
                     "Only to be slammed down by an invisible force!!!", false,
                     ch, obj, NULL, TO_CHAR);
@@ -1024,24 +1049,25 @@ ACMD(do_activate)
                 char_to_room(ch, targ_room, true);
 
                 send_to_char(ch,
-                    "A buzzing fills your ears as you materialize...\r\n");
+                             "A buzzing fills your ears as you materialize...\r\n");
                 act("You hear a buzzing sound as $n fades into existence.",
                     false, ch, NULL, NULL, TO_ROOM);
                 look_at_room(ch, ch->in_room, 0);
 
                 if (ROOM_FLAGGED(ch->in_room, ROOM_NULL_MAGIC) &&
                     (GET_LEVEL(ch) < LVL_ETERNAL ||
-                        (IS_CYBORG(ch) && !IS_MAGE(ch) &&
-                            !IS_CLERIC(ch) && !IS_KNIGHT(ch)
-                            && !IS_RANGER(ch)))) {
+                     (IS_CYBORG(ch) && !IS_MAGE(ch) &&
+                      !IS_CLERIC(ch) && !IS_KNIGHT(ch)
+                      && !IS_RANGER(ch)))) {
                     if (ch->affected) {
                         send_to_char(ch,
-                            "You are dazed by a blinding flash inside your"
-                            " brain!\r\nYou feel different...\r\n");
+                                     "You are dazed by a blinding flash inside your"
+                                     " brain!\r\nYou feel different...\r\n");
                         act("Light flashes from behind $n's eyes.", false, ch,
                             NULL, NULL, TO_ROOM);
-                        while (ch->affected)
+                        while (ch->affected) {
                             affect_remove(ch, ch->affected);
+                        }
 
                         WAIT_STATE(ch, PULSE_VIOLENCE);
                     }
@@ -1058,10 +1084,10 @@ ACMD(do_activate)
                 return;
             }
             if (!subcmd) {
-                if (!GET_OBJ_VAL(obj, 0))
+                if (!GET_OBJ_VAL(obj, 0)) {
                     act("$p is already switched off.", false, ch, obj, NULL,
                         TO_CHAR);
-                else {
+                } else {
                     act("You close the air valve on $p.", false, ch, obj, NULL,
                         TO_CHAR);
                     act("$n adjusts an air valve on $p.", true, ch, obj, NULL,
@@ -1069,10 +1095,10 @@ ACMD(do_activate)
                     GET_OBJ_VAL(obj, 0) = 0;
                 }
             } else {
-                if (GET_OBJ_VAL(obj, 0))
+                if (GET_OBJ_VAL(obj, 0)) {
                     act("$p is already switched on.", false, ch, obj, NULL,
                         TO_CHAR);
-                else {
+                } else {
                     act("You open the air valve on $p.", false, ch, obj, NULL,
                         TO_CHAR);
                     act("$n adjusts an air valve on $p.", true, ch, obj, NULL,
@@ -1087,21 +1113,21 @@ ACMD(do_activate)
                 act("$p is not fitted with a fuse.", false, ch, obj, NULL,
                     TO_CHAR);
             } else if (!subcmd) {
-                if (!FUSE_STATE(obj->contains))
+                if (!FUSE_STATE(obj->contains)) {
                     act("$p has not yet been activated.",
                         false, ch, obj->contains, NULL, TO_CHAR);
-                else {
+                } else {
                     act("You deactivate $p.", false, ch, obj, NULL, TO_CHAR);
                     FUSE_STATE(obj->contains) = 0;
                 }
             } else {
-                if (FUSE_STATE(obj->contains))
+                if (FUSE_STATE(obj->contains)) {
                     act("$p is already live!",
                         false, ch, obj->contains, NULL, TO_CHAR);
-                else if (FUSE_IS_BURN(obj->contains))
+                } else if (FUSE_IS_BURN(obj->contains)) {
                     act("$p is fused with $P -- a burning fuse.",
                         false, ch, obj, obj->contains, TO_CHAR);
-                else {
+                } else {
                     act("You activate $P... $p is now live.",
                         false, ch, obj, obj->contains, TO_CHAR);
                     FUSE_STATE(obj->contains) = 1;
@@ -1111,24 +1137,24 @@ ACMD(do_activate)
             break;
 
         case ITEM_DETONATOR:
-            if (!obj->aux_obj)
+            if (!obj->aux_obj) {
                 act("$p is not tuned to any explosives.", false, ch, obj, NULL,
                     TO_CHAR);
-            else if (!IS_BOMB(obj->aux_obj))
+            } else if (!IS_BOMB(obj->aux_obj)) {
                 send_to_char(ch,
-                    "Activate detonator error.  Please report.\r\n");
-            else if (obj != obj->aux_obj->aux_obj)
+                             "Activate detonator error.  Please report.\r\n");
+            } else if (obj != obj->aux_obj->aux_obj) {
                 send_to_char(ch, "Bomb error.  Please report\r\n");
-            else if (!obj->aux_obj->contains ||
-                !IS_FUSE(obj->aux_obj->contains) ||
-                !FUSE_IS_REMOTE(obj->aux_obj->contains))
+            } else if (!obj->aux_obj->contains ||
+                       !IS_FUSE(obj->aux_obj->contains) ||
+                       !FUSE_IS_REMOTE(obj->aux_obj->contains)) {
                 act("$P is not fused with a remote device.",
                     false, ch, obj, obj->aux_obj, TO_CHAR);
-            else if (subcmd) {
-                if (!FUSE_STATE(obj->aux_obj->contains))
+            } else if (subcmd) {
+                if (!FUSE_STATE(obj->aux_obj->contains)) {
                     act("$P's fuse is not active.",
                         false, ch, obj, obj->aux_obj, TO_CHAR);
-                else {
+                } else {
                     act("$n activates $p.", false, ch, obj, NULL, TO_CHAR);
                     detonate_bomb(obj->aux_obj);
                 }
@@ -1183,18 +1209,19 @@ ACMD(do_cyborg_reboot)
         return;
     }
     send_to_char(ch, "Systems shutting down...\r\n"
-        "Sending all processes the TERM signal.\r\n"
-        "Unmounting filesystems.... done.\r\n" "Reboot successful.\r\n");
+                     "Sending all processes the TERM signal.\r\n"
+                     "Unmounting filesystems.... done.\r\n" "Reboot successful.\r\n");
     if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 10) {
         send_to_char(ch, "Fastboot script enabled... %d %% efficiency.\r\n",
-            CHECK_SKILL(ch, SKILL_FASTBOOT));
+                     CHECK_SKILL(ch, SKILL_FASTBOOT));
     }
 
     act("$n begins a reboot sequence and shuts down.", false, ch, NULL, NULL,
         TO_ROOM);
 
-    if (is_fighting(ch))
+    if (is_fighting(ch)) {
         remove_all_combat(ch);
+    }
 
     GET_POSITION(ch) = POS_SLEEPING;
 
@@ -1212,19 +1239,22 @@ ACMD(do_cyborg_reboot)
         WAIT_STATE(ch, PULSE_VIOLENCE * 7);
     } else if (CHECK_SKILL(ch, SKILL_FASTBOOT) > 50) {
         WAIT_STATE(ch, PULSE_VIOLENCE * 8);
-    } else
+    } else {
         WAIT_STATE(ch, PULSE_VIOLENCE * 10);
+    }
 
-    if (ch->affected)
+    if (ch->affected) {
         send_to_char(ch, "Purging system....\r\n");
+    }
 
     while (ch->affected && GET_MANA(ch)) {
         affect_remove(ch, ch->affected);
         GET_MANA(ch) = MAX(GET_MANA(ch) - 10, 0);
     }
 
-    if (GET_COND(ch, DRUNK) > 0)
+    if (GET_COND(ch, DRUNK) > 0) {
         GET_COND(ch, DRUNK) = 0;
+    }
 
     gain_skill_prof(ch, SKILL_FASTBOOT);
 }
@@ -1241,39 +1271,41 @@ ACMD(do_self_destruct)
             false, ch, NULL, NULL, TO_ROOM);
     } else if (!*argument) {
         send_to_char(ch,
-            "You must provide a countdown time, in 3-second pulses.\r\n");
+                     "You must provide a countdown time, in 3-second pulses.\r\n");
     } else if (!is_number(argument)) {
         if (!strcasecmp(argument, "abort")) {
             if (!AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT)) {
                 send_to_char(ch,
-                    "Self-destruct sequence not currently initiated.\r\n");
+                             "Self-destruct sequence not currently initiated.\r\n");
             } else {
                 REMOVE_BIT(AFF3_FLAGS(ch), AFF3_SELF_DESTRUCT);
                 send_to_char(ch, "Sending process the KILL Signal.\r\n"
-                    "Self-destruct sequence terminated with %d pulses remaining.\r\n",
-                    MEDITATE_TIMER(ch));
+                                 "Self-destruct sequence terminated with %d pulses remaining.\r\n",
+                             MEDITATE_TIMER(ch));
                 MEDITATE_TIMER(ch) = 0;
             }
-        } else
+        } else {
             send_to_char(ch, "Self destruct what??\r\n");
+        }
     } else if ((countdown = atoi(argument)) < 0 || countdown > 100) {
         send_to_char(ch, "Selfdestruct countdown argument out of range.\r\n");
     } else {
         if (AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT)) {
             send_to_char(ch, "Self-destruct sequence currently underway.\r\n"
-                "Use 'selfdestruct abort' to abort process!\r\n");
+                             "Use 'selfdestruct abort' to abort process!\r\n");
         } else if (AFF_FLAGGED(ch, AFF_CHARM) && ch->master) {
             act("You fear that your death will grieve $N.",
                 false, ch, NULL, ch->master, TO_CHAR);
             return;
         } else {
             send_to_char(ch,
-                "Self-destruct sequence initiated at countdown level %d.\r\n",
-                countdown);
+                         "Self-destruct sequence initiated at countdown level %d.\r\n",
+                         countdown);
             SET_BIT(AFF3_FLAGS(ch), AFF3_SELF_DESTRUCT);
             MEDITATE_TIMER(ch) = countdown;
-            if (!countdown)
+            if (!countdown) {
                 engage_self_destruct(ch);
+            }
         }
     }
 }
@@ -1288,24 +1320,26 @@ ACMD(do_bioscan)
         return;
     }
 
-    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
 
         if ((((can_see_creature(ch, tch)
-                        || GET_INVIS_LVL(tch) < GET_LEVEL(ch))
-                    && (CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100)
-                        || affected_by_spell(ch, SKILL_HYPERSCAN)))
-                || ch == tch)
-            && LIFE_FORM(tch))
+               || GET_INVIS_LVL(tch) < GET_LEVEL(ch))
+              && (CHECK_SKILL(ch, SKILL_BIOSCAN) > number(30, 100)
+                  || affected_by_spell(ch, SKILL_HYPERSCAN)))
+             || ch == tch)
+            && LIFE_FORM(tch)) {
             count++;
+        }
     }
 
     send_to_char(ch, "%sBIOSCAN:%s %d life form%s detected in room.\r\n",
-        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), count, count > 1 ? "s" : "");
+                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), count, count > 1 ? "s" : "");
     act("$n scans the room for lifeforms.", false, ch, NULL, NULL, TO_ROOM);
 
-    if (count > number(3, 5))
+    if (count > number(3, 5)) {
         gain_skill_prof(ch, SKILL_BIOSCAN);
+    }
 
 }
 
@@ -1337,13 +1371,13 @@ ACMD(do_discharge)
 
     if (room_is_watery(ch->in_room)) {
         send_to_char(ch,
-            "ERROR: Systems halted a process that would have caused a short circuit.\r\n");
+                     "ERROR: Systems halted a process that would have caused a short circuit.\r\n");
         return;
     }
 
     if (!*arg1) {
         send_to_char(ch,
-            "Usage: discharge <energy discharge amount> <victim>\r\n");
+                     "Usage: discharge <energy discharge amount> <victim>\r\n");
         return;
     }
 
@@ -1367,15 +1401,15 @@ ACMD(do_discharge)
 
     if (amount > GET_MOVE(ch)) {
         send_to_char(ch,
-            "ERROR: Energy levels too low for requested discharge.\r\n");
+                     "ERROR: Energy levels too low for requested discharge.\r\n");
         return;
     }
 
     if (amount < 0) {
         send_to_char(ch, "Discharge into who?\r\n");
         mudlog(LVL_GRGOD, NRM, true, "%s neg-discharge %d %s at %d",
-            GET_NAME(ch), amount,
-            vict ? GET_NAME(vict) : ovict->name, ch->in_room->number);
+               GET_NAME(ch), amount,
+               vict ? GET_NAME(vict) : ovict->name, ch->in_room->number);
         return;
     }
     if (vict == ch) {
@@ -1393,34 +1427,37 @@ ACMD(do_discharge)
     if (amount > tolerance) {
         if (amount > (tolerance * 2)) {
             send_to_char(ch,
-                "ERROR: Discharge amount far exceeds acceptable parameters. Aborted.\r\n.");
+                         "ERROR: Discharge amount far exceeds acceptable parameters. Aborted.\r\n.");
             return;
         }
         // Give them some idea of how much they went overboard by.
         send_to_char(ch, "WARNING: Voltage tolerance exceeded by %d%%.\r\n",
-            ((amount * 100) - (tolerance * 100)) / tolerance);
+                     ((amount * 100) - (tolerance * 100)) / tolerance);
         // Amount of component damage delt to cyborg.
         feedback = dice(amount - tolerance, 4);
         feedback *= max_component_dam(ch) / 100;
 
         // Random debug messages.
-        if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+        if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
             send_to_char(ch,
-                "%s[DISCHARGE] %s tolerance:%d   amount:%d   feedback: %d%s\r\n",
-                CCCYN(ch, C_NRM), GET_NAME(ch), tolerance, amount, feedback,
-                CCNRM(ch, C_NRM));
-        if (vict && PRF2_FLAGGED(vict, PRF2_DEBUG))
+                         "%s[DISCHARGE] %s tolerance:%d   amount:%d   feedback: %d%s\r\n",
+                         CCCYN(ch, C_NRM), GET_NAME(ch), tolerance, amount, feedback,
+                         CCNRM(ch, C_NRM));
+        }
+        if (vict && PRF2_FLAGGED(vict, PRF2_DEBUG)) {
             send_to_char(vict,
-                "%s[DISCHARGE] %s tolerance:%d   amount:%d   feedback: %d%s\r\n",
-                CCCYN(vict, C_NRM), GET_NAME(ch), tolerance, amount, feedback,
-                CCNRM(vict, C_NRM));
+                         "%s[DISCHARGE] %s tolerance:%d   amount:%d   feedback: %d%s\r\n",
+                         CCCYN(vict, C_NRM), GET_NAME(ch), tolerance, amount, feedback,
+                         CCNRM(vict, C_NRM));
+        }
 
-        if (GET_TOT_DAM(ch) + feedback >= max_component_dam(ch))
+        if (GET_TOT_DAM(ch) + feedback >= max_component_dam(ch)) {
             GET_TOT_DAM(ch) = max_component_dam(ch);
-        else
+        } else {
             GET_TOT_DAM(ch) += feedback;
+        }
         send_to_char(ch,
-            "WARNING: System components damaged by discharge!\r\n");
+                     "WARNING: System components damaged by discharge!\r\n");
 
         if (damage(ch, ch, NULL, dice(amount - tolerance, 10), TYPE_OVERLOAD, -1)) {
             return;
@@ -1428,7 +1465,7 @@ ACMD(do_discharge)
 
         if (GET_TOT_DAM(ch) == 0 || GET_TOT_DAM(ch) == max_component_dam(ch)) {
             send_to_char(ch,
-                "ERROR: Component failure. Discharge failed.\r\n");
+                         "ERROR: Component failure. Discharge failed.\r\n");
             return;
         }
 
@@ -1445,8 +1482,9 @@ ACMD(do_discharge)
         return;
     }
 
-    if (!ok_to_attack(ch, vict, true))
+    if (!ok_to_attack(ch, vict, true)) {
         return;
+    }
 
     percent = ((10 - (GET_AC(vict) / 10)) / 2) + number(1, 91);
 
@@ -1454,7 +1492,7 @@ ACMD(do_discharge)
 
     dam = dice(amount * 3, 16 + (skill_bonus(ch, SKILL_DISCHARGE) / 10));
 
-    wait = (1 + amount / 5) RL_SEC;
+    wait = (1 + amount / 5)RL_SEC;
     WAIT_STATE(ch, wait);
 
     if (percent > prob) {
@@ -1497,41 +1535,42 @@ ACMD(do_tune)
             !(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
             !(obj = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
             send_to_char(ch, "You cannot find %s '%s' to tune.\r\n", AN(arg1),
-                arg1);
+                         arg1);
             return;
         }
     }
 
     switch (GET_OBJ_TYPE(obj)) {
     case ITEM_TRANSPORTER:
-        if (CHECK_SKILL(ch, SKILL_ELECTRONICS) < number(10, 50))
+        if (CHECK_SKILL(ch, SKILL_ELECTRONICS) < number(10, 50)) {
             send_to_char(ch, "You can't figure it out.\r\n");
-        else if (!GET_OBJ_VAL(obj, 3))
+        } else if (!GET_OBJ_VAL(obj, 3)) {
             act("$p is not tunable.", false, ch, obj, NULL, TO_CHAR);
-        else if (!CUR_ENERGY(obj))
+        } else if (!CUR_ENERGY(obj)) {
             act("$p is depleted of energy.", false, ch, obj, NULL, TO_CHAR);
-        else {
+        } else {
             CUR_ENERGY(obj) = MAX(0, CUR_ENERGY(obj) - 10);
-            if (!CUR_ENERGY(obj))
+            if (!CUR_ENERGY(obj)) {
                 act("$p buzzes briefly and falls silent.", false, ch, obj, NULL,
                     TO_CHAR);
-            else {
+            } else {
                 if ((CHECK_SKILL(ch, SKILL_ELECTRONICS) + GET_INT(ch)) <
                     number(50, 100)) {
                     do {
                         to_room =
                             real_room(number(ch->in_room->zone->number * 100,
-                                ch->in_room->zone->top));
+                                             ch->in_room->zone->top));
                         count++;
                     } while (count < 1000 &&
-                        (!to_room || to_room->zone != ch->in_room->zone ||
-                            ROOM_FLAGGED(to_room, ROOM_GODROOM | ROOM_NOMAGIC |
-                                ROOM_NOTEL | ROOM_NORECALL | ROOM_DEATH) ||
-                            (ROOM_FLAGGED(to_room, ROOM_HOUSE) &&
-                                !can_enter_house(ch, to_room->number))));
+                             (!to_room || to_room->zone != ch->in_room->zone ||
+                              ROOM_FLAGGED(to_room, ROOM_GODROOM | ROOM_NOMAGIC |
+                                           ROOM_NOTEL | ROOM_NORECALL | ROOM_DEATH) ||
+                              (ROOM_FLAGGED(to_room, ROOM_HOUSE) &&
+                               !can_enter_house(ch, to_room->number))));
                 }
-                if (to_room == NULL)
+                if (to_room == NULL) {
                     TRANS_TO_ROOM(obj) = ch->in_room->number;
+                }
 
                 act("You succesfully tune $p.", false, ch, obj, NULL, TO_CHAR);
                 act("$n turns some knobs on $p, which blinks and whines.",
@@ -1543,36 +1582,38 @@ ACMD(do_tune)
 
     case ITEM_DETONATOR:
         if (CHECK_SKILL(ch, SKILL_ELECTRONICS) < number(10, 50) ||
-            CHECK_SKILL(ch, SKILL_DEMOLITIONS) < number(10, 50))
+            CHECK_SKILL(ch, SKILL_DEMOLITIONS) < number(10, 50)) {
             send_to_char(ch, "You can't figure it out.\r\n");
-        else if (!*arg2)
+        } else if (!*arg2) {
             act("Tune $p to what bomb?", false, ch, obj, NULL, TO_CHAR);
-        else {
+        } else {
             if (!(obj2 = get_obj_in_list_vis(ch, arg2, ch->carrying)) &&
                 !(obj2 =
-                    get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
+                      get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
                 send_to_char(ch, "You don't see %s '%s' here.\r\n", AN(arg2),
-                    arg2);
+                             arg2);
                 return;
             }
-            if (!IS_BOMB(obj2))
+            if (!IS_BOMB(obj2)) {
                 send_to_char(ch,
-                    "You can only tune detonators to explosives.\r\n");
+                             "You can only tune detonators to explosives.\r\n");
+            }
             if (!obj2->contains || !IS_FUSE(obj2->contains)
-                || !FUSE_IS_REMOTE(obj2->contains))
+                || !FUSE_IS_REMOTE(obj2->contains)) {
                 act("$P is not fused with a remote activator.", false, ch, obj,
                     obj2, TO_CHAR);
-            else if (obj->aux_obj) {
-                if (obj->aux_obj == obj2->aux_obj)
+            } else if (obj->aux_obj) {
+                if (obj->aux_obj == obj2->aux_obj) {
                     act("$p is already tuned to $P.", false, ch, obj, obj2,
                         TO_CHAR);
-                else
+                } else {
                     act("$p is already tuned to something.", false, ch, obj,
                         obj2, TO_CHAR);
-            } else if (obj2->aux_obj)
+                }
+            } else if (obj2->aux_obj) {
                 act("Another detonator is already tuned to $P.",
                     false, ch, obj, obj2, TO_CHAR);
-            else {
+            } else {
                 obj->aux_obj = obj2;
                 obj2->aux_obj = obj;
                 act("You tune $p to $P.", false, ch, obj, obj2, TO_CHAR);
@@ -1580,9 +1621,9 @@ ACMD(do_tune)
         }
         break;
     case ITEM_COMMUNICATOR:
-        if (!*arg2)
+        if (!*arg2) {
             send_to_char(ch, "Tune to what channel?\r\n");
-        else {
+        } else {
             i = atoi(arg2);
             if (i == COMM_CHANNEL(obj)) {
                 act("$p is already tuned to that channel.", false, ch, obj, NULL,
@@ -1591,7 +1632,7 @@ ACMD(do_tune)
             }
             COMM_CHANNEL(obj) = i;
             send_to_char(ch, "%s comm-channel set to [%d].\n",
-                obj->name, COMM_CHANNEL(obj));
+                         obj->name, COMM_CHANNEL(obj));
         }
         break;
     default:
@@ -1627,72 +1668,89 @@ ACMD(do_status)
             ("%s+++++>>>---    SYSTEM STATUS REPORT   ---<<<+++++%s\r\n",
             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
         acc_sprintf("%sHITP%s:                 %3d percent   (%4d/%4d)\r\n",
-            CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-            (GET_MAX_HIT(ch) ? ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch)) : 0),
-            GET_HIT(ch), GET_MAX_HIT(ch));
+                    CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                    (GET_MAX_HIT(ch) ? ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch)) : 0),
+                    GET_HIT(ch), GET_MAX_HIT(ch));
         acc_sprintf("%sMANA%s:                 %3d percent   (%4d/%4d)\r\n",
-            CCMAG(ch, C_NRM), CCNRM(ch, C_NRM),
-            (GET_MAX_MANA(ch) ? ((GET_MANA(ch) * 100) / GET_MAX_MANA(ch)) : 0),
-            GET_MANA(ch), GET_MAX_MANA(ch));
+                    CCMAG(ch, C_NRM), CCNRM(ch, C_NRM),
+                    (GET_MAX_MANA(ch) ? ((GET_MANA(ch) * 100) / GET_MAX_MANA(ch)) : 0),
+                    GET_MANA(ch), GET_MAX_MANA(ch));
         acc_sprintf("%sMOVE%s:                 %3d percent   (%4d/%4d)\r\n",
-            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-            (GET_MAX_MOVE(ch) ? ((GET_MOVE(ch) * 100) / GET_MAX_MOVE(ch)) : 0),
-            GET_MOVE(ch), GET_MAX_MOVE(ch));
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                    (GET_MAX_MOVE(ch) ? ((GET_MOVE(ch) * 100) / GET_MAX_MOVE(ch)) : 0),
+                    GET_MOVE(ch), GET_MAX_MOVE(ch));
         acc_sprintf
             ("%s+++++>>>---   ---   ---   ---   ---   ---<<<+++++%s\r\n",
             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
 
         acc_sprintf("Systems have sustained %d percent of maximum damage.\r\n",
-            (GET_TOT_DAM(ch) * 100) / max_component_dam(ch));
-        if (GET_BROKE(ch))
+                    (GET_TOT_DAM(ch) * 100) / max_component_dam(ch));
+        if (GET_BROKE(ch)) {
             acc_sprintf("%sYour %s has been severely damaged.%s\r\n",
-                CCRED(ch, C_NRM),
-                component_names[GET_BROKE(ch)][GET_OLD_CLASS(ch)],
-                CCNRM(ch, C_NRM));
-        if (AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT))
+                        CCRED(ch, C_NRM),
+                        component_names[GET_BROKE(ch)][GET_OLD_CLASS(ch)],
+                        CCNRM(ch, C_NRM));
+        }
+        if (AFF3_FLAGGED(ch, AFF3_SELF_DESTRUCT)) {
             acc_sprintf("%sSELF-DESTRUCT sequence initiated.%s\r\n",
-                CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
-        if (AFF3_FLAGGED(ch, AFF3_STASIS))
+                        CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+        }
+        if (AFF3_FLAGGED(ch, AFF3_STASIS)) {
             acc_strcat("Systems are in static state.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_MOTION_SENSOR))
+        }
+        if (affected_by_spell(ch, SKILL_MOTION_SENSOR)) {
             acc_strcat("Your motion sensors are active.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_ENERGY_FIELD))
+        }
+        if (affected_by_spell(ch, SKILL_ENERGY_FIELD)) {
             acc_strcat("Energy fields are activated.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_REFLEX_BOOST))
+        }
+        if (affected_by_spell(ch, SKILL_REFLEX_BOOST)) {
             acc_strcat("Your Reflex Boosters are activated.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_POWER_BOOST))
+        }
+        if (affected_by_spell(ch, SKILL_POWER_BOOST)) {
             acc_strcat("Power levels are boosted.\r\n", NULL);
-        if (AFF_FLAGGED(ch, AFF_INFRAVISION))
+        }
+        if (AFF_FLAGGED(ch, AFF_INFRAVISION)) {
             acc_strcat("Infrared detection system active.\r\n", NULL);
-        if (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))
+        }
+        if (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
             acc_strcat("Your sonic imagery device is active.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_DAMAGE_CONTROL))
+        }
+        if (affected_by_spell(ch, SKILL_DAMAGE_CONTROL)) {
             acc_strcat("Damage Control systems are operating.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_HYPERSCAN))
+        }
+        if (affected_by_spell(ch, SKILL_HYPERSCAN)) {
             acc_strcat("Hyperscanning device is active.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER))
+        }
+        if (affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER)) {
             acc_strcat("Shukutei Adrenal Maximizations are active.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC))
+        }
+        if (affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC)) {
             acc_strcat("Melee Combat Tactics are in effect.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_RADIONEGATION))
+        }
+        if (affected_by_spell(ch, SKILL_RADIONEGATION)) {
             acc_strcat("Radionegation device is operating.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_OFFENSIVE_POS))
+        }
+        if (affected_by_spell(ch, SKILL_OFFENSIVE_POS)) {
             acc_strcat("Systems postured for offensive tactics.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_DEFENSIVE_POS))
+        }
+        if (affected_by_spell(ch, SKILL_DEFENSIVE_POS)) {
             acc_strcat("Systems postured for defensive tactics.\r\n", NULL);
-        if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING))
+        }
+        if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
             acc_strcat("Cogenic Neural Bridging enabled.\r\n", NULL);
+        }
         if (affected_by_spell(ch, SKILL_ASSIMILATE)) {
             acc_sprintf("%sCurrently active assimilation affects:%s\r\n",
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+                        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 
             for (i = 0, aff = ch->affected; aff; aff = aff->next) {
                 if (aff->type == SKILL_ASSIMILATE) {
 
                     acc_sprintf("  %s%15s%s  %s %3d\r\n",
-                        CCGRN(ch, C_NRM), apply_types[aff->location],
-                        CCNRM(ch, C_NRM), aff->modifier >= 0 ? "+" : "-",
-                        abs(aff->modifier));
+                                CCGRN(ch, C_NRM), apply_types[aff->location],
+                                CCNRM(ch, C_NRM), aff->modifier >= 0 ? "+" : "-",
+                                abs(aff->modifier));
 
                 }
             }
@@ -1711,82 +1769,84 @@ ACMD(do_status)
 
         if (!(obj = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
             send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-                AN(arg2), arg2);
+                         AN(arg2), arg2);
             return;
         }
 
     } else if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
-        !(obj = get_object_in_equip_all(ch, arg1, ch->equipment, &i)) &&
-        !(obj = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
+               !(obj = get_object_in_equip_all(ch, arg1, ch->equipment, &i)) &&
+               !(obj = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
         send_to_char(ch, "You can't seem to find %s '%s'.\r\n", AN(arg1),
-            arg1);
+                     arg1);
         return;
     }
 
     switch (GET_OBJ_TYPE(obj)) {
     case ITEM_TRANSPORTER:
         send_to_char(ch, "Energy Levels: %'d / %'d.\r\n", CUR_ENERGY(obj),
-            MAX_ENERGY(obj));
-        if (real_room(TRANS_TO_ROOM(obj)) == NULL)
+                     MAX_ENERGY(obj));
+        if (real_room(TRANS_TO_ROOM(obj)) == NULL) {
             act("$p is currently untuned.", false, ch, obj, NULL, TO_CHAR);
-        else {
+        } else {
             send_to_char(ch, "Tuned location: %s%s%s\r\n",
-                CCCYN(ch, C_NRM), (CHECK_SKILL(ch, SKILL_ELECTRONICS) +
-                    GET_INT(ch)) > number(20, 90) ?
-                (real_room(TRANS_TO_ROOM(obj)))->name : "UNKNOWN",
-                CCNRM(ch, C_NRM));
+                         CCCYN(ch, C_NRM), (CHECK_SKILL(ch, SKILL_ELECTRONICS) +
+                                            GET_INT(ch)) > number(20, 90) ?
+                         (real_room(TRANS_TO_ROOM(obj)))->name : "UNKNOWN",
+                         CCNRM(ch, C_NRM));
         }
         break;
 
     case ITEM_SCUBA_TANK:
         act(tmp_sprintf("$p %s currently holding %d percent of capacity.",
-                ISARE(obj->name), GET_OBJ_VAL(obj, 0) < 0 ?
-                100 : GET_OBJ_VAL(obj, 0) == 0 ? 0 : (GET_OBJ_VAL(obj, 1)
-                    / GET_OBJ_VAL(obj, 0)
-                    * 100)), false, ch, obj, NULL, TO_CHAR);
+                        ISARE(obj->name), GET_OBJ_VAL(obj, 0) < 0 ?
+                        100 : GET_OBJ_VAL(obj, 0) == 0 ? 0 : (GET_OBJ_VAL(obj, 1)
+                                                              / GET_OBJ_VAL(obj, 0)
+                                                              * 100)), false, ch, obj, NULL, TO_CHAR);
         break;
 
     case ITEM_SCUBA_MASK:
         act(tmp_sprintf("The valve on $p is currently %s.",
-                GET_OBJ_VAL(obj, 0) ? "open" : "closed"),
+                        GET_OBJ_VAL(obj, 0) ? "open" : "closed"),
             false, ch, obj, NULL, TO_CHAR);
         break;
 
     case ITEM_DEVICE:
         act(tmp_sprintf("$p (%s) %s currently %sactivated.\r\n"
-                "The energy level is %'d/%'d units.",
-                obj->carried_by ? "carried" :
-                obj->worn_by ?
-                (obj == GET_EQ(ch,
-                        obj->worn_on) ? "worn" : "implanted") : "here",
-                ISARE(OBJS(obj, ch)), ENGINE_STATE(obj) ? "" : "de",
-                CUR_ENERGY(obj), MAX_ENERGY(obj)), false, ch, obj, NULL, TO_CHAR);
+                        "The energy level is %'d/%'d units.",
+                        obj->carried_by ? "carried" :
+                        obj->worn_by ?
+                        (obj == GET_EQ(ch,
+                                       obj->worn_on) ? "worn" : "implanted") : "here",
+                        ISARE(OBJS(obj, ch)), ENGINE_STATE(obj) ? "" : "de",
+                        CUR_ENERGY(obj), MAX_ENERGY(obj)), false, ch, obj, NULL, TO_CHAR);
         break;
 
     case ITEM_DETONATOR:
-        if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 50)
+        if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 50) {
             send_to_char(ch, "You have no idea how.\r\n");
-        else if (obj->aux_obj)
+        } else if (obj->aux_obj) {
             act("$p is currently tuned to $P.", false, ch, obj, obj->aux_obj,
                 TO_CHAR);
-        else
+        } else {
             act("$p is currently untuned.", false, ch, obj, obj->aux_obj,
                 TO_CHAR);
+        }
         break;
 
     case ITEM_BOMB:
-        if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 50)
+        if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) < 50) {
             send_to_char(ch, "You have no idea how.\r\n");
-        else
+        } else {
             act(tmp_sprintf("$p is %sfused and %sactive.",
-                    (obj->contains && IS_FUSE(obj->contains)) ? "" : "un",
-                    (obj->contains && FUSE_STATE(obj->contains)) ? "" : "in"),
+                            (obj->contains && IS_FUSE(obj->contains)) ? "" : "un",
+                            (obj->contains && FUSE_STATE(obj->contains)) ? "" : "in"),
                 false, ch, obj, NULL, TO_CHAR);
+        }
         break;
     case ITEM_ENERGY_CELL:
     case ITEM_BATTERY:
         send_to_char(ch, "Energy Levels: %'d / %'d.\r\n", CUR_ENERGY(obj),
-            MAX_ENERGY(obj));
+                     MAX_ENERGY(obj));
         break;
 
     case ITEM_GUN:
@@ -1800,16 +1860,17 @@ ACMD(do_status)
 
         i = count_contained_objs(obj);
         send_to_char(ch, "%s contains %d/%d cartridge%s.\r\n",
-            obj->name, i, MAX_LOAD(obj), i == 1 ? "" : "s");
+                     obj->name, i, MAX_LOAD(obj), i == 1 ? "" : "s");
         break;
 
     case ITEM_INTERFACE:
 
         if (INTERFACE_TYPE(obj) == INTERFACE_CHIPS) {
             send_to_char(ch, "%s [%d slots] is loaded with:\r\n",
-                obj->name, INTERFACE_MAX(obj));
-            for (bul = obj->contains, i = 0; bul; i++, bul = bul->next_content)
+                         obj->name, INTERFACE_MAX(obj));
+            for (bul = obj->contains, i = 0; bul; i++, bul = bul->next_content) {
                 send_to_char(ch, "%2d. %s\r\n", i, bul->name);
+            }
             break;
         }
         break;
@@ -1823,22 +1884,23 @@ ACMD(do_status)
 
         acc_string_clear();
         acc_sprintf("%s is active and tuned to channel [%d].\r\n"
-            "Energy level is : [%3d/%3d].\r\n"
-            "Visible entities monitoring this channel:\r\n",
-            obj->name, COMM_CHANNEL(obj), CUR_ENERGY(obj), MAX_ENERGY(obj));
+                    "Energy level is : [%3d/%3d].\r\n"
+                    "Visible entities monitoring this channel:\r\n",
+                    obj->name, COMM_CHANNEL(obj), CUR_ENERGY(obj), MAX_ENERGY(obj));
         for (bul = object_list; bul; bul = bul->next) {
             if (IS_COMMUNICATOR(bul) && ENGINE_STATE(bul) &&
                 COMM_CHANNEL(bul) == COMM_CHANNEL(obj)) {
                 if (bul->carried_by && can_see_creature(ch, bul->carried_by) &&
-                    COMM_UNIT_SEND_OK(ch, bul->carried_by))
+                    COMM_UNIT_SEND_OK(ch, bul->carried_by)) {
                     acc_sprintf("  %s%s\r\n",
-                        GET_NAME(bul->carried_by),
-                        COMM_UNIT_SEND_OK(bul->carried_by,
-                            ch) ? "" : "  (mute)");
-                else if (bul->worn_by && can_see_creature(ch, bul->worn_by)
-                    && COMM_UNIT_SEND_OK(ch, bul->worn_by))
+                                GET_NAME(bul->carried_by),
+                                COMM_UNIT_SEND_OK(bul->carried_by,
+                                                  ch) ? "" : "  (mute)");
+                } else if (bul->worn_by && can_see_creature(ch, bul->worn_by)
+                           && COMM_UNIT_SEND_OK(ch, bul->worn_by)) {
                     acc_sprintf("  %s%s\r\n", GET_NAME(bul->worn_by),
-                        COMM_UNIT_SEND_OK(bul->worn_by, ch) ? "" : "  (mute)");
+                                COMM_UNIT_SEND_OK(bul->worn_by, ch) ? "" : "  (mute)");
+                }
             }
         }
         page_string(ch->desc, acc_get_string());
@@ -1858,7 +1920,7 @@ find_cyborepair_tool(struct creature *ch)
 {
     struct obj_data *tool = NULL;
 
-    for (int i = 0;i < NUM_WEARS;i++) {
+    for (int i = 0; i < NUM_WEARS; i++) {
         struct obj_data *obj = GET_IMPLANT(ch, i);
         if (obj
             && IS_TOOL(obj)
@@ -1874,8 +1936,9 @@ find_cyborepair_tool(struct creature *ch)
     if (GET_EQ(ch, WEAR_HOLD)
         && IS_TOOL(GET_EQ(ch, WEAR_HOLD))
         && TOOL_SKILL(GET_EQ(ch, WEAR_HOLD)) == SKILL_CYBOREPAIR
-        && (!tool || TOOL_MOD(tool) < TOOL_MOD(GET_EQ(ch, WEAR_HOLD))))
+        && (!tool || TOOL_MOD(tool) < TOOL_MOD(GET_EQ(ch, WEAR_HOLD)))) {
         tool = GET_EQ(ch, WEAR_HOLD);
+    }
 
     return tool;
 }
@@ -1908,20 +1971,21 @@ perform_cyborepair(struct creature *ch, struct creature *vict)
                 dam = 2 * GET_LEVEL(ch);
             } else {
                 dam = (GET_LEVEL(ch)) +
-                    ((CHECK_SKILL(ch,
-                                  SKILL_SELFREPAIR) + TOOL_MOD(tool)) / 4) +
-                    number(0, GET_LEVEL(ch));
-                if (GET_CLASS(ch) == CLASS_CYBORG)
+                      ((CHECK_SKILL(ch,
+                                    SKILL_SELFREPAIR) + TOOL_MOD(tool)) / 4) +
+                      number(0, GET_LEVEL(ch));
+                if (GET_CLASS(ch) == CLASS_CYBORG) {
                     dam += dice(GET_REMORT_GEN(ch), 10);
-                else
+                } else {
                     dam += dice(GET_REMORT_GEN(ch), 5);
+                }
             }
             dam = MIN(GET_MAX_HIT(ch) - GET_HIT(ch), dam);
             cost = dam / 2;
-            if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)
+            if ((GET_MANA(ch) + GET_MOVE(ch)) < cost) {
                 send_to_char(ch,
                              "You lack the energy required to perform this operation.\r\n");
-            else {
+            } else {
                 GET_HIT(ch) += dam;
                 GET_MOVE(ch) -= cost;
                 if (GET_MOVE(ch) < 0) {
@@ -1937,17 +2001,17 @@ perform_cyborepair(struct creature *ch, struct creature *vict)
             }
         }
     } else {
-        if (CHECK_SKILL(ch, SKILL_CYBOREPAIR) < 10)
+        if (CHECK_SKILL(ch, SKILL_CYBOREPAIR) < 10) {
             send_to_char(ch, "You have no repair skills for repairing others.\r\n");
-        else if (!IS_CYBORG(vict))
+        } else if (!IS_CYBORG(vict)) {
             act("You cannot repair $M.  You can only repair other borgs.",
                 false, ch, NULL, vict, TO_CHAR);
-        else if (is_fighting(vict))
+        } else if (is_fighting(vict)) {
             send_to_char(ch, "You cannot perform repairs on fighting patients.\r\n");
-        else if (GET_HIT(vict) == GET_MAX_HIT(vict))
+        } else if (GET_HIT(vict) == GET_MAX_HIT(vict)) {
             act("$N's systems are not currently damaged.", false, ch, NULL,
                 vict, TO_CHAR);
-        else {
+        } else {
             if (number(12, 150) > CHECK_SKILL(ch, SKILL_CYBOREPAIR) +
                 TOOL_MOD(tool) +
                 (CHECK_SKILL(ch, SKILL_ELECTRONICS) / 2) + GET_INT(ch)) {
@@ -1958,15 +2022,15 @@ perform_cyborepair(struct creature *ch, struct creature *vict)
             } else {
 
                 dam = (GET_LEVEL(ch) / 2) +
-                    ((CHECK_SKILL(ch,
-                                  SKILL_CYBOREPAIR) + TOOL_MOD(tool)) / 4) +
-                    number(0, GET_LEVEL(ch));
+                      ((CHECK_SKILL(ch,
+                                    SKILL_CYBOREPAIR) + TOOL_MOD(tool)) / 4) +
+                      number(0, GET_LEVEL(ch));
                 dam = MIN(GET_MAX_HIT(vict) - GET_HIT(vict), dam);
                 cost = dam / 2;
-                if ((GET_MANA(ch) + GET_MOVE(ch)) < cost)
+                if ((GET_MANA(ch) + GET_MOVE(ch)) < cost) {
                     send_to_char(ch,
                                  "You lack the energy required to perform this operation.\r\n");
-                else {
+                } else {
                     GET_HIT(vict) += dam;
                     GET_MOVE(ch) -= cost;
                     if (GET_MOVE(ch) < 0) {
@@ -2004,17 +2068,20 @@ perform_repair(struct creature *ch, struct obj_data *obj)
 
     if (IS_OBJ_TYPE(obj, ITEM_ARMOR) || IS_OBJ_TYPE(obj, ITEM_WEAPON)
         || IS_OBJ_TYPE(obj, ITEM_WORN) || IS_OBJ_TYPE(obj, ITEM_TREASURE)) {
-        if (IS_METAL_TYPE(obj))
+        if (IS_METAL_TYPE(obj)) {
             skill = SKILL_METALWORKING;
-        else if (IS_LEATHER_TYPE(obj))
+        } else if (IS_LEATHER_TYPE(obj)) {
             skill = SKILL_LEATHERWORKING;
+        }
     } else if (IS_GUN(obj) || IS_ENERGY_GUN(obj)) {
-        if (IS_ARROW(obj))
+        if (IS_ARROW(obj)) {
             skill = SKILL_BOW_FLETCH;
-        else
+        } else {
             skill = SKILL_GUNSMITHING;
-    } else if (IS_BULLET(obj) && IS_ARROW(obj))
+        }
+    } else if (IS_BULLET(obj) && IS_ARROW(obj)) {
         skill = SKILL_BOW_FLETCH;
+    }
 
     if (!skill) {
         send_to_char(ch, "You can't repair that.\r\n");
@@ -2023,7 +2090,7 @@ perform_repair(struct creature *ch, struct obj_data *obj)
 
     if (CHECK_SKILL(ch, skill) < 20) {
         send_to_char(ch, "You are not skilled in the art of %s.\r\n",
-            spell_to_str(skill));
+                     spell_to_str(skill));
         return;
     }
 
@@ -2034,19 +2101,20 @@ perform_repair(struct creature *ch, struct obj_data *obj)
     }
 
     if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
-            !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
+         !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
         !IS_TOOL(tool) || TOOL_SKILL(tool) != skill) {
         send_to_char(ch, "You must be holding a %s tool to do this.\r\n",
-            spell_to_str(skill));
+                     spell_to_str(skill));
         return;
     }
 
     dam = ((CHECK_SKILL(ch, skill) + TOOL_MOD(tool)) * 8);
-    if (IS_DWARF(ch) && skill == SKILL_METALWORKING)
+    if (IS_DWARF(ch) && skill == SKILL_METALWORKING) {
         dam += (GET_LEVEL(ch) * 4);
+    }
 
     GET_OBJ_DAM(obj) = MIN(GET_OBJ_DAM(obj) + dam,
-        (GET_OBJ_MAX_DAM(obj) / 4) * 3);
+                           (GET_OBJ_MAX_DAM(obj) / 4) * 3);
     act("You skillfully perform repairs on $p.", false, ch, obj, NULL, TO_CHAR);
     act("$n skillfully performs repairs on $p.", false, ch, obj, NULL, TO_ROOM);
     gain_skill_prof(ch, skill);
@@ -2093,10 +2161,10 @@ ACMD(do_overhaul)
     } else if (!IS_CYBORG(vict)) {
         send_to_char(ch, "You can only repair other borgs.\r\n");
     } else if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
-            !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
-        !IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBOREPAIR) {
+                !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
+               !IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBOREPAIR) {
         send_to_char(ch,
-            "You must be holding a cyber repair tool to do this.\r\n");
+                     "You must be holding a cyber repair tool to do this.\r\n");
     } else if (GET_TOT_DAM(vict) <= (max_component_dam(vict) / 3)) {
         act("You cannot make any significant improvements to $S systems.",
             false, ch, NULL, vict, TO_CHAR);
@@ -2106,16 +2174,16 @@ ACMD(do_overhaul)
         send_to_char(ch, "You have no idea how to perform an overhaul.\r\n");
     } else if (!vict->master || vict->master != ch) {
         send_to_char(ch,
-            "Subjects must be following and grouped for you to perform an overhaul.\r\n");
+                     "Subjects must be following and grouped for you to perform an overhaul.\r\n");
     } else if (!AFF3_FLAGGED(vict, AFF3_STASIS)) {
         send_to_char(ch,
-            "Error: Overhauling an active subject could lead to severe data loss.\r\n");
+                     "Error: Overhauling an active subject could lead to severe data loss.\r\n");
     } else {
         int repair = GET_TOT_DAM(vict) - (max_component_dam(vict) / 3);
         repair = MIN(repair, GET_LEVEL(ch) * 800);
         repair =
             MIN(repair, (CHECK_SKILL(ch,
-                    SKILL_OVERHAUL) + TOOL_MOD(tool)) * 400);
+                                     SKILL_OVERHAUL) + TOOL_MOD(tool)) * 400);
         repair = MIN(repair, (GET_MOVE(ch) + GET_MANA(ch)) * 100);
 
         act("$n begins to perform a system overhaul on $N.",
@@ -2136,9 +2204,9 @@ ACMD(do_overhaul)
         send_to_char(ch, "Overhaul complete:  System improved.\r\n");
         if (GET_BROKE(vict)) {
             send_to_char(ch,
-                "%sWarning%s:  subject in need of replacement %s.\r\n",
-                CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                component_names[(int)GET_BROKE(vict)][GET_OLD_CLASS(vict)]);
+                         "%sWarning%s:  subject in need of replacement %s.\r\n",
+                         CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+                         component_names[(int)GET_BROKE(vict)][GET_OLD_CLASS(vict)]);
         }
     }
 }
@@ -2153,25 +2221,25 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
     acc_string_clear();
 
     acc_sprintf("       %s***************************************\r\n",
-        CCGRN(ch, C_NRM));
+                CCGRN(ch, C_NRM));
     acc_sprintf("       %s>>>     OBJECT ANALYSIS RESULTS:    <<<\r\n",
-        CCCYN(ch, C_NRM));
+                CCCYN(ch, C_NRM));
     acc_sprintf("       %s***************************************%s\r\n",
-        CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     acc_sprintf("Description:          %s%s%s\r\n", CCCYN(ch,
-            C_NRM), obj->name, CCNRM(ch, C_NRM));
+                                                          C_NRM), obj->name, CCNRM(ch, C_NRM));
     acc_sprintf("Item Classification:  %s%s%s\r\n", CCCYN(ch, C_NRM),
                 strlist_aref((int)GET_OBJ_TYPE(obj), item_types), CCNRM(ch, C_NRM));
     acc_sprintf("Material Composition: %s%s%s\r\n", CCCYN(ch, C_NRM),
                 strlist_aref(GET_OBJ_MATERIAL(obj), material_names), CCNRM(ch, C_NRM));
     // give detailed item damage info
     acc_sprintf("Structural Integrity: %s%-15s%s%s\r\n",
-        CCCYN(ch, C_NRM), obj_cond(obj), CCNRM(ch, C_NRM),
-        ((ALEV(5) || !checklev) && GET_OBJ_MAX_DAM(obj) > 0) ?
-        tmp_sprintf("  [%3d%%]",
-                    GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj)) : "");
+                CCCYN(ch, C_NRM), obj_cond(obj), CCNRM(ch, C_NRM),
+                ((ALEV(5) || !checklev) && GET_OBJ_MAX_DAM(obj) > 0) ?
+                tmp_sprintf("  [%3d%%]",
+                            GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj)) : "");
     acc_sprintf("Commerce Value:       %s%'d coins%s\r\n", CCCYN(ch, C_NRM),
-        GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
+                GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
     acc_sprintf("Total Mass:           %s%s%s\r\n", CCCYN(ch, C_NRM),
                 format_weight(GET_OBJ_WEIGHT(obj), USE_METRIC(ch)), CCNRM(ch, C_NRM));
 
@@ -2185,7 +2253,7 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
             tmp_printbits(GET_OBJ_EXTRA(obj), extra_bits), " ",
             tmp_printbits(GET_OBJ_EXTRA2(obj), extra2_bits), " ",
             tmp_printbits(GET_OBJ_EXTRA3(obj), extra3_bits), NULL);
-            
+
         acc_strcat(tmp_wrap(bits, 72, 0, 0, 22),
                    CCNRM(ch, C_NRM), "\r\n", NULL);
     }
@@ -2195,49 +2263,51 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
     int i;
     for (i = 0; i < MAX_OBJ_AFFECT; i++) {
         if (obj->affected[i].modifier) {
-            if (found)
+            if (found) {
                 acc_strcat("\r\n                      ", NULL);
-            else
+            } else {
                 acc_strcat("User modifications:   ", CCCYN(ch, C_NRM), NULL);
+            }
 
             found = true;
             acc_sprintf("%+d to %s", obj->affected[i].modifier,
-                strlist_aref(obj->affected[i].location, apply_types));
+                        strlist_aref(obj->affected[i].location, apply_types));
         }
     }
-    if (found)
+    if (found) {
         acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
+    }
 
     switch (GET_OBJ_TYPE(obj)) {
     case ITEM_ARMOR:
         acc_sprintf("Protective Quality:   %s%-15s%s%s\r\n",
-            CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0) < 2 ? "poor" :
-            GET_OBJ_VAL(obj, 0) < 4 ? "minimal" :
-            GET_OBJ_VAL(obj, 0) < 6 ? "moderate" :
-            GET_OBJ_VAL(obj, 0) < 8 ? "good" :
-            GET_OBJ_VAL(obj, 0) < 10 ? "excellent" :
-            "extraordinary", CCNRM(ch, C_NRM),
-            (ALEV(4) || !checklev) ?
-            tmp_sprintf("  [%d]", GET_OBJ_VAL(obj, 0)) : "");
+                    CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0) < 2 ? "poor" :
+                    GET_OBJ_VAL(obj, 0) < 4 ? "minimal" :
+                    GET_OBJ_VAL(obj, 0) < 6 ? "moderate" :
+                    GET_OBJ_VAL(obj, 0) < 8 ? "good" :
+                    GET_OBJ_VAL(obj, 0) < 10 ? "excellent" :
+                    "extraordinary", CCNRM(ch, C_NRM),
+                    (ALEV(4) || !checklev) ?
+                    tmp_sprintf("  [%d]", GET_OBJ_VAL(obj, 0)) : "");
         break;
     case ITEM_LIGHT:
         acc_sprintf("Duration remaining:   %s%d hours%s\r\n",
-            CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 2), CCNRM(ch, C_NRM));
+                    CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 2), CCNRM(ch, C_NRM));
         break;
     case ITEM_WAND:
     case ITEM_SCROLL:
     case ITEM_STAFF:
         acc_sprintf("%sERROR:%s no further information available.\r\n",
-            CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+                    CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
         break;
     case ITEM_TOBACCO:
         acc_sprintf("Botanical Taxonomy:   %s%s%s\r\n",
-            CCCYN(ch, C_NRM), strlist_aref(SMOKE_TYPE(obj), smoke_types), CCNRM(ch, C_NRM));
+                    CCCYN(ch, C_NRM), strlist_aref(SMOKE_TYPE(obj), smoke_types), CCNRM(ch, C_NRM));
         break;
     case ITEM_PIPE:
     case ITEM_CIGARETTE:
         acc_sprintf("Botanical Contents:   %s%s%s\r\n",
-            CCCYN(ch, C_NRM), strlist_aref(GET_OBJ_VAL(obj, 2), smoke_types), CCNRM(ch, C_NRM));
+                    CCCYN(ch, C_NRM), strlist_aref(GET_OBJ_VAL(obj, 2), smoke_types), CCNRM(ch, C_NRM));
         break;
     case ITEM_PILL:
     case ITEM_SYRINGE:
@@ -2249,78 +2319,83 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
         }
         if (GET_OBJ_VAL(obj, 2) > 0 || GET_OBJ_VAL(obj, 3) > 0) {
             acc_sprintf("Side Effects:        %s", CCCYN(ch, C_NRM));
-            if (GET_OBJ_VAL(obj, 2) >= 1)
+            if (GET_OBJ_VAL(obj, 2) >= 1) {
                 acc_sprintf(" %s%s%s",CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 2)), CCNRM(ch, C_NRM));
-            if (GET_OBJ_VAL(obj, 3) >= 1)
+            }
+            if (GET_OBJ_VAL(obj, 3) >= 1) {
                 acc_sprintf(" %s%s%s",CCCYN(ch, C_NRM), spell_to_str(GET_OBJ_VAL(obj, 3)), CCNRM(ch, C_NRM));
+            }
             acc_sprintf("%s\r\n",CCNRM(ch, C_NRM));
         }
         break;
     case ITEM_WEAPON:
         acc_sprintf("Damage Dice:          %s%dd%d%s\r\n",
-            CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
-            CCNRM(ch, C_NRM));
+                    CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
+                    CCNRM(ch, C_NRM));
         break;
     case ITEM_CONTAINER:
-        if (GET_OBJ_VAL(obj, 3))
+        if (GET_OBJ_VAL(obj, 3)) {
             acc_strcat("Item is a corpse.\r\n", NULL);
-        else
+        } else {
             acc_sprintf("Capacity:            %s%s%s\r\n",
                         CCCYN(ch, C_NRM),
                         format_weight(GET_OBJ_VAL(obj, 0), USE_METRIC(ch)),
                         CCNRM(ch, C_NRM));
+        }
         break;
     case ITEM_VEHICLE:
-        if (obj->contains && IS_OBJ_TYPE(obj->contains, ITEM_ENGINE))
+        if (obj->contains && IS_OBJ_TYPE(obj->contains, ITEM_ENGINE)) {
             acc_sprintf("Vehicle is equipped with:     %s%s%s\r\n",
-                CCCYN(ch, C_NRM), obj->contains->name, CCNRM(ch, C_NRM));
-        else
+                        CCCYN(ch, C_NRM), obj->contains->name, CCNRM(ch, C_NRM));
+        } else {
             acc_strcat("Vehicle is not equipped with an engine.\r\n", NULL);
+        }
         break;
     case ITEM_ENGINE:
         acc_sprintf("Max Fuel: %s%'d%s, CurrentBUGBUG Fuel: %s%'d%s, Type: %s%s%s, "
-            "Eff: %s%d%s\r\n", CCCYN(ch, C_NRM), MAX_ENERGY(obj),
-            CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CUR_ENERGY(obj), CCNRM(ch,
-                C_NRM), CCCYN(ch, C_NRM), IS_SET(ENGINE_STATE(obj),
-                ENG_PETROL) ? "Petrol" : IS_SET(ENGINE_STATE(obj),
-                ENG_ELECTRIC) ? "Elect" : IS_SET(ENGINE_STATE(obj),
-                ENG_MAGIC) ? "Magic" : "Unknown", CCNRM(ch, C_NRM),
-            CCCYN(ch, C_NRM), USE_RATE(obj), CCNRM(ch, C_NRM));
+                    "Eff: %s%d%s\r\n", CCCYN(ch, C_NRM), MAX_ENERGY(obj),
+                    CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), CUR_ENERGY(obj), CCNRM(ch,
+                                                                               C_NRM), CCCYN(ch, C_NRM), IS_SET(ENGINE_STATE(obj),
+                                                                                                                ENG_PETROL) ? "Petrol" : IS_SET(ENGINE_STATE(obj),
+                                                                                                                                                ENG_ELECTRIC) ? "Elect" : IS_SET(ENGINE_STATE(obj),
+                                                                                                                                                                                 ENG_MAGIC) ? "Magic" : "Unknown", CCNRM(ch, C_NRM),
+                    CCCYN(ch, C_NRM), USE_RATE(obj), CCNRM(ch, C_NRM));
         break;
     case ITEM_ENERGY_GUN:
         acc_sprintf("Damage Dice:          %s%dd%d%s\r\n"
-            "Drain Rate:           %s%d units/shot%s\r\n"
-            "Weapon Type:          %s%s%s\r\n",
-            CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
-            CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0),
-            CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                    "Drain Rate:           %s%d units/shot%s\r\n"
+                    "Weapon Type:          %s%s%s\r\n",
+                    CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2),
+                    CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), GET_OBJ_VAL(obj, 0),
+                    CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
                     strlist_aref(GET_OBJ_VAL(obj, 3), egun_types), CCNRM(ch, C_NRM));
         break;
     case ITEM_BATTERY:
         acc_sprintf
             ("Max Energy: %s%'d%s, Current Energy: %s%'d%s, Recharge Rate: %s%'d%s\r\n",
             CCCYN(ch, C_NRM), MAX_ENERGY(obj), CCNRM(ch, C_NRM), CCCYN(ch,
-                C_NRM), CUR_ENERGY(obj), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                                                                       C_NRM), CUR_ENERGY(obj), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
             RECH_RATE(obj), CCNRM(ch, C_NRM));
         break;
 
     case ITEM_BOMB:
-        if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) > 50 && obj->contains)
+        if (CHECK_SKILL(ch, SKILL_DEMOLITIONS) > 50 && obj->contains) {
             acc_sprintf("Fuse: %s.  Fuse State: %sactive.\r\n",
-                obj->contains->name, FUSE_STATE(obj->contains) ? "" : "in");
+                        obj->contains->name, FUSE_STATE(obj->contains) ? "" : "in");
+        }
         break;
     case ITEM_MICROCHIP:
         if (SKILLCHIP(obj)) {
             if (CHIP_DATA(obj) > 0 && CHIP_DATA(obj) < MAX_SKILLS) {
                 acc_sprintf("%sData Contained: %s\'%s\'%s\r\n",
-                    CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-                    spell_to_str(CHIP_DATA(obj)), CCNRM(ch, C_NRM));
+                            CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                            spell_to_str(CHIP_DATA(obj)), CCNRM(ch, C_NRM));
             }
         }
         break;
     case ITEM_TOOL:
         acc_sprintf("Tool Compatibility:   %s%s%s [+%d modifier]\r\n",
-            CCCYN(ch, C_NRM), spell_to_str(TOOL_SKILL(obj)), CCNRM(ch, C_NRM), TOOL_MOD(obj));
+                    CCCYN(ch, C_NRM), spell_to_str(TOOL_SKILL(obj)), CCNRM(ch, C_NRM), TOOL_MOD(obj));
         break;
     }
     page_string(ch->desc, acc_get_string());
@@ -2352,7 +2427,7 @@ ACMD(do_analyze)
 
     if (CHECK_SKILL(ch, SKILL_ANALYZE) < 10) {
         send_to_char(ch,
-            "You are not trained in the methods of analysis.\r\n");
+                     "You are not trained in the methods of analysis.\r\n");
         return;
     }
     if (CHECK_SKILL(ch, SKILL_ANALYZE) < number(0, 100)) {
@@ -2362,7 +2437,7 @@ ACMD(do_analyze)
     }
     if (GET_MOVE(ch) < 10) {
         send_to_char(ch,
-            "You lack the energy necessary to perform the analysis.\r\n");
+                     "You lack the energy necessary to perform the analysis.\r\n");
         return;
     }
 
@@ -2393,11 +2468,12 @@ ACMD(do_analyze)
                     strlist_aref((int)GET_CLASS(vict), class_names),
                     CCNRM(ch, C_NRM));
     }
-    if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED)
+    if (GET_REMORT_CLASS(vict) != CLASS_UNDEFINED) {
         acc_sprintf("Secondary Occupation:  %s%s%s\r\n",
                     CCCYN(ch, C_NRM),
                     strlist_aref((int)GET_REMORT_CLASS(vict), class_names),
                     CCNRM(ch, C_NRM));
+    }
 
     GET_MOVE(ch) -= 10;
     page_string(ch->desc, acc_get_string());
@@ -2431,34 +2507,34 @@ ACMD(do_insert)
     if (GET_LEVEL(ch) < LVL_IMMORT) {
         if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
             send_to_char(ch,
-                "You are unskilled in the art of cybosurgery.\r\n");
+                         "You are unskilled in the art of cybosurgery.\r\n");
             return;
         }
 
         if (ok_to_attack(ch, vict, false)) {
             send_to_char(ch,
-                "You can only perform surgery in a safe room.\r\n");
+                         "You can only perform surgery in a safe room.\r\n");
             return;
         }
         if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
-                !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
+             !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
             !IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
             send_to_char(ch,
-                "You must be holding a cyber surgery tool to do this.\r\n");
+                         "You must be holding a cyber surgery tool to do this.\r\n");
             return;
         }
 
         if (!IS_CYBORG(vict)
             && CHECK_SKILL(ch, SKILL_ADVANCED_CYBO_SURGERY) < LEARNED(ch)) {
             send_to_char(ch,
-                "Your subject is not prepared for implanting without advanced techniques.\r\n");
+                         "Your subject is not prepared for implanting without advanced techniques.\r\n");
             return;
         }
     }
 
     pos = search_block(pos_str, wear_implantpos, 0);
     if (pos < 0 || ((GET_LEVEL(ch) < LVL_IMMORT &&
-                ILLEGAL_IMPLANTPOS(pos)))) {
+                     ILLEGAL_IMPLANTPOS(pos)))) {
         send_to_char(ch, "Invalid implant position.\r\n");
         return;
     }
@@ -2484,21 +2560,22 @@ ACMD(do_insert)
         return;
     }
     if (GET_OBJ_WEIGHT(obj) > GET_STR(vict) && GET_LEVEL(ch) < LVL_IMMORT) {
-        if (ch != vict)
+        if (ch != vict) {
             act("ERROR: $p is to heavy to implant in $N.",
                 false, ch, obj, vict, TO_CHAR);
-        else
+        } else {
             act("ERROR: $p is to heavy to implant.",
                 false, ch, obj, vict, TO_CHAR);
+        }
         return;
     }
 
     if (IS_INTERFACE(obj) && INTERFACE_TYPE(obj) == INTERFACE_CHIPS) {
         for (i = 0; i < NUM_WEARS; i++) {
             if ((GET_EQ(vict, i) && IS_INTERFACE(GET_EQ(vict, i)) &&
-                    INTERFACE_TYPE(GET_EQ(vict, i)) == INTERFACE_CHIPS) ||
+                 INTERFACE_TYPE(GET_EQ(vict, i)) == INTERFACE_CHIPS) ||
                 (GET_IMPLANT(vict, i) && IS_INTERFACE(GET_IMPLANT(vict, i)) &&
-                    INTERFACE_TYPE(GET_IMPLANT(vict, i)) == INTERFACE_CHIPS)) {
+                 INTERFACE_TYPE(GET_IMPLANT(vict, i)) == INTERFACE_CHIPS)) {
                 act("$N is already using an interface.\r\n",
                     false, ch, NULL, vict, TO_CHAR);
                 return;
@@ -2520,7 +2597,7 @@ ACMD(do_insert)
     if (!IS_WEAR_EXTREMITY(pos)) {
         if (GET_LEVEL(ch) < LVL_IMMORT && vict == ch) {
             send_to_char(ch,
-                "You can only perform surgery on your extremities!\r\n");
+                         "You can only perform surgery on your extremities!\r\n");
             return;
         }
         if (GET_LEVEL(ch) < LVL_IMMORT && AWAKE(vict) && ch != vict) {
@@ -2539,7 +2616,7 @@ ACMD(do_insert)
         act("$N wakes up with a scream as $n cuts into you!",
             false, ch, NULL, vict, TO_VICT | TO_SLEEP);
         GET_POSITION(vict) = POS_RESTING;
-        //    damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
+        // damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
         return;
     }
 
@@ -2550,8 +2627,9 @@ ACMD(do_insert)
     }
 
     obj_from_char(obj);
-    if (equip_char(vict, obj, pos, EQUIP_IMPLANT))
+    if (equip_char(vict, obj, pos, EQUIP_IMPLANT)) {
         return;
+    }
 
     if (ch == vict) {
         ;
@@ -2563,18 +2641,21 @@ ACMD(do_insert)
 
         // Immortals shouldn't have to deal with messiness
         if (!IS_IMMORT(ch)) {
-            if (GET_POSITION(vict) > POS_SITTING)
+            if (GET_POSITION(vict) > POS_SITTING) {
                 GET_POSITION(ch) = POS_SITTING;
+            }
             GET_HIT(vict) = GET_HIT(vict) / 4;
             GET_MOVE(vict) = GET_MOVE(vict) / 4;
-            if (GET_HIT(vict) < 1)
+            if (GET_HIT(vict) < 1) {
                 GET_HIT(vict) = 1;
-            if (GET_MOVE(vict) < 1)
+            }
+            if (GET_MOVE(vict) < 1) {
                 GET_MOVE(vict) = 1;
+            }
             WAIT_STATE(vict, 6 RL_SEC);
         }
         slog("IMPLANT: %s inserts %s into self at %d.",
-            GET_NAME(ch), obj->name, ch->in_room->number);
+             GET_NAME(ch), obj->name, ch->in_room->number);
     } else {
         ;
         act(tmp_sprintf("$p inserted into $N's %s.", wear_implantpos[pos]),
@@ -2586,21 +2667,24 @@ ACMD(do_insert)
 
         // Immortals shouldn't have to deal with messiness
         if (!IS_IMMORT(ch)) {
-            if (GET_POSITION(vict) > POS_RESTING)
+            if (GET_POSITION(vict) > POS_RESTING) {
                 GET_POSITION(vict) = POS_RESTING;
+            }
             GET_HIT(vict) = 1;
             GET_MOVE(vict) = 1;
             WAIT_STATE(vict, 10 RL_SEC);
         }
 
         slog("IMPLANT: %s inserts %s into %s at %d.",
-            GET_NAME(ch), obj->name, GET_NAME(vict), ch->in_room->number);
+             GET_NAME(ch), obj->name, GET_NAME(vict), ch->in_room->number);
     }
 
-    if (!IS_NPC(ch))
+    if (!IS_NPC(ch)) {
         crashsave(ch);
-    if (!IS_NPC(vict))
+    }
+    if (!IS_NPC(vict)) {
         crashsave(vict);
+    }
 }
 
 ACMD(do_extract)
@@ -2617,23 +2701,23 @@ ACMD(do_extract)
 
     if (!*obj_str || !*vict_str) {
         send_to_char(ch,
-            "Extract <object> <victim> <position>        ...or...\r\n"
-            "Extract <object> <corpse>\r\n");
+                     "Extract <object> <victim> <position>        ...or...\r\n"
+                     "Extract <object> <corpse>\r\n");
         return;
     }
 
     if (!IS_IMMORT(ch)) {
         if (CHECK_SKILL(ch, SKILL_CYBO_SURGERY) < 30) {
             send_to_char(ch,
-                "You are unskilled in the art of cybosurgery.\r\n");
+                         "You are unskilled in the art of cybosurgery.\r\n");
             return;
         }
 
         if ((!(tool = GET_EQ(ch, WEAR_HOLD)) &&
-                !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
+             !(tool = GET_IMPLANT(ch, WEAR_HOLD))) ||
             !IS_TOOL(tool) || TOOL_SKILL(tool) != SKILL_CYBO_SURGERY) {
             send_to_char(ch,
-                "You must be holding a cyber surgery tool to do this.\r\n");
+                         "You must be holding a cyber surgery tool to do this.\r\n");
             return;
         }
     }
@@ -2658,13 +2742,13 @@ ACMD(do_extract)
                 return;
             }
         } else if (!IS_BODY_PART(corpse) || !isname("head", corpse->aliases) ||
-            !IS_OBJ_TYPE(corpse, ITEM_DRINKCON)) {
+                   !IS_OBJ_TYPE(corpse, ITEM_DRINKCON)) {
             send_to_char(ch, "You cannot extract from that.\r\n");
             return;
         }
 
         if (((CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
-                    (GET_DEX(ch) * 4)) < number(50, 100)) ||
+              (GET_DEX(ch) * 4)) < number(50, 100)) ||
             (IS_OBJ_TYPE(obj, ITEM_SCRIPT) && GET_LEVEL(ch) < 50)) {
             send_to_char(ch, "You fail.\r\n");
             return;
@@ -2687,25 +2771,26 @@ ACMD(do_extract)
                 fclose(corpse_file);
             } else {
                 errlog("Failed to open corpse file [%s] (%s)", fname,
-                    strerror(errno));
+                       strerror(errno));
             }
         }
 
         act("You carefully extract $p from $P.", false, ch, obj, corpse,
             TO_CHAR);
         if (CHECK_SKILL(ch,
-                SKILL_CYBO_SURGERY) + TOOL_MOD(tool) + (GET_DEX(ch) * 4) <
+                        SKILL_CYBO_SURGERY) + TOOL_MOD(tool) + (GET_DEX(ch) * 4) <
             number(50, 100)) {
             act("You damage $p during the extraction!", false, ch, obj, NULL,
                 TO_CHAR);
             damage_eq(ch,
-                obj,
-                MAX((GET_OBJ_DAM(obj) / 4),
-                    (dice(10, 10) -
-                        CHECK_SKILL(ch, SKILL_CYBO_SURGERY) -
-                        (GET_DEX(ch) * 4))), -1);
-        } else
+                      obj,
+                      MAX((GET_OBJ_DAM(obj) / 4),
+                          (dice(10, 10) -
+                           CHECK_SKILL(ch, SKILL_CYBO_SURGERY) -
+                           (GET_DEX(ch) * 4))), -1);
+        } else {
             gain_skill_prof(ch, SKILL_CYBO_SURGERY);
+        }
 
         return;
     }
@@ -2738,7 +2823,7 @@ ACMD(do_extract)
     if (!IS_WEAR_EXTREMITY(pos)) {
         if (GET_LEVEL(ch) < LVL_IMMORT && vict == ch) {
             send_to_char(ch,
-                "You can only perform surgery on your extremities!\r\n");
+                         "You can only perform surgery on your extremities!\r\n");
             return;
         }
 
@@ -2767,7 +2852,7 @@ ACMD(do_extract)
     }
 
     if ((CHECK_SKILL(ch, SKILL_CYBO_SURGERY) + TOOL_MOD(tool) +
-            (GET_DEX(ch) * 4) < number(50, 100)) ||
+         (GET_DEX(ch) * 4) < number(50, 100)) ||
         (IS_OBJ_TYPE(obj, ITEM_SCRIPT) && GET_LEVEL(ch) < 50)) {
         send_to_char(ch, "You fail.\r\n");
         return;
@@ -2783,14 +2868,17 @@ ACMD(do_extract)
             false, ch, obj, vict, TO_NOTVICT);
 
         if (!IS_IMMORT(ch)) {
-            if (GET_POSITION(vict) > POS_SITTING)
+            if (GET_POSITION(vict) > POS_SITTING) {
                 GET_POSITION(vict) = POS_SITTING;
+            }
             GET_HIT(vict) = GET_HIT(vict) / 4;
             GET_MOVE(vict) = GET_MOVE(vict) / 4;
-            if (GET_HIT(vict) < 1)
+            if (GET_HIT(vict) < 1) {
                 GET_HIT(vict) = 1;
-            if (GET_MOVE(vict) < 1)
+            }
+            if (GET_MOVE(vict) < 1) {
                 GET_MOVE(vict) = 1;
+            }
             WAIT_STATE(vict, 6 RL_SEC);
         }
     } else {
@@ -2802,8 +2890,9 @@ ACMD(do_extract)
             false, ch, obj, vict, TO_NOTVICT);
 
         if (!IS_IMMORT(ch)) {
-            if (GET_POSITION(vict) > POS_RESTING)
+            if (GET_POSITION(vict) > POS_RESTING) {
                 GET_POSITION(vict) = POS_RESTING;
+            }
             GET_HIT(vict) = 1;
             GET_MOVE(vict) = 1;
             WAIT_STATE(vict, 10 RL_SEC);
@@ -2815,10 +2904,11 @@ ACMD(do_extract)
         act("You damage $p during the extraction!", false, ch, obj, NULL,
             TO_CHAR);
         damage_eq(ch, obj, MAX((GET_OBJ_DAM(obj) / 4), (dice(10,
-                        10) - CHECK_SKILL(ch,
-                        SKILL_CYBO_SURGERY) - (GET_DEX(ch) * 4))), -1);
-    } else
+                                                             10) - CHECK_SKILL(ch,
+                                                                               SKILL_CYBO_SURGERY) - (GET_DEX(ch) * 4))), -1);
+    } else {
         gain_skill_prof(ch, SKILL_CYBO_SURGERY);
+    }
 }
 
 void
@@ -2834,21 +2924,20 @@ perform_extract_all(struct creature *ch, struct creature *vict)
 
             if (ch == vict) {
                 act(tmp_sprintf("$p extracted from your %s.",
-                        wear_implantpos[i]), false, ch, obj, vict, TO_CHAR);
+                                wear_implantpos[i]), false, ch, obj, vict, TO_CHAR);
                 act(tmp_sprintf("$n extracts $p from $s %s.",
-                        wear_implantpos[i]), false, ch, obj, vict, TO_NOTVICT);
+                                wear_implantpos[i]), false, ch, obj, vict, TO_NOTVICT);
             } else {
                 act(tmp_sprintf("$p extracted from $N's %s.",
-                        wear_implantpos[i]), false, ch, obj, vict, TO_CHAR);
+                                wear_implantpos[i]), false, ch, obj, vict, TO_CHAR);
                 act(tmp_sprintf("$n extracts $p from your %s.",
-                        wear_implantpos[i]), false, ch, obj, vict, TO_VICT);
+                                wear_implantpos[i]), false, ch, obj, vict, TO_VICT);
                 act(tmp_sprintf("$n extracts $p from $N's %s.",
-                        wear_implantpos[i]), false, ch, obj, vict, TO_NOTVICT);
+                                wear_implantpos[i]), false, ch, obj, vict, TO_NOTVICT);
             }
         }
     }
 
-    return;
 }
 
 ACMD(do_cyberscan)
@@ -2864,20 +2953,23 @@ ACMD(do_cyberscan)
         if ((obj = get_obj_in_list_vis(ch, argument, ch->carrying)) ||
             (obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents))) {
             for (impl = obj->contains, found = 0; impl;
-                impl = impl->next_content)
+                 impl = impl->next_content) {
                 if (IS_IMPLANT(impl) && can_see_object(ch, impl)
                     && !IS_OBJ_TYPE(obj, ITEM_SCRIPT)
                     && ((CHECK_SKILL(ch, SKILL_CYBERSCAN) + (AFF3_FLAGGED(ch,
-                                    AFF3_SONIC_IMAGERY) ? 50 : 0) > number(70,
-                                150)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
+                                                                          AFF3_SONIC_IMAGERY) ? 50 : 0) > number(70,
+                                                                                                                 150)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
                     act("$p detected.", false, ch, impl, NULL, TO_CHAR);
                     ++found;
                 }
-            if (!found)
+            }
+            if (!found) {
                 act("No implants detected in $p.", false, ch, obj, NULL, TO_CHAR);
+            }
             act("$n scans $p.", true, ch, obj, NULL, TO_ROOM);
-        } else
+        } else {
             send_to_char(ch, "Cyberscan who?\r\n");
+        }
         return;
     }
 
@@ -2891,19 +2983,20 @@ ACMD(do_cyberscan)
         if ((obj = GET_IMPLANT(vict, i)) && can_see_object(ch, obj) &&
             !IS_OBJ_TYPE(obj, ITEM_SCRIPT) &&
             ((CHECK_SKILL(ch, SKILL_CYBERSCAN) +
-                    (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ? 50 : 0) >
-                    number(50, 120)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
+              (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ? 50 : 0) >
+              number(50, 120)) || PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 
             send_to_char(ch, "[%12s] - %s -\r\n", wear_implantpos[i],
-                obj->name);
+                         obj->name);
             ++found;
         }
     }
 
-    if (!found)
+    if (!found) {
         send_to_char(ch, "Negative.\r\n");
-    else if (ch != vict)
+    } else if (ch != vict) {
         gain_skill_prof(ch, SKILL_CYBERSCAN);
+    }
 }
 
 ACMD(do_load)
@@ -2943,14 +3036,14 @@ ACMD(do_load)
 
             if (!(obj2 = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
                 send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-                    AN(arg2), arg2);
+                             AN(arg2), arg2);
                 return;
             }
 
         } else if (!(obj2 =
-                get_object_in_equip_vis(ch, arg2, ch->equipment, &i))
-            && !(obj2 = get_obj_in_list_vis(ch, arg2, ch->carrying))
-            && !(obj2 = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
+                         get_object_in_equip_vis(ch, arg2, ch->equipment, &i))
+                   && !(obj2 = get_obj_in_list_vis(ch, arg2, ch->carrying))
+                   && !(obj2 = get_obj_in_list_vis(ch, arg2, ch->in_room->contents))) {
             act(tmp_sprintf("You don't have any '%s' to load $p into.", arg2),
                 false, ch, obj1, NULL, TO_CHAR);
             return;
@@ -3028,7 +3121,7 @@ ACMD(do_load)
                 return;
             }
         } else if (IS_CHIP(obj1) && IS_INTERFACE(obj2) &&
-            INTERFACE_TYPE(obj2) == INTERFACE_CHIPS) {
+                   INTERFACE_TYPE(obj2) == INTERFACE_CHIPS) {
             if (count_contained_objs(obj2) >= INTERFACE_MAX(obj2)) {
                 act("$P is already loaded with microchips.",
                     false, ch, obj1, obj2, TO_CHAR);
@@ -3059,10 +3152,11 @@ ACMD(do_load)
         }
         obj_from_char(obj1);
         obj_to_obj(obj1, obj2);
-        if (IS_CHIP(obj1) && ch == obj2->worn_by && obj1->action_desc)
+        if (IS_CHIP(obj1) && ch == obj2->worn_by && obj1->action_desc) {
             act(obj1->action_desc, false, ch, NULL, NULL, TO_CHAR);
+        }
         i = 10 - MIN(8,
-            ((CHECK_SKILL(ch, SKILL_SPEED_LOADING) + GET_DEX(ch)) / 16));
+                     ((CHECK_SKILL(ch, SKILL_SPEED_LOADING) + GET_DEX(ch)) / 16));
         WAIT_STATE(ch, i);
         return;
     }
@@ -3079,16 +3173,16 @@ ACMD(do_load)
 
             if (!(obj2 = get_object_in_equip_vis(ch, arg2, ch->implants, &i))) {
                 send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-                    AN(arg2), arg2);
+                             AN(arg2), arg2);
                 return;
             }
 
         } else if (!(obj2 =
-                get_object_in_equip_vis(ch, arg1, ch->equipment, &i))
-            && !(obj2 = get_obj_in_list_vis(ch, arg1, ch->carrying))
-            && !(obj2 = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
+                         get_object_in_equip_vis(ch, arg1, ch->equipment, &i))
+                   && !(obj2 = get_obj_in_list_vis(ch, arg1, ch->carrying))
+                   && !(obj2 = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
             act(tmp_sprintf("You can't find %s '%s' to unload.", AN(arg1),
-                    arg1), false, ch, obj1, NULL, TO_CHAR);
+                            arg1), false, ch, obj1, NULL, TO_CHAR);
             return;
         }
 
@@ -3120,7 +3214,7 @@ ACMD(do_load)
         obj_from_obj(obj1);
         obj_to_char(obj1, ch);
         i = 10 - MIN(8,
-            ((CHECK_SKILL(ch, SKILL_SPEED_LOADING) + GET_DEX(ch)) / 16));
+                     ((CHECK_SKILL(ch, SKILL_SPEED_LOADING) + GET_DEX(ch)) / 16));
         WAIT_STATE(ch, i);
 
         return;
@@ -3133,12 +3227,15 @@ redundant_skillchip(struct obj_data *chip, struct obj_data *slot)
 
     struct obj_data *tchp = NULL;
 
-    if (CHIP_TYPE(chip) != CHIP_SKILL)
+    if (CHIP_TYPE(chip) != CHIP_SKILL) {
         return 0;
+    }
 
-    for (tchp = slot->contains; tchp; tchp = tchp->next_content)
-        if (GET_OBJ_VNUM(tchp) == GET_OBJ_VNUM(chip))
+    for (tchp = slot->contains; tchp; tchp = tchp->next_content) {
+        if (GET_OBJ_VNUM(tchp) == GET_OBJ_VNUM(chip)) {
             return 1;
+        }
+    }
 
     return 0;
 }
@@ -3152,24 +3249,24 @@ ACMD(do_refill)
     arg1 = tmp_getword(&argument);
     arg2 = tmp_getword(&argument);
 
-    if (!*arg1)
+    if (!*arg1) {
         send_to_char(ch, "Refill what from what?\r\n");
-    else if (!*arg2)
+    } else if (!*arg2) {
         send_to_char(ch, "Usage: refill <to obj> <from obj>\r\n");
-    else if (!(syr = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
-             !(syr = get_object_in_equip_vis(ch, arg1, ch->equipment, &i))) {
+    } else if (!(syr = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
+               !(syr = get_object_in_equip_vis(ch, arg1, ch->equipment, &i))) {
         send_to_char(ch, "You don't seem to have %s '%s' to refill.\r\n",
                      AN(arg1), arg1);
-    } else if (!IS_SYRINGE(syr))
+    } else if (!IS_SYRINGE(syr)) {
         send_to_char(ch, "You can only refill syringes.\r\n");
-    else if (GET_OBJ_VAL(syr, 0))
+    } else if (GET_OBJ_VAL(syr, 0)) {
         act("$p is already full.", false, ch, syr, NULL, TO_CHAR);
-    else if (!(vial = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
+    } else if (!(vial = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
         send_to_char(ch, "You can't find %s '%s' to refill from.\r\n",
                      AN(arg2), arg2);
-    } else if (!GET_OBJ_VAL(vial, 0))
+    } else if (!GET_OBJ_VAL(vial, 0)) {
         act("$p is empty.", false, ch, vial, NULL, TO_CHAR);
-    else {
+    } else {
 
         act("You refill $p from $P.", false, ch, syr, vial, TO_CHAR);
 
@@ -3178,8 +3275,9 @@ ACMD(do_refill)
         GET_OBJ_VAL(syr, 2) = GET_OBJ_VAL(vial, 2);
         GET_OBJ_VAL(syr, 3) = GET_OBJ_VAL(vial, 3);
 
-        if (IS_POTION(vial) || IS_OBJ_STAT(vial, ITEM_MAGIC))
+        if (IS_POTION(vial) || IS_OBJ_STAT(vial, ITEM_MAGIC)) {
             SET_BIT(GET_OBJ_EXTRA(syr), ITEM_MAGIC);
+        }
 
         char *new_alias = tmp_sprintf("%s %s", fname(vial->aliases), syr->aliases);
         if (!syr->shared->proto || syr->shared->proto->aliases != syr->aliases) {
@@ -3227,13 +3325,13 @@ ACMD(do_transmit)
 
         if (!(obj = get_object_in_equip_vis(ch, arg, ch->implants, &i))) {
             send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-                AN(arg), arg);
+                         AN(arg), arg);
             return;
         }
 
     } else if (!(obj = get_obj_in_list_vis(ch, arg, ch->carrying)) &&
-        !(obj = get_object_in_equip_all(ch, arg, ch->equipment, &i)) &&
-        !(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+               !(obj = get_object_in_equip_all(ch, arg, ch->equipment, &i)) &&
+               !(obj = get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
         send_to_char(ch, "You can't seem to find %s '%s'.\r\n", AN(arg), arg);
         return;
     }
@@ -3252,12 +3350,13 @@ ACMD(do_transmit)
         return;
     }
 
-    if (!obj->worn_by || (obj != GET_IMPLANT(ch, obj->worn_on)))
+    if (!obj->worn_by || (obj != GET_IMPLANT(ch, obj->worn_on))) {
         act(tmp_sprintf("$n speaks into $p%s.", obj->worn_by ? " (worn)" : ""),
             false, ch, obj, NULL, TO_ROOM);
+    }
 
     send_to_comm_channel(ch, tmp_sprintf("$n >%s", argument),
-        COMM_CHANNEL(obj), false, false);
+                         COMM_CHANNEL(obj), false, false);
 }
 
 ACMD(do_overdrain)
@@ -3267,7 +3366,7 @@ ACMD(do_overdrain)
     int amount = 0;
     char *arg1, *arg2;
 
-    //Make sure they know how to overdrain
+    // Make sure they know how to overdrain
     if (CHECK_SKILL(ch, SKILL_OVERDRAIN) <= 0) {
         send_to_char(ch, "You don't know how.\r\n");
         return;
@@ -3291,15 +3390,15 @@ ACMD(do_overdrain)
         source = get_object_in_equip_vis(ch, arg2, ch->implants, &i);
         if (!source) {
             send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-                AN(arg2), arg2);
+                         AN(arg2), arg2);
             return;
         }
 
     } else if (!(source = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
-        !(source = get_object_in_equip_all(ch, arg1, ch->equipment, &i)) &&
-        !(source = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
+               !(source = get_object_in_equip_all(ch, arg1, ch->equipment, &i)) &&
+               !(source = get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
         send_to_char(ch, "You can't seem to find %s '%s'.\r\n", AN(arg1),
-            arg1);
+                     arg1);
         return;
     }
     if (IS_IMPLANT(source)
@@ -3355,8 +3454,9 @@ ACMD(do_de_energize)
         return;
     }
 
-    if (!ok_to_attack(ch, vict, true))
+    if (!ok_to_attack(ch, vict, true)) {
         return;
+    }
 
     appear(ch, vict);
     check_attack(ch, vict);
@@ -3375,7 +3475,7 @@ ACMD(do_de_energize)
     }
     // victim resists
     if (mag_savingthrow(vict,
-            GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 8), SAVING_ROD)) {
+                        GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 8), SAVING_ROD)) {
         act("$n attempts to de-energize you, but fails!",
             false, ch, NULL, vict, TO_VICT);
         act("$n attempts to de-energize $N, but fails!",
@@ -3400,13 +3500,14 @@ ACMD(do_de_energize)
 
     GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + move);
 
-    if (!move)                  // vict all drained up
+    if (!move) {                // vict all drained up
         act("$N is already completely de-energized!", false, ch, NULL, vict,
             TO_CHAR);
-    else {
-        if (!GET_MOVE(vict))
+    } else {
+        if (!GET_MOVE(vict)) {
             act("$N is now completely de-energized!", false, ch, NULL, vict,
                 TO_CHAR);
+        }
         gain_skill_prof(ch, SKILL_DE_ENERGIZE);
     }
 
@@ -3424,18 +3525,22 @@ perform_assimilate(struct creature *ch, struct obj_data *obj)
     bool found = false;
 
     // count the existing affs on the char
-    for (aff = ch->affected; aff; aff = aff->next)
-        if (aff->type == SKILL_ASSIMILATE)
+    for (aff = ch->affected; aff; aff = aff->next) {
+        if (aff->type == SKILL_ASSIMILATE) {
             num_affs++;
+        }
+    }
 
     // allocate affs if needed
     if (num_affs > 0) {
         CREATE(affs, struct affected_type, num_affs);
 
         // make a copy of the old assimilate affs
-        for (i = 0, aff = ch->affected; aff; aff = aff->next)
-            if (aff->type == SKILL_ASSIMILATE)
+        for (i = 0, aff = ch->affected; aff; aff = aff->next) {
+            if (aff->type == SKILL_ASSIMILATE) {
                 affs[i++] = *aff;
+            }
+        }
     }
 
     // remove all the old affs
@@ -3444,8 +3549,9 @@ perform_assimilate(struct creature *ch, struct obj_data *obj)
     // scan the list of affs on the object
     for (i = 0; i < MAX_OBJ_AFFECT; i++) {
 
-        if (obj->affected[i].location == APPLY_NONE)
+        if (obj->affected[i].location == APPLY_NONE) {
             continue;
+        }
 
         found = false;
 
@@ -3462,12 +3568,13 @@ perform_assimilate(struct creature *ch, struct obj_data *obj)
                 affs[j].modifier += obj->affected[i].modifier;
             }
             // same signs, choose extreme value
-            else if (affs[j].modifier > 0)
+            else if (affs[j].modifier > 0) {
                 affs[j].modifier =
                     MAX(affs[j].modifier, obj->affected[i].modifier);
-            else
+            } else {
                 affs[j].modifier =
                     MIN(affs[j].modifier, obj->affected[i].modifier);
+            }
 
             // reset level and duration
             affs[j].level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4);
@@ -3499,7 +3606,7 @@ perform_assimilate(struct creature *ch, struct obj_data *obj)
         affs[num_affs].type = SKILL_ASSIMILATE;
         affs[num_affs].level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4);
         affs[num_affs].duration = (CHECK_SKILL(ch, SKILL_ASSIMILATE) / 10)
-            + (affs[num_affs - 1].level / 16);
+                                  + (affs[num_affs - 1].level / 16);
         affs[num_affs].modifier = obj->affected[i].modifier;
         affs[num_affs].location = obj->affected[i].location;
         num_affs++;
@@ -3588,7 +3695,7 @@ ACMD(do_assimilate)
 
     if (CHECK_SKILL(ch, SKILL_ASSIMILATE) < 60) {
         send_to_char(ch,
-            "You do not have sufficient programming to assimilate.\r\n");
+                     "You do not have sufficient programming to assimilate.\r\n");
         return;
     }
 
@@ -3617,7 +3724,7 @@ ACMD(do_deassimilate)
 
     if (CHECK_SKILL(ch, SKILL_ASSIMILATE) < 60) {
         send_to_char(ch,
-            "Your programming is insufficient to deassimilate.\r\n");
+                     "Your programming is insufficient to deassimilate.\r\n");
         return;
     }
 
@@ -3628,7 +3735,7 @@ ACMD(do_deassimilate)
 
     if (GET_MANA(ch) < 10) {
         send_to_char(ch,
-            "Your bioenergy level is too low to deassimilate.\r\n");
+                     "Your bioenergy level is too low to deassimilate.\r\n");
         return;
     }
 
@@ -3639,27 +3746,27 @@ ACMD(do_deassimilate)
 
 ACMD(do_reconfigure)
 {
-   if (!IS_CYBORG(ch)) {
-       send_to_char(ch, "You don't have anything that's reconfigurable!\r\n");
-       return;
-   }
+    if (!IS_CYBORG(ch)) {
+        send_to_char(ch, "You don't have anything that's reconfigurable!\r\n");
+        return;
+    }
 
-   if (CHECK_SKILL(ch, SKILL_RECONFIGURE) < 60) {
-       send_to_char(ch, "You aren't programmed for reconfiguration.\r\n");
-       return;
-   }
+    if (CHECK_SKILL(ch, SKILL_RECONFIGURE) < 60) {
+        send_to_char(ch, "You aren't programmed for reconfiguration.\r\n");
+        return;
+    }
 
     if (!AFF3_FLAGGED(ch, AFF3_STASIS)
         && !(GET_CLASS(ch) == CLASS_CYBORG
              && GET_REMORT_GEN(ch) >= 5)) {
-       send_to_char(ch, "ERROR: Reconfiguration can only be performed in stasis.\r\n");
-       return;
-   }
+        send_to_char(ch, "ERROR: Reconfiguration can only be performed in stasis.\r\n");
+        return;
+    }
 
-   if (affected_by_spell(ch, SKILL_EMPOWER)) {
-       send_to_char(ch, "ABORTING: dangerous magical anomalies detected in substructure.\r\n");
-       return;
-   }
+    if (affected_by_spell(ch, SKILL_EMPOWER)) {
+        send_to_char(ch, "ABORTING: dangerous magical anomalies detected in substructure.\r\n");
+        return;
+    }
 
     enum { HIT, MANA, MOVE } mode;
     char *arg = tmp_getword(&argument);
@@ -3671,12 +3778,12 @@ ACMD(do_reconfigure)
     init_affect(&af3);
 
     af.level = af2.level = af3.level = GET_LEVEL(ch) + GET_REMORT_GEN(ch);
-   af.bitvector = af2.bitvector = af3.bitvector = 0;
-   af.is_instant = af2.is_instant = af3.is_instant = false;
-   af.type = af2.type = af3.type = SKILL_RECONFIGURE;
-   af.duration = af2.duration = af3.duration = (GET_LEVEL(ch) + GET_REMORT_GEN(
-ch)) / 2;
-   af.owner = af2.owner = af3.owner = GET_IDNUM(ch);
+    af.bitvector = af2.bitvector = af3.bitvector = 0;
+    af.is_instant = af2.is_instant = af3.is_instant = false;
+    af.type = af2.type = af3.type = SKILL_RECONFIGURE;
+    af.duration = af2.duration = af3.duration = (GET_LEVEL(ch) + GET_REMORT_GEN(
+                                                     ch)) / 2;
+    af.owner = af2.owner = af3.owner = GET_IDNUM(ch);
 
     if (is_abbrev(arg, "hitpoints")) {
         mode = HIT;
@@ -3735,23 +3842,23 @@ ch)) / 2;
     val2 = MIN(GET_LEVEL(ch), val2 / 4);
 
     struct affected_type *cur_aff;
-   int aff_power;
+    int aff_power;
 
-   for (cur_aff = ch->affected;cur_aff;cur_aff = cur_aff->next) {
-       if (cur_aff->type == SKILL_RECONFIGURE
+    for (cur_aff = ch->affected; cur_aff; cur_aff = cur_aff->next) {
+        if (cur_aff->type == SKILL_RECONFIGURE
             && cur_aff->location == af.location) {
-           aff_power = cur_aff->modifier + val1 + val2 - 5;
-           if (aff_power > 666) {
-               send_to_char(ch, "ERROR: Reconfiguration at maximum levels.\r\n");
-               return;
-           }
-       }
-   }
+            aff_power = cur_aff->modifier + val1 + val2 - 5;
+            if (aff_power > 666) {
+                send_to_char(ch, "ERROR: Reconfiguration at maximum levels.\r\n");
+                return;
+            }
+        }
+    }
 
     // af is the affect that gets the increase, af2 and af3 are the decreasing affects
-   af.modifier = (val1 + val2 - 5);
-   af2.modifier = -(val1);
-   af3.modifier = -(val2);
+    af.modifier = (val1 + val2 - 5);
+    af2.modifier = -(val1);
+    af3.modifier = -(val2);
 
     affect_join(ch, &af, 0, 0, 1, 0);
     affect_join(ch, &af2, 0, 0, 1, 0);
@@ -3770,12 +3877,13 @@ ch)) / 2;
     }
 
     if ((GET_MAX_HIT(ch) / 2) < GET_WIMP_LEV(ch)) {
-       send_to_char(ch, "NOTICE: Automatic cowardice level recalibrated\r\n");
-       GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) / 2;
-   }
+        send_to_char(ch, "NOTICE: Automatic cowardice level recalibrated\r\n");
+        GET_WIMP_LEV(ch) = GET_MAX_HIT(ch) / 2;
+    }
 
     act("Buzzing and whirring sounds come from $n's prone body.",
         true, ch, NULL, NULL, TO_ROOM);
-    if (GET_LEVEL(ch) < LVL_GRGOD)
-       WAIT_STATE(ch, 2 RL_SEC);
+    if (GET_LEVEL(ch) < LVL_GRGOD) {
+        WAIT_STATE(ch, 2 RL_SEC);
+    }
 }

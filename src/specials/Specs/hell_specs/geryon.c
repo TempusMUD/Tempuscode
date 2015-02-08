@@ -10,10 +10,12 @@ SPECIAL(geryon)
     struct obj_data *horn = NULL;
     ACMD(do_order);
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !is_fighting(ch))
+    }
+    if (cmd || !is_fighting(ch)) {
         return 0;
+    }
 
     if ((!ch->followers || !ch->followers->next)
         && (horn = GET_EQ(ch, WEAR_HOLD)) && GET_OBJ_VNUM(horn) == 16144
@@ -21,9 +23,10 @@ SPECIAL(geryon)
         command_interpreter(ch, tmp_strdup("wind horn"));
         do_order(ch, tmp_strdup("minotaur assist geryon"), 0, 0);
         return 1;
-    } else if (number(0, 2))
+    } else if (number(0, 2)) {
         return 0;
-    for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
+    }
+    for (GList *cit = ch->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
         if (g_list_find(tch->fighting, ch) &&
             !number(0, 4) && !affected_by_spell(tch, SPELL_POISON)) {
@@ -32,8 +35,9 @@ SPECIAL(geryon)
         }
     }
 
-    if (!vict || !number(0, 3) || vict == ch)
+    if (!vict || !number(0, 3) || vict == ch) {
         vict = random_opponent(ch);
+    }
 
     act("$n stings you with a mighty lash of $s deadly tail!", false, ch, NULL,
         vict, TO_VICT);

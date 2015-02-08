@@ -22,8 +22,9 @@ SPECIAL(fountain_youth)
     init_affect(&af2);
     init_affect(&af3);
 
-    if (spec_mode != SPECIAL_CMD || !CMD_IS("drink"))
+    if (spec_mode != SPECIAL_CMD || !CMD_IS("drink")) {
         return 0;
+    }
 
     if (GET_POSITION(ch) == POS_SLEEPING) {
         send_to_char(ch, "You'll have to wake up first!\r\n");
@@ -32,8 +33,9 @@ SPECIAL(fountain_youth)
 
     /* check here for argument */
     skip_spaces(&argument);
-    if (!isname(argument, fountain->aliases))
+    if (!isname(argument, fountain->aliases)) {
         return 0;
+    }
 
     if (affected_by_spell(ch, SPELL_YOUTH)) {
         act("You drink from $p.", true, ch, fountain, NULL, TO_CHAR);

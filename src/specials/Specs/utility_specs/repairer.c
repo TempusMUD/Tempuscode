@@ -16,10 +16,11 @@ SPECIAL(repairer)
     bool currency;
 
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
-        tellbuf[MAX_STRING_LENGTH];
+         tellbuf[MAX_STRING_LENGTH];
 
-    if (!CMD_IS("buy") && !CMD_IS("value"))
+    if (!CMD_IS("buy") && !CMD_IS("value")) {
         return 0;
+    }
 
     skip_spaces(&argument);
 
@@ -32,7 +33,7 @@ SPECIAL(repairer)
 
     if (strcasecmp(arg1, "repairs")) {
         perform_tell(repairer, ch,
-            "To deal with me: buy/value repairs <item>");
+                     "To deal with me: buy/value repairs <item>");
         return 1;
     }
 
@@ -77,7 +78,7 @@ SPECIAL(repairer)
 
     if (CMD_IS("value")) {
         snprintf(tellbuf, sizeof(tellbuf), "It will cost you %'" PRId64 " %s to repair %s.", cost,
-            currency ? "credits" : "coins", obj->name);
+                 currency ? "credits" : "coins", obj->name);
         perform_tell(repairer, ch, tellbuf);
         return 1;
     }
@@ -85,7 +86,7 @@ SPECIAL(repairer)
     if ((currency && cost > GET_CASH(ch)) ||
         (!currency && cost > GET_GOLD(ch))) {
         snprintf(tellbuf, sizeof(tellbuf), "You don't have the %'" PRId64 " %s I require.", cost,
-            currency ? "credits" : "gold coins");
+                 currency ? "credits" : "gold coins");
         perform_tell(repairer, ch, tellbuf);
         return 1;
     }
@@ -94,10 +95,11 @@ SPECIAL(repairer)
         false, repairer, obj, NULL, TO_ROOM);
     WAIT_STATE(ch, 5 RL_SEC);
 
-    if (currency)
+    if (currency) {
         GET_CASH(ch) -= cost;
-    else
+    } else {
         GET_GOLD(ch) -= cost;
+    }
 
     if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
         GET_OBJ_MAX_DAM(obj) -= ((GET_OBJ_MAX_DAM(obj) * 15) / 100) + 1;

@@ -7,16 +7,19 @@ SPECIAL(hell_domed_chamber)
 
     static time_t last_time = 0;
 
-    if (!CMD_IS("listen"))
+    if (!CMD_IS("listen")) {
         return 0;
+    }
 
     time_t cur_time = time(NULL);
 
-    if (cur_time - last_time < DOMED_CHAMBER_TIME)
+    if (cur_time - last_time < DOMED_CHAMBER_TIME) {
         return 0;
+    }
 
-    if (GET_LEVEL(ch) < LVL_IMMORT)
+    if (GET_LEVEL(ch) < LVL_IMMORT) {
         last_time = cur_time;
+    }
 
     struct creature *cloned_char = read_mobile(17199);
 
@@ -27,9 +30,9 @@ SPECIAL(hell_domed_chamber)
 
     cloned_char->points.max_hit = cloned_char->points.hit = ch->points.max_hit;
     cloned_char->points.max_mana = cloned_char->points.mana =
-        ch->points.max_mana;
+                                       ch->points.max_mana;
     cloned_char->points.max_move = cloned_char->points.move =
-        ch->points.max_move;
+                                       ch->points.max_move;
 
     snprintf(buf, sizeof(buf), "anti-%s anti %s", GET_NAME(ch), GET_NAME(ch));
     cloned_char->player.name = strdup(buf);

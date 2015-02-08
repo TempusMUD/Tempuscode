@@ -44,7 +44,7 @@ struct criminal_rec *criminal_list = NULL;
 /*   external vars  */
 bool
 perform_get_from_room(struct creature *ch,
-    struct obj_data *obj, bool display, int counter);
+                      struct obj_data *obj, bool display, int counter);
 
 extern struct descriptor_data *descriptor_list;
 
@@ -58,7 +58,7 @@ summon_criminal_demons(struct creature *vict)
 
     for (idx = 0; idx < demon_num; idx++) {
         mob = read_mobile(vnum_base + MIN(4, (GET_LEVEL(vict) / 9))
-            + number(0, 1));
+                          + number(0, 1));
         if (!mob) {
             errlog("Unable to load mob in demonic_overmind");
             return false;
@@ -73,13 +73,14 @@ summon_criminal_demons(struct creature *vict)
             mob, NULL, NULL, TO_ROOM);
     }
 
-    if (IS_EVIL(vict))
+    if (IS_EVIL(vict)) {
         mudlog(GET_INVIS_LVL(vict), NRM, true,
-            "%d archons dispatched to hunt down %s",
-            demon_num, GET_NAME(vict));
-    else
+               "%d archons dispatched to hunt down %s",
+               demon_num, GET_NAME(vict));
+    } else {
         mudlog(GET_INVIS_LVL(vict), NRM, true,
-            "%d demons dispatched to hunt down %s", demon_num, GET_NAME(vict));
+               "%d demons dispatched to hunt down %s", demon_num, GET_NAME(vict));
+    }
 
     return true;
 }
@@ -94,40 +95,45 @@ SPECIAL(demonic_overmind)
 
     if (spec_mode == SPECIAL_TICK) {
         for (cur_desc = descriptor_list; cur_desc; cur_desc = cur_desc->next) {
-            if (!cur_desc->creature || !IS_PLAYING(cur_desc))
+            if (!cur_desc->creature || !IS_PLAYING(cur_desc)) {
                 continue;
-            if (IS_IMMORT(cur_desc->creature))
+            }
+            if (IS_IMMORT(cur_desc->creature)) {
                 continue;
-            if (reputation_of(cur_desc->creature) < 700)
+            }
+            if (reputation_of(cur_desc->creature) < 700) {
                 continue;
+            }
 
             vict = cur_desc->creature;
 
-            for (cur_rec = criminal_list; cur_rec; cur_rec = cur_rec->next)
-                if (cur_rec->idnum == GET_IDNUM(vict))
+            for (cur_rec = criminal_list; cur_rec; cur_rec = cur_rec->next) {
+                if (cur_rec->idnum == GET_IDNUM(vict)) {
                     break;
+                }
+            }
 
             // grace periods:
             // reputation 700 : 3 - 4 hours : 2025 - 4500 updates
             // reputation 1000: 30 - 60 minutes : 427 - 947 updates
 
             // Reputation 700 --
-            //    Min: 162000 / (700 - 620) = 2025 = 2.25 hours
-            //    Max: 360000 / (700 - 620) = 4500 = 5 hours
+            // Min: 162000 / (700 - 620) = 2025 = 2.25 hours
+            // Max: 360000 / (700 - 620) = 4500 = 5 hours
 
             // Reputation 1000 --
-            //    Min: 162000 / (1000 - 620) = 427 = 28 minutes
-            //    Max: 360000 / (1000 - 620) = 947 = 63 minutes
+            // Min: 162000 / (1000 - 620) = 427 = 28 minutes
+            // Max: 360000 / (1000 - 620) = 947 = 63 minutes
 
             // Calculation of the grace is pretty damn hard.  here's how
             // I did it.
             //
             // I solved two simultaneous equations of the form
-            //   a - tb = 700t where t=min time for 700 rep
-            //   a - tb = 1000t where t=min time for 1000 rep
+            // a - tb = 700t where t=min time for 700 rep
+            // a - tb = 1000t where t=min time for 1000 rep
             // and
-            //   a - tb = 700t where t=max time for 700 rep
-            //   a - tb = 1000t where t=max time for 700 rep
+            // a - tb = 700t where t=max time for 700 rep
+            // a - tb = 1000t where t=max time for 700 rep
 
             // this gave me the grace to start with and the amount to
             // subtract from the decrementing.  However, the latter value
@@ -149,10 +155,12 @@ SPECIAL(demonic_overmind)
             }
             // If they're in an arena or a quest, their grace still
             // decrements.  They just get attacked as soon as they leave
-            if (GET_QUEST(cur_desc->creature))
+            if (GET_QUEST(cur_desc->creature)) {
                 continue;
-            if (ROOM_FLAGGED(cur_desc->creature->in_room, ROOM_ARENA))
+            }
+            if (ROOM_FLAGGED(cur_desc->creature->in_room, ROOM_ARENA)) {
                 continue;
+            }
 
             // Their grace has run out.  Get em.
             cur_rec->grace = number(78750, 101250);
@@ -162,16 +170,18 @@ SPECIAL(demonic_overmind)
         return summoned;
     }
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
+    }
 
     if (CMD_IS("status")) {
         send_to_char(ch, "Demonic overmind status:\r\n");
         send_to_char(ch, " Player                    Grace\r\n"
-            "-------------------------  -----\r\n");
-        for (cur_rec = criminal_list; cur_rec; cur_rec = cur_rec->next)
+                         "-------------------------  -----\r\n");
+        for (cur_rec = criminal_list; cur_rec; cur_rec = cur_rec->next) {
             send_to_char(ch, "%-25s  %4d\r\n",
-                player_name_by_idnum(cur_rec->idnum), cur_rec->grace);
+                         player_name_by_idnum(cur_rec->idnum), cur_rec->grace);
+        }
 
         return true;
     }
@@ -198,11 +208,13 @@ SPECIAL(demonic_guard)
     struct creature *self = (struct creature *)me;
     int vict_id;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return false;
+    }
 
-    if (!self->mob_specials.func_data)
+    if (!self->mob_specials.func_data) {
         return false;
+    }
     vict_id = *((int *)self->mob_specials.func_data);
 
     ch = get_char_in_world_by_idnum(vict_id);

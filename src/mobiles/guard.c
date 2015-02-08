@@ -45,17 +45,19 @@ SPECIAL(guard)
     if (!GET_NPC_PARAM(self)
         || (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_CMD)
         || (spec_mode == SPECIAL_TICK && !is_fighting(self))
-        || (spec_mode == SPECIAL_CMD && !IS_MOVE(cmd)))
+        || (spec_mode == SPECIAL_CMD && !IS_MOVE(cmd))) {
         return 0;
+    }
 
     struct reaction *reaction = make_reaction();
 
     str = GET_NPC_PARAM(self);
     for (line = tmp_getline(&str), lineno = 1; line;
-        line = tmp_getline(&str), lineno++) {
+         line = tmp_getline(&str), lineno++) {
 
-        if (add_reaction(reaction, line))
+        if (add_reaction(reaction, line)) {
             continue;
+        }
 
         param_key = tmp_getword(&line);
         if (!strcmp(param_key, "guard")) {
@@ -75,23 +77,25 @@ SPECIAL(guard)
                 err = "a bad direction";
                 break;
             }
-            if (room_num != ch->in_room->number)
+            if (room_num != ch->in_room->number) {
                 continue;
-            if (cmd_idx == cmd)
+            }
+            if (cmd_idx == cmd) {
                 dir = cmd_idx;
+            }
         } else if (!strcmp(param_key, "tovict")) {
             to_vict = line;
         } else if (!strcmp(param_key, "toroom")) {
             to_room = line;
         } else if (!strcmp(param_key, "attack")) {
             attack = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
-                is_abbrev(line, "1") || is_abbrev(line, "true"));
+                      is_abbrev(line, "1") || is_abbrev(line, "true"));
         } else if (!strcmp(param_key, "fallible")) {
             fallible = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
-                is_abbrev(line, "1") || is_abbrev(line, "true"));
+                        is_abbrev(line, "1") || is_abbrev(line, "true"));
         } else if (!strcmp(param_key, "callsforhelp")) {
             callsforhelp = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
-                is_abbrev(line, "1") || is_abbrev(line, "true"));
+                            is_abbrev(line, "1") || is_abbrev(line, "true"));
         } else {
             err = "an invalid directive";
             break;
@@ -116,16 +120,16 @@ SPECIAL(guard)
     if (err) {
         // Specparam error
         if (IS_PC(ch)) {
-            if (IS_IMMORT(ch))
+            if (IS_IMMORT(ch)) {
                 perform_tell(self, ch,
-                    tmp_sprintf("I have %s in line %d of my specparam", err,
-                        lineno));
-            else {
+                             tmp_sprintf("I have %s in line %d of my specparam", err,
+                                         lineno));
+            } else {
                 mudlog(LVL_IMMORT, NRM, true,
-                    "ERR: Mobile %d has %s in line %d of specparam",
-                    GET_NPC_VNUM(self), err, lineno);
+                       "ERR: Mobile %d has %s in line %d of specparam",
+                       GET_NPC_VNUM(self), err, lineno);
                 perform_say_to(self, ch,
-                    "Sorry.  I'm broken, but a god has already been notified.");
+                               "Sorry.  I'm broken, but a god has already been notified.");
             }
         }
     } else if (ch == self || IS_IMMORT(ch) || ALLOW == react(reaction, ch)) {
@@ -136,12 +140,14 @@ SPECIAL(guard)
     free_reaction(reaction);
 
     // If we're a fallible guard, check to see if they can get past us
-    if (fallible && check_sneak(ch, self, true, true) == SNEAK_OK)
+    if (fallible && check_sneak(ch, self, true, true) == SNEAK_OK) {
         return false;
+    }
 
     // Guards must be at least standing to be able to block people
-    if (GET_POSITION(self) <= POS_SITTING)
+    if (GET_POSITION(self) <= POS_SITTING) {
         return false;
+    }
 
     // Set to deny if undecided
     act(to_vict, false, self, NULL, ch, TO_VICT);

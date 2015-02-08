@@ -10,11 +10,13 @@ SPECIAL(junker)
 {
 
     struct obj_data *obj = NULL, *next_obj = NULL;
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || !AWAKE(ch) || is_fighting(ch))
+    if (cmd || !AWAKE(ch) || is_fighting(ch)) {
         return 0;
+    }
 
     for (obj = ch->carrying; obj; obj = next_obj) {
         next_obj = obj->next_content;

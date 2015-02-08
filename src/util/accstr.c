@@ -32,16 +32,19 @@ acc_string_clear(void)
 void
 acc_string_adjust(size_t wanted)
 {
-    if (acc_str_space > wanted)
+    if (acc_str_space > wanted) {
         return;
+    }
 
-    if (acc_str_space > MAX_STR_ALLOC)
+    if (acc_str_space > MAX_STR_ALLOC) {
         raise(SIGSEGV);
+    }
 
     // if they want more than we've got, chances are they'll want
     // even more, so we increase it in chunks
-    while (acc_str_space < wanted)
+    while (acc_str_space < wanted) {
         acc_str_space += DEFAULT_ACCUM_SIZE;
+    }
 
     acc_str_data = (char *)realloc(acc_str_data, acc_str_space);
 }
@@ -99,13 +102,15 @@ acc_strcat(const char *str, ...)
     len = strlen(str);
 
     va_start(args, str);
-    while ((read_pt = va_arg(args, const char *)) != NULL)
-         len += strlen(read_pt);
+    while ((read_pt = va_arg(args, const char *)) != NULL) {
+        len += strlen(read_pt);
+    }
     va_end(args);
 
     // If we don't have the space, we allocate another pool
-    if (len > acc_str_space - acc_str_len)
+    if (len > acc_str_space - acc_str_len) {
         acc_string_adjust(acc_str_space + len);
+    }
 
     result = acc_str_data + acc_str_len;
     write_pt = result;
@@ -113,15 +118,17 @@ acc_strcat(const char *str, ...)
 
     // Copy in the first string
     strcpy(write_pt, str);
-    while (*write_pt)
+    while (*write_pt) {
         write_pt++;
+    }
 
     // Then copy in the rest of the strings
     va_start(args, str);
     while ((read_pt = va_arg(args, const char *)) != NULL) {
         strcpy(write_pt, read_pt);
-        while (*write_pt)
+        while (*write_pt) {
             write_pt++;
+        }
     }
     va_end(args);
 }

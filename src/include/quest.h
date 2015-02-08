@@ -9,17 +9,17 @@
 #define QUEST_DIR "quest"
 #define QLOGFILENAME "log/quest.log"
 
-#define QUEST_REVIEWED  (1 << 0)	// quest has been reviewed
-#define QUEST_NOWHO     (1 << 1)	// quest who does not work
-#define QUEST_NO_OUTWHO (1 << 2)	// only paricipants may quest who
-#define QUEST_NOJOIN    (1 << 3)	// quest is 'invite only'
-#define QUEST_NOLEAVE   (1 << 4)	// no-one here gets out alive
-#define QUEST_HIDE      (1 << 5)	// make quest invisible to mortals
-#define QUEST_WHOWHERE  (1 << 6)	// quest who shows where players are
-#define QUEST_ARENA     (1 << 7)	// questors only have arena deaths
+#define QUEST_REVIEWED  (1 << 0)    // quest has been reviewed
+#define QUEST_NOWHO     (1 << 1)    // quest who does not work
+#define QUEST_NO_OUTWHO (1 << 2)    // only paricipants may quest who
+#define QUEST_NOJOIN    (1 << 3)    // quest is 'invite only'
+#define QUEST_NOLEAVE   (1 << 4)    // no-one here gets out alive
+#define QUEST_HIDE      (1 << 5)    // make quest invisible to mortals
+#define QUEST_WHOWHERE  (1 << 6)    // quest who shows where players are
+#define QUEST_ARENA     (1 << 7)    // questors only have arena deaths
 
-#define QP_IGNORE       (1 << 0)	// ignore quest comm
-#define QP_MUTE         (1 << 1)	// cannot send to quest
+#define QP_IGNORE       (1 << 0)    // ignore quest comm
+#define QP_MUTE         (1 << 1)    // cannot send to quest
 
 #define QP_FLAGGED(qp, bits) (qp->isFlagged(bits))
 
@@ -42,38 +42,38 @@
 
 /**
  * An entry representing a player in a quest and the flags set on him/her.
-**/
+ **/
 struct qplayer_data {
-		long idnum;
-		int flags;
-        int deaths;
-        int mobkills;
-        int pkills;
+    long idnum;
+    int flags;
+    int deaths;
+    int mobkills;
+    int pkills;
 };
 
 extern int top_quest_vnum;
 
 struct quest {
-		int max_players; // max number of players
-		int awarded; // qps awarded
-		int penalized; // qps taken
-		int vnum;
-		long owner_id;
-		time_t started;
-		time_t ended;
-		GList *players;
-		GList *bans;
-		int flags;
-		char *name;
-		char *description;
-		char *updates;
-		int owner_level;
-		int minlevel;
-		int maxlevel;
-		int mingen;
-		int maxgen;
-        int loadroom;
-		uint8_t type;
+    int max_players;     // max number of players
+    int awarded;     // qps awarded
+    int penalized;     // qps taken
+    int vnum;
+    long owner_id;
+    time_t started;
+    time_t ended;
+    GList *players;
+    GList *bans;
+    int flags;
+    char *name;
+    char *description;
+    char *updates;
+    int owner_level;
+    int minlevel;
+    int maxlevel;
+    int mingen;
+    int maxgen;
+    int loadroom;
+    uint8_t type;
 };
 
 // utility functions

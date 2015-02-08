@@ -26,7 +26,7 @@ const char *fill_words[] = {
  * @param dest Destination buffer
  * @param size Size of destination buffer
  * @param fmt Format string for snprintf(2)
- * 
+ *
  * Acts as a concatenating version of snprintf().  Returns the total
  * length of the string if it fits into the buffer size.  Otherwise
  * returns the length the string that would have been written.
@@ -38,7 +38,7 @@ snprintf_cat(char *dest, size_t size, const char *fmt, ...)
     size_t len = strlen(dest);
 
     va_start(args, fmt);
-    
+
     int result = vsnprintf(dest + len, size - len, fmt, args);
 
     va_end(args);
@@ -62,7 +62,7 @@ remove_from_cstring(char *str, char c, char c_to)
         return;
     }
 
-    for (char *p = str;*p; ++p) {
+    for (char *p = str; *p; ++p) {
         if (*p == c) {
             *p = c_to;
         }
@@ -85,15 +85,18 @@ sprintbit(long vektor, const char *names[], char *result, size_t size)
             if (*names[nr] != '\n') {
                 strcat_s(result, size, names[nr]);
                 strcat_s(result, size, " ");
-            } else
+            } else {
                 strcat_s(result, size, "UNDEFINED ");
+            }
         }
-        if (*names[nr] != '\n')
+        if (*names[nr] != '\n') {
             nr++;
+        }
     }
 
-    if (!*result)
+    if (!*result) {
         strcat_s(result, size, "NOBITS ");
+    }
 }
 
 const char *
@@ -101,12 +104,15 @@ strlist_aref(int idx, const char **names)
 {
     int nr;
 
-    if (idx < 0)
+    if (idx < 0) {
         return tmp_sprintf("ILLEGAL(%d)", idx);
+    }
 
-    for (nr = 0; *names[nr] != '\n'; nr++)
-        if (idx == nr)
+    for (nr = 0; *names[nr] != '\n'; nr++) {
+        if (idx == nr) {
             return names[idx];
+        }
+    }
 
     return tmp_sprintf("UNDEFINED(%d)", idx);
 }
@@ -120,27 +126,31 @@ sprinttype(int type, const char *names[], char *result, size_t size)
 const char *
 AN(const char *str)
 {
-    if (PLUR(str))
+    if (PLUR(str)) {
         return "some";
-    if (strchr("aeiouAEIOU", *str))
+    }
+    if (strchr("aeiouAEIOU", *str)) {
         return "an";
+    }
     return "a";
 }
 
 const char *
 YESNO(bool a)
 {
-    if (a)
+    if (a) {
         return "YES";
-    else
+    } else {
         return "NO";
+    }
 }
 
 const char *
 ONOFF(bool a)
 {
-    if (a)
+    if (a) {
         return "ON";
+    }
     return "OFF";
 }
 
@@ -154,8 +164,9 @@ fname(const char *namelist)
         errlog("Null namelist passed to fname().");
         return tmp_strdup("");
     }
-    for (point = holder; isalnum(*namelist); namelist++, point++)
+    for (point = holder; isalnum(*namelist); namelist++, point++) {
         *point = *namelist;
+    }
 
     *point = '\0';
 
@@ -167,8 +178,9 @@ isname(const char *str, const char *namelist)
 {
     register const char *curname, *curstr;
 
-    if (!*str)
+    if (!*str) {
         return 0;
+    }
 
     if (namelist == NULL || *namelist == '\0') {
         errlog(" NULL namelist given to isname()");
@@ -179,17 +191,21 @@ isname(const char *str, const char *namelist)
     while (*curname) {
         curstr = str;
         while (true) {
-            if (!*curstr || isspace(*curstr))
+            if (!*curstr || isspace(*curstr)) {
                 return true;
+            }
 
-            if (!*curname)
+            if (!*curname) {
                 return false;
+            }
 
-            if (*curname == ' ')
+            if (*curname == ' ') {
                 break;
+            }
 
-            if (tolower(*curstr) != tolower(*curname))
+            if (tolower(*curstr) != tolower(*curname)) {
                 break;
+            }
 
             curstr++;
             curname++;
@@ -197,10 +213,12 @@ isname(const char *str, const char *namelist)
 
         /* skip to next name */
 
-        while (isalnum(*curname))
+        while (isalnum(*curname)) {
             curname++;
-        if (!*curname)
+        }
+        if (!*curname) {
             return false;
+        }
         curname++;              /* first char of new name */
     }
 
@@ -212,8 +230,9 @@ isname_exact(const char *str, const char *namelist)
 {
     register const char *curname, *curstr;
 
-    if (!*str)
+    if (!*str) {
         return 0;
+    }
 
     if (namelist == NULL || *namelist == '\0') {
         errlog(" NULL namelist given to isname()");
@@ -224,17 +243,21 @@ isname_exact(const char *str, const char *namelist)
     while (*curname) {
         curstr = str;
         while (true) {
-            if ((!*curstr || isspace(*curstr)) && !isalnum(*curname))
+            if ((!*curstr || isspace(*curstr)) && !isalnum(*curname)) {
                 return true;
+            }
 
-            if (!*curname)
+            if (!*curname) {
                 return false;
+            }
 
-            if (*curname == ' ')
+            if (*curname == ' ') {
                 break;
+            }
 
-            if (tolower(*curstr) != tolower(*curname))
+            if (tolower(*curstr) != tolower(*curname)) {
                 break;
+            }
 
             curstr++;
             curname++;
@@ -242,10 +265,12 @@ isname_exact(const char *str, const char *namelist)
 
         /* skip to next name */
 
-        while (isalnum(*curname))
+        while (isalnum(*curname)) {
             curname++;
-        if (!*curname)
+        }
+        if (!*curname) {
             return false;
+        }
         curname++;              /* first char of new name */
     }
 
@@ -260,15 +285,19 @@ namelist_match(const char *sub_list, const char *super_list)
     const char *word_pt;
 
     word_pt = sub_list;
-    if (!*word_pt)
+    if (!*word_pt) {
         return false;
+    }
     while (*word_pt) {
-        if (!isname(word_pt, super_list))
+        if (!isname(word_pt, super_list)) {
             return false;
-        while (isgraph(*word_pt))
+        }
+        while (isgraph(*word_pt)) {
             word_pt++;
-        while (isspace(*word_pt))
+        }
+        while (isspace(*word_pt)) {
             word_pt++;
+        }
     }
     return true;
 }
@@ -284,12 +313,14 @@ get_number(char **name)
     if ((read_pt = strchr(*name, '.'))) {
         *read_pt++ = '\0';
 
-        if (**name)
+        if (**name) {
             i = atoi(*name);
+        }
 
         write_pt = *name;
-        while (*read_pt)
+        while (*read_pt) {
             *write_pt++ = *read_pt++;
+        }
         *write_pt = '\0';
         return i;
     }
@@ -300,13 +331,14 @@ get_number(char **name)
 int
 find_all_dots(char *arg)
 {
-    if (!strcmp(arg, "all"))
+    if (!strcmp(arg, "all")) {
         return FIND_ALL;
-    else if (!strncmp(arg, "all.", 4)) {
+    } else if (!strncmp(arg, "all.", 4)) {
         memmove(arg, arg + 4, strlen(arg) - 3);
         return FIND_ALLDOT;
-    } else
+    } else {
         return FIND_INDIV;
+    }
 }
 
 
@@ -321,26 +353,30 @@ one_word(char *argument, char *first_arg)
     begin = 0;
 
     do {
-        while (isspace(*(argument + begin)))
+        while (isspace(*(argument + begin))) {
             begin++;
+        }
 
         if (*(argument + begin) == '\"') {  /* is it a quote */
 
             begin++;
 
             for (look_at = 0; (*(argument + begin + look_at) >= ' ') &&
-                (*(argument + begin + look_at) != '\"'); look_at++)
+                 (*(argument + begin + look_at) != '\"'); look_at++) {
                 *(first_arg + look_at) =
                     tolower(*(argument + begin + look_at));
+            }
 
-            if (*(argument + begin + look_at) == '\"')
+            if (*(argument + begin + look_at) == '\"') {
                 begin++;
+            }
 
         } else {
 
-            for (look_at = 0; *(argument + begin + look_at) > ' '; look_at++)
+            for (look_at = 0; *(argument + begin + look_at) > ' '; look_at++) {
                 *(first_arg + look_at) =
                     tolower(*(argument + begin + look_at));
+            }
 
         }
 
@@ -359,25 +395,30 @@ one_word(char *argument, char *first_arg)
  * must be terminated with a '\n' so it knows to stop searching.
  */
 int
-search_block(const char *arg, const char * const *list, bool exact)
+search_block(const char *arg, const char *const *list, bool exact)
 {
-    if (*arg == '\0')
+    if (*arg == '\0') {
         return -1;
+    }
 
     if (exact) {
         for (int i = 0; *(list[i]) != '\n'; i++) {
-            if (*(list[i]) == '!')  // reserved
+            if (*(list[i]) == '!') { // reserved
                 continue;
-            if (strcasecmp(arg, list[i]) == 0)
+            }
+            if (strcasecmp(arg, list[i]) == 0) {
                 return i;
+            }
         }
     } else {
         int len = strlen(arg);
         for (int i = 0; *(list[i]) != '\n'; i++) {
-            if (*(list[i]) == '!')  // reserved
+            if (*(list[i]) == '!') { // reserved
                 continue;
-            if (strncasecmp(arg, list[i], len) == 0)
+            }
+            if (strncasecmp(arg, list[i], len) == 0) {
                 return i;
+            }
             if (i > 1000) {
                 errlog
                     ("search_block in unterminated list. arg = %s [0] = '%s'.",
@@ -392,15 +433,19 @@ search_block(const char *arg, const char * const *list, bool exact)
 bool
 is_number(const char *str)
 {
-    if (!*str)
+    if (!*str) {
         return false;
+    }
 
-    if (str[0] == '-' || str[0] == '+')
+    if (str[0] == '-' || str[0] == '+') {
         str++;
+    }
 
-    while (*str)
-        if (!isdigit(*(str++)))
+    while (*str) {
+        if (!isdigit(*(str++))) {
             return false;
+        }
+    }
 
     return true;
 }
@@ -410,17 +455,20 @@ is_float_number(const char *str)
 {
     int radix_count = 0;
 
-    if (!*str)
+    if (!*str) {
         return false;
+    }
 
-    if (str[0] == '-' || str[0] == '+')
+    if (str[0] == '-' || str[0] == '+') {
         str++;
+    }
 
     while (*str) {
         if (*str == '.') {
             radix_count++;
-            if (radix_count > 1)
+            if (radix_count > 1) {
                 return false;
+            }
         } else if (!isdigit(*str)) {
             return false;
         }
@@ -434,15 +482,17 @@ is_float_number(const char *str)
 void
 skip_spaces_const(const char **string)
 {
-    while (**string && isspace(**string))
+    while (**string && isspace(**string)) {
         (*string)++;
+    }
 }
 
 void
 skip_spaces(char **string)
 {
-    while (**string && isspace(**string))
+    while (**string && isspace(**string)) {
         (*string)++;
+    }
 }
 
 int
@@ -518,17 +568,22 @@ two_arguments(char *argument, char *first_arg, char *second_arg)
 int
 is_abbrev(const char *needle, const char *haystack)
 {
-    if (!*needle)
+    if (!*needle) {
         return 0;
+    }
 
-    while (*needle && *haystack)
-        if (tolower(*needle++) != tolower(*haystack++))
+    while (*needle && *haystack) {
+        if (tolower(*needle++) != tolower(*haystack++)) {
             return 0;
+        }
+    }
 
-    if (!*needle && !*haystack)
+    if (!*needle && !*haystack) {
         return 2;
-    if (!*needle)
+    }
+    if (!*needle) {
         return 1;
+    }
 
     return 0;
 }
@@ -551,19 +606,23 @@ is_abbrevn(const char *needle, const char *haystack, int count)
 {
     int matched = 0;
 
-    if (!*needle)
+    if (!*needle) {
         return 0;
+    }
 
     while (*needle && *haystack) {
         matched++;
-        if (tolower(*needle++) != tolower(*haystack++))
+        if (tolower(*needle++) != tolower(*haystack++)) {
             return 0;
+        }
     }
 
-    if (!*needle && !*haystack)
+    if (!*needle && !*haystack) {
         return 2;
-    if ((!*needle) && matched >= count)
+    }
+    if ((!*needle) && matched >= count) {
         return 1;
+    }
 
     return 0;
 }
@@ -593,16 +652,21 @@ search_block_no_lower(char *arg, const char **list, bool exact)
     l = strlen(arg);
 
     if (exact) {
-        for (i = 0; **(list + i) != '\n'; i++)
-            if (!strcmp(arg, *(list + i)))
+        for (i = 0; **(list + i) != '\n'; i++) {
+            if (!strcmp(arg, *(list + i))) {
                 return (i);
+            }
+        }
     } else {
-        if (!l)
+        if (!l) {
             l = 1;              /* Avoid "" to match the first available
                                  * string */
-        for (i = 0; **(list + i) != '\n'; i++)
-            if (!strncmp(arg, *(list + i), l))
+        }
+        for (i = 0; **(list + i) != '\n'; i++) {
+            if (!strncmp(arg, *(list + i), l)) {
                 return (i);
+            }
+        }
     }
 
     return -1;

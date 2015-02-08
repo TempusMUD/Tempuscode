@@ -55,21 +55,24 @@ ACMD(do_bandage)
         }
         mod =
             number(GET_WIS(ch), 2 * GET_LEVEL(ch) + CHECK_SKILL(ch,
-                SKILL_BANDAGE)) / 16;
+                                                                SKILL_BANDAGE)) / 16;
         if (GET_CLASS(ch) != CLASS_RANGER
-            && GET_REMORT_CLASS(ch) != CLASS_RANGER)
+            && GET_REMORT_CLASS(ch) != CLASS_RANGER) {
             cost = mod * 3;
-        else
+        } else {
             cost = mod;
+        }
         if (GET_MOVE(ch) > cost) {
             GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - cost, 0);
             send_to_char(ch, "You carefully bandage your wounds.\r\n");
             act("$n carefully bandages $s wounds.", true, ch, NULL, NULL, TO_ROOM);
-            if (GET_LEVEL(ch) < LVL_AMBASSADOR)
+            if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
                 WAIT_STATE(ch, PULSE_VIOLENCE);
-        } else
+            }
+        } else {
             send_to_char(ch, "You cannot do this now.\r\n");
+        }
         return;
     } else if (!(vict = get_char_room_vis(ch, vict_name))) {
         send_to_char(ch, "Bandage who?\r\n");
@@ -80,26 +83,29 @@ ACMD(do_bandage)
             return;
         } else if (is_fighting(vict) || GET_POSITION(vict) == POS_FIGHTING) {
             send_to_char(ch,
-                "Bandage someone who is in battle?  How's that?\r\n");
+                         "Bandage someone who is in battle?  How's that?\r\n");
             return;
         }
         mod = number((GET_WIS(ch) / 2),
-            11 + GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_BANDAGE)) / 10;
+                     11 + GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_BANDAGE)) / 10;
         if (GET_CLASS(ch) != CLASS_RANGER
-            && GET_REMORT_CLASS(ch) != CLASS_RANGER)
+            && GET_REMORT_CLASS(ch) != CLASS_RANGER) {
             cost = mod * 3;
-        else
+        } else {
             cost = mod;
+        }
         if (GET_MOVE(ch) > cost) {
             GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + mod);
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - cost, 0);
             act("$N bandages your wounds.", true, vict, NULL, ch, TO_CHAR);
             act("$n bandages $N's wounds.", false, ch, NULL, vict, TO_NOTVICT);
             send_to_char(ch, "You do it.\r\n");
-            if (GET_LEVEL(ch) < LVL_AMBASSADOR)
+            if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
                 WAIT_STATE(ch, PULSE_VIOLENCE);
-        } else
+            }
+        } else {
             send_to_char(ch, "You cannot do this now.\r\n");
+        }
     }
 }
 
@@ -112,7 +118,7 @@ ACMD(do_firstaid)
 
     mod =
         (GET_LEVEL(ch) / 2 + CHECK_SKILL(ch,
-            SKILL_FIRSTAID) + GET_REMORT_GEN(ch) * 3);
+                                         SKILL_FIRSTAID) + GET_REMORT_GEN(ch) * 3);
     if (GET_CLASS(ch) == CLASS_MERCENARY || GET_CLASS(ch) == CLASS_RANGER
         || GET_CLASS(ch) == CLASS_MONK) {
         mod /= 2;
@@ -135,10 +141,12 @@ ACMD(do_firstaid)
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - cost, 0);
             send_to_char(ch, "You carefully tend to your wounds.\r\n");
             act("$n carefully tends to $s wounds.", true, ch, NULL, NULL, TO_ROOM);
-            if (GET_LEVEL(ch) < LVL_AMBASSADOR)
+            if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
                 WAIT_STATE(ch, PULSE_VIOLENCE);
-        } else
+            }
+        } else {
             send_to_char(ch, "You are too tired to do this now.\r\n");
+        }
     } else if (!(vict = get_char_room_vis(ch, vict_name))) {
         send_to_char(ch, "Provide first aid to who?\r\n");
         return;
@@ -160,11 +168,13 @@ ACMD(do_firstaid)
             act("$n performs first aid on $N.", false, ch, NULL, vict,
                 TO_NOTVICT);
             send_to_char(ch, "You do it.\r\n");
-            if (GET_LEVEL(ch) < LVL_AMBASSADOR)
+            if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
                 WAIT_STATE(ch, PULSE_VIOLENCE);
-        } else
+            }
+        } else {
             send_to_char(ch,
-                "You must rest awhile before doing this again.\r\n");
+                         "You must rest awhile before doing this again.\r\n");
+        }
     }
 }
 
@@ -173,7 +183,7 @@ ACMD(do_medic)
     struct creature *vict;
     int mod =
         (GET_LEVEL(ch) / 2 + CHECK_SKILL(ch,
-            SKILL_MEDIC) + GET_REMORT_GEN(ch) * 3);
+                                         SKILL_MEDIC) + GET_REMORT_GEN(ch) * 3);
 
     char vict_name[MAX_INPUT_LENGTH];
     one_argument(argument, vict_name);
@@ -189,16 +199,18 @@ ACMD(do_medic)
         }
         if (GET_MOVE(ch) > mod) {
             GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
-            if (GET_CLASS(ch) == CLASS_RANGER) {    //2x multiplier for prime rangers
+            if (GET_CLASS(ch) == CLASS_RANGER) {    // 2x multiplier for prime rangers
                 GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + mod);
             }
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
             send_to_char(ch, "You apply some TLC to your wounds.\r\n");
             act("$n fixes up $s wounds.", true, ch, NULL, NULL, TO_ROOM);
-            if (GET_LEVEL(ch) < LVL_AMBASSADOR)
+            if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
                 WAIT_STATE(ch, PULSE_VIOLENCE);
-        } else
+            }
+        } else {
             send_to_char(ch, "You are too tired to do this now.\r\n");
+        }
     } else if (!(vict = get_char_room_vis(ch, vict_name))) {
         send_to_char(ch, "Who do you wish to help out?\r\n");
         return;
@@ -209,19 +221,22 @@ ACMD(do_medic)
         act("What makes you think $E's bleeding?", true, ch, NULL, vict, TO_CHAR);
     } else {
         if (GET_MOVE(ch) > mod) {
-            if (GET_CLASS(ch) == CLASS_RANGER)
-                mod *= 2;       //2x multiplier for prime rangers
+            if (GET_CLASS(ch) == CLASS_RANGER) {
+                mod *= 2;       // 2x multiplier for prime rangers
+            }
             GET_HIT(vict) = MIN(GET_MAX_HIT(vict), GET_HIT(vict) + mod);
             GET_MOVE(ch) = MAX(GET_MOVE(ch) - mod, 0);
             act("$n gives you some TLC.  You feel better!", true, ch, NULL, vict,
                 TO_VICT);
             act("$n gives some TLC to $N.", false, ch, NULL, vict, TO_NOTVICT);
             send_to_char(ch, "You do it.\r\n");
-            if (GET_LEVEL(ch) < LVL_AMBASSADOR)
+            if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
                 WAIT_STATE(ch, PULSE_VIOLENCE);
-        } else
+            }
+        } else {
             send_to_char(ch,
-                "You must rest awhile before doing this again.\r\n");
+                         "You must rest awhile before doing this again.\r\n");
+        }
     }
 }
 
@@ -268,14 +283,15 @@ ACMD(do_autopsy)
 
     if (number(30, 151) > GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_AUTOPSY)) {
         send_to_char(ch,
-            "You cannot determine the identity of the killer.\r\n");
+                     "You cannot determine the identity of the killer.\r\n");
         return;
     }
 
-    if (vict)
+    if (vict) {
         name = GET_NAME(vict);
+    }
     send_to_char(ch, "The killer seems to have been %s.\r\n",
-        tmp_capitalize(name));
+                 tmp_capitalize(name));
     gain_skill_prof(ch, SKILL_AUTOPSY);
 }
 
@@ -291,8 +307,9 @@ ACMD(do_ambush)
         return;
     }
 
-    if (!ok_to_attack(ch, vict, true))
+    if (!ok_to_attack(ch, vict, true)) {
         return;
+    }
 
     if (!AFF_FLAGGED(ch, AFF_HIDE)) {
         send_to_char(ch, "You must first be hidden to ambush.\r\n");
@@ -315,8 +332,9 @@ ACMD(do_ambush)
         act("$n springs out from hiding, but $N is ready to fight!",
             true, ch, NULL, vict, TO_NOTVICT);
         WAIT_STATE(ch, 2 RL_SEC);
-        if (IS_NPC(vict))
+        if (IS_NPC(vict)) {
             hit(vict, ch, TYPE_UNDEFINED);
+        }
         return;
     }
 
@@ -326,7 +344,7 @@ ACMD(do_ambush)
         true, ch, NULL, vict, TO_VICT);
     act("$n catches $N completely by surprise with $s ambush!",
         true, ch, NULL, vict, TO_NOTVICT);
-    WAIT_STATE(vict, (CHECK_SKILL(ch, SKILL_AMBUSH) / 30 + 3) RL_SEC);
+    WAIT_STATE(vict, (CHECK_SKILL(ch, SKILL_AMBUSH) / 30 + 3)RL_SEC);
     gain_skill_prof(ch, SKILL_AMBUSH);
     REMOVE_BIT(AFF_FLAGS(ch), AFF_HIDE);
     hit(ch, vict, TYPE_UNDEFINED);

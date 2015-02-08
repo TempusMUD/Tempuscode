@@ -34,8 +34,8 @@
 #include "creature.h"
 #include "char_class.h"
 
-#define YES	1
-#define NO	0
+#define YES 1
+#define NO  0
 
 /*
  * Below are several constants which you can change to alter certain aspects
@@ -267,28 +267,28 @@ int nameserver_is_slow = YES;
 
 const char *GREETINGS[] = {
     ".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-	"\r\n"
-	".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"
-	"          @@@****************************************************@@@\r\n"
-	".   .   . @@* ************************************************** *@@.   .   . \r\n"
-	"          @@* *                     TEMPUS                     * *@@\r\n"
-	".   .   . @@* *                                                * *@@.   .   . \r\n"
-	"          @@* *               the anachronistic                * *@@\r\n"
-	".   .   . @@* *             Multiple User Domain               * *@@.   .   . \r\n"
-	"          @@* *                                                * *@@\r\n"
-	".   .   . @@* *                                                * *@@.   .   . \r\n"
-	"          @@* *     FOUNDATION:  Circle 3.00, Jeremy Elson     * *@@\r\n"
-	".   .   . @@* *       A derivative of DikuMUD (GAMMA 0.0)      * *@@.   .   . \r\n"
-	"          @@* *                                                * *@@\r\n"
-	".   .   . @@* *               Powered by Linux                 * *@@.   .   . \r\n"
-	"          @@* ************************************************** *@@\r\n"
-	".   .   . @@@****************************************************@@@.   .   . \r\n"
-	"           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\n"
-	".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-	"\r\n"
-	".   .   .   .   .   .   . Welcome to the Mothership .   .   .   .   .   .   . \r\n"
-	"\r\n"
-	".   .   .  Please email admin@tempusmud.com with any login problems .   .   . \r\n"
+    "\r\n"
+    ".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"
+    "          @@@****************************************************@@@\r\n"
+    ".   .   . @@* ************************************************** *@@.   .   . \r\n"
+    "          @@* *                     TEMPUS                     * *@@\r\n"
+    ".   .   . @@* *                                                * *@@.   .   . \r\n"
+    "          @@* *               the anachronistic                * *@@\r\n"
+    ".   .   . @@* *             Multiple User Domain               * *@@.   .   . \r\n"
+    "          @@* *                                                * *@@\r\n"
+    ".   .   . @@* *                                                * *@@.   .   . \r\n"
+    "          @@* *     FOUNDATION:  Circle 3.00, Jeremy Elson     * *@@\r\n"
+    ".   .   . @@* *       A derivative of DikuMUD (GAMMA 0.0)      * *@@.   .   . \r\n"
+    "          @@* *                                                * *@@\r\n"
+    ".   .   . @@* *               Powered by Linux                 * *@@.   .   . \r\n"
+    "          @@* ************************************************** *@@\r\n"
+    ".   .   . @@@****************************************************@@@.   .   . \r\n"
+    "           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\n"
+    ".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
+    "\r\n"
+    ".   .   .   .   .   .   . Welcome to the Mothership .   .   .   .   .   .   . \r\n"
+    "\r\n"
+    ".   .   .  Please email admin@tempusmud.com with any login problems .   .   . \r\n"
     ,
     "\r\n"
     ". . . . . . . . . . ./+syhdddddhyo/-`      .   .   .   .   .   .   .   .   .\r\n"

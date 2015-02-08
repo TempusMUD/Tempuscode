@@ -8,8 +8,8 @@
 *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
 ************************************************************************ */
 /******* MUD MAIL SYSTEM MAIN FILE ***************************************
-Written by Jeremy Elson (jelson@cs.jhu.edu)
-Rewritten by John Rothe (forget@tempusmud.com)
+   Written by Jeremy Elson (jelson@cs.jhu.edu)
+   Rewritten by John Rothe (forget@tempusmud.com)
 *************************************************************************/
 //
 // File: mail.c                      -- Part of TempusMUD
@@ -69,8 +69,9 @@ GList *load_mail(char *path);
 bool
 has_mail(long id)
 {
-    if (!player_idnum_exists(id))
+    if (!player_idnum_exists(id)) {
         return 0;
+    }
     return access(get_mail_file_path(id), F_OK) == 0;
 }
 
@@ -80,16 +81,19 @@ can_receive_mail(long id)
     struct stat stat_buf;
 
     // Return false if player doesn't exist
-    if (!player_idnum_exists(id))
+    if (!player_idnum_exists(id)) {
         return false;
+    }
 
     // Return true if file not found, false on any other error
-    if (stat(get_mail_file_path(id), &stat_buf) < 0)
+    if (stat(get_mail_file_path(id), &stat_buf) < 0) {
         return errno == ENOENT;
+    }
 
     // Purge mail if file size has gotten too large
-    if (stat_buf.st_size > MAX_MAILFILE_SIZE)
+    if (stat_buf.st_size > MAX_MAILFILE_SIZE) {
         purge_mail(id);
+    }
 
     return true;
 }
@@ -111,10 +115,12 @@ mail_box_status(long id)
         return 4;
     }
 
-    if (PLR_FLAGGED(victim, PLR_FROZEN))
+    if (PLR_FLAGGED(victim, PLR_FROZEN)) {
         flag = 1;
-    if (PLR2_FLAGGED(victim, PLR2_BURIED))
+    }
+    if (PLR2_FLAGGED(victim, PLR2_BURIED)) {
         flag = 2;
+    }
 
     free_creature(victim);
 
@@ -155,8 +161,9 @@ store_mail(const char *from_name, long to_id, const char *txt, GList *cc_list,
     mail_file_path = get_mail_file_path(to_id);
 
     // If we already have a mail file then we have to read in the mail and write it all back out.
-    if (access(mail_file_path, F_OK) == 0)
+    if (access(mail_file_path, F_OK) == 0) {
         mailBag = load_mail(mail_file_path);
+    }
 
     obj = read_object(MAIL_OBJ_VNUM);
     time_str = asctime(localtime(&now));
@@ -164,15 +171,16 @@ store_mail(const char *from_name, long to_id, const char *txt, GList *cc_list,
 
     acc_string_clear();
     acc_sprintf(" * * * *  Tempus Mail System  * * * *\r\n"
-        "Date: %s\r\n  To: %s\r\nFrom: %s",
-        time_str, player_name_by_idnum(to_id), from_name);
+                "Date: %s\r\n  To: %s\r\nFrom: %s",
+                time_str, player_name_by_idnum(to_id), from_name);
 
     if (cc_list != NULL) {
         GList *si;
 
-        for (si = cc_list; si; si = si->next)
+        for (si = cc_list; si; si = si->next) {
             acc_strcat((si == cc_list) ? "\r\n  CC: " : ", ",
-                ((GString *)si->data)->str, NULL);
+                       ((GString *)si->data)->str, NULL);
+        }
     }
     if (obj_list) {
         acc_strcat("\r\nPackages attached to this mail:\r\n", NULL);
@@ -192,7 +200,7 @@ store_mail(const char *from_name, long to_id, const char *txt, GList *cc_list,
 
     if ((ofile = fopen(mail_file_path, "w")) == NULL) {
         errlog("Unable to open xml mail file '%s': %s",
-            mail_file_path, strerror(errno));
+               mail_file_path, strerror(errno));
         return false;
     } else {
         GList *oi;
@@ -233,7 +241,7 @@ send_mail(struct creature *from,
         cc_list = g_list_prepend(cc_list, g_string_new(name));
     }
 
-    for (GList *it = recipients;it;it = it->next) {
+    for (GList *it = recipients; it; it = it->next) {
         long to_id = GPOINTER_TO_INT(it->data);
         bool sent_this = store_mail(GET_NAME(from), to_id, txt, cc_list, obj_list, error);
         if (sent_this) {
@@ -265,7 +273,7 @@ purge_mail(long idnum)
 
 // Pull the mail out of the players mail file if he has one.
 // Create the "letters" from the file, and plant them on him without
-//     telling him.  We'll let the spec say what it wants.
+// telling him.  We'll let the spec say what it wants.
 // Returns the number of mails received.
 GList *
 receive_mail(struct creature *ch, int *num_letters)
@@ -278,18 +286,20 @@ receive_mail(struct creature *ch, int *num_letters)
 
     GList *mailBag = load_mail(path);
 
-    if (g_list_length(mailBag) > MAIL_BAG_THRESH)
+    if (g_list_length(mailBag) > MAIL_BAG_THRESH) {
         container = read_object(MAIL_BAG_OBJ_VNUM);
+    }
 
     *num_letters = 0;
     for (GList *oi = mailBag; oi; oi = oi->next) {
         struct obj_data *obj = oi->data;
         counter++;
 
-        if (GET_OBJ_VNUM(obj) == MAIL_OBJ_VNUM)
+        if (GET_OBJ_VNUM(obj) == MAIL_OBJ_VNUM) {
             (*num_letters)++;
-        else
+        } else {
             olist = g_list_append(olist, obj);
+        }
 
         if ((counter > MAIL_BAG_OBJ_CONTAINS) && container) {
             obj_to_char(obj, ch);
@@ -303,8 +313,9 @@ receive_mail(struct creature *ch, int *num_letters)
         }
     }
 
-    if (container)
+    if (container) {
         obj_to_char(container, ch);
+    }
 
     unlink(path);
 
@@ -320,7 +331,7 @@ load_mail(char *path)
     if (axs != 0) {
         if (errno != ENOENT) {
             errlog("Unable to open xml mail file '%s': %s",
-                path, strerror(errno));
+                   path, strerror(errno));
             return mailBag;
         } else {
             return mailBag;     // normal no eq file
@@ -373,14 +384,17 @@ SPECIAL(postmaster)
         return 0;
     }
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (!ch || !ch->desc || IS_NPC(ch))
+    if (!ch || !ch->desc || IS_NPC(ch)) {
         return 0;               /* so mobs don't get caught here */
 
-    if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive")))
+    }
+    if (!(CMD_IS("mail") || CMD_IS("check") || CMD_IS("receive"))) {
         return 0;
+    }
 
     if (CMD_IS("mail")) {
         postmaster_send_mail(ch, self, argument);
@@ -391,8 +405,9 @@ SPECIAL(postmaster)
     } else if (CMD_IS("receive")) {
         postmaster_receive_mail(ch, self);
         return 1;
-    } else
+    } else {
         return 0;
+    }
 }
 
 void
@@ -431,19 +446,19 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman, char *args)
         }
     } else {
         GHashTable *unique_names = g_hash_table_new(g_str_hash, g_str_equal);
-        for (;*arg;arg = tmp_getword(&args)) {
+        for (; *arg; arg = tmp_getword(&args)) {
             if (g_hash_table_contains(unique_names, arg)) {
                 perform_tell(mailman, ch,
-                    tmp_sprintf("You seem to have listed %s more than once...", arg));
+                             tmp_sprintf("You seem to have listed %s more than once...", arg));
                 continue;
             }
             g_hash_table_add(unique_names, arg);
             recipient = player_idnum_by_name(arg);
             if (recipient <= 0) {
                 perform_tell(mailman, ch,
-                    tmp_sprintf("No one by the name '%s' is registered here!", arg));
+                             tmp_sprintf("No one by the name '%s' is registered here!", arg));
                 continue;
-            } 
+            }
             status = mail_box_status(recipient);
             if (status > 0) {
                 // 0 is normal
@@ -465,11 +480,12 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman, char *args)
                 }
                 continue;
             }
-            if (recipient == 1) // fireball
+            if (recipient == 1) { // fireball
                 total_cost += 1000000;
-            else
+            } else {
                 total_cost += STAMP_PRICE;
-            
+            }
+
             mail_list = g_list_append(mail_list, GINT_TO_POINTER(recipient));
         }
         g_hash_table_destroy(unique_names);
@@ -493,12 +509,12 @@ postmaster_send_mail(struct creature *ch, struct creature *mailman, char *args)
         }
 
         perform_tell(mailman, ch,
-                 tmp_sprintf("I'll take %'d coins for the postage.", 
-                             total_cost));
+                     tmp_sprintf("I'll take %'d coins for the postage.",
+                                 total_cost));
     }
-        
+
     act("$n starts to write some mail.", true, ch, NULL, NULL, TO_ROOM);
-    
+
     start_editing_mail(ch->desc, mail_list);
 }
 
@@ -509,8 +525,9 @@ postmaster_check_mail(struct creature *ch, struct creature *mailman)
 
     if (has_mail(GET_IDNUM(ch))) {
         strcpy_s(buf2, sizeof(buf2), "You have mail waiting.");
-    } else
+    } else {
         strcpy_s(buf2, sizeof(buf2), "Sorry, you don't have any mail waiting.");
+    }
     perform_tell(mailman, ch, buf2);
 }
 
@@ -535,14 +552,14 @@ postmaster_receive_mail(struct creature *ch, struct creature *mailman)
     } else if (num_mails > MAIL_BAG_THRESH) {
         num_mails = num_mails / MAIL_BAG_OBJ_CONTAINS + 1;
         to_char = tmp_sprintf("$n gives you %d bag%s of mail", num_mails,
-            (num_mails > 1 ? "s" : ""));
+                              (num_mails > 1 ? "s" : ""));
         to_room = tmp_sprintf("$n gives $N %d bag%s of mail", num_mails,
-            (num_mails > 1 ? "s" : ""));
+                              (num_mails > 1 ? "s" : ""));
     } else {
         to_char = tmp_sprintf("$n gives you %d piece%s of mail", num_mails,
-            (num_mails > 1 ? "s" : ""));
+                              (num_mails > 1 ? "s" : ""));
         to_room = tmp_sprintf("$n gives $N %d piece%s of mail", num_mails,
-            (num_mails > 1 ? "s" : ""));
+                              (num_mails > 1 ? "s" : ""));
     }
 
     if (olist) {
@@ -552,7 +569,7 @@ postmaster_receive_mail(struct creature *ch, struct creature *mailman)
             to_room = tmp_strcat(to_room, " and a package.", NULL);
         }
 
-        for (GList * li = olist; li; li = li->next) {
+        for (GList *li = olist; li; li = li->next) {
             struct obj_data *obj = li->data;
             if (!li->next) {
                 to_char = tmp_strcat(to_char, " and ", obj->name, ".", NULL);

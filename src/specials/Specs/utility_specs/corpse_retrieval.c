@@ -22,8 +22,9 @@ SPECIAL(corpse_retrieval)
         return 0;
     }
 
-    if (!CMD_IS("retrieve"))
+    if (!CMD_IS("retrieve")) {
         return 0;
+    }
     if (!can_see_creature(retriever, ch)) {
         perform_say(retriever, "say", "Who's there?  I can't see you.");
         return 1;
@@ -37,15 +38,16 @@ SPECIAL(corpse_retrieval)
     corpse = object_list;
     while (corpse) {
         if (IS_OBJ_TYPE(corpse, ITEM_CONTAINER) && GET_OBJ_VAL(corpse, 3)
-            && CORPSE_IDNUM(corpse) == GET_IDNUM(ch))
+            && CORPSE_IDNUM(corpse) == GET_IDNUM(ch)) {
             break;
+        }
         corpse = corpse->next;
     }
 
     if (!corpse) {
         perform_tell(retriever, ch,
-            tmp_sprintf("Sorry %s, I cannot locate your corpse.",
-                PERS(ch, retriever)));
+                     tmp_sprintf("Sorry %s, I cannot locate your corpse.",
+                                 PERS(ch, retriever)));
         return 1;
     }
 
@@ -66,8 +68,8 @@ SPECIAL(corpse_retrieval)
 
     if (price > amt_carried) {
         perform_tell(retriever, ch,
-            tmp_sprintf("You don't have enough money.  It costs %d %s.",
-                price, currency));
+                     tmp_sprintf("You don't have enough money.  It costs %d %s.",
+                                 price, currency));
         return 1;
     }
 
@@ -79,43 +81,44 @@ SPECIAL(corpse_retrieval)
     if (corpse->in_room) {
         if (corpse->in_room == retriever->in_room) {
             perform_tell(retriever, ch,
-                "You fool.  It's already in this room!");
+                         "You fool.  It's already in this room!");
             return 1;
         }
         if (ROOM_FLAGGED(corpse->in_room, ROOM_NORECALL) ||
             (corpse->in_room->zone != ch->in_room->zone &&
-                (ZONE_FLAGGED(corpse->in_room->zone, ZONE_ISOLATED)
-                    || ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)))) {
+             (ZONE_FLAGGED(corpse->in_room->zone, ZONE_ISOLATED)
+              || ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)))) {
             send_to_char(ch, "Your corpse cannot be located!\r\n");
             return 1;
         }
         act("$p disappears with a flash!", true, NULL, corpse, NULL, TO_ROOM);
         obj_from_room(corpse);
-    } else if (corpse->in_obj)
+    } else if (corpse->in_obj) {
         obj_from_obj(corpse);
-    else if (corpse->carried_by) {
+    } else if (corpse->carried_by) {
         act("$p disappears out of your hands!",
             false, corpse->carried_by, corpse, NULL, TO_CHAR);
         obj_from_char(corpse);
     } else if (corpse->worn_by) {
         act("$p disappears off of your body!",
             false, corpse->worn_by, corpse, NULL, TO_CHAR);
-        if (corpse == GET_EQ(corpse->worn_by, corpse->worn_on))
+        if (corpse == GET_EQ(corpse->worn_by, corpse->worn_on)) {
             unequip_char(corpse->worn_by, corpse->worn_on, EQUIP_WORN);
-        else if (corpse == GET_IMPLANT(corpse->worn_by, corpse->worn_on))
+        } else if (corpse == GET_IMPLANT(corpse->worn_by, corpse->worn_on)) {
             unequip_char(corpse->worn_by, corpse->worn_on, EQUIP_IMPLANT);
-        else if (corpse == GET_TATTOO(corpse->worn_by, corpse->worn_on))
+        } else if (corpse == GET_TATTOO(corpse->worn_by, corpse->worn_on)) {
             unequip_char(corpse->worn_by, corpse->worn_on, EQUIP_TATTOO);
-        else
+        } else {
             errlog("Can't happen");
+        }
     } else {
         perform_tell(retriever, ch,
-            "I'm sorry, your corpse has shifted out of the universe.");
+                     "I'm sorry, your corpse has shifted out of the universe.");
         return 1;
     }
 
     snprintf(buf2, sizeof(buf2), "Very well.  I will retrieve your corpse for %d %s.",
-        price, currency);
+             price, currency);
     perform_tell(retriever, ch, buf2);
     obj_to_char(corpse, ch);
 

@@ -37,33 +37,36 @@
 void
 do_pre_test(struct creature *ch)
 {
-	struct obj_data *obj = NULL, *next_obj = NULL;
+    struct obj_data *obj = NULL, *next_obj = NULL;
 
-	for (obj = ch->carrying; obj; obj = next_obj) {
-		next_obj = obj->next_content;
-		extract_obj(obj);
-	}
+    for (obj = ch->carrying; obj; obj = next_obj) {
+        next_obj = obj->next_content;
+        extract_obj(obj);
+    }
 
-	for (int i = 0; i < NUM_WEARS; i++) {
-		if ((obj = GET_EQ(ch, i))) {
-			extract_obj(GET_EQ(ch, i));
-		}
-	}
+    for (int i = 0; i < NUM_WEARS; i++) {
+        if ((obj = GET_EQ(ch, i))) {
+            extract_obj(GET_EQ(ch, i));
+        }
+    }
 
-	while (ch->affected)
-		   affect_remove(ch, ch->affected);
+    while (ch->affected) {
+        affect_remove(ch, ch->affected);
+    }
 
-	for (obj = ch->in_room->contents; obj; obj = next_obj) {
-		 next_obj = obj->next_content;
-		 extract_obj(obj);
-	}
+    for (obj = ch->in_room->contents; obj; obj = next_obj) {
+        next_obj = obj->next_content;
+        extract_obj(obj);
+    }
 
-	if (GET_COND(ch, FULL) >= 0)
-		GET_COND(ch, FULL) = 24;
-	if (GET_COND(ch, THIRST) >= 0)
-		GET_COND(ch, THIRST) = 24;
+    if (GET_COND(ch, FULL) >= 0) {
+        GET_COND(ch, FULL) = 24;
+    }
+    if (GET_COND(ch, THIRST) >= 0) {
+        GET_COND(ch, THIRST) = 24;
+    }
 
-	SET_BIT(ch->in_room->room_flags, ROOM_NORECALL);
+    SET_BIT(ch->in_room->room_flags, ROOM_NORECALL);
 }
 
 int
@@ -72,17 +75,18 @@ do_pass_remort_test(struct creature *ch)
     int i;
 
     // Wipe thier skills
-    for (i = 1; i <= MAX_SKILLS; i++)
+    for (i = 1; i <= MAX_SKILLS; i++) {
         SET_SKILL(ch, i, 0);
+    }
 
     do_start(ch, false);
 
     REMOVE_BIT(PRF_FLAGS(ch),
-        PRF_NOPROJECT | PRF_ROOMFLAGS | PRF_HOLYLIGHT | PRF_NOHASSLE |
-        PRF_LOG1 | PRF_LOG2 | PRF_NOWIZ);
+               PRF_NOPROJECT | PRF_ROOMFLAGS | PRF_HOLYLIGHT | PRF_NOHASSLE |
+               PRF_LOG1 | PRF_LOG2 | PRF_NOWIZ);
 
     REMOVE_BIT(PLR_FLAGS(ch), PLR_HALT | PLR_INVSTART | PLR_MORTALIZED |
-        PLR_OLCGOD);
+               PLR_OLCGOD);
 
     GET_INVIS_LVL(ch) = 0;
     GET_COND(ch, DRUNK) = 0;
@@ -90,21 +94,23 @@ do_pass_remort_test(struct creature *ch)
     GET_COND(ch, THIRST) = 0;
 
     // Give em another gen
-    if (GET_REMORT_GEN(ch) == 10)
+    if (GET_REMORT_GEN(ch) == 10) {
         account_set_quest_points(ch->account, ch->account->quest_points + 1);
-    else
+    } else {
         GET_REMORT_GEN(ch)++;
+    }
 
     // At gen 1 they enter the world of pk, like it or not
-    if (GET_REMORT_GEN(ch) >= 1 && RAW_REPUTATION_OF(ch) <= 0)
+    if (GET_REMORT_GEN(ch) >= 1 && RAW_REPUTATION_OF(ch) <= 0) {
         gain_reputation(ch, 5);
+    }
     // Whack thier remort invis
     GET_WIMP_LEV(ch) = 0;       // wimpy
     GET_TOT_DAM(ch) = 0;        // cyborg damage
 
     // Tell everyone that they remorted
     char *msg = tmp_sprintf("%s completed gen %d remort test",
-        GET_NAME(ch), GET_REMORT_GEN(ch));
+                            GET_NAME(ch), GET_REMORT_GEN(ch));
     mudlog(LVL_IMMORT, BRF, false, "%s", msg);
 
     REMOVE_BIT(ch->in_room->room_flags, ROOM_NORECALL);
@@ -120,10 +126,12 @@ SPECIAL(remorter)
     int value, level, i = 0;
     bool equip_found = false;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
-    if (!cmd)
+    }
+    if (!cmd) {
         return 0;
+    }
 
     if (CMD_IS("help") && GET_LEVEL(ch) >= LVL_IMMORT) {
         send_to_char(ch, "Valid Commands:\r\n");
@@ -132,15 +140,17 @@ SPECIAL(remorter)
         return 1;
     }
 
-    if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT)
+    if (IS_NPC(ch) || GET_LEVEL(ch) >= LVL_IMMORT) {
         return 0;
+    }
 
     if (GET_EXP(ch) < exp_scale[LVL_AMBASSADOR] ||
         GET_LEVEL(ch) < (LVL_AMBASSADOR - 1)) {
         send_to_char(ch, "Piss off.  Come back when you are bigger.\r\n");
         struct room_data *room = player_loadroom(ch);
-        if (room == NULL)
+        if (room == NULL) {
             room = real_room(3061); // modrian dump
+        }
         act("$n disappears in a mushroom cloud.", false, ch, NULL, NULL, TO_ROOM);
         char_from_room(ch, false);
         char_to_room(ch, room, false);
@@ -156,23 +166,25 @@ SPECIAL(remorter)
 
     if (!*arg1) {
         send_to_char(ch,
-            "You must say 'remort' to begin or 'reconsider' to leave.\r\n");
+                     "You must say 'remort' to begin or 'reconsider' to leave.\r\n");
         return 1;
     }
 
     if (!equip_found) {
         equip_found = false;
-        for (i = 0; i < NUM_WEARS; i++)
+        for (i = 0; i < NUM_WEARS; i++) {
             if (GET_EQ(ch, i)) {
                 equip_found = true;
             }
+        }
     }
 
     if (isname_exact(arg1, "reconsider")) {
         struct room_data *room = player_loadroom(ch);
-        if (room == NULL)
+        if (room == NULL) {
             room = real_room(3061); // modrian dump
 
+        }
         if (room == NULL) {
             send_to_char(ch, "There is nowhere to send you.\r\n");
             return 1;
@@ -190,14 +202,14 @@ SPECIAL(remorter)
         }
     } else if (!isname_exact(arg1, "remort")) {
         send_to_char(ch,
-            "You must say 'remort' to begin or 'reconsider' to leave.\r\n");
+                     "You must say 'remort' to begin or 'reconsider' to leave.\r\n");
         return 1;
     } else if ((ch->carrying || (equip_found)) &&
-        strncasecmp(argument, "yes", 3)) {
+               strncasecmp(argument, "yes", 3)) {
         send_to_char(ch,
-                "If you remort now, you will lose the items you are carrying.\r\n"
-                "Say 'reconsider' if you need leave and store items.\r\n"
-                "Say 'remort yes' if you still wish to remort.\r\n");
+                     "If you remort now, you will lose the items you are carrying.\r\n"
+                     "Say 'reconsider' if you need leave and store items.\r\n"
+                     "Say 'remort yes' if you still wish to remort.\r\n");
         return 1;
     }
 
@@ -207,11 +219,11 @@ SPECIAL(remorter)
 
     if (value < level * 5000000) {
         send_to_char(ch,
-            "You do not have sufficient sacrifice to do this.\r\n");
+                     "You do not have sufficient sacrifice to do this.\r\n");
         send_to_char(ch,
-            "The required sacrifice must be worth %'d coins.\r\n"
-            "You have only brought a %'d coin value.\r\n", level * 5000000,
-            value);
+                     "The required sacrifice must be worth %'d coins.\r\n"
+                     "You have only brought a %'d coin value.\r\n", level * 5000000,
+                     value);
         return 1;
     }
 

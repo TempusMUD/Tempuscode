@@ -8,11 +8,13 @@ SPECIAL(djinn_lamp)
 {
     struct obj_data *lamp = (struct obj_data *)me;
     struct creature *djinn = NULL;
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if ((!CMD_IS("rub") && !CMD_IS("clean")))
+    if ((!CMD_IS("rub") && !CMD_IS("clean"))) {
         return 0;
+    }
 
     act("$n rubs $p.", false, ch, lamp, NULL, TO_ROOM);
     act("You rub $p.", false, ch, lamp, NULL, TO_CHAR);

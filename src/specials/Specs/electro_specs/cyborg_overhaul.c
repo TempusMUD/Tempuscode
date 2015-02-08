@@ -10,12 +10,13 @@ SPECIAL(cyborg_overhaul)
     struct creature *borg = (struct creature *)me;
     int cost;
 
-    if (!cmd || (!CMD_IS("buy") && !CMD_IS("value")))
+    if (!cmd || (!CMD_IS("buy") && !CMD_IS("value"))) {
         return 0;
+    }
 
     if (!IS_CYBORG(ch)) {
         perform_tell(borg, ch,
-            "I am not programmed to deal with non-cyborgs.");
+                     "I am not programmed to deal with non-cyborgs.");
         return 1;
     }
 
@@ -23,8 +24,9 @@ SPECIAL(cyborg_overhaul)
 
     if (!strcasecmp(argument, "overhaul")) {
         cost = GET_TOT_DAM(ch);
-        if (GET_BROKE(ch))
+        if (GET_BROKE(ch)) {
             cost += GET_LEVEL(ch) * 100;
+        }
 
         cost = adjusted_price(ch, borg, cost);
 
@@ -107,7 +109,7 @@ SPECIAL(cyborg_overhaul)
 
     if (GET_NPC_SPEC(borg) == cyborg_overhaul) {
         send_to_char(ch, "You may 'buy overhaul', 'buy repairs',\r\n"
-            "'value overhaul', or 'value repairs'.\r\n");
+                         "'value overhaul', or 'value repairs'.\r\n");
         return 1;
     }
 

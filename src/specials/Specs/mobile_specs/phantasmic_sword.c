@@ -12,26 +12,29 @@ SPECIAL(phantasmic_sword)
 
     init_affect(&af);
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     if (is_fighting(ch)) {
         if (!number(0, 8)) {
             act("$n starts to emit a piercing whine!", false, ch, NULL, NULL,
                 TO_ROOM);
             af.type = SPELL_STRENGTH;
-            if (!AFF_FLAGGED(ch, AFF_ADRENALINE))
+            if (!AFF_FLAGGED(ch, AFF_ADRENALINE)) {
                 af.bitvector = AFF_ADRENALINE;
-            else if (!AFF2_FLAGGED(ch, AFF2_HASTE)) {
+            } else if (!AFF2_FLAGGED(ch, AFF2_HASTE)) {
                 af.bitvector = AFF2_HASTE;
                 af.aff_index = 2;
-            } else
+            } else {
                 af.bitvector = 0;
+            }
             af.modifier = 1;
             af.location = APPLY_STR;
             af.duration = 2;
             af.owner = GET_IDNUM(self);
-            if (GET_STR(ch) > 21)
+            if (GET_STR(ch) > 21) {
                 return 1;
+            }
             affect_to_char(ch, &af);
             return 1;
         }
@@ -40,25 +43,27 @@ SPECIAL(phantasmic_sword)
 
         if ((!(mast = ch->master) || !AFF_FLAGGED(ch, AFF_CHARM))
             && !is_fighting(ch)) {
-            if (ch->in_room == NULL)
+            if (ch->in_room == NULL) {
                 return 0;
+            }
             if (!number(0, 4)) {
                 act("$n departs for the ethereal plane!", true, ch, NULL, NULL,
                     TO_ROOM);
                 creature_purge(ch, true);
                 return 1;
-            } else
+            } else {
                 return 0;
+            }
         }
 
         if (AWAKE(ch)) {
-            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+            for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
                 struct creature *tch = it->data;
                 if (tch != ch && IS_NPC(tch) &&
                     GET_NPC_VNUM(ch) == GET_NPC_VNUM((tch)) &&
                     !(number(0, GET_LEVEL(mast) +
                              (GET_CHA(mast) >> (mast->in_room != ch->in_room))))) {
-                    //set_fighting(ch, tch, true);
+                    // set_fighting(ch, tch, true);
                     add_combat(ch, tch, true);
                     add_combat(tch, ch, false);
                     return 0;
@@ -66,8 +71,9 @@ SPECIAL(phantasmic_sword)
             }
 
         }
-        if (mast->in_room != ch->in_room)
+        if (mast->in_room != ch->in_room) {
             return 0;
+        }
 
         switch (number(0, 70)) {
         case 0:

@@ -17,16 +17,19 @@ SPECIAL(languagemaster)
 
     cost = adjusted_price(ch, master, cost);
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
+    }
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return 0;
+    }
 
-    if (CMD_IS("offer"))
+    if (CMD_IS("offer")) {
         check_only = 1;
-    else if (!(CMD_IS("learn") || CMD_IS("practice") || CMD_IS("train")))
+    } else if (!(CMD_IS("learn") || CMD_IS("practice") || CMD_IS("train"))) {
         return 0;
+    }
 
     skip_spaces(&argument);
 
@@ -39,7 +42,7 @@ SPECIAL(languagemaster)
 
     if (tongue_idx == TONGUE_NONE || CHECK_TONGUE(master, tongue_idx) < 100) {
         perform_tell(master, ch,
-            "I'm sorry, but I can't teach that language.");
+                     "I'm sorry, but I can't teach that language.");
         return 1;
     }
 
@@ -49,16 +52,17 @@ SPECIAL(languagemaster)
     }
 
     send_to_char(ch,
-        "It will cost you %'d gold coins to learn to speak %s%s\r\n", cost,
-        tongue_name(tongue_idx),
-        cost > GET_GOLD(ch) ? ", which I see you don't have." : ".");
+                 "It will cost you %'d gold coins to learn to speak %s%s\r\n", cost,
+                 tongue_name(tongue_idx),
+                 cost > GET_GOLD(ch) ? ", which I see you don't have." : ".");
 
-    if (check_only || cost > GET_GOLD(ch))
+    if (check_only || cost > GET_GOLD(ch)) {
         return 1;
+    }
 
     GET_GOLD(ch) -= cost;
     SET_TONGUE(ch, tongue_idx,
-        CHECK_TONGUE(ch, tongue_idx) + number(3, GET_INT(ch)));
+               CHECK_TONGUE(ch, tongue_idx) + number(3, GET_INT(ch)));
 
     act(tmp_sprintf("Your fluency in %s increases!", tongue_name(tongue_idx)),
         false, ch, NULL, NULL, TO_CHAR);

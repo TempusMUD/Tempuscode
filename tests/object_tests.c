@@ -95,7 +95,6 @@ START_TEST(test_obj_to_from_obj)
     fail_unless(GET_OBJ_WEIGHT(obj_b) == 15);
 }
 END_TEST
-
 START_TEST(test_obj_to_from_char)
 {
     struct obj_data *obj_a = make_object();
@@ -113,7 +112,6 @@ START_TEST(test_obj_to_from_char)
     fail_unless(IS_CARRYING_N(ch) == 0);
 }
 END_TEST
-
 START_TEST(test_obj_to_from_carried)
 {
     struct obj_data *obj_a = make_object();

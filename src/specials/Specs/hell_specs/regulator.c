@@ -9,11 +9,13 @@
 SPECIAL(hell_regulator)
 {
     struct creature *vict = NULL, *devil = NULL;
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd)
+    if (cmd) {
         return 0;
+    }
 
     if (GET_MANA(ch) < 100) {
         if (!ZONE_IS_HELL(ch->in_room->zone)) {
@@ -27,8 +29,9 @@ SPECIAL(hell_regulator)
 
     for (GList *cit = first_living(ch->in_room->people); cit; cit = next_living(cit)) {
         vict = cit->data;
-        if (vict == ch)
+        if (vict == ch) {
             continue;
+        }
 
         // REGULATOR doesn't want anyone attacking him
         if (g_list_find(vict->fighting, ch)) {
@@ -51,8 +54,9 @@ SPECIAL(hell_regulator)
 
             remove_combat(vict, ch);
             hit(devil, vict, TYPE_UNDEFINED);
-            if (!is_dead(vict))
+            if (!is_dead(vict)) {
                 WAIT_STATE(vict, 1 RL_SEC);
+            }
 
             return 1;
         }

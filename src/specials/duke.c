@@ -81,14 +81,15 @@ member_of_staff(struct creature *chChar)
 {
     int ch_num;
 
-    if (!IS_NPC(chChar))
+    if (!IS_NPC(chChar)) {
         return (false);
+    }
 
     ch_num = GET_NPC_VNUM(chChar);
     return (ch_num == CASTLE_ITEM(1) ||
-        (ch_num > CASTLE_ITEM(2) && ch_num < CASTLE_ITEM(15)) ||
-        (ch_num > CASTLE_ITEM(15) && ch_num < CASTLE_ITEM(18)) ||
-        (ch_num > CASTLE_ITEM(18) && ch_num < CASTLE_ITEM(30)));
+            (ch_num > CASTLE_ITEM(2) && ch_num < CASTLE_ITEM(15)) ||
+            (ch_num > CASTLE_ITEM(15) && ch_num < CASTLE_ITEM(18)) ||
+            (ch_num > CASTLE_ITEM(18) && ch_num < CASTLE_ITEM(30)));
 }
 
 /* Function member_of_royal_guard */
@@ -99,14 +100,15 @@ member_of_royal_guard(struct creature *chChar)
 {
     int ch_num;
 
-    if (!chChar || !IS_NPC(chChar))
+    if (!chChar || !IS_NPC(chChar)) {
         return false;
+    }
 
     ch_num = GET_NPC_VNUM(chChar);
     return (ch_num == CASTLE_ITEM(3) ||
-        ch_num == CASTLE_ITEM(6) ||
-        (ch_num > CASTLE_ITEM(7) && ch_num < CASTLE_ITEM(12)) ||
-        (ch_num > CASTLE_ITEM(23) && ch_num < CASTLE_ITEM(26)));
+            ch_num == CASTLE_ITEM(6) ||
+            (ch_num > CASTLE_ITEM(7) && ch_num < CASTLE_ITEM(12)) ||
+            (ch_num > CASTLE_ITEM(23) && ch_num < CASTLE_ITEM(26)));
 }
 
 /* Function find_npc_by_name */
@@ -115,11 +117,13 @@ member_of_royal_guard(struct creature *chChar)
 struct creature *
 find_npc_by_name(struct creature *chAtChar, const char *pszName, int iLen)
 {
-    for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
+    for (GList *cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if (IS_NPC(tch))
-            if (!strncmp(pszName, tch->player.short_descr, iLen))
+        if (IS_NPC(tch)) {
+            if (!strncmp(pszName, tch->player.short_descr, iLen)) {
                 return tch;
+            }
+        }
     }
     return NULL;
 }
@@ -131,10 +135,11 @@ struct creature *
 find_guard(struct creature *chAtChar)
 {
 
-    for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
+    for (GList *cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if (!is_fighting(tch) && member_of_royal_guard(tch))
+        if (!is_fighting(tch) && member_of_royal_guard(tch)) {
             return tch;
+        }
     }
     return NULL;
 }
@@ -148,25 +153,29 @@ get_victim(struct creature *chAtChar)
 {
 
     int iNum_bad_guys = 0, iVictim;
-    for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
+    for (GList *cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if (is_fighting(tch) && member_of_staff(random_opponent(tch)))
+        if (is_fighting(tch) && member_of_staff(random_opponent(tch))) {
             iNum_bad_guys++;
+        }
     }
-    if (!iNum_bad_guys)
+    if (!iNum_bad_guys) {
         return NULL;
+    }
 
     iVictim = number(0, iNum_bad_guys); /* How nice, we give them a chance */
-    if (!iVictim)
+    if (!iVictim) {
         return NULL;
+    }
 
     iNum_bad_guys = 0;
-    for (GList * cit = chAtChar->in_room->people; cit; cit = cit->next) {
+    for (GList *cit = chAtChar->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
         if (is_fighting(tch) &&
             member_of_staff(random_opponent(tch)) &&
-            ++iNum_bad_guys == iVictim)
+            ++iNum_bad_guys == iVictim) {
             return tch;
+        }
     }
     return NULL;
 }
@@ -180,8 +189,9 @@ banzaii(struct creature *ch)
 
     struct creature *chOpponent = NULL;
 
-    if (!AWAKE(ch) || GET_POSITION(ch) == POS_FIGHTING)
+    if (!AWAKE(ch) || GET_POSITION(ch) == POS_FIGHTING) {
         return false;
+    }
 
     if ((chOpponent = get_victim(ch))) {
         act("$n roars: 'Protect the Duchy of the Great Duke Araken!  BANZAIIII!!!'", false, ch, NULL, NULL, TO_ROOM);
@@ -199,14 +209,16 @@ do_npc_rescue(struct creature *ch_hero, struct creature *ch_victim)
 {
 
     struct creature *ch_bad_guy = NULL;
-    for (GList * cit = ch_hero->in_room->people; cit; cit = cit->next) {
+    for (GList *cit = ch_hero->in_room->people; cit; cit = cit->next) {
         struct creature *tch = cit->data;
-        if (g_list_find(tch->fighting, ch_victim))
+        if (g_list_find(tch->fighting, ch_victim)) {
             ch_bad_guy = tch;
+        }
     }
     if (ch_bad_guy) {
-        if (ch_bad_guy == ch_hero)
+        if (ch_bad_guy == ch_hero) {
             return false;       /* NO WAY I'll rescue the one I'm fighting! */
+        }
         act("You bravely rescue $N.\r\n", false, ch_hero, NULL, ch_victim,
             TO_CHAR);
         act("You are rescued by $N, your loyal friend!\r\n", false, ch_victim,
@@ -228,20 +240,23 @@ do_npc_rescue(struct creature *ch_hero, struct creature *ch_victim)
 /* Used by Tim/Tom at Kings bedroom */
 int
 block_way(struct creature *ch, struct creature *guard, int cmd,
-    int iIn_room, int iProhibited_direction)
+          int iIn_room, int iProhibited_direction)
 {
 
     if (cmd != ++iProhibited_direction || (ch->player.short_descr &&
-            !strncmp(ch->player.short_descr, "Duke Araken", 11)))
+                                           !strncmp(ch->player.short_descr, "Duke Araken", 11))) {
         return false;
+    }
 
-    if (!can_see_creature(guard, ch) || !AWAKE(guard))
+    if (!can_see_creature(guard, ch) || !AWAKE(guard)) {
         return false;
+    }
 
     if ((ch->in_room == real_room(iIn_room)) && (cmd == iProhibited_direction)) {
-        if (!member_of_staff(ch))
+        if (!member_of_staff(ch)) {
             act("$N roars at $n and pushes $m back.",
                 false, ch, NULL, guard, TO_ROOM);
+        }
         act("$N roars: 'Entrance is Prohibited!', and pushes you back.", false,
             ch, NULL, guard, TO_CHAR);
         return (true);
@@ -255,16 +270,16 @@ int
 is_trash(struct obj_data *i)
 {
     // don't get sigilized items
-    if (GET_OBJ_SIGIL_IDNUM(i))
+    if (GET_OBJ_SIGIL_IDNUM(i)) {
         return false;
-    else if (GET_OBJ_VNUM(i) == QUAD_VNUM)
+    } else if (GET_OBJ_VNUM(i) == QUAD_VNUM) {
         return false;
-
-    else if (IS_SET(i->obj_flags.wear_flags, ITEM_WEAR_TAKE) &&
-        ((IS_OBJ_TYPE(i, ITEM_DRINKCON)) || (GET_OBJ_COST(i) <= 50)))
+    } else if (IS_SET(i->obj_flags.wear_flags, ITEM_WEAR_TAKE) &&
+               ((IS_OBJ_TYPE(i, ITEM_DRINKCON)) || (GET_OBJ_COST(i) <= 50))) {
         return true;
-    else
+    } else {
         return false;
+    }
 }
 
 /* Function fry_victim */
@@ -276,13 +291,15 @@ fry_victim(struct creature *ch)
 
     struct creature *tch;
 
-    if (ch->points.mana < 10)
+    if (ch->points.mana < 10) {
         return;
+    }
 
     /* Find someone suitable to fry ! */
 
-    if (!(tch = get_victim(ch)))
+    if (!(tch = get_victim(ch))) {
         return;
+    }
 
     switch (number(0, 8)) {
     case 1:
@@ -308,14 +325,14 @@ fry_victim(struct creature *ch)
         cast_spell(ch, tch, NULL, NULL, SPELL_FIREBALL);
         break;
     default:
-        if (!number(0, 1))
+        if (!number(0, 1)) {
             cast_spell(ch, ch, NULL, NULL, SPELL_HEAL);
+        }
         break;
     }
 
     ch->points.mana -= 10;
 
-    return;
 }
 
 SPECIAL(duke_araken)
@@ -340,8 +357,9 @@ SPECIAL(duke_araken)
     static int index;
     static bool move = false;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     set_local_time(ch->in_room->zone, &local_time);
 
     if (!move) {
@@ -350,29 +368,32 @@ SPECIAL(duke_araken)
             path = throne_path;
             index = 0;
         } else if (local_time.hours == 21
-            && ch->in_room == R_ROOM(Z_DUKES_C, 17)) {
+                   && ch->in_room == R_ROOM(Z_DUKES_C, 17)) {
             move = true;
             path = bedroom_path;
             index = 0;
         } else if (local_time.hours == 12
-            && ch->in_room == R_ROOM(Z_DUKES_C, 17)) {
+                   && ch->in_room == R_ROOM(Z_DUKES_C, 17)) {
             move = true;
             path = monolog_path;
             index = 0;
         }
     }
     if (cmd || (GET_POSITION(ch) < POS_SLEEPING) ||
-        (GET_POSITION(ch) == POS_SLEEPING && !move))
+        (GET_POSITION(ch) == POS_SLEEPING && !move)) {
         return false;
+    }
 
     if (GET_POSITION(ch) == POS_FIGHTING) {
         fry_victim(ch);
         return false;
-    } else if (banzaii(ch))
+    } else if (banzaii(ch)) {
         return false;
+    }
 
-    if (!move)
+    if (!move) {
         return false;
+    }
 
     switch (path[index]) {
     case '0':
@@ -450,14 +471,17 @@ SPECIAL(training_master)
 
     struct creature *pupil1, *pupil2, *tch;
 
-    if (spec_mode == SPECIAL_TICK)
+    if (spec_mode == SPECIAL_TICK) {
         return 0;
+    }
 
-    if (!AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
+    if (!AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING)) {
         return false;
+    }
 
-    if (cmd)
+    if (cmd) {
         return false;
+    }
 
     if (!banzaii(ch) && !number(0, 2)) {
         if ((pupil1 = find_npc_by_name(ch, "Brian", 5)) &&
@@ -535,7 +559,7 @@ SPECIAL(training_master)
                 break;
             default:
                 send_to_char(ch,
-                    "You show your pupils an advanced technique.");
+                             "You show your pupils an advanced technique.");
                 act("$n shows $s pupils an advanced technique.", false, ch, NULL,
                     NULL, TO_ROOM);
                 break;
@@ -551,26 +575,34 @@ SPECIAL(tom)
     struct creature *tom = (struct creature *)me;
     struct creature *king, *tim;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     ACMD(do_follow);
 
-    if (!AWAKE(ch))
+    if (!AWAKE(ch)) {
         return false;
+    }
 
     if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
-        if (!ch->master)
+        if (!ch->master) {
             do_follow(ch, tmp_strdup("Duke Araken"), 0, 0);
-        if (is_fighting(king))
+        }
+        if (is_fighting(king)) {
             do_npc_rescue(ch, king);
+        }
     }
-    if (!cmd)
-        if ((tim = find_npc_by_name(ch, "Tim", 3)))
-            if (is_fighting(tim) && 2 * GET_HIT(tim) < GET_HIT(ch))
+    if (!cmd) {
+        if ((tim = find_npc_by_name(ch, "Tim", 3))) {
+            if (is_fighting(tim) && 2 * GET_HIT(tim) < GET_HIT(ch)) {
                 do_npc_rescue(ch, tim);
+            }
+        }
+    }
 
-    if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
+    if (!cmd && GET_POSITION(ch) != POS_FIGHTING) {
         banzaii(ch);
+    }
 
     return block_way(ch, tom, cmd, CASTLE_ITEM(49), 1);
 }
@@ -581,26 +613,34 @@ SPECIAL(tim)
     struct creature *tim = (struct creature *)me;
     struct creature *king, *tom;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     ACMD(do_follow);
 
-    if (!AWAKE(ch))
+    if (!AWAKE(ch)) {
         return false;
+    }
 
     if ((!cmd) && (king = find_npc_by_name(ch, "Duke Araken", 11))) {
-        if (!ch->master)
+        if (!ch->master) {
             do_follow(ch, tmp_strdup("Duke Araken"), 0, 0);
-        if (is_fighting(king))
+        }
+        if (is_fighting(king)) {
             do_npc_rescue(ch, king);
+        }
     }
-    if (!cmd)
-        if ((tom = find_npc_by_name(ch, "Tom", 3)))
-            if (is_fighting(tom) && 2 * GET_HIT(tom) < GET_HIT(ch))
+    if (!cmd) {
+        if ((tom = find_npc_by_name(ch, "Tom", 3))) {
+            if (is_fighting(tom) && 2 * GET_HIT(tom) < GET_HIT(ch)) {
                 do_npc_rescue(ch, tom);
+            }
+        }
+    }
 
-    if (!cmd && GET_POSITION(ch) != POS_FIGHTING)
+    if (!cmd && GET_POSITION(ch) != POS_FIGHTING) {
         banzaii(ch);
+    }
 
     return block_way(ch, tim, cmd, CASTLE_ITEM(49), 1);
 }
@@ -612,10 +652,12 @@ SPECIAL(James)
 
     struct obj_data *i;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
+    }
+    if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING)) {
         return (false);
+    }
 
     for (i = ch->in_room->contents; i; i = i->next_content) {
         if (is_trash(i)) {
@@ -636,11 +678,13 @@ SPECIAL(cleaning)
 {
     struct obj_data *i, *next;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || !AWAKE(ch))
+    if (cmd || !AWAKE(ch)) {
         return 0;
+    }
 
     for (i = ch->in_room->contents; i; i = next) {
         next = i->next_content;
@@ -659,21 +703,25 @@ SPECIAL(cleaning)
 SPECIAL(CastleGuard)
 {
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
+    }
+    if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING)) {
         return false;
+    }
 
     return (banzaii(ch));
 }
 
 SPECIAL(sleeping_soldier)
 {
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || (GET_POSITION(ch) == POS_FIGHTING))
+    }
+    if (cmd || (GET_POSITION(ch) == POS_FIGHTING)) {
         return false;
-    if (!AWAKE(ch))
+    }
+    if (!AWAKE(ch)) {
         switch (number(0, 60)) {
         case 0:
             act("$n farts in $s sleep.", false, ch, NULL, NULL, TO_ROOM);
@@ -692,18 +740,22 @@ SPECIAL(sleeping_soldier)
             act("$n drools all over the place.", true, ch, NULL, NULL, TO_ROOM);
             break;
         }
-    if (!AWAKE(ch))
+    }
+    if (!AWAKE(ch)) {
         return 0;
+    }
 
     return (banzaii(ch));
 }
 
 SPECIAL(lounge_soldier)
 {
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
+    }
+    if (cmd || !AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING)) {
         return false;
+    }
 
     switch (number(0, 60)) {
     case 0:
@@ -752,13 +804,16 @@ SPECIAL(armory_person)
 {
 
     struct creature *guard = (struct creature *)me;
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (!cmd || IS_NPC(ch))
+    }
+    if (!cmd || IS_NPC(ch)) {
         return false;
+    }
 
-    if (!can_see_creature(guard, ch) || is_fighting(guard))
+    if (!can_see_creature(guard, ch) || is_fighting(guard)) {
         return false;
+    }
 
     act("$n screams, 'This is a RESTRICTED AREA!!!'", false, guard, NULL, NULL,
         TO_ROOM);
@@ -774,15 +829,18 @@ SPECIAL(peter)
 
     struct creature *ch_guard;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !AWAKE(ch) || GET_POSITION(ch) == POS_FIGHTING)
+    }
+    if (cmd || !AWAKE(ch) || GET_POSITION(ch) == POS_FIGHTING) {
         return (false);
+    }
 
-    if (banzaii(ch))
+    if (banzaii(ch)) {
         return false;
+    }
 
-    if (!(number(0, 3)) && (ch_guard = find_guard(ch)))
+    if (!(number(0, 3)) && (ch_guard = find_guard(ch))) {
         switch (number(0, 5)) {
         case 0:
             act("$N comes sharply into attention as $n inspects $M.",
@@ -830,6 +888,7 @@ SPECIAL(peter)
             act("You growl at $N.", false, ch, NULL, ch_guard, TO_CHAR);
             break;
         }
+    }
 
     return false;
 }
@@ -841,13 +900,16 @@ SPECIAL(jerry)
 {
     struct creature *gambler1, *gambler2, *tch;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (!AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING))
+    }
+    if (!AWAKE(ch) || (GET_POSITION(ch) == POS_FIGHTING)) {
         return false;
+    }
 
-    if (cmd)
+    if (cmd) {
         return false;
+    }
 
     if (!banzaii(ch) && !number(0, 2)) {
         if ((gambler1 = ch) &&
@@ -914,8 +976,9 @@ SPECIAL(dukes_chamber)
     struct room_direction_data *back = NULL;
 
     if (!CMD_IS("pull") && !CMD_IS("push") && !CMD_IS("get") && !CMD_IS("take")
-        && !CMD_IS("open"))
+        && !CMD_IS("open")) {
         return 0;
+    }
     skip_spaces(&argument);
 
     if (strncasecmp(argument, "book", 4) &&
@@ -923,19 +986,22 @@ SPECIAL(dukes_chamber)
         strncasecmp(argument, "lever", 5) &&
         strncasecmp(argument, "on lever", 8) &&
         strncasecmp(argument, "on shelf", 8) &&
-        strncasecmp(argument, "on book", 7))
+        strncasecmp(argument, "on book", 7)) {
         return 0;
+    }
 
     if (CMD_IS("open") && !strncasecmp(argument, "book", 4)) {
         send_to_char(ch, "It's securely lodged in the bookshelf.\r\n");
         return 1;
     }
-    if ((other_room = EXIT(ch, WEST)->to_room) != NULL)
-        if ((back = other_room->dir_option[rev_dir[WEST]]))
+    if ((other_room = EXIT(ch, WEST)->to_room) != NULL) {
+        if ((back = other_room->dir_option[rev_dir[WEST]])) {
             if (back->to_room != ch->in_room) {
                 back = NULL;
                 send_to_char(ch, " back= 0");
             }
+        }
+    }
 
     send_to_char(ch, "You pull firmly on the protruding book...\r\n");
     act("$n pulls on a book in the bookshelf.", true, ch, NULL, NULL, TO_ROOM);
@@ -943,7 +1009,7 @@ SPECIAL(dukes_chamber)
     if (IS_SET(EXIT(ch, WEST)->exit_info, EX_CLOSED)) {
         send_to_room
             ("A small section of the bookshelf rotates open, revealing a small room\r\n"
-            "to the west.\r\n", ch->in_room);
+             "to the west.\r\n", ch->in_room);
 
         TOGGLE_BIT(EXITN(ch->in_room, WEST)->exit_info, EX_CLOSED);
         if (back && IS_SET(back->exit_info, EX_CLOSED)) {
@@ -955,7 +1021,7 @@ SPECIAL(dukes_chamber)
         return 1;
     } else {
         send_to_room("A small section of the bookshelf rotates closed.\r\n",
-            ch->in_room);
+                     ch->in_room);
 
         TOGGLE_BIT(EXITN(ch->in_room, WEST)->exit_info, EX_CLOSED);
         if (back && !IS_SET(back->exit_info, EX_CLOSED)) {

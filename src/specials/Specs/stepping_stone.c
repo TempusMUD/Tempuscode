@@ -9,8 +9,9 @@ SPECIAL(stepping_stone)
     struct obj_data *ruby = (struct obj_data *)me;
     extern room_num arena_start_room;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
+    }
 
     if (CMD_IS("south")) {
         if (GET_POSITION(ch) >= POS_STANDING) {
@@ -19,8 +20,8 @@ SPECIAL(stepping_stone)
                     false, ch, ruby, NULL, TO_ROOM);
                 send_to_char(ch, "You feel a strange sensation...\r\n");
                 snprintf(buf, sizeof(buf),
-                    "A voice BOOMS out, 'Welcome to the Arena, %s!'\r\n",
-                    GET_NAME(ch));
+                         "A voice BOOMS out, 'Welcome to the Arena, %s!'\r\n",
+                         GET_NAME(ch));
                 send_to_zone(buf, ch->in_room->zone, 0);
                 GET_LOADROOM(ch) = arena_start_room;
             }
@@ -33,14 +34,16 @@ SPECIAL(portal_out)
 {
     struct obj_data *portal = (struct obj_data *)me;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
+    }
 
-    if (!CMD_IS("enter"))
+    if (!CMD_IS("enter")) {
         return false;
+    }
     if (!*argument) {
         send_to_char(ch,
-            "Enter what?  Enter the portal to leave the arena.\r\n");
+                     "Enter what?  Enter the portal to leave the arena.\r\n");
         return true;
     }
 
@@ -49,10 +52,10 @@ SPECIAL(portal_out)
         send_to_room("A loud buzzing sound fills the room.\r\n", ch->in_room);
         GET_LOADROOM(ch) = 0;
         snprintf(buf, sizeof(buf), "A voice BOOMS out, '%s has left the arena.'\r\n",
-            GET_NAME(ch));
+                 GET_NAME(ch));
         send_to_zone(buf, ch->in_room->zone, 0);
         call_magic(ch, ch, NULL, NULL, SPELL_WORD_OF_RECALL, LVL_GRIMP,
-            CAST_SPELL);
+                   CAST_SPELL);
         return true;
     }
     return false;
@@ -64,34 +67,37 @@ SPECIAL(arena_locker)
     struct obj_data *locker, *item, *tmp_item;
     struct room_data *r_locker_room;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
+    }
 
-    if (!(r_locker_room = real_room(40099)))
+    if (!(r_locker_room = real_room(40099))) {
         return false;
+    }
 
     if (CMD_IS("store")) {
         perform_say(ch, "say", "I'd like to store my stuff, please.");
         if (IS_NPC(ch)) {
             perform_say(atten, "say",
-                "Sorry, I cannot store things for mobiles.");
+                        "Sorry, I cannot store things for mobiles.");
             return true;
         }
         if (!(IS_CARRYING_W(ch) + IS_WEARING_W(ch))) {
             perform_say(atten, "smirk",
-                "Looks to me like you're already stark naked.");
+                        "Looks to me like you're already stark naked.");
             return true;
         }
         if (IS_WEARING_W(ch)) {
             perform_say(atten, "say",
-                "You need to remove all your gear first.");
+                        "You need to remove all your gear first.");
             return true;
         }
         for (locker = r_locker_room->contents; locker;
-            locker = locker->next_content) {
+             locker = locker->next_content) {
             if (GET_OBJ_VNUM(locker) != 40099 || GET_OBJ_VAL(locker, 0)
-                || locker->contains)
+                || locker->contains) {
                 continue;
+            }
             for (item = ch->carrying; item; item = tmp_item) {
                 tmp_item = item->next_content;
                 obj_from_char(item);
@@ -107,7 +113,7 @@ SPECIAL(arena_locker)
             return true;
         }
         perform_say(atten, "apologize",
-            "Sorry, all the lockers are occupied at the moment.");
+                    "Sorry, all the lockers are occupied at the moment.");
         return true;
     }
     if (CMD_IS("receive")) {
@@ -118,16 +124,17 @@ SPECIAL(arena_locker)
         }
 
         for (locker = r_locker_room->contents; locker;
-            locker = locker->next_content) {
+             locker = locker->next_content) {
             if (GET_OBJ_VNUM(locker) != 40099
                 || GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch)
-                || (!locker->contains))
+                || (!locker->contains)) {
                 continue;
+            }
             if (GET_OBJ_VNUM(locker) != 40099 ||
                 GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch)
                 || (!locker->contains)) {
                 perform_say(atten, "apologize",
-                    "Sorry, you don't seem to have a locker here.");
+                            "Sorry, you don't seem to have a locker here.");
                 return true;
             }
             for (item = locker->contains; item; item = tmp_item) {
@@ -142,14 +149,15 @@ SPECIAL(arena_locker)
                 false, atten, NULL, ch, TO_NOTVICT);
 
             struct house *house = find_house_by_room(r_locker_room->number);
-            if (house != NULL)
+            if (house != NULL) {
                 save_house(house);
+            }
             crashsave(ch);
 
             return true;
         }
         perform_say(atten, "say",
-            "Sorry, you don't seem to have a locker here.");
+                    "Sorry, you don't seem to have a locker here.");
         return true;
     }
     return false;

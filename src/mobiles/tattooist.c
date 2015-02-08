@@ -38,7 +38,7 @@ const int MAX_ITEMS = 10;
 // From act.comm.cc
 void perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev);
 void perform_appraise(struct creature *ch, struct obj_data *obj,
-    int skill_lvl);
+                      int skill_lvl);
 
 // From cityguard.cc
 void call_for_help(struct creature *ch, struct creature *attacker);
@@ -46,25 +46,27 @@ void call_for_help(struct creature *ch, struct creature *attacker);
 // From vendor.cc
 bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
 void vendor_appraise(struct creature *ch, struct obj_data *obj,
-    struct creature *self, struct shop_data *shop);
+                     struct creature *self, struct shop_data *shop);
 
 static void
 tattooist_show_pos(struct creature *me, struct creature *ch,
-    struct obj_data *obj)
+                   struct obj_data *obj)
 {
     int pos;
     bool not_first = false;
 
     strcpy_s(buf, sizeof(buf), "You can have tattoos in these positions: ");
-    for (pos = 0; pos < NUM_WEARS; pos++)
+    for (pos = 0; pos < NUM_WEARS; pos++) {
         if (!ILLEGAL_TATTOOPOS(pos) && CAN_WEAR(obj, wear_bitvectors[pos])) {
-            if (not_first)
+            if (not_first) {
                 strcat_s(buf, sizeof(buf), ", ");
-            else
+            } else {
                 not_first = true;
+            }
 
             strcat_s(buf, sizeof(buf), wear_tattoopos[pos]);
         }
+    }
 
     perform_tell(me, ch, buf);
 }
@@ -77,7 +79,7 @@ tattooist_get_value(struct obj_data *obj, int percent)
 
 static void
 tattooist_sell(struct creature *ch, char *arg, struct creature *self,
-    struct shop_data *shop)
+               struct shop_data *shop)
 {
     struct obj_data *obj;
     char *obj_str;
@@ -96,10 +98,11 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self,
         appraisal_only = true;
     }
     // Check for hash mark
-    if (*obj_str == '#')
+    if (*obj_str == '#') {
         obj = vendor_resolve_hash(shop, self, obj_str);
-    else
+    } else {
         obj = vendor_resolve_name(shop, self, obj_str);
+    }
 
     if (!obj) {
         perform_say_to(self, ch, shop->msg_sell_noobj);
@@ -144,8 +147,8 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self,
         if (GET_TATTOO(ch, idx) &&
             GET_OBJ_VNUM(GET_TATTOO(ch, idx)) == GET_OBJ_VNUM(obj)) {
             perform_tell(self, ch,
-                tmp_sprintf("You already have that tattoo on your %s!",
-                    wear_tattoopos[idx]));
+                         tmp_sprintf("You already have that tattoo on your %s!",
+                                     wear_tattoopos[idx]));
             return;
         }
     }
@@ -170,8 +173,9 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self,
 
     if (cost > amt_carried) {
         perform_say_to(self, ch, shop->msg_buyerbroke);
-        if (shop->cmd_temper)
+        if (shop->cmd_temper) {
             command_interpreter(self, tmp_strdup(shop->cmd_temper));
+        }
         return;
     }
 
@@ -188,7 +192,7 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self,
         break;
     case 2:
         account_set_quest_points(ch->account,
-            ch->account->quest_points - cost);
+                                 ch->account->quest_points - cost);
         currency_str = "quest points";
         break;
     default:
@@ -198,13 +202,13 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self,
 
     perform_say_to(self, ch, tmp_sprintf(shop->msg_buy, cost));
     msg = tmp_sprintf("You carefully ink $p onto $N's %s for %lu %s.",
-        wear_tattoopos[pos], cost, currency_str);
+                      wear_tattoopos[pos], cost, currency_str);
     act(msg, false, self, obj, ch, TO_CHAR);
     msg = tmp_sprintf("$n carefully inks $p onto your %s for %lu %s.",
-        wear_tattoopos[pos], cost, currency_str);
+                      wear_tattoopos[pos], cost, currency_str);
     act(msg, false, self, obj, ch, TO_VICT);
     msg = tmp_sprintf("$n carefully inks $p onto $N's %s.",
-        wear_tattoopos[pos]);
+                      wear_tattoopos[pos]);
     act(msg, false, self, obj, ch, TO_NOTVICT);
 
     // Load all-new item
@@ -218,26 +222,28 @@ tattooist_sell(struct creature *ch, char *arg, struct creature *self,
 
 char *
 tattooist_list_obj(struct creature *ch, struct obj_data *obj, int idx,
-    int cost)
+                   int cost)
 {
     char *obj_desc;
 
     obj_desc = obj->name;
     if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN)) {
-        if (IS_OBJ_STAT(obj, ITEM_BLESS))
+        if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
             obj_desc = tmp_strcat(obj_desc, " (holy aura)", NULL);
-        if (IS_OBJ_STAT(obj, ITEM_DAMNED))
+        }
+        if (IS_OBJ_STAT(obj, ITEM_DAMNED)) {
             obj_desc = tmp_strcat(obj_desc, " (unholy aura)", NULL);
+        }
     }
 
     obj_desc = tmp_capitalize(obj_desc);
     return tmp_sprintf(" %2d%s)  %s%-48s %'6d\r\n",
-        idx, CCRED(ch, C_NRM), CCNRM(ch, C_NRM), obj_desc, cost);
+                       idx, CCRED(ch, C_NRM), CCNRM(ch, C_NRM), obj_desc, cost);
 }
 
 static void
 tattooist_list(struct creature *ch, char *arg, struct creature *self,
-    struct shop_data *shop)
+               struct shop_data *shop)
 {
     struct obj_data *cur_obj;
     int idx;
@@ -265,10 +271,10 @@ tattooist_list(struct creature *ch, char *arg, struct creature *self,
     }
 
     msg = tmp_strcat(CCCYN(ch, C_NRM),
-        " ##   Item                                       ", msg,
-        "\r\n",
-        "-------------------------------------------------------------------------\r\n",
-        CCNRM(ch, C_NRM), NULL);
+                     " ##   Item                                       ", msg,
+                     "\r\n",
+                     "-------------------------------------------------------------------------\r\n",
+                     CCNRM(ch, C_NRM), NULL);
 
     idx = 1;
     for (cur_obj = self->carrying; cur_obj; cur_obj = cur_obj->next_content) {
@@ -293,8 +299,9 @@ SPECIAL(tattooist)
     struct shop_data *shop;
 
     config = GET_NPC_PARAM(self);
-    if (!config)
+    if (!config) {
         return 0;
+    }
 
     shop = (struct shop_data *)self->mob_specials.func_data;
     if (!shop) {
@@ -305,8 +312,9 @@ SPECIAL(tattooist)
 
     if (shop->func &&
         shop->func != tattooist &&
-        shop->func(ch, me, cmd, argument, spec_mode))
+        shop->func(ch, me, cmd, argument, spec_mode)) {
         return 1;
+    }
 
     if (spec_mode == SPECIAL_TICK) {
         struct creature *target = random_opponent(self);
@@ -317,42 +325,45 @@ SPECIAL(tattooist)
         return 0;
     }
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (!(CMD_IS("buy") || CMD_IS("list") || CMD_IS("steal")))
+    if (!(CMD_IS("buy") || CMD_IS("list") || CMD_IS("steal"))) {
         return 0;
+    }
 
     if (err) {
         // Specparam error
         if (IS_PC(ch)) {
-            if (IS_IMMORT(ch))
+            if (IS_IMMORT(ch)) {
                 perform_tell(self, ch,
-                    tmp_sprintf("I have %s in line %d of my specparam", err,
-                        err_line));
-            else {
+                             tmp_sprintf("I have %s in line %d of my specparam", err,
+                                         err_line));
+            } else {
                 mudlog(LVL_IMMORT, NRM, true,
-                    "ERR: Mobile %d has %s in line %d of specparam",
-                    GET_NPC_VNUM(self), err, err_line);
+                       "ERR: Mobile %d has %s in line %d of specparam",
+                       GET_NPC_VNUM(self), err, err_line);
                 perform_say_to(self, ch,
-                    "Sorry.  I'm broken, but a god has already been notified.");
+                               "Sorry.  I'm broken, but a god has already been notified.");
             }
         }
         return true;
     }
 
     if (CMD_IS("steal")) {
-        if (GET_LEVEL(ch) < LVL_IMMORT)
+        if (GET_LEVEL(ch) < LVL_IMMORT) {
             return false;
+        }
         do_gen_comm(self,
-            tmp_capitalize(tmp_sprintf("%s is a bloody thief!",
-                    GET_NAME(ch))), 0, SCMD_SHOUT);
+                    tmp_capitalize(tmp_sprintf("%s is a bloody thief!",
+                                               GET_NAME(ch))), 0, SCMD_SHOUT);
         return true;
     }
 
     if (!can_see_creature(self, ch)) {
         perform_say(self, "yell",
-            "Show yourself if you want to do business with me!");
+                    "Show yourself if you want to do business with me!");
         return true;
     }
 
@@ -386,13 +397,14 @@ SPECIAL(tattooist)
         return true;
     }
 
-    if (CMD_IS("list"))
+    if (CMD_IS("list")) {
         tattooist_list(ch, argument, self, shop);
-    else if (CMD_IS("buy"))
+    } else if (CMD_IS("buy")) {
         tattooist_sell(ch, argument, self, shop);
-    else
+    } else {
         mudlog(LVL_IMPL, CMP, true, "Can't happen at %s:%d", __FILE__,
-            __LINE__);
+               __LINE__);
+    }
 
     return true;
 }

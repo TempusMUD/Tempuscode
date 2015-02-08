@@ -74,8 +74,9 @@ void ice_room(struct room_data *room, int amount);
 
 ACMD(do_show_more)
 {
-    if (!ch->desc)
+    if (!ch->desc) {
         return;
+    }
     if (!ch->desc->showstr_head) {
         send_to_char(ch, "You weren't in the middle of reading anything.\r\n");
         return;
@@ -117,7 +118,7 @@ ACMD(do_quit)
         has_stuff = true;
     }
     if (!has_stuff) {
-        for (int i = 0;i < NUM_WEARS;i++) {
+        for (int i = 0; i < NUM_WEARS; i++) {
             if (GET_EQ(ch, i)) {
                 has_stuff = true;
                 break;
@@ -125,7 +126,7 @@ ACMD(do_quit)
         }
     }
     if (!has_stuff) {
-        for (int i = 0;i < NUM_WEARS;i++) {
+        for (int i = 0; i < NUM_WEARS; i++) {
             if (GET_IMPLANT(ch, i)) {
                 has_stuff = true;
                 break;
@@ -139,10 +140,12 @@ ACMD(do_quit)
      */
     for (d = descriptor_list; d; d = next_d) {
         next_d = d->next;
-        if (d == ch->desc)
+        if (d == ch->desc) {
             continue;
-        if (d->creature && (GET_IDNUM(d->creature) == GET_IDNUM(ch)))
+        }
+        if (d->creature && (GET_IDNUM(d->creature) == GET_IDNUM(ch))) {
             close_socket(d);
+        }
     }
 
     if ((free_rent) || GET_LEVEL(ch) >= LVL_AMBASSADOR || is_tester(ch)) {
@@ -195,8 +198,9 @@ ACMD(do_quit)
     if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
         cost = calc_daily_rent(ch, 1, NULL, false);
 
-        if (display_unrentables(ch))
+        if (display_unrentables(ch)) {
             return;
+        }
 
         if (cost < 0) {
             send_to_char(ch, "Unable to rent.\r\n");
@@ -226,8 +230,9 @@ ACMD(do_quit)
 
 ACMD(do_save)
 {
-    if (IS_NPC(ch) || !ch->desc)
+    if (IS_NPC(ch) || !ch->desc) {
         return;
+    }
 
     if (cmd) {
         send_to_char(ch, "Saving %s.\r\n", GET_NAME(ch));
@@ -236,8 +241,9 @@ ACMD(do_save)
     save_player_objects(ch);
     if (ROOM_FLAGGED(ch->in_room, ROOM_HOUSE)) {
         struct house *house = find_house_by_room(ch->in_room->number);
-        if (house != NULL)
+        if (house != NULL) {
             save_house(house);
+        }
     }
 }
 
@@ -291,33 +297,33 @@ ACMD(do_palette)
 {
     strcpy_s(buf, sizeof(buf), "Available Colors:\r\n");
     snprintf(buf, sizeof(buf),
-        "%s%sRED %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-        buf, KRED, KBLD, KNRM, KRED, KUND, KNRM, KRED, KBLK, KBLD, KNRM, KRED,
-        KREV, KBLD, KNRM);
+             "%s%sRED %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
+             buf, KRED, KBLD, KNRM, KRED, KUND, KNRM, KRED, KBLK, KBLD, KNRM, KRED,
+             KREV, KBLD, KNRM);
     snprintf(buf, sizeof(buf),
-        "%s%sGRN %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-        buf, KGRN, KBLD, KNRM, KGRN, KUND, KNRM, KGRN, KBLK, KBLD, KNRM, KGRN,
-        KREV, KBLD, KNRM);
+             "%s%sGRN %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
+             buf, KGRN, KBLD, KNRM, KGRN, KUND, KNRM, KGRN, KBLK, KBLD, KNRM, KGRN,
+             KREV, KBLD, KNRM);
     snprintf(buf, sizeof(buf),
-        "%s%sYEL %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-        buf, KYEL, KBLD, KNRM, KYEL, KUND, KNRM, KYEL, KBLK, KBLD, KNRM, KYEL,
-        KREV, KBLD, KNRM);
+             "%s%sYEL %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
+             buf, KYEL, KBLD, KNRM, KYEL, KUND, KNRM, KYEL, KBLK, KBLD, KNRM, KYEL,
+             KREV, KBLD, KNRM);
     snprintf(buf, sizeof(buf),
-        "%s%sBLU %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-        buf, KBLU, KBLD, KNRM, KBLU, KUND, KNRM, KBLU, KBLK, KBLD, KNRM, KBLU,
-        KREV, KBLD, KNRM);
+             "%s%sBLU %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
+             buf, KBLU, KBLD, KNRM, KBLU, KUND, KNRM, KBLU, KBLK, KBLD, KNRM, KBLU,
+             KREV, KBLD, KNRM);
     snprintf(buf, sizeof(buf),
-        "%s%sMAG %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-        buf, KMAG, KBLD, KNRM, KMAG, KUND, KNRM, KMAG, KBLK, KBLD, KNRM, KMAG,
-        KREV, KBLD, KNRM);
+             "%s%sMAG %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
+             buf, KMAG, KBLD, KNRM, KMAG, KUND, KNRM, KMAG, KBLK, KBLD, KNRM, KMAG,
+             KREV, KBLD, KNRM);
     snprintf(buf, sizeof(buf),
-        "%s%sCYN %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-        buf, KCYN, KBLD, KNRM, KCYN, KUND, KNRM, KCYN, KBLK, KBLD, KNRM, KCYN,
-        KREV, KBLD, KNRM);
+             "%s%sCYN %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
+             buf, KCYN, KBLD, KNRM, KCYN, KUND, KNRM, KCYN, KBLK, KBLD, KNRM, KCYN,
+             KREV, KBLD, KNRM);
     snprintf(buf, sizeof(buf),
-        "%s%sWHT %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-        buf, KWHT, KBLD, KNRM, KWHT, KUND, KNRM, KWHT, KBLK, KBLD, KNRM, KWHT,
-        KREV, KBLD, KNRM);
+             "%s%sWHT %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
+             buf, KWHT, KBLD, KNRM, KWHT, KUND, KNRM, KWHT, KBLK, KBLD, KNRM, KWHT,
+             KREV, KBLD, KNRM);
     send_to_char(ch, "%s", buf);
 }
 
@@ -352,43 +358,46 @@ ACMD(do_visible)
         send_to_char(ch, "You are no longer invisibile to undead.\r\n");
     }
 
-    if (!found)
+    if (!found) {
         send_to_char(ch, "You are already visible.\r\n");
-    else
+    } else {
         act("$n fades into view.", true, ch, NULL, NULL, TO_ROOM);
+    }
 }
 
 ACMD(do_title)
 {
     skip_spaces(&argument);
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         send_to_char(ch, "Your title is fine... go away.\r\n");
-    else if (PLR_FLAGGED(ch, PLR_NOTITLE))
+    } else if (PLR_FLAGGED(ch, PLR_NOTITLE)) {
         send_to_char(ch,
-            "You can't title yourself -- you shouldn't have abused it!\r\n");
-    else if (strstr(argument, "(") || strstr(argument, ")"))
+                     "You can't title yourself -- you shouldn't have abused it!\r\n");
+    } else if (strstr(argument, "(") || strstr(argument, ")")) {
         send_to_char(ch, "Titles can't contain the ( or ) characters.\r\n");
-    else if (strlen(argument) > MAX_TITLE_LENGTH) {
+    } else if (strlen(argument) > MAX_TITLE_LENGTH) {
         send_to_char(ch,
-            "Sorry, titles can't be longer than %d characters.\r\n",
-            MAX_TITLE_LENGTH);
+                     "Sorry, titles can't be longer than %d characters.\r\n",
+                     MAX_TITLE_LENGTH);
     } else {
         set_title(ch, argument);
         send_to_char(ch, "Okay, you're now %s%s.\r\n", GET_NAME(ch),
-            GET_TITLE(ch));
+                     GET_TITLE(ch));
     }
 }
 
 int
 perform_group(struct creature *ch, struct creature *vict)
 {
-    if (AFF_FLAGGED(vict, AFF_GROUP) || !can_see_creature(ch, vict))
+    if (AFF_FLAGGED(vict, AFF_GROUP) || !can_see_creature(ch, vict)) {
         return 0;
+    }
 
     SET_BIT(AFF_FLAGS(vict), AFF_GROUP);
-    if (ch != vict)
+    if (ch != vict) {
         act("$N is now a member of your group.", false, ch, NULL, vict, TO_CHAR);
+    }
     act("You are now a member of $n's group.", false, ch, NULL, vict, TO_VICT);
     act("$N is now a member of $n's group.", false, ch, NULL, vict, TO_NOTVICT);
     return 1;
@@ -399,16 +408,20 @@ desc_exp_tnl(struct creature *ch)
 {
     long tnl;
 
-    if (GET_LEVEL(ch) > 49 || IS_NPC(ch))
+    if (GET_LEVEL(ch) > 49 || IS_NPC(ch)) {
         return "";
+    }
 
     tnl = exp_scale[GET_LEVEL(ch) + 1] - GET_EXP(ch);
-    if (tnl < 0)
+    if (tnl < 0) {
         return "can remort";
-    if (tnl > 1000000)
+    }
+    if (tnl > 1000000) {
         return tmp_sprintf("%ldmil tnl", tnl / 1000000);
-    if (tnl > 1000)
+    }
+    if (tnl > 1000) {
         return tmp_sprintf("%ldk tnl", tnl / 1000);
+    }
 
     return tmp_sprintf("%ld tnl", tnl);
 }
@@ -419,42 +432,43 @@ print_group(struct creature *ch)
     struct creature *k;
     struct follow_type *f;
 
-    if (!AFF_FLAGGED(ch, AFF_GROUP))
+    if (!AFF_FLAGGED(ch, AFF_GROUP)) {
         send_to_char(ch, "But you are not the member of a group!\r\n");
-    else {
+    } else {
         send_to_char(ch, "Your group consists of:\r\n");
 
         k = (ch->master ? ch->master : ch);
 
         if (AFF_FLAGGED(k, AFF_GROUP)) {
             snprintf(buf, sizeof(buf),
-                "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N %s(%sHead of group%s)%s",
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                GET_HIT(k), GET_MANA(k), GET_MOVE(k), GET_ALIGNMENT(k),
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                desc_exp_tnl(k),
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                GET_LEVEL(k), CLASS_ABBR(k),
-                CCRED(ch, C_NRM), CCNRM(ch, C_NRM), CCBLU(ch, C_NRM), CCCYN(ch,
-                    C_NRM), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
+                     "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N %s(%sHead of group%s)%s",
+                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                     GET_HIT(k), GET_MANA(k), GET_MOVE(k), GET_ALIGNMENT(k),
+                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                     desc_exp_tnl(k),
+                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                     CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+                     GET_LEVEL(k), CLASS_ABBR(k),
+                     CCRED(ch, C_NRM), CCNRM(ch, C_NRM), CCBLU(ch, C_NRM), CCCYN(ch,
+                                                                                 C_NRM), CCBLU(ch, C_NRM), CCNRM(ch, C_NRM));
             act(buf, false, ch, NULL, k, TO_CHAR | TO_SLEEP);
         }
 
         for (f = k->followers; f; f = f->next) {
-            if (!AFF_FLAGGED(f->follower, AFF_GROUP))
+            if (!AFF_FLAGGED(f->follower, AFF_GROUP)) {
                 continue;
+            }
 
             snprintf(buf, sizeof(buf),
-                "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N",
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_HIT(f->follower),
-                GET_MANA(f->follower), GET_MOVE(f->follower),
-                GET_ALIGNMENT(f->follower), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), desc_exp_tnl(f->follower),
-                CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCRED(ch, C_NRM), CCNRM(ch,
-                    C_NRM), GET_LEVEL(f->follower), CLASS_ABBR(f->follower),
-                CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+                     "     %s[%s%4dH %4dM %4dV %4dA%s]%s %s[%s%10s%s]%s %s[%s%2d %s%s]%s $N",
+                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_HIT(f->follower),
+                     GET_MANA(f->follower), GET_MOVE(f->follower),
+                     GET_ALIGNMENT(f->follower), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), desc_exp_tnl(f->follower),
+                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), CCRED(ch, C_NRM), CCNRM(ch,
+                                                                                 C_NRM), GET_LEVEL(f->follower), CLASS_ABBR(f->follower),
+                     CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
             act(buf, false, ch, NULL, f->follower, TO_CHAR | TO_SLEEP);
         }
     }
@@ -486,26 +500,29 @@ ACMD(do_group)
 
     if (!strcasecmp(buf, "all")) {
         perform_group(ch, ch);
-        for (found = 0, f = ch->followers; f; f = f->next)
+        for (found = 0, f = ch->followers; f; f = f->next) {
             found += perform_group(ch, f->follower);
-        if (!found)
+        }
+        if (!found) {
             send_to_char(ch,
-                "Everyone following you is already in your group.\r\n");
+                         "Everyone following you is already in your group.\r\n");
+        }
         return;
     }
 
     if (!(vict = get_char_room_vis(ch, buf))) {
         send_to_char(ch, "%s", NOPERSON);
-    } else if ((vict->master != ch) && (vict != ch))
+    } else if ((vict->master != ch) && (vict != ch)) {
         act("$N must follow you to enter your group.", false, ch, NULL, vict,
             TO_CHAR);
-    else {
-        if (!AFF_FLAGGED(vict, AFF_GROUP))
+    } else {
+        if (!AFF_FLAGGED(vict, AFF_GROUP)) {
             perform_group(ch, vict);
-        else {
-            if (ch != vict)
+        } else {
+            if (ch != vict) {
                 act("$N is no longer a member of your group.", false, ch, NULL,
                     vict, TO_CHAR);
+            }
             act("You have been kicked out of $n's group!", false, ch, NULL, vict,
                 TO_VICT);
             act("$N has been kicked out of $n's group!", false, ch, NULL, vict,
@@ -521,7 +538,7 @@ ACMD(do_appoint)
     char *name = tmp_getword(&argument);
 
     if (ch->master || !AFF_FLAGGED(ch, AFF_GROUP)) {
-        send_to_char(ch , "But you lead no group!\r\n");
+        send_to_char(ch, "But you lead no group!\r\n");
         return;
     }
 
@@ -585,8 +602,8 @@ ACMD(do_ungroup)
                 REMOVE_BIT(AFF_FLAGS(f->follower), AFF_GROUP);
                 if (!AFF_FLAGGED(f->follower, AFF_CHARM)) {
                     send_to_char(f->follower,
-                        "%s has disbanded the group.\r\n", PERS(ch,
-                            f->follower));
+                                 "%s has disbanded the group.\r\n", PERS(ch,
+                                                                         f->follower));
                     stop_follower(f->follower);
                 }
             }
@@ -617,8 +634,9 @@ ACMD(do_ungroup)
     act("$N has been kicked out of $n's group!", false, ch, NULL, tch,
         TO_NOTVICT);
 
-    if (!AFF_FLAGGED(tch, AFF_CHARM))
+    if (!AFF_FLAGGED(tch, AFF_CHARM)) {
         stop_follower(tch);
+    }
 }
 
 ACMD(do_report)
@@ -631,22 +649,25 @@ ACMD(do_report)
         return;
     }
     snprintf(buf, sizeof(buf), "%s reports: %d/%dH, %d/%dM, %d/%dV, %dA\r\n",
-        GET_NAME(ch), GET_HIT(ch), GET_MAX_HIT(ch),
-        GET_MANA(ch), GET_MAX_MANA(ch),
-        GET_MOVE(ch), GET_MAX_MOVE(ch), GET_ALIGNMENT(ch));
+             GET_NAME(ch), GET_HIT(ch), GET_MAX_HIT(ch),
+             GET_MANA(ch), GET_MAX_MANA(ch),
+             GET_MOVE(ch), GET_MAX_MOVE(ch), GET_ALIGNMENT(ch));
 
     k = (ch->master ? ch->master : ch);
 
-    for (f = k->followers; f; f = f->next)
-        if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower != ch)
+    for (f = k->followers; f; f = f->next) {
+        if (AFF_FLAGGED(f->follower, AFF_GROUP) && f->follower != ch) {
             send_to_char(f->follower, "%s", buf);
-    if (k != ch)
+        }
+    }
+    if (k != ch) {
         send_to_char(k, "%s", buf);
+    }
 
     send_to_char(ch, "You report: %d/%dH, %d/%dM, %d/%dV, %dA\r\n",
-        GET_HIT(ch), GET_MAX_HIT(ch),
-        GET_MANA(ch), GET_MAX_MANA(ch),
-        GET_MOVE(ch), GET_MAX_MOVE(ch), GET_ALIGNMENT(ch));
+                 GET_HIT(ch), GET_MAX_HIT(ch),
+                 GET_MANA(ch), GET_MAX_MANA(ch),
+                 GET_MOVE(ch), GET_MAX_MOVE(ch), GET_ALIGNMENT(ch));
 }
 
 ACMD(do_split)
@@ -655,15 +676,17 @@ ACMD(do_split)
     struct creature *k;
     struct follow_type *f;
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return;
+    }
 
     argument = one_argument(argument, buf);
 
     skip_spaces(&argument);
 
-    if (*argument && is_abbrev(argument, "credits"))
+    if (*argument && is_abbrev(argument, "credits")) {
         mode = 1;
+    }
 
     if (!is_number(buf)) {
         send_to_char(ch, "How much do you wish to split with your group?\r\n");
@@ -684,55 +707,61 @@ ACMD(do_split)
     }
     k = (ch->master ? ch->master : ch);
 
-    if (AFF_FLAGGED(k, AFF_GROUP) && (k->in_room == ch->in_room))
+    if (AFF_FLAGGED(k, AFF_GROUP) && (k->in_room == ch->in_room)) {
         num = 1;
-    else
+    } else {
         num = 0;
+    }
 
-    for (f = k->followers; f; f = f->next)
+    for (f = k->followers; f; f = f->next) {
         if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
-            (!IS_NPC(f->follower)) && (f->follower->in_room == ch->in_room))
+            (!IS_NPC(f->follower)) && (f->follower->in_room == ch->in_room)) {
             num++;
+        }
+    }
 
-    if (num && AFF_FLAGGED(ch, AFF_GROUP))
+    if (num && AFF_FLAGGED(ch, AFF_GROUP)) {
         share = amount / num;
-    else {
+    } else {
         send_to_char(ch, "With whom do you wish to share your loot?\r\n");
         return;
     }
 
-    if (mode)
+    if (mode) {
         GET_CASH(ch) -= share * (num - 1);
-    else
+    } else {
         GET_GOLD(ch) -= share * (num - 1);
+    }
 
     if (AFF_FLAGGED(k, AFF_GROUP) && (k->in_room == ch->in_room)
         && !(IS_NPC(k)) && k != ch) {
-        if (mode)
+        if (mode) {
             GET_CASH(k) += share;
-        else
+        } else {
             GET_GOLD(k) += share;
+        }
 
-        send_to_char(k, "%s splits %'d %s; you receive %'d.\r\n", 
-            can_see_creature(k, ch) ? GET_NAME(ch) : "Someone",
-            amount, mode ? "credits" : "coins", share);
+        send_to_char(k, "%s splits %'d %s; you receive %'d.\r\n",
+                     can_see_creature(k, ch) ? GET_NAME(ch) : "Someone",
+                     amount, mode ? "credits" : "coins", share);
     }
     for (f = k->followers; f; f = f->next) {
         if (AFF_FLAGGED(f->follower, AFF_GROUP) &&
             (!IS_NPC(f->follower)) &&
             (f->follower->in_room == ch->in_room) && f->follower != ch) {
-            if (mode)
+            if (mode) {
                 GET_CASH(f->follower) += share;
-            else
+            } else {
                 GET_GOLD(f->follower) += share;
+            }
 
             send_to_char(f->follower, "%s splits %'d %s; you receive %'d.\r\n",
-                can_see_creature(f->follower, ch) ? GET_NAME(ch) : "Someone", 
-                amount, mode ? "credits" : "coins", share);
+                         can_see_creature(f->follower, ch) ? GET_NAME(ch) : "Someone",
+                         amount, mode ? "credits" : "coins", share);
         }
     }
     send_to_char(ch, "You split %'d %s among %d member%s -- %'d each.\r\n",
-        amount, mode ? "credits" : "coins", num, (num > 1 ? "s" : ""), share);
+                 amount, mode ? "credits" : "coins", num, (num > 1 ? "s" : ""), share);
 }
 
 ACMD(do_use)
@@ -753,7 +782,7 @@ ACMD(do_use)
         case SCMD_SWALLOW:
             if (!(mag_item = get_obj_in_list_all(ch, arg, ch->carrying))) {
                 send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg),
-                    arg);
+                             arg);
                 return;
             }
             if (subcmd == SCMD_RECITE && !can_see_object(ch, mag_item)) {
@@ -765,7 +794,7 @@ ACMD(do_use)
         case SCMD_READ:
             if (!(mag_item = get_obj_in_list_all(ch, arg, ch->carrying))) {
                 send_to_char(ch, "You don't seem to have %s %s.\r\n", AN(arg),
-                    arg);
+                             arg);
                 return;
             }
             if (!can_see_object(ch, mag_item)) {
@@ -777,7 +806,7 @@ ACMD(do_use)
         case SCMD_USE:
         case SCMD_INJECT:
             send_to_char(ch, "You don't seem to be holding %s %s.\r\n",
-                AN(arg), arg);
+                         AN(arg), arg);
             return;
         default:
             errlog("Unknown subcmd passed to do_use");
@@ -793,10 +822,11 @@ ACMD(do_use)
         break;
     case SCMD_SWALLOW:
         if (!IS_OBJ_TYPE(mag_item, ITEM_PILL)) {
-            if (IS_OBJ_TYPE(mag_item, ITEM_FOOD))
+            if (IS_OBJ_TYPE(mag_item, ITEM_FOOD)) {
                 send_to_char(ch, "You should really chew that first.\r\n");
-            else
+            } else {
                 send_to_char(ch, "You cannot swallow that.\r\n");
+            }
             return;
         }
         break;
@@ -822,27 +852,27 @@ ACMD(do_use)
             return;
         } else if (CHECK_SKILL(ch, SKILL_READ_SCROLLS) < 10) {
             send_to_char(ch,
-                "You do not know how to recite the magical script.\r\n");
+                         "You do not know how to recite the magical script.\r\n");
             return;
         }
         break;
     case SCMD_USE:
         if (IS_OBJ_TYPE(mag_item, ITEM_TRANSPORTER)) {
             send_to_char(ch,
-                "You must use the command 'activate' to use this.\r\n");
+                         "You must use the command 'activate' to use this.\r\n");
             return;
         } else if (IS_OBJ_TYPE(mag_item, ITEM_SYRINGE)) {
             send_to_char(ch, "Use the 'inject' command to use this item.\r\n");
             return;
         } else if (IS_OBJ_TYPE(mag_item, ITEM_CIGARETTE) ||
-            IS_OBJ_TYPE(mag_item, ITEM_TOBACCO) ||
-            IS_OBJ_TYPE(mag_item, ITEM_PIPE)) {
+                   IS_OBJ_TYPE(mag_item, ITEM_TOBACCO) ||
+                   IS_OBJ_TYPE(mag_item, ITEM_PIPE)) {
             send_to_char(ch, "You need to SMOKE that.\r\n");
             return;
         } else if ((GET_OBJ_TYPE(mag_item) != ITEM_WAND) &&
-            (GET_OBJ_TYPE(mag_item) != ITEM_STAFF)) {
+                   (GET_OBJ_TYPE(mag_item) != ITEM_STAFF)) {
             send_to_char(ch,
-                "You can't seem to figure out how to use it.\r\n");
+                         "You can't seem to figure out how to use it.\r\n");
             return;
         } else if (CHECK_SKILL(ch, SKILL_USE_WANDS) < 10) {
             act("You do not know how to harness the magical power of $p.",
@@ -873,40 +903,41 @@ ACMD(do_wimpy)
     if (!*arg) {
         if (GET_WIMP_LEV(ch)) {
             send_to_char(ch, "Your current wimp level is %d hit points.\r\n",
-                GET_WIMP_LEV(ch));
+                         GET_WIMP_LEV(ch));
             return;
         } else {
             send_to_char(ch,
-                "At the moment, you're not a wimp.  (sure, sure...)\r\n");
+                         "At the moment, you're not a wimp.  (sure, sure...)\r\n");
             return;
         }
     }
     if (isdigit(*arg)) {
         if ((wimp_lev = atoi(arg))) {
-            if (wimp_lev < 0)
+            if (wimp_lev < 0) {
                 send_to_char(ch,
-                    "Heh, heh, heh.. we are jolly funny today, eh?\r\n");
-            else if (wimp_lev > GET_MAX_HIT(ch))
+                             "Heh, heh, heh.. we are jolly funny today, eh?\r\n");
+            } else if (wimp_lev > GET_MAX_HIT(ch)) {
                 send_to_char(ch,
-                    "That doesn't make much sense, now does it?\r\n");
-            else if (wimp_lev > (GET_MAX_HIT(ch) / 2))
+                             "That doesn't make much sense, now does it?\r\n");
+            } else if (wimp_lev > (GET_MAX_HIT(ch) / 2)) {
                 send_to_char(ch,
-                    "You can't set your wimp level above half your hit points.\r\n");
-            else {
+                             "You can't set your wimp level above half your hit points.\r\n");
+            } else {
                 snprintf(buf, sizeof(buf),
-                    "Okay, you'll wimp out if you drop below %d hit points.\r\n",
-                    wimp_lev);
+                         "Okay, you'll wimp out if you drop below %d hit points.\r\n",
+                         wimp_lev);
                 send_to_char(ch, "%s", buf);
                 GET_WIMP_LEV(ch) = wimp_lev;
             }
         } else {
             send_to_char(ch,
-                "Okay, you'll now tough out fights to the bitter end.\r\n");
+                         "Okay, you'll now tough out fights to the bitter end.\r\n");
             GET_WIMP_LEV(ch) = 0;
         }
-    } else
+    } else {
         send_to_char(ch,
-            "Specify at how many hit points you want to wimp out at.  (0 to disable)\r\n");
+                     "Specify at how many hit points you want to wimp out at.  (0 to disable)\r\n");
+    }
 
     return;
 
@@ -926,8 +957,8 @@ ACMD(do_display)
 
     if (*arg1 == '\0') {
         send_to_char(ch,
-            "Usage: prompt { H | M | V | A | T | all | normal | none %s}\r\n",
-            GET_LEVEL(ch) > LVL_IMMORT ? "| vnums" : "");
+                     "Usage: prompt { H | M | V | A | T | all | normal | none %s}\r\n",
+                     GET_LEVEL(ch) > LVL_IMMORT ? "| vnums" : "");
         return;
     }
 
@@ -965,10 +996,11 @@ ACMD(do_display)
     }
 
     if ((!strcasecmp(arg1, "vnums"))) {
-        if (PRF2_FLAGS(ch) & PRF2_DISP_VNUMS)
+        if (PRF2_FLAGS(ch) & PRF2_DISP_VNUMS) {
             REMOVE_BIT(PRF2_FLAGS(ch), PRF2_DISP_VNUMS);
-        else
+        } else {
             SET_BIT(PRF2_FLAGS(ch), PRF2_DISP_VNUMS);
+        }
         send_to_char(ch, "%s", OK);
         return;
     }
@@ -1019,7 +1051,7 @@ ACMD(do_gen_write)
         break;
     case SCMD_BAD_IDEA:
         send_to_char(ch,
-            "You have to type idea - no less, to submit an idea!\r\n");
+                     "You have to type idea - no less, to submit an idea!\r\n");
         return;
     default:
         return;
@@ -1040,8 +1072,8 @@ ACMD(do_gen_write)
         return;
     }
     mudlog(MAX(LVL_AMBASSADOR, GET_INVIS_LVL(ch)), NRM, false,
-        "%s %s [%d]: %s", GET_NAME(ch), CMD_NAME, ch->in_room->number,
-        argument);
+           "%s %s [%d]: %s", GET_NAME(ch), CMD_NAME, ch->in_room->number,
+           argument);
 
     if (stat(filename, &fbuf) < 0) {
         perror("Error statting file");
@@ -1049,7 +1081,7 @@ ACMD(do_gen_write)
     }
     if (fbuf.st_size >= max_filesize) {
         send_to_char(ch,
-            "Sorry, the file is full right now.. try again later.\r\n");
+                     "Sorry, the file is full right now.. try again later.\r\n");
         return;
     }
     if (!(fl = fopen(filename, "a"))) {
@@ -1058,7 +1090,7 @@ ACMD(do_gen_write)
         return;
     }
     fprintf(fl, "%-8s (%s) [%5d] %s\n", GET_NAME(ch), time_buf,
-        ch->in_room->number, argument);
+            ch->in_room->number, argument);
     fclose(fl);
     send_to_char(ch, "Okay.  Thanks!\r\n");
 }
@@ -1177,8 +1209,9 @@ ACMD(do_gen_tog)
         {"\n", "\n"}
     };
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return;
+    }
 
     switch (subcmd) {
     case SCMD_NOHASSLE:
@@ -1214,8 +1247,8 @@ ACMD(do_gen_tog)
     case SCMD_SLOWNS:
         result = (nameserver_is_slow = !nameserver_is_slow);
         mudlog(MAX(LVL_IMMORT, GET_INVIS_LVL(ch)), NRM, true,
-            "%s has turned name server %s", GET_NAME(ch),
-            ONOFF(!nameserver_is_slow));
+               "%s has turned name server %s", GET_NAME(ch),
+               ONOFF(!nameserver_is_slow));
         break;
     case SCMD_AUTOEXIT:
         result = PRF_TOG_CHK(ch, PRF_AUTOEXIT);
@@ -1260,15 +1293,15 @@ ACMD(do_gen_tog)
         }
         result = PLR_TOG_CHK(ch, PLR_MORTALIZED);
         mudlog(GET_INVIS_LVL(ch), NRM, true,
-            "(GC): %s has %smortalized at %d", GET_NAME(ch),
-            PLR_FLAGGED(ch, PLR_MORTALIZED) ? "" : "im", ch->in_room->number);
+               "(GC): %s has %smortalized at %d", GET_NAME(ch),
+               PLR_FLAGGED(ch, PLR_MORTALIZED) ? "" : "im", ch->in_room->number);
 
         if (PLR_FLAGGED(ch, PLR_MORTALIZED)) {
             GET_MAX_HIT(ch) = (GET_LEVEL(ch) * 100) +
-                dice(GET_LEVEL(ch), GET_CON(ch));
+                              dice(GET_LEVEL(ch), GET_CON(ch));
             GET_MAX_MOVE(ch) = (GET_LEVEL(ch) * 100);
             GET_MAX_MANA(ch) = (GET_LEVEL(ch) * 100) +
-                dice(GET_LEVEL(ch), GET_WIS(ch));
+                               dice(GET_LEVEL(ch), GET_WIS(ch));
             GET_HIT(ch) = GET_MAX_HIT(ch);
             GET_MANA(ch) = GET_MAX_MANA(ch);
             GET_MOVE(ch) = GET_MAX_MOVE(ch);
@@ -1309,14 +1342,14 @@ ACMD(do_gen_tog)
     case SCMD_LOGALL:
         TOGGLE_BIT(log_cmds, 1);
         snprintf(buf, sizeof(buf), "%s has toggled logall %s", GET_NAME(ch),
-            ONOFF(log_cmds));
+                 ONOFF(log_cmds));
         mudlog(MAX(LVL_LOGALL, GET_INVIS_LVL(ch)), BRF, true, "%s", buf);
         send_to_char(ch, "%s\r\n", buf);
         return;
     case SCMD_JET_STREAM:
         TOGGLE_BIT(jet_stream_state, 1);
         snprintf(buf, sizeof(buf), "%s has toggled jet_stream_state %s", GET_NAME(ch),
-            ONOFF(jet_stream_state));
+                 ONOFF(jet_stream_state));
         mudlog(GET_INVIS_LVL(ch), BRF, true, "%s", buf);
         send_to_char(ch, "%s\r\n", buf);
         return;
@@ -1341,7 +1374,7 @@ ACMD(do_gen_tog)
         }
         if (is_fighting(ch)) {
             send_to_char(ch,
-                "You can't change your mind about playerkilling while you're fighting!\r\n");
+                         "You can't change your mind about playerkilling while you're fighting!\r\n");
             return;
         }
         result = PRF2_TOG_CHK(ch, PRF2_PKILLER);
@@ -1364,7 +1397,7 @@ ACMD(do_gen_tog)
     case SCMD_DEATHLOG:
         result = (LOG_DEATHS = !LOG_DEATHS);
         slog("%s has toggled jet_stream_state %s.", GET_NAME(ch),
-            ONOFF(LOG_DEATHS));
+             ONOFF(LOG_DEATHS));
         break;
     case SCMD_NOGUILDSAY:
         result = PRF2_TOG_CHK(ch, PRF2_NOGUILDSAY);
@@ -1394,10 +1427,11 @@ ACMD(do_gen_tog)
         return;
     }
 
-    if (result)
+    if (result) {
         send_to_char(ch, "%s", tog_messages[subcmd][TOG_ON]);
-    else
+    } else {
         send_to_char(ch, "%s", tog_messages[subcmd][TOG_OFF]);
+    }
 
     return;
 }
@@ -1409,8 +1443,8 @@ ACMD(do_afk)
         skip_spaces(&argument);
         if (strlen(argument) > MAX_AFK_LENGTH) {
             send_to_char(ch,
-                "Your afk reason must be limited to %d characters.\r\n",
-                MAX_AFK_LENGTH);
+                         "Your afk reason must be limited to %d characters.\r\n",
+                         MAX_AFK_LENGTH);
             return;
         }
 
@@ -1438,7 +1472,7 @@ ACMD(do_afk)
         g_list_free(AFK_NOTIFIES(ch));
         AFK_NOTIFIES(ch) = NULL;
         send_to_char(ch,
-            "You are now afk.  When you move again, you will no longer be.\r\n");
+                     "You are now afk.  When you move again, you will no longer be.\r\n");
         SET_BIT(PLR_FLAGS(ch), PLR_AFK);
         act("$n has gone away from the keyboard.", false, ch, NULL, NULL, TO_ROOM);
     }
@@ -1476,152 +1510,157 @@ ACMD(do_compare)
         send_to_char(ch, "You aren't carrying %s %s.\r\n", AN(arg2), arg2);
         return;
     }
-    if (GET_OBJ_COST(item2) == GET_OBJ_COST(item1))
+    if (GET_OBJ_COST(item2) == GET_OBJ_COST(item1)) {
         send_to_char(ch,
-            "They appear to be of approximately equal value.\r\n");
-    else {
+                     "They appear to be of approximately equal value.\r\n");
+    } else {
         send_to_char(ch, "%s appears to be a bit more valuable.\r\n",
-            GET_OBJ_COST(item1) > GET_OBJ_COST(item2) ?
-            item1->name : item2->name);
+                     GET_OBJ_COST(item1) > GET_OBJ_COST(item2) ?
+                     item1->name : item2->name);
     }
     if (GET_OBJ_MAX_DAM(item1) && GET_OBJ_MAX_DAM(item2)) {
         if (GET_OBJ_DAM(item1) * 100 / GET_OBJ_MAX_DAM(item1) >
-            GET_OBJ_DAM(item2) * 100 / GET_OBJ_MAX_DAM(item2))
+            GET_OBJ_DAM(item2) * 100 / GET_OBJ_MAX_DAM(item2)) {
             act("$p appears to be in better condition than $P.",
                 false, ch, item1, item2, TO_CHAR);
+        }
         if (GET_OBJ_DAM(item1) * 100 / GET_OBJ_MAX_DAM(item1) <
-            GET_OBJ_DAM(item2) * 100 / GET_OBJ_MAX_DAM(item2))
+            GET_OBJ_DAM(item2) * 100 / GET_OBJ_MAX_DAM(item2)) {
             act("$P appears to be in better condition than $p.",
                 false, ch, item1, item2, TO_CHAR);
-        else if (GET_OBJ_MAX_DAM(item1) > GET_OBJ_MAX_DAM(item2))
+        } else if (GET_OBJ_MAX_DAM(item1) > GET_OBJ_MAX_DAM(item2)) {
             act("$p appears to be sturdier than $P.",
                 false, ch, item1, item2, TO_CHAR);
-        else
+        } else {
             act("$P appears to be sturdier than $p.",
                 false, ch, item1, item2, TO_CHAR);
+        }
     }
-    if (GET_OBJ_TYPE(item1) != GET_OBJ_TYPE(item2))
+    if (GET_OBJ_TYPE(item1) != GET_OBJ_TYPE(item2)) {
         return;
+    }
 
     switch (GET_OBJ_TYPE(item1)) {
     case ITEM_SCROLL:
     case ITEM_WAND:
     case ITEM_STAFF:
     case ITEM_POTION:
-        if (!IS_MAGE(ch) || IS_DWARF(ch) || GET_INT(ch) < 30)
+        if (!IS_MAGE(ch) || IS_DWARF(ch) || GET_INT(ch) < 30) {
             break;
+        }
         send_to_char(ch, "%s seems to carry a greater aura of power.\r\n",
-            GET_OBJ_VAL(item1, 0) >= GET_OBJ_VAL(item2, 0) ?
-            item1->name : item2->name);
+                     GET_OBJ_VAL(item1, 0) >= GET_OBJ_VAL(item2, 0) ?
+                     item1->name : item2->name);
         break;
     case ITEM_WEAPON:
         avg1 =
             (int)(((GET_OBJ_VAL(item1, 2) + 1) / 2.0) * GET_OBJ_VAL(item1, 1));
         avg2 =
             (int)(((GET_OBJ_VAL(item2, 2) + 1) / 2.0) * GET_OBJ_VAL(item2, 1));
-        if (avg1 == avg2)
+        if (avg1 == avg2) {
             send_to_char(ch,
-                "Both weapons appear to have similar damage potential.\r\n");
-        else {
+                         "Both weapons appear to have similar damage potential.\r\n");
+        } else {
             send_to_char(ch, "%s appears to be a more formidable weapon.\r\n",
-                avg1 >= avg2 ? item1->name : item2->name);
+                         avg1 >= avg2 ? item1->name : item2->name);
         }
         break;
     case ITEM_ARMOR:
         avg1 = GET_OBJ_VAL(item1, 0);
         avg2 = GET_OBJ_VAL(item2, 0);
-        if (avg1 == avg2)
+        if (avg1 == avg2) {
             send_to_char(ch,
-                "They both seem to be of about equal quality.\r\n");
-        else {
+                         "They both seem to be of about equal quality.\r\n");
+        } else {
             send_to_char(ch, "%s appears to have more protective quality.\r\n",
-                avg1 >= avg2 ? item1->name : item2->name);
+                         avg1 >= avg2 ? item1->name : item2->name);
         }
         break;
     case ITEM_CONTAINER:
     case ITEM_DRINKCON:
         avg1 = GET_OBJ_VAL(item1, 0);
         avg2 = GET_OBJ_VAL(item2, 0);
-        if (avg1 == avg2)
+        if (avg1 == avg2) {
             send_to_char(ch,
-                "Looks like they will each hold about the same amount.\r\n");
-        else {
+                         "Looks like they will each hold about the same amount.\r\n");
+        } else {
             send_to_char(ch, "%s looks like it will hold more.\r\n",
-                avg1 >= avg2 ? item1->name : item2->name);
+                         avg1 >= avg2 ? item1->name : item2->name);
         }
         break;
     case ITEM_FOOD:
         avg1 = GET_OBJ_VAL(item1, 0);
         avg2 = GET_OBJ_VAL(item2, 0);
-        if (avg1 == avg2)
+        if (avg1 == avg2) {
             send_to_char(ch, "They both look equally tasty.\r\n");
-        else {
+        } else {
             send_to_char(ch, "%s looks more filling that the other.\r\n",
-                avg1 >= avg2 ? item1->name : item2->name);
+                         avg1 >= avg2 ? item1->name : item2->name);
         }
         break;
     case ITEM_HOLY_SYMB:
         if (GET_OBJ_VAL(item1, 0) != GET_OBJ_VAL(item2, 0)) {
             send_to_char(ch,
-                "They appear to be symbols of different deities.\r\n");
+                         "They appear to be symbols of different deities.\r\n");
             break;
         }
-        if (!IS_KNIGHT(ch) && !IS_CLERIC(ch))
+        if (!IS_KNIGHT(ch) && !IS_CLERIC(ch)) {
             break;
+        }
         avg1 = GET_OBJ_VAL(item1, 2);
         avg2 = GET_OBJ_VAL(item2, 2);
-        if (avg1 == avg2)
+        if (avg1 == avg2) {
             send_to_char(ch,
-                "They appear to have the same minimum level.\r\n");
-        else {
+                         "They appear to have the same minimum level.\r\n");
+        } else {
             send_to_char(ch,
-                "%s looks like it has a higher minimum level.\r\n",
-                avg1 >= avg2 ? item1->name : item2->name);
+                         "%s looks like it has a higher minimum level.\r\n",
+                         avg1 >= avg2 ? item1->name : item2->name);
         }
         avg1 = GET_OBJ_VAL(item1, 3);
         avg2 = GET_OBJ_VAL(item2, 3);
-        if (avg1 == avg2)
+        if (avg1 == avg2) {
             send_to_char(ch,
-                "They appear to have the same maximum level.\r\n");
-        else {
+                         "They appear to have the same maximum level.\r\n");
+        } else {
             send_to_char(ch, "%s seems to support greater power.\r\n",
-                avg1 >= avg2 ? item1->name : item2->name);
+                         avg1 >= avg2 ? item1->name : item2->name);
         }
         break;
     case ITEM_BATTERY:
         avg1 = GET_OBJ_VAL(item1, 0);
         avg2 = GET_OBJ_VAL(item2, 0);
-        if (avg1 == avg2)
+        if (avg1 == avg2) {
             send_to_char(ch,
-                "They appear to be able to store the same amount of energy.\r\n");
-        else {
+                         "They appear to be able to store the same amount of energy.\r\n");
+        } else {
             send_to_char(ch, "%s looks like it will hold more energy.\r\n",
-                avg1 >= avg2 ? item1->name : item2->name);
+                         avg1 >= avg2 ? item1->name : item2->name);
         }
         break;
     case ITEM_ENERGY_GUN:
         avg1 = GET_OBJ_VAL(item1, 0);
         avg2 = GET_OBJ_VAL(item2, 0);
-        if (avg1 == avg2)
+        if (avg1 == avg2) {
             send_to_char(ch,
-                "They appear to be able to store the same amount of energy.\r\n");
-        else {
+                         "They appear to be able to store the same amount of energy.\r\n");
+        } else {
             send_to_char(ch, "%s looks like it will hold more energy.\r\n",
-                avg1 >= avg2 ? item1->name : item2->name);
+                         avg1 >= avg2 ? item1->name : item2->name);
         }
         avg1 = GET_OBJ_VAL(item1, 2);
         avg2 = GET_OBJ_VAL(item2, 2);
-        if (avg1 == avg2)
+        if (avg1 == avg2) {
             send_to_char(ch,
-                "They can both discharge energy at comparable rates.\r\n");
-        else {
+                         "They can both discharge energy at comparable rates.\r\n");
+        } else {
             send_to_char(ch, "%s can release energy at a greater rate.\r\n",
-                avg1 >= avg2 ? item1->name : item2->name);
+                         avg1 >= avg2 ? item1->name : item2->name);
         }
         break;
     default:
         send_to_char(ch,
-            "You can see nothing else special about either one.\r\n");
+                     "You can see nothing else special about either one.\r\n");
         break;
     }
 }
@@ -1637,7 +1676,7 @@ ACMD(do_screen)
     if (!*argument) {
         // Handle the no argument option
         send_to_char(ch, "Your current screen length is: %d lines.\r\n",
-            ch->desc->account->term_height);
+                     ch->desc->account->term_height);
         return;
     }
 
@@ -1648,43 +1687,45 @@ ACMD(do_screen)
     if ((!is_number(height_str) && strcmp(height_str, "off"))
         || (*width_str && !is_number(width_str) && strcmp(width_str, "off"))) {
         send_to_char(ch,
-            "Usage: screen (<terminal height>|off) [(<terminal width>|off)]\r\n");
+                     "Usage: screen (<terminal height>|off) [(<terminal width>|off)]\r\n");
         return;
     }
 
     int new_height = 0;
     if (strcmp(height_str, "off")) {
         new_height = atoi(height_str);
-        if (new_height < 0 || new_height > 200)
+        if (new_height < 0 || new_height > 200) {
             new_height = 0;
+        }
     }
 
     int new_width = 0;
     if (*width_str && strcmp(width_str, "off")) {
         new_width = atoi(width_str);
-        if (new_width < 0 || new_width > 200)
+        if (new_width < 0 || new_width > 200) {
             new_width = 0;
+        }
     }
     // Now change the validated values
     if (*height_str) {
         account_set_term_height(ch->account, new_height);
         if (GET_PAGE_LENGTH(ch)) {
             send_to_char(ch, "Your screen length will now be %d lines.\r\n",
-                GET_PAGE_LENGTH(ch));
+                         GET_PAGE_LENGTH(ch));
         } else {
             send_to_char(ch,
-                "Long descriptions will no longer be paged for you.\r\n");
+                         "Long descriptions will no longer be paged for you.\r\n");
         }
     }
     if (*width_str) {
         account_set_term_width(ch->account, new_width);
         if (GET_PAGE_WIDTH(ch)) {
             send_to_char(ch,
-                "Your screen width will now be %d characters.\r\n",
-                GET_PAGE_WIDTH(ch));
+                         "Your screen width will now be %d characters.\r\n",
+                         GET_PAGE_WIDTH(ch));
         } else {
             send_to_char(ch,
-                "Line overruns will no longer be calculated when paging large texts.\r\n");
+                         "Line overruns will no longer be calculated when paging large texts.\r\n");
         }
     }
 }
@@ -1699,14 +1740,14 @@ ACMD(do_throw)
     struct room_data *r_toroom = NULL;
 
     argument = one_argument(argument, arg1);
-    if (!*arg1)
+    if (!*arg1) {
         send_to_char(ch, "Throw what at what?\r\n");
-    else if (!(obj = get_object_in_equip_pos(ch, arg1, WEAR_WIELD)) &&
-        !(obj = get_object_in_equip_pos(ch, arg1, WEAR_HOLD)) &&
-        !(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
-        !(vict = get_char_room_vis(ch, arg1)))
+    } else if (!(obj = get_object_in_equip_pos(ch, arg1, WEAR_WIELD)) &&
+               !(obj = get_object_in_equip_pos(ch, arg1, WEAR_HOLD)) &&
+               !(obj = get_obj_in_list_vis(ch, arg1, ch->carrying)) &&
+               !(vict = get_char_room_vis(ch, arg1))) {
         send_to_char(ch, "You can't find that to throw it.\r\n");
-    else if (obj) {
+    } else if (obj) {
         if (IS_OBJ_STAT(obj, ITEM_NODROP) && GET_LEVEL(ch) < LVL_ETERNAL) {
             act("Arrrgh!  $p won't come off of your hand!", false, ch, obj, NULL,
                 TO_CHAR);
@@ -1716,8 +1757,9 @@ ACMD(do_throw)
         }
         argument = one_argument(argument, arg1);
         if (!*arg1) {
-            if (obj->worn_by)
+            if (obj->worn_by) {
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
+            }
 
             act("$n throws $p across the room.", false, ch, obj, NULL, TO_ROOM);
             act("You throw $p across the room.", false, ch, obj, NULL, TO_CHAR);
@@ -1726,25 +1768,25 @@ ACMD(do_throw)
             return;
         }
 
-        if (is_abbrev(arg1, "northward"))
+        if (is_abbrev(arg1, "northward")) {
             dir = 1;
-        else if (is_abbrev(arg1, "eastward"))
+        } else if (is_abbrev(arg1, "eastward")) {
             dir = 2;
-        else if (is_abbrev(arg1, "southward"))
+        } else if (is_abbrev(arg1, "southward")) {
             dir = 3;
-        else if (is_abbrev(arg1, "westward"))
+        } else if (is_abbrev(arg1, "westward")) {
             dir = 4;
-        else if (is_abbrev(arg1, "upward"))
+        } else if (is_abbrev(arg1, "upward")) {
             dir = 5;
-        else if (is_abbrev(arg1, "downward"))
+        } else if (is_abbrev(arg1, "downward")) {
             dir = 6;
-        else if (is_abbrev(arg1, "futureward"))
+        } else if (is_abbrev(arg1, "futureward")) {
             dir = 7;
-        else if (is_abbrev(arg1, "pastward"))
+        } else if (is_abbrev(arg1, "pastward")) {
             dir = 8;
-        else if (!(target_vict = get_char_room_vis(ch, arg1)) &&
-            !(target_obj =
-                get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
+        } else if (!(target_vict = get_char_room_vis(ch, arg1)) &&
+                   !(target_obj =
+                         get_obj_in_list_vis(ch, arg1, ch->in_room->contents))) {
             send_to_char(ch, "Throw at what??\r\n");
             return;
         }
@@ -1752,22 +1794,23 @@ ACMD(do_throw)
         if (dir) {
             if (!ch->in_room->dir_option[dir - 1] ||
                 (r_toroom =
-                    ch->in_room->dir_option[dir - 1]->to_room) == NULL) {
+                     ch->in_room->dir_option[dir - 1]->to_room) == NULL) {
                 send_to_char(ch, "You cannot throw anything to the %s.\r\n",
-                    dirs[(int)(dir - 1)]);
+                             dirs[(int)(dir - 1)]);
                 return;
             }
             if (IS_SET(EXIT(ch, dir - 1)->exit_info, EX_CLOSED)) {
-                if (obj->worn_by)
+                if (obj->worn_by) {
                     obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
+                }
 
                 snprintf(buf, sizeof(buf), "$n throws $p %sward against the closed %s.",
-                    dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
-                    fname(EXIT(ch, dir - 1)->keyword) : "door");
+                         dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
+                         fname(EXIT(ch, dir - 1)->keyword) : "door");
                 act(buf, false, ch, obj, NULL, TO_ROOM);
                 snprintf(buf, sizeof(buf), "You throw $p %sward against the closed %s.",
-                    dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
-                    fname(EXIT(ch, dir - 1)->keyword) : "door");
+                         dirs[(int)(dir - 1)], EXIT(ch, dir - 1)->keyword ?
+                         fname(EXIT(ch, dir - 1)->keyword) : "door");
                 act(buf, false, ch, obj, NULL, TO_CHAR);
                 obj_from_char(obj);
                 obj_to_room(obj, ch->in_room);
@@ -1776,14 +1819,15 @@ ACMD(do_throw)
             argument = one_argument(argument, arg1);
             if (*arg1 &&
                 !(target_vict =
-                    get_char_in_remote_room_vis(ch, arg1, r_toroom))
+                      get_char_in_remote_room_vis(ch, arg1, r_toroom))
                 && !(target_obj =
-                    get_obj_in_list_vis(ch, arg1, r_toroom->contents))) {
+                         get_obj_in_list_vis(ch, arg1, r_toroom->contents))) {
                 send_to_char(ch, "No such target in that direction.\r\n");
                 return;
             }
-            if (obj->worn_by)
+            if (obj->worn_by) {
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
+            }
 
             snprintf(buf, sizeof(buf), "$n throws $p %sward.", dirs[(int)(dir - 1)]);
             act(buf, false, ch, obj, NULL, TO_ROOM);
@@ -1793,26 +1837,27 @@ ACMD(do_throw)
             obj_to_room(obj, r_toroom);
             if (target_vict) {
                 snprintf(buf, sizeof(buf), "$p flies in from %s and hits you in the head!",
-                    from_dirs[(int)(dir - 1)]);
+                         from_dirs[(int)(dir - 1)]);
                 act(buf, false, NULL, obj, target_vict, TO_VICT);
                 snprintf(buf, sizeof(buf), "$p flies in from %s and hits $N in the head!",
-                    from_dirs[(int)(dir - 1)]);
+                         from_dirs[(int)(dir - 1)]);
                 act(buf, false, NULL, obj, target_vict, TO_NOTVICT);
             } else if (target_obj) {
                 snprintf(buf, sizeof(buf), "$p flies in from %s and slams into %s!",
-                    from_dirs[(int)(dir - 1)], target_obj->name);
+                         from_dirs[(int)(dir - 1)], target_obj->name);
                 act(buf, false, NULL, obj, target_vict, TO_ROOM);
             } else {
                 snprintf(buf, sizeof(buf), "$p flies in from %s and lands by your feet.",
-                    from_dirs[(int)(dir - 1)]);
+                         from_dirs[(int)(dir - 1)]);
                 act(buf, false, NULL, obj, NULL, TO_ROOM);
             }
             return;
         }
 
         if (target_vict) {
-            if (obj->worn_by)
+            if (obj->worn_by) {
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
+            }
 
             if (target_vict == ch) {
                 send_to_char(ch, "You can't throw something at yourself!\r\n");
@@ -1825,13 +1870,15 @@ ACMD(do_throw)
 
             calc_thaco = calculate_thaco(ch, target_vict, NULL) + 10;
             calc_thaco -= (CHECK_SKILL(ch, SKILL_THROWING) / 10);
-            if (!IS_OBJ_STAT2(obj, ITEM2_THROWN_WEAPON))
+            if (!IS_OBJ_STAT2(obj, ITEM2_THROWN_WEAPON)) {
                 calc_thaco += 2 * GET_OBJ_WEIGHT(obj);
+            }
 
             victim_ac = GET_AC(target_vict) / 10;
             victim_ac = MAX(-10, victim_ac);    /* -10 is lowest */
-            if (AWAKE(target_vict))
+            if (AWAKE(target_vict)) {
                 victim_ac += dexterity_defense_bonus(GET_DEX(target_vict));
+            }
             diceroll = number(1, 20);
             if ((diceroll < 20 && AWAKE(target_vict)) &&
                 ((diceroll == 1) || ((calc_thaco - diceroll) > victim_ac))) {
@@ -1855,7 +1902,7 @@ ACMD(do_throw)
                     obj_to_room(obj, ch->in_room);
                 }
             } else if (IS_OBJ_TYPE(obj, ITEM_WEAPON)
-                && ok_to_attack(ch, target_vict, false)) {
+                       && ok_to_attack(ch, target_vict, false)) {
                 // Hit throw with a weapon
                 damage(ch, target_vict, obj,
                        dice(GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 2)) +
@@ -1874,11 +1921,12 @@ ACMD(do_throw)
                 if (!ROOM_FLAGGED(ch->in_room, ROOM_NOMAGIC)) {
                     for (int i = 1; i < 4; i++) {
                         call_magic(ch, target_vict,
-                            NULL, NULL, GET_OBJ_VAL(obj, i),
-                            MAX(1, GET_OBJ_VAL(obj, 0) / 4),
-                            CAST_POTION);
-                        if (is_dead(ch) || is_dead(target_vict))
+                                   NULL, NULL, GET_OBJ_VAL(obj, i),
+                                   MAX(1, GET_OBJ_VAL(obj, 0) / 4),
+                                   CAST_POTION);
+                        if (is_dead(ch) || is_dead(target_vict)) {
                             break;
+                        }
                     }
                 }
                 extract_obj(obj);
@@ -1895,20 +1943,23 @@ ACMD(do_throw)
 
             gain_skill_prof(ch, SKILL_THROWING);
             WAIT_STATE(ch, PULSE_VIOLENCE * 1);
-            if (CHECK_SKILL(ch, SKILL_THROWING) < 90)
+            if (CHECK_SKILL(ch, SKILL_THROWING) < 90) {
                 WAIT_STATE(ch, PULSE_VIOLENCE * 1);
-            if (CHECK_SKILL(ch, SKILL_THROWING) < 60)
+            }
+            if (CHECK_SKILL(ch, SKILL_THROWING) < 60) {
                 WAIT_STATE(ch, PULSE_VIOLENCE * 1);
+            }
 
             return;
         } else if (target_obj) {
-            if (obj->worn_by)
+            if (obj->worn_by) {
                 obj_to_char(unequip_char(ch, obj->worn_on, EQUIP_WORN), ch);
+            }
             snprintf(buf, sizeof(buf), "$n hurls $p up against %s with brute force!",
-                target_obj->name);
+                     target_obj->name);
             act(buf, false, ch, obj, NULL, TO_ROOM);
             snprintf(buf, sizeof(buf), "You hurl $p up against %s with brute force!",
-                target_obj->name);
+                     target_obj->name);
             act(buf, false, ch, obj, NULL, TO_CHAR);
         }
         obj_from_char(obj);
@@ -1926,30 +1977,30 @@ ACMD(do_feed)
 
     half_chop(argument, arg1, arg2);
 
-    if (!*arg1 || !*arg2)
+    if (!*arg1 || !*arg2) {
         send_to_char(ch, "Feed who to what?\r\n");
-    else if (!(food = get_obj_in_list_vis(ch, arg1, ch->carrying)))
+    } else if (!(food = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
         send_to_char(ch, "You don't have that food.\r\n");
-    else if (!((vict = MOUNTED_BY(ch)) &&
-            isname(arg2, vict->player.name)) &&
-        !(vict = get_char_room_vis(ch, arg2)))
+    } else if (!((vict = MOUNTED_BY(ch)) &&
+                 isname(arg2, vict->player.name)) &&
+               !(vict = get_char_room_vis(ch, arg2))) {
         send_to_char(ch, "No-one around by that name.\r\n");
-    else if (GET_OBJ_TYPE(food) != ITEM_FOOD)
+    } else if (GET_OBJ_TYPE(food) != ITEM_FOOD) {
         act("I don't think anyone wants to eat $p.",
             false, ch, food, NULL, TO_CHAR);
-    else if (!NPC2_FLAGGED(vict, NPC2_MOUNT))
+    } else if (!NPC2_FLAGGED(vict, NPC2_MOUNT)) {
         act("You cannot feed $p to $N.", false, ch, food, vict, TO_CHAR);
-    else if (!AWAKE(vict))
+    } else if (!AWAKE(vict)) {
         act("$N is in no position to be eating.", false, ch, food, vict,
             TO_CHAR);
-    else if (GET_MOVE(vict) >= GET_MAX_MOVE(vict))
+    } else if (GET_MOVE(vict) >= GET_MAX_MOVE(vict)) {
         act("$N must not be hungry -- $E refuses $p.", false, ch, food,
             vict, TO_CHAR);
-    else {
+    } else {
         act("$n feeds $p to $N.", false, ch, food, vict, TO_NOTVICT);
         act("$N devours $p.", false, ch, food, vict, TO_CHAR);
         GET_MOVE(vict) = MIN(GET_MAX_MOVE(vict), GET_MOVE(vict) +
-            GET_OBJ_VAL(food, 0));
+                             GET_OBJ_VAL(food, 0));
         extract_obj(food);
         return;
     }
@@ -1968,7 +2019,7 @@ ACMD(do_weigh)
 
     if (!(obj = get_obj_in_list_vis(ch, argument, ch->carrying))) {
         send_to_char(ch,
-            "You can only weigh things which you are carrying.\r\n");
+                     "You can only weigh things which you are carrying.\r\n");
         return;
     }
 
@@ -2012,14 +2063,16 @@ ACMD(do_knock)
         act("$n knocks on $N's skull.  Anybody home?", false, ch, NULL, vict,
             TO_NOTVICT);
         if (GET_POSITION(vict) == POS_SLEEPING
-            && !AFF_FLAGGED(vict, AFF_SLEEP))
+            && !AFF_FLAGGED(vict, AFF_SLEEP)) {
             GET_POSITION(vict) = POS_RESTING;
+        }
         return;
     }
     // Ok, not someone's head.  Maybe an object?
     obj = get_obj_in_list_vis(ch, argument, ch->carrying);
-    if (!obj)
+    if (!obj) {
         obj = get_obj_in_list_vis(ch, argument, ch->in_room->contents);
+    }
 
     if (obj) {
         act("$n knocks on $p.", false, ch, obj, NULL, TO_ROOM);
@@ -2038,10 +2091,11 @@ ACMD(do_knock)
     }
     // Ok... not an object.  Maybe a door?
     if ((dir = find_door(ch, arg1, arg2, "knock on")) >= 0) {
-        if (EXIT(ch, dir)->keyword)
+        if (EXIT(ch, dir)->keyword) {
             strcpy_s(dname, sizeof(dname), fname(EXIT(ch, dir)->keyword));
-        else
+        } else {
             strcpy_s(dname, sizeof(dname), "door");
+        }
 
         snprintf(buf, sizeof(buf), "$n knocks on the %s.", dname);
         act(buf, false, ch, NULL, NULL, TO_ROOM);
@@ -2051,14 +2105,15 @@ ACMD(do_knock)
             other_room->dir_option[rev_dir[dir]] &&
             other_room->dir_option[rev_dir[dir]]->to_room == ch->in_room &&
             other_room->people) {
-            if (other_room->dir_option[rev_dir[dir]]->keyword)
+            if (other_room->dir_option[rev_dir[dir]]->keyword) {
                 strcpy_s(dname, sizeof(dname),
-                    fname(other_room->dir_option[rev_dir[dir]]->keyword));
-            else
+                         fname(other_room->dir_option[rev_dir[dir]]->keyword));
+            } else {
                 strcpy_s(dname, sizeof(dname), "door");
+            }
 
             snprintf(buf, sizeof(buf), "Someone knocks on the %s from the other side.",
-                dname);
+                     dname);
             act(buf, false, other_room->people->data, NULL, NULL,
                 TO_CHAR | TO_SLEEP);
             act(buf, false, other_room->people->data, NULL, NULL,
@@ -2081,10 +2136,11 @@ ACMD(do_loadroom)
 
         if (GET_HOMEROOM(ch) && (room = real_room(GET_HOMEROOM(ch)))) {
             send_to_char(ch, "Your loadroom is currently set to: %s%s%s\r\n"
-                "Type 'loadroom off' to remove it or 'loadroom set' to set it.\r\n",
-                CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
-        } else
+                             "Type 'loadroom off' to remove it or 'loadroom set' to set it.\r\n",
+                         CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM));
+        } else {
             send_to_char(ch, "Your loadroom is currently default.\r\n");
+        }
 
         return;
     }
@@ -2097,17 +2153,19 @@ ACMD(do_loadroom)
     } else if (is_abbrev(argument, "set")) {
 
         if ((ROOM_FLAGGED(ch->in_room,
-                    ROOM_HOUSE | ROOM_CLAN_HOUSE | ROOM_COMFORT)
-                || GET_LEVEL(ch) >= LVL_AMBASSADOR)
+                          ROOM_HOUSE | ROOM_CLAN_HOUSE | ROOM_COMFORT)
+             || GET_LEVEL(ch) >= LVL_AMBASSADOR)
             && can_enter_house(ch, ch->in_room->number)
             && clan_house_can_enter(ch, ch->in_room)) {
             GET_HOMEROOM(ch) = ch->in_room->number;
             send_to_char(ch, "Okay, you will now load in this room.\r\n");
-        } else
+        } else {
             send_to_char(ch, "You cannot load here.\r\n");
+        }
 
-    } else
+    } else {
         send_to_char(ch, "Usage: loadroom [off | set]\r\n");
+    }
 
 }
 
@@ -2116,8 +2174,9 @@ ACMD(do_gasify)
     struct creature *gas = NULL;
     struct room_data *tank = real_room(13);
 
-    if (!ch->desc)
+    if (!ch->desc) {
         return;
+    }
 
     if (ch->desc->original) {
         send_to_char(ch, "You're already switched.\r\n");
@@ -2178,26 +2237,28 @@ ACMD(do_clean)
         if ((pos = search_block(arg2, wear_eqpos, false)) < 0) {
             strcpy_s(buf, sizeof(buf), "Invalid position.  Valid positions are:\r\n");
             for (i = 0, j = 0; i < NUM_WEARS; i++) {
-                if (ILLEGAL_SOILPOS(i))
+                if (ILLEGAL_SOILPOS(i)) {
                     continue;
+                }
                 j++;
                 strcat_s(buf, sizeof(buf), wear_eqpos[i]);
-                if (i < WEAR_EAR_R)
+                if (i < WEAR_EAR_R) {
                     strcat_s(buf, sizeof(buf), ", ");
-                else
+                } else {
                     strcat_s(buf, sizeof(buf), ".\r\n");
+                }
             }
             send_to_char(ch, "%s", buf);
             return;
         }
         if (ILLEGAL_SOILPOS(pos)) {
             send_to_char(ch, "Hrm.  You can't clean anybody's '%s'!\r\n",
-                wear_description[pos]);
+                         wear_description[pos]);
             return;
         }
         if (!CHAR_SOILAGE(vict, pos)) {
             snprintf(buf, sizeof(buf), "%s not soiled there.",
-                ch == vict ? "You are" : "$E is");
+                     ch == vict ? "You are" : "$E is");
             act(buf, false, ch, NULL, vict, TO_CHAR);
             return;
         }
@@ -2206,44 +2267,48 @@ ACMD(do_clean)
             snprintf(buf, sizeof(buf), "$n carefully cleans $s %s.", wear_description[pos]);
             act(buf, true, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch, "You carefully clean your %s.\r\n",
-                wear_description[pos]);
+                         wear_description[pos]);
         } else {
             snprintf(buf, sizeof(buf), "$n carefully cleans $N's %s.",
-                wear_description[pos]);
+                     wear_description[pos]);
             act(buf, true, ch, NULL, vict, TO_NOTVICT);
             snprintf(buf, sizeof(buf), "You carefully clean $N's %s.",
-                wear_description[pos]);
+                     wear_description[pos]);
             act(buf, false, ch, NULL, vict, TO_CHAR);
             snprintf(buf, sizeof(buf), "$n carefully cleans your %s.",
-                wear_description[pos]);
+                     wear_description[pos]);
             act(buf, false, ch, NULL, vict, TO_VICT);
         }
         found = 0;
         strcpy_s(buf, sizeof(buf), "no longer ");
 
-        for (k = 0, j = 0; j < 16; j++)
-            if (CHAR_SOILED(vict, pos, (1 << j)))
+        for (k = 0, j = 0; j < 16; j++) {
+            if (CHAR_SOILED(vict, pos, (1 << j))) {
                 k++;
+            }
+        }
 
         for (j = 0; j < 16; j++) {
             if (CHAR_SOILED(vict, pos, (1 << j))) {
                 found++;
                 if (found > 1) {
                     strcat_s(buf, sizeof(buf), ", ");
-                    if (found == k)
+                    if (found == k) {
                         strcat_s(buf, sizeof(buf), "or ");
+                    }
                 }
                 strcat_s(buf, sizeof(buf), soilage_bits[j]);
             }
         }
         snprintf(buf2, sizeof(buf2), "Your %s %s %s.", wear_description[pos],
-            pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
+                 pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
         act(buf2, false, ch, obj, vict, TO_VICT);
         snprintf(buf2, sizeof(buf2), "$N's %s %s %s.", wear_description[pos],
-            pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
+                 pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
         act(buf2, true, ch, obj, vict, TO_NOTVICT);
-        if (ch != vict)
+        if (ch != vict) {
             act(buf2, true, ch, obj, vict, TO_CHAR);
+        }
 
         CHAR_SOILAGE(vict, pos) = 0;
         return;
@@ -2251,30 +2316,33 @@ ACMD(do_clean)
 
     /* obj */
 
-    if (!OBJ_SOILAGE(obj))
+    if (!OBJ_SOILAGE(obj)) {
         act("$p is not soiled.", false, ch, obj, NULL, TO_CHAR);
-    else {
+    } else {
         snprintf(buf, sizeof(buf), "$n carefully cleans $p. (%s)",
-            obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
+                 obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
         act(buf, true, ch, obj, NULL, TO_ROOM);
         snprintf(buf, sizeof(buf), "You carefully clean $p. (%s)",
-            obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
+                 obj->carried_by ? "carried" : obj->worn_by ? "worn" : "here");
         act(buf, false, ch, obj, NULL, TO_CHAR);
 
         found = 0;
         strcpy_s(buf, sizeof(buf), "$p is no longer ");
 
-        for (k = 0, j = 0; j < 17; j++)
-            if (OBJ_SOILED(obj, (1 << j)))
+        for (k = 0, j = 0; j < 17; j++) {
+            if (OBJ_SOILED(obj, (1 << j))) {
                 k++;
+            }
+        }
 
         for (j = 0; j < 17; j++) {
             if (OBJ_SOILED(obj, (1 << j))) {
                 found++;
                 if (found > 1) {
                     strcat_s(buf, sizeof(buf), ", ");
-                    if (found == k)
+                    if (found == k) {
                         strcat_s(buf, sizeof(buf), "or ");
+                    }
                 }
                 strcat_s(buf, sizeof(buf), soilage_bits[j]);
             }
@@ -2314,7 +2382,7 @@ drag_char(struct creature *ch, struct creature *vict, int dir)
     }
 
     if ((ROOM_FLAGGED(target_room, ROOM_HOUSE)
-            && !can_enter_house(ch, target_room->number))
+         && !can_enter_house(ch, target_room->number))
         || (ROOM_FLAGGED(target_room, ROOM_CLAN_HOUSE)
             && !clan_house_can_enter(ch, target_room))
         || (ROOM_FLAGGED(target_room, ROOM_DEATH))) {
@@ -2333,7 +2401,7 @@ drag_char(struct creature *ch, struct creature *vict, int dir)
 
     prob =
         MAX(0, (GET_LEVEL(ch) + (CHECK_SKILL(ch,
-                    SKILL_DRAG)) - GET_STR(vict)));
+                                             SKILL_DRAG)) - GET_STR(vict)));
     prob = MIN(prob, 100);
 
     if (NPC_FLAGGED(vict, NPC_SENTINEL)) {
@@ -2399,7 +2467,7 @@ ACMD(do_drag)
     }
 
     bits = generic_find(target_str, FIND_OBJ_ROOM | FIND_CHAR_ROOM, ch,
-        &found_char, &found_obj);
+                        &found_char, &found_obj);
 
     int dir = search_block(dir_str, dirs, false);
     if (dir < 0) {
@@ -2413,7 +2481,7 @@ ACMD(do_drag)
         return;
     }
 
-    //Target is a character
+    // Target is a character
     if (!bits) {
         send_to_char(ch, "What do you want to drag?\r\n");
     } else if (found_char) {
@@ -2495,19 +2563,19 @@ ACMD(do_trust)
 
     if (ch->account->id == player_account_by_idnum(idnum)) {
         send_to_char(ch,
-            "You automatically trust characters in your own account.\r\n");
+                     "You automatically trust characters in your own account.\r\n");
         return;
     }
 
     if (creature_trusts_idnum(ch, idnum)) {
         send_to_char(ch, "You already trust %s.\r\n",
-            player_name_by_idnum(idnum));
+                     player_name_by_idnum(idnum));
         return;
     }
 
     account_trust(ch->account, idnum);
     send_to_char(ch, "%s is now a trusted friend to you.\r\n",
-        player_name_by_idnum(idnum));
+                 player_name_by_idnum(idnum));
 }
 
 ACMD(do_distrust)
@@ -2534,23 +2602,23 @@ ACMD(do_distrust)
     idnum = player_idnum_by_name(argument);
     if (idnum == GET_IDNUM(ch)) {
         send_to_char(ch,
-            "If you can't trust yourself, who can you trust?\r\n");
+                     "If you can't trust yourself, who can you trust?\r\n");
         return;
     }
 
     if (ch->account->id == player_account_by_idnum(idnum)) {
         send_to_char(ch,
-            "You can't distrust characters in your own account.\r\n");
+                     "You can't distrust characters in your own account.\r\n");
         return;
     }
 
     if (creature_distrusts_idnum(ch, idnum)) {
         send_to_char(ch, "You already don't trust %s.\r\n",
-            player_name_by_idnum(idnum));
+                     player_name_by_idnum(idnum));
         return;
     }
 
     account_distrust(ch->account, idnum);
     send_to_char(ch, "You are no longer trusting of %s.\r\n",
-        player_name_by_idnum(idnum));
+                 player_name_by_idnum(idnum));
 }

@@ -110,8 +110,9 @@ write_obj_index(struct creature *ch, struct zone_data *zone)
         }
     }
 
-    if (found == 1)
+    if (found == 1) {
         return (1);
+    }
 
     CREATE(new_index, int, count + 2);
 
@@ -120,8 +121,9 @@ write_obj_index(struct creature *ch, struct zone_data *zone)
             if (done == 0) {
                 new_index[j] = zone->number;
                 new_index[j + 1] = -1;
-            } else
+            } else {
                 new_index[j] = -1;
+            }
             break;
         }
         if (obj_index[i] > zone->number && done != 1) {
@@ -129,8 +131,9 @@ write_obj_index(struct creature *ch, struct zone_data *zone)
             j++;
             new_index[j] = obj_index[i];
             done = 1;
-        } else
+        } else {
             new_index[j] = obj_index[i];
+        }
         j++;
     }
 
@@ -145,12 +148,13 @@ write_obj_index(struct creature *ch, struct zone_data *zone)
     snprintf(fname, sizeof(fname), "world/obj/index");
     if (!(index = fopen(fname, "w"))) {
         send_to_char(ch,
-            "Could not open index file, object save aborted.\r\n");
+                     "Could not open index file, object save aborted.\r\n");
         return (0);
     }
 
-    for (i = 0; obj_index[i] != -1; i++)
+    for (i = 0; obj_index[i] != -1; i++) {
         fprintf(index, "%d.obj\n", obj_index[i]);
+    }
 
     fprintf(index, "$\n");
 
@@ -162,7 +166,7 @@ write_obj_index(struct creature *ch, struct zone_data *zone)
 }
 
 bool
-save_objs(struct creature * ch, struct zone_data * zone)
+save_objs(struct creature *ch, struct zone_data *zone)
 {
     size_t i, tmp;
     int aff_idx;
@@ -183,13 +187,14 @@ save_objs(struct creature * ch, struct zone_data * zone)
     snprintf(fname, sizeof(fname), "world/obj/%d.obj", zone->number);
     if ((access(fname, F_OK) >= 0) && (access(fname, W_OK) < 0)) {
         mudlog(0, BRF, true,
-            "OLC: ERROR - Main object file for zone %d is read-only.",
-            zone->number);
+               "OLC: ERROR - Main object file for zone %d is read-only.",
+               zone->number);
     }
 
     snprintf(fname, sizeof(fname), "world/obj/olc/%d.obj", zone->number);
-    if (!(file = fopen(fname, "w")))
+    if (!(file = fopen(fname, "w"))) {
         return false;
+    }
 
     if ((write_obj_index(ch, zone)) != 1) {
         fclose(file);
@@ -201,35 +206,42 @@ save_objs(struct creature * ch, struct zone_data * zone)
 
     for (int vnum = low; vnum <= high; vnum++) {
         obj = (struct obj_data *)g_hash_table_lookup(obj_prototypes,
-            GINT_TO_POINTER(vnum));
-        if (!obj)
+                                                     GINT_TO_POINTER(vnum));
+        if (!obj) {
             continue;
+        }
 
         fprintf(file, "#%d\n", obj->shared->vnum);
-        if (obj->aliases)
+        if (obj->aliases) {
             fprintf(file, "%s", obj->aliases);
+        }
 
         fprintf(file, "~\n");
 
-        if (obj->name)
+        if (obj->name) {
             fprintf(file, "%s", obj->name);
+        }
 
         fprintf(file, "~\n");
 
         if (obj->line_desc) {
             tmp = strlen(obj->line_desc);
-            for (i = 0; i < tmp; i++)
-                if (obj->line_desc[i] != '\r')
+            for (i = 0; i < tmp; i++) {
+                if (obj->line_desc[i] != '\r') {
                     fputc(obj->line_desc[i], file);
+                }
+            }
         }
 
         fprintf(file, "~\n");
 
         if (obj->action_desc) {
             tmp = strlen(obj->action_desc);
-            for (i = 0; i < tmp; i++)
-                if (obj->action_desc[i] != '\r')
+            for (i = 0; i < tmp; i++) {
+                if (obj->action_desc[i] != '\r') {
                     fputc(obj->action_desc[i], file);
+                }
+            }
         }
         fprintf(file, "~\n");
 
@@ -239,50 +251,54 @@ save_objs(struct creature * ch, struct zone_data * zone)
         num2str(sbuf4, sizeof(sbuf4), obj->obj_flags.extra3_flags);
 
         fprintf(file, "%d %s %s %s %s\n", obj->obj_flags.type_flag,
-            sbuf1, sbuf2, sbuf3, sbuf4);
+                sbuf1, sbuf2, sbuf3, sbuf4);
 
         for (i = 0; i < 4; i++) {
             fprintf(file, "%d", obj->obj_flags.value[i]);
-            if (i < 3)
+            if (i < 3) {
                 fprintf(file, " ");
-            else
+            } else {
                 fprintf(file, "\n");
+            }
         }
 
         fprintf(file, "%d %d %d\n", obj->obj_flags.material,
-            obj->obj_flags.max_dam, obj->obj_flags.damage);
+                obj->obj_flags.max_dam, obj->obj_flags.damage);
 
         fprintf(file, "%f %d %d %d\n", GET_OBJ_WEIGHT(obj),
-            obj->shared->cost, obj->shared->cost_per_day,
-            obj->obj_flags.timer);
+                obj->shared->cost, obj->shared->cost_per_day,
+                obj->obj_flags.timer);
 
         desc = obj->ex_description;
         while (desc != NULL) {
             if (!desc->keyword || !desc->description) {
                 slog("OLCERROR: Extra Desc with no kywrd or desc, obj #%d.\n",
-                    obj->shared->vnum);
+                     obj->shared->vnum);
                 send_to_char(ch,
-                    "I didn't save your bogus extra desc in obj %d.\r\n",
-                    obj->shared->vnum);
+                             "I didn't save your bogus extra desc in obj %d.\r\n",
+                             obj->shared->vnum);
                 desc = desc->next;
                 continue;
             }
             fprintf(file, "E\n");
             fprintf(file, "%s~\n", desc->keyword);
             tmp = strlen(desc->description);
-            for (i = 0; i < tmp; i++)
-                if (desc->description[i] != '\r')
+            for (i = 0; i < tmp; i++) {
+                if (desc->description[i] != '\r') {
                     fputc(desc->description[i], file);
+                }
+            }
             fprintf(file, "~\n");
             desc = desc->next;
         }
 
         for (aff_idx = 0; aff_idx < MAX_OBJ_AFFECT; aff_idx++) {
-            if (obj->affected[aff_idx].location == APPLY_NONE)
+            if (obj->affected[aff_idx].location == APPLY_NONE) {
                 continue;
+            }
             fprintf(file, "A\n");
             fprintf(file, "%d %d\n", obj->affected[aff_idx].location,
-                obj->affected[aff_idx].modifier);
+                    obj->affected[aff_idx].modifier);
         }
 
         for (i = 0; i < 3; i++) {
@@ -352,20 +368,22 @@ do_create_obj(struct creature *ch, int vnum)
         return NULL;
     }
 
-    for (zone = zone_table; zone; zone = zone->next)
-        if (vnum >= zone->number * 100 && vnum <= zone->top)
+    for (zone = zone_table; zone; zone = zone->next) {
+        if (vnum >= zone->number * 100 && vnum <= zone->top) {
             break;
+        }
+    }
 
     if (!zone) {
         send_to_char(ch,
-            "ERROR: A zone must be defined for the object first.\r\n");
+                     "ERROR: A zone must be defined for the object first.\r\n");
         return NULL;
     }
 
     if (!is_authorized(ch, EDIT_ZONE, zone)) {
         send_to_char(ch, "Try creating objects in your own zone, luser.\r\n");
         mudlog(GET_INVIS_LVL(ch), BRF, true,
-            "OLC: %s failed attempt to CREATE obj %d.", GET_NAME(ch), vnum);
+               "OLC: %s failed attempt to CREATE obj %d.", GET_NAME(ch), vnum);
         return NULL;
     }
 
@@ -383,8 +401,9 @@ do_create_obj(struct creature *ch, int vnum)
     new_obj->shared->proto = new_obj;
 
     new_obj->in_room = NULL;
-    for (i = 0; i < 4; i++)
+    for (i = 0; i < 4; i++) {
         new_obj->obj_flags.value[i] = 0;
+    }
     new_obj->obj_flags.type_flag = 0;
     new_obj->obj_flags.wear_flags = 0;
     new_obj->obj_flags.extra_flags = 0;
@@ -431,9 +450,11 @@ do_destroy_object(struct creature *ch, int vnum)
         return 1;
     }
 
-    for (zone = zone_table; zone; zone = zone->next)
-        if (vnum < zone->top)
+    for (zone = zone_table; zone; zone = zone->next) {
+        if (vnum < zone->top) {
             break;
+        }
+    }
 
     if (!zone) {
         send_to_char(ch, "That object does not belong to any zone!!\r\n");
@@ -444,36 +465,40 @@ do_destroy_object(struct creature *ch, int vnum)
     if (!is_authorized(ch, EDIT_ZONE, zone)) {
         send_to_char(ch, "Oh, no you don't!!!\r\n");
         mudlog(GET_INVIS_LVL(ch), BRF, true,
-            "OLC: %s failed attempt to DESTROY object %d.",
-            GET_NAME(ch), obj->shared->vnum);
+               "OLC: %s failed attempt to DESTROY object %d.",
+               GET_NAME(ch), obj->shared->vnum);
         return 1;
     }
 
     for (temp = object_list; temp; temp = next_obj) {
         next_obj = temp->next;
-        if (temp->shared->vnum == obj->shared->vnum)
+        if (temp->shared->vnum == obj->shared->vnum) {
             extract_obj(temp);
+        }
     }
 
     g_hash_table_remove(obj_prototypes, GINT_TO_POINTER(GET_OBJ_VNUM(obj)));
 
-    for (d = descriptor_list; d; d = d->next)
+    for (d = descriptor_list; d; d = d->next) {
         if (d->creature && GET_OLC_OBJ(d->creature) == obj) {
             GET_OLC_OBJ(d->creature) = NULL;
             send_to_char(d->creature,
-                "The object you were editing has been destroyed!\r\n");
+                         "The object you were editing has been destroyed!\r\n");
             break;
         }
+    }
 #ifdef DMALLOC
     dmalloc_verify(0);
 #endif
 
     while ((desc = obj->ex_description)) {
         obj->ex_description = desc->next;
-        if (desc->keyword)
+        if (desc->keyword) {
             free(desc->keyword);
-        if (desc->description)
+        }
+        if (desc->description) {
             free(desc->description);
+        }
         free(desc);
     }
 
@@ -494,7 +519,7 @@ do_destroy_object(struct creature *ch, int vnum)
 
 void
 perform_oset(struct creature *ch, struct obj_data *obj_p,
-    char *argument, int8_t subcmd)
+             char *argument, int8_t subcmd)
 {
     struct zone_data *zone = NULL;
     struct obj_data *proto = NULL, *tmp_obj = NULL;
@@ -519,10 +544,12 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         return;
     }
     // what zone is it a member of
-    for (zone = zone_table; zone; zone = zone->next)
+    for (zone = zone_table; zone; zone = zone->next) {
         if (GET_OBJ_VNUM(obj_p) >= zone->number * 100
-            && GET_OBJ_VNUM(obj_p) <= zone->top)
+            && GET_OBJ_VNUM(obj_p) <= zone->top) {
             break;
+        }
+    }
     if (!zone) {
         slog("OLC: ERROR finding zone for object %d.", GET_OBJ_VNUM(obj_p));
         send_to_char(ch, "Unable to match object with zone error..\r\n");
@@ -547,27 +574,31 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
     switch (oset_command) {
     case 0:            /******** aliases *************/
         if ((subcmd == OLC_OSET || !proto || proto->aliases != obj_p->aliases)
-            && obj_p->aliases)
+            && obj_p->aliases) {
             free(obj_p->aliases);
+        }
 
         obj_p->aliases = strdup(arg2);
-        if (subcmd == OLC_OSET)
+        if (subcmd == OLC_OSET) {
             UPDATE_OBJLIST_NAMES(obj_p, tmp_obj,->aliases);
+        }
         send_to_char(ch, "Aliases set.\r\n");
         break;
     case 1:            /******** name ****************/
         if ((subcmd == OLC_OSET || !proto ||
-                proto->name != obj_p->name) && obj_p->name)
+             proto->name != obj_p->name) && obj_p->name) {
             free(obj_p->name);
+        }
 
         obj_p->name = strdup(arg2);
-        if (subcmd == OLC_OSET)
+        if (subcmd == OLC_OSET) {
             UPDATE_OBJLIST_NAMES(obj_p, tmp_obj,->name);
+        }
         send_to_char(ch, "Object name set.\r\n");
         break;
     case 2:                    // ldesc
         if ((subcmd == OLC_OSET || !proto ||
-                proto->line_desc != obj_p->line_desc) && obj_p->line_desc) {
+             proto->line_desc != obj_p->line_desc) && obj_p->line_desc) {
             free(obj_p->line_desc);
         }
         if (arg2[0] == '~') {
@@ -597,8 +628,9 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         start_editing_text(ch->desc, &desc->description, 4096);
         SET_BIT(PLR_FLAGS(ch), PLR_OLC);
 
-        if (subcmd == OLC_OSET)
+        if (subcmd == OLC_OSET) {
             UPDATE_OBJLIST(obj_p, tmp_obj,->ex_description);
+        }
         act("$n begins to write an object description.",
             true, ch, NULL, NULL, TO_ROOM);
         break;
@@ -609,8 +641,9 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
                 send_to_char(ch, "Type olc help otypes for a valid list.\r\n");
                 return;
             }
-        } else
+        } else {
             i = atoi(arg2);
+        }
 
         if (i < 0 || i >= NUM_ITEM_TYPES) {
             send_to_char(ch, "Object type out of range.\r\n");
@@ -618,7 +651,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         }
         obj_p->obj_flags.type_flag = i;
         send_to_char(ch, "Object %d type set to %s.\r\n",
-            obj_p->shared->vnum, item_types[i]);
+                     obj_p->shared->vnum, item_types[i]);
 
         break;
 
@@ -626,13 +659,13 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         tmp_flags = 0;
         argument = one_argument(arg2, arg1);
 
-        if (*arg1 == '+')
+        if (*arg1 == '+') {
             state = 1;
-        else if (*arg1 == '-')
+        } else if (*arg1 == '-') {
             state = 2;
-        else {
+        } else {
             send_to_char(ch,
-                "Usage: olc oset extra1 [+/-] [FLAG, FLAG, ...]\r\n");
+                         "Usage: olc oset extra1 [+/-] [FLAG, FLAG, ...]\r\n");
             return;
         }
 
@@ -643,15 +676,16 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         while (*arg1) {
             if ((flag = search_block(arg1, extra_names, false)) == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
-            } else
+            } else {
                 tmp_flags = tmp_flags | (1 << flag);
+            }
 
             argument = one_argument(argument, arg1);
         }
 
-        if (state == 1)
+        if (state == 1) {
             cur_flags = cur_flags | tmp_flags;
-        else {
+        } else {
             tmp_flags = cur_flags & tmp_flags;
             cur_flags = cur_flags ^ tmp_flags;
         }
@@ -660,9 +694,9 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 
         if (tmp_flags == 0 && cur_flags == 0) {
             send_to_char(ch, "Extra1 flags set\r\n");
-        } else if (tmp_flags == 0)
+        } else if (tmp_flags == 0) {
             send_to_char(ch, "Extra1 flags not altered.\r\n");
-        else {
+        } else {
             send_to_char(ch, "Extra1 flags set.\r\n");
         }
         break;
@@ -671,13 +705,13 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         tmp_flags = 0;
         argument = one_argument(arg2, arg1);
 
-        if (*arg1 == '+')
+        if (*arg1 == '+') {
             state = 1;
-        else if (*arg1 == '-')
+        } else if (*arg1 == '-') {
             state = 2;
-        else {
+        } else {
             send_to_char(ch,
-                "Usage: olc oset extra2 [+/-] [FLAG, FLAG, ...]\r\n");
+                         "Usage: olc oset extra2 [+/-] [FLAG, FLAG, ...]\r\n");
             return;
         }
 
@@ -688,15 +722,16 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         while (*arg1) {
             if ((flag = search_block(arg1, extra2_names, false)) == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
-            } else
+            } else {
                 tmp_flags = tmp_flags | (1 << flag);
+            }
 
             argument = one_argument(argument, arg1);
         }
 
-        if (state == 1)
+        if (state == 1) {
             cur_flags = cur_flags | tmp_flags;
-        else {
+        } else {
             tmp_flags = cur_flags & tmp_flags;
             cur_flags = cur_flags ^ tmp_flags;
         }
@@ -705,9 +740,9 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 
         if (tmp_flags == 0 && cur_flags == 0) {
             send_to_char(ch, "Extra2 flags set\r\n");
-        } else if (tmp_flags == 0)
+        } else if (tmp_flags == 0) {
             send_to_char(ch, "Extra2 flags not altered.\r\n");
-        else {
+        } else {
             send_to_char(ch, "Extra2 flags set.\r\n");
         }
         break;
@@ -716,13 +751,13 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         tmp_flags = 0;
         argument = one_argument(arg2, arg1);
 
-        if (*arg1 == '+')
+        if (*arg1 == '+') {
             state = 1;
-        else if (*arg1 == '-')
+        } else if (*arg1 == '-') {
             state = 2;
-        else {
+        } else {
             send_to_char(ch,
-                "Usage: olc oset worn [+/-] [FLAG, FLAG, ...]\r\n");
+                         "Usage: olc oset worn [+/-] [FLAG, FLAG, ...]\r\n");
             return;
         }
 
@@ -733,15 +768,16 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         while (*arg1) {
             if ((flag = search_block(arg1, wear_bits, false)) == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
-            } else
+            } else {
                 tmp_flags = tmp_flags | (1 << flag);
+            }
 
             argument = one_argument(argument, arg1);
         }
 
-        if (state == 1)
+        if (state == 1) {
             cur_flags = cur_flags | tmp_flags;
-        else {
+        } else {
             tmp_flags = cur_flags & tmp_flags;
             cur_flags = cur_flags ^ tmp_flags;
         }
@@ -750,9 +786,9 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 
         if (tmp_flags == 0 && cur_flags == 0) {
             send_to_char(ch, "Wear flags set\r\n");
-        } else if (tmp_flags == 0)
+        } else if (tmp_flags == 0) {
             send_to_char(ch, "Wear flags not altered.\r\n");
-        else {
+        } else {
             send_to_char(ch, "Wear flags set.\r\n");
         }
         break;
@@ -761,13 +797,13 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         half_chop(arg2, arg1, arg2);
         if (!is_number(arg1)) {
             send_to_char(ch, "The argument must be a number.\r\n"
-                "Type olc help values for the lowdown.\r\n");
+                             "Type olc help values for the lowdown.\r\n");
             return;
         } else {
             i = atoi(arg1);
             if (i < 0 || i > 3) {
                 send_to_char(ch,
-                    "Usage: olc oset value [0|1|2|3] <value>.\r\n");
+                             "Usage: olc oset value [0|1|2|3] <value>.\r\n");
                 return;
             } else {
                 if (!*arg2) {
@@ -775,14 +811,14 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
                     return;
                 } else if (!is_number(arg2)) {
                     send_to_char(ch,
-                        "The value argument must be a number.\r\n");
+                                 "The value argument must be a number.\r\n");
                     return;
                 } else {
                     j = atoi(arg2);
                     obj_p->obj_flags.value[i] = j;
                     send_to_char(ch, "Value %d (%s) set to %d.\r\n", i,
-                        item_value_types[(int)obj_p->obj_flags.type_flag][i],
-                        j);
+                                 item_value_types[(int)obj_p->obj_flags.type_flag][i],
+                                 j);
 
                 }
             }
@@ -796,11 +832,12 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         if (!is_number(arg2)) {
             if ((i = search_block(arg2, material_names, 0)) < 0) {
                 send_to_char(ch,
-                    "Type olc help material for a valid list.\r\n");
+                             "Type olc help material for a valid list.\r\n");
                 return;
             }
-        } else
+        } else {
             i = atoi(arg2);
+        }
 
         if (i < 0 || i > TOP_MATERIAL) {
             send_to_char(ch, "Object material out of range.\r\n");
@@ -808,7 +845,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         } else {
             obj_p->obj_flags.material = i;
             send_to_char(ch, "Object %d material set to %s (%d).\r\n",
-                obj_p->shared->vnum, material_names[i], i);
+                         obj_p->shared->vnum, material_names[i], i);
         }
         break;
 
@@ -820,7 +857,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             i = atoi(arg2);
             obj_p->obj_flags.max_dam = i;
             send_to_char(ch, "Object %d maxdamage set to %d.\r\n",
-                obj_p->shared->vnum, i);
+                         obj_p->shared->vnum, i);
         }
         break;
 
@@ -832,7 +869,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             i = atoi(arg2);
             obj_p->obj_flags.damage = i;
             send_to_char(ch, "Object %d damage set to %d.\r\n",
-                obj_p->shared->vnum, i);
+                         obj_p->shared->vnum, i);
         }
         break;
 
@@ -861,8 +898,8 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             } else {
                 obj_p->shared->cost = i;
                 send_to_char(ch, "Object %5d cost set to %8d.\r\n"
-                    "Recommended cost:         %8d.\r\n",
-                    obj_p->shared->vnum, i, prototype_obj_value(obj_p));
+                                 "Recommended cost:         %8d.\r\n",
+                             obj_p->shared->vnum, i, prototype_obj_value(obj_p));
             }
         }
         break;
@@ -878,7 +915,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             } else {
                 obj_p->shared->cost_per_day = i;
                 send_to_char(ch, "Object %d rent set to %d.\r\n",
-                    obj_p->shared->vnum, i);
+                             obj_p->shared->vnum, i);
             }
         }
         break;
@@ -891,11 +928,12 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         if (!is_number(arg1)) {
             if ((i = search_block(arg1, apply_types, 0)) < 0) {
                 send_to_char(ch,
-                    "Unknown apply type.... type olc h apply.\r\n");
+                             "Unknown apply type.... type olc h apply.\r\n");
                 return;
             }
-        } else
+        } else {
             i = atoi(arg1);
+        }
 
         j = atoi(arg2);
 
@@ -909,8 +947,9 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 
         for (k = 0; k < MAX_OBJ_AFFECT; k++) {
             if (j) {
-                if (obj_p->affected[k].location == APPLY_NONE)
+                if (obj_p->affected[k].location == APPLY_NONE) {
                     obj_p->affected[k].location = i;
+                }
                 if (obj_p->affected[k].location == i) {
                     obj_p->affected[k].modifier = j;
                     break;
@@ -927,14 +966,16 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         normalize_applies(obj_p);
 
         if (k >= MAX_OBJ_AFFECT) {
-            if (j)
+            if (j) {
                 send_to_char(ch,
-                    "All apply slots are filled.  Set an existing apply mod. to zero to remove.\r\n");
-            else
+                             "All apply slots are filled.  Set an existing apply mod. to zero to remove.\r\n");
+            } else {
                 send_to_char(ch, "Unable to find an apply of that type.\r\n");
+            }
             return;
-        } else
+        } else {
             send_to_char(ch, "Done.\r\n");
+        }
 
         break;
 
@@ -942,7 +983,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         half_chop(arg2, arg1, arg2);
         if (!is_number(arg1) || !*arg2) {
             send_to_char(ch,
-                "Usage: olc oset affect <index> <bit letter>.\r\n");
+                         "Usage: olc oset affect <index> <bit letter>.\r\n");
             return;
         }
         i = atoi(arg1);
@@ -951,7 +992,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         if (i < 0 || i > 2) {
             send_to_char(ch, "Index out of range [1, 3].\r\n");
             send_to_char(ch,
-                "Usage: olc oset affect <index> <bit letter>.\r\n");
+                         "Usage: olc oset affect <index> <bit letter>.\r\n");
             return;
         }
 
@@ -965,24 +1006,25 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         start_editing_text(ch->desc, &obj_p->action_desc, 4096);
         break;
 
-    case 18:/** special **/
+    case 18: /** special **/
         if (subcmd != OLC_OSET) {
             send_to_char(ch, "This can only be set with olc.\r\n");
             return;
         }
-        if (!*arg2 || (i = find_spec_index_arg(arg2)) < 0)
+        if (!*arg2 || (i = find_spec_index_arg(arg2)) < 0) {
             send_to_char(ch, "That is not a valid special.\r\n"
-                "Type show special obj to view a list.\r\n");
-        else if (!IS_SET(spec_list[i].flags, SPEC_OBJ))
+                             "Type show special obj to view a list.\r\n");
+        } else if (!IS_SET(spec_list[i].flags, SPEC_OBJ)) {
             send_to_char(ch, "This special is not for objects.\r\n");
-        else if (IS_SET(spec_list[i].flags, SPEC_RES)
-            && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL))
+        } else if (IS_SET(spec_list[i].flags, SPEC_RES)
+                   && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL)) {
             send_to_char(ch, "This special is reserved.\r\n");
-        else {
+        } else {
 
             obj_p->shared->func = spec_list[i].func;
-            if (obj_p->shared->func_param != NULL)
+            if (obj_p->shared->func_param != NULL) {
                 free(obj_p->shared->func_param);
+            }
             obj_p->shared->func_param = NULL;
             do_specassign_save(ch, SPEC_OBJ);
             send_to_char(ch, "Object special set, you trickster you.\r\n");
@@ -995,13 +1037,13 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         }
         if (add_path_to_vehicle(obj_p, path_vnum_by_name(arg2))) {
             send_to_char(ch, "%s now follows the path titled: %s.\r\n",
-                obj_p->name, arg2);
+                         obj_p->name, arg2);
         } else {
             send_to_char(ch, "Could not assign that path to vehicle.\r\n");
         }
         break;
 
-    case 20:/** soilage **/
+    case 20: /** soilage **/
         if (subcmd == OLC_OSET) {
             send_to_char(ch, "Cannot set with OLC.\r\n");
             return;
@@ -1023,18 +1065,18 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 
         if (!*arg1 || !*argument) {
             send_to_char(ch,
-                "Usage: oset <obj> sigil <idnum|level> <value>\r\n");
+                         "Usage: oset <obj> sigil <idnum|level> <value>\r\n");
             return;
         }
 
-        if (is_abbrev(arg1, "idnum"))
+        if (is_abbrev(arg1, "idnum")) {
             GET_OBJ_SIGIL_IDNUM(obj_p) = atoi(argument);
-        else if (is_abbrev(arg1, "level"))
+        } else if (is_abbrev(arg1, "level")) {
             GET_OBJ_SIGIL_LEVEL(obj_p) = atoi(argument);
-        else {
+        } else {
             send_to_char(ch,
-                "Unknown argument '%s'.  You must set sigil idnum or level.\r\n",
-                arg2);
+                         "Unknown argument '%s'.  You must set sigil idnum or level.\r\n",
+                         arg2);
             return;
         }
 
@@ -1044,13 +1086,13 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         tmp_flags = 0;
         argument = one_argument(arg2, arg1);
 
-        if (*arg1 == '+')
+        if (*arg1 == '+') {
             state = 1;
-        else if (*arg1 == '-')
+        } else if (*arg1 == '-') {
             state = 2;
-        else {
+        } else {
             send_to_char(ch,
-                "Usage: olc oset extra3 [+/-] [FLAG, FLAG, ...]\r\n");
+                         "Usage: olc oset extra3 [+/-] [FLAG, FLAG, ...]\r\n");
             return;
         }
 
@@ -1061,15 +1103,16 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         while (*arg1) {
             if ((flag = search_block(arg1, extra3_names, false)) == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
-            } else
+            } else {
                 tmp_flags = tmp_flags | (1 << flag);
+            }
 
             argument = one_argument(argument, arg1);
         }
 
-        if (state == 1)
+        if (state == 1) {
             cur_flags = cur_flags | tmp_flags;
-        else {
+        } else {
             tmp_flags = cur_flags & tmp_flags;
             cur_flags = cur_flags ^ tmp_flags;
         }
@@ -1078,9 +1121,9 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
 
         if (tmp_flags == 0 && cur_flags == 0) {
             send_to_char(ch, "Extra3 flags set\r\n");
-        } else if (tmp_flags == 0)
+        } else if (tmp_flags == 0) {
             send_to_char(ch, "Extra3 flags not altered.\r\n");
-        else {
+        } else {
             send_to_char(ch, "Extra3 flags set.\r\n");
         }
         break;
@@ -1093,7 +1136,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             i = atoi(arg2);
             GET_OBJ_TIMER(obj_p) = i;
             send_to_char(ch, "Object %d timer set to %d.\r\n",
-                obj_p->shared->vnum, i);
+                         obj_p->shared->vnum, i);
         }
         break;
     case 24:
@@ -1133,7 +1176,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             } else {
                 obj_p->shared->owner_id = id;
                 send_to_char(ch, "Object %d owner set to %s[%ld].\r\n",
-                    obj_p->shared->vnum, player_name_by_idnum(id), id);
+                             obj_p->shared->vnum, player_name_by_idnum(id), id);
             }
         }
         break;
@@ -1177,13 +1220,15 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         }
         // auto-set the material type
         if (!obj_p->obj_flags.material && (oset_command == 0 || // alias
-                oset_command == 1 ||    // name
-                oset_command == 2)) // ldesc
+                                           oset_command == 1 || // name
+                                           oset_command == 2)) { // ldesc
             obj_p->obj_flags.material = choose_material(obj_p);
+        }
 
         if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL)
-            && !is_authorized(ch, WORLDWRITE, NULL))
+            && !is_authorized(ch, WORLDWRITE, NULL)) {
             SET_BIT(obj_p->obj_flags.extra2_flags, ITEM2_UNAPPROVED);
+        }
     }
 }
 
@@ -1202,17 +1247,21 @@ do_clear_olc_object(struct creature *ch)
 #ifdef DMALLOC
     dmalloc_verify(0);
 #endif
-    if (obj_p->aliases)
+    if (obj_p->aliases) {
         free(obj_p->aliases);
+    }
     obj_p->aliases = strdup("blank object");
-    if (obj_p->name)
+    if (obj_p->name) {
         free(obj_p->name);
+    }
     obj_p->name = strdup("a blank object");
-    if (obj_p->line_desc)
+    if (obj_p->line_desc) {
         free(obj_p->line_desc);
+    }
     obj_p->line_desc = strdup("A blank object has been dropped here.");
-    if (obj_p->action_desc)
+    if (obj_p->action_desc) {
         free(obj_p->action_desc);
+    }
     obj_p->action_desc = NULL;
 #ifdef DMALLOC
     dmalloc_verify(0);
@@ -1235,8 +1284,9 @@ do_clear_olc_object(struct creature *ch)
 
     SET_BIT(GET_OBJ_EXTRA2(obj_p), ITEM2_UNAPPROVED);
 
-    for (k = 0; k < 3; k++)
+    for (k = 0; k < 3; k++) {
         obj_p->obj_flags.bitvector[k] = 0;
+    }
 
     for (k = 0; k < MAX_OBJ_AFFECT; k++) {
         obj_p->affected[k].location = APPLY_NONE;
@@ -1247,10 +1297,12 @@ do_clear_olc_object(struct creature *ch)
 #endif
     while ((desc = obj_p->ex_description)) {
         obj_p->ex_description = desc->next;
-        if (desc->keyword)
+        if (desc->keyword) {
             free(desc->keyword);
-        if (desc->description)
+        }
+        if (desc->description) {
             free(desc->description);
+        }
         free(desc);
     }
     obj_p->ex_description = NULL;
@@ -1260,5 +1312,5 @@ do_clear_olc_object(struct creature *ch)
     UPDATE_OBJLIST_FULL(obj_p, tmp_obj);
 
     send_to_char(ch, "Okay, object #%d fully cleared.\r\n",
-        obj_p->shared->vnum);
+                 obj_p->shared->vnum);
 }

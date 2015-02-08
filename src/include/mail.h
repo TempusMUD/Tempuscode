@@ -40,14 +40,14 @@ extern const int MAIL_OBJ_VNUM;
 #define MAIL_BAG_THRESH 6
 // How long to let mail sit in the file before purging it out.
 // (Not actually used atm)
-#define MAX_MAIL_AGE 15552000	// should be 6 months.
+#define MAX_MAIL_AGE 15552000   // should be 6 months.
 
 // How much mail can they have?
 #define MAX_MAILFILE_SIZE 150000
 
 // Prototypes for postmaster specs
 void postmaster_send_mail(struct creature *ch, struct creature *mailman,
-	char *arg);
+                          char *arg);
 void postmaster_check_mail(struct creature *ch, struct creature *mailman);
 void postmaster_receive_mail(struct creature *ch, struct creature *mailman);
 // Redundant redeclarations for utility functions
@@ -61,15 +61,15 @@ bool send_mail(struct creature *ch,
                struct obj_data *obj_list,
                char **error);
 
-GList *receive_mail(struct creature * ch, int *num_mails);
+GList *receive_mail(struct creature *ch, int *num_mails);
 bool purge_mail(long idnum);
 
 // The actual mail file entry struct.
 struct mail_data {
-	long to;
-	long from;
-	time_t time;
-	long spare;
-	long msg_size;
+    long to;
+    long from;
+    time_t time;
+    long spare;
+    long msg_size;
 };
 #endif

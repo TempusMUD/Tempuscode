@@ -9,25 +9,25 @@
 //
 
 /* Sun state for weather_data */
-#define SUN_DARK	0
-#define SUN_RISE	1
-#define SUN_LIGHT	2
-#define SUN_SET		3
+#define SUN_DARK    0
+#define SUN_RISE    1
+#define SUN_LIGHT   2
+#define SUN_SET     3
 
 /* Sky conditions for weather_data */
-#define SKY_CLOUDLESS	0
-#define SKY_CLOUDY	1
-#define SKY_RAINING	2
-#define SKY_LIGHTNING	3
+#define SKY_CLOUDLESS   0
+#define SKY_CLOUDY  1
+#define SKY_RAINING 2
+#define SKY_LIGHTNING   3
 
-#define MOON_NEW           0	/* 23 /  0 */
-#define MOON_WAX_CRESCENT  1	/*  1 -  4 */
-#define MOON_FIRST_QUARTER 2	/*  5 -  6 */
-#define MOON_WAX_GIBBOUS   3	/*  7 - 10 */
-#define MOON_FULL          4	/* 11 - 12 */
-#define MOON_WANE_GIBBOUS  5	/* 13 - 16 */
-#define MOON_LAST_QUARTER  6	/* 17 - 18 */
-#define MOON_WANE_CRESCENT 7	/* 19 - 22 */
+#define MOON_NEW           0    /* 23 /  0 */
+#define MOON_WAX_CRESCENT  1    /*  1 -  4 */
+#define MOON_FIRST_QUARTER 2    /*  5 -  6 */
+#define MOON_WAX_GIBBOUS   3    /*  7 - 10 */
+#define MOON_FULL          4    /* 11 - 12 */
+#define MOON_WANE_GIBBOUS  5    /* 13 - 16 */
+#define MOON_LAST_QUARTER  6    /* 17 - 18 */
+#define MOON_WANE_CRESCENT 7    /* 19 - 22 */
 
 #define MOON_SKY_NONE      0
 #define MOON_SKY_RISE      1
@@ -37,13 +37,13 @@
 #define MOON_SKY_SET       5
 
 struct weather_data {
-	int pressure;				/* How is the pressure ( Mb ) */
-	int change;					/* How fast and what way does it change. */
-	int8_t sky;					/* How is the sky. */
-	int8_t sunlight;				/* And how much sun. */
-	int8_t moonlight;
-	int8_t temp;					/* temperature */
-	int8_t humid;					/* humidity */
+    int pressure;               /* How is the pressure ( Mb ) */
+    int change;                 /* How fast and what way does it change. */
+    int8_t sky;                 /* How is the sky. */
+    int8_t sunlight;                /* And how much sun. */
+    int8_t moonlight;
+    int8_t temp;                    /* temperature */
+    int8_t humid;                   /* humidity */
 };
 
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
@@ -51,22 +51,29 @@ void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
 static inline int
 get_lunar_phase(int day)
 {
-	if (day == 0 || day == 23)
-		return MOON_NEW;
-	if (day < 5)
-		return MOON_WAX_CRESCENT;
-	if (day < 7)
-		return MOON_FIRST_QUARTER;
-	if (day < 11)
-		return MOON_WAX_GIBBOUS;
-	if (day < 13)
-		return MOON_FULL;
-	if (day < 17)
-		return MOON_WANE_GIBBOUS;
-	if (day < 19)
-		return MOON_LAST_QUARTER;
+    if (day == 0 || day == 23) {
+        return MOON_NEW;
+    }
+    if (day < 5) {
+        return MOON_WAX_CRESCENT;
+    }
+    if (day < 7) {
+        return MOON_FIRST_QUARTER;
+    }
+    if (day < 11) {
+        return MOON_WAX_GIBBOUS;
+    }
+    if (day < 13) {
+        return MOON_FULL;
+    }
+    if (day < 17) {
+        return MOON_WANE_GIBBOUS;
+    }
+    if (day < 19) {
+        return MOON_LAST_QUARTER;
+    }
 
-	return MOON_WANE_CRESCENT;
+    return MOON_WANE_CRESCENT;
 }
 
 #endif

@@ -83,7 +83,7 @@ main(int argc, char **argv)
     char c;
     opterr = 1;
     while ((c = getopt_long(argc, argv, "bmcqrsoznlPp:u:g:",
-                long_options, &option_idx)) != -1) {
+                            long_options, &option_idx)) != -1) {
         switch (c) {
         case 'b':
             restrict_logins = 50;
@@ -192,8 +192,9 @@ main(int argc, char **argv)
         pw = getpwuid(geteuid());
     }
 
-    if (chroot(dir) < 0)
+    if (chroot(dir) < 0) {
         perror("Warning: can't chroot to data directory");
+    }
 
     if (setgid(gr->gr_gid) < 0) {
         perror("Couldn't change gid");
@@ -217,8 +218,9 @@ main(int argc, char **argv)
         boot_db();
         verify_tempus_integrity(NULL);
         slog("Press RETURN to continue.");
-        while (getchar() != '\n')
+        while (getchar() != '\n') {
             ;
+        }
         slog("Done.");
         safe_exit(EXIT_SUCCESS);
     } else {

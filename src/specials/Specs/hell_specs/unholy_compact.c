@@ -12,11 +12,13 @@ SPECIAL(unholy_compact)
     int con_cost = 5;
     int min_gen = 0;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (!CMD_IS("sell"))
+    if (!CMD_IS("sell")) {
         return 0;
+    }
     skip_spaces(&argument);
     if (IS_NPC(ch)) {
         return 1;
@@ -25,10 +27,12 @@ SPECIAL(unholy_compact)
 
     gold = adjusted_price(ch, dude, 10000 * GET_LEVEL(ch));
 
-    if (IS_KNIGHT(ch))
+    if (IS_KNIGHT(ch)) {
         min_gen = 6;
-    if (IS_CLERIC(ch))
+    }
+    if (IS_CLERIC(ch)) {
         min_gen = 4;
+    }
 
     if (!*argument) {
         send_to_char(ch, "Go sell your crap elsewhere! I only buy souls!\r\n");
@@ -37,7 +41,7 @@ SPECIAL(unholy_compact)
         perform_tell(dude, ch, "You really have no idea, do you.");
         return 1;
     } else if (GET_LEVEL(ch) < LVL_CAN_SELL_SOUL
-        || GET_REMORT_GEN(ch) < min_gen) {
+               || GET_REMORT_GEN(ch) < min_gen) {
         send_to_char(ch, "Your soul is worthless to me.\r\n");
         return 1;
     } else if (GET_ALIGNMENT(ch) > 0) {
@@ -45,19 +49,19 @@ SPECIAL(unholy_compact)
         return 1;
     } else if (!is_abbrev(argument, "soul")) {
         perform_tell(dude, ch,
-            "Go sell your crap elsewhere! I only buy souls!");
+                     "Go sell your crap elsewhere! I only buy souls!");
         return 1;
     }
     if (PLR2_FLAGGED(ch, PLR2_SOULLESS)) {
         snprintf(buf, sizeof(buf),
-            "I appreciate your devotion sir. But you only had one soul to sell.");
+                 "I appreciate your devotion sir. But you only had one soul to sell.");
         perform_tell(dude, ch, buf);
         return 1;
     }
     if (GET_GOLD(ch) < gold) {
         perform_tell(dude, ch, "You think I work for free?!?");
         snprintf(buf, sizeof(buf), "Bring me %'d gold coins and I will make the compact.",
-            gold);
+                 gold);
         perform_tell(dude, ch, buf);
     } else if (GET_LIFE_POINTS(ch) < life_cost) {
         perform_tell(dude, ch, "Your essence cannot sustain the compact.");
@@ -79,7 +83,7 @@ SPECIAL(unholy_compact)
         crashsave(ch);
         send_to_char(ch, "The torturous cries of hell haunt your dreams.\r\n");
         slog("%s sign's the unholy compact, joining the soulless masses.",
-            GET_NAME(ch));
+             GET_NAME(ch));
         return 1;
     }
     return 1;

@@ -6,8 +6,9 @@
 
 SPECIAL(puppet)
 {
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     struct creature *me2 = (struct creature *)me;
     struct affected_type af;
 
@@ -52,28 +53,31 @@ SPECIAL(puppet)
             act("The puppet says: OHHH I don't feel so good. Must have been someone I ate! ", false, ch, NULL, me2, TO_ROOM);
             break;
         case 10:
-            {
-                if (!number(0, 10)) {
-                    act("The puppet turns grey and explodes", false, ch, NULL,
-                        me2, TO_ROOM);
-                    make_corpse(me2, me2, TYPE_CLAW);
-                }
-                break;
+        {
+            if (!number(0, 10)) {
+                act("The puppet turns grey and explodes", false, ch, NULL,
+                    me2, TO_ROOM);
+                make_corpse(me2, me2, TYPE_CLAW);
             }
+            break;
+        }
 
         }
     }
-    if (!CMD_IS("say") && !CMD_IS("'"))
+    if (!CMD_IS("say") && !CMD_IS("'")) {
         return 0;
+    }
 
     skip_spaces(&argument);
-    if (!*argument)
+    if (!*argument) {
         return 0;
+    }
     half_chop(argument, buf, buf2);
 
     if (!strncasecmp(buf, "simonsez", 8) && !strncasecmp(buf2, "obey me", 7)) {
-        if (me2->master)
+        if (me2->master) {
             stop_follower(me2);
+        }
         add_follower(me2, ch);
 
         af.type = SPELL_CHARM;

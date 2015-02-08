@@ -26,35 +26,35 @@ extern const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1];
 // Returns a tmpstr allocated char* containing an appropriate ANSI
 // color code for the given target struct creature (tch) with the given
 // recipient struct creature(ch)'s color settings in mind.
-const char *get_char_class_color_code( struct creature *ch, struct creature *tch, int char_class )
-    __attribute__ ((nonnull));
+const char *get_char_class_color_code(struct creature *ch, struct creature *tch, int char_class)
+__attribute__ ((nonnull));
 // Returns a const char* containing an appropriate '&c' color code for the given
 // target struct creature (tch) suitable for use with send_to_desc.
-const char *get_char_class_color( struct creature *tch, int char_class)
-    __attribute__ ((nonnull));
+const char *get_char_class_color(struct creature *tch, int char_class)
+__attribute__ ((nonnull));
 
 int invalid_char_class(struct creature *ch, struct obj_data *obj)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 void gain_skill_prof(struct creature *ch, int skl)
-    __attribute__ ((nonnull));
-void calculate_height_weight( struct creature *ch )
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
+void calculate_height_weight(struct creature *ch)
+__attribute__ ((nonnull));
 const char *get_component_name(int comp, int sub_class);
 void do_start(struct creature *ch, int mode)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 
-int get_max_str( struct creature *ch )
-    __attribute__ ((nonnull));
-int get_max_int( struct creature *ch )
-    __attribute__ ((nonnull));
-int get_max_wis( struct creature *ch )
-    __attribute__ ((nonnull));
-int get_max_dex( struct creature *ch )
-    __attribute__ ((nonnull));
-int get_max_con( struct creature *ch )
-    __attribute__ ((nonnull));
-int get_max_cha( struct creature *ch )
-    __attribute__ ((nonnull));
+int get_max_str(struct creature *ch)
+__attribute__ ((nonnull));
+int get_max_int(struct creature *ch)
+__attribute__ ((nonnull));
+int get_max_wis(struct creature *ch)
+__attribute__ ((nonnull));
+int get_max_dex(struct creature *ch)
+__attribute__ ((nonnull));
+int get_max_con(struct creature *ch)
+__attribute__ ((nonnull));
+int get_max_cha(struct creature *ch)
+__attribute__ ((nonnull));
 
 #define ALL     0
 #define GOOD        1
@@ -91,18 +91,18 @@ LEARNED(struct creature *ch)
                      : "spell")
 
 #define PAST_CLASS(i)  (i == CLASS_MAGIC_USER || \
-                    i == CLASS_CLERIC || \
-                    i == CLASS_RANGER || \
-                    i == CLASS_KNIGHT || \
-                    i == CLASS_BARB || \
-                    i == CLASS_THIEF || \
-                    i == CLASS_MONK || \
-                    i == CLASS_BARD)
+                        i == CLASS_CLERIC || \
+                        i == CLASS_RANGER || \
+                        i == CLASS_KNIGHT || \
+                        i == CLASS_BARB || \
+                        i == CLASS_THIEF || \
+                        i == CLASS_MONK || \
+                        i == CLASS_BARD)
 
 #define FUTURE_CLASS(i) (i == CLASS_MERCENARY || \
-                     i == CLASS_PSIONIC || \
-                     i == CLASS_PHYSIC || \
-                     i == CLASS_CYBORG)
+                         i == CLASS_PSIONIC || \
+                         i == CLASS_PHYSIC || \
+                         i == CLASS_CYBORG)
 
 #endif
 

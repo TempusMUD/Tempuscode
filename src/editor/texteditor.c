@@ -73,12 +73,13 @@ texteditor_finalize(struct editor *editor, const char *text)
     }
 
     if (IS_PLAYING(editor->desc)) {
-        if (PLR_FLAGGED(editor->desc->creature, PLR_OLC))
+        if (PLR_FLAGGED(editor->desc->creature, PLR_OLC)) {
             act("$n nods with satisfaction as $e saves $s work.", true,
                 editor->desc->creature, NULL, NULL, TO_NOTVICT);
-        else
+        } else {
             act("$n finishes writing.", true, editor->desc->creature, NULL, NULL,
                 TO_NOTVICT);
+        }
     }
     free_texteditor(editor);
 }
@@ -91,21 +92,21 @@ start_editing_text(struct descriptor_data *d, char **dest, int max)
     if (!dest) {
         errlog("NULL destination pointer passed into start_text_editor!!");
         send_to_char(d->creature,
-            "This command seems to be broken. Bug this.\r\n");
+                     "This command seems to be broken. Bug this.\r\n");
         REMOVE_BIT(PLR_FLAGS(d->creature),
-            PLR_WRITING | PLR_OLC | PLR_MAILING);
+                   PLR_WRITING | PLR_OLC | PLR_MAILING);
         return;
     }
     if (d->text_editor) {
         errlog("Text editor object not null in start_text_editor.");
         REMOVE_BIT(PLR_FLAGS(d->creature),
-            PLR_WRITING | PLR_OLC | PLR_MAILING);
+                   PLR_WRITING | PLR_OLC | PLR_MAILING);
         return;
     }
     if (*dest && (strlen(*dest) > (unsigned int)max)) {
         send_to_char(d->creature, "ERROR: Buffer too large for editor.\r\n");
         REMOVE_BIT(PLR_FLAGS(d->creature),
-            PLR_WRITING | PLR_OLC | PLR_MAILING);
+                   PLR_WRITING | PLR_OLC | PLR_MAILING);
         return;
     }
 
@@ -118,8 +119,9 @@ start_editing_text(struct descriptor_data *d, char **dest, int max)
     d->text_editor->mode_data = text_data;
 
     text_data->target = dest;
-    if (*dest)
+    if (*dest) {
         editor_import(d->text_editor, *dest);
+    }
 
     emit_editor_startup(d->text_editor);
 }

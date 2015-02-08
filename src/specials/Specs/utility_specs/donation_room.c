@@ -6,8 +6,9 @@
 
 SPECIAL(donation_room)
 {
-    if (!CMD_IS("get") && !CMD_IS("take"))
+    if (!CMD_IS("get") && !CMD_IS("take")) {
         return 0;
+    }
 
     skip_spaces(&argument);
     if (argument && !strncasecmp(argument, "all", 3) && GET_LEVEL(ch) < 51) {

@@ -1,11 +1,11 @@
 /*
-	Rename
-	Quad
-	LP
-	Pracs
-	!break
-	oedit
-*/
+    Rename
+    Quad
+    LP
+    Pracs
+    !break
+    oedit
+ */
 
 static void
 quest_weapon_enchant(struct creature *ch, struct obj_data *obj, int lvl)
@@ -24,11 +24,11 @@ quest_weapon_enchant(struct creature *ch, struct obj_data *obj, int lvl)
 
     obj->affected[0].location = APPLY_HITROLL;
     obj->affected[0].modifier = MAX(2, number(2, 4)) +
-        (lvl >= 50) + (lvl >= 56) + (lvl >= 60) + (lvl >= 67);
+                                (lvl >= 50) + (lvl >= 56) + (lvl >= 60) + (lvl >= 67);
 
     obj->affected[1].location = APPLY_DAMROLL;
     obj->affected[1].modifier = MAX(2, number(2, 4)) +
-        (lvl >= 50) + (lvl >= 56) + (lvl >= 60) + (lvl >= 67);
+                                (lvl >= 50) + (lvl >= 56) + (lvl >= 60) + (lvl >= 67);
 
     if (IS_GOOD(ch)) {
         SET_BIT(GET_OBJ_EXTRA(obj), ITEM_ANTI_EVIL);
@@ -86,10 +86,12 @@ quest_armor_enchant(struct creature *ch, struct obj_data *obj, int lvl)
 bool
 quest_sphere_carrier_bad(struct creature *carrier)
 {
-    if (GET_LEVEL(carrier) > LVL_IMMORT)
+    if (GET_LEVEL(carrier) > LVL_IMMORT) {
         return false;
-    if (IS_NPC(carrier) && GET_NPC_SPEC(carrier) == vendor)
+    }
+    if (IS_NPC(carrier) && GET_NPC_SPEC(carrier) == vendor) {
         return false;
+    }
     return true;
 }
 
@@ -104,13 +106,14 @@ SPECIAL(quest_sphere)
     if (spec_mode == SPECIAL_TICK) {
         // The only place spheres can exist indefinitely is in the hands
         // of an immortal or a vendor
-        if (self->worn_by && quest_sphere_carrier_bad(self->worn_by))
+        if (self->worn_by && quest_sphere_carrier_bad(self->worn_by)) {
             GET_OBJ_VAL(self, 0)--;
-        else if (self->carried_by
-            && quest_sphere_carrier_bad(self->carried_by))
+        } else if (self->carried_by
+                   && quest_sphere_carrier_bad(self->carried_by)) {
             GET_OBJ_VAL(self, 0)--;
-        else if (self->in_obj || self->in_room)
+        } else if (self->in_obj || self->in_room) {
             GET_OBJ_VAL(self, 0)--;
+        }
 
         if (!GET_OBJ_VAL(self, 0)) {
             if (self->worn_by) {
@@ -123,8 +126,8 @@ SPECIAL(quest_sphere)
                     true, self->carried_by, self, NULL, TO_ROOM);
             } else if (self->in_room && self->in_room->people) {
                 send_to_room(tmp_capitalize(tmp_sprintf
-                        ("%s dissolves into fine sand and is blown away...\r\n",
-                            self->name)), self->in_room);
+                                                ("%s dissolves into fine sand and is blown away...\r\n",
+                                                self->name)), self->in_room);
             } else {
                 // in_obj is the only case left.  it just silently
                 // disappears in this case
@@ -134,16 +137,19 @@ SPECIAL(quest_sphere)
         return true;
     }
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
+    }
 
-    if (!CMD_IS("use") || GET_EQ(ch, WEAR_HOLD) != self)
+    if (!CMD_IS("use") || GET_EQ(ch, WEAR_HOLD) != self) {
         return false;
+    }
 
     // Check to make sure they want to use the sphere
     targ_str = tmp_getword(&argument);
-    if (!isname(targ_str, self->aliases))
+    if (!isname(targ_str, self->aliases)) {
         return false;
+    }
 
     targ_str = tmp_getword(&argument);
     if (*targ_str) {
@@ -154,26 +160,27 @@ SPECIAL(quest_sphere)
         }
     }
 
-    if (!GET_OBJ_PARAM(self))
+    if (!GET_OBJ_PARAM(self)) {
         return false;
+    }
 
     // We get to do our affect now
     param = GET_OBJ_PARAM(self);
     while ((line = tmp_getline(&param)) != NULL) {
         key = tmp_getword(&line);
-        if (!strcmp(key, "quad"))
+        if (!strcmp(key, "quad")) {
             quad = true;
-        else if (!strcmp(key, "nobreak")) {
+        } else if (!strcmp(key, "nobreak")) {
             nobreak = true;
             need_targ = true;
-        } else if (!strcmp(key, "lp"))
+        } else if (!strcmp(key, "lp")) {
             lp = (*line) ? atoi(line) : 2;
-        else if (!strcmp(key, "enchant")) {
+        } else if (!strcmp(key, "enchant")) {
             enchant_lvl = (*line) ? atoi(line) : 51;
             need_targ = true;
         } else {
             mudlog(LVL_IMMORT, CMP, false,
-                "Invalid directive in obj vnum #%d", GET_OBJ_VNUM(self));
+                   "Invalid directive in obj vnum #%d", GET_OBJ_VNUM(self));
             send_to_char(ch, "This is broken.  Please inform an imm.\r\n");
             return true;
         }
@@ -192,25 +199,26 @@ SPECIAL(quest_sphere)
             IS_OBJ_STAT(targ_obj, ITEM_BLESS) ||
             IS_OBJ_STAT(targ_obj, ITEM_DAMNED) ||
             (GET_OBJ_TYPE(targ_obj) != ITEM_WEAPON &&
-                GET_OBJ_TYPE(targ_obj) != ITEM_ARMOR)) {
+             GET_OBJ_TYPE(targ_obj) != ITEM_ARMOR)) {
             send_to_char(ch, "You can't enchant that!\r\n");
             return true;
         }
-        if (IS_OBJ_TYPE(targ_obj, ITEM_WEAPON))
+        if (IS_OBJ_TYPE(targ_obj, ITEM_WEAPON)) {
             quest_weapon_enchant(ch, targ_obj, enchant_lvl);
-        else if (IS_OBJ_TYPE(targ_obj, ITEM_ARMOR))
+        } else if (IS_OBJ_TYPE(targ_obj, ITEM_ARMOR)) {
             quest_armor_enchant(ch, targ_obj, enchant_lvl);
-        else {
+        } else {
             mudlog(LVL_IMMORT, CMP, true, "Can't happen at %s:%d",
-                __FILE__, __LINE__);
+                   __FILE__, __LINE__);
             send_to_char(ch, "Something broke.  Notify an immortal.\r\n");
             return true;
         }
     }
 
-    if (quad)
+    if (quad) {
         call_magic(ch, ch, NULL, NULL, SPELL_QUAD_DAMAGE, LVL_GRIMP,
-            CAST_SPELL);
+                   CAST_SPELL);
+    }
 
     if (nobreak) {
         act("$p becomes immune to breaking!", 1, ch, targ_obj, NULL, TO_CHAR);
@@ -228,15 +236,17 @@ SPECIAL(quest_sphere)
         0, ch, self, NULL, TO_ROOM);
     if (targ_obj) {
         targ_str = tmp_sprintf("%s qsphere-%d %s", targ_obj->aliases,
-            GET_OBJ_COST(self), GET_NAME(ch));
-        if (targ_obj->aliases != targ_obj->shared->proto->aliases)
+                               GET_OBJ_COST(self), GET_NAME(ch));
+        if (targ_obj->aliases != targ_obj->shared->proto->aliases) {
             free(targ_obj->aliases);
+        }
         targ_obj->aliases = strdup(targ_str);
         mudlog(GET_LEVEL(ch), CMP, true,
-            "%s has used %s on %s", GET_NAME(ch), self->name, targ_obj->name);
-    } else
+               "%s has used %s on %s", GET_NAME(ch), self->name, targ_obj->name);
+    } else {
         mudlog(GET_LEVEL(ch), CMP, true,
-            "%s has used %s", GET_NAME(ch), self->name);
+               "%s has used %s", GET_NAME(ch), self->name);
+    }
     extract_obj(self);
 
     return true;

@@ -56,7 +56,7 @@ dynamic_text_file *dyntext_list = NULL;
  ***/
 
 static int
-load_dyntext_buffer(dynamic_text_file * dyntext)
+load_dyntext_buffer(dynamic_text_file *dyntext)
 {
     char *path = tmp_sprintf("text/%s", dyntext->filename);
     FILE *fl = fopen(path, "r");
@@ -131,8 +131,9 @@ boot_dynamic_text(void)
             newdyn->last_edit[i].idnum = savedyn.last_edit[i].idnum;
             newdyn->last_edit[i].tEdit = savedyn.last_edit[i].tEdit;
         }
-        for (i = 0; i < DYN_TEXT_PERM_SIZE; i++)
+        for (i = 0; i < DYN_TEXT_PERM_SIZE; i++) {
             newdyn->perms[i] = savedyn.perms[i];
+        }
 
         newdyn->level = savedyn.level;
         newdyn->lock = 0;
@@ -155,7 +156,7 @@ boot_dynamic_text(void)
 }
 
 static int
-create_dyntext_backup(dynamic_text_file * dyntext)
+create_dyntext_backup(dynamic_text_file *dyntext)
 {
 
     DIR *dir;
@@ -180,8 +181,9 @@ create_dyntext_backup(dynamic_text_file * dyntext)
 
             num = atoi(dirp->d_name + len + 1);
 
-            if (num > maxnum)
+            if (num > maxnum) {
                 maxnum = num;
+            }
 
         }
     }
@@ -189,7 +191,7 @@ create_dyntext_backup(dynamic_text_file * dyntext)
     closedir(dir);
 
     snprintf(filename, sizeof(filename), "%s/%s.%02d", DYN_TEXT_BACKUP_DIR, dyntext->filename,
-        maxnum + 1);
+             maxnum + 1);
 
     if (!(fl = fopen(filename, "w"))) {
         errlog("Dyntext backup unable to open '%s'.", filename);
@@ -199,8 +201,9 @@ create_dyntext_backup(dynamic_text_file * dyntext)
     if (dyntext->buffer) {
         char *ptr;
         for (ptr = dyntext->buffer; *ptr; ptr++) {
-            if (*ptr == '\r')
+            if (*ptr == '\r') {
                 continue;
+            }
             fputc(*ptr, fl);
         }
     }
@@ -210,7 +213,7 @@ create_dyntext_backup(dynamic_text_file * dyntext)
 }
 
 static int
-save_dyntext_buffer(dynamic_text_file * dyntext)
+save_dyntext_buffer(dynamic_text_file *dyntext)
 {
     FILE *fl = NULL;
     char filename[1024];
@@ -225,8 +228,9 @@ save_dyntext_buffer(dynamic_text_file * dyntext)
 
     if (dyntext->buffer) {
         for (ptr = dyntext->buffer; *ptr; ptr++) {
-            if (*ptr == '\r')
+            if (*ptr == '\r') {
                 continue;
+            }
             fputc(*ptr, fl);
         }
     }
@@ -238,7 +242,7 @@ save_dyntext_buffer(dynamic_text_file * dyntext)
 }
 
 static int
-save_dyntext_control(dynamic_text_file * dyntext)
+save_dyntext_control(dynamic_text_file *dyntext)
 {
     FILE *fl = NULL;
     char filename[1024];
@@ -257,8 +261,9 @@ save_dyntext_control(dynamic_text_file * dyntext)
         savedyn.last_edit[i].idnum = dyntext->last_edit[i].idnum;
         savedyn.last_edit[i].tEdit = dyntext->last_edit[i].tEdit;
     }
-    for (i = 0; i < DYN_TEXT_PERM_SIZE; i++)
+    for (i = 0; i < DYN_TEXT_PERM_SIZE; i++) {
         savedyn.perms[i] = dyntext->perms[i];
+    }
     savedyn.level = dyntext->level;
     savedyn.unused_ptr1 = 0;
     savedyn.unused_ptr2 = 0;
@@ -275,10 +280,11 @@ save_dyntext_control(dynamic_text_file * dyntext)
 }
 
 static int
-push_update_to_history(struct creature *ch, dynamic_text_file * dyntext)
+push_update_to_history(struct creature *ch, dynamic_text_file *dyntext)
 {
-    for (int i = DYN_TEXT_HIST_SIZE - 1; i > 0; i--)
+    for (int i = DYN_TEXT_HIST_SIZE - 1; i > 0; i--) {
         dyntext->last_edit[i] = dyntext->last_edit[i - 1];
+    }
 
     dyntext->last_edit[0].idnum = GET_IDNUM(ch);
     dyntext->last_edit[0].tEdit = time(NULL);
@@ -308,14 +314,15 @@ show_dynedit_options(struct creature *ch)
 
     send_to_char(ch, "Dynedit usage:\r\n");
 
-    for (i = 0; dynedit_options[i][0] != NULL; i++)
+    for (i = 0; dynedit_options[i][0] != NULL; i++) {
         send_to_char(ch, "%10s   %s\r\n", dynedit_options[i][0],
-            dynedit_options[i][1]);
+                     dynedit_options[i][1]);
+    }
 
 }
 
 static void
-set_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
+set_dyntext(struct creature *ch, dynamic_text_file *dyntext, char *argument)
 {
 
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
@@ -335,7 +342,7 @@ set_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
 
         if (lev > GET_LEVEL(ch)) {
             send_to_char(ch,
-                "Let's not set it above your own level, shall we?\r\n");
+                         "Let's not set it above your own level, shall we?\r\n");
             return;
         }
 
@@ -346,15 +353,16 @@ set_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
         return;
     }
 
-    if (save_dyntext_control(dyntext))
+    if (save_dyntext_control(dyntext)) {
         send_to_char(ch,
-            "An error occurred while saving the control file.\r\n");
-    else
+                     "An error occurred while saving the control file.\r\n");
+    } else {
         send_to_char(ch, "Control file saved.\r\n");
+    }
 }
 
 static void
-show_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
+show_dyntext(struct creature *ch, dynamic_text_file *dyntext, char *argument)
 {
     int i;
 
@@ -362,23 +370,23 @@ show_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
 
         if (!*argument) {
             send_to_char(ch,
-                "DYNTEXT: filename: '%s'\r\n"
-                "             last: %s (%d) @ %s\r"
-                "            level: %d\r\n"
-                "             lock: %s (%d)\r\n"
-                "              old: %-3s (Len: %zd)\r\n"
-                "              new: %-3s (Len: %zd)\r\n",
-                dyntext->filename,
-                player_name_by_idnum(dyntext->last_edit[0].idnum),
-                dyntext->last_edit[0].idnum,
-                ctime(&(dyntext->last_edit[0].tEdit)),
-                dyntext->level,
-                player_name_by_idnum(dyntext->lock),
-                dyntext->lock,
-                YESNO(dyntext->buffer),
-                dyntext->buffer ? strlen(dyntext->buffer) : 0,
-                YESNO(dyntext->tmp_buffer),
-                dyntext->tmp_buffer ? strlen(dyntext->tmp_buffer) : 0);
+                         "DYNTEXT: filename: '%s'\r\n"
+                         "             last: %s (%d) @ %s\r"
+                         "            level: %d\r\n"
+                         "             lock: %s (%d)\r\n"
+                         "              old: %-3s (Len: %zd)\r\n"
+                         "              new: %-3s (Len: %zd)\r\n",
+                         dyntext->filename,
+                         player_name_by_idnum(dyntext->last_edit[0].idnum),
+                         dyntext->last_edit[0].idnum,
+                         ctime(&(dyntext->last_edit[0].tEdit)),
+                         dyntext->level,
+                         player_name_by_idnum(dyntext->lock),
+                         dyntext->lock,
+                         YESNO(dyntext->buffer),
+                         dyntext->buffer ? strlen(dyntext->buffer) : 0,
+                         YESNO(dyntext->tmp_buffer),
+                         dyntext->tmp_buffer ? strlen(dyntext->tmp_buffer) : 0);
             return;
         }
         // there was an argument, parse it
@@ -398,16 +406,16 @@ show_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
             send_to_char(ch, "Permissions defined:\r\n");
             for (i = 0; i < DYN_TEXT_PERM_SIZE; i++) {
                 send_to_char(ch, "%3d.] (%5d) %s\r\n",
-                    i, dyntext->perms[i],
-                    player_name_by_idnum(dyntext->perms[i]));
+                             i, dyntext->perms[i],
+                             player_name_by_idnum(dyntext->perms[i]));
             }
         } else if (is_abbrev(argument, "last")) {
             send_to_char(ch, "Last edits:\r\n");
             for (i = 0; i < DYN_TEXT_HIST_SIZE; i++) {
                 send_to_char(ch, "%3d.] (%5d) %30s @ %s\r",
-                    i, dyntext->last_edit[i].idnum,
-                    player_name_by_idnum(dyntext->last_edit[i].idnum),
-                    ctime(&(dyntext->last_edit[i].tEdit)));
+                             i, dyntext->last_edit[i].idnum,
+                             player_name_by_idnum(dyntext->last_edit[i].idnum),
+                             ctime(&(dyntext->last_edit[i].tEdit)));
             }
 
         } else {
@@ -417,22 +425,25 @@ show_dyntext(struct creature *ch, dynamic_text_file * dyntext, char *argument)
         return;
     }
     send_to_char(ch, "DYNTEXT LIST:\r\n");
-    for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next)
+    for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
         send_to_char(ch, "%s\r\n", dyntext->filename);
+    }
 
 }
 
 static bool
-dyntext_edit_ok(struct creature *ch, dynamic_text_file * dyntext)
+dyntext_edit_ok(struct creature *ch, dynamic_text_file *dyntext)
 {
     int i;
 
-    if (dyntext->level <= GET_LEVEL(ch) || GET_IDNUM(ch) != 1)
+    if (dyntext->level <= GET_LEVEL(ch) || GET_IDNUM(ch) != 1) {
         return 1;
+    }
 
     for (i = 0; i < DYN_TEXT_PERM_SIZE; i++) {
-        if (dyntext->perms[i] == GET_IDNUM(ch))
+        if (dyntext->perms[i] == GET_IDNUM(ch)) {
             return 1;
+        }
     }
 
     return !already_being_edited(ch, dyntext->tmp_buffer);
@@ -455,7 +466,7 @@ dynedit_check_dyntext(struct creature *ch,
 }
 
 static char *
-dynedit_update_string(dynamic_text_file * d)
+dynedit_update_string(dynamic_text_file *d)
 {
 
     struct tm tmTime;
@@ -463,15 +474,16 @@ dynedit_update_string(dynamic_text_file * d)
     static char buffer[1024];
 
     if (!strncmp(d->filename, "fate", 4)
-        || !strncmp(d->filename, "arenalist", 9))
+        || !strncmp(d->filename, "arenalist", 9)) {
         return tmp_strdup("");
+    }
     printf("Updating File: %s\r\n", d->filename);
     t = time(NULL);
     tmTime = *(localtime(&t));
 
     snprintf(buffer, sizeof(buffer),
-        "\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\r\n",
-        tmp_toupper(d->filename), tmTime.tm_mon + 1, tmTime.tm_mday);
+             "\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\r\n",
+             tmp_toupper(d->filename), tmTime.tm_mon + 1, tmTime.tm_mday);
 
     return buffer;
 
@@ -495,9 +507,11 @@ ACMD(do_dynedit)
         return;
     }
 
-    for (dyn_com = 0; dynedit_options[dyn_com][0] != NULL; dyn_com++)
-        if (is_abbrev(arg1, dynedit_options[dyn_com][0]))
+    for (dyn_com = 0; dynedit_options[dyn_com][0] != NULL; dyn_com++) {
+        if (is_abbrev(arg1, dynedit_options[dyn_com][0])) {
             break;
+        }
+    }
 
     if (dynedit_options[dyn_com][0] == NULL) {
         send_to_char(ch, "Unknown option.\r\n");
@@ -506,9 +520,11 @@ ACMD(do_dynedit)
     }
 
     if (*arg2) {
-        for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next)
-            if (!strcasecmp(arg2, dyntext->filename))
+        for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
+            if (!strcasecmp(arg2, dyntext->filename)) {
                 break;
+            }
+        }
     }
 
     switch (dyn_com) {
@@ -527,8 +543,9 @@ ACMD(do_dynedit)
         set_dyntext(ch, dyntext, argument);
         break;
     case 2:                    // add
-        if (dynedit_check_dyntext(ch, dyntext, arg2))
+        if (dynedit_check_dyntext(ch, dyntext, arg2)) {
             return;
+        }
 
         if (!*argument) {
             send_to_char(ch, "Add who to the permission list?\r\n");
@@ -544,11 +561,12 @@ ACMD(do_dynedit)
                 dyntext->perms[i] = idnum;
                 send_to_char(ch, "User added.\r\n");
 
-                if (save_dyntext_control(dyntext))
+                if (save_dyntext_control(dyntext)) {
                     send_to_char(ch,
-                        "An error occurred while saving the control file.\r\n");
-                else
+                                 "An error occurred while saving the control file.\r\n");
+                } else {
                     send_to_char(ch, "Control file saved.\r\n");
+                }
 
                 return;
             }
@@ -558,8 +576,9 @@ ACMD(do_dynedit)
         break;
 
     case 3:                    // remove
-        if (dynedit_check_dyntext(ch, dyntext, arg2))
+        if (dynedit_check_dyntext(ch, dyntext, arg2)) {
             return;
+        }
 
         if (!*argument) {
             send_to_char(ch, "Remove who from the permission list?\r\n");
@@ -584,11 +603,12 @@ ACMD(do_dynedit)
         if (found) {
             send_to_char(ch, "User removed from the permission list.\r\n");
 
-            if (save_dyntext_control(dyntext))
+            if (save_dyntext_control(dyntext)) {
                 send_to_char(ch,
-                    "An error occurred while saving the control file.\r\n");
-            else
+                             "An error occurred while saving the control file.\r\n");
+            } else {
                 send_to_char(ch, "Control file saved.\r\n");
+            }
 
         } else {
             send_to_char(ch, "That user is not on the permisison list.\r\n");
@@ -597,12 +617,13 @@ ACMD(do_dynedit)
         break;
 
     case 4:                    // edit
-        if (dynedit_check_dyntext(ch, dyntext, arg2))
+        if (dynedit_check_dyntext(ch, dyntext, arg2)) {
             return;
+        }
 
         if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
             send_to_char(ch, "That file is already locked by %s.\r\n",
-                player_name_by_idnum(dyntext->lock));
+                         player_name_by_idnum(dyntext->lock));
             return;
         }
         if (!dyntext_edit_ok(ch, dyntext)) {
@@ -619,13 +640,14 @@ ACMD(do_dynedit)
 
         break;
     case 5:                    // abort
-        if (dynedit_check_dyntext(ch, dyntext, arg2))
+        if (dynedit_check_dyntext(ch, dyntext, arg2)) {
             return;
+        }
 
         if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)
             && GET_LEVEL(ch) < LVL_CREATOR) {
             send_to_char(ch, "That file is already locked by %s.\r\n",
-                player_name_by_idnum(dyntext->lock));
+                         player_name_by_idnum(dyntext->lock));
             return;
         }
         if (!dyntext_edit_ok(ch, dyntext)) {
@@ -642,13 +664,14 @@ ACMD(do_dynedit)
 
     case 6:                    // update
 
-        if (dynedit_check_dyntext(ch, dyntext, arg2))
+        if (dynedit_check_dyntext(ch, dyntext, arg2)) {
             return;
+        }
 
         if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)
             && GET_LEVEL(ch) < LVL_CREATOR) {
             send_to_char(ch, "That file is already locked by %s.\r\n",
-                player_name_by_idnum(dyntext->lock));
+                         player_name_by_idnum(dyntext->lock));
             return;
         }
 
@@ -670,8 +693,9 @@ ACMD(do_dynedit)
         dyntext->lock = 0;
 
         // update the buffer
-        if (dyntext->buffer)
+        if (dyntext->buffer) {
             free(dyntext->buffer);
+        }
 
         dyntext->buffer = dyntext->tmp_buffer;
         dyntext->tmp_buffer = NULL;
@@ -704,25 +728,28 @@ ACMD(do_dynedit)
 
         }
 
-        if (push_update_to_history(ch, dyntext))
+        if (push_update_to_history(ch, dyntext)) {
 
             send_to_char(ch, "There was an error updating the history.\r\n");
+        }
 
-        if (save_dyntext_control(dyntext))
+        if (save_dyntext_control(dyntext)) {
             send_to_char(ch,
-                "An error occurred while saving the control file.\r\n");
-        else
+                         "An error occurred while saving the control file.\r\n");
+        } else {
             send_to_char(ch, "Control file saved.\r\n");
+        }
 
         break;
 
     case 7:                    // prepend
-        if (dynedit_check_dyntext(ch, dyntext, arg2))
+        if (dynedit_check_dyntext(ch, dyntext, arg2)) {
             return;
+        }
 
         if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
             send_to_char(ch, "That file is already locked by %s.\r\n",
-                player_name_by_idnum(dyntext->lock));
+                         player_name_by_idnum(dyntext->lock));
             return;
         }
         if (!dyntext_edit_ok(ch, dyntext)) {
@@ -732,28 +759,26 @@ ACMD(do_dynedit)
 
         if (!dyntext->buffer) {
             send_to_char(ch,
-                "There is nothing in the old buffer to prepend.\r\n");
+                         "There is nothing in the old buffer to prepend.\r\n");
         } else {
 
             if (!dyntext->tmp_buffer) {
                 dyntext->tmp_buffer = strdup(dyntext->buffer);
-            }
-
-            else {
+            } else {
                 if (strlen(dyntext->buffer) + strlen(dyntext->tmp_buffer) >=
                     MAX_STRING_LENGTH) {
                     send_to_char(ch,
-                        "Resulting string would exceed maximum string length, aborting.\r\n");
+                                 "Resulting string would exceed maximum string length, aborting.\r\n");
                     return;
                 }
                 size_t newbuf_size = strlen(dyntext->buffer) +
-                    strlen(dyntext->tmp_buffer) + 1;
+                                     strlen(dyntext->tmp_buffer) + 1;
                 if (!(newbuf =
-                        (char *)malloc(newbuf_size))) {
+                          (char *)malloc(newbuf_size))) {
                     errlog
                         ("unable to malloc buffer for prepend in do_dynedit.");
                     send_to_char(ch,
-                        "Unable to allocate memory for the new buffer.\r\n");
+                                 "Unable to allocate memory for the new buffer.\r\n");
                     return;
                 }
                 *newbuf = '\0';
@@ -767,12 +792,13 @@ ACMD(do_dynedit)
         break;
 
     case 8:                    // append
-        if (dynedit_check_dyntext(ch, dyntext, arg2))
+        if (dynedit_check_dyntext(ch, dyntext, arg2)) {
             return;
+        }
 
         if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
             send_to_char(ch, "That file is already locked by %s.\r\n",
-                player_name_by_idnum(dyntext->lock));
+                         player_name_by_idnum(dyntext->lock));
             return;
         }
         if (!dyntext_edit_ok(ch, dyntext)) {
@@ -782,18 +808,16 @@ ACMD(do_dynedit)
 
         if (!dyntext->buffer) {
             send_to_char(ch,
-                "There is nothing in the old buffer to append.\r\n");
+                         "There is nothing in the old buffer to append.\r\n");
         } else {
 
             if (!dyntext->tmp_buffer) {
                 dyntext->tmp_buffer = strdup(dyntext->buffer);
-            }
-
-            else {
+            } else {
                 if (strlen(dyntext->buffer) + strlen(dyntext->tmp_buffer) >=
                     MAX_STRING_LENGTH) {
                     send_to_char(ch,
-                        "Resulting string would exceed maximum string length, aborting.\r\n");
+                                 "Resulting string would exceed maximum string length, aborting.\r\n");
                     return;
                 }
                 size_t newbuf_size = strlen(dyntext->buffer) + strlen(dyntext->tmp_buffer) + 1;
@@ -812,27 +836,28 @@ ACMD(do_dynedit)
         }
         send_to_char(ch, "Old buffer appended to new buffer.\r\n");
         break;
-    case 9:{                   // reload
-            if (dynedit_check_dyntext(ch, dyntext, arg2))
-                return;
-
-            if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
-                send_to_char(ch, "That file is already locked by %s.\r\n",
-                    player_name_by_idnum(dyntext->lock));
-                return;
-            }
-            if (!dyntext_edit_ok(ch, dyntext)) {
-                send_to_char(ch, "You cannot edit this file.\r\n");
-                return;
-            }
-            int rc = load_dyntext_buffer(dyntext);
-            if (rc == 0) {
-                send_to_char(ch, "Buffer reloaded.\r\n");
-            } else {
-                send_to_char(ch, "Error reloading buffer.\r\n");
-            }
-            break;
+    case 9: {                   // reload
+        if (dynedit_check_dyntext(ch, dyntext, arg2)) {
+            return;
         }
+
+        if (dyntext->lock && dyntext->lock != GET_IDNUM(ch)) {
+            send_to_char(ch, "That file is already locked by %s.\r\n",
+                         player_name_by_idnum(dyntext->lock));
+            return;
+        }
+        if (!dyntext_edit_ok(ch, dyntext)) {
+            send_to_char(ch, "You cannot edit this file.\r\n");
+            return;
+        }
+        int rc = load_dyntext_buffer(dyntext);
+        if (rc == 0) {
+            send_to_char(ch, "Buffer reloaded.\r\n");
+        } else {
+            send_to_char(ch, "Error reloading buffer.\r\n");
+        }
+        break;
+    }
     default:                   // default
         break;
     }
@@ -859,9 +884,11 @@ ACMD(do_dyntext_show)
         return;
     }
 
-    for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next)
-        if (!strcmp(dyntext->filename, dynname))
+    for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
+        if (!strcmp(dyntext->filename, dynname)) {
             break;
+        }
+    }
 
     if (!dyntext) {
         send_to_char(ch, "Sorry, unable to load that dynamic text.\r\n");
@@ -886,12 +913,12 @@ ACMD(do_dyntext_show)
     acc_string_clear();
     acc_sprintf
         ("   %s=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%s\r\n"
-        "   %s_::::::  :::::::::  ::::::::::::  :::::::::  :::   :::  ::::::::\r\n"
-        "     _:    :::        :::  ::  :::  :::    ::  :::   :::  :::\r\n"
-        "    _:    :::::::    :::  ::  :::  :::::::::  :::   :::  ::::::::      %s%s%s\r\n"
-        "   %s_:    :::        :::  ::  :::  :::        :::   :::       :::\r\n"
-        "  _:    :::::::::  :::  ::  :::  :::        :::::::::  ::::::::%s\r\n"
-        " %s=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%s\r\n ",
+         "   %s_::::::  :::::::::  ::::::::::::  :::::::::  :::   :::  ::::::::\r\n"
+         "     _:    :::        :::  ::  :::  :::    ::  :::   :::  :::\r\n"
+         "    _:    :::::::    :::  ::  :::  :::::::::  :::   :::  ::::::::      %s%s%s\r\n"
+         "   %s_:    :::        :::  ::  :::  :::        :::   :::       :::\r\n"
+         "  _:    :::::::::  :::  ::  :::  :::        :::::::::  ::::::::%s\r\n"
+         " %s=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%s\r\n ",
         color1, CCNRM(ch, C_NRM), color2, color3, humanname, CCNRM(ch, C_NRM),
         color2, CCNRM(ch, C_NRM), color1, CCNRM(ch, C_NRM));
 
@@ -911,14 +938,17 @@ check_dyntext_updates(struct creature *ch)
     for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
         if (dyntext->last_edit[0].tEdit > ch->account->entry_time) {
             if (!strcmp(dyntext->filename, "inews")
-                && GET_LEVEL(ch) < LVL_AMBASSADOR)
+                && GET_LEVEL(ch) < LVL_AMBASSADOR) {
                 continue;
+            }
             if (!strcmp(dyntext->filename, "tnews")
-                && GET_LEVEL(ch) < LVL_AMBASSADOR && !is_tester(ch))
+                && GET_LEVEL(ch) < LVL_AMBASSADOR && !is_tester(ch)) {
                 continue;
+            }
             if (!strncmp(dyntext->filename, "fate", 4)
-                || !strncmp(dyntext->filename, "arenalist", 9))
+                || !strncmp(dyntext->filename, "arenalist", 9)) {
                 continue;
+            }
 
             send_to_char(ch, "%s [ The %s file has been updated. Use the %s command to view. ]%s\r\n",
                          CCYEL(ch, C_NRM), dyntext->filename, dyntext->filename, CCNRM(ch, C_NRM));

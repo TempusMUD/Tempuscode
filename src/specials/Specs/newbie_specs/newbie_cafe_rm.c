@@ -6,17 +6,19 @@
 
 SPECIAL(newbie_cafe_rm)
 {
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (IS_NPC(ch) && GET_NPC_VNUM(ch) == 2391) /* janitor */
+    if (IS_NPC(ch) && GET_NPC_VNUM(ch) == 2391) { /* janitor */
         return 0;
+    }
 
     if (CMD_IS("south")) {
         if ((GET_LEVEL(ch) > 5 || IS_REMORT(ch)) && GET_LEVEL(ch) < LVL_IMMORT) {
             send_to_char(ch, "You may no longer pass into this area.\r\n");
             send_to_char(ch,
-                "If you you cannot find a way out of the cafe, type RETURN.\r\n");
+                         "If you you cannot find a way out of the cafe, type RETURN.\r\n");
             return 1;
         }
     } else if (CMD_IS("return")) {

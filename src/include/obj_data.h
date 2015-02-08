@@ -16,33 +16,33 @@ struct room_data;
 
 /* Item types: used by struct obj_data.obj_flags.type_flag */
 enum item_type {
-    ITEM_LIGHT = 1,	/* Item is a light source   */
-    ITEM_SCROLL = 2,	/* Item is a scroll     */
-    ITEM_WAND = 3,	/* Item is a wand       */
-    ITEM_STAFF = 4,	/* Item is a staff      */
-    ITEM_WEAPON = 5,	/* Item is a weapon     */
-    ITEM_CAMERA = 6,	/* Unimplemented        */
-    ITEM_MISSILE = 7,	/* Unimplemented        */
-    ITEM_TREASURE = 8,	/* Item is a treasure, not gold */
-    ITEM_ARMOR = 9,	/* Item is armor        */
-    ITEM_POTION = 10,	/* Item is a potion     */
-    ITEM_WORN = 11,	/* Unimplemented        */
-    ITEM_OTHER = 12,	/* Misc object          */
-    ITEM_TRASH = 13,	/* Trash - shopkeeps won't buy  */
-    ITEM_TRAP = 14,	/* Unimplemented        */
-    ITEM_CONTAINER = 15,	/* Item is a container      */
-    ITEM_NOTE = 16,	/* Item is note         */
-    ITEM_DRINKCON = 17,	/* Item is a drink container    */
-    ITEM_KEY = 18,	/* Item is a key        */
-    ITEM_FOOD = 19,	/* Item is food         */
-    ITEM_MONEY = 20,	/* Item is money (gold)     */
-    ITEM_PEN = 21,	/* Item is a pen        */
-    ITEM_BOAT = 22,	/* Item is a boat       */
-    ITEM_FOUNTAIN = 23,	/* Item is a fountain       */
-    ITEM_WINGS = 24,	/* Item allows flying           */
+    ITEM_LIGHT = 1, /* Item is a light source   */
+    ITEM_SCROLL = 2,    /* Item is a scroll     */
+    ITEM_WAND = 3,  /* Item is a wand       */
+    ITEM_STAFF = 4, /* Item is a staff      */
+    ITEM_WEAPON = 5,    /* Item is a weapon     */
+    ITEM_CAMERA = 6,    /* Unimplemented        */
+    ITEM_MISSILE = 7,   /* Unimplemented        */
+    ITEM_TREASURE = 8,  /* Item is a treasure, not gold */
+    ITEM_ARMOR = 9, /* Item is armor        */
+    ITEM_POTION = 10,   /* Item is a potion     */
+    ITEM_WORN = 11, /* Unimplemented        */
+    ITEM_OTHER = 12,    /* Misc object          */
+    ITEM_TRASH = 13,    /* Trash - shopkeeps won't buy  */
+    ITEM_TRAP = 14, /* Unimplemented        */
+    ITEM_CONTAINER = 15,    /* Item is a container      */
+    ITEM_NOTE = 16, /* Item is note         */
+    ITEM_DRINKCON = 17, /* Item is a drink container    */
+    ITEM_KEY = 18,  /* Item is a key        */
+    ITEM_FOOD = 19, /* Item is food         */
+    ITEM_MONEY = 20,    /* Item is money (gold)     */
+    ITEM_PEN = 21,  /* Item is a pen        */
+    ITEM_BOAT = 22, /* Item is a boat       */
+    ITEM_FOUNTAIN = 23, /* Item is a fountain       */
+    ITEM_WINGS = 24,    /* Item allows flying           */
     ITEM_VR_ARCADE = 25,
-/**/     ITEM_SCUBA_MASK = 26,
-    ITEM_DEVICE = 27,	/*Activatable device             */
+/**/ ITEM_SCUBA_MASK = 26,
+    ITEM_DEVICE = 27,   /*Activatable device             */
     ITEM_INTERFACE = 28,
     ITEM_HOLY_SYMB = 29,
     ITEM_VEHICLE = 30,
@@ -91,53 +91,53 @@ enum instrument_type {
 
 /* Take/Wear flags: used by struct obj_data.obj_flags.wear_flags */
 enum wear_flag {
-    ITEM_WEAR_TAKE = (1 << 0),	/* Item can be takes      */
-    ITEM_WEAR_FINGER = (1 << 1),	/* Can be worn on finger    */
-    ITEM_WEAR_NECK = (1 << 2),	/* Can be worn around neck    */
-    ITEM_WEAR_BODY = (1 << 3),	/* Can be worn on body    */
-    ITEM_WEAR_HEAD = (1 << 4),	/* Can be worn on head    */
-    ITEM_WEAR_LEGS = (1 << 5),	/* Can be worn on legs    */
-    ITEM_WEAR_FEET = (1 << 6),	/* Can be worn on feet    */
-    ITEM_WEAR_HANDS = (1 << 7),	/* Can be worn on hands  */
-    ITEM_WEAR_ARMS = (1 << 8),	/* Can be worn on arms    */
-    ITEM_WEAR_SHIELD = (1 << 9),	/* Can be used as a shield  */
-    ITEM_WEAR_ABOUT = (1 << 10),	/* Can be worn about body    */
-    ITEM_WEAR_WAIST = (1 << 11),	/* Can be worn around waist  */
-    ITEM_WEAR_WRIST = (1 << 12),	/* Can be worn on wrist  */
-    ITEM_WEAR_WIELD = (1 << 13),	/* Can be wielded        */
-    ITEM_WEAR_HOLD = (1 << 14),	/* Can be held        */
-    ITEM_WEAR_CROTCH = (1 << 15),	/* guess where    */
-    ITEM_WEAR_EYES = (1 << 16),	/* eyes */
-    ITEM_WEAR_BACK = (1 << 17),	/*Worn on back       */
-    ITEM_WEAR_BELT = (1 << 18),	/* Worn on a belt(ie, pouch)   */
+    ITEM_WEAR_TAKE = (1 << 0),  /* Item can be takes      */
+    ITEM_WEAR_FINGER = (1 << 1),    /* Can be worn on finger    */
+    ITEM_WEAR_NECK = (1 << 2),  /* Can be worn around neck    */
+    ITEM_WEAR_BODY = (1 << 3),  /* Can be worn on body    */
+    ITEM_WEAR_HEAD = (1 << 4),  /* Can be worn on head    */
+    ITEM_WEAR_LEGS = (1 << 5),  /* Can be worn on legs    */
+    ITEM_WEAR_FEET = (1 << 6),  /* Can be worn on feet    */
+    ITEM_WEAR_HANDS = (1 << 7), /* Can be worn on hands  */
+    ITEM_WEAR_ARMS = (1 << 8),  /* Can be worn on arms    */
+    ITEM_WEAR_SHIELD = (1 << 9),    /* Can be used as a shield  */
+    ITEM_WEAR_ABOUT = (1 << 10),    /* Can be worn about body    */
+    ITEM_WEAR_WAIST = (1 << 11),    /* Can be worn around waist  */
+    ITEM_WEAR_WRIST = (1 << 12),    /* Can be worn on wrist  */
+    ITEM_WEAR_WIELD = (1 << 13),    /* Can be wielded        */
+    ITEM_WEAR_HOLD = (1 << 14), /* Can be held        */
+    ITEM_WEAR_CROTCH = (1 << 15),   /* guess where    */
+    ITEM_WEAR_EYES = (1 << 16), /* eyes */
+    ITEM_WEAR_BACK = (1 << 17), /*Worn on back       */
+    ITEM_WEAR_BELT = (1 << 18), /* Worn on a belt(ie, pouch)   */
     ITEM_WEAR_FACE = (1 << 19),
     ITEM_WEAR_EAR = (1 << 20),
-    ITEM_WEAR_ASS = (1 << 21),	/*Can be RAMMED up an asshole */
+    ITEM_WEAR_ASS = (1 << 21),  /*Can be RAMMED up an asshole */
     NUM_WEAR_FLAGS = 22,
 };
 
 /* Extra object flags: used by struct obj_data.obj_flags.extra_flags */
 enum obj_flag {
-    ITEM_GLOW = (1 << 0),	/* Item is glowing      */
-    ITEM_HUM = (1 << 1),	/* Item is humming      */
-    ITEM_NORENT = (1 << 2),	/* Item cannot be rented    */
-    ITEM_NODONATE = (1 << 3),	/* Item cannot be donated   */
-    ITEM_NOINVIS = (1 << 4),	/* Item cannot be made invis    */
-    ITEM_INVISIBLE = (1 << 5),	/* Item is invisible        */
-    ITEM_MAGIC = (1 << 6),	/* Item is magical      */
-    ITEM_NODROP = (1 << 7),	/* Item is cursed: can't drop   */
-    ITEM_BLESS = (1 << 8),	/* Item is blessed      */
-    ITEM_ANTI_GOOD = (1 << 9),	/* Not usable by good people    */
-    ITEM_ANTI_EVIL = (1 << 10),	/* Not usable by evil people    */
-    ITEM_ANTI_NEUTRAL = (1 << 11),	/* Not usable by neutral people */
-    ITEM_ANTI_MAGIC_USER = (1 << 12),	/* Not usable by mages      */
-    ITEM_ANTI_CLERIC = (1 << 13),	/* Not usable by clerics    */
-    ITEM_ANTI_THIEF = (1 << 14),	/* Not usable by thieves    */
-    ITEM_ANTI_WARRIOR = (1 << 15),	/* Not usable by warriors   */
-    ITEM_NOSELL = (1 << 16),	/* Shopkeepers won't touch it   */
-    ITEM_ANTI_BARB = (1 << 17),	/* no barb */
-    ITEM_ANTI_PSYCHIC = (1 << 18),	/* no psychic */
-    ITEM_ANTI_PHYSIC = (1 << 19),	/* no physic */
+    ITEM_GLOW = (1 << 0),   /* Item is glowing      */
+    ITEM_HUM = (1 << 1),    /* Item is humming      */
+    ITEM_NORENT = (1 << 2), /* Item cannot be rented    */
+    ITEM_NODONATE = (1 << 3),   /* Item cannot be donated   */
+    ITEM_NOINVIS = (1 << 4),    /* Item cannot be made invis    */
+    ITEM_INVISIBLE = (1 << 5),  /* Item is invisible        */
+    ITEM_MAGIC = (1 << 6),  /* Item is magical      */
+    ITEM_NODROP = (1 << 7), /* Item is cursed: can't drop   */
+    ITEM_BLESS = (1 << 8),  /* Item is blessed      */
+    ITEM_ANTI_GOOD = (1 << 9),  /* Not usable by good people    */
+    ITEM_ANTI_EVIL = (1 << 10), /* Not usable by evil people    */
+    ITEM_ANTI_NEUTRAL = (1 << 11),  /* Not usable by neutral people */
+    ITEM_ANTI_MAGIC_USER = (1 << 12),   /* Not usable by mages      */
+    ITEM_ANTI_CLERIC = (1 << 13),   /* Not usable by clerics    */
+    ITEM_ANTI_THIEF = (1 << 14),    /* Not usable by thieves    */
+    ITEM_ANTI_WARRIOR = (1 << 15),  /* Not usable by warriors   */
+    ITEM_NOSELL = (1 << 16),    /* Shopkeepers won't touch it   */
+    ITEM_ANTI_BARB = (1 << 17), /* no barb */
+    ITEM_ANTI_PSYCHIC = (1 << 18),  /* no psychic */
+    ITEM_ANTI_PHYSIC = (1 << 19),   /* no physic */
     ITEM_ANTI_CYBORG = (1 << 20),
     ITEM_ANTI_KNIGHT = (1 << 21),
     ITEM_ANTI_RANGER = (1 << 22),
@@ -148,7 +148,7 @@ enum obj_flag {
     ITEM_UNUSED = (1 << 27),
     ITEM_REPULSION_FIELD = (1 << 28),
     ITEM_TRANSPARENT = (1 << 29),
-    ITEM_DAMNED = (1 << 30),	/* Evil equivalent to Bless */
+    ITEM_DAMNED = (1 << 30),    /* Evil equivalent to Bless */
     NUM_EXTRA_FLAGS = 31,
 };
 
@@ -212,10 +212,10 @@ enum obj3_flag {
 
 /* Container flags - value[1] */
 enum container_flag {
-    CONT_CLOSEABLE = (1 << 0),	/* Container can be closed  */
-    CONT_PICKPROOF = (1 << 1),	/* Container is pickproof   */
-    CONT_CLOSED = (1 << 2),	/* Container is closed      */
-    CONT_LOCKED = (1 << 3),	/* Container is locked      */
+    CONT_CLOSEABLE = (1 << 0),  /* Container can be closed  */
+    CONT_PICKPROOF = (1 << 1),  /* Container is pickproof   */
+    CONT_CLOSED = (1 << 2), /* Container is closed      */
+    CONT_LOCKED = (1 << 3), /* Container is locked      */
 };
 
 /* Some different kind of liquids for use in values of drink containers */
@@ -283,37 +283,37 @@ enum affect_join_flag {
 static inline /*@observer@*/ const char *
 liquid_to_str(int liquid)
 {
-	if (liquid < 0 || liquid >= NUM_LIQUID_TYPES) {
-		return tmp_sprintf("!ILLEGAL(%d)!", liquid);
-	}
+    if (liquid < 0 || liquid >= NUM_LIQUID_TYPES) {
+        return tmp_sprintf("!ILLEGAL(%d)!", liquid);
+    }
 
-	return drinks[liquid];
+    return drinks[liquid];
 }
 
 /* object-related structures ******************************************/
 
 /* object flags; used in struct obj_data */
 struct obj_flag_data {
-	int value[4];				/* Values of the item (see list)    */
-	int8_t type_flag;				/* Type of item             */
-	int wear_flags;				/* Where you can wear it        */
-	int extra_flags;			/* If it hums, glows, etc.      */
-	int extra2_flags;			/* More of the same...              */
-	int extra3_flags;			// More, same, different
-	float weight;					/* Weight what else                 */
-	int timer;					/* Timer for object                 */
-	long bitvector[3];			/* To set chars bits                */
-	int material;				/* material object is made of */
-	int max_dam;
-	int damage;
-	int sigil_idnum;			// the owner of the sigil
-	int8_t sigil_level;			// the level of the sigil
+    int value[4];               /* Values of the item (see list)    */
+    int8_t type_flag;               /* Type of item             */
+    int wear_flags;             /* Where you can wear it        */
+    int extra_flags;            /* If it hums, glows, etc.      */
+    int extra2_flags;           /* More of the same...              */
+    int extra3_flags;           // More, same, different
+    float weight;                   /* Weight what else                 */
+    int timer;                  /* Timer for object                 */
+    long bitvector[3];          /* To set chars bits                */
+    int material;               /* material object is made of */
+    int max_dam;
+    int damage;
+    int sigil_idnum;            // the owner of the sigil
+    int8_t sigil_level;         // the level of the sigil
 };
 
 /* Used in obj_file_elem *DO*NOT*CHANGE* */
 struct obj_affected_type {
-	int8_t location;				/* Which ability to change (APPLY_XXX) */
-	int8_t modifier;				/* How much it changes by              */
+    int8_t location;                /* Which ability to change (APPLY_XXX) */
+    int8_t modifier;                /* How much it changes by              */
 };
 
 struct tmp_obj_affect {
@@ -336,42 +336,42 @@ struct tmp_obj_affect {
 
 /* shared data structs */
 struct obj_shared_data {
-	int vnum;
-	int number;
-	int cost;					/* Value when sold (gp.)            */
-	int cost_per_day;			/* Cost to keep pr. real day        */
-	int house_count;
-	/** The player id of the owner of this (oedited) object **/
-	long owner_id;
-	struct obj_data *proto;		/* pointer to prototype */
-	SPECIAL((*func));
-	char *func_param;
+    int vnum;
+    int number;
+    int cost;                   /* Value when sold (gp.)            */
+    int cost_per_day;           /* Cost to keep pr. real day        */
+    int house_count;
+    /** The player id of the owner of this (oedited) object **/
+    long owner_id;
+    struct obj_data *proto;     /* pointer to prototype */
+    SPECIAL((*func));
+    char *func_param;
 };
 
 /* ================== Memory Structure for Objects ================== */
 struct obj_data {
-	struct room_data *in_room;	/* In what room -1 when conta/carr    */
+    struct room_data *in_room;  /* In what room -1 when conta/carr    */
 
-	struct obj_flag_data obj_flags;	/* Object information               */
-	struct obj_affected_type affected[MAX_OBJ_AFFECT];	/* affects */
+    struct obj_flag_data obj_flags; /* Object information               */
+    struct obj_affected_type affected[MAX_OBJ_AFFECT];  /* affects */
 
-	char *name;	/* when worn/carry/in cont.         */
-	char *aliases;					/* Title of object :get etc.        */
-	char *line_desc;			/* When in room                     */
-	char *action_desc;	/* What to write when used          */
-	char *engraving; /* engraving on object */
-	unsigned int plrtext_len;	/* If contains savable plrtext      */
-	struct extra_descr_data *ex_description;	/* extra descriptions     */
-	struct creature *carried_by;	/* Carried by :NULL in room/conta   */
-	struct creature *worn_by;	/* Worn by?                 */
-	struct obj_shared_data *shared;
-	int16_t worn_on;				/* Worn where?              */
-	unsigned int soilage;
-	void *func_data;
-	long unique_id;
-	time_t creation_time;
-	int creation_method;
-	long int creator;
+    char *name; /* when worn/carry/in cont.         */
+    char *aliases;                  /* Title of object :get etc.        */
+    char *line_desc;            /* When in room                     */
+    char *action_desc;  /* What to write when used          */
+    char *engraving; /* engraving on object */
+    unsigned int plrtext_len;   /* If contains savable plrtext      */
+    struct extra_descr_data *ex_description;    /* extra descriptions     */
+    struct creature *carried_by;    /* Carried by :NULL in room/conta   */
+    struct creature *worn_by;   /* Worn by?                 */
+    struct obj_shared_data *shared;
+    int16_t worn_on;                /* Worn where?              */
+    unsigned int soilage;
+    void *func_data;
+    long unique_id;
+    time_t creation_time;
+    int creation_method;
+    long int creator;
 
     /* consignment */
     long int consignor;         /* person selling item */
@@ -379,22 +379,24 @@ struct obj_data {
 
     /* Temp obj affects! */
     struct tmp_obj_affect *tmp_affects;
-	struct obj_data *in_obj;	/* In what object NULL when none    */
-	struct obj_data *contains;	/* Contains objects                 */
-	struct obj_data *aux_obj;	/* for special usage                */
+    struct obj_data *in_obj;    /* In what object NULL when none    */
+    struct obj_data *contains;  /* Contains objects                 */
+    struct obj_data *aux_obj;   /* for special usage                */
 
-	struct obj_data *next_content;	/* For 'contains' lists             */
-	struct obj_data *next;		/* For the object list              */
+    struct obj_data *next_content;  /* For 'contains' lists             */
+    struct obj_data *next;      /* For the object list              */
 };
 /* ======================================================================= */
 
-static inline /*@dependent@*/ struct room_direction_data *OEXIT( struct obj_data *obj, int dir ) {
-	return obj->in_room->dir_option[dir];
+static inline /*@dependent@*/ struct room_direction_data *
+OEXIT(struct obj_data *obj, int dir)
+{
+    return obj->in_room->dir_option[dir];
 }
 struct obj_data *make_object(void);
 void free_object(struct obj_data *obj);
 void save_object_to_xml(struct obj_data *obj, FILE *outf);
-struct obj_data *load_object_from_xml(struct obj_data *container, struct creature *victim, struct room_data* room, xmlNodePtr node);
+struct obj_data *load_object_from_xml(struct obj_data *container, struct creature *victim, struct room_data *room, xmlNodePtr node);
 int count_contained_objs(struct obj_data *obj);
 float weigh_contained_objs(struct obj_data *obj);
 struct obj_affected_type *obj_affected_by_spell(struct obj_data *object, int spell);

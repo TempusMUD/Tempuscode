@@ -12,21 +12,23 @@ SPECIAL(paramedic)
     int cost = PARAMEDIC_COST;
     cost = adjusted_price(ch, pm, cost);
 
-    if (!cmd)
+    if (!cmd) {
         return 0;
+    }
 
     // price lists
     if (CMD_IS("list")) {
 
-        if (IS_CYBORG(ch))
+        if (IS_CYBORG(ch)) {
             send_to_char(ch, "Sorry, we cannot service cyborgs here!\r\n");
-        else if (!can_see_creature(pm, ch))
+        } else if (!can_see_creature(pm, ch)) {
             send_to_char(ch, "The paramedic cannot see you.\r\n");
-        else
+        } else {
             send_to_char(ch, "You can buy the following services:\r\n"
-                "Healing           -- %d credits / 100 HPS\r\n"
-                "Stim              -- %d credits / 100 MOVE\r\n"
-                "Detox             -- %d credits\r\n", cost, cost, cost);
+                             "Healing           -- %d credits / 100 HPS\r\n"
+                             "Stim              -- %d credits / 100 MOVE\r\n"
+                             "Detox             -- %d credits\r\n", cost, cost, cost);
+        }
 
         return 1;
     }
@@ -59,8 +61,8 @@ SPECIAL(paramedic)
 
             if (GET_CASH(ch) < cost) {
                 send_to_char(ch,
-                    "That costs %d credits, which you cannot afford.\r\n",
-                    cost);
+                             "That costs %d credits, which you cannot afford.\r\n",
+                             cost);
                 return 1;
             }
 
@@ -85,8 +87,8 @@ SPECIAL(paramedic)
 
             if (GET_CASH(ch) < cost) {
                 send_to_char(ch,
-                    "That costs %d credits, which you cannot afford.\r\n",
-                    cost);
+                             "That costs %d credits, which you cannot afford.\r\n",
+                             cost);
                 return 1;
             }
 
@@ -109,21 +111,22 @@ SPECIAL(paramedic)
             if (!affected_by_spell(ch, SPELL_POISON) &&
                 GET_COND(ch, DRUNK) <= 0) {
                 send_to_char(ch,
-                    "Sorry, there is no need to detoxify you.\r\n");
+                             "Sorry, there is no need to detoxify you.\r\n");
                 return 1;
             }
 
             if (GET_CASH(ch) < cost) {
                 send_to_char(ch,
-                    "That costs %d credits, which you cannot afford.\r\n",
-                    cost);
+                             "That costs %d credits, which you cannot afford.\r\n",
+                             cost);
                 return 1;
             }
 
             affect_from_char(ch, SPELL_POISON);
 
-            if (GET_COND(ch, DRUNK) >= 0)
+            if (GET_COND(ch, DRUNK) >= 0) {
                 GET_COND(ch, DRUNK) = 0;
+            }
 
             GET_CASH(ch) -= cost;
 

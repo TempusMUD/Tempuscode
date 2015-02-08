@@ -2,12 +2,12 @@
 #define _TMPSTR_H_
 
 // vsprintf into a temp str
-/*@shared@*/char *tmp_vsprintf(const char *fmt, va_list args)
-	__attribute__ ((format_arg (1)));
+/*@shared@*/ char *tmp_vsprintf(const char *fmt, va_list args)
+__attribute__ ((format_arg (1)));
 
 // sprintf into a temp str
 /*@shared@*/ char *tmp_sprintf(const char *fmt, ...)
-	__attribute__ ((format (printf, 1, 2)));
+__attribute__ ((format (printf, 1, 2)));
 
 // returns a temp str of length n filled with c
 /*@shared@*/ char *tmp_pad(int c, size_t n);
@@ -31,7 +31,7 @@
 // strcat into a temp str.  You must terminate the arguments with a NULL,
 // since the va_arg method is too stupid to give us the number of arguments.
 /*@shared@*/ char *tmp_strcat(const char *src, ...)
-    __attribute__((sentinel));
+__attribute__((sentinel));
 
 // creates a copy of the given str as a temp str
 /*@shared@*/ char *tmp_strdup(const char *src);

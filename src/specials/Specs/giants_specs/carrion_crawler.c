@@ -6,10 +6,12 @@
 
 SPECIAL(carrion_crawler)
 {
-    if (cmd || !is_fighting(ch))
+    if (cmd || !is_fighting(ch)) {
         return 0;
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    }
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
     struct creature *vict = random_opponent(ch);
     if (!number(0, 3)) {

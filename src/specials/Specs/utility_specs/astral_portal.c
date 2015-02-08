@@ -8,12 +8,14 @@ SPECIAL(astral_portal)
 {
     struct obj_data *portal = (struct obj_data *)me;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
     if (!CMD_IS("enter") || portal->worn_by ||
-        (portal->carried_by && portal->carried_by != ch))
+        (portal->carried_by && portal->carried_by != ch)) {
         return 0;
+    }
     if (!*argument) {
         send_to_char(ch, "Enter what?\r\n");
         return 1;
@@ -23,7 +25,7 @@ SPECIAL(astral_portal)
         act("$n steps into $p.", false, ch, portal, NULL, TO_ROOM);
         act("You step into $p.", false, ch, portal, NULL, TO_CHAR);
         call_magic(ch, ch, NULL, NULL, SPELL_ASTRAL_SPELL, GET_LEVEL(ch),
-            CAST_SPELL);
+                   CAST_SPELL);
         return 1;
     }
     return 0;

@@ -2,12 +2,12 @@
 #define _VOICE_H_
 
 /*************************************************************************
- *  File: voice.h                                                     *
- *  Usage: Source file for multi-voice support                        *
- *                                                                       *
- *  All rights reserved.  See license.doc for complete information.      *
- *                                                                       *
- *********************************************************************** */
+*  File: voice.h                                                     *
+*  Usage: Source file for multi-voice support                        *
+*                                                                       *
+*  All rights reserved.  See license.doc for complete information.      *
+*                                                                       *
+*********************************************************************** */
 
 //
 // File: voice.h                            -- Part of TempusMUD
@@ -43,7 +43,7 @@ struct voice_responses {
 
 struct voice {
     int idnum;
-    char * name;
+    char *name;
     GHashTable *emits;
 };
 

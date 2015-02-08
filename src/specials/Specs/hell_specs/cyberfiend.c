@@ -7,12 +7,14 @@
 SPECIAL(cyberfiend)
 {
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
     struct creature *fiend = (struct creature *)me;
 
-    if (!cmd || !AWAKE(fiend))
+    if (!cmd || !AWAKE(fiend)) {
         return 0;
+    }
 
     if (CMD_IS("enter") || CMD_IS("hop")) {
 

@@ -64,7 +64,7 @@ help_item_setflags(struct help_item *item, char *argument)
     while (*arg1) {
         if ((flag = search_block(arg1, help_bits, false)) == -1) {
             send_to_char(item->editor, "Invalid flag %s, skipping...\r\n",
-                arg1);
+                         arg1);
         } else {
             tmp_flags = tmp_flags | (1 << flag);
         }
@@ -81,12 +81,12 @@ help_item_setflags(struct help_item *item, char *argument)
 
     if (tmp_flags == 0) {
         send_to_char(item->editor, "Flags for help item %d not altered.\r\n",
-            item->idnum);
+                     item->idnum);
     } else {
         SET_BIT(item->flags, HFLAG_MODIFIED);
         send_to_char(item->editor, "[%s] flags %s for help item %d.\r\n",
-            tmp_printbits(tmp_flags, help_bits),
-            state == 1 ? "added" : "removed", item->idnum);
+                     tmp_printbits(tmp_flags, help_bits),
+                     state == 1 ? "added" : "removed", item->idnum);
     }
 }
 
@@ -100,8 +100,9 @@ help_item_load_text(struct help_item *item)
     size_t textlen;
     char buf[512];
 
-    if (item->text)
+    if (item->text) {
         return true;
+    }
 
     fname = tmp_sprintf("%s/%04d.topic", HELP_DIRECTORY, item->idnum);
 
@@ -113,8 +114,9 @@ help_item_load_text(struct help_item *item)
             goto error;
         }
 
-        if (textlen > MAX_HELP_TEXT_LENGTH - 1)
+        if (textlen > MAX_HELP_TEXT_LENGTH - 1) {
             textlen = MAX_HELP_TEXT_LENGTH - 1;
+        }
         if (!fgets(buf, sizeof(buf), inf)) {
             errlog("Can't get text length with help file %s", fname);
             fclose(inf);
@@ -137,7 +139,7 @@ help_item_load_text(struct help_item *item)
 
 error:
     errlog("Unable to load help item text (%s): %s",
-        fname, strerror(errno));
+           fname, strerror(errno));
     return false;
 }
 
@@ -183,7 +185,7 @@ help_item_setgroups(struct help_item *item, char *argument)
     while (*arg1) {
         if ((flag = search_block(arg1, help_group_names, false)) == -1) {
             send_to_char(item->editor, "Invalid group: %s, skipping...\r\n",
-                arg1);
+                         arg1);
         } else {
             tmp_groups = tmp_groups | (1 << flag);
         }
@@ -198,11 +200,11 @@ help_item_setgroups(struct help_item *item, char *argument)
 
     if (tmp_groups == 0) {
         send_to_char(item->editor, "Groups for help item %d not altered.\r\n",
-            item->idnum);
+                     item->idnum);
     } else {
         send_to_char(item->editor, "[%s] groups %s for help item %d.\r\n",
-            tmp_printbits(tmp_groups, help_group_bits),
-            state == 1 ? "added" : "removed", item->idnum);
+                     tmp_printbits(tmp_groups, help_group_bits),
+                     state == 1 ? "added" : "removed", item->idnum);
     }
     REMOVE_BIT(item->groups, HGROUP_HELP_EDIT);
     SET_BIT(item->flags, HFLAG_MODIFIED);
@@ -211,8 +213,9 @@ help_item_setgroups(struct help_item *item, char *argument)
 bool
 help_item_in_group(struct help_item *item, int thegroup)
 {
-    if (IS_SET(item->groups, thegroup))
+    if (IS_SET(item->groups, thegroup)) {
         return true;
+    }
     return false;
 }
 
@@ -224,8 +227,9 @@ help_item_setname(struct help_item *item, char *argument)
     free(item->name);
     item->name = strdup(argument);
     SET_BIT(item->flags, HFLAG_MODIFIED);
-    if (item->editor)
+    if (item->editor) {
         send_to_char(item->editor, "Name set!\r\n");
+    }
 }
 
 // Set the...um. keywords and stuff.
@@ -236,8 +240,9 @@ help_item_setkeywords(struct help_item *item, char *argument)
     free(item->keys);
     item->keys = strdup(argument);
     SET_BIT(item->flags, HFLAG_MODIFIED);
-    if (item->editor)
+    if (item->editor) {
         send_to_char(item->editor, "Keywords set!\r\n");
+    }
 }
 
 void
@@ -283,15 +288,16 @@ help_item_edit(struct help_item *item, struct creature *ch)
     if (item->editor) {
         if (item->editor != ch) {
             send_to_char(ch, "%s is already editing that item. Tough!\r\n",
-                GET_NAME(item->editor));
+                         GET_NAME(item->editor));
         } else {
             send_to_char(ch,
-                "I don't see how editing it _again_ will help any.\r\n");
+                         "I don't see how editing it _again_ will help any.\r\n");
         }
         return false;
     }
-    if (GET_OLC_HELP(ch))
+    if (GET_OLC_HELP(ch)) {
         GET_OLC_HELP(ch)->editor = NULL;
+    }
     GET_OLC_HELP(ch) = item;
     item->editor = ch;
     send_to_char(ch, "You are now editing help item #%d.\r\n", item->idnum);
@@ -303,30 +309,32 @@ help_item_edit(struct help_item *item, struct creature *ch)
 // You have to save that too.
 // (SaveAll does everything)
 bool
-help_item_save(struct help_item * item)
+help_item_save(struct help_item *item)
 {
     char *fname;
     FILE *outf;
 
     fname = tmp_sprintf("%s/%04d.topic", HELP_DIRECTORY, item->idnum);
     // If we don't have the text to edit, get from the file.
-    if (!item->text)
+    if (!item->text) {
         help_item_load_text(item);
+    }
 
     outf = fopen(fname, "w");
     if (outf) {
         fprintf(outf, "%d %zd\n%s\n%s",
-            item->idnum,
-            (item->text) ? strlen(item->text) : 0,
-            item->name, (item->text && *item->text) ? item->text : "");
+                item->idnum,
+                (item->text) ? strlen(item->text) : 0,
+                item->name, (item->text && *item->text) ? item->text : "");
         fclose(outf);
         REMOVE_BIT(item->flags, HFLAG_MODIFIED);
         return true;
     }
 
-    if (item->editor)
+    if (item->editor) {
         send_to_char(item->editor,
-            "Error, could not open help file for write.\r\n");
+                     "Error, could not open help file for write.\r\n");
+    }
 
     return false;
 }
@@ -348,31 +356,33 @@ help_item_show(struct help_item *item, struct creature *ch, char *buffer,
         sprintbit(item->flags, help_bit_descs, bitbuf, sizeof(bitbuf));
         sprintbit(item->groups, help_group_bits, groupbuf, sizeof(groupbuf));
         snprintf(buffer, buf_size, "%s%3d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s\r\n",
-            CCCYN(ch, C_NRM), item->idnum, CCYEL(ch, C_NRM),
-            item->name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-            groupbuf, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), bitbuf);
+                 CCCYN(ch, C_NRM), item->idnum, CCYEL(ch, C_NRM),
+                 item->name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                 groupbuf, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), bitbuf);
         break;
     case 2:                    // 2 == Entire Entry
-        if (!item->text)
+        if (!item->text) {
             help_item_load_text(item);
+        }
         snprintf(buffer, buf_size, "\r\n%s%s%s\r\n%s\r\n",
-            CCCYN(ch, C_NRM), item->name, CCNRM(ch, C_NRM), item->text);
+                 CCCYN(ch, C_NRM), item->name, CCNRM(ch, C_NRM), item->text);
         item->counter++;
         break;
     case 3:                    // 3 == Entire Entry Stat
-        if (!item->text)
+        if (!item->text) {
             help_item_load_text(item);
+        }
         sprintbit(item->flags, help_bit_descs, bitbuf, sizeof(bitbuf));
         sprintbit(item->groups, help_group_bits, groupbuf, sizeof(groupbuf));
         snprintf(buffer, buf_size,
-            "\r\n%s%d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s \r\n        %s"
-            "Keywords: [ %s%s%s ]\r\n%s%s\r\n",
-            CCCYN(ch, C_NRM), item->idnum, CCYEL(ch, C_NRM),
-            item->name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-            groupbuf, CCCYN(ch, C_NRM),
-            CCNRM(ch, C_NRM), bitbuf, CCCYN(ch, C_NRM),
-            CCNRM(ch, C_NRM), item->keys, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-            item->text);
+                 "\r\n%s%d. %s%-25s %sGroups: %s%-20s %sFlags:%s %s \r\n        %s"
+                 "Keywords: [ %s%s%s ]\r\n%s%s\r\n",
+                 CCCYN(ch, C_NRM), item->idnum, CCYEL(ch, C_NRM),
+                 item->name, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                 groupbuf, CCCYN(ch, C_NRM),
+                 CCNRM(ch, C_NRM), bitbuf, CCCYN(ch, C_NRM),
+                 CCNRM(ch, C_NRM), item->keys, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                 item->text);
         break;
     default:
         break;

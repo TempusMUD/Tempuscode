@@ -9,13 +9,14 @@ void xml_boot(void);
 static inline long
 xmlGetLongProp(xmlNodePtr n, const char *name, long defValue)
 {
-	long prop = 0;
-	xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
-	if (c == NULL)
-		return defValue;
-	prop = atol((const char *)(c));
-	free(c);
-	return prop;
+    long prop = 0;
+    xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
+    if (c == NULL) {
+        return defValue;
+    }
+    prop = atol((const char *)(c));
+    free(c);
+    return prop;
 }
 
 /**
@@ -24,13 +25,14 @@ xmlGetLongProp(xmlNodePtr n, const char *name, long defValue)
 static inline int
 xmlGetIntProp(xmlNodePtr n, const char *name, int defValue)
 {
-	int prop = 0;
-	xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
-	if (c == NULL)
-		return defValue;
-	prop = atoi((const char *)(c));
-	free(c);
-	return prop;
+    int prop = 0;
+    xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
+    if (c == NULL) {
+        return defValue;
+    }
+    prop = atoi((const char *)(c));
+    free(c);
+    return prop;
 }
 
 /**
@@ -39,13 +41,14 @@ xmlGetIntProp(xmlNodePtr n, const char *name, int defValue)
 static inline float
 xmlGetFloatProp(xmlNodePtr n, const char *name, float defValue)
 {
-	float prop = 0;
-	xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
-	if (c == NULL)
-		return defValue;
-	prop = (float)atof((const char *)(c));
-	free(c);
-	return prop;
+    float prop = 0;
+    xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
+    if (c == NULL) {
+        return defValue;
+    }
+    prop = (float)atof((const char *)(c));
+    free(c);
+    return prop;
 }
 
 /**
@@ -54,33 +57,34 @@ xmlGetFloatProp(xmlNodePtr n, const char *name, float defValue)
 static inline char
 xmlGetCharProp(xmlNodePtr n, const char *name)
 {
-	char prop = '\0';
-	char *c = (char *)xmlGetProp(n, (const xmlChar *)(name));
-	if (c == NULL)
-		return '\0';
-	prop = *c;
-	free(c);
-	return prop;
+    char prop = '\0';
+    char *c = (char *)xmlGetProp(n, (const xmlChar *)(name));
+    if (c == NULL) {
+        return '\0';
+    }
+    prop = *c;
+    free(c);
+    return prop;
 }
 
 static inline bool
 xmlMatches(const xmlChar *str_a, const char *str_b)
 {
-	return (strcmp((const char *)(str_a), str_b) == 0);
+    return (strcmp((const char *)(str_a), str_b) == 0);
 }
 
 /**
  * Do a global encoding of a string, replacing the predefined entities and
  * non ASCII values with their entities and CharRef counterparts.
  * Contrary to xmlEncodeEntities, uses the tmpstr utility.
-**/
-static inline char*
-xmlEncodeTmp( const char* text )
+ **/
+static inline char *
+xmlEncodeTmp(const char *text)
 {
-	char *encoded = (char *)(xmlEncodeEntitiesReentrant(NULL, (const xmlChar *)(text)));
-	char *tmp_encoded = tmp_strdup(encoded);
-	free(encoded);
-	return tmp_encoded;
+    char *encoded = (char *)(xmlEncodeEntitiesReentrant(NULL, (const xmlChar *)(text)));
+    char *tmp_encoded = tmp_strdup(encoded);
+    free(encoded);
+    return tmp_encoded;
 }
 
 /**
@@ -91,15 +95,15 @@ xmlEncodeTmp( const char* text )
  *
  * NOTE: This should be used for name="value" elements rather
  *       than <name>value</name>.
-**/
-static inline char*
-xmlEncodeSpecialTmp( const char* text )
+ **/
+static inline char *
+xmlEncodeSpecialTmp(const char *text)
 {
-	char *encoded = (char *)(xmlEncodeSpecialChars(NULL,
-                                                                   (const xmlChar *)(text)));
-	char *tmp_encoded = tmp_gsub(encoded, "\"", "&quot;");
-	free(encoded);
-	return tmp_encoded;
+    char *encoded = (char *)(xmlEncodeSpecialChars(NULL,
+                                                   (const xmlChar *)(text)));
+    char *tmp_encoded = tmp_gsub(encoded, "\"", "&quot;");
+    free(encoded);
+    return tmp_encoded;
 }
 
 static inline xmlDocPtr
@@ -121,4 +125,4 @@ xmlParseFileWithLog(const char *fname)
     return doc;
 }
 
-#endif							// __TEMPUS_XML_UTILS_H
+#endif                          // __TEMPUS_XML_UTILS_H

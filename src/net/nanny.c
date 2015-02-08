@@ -86,7 +86,7 @@ void do_start(struct creature *ch, int mode);
 void show_mud_date_to_char(struct creature *ch);
 void handle_network(struct descriptor_data *d, char *arg);
 int general_search(struct creature *ch, struct special_search_data *srch,
-    int mode);
+                   int mode);
 void roll_real_abils(struct creature *ch);
 void show_character_detail(struct descriptor_data *d);
 void flush_q(struct txt_q *queue);
@@ -142,18 +142,21 @@ handle_input(gpointer data)
     int char_id;
     int i;
 
-    if (--(d->wait) > 0)
+    if (--(d->wait) > 0) {
         return true;
+    }
 
-    if (g_queue_is_empty(d->input))
+    if (g_queue_is_empty(d->input)) {
         return true;
+    }
 
     char *arg = g_queue_pop_head(d->input);
 
     // we need a prompt here
     d->need_prompt = true;
-    if (!d->out_watcher)
+    if (!d->out_watcher) {
         d->out_watcher = g_io_add_watch(d->io, G_IO_OUT, process_output, d);
+    }
     d->wait = 1;
     d->idle = 0;
 
@@ -172,8 +175,9 @@ handle_input(gpointer data)
         push_command_onto_list(d->creature, arg);
         // Drag them back from limbo
         if (GET_WAS_IN(d->creature)) {
-            if (d->creature->in_room)
+            if (d->creature->in_room) {
                 char_from_room(d->creature, false);
+            }
             char_to_room(d->creature, GET_WAS_IN(d->creature), false);
             GET_WAS_IN(d->creature) = NULL;
             act("$n has returned.", true, d->creature, NULL, NULL, TO_ROOM);
@@ -194,24 +198,27 @@ handle_input(gpointer data)
             if (d->account) {
                 if (!production_mode) {
                     account_login(d->account, d);
-                } else if (account_has_password(d->account))
+                } else if (account_has_password(d->account)) {
                     set_desc_state(CXN_ACCOUNT_PW, d);
-                else
+                } else {
                     set_desc_state(CXN_PW_PROMPT, d);
-            } else
+                }
+            } else {
                 d_printf(d, "That account does not exist.\r\n");
-        } else
+            }
+        } else {
             set_desc_state(CXN_ACCOUNT_PROMPT, d);
+        }
         break;
     case CXN_ACCOUNT_PW:
         if (!account_authenticate(d->account, arg)) {
             slog("PASSWORD: account %s[%d] failed to authenticate. [%s]",
-                d->account->name, d->account->id, d->host);
-            d->wait = (2 + d->bad_pws) RL_SEC;
+                 d->account->name, d->account->id, d->host);
+            d->wait = (2 + d->bad_pws)RL_SEC;
             d->bad_pws += 1;
             if (d->bad_pws > 10) {
                 d_printf(d,
-                    "Maximum password attempts reached.  Disconnecting.\r\n");
+                         "Maximum password attempts reached.  Disconnecting.\r\n");
                 slog("PASSWORD: disconnecting due to too many login attempts");
                 close_socket(d);
             } else {
@@ -220,9 +227,9 @@ handle_input(gpointer data)
             }
         } else if (d->account->banned) {
             slog("Autobanning IP address of account %s[%d]",
-                d->account->name, d->account->id);
+                 d->account->name, d->account->id);
             perform_ban(BAN_ALL, d->host, "autoban",
-                tmp_sprintf("account %s", d->account->name));
+                        tmp_sprintf("account %s", d->account->name));
             account_login(d->account, d);
         } else {
             account_login(d->account, d);
@@ -238,11 +245,11 @@ handle_input(gpointer data)
             } else {
                 d->account = NULL;
                 d_printf(d,
-                    "That account name has already been taken.  Try another.\r\n");
+                         "That account name has already been taken.  Try another.\r\n");
             }
         } else {
             d_printf(d,
-                "That account name is invalid.  Please try another.\r\n");
+                     "That account name is invalid.  Please try another.\r\n");
         }
         break;
     case CXN_ACCOUNT_VERIFY:
@@ -294,8 +301,9 @@ handle_input(gpointer data)
         if (arg[0]) {
             account_set_password(d->account, arg);
             set_desc_state(CXN_PW_VERIFY, d);
-        } else
+        } else {
             d_printf(d, "Sorry.  You MUST enter a password.\r\n");
+        }
         break;
     case CXN_PW_VERIFY:
         if (!account_authenticate(d->account, arg)) {
@@ -308,9 +316,10 @@ handle_input(gpointer data)
     case CXN_VIEW_POLICY:
         if (d->showstr_head) {
             show_string(d);
-            if (!d->showstr_head)
+            if (!d->showstr_head) {
                 d_printf(d,
-                    "&r**** &nPress return to start creating a character! &r****&n");
+                         "&r**** &nPress return to start creating a character! &r****&n");
+            }
         } else {
             set_desc_state(CXN_NAME_PROMPT, d);
         }
@@ -325,9 +334,9 @@ handle_input(gpointer data)
         case 'c':
             if (account_chars_available(d->account) <= 0) {
                 d_printf(d, "\r\nNo more characters can be "
-                    "created on this account.  Please keep "
-                    "\r\nin mind that it is a violation of "
-                    "policy to start multiple " "accounts.\r\n\r\n");
+                            "created on this account.  Please keep "
+                            "\r\nin mind that it is a violation of "
+                            "policy to start multiple " "accounts.\r\n\r\n");
                 set_desc_state(CXN_WAIT_MENU, d);
             } else {
                 set_desc_state(CXN_NAME_PROMPT, d);
@@ -345,12 +354,13 @@ handle_input(gpointer data)
                 } else {
                     errlog("loading character %d to delete.", char_id);
                     d_printf(d,
-                        "\r\nThere was an error loading the character.\r\n\r\n");
+                             "\r\nThere was an error loading the character.\r\n\r\n");
                     free_creature(d->creature);
                     d->creature = NULL;
                 }
-            } else
+            } else {
                 d_printf(d, "\r\nThat isn't a valid command.\r\n\r\n");
+            }
             break;
         case 'e':
             if (!invalid_char_index(d->account, 2)) {
@@ -363,14 +373,15 @@ handle_input(gpointer data)
                     set_desc_state(CXN_EDIT_DESC, d);
                 } else {
                     errlog("loading character %d to edit its description.",
-                        char_id);
+                           char_id);
                     d_printf(d,
-                        "\r\nThere was an error loading the character.\r\n\r\n");
+                             "\r\nThere was an error loading the character.\r\n\r\n");
                     free_creature(d->creature);
                     d->creature = NULL;
                 }
-            } else
+            } else {
                 d_printf(d, "\r\nThat isn't a valid command.\r\n\r\n");
+            }
             break;
         case 's':
             if (!invalid_char_index(d->account, 2)) {
@@ -386,14 +397,15 @@ handle_input(gpointer data)
                     set_desc_state(CXN_WAIT_MENU, d);
                 } else {
                     errlog("loading character %d to show statistics.",
-                        char_id);
+                           char_id);
                     d_printf(d,
-                        "\r\nThere was an error loading the character.\r\n\r\n");
+                             "\r\nThere was an error loading the character.\r\n\r\n");
                     free_creature(d->creature);
                     d->creature = NULL;
                 }
-            } else
+            } else {
                 d_printf(d, "\r\nThat isn't a valid command.\r\n\r\n");
+            }
             break;
         case 'p':
             set_desc_state(CXN_OLDPW_PROMPT, d);
@@ -416,7 +428,7 @@ handle_input(gpointer data)
 
             if (invalid_char_index(d->account, atoi(arg))) {
                 d_printf(d,
-                    "\r\nThat character selection doesn't exist.\r\n\r\n");
+                         "\r\nThat character selection doesn't exist.\r\n\r\n");
                 return true;
             }
             // Try to reconnect to an existing creature first
@@ -425,30 +437,31 @@ handle_input(gpointer data)
 
             if (d->creature) {
                 REMOVE_BIT(PLR_FLAGS(d->creature), PLR_WRITING | PLR_OLC |
-                    PLR_MAILING | PLR_AFK);
+                           PLR_MAILING | PLR_AFK);
                 if (d->creature->desc) {
                     struct descriptor_data *other_desc = d->creature->desc;
 
                     d_printf(other_desc,
-                        "You have logged on from another location!\r\n");
+                             "You have logged on from another location!\r\n");
                     d->creature->desc = d;
-                    if (other_desc->text_editor)
+                    if (other_desc->text_editor) {
                         editor_finish(other_desc->text_editor, false);
+                    }
                     other_desc->creature = NULL;
                     set_desc_state(CXN_DISCONNECT, other_desc);
                     close_socket(other_desc);
                     d_printf(d,
-                        "\r\n\r\nYou take over your own body, already in use!\r\n");
+                             "\r\n\r\nYou take over your own body, already in use!\r\n");
                     mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(d->creature), NRM,
-                        true, "%s has reconnected", GET_NAME(d->creature));
+                         true, "%s has reconnected", GET_NAME(d->creature));
                 } else {
                     d->creature->desc = d;
                     mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(d->creature),
-                        NRM, true,
-                        "%s has reconnected from linkless",
-                        GET_NAME(d->creature));
+                         NRM, true,
+                         "%s has reconnected from linkless",
+                         GET_NAME(d->creature));
                     d_printf(d,
-                        "\r\n\r\nYou take over your own body!\r\n");
+                             "\r\n\r\nYou take over your own body!\r\n");
                     act("$n has regained $s link.", true, d->creature, NULL, NULL,
                         TO_ROOM);
                 }
@@ -461,13 +474,13 @@ handle_input(gpointer data)
 
             if (!d->creature) {
                 mlog(ROLE_ADMINBASIC, LVL_IMMORT, CMP, true,
-                    "Character %d didn't load from account '%s'",
-                    char_id, d->account->name);
+                     "Character %d didn't load from account '%s'",
+                     char_id, d->account->name);
 
                 d_printf(d,
-                    "Sorry.  There was an error processing your request.\r\n");
+                         "Sorry.  There was an error processing your request.\r\n");
                 d_printf(d,
-                    "The gods are not ignorant of your plight.\r\n\r\n");
+                         "The gods are not ignorant of your plight.\r\n\r\n");
                 return true;
             }
 
@@ -483,7 +496,7 @@ handle_input(gpointer data)
             if (production_mode
                 && account_deny_char_entry(d->account, d->creature)) {
                 d_printf(d,
-                    "You can't have another character in the game right now.\r\n");
+                         "You can't have another character in the game right now.\r\n");
                 free_creature(d->creature);
                 d->creature = NULL;
                 return true;
@@ -499,7 +512,7 @@ handle_input(gpointer data)
                         if (GET_LEVEL(tmp_ch) < LVL_POWER && GET_QUEST(tmp_ch)
                             && GET_IDNUM(d->creature) != GET_IDNUM(tmp_ch)) {
                             d_printf(d, "You can't log on an immortal "
-                                     "while %s is in a quest.\r\n", GET_NAME(tmp_ch));
+                                        "while %s is in a quest.\r\n", GET_NAME(tmp_ch));
                             free_creature(d->creature);
                             d->creature = NULL;
                             return true;
@@ -522,14 +535,14 @@ handle_input(gpointer data)
 
         if (player_name_exists(arg)) {
             d_printf(d,
-                "\r\nThat character name is already taken.\r\n\r\n");
+                     "\r\nThat character name is already taken.\r\n\r\n");
             return true;
         }
 
         if (d->creature) {
             errlog("Non-NULL creature during name prompt");
             d_printf(d,
-                "\r\nSorry, there was an error creating your character.\r\n\r\n");
+                     "\r\nSorry, there was an error creating your character.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
             return true;
         }
@@ -543,7 +556,7 @@ handle_input(gpointer data)
         if (!d->creature) {
             errlog("Expected creature, got NULL during char creation");
             d_printf(d,
-                "\r\nSorry, there was an error creating your character.\r\n\r\n");
+                     "\r\nSorry, there was an error creating your character.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
         }
         if (d->is_blind) {
@@ -651,9 +664,11 @@ handle_input(gpointer data)
             return true;
         }
 
-        for (i = 0; i < NUM_PC_RACES; i++)
-            if (race_restr[i][0] == GET_RACE(d->creature))
+        for (i = 0; i < NUM_PC_RACES; i++) {
+            if (race_restr[i][0] == GET_RACE(d->creature)) {
                 break;
+            }
+        }
         if (!race_restr[i][GET_REMORT_CLASS(d->creature) + 1]) {
             d_send(d, CCGRN(d->creature, C_NRM));
             d_send(d, "\r\nThat character class is not allowed to your race!\r\n\r\n");
@@ -662,23 +677,24 @@ handle_input(gpointer data)
             d_send(d, "\r\nYou can't remort to your primary class!\r\n\r\n");
 
         } else if ((GET_CLASS(d->creature) == CLASS_MONK &&
-                (GET_REMORT_CLASS(d->creature) == CLASS_KNIGHT ||
-                    GET_REMORT_CLASS(d->creature) == CLASS_CLERIC)) ||
-            ((GET_CLASS(d->creature) == CLASS_CLERIC ||
-                    GET_CLASS(d->creature) == CLASS_KNIGHT) &&
-                GET_REMORT_CLASS(d->creature) == CLASS_MONK)) {
+                    (GET_REMORT_CLASS(d->creature) == CLASS_KNIGHT ||
+                     GET_REMORT_CLASS(d->creature) == CLASS_CLERIC)) ||
+                   ((GET_CLASS(d->creature) == CLASS_CLERIC ||
+                     GET_CLASS(d->creature) == CLASS_KNIGHT) &&
+                    GET_REMORT_CLASS(d->creature) == CLASS_MONK)) {
             // No being a monk and a knight or cleric
             d_send(d, CCGRN(d->creature, C_NRM));
             d_send(d, "\r\nYour religious beliefs are in conflict with that class!\r\n\r\n");
 
         } else {
-            if (GET_CLASS(d->creature) == CLASS_VAMPIRE)
+            if (GET_CLASS(d->creature) == CLASS_VAMPIRE) {
                 GET_CLASS(d->creature) = GET_OLD_CLASS(d->creature);
+            }
             mudlog(LVL_IMMORT, BRF, true,
-                "%s has remorted to gen %d as a %s/%s",
-                GET_NAME(d->creature), GET_REMORT_GEN(d->creature),
-                class_names[(int)GET_CLASS(d->creature)],
-                class_names[(int)GET_REMORT_CLASS(d->creature)]);
+                   "%s has remorted to gen %d as a %s/%s",
+                   GET_NAME(d->creature), GET_REMORT_GEN(d->creature),
+                   class_names[(int)GET_CLASS(d->creature)],
+                   class_names[(int)GET_REMORT_CLASS(d->creature)]);
             save_player_to_xml(d->creature);
             char_to_game(d);
         }
@@ -700,9 +716,9 @@ handle_input(gpointer data)
                 break;
             }
             d->creature->char_specials.saved.alignment = -666;
-        } else if (is_abbrev(arg, "good"))
+        } else if (is_abbrev(arg, "good")) {
             d->creature->char_specials.saved.alignment = 777;
-        else if (is_abbrev(arg, "neutral")) {
+        } else if (is_abbrev(arg, "neutral")) {
             if (GET_CLASS(d->creature) == CLASS_KNIGHT ||
                 GET_CLASS(d->creature) == CLASS_CLERIC) {
                 d_send(d, CCGRN(d->creature, C_NRM));
@@ -715,15 +731,17 @@ handle_input(gpointer data)
             break;
         }
 
-        if (GET_CLASS(d->creature) == CLASS_CLERIC)
+        if (GET_CLASS(d->creature) == CLASS_CLERIC) {
             GET_DEITY(d->creature) = DEITY_GUIHARIA;
-        else if (GET_CLASS(d->creature) == CLASS_KNIGHT)
-            if (IS_GOOD(d->creature))
+        } else if (GET_CLASS(d->creature) == CLASS_KNIGHT) {
+            if (IS_GOOD(d->creature)) {
                 GET_DEITY(d->creature) = DEITY_JUSTICE;
-            else
+            } else {
                 GET_DEITY(d->creature) = DEITY_ARES;
-        else
+            }
+        } else {
             GET_DEITY(d->creature) = DEITY_GUIHARIA;
+        }
 
         set_desc_state(CXN_STATISTICS_ROLL, d);
         break;
@@ -734,21 +752,22 @@ handle_input(gpointer data)
         } else if (is_abbrev(arg, "keep")) {
             set_desc_state(CXN_EDIT_DESC, d);
             mlog(ROLE_ADMINBASIC, LVL_IMMORT, NRM, true,
-                "%s[%d] has created new character %s[%ld]",
-                d->account->name, d->account->id,
-                GET_NAME(d->creature), GET_IDNUM(d->creature));
+                 "%s[%d] has created new character %s[%ld]",
+                 d->account->name, d->account->id,
+                 GET_NAME(d->creature), GET_IDNUM(d->creature));
             d->creature->player_specials->rentcode = RENT_NEW_CHAR;
             save_player_to_xml(d->creature);
             calculate_height_weight(d->creature);
-        } else
+        } else {
             d_send(d, "\r\nYou must type 'reroll' or 'keep'.\r\n\r\n");
+        }
         break;
     case CXN_EDIT_DESC:
         break;
     case CXN_DELETE_PROMPT:
         if (invalid_char_index(d->account, atoi(arg))) {
             d_printf(d,
-                "\r\nThat character selection doesn't exist.\r\n\r\n");
+                     "\r\nThat character selection doesn't exist.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
             return true;
         }
@@ -759,7 +778,7 @@ handle_input(gpointer data)
             d->creature = load_player_from_xml(char_id);
             if (!d->creature) {
                 d_printf(d,
-                    "Sorry.  That character could not be loaded.\r\n");
+                         "Sorry.  That character could not be loaded.\r\n");
                 set_desc_state(CXN_WAIT_MENU, d);
                 return true;
             }
@@ -770,7 +789,7 @@ handle_input(gpointer data)
     case CXN_EDIT_PROMPT:
         if (invalid_char_index(d->account, atoi(arg))) {
             d_printf(d,
-                "\r\nThat character selection doesn't exist.\r\n\r\n");
+                     "\r\nThat character selection doesn't exist.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
             return true;
         }
@@ -793,10 +812,11 @@ handle_input(gpointer data)
         }
 
         d_printf(d,
-            "\r\n\r\n              &yWrong password!  %s will not be deleted.\r\n",
-            GET_NAME(d->creature));
-        if (!d->creature->in_room)
+                 "\r\n\r\n              &yWrong password!  %s will not be deleted.\r\n",
+                 GET_NAME(d->creature));
+        if (!d->creature->in_room) {
             free_creature(d->creature);
+        }
 
         d->creature = NULL;
         set_desc_state(CXN_WAIT_MENU, d);
@@ -804,10 +824,11 @@ handle_input(gpointer data)
     case CXN_DELETE_VERIFY:
         if (strcmp(arg, "yes")) {
             d_printf(d,
-                "\r\n              &yDelete cancelled.  %s will not be deleted.\r\n\r\n",
-                GET_NAME(d->creature));
-            if (!d->creature->in_room)
+                     "\r\n              &yDelete cancelled.  %s will not be deleted.\r\n\r\n",
+                     GET_NAME(d->creature));
+            if (!d->creature->in_room) {
                 free_creature(d->creature);
+            }
 
             d->creature = NULL;
             set_desc_state(CXN_WAIT_MENU, d);
@@ -815,9 +836,9 @@ handle_input(gpointer data)
         }
 
         d_printf(d, "\r\n              &y%s has been deleted.&n\r\n\r\n",
-            GET_NAME(d->creature));
+                 GET_NAME(d->creature));
         slog("%s[%d] has deleted character %s[%ld]", d->account->name,
-            d->account->id, GET_NAME(d->creature), GET_IDNUM(d->creature));
+             d->account->id, GET_NAME(d->creature), GET_IDNUM(d->creature));
         if (d->creature->in_room) {
             // if the character is already in the game, delete_char will
             // handle it
@@ -832,10 +853,11 @@ handle_input(gpointer data)
         set_desc_state(CXN_WAIT_MENU, d);
         break;
     case CXN_AFTERLIFE:
-        if (PLR_FLAGGED(d->creature, PLR_HARDCORE))
+        if (PLR_FLAGGED(d->creature, PLR_HARDCORE)) {
             set_desc_state(CXN_MENU, d);
-        else
+        } else {
             char_to_game(d);
+        }
         break;
     case CXN_WAIT_MENU:
         set_desc_state(CXN_MENU, d);
@@ -853,7 +875,7 @@ handle_input(gpointer data)
         }
 
         d_printf(d,
-            "\r\nWrong password!  Password change cancelled.\r\n\r\n");
+                 "\r\nWrong password!  Password change cancelled.\r\n\r\n");
         set_desc_state(CXN_WAIT_MENU, d);
         break;
     case CXN_NEWPW_PROMPT:
@@ -872,7 +894,7 @@ handle_input(gpointer data)
         }
         if (!account_authenticate(d->account, arg)) {
             d_printf(d,
-                "\r\nPasswords did not match.  Please try again.\r\n\r\n");
+                     "\r\nPasswords did not match.  Please try again.\r\n\r\n");
             set_desc_state(CXN_PW_PROMPT, d);
         } else {
             d_printf(d, "\r\n\r\nPassword changed!\r\n\r\n");
@@ -882,15 +904,17 @@ handle_input(gpointer data)
     case CXN_VIEW_BG:
         if (tolower(*arg) != 'q') {
             show_string(d);
-            if (!d->showstr_head)
+            if (!d->showstr_head) {
                 set_desc_state(CXN_WAIT_MENU, d);
-        } else
+            }
+        } else {
             set_desc_state(CXN_MENU, d);
+        }
         break;
     case CXN_DETAILS_PROMPT:
         if (invalid_char_index(d->account, atoi(arg))) {
             d_printf(d,
-                "\r\nThat character selection doesn't exist.\r\n\r\n");
+                     "\r\nThat character selection doesn't exist.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
             return true;
         }
@@ -912,20 +936,24 @@ handle_input(gpointer data)
     case CXN_CLASS_HELP:
         if (d->showstr_head && tolower(*arg) != 'q') {
             show_string(d);
-            if (!d->showstr_head)
+            if (!d->showstr_head) {
                 d_printf(d,
-                    "&r**** &nPress return to go back to class selection &r****&n\r\n");
-        } else
+                         "&r**** &nPress return to go back to class selection &r****&n\r\n");
+            }
+        } else {
             set_desc_state(CXN_CLASS_PROMPT, d);
+        }
         break;
     case CXN_RACE_HELP:
         if (d->showstr_head && tolower(*arg) != 'q') {
             show_string(d);
-            if (!d->showstr_head)
+            if (!d->showstr_head) {
                 d_printf(d,
-                    "&r**** &nPress return to go back to race selection &r****&n\r\n");
-        } else
+                         "&r**** &nPress return to go back to race selection &r****&n\r\n");
+            }
+        } else {
             set_desc_state(CXN_RACE_PROMPT, d);
+        }
         break;
     case CXN_EMAIL_VERIFY:
         if (account_authenticate(d->account, arg)) {
@@ -934,7 +962,7 @@ handle_input(gpointer data)
         }
 
         d_printf(d,
-            "\r\nWrong password!  Email change cancelled.\r\n\r\n");
+                 "\r\nWrong password!  Email change cancelled.\r\n\r\n");
         set_desc_state(CXN_WAIT_MENU, d);
         break;
     case CXN_NEWEMAIL_PROMPT:
@@ -972,41 +1000,47 @@ send_prompt(struct descriptor_data *d)
             errlog("NULL d->creature in send_prompt() while in CXN_PLAYING state");
             return;
         }
-        if (d->is_blind)
+        if (d->is_blind) {
             return;
+        }
 
         acc_string_clear();
 
-        if (!production_mode)
+        if (!production_mode) {
             acc_sprintf("%s(debug)%s ",
-                CCBLU(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-        if (GET_INVIS_LVL(d->creature))
+                        CCBLU(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
+        }
+        if (GET_INVIS_LVL(d->creature)) {
             acc_sprintf("%s(%si%d%s)%s ", CCMAG(d->creature,
-                    C_NRM), CCRED(d->creature, C_NRM),
-                GET_INVIS_LVL(d->creature), CCMAG(d->creature, C_NRM),
-                CCNRM(d->creature, C_NRM));
-        else if (IS_NPC(d->creature))
+                                                C_NRM), CCRED(d->creature, C_NRM),
+                        GET_INVIS_LVL(d->creature), CCMAG(d->creature, C_NRM),
+                        CCNRM(d->creature, C_NRM));
+        } else if (IS_NPC(d->creature)) {
             acc_sprintf("%s[NPC]%s ",
-                CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
+                        CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
+        }
 
-        if (PRF_FLAGGED(d->creature, PRF_DISPHP))
+        if (PRF_FLAGGED(d->creature, PRF_DISPHP)) {
             acc_sprintf("%s%s< %s%d%s%sH%s ",
-                CCWHT(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
-                CCGRN(d->creature, C_SPR), GET_HIT(d->creature),
-                CCNRM(d->creature, C_SPR),
-                CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
+                        CCWHT(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
+                        CCGRN(d->creature, C_SPR), GET_HIT(d->creature),
+                        CCNRM(d->creature, C_SPR),
+                        CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
+        }
 
-        if (PRF_FLAGGED(d->creature, PRF_DISPMANA))
+        if (PRF_FLAGGED(d->creature, PRF_DISPMANA)) {
             acc_sprintf("%s%s%d%s%sM%s ",
-                CCBLD(d->creature, C_CMP), CCMAG(d->creature, C_SPR),
-                GET_MANA(d->creature), CCNRM(d->creature, C_SPR),
-                CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
+                        CCBLD(d->creature, C_CMP), CCMAG(d->creature, C_SPR),
+                        GET_MANA(d->creature), CCNRM(d->creature, C_SPR),
+                        CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
+        }
 
-        if (PRF_FLAGGED(d->creature, PRF_DISPMOVE))
+        if (PRF_FLAGGED(d->creature, PRF_DISPMOVE)) {
             acc_sprintf("%s%s%d%s%sV%s ",
-                CCCYN(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
-                GET_MOVE(d->creature), CCNRM(d->creature, C_SPR),
-                CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
+                        CCCYN(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
+                        GET_MOVE(d->creature), CCNRM(d->creature, C_SPR),
+                        CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
+        }
 
         if (PRF2_FLAGGED(d->creature, PRF2_DISPALIGN)) {
 
@@ -1019,53 +1053,54 @@ send_prompt(struct descriptor_data *d)
             }
 
             acc_sprintf("%s%s%d%s%sA%s ",
-                colorbuf, CCBLD(d->creature, C_CMP),
-                GET_ALIGNMENT(d->creature), CCNRM(d->creature, C_SPR),
-                CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
+                        colorbuf, CCBLD(d->creature, C_CMP),
+                        GET_ALIGNMENT(d->creature), CCNRM(d->creature, C_SPR),
+                        CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
         }
 
         if (PRF2_FLAGGED(d->creature, PRF2_DISPTIME)) {
             if (d->creature->in_room->zone->time_frame == TIME_TIMELESS) {
                 acc_sprintf("%s%s%s", CCYEL_BLD(d->creature,
-                        C_CMP), "!TIME ", CCNRM(d->creature, C_SPR));
+                                                C_CMP), "!TIME ", CCNRM(d->creature, C_SPR));
             } else {
                 struct time_info_data local_time;
                 set_local_time(d->creature->in_room->zone, &local_time);
                 snprintf(colorbuf, sizeof(colorbuf), "%s%s", CCNRM(d->creature, C_SPR),
-                    CCYEL(d->creature, C_NRM));
-                if (local_time.hours > 8 && local_time.hours < 18) {    //day
+                         CCYEL(d->creature, C_NRM));
+                if (local_time.hours > 8 && local_time.hours < 18) {    // day
                     snprintf_cat(colorbuf, sizeof(colorbuf), "%s%s", CCWHT(d->creature,
-                            C_CMP), CCBLD(d->creature, C_CMP));
-                } else if (local_time.hours >= 6 && local_time.hours <= 20) {   //dawn/dusk
+                                                                           C_CMP), CCBLD(d->creature, C_CMP));
+                } else if (local_time.hours >= 6 && local_time.hours <= 20) {   // dawn/dusk
                     snprintf_cat(colorbuf, sizeof(colorbuf), "%s", CCCYN_BLD(d->creature,
-                            C_CMP));
-                } else {        //night
+                                                                             C_CMP));
+                } else {        // night
                     snprintf_cat(colorbuf, sizeof(colorbuf), "%s", CCBLU_BLD(d->creature,
-                            C_CMP));
+                                                                             C_CMP));
                 }
 
                 acc_sprintf("%s%d%s%s%s%s ", colorbuf,
-                    ((local_time.hours % 12 ==
-                            0) ? 12 : ((local_time.hours) % 12)),
-                    CCNRM(d->creature, C_SPR), CCYEL_BLD(d->creature, C_CMP),
-                    ((local_time.hours >= 12) ? "PM" : "AM"),
-                    CCNRM(d->creature, C_SPR));
+                            ((local_time.hours % 12 ==
+                              0) ? 12 : ((local_time.hours) % 12)),
+                            CCNRM(d->creature, C_SPR), CCYEL_BLD(d->creature, C_CMP),
+                            ((local_time.hours >= 12) ? "PM" : "AM"),
+                            CCNRM(d->creature, C_SPR));
             }
         }
 
         if (is_fighting(d->creature) &&
-            PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE))
+            PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE)) {
             acc_sprintf("%s(%s)%s ", CCRED(d->creature, C_NRM),
-                diag_conditions(random_opponent(d->creature)),
-                CCNRM(d->creature, C_NRM));
+                        diag_conditions(random_opponent(d->creature)),
+                        CCNRM(d->creature, C_NRM));
+        }
 
         acc_sprintf("%s%s>%s ", CCWHT(d->creature, C_NRM),
-            CCBLD(d->creature, C_CMP), CCNRM(d->creature, C_NRM));
+                    CCBLD(d->creature, C_CMP), CCNRM(d->creature, C_NRM));
         d_send(d, acc_get_string());
         break;
     case CXN_ACCOUNT_LOGIN:
         d_printf(d,
-            "  Login with your account name, or 'new' for a new account: ");
+                 "  Login with your account name, or 'new' for a new account: ");
         break;
     case CXN_ACCOUNT_PW:
         d_printf(d, "  Password: ");
@@ -1078,16 +1113,16 @@ send_prompt(struct descriptor_data *d)
         // this awkward wording due to lame "assword:" search in tintin instead
         // of actually implementing one facet of telnet protocol
         d_printf(d,
-            "\r\n\r\n        Enter it again to verify your password: ");
+                 "\r\n\r\n        Enter it again to verify your password: ");
         break;
     case CXN_ACCOUNT_PROMPT:
         d_printf(d,
-            "\r\n\r\nWhat would you like the name of your account to be? ");
+                 "\r\n\r\nWhat would you like the name of your account to be? ");
         break;
     case CXN_ACCOUNT_VERIFY:
         d_printf(d,
-            "Are you sure you want your account name to be '%s' (Y/N)? ",
-            d->last_input);
+                 "Are you sure you want your account name to be '%s' (Y/N)? ",
+                 d->last_input);
         break;
     case CXN_ANSI_PROMPT:
         d_printf(d, "Enter the level of color you prefer: ");
@@ -1100,7 +1135,7 @@ send_prompt(struct descriptor_data *d)
         break;
     case CXN_OLDPW_PROMPT:
         d_printf(d,
-            "For security purposes, please enter your old password: ");
+                 "For security purposes, please enter your old password: ");
         break;
     case CXN_NEWPW_PROMPT:
         d_printf(d, "Enter your new password: ");
@@ -1116,15 +1151,15 @@ send_prompt(struct descriptor_data *d)
         break;
     case CXN_RACE_PROMPT:
         d_printf(d,
-            "\r\n\r\n                   Of which race are you a member? ");
+                 "\r\n\r\n                   Of which race are you a member? ");
         break;
     case CXN_CLASS_PROMPT:
         d_printf(d,
-            "             Choose your profession from the above list: ");
+                 "             Choose your profession from the above list: ");
         break;
     case CXN_CLASS_REMORT:
         d_printf(d,
-            "             Choose your secondary class from the above list: ");
+                 "             Choose your secondary class from the above list: ");
         break;
     case CXN_ALIGN_PROMPT:
         if (d->creature == NULL) {
@@ -1133,10 +1168,10 @@ send_prompt(struct descriptor_data *d)
         }
         if (IS_DROW(d->creature)) {
             d_printf(d,
-                "The Drow race is inherently evil.  Thus you begin your life as evil.\r\n\r\nPress return to continue.\r\n");
+                     "The Drow race is inherently evil.  Thus you begin your life as evil.\r\n\r\nPress return to continue.\r\n");
         } else if (IS_MONK(d->creature)) {
             d_printf(d,
-                "The monastic ideology requires that you remain neutral in alignment.\r\nTherefore you begin your life with a perfect neutrality.\r\n\r\nPress return to continue.\r\n");
+                     "The monastic ideology requires that you remain neutral in alignment.\r\nTherefore you begin your life with a perfect neutrality.\r\n\r\nPress return to continue.\r\n");
         } else if (IS_KNIGHT(d->creature) || IS_CLERIC(d->creature)) {
             d_printf(d, "Do you wish to be good or evil? ");
         } else {
@@ -1147,27 +1182,27 @@ send_prompt(struct descriptor_data *d)
         roll_real_abils(d->creature);
         print_attributes_to_buf(d->creature, buf2, sizeof(buf2));
         d_printf(d,
-            "&@&c\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n");
+                 "&@&c\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n");
         d_printf(d, "%s\r\n", buf2);
         d_printf(d,
-            "%sWould you like to %sREROLL%s or %sKEEP%s these attributes?%s ",
-            CCCYN(d->creature, C_NRM), CCGRN(d->creature, C_NRM),
-            CCCYN(d->creature, C_NRM), CCGRN(d->creature, C_NRM),
-            CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
+                 "%sWould you like to %sREROLL%s or %sKEEP%s these attributes?%s ",
+                 CCCYN(d->creature, C_NRM), CCGRN(d->creature, C_NRM),
+                 CCCYN(d->creature, C_NRM), CCGRN(d->creature, C_NRM),
+                 CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
         break;
     case CXN_EDIT_DESC:
         break;
     case CXN_MENU:
         d_printf(d,
-            "\r\n&c                             Choose your selection:&n ");
+                 "\r\n&c                             Choose your selection:&n ");
         break;
     case CXN_DELETE_PROMPT:
         d_printf(d,
-            "              &yWhich character would you like to delete:&n ");
+                 "              &yWhich character would you like to delete:&n ");
         break;
     case CXN_EDIT_PROMPT:
         d_printf(d,
-            "               &cWhich character's description do you want to edit:&n ");
+                 "               &cWhich character's description do you want to edit:&n ");
         break;
     case CXN_DELETE_PW:
         if (d->creature == NULL) {
@@ -1175,21 +1210,22 @@ send_prompt(struct descriptor_data *d)
             return;
         }
         d_printf(d,
-            "              &yTo confirm deletion of %s, enter your account password: &n",
-            GET_NAME(d->creature));
+                 "              &yTo confirm deletion of %s, enter your account password: &n",
+                 GET_NAME(d->creature));
         break;
     case CXN_DELETE_VERIFY:
         d_printf(d,
-            "              &yType 'yes' for final confirmation: &n");
+                 "              &yType 'yes' for final confirmation: &n");
         break;
     case CXN_WAIT_MENU:
         d_printf(d, "Press return to go back to the main menu.");
         break;
     case CXN_AFTERLIFE:
-        if (PLR_FLAGGED(d->creature, PLR_HARDCORE))
+        if (PLR_FLAGGED(d->creature, PLR_HARDCORE)) {
             d_printf(d, "Press return to go back to the main menu.\r\n");
-        else
+        } else {
             d_printf(d, "Press return to continue into the afterlife.\r\n");
+        }
         break;
     case CXN_REMORT_AFTERLIFE:
         d_printf(d, "Press return to continue into the afterlife.\r\n");
@@ -1202,11 +1238,11 @@ send_prompt(struct descriptor_data *d)
         break;
     case CXN_DETAILS_PROMPT:
         d_printf(d,
-            "                      &cWhich character do you want to view:&n ");
+                 "                      &cWhich character do you want to view:&n ");
         break;
     case CXN_EMAIL_VERIFY:
         d_printf(d,
-            "For security purposes, please enter your password: ");
+                 "For security purposes, please enter your password: ");
         break;
     case CXN_NEWEMAIL_PROMPT:
         d_printf(d, "Please enter your updated email address: ");
@@ -1242,13 +1278,13 @@ send_menu(struct descriptor_data *d)
         break;
     case CXN_OLDPW_PROMPT:
         d_printf(d,
-            "&@&c\r\n                                 CHANGE PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
+                 "&@&c\r\n                                 CHANGE PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
         break;
     case CXN_PW_PROMPT:
         d_printf(d,
-            "&@&c\r\n                                  SET PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
+                 "&@&c\r\n                                  SET PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
         d_printf(d,
-            "    In order to protect your character against intrusion, you must\r\nchoose a password to use on this system.\r\n\r\n");
+                 "    In order to protect your character against intrusion, you must\r\nchoose a password to use on this system.\r\n\r\n");
         break;
     case CXN_ACCOUNT_PROMPT:
         if (check_newbie_ban(d)) {
@@ -1256,52 +1292,52 @@ send_menu(struct descriptor_data *d)
             break;
         }
         d_printf(d,
-            "&@&n\r\n                                ACCOUNT CREATION\r\n*******************************************************************************&n\r\n");
+                 "&@&n\r\n                                ACCOUNT CREATION\r\n*******************************************************************************&n\r\n");
         d_printf(d,
-            "\r\n\r\n    On TempusMUD, you have an account, which is a handy way of keeping\r\ntrack of all your characters here.  All your characters share a bank\r\naccount, and you can see at a single glance which of your character have\r\nreceived mail.  Quest points are also shared by all your characters.  Your\r\naccount name will also never be shown to other players.\r\n\r\n");
+                 "\r\n\r\n    On TempusMUD, you have an account, which is a handy way of keeping\r\ntrack of all your characters here.  All your characters share a bank\r\naccount, and you can see at a single glance which of your character have\r\nreceived mail.  Quest points are also shared by all your characters.  Your\r\naccount name will also never be shown to other players.\r\n\r\n");
         break;
     case CXN_ANSI_PROMPT:
         d_printf(d,
-            "&@\r\n                                   ANSI COLOR\r\n*******************************************************************************&n\r\n");
+                 "&@\r\n                                   ANSI COLOR\r\n*******************************************************************************&n\r\n");
         d_printf(d,
-            "\r\n\r\n"
-            "    This game supports ANSI color standards.  If you have a color capable\r\n"
-            "terminal and wish to see useful color-coding of text, select the amount of\r\n"
-            "coloring you desire.  You may experiment within the game with the 'color'\r\n"
-            "command to see which level suits your personal taste.\r\n" "\r\n"
-            "    If your terminal does not support color, you will want to select\r\n"
-            "'none', as the color codes may mess up your display.  Use of at least\r\n"
-            "some color is HIGHLY recommended, as it improves gameplay dramatically.\r\n"
-            "\r\n" "                None - No color will be used\r\n"
-            "              Sparse - Minimal amounts of color will be used.\r\n"
-            "              Normal - Color will be used a medium amount.\r\n"
-            "            Complete - Use the maximum amount of color available.\r\n\r\n");
+                 "\r\n\r\n"
+                 "    This game supports ANSI color standards.  If you have a color capable\r\n"
+                 "terminal and wish to see useful color-coding of text, select the amount of\r\n"
+                 "coloring you desire.  You may experiment within the game with the 'color'\r\n"
+                 "command to see which level suits your personal taste.\r\n" "\r\n"
+                                                                             "    If your terminal does not support color, you will want to select\r\n"
+                                                                             "'none', as the color codes may mess up your display.  Use of at least\r\n"
+                                                                             "some color is HIGHLY recommended, as it improves gameplay dramatically.\r\n"
+                                                                             "\r\n" "                None - No color will be used\r\n"
+                                                                                    "              Sparse - Minimal amounts of color will be used.\r\n"
+                                                                                    "              Normal - Color will be used a medium amount.\r\n"
+                                                                                    "            Complete - Use the maximum amount of color available.\r\n\r\n");
         break;
     case CXN_COMPACT_PROMPT:
         d_printf(d,
-            "&@\r\n                              TEXT COMPACTNESS\r\n*******************************************************************************&n\r\n");
+                 "&@\r\n                              TEXT COMPACTNESS\r\n*******************************************************************************&n\r\n");
         d_printf(d,
-            "\r\n\r\n"
-            "    Many players have differing tastes as to the vertical spacing of their\r\n"
-            "display.  A less compact view is often easier to read, while a more\r\n"
-            "compact view allows for more lines to fit on the screen.\r\n\r\n"
-            "Compact off:                         Compact minimal:\r\n"
-            "<---H ---M ---V ---A>                <---H ---M ---V ---A>\r\n"
-            "A goblin spits in your face!         A goblin tries to steal from you!\r\n"
-            "\r\n"
-            "<---H ---M ---V ---A>                <---H ---M ---V ---A> kill goblin\r\n"
-            "kill goblin\r\n\r\n"
-            "Compact partial:                     Compact full:\r\n"
-            "<---H ---M ---V ---A>                <---H ---M ---V ---A>\r\n"
-            "A goblin gives you a wedgie!         A goblin laughs insultingly at you!\r\n"
-            "<---H ---M ---V ---A>                <---H ---M ---V ---A> kill goblin\r\n"
-            "kill goblin\r\n");
+                 "\r\n\r\n"
+                 "    Many players have differing tastes as to the vertical spacing of their\r\n"
+                 "display.  A less compact view is often easier to read, while a more\r\n"
+                 "compact view allows for more lines to fit on the screen.\r\n\r\n"
+                 "Compact off:                         Compact minimal:\r\n"
+                 "<---H ---M ---V ---A>                <---H ---M ---V ---A>\r\n"
+                 "A goblin spits in your face!         A goblin tries to steal from you!\r\n"
+                 "\r\n"
+                 "<---H ---M ---V ---A>                <---H ---M ---V ---A> kill goblin\r\n"
+                 "kill goblin\r\n\r\n"
+                 "Compact partial:                     Compact full:\r\n"
+                 "<---H ---M ---V ---A>                <---H ---M ---V ---A>\r\n"
+                 "A goblin gives you a wedgie!         A goblin laughs insultingly at you!\r\n"
+                 "<---H ---M ---V ---A>                <---H ---M ---V ---A> kill goblin\r\n"
+                 "kill goblin\r\n");
         break;
     case CXN_EMAIL_PROMPT:
         d_printf(d,
-            "&@&c\r\n                                 EMAIL ADDRESS\r\n*******************************************************************************&n\r\n");
+                 "&@&c\r\n                                 EMAIL ADDRESS\r\n*******************************************************************************&n\r\n");
         d_printf(d,
-            "\r\n\r\n    You may elect to associate an email address with this account.  This\r\nis entirely optional, and will not be sold to anyone.  Its primary use is\r\npassword reminders but may soon be used for Realm board login.\r\n\r\n");
+                 "\r\n\r\n    You may elect to associate an email address with this account.  This\r\nis entirely optional, and will not be sold to anyone.  Its primary use is\r\npassword reminders but may soon be used for Realm board login.\r\n\r\n");
         break;
     case CXN_VIEW_POLICY:
         d_printf(d, "&@");
@@ -1327,67 +1363,68 @@ send_menu(struct descriptor_data *d)
         break;
     case CXN_NAME_PROMPT:
         d_printf(d,
-            "&@&c\r\n                                 CHARACTER CREATION\r\n*******************************************************************************&n\r\n");
+                 "&@&c\r\n                                 CHARACTER CREATION\r\n*******************************************************************************&n\r\n");
         d_printf(d,
-            "\r\n    Now that you have created your account, you probably want to create a\r\ncharacter to play on the mud.  This character will be your persona on the\r\nmud, allowing you to interact with other people and things.  You may press\r\nreturn at any time to cancel the creation of your character.\r\n\r\n");
-        if (account_char_count(d->account))
+                 "\r\n    Now that you have created your account, you probably want to create a\r\ncharacter to play on the mud.  This character will be your persona on the\r\nmud, allowing you to interact with other people and things.  You may press\r\nreturn at any time to cancel the creation of your character.\r\n\r\n");
+        if (account_char_count(d->account)) {
             d_printf(d,
-                "You have %d character%s in your account, you may create up to %d more.\r\n\r\n",
-                account_char_count(d->account),
-                account_char_count(d->account) == 1 ? "" : "s",
-                account_chars_available(d->account));
+                     "You have %d character%s in your account, you may create up to %d more.\r\n\r\n",
+                     account_char_count(d->account),
+                     account_char_count(d->account) == 1 ? "" : "s",
+                     account_chars_available(d->account));
+        }
         break;
     case CXN_SEX_PROMPT:
         d_printf(d,
-            "&@&c\r\n                                     GENDER\r\n*******************************************************************************\r\n&n");
+                 "&@&c\r\n                                     GENDER\r\n*******************************************************************************\r\n&n");
         d_printf(d,
-            "\r\n    Is your character a male or a female?\r\n\r\n");
+                 "\r\n    Is your character a male or a female?\r\n\r\n");
         break;
     case CXN_HARDCORE_PROMPT:
         d_printf(d, "&@&c\r\n                                    HARDCORE\r\n"
-                     "*******************************************************************************&n\r\n");
+                    "*******************************************************************************&n\r\n");
         d_printf(d, "\r\n    You may choose to play a hardcore character.  Hardcore characters\r\nare widely respected and gain life points a little faster than normal.\r\nHowever, they do not resurrect once dead.  Once the character dies, it\r\nis buried and no longer playable.  This option is recommended for more\r\nexperienced players who want a challenge.\r\n\r\n");
         break;
     case CXN_RACE_PROMPT:      // Racial Query
         d_printf(d,
-            "&@&c\r\n                                      RACE\r\n"
-            "*******************************************************************************&n\r\n"
-            "    Races on Tempus have nothing to do with coloration.  Your character's\r\n"
-            "race refers to the intelligent species that your character can be.  Each\r\n"
-            "has its own advantages and disadvantages, and some have special abilities!\r\n"
-            "You may type 'help <race>' for information on any of the available races.\r\n"
-            "\r\n");
+                 "&@&c\r\n                                      RACE\r\n"
+                 "*******************************************************************************&n\r\n"
+                 "    Races on Tempus have nothing to do with coloration.  Your character's\r\n"
+                 "race refers to the intelligent species that your character can be.  Each\r\n"
+                 "has its own advantages and disadvantages, and some have special abilities!\r\n"
+                 "You may type 'help <race>' for information on any of the available races.\r\n"
+                 "\r\n");
         show_pc_race_menu(d);
         break;
     case CXN_CLASS_PROMPT:
         d_printf(d,
-            "&@&c\r\n                                   PROFESSION\r\n"
-            "*******************************************************************************&n\r\n"
-            "    Your character class is the special training your character has had\r\n"
-            "before embarking on the life of an adventurer.  Your class determines\r\n"
-            "most of your character's capabilities within the game.  You may type\r\n"
-            "'help <class>' for an overview of a particular class.\r\n"
-            "\r\n");
+                 "&@&c\r\n                                   PROFESSION\r\n"
+                 "*******************************************************************************&n\r\n"
+                 "    Your character class is the special training your character has had\r\n"
+                 "before embarking on the life of an adventurer.  Your class determines\r\n"
+                 "most of your character's capabilities within the game.  You may type\r\n"
+                 "'help <class>' for an overview of a particular class.\r\n"
+                 "\r\n");
         show_char_class_menu(d, false);
         break;
     case CXN_CLASS_REMORT:
         d_printf(d,
-            "&@&c\r\n                                   PROFESSION\r\n*******************************************************************************&n\r\n\r\n\r\n");
+                 "&@&c\r\n                                   PROFESSION\r\n*******************************************************************************&n\r\n\r\n\r\n");
         show_char_class_menu(d, true);
         break;
     case CXN_ALIGN_PROMPT:
         d_printf(d,
-            "&@&c\r\n                                   ALIGNMENT\r\n*******************************************************************************&n\r\n");
+                 "&@&c\r\n                                   ALIGNMENT\r\n*******************************************************************************&n\r\n");
         d_printf(d,
-            "\r\n\r\n    ALIGNMENT is a measure of your philosophies and morals.\r\n\r\n");
+                 "\r\n\r\n    ALIGNMENT is a measure of your philosophies and morals.\r\n\r\n");
         break;
     case CXN_EDIT_DESC:
         d_printf(d,
-            "&@&c\r\n                                  DESCRIPTION\r\n*******************************************************************************&n\r\n");
+                 "&@&c\r\n                                  DESCRIPTION\r\n*******************************************************************************&n\r\n");
         d_printf(d,
-            "\r\n\r\n    Other players will usually be able to determine your general\r\n"
-            "size, as well as your race and gender, by looking at you.  What\r\n"
-            "else is noticable about your character?\r\n\r\n");
+                 "\r\n\r\n    Other players will usually be able to determine your general\r\n"
+                 "size, as well as your race and gender, by looking at you.  What\r\n"
+                 "else is noticable about your character?\r\n\r\n");
         if (d->text_editor) {
             emit_editor_startup(d->text_editor);
             d_printf(d, "\r\n");
@@ -1408,7 +1445,7 @@ send_menu(struct descriptor_data *d)
 
             d_printf(d, "Main menu\r\n");
 
-            for (int idx = 1;!invalid_char_index(acct, idx);idx++) {
+            for (int idx = 1; !invalid_char_index(acct, idx); idx++) {
                 tmp_ch = load_player_from_xml(get_char_by_index(d->account, idx));
 
                 if (tmp_ch) {
@@ -1416,8 +1453,8 @@ send_menu(struct descriptor_data *d)
                     free_creature(tmp_ch);
                 } else {
                     d_printf(d, "%d. Char file not loadable - please report number %ld\r\n",
-                                 idx,
-                                 get_char_by_index(d->account, idx));
+                             idx,
+                             get_char_by_index(d->account, idx));
                 }
             }
 
@@ -1429,63 +1466,63 @@ send_menu(struct descriptor_data *d)
             d_printf(d, "D. Delete an existing character\r\n");
             d_printf(d, "V. View the background story\r\n");
             d_printf(d, "U. Update your email address\r\n");
-			d_printf(d, "\r\n");
+            d_printf(d, "\r\n");
 
             return;
-		}
+        }
 
 
         d_printf(d,
-            "&@&c*&n&b-----------------------------------------------------------------------------&c*\r\n"
-            "&n&b|                                 &YT E M P U S&n                                 &b|\r\n"
-            "&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n");
+                 "&@&c*&n&b-----------------------------------------------------------------------------&c*\r\n"
+                 "&n&b|                                 &YT E M P U S&n                                 &b|\r\n"
+                 "&c*&b-----------------------------------------------------------------------------&c*&n\r\n\r\n");
 
         if (account_char_count(d->account) > 0) {
             show_account_chars(d,
-                d->account, false, (account_char_count(d->account) > 5));
+                               d->account, false, (account_char_count(d->account) > 5));
             d_printf(d,
-                "\r\nYou have %d character%s in your account, you may create up to %d more.\r\n",
-                account_char_count(d->account),
-                account_char_count(d->account) == 1 ? "" : "s",
-                account_chars_available(d->account));
+                     "\r\nYou have %d character%s in your account, you may create up to %d more.\r\n",
+                     account_char_count(d->account),
+                     account_char_count(d->account) == 1 ? "" : "s",
+                     account_chars_available(d->account));
         }
         d_printf(d,
-            "\r\n             Past bank: %'-12" PRId64 "      Future Bank: %'-12" PRId64 "\r\n\r\n",
-            d->account->bank_past, d->account->bank_future);
+                 "\r\n             Past bank: %'-12" PRId64 "      Future Bank: %'-12" PRId64 "\r\n\r\n",
+                 d->account->bank_past, d->account->bank_future);
 
         d_printf(d,
-            "    &b[&yP&b] &cChange your account password     &b[&yV&b] &cView the background story\r\n");
+                 "    &b[&yP&b] &cChange your account password     &b[&yV&b] &cView the background story\r\n");
         d_printf(d, "    &b[&yC&b] &cCreate a new character           &b[&yU&b] &cUpdate your e-mail address\r\n");
 
         if (account_char_count(d->account) > 0) {
             d_printf(d,
-                "    &b[&yS&b] &cShow character details           &b[&yE&b] &cEdit a character's description\r\n");
+                     "    &b[&yS&b] &cShow character details           &b[&yE&b] &cEdit a character's description\r\n");
             d_printf(d,
-                "    &b[&yD&b] &cDelete an existing character\r\n");
+                     "    &b[&yD&b] &cDelete an existing character\r\n");
         } else {
             d_printf(d, "\r\n");
         }
         d_printf(d,
-            "\r\n                            &b[&yL&b] &cLog out of the game&n\r\n");
+                 "\r\n                            &b[&yL&b] &cLog out of the game&n\r\n");
 
         // Helpful items for those people with only one character
         if (account_char_count(d->account) == 0) {
             d_printf(d,
-                "\r\n      This menu is your account menu, where you can manage your account,\r\n"
-                "      and enter the game.  You currently have no characters associated with\r\n"
-                "      your account.  To create a character, type 'c' and press return.\r\n");
+                     "\r\n      This menu is your account menu, where you can manage your account,\r\n"
+                     "      and enter the game.  You currently have no characters associated with\r\n"
+                     "      your account.  To create a character, type 'c' and press return.\r\n");
 
         } else if (account_char_count(d->account) == 1) {
             d_printf(d,
-                "\r\n      This menu is your account menu, where you can manage your account,\r\n"
-                "      and enter the game.  Your characters are listed at the top.  To\r\n"
-                "      enter the game, you may type the number of the character you wish to\r\n"
-                "      play.  To select one of the other options, type the adjacent letter.\r\n");
+                     "\r\n      This menu is your account menu, where you can manage your account,\r\n"
+                     "      and enter the game.  Your characters are listed at the top.  To\r\n"
+                     "      enter the game, you may type the number of the character you wish to\r\n"
+                     "      play.  To select one of the other options, type the adjacent letter.\r\n");
         }
         break;
     case CXN_DELETE_PROMPT:
         d_printf(d,
-            "&@&r\r\n                                DELETE CHARACTER\r\n*******************************************************************************&n\r\n\r\n");
+                 "&@&r\r\n                                DELETE CHARACTER\r\n*******************************************************************************&n\r\n\r\n");
 
         idx = 1;
         while (!invalid_char_index(d->account, idx)) {
@@ -1493,19 +1530,19 @@ send_menu(struct descriptor_data *d)
             tmp_ch = load_player_from_xml(idnum);
             if (!tmp_ch) {
                 d_printf(d,
-                             "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
-                             player_name_by_idnum(idnum), idnum);
+                         "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
+                         player_name_by_idnum(idnum), idnum);
                 idx++;
                 continue;
             }
 
             d_printf(d, "    &r[&y%2d&r] &y%-20s %10s %10s %6s %s\r\n",
-                idx, GET_NAME(tmp_ch),
-                race_name_by_idnum(GET_RACE(tmp_ch)),
-                class_names[GET_CLASS(tmp_ch)],
-                genders[(int)GET_SEX(tmp_ch)],
-                GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
-                    GET_LEVEL(tmp_ch)) : "&m new");
+                     idx, GET_NAME(tmp_ch),
+                     race_name_by_idnum(GET_RACE(tmp_ch)),
+                     class_names[GET_CLASS(tmp_ch)],
+                     genders[(int)GET_SEX(tmp_ch)],
+                     GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
+                                                     GET_LEVEL(tmp_ch)) : "&m new");
             idx++;
             free_creature(tmp_ch);
         }
@@ -1513,7 +1550,7 @@ send_menu(struct descriptor_data *d)
         break;
     case CXN_EDIT_PROMPT:
         d_printf(d,
-            "&@&c\r\n                         EDIT CHARACTER DESCRIPTION\r\n*******************************************************************************&n\r\n\r\n");
+                 "&@&c\r\n                         EDIT CHARACTER DESCRIPTION\r\n*******************************************************************************&n\r\n\r\n");
 
         idx = 1;
         while (!invalid_char_index(d->account, idx)) {
@@ -1521,19 +1558,19 @@ send_menu(struct descriptor_data *d)
             tmp_ch = load_player_from_xml(idnum);
             if (!tmp_ch) {
                 d_printf(d,
-                             "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
-                             player_name_by_idnum(idnum), idnum);
+                         "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
+                         player_name_by_idnum(idnum), idnum);
                 idx++;
                 continue;
             }
 
             d_printf(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
-                         idx, GET_NAME(tmp_ch),
-                         race_name_by_idnum(GET_RACE(tmp_ch)),
-                         class_names[GET_CLASS(tmp_ch)],
-                         genders[(int)GET_SEX(tmp_ch)],
-                         GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
-                                                         GET_LEVEL(tmp_ch)) : "&m new");
+                     idx, GET_NAME(tmp_ch),
+                     race_name_by_idnum(GET_RACE(tmp_ch)),
+                     class_names[GET_CLASS(tmp_ch)],
+                     genders[(int)GET_SEX(tmp_ch)],
+                     GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
+                                                     GET_LEVEL(tmp_ch)) : "&m new");
             idx++;
             free_creature(tmp_ch);
         }
@@ -1542,7 +1579,7 @@ send_menu(struct descriptor_data *d)
         break;
     case CXN_DETAILS_PROMPT:
         d_printf(d,
-            "&@&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
+                 "&@&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
 
         idx = 1;
         while (!invalid_char_index(d->account, idx)) {
@@ -1550,19 +1587,19 @@ send_menu(struct descriptor_data *d)
             tmp_ch = load_player_from_xml(idnum);
             if (!tmp_ch) {
                 d_printf(d,
-                             "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
-                             player_name_by_idnum(idnum), idnum);
+                         "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
+                         player_name_by_idnum(idnum), idnum);
                 idx++;
                 continue;
             }
 
             d_printf(d, "    &c[&n%2d&c] &c%-20s &n%10s %10s %6s %s\r\n",
-                idx, GET_NAME(tmp_ch),
-                race_name_by_idnum(GET_RACE(tmp_ch)),
-                class_names[GET_CLASS(tmp_ch)],
-                genders[(int)GET_SEX(tmp_ch)],
-                GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
-                    GET_LEVEL(tmp_ch)) : "&m new");
+                     idx, GET_NAME(tmp_ch),
+                     race_name_by_idnum(GET_RACE(tmp_ch)),
+                     class_names[GET_CLASS(tmp_ch)],
+                     genders[(int)GET_SEX(tmp_ch)],
+                     GET_LEVEL(tmp_ch) ? tmp_sprintf("lvl %d",
+                                                     GET_LEVEL(tmp_ch)) : "&m new");
             idx++;
             free_creature(tmp_ch);
         }
@@ -1579,26 +1616,29 @@ send_menu(struct descriptor_data *d)
                                    "*******************************************************************************&n\r\n%s",
                                    background));
         // If there's no showstr_point, they finished already
-        if (!d->showstr_point)
+        if (!d->showstr_point) {
             set_desc_state(CXN_WAIT_MENU, d);
+        }
         break;
     case CXN_CLASS_HELP:
-        if (!d->showstr_head)
+        if (!d->showstr_head) {
             d_printf(d,
-                "&r**** &nPress return to go back to class selection &r****&n\r\n");
+                     "&r**** &nPress return to go back to class selection &r****&n\r\n");
+        }
         break;
     case CXN_RACE_HELP:
-        if (!d->showstr_head)
+        if (!d->showstr_head) {
             d_printf(d,
-                "&r**** &nPress return to go back to race selection &r****&n\r\n");
+                     "&r**** &nPress return to go back to race selection &r****&n\r\n");
+        }
         break;
     case CXN_EMAIL_VERIFY:
         d_printf(d,
-            "&@&c\r\n                                    CHANGE EMAIL\r\n*******************************************************************************\r\n\r\n&n");
+                 "&@&c\r\n                                    CHANGE EMAIL\r\n*******************************************************************************\r\n\r\n&n");
         break;
     case CXN_NEWEMAIL_PROMPT:
         d_printf(d,
-            "&@&c\r\n                                       SET EMAIL\r\n*******************************************************************************\r\n\r\n&n");
+                 "&@&c\r\n                                       SET EMAIL\r\n*******************************************************************************\r\n\r\n&n");
         break;
     default:
         slog("Unhandled input_mode %d in send_menu()", d->input_mode);
@@ -1609,16 +1649,18 @@ send_menu(struct descriptor_data *d)
 void
 set_desc_state(enum cxn_state state, struct descriptor_data *d)
 {
-    if (d->account)
+    if (d->account) {
         slog("Link [%s] for account %s[%d] changing mode to %s",
-            d->host,
-            d->account->name, d->account->id, strlist_aref(state, desc_modes));
-    else
+             d->host,
+             d->account->name, d->account->id, strlist_aref(state, desc_modes));
+    } else {
         slog("Link [%s] changing mode to %s",
-            d->host, strlist_aref(state, desc_modes));
+             d->host, strlist_aref(state, desc_modes));
+    }
 
-    if (d->mode_data)
+    if (d->mode_data) {
         free(d->mode_data);
+    }
     d->mode_data = NULL;
 
     if (state == CXN_DISCONNECT) {
@@ -1629,14 +1671,16 @@ set_desc_state(enum cxn_state state, struct descriptor_data *d)
     if (d->input_mode == CXN_ACCOUNT_PW ||
         d->input_mode == CXN_PW_PROMPT ||
         d->input_mode == CXN_PW_VERIFY ||
-        d->input_mode == CXN_OLDPW_PROMPT || d->input_mode == CXN_DELETE_PW)
+        d->input_mode == CXN_OLDPW_PROMPT || d->input_mode == CXN_DELETE_PW) {
         echo_on(d);
+    }
     d->input_mode = state;
     if (d->input_mode == CXN_ACCOUNT_PW ||
         d->input_mode == CXN_PW_PROMPT ||
         d->input_mode == CXN_PW_VERIFY ||
-        d->input_mode == CXN_OLDPW_PROMPT || d->input_mode == CXN_DELETE_PW)
+        d->input_mode == CXN_OLDPW_PROMPT || d->input_mode == CXN_DELETE_PW) {
         echo_off(d);
+    }
     if (CXN_AFTERLIFE == state) {
         d->inbuf[0] = '\0';
         d->wait = 5 RL_SEC;
@@ -1655,7 +1699,7 @@ set_desc_state(enum cxn_state state, struct descriptor_data *d)
             return;
         }
         start_editing_text(d, &d->creature->player.description,
-            MAX_CHAR_DESC - 1);
+                           MAX_CHAR_DESC - 1);
     }
 
     d->need_prompt = true;
@@ -1711,19 +1755,23 @@ reset_char(struct creature *ch)
     ch->carrying = NULL;
     remove_all_combat(ch);
     ch->char_specials.position = POS_STANDING;
-    if (ch->mob_specials.shared)
+    if (ch->mob_specials.shared) {
         ch->mob_specials.shared->default_pos = POS_STANDING;
+    }
     ch->char_specials.carry_weight = 0;
     ch->char_specials.carry_items = 0;
     ch->player_specials->olc_obj = NULL;
     ch->player_specials->olc_mob = NULL;
 
-    if (GET_HIT(ch) <= 0)
+    if (GET_HIT(ch) <= 0) {
         GET_HIT(ch) = 1;
-    if (GET_MOVE(ch) <= 0)
+    }
+    if (GET_MOVE(ch) <= 0) {
         GET_MOVE(ch) = 1;
-    if (GET_MANA(ch) <= 0)
+    }
+    if (GET_MANA(ch) <= 0) {
         GET_MANA(ch) = 1;
+    }
 
     GET_LAST_TELL_FROM(ch) = NOBODY;
     GET_LAST_TELL_TO(ch) = NOBODY;
@@ -1749,8 +1797,9 @@ char_to_game(struct descriptor_data *d)
         }
     }
 
-    if (!mini_mud)
+    if (!mini_mud) {
         d_send(d, "\e[H\e[J");
+    }
 
     reset_char(d->creature);
 
@@ -1776,12 +1825,12 @@ char_to_game(struct descriptor_data *d)
         int name_len = strlen(GET_NAME(d->creature));
         int left_pad = 19 / 2 - name_len / 2;
         d_printf(d, grave,
-                     tmp_pad(' ', left_pad),
-                     tmp_toupper(GET_NAME(d->creature)),
-                     tmp_pad(' ', 19 - name_len - left_pad),
-                     GET_LEVEL(d->creature),
-                     IS_REMORT(d->creature) ? tmp_sprintf("Gen %2d", GET_REMORT_GEN(d->creature)):"      ",
-                     GET_NAME(d->creature));
+                 tmp_pad(' ', left_pad),
+                 tmp_toupper(GET_NAME(d->creature)),
+                 tmp_pad(' ', 19 - name_len - left_pad),
+                 GET_LEVEL(d->creature),
+                 IS_REMORT(d->creature) ? tmp_sprintf("Gen %2d", GET_REMORT_GEN(d->creature)) : "      ",
+                 GET_NAME(d->creature));
         mudlog(LVL_GOD, NRM, true,
                "Denying entry to buried character %s", GET_NAME(d->creature));
         free_creature(d->creature);
@@ -1795,39 +1844,41 @@ char_to_game(struct descriptor_data *d)
         load_room = NULL;
         if ((GET_LEVEL(d->creature) < LVL_AMBASSADOR) &&
             (quest = quest_by_vnum(GET_QUEST(d->creature)))) {
-            if (quest->loadroom > -1)
+            if (quest->loadroom > -1) {
                 load_room = real_room(quest->loadroom);
+            }
         } else {
             load_room = player_loadroom(d->creature);
         }
 
         if (load_room && !can_enter_house(d->creature, load_room->number)) {
             mudlog(LVL_DEMI, NRM, true,
-                "%s unable to load in house room %d",
-                GET_NAME(d->creature), load_room->number);
+                   "%s unable to load in house room %d",
+                   GET_NAME(d->creature), load_room->number);
             load_room = NULL;
         }
 
         if (load_room && !clan_house_can_enter(d->creature, load_room)) {
             mudlog(LVL_DEMI, NRM, true,
-                "%s unable to load in clanhouse room %d; loadroom unset",
-                GET_NAME(d->creature), load_room->number);
+                   "%s unable to load in clanhouse room %d; loadroom unset",
+                   GET_NAME(d->creature), load_room->number);
             load_room = NULL;
         }
 
-        if (PLR_FLAGGED(d->creature, PLR_INVSTART))
+        if (PLR_FLAGGED(d->creature, PLR_INVSTART)) {
             GET_INVIS_LVL(d->creature) =
                 (GET_LEVEL(d->creature) >
-                LVL_LUCIFER ? LVL_LUCIFER : GET_LEVEL(d->creature));
+                 LVL_LUCIFER ? LVL_LUCIFER : GET_LEVEL(d->creature));
+        }
 
         // Now load objects onto character
         switch (unrent(d->creature)) {
         case -1:
             notes =
                 tmp_strcat(notes,
-                "Your equipment could not be loaded.\r\n\r\n", NULL);
+                           "Your equipment could not be loaded.\r\n\r\n", NULL);
             mudlog(LVL_IMMORT, CMP, true,
-                "%s's equipment could not be loaded.", GET_NAME(d->creature));
+                   "%s's equipment could not be loaded.", GET_NAME(d->creature));
             break;
         case 0:
             // Everything ok
@@ -1838,20 +1889,20 @@ char_to_game(struct descriptor_data *d)
         case 2:
             notes =
                 tmp_strcat(notes,
-                "\r\n\007You could not afford your rent!\r\n"
-                "Some of your possessions have been sold to cover your bill!\r\n",
-                NULL);
+                           "\r\n\007You could not afford your rent!\r\n"
+                           "Some of your possessions have been sold to cover your bill!\r\n",
+                           NULL);
             break;
         case 3:
             load_room = real_room(number(10919, 10921));
             if (!load_room) {
                 errlog("Can't send %s to jail - jail doesn't exist!",
-                    GET_NAME(d->creature));
+                       GET_NAME(d->creature));
             }
             notes =
                 tmp_strcat(notes,
-                "\r\nYou were unable to pay your rent and have been put in JAIL!\r\n",
-                NULL);
+                           "\r\nYou were unable to pay your rent and have been put in JAIL!\r\n",
+                           NULL);
             break;
         default:
             errlog("Can't happen at %s:%d", __FILE__, __LINE__);
@@ -1876,33 +1927,34 @@ char_to_game(struct descriptor_data *d)
         GET_IMMORT_QP(d->creature) != GET_QUEST_ALLOWANCE(d->creature) &&
         d->creature->player.time.logon < last_sunday_time) {
         slog("Reset %s to %d QPs from %d (login)",
-            GET_NAME(d->creature), GET_QUEST_ALLOWANCE(d->creature),
-            GET_IMMORT_QP(d->creature));
+             GET_NAME(d->creature), GET_QUEST_ALLOWANCE(d->creature),
+             GET_IMMORT_QP(d->creature));
         GET_IMMORT_QP(d->creature) = GET_QUEST_ALLOWANCE(d->creature);
         notes =
             tmp_strcat(notes, "Your quest points have been restored!\r\n",
-            NULL);
+                       NULL);
     }
     // if their rep is 0 and they are >= gen 5 they gain 5 rep
     if (GET_REMORT_GEN(d->creature) >= 1 && RAW_REPUTATION_OF(d->creature) == 0) {
         gain_reputation(d->creature, 5);
         notes =
             tmp_strcat(notes,
-            "You are no longer innocent because you have reached your first generation.\r\n",
-            NULL);
+                       "You are no longer innocent because you have reached your first generation.\r\n",
+                       NULL);
     }
 
     d->creature->player.time.logon = now;
     send_to_char(d->creature, "%s%s%s%s",
-        CCRED(d->creature, C_NRM), CCBLD(d->creature, C_NRM), WELC_MESSG,
-        CCNRM(d->creature, C_NRM));
+                 CCRED(d->creature, C_NRM), CCBLD(d->creature, C_NRM), WELC_MESSG,
+                 CCNRM(d->creature, C_NRM));
 
     creatures = g_list_prepend(creatures, d->creature);
     g_hash_table_insert(creature_map,
-        GINT_TO_POINTER(GET_IDNUM(d->creature)), d->creature);
+                        GINT_TO_POINTER(GET_IDNUM(d->creature)), d->creature);
 
-    if (!load_room)
+    if (!load_room) {
         load_room = player_loadroom(d->creature);
+    }
 
     char_to_room(d->creature, load_room, true);
     crashsave(d->creature);
@@ -1912,27 +1964,29 @@ char_to_game(struct descriptor_data *d)
 
     set_desc_state(CXN_PLAYING, d);
 
-    if (GET_LEVEL(d->creature) < LVL_IMMORT)
+    if (GET_LEVEL(d->creature) < LVL_IMMORT) {
         REMOVE_BIT(PRF2_FLAGS(d->creature), PRF2_NOWHO);
+    }
 
     if (!GET_LEVEL(d->creature)) {
         send_to_char(d->creature, "%s", START_MESSG);
         send_to_newbie_helpers(tmp_sprintf
-            (" ***> New adventurer %s has entered the realm. <***\r\n",
-                GET_NAME(d->creature)));
+                                   (" ***> New adventurer %s has entered the realm. <***\r\n",
+                                   GET_NAME(d->creature)));
         do_start(d->creature, 0);
     } else {
         mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(d->creature), NRM, true,
-            "%s has entered the game in room #%d%s",
-            GET_NAME(d->creature),
-            d->creature->in_room->number,
-            (d->account->banned) ? " [BANNED]" : "");
+             "%s has entered the game in room #%d%s",
+             GET_NAME(d->creature),
+             d->creature->in_room->number,
+             (d->account->banned) ? " [BANNED]" : "");
         act("$n has entered the game.", true, d->creature, NULL, NULL, TO_ROOM);
     }
 
     // Wait 5-15 seconds before kicking them off for being banned
-    if (d->account->banned && !d->ban_dc_counter)
+    if (d->account->banned && !d->ban_dc_counter) {
         d->ban_dc_counter = number(5 RL_SEC, 15 RL_SEC);
+    }
 
     look_at_room(d->creature, d->creature->in_room, 0);
 
@@ -1945,20 +1999,22 @@ char_to_game(struct descriptor_data *d)
             quest->ended != 0 ||
             !is_playing_quest(quest, GET_IDNUM(d->creature))) {
             slog("%s removed from quest %d",
-                GET_NAME(d->creature), GET_QUEST(d->creature));
+                 GET_NAME(d->creature), GET_QUEST(d->creature));
             GET_QUEST(d->creature) = 0;
         }
     }
 
     REMOVE_BIT(PLR_FLAGS(d->creature), PLR_CRYO | PLR_WRITING | PLR_OLC |
-        PLR_MAILING | PLR_AFK);
+               PLR_MAILING | PLR_AFK);
     REMOVE_BIT(PRF2_FLAGS(d->creature), PRF2_WORLDWRITE);
 
-    if (*notes)
+    if (*notes) {
         send_to_char(d->creature, "%s", notes);
+    }
 
-    if (has_mail(GET_IDNUM(d->creature)))
+    if (has_mail(GET_IDNUM(d->creature))) {
         send_to_char(d->creature, "You have mail waiting.\r\n");
+    }
 
     if (GET_CLAN(d->creature) && !real_clan(GET_CLAN(d->creature))) {
         send_to_char(d->creature, "Your clan has been disbanded.\r\n");
@@ -1972,8 +2028,9 @@ char_to_game(struct descriptor_data *d)
 
     // Check for house reposessions
     struct house *house = find_house_by_owner(d->creature->account->id);
-    if (house != NULL && repo_note_count(house) > 0)
+    if (house != NULL && repo_note_count(house) > 0) {
         house_notify_repossession(house, d->creature);
+    }
 
     if (GET_CLAN(d->creature) != 0) {
         struct clan_data *clan = clan_by_owner(GET_IDNUM(d->creature));
@@ -1986,10 +2043,11 @@ char_to_game(struct descriptor_data *d)
     }
     // Set thier languages here to make sure they speak their race language
     set_initial_tongue(d->creature);
-    if (shutdown_count > 0)
+    if (shutdown_count > 0) {
         d_send(d, tmp_sprintf
-            ("\r\n\007\007_ NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
-                shutdown_count, shutdown_count == 1 ? "" : "s"));
+                   ("\r\n\007\007_ NOTICE :: Tempus will be rebooting in [%d] second%s ::\r\n",
+                   shutdown_count, shutdown_count == 1 ? "" : "s"));
+    }
 
     account_update_last_entry(d->account);
 }
@@ -2013,48 +2071,48 @@ show_character_detail(struct descriptor_data *d)
     }
 
     d_printf(d,
-        "&@&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
+             "&@&c\r\n                            VIEW CHARACTER DETAILS\r\n*******************************************************************************&n\r\n\r\n");
 
     if (IS_REMORT(ch)) {
         str = tmp_sprintf("%s%4s&n/%s%4s&n",
-            get_char_class_color(ch, GET_CLASS(ch)),
-            char_class_abbrevs[GET_CLASS(ch)],
-            get_char_class_color(ch, GET_REMORT_CLASS(ch)),
-            char_class_abbrevs[GET_REMORT_CLASS(ch)]);
+                          get_char_class_color(ch, GET_CLASS(ch)),
+                          char_class_abbrevs[GET_CLASS(ch)],
+                          get_char_class_color(ch, GET_REMORT_CLASS(ch)),
+                          char_class_abbrevs[GET_REMORT_CLASS(ch)]);
     } else {
         str = tmp_sprintf("%s%9s&n",
-            get_char_class_color(ch, GET_CLASS(ch)),
-            class_names[GET_CLASS(ch)]);
+                          get_char_class_color(ch, GET_CLASS(ch)),
+                          class_names[GET_CLASS(ch)]);
     }
     d_printf(d,
-        "&BName:&n %-20s &BLvl:&n %2d &BGen:&n %2d     &BClass:&n %s\r\n",
-        GET_NAME(ch), GET_LEVEL(ch), GET_REMORT_GEN(ch), str);
+             "&BName:&n %-20s &BLvl:&n %2d &BGen:&n %2d     &BClass:&n %s\r\n",
+             GET_NAME(ch), GET_LEVEL(ch), GET_REMORT_GEN(ch), str);
     strftime(time_buf, 29, "%a %b %d, %Y %H:%M:%S",
-        localtime(&ch->player.time.birth));
+             localtime(&ch->player.time.birth));
     d_printf(d, "\r\n&BCreated on:&n %s\r\n", time_buf);
     strftime(time_buf, 29, "%a %b %d, %Y %H:%M:%S",
-        localtime(&ch->player.time.logon));
+             localtime(&ch->player.time.logon));
     d_printf(d, "&BLast logon:&n %s\r\n", time_buf);
     playing_time = real_time_passed(ch->player.time.played, 0);
     d_printf(d, "&BTime played:&n %d days, %d hours\r\n\r\n",
-        playing_time.day, playing_time.hours);
+             playing_time.day, playing_time.hours);
 
     str = tmp_sprintf("%d/%d", GET_HIT(ch), GET_MAX_HIT(ch));
     d_printf(d, "&BHit Points:&n  %-25s &BAlignment:&n  %d\r\n",
-        str, GET_ALIGNMENT(ch));
+             str, GET_ALIGNMENT(ch));
     str = tmp_sprintf("%d/%d", GET_MANA(ch), GET_MAX_MANA(ch));
     d_printf(d, "&BMana Points:&n %-25s &BReputation:&n %s\r\n",
-        str, reputation_msg[GET_REPUTATION_RANK(ch)]);
+             str, reputation_msg[GET_REPUTATION_RANK(ch)]);
     str = tmp_sprintf("%d/%d", GET_MOVE(ch), GET_MAX_MOVE(ch));
     d_printf(d, "&BMove Points:&n %-25s &BExperience:&n %d\r\n",
-        str, GET_EXP(ch));
+             str, GET_EXP(ch));
 
     d_printf(d, "\r\n");
 }
 
 void
 show_account_chars(struct descriptor_data *d, struct account *acct,
-    bool immort, bool brief)
+                   bool immort, bool brief)
 {
     const char *class_str, *status_str, *mail_str;
     const char *sex_color = "";
@@ -2064,14 +2122,15 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
     int idx;
 
     if (!immort) {
-        if (brief)
+        if (brief) {
             d_printf(d,
-                "  # Name         Last on   Status  Mail   # Name         Last on   Status  Mail\r\n"
-                " -- --------- ---------- --------- ----  -- --------- ---------- --------- ----\r\n");
-        else
+                     "  # Name         Last on   Status  Mail   # Name         Last on   Status  Mail\r\n"
+                     " -- --------- ---------- --------- ----  -- --------- ---------- --------- ----\r\n");
+        } else {
             d_printf(d,
-                "&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status  Mail\r\n"
-                "&b -- -------------- --- --- --- -------- --------- ------------- --------- ----\r\n");
+                     "&y  # Name           Lvl Gen Sex     Race     Class      Last on    Status  Mail\r\n"
+                     "&b -- -------------- --- --- --- -------- --------- ------------- --------- ----\r\n");
+        }
 
     }
 
@@ -2081,8 +2140,8 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
         tmp_ch = load_player_from_xml(idnum);
         if (!tmp_ch) {
             d_printf(d,
-                         "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
-                         player_name_by_idnum(idnum), idnum);
+                     "&R------ BAD PROBLEMS WITH %s ------  PLEASE REPORT NUMBER %ld&n\r\n",
+                     player_name_by_idnum(idnum), idnum);
             idx++;
             continue;
         }
@@ -2095,49 +2154,53 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
             break;
         }
         sex_str = tmp_sprintf("%s%c&n",
-            sex_color, toupper(genders[(int)GET_SEX(tmp_ch)][0]));
+                              sex_color, toupper(genders[(int)GET_SEX(tmp_ch)][0]));
 
         name_str = tmp_strdup(GET_NAME(tmp_ch));
-        if (strlen(name_str) > ((brief) ? 8 : 13))
+        if (strlen(name_str) > ((brief) ? 8 : 13)) {
             name_str[(brief) ? 8 : 13] = '\0';
-        if (IS_IMMORT(tmp_ch))
+        }
+        if (IS_IMMORT(tmp_ch)) {
             name_str =
                 tmp_sprintf((brief) ? "&g%-8s&n" : "&g%-13s&n", name_str);
+        }
 
         // Construct compact menu entry for each character
         if (IS_REMORT(tmp_ch)) {
             class_str = tmp_sprintf("%s%4s&n/%s%4s&n",
-                get_char_class_color(tmp_ch, GET_CLASS(tmp_ch)),
-                char_class_abbrevs[GET_CLASS(tmp_ch)],
-                get_char_class_color(tmp_ch, GET_REMORT_CLASS(tmp_ch)),
-                char_class_abbrevs[GET_REMORT_CLASS(tmp_ch)]);
+                                    get_char_class_color(tmp_ch, GET_CLASS(tmp_ch)),
+                                    char_class_abbrevs[GET_CLASS(tmp_ch)],
+                                    get_char_class_color(tmp_ch, GET_REMORT_CLASS(tmp_ch)),
+                                    char_class_abbrevs[GET_REMORT_CLASS(tmp_ch)]);
         } else {
             class_str = tmp_sprintf("%s%9s&n",
-                get_char_class_color(tmp_ch, GET_CLASS(tmp_ch)),
-                class_names[GET_CLASS(tmp_ch)]);
+                                    get_char_class_color(tmp_ch, GET_CLASS(tmp_ch)),
+                                    class_names[GET_CLASS(tmp_ch)]);
         }
-        if (immort)
+        if (immort) {
             strftime(laston_str, sizeof(laston_str), "%a, %d %b %Y %H:%M:%S",
-                localtime(&tmp_ch->player.time.logon));
-        else if (brief)
+                     localtime(&tmp_ch->player.time.logon));
+        } else if (brief) {
             strftime(laston_str, sizeof(laston_str), "%Y/%m/%d",
-                localtime(&tmp_ch->player.time.logon));
-        else
+                     localtime(&tmp_ch->player.time.logon));
+        } else {
             strftime(laston_str, sizeof(laston_str), "%b %d, %Y",
-                localtime(&tmp_ch->player.time.logon));
-        if (PLR_FLAGGED(tmp_ch, PLR_FROZEN))
+                     localtime(&tmp_ch->player.time.logon));
+        }
+        if (PLR_FLAGGED(tmp_ch, PLR_FROZEN)) {
             status_str = "&C   FROZEN";
-        else if (PLR2_FLAGGED(tmp_ch, PLR2_BURIED))
+        } else if (PLR2_FLAGGED(tmp_ch, PLR2_BURIED)) {
             status_str = "&n   Buried";
-        else if ((real_ch =
-                get_char_in_world_by_idnum(GET_IDNUM(tmp_ch))) != NULL) {
-            if (real_ch->desc)
+        } else if ((real_ch =
+                        get_char_in_world_by_idnum(GET_IDNUM(tmp_ch))) != NULL) {
+            if (real_ch->desc) {
                 status_str = "&g  Playing";
-            else
+            } else {
                 status_str = "&c Linkless";
+            }
         } else if (tmp_ch->player_specials->desc_mode == CXN_AFTERLIFE) {
             status_str = "&R     Died";
-        } else
+        } else {
             switch (tmp_ch->player_specials->rentcode) {
             case RENT_CREATING:
                 status_str = "&Y Creating";
@@ -2170,49 +2233,55 @@ show_account_chars(struct descriptor_data *d, struct account *acct,
                 status_str = "&R REPORTME";
                 break;
             }
-        if (has_mail(GET_IDNUM(tmp_ch)))
+        }
+        if (has_mail(GET_IDNUM(tmp_ch))) {
             mail_str = "&Y Yes";
-        else
+        } else {
             mail_str = "&n No ";
+        }
         if (immort) {
             d_printf(d,
-                "&y%5ld &n%-13s %s&n %s  %2d&c(&n%2d&c)&n %s\r\n",
-                GET_IDNUM(tmp_ch), name_str, status_str, laston_str,
-                GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch), class_str);
+                     "&y%5ld &n%-13s %s&n %s  %2d&c(&n%2d&c)&n %s\r\n",
+                     GET_IDNUM(tmp_ch), name_str, status_str, laston_str,
+                     GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch), class_str);
         } else if (tmp_ch->player_specials->rentcode == RENT_CREATING) {
-            if (brief)
+            if (brief) {
                 d_printf(d,
-                    "&b[&y%2d&b] &n%-8s     &yNever  Creating&n  -- ",
-                    idx, name_str);
-            else
+                         "&b[&y%2d&b] &n%-8s     &yNever  Creating&n  -- ",
+                         idx, name_str);
+            } else {
                 d_printf(d,
-                    "&b[&y%2d&b] &n%-13s   &y-   -  -         -         -         Never  Creating&n  --\r\n",
-                    idx, name_str);
+                         "&b[&y%2d&b] &n%-13s   &y-   -  -         -         -         Never  Creating&n  --\r\n",
+                         idx, name_str);
+            }
         } else {
-            if (brief)
+            if (brief) {
                 d_printf(d,
-                    "&b[&y%2d&b] &n%-8s %10s %s %s&n",
-                    idx, name_str, laston_str, status_str, mail_str);
-            else
+                         "&b[&y%2d&b] &n%-8s %10s %s %s&n",
+                         idx, name_str, laston_str, status_str, mail_str);
+            } else {
                 d_printf(d,
-                    "&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
-                    idx, name_str,
-                    GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
-                    sex_str,
-                    race_name_by_idnum(GET_RACE(tmp_ch)),
-                    class_str, laston_str, status_str, mail_str);
+                         "&b[&y%2d&b] &n%-13s %3d %3d  %s  %8s %s %13s %s %s&n\r\n",
+                         idx, name_str,
+                         GET_LEVEL(tmp_ch), GET_REMORT_GEN(tmp_ch),
+                         sex_str,
+                         race_name_by_idnum(GET_RACE(tmp_ch)),
+                         class_str, laston_str, status_str, mail_str);
+            }
         }
         idx++;
         if (brief) {
-            if (idx & 1)
+            if (idx & 1) {
                 d_printf(d, "\r\n");
-            else
+            } else {
                 d_printf(d, " ");
+            }
         }
         free_creature(tmp_ch);
     }
-    if (brief && !(idx & 1))
+    if (brief && !(idx & 1)) {
         d_printf(d, "\r\n");
+    }
 }
 
 int
@@ -2221,24 +2290,24 @@ check_newbie_ban(struct descriptor_data *desc)
     int bantype = isbanned(desc->host, buf2, sizeof(buf2));
     if (bantype == BAN_NEW) {
         d_printf(desc, "**************************************************"
-            "******************************\r\n");
+                       "******************************\r\n");
         d_printf(desc,
-            "                               T E M P U S  M U D\r\n");
+                 "                               T E M P U S  M U D\r\n");
         d_printf(desc,
-            "**************************************************"
-            "******************************\r\n");
+                 "**************************************************"
+                 "******************************\r\n");
         d_printf(desc,
-            "\t\tWe're sorry, we have been forced to ban your "
-            "IP address.\r\n\tIf you have never played here "
-            "before, or you feel we have made\r\n\ta mistake, or "
-            "perhaps you just got caught in the wake of\r\n\tsomeone "
-            "else's trouble making, please mail "
-            "unban@tempusmud.com.\r\n\tPlease include your account "
-            "name and your character name(s)\r\n\tso we can siteok "
-            "your IP.  We apologize for the inconvenience,\r\n\tand "
-            "we hope to see you soon!");
+                 "\t\tWe're sorry, we have been forced to ban your "
+                 "IP address.\r\n\tIf you have never played here "
+                 "before, or you feel we have made\r\n\ta mistake, or "
+                 "perhaps you just got caught in the wake of\r\n\tsomeone "
+                 "else's trouble making, please mail "
+                 "unban@tempusmud.com.\r\n\tPlease include your account "
+                 "name and your character name(s)\r\n\tso we can siteok "
+                 "your IP.  We apologize for the inconvenience,\r\n\tand "
+                 "we hope to see you soon!");
         mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
-            "Account creation denied from [%s]", desc->host);
+             "Account creation denied from [%s]", desc->host);
         return BAN_NEW;
     }
 

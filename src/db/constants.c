@@ -1,12 +1,12 @@
 /************************************************************************
-*   File: constants.c                                   Part of CircleMUD *
-*  Usage: Numeric and string contants used by the MUD                     *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*                                                                         *
-*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-************************************************************************ */
+ *   File: constants.c                                   Part of CircleMUD *
+ *  Usage: Numeric and string contants used by the MUD                     *
+ *                                                                         *
+ *  All rights reserved.  See license.doc for complete information.        *
+ *                                                                         *
+ *  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
+ *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
+ ************************************************************************ */
 
 //
 // File: constants.c                      -- Part of TempusMUD
@@ -3199,7 +3199,7 @@ const char *material_names[] = {
     "amber",
     "alexandrite",
     "amethyst",
-    "oriental amethyst",/** 210 **/
+    "oriental amethyst", /** 210 **/
     "aquamarine",
     "chrysoberyl",
     "coral",
@@ -3352,39 +3352,56 @@ const char *spell_bit_keywords[] = {
 
 const struct weap_spec_info weap_spec_char_class[NUM_CLASSES] = {
     {
-        3.5, 3},                // mage
+        3.5, 3
+    },                          // mage
     {
-        2.5, 4},                // cleric
+        2.5, 4
+    },                          // cleric
     {
-        2.0, 5},                // thief
+        2.0, 5
+    },                          // thief
     {
-        1.5, 6},                // warrior
+        1.5, 6
+    },                          // warrior
     {
-        1.5, 6},                // barbarian
+        1.5, 6
+    },                          // barbarian
     {
-        3.5, 3},                // psionic
+        3.5, 3
+    },                          // psionic
     {
-        3.0, 3},                // physic
+        3.0, 3
+    },                          // physic
     {
-        2.0, 5},                // cyborg
+        2.0, 5
+    },                          // cyborg
     {
-        1.5, 6},                // knight
+        1.5, 6
+    },                          // knight
     {
-        1.5, 6},                // ranger
+        1.5, 6
+    },                          // ranger
     {
-        2.0, 5},                // bard
+        2.0, 5
+    },                          // bard
     {
-        2.5, 3},                // monk
+        2.5, 3
+    },                          // monk
     {
-        1.5, 6},                // vampire
+        1.5, 6
+    },                          // vampire
     {
-        1.5, 6},                // merc
+        1.5, 6
+    },                          // merc
     {
-        1.5, 6},                // spare1
+        1.5, 6
+    },                          // spare1
     {
-        1.5, 6},                // spare2
+        1.5, 6
+    },                          // spare2
     {
-        1.5, 6}                 // spare3
+        1.5, 6
+    }                           // spare3
 };
 
 const int wear_bitvectors[] = {

@@ -25,13 +25,14 @@ load_bounty_data(void)
 
     res = sql_query("select idnum, victim from bounty_hunters");
     count = PQntuples(res);
-    if (count < 1)
+    if (count < 1) {
         return;
+    }
 
     for (idx = 0; idx < count; idx++) {
         hunt_list =
             g_list_prepend(hunt_list, make_hunt_data(atoi(PQgetvalue(res, idx,
-                        0)), atoi(PQgetvalue(res, idx, 1))));
+                                                                     0)), atoi(PQgetvalue(res, idx, 1))));
     }
 }
 
@@ -40,12 +41,13 @@ remove_bounties(int char_id)
 {
     GList *next;
 
-    for (GList * it = hunt_list; it; it = next) {
+    for (GList *it = hunt_list; it; it = next) {
         struct hunt_data *hunt = it->data;
         next = it->next;
 
-        if (hunt->vict_id == char_id || hunt->idnum == char_id)
+        if (hunt->vict_id == char_id || hunt->idnum == char_id) {
             hunt_list = g_list_remove_link(hunt_list, it);
+        }
     }
 }
 
@@ -74,19 +76,20 @@ get_bounty_amount(int idnum)
 struct hunt_data *
 hunt_data_by_idnum(int hunter_id, int vict_id)
 {
-    for (GList * it = hunt_list; it; it = it->next) {
+    for (GList *it = hunt_list; it; it = it->next) {
         struct hunt_data *hunt = it->data;
 
         if ((!hunter_id || hunt->idnum == hunter_id)
-            && (!vict_id || hunt->vict_id == vict_id))
+            && (!vict_id || hunt->vict_id == vict_id)) {
             return hunt;
+        }
     }
 
     return NULL;
 }
 
 bool
-is_bountied(struct creature * hunter, struct creature * vict)
+is_bountied(struct creature *hunter, struct creature *vict)
 {
     return (hunt_data_by_idnum(GET_IDNUM(hunter), GET_IDNUM(vict)) != NULL);
 }
@@ -97,8 +100,9 @@ get_hunted_id(int hunter_id)
     struct hunt_data *hunt;
 
     hunt = hunt_data_by_idnum(hunter_id, 0);
-    if (!hunt)
+    if (!hunt) {
         return 0;
+    }
 
     return hunt->vict_id;
 }
@@ -106,18 +110,20 @@ get_hunted_id(int hunter_id)
 // Awards any bounties due to the killer - returns true if it was a
 // legitimate bounty kill
 bool
-award_bounty(struct creature * killer, struct creature * vict)
+award_bounty(struct creature *killer, struct creature *vict)
 {
     struct follow_type *f;
     int count, amt, amt_left;
     struct hunt_data *hunt;
 
-    if (IS_NPC(killer) || IS_NPC(vict))
+    if (IS_NPC(killer) || IS_NPC(vict)) {
         return false;
+    }
 
     hunt = hunt_data_by_idnum(GET_IDNUM(killer), GET_IDNUM(vict));
-    if (!hunt)
+    if (!hunt) {
         return false;
+    }
 
     hunt_list = g_list_remove(hunt_list, hunt);
 
@@ -153,7 +159,7 @@ award_bounty(struct creature * killer, struct creature * vict)
             account_set_past_bank(vict->account, 0);
         } else {
             account_set_past_bank(vict->account,
-                GET_PAST_BANK(vict) - amt_left);
+                                  GET_PAST_BANK(vict) - amt_left);
             amt_left = 0;
         }
     }
@@ -163,50 +169,55 @@ award_bounty(struct creature * killer, struct creature * vict)
             account_set_future_bank(vict->account, 0);
         } else {
             account_set_future_bank(vict->account,
-                GET_FUTURE_BANK(vict) - amt_left);
+                                    GET_FUTURE_BANK(vict) - amt_left);
             amt_left = 0;
         }
     }
     // Don't want to make it easy to get rich...
     amt -= amt_left;
-    if (!amt)
+    if (!amt) {
         return true;
+    }
 
     // Award them the amount
     if (!AFF_FLAGGED(killer, AFF_GROUP)) {
         send_to_char(killer,
-            "You have been paid %'d gold coins for killing %s!\r\n", amt,
-            GET_NAME(vict));
+                     "You have been paid %'d gold coins for killing %s!\r\n", amt,
+                     GET_NAME(vict));
         GET_GOLD(killer) += amt;
         mudlog(LVL_IMMORT, CMP, true, "%s paid %d gold for killing %s",
-            GET_NAME(killer), amt, GET_NAME(vict));
+               GET_NAME(killer), amt, GET_NAME(vict));
     } else {
-        if (killer->master)
+        if (killer->master) {
             killer = killer->master;
+        }
         // count the people in the group
         count = 1;
-        for (f = killer->followers; f; f = f->next)
-            if (AFF_FLAGGED(f->follower, AFF_GROUP) && !IS_NPC(f->follower))
+        for (f = killer->followers; f; f = f->next) {
+            if (AFF_FLAGGED(f->follower, AFF_GROUP) && !IS_NPC(f->follower)) {
                 count++;
+            }
+        }
 
         amt /= count;
 
         mudlog(LVL_IMMORT, CMP, true,
-            "%s's group paid %d gold each for killing %s", GET_NAME(killer),
-            amt, GET_NAME(vict));
+               "%s's group paid %d gold each for killing %s", GET_NAME(killer),
+               amt, GET_NAME(vict));
 
         send_to_char(killer,
-            "You have been paid %'d gold coins for your part in killing %s!\r\n",
-            amt, GET_NAME(vict));
+                     "You have been paid %'d gold coins for your part in killing %s!\r\n",
+                     amt, GET_NAME(vict));
         GET_GOLD(killer) += amt;
 
-        for (f = killer->followers; f; f = f->next)
+        for (f = killer->followers; f; f = f->next) {
             if (AFF_FLAGGED(f->follower, AFF_GROUP) && !IS_NPC(f->follower)) {
                 send_to_char(f->follower,
-                    "You have been paid %'d gold coins for your part in killing %s!\r\n",
-                    amt, GET_NAME(vict));
+                             "You have been paid %'d gold coins for your part in killing %s!\r\n",
+                             amt, GET_NAME(vict));
                 GET_GOLD(f->follower) += amt;
             }
+        }
     }
 
     return true;
@@ -227,12 +238,12 @@ register_bounty(struct creature *self, struct creature *ch, char *argument)
     }
 
     perform_say(ch, "inquire",
-        tmp_sprintf("I'd like to register as a bounty hunter for %s.",
-            tmp_capitalize(tmp_tolower(vict_name))));
+                tmp_sprintf("I'd like to register as a bounty hunter for %s.",
+                            tmp_capitalize(tmp_tolower(vict_name))));
 
     if (IS_CRIMINAL(ch)) {
         perform_say(self, "say",
-            "You're a criminal.  Scum like you don't get to be bounty hunters.");
+                    "You're a criminal.  Scum like you don't get to be bounty hunters.");
         return 1;
     }
 
@@ -245,7 +256,7 @@ register_bounty(struct creature *self, struct creature *ch, char *argument)
     if (!vict) {
         errlog("Could not load victim in place_bounty");
         perform_say(self, "say",
-            "Hmmm.  There seems to be a problem with that person.");
+                    "Hmmm.  There seems to be a problem with that person.");
         return 1;
     }
 
@@ -260,9 +271,9 @@ register_bounty(struct creature *self, struct creature *ch, char *argument)
     }
 
     perform_say(self, "state",
-        tmp_sprintf
-        ("Very well.  You are now registered as a bounty hunter for %s.",
-            GET_NAME(vict)));
+                tmp_sprintf
+                    ("Very well.  You are now registered as a bounty hunter for %s.",
+                    GET_NAME(vict)));
 
 
     struct hunt_data *hunt =
@@ -276,7 +287,7 @@ register_bounty(struct creature *self, struct creature *ch, char *argument)
     } else {
         hunt->vict_id = GET_IDNUM(vict);
         sql_exec("update bounty_hunters set victim=%ld where idnum=%ld",
-            GET_IDNUM(vict), GET_IDNUM(ch));
+                 GET_IDNUM(vict), GET_IDNUM(ch));
     }
 
     return 1;
@@ -284,11 +295,13 @@ register_bounty(struct creature *self, struct creature *ch, char *argument)
 
 SPECIAL(bounty_clerk)
 {
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (CMD_IS("register"))
+    if (CMD_IS("register")) {
         return register_bounty((struct creature *)me, ch, argument);
+    }
 
     return 0;
 }

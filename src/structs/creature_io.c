@@ -48,23 +48,26 @@ findCostliestObj(struct creature *ch)
 {
     struct obj_data *cur_obj, *result;
 
-    if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
         return NULL;
+    }
 
     result = NULL;
 
     cur_obj = ch->carrying;
     while (cur_obj) {
         if (cur_obj &&
-            (!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj)))
+            (!result || GET_OBJ_COST(result) < GET_OBJ_COST(cur_obj))) {
             result = cur_obj;
+        }
 
-        if (cur_obj->contains)
+        if (cur_obj->contains) {
             cur_obj = cur_obj->contains;    // descend into obj
-        else if (!cur_obj->next_content && cur_obj->in_obj)
+        } else if (!cur_obj->next_content && cur_obj->in_obj) {
             cur_obj = cur_obj->in_obj->next_content;    // ascend out of obj
-        else
+        } else {
             cur_obj = cur_obj->next_content;    // go to next obj
+        }
     }
 
     return result;
@@ -80,21 +83,25 @@ pay_player_rent(struct creature *ch, time_t last_time, int code, int currency)
     long cost;
 
     // Immortals don't pay rent
-    if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
         return 0;
-    if (is_authorized(ch, TESTER, NULL))
+    }
+    if (is_authorized(ch, TESTER, NULL)) {
         return 0;
+    }
 
     // Cryoed chars already paid their rent, quit chars don't have any rent
-    if (code == RENT_NEW_CHAR || code == RENT_CRYO || code == RENT_QUIT)
+    if (code == RENT_NEW_CHAR || code == RENT_CRYO || code == RENT_QUIT) {
         return 0;
+    }
 
     // Calculate total cost
     day_count = (float)(time(NULL) - last_time) / SECS_PER_REAL_DAY;
-    if (code == RENT_FORCED)
+    if (code == RENT_FORCED) {
         factor = 3;
-    else
+    } else {
         factor = 1;
+    }
     cost = (int)(calc_daily_rent(ch, factor, NULL, false) * day_count);
     slog("Charging %ld for %.2f days of rent", cost, day_count);
 
@@ -147,14 +154,15 @@ pay_player_rent(struct creature *ch, time_t last_time, int code, int currency)
     }
 
     // If they still don't have enough, put them in JAIL
-    if (cost > 0)
+    if (cost > 0) {
         return 3;
+    }
     return 0;
 }
 
 bool
-reportUnrentables(struct creature * ch, struct obj_data * obj_list,
-    const char *pos)
+reportUnrentables(struct creature *ch, struct obj_data *obj_list,
+                  const char *pos)
 {
     bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
 
@@ -174,12 +182,13 @@ reportUnrentables(struct creature * ch, struct obj_data * obj_list,
         last_obj = cur_obj;
 
         pos = "carrying";
-        if (cur_obj->contains)
+        if (cur_obj->contains) {
             cur_obj = cur_obj->contains;    // descend into obj
-        else if (!cur_obj->next_content && cur_obj->in_obj)
+        } else if (!cur_obj->next_content && cur_obj->in_obj) {
             cur_obj = cur_obj->in_obj->next_content;    // ascend out of obj
-        else
+        } else {
             cur_obj = cur_obj->next_content;    // go to next obj
+        }
     }
 
     return result;
@@ -187,23 +196,26 @@ reportUnrentables(struct creature * ch, struct obj_data * obj_list,
 
 // Displays all unrentable items and returns true if any are found
 bool
-display_unrentables(struct creature * ch)
+display_unrentables(struct creature *ch)
 {
     struct obj_data *cur_obj;
     int pos;
     bool result = false;
 
-    if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
         return false;
+    }
 
     for (pos = 0; pos < NUM_WEARS; pos++) {
         cur_obj = GET_EQ(ch, pos);
-        if (cur_obj)
+        if (cur_obj) {
             result = result || reportUnrentables(ch, cur_obj, "wearing");
+        }
         cur_obj = GET_IMPLANT(ch, pos);
-        if (cur_obj)
+        if (cur_obj) {
             result = result
-                || reportUnrentables(ch, cur_obj, "implanted with");
+                     || reportUnrentables(ch, cur_obj, "implanted with");
+        }
     }
 
     result = result || reportUnrentables(ch, ch->carrying, "carrying");
@@ -223,24 +235,27 @@ save_player_objects_to_file(struct creature *ch, const char *path)
 
     if (!ouf) {
         fprintf(stderr,
-            "Unable to open XML equipment file for save.[%s] (%s)\n", path,
-            strerror(errno));
+                "Unable to open XML equipment file for save.[%s] (%s)\n", path,
+                strerror(errno));
         return false;
     }
     fprintf(ouf, "<objects>\n");
     // Save the inventory
-    for (struct obj_data * obj = ch->carrying; obj != NULL;
-        obj = obj->next_content) {
+    for (struct obj_data *obj = ch->carrying; obj != NULL;
+         obj = obj->next_content) {
         save_object_to_xml(obj, ouf);
     }
     // Save the equipment
     for (idx = 0; idx < NUM_WEARS; idx++) {
-        if (GET_EQ(ch, idx))
+        if (GET_EQ(ch, idx)) {
             save_object_to_xml(GET_EQ(ch, idx), ouf);
-        if (GET_IMPLANT(ch, idx))
+        }
+        if (GET_IMPLANT(ch, idx)) {
             save_object_to_xml(GET_IMPLANT(ch, idx), ouf);
-        if (GET_TATTOO(ch, idx))
+        }
+        if (GET_TATTOO(ch, idx)) {
             save_object_to_xml(GET_TATTOO(ch, idx), ouf);
+        }
     }
     fprintf(ouf, "</objects>\n");
     fclose(ouf);
@@ -252,7 +267,7 @@ save_player_objects_to_file(struct creature *ch, const char *path)
 }
 
 bool
-save_player_objects(struct creature * ch)
+save_player_objects(struct creature *ch)
 {
     return save_player_objects_to_file(ch, get_equipment_file_path(GET_IDNUM(ch)));
 }
@@ -263,19 +278,20 @@ save_player_objects(struct creature * ch)
  *  0 - successful load, keep char in rent room.
  *  1 - load failure or load of crash items -- put char in temple. (or noeq)
  *  2 - rented equipment lost ( no $ )
-**/
+ **/
 int
 unrent(struct creature *ch)
 {
     int err;
 
     err = load_player_objects(ch);
-    if (err)
+    if (err) {
         return 0;
+    }
 
     return pay_player_rent(ch,
-        ch->player.time.logon,
-        ch->player_specials->rentcode, ch->player_specials->rent_currency);
+                           ch->player.time.logon,
+                           ch->player_specials->rentcode, ch->player_specials->rent_currency);
 }
 
 bool
@@ -286,7 +302,7 @@ load_player_objects_from_file(struct creature *ch, const char *path)
     if (axs != 0) {
         if (errno != ENOENT) {
             errlog("Unable to open xml equipment file '%s': %s",
-                path, strerror(errno));
+                   path, strerror(errno));
             return -1;
         } else {
             return 1;           // normal no eq file
@@ -306,8 +322,9 @@ load_player_objects_from_file(struct creature *ch, const char *path)
     }
 
     for (xmlNodePtr node = root->xmlChildrenNode; node; node = node->next) {
-        if (xmlMatches(node->name, "object"))
+        if (xmlMatches(node->name, "object")) {
             (void)load_object_from_xml(NULL, ch, NULL, node);
+        }
     }
 
     xmlFreeDoc(doc);
@@ -322,7 +339,7 @@ load_player_objects(struct creature *ch)
 }
 
 bool
-checkLoadCorpse(struct creature * ch)
+checkLoadCorpse(struct creature *ch)
 {
     char *path = get_corpse_file_path(GET_IDNUM(ch));
     int axs = access(path, W_OK);
@@ -332,7 +349,7 @@ checkLoadCorpse(struct creature * ch)
     if (axs != 0) {
         if (errno != ENOENT) {
             errlog("Unable to open xml corpse file '%s' : %s",
-                path, strerror(errno));
+                   path, strerror(errno));
             return false;
         } else {
             return false;
@@ -341,8 +358,9 @@ checkLoadCorpse(struct creature * ch)
 
     stat(path, &file_stat);
 
-    if (file_stat.st_ctime < boot_time)
+    if (file_stat.st_ctime < boot_time) {
         return true;
+    }
 
     return false;
 }
@@ -358,7 +376,7 @@ loadCorpse(struct creature *ch)
     if (axs != 0) {
         if (errno != ENOENT) {
             errlog("Unable to open xml corpse file '%s': %s",
-                path, strerror(errno));
+                   path, strerror(errno));
             return -1;
         } else {
             return 1;           // normal no eq file
@@ -421,17 +439,21 @@ stash_creature_affects(struct creature *ch)
     result->saved_affs = ch->affected;
     ch->affected = NULL;
 
-    for (cur_aff = result->saved_affs; cur_aff; cur_aff = cur_aff->next)
+    for (cur_aff = result->saved_affs; cur_aff; cur_aff = cur_aff->next) {
         affect_modify(ch, cur_aff->location, cur_aff->modifier,
                       cur_aff->bitvector, cur_aff->aff_index, false);
+    }
 
     for (pos = 0; pos < NUM_WEARS; pos++) {
-        if (GET_EQ(ch, pos))
+        if (GET_EQ(ch, pos)) {
             result->saved_eq[pos] = raw_unequip_char(ch, pos, EQUIP_WORN);
-        if (GET_IMPLANT(ch, pos))
+        }
+        if (GET_IMPLANT(ch, pos)) {
             result->saved_impl[pos] = raw_unequip_char(ch, pos, EQUIP_IMPLANT);
-        if (GET_TATTOO(ch, pos))
+        }
+        if (GET_TATTOO(ch, pos)) {
             result->saved_tattoo[pos] = raw_unequip_char(ch, pos, EQUIP_TATTOO);
+        }
     }
 
     return result;
@@ -444,17 +466,21 @@ restore_creature_affects(struct creature *ch, struct aff_stash *aff_stash)
     int pos;
 
     for (pos = 0; pos < NUM_WEARS; pos++) {
-        if (aff_stash->saved_eq[pos])
+        if (aff_stash->saved_eq[pos]) {
             equip_char(ch, aff_stash->saved_eq[pos], pos, EQUIP_WORN);
-        if (aff_stash->saved_impl[pos])
+        }
+        if (aff_stash->saved_impl[pos]) {
             equip_char(ch, aff_stash->saved_impl[pos], pos, EQUIP_IMPLANT);
-        if (aff_stash->saved_tattoo[pos])
+        }
+        if (aff_stash->saved_tattoo[pos]) {
             equip_char(ch, aff_stash->saved_tattoo[pos], pos, EQUIP_TATTOO);
+        }
     }
 
-    for (cur_aff = aff_stash->saved_affs; cur_aff; cur_aff = cur_aff->next)
+    for (cur_aff = aff_stash->saved_affs; cur_aff; cur_aff = cur_aff->next) {
         affect_modify(ch, cur_aff->location, cur_aff->modifier,
                       cur_aff->bitvector, cur_aff->aff_index, true);
+    }
     ch->affected = aff_stash->saved_affs;
     affect_total(ch);
 }
@@ -475,7 +501,7 @@ save_player_to_file(struct creature *ch, const char *path)
 
     if (!ouf) {
         fprintf(stderr, "Unable to open XML player file for save.[%s] (%s)\n",
-            path, strerror(errno));
+                path, strerror(errno));
         return;
     }
     struct aff_stash *aff_stash = stash_creature_affects(ch);
@@ -483,114 +509,124 @@ save_player_to_file(struct creature *ch, const char *path)
     expire_old_grievances(ch);
 
     fprintf(ouf, "<creature name=\"%s\" idnum=\"%ld\">\n",
-        GET_NAME(ch), ch->char_specials.saved.idnum);
+            GET_NAME(ch), ch->char_specials.saved.idnum);
 
     fprintf(ouf,
-        "<points hit=\"%d\" mana=\"%d\" move=\"%d\" maxhit=\"%d\" maxmana=\"%d\" maxmove=\"%d\"/>\n",
-        ch->points.hit, ch->points.mana, ch->points.move, ch->points.max_hit,
-        ch->points.max_mana, ch->points.max_move);
+            "<points hit=\"%d\" mana=\"%d\" move=\"%d\" maxhit=\"%d\" maxmana=\"%d\" maxmove=\"%d\"/>\n",
+            ch->points.hit, ch->points.mana, ch->points.move, ch->points.max_hit,
+            ch->points.max_mana, ch->points.max_move);
 
     fprintf(ouf, "<money gold=\"%" PRId64 "\" cash=\"%" PRId64 "\" xp=\"%d\"/>\n",
-        ch->points.gold, ch->points.cash, ch->points.exp);
+            ch->points.gold, ch->points.cash, ch->points.exp);
 
     fprintf(ouf,
-        "<stats level=\"%d\" sex=\"%s\" race=\"%s\" height=\"%d\" weight=\"%f\" align=\"%d\"/>\n",
-        GET_LEVEL(ch), genders[(int)GET_SEX(ch)],
-        race_name_by_idnum(GET_RACE(ch)), GET_HEIGHT(ch), GET_WEIGHT(ch),
-        GET_ALIGNMENT(ch));
+            "<stats level=\"%d\" sex=\"%s\" race=\"%s\" height=\"%d\" weight=\"%f\" align=\"%d\"/>\n",
+            GET_LEVEL(ch), genders[(int)GET_SEX(ch)],
+            race_name_by_idnum(GET_RACE(ch)), GET_HEIGHT(ch), GET_WEIGHT(ch),
+            GET_ALIGNMENT(ch));
 
     fprintf(ouf, "<class name=\"%s\"", class_names[GET_CLASS(ch)]);
-    if (GET_REMORT_CLASS(ch) != CLASS_UNDEFINED)
+    if (GET_REMORT_CLASS(ch) != CLASS_UNDEFINED) {
         fprintf(ouf, " remort=\"%s\"", class_names[GET_REMORT_CLASS(ch)]);
-    if (GET_REMORT_GEN(ch) > 0)
+    }
+    if (GET_REMORT_GEN(ch) > 0) {
         fprintf(ouf, " gen=\"%d\"", GET_REMORT_GEN(ch));
+    }
 
     if (IS_CYBORG(ch)) {
-        if (GET_OLD_CLASS(ch) != -1)
+        if (GET_OLD_CLASS(ch) != -1) {
             fprintf(ouf, " subclass=\"%s\"",
-                borg_subchar_class_names[GET_OLD_CLASS(ch)]);
-        if (GET_TOT_DAM(ch))
+                    borg_subchar_class_names[GET_OLD_CLASS(ch)]);
+        }
+        if (GET_TOT_DAM(ch)) {
             fprintf(ouf, " total_dam=\"%d\"", GET_TOT_DAM(ch));
-        if (GET_BROKE(ch))
+        }
+        if (GET_BROKE(ch)) {
             fprintf(ouf, " broken=\"%d\"", GET_BROKE(ch));
+        }
     }
     if (GET_CLASS(ch) == CLASS_MAGE &&
         GET_SKILL(ch, SPELL_MANA_SHIELD) > 0) {
         fprintf(ouf, " manash_low=\"%ld\" manash_pct=\"%ld\"",
-            ch->player_specials->saved.mana_shield_low,
-            ch->player_specials->saved.mana_shield_pct);
+                ch->player_specials->saved.mana_shield_low,
+                ch->player_specials->saved.mana_shield_pct);
     }
     fprintf(ouf, "/>\n");
 
     fprintf(ouf,
-        "<time birth=\"%ld\" death=\"%ld\" played=\"%ld\" last=\"%ld\"/>\n",
-        ch->player.time.birth, ch->player.time.death, ch->player.time.played,
-        ch->player.time.logon);
+            "<time birth=\"%ld\" death=\"%ld\" played=\"%ld\" last=\"%ld\"/>\n",
+            ch->player.time.birth, ch->player.time.death, ch->player.time.played,
+            ch->player.time.logon);
 
     fprintf(ouf,
-        "<carnage pkills=\"%d\" akills=\"%d\" mkills=\"%d\" deaths=\"%d\" reputation=\"%d\"",
-        GET_PKILLS(ch), GET_ARENAKILLS(ch), GET_MOBKILLS(ch),
-        GET_PC_DEATHS(ch), ch->player_specials->saved.reputation);
+            "<carnage pkills=\"%d\" akills=\"%d\" mkills=\"%d\" deaths=\"%d\" reputation=\"%d\"",
+            GET_PKILLS(ch), GET_ARENAKILLS(ch), GET_MOBKILLS(ch),
+            GET_PC_DEATHS(ch), ch->player_specials->saved.reputation);
     fprintf(ouf, "/>\n");
 
     fprintf(ouf,
-        "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\"/>\n",
+            "<attr str=\"%d\" int=\"%d\" wis=\"%d\" dex=\"%d\" con=\"%d\" cha=\"%d\"/>\n",
             ch->real_abils.str, ch->real_abils.intel, ch->real_abils.wis,
             ch->real_abils.dex, ch->real_abils.con, ch->real_abils.cha);
 
     fprintf(ouf, "<condition hunger=\"%d\" thirst=\"%d\" drunk=\"%d\"/>\n",
-        GET_COND(ch, FULL), GET_COND(ch, THIRST), GET_COND(ch, DRUNK));
+            GET_COND(ch, FULL), GET_COND(ch, THIRST), GET_COND(ch, DRUNK));
 
     fprintf(ouf, "<player wimpy=\"%d\" lp=\"%d\" clan=\"%d\"/>\n",
-        GET_WIMP_LEV(ch), GET_LIFE_POINTS(ch), GET_CLAN(ch));
+            GET_WIMP_LEV(ch), GET_LIFE_POINTS(ch), GET_CLAN(ch));
 
-    if (ch->desc)
+    if (ch->desc) {
         ch->player_specials->desc_mode = ch->desc->input_mode;
+    }
     if (ch->player_specials->rentcode == RENT_CREATING ||
         ch->player_specials->rentcode == RENT_REMORTING) {
         fprintf(ouf, "<rent code=\"%d\" perdiem=\"%d\" "
-            "currency=\"%d\" state=\"%s\"/>\n",
-            ch->player_specials->rentcode, ch->player_specials->rent_per_day,
-            ch->player_specials->rent_currency,
-            desc_modes[(int)ch->player_specials->desc_mode]);
+                     "currency=\"%d\" state=\"%s\"/>\n",
+                ch->player_specials->rentcode, ch->player_specials->rent_per_day,
+                ch->player_specials->rent_currency,
+                desc_modes[(int)ch->player_specials->desc_mode]);
     } else {
         fprintf(ouf, "<rent code=\"%d\" perdiem=\"%d\" currency=\"%d\"/>\n",
-            ch->player_specials->rentcode, ch->player_specials->rent_per_day,
-            ch->player_specials->rent_currency);
+                ch->player_specials->rentcode, ch->player_specials->rent_per_day,
+                ch->player_specials->rent_currency);
     }
     fprintf(ouf, "<home town=\"%d\" homeroom=\"%d\" loadroom=\"%d\"/>\n",
-        GET_HOME(ch), GET_HOMEROOM(ch), GET_LOADROOM(ch));
+            GET_HOME(ch), GET_HOMEROOM(ch), GET_LOADROOM(ch));
 
     fprintf(ouf, "<quest");
-    if (GET_QUEST(ch))
+    if (GET_QUEST(ch)) {
         fprintf(ouf, " current=\"%d\"", GET_QUEST(ch));
-    if (GET_LEVEL(ch) >= LVL_IMMORT)
+    }
+    if (GET_LEVEL(ch) >= LVL_IMMORT) {
         fprintf(ouf, " allowance=\"%d\"", GET_QUEST_ALLOWANCE(ch));
-    if (GET_IMMORT_QP(ch) != 0)
+    }
+    if (GET_IMMORT_QP(ch) != 0) {
         fprintf(ouf, " points=\"%d\"", GET_IMMORT_QP(ch));
+    }
     fprintf(ouf, "/>\n");
 
     fprintf(ouf, "<bits flag1=\"%" PRIx32 "\" flag2=\"%" PRIx32 "\"/>\n",
-        ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits);
+            ch->char_specials.saved.act, ch->player_specials->saved.plr2_bits);
     if (PLR_FLAGGED(ch, PLR_FROZEN)) {
         fprintf(ouf, "<frozen thaw_time=\"%d\" freezer_id=\"%d\"/>\n",
-            ch->player_specials->thaw_time, ch->player_specials->freezer_id);
+                ch->player_specials->thaw_time, ch->player_specials->freezer_id);
     }
 
     fprintf(ouf, "<prefs flag1=\"%" PRIx32 "\" flag2=\"%" PRIx32 "\" tongue=\"%s\"/>\n",
-        ch->player_specials->saved.pref, ch->player_specials->saved.pref2,
-        tongue_name(GET_TONGUE(ch)));
+            ch->player_specials->saved.pref, ch->player_specials->saved.pref2,
+            tongue_name(GET_TONGUE(ch)));
 
     fprintf(ouf, "<affects flag1=\"%" PRIx32 "\" flag2=\"%" PRIx32 "\" flag3=\"%" PRIx32 "\"/>\n",
-        ch->char_specials.saved.affected_by,
-        ch->char_specials.saved.affected2_by,
-        ch->char_specials.saved.affected3_by);
+            ch->char_specials.saved.affected_by,
+            ch->char_specials.saved.affected2_by,
+            ch->char_specials.saved.affected3_by);
 
     for (idx = 0; idx < MAX_WEAPON_SPEC; idx++) {
-        if (GET_WEAP_SPEC(ch, idx).level > 0)
+        if (GET_WEAP_SPEC(ch, idx).level > 0) {
             fprintf(ouf, "<weaponspec vnum=\"%d\" level=\"%d\"/>\n",
-                GET_WEAP_SPEC(ch, idx).vnum,
-                GET_WEAP_SPEC(ch, idx).level);
+                    GET_WEAP_SPEC(ch, idx).vnum,
+                    GET_WEAP_SPEC(ch, idx).level);
+        }
     }
 
     if (GET_TITLE(ch) && *GET_TITLE(ch)) {
@@ -599,55 +635,61 @@ save_player_to_file(struct creature *ch, const char *path)
 
     if (GET_LEVEL(ch) >= 50) {
         fprintf(ouf, "<immort badge=\"%s\" qlog=\"%d\" invis=\"%d\"/>\n",
-            xmlEncodeSpecialTmp(BADGE(ch)), GET_QLOG_LEVEL(ch),
-            GET_INVIS_LVL(ch));
-        if (POOFIN(ch) && *POOFIN(ch))
+                xmlEncodeSpecialTmp(BADGE(ch)), GET_QLOG_LEVEL(ch),
+                GET_INVIS_LVL(ch));
+        if (POOFIN(ch) && *POOFIN(ch)) {
             fprintf(ouf, "<poofin>%s</poofin>\n", xmlEncodeTmp(POOFIN(ch)));
-        if (POOFOUT(ch) && *POOFOUT(ch))
+        }
+        if (POOFOUT(ch) && *POOFOUT(ch)) {
             fprintf(ouf, "<poofout>%s</poofout>\n", xmlEncodeTmp(POOFOUT(ch)));
+        }
     }
     if (ch->player.description && *ch->player.description) {
         fprintf(ouf, "<description>%s</description>\n",
-            xmlEncodeTmp(tmp_gsub(tmp_gsub(ch->player.description, "\r\n",
-                        "\n"), "\r", "")));
+                xmlEncodeTmp(tmp_gsub(tmp_gsub(ch->player.description, "\r\n",
+                                               "\n"), "\r", "")));
     }
     for (cur_alias = ch->player_specials->aliases; cur_alias;
-        cur_alias = cur_alias->next)
+         cur_alias = cur_alias->next) {
         fprintf(ouf, "<alias type=\"%d\" alias=\"%s\" replace=\"%s\"/>\n",
-            cur_alias->type, xmlEncodeSpecialTmp(cur_alias->alias),
-            xmlEncodeSpecialTmp(cur_alias->replacement));
+                cur_alias->type, xmlEncodeSpecialTmp(cur_alias->alias),
+                xmlEncodeSpecialTmp(cur_alias->replacement));
+    }
 
     for (struct affected_type *cur_aff = aff_stash->saved_affs;
          cur_aff;
-         cur_aff = cur_aff->next)
+         cur_aff = cur_aff->next) {
         fprintf(ouf,
-            "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" owner=\"%ld\"/>\n",
-            cur_aff->type, cur_aff->duration, cur_aff->modifier,
-            cur_aff->location, cur_aff->level,
-            (cur_aff->is_instant) ? "yes" : "no", cur_aff->bitvector,
-            cur_aff->aff_index, cur_aff->owner);
+                "<affect type=\"%d\" duration=\"%d\" modifier=\"%d\" location=\"%d\" level=\"%d\" instant=\"%s\" affbits=\"%lx\" index=\"%d\" owner=\"%ld\"/>\n",
+                cur_aff->type, cur_aff->duration, cur_aff->modifier,
+                cur_aff->location, cur_aff->level,
+                (cur_aff->is_instant) ? "yes" : "no", cur_aff->bitvector,
+                cur_aff->aff_index, cur_aff->owner);
+    }
 
     if (!IS_IMMORT(ch)) {
-        for (idx = 0; idx < MAX_SKILLS; idx++)
-            if (ch->player_specials->saved.skills[idx] > 0)
+        for (idx = 0; idx < MAX_SKILLS; idx++) {
+            if (ch->player_specials->saved.skills[idx] > 0) {
                 fprintf(ouf, "<skill name=\"%s\" level=\"%d\"/>\n",
-                    spell_to_str(idx), GET_SKILL(ch, idx));
+                        spell_to_str(idx), GET_SKILL(ch, idx));
+            }
+        }
         write_tongue_xml(ch, ouf);
-        for (GList * it = GET_RECENT_KILLS(ch); it; it = it->next) {
+        for (GList *it = GET_RECENT_KILLS(ch); it; it = it->next) {
             struct kill_record *kill = it->data;
             fprintf(ouf, "<recentkill vnum=\"%d\" times=\"%d\"/>\n",
-                kill->vnum, kill->times);
+                    kill->vnum, kill->times);
         }
-        for (GList * it = GET_GRIEVANCES(ch); it; it = it->next) {
+        for (GList *it = GET_GRIEVANCES(ch); it; it = it->next) {
             struct grievance *grievance = it->data;
             fprintf(ouf,
-                "<grievance time=\"%lu\" player=\"%d\" reputation=\"%d\" kind=\"%s\"/>\n",
-                (long unsigned)grievance->time, grievance->player_id,
-                grievance->rep, grievance_kind_descs[grievance->grievance]);
+                    "<grievance time=\"%lu\" player=\"%d\" reputation=\"%d\" kind=\"%s\"/>\n",
+                    (long unsigned)grievance->time, grievance->player_id,
+                    grievance->rep, grievance_kind_descs[grievance->grievance]);
         }
     }
 
-    
+
     if (IS_PC(ch) && ch->player_specials->tags) {
         GHashTableIter iter;
         char *key;
@@ -693,18 +735,21 @@ crashsave(struct creature *ch)
 {
     time_t now = time(NULL);
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return false;
-    if (!ch->in_room)
+    }
+    if (!ch->in_room) {
         return false;
+    }
     ch->player_specials->rentcode = RENT_CRASH;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
 
     ch->player.time.played += now - ch->player.time.logon;
     ch->player.time.logon = now;
 
-    if (!save_player_objects(ch))
+    if (!save_player_objects(ch)) {
         return false;
+    }
 
     REMOVE_BIT(PLR_FLAGS(ch), PLR_CRASH);
     save_player_to_xml(ch);
@@ -719,7 +764,7 @@ load_player_from_file(const char *path)
 
     if (access(path, W_OK)) {
         errlog("Unable to open xml player file '%s': %s", path,
-            strerror(errno));
+               strerror(errno));
         return NULL;
     }
     xmlDocPtr doc = xmlParseFile(path);
@@ -745,8 +790,9 @@ load_player_from_file(const char *path)
     ch->player.short_descr = NULL;
     ch->player.long_descr = NULL;
 
-    if (ch->points.max_mana < 100)
+    if (ch->points.max_mana < 100) {
         ch->points.max_mana = 100;
+    }
 
     ch->char_specials.carry_weight = 0;
     ch->char_specials.carry_items = 0;
@@ -784,8 +830,9 @@ load_player_from_file(const char *path)
 
             GET_SEX(ch) = 0;
             char *sex = (char *)xmlGetProp(node, (xmlChar *) "sex");
-            if (sex != NULL)
+            if (sex != NULL) {
                 GET_SEX(ch) = search_block(sex, genders, false);
+            }
             free(sex);
 
             GET_RACE(ch) = 0;
@@ -818,7 +865,7 @@ load_player_from_file(const char *path)
                     (char *)xmlGetProp(node, (xmlChar *) "subclass");
                 if (subclass != NULL) {
                     GET_OLD_CLASS(ch) = search_block(subclass,
-                        borg_subchar_class_names, false);
+                                                     borg_subchar_class_names, false);
                     free(subclass);
                 }
             }
@@ -847,19 +894,19 @@ load_player_from_file(const char *path)
             GET_SEVERITY(ch) = xmlGetIntProp(node, "severity", 0);
         } else if (xmlMatches(node->name, "attr")) {
             ch->aff_abils.str = ch->real_abils.str =
-                xmlGetIntProp(node, "str", 0);
+                                    xmlGetIntProp(node, "str", 0);
             ch->aff_abils.str = ch->real_abils.str +=
-                xmlGetIntProp(node, "stradd", 0) / 10;
+                                    xmlGetIntProp(node, "stradd", 0) / 10;
             ch->aff_abils.intel = ch->real_abils.intel =
-                xmlGetIntProp(node, "int", 0);
+                                      xmlGetIntProp(node, "int", 0);
             ch->aff_abils.wis = ch->real_abils.wis =
-                xmlGetIntProp(node, "wis", 0);
+                                    xmlGetIntProp(node, "wis", 0);
             ch->aff_abils.dex = ch->real_abils.dex =
-                xmlGetIntProp(node, "dex", 0);
+                                    xmlGetIntProp(node, "dex", 0);
             ch->aff_abils.con = ch->real_abils.con =
-                xmlGetIntProp(node, "con", 0);
+                                    xmlGetIntProp(node, "con", 0);
             ch->aff_abils.cha = ch->real_abils.cha =
-                xmlGetIntProp(node, "cha", 0);
+                                    xmlGetIntProp(node, "cha", 0);
         } else if (xmlMatches(node->name, "condition")) {
             GET_COND(ch, THIRST) = xmlGetIntProp(node, "thirst", 0);
             GET_COND(ch, FULL) = xmlGetIntProp(node, "hunger", 0);
@@ -899,8 +946,9 @@ load_player_from_file(const char *path)
             free(flag);
 
             flag = (char *)xmlGetProp(node, (xmlChar *) "tongue");
-            if (flag)
+            if (flag) {
                 GET_TONGUE(ch) = find_tongue_idx_by_name(flag);
+            }
             free(flag);
         } else if (xmlMatches(node->name, "weaponspec")) {
             int vnum = xmlGetIntProp(node, "vnum", -1);
@@ -973,9 +1021,10 @@ load_player_from_file(const char *path)
         } else if (xmlMatches(node->name, "tongue")) {
             char *tongue = (char *)xmlGetProp(node, (xmlChar *) "name");
             int index = find_tongue_idx_by_name(tongue);
-            if (index >= 0)
+            if (index >= 0) {
                 SET_TONGUE(ch, index,
-                    MIN(100, xmlGetIntProp(node, "level", 0)));
+                           MIN(100, xmlGetIntProp(node, "level", 0)));
+            }
             free(tongue);
         } else if (xmlMatches(node->name, "alias")) {
             struct alias_data *alias;
@@ -1014,9 +1063,10 @@ load_player_from_file(const char *path)
             ch->player_specials->rent_currency =
                 xmlGetIntProp(node, "currency", 0);
             txt = (char *)xmlGetProp(node, (xmlChar *) "state");
-            if (txt)
+            if (txt) {
                 ch->player_specials->desc_mode =
                     (enum cxn_state)search_block(txt, desc_modes, false);
+            }
             free(txt);
         } else if (xmlMatches(node->name, "recentkill")) {
             struct kill_record *kill;
@@ -1056,12 +1106,14 @@ load_player_from_xml(int id)
     struct creature *ch = load_player_from_file(path);
     int idx;
 
-    if (!ch)
+    if (!ch) {
         return NULL;
+    }
 
     // reset all imprint rooms
-    for (int i = 0; i < MAX_IMPRINT_ROOMS; i++)
+    for (int i = 0; i < MAX_IMPRINT_ROOMS; i++) {
         GET_IMPRINT_ROOM(ch, i) = -1;
+    }
 
     // Make sure the NPC flag isn't set
     if (IS_SET(ch->char_specials.saved.act, NPC_ISNPC)) {
@@ -1083,100 +1135,103 @@ load_player_from_xml(int id)
     }
 
     if (GET_LEVEL(ch) >= 50) {
-        for (idx = 0; idx < MAX_SKILLS; idx++)
+        for (idx = 0; idx < MAX_SKILLS; idx++) {
             ch->player_specials->saved.skills[idx] = 100;
-        for (idx = 0; idx < MAX_TONGUES; idx++)
+        }
+        for (idx = 0; idx < MAX_TONGUES; idx++) {
             ch->language_data.tongues[idx] = 100;
+        }
     }
 
-   return ch;
+    return ch;
 }
 
 void
 set_player_field(struct creature *ch, const char *key, const char *val)
 {
-    if (!strcmp(key, "race"))
+    if (!strcmp(key, "race")) {
         GET_RACE(ch) = atoi(val);
-    else if (!strcmp(key, "class"))
+    } else if (!strcmp(key, "class")) {
         GET_CLASS(ch) = atoi(val);
-    else if (!strcmp(key, "remort"))
+    } else if (!strcmp(key, "remort")) {
         GET_REMORT_CLASS(ch) = atoi(val);
-    else if (!strcmp(key, "name"))
+    } else if (!strcmp(key, "name")) {
         ch->player.name = strdup(val);
-    else if (!strcmp(key, "title"))
+    } else if (!strcmp(key, "title")) {
         GET_TITLE(ch) = strdup(val);
-    else if (!strcmp(key, "poofin"))
+    } else if (!strcmp(key, "poofin")) {
         POOFIN(ch) = strdup(val);
-    else if (!strcmp(key, "poofout"))
+    } else if (!strcmp(key, "poofout")) {
         POOFOUT(ch) = strdup(val);
-    else if (!strcmp(key, "immbadge"))
+    } else if (!strcmp(key, "immbadge")) {
         strcpy_s(BADGE(ch), sizeof(BADGE(ch)), val);
-    else if (!strcmp(key, "sex"))
+    } else if (!strcmp(key, "sex")) {
         GET_SEX(ch) = atoi(val);
-    else if (!strcmp(key, "hitp"))
+    } else if (!strcmp(key, "hitp")) {
         GET_HIT(ch) = atoi(val);
-    else if (!strcmp(key, "mana"))
+    } else if (!strcmp(key, "mana")) {
         GET_MANA(ch) = atoi(val);
-    else if (!strcmp(key, "move"))
+    } else if (!strcmp(key, "move")) {
         GET_MOVE(ch) = atoi(val);
-    else if (!strcmp(key, "maxhitp"))
+    } else if (!strcmp(key, "maxhitp")) {
         GET_MAX_HIT(ch) = atoi(val);
-    else if (!strcmp(key, "maxmana"))
+    } else if (!strcmp(key, "maxmana")) {
         GET_MAX_MANA(ch) = atoi(val);
-    else if (!strcmp(key, "maxmove"))
+    } else if (!strcmp(key, "maxmove")) {
         GET_MAX_MOVE(ch) = atoi(val);
-    else if (!strcmp(key, "gold"))
+    } else if (!strcmp(key, "gold")) {
         GET_GOLD(ch) = atol(val);
-    else if (!strcmp(key, "cash"))
+    } else if (!strcmp(key, "cash")) {
         GET_CASH(ch) = atol(val);
-    else if (!strcmp(key, "exp"))
+    } else if (!strcmp(key, "exp")) {
         GET_EXP(ch) = atol(val);
-    else if (!strcmp(key, "level"))
+    } else if (!strcmp(key, "level")) {
         GET_LEVEL(ch) = atol(val);
-    else if (!strcmp(key, "height"))
+    } else if (!strcmp(key, "height")) {
         GET_HEIGHT(ch) = atol(val);
-    else if (!strcmp(key, "weight"))
+    } else if (!strcmp(key, "weight")) {
         GET_WEIGHT(ch) = atol(val);
-    else if (!strcmp(key, "align"))
+    } else if (!strcmp(key, "align")) {
         GET_ALIGNMENT(ch) = atoi(val);
-    else if (!strcmp(key, "gen"))
+    } else if (!strcmp(key, "gen")) {
         GET_REMORT_GEN(ch) = atoi(val);
-    else if (!strcmp(key, "birth_time"))
+    } else if (!strcmp(key, "birth_time")) {
         ch->player.time.birth = atol(val);
-    else if (!strcmp(key, "death_time"))
+    } else if (!strcmp(key, "death_time")) {
         ch->player.time.death = atol(val);
-    else if (!strcmp(key, "played_time"))
+    } else if (!strcmp(key, "played_time")) {
         ch->player.time.played = atol(val);
-    else if (!strcmp(key, "login_time"))
+    } else if (!strcmp(key, "login_time")) {
         ch->player.time.logon = atol(val);
-    else if (!strcmp(key, "pkills"))
+    } else if (!strcmp(key, "pkills")) {
         GET_PKILLS(ch) = atol(val);
-    else if (!strcmp(key, "mkills"))
+    } else if (!strcmp(key, "mkills")) {
         GET_MOBKILLS(ch) = atol(val);
-    else if (!strcmp(key, "akills"))
+    } else if (!strcmp(key, "akills")) {
         GET_ARENAKILLS(ch) = atol(val);
-    else if (!strcmp(key, "deaths"))
+    } else if (!strcmp(key, "deaths")) {
         GET_PC_DEATHS(ch) = atol(val);
-    else if (!strcmp(key, "reputation"))
+    } else if (!strcmp(key, "reputation")) {
         ch->player_specials->saved.reputation = atoi(val);
-    else if (!strcmp(key, "str"))
+    } else if (!strcmp(key, "str")) {
         ch->aff_abils.str = ch->real_abils.str = atoi(val);
-    else if (!strcmp(key, "int"))
+    } else if (!strcmp(key, "int")) {
         ch->aff_abils.intel = ch->real_abils.intel = atoi(val);
-    else if (!strcmp(key, "wis"))
+    } else if (!strcmp(key, "wis")) {
         ch->aff_abils.wis = ch->real_abils.wis = atoi(val);
-    else if (!strcmp(key, "dex"))
+    } else if (!strcmp(key, "dex")) {
         ch->aff_abils.dex = ch->real_abils.dex = atoi(val);
-    else if (!strcmp(key, "con"))
+    } else if (!strcmp(key, "con")) {
         ch->aff_abils.con = ch->real_abils.con = atoi(val);
-    else if (!strcmp(key, "cha"))
+    } else if (!strcmp(key, "cha")) {
         ch->aff_abils.cha = ch->real_abils.cha = atoi(val);
-    else if (!strcmp(key, "hunger"))
+    } else if (!strcmp(key, "hunger")) {
         GET_COND(ch, FULL) = atoi(val);
-    else if (!strcmp(key, "thirst"))
+    } else if (!strcmp(key, "thirst")) {
         GET_COND(ch, THIRST) = atoi(val);
-    else if (!strcmp(key, "drunk"))
+    } else if (!strcmp(key, "drunk")) {
         GET_COND(ch, DRUNK) = atoi(val);
-    else
+    } else {
         slog("Invalid player field %s set to %s", key, val);
+    }
 }

@@ -127,12 +127,12 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
     if (IS_ENERGY_GUN(gun)) {
         if (gun->contains && IS_ENERGY_CELL(gun->contains)) {
             snprintf(buf, sizeof(buf),
-                "%s is loaded with %s.\r\n"
-                "The potential energy of %s is:  %s[%3d/%3d]%s units.\r\n",
-                gun->name, gun->contains->name,
-                gun->contains->name,
-                QGRN, CUR_ENERGY(gun->contains), MAX_ENERGY(gun->contains),
-                QNRM);
+                     "%s is loaded with %s.\r\n"
+                     "The potential energy of %s is:  %s[%3d/%3d]%s units.\r\n",
+                     gun->name, gun->contains->name,
+                     gun->contains->name,
+                     QGRN, CUR_ENERGY(gun->contains), MAX_ENERGY(gun->contains),
+                     QNRM);
             CAP(buf);
             send_to_char(ch, "%s", buf);
         }
@@ -144,26 +144,28 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
             if (gun->contains) {
                 count = count_contained_objs(gun);
                 snprintf(buf, sizeof(buf), "$p is loaded with %s[%d/%d]%s cartridge%s",
-                    QGRN, count, MAX_LOAD(gun), QNRM, count == 1 ? "" : "s");
-            } else
+                         QGRN, count, MAX_LOAD(gun), QNRM, count == 1 ? "" : "s");
+            } else {
                 strcpy_s(buf, sizeof(buf), "$p is not loaded.");
-        } else if (!gun->contains)
+            }
+        } else if (!gun->contains) {
             strcpy_s(buf, sizeof(buf), "$p is not loaded.");
-        else {
+        } else {
             count = count_contained_objs(gun->contains);
             snprintf(buf, sizeof(buf), "$p is loaded with $P,\r\n"
-                "which contains %s[%d/%d]%s cartridge%s",
-                QGRN, count, MAX_LOAD(gun->contains), QNRM,
-                count == 1 ? "" : "s");
+                                       "which contains %s[%d/%d]%s cartridge%s",
+                     QGRN, count, MAX_LOAD(gun->contains), QNRM,
+                     count == 1 ? "" : "s");
         }
         act(buf, false, ch, gun, gun->contains, TO_CHAR);
         if (MAX_R_O_F(gun) > 1) {
             send_to_char(ch,
-                "The Rate of Fire is set to:        %s[%d/%d]%s.\r\n", QGRN,
-                CUR_R_O_F(gun), MAX_R_O_F(gun), QNRM);
+                         "The Rate of Fire is set to:        %s[%d/%d]%s.\r\n", QGRN,
+                         CUR_R_O_F(gun), MAX_R_O_F(gun), QNRM);
         }
-    } else
+    } else {
         send_to_char(ch, "Unsupported gun type.\r\n");
+    }
 }
 
 #define GUNSET_RATE      1
@@ -194,13 +196,13 @@ ACMD(do_gunset)
 
         if (!(gun = get_object_in_equip_vis(ch, arg1, ch->implants, &i))) {
             send_to_char(ch, "You are not implanted with %s '%s'.\r\n",
-                AN(arg1), arg1);
+                         AN(arg1), arg1);
             return;
         }
 
     } else if ((!(gun = GET_EQ(ch, WEAR_WIELD)) || !isname(arg1, gun->aliases))
-        && (!(gun = GET_EQ(ch, WEAR_WIELD_2))
-            || !isname(arg1, gun->aliases))) {
+               && (!(gun = GET_EQ(ch, WEAR_WIELD_2))
+                   || !isname(arg1, gun->aliases))) {
         send_to_char(ch, "You are not wielding %s '%s'.\r\n", AN(arg1), arg1);
         return;
     }
@@ -232,7 +234,7 @@ ACMD(do_gunset)
     }
     if ((number = atoi(arg2)) < 0) {
         send_to_char(ch,
-            "A NEGATIVE value?  Consider the implications...\r\n");
+                     "A NEGATIVE value?  Consider the implications...\r\n");
         return;
     }
 

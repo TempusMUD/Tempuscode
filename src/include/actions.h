@@ -35,24 +35,24 @@ enum {
 };
 
 int check_sneak(struct creature *ch, struct creature *vict, bool departing, bool msgs)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 
 #define TIMEWARP_FILE "etc/timewarps"
 
 int perform_barb_berserk(struct creature *ch,
                          struct creature **who_was_attacked)
-    __attribute__ ((nonnull (1)));
+__attribute__ ((nonnull (1)));
 
 int max_component_dam(struct creature *ch)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 int room_count(struct creature *ch, struct room_data *room)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 int redundant_skillchip(struct obj_data *chip, struct obj_data *slot)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 void engage_self_destruct(struct creature *ch)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 
-#define NUM_COMPS               9	/* Number of borg components */
+#define NUM_COMPS               9   /* Number of borg components */
 
 #define BORG_POWER              0
 #define BORG_SPEED              1
@@ -66,7 +66,7 @@ void engage_self_destruct(struct creature *ch)
 #define INTERFACE_CHIPS         2
 #define NUM_INTERFACES          3
 
-	 /**** microchip utils ****/
+/**** microchip utils ****/
 
 #define IS_CHIP(obj)           (IS_OBJ_TYPE(obj, ITEM_MICROCHIP))
 #define CHIP_TYPE(obj)         (GET_OBJ_VAL(obj, 0))
@@ -81,30 +81,30 @@ void engage_self_destruct(struct creature *ch)
 #define SKILLCHIP(obj)         (CHIP_TYPE(obj) == CHIP_SKILL)
 #define AFFCHIP(obj)           (CHIP_TYPE(obj) == CHIP_AFFECTS)
 
-#define RECHARGABLE(obj)         (IS_VEHICLE(target) || IS_BATTERY(target) ||\
-				  IS_ENERGY_CELL(target) ||  \
-				  IS_TRANSPORTER(target) || \
-				  IS_COMMUNICATOR(target) || \
-				  IS_DEVICE(target))
+#define RECHARGABLE(obj)         (IS_VEHICLE(target) || IS_BATTERY(target) || \
+                                  IS_ENERGY_CELL(target) ||  \
+                                  IS_TRANSPORTER(target) || \
+                                  IS_COMMUNICATOR(target) || \
+                                  IS_DEVICE(target))
 
 #define IS_SYRINGE(obj)  (IS_OBJ_TYPE(obj, ITEM_SYRINGE))
 #define IS_VIAL(obj)     (IS_OBJ_TYPE(obj, ITEM_VIAL))
 #define IS_POTION(obj)     (IS_OBJ_TYPE(obj, ITEM_POTION))
 
 #define IS_TOOL(tool)     (IS_OBJ_TYPE(tool, ITEM_TOOL))
-#define TOOL_SKILL(tool)  ((tool) ? GET_OBJ_VAL(tool, 0):0)
-#define TOOL_MOD(tool)    ((tool) ? GET_OBJ_VAL(tool, 1):0)
+#define TOOL_SKILL(tool)  ((tool) ? GET_OBJ_VAL(tool, 0) : 0)
+#define TOOL_MOD(tool)    ((tool) ? GET_OBJ_VAL(tool, 1) : 0)
 
 #define IS_COMMUNICATOR(obj) (IS_OBJ_TYPE(obj, ITEM_COMMUNICATOR))
 #define COMM_CHANNEL(obj)    (GET_OBJ_VAL(obj, 3))
 
 #define COMM_UNIT_SEND_OK(ch, vict)                            \
-     (GET_LEVEL(ch) >= LVL_IMMORT ||                           \
-      (!ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) &&          \
-       !ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF) &&        \
-       (ch->in_room->zone == vict->in_room->zone ||            \
-	(!ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED) &&    \
-	 !ZONE_FLAGGED(vict->in_room->zone, ZONE_ISOLATED)))))
+    (GET_LEVEL(ch) >= LVL_IMMORT ||                           \
+     (!ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) &&          \
+      !ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF) &&        \
+      (ch->in_room->zone == vict->in_room->zone ||            \
+       (!ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED) &&    \
+        !ZONE_FLAGGED(vict->in_room->zone, ZONE_ISOLATED)))))
 
 extern const char *microchip_types[];
 extern const char *interface_types[];
@@ -112,22 +112,22 @@ extern const char *borg_subchar_class_names[];
 extern const char *component_names[][3];
 
 void perform_monk_meditate(struct creature *ch)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 
 void add_rad_sickness(struct creature *ch, int level)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 int boot_timewarp_data(void);
 void show_timewarps(struct creature *ch)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 
 typedef struct timewarp_data {
-	int from;
-	int to;
+    int from;
+    int to;
 } timewarp_data;
 
 int mob_fight_psionic(struct creature *ch, struct creature *precious_vict)
-    __attribute__ ((nonnull (1)));
+__attribute__ ((nonnull (1)));
 void perform_goto(struct creature *ch, struct room_data *room, bool allow_follow)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 
 #endif

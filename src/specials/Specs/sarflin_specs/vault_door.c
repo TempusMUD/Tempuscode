@@ -8,8 +8,9 @@ SPECIAL(vault_door)
 {
     struct obj_data *me2 = (struct obj_data *)me;
 
-    if (!CMD_IS("east") && !CMD_IS("say") && !CMD_IS("'"))
+    if (!CMD_IS("east") && !CMD_IS("say") && !CMD_IS("'")) {
         return (0);
+    }
     if ((CMD_IS("east")) && (GET_OBJ_VAL(me2, 0) != 5)) {
         GET_OBJ_VAL(me2, 0) = 6;
         return (0);
@@ -17,8 +18,9 @@ SPECIAL(vault_door)
 
     if (CMD_IS("say") || CMD_IS("'")) {
         skip_spaces(&argument);
-        if (!*argument)
+        if (!*argument) {
             return 0;
+        }
         half_chop(argument, buf, buf2);
         if ((!strncasecmp(buf, "valamar", 7)) && (GET_OBJ_VAL(me2, 0) == 0)) {
             GET_OBJ_VAL(me2, 0)++;
@@ -43,14 +45,15 @@ SPECIAL(vault_door)
         }
         if (GET_OBJ_VAL(me2, 0) == 4) {
             send_to_room("A haunting voice sayes 'Thank you.'\r\n",
-                me2->in_room);
+                         me2->in_room);
             GET_OBJ_VAL(me2, 0)++;
         }
         if (GET_OBJ_VAL(me2, 0) == 5) {
             send_to_room("The vault door pulse bright blue\r\n", me2->in_room);
             GET_OBJ_VAL(me2, 0)++;
-            if (real_room(19429))
+            if (real_room(19429)) {
                 (real_room(19429))->dir_option[1]->to_room = real_room(19401);
+            }
             return (1);
         }
         return (0);
@@ -58,8 +61,9 @@ SPECIAL(vault_door)
     if (GET_OBJ_VAL(me2, 0) == 6) {
         send_to_room("The vault door pulse bright blue\r\n", me2->in_room);
         GET_OBJ_VAL(me2, 0) = 0;
-        if (real_room(19429))
+        if (real_room(19429)) {
             (real_room(19429))->dir_option[1]->to_room = real_room(19445);
+        }
     }
     return (1);
 }

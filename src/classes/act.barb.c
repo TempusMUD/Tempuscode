@@ -59,7 +59,7 @@ ACMD(do_charge)
 
     if (CHECK_SKILL(ch, SKILL_CHARGE) < 50) {
         send_to_char(ch,
-            "Do you really think you know what you're doing?\r\n");
+                     "Do you really think you know what you're doing?\r\n");
         return;
     }
     // find out who we're whackin.
@@ -125,12 +125,14 @@ select_berserk_victim(struct creature *tch, struct creature *ch)
             && IS_NPC(tch)
             && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS))
         || !can_see_creature(ch, tch)
-        || !number(0, 1 + (GET_LEVEL(ch) / 16)))
+        || !number(0, 1 + (GET_LEVEL(ch) / 16))) {
         return -1;
+    }
 
     if (AFF_FLAGGED(ch, AFF_GROUP) && AFF_FLAGGED(tch, AFF_GROUP)
-        && (tch->master == ch || tch->master == ch->master || ch->master == tch))
+        && (tch->master == ch || tch->master == ch->master || ch->master == tch)) {
         return -1;
+    }
 
     return 0;
 }
@@ -150,10 +152,11 @@ perform_barb_berserk(struct creature *ch,
                      struct creature **who_was_attacked)
 {
     GList *cit = g_list_find_custom(ch->in_room->people,
-        ch,
-        (GCompareFunc) select_berserk_victim);
-    if (!cit)
+                                    ch,
+                                    (GCompareFunc) select_berserk_victim);
+    if (!cit) {
         return 0;
+    }
 
     struct creature *vict = cit->data;
 
@@ -161,8 +164,9 @@ perform_barb_berserk(struct creature *ch,
     act("$n attacks you in a BERSERK rage!!", false, ch, NULL, vict, TO_VICT);
     act("$n attacks $N in a BERSERK rage!!", false, ch, NULL, vict, TO_NOTVICT);
     hit(ch, vict, TYPE_UNDEFINED);
-    if (!is_dead(vict) && who_was_attacked)
+    if (!is_dead(vict) && who_was_attacked) {
         *who_was_attacked = vict;
+    }
 
     return 1;
 }
@@ -232,8 +236,9 @@ ACMD(do_berserk)
         act("$n goes BERSERK! Run for cover!", true, ch, NULL, ch, TO_ROOM);
 
         perform_barb_berserk(ch, NULL);
-    } else
+    } else {
         send_to_char(ch, "You cannot work up the gumption to do so.\r\n");
+    }
 }
 
 /**
@@ -246,26 +251,26 @@ ACMD(do_berserk)
 ACMD(do_battlecry)
 {
     int skillnum = (subcmd == SCMD_KIA ? SKILL_KIA :
-        (subcmd == SCMD_BATTLE_CRY ? SKILL_BATTLE_CRY :
-            SKILL_CRY_FROM_BEYOND));
+                    (subcmd == SCMD_BATTLE_CRY ? SKILL_BATTLE_CRY :
+                     SKILL_CRY_FROM_BEYOND));
     int did = 0;
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_PEACEFUL)) {
         send_to_char(ch,
-            "You just feel too damn peaceful here to do that.\r\n");
+                     "You just feel too damn peaceful here to do that.\r\n");
     } else if (CHECK_SKILL(ch, skillnum) < number(50, 110)) {
         send_to_char(ch, "You emit a feeble warbling sound.\r\n");
         act("$n makes a feeble warbling sound.", false, ch, NULL, NULL, TO_ROOM);
-    } else if (GET_MANA(ch) < 5)
+    } else if (GET_MANA(ch) < 5) {
         send_to_char(ch, "You cannot work up the energy to do it.\r\n");
-    else if (skillnum == SKILL_CRY_FROM_BEYOND &&
-        GET_MAX_HIT(ch) == GET_HIT(ch))
+    } else if (skillnum == SKILL_CRY_FROM_BEYOND &&
+               GET_MAX_HIT(ch) == GET_HIT(ch)) {
         send_to_char(ch, "But you are feeling in perfect health!\r\n");
-    else if (skillnum != SKILL_CRY_FROM_BEYOND &&
-        GET_MOVE(ch) == GET_MAX_MOVE(ch))
+    } else if (skillnum != SKILL_CRY_FROM_BEYOND &&
+               GET_MOVE(ch) == GET_MAX_MOVE(ch)) {
         send_to_char(ch,
-            "There is no need to do this when your movement is at maximum.\r\n");
-    else if (subcmd == SCMD_CRY_FROM_BEYOND) {
+                     "There is no need to do this when your movement is at maximum.\r\n");
+    } else if (subcmd == SCMD_CRY_FROM_BEYOND) {
 
         GET_HIT(ch) = MIN(GET_MAX_HIT(ch), GET_HIT(ch) + GET_MANA(ch));
         GET_MANA(ch) = 0;
@@ -284,19 +289,21 @@ ACMD(do_battlecry)
             GET_MOVE(ch) += trans;
             GET_MANA(ch) -= trans;
             did = 1;
-        } else
+        } else {
             did = 2;
+        }
 
         WAIT_STATE(ch, PULSE_VIOLENCE);
 
     }
 
-    if (!did)
+    if (!did) {
         return;
+    }
 
     if (subcmd == SCMD_BATTLE_CRY) {
         send_to_char(ch,
-            "Your fearsome battle cry rings out across the land!\r\n");
+                     "Your fearsome battle cry rings out across the land!\r\n");
         act("$n releases a battle cry that makes your blood run cold!", false,
             ch, NULL, NULL, TO_ROOM);
     } else if (subcmd == SCMD_CRY_FROM_BEYOND) {
@@ -310,8 +317,9 @@ ACMD(do_battlecry)
 
     sound_gunshots(ch->in_room, skillnum, 1, 1);
 
-    if (did != 2)
+    if (did != 2) {
         gain_skill_prof(ch, skillnum);
+    }
 }
 /**
  * select_cleave_victim:
@@ -334,8 +342,9 @@ select_cleave_victim(struct creature *tch, struct creature *ch)
         || (IS_NPC(ch)
             && IS_NPC(tch)
             && !NPC2_FLAGGED(ch, NPC2_ATK_MOBS))
-        || !can_see_creature(ch, tch))
+        || !can_see_creature(ch, tch)) {
         return -1;
+    }
 
     return 0;
 }
@@ -361,7 +370,7 @@ perform_cleave(struct creature *ch, struct creature *vict)
 
     if (weap == NULL || !IS_TWO_HAND(weap) || !IS_OBJ_TYPE(weap, ITEM_WEAPON)) {
         send_to_char(ch,
-            "You need to be wielding a two handed weapon to cleave!\r\n");
+                     "You need to be wielding a two handed weapon to cleave!\r\n");
         return;
     }
 
@@ -380,8 +389,9 @@ perform_cleave(struct creature *ch, struct creature *vict)
         } else {
             WAIT_STATE(vict, 1 RL_SEC);
             WAIT_STATE(ch, 3 RL_SEC);
-            if (great)
+            if (great) {
                 gain_skill_prof(ch, SKILL_GREAT_CLEAVE);
+            }
             gain_skill_prof(ch, SKILL_CLEAVE);
             hit(ch, vict, SKILL_CLEAVE);
             if (is_dead(ch)) {
@@ -398,7 +408,7 @@ perform_cleave(struct creature *ch, struct creature *vict)
             GList *it = g_list_find_custom(ch->in_room->people,
                                            ch,
                                            (GCompareFunc) select_cleave_victim);
-            vict = (it) ? it->data:NULL;
+            vict = (it) ? it->data : NULL;
         }
     }
 }
@@ -433,8 +443,9 @@ ACMD(do_cleave)
         return;
     }
 
-    if (!ok_to_attack(ch, vict, true))
+    if (!ok_to_attack(ch, vict, true)) {
         return;
+    }
 
     perform_cleave(ch, vict);
 }

@@ -136,10 +136,11 @@ make_mobile_class_matcher(struct creature *ch,
     }
 
     matcher->pred = mobile_matches_class;
-    if (is_number(expr))
+    if (is_number(expr)) {
         matcher->num = atoi(expr);
-    else
+    } else {
         matcher->num = parse_char_class(expr);
+    }
     if (matcher->num < 0 || matcher->num >= NUM_CLASSES) {
         send_to_char(ch, "Type olc help class for a valid list of classes.\r\n");
         return false;
@@ -165,10 +166,11 @@ make_mobile_race_matcher(struct creature *ch,
     }
 
     matcher->pred = mobile_matches_race;
-    if (is_number(expr))
+    if (is_number(expr)) {
         matcher->num = atoi(expr);
-    else
+    } else {
         matcher->num = parse_race(expr);
+    }
     if (matcher->num < 0 || matcher->num > NUM_RACES) {
         send_to_char(ch, "Type olc help race for a valid list of classes.\r\n");
         return false;
@@ -212,7 +214,7 @@ make_mobile_flags_matcher(struct creature *ch,
         send_to_char(ch, "There is no NPC flag '%s'.\r\n", expr);
         return false;
     }
-    
+
     matcher->idx = index;
     matcher->num = 1 << flag;
 
@@ -262,7 +264,7 @@ make_mobile_affect_matcher(struct creature *ch,
         send_to_char(ch, "There is no NPC affect '%s'.\r\n", expr);
         return false;
     }
-    
+
     matcher->idx = index;
     matcher->num = 1 << flag;
 
@@ -362,13 +364,13 @@ make_mobile_num_matcher(struct creature *ch,
 
     char *opstr = tmp_getword(&expr);
 
-    if (!strcmp(opstr, "=") || !strcmp(opstr, "=="))
+    if (!strcmp(opstr, "=") || !strcmp(opstr, "==")) {
         matcher->op = OP_EQ;
-    else if (!strcmp(opstr, "<"))
+    } else if (!strcmp(opstr, "<")) {
         matcher->op = OP_LT;
-    else if (!strcmp(opstr, ">"))
+    } else if (!strcmp(opstr, ">")) {
         matcher->op = OP_GT;
-    else if (!strcmp(opstr, "<=")) {
+    } else if (!strcmp(opstr, "<=")) {
         matcher->op = OP_GT;
         matcher->negated = !matcher->negated;
     } else if (!strcmp(opstr, ">=")) {
@@ -420,14 +422,16 @@ make_mobile_matcher(struct creature *ch, char *expr)
     new_matcher.negated = (*term == '!');
     if (new_matcher.negated) {
         term++;
-        if (!*term)
+        if (!*term) {
             term = tmp_getword(&expr);
+        }
     }
 
-    for (int i = 0;match_table[i].matcher && !found;i++) {
+    for (int i = 0; match_table[i].matcher && !found; i++) {
         if (!strcasecmp(term, match_table[i].matcher)) {
-            if (!match_table[i].constructor(ch, &new_matcher, match_table[i].varient, expr))
+            if (!match_table[i].constructor(ch, &new_matcher, match_table[i].varient, expr)) {
                 return NULL;
+            }
             found = true;
         }
     }
@@ -455,32 +459,33 @@ do_show_mobiles(struct creature *ch, char *value, char *argument)
                      "Precede the term with an exclamation point (!) to select\r\n"
                      "mobiles that don't match.\r\n"
                      "Valid terms can be:\r\n");
-        for (int i = 0;match_table[i].matcher;i++) {
+        for (int i = 0; match_table[i].matcher; i++) {
             send_to_char(ch, "%s\r\n", match_table[i].matcher);
         }
         return;
     }
 
     exprv = g_strsplit(tmp_strcat(value, " ", argument, NULL), ",", 0);
-    for (gchar **cur_expr = exprv;*cur_expr;cur_expr++) {
+    for (gchar **cur_expr = exprv; *cur_expr; cur_expr++) {
         char *expr = *cur_expr;
         // all expressions are either of the format [!] <field> <op> <value>
         // or [!] <field> <value>, separated by commas
         struct mob_matcher *new_matcher = make_mobile_matcher(ch, expr);
-        if (new_matcher)
+        if (new_matcher) {
             matchers = g_list_prepend(matchers, new_matcher);
-        else
+        } else {
             goto cleanup;
+        }
     }
 
     // Ensure only one of each kind of info function
-    for (GList *needle = matchers;needle;needle = needle->next) {
-        if (((struct mob_matcher*)(needle->data))->info == NULL) {
+    for (GList *needle = matchers; needle; needle = needle->next) {
+        if (((struct mob_matcher *)(needle->data))->info == NULL) {
             continue;
         }
-        for (GList *cur = needle->next;cur;cur = cur->next) {
-            if (((struct mob_matcher*)(cur->data))->info == ((struct mob_matcher *)(needle->data))->info) {
-                ((struct mob_matcher*)(cur->data))->info = NULL;
+        for (GList *cur = needle->next; cur; cur = cur->next) {
+            if (((struct mob_matcher *)(cur->data))->info == ((struct mob_matcher *)(needle->data))->info) {
+                ((struct mob_matcher *)(cur->data))->info = NULL;
             }
         }
     }
@@ -495,13 +500,15 @@ do_show_mobiles(struct creature *ch, char *value, char *argument)
     g_hash_table_iter_init(&iter, mob_prototypes);
     while (g_hash_table_iter_next(&iter, (gpointer)&vnum, (gpointer)&mob)) {
         bool matches = false;
-        for (GList *cur_matcher = matchers;cur_matcher;cur_matcher = cur_matcher->next) {
+        for (GList *cur_matcher = matchers; cur_matcher; cur_matcher = cur_matcher->next) {
             struct mob_matcher *matcher = cur_matcher->data;
             matches = matcher->pred(mob, matcher);
-            if (matcher->negated)
+            if (matcher->negated) {
                 matches = !matches;
-            if (!matches)
+            }
+            if (!matches) {
                 break;
+            }
         }
         if (matches) {
             acc_sprintf("%3d. %s[%s%5d%s]%s %-50s%s", ++found,
@@ -509,19 +516,21 @@ do_show_mobiles(struct creature *ch, char *value, char *argument)
                         mob->mob_specials.shared->vnum,
                         CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
                         GET_NAME(mob), CCNRM(ch, C_NRM));
-            for (GList *cur_matcher = matchers;cur_matcher;cur_matcher = cur_matcher->next) {
+            for (GList *cur_matcher = matchers; cur_matcher; cur_matcher = cur_matcher->next) {
                 struct mob_matcher *matcher = cur_matcher->data;
-                if (matcher->info)
+                if (matcher->info) {
                     acc_strcat(" ", matcher->info(ch, mob, matcher), NULL);
+                }
             }
             acc_strcat("\r\n", NULL);
         }
     }
 
-    if (found)
+    if (found) {
         page_string(ch->desc, acc_get_string());
-    else
+    } else {
         send_to_char(ch, "No matching mobiles found.\r\n");
+    }
 
 cleanup:
     g_strfreev(exprv);

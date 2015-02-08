@@ -10,11 +10,13 @@ SPECIAL(spinal)
     struct obj_data *spine = NULL;
     struct room_data *r_home_pad = real_room(1595);
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (is_fighting(spinal))
+    if (is_fighting(spinal)) {
         return 0;
+    }
 
     if (!cmd && spinal->in_room != r_home_pad &&
         r_home_pad != NULL && !is_fighting(ch)) {
@@ -41,12 +43,14 @@ SPECIAL(spinal)
             } else {
                 return 0;
             }
-        } else
+        } else {
             break;
+        }
     }
 
-    if (!spine)
+    if (!spine) {
         return 0;
+    }
 
     if (spine->carried_by && spine->carried_by != spinal) {
         if (spine->carried_by->in_room != NULL &&

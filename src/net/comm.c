@@ -1,12 +1,12 @@
 /*************************************************************************
-*   File: comm.c                                        Part of CircleMUD *
-*  Usage: Communication, socket handling, main(), central game loop       *
-*                                                                         *
-*  All rights reserved.  See license.doc for complete information.        *
-*                                                                         *
-*  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
-*  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
-************************************************************************ */
+ *   File: comm.c                                        Part of CircleMUD *
+ *  Usage: Communication, socket handling, main(), central game loop       *
+ *                                                                         *
+ *  All rights reserved.  See license.doc for complete information.        *
+ *                                                                         *
+ *  Copyright (C) 1993, 94 by the Trustees of the Johns Hopkins University *
+ *  CircleMUD is based on DikuMUD, Copyright (C) 1990, 1991.               *
+ ************************************************************************ */
 
 //
 // File: comm.c                      -- Part of TempusMUD
@@ -106,7 +106,7 @@ int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 void flush_q(struct txt_q *queue);
 void init_game(void);
 void signal_setup(void);
-void game_loop(GIOChannel * main_listener, GIOChannel *reader_listener);
+void game_loop(GIOChannel *main_listener, GIOChannel *reader_listener);
 GIOChannel *init_socket(int port);
 int new_descriptor(int s, int port);
 int get_avail_descs(void);
@@ -189,8 +189,9 @@ init_game(void)
     slog("Closing all sockets.");
     g_io_channel_unref(main_io);
     g_io_channel_unref(reader_io);
-    while (descriptor_list)
+    while (descriptor_list) {
         close_socket(descriptor_list);
+    }
 
     autosave_zones(ZONE_RESETSAVE);
     collect_housing_rent();
@@ -235,10 +236,11 @@ init_socket(int port)
     }
 
     struct addrinfo *cur = NULL;
-    for (cur = info;cur;cur = cur->ai_next) {
+    for (cur = info; cur; cur = cur->ai_next) {
         s = socket(cur->ai_family, cur->ai_socktype, cur->ai_protocol);
-        if (s == -1)
+        if (s == -1) {
             continue;
+        }
 
 #ifdef SO_SNDBUF
         opt = LARGE_BUFSIZE + GARBAGE_SPACE;
@@ -281,8 +283,9 @@ init_socket(int port)
         }
 #endif
         err = bind(s, cur->ai_addr, cur->ai_addrlen);
-        if (err == 0)
+        if (err == 0) {
             break;
+        }
 
         close(s);
     }
@@ -373,7 +376,7 @@ reap_dead_creatures(__attribute__ ((unused)) gpointer ignore)
     void extract_creature(struct creature *ch, enum cxn_state con_state);
 
     GList *next;
-    for (GList *it = creatures;it;it = next) {
+    for (GList *it = creatures; it; it = next) {
         next = it->next;
         struct creature *tch = it->data;
         if (is_dead(tch)) {
@@ -389,18 +392,19 @@ reap_dead_creatures(__attribute__ ((unused)) gpointer ignore)
 gboolean
 update_shutdown_timer(__attribute__ ((unused)) gpointer data)
 {
-    if (shutdown_count < 0)
+    if (shutdown_count < 0) {
         return false;
+    }
 
     shutdown_count--;
 
-    if (shutdown_count == 10)
+    if (shutdown_count == 10) {
         send_to_all(":: Tempus REBOOT in 10 seconds ::\r\n");
-    else if (shutdown_count == 30)
+    } else if (shutdown_count == 30) {
         send_to_all(":: Tempus REBOOT in 30 seconds ::\r\n");
-    else if (shutdown_count && !(shutdown_count % 60)) {
+    } else if (shutdown_count && !(shutdown_count % 60)) {
         snprintf(buf, sizeof(buf), ":: Tempus REBOOT in %d minute%s ::\r\n",
-                shutdown_count / 60, shutdown_count == 60 ? "" : "s");
+                 shutdown_count / 60, shutdown_count == 60 ? "" : "s");
         send_to_all(buf);
     } else if (shutdown_count <= 0) {
         send_to_all(":: Tempus REBOOTING ::\r\n\r\n"
@@ -412,10 +416,11 @@ update_shutdown_timer(__attribute__ ((unused)) gpointer data)
             || shutdown_mode == SHUTDOWN_PAUSE) {
             send_to_all
                 ("Shutting down for maintenance, try again in half an hour.\r\n");
-            if (shutdown_mode == SHUTDOWN_DIE)
+            if (shutdown_mode == SHUTDOWN_DIE) {
                 touch("../.killscript");
-            else
+            } else {
                 touch("../pause");
+            }
         } else {
             send_to_all
                 ("Rebooting now, we will be back online in a few minutes.\r\n");
@@ -510,8 +515,9 @@ game_loop(GIOChannel *main_listener, GIOChannel *reader_listener)
     g_timeout_add(100 * 300 * PASSES_PER_SEC, repeating_func_wrapper, record_usage);
     g_timeout_add(100 * 900 * PASSES_PER_SEC, temp_autosave_zones, NULL);
     g_timeout_add(100 * 666 * PASSES_PER_SEC, repeating_func_wrapper, bamf_quad_damage);
-    if (auto_save)
+    if (auto_save) {
         g_timeout_add(100 * 60 * PASSES_PER_SEC, autosave, NULL);
+    }
     if (stress_test) {
         g_timeout_add(100, repeating_func_wrapper, random_mob_activity);
     }
@@ -539,12 +545,12 @@ timediff(struct timespec *a, struct timespec *b)
 {
     struct timespec rslt = { .tv_sec = 0, .tv_nsec = 0 };
 
-    if (a->tv_sec < b->tv_sec)
+    if (a->tv_sec < b->tv_sec) {
         return rslt;
-    else if (a->tv_sec == b->tv_sec) {
-        if (a->tv_nsec < b->tv_nsec)
+    } else if (a->tv_sec == b->tv_sec) {
+        if (a->tv_nsec < b->tv_nsec) {
             return rslt;
-        else {
+        } else {
             rslt.tv_sec = 0;
             rslt.tv_nsec = a->tv_nsec - b->tv_nsec;
             return rslt;
@@ -554,8 +560,9 @@ timediff(struct timespec *a, struct timespec *b)
         if (a->tv_nsec < b->tv_nsec) {
             rslt.tv_nsec = a->tv_nsec + 1000000000 - b->tv_nsec;
             rslt.tv_sec--;
-        } else
+        } else {
             rslt.tv_nsec = a->tv_nsec - b->tv_nsec;
+        }
         return rslt;
     }
 }
@@ -568,12 +575,13 @@ record_usage(void)
 
     for (d = descriptor_list; d; d = d->next) {
         sockets_input_mode++;
-        if (d->input_mode == CXN_PLAYING)
+        if (d->input_mode == CXN_PLAYING) {
             sockets_playing++;
+        }
     }
 
     slog("nusage: %-3d sockets input_mode, %-3d sockets playing",
-        sockets_input_mode, sockets_playing);
+         sockets_input_mode, sockets_playing);
 
 #ifdef RUSAGE
     {
@@ -592,8 +600,9 @@ d_send(struct descriptor_data *d, const char *txt)
     GError *error = NULL;
     gsize bytes_written;
 
-    if (suppress_output)
+    if (suppress_output) {
         return;
+    }
 
     if (!IS_SET(g_io_channel_get_flags(d->io), G_IO_FLAG_IS_WRITEABLE)) {
         return;
@@ -605,13 +614,14 @@ d_send(struct descriptor_data *d, const char *txt)
         // New output crlf
         if (!d->account
             || d->account->compact_level == 1
-            || d->account->compact_level == 3)
+            || d->account->compact_level == 3) {
             d_send(d, "\r\n");
+        }
     }
 
     /* handle snooping: prepend "% " and send to snooper */
     if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
-        for (GList * x = d->snoop_by; x; x = x->next) {
+        for (GList *x = d->snoop_by; x; x = x->next) {
             struct descriptor_data *td = x->data;
             d_printf(td, "&r{ &n%s&r } &n", txt);
         }
@@ -621,9 +631,10 @@ d_send(struct descriptor_data *d, const char *txt)
     if (error) {
         slog("g_io_channel_write_chars: %s", error->message);
         g_error_free(error);
-     }
-    if (!d->out_watcher)
+    }
+    if (!d->out_watcher) {
         d->out_watcher = g_io_add_watch(d->io, G_IO_OUT, process_output, d);
+    }
 }
 
 /* ******************************************************************
@@ -639,10 +650,11 @@ handle_socket_error(__attribute__ ((unused)) GIOChannel *io,
 {
     struct descriptor_data *d = data;
 
-    if (condition == G_IO_ERR)
+    if (condition == G_IO_ERR) {
         slog("Received socket error event");
-    else
+    } else {
         slog("Received socket invalid event");
+    }
     close_socket(d);
     return false;
 }
@@ -669,8 +681,9 @@ accept_new_connection(GIOChannel *listener_io,
     }
 
     /* make sure we have room for it */
-    for (newd = descriptor_list; newd; newd = newd->next)
+    for (newd = descriptor_list; newd; newd = newd->next) {
         sockets_input_mode++;
+    }
 
     /* create a new descriptor */
     CREATE(newd, struct descriptor_data, 1);
@@ -687,8 +700,9 @@ accept_new_connection(GIOChannel *listener_io,
     /* find the site name */
     int info_flags = NI_NUMERICSERV;
     int err;
-    if (nameserver_is_slow)
+    if (nameserver_is_slow) {
         info_flags |= NI_NUMERICHOST;
+    }
     err = getnameinfo((struct sockaddr *)&peer, addrlen,
                       newd->host, HOST_LENGTH,
                       NULL, 0, info_flags);
@@ -745,8 +759,9 @@ accept_new_connection(GIOChannel *listener_io,
     newd->ban_dc_counter = 0;
     newd->is_blind = (port == reader_port);
 
-    if (++last_desc == 10000)
+    if (++last_desc == 10000) {
         last_desc = 1;
+    }
     newd->desc_num = last_desc;
 
     /* prepend to list */
@@ -760,17 +775,17 @@ accept_new_connection(GIOChannel *listener_io,
         // people won't even see it.  Screen readers will read it out
         // loud, though.
         d_printf(newd,"If you use a screen reader, you'll want to use port %d&@", reader_port);
-		
+
         // We have moved to a single greeting/login screen. The old random selection between
         // multiple screens has been left for reference and/or future use.
-            /*
-            print out the greeting text, from comm.c, with a 50/50 chance between the two
-            int random_greeting = number(1, 100);
-            if (random_greeting > 50)
-                d_send(newd, GREETINGS[0]);
-            else
-                d_send(newd, GREETINGS[1]);
-            */
+        /*
+           print out the greeting text, from comm.c, with a 50/50 chance between the two
+           int random_greeting = number(1, 100);
+           if (random_greeting > 50)
+            d_send(newd, GREETINGS[0]);
+           else
+            d_send(newd, GREETINGS[1]);
+         */
         d_send(newd, GREETINGS[1]);
     }
     return true;
@@ -801,8 +816,9 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
         if (d->creature
             && !g_io_channel_write_buffer_empty(d->io)
             && (d->account->compact_level == 0
-                || d->account->compact_level == 2))
+                || d->account->compact_level == 2)) {
             d_send(d, "\r\n");
+        }
         d->need_prompt = false;
     }
 
@@ -824,9 +840,9 @@ void
 enqueue_line_input(struct descriptor_data *d, const char *line)
 {
     d->need_prompt = true;
-    
+
     if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
-        for (GList * x = d->snoop_by; x; x = x->next) {
+        for (GList *x = d->snoop_by; x; x = x->next) {
             struct descriptor_data *td = x->data;
             d_printf(td, "&r[ &n%s&r ]\r\n&n", line);
         }
@@ -900,8 +916,8 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
         close_socket(d);
         return false;
     } else if (error) {
-         slog("g_io_channel_read_line(): %s", error->message);
-         g_error_free(error);
+        slog("g_io_channel_read_line(): %s", error->message);
+        g_error_free(error);
         close_socket(d);
         return false;
     }
@@ -912,7 +928,7 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
     GString *line = g_string_sized_new(80);
     bool consume_linebreak = false;
     int ignore_count = 0;
-    for (char *read_pt = d->inbuf;read_pt != end_pt;read_pt++) {
+    for (char *read_pt = d->inbuf; read_pt != end_pt; read_pt++) {
         if (ignore_count > 0) {
             ignore_count--;
             continue;
@@ -990,8 +1006,9 @@ destroy_socket(struct descriptor_data *d)
     struct descriptor_data *temp;
 
     // Forget those this descriptor is snooping
-    if (d->snooping)
+    if (d->snooping) {
         d->snooping->snoop_by = g_list_remove(d->snooping->snoop_by, d);
+    }
 
     // Forget those snooping on this descriptor
     for (GList *x = d->snoop_by; x; x = x->next) {
@@ -1007,8 +1024,9 @@ destroy_socket(struct descriptor_data *d)
         d->creature->desc = d;
     }
     // Cancel any text editing
-    if (d->text_editor)
+    if (d->text_editor) {
         editor_finish(d->text_editor, false);
+    }
 
     if (d->creature && d->creature->in_room) {
         // Lost link in-game
@@ -1018,9 +1036,9 @@ destroy_socket(struct descriptor_data *d)
         d->creature->desc = NULL;
         GET_OLC_OBJ(d->creature) = NULL;
         mlog(ROLE_ADMINBASIC,
-            MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)),
-            NRM, false, "Closing link to: %s [%s] ", GET_NAME(d->creature),
-            d->host);
+             MAX(LVL_AMBASSADOR, GET_INVIS_LVL(d->creature)),
+             NRM, false, "Closing link to: %s [%s] ", GET_NAME(d->creature),
+             d->host);
         act("$n has lost $s link.", true, d->creature, NULL, NULL, TO_ROOM);
     } else if (d->account) {
         if (d->creature) {
@@ -1029,8 +1047,8 @@ destroy_socket(struct descriptor_data *d)
             d->creature = NULL;
         }
         mlog(ROLE_ADMINBASIC, LVL_AMBASSADOR, NRM, false,
-            "%s[%d] logging off from %s",
-            d->account->name, d->account->id, d->host);
+             "%s[%d] logging off from %s",
+             d->account->name, d->account->id, d->host);
         account_logout(d->account, d, false);
     } else {
         slog("Losing descriptor without account");
@@ -1038,17 +1056,19 @@ destroy_socket(struct descriptor_data *d)
 
     REMOVE_FROM_LIST(d, descriptor_list, next);
 
-    if (d->showstr_head)
+    if (d->showstr_head) {
         free(d->showstr_head);
+    }
 
     g_source_remove(d->in_watcher);
     g_source_remove(d->err_watcher);
-    if (d->out_watcher)
+    if (d->out_watcher) {
         g_source_remove(d->out_watcher);
+    }
     g_source_remove(d->input_handler);
 
     g_io_channel_unref(d->io);
-    
+
     free(d);
 }
 
@@ -1097,10 +1117,11 @@ checkpointing(int sig __attribute__ ((unused)))
     if (!tics) {
         errlog("CHECKPOINT shutdown: tics not updated");
         slog("Last command: %s %s.", player_name_by_idnum(last_cmd[0].idnum),
-            last_cmd[0].string);
+             last_cmd[0].string);
         raise(SIGSEGV);
-    } else
+    } else {
         tics = 0;
+    }
 }
 
 void
@@ -1110,7 +1131,7 @@ unrestrict_game(int sig __attribute__ ((unused)))
     extern int num_invalid;
 
     mudlog(LVL_AMBASSADOR, BRF, true,
-        "Received SIGUSR2 - completely unrestricting game (emergent)");
+           "Received SIGUSR2 - completely unrestricting game (emergent)");
     ban_list = NULL;
     restrict_logins = 0;
     num_invalid = 0;
@@ -1122,7 +1143,7 @@ hupsig(int sig __attribute__ ((unused)))
     slog("Received SIGHUP or SIGTERM.  Shutting down...");
 
     mudlog(LVL_AMBASSADOR, BRF, true,
-        "Received external signal - shutting down for reboot in 60 sec..");
+           "Received external signal - shutting down for reboot in 60 sec..");
 
     send_to_all("\007\007:: Tempus REBOOT in 60 seconds ::\r\n");
     shutdown_idnum = -1;
@@ -1135,7 +1156,7 @@ void
 intsig(int sig __attribute__ ((unused)))
 {
     mudlog(LVL_AMBASSADOR, BRF, true,
-        "Received external signal - shutting down for reboot now.");
+           "Received external signal - shutting down for reboot now.");
 
     send_to_all("\007\007:: Tempus REBOOT NOW! ::\r\n");
     circle_shutdown = circle_reboot = 1;
@@ -1156,7 +1177,7 @@ intsig(int sig __attribute__ ((unused)))
  */
 
 sigfunc *
-my_signal(int signo, sigfunc * func)
+my_signal(int signo, sigfunc *func)
 {
     struct sigaction act, oact;
 
@@ -1164,8 +1185,9 @@ my_signal(int signo, sigfunc * func)
     sigemptyset(&act.sa_mask);
     act.sa_flags = 0;
 
-    if (sigaction(signo, &act, &oact) < 0)
+    if (sigaction(signo, &act, &oact) < 0) {
         return SIG_ERR;
+    }
 
     return oact.sa_handler;
 }
@@ -1205,8 +1227,8 @@ signal_setup(void)
 }
 
 /* ****************************************************************
-*       Public routines for system-to-player-communication        *
-*******************************************************************/
+ *       Public routines for system-to-player-communication        *
+ *******************************************************************/
 
 void
 send_to_char(struct creature *ch, const char *str, ...)
@@ -1214,8 +1236,9 @@ send_to_char(struct creature *ch, const char *str, ...)
     char *msg_str;
     va_list args;
 
-    if (!ch || !ch->desc || !str || !*str)
+    if (!ch || !ch->desc || !str || !*str) {
         return;
+    }
 
     va_start(args, str);
     msg_str = tmp_vsprintf(str, args);
@@ -1232,8 +1255,9 @@ d_printf(struct descriptor_data *d, const char *str, ...)
     char *msg_str, *read_pt;
     va_list args;
 
-    if (!d || !str || !*str)
+    if (!d || !str || !*str) {
         return;
+    }
 
     va_start(args, str);
     msg_str = tmp_vsprintf(str, args);
@@ -1245,8 +1269,9 @@ d_printf(struct descriptor_data *d, const char *str, ...)
     // Now iterate through string, adding color coding
     read_pt = msg_str;
     while (*read_pt) {
-        while (*read_pt && *read_pt != '&')
+        while (*read_pt && *read_pt != '&') {
             read_pt++;
+        }
         if (*read_pt == '&') {
             *read_pt++ = '\0';
             d_send(d, msg_str);
@@ -1254,10 +1279,12 @@ d_printf(struct descriptor_data *d, const char *str, ...)
                 if (isupper(*read_pt)) {
                     *read_pt = tolower(*read_pt);
                     // A few extra normal tags never hurt anyone...
-                    if (d->account->ansi_level > 2)
+                    if (d->account->ansi_level > 2) {
                         d_send(d, KBLD);
-                } else if (d->account->ansi_level > 2)
+                    }
+                } else if (d->account->ansi_level > 2) {
                     d_send(d, KNRM);
+                }
                 switch (*read_pt) {
                 case '@':
                     d_send(d, "\e[H\e[J");
@@ -1305,10 +1332,13 @@ send_to_all(const char *messg)
 {
     struct descriptor_data *i;
 
-    if (messg)
-        for (i = descriptor_list; i; i = i->next)
-            if (!i->input_mode)
+    if (messg) {
+        for (i = descriptor_list; i; i = i->next) {
+            if (!i->input_mode) {
                 d_send(i, messg);
+            }
+        }
+    }
 }
 
 void
@@ -1316,8 +1346,9 @@ send_to_clerics(int align, const char *messg)
 {
     struct descriptor_data *i;
 
-    if (!messg || !*messg)
+    if (!messg || !*messg) {
         return;
+    }
 
     for (i = descriptor_list; i; i = i->next) {
         if (!i->input_mode && i->creature && AWAKE(i->creature) &&
@@ -1337,16 +1368,19 @@ send_to_outdoor(const char *messg, int isecho)
 {
     struct descriptor_data *i;
 
-    if (!messg || !*messg)
+    if (!messg || !*messg) {
         return;
+    }
 
-    for (i = descriptor_list; i; i = i->next)
+    for (i = descriptor_list; i; i = i->next) {
         if (!i->input_mode && i->creature && AWAKE(i->creature) &&
             (!isecho || !PRF2_FLAGGED(i->creature, PRF2_NOGECHO)) &&
             !PLR_FLAGGED(i->creature, PLR_WRITING) &&
             OUTSIDE(i->creature)
-            && PRIME_MATERIAL_ROOM(i->creature->in_room))
+            && PRIME_MATERIAL_ROOM(i->creature->in_room)) {
             d_send(i, messg);
+        }
+    }
 }
 
 void
@@ -1355,38 +1389,43 @@ send_to_newbie_helpers(const char *messg)
     struct descriptor_data *i;
     extern int level_can_shout;
 
-    if (!messg || !*messg)
+    if (!messg || !*messg) {
         return;
+    }
 
-    for (i = descriptor_list; i; i = i->next)
+    for (i = descriptor_list; i; i = i->next) {
         if (!i->input_mode && i->creature &&
             PRF2_FLAGGED(i->creature, PRF2_NEWBIE_HELPER) &&
             GET_LEVEL(i->creature) > level_can_shout &&
             !(PRF_FLAGGED(i->creature, PRF_LOG1) ||
-                PRF_FLAGGED(i->creature, PRF_LOG2))) {
+              PRF_FLAGGED(i->creature, PRF_LOG2))) {
             d_printf(i, "&Y%s&n", messg);
         }
+    }
 }
 
 /* mode == true -> hide from sender.  false -> show to all */
 void
 send_to_comm_channel(struct creature *ch, char *buf, int chan, int mode,
-    int hide_invis)
+                     int hide_invis)
 {
     SPECIAL(master_communicator);
     struct creature *receiver;
     struct obj_data *obj = NULL;
 
     for (obj = object_list; obj; obj = obj->next) {
-        if (obj->in_obj || !IS_COMMUNICATOR(obj))
+        if (obj->in_obj || !IS_COMMUNICATOR(obj)) {
             continue;
+        }
 
-        if (!ENGINE_STATE(obj))
+        if (!ENGINE_STATE(obj)) {
             continue;
+        }
 
         if (GET_OBJ_SPEC(obj) != master_communicator &&
-            COMM_CHANNEL(obj) != chan)
+            COMM_CHANNEL(obj) != chan) {
             continue;
+        }
 
         if (obj->in_room) {
             act("$p makes some noises.", false, NULL, obj, NULL, TO_ROOM);
@@ -1394,28 +1433,34 @@ send_to_comm_channel(struct creature *ch, char *buf, int chan, int mode,
         }
 
         receiver = obj->carried_by ? obj->carried_by : obj->worn_by;
-        if (!receiver || !receiver->desc)
+        if (!receiver || !receiver->desc) {
             continue;
+        }
 
         if (!IS_PLAYING(receiver->desc) || !receiver->desc ||
-            PLR_FLAGGED(receiver, PLR_WRITING))
+            PLR_FLAGGED(receiver, PLR_WRITING)) {
             continue;
+        }
 
-        if (!COMM_UNIT_SEND_OK(ch, receiver))
+        if (!COMM_UNIT_SEND_OK(ch, receiver)) {
             continue;
+        }
 
-        if (mode && receiver == ch)
+        if (mode && receiver == ch) {
             continue;
+        }
 
-        if (hide_invis && !can_see_creature(receiver, ch))
+        if (hide_invis && !can_see_creature(receiver, ch)) {
             continue;
+        }
 
-        if (GET_OBJ_SPEC(obj) == master_communicator)
+        if (GET_OBJ_SPEC(obj) == master_communicator) {
             send_to_char(receiver, "%s_%s [%d]::%s ", CCYEL(receiver, C_NRM),
-                OBJS(obj, receiver), chan, CCNRM(receiver, C_NRM));
-        else
+                         OBJS(obj, receiver), chan, CCNRM(receiver, C_NRM));
+        } else {
             send_to_char(receiver, "%s_%s::%s ", CCYEL(receiver, C_NRM),
-                OBJS(obj, receiver), CCNRM(receiver, C_NRM));
+                         OBJS(obj, receiver), CCNRM(receiver, C_NRM));
+        }
         act(buf, true, ch, obj, receiver, TO_VICT);
     }
 }
@@ -1425,17 +1470,20 @@ send_to_zone(const char *messg, struct zone_data *zn, int outdoor)
 {
     struct descriptor_data *i;
 
-    if (!messg || !*messg)
+    if (!messg || !*messg) {
         return;
+    }
 
-    for (i = descriptor_list; i; i = i->next)
+    for (i = descriptor_list; i; i = i->next) {
         if (!i->input_mode && i->creature && AWAKE(i->creature) &&
             !PLR_FLAGGED(i->creature, PLR_WRITING) &&
             i->creature->in_room->zone == zn &&
             (!outdoor ||
-                (OUTSIDE(i->creature) &&
-                    PRIME_MATERIAL_ROOM(i->creature->in_room))))
+             (OUTSIDE(i->creature) &&
+              PRIME_MATERIAL_ROOM(i->creature->in_room)))) {
             d_send(i, messg);
+        }
+    }
 }
 
 void
@@ -1447,13 +1495,15 @@ send_to_room(const char *messg, struct room_data *room)
     char *str;
     int j;
 
-    if (!room || !messg)
+    if (!room || !messg) {
         return;
+    }
 
-    for (GList * it = first_living(room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(room->people); it; it = next_living(it)) {
         i = it->data;
-        if (i->desc && !PLR_FLAGGED(i, PLR_WRITING))
+        if (i->desc && !PLR_FLAGGED(i, PLR_WRITING)) {
             d_send(i->desc, messg);
+        }
     }
     /** check for vehicles in the room **/
     str = tmp_sprintf("(outside) %s", messg);
@@ -1461,13 +1511,14 @@ send_to_room(const char *messg, struct room_data *room)
         if (IS_OBJ_TYPE(o, ITEM_VEHICLE)) {
             for (obj = object_list; obj; obj = obj->next) {
                 if (((IS_OBJ_TYPE(obj, ITEM_V_DOOR) && !CAR_CLOSED(o)) ||
-                        (IS_V_WINDOW(obj) && !CAR_CLOSED(obj))) &&
+                     (IS_V_WINDOW(obj) && !CAR_CLOSED(obj))) &&
                     ROOM_NUMBER(obj) == ROOM_NUMBER(o) &&
                     GET_OBJ_VNUM(o) == V_CAR_VNUM(obj) && obj->in_room) {
-                    for (GList * it = first_living(obj->in_room->people); it; it = next_living(it)) {
+                    for (GList *it = first_living(obj->in_room->people); it; it = next_living(it)) {
                         i = it->data;
-                        if (i->desc && !PLR_FLAGGED(i, PLR_WRITING))
+                        if (i->desc && !PLR_FLAGGED(i, PLR_WRITING)) {
                             d_send(i->desc, str);
+                        }
                     }
                 }
             }
@@ -1475,23 +1526,27 @@ send_to_room(const char *messg, struct room_data *room)
     }
 
     /* see if there is a podium in the room */
-    for (o = room->contents; o; o = o->next_content)
-        if (IS_OBJ_TYPE(o, ITEM_PODIUM))
+    for (o = room->contents; o; o = o->next_content) {
+        if (IS_OBJ_TYPE(o, ITEM_PODIUM)) {
             break;
+        }
+    }
 
     if (o) {
         str = tmp_sprintf("(remote) %s", messg);
-        for (j = 0; j < NUM_OF_DIRS; j++)
+        for (j = 0; j < NUM_OF_DIRS; j++) {
             if (ABS_EXIT(room, j) && ABS_EXIT(room, j)->to_room &&
                 room != ABS_EXIT(room, j)->to_room &&
                 !IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
-                for (GList * it = first_living(ABS_EXIT(room, j)->to_room->people);
-                    it; it = next_living(it)) {
+                for (GList *it = first_living(ABS_EXIT(room, j)->to_room->people);
+                     it; it = next_living(it)) {
                     i = it->data;
-                    if (i->desc && !PLR_FLAGGED(i, PLR_OLC))
+                    if (i->desc && !PLR_FLAGGED(i, PLR_OLC)) {
                         d_send(i->desc, str);
+                    }
                 }
             }
+        }
     }
 
     for (o = room->contents; o; o = o->next_content) {
@@ -1499,7 +1554,7 @@ send_to_room(const char *messg, struct room_data *room)
             to_room = real_room(GET_OBJ_VAL(o, 0));
             if (to_room) {
                 send_to_room(tmp_sprintf("(%s) %s", o->in_room->name, messg),
-                    to_room);
+                             to_room);
             }
         }
     }
@@ -1510,13 +1565,15 @@ send_to_clan(const char *messg, int clan)
 {
     struct descriptor_data *i;
 
-    if (messg)
-        for (i = descriptor_list; i; i = i->next)
+    if (messg) {
+        for (i = descriptor_list; i; i = i->next) {
             if (!i->input_mode && i->creature
                 && (GET_CLAN(i->creature) == clan)
                 && !PLR_FLAGGED(i->creature, PLR_OLC)) {
                 d_printf(i, "&c%s&n", messg);
             }
+        }
+    }
 }
 
 /* higher-level communication: the act() function */
@@ -1539,11 +1596,13 @@ act_translate(struct creature *ch, struct creature *to, const char **s)
 
     (*s)++;
     c = *s;
-    while (*c && *c != ']')
-        if (*c == '\\' && *(c + 1) != '\0')
+    while (*c && *c != ']') {
+        if (*c == '\\' && *(c + 1) != '\0') {
             c += 2;
-        else
+        } else {
             c++;
+        }
+    }
 
     // Check for empty translation string
     if (c == *s) {
@@ -1560,21 +1619,26 @@ act_translate(struct creature *ch, struct creature *to, const char **s)
     char *read_pt, *write_pt;
     read_pt = write_pt = i;
     while (*read_pt) {
-        if (*read_pt == '\\')
+        if (*read_pt == '\\') {
             read_pt++;
-        if (write_pt != read_pt)
+        }
+        if (write_pt != read_pt) {
             *write_pt = *read_pt;
+        }
         write_pt++;
         read_pt++;
     }
     *write_pt = '\0';
 
-    if (!PRF_FLAGGED(to, PRF_NASTY) && ch != to && Nasty_Words(i))
-        for (int idx = 0; idx < num_nasty; idx++)
+    if (!PRF_FLAGGED(to, PRF_NASTY) && ch != to && Nasty_Words(i)) {
+        for (int idx = 0; idx < num_nasty; idx++) {
             i = tmp_gsubi(i, nasty_list[idx], random_curses());
+        }
+    }
 
-    if (ch != to)
+    if (ch != to) {
         return translate_tongue(ch, to, i);
+    }
 
     return i;
 }
@@ -1589,8 +1653,8 @@ make_act_str(const char *orig,
 {
     const char *ACTNULL = "<NULL>";
 
-#define CHECK_NULL(pointer, expression)                     \
-    if ((pointer) == NULL) i = ACTNULL; else i = (expression);
+#define CHECK_NULL(pointer, expression)                         \
+    if ((pointer) == NULL) {i = ACTNULL; } else i = (expression)
 
     const char *s = orig;
     const char *i = NULL;
@@ -1612,14 +1676,15 @@ make_act_str(const char *orig,
                 if (vict_obj == NULL) {
                     i = ACTNULL;
                 } else if (ch == vict_obj) {
-                    if (vict_obj == to)
+                    if (vict_obj == to) {
                         i = "yourself";
-                    else if (IS_MALE((struct creature *)vict_obj))
+                    } else if (IS_MALE((struct creature *)vict_obj)) {
                         i = "himself";
-                    else if (IS_FEMALE((struct creature *)vict_obj))
+                    } else if (IS_FEMALE((struct creature *)vict_obj)) {
                         i = "herself";
-                    else
+                    } else {
                         i = "itself";
+                    }
                 } else if (to == vict_obj) {
                     i = "you";
                 } else {
@@ -1662,8 +1727,9 @@ make_act_str(const char *orig,
             case '{':
                 if (GET_MOOD(ch)) {
                     i = GET_MOOD(ch);
-                    while (*s && *s != '}')
+                    while (*s && *s != '}') {
                         s++;
+                    }
                 } else {
                     s++;
                     i = tmp_strdupt(s, "}");
@@ -1690,10 +1756,12 @@ make_act_str(const char *orig,
                 i = "---";
                 break;
             }
-            if (!first_printed_char)
+            if (!first_printed_char) {
                 first_printed_char = buf;
-            while ((*buf = *(i++)))
+            }
+            while ((*buf = *(i++))) {
                 buf++;
+            }
             s++;
         } else if (*s == '&') {
             if (COLOR_LEV(to) > 0) {
@@ -1741,25 +1809,30 @@ make_act_str(const char *orig,
                 default:
                     i = "&&";
                 }
-                while ((*buf = *(i++)))
+                while ((*buf = *(i++))) {
                     buf++;
+                }
                 s++;
             } else {
                 s += 2;
             }
         } else {
             // backslashes are literal chars
-            if (*s == '\\')
+            if (*s == '\\') {
                 s++;
-            if (!first_printed_char)
+            }
+            if (!first_printed_char) {
                 first_printed_char = buf;
-            if (!(*(buf++) = *(s++)))
+            }
+            if (!(*(buf++) = *(s++))) {
                 break;
+            }
         }
     }
-    
-    if (first_printed_char)
+
+    if (first_printed_char) {
         *first_printed_char = toupper(*first_printed_char);
+    }
 
     *(--buf) = '\r';
     *(++buf) = '\n';
@@ -1768,13 +1841,14 @@ make_act_str(const char *orig,
 
 void
 perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
-    void *vict_obj, struct creature *to, int mode)
+            void *vict_obj, struct creature *to, int mode)
 {
     static char lbuf[MAX_STRING_LENGTH];
     char outbuf[MAX_STRING_LENGTH];
 
-    if (!to || !to->desc || PLR_FLAGGED((to), PLR_WRITING))
+    if (!to || !to->desc || PLR_FLAGGED((to), PLR_WRITING)) {
         return;
+    }
 
     if (!to->in_room) {
         errlog("to->in_room NULL in perform_act.");
@@ -1800,15 +1874,16 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
     }
 
     d_send(to->desc, outbuf);
-    if (COLOR_LEV(to) > 0)
+    if (COLOR_LEV(to) > 0) {
         d_send(to->desc, KNRM);
+    }
 }
 
 #define SENDOK(ch) (AWAKE(ch) || sleep)
 
 void
 act_if(const char *str, bool hide_invisible, struct creature *ch,
-    struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred)
+       struct obj_data *obj, void *vict_obj, int type, act_if_predicate pred)
 {
     struct obj_data *o, *o2 = NULL;
     static int sleep;
@@ -1816,7 +1891,7 @@ act_if(const char *str, bool hide_invisible, struct creature *ch,
     int j;
     bool hidecar = false;
 
-    if (!str || !*str)
+    if (!str || ! *str)
         return;
 
     /*
@@ -1840,7 +1915,8 @@ act_if(const char *str, bool hide_invisible, struct creature *ch,
     if ((sleep = (type & TO_SLEEP)))
         type &= ~TO_SLEEP;
 
-    if (vict_obj && (type & TO_VICT_RM)) {
+    if (vict_obj && (type & TO_VICT_RM))
+    {
         room = ((struct creature *)vict_obj)->in_room;
         type &= ~TO_VICT_RM;
     }
@@ -1851,14 +1927,16 @@ act_if(const char *str, bool hide_invisible, struct creature *ch,
     }
 
     if (type == TO_CHAR) {
-        if (ch && SENDOK(ch))
+        if (ch && SENDOK(ch)) {
             perform_act(str, ch, obj, vict_obj, ch, 0);
+        }
         return;
     }
     if (type == TO_VICT) {
-        if (vict_obj && SENDOK((struct creature *)vict_obj))
+        if (vict_obj && SENDOK((struct creature *)vict_obj)) {
             perform_act(str, ch, obj, vict_obj, (struct creature *)vict_obj,
-                0);
+                        0);
+        }
         return;
     }
     /* ASSUMPTION: at this point we know type must be TO_NOTVICT TO_ROOM,
@@ -1875,14 +1953,16 @@ act_if(const char *str, bool hide_invisible, struct creature *ch,
         raise(SIGSEGV);
         return;
     }
-    for (GList * it = first_living(room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
-        if (!pred(ch, obj, vict_obj, tch, 0))
+        if (!pred(ch, obj, vict_obj, tch, 0)) {
             continue;
+        }
         if (SENDOK(tch) &&
             !(hide_invisible && ch && !can_see_creature(tch, ch)) &&
-            (tch != ch) && (type == TO_ROOM || (tch != vict_obj)))
+            (tch != ch) && (type == TO_ROOM || (tch != vict_obj))) {
             perform_act(str, ch, obj, vict_obj, tch, 0);
+        }
     }
 
     /** check for vehicles in the room **/
@@ -1890,16 +1970,17 @@ act_if(const char *str, bool hide_invisible, struct creature *ch,
         if (IS_OBJ_TYPE(o, ITEM_VEHICLE) && (!hidecar || o != cur_car)) {
             for (o2 = object_list; o2; o2 = o2->next) {
                 if (((IS_OBJ_TYPE(o2, ITEM_V_DOOR) && !CAR_CLOSED(o)) ||
-                        (IS_OBJ_TYPE(o2, ITEM_V_WINDOW) && !CAR_CLOSED(o2))) &&
+                     (IS_OBJ_TYPE(o2, ITEM_V_WINDOW) && !CAR_CLOSED(o2))) &&
                     ROOM_NUMBER(o2) == ROOM_NUMBER(o) &&
                     GET_OBJ_VNUM(o) == V_CAR_VNUM(o2) && o2->in_room) {
-                    for (GList * it = first_living(o2->in_room->people); it; it = next_living(it)) {
+                    for (GList *it = first_living(o2->in_room->people); it; it = next_living(it)) {
                         struct creature *tch = it->data;
-                        if (!pred(ch, obj, vict_obj, tch, 1))
+                        if (!pred(ch, obj, vict_obj, tch, 1)) {
                             continue;
+                        }
                         if (SENDOK(tch) &&
                             !(hide_invisible && ch
-                                && !can_see_creature(tch, ch)) && (tch != ch)
+                              && !can_see_creature(tch, ch)) && (tch != ch)
                             && (type == TO_ROOM || (tch != vict_obj))) {
                             perform_act(str, ch, obj, vict_obj, tch, 1);
                         }
@@ -1911,9 +1992,11 @@ act_if(const char *str, bool hide_invisible, struct creature *ch,
     }
 
     /* see if there is a podium in the room */
-    for (o = room->contents; o; o = o->next_content)
-        if (IS_OBJ_TYPE(o, ITEM_PODIUM))
+    for (o = room->contents; o; o = o->next_content) {
+        if (IS_OBJ_TYPE(o, ITEM_PODIUM)) {
             break;
+        }
+    }
 
     if (o) {
         for (j = 0; j < NUM_OF_DIRS; j++) {
@@ -1921,17 +2004,19 @@ act_if(const char *str, bool hide_invisible, struct creature *ch,
                 room != ABS_EXIT(room, j)->to_room &&
                 !IS_SET(ABS_EXIT(room, j)->exit_info, EX_ISDOOR | EX_CLOSED)) {
 
-                for (GList * it = first_living(ABS_EXIT(room, j)->to_room->people);
-                    it; it = next_living(it)) {
+                for (GList *it = first_living(ABS_EXIT(room, j)->to_room->people);
+                     it; it = next_living(it)) {
                     struct creature *tch = it->data;
 
-                    if (!pred(ch, obj, vict_obj, tch, 2))
+                    if (!pred(ch, obj, vict_obj, tch, 2)) {
                         continue;
+                    }
                     if (SENDOK(tch) &&
                         !(hide_invisible && ch && !can_see_creature(tch, ch))
                         && (tch != ch) && (type == TO_ROOM
-                            || (tch != vict_obj)))
+                                           || (tch != vict_obj))) {
                         perform_act(str, ch, obj, vict_obj, tch, 2);
+                    }
                 }
             }
         }
@@ -1941,15 +2026,17 @@ act_if(const char *str, bool hide_invisible, struct creature *ch,
         if (IS_OBJ_TYPE(o, ITEM_CAMERA) && o->in_room) {
             room = real_room(GET_OBJ_VAL(o, 0));
             if (room) {
-                for (GList * it = room->people; it; it = next_living(it)) {
+                for (GList *it = room->people; it; it = next_living(it)) {
                     struct creature *tch = it->data;
 
-                    if (!pred(ch, obj, vict_obj, tch, 3))
+                    if (!pred(ch, obj, vict_obj, tch, 3)) {
                         continue;
+                    }
                     if (SENDOK(tch) &&
                         !(hide_invisible && ch && !can_see_creature(tch, ch))
-                        && (tch != ch) && (tch != vict_obj))
+                        && (tch != ch) && (tch != vict_obj)) {
                         perform_act(str, ch, obj, vict_obj, tch, 3);
+                    }
                 }
             }
         }
@@ -1958,10 +2045,10 @@ act_if(const char *str, bool hide_invisible, struct creature *ch,
 
 bool
 standard_act_predicate(struct creature *ch __attribute__ ((unused)),
-    struct obj_data *obj __attribute__ ((unused)),
-    void *vict_obj __attribute__ ((unused)),
-    struct creature *to __attribute__ ((unused)),
-    int mode __attribute__ ((unused)))
+                       struct obj_data *obj __attribute__ ((unused)),
+                       void *vict_obj __attribute__ ((unused)),
+                       struct creature *to __attribute__ ((unused)),
+                       int mode __attribute__ ((unused)))
 {
     return true;
 }
@@ -1971,7 +2058,7 @@ act(const char *str, bool hide_invisible, struct creature *ch,
     struct obj_data *obj, void *vict_obj, int type)
 {
     act_if(str, hide_invisible, ch, obj, vict_obj, type,
-        standard_act_predicate);
+           standard_act_predicate);
 }
 
 //
@@ -1986,13 +2073,16 @@ bamf_quad_damage(void)
     struct zone_data *zone = NULL;
     struct room_data *room = NULL, *orig_room = NULL;
 
-    for (quad = object_list; quad; quad = quad->next)
-        if (quad->in_room && (GET_OBJ_VNUM(quad) == QUAD_VNUM))
+    for (quad = object_list; quad; quad = quad->next) {
+        if (quad->in_room && (GET_OBJ_VNUM(quad) == QUAD_VNUM)) {
             break;
+        }
+    }
 
     if (quad) {
-        if (quad->in_room->people)
+        if (quad->in_room->people) {
             act("$p starts spinning faster and faster, and disappears in a flash!", false, NULL, quad, NULL, TO_ROOM);
+        }
         orig_room = quad->in_room;
         obj_from_room(quad);
     } else if (!(quad = read_object(QUAD_VNUM))) {
@@ -2000,16 +2090,19 @@ bamf_quad_damage(void)
         return;
     }
 
-    if (orig_room)
+    if (orig_room) {
         zone = orig_room->zone;
-    else
+    } else {
         zone = default_quad_zone;
+    }
 
     for (; zone; zone = zone->next) {
-        if (zone->number >= 700)
+        if (zone->number >= 700) {
             zone = default_quad_zone;
-        if (zone->world && zone->plane <= MAX_PRIME_PLANE && !number(0, 2))
+        }
+        if (zone->world && zone->plane <= MAX_PRIME_PLANE && !number(0, 2)) {
             break;
+        }
     }
 
     if (!zone) {
@@ -2020,10 +2113,11 @@ bamf_quad_damage(void)
 
     for (room = zone->world; room; room = room->next) {
         if (ROOM_FLAGGED(room, ROOM_PEACEFUL | ROOM_DEATH | ROOM_HOUSE |
-                ROOM_CLAN_HOUSE) || room == orig_room || number(0, 9))
+                         ROOM_CLAN_HOUSE) || room == orig_room || number(0, 9)) {
             continue;
-        else
+        } else {
             break;
+        }
     }
 
     if (!room) {
@@ -2033,9 +2127,10 @@ bamf_quad_damage(void)
 
     obj_to_room(quad, room);
 
-    if (room->people)
+    if (room->people) {
         act("$p appears slowly spinning at the center of the room.",
             false, NULL, quad, NULL, TO_ROOM);
+    }
 
 }
 
@@ -2048,15 +2143,16 @@ descriptor_update(void)
         next_d = d->next;
 
         // skip the folks that will get hit with point_update()
-        if (d->creature && d->input_mode == CXN_PLAYING)
+        if (d->creature && d->input_mode == CXN_PLAYING) {
             continue;
+        }
 
         d->idle++;
 
         if (d->idle >= 10 && STATE(d) != CXN_PLAYING
             && STATE(d) != CXN_NETWORK) {
             mlog(ROLE_ADMINBASIC, LVL_IMMORT, CMP, true,
-                "Descriptor idling out after 10 minutes");
+                 "Descriptor idling out after 10 minutes");
             d_send(d, "Idle time limit reached, disconnecting.\r\n");
             if (d->creature) {
                 save_player_to_xml(d->creature);

@@ -44,27 +44,28 @@ struct board_data {
     struct reaction *remove_perms;
 };
 void gen_board_write(struct board_data *board, struct creature *ch,
-    char *argument);
+                     char *argument);
 void gen_board_delete(struct board_data *board, struct creature *ch,
-    char *argument);
+                      char *argument);
 void gen_board_read(struct board_data *board, struct creature *ch,
-    char *argument);
+                    char *argument);
 void gen_board_list(struct board_data *board, struct creature *ch);
 
 void
 gen_board_save(struct creature *ch, const char *board, int idnum,
-    const char *subject, const char *body)
+               const char *subject, const char *body)
 {
-    if (idnum < 0)
+    if (idnum < 0) {
         sql_exec
             ("insert into board_messages (board, post_time, author, name, subject, body) values ('%s', now(), %ld, '%s', '%s', '%s')",
             tmp_sqlescape(board), GET_IDNUM(ch),
             tmp_sqlescape(tmp_capitalize(GET_NAME(ch))),
             tmp_sqlescape(subject), tmp_sqlescape(body));
-    else
+    } else {
         sql_exec
             ("update board_messages set post_time=now(), subject='%s', body='%s' where idnum=%d",
             tmp_sqlescape(subject), tmp_sqlescape(body), idnum);
+    }
 }
 
 void
@@ -75,7 +76,7 @@ gen_board_show(struct creature *ch)
 
     res =
         sql_query
-        ("select board, COUNT(*) from board_messages group by board order by count desc");
+            ("select board, COUNT(*) from board_messages group by board order by count desc");
     count = PQntuples(res);
     if (count == 0) {
         send_to_char(ch, "There are no messages on any board.\r\n");
@@ -85,9 +86,10 @@ gen_board_show(struct creature *ch)
     acc_string_clear();
     acc_sprintf
         ("Board                Count\r\n--------------------------\r\n");
-    for (idx = 0; idx < count; idx++)
+    for (idx = 0; idx < count; idx++) {
         acc_sprintf("%-20s %5s\r\n", PQgetvalue(res, idx, 0), PQgetvalue(res,
-                idx, 1));
+                                                                         idx, 1));
+    }
 
     page_string(ch->desc, acc_get_string());
 }
@@ -97,11 +99,11 @@ gen_board_write(struct board_data *board, struct creature *ch, char *argument)
 {
     struct creature *player;
 
-    if (IS_PC(ch))
+    if (IS_PC(ch)) {
         player = ch;
-    else if (ch->desc && ch->desc->original)
+    } else if (ch->desc && ch->desc->original) {
         player = ch->desc->original;
-    else {
+    } else {
         send_to_char(ch, "You're a mob.  Go awei.\r\n");
         return;
     }
@@ -113,7 +115,7 @@ gen_board_write(struct board_data *board, struct creature *ch, char *argument)
 
     if (!*argument) {
         send_to_char(ch,
-            "If you wish to post a message, write <subject of message>\r\n");
+                     "If you wish to post a message, write <subject of message>\r\n");
         return;
     }
 
@@ -129,11 +131,11 @@ gen_board_edit(struct board_data *board, struct creature *ch, char *argument)
     PGresult *res;
     int idx;
 
-    if (IS_PC(ch))
+    if (IS_PC(ch)) {
         player = ch;
-    else if (ch->desc && ch->desc->original)
+    } else if (ch->desc && ch->desc->original) {
         player = ch->desc->original;
-    else {
+    } else {
         send_to_char(ch, "You're a mob.  Go awei.\r\n");
         return;
     }
@@ -150,8 +152,8 @@ gen_board_edit(struct board_data *board, struct creature *ch, char *argument)
     }
     res =
         sql_query
-        ("select idnum, subject, body from board_messages where board='%s' order by idnum limit 1 offset %d",
-        tmp_sqlescape(board->name), idx);
+            ("select idnum, subject, body from board_messages where board='%s' order by idnum limit 1 offset %d",
+            tmp_sqlescape(board->name), idx);
     if (PQntuples(res) == 0) {
         send_to_char(ch, "That message does not exist on this board.\r\n");
         return;
@@ -159,9 +161,9 @@ gen_board_edit(struct board_data *board, struct creature *ch, char *argument)
 
     act("$n starts to write on the board.", true, ch, NULL, NULL, TO_ROOM);
     start_editing_board(ch->desc,
-        board->name,
-        atoi(PQgetvalue(res, 0, 0)),
-        *argument ? argument : PQgetvalue(res, 0, 1), PQgetvalue(res, 0, 2));
+                        board->name,
+                        atoi(PQgetvalue(res, 0, 0)),
+                        *argument ? argument : PQgetvalue(res, 0, 1), PQgetvalue(res, 0, 2));
 }
 
 void
@@ -171,11 +173,11 @@ gen_board_remove(struct board_data *board, struct creature *ch, char *argument)
     PGresult *res;
     int idx;
 
-    if (IS_PC(ch))
+    if (IS_PC(ch)) {
         player = ch;
-    else if (ch->desc && ch->desc->original)
+    } else if (ch->desc && ch->desc->original) {
         player = ch->desc->original;
-    else {
+    } else {
         send_to_char(ch, "You're a mob.  Go awei.\r\n");
         return;
     }
@@ -188,8 +190,8 @@ gen_board_remove(struct board_data *board, struct creature *ch, char *argument)
     // First we find the idnum of the thing we want to destroy
     res =
         sql_query
-        ("select idnum, author from board_messages where board='%s' order by idnum limit 1 offset %d",
-        tmp_sqlescape(board->name), idx);
+            ("select idnum, author from board_messages where board='%s' order by idnum limit 1 offset %d",
+            tmp_sqlescape(board->name), idx);
 
     if (PQntuples(res) != 1) {
         send_to_char(ch, "That posting doesn't exist!\r\n");
@@ -209,7 +211,7 @@ gen_board_remove(struct board_data *board, struct creature *ch, char *argument)
     }
 
     sql_exec("delete from board_messages where idnum=%s",
-        PQgetvalue(res, 0, 0));
+             PQgetvalue(res, 0, 0));
 
     act("$n rips a post off of the board.", true, ch, NULL, NULL, TO_ROOM);
     send_to_char(ch, "The posting was deleted.\r\n");
@@ -224,11 +226,11 @@ gen_board_read(struct board_data *board, struct creature *ch, char *argument)
     char time_buf[30];
     int idx;
 
-    if (IS_PC(ch))
+    if (IS_PC(ch)) {
         player = ch;
-    else if (ch->desc && ch->desc->original)
+    } else if (ch->desc && ch->desc->original) {
         player = ch->desc->original;
-    else {
+    } else {
         send_to_char(ch, "You're a mob.  Go awei.\r\n");
         return;
     }
@@ -245,8 +247,8 @@ gen_board_read(struct board_data *board, struct creature *ch, char *argument)
     }
     res =
         sql_query
-        ("select extract(epoch from post_time), name, subject, body from board_messages where board='%s' order by idnum limit 1 offset %d",
-        tmp_sqlescape(board->name), idx);
+            ("select extract(epoch from post_time), name, subject, body from board_messages where board='%s' order by idnum limit 1 offset %d",
+            tmp_sqlescape(board->name), idx);
     if (PQntuples(res) == 0) {
         send_to_char(ch, "That message does not exist on this board.\r\n");
         return;
@@ -255,11 +257,11 @@ gen_board_read(struct board_data *board, struct creature *ch, char *argument)
     post_time = atol(PQgetvalue(res, 0, 0));
     strftime(time_buf, 30, "%a %b %e %Y", localtime(&post_time));
     acc_sprintf("%sMessage %s : %s %-12s :: %s%s\r\n\r\n%s\r\n",
-        CCBLD(ch, C_CMP),
-        argument,
-        time_buf,
-        tmp_sprintf("(%s)", PQgetvalue(res, 0, 1)),
-        CCNRM(ch, C_CMP), PQgetvalue(res, 0, 2), PQgetvalue(res, 0, 3));
+                CCBLD(ch, C_CMP),
+                argument,
+                time_buf,
+                tmp_sprintf("(%s)", PQgetvalue(res, 0, 1)),
+                CCNRM(ch, C_CMP), PQgetvalue(res, 0, 2), PQgetvalue(res, 0, 3));
 
     page_string(ch->desc, acc_get_string());
 }
@@ -274,8 +276,8 @@ gen_board_list(struct board_data *board, struct creature *ch)
 
     res =
         sql_query
-        ("select extract(epoch from post_time), name, subject from board_messages where board='%s' order by idnum desc",
-        tmp_sqlescape(board->name));
+            ("select extract(epoch from post_time), name, subject from board_messages where board='%s' order by idnum desc",
+            tmp_sqlescape(board->name));
     count = PQntuples(res);
     if (count == 0) {
         send_to_char(ch, "This board is empty.\r\n");
@@ -292,9 +294,9 @@ gen_board_list(struct board_data *board, struct creature *ch)
         post_time = atol(PQgetvalue(res, idx, 0));
         strftime(time_buf, 30, "%b %e, %Y", localtime(&post_time));
         acc_sprintf("%s%-2d %s:%s %s %-12s :: %s\r\n",
-            CCGRN(ch, C_NRM), count - idx, CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-            time_buf, tmp_sprintf("(%s)", PQgetvalue(res, idx, 1)),
-            PQgetvalue(res, idx, 2));
+                    CCGRN(ch, C_NRM), count - idx, CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+                    time_buf, tmp_sprintf("(%s)", PQgetvalue(res, idx, 1)),
+                    PQgetvalue(res, idx, 2));
     }
 
     page_string(ch->desc, acc_get_string());
@@ -326,22 +328,23 @@ gen_board_load(struct obj_data *self, char *param, int *err_line)
 
     while ((line = tmp_getline(&param)) != NULL) {
         lineno++;
-        if (!*line)
+        if (!*line) {
             continue;
+        }
         param_key = tmp_getword(&line);
-        if (!strcmp(param_key, "board"))
+        if (!strcmp(param_key, "board")) {
             board->name = strdup(tmp_tolower(line));
-        else if (!strcmp(param_key, "deny-read"))
+        } else if (!strcmp(param_key, "deny-read")) {
             board->deny_read = strdup(line);
-        else if (!strcmp(param_key, "deny-post"))
+        } else if (!strcmp(param_key, "deny-post")) {
             board->deny_post = strdup(line);
-        else if (!strcmp(param_key, "deny-edit"))
+        } else if (!strcmp(param_key, "deny-edit")) {
             board->deny_edit = strdup(line);
-        else if (!strcmp(param_key, "deny-remove"))
+        } else if (!strcmp(param_key, "deny-remove")) {
             board->deny_remove = strdup(line);
-        else if (!strcmp(param_key, "not-author"))
+        } else if (!strcmp(param_key, "not-author")) {
             board->not_author = strdup(line);
-        else if (!strcmp(param_key, "read")) {
+        } else if (!strcmp(param_key, "read")) {
             if (!add_reaction(board->read_perms, line)) {
                 err = "invalid read permission";
                 break;
@@ -373,11 +376,13 @@ gen_board_load(struct obj_data *self, char *param, int *err_line)
         free_reaction(board->edit_perms);
         free_reaction(board->remove_perms);
         free(board);
-    } else
+    } else {
         self->func_data = board;
+    }
 
-    if (err_line)
+    if (err_line) {
         *err_line = lineno;
+    }
 
     return err;
 }
@@ -391,37 +396,44 @@ SPECIAL(gen_board)
     int err_line;
 
     // We only handle commands
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
     // In fact, we only handle these commands
     if (!(CMD_IS("write") || CMD_IS("read") || CMD_IS("remove")
-            || CMD_IS("edit") || CMD_IS("look") || CMD_IS("examine")))
+          || CMD_IS("edit") || CMD_IS("look") || CMD_IS("examine"))) {
         return 0;
+    }
 
     skip_spaces(&argument);
 
-    if (!*argument)
+    if (!*argument) {
         return 0;
+    }
 
     // We only handle these command if they're referring to the board
     if ((CMD_IS("read") || CMD_IS("look") || CMD_IS("examine"))
         && !is_number(argument)
-        && !isname(argument, self->aliases))
+        && !isname(argument, self->aliases)) {
         return 0;
+    }
 
     // We only handle remove command if it's referring to a message
-    if (CMD_IS("remove") && !is_number(argument))
+    if (CMD_IS("remove") && !is_number(argument)) {
         return 0;
+    }
 
     // We only handle edit command if it's referring to a message
     arg = argument;
-    if (CMD_IS("edit") && !is_number(tmp_getword(&arg)))
+    if (CMD_IS("edit") && !is_number(tmp_getword(&arg))) {
         return 0;
+    }
 
     // If they can't see the board, they can't use it at all
-    if (!can_see_object(ch, self))
+    if (!can_see_object(ch, self)) {
         return 0;
+    }
 
     // Just what kind of a board is this, anyway?
     board = (struct board_data *)GET_OBJ_DATA(self);
@@ -433,16 +445,16 @@ SPECIAL(gen_board)
         err = gen_board_load(self, GET_OBJ_PARAM(self), &err_line);
         if (err) {
             if (IS_PC(ch)) {
-                if (IS_IMMORT(ch))
+                if (IS_IMMORT(ch)) {
                     send_to_char(ch,
-                        "%s has %s in line %d of its specparam\r\n",
-                        self->name, err, err_line);
-                else {
+                                 "%s has %s in line %d of its specparam\r\n",
+                                 self->name, err, err_line);
+                } else {
                     mudlog(LVL_IMMORT, NRM, true,
-                        "ERR: Object %d has %s in line %d of specparam",
-                        GET_OBJ_VNUM(self), err, err_line);
+                           "ERR: Object %d has %s in line %d of specparam",
+                           GET_OBJ_VNUM(self), err, err_line);
                     send_to_char(ch,
-                        "This board is broken.  A god has been notified.\r\n");
+                                 "This board is broken.  A god has been notified.\r\n");
                 }
             }
             return 1;
@@ -450,16 +462,17 @@ SPECIAL(gen_board)
         board = (struct board_data *)GET_OBJ_DATA(self);
     }
 
-    if (CMD_IS("write"))
+    if (CMD_IS("write")) {
         gen_board_write(board, ch, argument);
-    else if (CMD_IS("remove"))
+    } else if (CMD_IS("remove")) {
         gen_board_remove(board, ch, argument);
-    else if (CMD_IS("edit"))
+    } else if (CMD_IS("edit")) {
         gen_board_edit(board, ch, argument);
-    else if (is_number(argument))
+    } else if (is_number(argument)) {
         gen_board_read(board, ch, argument);
-    else
+    } else {
         gen_board_list(board, ch);
+    }
 
     return 1;
 }

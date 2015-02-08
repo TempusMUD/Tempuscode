@@ -10,8 +10,9 @@ SPECIAL(wagon_obj)
     struct room_data *wagon_room;
 
     if (spec_mode == SPECIAL_TICK) {
-        if (!self->in_room || number(0, 6))
+        if (!self->in_room || number(0, 6)) {
             return false;
+        }
 
         switch (number(0, 3)) {
         case 0:
@@ -24,7 +25,7 @@ SPECIAL(wagon_obj)
             break;
         case 2:
             send_to_room("The wagon driver cracks his whip.\r\n",
-                self->in_room);
+                         self->in_room);
             break;
         case 3:
             send_to_room
@@ -33,20 +34,23 @@ SPECIAL(wagon_obj)
             break;
         default:
             mudlog(LVL_IMMORT, CMP, true, "Can't happen at %s:%d", __FILE__,
-                __LINE__);
+                   __LINE__);
         }
     } else if (spec_mode == SPECIAL_CMD) {
 
-        if (!CMD_IS("board") && !CMD_IS("enter"))
+        if (!CMD_IS("board") && !CMD_IS("enter")) {
             return false;
+        }
 
         skip_spaces(&argument);
 
-        if (!*argument)
+        if (!*argument) {
             return 0;
+        }
 
-        if (strncasecmp(argument, "wagon", 5))
+        if (strncasecmp(argument, "wagon", 5)) {
             return 0;
+        }
 
         wagon_room = real_room(10);
         if (!wagon_room) {

@@ -30,7 +30,7 @@ SPECIAL(fate)
             return 0;
         } else if (CMD_IS("status")) {
             send_to_char(ch, "Fate timers: %d, %d, %d\r\n",
-                fate_timers[0], fate_timers[1], fate_timers[2]);
+                         fate_timers[0], fate_timers[1], fate_timers[2]);
             return 1;
         } else if (CMD_IS("reset")) {
             send_to_char(ch, "Resetting fate timers.\r\n");
@@ -38,27 +38,31 @@ SPECIAL(fate)
             return 1;
         } else {
             send_to_char(ch,
-                "Fate - Available commands are: status, reset\r\n");
+                         "Fate - Available commands are: status, reset\r\n");
         }
         return 0;
     }
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
     // Don't want the zone goin to sleep and trapping her.
     if (fate->in_room) {
         fate->in_room->zone->idle_time = 0;
     }
 
-    if (is_fighting(fate))
+    if (is_fighting(fate)) {
         return 0;
-    if (!fate->in_room)
+    }
+    if (!fate->in_room) {
         return 0;
+    }
 
     // If there is a player in the room, don't do anything.
-    if (player_in_room(fate->in_room))
+    if (player_in_room(fate->in_room)) {
         return 0;
+    }
 
     // Who is she?
     switch (GET_NPC_VNUM(fate)) {
@@ -89,8 +93,9 @@ SPECIAL(fate)
 
     // find the dyntext of the rooms we need.
     for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
-        if (!strcasecmp(dyn_name, dyntext->filename))
+        if (!strcasecmp(dyn_name, dyntext->filename)) {
             break;
+        }
     }
     if (!dyntext) {
         errlog("Fate unable to access %s dyntext doc.", dyn_name);
@@ -109,8 +114,9 @@ SPECIAL(fate)
 
     // Copy over the buf, ignoring all non numbers
     while (*roomlist_buf) {
-        if (!isdigit(*roomlist_buf))
+        if (!isdigit(*roomlist_buf)) {
             *roomlist_buf = ' ';
+        }
         roomlist_buf++;
     }
     roomlist_buf = roomlist_buf_top;
@@ -152,7 +158,7 @@ SPECIAL(fate)
     }
 
     slog("FATE: Fate #%d moving to %d.  Timer reset to %d.",
-        which_fate, dest->number, fate_timers[which_fate]);
+         which_fate, dest->number, fate_timers[which_fate]);
 
     act("$n disappears into a green mist.", false, fate, NULL, NULL, TO_ROOM);
     char_from_room(fate, false);

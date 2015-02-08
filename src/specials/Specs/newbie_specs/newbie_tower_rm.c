@@ -12,8 +12,9 @@ SPECIAL(newbie_tower_rm)
     ACMD(do_hcollect_help);
     char *arg = tmp_getword(&argument);
 
-    if (!CMD_IS("look") && !CMD_IS("examine"))
+    if (!CMD_IS("look") && !CMD_IS("examine")) {
         return 0;
+    }
 
     if (CMD_IS("look")) {
         if (!strncasecmp(arg, "plate", 5) ||

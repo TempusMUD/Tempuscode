@@ -12,8 +12,9 @@ SPECIAL(elven_registry)
     char buf3[MAX_STRING_LENGTH];
     int cost;
 
-    if (!CMD_IS("register"))
+    if (!CMD_IS("register")) {
         return 0;
+    }
 
     if (!can_see_creature(reg, ch)) {
         perform_say(reg, "say", "Who's there?  Come visible to register.");
@@ -23,8 +24,8 @@ SPECIAL(elven_registry)
     cost = adjusted_price->cost_modifie, costr;
     if (GET_GOLD(ch) < cost) {
         snprintf(buf2, sizeof(buf2),
-            "It costs %'d coins to register with us, which you do not have.",
-            cost);
+                 "It costs %'d coins to register with us, which you do not have.",
+                 cost);
         perform_tell(reg, ch, buf2);
         return 1;
     }
@@ -33,7 +34,7 @@ SPECIAL(elven_registry)
         if (IS_EVIL(ch)) {
             perform_tell(reg, ch, "But you don't need to be, EVIL scum!");
             send_to_char(ch,
-                "You are no longer a resident of the Elven Village.\r\n");
+                         "You are no longer a resident of the Elven Village.\r\n");
             act("$n just lost $s residence in the village!", true, ch, NULL, NULL,
                 TO_ROOM);
             GET_HOME(ch) = HOME_MODRIAN;
@@ -47,7 +48,7 @@ SPECIAL(elven_registry)
     }
     if (PLR_FLAGGED(ch, PLR_THIEF)) {
         snprintf(buf2, sizeof(buf2), "We don't take THIEVES in our fair city, %s!",
-            GET_NAME(ch));
+                 GET_NAME(ch));
         do_gen_comm(reg, buf2, 0, SCMD_HOLLER);
         return 1;
     }
@@ -67,7 +68,7 @@ SPECIAL(elven_registry)
     GET_HOME(ch) = HOME_ELVEN_VILLAGE;
     GET_GOLD(ch) -= cost;
     snprintf(buf3, sizeof(buf3), "You are now a resident of our fine village, %s.",
-        GET_NAME(ch));
+             GET_NAME(ch));
     perform_say(reg, "say", buf3);
     snprintf(buf2, sizeof(buf2), "That will be %'d coins.", cost);
     perform_tell(reg, ch, buf2);
@@ -77,6 +78,6 @@ SPECIAL(elven_registry)
         obj_to_char(cert, ch);
     }
     mudlog(GET_INVIS_LVL(ch), CMP, true,
-        "%s has registered at the Elven Village.", GET_NAME(ch));
+           "%s has registered at the Elven Village.", GET_NAME(ch));
     return 1;
 }

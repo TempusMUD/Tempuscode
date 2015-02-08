@@ -6,8 +6,9 @@
 
 SPECIAL(maze_cleaner)
 {
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     struct obj_data *od = NULL, *od2 = NULL;
     struct creature *me2 = (struct creature *)me;
     struct room_data *rm_number;
@@ -21,18 +22,20 @@ SPECIAL(maze_cleaner)
 
     if (!CMD_IS("say") && !CMD_IS("'")) {
         skip_spaces(&argument);
-        if (!*argument)
+        if (!*argument) {
             return 0;
+        }
         half_chop(argument, buf, buf2);
         if (!strncasecmp(buf, "status", 6)) {
             snprintf(buf, sizeof(buf), "my stats is : %d,%d,%d,%d\r\n",
-                GET_OBJ_VAL(od, 0), GET_OBJ_VAL(od, 1),
-                GET_OBJ_VAL(od, 2), GET_OBJ_VAL(od, 3));
+                     GET_OBJ_VAL(od, 0), GET_OBJ_VAL(od, 1),
+                     GET_OBJ_VAL(od, 2), GET_OBJ_VAL(od, 3));
             send_to_char(ch, "%s", buf);
         }
     }
-    if (cmd)
+    if (cmd) {
         return 0;
+    }
     rm_number = real_room(GET_OBJ_VAL(od, 0));
     do {
         if (rm_number->contents != NULL) {

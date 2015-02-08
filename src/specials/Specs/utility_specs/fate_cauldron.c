@@ -11,13 +11,16 @@ SPECIAL(fate_cauldron)
     register struct creature *fate = NULL;
     int fateid = 0;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
-    if (!CMD_IS("look") || !can_see_object(ch, pot) || !AWAKE(ch))
+    }
+    if (!CMD_IS("look") || !can_see_object(ch, pot) || !AWAKE(ch)) {
         return 0;
+    }
     one_argument(argument, arg1);
-    if (!isname(arg1, pot->aliases))
+    if (!isname(arg1, pot->aliases)) {
         return 0;
+    }
 
     act("$n gazes deeply into $p.", false, ch, pot, NULL, TO_ROOM);
     // Is he ready to remort? Or level 49 at least?

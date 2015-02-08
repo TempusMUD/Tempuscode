@@ -17,23 +17,25 @@ SPECIAL(unspecializer)
     int lp_cost = 0;
     int i;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (CMD_IS("buy"))
+    if (CMD_IS("buy")) {
         mode = U_MODE_BUY;
-    else if (CMD_IS("offer"))
+    } else if (CMD_IS("offer")) {
         mode = U_MODE_OFFER;
-    else
+    } else {
         return 0;
+    }
 
     word = tmp_getword(&argument);
 
     if (!*word || !is_abbrev(word, "unspecialization")) {
         msg =
             tmp_sprintf
-            ("You must type '%s unspecialization <weapon name>'\r\n",
-            U_MODE_BUY ? "buy" : "offer");
+                ("You must type '%s unspecialization <weapon name>'\r\n",
+                U_MODE_BUY ? "buy" : "offer");
         perform_tell(self, ch, msg);
         return 1;
     }
@@ -42,17 +44,19 @@ SPECIAL(unspecializer)
 
     if (!*word) {
         perform_tell(self, ch,
-            "You would like to remove your specialization in what?\r\n");
+                     "You would like to remove your specialization in what?\r\n");
         return 1;
     }
 
     for (i = 0; i < MAX_WEAPON_SPEC; i++) {
         if (!GET_WEAP_SPEC(ch, i).vnum ||
             !GET_WEAP_SPEC(ch, i).level ||
-            !(o_proto = real_object_proto(GET_WEAP_SPEC(ch, i).vnum)))
+            !(o_proto = real_object_proto(GET_WEAP_SPEC(ch, i).vnum))) {
             continue;
-        if (isname(word, o_proto->aliases))
+        }
+        if (isname(word, o_proto->aliases)) {
             break;
+        }
     }
 
     if (i >= MAX_WEAPON_SPEC) {
@@ -66,16 +70,16 @@ SPECIAL(unspecializer)
 
     msg =
         tmp_sprintf
-        ("The service of complete neural erasure of the weapon specialization of\r\n"
-        "'%s' will cost you %d life points and %d credits....\r\n",
-        o_proto->name, lp_cost, cash_cost);
+            ("The service of complete neural erasure of the weapon specialization of\r\n"
+             "'%s' will cost you %d life points and %d credits....\r\n",
+            o_proto->name, lp_cost, cash_cost);
     perform_tell(self, ch, msg);
 
     if (GET_LIFE_POINTS(ch) < lp_cost) {
         msg =
             tmp_sprintf
-            ("You don't have enough spare neurons!  It costs %d pracs, you know\r\n",
-            lp_cost);
+                ("You don't have enough spare neurons!  It costs %d pracs, you know\r\n",
+                lp_cost);
         perform_tell(self, ch, msg);
         return 1;
     }
@@ -83,14 +87,15 @@ SPECIAL(unspecializer)
     if (GET_CASH(ch) < cash_cost) {
         msg =
             tmp_sprintf
-            ("You don't have enough cash!  I need %d credits for the job.\r\n",
-            cash_cost);
+                ("You don't have enough cash!  I need %d credits for the job.\r\n",
+                cash_cost);
         perform_tell(self, ch, msg);
         return 1;
     }
 
-    if (mode == U_MODE_OFFER)
+    if (mode == U_MODE_OFFER) {
         return 1;
+    }
 
     GET_LIFE_POINTS(ch) -= lp_cost;
     GET_CASH(ch) -= cash_cost;

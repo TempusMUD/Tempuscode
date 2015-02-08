@@ -15,12 +15,12 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
- /*
-  * This file attempts to concentrate most of the code which must be changed
-  * in order for new char_classes to be added.  If you're adding a new char_class,
-  * you should go through this entire file from beginning to end and add
-  * the appropriate new special cases for your new char_class.
-  */
+/*
+ * This file attempts to concentrate most of the code which must be changed
+ * in order for new char_classes to be added.  If you're adding a new char_class,
+ * you should go through this entire file from beginning to end and add
+ * the appropriate new special cases for your new char_class.
+ */
 
 #ifdef HAS_CONFIG_H
 #endif
@@ -94,7 +94,7 @@ const int prac_params[4][NUM_CLASSES] = {
     {25, 20, 20, 20, 20, 25, 20, 30, 20, 25, 30, 20, 15, 25, 25, 25, 25},
     {15, 15, 10, 15, 10, 15, 15, 15, 15, 15, 15, 10, 10, 10, 10, 10, 10},
     {SPL, SPL, SKL, SKL, SKL, TRG, ALT, PRG, SPL, SPL, SNG, ZEN, SPL, SKL, SKL,
-            SKL, SKL}
+     SKL, SKL}
 
 };
 
@@ -102,7 +102,7 @@ const int prac_params[4][NUM_CLASSES] = {
 // 1 - class/race combination allowed only for secondary class
 // 2 - class/race combination allowed for primary class
 const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
-    //                 MG CL TH WR BR PS PH CY KN RN BD MN VP MR S1 S2 S3
+    // MG CL TH WR BR PS PH CY KN RN BD MN VP MR S1 S2 S3
     {RACE_HUMAN,       2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
     {RACE_ELF,         2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
     {RACE_DWARF,       0, 2, 2, 0, 2, 1, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0},
@@ -140,30 +140,37 @@ void
 gain_skill_prof(struct creature *ch, int skl)
 {
     int learned;
-    if (skl == SKILL_READ_SCROLLS || skl == SKILL_USE_WANDS)
+    if (skl == SKILL_READ_SCROLLS || skl == SKILL_USE_WANDS) {
         learned = 10;
-    else
+    } else {
         learned = LEARNED(ch);
+    }
 
     // NPCs don't learn
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return;
+    }
 
     // You can't gain in a skill that you don't really know
     if (GET_LEVEL(ch) < SPELL_LEVEL(skl, GET_CLASS(ch))) {
-        if (!IS_REMORT(ch))
+        if (!IS_REMORT(ch)) {
             return;
-        if (GET_LEVEL(ch) < SPELL_LEVEL(skl, GET_REMORT_CLASS(ch)))
+        }
+        if (GET_LEVEL(ch) < SPELL_LEVEL(skl, GET_REMORT_CLASS(ch))) {
             return;
+        }
     }
     // Check for remort classes too
     if (SPELL_GEN(skl, GET_CLASS(ch)) > 0 &&
-        GET_REMORT_GEN(ch) < SPELL_GEN(skl, GET_CLASS(ch)))
+        GET_REMORT_GEN(ch) < SPELL_GEN(skl, GET_CLASS(ch))) {
         return;
+    }
 
-    if (GET_SKILL(ch, skl) >= (learned - 10))
-        if ((GET_SKILL(ch, skl) - GET_LEVEL(ch)) <= 66)
+    if (GET_SKILL(ch, skl) >= (learned - 10)) {
+        if ((GET_SKILL(ch, skl) - GET_LEVEL(ch)) <= 66) {
             SET_SKILL(ch, skl, GET_SKILL(ch, skl) + 1);
+        }
+    }
 }
 
 /* Names first */
@@ -370,7 +377,7 @@ const char *class_names[] = {
 // recipient struct creature(ch)'s color settings in mind.
 const char *
 get_char_class_color_code(struct creature *ch, struct creature *tch,
-    int char_class)
+                          int char_class)
 {
     switch (char_class) {
     case CLASS_MAGIC_USER:
@@ -463,32 +470,33 @@ int
 parse_player_class(char *arg)
 {
     skip_spaces(&arg);
-    if (is_abbrev(arg, "magic user") || is_abbrev(arg, "mage"))
+    if (is_abbrev(arg, "magic user") || is_abbrev(arg, "mage")) {
         return CLASS_MAGIC_USER;
-    else if (is_abbrev(arg, "cleric"))
+    } else if (is_abbrev(arg, "cleric")) {
         return CLASS_CLERIC;
-    else if (is_abbrev(arg, "barbarian"))
+    } else if (is_abbrev(arg, "barbarian")) {
         return CLASS_BARB;
-    else if (is_abbrev(arg, "thief"))
+    } else if (is_abbrev(arg, "thief")) {
         return CLASS_THIEF;
-    else if (is_abbrev(arg, "knight"))
+    } else if (is_abbrev(arg, "knight")) {
         return CLASS_KNIGHT;
-    else if (is_abbrev(arg, "ranger"))
+    } else if (is_abbrev(arg, "ranger")) {
         return CLASS_RANGER;
-    else if (is_abbrev(arg, "monk"))
+    } else if (is_abbrev(arg, "monk")) {
         return CLASS_MONK;
-    else if (is_abbrev(arg, "cyborg") || is_abbrev(arg, "borg"))
+    } else if (is_abbrev(arg, "cyborg") || is_abbrev(arg, "borg")) {
         return CLASS_CYBORG;
-    else if (is_abbrev(arg, "psionic") || is_abbrev(arg, "psychic"))
+    } else if (is_abbrev(arg, "psionic") || is_abbrev(arg, "psychic")) {
         return CLASS_PSIONIC;
-    else if (is_abbrev(arg, "physic") || is_abbrev(arg, "physicist"))
+    } else if (is_abbrev(arg, "physic") || is_abbrev(arg, "physicist")) {
         return CLASS_PHYSIC;
-    else if (is_abbrev(arg, "monk"))
+    } else if (is_abbrev(arg, "monk")) {
         return CLASS_MONK;
-    else if (is_abbrev(arg, "mercenary"))
+    } else if (is_abbrev(arg, "mercenary")) {
         return CLASS_MERCENARY;
-    else if (is_abbrev(arg, "bard"))
+    } else if (is_abbrev(arg, "bard")) {
         return CLASS_BARD;
+    }
 
     return CLASS_UNDEFINED;
 }
@@ -497,8 +505,9 @@ int
 parse_race(char *arg)
 {
     struct race *race = race_by_name(arg, false);
-    if (race)
+    if (race) {
         return race->idnum;
+    }
 
     return -1;
 }
@@ -508,9 +517,11 @@ parse_char_class(char *arg)
 {
     int j;
 
-    for (j = 0; j < TOP_CLASS; j++)
-        if (is_abbrev(arg, class_names[j]))
+    for (j = 0; j < TOP_CLASS; j++) {
+        if (is_abbrev(arg, class_names[j])) {
             return j;
+        }
+    }
 
     return (-1);
 }
@@ -845,32 +856,38 @@ do_start(struct creature *ch, int mode)
 
     // remove implant affects
     for (i = 0; i < NUM_WEARS; i++) {
-        if (GET_IMPLANT(ch, i))
+        if (GET_IMPLANT(ch, i)) {
             implant_save[i] = raw_unequip_char(ch, i, EQUIP_IMPLANT);
-        else
+        } else {
             implant_save[i] = NULL;
-        if (GET_TATTOO(ch, i))
+        }
+        if (GET_TATTOO(ch, i)) {
             tattoo_save[i] = raw_unequip_char(ch, i, EQUIP_TATTOO);
-        else
+        } else {
             tattoo_save[i] = NULL;
+        }
     }
 
-    if (GET_EXP(ch) == 0 && !IS_REMORT(ch) && !IS_VAMPIRE(ch))
+    if (GET_EXP(ch) == 0 && !IS_REMORT(ch) && !IS_VAMPIRE(ch)) {
         new_player = true;
+    }
 
     GET_LEVEL(ch) = 1;
     GET_EXP(ch) = 1;
 
-    if (mode)
+    if (mode) {
         roll_real_abils(ch);
+    }
 
-    for (i = 1; i <= MAX_SKILLS; i++)
+    for (i = 1; i <= MAX_SKILLS; i++) {
         SET_SKILL(ch, i, 0);
+    }
 
-    if (IS_VAMPIRE(ch))
+    if (IS_VAMPIRE(ch)) {
         GET_LIFE_POINTS(ch) = 1;
-    else
+    } else {
         GET_LIFE_POINTS(ch) = 3 * (GET_WIS(ch) + GET_CON(ch)) / 40;
+    }
 
     ch->points.max_hit = 20;
     ch->points.max_mana = 100;
@@ -934,12 +951,12 @@ do_start(struct creature *ch, int mode)
     if (new_player) {
         if (PAST_CLASS(GET_CLASS(ch))) {
             deposit_past_bank(ch->desc->account,
-                8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
+                              8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
             ch->points.gold =
                 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
         } else if (FUTURE_CLASS(GET_CLASS(ch))) {
             deposit_future_bank(ch->desc->account,
-                8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
+                                8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch));
             ch->points.cash =
                 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
         }
@@ -989,7 +1006,7 @@ do_start(struct creature *ch, int mode)
                 obj_to_char(lute, ch);
             }
         }
-   
+
         set_title(ch, "the complete newbie");
     }
 
@@ -1011,10 +1028,12 @@ do_start(struct creature *ch, int mode)
     }
 
     for (i = 0; i < NUM_WEARS; i++) {
-        if (implant_save[i])
+        if (implant_save[i]) {
             equip_char(ch, implant_save[i], i, EQUIP_IMPLANT);
-        if (tattoo_save[i])
+        }
+        if (tattoo_save[i]) {
             equip_char(ch, tattoo_save[i], i, EQUIP_TATTOO);
+        }
     }
 }
 
@@ -1034,12 +1053,14 @@ advance_level(struct creature *ch, int8_t keep_internal)
 
     for (i = 0; i < 2; i++) {
 
-        if (i == 0)
+        if (i == 0) {
             char_class = MIN(GET_CLASS(ch), NUM_CLASSES - 1);
-        else
+        } else {
             char_class = MIN(GET_REMORT_CLASS(ch), NUM_CLASSES - 1);
-        if (char_class < 0)
+        }
+        if (char_class < 0) {
             continue;
+        }
 
         switch (char_class) {
         case CLASS_MAGIC_USER:
@@ -1141,18 +1162,20 @@ advance_level(struct creature *ch, int8_t keep_internal)
     ch->points.max_hit += MAX(1, add_hp[0]);
     ch->points.max_move += MAX(1, add_move[0]);
 
-    if (GET_LEVEL(ch) > 1)
+    if (GET_LEVEL(ch) > 1) {
         ch->points.max_mana += add_mana[0];
+    }
 
     GET_LIFE_POINTS(ch) += (GET_LEVEL(ch) * (GET_WIS(ch) + GET_CON(ch))) / 300;
-    if (PLR_FLAGGED(ch, PLR_HARDCORE))
+    if (PLR_FLAGGED(ch, PLR_HARDCORE)) {
         GET_LIFE_POINTS(ch) += 1;
+    }
 
     if (IS_REMORT(ch) && GET_REMORT_GEN(ch)) {
 
         if (add_hp[0] < 0 || add_hp[1] < 0) {
             errlog("remort level (%s) add_hp: [0]=%d,[1]=%d",
-                GET_NAME(ch), add_hp[0], add_hp[1]);
+                   GET_NAME(ch), add_hp[0], add_hp[1]);
         }
 
         ch->points.max_hit += add_hp[1] / 4;
@@ -1162,34 +1185,40 @@ advance_level(struct creature *ch, int8_t keep_internal)
     }
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-        for (i = 0; i < 3; i++)
+        for (i = 0; i < 3; i++) {
             GET_COND(ch, i) = -1;
+        }
         SET_BIT(PRF_FLAGS(ch), PRF_HOLYLIGHT);
         SET_BIT(PRF_FLAGS(ch), PRF_NOHASSLE);
     }
-    if (GET_LEVEL(ch) == 10)
+    if (GET_LEVEL(ch) == 10) {
         SET_BIT(PRF2_FLAGS(ch), PRF2_NEWBIE_HELPER);
+    }
 
     // special section for improving read_scrolls and use_wands
-    if (CHECK_SKILL(ch, SKILL_READ_SCROLLS) > 10)
-        SET_SKILL(ch, SKILL_READ_SCROLLS, 
+    if (CHECK_SKILL(ch, SKILL_READ_SCROLLS) > 10) {
+        SET_SKILL(ch, SKILL_READ_SCROLLS,
                   MIN(100, CHECK_SKILL(ch, SKILL_READ_SCROLLS) +
                       MIN(10, number(1, GET_INT(ch) / 2))));
-    if (CHECK_SKILL(ch, SKILL_USE_WANDS) > 10)
+    }
+    if (CHECK_SKILL(ch, SKILL_USE_WANDS) > 10) {
         SET_SKILL(ch, SKILL_USE_WANDS,
                   MIN(100, CHECK_SKILL(ch, SKILL_USE_WANDS) +
                       MIN(10, number(1, GET_INT(ch) / 2))));
+    }
 
     crashsave(ch);
     int rid = -1;
-    if (ch->in_room != NULL)
+    if (ch->in_room != NULL) {
         rid = ch->in_room->number;
+    }
     msg = tmp_sprintf("%s advanced to level %d in room %d%s",
-        GET_NAME(ch), GET_LEVEL(ch), rid, is_tester(ch) ? " <TESTER>" : "");
-    if (keep_internal)
+                      GET_NAME(ch), GET_LEVEL(ch), rid, is_tester(ch) ? " <TESTER>" : "");
+    if (keep_internal) {
         slog("%s", msg);
-    else
+    } else {
         mudlog(GET_INVIS_LVL(ch), BRF, true, "%s", msg);
+    }
 }
 
 /*
@@ -1206,8 +1235,9 @@ invalid_char_class(struct creature *ch, struct obj_data *obj)
         return true;
     }
     // Unapproved object
-    if (!OBJ_APPROVED(obj) && !is_tester(ch) && GET_LEVEL(ch) < LVL_IMMORT)
+    if (!OBJ_APPROVED(obj) && !is_tester(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
         return true;
+    }
 
     // Anti class restrictions
     if ((IS_OBJ_STAT(obj, ITEM_ANTI_MAGIC_USER) && IS_MAGIC_USER(ch)) ||
@@ -1222,8 +1252,9 @@ invalid_char_class(struct creature *ch, struct obj_data *obj)
         (IS_OBJ_STAT(obj, ITEM_ANTI_RANGER) && IS_RANGER(ch)) ||
         (IS_OBJ_STAT(obj, ITEM_ANTI_BARD) && IS_BARD(ch)) ||
         (IS_OBJ_STAT(obj, ITEM_ANTI_MONK) && IS_MONK(ch)) ||
-        (IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC) && IS_MERC(ch)))
+        (IS_OBJ_STAT2(obj, ITEM2_ANTI_MERC) && IS_MERC(ch))) {
         return true;
+    }
 
     // Required class restrictions - any one of them must be met
     if ((IS_OBJ_STAT3(obj, ITEM3_REQ_MAGE) && IS_MAGE(ch))
@@ -1242,26 +1273,28 @@ invalid_char_class(struct creature *ch, struct obj_data *obj)
         || (IS_OBJ_STAT3(obj, ITEM3_REQ_MERCENARY) && IS_MERC(ch))
         || (IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE1) && IS_SPARE1(ch))
         || (IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE2) && IS_SPARE2(ch))
-        || (IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE3) && IS_SPARE3(ch)))
+        || (IS_OBJ_STAT3(obj, ITEM3_REQ_SPARE3) && IS_SPARE3(ch))) {
         return false;
+    }
 
     // A required class existed and the creature didn't fulfill any
     if (IS_OBJ_STAT3(obj, ITEM3_REQ_MAGE
-            | ITEM3_REQ_CLERIC
-            | ITEM3_REQ_THIEF
-            | ITEM3_REQ_WARRIOR
-            | ITEM3_REQ_BARB
-            | ITEM3_REQ_PSIONIC
-            | ITEM3_REQ_PHYSIC
-            | ITEM3_REQ_CYBORG
-            | ITEM3_REQ_KNIGHT
-            | ITEM3_REQ_RANGER
-            | ITEM3_REQ_BARD
-            | ITEM3_REQ_MONK
-            | ITEM3_REQ_VAMPIRE
-            | ITEM3_REQ_MERCENARY
-            | ITEM3_REQ_SPARE1 | ITEM3_REQ_SPARE2 | ITEM3_REQ_SPARE3))
+                     | ITEM3_REQ_CLERIC
+                     | ITEM3_REQ_THIEF
+                     | ITEM3_REQ_WARRIOR
+                     | ITEM3_REQ_BARB
+                     | ITEM3_REQ_PSIONIC
+                     | ITEM3_REQ_PHYSIC
+                     | ITEM3_REQ_CYBORG
+                     | ITEM3_REQ_KNIGHT
+                     | ITEM3_REQ_RANGER
+                     | ITEM3_REQ_BARD
+                     | ITEM3_REQ_MONK
+                     | ITEM3_REQ_VAMPIRE
+                     | ITEM3_REQ_MERCENARY
+                     | ITEM3_REQ_SPARE1 | ITEM3_REQ_SPARE2 | ITEM3_REQ_SPARE3)) {
         return true;
+    }
 
     // Passes all tests
     return false;
@@ -1273,19 +1306,19 @@ char_class_race_hit_bonus(struct creature *ch, struct creature *vict)
     int bonus = 0;
     // Height modifiers
     bonus += (IS_DWARF(ch) && (IS_OGRE(vict) || IS_TROLL(vict) ||
-            IS_GIANT(vict) || (GET_HEIGHT(vict) > 2 * GET_HEIGHT(ch))));
+                               IS_GIANT(vict) || (GET_HEIGHT(vict) > 2 * GET_HEIGHT(ch))));
     // Dwarven dislike of water or heights
     bonus -= (IS_DWARF(ch) && (room_is_watery(ch->in_room)
-            || room_is_open_air(ch->in_room)));
+                               || room_is_open_air(ch->in_room)));
     // Thieves operating in the dark
     bonus += (IS_THIEF(ch) && room_is_dark(ch->in_room));
     // Rangers like being outside
     bonus += (IS_RANGER(ch) && (SECT_TYPE(ch->in_room) == SECT_FOREST ||
-            (SECT_TYPE(ch->in_room) != SECT_CITY &&
-                SECT_TYPE(ch->in_room) != SECT_INSIDE && OUTSIDE(ch))));
+                                (SECT_TYPE(ch->in_room) != SECT_CITY &&
+                                 SECT_TYPE(ch->in_room) != SECT_INSIDE && OUTSIDE(ch))));
     // Tabaxi in their native habitat
     bonus += (IS_TABAXI(ch) && SECT_TYPE(ch->in_room) == SECT_FOREST &&
-        OUTSIDE(ch));
+              OUTSIDE(ch));
     return (bonus);
 }
 
@@ -1371,16 +1404,18 @@ calculate_height_weight(struct creature *ch)
     struct race *race = race_by_idnum(GET_RACE(ch));
     int sex = ch->player.sex;
 
-    if (sex == SEX_NEUTRAL)
-        sex = (random_binary()) ? SEX_MALE:SEX_FEMALE;
+    if (sex == SEX_NEUTRAL) {
+        sex = (random_binary()) ? SEX_MALE : SEX_FEMALE;
+    }
 
     ch->player.weight = number(race->weight_min[sex],
                                race->weight_max[sex])
-        + GET_STR(ch);
+                        + GET_STR(ch);
     ch->player.height = number(race->height_min[sex],
                                race->height_max[sex]);
-    if (race->weight_add[sex])
+    if (race->weight_add[sex]) {
         ch->player.height += ch->player.weight / race->weight_add[sex];
+    }
 }
 
 #undef __char_class_c__

@@ -9,145 +9,145 @@
 ************************************************************************ */
 
 /*
-  //
-  ************************************************************************
+   //
+ ************************************************************************
 
-  State of the physics:
+   State of the physics:
 
-  #define SPELL_ACIDITY              301
-  complete
+ *****#define SPELL_ACIDITY              301
+   complete
 
-  #define SPELL_ATTRACTION_FIELD     302
-  complete
+ *****#define SPELL_ATTRACTION_FIELD     302
+   complete
 
-  #define SPELL_NUCLEAR_WASTELAND    303
-  complete
+ *****#define SPELL_NUCLEAR_WASTELAND    303
+   complete
 
-  #define SPELL_FLUORESCE                   304
-  complete
+ *****#define SPELL_FLUORESCE                   304
+   complete
 
-  #define SPELL_GAMMA_RAY            305
-  incomplete ( needs damage adjustment )
+ *****#define SPELL_GAMMA_RAY            305
+   incomplete ( needs damage adjustment )
 
-  #define SPELL_HALFLIFE             306
-  incomplete ( needs damage adjustment, possible affects adjustment )
+ *****#define SPELL_HALFLIFE             306
+   incomplete ( needs damage adjustment, possible affects adjustment )
 
-  #define SPELL_MICROWAVE            307
-  incomplete ( needs damage adjustment )
+ *****#define SPELL_MICROWAVE            307
+   incomplete ( needs damage adjustment )
 
-  #define SPELL_OXIDIZE              308
-  complete
+ *****#define SPELL_OXIDIZE              308
+   complete
 
-  #define SPELL_RANDOM_COORDINATES   309  // random teleport
-  complete
+ *****#define SPELL_RANDOM_COORDINATES   309  // random teleport
+   complete
 
-  #define SPELL_REPULSION_FIELD      310
-  complete
+ *****#define SPELL_REPULSION_FIELD      310
+   complete
 
-  #define SPELL_TRANSMITTANCE        311  // transparency
-  complete
+ *****#define SPELL_TRANSMITTANCE        311  // transparency
+   complete
 
-  #define SPELL_SPACETIME_IMPRINT    312  // sets room as teleport spot
-  complete
+ *****#define SPELL_SPACETIME_IMPRINT    312  // sets room as teleport spot
+   complete
 
-  #define SPELL_SPACETIME_RECALL     313  // teleports to imprint telep spot
-  complete
+ *****#define SPELL_SPACETIME_RECALL     313  // teleports to imprint telep spot
+   complete
 
-  #define SPELL_TIME_WARP            314  // random teleport into other time
-  complete
+ *****#define SPELL_TIME_WARP            314  // random teleport into other time
+   complete
 
-  #define SPELL_TIDAL_SPACEWARP      315  // fly
-  complete
+ *****#define SPELL_TIDAL_SPACEWARP      315  // fly
+   complete
 
-  #define SPELL_FISSION_BLAST        316  // full-room damage
-  complete
+ *****#define SPELL_FISSION_BLAST        316  // full-room damage
+   complete
 
-  #define SPELL_REFRACTION           317  // like displacement
-  complete
+ *****#define SPELL_REFRACTION           317  // like displacement
+   complete
 
-  #define SPELL_ELECTROSHIELD        318  // prot_lightning
-  complete
+ *****#define SPELL_ELECTROSHIELD        318  // prot_lightning
+   complete
 
-  #define SPELL_VACUUM_SHROUD        319  // eliminates breathing and fire
-  complete
+ *****#define SPELL_VACUUM_SHROUD        319  // eliminates breathing and fire
+   complete
 
-  #define SPELL_DENSIFY              320  // increase weight of obj & char
-  complete
+ *****#define SPELL_DENSIFY              320  // increase weight of obj & char
+   complete
 
-  #define SPELL_UNUSED_321
+ *****#define SPELL_UNUSED_321
 
-  #define SPELL_ENTROPY_FIELD        322  // drains move on victim (time effect)
-  complete
+ *****#define SPELL_ENTROPY_FIELD        322  // drains move on victim (time effect)
+   complete
 
-  #define SPELL_GRAVITY_WELL         323  // time effect crushing damage
-  complete
+ *****#define SPELL_GRAVITY_WELL         323  // time effect crushing damage
+   complete
 
-  #define SPELL_CAPACITANCE_BOOST    324  // increase maxmv
-  complete
+ *****#define SPELL_CAPACITANCE_BOOST    324  // increase maxmv
+   complete
 
-  #define SPELL_ELECTRIC_ARC         325  // lightning bolt
-  complete
+ *****#define SPELL_ELECTRIC_ARC         325  // lightning bolt
+   complete
 
-  #define SPELL_SONIC_BOOM           326  // area damage + wait state
-  incomplete
+ *****#define SPELL_SONIC_BOOM           326  // area damage + wait state
+   incomplete
 
-  #define SPELL_LATTICE_HARDENING     327  // dermal hard or increase obj maxdam
-  complete
+ *****#define SPELL_LATTICE_HARDENING     327  // dermal hard or increase obj maxdam
+   complete
 
-  #define SPELL_NULLIFY              328  // like dispel magic
+ *****#define SPELL_NULLIFY              328  // like dispel magic
 
-  #define SPELL_FORCE_WALL           329  // sets up an exit blocker
-  incomplete
+ *****#define SPELL_FORCE_WALL           329  // sets up an exit blocker
+   incomplete
 
-  #define SPELL_UNUSED_330           330  //
+ *****#define SPELL_UNUSED_330           330  //
 
-  #define SPELL_PHASING              331  // invuln.
-  incomplete
+ *****#define SPELL_PHASING              331  // invuln.
+   incomplete
 
-  #define SPELL_ABSORPTION_SHIELD    332  // works like mana shield
-  incomplete
+ *****#define SPELL_ABSORPTION_SHIELD    332  // works like mana shield
+   incomplete
 
-  #define SPELL_TEMPORAL_COMPRESSION 333  // works like haste
-  complete
+ *****#define SPELL_TEMPORAL_COMPRESSION 333  // works like haste
+   complete
 
-  #define SPELL_TEMPORAL_DILATION    334  // works like slow
-  complete
+ *****#define SPELL_TEMPORAL_DILATION    334  // works like slow
+   complete
 
-  #define SPELL_GAUSS_SHIELD         335  // half damage from metal
-  complete
+ *****#define SPELL_GAUSS_SHIELD         335  // half damage from metal
+   complete
 
-  #define SPELL_ALBEDO_SHIELD        336  // reflects e/m attacks
-  complete
+ *****#define SPELL_ALBEDO_SHIELD        336  // reflects e/m attacks
+   complete
 
-  #define SPELL_THERMOSTATIC_FIELD   337  // sets prot_heat + end_cold
+ *****#define SPELL_THERMOSTATIC_FIELD   337  // sets prot_heat + end_cold
 
-  #define SPELL_RADIOIMMUNITY        338  // sets prot_rad
-  complete
+ *****#define SPELL_RADIOIMMUNITY        338  // sets prot_rad
+   complete
 
-  #define SPELL_TRANSDIMENSIONALITY  339  // randomly teleport to another plane
-  incomplete
+ *****#define SPELL_TRANSDIMENSIONALITY  339  // randomly teleport to another plane
+   incomplete
 
-  #define SPELL_AREA_STASIS          340  // sets !phy room flag
-  complete
+ *****#define SPELL_AREA_STASIS          340  // sets !phy room flag
+   complete
 
-  #define SPELL_ELECTROSTATIC_FIELD  341  // protective static field does damage to attackers
-  complete
+ *****#define SPELL_ELECTROSTATIC_FIELD  341  // protective static field does damage to attackers
+   complete
 
-  #define SKILL_WORMHOLE              599 // physic's wormhole
-  complete
+ *****#define SKILL_WORMHOLE              599 // physic's wormhole
+   complete
 
-  #define SKILL_LECTURE               600 // physic's boring-ass lecture
-  complete
+ *****#define SKILL_LECTURE               600 // physic's boring-ass lecture
+   complete
 
-  #define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
-  complete
-  #define SPELL_EMP_PULSE            342  // Shuts off devices, communicators
+ *****#define SKILL_ENERGY_CONVERSION     679 // physic's energy conversion
+   complete
+ *****#define SPELL_EMP_PULSE            342  // Shuts off devices, communicators
                                           // deactivats all cyborg programs
                                           // blocked by emp shield
 
-  ************************************************************************
-  //
-*/
+ ************************************************************************
+   //
+ */
 
 #ifdef HAS_CONFIG_H
 #endif
@@ -244,8 +244,9 @@ ACMD(do_lecture)
         return;
     }
 
-    if (!(vict = check_char_room_vis(ch, argument)))
+    if (!(vict = check_char_room_vis(ch, argument))) {
         return;
+    }
 
     if (vict == ch) {
         send_to_char(ch, "You can't lecture yourself.\r\n");
@@ -269,8 +270,9 @@ ACMD(do_lecture)
         return;
     }
 
-    if (!ok_to_attack(ch, vict, true))
+    if (!ok_to_attack(ch, vict, true)) {
         return;
+    }
     if (!ok_damage_vendor(ch, vict)) {
         act("$E is interested in your wallet, not your words.", false, ch, NULL,
             vict, TO_CHAR);
@@ -281,8 +283,9 @@ ACMD(do_lecture)
     check_attack(ch, vict);
 
     prob = skill_bonus(ch, SKILL_LECTURE) + (GET_INT(ch) * 2);
-    if (AFF_FLAGGED(ch, AFF_CONFUSION))
+    if (AFF_FLAGGED(ch, AFF_CONFUSION)) {
         prob -= 60;
+    }
 
     index = number(0, NUM_TOPICS - 1);
 
@@ -296,16 +299,20 @@ ACMD(do_lecture)
     percent = (GET_LEVEL(vict) / 2) + GET_REMORT_GEN(vict) + GET_INT(vict);
     percent += number(0, 60);
 
-    if (affected_by_spell(vict, SPELL_ENDURANCE))
+    if (affected_by_spell(vict, SPELL_ENDURANCE)) {
         percent += 10;
-    if (AFF_FLAGGED(vict, AFF_ADRENALINE))
+    }
+    if (AFF_FLAGGED(vict, AFF_ADRENALINE)) {
         percent += 10;
-    if (AFF2_FLAGGED(vict, AFF2_BERSERK))
+    }
+    if (AFF2_FLAGGED(vict, AFF2_BERSERK)) {
         percent += 50;
+    }
 
     if (NPC_FLAGGED(vict, NPC_NOSLEEP) || IS_UNDEAD(vict) ||
-        CHECK_SKILL(ch, SKILL_LECTURE) < 30 || IS_PHYSIC(vict))
+        CHECK_SKILL(ch, SKILL_LECTURE) < 30 || IS_PHYSIC(vict)) {
         prob = 0;
+    }
 
     // he likes it!
     if (IS_PHYSIC(vict)) {
@@ -350,14 +357,15 @@ ACMD(do_evaluate)
         return;
     }
 
-    if (!(vict = check_char_room_vis(ch, argument)))
+    if (!(vict = check_char_room_vis(ch, argument))) {
         return;
+    }
 
     cost = (GET_LEVEL(vict) / 4) + GET_REMORT_GEN(vict);
 
     if (GET_MOVE(ch) < cost) {
         send_to_char(ch, "You don't have the %d move points needed.\r\n",
-            cost);
+                     cost);
         return;
     }
 
@@ -367,10 +375,11 @@ ACMD(do_evaluate)
     delta = MAX(5, delta);
 
     send_to_char(ch, "%s appears to have about %d hitpoints.\r\n",
-        GET_NAME(vict), GET_HIT(vict) + number(-delta, delta));
+                 GET_NAME(vict), GET_HIT(vict) + number(-delta, delta));
 
-    if (delta < 100)
+    if (delta < 100) {
         gain_skill_prof(ch, SKILL_EVALUATE);
+    }
 
 }
 
@@ -417,7 +426,7 @@ ASPELL(spell_nuclear_wasteland)
 
     rm_aff.description =
         strdup
-        ("   This area bears a strong resemblance to a radioactive wasteland.\r\n");
+            ("   This area bears a strong resemblance to a radioactive wasteland.\r\n");
     rm_aff.level = level;
     rm_aff.type = RM_AFF_FLAGS;
     rm_aff.flags = ROOM_RADIOACTIVE;
@@ -433,15 +442,16 @@ push_imprint(struct creature *ch, int max)
     int i;
 
     memcpy(tmp, ch->player_specials->imprint_rooms,
-        sizeof(int) * MAX_IMPRINT_ROOMS);
+           sizeof(int) * MAX_IMPRINT_ROOMS);
 
     GET_IMPRINT_ROOM(ch, 0) = ch->in_room->number;
 
     memcpy(ch->player_specials->imprint_rooms + 1, tmp,
-        sizeof(int) * (MAX_IMPRINT_ROOMS - 1));
+           sizeof(int) * (MAX_IMPRINT_ROOMS - 1));
 
-    for (i = max; i < MAX_IMPRINT_ROOMS; i++)
+    for (i = max; i < MAX_IMPRINT_ROOMS; i++) {
         GET_IMPRINT_ROOM(ch, i) = -1;
+    }
 }
 
 int
@@ -470,7 +480,7 @@ ASPELL(spell_spacetime_imprint)
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
         send_to_char(ch,
-            "You cannot make a spacetime imprint in this place.\r\n");
+                     "You cannot make a spacetime imprint in this place.\r\n");
         return;
     }
 
@@ -492,19 +502,19 @@ ASPELL(spell_quantum_rift)
         // Change this to open a REALLY random portal.
         // Include DT's in this room list.
         send_to_char(ch,
-            "You do not have any outstanding spacetime imprints in effect.\r\n");
+                     "You do not have any outstanding spacetime imprints in effect.\r\n");
         return;
     }
 
     if (!(room = real_room(rnum))) {
         send_to_char(ch,
-            "The imprinted location you have requested no longer exists!\r\n");
+                     "The imprinted location you have requested no longer exists!\r\n");
         return;
     }
 
     if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
         send_to_char(ch,
-            "You are unable to open the rift into that place.\r\n");
+                     "You are unable to open the rift into that place.\r\n");
         return;
     }
     struct obj_data *next_o;
@@ -535,7 +545,7 @@ ASPELL(spell_quantum_rift)
             true, ch, rift, NULL, TO_CHAR);
     } else {
         send_to_char(ch,
-            "The rift has failed to form.  Something is terribly wrong.\r\n");
+                     "The rift has failed to form.  Something is terribly wrong.\r\n");
         return;
     }
     WAIT_STATE(ch, 2 RL_SEC);
@@ -550,19 +560,19 @@ ASPELL(spell_spacetime_recall)
 
     if (rnum < 0) {
         send_to_char(ch,
-            "You do not have any outstanding spacetime imprints in effect.\r\n");
+                     "You do not have any outstanding spacetime imprints in effect.\r\n");
         return;
     }
 
     if (!(room = real_room(rnum))) {
         send_to_char(ch,
-            "The imprinted location you have requested no longer exists!\r\n");
+                     "The imprinted location you have requested no longer exists!\r\n");
         return;
     }
 
     if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
         send_to_char(ch,
-            "You are unable to make the transition into that place.\r\n");
+                     "You are unable to make the transition into that place.\r\n");
         return;
     }
 
@@ -604,7 +614,7 @@ boot_timewarp_data(void)
 
         newlist =
             (timewarp_data *) realloc(timewarp_list,
-            num_timewarp_data * sizeof(timewarp_data));
+                                      num_timewarp_data * sizeof(timewarp_data));
 
         newlist[num_timewarp_data - 1].from = elem.from;
         newlist[num_timewarp_data - 1].to = elem.to;
@@ -629,13 +639,13 @@ show_timewarps(struct creature *ch)
         struct zone_data *from_zn = real_zone(timewarp_list[i].to);
 
         acc_sprintf("  %3d.]  %s%25s%s [%s%3d%s] --> [%s%3d%s] %s%s%s\r\n",
-            i,
-            CCCYN(ch, C_NRM), (from_zn) ? from_zn->name : "FROM-ERROR",
-            CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
-            timewarp_list[i].from,
-            CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
-            timewarp_list[i].to, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-            (to_zn) ? to_zn->name : "TO-ERROR", CCNRM(ch, C_NRM));
+                    i,
+                    CCCYN(ch, C_NRM), (from_zn) ? from_zn->name : "FROM-ERROR",
+                    CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+                    timewarp_list[i].from,
+                    CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
+                    timewarp_list[i].to, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                    (to_zn) ? to_zn->name : "TO-ERROR", CCNRM(ch, C_NRM));
     }
 
     acc_sprintf("  %d total.\r\n", num_timewarp_data);
@@ -648,13 +658,17 @@ timewarp_target(struct zone_data *zSrc)
 {
     int i;
 
-    for (i = 0; i < num_timewarp_data; i++)
-        if (zSrc->number == timewarp_list[i].from)
+    for (i = 0; i < num_timewarp_data; i++) {
+        if (zSrc->number == timewarp_list[i].from) {
             return (real_zone(timewarp_list[i].to));
+        }
+    }
 
-    for (i = 0; i < num_timewarp_data; i++)
-        if (zSrc->number == timewarp_list[i].to)
+    for (i = 0; i < num_timewarp_data; i++) {
+        if (zSrc->number == timewarp_list[i].to) {
             return (real_zone(timewarp_list[i].from));
+        }
+    }
 
     return NULL;
 }
@@ -663,20 +677,25 @@ bool
 room_tele_ok(struct creature *ch, struct room_data *room)
 {
 
-    if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL))
+    if (ROOM_FLAGGED(room, ROOM_NORECALL | ROOM_NOPHYSIC | ROOM_NOTEL)) {
         return 0;
+    }
 
-    if (ROOM_FLAGGED(room, ROOM_HOUSE) && !can_enter_house(ch, room->number))
+    if (ROOM_FLAGGED(room, ROOM_HOUSE) && !can_enter_house(ch, room->number)) {
         return 0;
+    }
 
-    if (ROOM_FLAGGED(room, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD)
+    if (ROOM_FLAGGED(room, ROOM_GODROOM) && GET_LEVEL(ch) < LVL_GRGOD) {
         return 0;
+    }
 
-    if (ROOM_FLAGGED(room, ROOM_DEATH))
+    if (ROOM_FLAGGED(room, ROOM_DEATH)) {
         return 0;
+    }
 
-    if (!IS_APPR(room->zone))
+    if (!IS_APPR(room->zone)) {
         return 0;
+    }
 
     return 1;
 }
@@ -688,17 +707,23 @@ random_room(struct creature *ch, struct zone_data *zone)
     struct room_data *room;
     int num_rooms = 0;
 
-    if (!zone)
+    if (!zone) {
         return (NULL);
+    }
 
-    for (room = zone->world; room; room = room->next)
-        if (room_tele_ok(ch, room))
+    for (room = zone->world; room; room = room->next) {
+        if (room_tele_ok(ch, room)) {
             num_rooms++;
+        }
+    }
 
-    for (room = zone->world; room; room = room->next)
-        if (room_tele_ok(ch, room))
-            if (!number(0, --num_rooms))
+    for (room = zone->world; room; room = room->next) {
+        if (room_tele_ok(ch, room)) {
+            if (!number(0, --num_rooms)) {
                 return (room);
+            }
+        }
+    }
 
     return (NULL);
 }
@@ -708,22 +733,27 @@ bool
 zone_tele_ok(struct creature *ch, struct zone_data *zone, int tmode)
 {
 
-    if (!IS_APPR(ch->in_room->zone) || !IS_APPR(zone))
+    if (!IS_APPR(ch->in_room->zone) || !IS_APPR(zone)) {
         return 0;
+    }
 
     if ((ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED) ||
-            ZONE_FLAGGED(zone, ZONE_ISOLATED))
-        && zone != ch->in_room->zone)
+         ZONE_FLAGGED(zone, ZONE_ISOLATED))
+        && zone != ch->in_room->zone) {
         return 0;
+    }
 
-    if (zone->plane != ch->in_room->zone->plane)
+    if (zone->plane != ch->in_room->zone->plane) {
         return 0;
+    }
 
     if (zone->time_frame == ch->in_room->zone->time_frame) {
-        if (tmode)
+        if (tmode) {
             return 0;
-    } else if (!tmode)
+        }
+    } else if (!tmode) {
         return 0;
+    }
 
     return 1;
 }
@@ -735,14 +765,19 @@ random_zone(struct creature *ch, int mode)
     struct zone_data *zone = NULL;
     int num_zones = 0;
 
-    for (zone = zone_table; zone; zone = zone->next)
-        if (zone_tele_ok(ch, zone, mode))
+    for (zone = zone_table; zone; zone = zone->next) {
+        if (zone_tele_ok(ch, zone, mode)) {
             num_zones++;
+        }
+    }
 
-    for (zone = zone_table; zone; zone = zone->next)
-        if (zone_tele_ok(ch, zone, mode))
-            if (!number(0, --num_zones))
+    for (zone = zone_table; zone; zone = zone->next) {
+        if (zone_tele_ok(ch, zone, mode)) {
+            if (!number(0, --num_zones)) {
                 return (zone);
+            }
+        }
+    }
 
     return (NULL);
 }
@@ -755,8 +790,9 @@ ASPELL(spell_time_warp)
     int i;
 
     // determine the target zone
-    if ((zone = timewarp_target(ch->in_room->zone)))
+    if ((zone = timewarp_target(ch->in_room->zone))) {
         to_room = random_room(ch, zone);
+    }
 
     // if no room we need a random zone to choose from
     if (!to_room) {
@@ -767,36 +803,37 @@ ASPELL(spell_time_warp)
             zone = random_zone(ch, 1);
 
             // find the target room in the random zone
-            if ((to_room = random_room(ch, zone)))
+            if ((to_room = random_room(ch, zone))) {
                 break;
+            }
 
         }
 
         // we still couldnt find a suitable room, abort
         if (!to_room) {
             send_to_char(ch,
-                "You were unable to link to a cross-time room.\r\n");
+                         "You were unable to link to a cross-time room.\r\n");
             return;
         }
 
     }
     // do the player transferral
     act(tmp_sprintf("$n fades silently into the %s.",
-            zone->time_frame == TIME_ELECTRO ? "future" :
-            zone->time_frame == TIME_MODRIAN ? "past" : "unknown"),
+                    zone->time_frame == TIME_ELECTRO ? "future" :
+                    zone->time_frame == TIME_MODRIAN ? "past" : "unknown"),
         true, ch, NULL, NULL, TO_ROOM);
 
     send_to_char(ch, "You fade silently into the %s:\r\n",
-        zone->time_frame == TIME_ELECTRO ? "future" :
-        zone->time_frame == TIME_MODRIAN ? "past" : "unknown");
+                 zone->time_frame == TIME_ELECTRO ? "future" :
+                 zone->time_frame == TIME_MODRIAN ? "past" : "unknown");
 
     char_from_room(ch, true);
     char_to_room(ch, to_room, true);
     look_at_room(ch, to_room, 0);
 
     act(tmp_sprintf("$n fades silently in from the %s.",
-            oldzone->time_frame == TIME_ELECTRO ? "future" :
-            oldzone->time_frame == TIME_MODRIAN ? "past" : "unknown"),
+                    oldzone->time_frame == TIME_ELECTRO ? "future" :
+                    oldzone->time_frame == TIME_MODRIAN ? "past" : "unknown"),
         true, ch, NULL, NULL, TO_ROOM);
 }
 
@@ -810,32 +847,33 @@ int
 recurs_econvert_points(struct obj_data *obj, bool top)
 {
 
-    if (!obj)
+    if (!obj) {
         return 0;
+    }
 
     int num_points = GET_OBJ_WEIGHT(obj);
 
     switch (GET_OBJ_TYPE(obj)) {
-        // double points for money
+    // double points for money
     case ITEM_MONEY:
         num_points *= 2;
         break;
-        // batteries and devices get stored energy tacked on
+    // batteries and devices get stored energy tacked on
     case ITEM_DEVICE:
     case ITEM_BATTERY:
     case ITEM_ENERGY_CELL:
     case ITEM_ENGINE:
         num_points += CUR_ENERGY(obj);
         break;
-        // bombs add 8x bomb power
+    // bombs add 8x bomb power
     case ITEM_BOMB:
         num_points += BOMB_POWER(obj) * 8;
         break;
     }
 
     return (num_points +
-        recurs_econvert_points(obj->contains, false) +
-        (top ? 0 : recurs_econvert_points(obj->next_content, false)));
+            recurs_econvert_points(obj->contains, false) +
+            (top ? 0 : recurs_econvert_points(obj->next_content, false)));
 }
 
 ACMD(do_econvert)
@@ -844,7 +882,7 @@ ACMD(do_econvert)
     struct obj_data *obj = NULL;
     struct obj_data *battery = NULL;
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH],
-        arg3[MAX_INPUT_LENGTH];
+         arg3[MAX_INPUT_LENGTH];
 
     int num_points = 0;
     int i;
@@ -852,7 +890,7 @@ ACMD(do_econvert)
 
     if (CHECK_SKILL(ch, SKILL_ENERGY_CONVERSION) < 40) {
         send_to_char(ch,
-            "You have not been trained in the science of matter conversion.\r\n");
+                     "You have not been trained in the science of matter conversion.\r\n");
         return;
     }
 
@@ -865,14 +903,14 @@ ACMD(do_econvert)
 
     if (!(obj = get_obj_in_list_vis(ch, arg1, ch->carrying))) {
         send_to_char(ch, "You don't seem to have %s '%s' to convert.\r\n",
-            AN(arg1), arg1);
+                     AN(arg1), arg1);
         return;
     }
 
     if (IS_CORPSE(obj) && CORPSE_IDNUM(obj) > 0 && obj->contains &&
         !is_authorized(ch, DESTROY_CORPSES, NULL)) {
         send_to_char(ch,
-            "You can't econvert a player's corpse while it still has objects in it.");
+                     "You can't econvert a player's corpse while it still has objects in it.");
         return;
     }
     // check for a battery to store in
@@ -880,16 +918,12 @@ ACMD(do_econvert)
         one_argument(argument, arg3);
         // Is it an internal energy destination?
         if (!strcmp(arg2, "internal") && *arg3 &&
-            (battery = get_object_in_equip_vis(ch, arg3, ch->implants, &i))) {
-
-        } else if ((battery =
-                get_object_in_equip_vis(ch, arg2, ch->equipment, &i))
-            || (battery = get_obj_in_list_vis(ch, arg2, ch->carrying))) {
-
-        } else {
+            (battery = get_object_in_equip_vis(ch, arg3, ch->implants, &i))) {} else if ((battery =
+                                                                                              get_object_in_equip_vis(ch, arg2, ch->equipment, &i))
+                                                                                         || (battery = get_obj_in_list_vis(ch, arg2, ch->carrying))) {} else {
             send_to_char(ch,
-                "You don't seem to have %s '%s' to store the energy in.\r\n",
-                AN(arg2), arg2);
+                         "You don't seem to have %s '%s' to store the energy in.\r\n",
+                         AN(arg2), arg2);
             return;
         }
 
@@ -906,8 +940,9 @@ ACMD(do_econvert)
     // adjust it for exceptional intelligence ( int x 2 )
     num_points += (GET_INT(ch) - 18) * 2;
     // adjust it for secondary phys
-    if (GET_CLASS(ch) != CLASS_PHYSIC)
+    if (GET_CLASS(ch) != CLASS_PHYSIC) {
         num_points /= 2;
+    }
 
     // adjust it for remort gen ( gen x 2 )
     // num_points += GET_REMORT_GEN( ch ) * 2;
@@ -926,15 +961,16 @@ ACMD(do_econvert)
         }
 
         num_points = MIN(num_points,
-            MAX_ENERGY(battery) - CUR_ENERGY(battery));
+                         MAX_ENERGY(battery) - CUR_ENERGY(battery));
         CUR_ENERGY(battery) += num_points;
         act(tmp_sprintf
-            ("You have increased $p's energy level by %d to %d units.",
+                ("You have increased $p's energy level by %d to %d units.",
                 num_points, CUR_ENERGY(battery)), false, ch, battery, NULL,
             TO_CHAR);
 
-        if (num_points > number(50, 300))
+        if (num_points > number(50, 300)) {
             gain_skill_prof(ch, SKILL_ENERGY_CONVERSION);
+        }
         return;
     }
 
@@ -949,15 +985,16 @@ ACMD(do_econvert)
     GET_MANA(ch) += num_points;
 
     send_to_char(ch, "You have increased your mana level by %d to %d.\r\n",
-        num_points, GET_MANA(ch));
+                 num_points, GET_MANA(ch));
 
     // Wait state.  1 + number of points / skill
     wait =
-        (1 + (num_points / CHECK_SKILL(ch, SKILL_ENERGY_CONVERSION))) RL_SEC;
+        (1 + (num_points / CHECK_SKILL(ch, SKILL_ENERGY_CONVERSION)))RL_SEC;
     WAIT_STATE(ch, wait);
 
-    if (num_points > number(50, 300))
+    if (num_points > number(50, 300)) {
         gain_skill_prof(ch, SKILL_ENERGY_CONVERSION);
+    }
 
     return;
 }
@@ -978,7 +1015,7 @@ do_deactivate_device(struct obj_data *obj)
 
 void
 do_emp_pulse_olist(struct obj_data *list, struct creature *ch,
-    struct creature *vict)
+                   struct creature *vict)
 {
     struct obj_data *o;
     for (o = list; o; o = o->next_content) {
@@ -986,11 +1023,12 @@ do_emp_pulse_olist(struct obj_data *list, struct creature *ch,
             && !random_fractional_3()) {
             if (GET_OBJ_VAL(o, 2) == 1) {
                 do_deactivate_device(o);
-                if (vict)
+                if (vict) {
                     act("$p shuts off. (carried)", false, ch, o, vict,
                         TO_VICT);
-                else
+                } else {
                     act("$p shuts off.", false, ch, o, vict, TO_ROOM);
+                }
             }
         }
     }
@@ -998,7 +1036,7 @@ do_emp_pulse_olist(struct obj_data *list, struct creature *ch,
 
 void
 do_emp_pulse_eq(struct obj_data *list[], struct creature *ch,
-    struct creature *vict, int internal)
+                struct creature *vict, int internal)
 {
     int i;
     for (i = 0; i < NUM_WEAR_FLAGS; i++) {
@@ -1007,7 +1045,7 @@ do_emp_pulse_eq(struct obj_data *list[], struct creature *ch,
             if (GET_OBJ_VAL(list[i], 2) == 1) {
                 do_deactivate_device(list[i]);
                 act(tmp_sprintf("$p shuts off. %s",
-                        internal ? "(internal)" : "(worn)"),
+                                internal ? "(internal)" : "(worn)"),
                     false, ch, list[i], vict, TO_VICT);
             }
         }
@@ -1036,14 +1074,15 @@ do_emp_pulse_char(struct creature *ch, struct creature *vict)
         }
         if (removed > 0) {
             send_to_char(vict,
-                "ERROR: Excessive electromagnetic interference! Some systems failing!\r\n");
+                         "ERROR: Excessive electromagnetic interference! Some systems failing!\r\n");
             act("$N twitches and begins to smoke.", false, ch, NULL, vict,
                 TO_NOTVICT);
         }
     }
     do_emp_pulse_eq(vict->equipment, ch, vict, 0);
-    if (!IS_CYBORG(vict) || !mag_savingthrow(vict, GET_LEVEL(ch), SAVING_CHEM))
+    if (!IS_CYBORG(vict) || !mag_savingthrow(vict, GET_LEVEL(ch), SAVING_CHEM)) {
         do_emp_pulse_eq(vict->implants, ch, vict, 1);
+    }
     do_emp_pulse_olist(vict->carrying, ch, vict);
 }
 
@@ -1053,38 +1092,42 @@ do_emp_pulse_char(struct creature *ch, struct creature *vict)
 ASPELL(spell_emp_pulse)
 {
 
-    if (ch->in_room == NULL)
+    if (ch->in_room == NULL) {
         return;
+    }
     if (ROOM_FLAGGED(ch->in_room, ROOM_NOPHYSIC)) {
         send_to_char(ch,
-            "You are unable to alter physical reality in this space.\r\n");
+                     "You are unable to alter physical reality in this space.\r\n");
         return;
     }
 
-    for (GList *it = first_living(ch->in_room->people);it;it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (AFF_FLAGGED(ch, AFF_GROUP) && AFF_FLAGGED(tch, AFF_GROUP)
-            && (tch->master == ch || tch->master == ch->master || ch->master == tch))
+            && (tch->master == ch || tch->master == ch->master || ch->master == tch)) {
             continue;
+        }
 
         if (tch != ch && !ok_to_attack(ch, tch, true)) {
             send_to_char(ch, "The Supernatural Reality prevents you "
-                "from twisting nature in that way!\r\n");
+                             "from twisting nature in that way!\r\n");
             act("$n attempts to violently alter reality, but is "
                 "restrained by the whole of the universe.", false,
                 ch, NULL, NULL, TO_ROOM);
             return;
         }
 
-        if (tch != ch && GET_LEVEL(tch) < LVL_IMMORT)
+        if (tch != ch && GET_LEVEL(tch) < LVL_IMMORT) {
             do_emp_pulse_char(ch, tch);
+        }
     }
 
     send_to_room("An electromagnetic pulse jolts the room!\r\n", ch->in_room);
 
-    if (ch->in_room->contents)
+    if (ch->in_room->contents) {
         do_emp_pulse_olist(ch->in_room->contents, ch, NULL);
+    }
     return;
 }
 
@@ -1096,12 +1139,12 @@ ASPELL(spell_area_stasis)
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_NOPHYSIC)) {
         send_to_char(ch,
-            "The surrounding construct of spacetime is already stable.\r\n");
+                     "The surrounding construct of spacetime is already stable.\r\n");
         return;
     }
 
     send_to_room("A shockwave rips through the fabric of time and space!\r\n",
-        ch->in_room);
+                 ch->in_room);
 
     // Destroy all quantum rifts.
     for (o = ch->in_room->contents; o; o = o->next) {

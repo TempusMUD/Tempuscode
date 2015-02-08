@@ -89,8 +89,8 @@ object_matches_name(struct obj_data *obj, struct obj_matcher *matcher)
 
 bool
 make_object_name_matcher(struct creature *ch,
-                              struct obj_matcher *matcher,
-                              char *expr)
+                         struct obj_matcher *matcher,
+                         char *expr)
 {
     matcher->pred = object_matches_name;
     if (*expr == '\0') {
@@ -118,10 +118,11 @@ make_object_type_matcher(struct creature *ch,
     }
 
     matcher->pred = object_matches_type;
-    if (is_number(expr))
+    if (is_number(expr)) {
         matcher->num = atoi(expr);
-    else
+    } else {
         matcher->num = search_block(expr, item_types, 0);
+    }
     if (matcher->num < 0 || matcher->num > NUM_ITEM_TYPES) {
         send_to_char(ch, "Type olc help otypes for a valid list of types.\r\n");
         return false;
@@ -137,8 +138,8 @@ object_matches_material(struct obj_data *obj, struct obj_matcher *matcher)
 
 bool
 make_object_material_matcher(struct creature *ch,
-                         struct obj_matcher *matcher,
-                         char *expr)
+                             struct obj_matcher *matcher,
+                             char *expr)
 {
     if (*expr == '\0') {
         send_to_char(ch, "You must specify an object material to match.\r\n");
@@ -146,10 +147,11 @@ make_object_material_matcher(struct creature *ch,
     }
 
     matcher->pred = object_matches_material;
-    if (is_number(expr))
+    if (is_number(expr)) {
         matcher->num = atoi(expr);
-    else
+    } else {
         matcher->num = search_block(expr, material_names, 0);
+    }
     if (matcher->num < 0 || matcher->num > TOP_MATERIAL) {
         send_to_char(ch, "Type olc help materials for a valid list of materials.\r\n");
         return false;
@@ -161,8 +163,9 @@ bool
 object_matches_apply(struct obj_data *obj, struct obj_matcher *matcher)
 {
     for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-        if (obj->affected[i].location == matcher->num)
+        if (obj->affected[i].location == matcher->num) {
             return true;
+        }
     }
     return false;
 }
@@ -182,8 +185,8 @@ object_apply_info(__attribute__ ((unused)) struct creature *ch,
 
 bool
 make_object_apply_matcher(struct creature *ch,
-                         struct obj_matcher *matcher,
-                         char *expr)
+                          struct obj_matcher *matcher,
+                          char *expr)
 {
     if (*expr == '\0') {
         send_to_char(ch, "You must specify an object apply to match.\r\n");
@@ -193,10 +196,11 @@ make_object_apply_matcher(struct creature *ch,
     matcher->pred = object_matches_apply;
     matcher->info = object_apply_info;
 
-    if (is_number(expr))
+    if (is_number(expr)) {
         matcher->num = atoi(expr);
-    else
+    } else {
         matcher->num = search_block(expr, apply_types, 0);
+    }
     if (matcher->num < 0 || matcher->num > TOP_MATERIAL) {
         send_to_char(ch, "Type olc help apply for a valid list.\r\n");
         return false;
@@ -222,7 +226,7 @@ make_object_special_matcher(struct creature *ch,
 
     matcher->pred = object_matches_special;
     matcher->num = find_spec_index_arg(expr);
-    if ( matcher->num < 0 ) {
+    if (matcher->num < 0) {
         send_to_char(ch, "Type show specials for a valid list.\r\n");
         return false;
     }
@@ -237,8 +241,8 @@ object_matches_affect(struct obj_data *obj, struct obj_matcher *matcher)
 
 bool
 make_object_affect_matcher(struct creature *ch,
-                            struct obj_matcher *matcher,
-                            char *expr)
+                           struct obj_matcher *matcher,
+                           char *expr)
 {
     if (*expr == '\0') {
         send_to_char(ch, "You must specify object affects for matching.\r\n");
@@ -262,7 +266,7 @@ make_object_affect_matcher(struct creature *ch,
         send_to_char(ch, "There is no affect '%s'.\r\n", expr);
         return false;
     }
-    
+
     matcher->idx = index;
     matcher->num = 1 << affect;
     return true;
@@ -272,12 +276,15 @@ bool
 object_matches_cost(struct obj_data *obj, struct obj_matcher *matcher)
 {
     bool result = false;
-    if (matcher->op == OP_EQ)
+    if (matcher->op == OP_EQ) {
         result = (obj->shared->cost == matcher->num);
-    if (matcher->op == OP_LT)
+    }
+    if (matcher->op == OP_LT) {
         result = (obj->shared->cost < matcher->num);
-    if (matcher->op == OP_GT)
+    }
+    if (matcher->op == OP_GT) {
         result = (obj->shared->cost > matcher->num);
+    }
     return result;
 }
 
@@ -294,8 +301,8 @@ object_cost_info(struct creature *ch,
 
 bool
 make_object_cost_matcher(struct creature *ch,
-                            struct obj_matcher *matcher,
-                            char *expr)
+                         struct obj_matcher *matcher,
+                         char *expr)
 {
     if (*expr == '\0') {
         send_to_char(ch, "You must specify object costs for matching.\r\n");
@@ -304,13 +311,13 @@ make_object_cost_matcher(struct creature *ch,
 
     char *opstr = tmp_getword(&expr);
 
-    if (!strcmp(opstr, "=") || !strcmp(opstr, "=="))
+    if (!strcmp(opstr, "=") || !strcmp(opstr, "==")) {
         matcher->op = OP_EQ;
-    else if (!strcmp(opstr, "<"))
+    } else if (!strcmp(opstr, "<")) {
         matcher->op = OP_LT;
-    else if (!strcmp(opstr, ">"))
+    } else if (!strcmp(opstr, ">")) {
         matcher->op = OP_GT;
-    else if (!strcmp(opstr, "<=")) {
+    } else if (!strcmp(opstr, "<=")) {
         matcher->op = OP_GT;
         matcher->negated = !matcher->negated;
     } else if (!strcmp(opstr, ">=")) {
@@ -335,27 +342,27 @@ bool
 object_matches_spell(struct obj_data *obj, struct obj_matcher *matcher)
 {
     switch (GET_OBJ_TYPE(obj)) {
-        case ITEM_WAND:	// val 3
-        case ITEM_STAFF:	// val 3
-            return (GET_OBJ_VAL(obj, 3) == matcher->num);
-        case ITEM_WEAPON:	// val 0
-            return (GET_OBJ_VAL(obj, 0) == matcher->num);
-        case ITEM_SCROLL:	// val 1,2,3
-        case ITEM_POTION:	// val 1,2,3
-        case ITEM_PILL:	// ""
-            return (GET_OBJ_VAL(obj, 1) == matcher->num
-                    || GET_OBJ_VAL(obj, 2) == matcher->num
-                    || GET_OBJ_VAL(obj, 3) == matcher->num);
-        case ITEM_FOOD:	// Val 2
-            return (GET_OBJ_VAL(obj, 2) == matcher->num);
+    case ITEM_WAND:     // val 3
+    case ITEM_STAFF:        // val 3
+        return (GET_OBJ_VAL(obj, 3) == matcher->num);
+    case ITEM_WEAPON:       // val 0
+        return (GET_OBJ_VAL(obj, 0) == matcher->num);
+    case ITEM_SCROLL:       // val 1,2,3
+    case ITEM_POTION:       // val 1,2,3
+    case ITEM_PILL:     // ""
+        return (GET_OBJ_VAL(obj, 1) == matcher->num
+                || GET_OBJ_VAL(obj, 2) == matcher->num
+                || GET_OBJ_VAL(obj, 3) == matcher->num);
+    case ITEM_FOOD:     // Val 2
+        return (GET_OBJ_VAL(obj, 2) == matcher->num);
     }
     return false;
 }
 
 bool
 make_object_spell_matcher(struct creature *ch,
-                         struct obj_matcher *matcher,
-                         char *expr)
+                          struct obj_matcher *matcher,
+                          char *expr)
 {
     if (*expr == '\0') {
         send_to_char(ch, "You must specify spells to match.\r\n");
@@ -363,10 +370,11 @@ make_object_spell_matcher(struct creature *ch,
     }
 
     matcher->pred = object_matches_spell;
-    if (is_number(expr))
+    if (is_number(expr)) {
         matcher->num = atoi(expr);
-    else
-        matcher->num = search_block(expr, (const char * const *)spells, 0);
+    } else {
+        matcher->num = search_block(expr, (const char *const *)spells, 0);
+    }
     if (matcher->num < 0 || matcher->num > TOP_SPELL_DEFINE) {
         send_to_char(ch, "Type olc help spells for a list of spells.\r\n");
         return false;
@@ -391,10 +399,11 @@ make_object_worn_matcher(struct creature *ch,
     }
 
     matcher->pred = object_matches_worn;
-    if (is_number(expr))
+    if (is_number(expr)) {
         matcher->num = atoi(expr);
-    else
+    } else {
         matcher->num = search_block(expr, wear_bits, 0);
+    }
     if (matcher->num < 0 || matcher->num > NUM_WEAR_FLAGS) {
         send_to_char(ch, "Type olc help wear for a list of wear positions.\r\n");
         return false;
@@ -445,7 +454,7 @@ make_object_extra_matcher(struct creature *ch,
         send_to_char(ch, "There is no extra flag '%s'.\r\n", expr);
         return false;
     }
-    
+
     matcher->idx = index;
     matcher->num = 1 << flag;
     return true;
@@ -480,14 +489,16 @@ make_object_matcher(struct creature *ch, char *expr)
     new_matcher.negated = (*term == '!');
     if (new_matcher.negated) {
         term++;
-        if (!*term)
+        if (!*term) {
             term = tmp_getword(&expr);
+        }
     }
 
-    for (int i = 0;match_table[i].matcher && !found;i++) {
+    for (int i = 0; match_table[i].matcher && !found; i++) {
         if (!strcasecmp(term, match_table[i].matcher)) {
-            if (!match_table[i].constructor(ch, &new_matcher, expr))
+            if (!match_table[i].constructor(ch, &new_matcher, expr)) {
                 return NULL;
+            }
             found = true;
         }
     }
@@ -515,22 +526,23 @@ do_show_objects(struct creature *ch, char *value, char *argument)
                      "Precede the term with an exclamation point (!) to select\r\n"
                      "objects that don't match.\r\n"
                      "Valid terms can be:\r\n");
-        for (int i = 0;match_table[i].matcher;i++) {
+        for (int i = 0; match_table[i].matcher; i++) {
             send_to_char(ch, "%s\r\n", match_table[i].matcher);
         }
         return;
     }
 
     exprv = g_strsplit(tmp_strcat(value, " ", argument, NULL), ",", 0);
-    for (gchar **cur_expr = exprv;*cur_expr;cur_expr++) {
+    for (gchar **cur_expr = exprv; *cur_expr; cur_expr++) {
         char *expr = *cur_expr;
         // all expressions are either of the format [!] <field> <op> <value>
         // or [!] <field> <value>, separated by commas
         struct obj_matcher *new_matcher = make_object_matcher(ch, expr);
-        if (new_matcher)
+        if (new_matcher) {
             matchers = g_list_prepend(matchers, new_matcher);
-        else
+        } else {
             goto cleanup;
+        }
     }
 
     GHashTableIter iter;
@@ -543,13 +555,15 @@ do_show_objects(struct creature *ch, char *value, char *argument)
     g_hash_table_iter_init(&iter, obj_prototypes);
     while (g_hash_table_iter_next(&iter, (gpointer)&vnum, (gpointer)&obj)) {
         bool matches = false;
-        for (GList *cur_matcher = matchers;cur_matcher;cur_matcher = cur_matcher->next) {
+        for (GList *cur_matcher = matchers; cur_matcher; cur_matcher = cur_matcher->next) {
             struct obj_matcher *matcher = cur_matcher->data;
             matches = matcher->pred(obj, matcher);
-            if (matcher->negated)
+            if (matcher->negated) {
                 matches = !matches;
-            if (!matches)
+            }
+            if (!matches) {
                 break;
+            }
         }
         if (matches) {
             acc_sprintf("%3d. %s[%s%5d%s]%s %-50s%s", ++found,
@@ -557,19 +571,21 @@ do_show_objects(struct creature *ch, char *value, char *argument)
                         obj->shared->vnum,
                         CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
                         obj->name, CCNRM(ch, C_NRM));
-            for (GList *cur_matcher = matchers;cur_matcher;cur_matcher = cur_matcher->next) {
+            for (GList *cur_matcher = matchers; cur_matcher; cur_matcher = cur_matcher->next) {
                 struct obj_matcher *matcher = cur_matcher->data;
-                if (matcher->info)
+                if (matcher->info) {
                     acc_strcat(" ", matcher->info(ch, obj, matcher), NULL);
+                }
             }
             acc_strcat("\r\n", NULL);
         }
     }
 
-    if (found)
+    if (found) {
         page_string(ch->desc, acc_get_string());
-    else
+    } else {
         send_to_char(ch, "No matching objects found.\r\n");
+    }
 
 cleanup:
     g_strfreev(exprv);

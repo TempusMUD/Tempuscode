@@ -106,25 +106,27 @@ SPECIAL(old_reimb)
         {7, "Thud"},
     };
 
-    if (!CMD_IS("help"))
+    if (!CMD_IS("help")) {
         return 0;
+    }
 
     for (i = 0; i < 90; i++) {
         if (!strncasecmp(data[i].name, GET_NAME(ch), strlen(data[i].name))) {
-            if (GET_LEVEL(ch) < 3)
+            if (GET_LEVEL(ch) < 3) {
                 send_to_char(ch,
-                    "You'd better train your stats up and get to level 3 first.\r\n");
-            else if (GET_LEVEL(ch) >= data[i].level)
+                             "You'd better train your stats up and get to level 3 first.\r\n");
+            } else if (GET_LEVEL(ch) >= data[i].level) {
                 act("$n says, 'Piss off, $N.", false, reimber, NULL, ch, TO_ROOM);
-            else {
+            } else {
                 act("$n whaps you upside the head!", false, reimber, NULL, ch,
                     TO_VICT);
                 act("$n whaps $N upside the head!", false, reimber, NULL, ch,
                     TO_NOTVICT);
-                if (!(data[i].level > 54 || data[i].level < 1))
+                if (!(data[i].level > 54 || data[i].level < 1)) {
                     gain_exp_regardless(ch,
-                        titles[(int)GET_CLASS(ch)][data[i].level].exp -
-                        GET_EXP(ch));
+                                        titles[(int)GET_CLASS(ch)][data[i].level].exp -
+                                        GET_EXP(ch));
+                }
                 crashsave(ch);
                 GET_GOLD(ch) = 10000000;
                 GET_HIT(ch) = GET_MAX_HIT(ch);
@@ -135,7 +137,7 @@ SPECIAL(old_reimb)
         }
     }
     send_to_char(ch,
-        "You are not in the file.  All players with level less than 20\r\n"
-        "are lost.  Sorry.\r\n");
+                 "You are not in the file.  All players with level less than 20\r\n"
+                 "are lost.  Sorry.\r\n");
     return 1;
 }

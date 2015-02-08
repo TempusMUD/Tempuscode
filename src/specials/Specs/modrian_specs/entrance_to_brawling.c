@@ -6,37 +6,40 @@
 
 SPECIAL(entrance_to_brawling)
 {
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
-    if (!CMD_IS("north"))
+    }
+    if (!CMD_IS("north")) {
         return 0;
-    if (IS_NPC(ch))
+    }
+    if (IS_NPC(ch)) {
         return 0;
+    }
     if (GET_LEVEL(ch) < 5) {
         switch (number(0, 7)) {
         case 0:
             send_to_char(ch,
-                "A drunk stumbles into you and drools in your hair.\r\n");
+                         "A drunk stumbles into you and drools in your hair.\r\n");
             break;
         case 1:
             send_to_char(ch,
-                "An old timer says, 'You better stay out of there.'\r\n");
+                         "An old timer says, 'You better stay out of there.'\r\n");
             act("An old timer tells $n something.", true, ch, NULL, NULL, TO_ROOM);
             break;
         case 2:
             send_to_char(ch,
-                "As you try to enter, a huge man is thrown through, knocking you down.\r\n");
+                         "As you try to enter, a huge man is thrown through, knocking you down.\r\n");
             act("$n tries to go north, but is knocked down.", false, ch, NULL, NULL,
                 TO_ROOM);
             GET_POSITION(ch) = POS_SITTING;
             break;
         case 3:
             send_to_char(ch,
-                "A rabid whore tells you, 'You better go pump some iron first!!'\r\n");
+                         "A rabid whore tells you, 'You better go pump some iron first!!'\r\n");
             break;
         case 4:
             send_to_char(ch,
-                "You notice some people laughing at you, and change your mind.\r\n");
+                         "You notice some people laughing at you, and change your mind.\r\n");
             act("Some people in the corner start laughing at $n.", false, ch,
                 NULL, NULL, TO_ROOM);
             break;
@@ -48,13 +51,13 @@ SPECIAL(entrance_to_brawling)
             break;
         case 6:
             send_to_char(ch,
-                "Some fool by the door grabs a fire extinguisher.\r\n");
+                         "Some fool by the door grabs a fire extinguisher.\r\n");
             send_to_char(ch,
-                "Someone sets off the fire extinguisher, filling the room with a fine dust!\r\n");
+                         "Someone sets off the fire extinguisher, filling the room with a fine dust!\r\n");
             break;
         case 7:
             send_to_char(ch,
-                "You trip over your shoelaces before you get to the door.\r\n");
+                         "You trip over your shoelaces before you get to the door.\r\n");
             act("$n trips over $s shoelaces and falls down.", false, ch, NULL, NULL,
                 TO_ROOM);
             GET_POSITION(ch) = POS_SITTING;

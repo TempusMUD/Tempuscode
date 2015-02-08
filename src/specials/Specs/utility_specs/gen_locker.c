@@ -5,7 +5,7 @@
 //
 
 #define CONVERT_TIME_TO_CONT(time) \
-     (time.year * 15960 + time.month * 840 + time.day * 24 + time.hours)
+    (time.year * 15960 + time.month * 840 + time.day * 24 + time.hours)
 
 SPECIAL(gen_locker)
 {
@@ -17,8 +17,9 @@ SPECIAL(gen_locker)
     int rent = 0, hours = 0;
     int found = 0;
 
-    if (!cmd)
+    if (!cmd) {
         return 0;
+    }
 
     if (ch->in_room->number == 2346) {  /* Newbie tower     */
         locker_room = real_room(2347);
@@ -46,12 +47,13 @@ SPECIAL(gen_locker)
 
     if (CMD_IS("offer")) {
 
-        if (cost_factor < 0)
+        if (cost_factor < 0) {
             return 0;
+        }
 
         if (IS_NPC(ch)) {
             perform_say(atten, "say",
-                "Sorry, I cannot store things for mobiles.");
+                        "Sorry, I cannot store things for mobiles.");
             return 1;
         }
 
@@ -62,73 +64,77 @@ SPECIAL(gen_locker)
 
         if (!locker_room || !real_object_proto(locker_vnum)) {
             send_to_char(ch,
-                "Sorry, the locker room is out of service right now.\r\n");
+                         "Sorry, the locker room is out of service right now.\r\n");
             errlog("locker room with no storage room or locker.");
             return 1;
         }
 
         for (locker = locker_room->contents; locker;
-            locker = locker->next_content) {
+             locker = locker->next_content) {
             if (GET_OBJ_VNUM(locker) != locker_vnum ||
-                GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch))
+                GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch)) {
                 continue;
+            }
 
             break;
         }
         if (!locker) {          /* can't find a current locker, look for empty one */
 
             for (locker = locker_room->contents; locker;
-                locker = locker->next_content) {
+                 locker = locker->next_content) {
 
                 if (GET_OBJ_VNUM(locker) != locker_vnum ||
-                    GET_OBJ_VAL(locker, 0) || locker->contains)
+                    GET_OBJ_VAL(locker, 0) || locker->contains) {
                     continue;
+                }
 
                 break;
             }
 
             if (!locker) {
                 perform_tell(atten, ch,
-                    "Sorry, all the lockers are occupied at the moment.");
+                             "Sorry, all the lockers are occupied at the moment.");
                 return 1;
             }
         }
 
         for (item = ch->carrying; item; item = tmp_item) {
             tmp_item = item->next_content;
-            if (IS_OBJ_STAT(item, ITEM_NORENT | ITEM_NODROP))
+            if (IS_OBJ_STAT(item, ITEM_NORENT | ITEM_NODROP)) {
                 continue;
+            }
             found = 1;
             rent += GET_OBJ_RENT(item);
         }
 
         if (!found) {
             perform_tell(atten, ch,
-                "You're not carrying anything I'm willing to store.");
+                         "You're not carrying anything I'm willing to store.");
             return 1;
         }
 
         rent = (rent * cost_factor) / 100;
 
         send_to_char(ch,
-            "The down payment will be %'d %s.\r\n"
-            "I will store your stuff for %'d %s per day.\r\n",
-            cost_factor * 10,
-            ch->in_room->zone->time_frame ==
-            TIME_ELECTRO ? "credits" : "coins", rent,
-            ch->in_room->zone->time_frame ==
-            TIME_ELECTRO ? "credits" : "coins");
+                     "The down payment will be %'d %s.\r\n"
+                     "I will store your stuff for %'d %s per day.\r\n",
+                     cost_factor * 10,
+                     ch->in_room->zone->time_frame ==
+                     TIME_ELECTRO ? "credits" : "coins", rent,
+                     ch->in_room->zone->time_frame ==
+                     TIME_ELECTRO ? "credits" : "coins");
         return 1;
     }
 
     if (CMD_IS("store")) {
 
-        if (cost_factor < 0)
+        if (cost_factor < 0) {
             return 0;
+        }
 
         if (IS_NPC(ch)) {
             perform_say(atten, "say",
-                "Sorry, I cannot store things for mobiles.");
+                        "Sorry, I cannot store things for mobiles.");
             return 1;
         }
 
@@ -139,7 +145,7 @@ SPECIAL(gen_locker)
 
         if (!locker_room || !real_object_proto(locker_vnum)) {
             send_to_char(ch,
-                "Sorry, the locker room is out of service right now.\r\n");
+                         "Sorry, the locker room is out of service right now.\r\n");
             errlog("locker room with no storage room or locker.");
             return 1;
         }
@@ -147,48 +153,51 @@ SPECIAL(gen_locker)
         if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
             if (GET_CASH(ch) < cost_factor * 10) {
                 send_to_char(ch,
-                    "You don't have the %'d credit down payment required.\r\n",
-                    cost_factor * 10);
+                             "You don't have the %'d credit down payment required.\r\n",
+                             cost_factor * 10);
                 return 1;
             }
         } else if (GET_GOLD(ch) < cost_factor * 10) {
             send_to_char(ch,
-                "You don't have the %'d coin down payment required.\r\n",
-                cost_factor * 10);
+                         "You don't have the %'d coin down payment required.\r\n",
+                         cost_factor * 10);
             return 1;
         }
 
         for (locker = locker_room->contents; locker;
-            locker = locker->next_content) {
+             locker = locker->next_content) {
             if (GET_OBJ_VNUM(locker) != locker_vnum ||
-                GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch))
+                GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch)) {
                 continue;
+            }
 
             break;
         }
         if (!locker) {          /* can't find a current locker, look for empty one */
 
             for (locker = locker_room->contents; locker;
-                locker = locker->next_content) {
+                 locker = locker->next_content) {
 
                 if (GET_OBJ_VNUM(locker) != locker_vnum ||
-                    GET_OBJ_VAL(locker, 0) || locker->contains)
+                    GET_OBJ_VAL(locker, 0) || locker->contains) {
                     continue;
+                }
 
                 break;
             }
 
             if (!locker) {
                 perform_tell(atten, ch,
-                    "Sorry, all the lockers are occupied at the moment.");
+                             "Sorry, all the lockers are occupied at the moment.");
                 return 1;
             }
         }
 
         for (item = ch->carrying; item; item = tmp_item) {
             tmp_item = item->next_content;
-            if (IS_OBJ_STAT(item, ITEM_NORENT | ITEM_NODROP))
+            if (IS_OBJ_STAT(item, ITEM_NORENT | ITEM_NODROP)) {
                 continue;
+            }
             found = 1;
             obj_from_char(item);
             obj_to_obj(item, locker);
@@ -197,7 +206,7 @@ SPECIAL(gen_locker)
 
         if (!found) {
             perform_tell(atten, ch,
-                "You're not carrying anything I'm willing to store.");
+                         "You're not carrying anything I'm willing to store.");
             return 1;
         }
 
@@ -207,14 +216,16 @@ SPECIAL(gen_locker)
         GET_OBJ_VAL(locker, 1) += rent;
         GET_OBJ_VAL(locker, 2) = CONVERT_TIME_TO_CONT(time_info);
 
-        if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+        if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
             GET_CASH(ch) -= cost_factor * 10;
-        else
+        } else {
             GET_GOLD(ch) -= cost_factor * 10;
+        }
 
         struct house *house = find_house_by_room(locker->in_room->number);
-        if (house != NULL)
+        if (house != NULL) {
             save_house(house);
+        }
         crashsave(ch);
 
         act("$n takes all your things and locks them in a locker.", false,
@@ -224,10 +235,10 @@ SPECIAL(gen_locker)
 
         if (GET_OBJ_VAL(locker, 1)) {
             send_to_char(ch,
-                "It will cost %'d %s per day to keep the locker.\r\n",
-                GET_OBJ_VAL(locker, 1),
-                ch->in_room->zone->time_frame ==
-                TIME_ELECTRO ? "credits" : "coins");
+                         "It will cost %'d %s per day to keep the locker.\r\n",
+                         GET_OBJ_VAL(locker, 1),
+                         ch->in_room->zone->time_frame ==
+                         TIME_ELECTRO ? "credits" : "coins");
             return 1;
         }
         return 1;
@@ -243,24 +254,25 @@ SPECIAL(gen_locker)
 
         if (!locker_room || !real_object_proto(locker_vnum)) {
             send_to_char(ch,
-                "Sorry, the locker room is out of service right now.\r\n");
+                         "Sorry, the locker room is out of service right now.\r\n");
             errlog("locker room with no storage room or locker.");
             return 1;
         }
 
         for (locker = locker_room->contents; locker;
-            locker = locker->next_content) {
+             locker = locker->next_content) {
             if (GET_OBJ_VNUM(locker) != locker_vnum
                 || GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch)
-                || (!locker->contains))
+                || (!locker->contains)) {
                 continue;
+            }
             break;
         }
         if (!locker || GET_OBJ_VNUM(locker) != locker_vnum ||
             GET_OBJ_VAL(locker, 0) != GET_IDNUM(ch)
             || (!locker->contains)) {
             perform_say(atten, "apologize",
-                "Sorry, you don't seem to have a locker here.");
+                        "Sorry, you don't seem to have a locker here.");
             return 1;
         }
 
@@ -273,20 +285,22 @@ SPECIAL(gen_locker)
             if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
                 if (GET_CASH(ch) < rent) {
                     send_to_char(ch,
-                        "You don't have the %'d credits required.\r\n", rent);
+                                 "You don't have the %'d credits required.\r\n", rent);
                     return 1;
-                } else
+                } else {
                     GET_CASH(ch) -= rent;
+                }
             } else if (GET_GOLD(ch) < rent) {
                 send_to_char(ch, "You don't have the %'d coins required.\r\n",
-                    rent);
+                             rent);
                 return 1;
-            } else
+            } else {
                 GET_GOLD(ch) -= rent;
+            }
 
             send_to_char(ch, "The cost will be %'d %s.\r\n", rent,
-                ch->in_room->zone->time_frame == TIME_ELECTRO ?
-                "credits" : "coins");
+                         ch->in_room->zone->time_frame == TIME_ELECTRO ?
+                         "credits" : "coins");
 
         }
 
@@ -301,8 +315,9 @@ SPECIAL(gen_locker)
         GET_OBJ_VAL(locker, 2) = 0;
 
         struct house *house = find_house_by_room(locker->in_room->number);
-        if (house != NULL)
+        if (house != NULL) {
             save_house(house);
+        }
         crashsave(ch);
 
         act("$n opens a locker and gives you all your things.",

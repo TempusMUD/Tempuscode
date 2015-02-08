@@ -10,17 +10,20 @@ SPECIAL(vein)
     struct obj_data *new_obj = NULL;
     struct obj_data *pick;
 
-    if (spec_mode != SPECIAL_CMD || !CMD_IS("hit"))
+    if (spec_mode != SPECIAL_CMD || !CMD_IS("hit")) {
         return false;
+    }
 
     pick = GET_EQ(ch, WEAR_HOLD);
-    if (pick && !isname("pick", pick->aliases))
+    if (pick && !isname("pick", pick->aliases)) {
         pick = NULL;
+    }
 
     if (!pick) {
         pick = GET_EQ(ch, WEAR_WIELD);
-        if (pick && !isname("pick", pick->aliases))
+        if (pick && !isname("pick", pick->aliases)) {
             pick = NULL;
+        }
     }
 
     if (!pick) {
@@ -42,7 +45,7 @@ SPECIAL(vein)
         act("$n's pick goes awry and $e nearly hit $mself!", true,
             ch, pick, NULL, TO_ROOM);
         errlog("vein #%d has invalid ovnum #%d",
-            GET_OBJ_VNUM(self), GET_OBJ_VAL(self, 0));
+               GET_OBJ_VNUM(self), GET_OBJ_VAL(self, 0));
         return true;
     }
 
@@ -50,12 +53,13 @@ SPECIAL(vein)
         true, ch, pick, new_obj, TO_ROOM);
     act("You knock $P off $p.", true, ch, self, new_obj, TO_CHAR);
 
-    if (self->in_room)
+    if (self->in_room) {
         obj_to_room(new_obj, self->in_room);
-    else if (self->carried_by)
+    } else if (self->carried_by) {
         obj_to_room(new_obj, self->carried_by->in_room);
-    else
+    } else {
         extract_obj(new_obj);
+    }
 
     return (1);
 }

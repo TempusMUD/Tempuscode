@@ -9,19 +9,23 @@ SPECIAL(loud_speaker)
 {
     struct obj_data *speaker = (struct obj_data *)me;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
+    }
 
-    if (!CMD_IS("yell"))
+    if (!CMD_IS("yell")) {
         return 0;
+    }
 
     skip_spaces(&argument);
-    if (!*argument)
+    if (!*argument) {
         return 0;
+    }
 
     argument = one_argument(argument, buf);
-    if (!isname(buf, speaker->aliases))
+    if (!isname(buf, speaker->aliases)) {
         return 0;
+    }
 
     if (!*argument) {
         return 0;

@@ -31,46 +31,61 @@
 #include "quest.h"
 #include "strutil.h"
 
- /**
-  *
-  * The command struct for access commands
-  *  (with 'pissers' being a role)
-  *
-  * access list
-  * access create pissers
-  * access remove pissers
-  * access description pissers The weirdos that piss a lot
-  * access adminrole pissers PisserAdmins
-  *
-  * access memberlist pissers
-  * access addmember pissers forget ashe
-  * access remmember pissers forget ashe
-  *
-  * access cmdlist pissers
-  * access addcmd pissers wizpiss immpiss
-  * access remcmd pissers wizpiss
-  *
-  **/
+/**
+ *
+ * The command struct for access commands
+ *  (with 'pissers' being a role)
+ *
+ * access list
+ * access create pissers
+ * access remove pissers
+ * access description pissers The weirdos that piss a lot
+ * access adminrole pissers PisserAdmins
+ *
+ * access memberlist pissers
+ * access addmember pissers forget ashe
+ * access remmember pissers forget ashe
+ *
+ * access cmdlist pissers
+ * access addcmd pissers wizpiss immpiss
+ * access remcmd pissers wizpiss
+ *
+ **/
 const struct {
     const char *command;
     const char *usage;
 } access_cmds[] = {
     {
-    "addmember", "<role name> <member> [<member>...]"}, {
-    "addcmd", "<role name> <command> [<command>...]"}, {
-    "admin", "<role name> <admin role>"}, {
-    "cmdlist", "<role name>"}, {
-    "create", "<role name>"}, {
-    "describe", "<role name> <description>"}, {
-    "rolelist", "<player name>"}, {
-    "list", ""}, {
-    "load", ""}, {
-    "memberlist", "<role name>"}, {
-    "remmember", "<role name> <member> [<member>...]"}, {
-    "remcmd", "<role name> <command> [<command>...]"}, {
-    "destroy", "<role name>"}, {
-    "stat", "<role name>"}, {
-    NULL, NULL}
+        "addmember", "<role name> <member> [<member>...]"
+    }, {
+        "addcmd", "<role name> <command> [<command>...]"
+    }, {
+        "admin", "<role name> <admin role>"
+    }, {
+        "cmdlist", "<role name>"
+    }, {
+        "create", "<role name>"
+    }, {
+        "describe", "<role name> <description>"
+    }, {
+        "rolelist", "<player name>"
+    }, {
+        "list", ""
+    }, {
+        "load", ""
+    }, {
+        "memberlist", "<role name>"
+    }, {
+        "remmember", "<role name> <member> [<member>...]"
+    }, {
+        "remcmd", "<role name> <command> [<command>...]"
+    }, {
+        "destroy", "<role name>"
+    }, {
+        "stat", "<role name>"
+    }, {
+        NULL, NULL
+    }
 };
 
 static char out_buf[MAX_STRING_LENGTH + 2];
@@ -110,10 +125,11 @@ send_access_options(struct creature *ch)
     int i = 0;
     strcpy_s(out_buf, sizeof(out_buf), "access usage :\r\n");
     while (1) {
-        if (!access_cmds[i].command)
+        if (!access_cmds[i].command) {
             break;
+        }
         snprintf_cat(out_buf, sizeof(out_buf), "  %-15s %s\r\n", access_cmds[i].command,
-            access_cmds[i].usage);
+                     access_cmds[i].usage);
         i++;
     }
     page_string(ch->desc, out_buf);
@@ -125,11 +141,13 @@ send_access_options(struct creature *ch)
 int
 find_access_command(char *command)
 {
-    if (command == NULL || *command == '\0')
+    if (command == NULL || *command == '\0') {
         return -1;
+    }
     for (int i = 0; access_cmds[i].command != NULL; i++) {
-        if (strncmp(access_cmds[i].command, command, strlen(command)) == 0)
+        if (strncmp(access_cmds[i].command, command, strlen(command)) == 0) {
             return i;
+        }
     }
     return -1;
 }
@@ -142,19 +160,22 @@ is_named_role_member(struct creature *ch, const char *role_name)
 {
     struct role *role;
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return false;
-    if (AFF_FLAGGED(ch, AFF_CHARM))
+    }
+    if (AFF_FLAGGED(ch, AFF_CHARM)) {
         return false;
+    }
 
     role = role_by_name(role_name);
-    if (!role)
+    if (!role) {
         return false;
+    }
     return is_role_member(role, GET_IDNUM(ch));
 }
 
 bool
-is_authorized(struct creature * ch, enum privilege priv, void *target)
+is_authorized(struct creature *ch, enum privilege priv, void *target)
 {
     struct role *role = target;
     struct command_info *command = target;
@@ -165,8 +186,9 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
     struct room_data *room = target;
     struct quest *quest = target;
 
-    if (GET_LEVEL(ch) == LVL_GRIMP)
+    if (GET_LEVEL(ch) == LVL_GRIMP) {
         return true;
+    }
 
     switch (priv) {
     case CREATE_ROLE:
@@ -175,7 +197,7 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
 
     case EDIT_ROLE:
         return is_named_role_member(ch, "RolesAdmin")
-            || is_named_role_member(ch, role->admin_role);
+               || is_named_role_member(ch, role->admin_role);
 
     case CREATE_CLAN:
     case EDIT_CLAN:
@@ -205,8 +227,8 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
 
     case FULL_IMMORT_WHERE:
         return is_named_role_member(ch, "Questor")
-            || is_named_role_member(ch, "AdminBasic")
-            || is_named_role_member(ch, "WizardBasic");
+               || is_named_role_member(ch, "AdminBasic")
+               || is_named_role_member(ch, "WizardBasic");
 
     case TESTER:
         return is_named_role_member(ch, "Testers");
@@ -217,14 +239,14 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
 
     case ENTER_HOUSES:
         return (is_named_role_member(ch, "House")
-            || is_named_role_member(ch, "AdminBasic")
-            || is_named_role_member(ch, "WizardFull"));
+                || is_named_role_member(ch, "AdminBasic")
+                || is_named_role_member(ch, "WizardFull"));
 
     case ENTER_ROOM:
         return (can_enter_house(ch, room->number)
-            && clan_house_can_enter(ch, room)
-            && (!ROOM_FLAGGED(room, ROOM_GODROOM)
-                || is_named_role_member(ch, "WizardFull")));
+                && clan_house_can_enter(ch, room)
+                && (!ROOM_FLAGGED(room, ROOM_GODROOM)
+                    || is_named_role_member(ch, "WizardFull")));
 
     case WORLDWRITE:
     case SET_FULLCONTROL:
@@ -241,23 +263,25 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
 
     case MULTIPLAY:
         return (is_named_role_member(ch, "WizardFull")
-            || is_named_role_member(ch, "AdminFull"));
+                || is_named_role_member(ch, "AdminFull"));
 
     case LIST_SEARCHES:
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             return false;
+        }
         return (zone->owner_idnum == GET_IDNUM(ch)
-            || zone->co_owner_idnum == GET_IDNUM(ch)
-            || is_named_role_member(ch, "OLCWorldWrite"));
+                || zone->co_owner_idnum == GET_IDNUM(ch)
+                || is_named_role_member(ch, "OLCWorldWrite"));
 
     case EDIT_ZONE:
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             return false;
+        }
         return (zone->owner_idnum == GET_IDNUM(ch)
-            || zone->co_owner_idnum == GET_IDNUM(ch)
-            || (is_named_role_member(ch, "OLCProofer") && !IS_APPR(zone))
-            || (is_named_role_member(ch, "OLCWorldWrite")
-                && PRF2_FLAGGED(ch, PRF2_WORLDWRITE)));
+                || zone->co_owner_idnum == GET_IDNUM(ch)
+                || (is_named_role_member(ch, "OLCProofer") && !IS_APPR(zone))
+                || (is_named_role_member(ch, "OLCWorldWrite")
+                    && PRF2_FLAGGED(ch, PRF2_WORLDWRITE)));
 
     case CREATE_ZONE:
     case APPROVE_ZONE:
@@ -266,70 +290,89 @@ is_authorized(struct creature * ch, enum privilege priv, void *target)
         return is_named_role_member(ch, "OLCApproval");
 
     case EDIT_HOUSE:
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             return false;
+        }
         return (is_named_role_member(ch, "House")
-            || (house && house->owner_id == ch->account->id));
+                || (house && house->owner_id == ch->account->id));
 
     case QUEST_BAN:
     case EDIT_QUEST:
         return GET_IDNUM(ch) == quest->owner_id
-            || is_named_role_member(ch, "Questor");
+               || is_named_role_member(ch, "Questor");
 
     case COMMAND:
-        if (GET_LEVEL(ch) < command->minimum_level)
+        if (GET_LEVEL(ch) < command->minimum_level) {
             return false;
+        }
 
-        if (!command->role_count)
+        if (!command->role_count) {
             return true;
+        }
 
         if (IS_PC(ch)) {
-            for (GList * it = roles; it; it = it->next) {
+            for (GList *it = roles; it; it = it->next) {
                 struct role *role = (struct role *)it->data;
                 if (is_role_command(role, command)
-                    && is_role_member(role, GET_IDNUM(ch)))
+                    && is_role_member(role, GET_IDNUM(ch))) {
                     return true;
+                }
             }
         }
         return false;
 
     case SET:
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             return false;
-        if (set_cmd->level > GET_LEVEL(ch))
+        }
+        if (set_cmd->level > GET_LEVEL(ch)) {
             return false;
-        if (*(set_cmd->role) == '\0')
+        }
+        if (*(set_cmd->role) == '\0') {
             return true;
-        if (set_cmd->role == ROLE_EVERYONE)
+        }
+        if (set_cmd->role == ROLE_EVERYONE) {
             return true;
-        if (is_named_role_member(ch, set_cmd->role))
+        }
+        if (is_named_role_member(ch, set_cmd->role)) {
             return true;
+        }
         return false;
 
     case SHOW:
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             return false;
-        if (show_cmd->level > GET_LEVEL(ch))
+        }
+        if (show_cmd->level > GET_LEVEL(ch)) {
             return false;
-        if (*(show_cmd->role) == '\0')
+        }
+        if (*(show_cmd->role) == '\0') {
             return true;
-        if (show_cmd->role == ROLE_EVERYONE)
+        }
+        if (show_cmd->role == ROLE_EVERYONE) {
             return true;
-        if (is_named_role_member(ch, show_cmd->role))
+        }
+        if (is_named_role_member(ch, show_cmd->role)) {
             return true;
+        }
         return false;
 
     case ASET:
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             return false;
-        if (set_cmd->level > GET_LEVEL(ch))
+        }
+        if (set_cmd->level > GET_LEVEL(ch)) {
             return false;
-        if (*(set_cmd->role) == '\0')
+        }
+        if (*(set_cmd->role) == '\0') {
             return true;
-        if (set_cmd->role == ROLE_EVERYONE)
+        }
+        if (set_cmd->role == ROLE_EVERYONE) {
             return true;
-        if (is_named_role_member(ch, set_cmd->role))
+        }
+        if (is_named_role_member(ch, set_cmd->role)) {
             return true;
+        }
     }
 
     return false;
@@ -369,11 +412,11 @@ send_role_list(struct creature *ch)
     const char *grn = CCGRN(ch, C_NRM);
 
     send_to_char(ch,
-        "%s%15s %s[%scmds%s] [%smbrs%s]%s - Description \r\n",
-        grn, "Role", cyn, nrm, cyn, nrm, cyn, nrm);
+                 "%s%15s %s[%scmds%s] [%smbrs%s]%s - Description \r\n",
+                 grn, "Role", cyn, nrm, cyn, nrm, cyn, nrm);
 
 
-    for (GList * it = roles; it; it = it->next) {
+    for (GList *it = roles; it; it = it->next) {
         struct role *role = (struct role *)it->data;
         send_role_linedesc(role, ch);
     }
@@ -397,7 +440,7 @@ send_role_membership(struct creature *ch, long id)
 {
     int n = 0;
 
-    for (GList * it = roles; it; it = it->next) {
+    for (GList *it = roles; it; it = it->next) {
         struct role *role = (struct role *)it->data;
         if (is_role_member(role, id)) {
             send_role_linedesc(role, ch);
@@ -405,8 +448,9 @@ send_role_membership(struct creature *ch, long id)
         }
     }
 
-    if (!n)
+    if (!n) {
         send_to_char(ch, "That player is not in any roles.\r\n");
+    }
 }
 
 /* sends a list of the commands a char has access to and the
@@ -417,12 +461,12 @@ send_available_commands(struct creature *ch, long id)
 {
     int n = 0;
 
-    for (GList * it = roles; it; it = it->next) {
+    for (GList *it = roles; it; it = it->next) {
         struct role *role = (struct role *)it->data;
         if (is_role_member(role, id) && role->commands) {
             ++n;
             send_to_char(ch, "%s%s%s\r\n", CCYEL(ch, C_NRM),
-                role->name, CCNRM(ch, C_NRM));
+                         role->name, CCNRM(ch, C_NRM));
             send_role_commands(role, ch, NULL);
         }
     }
@@ -455,11 +499,11 @@ load_roles_from_db(void)
 
     res =
         sql_query
-        ("select sgroups.idnum, sgroups.name, sgroups.descrip, admin.name from sgroups left outer join sgroups as admin on admin.idnum=sgroups.admin order by sgroups.name");
+            ("select sgroups.idnum, sgroups.name, sgroups.descrip, admin.name from sgroups left outer join sgroups as admin on admin.idnum=sgroups.admin order by sgroups.name");
     count = PQntuples(res);
     for (idx = 0; idx < count; idx++) {
         role = make_role(PQgetvalue(res, idx, 1),
-            PQgetvalue(res, idx, 2), PQgetvalue(res, idx, 3));
+                         PQgetvalue(res, idx, 2), PQgetvalue(res, idx, 3));
         role->id = atoi(PQgetvalue(res, idx, 0));
         roles = g_list_prepend(roles, role);
     }
@@ -467,33 +511,36 @@ load_roles_from_db(void)
 
     res =
         sql_query
-        ("select name, command from sgroups, sgroup_commands where sgroups.idnum=sgroup_commands.sgroup order by command");
+            ("select name, command from sgroups, sgroup_commands where sgroups.idnum=sgroup_commands.sgroup order by command");
     count = PQntuples(res);
     for (idx = 0; idx < count; idx++) {
         cmd = find_command(PQgetvalue(res, idx, 1));
         if (cmd >= 0) {
             role = role_by_name(PQgetvalue(res, idx, 0));
-            if (role)
+            if (role) {
                 add_role_command(role, &cmd_info[cmd]);
-            else
+            } else {
                 errlog("Invalid security role '%s' using command '%s'",
-                    PQgetvalue(res, idx, 0), PQgetvalue(res, idx, 1));
-        } else
+                       PQgetvalue(res, idx, 0), PQgetvalue(res, idx, 1));
+            }
+        } else {
             errlog("Invalid command '%s' in security role '%s'",
-                PQgetvalue(res, idx, 1), PQgetvalue(res, idx, 0));
+                   PQgetvalue(res, idx, 1), PQgetvalue(res, idx, 0));
+        }
     }
 
     res =
         sql_query
-        ("select name, player from sgroups, sgroup_members where sgroups.idnum=sgroup_members.sgroup order by player");
+            ("select name, player from sgroups, sgroup_members where sgroups.idnum=sgroup_members.sgroup order by player");
     count = PQntuples(res);
     for (idx = 0; idx < count; idx++) {
         role = role_by_name(PQgetvalue(res, idx, 0));
-        if (role)
+        if (role) {
             add_role_member(role, atol(PQgetvalue(res, idx, 1)));
-        else
+        } else {
             errlog("Invalid security role '%s' with member %s",
-                PQgetvalue(res, idx, 0), PQgetvalue(res, idx, 1));
+                   PQgetvalue(res, idx, 0), PQgetvalue(res, idx, 1));
+        }
     }
 
     slog("Security:  Access role data loaded.");
@@ -521,8 +568,9 @@ ACMD(do_access)
     case 0:                    // addmember
         token = tmp_getword(&argument);
         role = acquire_role_for_edit(ch, token);
-        if (!role)
+        if (!role) {
             return;
+        }
 
         token = tmp_getword(&argument);
         if (!token) {
@@ -535,11 +583,11 @@ ACMD(do_access)
             if (player_id) {
                 add_role_member(role, player_id);
                 sql_exec("insert into sgroup_members (sgroup, player) "
-                    "values (%d, %d)", role->id, player_id);
+                         "values (%d, %d)", role->id, player_id);
 
                 send_to_char(ch, "Member added : %s\r\n", token);
                 slog("Security:  %s added to role '%s' by %s.",
-                    token, role->name, GET_NAME(ch));
+                     token, role->name, GET_NAME(ch));
             } else {
                 send_to_char(ch, "Player doesn't exist: %s\r\n", token);
             }
@@ -550,8 +598,9 @@ ACMD(do_access)
     case 1:                    // addcmd
         token = tmp_getword(&argument);
         role = acquire_role_for_edit(ch, token);
-        if (!role)
+        if (!role) {
             return;
+        }
 
         token = tmp_getword(&argument);
         if (!token) {
@@ -564,13 +613,13 @@ ACMD(do_access)
             if (command_idx != -1) {
                 add_role_command(role, &cmd_info[command_idx]);
                 send_to_char(ch, "Command added : %s\r\n",
-                    cmd_info[command_idx].command);
+                             cmd_info[command_idx].command);
                 sql_exec("insert into sgroup_commands (sgroup, command) "
-                    "values (%d, '%s')",
-                    role->id, cmd_info[command_idx].command);
+                         "values (%d, '%s')",
+                         role->id, cmd_info[command_idx].command);
 
                 slog("Security:  command %s added to role '%s' by %s.",
-                    cmd_info[command_idx].command, role->name, GET_NAME(ch));
+                     cmd_info[command_idx].command, role->name, GET_NAME(ch));
             } else {
                 send_to_char(ch, "Invalid command: %s\r\n", token);
             }
@@ -580,8 +629,9 @@ ACMD(do_access)
     case 2:                    // Admin
         token = tmp_getword(&argument);
         role = acquire_role_for_edit(ch, token);
-        if (!role)
+        if (!role) {
             return;
+        }
 
         token = tmp_getword(&argument);
         admin_role = role_by_name(token);
@@ -592,7 +642,7 @@ ACMD(do_access)
 
         set_role_admin_role(role, token);
         sql_exec("update sgroups set admin=%d where idnum=%d",
-            role->id, admin_role->id);
+                 role->id, admin_role->id);
         send_to_char(ch, "Administrative role set.\r\n");
         break;
     case 3:                    // cmdlist
@@ -634,7 +684,7 @@ ACMD(do_access)
             role->id = role_id;
 
             sql_exec("insert into sgroups (idnum, name, descrip) "
-                "values (%d, '%s', 'No description.')", role_id, token);
+                     "values (%d, '%s', 'No description.')", role_id, token);
 
             roles = g_list_prepend(roles, role);
 
@@ -647,8 +697,9 @@ ACMD(do_access)
     case 5:                    // Describe
         token = tmp_getword(&argument);
         role = acquire_role_for_edit(ch, token);
-        if (!role)
+        if (!role) {
             return;
+        }
 
         if (!*argument) {
             send_to_char(ch, "No description given.\r\n");
@@ -657,7 +708,7 @@ ACMD(do_access)
         set_role_description(role, argument);
         send_to_char(ch, "Description set.\r\n");
         sql_exec("update sgroups set descrip='%s' where idnum=%d",
-            tmp_sqlescape(argument), role->id);
+                 tmp_sqlescape(argument), role->id);
         slog("Security:  Role '%s' described by %s.", token, GET_NAME(ch));
         break;
     case 6:                    // rolelist
@@ -669,7 +720,7 @@ ACMD(do_access)
                 return;
             }
             send_to_char(ch, "%s is a member of the following roles:\r\n",
-                token);
+                         token);
             send_role_membership(ch, id);
         } else {
             send_to_char(ch, "You are a member of the following roles:\r\n");
@@ -703,8 +754,9 @@ ACMD(do_access)
     case 10:                   // remmember
         token = tmp_getword(&argument);
         role = acquire_role_for_edit(ch, token);
-        if (!role)
+        if (!role) {
             return;
+        }
 
         token = tmp_getword(&argument);
         if (!token) {
@@ -717,11 +769,11 @@ ACMD(do_access)
             if (player_id) {
                 remove_role_member(role, player_id);
                 sql_exec("delete from sgroup_members "
-                    "where sgroup=%d and player=%d", role->id, player_id);
+                         "where sgroup=%d and player=%d", role->id, player_id);
 
                 send_to_char(ch, "Member removed : %s\r\n", token);
                 slog("Security:  %s removed from role '%s' by %s.",
-                    token, role->name, GET_NAME(ch));
+                     token, role->name, GET_NAME(ch));
             } else {
                 send_to_char(ch, "Player doesn't exist: %s\r\n", token);
             }
@@ -731,8 +783,9 @@ ACMD(do_access)
     case 11:                   // remcmd
         token = tmp_getword(&argument);
         role = acquire_role_for_edit(ch, token);
-        if (!role)
+        if (!role) {
             return;
+        }
 
         token = tmp_getword(&argument);
         if (!token) {
@@ -745,13 +798,13 @@ ACMD(do_access)
             if (command_idx != -1) {
                 add_role_command(role, &cmd_info[command_idx]);
                 send_to_char(ch, "Command removed : %s\r\n",
-                    cmd_info[command_idx].command);
+                             cmd_info[command_idx].command);
                 sql_exec("delete from sgroup_commands "
-                    "where sgroup = %d and command='%s') ",
-                    role->id, cmd_info[command_idx].command);
+                         "where sgroup = %d and command='%s') ",
+                         role->id, cmd_info[command_idx].command);
 
                 slog("Security:  command %s removed from role '%s' by %s.",
-                    cmd_info[command_idx].command, role->name, GET_NAME(ch));
+                     cmd_info[command_idx].command, role->name, GET_NAME(ch));
             } else {
                 send_to_char(ch, "Invalid command: %s\r\n", token);
             }

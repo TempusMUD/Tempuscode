@@ -8,18 +8,22 @@ SPECIAL(taunting_frenchman)
 {
     struct creature *vict = NULL;
 
-    if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_ENTER && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !AWAKE(ch) || is_fighting(ch) || number(0, 10))
+    }
+    if (cmd || !AWAKE(ch) || is_fighting(ch) || number(0, 10)) {
         return (false);
-    for (GList * it = ch->in_room->people; it; it = it->next) {
+    }
+    for (GList *it = ch->in_room->people; it; it = it->next) {
         vict = it->data;
         if (vict != ch && can_see_creature(ch, vict) &&
-            GET_NPC_VNUM(ch) != GET_NPC_VNUM(vict) && !number(0, 3))
+            GET_NPC_VNUM(ch) != GET_NPC_VNUM(vict) && !number(0, 3)) {
             break;
+        }
     }
-    if (!vict || vict == ch)
+    if (!vict || vict == ch) {
         return 0;
+    }
 
     switch (number(0, 4)) {
     case 0:

@@ -10,11 +10,12 @@ SPECIAL(gen_shower_rm)
     struct obj_data *cur_obj;
     int idx;
 
-    if (spec_mode != SPECIAL_CMD || !CMD_IS("shower"))
+    if (spec_mode != SPECIAL_CMD || !CMD_IS("shower")) {
         return 0;
+    }
 
     send_to_char(ch,
-        "You turn on the shower and step under the pouring water.\r\n");
+                 "You turn on the shower and step under the pouring water.\r\n");
     act("$n turns on the shower and steps under the pouring water.",
         false, ch, NULL, NULL, TO_ROOM);
 
@@ -29,13 +30,14 @@ SPECIAL(gen_shower_rm)
 
     if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
         send_to_char(ch,
-            "The flames surrounding you are extinguished in a burst of steam!\r\n");
+                     "The flames surrounding you are extinguished in a burst of steam!\r\n");
         extinguish_creature(ch);
     }
 
-    if (acid_cleaned)
+    if (acid_cleaned) {
         send_to_char(ch,
-            "All the acid on your body is washed off!  Whew!\r\n");
+                     "All the acid on your body is washed off!  Whew!\r\n");
+    }
 
     WAIT_STATE(ch, 3 RL_SEC);
 
@@ -45,19 +47,22 @@ SPECIAL(gen_shower_rm)
 
     for (idx = 0; idx < NUM_WEARS; idx++) {
         CHAR_SOILAGE(ch, idx) = 0;
-        if (GET_EQ(ch, idx))
+        if (GET_EQ(ch, idx)) {
             OBJ_SOILAGE(GET_EQ(ch, idx)) = 0;
+        }
     }
 
-    for (cur_obj = ch->carrying; cur_obj; cur_obj = cur_obj->next_content)
+    for (cur_obj = ch->carrying; cur_obj; cur_obj = cur_obj->next_content) {
         OBJ_SOILAGE(cur_obj) = 0;
+    }
 
     // They don't get the restorative benefits if they aren't naked
-    if (IS_WEARING_W(ch))
+    if (IS_WEARING_W(ch)) {
         return 1;
+    }
 
     send_to_char(ch,
-        "The hot water runs over your naked body, refreshing you.\r\n");
+                 "The hot water runs over your naked body, refreshing you.\r\n");
     act("The hot water runs over $n's naked body.", false, ch, NULL, NULL, TO_ROOM);
     GET_MANA(ch) = MIN(GET_MAX_MANA(ch), GET_MANA(ch) + 20 * GET_LEVEL(ch));
     GET_MOVE(ch) = MIN(GET_MAX_MOVE(ch), GET_MOVE(ch) + 20 * GET_LEVEL(ch));

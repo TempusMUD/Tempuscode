@@ -10,10 +10,12 @@ SPECIAL(safiir)
     struct obj_data *wand;
     char buf3[MAX_STRING_LENGTH];
     int cost;
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
-    if (!CMD_IS("recharge") && !CMD_IS("offer"))
+    }
+    if (!CMD_IS("recharge") && !CMD_IS("offer")) {
         return 0;
+    }
 
     skip_spaces(&argument);
 
@@ -25,7 +27,7 @@ SPECIAL(safiir)
         perform_say(safiir, "say", buf3);
         return 1;
     } else if ((GET_OBJ_TYPE(wand) != ITEM_WAND) &&
-        (GET_OBJ_TYPE(wand) != ITEM_STAFF)) {
+               (GET_OBJ_TYPE(wand) != ITEM_STAFF)) {
         perform_say(safiir, "say", "I do not deal with such things.");
         perform_say(safiir, "say", "Only wands and staves.");
         return 1;
@@ -36,10 +38,11 @@ SPECIAL(safiir)
         cost = (GET_OBJ_VAL(wand, 1) - GET_OBJ_VAL(wand, 2));
         cost *= GET_OBJ_COST(wand) / GET_OBJ_VAL(wand, 1);
         cost *= GET_OBJ_VAL(wand, 0);
-        if (IS_MAGE(ch))
+        if (IS_MAGE(ch)) {
             cost /= 8;
-        else
+        } else {
             cost /= 4;
+        }
         cost = adjusted_price(ch, safiir, cost);
     }
 
@@ -48,16 +51,16 @@ SPECIAL(safiir)
         perform_say(ch, "say", buf3);
         if (GET_GOLD(ch) < cost) {
             snprintf(buf3, sizeof(buf3), "Hah!  You cannot afford the %'d coins i require!",
-                cost);
+                     cost);
             perform_say(safiir, "say", buf3);
             return 1;
         } else if (IS_MAGE(ch)) {
             snprintf(buf3, sizeof(buf3), "I am happy to do business with you, %s.", PERS(ch,
-                    safiir));
+                                                                                         safiir));
             perform_say(safiir, "say", buf3);
         } else {
             perform_say(safiir, "say",
-                "Okay, but I usually only do business with mages...");
+                        "Okay, but I usually only do business with mages...");
         }
         snprintf(buf3, sizeof(buf3), "Here, I take %'d of your gold coins.", cost);
         perform_say(safiir, "say", buf3);

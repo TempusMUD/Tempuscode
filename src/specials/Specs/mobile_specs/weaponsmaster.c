@@ -12,16 +12,19 @@ SPECIAL(weaponsmaster)
     struct obj_data *weap = NULL;
     int pos, cost, i, char_class, check_only = 0;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
+    }
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return 0;
+    }
 
-    if (CMD_IS("offer"))
+    if (CMD_IS("offer")) {
         check_only = 1;
-    else if (!CMD_IS("train"))
+    } else if (!CMD_IS("train")) {
         return 0;
+    }
 
     skip_spaces(&argument);
 
@@ -32,21 +35,23 @@ SPECIAL(weaponsmaster)
         weap = GET_EQ(ch, pos);
         if (weap &&
             (IS_OBJ_TYPE(weap, ITEM_WEAPON)
-                || IS_OBJ_TYPE(weap, ITEM_ENERGY_GUN))
-            && isname(argument, weap->aliases))
+             || IS_OBJ_TYPE(weap, ITEM_ENERGY_GUN))
+            && isname(argument, weap->aliases)) {
             break;
+        }
 
         weap = GET_IMPLANT(ch, pos);
         if (weap && IS_OBJ_TYPE(weap, ITEM_WEAPON) &&
-            isname(argument, weap->aliases))
+            isname(argument, weap->aliases)) {
             break;
+        }
 
         weap = NULL;
     }
 
     if (!weap) {
         send_to_char(ch,
-            "You must be wielding or wearing the weapon you want to specialize in.\r\n");
+                     "You must be wielding or wearing the weapon you want to specialize in.\r\n");
         return 1;
     }
 
@@ -60,28 +65,31 @@ SPECIAL(weaponsmaster)
     for (i = 0; i < MAX_WEAPON_SPEC; i++) {
         if (!weap_spec.vnum ||
             !real_object_proto(weap_spec.vnum) ||
-            weap_spec.vnum == GET_OBJ_VNUM(weap))
+            weap_spec.vnum == GET_OBJ_VNUM(weap)) {
             break;
+        }
     }
 
-    if ((char_class = GET_CLASS(ch)) >= NUM_CLASSES)
+    if ((char_class = GET_CLASS(ch)) >= NUM_CLASSES) {
         char_class = CLASS_WARRIOR;
+    }
     if (IS_REMORT(ch) && GET_REMORT_CLASS(ch) < NUM_CLASSES) {
         if (weap_spec_char_class[char_class].max <
-            weap_spec_char_class[GET_REMORT_CLASS(ch)].max)
+            weap_spec_char_class[GET_REMORT_CLASS(ch)].max) {
             char_class = GET_REMORT_CLASS(ch);
+        }
     }
 
     if (i == MAX_WEAPON_SPEC || i >= weap_spec_char_class[char_class].max) {
         send_to_char(ch,
-            "The %s char_class can only specialize in %d weapons.\r\n",
-            class_names[char_class], weap_spec_char_class[char_class].max);
+                     "The %s char_class can only specialize in %d weapons.\r\n",
+                     class_names[char_class], weap_spec_char_class[char_class].max);
         return 1;
     }
 
     if (weap_spec.level >= 5) {
         send_to_char(ch,
-            "You have maxed out specialization in this weapon.\r\n");
+                     "You have maxed out specialization in this weapon.\r\n");
         return 1;
     }
 
@@ -89,13 +97,14 @@ SPECIAL(weaponsmaster)
     cost = adjusted_price(ch, master, cost);
 
     send_to_char(ch,
-        "It will cost you %'d gold coin%s to train your specialization with %s to level %d.\r\n%s",
-        cost, cost == 1 ? "" : "s", weap->name,
-        weap_spec.level + 1,
-        cost > GET_GOLD(ch) ? "Which you don't have.\r\n" : "");
+                 "It will cost you %'d gold coin%s to train your specialization with %s to level %d.\r\n%s",
+                 cost, cost == 1 ? "" : "s", weap->name,
+                 weap_spec.level + 1,
+                 cost > GET_GOLD(ch) ? "Which you don't have.\r\n" : "");
 
-    if (check_only || cost > GET_GOLD(ch))
+    if (check_only || cost > GET_GOLD(ch)) {
         return 1;
+    }
 
     GET_GOLD(ch) -= cost;
     weap_spec.vnum = GET_OBJ_VNUM(weap);

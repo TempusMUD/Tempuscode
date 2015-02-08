@@ -2,7 +2,7 @@
 // File: shade_zone.spec                     -- Part of TempusMUD
 //
 // Copyright 2000 by John Watson, all rights reserved.
-//    This code written by Lenon Kitchens, all rights reserved
+// This code written by Lenon Kitchens, all rights reserved
 //
 
 #include "room_data.h"
@@ -10,7 +10,7 @@
 #include "utils.h"
 
 extern void set_local_time(struct zone_data *zone,
-    struct time_info_data *local_time);
+                           struct time_info_data *local_time);
 
 // moves all characters from "from" to "to"
 // Does not deal with nulls in either place.
@@ -20,7 +20,7 @@ move_chars(struct room_data *from, struct room_data *to)
     struct creature *ch = NULL;
     GList *old_people = g_list_copy(from->people);
 
-    for (GList * it = old_people; it; it = it->next) {
+    for (GList *it = old_people; it; it = it->next) {
         ch = it->data;
         char_from_room(ch, false);
         char_to_room(ch, to, false);
@@ -66,12 +66,13 @@ SPECIAL(shade_zone)
     struct time_info_data local_time;
     struct zone_data *zone = (struct zone_data *)me;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
     set_local_time(zone, &local_time);
 
-    //reconnect the zone at the appropriate hours
+    // reconnect the zone at the appropriate hours
     if ((local_time.hours == 7) || (local_time.hours == 13)) {
         REMOVE_BIT(zone->flags, ZONE_ISOLATED);
         send_to_zone("The shadows deepen.\r\n", zone, 0);
@@ -79,7 +80,7 @@ SPECIAL(shade_zone)
         connect_rooms(19686, 19688, NORTH);
         return 1;
     } else if ((local_time.hours == 19) || (local_time.hours == 12)) {
-        //disconnect the zone
+        // disconnect the zone
         SET_BIT(zone->flags, ZONE_ISOLATED);
         send_to_zone("The world seems more gray.\r\n", zone, 0);
         connect_rooms(19716, 19717, EAST);

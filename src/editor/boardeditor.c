@@ -47,11 +47,12 @@ board_finalize(struct editor *editor, const char *text)
 {
     struct board_data *data = (struct board_data *)editor->mode_data;
     gen_board_save(editor->desc->creature,
-        data->board, data->idnum, data->subject, text);
+                   data->board, data->idnum, data->subject, text);
 
-    if (IS_PLAYING(editor->desc))
+    if (IS_PLAYING(editor->desc)) {
         act("$n nods with satisfaction as $e saves $s work.", true,
             editor->desc->creature, NULL, NULL, TO_NOTVICT);
+    }
     free(((struct board_data *)editor->mode_data)->board);
     free(((struct board_data *)editor->mode_data)->subject);
     free(editor->mode_data);
@@ -60,9 +61,10 @@ board_finalize(struct editor *editor, const char *text)
 void
 board_cancel(struct editor *editor)
 {
-    if (IS_PLAYING(editor->desc))
+    if (IS_PLAYING(editor->desc)) {
         act("$n's awareness returns to $s surroundings.", true,
             editor->desc->creature, NULL, NULL, TO_NOTVICT);
+    }
     free(((struct board_data *)editor->mode_data)->board);
     free(((struct board_data *)editor->mode_data)->subject);
     free(editor->mode_data);
@@ -70,12 +72,12 @@ board_cancel(struct editor *editor)
 
 void
 start_editing_board(struct descriptor_data *d,
-    const char *b_name, int idnum, const char *subject, const char *body)
+                    const char *b_name, int idnum, const char *subject, const char *body)
 {
     if (d->text_editor) {
         errlog("Text editor object not null in start_editing_mail");
         REMOVE_BIT(PLR_FLAGS(d->creature),
-            PLR_WRITING | PLR_OLC | PLR_MAILING);
+                   PLR_WRITING | PLR_OLC | PLR_MAILING);
         return;
     }
 
@@ -94,8 +96,9 @@ start_editing_board(struct descriptor_data *d,
     d->text_editor->cancel = board_cancel;
     d->text_editor->mode_data = data;
 
-    if (body)
+    if (body) {
         editor_import(d->text_editor, body);
+    }
 
     emit_editor_startup(d->text_editor);
 }

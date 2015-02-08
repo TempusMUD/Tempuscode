@@ -77,7 +77,7 @@ perform_say(struct creature *ch, const char *saystr, const char *message)
 
 void
 perform_say_to(struct creature *ch, struct creature *target,
-    const char *message)
+               const char *message)
 {
     message = act_escape(message);
     act(tmp_sprintf("&BYou$a say to $T$l, &c'$[%s]'", message),
@@ -88,7 +88,7 @@ perform_say_to(struct creature *ch, struct creature *target,
 
 void
 perform_say_to_obj(struct creature *ch, struct obj_data *obj,
-    const char *message)
+                   const char *message)
 {
     message = act_escape(message);
     act(tmp_sprintf("&BYou$a say to $p$l, &c'$[%s]'", message),
@@ -128,12 +128,15 @@ ACMD(do_sayto)
     }
 
     if (!(vict = get_char_room_vis(ch, name))) {
-        if (!o)
+        if (!o) {
             o = get_object_in_equip_vis(ch, name, ch->equipment, &ignore);
-        if (!o)
+        }
+        if (!o) {
             o = get_obj_in_list_vis(ch, name, ch->carrying);
-        if (!o)
+        }
+        if (!o) {
             o = get_obj_in_list_vis(ch, name, ch->in_room->contents);
+        }
     }
 
     if (vict) {
@@ -151,49 +154,71 @@ select_say_cmd(struct creature *ch, const char *message)
     int len = strlen(message);
     const char *end = message + len - 1;
 
-    if (len > 3 && !strcmp("???", end - 2))
+    if (len > 3 && !strcmp("???", end - 2)) {
         return "yell";
-    if (len > 2 && !strcmp("??", end - 1))
+    }
+    if (len > 2 && !strcmp("??", end - 1)) {
         return "demand";
-    if ('?' == *end)
+    }
+    if ('?' == *end) {
         return "ask";
-    if (len > 3 && !strcmp("!!!", end - 2))
+    }
+    if (len > 3 && !strcmp("!!!", end - 2)) {
         return "scream";
-    if (len > 2 && !strcmp("!!", end - 1))
+    }
+    if (len > 2 && !strcmp("!!", end - 1)) {
         return "yell";
-    if ('!' == *end)
+    }
+    if ('!' == *end) {
         return "exclaim";
-    if (len > 3 && !strcmp("...", end - 2))
+    }
+    if (len > 3 && !strcmp("...", end - 2)) {
         return "mutter";
-    if (len > 320)
+    }
+    if (len > 320) {
         return "drone";
-    if (len > 160)
+    }
+    if (len > 160) {
         return "ramble";
-    if (GET_HIT(ch) < GET_MAX_HIT(ch) / 20)
+    }
+    if (GET_HIT(ch) < GET_MAX_HIT(ch) / 20) {
         return "moan";
-    if (GET_MOVE(ch) < GET_MAX_MOVE(ch) / 20)
+    }
+    if (GET_MOVE(ch) < GET_MAX_MOVE(ch) / 20) {
         return "gasp";
-    if (room_is_underwater(ch->in_room))
+    }
+    if (room_is_underwater(ch->in_room)) {
         return "gurgle";
-    if (AFF2_FLAGGED(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch))
+    }
+    if (AFF2_FLAGGED(ch, AFF2_ABLAZE) && !CHAR_WITHSTANDS_FIRE(ch)) {
         return "scream";
-    if (IS_POISONED(ch))
+    }
+    if (IS_POISONED(ch)) {
         return "choke";
-    if (IS_SICK(ch))
+    }
+    if (IS_SICK(ch)) {
         return "wheeze";
-    if (GET_COND(ch, DRUNK) > 10)
+    }
+    if (GET_COND(ch, DRUNK) > 10) {
         return "slur";
-    if (strcasestr(message, "y'all") || strstr(message, "ain't"))
+    }
+    if (strcasestr(message, "y'all") || strstr(message, "ain't")) {
         return "drawl";
-    if (AFF2_FLAGGED(ch, AFF2_BERSERK))
+    }
+    if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
         return "rave";
-    if (AFF2_FLAGGED(ch, AFF2_INTIMIDATED))
+    }
+    if (AFF2_FLAGGED(ch, AFF2_INTIMIDATED)) {
         return "whimper";
-    if (AFF_FLAGGED(ch, AFF_CONFUSION))
+    }
+    if (AFF_FLAGGED(ch, AFF_CONFUSION)) {
         return "stammer";
-    for (int i = 0; i < num_nasty; i++)
-        if (!strcasecmp(message, nasty_list[i]))
+    }
+    for (int i = 0; i < num_nasty; i++) {
+        if (!strcasecmp(message, nasty_list[i])) {
             return "curse";
+        }
+    }
     return "say";
 }
 
@@ -212,63 +237,75 @@ ACMD(do_say)
 
     skip_spaces(&argument);
 
-    if (cmdstr[0] == '\'')
+    if (cmdstr[0] == '\'') {
         cmdstr = "say";
+    }
 
     if (*argument) {
-        if (!strcmp(cmdstr, "say"))
+        if (!strcmp(cmdstr, "say")) {
             cmdstr = select_say_cmd(ch, argument);
+        }
         perform_say(ch, cmdstr, argument);
-    } else if (find_action(cmd) == -1)
+    } else if (find_action(cmd) == -1) {
         send_to_char(ch, "Yes, but WHAT do you want to %s?\r\n", cmdstr);
-    else
+    } else {
         do_action(ch, argument, cmd, subcmd);
+    }
 }
 
 static bool
 can_channel_comm(struct creature *ch, struct creature *tch)
 {
-	// Immortals are hearable everywhere
-	if (ch->player.level >= LVL_IMMORT)
-		return true;
+    // Immortals are hearable everywhere
+    if (ch->player.level >= LVL_IMMORT) {
+        return true;
+    }
 
-	// Anyone can hear people inside the same rooms
-	if (ch->in_room == tch->in_room)
-		return true;
+    // Anyone can hear people inside the same rooms
+    if (ch->in_room == tch->in_room) {
+        return true;
+    }
 
-	// People outside of soundproof rooms can't hear or speak out
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
-			ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF))
-		return false;
+    // People outside of soundproof rooms can't hear or speak out
+    if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
+        ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF)) {
+        return false;
+    }
 
-	// Players can hear each other inside the same zone
-	if (ch->in_room->zone == tch->in_room->zone)
-		return true;
+    // Players can hear each other inside the same zone
+    if (ch->in_room->zone == tch->in_room->zone) {
+        return true;
+    }
 
-	// but not outside if the zone is isolated or soundproof
-	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
-			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
-		return false;
+    // but not outside if the zone is isolated or soundproof
+    if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
+        ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF)) {
+        return false;
+    }
 
-	// remorts ignore planar and temporal boundries
-	if (IS_REMORT(ch) || IS_REMORT(tch))
-		return true;
+    // remorts ignore planar and temporal boundries
+    if (IS_REMORT(ch) || IS_REMORT(tch)) {
+        return true;
+    }
 
-	// mortals can't speak on different planes
-	if (ch->in_room->zone->plane != tch->in_room->zone->plane)
-		return false;
+    // mortals can't speak on different planes
+    if (ch->in_room->zone->plane != tch->in_room->zone->plane) {
+        return false;
+    }
 
-	// mortals can speak to each other in the same times
-	if (ch->in_room->zone->time_frame == tch->in_room->zone->time_frame)
-		return true;
+    // mortals can speak to each other in the same times
+    if (ch->in_room->zone->time_frame == tch->in_room->zone->time_frame) {
+        return true;
+    }
 
-	// or to or from timeless zones
-	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
-			tch->in_room->zone->time_frame == TIME_TIMELESS)
-		return true;
+    // or to or from timeless zones
+    if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
+        tch->in_room->zone->time_frame == TIME_TIMELESS) {
+        return true;
+    }
 
-	// otherwise, they can't
-	return false;
+    // otherwise, they can't
+    return false;
 }
 
 ACMD(do_gsay)
@@ -282,31 +319,33 @@ ACMD(do_gsay)
         send_to_char(ch, "But you are not the member of a group!\r\n");
         return;
     }
-    if (!*argument)
+    if (!*argument) {
         send_to_char(ch, "Yes, but WHAT do you want to group-say?\r\n");
-    else {
-        if (ch->master)
+    } else {
+        if (ch->master) {
             k = ch->master;
-        else
+        } else {
             k = ch;
+        }
 
         argument = act_escape(argument);
         if (AFF_FLAGGED(k, AFF_GROUP) && (k != ch) && can_channel_comm(ch, k)) {
             snprintf(buf, sizeof(buf), "%s$n tells the group,%s '%s'%s", CCGRN(k, C_NRM),
-                CCYEL(k, C_NRM), argument, CCNRM(k, C_NRM));
+                     CCYEL(k, C_NRM), argument, CCNRM(k, C_NRM));
             act(buf, false, ch, NULL, k, TO_VICT | TO_SLEEP);
         }
-        for (f = k->followers; f; f = f->next)
+        for (f = k->followers; f; f = f->next) {
             if (AFF_FLAGGED(f->follower, AFF_GROUP) && (f->follower != ch) &&
                 can_channel_comm(ch, f->follower)) {
                 snprintf(buf, sizeof(buf), "%s$n tells the group,%s '%s'%s",
-                    CCGRN(f->follower, C_NRM), CCYEL(f->follower, C_NRM),
-                    argument, CCNRM(f->follower, C_NRM));
+                         CCGRN(f->follower, C_NRM), CCYEL(f->follower, C_NRM),
+                         argument, CCNRM(f->follower, C_NRM));
                 act(buf, false, ch, NULL, f->follower, TO_VICT | TO_SLEEP);
             }
+        }
 
         snprintf(buf, sizeof(buf), "%sYou tell the group,%s '%s'%s", CCGRN(ch, C_NRM),
-            CCYEL(ch, C_NRM), argument, CCNRM(ch, C_NRM));
+                 CCYEL(ch, C_NRM), argument, CCNRM(ch, C_NRM));
         act(buf, false, ch, NULL, NULL, TO_CHAR | TO_SLEEP);
     }
 }
@@ -315,7 +354,7 @@ void
 perform_tell(struct creature *ch, struct creature *vict, const char *arg)
 {
     char *act_str = tmp_sprintf("&r$t$a tell$%% $T,&n '%s'",
-        act_escape(arg));
+                                act_escape(arg));
 
     act(act_str, false, ch, NULL, vict, TO_CHAR | TO_SLEEP);
     act(act_str, false, ch, NULL, vict, TO_VICT | TO_SLEEP);
@@ -324,15 +363,17 @@ perform_tell(struct creature *ch, struct creature *vict, const char *arg)
         && g_list_find(AFK_NOTIFIES(vict), GINT_TO_POINTER(GET_IDNUM(ch)))) {
         AFK_NOTIFIES(vict) =
             g_list_prepend(AFK_NOTIFIES(vict), GINT_TO_POINTER(GET_IDNUM(ch)));
-        if (AFK_REASON(vict))
+        if (AFK_REASON(vict)) {
             act(tmp_sprintf("$N is away from the keyboard: %s",
-                    AFK_REASON(vict)), true, ch, NULL, vict, TO_CHAR);
-        else
+                            AFK_REASON(vict)), true, ch, NULL, vict, TO_CHAR);
+        } else {
             act("$N is away from the keyboard.", true, ch, NULL, vict, TO_CHAR);
+        }
     }
 
-    if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_NPC(ch))
+    if (PRF2_FLAGGED(vict, PRF2_AUTOPAGE) && !IS_NPC(ch)) {
         send_to_char(vict, "\007\007");
+    }
 
     if (!IS_NPC(ch)) {
         GET_LAST_TELL_FROM(vict) = GET_IDNUM(ch);
@@ -343,43 +384,51 @@ perform_tell(struct creature *ch, struct creature *vict, const char *arg)
 static bool
 can_send_tell(struct creature *ch, struct creature *tch)
 {
-	// Immortals are hearable everywhere
-	if (ch->player.level >= LVL_IMMORT)
-		return true;
+    // Immortals are hearable everywhere
+    if (ch->player.level >= LVL_IMMORT) {
+        return true;
+    }
 
-	// Anyone can hear people inside the same rooms
-	if (ch->in_room == tch->in_room)
-		return true;
+    // Anyone can hear people inside the same rooms
+    if (ch->in_room == tch->in_room) {
+        return true;
+    }
 
-	// People outside of soundproof rooms can't hear or speak out
-	if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
-			ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF))
-		return false;
+    // People outside of soundproof rooms can't hear or speak out
+    if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
+        ROOM_FLAGGED(tch->in_room, ROOM_SOUNDPROOF)) {
+        return false;
+    }
 
-	// Players can hear each other inside the same zone
-	if (ch->in_room->zone == tch->in_room->zone)
-		return true;
+    // Players can hear each other inside the same zone
+    if (ch->in_room->zone == tch->in_room->zone) {
+        return true;
+    }
 
-	// but not outside if the zone is isolated or soundproof
-	if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
-			ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF))
-		return false;
+    // but not outside if the zone is isolated or soundproof
+    if (ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF) ||
+        ZONE_FLAGGED(tch->in_room->zone, ZONE_ISOLATED | ZONE_SOUNDPROOF)) {
+        return false;
+    }
 
-	// Can't speak on different planes
-	if (ch->in_room->zone->plane != tch->in_room->zone->plane)
-		return false;
+    // Can't speak on different planes
+    if (ch->in_room->zone->plane != tch->in_room->zone->plane) {
+        return false;
+    }
 
-	// Can speak to each other in the same times
-	if (ch->in_room->zone->time_frame == tch->in_room->zone->time_frame)
-		return true;
+    // Can speak to each other in the same times
+    if (ch->in_room->zone->time_frame == tch->in_room->zone->time_frame) {
+        return true;
+    }
 
-	// or to or from timeless zones
-	if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
-			tch->in_room->zone->time_frame == TIME_TIMELESS)
-		return true;
+    // or to or from timeless zones
+    if (ch->in_room->zone->time_frame == TIME_TIMELESS ||
+        tch->in_room->zone->time_frame == TIME_TIMELESS) {
+        return true;
+    }
 
-	// otherwise, they can't
-	return false;
+    // otherwise, they can't
+    return false;
 }
 
 /*
@@ -393,34 +442,34 @@ ACMD(do_tell)
     char buf2[MAX_INPUT_LENGTH];
     half_chop(argument, buf, buf2);
 
-    if (!*buf || !*buf2)
+    if (!*buf || !*buf2) {
         send_to_char(ch, "Who do you wish to tell what??\r\n");
-    else if (!(vict = get_player_vis(ch, buf, false))) {
+    } else if (!(vict = get_player_vis(ch, buf, false))) {
         send_to_char(ch, "%s", NOPERSON);
-    } else if (ch == vict)
+    } else if (ch == vict) {
         send_to_char(ch, "You try to tell yourself something.\r\n");
-    else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
+    } else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char(ch,
-            "You can't tell other people while you have notell on.\r\n");
-    else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
-        && GET_LEVEL(ch) < LVL_GRGOD && ch->in_room != vict->in_room)
+                     "You can't tell other people while you have notell on.\r\n");
+    } else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
+               && GET_LEVEL(ch) < LVL_GRGOD && ch->in_room != vict->in_room) {
         send_to_char(ch, "The walls seem to absorb your words.\r\n");
-    else if (!IS_NPC(vict) && !vict->desc)  /* linkless */
+    } else if (!IS_NPC(vict) && !vict->desc) { /* linkless */
         act("$E's linkless at the moment.", false, ch, NULL, vict,
             TO_CHAR | TO_SLEEP);
-    else if (PLR_FLAGGED(vict, PLR_WRITING))
+    } else if (PLR_FLAGGED(vict, PLR_WRITING)) {
         act("$E's writing a message right now; try again later.",
             false, ch, NULL, vict, TO_CHAR | TO_SLEEP);
-    else if ((PRF_FLAGGED(vict, PRF_NOTELL) ||
-            PLR_FLAGGED(vict, PLR_OLC) ||
-            (ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF) &&
-                ch->in_room != vict->in_room)) &&
-        !(GET_LEVEL(ch) >= LVL_GRGOD && GET_LEVEL(ch) > GET_LEVEL(vict)))
+    } else if ((PRF_FLAGGED(vict, PRF_NOTELL) ||
+                PLR_FLAGGED(vict, PLR_OLC) ||
+                (ROOM_FLAGGED(vict->in_room, ROOM_SOUNDPROOF) &&
+                 ch->in_room != vict->in_room)) &&
+               !(GET_LEVEL(ch) >= LVL_GRGOD && GET_LEVEL(ch) > GET_LEVEL(vict))) {
         act("$E can't hear you.", false, ch, NULL, vict, TO_CHAR | TO_SLEEP);
-    else {
+    } else {
         if (!can_send_tell(ch, vict)) {
             if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
-                    affected_by_spell(vict, SPELL_TELEPATHY))) {
+                  affected_by_spell(vict, SPELL_TELEPATHY))) {
                 act("Your telepathic voice cannot reach $M.",
                     false, ch, NULL, vict, TO_CHAR);
                 return;
@@ -452,23 +501,23 @@ ACMD(do_reply)
 
     struct creature *tch = get_char_in_world_by_idnum(GET_LAST_TELL_FROM(ch));
 
-    if (!tch)
+    if (!tch) {
         send_to_char(ch, "They are no longer playing.\r\n");
-    else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
+    } else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char(ch,
-            "You can't tell other people while you have notell on.\r\n");
-    else if (!IS_NPC(tch) && tch->desc == NULL)
+                     "You can't tell other people while you have notell on.\r\n");
+    } else if (!IS_NPC(tch) && tch->desc == NULL) {
         send_to_char(ch, "They are linkless at the moment.\r\n");
-    else if (PLR_FLAGGED(tch, PLR_WRITING))
+    } else if (PLR_FLAGGED(tch, PLR_WRITING)) {
         send_to_char(ch, "They are writing at the moment.\r\n");
-    else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
-        && GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(tch) < LVL_GRGOD
-        && ch->in_room != tch->in_room)
+    } else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
+               && GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(tch) < LVL_GRGOD
+               && ch->in_room != tch->in_room) {
         send_to_char(ch, "The walls seem to absorb your words.\r\n");
-    else {
+    } else {
         if (!can_send_tell(ch, tch) && !can_send_tell((tch), ch)) {
             if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
-                    affected_by_spell((tch), SPELL_TELEPATHY))) {
+                  affected_by_spell((tch), SPELL_TELEPATHY))) {
                 act("Your telepathic voice cannot reach $M.",
                     false, ch, NULL, tch, TO_CHAR);
                 return;
@@ -496,23 +545,23 @@ ACMD(do_retell)
 
     struct creature *tch = get_char_in_world_by_idnum(GET_LAST_TELL_TO(ch));
 
-    if (!tch)
+    if (!tch) {
         send_to_char(ch, "They are no longer playing.\r\n");
-    else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR)
+    } else if (PRF_FLAGGED(ch, PRF_NOTELL) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char(ch,
-            "You can't tell other people while you have notell on.\r\n");
-    else if (!IS_NPC(tch) && tch->desc == NULL)
+                     "You can't tell other people while you have notell on.\r\n");
+    } else if (!IS_NPC(tch) && tch->desc == NULL) {
         send_to_char(ch, "They are linkless at the moment.\r\n");
-    else if (PLR_FLAGGED(tch, PLR_WRITING))
+    } else if (PLR_FLAGGED(tch, PLR_WRITING)) {
         send_to_char(ch, "They are writing at the moment.\r\n");
-    else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
-        && GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(tch) < LVL_GRGOD
-        && ch->in_room != tch->in_room)
+    } else if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
+               && GET_LEVEL(ch) < LVL_GRGOD && GET_LEVEL(tch) < LVL_GRGOD
+               && ch->in_room != tch->in_room) {
         send_to_char(ch, "The walls seem to absorb your words.\r\n");
-    else {
+    } else {
         if (!can_send_tell(ch, tch) && !can_send_tell((tch), ch)) {
             if (!(affected_by_spell(ch, SPELL_TELEPATHY) ||
-                    affected_by_spell((tch), SPELL_TELEPATHY))) {
+                  affected_by_spell((tch), SPELL_TELEPATHY))) {
                 act("Your telepathic voice cannot reach $M.",
                     false, ch, NULL, tch, TO_CHAR);
                 return;
@@ -534,14 +583,14 @@ ACMD(do_whisper)
         send_to_char(ch, "To whom do you want to whisper.. and what??\r\n");
     } else if (!(vict = get_char_room_vis(ch, vict_str))) {
         send_to_char(ch, "%s", NOPERSON);
-    } else if (vict == ch)
+    } else if (vict == ch) {
         send_to_char(ch,
-            "You can't get your mouth close enough to your ear...\r\n");
-    else {
+                     "You can't get your mouth close enough to your ear...\r\n");
+    } else {
         act(tmp_sprintf("&yYou$a whisper to $N$l,&n '$[%s]'",
-                act_escape(argument)), false, ch, NULL, vict, TO_CHAR);
+                        act_escape(argument)), false, ch, NULL, vict, TO_CHAR);
         act(tmp_sprintf("&y$n$a whispers to you$l,&n '$[%s]'",
-                act_escape(argument)), false, ch, NULL, vict, TO_VICT);
+                        act_escape(argument)), false, ch, NULL, vict, TO_VICT);
         act("$n$a whispers something to $N.", false, ch, NULL, vict, TO_NOTVICT);
     }
 }
@@ -558,12 +607,13 @@ ACMD(do_write)
 
     two_arguments(argument, papername, penname);
 
-    if (!ch->desc)
+    if (!ch->desc) {
         return;
+    }
 
     if (!*papername) {          /* nothing was delivered */
         send_to_char(ch,
-            "Write?  With what?  ON what?  What are you trying to do?!?\r\n");
+                     "Write?  With what?  ON what?  What are you trying to do?!?\r\n");
         return;
     }
     if (*penname) {             /* there were two arguments */
@@ -578,7 +628,7 @@ ACMD(do_write)
     } else {                    /* there was one arg.. let's see what we can find */
         if (!(paper = get_obj_in_list_vis(ch, papername, ch->carrying))) {
             send_to_char(ch, "There is no %s in your inventory.\r\n",
-                papername);
+                         papername);
             return;
         }
         if (IS_OBJ_TYPE(paper, ITEM_PEN)) {  /* oops, a pen.. */
@@ -591,18 +641,19 @@ ACMD(do_write)
         /* One object was found.. now for the other one. */
         if (!GET_EQ(ch, WEAR_HOLD)) {
             send_to_char(ch, "You can't write with %s %s alone.\r\n",
-                AN(papername), papername);
+                         AN(papername), papername);
             return;
         }
         if (!can_see_object(ch, GET_EQ(ch, WEAR_HOLD))) {
             send_to_char(ch,
-                "The stuff in your hand is invisible!  Yeech!!\r\n");
+                         "The stuff in your hand is invisible!  Yeech!!\r\n");
             return;
         }
-        if (pen)
+        if (pen) {
             paper = GET_EQ(ch, WEAR_HOLD);
-        else
+        } else {
             pen = GET_EQ(ch, WEAR_HOLD);
+        }
     }
 
     /* ok.. now let's see what kind of stuff we've found */
@@ -613,8 +664,9 @@ ACMD(do_write)
     } else if (paper->action_desc) {
         send_to_char(ch, "There's something written on it already.\r\n");
     } else {
-        if (paper->action_desc == NULL)
+        if (paper->action_desc == NULL) {
             CREATE(paper->action_desc, char, MAX_NOTE_LENGTH);
+        }
         start_editing_text(ch->desc, &paper->action_desc, MAX_NOTE_LENGTH);
         SET_BIT(PLR_FLAGS(ch), PLR_WRITING);
         act("$n begins to jot down a note..", true, ch, NULL, NULL, TO_ROOM);
@@ -628,22 +680,23 @@ ACMD(do_page)
 
     target_str = tmp_getword(&argument);
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         send_to_char(ch, "Monsters can't page.. go away.\r\n");
-    else if (!*target_str)
+    } else if (!*target_str) {
         send_to_char(ch, "Whom do you wish to page?\r\n");
-    else {
+    } else {
         char *msg = tmp_sprintf("\007*%s* %s", GET_NAME(ch), argument);
 
         if ((vict = get_char_vis(ch, target_str)) != NULL) {
             send_to_char(vict, "%s%s%s%s\r\n",
-                CCYEL(vict, C_SPR),
-                CCBLD(vict, C_NRM), msg, CCNRM(vict, C_SPR));
+                         CCYEL(vict, C_SPR),
+                         CCBLD(vict, C_NRM), msg, CCNRM(vict, C_SPR));
             send_to_char(ch, "%s%s%s%s\r\n",
-                CCYEL(ch, C_SPR), CCBLD(ch, C_NRM), msg, CCNRM(ch, C_SPR));
+                         CCYEL(ch, C_SPR), CCBLD(ch, C_NRM), msg, CCNRM(ch, C_SPR));
             return;
-        } else
+        } else {
             send_to_char(ch, "There is no such person in the game!\r\n");
+        }
     }
 }
 
@@ -699,7 +752,7 @@ ACMD(do_chat)
 
 /**********************************************************************
  * generalized communication func, originally by Fred C. Merkel (Torg) *
-  *********************************************************************/
+ *********************************************************************/
 #define INTERPLANAR  false
 #define PLANAR       true
 #define NOT_EMOTE    false
@@ -719,69 +772,69 @@ struct channel_info_t {
 
 struct channel_info_t channels[] = {
     {"holler", 2, PRF2_NOHOLLER, INTERPLANAR, NOT_EMOTE,
-            "&Y", "&r",
-            "Ha!  You are noholler buddy.",
-        "You find yourself unable to holler!"},
+     "&Y", "&r",
+     "Ha!  You are noholler buddy.",
+     "You find yourself unable to holler!"},
     {"shout", 1, PRF_DEAF, PLANAR, NOT_EMOTE,
-            "&y", "&c",
-            "Turn off your noshout flag first!",
-        "You cannot shout!!"},
+     "&y", "&c",
+     "Turn off your noshout flag first!",
+     "You cannot shout!!"},
     {"gossip", 1, PRF_NOGOSS, PLANAR, NOT_EMOTE,
-            "&g", "&n",
-            "You aren't even on the channel!",
-        "You cannot gossip!!"},
+     "&g", "&n",
+     "You aren't even on the channel!",
+     "You cannot gossip!!"},
     {"auction", 1, PRF_NOAUCT, INTERPLANAR, NOT_EMOTE,
-            "&m", "&n",
-            "You aren't even on the channel!",
-        "Only licenced auctioneers can auction!!"},
+     "&m", "&n",
+     "You aren't even on the channel!",
+     "Only licenced auctioneers can auction!!"},
     {"congrat", 1, PRF_NOGRATZ, PLANAR, NOT_EMOTE,
-            "&g", "&m",
-            "You aren't even on the channel!",
-        "You cannot congratulate!!"},
+     "&g", "&m",
+     "You aren't even on the channel!",
+     "You cannot congratulate!!"},
     {"sing", 1, PRF_NOMUSIC, PLANAR, NOT_EMOTE,
-            "&c", "&y",
-            "You aren't even on the channel!",
-        "You cannot sing!!"},
+     "&c", "&y",
+     "You aren't even on the channel!",
+     "You cannot sing!!"},
     {"spew", 1, PRF_NOSPEW, PLANAR, NOT_EMOTE,
-            "&r", "&y",
-            "You aren't even on the channel!",
-        "You cannot spew!!"},
+     "&r", "&y",
+     "You aren't even on the channel!",
+     "You cannot spew!!"},
     {"dream", 1, PRF_NODREAM, PLANAR, NOT_EMOTE,
-            "&c", "&W",
-            "You aren't even on the channel!",
-        "You cannot dream!!"},
+     "&c", "&W",
+     "You aren't even on the channel!",
+     "You cannot dream!!"},
     {"project", 1, PRF_NOPROJECT, INTERPLANAR, NOT_EMOTE,
-            "&N", "&c",
-            "You are not open to projections yourself...",
-        "You cannot project.  The immortals have muted you."},
+     "&N", "&c",
+     "You are not open to projections yourself...",
+     "You cannot project.  The immortals have muted you."},
     {"newbie", -2, PRF2_NEWBIE_HELPER, PLANAR, NOT_EMOTE,
-            "&y", "&n",
-            "You aren't on the illustrious newbie channel.",
-        "The immortals have muted you for bad behavior!"},
+     "&y", "&n",
+     "You aren't on the illustrious newbie channel.",
+     "The immortals have muted you for bad behavior!"},
     {"clan-say", 1, PRF_NOCLANSAY, PLANAR, NOT_EMOTE,
-            "&c", "&n",
-            "You aren't listening to the words of your clan.",
-        "The immortals have muted you.  You may not clan say."},
+     "&c", "&n",
+     "You aren't listening to the words of your clan.",
+     "The immortals have muted you.  You may not clan say."},
     {"guild-say", 2, PRF2_NOGUILDSAY, PLANAR, NOT_EMOTE,
-            "&m", "&y",
-            "You aren't listening to the rumors of your guild.",
-        "You may not guild-say, for the immortals have muted you."},
+     "&m", "&y",
+     "You aren't listening to the rumors of your guild.",
+     "You may not guild-say, for the immortals have muted you."},
     {"clan-emote", 1, PRF_NOCLANSAY, PLANAR, IS_EMOTE,
-            "&c", "&c",
-            "You aren't listening to the words of your clan.",
-        "The immortals have muted you.  You may not clan emote."},
+     "&c", "&c",
+     "You aren't listening to the words of your clan.",
+     "The immortals have muted you.  You may not clan emote."},
     {"petition", 1, PRF_NOPETITION, INTERPLANAR, NOT_EMOTE,
-            "&m", "&c",
-            "You aren't listening to petitions at this time.",
-        "The immortals have turned a deaf ear to your petitions."},
+     "&m", "&c",
+     "You aren't listening to petitions at this time.",
+     "The immortals have turned a deaf ear to your petitions."},
     {"haggle", 1, PRF_NOHAGGLE, PLANAR, NOT_EMOTE,
-            "&m", "&n",
-            "You're not haggling with your peers.",
-        "Your haggling has been muted."},
+     "&m", "&n",
+     "You're not haggling with your peers.",
+     "Your haggling has been muted."},
     {"plug", 1, PRF_NOPLUG, INTERPLANAR, NOT_EMOTE,
-            "&Y", "&C",
-            "You're not listening to the plugs.",
-        "Your plugs have been muted."},
+     "&Y", "&C",
+     "You're not listening to the plugs.",
+     "Your plugs have been muted."},
 };
 
 const char *
@@ -793,8 +846,9 @@ random_curses(void)
 
     curse_len = number(4, 6);
     map_len = strlen(curse_map);
-    for (idx = 0; idx < curse_len; idx++)
+    for (idx = 0; idx < curse_len; idx++) {
         curse_buf[idx] = curse_map[number(0, map_len - 1)];
+    }
     curse_buf[curse_len] = '\0';
 
     return tmp_strdup(curse_buf);
@@ -815,14 +869,15 @@ ACMD(do_gen_comm)
     chan = &channels[subcmd];
 
     // pets can't shout on interplanar channels
-    if (!ch->desc && ch->master && !chan->check_plane)
+    if (!ch->desc && ch->master && !chan->check_plane) {
         return;
+    }
 
     // Drunk people not allowed!
     if ((GET_COND(ch, DRUNK) > 5) && (number(0, 3) >= 2)) {
         send_to_char(ch,
-            "You try to %s, but somehow it just doesn't come out right.\r\n",
-            chan->name);
+                     "You try to %s, but somehow it just doesn't come out right.\r\n",
+                     chan->name);
         return;
     }
     if (PLR_FLAGGED(ch, PLR_NOSHOUT)) {
@@ -851,8 +906,8 @@ ACMD(do_gen_comm)
             subcmd != SCMD_NEWBIE &&
             subcmd != SCMD_CLANSAY && GET_REMORT_GEN(ch) <= 0) {
             send_to_char(ch,
-                "You must be at least level %d before you can %s.\r\n",
-                level_can_shout, chan->name);
+                         "You must be at least level %d before you can %s.\r\n",
+                         level_can_shout, chan->name);
             send_to_char(ch, "Try using the newbie channel instead.\r\n");
             return;
         }
@@ -860,13 +915,13 @@ ACMD(do_gen_comm)
         if (subcmd == SCMD_PROJECT && !IS_REMORT(ch) &&
             GET_LEVEL(ch) < LVL_AMBASSADOR) {
             send_to_char(ch,
-                "You do not know how to project yourself that way.\r\n");
+                         "You do not know how to project yourself that way.\r\n");
             return;
         }
         // Players can't auction anymore
         if (subcmd == SCMD_AUCTION) {
             send_to_char(ch,
-                "Only licensed auctioneers can use that channel!\r\n");
+                         "Only licensed auctioneers can use that channel!\r\n");
             return;
         }
 
@@ -876,16 +931,16 @@ ACMD(do_gen_comm)
         }
 
         if ((subcmd == SCMD_DREAM &&
-                (GET_POSITION(ch) != POS_SLEEPING)) &&
+             (GET_POSITION(ch) != POS_SLEEPING)) &&
             !ZONE_IS_ASLEEP(ch->in_room->zone)) {
             send_to_char(ch,
-                "You attempt to dream, but realize you need to sleep first.\r\n");
+                         "You attempt to dream, but realize you need to sleep first.\r\n");
             return;
         }
 
         if (subcmd == SCMD_NEWBIE && !PRF2_FLAGGED(ch, PRF2_NEWBIE_HELPER)) {
             send_to_char(ch,
-                "You aren't on the illustrious newbie channel.\r\n");
+                         "You aren't on the illustrious newbie channel.\r\n");
             return;
         }
 
@@ -894,12 +949,12 @@ ACMD(do_gen_comm)
                 // Clerics and knights cannot be neutral
                 if (GET_CLASS(ch) == CLASS_CLERIC) {
                     send_to_char(ch,
-                        "You have been cast out of the ranks of the blessed.\r\n");
+                                 "You have been cast out of the ranks of the blessed.\r\n");
                     return;
                 }
                 if (GET_CLASS(ch) == CLASS_KNIGHT) {
                     send_to_char(ch,
-                        "You have been cast out of the ranks of the honored.\r\n");
+                                 "You have been cast out of the ranks of the honored.\r\n");
                     return;
                 }
 
@@ -907,7 +962,7 @@ ACMD(do_gen_comm)
                 // Monks must be neutral
                 if (GET_CLASS(ch) == CLASS_MONK) {
                     send_to_char(ch,
-                        "You have been cast out of the monks until your neutrality is regained.\r\n");
+                                 "You have been cast out of the monks until your neutrality is regained.\r\n");
                     return;
                 }
             }
@@ -919,7 +974,7 @@ ACMD(do_gen_comm)
     /* make sure that there is something there to say! */
     if (!*argument) {
         send_to_char(ch, "Yes, %s, fine, %s we must, but WHAT???\r\n",
-            chan->name, chan->name);
+                     chan->name, chan->name);
         return;
     }
 
@@ -927,8 +982,9 @@ ACMD(do_gen_comm)
         if (GET_MOVE(ch) < holler_move_cost) {
             send_to_char(ch, "You're too exhausted to holler.\r\n");
             return;
-        } else
+        } else {
             GET_MOVE(ch) -= holler_move_cost;
+        }
     }
 
     eff_is_neutral = IS_NEUTRAL(ch);
@@ -963,8 +1019,9 @@ ACMD(do_gen_comm)
             eff_is_evil = false;
             eff_is_good = true;
             eff_class = CLASS_KNIGHT;
-        } else
+        } else {
             eff_class = parse_player_class(class_str);
+        }
 
         if (eff_class == CLASS_MONK) {
             eff_is_neutral = true;
@@ -1001,20 +1058,23 @@ ACMD(do_gen_comm)
     }
 
     if (subcmd == SCMD_GUILDSAY) {
-        if (eff_class >= 0 && eff_class < TOP_CLASS)
+        if (eff_class >= 0 && eff_class < TOP_CLASS) {
             str = tmp_tolower(class_names[eff_class]);
-        else
+        } else {
             str = tmp_sprintf("#%d", eff_class);
-        if (eff_class == CLASS_CLERIC || eff_class == CLASS_KNIGHT)
+        }
+        if (eff_class == CLASS_CLERIC || eff_class == CLASS_KNIGHT) {
             str = tmp_sprintf("%s-%s", (eff_is_good ? "g" : "e"), str);
+        }
         sub_channel_desc = tmp_strcat("[", str, "] ", NULL);
     } else if (subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE) {
         clan = real_clan(eff_clan);
 
-        if (clan)
+        if (clan) {
             str = tmp_tolower(clan->name);
-        else
+        } else {
             str = tmp_sprintf("#%d", eff_clan);
+        }
         sub_channel_desc = tmp_strcat("[", str, "] ", NULL);
     } else {
         sub_channel_desc = "";
@@ -1024,100 +1084,118 @@ ACMD(do_gen_comm)
     if (subcmd == SCMD_SHOUT && IS_NPC(ch)
         && !AFF_FLAGGED(ch, AFF_CHARM)
         && strstr(argument, "help")
-        && strstr(argument, "!"))
+        && strstr(argument, "!")) {
         summon_cityguards(ch->in_room);
+    }
 
     // Construct all the emits ahead of time.
     if (chan->is_emote) {
         imm_actstr = tmp_sprintf("%s%s$n$a %s%s",
-            chan->desc_color,
-            sub_channel_desc, chan->text_color, act_escape(argument));
+                                 chan->desc_color,
+                                 sub_channel_desc, chan->text_color, act_escape(argument));
         actstr = tmp_sprintf("%s$n$a %s%s",
-            chan->desc_color, chan->text_color, act_escape(argument));
+                             chan->desc_color, chan->text_color, act_escape(argument));
     } else {
         // Newbie channel is always in common
-        if (subcmd == SCMD_NEWBIE)
+        if (subcmd == SCMD_NEWBIE) {
             GET_TONGUE(ch) = TONGUE_COMMON;
+        }
 
         imm_actstr = tmp_sprintf("%s%s$t$a %s$%%$l, %s'$[%s]'",
-            chan->desc_color,
-            sub_channel_desc,
-            chan->name, chan->text_color, act_escape(argument));
+                                 chan->desc_color,
+                                 sub_channel_desc,
+                                 chan->name, chan->text_color, act_escape(argument));
         actstr = tmp_sprintf("%s$t$a %s$%%$l, %s'$[%s]'",
-            chan->desc_color,
-            chan->name, chan->text_color, act_escape(argument));
+                             chan->desc_color,
+                             chan->name, chan->text_color, act_escape(argument));
     }
 
     /* now send all the strings out */
     for (i = descriptor_list; i; i = i->next) {
         if (STATE(i) != CXN_PLAYING || !i->creature ||
-            PLR_FLAGGED(i->creature, PLR_WRITING))
+            PLR_FLAGGED(i->creature, PLR_WRITING)) {
             continue;
+        }
 
         if (chan->deaf_vector == 1 &&
-            PRF_FLAGGED(i->creature, chan->deaf_flag))
+            PRF_FLAGGED(i->creature, chan->deaf_flag)) {
             continue;
+        }
         if (chan->deaf_vector == 2 &&
-            PRF2_FLAGGED(i->creature, chan->deaf_flag))
+            PRF2_FLAGGED(i->creature, chan->deaf_flag)) {
             continue;
+        }
         if (chan->deaf_vector == -2 &&
-            !PRF2_FLAGGED(i->creature, chan->deaf_flag))
+            !PRF2_FLAGGED(i->creature, chan->deaf_flag)) {
             continue;
+        }
 
         // Must be in same clan or an admin to hear clansay
         if ((subcmd == SCMD_CLANSAY || subcmd == SCMD_CLANEMOTE)
             && GET_CLAN(i->creature) != eff_clan
-            && !is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL))
+            && !is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL)) {
             continue;
+        }
 
         // Must be in same guild or an admin to hear guildsay
         if (subcmd == SCMD_GUILDSAY &&
             GET_CLASS(i->creature) != eff_class &&
-            !is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL))
+            !is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL)) {
             continue;
+        }
 
         // Evil and good clerics and knights have different guilds
         if (subcmd == SCMD_GUILDSAY &&
             (GET_CLASS(i->creature) == CLASS_CLERIC ||
-                GET_CLASS(i->creature) == CLASS_KNIGHT) &&
+             GET_CLASS(i->creature) == CLASS_KNIGHT) &&
             !is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL)) {
-            if (eff_is_neutral)
+            if (eff_is_neutral) {
                 continue;
-            if (eff_is_evil && !IS_EVIL(i->creature))
+            }
+            if (eff_is_evil && !IS_EVIL(i->creature)) {
                 continue;
-            if (eff_is_good && !IS_GOOD(i->creature))
+            }
+            if (eff_is_good && !IS_GOOD(i->creature)) {
                 continue;
+            }
         }
         // Outcast monks don't hear other monks
         if (subcmd == SCMD_GUILDSAY &&
             GET_CLASS(i->creature) == CLASS_MONK &&
             !IS_NEUTRAL(i->creature) &&
-            !is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL))
+            !is_authorized(i->creature, HEAR_ALL_CHANNELS, NULL)) {
             continue;
+        }
 
         if (IS_NPC(ch) || !IS_IMMORT(i->creature)) {
-            if (subcmd == SCMD_PROJECT && !IS_REMORT(i->creature))
+            if (subcmd == SCMD_PROJECT && !IS_REMORT(i->creature)) {
                 continue;
+            }
 
             if (subcmd == SCMD_DREAM &&
-                GET_POSITION(i->creature) != POS_SLEEPING)
+                GET_POSITION(i->creature) != POS_SLEEPING) {
                 continue;
+            }
 
             if (subcmd == SCMD_SHOUT &&
                 ((ch->in_room->zone != i->creature->in_room->zone) ||
-                    GET_POSITION(i->creature) < POS_RESTING))
+                 GET_POSITION(i->creature) < POS_RESTING)) {
                 continue;
+            }
 
-            if (subcmd == SCMD_PETITION && i->creature != ch)
+            if (subcmd == SCMD_PETITION && i->creature != ch) {
                 continue;
+            }
 
             if ((ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF) ||
-                    ROOM_FLAGGED(i->creature->in_room, ROOM_SOUNDPROOF)) &&
-                !IS_IMMORT(ch) && i->creature->in_room != ch->in_room)
+                 ROOM_FLAGGED(i->creature->in_room, ROOM_SOUNDPROOF)) &&
+                !IS_IMMORT(ch) && i->creature->in_room != ch->in_room) {
                 continue;
+            }
 
-            if (chan->check_plane && !can_channel_comm(ch, i->creature))
+            if (chan->check_plane && !can_channel_comm(ch, i->creature)) {
                 continue;
+            }
         }
 
         if (IS_IMMORT(i->creature)) {
@@ -1131,8 +1209,9 @@ ACMD(do_gen_comm)
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_SOUNDPROOF)
         && !IS_IMMORT(ch)
-        && subcmd != SCMD_PETITION)
+        && subcmd != SCMD_PETITION) {
         send_to_char(ch, "The walls seem to absorb your words.\r\n");
+    }
 }
 
 #undef __act_comm_cc__

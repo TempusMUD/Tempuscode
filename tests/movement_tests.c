@@ -81,11 +81,11 @@ void
 fixture_movement_teardown(void)
 {
     /*
-      free_creature(ch);
-    free_room(room_a);
-    free_room(room_b);
-    free_zone(zone);
-    */
+       free_creature(ch);
+       free_room(room_a);
+       free_room(room_b);
+       free_zone(zone);
+     */
 }
 
 START_TEST(test_flying)

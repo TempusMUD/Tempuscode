@@ -81,14 +81,16 @@ GET_SKILL_COST(struct creature *ch, int skill)
     long skill_lvl, cost;
 
     skill_lvl = SPELL_LEVEL(skill, GET_CLASS(ch));
-    if (IS_REMORT(ch) && skill_lvl > SPELL_LEVEL(skill, GET_REMORT_CLASS(ch)))
+    if (IS_REMORT(ch) && skill_lvl > SPELL_LEVEL(skill, GET_REMORT_CLASS(ch))) {
         skill_lvl = SPELL_LEVEL(skill, GET_REMORT_CLASS(ch));
+    }
 
     cost = skill_lvl * skill_lvl * 100;
 
     // Remort costs: gen 1, lvl 35: 245k  gen 10, lvl 49: 2641100
-    if (SPELL_GEN(skill, GET_CLASS(ch)))
+    if (SPELL_GEN(skill, GET_CLASS(ch))) {
         cost *= SPELL_GEN(skill, GET_CLASS(ch)) + 1;
+    }
 
     return cost;
 }
@@ -98,8 +100,8 @@ void
 log_death_trap(struct creature *ch)
 {
     mudlog(LVL_AMBASSADOR, BRF, true,
-        "%s hit death trap #%d (%s)", GET_NAME(ch),
-        ch->in_room->number, ch->in_room->name);
+           "%s hit death trap #%d (%s)", GET_NAME(ch),
+           ch->in_room->number, ch->in_room->name);
 }
 
 /* the "touch" command, essentially. */
@@ -123,7 +125,7 @@ touch(const char *path)
  */
 void
 mlog(const char *group, int8_t level, enum log_type type, bool file,
-    const char *fmt, ...)
+     const char *fmt, ...)
 {
     bool is_named_role_member(struct creature *ch, const char *role_name);
 
@@ -143,30 +145,35 @@ mlog(const char *group, int8_t level, enum log_type type, bool file,
     ct = time(NULL);
     ctm = localtime(&ct);
 
-    if (file)
+    if (file) {
         fprintf(stderr, "%-19.19s :: %s\n", asctime(ctm), msg);
+    }
 
-    if (group == ROLE_NOONE)
+    if (group == ROLE_NOONE) {
         return;
-    if (level < 0)
+    }
+    if (level < 0) {
         return;
+    }
 
     strftime(timebuf, 24, " - %b %d %T", ctm);
 
-    for (i = descriptor_list; i; i = i->next)
+    for (i = descriptor_list; i; i = i->next) {
         if (i->input_mode == CXN_PLAYING
             && !PLR_FLAGGED(i->creature, PLR_WRITING)) {
 
             tp = ((PRF_FLAGGED(i->creature, PRF_LOG1) ? 1 : 0) +
-                (PRF_FLAGGED(i->creature, PRF_LOG2) ? 2 : 0));
+                  (PRF_FLAGGED(i->creature, PRF_LOG2) ? 2 : 0));
 
             if (is_named_role_member(i->creature, group)
                 && (GET_LEVEL(i->creature) >= level)
-                && (tp >= type))
+                && (tp >= type)) {
                 send_to_char(i->creature, "%s[ %s%s ]%s\r\n",
-                    CCGRN(i->creature, C_NRM),
-                    msg, timebuf, CCNRM(i->creature, C_NRM));
+                             CCGRN(i->creature, C_NRM),
+                             msg, timebuf, CCNRM(i->creature, C_NRM));
+            }
         }
+    }
 }
 
 /* writes a string to the log */
@@ -209,13 +216,13 @@ errlog(const char *fmt, ...)
 
     while (x < MAX_FRAMES && ret_addrs[x]) {
         backtrace_str = tmp_sprintf("%s%p%s", backtrace_str, ret_addrs[x],
-            (ret_addrs[x + 1]) ? " " : "");
+                                    (ret_addrs[x + 1]) ? " " : "");
         x++;
     }
 
     va_start(args, fmt);
     mlog(ROLE_CODER, LVL_AMBASSADOR, NRM, true,
-        "SYSERR: %s", tmp_vsprintf(fmt, args));
+         "SYSERR: %s", tmp_vsprintf(fmt, args));
     va_end(args);
 
     mlog(ROLE_NOONE, LVL_AMBASSADOR, NRM, true, "TRACE: %s", backtrace_str);
@@ -240,22 +247,26 @@ zerrlog(struct zone_data *zone, const char *fmt, ...)
 
     for (d = descriptor_list; d; d = d->next) {
         // Only playing immortals can see zone errors
-        if (!IS_PLAYING(d) || GET_LEVEL(d->creature) < 50)
+        if (!IS_PLAYING(d) || GET_LEVEL(d->creature) < 50) {
             continue;
+        }
 
         // Zone owners get to see them
         display = GET_IDNUM(d->creature) == zone->owner_idnum;
 
         // Zone co-owners also get to see them
-        if (!display)
+        if (!display) {
             display = GET_IDNUM(d->creature) == zone->co_owner_idnum;
+        }
 
         // Immortals within the zone see them
-        if (!display && d->creature->in_room)
+        if (!display && d->creature->in_room) {
             display = d->creature->in_room->zone == zone;
+        }
 
-        if (display)
+        if (display) {
             d_printf(d, "&y%s&n\r\n", msg);
+        }
     }
 }
 
@@ -307,7 +318,7 @@ age(struct creature *ch)
 {
     struct time_info_data player_age;
     struct race *race = race_by_idnum(GET_RACE(ch));
-    int age_adjust = (race) ? race->age_adjust:18;
+    int age_adjust = (race) ? race->age_adjust : 18;
 
     player_age = mud_time_passed(time(NULL), ch->player.time.birth);
     player_age.year += age_adjust;
@@ -318,31 +329,35 @@ age(struct creature *ch)
 /* Check if making CH follow VICTIM will create an illegal */
 /* Follow "Loop/circle"                                    */
 bool
-circle_follow(struct creature * ch, struct creature * victim)
+circle_follow(struct creature *ch, struct creature *victim)
 {
     struct creature *k;
 
     for (k = victim; k; k = k->master) {
-        if (k == ch)
+        if (k == ch) {
             return true;
+        }
     }
 
     return false;
 }
 
 bool
-can_charm_more(struct creature * ch)
+can_charm_more(struct creature *ch)
 {
     struct follow_type *cur;
     int count = 0;
 
     // We can always charm one
-    if (!ch->followers)
+    if (!ch->followers) {
         return true;
+    }
 
-    for (cur = ch->followers; cur; cur = cur->next)
-        if (AFF_FLAGGED(cur->follower, AFF_CHARM))
+    for (cur = ch->followers; cur; cur = cur->next) {
+        if (AFF_FLAGGED(cur->follower, AFF_CHARM)) {
             count++;
+        }
+    }
 
     return (count < GET_CHA(ch) / 2 + GET_REMORT_GEN(ch));
 }
@@ -358,8 +373,9 @@ remove_follower(struct creature *ch)
         free(k);
     } else {                    /* locate follower who is not head of list */
         k = ch->master->followers;
-        while (k->next->follower != ch)
+        while (k->next->follower != ch) {
             k = k->next;
+        }
 
         j = k->next;
         k->next = j->next;
@@ -374,8 +390,9 @@ remove_follower(struct creature *ch)
 void
 stop_follower(struct creature *ch)
 {
-    if (!ch->master)
+    if (!ch->master) {
         raise(SIGSEGV);
+    }
 
     if (AFF_FLAGGED(ch, AFF_CHARM) && !NPC2_FLAGGED(ch, NPC2_MOUNT)) {
         act("You realize that $N is a jerk!", false, ch, NULL, ch->master,
@@ -383,16 +400,18 @@ stop_follower(struct creature *ch)
         act("$n realizes that $N is a jerk!", false, ch, NULL, ch->master,
             TO_NOTVICT);
         act("$n hates your guts!", false, ch, NULL, ch->master, TO_VICT);
-        if (affected_by_spell(ch, SPELL_CHARM))
+        if (affected_by_spell(ch, SPELL_CHARM)) {
             affect_from_char(ch, SPELL_CHARM);
+        }
     } else {
         act("You stop following $N.", false, ch, NULL, ch->master, TO_CHAR);
         act("$n stops following $N.", true, ch, NULL, ch->master, TO_NOTVICT);
         if (GET_INVIS_LVL(ch) < GET_LEVEL(ch->master)
-            && !AFF_FLAGGED(ch, AFF_SNEAK))
+            && !AFF_FLAGGED(ch, AFF_SNEAK)) {
             act("$n stops following you.", true, ch, NULL, ch->master, TO_VICT);
+        }
     }
-    
+
     remove_follower(ch);
     REMOVE_BIT(AFF_FLAGS(ch), AFF_CHARM | AFF_GROUP);
 }
@@ -403,11 +422,13 @@ die_follower(struct creature *ch)
 {
     struct follow_type *j, *k;
 
-    if (order_next_k && order_next_k->follower && ch == order_next_k->follower)
+    if (order_next_k && order_next_k->follower && ch == order_next_k->follower) {
         order_next_k = NULL;
+    }
 
-    if (ch->master)
+    if (ch->master) {
         stop_follower(ch);
+    }
 
     for (k = ch->followers; k; k = j) {
         j = k->next;
@@ -418,10 +439,11 @@ die_follower(struct creature *ch)
 bool
 player_in_room(struct room_data *room)
 {
-    for (GList * it = first_living(room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
-        if (!IS_NPC(tch) && GET_LEVEL(tch) < LVL_AMBASSADOR)
+        if (!IS_NPC(tch) && GET_LEVEL(tch) < LVL_AMBASSADOR) {
             return true;
+        }
     }
     return false;
 }
@@ -445,14 +467,16 @@ new_follower(struct creature *ch, struct creature *leader)
 void
 add_follower(struct creature *ch, struct creature *leader)
 {
-    if (ch->master)
+    if (ch->master) {
         raise(SIGSEGV);
+    }
 
     new_follower(ch, leader);
-    
+
     act("You now follow $N.", false, ch, NULL, leader, TO_CHAR);
-    if (can_see_creature(leader, ch))
+    if (can_see_creature(leader, ch)) {
         act("$n starts following you.", true, ch, NULL, leader, TO_VICT);
+    }
     act("$n starts to follow $N.", true, ch, NULL, leader, TO_NOTVICT);
 }
 
@@ -461,8 +485,9 @@ add_stalker(struct creature *ch, struct creature *leader)
 {
     struct follow_type *k;
 
-    if (ch->master)
+    if (ch->master) {
         raise(SIGSEGV);
+    }
 
     ch->master = leader;
 
@@ -477,8 +502,9 @@ add_stalker(struct creature *ch, struct creature *leader)
         if (CHECK_SKILL(ch, SKILL_STALK) < (number(0, 80) + GET_WIS(leader))) {
             act("$n starts following you.", true, ch, NULL, leader, TO_VICT);
             act("$n starts to follow $N.", true, ch, NULL, leader, TO_NOTVICT);
-        } else
+        } else {
             gain_skill_prof(ch, SKILL_STALK);
+        }
     }
 }
 
@@ -496,11 +522,13 @@ get_line(FILE *fl, char *buf, size_t buf_size)
 
     while (fgets(buf, buf_size, fl)) {
         lines++;
-        if (buf[0] && buf[0] != '*')
+        if (buf[0] && buf[0] != '*') {
             break;
+        }
     }
-    if (feof(fl))
+    if (feof(fl)) {
         return 0;
+    }
 
     char *c = strchr(buf, '\n');
     if (c) {
@@ -525,7 +553,7 @@ num2str(char *str, size_t size, int num)
             *str++ = *c;
             size--;
         }
-        
+
     }
 
     *str++ = '\0';
@@ -538,14 +566,17 @@ GET_DISGUISED_NAME(struct creature *ch, struct creature *tch)
     struct creature *mob = NULL;
     static char buf[1024];
 
-    if (IS_NPC(tch))
+    if (IS_NPC(tch)) {
         return GET_NAME(tch);
+    }
 
-    if (!(af = affected_by_spell(tch, SKILL_DISGUISE)))
+    if (!(af = affected_by_spell(tch, SKILL_DISGUISE))) {
         return GET_NAME(tch);
+    }
 
-    if (!(mob = real_mobile_proto(af->modifier)))
+    if (!(mob = real_mobile_proto(af->modifier))) {
         return GET_NAME(tch);
+    }
 
     if (CAN_DETECT_DISGUISE(ch, tch, af->duration)) {
         snprintf(buf, sizeof(buf), "%s (disguised as %s)", GET_NAME(tch), GET_NAME(mob));
@@ -588,26 +619,32 @@ CHECK_SKILL(struct creature *ch, int i)
     }
 
     if (GET_CLASS(ch) < NUM_CLASSES) {
-        if (GET_LEVEL(ch) >= spell_info[i].min_level[(int)GET_CLASS(ch)])
+        if (GET_LEVEL(ch) >= spell_info[i].min_level[(int)GET_CLASS(ch)]) {
             level = 50 + GET_LEVEL(ch);
+        }
     }
 
     if (!level &&
         GET_REMORT_CLASS(ch) < NUM_CLASSES && GET_REMORT_CLASS(ch) >= 0) {
         if (GET_LEVEL(ch) >=
-            spell_info[i].min_level[(int)GET_REMORT_CLASS(ch)])
+            spell_info[i].min_level[(int)GET_REMORT_CLASS(ch)]) {
             level = 50 + GET_LEVEL(ch);
+        }
     }
     if (!level) {
-        if (IS_GIANT(ch))
-            if (GET_LEVEL(ch) >= spell_info[i].min_level[CLASS_BARB])
+        if (IS_GIANT(ch)) {
+            if (GET_LEVEL(ch) >= spell_info[i].min_level[CLASS_BARB]) {
                 level = 50 + GET_LEVEL(ch);
+            }
+        }
     }
-    if (IS_DEVIL(ch))
+    if (IS_DEVIL(ch)) {
         level += GET_LEVEL(ch) / 2;
+    }
 
-    if (level > 0 && (af_ptr = affected_by_spell(ch, SPELL_AMNESIA)))
+    if (level > 0 && (af_ptr = affected_by_spell(ch, SPELL_AMNESIA))) {
         level = MAX(0, level - af_ptr->duration);
+    }
 
     return level;
 }
@@ -623,23 +660,25 @@ WAIT_STATE(struct creature *ch, int cycle)
 {
     int wait;
 
-    if (GET_LEVEL(ch) >= LVL_TIMEGOD)
+    if (GET_LEVEL(ch) >= LVL_TIMEGOD) {
         return;
+    }
 
     wait = cycle;
 
-    if (AFF2_FLAGGED(ch, AFF2_HASTE))
+    if (AFF2_FLAGGED(ch, AFF2_HASTE)) {
         wait -= cycle / 4;
-    if (AFF2_FLAGGED(ch, AFF2_SLOW))
+    }
+    if (AFF2_FLAGGED(ch, AFF2_SLOW)) {
         wait += cycle / 4;
-    if (SPEED_OF(ch))
+    }
+    if (SPEED_OF(ch)) {
         wait -= (cycle * SPEED_OF(ch)) / 100;
+    }
 
     if (ch->desc) {
         ch->desc->wait = MAX(ch->desc->wait, wait);
-    }
-
-    else if (IS_NPC(ch)) {
+    } else if (IS_NPC(ch)) {
         GET_NPC_WAIT(ch) = MAX(GET_NPC_WAIT(ch), wait);
     }
 }
@@ -647,40 +686,48 @@ WAIT_STATE(struct creature *ch, int cycle)
 const char *
 OBJN(struct obj_data *obj, struct creature *vict)
 {
-    if (obj == NULL)
+    if (obj == NULL) {
         return "<NULL>";
-    if (can_see_object(vict, obj))
+    }
+    if (can_see_object(vict, obj)) {
         return fname((obj)->aliases);
+    }
     return "something";
 }
 
 const char *
 OBJS(struct obj_data *obj, struct creature *vict)
 {
-    if (obj == NULL)
+    if (obj == NULL) {
         return "<NULL>";
-    if (can_see_object(vict, obj))
+    }
+    if (can_see_object(vict, obj)) {
         return obj->name;
+    }
     return "something";
 }
 
 const char *
 PERS(struct creature *ch, struct creature *sub)
 {
-    if (ch == NULL)
+    if (ch == NULL) {
         return "<NULL>";
-    if (can_see_creature(sub, ch))
+    }
+    if (can_see_creature(sub, ch)) {
         return GET_DISGUISED_NAME(sub, ch);
-    if (GET_LEVEL(ch) >= LVL_AMBASSADOR)
+    }
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
         return "a divine presence";
+    }
     return "someone";
 }
 
 const char *
 CURRENCY(struct creature *ch)
 {
-    if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+    if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
         return "credit";
+    }
     return "coin";
 }
 
@@ -690,31 +737,34 @@ CAN_GO(struct creature *ch, int door)
     struct room_direction_data *exit = EXIT(ch, door);
 
     // No exit
-    if (!exit || exit->to_room == NULL)
+    if (!exit || exit->to_room == NULL) {
         return false;
+    }
 
     // Closed door
     if ((IS_SET(exit->exit_info, EX_NOPASS)
          || IS_SET(exit->exit_info, EX_CLOSED))
         && !NON_CORPOREAL_MOB(ch)
-        && GET_LEVEL(ch) < LVL_AMBASSADOR)
+        && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         return false;
+    }
 
     // Unapproved mob trying to move into approved zone
     if (NPC2_FLAGGED(ch, NPC2_UNAPPROVED)
-        && !ZONE_FLAGGED(exit->to_room->zone, ZONE_MOBS_APPROVED))
+        && !ZONE_FLAGGED(exit->to_room->zone, ZONE_MOBS_APPROVED)) {
         return false;
+    }
 
     return true;
 }
 
 bool
-OCAN_GO(struct obj_data * obj, int door)
+OCAN_GO(struct obj_data *obj, int door)
 {
     struct room_direction_data *exit = OEXIT(obj, door);
     return (exit != NULL &&
-        !IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
-        exit->to_room != NULL);
+            !IS_SET(exit->exit_info, EX_CLOSED | EX_NOPASS) &&
+            exit->to_room != NULL);
 }
 
 struct extra_descr_data *
@@ -728,10 +778,11 @@ exdesc_list_dup(struct extra_descr_data *list)
         cur_new->next = NULL;
         cur_new->keyword = strdup(cur_old->keyword);
         cur_new->description = strdup(cur_old->description);
-        if (prev_new)
+        if (prev_new) {
             prev_new->next = cur_new;
-        else
+        } else {
             result = cur_new;
+        }
         prev_new = cur_new;
     }
 
@@ -742,8 +793,9 @@ void
 check_bits_32(int bitv, int *newbits)
 {
     for (int i = 0; i < 32; i++) {
-        if (bitv & (1 << i))
+        if (bitv & (1 << i)) {
             *newbits &= ~(1 << i);
+        }
     }
 }
 
@@ -754,11 +806,12 @@ format_distance(int cm, bool metric)
         return tmp_sprintf("%'dcm", cm);
     } else {
         float inches = cm / 2.54;
-        if (inches < 1)
+        if (inches < 1) {
             return tmp_strdup("1/2 in");
-        if (inches < 12)
+        }
+        if (inches < 12) {
             return tmp_sprintf("%d in", (int)inches);
-        else {
+        } else {
             int ft = inches / 12;
             return tmp_sprintf("%'d ft, %d in", ft, (int)(inches - (ft * 12)));
         }
@@ -770,15 +823,17 @@ format_weight(float lbs, bool metric)
 {
     if (metric) {
         float kg = lbs / 2.2;
-        if (kg < 1.0)
+        if (kg < 1.0) {
             return tmp_sprintf("%'dg", (int)(kg * 1000));
-        else
+        } else {
             return tmp_sprintf("%'.2fkg", kg);
+        }
     } else {
-        if (lbs < 1)
+        if (lbs < 1) {
             return tmp_sprintf("%'.2f oz", lbs * 16);
-        else
+        } else {
             return tmp_sprintf("%'.2f lb", lbs);
+        }
     }
 }
 

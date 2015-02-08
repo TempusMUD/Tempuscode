@@ -114,8 +114,9 @@ path_move(struct path_object *o)
         if (IS_SET(o->phead->flags, PATH_REVERSIBLE)) {
             o->pos--;
             o->step = -1;
-        } else
+        } else {
             o->pos = 0;
+        }
     }
 
     if (o->pos < 0) {
@@ -129,13 +130,16 @@ real_path(const char *str)
 {
     struct path_head *path_head = NULL;
 
-    if (!str)
+    if (!str) {
         return (NULL);
+    }
 
     for (path_head = first_path; path_head;
-        path_head = (struct path_head *)path_head->next)
-        if (isname(str, path_head->name))
+         path_head = (struct path_head *)path_head->next) {
+        if (isname(str, path_head->name)) {
             return (path_head);
+        }
+    }
 
     return (NULL);
 }
@@ -146,9 +150,11 @@ real_path_by_num(int vnum)
     struct path_head *path_head = NULL;
 
     for (path_head = first_path; path_head;
-        path_head = (struct path_head *)path_head->next)
-        if (path_head->number == vnum)
+         path_head = (struct path_head *)path_head->next) {
+        if (path_head->number == vnum) {
             return (path_head);
+        }
+    }
 
     return NULL;
 }
@@ -191,21 +197,22 @@ show_pathobjs(struct creature *ch)
     acc_strcat("Assigned paths:\r\n", NULL);
     for (lnk = path_object_list; lnk; lnk = lnk->next, count++) {
         p_obj = (struct path_object *)lnk->object;
-        if (p_obj->type == PMOBILE && p_obj->object)
+        if (p_obj->type == PMOBILE && p_obj->object) {
             acc_sprintf("%3d. MOB <%5d> %25s - %12s (%2d) %s\r\n",
-                count,
-                ((struct creature *)p_obj->object)->mob_specials.shared->vnum,
-                ((struct creature *)p_obj->object)->player.short_descr,
-                p_obj->phead->name, p_obj->pos,
-                IS_SET(p_obj->flags, POBJECT_STALLED) ? "stalled" : "");
-        else if (p_obj->type == PVEHICLE && p_obj->object)
+                        count,
+                        ((struct creature *)p_obj->object)->mob_specials.shared->vnum,
+                        ((struct creature *)p_obj->object)->player.short_descr,
+                        p_obj->phead->name, p_obj->pos,
+                        IS_SET(p_obj->flags, POBJECT_STALLED) ? "stalled" : "");
+        } else if (p_obj->type == PVEHICLE && p_obj->object) {
             acc_sprintf("%3d. OBJ <%5d> %25s - %12s (%2d) %s\r\n",
-                count, ((struct obj_data *)p_obj->object)->shared->vnum,
-                ((struct obj_data *)p_obj->object)->name,
-                p_obj->phead->name, p_obj->pos,
-                IS_SET(p_obj->flags, POBJECT_STALLED) ? "stalled" : "");
-        else
+                        count, ((struct obj_data *)p_obj->object)->shared->vnum,
+                        ((struct obj_data *)p_obj->object)->name,
+                        p_obj->phead->name, p_obj->pos,
+                        IS_SET(p_obj->flags, POBJECT_STALLED) ? "stalled" : "");
+        } else {
             acc_strcat("ERROR!\r\n", NULL);
+        }
     }
     page_string(ch->desc, acc_get_string());
 }
@@ -218,8 +225,9 @@ print_path(struct path_head *phead, char *str, size_t len)
     int cmds = 0, fcmd = 0, cmdl;
     struct path_link *cmd;
 
-    if (!phead)
+    if (!phead) {
         return;
+    }
 
     snprintf(str, len, "%d %s %ld %d %d ", phead->number, phead->name, phead->owner,
              phead->wait_time, phead->length);
@@ -243,12 +251,14 @@ print_path(struct path_head *phead, char *str, size_t len)
             cmd = path_command_list;
             if (phead->path[i].data >= (fcmd + cmds)) {
                 cmdl = phead->path[i].data;
-                if (!cmds)
+                if (!cmds) {
                     fcmd = cmdl;
+                }
                 cmds++;
 
-                for (j = 1; j < cmdl; j++)
+                for (j = 1; j < cmdl; j++) {
                     cmd = cmd->next;
+                }
                 snprintf(buf, sizeof(buf), "C\"%s\" ", (char *)(cmd->object));
             } else {
                 cmdl = phead->path[i].data - fcmd + 1;
@@ -267,8 +277,9 @@ print_path(struct path_head *phead, char *str, size_t len)
         strcat_s(str, len, buf);
     }
 
-    if (IS_SET(phead->flags, PATH_REVERSIBLE))
+    if (IS_SET(phead->flags, PATH_REVERSIBLE)) {
         strcat_s(str, len, "R");
+    }
 
     strcat_s(str, len, "\n~\n");
 }
@@ -285,14 +296,14 @@ show_path(struct creature *ch, char *arg)
         strcpy_s(outbuf, sizeof(outbuf), "Full path listing:\r\n");
 
         for (path_head = first_path; path_head;
-            path_head = (struct path_head *)path_head->next, i++) {
+             path_head = (struct path_head *)path_head->next, i++) {
             snprintf(buf, sizeof(buf),
-                "%3d. %-15s  Own:[%-12s]  Wt:[%3d]  Flags:[%3d]  Len:[%3d]  BFS:[%9d]\r\n",
-                path_head->number, path_head->name,
-                player_idnum_exists(path_head->
-                    owner) ? player_name_by_idnum(path_head->owner) : "NULL",
-                path_head->wait_time, path_head->flags, path_head->length,
-                path_head->find_first_step_calls);
+                     "%3d. %-15s  Own:[%-12s]  Wt:[%3d]  Flags:[%3d]  Len:[%3d]  BFS:[%9d]\r\n",
+                     path_head->number, path_head->name,
+                     player_idnum_exists(path_head->
+                                         owner) ? player_name_by_idnum(path_head->owner) : "NULL",
+                     path_head->wait_time, path_head->flags, path_head->length,
+                     path_head->find_first_step_calls);
             strcat_s(outbuf, sizeof(outbuf), buf);
         }
     } else if ((path_head = real_path(arg)) != NULL) {
@@ -314,18 +325,22 @@ add_path(char *spath, int save)
     int i, j, start_len = path_command_length, cmds = 0, vnum;
     char *tmpc;
 
-    if (!spath)
+    if (!spath) {
         return 1;
+    }
 
     /* Get the path vnum */
     spath = one_argument(spath, buf);
-    if (!*buf)
+    if (!*buf) {
         return 1;
-    if (!is_number(buf) || (vnum = atoi(buf)) < 0)
+    }
+    if (!is_number(buf) || (vnum = atoi(buf)) < 0) {
         return 1;
+    }
 
-    if (real_path_by_num(vnum))
+    if (real_path_by_num(vnum)) {
         return 1;
+    }
 
     CREATE(phead, struct path_head, 1);
     phead->number = vnum;
@@ -500,8 +515,9 @@ add_path(char *spath, int save)
                     path_command_length++;
                 } else {
                     cmd = path_command_list;
-                    for (j = 1; j < path_command_length; j++)
+                    for (j = 1; j < path_command_length; j++) {
                         cmd = cmd->next;
+                    }
                     path_command_length++;
                     cmd->next = ncmd;
                     ncmd->prev = cmd;
@@ -542,7 +558,7 @@ free_paths(void)
 {
     struct path_head *p_head = NULL;
     struct path_link *p_obj = NULL;
-    
+
     while ((p_head = first_path)) {
         first_path = (struct path_head *)first_path->next;
         free(p_head->path);
@@ -565,7 +581,7 @@ free_paths(void)
     path_object_list = NULL;
     first_path = NULL;
     path_command_list = NULL;
- }
+}
 
 void
 load_paths(void)
@@ -585,8 +601,9 @@ load_paths(void)
 
     while (pread_string(pathfile, buf, sizeof(buf), true, "paths.")) {
         line++;
-        for (char *tc = strchr(buf, '\n'); tc; tc = strchr(tc, '\n'))
+        for (char *tc = strchr(buf, '\n'); tc; tc = strchr(tc, '\n')) {
             *tc = ' ';
+        }
 
         bool fail = false;
         int ret = add_path(buf, true);
@@ -636,7 +653,7 @@ path_do_echo(char *echo)
     if (!*echo || tolower(*echo) != 'r') {
         return;
     }
-    
+
     char *tmp;
     int vnum = strtol(echo + 1, &tmp, 10);
     if (vnum == 0 || *tmp != ' ') {
@@ -656,19 +673,22 @@ path_activity(void)
     struct creature *ch;
     struct obj_data *obj;
 
-    if (path_locked)
+    if (path_locked) {
         return;
+    }
 
     for (i = path_object_list; i; i = next_i) {
         next_i = i->next;
         o = (struct path_object *)i->object;
         if (IS_SET(o->phead->flags, PATH_LOCKED) ||
-            IS_SET(o->flags, POBJECT_STALLED))
+            IS_SET(o->flags, POBJECT_STALLED)) {
             continue;
+        }
 
         length = o->wait_time;
-        if (o->phead->path[o->pos].type == PATH_WAIT)
+        if (o->phead->path[o->pos].type == PATH_WAIT) {
             length += o->phead->path[o->pos].data;
+        }
 
         if (o->time < length) {
             o->time++;
@@ -676,8 +696,9 @@ path_activity(void)
         }
 
         if (o->type == PMOBILE && (ch = (struct creature *)o->object) &&
-            ((is_fighting(ch) || GET_NPC_WAIT(ch) > 0)))
+            ((is_fighting(ch) || GET_NPC_WAIT(ch) > 0))) {
             continue;
+        }
 
         o->time = 0;
 
@@ -695,25 +716,30 @@ path_activity(void)
                     path_move(o);
                     break;
                 }
-                if (GET_POSITION(ch) < POS_STANDING)
+                if (GET_POSITION(ch) < POS_STANDING) {
                     GET_POSITION(ch) = POS_STANDING;
+                }
 
                 o->phead->find_first_step_calls++;
 
-                if ((dir = find_first_step(ch->in_room, room, GOD_TRACK)) >= 0)
+                if ((dir = find_first_step(ch->in_room, room, GOD_TRACK)) >= 0) {
                     perform_move(ch, dir, MOVE_NORM, 1);
-                if (ch->in_room == room)
+                }
+                if (ch->in_room == room) {
                     path_move(o);
+                }
             } else if ((o->type == PVEHICLE) && room &&
-                (obj = (struct obj_data *)o->object)->in_room) {
+                       (obj = (struct obj_data *)o->object)->in_room) {
 
                 o->phead->find_first_step_calls++;
 
                 if ((dir =
-                        find_first_step(obj->in_room, room, GOD_TRACK)) >= 0)
+                         find_first_step(obj->in_room, room, GOD_TRACK)) >= 0) {
                     move_car(NULL, obj, dir);
-                if (obj->in_room == room)
+                }
+                if (obj->in_room == room) {
                     path_move(o);
+                }
             }
             break;
         case PATH_DIR:
@@ -725,13 +751,14 @@ path_activity(void)
                     errlog("Found NULL ch in path object in path_activity()");
                     break;
                 }
-                if (GET_POSITION(ch) < POS_STANDING)
+                if (GET_POSITION(ch) < POS_STANDING) {
                     GET_POSITION(ch) = POS_STANDING;
+                }
 
                 perform_move(ch, dir, MOVE_NORM, 1);
                 path_move(o);
             } else if ((o->type == PVEHICLE) &&
-                (obj = (struct obj_data *)o->object)->in_room) {
+                       (obj = (struct obj_data *)o->object)->in_room) {
                 move_car(NULL, obj, dir);
                 path_move(o);
             }
@@ -742,8 +769,9 @@ path_activity(void)
                 ch = (struct creature *)o->object;
                 cmd = path_command_list;
                 j = o->phead->path[o->pos].data;
-                for (k = 1; k != j; k++)
+                for (k = 1; k != j; k++) {
                     cmd = cmd->next;
+                }
                 command_interpreter(ch, (char *)cmd->object);
             }
             path_move(o);
@@ -761,8 +789,9 @@ path_activity(void)
 
             if (o->phead->length != 1) {
                 path_move(o);
-            } else
+            } else {
                 SET_BIT(o->flags, POBJECT_STALLED);
+            }
             break;
         case PATH_EXIT:
 
@@ -787,17 +816,21 @@ path_remove_object(void *object)
         }
     }
 
-    if (!i)
+    if (!i) {
         return;
+    }
 
-    if (i == path_object_list)
+    if (i == path_object_list) {
         path_object_list = i->next;
+    }
 
-    if (i->next)
+    if (i->next) {
         i->next->prev = i->prev;
+    }
 
-    if (i->prev)
+    if (i->prev) {
         i->prev->next = i->next;
+    }
 
     free(i);
 }
@@ -809,22 +842,27 @@ add_path_to_mob(struct creature *mob, int vnum)
     struct path_link *i;
     struct path_object *o;
 
-    if (!vnum || !mob)
+    if (!vnum || !mob) {
         return false;
+    }
 
     /* Find the requested path */
-    for (phead = first_path; phead; phead = (struct path_head *)phead->next)
-        if (phead->number == vnum)
+    for (phead = first_path; phead; phead = (struct path_head *)phead->next) {
+        if (phead->number == vnum) {
             break;
+        }
+    }
 
-    if (!phead)
+    if (!phead) {
         return false;
+    }
 
     /* See if the mob already has a path */
     for (i = path_object_list; i; i = i->next) {
         o = (struct path_object *)i->object;
-        if ((o->type == PMOBILE) && (o->object == mob))
+        if ((o->type == PMOBILE) && (o->object == mob)) {
             return false;
+        }
     }
 
     CREATE(i, struct path_link, 1);
@@ -853,22 +891,27 @@ add_path_to_vehicle(struct obj_data *obj, int vnum)
     struct path_link *i;
     struct path_object *o;
 
-    if (!obj || !vnum || !IS_VEHICLE(obj))
+    if (!obj || !vnum || !IS_VEHICLE(obj)) {
         return false;
+    }
 
     /* Find the requested path */
-    for (phead = first_path; phead; phead = (struct path_head *)phead->next)
-        if (phead->number == vnum)
+    for (phead = first_path; phead; phead = (struct path_head *)phead->next) {
+        if (phead->number == vnum) {
             break;
+        }
+    }
 
-    if (!phead)
+    if (!phead) {
         return false;
+    }
 
     /* See if the car already has a path */
     for (i = path_object_list; i; i = i->next) {
         o = (struct path_object *)i->object;
-        if ((o->type == PVEHICLE) && (o->object == obj))
+        if ((o->type == PVEHICLE) && (o->object == obj)) {
             return false;
+        }
     }
 
     CREATE(i, struct path_link, 1);

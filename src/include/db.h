@@ -19,57 +19,57 @@
 //
 
 /* arbitrary constants used by index_boot() (must be unique) */
-#define DB_BOOT_WLD	 0
-#define DB_BOOT_MOB	 1
-#define DB_BOOT_OBJ	 2
-#define DB_BOOT_ZON	 3
+#define DB_BOOT_WLD  0
+#define DB_BOOT_MOB  1
+#define DB_BOOT_OBJ  2
+#define DB_BOOT_ZON  3
 
 /* names of various files and directories */
-#define INDEX_FILE	"index"		/* index of world files        */
-#define MINDEX_FILE	"index.mini"	/* ... and for mini-mud-mode   */
-#define TINDEX_FILE	"index.test"	/* ... and for test-mud-mode   */
-#define WLD_PREFIX	"world/wld"	/* room definitions        */
-#define NPC_PREFIX	"world/mob"	/* monster prototypes      */
-#define OBJ_PREFIX	"world/obj"	/* object prototypes       */
-#define ZON_PREFIX	"world/zon"	/* zon defs & command tables   */
+#define INDEX_FILE  "index"     /* index of world files        */
+#define MINDEX_FILE "index.mini"    /* ... and for mini-mud-mode   */
+#define TINDEX_FILE "index.test"    /* ... and for test-mud-mode   */
+#define WLD_PREFIX  "world/wld" /* room definitions        */
+#define NPC_PREFIX  "world/mob" /* monster prototypes      */
+#define OBJ_PREFIX  "world/obj" /* object prototypes       */
+#define ZON_PREFIX  "world/zon" /* zon defs & command tables   */
 #define XML_PREFIX  "world/xml"
 
-#define CREDITS_FILE	"text/credits"	/* for the 'credits' command    */
-#define MOTD_FILE	"text/motd"	/* messages of the day / mortal */
-#define ANSI_MOTD_FILE	"text/ansi_motd"	/* messages of the day / mortal */
-#define IMOTD_FILE	"text/imotd"	/* messages of the day / immort */
-#define ANSI_IMOTD_FILE	"text/ansi_imotd"	/* messages of the day / imm */
-#define HELP_KWRD_FILE	"text/help_table"	/* for HELP <keywrd>       */
-#define HELP_KWRD_WIZ	"text/help_table_wiz"	/* for HELP <keywrd>   */
-#define HELP_PAGE_FILE	"text/help"	/* for HELP <CR>        */
-#define INFO_FILE	"text/info"	/* for INFO         */
-#define WIZLIST_FILE	"text/wizlist"	/* for WIZLIST          */
-#define ANSI_WIZLIST_FILE  "text/ansi_wizlist"	/* for WIZLIST  */
-#define IMMLIST_FILE	"text/immlist"	/* for IMMLIST          */
-#define ANSI_IMMLIST_FILE  "text/ansi_immlist"	/* for IMMLIST  */
-#define BACKGROUND_FILE	"text/background"	/* for the background story   */
-#define POLICIES_FILE	"text/policies"	/* player policies/rules  */
-#define HANDBOOK_FILE	"text/handbook"	/* handbook for new immorts   */
-#define AREAS_LOW_FILE	"text/areas_low"	/* list of areas  */
-#define AREAS_MID_FILE	"text/areas_mid"
-#define AREAS_HIGH_FILE	"text/areas_high"
+#define CREDITS_FILE    "text/credits"  /* for the 'credits' command    */
+#define MOTD_FILE   "text/motd" /* messages of the day / mortal */
+#define ANSI_MOTD_FILE  "text/ansi_motd"    /* messages of the day / mortal */
+#define IMOTD_FILE  "text/imotd"    /* messages of the day / immort */
+#define ANSI_IMOTD_FILE "text/ansi_imotd"   /* messages of the day / imm */
+#define HELP_KWRD_FILE  "text/help_table"   /* for HELP <keywrd>       */
+#define HELP_KWRD_WIZ   "text/help_table_wiz"   /* for HELP <keywrd>   */
+#define HELP_PAGE_FILE  "text/help" /* for HELP <CR>        */
+#define INFO_FILE   "text/info" /* for INFO         */
+#define WIZLIST_FILE    "text/wizlist"  /* for WIZLIST          */
+#define ANSI_WIZLIST_FILE  "text/ansi_wizlist"  /* for WIZLIST  */
+#define IMMLIST_FILE    "text/immlist"  /* for IMMLIST          */
+#define ANSI_IMMLIST_FILE  "text/ansi_immlist"  /* for IMMLIST  */
+#define BACKGROUND_FILE "text/background"   /* for the background story   */
+#define POLICIES_FILE   "text/policies" /* player policies/rules  */
+#define HANDBOOK_FILE   "text/handbook" /* handbook for new immorts   */
+#define AREAS_LOW_FILE  "text/areas_low"    /* list of areas  */
+#define AREAS_MID_FILE  "text/areas_mid"
+#define AREAS_HIGH_FILE "text/areas_high"
 #define AREAS_REMORT_FILE  "text/areas_remort"
-#define OLC_GUIDE_FILE  "text/olc_creation_guide"	/* tips for creators  */
-#define QUEST_GUIDE_FILE "text/quest_guide"	/* quest guidelines         */
-#define QUEST_LIST_FILE  "text/quest_list"	/* list of quests           */
+#define OLC_GUIDE_FILE  "text/olc_creation_guide"   /* tips for creators  */
+#define QUEST_GUIDE_FILE "text/quest_guide" /* quest guidelines         */
+#define QUEST_LIST_FILE  "text/quest_list"  /* list of quests           */
 
-#define IDEA_FILE	"misc/ideas"	/* for the 'idea'-command   */
-#define TYPO_FILE	"misc/typos"	/*         'typo'       */
-#define BUG_FILE	"misc/bugs"	/*         'bug'        */
-#define MESS_FILE	"misc/messages"	/* damage messages      */
-#define SOCMESS_FILE	"misc/socials"	/* messgs for social acts   */
-#define XNAME_FILE	"misc/xnames"	/* invalid name substrings  */
-#define NASTY_FILE	"misc/nasty"	/* nasty words for public comm  */
+#define IDEA_FILE   "misc/ideas"    /* for the 'idea'-command   */
+#define TYPO_FILE   "misc/typos"    /*         'typo'       */
+#define BUG_FILE    "misc/bugs" /*         'bug'        */
+#define MESS_FILE   "misc/messages" /* damage messages      */
+#define SOCMESS_FILE    "misc/socials"  /* messgs for social acts   */
+#define XNAME_FILE  "misc/xnames"   /* invalid name substrings  */
+#define NASTY_FILE  "misc/nasty"    /* nasty words for public comm  */
 
-#define PLAYER_FILE	"etc/players"	/* the player database      */
-#define MAIL_FILE	"etc/plrmail"	/* for the mudmail system   */
-#define BAN_FILE	"etc/banned.xml"	/* for the siteban system   */
-#define HCONTROL_FILE	"etc/hcontrol"	/* for the house system     */
+#define PLAYER_FILE "etc/players"   /* the player database      */
+#define MAIL_FILE   "etc/plrmail"   /* for the mudmail system   */
+#define BAN_FILE    "etc/banned.xml"    /* for the siteban system   */
+#define HCONTROL_FILE   "etc/hcontrol"  /* for the house system     */
 #define ALIAS_DIR       "plralias/"
 
 #define CMD_LOG_FILE    "cmd_log"
@@ -80,8 +80,8 @@ int create_entry(char *name);
 void zone_update(void);
 struct room_data *real_room(int vnum);
 struct zone_data *real_zone(int number);
-char *fread_string(FILE * fl, char *error);
-bool pread_string(FILE * fl, char *str, size_t buf_size, bool comments, const char *error);
+char *fread_string(FILE *fl, char *error);
+bool pread_string(FILE *fl, char *str, size_t buf_size, bool comments, const char *error);
 int count_hash_records(FILE *fl);
 
 struct creature *read_mobile(int vnum);
@@ -108,33 +108,33 @@ long calc_daily_rent(struct creature *ch, int factor, char *currency_str, bool d
 /**
  * Returns a temporarily allocated char* containing the path to the given
  * player_id's mail file.
-**/
-char*get_mail_file_path( long id );
+ **/
+char *get_mail_file_path(long id);
 /**
  * Returns a temporarily allocated char* containing the path to the given
  * player_id's player file.
-**/
-char* get_player_file_path( long id );
+ **/
+char *get_player_file_path(long id);
 /**
  * Returns a temporarily allocated char* containing the path to the given
  * player_id's equipment file.
-**/
-char* get_equipment_file_path( long id );
+ **/
+char *get_equipment_file_path(long id);
 
 /**
  * Returns a temporarily allocated char* containing the path to the given
  * player_id's corpse file.
-**/
-char* get_corpse_file_path( long id );
+ **/
+char *get_corpse_file_path(long id);
 
 struct player_index_element {
-	char *name;
-	long id;
+    char *name;
+    long id;
 };
 
 struct help_index_element {
-	char *keyword;
-	long pos;
+    char *keyword;
+    long pos;
 };
 
 /* global buffering system */
@@ -154,34 +154,34 @@ extern const char *NOEFFECT;
 #define DYN_TEXT_CONTROL_DIR "text/dyn/control"
 
 typedef struct dynamic_edit_data_save {
-	int32_t idnum;
-	uint32_t tEdit;
+    int32_t idnum;
+    uint32_t tEdit;
 } dynamic_edit_data_save;
 
 typedef struct dynamic_edit_data {
-	int32_t idnum;
-	time_t tEdit;
+    int32_t idnum;
+    time_t tEdit;
 } dynamic_edit_data;
 
 typedef struct dynamic_text_file_save {
-	char filename[1024];		// name of the file to load/save
-	dynamic_edit_data_save last_edit[DYN_TEXT_HIST_SIZE];	// history of edits
-	int32_t perms[DYN_TEXT_PERM_SIZE];	// who has special access perms
-	int32_t level;					// edit access level
+    char filename[1024];        // name of the file to load/save
+    dynamic_edit_data_save last_edit[DYN_TEXT_HIST_SIZE];   // history of edits
+    int32_t perms[DYN_TEXT_PERM_SIZE];  // who has special access perms
+    int32_t level;                  // edit access level
     uint32_t unused_ptr1;
     uint32_t unused_ptr2;
     uint32_t unused_ptr3;
 } dynamic_text_file_save;
 
 typedef struct dynamic_text_file {
-	char filename[1024];		// name of the file to load/save
-	dynamic_edit_data last_edit[DYN_TEXT_HIST_SIZE];	// history of edits
-	int32_t perms[DYN_TEXT_PERM_SIZE];	// who has special access perms
-	int32_t level;					// edit access level
-	int32_t lock;					// lock while editing (char's idnum)
-	char *buffer;				// the buffer that people see
-	char *tmp_buffer;			// the buffer you edit
-	struct dynamic_text_file *next;
+    char filename[1024];        // name of the file to load/save
+    dynamic_edit_data last_edit[DYN_TEXT_HIST_SIZE];    // history of edits
+    int32_t perms[DYN_TEXT_PERM_SIZE];  // who has special access perms
+    int32_t level;                  // edit access level
+    int32_t lock;                   // lock while editing (char's idnum)
+    char *buffer;               // the buffer that people see
+    char *tmp_buffer;           // the buffer you edit
+    struct dynamic_text_file *next;
 } dynamic_text_file;
 
 extern dynamic_text_file *dyntext_list;
@@ -189,17 +189,17 @@ extern dynamic_text_file *dyntext_list;
 void check_dyntext_updates(struct creature *ch);
 
 struct sql_query_data {
-	struct sql_query_data *next;
-	PGresult *res;
+    struct sql_query_data *next;
+    PGresult *res;
 };
 
 // Executes a SQL command, returns true if successful
 void sql_exec(const char *str, ...)
-	__attribute__ ((format (printf, 1, 2)));
+__attribute__ ((format (printf, 1, 2)));
 // Executes a SQL query.  Returns the result, which must be deallocated
 // with PQclear() after use
 PGresult *sql_query(const char *str, ...)
-	__attribute__ ((format (printf, 1, 2)));
+__attribute__ ((format (printf, 1, 2)));
 
 // Deallocates all SQL query result structures
 void sql_gc_queries(void);

@@ -14,23 +14,26 @@ SPECIAL(corpse_griller)
     int cost = GRILL_COST;
     cost = adjusted_price(ch, griller, cost);
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (!cmd || !CMD_IS("buy"))
+    }
+    if (!cmd || !CMD_IS("buy")) {
         return 0;
+    }
 
     one_argument(argument, arg);
 
     if (!*arg) {
         send_to_char(ch,
-            "Type 'list' to see what I have on the menu.\r\n"
-            "Type 'buy grill <corpse> to grill a corpse.\r\n"
-            "Better empty it out first if you want the contents.\r\n");
+                     "Type 'list' to see what I have on the menu.\r\n"
+                     "Type 'buy grill <corpse> to grill a corpse.\r\n"
+                     "Better empty it out first if you want the contents.\r\n");
         return 1;
     }
 
-    if (strncmp(arg, "grill", 5))
+    if (strncmp(arg, "grill", 5)) {
         return 0;
+    }
 
     argument = one_argument(argument, arg);
     argument = one_argument(argument, arg);
@@ -61,8 +64,9 @@ SPECIAL(corpse_griller)
 
     GET_GOLD(ch) -= cost;
 
-    if (!(steak = read_object(PROTOSTEAK)))
+    if (!(steak = read_object(PROTOSTEAK))) {
         return 0;
+    }
 
     snprintf(buf, sizeof(buf), "a steak made from %s", corpse->name);
     steak->name = strdup(buf);

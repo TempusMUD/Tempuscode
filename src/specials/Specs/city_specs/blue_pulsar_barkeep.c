@@ -11,18 +11,21 @@ SPECIAL(blue_pulsar)
     struct obj_data *beer = NULL;
     int beer_vnum = (number(0, 1) ? 50300 : 50301);
 
-    if (!CMD_IS("yell"))
+    if (!CMD_IS("yell")) {
         return 0;
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    }
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     skip_spaces(&argument);
 
-    if (!*argument || strcasecmp(argument, "beer"))
+    if (!*argument || strcasecmp(argument, "beer")) {
         return 0;
+    }
 
-    if (!(beer = read_object(beer_vnum)))
+    if (!(beer = read_object(beer_vnum))) {
         errlog("Blue Pulsar beer not in database.");
-    else {
+    } else {
         act("$N yells, 'BEER!!!!'", false, ch, NULL, NULL, TO_NOTVICT);
         act("$n throws $p across the room to $N!", false, bartender, beer, ch,
             TO_NOTVICT);

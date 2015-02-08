@@ -16,9 +16,9 @@ struct obj_data *detonate_bomb(struct obj_data *bomb);
 #define BOMB_CONCUSSION           1
 #define BOMB_FRAGMENTATION        2
 #define BOMB_INCENDIARY           3
-#define BOMB_DISRUPTION           4	/* electrical-undead disruption */
+#define BOMB_DISRUPTION           4 /* electrical-undead disruption */
 #define BOMB_NUCLEAR              5
-#define BOMB_FLASH                6	/* blinds room */
+#define BOMB_FLASH                6 /* blinds room */
 #define BOMB_SMOKE                7
 #define MAX_BOMB_TYPES            8
 
@@ -63,18 +63,18 @@ extern const char *fuse_types[];
 
 struct bomb_radius_list {
     struct room_data *room;
-	struct bomb_radius_list *next;
-	uint32_t power;
+    struct bomb_radius_list *next;
+    uint32_t power;
 };
 
 extern struct bomb_radius_list *bomb_rooms;
 
 void add_bomb_room(struct room_data *room, int fromdir, int p_factor)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 void sort_rooms();
 void bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name, int bomb_type, int bomb_power,
-    struct room_data *room, int dir, int power,
-	struct creature *precious_vict)
-    __attribute__ ((nonnull (3,6)));
+                      struct room_data *room, int dir, int power,
+                      struct creature *precious_vict)
+__attribute__ ((nonnull (3,6)));
 
 #endif

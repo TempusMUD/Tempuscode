@@ -19,10 +19,12 @@ SPECIAL(red_highlord)
     struct creature *vict = NULL, *tmp_vict = NULL;
 
     if (cmd || is_fighting(ch) || NPC_HUNTING(ch)
-        || GET_POSITION(ch) <= POS_SLEEPING)
+        || GET_POSITION(ch) <= POS_SLEEPING) {
         return 0;
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    }
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
     if ((r_home_room = real_room(v_home_room)) != NULL && ch->in_room !=
         r_home_room && !ROOM_FLAGGED(ch->in_room, ROOM_NORECALL)) {
@@ -36,12 +38,14 @@ SPECIAL(red_highlord)
     }
 
     if (GET_EQ(ch, WEAR_WIELD) &&
-        GET_OBJ_VNUM(GET_EQ(ch, WEAR_WIELD)) == sword_vnum)
+        GET_OBJ_VNUM(GET_EQ(ch, WEAR_WIELD)) == sword_vnum) {
         return 0;
+    }
 
     if ((blade = get_obj_in_list_all(ch, "desolation", ch->carrying))) {
-        if (GET_EQ(ch, WEAR_WIELD))
+        if (GET_EQ(ch, WEAR_WIELD)) {
             do_remove(ch, fname(GET_EQ(ch, WEAR_WIELD)->aliases), 0, 0);
+        }
         do_wield(ch, tmp_strdup("desolation"), 0, 0);
         return 1;
     }
@@ -54,22 +58,23 @@ SPECIAL(red_highlord)
         if (GET_OBJ_VNUM(blade) != sword_vnum ||
             blade->shared->proto->name != blade->name
             || IS_OBJ_STAT2(blade, ITEM2_RENAMED)
-            || IS_OBJ_STAT2(blade, ITEM2_PROTECTED_HUNT))
+            || IS_OBJ_STAT2(blade, ITEM2_PROTECTED_HUNT)) {
             continue;
-        else if (blade->in_room != NULL &&
-            !ROOM_FLAGGED(blade->in_room, ROOM_NORECALL |
-                ROOM_GODROOM | ROOM_HOUSE)) {
+        } else if (blade->in_room != NULL &&
+                   !ROOM_FLAGGED(blade->in_room, ROOM_NORECALL |
+                                 ROOM_GODROOM | ROOM_HOUSE)) {
             target_room = blade->in_room;
             break;
         } else if (((tmp_vict = blade->carried_by) ||
-                (tmp_vict = blade->worn_by)) && tmp_vict != ch) {
+                    (tmp_vict = blade->worn_by)) && tmp_vict != ch) {
             if (GET_LEVEL(tmp_vict) >= LVL_IMMORT || IS_NPC(tmp_vict) ||
                 GET_LEVEL(tmp_vict) < 3) {
                 continue;
             } else if (find_first_step(ch->in_room, tmp_vict->in_room,
-                    STD_TRACK) >= 0) {
-                if (!vict || GET_LEVEL(vict) < GET_LEVEL(tmp_vict))
+                                       STD_TRACK) >= 0) {
+                if (!vict || GET_LEVEL(vict) < GET_LEVEL(tmp_vict)) {
                     vict = tmp_vict;
+                }
                 continue;
             }
         } else if ((container = blade->in_obj)) {
@@ -81,14 +86,15 @@ SPECIAL(red_highlord)
                 target_room = container->in_room;
                 break;
             } else if (((tmp_vict = container->carried_by) ||
-                    (tmp_vict = container->worn_by)) && tmp_vict != ch) {
+                        (tmp_vict = container->worn_by)) && tmp_vict != ch) {
                 if (GET_LEVEL(tmp_vict) >= LVL_IMMORT ||
                     GET_LEVEL(tmp_vict) < 3) {
                     continue;
                 } else if (find_first_step(ch->in_room, tmp_vict->in_room,
-                        STD_TRACK) >= 0) {
-                    if (!vict || GET_LEVEL(vict) < GET_LEVEL(tmp_vict))
+                                           STD_TRACK) >= 0) {
+                    if (!vict || GET_LEVEL(vict) < GET_LEVEL(tmp_vict)) {
                         vict = tmp_vict;
+                    }
                     continue;
                 }
             }
@@ -97,10 +103,10 @@ SPECIAL(red_highlord)
 
     if (target_room != NULL &&
         (target_room->zone == ch->in_room->zone ||
-            (!ZONE_FLAGGED(target_room->zone, ZONE_ISOLATED) &&
-                (!ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)))) &&
+         (!ZONE_FLAGGED(target_room->zone, ZONE_ISOLATED) &&
+          (!ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED)))) &&
         !ROOM_FLAGGED(target_room, ROOM_NORECALL | ROOM_ARENA |
-            ROOM_GODROOM | ROOM_HOUSE)) {
+                      ROOM_GODROOM | ROOM_HOUSE)) {
         if (target_room == blade->in_room ||
             (container && target_room == container->in_room)) {
             act("$n utters some arcane words and disappears in a flash of light.", false, ch, NULL, NULL, TO_ROOM);
@@ -110,10 +116,10 @@ SPECIAL(red_highlord)
             act("$n appears with a flash of light at the center of the room.",
                 false, ch, NULL, NULL, TO_ROOM);
 
-            if (blade->in_room == ch->in_room)
+            if (blade->in_room == ch->in_room) {
                 obj_from_room(blade);
-            else if (blade->in_obj && container
-                && container->in_room == ch->in_room) {
+            } else if (blade->in_obj && container
+                       && container->in_room == ch->in_room) {
                 act("$n grabs $p.", true, ch, container, NULL, TO_ROOM);
                 act("$n rummages around, and extracts $p.", true, ch, blade, NULL,
                     TO_ROOM);
@@ -135,8 +141,8 @@ SPECIAL(red_highlord)
         switch (number(0, 2)) {
         case 0:
             do_gen_comm(ch,
-                tmp_strdup("Now where might that Desolation Blade be?"), 0,
-                SCMD_GOSSIP);
+                        tmp_strdup("Now where might that Desolation Blade be?"), 0,
+                        SCMD_GOSSIP);
             break;
         case 1:
             perform_tell(ch, vict, "The blade...");

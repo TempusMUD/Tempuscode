@@ -66,7 +66,7 @@ extern struct descriptor_data *descriptor_list;
 ********************************************************************** */
 void
 perform_skillset(struct creature *ch, struct creature *vict, char *skill_str,
-    int value)
+                 int value)
 {
     int skill;
 
@@ -87,13 +87,13 @@ perform_skillset(struct creature *ch, struct creature *vict, char *skill_str,
         return;
     }
     mudlog(0, BRF, true,
-        "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
-        spell_to_str(skill), value);
+           "%s changed %s's %s to %d.", GET_NAME(ch), GET_NAME(vict),
+           spell_to_str(skill), value);
 
     SET_SKILL(vict, skill, value);
 
     send_to_char(ch, "You change %s's %s to %d.\r\n", GET_NAME(vict),
-        spell_to_str(skill), value);
+                 spell_to_str(skill), value);
 
 }
 
@@ -149,12 +149,14 @@ show_file(struct creature *ch, const char *fname, int lines)
 void
 page_string(struct descriptor_data *d, const char *str)
 {
-    if (!d || !str || suppress_output)
+    if (!d || !str || suppress_output) {
         return;
+    }
 
     // Free any previous paged string
-    if (d->showstr_head)
+    if (d->showstr_head) {
         free(d->showstr_head);
+    }
 
     // If term height is zero, just send the string
     if (!d->account->term_height) {
@@ -182,8 +184,9 @@ show_string(struct descriptor_data *d)
     cols = d->account->term_width;
 
     // No division by zero errors!
-    if (cols == 0)
+    if (cols == 0) {
         cols = -1;
+    }
 
     undisplayed = 0;
     line_pt = read_pt = d->showstr_point;
@@ -201,13 +204,15 @@ show_string(struct descriptor_data *d)
             read_pt++;
         }
 
-        if (cols != -1)
+        if (cols != -1) {
             page_length -= (read_pt - line_pt - undisplayed) / cols;
+        }
 
         if (*read_pt) {
             page_length--;
-            while ('\n' != *read_pt)
+            while ('\n' != *read_pt) {
                 read_pt++;
+            }
             read_pt++;
             line_pt = read_pt;
             undisplayed = 0;
@@ -222,20 +227,22 @@ show_string(struct descriptor_data *d)
     *read_pt = pt_save;
 
     // Advance past newlines to next bit of text
-    while (*read_pt && *read_pt == '\n' && *read_pt == '\r')
+    while (*read_pt && *read_pt == '\n' && *read_pt == '\r') {
         read_pt++;
+    }
 
     d->showstr_point = read_pt;
 
     // If all we have left are newlines (or nothing), free the string,
     // otherwise we tell em to use the 'more' command
     if (*read_pt) {
-        if (d->creature)
+        if (d->creature) {
             d_printf(d, "&r**** &nUse the 'more' command to continue. &r****&n\r\n");
-        else if (STATE(d) == CXN_VIEW_POLICY)
+        } else if (STATE(d) == CXN_VIEW_POLICY) {
             d_printf(d, "&r**** &nPress return to continue &r****&n");
-        else
+        } else {
             d_printf(d, "&r**** &nPress return to continue, 'q' to quit &r****&n");
+        }
     } else {
         free(d->showstr_head);
         d->showstr_head = d->showstr_point = NULL;

@@ -127,7 +127,7 @@ compare_objects(struct obj_data *obj_a, struct obj_data *obj_b)
     fail_unless(obj_a->obj_flags.sigil_idnum == obj_b->obj_flags.sigil_idnum);
     fail_unless(obj_a->obj_flags.sigil_level == obj_b->obj_flags.sigil_level);
 
-    for (int i = 0;i < MAX_OBJ_AFFECT;i++) {
+    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
         fail_unless(obj_a->affected[i].location == obj_a->affected[i].location);
         fail_unless(obj_a->affected[i].modifier == obj_a->affected[i].modifier);
     }
@@ -146,11 +146,11 @@ START_TEST(test_load_save_creature)
 
     compare_creatures(ch, tch);
 
-    if (tch)
+    if (tch) {
         free_creature(tch);
+    }
 }
 END_TEST
-
 START_TEST(test_load_save_cyborg)
 {
     struct creature *tch;
@@ -167,7 +167,6 @@ START_TEST(test_load_save_cyborg)
     fail_unless(GET_BROKE(ch) == GET_BROKE(tch));
 }
 END_TEST
-
 START_TEST(test_load_save_mage)
 {
     struct creature *tch;
@@ -192,7 +191,6 @@ START_TEST(test_load_save_mage)
                 tch->player_specials->saved.mana_shield_pct);
 }
 END_TEST
-
 START_TEST(test_load_save_immort)
 {
     struct creature *tch;
@@ -216,7 +214,6 @@ START_TEST(test_load_save_immort)
     fail_unless(GET_QUEST_ALLOWANCE(ch) == GET_QUEST_ALLOWANCE(tch));
 }
 END_TEST
-
 START_TEST(test_load_save_title)
 {
     struct creature *tch;
@@ -230,7 +227,6 @@ START_TEST(test_load_save_title)
     compare_creatures(ch, tch);
 }
 END_TEST
-
 START_TEST(test_load_save_frozen)
 {
     struct creature *tch = NULL;
@@ -249,7 +245,6 @@ START_TEST(test_load_save_frozen)
     fail_unless(ch->player_specials->freezer_id == tch->player_specials->freezer_id);
 }
 END_TEST
-
 START_TEST(test_load_save_objects_carried)
 {
     bool save_player_objects_to_file(struct creature *ch, const char *path);
@@ -285,7 +280,6 @@ START_TEST(test_load_save_objects_carried)
     ch->carrying = NULL;
 }
 END_TEST
-
 START_TEST(test_load_save_objects_equipped)
 {
     bool save_player_objects_to_file(struct creature *ch, const char *path);
@@ -304,7 +298,7 @@ START_TEST(test_load_save_objects_equipped)
     tch = load_player_from_file(test_path("test_player.xml"));
     load_player_objects_from_file(tch, test_path("test_items.xml"));
 
-    for (int i = 0;i < NUM_WEARS;i++) {
+    for (int i = 0; i < NUM_WEARS; i++) {
         struct obj_data *obj_a = GET_EQ(ch, i);
         struct obj_data *obj_b = GET_EQ(tch, i);
         if (!obj_a && obj_b) {
@@ -322,12 +316,11 @@ START_TEST(test_load_save_objects_equipped)
     fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
     fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
-    for (int i = 0;i < NUM_WEARS;i++) {
+    for (int i = 0; i < NUM_WEARS; i++) {
         GET_EQ(ch, i) = NULL;
     }
 }
 END_TEST
-
 START_TEST(test_load_save_objects_implanted)
 {
     bool save_player_objects_to_file(struct creature *ch, const char *path);
@@ -345,7 +338,7 @@ START_TEST(test_load_save_objects_implanted)
     tch = load_player_from_file(test_path("test_player.xml"));
     load_player_objects_from_file(tch, test_path("test_items.xml"));
 
-    for (int i = 0;i < NUM_WEARS;i++) {
+    for (int i = 0; i < NUM_WEARS; i++) {
         struct obj_data *obj_a = GET_IMPLANT(ch, i);
         struct obj_data *obj_b = GET_IMPLANT(tch, i);
         if (!obj_a && obj_b) {
@@ -363,12 +356,11 @@ START_TEST(test_load_save_objects_implanted)
     fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
     fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
-    for (int i = 0;i < NUM_WEARS;i++) {
+    for (int i = 0; i < NUM_WEARS; i++) {
         GET_IMPLANT(ch, i) = NULL;
     }
 }
 END_TEST
-
 START_TEST(test_load_save_objects_tattooed)
 {
     struct creature *tch = NULL;
@@ -384,7 +376,7 @@ START_TEST(test_load_save_objects_tattooed)
     tch = load_player_from_file(test_path("test_player.xml"));
     load_player_objects_from_file(tch, test_path("test_items.xml"));
 
-    for (int i = 0;i < NUM_WEARS;i++) {
+    for (int i = 0; i < NUM_WEARS; i++) {
         struct obj_data *obj_a = GET_TATTOO(ch, i);
         struct obj_data *obj_b = GET_TATTOO(tch, i);
         if (!obj_a && obj_b) {
@@ -402,12 +394,11 @@ START_TEST(test_load_save_objects_tattooed)
     fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
     fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
-    for (int i = 0;i < NUM_WEARS;i++) {
+    for (int i = 0; i < NUM_WEARS; i++) {
         GET_TATTOO(ch, i) = NULL;
     }
 }
 END_TEST
-
 START_TEST(test_load_save_objects_contained)
 {
     bool save_player_objects_to_file(struct creature *ch, const char *path);
@@ -461,7 +452,6 @@ START_TEST(test_load_save_objects_contained)
     ch->carrying = NULL;
 }
 END_TEST
-
 START_TEST(test_load_save_objects_affected)
 {
     bool save_player_objects_to_file(struct creature *ch, const char *path);

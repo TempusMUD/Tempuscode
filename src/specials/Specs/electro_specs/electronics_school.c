@@ -49,13 +49,15 @@ SPECIAL(electronics_school)
     int cred_cost = 0;
 
     if (spec_mode == SPECIAL_TICK) {
-        if (!number(0, 20))
+        if (!number(0, 20)) {
             electronics_raoe(self);
+        }
         return 0;
     }
 
-    if (!CMD_IS("learn") && !CMD_IS("train") && !CMD_IS("offer"))
+    if (!CMD_IS("learn") && !CMD_IS("train") && !CMD_IS("offer")) {
         return 0;
+    }
 
     cred_cost = (GET_LEVEL(ch) * 64) + 2000;
     cred_cost = adjusted_price(ch, self, cred_cost);
@@ -67,27 +69,27 @@ SPECIAL(electronics_school)
 
     if (IS_CYBORG(ch)) {
         perform_say_to(self, ch,
-            "You're a borg, why don't you just download the program?");
+                       "You're a borg, why don't you just download the program?");
         return 1;
     }
 
     if (CMD_IS("offer")) {
         perform_say_to(self, ch,
-            tmp_sprintf("Yeah, I'll give you a lesson for %'d creds.",
-                cred_cost));
+                       tmp_sprintf("Yeah, I'll give you a lesson for %'d creds.",
+                                   cred_cost));
         return 1;
     }
 
     if (GET_SKILL(ch, SKILL_ELECTRONICS) >= LEARNED(ch)) {
         perform_say_to(self, ch,
-            "I cannot teach you any more about electronics.");
+                       "I cannot teach you any more about electronics.");
         return 1;
     }
 
     if (GET_CASH(ch) < cred_cost) {
         perform_say_to(self, ch,
-            tmp_sprintf("You don't have the %'d cred tuition I require.",
-                cred_cost));
+                       tmp_sprintf("You don't have the %'d cred tuition I require.",
+                                   cred_cost));
         return 1;
     }
 
@@ -98,8 +100,8 @@ SPECIAL(electronics_school)
                   GET_SKILL(ch, SKILL_ELECTRONICS) + (30 + GET_INT(ch))));
 
     send_to_char(ch,
-        "You pay %d creds to %s and are given a short electronics lesson.\r\n",
-        cred_cost, PERS(self, ch));
+                 "You pay %d creds to %s and are given a short electronics lesson.\r\n",
+                 cred_cost, PERS(self, ch));
     act("$n pays $N, who gives an impromptu electronics lesson.", true, ch, NULL,
         self, TO_ROOM);
 

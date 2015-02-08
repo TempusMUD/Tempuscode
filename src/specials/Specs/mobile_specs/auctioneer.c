@@ -122,10 +122,11 @@ describe_bid_amount(struct bid_data *bid)
 struct auction_data *
 auction_data_from_idnum(int idnum)
 {
-    for (GList *it = auctions;it;it = it->next) {
+    for (GList *it = auctions; it; it = it->next) {
         struct auction_data *auc = it->data;
-        if (auc->idnum == idnum)
+        if (auc->idnum == idnum) {
             return auc;
+        }
     }
     return NULL;
 }
@@ -134,17 +135,18 @@ uint32_t
 unused_auction_idnum(void)
 {
     uint32_t result = 1;
-    for (GList *it = auctions;it;it = it->next) {
+    for (GList *it = auctions; it; it = it->next) {
         struct auction_data *auc = it->data;
-        if (auc->idnum >= result)
+        if (auc->idnum >= result) {
             result = auc->idnum + 1;
+        }
     }
     return result;
 }
 
 /**
  * new_auction:
- * 
+ *
  * Allocate a blank initialized auction.
  *
  * Returns: An initialized #auction_data
@@ -283,7 +285,7 @@ load_auctions_from_doc(xmlDocPtr doc)
         }
     }
 
-    for (GList *it = auctions;it;it = it->next) {
+    for (GList *it = auctions; it; it = it->next) {
         struct auction_data *auc = it->data;
         if (auc->idnum == 0) {
             auc->idnum = unused_auction_idnum();
@@ -313,7 +315,7 @@ load_auctions()
 
 /**
  * save_auctions
- * 
+ *
  * Saves all auctions to an XML file at #AUC_FILE_PATH.
  *
  **/
@@ -330,19 +332,19 @@ save_auctions(void)
 
     fprintf(ouf, "<?xml version=\"1.0\"?>\n");
     fprintf(ouf, "<auctioneer going_once=\"%d\" going_twice=\"%d\" "
-        "sold_time=\"%d\" nobid_thresh=\"%d\" auction_thresh=\"%d\" "
-        "max_auc_value=\"%d\" max_auctions=\"%d\" "
-        "max_total_auc=\"%d\" bid_increment=\"%f\">\n", GOING_ONCE,
-        GOING_TWICE, SOLD_TIME, NO_BID_THRESH, AUCTION_THRESH,
-        MAX_AUC_VALUE, MAX_AUCTIONS, MAX_TOTAL_AUC, BID_INCREMENT);
+                 "sold_time=\"%d\" nobid_thresh=\"%d\" auction_thresh=\"%d\" "
+                 "max_auc_value=\"%d\" max_auctions=\"%d\" "
+                 "max_total_auc=\"%d\" bid_increment=\"%f\">\n", GOING_ONCE,
+            GOING_TWICE, SOLD_TIME, NO_BID_THRESH, AUCTION_THRESH,
+            MAX_AUC_VALUE, MAX_AUCTIONS, MAX_TOTAL_AUC, BID_INCREMENT);
 
-    for (GList * ai = auctions; ai; ai = ai->next) {
+    for (GList *ai = auctions; ai; ai = ai->next) {
         struct auction_data *auc = ai->data;
 
         fprintf(ouf, "<itemdata id=\"%" PRIu32 "\" room_id=\"%ld\" owner_id=\"%ld\" start_bid=\"%" PRId64 "\">\n",
                 auc->idnum, auc->room_id, auc->owner_id, auc->start_bid);
         save_object_to_xml(auc->item, ouf);
-        for (GList *it = auc->bids;it;it = it->next) {
+        for (GList *it = auc->bids; it; it = it->next) {
             struct bid_data *bid = it->data;
             fprintf(ouf, "  <bid bidder=\"%ld\"  past_amount=\"%" PRId64 "\" future_amount=\"%" PRId64 "\"/>\n",
                     bid->bidder_id,
@@ -388,9 +390,10 @@ is_open_auction(struct auction_data *auc)
                           AUCTION_GOING_TWICE,
                           -1 };
 
-    for (int i = 0;open_states[i] != -1;i++) {
-        if (auc->state == open_states[i])
+    for (int i = 0; open_states[i] != -1; i++) {
+        if (auc->state == open_states[i]) {
             return true;
+        }
     }
     return false;
 }
@@ -429,7 +432,7 @@ auction_minimum_bid(struct auction_data *auc)
 struct bid_data *
 bid_by_bidder_idnum(struct auction_data *auc, long idnum)
 {
-    for (GList *it = auc->bids;it;it = it->next) {
+    for (GList *it = auc->bids; it; it = it->next) {
         struct bid_data *bid = it->data;
 
         if (bid->bidder_id == idnum) {
@@ -451,7 +454,7 @@ bid_by_bidder_idnum(struct auction_data *auc, long idnum)
  * Returns: %true if @bidder can make the bid.
  **/
 bool
-can_make_bid(struct creature* bidder, struct auction_data *auc, money_t amount)
+can_make_bid(struct creature *bidder, struct auction_data *auc, money_t amount)
 {
     struct bid_data *bid = bid_by_bidder_idnum(auc, GET_IDNUM(bidder));
     money_t deduct_amt = amount;
@@ -477,11 +480,13 @@ reversed_compare_bids(struct bid_data *a, struct bid_data *b)
 {
     money_t a_total = bid_total(a);
     money_t b_total = bid_total(b);
-    
-    if (a_total < b_total)
+
+    if (a_total < b_total) {
         return 1;
-    if (a_total > b_total)
+    }
+    if (a_total > b_total) {
         return -1;
+    }
     return 0;
 }
 
@@ -519,7 +524,7 @@ make_bid(struct auction_data *auc, struct creature *ch, money_t amount)
         deduct_past = MIN(GET_PAST_BANK(ch), deduct_amt);
         deduct_amt -= deduct_past;
     }
-    
+
     if (deduct_amt != 0) {
         errlog("Bidder couldn't pay in make_bid()");
         return;
@@ -662,7 +667,7 @@ ACMD(do_bid)
         send_to_char(ch, "You can't afford that much money!\r\n");
         return;
     }
-    
+
     money_t min_bid = auction_minimum_bid(auc);
     if (amount < min_bid) {
         send_to_char(ch, "You must bid at least %'" PRId64 ".\r\n", min_bid);
@@ -678,26 +683,27 @@ ACMD(do_bid)
 
 ACMD(do_bidlist)
 {
-    if (!auctions)
+    if (!auctions) {
         send_to_char(ch, "There are no items for auction.\r\n");
+    }
 
     acc_string_clear();
-    for (GList * ai = auctions; ai; ai = ai->next) {
+    for (GList *ai = auctions; ai; ai = ai->next) {
         struct auction_data *auc = ai->data;
 
         if (!is_open_auction(auc)) {
             continue;
         }
-        
+
         acc_sprintf("%sItem Number:%s   %d\r\n",
-            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->idnum);
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->idnum);
         acc_sprintf("%sItem:%s          %s\r\n",
-            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->item->name);
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->item->name);
         acc_sprintf("%sCondition:%s     %s\r\n",
-            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     tmp_capitalize(obj_cond_color(auc->item, COLOR_LEV(ch))));
         acc_sprintf("%sStarting Bid:%s  %'" PRId64 " coins/cash\r\n",
-            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->start_bid);
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->start_bid);
         if (auc->bids == NULL) {
             acc_sprintf("%sCurrent Bid:%s   None\r\n",
                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
@@ -709,10 +715,11 @@ ACMD(do_bidlist)
         acc_sprintf("%sMinimum Bid:%s  %'" PRId64 " coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auction_minimum_bid(auc));
         time_t time_left = 0;
-        if (auc->bids)
+        if (auc->bids) {
             time_left = (auc->last_bid_time + SOLD_TIME) - time(NULL);
-        else
+        } else {
             time_left = (auc->start_time + AUCTION_THRESH) - time(NULL);
+        }
 
         // Convert to hours, mins, seconds
         int hours = time_left / 3600;
@@ -720,7 +727,7 @@ ACMD(do_bidlist)
         int mins = time_left / 60;
         int secs = time_left % 60;
         acc_sprintf("%sTime Left:%s     %d Hour(s) %d Mins %d Secs\r\n",
-            CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), hours, mins, secs);
+                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), hours, mins, secs);
 
         if (ai->next) {
             acc_strcat("---------------------------------------\r\n", NULL);
@@ -759,7 +766,7 @@ auctioneer_tick(struct creature *self)
     char *auc_str = NULL;
     GList *next_ai;
 
-    for (GList * ai = auctions; ai; ai = next_ai) {
+    for (GList *ai = auctions; ai; ai = next_ai) {
         next_ai = ai->next;
         struct auction_data *auc = ai->data;
         struct bid_data *winning_bid = auction_winning_bid(auc);
@@ -852,7 +859,7 @@ auctioneer_tick(struct creature *self)
                              GET_NAME(self));
 
                 // Refund losing bids
-                for (GList *it = auc->bids;it;it = it->next) {
+                for (GList *it = auc->bids; it; it = it->next) {
                     struct bid_data *bid = it->data;
                     if (bid != winning_bid) {
                         refund_bid(bid);
@@ -902,13 +909,15 @@ int
 auctioneer_stat(struct creature *self, struct creature *ch, char *argument)
 {
     char *arg = tmp_getword(&argument);
-    if (*arg)
+    if (*arg) {
         return 0;
+    }
 
-    if (!auctions)
+    if (!auctions) {
         send_to_char(ch, "There are no items for auction.\r\n");
+    }
     acc_string_clear();
-    for (GList * ai = auctions; ai; ai = ai->next) {
+    for (GList *ai = auctions; ai; ai = ai->next) {
         struct auction_data *auc = ai->data;
         acc_sprintf("%sItem Number:%s   %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->idnum);
@@ -935,16 +944,16 @@ auctioneer_stat(struct creature *self, struct creature *ch, char *argument)
         acc_sprintf("%sMinimum Bid:%s  %'" PRId64 " coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auction_minimum_bid(auc));
         acc_sprintf("Auction state:      %s\r\n", auction_state_strs[auc->state]);
-        for (GList *it = auc->bids;it != NULL;it = it->next) {
+        for (GList *it = auc->bids; it != NULL; it = it->next) {
             struct bid_data *bid = it->data;
             acc_sprintf("%s bid a total of %'" PRId64 "\r\n",
                         player_name_by_idnum(bid->bidder_id),
                         bid->past_amount + bid->future_amount);
         }
 
-       if (ai->next) {
+        if (ai->next) {
             acc_strcat("---------------------------------------\r\n", NULL);
-       }
+        }
     }
     page_string(ch->desc, acc_get_string());
     return 1;
@@ -997,16 +1006,16 @@ auctioneer_aucset(struct creature *self, struct creature *ch, char *argument)
     } else if (is_abbrev(var, "help") || !*var || !*val) {
         // Print usage
         send_to_char(ch, "Usage: aucset <VAR> <VAL>\r\n\r\n"
-                     "The following variables are accepted:\r\n"
-                     "going_once\r\ngoing_twice\r\nsold_time\r\n"
-                     "nobid_thresh\r\nauction_thresh\r\n"
-                     "max_auc_value\r\nmax_auctions\r\n"
-                     "max_total_auc\r\nbid_increment\r\n\r\n");
+                         "The following variables are accepted:\r\n"
+                         "going_once\r\ngoing_twice\r\nsold_time\r\n"
+                         "nobid_thresh\r\nauction_thresh\r\n"
+                         "max_auc_value\r\nmax_auctions\r\n"
+                         "max_total_auc\r\nbid_increment\r\n\r\n");
         return 1;
     }
     // They knew what they were doing, set the var
     if ((aucset_command =
-         search_block(var, aucset_commands, false)) < 0) {
+             search_block(var, aucset_commands, false)) < 0) {
         send_to_char(ch, "Invalid aucset command.\r\n");
         return 1;
     }
@@ -1056,8 +1065,9 @@ auctioneer_auction(struct creature *self, struct creature *ch, char *argument)
     char *auc_name = tmp_getword(&argument);
     long amount = atol(tmp_getword(&argument));
 
-    if (GET_IDNUM(ch) < 0)
+    if (GET_IDNUM(ch) < 0) {
         return 0;
+    }
 
     if (!*auc_name) {
         perform_say_to(self, ch,
@@ -1078,7 +1088,7 @@ auctioneer_auction(struct creature *self, struct creature *ch, char *argument)
 
     if (amount > MAX_AUC_VALUE) {
         perform_say_to(self, ch, "I'm sorry, we have a maximum value "
-                       "that can be placed on the items we sell.");
+                                 "that can be placed on the items we sell.");
         return 1;
     }
 
@@ -1086,26 +1096,27 @@ auctioneer_auction(struct creature *self, struct creature *ch, char *argument)
         get_obj_in_list_all(ch, auc_name, ch->carrying);
     if (!obj) {
         perform_say_to(self, ch, "You don't even have that!  Stop "
-                       "wasting my time!");
+                                 "wasting my time!");
         return 1;
     }
 
     short auc_count = 0;
-    for (GList * ai = auctions; ai; ai = ai->next) {
+    for (GList *ai = auctions; ai; ai = ai->next) {
         struct auction_data *auc = ai->data;
-        if (auc->owner_id == GET_IDNUM(ch))
+        if (auc->owner_id == GET_IDNUM(ch)) {
             auc_count++;
+        }
 
         if ((auc_count >= MAX_AUCTIONS) && !IS_IMMORT(ch)) {
             perform_say_to(self, ch, "You already have too many items "
-                           "up for auction.");
+                                     "up for auction.");
             return 1;
         }
     }
 
     if (can_auction_obj(obj) && !IS_IMMORT(ch)) {
         perform_say_to(self, ch, "I run a respectable establishment "
-                       "here!  I don't deal in such trash!");
+                                 "here!  I don't deal in such trash!");
         return 1;
     }
 
@@ -1114,13 +1125,13 @@ auctioneer_auction(struct creature *self, struct creature *ch, char *argument)
         perform_say_to(self, ch,
                        tmp_sprintf("That item is bonded to %s.  I can't auction that!",
                                    (obj->shared->owner_id == GET_IDNUM(ch)) ?
-                                   "you":"someone"));
+                                   "you" : "someone"));
         return 1;
     }
 
     if (g_list_length(auctions) > MAX_TOTAL_AUC) {
         perform_say_to(self, ch, "There are too many items up for "
-                       "auction now.  Try again later.");
+                                 "auction now.  Try again later.");
         return 1;
     }
 
@@ -1143,8 +1154,9 @@ auctioneer_withdraw(struct creature *self, struct creature *ch, char *argument)
 {
     int idnum = atoi(tmp_getword(&argument));
 
-    if (GET_IDNUM(ch) < 0)
+    if (GET_IDNUM(ch) < 0) {
         return 0;
+    }
 
     if (!idnum || idnum > MAX_TOTAL_AUC) {
         perform_say_to(self, ch, "Which item do you want to withdraw?");
@@ -1155,7 +1167,7 @@ auctioneer_withdraw(struct creature *self, struct creature *ch, char *argument)
 
     if (!auc) {
         perform_say_to(self, ch, "I don't see that item!  "
-                       "Maybe you should try another auctioneer.\r\n");
+                                 "Maybe you should try another auctioneer.\r\n");
         return 1;
     }
 
@@ -1210,11 +1222,13 @@ SPECIAL(do_auctions)
         raw_kill(dick, self, TYPE_SLASH);
     }
 
-    if (spec_mode == SPECIAL_TICK)
+    if (spec_mode == SPECIAL_TICK) {
         auctioneer_tick(self);
+    }
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
     if (CMD_IS("stun") || CMD_IS("steal") ||
         CMD_IS("pinch") || CMD_IS("glance")) {
@@ -1222,8 +1236,9 @@ SPECIAL(do_auctions)
         return 1;
     }
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return 0;
+    }
 
     // Handle commands in the presence of the auctioneer
     if (CMD_IS("stat") && is_named_role_member(ch, "WizardFull")) {

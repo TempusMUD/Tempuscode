@@ -6,11 +6,13 @@
 
 SPECIAL(shimmering_portal)
 {
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
+    }
 
-    if (!CMD_IS("enter"))
+    if (!CMD_IS("enter")) {
         return false;
+    }
 
     skip_spaces(&argument);
 
@@ -31,21 +33,22 @@ SPECIAL(shimmering_portal)
             char_to_room(ch, real_room(3012), false);
         } else {
             send_to_char(ch,
-                "You are ejected from the portal with a violent jerk!\r\n");
+                         "You are ejected from the portal with a violent jerk!\r\n");
             act("$n is ejected from the portal with a violent jerk!", false,
                 ch, NULL, NULL, TO_ROOM);
             return true;
         }
         act("$n steps out of the shimmering portal.", true, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch,
-            "For a few brief moments you feel completely disoriented.  You float\r\n"
-            "in a timeless void, without obvious form or direction.  You see a\r\n"
-            "glowing disk of light, and feel yourself drawn toward it!  You approach\r\n"
-            "it and step through a shimmering curtain of light...\r\n\r\n");
+                     "For a few brief moments you feel completely disoriented.  You float\r\n"
+                     "in a timeless void, without obvious form or direction.  You see a\r\n"
+                     "glowing disk of light, and feel yourself drawn toward it!  You approach\r\n"
+                     "it and step through a shimmering curtain of light...\r\n\r\n");
         look_at_room(ch, ch->in_room, 0);
         ch->in_room->zone->enter_count++;
         return true;
-    } else
+    } else {
         send_to_char(ch, "Enter what?\r\n");
+    }
     return true;
 }

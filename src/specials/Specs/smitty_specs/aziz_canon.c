@@ -8,18 +8,22 @@ SPECIAL(aziz_canon)
 {
     struct creature *vict = NULL;
 
-    if (cmd)
+    if (cmd) {
         return 0;
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    }
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     if (!is_fighting(ch) && GET_POSITION(ch) != POS_FIGHTING) {
-        for (GList * cit = ch->in_room->people; cit; cit = cit->next) {
+        for (GList *cit = ch->in_room->people; cit; cit = cit->next) {
             vict = cit->data;
-            if (!number(0, 2))
+            if (!number(0, 2)) {
                 break;
+            }
         }
-        if (!vict)
+        if (!vict) {
             return 0;
+        }
 
         switch (number(0, 30)) {
         case 1:

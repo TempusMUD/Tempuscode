@@ -6,14 +6,14 @@
 
 /******
 
-  How to build a VR arcade game:
-  For the object, set:
-  Value[0] : The vnum of the startroom in your game world.
-  Value[1] : The number of coins you must pay to enter.
-  Value[2] : The maximum level of player allowed in game.
-  Value[3] : The Hometown Number associated with your game.
+   How to build a VR arcade game:
+   For the object, set:
+   Value[0] : The vnum of the startroom in your game world.
+   Value[1] : The number of coins you must pay to enter.
+   Value[2] : The maximum level of player allowed in game.
+   Value[3] : The Hometown Number associated with your game.
 
-  ********/
+ ********/
 
 SPECIAL(vr_arcade_game)
 {
@@ -26,16 +26,19 @@ SPECIAL(vr_arcade_game)
         return 0;
     }
 
-    if (!CMD_IS("play") && !CMD_IS("enter"))
+    if (!CMD_IS("play") && !CMD_IS("enter")) {
         return 0;
+    }
 
-    if (GET_LEVEL(ch) < LVL_IMMORT)
+    if (GET_LEVEL(ch) < LVL_IMMORT) {
         return 0;
+    }
 
     skip_spaces(&argument);
 
-    if (!isname(argument, game->aliases))
+    if (!isname(argument, game->aliases)) {
         return 0;
+    }
 
     if (r_lckr_rm == NULL) {
         send_to_char(ch, "Sorry, all games are out of order right now.\r\n");
@@ -43,13 +46,14 @@ SPECIAL(vr_arcade_game)
     }
 
     for (lckr = r_lckr_rm->contents; lckr; lckr = lckr->next_content) {
-        if (GET_OBJ_VNUM(lckr) == 30189 && !lckr->contains)
+        if (GET_OBJ_VNUM(lckr) == 30189 && !lckr->contains) {
             break;
+        }
     }
 
     if (!lckr) {
         send_to_char(ch, "Sorry, all the lockers are filled right now."
-            "  Try again later.\r\n");
+                         "  Try again later.\r\n");
         return 1;
     }
 
@@ -60,7 +64,7 @@ SPECIAL(vr_arcade_game)
 
     if (GET_GOLD(ch) < GET_OBJ_VAL(game, 1)) {
         send_to_char(ch, "You don't have the %d coins required to play.\r\n",
-            GET_OBJ_VAL(game, 1));
+                     GET_OBJ_VAL(game, 1));
         return 1;
     }
 
@@ -76,23 +80,25 @@ SPECIAL(vr_arcade_game)
     }
 
     for (i = 0; i < NUM_WEARS; i++) {
-        if (GET_EQ(ch, i))
+        if (GET_EQ(ch, i)) {
             obj_to_obj(unequip_char(ch, i, EQUIP_WORN), lckr);
+        }
     }
 
     GET_OBJ_VAL(lckr, 0) = GET_IDNUM(ch);
 
     struct house *house = find_house_by_room(lckr->in_room->number);
-    if (house != NULL)
+    if (house != NULL) {
         save_house(house);
+    }
     crashsave(ch);
 
     send_to_char(ch, "You insert %d coins in %s.\r\n", GET_OBJ_VAL(game, 1),
-        game->name);
+                 game->name);
 
     send_to_char(ch,
-        "You step into the interface... You are blinded by a bright"
-        " light!!\r\n");
+                 "You step into the interface... You are blinded by a bright"
+                 " light!!\r\n");
     act("$n steps into $p's interface and disappears in a flash!", false, ch,
         game, NULL, TO_ROOM);
 

@@ -13,23 +13,26 @@ SPECIAL(fountain_restore)
     struct obj_data *fountain = (struct obj_data *)me;
     char *tmp;
 
-    if (spec_mode != SPECIAL_CMD || !CMD_IS("drink"))
+    if (spec_mode != SPECIAL_CMD || !CMD_IS("drink")) {
         return 0;
+    }
 
     if ((IS_OBJ_STAT(fountain, ITEM_BLESS | ITEM_ANTI_EVIL) && IS_EVIL(ch)) ||
         (IS_OBJ_STAT(fountain, ITEM_DAMNED | ITEM_ANTI_GOOD)
-            && IS_GOOD(ch)))
+         && IS_GOOD(ch))) {
         return 0;
+    }
 
     skip_spaces(&argument);
     char *arg = tmp_getword(&argument);
 
-    if (!*arg)
+    if (!*arg) {
         return 0;
+    }
 
-    if (!isname(arg, fountain->aliases))
+    if (!isname(arg, fountain->aliases)) {
         return 0;
-    else {
+    } else {
         if (fill_word(arg)) {
             tmp = fname(fountain->aliases);
             arg = tmp_strdup(tmp);

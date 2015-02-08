@@ -11,21 +11,26 @@ SPECIAL(wagon_driver)
     struct room_data *destination = NULL;
     int wagon_obj_rnum = 10, dir;
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || !AWAKE(ch) || ch->in_room->number != 10)
+    }
+    if (cmd || !AWAKE(ch) || ch->in_room->number != 10) {
         return 0;
+    }
 
-    if (!number(0, 7))          /* Only try to some of the time */
+    if (!number(0, 7)) {        /* Only try to some of the time */
         return 0;
+    }
 
-    for (i = object_list; i; i = i->next)
-        if ((wagon_obj_rnum == GET_OBJ_VNUM(i)) && (i->in_room != NULL))
+    for (i = object_list; i; i = i->next) {
+        if ((wagon_obj_rnum == GET_OBJ_VNUM(i)) && (i->in_room != NULL)) {
             break;
+        }
+    }
 
     if (!i) {
         mudlog(LVL_DEMI, BRF, true,
-            "WARNING:  Wagon driver cannot find his wagon (object 10)!");
+               "WARNING:  Wagon driver cannot find his wagon (object 10)!");
         driver->mob_specials.shared->func = NULL;
         REMOVE_BIT(NPC_FLAGS(driver), NPC_SPEC);
         return 0;
@@ -34,14 +39,15 @@ SPECIAL(wagon_driver)
     for (dir = 0; dir <= 3; dir++) {
         if (OEXIT(i, dir) && OEXIT(i, dir)->to_room != NULL &&
             (i->in_room->sector_type ==
-                OEXIT(i, dir)->to_room->sector_type) && OCAN_GO(i, dir)
+             OEXIT(i, dir)->to_room->sector_type) && OCAN_GO(i, dir)
             && !number(0, 4)
-            && !ROOM_FLAGGED(OEXIT(i, dir)->to_room, ROOM_INDOORS))
+            && !ROOM_FLAGGED(OEXIT(i, dir)->to_room, ROOM_INDOORS)) {
             break;
+        }
     }
-    if ((dir == 4) || !OCAN_GO(i, dir))
+    if ((dir == 4) || !OCAN_GO(i, dir)) {
         return 0;
-    else {
+    } else {
         destination = OEXIT(i, dir)->to_room;
 
         act("$n twitches the reins.", true, driver, NULL, NULL, TO_ROOM);

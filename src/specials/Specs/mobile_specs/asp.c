@@ -6,8 +6,9 @@
 
 SPECIAL(asp)
 {
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return false;
+    }
 
     if (FIGHTING(ch) && (FIGHTING(ch)->in_room == ch->in_room) &&
         (number(0, 57 - GET_LEVEL(ch)) == 0)) {
@@ -16,7 +17,7 @@ SPECIAL(asp)
 
         act("$n bites you with its fangs!", 1, ch, NULL, FIGHTING(ch), TO_VICT);
         call_magic(ch, FIGHTING(ch), 0, SPELL_POISON, GET_LEVEL(ch),
-            CAST_SPELL);
+                   CAST_SPELL);
 
         return true;
     }

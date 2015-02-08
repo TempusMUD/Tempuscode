@@ -14,14 +14,14 @@
 #define TITLE_UNHOLY "The Unholy Square"
 #define DESC_UNHOLY  "   The main junction of the city of Modrian lies under a shroud of darkness.\r\n" \
                      "The pavement under your feet is blackened and stained, and an oppressive\r\n"     \
-		     "odor assails your nostrils.  The sky above seems darker and redder than\r\n"      \
-		     "usual.\r\n"          \
-		     "   Streets lead off to the north, east, and west.  The silvery entrance to\r\n"   \
-		     "the temple stands defiantly to the south.\r\n"
+                     "odor assails your nostrils.  The sky above seems darker and redder than\r\n"      \
+                     "usual.\r\n"          \
+                     "   Streets lead off to the north, east, and west.  The silvery entrance to\r\n"   \
+                     "the temple stands defiantly to the south.\r\n"
 
 void
 perform_defile(struct room_data *room, int *state, char **olddesc,
-    char **oldtitle)
+               char **oldtitle)
 {
 
     struct obj_data *fount = NULL;
@@ -33,16 +33,18 @@ perform_defile(struct room_data *room, int *state, char **olddesc,
 
     *state = STATE_UNHOLY;
 
-    for (fount = room->contents; fount; fount = fount->next_content)
+    for (fount = room->contents; fount; fount = fount->next_content) {
         if (GET_OBJ_VNUM(fount) == FOUNT_HOLY) {
             extract_obj(fount);
             break;
         }
+    }
 
-    if (!(fount = read_object(FOUNT_UNHOLY)))
+    if (!(fount = read_object(FOUNT_UNHOLY))) {
         errlog("unable to load unholy fount in unholy_square.");
-    else
+    } else {
         obj_to_room(fount, room);
+    }
 
     *olddesc = room->description;
     *oldtitle = room->name;
@@ -56,7 +58,7 @@ perform_defile(struct room_data *room, int *state, char **olddesc,
 
 void
 perform_resanct(struct room_data *room, int *state, char *olddesc,
-    char *oldtitle)
+                char *oldtitle)
 {
 
     if (*state != STATE_UNHOLY) {
@@ -84,11 +86,13 @@ SPECIAL(unholy_square)
     struct obj_data *obj = NULL, *fount = NULL;
     static char *olddesc = NULL, *oldtitle = NULL;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (!ch)
+    if (!ch) {
         return 0;
+    }
 
     two_arguments(argument, arg1, arg2);
 
@@ -96,15 +100,19 @@ SPECIAL(unholy_square)
 
         if (!*arg1 || !(obj = GET_EQ(ch, WEAR_HOLD))
             || GET_OBJ_VNUM(obj) != VIAL_VNUM || !isname(arg1, obj->aliases)
-            || !*arg2)
+            || !*arg2) {
             return 0;
+        }
 
-        for (fount = ch->in_room->contents; fount; fount = fount->next_content)
-            if (GET_OBJ_VNUM(fount) == FOUNT_UNHOLY)
+        for (fount = ch->in_room->contents; fount; fount = fount->next_content) {
+            if (GET_OBJ_VNUM(fount) == FOUNT_UNHOLY) {
                 break;
+            }
+        }
 
-        if (!fount || !isname(arg2, fount->aliases))
+        if (!fount || !isname(arg2, fount->aliases)) {
             return 0;
+        }
 
         act("$n pours the contents of $p into $P...", false, ch, obj, fount,
             TO_ROOM);
@@ -130,7 +138,7 @@ SPECIAL(unholy_square)
             false, ch, obj, fount, TO_CHAR);
 
         send_to_zone("The Holy Square has been re-sanctified.\r\n",
-            ch->in_room->zone, 1);
+                     ch->in_room->zone, 1);
 
         winner = GET_IDNUM(ch);
         wintime = time(NULL);
@@ -140,25 +148,27 @@ SPECIAL(unholy_square)
         extract_obj(obj);
 
         mudlog(LVL_AMBASSADOR, BRF, true,
-            "US: %s has re-sanctified Holy Square.", GET_NAME(ch));
+               "US: %s has re-sanctified Holy Square.", GET_NAME(ch));
 
         return 1;
     }
 
-    if (GET_LEVEL(ch) < LVL_GRGOD || !CMD_IS("status"))
+    if (GET_LEVEL(ch) < LVL_GRGOD || !CMD_IS("status")) {
         return 0;
+    }
 
     // immortal commands here
 
     if (!*arg1) {
 
         send_to_char(ch, "Holy Square is %s.\r\nstatus <begin|end|clear>.\r\n",
-            state ? "UNHOLY" : "HOLY");
-        if (winner)
+                     state ? "UNHOLY" : "HOLY");
+        if (winner) {
             snprintf(buf, sizeof(buf),
-                "%sWinner is [%d] %s.\r\n"
-                "Won at %s.\r\n", buf, winner, player_name_by_idnum(winner),
-                ctime(&wintime));
+                     "%sWinner is [%d] %s.\r\n"
+                     "Won at %s.\r\n", buf, winner, player_name_by_idnum(winner),
+                     ctime(&wintime));
+        }
 
         return 1;
     }
@@ -184,20 +194,20 @@ SPECIAL(unholy_square)
 
         send_to_zone
             ("A large black cloud rolls across the sky from the west, enveloping\r\n"
-            "the city in darkness.\r\n", ch->in_room->zone, 1);
+             "the city in darkness.\r\n", ch->in_room->zone, 1);
 
         send_to_room
             ("A whirling funnel bursts from the bottom of the black cloud with a piercing\r\n"
-            "scream!  A menacing laugh rolls across the city as the funnel cloud smashes\r\n"
-            "directly into the center of Holy Square!  When the air clears, a new scene\r\n"
-            "is revealed...\r\n", ch->in_room);
+             "scream!  A menacing laugh rolls across the city as the funnel cloud smashes\r\n"
+             "directly into the center of Holy Square!  When the air clears, a new scene\r\n"
+             "is revealed...\r\n", ch->in_room);
 
         perform_defile(ch->in_room, &state, &olddesc, &oldtitle);
 
         send_to_char(ch, "Holy Square defiled.\r\n");
 
         mudlog(LVL_AMBASSADOR, BRF, true,
-            "US: %s has defiled Holy Square.", GET_NAME(ch));
+               "US: %s has defiled Holy Square.", GET_NAME(ch));
 
         return 1;
     }
@@ -214,7 +224,7 @@ SPECIAL(unholy_square)
         send_to_char(ch, "Holy Square resanctified.\r\n");
 
         mudlog(LVL_AMBASSADOR, BRF, true,
-            "US: %s has ended the defilement of Holy Square.", GET_NAME(ch));
+               "US: %s has ended the defilement of Holy Square.", GET_NAME(ch));
 
         return 1;
     }

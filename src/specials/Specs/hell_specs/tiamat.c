@@ -10,10 +10,12 @@ SPECIAL(tiamat)
     int type = 0;
     struct room_data *lair = real_room(16182);
 
-    if (cmd || !is_fighting(ch) || GET_NPC_WAIT(ch) || number(0, 4))
+    if (cmd || !is_fighting(ch) || GET_NPC_WAIT(ch) || number(0, 4)) {
         return 0;
-    if (spec_mode != SPECIAL_TICK)
+    }
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     if (GET_HIT(ch) < 200 && ch->in_room != lair && lair != NULL) {
         act("$n vanishes in a prismatic blast of light!",
             false, ch, NULL, NULL, TO_ROOM);

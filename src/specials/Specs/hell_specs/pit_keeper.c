@@ -2,24 +2,29 @@ SPECIAL(pit_keeper)
 {
     struct creature *vict = NULL;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd)
+    }
+    if (cmd) {
         return 0;
+    }
 
-    if (!(is_fighting(ch)))
+    if (!(is_fighting(ch))) {
         return 0;
+    }
 
     vict = random_opponent(ch);
     if (ch->in_room->number != 17027 &&
         ch->in_room->number != 17021 &&
         ch->in_room->number != 17022 &&
-        ch->in_room->number != 17026 && ch->in_room->number != 17020)
+        ch->in_room->number != 17026 && ch->in_room->number != 17020) {
         return 0;
+    }
 
     if (!ch->in_room->dir_option[DOWN]
-        || !ch->in_room->dir_option[DOWN]->to_room)
+        || !ch->in_room->dir_option[DOWN]->to_room) {
         return 0;
+    }
 
     if (GET_STR(ch) + number(0, 10) > GET_STR(vict)) {
         act("$n lifts you over $s head and hurls you into the pit below!",

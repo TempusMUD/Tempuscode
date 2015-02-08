@@ -49,9 +49,10 @@ polleditor_finalize(struct editor *editor, const char *text)
         (struct polleditor_data *)editor->mode_data;
     voting_add_poll(poll_data->header, text);
 
-    if (IS_PLAYING(editor->desc))
+    if (IS_PLAYING(editor->desc)) {
         act("$n nods with satisfaction as $e saves $s work.",
             true, editor->desc->creature, NULL, NULL, TO_NOTVICT);
+    }
 
     free_polleditor(editor);
 }
@@ -69,7 +70,7 @@ start_editing_poll(struct descriptor_data *d, const char *header)
     if (d->text_editor) {
         errlog("Text editor object not null in start_editing_poll");
         REMOVE_BIT(PLR_FLAGS(d->creature),
-            PLR_WRITING | PLR_OLC | PLR_MAILING);
+                   PLR_WRITING | PLR_OLC | PLR_MAILING);
         return;
     }
 

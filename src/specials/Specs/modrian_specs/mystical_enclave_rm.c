@@ -9,11 +9,13 @@ SPECIAL(mystical_enclave)
     struct room_data *stair_rnum = NULL;
 
     if (!CMD_IS("up") || !IS_PSYCHIC(ch) || GET_POSITION(ch) < POS_STANDING ||
-        MOUNTED_BY(ch))
+        MOUNTED_BY(ch)) {
         return 0;
+    }
 
-    if ((stair_rnum = real_room(30126)) == NULL)
+    if ((stair_rnum = real_room(30126)) == NULL) {
         return 0;
+    }
 
     act("$n vanishes into the ceiling...", true, ch, NULL, NULL, TO_ROOM);
     char_from_room(ch, false);

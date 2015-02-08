@@ -49,7 +49,7 @@ extern struct descriptor_data *descriptor_list;
 extern struct room_data *world;
 
 /* extern functions */
-char *fread_action(FILE * fl, int nr);
+char *fread_action(FILE *fl, int nr);
 
 /* local globals */
 static int list_top = -1;
@@ -84,21 +84,25 @@ find_action(int cmd)
     bot = 0;
     top = list_top;
 
-    if (top < 0)
+    if (top < 0) {
         return (-1);
+    }
 
     while (true) {
         mid = (bot + top) / 2;
 
-        if (soc_mess_list[mid].act_nr == cmd)
+        if (soc_mess_list[mid].act_nr == cmd) {
             return (mid);
-        if (bot >= top)
+        }
+        if (bot >= top) {
             return (-1);
+        }
 
-        if (soc_mess_list[mid].act_nr > cmd)
+        if (soc_mess_list[mid].act_nr > cmd) {
             top = --mid;
-        else
+        } else {
             bot = ++mid;
+        }
     }
 }
 
@@ -108,7 +112,7 @@ ACMD(do_mood)
     GET_MOOD(ch) = tmp_strcat(" ", cmd_info[cmd].command, NULL);
     if (!*argument) {
         send_to_char(ch, "%s what?!?\r\n",
-            tmp_capitalize(cmd_info[cmd].command));
+                     tmp_capitalize(cmd_info[cmd].command));
         GET_MOOD(ch) = NULL;
         return;
     }
@@ -169,10 +173,10 @@ ACMD(do_action)
         act(action->char_auto, false, ch, NULL, NULL, TO_CHAR);
         act(action->others_auto, action->hide, ch, NULL, NULL, TO_ROOM);
     } else {
-        if (GET_POSITION(vict) < action->min_victim_position)
+        if (GET_POSITION(vict) < action->min_victim_position) {
             act("$N is not in a proper position for that.",
                 false, ch, NULL, vict, TO_CHAR | TO_SLEEP);
-        else {
+        } else {
             act(action->char_found, 0, ch, NULL, vict, TO_CHAR | TO_SLEEP);
             act(action->others_found, action->hide, ch, NULL, vict, TO_NOTVICT);
             act(action->vict_found, action->hide, ch, NULL, vict, TO_VICT);
@@ -231,9 +235,11 @@ ACMD(do_flip)
     if (is_abbrev(tmp_getword(&argument), "coin")) {
         struct obj_data *obj;
 
-        for (obj = ch->carrying; obj; obj = obj->next_content)
-            if (isname("coin", obj->aliases))
+        for (obj = ch->carrying; obj; obj = obj->next_content) {
+            if (isname("coin", obj->aliases)) {
                 break;
+            }
+        }
 
         if (!obj && GET_GOLD(ch) == 0) {
             send_to_char(ch, "You don't have a coin to flip!\r\n");
@@ -263,26 +269,28 @@ ACMD(do_insult)
     char *arg = tmp_getword(&argument);
 
     if (*arg) {
-        if (!(victim = get_char_room_vis(ch, arg)))
+        if (!(victim = get_char_room_vis(ch, arg))) {
             send_to_char(ch, "Can't hear you!\r\n");
-        else {
+        } else {
             if (victim != ch) {
                 send_to_char(ch, "You insult %s.\r\n", GET_NAME(victim));
 
                 switch (number(0, 2)) {
                 case 0:
                     if (GET_SEX(ch) == SEX_MALE) {
-                        if (GET_SEX(victim) == SEX_MALE)
+                        if (GET_SEX(victim) == SEX_MALE) {
                             act("$n accuses you of fighting like a woman!",
                                 false, ch, NULL, victim, TO_VICT);
-                        else
+                        } else {
                             act("$n says that women can't fight.", false, ch,
                                 NULL, victim, TO_VICT);
+                        }
                     } else {    /* Ch == Woman */
-                        if (GET_SEX(victim) == SEX_MALE)
+                        if (GET_SEX(victim) == SEX_MALE) {
                             act("$n accuses you of having the smallest... (brain?)", false, ch, NULL, victim, TO_VICT);
-                        else
+                        } else {
                             act("$n tells you that you'd lose a beauty contest against a troll.", false, ch, NULL, victim, TO_VICT);
+                        }
                     }
                     break;
                 case 1:
@@ -300,9 +308,10 @@ ACMD(do_insult)
                 send_to_char(ch, "You feel insulted.\r\n");
             }
         }
-    } else
+    } else {
         send_to_char(ch,
-            "I'm sure you don't want to insult *everybody*...\r\n");
+                     "I'm sure you don't want to insult *everybody*...\r\n");
+    }
 }
 
 char *
@@ -312,7 +321,7 @@ fread_action(FILE *fl, int nr)
 
     if (!fgets(buf, sizeof(buf), fl)) {
         perror(tmp_sprintf("fread_action - unexpected EOF near action #%d",
-                nr));
+                           nr));
         safe_exit(1);
     }
     if (feof(fl)) {
@@ -357,14 +366,15 @@ boot_social_messages(void)
             perror(tmp_sprintf("error near action #%d", nr));
             safe_exit(1);
         }
-        if (*next_soc == '$')
+        if (*next_soc == '$') {
             break;
+        }
         if ((nr = find_command(next_soc)) < 0) {
             slog("Unknown social '%s' in social file", next_soc);
         }
         if (fscanf(fl, " %d %d \n", &hide, &min_pos) != 2) {
             fprintf(stderr, "Format error in social file near social '%s'\n",
-                next_soc);
+                    next_soc);
             safe_exit(1);
         }
 
@@ -390,10 +400,11 @@ boot_social_messages(void)
         soc_mess_list[social_count].others_found = fread_action(fl, nr);
         soc_mess_list[social_count].vict_found = fread_action(fl, nr);
         soc_mess_list[social_count].not_found = fread_action(fl, nr);
-        if ((soc_mess_list[social_count].char_auto = fread_action(fl, nr)))
+        if ((soc_mess_list[social_count].char_auto = fread_action(fl, nr))) {
             soc_mess_list[social_count].others_auto = fread_action(fl, nr);
-        else
+        } else {
             soc_mess_list[social_count].others_auto = NULL;
+        }
         social_count++;
     }
 
@@ -406,9 +417,11 @@ boot_social_messages(void)
     /* now, sort 'em */
     for (idx = 0; idx < list_top; idx++) {
         min_pos = idx;
-        for (i = idx + 1; i < list_top; i++)
-            if (soc_mess_list[i].act_nr < soc_mess_list[min_pos].act_nr)
+        for (i = idx + 1; i < list_top; i++) {
+            if (soc_mess_list[i].act_nr < soc_mess_list[min_pos].act_nr) {
                 min_pos = i;
+            }
+        }
         if (idx != min_pos) {
             struct social_messg temp;
 
@@ -419,10 +432,12 @@ boot_social_messages(void)
     }
 
     /* Check to make sure that all social commands are defined */
-    for (nr = 0; *cmd_info[nr].command != '\n'; nr++)
-        if (cmd_info[nr].command_pointer == do_action && find_action(nr) < 0)
+    for (nr = 0; *cmd_info[nr].command != '\n'; nr++) {
+        if (cmd_info[nr].command_pointer == do_action && find_action(nr) < 0) {
             errlog("Social '%s' is not defined in socials file",
-                cmd_info[nr].command);
+                   cmd_info[nr].command);
+        }
+    }
 
 }
 
@@ -432,9 +447,9 @@ show_social_messages(struct creature *ch, char *arg)
     int i, j, l;
     struct social_messg *action;
 
-    if (!*arg)
+    if (!*arg) {
         send_to_char(ch, "What social?\r\n");
-    else {
+    } else {
         for (l = strlen(arg), i = 0; *cmd_info[i].command != '\n'; i++) {
             if (!strncmp(cmd_info[i].command, arg, l)) {
                 if (GET_LEVEL(ch) >= cmd_info[i].minimum_level) {
@@ -442,31 +457,31 @@ show_social_messages(struct creature *ch, char *arg)
                 }
             }
         }
-        if (*cmd_info[i].command == '\n')
+        if (*cmd_info[i].command == '\n') {
             send_to_char(ch, "No such social.\r\n");
-        else if ((j = find_action(i)) < 0)
+        } else if ((j = find_action(i)) < 0) {
             send_to_char(ch, "That action is not supported.\r\n");
-        else {
+        } else {
             action = &soc_mess_list[j];
 
             snprintf(buf, sizeof(buf), "Action '%s', Hide-invis : %s, Min Vict Pos: %d\r\n",
-                cmd_info[i].command, YESNO(action->hide),
-                action->min_victim_position);
+                     cmd_info[i].command, YESNO(action->hide),
+                     action->min_victim_position);
             snprintf_cat(buf, sizeof(buf), "char_no_arg  : %s\r\n", action->char_no_arg);
             snprintf_cat(buf, sizeof(buf), "others_no_arg: %s\r\n",
-                action->others_no_arg);
+                         action->others_no_arg);
             snprintf_cat(buf, sizeof(buf), "char_found   : %s\r\n", action->char_found);
             if (action->others_found) {
                 snprintf_cat(buf, sizeof(buf), "others_found : %s\r\n",
-                    action->others_found);
+                             action->others_found);
                 snprintf_cat(buf, sizeof(buf), "vict_found   : %s\r\n",
-                    action->vict_found);
+                             action->vict_found);
                 snprintf_cat(buf, sizeof(buf), "not_found    : %s\r\n",
-                    action->not_found);
+                             action->not_found);
                 snprintf_cat(buf, sizeof(buf), "char_auto    : %s\r\n",
-                    action->char_auto);
+                             action->char_auto);
                 snprintf_cat(buf, sizeof(buf), "others_auto  : %s\r\n",
-                    action->others_auto);
+                             action->others_auto);
             }
             send_to_char(ch, "%s", buf);
 
@@ -481,22 +496,30 @@ free_socials(void)
     int i;
 
     for (i = 0; i <= list_top; i++) {
-        if (soc_mess_list[i].char_no_arg)
+        if (soc_mess_list[i].char_no_arg) {
             free(soc_mess_list[i].char_no_arg);
-        if (soc_mess_list[i].others_no_arg)
+        }
+        if (soc_mess_list[i].others_no_arg) {
             free(soc_mess_list[i].others_no_arg);
-        if (soc_mess_list[i].char_found)
+        }
+        if (soc_mess_list[i].char_found) {
             free(soc_mess_list[i].char_found);
-        if (soc_mess_list[i].others_found)
+        }
+        if (soc_mess_list[i].others_found) {
             free(soc_mess_list[i].others_found);
-        if (soc_mess_list[i].vict_found)
+        }
+        if (soc_mess_list[i].vict_found) {
             free(soc_mess_list[i].vict_found);
-        if (soc_mess_list[i].not_found)
+        }
+        if (soc_mess_list[i].not_found) {
             free(soc_mess_list[i].not_found);
-        if (soc_mess_list[i].char_auto)
+        }
+        if (soc_mess_list[i].char_auto) {
             free(soc_mess_list[i].char_auto);
-        if (soc_mess_list[i].others_auto)
+        }
+        if (soc_mess_list[i].others_auto) {
             free(soc_mess_list[i].others_auto);
+        }
     }
     free(soc_mess_list);
 }

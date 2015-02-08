@@ -5,8 +5,8 @@
 //
 
 #define MASTER_COMM_USAGE \
-                    "Usage:\r\n" \
-		    "         use <unit> scan\r\n"
+    "Usage:\r\n" \
+    "         use <unit> scan\r\n"
 #define MAX_CHAN 100
 
 SPECIAL(master_communicator)
@@ -16,10 +16,12 @@ SPECIAL(master_communicator)
     struct creature *vict = NULL;
     int i, num = 0, chan[MAX_CHAN];
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
-    if (!CMD_IS("use") || GET_LEVEL(ch) < LVL_TIMEGOD)
+    }
+    if (!CMD_IS("use") || GET_LEVEL(ch) < LVL_TIMEGOD) {
         return 0;
+    }
 
     skip_spaces(&argument);
     two_arguments(argument, arg1, arg2);
@@ -29,8 +31,9 @@ SPECIAL(master_communicator)
         return 1;
     }
 
-    if (!isname(arg1, comm->aliases))
+    if (!isname(arg1, comm->aliases)) {
         return 0;
+    }
 
     *buf = 0;
     if (is_abbrev(arg2, "scan")) {
@@ -39,35 +42,41 @@ SPECIAL(master_communicator)
 
             if (!IS_COMMUNICATOR(o) ||
                 ((!o->worn_by || IS_NPC(o->worn_by)) &&
-                    (!o->carried_by || IS_NPC(o->carried_by))))
+                 (!o->carried_by || IS_NPC(o->carried_by)))) {
                 continue;
+            }
 
-            for (i = 0; i < num; i++)
-                if (COMM_CHANNEL(o) == chan[i])
+            for (i = 0; i < num; i++) {
+                if (COMM_CHANNEL(o) == chan[i]) {
                     break;
+                }
+            }
 
-            if (i < num)
+            if (i < num) {
                 continue;
+            }
 
             chan[num] = COMM_CHANNEL(o);
             num++;
 
             snprintf(buf, sizeof(buf), "%sEntities monitoring channel [%d]:\r\n",
-                buf, COMM_CHANNEL(o));
+                     buf, COMM_CHANNEL(o));
 
             for (tmpo = o, i = 0; tmpo; tmpo = tmpo->next) {
 
                 if (!IS_COMMUNICATOR(tmpo) ||
-                    COMM_CHANNEL(tmpo) != chan[num - 1])
+                    COMM_CHANNEL(tmpo) != chan[num - 1]) {
                     continue;
+                }
 
                 if (((vict = tmpo->carried_by) || (vict = tmpo->worn_by)) &&
-                    can_see_creature(ch, vict))
+                    can_see_creature(ch, vict)) {
 
                     snprintf_cat(buf, sizeof(buf), "     %3d. %20s %10s %5s\r\n",
-                        ++i, PERS(vict, ch),
-                        !ENGINE_STATE(tmpo) ? "[inactive]" : "",
-                        !COMM_UNIT_SEND_OK(vict, ch) ? "(cantsend)" : "");
+                                 ++i, PERS(vict, ch),
+                                 !ENGINE_STATE(tmpo) ? "[inactive]" : "",
+                                 !COMM_UNIT_SEND_OK(vict, ch) ? "(cantsend)" : "");
+                }
 
             }
         }

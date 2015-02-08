@@ -46,7 +46,6 @@ START_TEST(tmp_tolower_1)
     ck_assert_str_eq(tmp_tolower("abcdef"), "abcdef");
 }
 END_TEST
-
 START_TEST(tmp_tolower_2)
 {
     ck_assert_str_eq(tmp_tolower("ABCDEF"), "abcdef");
@@ -72,7 +71,6 @@ START_TEST(tmp_tolower_6)
     ck_assert_str_eq(tmp_tolower(""), "");
 }
 END_TEST
-
 // Testing tmp_strdupt
 START_TEST(tmp_strdupt_1)
 {
@@ -95,7 +93,6 @@ START_TEST(tmp_strdupt_3)
     ck_assert_str_eq(tmp_strdupt("foo", "\n"), "foo");
 }
 END_TEST
-
 // Testing tmp_gsub
 START_TEST(tmp_gsub_1)
 {
@@ -152,7 +149,6 @@ START_TEST(tmp_gsub_11)
     ck_assert_str_eq(tmp_gsub("ABCDEFEDCBA", "D", "xxx"), "ABCxxxEFExxxCBA");
 }
 END_TEST
-
 // Testing tmp_gsubi
 START_TEST(tmp_gsubi_1)
 {
@@ -209,7 +205,6 @@ START_TEST(tmp_gsubi_11)
     ck_assert_str_eq(tmp_gsubi("ABCDEFEDCBA", "d", "xxx"), "ABCxxxEFExxxCBA");
 }
 END_TEST
-
 // Testing tmp_sqlescape
 START_TEST(tmp_sqlescape_1)
 {
@@ -226,7 +221,6 @@ START_TEST(tmp_sqlescape_3)
     ck_assert_str_eq(tmp_sqlescape("abcd\\ef"), "abcd\\\\ef");
 }
 END_TEST
-
 // Testing tmp_printbits
 START_TEST(tmp_printbits_1)
 {
@@ -268,7 +262,6 @@ START_TEST(tmp_printbits_8)
     ck_assert_str_eq(tmp_printbits(0x20000, bit_descs), "");
 }
 END_TEST
-
 // Testing tmp_substr
 START_TEST(tmp_substr_1)
 {
@@ -305,7 +298,6 @@ START_TEST(tmp_substr_7)
     ck_assert_str_eq(tmp_substr("abcdef", -5, -1), "bcdef");
 }
 END_TEST
-
 // Testing tmp_trim
 START_TEST(tmp_trim_1)
 {
@@ -342,24 +334,23 @@ START_TEST(tmp_trim_7)
     ck_assert_str_eq(tmp_trim("   abc def   "), "abc def");
 }
 END_TEST
-
 // Testing tmp_format
 START_TEST(tmp_format_1)
 {
     char *test_str = "       This is the main junction of the Holy City of Modrian."
-        "Citizens, travelers, adventurers, priests, and rogues all mingle here "
-        "as they go their separate ways.  The shining temple of Guiharia "
-        "towers to the south through a great silver archway.  Symbolically "
-        "positioned across the square to the north rises Town Hall, a "
-        "converted abbey with an arched facade of blue tile.  Goddess Street "
-        "stretches across the ancient city east to west.   ";
+                     "Citizens, travelers, adventurers, priests, and rogues all mingle here "
+                     "as they go their separate ways.  The shining temple of Guiharia "
+                     "towers to the south through a great silver archway.  Symbolically "
+                     "positioned across the square to the north rises Town Hall, a "
+                     "converted abbey with an arched facade of blue tile.  Goddess Street "
+                     "stretches across the ancient city east to west.   ";
     char *expected_str = "   This is the main junction of the Holy City of Modrian.  Citizens,\r\n"
-        "travelers, adventurers, priests, and rogues all mingle here as they go\r\n"
-        "their separate ways.  The shining temple of Guiharia towers to the south\r\n"
-        "through a great silver archway.  Symbolically positioned across the\r\n"
-        "square to the north rises Town Hall, a converted abbey with an arched\r\n"
-        "facade of blue tile.  Goddess Street stretches across the ancient city\r\n"
-        "east to west.\r\n";
+                         "travelers, adventurers, priests, and rogues all mingle here as they go\r\n"
+                         "their separate ways.  The shining temple of Guiharia towers to the south\r\n"
+                         "through a great silver archway.  Symbolically positioned across the\r\n"
+                         "square to the north rises Town Hall, a converted abbey with an arched\r\n"
+                         "facade of blue tile.  Goddess Street stretches across the ancient city\r\n"
+                         "east to west.\r\n";
     ck_assert_str_eq(tmp_format(test_str, 72, 3, 3, 0), expected_str);
 }
 END_TEST
@@ -374,9 +365,9 @@ START_TEST(tmp_format_3)
 {
     char *test_str = "These are flags: ABC DEF GHI JKL MNO PQR STU VWX\r\n";
     char *expected_str = "These are flags: ABC DEF\r\n"
-        "                 GHI JKL\r\n"
-        "                 MNO PQR\r\n"
-        "                 STU VWX\r\n";
+                         "                 GHI JKL\r\n"
+                         "                 MNO PQR\r\n"
+                         "                 STU VWX\r\n";
     ck_assert_str_eq(tmp_format(test_str, 26, 0, 0, 17), expected_str);
 }
 END_TEST
@@ -384,12 +375,12 @@ START_TEST(tmp_format_4)
 {
     char *test_str = "This should be across two different lines, indented at first by four, then by one...\r\nThis should be across a few lines, indented by five, and then by one.\r\n";
     char *expected_str = "    This should be across\r\n"
-        " two different lines,\r\n"
-        " indented at first by\r\n"
-        " four, then by one...\r\n"
-        "     This should be across\r\n"
-        " a few lines, indented by\r\n"
-        " five, and then by one.\r\n";
+                         " two different lines,\r\n"
+                         " indented at first by\r\n"
+                         " four, then by one...\r\n"
+                         "     This should be across\r\n"
+                         " a few lines, indented by\r\n"
+                         " five, and then by one.\r\n";
     ck_assert_str_eq(tmp_format(test_str, 26, 4, 5, 1), expected_str);
 }
 END_TEST
@@ -397,7 +388,7 @@ START_TEST(tmp_format_5)
 {
     char *test_str = "This should be across\r\n\r\nTwo paragraphs.\r\n";
     char *expected_str = "   This should be across\r\n"
-        "   Two paragraphs.\r\n";
+                         "   Two paragraphs.\r\n";
     ck_assert_str_eq(tmp_format(test_str, 26, 3, 3, 0), expected_str);
 }
 END_TEST
@@ -415,24 +406,23 @@ START_TEST(tmp_format_7)
     ck_assert_str_eq(tmp_format(test_str, 80, 0, 0, 0), expected_str);
 }
 END_TEST
-
 // Testing tmp_wrap
 START_TEST(tmp_wrap_1)
 {
     char *test_str = "       This is the main junction of the Holy City of Modrian."
-        "Citizens, travelers, adventurers, priests, and rogues all mingle here "
-        "as they go their separate ways.  The shining temple of Guiharia "
-        "towers to the south through a great silver archway.  Symbolically "
-        "positioned across the square to the north rises Town Hall, a "
-        "converted abbey with an arched facade of blue tile.  Goddess Street "
-        "stretches across the ancient city east to west.   ";
+                     "Citizens, travelers, adventurers, priests, and rogues all mingle here "
+                     "as they go their separate ways.  The shining temple of Guiharia "
+                     "towers to the south through a great silver archway.  Symbolically "
+                     "positioned across the square to the north rises Town Hall, a "
+                     "converted abbey with an arched facade of blue tile.  Goddess Street "
+                     "stretches across the ancient city east to west.   ";
     char *expected_str = "   This is the main junction of the Holy City of Modrian.Citizens,\r\n"
-        "travelers, adventurers, priests, and rogues all mingle here as they go\r\n"
-        "their separate ways.  The shining temple of Guiharia towers to the south\r\n"
-        "through a great silver archway.  Symbolically positioned across the\r\n"
-        "square to the north rises Town Hall, a converted abbey with an arched\r\n"
-        "facade of blue tile.  Goddess Street stretches across the ancient city\r\n"
-        "east to west.\r\n";
+                         "travelers, adventurers, priests, and rogues all mingle here as they go\r\n"
+                         "their separate ways.  The shining temple of Guiharia towers to the south\r\n"
+                         "through a great silver archway.  Symbolically positioned across the\r\n"
+                         "square to the north rises Town Hall, a converted abbey with an arched\r\n"
+                         "facade of blue tile.  Goddess Street stretches across the ancient city\r\n"
+                         "east to west.\r\n";
     ck_assert_str_eq(tmp_wrap(test_str, 72, 3, 3, 0), expected_str);
 }
 END_TEST
@@ -447,9 +437,9 @@ START_TEST(tmp_wrap_3)
 {
     char *test_str = "These are flags: ABC DEF GHI JKL MNO PQR STU VWX\r\n";
     char *expected_str = "These are flags: ABC DEF\r\n"
-        "                 GHI JKL\r\n"
-        "                 MNO PQR\r\n"
-        "                 STU VWX\r\n";
+                         "                 GHI JKL\r\n"
+                         "                 MNO PQR\r\n"
+                         "                 STU VWX\r\n";
     ck_assert_str_eq(tmp_wrap(test_str, 26, 0, 0, 17), expected_str);
 }
 END_TEST
@@ -457,12 +447,12 @@ START_TEST(tmp_wrap_4)
 {
     char *test_str = "This should be across two different lines, indented at first by four, then by one...\r\nThis should be across a few lines, indented by five, and then by one.\r\n";
     char *expected_str = "    This should be across\r\n"
-        " two different lines,\r\n"
-        " indented at first by\r\n"
-        " four, then by one...\r\n"
-        "     This should be across\r\n"
-        " a few lines, indented by\r\n"
-        " five, and then by one.\r\n";
+                         " two different lines,\r\n"
+                         " indented at first by\r\n"
+                         " four, then by one...\r\n"
+                         "     This should be across\r\n"
+                         " a few lines, indented by\r\n"
+                         " five, and then by one.\r\n";
     ck_assert_str_eq(tmp_wrap(test_str, 26, 4, 5, 1), expected_str);
 }
 END_TEST
@@ -470,7 +460,7 @@ START_TEST(tmp_wrap_5)
 {
     char *test_str = "This should be across\r\n\r\nTwo paragraphs.\r\n";
     char *expected_str = "   This should be across\r\n"
-        "   Two paragraphs.\r\n";
+                         "   Two paragraphs.\r\n";
     ck_assert_str_eq(tmp_wrap(test_str, 26, 3, 3, 0), expected_str);
 }
 END_TEST

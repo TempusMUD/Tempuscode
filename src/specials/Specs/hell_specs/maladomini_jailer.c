@@ -8,11 +8,13 @@ SPECIAL(maladomini_jailer)
 {
     struct creature *vict = NULL;
     static struct room_data *to_room = NULL;
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || !is_fighting(ch))
+    if (cmd || !is_fighting(ch)) {
         return 0;
+    }
 
     vict = random_opponent(ch);
     if (!to_room) {
@@ -37,9 +39,7 @@ SPECIAL(maladomini_jailer)
             act("$n attempts to lift $N and hurl $M into the chasm to the west!", false, ch, NULL, vict, TO_NOTVICT);
             WAIT_STATE(ch, 2 RL_SEC);
             return 1;
-        }
-
-        else {
+        } else {
             act("** $n lifts you and hurls you into the chasm to the west! **",
                 false, ch, NULL, vict, TO_VICT);
             act("$n lifts $N and hurls $M into the chasm to the west!", false,

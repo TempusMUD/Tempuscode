@@ -11,8 +11,9 @@ SPECIAL(portal_home)
     int flags;
 
     if (spec_mode != SPECIAL_CMD || !CMD_IS("enter") || portal->worn_by ||
-        portal->in_obj || (portal->carried_by && portal->carried_by != ch))
+        portal->in_obj || (portal->carried_by && portal->carried_by != ch)) {
         return 0;
+    }
 
     skip_spaces(&argument);
 
@@ -20,8 +21,9 @@ SPECIAL(portal_home)
         send_to_char(ch, "Enter what?\r\n");
         return 1;
     }
-    if (!(room = portal->in_room))
+    if (!(room = portal->in_room)) {
         room = portal->carried_by->in_room;
+    }
 
     if (isname(argument, portal->aliases)) {
         flags = room->room_flags;
@@ -29,7 +31,7 @@ SPECIAL(portal_home)
         act("$n steps into $p.", false, ch, portal, NULL, TO_ROOM);
         act("You step into $p.", false, ch, portal, NULL, TO_CHAR);
         call_magic(ch, ch, NULL, NULL, SPELL_WORD_OF_RECALL, GET_LEVEL(ch),
-            CAST_SPELL);
+                   CAST_SPELL);
         room->room_flags = flags;
         WAIT_STATE(ch, 2 RL_SEC);
         return 1;

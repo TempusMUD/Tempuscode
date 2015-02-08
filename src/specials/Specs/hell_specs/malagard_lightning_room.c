@@ -6,18 +6,22 @@ SPECIAL(malagard_lightning_room)
     int retval = 0;
     GList *cit = NULL;
 
-    if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER)
+    if (spec_mode != SPECIAL_TICK && spec_mode != SPECIAL_ENTER) {
         return 0;
+    }
 
-    if (IS_NPC(ch) || number(0, 4))
+    if (IS_NPC(ch) || number(0, 4)) {
         return 0;
+    }
 
     cit = first_living(ch->in_room->people);
-    if (cit)
+    if (cit) {
         vict = cit->data;
+    }
 
-    if (vict == NULL || IS_NPC(vict))
+    if (vict == NULL || IS_NPC(vict)) {
         vict = ch;
+    }
 
     if (mag_savingthrow(vict, 50, SAVING_ROD)) {
         act("A bolt of lightning strikes nearby!", false, vict, NULL, NULL, TO_CHAR);

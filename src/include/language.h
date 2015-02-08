@@ -2,12 +2,12 @@
 #define _LANGUAGE_H_
 
 /*************************************************************************
- *  File: language.h                                                     *
- *  Usage: Source file for multi-language support                        *
- *                                                                       *
- *  All rights reserved.  See license.doc for complete information.      *
- *                                                                       *
- *********************************************************************** */
+*  File: language.h                                                     *
+*  Usage: Source file for multi-language support                        *
+*                                                                       *
+*  All rights reserved.  See license.doc for complete information.      *
+*                                                                       *
+*********************************************************************** */
 
 //
 // File: language.h                            -- Part of TempusMUD
@@ -39,7 +39,7 @@ char *translate_tongue(struct creature *speaker,
                        const char *message);
 char *translate_string(int tongue, const char *str, int accuracy);
 char *make_tongue_str(struct creature *ch, struct creature *to);
-void set_initial_tongue(struct creature * ch);
+void set_initial_tongue(struct creature *ch);
 void write_tongue_xml(struct creature *ch, FILE *ouf);
 int racial_tongue(int race_idx);
 const char *tongue_name(int tongue_idx);

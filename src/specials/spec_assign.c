@@ -48,7 +48,7 @@
 #include "strutil.h"
 
 extern int mini_mud;
-//extern struct obj_data *obj_proto;
+// extern struct obj_data *obj_proto;
 extern struct zone_data *zone_table;
 extern struct creature *mob_proto;
 extern struct shop_data *shop_index;
@@ -290,7 +290,7 @@ const struct spec_func_data spec_list[] = {
     {"bounty_clerk", bounty_clerk, SPEC_MOB},
     {"auctioneer", do_auctions, SPEC_MOB},
     {"engraver", engraver, SPEC_MOB},
-    {NULL, NULL, 0}             //terminator
+    {NULL, NULL, 0}             // terminator
 };
 
 const char *spec_flags[] = { "MOB", "OBJ", "ROOM", "RESERVED" };
@@ -303,9 +303,11 @@ find_spec_index_ptr(SPECIAL((*func)))
 {
     int i;
 
-    for (i = 0; spec_list[i].tag != NULL; i++)
-        if (func == spec_list[i].func)
+    for (i = 0; spec_list[i].tag != NULL; i++) {
+        if (func == spec_list[i].func) {
             return (i);
+        }
+    }
 
     return (-1);
 }
@@ -361,11 +363,12 @@ do_specassign_save(struct creature *ch, int mode)
 
             if (mob->mob_specials.shared->func) {
                 if ((index =
-                        find_spec_index_ptr(mob->mob_specials.shared->func)) <
-                    0)
+                         find_spec_index_ptr(mob->mob_specials.shared->func)) <
+                    0) {
                     continue;
+                }
                 fprintf(file, "%-6d %-20s ## %s\n",
-                    GET_NPC_VNUM(mob), spec_list[index].tag, GET_NAME(mob));
+                        GET_NPC_VNUM(mob), spec_list[index].tag, GET_NAME(mob));
             }
         }
         fclose(file);
@@ -380,10 +383,11 @@ do_specassign_save(struct creature *ch, int mode)
         while (g_hash_table_iter_next(&iter, &key, &val)) {
             obj = val;
             if (obj->shared->func) {
-                if ((index = find_spec_index_ptr(obj->shared->func)) < 0)
+                if ((index = find_spec_index_ptr(obj->shared->func)) < 0) {
                     continue;
+                }
                 fprintf(file, "%-6d %-20s ## %s\n",
-                    GET_OBJ_VNUM(obj), spec_list[index].tag, obj->name);
+                        GET_OBJ_VNUM(obj), spec_list[index].tag, obj->name);
             }
         }
         fclose(file);
@@ -394,19 +398,22 @@ do_specassign_save(struct creature *ch, int mode)
             errlog("Error opening room spec file for write.");
             return 1;
         }
-        for (zone = zone_table; zone; zone = zone->next)
+        for (zone = zone_table; zone; zone = zone->next) {
             for (room = zone->world; room; room = room->next) {
                 if (room->func) {
-                    if ((index = find_spec_index_ptr(room->func)) < 0)
+                    if ((index = find_spec_index_ptr(room->func)) < 0) {
                         continue;
+                    }
                     fprintf(file, "%-6d %-20s ## %s\n",
-                        room->number, spec_list[index].tag, room->name);
+                            room->number, spec_list[index].tag, room->name);
                 }
             }
+        }
         fclose(file);
     }
-    if (!mode)
+    if (!mode) {
         slog("%s saved all spec assign files.", GET_NAME(ch));
+    }
     return 0;
 }
 
@@ -422,22 +429,22 @@ do_show_specials(struct creature *ch, char *arg)
     char arg1[MAX_INPUT_LENGTH], outbuf[MAX_STRING_LENGTH];
     int i;
 
-    if (!*arg)
+    if (!*arg) {
         mode_all = 1;
-    else {
+    } else {
         arg = one_argument(arg, arg1);
         while (*arg1) {
-            if (is_abbrev(arg1, "mobiles"))
+            if (is_abbrev(arg1, "mobiles")) {
                 mode_mob = 1;
-            else if (is_abbrev(arg1, "objects"))
+            } else if (is_abbrev(arg1, "objects")) {
                 mode_obj = 1;
-            else if (is_abbrev(arg1, "rooms"))
+            } else if (is_abbrev(arg1, "rooms")) {
                 mode_room = 1;
-            else if (is_abbrev(arg1, "all"))
+            } else if (is_abbrev(arg1, "all")) {
                 mode_all = 1;
-            else {
+            } else {
                 send_to_char(ch, "Unknown show special option: '%s'\r\n",
-                    arg1);
+                             arg1);
             }
             arg = one_argument(arg, arg1);
         }
@@ -448,21 +455,24 @@ do_show_specials(struct creature *ch, char *arg)
         if (!mode_all &&
             (!mode_mob || !IS_SET(spec_list[i].flags, SPEC_MOB)) &&
             (!mode_obj || !IS_SET(spec_list[i].flags, SPEC_OBJ)) &&
-            (!mode_room || !IS_SET(spec_list[i].flags, SPEC_RM)))
+            (!mode_room || !IS_SET(spec_list[i].flags, SPEC_RM))) {
             continue;
-        if (spec_list[i].flags)
+        }
+        if (spec_list[i].flags) {
             sprintbit(spec_list[i].flags, spec_flags, buf2, sizeof(buf2));
-        else
+        } else {
             strcpy_s(buf2, sizeof(buf2), "NONE");
+        }
 
         snprintf(buf, sizeof(buf), "  %s%-30s%s   (%s%s%s)\r\n",
-            CCYEL(ch, C_NRM), spec_list[i].tag, CCNRM(ch, C_NRM),
-            CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
+                 CCYEL(ch, C_NRM), spec_list[i].tag, CCNRM(ch, C_NRM),
+                 CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
         if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {
             strcat_s(outbuf, sizeof(outbuf), "**OVERFLOW**\r\n");
             break;
-        } else
+        } else {
             strcat_s(outbuf, sizeof(outbuf), buf);
+        }
     }
     page_string(ch->desc, outbuf);
 }
@@ -494,10 +504,11 @@ ACMD(do_special)
         break;
 
     case 1:
-        if (do_specassign_save(ch, 0))
+        if (do_specassign_save(ch, 0)) {
             send_to_char(ch, "There was an error saving the file.\r\n");
-        else
+        } else {
             send_to_char(ch, "Special assignments saved.\r\n");
+        }
         break;
     default:
         errlog("Invalid command reached in do_special.");
@@ -526,15 +537,17 @@ assign_mobiles(void)
     }
 
     while (!feof(file) && !ferror(file)) {
-        if (!get_line(file, buf, sizeof(buf)))
+        if (!get_line(file, buf, sizeof(buf))) {
             break;
+        }
 
         // eliminate comments
         str = strstr(buf, "##");
         if (str) {
             *str-- = '\0';
-            while (str != buf && isspace(*str))
+            while (str != buf && isspace(*str)) {
                 *str-- = '\0';
+            }
         }
 
         str = buf;
@@ -547,18 +560,20 @@ assign_mobiles(void)
         // Get the mobile
         mob = real_mobile_proto(vnum);
         if (!mob) {
-            if (!mini_mud)
+            if (!mini_mud) {
                 slog("Error in mob spec file: mobile <%d> not exist.", vnum);
+            }
             continue;
         }
         // Find the spec
         index = find_spec_index_arg(ptr_name);
-        if (index < 0)
+        if (index < 0) {
             slog("Error in mob spec file: ptr <%s> not exist.", ptr_name);
-        else if (!IS_SET(spec_list[index].flags, SPEC_MOB))
+        } else if (!IS_SET(spec_list[index].flags, SPEC_MOB)) {
             slog("Attempt to assign ptr <%s> to a mobile.", ptr_name);
-        else
+        } else {
             mob->mob_specials.shared->func = spec_list[index].func;
+        }
 
     }
     fclose(file);
@@ -583,14 +598,16 @@ assign_objects(void)
     }
 
     while (!feof(file) && !ferror(file)) {
-        if (!get_line(file, buf, sizeof(buf)))
+        if (!get_line(file, buf, sizeof(buf))) {
             break;
+        }
         // eliminate comments
         str = strstr(buf, "##");
         if (str) {
             *str-- = '\0';
-            while (str != buf && isspace(*str))
+            while (str != buf && isspace(*str)) {
                 *str-- = '\0';
+            }
         }
 
         str = buf;
@@ -635,15 +652,17 @@ assign_rooms(void)
     }
 
     while (!feof(file) && !ferror(file)) {
-        if (!get_line(file, buf, sizeof(buf)))
+        if (!get_line(file, buf, sizeof(buf))) {
             break;
+        }
 
         // eliminate comments
         str = strstr(buf, "##");
         if (str) {
             *str-- = '\0';
-            while (str != buf && isspace(*str))
+            while (str != buf && isspace(*str)) {
                 *str-- = '\0';
+            }
         }
 
         str = buf;

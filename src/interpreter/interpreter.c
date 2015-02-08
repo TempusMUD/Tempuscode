@@ -55,9 +55,9 @@ struct sort_struct *cmd_sort_info = NULL;
 int num_of_cmds = 0;
 
 int general_search(struct creature *ch, struct special_search_data *srch,
-    int mode);
+                   int mode);
 long special(struct creature *ch, int cmd, int subcmd, char *arg,
-    enum special_mode spec_mode);
+             enum special_mode spec_mode);
 
 /* writes a string to the command log */
 void
@@ -67,8 +67,9 @@ cmdlog(char *str)
     static char *log = NULL;
 
     log = tmp_sprintf("%-19.19s :: %s\n", tmp_ctime(time(NULL)), str);
-    if (!commandLog)
+    if (!commandLog) {
         commandLog = fopen("log/command.log", "a");
+    }
     fputs(log, commandLog);
 }
 
@@ -80,10 +81,11 @@ newbielog(struct creature *ch, const char *cmd, const char *args)
 
     log = tmp_sprintf("%-19.19s _ [%05d] %s :: %s %s\n",
                       tmp_ctime(time(NULL)),
-                      (ch->in_room) ? ch->in_room->number:-1,
+                      (ch->in_room) ? ch->in_room->number : -1,
                       GET_NAME(ch), cmd, args);
-    if (!newbieLog)
+    if (!newbieLog) {
         newbieLog = fopen("log/newbie.log", "a");
+    }
     fputs(log, newbieLog);
 }
 
@@ -606,7 +608,7 @@ struct command_info cmd_info[] = {
     {"climb", POS_RESTING, do_action, 0, 0, 0, 0},
     {"cling", POS_RESTING, do_action, 0, 0, 0, 0},
     {"clothesline", POS_FIGHTING, do_offensive_skill, 0, SKILL_CLOTHESLINE, 0,
-            0},
+     0},
     {"chuckle", POS_RESTING, do_action, 0, 0, 0, 0},
     {"clap", POS_RESTING, do_action, 0, 0, 0, 0},
     {"clean", POS_RESTING, do_clean, 0, 0, 0, 0},
@@ -650,7 +652,7 @@ struct command_info cmd_info[] = {
     {"crush", POS_RESTING, do_action, 0, 0, 0, 0},
     {"cry", POS_RESTING, do_action, 0, 0, 0, 0},
     {"cry_from_beyond", POS_FIGHTING, do_battlecry, 1, SCMD_CRY_FROM_BEYOND,
-        0, 0},
+     0, 0},
     {"cuddle", POS_RESTING, do_action, 0, 0, 0, 0},
     {"curious", POS_RESTING, do_action, 0, 0, 0, 0},
     {"curse", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -666,7 +668,7 @@ struct command_info cmd_info[] = {
     {"deactivate", POS_SITTING, do_activate, 0, SCMD_OFF, 0, 0},
     {"deassimilate", POS_RESTING, do_deassimilate, 0, 0, 0, 0},
     {"deathtouch", POS_FIGHTING, do_offensive_skill, 0, SKILL_DEATH_TOUCH, 0,
-            0},
+     0},
     {"declare", POS_RESTING, do_say, 0, 0, 0, 0},
     {"defend", POS_SITTING, do_defend, 0, 0, 0, 0},
     {"defuse", POS_SITTING, do_defuse, 0, 0, 0, 0},
@@ -834,7 +836,7 @@ struct command_info cmd_info[] = {
     {"hack", POS_STANDING, do_gen_door, 1, SCMD_HACK, 0, 0},
     {"halt", POS_DEAD, do_gen_tog, LVL_AMBASSADOR, SCMD_HALT, 0, 0},
     {"handbook", POS_DEAD, do_hcollect_help, LVL_AMBASSADOR, SCMD_HANDBOOK, 0,
-            0},
+     0},
     {"halo", POS_RESTING, do_action, 0, 0, 0, 0},
     {"handshake", POS_RESTING, do_action, 0, 0, 0, 0},
     {"hallucinate", POS_DEAD, do_action, 0, 0, 0, 0},
@@ -880,7 +882,7 @@ struct command_info cmd_info[] = {
     {"inventory", POS_DEAD, do_inventory, 0, 0, 0, 0},
     {"indicate", POS_RESTING, do_say, 0, 0, 0, 0},
     {"inews", POS_SLEEPING, do_dyntext_show, LVL_AMBASSADOR,
-        SCMD_DYNTEXT_INEWS, 0, 0},
+     SCMD_DYNTEXT_INEWS, 0, 0},
     {"increase", POS_STANDING, do_not_here, 0, 0, 0, 0},
     {"infiltrate", POS_STANDING, do_infiltrate, 1, 0, 0, 0},
     {"inject", POS_RESTING, do_use, 0, SCMD_INJECT, 0, 0},
@@ -960,7 +962,7 @@ struct command_info cmd_info[] = {
     {"love", POS_RESTING, do_action, 0, 0, 0, 0},
     {"lowfive", POS_RESTING, do_action, 0, 0, 0, 0},
     {"lungepunch", POS_FIGHTING, do_offensive_skill, 0, SKILL_LUNGE_PUNCH, 0,
-            0},
+     0},
     {"lust", POS_RESTING, do_action, 0, 0, 0, 0},
 
     {"more", POS_DEAD, do_show_more, 0, 0, 0, 0},
@@ -1028,7 +1030,7 @@ struct command_info cmd_info[] = {
     {"noogie", POS_RESTING, do_action, 0, 0, 0, 0},
     {"nolocate", POS_SLEEPING, do_nolocate, LVL_IMMORT, 0, 0, 0},
     {"nopetition", POS_DEAD, do_gen_tog, LVL_AMBASSADOR, SCMD_NOPETITION, 0,
-            0},
+     0},
     {"noproject", POS_DEAD, do_gen_tog, 1, SCMD_NOPROJECT, 0, 0},
     {"nose", POS_RESTING, do_action, 0, 0, 0, 0},
     {"noshout", POS_SLEEPING, do_gen_tog, 1, SCMD_DEAF, 0, 0},
@@ -1065,7 +1067,7 @@ struct command_info cmd_info[] = {
     {"pack", POS_RESTING, do_put, 0, 0, 0, 0},
     {"palette", POS_DEAD, do_palette, LVL_IMMORT, 0, 0, 0},
     {"palmstrike", POS_FIGHTING, do_offensive_skill, 0, SKILL_PALM_STRIKE, 0,
-            0},
+     0},
     {"pant", POS_RESTING, do_action, 0, 0, 0, 0},
     {"pants", POS_SITTING, do_action, 0, 0, 0, 0},
     {"pat", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -1170,7 +1172,7 @@ struct command_info cmd_info[] = {
     {"read", POS_RESTING, do_use, 0, SCMD_READ, 0, 0},
     {"reboot", POS_SLEEPING, do_cyborg_reboot, 0, 0, 0, 0},
     {"rabbitpunch", POS_FIGHTING, do_offensive_skill, 0, SKILL_RABBITPUNCH, 0,
-            0},
+     0},
     {"reload", POS_DEAD, do_reboot, LVL_IMMORT, 0, 0, 0},
     {"refill", POS_DEAD, do_refill, 1, 0, 0, 0},
     {"recite", POS_RESTING, do_use, 0, SCMD_RECITE, 0, 0},
@@ -1206,7 +1208,7 @@ struct command_info cmd_info[] = {
     {"roomflags", POS_DEAD, do_gen_tog, LVL_AMBASSADOR, SCMD_ROOMFLAGS, 0, 0},
     {"rose", POS_RESTING, do_action, 0, 0, 0, 0},
     {"roundhouse", POS_FIGHTING, do_offensive_skill, 0, SKILL_ROUNDHOUSE, 0,
-            0},
+     0},
     {"rstat", POS_DEAD, do_rstat, LVL_IMMORT, 0, 0, 0},
     {"rswitch", POS_DEAD, do_rswitch, LVL_IMMORT, 0, 0, 0},
     {"rub", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -1225,7 +1227,7 @@ struct command_info cmd_info[] = {
     {"scan", POS_RESTING, do_scan, 0, 0, 0, 0},
     {"scare", POS_RESTING, do_action, 0, 0, 0, 0},
     {"scissorkick", POS_FIGHTING, do_offensive_skill, 0, SKILL_SCISSOR_KICK,
-        0, 0},
+     0, 0},
     {"scold", POS_RESTING, do_action, 0, 0, 0, 0},
     {"scoff", POS_RESTING, do_say, 0, 0, 0, 0},
     {"scratch", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -1247,7 +1249,7 @@ struct command_info cmd_info[] = {
     {"shiver", POS_RESTING, do_action, 0, 0, 0, 0},
     {"shudder", POS_RESTING, do_action, 0, 0, 0, 0},
     {"shoulderthrow", POS_FIGHTING, do_offensive_skill, 0,
-        SKILL_SHOULDER_THROW, 0, 0},
+     SKILL_SHOULDER_THROW, 0, 0},
     {"show", POS_DEAD, do_show, LVL_AMBASSADOR, 0, 0, 0},
     {"shower", POS_RESTING, do_not_here, 0, 0, 0, 0},
     {"shoot", POS_SITTING, do_shoot, 0, 0, 0, 0},
@@ -1377,7 +1379,7 @@ struct command_info cmd_info[] = {
     {"thrash", POS_RESTING, do_action, 0, 0, 0, 0},
     {"threaten", POS_RESTING, do_say, 0, 0, 0, 0},
     {"throatstrike", POS_FIGHTING, do_offensive_skill, 0, SKILL_THROAT_STRIKE,
-        0, 0},
+     0, 0},
     {"throw", POS_FIGHTING, do_throw, 0, 0, 0, 0},
     {"tie", POS_RESTING, do_action, 0, 0, 0, 0},
     {"tight", POS_RESTING, do_action, 0, 0, 0, 0},
@@ -1689,7 +1691,6 @@ send_unknown_cmd(struct creature *ch)
         send_to_char(ch, "Come again?\r\n");
         break;
     }
-    return;
 }
 
 /*
@@ -1712,20 +1713,23 @@ command_interpreter(struct creature *ch, const char *argument)
         REMOVE_BIT(AFF2_FLAGS(ch), AFF2_MEDITATE);
     }
     REMOVE_BIT(AFF2_FLAGS(ch), AFF2_EVADE);
-    if (GET_POSITION(ch) > POS_SLEEPING)
+    if (GET_POSITION(ch) > POS_SLEEPING) {
         REMOVE_BIT(AFF3_FLAGS(ch), AFF3_STASIS);
+    }
 
     if (MOUNTED_BY(ch) && ch->in_room != MOUNTED_BY(ch)->in_room) {
         REMOVE_BIT(AFF2_FLAGS(MOUNTED_BY(ch)), AFF2_MOUNTED);
         dismount(ch);
     }
     // Skip any initial spaces, slashes or backslashes
-    while (*argument && strchr(" \\/", *argument))
+    while (*argument && strchr(" \\/", *argument)) {
         argument++;
+    }
 
     /* just drop to next line for hitting CR */
-    if (!*argument)
+    if (!*argument) {
         return;
+    }
     /*
      * special case to handle one-character, non-alphanumeric commands;
      * requested by many people so "'hi" or ";godnet test" is possible.
@@ -1741,7 +1745,7 @@ command_interpreter(struct creature *ch, const char *argument)
 
     /* otherwise, find the command */
     for (length = strlen(cmdstr), cmd = 0; *cmd_info[cmd].command != '\n';
-        cmd++) {
+         cmd++) {
         if (!strncmp(cmd_info[cmd].command, cmdstr, length)) {
             if (is_authorized(ch, COMMAND, &cmd_info[cmd])) {
                 break;
@@ -1755,10 +1759,11 @@ command_interpreter(struct creature *ch, const char *argument)
     }
     d = ch->desc;
     if (d) {
-        if (cmd == d->last_cmd && !strcasecmp(cmdargs, d->last_argument))
+        if (cmd == d->last_cmd && !strcasecmp(cmdargs, d->last_argument)) {
             d->repeat_cmd_count++;
-        else
+        } else {
             d->repeat_cmd_count = 0;
+        }
         strcpy_s(d->last_argument, sizeof(d->last_argument), cmdargs);
         d->last_cmd = cmd;
 
@@ -1768,9 +1773,9 @@ command_interpreter(struct creature *ch, const char *argument)
             // Don't log movement, that's just silly.
             if (cmd_info[cmd].command_pointer != do_move) {
                 cmdlog(tmp_sprintf("CMD: [%s] %s :: %s '%s'\n",
-                        (ch->in_room) ? tmp_sprintf("%5d",
-                            ch->in_room->number) : "NULL", GET_NAME(ch),
-                        cmd_info[cmd].command, cmdargs));
+                                   (ch->in_room) ? tmp_sprintf("%5d",
+                                                               ch->in_room->number) : "NULL", GET_NAME(ch),
+                                   cmd_info[cmd].command, cmdargs));
             }
         }
         // Log newbie experience
@@ -1785,15 +1790,15 @@ command_interpreter(struct creature *ch, const char *argument)
 
     if (PLR_FLAGGED(ch, PLR_FROZEN) && GET_LEVEL(ch) < LVL_GRIMP) {
         send_to_char(ch,
-            "You try, but the mind-numbing cold prevents you...\r\n");
-    } else if (cmd_info[cmd].command_pointer == NULL)
+                     "You try, but the mind-numbing cold prevents you...\r\n");
+    } else if (cmd_info[cmd].command_pointer == NULL) {
         send_to_char(ch,
-            "Sorry, that command hasn't been implemented yet.\r\n");
-    else if (IS_NPC(ch) && cmd_info[cmd].minimum_level >= LVL_IMMORT)
+                     "Sorry, that command hasn't been implemented yet.\r\n");
+    } else if (IS_NPC(ch) && cmd_info[cmd].minimum_level >= LVL_IMMORT) {
         send_to_char(ch,
-            "You can't use immortal commands while switched.\r\n");
-    else if (GET_POSITION(ch) < cmd_info[cmd].minimum_position
-        && GET_LEVEL(ch) < LVL_AMBASSADOR)
+                     "You can't use immortal commands while switched.\r\n");
+    } else if (GET_POSITION(ch) < cmd_info[cmd].minimum_position
+               && GET_LEVEL(ch) < LVL_AMBASSADOR) {
         switch (GET_POSITION(ch)) {
         case POS_DEAD:
             send_to_char(ch, "Lie still; you are DEAD!!! :-(\r\n");
@@ -1801,18 +1806,18 @@ command_interpreter(struct creature *ch, const char *argument)
         case POS_INCAP:
         case POS_MORTALLYW:
             send_to_char(ch,
-                "You are in a pretty bad shape, unable to do anything!\r\n");
+                         "You are in a pretty bad shape, unable to do anything!\r\n");
             break;
         case POS_STUNNED:
             send_to_char(ch,
-                "All you can do right now is think about the stars!\r\n");
+                         "All you can do right now is think about the stars!\r\n");
             break;
         case POS_SLEEPING:
             send_to_char(ch, "In your dreams, or what?\r\n");
             break;
         case POS_RESTING:
             send_to_char(ch,
-                "Nah... You're resting.  Why don't you sit up first?\r\n");
+                         "Nah... You're resting.  Why don't you sit up first?\r\n");
             break;
         case POS_SITTING:
             send_to_char(ch, "Maybe you should get on your feet first?\r\n");
@@ -1820,23 +1825,26 @@ command_interpreter(struct creature *ch, const char *argument)
         case POS_FIGHTING:
             send_to_char(ch, "No way!  You're fighting for your life!\r\n");
             break;
+        }
     } else if (no_specials ||
-        !special(ch, cmd, cmd_info[cmd].subcmd, cmdargs, SPECIAL_CMD)) {
+               !special(ch, cmd, cmd_info[cmd].subcmd, cmdargs, SPECIAL_CMD)) {
         cmd_info[cmd].command_pointer(ch, cmdargs, cmd, cmd_info[cmd].subcmd);
     }
 }
 
 /**************************************************************************
- * Routines to handle aliasing                                             *
-  **************************************************************************/
+* Routines to handle aliasing                                             *
+**************************************************************************/
 
 struct alias_data *
 find_alias(struct alias_data *alias_list, char *str)
 {
     while (alias_list != NULL) {
-        if (*str == *alias_list->alias) /* hey, every little bit counts :-) */
-            if (!strcmp(str, alias_list->alias))
+        if (*str == *alias_list->alias) { /* hey, every little bit counts :-) */
+            if (!strcmp(str, alias_list->alias)) {
                 return alias_list;
+            }
+        }
 
         alias_list = alias_list->next;
     }
@@ -1847,10 +1855,12 @@ find_alias(struct alias_data *alias_list, char *str)
 void
 free_alias(struct alias_data *a)
 {
-    if (a->alias)
+    if (a->alias) {
         free(a->alias);
-    if (a->replacement)
+    }
+    if (a->replacement) {
         free(a->replacement);
+    }
     free(a);
 }
 
@@ -1875,7 +1885,6 @@ add_alias(struct creature *ch, struct alias_data *a)
     }
     a->next = NULL;
     this_alias->next = a;
-    return;
 }
 
 /* The interface to the outside world: do_alias */
@@ -1885,8 +1894,9 @@ ACMD(do_alias)
     struct alias_data *cur_alias, *temp;
     int alias_cnt = 0;
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return;
+    }
 
     arg = tmp_getword(&argument);
     repl = argument;
@@ -1901,14 +1911,15 @@ ACMD(do_alias)
             while (cur_alias != NULL) {
                 if (!*arg || is_abbrev(arg, cur_alias->alias)) {
                     acc_sprintf("%s%-15s%s %s\r\n", CCCYN(ch, C_NRM),
-                        cur_alias->alias, CCNRM(ch, C_NRM),
-                        cur_alias->replacement);
+                                cur_alias->alias, CCNRM(ch, C_NRM),
+                                cur_alias->replacement);
                     alias_cnt++;
                 }
                 cur_alias = cur_alias->next;
             }
-            if (!alias_cnt)
+            if (!alias_cnt) {
                 acc_strcat(" None matching.\r\n", NULL);
+            }
         }
         page_string(ch->desc, acc_get_string());
     } else {                    /* otherwise, add or display aliases */
@@ -1933,10 +1944,11 @@ ACMD(do_alias)
         CREATE(cur_alias, struct alias_data, 1);
         cur_alias->alias = strdup(arg);
         cur_alias->replacement = strdup(repl);
-        if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR))
+        if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR)) {
             cur_alias->type = ALIAS_COMPLEX;
-        else
+        } else {
             cur_alias->type = ALIAS_SIMPLE;
+        }
         add_alias(ch, cur_alias);
         send_to_char(ch, "Alias added.\r\n");
     }
@@ -1948,8 +1960,9 @@ ACMD(do_unalias)
     char *arg;
     struct alias_data *a, *temp;
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         return;
+    }
 
     arg = tmp_getword(&argument);
 
@@ -2032,8 +2045,9 @@ perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
     buf[MAX_INPUT_LENGTH - 1] = '\0';
     g_queue_push_head(&temp_q, strdup(buf));
 
-    while ((temp = g_queue_pop_head(&temp_q)) != NULL)
+    while ((temp = g_queue_pop_head(&temp_q)) != NULL) {
         g_queue_push_head(input_q, temp);
+    }
 
     return g_queue_pop_head(input_q);
 }
@@ -2041,8 +2055,9 @@ perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
 char *
 expand_player_alias(struct descriptor_data *d, char *orig)
 {
-    if (*orig == '\\')
+    if (*orig == '\\') {
         return orig + 1;
+    }
 
     char *cmdargs = orig;
     char *cmdstr = tmp_getword(&cmdargs);
@@ -2070,9 +2085,11 @@ find_command(const char *command)
     int cmd;
     int len = strlen(command);
 
-    for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
-        if (!strncmp(cmd_info[cmd].command, command, len))
+    for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
+        if (!strncmp(cmd_info[cmd].command, command, len)) {
             return cmd;
+        }
+    }
 
     return -1;
 }
@@ -2082,9 +2099,11 @@ find_command_noabbrev(const char *command)
 {
     int cmd;
 
-    for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++)
-        if (!strcmp(cmd_info[cmd].command, command))
+    for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
+        if (!strcmp(cmd_info[cmd].command, command)) {
             return cmd;
+        }
+    }
 
 
     return -1;
@@ -2109,16 +2128,19 @@ special(struct creature *ch, int cmd, int subcmd __attribute__((unused)), char *
     }
     if (GET_ROOM_PROG(ch->in_room) != NULL) {
         if (spec_mode == SPECIAL_CMD &&
-            trigger_prog_cmd(ch->in_room, PROG_TYPE_ROOM, ch, cmd, arg))
+            trigger_prog_cmd(ch->in_room, PROG_TYPE_ROOM, ch, cmd, arg)) {
             return true;
+        }
         if (spec_mode == SPECIAL_ENTER
             && trigger_prog_move(ch->in_room, PROG_TYPE_ROOM, ch,
-                SPECIAL_ENTER))
+                                 SPECIAL_ENTER)) {
             return true;
+        }
         if (spec_mode == SPECIAL_LEAVE
             && trigger_prog_move(ch->in_room, PROG_TYPE_ROOM, ch,
-                SPECIAL_LEAVE))
+                                 SPECIAL_LEAVE)) {
             return true;
+        }
     }
 
     /* search special in room */
@@ -2126,21 +2148,25 @@ special(struct creature *ch, int cmd, int subcmd __attribute__((unused)), char *
 
     for (srch = ch->in_room->search; srch; srch = srch->next) {
         if (triggers_search(ch, cmd, tmp_arg, srch)) {
-            if ((result = general_search(ch, srch, found)) == 2)
+            if ((result = general_search(ch, srch, found)) == 2) {
                 return 1;
-            if (!found)
+            }
+            if (!found) {
                 found = result;
+            }
         }
     }
 
-    if (found)
+    if (found) {
         return 1;
+    }
 
     // Special in self?  (for activating special abilities in switched mobs)
     if (IS_NPC(ch) && NPC_FLAGGED(ch, NPC_SPEC) && GET_NPC_SPEC(ch)) {
         specAddress = (long)GET_NPC_SPEC(ch);
-        if (GET_NPC_SPEC(ch) (ch, ch, cmd, arg, spec_mode))
+        if (GET_NPC_SPEC(ch) (ch, ch, cmd, arg, spec_mode)) {
             return specAddress;
+        }
     }
 
     /* special in equipment list? */
@@ -2182,7 +2208,7 @@ special(struct creature *ch, int cmd, int subcmd __attribute__((unused)), char *
 
     /* special in mobile present? */
     struct room_data *theRoom = ch->in_room;
-    for (GList * it = first_living(theRoom->people); it; it = next_living(it)) {
+    for (GList *it = first_living(theRoom->people); it; it = next_living(it)) {
         struct creature *mob = (struct creature *)it->data;
 
         if (GET_NPC_SPEC(mob) != NULL) {
@@ -2195,14 +2221,17 @@ special(struct creature *ch, int cmd, int subcmd __attribute__((unused)), char *
             if (spec_mode == SPECIAL_CMD
                 && (!mob->master || IS_NPC(mob->master)
                     || (mob->master->in_room != mob->in_room))
-                && trigger_prog_cmd(mob, PROG_TYPE_MOBILE, ch, cmd, arg))
+                && trigger_prog_cmd(mob, PROG_TYPE_MOBILE, ch, cmd, arg)) {
                 return true;
+            }
             if (spec_mode == SPECIAL_ENTER
-                && trigger_prog_move(mob, PROG_TYPE_MOBILE, ch, SPECIAL_ENTER))
+                && trigger_prog_move(mob, PROG_TYPE_MOBILE, ch, SPECIAL_ENTER)) {
                 return true;
+            }
             if (spec_mode == SPECIAL_LEAVE
-                && trigger_prog_move(mob, PROG_TYPE_MOBILE, ch, SPECIAL_LEAVE))
+                && trigger_prog_move(mob, PROG_TYPE_MOBILE, ch, SPECIAL_LEAVE)) {
                 return true;
+            }
         }
     }
 
@@ -2240,8 +2269,9 @@ sort_commands(void)
      * first, count commands (num_of_commands is actually one greater than the
      * number of commands; it inclues the '\n'.
      */
-    while (*cmd_info[num_of_cmds].command != '\n')
+    while (*cmd_info[num_of_cmds].command != '\n') {
         num_of_cmds++;
+    }
 
     /* create data array */
     CREATE(cmd_sort_info, struct sort_struct, num_of_cmds);
@@ -2258,14 +2288,16 @@ sort_commands(void)
     cmd_sort_info[find_command("insult")].is_social = true;
 
     /* Sort.  'a' starts at 1, not 0, to remove 'RESERVED' */
-    for (a = 1; a < num_of_cmds - 1; a++)
-        for (b = a + 1; b < num_of_cmds; b++)
+    for (a = 1; a < num_of_cmds - 1; a++) {
+        for (b = a + 1; b < num_of_cmds; b++) {
             if (strcmp(cmd_info[cmd_sort_info[a].sort_pos].command,
-                    cmd_info[cmd_sort_info[b].sort_pos].command) > 0) {
+                       cmd_info[cmd_sort_info[b].sort_pos].command) > 0) {
                 tmp = cmd_sort_info[a].sort_pos;
                 cmd_sort_info[a].sort_pos = cmd_sort_info[b].sort_pos;
                 cmd_sort_info[b].sort_pos = tmp;
             }
+        }
+    }
 }
 
 #undef __interpreter_c__

@@ -32,15 +32,15 @@ init_room_affect(struct room_affect_data *raff, int level, int spell, int owner)
 {
     raff->level = level;
     raff->spell_type = spell;
-	raff->owner = owner;
-	raff->flags = 0;
-	raff->type = 0;
-	raff->duration = 0;
-    for (int i = 0;i < 4;i++) {
+    raff->owner = owner;
+    raff->flags = 0;
+    raff->type = 0;
+    raff->duration = 0;
+    for (int i = 0; i < 4; i++) {
         raff->val[i] = 0;
     }
 
-	raff->description = NULL;
+    raff->description = NULL;
     raff->next = NULL;
 }
 
@@ -106,11 +106,13 @@ count_room_exits(struct room_data *room)
 {
     int idx, result = 0;
 
-    for (idx = 0; idx < NUM_OF_DIRS; idx++)
+    for (idx = 0; idx < NUM_OF_DIRS; idx++) {
         if (room->dir_option[idx] &&
             room->dir_option[idx]->to_room &&
-            room->dir_option[idx]->to_room != room)
+            room->dir_option[idx]->to_room != room) {
             result++;
+        }
+    }
 
     return result;
 }
@@ -134,34 +136,37 @@ link_rooms(struct room_data *room_a, struct room_data *room_b, int dir)
 int
 creature_occupancy(struct creature *ch)
 {
-    if (IS_PC(ch) && IS_IMMORT(ch))
+    if (IS_PC(ch) && IS_IMMORT(ch)) {
         return 0;
-    else if (GET_HEIGHT(ch) > 1000)
+    } else if (GET_HEIGHT(ch) > 1000) {
         return 3;
-    else if (GET_HEIGHT(ch) > 500)
+    } else if (GET_HEIGHT(ch) > 500) {
         return 2;
-    else if (GET_HEIGHT(ch) > 50)
+    } else if (GET_HEIGHT(ch) > 50) {
         return 1;
+    }
 
     return 0;
 }
 
 bool
-will_fit_in_room(struct creature * ch, struct room_data * room)
+will_fit_in_room(struct creature *ch, struct room_data *room)
 {
     int i = 0;
 
-    if (MAX_OCCUPANTS(room) == 0)
+    if (MAX_OCCUPANTS(room) == 0) {
         return true;
+    }
 
     // If you're mounted, the size of the mount determines how much
     // space you take up, not your own size
-    if (MOUNTED_BY(ch))
+    if (MOUNTED_BY(ch)) {
         i += creature_occupancy(MOUNTED_BY(ch));
-    else
+    } else {
         i += creature_occupancy(ch);
+    }
 
-    for (GList * it = first_living(room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
         i += creature_occupancy(tch);
     }

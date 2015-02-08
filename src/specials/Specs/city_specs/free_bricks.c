@@ -10,17 +10,21 @@ SPECIAL(free_bricks)
     struct obj_data *obj = NULL;
 
     if (spec_mode != SPECIAL_CMD ||
-        (!CMD_IS("get") && !CMD_IS("take")) || !AWAKE(ch))
+        (!CMD_IS("get") && !CMD_IS("take")) || !AWAKE(ch)) {
         return 0;
+    }
 
     skip_spaces(&argument);
 
-    if (strcasecmp(argument, "brick"))
+    if (strcasecmp(argument, "brick")) {
         return 0;
+    }
 
-    for (obj = ch->in_room->contents; obj; obj = obj->next_content)
-        if (isname(argument, obj->name))
+    for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
+        if (isname(argument, obj->name)) {
             return 0;
+        }
+    }
 
     if (CAN_CARRY_N(ch) <= IS_CARRYING_N(ch)) {
         send_to_char(ch, "You cannot carry any more items.\r\n");
@@ -32,8 +36,9 @@ SPECIAL(free_bricks)
         return 1;
     }
 
-    if (!(obj = read_object(50002)))
+    if (!(obj = read_object(50002))) {
         return 0;
+    }
 
     send_to_char(ch, "You get a broken brick from the pile of rubble.\r\n");
     act("$n gets $p from the pile of rubble.", true, ch, obj, NULL, TO_ROOM);

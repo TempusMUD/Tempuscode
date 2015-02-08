@@ -33,24 +33,24 @@
  * GOOD ONES ARE HARD TO FIND. Communications of the ACM,
  * New York, NY.,October 1988 p.1192
 
- The following is a portable c program for generating random numbers.
- The modulus and multipilier have been extensively tested and should
- not be changed except by someone who is a professional Lehmer generator
- writer.  THIS GENERATOR REPRESENTS THE MINIMUM STANDARD AGAINST WHICH
- OTHER GENERATORS SHOULD BE JUDGED. ("Quote from the referenced article's
- authors. WSE" )
-*/
+   The following is a portable c program for generating random numbers.
+   The modulus and multipilier have been extensively tested and should
+   not be changed except by someone who is a professional Lehmer generator
+   writer.  THIS GENERATOR REPRESENTS THE MINIMUM STANDARD AGAINST WHICH
+   OTHER GENERATORS SHOULD BE JUDGED. ("Quote from the referenced article's
+   authors. WSE" )
+ */
 
 #ifdef HAS_CONFIG_H
 #endif
 
 #include <stdbool.h>
 
-#define	m  (unsigned long)2147483647
-#define	q  (unsigned long)127773
+#define m  (unsigned long)2147483647
+#define q  (unsigned long)127773
 
-#define	a (unsigned int)16807
-#define	r (unsigned int)2836
+#define a (unsigned int)16807
+#define r (unsigned int)2836
 
 /*
 ** F(z)	= (az)%m
@@ -61,7 +61,7 @@
 ** T(z)  = (z/q) - (az/m)
 **
 ** F(z)  = a(z%q)- rz/q+ m((z/q) - a(z/m))
-** 	 = a(z%q)- rz/q+ m(z/q) - az
+**   = a(z%q)- rz/q+ m(z/q) - az
 */
 
 #include <limits.h>
@@ -84,10 +84,11 @@ my_rand(void)
 
     test = a * lo - r * hi;
 
-    if (test > 0)
+    if (test > 0) {
         seed = test;
-    else
+    } else {
         seed = test + m;
+    }
 
     return seed;
 }
@@ -98,10 +99,11 @@ my_rand(void)
 int
 number(int from, int to)
 {
-    if (to <= from)
+    if (to <= from) {
         return (from);
+    }
     return (int)(((long long)my_rand() * (long long)(to - from +
-                1) / INT_MAX) + from);
+                                                     1) / INT_MAX) + from);
 }
 
 double
@@ -125,8 +127,9 @@ random_binary(void)
 bool
 random_fractional(unsigned int num)
 {
-    if (num == 0)
+    if (num == 0) {
         return true;
+    }
     return !number(0, num - 1);
 }
 
@@ -217,8 +220,9 @@ random_percentage_zero_low(void)
 int
 random_number_zero_low(unsigned int num)
 {
-    if (num == 0)
+    if (num == 0) {
         return 0;
+    }
     return number(0, num);
 }
 
@@ -227,10 +231,12 @@ random_number_zero_low(unsigned int num)
 int
 rand_value(int val, int variance, int min, int max)
 {
-    if (min == -1 || val - variance > min)
+    if (min == -1 || val - variance > min) {
         min = val - variance;
-    if (max == -1 || val + variance < max)
+    }
+    if (max == -1 || val + variance < max) {
         max = val + variance;
+    }
     return number(min, max);
 }
 
@@ -241,8 +247,9 @@ rand_value(int val, int variance, int min, int max)
 double
 float_number(double from, double to)
 {
-    if (to <= from)
+    if (to <= from) {
         return (from);
+    }
     return rand_float() * (to - from) + from;
 }
 
@@ -254,11 +261,13 @@ dice(int num, int size)
 {
     int sum = 0;
 
-    if (size <= 0 || num <= 0)
+    if (size <= 0 || num <= 0) {
         return 0;
+    }
 
-    while (num-- > 0)
+    while (num-- > 0) {
         sum += number(1, size);
+    }
 
     return sum;
 }

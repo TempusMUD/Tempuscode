@@ -42,21 +42,36 @@ static const struct hcollect_command {
     int level;
 } hc_cmds[] = {
     {
-    "approve", "<topic #>", LVL_DEMI}, {
-    "create", "", LVL_DEMI}, {
-    "edit", "<topic #>", LVL_IMMORT}, {
-    "info", "", LVL_DEMI}, {
-    "list", "[range <start>[end]]", LVL_IMMORT}, {
-    "save", "", LVL_IMMORT}, {
-    "set", "<param><value>", LVL_IMMORT}, {
-    "stat", "[<topic #>]", LVL_IMMORT}, {
-    "sync", "", LVL_GRGOD}, {
-    "search", "<keyword>", LVL_IMMORT}, {
-    "unapprove", "<topic #>", LVL_DEMI}, {
-    "immhelp", "<keyword>", LVL_IMMORT}, {
-    "olchelp", "<keyword>", LVL_IMMORT}, {
-    "qchelp", "<keyword>", LVL_IMMORT}, {
-    NULL, NULL, 0}              // list terminator
+        "approve", "<topic #>", LVL_DEMI
+    }, {
+        "create", "", LVL_DEMI
+    }, {
+        "edit", "<topic #>", LVL_IMMORT
+    }, {
+        "info", "", LVL_DEMI
+    }, {
+        "list", "[range <start>[end]]", LVL_IMMORT
+    }, {
+        "save", "", LVL_IMMORT
+    }, {
+        "set", "<param><value>", LVL_IMMORT
+    }, {
+        "stat", "[<topic #>]", LVL_IMMORT
+    }, {
+        "sync", "", LVL_GRGOD
+    }, {
+        "search", "<keyword>", LVL_IMMORT
+    }, {
+        "unapprove", "<topic #>", LVL_DEMI
+    }, {
+        "immhelp", "<keyword>", LVL_IMMORT
+    }, {
+        "olchelp", "<keyword>", LVL_IMMORT
+    }, {
+        "qchelp", "<keyword>", LVL_IMMORT
+    }, {
+        NULL, NULL, 0
+    }                           // list terminator
 };
 
 static const struct group_command {
@@ -65,12 +80,18 @@ static const struct group_command {
     int level;
 } grp_cmds[] = {
     {
-    "adduser", "<username> <groupnames>", LVL_GOD}, {
-    "create", "", LVL_GOD}, {
-    "list", "", LVL_IMMORT}, {
-    "members", "<groupname>", LVL_IMMORT}, {
-    "remuser", "<username> <groupnames>", LVL_GOD}, {
-    NULL, NULL, 0}              // list terminator
+        "adduser", "<username> <groupnames>", LVL_GOD
+    }, {
+        "create", "", LVL_GOD
+    }, {
+        "list", "", LVL_IMMORT
+    }, {
+        "members", "<groupname>", LVL_IMMORT
+    }, {
+        "remuser", "<username> <groupnames>", LVL_GOD
+    }, {
+        NULL, NULL, 0
+    }                           // list terminator
 };
 
 const char *help_group_names[] = {
@@ -173,7 +194,7 @@ help_collection_push(struct help_collection *col, struct help_item *n)
 // Show all the items
 void
 help_collection_list(struct help_collection *col,
-    struct creature *ch, char *args)
+                     struct creature *ch, char *args)
 {
     struct help_item *cur;
     int start = 0, end = col->top_id;
@@ -183,27 +204,31 @@ help_collection_list(struct help_collection *col,
     args = one_argument(args, linebuf);
     if (linebuf[0] && !strncmp("range", linebuf, strlen(linebuf))) {
         args = one_argument(args, linebuf);
-        if (isdigit(linebuf[0]))
+        if (isdigit(linebuf[0])) {
             start = atoi(linebuf);
+        }
         args = one_argument(args, linebuf);
-        if (isdigit(linebuf[0]))
+        if (isdigit(linebuf[0])) {
             end = atoi(linebuf);
+        }
     }
     snprintf(gHelpbuf, sizeof(gHelpbuf), "Help Topics (%d,%d):\r\n", start, end);
     space_left -= strlen(gHelpbuf);
-    for (GList * hit = col->items; hit; hit = hit->next) {
+    for (GList *hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
-        if (cur->idnum > end)
+        if (cur->idnum > end) {
             break;
-        if (cur->idnum < start)
+        }
+        if (cur->idnum < start) {
             continue;
+        }
         help_item_show(cur, ch, linebuf, sizeof(linebuf), 1);
         strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
         space_left -= strlen(linebuf);
         if (space_left <= 0) {
             snprintf(linebuf, sizeof(linebuf),
-                "Maximum buffer size reached at item # %d. \r\nUse \"range\" param for higher numbered items.\r\n",
-                cur->idnum);
+                     "Maximum buffer size reached at item # %d. \r\nUse \"range\" param for higher numbered items.\r\n",
+                     cur->idnum);
             strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
             break;
         }
@@ -225,12 +250,12 @@ help_collection_save_index(struct help_collection *col)
     outf = fopen(fname, "w");
     if (outf) {
         fprintf(outf, "%d\n", col->top_id);
-        for (GList * hit = col->items; hit; hit = hit->next) {
+        for (GList *hit = col->items; hit; hit = hit->next) {
             cur = hit->data;
             fprintf(outf, "%d %u %d %u %ld\n%s\n%s\n",
-                cur->idnum,
-                cur->groups,
-                cur->counter, cur->flags, cur->owner, cur->name, cur->keys);
+                    cur->idnum,
+                    cur->groups,
+                    cur->counter, cur->flags, cur->owner, cur->name, cur->keys);
             num_items++;
         }
         fclose(outf);
@@ -249,7 +274,7 @@ help_collection_save_index(struct help_collection *col)
 
 // Create an item. (calls Edit)
 bool
-help_collection_create_item(struct help_collection * col, struct creature * ch)
+help_collection_create_item(struct help_collection *col, struct creature *ch)
 {
     struct help_item *n;
 
@@ -267,8 +292,8 @@ help_collection_create_item(struct help_collection * col, struct creature * ch)
 
 // Begin editing an item
 bool
-help_collection_edit_item(struct help_collection * col, struct creature * ch,
-    int idnum)
+help_collection_edit_item(struct help_collection *col, struct creature *ch,
+                          int idnum)
 {
     // See if you can edit it before you do....
     struct help_item *cur;
@@ -276,7 +301,7 @@ help_collection_edit_item(struct help_collection * col, struct creature * ch,
     if (!is_authorized(ch, EDIT_HELP, NULL)) {
         send_to_char(ch, "You cannot edit help files.\r\n");
     }
-    for (GList * hit = col->items; hit; hit = hit->next) {
+    for (GList *hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
         if (cur->idnum == idnum) {
             help_item_edit(cur, ch);
@@ -289,7 +314,7 @@ help_collection_edit_item(struct help_collection * col, struct creature * ch,
 
 // Clear an item
 bool
-help_collection_clear_item(struct help_collection *col __attribute__((unused)), struct creature * ch)
+help_collection_clear_item(struct help_collection *col __attribute__((unused)), struct creature *ch)
 {
     if (!GET_OLC_HELP(ch)) {
         send_to_char(ch, "You must be editing an item to clear it.\r\n");
@@ -301,7 +326,7 @@ help_collection_clear_item(struct help_collection *col __attribute__((unused)), 
 
 // Save and Item
 bool
-help_collection_save_item(struct help_collection *col __attribute__((unused)), struct creature * ch)
+help_collection_save_item(struct help_collection *col __attribute__((unused)), struct creature *ch)
 {
     if (!GET_OLC_HELP(ch)) {
         send_to_char(ch, "You must be editing an item to save it.\r\n");
@@ -313,10 +338,10 @@ help_collection_save_item(struct help_collection *col __attribute__((unused)), s
 
 // Find an Item in the index
 // This should take an optional "mode" argument to specify groups the
-//  returned topic can be part of. e.g. (FindItems(argument,FIND_MODE_OLC))
+// returned topic can be part of. e.g. (FindItems(argument,FIND_MODE_OLC))
 struct help_item *
 help_collection_find_items(struct help_collection *col,
-    char *args, bool find_no_approve, int thegroup, bool searchmode)
+                           char *args, bool find_no_approve, int thegroup, bool searchmode)
 {
     struct help_item *cur = NULL;
     struct help_item *list = NULL;
@@ -324,16 +349,19 @@ help_collection_find_items(struct help_collection *col,
     char *b;                    // beginning of stack
     char bit[256];              // the current bit of the stack we're lookin through
     int length;
-    for (b = args; *b; b++)
+    for (b = args; *b; b++) {
         *b = tolower(*b);
+    }
     length = strlen(args);
 
-    for (GList * hit = col->items; hit; hit = hit->next) {
+    for (GList *hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
-        if (IS_SET(cur->flags, HFLAG_UNAPPROVED) && !find_no_approve)
+        if (IS_SET(cur->flags, HFLAG_UNAPPROVED) && !find_no_approve) {
             continue;
-        if (thegroup && !help_item_in_group(cur, thegroup))
+        }
+        if (thegroup && !help_item_in_group(cur, thegroup)) {
             continue;
+        }
         snprintf(stack, sizeof(stack), "%s", cur->keys);
         b = stack;
         while (*b) {
@@ -357,8 +385,8 @@ help_collection_find_items(struct help_collection *col,
 // Type: 0==normal help, 1==immhelp, 2==olchelp
 void
 help_collection_get_topic(struct help_collection *col,
-    struct creature *ch,
-    char *args, int mode, bool show_no_app, int thegroup, bool searchmode)
+                          struct creature *ch,
+                          char *args, int mode, bool show_no_app, int thegroup, bool searchmode)
 {
 
     struct help_item *cur = NULL;
@@ -378,13 +406,13 @@ help_collection_get_topic(struct help_collection *col,
         outf = fopen("log/help.log", "a");
         if (outf) {
             fprintf(outf, "%s :: %s [%5d] %s\n",
-                tmp_ctime(time(NULL)),
-                GET_NAME(ch), (ch->in_room) ? ch->in_room->number : 0, args);
+                    tmp_ctime(time(NULL)),
+                    GET_NAME(ch), (ch->in_room) ? ch->in_room->number : 0, args);
             fclose(outf);
         }
 
         send_to_char(ch,
-            "No items were found matching your search criteria.\r\n");
+                     "No items were found matching your search criteria.\r\n");
         return;
     }
     // Normal plain old help. One item at a time.
@@ -398,26 +426,26 @@ help_collection_get_topic(struct help_collection *col,
             space_left -= strlen(linebuf);
             if (space_left <= 0) {
                 snprintf(linebuf, sizeof(linebuf), "Maximum buffer size reached at item # %d.",
-                    cur->idnum);
+                         cur->idnum);
                 strcat_s(gHelpbuf, sizeof(gHelpbuf), linebuf);
                 break;
             }
         }
     }
     page_string(ch->desc, gHelpbuf);
-    return;
 }
 
 // Save everything.
 bool
-help_collection_save_all(struct help_collection * col, struct creature * ch)
+help_collection_save_all(struct help_collection *col, struct creature *ch)
 {
     struct help_item *cur;
     help_collection_save_index(col);
-    for (GList * hit = col->items; hit; hit = hit->next) {
+    for (GList *hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
-        if (IS_SET(cur->flags, HFLAG_MODIFIED))
+        if (IS_SET(cur->flags, HFLAG_MODIFIED)) {
             help_item_save(cur);
+        }
     }
     send_to_char(ch, "Saved.\r\n");
     slog("%s has saved the help system.", GET_NAME(ch));
@@ -426,7 +454,7 @@ help_collection_save_all(struct help_collection * col, struct creature * ch)
 
 // Load the items from the index file
 bool
-help_collection_load_index(struct help_collection * col)
+help_collection_load_index(struct help_collection *col)
 {
     char *path;
     FILE *inf;
@@ -442,8 +470,9 @@ help_collection_load_index(struct help_collection * col)
         return false;
     }
 
-    if (!fscanf(inf, "%d\n", &col->top_id))
+    if (!fscanf(inf, "%d\n", &col->top_id)) {
         goto error;
+    }
 
     if (col->top_id < 0 || col->top_id > 4000) {
         errlog("Invalid top ID while booting help .");
@@ -505,8 +534,8 @@ error:
 // Funnels outside commands into struct help_item functions
 // (that should be protected or something... shrug.)
 bool
-help_collection_set(struct help_collection *col __attribute__((unused)), struct creature * ch,
-    char *argument)
+help_collection_set(struct help_collection *col __attribute__((unused)), struct creature *ch,
+                    char *argument)
 {
     char *arg1;
 
@@ -516,7 +545,7 @@ help_collection_set(struct help_collection *col __attribute__((unused)), struct 
     }
     if (!*argument) {
         send_to_char(ch,
-            "hcollect set <groups[+/-]|flags[+/-]|name|keywords|description> [args]\r\n");
+                     "hcollect set <groups[+/-]|flags[+/-]|name|keywords|description> [args]\r\n");
         return false;
     }
     arg1 = tmp_getword(&argument);
@@ -548,7 +577,7 @@ help_collection_sync(struct help_collection *col)
 {
     struct help_item *n;
 
-    for (GList * hit = col->items; hit; hit = hit->next) {
+    for (GList *hit = col->items; hit; hit = hit->next) {
         n = hit->data;
         if (n->text && !IS_SET(n->flags, HFLAG_MODIFIED) && !n->editor) {
             free(n->text);
@@ -560,20 +589,21 @@ help_collection_sync(struct help_collection *col)
 // Approve an item
 void
 help_collection_approve_item(struct help_collection *col, struct creature *ch,
-    char *argument)
+                             char *argument)
 {
     char arg1[256];
     int idnum = 0;
     struct help_item *cur;
     skip_spaces(&argument);
     one_argument(argument, arg1);
-    if (isdigit(arg1[0]))
+    if (isdigit(arg1[0])) {
         idnum = atoi(arg1);
+    }
     if (idnum > col->top_id || idnum < 1) {
         send_to_char(ch, "Approve which item?\r\n");
         return;
     }
-    for (GList * hit = col->items; hit; hit = hit->next) {
+    for (GList *hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
         if (cur->idnum == idnum) {
             REMOVE_BIT(cur->flags, HFLAG_UNAPPROVED);
@@ -589,20 +619,21 @@ help_collection_approve_item(struct help_collection *col, struct creature *ch,
 // Unapprove an item
 void
 help_collection_unapprove_item(struct help_collection *col,
-    struct creature *ch, char *argument)
+                               struct creature *ch, char *argument)
 {
     char arg1[256];
     int idnum = 0;
     struct help_item *cur;
     skip_spaces(&argument);
     one_argument(argument, arg1);
-    if (isdigit(arg1[0]))
+    if (isdigit(arg1[0])) {
         idnum = atoi(arg1);
+    }
     if (idnum > col->top_id || idnum < 1) {
         send_to_char(ch, "UnApprove which item?\r\n");
         return;
     }
-    for (GList * hit = col->items; hit; hit = hit->next) {
+    for (GList *hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
         if (cur->idnum == idnum) {
             SET_BIT(cur->flags, HFLAG_UNAPPROVED);
@@ -626,28 +657,32 @@ help_collection_show(struct help_collection *col, struct creature *ch)
     int num_no_group = 0;
     struct help_item *cur;
 
-    for (GList * hit = col->items; hit; hit = hit->next) {
+    for (GList *hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
         num_items++;
         if (cur->flags != 0) {
-            if (IS_SET(cur->flags, HFLAG_UNAPPROVED))
+            if (IS_SET(cur->flags, HFLAG_UNAPPROVED)) {
                 num_unapproved++;
-            if (IS_SET(cur->flags, HFLAG_MODIFIED))
+            }
+            if (IS_SET(cur->flags, HFLAG_MODIFIED)) {
                 num_modified++;
+            }
         }
-        if (cur->editor)
+        if (cur->editor) {
             num_editing++;
-        if (cur->groups == 0)
+        }
+        if (cur->groups == 0) {
             num_no_group++;
+        }
     }
     send_to_char(ch,
-        "%sTopics [%s%d%s] %sUnapproved [%s%d%s] %sModified [%s%d%s] "
-        "%sEditing [%s%d%s] %sGroupless [%s%d%s]%s\r\n", CCCYN(ch, C_NRM),
-        CCNRM(ch, C_NRM), num_items, CCCYN(ch, C_NRM), CCYEL(ch, C_NRM),
-        CCNRM(ch, C_NRM), num_unapproved, CCYEL(ch, C_NRM), CCGRN(ch, C_NRM),
-        CCNRM(ch, C_NRM), num_modified, CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
-        CCNRM(ch, C_NRM), num_editing, CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
-        CCNRM(ch, C_NRM), num_no_group, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+                 "%sTopics [%s%d%s] %sUnapproved [%s%d%s] %sModified [%s%d%s] "
+                 "%sEditing [%s%d%s] %sGroupless [%s%d%s]%s\r\n", CCCYN(ch, C_NRM),
+                 CCNRM(ch, C_NRM), num_items, CCCYN(ch, C_NRM), CCYEL(ch, C_NRM),
+                 CCNRM(ch, C_NRM), num_unapproved, CCYEL(ch, C_NRM), CCGRN(ch, C_NRM),
+                 CCNRM(ch, C_NRM), num_modified, CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
+                 CCNRM(ch, C_NRM), num_editing, CCCYN(ch, C_NRM), CCRED(ch, C_NRM),
+                 CCNRM(ch, C_NRM), num_no_group, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
 }
 
 // Blah blah print out the hcollect commands.
@@ -658,10 +693,11 @@ do_hcollect_cmds(struct creature *ch)
 
     strcpy_s(gHelpbuf, sizeof(gHelpbuf), "hcollect commands:\r\n");
     for (i = 0; hc_cmds[i].keyword; i++) {
-        if (GET_LEVEL(ch) < hc_cmds[i].level)
+        if (GET_LEVEL(ch) < hc_cmds[i].level) {
             continue;
+        }
         snprintf_cat(gHelpbuf, sizeof(gHelpbuf), "  %-15s %s\r\n",
-            hc_cmds[i].keyword, hc_cmds[i].usage);
+                     hc_cmds[i].keyword, hc_cmds[i].usage);
     }
     page_string(ch->desc, gHelpbuf);
 }
@@ -670,10 +706,11 @@ struct help_item *
 help_collection_find_item_by_id(struct help_collection *col, int id)
 {
     struct help_item *cur;
-    for (GList * hit = col->items; hit; hit = hit->next) {
+    for (GList *hit = col->items; hit; hit = hit->next) {
         cur = hit->data;
-        if (cur->idnum == id)
+        if (cur->idnum == id) {
             return cur;
+        }
     }
     return NULL;
 }
@@ -695,7 +732,7 @@ ACMD(do_immhelp)
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_IMMHELP,
-            false);
+                                  false);
     }
 }
 
@@ -712,8 +749,8 @@ ACMD(do_hcollect_help)
         cur = help_collection_find_item_by_id(help, 196);
     } else if (subcmd == SCMD_SKILLS) {
         send_to_char(ch,
-            "Type 'Help %s' to see the skills available to your char_class.\r\n",
-            class_names[(int)GET_CLASS(ch)]);
+                     "Type 'Help %s' to see the skills available to your char_class.\r\n",
+                     class_names[(int)GET_CLASS(ch)]);
     } else if (subcmd == SCMD_POLICIES) {
         cur = help_collection_find_item_by_id(help, 667);
     } else if (subcmd == SCMD_HANDBOOK) {
@@ -748,7 +785,7 @@ do_qcontrol_help(struct creature *ch, char *argument)
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false,
-            HGROUP_QCONTROL, false);
+                                  HGROUP_QCONTROL, false);
     }
 }
 
@@ -768,7 +805,7 @@ ACMD(do_olchelp)
         page_string(ch->desc, gHelpbuf);
     } else {
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_OLC,
-            false);
+                                  false);
     }
 }
 
@@ -789,8 +826,9 @@ ACMD(do_help_collection_command)
             send_to_char(ch, "Unknown hcollect command, '%s'.\r\n", linebuf);
             return;
         }
-        if (is_abbrev(linebuf, hc_cmds[com].keyword))
+        if (is_abbrev(linebuf, hc_cmds[com].keyword)) {
             break;
+        }
     }
     if (hc_cmds[com].level > GET_LEVEL(ch)) {
         send_to_char(ch, "You are not godly enough to do this!\r\n");
@@ -840,7 +878,7 @@ ACMD(do_help_collection_command)
                 send_to_char(ch, "There is no such item #.\r\n");
                 break;
             }
-            for (GList * hit = help->items; hit; hit = hit->next) {
+            for (GList *hit = help->items; hit; hit = hit->next) {
                 cur = hit->data;
                 if (cur->idnum == id) {
                     help_item_show(cur, ch, gHelpbuf, sizeof(gHelpbuf), 3);
@@ -872,15 +910,15 @@ ACMD(do_help_collection_command)
         break;
     case 11:                   // Immhelp
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_IMMHELP,
-            false);
+                                  false);
         break;
     case 12:                   // olchelp
         help_collection_get_topic(help, ch, argument, 2, false, HGROUP_OLC,
-            false);
+                                  false);
         break;
     case 13:                   // QControl Help
         help_collection_get_topic(help, ch, argument, 2, false,
-            HGROUP_QCONTROL, false);
+                                  HGROUP_QCONTROL, false);
         break;
     default:
         do_hcollect_cmds(ch);

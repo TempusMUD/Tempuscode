@@ -72,27 +72,29 @@ extern int max_exp_loss;
 int
 graf(int age, int race_id, int p0, int p1, int p2, int p3, int p4, int p5, int p6)
 {
-    if (race_id > RACE_TROLL)
+    if (race_id > RACE_TROLL) {
         race_id = RACE_HUMAN;
+    }
 
     struct race *race = race_by_idnum(race_id);
     int lifespan = race->lifespan;
 
-    if (age < (lifespan * 0.2))
+    if (age < (lifespan * 0.2)) {
         return (p0);
-    else if (age <= (lifespan * 0.30))
+    } else if (age <= (lifespan * 0.30)) {
         return (int)(p1 + (((age - (lifespan * 0.2)) * (p2 - p1)) / (lifespan * 0.2)));
-    else if (age <= (lifespan * 0.55))
+    } else if (age <= (lifespan * 0.55)) {
         return (int)(p2 + (((age - (lifespan * 0.35)) * (p3 -
-                        p2)) / (lifespan * 0.2)));
-    else if (age <= (lifespan * 0.75))
+                                                         p2)) / (lifespan * 0.2)));
+    } else if (age <= (lifespan * 0.75)) {
         return (int)(p3 + (((age - (lifespan * 0.55)) * (p4 -
-                        p3)) / (lifespan * 0.2)));
-    else if (age <= lifespan)
+                                                         p3)) / (lifespan * 0.2)));
+    } else if (age <= lifespan) {
         return (int)(p4 + (((age - (lifespan * 0.75)) * (p5 -
-                        p4)) / (lifespan * 0.2)));
-    else
+                                                         p4)) / (lifespan * 0.2)));
+    } else {
         return (p6);
+    }
 }
 
 /*
@@ -124,8 +126,9 @@ mana_gain(struct creature *ch)
     gain += GET_WIS(ch) / 4;
 
     // evil clerics get a gain bonus, up to 10%
-    if (GET_CLASS(ch) == CLASS_CLERIC && IS_EVIL(ch))
+    if (GET_CLASS(ch) == CLASS_CLERIC && IS_EVIL(ch)) {
         gain -= (gain * GET_ALIGNMENT(ch)) / 10000;
+    }
 
     /* Position calculations    */
     switch (GET_POSITION(ch)) {
@@ -144,38 +147,44 @@ mana_gain(struct creature *ch)
     }
 
     if (IS_MAGE(ch) || IS_CLERIC(ch) || IS_PSYCHIC(ch) || IS_PHYSIC(ch) ||
-        IS_BARD(ch))
+        IS_BARD(ch)) {
         gain *= 2;
+    }
 
-    if (AFF_FLAGGED(ch, AFF_POISON))
+    if (AFF_FLAGGED(ch, AFF_POISON)) {
         gain /= 4;
+    }
 
     if (ch->in_room && ch->in_room->sector_type == SECT_DESERT &&
         !ROOM_FLAGGED(ch->in_room, ROOM_INDOORS) &&
-        ch->in_room->zone->weather->sunlight == SUN_LIGHT)
+        ch->in_room->zone->weather->sunlight == SUN_LIGHT) {
         gain /= 2;
+    }
 
     if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
         if (CHECK_SKILL(ch, ZEN_HEALING) > number(40, 100) ||
-            (IS_NPC(ch) && IS_MONK(ch) && GET_LEVEL(ch) > 40))
+            (IS_NPC(ch) && IS_MONK(ch) && GET_LEVEL(ch) > 40)) {
             gain *= ((16 + GET_LEVEL(ch)) / 22);
-        else
+        } else {
             gain *= 2;
+        }
     }
 
-    if (IS_REMORT(ch) && GET_REMORT_GEN(ch))
+    if (IS_REMORT(ch) && GET_REMORT_GEN(ch)) {
         gain += (GET_REMORT_GEN(ch) * gain) / 3;
+    }
 
-    if (IS_NEUTRAL(ch) && (IS_KNIGHT(ch) || IS_CLERIC(ch)))
+    if (IS_NEUTRAL(ch) && (IS_KNIGHT(ch) || IS_CLERIC(ch))) {
         gain /= 4;
+    }
 
     return (gain);
 }
 
 int
 hit_gain(struct creature *ch)
-/* Hitpoint gain pr. game hour */
 {
+/* Hitpoint gain pr. game hour */
     int gain;
     struct affected_type *af = NULL;
 
@@ -192,80 +201,94 @@ hit_gain(struct creature *ch)
     /* Skill/Spell calculations */
     gain += (GET_CON(ch) * 2);
     gain += (CHECK_SKILL(ch, SKILL_SPEED_HEALING) / 8);
-    if (AFF3_FLAGGED(ch, AFF3_DAMAGE_CONTROL))
+    if (AFF3_FLAGGED(ch, AFF3_DAMAGE_CONTROL)) {
         gain += (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_DAMAGE_CONTROL)) / 4;
+    }
 
     // good clerics get a gain bonus, up to 10%
-    if (GET_CLASS(ch) == CLASS_CLERIC && IS_GOOD(ch))
+    if (GET_CLASS(ch) == CLASS_CLERIC && IS_GOOD(ch)) {
         gain += (gain * GET_ALIGNMENT(ch)) / 10000;
+    }
 
     // radiation sickness prevents healing
     if ((af = affected_by_spell(ch, TYPE_RAD_SICKNESS))) {
-        if (af->level <= 50)
+        if (af->level <= 50) {
             gain -= (gain * af->level) / 50;    // important, divisor must be 50
+        }
     }
 
     /* Position calculations    */
     switch (GET_POSITION(ch)) {
     case POS_SLEEPING:
-        if (AFF_FLAGGED(ch, AFF_REJUV))
+        if (AFF_FLAGGED(ch, AFF_REJUV)) {
             gain += (gain / 1);    /*  gain + gain  */
-        else
+        } else {
             gain += (gain / 2);    /* gain + gain/2 */
+        }
         break;
     case POS_RESTING:
-        if (AFF_FLAGGED(ch, AFF_REJUV))
+        if (AFF_FLAGGED(ch, AFF_REJUV)) {
             gain += (gain / 2);    /* divide by 2 */
-        else
+        } else {
             gain += (gain / 4);    /* Divide by 4 */
+        }
         break;
     case POS_SITTING:
-        if (AFF_FLAGGED(ch, AFF_REJUV))
+        if (AFF_FLAGGED(ch, AFF_REJUV)) {
             gain += (gain / 4);    /* divide by 4 */
-        else
+        } else {
             gain += (gain / 8);    /* Divide by 8 */
+        }
         break;
     }
 
-    if ((GET_CLASS(ch) == CLASS_MAGIC_USER) || (GET_CLASS(ch) == CLASS_CLERIC))
+    if ((GET_CLASS(ch) == CLASS_MAGIC_USER) || (GET_CLASS(ch) == CLASS_CLERIC)) {
         gain /= 2;
+    }
 
-    if (IS_POISONED(ch))
+    if (IS_POISONED(ch)) {
         gain /= 4;
-    if (IS_SICK(ch))
+    }
+    if (IS_SICK(ch)) {
         gain /= 2;
-
-    else if (AFF2_FLAGGED(ch, AFF2_MEDITATE))
+    } else if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
         gain += (gain / 2);
+    }
 
-    if (affected_by_spell(ch, SPELL_METABOLISM))
+    if (affected_by_spell(ch, SPELL_METABOLISM)) {
         gain += (gain / 4);
+    }
 
-    if (IS_REMORT(ch) && GET_REMORT_GEN(ch))
+    if (IS_REMORT(ch) && GET_REMORT_GEN(ch)) {
         gain += (GET_REMORT_GEN(ch) * gain) / 3;
+    }
 
-    if (IS_NEUTRAL(ch) && (IS_KNIGHT(ch) || IS_CLERIC(ch)))
+    if (IS_NEUTRAL(ch) && (IS_KNIGHT(ch) || IS_CLERIC(ch))) {
         gain /= 4;
+    }
 
     return (gain);
 }
 
 int
 move_gain(struct creature *ch)
-/* move gain pr. game hour */
 {
+/* move gain pr. game hour */
     int gain;
 
     if (IS_NPC(ch)) {
         gain = GET_LEVEL(ch);
-        if (NPC2_FLAGGED(ch, NPC2_MOUNT))
+        if (NPC2_FLAGGED(ch, NPC2_MOUNT)) {
             gain *= 2;
-    } else
+        }
+    } else {
         gain = graf(GET_AGE(ch), GET_RACE(ch), 18, 22, 26, 22, 18, 14, 12);
+    }
 
     /* Class/Level calculations */
-    if (IS_RANGER(ch))
+    if (IS_RANGER(ch)) {
         gain += (gain / 4);
+    }
     gain += (GET_LEVEL(ch) / 8);
 
     /* Skill/Spell calculations */
@@ -274,38 +297,46 @@ move_gain(struct creature *ch)
     /* Position calculations    */
     switch (GET_POSITION(ch)) {
     case POS_SLEEPING:
-        if (AFF_FLAGGED(ch, AFF_REJUV))
+        if (AFF_FLAGGED(ch, AFF_REJUV)) {
             gain += (gain / 1);    /* divide by 1 */
-        else
+        } else {
             gain += (gain / 2);    /* Divide by 2 */
+        }
         break;
     case POS_RESTING:
-        if (AFF_FLAGGED(ch, AFF_REJUV))
+        if (AFF_FLAGGED(ch, AFF_REJUV)) {
             gain += (gain / 2);    /* divide by 2 */
-        else
+        } else {
             gain += (gain / 4);    /* Divide by 4 */
+        }
         break;
     case POS_SITTING:
-        if (AFF_FLAGGED(ch, AFF_REJUV))
+        if (AFF_FLAGGED(ch, AFF_REJUV)) {
             gain += (gain / 4);    /* divide by 4 */
-        else
+        } else {
             gain += (gain / 8);    /* Divide by 8 */
+        }
         break;
     }
 
-    if (IS_POISONED(ch))
+    if (IS_POISONED(ch)) {
         gain /= 4;
-    if (IS_SICK(ch))
+    }
+    if (IS_SICK(ch)) {
         gain /= 2;
+    }
 
-    if (AFF2_FLAGGED(ch, AFF2_MEDITATE))
+    if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
         gain += (gain / 2);
+    }
 
-    if (IS_REMORT(ch) && GET_REMORT_GEN(ch))
+    if (IS_REMORT(ch) && GET_REMORT_GEN(ch)) {
         gain += (GET_REMORT_GEN(ch) * gain) / 3;
+    }
 
-    if (IS_NEUTRAL(ch) && (IS_KNIGHT(ch) || IS_CLERIC(ch)))
+    if (IS_NEUTRAL(ch) && (IS_KNIGHT(ch) || IS_CLERIC(ch))) {
         gain /= 4;
+    }
 
     return (gain);
 }
@@ -315,13 +346,15 @@ set_title(struct creature *ch, const char *title)
 {
     skip_spaces_const(&title);
 
-    if (strlen(title) > MAX_TITLE_LENGTH)
+    if (strlen(title) > MAX_TITLE_LENGTH) {
         title = tmp_substr(title, 0, MAX_TITLE_LENGTH);
+    }
 
     free(GET_TITLE(ch));
 
-    while (*title && ' ' == *title)
+    while (*title && ' ' == *title) {
         title++;
+    }
     if (*title == '\0') {
         GET_TITLE(ch) = strdup("");
     } else if (!strncmp(title, "'s", 2)) {
@@ -337,31 +370,35 @@ gain_exp(struct creature *ch, int gain)
     int is_altered = false;
     int num_levels = 0;
 
-    if (ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA))
+    if (ch->in_room && ROOM_FLAGGED(ch->in_room, ROOM_ARENA)) {
         return;
+    }
 
-    if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_AMBASSADOR)))
+    if (!IS_NPC(ch) && ((GET_LEVEL(ch) < 1 || GET_LEVEL(ch) >= LVL_AMBASSADOR))) {
         return;
+    }
 
-    if (IS_PC(ch) && AFF_FLAGGED(ch, AFF_CHARM))
+    if (IS_PC(ch) && AFF_FLAGGED(ch, AFF_CHARM)) {
         return;
+    }
 
     if (IS_NPC(ch)) {
         GET_EXP(ch) = MIN(2000000000,
-            ((unsigned int)GET_EXP(ch) + (unsigned int)gain));
+                          ((unsigned int)GET_EXP(ch) + (unsigned int)gain));
         return;
     }
     if (gain > 0) {
         gain = MIN(max_exp_gain, gain); /* put a cap on the max gain per kill */
-        if ((gain + GET_EXP(ch)) > exp_scale[GET_LEVEL(ch) + 2])
+        if ((gain + GET_EXP(ch)) > exp_scale[GET_LEVEL(ch) + 2]) {
             gain =
                 (((exp_scale[GET_LEVEL(ch) + 2] - exp_scale[GET_LEVEL(ch) +
-                            1]) / 2) + exp_scale[GET_LEVEL(ch) + 1]) -
+                                                            1]) / 2) + exp_scale[GET_LEVEL(ch) + 1]) -
                 GET_EXP(ch);
+        }
 
         GET_EXP(ch) += gain;
         while (GET_LEVEL(ch) < (LVL_AMBASSADOR - 1) &&
-            GET_EXP(ch) >= exp_scale[GET_LEVEL(ch) + 1]) {
+               GET_EXP(ch) >= exp_scale[GET_LEVEL(ch) + 1]) {
             GET_LEVEL(ch) += 1;
             num_levels++;
             advance_level(ch, false);
@@ -372,10 +409,11 @@ gain_exp(struct creature *ch, int gain)
             if (num_levels == 1) {
                 send_to_char(ch, "You rise a level!\r\n");
                 if (GET_LEVEL(ch) == LVL_CAN_RETURN + 1 &&
-                    GET_REMORT_GEN(ch) == 0)
+                    GET_REMORT_GEN(ch) == 0) {
                     send_to_char(ch,
-                        "%sYou are now too powerful to use the 'return' command to recall.%s\r\n",
-                        CCCYN(ch, NRM), CCNRM(ch, NRM));
+                                 "%sYou are now too powerful to use the 'return' command to recall.%s\r\n",
+                                 CCCYN(ch, NRM), CCNRM(ch, NRM));
+                }
             } else {
                 send_to_char(ch, "You rise %d levels!\r\n", num_levels);
             }
@@ -384,8 +422,9 @@ gain_exp(struct creature *ch, int gain)
     } else if (gain < 0) {
         gain = MAX(-max_exp_loss, gain);    /* Cap max exp lost per death */
         GET_EXP(ch) += gain;
-        if (GET_EXP(ch) < 0)
+        if (GET_EXP(ch) < 0) {
             GET_EXP(ch) = 0;
+        }
     }
 }
 
@@ -396,12 +435,13 @@ gain_exp_regardless(struct creature *ch, int gain)
     int num_levels = 0;
 
     GET_EXP(ch) += gain;
-    if (GET_EXP(ch) < 0)
+    if (GET_EXP(ch) < 0) {
         GET_EXP(ch) = 0;
+    }
 
     if (!IS_NPC(ch)) {
         while (GET_LEVEL(ch) < LVL_GRIMP &&
-            GET_EXP(ch) >= exp_scale[GET_LEVEL(ch) + 1]) {
+               GET_EXP(ch) >= exp_scale[GET_LEVEL(ch) + 1]) {
             GET_LEVEL(ch) += 1;
             num_levels++;
             advance_level(ch, 1);
@@ -409,9 +449,9 @@ gain_exp_regardless(struct creature *ch, int gain)
         }
 
         if (is_altered) {
-            if (num_levels == 1)
+            if (num_levels == 1) {
                 send_to_char(ch, "You rise a level!\r\n");
-            else {
+            } else {
                 send_to_char(ch, "You rise %d levels!\r\n", num_levels);
             }
         }
@@ -422,19 +462,22 @@ void
 gain_condition(struct creature *ch, int condition, int value)
 {
 
-    if (GET_COND(ch, condition) < 0 || !value)  /* No change */
+    if (GET_COND(ch, condition) < 0 || !value) { /* No change */
         return;
+    }
 
     GET_COND(ch, condition) += value;
 
     GET_COND(ch, condition) = MAX(0, GET_COND(ch, condition));
     GET_COND(ch, condition) = MIN(24, GET_COND(ch, condition));
 
-    if (GET_COND(ch, condition) || PLR_FLAGGED(ch, PLR_WRITING))
+    if (GET_COND(ch, condition) || PLR_FLAGGED(ch, PLR_WRITING)) {
         return;
+    }
 
-    if (ch->desc && !STATE(ch->desc) && GET_COND(ch, DRUNK) > 0)
+    if (ch->desc && !STATE(ch->desc) && GET_COND(ch, DRUNK) > 0) {
         send_to_char(ch, "You are now sober.\r\n");
+    }
 }
 
 int
@@ -444,8 +487,9 @@ check_idling(struct creature *ch)
 
     ch->char_specials.timer++;
 
-    if (ch->desc)
+    if (ch->desc) {
         ch->desc->repeat_cmd_count = 0;
+    }
 
     if (!PLR_FLAGGED(ch, PLR_OLC)) {
         if (ch->char_specials.timer > 10
@@ -458,13 +502,14 @@ check_idling(struct creature *ch)
                 // Immortals have their afk flag set when idle
                 if (!PLR_FLAGGED(ch, PLR_AFK)) {
                     send_to_char(ch,
-                        "You have been idle, and are now marked afk.\r\n");
+                                 "You have been idle, and are now marked afk.\r\n");
                     SET_BIT(PLR_FLAGS(ch), PLR_AFK);
                     AFK_REASON(ch) = strdup("idle");
                 }
             } else {
-                if (ch->in_room != NULL)
+                if (ch->in_room != NULL) {
                     char_from_room(ch, false);
+                }
                 char_to_room(ch, real_room(3), true);
                 if (ch->desc) {
                     close_socket(ch->desc);
@@ -481,23 +526,25 @@ check_idling(struct creature *ch)
 void
 save_all_players(void)
 {
-    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
+    for (GList *cit = first_living(creatures); cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
-        if (IS_PC(tch))
+        if (IS_PC(tch)) {
             crashsave(tch);
+        }
     }
 }
 
 static void
 decay_corpse(struct obj_data *corpse)
 {
-    if (corpse->carried_by)
+    if (corpse->carried_by) {
         act("$p decays in your hands.", false, corpse->carried_by, corpse, NULL,
             TO_CHAR);
-    if (corpse->worn_by)
+    }
+    if (corpse->worn_by) {
         act("$p disintegrates as you are wearing it.", false,
             corpse->worn_by, corpse, NULL, TO_CHAR);
-    else if ((corpse->in_room != NULL) && (corpse->in_room->people)) {
+    } else if ((corpse->in_room != NULL) && (corpse->in_room->people)) {
         const char *msg =
             "$p decays into nothing right before your eyes.";
 
@@ -549,23 +596,25 @@ decay_corpse(struct obj_data *corpse)
         next_obj = obj->next_content; /* Next in inventory */
         obj_from_obj(obj);
 
-        if (corpse->in_obj)
+        if (corpse->in_obj) {
             obj_to_obj(obj, corpse->in_obj);
-        else if (corpse->carried_by)
+        } else if (corpse->carried_by) {
             obj_to_char(obj, corpse->carried_by);
-        else if (corpse->worn_by)
+        } else if (corpse->worn_by) {
             obj_to_char(obj, corpse->worn_by);
-        else if (corpse->in_room != NULL)
+        } else if (corpse->in_room != NULL) {
             obj_to_room(obj, corpse->in_room);
-        else
+        } else {
             raise(SIGSEGV);
+        }
 
         if (IS_IMPLANT(obj) && !CAN_WEAR(obj, ITEM_WEAR_TAKE)) {
             SET_BIT(obj->obj_flags.wear_flags, ITEM_WEAR_TAKE);
-            if (!IS_OBJ_TYPE(obj, ITEM_ARMOR))
+            if (!IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
                 damage_eq(NULL, obj, (GET_OBJ_DAM(obj) / 4), -1);
-            else
+            } else {
                 damage_eq(NULL, obj, (GET_OBJ_DAM(obj) / 2), -1);
+            }
         }
     }
     extract_obj(corpse);
@@ -593,27 +642,30 @@ point_update(void)
             // all the rooms which link the zone to the rest of the world.
         }
         /* rooms */
-        for (struct room_data * room = zone->world; room; room = room->next)
-            if (GET_ROOM_PROGOBJ(room))
+        for (struct room_data *room = zone->world; room; room = room->next) {
+            if (GET_ROOM_PROGOBJ(room)) {
                 trigger_prog_tick(room, PROG_TYPE_ROOM);
+            }
+        }
     }
 
     /* characters */
-    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
+    for (GList *cit = first_living(creatures); cit; cit = next_living(cit)) {
         struct creature *tch = cit->data;
 
         full = 1;
         thirst = 1;
         drunk = 1;
-        //reputation should slowly decrease when not in a house, clan, arena, or afk
+        // reputation should slowly decrease when not in a house, clan, arena, or afk
         if (IS_PC(tch) &&
             !ROOM_FLAGGED(tch->in_room, ROOM_ARENA) &&
             !ROOM_FLAGGED(tch->in_room, ROOM_CLAN_HOUSE) &&
             !ROOM_FLAGGED(tch->in_room, ROOM_HOUSE) &&
             !ROOM_FLAGGED(tch->in_room, ROOM_PEACEFUL) &&
             !PLR_FLAGGED(tch, PLR_AFK) &&
-            RAW_REPUTATION_OF(tch) > 1 && number(0, 153) == 0)
+            RAW_REPUTATION_OF(tch) > 1 && number(0, 153) == 0) {
             gain_reputation(tch, -1);
+        }
 
         if (GET_POSITION(tch) >= POS_STUNNED) {
             GET_HIT(tch) = MIN(GET_HIT(tch) + hit_gain(tch), GET_MAX_HIT(tch));
@@ -623,12 +675,14 @@ point_update(void)
                 MIN(GET_MOVE(tch) + move_gain(tch), GET_MAX_MOVE(tch));
 
             if (AFF_FLAGGED(tch, AFF_POISON) && damage(tch, tch, NULL, dice(4, 11)
-                    + (affected_by_spell(tch, SPELL_METABOLISM) ? dice(4, 3) : 0),
-                                                       SPELL_POISON, -1))
+                                                       + (affected_by_spell(tch, SPELL_METABOLISM) ? dice(4, 3) : 0),
+                                                       SPELL_POISON, -1)) {
                 continue;
+            }
 
-            if (GET_POSITION(tch) <= POS_STUNNED)
+            if (GET_POSITION(tch) <= POS_STUNNED) {
                 update_pos(tch);
+            }
 
             if (IS_SICK(tch)
                 && affected_by_spell(tch, SPELL_SICKNESS)
@@ -682,9 +736,9 @@ point_update(void)
                 }
             }
         } else if ((GET_POSITION(tch) == POS_INCAP
-                || GET_POSITION(tch) == POS_MORTALLYW)) {
+                    || GET_POSITION(tch) == POS_MORTALLYW)) {
             // If they've been healed since they were incapacitated,
-            //  Update their position appropriately.
+            // Update their position appropriately.
             if (GET_HIT(tch) > -11) {
                 if (GET_HIT(tch) > 0) {
                     GET_POSITION(tch) = POS_RESTING;
@@ -698,61 +752,75 @@ point_update(void)
             }
             // No longer shall struct creatures die of blood loss.
             // We will now heal them slowly instead.
-            if (GET_POSITION(tch) == POS_INCAP)
+            if (GET_POSITION(tch) == POS_INCAP) {
                 GET_HIT(tch) += 2;
-            else if (GET_POSITION(tch) == POS_MORTALLYW)
+            } else if (GET_POSITION(tch) == POS_MORTALLYW) {
                 GET_HIT(tch) += 1;
+            }
 
             continue;
         }
         // progs
-        if (IS_NPC(tch) && GET_NPC_PROGOBJ(tch))
+        if (IS_NPC(tch) && GET_NPC_PROGOBJ(tch)) {
             trigger_prog_tick(tch, PROG_TYPE_MOBILE);
+        }
 
         if (!IS_NPC(tch)) {
             update_char_objects(tch);
-            if (check_idling(tch))
+            if (check_idling(tch)) {
                 continue;
-        } else if (tch->char_specials.timer)
+            }
+        } else if (tch->char_specials.timer) {
             tch->char_specials.timer -= 1;
+        }
 
         while (GET_LANG_HEARD(tch)) {
             int lang = GPOINTER_TO_INT(GET_LANG_HEARD(tch)->data);
-            if (number(0, 600) < GET_INT(tch) + GET_WIS(tch) + GET_CHA(tch))
+            if (number(0, 600) < GET_INT(tch) + GET_WIS(tch) + GET_CHA(tch)) {
                 SET_TONGUE(tch, lang, CHECK_TONGUE(tch, lang) + 1);
+            }
             GET_LANG_HEARD(tch) = g_list_delete_link(GET_LANG_HEARD(tch),
-                GET_LANG_HEARD(tch));
+                                                     GET_LANG_HEARD(tch));
         }
 
-        if (affected_by_spell(tch, SPELL_METABOLISM))
+        if (affected_by_spell(tch, SPELL_METABOLISM)) {
             full += 1;
+        }
 
-        if (IS_CYBORG(tch) && AFF3_FLAGGED(tch, AFF3_STASIS))
+        if (IS_CYBORG(tch) && AFF3_FLAGGED(tch, AFF3_STASIS)) {
             full /= 4;
+        }
 
         gain_condition(tch, FULL, -full);
 
-        if (SECT_TYPE(tch->in_room) == SECT_DESERT)
+        if (SECT_TYPE(tch->in_room) == SECT_DESERT) {
             thirst += 2;
-        if (ROOM_FLAGGED(tch->in_room, ROOM_FLAME_FILLED))
+        }
+        if (ROOM_FLAGGED(tch->in_room, ROOM_FLAME_FILLED)) {
             thirst += 2;
-        if (affected_by_spell(tch, SPELL_METABOLISM))
+        }
+        if (affected_by_spell(tch, SPELL_METABOLISM)) {
             thirst += 1;
+        }
         if (IS_CYBORG(tch)) {
-            if (AFF3_FLAGGED(tch, AFF3_STASIS))
+            if (AFF3_FLAGGED(tch, AFF3_STASIS)) {
                 thirst /= 4;
-            else if (GET_LEVEL(tch) > number(10, 60))
+            } else if (GET_LEVEL(tch) > number(10, 60)) {
                 thirst /= 2;
+            }
         }
 
         gain_condition(tch, THIRST, -thirst);
 
-        if (IS_MONK(tch))
+        if (IS_MONK(tch)) {
             drunk += 1;
-        if (IS_CYBORG(tch))
+        }
+        if (IS_CYBORG(tch)) {
             drunk += 2;
-        if (affected_by_spell(tch, SPELL_METABOLISM))
+        }
+        if (affected_by_spell(tch, SPELL_METABOLISM)) {
             drunk += 1;
+        }
 
         gain_condition(tch, DRUNK, -drunk);
         /* player frozen */
@@ -767,7 +835,7 @@ point_update(void)
                 tch->player_specials->thaw_time = 0;
                 crashsave(tch);
                 mudlog(MAX(LVL_POWER, GET_INVIS_LVL(tch)), BRF, true,
-                    "(GC) %s un-frozen by timeout.", GET_NAME(tch));
+                       "(GC) %s un-frozen by timeout.", GET_NAME(tch));
                 send_to_char(tch, "You thaw out and can move again.\r\n");
                 act("$n has thawed out and can move again.",
                     false, tch, NULL, NULL, TO_ROOM);
@@ -781,31 +849,34 @@ point_update(void)
 
         // First check for a tick special
         if (GET_OBJ_SPEC(j)
-            && GET_OBJ_SPEC(j) (NULL, j, 0, NULL, SPECIAL_TICK))
+            && GET_OBJ_SPEC(j) (NULL, j, 0, NULL, SPECIAL_TICK)) {
             continue;
+        }
 
         /* If this is a corpse */
         if (IS_CORPSE(j)) {
             /* timer count down */
-            if (GET_OBJ_TIMER(j) > 0)
+            if (GET_OBJ_TIMER(j) > 0) {
                 GET_OBJ_TIMER(j)--;
+            }
 
             if (GET_OBJ_TIMER(j) == 0) {
                 decay_corpse(j);
             }
         } else if (GET_OBJ_VNUM(j) < 0 &&
-            ((IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("head", j->aliases)) ||
-                ((IS_OBJ_TYPE(j, ITEM_WEAPON) && isname("leg", j->aliases)) &&
-                    (j->worn_on != WEAR_WIELD && j->worn_on != WEAR_WIELD_2))
-                || (IS_OBJ_TYPE(j, ITEM_FOOD) && isname("heart", j->aliases)))) {
+                   ((IS_OBJ_TYPE(j, ITEM_DRINKCON) && isname("head", j->aliases)) ||
+                    ((IS_OBJ_TYPE(j, ITEM_WEAPON) && isname("leg", j->aliases)) &&
+                     (j->worn_on != WEAR_WIELD && j->worn_on != WEAR_WIELD_2))
+                    || (IS_OBJ_TYPE(j, ITEM_FOOD) && isname("heart", j->aliases)))) {
             // body parts
-            if (GET_OBJ_TIMER(j) > 0)
+            if (GET_OBJ_TIMER(j) > 0) {
                 GET_OBJ_TIMER(j)--;
+            }
             if (GET_OBJ_TIMER(j) == 0) {
-                if (j->carried_by)
+                if (j->carried_by) {
                     act("$p collapses into mush in your hands.",
                         false, j->carried_by, j, NULL, TO_CHAR);
-                else if ((j->in_room != NULL) && (j->in_room->people)) {
+                } else if ((j->in_room != NULL) && (j->in_room->people)) {
                     act("$p collapses into nothing.",
                         true, NULL, j, NULL, TO_ROOM);
                     act("$p collapses into nothing.",
@@ -816,24 +887,26 @@ point_update(void)
                     next_thing2 = jj->next_content; /* Next in inventory */
                     obj_from_obj(jj);
 
-                    if (j->carried_by)
+                    if (j->carried_by) {
                         obj_to_char(jj, j->carried_by);
-                    else if (j->worn_by)
+                    } else if (j->worn_by) {
                         obj_to_char(jj, j->worn_by);
-                    else if (j->in_obj)
+                    } else if (j->in_obj) {
                         obj_to_obj(jj, j->in_obj);
-                    else if (j->in_room)
+                    } else if (j->in_room) {
                         obj_to_room(jj, j->in_room);
-                    else
+                    } else {
                         raise(SIGSEGV);
+                    }
 
                     // fix up the implants, and damage them
                     if (IS_IMPLANT(jj) && !CAN_WEAR(jj, ITEM_WEAR_TAKE)) {
                         SET_BIT(jj->obj_flags.wear_flags, ITEM_WEAR_TAKE);
-                        if (!IS_OBJ_TYPE(jj, ITEM_ARMOR))
+                        if (!IS_OBJ_TYPE(jj, ITEM_ARMOR)) {
                             damage_eq(NULL, jj, (GET_OBJ_DAM(jj) / 2), -1);
-                        else
+                        } else {
                             damage_eq(NULL, jj, (GET_OBJ_DAM(jj) / 4), -1);
+                        }
                     }
                 }
                 extract_obj(j);
@@ -874,9 +947,9 @@ point_update(void)
                 }
             }
         } else if (IS_OBJ_STAT2(j, ITEM2_UNAPPROVED) ||
-            (IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
-            (GET_OBJ_SPEC(j) == fate_portal) ||
-            (IS_OBJ_STAT3(j, ITEM3_STAY_ZONE))) {
+                   (IS_OBJ_TYPE(j, ITEM_KEY) && GET_OBJ_TIMER(j)) ||
+                   (GET_OBJ_SPEC(j) == fate_portal) ||
+                   (IS_OBJ_STAT3(j, ITEM3_STAY_ZONE))) {
 
             // keys, unapp, zone only objects && fate portals
             if (IS_OBJ_TYPE(j, ITEM_KEY)) { // skip keys still in zone
@@ -894,18 +967,20 @@ point_update(void)
             }
 
             /* timer count down */
-            if (GET_OBJ_TIMER(j) > 0)
+            if (GET_OBJ_TIMER(j) > 0) {
                 GET_OBJ_TIMER(j)--;
+            }
 
             if (!GET_OBJ_TIMER(j) || out_of_zone) {
 
-                if (j->carried_by)
+                if (j->carried_by) {
                     act("$p slowly fades out of existence.",
                         false, j->carried_by, j, NULL, TO_CHAR);
-                if (j->worn_by)
+                }
+                if (j->worn_by) {
                     act("$p disintegrates as you are wearing it.",
                         false, j->worn_by, j, NULL, TO_CHAR);
-                else if ((j->in_room != NULL) && (j->in_room->people)) {
+                } else if ((j->in_room != NULL) && (j->in_room->people)) {
                     act("$p slowly fades out of existence.",
                         true, NULL, j, NULL, TO_ROOM);
                     act("$p slowly fades out of existence.",
@@ -915,16 +990,17 @@ point_update(void)
                     next_thing2 = jj->next_content; /* Next in inventory */
                     obj_from_obj(jj);
 
-                    if (j->in_obj)
+                    if (j->in_obj) {
                         obj_to_obj(jj, j->in_obj);
-                    else if (j->carried_by)
+                    } else if (j->carried_by) {
                         obj_to_room(jj, j->carried_by->in_room);
-                    else if (j->worn_by)
+                    } else if (j->worn_by) {
                         obj_to_room(jj, j->worn_by->in_room);
-                    else if (j->in_room != NULL)
+                    } else if (j->in_room != NULL) {
                         obj_to_room(jj, j->in_room);
-                    else
+                    } else {
                         raise(SIGSEGV);
+                    }
                 }
                 extract_obj(j);
             }

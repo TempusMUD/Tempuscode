@@ -7,16 +7,19 @@ SPECIAL(clone_lab)
 
     static time_t last_time = 0;
 
-    if (!(CMD_IS("push") && strcasecmp(argument, "button")))
+    if (!(CMD_IS("push") && strcasecmp(argument, "button"))) {
         return 0;
+    }
 
     time_t cur_time = time(NULL);
 
-    if (cur_time - last_time < CLONE_LAB_TIME)
+    if (cur_time - last_time < CLONE_LAB_TIME) {
         return 0;
+    }
 
-    if (GET_LEVEL(ch) < LVL_IMMORT)
+    if (GET_LEVEL(ch) < LVL_IMMORT) {
         last_time = cur_time;
+    }
 
     struct creature *cloned_char = read_mobile(17199);
 
@@ -30,9 +33,9 @@ SPECIAL(clone_lab)
     GET_ALIGNMENT(cloned_char) = GET_ALIGNMENT(ch);
     cloned_char->points.max_hit = cloned_char->points.hit = ch->points.max_hit;
     cloned_char->points.max_mana = cloned_char->points.mana =
-        ch->points.max_mana;
+                                       ch->points.max_mana;
     cloned_char->points.max_move = cloned_char->points.move =
-        ch->points.max_move;
+                                       ch->points.max_move;
 
     snprintf(buf, sizeof(buf), "cloned-%s cloned %s", GET_NAME(ch), GET_NAME(ch));
     cloned_char->player.name = strdup(buf);

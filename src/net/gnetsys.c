@@ -82,8 +82,9 @@ perform_net_write(struct descriptor_data *d, char *arg)
     }
 
     vict = get_player_vis(d->creature, targ, 1);
-    if (!vict)
+    if (!vict) {
         vict = get_player_vis(d->creature, targ, 0);
+    }
 
     if (!vict || STATE(vict->desc) != CXN_NETWORK) {
         d_printf(d, "Error: user not logged in\r\n");
@@ -105,8 +106,9 @@ perform_net_wall(struct descriptor_data *d, char *arg)
     }
 
     for (r_d = descriptor_list; r_d; r_d = r_d->next) {
-        if (STATE(r_d) != CXN_NETWORK)
+        if (STATE(r_d) != CXN_NETWORK) {
             continue;
+        }
         d_printf(r_d, "%s walls:%s\r\n", GET_NAME(d->creature), arg);
     }
 }
@@ -130,7 +132,7 @@ perform_net_load(struct descriptor_data *d, char *arg)
     }
 
     if ((SPELL_GEN(skill_num, CLASS_CYBORG) > 0
-            && GET_CLASS(d->creature) != CLASS_CYBORG)
+         && GET_CLASS(d->creature) != CLASS_CYBORG)
         || (GET_REMORT_GEN(d->creature) < SPELL_GEN(skill_num, CLASS_CYBORG))
         || (GET_LEVEL(d->creature) < SPELL_LEVEL(skill_num, CLASS_CYBORG))) {
         d_printf(d, "Error: resources unavailable to load '%s'\r\n", arg);
@@ -144,7 +146,7 @@ perform_net_load(struct descriptor_data *d, char *arg)
 
     cost = GET_SKILL_COST(d->creature, skill_num);
     d_printf(d, "Program cost: %10ld  Account balance; %'" PRId64 "\r\n",
-        cost, d->account->bank_future);
+             cost, d->account->bank_future);
 
     if (d->account->bank_future < cost) {
         d_printf(d, "Error: insufficient funds in your account\r\n");
@@ -153,19 +155,20 @@ perform_net_load(struct descriptor_data *d, char *arg)
 
     withdraw_future_bank(d->account, cost);
     percent = MIN(MAXGAIN(d->creature),
-        MAX(MINGAIN(d->creature), GET_INT(d->creature) * 2));
+                  MAX(MINGAIN(d->creature), GET_INT(d->creature) * 2));
     percent = MIN(LEARNED(d->creature) -
-        GET_SKILL(d->creature, skill_num), percent);
+                  GET_SKILL(d->creature, skill_num), percent);
     SET_SKILL(d->creature, skill_num, GET_SKILL(d->creature,
-            skill_num) + percent);
+                                                skill_num) + percent);
     d_printf(d,
-        "Program download: %s terminating, %d percent transfer.\r\n",
-        spell_to_str(skill_num), percent);
-    if (GET_SKILL(d->creature, skill_num) >= LEARNED(d->creature))
+             "Program download: %s terminating, %d percent transfer.\r\n",
+             spell_to_str(skill_num), percent);
+    if (GET_SKILL(d->creature, skill_num) >= LEARNED(d->creature)) {
         d_printf(d, "Program fully installed on local system.\r\n");
-    else
+    } else {
         d_printf(d, "Program %d%% installed on local system.\r\n",
-            GET_SKILL(d->creature, skill_num));
+                 GET_SKILL(d->creature, skill_num));
+    }
 }
 
 void
@@ -176,14 +179,16 @@ perform_net_who(struct creature *ch, const char *arg __attribute__ ((unused)))
 
     strcpy_s(buf, sizeof(buf), "Visible users of the global net:\r\n");
     for (d = descriptor_list; d; d = d->next) {
-        if (STATE(d) != CXN_NETWORK)
+        if (STATE(d) != CXN_NETWORK) {
             continue;
-        if (!can_see_creature(ch, d->creature))
+        }
+        if (!can_see_creature(ch, d->creature)) {
             continue;
+        }
 
         count++;
         snprintf_cat(buf, sizeof(buf), "   (%03d)     %s\r\n", count,
-            GET_NAME(d->creature));
+                     GET_NAME(d->creature));
         continue;
     }
     snprintf_cat(buf, sizeof(buf), "\r\n%d users detected.\r\n", count);
@@ -203,17 +208,17 @@ perform_net_finger(struct creature *ch, const char *arg)
 
     if (!(vict = get_char_vis(ch, arg)) || !vict->desc ||
         STATE(vict->desc) != CXN_NETWORK || (GET_LEVEL(ch) < LVL_AMBASSADOR
-            && GET_LEVEL(vict) >= LVL_AMBASSADOR)) {
+                                             && GET_LEVEL(vict) >= LVL_AMBASSADOR)) {
         send_to_char(ch, "No such user detected.\r\n");
         return;
     }
     send_to_char(ch, "Finger results:\r\n"
-        "Name:  %s, Level %d %s %s.\r\n"
-        "Logged in at: %s.\r\n",
-        GET_NAME(vict), GET_LEVEL(vict),
+                     "Name:  %s, Level %d %s %s.\r\n"
+                     "Logged in at: %s.\r\n",
+                 GET_NAME(vict), GET_LEVEL(vict),
                  race_name_by_idnum(GET_RACE(vict)),
-        class_names[(int)GET_CLASS(vict)],
-        vict->in_room != NULL ? ch->in_room->name : "NOWHERE");
+                 class_names[(int)GET_CLASS(vict)],
+                 vict->in_room != NULL ? ch->in_room->name : "NOWHERE");
 }
 
 void
@@ -232,7 +237,7 @@ perform_net_list(struct creature *ch)
         if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
             SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
             snprintf(buf, sizeof(buf), "%-30s [%3d] percent installed.\r\n",
-                spell_to_str(i), GET_SKILL(ch, i));
+                     spell_to_str(i), GET_SKILL(ch, i));
             strcat_s(buf2, sizeof(buf2), buf);
         }
     }
@@ -245,8 +250,9 @@ handle_network(struct descriptor_data *d, char *arg)
 {
     char arg1[MAX_INPUT_LENGTH];
 
-    if (!*arg)
+    if (!*arg) {
         return;
+    }
     arg = one_argument(arg, arg1);
     if (is_abbrev(arg1, "who")) {
         perform_net_who(d->creature, "");
@@ -259,12 +265,13 @@ handle_network(struct descriptor_data *d, char *arg)
     } else if (is_abbrev(arg1, "wall")) {
         perform_net_wall(d, arg);
     } else if (is_abbrev(arg1, "more")) {
-        if (d->showstr_head)
+        if (d->showstr_head) {
             show_string(d);
-        else
+        } else {
             d_printf(d, "Error: Resource not available\r\n");
+        }
     } else if (*arg1 == '@' || is_abbrev(arg1, "exit")
-        || is_abbrev(arg1, "logout")) {
+               || is_abbrev(arg1, "logout")) {
         slog("User %s disconnecting from net.", GET_NAME(d->creature));
         set_desc_state(CXN_PLAYING, d);
         d_printf(d, "Connection closed.\r\n");
@@ -273,7 +280,7 @@ handle_network(struct descriptor_data *d, char *arg)
     } else if (IS_CYBORG(d->creature) && is_abbrev(arg1, "list")) {
         perform_net_list(d->creature);
     } else if (IS_CYBORG(d->creature) && (is_abbrev(arg1, "load")
-            || is_abbrev(arg, "download"))) {
+                                          || is_abbrev(arg, "download"))) {
         perform_net_load(d, arg);
     } else {
         d_printf(d, "%s: command not found\r\n", arg1);

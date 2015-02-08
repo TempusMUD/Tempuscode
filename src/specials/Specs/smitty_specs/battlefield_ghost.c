@@ -15,26 +15,30 @@ SPECIAL(battlefield_ghost)
         20898
     };
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (r_ghost_hole == NULL)
+    }
+    if (r_ghost_hole == NULL) {
         return 0;
+    }
 
-    if (cmd || is_fighting(ch))
+    if (cmd || is_fighting(ch)) {
         return 0;
+    }
 
     if (OUTSIDE(ch) && ch->in_room != r_ghost_hole &&
         ch->in_room->zone->weather->sunlight == SUN_LIGHT) {
         if (number(0, 2)) {
-            if (!number(0, 3))
+            if (!number(0, 3)) {
                 act("$n looks to the sun with sorrow.", true, ch, NULL, NULL,
                     TO_ROOM);
-            else if (!number(0, 2))
+            } else if (!number(0, 2)) {
                 act("$n seems to recoil from the sun.", true, ch, NULL, NULL,
                     TO_ROOM);
-            else
+            } else {
                 act("$n begins to fade out of reality as the sun rises.",
                     true, ch, NULL, NULL, TO_ROOM);
+            }
             return 1;
         }
 
@@ -47,19 +51,21 @@ SPECIAL(battlefield_ghost)
         return 1;
 
     } else if (ch->in_room == r_ghost_hole &&
-        (ch->in_room->zone->weather->sunlight == SUN_SET ||
-            ch->in_room->zone->weather->sunlight == SUN_DARK)) {
+               (ch->in_room->zone->weather->sunlight == SUN_SET ||
+                ch->in_room->zone->weather->sunlight == SUN_DARK)) {
 
-        if (GET_NPC_VNUM(ch) == 20801)
+        if (GET_NPC_VNUM(ch) == 20801) {
             r_bones_room = real_room(20874);
-        else
+        } else {
             r_bones_room = real_room(v_bones_room[number(0, 3)]);
+        }
 
         if (r_bones_room == NULL) {
-            if (GET_NPC_VNUM(ch) == 20801)
+            if (GET_NPC_VNUM(ch) == 20801) {
                 slog("r_bones_room == NULL in battlefield_ghost()...general");
-            else
+            } else {
                 slog("r_bones_room == NULL in battlefield_ghost().");
+            }
             return 0;
         }
 
@@ -70,6 +76,7 @@ SPECIAL(battlefield_ghost)
         act("$n seems to rise out of the pile of bones.", false, ch, NULL, NULL,
             TO_ROOM);
         return 1;
-    } else
+    } else {
         return 0;
+    }
 }

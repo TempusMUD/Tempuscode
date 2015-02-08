@@ -23,13 +23,13 @@
 #define SEARCH_COM_LOADROOM  11
 #define NUM_SEARCH_COM       12
 
-	 /** room search flags **/
+/** room search flags **/
 #define SRCH_REPEATABLE         (1 << 0)
 #define SRCH_TRIPPED            (1 << 1)
 #define SRCH_IGNORE             (1 << 2)
 #define SRCH_CLANPASSWD         (1 << 3)
 #define SRCH_TRIG_ENTER         (1 << 4)
-#define SRCH_TRIG_FALL          (1 << 5)	// triggers when a player falls into the room (e.g. a spike pit)
+#define SRCH_TRIG_FALL          (1 << 5)    // triggers when a player falls into the room (e.g. a spike pit)
 #define SRCH_NOTRIG_FLY         (1 << 6)
 #define SRCH_NOMOB              (1 << 7)
 #define SRCH_NEWBIE_ONLY        (1 << 8)
@@ -59,16 +59,16 @@
 #define NUM_SRCH_BITS           31
 
 struct special_search_data {
-	char *command_keys;			/* which command activates          */
-	char *keywords;				/* Keywords which activate the command */
-	char *to_vict;
-	char *to_room;
-	char *to_remote;
-	int8_t command;
-	int flags;
-	int arg[3];
-	int fail_chance;
-	struct special_search_data *next;
+    char *command_keys;         /* which command activates          */
+    char *keywords;             /* Keywords which activate the command */
+    char *to_vict;
+    char *to_room;
+    char *to_remote;
+    int8_t command;
+    int flags;
+    int arg[3];
+    int fail_chance;
+    struct special_search_data *next;
 };
 
 extern int search_nomessage;

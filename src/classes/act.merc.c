@@ -48,7 +48,7 @@
 #define LARGE_GUN(gun) ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && IS_TWO_HAND(gun))
 
 int apply_soil_to_char(struct creature *ch, struct obj_data *obj, int type,
-    int pos);
+                       int pos);
 
 ACMD(do_pistolwhip)
 {
@@ -63,7 +63,7 @@ ACMD(do_pistolwhip)
         if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
-                get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+                        get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
             act("You pistol-whip $p!", false, ch, ovict, NULL, TO_CHAR);
             return;
         } else {
@@ -72,8 +72,8 @@ ACMD(do_pistolwhip)
         }
     }
     if (!(((weap = GET_EQ(ch, WEAR_WIELD)) && PISTOL(weap)) ||
-            ((weap = GET_EQ(ch, WEAR_WIELD_2)) && PISTOL(weap)) ||
-            ((weap = GET_EQ(ch, WEAR_HANDS)) && PISTOL(weap)))) {
+          ((weap = GET_EQ(ch, WEAR_WIELD_2)) && PISTOL(weap)) ||
+          ((weap = GET_EQ(ch, WEAR_HANDS)) && PISTOL(weap)))) {
         send_to_char(ch, "You need to be using a pistol.\r\n");
         return;
     }
@@ -87,8 +87,9 @@ ACMD(do_pistolwhip)
         act("$n beats $mself senseless with $p!", true, ch, weap, NULL, TO_ROOM);
         return;
     }
-    if (!ok_to_attack(ch, vict, true))
+    if (!ok_to_attack(ch, vict, true)) {
         return;
+    }
 
     percent = ((10 - (GET_AC(vict) / 10)) * 2) + number(1, 101);
     prob = CHECK_SKILL(ch, SKILL_PISTOLWHIP);
@@ -101,7 +102,7 @@ ACMD(do_pistolwhip)
         damage(ch, vict, weap, 0, SKILL_PISTOLWHIP, WEAR_BODY);
     } else {
         dam = dice(GET_LEVEL(ch), strength_damage_bonus(GET_STR(ch))) +
-            dice(4, GET_OBJ_WEIGHT(weap));
+              dice(4, GET_OBJ_WEIGHT(weap));
         dam /= 4;
         damage(ch, vict, weap, dam, SKILL_PISTOLWHIP, WEAR_HEAD);
         gain_skill_prof(ch, SKILL_PISTOLWHIP);
@@ -119,8 +120,9 @@ ACMD(do_crossface)
     short prev_pos = 0;
     char *arg;
 
-    if (GET_CLASS(ch) == CLASS_MERCENARY)
+    if (GET_CLASS(ch) == CLASS_MERCENARY) {
         prime_merc = true;
+    }
 
     arg = tmp_getword(&argument);
 
@@ -128,7 +130,7 @@ ACMD(do_crossface)
         if (is_fighting(ch)) {
             vict = random_opponent(ch);
         } else if ((ovict =
-                get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+                        get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
             act("You fiercely crossface $p!", false, ch, ovict, NULL, TO_CHAR);
             return;
         } else {
@@ -153,8 +155,9 @@ ACMD(do_crossface)
         return;
     }
 
-    if (!ok_to_attack(ch, vict, true))
+    if (!ok_to_attack(ch, vict, true)) {
         return;
+    }
 
     if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
         act("$n catches the butt of your gun and smacks you silly!", true,
@@ -176,30 +179,35 @@ ACMD(do_crossface)
     percent = number(1, 100);
 
     // You can't crossface pudding you fool!
-    if (IS_PUDDING(vict) || IS_SLIME(vict))
+    if (IS_PUDDING(vict) || IS_SLIME(vict)) {
         prob = 0;
+    }
 
-    if (CHECK_SKILL(ch, SKILL_CROSSFACE) < 30)
+    if (CHECK_SKILL(ch, SKILL_CROSSFACE) < 30) {
         prob = 0;
+    }
 
-    if (PRF2_FLAGGED(ch, PRF2_DEBUG))
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
         send_to_char(ch, "%s[CROSSFACE] %s   roll:%d   chance:%d%s\r\n",
                      CCCYN(ch, C_NRM), GET_NAME(ch), percent, prob, CCNRM(ch, C_NRM));
-    if (PRF2_FLAGGED(vict, PRF2_DEBUG))
+    }
+    if (PRF2_FLAGGED(vict, PRF2_DEBUG)) {
         send_to_char(vict, "%s[CROSSFACE] %s   roll:%d   chance:%d%s\r\n",
                      CCCYN(vict, C_NRM), GET_NAME(ch), percent, prob,
                      CCNRM(vict, C_NRM));
+    }
 
     if (percent >= prob) {
         damage(ch, vict, weap, 0, SKILL_CROSSFACE, WEAR_HEAD);
     } else {
 
         dam = dice(GET_LEVEL(ch), strength_damage_bonus(GET_STR(ch))) +
-            dice(9, GET_OBJ_WEIGHT(weap));
+              dice(9, GET_OBJ_WEIGHT(weap));
 
         wear_num = WEAR_FACE;
-        if (!GET_EQ(vict, WEAR_FACE))
+        if (!GET_EQ(vict, WEAR_FACE)) {
             wear_num = WEAR_HEAD;
+        }
 
         diff = prob - percent;
 
@@ -263,7 +271,7 @@ ACMD(do_crossface)
                     } else if (GET_EQ(vict, wear_num)) {
                         // Object is still being worn (not broken)
                         obj_to_room(unequip_char(vict, wear_num, EQUIP_WORN),
-                            vict->in_room);
+                                    vict->in_room);
                     } else {
                         // Object was broken and is in inventory
                         obj_from_char(wear);
@@ -278,14 +286,16 @@ ACMD(do_crossface)
         gain_skill_prof(ch, SKILL_CROSSFACE);
     }
 
-    if (!is_dead(ch))
+    if (!is_dead(ch)) {
         WAIT_STATE(ch, 3 RL_SEC);
-    if (!is_dead(vict))
+    }
+    if (!is_dead(vict)) {
         WAIT_STATE(vict, 2 RL_SEC);
+    }
 }
 
 #define NOBEHEAD_EQ(obj) \
-IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
+    IS_SET(obj->obj_flags.bitvector[1], AFF2_NECK_PROTECTED)
 
 // Sniper skill for mercs...I've tried to comment all of
 // my thought processes.  Don't be too hard on me, this
@@ -314,7 +324,7 @@ ACMD(do_snipe)
         send_to_char(ch, "You can't snipe anyone! you're blind!\r\n");
         return;
     }
-    //ch in smoky room?
+    // ch in smoky room?
     if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED) &&
         GET_LEVEL(ch) < LVL_AMBASSADOR) {
         send_to_char(ch, "The room is too smoky to see very far.\r\n");
@@ -349,7 +359,7 @@ ACMD(do_snipe)
         send_to_char(ch, "But your gun isn't loaded!\r\n");
         return;
     }
-    //in what direction is ch attempting to snipe?
+    // in what direction is ch attempting to snipe?
     snipe_dir = search_block(dir_str, dirs, false);
     if (snipe_dir < 0) {
         send_to_char(ch, "Snipe in which direction?!\r\n");
@@ -360,7 +370,7 @@ ACMD(do_snipe)
         EXIT(ch, snipe_dir)->to_room == ch->in_room ||
         IS_SET(EXIT(ch, snipe_dir)->exit_info, EX_CLOSED)) {
         send_to_char(ch,
-            "You aren't going to be sniping anyone in that direction...\r\n");
+                     "You aren't going to be sniping anyone in that direction...\r\n");
         return;
     }
     // is the victim in sight in that direction?
@@ -372,19 +382,22 @@ ACMD(do_snipe)
         if (!cur_room->dir_option[snipe_dir] ||
             !cur_room->dir_option[snipe_dir]->to_room ||
             cur_room->dir_option[snipe_dir]->to_room == ch->in_room ||
-            IS_SET(cur_room->dir_option[snipe_dir]->exit_info, EX_CLOSED))
+            IS_SET(cur_room->dir_option[snipe_dir]->exit_info, EX_CLOSED)) {
             break;
+        }
 
         cur_room = cur_room->dir_option[snipe_dir]->to_room;
         distance++;
 
         if (ROOM_FLAGGED(cur_room, ROOM_DEATH) ||
-            ROOM_FLAGGED(cur_room, ROOM_SMOKE_FILLED))
+            ROOM_FLAGGED(cur_room, ROOM_SMOKE_FILLED)) {
             break;
+        }
 
         vict = get_char_in_remote_room_vis(ch, vict_str, cur_room);
-        if (!nvz_room && vict && (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL)))
+        if (!nvz_room && vict && (ROOM_FLAGGED(vict->in_room, ROOM_PEACEFUL))) {
             nvz_room = cur_room;
+        }
 
     }
 
@@ -395,10 +408,10 @@ ACMD(do_snipe)
     // is vict an imm?
     if ((GET_LEVEL(vict) >= LVL_AMBASSADOR)) {
         send_to_char(ch,
-            "Are you crazy man!?!  You'll piss off superfly!!\r\n");
+                     "Are you crazy man!?!  You'll piss off superfly!!\r\n");
         return;
     }
-    //is the player trying to snipe himself?
+    // is the player trying to snipe himself?
     if (vict == ch) {
         send_to_char(ch, "Yeah...real funny.\r\n");
         return;
@@ -414,14 +427,16 @@ ACMD(do_snipe)
         act("$N has taken cover!\r\n", true, ch, NULL, vict, TO_CHAR);
         return;
     }
-    if (!vict)
+    if (!vict) {
         return;
+    }
 
     // is ch in a peaceful room?
-    if (!ok_to_attack(ch, vict, true))
+    if (!ok_to_attack(ch, vict, true)) {
         return;
+    }
 
-    //Ok, last check...is some asshole trying to damage a shop keeper
+    // Ok, last check...is some asshole trying to damage a shop keeper
     if (!ok_damage_vendor(ch, vict) && GET_LEVEL(ch) < LVL_ELEMENT) {
         WAIT_STATE(ch, PULSE_VIOLENCE * 3);
         send_to_char(ch, "You can't seem to get a clean line-of-sight.\r\n");
@@ -470,12 +485,12 @@ ACMD(do_snipe)
 
     if (nvz_room) {
         send_to_char(ch,
-            "You watch in shock as your bullet stops in mid-air and drops to the ground.\r\n");
+                     "You watch in shock as your bullet stops in mid-air and drops to the ground.\r\n");
         act("$n takes careful aim, fires, and gets a shocked look on $s face.",
             false, ch, NULL, NULL, TO_ROOM);
         send_to_room(tmp_sprintf
-            ("%s screams in from %s and harmlessly falls to the ground.",
-                bullet->name, from_dirs[snipe_dir]), nvz_room);
+                         ("%s screams in from %s and harmlessly falls to the ground.",
+                         bullet->name, from_dirs[snipe_dir]), nvz_room);
         obj_from_obj(bullet);
         obj_to_room(bullet, nvz_room);
         return;
@@ -498,9 +513,9 @@ ACMD(do_snipe)
         act(tmp_sprintf("$n fires $p to %s, then a look of irritation crosses $s face.",
                         to_dirs[snipe_dir]), true, ch, gun, vict, TO_ROOM);
         act(tmp_sprintf("A bullet screams past your head from %s!",
-                from_dirs[snipe_dir]), true, ch, NULL, vict, TO_VICT);
+                        from_dirs[snipe_dir]), true, ch, NULL, vict, TO_VICT);
         act(tmp_sprintf("A bullet screams past $n's head from %s!",
-                from_dirs[snipe_dir]), true, vict, NULL, ch, TO_NOTVICT);
+                        from_dirs[snipe_dir]), true, vict, NULL, ch, TO_NOTVICT);
         WAIT_STATE(ch, 3 RL_SEC);
         return;
     } else {
@@ -508,7 +523,7 @@ ACMD(do_snipe)
         // grab the damage for the gun...this way this skill is
         // scalable
         dam = dice(gun_damage[GUN_TYPE(gun)][0],
-            gun_damage[GUN_TYPE(gun)][1] + BUL_DAM_MOD(bullet));
+                   gun_damage[GUN_TYPE(gun)][1] + BUL_DAM_MOD(bullet));
         // as you can see, armor makes a huge difference, it's hard to imagine
         // a bullet doing much more than brusing someone through a T. carapace
         // seems to crash the mud if you call damage_eq() on a location
@@ -518,15 +533,16 @@ ACMD(do_snipe)
         }
         if ((armor = GET_EQ(vict, damage_loc))
             && IS_OBJ_TYPE(armor, ITEM_ARMOR)) {
-            if (IS_STONE_TYPE(armor) || IS_METAL_TYPE(armor))
+            if (IS_STONE_TYPE(armor) || IS_METAL_TYPE(armor)) {
                 dam -= GET_OBJ_VAL(armor, 0) * 16;
-            else
+            } else {
                 dam -= GET_OBJ_VAL(armor, 0) * 4;
+            }
         }
 
         add_blood_to_room(vict->in_room, 1);
         apply_soil_to_char(ch, GET_EQ(vict, damage_loc), SOIL_BLOOD,
-            damage_loc);
+                           damage_loc);
         if (!affected_by_spell(vict, SKILL_SNIPE)) {
             memset(&af, 0, sizeof(af));
             af.type = SKILL_SNIPE;
@@ -564,9 +580,9 @@ ACMD(do_snipe)
         act(tmp_sprintf("$n takes careful aim and fires $p %s!",
                         to_dirs[snipe_dir]), true, ch, gun, vict, TO_ROOM);
         mudlog(LVL_AMBASSADOR, NRM, true,
-            "INFO: %s has sniped %s from room %d to room %d",
-            GET_NAME(ch), GET_NAME(vict),
-            ch->in_room->number, vict->in_room->number);
+               "INFO: %s has sniped %s from room %d to room %d",
+               GET_NAME(ch), GET_NAME(vict),
+               ch->in_room->number, vict->in_room->number);
 
         kill_msg = tmp_sprintf("You have killed %s!", GET_NAME(vict));
 
@@ -598,7 +614,7 @@ ACMD(do_wrench)
         if (is_fighting(ch)) {
             vict = (random_opponent(ch));
         } else if ((ovict =
-                get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
+                        get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
             act("You fiercely wrench $p!", false, ch, ovict, NULL, TO_CHAR);
             return;
         } else {
@@ -609,25 +625,26 @@ ACMD(do_wrench)
 
     if (GET_EQ(ch, WEAR_WIELD) && IS_TWO_HAND(GET_EQ(ch, WEAR_WIELD))) {
         send_to_char(ch,
-            "You are using both hands to wield your weapon right now!\r\n");
+                     "You are using both hands to wield your weapon right now!\r\n");
         return;
     }
 
     if (GET_EQ(ch, WEAR_WIELD) && (GET_EQ(ch, WEAR_WIELD_2) ||
-            GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_SHIELD))) {
+                                   GET_EQ(ch, WEAR_HOLD) || GET_EQ(ch, WEAR_SHIELD))) {
         send_to_char(ch, "You need a hand free to do that!\r\n");
         return;
     }
 
-    if (!ok_to_attack(ch, vict, true))
+    if (!ok_to_attack(ch, vict, true)) {
         return;
+    }
     //
     // give a bonus if both hands are free
     //
 
     if (!GET_EQ(ch, WEAR_WIELD) &&
         !(GET_EQ(ch, WEAR_WIELD_2) || GET_EQ(ch, WEAR_HOLD)
-            || GET_EQ(ch, WEAR_SHIELD))) {
+          || GET_EQ(ch, WEAR_SHIELD))) {
         two_handed = 1;
     }
 
@@ -692,7 +709,7 @@ ACMD(do_infiltrate)
 
     if (AFF3_FLAGGED(ch, AFF3_INFILTRATE)) {
         send_to_char(ch,
-            "Okay, you are no longer attempting to infiltrate.\r\n");
+                     "Okay, you are no longer attempting to infiltrate.\r\n");
         affect_from_char(ch, SKILL_INFILTRATE);
         affect_from_char(ch, SKILL_SNEAK);
         return;
@@ -704,7 +721,7 @@ ACMD(do_infiltrate)
     }
 
     send_to_char(ch,
-        "Okay, you'll try to infiltrate until further notice.\r\n");
+                 "Okay, you'll try to infiltrate until further notice.\r\n");
 
     af.type = SKILL_SNEAK;
     af.duration = GET_LEVEL(ch);
@@ -735,50 +752,55 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
     acc_string_clear();
 
     acc_sprintf("%s is %s.\r\n", tmp_capitalize(obj->name),
-        strlist_aref(GET_OBJ_TYPE(obj), item_type_descs));
+                strlist_aref(GET_OBJ_TYPE(obj), item_type_descs));
 
     if (skill_lvl > 30) {
         eq_req_flags = ITEM_ANTI_GOOD | ITEM_ANTI_EVIL | ITEM_ANTI_NEUTRAL |
-            ITEM_ANTI_MAGIC_USER | ITEM_ANTI_CLERIC | ITEM_ANTI_THIEF |
-            ITEM_ANTI_WARRIOR | ITEM_NOSELL | ITEM_ANTI_BARB |
-            ITEM_ANTI_PSYCHIC | ITEM_ANTI_PHYSIC | ITEM_ANTI_CYBORG |
-            ITEM_ANTI_KNIGHT | ITEM_ANTI_RANGER | ITEM_ANTI_BARD |
-            ITEM_ANTI_MONK | ITEM_BLURRED | ITEM_DAMNED;
-        if (GET_OBJ_EXTRA(obj) & eq_req_flags)
+                       ITEM_ANTI_MAGIC_USER | ITEM_ANTI_CLERIC | ITEM_ANTI_THIEF |
+                       ITEM_ANTI_WARRIOR | ITEM_NOSELL | ITEM_ANTI_BARB |
+                       ITEM_ANTI_PSYCHIC | ITEM_ANTI_PHYSIC | ITEM_ANTI_CYBORG |
+                       ITEM_ANTI_KNIGHT | ITEM_ANTI_RANGER | ITEM_ANTI_BARD |
+                       ITEM_ANTI_MONK | ITEM_BLURRED | ITEM_DAMNED;
+        if (GET_OBJ_EXTRA(obj) & eq_req_flags) {
             acc_sprintf("Item is %s\r\n",
-                tmp_printbits(GET_OBJ_EXTRA(obj) & eq_req_flags, extra_bits));
+                        tmp_printbits(GET_OBJ_EXTRA(obj) & eq_req_flags, extra_bits));
+        }
 
         eq_req_flags = ITEM2_ANTI_MERC;
-        if (GET_OBJ_EXTRA2(obj) & eq_req_flags)
+        if (GET_OBJ_EXTRA2(obj) & eq_req_flags) {
             acc_sprintf("Item is %s\r\n",
-                tmp_printbits(GET_OBJ_EXTRA2(obj) & eq_req_flags,
-                    extra2_bits));
+                        tmp_printbits(GET_OBJ_EXTRA2(obj) & eq_req_flags,
+                                      extra2_bits));
+        }
 
         eq_req_flags = ITEM3_REQ_MAGE | ITEM3_REQ_CLERIC | ITEM3_REQ_THIEF |
-            ITEM3_REQ_WARRIOR | ITEM3_REQ_BARB | ITEM3_REQ_PSIONIC |
-            ITEM3_REQ_PHYSIC | ITEM3_REQ_CYBORG | ITEM3_REQ_KNIGHT |
-            ITEM3_REQ_RANGER | ITEM3_REQ_BARD | ITEM3_REQ_MONK |
-            ITEM3_REQ_VAMPIRE | ITEM3_REQ_MERCENARY;
-        if (GET_OBJ_EXTRA3(obj) & eq_req_flags)
+                       ITEM3_REQ_WARRIOR | ITEM3_REQ_BARB | ITEM3_REQ_PSIONIC |
+                       ITEM3_REQ_PHYSIC | ITEM3_REQ_CYBORG | ITEM3_REQ_KNIGHT |
+                       ITEM3_REQ_RANGER | ITEM3_REQ_BARD | ITEM3_REQ_MONK |
+                       ITEM3_REQ_VAMPIRE | ITEM3_REQ_MERCENARY;
+        if (GET_OBJ_EXTRA3(obj) & eq_req_flags) {
             acc_sprintf("Item is %s\r\n",
-                tmp_printbits(GET_OBJ_EXTRA3(obj) & eq_req_flags,
-                    extra3_bits));
+                        tmp_printbits(GET_OBJ_EXTRA3(obj) & eq_req_flags,
+                                      extra3_bits));
+        }
     }
 
     acc_sprintf("Item weighs around %s and is made of %s.\n",
                 format_weight(GET_OBJ_WEIGHT(obj), USE_METRIC(ch)),
                 material_names[GET_OBJ_MATERIAL(obj)]);
 
-    if (skill_lvl > 100)
+    if (skill_lvl > 100) {
         cost = 0;
-    else
+    } else {
         cost = (100 - skill_lvl) * GET_OBJ_COST(obj) / 100;
+    }
     cost = GET_OBJ_COST(obj) + number(0, cost) - cost / 2;
 
-    if (cost > 0)
+    if (cost > 0) {
         acc_sprintf("Item looks to be worth about %'ld.\r\n", cost);
-    else
+    } else {
         acc_sprintf("Item doesn't look to be worth anything.\r\n");
+    }
 
     switch (GET_OBJ_TYPE(obj)) {
     case ITEM_SCROLL:
@@ -786,12 +808,15 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
         if (skill_lvl > 80) {
             acc_sprintf("This %s casts: ", item_types[(int)GET_OBJ_TYPE(obj)]);
 
-            if (GET_OBJ_VAL(obj, 1) >= 1)
+            if (GET_OBJ_VAL(obj, 1) >= 1) {
                 acc_sprintf("%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 1)));
-            if (GET_OBJ_VAL(obj, 2) >= 1)
+            }
+            if (GET_OBJ_VAL(obj, 2) >= 1) {
                 acc_sprintf("%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 2)));
-            if (GET_OBJ_VAL(obj, 3) >= 1)
+            }
+            if (GET_OBJ_VAL(obj, 3) >= 1) {
                 acc_sprintf("%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
+            }
         }
         break;
     case ITEM_WAND:
@@ -799,34 +824,37 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
         if (skill_lvl > 80) {
             acc_sprintf("This %s casts: ", item_types[(int)GET_OBJ_TYPE(obj)]);
             acc_sprintf("%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
-            if (skill_lvl > 90)
+            if (skill_lvl > 90) {
                 acc_sprintf("It has %d maximum charge%s and %d remaining.\r\n",
-                    GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 1) == 1 ? "" : "s",
-                    GET_OBJ_VAL(obj, 2));
+                            GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 1) == 1 ? "" : "s",
+                            GET_OBJ_VAL(obj, 2));
+            }
         }
         break;
     case ITEM_WEAPON:
         acc_sprintf("This weapon can deal up to %d points of damage.\r\n",
-            GET_OBJ_VAL(obj, 2) * GET_OBJ_VAL(obj, 1));
+                    GET_OBJ_VAL(obj, 2) * GET_OBJ_VAL(obj, 1));
 
-        if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON))
+        if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON)) {
             acc_sprintf("This weapon casts an offensive spell.\r\n");
+        }
         break;
     case ITEM_ARMOR:
-        if (GET_OBJ_VAL(obj, 0) < 2)
+        if (GET_OBJ_VAL(obj, 0) < 2) {
             acc_sprintf("This armor provides hardly any protection.\r\n");
-        else if (GET_OBJ_VAL(obj, 0) < 5)
+        } else if (GET_OBJ_VAL(obj, 0) < 5) {
             acc_sprintf("This armor provides a little protection.\r\n");
-        else if (GET_OBJ_VAL(obj, 0) < 15)
+        } else if (GET_OBJ_VAL(obj, 0) < 15) {
             acc_sprintf("This armor provides some protection.\r\n");
-        else if (GET_OBJ_VAL(obj, 0) < 20)
+        } else if (GET_OBJ_VAL(obj, 0) < 20) {
             acc_sprintf("This armor provides a lot of protection.\r\n");
-        else if (GET_OBJ_VAL(obj, 0) < 25)
+        } else if (GET_OBJ_VAL(obj, 0) < 25) {
             acc_sprintf
                 ("This armor provides a ridiculous amount of protection.\r\n");
-        else
+        } else {
             acc_sprintf
                 ("This armor provides an insane amount of protection.\r\n");
+        }
         break;
     case ITEM_CONTAINER:
         acc_sprintf("This container holds a maximum of %s.\r\n",
@@ -835,17 +863,18 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
     case ITEM_FOUNTAIN:
     case ITEM_DRINKCON:
         acc_sprintf("This container holds some %s\r\n",
-            drinks[GET_OBJ_VAL(obj, 2)]);
+                    drinks[GET_OBJ_VAL(obj, 2)]);
     }
 
     for (i = 0; i < MIN(MAX_OBJ_AFFECT, skill_lvl / 25); i++) {
         if (obj->affected[i].location != APPLY_NONE) {
-            if (obj->affected[i].modifier > 0)
+            if (obj->affected[i].modifier > 0) {
                 acc_sprintf("Item increases %s\r\n",
-                    strlist_aref(obj->affected[i].location, apply_types));
-            else if (obj->affected[i].modifier < 0)
+                            strlist_aref(obj->affected[i].location, apply_types));
+            } else if (obj->affected[i].modifier < 0) {
                 acc_sprintf("Item decreases %s\r\n",
-                    strlist_aref(obj->affected[i].location, apply_types));
+                            strlist_aref(obj->affected[i].location, apply_types));
+            }
         }
     }
     page_string(ch->desc, acc_get_string());
@@ -870,7 +899,7 @@ ACMD(do_appraise)
     }
 
     if (!(bits =
-            generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, NULL, &obj))) {
+              generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, NULL, &obj))) {
         send_to_char(ch, "You can't find any %s to appraise.\r\n", arg);
         return;
     }
@@ -924,10 +953,12 @@ ACMD(do_combine)
     int level_count = 0;
     int idx;
     for (idx = 1; idx < 4; idx++) {
-        if (GET_OBJ_VAL(potion1, idx) > 0)
+        if (GET_OBJ_VAL(potion1, idx) > 0) {
             spell_count++;
-        if (GET_OBJ_VAL(potion2, idx) > 0)
+        }
+        if (GET_OBJ_VAL(potion2, idx) > 0) {
             spell_count++;
+        }
     }
     level_count = GET_OBJ_VAL(potion1, 0) + GET_OBJ_VAL(potion2, 0);
     // Create the combined potion
@@ -980,12 +1011,14 @@ ACMD(do_combine)
         spell_count = 1;
         int idx;
         for (idx = 1; idx < 4; idx++) {
-            if (GET_OBJ_VAL(potion1, idx) > 0)
+            if (GET_OBJ_VAL(potion1, idx) > 0) {
                 GET_OBJ_VAL(new_potion, spell_count++) =
                     GET_OBJ_VAL(potion1, idx);
-            if (GET_OBJ_VAL(potion2, idx) > 0)
+            }
+            if (GET_OBJ_VAL(potion2, idx) > 0) {
                 GET_OBJ_VAL(new_potion, spell_count++) =
                     GET_OBJ_VAL(potion2, idx);
+            }
         }
     }
     // They don't know if they succeeded unless they identify it or use it
@@ -1032,7 +1065,7 @@ ACMD(do_hamstring)
     arg = tmp_getword(&argument);
     if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 50) {
         send_to_char(ch,
-            "Even if you knew what that was, you wouldn't do it.\r\n");
+                     "Even if you knew what that was, you wouldn't do it.\r\n");
         return;
     }
 
@@ -1069,11 +1102,12 @@ ACMD(do_hamstring)
             return;
         }
         send_to_char(ch,
-            "Cutting off your own leg just doesn't sound like fun.\r\n");
+                     "Cutting off your own leg just doesn't sound like fun.\r\n");
         return;
     }
-    if (!ok_to_attack(ch, vict, true))
+    if (!ok_to_attack(ch, vict, true)) {
         return;
+    }
 
     if (GET_POSITION(vict) == POS_SITTING) {
         send_to_char(ch, "How can you cut it when they're sitting on it!\r\n");
@@ -1099,10 +1133,11 @@ ACMD(do_hamstring)
     }
     // If they're wearing anything usefull on thier legs make it harder to hurt em.
     if ((ovict = GET_EQ(vict, WEAR_LEGS)) && IS_OBJ_TYPE(ovict, ITEM_ARMOR)) {
-        if (IS_STONE_TYPE(ovict) || IS_METAL_TYPE(ovict))
+        if (IS_STONE_TYPE(ovict) || IS_METAL_TYPE(ovict)) {
             percent += GET_OBJ_VAL(ovict, 0) * 3;
-        else
+        } else {
             percent += GET_OBJ_VAL(ovict, 0);
+        }
     }
 
     if (GET_LEVEL(ch) > GET_LEVEL(vict)) {
@@ -1112,8 +1147,9 @@ ACMD(do_hamstring)
     }
 
     if (IS_PUDDING(vict) || IS_SLIME(vict)
-        || NON_CORPOREAL_MOB(vict) || IS_ELEMENTAL(vict))
+        || NON_CORPOREAL_MOB(vict) || IS_ELEMENTAL(vict)) {
         prob = 0;
+    }
     if (CHECK_SKILL(ch, SKILL_HAMSTRING) < 30) {
         prob = 0;
     }
@@ -1129,9 +1165,9 @@ ACMD(do_hamstring)
         dam = dice(level, 15 + gen / 2);
         add_blood_to_room(vict->in_room, 1);
         apply_soil_to_char(vict, GET_EQ(vict, WEAR_LEGS), SOIL_BLOOD,
-            WEAR_LEGS);
+                           WEAR_LEGS);
         apply_soil_to_char(vict, GET_EQ(vict, WEAR_FEET), SOIL_BLOOD,
-            WEAR_FEET);
+                           WEAR_FEET);
         if (!affected_by_spell(vict, SKILL_HAMSTRING)) {
             af.type = SKILL_HAMSTRING;
             af.bitvector = AFF3_HAMSTRUNG;
@@ -1140,16 +1176,18 @@ ACMD(do_hamstring)
             af.duration = level + gen / 10;
             af.location = APPLY_DEX;
             af.modifier = 0 - (level / 2 + dice(7, 7) + dice(gen, 5))
-                * (CHECK_SKILL(ch, SKILL_HAMSTRING)) / 1000;
+                          * (CHECK_SKILL(ch, SKILL_HAMSTRING)) / 1000;
             af.owner = GET_IDNUM(ch);
             affect_to_char(vict, &af);
             WAIT_STATE(vict, 3 RL_SEC);
-            if (damage(ch, vict, weap, dam, SKILL_HAMSTRING, WEAR_LEGS))
+            if (damage(ch, vict, weap, dam, SKILL_HAMSTRING, WEAR_LEGS)) {
                 GET_POSITION(vict) = POS_RESTING;
+            }
         } else {
             WAIT_STATE(vict, 2 RL_SEC);
-            if (damage(ch, vict, weap, dam / 2, SKILL_HAMSTRING, WEAR_LEGS))
+            if (damage(ch, vict, weap, dam / 2, SKILL_HAMSTRING, WEAR_LEGS)) {
                 GET_POSITION(vict) = POS_SITTING;
+            }
         }
         if (!is_dead(ch)) {
             gain_skill_prof(ch, SKILL_HAMSTRING);

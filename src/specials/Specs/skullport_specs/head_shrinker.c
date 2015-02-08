@@ -17,22 +17,25 @@ SPECIAL(head_shrinker)
     int cost = SHRINKER_COST;
     cost = adjusted_price(ch, shrinker, cost);
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     if (CMD_IS("list")) {
         send_to_char(ch,
-            "Better empty the corpse out first if you want the contents.\r\n"
-            "Type 'buy talisman <corpse>' to have a talisman made from it's head.\r\n");
+                     "Better empty the corpse out first if you want the contents.\r\n"
+                     "Type 'buy talisman <corpse>' to have a talisman made from it's head.\r\n");
         return 1;
     }
 
-    if (!cmd || !CMD_IS("buy"))
+    if (!cmd || !CMD_IS("buy")) {
         return 0;
+    }
 
     argument = one_argument(argument, arg);
 
-    if (!is_abbrev(arg, "talisman"))
+    if (!is_abbrev(arg, "talisman")) {
         return 0;
+    }
 
     argument = one_argument(argument, arg);
 
@@ -48,7 +51,7 @@ SPECIAL(head_shrinker)
 
     if (!IS_FLESH_TYPE(corpse)) {
         send_to_char(ch,
-            "I only shrink flesh heads. What's wrong with you?\r\n");
+                     "I only shrink flesh heads. What's wrong with you?\r\n");
         return 1;
     }
     if (IS_MAT(corpse, MAT_MEAT_COOKED)) {
@@ -60,14 +63,14 @@ SPECIAL(head_shrinker)
     }
     if (GET_GOLD(ch) < cost) {
         send_to_char(ch,
-            "It costs %'d gold coins to shrink a head, buddy.\r\n", cost);
+                     "It costs %'d gold coins to shrink a head, buddy.\r\n", cost);
         return 1;
     }
 
     if (!(head = read_object(PROTOHEAD))) {
         mudlog(LVL_POWER, BRF, true,
-            "Error: Head Shrinker cannot find proto head vnum %d.\r\n",
-            PROTOHEAD);
+               "Error: Head Shrinker cannot find proto head vnum %d.\r\n",
+               PROTOHEAD);
         return 1;
     }
 

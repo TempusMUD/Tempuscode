@@ -67,8 +67,9 @@ test_path(char *relpath)
 void
 test_tempus_boot(void)
 {
-    if (!sql_cxn)
+    if (!sql_cxn) {
         sql_cxn = PQconnectdb("user=realm dbname=devtempus");
+    }
 
     if (!sql_cxn) {
         slog("Couldn't allocate postgres connection!");
@@ -113,8 +114,9 @@ random_char_class(void)
                       CLASS_MERCENARY, CLASS_BARD, -1 };
     int len = 0;
 
-    while (choices[len] != -1)
+    while (choices[len] != -1) {
         len++;
+    }
 
     return choices[number(0, len - 1)];
 }
@@ -124,7 +126,7 @@ randomize_creature(struct creature *ch, int char_class)
 {
     time_t now = time(NULL);
 
-    GET_CLASS(ch) = (char_class == CLASS_UNDEFINED) ? random_char_class():char_class;
+    GET_CLASS(ch) = (char_class == CLASS_UNDEFINED) ? random_char_class() : char_class;
 
     GET_MAX_HIT(ch) = number(100, 1000);
     GET_MAX_MANA(ch) = number(100, 1000);
@@ -145,8 +147,9 @@ randomize_creature(struct creature *ch, int char_class)
     GET_WEIGHT(ch) = number(1,200);
     GET_ALIGNMENT(ch) = number(-1000,1000);
     GET_REMORT_GEN(ch) = number(0, 10);
-    if (GET_REMORT_GEN(ch) > 0)
+    if (GET_REMORT_GEN(ch) > 0) {
         GET_REMORT_CLASS(ch) = random_char_class();
+    }
     if (IS_CYBORG(ch)) {
         GET_OLD_CLASS(ch) = number(0, 2);
         GET_TOT_DAM(ch) = number(0, 10);
@@ -192,23 +195,26 @@ void
 test_creature_to_world(struct creature *ch)
 {
     creatures = g_list_prepend(creatures, ch);
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         g_hash_table_insert(creature_map, GINT_TO_POINTER(-NPC_IDNUM(ch)), ch);
-    else
+    } else {
         g_hash_table_insert(creature_map, GINT_TO_POINTER(GET_IDNUM(ch)), ch);
+    }
 
     char_to_room(ch, real_room(1), false);
     GET_POSITION(ch) = POS_STANDING;
 }
 
-gboolean dummy_handler(GIOChannel *io,
-                       GIOCondition condition,
-                       gpointer data)
+gboolean
+dummy_handler(GIOChannel *io,
+              GIOCondition condition,
+              gpointer data)
 {
     return true;
 }
 
-gboolean dummy_timer(gpointer data)
+gboolean
+dummy_timer(gpointer data)
 {
     return true;
 }
@@ -255,10 +261,11 @@ destroy_test_player(struct creature *ch)
     g_hash_table_remove(account_cache, GINT_TO_POINTER(ch->account->id));
     sql_exec("delete from accounts where idnum=%d", ch->account->id);
     free_account(ch->account);
-    if (ch->in_room)
+    if (ch->in_room) {
         extract_creature(ch, CXN_DISCONNECT);
-    else
+    } else {
         free_creature(ch);
+    }
 }
 
 void

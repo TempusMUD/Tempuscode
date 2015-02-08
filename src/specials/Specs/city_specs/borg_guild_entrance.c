@@ -7,12 +7,13 @@
 SPECIAL(borg_guild_entrance)
 {
 
-    if (!CMD_IS("south"))
+    if (!CMD_IS("south")) {
         return 0;
+    }
 
     if (!IS_CYBORG(ch) && GET_LEVEL(ch) < LVL_IMMORT) {
         send_to_char(ch,
-            "The panel lights up: WARNING.  Retinal scan negative.  Access denied.");
+                     "The panel lights up: WARNING.  Retinal scan negative.  Access denied.");
         act("The door panel flashes a warning as $n tries to enter.", false,
             ch, 0, 0, TO_ROOM);
         return 1;

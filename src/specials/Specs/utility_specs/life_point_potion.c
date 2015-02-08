@@ -7,15 +7,16 @@
 SPECIAL(life_point_potion)
 {
     struct obj_data *potion = (struct obj_data *)me;
-    if (!CMD_IS("quaff") || potion->carried_by != ch)
+    if (!CMD_IS("quaff") || potion->carried_by != ch) {
         return 0;
+    }
     skip_spaces(&argument);
     if (!isname(argument, potion->aliases)) {
         snprintf(buf, sizeof(buf), "Argument (%s), Name (%s)\r\n", argument,
-            potion->aliases);
+                 potion->aliases);
         return 0;
     }
-    //Format : <number of life points>
+    // Format : <number of life points>
     act("You hungrily consume $p, careful not to miss a single drop.",
         false, ch, potion, NULL, TO_CHAR);
     act("$n hungrily consumes $p, careful not to miss a single drop.",
@@ -25,11 +26,11 @@ SPECIAL(life_point_potion)
         (IS_OBJ_STAT(potion, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch))
         || GET_LEVEL(ch) < 10) {
         send_to_char(ch,
-            "\r\nYou feel you have just done something very, very wrong.\r\n");
+                     "\r\nYou feel you have just done something very, very wrong.\r\n");
         GET_POSITION(ch) = POS_STUNNED;
     } else {
         send_to_char(ch,
-            "\r\nThe essence of the gods courses through your veins.\r\n");
+                     "\r\nThe essence of the gods courses through your veins.\r\n");
         GET_LIFE_POINTS(ch) += MIN(10, GET_OBJ_VAL(potion, 0));
     }
     obj_from_char(potion);

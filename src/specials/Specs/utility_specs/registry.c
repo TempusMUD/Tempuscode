@@ -11,20 +11,21 @@ SPECIAL(registry)
     char buf3[MAX_STRING_LENGTH];
     int cost, home, vcert = -1;
 
-    if (!CMD_IS("register"))
+    if (!CMD_IS("register")) {
         return 0;
+    }
 
     if (!can_see_creature(reg, ch)) {
         perform_say(reg, "say",
-            "Who's there?  Come visible to register, infidel!");
+                    "Who's there?  Come visible to register, infidel!");
         return 1;
     }
     cost = adjusted_price(ch, reg, GET_LEVEL(ch) * 100);
 
     if (GET_GOLD(ch) < cost) {
         snprintf(buf2, sizeof(buf2),
-            "It costs %'d coins to register here, which you do not have.",
-            cost);
+                 "It costs %'d coins to register here, which you do not have.",
+                 cost);
         perform_tell(reg, ch, buf2);
         return 1;
     }
@@ -65,12 +66,13 @@ SPECIAL(registry)
         home = HOME_DROW_ISLE;
         break;
     case 228:
-        if (ch->in_room->number == 22803)
+        if (ch->in_room->number == 22803) {
             home = HOME_DWARVEN_CAVERNS;
-        else if (ch->in_room->number == 22878)
+        } else if (ch->in_room->number == 22878) {
             home = HOME_HUMAN_SQUARE;
-        else
+        } else {
             home = HOME_SKULLPORT;
+        }
         break;
     case 190:
         if (GET_HOME(ch) == HOME_ELVEN_VILLAGE) {
@@ -78,7 +80,7 @@ SPECIAL(registry)
             if (IS_EVIL(ch)) {
                 perform_tell(reg, ch, "But you don't need to be, EVIL scum!");
                 send_to_char(ch,
-                    "You are no longer a resident of the Elven Village.\r\n");
+                             "You are no longer a resident of the Elven Village.\r\n");
                 act("$n just lost $s residence in the village!", true, ch, NULL,
                     NULL, TO_ROOM);
                 population_record[GET_HOME(ch)]--;
@@ -112,7 +114,7 @@ SPECIAL(registry)
 
     if (GET_HOME(ch) == home) {
         send_to_char(ch, "You are already a legal resident of %s!\r\n",
-            home_towns[home]);
+                     home_towns[home]);
         return 1;
     }
 
@@ -133,7 +135,7 @@ SPECIAL(registry)
     }
 
     mudlog(GET_INVIS_LVL(ch), CMP, true,
-        "%s has registered at %s.", GET_NAME(ch),
-        home_towns[(int)GET_HOME(ch)]);
+           "%s has registered at %s.", GET_NAME(ch),
+           home_towns[(int)GET_HOME(ch)]);
     return 1;
 }

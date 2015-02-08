@@ -6,8 +6,9 @@
 
 SPECIAL(monastery_eating)
 {
-    if (!CMD_IS("eat"))
+    if (!CMD_IS("eat")) {
         return 0;
+    }
 
     if (GET_COND(ch, FULL) >= 24) {
         send_to_char(ch, "You are already completely filled.\r\n");

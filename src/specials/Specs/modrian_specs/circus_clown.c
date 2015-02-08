@@ -8,8 +8,9 @@ SPECIAL(circus_clown)
 {
 
     if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_ENTER
-        && spec_mode != SPECIAL_TICK)
+        && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     if (!cmd && !is_fighting(ch) && GET_POSITION(ch) != POS_FIGHTING) {
         switch (number(0, 30)) {
         case 0:
@@ -48,7 +49,7 @@ SPECIAL(circus_clown)
             act("$n guzzles a beer and smashes the can against $s forehead.",
                 true, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch,
-                "You guzzle a beer and smash the can on you forehead.\r\n");
+                         "You guzzle a beer and smash the can on you forehead.\r\n");
             break;
         }
         return 1;

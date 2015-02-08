@@ -8,23 +8,23 @@
 //
 
 #define IS_PAPER_TYPE(obj)     (obj->obj_flags.material >= MAT_PAPER && \
-				obj->obj_flags.material < MAT_CLOTH)
+                                obj->obj_flags.material < MAT_CLOTH)
 #define IS_CLOTH_TYPE(obj)     (obj->obj_flags.material >= MAT_CLOTH && \
-			        obj->obj_flags.material < MAT_LEATHER)
+                                obj->obj_flags.material < MAT_LEATHER)
 #define IS_LEATHER_TYPE(obj)   (obj->obj_flags.material >= MAT_LEATHER && \
-			        obj->obj_flags.material < MAT_FLESH)
+                                obj->obj_flags.material < MAT_FLESH)
 #define IS_FLESH_TYPE(obj)     (obj->obj_flags.material >= MAT_FLESH && \
-			        obj->obj_flags.material < MAT_VEGETABLE)
+                                obj->obj_flags.material < MAT_VEGETABLE)
 #define IS_VEGETABLE_TYPE(obj) (obj->obj_flags.material >= MAT_VEGETABLE && \
-			        obj->obj_flags.material < MAT_WOOD)
+                                obj->obj_flags.material < MAT_WOOD)
 #define IS_WOOD_TYPE(obj)      (obj->obj_flags.material >= MAT_WOOD && \
-			        obj->obj_flags.material < MAT_METAL)
+                                obj->obj_flags.material < MAT_METAL)
 #define IS_METAL_TYPE(obj)     (obj->obj_flags.material >= MAT_METAL && \
-			        obj->obj_flags.material < MAT_PLASTIC)
+                                obj->obj_flags.material < MAT_PLASTIC)
 #define IS_PLASTIC_TYPE(obj)   (obj->obj_flags.material >= MAT_PLASTIC && \
-			        obj->obj_flags.material < MAT_GLASS)
+                                obj->obj_flags.material < MAT_GLASS)
 #define IS_GLASS_TYPE(obj)     (obj->obj_flags.material >= MAT_GLASS && \
-				obj->obj_flags.material < MAT_STONE)
+                                obj->obj_flags.material < MAT_STONE)
 #define IS_STONE_TYPE(obj)     (obj->obj_flags.material >= MAT_STONE && \
                                 obj->obj_flags.material <= MAT_BASALT)
 

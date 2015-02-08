@@ -40,14 +40,15 @@ fileeditor_finalize(struct editor *editor, const char *text)
         fclose(fd);
     } else {
         send_to_char(editor->desc->creature,
-            "Your file was not saved.  Please bug this.\r\n");
+                     "Your file was not saved.  Please bug this.\r\n");
     }
 
     REMOVE_BIT(PLR_FLAGS(editor->desc->creature), PLR_WRITING);
 
-    if (IS_PLAYING(editor->desc))
+    if (IS_PLAYING(editor->desc)) {
         act("$n finishes editing.", true, editor->desc->creature, NULL, NULL,
             TO_NOTVICT);
+    }
 }
 
 void
@@ -76,7 +77,7 @@ start_editing_file(struct descriptor_data *d, const char *fname)
         d_printf(d, "Couldn't open file.  Sorry.\r\n");
         return;
     }
-    
+
     int err = fseek(inf, 0, SEEK_END);
     if (err < 0) {
         errlog("Call to fseek() failed: %s", strerror(errno));
@@ -102,7 +103,7 @@ start_editing_file(struct descriptor_data *d, const char *fname)
         return;
     }
 
-    
+
     CREATE(target, char, (size_t)len + 1);
     if (!target) {
         errlog("Couldn't allocate memory to edit %s", fname);

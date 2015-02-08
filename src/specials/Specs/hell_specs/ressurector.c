@@ -4,18 +4,20 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#define RESS_IS_DEVIL_VNUM(vnum) ( vnum >= 16100 && vnum <= 17199 )
+#define RESS_IS_DEVIL_VNUM(vnum) (vnum >= 16100 && vnum <= 17199)
 
 SPECIAL(hell_ressurector)
 {
 
     struct obj_data *corpse = NULL, *obj = NULL;
     struct creature *vict = NULL;
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || GET_MANA(ch) < 200)
+    if (cmd || GET_MANA(ch) < 200) {
         return 0;
+    }
 
     //
     // check the room for corpses
@@ -31,7 +33,7 @@ SPECIAL(hell_ressurector)
 
         if (!vict) {
             errlog("hell resurrector unable to real_mobile_proto(%d).",
-                -CORPSE_IDNUM(corpse));
+                   -CORPSE_IDNUM(corpse));
             continue;
         }
         //
@@ -52,7 +54,7 @@ SPECIAL(hell_ressurector)
 
         if (!(vict = read_mobile(-CORPSE_IDNUM(corpse)))) {
             errlog(" hell ressurector unable to read_mobile(%d).",
-                -CORPSE_IDNUM(corpse));
+                   -CORPSE_IDNUM(corpse));
             return 0;
         }
 

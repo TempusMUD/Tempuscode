@@ -9,10 +9,12 @@ SPECIAL(credit_exchange)
     struct creature *teller = (struct creature *)me;
     int amount;
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return false;
-    if (!cmd || !CMD_IS("exchange"))
+    }
+    if (!cmd || !CMD_IS("exchange")) {
         return 0;
+    }
 
     skip_spaces(&argument);
     if (!*argument) {
@@ -29,7 +31,7 @@ SPECIAL(credit_exchange)
 
     if (amount > GET_GOLD(ch)) {
         perform_tell(teller, ch,
-            "You some kinda wiseass?  You don't have that much gold.");
+                     "You some kinda wiseass?  You don't have that much gold.");
         return 1;
     }
 
@@ -54,8 +56,9 @@ SPECIAL(gold_exchange)
 
     int amount;
 
-    if (!cmd || !CMD_IS("buy"))
+    if (!cmd || !CMD_IS("buy")) {
         return 0;
+    }
 
     skip_spaces(&argument);
     if (!*argument) {
@@ -72,12 +75,12 @@ SPECIAL(gold_exchange)
 
     if (amount > GET_CASH(ch)) {
         perform_tell(teller, ch,
-            "You some kinda wiseass?  You can't afford that much gold.");
+                     "You some kinda wiseass?  You can't afford that much gold.");
         return 1;
     }
 
     act(tmp_sprintf("$N takes your money and gives you %'d gold coins.",
-            amount), false, ch, NULL, teller, TO_CHAR);
+                    amount), false, ch, NULL, teller, TO_CHAR);
     act("$N takes some cash from $n and gives $m some gold coins.",
         false, ch, NULL, teller, TO_NOTVICT);
 

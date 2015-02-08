@@ -45,7 +45,7 @@
 
 extern struct descriptor_data *descriptor_list;
 int check_mob_reaction(struct creature *ch, struct creature *vict);
-struct clan_data * clan_by_name(char *arg);
+struct clan_data *clan_by_name(char *arg);
 
 struct clan_data *clan_list;
 extern FILE *player_fl;
@@ -72,18 +72,20 @@ clan_member_count(struct clan_data *clan)
     struct clanmember_data *member = NULL;
     int result = 0;
 
-    for (member = clan->member_list; member; member = member->next)
+    for (member = clan->member_list; member; member = member->next) {
         result++;
+    }
     return result;
 }
 
 __attribute__ ((nonnull)) static /*@observer@*/ const char *
 clan_rankname(struct clan_data *clan, int rank)
 {
-    if (clan->ranknames[rank])
+    if (clan->ranknames[rank]) {
         return clan->ranknames[rank];
-    else if (rank == 0)
+    } else if (rank == 0) {
         return "the recruit";
+    }
     return "the member";
 }
 
@@ -93,15 +95,16 @@ char_can_enroll(struct creature *ch, struct creature *vict,
 {
     // Ensure data integrity between clan structures
     if (GET_CLAN(vict) != 0 && real_clan(GET_CLAN(vict)) != NULL) {
-        if (!real_clanmember(GET_IDNUM(vict), real_clan(GET_CLAN(vict))))
+        if (!real_clanmember(GET_IDNUM(vict), real_clan(GET_CLAN(vict)))) {
             GET_CLAN(vict) = 0;
+        }
 
         if (GET_CLAN(vict) == GET_CLAN(ch)) {
             send_to_char(ch, "That person is already in your clan.\r\n");
             return false;
         } else {
             send_to_char(ch,
-                "You cannot while they are a member of another clan.\r\n");
+                         "You cannot while they are a member of another clan.\r\n");
             return false;
         }
     } else {
@@ -110,7 +113,7 @@ char_can_enroll(struct creature *ch, struct creature *vict,
         member = real_clanmember(GET_IDNUM(vict), clan);
         if (member) {
             send_to_char(ch,
-                "Something weird just happened... try again.\r\n");
+                         "Something weird just happened... try again.\r\n");
             remove_member_from_clan(member, clan);
         }
     }
@@ -125,24 +128,27 @@ char_can_enroll(struct creature *ch, struct creature *vict,
         return false;
     }
 
-    if (is_authorized(ch, EDIT_CLAN, NULL))
+    if (is_authorized(ch, EDIT_CLAN, NULL)) {
         return true;
+    }
     // Enrollment conditions that don't apply to clan administrators
-    else if (PLR_FLAGGED(vict, PLR_FROZEN))
+    else if (PLR_FLAGGED(vict, PLR_FROZEN)) {
         send_to_char(ch,
-            "They are frozen right now.  Wait until a god has mercy.\r\n");
-    else if (GET_LEVEL(vict) < LVL_CAN_CLAN && GET_REMORT_GEN(vict) == 0)
+                     "They are frozen right now.  Wait until a god has mercy.\r\n");
+    } else if (GET_LEVEL(vict) < LVL_CAN_CLAN && GET_REMORT_GEN(vict) == 0) {
         send_to_char(ch, "Players must be level 10 before being inducted into the clan.\r\n");
-    else if (clan_member_count(clan) > MAX_CLAN_MEMBERS)
+    } else if (clan_member_count(clan) > MAX_CLAN_MEMBERS) {
         send_to_char(ch,
-            "The max number of members has been reached for this clan.\r\n");
-    else if (clan->owner == GET_IDNUM(ch))
+                     "The max number of members has been reached for this clan.\r\n");
+    } else if (clan->owner == GET_IDNUM(ch)) {
         return true;
+    }
     // Enrollment conditions that don't apply to clan owners
-    else if (GET_CLAN(ch) != clan->number || !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
+    else if (GET_CLAN(ch) != clan->number || !PLR_FLAGGED(ch, PLR_CLAN_LEADER)) {
         send_to_char(ch, "You are not a leader of the clan!\r\n");
-    else
+    } else {
         return true;
+    }
 
     return false;
 }
@@ -153,28 +159,31 @@ char_can_dismiss(struct creature *ch, struct creature *vict, struct clan_data *c
     struct clanmember_data *ch_member = real_clanmember(GET_IDNUM(ch), clan);
     struct clanmember_data *vict_member = real_clanmember(GET_IDNUM(vict), clan);
 
-    if (vict == ch)
+    if (vict == ch) {
         send_to_char(ch, "Try resigning if you want to leave the clan.\r\n");
-    else if (AFF_FLAGGED(ch, AFF_CHARM))
+    } else if (AFF_FLAGGED(ch, AFF_CHARM)) {
         send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-    else if (is_authorized(ch, EDIT_CLAN, NULL))
+    } else if (is_authorized(ch, EDIT_CLAN, NULL)) {
         return true;
+    }
     // Dismissal conditions that don't apply to clan administrators
-    else if (ch_member == NULL)
+    else if (ch_member == NULL) {
         send_to_char(ch, "You are not properly in a clan.\r\n");
-    else if (!vict_member || GET_CLAN(vict) != GET_CLAN(ch))
+    } else if (!vict_member || GET_CLAN(vict) != GET_CLAN(ch)) {
         send_to_char(ch, "Umm, why don't you check the clan list, okay?\r\n");
-    else if (clan->owner == GET_IDNUM(ch))
+    } else if (clan->owner == GET_IDNUM(ch)) {
         return true;
+    }
     // Dismissal conditions that don't apply to clan owners
-    else if (GET_CLAN(ch) != clan->number || !PLR_FLAGGED(ch, PLR_CLAN_LEADER))
+    else if (GET_CLAN(ch) != clan->number || !PLR_FLAGGED(ch, PLR_CLAN_LEADER)) {
         send_to_char(ch, "You are not a leader of the clan!\r\n");
-    else if (ch_member->rank <= vict_member->rank)
+    } else if (ch_member->rank <= vict_member->rank) {
         send_to_char(ch, "You don't have the rank for that.\r\n");
-    else if (PLR_FLAGGED(vict, PLR_CLAN_LEADER))
+    } else if (PLR_FLAGGED(vict, PLR_CLAN_LEADER)) {
         send_to_char(ch, "You cannot dismiss co-leaders.\r\n");
-    else
+    } else {
         return true;
+    }
 
     return false;
 }
@@ -187,32 +196,36 @@ char_can_promote(struct creature *ch, struct creature *vict,
     struct clanmember_data *vict_member =
         real_clanmember(GET_IDNUM(vict), clan);
 
-    if (AFF_FLAGGED(ch, AFF_CHARM))
+    if (AFF_FLAGGED(ch, AFF_CHARM)) {
         send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-    else if (ch_member == NULL)
+    } else if (ch_member == NULL) {
         send_to_char(ch, "You are not properly in a clan.\r\n");
-    else if (vict_member == NULL)
+    } else if (vict_member == NULL) {
         send_to_char(ch, "You are not a member of that person's clan!\r\n");
-    else if (vict_member->rank >= clan->top_rank
-        && PLR_FLAGGED(vict, PLR_CLAN_LEADER))
+    } else if (vict_member->rank >= clan->top_rank
+               && PLR_FLAGGED(vict, PLR_CLAN_LEADER)) {
         send_to_char(ch, "That person is already at the top rank.\r\n");
-    else if (is_authorized(ch, EDIT_CLAN, NULL))
+    } else if (is_authorized(ch, EDIT_CLAN, NULL)) {
         return true;
+    }
     // Promotion conditions that don't apply to clan administrators
-    else if (real_clan(GET_CLAN(vict)) != clan)
+    else if (real_clan(GET_CLAN(vict)) != clan) {
         send_to_char(ch, "You are not a member of that person's clan!\r\n");
-    else if (clan->owner == GET_IDNUM(ch))
+    } else if (clan->owner == GET_IDNUM(ch)) {
         return true;
+    }
     // Promotion conditions that don't apply to clan owners
-    else if (vict == ch)
+    else if (vict == ch) {
         send_to_char(ch, "Promote yourself?  Haha.\r\n");
-    else if (PLR_FLAGGED(ch, PLR_CLAN_LEADER))
+    } else if (PLR_FLAGGED(ch, PLR_CLAN_LEADER)) {
         return true;
+    }
     // Promotion conditions that don't apply to clan leaders
-    else if (ch_member->rank <= vict_member->rank)
+    else if (ch_member->rank <= vict_member->rank) {
         send_to_char(ch, "You don't have the rank for that.\r\n");
-    else
+    } else {
         return true;
+    }
 
     return false;
 }
@@ -241,19 +254,19 @@ ACMD(do_enroll)
         }
     }
 
-    if (!clan)
+    if (!clan) {
         send_to_char(ch,
-            "Hmm... You need to be in a clan yourself, first.\r\n");
-    else if (*member_str == '\0')
+                     "Hmm... You need to be in a clan yourself, first.\r\n");
+    } else if (*member_str == '\0') {
         send_to_char(ch, "You must specify the player to enroll.\r\n");
-    else if (!(vict = get_char_room_vis(ch, member_str)))
+    } else if (!(vict = get_char_room_vis(ch, member_str))) {
         send_to_char(ch, "You don't see that person.\r\n");
-    else if (char_can_enroll(ch, vict, clan)) {
+    } else if (char_can_enroll(ch, vict, clan)) {
         REMOVE_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
         send_to_char(vict, "You have been inducted into clan %s by %s!\r\n",
-            clan->name, GET_NAME(ch));
+                     clan->name, GET_NAME(ch));
         msg = tmp_sprintf("%s has been inducted into clan %s by %s!",
-            GET_NAME(vict), clan->name, GET_NAME(ch));
+                          GET_NAME(vict), clan->name, GET_NAME(ch));
         mudlog(GET_INVIS_LVL(ch), NRM, true, "%s", msg);
         msg = tmp_strcat(msg, "\r\n", NULL);
         send_to_clan(msg, GET_CLAN(ch));
@@ -298,7 +311,7 @@ ACMD(do_join)
     if (!is_authorized(ch, EDIT_CLAN, NULL)) {
         if (*password == '\0') {
             send_to_char(ch, "You need to provide the clan password or find a clan leader "
-                         "if you want to join\r\n");
+                             "if you want to join\r\n");
             return;
         }
 
@@ -396,10 +409,10 @@ ACMD(do_dismiss)
 
     if (char_can_dismiss(ch, vict, clan)) {
         send_to_char(vict, "You have been dismissed from clan %s by %s!\r\n",
-            clan->name, GET_NAME(ch));
+                     clan->name, GET_NAME(ch));
         GET_CLAN(vict) = 0;
         msg = tmp_sprintf("%s has been dismissed from clan %s by %s!",
-            GET_NAME(vict), clan->name, GET_NAME(ch));
+                          GET_NAME(vict), clan->name, GET_NAME(ch));
         mudlog(GET_INVIS_LVL(ch), NRM, true, "%s", msg);
         msg = tmp_strcat(msg, "\r\n", NULL);
         send_to_clan(msg, GET_CLAN(ch));
@@ -427,20 +440,21 @@ ACMD(do_resign)
 
     skip_spaces(&argument);
 
-    if (IS_NPC(ch))
+    if (IS_NPC(ch)) {
         send_to_char(ch, "NPC's cannot resign...\r\n");
-    else if (!clan)
+    } else if (!clan) {
         send_to_char(ch,
-            "You need to be in a clan before you resign from it.\r\n");
-    else if (AFF_FLAGGED(ch, AFF_CHARM))
+                     "You need to be in a clan before you resign from it.\r\n");
+    } else if (AFF_FLAGGED(ch, AFF_CHARM)) {
         send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-    else if (strcmp(argument, "yes") != 0)
+    } else if (strcmp(argument, "yes") != 0) {
         send_to_char(ch, "You must type 'resign yes' to leave your clan.\r\n");
-    else {
+    } else {
         GET_CLAN(ch) = 0;
         REMOVE_BIT(PLR_FLAGS(ch), PLR_CLAN_LEADER);
-        if (clan->owner == GET_IDNUM(ch))
+        if (clan->owner == GET_IDNUM(ch)) {
             clan->owner = 0;
+        }
         if ((member = real_clanmember(GET_IDNUM(ch), clan))) {
             remove_member_from_clan(member, clan);
         }
@@ -448,7 +462,7 @@ ACMD(do_resign)
 
         send_to_char(ch, "You have resigned from clan %s.\r\n", clan->name);
         msg = tmp_sprintf("%s has resigned from clan %s.", GET_NAME(ch),
-            clan->name);
+                          clan->name);
         mudlog(GET_INVIS_LVL(ch), NRM, true, "%s", msg);
         msg = tmp_strcat(msg, "\r\n", NULL);
         send_to_clan(msg, GET_CLAN(ch));
@@ -463,13 +477,13 @@ ACMD(do_promote)
 
     skip_spaces(&argument);
 
-    if (!clan)
+    if (!clan) {
         send_to_char(ch, "You are not even in a clan.\r\n");
-    else if (*argument == '\0')
+    } else if (*argument == '\0') {
         send_to_char(ch, "You must specify the person to promote.\r\n");
-    else if (!(vict = get_char_room_vis(ch, argument)))
+    } else if (!(vict = get_char_room_vis(ch, argument))) {
         send_to_char(ch, "No-one around by that name.\r\n");
-    else if (char_can_promote(ch, vict, clan)) {
+    } else if (char_can_promote(ch, vict, clan)) {
         struct clanmember_data *vict_member =
             real_clanmember(GET_IDNUM(vict), clan);
 
@@ -477,7 +491,7 @@ ACMD(do_promote)
             // Promotion to clan leader
             SET_BIT(PLR_FLAGS(vict), PLR_CLAN_LEADER);
             msg = tmp_sprintf("%s has promoted %s to clan leader status.",
-                GET_NAME(ch), (ch == vict) ? "self" : GET_NAME(vict));
+                              GET_NAME(ch), (ch == vict) ? "self" : GET_NAME(vict));
             slog("%s", msg);
             msg = tmp_strcat(msg, "\r\n", NULL);
             send_to_clan(msg, clan->number);
@@ -486,11 +500,11 @@ ACMD(do_promote)
             // Normal rank promotion
             vict_member->rank++;
             sql_exec("update clan_members set rank=%d where player=%ld",
-                vict_member->rank, GET_IDNUM(vict));
+                     vict_member->rank, GET_IDNUM(vict));
             msg = tmp_sprintf("%s has promoted %s to clan rank %s (%d)",
-                GET_NAME(ch),
-                (ch == vict) ? "self" : GET_NAME(vict),
-                clan_rankname(clan, vict_member->rank), vict_member->rank);
+                              GET_NAME(ch),
+                              (ch == vict) ? "self" : GET_NAME(vict),
+                              clan_rankname(clan, vict_member->rank), vict_member->rank);
             slog("%s", msg);
             msg = tmp_strcat(msg, "\r\n", NULL);
             send_to_clan(msg, clan->number);
@@ -508,27 +522,27 @@ ACMD(do_demote)
 
     skip_spaces(&argument);
 
-    if (!clan)
+    if (!clan) {
         send_to_char(ch, "You are not even in a clan.\r\n");
-    else if (*argument == '\0')
+    } else if (*argument == '\0') {
         send_to_char(ch, "You must specify the person to demote.\r\n");
-    else if (!(vict = get_char_room_vis(ch, argument)))
+    } else if (!(vict = get_char_room_vis(ch, argument))) {
         send_to_char(ch, "No-one around by that name.\r\n");
-    else if (!(member1 = real_clanmember(GET_IDNUM(ch), clan)))
+    } else if (!(member1 = real_clanmember(GET_IDNUM(ch), clan))) {
         send_to_char(ch, "You are not properly installed in the clan.\r\n");
-    else if (AFF_FLAGGED(ch, AFF_CHARM))
+    } else if (AFF_FLAGGED(ch, AFF_CHARM)) {
         send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-    else if (ch == vict) {
+    } else if (ch == vict) {
         if (member1->rank == 0) {
             send_to_char(ch,
-                "You are already at the bottom of the totem pole.\r\n");
+                         "You are already at the bottom of the totem pole.\r\n");
         } else {
             member1->rank--;
             sql_exec("update clan_members set rank=%d where player=%ld",
-                member1->rank, GET_IDNUM(vict));
+                     member1->rank, GET_IDNUM(vict));
             msg = tmp_sprintf("%s has demoted self to clan rank %s (%d)",
-                GET_NAME(ch),
-                clan_rankname(clan, member1->rank), member1->rank);
+                              GET_NAME(ch),
+                              clan_rankname(clan, member1->rank), member1->rank);
             slog("%s", msg);
             msg = tmp_strcat(msg, "\r\n", NULL);
             send_to_clan(msg, clan->number);
@@ -540,10 +554,10 @@ ACMD(do_demote)
         act("$N is not properly installed in the clan.\r\n",
             false, ch, NULL, vict, TO_CHAR);
     } else if (!PLR_FLAGGED(ch, PLR_CLAN_LEADER)
-        && !is_authorized(ch, EDIT_CLAN, NULL)) {
+               && !is_authorized(ch, EDIT_CLAN, NULL)) {
         send_to_char(ch, "You are unable to demote.\r\n");
     } else if (member2->rank >= member1->rank
-        || PLR_FLAGGED(vict, PLR_CLAN_LEADER)) {
+               || PLR_FLAGGED(vict, PLR_CLAN_LEADER)) {
         act("You are not in a position to demote $M.", false, ch, NULL, vict,
             TO_CHAR);
     } else if (member2->rank <= 0) {
@@ -555,10 +569,10 @@ ACMD(do_demote)
     } else {
         member2->rank--;
         sql_exec("update clan_members set rank=%d where player=%ld",
-            member2->rank, GET_IDNUM(vict));
+                 member2->rank, GET_IDNUM(vict));
         msg = tmp_sprintf("%s has demoted %s to clan rank %s (%d)",
-            GET_NAME(ch),
-            GET_NAME(vict), clan_rankname(clan, member2->rank), member2->rank);
+                          GET_NAME(ch),
+                          GET_NAME(vict), clan_rankname(clan, member2->rank), member2->rank);
         slog("%s", msg);
         msg = tmp_strcat(msg, "\r\n", NULL);
         send_to_clan(msg, clan->number);
@@ -573,27 +587,28 @@ ACMD(do_clanmail)
 
     skip_spaces(&argument);
 
-    if (!clan)
+    if (!clan) {
         send_to_char(ch, "You are not even in a clan.\r\n");
-    else if (!(member = real_clanmember(GET_IDNUM(ch), clan)))
+    } else if (!(member = real_clanmember(GET_IDNUM(ch), clan))) {
         send_to_char(ch, "You are not properly installed in the clan.\r\n");
-    else {
+    } else {
         member->no_mail = !member->no_mail;
         sql_exec("update clan_members set no_mail='%c' where player=%ld",
-            (member->no_mail) ? 'T' : 'F', GET_IDNUM(ch));
-        if (member->no_mail)
+                 (member->no_mail) ? 'T' : 'F', GET_IDNUM(ch));
+        if (member->no_mail) {
 
             send_to_char(ch,
-                "You will no longer receive mail addressed to your clan.\r\n");
-        else
+                         "You will no longer receive mail addressed to your clan.\r\n");
+        } else {
             send_to_char(ch,
-                "You will now receive mail addressed to your clan.\r\n");
+                         "You will now receive mail addressed to your clan.\r\n");
+        }
     }
 }
 
 static void
 acc_print_clan_members(struct creature *ch, struct clan_data *clan,
-    bool complete, int min_lev)
+                       bool complete, int min_lev)
 {
     struct creature *i;
     struct clanmember_data *member = NULL;
@@ -605,7 +620,7 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
         for (d = descriptor_list; d != NULL && !found; d = d->next) {
             if (IS_PLAYING(d)) {
                 i = ((d->original != NULL && GET_LEVEL(ch) > GET_LEVEL(d->original)) ?
-                    d->original : d->creature);
+                     d->original : d->creature);
                 if (i != NULL
                     && i->in_room != NULL
                     && GET_CLAN(i) == GET_CLAN(ch)
@@ -613,7 +628,7 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
                     && can_see_creature(ch, i)
                     && GET_LEVEL(i) >= min_lev) {
                     name = tmp_strcat(GET_NAME(i), " ",
-                        clan_rankname(clan, member->rank), " (online)", NULL);
+                                      clan_rankname(clan, member->rank), " (online)", NULL);
 
                     const char *loc_desc, *name_col;
 
@@ -633,7 +648,7 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
                         name_col = "";
                     }
 
-                    if (d->original)
+                    if (d->original) {
                         acc_sprintf("%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s %s(in %s)%s\r\n",
                                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                                     GET_LEVEL(i),
@@ -641,10 +656,10 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
                                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                                     name_col,
                                     name,
-                                    (name_col[0] != '\0') ? CCNRM(ch, C_NRM):"",
+                                    (name_col[0] != '\0') ? CCNRM(ch, C_NRM) : "",
                                     CCCYN(ch, C_NRM), loc_desc, CCNRM(ch, C_NRM),
                                     CCRED(ch, C_CMP), GET_NAME(d->creature), CCNRM(ch, C_CMP));
-                    else if (GET_LEVEL(i) >= LVL_AMBASSADOR)
+                    } else if (GET_LEVEL(i) >= LVL_AMBASSADOR) {
                         acc_sprintf("%s[%s%7s%s]%s %-40s%s - %s%s%s\r\n",
                                     CCYEL_BLD(ch, C_NRM),
                                     CCNRM_GRN(ch, C_SPR),
@@ -652,7 +667,7 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
                                     CCYEL_BLD(ch, C_NRM),
                                     CCNRM_GRN(ch, C_SPR), name, CCNRM(ch, C_SPR),
                                     CCCYN(ch, C_NRM), loc_desc, CCNRM(ch, C_NRM));
-                    else
+                    } else {
                         acc_sprintf("%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s\r\n",
                                     CCGRN(ch, C_NRM),
                                     CCNRM(ch, C_NRM),
@@ -660,8 +675,9 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
                                     char_class_abbrevs[GET_CLASS(i)],
                                     CCGRN(ch, C_NRM),
                                     CCNRM(ch, C_NRM),
-                                    name_col, name, (name_col[0] != '\0') ? CCNRM(ch, C_NRM):"",
+                                    name_col, name, (name_col[0] != '\0') ? CCNRM(ch, C_NRM) : "",
                                     CCCYN(ch, C_NRM), loc_desc, CCNRM(ch, C_NRM));
+                    }
 
                     found = true;
                 }
@@ -671,15 +687,15 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
             i = load_player_from_xml(member->idnum);
             if (i != NULL) {
                 name = tmp_strcat(GET_NAME(i), " ",
-                    clan_rankname(clan, member->rank), NULL);
+                                  clan_rankname(clan, member->rank), NULL);
 
-                if (GET_LEVEL(i) >= LVL_AMBASSADOR)
+                if (GET_LEVEL(i) >= LVL_AMBASSADOR) {
                     acc_sprintf("%s[%s%s%s]%s %-40s%s\r\n",
-                        CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
-                        level_abbrevs[GET_LEVEL(i) - LVL_AMBASSADOR],
-                        CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
-                        name, CCNRM(ch, C_SPR));
-                else
+                                CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
+                                level_abbrevs[GET_LEVEL(i) - LVL_AMBASSADOR],
+                                CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
+                                name, CCNRM(ch, C_SPR));
+                } else {
                     acc_sprintf("%s[%s%2d %s%s]%s %s%-40s%s\r\n",
                                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                                 GET_LEVEL(i),
@@ -688,6 +704,7 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
                                 (PLR_FLAGGED(i, PLR_CLAN_LEADER) ? CCCYN(ch, C_NRM) : ""),
                                 name,
                                 CCNRM(ch, C_NRM));
+                }
                 free_creature(i);
             }
         }
@@ -718,7 +735,7 @@ ACMD(do_clanlist)
             complete = true;
         } else {
             send_to_char(ch,
-                "Clanlist usage: clanlist [minlevel] ['all']\r\n");
+                         "Clanlist usage: clanlist [minlevel] ['all']\r\n");
             return;
         }
         arg = tmp_getword(&argument);
@@ -745,8 +762,9 @@ ACMD(do_cinfo)
     }
 
     acc_string_clear();
-    for (i = 0, member = clan->member_list; member; member = member->next)
+    for (i = 0, member = clan->member_list; member; member = member->next) {
         i++;
+    }
     acc_sprintf("Information on clan %s%s%s:\r\n\r\n"
                 "Clan badge: '%s%s%s', Clan headcount: %d, "
                 "Clan bank account: %'" PRId64 "\r\nClan ranks:\r\n",
@@ -810,12 +828,15 @@ real_clan(int vnum)
 {
     struct clan_data *clan = NULL;
 
-    if (!(vnum))
+    if (!(vnum)) {
         return NULL;
+    }
 
-    for (clan = clan_list; clan; clan = clan->next)
-        if (clan->number == vnum)
+    for (clan = clan_list; clan; clan = clan->next) {
+        if (clan->number == vnum) {
             return (clan);
+        }
+    }
 
     return (NULL);
 }
@@ -825,9 +846,11 @@ clan_by_owner(int idnum)
 {
     struct clan_data *clan;
 
-    for (clan = clan_list; clan; clan = clan->next)
-        if (clan->owner == idnum)
+    for (clan = clan_list; clan; clan = clan->next) {
+        if (clan->owner == idnum) {
             return clan;
+        }
+    }
     return NULL;
 }
 
@@ -837,16 +860,20 @@ clan_by_name(char *arg)
     struct clan_data *clan = NULL;
     int clan_num = -1;
 
-    if (is_number(arg))
+    if (is_number(arg)) {
         clan_num = atoi(arg);
+    }
 
     skip_spaces(&arg);
-    if (*arg == '\0')
+    if (*arg == '\0') {
         return NULL;
+    }
 
-    for (clan = clan_list; clan; clan = clan->next)
-        if (is_abbrev(arg, clan->name) || clan->number == clan_num)
+    for (clan = clan_list; clan; clan = clan->next) {
+        if (is_abbrev(arg, clan->name) || clan->number == clan_num) {
             return (clan);
+        }
+    }
 
     return (NULL);
 }
@@ -856,9 +883,11 @@ real_clanmember(long idnum, struct clan_data *clan)
 {
 
     struct clanmember_data *member;
-    for (member = clan->member_list; member; member = member->next)
-        if (member->idnum == idnum)
+    for (member = clan->member_list; member; member = member->next) {
+        if (member->idnum == idnum) {
             return (member);
+        }
+    }
 
     return (NULL);
 };
@@ -892,13 +921,15 @@ ACMD(do_cedit)
     skip_spaces(&argument);
 
     arg1 = tmp_getword(&argument);
-    for (cedit_command = 0; cedit_keys[cedit_command].keyword; cedit_command++)
-        if (!strcasecmp(arg1, cedit_keys[cedit_command].keyword))
+    for (cedit_command = 0; cedit_keys[cedit_command].keyword; cedit_command++) {
+        if (!strcasecmp(arg1, cedit_keys[cedit_command].keyword)) {
             break;
+        }
+    }
 
     if (!cedit_keys[cedit_command].keyword) {
         send_to_char(ch,
-            "Valid cedit options:  save, create, delete(*), set, show, add, remove.\r\n");
+                     "Valid cedit options:  save, create, delete(*), set, show, add, remove.\r\n");
         return;
     }
 
@@ -908,14 +939,15 @@ ACMD(do_cedit)
 
     arg1 = tmp_getword(&argument);
     if (*arg1) {
-        if (is_number(arg1))
+        if (is_number(arg1)) {
             clan = real_clan(atoi(arg1));
-        else
+        } else {
             clan = clan_by_name(arg1);
+        }
 
         // protect quaker and null
         if (clan && GET_LEVEL(ch) < LVL_CREATOR && (clan->number == 0
-                || clan->number == 6)) {
+                                                    || clan->number == 6)) {
             send_to_char(ch, "Sorry, you cannot edit this clan.\r\n");
             return;
         }
@@ -925,40 +957,40 @@ ACMD(do_cedit)
     switch (cedit_command) {
 
     case 0:        /*** create ***/
-        {
-            int clan_number = 0;
-            if (*arg1 == '\0') {
-                send_to_char(ch, "Create clan with what vnum?\r\n");
-                break;
-            }
-            if (!is_number(arg1)) {
-                send_to_char(ch, "You must specify the clan numerically.");
-                break;
-            }
-            clan_number = atoi(arg1);
-            if (clan_number <= 0) {
-                send_to_char(ch, "You must specify the clan numerically.");
-                break;
-            } else if (real_clan(atoi(arg1))) {
-                send_to_char(ch, "A clan already exists with that vnum.\r\n");
-                break;
-            } else if (clan_number > 255) {
-                send_to_char(ch, "The clan number must be less than 255.\r\n");
-                break;
-            } else if ((clan = create_clan(atoi(arg1)))) {
-                send_to_char(ch, "Clan created.\r\n");
-                slog("(cedit) %s created clan %d.", GET_NAME(ch),
-                    clan->number);
-            } else {
-                send_to_char(ch, "There was an error creating the clan.\r\n");
-            }
+    {
+        int clan_number = 0;
+        if (*arg1 == '\0') {
+            send_to_char(ch, "Create clan with what vnum?\r\n");
             break;
         }
+        if (!is_number(arg1)) {
+            send_to_char(ch, "You must specify the clan numerically.");
+            break;
+        }
+        clan_number = atoi(arg1);
+        if (clan_number <= 0) {
+            send_to_char(ch, "You must specify the clan numerically.");
+            break;
+        } else if (real_clan(atoi(arg1))) {
+            send_to_char(ch, "A clan already exists with that vnum.\r\n");
+            break;
+        } else if (clan_number > 255) {
+            send_to_char(ch, "The clan number must be less than 255.\r\n");
+            break;
+        } else if ((clan = create_clan(atoi(arg1)))) {
+            send_to_char(ch, "Clan created.\r\n");
+            slog("(cedit) %s created clan %d.", GET_NAME(ch),
+                 clan->number);
+        } else {
+            send_to_char(ch, "There was an error creating the clan.\r\n");
+        }
+        break;
+    }
     case 1:          /*** delete ***/
         if (!clan) {
-            if (*arg1 == '\0')
+            if (*arg1 == '\0') {
                 send_to_char(ch, "Delete what clan?\r\n");
-            else {
+            } else {
                 send_to_char(ch, "Clan '%s' does not exist.\r\n", arg1);
             }
             return;
@@ -967,15 +999,16 @@ ACMD(do_cedit)
             if (!delete_clan(clan)) {
                 send_to_char(ch, "Clan deleted.  Sucked anyway.\r\n");
                 slog("(cedit) %s deleted clan %d.", GET_NAME(ch), i);
-            } else
+            } else {
                 send_to_char(ch, "ERROR occurred while deleting clan.\r\n");
+            }
         }
         break;
 
     case 2:          /*** set    ***/
         if (*arg1 == '\0') {
             send_to_char(ch,
-                "Usage: cedit set <vnum> <name|badge|password|rank|bank|member|owner>['top']<value>\r\n");
+                         "Usage: cedit set <vnum> <name|badge|password|rank|bank|member|owner>['top']<value>\r\n");
             return;
         }
 
@@ -984,7 +1017,7 @@ ACMD(do_cedit)
 
         if (*argument == '\0' || *arg2 == '\0') {
             send_to_char(ch,
-                "Usage: cedit set <clan> <name|badge|password|rank|bank|member|owner>['top']<value>\r\n");
+                         "Usage: cedit set <clan> <name|badge|password|rank|bank|member|owner>['top']<value>\r\n");
             return;
         }
         if (!clan) {
@@ -995,7 +1028,7 @@ ACMD(do_cedit)
         if (is_abbrev(arg2, "name")) {
             if (strlen(argument) > MAX_CLAN_NAME) {
                 send_to_char(ch, "Name too long.  Maximum %d characters.\r\n",
-                    MAX_CLAN_NAME);
+                             MAX_CLAN_NAME);
                 return;
             }
             if (clan->name) {
@@ -1003,16 +1036,16 @@ ACMD(do_cedit)
             }
             clan->name = strdup(argument);
             sql_exec("update clans set name='%s' where idnum=%d",
-                clan->name, clan->number);
+                     clan->name, clan->number);
             slog("(cedit) %s set clan %d name to '%s'.", GET_NAME(ch),
-                clan->number, clan->name);
+                 clan->number, clan->name);
 
         }
         // cedit set badge
         else if (is_abbrev(arg2, "badge")) {
             if (strlen(argument) > MAX_CLAN_BADGE - 1) {
                 send_to_char(ch, "Badge too long.  Maximum %d characters.\r\n",
-                    MAX_CLAN_BADGE - 1);
+                             MAX_CLAN_BADGE - 1);
                 return;
             }
             if (clan->badge) {
@@ -1020,9 +1053,9 @@ ACMD(do_cedit)
             }
             clan->badge = strdup(argument);
             sql_exec("update clans set badge='%s' where idnum=%d",
-                tmp_sqlescape(clan->badge), clan->number);
+                     tmp_sqlescape(clan->badge), clan->number);
             slog("(cedit) %s set clan %d badge to '%s'.", GET_NAME(ch),
-                clan->number, clan->badge);
+                 clan->number, clan->badge);
 
         }
         // cedit set password
@@ -1056,8 +1089,8 @@ ACMD(do_cedit)
                 if (!is_number(argument) || (i = atoi(argument)) < 0 ||
                     i >= NUM_CLAN_RANKS) {
                     send_to_char(ch,
-                        "top rank must be a number between 0 and %d.\r\n",
-                        NUM_CLAN_RANKS - 1);
+                                 "top rank must be a number between 0 and %d.\r\n",
+                                 NUM_CLAN_RANKS - 1);
                     return;
                 }
                 clan->top_rank = i;
@@ -1071,17 +1104,19 @@ ACMD(do_cedit)
                     i++;
                 }
 
-                for (member = clan->member_list; member; member = member->next)
-                    if (member->rank > clan->top_rank)
+                for (member = clan->member_list; member; member = member->next) {
+                    if (member->rank > clan->top_rank) {
                         member->rank = clan->top_rank;
+                    }
+                }
                 sql_exec
                     ("update clan_members set rank=%d where clan=%d and rank > %d",
                     clan->top_rank, clan->number, clan->top_rank);
                 sql_exec("delete from clan_ranks where clan=%d and rank > %d",
-                    clan->number, clan->top_rank);
+                         clan->number, clan->top_rank);
 
                 slog("(cedit) %s set clan %d top to %d.", GET_NAME(ch),
-                    clan->number, clan->top_rank);
+                     clan->number, clan->top_rank);
                 send_to_char(ch, "Top rank of clan set.\r\n");
 
                 return;
@@ -1089,8 +1124,8 @@ ACMD(do_cedit)
 
             if (!is_number(arg3) || (i = atoi(arg3)) < 0 || i > clan->top_rank) {
                 send_to_char(ch,
-                    "[rank] must be a number between 0 and %d.\r\n",
-                    clan->top_rank);
+                             "[rank] must be a number between 0 and %d.\r\n",
+                             clan->top_rank);
                 return;
             }
             if (*argument == '\0') {
@@ -1099,8 +1134,8 @@ ACMD(do_cedit)
             }
             if (strlen(argument) >= MAX_CLAN_RANKNAME) {
                 send_to_char(ch,
-                    "Rank names may not exceed %d characters.\r\n",
-                    MAX_CLAN_RANKNAME - 1);
+                             "Rank names may not exceed %d characters.\r\n",
+                             MAX_CLAN_RANKNAME - 1);
                 return;
             }
             if (clan->ranknames[i]) {
@@ -1117,7 +1152,7 @@ ACMD(do_cedit)
 
             send_to_char(ch, "Rank title set.\r\n");
             slog("(cedit) %s set clan %d rank %d to '%s'.",
-                GET_NAME(ch), clan->number, i, clan->ranknames[i]);
+                 GET_NAME(ch), clan->number, i, clan->ranknames[i]);
 
             return;
 
@@ -1126,27 +1161,27 @@ ACMD(do_cedit)
         else if (is_abbrev(arg2, "bank")) {
             if (*argument == '\0') {
                 send_to_char(ch,
-                    "Set the bank account of the clan to what?\r\n");
+                             "Set the bank account of the clan to what?\r\n");
                 return;
             }
             if (!is_number(argument)) {
                 send_to_char(ch,
-                    "Try setting the bank account to an appropriate number asswipe.\r\n");
+                             "Try setting the bank account to an appropriate number asswipe.\r\n");
                 return;
             }
             money = atoll(argument);
             if (money < 0) {
                 send_to_char(ch,
-                    "This clan has no overdraft protection. Negative value invalid.\r\n");
+                             "This clan has no overdraft protection. Negative value invalid.\r\n");
                 return;
             }
             slog("(cedit) %s set clan %d bank from %'" PRId64 " to %" PRId64 ".",
-                GET_NAME(ch), clan->number, clan->bank_account, money);
+                 GET_NAME(ch), clan->number, clan->bank_account, money);
             send_to_char(ch, "Clan bank account set from %" PRId64 " to %" PRId64 "\r\n",
-                clan->bank_account, money);
+                         clan->bank_account, money);
             clan->bank_account = money;
             sql_exec("update clans set bank=%" PRId64 " where idnum=%d",
-                money, clan->number);
+                     money, clan->number);
 
             return;
 
@@ -1166,16 +1201,16 @@ ACMD(do_cedit)
             clan->owner = i;
             send_to_char(ch, "Clan owner set.\r\n");
             slog("(cedit) %s set clan %d owner to %s.", GET_NAME(ch),
-                clan->number, argument);
+                 clan->number, argument);
             sql_exec("update clans set owner=%d where idnum=%d",
-                i, clan->number);
+                     i, clan->number);
             return;
         }
         // cedit set member
         else if (is_abbrev(arg2, "member")) {
             if (*argument == '\0') {
                 send_to_char(ch,
-                    "Usage: cedit set <clan> member <member> <rank>\r\n");
+                             "Usage: cedit set <clan> member <member> <rank>\r\n");
                 return;
             }
             arg3 = tmp_getword(&argument);
@@ -1184,7 +1219,7 @@ ACMD(do_cedit)
             if (!is_number(arg3)) {
                 if ((i = player_idnum_by_name(arg3)) == 0) {
                     send_to_char(ch,
-                        "There is no such player in existence...\r\n");
+                                 "There is no such player in existence...\r\n");
                     return;
                 }
             } else if ((i = atoi(arg3)) < 0) {
@@ -1194,24 +1229,26 @@ ACMD(do_cedit)
 
             if (*arg1 == '\0') {
                 send_to_char(ch,
-                    "Usage: cedit set <clan> member <member> <rank>\r\n");
+                             "Usage: cedit set <clan> member <member> <rank>\r\n");
                 return;
             }
 
             j = atoi(arg1);
 
             sql_exec("update clan_members set rank=%d where player=%d", j, i);
-            for (member = clan->member_list; member; member = member->next)
+            for (member = clan->member_list; member; member = member->next) {
                 if (member->idnum == i) {
                     member->rank = j;
                     send_to_char(ch, "Member rank set.\r\n");
                     slog("(cedit) %s set clan %d member %d rank to %d.",
-                        GET_NAME(ch), clan->number, i, member->rank);
+                         GET_NAME(ch), clan->number, i, member->rank);
                     break;
                 }
+            }
 
-            if (!member)
+            if (!member) {
                 send_to_char(ch, "Unable to find that member.\r\n");
+            }
             return;
 
         } else {
@@ -1234,7 +1271,7 @@ ACMD(do_cedit)
     case 4:          /*** add    ***/
         if (*arg1 == '\0') {
             send_to_char(ch,
-                "Usage: cedit add <clan> <room|member> <number>\r\n");
+                         "Usage: cedit add <clan> <room|member> <number>\r\n");
             return;
         }
         arg2 = tmp_getword(&argument);
@@ -1242,7 +1279,7 @@ ACMD(do_cedit)
 
         if (*arg3 == '\0' || *arg2 == '\0') {
             send_to_char(ch,
-                "Usage: cedit add <clan> <room|member> <number>\r\n");
+                         "Usage: cedit add <clan> <room|member> <number>\r\n");
             return;
         }
         if (!clan) {
@@ -1255,12 +1292,13 @@ ACMD(do_cedit)
                 send_to_char(ch, "No room with number %s exists.\r\n", arg3);
                 return;
             }
-            for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next)
+            for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
                 if (rm_list->room == room) {
                     send_to_char(ch,
-                        "This room is already a part of the clan, dumbass.\r\n");
+                                 "This room is already a part of the clan, dumbass.\r\n");
                     return;
                 }
+            }
 
             CREATE(rm_list, struct room_list_elem, 1);
             rm_list->room = room;
@@ -1269,9 +1307,9 @@ ACMD(do_cedit)
             send_to_char(ch, "Room added.\r\n");
 
             slog("(cedit) %s added room %d to clan %d.", GET_NAME(ch),
-                room->number, clan->number);
+                 room->number, clan->number);
             sql_exec("insert into clan_rooms (clan, room) values (%d, %d)",
-                clan->number, room->number);
+                     clan->number, room->number);
 
             return;
         }
@@ -1280,7 +1318,7 @@ ACMD(do_cedit)
             if (!is_number(arg3)) {
                 if ((i = player_idnum_by_name(arg3)) == 0) {
                     send_to_char(ch,
-                        "There exists no player with that name.\r\n");
+                                 "There exists no player with that name.\r\n");
                     return;
                 }
             } else if ((i = atoi(arg3)) < 0) {
@@ -1290,7 +1328,7 @@ ACMD(do_cedit)
             for (member = clan->member_list; member; member = member->next) {
                 if (member->idnum == i) {
                     send_to_char(ch,
-                        "That player is already on the member list.\r\n");
+                                 "That player is already on the member list.\r\n");
                     return;
                 }
             }
@@ -1304,7 +1342,7 @@ ACMD(do_cedit)
             send_to_char(ch, "Clan member added to list.\r\n");
 
             slog("(cedit) %s added member %ld to clan %d.",
-                GET_NAME(ch), member->idnum, clan->number);
+                 GET_NAME(ch), member->idnum, clan->number);
             sql_exec
                 ("insert into clan_members (clan, player, rank, no_mail) values (%d, %d, 0, 'f')",
                 clan->number, i);
@@ -1318,7 +1356,7 @@ ACMD(do_cedit)
 
         if (*arg1 == '\0') {
             send_to_char(ch,
-                "Usage: cedit remove <clan> <room|member> <number>\r\n");
+                         "Usage: cedit remove <clan> <room|member> <number>\r\n");
             return;
         }
         arg2 = tmp_getword(&argument);
@@ -1326,7 +1364,7 @@ ACMD(do_cedit)
 
         if (*arg3 == '\0' || *arg2 == '\0') {
             send_to_char(ch,
-                "Usage: cedit remove <clan> <room|member> <number>\r\n");
+                         "Usage: cedit remove <clan> <room|member> <number>\r\n");
             return;
         }
         if (!clan) {
@@ -1338,24 +1376,26 @@ ACMD(do_cedit)
             if (!(room = real_room(atoi(arg3)))) {
                 send_to_char(ch, "No room with number %s exists.\r\n", arg3);
             }
-            for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next)
-                if (rm_list->room == room)
+            for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
+                if (rm_list->room == room) {
                     break;
+                }
+            }
 
             if (!rm_list) {
                 send_to_char(ch,
-                    "That room is not part of the list, dorkus.\r\n");
+                             "That room is not part of the list, dorkus.\r\n");
                 return;
             }
 
             remove_room_from_clan(rm_list, clan);
             send_to_char(ch,
-                "Room removed and memory freed.  Thank you.. Call again.\r\n");
+                         "Room removed and memory freed.  Thank you.. Call again.\r\n");
 
             slog("(cedit) %s removed room %d from clan %d.",
-                GET_NAME(ch), room->number, clan->number);
+                 GET_NAME(ch), room->number, clan->number);
             sql_exec("delete from clan_rooms where clan=%d and room=%d",
-                clan->number, room->number);
+                     clan->number, room->number);
 
             return;
 
@@ -1365,20 +1405,22 @@ ACMD(do_cedit)
             if (!is_number(arg3)) {
                 if ((i = player_idnum_by_name(arg3)) == 0) {
                     send_to_char(ch,
-                        "There exists no player with that name.\r\n");
+                                 "There exists no player with that name.\r\n");
                     return;
                 }
             } else if ((i = atoi(arg3)) < 0) {
                 send_to_char(ch, "Real funny... reeeeeaaal funny.\r\n");
                 return;
             }
-            for (member = clan->member_list; member; member = member->next)
-                if (member->idnum == i)
+            for (member = clan->member_list; member; member = member->next) {
+                if (member->idnum == i) {
                     break;
+                }
+            }
 
             if (!member) {
                 send_to_char(ch,
-                    "That player is not a part of this clan.\r\n");
+                             "That player is not a part of this clan.\r\n");
                 return;
             }
 
@@ -1387,21 +1429,22 @@ ACMD(do_cedit)
             send_to_char(ch, "Member removed from the sacred list.\r\n");
 
             slog("(cedit) %s removed member %d from clan %d.",
-                GET_NAME(ch), i, clan->number);
+                 GET_NAME(ch), i, clan->number);
             sql_exec("delete from clan_members where clan=%d and player=%d",
-                clan->number, i);
+                     clan->number, i);
 
             return;
-        } else
+        } else {
             send_to_char(ch, "YO!  Remove members, or rooms... geez!\r\n");
+        }
 
         break;
 
-    case 6:/** sort **/
+    case 6: /** sort **/
         if (!clan) {
-            if (*arg1 == '\0')
+            if (*arg1 == '\0') {
                 send_to_char(ch, "Sort what clan?\r\n");
-            else {
+            } else {
                 send_to_char(ch, "Clan '%s' does not exist.\r\n", arg1);
             }
             return;
@@ -1448,14 +1491,15 @@ boot_clans(void)
         clan->room_list = NULL;
         clan->next = NULL;
 
-        if (!clan_list)
+        if (!clan_list) {
             clan_list = clan;
-        else {
-            for (tmp_clan = clan_list; tmp_clan; tmp_clan = tmp_clan->next)
+        } else {
+            for (tmp_clan = clan_list; tmp_clan; tmp_clan = tmp_clan->next) {
                 if (!tmp_clan->next) {
                     tmp_clan->next = clan;
                     break;
                 }
+            }
         }
     }
 
@@ -1472,7 +1516,7 @@ boot_clans(void)
     // Now add all the members to the clans
     res =
         sql_query
-        ("select clan, player, rank, no_mail from clan_members order by rank");
+            ("select clan, player, rank, no_mail from clan_members order by rank");
     count = PQntuples(res);
     for (idx = 0; idx < count; idx++) {
         CREATE(member, struct clanmember_data, 1);
@@ -1482,9 +1526,9 @@ boot_clans(void)
         member->next = NULL;
 
         clan = real_clan(atol(PQgetvalue(res, idx, 0)));
-        if (!clan->member_list)
+        if (!clan->member_list) {
             clan->member_list = member;
-        else {
+        } else {
             member->next = clan->member_list;
             clan->member_list = member;
         }
@@ -1523,8 +1567,9 @@ create_clan(int vnum)
     newclan->name = strdup("New");
     newclan->badge = strdup("(//NEW\\\\)");
     newclan->password = strdup("");
-    for (i = 0; i < NUM_CLAN_RANKS; i++)
+    for (i = 0; i < NUM_CLAN_RANKS; i++) {
         newclan->ranknames[i] = NULL;
+    }
 
     newclan->member_list = NULL;
     newclan->room_list = NULL;
@@ -1534,13 +1579,14 @@ create_clan(int vnum)
         newclan->next = clan_list;
         clan_list = newclan;
     } else {
-        for (clan = clan_list; clan; clan = clan->next)
+        for (clan = clan_list; clan; clan = clan->next) {
             if (!clan->next ||
                 (clan->number < vnum && clan->next->number > vnum)) {
                 newclan->next = clan->next;
                 clan->next = newclan;
                 break;
             }
+        }
     }
 
     sql_exec
@@ -1570,21 +1616,24 @@ delete_clan(struct clan_data *clan)
     if (clan_list == clan) {
         clan_list = clan->next;
     } else {
-        for (tmp_clan = clan_list; tmp_clan; tmp_clan = tmp_clan->next)
+        for (tmp_clan = clan_list; tmp_clan; tmp_clan = tmp_clan->next) {
             if (tmp_clan->next && tmp_clan->next == clan) {
                 tmp_clan->next = clan->next;
                 break;
             }
+        }
 
-        if (!tmp_clan)
+        if (!tmp_clan) {
             return 1;
+        }
     }
 
     free(clan->name);
     free(clan->badge);
     free(clan->password);
-    for (i = 0; i < NUM_CLAN_RANKS; i++)
+    for (i = 0; i < NUM_CLAN_RANKS; i++) {
         free(clan->ranknames[i]);
+    }
 
     for (member = clan->member_list; member; member = clan->member_list) {
         clan->member_list = member->next;
@@ -1617,30 +1666,31 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
     acc_string_clear();
     if (clan) {
         acc_sprintf("CLAN %d - Name: %s%s%s, Badge: %s%s%s, Top Rank: %d\r\n",
-            clan->number, CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
-            CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), clan->top_rank);
+                    clan->number, CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
+                    CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), clan->top_rank);
 
         acc_sprintf("Bank: %'-20" PRId64 " Owner: %s[%ld]\r\n",
-            clan->bank_account,
-            player_name_by_idnum(clan->owner), clan->owner);
+                    clan->bank_account,
+                    player_name_by_idnum(clan->owner), clan->owner);
 
         for (int i = clan->top_rank; i >= 0; i--) {
             acc_sprintf("Rank %2d: %s%s%s\r\n", i,
-                CCYEL(ch, C_NRM), clan_rankname(clan, i), CCNRM(ch, C_NRM));
+                        CCYEL(ch, C_NRM), clan_rankname(clan, i), CCNRM(ch, C_NRM));
         }
 
         acc_strcat("ROOMS:\r\n", NULL);
 
         int num_rooms;
         for (rm_list = clan->room_list, num_rooms = 0;
-            rm_list; rm_list = rm_list->next) {
+             rm_list; rm_list = rm_list->next) {
             num_rooms++;
             acc_sprintf("%3d) %5d.  %s%s%s\r\n", num_rooms,
-                rm_list->room->number,
-                CCCYN(ch, C_NRM), rm_list->room->name, CCNRM(ch, C_NRM));
+                        rm_list->room->number,
+                        CCCYN(ch, C_NRM), rm_list->room->name, CCNRM(ch, C_NRM));
         }
-        if (!num_rooms)
+        if (!num_rooms) {
             acc_strcat("None.\r\n", NULL);
+        }
 
         num_members = clan_member_count(clan);
         if (num_members) {
@@ -1649,14 +1699,14 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
             for (member = clan->member_list; member; member = member->next) {
                 int acct_id = player_account_by_idnum(member->idnum);
                 acc_sprintf("%-50s %s[%d]\r\n",
-                    tmp_sprintf("%5ld %s%s%s %s(%d)",
-                        member->idnum,
-                        CCYEL(ch, C_NRM),
-                        player_name_by_idnum(member->idnum),
-                        CCNRM(ch, C_NRM),
-                        clan_rankname(clan, member->rank),
-                        member->rank),
-                    account_by_idnum(acct_id)->name, acct_id);
+                            tmp_sprintf("%5ld %s%s%s %s(%d)",
+                                        member->idnum,
+                                        CCYEL(ch, C_NRM),
+                                        player_name_by_idnum(member->idnum),
+                                        CCNRM(ch, C_NRM),
+                                        clan_rankname(clan, member->rank),
+                                        member->rank),
+                            account_by_idnum(acct_id)->name, acct_id);
             }
         } else {
             acc_strcat("No members.\r\n", NULL);
@@ -1673,9 +1723,9 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
             }
 
             acc_sprintf(" %3d - %s%20s%s  %s%20s%s  (%3d members)\r\n",
-                clan->number,
-                CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
-                CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), num_members);
+                        clan->number,
+                        CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
+                        CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), num_members);
         }
     }
     page_string(ch->desc, acc_get_string());
@@ -1688,10 +1738,12 @@ clan_owning_room(struct room_data *room)
     struct room_list_elem *rm_list = NULL;
 
     for (clan = clan_list; clan; clan = clan->next) {
-       for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next)
-           if (rm_list->room == room)
-               return clan->number;
-   }
+        for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
+            if (rm_list->room == room) {
+                return clan->number;
+            }
+        }
+    }
     return 0;
 }
 
@@ -1701,23 +1753,31 @@ clan_house_can_enter(struct creature *ch, struct room_data *room)
     struct clan_data *clan = NULL, *ch_clan = NULL;
     struct room_list_elem *rm_list = NULL;
 
-    if (!ROOM_FLAGGED(room, ROOM_CLAN_HOUSE))
+    if (!ROOM_FLAGGED(room, ROOM_CLAN_HOUSE)) {
         return true;
-    if (GET_LEVEL(ch) >= LVL_DEMI)
+    }
+    if (GET_LEVEL(ch) >= LVL_DEMI) {
         return true;
-    if (is_authorized(ch, EDIT_CLAN, NULL))
+    }
+    if (is_authorized(ch, EDIT_CLAN, NULL)) {
         return true;
-    if (IS_NPC(ch))
+    }
+    if (IS_NPC(ch)) {
         return true;
-    if (!(ch_clan = real_clan(GET_CLAN(ch))))
+    }
+    if (!(ch_clan = real_clan(GET_CLAN(ch)))) {
         return false;
+    }
 
     for (clan = clan_list; clan; clan = clan->next) {
-        if (clan == ch_clan)
+        if (clan == ch_clan) {
             continue;
-        for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next)
-            if (rm_list->room == room)
+        }
+        for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
+            if (rm_list->room == room) {
                 return false;
+            }
+        }
     }
 
     return true;
@@ -1729,8 +1789,9 @@ sort_clanmembers(struct clan_data *clan)
 
     struct clanmember_data *new_list = NULL, *i = NULL, *j = NULL, *k = NULL;
 
-    if (!clan->member_list)
+    if (!clan->member_list) {
         return;
+    }
 
     for (i = clan->member_list; i; i = j) {
         j = i->next;
@@ -1739,11 +1800,13 @@ sort_clanmembers(struct clan_data *clan)
             new_list = i;
         } else {
             k = new_list;
-            while (k->next)
-                if (k->next->rank < i->rank)
+            while (k->next) {
+                if (k->next->rank < i->rank) {
                     break;
-                else
+                } else {
                     k = k->next;
+                }
+            }
             i->next = k->next;
             k->next = i;
         }
@@ -1755,9 +1818,11 @@ void
 clear_clan_owner(long idnum)
 {
     // Clear the owner of any clans this player might own in memory
-    for (struct clan_data *clan = clan_list; clan; clan = clan->next)
-        if (clan->owner == idnum)
+    for (struct clan_data *clan = clan_list; clan; clan = clan->next) {
+        if (clan->owner == idnum) {
             clan->owner = 0;
+        }
+    }
 
     // Clear the owner of any clans this player might own on the db
     sql_exec("update clans set owner=null where owner=%ld", idnum);

@@ -8,25 +8,25 @@
 //
 
 void show_gun_status(struct creature *ch, struct obj_data *gun)
-    __attribute__ ((nonnull));
+__attribute__ ((nonnull));
 
-	 /*** energy gun utils ***/
+/*** energy gun utils ***/
 #define IS_ENERGY_GUN(obj)      (IS_OBJ_TYPE(obj, ITEM_ENERGY_GUN))
 
 #define IS_RIFLE(obj)           ((IS_OBJ_TYPE(obj, ITEM_GUN)) \
-                                  && (GUN_TYPE(obj) == GUN_7mm_mag))
+                                 && (GUN_TYPE(obj) == GUN_7mm_mag))
 #define EGUN_MAX_ENERGY(obj)     ((obj->contains &&                 \
-				   IS_ENERGY_CELL(obj->contains)) ?  \
-				  MAX_ENERGY(obj->contains) : 0)
+                                   IS_ENERGY_CELL(obj->contains)) ?  \
+                                  MAX_ENERGY(obj->contains) : 0)
 #define EGUN_CUR_ENERGY(obj)     ((obj->contains &&                 \
-				   IS_ENERGY_CELL(obj->contains)) ?  \
-				  CUR_ENERGY(obj->contains) : 0)
+                                   IS_ENERGY_CELL(obj->contains)) ?  \
+                                  CUR_ENERGY(obj->contains) : 0)
 
 #define MAX_R_O_F(obj)       (GET_OBJ_VAL(obj, 0))
 #define CUR_R_O_F(obj)       (GET_OBJ_VAL(obj, 1))
 #define GUN_DISCHARGE(obj)   (GET_OBJ_VAL(obj, 0))
 
-	 /** gun utils **/
+/** gun utils **/
 
 #define GUN_TYPE(gun)            (GET_OBJ_VAL(gun, 3))
 #define MAX_LOAD(gun)            (GET_OBJ_VAL(gun, 2))
@@ -37,7 +37,7 @@ void show_gun_status(struct creature *ch, struct obj_data *gun)
 #define IS_CLIP(gun)             (IS_OBJ_TYPE(gun, ITEM_CLIP))
 
 #define GUN_LOADED(gun)          (gun->contains && \
-				  (MAX_LOAD(gun) || gun->contains->contains))
+                                  (MAX_LOAD(gun) || gun->contains->contains))
 
 #define GUN_NONE        0
 #define GUN_22_cal      1

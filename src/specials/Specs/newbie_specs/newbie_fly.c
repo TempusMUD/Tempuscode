@@ -6,14 +6,17 @@
 
 SPECIAL(newbie_fly)
 {
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (cmd || is_fighting(ch))
+    }
+    if (cmd || is_fighting(ch)) {
         return 0;
-    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+    }
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
-        if (AFF_FLAGGED(tch, AFF_INFLIGHT) || !can_see_creature(ch, tch))
+        if (AFF_FLAGGED(tch, AFF_INFLIGHT) || !can_see_creature(ch, tch)) {
             continue;
+        }
         cast_spell(ch, tch, NULL, NULL, SPELL_FLY);
         return 1;
     }

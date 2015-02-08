@@ -9,7 +9,7 @@
    be an exdesc on the scope.
 
    You must set value 3 of the scope to be -999.
-*/
+ */
 
 char *find_exdesc(char *word, struct extra_descr_data *list, bool find_exact);
 
@@ -19,21 +19,25 @@ SPECIAL(telescope)
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     char *desc;
 
-    if (!CMD_IS("look") || !can_see_object(ch, scope) || !AWAKE(ch))
+    if (!CMD_IS("look") || !can_see_object(ch, scope) || !AWAKE(ch)) {
         return 0;
+    }
 
     half_chop(argument, arg1, arg2);
 
-    if (!*arg1 || !*arg2)
+    if (!*arg1 || !*arg2) {
         return 0;
+    }
 
-    if (!isname(arg1, scope->aliases))
+    if (!isname(arg1, scope->aliases)) {
         return 0;
+    }
 
     if ((desc = find_exdesc(arg2, scope->ex_description, false)) != NULL) {
         page_string(ch->desc, desc);
-    } else
+    } else {
         act("You cannot look at that with $p.", false, ch, scope, NULL, TO_CHAR);
+    }
 
     return 1;
 }

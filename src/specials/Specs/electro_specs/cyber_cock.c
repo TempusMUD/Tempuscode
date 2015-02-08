@@ -6,8 +6,9 @@
 
 SPECIAL(cyber_cock)
 {
-    if (cmd)
+    if (cmd) {
         return 0;
+    }
 
     if (!is_fighting(ch)) {
         switch (number(0, 40)) {

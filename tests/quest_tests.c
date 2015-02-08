@@ -50,10 +50,10 @@ void free_quest(struct quest *quest);
 struct quest *load_quest(xmlNodePtr n, xmlDocPtr doc);
 void save_quest(struct quest *quest, FILE *out);
 struct qplayer_data *quest_player_by_idnum(struct quest *quest, int idnum);
-bool banned_from_quest(struct quest * quest, int id);
+bool banned_from_quest(struct quest *quest, int id);
 void add_quest_player(struct quest *quest, int id);
 bool remove_quest_player(struct quest *quest, int id);
-bool can_join_quest(struct quest *quest, struct creature * ch);
+bool can_join_quest(struct quest *quest, struct creature *ch);
 bool crashsave(struct creature *ch);
 ACMD(do_quest);
 ACMD(do_qcontrol);
@@ -86,7 +86,6 @@ START_TEST(test_next_quest_vnum)
     quests = NULL;
 }
 END_TEST
-
 START_TEST(test_make_destroy_quest)
 {
     struct quest *q = make_quest(2, 72, 0, "Test quest");
@@ -124,7 +123,8 @@ random_quest(void)
 }
 
 void
-add_test_questor(struct quest *q, int idnum, int flags, int deaths, int mobkills, int pkills) {
+add_test_questor(struct quest *q, int idnum, int flags, int deaths, int mobkills, int pkills)
+{
     struct qplayer_data *qp;
 
     CREATE(qp, struct qplayer_data, 1);
@@ -216,7 +216,6 @@ START_TEST(test_save_load_quest)
     compare_quests(q, lq);
 }
 END_TEST
-
 START_TEST(test_quest_player_by_idnum)
 {
     struct quest *q = random_quest();
@@ -232,7 +231,6 @@ START_TEST(test_quest_player_by_idnum)
     fail_unless(qp->idnum == 2);
 }
 END_TEST
-
 START_TEST(test_banned_from_quest)
 {
     struct quest *q = random_quest();
@@ -244,11 +242,10 @@ START_TEST(test_banned_from_quest)
     fail_unless(banned_from_quest(q, 7));
 }
 END_TEST
-
 START_TEST(test_add_remove_quest_player)
 {
     struct quest *q = random_quest();
-    
+
     test_creature_to_world(ch);
 
     add_quest_player(q, GET_IDNUM(ch));
@@ -257,7 +254,6 @@ START_TEST(test_add_remove_quest_player)
     fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) == NULL);
 }
 END_TEST
-
 START_TEST(test_qcontrol_create)
 {
     quests = NULL;
@@ -278,7 +274,6 @@ START_TEST(test_qcontrol_create)
     fail_unless(p->idnum == GET_IDNUM(ch));
 }
 END_TEST
-
 START_TEST(test_qcontrol_end)
 {
     struct quest *q = random_quest();
@@ -294,7 +289,6 @@ START_TEST(test_qcontrol_end)
     fail_unless(q->players == NULL);
 }
 END_TEST
-
 START_TEST(test_qcontrol_add)
 {
     struct creature *tch = make_test_player("xernst", "Xernst");
@@ -319,12 +313,9 @@ START_TEST(test_qcontrol_add)
     fail_unless(p->idnum == GET_IDNUM(tch));
 }
 END_TEST
-
 START_TEST(test_qcontrol_show)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_kick)
 {
     struct creature *tch = make_test_player("xernst", "Xernst");
@@ -349,132 +340,81 @@ START_TEST(test_qcontrol_kick)
                 g_list_length(q->players));
 }
 END_TEST
-
 START_TEST(test_qcontrol_flags)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_comment)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_describe)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_update)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_ban)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_unban)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_mute)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_unmute)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_level)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_minlev)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_maxlev)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_mingen)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_maxgen)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_mload)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_purge)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_save)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_help)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_switch)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_title)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_oload)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_trans)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_award)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_penalize)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_restore)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_qcontrol_loadroom)
-{
-}
+{}
 END_TEST
-
 START_TEST(test_can_join_quest_1)
 {
     struct quest *q = random_quest();
@@ -483,7 +423,6 @@ START_TEST(test_can_join_quest_1)
     fail_if(can_join_quest(q, ch));
 }
 END_TEST
-
 START_TEST(test_can_join_quest_2)
 {
     struct quest *q = random_quest();
@@ -494,7 +433,6 @@ START_TEST(test_can_join_quest_2)
     fail_unless(can_join_quest(q, ch));
 }
 END_TEST
-
 START_TEST(test_can_join_quest_3)
 {
     struct quest *q = random_quest();
@@ -506,7 +444,6 @@ START_TEST(test_can_join_quest_3)
     fail_if(can_join_quest(q, ch));
 }
 END_TEST
-
 START_TEST(test_can_join_quest_4)
 {
     struct quest *q = random_quest();
@@ -518,7 +455,6 @@ START_TEST(test_can_join_quest_4)
     fail_if(can_join_quest(q, ch));
 }
 END_TEST
-
 START_TEST(test_can_join_quest_5)
 {
     struct quest *q = random_quest();
@@ -530,7 +466,6 @@ START_TEST(test_can_join_quest_5)
     fail_if(can_join_quest(q, ch));
 }
 END_TEST
-
 START_TEST(test_can_join_quest_6)
 {
     struct quest *q = random_quest();
@@ -542,7 +477,6 @@ START_TEST(test_can_join_quest_6)
     fail_if(can_join_quest(q, ch));
 }
 END_TEST
-
 START_TEST(test_can_join_quest_7)
 {
     struct quest *q = random_quest();
@@ -553,7 +487,6 @@ START_TEST(test_can_join_quest_7)
     fail_if(can_join_quest(q, ch));
 }
 END_TEST
-
 START_TEST(test_can_join_quest_8)
 {
     struct quest *q = random_quest();
@@ -564,7 +497,6 @@ START_TEST(test_can_join_quest_8)
     fail_if(can_join_quest(q, ch));
 }
 END_TEST
-
 START_TEST(test_can_join_quest_9)
 {
     struct quest *q = random_quest();
@@ -578,7 +510,6 @@ START_TEST(test_can_join_quest_9)
     fail_unless(can_join_quest(q, ch), "couldn't join quest");
 }
 END_TEST
-
 START_TEST(test_quest_list)
 {
     struct quest *q = random_quest();
@@ -599,7 +530,6 @@ START_TEST(test_quest_list)
     quests = NULL;
 }
 END_TEST
-
 START_TEST(test_quest_join_leave)
 {
     struct quest *q = random_quest();
@@ -620,7 +550,7 @@ START_TEST(test_quest_join_leave)
 
     ch->desc->io->write_buf->str[0] = '\0';
     ch->desc->io->write_buf->len = 0;
-	do_quest(ch, tmp_sprintf("leave %d", q->vnum), 0, 0);
+    do_quest(ch, tmp_sprintf("leave %d", q->vnum), 0, 0);
     fail_unless(GET_QUEST(ch) == 0, "ch's quest == %d", GET_QUEST(ch));
     fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) == NULL);
     fail_unless(strstr(ch->desc->io->write_buf->str,

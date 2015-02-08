@@ -6,8 +6,9 @@
 
 SPECIAL(unholy_stalker)
 {
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
     struct creature *mob = (struct creature *)me;
 
@@ -21,7 +22,7 @@ SPECIAL(unholy_stalker)
     if (is_fighting(mob)) {
         if (!number(0, 3)) {
             call_magic(mob, random_opponent(mob), NULL, NULL, SPELL_CHILL_TOUCH,
-                GET_LEVEL(mob) + 10, CAST_SPELL);
+                       GET_LEVEL(mob) + 10, CAST_SPELL);
         }
 
         struct creature *vict = random_opponent(mob);

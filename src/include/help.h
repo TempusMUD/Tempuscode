@@ -1,10 +1,10 @@
 #ifndef _HELP_H_
 #define _HELP_H_
 
-#define HFLAG_UNAPPROVED (1 << 0)	// Help topic cannot be found by searching
-#define HFLAG_IMMHELP    (1 << 1)	// Help topic can only be found by gods
-#define HFLAG_MODIFIED   (1 << 2)	// Help topic has been changed or is being
-								   //    edited now.
+#define HFLAG_UNAPPROVED (1 << 0)   // Help topic cannot be found by searching
+#define HFLAG_IMMHELP    (1 << 1)   // Help topic can only be found by gods
+#define HFLAG_MODIFIED   (1 << 2)   // Help topic has been changed or is being
+                                    // edited now.
 #define HGROUP_OLC       (1 << 0)
 #define HGROUP_MISC      (1 << 1)
 #define HGROUP_NEWBIE    (1 << 2)
@@ -39,27 +39,27 @@
 struct creature;
 
 struct help_item {
-	int idnum;					// Unique Identifier
-	int counter;				// How many times has it been looked at
-	// Groups and flags are both bitvectors.
-	int groups;					//  The groups the item is in
-	int flags;					// Approved/Unapproved etc.
-	long owner;					// Last person to edit the topic
-	char *keys;					// Key Words
-	char *name;					// The listed name of the help topic
-	char *text;					// The body of the help topic
-	struct creature *editor;
-	struct help_item *next;
-	struct help_item *next_show;
+    int idnum;                  // Unique Identifier
+    int counter;                // How many times has it been looked at
+    // Groups and flags are both bitvectors.
+    int groups;                 // The groups the item is in
+    int flags;                  // Approved/Unapproved etc.
+    long owner;                 // Last person to edit the topic
+    char *keys;                 // Key Words
+    char *name;                 // The listed name of the help topic
+    char *text;                 // The body of the help topic
+    struct creature *editor;
+    struct help_item *next;
+    struct help_item *next_show;
 };
 
 struct help_collection {
-	// Data
-	GList *items;			// The top of the list of help topics
+    // Data
+    GList *items;           // The top of the list of help topics
 
-	// Returns a show list of items it found
-	int top_id;					// The highest id in use..
-	bool need_save;				// Weather something has been changed or not.
+    // Returns a show list of items it found
+    int top_id;                 // The highest id in use..
+    bool need_save;             // Weather something has been changed or not.
 };
 
 struct help_item *make_help_item(void);
@@ -90,6 +90,6 @@ struct help_item *help_collection_find_items(struct help_collection *col,
 bool help_item_load_text(struct help_item *item);
 bool help_item_in_group(struct help_item *item, int thegroup);
 
-void do_qcontrol_help( struct creature *ch, char *argument );
+void do_qcontrol_help(struct creature *ch, char *argument);
 
 #endif

@@ -13,13 +13,15 @@ SPECIAL(watchdog)
     struct creature *vict = NULL;
     static int8_t indignation = 0;
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || !AWAKE(dog) || is_fighting(dog))
+    if (cmd || !AWAKE(dog) || is_fighting(dog)) {
         return 0;
+    }
 
-    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = it->data;
         if (tch != dog && can_see_creature(dog, tch)
             && GET_LEVEL(tch) < LVL_IMMORT) {
@@ -28,8 +30,9 @@ SPECIAL(watchdog)
         }
     }
 
-    if (!vict || vict == dog)
+    if (!vict || vict == dog) {
         return 0;
+    }
 
     indignation++;
 

@@ -6,7 +6,7 @@
 //
 // Copyright 1998 by John Watson, all rights reserved.
 //
-//#define FATE_TEST 1
+// #define FATE_TEST 1
 #define QUANTUM_RIFT_VNUM 1217
 #define FATE_PORTAL_VNUM 1216
 #ifndef FATE_TEST
@@ -281,9 +281,9 @@ SPECIAL(engraver);
 #define SPEC_RES 8
 
 struct spec_func_data {
-	const char *tag;
+    const char *tag;
     SPECIAL((*func));
-	int8_t flags;
+    int8_t flags;
 };
 
 int find_spec_index_arg(char *arg);

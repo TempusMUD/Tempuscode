@@ -47,14 +47,12 @@ START_TEST(test_is_newl_macro)
     fail_if(ISNEWL('a'));
 }
 END_TEST
-
 START_TEST(test_if_str_macro)
 {
     fail_unless(!strcmp(IF_STR("foo"), "foo"));
     fail_unless(!strcmp(IF_STR(NULL), ""));
 }
 END_TEST
-
 START_TEST(test_cap_macro)
 {
     char str[4] = "foo";
@@ -62,7 +60,6 @@ START_TEST(test_cap_macro)
     fail_unless(!strcmp(str, "Foo"));
 }
 END_TEST
-
 START_TEST(test_remove_from_cstring)
 {
     char str[9] = "abcdefba";
@@ -70,7 +67,6 @@ START_TEST(test_remove_from_cstring)
     fail_unless(!strcmp(str, "a?cdef?a"), "remove_from_cstring() result was '%s'", str);
 }
 END_TEST
-
 START_TEST(test_sprintbit)
 {
     char str[1024] = "";
@@ -86,7 +82,6 @@ START_TEST(test_sprintbit)
     fail_unless(!strcmp(str, "UNDEFINED "), "sprintbit 0x10000 gives \"%s\"", str);
 }
 END_TEST
-
 START_TEST(test_strlist_aref)
 {
     const char *strlist[] = {"alpha", "beta", "gamma", "delta", "\n"};
@@ -96,7 +91,6 @@ START_TEST(test_strlist_aref)
     fail_unless(!strcmp(strlist_aref(5, strlist), "UNDEFINED(5)"));
 }
 END_TEST
-
 START_TEST(test_sprinttype)
 {
     const char *strlist[] = {"alpha", "beta", "gamma", "delta", "\n"};
@@ -110,7 +104,6 @@ START_TEST(test_sprinttype)
     fail_unless(!strcmp(strlist_aref(5, strlist), "UNDEFINED(5)"));
 }
 END_TEST
-
 START_TEST(test_an)
 {
     fail_unless(!strcmp(AN("tests"), "some"));
@@ -123,28 +116,24 @@ START_TEST(test_an)
     fail_unless(!strcmp(AN("ukelele"), "an"));
 }
 END_TEST
-
 START_TEST(test_yesno)
 {
     fail_unless(!strcmp(YESNO(false), "NO"));
     fail_unless(!strcmp(YESNO(true), "YES"));
 }
 END_TEST
-
 START_TEST(test_onoff)
 {
     fail_unless(!strcmp(ONOFF(false), "OFF"));
     fail_unless(!strcmp(ONOFF(true), "ON"));
 }
 END_TEST
-
 START_TEST(test_fname)
 {
     fail_unless(!strcmp(fname("alpha"), "alpha"));
     fail_unless(!strcmp(fname("alpha beta"), "alpha"));
 }
 END_TEST
-
 START_TEST(test_isname)
 {
     fail_unless(isname("Alpha", "alpha beta gamma"));
@@ -157,7 +146,6 @@ START_TEST(test_isname)
     fail_if(isname("d", "alpha beta gamma"));
 }
 END_TEST
-
 START_TEST(test_isname_exact)
 {
     fail_unless(isname_exact("Alpha", "alpha beta gamma"));
@@ -170,7 +158,6 @@ START_TEST(test_isname_exact)
     fail_if(isname_exact("d", "alpha beta gamma"));
 }
 END_TEST
-
 START_TEST(test_namelist_match)
 {
     fail_unless(namelist_match("Alpha", "alpha beta gamma"));
@@ -182,7 +169,6 @@ START_TEST(test_namelist_match)
     fail_if(namelist_match("a d", "alpha beta gamma"));
 }
 END_TEST
-
 START_TEST(test_get_number)
 {
     char buf[10];
@@ -200,7 +186,6 @@ START_TEST(test_get_number)
     fail_unless(!strcmp(str, "object"));
 }
 END_TEST
-
 START_TEST(test_find_all_dots)
 {
     char buf[15];
@@ -215,7 +200,6 @@ START_TEST(test_find_all_dots)
     fail_unless(find_all_dots(buf) == FIND_ALL);
 }
 END_TEST
-
 START_TEST(test_one_word)
 {
     char buf[1024];
@@ -233,7 +217,6 @@ START_TEST(test_one_word)
     fail_unless(!strcmp(str, " Delta"));
 }
 END_TEST
-
 START_TEST(test_search_block)
 {
     const char *strlist[] = {"Alpha", "Beta", "Gamma", "Delta", "\n"};
@@ -249,7 +232,6 @@ START_TEST(test_search_block)
     fail_unless(search_block("", strlist, true) == -1);
 }
 END_TEST
-
 START_TEST(test_is_number)
 {
     fail_if(is_number("alpha"));
@@ -261,7 +243,6 @@ START_TEST(test_is_number)
     fail_if(is_number("-alpha"));
 }
 END_TEST
-
 START_TEST(test_skip_spaces_const)
 {
     const char *str = "testing";
@@ -282,7 +263,6 @@ START_TEST(test_skip_spaces_const)
     fail_unless(!strcmp(str, "test  ing   "));
 }
 END_TEST
-
 START_TEST(test_skip_spaces)
 {
     char buf[1024];
@@ -305,7 +285,6 @@ START_TEST(test_skip_spaces)
     fail_unless(!strcmp(str, "test  ing   "));
 }
 END_TEST
-
 START_TEST(test_fill_word)
 {
     fail_unless(fill_word("the"));
@@ -314,7 +293,6 @@ START_TEST(test_fill_word)
     fail_if(fill_word("alpha"));
 }
 END_TEST
-
 START_TEST(test_one_argument)
 {
     char buf[1024];
@@ -332,7 +310,6 @@ START_TEST(test_one_argument)
     fail_unless(!strcmp(str, " gamma\" Delta"));
 }
 END_TEST
-
 START_TEST(test_any_one_arg)
 {
     char buf[1024];
@@ -354,7 +331,6 @@ START_TEST(test_any_one_arg)
     fail_unless(!strcmp(str, " gamma\" Delta"));
 }
 END_TEST
-
 START_TEST(test_two_arguments)
 {
     char buf[1024];
@@ -376,7 +352,6 @@ START_TEST(test_two_arguments)
     fail_unless(!strcmp(str, ""));
 }
 END_TEST
-
 START_TEST(test_is_abbrev)
 {
     fail_unless(is_abbrev("a", "alpha") == 1);
@@ -386,7 +361,6 @@ START_TEST(test_is_abbrev)
     fail_if(is_abbrev("b", "alpha"));
 }
 END_TEST
-
 START_TEST(test_is_abbrevn)
 {
     fail_unless(is_abbrevn("a", "alpha", 3) == 0);
@@ -396,7 +370,6 @@ START_TEST(test_is_abbrevn)
     fail_if(is_abbrevn("b", "alpha", 3));
 }
 END_TEST
-
 START_TEST(test_half_chop)
 {
     char buf[1024];
@@ -410,7 +383,6 @@ START_TEST(test_half_chop)
     fail_unless(!strcmp(rest, "beta gamma delta"));
 }
 END_TEST
-
 START_TEST(test_search_block_no_lower)
 {
     const char *strlist[] = {"Alpha", "Beta", "Gamma", "Delta", "\n"};
@@ -427,7 +399,6 @@ START_TEST(test_search_block_no_lower)
     fail_unless(search_block_no_lower("", strlist, true) == -1);
 }
 END_TEST
-
 START_TEST(test_fill_word_no_lower)
 {
     fail_unless(fill_word_no_lower("the"));
@@ -438,7 +409,6 @@ START_TEST(test_fill_word_no_lower)
 
 }
 END_TEST
-
 START_TEST(test_one_argument_no_lower)
 {
     char buf[1024];
@@ -456,7 +426,6 @@ START_TEST(test_one_argument_no_lower)
     fail_unless(!strcmp(str, " gamma\" Delta"));
 }
 END_TEST
-
 START_TEST(test_snprintf_cat)
 {
     char buf[1024] = "";

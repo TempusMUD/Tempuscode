@@ -16,12 +16,13 @@ SPECIAL(dangerous_climb)
         act("A rock shifts and $n goes crashing down the steep path!",
             false, ch, NULL, NULL, TO_ROOM);
         send_to_char(ch,
-            "A rock shifts under your feet sending you tumbling down the path!\r\n"
-            "Your body crashes painfully against the rocks below!!\r\n");
+                     "A rock shifts under your feet sending you tumbling down the path!\r\n"
+                     "Your body crashes painfully against the rocks below!!\r\n");
         dam = dice(5, 8) + (GET_WEIGHT(ch) / 16);
         dam -= (dam * (100 - GET_AC(ch))) / 400;
-        if (damage(ch, ch, NULL, dam, TYPE_FALLING, -1))
+        if (damage(ch, ch, NULL, dam, TYPE_FALLING, -1)) {
             return 1;
+        }
 
         char_from_room(ch, false);
         char_to_room(ch, toroom, false);

@@ -8,16 +8,20 @@ SPECIAL(dwarven_hermit)
 {
     struct obj_data *od = NULL;
     struct creature *me2 = (struct creature *)me;
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (CMD_IS("ask"))
+    }
+    if (CMD_IS("ask")) {
         act("$N ignores you!", true, me2, NULL, NULL, TO_CHAR);
+    }
 
-    if (cmd)
+    if (cmd) {
         return (0);
+    }
 
-    if (!(od = GET_EQ(me2, WEAR_HOLD)))
+    if (!(od = GET_EQ(me2, WEAR_HOLD))) {
         return (0);
+    }
 
     if (!me2->in_room->people->next) {
         GET_OBJ_VAL(od, 0) = 0;
@@ -33,22 +37,22 @@ SPECIAL(dwarven_hermit)
         break;
     case 0:
         perform_say(me2, "say",
-            "Back in the old days when clan Brightaxe was");
+                    "Back in the old days when clan Brightaxe was");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 1:
         perform_say(me2, "say",
-            "great, our clan lived in the 'Smoking hills'");
+                    "great, our clan lived in the 'Smoking hills'");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 2:
         perform_say(me2, "say",
-            "strong hold. We lived in spelender that could");
+                    "strong hold. We lived in spelender that could");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 3:
         perform_say(me2, "say",
-            "not be believed and believing that no enemy could");
+                    "not be believed and believing that no enemy could");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 4:
@@ -61,7 +65,7 @@ SPECIAL(dwarven_hermit)
         break;
     case 6:
         perform_say(me2, "say",
-            "glorious halls. For you see our gates where not ");
+                    "glorious halls. For you see our gates where not ");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 7:
@@ -73,17 +77,17 @@ SPECIAL(dwarven_hermit)
         break;
     case 9:
         perform_say(me2, "say",
-            "For many years I have waited and looked for some");
+                    "For many years I have waited and looked for some");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 10:
         perform_say(me2, "say",
-            "way to retake our halls. And against that day I");
+                    "way to retake our halls. And against that day I");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 11:
         perform_say(me2, "say",
-            "hid a key to the gates. I hid it in a old stump.");
+                    "hid a key to the gates. I hid it in a old stump.");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 12:
@@ -95,7 +99,7 @@ SPECIAL(dwarven_hermit)
         break;
     case 14:
         perform_say(me2, "say",
-            "Back in the old days when clan Brightaxe was");
+                    "Back in the old days when clan Brightaxe was");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 15:
@@ -104,17 +108,17 @@ SPECIAL(dwarven_hermit)
         break;
     case 16:
         perform_say(me2, "say",
-            "strong hold. We had treasure beyond all imagination.");
+                    "strong hold. We had treasure beyond all imagination.");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 17:
         perform_say(me2, "say",
-            "The magical guardian was build into the door of");
+                    "The magical guardian was build into the door of");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 18:
         perform_say(me2, "say",
-            "the treasure room if you did not speak the right");
+                    "the treasure room if you did not speak the right");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 19:
@@ -130,22 +134,22 @@ SPECIAL(dwarven_hermit)
         break;
     case 22:
         perform_say(me2, "say",
-            "Then speak the name of our greatest Battle....");
+                    "Then speak the name of our greatest Battle....");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 23:
         perform_say(me2, "say",
-            "Next speak the name of our greatest Hero....");
+                    "Next speak the name of our greatest Hero....");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 24:
         perform_say(me2, "say",
-            "Finaly speak the name of our greatest King....");
+                    "Finaly speak the name of our greatest King....");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 25:
         perform_say(me2, "say",
-            "And so the entrance to the chamber will be opened.");
+                    "And so the entrance to the chamber will be opened.");
         GET_OBJ_VAL(od, 0)++;
         break;
     case 26:

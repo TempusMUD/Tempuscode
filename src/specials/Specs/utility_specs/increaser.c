@@ -21,8 +21,9 @@ SPECIAL(increaser)
     int amount = 0;
     int8_t mode, status = 0;
 
-    if ((!CMD_IS("increase")) || IS_NPC(ch))
+    if ((!CMD_IS("increase")) || IS_NPC(ch)) {
         return false;
+    }
 
     two_arguments(argument, arg1, arg2);
 
@@ -32,12 +33,15 @@ SPECIAL(increaser)
         return true;
     }
 
-    if (GET_NPC_VNUM(increaser) == 30100)
+    if (GET_NPC_VNUM(increaser) == 30100) {
         status = MODE_HITP;
-    if (GET_NPC_VNUM(increaser) == 37022 || GET_NPC_VNUM(increaser) == 31712)
+    }
+    if (GET_NPC_VNUM(increaser) == 37022 || GET_NPC_VNUM(increaser) == 31712) {
         status = MODE_MANA;
-    if (GET_NPC_VNUM(increaser) == 5430)
+    }
+    if (GET_NPC_VNUM(increaser) == 5430) {
         status = MODE_MOVE;
+    }
 
     switch (status) {
     case MODE_MOVE:
@@ -56,9 +60,9 @@ SPECIAL(increaser)
 
     if (!*arg1) {
         send_to_char(ch, "Increase what?\r\nType 'increase %s <amount>.\r\n",
-            status_desc);
+                     status_desc);
         send_to_char(ch, "The cost is 1 lp / %d points of %s.\r\n", amount,
-            status_desc);
+                     status_desc);
         return 1;
     }
     if (!strcasecmp(arg1, "hit")) {
@@ -69,9 +73,9 @@ SPECIAL(increaser)
         mode = MODE_MOVE;
     } else {
         send_to_char(ch, "Increase what?\r\nType 'increase %s <amount>.\r\n",
-            status_desc);
+                     status_desc);
         send_to_char(ch, "The cost is 1 lp / %d points of %s.\r\n", amount,
-            status_desc);
+                     status_desc);
         return 1;
     }
 
@@ -94,11 +98,13 @@ SPECIAL(increaser)
         incr = 10000;
     }
 
-    if (mode == MODE_MOVE)
+    if (mode == MODE_MOVE) {
         life_cost = ((incr + 3) / 4);
-                                 /** 4 pts/ life point */
-    else
+    }
+    /** 4 pts/ life point */
+    else {
         life_cost = ((incr + 1) / 2);  /* 2 pts/ life point */
+    }
     gold = 10000 * life_cost;
     gold = adjusted_price(ch, increaser, gold);
 
@@ -113,21 +119,22 @@ SPECIAL(increaser)
 
     if (CASH_MONEY(ch) < gold) {
         send_to_char(ch,
-            "But you do not have enough money on you for that.\r\n");
+                     "But you do not have enough money on you for that.\r\n");
         act(buf, true, ch, NULL, NULL, TO_ROOM);
         return 1;
     }
     if (GET_LIFE_POINTS(ch) < life_cost) {
         send_to_char(ch,
-            "But you do not have enough life points for that.\r\n");
+                     "But you do not have enough life points for that.\r\n");
         act(buf, true, ch, NULL, NULL, TO_ROOM);
         return true;
     }
 
-    if (ch->in_room->zone->time_frame == TIME_ELECTRO)
+    if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
         GET_CASH(ch) -= gold;
-    else
+    } else {
         GET_GOLD(ch) -= gold;
+    }
     GET_LIFE_POINTS(ch) -= life_cost;
 
     switch (mode) {
@@ -143,7 +150,7 @@ SPECIAL(increaser)
     }
 
     slog("%s increased %s %'d points at %d.",
-        GET_NAME(ch), arg1, incr, ch->in_room->number);
+         GET_NAME(ch), arg1, incr, ch->in_room->number);
 
     send_to_char(ch, "You begin your improvement.\r\n");
     act("$n begins to improve.", false, ch, NULL, NULL, TO_ROOM);

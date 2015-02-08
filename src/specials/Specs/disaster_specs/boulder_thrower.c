@@ -10,8 +10,9 @@ THROW_OK(struct obj_data *obj)
     if (!CAN_WEAR(obj, ITEM_WEAR_TAKE) ||
         !IS_OBJ_TYPE(obj, ITEM_WEAPON) ||
         !IS_THROWN(obj) ||
-        IS_OBJ_STAT(obj, ITEM_NODROP) || IS_OBJ_STAT2(obj, ITEM2_NOREMOVE))
+        IS_OBJ_STAT(obj, ITEM_NODROP) || IS_OBJ_STAT2(obj, ITEM2_NOREMOVE)) {
         return 0;
+    }
 
     return 1;
 }
@@ -23,11 +24,13 @@ SPECIAL(boulder_thrower)
 
     struct obj_data *obj = NULL, *tmp_obj = NULL;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || !AWAKE(ch))
+    if (cmd || !AWAKE(ch)) {
         return 0;
+    }
 
     struct creature *vict = random_opponent(ch);
     if (vict && can_see_creature(ch, vict)) {
@@ -45,7 +48,7 @@ SPECIAL(boulder_thrower)
             for (tmp_obj = obj = ch->carrying; obj; obj = obj->next_content) {
                 if (THROW_OK(obj) &&
                     (GET_OBJ_WEIGHT(obj) > GET_OBJ_WEIGHT(tmp_obj) ||
-                        !THROW_OK(tmp_obj))) {
+                     !THROW_OK(tmp_obj))) {
                     tmp_obj = obj;
                 }
             }
@@ -56,8 +59,8 @@ SPECIAL(boulder_thrower)
         if (obj) {
 
             char *str = tmp_sprintf("%s %s",
-                fname(obj->aliases),
-                fname(vict->player.name));
+                                    fname(obj->aliases),
+                                    fname(vict->player.name));
             do_throw(ch, str, 0, 0);
             return 1;
         }
@@ -65,18 +68,20 @@ SPECIAL(boulder_thrower)
     // look for a boulder to pick up
 
     // arms already full
-    if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch))
+    if (IS_CARRYING_N(ch) >= CAN_CARRY_N(ch)) {
         return 0;
+    }
 
     // already over-encumbered
-    if (IS_CARRYING_W(ch) + IS_WEARING_W(ch) > (CAN_CARRY_W(ch) / 2))
+    if (IS_CARRYING_W(ch) + IS_WEARING_W(ch) > (CAN_CARRY_W(ch) / 2)) {
         return 0;
+    }
 
     // look for something in the room to pick up
     for (obj = ch->in_room->contents; obj; obj = obj->next_content) {
         if (THROW_OK(obj) &&
             GET_OBJ_WEIGHT(obj) < (CAN_CARRY_W(ch) -
-                IS_CARRYING_W(ch) - IS_WEARING_W(ch))) {
+                                   IS_CARRYING_W(ch) - IS_WEARING_W(ch))) {
             act("$n picks up $p.", true, ch, obj, NULL, TO_ROOM);
             obj_from_room(obj);
             obj_to_char(obj, ch);

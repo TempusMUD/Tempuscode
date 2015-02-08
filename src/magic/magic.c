@@ -83,67 +83,67 @@ const int8_t saving_throws[8][LVL_GRIMP + 1] = {
 
     /* PARA  */
     {90, 70, 69, 69, 68, 68, 67, 67, 66, 66, 65,    /* 0 - 10 */
-            65, 65, 64, 64, 63, 63, 62, 62, 61, 61, /* 11 - 20 */
-            60, 60, 59, 59, 58, 58, 57, 57, 56, 56, /* 21 - 30 */
-            55, 55, 54, 54, 53, 53, 52, 52, 51, 51, /* 31 - 40 */
-            50, 50, 49, 49, 48, 48, 47, 47, 46, 46, /* 41 - 50 */
-            46, 46, 46, 46, 46, 46, 46, 46, 46, 46,
-        45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 35},
+     65, 65, 64, 64, 63, 63, 62, 62, 61, 61,        /* 11 - 20 */
+     60, 60, 59, 59, 58, 58, 57, 57, 56, 56,        /* 21 - 30 */
+     55, 55, 54, 54, 53, 53, 52, 52, 51, 51,        /* 31 - 40 */
+     50, 50, 49, 49, 48, 48, 47, 47, 46, 46,        /* 41 - 50 */
+     46, 46, 46, 46, 46, 46, 46, 46, 46, 46,
+     45, 44, 43, 42, 41, 40, 39, 38, 37, 36, 35, 35},
     /* ROD */
     {90, 75, 74, 73, 72, 71, 70, 69, 69, 68, 68,    /* 0 - 10 */
-            67, 66, 65, 64, 63, 62, 61, 60, 59, 58, /* 11 - 20 */
-            57, 56, 55, 54, 53, 52, 51, 50, 49, 48, /* 21 - 30 */
-            47, 46, 45, 44, 43, 42, 41, 40, 39, 38, /* 31 - 40 */
-            37, 36, 35, 34, 33, 32, 31, 30, 29, 20, /* 41 - 50 */
-            20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+     67, 66, 65, 64, 63, 62, 61, 60, 59, 58,        /* 11 - 20 */
+     57, 56, 55, 54, 53, 52, 51, 50, 49, 48,        /* 21 - 30 */
+     47, 46, 45, 44, 43, 42, 41, 40, 39, 38,        /* 31 - 40 */
+     37, 36, 35, 34, 33, 32, 31, 30, 29, 20,        /* 41 - 50 */
+     20, 20, 20, 20, 20, 20, 20, 20, 20, 20,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     /* PETRI  */
     {90, 70, 69, 69, 68, 68, 67, 67, 66, 66, 65,    /* 0 - 10 */
-            65, 65, 64, 64, 63, 63, 62, 62, 61, 61, /* 11 - 20 */
-            60, 60, 59, 59, 58, 58, 57, 57, 56, 56, /* 21 - 30 */
-            55, 55, 54, 54, 53, 53, 52, 52, 51, 50, /* 31 - 40 */
-            47, 46, 45, 44, 43, 42, 41, 40, 39, 30, /* 41 - 50 */
-            30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-     /*BREATH*/ {90, 90, 89, 88, 87, 86, 75, 73, 71, 70, 69,    /* 0 - 10 */
-            77, 76, 75, 74, 73, 72, 71, 70, 69, 68, /* 11 - 20 */
-            67, 66, 65, 64, 63, 62, 61, 60, 59, 58, /* 21 - 30 */
-            57, 56, 55, 54, 53, 52, 51, 50, 49, 48, /* 31 - 40 */
-            47, 46, 45, 44, 43, 42, 41, 40, 39, 30, /* 41 - 50 */
-            30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+     65, 65, 64, 64, 63, 63, 62, 62, 61, 61,        /* 11 - 20 */
+     60, 60, 59, 59, 58, 58, 57, 57, 56, 56,        /* 21 - 30 */
+     55, 55, 54, 54, 53, 53, 52, 52, 51, 50,        /* 31 - 40 */
+     47, 46, 45, 44, 43, 42, 41, 40, 39, 30,        /* 41 - 50 */
+     30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    /*BREATH*/ {90, 90, 89, 88, 87, 86, 75, 73, 71, 70, 69,     /* 0 - 10 */
+                77, 76, 75, 74, 73, 72, 71, 70, 69, 68, /* 11 - 20 */
+                67, 66, 65, 64, 63, 62, 61, 60, 59, 58, /* 21 - 30 */
+                57, 56, 55, 54, 53, 52, 51, 50, 49, 48, /* 31 - 40 */
+                47, 46, 45, 44, 43, 42, 41, 40, 39, 30, /* 41 - 50 */
+                30, 30, 30, 30, 30, 30, 30, 30, 30, 30,
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     /* SPELL */
     {95, 90, 90, 89, 89, 89, 88, 88, 88, 87, 87,    /* 0 - 10 */
-            87, 86, 86, 86, 85, 85, 85, 84, 84, 84, /* 11 - 20 */
-            83, 83, 83, 82, 82, 82, 81, 81, 81, 80, /* 21 - 30 */
-            80, 79, 79, 78, 78, 77, 77, 76, 76, 76, /* 31 - 40 */
-            75, 75, 74, 74, 73, 73, 72, 72, 71, 71, /* 41 - 50 */
-            70, 69, 68, 67, 66, 65, 63, 61, 59, 55,
-        42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0},
+     87, 86, 86, 86, 85, 85, 85, 84, 84, 84,        /* 11 - 20 */
+     83, 83, 83, 82, 82, 82, 81, 81, 81, 80,        /* 21 - 30 */
+     80, 79, 79, 78, 78, 77, 77, 76, 76, 76,        /* 31 - 40 */
+     75, 75, 74, 74, 73, 73, 72, 72, 71, 71,        /* 41 - 50 */
+     70, 69, 68, 67, 66, 65, 63, 61, 59, 55,
+     42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0},
     /* CHEM */
     {90, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79,    /* 0 - 10 */
-            78, 78, 77, 77, 77, 76, 76, 75, 74, 73, /* 11 - 20 */
-            72, 71, 70, 69, 68, 67, 66, 65, 64, 63, /* 21 - 30 */
-            62, 61, 60, 59, 58, 57, 56, 55, 54, 53, /* 31 - 40 */
-            52, 51, 50, 49, 48, 47, 46, 45, 44, 43, /* 41 - 50 */
-            43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
-        42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0},
+     78, 78, 77, 77, 77, 76, 76, 75, 74, 73,        /* 11 - 20 */
+     72, 71, 70, 69, 68, 67, 66, 65, 64, 63,        /* 21 - 30 */
+     62, 61, 60, 59, 58, 57, 56, 55, 54, 53,        /* 31 - 40 */
+     52, 51, 50, 49, 48, 47, 46, 45, 44, 43,        /* 41 - 50 */
+     43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+     42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0},
     /* PSIONIC */
     {90, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79,    /* 0 - 10 */
-            78, 78, 77, 77, 77, 76, 76, 75, 74, 73, /* 11 - 20 */
-            72, 71, 70, 69, 68, 67, 66, 65, 64, 63, /* 21 - 30 */
-            62, 61, 60, 59, 58, 57, 56, 55, 54, 53, /* 31 - 40 */
-            52, 51, 50, 49, 48, 47, 46, 45, 44, 43, /* 41 - 50 */
-            43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
-        42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0},
+     78, 78, 77, 77, 77, 76, 76, 75, 74, 73,        /* 11 - 20 */
+     72, 71, 70, 69, 68, 67, 66, 65, 64, 63,        /* 21 - 30 */
+     62, 61, 60, 59, 58, 57, 56, 55, 54, 53,        /* 31 - 40 */
+     52, 51, 50, 49, 48, 47, 46, 45, 44, 43,        /* 41 - 50 */
+     43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+     42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0},
     /* physic */
     {90, 88, 87, 86, 85, 84, 83, 82, 81, 80, 79,    /* 0 - 10 */
-            78, 78, 77, 77, 77, 76, 76, 75, 74, 73, /* 11 - 20 */
-            72, 71, 70, 69, 68, 67, 66, 65, 64, 63, /* 21 - 30 */
-            62, 61, 60, 59, 58, 57, 56, 55, 54, 53, /* 31 - 40 */
-            52, 51, 50, 49, 48, 47, 46, 45, 44, 43, /* 41 - 50 */
-            43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
-        42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0}
+     78, 78, 77, 77, 77, 76, 76, 75, 74, 73,        /* 11 - 20 */
+     72, 71, 70, 69, 68, 67, 66, 65, 64, 63,        /* 21 - 30 */
+     62, 61, 60, 59, 58, 57, 56, 55, 54, 53,        /* 31 - 40 */
+     52, 51, 50, 49, 48, 47, 46, 45, 44, 43,        /* 41 - 50 */
+     43, 43, 43, 43, 43, 43, 43, 43, 43, 43,
+     42, 41, 40, 39, 38, 37, 36, 35, 34, 33, 34, 0}
 };
 
 bool
@@ -158,8 +158,9 @@ mag_savingthrow(struct creature *ch, int level, int type)
     if (level > 100) {
         return false;
     }
-    if (type == SAVING_NONE)
+    if (type == SAVING_NONE) {
         return false;
+    }
 
     /* negative apply_saving_throw values make saving throws better! */
 
@@ -167,98 +168,121 @@ mag_savingthrow(struct creature *ch, int level, int type)
     save += GET_SAVE(ch, type);
     save += (level / 2);
 
-    if (AFF2_FLAGGED(ch, AFF2_EVADE))
+    if (AFF2_FLAGGED(ch, AFF2_EVADE)) {
         save -= (GET_LEVEL(ch) / 5);
-    if (GET_POSITION(ch) < POS_FIGHTING)
+    }
+    if (GET_POSITION(ch) < POS_FIGHTING) {
         save += ((10 - GET_POSITION(ch)) * 4);
+    }
 
-    if (SPEED_OF(ch))
+    if (SPEED_OF(ch)) {
         save -= (SPEED_OF(ch) / 8);
+    }
 
-    if (GET_POSITION(ch) < POS_RESTING)
+    if (GET_POSITION(ch) < POS_RESTING) {
         save += 10;
+    }
 
     save -= (GET_REMORT_GEN(ch) * 2);
 
     switch (type) {
     case SAVING_PARA:
-        if ((IS_CLERIC(ch) || IS_KNIGHT(ch)) && !IS_NEUTRAL(ch))
+        if ((IS_CLERIC(ch) || IS_KNIGHT(ch)) && !IS_NEUTRAL(ch)) {
             save -= (5 + (GET_LEVEL(ch) / 16));
-        if (IS_RANGER(ch))
+        }
+        if (IS_RANGER(ch)) {
             save -= (5 + (GET_LEVEL(ch) / 16));
+        }
         save -= (GET_CON(ch) / 8);
         break;
     case SAVING_ROD:
         save -= (AFF_FLAGGED(ch, AFF_ADRENALINE)
-            || AFF2_FLAGGED(ch, AFF2_HASTE)) ? (GET_LEVEL(ch) / 5) : 0;
-        if (IS_MAGE(ch))
+                 || AFF2_FLAGGED(ch, AFF2_HASTE)) ? (GET_LEVEL(ch) / 5) : 0;
+        if (IS_MAGE(ch)) {
             save -= (4 + (GET_LEVEL(ch) / 16));
-        if (IS_DWARF(ch))
+        }
+        if (IS_DWARF(ch)) {
             save -= (GET_CON(ch) / 4) + GET_REMORT_GEN(ch);
-        if (GET_CLASS(ch) == CLASS_BARB)
+        }
+        if (GET_CLASS(ch) == CLASS_BARB) {
             save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
-        else if (IS_BARB(ch))
+        } else if (IS_BARB(ch)) {
             save -= (GET_LEVEL(ch) / 16) + GET_REMORT_GEN(ch);
+        }
 
         break;
     case SAVING_PETRI:
-        if (IS_MONK(ch) || IS_THIEF(ch) || GET_MOVE(ch) > number(100, 400))
+        if (IS_MONK(ch) || IS_THIEF(ch) || GET_MOVE(ch) > number(100, 400)) {
             save -= (5 + (GET_LEVEL(ch) / 8));
-        if (IS_DWARF(ch))
+        }
+        if (IS_DWARF(ch)) {
             save -= (GET_CON(ch) / 4) + GET_REMORT_GEN(ch);
-        if (GET_CLASS(ch) == CLASS_BARB)
+        }
+        if (GET_CLASS(ch) == CLASS_BARB) {
             save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
-        else if (IS_BARB(ch))
+        } else if (IS_BARB(ch)) {
             save -= (GET_LEVEL(ch) / 16) + GET_REMORT_GEN(ch);
+        }
 
         break;
     case SAVING_BREATH:
         save -= (AFF_FLAGGED(ch, AFF_ADRENALINE)
-            || AFF2_FLAGGED(ch, AFF2_HASTE)) ? (GET_LEVEL(ch) / 5) : 0;
+                 || AFF2_FLAGGED(ch, AFF2_HASTE)) ? (GET_LEVEL(ch) / 5) : 0;
         save -= (GET_INT(ch) / 16);
         save -= (GET_WIS(ch) / 16);
-        if (IS_DWARF(ch))
+        if (IS_DWARF(ch)) {
             save -= (GET_CON(ch) / 4) + GET_REMORT_GEN(ch);
-        if (GET_CLASS(ch) == CLASS_BARB)
+        }
+        if (GET_CLASS(ch) == CLASS_BARB) {
             save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
-        else if (IS_BARB(ch))
+        } else if (IS_BARB(ch)) {
             save -= (GET_LEVEL(ch) / 16) + GET_REMORT_GEN(ch);
+        }
 
         break;
     case SAVING_SPELL:
         save -= (AFF_FLAGGED(ch, AFF_ADRENALINE)
-            || AFF2_FLAGGED(ch, AFF2_HASTE)) ? (GET_LEVEL(ch) / 5) : 0;
+                 || AFF2_FLAGGED(ch, AFF2_HASTE)) ? (GET_LEVEL(ch) / 5) : 0;
         save -= (GET_WIS(ch) / 4);
-        if (IS_DWARF(ch))
+        if (IS_DWARF(ch)) {
             save -= (GET_CON(ch) / 4) + GET_REMORT_GEN(ch);
-        if (GET_CLASS(ch) == CLASS_BARB)
+        }
+        if (GET_CLASS(ch) == CLASS_BARB) {
             save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
-        else if (IS_BARB(ch))
+        } else if (IS_BARB(ch)) {
             save -= (GET_LEVEL(ch) / 16) + GET_REMORT_GEN(ch);
-        if (IS_CYBORG(ch))
+        }
+        if (IS_CYBORG(ch)) {
             save += 5 + (GET_LEVEL(ch) / 2);
-        if (IS_DROW(ch))
+        }
+        if (IS_DROW(ch)) {
             save -= (GET_LEVEL(ch) / 2);
-        if (IS_NPC(ch) && GET_NPC_VNUM(ch) == 7100) // morkoth magic resistance
+        }
+        if (IS_NPC(ch) && GET_NPC_VNUM(ch) == 7100) { // morkoth magic resistance
             save -= GET_LEVEL(ch);
+        }
         break;
     case SAVING_CHEM:
-        if (IS_CYBORG(ch))
+        if (IS_CYBORG(ch)) {
             save -= GET_LEVEL(ch) / 2;
-        if (IS_DWARF(ch))
+        }
+        if (IS_DWARF(ch)) {
             save -= (GET_CON(ch) / 4) + GET_REMORT_GEN(ch);
-        if (GET_CLASS(ch) == CLASS_BARB)
+        }
+        if (GET_CLASS(ch) == CLASS_BARB) {
             save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
-        else if (IS_BARB(ch))
+        } else if (IS_BARB(ch)) {
             save -= (GET_LEVEL(ch) / 16) + GET_REMORT_GEN(ch);
+        }
         break;
     case SAVING_PSI:
         save -= GET_INT(ch);
         save += 15;
         break;
     case SAVING_PHY:
-        if (IS_PHYSIC(ch))
+        if (IS_PHYSIC(ch)) {
             save -= (GET_LEVEL(ch) / 8) + (GET_REMORT_GEN(ch) * 2);
+        }
         break;
     default:
         errlog("unknown savetype in mag_savingthrow");
@@ -266,10 +290,11 @@ mag_savingthrow(struct creature *ch, int level, int type)
     }
 
     /* throwing a 0 is always a failure */
-    if (MAX(1, save) < number(0, 99))
+    if (MAX(1, save) < number(0, 99)) {
         return true;
-    else
+    } else {
         return false;
+    }
 }
 
 int
@@ -279,12 +304,14 @@ update_iaffects(struct creature *ch)
 
     for (af = ch->affected; af; af = next) {
         next = af->next;
-        if (!af->is_instant)
+        if (!af->is_instant) {
             continue;
+        }
         af->duration--;
         if (af->duration <= 0) {
-            if (affect_remove(ch, af))
+            if (affect_remove(ch, af)) {
                 return 1;
+            }
             next = ch->affected;
         }
     }
@@ -306,8 +333,9 @@ obj_affect_update(void)
         for (af = obj->tmp_affects; af != NULL; af = next_af) {
             next_af = af->next;
             af->duration--;
-            if (af->duration)
+            if (af->duration) {
                 continue;
+            }
             if (!aff_removed) {
                 aff_removed = true;
                 if (obj->worn_by) {
@@ -331,8 +359,9 @@ obj_affect_update(void)
                     }
                 } else if (obj->carried_by) {
                     ch = obj->carried_by;
-                } else
+                } else {
                     ch = NULL;
+                }
             }
 
             if (af->type != last) {
@@ -340,9 +369,10 @@ obj_affect_update(void)
                 // if anybody cares
                 last = af->type;
                 if (ch && *item_wear_off_msg[af->type]
-                    && !PLR_FLAGGED(ch, PLR_WRITING))
+                    && !PLR_FLAGGED(ch, PLR_WRITING)) {
                     act(item_wear_off_msg[af->type], false, ch, obj,
                         NULL, TO_CHAR);
+                }
             }
 
             remove_object_affect(obj, af);
@@ -370,70 +400,70 @@ affect_update(void)
     struct creature *i;
     int found = 0;
     char assimilate_found = 0, berserk_found = 0,
-        kata_found = 0, hamstring_found = 0;
+         kata_found = 0, hamstring_found = 0;
     int METABOLISM = 0;
     ACMD(do_stand);
 
-    for (GList * cit = first_living(creatures); cit; cit = next_living(cit)) {
+    for (GList *cit = first_living(creatures); cit; cit = next_living(cit)) {
         i = (struct creature *)cit->data;
 
         hamstring_found = kata_found = berserk_found = assimilate_found = 0;
 
-        if (affected_by_spell(i, SPELL_METABOLISM))
+        if (affected_by_spell(i, SPELL_METABOLISM)) {
             METABOLISM = 1;
+        }
         for (af = i->affected; af && !found; af = next) {
             next = af->next;
-            if (af->type == SPELL_SHIELD_OF_RIGHTEOUSNESS && !IS_GOOD(i))
+            if (af->type == SPELL_SHIELD_OF_RIGHTEOUSNESS && !IS_GOOD(i)) {
                 af->duration = 0;   // take it off the nogood sonuvabitch
+            }
             if (af->duration >= 1) {
                 af->duration--;
 
                 if (METABOLISM && af->duration > 1 &&
                     (af->type == SPELL_POISON ||
-                        af->type == SPELL_SLEEP ||
-                        af->type == SPELL_MELATONIC_FLOOD ||
-                        af->type == SPELL_BREATHING_STASIS))
+                     af->type == SPELL_SLEEP ||
+                     af->type == SPELL_MELATONIC_FLOOD ||
+                     af->type == SPELL_BREATHING_STASIS)) {
                     af->duration--;
+                }
 
                 if (af->duration == 1) {
                     if ((af->type == SPELL_GLOWLIGHT) ||
                         (af->type == SPELL_DIVINE_ILLUMINATION)
-                        || (af->type == SPELL_FLUORESCE))
+                        || (af->type == SPELL_FLUORESCE)) {
                         send_to_char(i,
-                            "The light which surrounds you starts to fade.\r\n");
-                    else if (af->type == ZEN_OBLIVITY) {
+                                     "The light which surrounds you starts to fade.\r\n");
+                    } else if (af->type == ZEN_OBLIVITY) {
                         send_to_char(i,
-                            "You feel your grip on the zen of oblivity slipping.\r\n");
+                                     "You feel your grip on the zen of oblivity slipping.\r\n");
                     } else if (af->type == SPELL_FLY
-                        || af->type == SPELL_TIDAL_SPACEWARP) {
+                               || af->type == SPELL_TIDAL_SPACEWARP) {
                         send_to_char(i,
-                            "You feel your ability to fly fading.\r\n");
+                                     "You feel your ability to fly fading.\r\n");
                         if (IS_NPC(i)) {
                             if (IS_MAGE(i) && GET_LEVEL(i) > 32
-                                && GET_MANA(i) > 50)
+                                && GET_MANA(i) > 50) {
                                 found = cast_spell(i, i, NULL, NULL, SPELL_FLY);
-                            else if (IS_CLERIC(i) && GET_LEVEL(i) > 31
-                                && GET_MANA(i) > 50)
+                            } else if (IS_CLERIC(i) && GET_LEVEL(i) > 31
+                                       && GET_MANA(i) > 50) {
                                 found = cast_spell(i, i, NULL, NULL, SPELL_AIR_WALK);
-                            else if (IS_PHYSIC(i) && GET_LEVEL(i) > 31
-                                && GET_MANA(i) > 50)
+                            } else if (IS_PHYSIC(i) && GET_LEVEL(i) > 31
+                                       && GET_MANA(i) > 50) {
                                 found = cast_spell(i, i, NULL, NULL, SPELL_TIDAL_SPACEWARP);
+                            }
                             if (!found) {
 
                                 if (!room_is_open_air(i->in_room)) {
                                     do_stand(i, tmp_strdup(""), 0, 0);
-                                }
-
-                                else if (EXIT(i, DOWN)
-                                    && EXIT(i, DOWN)->to_room != NULL) {
+                                } else if (EXIT(i, DOWN)
+                                           && EXIT(i, DOWN)->to_room != NULL) {
 
                                     if (IS_SET(EXIT(i, DOWN)->exit_info,
-                                            EX_CLOSED)) {
+                                               EX_CLOSED)) {
                                         do_stand(i, tmp_strdup(""), 0, 0);
-                                    }
-
-                                    else if (do_simple_move(i, DOWN, MOVE_NORM,
-                                            1) == 2) {
+                                    } else if (do_simple_move(i, DOWN, MOVE_NORM,
+                                                              1) == 2) {
                                         found = 1;
                                         break;
                                     }
@@ -448,9 +478,9 @@ affect_update(void)
                         }
                     }
                 }
-            } else if (af->duration == -1)  /* No action */
+            } else if (af->duration == -1) { /* No action */
                 af->duration = -1;  /* GODs only! unlimited */
-            else {
+            } else {
                 if (af->type == SPELL_PETRIFY) {
                     struct creature *owner = NULL;
                     bool loaded_owner = false;
@@ -484,19 +514,20 @@ affect_update(void)
                             && af->type != SPELL_ITEM_ATTRACTION_FIELD
                             && af->type != SPELL_ITEM_REPULSION_FIELD) {
                             send_to_char(i, "%s\r\n",
-                                spell_wear_off_msg[af->type]);
+                                         spell_wear_off_msg[af->type]);
                         }
                     }
                 }
                 // skill-specific messages here
-                else if (af->type == SKILL_BERSERK)
+                else if (af->type == SKILL_BERSERK) {
                     berserk_found++;
-                else if (af->type == SKILL_KATA)
+                } else if (af->type == SKILL_KATA) {
                     kata_found++;
-                else if (af->type == SKILL_ASSIMILATE)
+                } else if (af->type == SKILL_ASSIMILATE) {
                     assimilate_found++;
-                else if (af->type == SKILL_HAMSTRING)
+                } else if (af->type == SKILL_HAMSTRING) {
                     hamstring_found++;
+                }
 
                 // pull the affect off
                 affect_remove(i, af);
@@ -505,15 +536,18 @@ affect_update(void)
         if (!PLR_FLAGGED(i, PLR_WRITING)) {
             if (assimilate_found) {
                 send_to_char(i, "%d assimilation affect%s worn off.\r\n",
-                    assimilate_found,
-                    assimilate_found > 1 ? "s have" : " has");
+                             assimilate_found,
+                             assimilate_found > 1 ? "s have" : " has");
             }
-            if (berserk_found)
+            if (berserk_found) {
                 send_to_char(i, "You are no longer berserk.\r\n");
-            if (kata_found)
+            }
+            if (kata_found) {
                 send_to_char(i, "Your kata has worn off.\r\n");
-            if (hamstring_found)
+            }
+            if (hamstring_found) {
                 send_to_char(i, "The wound in your leg has closed.\r\n");
+            }
 
         }
     }
@@ -529,14 +563,15 @@ affect_update(void)
 
 int
 mag_damage(int level, struct creature *ch, struct creature *victim,
-    int spellnum, int savetype)
+           int spellnum, int savetype)
 {
     int is_mage = 0, is_cleric = 0, is_physic = 0, is_ranger = 0,
         is_knight = 0, is_bard = 0, audible = 0;
     int dam = 0;
 
-    if (victim == NULL || ch == NULL)
+    if (victim == NULL || ch == NULL) {
         return 0;
+    }
 
     if (GET_POSITION(victim) <= POS_DEAD) {
         errlog("vict is already dead in mag_damage.");
@@ -553,14 +588,14 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
     switch (spellnum) {
     case SPELL_HELL_FIRE_STORM:
         spellnum = SPELL_HELL_FIRE;
-        /* fallthrough */
+    /* fallthrough */
     case SPELL_HELL_FIRE:
         dam = dice(GET_LEVEL(ch) / 3, 4) + GET_LEVEL(ch);
         audible = true;
         break;
     case SPELL_HELL_FROST_STORM:
         spellnum = SPELL_HELL_FROST;
-        /* fallthrough */
+    /* fallthrough */
     case SPELL_HELL_FROST:
         dam = dice(GET_LEVEL(ch) / 3, 4) + GET_LEVEL(ch);
         audible = true;
@@ -568,29 +603,32 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
     case SPELL_ESSENCE_OF_EVIL:
         if (IS_GOOD(victim)) {
             dam = 100 + (level * 4);
-        } else
+        } else {
             return 0;
+        }
         break;
     case SPELL_ESSENCE_OF_GOOD:
         if (IS_EVIL(victim)) {
             dam = 100 + (level * 4);
-        } else
+        } else {
             return 0;
+        }
         break;
 
-        /* Mostly mages */
+    /* Mostly mages */
     case SPELL_MAGIC_MISSILE:
         dam =
             dice(1 + (level > 5) + (level > 10) + (level > 15),
-            8) + (level / 4);
+                 8) + (level / 4);
         break;
     case SPELL_CHILL_TOUCH:    // chill touch also has an affect
-        if (is_mage)
+        if (is_mage) {
             dam =
                 dice(1 + (level > 8) + (level > 16) + (level > 24),
-                8) + (level / 2);
-        else
+                     8) + (level / 2);
+        } else {
             dam = dice(1, 6) + 1;
+        }
         break;
     case SPELL_TAINT:
         if (HAS_SYMBOL(victim)) {
@@ -600,81 +638,92 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         }
         break;
     case SPELL_BURNING_HANDS:
-        if (is_mage)
+        if (is_mage) {
             dam = dice(level, 6) + (level / 2);
-        else
+        } else {
             dam = dice(3, 6) + 3;
+        }
         break;
     case SPELL_SHOCKING_GRASP:
-        if (is_mage)
+        if (is_mage) {
             dam = dice(level, 4) + (level / 2);
-        else
+        } else {
             dam = dice(5, 6) + 5;
+        }
         break;
     case SPELL_CHAIN_LIGHTNING:
         spellnum = SPELL_LIGHTNING_BOLT;
-        /* fallthrough */
+    /* fallthrough */
     case SPELL_LIGHTNING_BOLT:
         audible = true;
-        if (is_mage)
+        if (is_mage) {
             dam = dice(level, 10) + (level / 2);
-        else
+        } else {
             dam = dice(7, 6) + 7;
+        }
         break;
     case SPELL_COLOR_SPRAY:
         audible = true;
-        if (is_mage)
+        if (is_mage) {
             dam = dice(level, 8) + (level / 2);
-        else
+        } else {
             dam = dice(9, 6) + 9;
+        }
         break;
     case SPELL_FIREBALL:
         audible = true;
-        if (is_mage)
+        if (is_mage) {
             dam = dice(level, 10) + (level / 2);
-        else
+        } else {
             dam = dice(level, 7) + 11;
+        }
 
-        if (!CHAR_WITHSTANDS_FIRE(victim))
+        if (!CHAR_WITHSTANDS_FIRE(victim)) {
             ignite_creature(victim, ch);
+        }
         break;
     case SPELL_CONE_COLD:
         audible = true;
-        if (is_mage)
+        if (is_mage) {
             dam = dice(level, 12) + (level / 2);
-        else
+        } else {
             dam = dice(level, 8) + 16;
+        }
 
         ice_room(ch->in_room, level);
         break;
     case SPELL_PRISMATIC_SPRAY:
         audible = true;
-        if (is_mage)
+        if (is_mage) {
             dam = dice(level, 16) + (level / 2);
-        else
+        } else {
             dam = dice(level, 10) + 20;
+        }
         break;
     case SPELL_METEOR_STORM:
-        if (is_mage)
+        if (is_mage) {
             dam = dice(level, 10) + (level / 2);
-        else
+        } else {
             dam = dice(level, 8) + 20;
+        }
         break;
     case SPELL_HAILSTORM:
         dam = dice(level, 9) + 10;
         ice_room(ch->in_room, 10);
         break;
     case SPELL_ACIDITY:
-        if (is_physic)
+        if (is_physic) {
             dam = dice(3, 4) + (level / 4);
-        else
+        } else {
             dam = dice(2, 4) + 2;
+        }
         break;
     case SPELL_GAMMA_RAY:
-        if (GET_CLASS(ch) == CLASS_PHYSIC)
+        if (GET_CLASS(ch) == CLASS_PHYSIC) {
             dam = dice(12, level / 2);
-        else
+        } else {
             dam = dice(12, level / 4);
+        }
         break;
     case SPELL_MICROWAVE:
         dam = dice(9, 8) + (level / 2);
@@ -690,10 +739,12 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         break;
     case SPELL_GRAVITY_WELL:
         dam = dice(level / 2, 5);
-        if (GET_CLASS(ch) != CLASS_PHYSIC)
+        if (GET_CLASS(ch) != CLASS_PHYSIC) {
             dam = dam / 2;
-        if (AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL))
+        }
+        if (AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL)) {
             dam = dam / 2;
+        }
         break;
 
     case SPELL_ELECTRIC_ARC:
@@ -711,15 +762,17 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
 
     case SPELL_HARM:
         dam = dice(level, 6) + (level * 2);
-        if (IS_GOOD(ch) && IS_GOOD(victim))
+        if (IS_GOOD(ch) && IS_GOOD(victim)) {
             dam /= 2;
+        }
         break;
 
     case SPELL_ENERGY_DRAIN:
-        if (GET_LEVEL(victim) <= 2)
+        if (GET_LEVEL(victim) <= 2) {
             dam = 100;
-        else
+        } else {
             dam = dice(level, 10);
+        }
         break;
 
     case SPELL_FLAME_STRIKE:
@@ -735,23 +788,26 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         if (HAS_SYMBOL(victim)) {
             return 0;
         } else {
-            if (IS_GOOD(victim))
+            if (IS_GOOD(victim)) {
                 dam = dice(level, 12) + (level * 5);
-            else
+            } else {
                 dam = dice(level - GET_LEVEL(victim), 7) + level;
-            if (IS_EVIL(victim))
+            }
+            if (IS_EVIL(victim)) {
                 dam /= 4;
+            }
         }
         break;
     case SPELL_ICE_STORM:
         spellnum = SPELL_ICY_BLAST;
-        /* fallthrough */
+    /* fallthrough */
     case SPELL_ICY_BLAST:
         audible = true;
-        if (is_cleric || is_ranger || is_knight)
+        if (is_cleric || is_ranger || is_knight) {
             dam = dice(level, 11) + (level / 4);
-        else
+        } else {
             dam = dice(level, 7) + 16;
+        }
         ice_room(ch->in_room, level);
         break;
     case SPELL_GAS_BREATH:
@@ -788,10 +844,11 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         dam = dice(level, 25) + level;
         break;
 
-        /* psionic attacks */
+    /* psionic attacks */
     case SPELL_PSYCHIC_SURGE:
-        if (!affected_by_spell(victim, SPELL_PSYCHIC_SURGE))
+        if (!affected_by_spell(victim, SPELL_PSYCHIC_SURGE)) {
             dam = dice(3, 7) + (level * 4);
+        }
         break;
 
     case SPELL_EGO_WHIP:
@@ -806,7 +863,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         dam = dice(level, 10);
         break;
 
-        /* Area spells */
+    /* Area spells */
     case SPELL_EARTHQUAKE:
         dam = dice((level / 2), 14) + level * 2;
         break;
@@ -843,10 +900,10 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             dam += (dam * (GET_WIS(ch) - 10)) / 45; // 1.25 dam at full wis
         } else if (SPELL_IS_BARD(spellnum) && is_bard) {
             dam += (dam * (GET_CHA(ch) - 10)) / 45; // 1.25 dam at full cha
-            //fortissimo makes bard songs more powerful
+            // fortissimo makes bard songs more powerful
             struct affected_type *af = NULL;
             if ((af = affected_by_spell(ch, SONG_FORTISSIMO))) {
-                dam += (dam * af->level) / 100; //up to 1.79 dam at gen 10/49
+                dam += (dam * af->level) / 100; // up to 1.79 dam at gen 10/49
             }
         }
     }
@@ -859,8 +916,9 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             dam = (int)(dam * 0.75);
         } else if (IS_EVIL(ch)) {
             dam += dam * abs(GET_ALIGNMENT(ch)) / 4000;
-            if (IS_SOULLESS(ch))
+            if (IS_SOULLESS(ch)) {
                 dam += (int)(dam * 0.25);
+            }
 
             if (IS_GOOD(victim)) {
                 dam += dam * abs(GET_ALIGNMENT(victim)) / 4000;
@@ -868,29 +926,33 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
         }
     }
 
-    if (mag_savingthrow(victim, level, savetype))
+    if (mag_savingthrow(victim, level, savetype)) {
         dam /= 2;
+    }
 
-    if (audible)
+    if (audible) {
         sound_gunshots(ch->in_room, spellnum, dam, 1);
+    }
 
     // Do spell damage of type spellnum
     // unless its gravity well which does pressure damage.
     if (spellnum == SPELL_GRAVITY_WELL) {
-        if (!damage(ch, victim, NULL, dam, TYPE_PRESSURE, WEAR_RANDOM))
+        if (!damage(ch, victim, NULL, dam, TYPE_PRESSURE, WEAR_RANDOM)) {
             return 0;
+        }
 
         WAIT_STATE(victim, 2 RL_SEC);
         if (!AFF3_FLAGGED(victim, AFF3_GRAVITY_WELL) &&
             (GET_POSITION(victim) > POS_STANDING
-                || number(1, level) > GET_STR(victim))) {
+             || number(1, level) > GET_STR(victim))) {
             GET_POSITION(victim) = POS_RESTING;
             act("The gravity around you suddenly increases, slamming you to the ground!", false, victim, NULL, ch, TO_CHAR);
             act("The gravity around $n suddenly increases, slamming $m to the ground!", true, victim, NULL, ch, TO_ROOM);
         }
     } else {                    // normal spell damage type
-        if (!damage(ch, victim, NULL, dam, spellnum, WEAR_RANDOM))
+        if (!damage(ch, victim, NULL, dam, spellnum, WEAR_RANDOM)) {
             return 0;
+        }
     }
     if (spellnum == SPELL_PSYCHIC_SURGE) {
         if (!affected_by_spell(victim, SPELL_PSYCHIC_SURGE) &&
@@ -912,22 +974,23 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             affect_to_char(victim, &af);
         }
     } else if (spellnum == SPELL_PSIONIC_SHOCKWAVE
-        && GET_POSITION(victim) > POS_SITTING) {
+               && GET_POSITION(victim) > POS_SITTING) {
         if (number(5, 25) > GET_DEX(victim) / 3) {
             act("$N is knocked to the ground by your psionic shockwave!",
                 false, ch, NULL, victim, TO_CHAR);
-            if (IS_PSIONIC(victim))
+            if (IS_PSIONIC(victim)) {
                 act("You are knocked to the ground by $n's psionic shockwave!",
                     false, ch, NULL, victim, TO_VICT);
-            else
+            } else {
                 act("Your head suddenly explodes in pain and you fall to the ground in agony!", false, ch, NULL, victim, TO_VICT);
+            }
             act("$N suddenly falls to the ground, clutching $S head!",
                 false, ch, NULL, victim, TO_ROOM);
             GET_POSITION(victim) = POS_SITTING;
             WAIT_STATE(victim, 2 RL_SEC);
         }
     } else if (spellnum == SPELL_EGO_WHIP
-        && GET_POSITION(victim) > POS_SITTING) {
+               && GET_POSITION(victim) > POS_SITTING) {
         if (number(5, 25) > GET_DEX(victim)) {
             act("You are knocked to the ground by the psychic attack!",
                 false, victim, NULL, NULL, TO_CHAR);
@@ -937,7 +1000,7 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
             WAIT_STATE(victim, 2 RL_SEC);
         }
     } else if (spellnum == SPELL_CONE_COLD || spellnum == SPELL_HAILSTORM ||
-        spellnum == SPELL_HELL_FROST || spellnum == SPELL_CHILL_TOUCH || spellnum == SPELL_ICY_BLAST) {
+               spellnum == SPELL_HELL_FROST || spellnum == SPELL_CHILL_TOUCH || spellnum == SPELL_ICY_BLAST) {
         if (AFF2_FLAGGED(victim, AFF2_ABLAZE)) {
             extinguish_creature(victim);
             act("The flames on your body sizzle out and die.",
@@ -951,18 +1014,18 @@ mag_damage(int level, struct creature *ch, struct creature *victim,
 }
 
 /*
-  Every spell that does an affect comes through here.  This determines
-  the effect, whether it is added or replacement, whether it is legal or
-  not, etc.
+   Every spell that does an affect comes through here.  This determines
+   the effect, whether it is added or replacement, whether it is legal or
+   not, etc.
 
-  affect_join(vict, aff, add_dur, avg_dur, add_mod, avg_mod)
-*/
+   affect_join(vict, aff, add_dur, avg_dur, add_mod, avg_mod)
+ */
 
 void
 mag_affects(int level,
-    struct creature *ch,
-    struct creature *victim,
-    int *dir __attribute__ ((unused)), int spellnum, int savetype)
+            struct creature *ch,
+            struct creature *victim,
+            int *dir __attribute__ ((unused)), int spellnum, int savetype)
 {
     struct affected_type aff[8];
     int accum_affect = false;
@@ -970,8 +1033,9 @@ mag_affects(int level,
     const char *to_vict = NULL;
     const char *to_room = NULL;
 
-    if (victim == NULL || ch == NULL)
+    if (victim == NULL || ch == NULL) {
         return;
+    }
 
     if (IS_PC(ch) && GET_REMORT_GEN(ch) > 0 &&
         GET_CLASS(ch) >= 0 && GET_CLASS(ch) < NUM_CLASSES) {
@@ -981,8 +1045,9 @@ mag_affects(int level,
     if (spell_info[spellnum].violent
         && mag_savingthrow(victim, level, savetype)) {
         send_to_char(ch, "%s", NOEFFECT);
-        if (ch != victim)
+        if (ch != victim) {
             send_to_char(victim, "%s", NOEFFECT);
+        }
         return;
     }
 
@@ -997,7 +1062,7 @@ mag_affects(int level,
 
     case SPELL_HELL_FROST_STORM:
         spellnum = SPELL_HELL_FROST;
-        /* fallthrough */
+    /* fallthrough */
     case SPELL_HELL_FROST:
     case SPELL_CHILL_TOUCH:
     case SPELL_CONE_COLD:
@@ -1005,10 +1070,11 @@ mag_affects(int level,
             return;
         } else {
             aff[0].location = APPLY_STR;
-            if (mag_savingthrow(victim, level, savetype))
+            if (mag_savingthrow(victim, level, savetype)) {
                 aff[0].duration = 1;
-            else
+            } else {
                 aff[0].duration = 4;
+            }
             aff[0].modifier = -((level / 16) + 1);
             accum_duration = true;
             to_vict = "You feel your strength withered by the cold!";
@@ -1025,14 +1091,15 @@ mag_affects(int level,
             aff[0].modifier = -(number(1, 8));
             to_vict =
                 "You feel your strength wither as you vomit on the floor!";
-            if (!number(0, 1))
+            if (!number(0, 1)) {
                 to_room = "$n vomits all over the place!";
-            else if (!number(0, 1))
+            } else if (!number(0, 1)) {
                 to_room = "$n pukes all over $mself!";
-            else if (!number(0, 1))
+            } else if (!number(0, 1)) {
                 to_room = "$n blows chunks all over you!";
-            else
+            } else {
                 to_room = "$n starts vomiting uncontrollably!";
+            }
         }
         accum_affect = false;
         accum_duration = true;
@@ -1050,7 +1117,7 @@ mag_affects(int level,
             affect_from_char(victim, SPELL_STONESKIN);
             if (*spell_wear_off_msg[SPELL_STONESKIN]) {
                 send_to_char(victim, "%s\r\n",
-                    spell_wear_off_msg[SPELL_STONESKIN]);
+                             spell_wear_off_msg[SPELL_STONESKIN]);
             }
         }
 
@@ -1072,7 +1139,7 @@ mag_affects(int level,
             affect_from_char(victim, SPELL_BARKSKIN);
             if (*spell_wear_off_msg[SPELL_BARKSKIN]) {
                 send_to_char(victim, "%s\r\n",
-                    spell_wear_off_msg[SPELL_BARKSKIN]);
+                             spell_wear_off_msg[SPELL_BARKSKIN]);
             }
         }
         aff[0].level = aff[1].level = skill_bonus(ch, SPELL_STONESKIN);
@@ -1093,10 +1160,11 @@ mag_affects(int level,
         aff[1].modifier = -(3 + (level / 16));
         aff[1].duration = aff[0].duration;
         accum_duration = true;
-        if (IS_GOOD(ch))
+        if (IS_GOOD(ch)) {
             to_vict = "You feel extremely righteous.";
-        else
+        } else {
             to_vict = "You feel a dark power enter your soul.";
+        }
         break;
     case SPELL_BLINDNESS:
         if (NPC_FLAGGED(victim, NPC_NOBLIND)) {
@@ -1185,8 +1253,9 @@ mag_affects(int level,
         aff[0].bitvector = AFF3_DETECT_POISON;
         aff[0].aff_index = 3;
         to_vict = "Your eyes tingle.";
-        if (AFF_FLAGGED(victim, AFF_POISON))
+        if (AFF_FLAGGED(victim, AFF_POISON)) {
             send_to_char(victim, "You can sense poison in your blood.\r\n");
+        }
         break;
     case SPELL_DETECT_SCRYING:
         to_vict = "You are now aware.";
@@ -1322,8 +1391,9 @@ mag_affects(int level,
         break;
     }
     case SPELL_GAS_BREATH:
-        if (!NEEDS_TO_BREATHE(victim))
+        if (!NEEDS_TO_BREATHE(victim)) {
             return;
+        }
         aff[0].type = SPELL_POISON;
         aff[0].location = APPLY_STR;
         aff[0].duration = level;
@@ -1345,8 +1415,9 @@ mag_affects(int level,
         to_room = "$n gets violently ill from inhaling the vapors!";
         break;
     case SPELL_POISON:
-        if (IS_UNDEAD(victim))
+        if (IS_UNDEAD(victim)) {
             return;
+        }
         aff[0].location = APPLY_STR;
         aff[0].duration = level;
         aff[0].modifier = -2;
@@ -1378,8 +1449,9 @@ mag_affects(int level,
         break;
 
     case SPELL_SICKNESS:
-        if (IS_SICK(victim))
+        if (IS_SICK(victim)) {
             return;
+        }
         aff[0].type = SPELL_SICKNESS;
         aff[1].type = SPELL_SICKNESS;
         aff[0].location = APPLY_HITROLL;
@@ -1549,8 +1621,9 @@ mag_affects(int level,
     case SPELL_SLEEP:
     case SPELL_MELATONIC_FLOOD:
 
-        if (NPC_FLAGGED(victim, NPC_NOSLEEP) || IS_UNDEAD(victim))
+        if (NPC_FLAGGED(victim, NPC_NOSLEEP) || IS_UNDEAD(victim)) {
             return;
+        }
 
         aff[0].duration = 4 + level / 10;
         aff[0].bitvector = AFF_SLEEP;
@@ -1585,7 +1658,7 @@ mag_affects(int level,
 
     case SPELL_SENSE_LIFE:
         to_vict = "You feel your awareness improve.";
-        aff[0].duration = 1;        //level
+        aff[0].duration = 1;        // level
         aff[0].bitvector = AFF_SENSE_LIFE;
         accum_duration = true;
         break;
@@ -1656,8 +1729,9 @@ mag_affects(int level,
         aff[0].location = APPLY_HITROLL;
         aff[0].bitvector = AFF_CONFUSION;
 
-        if (GET_POSITION(victim) > POS_SLEEPING)
+        if (GET_POSITION(victim) > POS_SLEEPING) {
             to_room = "$n stops in $s tracks and stares off into space.";
+        }
         WAIT_STATE(victim, PULSE_VIOLENCE * 2);
         to_vict = "You suddenly feel very confused!";
         break;
@@ -1776,8 +1850,9 @@ mag_affects(int level,
         break;
 
     case SPELL_CELL_REGEN:
-        if (level + GET_CON(victim) > number(34, 70))
+        if (level + GET_CON(victim) > number(34, 70)) {
             aff[0].bitvector = AFF_REGEN;
+        }
 
         aff[0].location = APPLY_CON;
         aff[0].modifier = 1;
@@ -1832,13 +1907,14 @@ mag_affects(int level,
             "You will now send psychic feedback to anyone who attacks you.";
         break;
 
-        /* physic skills */
+    /* physic skills */
     case SPELL_GAMMA_RAY:
         aff[0].duration = (level / 4);
         aff[0].location = APPLY_HIT;
         aff[0].modifier = -(level);
-        if (GET_CLASS(ch) == CLASS_PHYSIC)
+        if (GET_CLASS(ch) == CLASS_PHYSIC) {
             aff[0].modifier *= (GET_REMORT_GEN(ch) + 2) / 2;
+        }
         aff[0].modifier = MAX(-(GET_MAX_HIT(victim) - 1), aff[0].modifier);
         aff[1].location = APPLY_MOVE;
         aff[1].modifier = -(level / 2);
@@ -1907,29 +1983,29 @@ mag_affects(int level,
 
     case SPELL_ACIDITY:
     case SPELL_ACID_BREATH:    // acid breath
-        {
-            struct affected_type *af_ptr =
-                affected_by_spell(victim, SPELL_CHEMICAL_STABILITY);
+    {
+        struct affected_type *af_ptr =
+            affected_by_spell(victim, SPELL_CHEMICAL_STABILITY);
 
-            // see if we have chemical stability
-            if (af_ptr) {
-                act("$n's chemical stability prevents acidification from occurring!", false, victim, NULL, NULL, TO_ROOM);
-                send_to_char(victim,
-                    "Your chemical stability prevents acidification from occurring!\r\n");
-                af_ptr->duration -= (level / 8);
+        // see if we have chemical stability
+        if (af_ptr) {
+            act("$n's chemical stability prevents acidification from occurring!", false, victim, NULL, NULL, TO_ROOM);
+            send_to_char(victim,
+                         "Your chemical stability prevents acidification from occurring!\r\n");
+            af_ptr->duration -= (level / 8);
 
-                if (af_ptr->duration <= 0) {
-                    if (af_ptr->type <= MAX_SPELLS &&
-                        af_ptr->type > 0 &&
-                        *spell_wear_off_msg[af_ptr->type]) {
-                        send_to_char(victim, "%s\r\n",
-                            spell_wear_off_msg[af_ptr->type]);
-                    }
-                    affect_remove(victim, af_ptr);
+            if (af_ptr->duration <= 0) {
+                if (af_ptr->type <= MAX_SPELLS &&
+                    af_ptr->type > 0 &&
+                    *spell_wear_off_msg[af_ptr->type]) {
+                    send_to_char(victim, "%s\r\n",
+                                 spell_wear_off_msg[af_ptr->type]);
                 }
-                return;
+                affect_remove(victim, af_ptr);
             }
+            return;
         }
+    }
         aff[0].duration = (level / 8);
         aff[0].bitvector = AFF3_ACIDITY;
         aff[0].aff_index = 3;
@@ -2003,7 +2079,7 @@ mag_affects(int level,
         aff[0].aff_index = 2;
         aff[0].location = APPLY_DEX;
         aff[0].modifier = -number(0,
-            skill_bonus(ch, SPELL_TEMPORAL_DILATION) / 25);
+                                  skill_bonus(ch, SPELL_TEMPORAL_DILATION) / 25);
         to_vict =
             "Time seems to speed up around you as your movements slow to a crawl.";
         to_room = "$n's movements slow to a tortured crawl.";
@@ -2011,7 +2087,7 @@ mag_affects(int level,
 
     case SPELL_DIMENSIONAL_SHIFT:
         aff[0].duration = number(1 + skill_bonus(ch, SPELL_DIMENSIONAL_SHIFT) / 15,
-            1 + skill_bonus(ch, SPELL_DIMENSIONAL_SHIFT) / 9);
+                                 1 + skill_bonus(ch, SPELL_DIMENSIONAL_SHIFT) / 9);
         to_vict =
             "You step into an infinitesimally different plane of the multiverse.";
         break;
@@ -2078,8 +2154,8 @@ mag_affects(int level,
         GET_POSITION(victim) = POS_FLYING;
         break;
 
-        //
-        //
+    //
+    //
     case SPELL_QUAD_DAMAGE:
         aff[0].duration = 6;
         accum_affect = true;
@@ -2087,14 +2163,15 @@ mag_affects(int level,
         to_room = "There is a screaming roar as $n begins to glow brightly!";
         break;
 
-        // physic mag_affect items
+    // physic mag_affect items
     case SPELL_DENSIFY:
         aff[0].duration = 1 + (level / 2);
         aff[0].location = APPLY_CHAR_WEIGHT;
         aff[0].modifier = level + GET_INT(ch);
 
-        if (victim == ch)
+        if (victim == ch) {
             accum_affect = true;
+        }
 
         to_vict = "You feel denser.";
 
@@ -2102,11 +2179,11 @@ mag_affects(int level,
 
     case SPELL_LATTICE_HARDENING:
 /*
-  Fireball: for instance, carbon or silicon have really nice lattices
-  Forget: so would it harden your entire structure, or just your shell?
-  Fireball: probably most of your solid structure, a little bit
-  Fireball: like harder bones, skin, organ membranecs
-*/
+   Fireball: for instance, carbon or silicon have really nice lattices
+   Forget: so would it harden your entire structure, or just your shell?
+   Fireball: probably most of your solid structure, a little bit
+   Fireball: like harder bones, skin, organ membranecs
+ */
         if (ch != victim) {
             send_to_char(ch, "There seems to be no affect.\r\n");
             return;
@@ -2128,11 +2205,12 @@ mag_affects(int level,
         to_room = "$n's body becomes irregularly refractive.";
         break;
 
-        /* REMORT SKILLS GO HERE */
+    /* REMORT SKILLS GO HERE */
 
     case SPELL_SHIELD_OF_RIGHTEOUSNESS:
-        if (!IS_GOOD(victim))
+        if (!IS_GOOD(victim)) {
             return;
+        }
         aff[0].duration = level / 4;
         aff[0].location = APPLY_CASTER;
         aff[0].modifier = !IS_NPC(ch) ? GET_IDNUM(ch) : -NPC_IDNUM(ch);
@@ -2142,8 +2220,9 @@ mag_affects(int level,
         if (ch == victim) {
             to_vict = "A shield of righteousness appears around you.";
             to_room = "A shield of righteousness expands around $N.";
-        } else
+        } else {
             to_vict = "You feel enveloped in $N's shield of righteousness.";
+        }
         break;
     case SPELL_BLACKMANTLE:
         aff[0].duration = level / 4;
@@ -2186,7 +2265,7 @@ mag_affects(int level,
             (ch->in_room->sector_type != SECT_ROAD || !OUTSIDE(ch)) &&
             ch->in_room->sector_type != SECT_JUNGLE) {
             send_to_char(ch,
-                "There is not enough vegetation here for that.\r\n");
+                         "There is not enough vegetation here for that.\r\n");
             return;
         }
         aff[0].location = APPLY_HITROLL;
@@ -2299,8 +2378,9 @@ mag_affects(int level,
         aff[2].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
         aff[3].modifier = skill_bonus(ch, SPELL_DIVINE_POWER);
 
-        if (!AFF3_FLAGGED(ch, AFF3_DIVINE_POWER))
+        if (!AFF3_FLAGGED(ch, AFF3_DIVINE_POWER)) {
             accum_affect = 1;
+        }
         break;
 
     case SPELL_FIRE_BREATHING:
@@ -2315,7 +2395,7 @@ mag_affects(int level,
         to_vict = "A cold tingling begins in the back of your throat.";
         break;
 
-        // Bard stuff
+    // Bard stuff
 
     case SONG_DRIFTERS_DITTY:
         aff[0].duration = 1 + (level / 2);
@@ -2422,8 +2502,9 @@ mag_affects(int level,
         aff[0].duration = 1 + skill_bonus(ch, SONG_WHITE_NOISE) / 25;
         aff[0].bitvector = AFF_CONFUSION;
 
-        if (GET_POSITION(victim) > POS_SLEEPING)
+        if (GET_POSITION(victim) > POS_SLEEPING) {
             to_room = "$n stops suddenly and stares around as if confused.";
+        }
         to_vict = "You suddenly feel very confused!";
         WAIT_STATE(victim, PULSE_VIOLENCE * 2);
         break;
@@ -2513,7 +2594,7 @@ mag_affects(int level,
     case SONG_POWER_OVERTURE:
         if (ch != victim) {
             send_to_char(ch, "%s doesn't seem to be moved by your song.\r\n",
-                GET_NAME(victim));
+                         GET_NAME(victim));
             return;
         }
 
@@ -2541,72 +2622,74 @@ mag_affects(int level,
         to_room = "Whispers of $N's song begin whirling around $M!";
         break;
 
-    case SONG_RHYTHM_OF_RAGE:{
-            if (ch != victim) {
-                send_to_char(ch, "Your tune fails to enrage %s.\r\n",
-                    GET_NAME(victim));
-            }
-
-            aff[0].type = SKILL_BERSERK;
-            aff[1].type = SKILL_BERSERK;
-            aff[2].type = SKILL_BERSERK;
-
-            aff[0].duration =
-                1 + (skill_bonus(ch, SONG_RHYTHM_OF_RAGE) / 32);
-
-            aff[1].duration = aff[0].duration;
-            aff[2].duration = aff[0].duration;
-
-            aff[0].location = APPLY_INT;
-            aff[1].location = APPLY_WIS;
-            aff[2].location = APPLY_DAMROLL;
-
-            aff[0].modifier =
-                -(4 + (skill_bonus(ch, SONG_RHYTHM_OF_RAGE) / 32));
-            aff[1].modifier = aff[0].modifier;
-            aff[2].modifier =
-                (1 + (skill_bonus(ch,
-                        SONG_RHYTHM_OF_RAGE) / 12) + (GET_LEVEL(ch) / 16));
-
-            aff[0].aff_index = 2;
-            aff[0].bitvector = AFF2_BERSERK;
-
-            act("The music drives you feral with rage!", false, ch, NULL, NULL,
-                TO_CHAR);
-            act("$n looks murderous.  You might want to get out of here!",
-                false, ch, NULL, NULL, TO_ROOM);
-
-
-            for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
-                struct creature *tch = (struct creature *)it->data;
-
-                if (ch == tch || !can_see_creature(ch, tch))
-                    continue;
-
-                int percent = (number(1, 101) + GET_LEVEL(ch));
-                if (percent < CHECK_SKILL(ch, SONG_RHYTHM_OF_RAGE))
-                    continue;
-                else {
-                    act("You attack $N in your berserk rage!!!",
-                        false, ch, NULL, tch, TO_CHAR);
-                    act("$n attacks you in $s berserk rage!!!",
-                        false, ch, NULL, tch, TO_VICT);
-                    act("$n attacks $N in $s berserk rage!!!",
-                        true, ch, NULL, tch, TO_NOTVICT);
-                    hit(ch, tch, TYPE_UNDEFINED);
-                    break;
-                }
-            }
-            break;
+    case SONG_RHYTHM_OF_RAGE: {
+        if (ch != victim) {
+            send_to_char(ch, "Your tune fails to enrage %s.\r\n",
+                         GET_NAME(victim));
         }
+
+        aff[0].type = SKILL_BERSERK;
+        aff[1].type = SKILL_BERSERK;
+        aff[2].type = SKILL_BERSERK;
+
+        aff[0].duration =
+            1 + (skill_bonus(ch, SONG_RHYTHM_OF_RAGE) / 32);
+
+        aff[1].duration = aff[0].duration;
+        aff[2].duration = aff[0].duration;
+
+        aff[0].location = APPLY_INT;
+        aff[1].location = APPLY_WIS;
+        aff[2].location = APPLY_DAMROLL;
+
+        aff[0].modifier =
+            -(4 + (skill_bonus(ch, SONG_RHYTHM_OF_RAGE) / 32));
+        aff[1].modifier = aff[0].modifier;
+        aff[2].modifier =
+            (1 + (skill_bonus(ch,
+                              SONG_RHYTHM_OF_RAGE) / 12) + (GET_LEVEL(ch) / 16));
+
+        aff[0].aff_index = 2;
+        aff[0].bitvector = AFF2_BERSERK;
+
+        act("The music drives you feral with rage!", false, ch, NULL, NULL,
+            TO_CHAR);
+        act("$n looks murderous.  You might want to get out of here!",
+            false, ch, NULL, NULL, TO_ROOM);
+
+
+        for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
+            struct creature *tch = (struct creature *)it->data;
+
+            if (ch == tch || !can_see_creature(ch, tch)) {
+                continue;
+            }
+
+            int percent = (number(1, 101) + GET_LEVEL(ch));
+            if (percent < CHECK_SKILL(ch, SONG_RHYTHM_OF_RAGE)) {
+                continue;
+            } else {
+                act("You attack $N in your berserk rage!!!",
+                    false, ch, NULL, tch, TO_CHAR);
+                act("$n attacks you in $s berserk rage!!!",
+                    false, ch, NULL, tch, TO_VICT);
+                act("$n attacks $N in $s berserk rage!!!",
+                    true, ch, NULL, tch, TO_NOTVICT);
+                hit(ch, tch, TYPE_UNDEFINED);
+                break;
+            }
+        }
+        break;
+    }
 
     case SONG_ARIA_OF_ASYLUM:
         aff[0].duration = 5 + skill_bonus(ch, SONG_ARIA_OF_ASYLUM) / 8;
         aff[0].location = APPLY_CASTER;
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             aff[0].modifier = -(GET_IDNUM(ch));
-        else
+        } else {
             aff[0].modifier = GET_IDNUM(ch);
+        }
 
         to_vict = "A gossamer shield of music forms around you.";
         to_room = "A gossamer shield of music forms around $n";
@@ -2617,10 +2700,11 @@ mag_affects(int level,
             1 + GET_CHA(ch) + (skill_bonus(ch, SONG_FORTISSIMO) / 8);
         aff[0].location = APPLY_CASTER;
 
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             aff[0].modifier = -(GET_IDNUM(ch));
-        else
+        } else {
             aff[0].modifier = GET_IDNUM(ch);
+        }
 
         to_vict =
             "The air around you begins to vibrate with an increased intensity.";
@@ -2628,13 +2712,14 @@ mag_affects(int level,
 
     case SONG_LICHS_LYRICS:
         aff[0].duration = 1 + (GET_CHA(ch) / 8) +
-            (skill_bonus(ch, SONG_LICHS_LYRICS) / 16);
+                          (skill_bonus(ch, SONG_LICHS_LYRICS) / 16);
         aff[0].location = APPLY_CASTER;
 
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             aff[0].modifier = -(GET_IDNUM(ch));
-        else
+        } else {
             aff[0].modifier = GET_IDNUM(ch);
+        }
 
         to_vict = "Your flesh begins to rot and decay!";
         to_room = "$n's flesh begins to rot and decay!";
@@ -2642,23 +2727,24 @@ mag_affects(int level,
 
     case SONG_MISDIRECTION_MELISMA:
         aff[0].duration = 1 + (GET_CHA(ch) / 4) +
-            (skill_bonus(ch, SONG_MISDIRECTION_MELISMA) / 16);
+                          (skill_bonus(ch, SONG_MISDIRECTION_MELISMA) / 16);
         aff[0].location = APPLY_CASTER;
 
-        if (IS_NPC(ch))
+        if (IS_NPC(ch)) {
             aff[0].modifier = -(GET_IDNUM(ch));
-        else
+        } else {
             aff[0].modifier = GET_IDNUM(ch);
+        }
 
         to_vict = "You begin misdirecting attempts to track you.";
         break;
 
     case SONG_MIRROR_IMAGE_MELODY:
         aff[0].duration = 1 + (GET_CHA(ch) / 4) +
-            (skill_bonus(ch, SONG_MIRROR_IMAGE_MELODY) / 8);
+                          (skill_bonus(ch, SONG_MIRROR_IMAGE_MELODY) / 8);
         aff[0].location = APPLY_CASTER;
         aff[0].modifier = 1 + (GET_CHA(ch) / 8) +
-            (skill_bonus(ch, SONG_MIRROR_IMAGE_MELODY) / 33);
+                          (skill_bonus(ch, SONG_MIRROR_IMAGE_MELODY) / 33);
         to_vict = "Mirror images of yourself begin moving around you.";
         to_room = "Mirror images of $n begin moving around $m.";
         break;
@@ -2688,8 +2774,8 @@ mag_affects(int level,
     }
     // Lingering song causes a bards songs to last longer
     if (IS_BARD(ch) && SPELL_IS_BARD(spellnum)) {
-        //we do the check first so that we get all of the applies of a given spell
-        //prevents multiple wear off messages
+        // we do the check first so that we get all of the applies of a given spell
+        // prevents multiple wear off messages
         if (CHECK_SKILL(ch, SKILL_LINGERING_SONG) > number(1, 120)) {
             for (int x = 0; x < 8; x++) {
                 aff[x].duration = (int)(aff[x].duration * 1.5);
@@ -2701,47 +2787,55 @@ mag_affects(int level,
      * not have an accumulative effect, then fail the spell.
      */
     if (affected_by_spell(victim, spellnum) && !(accum_duration
-            || accum_affect)) {
+                                                 || accum_affect)) {
         return;
     }
 
     for (int x = 0; x < 8; x++) {
         if (aff[x].bitvector || aff[x].location
-            || aff[x].duration)
+            || aff[x].duration) {
             affect_join(victim, &aff[x], accum_duration, false,
-                accum_affect, false);
+                        accum_affect, false);
+        }
     }
-    if (to_vict != NULL)
+    if (to_vict != NULL) {
         act(to_vict, false, victim, NULL, ch, TO_CHAR);
-    if (to_room != NULL)
+    }
+    if (to_room != NULL) {
         act(to_room, true, victim, NULL, ch, TO_ROOM);
+    }
 
-    if (spellnum == SPELL_DIVINE_POWER && accum_affect)
+    if (spellnum == SPELL_DIVINE_POWER && accum_affect) {
         GET_HIT(ch) += (skill_bonus(ch, SPELL_DIVINE_POWER) * 3);
+    }
 
-    if (spellnum == SONG_MELODY_OF_METTLE)
+    if (spellnum == SONG_MELODY_OF_METTLE) {
         GET_HIT(ch) += 50 + MIN(skill_bonus(ch, SONG_MELODY_OF_METTLE), 125);
+    }
 
     if (spellnum == SPELL_FEAR && !mag_savingthrow(victim, level, SAVING_PSI)
-        && GET_POSITION(victim) > POS_SITTING)
+        && GET_POSITION(victim) > POS_SITTING) {
         do_flee(victim, tmp_strdup(""), 0, 0);
+    }
 
     // This looks redundant, but serves as a reminder that the damage()
     // function might kill the character
-    if (spellnum == SPELL_THORN_SKIN)
+    if (spellnum == SPELL_THORN_SKIN) {
         if (damage(ch, ch, NULL, (150 - skill_bonus(ch, SPELL_THORN_SKIN) / 2),
-                SPELL_THORN_SKIN_CASTING, WEAR_RANDOM))
+                   SPELL_THORN_SKIN_CASTING, WEAR_RANDOM)) {
             return;
+        }
+    }
 }
 
 /*
-  * This function is used to provide services to mag_groups.  This function
-  * is the one you should change to add new group spells.
-  */
+ * This function is used to provide services to mag_groups.  This function
+ * is the one you should change to add new group spells.
+ */
 
 void
 perform_mag_groups(int level, struct creature *ch,
-    struct creature *tch, int *tdir, int spellnum, int savetype)
+                   struct creature *tch, int *tdir, int spellnum, int savetype)
 {
     switch (spellnum) {
     case SPELL_GROUP_HEAL:
@@ -2757,10 +2851,11 @@ perform_mag_groups(int level, struct creature *ch,
         mag_affects(level, ch, tch, tdir, SPELL_CONFIDENCE, savetype);
         break;
     case SPELL_SHIELD_OF_RIGHTEOUSNESS:
-        if (!IS_GOOD(tch))
+        if (!IS_GOOD(tch)) {
             break;
+        }
         mag_affects(level, ch, tch, tdir, SPELL_SHIELD_OF_RIGHTEOUSNESS,
-            savetype);
+                    savetype);
         break;
     case SONG_DRIFTERS_DITTY:
         mag_affects(level, ch, tch, tdir, SONG_DRIFTERS_DITTY, savetype);
@@ -2832,33 +2927,41 @@ mag_groups(int level, struct creature *ch, int spellnum, int savetype)
     int tdir = -1;
     struct follow_type *f, *f_next;
 
-    if (ch == NULL)
+    if (ch == NULL) {
         return;
+    }
 
-    if (!AFF_FLAGGED(ch, AFF_GROUP) && !SPELL_IS_BARD(spellnum))
+    if (!AFF_FLAGGED(ch, AFF_GROUP) && !SPELL_IS_BARD(spellnum)) {
         return;
+    }
 
-    if (ch->master != NULL)
+    if (ch->master != NULL) {
         k = ch->master;
-    else
+    } else {
         k = ch;
+    }
     for (f = k->followers; f; f = f_next) {
         f_next = f->next;
         tch = f->follower;
-        if (tch->in_room != ch->in_room)
+        if (tch->in_room != ch->in_room) {
             continue;
-        if (!AFF_FLAGGED(tch, AFF_GROUP))
+        }
+        if (!AFF_FLAGGED(tch, AFF_GROUP)) {
             continue;
-        if (ch == tch)
+        }
+        if (ch == tch) {
             continue;
-        if (ch->in_room != tch->in_room)
+        }
+        if (ch->in_room != tch->in_room) {
             continue;
+        }
 
         perform_mag_groups(level, ch, tch, &tdir, spellnum, savetype);
     }
 
-    if ((k != ch) && AFF_FLAGGED(k, AFF_GROUP))
+    if ((k != ch) && AFF_FLAGGED(k, AFF_GROUP)) {
         perform_mag_groups(level, ch, k, &tdir, spellnum, savetype);
+    }
     perform_mag_groups(level, ch, ch, &tdir, spellnum, savetype);
 }
 
@@ -2872,17 +2975,19 @@ void
 mag_masses(int8_t level, struct creature *ch, int spellnum, int savetype)
 {
     int found = 0;
-    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
 
-        if (tch == ch || !g_list_find(tch->fighting, ch))
+        if (tch == ch || !g_list_find(tch->fighting, ch)) {
             continue;
+        }
         found = true;
         mag_damage(level, ch, tch, spellnum, savetype);
     }
-    if (!found)
+    if (!found) {
         send_to_char(ch,
-            "This spell is only useful if someone is fighting you.\r\n");
+                     "This spell is only useful if someone is fighting you.\r\n");
+    }
 }
 
 /*
@@ -2892,7 +2997,7 @@ mag_masses(int8_t level, struct creature *ch, int spellnum, int savetype)
  * in order for them to work.
  *
  *  area spells have limited targets within the room.
-*/
+ */
 
 int
 mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
@@ -2904,19 +3009,21 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
     int8_t count;
     int return_value = 0;
 
-    if (ch == NULL)
+    if (ch == NULL) {
         return 0;
+    }
 
     if (spellnum == SPELL_MASS_HYSTERIA) {
         count = 0;
-        for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+        for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
             struct creature *tch = (struct creature *)it->data;
-            if (tch != ch && can_see_creature(ch, tch))
+            if (tch != ch && can_see_creature(ch, tch)) {
                 count++;
+            }
         }
         if (!count) {
             send_to_char(ch,
-                "You need some people present to make that effective.\r\n");
+                         "You need some people present to make that effective.\r\n");
             return 0;
         }
     }
@@ -2973,31 +3080,40 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
         to_next_room = "You feel a chill deep in your soul.";
     }
 
-    if (to_char != NULL)
+    if (to_char != NULL) {
         act(to_char, false, ch, NULL, NULL, TO_CHAR);
-    if (to_room != NULL)
+    }
+    if (to_room != NULL) {
         act(to_room, false, ch, NULL, NULL, TO_ROOM);
+    }
 
     if (spellnum == SPELL_EARTHQUAKE && (room_is_underwater(ch->in_room)
-            || room_is_open_air(ch->in_room)))
+                                         || room_is_open_air(ch->in_room))) {
         return 0;
-    if (spellnum == SPELL_METEOR_STORM && room_is_underwater(ch->in_room))
+    }
+    if (spellnum == SPELL_METEOR_STORM && room_is_underwater(ch->in_room)) {
         return 0;
+    }
 
     // check for players if caster is not a pkiller
-    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *vict = (struct creature *)it->data;
-        if (vict == ch)
+        if (vict == ch) {
             continue;
+        }
         if (AFF_FLAGGED(ch, AFF_GROUP) && AFF_FLAGGED(vict, AFF_GROUP)
-            && (vict->master == ch || vict->master == ch->master || ch->master == vict))
+            && (vict->master == ch || vict->master == ch->master || ch->master == vict)) {
             continue;
-        if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE))
+        }
+        if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE)) {
             continue;
-        if (!IS_NPC(ch) && IS_NPC(vict) && AFF_FLAGGED(vict, AFF_CHARM))
+        }
+        if (!IS_NPC(ch) && IS_NPC(vict) && AFF_FLAGGED(vict, AFF_CHARM)) {
             continue;
-        if (spellnum == SPELL_EARTHQUAKE && GET_POSITION(vict) == POS_FLYING)
+        }
+        if (spellnum == SPELL_EARTHQUAKE && GET_POSITION(vict) == POS_FLYING) {
             continue;
+        }
         if (spellnum == SONG_SONIC_DISRUPTION && IS_UNDEAD(vict)) {
             continue;
         }
@@ -3011,12 +3127,12 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
         if (vict != ch && !ok_to_attack(ch, vict, false)) {
             if (SPELL_IS_PSIONIC(spellnum)) {
                 send_to_char(ch, "The Universal Psyche descends on your "
-                    "mind and renders you powerless!\r\n");
+                                 "mind and renders you powerless!\r\n");
                 act("$n concentrates for an instant, and is suddenly "
                     "thrown into mental shock!", false, ch, NULL, NULL, TO_ROOM);
             } else if (SPELL_IS_PHYSICS(spellnum)) {
                 send_to_char(ch, "The Supernatural Reality prevents you "
-                    "from twisting nature in that way!\r\n");
+                                 "from twisting nature in that way!\r\n");
                 act("$n attempts to violently alter reality, but is "
                     "restrained by the whole of the universe.", false,
                     ch, NULL, NULL, TO_ROOM);
@@ -3027,7 +3143,7 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
                     ch, NULL, NULL, TO_ROOM);
             } else {
                 send_to_char(ch, "A flash of white light fills "
-                    "the room, dispelling your violent " "magic!\r\n");
+                                 "the room, dispelling your violent " "magic!\r\n");
                 act("White light from no particular source suddenly "
                     "fills the room, then vanishes.", false,
                     ch, NULL, NULL, TO_ROOM);
@@ -3036,28 +3152,33 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
         }
     }
 
-    for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
+    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
         struct creature *vict = (struct creature *)it->data;
         // skips:
-        //          caster
-        //          nohassle-flagged players (imms)
-        //          charmed mobs
-        //          flying chars if spell is earthquake
-        //          undead chars if spell is sonic disruption
-        //          non-undead chars if spell is dirge
-        //          non-living chars if spell is lich's lyric
+        // caster
+        // nohassle-flagged players (imms)
+        // charmed mobs
+        // flying chars if spell is earthquake
+        // undead chars if spell is sonic disruption
+        // non-undead chars if spell is dirge
+        // non-living chars if spell is lich's lyric
 
-        if (vict == ch)
+        if (vict == ch) {
             continue;
+        }
         if (AFF_FLAGGED(ch, AFF_GROUP) && AFF_FLAGGED(vict, AFF_GROUP)
-            && (vict->master == ch || vict->master == ch->master || ch->master == vict))
+            && (vict->master == ch || vict->master == ch->master || ch->master == vict)) {
             continue;
-        if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE))
+        }
+        if (!IS_NPC(vict) && PRF_FLAGGED(vict, PRF_NOHASSLE)) {
             continue;
-        if (!IS_NPC(ch) && IS_NPC(vict) && AFF_FLAGGED(vict, AFF_CHARM))
+        }
+        if (!IS_NPC(ch) && IS_NPC(vict) && AFF_FLAGGED(vict, AFF_CHARM)) {
             continue;
-        if (spellnum == SPELL_EARTHQUAKE && GET_POSITION(vict) == POS_FLYING)
+        }
+        if (spellnum == SPELL_EARTHQUAKE && GET_POSITION(vict) == POS_FLYING) {
             continue;
+        }
         if (spellnum == SONG_SONIC_DISRUPTION && IS_UNDEAD(vict)) {
             continue;
         }
@@ -3077,16 +3198,17 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
             && !(mag_savingthrow(vict, level, SAVING_PHY))) {
             add_rad_sickness(vict, level);
         }
-        if (spellnum == SONG_SONIC_DISRUPTION) {    //drop things
+        if (spellnum == SONG_SONIC_DISRUPTION) {    // drop things
             struct obj_data *obj = NULL;
             if (IS_NPC(vict) && vict->mob_specials.shared->func == vendor) {
                 continue;
             }
-            if ((random_number_zero_low(3 + (level / 4)) + 3) > GET_DEX(vict) && !is_arena_combat(ch, vict) && (obj = vict->carrying)) {    //assignment to obj
+            if ((random_number_zero_low(3 + (level / 4)) + 3) > GET_DEX(vict) && !is_arena_combat(ch, vict) && (obj = vict->carrying)) {    // assignment to obj
                 while (obj) {
                     if (can_see_object(vict, obj)
-                        && !IS_OBJ_STAT(obj, ITEM_NODROP))
+                        && !IS_OBJ_STAT(obj, ITEM_NODROP)) {
                         break;
+                    }
                     obj = obj->next_content;
                 }
                 if (obj) {
@@ -3105,8 +3227,8 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
         if (!is_dead(ch)
             && spellnum == SPELL_EARTHQUAKE
             && number(10, 20) > GET_DEX(ch)) {
-                send_to_char(ch, "You stumble and fall to the ground!\r\n");
-                GET_POSITION(ch) = POS_SITTING;
+            send_to_char(ch, "You stumble and fall to the ground!\r\n");
+            GET_POSITION(ch) = POS_SITTING;
         }
     }
     if (to_next_room) {
@@ -3118,21 +3240,24 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
                 adjoin_room = ch->in_room;
                 ch->in_room = was_in;
 
-                for (GList * it = first_living(adjoin_room->people); it; it = next_living(it)) {
+                for (GList *it = first_living(adjoin_room->people); it; it = next_living(it)) {
                     struct creature *vict = (struct creature *)it->data;
-                    if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR)
+                    if (!IS_NPC(vict) && GET_LEVEL(vict) >= LVL_AMBASSADOR) {
                         continue;
+                    }
                     if (!IS_NPC(ch) && IS_NPC(vict)
-                        && AFF_FLAGGED(vict, AFF_CHARM))
+                        && AFF_FLAGGED(vict, AFF_CHARM)) {
                         continue;
+                    }
                     if (spellnum == SPELL_EARTHQUAKE
-                        && GET_POSITION(vict) == POS_FLYING)
+                        && GET_POSITION(vict) == POS_FLYING) {
                         continue;
+                    }
                     if (spellnum == SPELL_EARTHQUAKE
                         && GET_POSITION(vict) == POS_STANDING
                         && number(10, 20) > GET_DEX(vict)) {
                         send_to_char(vict,
-                            "You stumble and fall to the ground!\r\n");
+                                     "You stumble and fall to the ground!\r\n");
                         GET_POSITION(vict) = POS_SITTING;
                     }
                 }
@@ -3143,11 +3268,11 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
 }
 
 /*
-  Every spell which summons/gates/conjours a mob comes through here.
-  None of these spells are currently implemented in Circle 3.0; these
-  were taken as examples from the JediMUD code.  Summons can be used
-  for spells like clone, ariel servant, etc.
-*/
+   Every spell which summons/gates/conjours a mob comes through here.
+   None of these spells are currently implemented in Circle 3.0; these
+   were taken as examples from the JediMUD code.  Summons can be used
+   for spells like clone, ariel servant, etc.
+ */
 
 static const char *mag_summon_msgs[] = {
     "\r\n",
@@ -3157,7 +3282,7 @@ static const char *mag_summon_msgs[] = {
     "$N appears from a cloud of thick green smoke!\r\n",
     "$N appears from a cloud of thick red smoke!\r\n",
     "$N disappears in a thick black cloud!\r\n"
-        "As $n makes a strange magical gesture, you feel a strong breeze.\r\n",
+    "As $n makes a strange magical gesture, you feel a strong breeze.\r\n",
     "As $n makes a strange magical gesture, you feel a searing heat.\r\n",
     "As $n makes a strange magical gesture, you feel a sudden chill.\r\n",
     "As $n makes a strange magical gesture, you feel the dust swirl.\r\n",
@@ -3189,8 +3314,8 @@ static const char *mag_summon_fail_msgs[] = {
 
 void
 mag_summons(int level __attribute__ ((unused)),
-    struct creature *ch,
-    struct obj_data *obj, int spellnum, int savetype __attribute__ ((unused)))
+            struct creature *ch,
+            struct obj_data *obj, int spellnum, int savetype __attribute__ ((unused)))
 {
     int pfail = 0;
     int fmsg = 0;
@@ -3199,8 +3324,9 @@ mag_summons(int level __attribute__ ((unused)),
     int mob_num = 0;
     bool handle_corpse = false;
 
-    if (ch == NULL)
+    if (ch == NULL) {
         return;
+    }
 
     switch (spellnum) {
     case SPELL_ANIMATE_DEAD:
@@ -3212,8 +3338,9 @@ mag_summons(int level __attribute__ ((unused)),
         handle_corpse = true;
         mob_num = NPC_ZOMBIE;
         a = number(0, 5);
-        if (a)
+        if (a) {
             mob_num++;
+        }
         pfail = 8;
         break;
     case SPELL_CLONE:
@@ -3230,7 +3357,7 @@ mag_summons(int level __attribute__ ((unused)),
         send_to_char(ch, "%s", mag_summon_fail_msgs[fmsg]);
         return;
     }
-    
+
     for (i = 0; i < num; i++) {
         struct creature *mob = read_mobile(mob_num);
         if (mob == NULL) {
@@ -3261,9 +3388,9 @@ mag_summons(int level __attribute__ ((unused)),
 
 void
 mag_points(int level,
-    struct creature *ch,
-    struct creature *victim,
-    int *dir __attribute__ ((unused)), int spellnum, int savetype)
+           struct creature *ch,
+           struct creature *victim,
+           int *dir __attribute__ ((unused)), int spellnum, int savetype)
 {
     int hit = 0;
     int move = 0;
@@ -3274,13 +3401,15 @@ mag_points(int level,
     const char *to_vict = NULL, *to_room = NULL;
     int skill;
 
-    if (victim == NULL)
+    if (victim == NULL) {
         return;
+    }
 
-    if (savetype == SAVING_ROD || savetype == SAVING_NONE)
+    if (savetype == SAVING_ROD || savetype == SAVING_NONE) {
         skill = 100;
-    else
+    } else {
         skill = CHECK_SKILL(ch, spellnum);
+    }
     switch (spellnum) {
     case SPELL_CURE_LIGHT:
         hit = dice(1, 8) + 1 + (level / 4);
@@ -3316,10 +3445,10 @@ mag_points(int level,
         to_vict = "You feel your spiritual energies replenished.";
         to_room = "$n is surrounded by a brief aura of blue light.";
         break;
-        /* psionic triggers */
+    /* psionic triggers */
     case SPELL_PSYCHIC_CONDUIT:
         mana = level + (CHECK_SKILL(ch, SPELL_PSYCHIC_CONDUIT) / 20) +
-            number(0, GET_WIS(ch)) + (GET_REMORT_GEN(ch) * 4);
+               number(0, GET_WIS(ch)) + (GET_REMORT_GEN(ch) * 4);
         break;
 
     case SPELL_SATIATION:
@@ -3334,7 +3463,7 @@ mag_points(int level,
 
     case SPELL_WOUND_CLOSURE:
         hit = dice(3, 6 + (CHECK_SKILL(ch, SPELL_WOUND_CLOSURE) / 32)) +
-            number(level / 2, level);
+              number(level / 2, level);
         hit += GET_REMORT_GEN(ch) * 4;
         hit +=
             ((CHECK_SKILL(ch, SPELL_WOUND_CLOSURE) - LEARNED(ch)) * hit) / 100;
@@ -3347,16 +3476,16 @@ mag_points(int level,
 
     case SPELL_CELL_REGEN:
         hit = dice(4, 6 + (CHECK_SKILL(ch, SPELL_CELL_REGEN) / 16)) +
-            number(level / 2, level * 2);
+              number(level / 2, level * 2);
         hit = (skill * hit) / 100;
         break;
 
-        /* physic stuff */
+    /* physic stuff */
     case SPELL_CAPACITANCE_BOOST:
         move = level * 2;
         break;
 
-        // Bard stuff
+    // Bard stuff
     case SONG_DRIFTERS_DITTY:
         move = level * 2;
         break;
@@ -3365,7 +3494,7 @@ mag_points(int level,
         hit = dice(10, 1 + skill_bonus(ch, SONG_RHAPSODY_OF_REMEDY) / 4);
         hit +=
             ((skill_bonus(ch,
-                    SONG_RHAPSODY_OF_REMEDY) / 10) - (25 - GET_CHA(ch))) * 4;
+                          SONG_RHAPSODY_OF_REMEDY) / 10) - (25 - GET_CHA(ch))) * 4;
         to_vict = "Your wounds fade along with the last notes of the music.";
         break;
 
@@ -3389,8 +3518,9 @@ mag_points(int level,
 
     if (hit > 0 && savetype == SAVING_SPELL && SPELL_IS_DIVINE(spellnum)) {
         int alignment = GET_ALIGNMENT(ch);
-        if (alignment < 0)
+        if (alignment < 0) {
             alignment *= -1;
+        }
 
         hit += (hit * alignment) / 3000;
         if (IS_EVIL(ch)) {
@@ -3409,19 +3539,23 @@ mag_points(int level,
     GET_MANA(victim) = MIN(GET_MAX_MANA(victim), GET_MANA(victim) + mana);
     GET_ALIGNMENT(victim) =
         MAX(MIN(GET_ALIGNMENT(victim) + align, 1000), -1000);
-    if (hunger)
+    if (hunger) {
         gain_condition(victim, FULL, hunger);
-    if (thirst)
+    }
+    if (thirst) {
         gain_condition(victim, THIRST, thirst);
-    if (to_vict)
+    }
+    if (to_vict) {
         act(to_vict, false, ch, NULL, victim, TO_VICT);
-    if (to_room)
+    }
+    if (to_room) {
         act(to_room, false, ch, NULL, victim, TO_NOTVICT);
+    }
 }
 
 void
 mag_unaffects(int level, struct creature *ch, struct creature *victim,
-    int spellnum, int type)
+              int spellnum, int type)
 {
     int spell = 0, spell2 = 0, spell3 = 0, spell4 = 0, spell5 = 0;
     const char *to_vict = NULL, *to_room = NULL, *to_vict2 = NULL, *to_room2 =
@@ -3429,13 +3563,15 @@ mag_unaffects(int level, struct creature *ch, struct creature *victim,
         NULL, *to_vict5 = NULL, *to_room5 = NULL;
     struct affected_type *aff = NULL, *next_aff = NULL;
 
-    if (victim == NULL)
+    if (victim == NULL) {
         return;
+    }
 
     if (spell_info[spellnum].violent && mag_savingthrow(victim, level, type)) {
         act("You resist the affects!", false, ch, NULL, victim, TO_VICT);
-        if (ch != victim)
+        if (ch != victim) {
             act("$N resists the affects!", false, ch, NULL, victim, TO_CHAR);
+        }
         WAIT_STATE(ch, PULSE_VIOLENCE);
         return;
     }
@@ -3498,16 +3634,17 @@ mag_unaffects(int level, struct creature *ch, struct creature *victim,
         to_vict = "Your sickness subsides.  What intense relief.";
         to_room = "$n looks better.";
         break;
-        /* psionic skills */
+    /* psionic skills */
     case SPELL_NULLPSI:
         if (victim->affected) {
             send_to_char(victim,
-                "Your feel the effects of a psychic purge.\r\n");
+                         "Your feel the effects of a psychic purge.\r\n");
             for (aff = victim->affected; aff; aff = next_aff) {
                 next_aff = aff->next;
                 if (SPELL_IS_PSIONIC(aff->type)) {
-                    if (aff->level < number(level / 2, level * 2))
+                    if (aff->level < number(level / 2, level * 2)) {
                         affect_remove(victim, aff);
+                    }
                 }
             }
         }
@@ -3539,18 +3676,19 @@ mag_unaffects(int level, struct creature *ch, struct creature *victim,
         act("$N's psionic shield shatters!", false, ch, NULL, victim, TO_CHAR);
         break;
 
-        // physic spells for mag_unaffects
+    // physic spells for mag_unaffects
     case SPELL_NULLIFY:
         if (victim->affected) {
             for (aff = victim->affected; aff; aff = next_aff) {
                 next_aff = aff->next;
                 if (SPELL_IS_PHYSICS(aff->type)) {
-                    if (aff->level < number(level / 2, level * 2))
+                    if (aff->level < number(level / 2, level * 2)) {
                         affect_remove(victim, aff);
+                    }
                 }
             }
             send_to_char(victim,
-                "Your physical states relax and resume their 'normal' states.\r\n");
+                         "Your physical states relax and resume their 'normal' states.\r\n");
             act("$n appears more 'physically normal', somehow...", true,
                 victim, NULL, NULL, TO_ROOM);
 
@@ -3590,50 +3728,61 @@ mag_unaffects(int level, struct creature *ch, struct creature *victim,
         (spell2 != 0 && !affected_by_spell(victim, spell2)) &&
         (spell4 != 0 && !affected_by_spell(victim, spell4)) &&
         (spell3 != 0 && !affected_by_spell(victim, spell3))) {
-        if (!(spell_info[spellnum].routines - MAG_UNAFFECTS))
+        if (!(spell_info[spellnum].routines - MAG_UNAFFECTS)) {
             send_to_char(ch, "%s", NOEFFECT);
+        }
         return;
     }
     if (spell && affected_by_spell(victim, spell)) {
         affect_from_char(victim, spell);
-        if (to_vict != NULL)
+        if (to_vict != NULL) {
             act(to_vict, false, victim, NULL, ch, TO_CHAR);
-        if (to_room != NULL)
+        }
+        if (to_room != NULL) {
             act(to_room, true, victim, NULL, ch, TO_ROOM);
+        }
     }
     if (spell2 && affected_by_spell(victim, spell2)) {
         affect_from_char(victim, spell2);
-        if (to_vict2 != NULL)
+        if (to_vict2 != NULL) {
             act(to_vict2, false, victim, NULL, ch, TO_CHAR);
-        if (to_room2 != NULL)
+        }
+        if (to_room2 != NULL) {
             act(to_room2, true, victim, NULL, ch, TO_ROOM);
+        }
     }
     if (spell3 && affected_by_spell(victim, spell3)) {
         affect_from_char(victim, spell3);
-        if (to_vict3 != NULL)
+        if (to_vict3 != NULL) {
             act(to_vict3, false, victim, NULL, ch, TO_CHAR);
-        if (to_room3 != NULL)
+        }
+        if (to_room3 != NULL) {
             act(to_room3, true, victim, NULL, ch, TO_ROOM);
+        }
     }
     if (spell4 && affected_by_spell(victim, spell4)) {
         affect_from_char(victim, spell4);
-        if (to_vict4 != NULL)
+        if (to_vict4 != NULL) {
             act(to_vict4, false, victim, NULL, ch, TO_CHAR);
-        if (to_room4 != NULL)
+        }
+        if (to_room4 != NULL) {
             act(to_room4, true, victim, NULL, ch, TO_ROOM);
+        }
     }
     if (spell5 && affected_by_spell(victim, spell5)) {
         affect_from_char(victim, spell5);
-        if (to_vict5 != NULL)
+        if (to_vict5 != NULL) {
             act(to_vict5, false, victim, NULL, ch, TO_CHAR);
-        if (to_room5 != NULL)
+        }
+        if (to_room5 != NULL) {
             act(to_room5, true, victim, NULL, ch, TO_ROOM);
+        }
     }
 }
 
 void
 mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
-    int spellnum, int savetype __attribute__ ((unused)))
+               int spellnum, int savetype __attribute__ ((unused)))
 {
     const char *to_char = NULL;
     const char *to_room = NULL;
@@ -3651,8 +3800,9 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
 
     memset(&oaf, 0x0, sizeof(oaf));
 
-    if (obj == NULL)
+    if (obj == NULL) {
         return;
+    }
 
     switch (spellnum) {
     case SPELL_GREATER_INVIS:
@@ -3688,11 +3838,12 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
     case SPELL_REMOVE_POISON:
         if ((IS_OBJ_TYPE(obj, ITEM_FOOD) || IS_OBJ_TYPE(obj, ITEM_DRINKCON)) && GET_OBJ_VAL(obj, 3) > 0) {
             GET_OBJ_VAL(obj, 3) -= MIN(GET_OBJ_VAL(obj, 3),
-                1 + (level > number(10, 40)) + (level > number(40, 60)));
-            if (GET_OBJ_VAL(obj, 3) == 0)
+                                       1 + (level > number(10, 40)) + (level > number(40, 60)));
+            if (GET_OBJ_VAL(obj, 3) == 0) {
                 to_char = "You free $p of noxious poisons.";
-            else
+            } else {
                 to_char = "$p looks less poisonous.";
+            }
         }
         break;
 
@@ -3706,7 +3857,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         }
         break;
 
-        // physic mag_alter_objs items
+    // physic mag_alter_objs items
     case SPELL_HALFLIFE:
         if (!IS_OBJ_STAT(obj, ITEM_MAGIC_NODISPEL) && !OBJ_IS_RAD(obj)) {
             SET_BIT(obj->obj_flags.extra2_flags, ITEM2_RADIOACTIVE);
@@ -3714,91 +3865,94 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         }
         break;
 
-    case SPELL_ATTRACTION_FIELD:{
-            {
-                struct tmp_obj_affect *af;
-
-                af = obj_has_affect(obj, SPELL_ITEM_REPULSION_FIELD);
-                if (af) {
-                    struct affected_type *ra;
-
-                    act(item_wear_off_msg[af->type], false, ch, obj, NULL,
-                        TO_CHAR);
-                    remove_object_affect(obj, af);
-                    for (ra = ch->affected; ra; ra = ra->next) {
-                        if (ra->type == SPELL_ITEM_REPULSION_FIELD) {
-                            affect_remove(ch, ra);
-                            break;
-                        }
-                    }
-                }
-            }
-            //range will be 200-2700, divided by 400 = 0-6, clamped to 1-6
-            max_attractions =
-                (skill_bonus(ch,
-                    SPELL_ATTRACTION_FIELD) * GET_INT(ch) + 200) / 400;
-            max_attractions = MAX(max_attractions, 1);
-
-            if (obj_has_affect(obj, SPELL_ITEM_ATTRACTION_FIELD)) {
-                to_char = "$p already has an attraction field!";
-                break;
-            } else if (count_affect(ch,
-                    SPELL_ITEM_ATTRACTION_FIELD) >= max_attractions) {
-                to_char =
-                    "You will need to wait awhile before you can do this again.";
-                break;
-            }
-
-            oaf[0].level = skill_bonus(ch, SPELL_ATTRACTION_FIELD);
-            af.level = oaf[0].level;
-            oaf[0].type = SPELL_ITEM_ATTRACTION_FIELD;
-            af.type = oaf[0].type;
-            oaf[0].duration = 20 + skill_bonus(ch, SPELL_ATTRACTION_FIELD) / 2;
-            af.duration = oaf[0].duration - 1;
-
-            if (IS_OBJ_TYPE(obj, ITEM_WEAPON)
-                || IS_OBJ_TYPE(obj, ITEM_ENERGY_GUN)) {
-                int levelBonus = skill_bonus(ch, SPELL_ATTRACTION_FIELD);
-                int hitroll = dice(3, 2);
-
-                if (levelBonus > 50 && random_binary())
-                    hitroll += 1;
-                if (levelBonus > 75 && random_binary())
-                    hitroll += 1;
-                if (levelBonus > 95 && random_binary())
-                    hitroll += 1;
-
-                oaf[0].affect_loc[0] = APPLY_HITROLL;
-                oaf[0].affect_mod[0] = hitroll;
-            } else {
-                oaf[0].affect_loc[0] = APPLY_AC;
-                oaf[0].affect_mod[0] = (level / 8) + number(1, 2);
-            }
-
-            affect_to_char(ch, &af);
-            to_char = "$p begins to emit an attraction field.";
-            break;
-        }
-    case SPELL_REPULSION_FIELD:
+    case SPELL_ATTRACTION_FIELD: {
         {
             struct tmp_obj_affect *af;
 
-            af = obj_has_affect(obj, SPELL_ITEM_ATTRACTION_FIELD);
-            if (af != NULL) {
+            af = obj_has_affect(obj, SPELL_ITEM_REPULSION_FIELD);
+            if (af) {
                 struct affected_type *ra;
 
                 act(item_wear_off_msg[af->type], false, ch, obj, NULL,
                     TO_CHAR);
                 remove_object_affect(obj, af);
                 for (ra = ch->affected; ra; ra = ra->next) {
-                    if (ra->type == SPELL_ITEM_ATTRACTION_FIELD) {
+                    if (ra->type == SPELL_ITEM_REPULSION_FIELD) {
                         affect_remove(ch, ra);
                         break;
                     }
                 }
             }
         }
-        //range will be 200-2700, divided by 400 = 0-6, clamped to 1-6
+        // range will be 200-2700, divided by 400 = 0-6, clamped to 1-6
+        max_attractions =
+            (skill_bonus(ch,
+                         SPELL_ATTRACTION_FIELD) * GET_INT(ch) + 200) / 400;
+        max_attractions = MAX(max_attractions, 1);
+
+        if (obj_has_affect(obj, SPELL_ITEM_ATTRACTION_FIELD)) {
+            to_char = "$p already has an attraction field!";
+            break;
+        } else if (count_affect(ch,
+                                SPELL_ITEM_ATTRACTION_FIELD) >= max_attractions) {
+            to_char =
+                "You will need to wait awhile before you can do this again.";
+            break;
+        }
+
+        oaf[0].level = skill_bonus(ch, SPELL_ATTRACTION_FIELD);
+        af.level = oaf[0].level;
+        oaf[0].type = SPELL_ITEM_ATTRACTION_FIELD;
+        af.type = oaf[0].type;
+        oaf[0].duration = 20 + skill_bonus(ch, SPELL_ATTRACTION_FIELD) / 2;
+        af.duration = oaf[0].duration - 1;
+
+        if (IS_OBJ_TYPE(obj, ITEM_WEAPON)
+            || IS_OBJ_TYPE(obj, ITEM_ENERGY_GUN)) {
+            int levelBonus = skill_bonus(ch, SPELL_ATTRACTION_FIELD);
+            int hitroll = dice(3, 2);
+
+            if (levelBonus > 50 && random_binary()) {
+                hitroll += 1;
+            }
+            if (levelBonus > 75 && random_binary()) {
+                hitroll += 1;
+            }
+            if (levelBonus > 95 && random_binary()) {
+                hitroll += 1;
+            }
+
+            oaf[0].affect_loc[0] = APPLY_HITROLL;
+            oaf[0].affect_mod[0] = hitroll;
+        } else {
+            oaf[0].affect_loc[0] = APPLY_AC;
+            oaf[0].affect_mod[0] = (level / 8) + number(1, 2);
+        }
+
+        affect_to_char(ch, &af);
+        to_char = "$p begins to emit an attraction field.";
+        break;
+    }
+    case SPELL_REPULSION_FIELD:
+    {
+        struct tmp_obj_affect *af;
+
+        af = obj_has_affect(obj, SPELL_ITEM_ATTRACTION_FIELD);
+        if (af != NULL) {
+            struct affected_type *ra;
+
+            act(item_wear_off_msg[af->type], false, ch, obj, NULL,
+                TO_CHAR);
+            remove_object_affect(obj, af);
+            for (ra = ch->affected; ra; ra = ra->next) {
+                if (ra->type == SPELL_ITEM_ATTRACTION_FIELD) {
+                    affect_remove(ch, ra);
+                    break;
+                }
+            }
+        }
+    }
+        // range will be 200-2700, divided by 400 = 0-6, clamped to 1-6
         max_repulsions =
             (skill_bonus(ch, SPELL_REPULSION_FIELD) * GET_INT(ch) + 200) / 400;
         max_repulsions = MAX(max_repulsions, 1);
@@ -3807,7 +3961,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             to_char = "$p already has an repulsion field!";
             break;
         } else if (count_affect(ch,
-                SPELL_ITEM_REPULSION_FIELD) >= max_repulsions) {
+                                SPELL_ITEM_REPULSION_FIELD) >= max_repulsions) {
             to_char =
                 "You will need to wait awhile before you can do this again.";
             break;
@@ -3824,12 +3978,15 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             int levelBonus = skill_bonus(ch, SPELL_REPULSION_FIELD);
             int hitroll = dice(3, 2);
 
-            if (levelBonus > 50 && random_binary())
+            if (levelBonus > 50 && random_binary()) {
                 hitroll += 1;
-            if (levelBonus > 75 && random_binary())
+            }
+            if (levelBonus > 75 && random_binary()) {
                 hitroll += 1;
-            if (levelBonus > 95 && random_binary())
+            }
+            if (levelBonus > 95 && random_binary()) {
                 hitroll += 1;
+            }
 
             oaf[0].affect_loc[0] = APPLY_HITROLL;
             oaf[0].affect_mod[0] = -hitroll;
@@ -3843,7 +4000,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         break;
     case SPELL_TRANSMITTANCE:
         if (!IS_OBJ_STAT(obj,
-                ITEM_NOINVIS | ITEM_INVISIBLE | ITEM_TRANSPARENT)) {
+                         ITEM_NOINVIS | ITEM_INVISIBLE | ITEM_TRANSPARENT)) {
             SET_BIT(obj->obj_flags.extra_flags, ITEM_TRANSPARENT);
             to_char = "$p becomes transparent.";
         }
@@ -3866,12 +4023,13 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             return;
         }
         int increase;
-        if (GET_CLASS(ch) == CLASS_PHYSIC)
+        if (GET_CLASS(ch) == CLASS_PHYSIC) {
             increase = obj->obj_flags.max_dam * (GET_LEVEL(ch) +
-                (GET_REMORT_GEN(ch) * 2)) / 200;
-        else
+                                                 (GET_REMORT_GEN(ch) * 2)) / 200;
+        } else {
             increase = obj->obj_flags.max_dam * (GET_LEVEL(ch) +
-                (GET_REMORT_GEN(ch) * 2)) / 240;
+                                                 (GET_REMORT_GEN(ch) * 2)) / 240;
+        }
         obj->obj_flags.max_dam += increase;
         obj->obj_flags.damage =
             MIN(obj->obj_flags.damage + increase, obj->obj_flags.max_dam);
@@ -3880,12 +4038,12 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR && !isname("imm", obj->aliases)) {
             char *new_aliases =
                 strdup(tmp_sprintf("%s imm %shardening", obj->aliases,
-                    GET_NAME(ch)));
+                                   GET_NAME(ch)));
             free(obj->aliases);
             obj->aliases = new_aliases;
             mudlog(GET_LEVEL(ch), CMP, true,
-                "ENCHANT: %s lattice hardened by %s.",
-                obj->name, GET_NAME(ch));
+                   "ENCHANT: %s lattice hardened by %s.",
+                   obj->name, GET_NAME(ch));
         }
         break;
 
@@ -3941,114 +4099,122 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         to_char = "$p begins to drip poison.";
         break;
 
-    case SPELL_ELEMENTAL_BRAND:{
-            int num = number(0, 3);
+    case SPELL_ELEMENTAL_BRAND: {
+        int num = number(0, 3);
 
-            struct tmp_obj_affect *af;
+        struct tmp_obj_affect *af;
 
-            if (!(IS_OBJ_TYPE(obj, ITEM_WEAPON))) {
-                to_char = "You can only brand weapons.";
+        if (!(IS_OBJ_TYPE(obj, ITEM_WEAPON))) {
+            to_char = "You can only brand weapons.";
+            break;
+        }
+        af = obj_has_affect(obj, SPELL_ELEMENTAL_BRAND);
+        oaf[0].level = skill_bonus(ch, SPELL_ELEMENTAL_BRAND);
+        oaf[0].type = SPELL_ELEMENTAL_BRAND;
+        oaf[0].duration = skill_bonus(ch, SPELL_ELEMENTAL_BRAND) / 2;
+        oaf[1].level = oaf[0].level;
+        oaf[1].type = oaf[0].type;
+        oaf[1].duration = oaf[0].duration;
+
+        switch (num) {
+        case 0:                // Earth brand adds maxdam to the weapon
+            for (; af != NULL; af = af->next) {
+                if (af->type != SPELL_ELEMENTAL_BRAND) {
+                    continue;
+                }
+                if (af->dam_mod) {
+                    to_char = "Your branding fails.";
+                }
+            }
+            if (to_char != NULL) {
                 break;
             }
-            af = obj_has_affect(obj, SPELL_ELEMENTAL_BRAND);
-            oaf[0].level = skill_bonus(ch, SPELL_ELEMENTAL_BRAND);
-            oaf[0].type = SPELL_ELEMENTAL_BRAND;
-            oaf[0].duration = skill_bonus(ch, SPELL_ELEMENTAL_BRAND) / 2;
-            oaf[1].level = oaf[0].level;
-            oaf[1].type = oaf[0].type;
-            oaf[1].duration = oaf[0].duration;
 
-            switch (num) {
-            case 0:            // Earth brand adds maxdam to the weapon
-                for (; af != NULL; af = af->next) {
-                    if (af->type != SPELL_ELEMENTAL_BRAND)
-                        continue;
-                    if (af->dam_mod) {
+            oaf[0].dam_mod = skill_bonus(ch, SPELL_ELEMENTAL_BRAND) *
+                             GET_INT(ch) * 2;
+            oaf[0].maxdam_mod = oaf[0].dam_mod;
+            oaf[0].extra_mod = ITEM3_REQ_RANGER;
+            oaf[0].extra_index = 3;
+            oaf[1].extra_mod = ITEM_MAGIC;
+            oaf[1].extra_index = 1;
+            to_char = "The rune of earth solidifies onto $p.";
+            val_mode = AFF_ADD;
+            break;
+
+        case 1:                // Air brand reduces weight
+            for (; af != NULL; af = af->next) {
+                if (af->type != SPELL_ELEMENTAL_BRAND) {
+                    continue;
+                }
+                for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+                    if (af->affect_loc[i] == APPLY_WEAPONSPEED) {
                         to_char = "Your branding fails.";
                     }
                 }
-                if (to_char != NULL)
-                    break;
-
-                oaf[0].dam_mod = skill_bonus(ch, SPELL_ELEMENTAL_BRAND) *
-                    GET_INT(ch) * 2;
-                oaf[0].maxdam_mod = oaf[0].dam_mod;
-                oaf[0].extra_mod = ITEM3_REQ_RANGER;
-                oaf[0].extra_index = 3;
-                oaf[1].extra_mod = ITEM_MAGIC;
-                oaf[1].extra_index = 1;
-                to_char = "The rune of earth solidifies onto $p.";
-                val_mode = AFF_ADD;
-                break;
-
-            case 1:            // Air brand reduces weight
-                for (; af != NULL; af = af->next) {
-                    if (af->type != SPELL_ELEMENTAL_BRAND)
-                        continue;
-                    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-                        if (af->affect_loc[i] == APPLY_WEAPONSPEED) {
-                            to_char = "Your branding fails.";
-                        }
-                    }
-                }
-                if (to_char != NULL)
-                    break;
-                oaf[0].affect_loc[0] = APPLY_WEAPONSPEED;
-                oaf[0].affect_mod[0] = ((int)(GET_OBJ_WEIGHT(obj) * 0.10) + skill_bonus(ch, SPELL_ELEMENTAL_BRAND) / 25);
-                oaf[0].extra_mod = ITEM3_REQ_RANGER;
-                oaf[0].extra_index = 3;
-                oaf[1].extra_mod = ITEM_MAGIC;
-                oaf[1].extra_index = 1;
-                to_char = "The rune of air swirls around $p.";
-                aff_mode = AFF_ADD;
-                break;
-
-            case 2:            // Fire brand adds item damroll
-                for (; af != NULL; af = af->next) {
-                    if (af->type != SPELL_ELEMENTAL_BRAND)
-                        continue;
-                    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-                        if (af->affect_loc[i] == APPLY_DAMROLL) {
-                            to_char = "Your branding fails.";
-                        }
-                    }
-                }
-                if (to_char != NULL)
-                    break;
-                oaf[0].affect_loc[0] = APPLY_DAMROLL;
-                oaf[0].affect_mod[0] = MAX(2, GET_REMORT_GEN(ch) / 2);
-                oaf[0].extra_mod = ITEM3_REQ_RANGER;
-                oaf[0].extra_index = 3;
-                oaf[1].extra_mod = ITEM_MAGIC;
-                oaf[1].extra_index = 1;
-                to_char = "The rune of fire is emblazoned upon $p.";
-                aff_mode = AFF_ADD;
-                break;
-
-            case 3:            // Water brand adds hitroll
-                for (; af != NULL; af = af->next) {
-                    if (af->type != SPELL_ELEMENTAL_BRAND)
-                        continue;
-                    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-                        if (af->affect_loc[i] == APPLY_HITROLL) {
-                            to_char = "Your branding fails.";
-                        }
-                    }
-                }
-                if (to_char != NULL)
-                    break;
-                oaf[0].affect_loc[0] = APPLY_HITROLL;
-                oaf[0].affect_mod[0] = MAX(2, GET_REMORT_GEN(ch) / 2);
-                oaf[0].extra_mod = ITEM3_REQ_RANGER;
-                oaf[0].extra_index = 3;
-                oaf[1].extra_mod = ITEM_MAGIC;
-                oaf[1].extra_index = 1;
-                to_char = "The rune of water permeates $p.";
-                aff_mode = AFF_ADD;
+            }
+            if (to_char != NULL) {
                 break;
             }
+            oaf[0].affect_loc[0] = APPLY_WEAPONSPEED;
+            oaf[0].affect_mod[0] = ((int)(GET_OBJ_WEIGHT(obj) * 0.10) + skill_bonus(ch, SPELL_ELEMENTAL_BRAND) / 25);
+            oaf[0].extra_mod = ITEM3_REQ_RANGER;
+            oaf[0].extra_index = 3;
+            oaf[1].extra_mod = ITEM_MAGIC;
+            oaf[1].extra_index = 1;
+            to_char = "The rune of air swirls around $p.";
+            aff_mode = AFF_ADD;
+            break;
+
+        case 2:                // Fire brand adds item damroll
+            for (; af != NULL; af = af->next) {
+                if (af->type != SPELL_ELEMENTAL_BRAND) {
+                    continue;
+                }
+                for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+                    if (af->affect_loc[i] == APPLY_DAMROLL) {
+                        to_char = "Your branding fails.";
+                    }
+                }
+            }
+            if (to_char != NULL) {
+                break;
+            }
+            oaf[0].affect_loc[0] = APPLY_DAMROLL;
+            oaf[0].affect_mod[0] = MAX(2, GET_REMORT_GEN(ch) / 2);
+            oaf[0].extra_mod = ITEM3_REQ_RANGER;
+            oaf[0].extra_index = 3;
+            oaf[1].extra_mod = ITEM_MAGIC;
+            oaf[1].extra_index = 1;
+            to_char = "The rune of fire is emblazoned upon $p.";
+            aff_mode = AFF_ADD;
+            break;
+
+        case 3:                // Water brand adds hitroll
+            for (; af != NULL; af = af->next) {
+                if (af->type != SPELL_ELEMENTAL_BRAND) {
+                    continue;
+                }
+                for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
+                    if (af->affect_loc[i] == APPLY_HITROLL) {
+                        to_char = "Your branding fails.";
+                    }
+                }
+            }
+            if (to_char != NULL) {
+                break;
+            }
+            oaf[0].affect_loc[0] = APPLY_HITROLL;
+            oaf[0].affect_mod[0] = MAX(2, GET_REMORT_GEN(ch) / 2);
+            oaf[0].extra_mod = ITEM3_REQ_RANGER;
+            oaf[0].extra_index = 3;
+            oaf[1].extra_mod = ITEM_MAGIC;
+            oaf[1].extra_index = 1;
+            to_char = "The rune of water permeates $p.";
+            aff_mode = AFF_ADD;
             break;
         }
+        break;
+    }
     case SPELL_FLAME_OF_FAITH:
         if (GET_OBJ_TYPE(obj) != ITEM_WEAPON) {
             to_char = "The flame of faith will only burn on a weapon.";
@@ -4060,7 +4226,7 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
             break;
         }
         oaf[0].level = oaf[0].duration =
-            20 + (skill_bonus(ch, SPELL_FLAME_OF_FAITH) / 10);
+                           20 + (skill_bonus(ch, SPELL_FLAME_OF_FAITH) / 10);
         oaf[0].type = SPELL_FLAME_OF_FAITH;
         oaf[0].extra_mod = ITEM2_ABLAZE;
         oaf[0].extra_index = 2;
@@ -4084,17 +4250,21 @@ mag_alter_objs(int level, struct creature *ch, struct obj_data *obj,
         break;
 
     }
-    if (to_char == NULL)
+    if (to_char == NULL) {
         send_to_char(ch, "%s", NOEFFECT);
-    else
+    } else {
         act(to_char, true, ch, obj, NULL, TO_CHAR);
+    }
 
-    if (to_room != NULL)
+    if (to_room != NULL) {
         act(to_room, true, ch, obj, NULL, TO_ROOM);
+    }
 
-    for (int i = 0; i < 5; i++)
-        if (oaf[i].type != 0)
+    for (int i = 0; i < 5; i++) {
+        if (oaf[i].type != 0) {
             obj_affect_join(obj, &oaf[i], dur_mode, val_mode, aff_mode);
+        }
+    }
 }
 
 void
@@ -4117,11 +4287,11 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj, int spellnum)
 
             if (number(0, 101) > GET_SKILL(ch, SPELL_CREATE_WATER)) {
                 send_to_char(ch,
-                    "Oops!  I wouldn't drink that if I were you...\r\n");
+                             "Oops!  I wouldn't drink that if I were you...\r\n");
                 resulting_liquid = LIQ_SLIME;
             } else if (GET_OBJ_VAL(obj, 1) != 0) {
                 act(tmp_sprintf("The %s in $p clears.",
-                        drinknames[GET_OBJ_VAL(obj, 2)]),
+                                drinknames[GET_OBJ_VAL(obj, 2)]),
                     false, ch, obj, NULL, TO_CHAR);
             } else {
                 act("Your deity fills $p with crystal clear water.",
@@ -4138,46 +4308,52 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj, int spellnum)
         }
         break;
     case SPELL_BLESS:
-        if (!obj)
+        if (!obj) {
             return;
+        }
         if (!ch) {
             errlog(" NULL ch passed to mag_objects(). Spellnum BLESS.");
             return;
         }
-        if (IS_OBJ_STAT(obj, ITEM_MAGIC | ITEM_BLESS | ITEM_MAGIC_NODISPEL))
+        if (IS_OBJ_STAT(obj, ITEM_MAGIC | ITEM_BLESS | ITEM_MAGIC_NODISPEL)) {
             act("The magic is reflected off of $p.", false, ch, obj, NULL,
                 TO_CHAR);
-        for (i = 0; i < MAX_OBJ_AFFECT; i++)
-            if (obj->affected[i].location != APPLY_NONE)
+        }
+        for (i = 0; i < MAX_OBJ_AFFECT; i++) {
+            if (obj->affected[i].location != APPLY_NONE) {
                 return;
-        if (IS_GOOD(ch))
+            }
+        }
+        if (IS_GOOD(ch)) {
             SET_BIT(GET_OBJ_EXTRA(obj), ITEM_BLESS);
-        else if (IS_EVIL(ch))
+        } else if (IS_EVIL(ch)) {
             SET_BIT(GET_OBJ_EXTRA(obj), ITEM_DAMNED);
+        }
         if (IS_OBJ_TYPE(obj, ITEM_WEAPON)) {
             obj->affected[0].location = APPLY_HITROLL;
             obj->affected[0].modifier = 1 + (level / 12) +
-                (GET_REMORT_CLASS(ch) >= 0) * (level / 18);
+                                        (GET_REMORT_CLASS(ch) >= 0) * (level / 18);
             obj->affected[1].location = APPLY_DAMROLL;
             obj->affected[1].modifier = 1 + (level / 18) +
-                (GET_REMORT_CLASS(ch) >= 0) * (level / 24);
+                                        (GET_REMORT_CLASS(ch) >= 0) * (level / 24);
         } else if (IS_OBJ_TYPE(obj, ITEM_ARMOR)) {
             obj->affected[0].location = APPLY_AC;
             obj->affected[0].modifier = -(1 + (level / 12) +
-                (GET_REMORT_CLASS(ch) >= 0) * (level / 28));
+                                          (GET_REMORT_CLASS(ch) >= 0) * (level / 28));
             obj->affected[1].location = APPLY_SAVING_SPELL;
             obj->affected[1].modifier = -(1 + (level / 18) +
-                (GET_REMORT_CLASS(ch) >= 0) * (level / 28));
-        } else
+                                          (GET_REMORT_CLASS(ch) >= 0) * (level / 28));
+        } else {
             return;
+        }
         if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
             char *new_aliases =
                 strdup(tmp_sprintf("%s imm %senchant blessed", obj->aliases,
-                    GET_NAME(ch)));
+                                   GET_NAME(ch)));
             free(obj->aliases);
             obj->aliases = new_aliases;
             mudlog(GET_INVIS_LVL(ch), CMP, true,
-                "ENCHANT: Bless. %s by %s.", obj->name, GET_NAME(ch));
+                   "ENCHANT: Bless. %s by %s.", obj->name, GET_NAME(ch));
         }
         break;
     case SPELL_POISON:
@@ -4186,8 +4362,9 @@ mag_objects(int level, struct creature *ch, struct obj_data *obj, int spellnum)
             GET_OBJ_VAL(obj, 3) =
                 1 + (level > number(10, 40)) + (level > number(40, 60));
             act("$p is now poisoned.", false, ch, obj, NULL, TO_CHAR);
-        } else
+        } else {
             send_to_char(ch, "%s", NOEFFECT);
+        }
         break;
     }
 }
@@ -4198,17 +4375,19 @@ mag_creations(int level __attribute__((unused)), struct creature *ch, int spelln
     struct obj_data *tobj;
     int z;
 
-    if (ch == NULL)
+    if (ch == NULL) {
         return;
+    }
 
     switch (spellnum) {
     case SPELL_CREATE_FOOD:
-        if (IS_EVIL(ch))
+        if (IS_EVIL(ch)) {
             z = 3177;
-        else if (IS_GOOD(ch))
+        } else if (IS_GOOD(ch)) {
             z = 3176;
-        else
+        } else {
             z = 3175;
+        }
         break;
     case SPELL_GOODBERRY:
         z = 3179;
@@ -4224,14 +4403,15 @@ mag_creations(int level __attribute__((unused)), struct creature *ch, int spelln
     if (!(tobj = read_object(z))) {
         send_to_char(ch, "I seem to have goofed.\r\n");
         errlog("spell_creations, spell %d, obj %d: obj not found",
-            spellnum, z);
+               spellnum, z);
         return;
     }
     obj_to_char(tobj, ch);
     act("$n creates $p.", false, ch, tobj, NULL, TO_ROOM);
     act("You create $p.", false, ch, tobj, NULL, TO_CHAR);
-    if (spellnum == SPELL_CREATE_FOOD)
+    if (spellnum == SPELL_CREATE_FOOD) {
         GET_OBJ_VAL(tobj, 1) = GET_LEVEL(ch);
+    }
 }
 
 int
@@ -4248,9 +4428,11 @@ mag_exits(int level, struct creature *caster, struct room_data *room,
         return 0;
     }
 
-    for (dir = 0; dir < NUM_DIRS; dir++)
-        if (room->dir_option[dir] == knock_door)
+    for (dir = 0; dir < NUM_DIRS; dir++) {
+        if (room->dir_option[dir] == knock_door) {
             break;
+        }
+    }
 
     if (dir >= NUM_DIRS) {
         send_to_char(caster, "Funk.\r\n");
@@ -4290,7 +4472,7 @@ mag_exits(int level, struct creature *caster, struct room_data *room,
         o_rm_aff.type = rev_dir[dir];
         o_rm_aff.description =
             strdup(tmp_sprintf("%s %s.\r\n", aff_desc,
-                to_dirs[(int)o_rm_aff.type]));
+                               to_dirs[(int)o_rm_aff.type]));
         affect_to_room(o_room, &o_rm_aff);
     }
     return 1;
@@ -4299,25 +4481,28 @@ mag_exits(int level, struct creature *caster, struct room_data *room,
 void
 notify_cleric_moon(struct creature *ch)
 {
-    if (!IS_CLERIC(ch) || !ch->in_room || !PRIME_MATERIAL_ROOM(ch->in_room))
+    if (!IS_CLERIC(ch) || !ch->in_room || !PRIME_MATERIAL_ROOM(ch->in_room)) {
         return;
+    }
 
     switch (get_lunar_phase(lunar_day)) {
     case MOON_FULL:
-        if (IS_EVIL(ch))
+        if (IS_EVIL(ch)) {
             send_to_char(ch,
-                "The moon is full, its blasphemous light draining your dark magic.\r\n");
-        else if (IS_GOOD(ch))
+                         "The moon is full, its blasphemous light draining your dark magic.\r\n");
+        } else if (IS_GOOD(ch)) {
             send_to_char(ch,
-                "The moon is full, blessing your magic with its radiance.\r\n");
+                         "The moon is full, blessing your magic with its radiance.\r\n");
+        }
         break;
     case MOON_NEW:
-        if (IS_EVIL(ch))
+        if (IS_EVIL(ch)) {
             send_to_char(ch,
-                "It is a new moon today, filling you with unholy power.\r\n");
-        else if (IS_GOOD(ch))
+                         "It is a new moon today, filling you with unholy power.\r\n");
+        } else if (IS_GOOD(ch)) {
             send_to_char(ch,
-                "It is a new moon today, draining your strength with darkness.\r\n");
+                         "It is a new moon today, draining your strength with darkness.\r\n");
+        }
         break;
     }
 }

@@ -468,26 +468,30 @@ random_active_creature(struct creature *ch)
     struct creature *tch;
     struct obj_data *tob, *ob;
 
-    if (is_dead(ch) || IS_PC(ch))
+    if (is_dead(ch) || IS_PC(ch)) {
         return;
+    }
 
-    if (get_char_in_world_by_idnum(-NPC_IDNUM(ch)) != ch)
+    if (get_char_in_world_by_idnum(-NPC_IDNUM(ch)) != ch) {
         raise(SIGSEGV);
+    }
 
     if (template_count == 0) {
-        while (cmd_templates[template_count][0] != '\n')
+        while (cmd_templates[template_count][0] != '\n') {
             template_count++;
+        }
 
         // Preprocess available spells
-        for (i = 1;i < TOP_SPELL_DEFINE;i++) {
-            if (spell_info[i].routines & MAG_MAGIC)
+        for (i = 1; i < TOP_SPELL_DEFINE; i++) {
+            if (spell_info[i].routines & MAG_MAGIC) {
                 magic_spells[spell_count++] = i;
-            else if (spell_info[i].routines & MAG_PHYSICS)
+            } else if (spell_info[i].routines & MAG_PHYSICS) {
                 alterations[alter_count++] = i;
-            else if (spell_info[i].routines & MAG_PSIONIC)
+            } else if (spell_info[i].routines & MAG_PSIONIC) {
                 triggers[trigger_count++] = i;
-            else if (spell_info[i].routines & MAG_BARD)
+            } else if (spell_info[i].routines & MAG_BARD) {
                 songs[song_count++] = i;
+            }
         }
     }
 
@@ -495,16 +499,18 @@ random_active_creature(struct creature *ch)
     const char *tmpl = cmd_templates[number(0,template_count - 1)];
 
     // expand template
-    for (const char *s = tmpl;*s;s++) {
+    for (const char *s = tmpl; *s; s++) {
         if (*s == '#') {
             s++;
             switch (*s) {
             case 'c':           /* creature */
                 i = 0;
                 tch = NULL;
-                for (GList *cit = first_living(ch->in_room->people);cit;cit = next_living(cit))
-                    if (can_see_creature(ch, cit->data) && !number(0, i++))
+                for (GList *cit = first_living(ch->in_room->people); cit; cit = next_living(cit)) {
+                    if (can_see_creature(ch, cit->data) && !number(0, i++)) {
                         tch = cit->data;
+                    }
+                }
                 if (tch == NULL) {
                     /* Don't try this command if alone */
                     return;
@@ -515,22 +521,30 @@ random_active_creature(struct creature *ch)
             case 'o':           /* object */
                 i = 0;
                 tob = NULL;
-                for (ob = ch->in_room->contents;ob;ob = ob->next_content)
-                    if (can_see_object(ch, ob) && !number(0, i++))
+                for (ob = ch->in_room->contents; ob; ob = ob->next_content) {
+                    if (can_see_object(ch, ob) && !number(0, i++)) {
                         tob = ob;
-                for (ob = ch->carrying;ob;ob = ob->next_content)
-                    if (can_see_object(ch, ob) && !number(0, i++))
+                    }
+                }
+                for (ob = ch->carrying; ob; ob = ob->next_content) {
+                    if (can_see_object(ch, ob) && !number(0, i++)) {
                         tob = ob;
-                for (pos = 0;pos < NUM_WEARS;pos++)
+                    }
+                }
+                for (pos = 0; pos < NUM_WEARS; pos++) {
                     if (GET_EQ(ch, pos)
                         && can_see_object(ch, GET_EQ(ch, pos))
-                        && !number(0, i++))
+                        && !number(0, i++)) {
                         tob = GET_EQ(ch, pos);
-                for (pos = 0;pos < NUM_WEARS;pos++)
+                    }
+                }
+                for (pos = 0; pos < NUM_WEARS; pos++) {
                     if (GET_IMPLANT(ch, pos)
                         && can_see_object(ch, GET_IMPLANT(ch, pos))
-                        && !number(0, i++))
+                        && !number(0, i++)) {
                         tob = GET_IMPLANT(ch, pos);
+                    }
+                }
                 if (tob) {
                     strcpy_s(d, sizeof(buf) - (d - buf), fname(tob->aliases));
                     d += strlen(fname(tob->aliases));

@@ -8,55 +8,60 @@ SPECIAL(duke_nukem)
 {
 
     struct creature *duke = (struct creature *)me, *vict = NULL;
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || !AWAKE(duke))
+    if (cmd || !AWAKE(duke)) {
         return 0;
+    }
 
     if (is_fighting(duke)) {
         vict = random_opponent(duke);
         if (GET_HIT(duke) > (GET_MAX_HIT(duke) / 4) &&
             GET_HIT(vict) < (GET_MAX_HIT(vict) / 2)) {
-            if (!number(0, 10))
+            if (!number(0, 10)) {
                 perform_say(duke, "say",
-                    "You're an inspiration for birth control.");
-            else if (!number(0, 10))
+                            "You're an inspiration for birth control.");
+            } else if (!number(0, 10)) {
                 perform_say(duke, "say",
-                    "What are you, some bottom feeding, scum sucking algae eater?");
-            else if (!number(0, 10))
+                            "What are you, some bottom feeding, scum sucking algae eater?");
+            } else if (!number(0, 10)) {
                 perform_say(duke, "say", "It hurts to be you.");
-            else if (!number(0, 10))
+            } else if (!number(0, 10)) {
                 perform_say(duke, "say", "Eat shit and die.");
-            else if (!number(0, 10))
+            } else if (!number(0, 10)) {
                 perform_say(duke, "say", "Blow it out your ass.");
-            else if (IS_MALE(vict) && !number(0, 10))
+            } else if (IS_MALE(vict) && !number(0, 10)) {
                 perform_say(duke, "say", "Die, you son of a bitch.");
-            else if (IS_FEMALE(vict) && !number(0, 10))
+            } else if (IS_FEMALE(vict) && !number(0, 10)) {
                 perform_say(duke, "say", "Shake it baby.");
-            else if (GET_HIT(vict) < 50)
+            } else if (GET_HIT(vict) < 50) {
                 perform_say(duke, "say", "Game Over.");
+            }
         }
         return 0;
     }
 
     if (NPC_HUNTING(duke) && can_see_creature(duke, NPC_HUNTING(duke))) {
-        if (!number(0, 10))
+        if (!number(0, 10)) {
             perform_tell(duke, NPC_HUNTING(duke),
-                "What are you, some bottom feeding, scum sucking algae eater?");
-        else if (!number(0, 10))
+                         "What are you, some bottom feeding, scum sucking algae eater?");
+        } else if (!number(0, 10)) {
             perform_tell(duke, NPC_HUNTING(duke), "Come get some.");
-        else if (!number(0, 10))
+        } else if (!number(0, 10)) {
             perform_tell(duke, NPC_HUNTING(duke),
-                "I'll rip off your head and shit down your neck.");
+                         "I'll rip off your head and shit down your neck.");
+        }
         return 0;
     }
 
     if (!number(0, 5)) {
         for (GList *it = first_living(ch->fighting); it; it = next_living(it)) {
             vict = it->data;
-            if (vict == duke || !can_see_creature(duke, vict))
+            if (vict == duke || !can_see_creature(duke, vict)) {
                 continue;
+            }
             if (GET_LEVEL(vict) > 40 && !is_fighting(vict) &&
                 !PRF_FLAGGED(vict, PRF_NOHASSLE)) {
                 best_initial_attack(duke, vict);
@@ -71,16 +76,16 @@ SPECIAL(duke_nukem)
     switch (number(0, 1000)) {
     case 0:
         do_gen_comm(duke, tmp_strdup("Damn.  I'm looking good."), 0,
-            SCMD_GOSSIP);
+                    SCMD_GOSSIP);
         break;
     case 1:
         do_gen_comm(duke, tmp_strdup("Hail to the king, baby!"), 0,
-            SCMD_HOLLER);
+                    SCMD_HOLLER);
         break;
     case 2:
         do_gen_comm(duke,
-            tmp_strdup("Your face, your ass.  What's the difference?"), 0,
-            SCMD_SPEW);
+                    tmp_strdup("Your face, your ass.  What's the difference?"), 0,
+                    SCMD_SPEW);
         break;
     case 3:
     case 4:
@@ -94,8 +99,8 @@ SPECIAL(duke_nukem)
         break;
     case 7:
         do_gen_comm(duke,
-            tmp_strdup("Hmm.  Don't have time to play with myself."), 0,
-            SCMD_SPEW);
+                    tmp_strdup("Hmm.  Don't have time to play with myself."), 0,
+                    SCMD_SPEW);
         break;
     case 8:
         do_gen_comm(duke, tmp_strdup("Suck it down."), 0, SCMD_SPEW);
@@ -105,12 +110,12 @@ SPECIAL(duke_nukem)
         break;
     case 10:
         do_gen_comm(duke,
-            tmp_strdup("It's time to kick ass and chew bubble gum.\r\n"
-                "And I'm all out of gum."), 0, SCMD_SHOUT);
+                    tmp_strdup("It's time to kick ass and chew bubble gum.\r\n"
+                               "And I'm all out of gum."), 0, SCMD_SHOUT);
         break;
     case 11:
         do_gen_comm(duke, tmp_strdup("This really pisses me off."), 0,
-            SCMD_SPEW);
+                    SCMD_SPEW);
         break;
     case 12:
         do_gen_comm(duke, tmp_strdup("Shit happens."), 0, SCMD_SPEW);
@@ -137,9 +142,9 @@ SPECIAL(duke_nukem)
         break;
     case 23:
         do_gen_comm(duke,
-            tmp_strdup
-            ("Those alien bastards are gonna PAY for shooting up my ride!"), 0,
-            SCMD_SHOUT);
+                    tmp_strdup
+                        ("Those alien bastards are gonna PAY for shooting up my ride!"), 0,
+                    SCMD_SHOUT);
         break;
     default:
         break;

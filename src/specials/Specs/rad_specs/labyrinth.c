@@ -14,15 +14,18 @@ SPECIAL(labyrinth_clock)
     static int clock_status = 0;
     struct room_data *to_room = NULL;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (!CMD_IS("enter") && !CMD_IS("wind"))
+    if (!CMD_IS("enter") && !CMD_IS("wind")) {
         return (0);
+    }
 
     skip_spaces(&argument);
-    if (!isname(argument, clock->aliases))
+    if (!isname(argument, clock->aliases)) {
         return 0;
+    }
 
     if (CMD_IS("enter")) {
 
@@ -100,11 +103,13 @@ SPECIAL(cuckoo)
     struct room_data *r_clock_room = NULL, *to_room = NULL;
     static int room_status = 0;
 
-    if (spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
-    if (cmd || is_fighting(bird) || !AWAKE(bird))
+    if (cmd || is_fighting(bird) || !AWAKE(bird)) {
         return 0;
+    }
 
     /* check if cuckoo is in room 66236 */
     if (bird->in_room->number == 66236) {
@@ -159,11 +164,13 @@ SPECIAL(drink_me_bottle)
 
     init_affect(&af);
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (!CMD_IS("drink"))
+    if (!CMD_IS("drink")) {
         return 0;
+    }
 
     if (GET_POSITION(ch) == POS_SLEEPING) {
         send_to_char(ch, "You'll have to wake up first!\r\n");
@@ -172,11 +179,12 @@ SPECIAL(drink_me_bottle)
 
     /* check here for argument, and contents of bottle */
     skip_spaces(&argument);
-    if (!isname(argument, bottle->aliases) || !GET_OBJ_VAL(bottle, 1))
+    if (!isname(argument, bottle->aliases) || !GET_OBJ_VAL(bottle, 1)) {
         return 0;
+    }
 
     send_to_char(ch, "You drink %s from %s.  Mmmm, tasty.\r\n",
-        fname(bottle->aliases), bottle->name);
+                 fname(bottle->aliases), bottle->name);
     act("$n drinks from $p.", true, ch, bottle, NULL, TO_ROOM);
 
     /* increment the bottle contents */
@@ -208,13 +216,15 @@ SPECIAL(rabbit_hole)
     struct obj_data *hole = (struct obj_data *)me;
     struct room_data *to_room = NULL;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return false;
+    }
 
     skip_spaces(&argument);
 
-    if (!CMD_IS("enter") || !isname(argument, hole->aliases))
+    if (!CMD_IS("enter") || !isname(argument, hole->aliases)) {
         return (0);
+    }
 
     if (ch->player.height >= 11) {
         send_to_char(ch, "You are way too big to fit in there!\r\n");
@@ -223,12 +233,14 @@ SPECIAL(rabbit_hole)
         return 1;
     }
 
-    if (ch->in_room->number == 66233)
+    if (ch->in_room->number == 66233) {
         to_room = real_room(66234);
-    else if (ch->in_room->number == 66234)
+    } else if (ch->in_room->number == 66234) {
         to_room = real_room(66233);
-    if (to_room == NULL)
+    }
+    if (to_room == NULL) {
         return 0;
+    }
 
     send_to_char(ch, "You climb through the hole.\r\n\r\n");
     act("$n steps into the hole.", true, ch, NULL, NULL, TO_ROOM);
@@ -248,19 +260,22 @@ SPECIAL(gollum)
        and to release players when riddle is answered */
 
     /* im making this into a mob special */
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
     struct creature *gollum = (struct creature *)me;
     struct room_data *to_room = NULL;
 
     /* check if gollum is in room and not fighting */
-    if (gollum->in_room->number != 66163 || is_fighting(gollum))
+    if (gollum->in_room->number != 66163 || is_fighting(gollum)) {
         return 0;
+    }
 
     if (CMD_IS("say") || CMD_IS("'")) {
         skip_spaces(&argument);
-        if (!*argument)
+        if (!*argument) {
             return 0;
+        }
         half_chop(argument, buf, buf2);
         if (!strncasecmp(buf, "time", 4)) {
 
@@ -286,23 +301,24 @@ SPECIAL(gollum)
             return 1;
         }
     }
-    if (cmd)
+    if (cmd) {
         return 0;
+    }
 
     if (number(0, 5) == 0) {
 
         perform_say(gollum, "say",
-            "How about I let you go if you can answer my riddle?'.\r\n"
-            "'This thing all things devours: Birds, beasts, trees, flowers;'.\r\n"
-            "'Gnaws iron, bites steel; Grinds hard stone to meal;'.\r\n"
-            "'Slays king, ruins town, And beats high mountain down.");
+                    "How about I let you go if you can answer my riddle?'.\r\n"
+                    "'This thing all things devours: Birds, beasts, trees, flowers;'.\r\n"
+                    "'Gnaws iron, bites steel; Grinds hard stone to meal;'.\r\n"
+                    "'Slays king, ruins town, And beats high mountain down.");
 
         return 1;
     } else if (number(0, 2) == 0) {
 
         perform_say(gollum, "say",
-            "Bless us and splash us, my precioussss!'.\r\n"
-            "'Look what issssss caught in our trap, gollum!");
+                    "Bless us and splash us, my precioussss!'.\r\n"
+                    "'Look what issssss caught in our trap, gollum!");
         act("$n thinks for a while and asks you, 'Do you like riddles?'.\r\n",
             false, ch, NULL, NULL, TO_ROOM);
 
@@ -323,42 +339,45 @@ SPECIAL(gollum)
 // The pendulum itself is comprised of two objects, 60007 and 60011.  The
 // first blocks the way south, and the second blocks the northern exit.
 //
-//  room     #1   #2
-//           +-+  +-+
-//  60126    |*|  | |
-//           +-+  +-+
-//  60136    |*|  |*|
-//           +-+  +-+
-//  60146    | |  |*|
-//           +-+  +-+
+// room     #1   #2
+// +-+  +-+
+// 60126    |*|  | |
+// +-+  +-+
+// 60136    |*|  |*|
+// +-+  +-+
+// 60146    | |  |*|
+// +-+  +-+
 //
 
 SPECIAL(pendulum_timer_mob)
 {
     // mob vnum is 66010
     // procedure to make penddulum swing in room 66136
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
+    }
 
     struct creature *pendulum_timer_mob = (struct creature *)me;
     struct obj_data *test_obj = NULL;
     struct creature *vict = NULL;
     struct room_data *in_room = real_room(66136),
-        *to_room = NULL, *from_room = NULL;
+    *to_room = NULL, *from_room = NULL;
     static int pendulum_time = 0;
 
-    if (cmd)
+    if (cmd) {
         return 0;
+    }
     pendulum_time++;
 
-    if (!in_room)
+    if (!in_room) {
         return 0;
+    }
 
     if (pendulum_time >= 2) {
         pendulum_time = 0;
 
         for (test_obj = in_room->contents; test_obj;
-            test_obj = test_obj->next_content) {
+             test_obj = test_obj->next_content) {
 
             if (GET_OBJ_VNUM(test_obj) == 66007) {
 
@@ -380,11 +399,11 @@ SPECIAL(pendulum_timer_mob)
                     in_room);
 
                 struct room_data *theRoom = in_room;
-                for (GList * it = first_living(theRoom->people); it; it = next_living(it)) {
+                for (GList *it = first_living(theRoom->people); it; it = next_living(it)) {
                     vict = it->data;
                     if (GET_POSITION(vict) > POS_SITTING) {
                         send_to_char(vict,
-                            "You are carried north by the pendulum.\r\n");
+                                     "You are carried north by the pendulum.\r\n");
                         act("$n is pushed from the room by the pendulum.",
                             true, vict, NULL, NULL, TO_ROOM);
                         char_from_room(vict, false);
@@ -396,7 +415,7 @@ SPECIAL(pendulum_timer_mob)
                 }
 
                 for (test_obj = from_room->contents; test_obj;
-                    test_obj = test_obj->next_content) {
+                     test_obj = test_obj->next_content) {
                     if (GET_OBJ_VNUM(test_obj) == 66011) {
                         obj_from_room(test_obj);
                         obj_to_room(test_obj, in_room);
@@ -427,11 +446,11 @@ SPECIAL(pendulum_timer_mob)
                     in_room);
 
                 struct room_data *theRoom = in_room;
-                for (GList * it = first_living(theRoom->people); it; it = next_living(it)) {
+                for (GList *it = first_living(theRoom->people); it; it = next_living(it)) {
                     vict = it->data;
                     if (GET_POSITION(vict) > POS_SITTING) {
                         send_to_char(vict,
-                            "You are carried south by the pendulum.\r\n");
+                                     "You are carried south by the pendulum.\r\n");
                         act("$n is pushed from the room by the pendulum.",
                             true, vict, NULL, NULL, TO_ROOM);
                         char_from_room(vict, false);
@@ -443,7 +462,7 @@ SPECIAL(pendulum_timer_mob)
                 }
 
                 for (test_obj = from_room->contents; test_obj;
-                    test_obj = test_obj->next_content) {
+                     test_obj = test_obj->next_content) {
                     if (GET_OBJ_VNUM(test_obj) == 66007) {
                         obj_from_room(test_obj);
                         obj_to_room(test_obj, in_room);
@@ -463,15 +482,17 @@ SPECIAL(pendulum_room)
 {
     struct obj_data *test_obj = NULL;
 
-    if (spec_mode != SPECIAL_CMD)
+    if (spec_mode != SPECIAL_CMD) {
         return 0;
+    }
 
-    if (!CMD_IS("south") && !CMD_IS("north"))
+    if (!CMD_IS("south") && !CMD_IS("north")) {
         return 0;
+    }
 
     if (CMD_IS("south")) {
         for (test_obj = ch->in_room->contents; test_obj;
-            test_obj = test_obj->next_content) {
+             test_obj = test_obj->next_content) {
             if (GET_OBJ_VNUM(test_obj) == 66007) {
                 act("$n tries to go south but can't get past the pendulum.\r\n", true, ch, NULL, NULL, TO_ROOM);
                 send_to_char(ch, "The pendulum blocks the way!\r\n");
@@ -482,7 +503,7 @@ SPECIAL(pendulum_room)
 
     if (CMD_IS("north")) {
         for (test_obj = ch->in_room->contents; test_obj;
-            test_obj = test_obj->next_content) {
+             test_obj = test_obj->next_content) {
             if (GET_OBJ_VNUM(test_obj) == 66011) {
                 act("$n tries to go north but can't get past the pendulum.\r\n", true, ch, NULL, NULL, TO_ROOM);
                 send_to_char(ch, "The pendulum blocks the way!\r\n");
@@ -501,15 +522,19 @@ SPECIAL(parrot)
     struct creature *parrot = (struct creature *)me;
     struct creature *master = parrot->master;
 
-    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK)
+    if (spec_mode != SPECIAL_CMD && spec_mode != SPECIAL_TICK) {
         return 0;
-    if (!master || !cmd)
+    }
+    if (!master || !cmd) {
         return (0);
-    if (!CMD_IS("stun") && !CMD_IS("backstab") && !CMD_IS("steal"))
+    }
+    if (!CMD_IS("stun") && !CMD_IS("backstab") && !CMD_IS("steal")) {
         return (0);
+    }
     skip_spaces(&argument);
-    if (!*argument)
+    if (!*argument) {
         return 0;
+    }
 
     if (CMD_IS("steal")) {
         act("$n says, '$N is a bloody thief!'", true, parrot, NULL, ch, TO_ROOM);
@@ -519,8 +544,9 @@ SPECIAL(parrot)
     }
 
     half_chop(argument, buf, buf2);
-    if (strcasecmp(buf, GET_NAME(master)))
+    if (strcasecmp(buf, GET_NAME(master))) {
         return 0;
+    }
 
     if (CMD_IS("stun")) {
         act("$N tries to stun you!", true, master, NULL, ch, TO_CHAR);
@@ -543,23 +569,26 @@ SPECIAL(astrolabe)
     struct creature *wearer = astrolabe->worn_by;
     struct room_data *to_room = NULL;
 
-    if (ch != wearer || !IS_OBJ_TYPE(astrolabe, ITEM_OTHER))
+    if (ch != wearer || !IS_OBJ_TYPE(astrolabe, ITEM_OTHER)) {
         return (0);
-    if (!CMD_IS("adjust") && !CMD_IS("use"))
+    }
+    if (!CMD_IS("adjust") && !CMD_IS("use")) {
         return (0);
+    }
 
     skip_spaces(&argument);
-    if (!isname(argument, astrolabe->aliases))
+    if (!isname(argument, astrolabe->aliases)) {
         return 0;
+    }
 
     if (CMD_IS("adjust")) {
         act("$n fiddles with some controls on $p.",
             true, ch, astrolabe, NULL, TO_ROOM);
         send_to_char(ch,
-            "You fiddle with some controls on your astrolabe.\r\n");
+                     "You fiddle with some controls on your astrolabe.\r\n");
         ROOM_NUMBER(astrolabe) = ch->in_room->number;
         snprintf(buf, sizeof(buf), "$p is good for %d more use%s.",
-            MAX(1, NUM_USES(astrolabe)), NUM_USES(astrolabe) > 1 ? "s" : "");
+                 MAX(1, NUM_USES(astrolabe)), NUM_USES(astrolabe) > 1 ? "s" : "");
         act(buf, false, ch, astrolabe, NULL, TO_CHAR);
     } else if (CMD_IS("use")) {
         act("$n lifts $p and peers through it.", true, ch, astrolabe, NULL,
@@ -575,12 +604,12 @@ SPECIAL(astrolabe)
 
         if (to_room->zone->plane != ch->in_room->zone->plane ||
             (to_room->zone != ch->in_room->zone &&
-                (ZONE_FLAGGED(to_room->zone, ZONE_ISOLATED) ||
-                    ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) ||
+             (ZONE_FLAGGED(to_room->zone, ZONE_ISOLATED) ||
+              ZONE_FLAGGED(ch->in_room->zone, ZONE_ISOLATED))) ||
             ROOM_FLAGGED(to_room, ROOM_NOTEL | ROOM_NORECALL | ROOM_NOMAGIC) ||
             ROOM_FLAGGED(ch->in_room, ROOM_NORECALL | ROOM_NOMAGIC)) {
             send_to_char(ch,
-                "You are unable to see your destination from here.\r\n");
+                         "You are unable to see your destination from here.\r\n");
             return 1;
         }
 

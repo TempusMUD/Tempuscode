@@ -63,11 +63,12 @@ account_boot(void)
     res = sql_query("select MAX(idnum) from accounts");
     account_top_id = atol(PQgetvalue(res, 0, 0));
 
-    if (player_count())
+    if (player_count()) {
         slog("... %zd character%s in db", player_count(),
-            (player_count() == 1) ? "" : "s");
-    else
+             (player_count() == 1) ? "" : "s");
+    } else {
         slog("WARNING: No characters loaded");
+    }
 }
 
 size_t
@@ -100,11 +101,12 @@ load_players(struct account *account)
 
     res =
         sql_query("select idnum from players where account=%d order by idnum",
-        account->id);
+                  account->id);
     count = PQntuples(res);
-    for (idx = 0; idx < count; idx++)
+    for (idx = 0; idx < count; idx++) {
         account->chars = g_list_prepend(account->chars,
-            GINT_TO_POINTER(atol(PQgetvalue(res, idx, 0))));
+                                        GINT_TO_POINTER(atol(PQgetvalue(res, idx, 0))));
+    }
     account->chars = g_list_reverse(account->chars);
 }
 
@@ -127,8 +129,9 @@ load_trusted(struct account *account)
     res =
         sql_query("select player from trusted where account=%d", account->id);
     count = PQntuples(res);
-    for (idx = 0; idx < count; idx++)
+    for (idx = 0; idx < count; idx++) {
         account_add_trusted(account, atol(PQgetvalue(res, idx, 0)));
+    }
     account->trusted = g_list_reverse(account->trusted);
 }
 
@@ -141,33 +144,37 @@ preload_accounts(const char *conditions)
 
     res =
         sql_query
-        ("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future, metric_units, trust from accounts where %s",
-        conditions);
+            ("select idnum, name, password, email, date_part('epoch', creation_time) as creation_time, creation_addr, date_part('epoch', login_time) as login_time, login_addr, date_part('epoch', entry_time) as entry_time, ansi_level, compact_level, term_height, term_width, banned, reputation, quest_points, quest_banned, bank_past, bank_future, metric_units, trust from accounts where %s",
+            conditions);
     acct_count = PQntuples(res);
 
-    if (acct_count < 1)
+    if (acct_count < 1) {
         return;
+    }
 
     // Get field names and put them in an array
     field_count = PQnfields(res);
     fields = (const char **)malloc(sizeof(const char *) * field_count);
-    for (field_idx = 0; field_idx < field_count; field_idx++)
+    for (field_idx = 0; field_idx < field_count; field_idx++) {
         fields[field_idx] = PQfname(res, field_idx);
+    }
 
     int acct_idx;
     for (acct_idx = 0; acct_idx < acct_count; acct_idx++) {
         // Make sure we don't reload one that's already in the cache
         long idnum = atol(PQgetvalue(res, acct_idx, 0));
 
-        if (g_hash_table_lookup(account_cache, GINT_TO_POINTER(idnum)))
+        if (g_hash_table_lookup(account_cache, GINT_TO_POINTER(idnum))) {
             continue;
+        }
 
         // Create a new account and load it up
         struct account *new_acct;
         CREATE(new_acct, struct account, 1);
-        for (field_idx = 0; field_idx < field_count; field_idx++)
+        for (field_idx = 0; field_idx < field_count; field_idx++) {
             account_set(new_acct,
-                fields[field_idx], PQgetvalue(res, acct_idx, field_idx));
+                        fields[field_idx], PQgetvalue(res, acct_idx, field_idx));
+        }
 
         load_players(new_acct);
         load_trusted(new_acct);
@@ -202,17 +209,20 @@ load_account(struct account *account, long idnum)
         return false;
     }
 
-    if (acct_count < 1)
+    if (acct_count < 1) {
         return false;
+    }
 
     // Get field names and put them in an array
     field_count = PQnfields(res);
     fields = (const char **)malloc(sizeof(const char *) * field_count);
-    for (field_idx = 0; field_idx < field_count; field_idx++)
+    for (field_idx = 0; field_idx < field_count; field_idx++) {
         fields[field_idx] = PQfname(res, field_idx);
+    }
 
-    for (field_idx = 0; field_idx < field_count; field_idx++)
+    for (field_idx = 0; field_idx < field_count; field_idx++) {
         account_set(account, fields[field_idx], PQgetvalue(res, 0, field_idx));
+    }
     free(fields);
 
     load_players(account);
@@ -224,7 +234,7 @@ load_account(struct account *account, long idnum)
 }
 
 bool
-account_reload(struct account * account)
+account_reload(struct account *account)
 {
     free(account->name);
     free(account->password);
@@ -242,50 +252,51 @@ account_reload(struct account * account)
 void
 account_set(struct account *account, const char *key, const char *val)
 {
-    if (!strcmp(key, "idnum"))
+    if (!strcmp(key, "idnum")) {
         account->id = atol(val);
-    else if (!strcmp(key, "name"))
+    } else if (!strcmp(key, "name")) {
         account->name = strdup(val);
-    else if (!strcmp(key, "password"))
+    } else if (!strcmp(key, "password")) {
         account->password = strdup(val);
-    else if (!strcmp(key, "email"))
+    } else if (!strcmp(key, "email")) {
         account->email = strdup(val);
-    else if (!strcmp(key, "ansi_level"))
+    } else if (!strcmp(key, "ansi_level")) {
         account->ansi_level = atoi(val);
-    else if (!strcmp(key, "compact_level"))
+    } else if (!strcmp(key, "compact_level")) {
         account->compact_level = atoi(val);
-    else if (!strcmp(key, "term_height"))
+    } else if (!strcmp(key, "term_height")) {
         account->term_height = atoi(val);
-    else if (!strcmp(key, "term_width"))
+    } else if (!strcmp(key, "term_width")) {
         account->term_width = atoi(val);
-    else if (!strcmp(key, "creation_time"))
+    } else if (!strcmp(key, "creation_time")) {
         account->creation_time = atol(val);
-    else if (!strcmp(key, "creation_addr"))
+    } else if (!strcmp(key, "creation_addr")) {
         account->creation_addr = strdup(val);
-    else if (!strcmp(key, "login_time"))
+    } else if (!strcmp(key, "login_time")) {
         account->login_time = atol(val);
-    else if (!strcmp(key, "login_addr"))
+    } else if (!strcmp(key, "login_addr")) {
         account->login_addr = strdup(val);
-    else if (!strcmp(key, "entry_time"))
+    } else if (!strcmp(key, "entry_time")) {
         account->entry_time = atol(val);
-    else if (!strcmp(key, "banned"))
+    } else if (!strcmp(key, "banned")) {
         account->banned = !strcasecmp(val, "T");
-    else if (!strcmp(key, "reputation"))
+    } else if (!strcmp(key, "reputation")) {
         account->reputation = atoi(val);
-    else if (!strcmp(key, "quest_points"))
+    } else if (!strcmp(key, "quest_points")) {
         account->quest_points = atoi(val);
-    else if (!strcmp(key, "quest_banned"))
+    } else if (!strcmp(key, "quest_banned")) {
         account->quest_banned = !strcasecmp(val, "T");
-    else if (!strcmp(key, "bank_past"))
+    } else if (!strcmp(key, "bank_past")) {
         account->bank_past = atoll(val);
-    else if (!strcmp(key, "bank_future"))
+    } else if (!strcmp(key, "bank_future")) {
         account->bank_future = atoll(val);
-    else if (!strcmp(key, "metric_units"))
+    } else if (!strcmp(key, "metric_units")) {
         account->metric_units = !strcasecmp(val, "T");
-    else if (!strcmp(key, "trust"))
+    } else if (!strcmp(key, "trust")) {
         account->trust = atoi(val);
-    else
+    } else {
         slog("Invalid account field %s set to %s", key, val);
+    }
 }
 
 struct account *
@@ -294,13 +305,15 @@ account_by_idnum(int id)
     // First check to see if we already have it in memory
     struct account *acct = g_hash_table_lookup(account_cache,
                                                GINT_TO_POINTER(id));
-    if (acct)
+    if (acct) {
         return acct;
+    }
 
     // Apparently, we don't, so look it up on the db
     CREATE(acct, struct account, 1);
-    if (load_account(acct, id))
+    if (load_account(acct, id)) {
         return acct;
+    }
     free_account(acct);
     return NULL;
 }
@@ -323,20 +336,23 @@ account_by_name(char *name)
                                              account_name_matches,
                                              name);
 
-    if (acct)
+    if (acct) {
         return acct;
+    }
 
     // Apprently, we don't, so look it up on the db
     res = sql_query("select idnum from accounts where lower(name)='%s'",
-        tmp_sqlescape(tmp_tolower(name)));
-    if (PQntuples(res) != 1)
+                    tmp_sqlescape(tmp_tolower(name)));
+    if (PQntuples(res) != 1) {
         return NULL;
+    }
     acct_id = atoi(PQgetvalue(res, 0, 0));
 
     // Now try to load it
     CREATE(acct, struct account, 1);
-    if (load_account(acct, acct_id))
+    if (load_account(acct, acct_id)) {
         return acct;
+    }
 
     free(acct);
     return NULL;
@@ -351,7 +367,7 @@ account_create(const char *name, struct descriptor_data *d)
     CREATE(result, struct account, 1);
     account_initialize(result, name, d, account_top_id);
     g_hash_table_insert(account_cache, GINT_TO_POINTER(account_top_id),
-        result);
+                        result);
     return result;
 }
 
@@ -364,8 +380,9 @@ count_account_gens(struct account *account)
     for (int idx = 1; !invalid_char_index(account, idx); idx++) {
         // test for file existence
         tmp_ch = load_player_from_xml(get_char_by_index(account, idx));
-        if (!tmp_ch)
+        if (!tmp_ch) {
             continue;
+        }
 
         count += GET_REMORT_GEN(tmp_ch);
 
@@ -379,7 +396,7 @@ int
 chars_available(struct account *account)
 {
     return count_account_gens(account) / 10 + 10 -
-        g_list_length(account->chars);
+           g_list_length(account->chars);
 }
 
 // Create a brand new character
@@ -389,8 +406,9 @@ account_create_char(struct account *account, const char *name)
     struct creature *ch;
     int i;
 
-    if (chars_available(account) <= 0)
+    if (chars_available(account) <= 0) {
         return NULL;
+    }
 
     ch = make_creature(true);
 
@@ -407,7 +425,7 @@ account_create_char(struct account *account, const char *name)
     if (has_mail(GET_IDNUM(ch))) {
         if (purge_mail(GET_IDNUM(ch)) > 0) {
             errlog("Purging pre-existing mailfile for new character.(%s)",
-                GET_NAME(ch));
+                   GET_NAME(ch));
         }
     }
     // *** if this is our first player --- he be God ***
@@ -444,8 +462,9 @@ account_create_char(struct account *account, const char *name)
     ch->player.time.played = 0;
     ch->player.time.logon = time(NULL);
 
-    for (i = 0; i < MAX_SKILLS; i++)
+    for (i = 0; i < MAX_SKILLS; i++) {
         ch->player_specials->saved.skills[i] = 0;
+    }
 
     for (i = 0; i < MAX_WEAPON_SPEC; i++) {
         ch->player_specials->saved.weap_spec[i].vnum = 0;
@@ -465,18 +484,19 @@ account_create_char(struct account *account, const char *name)
     ch->points.armor = 100;
 
     SET_BIT(PRF_FLAGS(ch),
-        PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW |
-        PRF_NOPLUG);
+            PRF_DISPHP | PRF_DISPMANA | PRF_DISPMOVE | PRF_AUTOEXIT | PRF_NOSPEW |
+            PRF_NOPLUG);
     SET_BIT(PRF2_FLAGS(ch),
-        PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN |
-        PRF2_NEWBIE_HELPER);
+            PRF2_AUTO_DIAGNOSE | PRF2_AUTOPROMPT | PRF2_DISPALIGN |
+            PRF2_NEWBIE_HELPER);
 
     ch->char_specials.saved.affected_by = 0;
     ch->char_specials.saved.affected2_by = 0;
     ch->char_specials.saved.affected3_by = 0;
 
-    for (i = 0; i < 5; i++)
+    for (i = 0; i < 5; i++) {
         GET_SAVE(ch, i) = 0;
+    }
 
     GET_COND(ch, FULL) = (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 24);
     GET_COND(ch, THIRST) = (GET_LEVEL(ch) == LVL_GRIMP ? -1 : 24);
@@ -492,7 +512,7 @@ account_distrust(struct account *account, long idnum)
 {
     account->trusted = g_list_remove(account->trusted, GINT_TO_POINTER(idnum));
     sql_exec("delete from trusted where account=%d and player=%ld",
-        account->id, idnum);
+             account->id, idnum);
 }
 
 void
@@ -522,22 +542,23 @@ account_delete_char(struct account *account, struct creature *ch)
     // through each account
     res =
         sql_query("select account from trusted where player=%ld",
-        GET_IDNUM(ch));
+                  GET_IDNUM(ch));
     count = PQntuples(res);
     for (idx = 0; idx < count; idx++) {
         struct account *acct = account_by_idnum(atoi(PQgetvalue(res, idx, 0)));
-        if (acct)
+        if (acct) {
             account_distrust(acct, GET_IDNUM(ch));
+        }
     }
 
     // Remove from the bounty list
     remove_bounties(GET_IDNUM(ch));
     sql_exec("delete from bounty_hunters where idnum=%ld or victim=%ld",
-        GET_IDNUM(ch), GET_IDNUM(ch));
+             GET_IDNUM(ch), GET_IDNUM(ch));
 
     // Disassociate author from board messages
     sql_exec("update board_messages set author=null where author=%ld",
-        GET_IDNUM(ch));
+             GET_IDNUM(ch));
 
     // Remove character from account
     account->chars = g_list_remove(account->chars,
@@ -547,7 +568,7 @@ account_delete_char(struct account *account, struct creature *ch)
     // Remove character from game
     if (ch->in_room) {
         send_to_char(ch,
-            "A cold wind blows through your soul, and you disappear!\r\n");
+                     "A cold wind blows through your soul, and you disappear!\r\n");
         creature_purge(ch, false);
     }
 }
@@ -559,7 +580,7 @@ account_authenticate(struct account *account, const char *pw)
 
     if (account->password == NULL || *account->password == '\0') {
         errlog("Account %s[%d] has NULL password. Setting to guess.",
-            account->name, account->id);
+               account->name, account->id);
         account_set_password(account, pw);
     }
     return !strcmp(account->password, crypt_r(pw, account->password, &data));
@@ -577,8 +598,9 @@ account_logout(struct account *account, struct descriptor_data *d, bool forced)
 {
     if (account->password) {
         account->login_time = time(NULL);
-        if (account->login_addr)
+        if (account->login_addr) {
             free(account->login_addr);
+        }
         account->login_addr = strdup(d->host);
 
         sql_exec
@@ -587,10 +609,10 @@ account_logout(struct account *account, struct descriptor_data *d, bool forced)
             account->id);
 
         slog("%slogout: %s[%d] from %s", (forced) ? "forced " : "",
-            account->name, account->id, account->login_addr);
+             account->name, account->id, account->login_addr);
     } else {
         slog("%slogout: unfinished account from %s", (forced) ? "forced " : "",
-            account->login_addr);
+             account->login_addr);
     }
 
     set_desc_state(CXN_DISCONNECT, d);
@@ -604,8 +626,9 @@ account_initialize(struct account *account,
 {
     account->id = idnum;
     account->name = strdup(name);
-    if (strlen(account->name) > 20)
+    if (strlen(account->name) > 20) {
         account->name[20] = '\0';
+    }
     account->password = NULL;
     account->creation_time = account->login_time = time(NULL);
     account->creation_addr = strdup(d->host);
@@ -644,21 +667,22 @@ account_set_password(struct account *account, const char *pw)
 
     for (idx = 3; idx < 12; idx++) {
         salt[idx] = my_rand() & 63;
-        if (salt[idx] < 10)
+        if (salt[idx] < 10) {
             salt[idx] += '0';
-        else if (salt[idx] < 36)
+        } else if (salt[idx] < 36) {
             salt[idx] = salt[idx] - 10 + 'A';
-        else if (salt[idx] < 62)
+        } else if (salt[idx] < 62) {
             salt[idx] = salt[idx] - 36 + 'a';
-        else if (salt[idx] == 63)
+        } else if (salt[idx] == 63) {
             salt[idx] = '.';
-        else
+        } else {
             salt[idx] = '/';
+        }
     }
     free(account->password);
     account->password = strdup(crypt(pw, salt));
     sql_exec("update accounts set password='%s' where idnum=%d",
-        tmp_sqlescape(account->password), account->id);
+             tmp_sqlescape(account->password), account->id);
 }
 
 void
@@ -666,7 +690,7 @@ account_set_banned(struct account *account, bool banned)
 {
     account->banned = banned;
     sql_exec("update accounts set banned='%s' where idnum=%d",
-        account->banned ? "T" : "F", account->id);
+             account->banned ? "T" : "F", account->id);
 }
 
 void
@@ -675,7 +699,7 @@ account_set_reputation(struct account *account, int amt)
     if (amt >= 0) {
         account->reputation = amt;
         sql_exec("update accounts set reputation=%d where idnum=%d",
-            account->reputation, account->id);
+                 account->reputation, account->id);
     }
 }
 
@@ -684,10 +708,11 @@ account_gain_reputation(struct account *account, int amt)
 {
     if (amt != 0) {
         account->reputation += amt;
-        if (account->reputation < 0)
+        if (account->reputation < 0) {
             account->reputation = 0;
+        }
         sql_exec("update accounts set reputation=%d where idnum=%d",
-            account->reputation, account->id);
+                 account->reputation, account->id);
     }
 }
 
@@ -696,7 +721,7 @@ account_set_past_bank(struct account *account, money_t amt)
 {
     account->bank_past = amt;
     sql_exec("update accounts set bank_past=%" PRId64 " where idnum=%d",
-        account->bank_past, account->id);
+             account->bank_past, account->id);
 }
 
 void
@@ -704,7 +729,7 @@ account_set_future_bank(struct account *account, money_t amt)
 {
     account->bank_future = amt;
     sql_exec("update accounts set bank_future=%" PRId64 " where idnum=%d",
-        account->bank_future, account->id);
+             account->bank_future, account->id);
 }
 
 void
@@ -730,24 +755,28 @@ deposit_future_bank(struct account *account, money_t amt)
 void
 withdraw_past_bank(struct account *account, money_t amt)
 {
-    if (amt <= 0)
+    if (amt <= 0) {
         return;
-    if (amt > account->bank_past)
+    }
+    if (amt > account->bank_past) {
         amt = account->bank_past;
+    }
     slog("BANK: %'" PRId64 " withdrawn from past bank of %s [%d]",
-             amt, account->name, account->id);
+         amt, account->name, account->id);
     account_set_past_bank(account, account->bank_past - amt);
 }
 
 void
 withdraw_future_bank(struct account *account, money_t amt)
 {
-    if (amt <= 0)
+    if (amt <= 0) {
         return;
-    if (amt > account->bank_future)
+    }
+    if (amt > account->bank_future) {
         amt = account->bank_future;
+    }
     slog("BANK: %'" PRId64 " withdrawn from future bank of %s [%d]",
-             amt, account->name, account->id);
+         amt, account->name, account->id);
     account_set_future_bank(account, account->bank_future - amt);
 }
 
@@ -755,10 +784,11 @@ void
 account_set_email_addr(struct account *account, const char *addr)
 {
     account->email = strdup(addr);
-    if (strlen(account->email) > 60)
+    if (strlen(account->email) > 60) {
         account->email[60] = '\0';
+    }
     sql_exec("update accounts set email='%s' where idnum=%d",
-        tmp_sqlescape(account->email), account->id);
+             tmp_sqlescape(account->email), account->id);
 }
 
 long
@@ -768,7 +798,7 @@ get_char_by_index(struct account *account, int idx)
 }
 
 bool
-invalid_char_index(struct account * account, int idx)
+invalid_char_index(struct account *account, int idx)
 {
     return (idx < 1 || (guint)idx > g_list_length(account->chars));
 }
@@ -793,7 +823,7 @@ account_exhume_char(struct account *account, struct creature *exhumer, long id)
     }
     // load char from file
     struct creature *victim;
-    
+
     victim = load_player_from_xml(id);
     if (victim) {
         sql_exec
@@ -801,9 +831,9 @@ account_exhume_char(struct account *account, struct creature *exhumer, long id)
             GET_IDNUM(victim), account->id, tmp_sqlescape(GET_NAME(victim)));
         load_players(account);
         send_to_char(exhumer, "%s exhumed.\r\n",
-            tmp_capitalize(GET_NAME(victim)));
+                     tmp_capitalize(GET_NAME(victim)));
         slog("%s[%ld] exhumed into account %s[%d]", GET_NAME(victim),
-            GET_IDNUM(victim), account->name, account->id);
+             GET_IDNUM(victim), account->name, account->id);
         free_creature(victim);
     } else {
         send_to_char(exhumer, "Unable to load character %ld.\r\n", id);
@@ -814,37 +844,42 @@ bool
 account_deny_char_entry(struct account *account, struct creature *ch)
 {
     // Admins and full wizards can multi-play all they want
-    if (is_authorized(ch, MULTIPLAY, NULL))
+    if (is_authorized(ch, MULTIPLAY, NULL)) {
         return false;
+    }
 
     bool override = false;
     bool found = false;
 
-    for (GList *it = first_living(creatures);it;it = next_living(it)) {
+    for (GList *it = first_living(creatures); it; it = next_living(it)) {
         struct creature *tch = it->data;
 
         if (tch->account == account) {
             // Admins and full wizards can multi-play all they want
-            if (is_authorized(ch, MULTIPLAY, NULL))
+            if (is_authorized(ch, MULTIPLAY, NULL)) {
                 override = true;
+            }
             // builder can have on a tester and vice versa.
-            if (is_authorized(ch, LOGIN_WITH_TESTER, NULL) && is_tester(tch))
+            if (is_authorized(ch, LOGIN_WITH_TESTER, NULL) && is_tester(tch)) {
                 override = true;
-            if (is_tester(ch) && is_authorized(tch, LOGIN_WITH_TESTER, NULL))
+            }
+            if (is_tester(ch) && is_authorized(tch, LOGIN_WITH_TESTER, NULL)) {
                 override = true;
+            }
             // We have a non-immortal already in the game, so they don't
             // get to come in
             found = true;
         }
     }
-    if (override)
+    if (override) {
         return false;
+    }
 
     return found;
 }
 
 bool
-account_is_logged_in(struct account * account)
+account_is_logged_in(struct account *account)
 {
     struct descriptor_data *d;
     for (d = descriptor_list; d != NULL; d = d->next) {
@@ -860,17 +895,19 @@ account_update_last_entry(struct account *account)
 {
     account->entry_time = time(NULL);
     sql_exec("update accounts set entry_time=now() where idnum=%d",
-        account->id);
+             account->id);
 }
 
 bool
 is_trusted(struct account *account, long idnum)
 {
-    if (g_list_find(account->chars, GINT_TO_POINTER(idnum)))
+    if (g_list_find(account->chars, GINT_TO_POINTER(idnum))) {
         return true;
+    }
 
-    if (g_list_find(account->trusted, GINT_TO_POINTER(idnum)))
+    if (g_list_find(account->trusted, GINT_TO_POINTER(idnum))) {
         return true;
+    }
 
     return false;
 }
@@ -878,12 +915,13 @@ is_trusted(struct account *account, long idnum)
 void
 account_trust(struct account *account, long idnum)
 {
-    if (g_list_find(account->trusted, GINT_TO_POINTER(idnum)))
+    if (g_list_find(account->trusted, GINT_TO_POINTER(idnum))) {
         return;
+    }
     account->trusted =
         g_list_prepend(account->trusted, GINT_TO_POINTER(idnum));
     sql_exec("insert into trusted (account, player) values (%d, %ld)",
-        account->id, idnum);
+             account->id, idnum);
 }
 
 void
@@ -891,7 +929,7 @@ account_display_trusted(struct account *account, struct creature *ch)
 {
     int col = 0;
 
-    for (GList *it = account->trusted;it;it = it->next) {
+    for (GList *it = account->trusted; it; it = it->next) {
         int idnum = GPOINTER_TO_INT(it->data);
 
         if (player_idnum_exists(idnum)) {
@@ -903,8 +941,9 @@ account_display_trusted(struct account *account, struct creature *ch)
             }
         }
     }
-    if (col)
+    if (col) {
         send_to_char(ch, "\r\n");
+    }
 }
 
 void
@@ -912,7 +951,7 @@ account_set_ansi_level(struct account *account, int level)
 {
     account->ansi_level = level;
     sql_exec("update accounts set ansi_level=%d where idnum=%d",
-        account->ansi_level, account->id);
+             account->ansi_level, account->id);
 }
 
 void
@@ -920,41 +959,46 @@ account_set_compact_level(struct account *account, int level)
 {
     account->compact_level = level;
     sql_exec("update accounts set compact_level=%d where idnum=%d",
-        account->compact_level, account->id);
+             account->compact_level, account->id);
 }
 
 void
 account_set_term_height(struct account *account, int height)
 {
-    if (height < 0)
+    if (height < 0) {
         height = 0;
-    if (height > 200)
+    }
+    if (height > 200) {
         height = 200;
+    }
     account->term_height = height;
     sql_exec("update accounts set term_height=%d where idnum=%d",
-        account->term_height, account->id);
+             account->term_height, account->id);
 }
 
 void
 account_set_term_width(struct account *account, int width)
 {
-    if (width < 0)
+    if (width < 0) {
         width = 0;
-    if (width > 200)
+    }
+    if (width > 200) {
         width = 200;
+    }
     account->term_width = width;
     sql_exec("update accounts set term_width=%d where idnum=%d",
-        account->term_width, account->id);
+             account->term_width, account->id);
 }
 
 void
 account_set_quest_points(struct account *account, int qp)
 {
-    if (qp < 0)
+    if (qp < 0) {
         qp = 0;
+    }
     account->quest_points = qp;
     sql_exec("update accounts set quest_points=%d where idnum=%d",
-        account->quest_points, account->id);
+             account->quest_points, account->id);
 }
 
 void
@@ -962,7 +1006,7 @@ account_set_quest_banned(struct account *account, bool banned)
 {
     account->quest_banned = banned;
     sql_exec("update accounts set quest_banned='%s' where idnum=%d",
-        banned ? "T" : "F", account->id);
+             banned ? "T" : "F", account->id);
 }
 
 void
@@ -970,7 +1014,7 @@ account_set_metric(struct account *account, bool metric)
 {
     account->metric_units = metric;
     sql_exec("update accounts set metric_units='%s' where idnum=%d",
-        metric ? "T" : "F", account->id);
+             metric ? "T" : "F", account->id);
 }
 void
 account_set_trust(struct account *account, int trust)
@@ -989,8 +1033,9 @@ hasCharLevel(struct account *account, int level)
     while (!invalid_char_index(account, idx)) {
         tmp_ch = load_player_from_xml(get_char_by_index(account, idx));
 
-        if (!tmp_ch)
+        if (!tmp_ch) {
             return 0;
+        }
 
         if (GET_LEVEL(tmp_ch) >= level) {
             free_creature(tmp_ch);
@@ -1009,7 +1054,7 @@ int
 account_chars_available(struct account *account)
 {
     return (count_account_gens(account) / 10
-        + 10 - g_list_length(account->chars));
+            + 10 - g_list_length(account->chars));
 }
 
 int

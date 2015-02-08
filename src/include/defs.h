@@ -14,9 +14,9 @@ typedef int32_t room_num;
 typedef int32_t obj_num;
 
 struct txt_block {
-	char *text;
-	int aliased;
-	struct txt_block *next;
+    char *text;
+    int aliased;
+    struct txt_block *next;
 };
 
 #endif
