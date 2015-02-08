@@ -524,21 +524,6 @@ int drag_char_to_jail(struct creature *ch, struct creature *vict, struct room_da
 
 /* OS compatibility ******************************************************/
 
-#if !defined(false)
-#define false 0
-#endif
-
-#if !defined(true)
-#define true  (!false)
-#endif
-
-/* defines for fseek */
-#ifndef SEEK_SET
-#define SEEK_SET        0
-#define SEEK_CUR        1
-#define SEEK_END        2
-#endif
-
 /*
  * The crypt(3) function is not available on some operating systems.
  * In particular, the U.S. Government prohibits its export from the

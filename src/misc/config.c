@@ -34,8 +34,8 @@
 #include "creature.h"
 #include "char_class.h"
 
-#define YES 1
-#define NO  0
+#define YES true
+#define NO false
 
 /*
  * Below are several constants which you can change to alter certain aspects
@@ -75,7 +75,7 @@ int max_npc_corpse_time = 5;
 int max_pc_corpse_time = 10;
 
 /* should items in death traps automatically be junked? */
-int dts_are_dumps = NO;
+bool dts_are_dumps = NO;
 
 /* "okay" etc. */
 const char *OK = "You got it.\r\n";
@@ -103,7 +103,7 @@ int min_rent_cost = 5;
  * Should the game automatically save people?  (i.e., save player data
  * every 4 kills (on average), and Crash-save as defined below.
  */
-int auto_save = YES;
+bool auto_save = YES;
 
 /*
  * if auto_save (above) is yes, how often (in minutes) should the MUD
@@ -263,7 +263,7 @@ int max_bad_pws = 2;
  * the SLOWNS command from within the MUD.
  */
 
-int nameserver_is_slow = YES;
+bool nameserver_is_slow = YES;
 
 const char *GREETINGS[] = {
     ".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
@@ -332,7 +332,7 @@ const char *START_MESSG =
 
 /* Should the game automatically create a new wizlist/immlist every time
    someone immorts, or is promoted to a higher (or lower) god level? */
-int use_autowiz = NO;
+bool use_autowiz = NO;
 
 /* If yes, what is the lowest level which should be on the wizlist?  (All
    immort levels below the level you specify will go on the immlist instead.) */

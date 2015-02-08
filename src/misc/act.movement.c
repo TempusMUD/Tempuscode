@@ -1653,10 +1653,12 @@ has_key(struct creature *ch, int key)
     return 0;
 }
 
-#define NEED_OPEN        1
-#define NEED_CLOSED        2
-#define NEED_UNLOCKED        4
-#define NEED_LOCKED        8
+enum {
+    NEED_OPEN = 1,
+    NEED_CLOSED = 2,
+    NEED_UNLOCKED = 4,
+    NEED_LOCKED = 8,
+};
 
 const char *cmd_door[] = {
     "open",
@@ -1676,15 +1678,13 @@ const int flags_door[] = {
     NEED_CLOSED | NEED_LOCKED
 };
 
-#define EXITN(room, door)                (room->dir_option[door])
-
 void
 OPEN_DOOR(struct room_data *room, struct obj_data *obj, int direction)
 {
     if (obj != NULL) {
         TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_CLOSED);
     } else {
-        TOGGLE_BIT(EXITN(room, direction)->exit_info, EX_CLOSED);
+        TOGGLE_BIT(ABS_EXIT(room, direction)->exit_info, EX_CLOSED);
     }
 }
 
@@ -1694,7 +1694,7 @@ LOCK_DOOR(struct room_data *room, struct obj_data *obj, int direction)
     if (obj != NULL) {
         TOGGLE_BIT(GET_OBJ_VAL(obj, 1), CONT_LOCKED);
     } else {
-        TOGGLE_BIT(EXITN(room, direction)->exit_info, EX_LOCKED);
+        TOGGLE_BIT(ABS_EXIT(room, direction)->exit_info, EX_LOCKED);
     }
 }
 
@@ -2857,17 +2857,29 @@ ACMD(do_defend)
     }
 }
 
-#define TL_USAGE (subcmd == SKILL_WORMHOLE ?                        \
-                  "Usage: wormhole <direction> <distance>\r\n" :    \
-                  "Usage: translocate <direction> <distance>\r\n")
+inline const char *
+TL_USAGE(int subcmd)
+{
+    return subcmd == SKILL_WORMHOLE ?
+           "Usage: wormhole <direction> <distance>\r\n" :
+           "Usage: translocate <direction> <distance>\r\n";
+}
 
-#define TL_VANISH (subcmd == SKILL_WORMHOLE ?                       \
-                   "$n disappears into the mouth of a transient spacetime wormhole!" : \
-                   "$n fades from view into non-corporeality.")
+inline const char *
+TL_VANISH(int subcmd)
+{
+    return subcmd == SKILL_WORMHOLE ?
+           "$n disappears into the mouth of a transient spacetime wormhole!" :
+           "$n fades from view into non-corporeality.";
+}
 
-#define TL_APPEAR (subcmd == SKILL_WORMHOLE ?                       \
-                   "$n is hurled from the mouth of a transient spacetime wormhole!" : \
-                   "$n slowly fades into view from non-corporeality.")
+inline const char *
+TL_APPEAR(int subcmd)
+{
+    return subcmd == SKILL_WORMHOLE ?
+           "$n is hurled from the mouth of a transient spacetime wormhole!" :
+           "$n slowly fades into view from non-corporeality.";
+}
 
 ACMD(do_translocate)
 {
@@ -2883,7 +2895,7 @@ ACMD(do_translocate)
     }
     two_arguments(argument, arg1, arg2);
     if (!*arg1 || !*arg2) {
-        send_to_char(ch, TL_USAGE);
+        send_to_char(ch, "%s", TL_USAGE(subcmd));
         return;
     }
     if (subcmd == ZEN_TRANSLOCATION) {
@@ -2953,7 +2965,7 @@ ACMD(do_translocate)
         send_to_char(ch, "You fade swiftly into another place:\r\n");
     }
 
-    act(TL_VANISH, true, ch, NULL, NULL, TO_ROOM);
+    act(TL_VANISH(subcmd), true, ch, NULL, NULL, TO_ROOM);
 
     if (!rm) {
 
@@ -2983,7 +2995,7 @@ ACMD(do_translocate)
         if (!char_from_room(ch, true) || !char_to_room(ch, rm, true)) {
             return;
         }
-        act(TL_APPEAR, true, ch, NULL, NULL, TO_ROOM);
+        act(TL_APPEAR(subcmd), true, ch, NULL, NULL, TO_ROOM);
         gain_skill_prof(ch, subcmd);
         look_at_room(ch, ch->in_room, false);
 
@@ -3007,10 +3019,6 @@ ACMD(do_translocate)
         }
     }
 }
-
-#undef TL_USAGE
-#undef TL_VANISH
-#undef TL_APPEAR
 
 void
 drag_object(struct creature *ch, struct obj_data *obj, int dir)

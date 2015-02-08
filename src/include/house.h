@@ -47,8 +47,6 @@ extern time_t last_house_collection;
 extern int top_house_id;
 extern GList *houses;
 
-#define TOROOM(room, dir) (world[room].dir_option[dir] ? \
-                           world[room].dir_option[dir]->to_room : NOWHERE)
 char *print_room_contents(struct creature *ch, struct room_data *real_house_room, bool showContents);
 int recurs_obj_cost(struct obj_data *obj, bool mode, struct obj_data *top_o);
 int recurs_obj_contents(struct obj_data *obj, struct obj_data *top_o);

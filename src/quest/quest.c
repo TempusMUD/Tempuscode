@@ -190,8 +190,13 @@ const char *qp_bits[] = {
     "\n"
 };
 
-#define QUEST_PATH "etc/quest.xml"
-#define PLURAL(num) (num == 1 ? "" : "s")
+const char *QUEST_PATH = "etc/quest.xml";
+
+inline const char *
+PLURAL(int num)
+{
+    return (num == 1 ? "" : "s");
+}
 
 GList *quests = NULL;
 

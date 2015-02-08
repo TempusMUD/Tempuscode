@@ -595,7 +595,7 @@ ACMD(do_whisper)
     }
 }
 
-#define MAX_NOTE_LENGTH 16384   /* arbitrary */
+const size_t MAX_NOTE_LENGTH = 16384;   /* arbitrary */
 
 ACMD(do_write)
 {

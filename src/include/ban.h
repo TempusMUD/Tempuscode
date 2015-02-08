@@ -2,10 +2,12 @@
 #define _BAN_H_
 
 /* don't change these */
-#define BAN_NOT     0
-#define BAN_NEW     1
-#define BAN_SELECT  2
-#define BAN_ALL     3
+enum {
+    BAN_NOT = 0,
+    BAN_NEW = 1,
+    BAN_SELECT = 2,
+    BAN_ALL = 3,
+};
 
 #define BANNED_SITE_LENGTH    50
 #define BANNED_REASON_LENGTH  80

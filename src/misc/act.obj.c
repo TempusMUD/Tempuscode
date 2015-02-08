@@ -1358,9 +1358,18 @@ perform_drop_credits(struct creature *ch, int amount,
     }
 }
 
-#define VANISH(mode) ((mode == SCMD_DONATE || mode == SCMD_JUNK) ? \
-                      "  It vanishes in a puff of smoke!" : "")
-#define PROTO_SDESC(vnum) (real_object_proto(vnum)->name)
+inline const char *
+VANISH(int mode)
+{
+    return (mode == SCMD_DONATE || mode == SCMD_JUNK) ?
+           "  It vanishes in a puff of smoke!" : "";
+}
+
+inline const char *
+PROTO_SDESC(int vnum)
+{
+    return real_object_proto(vnum)->name;
+}
 
 bool
 is_undisposable(struct creature *ch, const char *cmdstr, struct obj_data *obj,

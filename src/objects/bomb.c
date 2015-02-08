@@ -808,7 +808,6 @@ ACMD(do_defuse)
 // used for guns and spells, can be used in other places as well
 //
 
-#define LOUD (rad_elem->power > 0)
 void
 sound_gunshots(struct room_data *room, int type, int power, int num)
 {
@@ -824,6 +823,7 @@ sound_gunshots(struct room_data *room, int type, int power, int num)
     sort_rooms();
 
     while ((rad_elem = bomb_rooms)) {
+        bool loud = rad_elem->power > 0;
 
         bomb_rooms = bomb_rooms->next;
 
@@ -856,7 +856,7 @@ sound_gunshots(struct room_data *room, int type, int power, int num)
             case SPELL_FLAME_STRIKE:
             case SPELL_FIRE_BREATH:
                 snprintf(buf, sizeof(buf), "You hear a %sfiery blast from %s.\r\n",
-                         LOUD ? "deafening " : "", from_dirs[dir]);
+                         loud ? "deafening " : "", from_dirs[dir]);
                 break;
             case SPELL_FROST_BREATH:
             case SPELL_HELL_FROST:
@@ -864,23 +864,23 @@ sound_gunshots(struct room_data *room, int type, int power, int num)
             case SPELL_ICY_BLAST:
             case SPELL_ICE_STORM:
                 snprintf(buf, sizeof(buf), "You hear a%s icy blast from %s.\r\n",
-                         LOUD ? " deafening" : "n", from_dirs[dir]);
+                         loud ? " deafening" : "n", from_dirs[dir]);
                 break;
             case SPELL_LIGHTNING_BOLT:
             case SPELL_CHAIN_LIGHTNING:
             case SPELL_CALL_LIGHTNING:
             case SPELL_LIGHTNING_BREATH:
                 snprintf(buf, sizeof(buf), "You hear a %sthunderclap from %s.\r\n",
-                         LOUD ? "loud " : "", from_dirs[dir]);
+                         loud ? "loud " : "", from_dirs[dir]);
                 break;
             case SPELL_COLOR_SPRAY:
             case SPELL_PRISMATIC_SPRAY:
                 snprintf(buf, sizeof(buf), "You see a %sflash of light from %s.\r\n",
-                         LOUD ? "bright " : "", from_dirs[dir]);
+                         loud ? "bright " : "", from_dirs[dir]);
                 break;
             case SPELL_FIREBALL:
                 snprintf(buf, sizeof(buf), "There is a %sfiery explosion from %s.\r\n",
-                         LOUD ? "deafening " : "", from_dirs[dir]);
+                         loud ? "deafening " : "", from_dirs[dir]);
                 break;
             case SPELL_METEOR_STORM:
                 snprintf(buf, sizeof(buf),
@@ -890,10 +890,10 @@ sound_gunshots(struct room_data *room, int type, int power, int num)
             case SKILL_PROJ_WEAPONS:
                 if (num > 1) {
                     snprintf(buf, sizeof(buf), "You hear %d %sgunshots from %s.\r\n",
-                             num, LOUD ? "loud " : "", from_dirs[dir]);
+                             num, loud ? "loud " : "", from_dirs[dir]);
                 } else {
                     snprintf(buf, sizeof(buf), "You hear a %sgunshot from %s.\r\n",
-                             LOUD ? "loud " : "", from_dirs[dir]);
+                             loud ? "loud " : "", from_dirs[dir]);
                 }
                 break;
             default:

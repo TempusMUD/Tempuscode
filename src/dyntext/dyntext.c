@@ -4,14 +4,8 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-// ping
-// ping 2
-
 #ifdef HAS_CONFIG_H
 #endif
-
-#define __DYNTEXT_C__
-
 
 #include <stdio.h>
 #include <stdlib.h>

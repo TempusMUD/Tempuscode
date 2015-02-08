@@ -25,7 +25,7 @@
 #include "prog.h"
 #include "editor.h"
 
-#define MAX_POLL_SIZE 4096
+const size_t MAX_POLL_SIZE = 4096;
 
 void voting_add_poll(const char *header, const char *text);
 

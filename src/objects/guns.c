@@ -168,8 +168,10 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
     }
 }
 
-#define GUNSET_RATE      1
-#define GUNSET_DISCHARGE 2
+enum {
+    GUNSET_RATE     = 1,
+    GUNSET_DISCHARGE = 2,
+};
 
 ACMD(do_gunset)
 {

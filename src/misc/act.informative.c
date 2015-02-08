@@ -116,17 +116,20 @@ int isbanned(char *hostname, char *blocking_hostname);
 
 ACMD(do_stand);
 
-#define HID_OBJ_PROB(ch, obj) \
-    (GET_LEVEL(ch) + GET_INT(ch) +                    \
-     (affected_by_spell(ch, SKILL_HYPERSCAN) ? 40 : 0)+ \
-     (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ? 30 : 0) + \
-     (AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ? 60 : 0) +  \
-     (PRF_FLAGGED(ch, PRF_HOLYLIGHT) ? 500 : 0) +     \
-     (IS_OBJ_STAT(obj, ITEM_GLOW) ? -20 : 0) +        \
-     (IS_OBJ_STAT(obj, ITEM_HUM) ? -20 : 0) +         \
-     ((IS_CIGARETTE(obj) && SMOKE_LIT(obj)) ? 10 : 0)+ \
-     ((IS_OBJ_STAT(obj, ITEM_MAGIC) &&                \
-       AFF_FLAGGED(ch, AFF_DETECT_MAGIC)) ? 20 : 0))
+static inline int
+HID_OBJ_PROB(struct creature *ch, struct obj_data *obj)
+{
+    return (GET_LEVEL(ch) + GET_INT(ch) +
+            (affected_by_spell(ch, SKILL_HYPERSCAN) ? 40 : 0)+
+            (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY) ? 30 : 0) +
+            (AFF2_FLAGGED(ch, AFF2_TRUE_SEEING) ? 60 : 0) +
+            (PRF_FLAGGED(ch, PRF_HOLYLIGHT) ? 500 : 0) +
+            (IS_OBJ_STAT(obj, ITEM_GLOW) ? -20 : 0) +
+            (IS_OBJ_STAT(obj, ITEM_HUM) ? -20 : 0) +
+            ((IS_CIGARETTE(obj) && SMOKE_LIT(obj)) ? 10 : 0)+
+            ((IS_OBJ_STAT(obj, ITEM_MAGIC) &&
+              AFF_FLAGGED(ch, AFF_DETECT_MAGIC)) ? 20 : 0));
+}
 
 static void
 show_obj_extra(struct obj_data *object, struct creature *ch)
@@ -158,7 +161,7 @@ show_obj_extra(struct obj_data *object, struct creature *ch)
             acc_strcat("It looks like a corpse.\r\n", NULL);
         } else {
             acc_strcat("It looks like a container.\r\n", NULL);
-            if (CAR_CLOSED(object) && CAR_OPENABLE(object)) { /*macro maps to containers too */
+            if (CAR_CLOSED(object) && CAR_OPENABLE(object)) {        /*macro maps to containers too */
                 acc_strcat("It appears to be closed.\r\n", NULL);
             } else if (CAR_OPENABLE(object)) {
                 acc_strcat("It appears to be open.\r\n", NULL);
@@ -1523,7 +1526,6 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
 static void
 look_in_direction(struct creature *ch, int dir)
 {
-#define EXNUMB EXIT(ch, dir)->to_room
     struct room_affect_data *aff;
 
     if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED) &&
@@ -1539,19 +1541,19 @@ look_in_direction(struct creature *ch, int dir)
                    EXIT(ch, dir)->keyword) {
             acc_sprintf("You see %s %s.\r\n", AN(fname(EXIT(ch,
                                                             dir)->keyword)), fname(EXIT(ch, dir)->keyword));
-        } else if (EXNUMB) {
+        } else if (EXIT(ch, dir)->to_room) {
             if ((IS_SET(EXIT(ch, dir)->exit_info, EX_NOPASS) &&
                  GET_LEVEL(ch) < LVL_AMBASSADOR) ||
                 IS_SET(EXIT(ch, dir)->exit_info, EX_HIDDEN)) {
                 acc_sprintf("You see nothing special.\r\n");
-            } else if (EXNUMB->name) {
+            } else if (EXIT(ch, dir)->to_room->name) {
                 acc_sprintf("%s", CCCYN(ch, C_NRM));
                 if (PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
-                    sprintbit((long)ROOM_FLAGS(EXNUMB), room_bits, buf, sizeof(buf));
-                    acc_sprintf("[%5d] %s [ %s] [ %s ]", EXNUMB->number,
-                                EXNUMB->name, buf, sector_types[EXNUMB->sector_type]);
+                    sprintbit((long)ROOM_FLAGS(EXIT(ch, dir)->to_room), room_bits, buf, sizeof(buf));
+                    acc_sprintf("[%5d] %s [ %s] [ %s ]", EXIT(ch, dir)->to_room->number,
+                                EXIT(ch, dir)->to_room->name, buf, sector_types[EXIT(ch, dir)->to_room->sector_type]);
                 } else {
-                    acc_sprintf("%s", EXNUMB->name);
+                    acc_sprintf("%s", EXIT(ch, dir)->to_room->name);
                 }
                 acc_sprintf("%s", CCNRM(ch, C_NRM));
                 acc_sprintf("\r\n");
@@ -1564,11 +1566,11 @@ look_in_direction(struct creature *ch, int dir)
                 acc_sprintf("You see nothing special.\r\n");
             }
         }
-        if (EXNUMB && (!IS_SET(EXIT(ch, dir)->exit_info,
-                               EX_ISDOOR | EX_CLOSED | EX_HIDDEN | EX_NOPASS) ||
-                       PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
+        if (EXIT(ch, dir)->to_room && (!IS_SET(EXIT(ch, dir)->exit_info,
+                                               EX_ISDOOR | EX_CLOSED | EX_HIDDEN | EX_NOPASS) ||
+                                       PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
 
-            if (room_is_dark(EXNUMB) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) &&
+            if (room_is_dark(EXIT(ch, dir)->to_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) &&
                 CHECK_SKILL(ch, SKILL_NIGHT_VISION) < number(GET_LEVEL(ch),
                                                              101)) {
                 send_to_char(ch,
@@ -1576,9 +1578,9 @@ look_in_direction(struct creature *ch, int dir)
             } else {
                 /* now list characters & objects */
                 acc_sprintf("%s", CCGRN(ch, C_NRM));
-                list_obj_to_char(EXNUMB->contents, ch, SHOW_OBJ_ROOM, false);
+                list_obj_to_char(EXIT(ch, dir)->to_room->contents, ch, SHOW_OBJ_ROOM, false);
                 acc_sprintf("%s", CCYEL(ch, C_NRM));
-                list_char_to_char(EXNUMB->people, ch);
+                list_char_to_char(EXIT(ch, dir)->to_room->people, ch);
                 acc_sprintf("%s", CCNRM(ch, C_NRM));
             }
         }
@@ -1594,7 +1596,7 @@ look_in_direction(struct creature *ch, int dir)
                 acc_sprintf("The %s %s open.\r\n", fname(EXIT(ch,
                                                               dir)->keyword), ISARE(fname(EXIT(ch,
                                                                                                dir)->keyword)));
-                if (EXNUMB != NULL && room_is_dark(EXNUMB) &&
+                if (EXIT(ch, dir)->to_room != NULL && room_is_dark(EXIT(ch, dir)->to_room) &&
                     !EXIT(ch, dir)->general_description) {
                     snprintf(buf, sizeof(buf),
                              "It's too dark through the %s to see anything.\r\n",

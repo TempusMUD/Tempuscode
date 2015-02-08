@@ -71,9 +71,21 @@ struct bfs_queue_struct *queue_head = NULL, *queue_tail = NULL;
 unsigned char find_first_step_index = 0;
 
 /* Utility macros */
-#define MARK(room) (room->find_first_step_index = find_first_step_index)
-#define UNMARK(room) (room->find_first_step_index = 0)
-#define IS_MARKED(room) (room->find_first_step_index == find_first_step_index)
+inline void
+MARK(struct room_data *room)
+{
+    room->find_first_step_index = find_first_step_index;
+}
+inline void
+UNMARK(struct room_data *room)
+{
+    room->find_first_step_index = 0;
+}
+inline bool
+IS_MARKED(struct room_data *room)
+{
+    return room->find_first_step_index == find_first_step_index;
+}
 
 struct room_data *
 to_room(struct room_data *room, int dir)

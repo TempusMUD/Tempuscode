@@ -26,7 +26,7 @@
 #include "prog.h"
 #include "editor.h"
 
-#define MAX_TEXT_SIZE 4096
+const size_t MAX_TEXT_SIZE = 4096;
 
 struct texteditor_data {
     char **target;

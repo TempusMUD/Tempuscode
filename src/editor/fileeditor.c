@@ -28,7 +28,6 @@
 #include "editor.h"
 
 extern const int max_filesize;
-#define MAX_EDIT_FILESIZE (max_filesize + 128)
 
 void
 fileeditor_finalize(struct editor *editor, const char *text)
@@ -54,6 +53,7 @@ fileeditor_finalize(struct editor *editor, const char *text)
 void
 start_editing_file(struct descriptor_data *d, const char *fname)
 {
+    const int MAX_EDIT_FILESIZE = (max_filesize + 128);
     FILE *inf = NULL;
     char *target;
 
