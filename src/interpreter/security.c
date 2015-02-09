@@ -22,12 +22,12 @@
 #include "race.h"
 #include "creature.h"
 #include "db.h"
+#include "account.h"
 #include "screen.h"
 #include "house.h"
 #include "clan.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "account.h"
 #include "quest.h"
 #include "strutil.h"
 

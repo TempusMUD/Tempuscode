@@ -22,10 +22,10 @@
 #include "creature.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "account.h"
 #include "bomb.h"
 #include "obj_data.h"
 #include "quest.h"
+#include "account.h"
 #include "screen.h"
 
 bool

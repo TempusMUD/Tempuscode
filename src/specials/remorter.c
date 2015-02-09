@@ -30,9 +30,9 @@
 #include "db.h"
 #include "char_class.h"
 #include "tmpstr.h"
-#include "account.h"
 #include "obj_data.h"
 #include "strutil.h"
+#include "account.h"
 
 void
 do_pre_test(struct creature *ch)

@@ -4,6 +4,7 @@
 #include "handler.h"
 #include "interpreter.h"
 #include "tmpstr.h"
+#include "account.h"
 #include "screen.h"
 #include "utils.h"
 

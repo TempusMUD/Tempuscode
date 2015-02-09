@@ -34,13 +34,13 @@
 #include "creature.h"
 #include "libpq-fe.h"
 #include "db.h"
+#include "account.h"
 #include "screen.h"
 #include "clan.h"
 #include "char_class.h"
 #include "players.h"
 #include "tmpstr.h"
 #include "accstr.h"
-#include "account.h"
 #include "strutil.h"
 
 extern struct descriptor_data *descriptor_list;

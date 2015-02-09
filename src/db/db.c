@@ -44,11 +44,11 @@
 #include "creature.h"
 #include "libpq-fe.h"
 #include "db.h"
+#include "account.h"
 #include "screen.h"
 #include "house.h"
 #include "tmpstr.h"
 #include "accstr.h"
-#include "account.h"
 #include "spells.h"
 #include "flow_room.h"
 #include <libxml/parser.h>

@@ -26,9 +26,9 @@
 #include "clan.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "account.h"
 #include "quest.h"
 #include "mail.h"
+#include "account.h"
 
 #include <crypt.h>
 

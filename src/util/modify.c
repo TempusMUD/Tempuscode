@@ -37,11 +37,11 @@
 #include "macros.h"
 #include "room_data.h"
 #include "race.h"
+#include "account.h"
 #include "creature.h"
 #include "db.h"
 #include "tmpstr.h"
 #include "accstr.h"
-#include "account.h"
 #include "spells.h"
 #include "strutil.h"
 

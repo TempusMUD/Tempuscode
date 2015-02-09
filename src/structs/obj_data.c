@@ -22,6 +22,7 @@
 #include "race.h"
 #include "creature.h"
 #include "db.h"
+#include "account.h"
 #include "screen.h"
 #include "tmpstr.h"
 #include "xml_utils.h"

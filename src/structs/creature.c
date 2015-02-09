@@ -28,7 +28,6 @@
 #include "clan.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "account.h"
 #include "spells.h"
 #include "fight.h"
 #include "obj_data.h"
@@ -37,6 +36,7 @@
 #include "quest.h"
 #include "help.h"
 #include "paths.h"
+#include "account.h"
 
 void extract_norents(struct obj_data *obj);
 void char_arrest_pardoned(struct creature *ch);

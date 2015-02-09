@@ -20,10 +20,10 @@
 #include "room_data.h"
 #include "race.h"
 #include "creature.h"
+#include "account.h"
 #include "screen.h"
 #include "players.h"
 #include "accstr.h"
-#include "account.h"
 
 /*
  * The Security Namespace Role function definitions.
