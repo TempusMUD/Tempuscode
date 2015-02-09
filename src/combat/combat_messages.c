@@ -1130,28 +1130,31 @@ dam_message(int dam, struct creature *ch, struct creature *victim,
 
     // lower boundaries of message levels
     int msg_levels[] = { 0,
-                         4,     // tickle
-                         6,     // barely
-                         10,     // hit
-                         14,     // hard
-                         19,     // very hard
-                         23,     // extremely hard
-                         27,     // massacre
-                         32,     // devastate
-                         37,     // obliterate
-                         45,     // demolish
-                         69,     // pulverize
-                         94,     // decimate
-                         129,    // liquefy
-                         169,    // vaporize
+                         501,    // tickle
+                         200,    // barely
+                         120,    // hit
+                         110,    // hard
+                         100,    // very hard
+                         90,     // extremely hard
+                         80,     // massacre
+                         70,     // devastate
+                         60,     // obliterate
+                         50,     // demolish
+                         40,     // pulverize
+                         30,     // decimate
+                         20,     // liquefy
+                         10,     // vaporize
                          1       // annihilate
     };
 
     int msgnum = 0;
 
     if (dam > 0) {
+        int effective_maxhit = MAX(GET_MAX_HIT(victim), 500);
+        int effective_damage = MIN(dam, effective_maxhit);
+        int hits_to_kill = effective_maxhit / effective_damage;
         msgnum = 1;
-        while (dam > msg_levels[msgnum] && msgnum < 15) {
+        while (hits_to_kill < msg_levels[msgnum] && msgnum < 15) {
             msgnum++;
         }
     }
