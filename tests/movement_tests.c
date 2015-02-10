@@ -32,6 +32,7 @@
 #include "quest.h"
 #include "help.h"
 #include "editor.h"
+#include "zone_data.h"
 
 extern int current_mob_idnum;
 extern GHashTable *rooms;
