@@ -60,20 +60,6 @@ safe_exit(int mode)
     exit(mode);
 }
 
-char *
-VT_GOPOS(int x, int y)
-{
-    snprintf(ANSI, sizeof(ANSI), "\x1B[%d;%dH", x, y);
-    return (ANSI);
-}
-
-char *
-VT_RPPOS(int x, int y)
-{
-    snprintf(ANSI, sizeof(ANSI), "\x1B[%d;%dr", x, y);
-    return (ANSI);
-}
-
 long
 GET_SKILL_COST(struct creature *ch, int skill)
 {

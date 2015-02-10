@@ -19,8 +19,6 @@
 //
 
 #define VT_CLEAR       "\x1B[2J"
-#define VT_SVPOS       "\x1B[7"
-#define VT_RTPOS       "\x1B[8"
 
 #define KNRM  "\x1B[0m"
 #define KBLA  "\x1B[30m"
@@ -76,6 +74,8 @@ enum {
     C_CMP = 3,
 };
 typedef unsigned char color_level_t;
+
+#define COLOR_LEV(ch) (_clrlevel(ch))
 
 static inline color_level_t
 _clrlevel(struct creature *ch)
@@ -173,14 +173,4 @@ clr(struct creature *ch,color_level_t lvl)
 #define CCNRM_MAG(ch,lvl)  CNRM_MAG(_clrlevel(ch),lvl)
 #define CCNRM_CYN(ch,lvl)  CNRM_CYN(_clrlevel(ch),lvl)
 
-#define COLOR_LEV(ch) (_clrlevel(ch))
-
-#define QNRM CCNRM(ch,C_SPR)
-#define QRED CCRED(ch,C_SPR)
-#define QGRN CCGRN(ch,C_SPR)
-#define QYEL CCYEL(ch,C_SPR)
-#define QBLU CCBLU(ch,C_SPR)
-#define QMAG CCMAG(ch,C_SPR)
-#define QCYN CCCYN(ch,C_SPR)
-#define QWHT CCWHT(ch,C_SPR)
 #endif

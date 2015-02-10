@@ -225,12 +225,12 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
                  "Transfer Amount:       %s%'5d Units%s\r\n"
                  "Energy Level(TARGET):  %s%'5d Units%s\r\n"
                  "Energy Level(SOURCE):  %s%'5d Units%s\r\n",
-                 QGRN, QNRM,
-                 QCYN, battery ? battery->name : "self", QNRM,
-                 QCYN, vict ? GET_NAME(vict) : engine->name, QNRM,
-                 QCYN, amount, QNRM,
-                 QCYN, vict ? GET_MOVE(vict) : CUR_ENERGY(engine), QNRM,
-                 QCYN, battery ? CUR_ENERGY(battery) : GET_MOVE(ch), QNRM);
+                 CCGRN(ch, C_SPR), CCNRM(ch, C_SPR),
+                 CCCYN(ch, C_SPR), battery ? battery->name : "self", CCNRM(ch, C_SPR),
+                 CCCYN(ch, C_SPR), vict ? GET_NAME(vict) : engine->name, CCNRM(ch, C_SPR),
+                 CCCYN(ch, C_SPR), amount, CCNRM(ch, C_SPR),
+                 CCCYN(ch, C_SPR), vict ? GET_MOVE(vict) : CUR_ENERGY(engine), CCNRM(ch, C_SPR),
+                 CCCYN(ch, C_SPR), battery ? CUR_ENERGY(battery) : GET_MOVE(ch), CCNRM(ch, C_SPR));
     if (battery) {
         if (IS_OBJ_TYPE(battery, ITEM_BATTERY) && COST_UNIT(battery)) {
             send_to_char(ch, "Your cost: %'d credits.\r\n",
@@ -240,13 +240,13 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
     }
     if ((battery && CUR_ENERGY(battery) <= 0) ||
         (!battery && GET_MOVE(ch) <= 0)) {
-        send_to_char(ch, "STATUS: %sSOURCE DEPLETED%s\r\n", QRED, QNRM);
+        send_to_char(ch, "STATUS: %sSOURCE DEPLETED%s\r\n", CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
     }
 
     if ((vict && GET_MOVE(vict) == GET_MAX_MOVE(vict)) ||
         (engine && CUR_ENERGY(engine) == MAX_ENERGY(engine))) {
         send_to_char(ch, "STATUS: %sTARGET NOW FULLY ENERGIZED%s\r\n",
-                     QRED, QNRM);
+                     CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
     }
 
     wait = 10 + MIN((amount / 5), 90);
@@ -299,7 +299,7 @@ perform_recharge(struct creature *ch, struct obj_data *battery,
     if ((battery && amount) &&
         (IS_OBJ_TYPE(battery, ITEM_BATTERY)
          || IS_OBJ_TYPE(battery, ITEM_DEVICE))) {
-        send_to_char(ch, "%sERROR: %s damaged during transfer!\r\n", QRED,
+        send_to_char(ch, "%sERROR: %s damaged during transfer!\r\n", CCRED(ch, C_SPR),
                      battery->name);
         damage_eq(ch, battery, amount, -1);
     }

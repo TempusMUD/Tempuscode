@@ -116,43 +116,43 @@ display_status(struct creature *ch, struct obj_data *car,
     send_to_char(ch, "You examine the instrument panel.\r\n");
     if (!number(0, 5)) {
         snprintf(buf, sizeof(buf),
-                 "%sThe %sinstrument %spanel %sblinks %sfor %sa %smoment%s.", QGRN,
-                 QBLU, QMAG, QYEL, QCYN, QYEL, QBLU, QNRM);
+                 "%sThe %sinstrument %spanel %sblinks %sfor %sa %smoment%s.", CCGRN(ch, C_SPR),
+                 CCBLU(ch, C_SPR), CCMAG(ch, C_SPR), CCYEL(ch, C_SPR), CCCYN(ch, C_SPR), CCYEL(ch, C_SPR), CCBLU(ch, C_SPR), CCNRM(ch, C_SPR));
         act(buf, false, ch, NULL, NULL, TO_ROOM);
     }
     send_to_char(ch,
-                 "\r\n%s<<<<<<<<%sSYSTEM STATUS UPDATE (%s)%s>>>>>>>>>%s\r\n", QRED,
-                 QNRM, car->name, QRED, QNRM);
+                 "\r\n%s<<<<<<<<%sSYSTEM STATUS UPDATE (%s)%s>>>>>>>>>%s\r\n", CCRED(ch, C_SPR),
+                 CCNRM(ch, C_SPR), car->name, CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
     snprintf(buf, sizeof(buf),
              "%s*******************************************************%s\r\n",
-             QBLU, QNRM);
+             CCBLU(ch, C_SPR), CCNRM(ch, C_SPR));
     send_to_char(ch, "%s", buf);
     sprintbit(ENGINE_STATE(engine), engine_state_bits, buf2, sizeof(buf2));
-    send_to_char(ch, "%sEngine State:%s    %s\r\n", QCYN, QNRM, buf2);
+    send_to_char(ch, "%sEngine State:%s    %s\r\n", CCCYN(ch, C_SPR), CCNRM(ch, C_SPR), buf2);
     sprintbit(DOOR_STATE(car), container_bits, buf2, sizeof(buf2));
-    send_to_char(ch, "%sDoor State:%s      %s\r\n", QCYN, QNRM, buf2);
+    send_to_char(ch, "%sDoor State:%s      %s\r\n", CCCYN(ch, C_SPR), CCNRM(ch, C_SPR), buf2);
     snprintf(buf, sizeof(buf),
              "%sEnergy Status:%s   [%s%d / %d%s]%s\r\n"
              "%sHeadlights are:%s  %s\r\n"
              "%sDriver is:%s       %s\r\n"
              "%sVhcl is located:%s %s\r\n"
              "%sThe weather outside is:%s    %s\r\n",
-             QCYN, QRED, QNRM, CUR_ENERGY(engine), MAX_ENERGY(engine), QRED, QNRM,
-             QCYN, QNRM, (HEADLIGHTS_ON(engine) ? "ON" : "OFF"),
-             QCYN, QNRM, driver ? PERS(ch, driver) : "No-one",
-             QCYN, QNRM, car->in_room->name,
-             QCYN, QNRM, outside_weather[(int)car->in_room->zone->weather->sky]);
+             CCCYN(ch, C_SPR), CCRED(ch, C_SPR), CCNRM(ch, C_SPR), CUR_ENERGY(engine), MAX_ENERGY(engine), CCRED(ch, C_SPR), CCNRM(ch, C_SPR),
+             CCCYN(ch, C_SPR), CCNRM(ch, C_SPR), (HEADLIGHTS_ON(engine) ? "ON" : "OFF"),
+             CCCYN(ch, C_SPR), CCNRM(ch, C_SPR), driver ? PERS(ch, driver) : "No-one",
+             CCCYN(ch, C_SPR), CCNRM(ch, C_SPR), car->in_room->name,
+             CCCYN(ch, C_SPR), CCNRM(ch, C_SPR), outside_weather[(int)car->in_room->zone->weather->sky]);
     send_to_char(ch, "%s", buf);
     if (LOW_ENERGY(engine)) {
-        send_to_char(ch, "A %sWARNING%s indicator lights up.", QRED, QNRM);
+        send_to_char(ch, "A %sWARNING%s indicator lights up.", CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
         act(buf, false, ch, NULL, NULL, TO_ROOM);
-        send_to_char(ch, "%s***%sWARNING%s***%s (Low Energy Level).\r\n", QGRN,
-                     QRED, QGRN, QNRM);
+        send_to_char(ch, "%s***%sWARNING%s***%s (Low Energy Level).\r\n", CCGRN(ch, C_SPR),
+                     CCRED(ch, C_SPR), CCGRN(ch, C_SPR), CCNRM(ch, C_SPR));
     }
 
     send_to_char(ch,
                  "%s*******************************************************%s\r\n",
-                 QBLU, QNRM);
+                 CCBLU(ch, C_SPR), CCNRM(ch, C_SPR));
 }
 
 void

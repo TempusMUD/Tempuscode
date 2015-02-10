@@ -131,20 +131,20 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
                      "The potential energy of %s is:  %s[%3d/%3d]%s units.\r\n",
                      gun->name, gun->contains->name,
                      gun->contains->name,
-                     QGRN, CUR_ENERGY(gun->contains), MAX_ENERGY(gun->contains),
-                     QNRM);
+                     CCGRN(ch, C_SPR), CUR_ENERGY(gun->contains), MAX_ENERGY(gun->contains),
+                     CCNRM(ch, C_SPR));
             CAP(buf);
             send_to_char(ch, "%s", buf);
         }
 
         send_to_char(ch, "Gun Classification:    %s[%s]%s\r\n",
-                     QGRN, egun_types[MIN(GET_OBJ_VAL(gun, 3), EGUN_TOP)], QNRM);
+                     CCGRN(ch, C_SPR), egun_types[MIN(GET_OBJ_VAL(gun, 3), EGUN_TOP)], CCNRM(ch, C_SPR));
     } else if (IS_GUN(gun)) {
         if (MAX_LOAD(gun)) {
             if (gun->contains) {
                 count = count_contained_objs(gun);
                 snprintf(buf, sizeof(buf), "$p is loaded with %s[%d/%d]%s cartridge%s",
-                         QGRN, count, MAX_LOAD(gun), QNRM, count == 1 ? "" : "s");
+                         CCGRN(ch, C_SPR), count, MAX_LOAD(gun), CCNRM(ch, C_SPR), count == 1 ? "" : "s");
             } else {
                 strcpy_s(buf, sizeof(buf), "$p is not loaded.");
             }
@@ -154,14 +154,14 @@ show_gun_status(struct creature *ch, struct obj_data *gun)
             count = count_contained_objs(gun->contains);
             snprintf(buf, sizeof(buf), "$p is loaded with $P,\r\n"
                                        "which contains %s[%d/%d]%s cartridge%s",
-                     QGRN, count, MAX_LOAD(gun->contains), QNRM,
+                     CCGRN(ch, C_SPR), count, MAX_LOAD(gun->contains), CCNRM(ch, C_SPR),
                      count == 1 ? "" : "s");
         }
         act(buf, false, ch, gun, gun->contains, TO_CHAR);
         if (MAX_R_O_F(gun) > 1) {
             send_to_char(ch,
-                         "The Rate of Fire is set to:        %s[%d/%d]%s.\r\n", QGRN,
-                         CUR_R_O_F(gun), MAX_R_O_F(gun), QNRM);
+                         "The Rate of Fire is set to:        %s[%d/%d]%s.\r\n", CCGRN(ch, C_SPR),
+                         CUR_R_O_F(gun), MAX_R_O_F(gun), CCNRM(ch, C_SPR));
         }
     } else {
         send_to_char(ch, "Unsupported gun type.\r\n");
