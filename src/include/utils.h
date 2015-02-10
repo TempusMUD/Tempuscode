@@ -357,7 +357,7 @@ void WAIT_STATE(struct creature *ch, int cycle);
 
 int GET_SKILL(struct creature *ch, int i);
 void SET_SKILL(struct creature *ch, int i, int val);
-long GET_SKILL_COST(struct creature *ch, int skill);
+long skill_cost(struct creature *ch, int skill);
 
 #define CLASS_ABBR(ch) (char_class_abbrevs[(int)GET_CLASS(ch)])
 #define LEV_ABBR(ch) (IS_NPC(ch) ? "--" : level_abbrevs[(int)GET_LEVEL(ch)-50])

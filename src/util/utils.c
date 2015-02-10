@@ -61,7 +61,7 @@ safe_exit(int mode)
 }
 
 long
-GET_SKILL_COST(struct creature *ch, int skill)
+skill_cost(struct creature *ch, int skill)
 {
     // Mort costs per prac: Level 1: 100, Level 49: 240k
     long skill_lvl, cost;

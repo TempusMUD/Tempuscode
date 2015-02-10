@@ -412,7 +412,7 @@ SPECIAL(guild)
         return 1;
     }
 
-    cost = adjusted_price(ch, master, GET_SKILL_COST(ch, skill_num));
+    cost = adjusted_price(ch, master, skill_cost(ch, skill_num));
 
     if (ch->in_room->zone->time_frame == TIME_ELECTRO) {
         if (CMD_IS("offer")) {

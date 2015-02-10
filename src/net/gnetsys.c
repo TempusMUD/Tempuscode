@@ -144,7 +144,7 @@ perform_net_load(struct descriptor_data *d, char *arg)
         return;
     }
 
-    cost = GET_SKILL_COST(d->creature, skill_num);
+    cost = skill_cost(d->creature, skill_num);
     d_printf(d, "Program cost: %10ld  Account balance; %'" PRId64 "\r\n",
              cost, d->account->bank_future);
 
