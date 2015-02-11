@@ -1002,14 +1002,14 @@ obj_cond(struct obj_data *obj)
 }
 
 const char *
-obj_cond_color(struct obj_data *obj, int color_level)
+obj_cond_color(struct obj_data *obj, int color_level, enum display_mode mode)
 {
     int num;
 
     if (GET_OBJ_DAM(obj) == -1 || GET_OBJ_MAX_DAM(obj) == -1) {
         return tmp_sprintf("%sunbreakable%s",
-                           CGRN(color_level, C_CMP),
-                           CNRM(color_level, C_CMP));
+                           termcode(mode, color_level, C_CMP, TERM_GRN),
+                           termcode(mode, color_level, C_CMP, TERM_NRM));
     } else if (IS_OBJ_STAT2(obj, ITEM2_BROKEN)) {
         return "<broken>";
     } else if (GET_OBJ_MAX_DAM(obj) == 0) {
@@ -1026,18 +1026,18 @@ obj_cond_color(struct obj_data *obj, int color_level)
     } else if (num < 10) {
         return "excellent";
     } else if (num < 30) {
-        return tmp_sprintf("%sgood%s", CCYN(color_level, C_NRM), CNRM(color_level, C_NRM));
+        return tmp_sprintf("%sgood%s", termcode(mode, color_level, C_NRM, TERM_CYN), termcode(mode, color_level, C_NRM, TERM_NRM));
     } else if (num < 50) {
-        return tmp_sprintf("%sfair%s", CCYN(color_level, C_NRM), CNRM(color_level, C_NRM));
+        return tmp_sprintf("%sfair%s", termcode(mode, color_level, C_NRM, TERM_CYN), termcode(mode, color_level, C_NRM, TERM_NRM));
     } else if (num < 60) {
-        return tmp_sprintf("%sworn%s", CYEL(color_level, C_NRM), CNRM(color_level, C_NRM));
+        return tmp_sprintf("%sworn%s", termcode(mode, color_level, C_NRM, TERM_YEL), termcode(mode, color_level, C_NRM, TERM_NRM));
     } else if (num < 70) {
-        return tmp_sprintf("%sshabby%s", CYEL(color_level, C_NRM), CNRM(color_level, C_NRM));
+        return tmp_sprintf("%sshabby%s", termcode(mode, color_level, C_NRM, TERM_YEL), termcode(mode, color_level, C_NRM, TERM_NRM));
     } else if (num < 90) {
-        return tmp_sprintf("%sbad%s", CYEL(color_level, C_NRM), CNRM(color_level, C_NRM));
+        return tmp_sprintf("%sbad%s", termcode(mode, color_level, C_NRM, TERM_YEL), termcode(mode, color_level, C_NRM, TERM_NRM));
     }
 
-    return tmp_sprintf("%sterrible%s", CRED(color_level, C_NRM), CNRM(color_level, C_NRM));
+    return tmp_sprintf("%sterrible%s", termcode(mode, color_level, C_NRM, TERM_RED), termcode(mode, color_level, C_NRM, TERM_NRM));
 }
 
 void

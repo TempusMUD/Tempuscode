@@ -410,7 +410,7 @@ float modify_object_weight(struct obj_data *obj, float mod_weight);
 bool obj_is_unrentable(struct obj_data *obj);
 void obj_affect_join(struct obj_data *obj, struct tmp_obj_affect *af, int dur_mode, int val_mode, int aff_mode);
 const char *obj_cond(struct obj_data *obj);
-const char *obj_cond_color(struct obj_data *obj, int color_level);
+const char *obj_cond_color(struct obj_data *obj, int color_level, enum display_mode mode);
 float set_obj_weight(struct obj_data *obj, float new_weight);
 void fix_object_weight(struct obj_data *obj);
 bool is_slashing_weapon(struct obj_data *obj);

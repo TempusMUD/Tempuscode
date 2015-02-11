@@ -295,36 +295,18 @@ ACMD(do_board)
 
 ACMD(do_palette)
 {
-    strcpy_s(buf, sizeof(buf), "Available Colors:\r\n");
-    snprintf(buf, sizeof(buf),
-             "%s%sRED %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-             buf, KRED, KBLD, KNRM, KRED, KUND, KNRM, KRED, KBLK, KBLD, KNRM, KRED,
-             KREV, KBLD, KNRM);
-    snprintf(buf, sizeof(buf),
-             "%s%sGRN %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-             buf, KGRN, KBLD, KNRM, KGRN, KUND, KNRM, KGRN, KBLK, KBLD, KNRM, KGRN,
-             KREV, KBLD, KNRM);
-    snprintf(buf, sizeof(buf),
-             "%s%sYEL %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-             buf, KYEL, KBLD, KNRM, KYEL, KUND, KNRM, KYEL, KBLK, KBLD, KNRM, KYEL,
-             KREV, KBLD, KNRM);
-    snprintf(buf, sizeof(buf),
-             "%s%sBLU %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-             buf, KBLU, KBLD, KNRM, KBLU, KUND, KNRM, KBLU, KBLK, KBLD, KNRM, KBLU,
-             KREV, KBLD, KNRM);
-    snprintf(buf, sizeof(buf),
-             "%s%sMAG %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-             buf, KMAG, KBLD, KNRM, KMAG, KUND, KNRM, KMAG, KBLK, KBLD, KNRM, KMAG,
-             KREV, KBLD, KNRM);
-    snprintf(buf, sizeof(buf),
-             "%s%sCYN %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-             buf, KCYN, KBLD, KNRM, KCYN, KUND, KNRM, KCYN, KBLK, KBLD, KNRM, KCYN,
-             KREV, KBLD, KNRM);
-    snprintf(buf, sizeof(buf),
-             "%s%sWHT %sBOLD%s %s%sUNDER%s %s%sBLINK %sBLINKBOLD%s %s%sREV %sREVBOLD%s\r\n",
-             buf, KWHT, KBLD, KNRM, KWHT, KUND, KNRM, KWHT, KBLK, KBLD, KNRM, KWHT,
-             KREV, KBLD, KNRM);
-    send_to_char(ch, "%s", buf);
+    
+    send_to_char(ch, "Sparse color:\r\n");
+    send_to_char(ch, "%snormal %sblack%s %sred%s %sgreen%s %syellow%s %sblue%s %smagenta%s %scyan%s %swhite%s\r\n",
+                 CCNRM(ch, C_SPR),
+                 CCBLA(ch, C_SPR), CCNRM(ch, C_SPR),
+                 CCRED(ch, C_SPR), CCNRM(ch, C_SPR),
+                 CCGRN(ch, C_SPR), CCNRM(ch, C_SPR),
+                 CCYEL(ch, C_SPR), CCNRM(ch, C_SPR),
+                 CCBLU(ch, C_SPR), CCNRM(ch, C_SPR),
+                 CCMAG(ch, C_SPR), CCNRM(ch, C_SPR),
+                 CCCYN(ch, C_SPR), CCNRM(ch, C_SPR),
+                 CCWHT(ch, C_SPR), CCNRM(ch, C_SPR));
 }
 
 ACMD(do_disembark)

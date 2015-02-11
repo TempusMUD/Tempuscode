@@ -701,7 +701,7 @@ ACMD(do_bidlist)
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->item->name);
         acc_sprintf("%sCondition:%s     %s\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
-                    tmp_capitalize(obj_cond_color(auc->item, COLOR_LEV(ch))));
+                    tmp_capitalize(obj_cond_color(auc->item, COLOR_LEV(ch), DISPLAY_MODE(ch))));
         acc_sprintf("%sStarting Bid:%s  %'" PRId64 " coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->start_bid);
         if (auc->bids == NULL) {

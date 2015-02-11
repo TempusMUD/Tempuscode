@@ -117,6 +117,7 @@ check_tempus_LDADD = \
                  $(top_builddir)/src/util/graph.o \
                  $(top_builddir)/src/util/modify.o \
                  $(top_builddir)/src/util/random.o \
+                 $(top_builddir)/src/util/screen.o \
                  $(top_builddir)/src/util/sight.o \
                  $(top_builddir)/src/util/tmpstr.o \
 				 $(top_builddir)/src/util/strutil.o \

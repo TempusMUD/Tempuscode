@@ -1348,8 +1348,8 @@ send_menu(struct descriptor_data *d)
         acc_string_clear();
         acc_sprintf
             ("%s\r\n                             POLICY\r\n*******************************************************************************%s\r\n",
-            (d->account->ansi_level >= C_NRM) ? KCYN : "",
-            (d->account->ansi_level >= C_NRM) ? KNRM : "");
+             dtermcode(d, C_NRM, TERM_CYN),
+             dtermcode(d, C_NRM, TERM_NRM));
         FILE *fl = fopen("text/policies", "r");
         if (!fl) {
             d_printf(d, "Please press return.\r\n");
@@ -1610,7 +1610,7 @@ send_menu(struct descriptor_data *d)
         d_printf(d, "&n\r\n");
         break;
     case CXN_NETWORK:
-        d_send(d, "\e[H\e[J");
+        d_send(d, dtermcode(d, C_SPR, TERM_CLEAR));
         d_send(d, "GLOBAL NETWORK SYSTEMS CLI\r\n");
         d_send(d, "-------------------------------------------------------------------------------\r\n");
         d_send(d, "Enter commands at prompt.  Use '@' to escape.  Use '?' for help.\r\n");
@@ -1802,7 +1802,7 @@ char_to_game(struct descriptor_data *d)
     }
 
     if (!mini_mud) {
-        d_send(d, "\e[H\e[J");
+        d_send(d, dtermcode(d, C_SPR, TERM_CLEAR));
     }
 
     reset_char(d->creature);

@@ -43,6 +43,7 @@ extern bool stress_test;
 extern bool production_mode;
 extern int main_port;
 extern int reader_port;
+extern int irc_port;
 
 void ensure_environment(void);
 void init_game(void);
@@ -211,6 +212,8 @@ main(int argc, char **argv)
     ensure_environment();
 
     reader_port = main_port + 1;
+    irc_port = main_port + 2;
+
     if (scheck) {
         void my_srand(unsigned long initial_seed);
         void verify_tempus_integrity(struct creature *ch);

@@ -73,8 +73,7 @@ extern int MAX_DESCRIPTORS_AVAILABLE;
 extern struct obj_data *cur_car;
 extern struct zone_data *default_quad_zone;
 extern struct obj_data *object_list;
-int main_port;
-int reader_port;
+int main_port, reader_port, irc_port;
 int restrict_logins = false;
 bool production_mode = false;   // Run in production mode
 
@@ -106,7 +105,7 @@ int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 void flush_q(struct txt_q *queue);
 void init_game(void);
 void signal_setup(void);
-void game_loop(GIOChannel *main_listener, GIOChannel *reader_listener);
+void game_loop(GIOChannel *main_listener, GIOChannel *reader_listener, GIOChannel *irc_listener);
 GIOChannel *init_socket(int port);
 int new_descriptor(int s, int port);
 int get_avail_descs(void);
@@ -177,6 +176,7 @@ init_game(void)
     slog("Opening listener sockets.");
     GIOChannel *main_io = init_socket(main_port);
     GIOChannel *reader_io = init_socket(reader_port);
+    GIOChannel *irc_io = init_socket(irc_port);
 
     avail_descs = get_avail_descs();
 
@@ -184,11 +184,12 @@ init_game(void)
     signal_setup();
 
     slog("Entering game loop.");
-    game_loop(main_io, reader_io);
+    game_loop(main_io, reader_io, irc_io);
 
     slog("Closing all sockets.");
     g_io_channel_unref(main_io);
     g_io_channel_unref(reader_io);
+    g_io_channel_unref(irc_io);
     while (descriptor_list) {
         close_socket(descriptor_list);
     }
@@ -473,7 +474,7 @@ g_io_channel_write_buffer_empty(GIOChannel *channel)
  * such as mobile_activity().
  */
 void
-game_loop(GIOChannel *main_listener, GIOChannel *reader_listener)
+game_loop(GIOChannel *main_listener, GIOChannel *reader_listener, GIOChannel *irc_listener)
 {
     main_loop = g_main_loop_new(NULL, false);
 
@@ -482,6 +483,8 @@ game_loop(GIOChannel *main_listener, GIOChannel *reader_listener)
                    GINT_TO_POINTER(main_port));
     g_io_add_watch(reader_listener, G_IO_IN, accept_new_connection,
                    GINT_TO_POINTER(reader_port));
+    g_io_add_watch(irc_listener, G_IO_IN, accept_new_connection,
+                   GINT_TO_POINTER(irc_port));
 
     /* Set up repeating events */
     g_timeout_add(100, repeating_func_wrapper, prog_update_pending);
@@ -750,7 +753,9 @@ accept_new_connection(GIOChannel *listener_io,
     newd->ban_dc_counter = 0;
     if (port == reader_port) {
         newd->display = BLIND;
-    }else {
+    } else if (port == irc_port) {
+        newd->display = IRC;
+    } else {
         newd->display = NORMAL;
     }
 
@@ -766,10 +771,12 @@ accept_new_connection(GIOChannel *listener_io,
     } else if (newd->display == BLIND) {
         d_send(newd, "Welcome to Tempus MUD!\r\n");
     } else {
-        // This text is printed just before the screen clear, so most
-        // people won't even see it.  Screen readers will read it out
-        // loud, though.
-        d_printf(newd,"If you use a screen reader, you'll want to use port %d&@", reader_port);
+        if (newd->display == NORMAL) {
+            // This text is printed just before the screen clear, so most
+            // people won't even see it.  Screen readers will read it out
+            // loud, though.
+            d_printf(newd,"If you use a screen reader, you'll want to use port %d&@", reader_port);
+        }
 
         // We have moved to a single greeting/login screen. The old random selection between
         // multiple screens has been left for reference and/or future use.
@@ -1274,39 +1281,37 @@ d_printf(struct descriptor_data *d, const char *str, ...)
                 if (isupper(*read_pt)) {
                     *read_pt = tolower(*read_pt);
                     // A few extra normal tags never hurt anyone...
-                    if (d->account->ansi_level > 2) {
-                        d_send(d, KBLD);
-                    }
+                    d_send(d, dtermcode(d, 2, TERM_BLD));
                 } else if (d->account->ansi_level > 2) {
-                    d_send(d, KNRM);
+                    d_send(d, dtermcode(d, 2, TERM_NRM));
                 }
                 switch (*read_pt) {
                 case '@':
-                    d_send(d, "\e[H\e[J");
+                    d_send(d, dtermcode(d, C_SPR, TERM_CLEAR));
                     break;
                 case 'n':
-                    d_send(d, KNRM);
+                    d_send(d, dtermcode(d, C_SPR, TERM_NRM));
                     break;
                 case 'r':
-                    d_send(d, KRED);
+                    d_send(d, dtermcode(d, C_SPR, TERM_RED));
                     break;
                 case 'g':
-                    d_send(d, KGRN);
+                    d_send(d, dtermcode(d, C_SPR, TERM_GRN));
                     break;
                 case 'y':
-                    d_send(d, KYEL);
+                    d_send(d, dtermcode(d, C_SPR, TERM_YEL));
                     break;
                 case 'm':
-                    d_send(d, KMAG);
+                    d_send(d, dtermcode(d, C_SPR, TERM_MAG));
                     break;
                 case 'c':
-                    d_send(d, KCYN);
+                    d_send(d, dtermcode(d, C_SPR, TERM_CYN));
                     break;
                 case 'b':
-                    d_send(d, KBLU);
+                    d_send(d, dtermcode(d, C_SPR, TERM_BLU));
                     break;
                 case 'w':
-                    d_send(d, KWHT);
+                    d_send(d, dtermcode(d, C_SPR, TERM_WHT));
                     break;
                 case '&':
                     d_send(d, "&");
@@ -1763,14 +1768,14 @@ make_act_str(const char *orig,
                 char c = *(++s);
 
                 if (isupper(c)) {
+                    const char *bold = dtermcode(to->desc, C_NRM, TERM_BLD);
+                    strcpy(buf, bold);
+                    buf += strlen(bold);
                     c = tolower(c);
-                    if (clr(to, C_NRM)) {
-                        strcpy(buf, KBLD);
-                        buf += strlen(KBLD);
-                    }
                 } else if (c != '&') {
-                    strcpy(buf, KNRM);
-                    buf += strlen(KNRM);
+                    const char *code = dtermcode(to->desc, C_SPR, TERM_NRM);
+                    strcpy(buf, code);
+                    buf += strlen(code);
                 }
                 switch (c) {
                 case 'n':
@@ -1778,25 +1783,25 @@ make_act_str(const char *orig,
                     i = "";
                     break;
                 case 'r':
-                    i = KRED;
+                    i = dtermcode(to->desc, C_SPR, TERM_RED);
                     break;
                 case 'g':
-                    i = clr(to, C_NRM) ? KGRN : KNRM;
+                    i = dtermcode(to->desc, C_SPR, TERM_GRN);
                     break;
                 case 'y':
-                    i = clr(to, C_NRM) ? KYEL : KNRM;
+                    i = dtermcode(to->desc, C_SPR, TERM_YEL);
                     break;
                 case 'm':
-                    i = KMAG;
+                    i = dtermcode(to->desc, C_SPR, TERM_MAG);
                     break;
                 case 'c':
-                    i = clr(to, C_NRM) ? KCYN : KNRM;
+                    i = dtermcode(to->desc, C_SPR, TERM_CYN);
                     break;
                 case 'b':
-                    i = KBLU;
+                    i = dtermcode(to->desc, C_SPR, TERM_BLU);
                     break;
                 case 'w':
-                    i = KWHT;
+                    i = dtermcode(to->desc, C_SPR, TERM_WHT);
                     break;
                 case '&':
                     i = "&";
@@ -1869,9 +1874,7 @@ perform_act(const char *orig, struct creature *ch, struct obj_data *obj,
     }
 
     d_send(to->desc, outbuf);
-    if (COLOR_LEV(to) > 0) {
-        d_send(to->desc, KNRM);
-    }
+    d_send(to->desc, dtermcode(to->desc, C_SPR, TERM_NRM));
 }
 
 #define SENDOK(ch) (AWAKE(ch) || sleep)

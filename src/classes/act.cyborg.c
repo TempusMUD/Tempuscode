@@ -1911,7 +1911,7 @@ ACMD(do_status)
     }
 
     send_to_char(ch, "%s is in %s condition.\r\n", obj->name,
-                 obj_cond_color(obj, COLOR_LEV(ch)));
+                 obj_cond_color(obj, COLOR_LEV(ch), DISPLAY_MODE(ch)));
 
 }
 

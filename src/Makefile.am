@@ -119,6 +119,7 @@ ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a
                  util/graph.c \
                  util/modify.c \
                  util/random.c \
+                 util/screen.c \
                  util/sight.c \
                  util/tmpstr.c \
 				 util/strutil.c \

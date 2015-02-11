@@ -2349,7 +2349,7 @@ ACMD(do_examine)
         }
 
         snprintf(buf, sizeof(buf), "$p seems to be in %s condition.",
-                 obj_cond_color(tmp_object, COLOR_LEV(ch)));
+                 obj_cond_color(tmp_object, COLOR_LEV(ch), DISPLAY_MODE(ch)));
         act(buf, false, ch, tmp_object, NULL, TO_CHAR);
 
         if (IS_OBJ_TYPE(tmp_object, ITEM_CIGARETTE)) {
@@ -3463,7 +3463,7 @@ ACMD(do_equipment)
                 }
                 found = 1;
                 acc_sprintf("-%s- is in %s condition.\r\n",
-                            obj->name, obj_cond_color(obj, COLOR_LEV(ch)));
+                            obj->name, obj_cond_color(obj, COLOR_LEV(ch), DISPLAY_MODE(ch)));
             }
             if (found) {
                 page_string(ch->desc, acc_get_string());
@@ -3539,7 +3539,7 @@ ACMD(do_equipment)
                 }
                 found = true;
                 acc_sprintf("-%s- is in %s condition.\r\n",
-                            obj->name, obj_cond_color(obj, COLOR_LEV(ch)));
+                            obj->name, obj_cond_color(obj, COLOR_LEV(ch), DISPLAY_MODE(ch)));
             }
             if (found) {
                 page_string(ch->desc, acc_get_string());
@@ -3744,7 +3744,7 @@ who_string(struct creature *ch, struct creature *target)
     } else {
         // show level/class
         if (is_authorized(ch, SEE_FULL_WHOLIST, NULL)) {
-            char *col = CCNRM(ch, C_NRM);
+            const char *col = CCNRM(ch, C_NRM);
 
             if (PRF2_FLAGGED(target, PRF2_ANONYMOUS)) {
                 col = CCRED(ch, C_NRM);
