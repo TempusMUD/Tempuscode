@@ -85,7 +85,7 @@ __attribute__ ((nonnull));
 void account_set(struct account *account, const char *key, const char *val)
 __attribute__ ((nonnull));
 
-struct creature *account_create_char(struct account *account, const char *name)
+struct creature *account_create_char(struct account *account, const char *name, long idnum)
 __attribute__ ((nonnull));
 void account_delete_char(struct account *account, struct creature *ch)
 __attribute__ ((nonnull));

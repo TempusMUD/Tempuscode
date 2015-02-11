@@ -245,7 +245,7 @@ make_test_player(const char *acct_name, const char *char_name)
     account_initialize(acct, acct_name, desc, 99999);
     g_hash_table_insert(account_cache, GINT_TO_POINTER(account_top_id), acct);
 
-    struct creature *ch = account_create_char(acct, char_name);
+    struct creature *ch = account_create_char(acct, char_name, 99999);
     ch->desc = desc;
     ch->account = acct;
 

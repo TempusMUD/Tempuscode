@@ -557,7 +557,7 @@ handle_input(gpointer data)
             return true;
         }
 
-        d->creature = account_create_char(d->account, arg);
+        d->creature = account_create_char(d->account, arg, top_player_idnum() + 1);
         if (!d->creature) {
             errlog("Expected creature, got NULL during char creation");
             d_printf(d,

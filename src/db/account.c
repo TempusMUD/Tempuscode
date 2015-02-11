@@ -401,7 +401,7 @@ chars_available(struct account *account)
 
 // Create a brand new character
 struct creature *
-account_create_char(struct account *account, const char *name)
+account_create_char(struct account *account, const char *name, long idnum)
 {
     struct creature *ch;
     int i;
@@ -413,7 +413,7 @@ account_create_char(struct account *account, const char *name)
     ch = make_creature(true);
 
     ch->player.name = strdup(tmp_capitalize(tmp_tolower(name)));
-    ch->char_specials.saved.idnum = top_player_idnum() + 1;
+    ch->char_specials.saved.idnum = idnum;
     account->chars =
         g_list_append(account->chars, GINT_TO_POINTER(GET_IDNUM(ch)));
 
