@@ -256,17 +256,16 @@ handle_input(gpointer data)
         switch (tolower(arg[0])) {
         case 'y':
             d->account = account_create(d->mode_data, d);
-            account_set_ansi_level(d->account, 0);
-            account_set_compact_level(d->account, 2);
-            set_desc_state(CXN_EMAIL_PROMPT, d);
-/*
-            if (d->is_blind) {
+            if (d->display == IRC) {
+                account_set_ansi_level(d->account, 0);
+                account_set_compact_level(d->account, 3);
+                set_desc_state(CXN_EMAIL_PROMPT, d);
+            } else if (d->display == BLIND) {
                 account_set_ansi_level(d->account, 0);
                 set_desc_state(CXN_COMPACT_PROMPT, d);
             } else {
                 set_desc_state(CXN_ANSI_PROMPT, d);
             }
-*/
             break;
         case 'n':
             set_desc_state(CXN_ACCOUNT_PROMPT, d);
@@ -564,7 +563,7 @@ handle_input(gpointer data)
                      "\r\nSorry, there was an error creating your character.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
         }
-        if (d->is_blind) {
+        if (d->display == BLIND) {
             SET_BIT(PRF_FLAGS(d->creature), PRF_BRIEF | PRF_GAGMISS);
             SET_BIT(PRF2_FLAGS(d->creature), PRF2_NOTRAILERS);
         }
@@ -1005,7 +1004,7 @@ send_prompt(struct descriptor_data *d)
             errlog("NULL d->creature in send_prompt() while in CXN_PLAYING state");
             return;
         }
-        if (d->is_blind) {
+        if (d->display == BLIND) {
             return;
         }
 
@@ -1444,7 +1443,7 @@ send_menu(struct descriptor_data *d)
             d->creature = NULL;
         }
 
-        if (d->is_blind) {
+        if (d->display == BLIND) {
             struct creature *tmp_ch;
             struct account *acct = d->account;
 

@@ -3240,7 +3240,7 @@ ACMD(do_score)
     struct time_info_data real_time_passed(time_t t2, time_t t1);
     int get_hunted_id(int hunter_id);
 
-    if (ch->desc && ch->desc->is_blind) {
+    if (ch->desc && ch->desc->display == BLIND) {
         do_blind_score(ch);
         return;
     }

@@ -60,6 +60,12 @@ enum cxn_state {
     CXN_NEWEMAIL_PROMPT                         // Enter new e-mail address
 };
 
+enum display_mode {
+    NORMAL,                     // Standard interfaces
+    BLIND,                      // Text interface optimized for screen readers
+    IRC,                        // Text interface optimized for IRC
+};
+
 #define IS_PLAYING(desc)    ((desc)->input_mode == CXN_PLAYING || \
                              (desc)->input_mode == CXN_NETWORK)
 
@@ -97,7 +103,7 @@ struct descriptor_data {
     char last_argument[MAX_INPUT_LENGTH];   /* */
     int last_cmd;
     int idle;                   // how long idle for
-    bool is_blind;
+    enum display_mode display;
     int ban_dc_counter;         // countdown to disconnection due to ban
     struct account *account;
     struct creature *creature;  /* linked to char           */

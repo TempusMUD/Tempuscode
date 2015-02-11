@@ -80,7 +80,7 @@ typedef unsigned char color_level_t;
 static inline color_level_t
 _clrlevel(struct creature *ch)
 {
-    if (!ch->desc || ch->desc->is_blind) {
+    if (!ch->desc || ch->desc->display == BLIND) {
         return 0;
     }
     return ch->desc->account->ansi_level;

@@ -748,7 +748,11 @@ accept_new_connection(GIOChannel *listener_io,
     newd->text_editor = NULL;
     newd->idle = 0;
     newd->ban_dc_counter = 0;
-    newd->is_blind = (port == reader_port);
+    if (port == reader_port) {
+        newd->display = BLIND;
+    }else {
+        newd->display = NORMAL;
+    }
 
     if (++last_desc == 10000) {
         last_desc = 1;
@@ -759,7 +763,7 @@ accept_new_connection(GIOChannel *listener_io,
     descriptor_list = newd;
     if (mini_mud) {
         d_send(newd, "(testmud)");
-    } else if (newd->is_blind) {
+    } else if (newd->display == BLIND) {
         d_send(newd, "Welcome to Tempus MUD!\r\n");
     } else {
         // This text is printed just before the screen clear, so most
