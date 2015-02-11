@@ -663,7 +663,7 @@ accept_new_connection(GIOChannel *listener_io,
     struct descriptor_data *newd;
     struct sockaddr_storage peer;
     socklen_t addrlen;
-    extern const char *GREETINGS[];
+    extern const char *GREETINGS;
     int s = g_io_channel_unix_get_fd(listener_io);
     int port = GPOINTER_TO_INT(data);
 
@@ -778,17 +778,7 @@ accept_new_connection(GIOChannel *listener_io,
             d_printf(newd,"If you use a screen reader, you'll want to use port %d&@", reader_port);
         }
 
-        // We have moved to a single greeting/login screen. The old random selection between
-        // multiple screens has been left for reference and/or future use.
-        /*
-           print out the greeting text, from comm.c, with a 50/50 chance between the two
-           int random_greeting = number(1, 100);
-           if (random_greeting > 50)
-            d_send(newd, GREETINGS[0]);
-           else
-            d_send(newd, GREETINGS[1]);
-         */
-        d_send(newd, GREETINGS[1]);
+        d_send(newd, GREETINGS);
     }
     return true;
 }

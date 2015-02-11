@@ -265,31 +265,7 @@ int max_bad_pws = 2;
 
 bool nameserver_is_slow = YES;
 
-const char *GREETINGS[] = {
-    ".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-    "\r\n"
-    ".   .   .  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ .   .   . \r\n"
-    "          @@@****************************************************@@@\r\n"
-    ".   .   . @@* ************************************************** *@@.   .   . \r\n"
-    "          @@* *                     TEMPUS                     * *@@\r\n"
-    ".   .   . @@* *                                                * *@@.   .   . \r\n"
-    "          @@* *               the anachronistic                * *@@\r\n"
-    ".   .   . @@* *             Multiple User Domain               * *@@.   .   . \r\n"
-    "          @@* *                                                * *@@\r\n"
-    ".   .   . @@* *                                                * *@@.   .   . \r\n"
-    "          @@* *     FOUNDATION:  Circle 3.00, Jeremy Elson     * *@@\r\n"
-    ".   .   . @@* *       A derivative of DikuMUD (GAMMA 0.0)      * *@@.   .   . \r\n"
-    "          @@* *                                                * *@@\r\n"
-    ".   .   . @@* *               Powered by Linux                 * *@@.   .   . \r\n"
-    "          @@* ************************************************** *@@\r\n"
-    ".   .   . @@@****************************************************@@@.   .   . \r\n"
-    "           @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@\r\n"
-    ".   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   .   . \r\n"
-    "\r\n"
-    ".   .   .   .   .   .   . Welcome to the Mothership .   .   .   .   .   .   . \r\n"
-    "\r\n"
-    ".   .   .  Please email admin@tempusmud.com with any login problems .   .   . \r\n"
-    ,
+const char *GREETINGS =
     "\r\n"
     ". . . . . . . . . . ./+syhdddddhyo/-`      .   .   .   .   .   .   .   .   .\r\n"
     ". . . . . . . . -ohmdy+:-.````..:/ohmds:`\r\n"
@@ -312,10 +288,7 @@ const char *GREETINGS[] = {
     ". . . . . . .`+dNh+.                `-odmy-    visit http://tempusmud.net  .\r\n"
     ". . . . . . . . .ohmmhs+/--...-:/oydNds:`\r\n"
     ". . . . . . . . . . ./+syhdmmddhyo/-`      .   .   .   .   .   .   .   .   .\r\n"
-    "\r\n"
-    ,
-    "\n"
-};
+    "\r\n";
 
 const char *WELC_MESSG =
     "\r\n" "Welcome to the realms of Tempus, adventurer.\r\n";
