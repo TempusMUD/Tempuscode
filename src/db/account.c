@@ -634,7 +634,7 @@ account_initialize(struct account *account,
     account->creation_addr = strdup(d->host);
     account->login_addr = strdup(d->host);
     account->ansi_level = 0;
-    account->compact_level = 2;
+    account->compact_level = 3;
     account->term_height = 22;
     account->term_width = 80;
     account->bank_past = 0;
