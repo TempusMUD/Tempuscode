@@ -1125,7 +1125,7 @@ send_prompt(struct descriptor_data *d)
         break;
     case CXN_ACCOUNT_VERIFY:
         d_printf(d,
-                 "Are you sure you want your account name to be '%s' (Y/N)? ",
+                 "Are you sure you want your account name to be '%s' (Y/N)? \r\n",
                  d->last_input);
         break;
     case CXN_ANSI_PROMPT:
@@ -1189,7 +1189,7 @@ send_prompt(struct descriptor_data *d)
                  "&@&c\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n");
         d_printf(d, "%s\r\n", buf2);
         d_printf(d,
-                 "%sWould you like to %sREROLL%s or %sKEEP%s these attributes?%s ",
+                 "%sWould you like to %sREROLL%s or %sKEEP%s these attributes?%s\r\n",
                  CCCYN(d->creature, C_NRM), CCGRN(d->creature, C_NRM),
                  CCCYN(d->creature, C_NRM), CCGRN(d->creature, C_NRM),
                  CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
