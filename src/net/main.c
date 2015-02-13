@@ -38,7 +38,7 @@ extern int olc_lock;
 extern int no_rent_check;
 extern int no_initial_zreset;
 extern int log_cmds;
-extern int nameserver_is_slow;  /* see config.c */
+extern bool nameserver_is_slow;  /* see config.c */
 extern bool stress_test;
 extern bool production_mode;
 extern int main_port;

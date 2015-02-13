@@ -1084,7 +1084,7 @@ bool LOG_DEATHS = false;
 ACMD(do_gen_tog)
 {
     long result = 0;
-    extern int nameserver_is_slow;
+    extern bool nameserver_is_slow;
 
     const char *tog_messages[][2] = {
         {"You are now safe from summoning by other players.\r\n",

@@ -20,6 +20,7 @@
 
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -94,8 +95,8 @@ int shutdown_idnum = -1;        /* idnum of person calling shutdown */
 int shutdown_mode = SHUTDOWN_NONE;  /* what type of shutdown */
 bool suppress_output = false;
 
-extern int nameserver_is_slow;  /* see config.c */
-extern int auto_save;           /* see config.c */
+extern bool nameserver_is_slow;  /* see config.c */
+extern bool auto_save;           /* see config.c */
 extern int autosave_time;       /* see config.c */
 struct timeval null_time;       /* zero-valued time structure */
 GMainLoop *main_loop = NULL;

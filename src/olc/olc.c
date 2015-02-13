@@ -200,8 +200,8 @@ struct creature *do_create_mob(struct creature *ch, int vnum);
 
 int do_destroy_room(struct creature *ch, int vnum);
 int do_destroy_object(struct creature *ch, int vnum);
-int do_destroy_mobile(struct creature *ch, int vnum);
-int do_create_zone(struct creature *ch, int num);
+bool do_destroy_mobile(struct creature *ch, int vnum);
+bool do_create_zone(struct creature *ch, int num);
 int olc_mimic_mob(struct creature *ch, struct creature *orig,
                   struct creature *targ, int mode);
 void olc_mimic_room(struct creature *ch, struct room_data *targ, char *arg);

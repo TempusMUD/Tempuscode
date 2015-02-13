@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <time.h>
 #include <math.h>
 #include "obj_data.h"
@@ -255,16 +256,15 @@ load_auction_from_xml(const char *path, xmlNodePtr node)
  *
  * Loads auctions from an XML document
  *
- * Returns: %true if loading was successful
  **/
-bool
+void
 load_auctions_from_doc(xmlDocPtr doc)
 {
     xmlNodePtr root = xmlDocGetRootElement(doc);
     if (!root) {
         xmlFreeDoc(doc);
         errlog("XML file %s is empty", AUC_FILE_PATH);
-        return false;
+        return;
     }
 
     GOING_ONCE = xmlGetIntProp(root, "going_once", 0);
@@ -291,8 +291,6 @@ load_auctions_from_doc(xmlDocPtr doc)
             auc->idnum = unused_auction_idnum();
         }
     }
-
-    return true;
 }
 
 /**
@@ -300,17 +298,14 @@ load_auctions_from_doc(xmlDocPtr doc)
  *
  * Loads auctions from the XML file at #AUC_FILE_PATH.
  *
- * Returns: %true if loading was successful
  **/
-bool
+void
 load_auctions()
 {
     xmlDocPtr doc = xmlParseFileWithLog(AUC_FILE_PATH);
-    if (!doc) {
-        return false;
+    if (doc) {
+        load_auctions_from_doc(doc);
     }
-
-    return load_auctions_from_doc(doc);
 }
 
 /**
