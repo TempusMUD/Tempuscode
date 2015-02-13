@@ -36,10 +36,10 @@ const char *ANSI_CODES[NUM_COLORS] = {
     "\x1B[36m",
     "\x1B[37m",
     // Other attributes
-    "\x1B[0m",
     "\x1B[1m",
+    "\x1B[4m",
+    "\x1B[5m",
     "\x1B[7m",
-    "\x1B[8m",
     // Bold colors
     "\x1B[0m\x1B[1m",
     "\x1B[30m\x1B[1m",
@@ -50,6 +50,7 @@ const char *ANSI_CODES[NUM_COLORS] = {
     "\x1B[35m\x1B[1m",
     "\x1B[36m\x1B[1m",
     // Reversed colors
+    "\x1B[0m\x1B[7m",
     "\x1B[30m\x1B[7m",
     "\x1B[31m\x1B[7m",
     "\x1B[32m\x1B[7m",
@@ -96,6 +97,7 @@ const char *IRC_CODES[NUM_COLORS] = {
     "\x02\x03" "05",
     "\x02\x03" "11",
     // Reversed colors
+    "\x0f\x16",
     "\x16\x03" "01",
     "\x16\x03" "04",
     "\x16\x03" "03",

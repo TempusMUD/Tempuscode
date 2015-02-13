@@ -45,6 +45,7 @@ enum {
     TERM_MAG_BLD,
     TERM_CYN_BLD,
 
+    TERM_NRM_REV,
     TERM_BLA_REV,
     TERM_RED_REV,
     TERM_GRN_REV,
