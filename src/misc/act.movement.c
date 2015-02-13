@@ -854,7 +854,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
     }
 
     if (mount) {
-        snprintf(buf + strlen(buf) - 1, sizeof(buf + strlen(buf) - 1), ", carrying $N.");
+        strcat_s(buf, sizeof(buf), ", carrying $N.");
     }
     if (blur_msg) {
         if (mount && !AFF_FLAGGED(ch, AFF_BLUR)) {
@@ -1114,7 +1114,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
     }
 
     if (mount) {
-        snprintf(buf + strlen(buf) - 1, sizeof(buf + strlen(buf) - 1), ", carrying $N.");
+        strcat_s(buf, sizeof(buf), ", carrying $N.");
     }
     if (blur_msg) {
         if (mount && !AFF_FLAGGED(ch, AFF_BLUR)) {
