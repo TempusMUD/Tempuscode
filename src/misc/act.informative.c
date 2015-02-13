@@ -61,6 +61,7 @@
 #include "language.h"
 #include "weather.h"
 #include "smokes.h"
+#include "account.h"
 
 /* extern variables */
 extern int mini_mud;
@@ -4958,7 +4959,7 @@ ACMD(do_compact)
                      "Usage: compact { off | minimal | partial | full }\r\n");
         return;
     }
-    ch->account->compact_level = tp;
+    account_set_compact_level(ch->account, tp);
 
     send_to_char(ch, "Your %scompact setting%s is now %s%s%s%s.\r\n",
                  CCRED(ch, C_SPR), CCNRM(ch, C_SPR),
@@ -4986,7 +4987,7 @@ ACMD(do_color)
                      "Usage: color { none | sparse | normal | complete }\r\n");
         return;
     }
-    ch->account->ansi_level = tp;
+    account_set_ansi_level(ch->account, tp);
 
     send_to_char(ch, "Your color is now %s%s%s%s.\r\n",
                  CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), ansi_levels[tp], CCNRM(ch, C_NRM));
