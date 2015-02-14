@@ -246,7 +246,7 @@ send_role_member_list(struct role *role,
     const char *name;
     struct role *admin_role = NULL;
 
-    if (!role->members) {
+    if (role == NULL || role->members == NULL) {
         return;
     }
 
