@@ -498,25 +498,11 @@ check_idling(struct creature *ch)
             send_to_char(ch, "Idle limit reached.  Connection reset by peer.\r\n");
             set_desc_state(CXN_PLAYING, ch->desc);
         } else if (ch->char_specials.timer > 60) {
-            if (GET_LEVEL(ch) > 49) {
-                // Immortals have their afk flag set when idle
-                if (!PLR_FLAGGED(ch, PLR_AFK)) {
-                    send_to_char(ch,
-                                 "You have been idle, and are now marked afk.\r\n");
-                    SET_BIT(PLR_FLAGS(ch), PLR_AFK);
-                    AFK_REASON(ch) = strdup("idle");
-                }
-            } else {
-                if (ch->in_room != NULL) {
-                    char_from_room(ch, false);
-                }
-                char_to_room(ch, real_room(3), true);
-                if (ch->desc) {
-                    close_socket(ch->desc);
-                    ch->desc = NULL;
-                }
-                creature_idle(ch);
-                return true;
+            if (!PLR_FLAGGED(ch, PLR_AFK)) {
+                send_to_char(ch,
+                             "You have been idle, and are now marked afk.\r\n");
+                SET_BIT(PLR_FLAGS(ch), PLR_AFK);
+                AFK_REASON(ch) = strdup("idle");
             }
         }
     }
