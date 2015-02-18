@@ -178,7 +178,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (is_valid_if_flag(if_flag)) {
+                if (!is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                                  "if_flag dependency flag must be 0, 1, 2, or -1\r\n");
                     return;
@@ -282,7 +282,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (is_valid_if_flag(if_flag)) {
+                if (!is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                                  "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -387,7 +387,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (is_valid_if_flag(if_flag)) {
+                if (!is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                                  "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -487,7 +487,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (is_valid_if_flag(if_flag)) {
+                if (!is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                                  "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -587,7 +587,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (is_valid_if_flag(if_flag)) {
+                if (!is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                                  "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -701,7 +701,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (is_valid_if_flag(if_flag)) {
+                if (!is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                                  "if_flag dependency flag must be 0, 1 or 1\r\n");
                     return;
@@ -820,7 +820,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (is_valid_if_flag(if_flag)) {
+                if (!is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                                  "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
@@ -902,7 +902,7 @@ do_zcmd(struct creature *ch, char *argument)
 
             if (is_number(arg1) && is_number(arg2)) {
                 if_flag = atoi(arg1);
-                if (is_valid_if_flag(if_flag)) {
+                if (!is_valid_if_flag(if_flag)) {
                     send_to_char(ch,
                                  "if_flag dependency flag must be 0, 1 or -1\r\n");
                     return;
