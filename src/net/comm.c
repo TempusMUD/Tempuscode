@@ -607,9 +607,10 @@ d_send(struct descriptor_data *d, const char *txt)
         && (!d->creature || PRF2_FLAGGED(d->creature, PRF2_AUTOPROMPT))) {
         d->need_prompt = true;
         // New output crlf
-        if (!d->account
-            || d->account->compact_level == 1
-            || d->account->compact_level == 3) {
+        if (d->display != IRC
+            && (!d->account
+                || d->account->compact_level == 1
+                || d->account->compact_level == 3)) {
             d_send(d, "\r\n");
         }
     }
@@ -806,11 +807,13 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
     if (d->need_prompt) {
         send_prompt(d);
         // After prompt crlf
-        if (d->creature
-            && !g_io_channel_write_buffer_empty(d->io)
-            && (d->account->compact_level == 0
-                || d->account->compact_level == 2)) {
-            d_send(d, "\r\n");
+        if (!g_io_channel_write_buffer_empty(d->io)) {
+            if (d->display == IRC
+                || (d->creature != NULL
+                    && (d->account->compact_level == 0
+                        || d->account->compact_level == 2))) {
+                d_send(d, "\r\n");
+            }
         }
         d->need_prompt = false;
     }

@@ -1104,70 +1104,70 @@ send_prompt(struct descriptor_data *d)
         break;
     case CXN_ACCOUNT_LOGIN:
         d_printf(d,
-                 "  Login with your account name, or 'new' for a new account: \r\n");
+                 "  Login with your account name, or 'new' for a new account: ");
         break;
     case CXN_ACCOUNT_PW:
-        d_printf(d, "  Password: \r\n");
+        d_printf(d, "  Password: ");
         break;
     case CXN_PW_PROMPT:
-        d_printf(d, "        Enter your desired password: \r\n");
+        d_printf(d, "        Enter your desired password: ");
         break;
     case CXN_PW_VERIFY:
     case CXN_NEWPW_VERIFY:
         // this awkward wording due to lame "assword:" search in tintin instead
         // of actually implementing one facet of telnet protocol
         d_printf(d,
-                 "\r\n\r\n        Enter it again to verify your password: \r\n");
+                 "\r\n\r\n        Enter it again to verify your password: ");
         break;
     case CXN_ACCOUNT_PROMPT:
         d_printf(d,
-                 "\r\n\r\nWhat would you like the name of your account to be? \r\n");
+                 "\r\n\r\nWhat would you like the name of your account to be? ");
         break;
     case CXN_ACCOUNT_VERIFY:
         d_printf(d,
-                 "Are you sure you want your account name to be '%s' (Y/N)? \r\n",
+                 "Are you sure you want your account name to be '%s' (Y/N)? ",
                  d->last_input);
         break;
     case CXN_ANSI_PROMPT:
-        d_printf(d, "Enter the level of color you prefer: \r\n");
+        d_printf(d, "Enter the level of color you prefer: ");
         break;
     case CXN_COMPACT_PROMPT:
-        d_printf(d, "Enter the level of compactness you prefer: \r\n");
+        d_printf(d, "Enter the level of compactness you prefer: ");
         break;
     case CXN_EMAIL_PROMPT:
-        d_printf(d, "Please enter your email address: \r\n");
+        d_printf(d, "Please enter your email address: ");
         break;
     case CXN_OLDPW_PROMPT:
         d_printf(d,
-                 "For security purposes, please enter your old password: \r\n");
+                 "For security purposes, please enter your old password: ");
         break;
     case CXN_NEWPW_PROMPT:
-        d_printf(d, "Enter your new password: \r\n");
+        d_printf(d, "Enter your new password: ");
         break;
     case CXN_NAME_PROMPT:
-        d_printf(d, "Enter the name you wish for this character: \r\n");
+        d_printf(d, "Enter the name you wish for this character: ");
         break;
     case CXN_SEX_PROMPT:
-        d_printf(d, "                        What do you choose as your sex (M/F)? \r\n");
+        d_printf(d, "                        What do you choose as your sex (M/F)? ");
         break;
     case CXN_HARDCORE_PROMPT:
-        d_printf(d, "           Do you wish to play this character as hardcore (Y/N)? \r\n");
+        d_printf(d, "           Do you wish to play this character as hardcore (Y/N)? ");
         break;
     case CXN_RACE_PROMPT:
         d_printf(d,
-                 "\r\n\r\n                   Of which race are you a member? \r\n");
+                 "\r\n\r\n                   Of which race are you a member? ");
         break;
     case CXN_CLASS_PROMPT:
         d_printf(d,
-                 "             Choose your profession from the above list: \r\n");
+                 "             Choose your profession from the above list: ");
         break;
     case CXN_CLASS_REMORT:
         d_printf(d,
-                 "             Choose your secondary class from the above list: \r\n");
+                 "             Choose your secondary class from the above list: ");
         break;
     case CXN_ALIGN_PROMPT:
         if (d->creature == NULL) {
-            errlog("NULL d->creature in send_prompt() while in CXN_ALIGN_PROMPT state\r\n");
+            errlog("NULL d->creature in send_prompt() while in CXN_ALIGN_PROMPT state");
             return;
         }
         if (IS_DROW(d->creature)) {
@@ -1177,9 +1177,9 @@ send_prompt(struct descriptor_data *d)
             d_printf(d,
                      "The monastic ideology requires that you remain neutral in alignment.\r\nTherefore you begin your life with a perfect neutrality.\r\n\r\nPress return to continue.\r\n");
         } else if (IS_KNIGHT(d->creature) || IS_CLERIC(d->creature)) {
-            d_printf(d, "Do you wish to be good or evil? \r\n");
+            d_printf(d, "Do you wish to be good or evil? ");
         } else {
-            d_printf(d, "Do you wish to be good, neutral, or evil? \r\n");
+            d_printf(d, "Do you wish to be good, neutral, or evil? ");
         }
         break;
     case CXN_STATISTICS_ROLL:
@@ -1189,7 +1189,7 @@ send_prompt(struct descriptor_data *d)
                  "&@&c\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n");
         d_printf(d, "%s\r\n", buf2);
         d_printf(d,
-                 "%sWould you like to %sREROLL%s or %sKEEP%s these attributes?%s\r\n",
+                 "%sWould you like to %sREROLL%s or %sKEEP%s these attributes?%s",
                  CCCYN(d->creature, C_NRM), CCGRN(d->creature, C_NRM),
                  CCCYN(d->creature, C_NRM), CCGRN(d->creature, C_NRM),
                  CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
@@ -1198,19 +1198,19 @@ send_prompt(struct descriptor_data *d)
         break;
     case CXN_MENU:
         d_printf(d,
-                 "\r\n&c                             Choose your selection:&n \r\n");
+                 "\r\n&c                             Choose your selection:&n ");
         break;
     case CXN_DELETE_PROMPT:
         d_printf(d,
-                 "              &yWhich character would you like to delete:&n \r\n");
+                 "              &yWhich character would you like to delete:&n ");
         break;
     case CXN_EDIT_PROMPT:
         d_printf(d,
-                 "               &cWhich character's description do you want to edit:&n \r\n");
+                 "               &cWhich character's description do you want to edit:&n ");
         break;
     case CXN_DELETE_PW:
         if (d->creature == NULL) {
-            errlog("NULL d->creature in send_prompt() while in CXN_DELETE_PW state\r\n");
+            errlog("NULL d->creature in send_prompt() while in CXN_DELETE_PW state");
             return;
         }
         d_printf(d,
@@ -1222,17 +1222,17 @@ send_prompt(struct descriptor_data *d)
                  "              &yType 'yes' for final confirmation: &n");
         break;
     case CXN_WAIT_MENU:
-        d_printf(d, "Press return to go back to the main menu.\r\n");
+        d_printf(d, "Press return to go back to the main menu.");
         break;
     case CXN_AFTERLIFE:
         if (PLR_FLAGGED(d->creature, PLR_HARDCORE)) {
-            d_printf(d, "Press return to go back to the main menu.\r\n");
+            d_printf(d, "Press return to go back to the main menu.");
         } else {
-            d_printf(d, "Press return to continue into the afterlife.\r\n");
+            d_printf(d, "Press return to continue into the afterlife.");
         }
         break;
     case CXN_REMORT_AFTERLIFE:
-        d_printf(d, "Press return to continue into the afterlife.\r\n");
+        d_printf(d, "Press return to continue into the afterlife.");
         break;
     case CXN_VIEW_POLICY:
     case CXN_VIEW_BG:
@@ -1242,17 +1242,17 @@ send_prompt(struct descriptor_data *d)
         break;
     case CXN_DETAILS_PROMPT:
         d_printf(d,
-                 "                      &cWhich character do you want to view:&n \r\n");
+                 "                      &cWhich character do you want to view:&n ");
         break;
     case CXN_EMAIL_VERIFY:
         d_printf(d,
-                 "For security purposes, please enter your password: \r\n");
+                 "For security purposes, please enter your password: ");
         break;
     case CXN_NEWEMAIL_PROMPT:
-        d_printf(d, "Please enter your updated email address: \r\n");
+        d_printf(d, "Please enter your updated email address: ");
         break;
     case CXN_NETWORK:
-        d_printf(d, "> \r\n");
+        d_printf(d, "> ");
         break;
         break;
     }
