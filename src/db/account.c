@@ -848,31 +848,29 @@ account_deny_char_entry(struct account *account, struct creature *ch)
         return false;
     }
 
-    bool override = false;
     bool found = false;
 
     for (GList *it = first_living(creatures); it; it = next_living(it)) {
         struct creature *tch = it->data;
 
-        if (tch->account == account) {
-            // Admins and full wizards can multi-play all they want
-            if (is_authorized(ch, MULTIPLAY, NULL)) {
-                override = true;
-            }
-            // builder can have on a tester and vice versa.
-            if (is_authorized(ch, LOGIN_WITH_TESTER, NULL) && is_tester(tch)) {
-                override = true;
-            }
-            if (is_tester(ch) && is_authorized(tch, LOGIN_WITH_TESTER, NULL)) {
-                override = true;
-            }
-            // We have a non-immortal already in the game, so they don't
-            // get to come in
-            found = true;
+        if (tch->account != account) {
+            continue;
         }
-    }
-    if (override) {
-        return false;
+        // Admins and full wizards can multi-play all they want
+        if (is_authorized(tch, MULTIPLAY, NULL)) {
+            return false;
+        }
+        // builder can have on a tester and vice versa.
+        if (is_authorized(ch, LOGIN_WITH_TESTER, NULL) && is_tester(tch)) {
+            return false;
+        }
+        if (is_tester(ch) && is_authorized(tch, LOGIN_WITH_TESTER, NULL)) {
+            return false;
+        }
+        // We have a non-immortal already in the game, so they don't
+        // get to come in.  We keep searching, though, in case there's
+        // an override above.
+        found = true;
     }
 
     return found;
