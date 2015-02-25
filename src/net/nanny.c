@@ -982,8 +982,8 @@ handle_input(gpointer data)
     return true;
 }
 
-void
-send_prompt(struct descriptor_data *d)
+const char *
+build_prompt(struct descriptor_data *d)
 {
     extern bool production_mode;
     char colorbuf[100];
@@ -992,7 +992,7 @@ send_prompt(struct descriptor_data *d)
     if (d->creature && d->text_editor) {
         editor_send_prompt(d->text_editor);
         d->need_prompt = false;
-        return;
+        return "";
     }
     // Handle all other states
     switch (d->input_mode) {
@@ -1002,31 +1002,25 @@ send_prompt(struct descriptor_data *d)
     case CXN_PLAYING:          // Playing - Nominal state
         if (d->creature == NULL) {
             errlog("NULL d->creature in send_prompt() while in CXN_PLAYING state");
-            return;
+            return "";
         }
         if (d->display == BLIND) {
-            return;
+            return "";
         }
 
         acc_string_clear();
 
         if (!production_mode) {
-            acc_sprintf("%s(debug)%s ",
-                        CCBLU(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
+            acc_strcat("&b(debug) ", NULL);
         }
         if (GET_INVIS_LVL(d->creature)) {
-            acc_sprintf("%s(%si%d%s)%s ", CCMAG(d->creature,
-                                                C_NRM), CCRED(d->creature, C_NRM),
-                        GET_INVIS_LVL(d->creature), CCMAG(d->creature, C_NRM),
-                        CCNRM(d->creature, C_NRM));
+            acc_sprintf("&m(&r%d&m) ", GET_INVIS_LVL(d->creature));
         } else if (IS_NPC(d->creature)) {
-            acc_sprintf("%s[NPC]%s ",
-                        CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
+            acc_strcat("&c[NPC] ", NULL);
         }
 
         if (PRF_FLAGGED(d->creature, PRF_DISPHP)) {
-            acc_sprintf("%s%s< %s%d%s%sH%s ",
-                        CCWHT(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
+            acc_sprintf("%s%d%s%sH%s ",
                         CCGRN(d->creature, C_SPR), GET_HIT(d->creature),
                         CCNRM(d->creature, C_SPR),
                         CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
@@ -1093,170 +1087,147 @@ send_prompt(struct descriptor_data *d)
 
         if (is_fighting(d->creature) &&
             PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE)) {
-            acc_sprintf("%s(%s)%s ", CCRED(d->creature, C_NRM),
-                        diag_conditions(random_opponent(d->creature)),
-                        CCNRM(d->creature, C_NRM));
+            acc_sprintf("&r(%s) ",
+                        diag_conditions(random_opponent(d->creature)));
         }
 
-        acc_sprintf("%s%s>%s ", CCWHT(d->creature, C_NRM),
-                    CCBLD(d->creature, C_CMP), CCNRM(d->creature, C_NRM));
-        d_send(d, acc_get_string());
-        break;
+        char *prompt = tmp_strdup(acc_get_string());
+
+        acc_string_clear();
+
+        if (prompt[0] != '\0') {
+            acc_strcat("&W< ", prompt, NULL);
+        }
+
+        if (prompt[0] || d->display != IRC) {
+            acc_strcat("&W>&n ", NULL);
+        }
+        return acc_get_string();
     case CXN_ACCOUNT_LOGIN:
-        d_printf(d,
-                 "  Login with your account name, or 'new' for a new account: ");
-        break;
+        return "  Login with your account name, or 'new' for a new account: ";
     case CXN_ACCOUNT_PW:
-        d_printf(d, "  Password: ");
-        break;
+        return "  Password: ";
     case CXN_PW_PROMPT:
-        d_printf(d, "        Enter your desired password: ");
-        break;
+        return "        Enter your desired password: ";
     case CXN_PW_VERIFY:
     case CXN_NEWPW_VERIFY:
         // this awkward wording due to lame "assword:" search in tintin instead
         // of actually implementing one facet of telnet protocol
-        d_printf(d,
-                 "\r\n\r\n        Enter it again to verify your password: ");
-        break;
+        return "\r\n\r\n        Enter it again to verify your password: ";
     case CXN_ACCOUNT_PROMPT:
-        d_printf(d,
-                 "\r\n\r\nWhat would you like the name of your account to be? ");
-        break;
+        return "\r\n\r\nWhat would you like the name of your account to be? ";
     case CXN_ACCOUNT_VERIFY:
-        d_printf(d,
-                 "Are you sure you want your account name to be '%s' (Y/N)? ",
-                 d->last_input);
-        break;
+        return tmp_sprintf(
+            "Are you sure you want your account name to be '%s' (Y/N)? ",
+            d->last_input);
     case CXN_ANSI_PROMPT:
-        d_printf(d, "Enter the level of color you prefer: ");
-        break;
+        return "Enter the level of color you prefer: ";
     case CXN_COMPACT_PROMPT:
-        d_printf(d, "Enter the level of compactness you prefer: ");
-        break;
+        return "Enter the level of compactness you prefer: ";
     case CXN_EMAIL_PROMPT:
-        d_printf(d, "Please enter your email address: ");
-        break;
+        return "Please enter your email address: ";
     case CXN_OLDPW_PROMPT:
-        d_printf(d,
-                 "For security purposes, please enter your old password: ");
+        return "For security purposes, please enter your old password: ";
         break;
     case CXN_NEWPW_PROMPT:
-        d_printf(d, "Enter your new password: ");
+        return "Enter your new password: ";
         break;
     case CXN_NAME_PROMPT:
-        d_printf(d, "Enter the name you wish for this character: ");
+        return "Enter the name you wish for this character: ";
         break;
     case CXN_SEX_PROMPT:
-        d_printf(d, "                        What do you choose as your sex (M/F)? ");
-        break;
+        return "                        What do you choose as your sex (M/F)? ";
     case CXN_HARDCORE_PROMPT:
-        d_printf(d, "           Do you wish to play this character as hardcore (Y/N)? ");
+        return "           Do you wish to play this character as hardcore (Y/N)? ";
         break;
     case CXN_RACE_PROMPT:
-        d_printf(d,
-                 "\r\n\r\n                   Of which race are you a member? ");
+        return "\r\n\r\n                   Of which race are you a member? ";
         break;
     case CXN_CLASS_PROMPT:
-        d_printf(d,
-                 "             Choose your profession from the above list: ");
+        return "             Choose your profession from the above list: ";
         break;
     case CXN_CLASS_REMORT:
-        d_printf(d,
-                 "             Choose your secondary class from the above list: ");
+        return "             Choose your secondary class from the above list: ";
         break;
     case CXN_ALIGN_PROMPT:
         if (d->creature == NULL) {
             errlog("NULL d->creature in send_prompt() while in CXN_ALIGN_PROMPT state");
-            return;
+            return "";
         }
         if (IS_DROW(d->creature)) {
-            d_printf(d,
-                     "The Drow race is inherently evil.  Thus you begin your life as evil.\r\n\r\nPress return to continue.\r\n");
+            return "The Drow race is inherently evil.  Thus you begin your life as evil.\r\n\r\nPress return to continue.\r\n";
         } else if (IS_MONK(d->creature)) {
-            d_printf(d,
-                     "The monastic ideology requires that you remain neutral in alignment.\r\nTherefore you begin your life with a perfect neutrality.\r\n\r\nPress return to continue.\r\n");
+            return "The monastic ideology requires that you remain neutral in alignment.\r\nTherefore you begin your life with a perfect neutrality.\r\n\r\nPress return to continue.\r\n";
         } else if (IS_KNIGHT(d->creature) || IS_CLERIC(d->creature)) {
-            d_printf(d, "Do you wish to be good or evil? ");
+            return "Do you wish to be good or evil? ";
         } else {
-            d_printf(d, "Do you wish to be good, neutral, or evil? ");
+            return "Do you wish to be good, neutral, or evil? ";
         }
         break;
     case CXN_STATISTICS_ROLL:
+        acc_string_clear();
         roll_real_abils(d->creature);
         print_attributes_to_buf(d->creature, buf2, sizeof(buf2));
-        d_printf(d,
-                 "&@&c\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n");
-        d_printf(d, "%s\r\n", buf2);
-        d_printf(d,
-                 "%sWould you like to %sREROLL%s or %sKEEP%s these attributes?%s",
-                 CCCYN(d->creature, C_NRM), CCGRN(d->creature, C_NRM),
-                 CCCYN(d->creature, C_NRM), CCGRN(d->creature, C_NRM),
-                 CCCYN(d->creature, C_NRM), CCNRM(d->creature, C_NRM));
-        break;
+        acc_strcat(
+            "&@&c\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n",
+            buf2,
+            "\r\n&cWould you like to &gREROLL&c or &gKEEP&c these attributes?&n ",
+            NULL);
+        return acc_get_string();
     case CXN_EDIT_DESC:
-        break;
+        return "";
     case CXN_MENU:
-        d_printf(d,
-                 "\r\n&c                             Choose your selection:&n ");
+        return "\r\n&c                             Choose your selection:&n ";
         break;
     case CXN_DELETE_PROMPT:
-        d_printf(d,
-                 "              &yWhich character would you like to delete:&n ");
+        return "              &yWhich character would you like to delete:&n ";
         break;
     case CXN_EDIT_PROMPT:
-        d_printf(d,
-                 "               &cWhich character's description do you want to edit:&n ");
+        return "               &cWhich character's description do you want to edit:&n ";
         break;
     case CXN_DELETE_PW:
         if (d->creature == NULL) {
             errlog("NULL d->creature in send_prompt() while in CXN_DELETE_PW state");
-            return;
+            return "";
         }
-        d_printf(d,
-                 "              &yTo confirm deletion of %s, enter your account password: &n",
-                 GET_NAME(d->creature));
+        return tmp_sprintf("              &yTo confirm deletion of %s, enter your account password: &n",
+                           GET_NAME(d->creature));
         break;
     case CXN_DELETE_VERIFY:
-        d_printf(d,
-                 "              &yType 'yes' for final confirmation: &n");
+        return "              &yType 'yes' for final confirmation: &n";
         break;
     case CXN_WAIT_MENU:
-        d_printf(d, "Press return to go back to the main menu.");
+        return "Press return to go back to the main menu.";
         break;
     case CXN_AFTERLIFE:
         if (PLR_FLAGGED(d->creature, PLR_HARDCORE)) {
-            d_printf(d, "Press return to go back to the main menu.");
+            return "Press return to go back to the main menu.";
         } else {
-            d_printf(d, "Press return to continue into the afterlife.");
+            return "Press return to continue into the afterlife.";
         }
         break;
     case CXN_REMORT_AFTERLIFE:
-        d_printf(d, "Press return to continue into the afterlife.");
+        return "Press return to continue into the afterlife.";
         break;
     case CXN_VIEW_POLICY:
     case CXN_VIEW_BG:
     case CXN_CLASS_HELP:
     case CXN_RACE_HELP:
         // Prompt sent by page_string
-        break;
+        return "";
     case CXN_DETAILS_PROMPT:
-        d_printf(d,
-                 "                      &cWhich character do you want to view:&n ");
+        return "                      &cWhich character do you want to view:&n ";
         break;
     case CXN_EMAIL_VERIFY:
-        d_printf(d,
-                 "For security purposes, please enter your password: ");
+        return "For security purposes, please enter your password: ";
         break;
     case CXN_NEWEMAIL_PROMPT:
-        d_printf(d, "Please enter your updated email address: ");
+        return "Please enter your updated email address: ";
         break;
     case CXN_NETWORK:
-        d_printf(d, "> ");
-        break;
-        break;
+        return "> ";
     }
-    d->need_prompt = false;
+    return "";
 }
 
 void

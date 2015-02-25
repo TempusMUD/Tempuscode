@@ -116,7 +116,7 @@ void nonblock(int s);
 char *perform_subst(struct descriptor_data *t, char *orig, const char *subst);
 int perform_alias(struct descriptor_data *d, char *orig);
 void record_usage(void);
-void send_prompt(struct descriptor_data *point);
+const char *build_prompt(struct descriptor_data *point);
 void bamf_quad_damage(void);
 void descriptor_update(void);
 gboolean process_input(GIOChannel *io,
@@ -805,9 +805,10 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
         d_send(d, "\r\n");
     }
     if (d->need_prompt) {
-        send_prompt(d);
+        const char *prompt = build_prompt(d);
         // After prompt crlf
-        if (!g_io_channel_write_buffer_empty(d->io)) {
+        if (prompt[0] != '\0') {
+            d_printf(d, prompt);
             if (d->display == IRC
                 || (d->creature != NULL
                     && (d->account->compact_level == 0
