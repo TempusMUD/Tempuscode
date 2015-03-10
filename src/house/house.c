@@ -829,7 +829,7 @@ load_houses(void)
     // Now we preload the accounts that are attached to the house
     extern bool production_mode;
 
-    if (production_mode) {
+    if (production_mode && houses != NULL) {
         acc_string_clear();
         acc_sprintf("idnum in (");
         bool first = true;
