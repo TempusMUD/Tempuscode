@@ -294,6 +294,34 @@ const char *GREETINGS[] = {
     "\r\n"
     ". . . . . . . . . . ./+syhdddddhyo/-`      .   .   .   .   .   .   .   .   .\r\n"
     ". . . . . . . . -ohmdy+:-.````..:/ohmds:`\r\n"
+    ". . . . . . .`odms:`                 .+hms-     \\\\\\\\\\ TEMPUS //////////\r\n"
+    ". . . . . ..sNh/`                       .omh-\r\n"
+    ". . . . . /md:          ,..._             `oNs`    the Anachronistic   .   .\r\n"
+    ". . . . `sNs`     .:/oyhdmNNmhy+:.  /ymmh.  -dd.    Multiple User Domain\r\n"
+    ". . . . sMo       +my/::::-:yMMMMMNmNMMMMs  .-dm.      .   .   .   .   .   .\r\n"
+    ". . . ./My         `      `/dMMMMMMMMMdy/` /mh:Nh     BASE: Circle 3,\r\n"
+    ". . .  mM.               :hMMMMMMMNNMMy+osyho- oM:    Jeremy Elson .   .   .\r\n"
+    ". . . -Md             `/hMMMMMMms:.-/shdy+.    -Ms    A derivative of\r\n"
+    ". . . :Mh            :mMMMMMMMs:...            .My    DikuMUD (GAMMA 0.0)  .\r\n"
+    ". . . -Md           :NMMMMMMMMMNNNmdo:`        -Ms\r\n"
+    ". . .  -`         :hNMMMmyoosydmNNMMMNds:`     sM:    Powered by Linux .   .\r\n"
+    ". . .:yNMNmy+:..:yNMMMd/`     ``..:sdNMMNms:.-sNh\r\n"
+    ". . +NhsyddNMMNNMMMmy-`             `-+ydNMMNNMm.      .   .   .   .   .   .\r\n"
+    ". . yy. .omh:+sdy+-`                    `.:yMMd.       \r\n"
+    ". . . . . /mm+``                          .yNs`   .    .   .   .   .   .   .\r\n"
+    ". . . . . .`oNm+.                       -sNh-\r\n"
+    ". . . . . . .`+dNh+.                `-odmy-       visit www.tempusmud.com  .\r\n"
+    ". . . . . . . . .ohmmhs+/--...-:/oydNds:`\r\n"
+    ". . . . . . . . . . ./+syhdmmddhyo/-`      .   .   .   .   .   .   .   .   .\r\n"
+    "\r\n"
+    ,
+    "\n"
+};
+
+/* old version for reference when replacing email
+"\r\n"
+    ". . . . . . . . . . ./+syhdddddhyo/-`      .   .   .   .   .   .   .   .   .\r\n"
+    ". . . . . . . . -ohmdy+:-.````..:/ohmds:`\r\n"
     ". . . . . . .`odms:`                 .+hms-      \\\\\\\\\\ TEMPUS /////    .   .\r\n"
     ". . . . . ..sNh/`                       .omh-\r\n"
     ". . . . . /md:          ,..._             `oNs`    the Anachronistic   .   .\r\n"
@@ -314,9 +342,7 @@ const char *GREETINGS[] = {
     ". . . . . . . . .ohmmhs+/--...-:/oydNds:`\r\n"
     ". . . . . . . . . . ./+syhdmmddhyo/-`      .   .   .   .   .   .   .   .   .\r\n"
     "\r\n"
-    ,
-    "\n"
-};
+*/
 
 const char *WELC_MESSG =
     "\r\n" "Welcome to the realms of Tempus, adventurer.\r\n";
