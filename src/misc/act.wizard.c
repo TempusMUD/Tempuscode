@@ -5908,7 +5908,7 @@ ACMD(do_set)
         {"nopk", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"soilage", LVL_IMMORT, PC, MISC, "WizardBasic"},
         {"specialization", LVL_IMMORT, PC, MISC, "AdminFull"},
-        {"qpallow", LVL_IMMORT, PC, NUMBER, "QuestorAdmin,WizardFull"},
+        {"qpallow", LVL_IMMORT, PC, NUMBER, "WizardFull"}, // once included QuestorAdmin
         {"soulless", LVL_IMMORT, BOTH, BINARY, "WizardFull"},
         {"buried", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"speed", LVL_IMMORT, PC, NUMBER, "Coder"},
@@ -6646,8 +6646,8 @@ ACMD(do_aset)
         {"bank_past", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"future_bank", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"reputation", LVL_IMMORT, PC, NUMBER, "AdminFull"},
-        {"qpoints", LVL_IMMORT, PC, NUMBER, "QuestorAdmin,WizardFull"},
-        {"qbanned", LVL_IMMORT, PC, BINARY, "QuestorAdmin,AdminFull"},
+        {"qpoints", LVL_IMMORT, PC, NUMBER, "WizardFull"}, // once included QuestorAdmin
+        {"qbanned", LVL_IMMORT, PC, BINARY, "AdminFull"}, // once included QuestorAdmin
         {"password", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"email", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"banned", LVL_IMMORT, PC, BINARY, "AdminFull"},
