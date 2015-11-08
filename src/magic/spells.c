@@ -1156,10 +1156,19 @@ ASPELL(spell_identify)
 
             if (GET_OBJ_VAL(obj, 1) >= 1)
                 send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 1)));
+            
+            if(GET_OBJ_VAL(obj, 1) >= 1 && ((GET_OBJ_VAL(obj, 2) >= 1 || GET_OBJ_VAL(obj, 3) >= 1)))
+                send_to_char(ch, ",");
+            
             if (GET_OBJ_VAL(obj, 2) >= 1)
                 send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 2)));
+            
+            if(GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 3) >= 1)
+                send_to_char(ch, ",");
+            
             if (GET_OBJ_VAL(obj, 3) >= 1)
                 send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 3)));
+            
             send_to_char(ch, "\r\n");
             break;
         case ITEM_WAND:
