@@ -3038,12 +3038,34 @@ ACMD(do_purge)
             false, ch, NULL, NULL, TO_ROOM);
         send_to_room("The world seems a little cleaner.\r\n", ch->in_room);
 
+        /*  Left in for reference. Original loop that failed because an item was removed from the list during iteration.
+            This block replace with next code block.
+            
         for (GList * it = first_living(ch->in_room->people); it; it = next_living(it)) {
             struct creature *tch = it->data;
 
             if (IS_NPC(tch)) {
                 creature_purge(tch, true);
             }
+        }
+        */
+        
+        // as creature_purge() has a call to g_list_remove(), we can't iterate through in a simple for loop
+        // because removing an item from the GList messes up the iteration
+        // therefore, we use a while loop and use a variable to hold the next position in the iteration
+        // while we work with the current position
+        GList * it = first_living(ch->in_room->people);
+        while (it != NULL)
+        {
+            GList * next = next_living(it);
+            struct creature *tch = it->data;
+            
+            if (IS_NPC(tch))
+            {
+                creature_purge(tch, true);
+            }
+            
+            it = next;
         }
 
         for (obj = ch->in_room->contents; obj; obj = next_o) {
@@ -7360,17 +7382,27 @@ ACMD(do_zonepurge)
             if (ROOM_FLAGGED(rm, ROOM_GODROOM) || ROOM_FLAGGED(rm, ROOM_HOUSE))
                 continue;
 
-            for (GList * it = rm->people; it; it = it->next) {
+            // clear all mobs
+            GList * it = rm->people;
+            while (it != NULL)
+            {
+                GList * next = it->next;
                 struct creature *tch = it->data;
-                if (IS_NPC(tch)) {
+                
+                if (IS_NPC(tch))
+                {
                     creature_purge(tch, true);
                     mob_count++;
-                } else {
-                    send_to_char(tch,
-                        "You feel a rush of heat wash over you!\r\n");
                 }
+                else
+                {
+                    send_to_char(tch, "You feel a rush of heat wash over you!\r\n");
+                }
+                
+                it = next;
             }
 
+            // clear all objects
             for (obj = rm->contents; obj; obj = next_obj) {
                 next_obj = obj->next_content;
                 extract_obj(obj);
