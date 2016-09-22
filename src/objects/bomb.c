@@ -263,8 +263,8 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
             IS_SET(room->dir_option[dir]->exit_info, EX_CLOSED)) {
             if (power > (IS_SET(room->dir_option[dir]->exit_info,
                                 EX_HEAVY_DOOR) ? 6 : 1 +
-                         IS_SET(room->dir_option[dir]->exit_info,
-                                EX_PICKPROOF) ? 10 : 1)) {
+                         (IS_SET(room->dir_option[dir]->exit_info,
+                                 EX_PICKPROOF) ? 10 : 1))) {
                 if (room->dir_option[dir]->keyword) {
                     strcpy_s(dname, sizeof(dname), room->dir_option[dir]->keyword);
                 } else {
