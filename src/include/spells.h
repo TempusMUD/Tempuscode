@@ -893,16 +893,34 @@ struct gun_hit_type {
 static inline int
 SPELL_LEVEL(int spell, int char_class)
 {
+    if (spell < 0 || spell > max_spell_num) {
+        return 0;
+    }
+    if (char_class < 0 || char_class > NUM_CLASSES) {
+        return 0;
+    }
+
     return (int)spell_info[spell].min_level[char_class];
 }
 static inline int
 SPELL_GEN(int spell, int char_class)
 {
+    if (spell < 0 || spell > max_spell_num) {
+        return 0;
+    }
+    if (char_class < 0 || char_class > NUM_CLASSES) {
+        return 0;
+    }
+
     return (int)spell_info[spell].gen[char_class];
 }
 static inline bool
 IS_WEAPON(int spell)
 {
+    if (spell < 0 || spell > max_spell_num) {
+        return false;
+    }
+
     return spell_info[spell].is_weapon;
 }
 
