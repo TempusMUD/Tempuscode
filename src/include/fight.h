@@ -49,8 +49,6 @@ IS_DEFENSE_ATTACK(int attacktype)
 bool cannot_damage(struct creature *ch, struct creature *vict, struct obj_data *weap, int attacktype)
 __attribute__ ((nonnull (2)));
 
-struct CallerDiedException {};
-
 //
 // internal functions
 //

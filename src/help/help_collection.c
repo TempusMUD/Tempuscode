@@ -74,26 +74,6 @@ static const struct hcollect_command {
     }                           // list terminator
 };
 
-static const struct group_command {
-    const char *keyword;
-    const char *usage;
-    int level;
-} grp_cmds[] = {
-    {
-        "adduser", "<username> <groupnames>", LVL_GOD
-    }, {
-        "create", "", LVL_GOD
-    }, {
-        "list", "", LVL_IMMORT
-    }, {
-        "members", "<groupname>", LVL_IMMORT
-    }, {
-        "remuser", "<username> <groupnames>", LVL_GOD
-    }, {
-        NULL, NULL, 0
-    }                           // list terminator
-};
-
 const char *help_group_names[] = {
     "olc",
     "misc",
