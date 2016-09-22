@@ -511,7 +511,7 @@ enum apply {
     APPLY_NONE = 0, /* No effect            */
     APPLY_STR = 1,  /* Apply to strength        */
     APPLY_DEX = 2,  /* Apply to dexterity        */
-    APPLY_INT = 3,  /* Apply to intellegence    */
+    APPLY_INT = 3,  /* Apply to intelligence    */
     APPLY_WIS = 4,  /* Apply to wisdom        */
     APPLY_CON = 5,  /* Apply to constitution    */
     APPLY_CHA = 6,  /* Apply to charisma        */
