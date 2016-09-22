@@ -893,14 +893,6 @@ do_start(struct creature *ch, int mode)
     ch->points.max_mana = 100;
     ch->points.max_move = 82;
 
-    if (IS_TABAXI(ch)) {
-        SET_SKILL(ch, SKILL_CLAW, LEARNED(ch));
-        SET_SKILL(ch, SKILL_BITE, LEARNED(ch));
-    }
-    if (IS_ELF(ch)) {
-        SET_SKILL(ch, SKILL_ARCHERY, LEARNED(ch));
-    }
-
     switch (GET_CLASS(ch)) {
     case CLASS_MAGIC_USER:
         SET_SKILL(ch, SKILL_PUNCH, 10);
@@ -941,12 +933,21 @@ do_start(struct creature *ch, int mode)
         break;
     case CLASS_MERCENARY:
         SET_SKILL(ch, SKILL_PUNCH, 20);
+        break;
     case CLASS_BARD:
         SET_SKILL(ch, SKILL_PUNCH, 25);
         SET_SKILL(ch, SKILL_ARCHERY, 25);
         break;
-
     }
+
+    if (IS_TABAXI(ch)) {
+        SET_SKILL(ch, SKILL_CLAW, LEARNED(ch));
+        SET_SKILL(ch, SKILL_BITE, LEARNED(ch));
+    }
+    if (IS_ELF(ch)) {
+        SET_SKILL(ch, SKILL_ARCHERY, LEARNED(ch));
+    }
+
 
     if (new_player) {
         if (PAST_CLASS(GET_CLASS(ch))) {
