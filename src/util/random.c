@@ -235,7 +235,11 @@ rand_value(int val, int variance, int min, int max)
         min = val - variance;
     }
     if (max == -1 || val + variance < max) {
-        max = val + variance;
+        if (val > INT_MAX - variance) {
+            max = INT_MAX;
+        } else {
+            max = val + variance;
+        }
     }
     return number(min, max);
 }
