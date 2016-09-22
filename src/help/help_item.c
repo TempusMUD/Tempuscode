@@ -66,7 +66,7 @@ help_item_setflags(struct help_item *item, char *argument)
             send_to_char(item->editor, "Invalid flag %s, skipping...\r\n",
                          arg1);
         } else {
-            tmp_flags = tmp_flags | (1 << flag);
+            tmp_flags = tmp_flags | (1U << flag);
         }
         argument = one_argument(argument, arg1);
     }
@@ -187,7 +187,7 @@ help_item_setgroups(struct help_item *item, char *argument)
             send_to_char(item->editor, "Invalid group: %s, skipping...\r\n",
                          arg1);
         } else {
-            tmp_groups = tmp_groups | (1 << flag);
+            tmp_groups = tmp_groups | (1U << flag);
         }
         argument = one_argument(argument, arg1);
     }

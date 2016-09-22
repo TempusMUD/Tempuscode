@@ -2470,7 +2470,7 @@ load_spell(xmlNodePtr node)
                     free(value_str);
                     return false;
                 }
-                spell_info[idnum].routines |= (1 << flag);
+                spell_info[idnum].routines |= (1U << flag);
             }
             free(value_str);
         } else if (xmlMatches(child->name, "instrument")) {

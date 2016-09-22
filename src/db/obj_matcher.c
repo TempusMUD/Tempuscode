@@ -268,7 +268,7 @@ make_object_affect_matcher(struct creature *ch,
     }
 
     matcher->idx = index;
-    matcher->num = 1 << affect;
+    matcher->num = 1U << affect;
     return true;
 }
 
@@ -408,7 +408,7 @@ make_object_worn_matcher(struct creature *ch,
         send_to_char(ch, "Type olc help wear for a list of wear positions.\r\n");
         return false;
     }
-    matcher->num = 1 << matcher->num;
+    matcher->num = 1U << matcher->num;
 
     return true;
 }
@@ -456,7 +456,7 @@ make_object_extra_matcher(struct creature *ch,
     }
 
     matcher->idx = index;
-    matcher->num = 1 << flag;
+    matcher->num = 1U << flag;
     return true;
 }
 

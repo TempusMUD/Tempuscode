@@ -548,10 +548,10 @@ affect_to_room(struct room_data *room, struct room_affect_data *aff)
     if (aff->type < NUM_DIRS && aff->type > -1) {
         if (room->dir_option[(int)aff->type]) {
             for (i = 0; i < 32; i++) {
-                if (IS_SET(aff->flags, (1 << i)) &&
+                if (IS_SET(aff->flags, (1U << i)) &&
                     IS_SET(room->dir_option[(int)aff->type]->exit_info,
-                           (1 << i))) {
-                    REMOVE_BIT(aff->flags, (1 << i));
+                           (1U << i))) {
+                    REMOVE_BIT(aff->flags, (1U << i));
                 }
             }
         } else {
@@ -565,9 +565,9 @@ affect_to_room(struct room_data *room, struct room_affect_data *aff)
         }
     } else if (aff->type == RM_AFF_FLAGS) {
         for (i = 0; i < 32; i++) {
-            if (IS_SET(aff->flags, (1 << i))
-                && IS_SET(room->room_flags, (1 << i))) {
-                REMOVE_BIT(aff->flags, (1 << i));
+            if (IS_SET(aff->flags, (1U << i))
+                && IS_SET(room->room_flags, (1U << i))) {
+                REMOVE_BIT(aff->flags, (1U << i));
             }
         }
 

@@ -535,7 +535,7 @@ num2str(char *str, size_t size, int num)
     const char *encoding = "abcdefghijklmnopqrstuvwxyzABCDEF";
     const char *c = encoding;
     for (int i = 0; size > 1 && i < 32; i++, c++) {
-        if (num & (1 << i)) {
+        if (num & (1U << i)) {
             *str++ = *c;
             size--;
         }
@@ -779,8 +779,8 @@ void
 check_bits_32(int bitv, int *newbits)
 {
     for (int i = 0; i < 32; i++) {
-        if (bitv & (1 << i)) {
-            *newbits &= ~(1 << i);
+        if (bitv & (1U << i)) {
+            *newbits &= ~(1U << i);
         }
     }
 }

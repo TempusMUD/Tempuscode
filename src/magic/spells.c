@@ -3299,21 +3299,21 @@ remove_random_obj_affect(struct creature *ch, struct obj_data *obj,
     }
 
     for (i = 0; i < 32; i++) {
-        if (IS_SET(obj->obj_flags.bitvector[0], (1 << i))) {
+        if (IS_SET(obj->obj_flags.bitvector[0], (1U << i))) {
             if (!number(0, total_affs)) {
                 aff_type = MAX_OBJ_AFFECT;
                 bitvec = i;
             }
             total_affs++;
         }
-        if (IS_SET(obj->obj_flags.bitvector[1], (1 << i))) {
+        if (IS_SET(obj->obj_flags.bitvector[1], (1U << i))) {
             if (!number(0, total_affs)) {
                 aff_type = MAX_OBJ_AFFECT + 1;
                 bitvec = i;
             }
             total_affs++;
         }
-        if (IS_SET(obj->obj_flags.bitvector[2], (1 << i))) {
+        if (IS_SET(obj->obj_flags.bitvector[2], (1U << i))) {
             if (!number(0, total_affs)) {
                 aff_type = MAX_OBJ_AFFECT + 2;
                 bitvec = i;
@@ -3351,7 +3351,7 @@ remove_random_obj_affect(struct creature *ch, struct obj_data *obj,
         obj->affected[aff_type].modifier = 0;
     } else if (aff_type < MAX_OBJ_AFFECT + 3) {
         REMOVE_BIT(obj->obj_flags.bitvector[aff_type - MAX_OBJ_AFFECT],
-                   (1 << bitvec));
+                   (1U << bitvec));
     } else if (aff_type == MAX_OBJ_AFFECT + 3) {
         REMOVE_BIT(GET_OBJ_EXTRA2(obj), ITEM2_CAST_WEAPON);
     } else if (aff_type == MAX_OBJ_AFFECT + 4) {

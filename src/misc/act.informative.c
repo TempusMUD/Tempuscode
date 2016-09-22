@@ -752,13 +752,13 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
                          pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]));
 
                 for (k = 0, j = 0; j < TOP_SOIL; j++) {
-                    if (CHAR_SOILED(i, pos, (1 << j))) {
+                    if (CHAR_SOILED(i, pos, (1U << j))) {
                         k++;
                     }
                 }
 
                 for (j = 0; j < TOP_SOIL; j++) {
-                    if (CHAR_SOILED(i, pos, (1 << j))) {
+                    if (CHAR_SOILED(i, pos, (1U << j))) {
                         found++;
                         if (found > 1) {
                             strcat_s(buf2, sizeof(buf2), ", ");
@@ -5272,13 +5272,13 @@ ACMD(do_soilage)
                      ISARE(OBJS(GET_EQ(ch, pos), ch)));
 
             for (k = 0, j = 0; j < TOP_SOIL; j++) {
-                if (OBJ_SOILED(GET_EQ(ch, pos), (1 << j))) {
+                if (OBJ_SOILED(GET_EQ(ch, pos), (1U << j))) {
                     k++;
                 }
             }
 
             for (j = 0; j < TOP_SOIL; j++) {
-                if (OBJ_SOILED(GET_EQ(ch, pos), (1 << j))) {
+                if (OBJ_SOILED(GET_EQ(ch, pos), (1U << j))) {
                     found++;
                     if (found > 1) {
                         strcat_s(buf2, sizeof(buf2), ", ");
@@ -5301,13 +5301,13 @@ ACMD(do_soilage)
                      pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]));
 
             for (k = 0, j = 0; j < TOP_SOIL; j++) {
-                if (CHAR_SOILED(ch, pos, (1 << j))) {
+                if (CHAR_SOILED(ch, pos, (1U << j))) {
                     k++;
                 }
             }
 
             for (j = 0; j < TOP_SOIL; j++) {
-                if (CHAR_SOILED(ch, pos, (1 << j))) {
+                if (CHAR_SOILED(ch, pos, (1U << j))) {
                     found++;
                     if (found > 1) {
                         strcat_s(buf2, sizeof(buf2), ", ");

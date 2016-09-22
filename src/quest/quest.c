@@ -2311,7 +2311,7 @@ do_qcontrol_flags(struct creature *ch, char *argument, int com)
         if ((flag = search_block(arg1, quest_bits, false)) == -1) {
             send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
         } else {
-            tmp_flags = tmp_flags | (1 << flag);
+            tmp_flags = tmp_flags | (1U << flag);
         }
 
         argument = one_argument(argument, arg1);

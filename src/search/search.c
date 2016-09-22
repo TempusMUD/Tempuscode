@@ -440,7 +440,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
 
         if (add) {
             for (found = 0, i = 0; i < 32; i++) {
-                if (IS_SET(bits, (j = (1 << i))) &&
+                if (IS_SET(bits, (j = (1U << i))) &&
                     (!IS_SET(SRCH_DOOR, j) ||
                      (other_rm && !IS_SET(SRCH_REV_DOOR, j)))) {
                     found = 1;
@@ -460,7 +460,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
             }
         } else {
             for (found = 0, i = 0; i < 32; i++) {
-                if (IS_SET(bits, (j = (1 << i))) &&
+                if (IS_SET(bits, (j = (1U << i))) &&
                     (IS_SET(SRCH_DOOR, j) ||
                      (other_rm && IS_SET(SRCH_REV_DOOR, j)))) {
                     found = 1;

@@ -4584,7 +4584,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
             if (tmp_flag == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\n", arg);
             } else {
-                flags |= (1 << tmp_flag);
+                flags |= (1U << tmp_flag);
             }
             arg = tmp_getword(&args);
         }
@@ -4603,7 +4603,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
             if (tmp_flag == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\n", arg);
             } else {
-                flags |= (1 << tmp_flag);
+                flags |= (1U << tmp_flag);
             }
             arg = tmp_getword(&args);
         }
@@ -7498,7 +7498,7 @@ ACMD(do_addpos)
         return;
     }
 
-    bit = (1 << bit);
+    bit = (1U << bit);
 
     TOGGLE_BIT(obj->obj_flags.wear_flags, bit);
     send_to_char(ch, "Bit %s for %s now %s.\r\n", new_pos, obj->name,
@@ -8583,7 +8583,7 @@ ACMD(do_users)
                     continue;
                 }
             }
-            if (showchar_class && !(showchar_class & (1 << GET_CLASS(tch)))) {
+            if (showchar_class && !(showchar_class & (1U << GET_CLASS(tch)))) {
                 continue;
             }
             if (GET_LEVEL(ch) < LVL_LUCIFER &&

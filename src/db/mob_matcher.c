@@ -216,7 +216,7 @@ make_mobile_flags_matcher(struct creature *ch,
     }
 
     matcher->idx = index;
-    matcher->num = 1 << flag;
+    matcher->num = 1U << flag;
 
     return true;
 }
@@ -266,7 +266,7 @@ make_mobile_affect_matcher(struct creature *ch,
     }
 
     matcher->idx = index;
-    matcher->num = 1 << flag;
+    matcher->num = 1U << flag;
 
     return true;
 }

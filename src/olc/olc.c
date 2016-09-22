@@ -1905,7 +1905,7 @@ show_olc_help(struct creature *ch, char *arg)
     case 0:       /******* rflags ********/
         strcpy_s(buf, sizeof(buf), "ROOM FLAGS:\r\n");
         for (i = 0; i < NUM_ROOM_FLAGS; i++) {
-            num2str(smallbuf, sizeof(smallbuf), (1 << i));
+            num2str(smallbuf, sizeof(smallbuf), (1U << i));
             snprintf(buf2, sizeof(buf2), "  %s         %s%-10s %-10s%s\r\n", smallbuf,
                      CCCYN(ch, C_NRM), room_bits[i], roomflag_names[i], CCNRM(ch,
                                                                               C_NRM));
@@ -1935,7 +1935,7 @@ show_olc_help(struct creature *ch, char *arg)
     case 3:
         strcpy_s(buf, sizeof(buf), "DOOR FLAGS:\r\n");
         for (i = 0; i < NUM_DOORFLAGS; i++) {
-            num2str(smallbuf, sizeof(smallbuf), (1 << i));
+            num2str(smallbuf, sizeof(smallbuf), (1U << i));
             snprintf(buf2, sizeof(buf2), "  %s         %s%s%s\r\n", smallbuf, CCCYN(ch,
                                                                                     C_NRM), exit_bits[i], CCNRM(ch, C_NRM));
             strcat_s(buf, sizeof(buf), buf2);
@@ -1954,7 +1954,7 @@ show_olc_help(struct creature *ch, char *arg)
     case 5:
         strcpy_s(buf, sizeof(buf), "OBJ EXTRA1 FLAGS:\r\n");
         for (i = 0; i < NUM_EXTRA_FLAGS; i++) {
-            num2str(smallbuf, sizeof(smallbuf), (1 << i));
+            num2str(smallbuf, sizeof(smallbuf), (1U << i));
             snprintf(buf2, sizeof(buf2), "  %s         %s%-10s %-10s %s\r\n",
                      smallbuf, CCCYN(ch, C_NRM),
                      extra_bits[i], extra_names[i], CCNRM(ch, C_NRM));
@@ -1965,7 +1965,7 @@ show_olc_help(struct creature *ch, char *arg)
     case 6:
         strcpy_s(buf, sizeof(buf), "OBJ EXTRA2 FLAGS:\r\n");
         for (i = 0; i < NUM_EXTRA2_FLAGS; i++) {
-            num2str(smallbuf, sizeof(smallbuf), (1 << i));
+            num2str(smallbuf, sizeof(smallbuf), (1U << i));
             snprintf(buf2, sizeof(buf2), "  %s         %s%-10s %-10s%s\r\n",
                      smallbuf, CCCYN(ch, C_NRM),
                      extra2_bits[i], extra2_names[i], CCNRM(ch, C_NRM));
@@ -1976,7 +1976,7 @@ show_olc_help(struct creature *ch, char *arg)
     case 7:
         strcpy_s(buf, sizeof(buf), "OBJ WEAR FLAGS:\r\n");
         for (i = 0; i < NUM_WEAR_FLAGS; i++) {
-            num2str(smallbuf, sizeof(smallbuf), (1 << i));
+            num2str(smallbuf, sizeof(smallbuf), (1U << i));
             snprintf(buf2, sizeof(buf2), "  %s         %s%s%s\r\n", smallbuf, CCCYN(ch,
                                                                                     C_NRM), wear_bits[i], CCNRM(ch, C_NRM));
             strcat_s(buf, sizeof(buf), buf2);
@@ -2017,7 +2017,7 @@ show_olc_help(struct creature *ch, char *arg)
     case 11:
         strcpy_s(buf, sizeof(buf), "AFF FLAGS:\r\n");
         for (i = 0; i < NUM_AFF_FLAGS; i++) {
-            num2str(smallbuf, sizeof(smallbuf), (1 << i));
+            num2str(smallbuf, sizeof(smallbuf), (1U << i));
             snprintf(buf2, sizeof(buf2), "  %s         %s%s%s\r\n", smallbuf, CCCYN(ch,
                                                                                     C_NRM), affected_bits_desc[i], CCNRM(ch, C_NRM));
             strcat_s(buf, sizeof(buf), buf2);
@@ -2027,7 +2027,7 @@ show_olc_help(struct creature *ch, char *arg)
     case 12:
         strcpy_s(buf, sizeof(buf), "AFF2 FLAGS:\r\n");
         for (i = 0; i < NUM_AFF2_FLAGS; i++) {
-            num2str(smallbuf, sizeof(smallbuf), (1 << i));
+            num2str(smallbuf, sizeof(smallbuf), (1U << i));
             snprintf(buf2, sizeof(buf2), "  %s         %s%s%s\r\n", smallbuf, CCCYN(ch,
                                                                                     C_NRM), affected2_bits_desc[i], CCNRM(ch, C_NRM));
             strcat_s(buf, sizeof(buf), buf2);
@@ -2037,7 +2037,7 @@ show_olc_help(struct creature *ch, char *arg)
     case 13:
         strcpy_s(buf, sizeof(buf), "AFF3 FLAGS:\r\n");
         for (i = 0; i < NUM_AFF3_FLAGS; i++) {
-            num2str(smallbuf, sizeof(smallbuf), (1 << i));
+            num2str(smallbuf, sizeof(smallbuf), (1U << i));
             snprintf(buf2, sizeof(buf2), "  %s         %s%s%s\r\n", smallbuf, CCCYN(ch,
                                                                                     C_NRM), affected3_bits_desc[i], CCNRM(ch, C_NRM));
             strcat_s(buf, sizeof(buf), buf2);
@@ -2295,7 +2295,7 @@ show_olc_help(struct creature *ch, char *arg)
         strcpy_s(buf, sizeof(buf), "VEHICLE TYPE BITZ:\r\n");
         for (i = 0; i < NUM_VEHICLE_TYPES; i++) {
             snprintf(buf2, sizeof(buf2), "%4d         %s%s%s\r\n",
-                     (1 << i), CCCYN(ch, C_NRM), vehicle_types[i], CCNRM(ch,
+                     (1U << i), CCCYN(ch, C_NRM), vehicle_types[i], CCNRM(ch,
                                                                          C_NRM));
             strcat_s(buf, sizeof(buf), buf2);
         }
@@ -2306,7 +2306,7 @@ show_olc_help(struct creature *ch, char *arg)
         strcpy_s(buf, sizeof(buf), "ENGINE BITZ:\r\n");
         for (i = 0; i < NUM_ENGINE_FLAGS; i++) {
             snprintf(buf2, sizeof(buf2), "%4d         %s%s%s\r\n",
-                     (1 << i), CCCYN(ch, C_NRM), engine_flags[i], CCNRM(ch, C_NRM));
+                     (1U << i), CCCYN(ch, C_NRM), engine_flags[i], CCNRM(ch, C_NRM));
             strcat_s(buf, sizeof(buf), buf2);
         }
         page_string(ch->desc, buf);
@@ -2365,7 +2365,7 @@ show_olc_help(struct creature *ch, char *arg)
     case 40:
         strcpy_s(buf, sizeof(buf), "OBJ EXTRA3 FLAGS:\r\n");
         for (i = 0; i < NUM_EXTRA3_FLAGS; i++) {
-            num2str(smallbuf, sizeof(smallbuf), (1 << i));
+            num2str(smallbuf, sizeof(smallbuf), (1U << i));
             snprintf(buf2, sizeof(buf2), "  %s         %s%-10s %-10s%s\r\n",
                      smallbuf, CCCYN(ch, C_NRM),
                      extra3_bits[i], extra3_names[i], CCNRM(ch, C_NRM));

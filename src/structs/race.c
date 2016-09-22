@@ -101,11 +101,11 @@ load_race(xmlNodePtr node)
             if (aff) {
                 int idx;
                 if ((idx = search_block(aff, affected_bits_desc, true)) >= 0) {
-                    race->aff1 |= (1 << idx);
+                    race->aff1 |= (1U << idx);
                 } else if ((idx = search_block(aff, affected2_bits_desc, true)) >= 0) {
-                    race->aff2 |= (1 << idx);
+                    race->aff2 |= (1U << idx);
                 } else if ((idx = search_block(aff, affected3_bits_desc, true)) >= 0) {
-                    race->aff3 |= (1 << idx);
+                    race->aff3 |= (1U << idx);
                 }
                 free(aff);
             }

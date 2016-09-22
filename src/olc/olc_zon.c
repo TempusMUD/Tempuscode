@@ -951,7 +951,7 @@ do_zcmd(struct creature *ch, char *argument)
                 if ((tmp_flag = search_block(arg2, exit_bits, false)) == -1) {
                     send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg2);
                 } else {
-                    tmp_door_flags = tmp_door_flags | (1 << tmp_flag);
+                    tmp_door_flags = tmp_door_flags | (1U << tmp_flag);
                 }
 
                 argument = one_argument(argument, arg2);
@@ -1841,7 +1841,7 @@ do_zdoor_cmd(struct creature *ch, char *argument)
         if ((tmp_flag = search_block(arg2, exit_bits, false)) == -1) {
             send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg2);
         } else {
-            tmp_door_flags = tmp_door_flags | (1 << tmp_flag);
+            tmp_door_flags = tmp_door_flags | (1U << tmp_flag);
         }
 
         argument = one_argument(argument, arg2);
@@ -2118,7 +2118,7 @@ do_zset_command(struct creature *ch, char *argument)
                     && !is_authorized(ch, SET_FULLCONTROL, NULL))) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
             } else {
-                tmp_zone_flags = tmp_zone_flags | (1 << tmp_flag);
+                tmp_zone_flags = tmp_zone_flags | (1U << tmp_flag);
             }
 
             argument = one_argument(argument, arg1);
@@ -2313,7 +2313,7 @@ do_zset_command(struct creature *ch, char *argument)
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
                 continue;
             }
-            tmp_room_flags = tmp_room_flags | (1 << tmp_flags);
+            tmp_room_flags = tmp_room_flags | (1U << tmp_flags);
             argument = one_argument(argument, arg1);
         }
 

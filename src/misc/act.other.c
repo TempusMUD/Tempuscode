@@ -2265,13 +2265,13 @@ ACMD(do_clean)
         strcpy_s(buf, sizeof(buf), "no longer ");
 
         for (k = 0, j = 0; j < 16; j++) {
-            if (CHAR_SOILED(vict, pos, (1 << j))) {
+            if (CHAR_SOILED(vict, pos, (1U << j))) {
                 k++;
             }
         }
 
         for (j = 0; j < 16; j++) {
-            if (CHAR_SOILED(vict, pos, (1 << j))) {
+            if (CHAR_SOILED(vict, pos, (1U << j))) {
                 found++;
                 if (found > 1) {
                     strcat_s(buf, sizeof(buf), ", ");
@@ -2312,13 +2312,13 @@ ACMD(do_clean)
         strcpy_s(buf, sizeof(buf), "$p is no longer ");
 
         for (k = 0, j = 0; j < 17; j++) {
-            if (OBJ_SOILED(obj, (1 << j))) {
+            if (OBJ_SOILED(obj, (1U << j))) {
                 k++;
             }
         }
 
         for (j = 0; j < 17; j++) {
-            if (OBJ_SOILED(obj, (1 << j))) {
+            if (OBJ_SOILED(obj, (1U << j))) {
                 found++;
                 if (found > 1) {
                     strcat_s(buf, sizeof(buf), ", ");

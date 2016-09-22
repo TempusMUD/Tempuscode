@@ -1212,7 +1212,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
                 val = 0;
             }
             shop->item_types = g_list_prepend(shop->item_types,
-                                              GINT_TO_POINTER(1 << 8 | val));
+                                              GINT_TO_POINTER(1U << 8 | val));
         } else if (!strcmp(param_key, "refuse")) {
             if (strcmp(line, "all")) {
                 val = search_block(line, item_types, 0);

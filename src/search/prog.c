@@ -1156,7 +1156,7 @@ DEFPROGHANDLER(mobflag, env, evt, args)
     while (*(arg = tmp_getword(&args))) {
         flag_idx = search_block(arg, action_bits_desc, false);
         if (flag_idx != -1) {
-            flags |= (1 << flag_idx);
+            flags |= (1U << flag_idx);
         }
     }
     // some flags can't change
@@ -1440,7 +1440,7 @@ DEFPROGHANDLER(doorset, env, evt, args)
     while (*(arg = tmp_getword(&args))) {
         flag_idx = search_block(arg, exit_bits, false);
         if (flag_idx != -1) {
-            flags |= (1 << flag_idx);
+            flags |= (1U << flag_idx);
         }
     }
 

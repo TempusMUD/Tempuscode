@@ -677,7 +677,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             if ((flag = search_block(arg1, extra_names, false)) == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
             } else {
-                tmp_flags = tmp_flags | (1 << flag);
+                tmp_flags = tmp_flags | (1U << flag);
             }
 
             argument = one_argument(argument, arg1);
@@ -723,7 +723,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             if ((flag = search_block(arg1, extra2_names, false)) == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
             } else {
-                tmp_flags = tmp_flags | (1 << flag);
+                tmp_flags = tmp_flags | (1U << flag);
             }
 
             argument = one_argument(argument, arg1);
@@ -769,7 +769,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             if ((flag = search_block(arg1, wear_bits, false)) == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
             } else {
-                tmp_flags = tmp_flags | (1 << flag);
+                tmp_flags = tmp_flags | (1U << flag);
             }
 
             argument = one_argument(argument, arg1);
@@ -1104,7 +1104,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
             if ((flag = search_block(arg1, extra3_names, false)) == -1) {
                 send_to_char(ch, "Invalid flag %s, skipping...\r\n", arg1);
             } else {
-                tmp_flags = tmp_flags | (1 << flag);
+                tmp_flags = tmp_flags | (1U << flag);
             }
 
             argument = one_argument(argument, arg1);

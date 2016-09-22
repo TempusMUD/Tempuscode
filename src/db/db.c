@@ -800,15 +800,15 @@ discrete_load(FILE *fl, int mode)
 long
 asciiflag_conv(char *flag)
 {
-    long flags = 0;
+    unsigned long flags = 0;
     int is_number = 1;
     register char *p;
 
     for (p = flag; *p; p++) {
         if (islower(*p)) {
-            flags |= 1 << (*p - 'a');
+            flags |= 1U << (*p - 'a');
         } else if (isupper(*p)) {
-            flags |= 1 << (26 + (*p - 'A'));
+            flags |= 1U << (26 + (*p - 'A'));
         }
 
         if (!isdigit(*p)) {
@@ -1800,7 +1800,7 @@ interpret_espec(char *keyword, const char *value, struct creature *mobile,
         // deprecated conversion
         int i;
         for (i = 0; i < 32; i++) {
-            if ((1 << i) & num_arg) {
+            if ((1U << i) & num_arg) {
                 SET_TONGUE(mobile, i + 1, 100);
             }
         }
@@ -2595,7 +2595,7 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
 void
 randomize_object(struct obj_data *obj)
 {
-    int idx, bit, total_affs = 0;
+    unsigned long idx, total_affs = 0;
 
     // Applies
     for (idx = 0; idx < MAX_OBJ_AFFECT; idx++) {
@@ -2625,7 +2625,7 @@ randomize_object(struct obj_data *obj)
 
     // Affects
     for (idx = 0; idx < 32; idx++) {
-        bit = (1 << idx);
+        unsigned long bit = (1U << idx);
         if (IS_SET(obj->obj_flags.bitvector[0], bit)) {
             if (!number(0, 10)) {
                 REMOVE_BIT(obj->obj_flags.bitvector[0], bit);
