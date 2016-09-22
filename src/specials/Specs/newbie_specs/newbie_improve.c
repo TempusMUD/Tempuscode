@@ -88,7 +88,7 @@ SPECIAL(newbie_improve)
             return 1;
         }
         ch->real_abils.intel++;
-        mssg = "Your intellegence improves!\r\n";
+        mssg = "Your intelligence improves!\r\n";
         break;
     case ATTR_WIS:
         if (ch->real_abils.wis >= max_creature_attr(ch, ATTR_WIS)) {
@@ -135,7 +135,7 @@ SPECIAL(newbie_improve)
     send_to_char(ch, "%s", mssg);
     crashsave(ch);
     if (GET_LIFE_POINTS(ch) > 0) {
-        send_to_char(ch, "You have %d life points left.", GET_LIFE_POINTS(ch));
+        send_to_char(ch, "You have %d life points left.\r\n", GET_LIFE_POINTS(ch));
     } else {
         send_to_char(ch,
                      "You have no more life points left.  From now on, you will gain life\r\n"
