@@ -1673,12 +1673,8 @@ make_act_str(const char *orig,
                 } else if (ch == vict_obj) {
                     if (vict_obj == to) {
                         i = "yourself";
-                    } else if (IS_MALE((struct creature *)vict_obj)) {
-                        i = "himself";
-                    } else if (IS_FEMALE((struct creature *)vict_obj)) {
-                        i = "herself";
                     } else {
-                        i = "itself";
+                        i = HMHRSELF((struct creature *)vict_obj);
                     }
                 } else if (to == vict_obj) {
                     i = "you";

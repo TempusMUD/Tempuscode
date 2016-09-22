@@ -1961,3 +1961,36 @@ wisdom_mana_bonus(int wis)
 {
     return MAX(0, wis - 10);
 }
+
+const char *
+HSSH(struct creature *ch) {
+    if (GET_SEX(ch) < 0 || GET_SEX(ch) > SEX_COUNT) {
+        return "*";
+    }
+    return gender_info[GET_SEX(ch)].sub;
+}
+
+const char *
+HMHR(struct creature *ch) {
+    if (GET_SEX(ch) < 0 || GET_SEX(ch) > SEX_COUNT) {
+        return "*";
+    }
+    return gender_info[GET_SEX(ch)].obj;
+}
+
+const char *
+HSHR(struct creature *ch) {
+    if (GET_SEX(ch) < 0 || GET_SEX(ch) > SEX_COUNT) {
+        return "*";
+    }
+    return gender_info[GET_SEX(ch)].poss;
+}
+
+const char *
+HMHRSELF(struct creature *ch) {
+    if (GET_SEX(ch) < 0 || GET_SEX(ch) > SEX_COUNT) {
+        return "*";
+    }
+    return gender_info[GET_SEX(ch)].self;
+}
+

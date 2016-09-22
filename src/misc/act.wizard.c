@@ -1837,19 +1837,11 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     }
 
     acc_string_clear();
-    switch (GET_SEX(k)) {
-    case SEX_NEUTRAL:
-        acc_strcat("NEUTER", NULL);
-        break;
-    case SEX_MALE:
-        acc_strcat("MALE", NULL);
-        break;
-    case SEX_FEMALE:
-        acc_strcat("FEMALE", NULL);
-        break;
-    default:
+
+    if (GET_SEX(k) >= 0 && GET_SEX(k) < SEX_COUNT) {
+        acc_strcat(tmp_toupper(gender_info[GET_SEX(k)].name), NULL);
+    } else {
         acc_strcat("ILLEGAL-SEX!!", NULL);
-        break;
     }
 
     acc_sprintf(
@@ -4001,7 +3993,7 @@ ACMD(do_wizutil)
 #define PRAC_TYPE        3      /* should it say 'spell' or 'skill'? */
 
 
-inline bool
+bool
 should_display_skill(struct creature *vict, int i)
 {
     if (CHECK_SKILL(vict, i) != 0) {
@@ -6392,10 +6384,16 @@ ACMD(do_set)
             vict->player.sex = SEX_MALE;
         } else if (!strcasecmp(argument, "female")) {
             vict->player.sex = SEX_FEMALE;
-        } else if (!strcasecmp(argument, "neutral")) {
-            vict->player.sex = SEX_NEUTRAL;
+        } else if (!strcasecmp(argument, "neuter")) {
+            vict->player.sex = SEX_NEUTER;
+        } else if (!strcasecmp(argument, "spivak")) {
+            vict->player.sex = SEX_SPIVAK;
+        } else if (!strcasecmp(argument, "plural")) {
+            vict->player.sex = SEX_PLURAL;
+        } else if (!strcasecmp(argument, "kitten")) {
+            vict->player.sex = SEX_KITTEN;
         } else {
-            send_to_char(ch, "Must be 'male', 'female', or 'neutral'.\r\n");
+            send_to_char(ch, "Must be male, female, neuter, spivak, plural, kitten.\r\n");
             return;
         }
         break;

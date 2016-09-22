@@ -845,6 +845,9 @@ const char *genders[] = {
     "Neuter",
     "Male",
     "Female",
+    "Spivak",
+    "Plural",
+    "Kitten",
     "\n"
 };
 
@@ -3422,5 +3425,13 @@ const char *logtypes[] = {
     "off", "brief", "normal", "complete", "\n"
 };
 
+extern struct gender gender_info[] = {
+    {"neuter", "it", "it", "its", "itself"},
+    {"male", "he", "him", "his", "himself"},
+    {"female", "she", "her", "her", "herself"},
+    {"spivak", "ey", "ey", "eir", "eirself"},
+    {"plural", "they", "them", "their", "themself"},
+    {"kitten", "meow", "meow", "meow's", "meowself"},
+};
 
 #undef __constants_cc__

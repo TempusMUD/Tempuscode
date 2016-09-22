@@ -78,6 +78,16 @@ struct weap_spec_info {
 
 extern const struct dex_skill_type dex_app_skill[];
 
+struct gender {
+    const char *name;
+    const char *sub;
+    const char *obj;
+    const char *poss;
+    const char *self;
+};
+
+extern struct gender gender_info[];
+
 extern const char circlemud_version[];
 extern const char *reputation_msg[];
 extern const char *operator_str[];

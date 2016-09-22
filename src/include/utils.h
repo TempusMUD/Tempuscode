@@ -347,10 +347,10 @@ void WAIT_STATE(struct creature *ch, int cycle);
      (IS_OBJ_STAT(obj, ITEM_ANTI_NEUTRAL) && IS_NEUTRAL(ch)))
 
 /* compound utilities and other macros **********************************/
-
-#define HSHR(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "his" : "her") : "its")
-#define HSSH(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "he" : "she") : "it")
-#define HMHR(ch) (GET_SEX(ch) ? (GET_SEX(ch)==SEX_MALE ? "him" : "her") : "it")
+const char *HSHR(struct creature *ch);
+const char *HSSH(struct creature *ch);
+const char *HMHR(struct creature *ch);
+const char *HMHRSELF(struct creature *ch);
 
 #define ANA(obj) (strchr("aeiouyAEIOUY", *(obj)->aliases) ? "An" : "A")
 #define SANA(obj) (strchr("aeiouyAEIOUY", *(obj)->aliases) ? "an" : "a")

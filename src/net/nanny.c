@@ -573,6 +573,10 @@ handle_input(gpointer data)
         break;
     case CXN_SEX_PROMPT:
         switch (tolower(arg[0])) {
+        case 'n':
+            GET_SEX(d->creature) = 0;
+            set_desc_state(CXN_HARDCORE_PROMPT, d);
+            break;
         case 'm':
             GET_SEX(d->creature) = 1;
             set_desc_state(CXN_HARDCORE_PROMPT, d);
@@ -581,8 +585,20 @@ handle_input(gpointer data)
             GET_SEX(d->creature) = 2;
             set_desc_state(CXN_HARDCORE_PROMPT, d);
             break;
+        case 's':
+            GET_SEX(d->creature) = 3;
+            set_desc_state(CXN_HARDCORE_PROMPT, d);
+            break;
+        case 'p':
+            GET_SEX(d->creature) = 4;
+            set_desc_state(CXN_HARDCORE_PROMPT, d);
+            break;
+        case 'k':
+            GET_SEX(d->creature) = 5;
+            set_desc_state(CXN_HARDCORE_PROMPT, d);
+            break;
         default:
-            d_printf(d, "\r\nPlease enter male or female.\r\n\r\n");
+            d_printf(d, "\r\nPlease enter male, female, neuter, spivak, plural, or kitten.\r\n\r\n");
             break;
         }
         break;
@@ -1351,9 +1367,9 @@ send_menu(struct descriptor_data *d)
         break;
     case CXN_SEX_PROMPT:
         d_printf(d,
-                 "&@&c\r\n                                     GENDER\r\n*******************************************************************************\r\n&n");
+                 "&@&c\r\n                                     PRONOUNS\r\n*******************************************************************************\r\n&n");
         d_printf(d,
-                 "\r\n    Is your character a male or a female?\r\n\r\n");
+                 "\r\n    Does your character prefer to use male, female, neuter, spivak,\r\n    plural, or kitten pronouns?\r\n\r\n");
         break;
     case CXN_HARDCORE_PROMPT:
         d_printf(d, "&@&c\r\n                                    HARDCORE\r\n"

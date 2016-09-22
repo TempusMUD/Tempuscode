@@ -243,7 +243,7 @@ do_create_mob(struct creature *ch, int vnum)
 
     new_mob->char_specials.position = POS_STANDING;
     new_mob->mob_specials.shared->default_pos = POS_STANDING;
-    new_mob->player.sex = SEX_NEUTRAL;
+    new_mob->player.sex = SEX_NEUTER;
 
     new_mob->player.weight = 200;
     new_mob->player.height = 198;
@@ -2039,7 +2039,7 @@ do_clear_olc_mob(struct creature *ch)
 
     targ->char_specials.position = POS_STANDING;
     targ->mob_specials.shared->default_pos = POS_STANDING;
-    targ->player.sex = SEX_NEUTRAL;
+    targ->player.sex = SEX_NEUTER;
 
     targ->player.weight = 130;
     targ->player.height = 166;

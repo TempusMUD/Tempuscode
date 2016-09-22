@@ -1405,7 +1405,7 @@ calculate_height_weight(struct creature *ch)
     struct race *race = race_by_idnum(GET_RACE(ch));
     int sex = ch->player.sex;
 
-    if (sex == SEX_NEUTRAL) {
+    if (sex != SEX_MALE && sex != SEX_FEMALE) {
         sex = (random_binary()) ? SEX_MALE : SEX_FEMALE;
     }
 

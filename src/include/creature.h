@@ -180,9 +180,13 @@ enum deity {
 
 /* Sex */
 enum sex {
-    SEX_NEUTRAL = 0,
+    SEX_NEUTER = 0,
     SEX_MALE = 1,
     SEX_FEMALE = 2,
+    SEX_SPIVAK = 3,
+    SEX_PLURAL = 4,
+    SEX_KITTEN = 5,
+    SEX_COUNT = 6,
 };
 
 /* Positions */
