@@ -290,7 +290,7 @@ show_race_help(struct descriptor_data *d, int race)
         break;
     case RACE_ELF:
         d_printf
-            (d, "   Elves are an agile, intellegent race which lives in close\r\n"
+            (d, "   Elves are an agile, intelligent race which lives in close\r\n"
                 "harmony with the natural world.  They are very long lived, often\r\n"
                 "exceeding a thousand years in age.  Elves are especially adept\r\n"
                 "with bows and swords, resistant to Charm and Sleep spells, and\r\n"
@@ -309,13 +309,13 @@ show_race_help(struct descriptor_data *d, int race)
         break;
     case RACE_TABAXI:
         d_printf
-            (d, "   This is an intellegent race of feline humanoids from the far\r\n"
+            (d, "   This is an sapient race of feline humanoids from the far\r\n"
                 "reaches of the jungles of the southern continent.  Most tabaxi are\r\n"
                 "at least as tall as their human counterparts, but more lithe.\r\n"
                 "Adult tabaxi are covered in light tawny fur which is striped in\r\n"
                 "black, and their eyes range in color from green to yellow.  Tabaxi\r\n"
-                "are exceptionally agile, and fairly strong, but their intellegence\r\n"
-                "is somewhat animalistic.  Tabaxi may be of all classes except Knight.\r\n");
+                "are exceptionally agile, and fairly strong, but their minds\r\n"
+                "remain savage.  Tabaxi may be of all classes except Knight.\r\n");
         break;
     case RACE_MINOTAUR:
         d_printf
