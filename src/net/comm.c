@@ -808,7 +808,7 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
         const char *prompt = build_prompt(d);
         // After prompt crlf
         if (prompt[0] != '\0') {
-            d_printf(d, prompt);
+            d_printf(d, "%s", prompt);
             if (d->display == IRC
                 || (d->creature != NULL
                     && (d->account->compact_level == 0
