@@ -339,12 +339,14 @@ void
 prog_compiler_emit(struct prog_compiler_state *compiler, int instr, void *data,
                    size_t data_len)
 {
+    // round up to eight-byte alignment bounds
+    size_t data_offset = (data_len + 7) & -8;
     *compiler->code->code_pt++ = instr;
     if (data_len) {
         *compiler->code->code_pt++ =
             compiler->code->data_pt - compiler->code->data_seg;
         memcpy(compiler->code->data_pt, data, data_len);
-        compiler->code->data_pt += data_len;
+        compiler->code->data_pt += data_offset;
     } else {
         *compiler->code->code_pt++ = 0;
     }
