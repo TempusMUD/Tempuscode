@@ -2857,7 +2857,7 @@ ACMD(do_defend)
     }
 }
 
-inline const char *
+static inline const char *
 TL_USAGE(int subcmd)
 {
     return subcmd == SKILL_WORMHOLE ?
@@ -2865,7 +2865,7 @@ TL_USAGE(int subcmd)
            "Usage: translocate <direction> <distance>\r\n";
 }
 
-inline const char *
+static inline const char *
 TL_VANISH(int subcmd)
 {
     return subcmd == SKILL_WORMHOLE ?
@@ -2873,7 +2873,7 @@ TL_VANISH(int subcmd)
            "$n fades from view into non-corporeality.";
 }
 
-inline const char *
+static inline const char *
 TL_APPEAR(int subcmd)
 {
     return subcmd == SKILL_WORMHOLE ?

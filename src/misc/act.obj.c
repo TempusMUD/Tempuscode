@@ -1358,14 +1358,14 @@ perform_drop_credits(struct creature *ch, int amount,
     }
 }
 
-inline const char *
+static inline const char *
 VANISH(int mode)
 {
     return (mode == SCMD_DONATE || mode == SCMD_JUNK) ?
            "  It vanishes in a puff of smoke!" : "";
 }
 
-inline const char *
+static inline const char *
 PROTO_SDESC(int vnum)
 {
     return real_object_proto(vnum)->name;

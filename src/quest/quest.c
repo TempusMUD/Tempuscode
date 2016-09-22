@@ -192,7 +192,7 @@ const char *qp_bits[] = {
 
 const char *QUEST_PATH = "etc/quest.xml";
 
-inline const char *
+static inline const char *
 PLURAL(int num)
 {
     return (num == 1 ? "" : "s");
