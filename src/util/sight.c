@@ -112,7 +112,8 @@ has_dark_sight(struct creature * self)
             PRF_FLAGGED(self, PRF_HOLYLIGHT) ||
             AFF3_FLAGGED(self, AFF3_SONIC_IMAGERY) ||
             AFF_FLAGGED(self, AFF_RETINA) ||
-            CHECK_SKILL(self, SKILL_NIGHT_VISION));
+            CHECK_SKILL(self, SKILL_NIGHT_VISION) ||
+            HAS_RACIAL_NIGHT_VISION(self));
 }
 
 // Returns true if the player can see in the room

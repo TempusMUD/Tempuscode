@@ -476,6 +476,10 @@ long GET_SKILL_COST(struct creature *ch, int skill);
                                  IS_RACE(ch, RACE_DAEMON) ||    \
                                  IS_RACE(ch, RACE_RAKSHASA) || \
                                  IS_RACE(ch, RACE_ROWLAHR))
+                                 
+#define HAS_RACIAL_NIGHT_VISION(ch) (IS_ELF(ch) || IS_DROW(ch) || \
+                                     IS_DWARF(ch) || IS_ORC(ch) || \
+                                     IS_HALF_ORC(ch))
 
 #define IS_TIAMAT(ch)           (GET_NPC_VNUM(ch) == 61119)
 #define IS_TARRASQUE(ch)           (GET_NPC_VNUM(ch) == 24800)
