@@ -457,21 +457,21 @@ dynedit_check_dyntext(struct creature *ch,
 static char *
 dynedit_update_string(dynamic_text_file * d)
 {
-
-    struct tm tmTime;
-    time_t t;
+    char time_buf[30];
+    time_t ct;
     static char buffer[1024];
 
     if (!strncmp(d->filename, "fate", 4)
         || !strncmp(d->filename, "arenalist", 9))
         return tmp_strdup("");
     printf("Updating File: %s\r\n", d->filename);
-    t = time(NULL);
-    tmTime = *(localtime(&t));
+
+    ct = time(NULL);
+    strftime(time_buf, 30, "%m/%d/%Y", localtime(&ct));
 
     snprintf(buffer, sizeof(buffer),
-        "\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\r\n",
-        tmp_toupper(d->filename), tmTime.tm_mon + 1, tmTime.tm_mday);
+        "\r\n-- %s UPDATE (%s) -----------------------------------------\r\n\r\n",
+        tmp_toupper(d->filename), time_buf);
 
     return buffer;
 
