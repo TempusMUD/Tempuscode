@@ -82,6 +82,46 @@ Prog:
 *pause 10
 ~
 E
+#12
+animated zombie~
+an animated zombie~
+An animated zombie lurches about.
+~
+~
+bdo i 0 0 0 -1000 E
+10 10 10 10d10+10 5d10+10
+10 3780 11 70
+8 8 0 8
+MaxMana: 100
+MaxMove: 160
+CurTongue: 33
+KnownTongue: 0
+KnownTongue: 33
+KnownTongue: 32
+Voice: 8
+Morale: 120
+E
+#13
+unholy stalker shadowy figure~
+an unholy stalker~
+A shadowy figure flickers past you.
+~
+~
+bdnopqrst ijl bgkpqst iknp pq -666 E
+40 10 -2 41d26+3171 13d8+20
+10 3763630 11 66
+8 8 0 9
+Str: 32
+Int: 20
+Dex: 22
+Con: 20
+MaxMana: 320
+MaxMove: 640
+CurTongue: 33
+KnownTongue: 0
+KnownTongue: 33
+KnownTongue: 32
+E
 #20
 rat black sleek rodent mouse~
 a black rat~
