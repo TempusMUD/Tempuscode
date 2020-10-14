@@ -3606,7 +3606,7 @@ perform_assimilate(struct creature *ch, struct obj_data *obj)
         affs[num_affs].type = SKILL_ASSIMILATE;
         affs[num_affs].level = GET_LEVEL(ch) + (GET_REMORT_GEN(ch) * 4);
         affs[num_affs].duration = (CHECK_SKILL(ch, SKILL_ASSIMILATE) / 10)
-                                  + (affs[num_affs - 1].level / 16);
+                                  + (affs[num_affs].level / 16);
         affs[num_affs].modifier = obj->affected[i].modifier;
         affs[num_affs].location = obj->affected[i].location;
         num_affs++;

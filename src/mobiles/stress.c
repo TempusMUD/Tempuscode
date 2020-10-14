@@ -601,5 +601,7 @@ random_active_creature(struct creature *ch)
 void
 random_mob_activity(void)
 {
-    g_list_foreach(creatures, (GFunc) random_active_creature, NULL);
+    GList *creatures_copy = g_list_copy(creatures);
+    g_list_foreach(creatures_copy, (GFunc) random_active_creature, NULL);
+    g_list_free(creatures_copy);
 }

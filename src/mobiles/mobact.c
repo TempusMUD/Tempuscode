@@ -3820,16 +3820,20 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
         if (random_number_zero_low(GET_LEVEL(ch)) > 30) {
             act("You feel a wave of sheer terror wash over you as $n approaches!", false, ch, NULL, NULL, TO_ROOM);
 
-            for (GList *it = ch->in_room->people;
-                 it && it->data != ch; it = next_living(it)) {
+            GList *people = g_list_copy(ch->in_room->people);
+            
+            for (GList *it = first_living(people); it; it = next_living(it)) {
                 vict = it->data;
-                if (g_list_find(vict->fighting, ch) &&
-                    GET_LEVEL(vict) < LVL_AMBASSADOR &&
-                    !mag_savingthrow(vict, GET_LEVEL(ch) * 4, SAVING_SPELL) &&
-                    !AFF_FLAGGED(vict, AFF_CONFIDENCE)) {
+                if (vict != ch
+                    && vict->in_room == ch->in_room
+                    && g_list_find(vict->fighting, ch)
+                    && GET_LEVEL(vict) < LVL_AMBASSADOR
+                    && !mag_savingthrow(vict, GET_LEVEL(ch) * 4, SAVING_SPELL)
+                    && !AFF_FLAGGED(vict, AFF_CONFIDENCE)) {
                     do_flee(vict, tmp_strdup(""), 0, 0);
                 }
             }
+            g_list_free(people);
 
         } else if (random_number_zero_low(4) > num) {
             if (GET_NPC_VNUM(ch) == 16142) {    // Sekolah
