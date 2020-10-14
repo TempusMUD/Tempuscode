@@ -478,6 +478,26 @@ START_TEST(tmp_wrap_7)
     ck_assert_str_eq(tmp_wrap(test_str, 80, 0, 0, 0), expected_str);
 }
 END_TEST
+START_TEST(tmp_strftime_1)
+{
+    time_t t = 1602685738;
+    struct tm test_val;
+    char *expected_str = "2020-10-14";
+
+    localtime_r(&t, &test_val);
+    ck_assert_str_eq(tmp_strftime("%Y-%m-%d", &test_val), expected_str);
+}
+END_TEST
+START_TEST(tmp_strftime_2)
+{
+    time_t t = 1602685738;
+    struct tm test_val;
+    char *expected_str = "Wed Oct 14 10:28:58 2020";
+
+    localtime_r(&t, &test_val);
+    ck_assert_str_eq(tmp_strftime("%a %b %d %H:%M:%S %Y", &test_val), expected_str);
+}
+END_TEST
 
 Suite *
 tmpstr_suite(void)
@@ -556,6 +576,8 @@ tmpstr_suite(void)
     tcase_add_test(tc_core, tmp_wrap_5);
     tcase_add_test(tc_core, tmp_wrap_6);
     tcase_add_test(tc_core, tmp_wrap_7);
+    tcase_add_test(tc_core, tmp_strftime_1);
+    tcase_add_test(tc_core, tmp_strftime_2);
     suite_add_tcase(s, tc_core);
 
     return s;

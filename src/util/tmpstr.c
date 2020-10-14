@@ -579,6 +579,26 @@ tmp_ctime(time_t val)
 }
 
 char *
+tmp_strftime(const char *fmt, const struct tm *tm)
+{
+    char *result;
+    size_t alloc_size = 16;
+
+    // strftime() gives us nothing useful if the result string overruns the
+    // maximum bytes, so we are forced to use trial-and-error.
+    while (true) {
+        result = tmp_alloc(alloc_size);
+        size_t used = strftime(result, 32, fmt, tm);
+        if (used != 0) {
+            break;
+        }
+        alloc_size *= 2;
+    }
+
+    return result;
+}
+
+char *
 tmp_printbits(int val, const char *bit_descs[])
 {
     char *write_pt, *result;

@@ -58,6 +58,9 @@ __attribute__((sentinel));
 // returns the standard string representation of a unix timestamp
 /*@shared@*/ char *tmp_ctime(time_t val);
 
+// returns the formatted time string of a tm structure
+/*@shared@*/ char *tmp_strftime(const char *fmt, const struct tm *tm);
+
 // returns a string which contains a space-delimited list of each bit
 // description whose index corresponds to a set bit in the value
 /*@shared@*/ char *tmp_printbits(int val, const char *bit_descs[]);
