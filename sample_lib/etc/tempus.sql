@@ -137,9 +137,9 @@ insert into sgroups values
     (3,'Clan','Clan editing commands',4),
     (4,'ClanAdmin','Group administration for Clan group',34),
     (5,'Coder','Coder commands',6),
-    (6,'CoderAdmin','Coders administration group',),
+    (6,'CoderAdmin','Coders administration group',5),
     (7,'Dynedit','The Dynamic Text System',5),
-    (8,'GroupsAdmin','Global group administration',),
+    (8,'GroupsAdmin','Global group administration',5),
     (9,'Help','Help system editing',21),
     (10,'House','Personal house construction capability',34),
     (11,'OLC','Basic OLC building capability',12),
@@ -156,10 +156,10 @@ insert into sgroups values
     (27,'Wizlist_Blders','The Builders wizlist section',12),
     (28,'Wizlist_Coders','The Coders wizlist section',6),
     (29,'Wizlist_Elders','Old immortals who no longer play',8),
-    (31,'Wizlist_Founders','Founders of TempusMUD',),
+    (31,'Wizlist_Founders','Founders of TempusMUD',6),
     (33,'Wizlist_Quests','The Questors wizlist section',17),
     (34,'WorldAdmin','Groups administration for world groups',8),
-    (35,'Wizlist_Architects','The architects wizlist section',);
+    (35,'Wizlist_Architects','The architects wizlist section',5);
 
 insert into sgroup_commands values
     (1,'ban'),
