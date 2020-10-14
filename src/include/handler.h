@@ -24,7 +24,7 @@ struct creature;
 void init_affect(struct affected_type *af)
 __attribute__ ((nonnull));
 void apply_object_affects(struct creature *ch, struct obj_data *obj, bool add)
-__attribute__ ((nonnull));
+__attribute__ ((nonnull (1)));
 void affect_total(struct creature *ch)
 __attribute__ ((nonnull));
 void affect_modify(struct creature *ch, int16_t loc, int16_t mod, long bitv,
@@ -75,8 +75,7 @@ struct obj_data *raw_unequip_char(struct creature *ch, int pos, int mode)
 __attribute__ ((nonnull));
 int check_eq_align(struct creature *ch)
 __attribute__ ((nonnull));
-bool same_obj(struct obj_data *obj1, struct obj_data *obj2)
-__attribute__ ((nonnull));
+bool same_obj(struct obj_data *obj1, struct obj_data *obj2);
 
 struct obj_data *get_obj_in_list(char *name, struct obj_data *list)
 __attribute__ ((nonnull (1)));
@@ -142,10 +141,10 @@ __attribute__ ((nonnull));
 __attribute__ ((nonnull));
 /*@keep@*/ struct obj_data *get_obj_in_list_vis(struct creature *ch, const char *name,
                                                 struct obj_data *list)
-__attribute__ ((nonnull));
+    __attribute__ ((nonnull (1, 2)));
 /*@keep@*/ struct obj_data *get_obj_in_list_all(struct creature *ch, const char *name,
                                                 struct obj_data *list)
-__attribute__ ((nonnull));
+    __attribute__ ((nonnull (1, 2)));
 /*@keep@*/ struct obj_data *get_obj_vis(struct creature *ch, const char *name)
 __attribute__ ((nonnull));
 /*@keep@*/ struct obj_data *get_object_in_equip_vis(struct creature *ch,
