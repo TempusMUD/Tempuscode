@@ -67,8 +67,8 @@ Tempuscode to run.
 
    sudo sed -i "/^# TYPE / a\local   devtempus   realm    trust" /etc/postgresql/*/main/pg_hba.conf
    sudo /etc/init.d/postgresql reload
-   sudo su - postgres -c 'createuser -d -R -S realm'
-   sudo su - postgres -c 'createdb -O realm devtempus'
+   sudo -u postgres -- createuser -d -R -S realm
+   sudo -u postgres -- createdb -O realm devtempus
    psql -U realm -d devtempus -f sample_lib/etc/tempus.sql
 
 Running Tempuscode
