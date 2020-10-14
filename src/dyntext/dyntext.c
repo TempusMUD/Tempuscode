@@ -157,7 +157,6 @@ create_dyntext_backup(dynamic_text_file *dyntext)
     struct dirent *dirp;
     int len = strlen(dyntext->filename);
     int num = 0, maxnum = 0;
-    char filename[1024];
     FILE *fl = NULL;
 
     // open backup dir
@@ -184,7 +183,7 @@ create_dyntext_backup(dynamic_text_file *dyntext)
 
     closedir(dir);
 
-    snprintf(filename, sizeof(filename), "%s/%s.%02d", DYN_TEXT_BACKUP_DIR, dyntext->filename,
+    char *filename = tmp_sprintf("%s/%s.%02d", DYN_TEXT_BACKUP_DIR, dyntext->filename,
              maxnum + 1);
 
     if (!(fl = fopen(filename, "w"))) {
@@ -210,10 +209,9 @@ static int
 save_dyntext_buffer(dynamic_text_file *dyntext)
 {
     FILE *fl = NULL;
-    char filename[1024];
     char *ptr = NULL;
 
-    snprintf(filename, sizeof(filename), "text/%s", dyntext->filename);
+    const char *filename = tmp_sprintf("text/%s", dyntext->filename);
 
     if (!(fl = fopen(filename, "w"))) {
         errlog("Unable to open '%s' for write.", filename);
@@ -239,11 +237,10 @@ static int
 save_dyntext_control(dynamic_text_file *dyntext)
 {
     FILE *fl = NULL;
-    char filename[1024];
     dynamic_text_file_save savedyn;
     int i;
 
-    snprintf(filename, sizeof(filename), "%s/%s.dyn", DYN_TEXT_CONTROL_DIR, dyntext->filename);
+    const char *filename = tmp_sprintf("%s/%s.dyn", DYN_TEXT_CONTROL_DIR, dyntext->filename);
 
     if (!(fl = fopen(filename, "w"))) {
         errlog("Unable to open '%s' for write.", filename);
@@ -463,24 +460,20 @@ static char *
 dynedit_update_string(dynamic_text_file *d)
 {
 
-    struct tm tmTime;
-    time_t t;
-    static char buffer[1024];
-
     if (!strncmp(d->filename, "fate", 4)
         || !strncmp(d->filename, "arenalist", 9)) {
         return tmp_strdup("");
     }
     printf("Updating File: %s\r\n", d->filename);
-    t = time(NULL);
-    tmTime = *(localtime(&t));
+    time_t t = time(NULL);
+    
+    struct tm tmTime;
+    localtime_r(&t, &tmTime);
 
-    snprintf(buffer, sizeof(buffer),
-             "\r\n-- %s UPDATE (%d/%d) -----------------------------------------\r\n\r\n",
-             tmp_toupper(d->filename), tmTime.tm_mon + 1, tmTime.tm_mday);
-
-    return buffer;
-
+    return tmp_sprintf(
+        "\r\n-- %s UPDATE (%s) -----------------------------------------\r\n\r\n",
+        tmp_toupper(d->filename),
+        tmp_strftime("%Y-%m-%d", &tmTime));
 }
 
 ACMD(do_dynedit)
