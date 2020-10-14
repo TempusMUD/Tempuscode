@@ -47,6 +47,7 @@ struct weather_data {
 };
 
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
+void weather_and_time(void);
 
 static inline int
 get_lunar_phase(int day)

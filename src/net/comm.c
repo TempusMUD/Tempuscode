@@ -64,6 +64,7 @@
 #include "editor.h"
 #include "ban.h"
 #include "paths.h"
+#include "weather.h"
 
 /* externs */
 extern struct help_collection *Help;
@@ -144,7 +145,6 @@ void flow_room(void);
 void editor(struct descriptor_data *d, char *buffer);
 void perform_violence(void);
 void show_string(struct descriptor_data *d);
-void weather_and_time(void);
 void autosave_zones(int SAVE_TYPE);
 void mem_cleanup(void);
 void retire_trails(void);

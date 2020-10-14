@@ -202,7 +202,6 @@ void randomize_object(struct obj_data *obj);
 /* external functions */
 extern struct descriptor_data *descriptor_list;
 void load_messages(void);
-void weather_and_time(int mode);
 void boot_spells(const char *path);
 void boot_social_messages(void);
 void free_socials(void);

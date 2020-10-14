@@ -39,6 +39,7 @@
 #include "char_class.h"
 #include "weather.h"
 #include "quest.h"
+#include "tmpstr.h"
 
 extern struct time_info_data time_info;
 extern int lunar_day;
@@ -173,15 +174,15 @@ another_hour(void)
             } else if (zone->weather->sky == SKY_CLOUDLESS) {
                 send_to_zone
                     ("The blue sun rises in the cloudless skies of the east.\r\n",
-                    zone, 1);
+                     zone, 1);
             } else if (zone->weather->sky == SKY_CLOUDY) {
                 send_to_zone
                     ("Through the veil of clouds, you see a glimmer of blue to the east.\r\n",
-                    zone, 1);
+                     zone, 1);
             } else if (zone->weather->sky == SKY_RAINING) {
                 send_to_zone
                     ("The faint light of the blue sun appears through the rain to the east.\r\n",
-                    zone, 1);
+                     zone, 1);
             } else {
                 send_to_zone("A small blue sun rises in the east.\r\n", zone,
                              1);
@@ -194,19 +195,19 @@ another_hour(void)
             if (!number(0, 2)) {
                 send_to_zone
                     ("The huge red sun rises over the eastern horizon.\r\n",
-                    zone, 1);
+                     zone, 1);
             } else if (zone->weather->sky == SKY_CLOUDLESS) {
                 send_to_zone
                     ("The blazing red giant rises into the clear sky.\r\n",
-                    zone, 1);
+                     zone, 1);
             } else if (zone->weather->sky == SKY_CLOUDY) {
                 send_to_zone
                     ("The red light of the sun appears in the cloudy sky.\r\n",
-                    zone, 1);
+                     zone, 1);
             } else {
                 send_to_zone
                     ("The huge red sun rises over the eastern horizon.\r\n",
-                    zone, 1);
+                     zone, 1);
             }
 
         } else if (local_time.hours ==
@@ -215,7 +216,7 @@ another_hour(void)
             if (!number(0, 2)) {
                 send_to_zone
                     ("The day has begun, both suns above the horizon.\r\n",
-                    zone, 1);
+                     zone, 1);
             } else if (zone->weather->sky == SKY_CLOUDLESS) {
                 send_to_zone("The day begins under a cloudless sky.\r\n", zone,
                              1);
@@ -229,7 +230,7 @@ another_hour(void)
             } else {
                 send_to_zone
                     ("The day has begun, both suns above the horizon.\r\n",
-                    zone, 1);
+                     zone, 1);
             }
 
             if (local_time.day == 0) {
@@ -261,7 +262,7 @@ another_hour(void)
         } else if (local_time.hours ==
                    (20 + daylight_mod[(int)local_time.month])) {
             zone->weather->sunlight = SUN_SET;
-            send_to_zone("The red giant sun slowly sets in the west.\r\n",
+            send_to_zone("The small blue sun sets in the west.\r\n",
                          zone, 1);
 
         } else if (local_time.hours ==
@@ -277,8 +278,8 @@ another_hour(void)
         }
 
         /* lunar stuff here */
-
         if (lunar_phase == MOON_NEW) {
+            zone->weather->moonlight = MOON_SKY_NONE;
             return;
         }
 
@@ -289,50 +290,37 @@ another_hour(void)
 
         if (local_time.hours == LUNAR_RISE_TIME) {
             zone->weather->moonlight = MOON_SKY_RISE;
-            if (zone->weather->sky || !lunar_day) {
-                return;
+            if (zone->weather->sky == SKY_CLOUDLESS) {
+                send_to_zone(tmp_sprintf("The %s moon rises in the east.\r\n",
+                                         lunar_phases[lunar_phase]), zone, 1);
             }
-            snprintf(buf, sizeof(buf), "The %s moon rises in the east.\r\n",
-                     lunar_phases[lunar_phase]);
-            send_to_zone(buf, zone, 1);
-        }
-        if (local_time.hours == LUNAR_RISE_TIME + 1 ||
-            local_time.hours == LUNAR_RISE_TIME - 23) {
+        } else if (local_time.hours == LUNAR_RISE_TIME + 1 ||
+                   local_time.hours == LUNAR_RISE_TIME - 23) {
             zone->weather->moonlight = MOON_SKY_EAST;
-        }
-        if (local_time.hours == LUNAR_RISE_TIME + 7 ||
-            local_time.hours == LUNAR_RISE_TIME - 17) {
+        } else if (local_time.hours == LUNAR_RISE_TIME + 7 ||
+                   local_time.hours == LUNAR_RISE_TIME - 17) {
             zone->weather->moonlight = MOON_SKY_HIGH;
-
-            if (zone->weather->sky || !lunar_day) {
-                return;
+            if (zone->weather->sky == SKY_CLOUDLESS) {
+                send_to_zone(tmp_sprintf("The %s moon is directly overhead.\r\n",
+                                         lunar_phases[lunar_phase]), zone, 1);
             }
-            snprintf(buf, sizeof(buf), "The %s moon is directly overhead.\r\n",
-                     lunar_phases[lunar_phase]);
-            send_to_zone(buf, zone, 1);
-
-        }
-        if (local_time.hours == LUNAR_RISE_TIME + 8 ||
-            local_time.hours == LUNAR_RISE_TIME - 16) {
+        } else if (local_time.hours == LUNAR_RISE_TIME + 8 ||
+                   local_time.hours == LUNAR_RISE_TIME - 16) {
             zone->weather->moonlight = MOON_SKY_WEST;
-        }
-        if (local_time.hours == LUNAR_RISE_TIME + 13 ||
-            local_time.hours == LUNAR_RISE_TIME - 11) {
+        } else if (local_time.hours == LUNAR_RISE_TIME + 13 ||
+                   local_time.hours == LUNAR_RISE_TIME - 11) {
             zone->weather->moonlight = MOON_SKY_SET;
-            snprintf(buf, sizeof(buf), "The %s moon begins to sink low in the west.\r\n",
-                     lunar_phases[lunar_phase]);
-            send_to_zone(buf, zone, 1);
-
-        }
-        if (local_time.hours == LUNAR_RISE_TIME + 14 ||
-            local_time.hours == LUNAR_RISE_TIME - 10) {
-            zone->weather->moonlight = MOON_SKY_NONE;
-            if (zone->weather->sky || !lunar_day) {
-                return;
+            if (zone->weather->sky == SKY_CLOUDLESS) {
+                send_to_zone(tmp_sprintf("The %s moon begins to sink low in the west.\r\n",
+                                         lunar_phases[lunar_phase]), zone, 1);
             }
-            snprintf(buf, sizeof(buf), "The %s moon sets in the west.\r\n",
-                     lunar_phases[lunar_phase]);
-            send_to_zone(buf, zone, 1);
+        } else if (local_time.hours == LUNAR_RISE_TIME + 14 ||
+                   local_time.hours == LUNAR_RISE_TIME - 10) {
+            zone->weather->moonlight = MOON_SKY_NONE;
+            if (zone->weather->sky == SKY_CLOUDLESS) {
+                send_to_zone(tmp_sprintf("The %s moon sets in the west.\r\n",
+                                         lunar_phases[lunar_phase]), zone, 1);
+            }
         }
     }
 }
@@ -556,7 +544,7 @@ zone_weather_change(struct zone_data *zone)
                 ("As the suns set, lightning begins to flicker across the sky.\r\n",
                 zone, 1);
         } else if (zone->weather->sunlight == SUN_DARK) {
-            send_to_zone("The starry sky is lit by flashes of lightning.\r\n",
+            send_to_zone("The pitch-black sky is lit by flashes of lightning.\r\n",
                          zone, 1);
         } else {
             send_to_zone
