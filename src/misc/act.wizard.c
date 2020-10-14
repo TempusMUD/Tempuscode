@@ -7854,6 +7854,7 @@ const char *CODER_UTIL_USAGE =
     "Usage: coderutil <command> <args>\r\n"
     "Commands: \r\n"
     "      tick - forces a mud-wide tick to occur.\r\n"
+    "      hour - forces an hour of mud-time to occur.\r\n"
     "      recalc - recalculates all mobs and saves.\r\n"
     "    cmdusage - shows commands and usage counts.\r\n"
     "  unusedcmds - shows unused commands.\r\n"
@@ -7938,6 +7939,10 @@ ACMD(do_coderutil)
     if (strcmp(token, "tick") == 0) {
         point_update();
         send_to_char(ch, "*tick*\r\n");
+    } else if (strcmp(token, "hour") == 0) {
+        ACMD(do_time);
+        weather_and_time();
+        do_time(ch, "", 0, 0);
     } else if (strcmp(token, "sunday") == 0) {
         last_sunday_time = time(NULL);
         send_to_char(ch, "Ok, it's now Sunday (kinda).\r\n");
