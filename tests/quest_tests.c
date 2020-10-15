@@ -116,7 +116,9 @@ random_quest(void)
     q->penalized = number(0, 5);
     q->flags = number(0, 65535);
     q->loadroom = number(3000, 5000);
+    free(q->description);
     q->description = strdup("This is a test quest.");
+    free(q->updates);
     q->updates = strdup("Test quest updates");
 
     return q;
@@ -214,6 +216,10 @@ START_TEST(test_save_load_quest)
     struct quest *lq = load_quest(root, doc);
 
     compare_quests(q, lq);
+
+    xmlFreeDoc(doc);
+    free_quest(lq);
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_quest_player_by_idnum)
@@ -229,6 +235,7 @@ START_TEST(test_quest_player_by_idnum)
     qp = quest_player_by_idnum(q, 2);
     fail_unless(qp != NULL);
     fail_unless(qp->idnum == 2);
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_banned_from_quest)
@@ -240,6 +247,7 @@ START_TEST(test_banned_from_quest)
 
     fail_if(banned_from_quest(q, 2));
     fail_unless(banned_from_quest(q, 7));
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_add_remove_quest_player)
@@ -252,6 +260,7 @@ START_TEST(test_add_remove_quest_player)
     fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
     remove_quest_player(q, GET_IDNUM(ch));
     fail_unless(quest_player_by_idnum(q, GET_IDNUM(ch)) == NULL);
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_qcontrol_create)
@@ -272,6 +281,7 @@ START_TEST(test_qcontrol_create)
     struct qplayer_data *p = q->players->data;
 
     fail_unless(p->idnum == GET_IDNUM(ch));
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_qcontrol_end)
@@ -287,6 +297,7 @@ START_TEST(test_qcontrol_end)
 
     fail_unless(q->ended != 0);
     fail_unless(q->players == NULL);
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_qcontrol_add)
@@ -311,6 +322,8 @@ START_TEST(test_qcontrol_add)
                 g_list_length(q->players));
     struct qplayer_data *p = q->players->data;
     fail_unless(p->idnum == GET_IDNUM(tch));
+    free_quest(q);
+    destroy_test_player(tch);
 }
 END_TEST
 START_TEST(test_qcontrol_show)
@@ -338,6 +351,8 @@ START_TEST(test_qcontrol_kick)
     fail_unless(g_list_length(q->players) == 0,
                 "Expected 0 players, got %d players",
                 g_list_length(q->players));
+    destroy_test_player(tch);
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_qcontrol_flags)
@@ -421,6 +436,7 @@ START_TEST(test_can_join_quest_1)
 
     q->flags = QUEST_NOJOIN;
     fail_if(can_join_quest(q, ch));
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_can_join_quest_2)
@@ -431,6 +447,7 @@ START_TEST(test_can_join_quest_2)
     GET_LEVEL(ch) = LVL_AMBASSADOR;
 
     fail_unless(can_join_quest(q, ch));
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_can_join_quest_3)
@@ -442,6 +459,7 @@ START_TEST(test_can_join_quest_3)
     GET_REMORT_GEN(ch) = q->maxgen + 1;
 
     fail_if(can_join_quest(q, ch));
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_can_join_quest_4)
@@ -453,6 +471,7 @@ START_TEST(test_can_join_quest_4)
     GET_REMORT_GEN(ch) = q->mingen - 1;
 
     fail_if(can_join_quest(q, ch));
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_can_join_quest_5)
@@ -464,6 +483,7 @@ START_TEST(test_can_join_quest_5)
     GET_REMORT_GEN(ch) = q->maxlevel + 1;
 
     fail_if(can_join_quest(q, ch));
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_can_join_quest_6)
@@ -475,6 +495,7 @@ START_TEST(test_can_join_quest_6)
     GET_REMORT_GEN(ch) = q->minlevel - 1;
 
     fail_if(can_join_quest(q, ch));
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_can_join_quest_7)
@@ -485,6 +506,7 @@ START_TEST(test_can_join_quest_7)
     ch->account->quest_banned = true;
 
     fail_if(can_join_quest(q, ch));
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_can_join_quest_8)
@@ -495,6 +517,7 @@ START_TEST(test_can_join_quest_8)
     q->bans = g_list_prepend(q->bans, GINT_TO_POINTER(GET_IDNUM(ch)));
 
     fail_if(can_join_quest(q, ch));
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_can_join_quest_9)
@@ -508,6 +531,7 @@ START_TEST(test_can_join_quest_9)
     q->minlevel = 0;
 
     fail_unless(can_join_quest(q, ch), "couldn't join quest");
+    free_quest(q);
 }
 END_TEST
 START_TEST(test_quest_list)
@@ -525,7 +549,7 @@ START_TEST(test_quest_list)
     do_quest(ch, "list", 0, 0);
     fail_unless(strstr(ch->desc->io->write_buf->str, q->name) != NULL,
                 "Quest name not found in '%s'", ch->desc->io->write_buf->str);
-    free(q);
+    free_quest(q);
     g_list_free(quests);
     quests = NULL;
 }
@@ -556,6 +580,7 @@ START_TEST(test_quest_join_leave)
     fail_unless(strstr(ch->desc->io->write_buf->str,
                        "You have left quest 'Test quest'") != NULL,
                 "quest leave yielded output '%s'", ch->desc->io->write_buf->str);
+    free_quest(q);
 }
 END_TEST
 

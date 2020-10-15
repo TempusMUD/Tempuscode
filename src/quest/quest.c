@@ -399,6 +399,10 @@ save_quest(struct quest *quest, FILE *out)
 void
 free_quest(struct quest *quest)
 {
+    GList *link = g_list_find(quests, quest);
+    if (link != NULL) {
+        quests = g_list_delete_link(quests, link);
+    }
     free(quest->name);
     free(quest->description);
     free(quest->updates);
@@ -505,6 +509,8 @@ remove_quest_player(struct quest *quest, int id)
             return false;
         }
     }
+
+    free(player);
 
     return true;
 }

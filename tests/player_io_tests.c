@@ -58,13 +58,15 @@ fixture_destroy_player(void)
     destroy_test_player(ch);
 }
 
+static int next_vnum = 3000;
+
 int
 make_random_object(void)
 {
     struct obj_data *obj;
     CREATE(obj, struct obj_data, 1);
     CREATE(obj->shared, struct obj_shared_data, 1);
-    obj->shared->vnum = 3000;
+    obj->shared->vnum = next_vnum++;
     obj->shared->number = 0;
     obj->shared->house_count = 0;
     obj->shared->func = NULL;
@@ -85,9 +87,6 @@ make_random_object(void)
 
     obj->obj_flags.weight = 1.0;
 
-    if (!obj_prototypes) {
-        obj_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
-    }
     g_hash_table_insert(obj_prototypes, GINT_TO_POINTER(GET_OBJ_VNUM(obj)), obj);
 
     return obj->shared->vnum;
@@ -135,10 +134,17 @@ compare_objects(struct obj_data *obj_a, struct obj_data *obj_b)
     // TODO: test temp object affects
 }
 
+START_TEST(test_fixture_addresses)
+{
+fprintf(stderr, "fixture\n");
+}
+END_TEST
+
 START_TEST(test_load_save_creature)
 {
     struct creature *tch;
 
+    fprintf(stderr, "creature\n");
     randomize_creature(ch, CLASS_UNDEFINED);
 
     save_player_to_file(ch, test_path("test_player.xml"));
@@ -155,6 +161,7 @@ START_TEST(test_load_save_cyborg)
 {
     struct creature *tch;
 
+    fprintf(stderr, "cyborg\n");
     randomize_creature(ch, CLASS_CYBORG);
 
     save_player_to_file(ch, test_path("test_player.xml"));
@@ -165,12 +172,15 @@ START_TEST(test_load_save_cyborg)
     fail_unless(GET_OLD_CLASS(ch) == GET_OLD_CLASS(tch));
     fail_unless(GET_TOT_DAM(ch) == GET_TOT_DAM(tch));
     fail_unless(GET_BROKE(ch) == GET_BROKE(tch));
+
+    free_creature(tch);
 }
 END_TEST
 START_TEST(test_load_save_mage)
 {
     struct creature *tch;
 
+    fprintf(stderr, "mage\n");
     randomize_creature(ch, CLASS_MAGE);
 
     SET_SKILL(ch, SPELL_MANA_SHIELD, 1);
@@ -189,12 +199,15 @@ START_TEST(test_load_save_mage)
                 tch->player_specials->saved.mana_shield_low);
     fail_unless(ch->player_specials->saved.mana_shield_pct ==
                 tch->player_specials->saved.mana_shield_pct);
+
+    free_creature(tch);
 }
 END_TEST
 START_TEST(test_load_save_immort)
 {
     struct creature *tch;
 
+    fprintf(stderr, "immort\n");
     randomize_creature(ch, CLASS_UNDEFINED);
     GET_LEVEL(ch) = LVL_IMMORT;
     POOFIN(ch) = strdup("poofs in.");
@@ -212,6 +225,8 @@ START_TEST(test_load_save_immort)
     fail_unless(GET_INVIS_LVL(ch) == GET_INVIS_LVL(tch));
     fail_unless(GET_IMMORT_QP(ch) == GET_IMMORT_QP(tch));
     fail_unless(GET_QUEST_ALLOWANCE(ch) == GET_QUEST_ALLOWANCE(tch));
+
+    free_creature(tch);
 }
 END_TEST
 START_TEST(test_load_save_title)
@@ -225,6 +240,8 @@ START_TEST(test_load_save_title)
     tch = load_player_from_file(test_path("test_player.xml"));
 
     compare_creatures(ch, tch);
+    
+    free_creature(tch);
 }
 END_TEST
 START_TEST(test_load_save_frozen)
@@ -243,6 +260,8 @@ START_TEST(test_load_save_frozen)
 
     fail_unless(ch->player_specials->thaw_time == tch->player_specials->thaw_time);
     fail_unless(ch->player_specials->freezer_id == tch->player_specials->freezer_id);
+    
+    free_creature(tch);
 }
 END_TEST
 START_TEST(test_load_save_objects_carried)
@@ -277,7 +296,20 @@ START_TEST(test_load_save_objects_carried)
     fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
     fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
 
-    ch->carrying = NULL;
+    
+    while (ch->carrying) {
+        struct obj_data *obj = ch->carrying;
+        obj_from_char(obj);
+        extract_obj(obj);
+    }
+
+    while (tch->carrying) {
+        struct obj_data *obj = tch->carrying;
+        obj_from_char(obj);
+        extract_obj(obj);
+    }
+
+    free_creature(tch);
 }
 END_TEST
 START_TEST(test_load_save_objects_equipped)
@@ -317,8 +349,16 @@ START_TEST(test_load_save_objects_equipped)
     fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
     for (int i = 0; i < NUM_WEARS; i++) {
-        GET_EQ(ch, i) = NULL;
+        if (GET_EQ(ch, i)) {
+            extract_obj(GET_EQ(ch, i));
+            GET_EQ(ch, i) = NULL;
+        }
+        if (GET_EQ(tch, i)) {
+            extract_obj(GET_EQ(tch, i));
+            GET_EQ(tch, i) = NULL;
+        }
     }
+    free_creature(tch);
 }
 END_TEST
 START_TEST(test_load_save_objects_implanted)
@@ -357,8 +397,17 @@ START_TEST(test_load_save_objects_implanted)
     fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
     for (int i = 0; i < NUM_WEARS; i++) {
-        GET_IMPLANT(ch, i) = NULL;
+        if (GET_IMPLANT(ch, i)) {
+            extract_obj(GET_IMPLANT(ch, i));
+            GET_IMPLANT(ch, i) = NULL;
+        }
+        if (GET_IMPLANT(tch, i)) {
+            extract_obj(GET_IMPLANT(tch, i));
+            GET_IMPLANT(tch, i) = NULL;
+        }
     }
+
+    free_creature(tch);
 }
 END_TEST
 START_TEST(test_load_save_objects_tattooed)
@@ -395,8 +444,17 @@ START_TEST(test_load_save_objects_tattooed)
     fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
     for (int i = 0; i < NUM_WEARS; i++) {
-        GET_TATTOO(ch, i) = NULL;
+        if (GET_TATTOO(ch, i)) {
+            extract_obj(GET_TATTOO(ch, i));
+            GET_TATTOO(ch, i) = NULL;
+        }
+        if (GET_TATTOO(tch, i)) {
+            extract_obj(GET_TATTOO(tch, i));
+            GET_TATTOO(tch, i) = NULL;
+        }
     }
+
+    free_creature(tch);
 }
 END_TEST
 START_TEST(test_load_save_objects_contained)
@@ -449,7 +507,20 @@ START_TEST(test_load_save_objects_contained)
     fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
     fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
-    ch->carrying = NULL;
+    while (ch->carrying) {
+        struct obj_data *obj = ch->carrying;
+        obj_from_char(obj);
+        extract_obj(obj);
+    }
+
+    while (tch->carrying) {
+        struct obj_data *obj = tch->carrying;
+        obj_from_char(obj);
+        extract_obj(obj);
+    }
+
+    
+    free_creature(tch);
 }
 END_TEST
 START_TEST(test_load_save_objects_affected)
@@ -505,6 +576,8 @@ START_TEST(test_load_save_objects_affected)
             free_object(obj_b);
         }
     }
+    xmlFreeDoc(doc);
+    free_object(obj_a);
 }
 END_TEST
 
@@ -516,6 +589,8 @@ player_io_suite(void)
     TCase *tc_core = tcase_create("Core");
     tcase_add_checked_fixture(tc_core, test_tempus_boot, NULL);
     tcase_add_checked_fixture(tc_core, fixture_make_player, fixture_destroy_player);
+    // tcase_add_checked_fixture(tc_core, fixture_random_objects, fixture_destroy_random_objects);
+    tcase_add_test(tc_core, test_fixture_addresses);
     tcase_add_test(tc_core, test_load_save_creature);
     tcase_add_test(tc_core, test_load_save_cyborg);
     tcase_add_test(tc_core, test_load_save_immort);

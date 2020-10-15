@@ -1803,8 +1803,9 @@ extract_obj(struct obj_data *obj)
 
     if (obj->worn_by != NULL) {
         if (unequip_char(obj->worn_by, obj->worn_on,
-                         (obj == GET_EQ(obj->worn_by, obj->worn_on) ?
-                          EQUIP_WORN : EQUIP_IMPLANT)) != obj) {
+                         (obj == GET_EQ(obj->worn_by, obj->worn_on) ? EQUIP_WORN :
+                          obj == GET_IMPLANT(obj->worn_by, obj->worn_on) ? EQUIP_IMPLANT :
+                          EQUIP_TATTOO)) != obj) {
             errlog("Inconsistent worn_by and worn_on pointers!!");
         }
     }
