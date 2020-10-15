@@ -10,7 +10,7 @@ installed.
 In Debian or Ubuntu, you should be able to install all the necessary
 prerequisites with this command:
 
-aptitude install build-essential postgresql autotools-dev autoconf \
+sudo apt install build-essential postgresql autotools-dev autoconf \
                  libpq-dev libxml2-dev libglib2.0-dev check git \
                  autoconf-archive
 
