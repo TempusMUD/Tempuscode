@@ -2841,6 +2841,7 @@ const int8_t movement_loss[] = {
     4,                          // muddy
     3,                          // trail
     3,                          // tundra
+    1,                          // catacombs
     1,                          // cracked_road
     6,                          // deep ocean
 };
