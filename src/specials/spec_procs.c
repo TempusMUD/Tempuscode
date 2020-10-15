@@ -228,6 +228,13 @@ list_skills(struct creature *ch, int mode, int type)
 {
     int i, sortpos;
 
+    if (GET_CLASS(ch) > NUM_CLASSES - 1) {
+        return;
+    }
+    if (GET_REMORT_CLASS(ch) > 0 && GET_REMORT_CLASS(ch) > NUM_CLASSES - 1) {
+        return;
+    }
+
     acc_string_clear();
     if ((type == 1 || type == 3) &&
         ((prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != SKL &&

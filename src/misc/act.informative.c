@@ -1770,7 +1770,7 @@ static void
 look_in_obj(struct creature *ch, char *arg)
 {
     struct obj_data *obj = NULL;
-    int amt, bits;
+    int bits;
     struct room_data *room_was_in = NULL;
 
     acc_string_clear();
@@ -1829,15 +1829,22 @@ look_in_obj(struct creature *ch, char *arg)
             }
 
         } else {                /* item must be a fountain or drink container */
-            if (GET_OBJ_VAL(obj, 1) == 0) {
+            int max_fill = GET_OBJ_VAL(obj, 0);
+            int cur_fill = GET_OBJ_VAL(obj, 1);
+            
+            if (cur_fill == 0) {
                 acc_sprintf("It is empty.\r\n");
+            } else if (cur_fill < 0 || max_fill < 0 || cur_fill >= max_fill) {
+                acc_sprintf("It's full of a %s liquid.\r\n",
+                            color_liquid[GET_OBJ_VAL(obj, 2)]);
+            } else if (cur_fill > max_fill / 3 * 2 ) {
+                acc_sprintf("It's more than half full of a %s liquid.\r\n",
+                            color_liquid[GET_OBJ_VAL(obj, 2)]);
+            } else if (cur_fill > max_fill / 3) {
+                acc_sprintf("It's about half full of a %s liquid.\r\n",
+                            color_liquid[GET_OBJ_VAL(obj, 2)]);
             } else {
-                if (GET_OBJ_VAL(obj, 0) < 0 || GET_OBJ_VAL(obj, 1) < 0) {
-                    amt = 3;
-                } else {
-                    amt = ((GET_OBJ_VAL(obj, 1) * 3) / GET_OBJ_VAL(obj, 0));
-                }
-                acc_sprintf("It's %sfull of a %s liquid.\r\n", fullness[amt],
+                acc_sprintf("It's less than half full of a %s liquid.\r\n",
                             color_liquid[GET_OBJ_VAL(obj, 2)]);
             }
         }
@@ -5363,7 +5370,11 @@ ACMD(do_skills)
         return;
     }
 
-    list_skills(ch, 0, subcmd == SCMD_SKILLS_ONLY ? 2 : 1);
+    if (IS_PC(ch)) {
+        list_skills(ch, 0, subcmd == SCMD_SKILLS_ONLY ? 2 : 1);
+        return;
+    }
+    send_to_char(ch, "Mobs don't have skills!\r\n");
 }
 
 ACMD(do_specializations)

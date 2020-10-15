@@ -56,7 +56,7 @@ SPECIAL(rust_monster)
 
     while (count < 35) {
 
-        i = number(2, NUM_WEARS - 2);
+        i = number(2, NUM_WEARS - 3);
         count++;
 
         struct creature *vict = random_opponent(ch);

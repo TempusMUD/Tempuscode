@@ -571,17 +571,17 @@ random_active_creature(struct creature *ch)
                 d += strlen(spells[i]);
                 break;
             case 'd':           /* direction */
-                i = number(0, NUM_DIRS);
+                i = number(0, NUM_DIRS - 1);
                 strcpy_s(d, sizeof(buf) - (d - buf), dirs[i]);
                 d += strlen(dirs[i]);
                 break;
             case 'p':           /* position */
-                i = number(0, 28);
+                i = number(0, NUM_WEARS - 1);
                 strcpy_s(d, sizeof(buf) - (d - buf), wear_eqpos[i]);
                 d += strlen(wear_eqpos[i]);
                 break;
             case 'i':
-                i = number(0, 28);
+                i = number(0, NUM_WEARS - 1);
                 strcpy_s(d, sizeof(buf) - (d - buf), wear_implantpos[i]);
                 d += strlen(wear_implantpos[i]);
                 break;

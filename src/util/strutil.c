@@ -157,7 +157,7 @@ ONOFF(bool a)
 char *
 fname(const char *namelist)
 {
-    static char holder[30];
+    static char holder[255];
     char *point;
 
     if (!namelist) {

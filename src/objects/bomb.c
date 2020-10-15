@@ -432,8 +432,10 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
             } else if (GET_POSITION(vict) > POS_STUNNED &&
                        (bomb_type == BOMB_CONCUSSION || power > number(2, 12)) &&
                        number(5, 5 + power) > GET_CON(vict)) {
-                if ((dir == -2 || (dir = number(0, NUM_DIRS - 1)) >= 0) &&
-                    room->dir_option[rev_dir[dir]] &&
+                if (dir < 0) {
+                    dir = number(0, NUM_DIRS - 1);
+                }
+                if (room->dir_option[rev_dir[dir]] &&
                     room->dir_option[rev_dir[dir]]->to_room &&
                     !IS_SET(room->dir_option[rev_dir[dir]]->exit_info, EX_CLOSED)
                     && (power * 32) > number(0,
@@ -531,6 +533,7 @@ detonate_bomb(struct obj_data *bomb)
                             (cont ? fname(cont->aliases) : "hands")),
                 false, ch, bomb, cont, TO_ROOM);
 
+            dam_object = NULL;
             return NULL;
         }
         act(tmp_sprintf("$p goes off in %s!!!", (internal ? "body!" :
