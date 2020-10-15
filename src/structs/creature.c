@@ -199,6 +199,8 @@ reset_creature(struct creature *ch)
         SET_BIT(NPC_FLAGS(ch), NPC_ISNPC);
         GET_TITLE(ch) = NULL;
     }
+
+    destroy_attached_progs(ch);
 }
 
 void
@@ -209,6 +211,7 @@ free_creature(struct creature *ch)
         free(ch->player_specials);
         free(ch->player.title);
     }
+    free(ch);
 }
 
 void

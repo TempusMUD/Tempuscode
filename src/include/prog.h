@@ -3,6 +3,8 @@
 
 struct creature;
 
+typedef unsigned long prog_word_t;
+
 enum prog_evt_type {
     PROG_TYPE_NONE,
     PROG_TYPE_MOBILE,

@@ -46,8 +46,8 @@ struct prog_token {
 
 struct prog_code_block {
     struct prog_code_block *next;
-    unsigned short code_seg[MAX_STRING_LENGTH];
-    unsigned short *code_pt;
+    prog_word_t code_seg[MAX_STRING_LENGTH];
+    prog_word_t *code_pt;
     char data_seg[MAX_STRING_LENGTH];
     char *data_pt;
 };
@@ -614,17 +614,17 @@ prog_display_obj(struct creature *ch, unsigned char *exec)
     for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++) {
         for (event_idx = 0; event_idx < PROG_EVT_COUNT; event_idx++) {
             read_pt =
-                *((short *)exec + phase_idx * PROG_EVT_COUNT + event_idx);
+                *((prog_word_t *)exec + phase_idx * PROG_EVT_COUNT + event_idx);
             if (read_pt) {
                 send_to_char(ch, "-- %s %s -------------------------\r\n",
                              tmp_toupper(prog_phase_strs[phase_idx]),
                              tmp_toupper(prog_event_strs[event_idx]));
-                while (read_pt >= 0 && *((short *)&exec[read_pt])) {
+                while (read_pt >= 0 && *((prog_word_t *)&exec[read_pt])) {
                     // Get the command and the arg address
-                    cmd = *((short *)(exec + read_pt));
-                    arg_addr = *((short *)(exec + read_pt) + 1);
+                    cmd = *((prog_word_t *)(exec + read_pt));
+                    arg_addr = *((prog_word_t *)(exec + read_pt) + 1);
                     // Set the execution point to the next command by default
-                    read_pt += sizeof(short) * 2;
+                    read_pt += sizeof(prog_word_t) * 2;
                     if (cmd < 0 || cmd >= cmd_count) {
                         send_to_char(ch, "<INVALID CMD #%d>\r\n", cmd);
                     } else {
@@ -643,13 +643,13 @@ prog_map_to_block(struct prog_compiler_state *compiler)
 {
     struct prog_code_block *cur_code;
     unsigned char *block;
-    unsigned short *code_pt;
+    prog_word_t *code_pt;
     int code_len, data_len, block_len;
     int phase_idx, event_idx;
     int code_offset, data_offset;
 
     // Find the amount of space we'll need for the final block
-    block_len = PROG_PHASE_COUNT * PROG_EVT_COUNT * sizeof(short);
+    block_len = PROG_PHASE_COUNT * PROG_EVT_COUNT * sizeof(prog_word_t);
     code_len = 0;
     data_len = 0;
 
@@ -661,7 +661,7 @@ prog_map_to_block(struct prog_compiler_state *compiler)
                      cur_code; cur_code = cur_code->next) {
                     code_len +=
                         (cur_code->code_pt -
-                         cur_code->code_seg) * sizeof(unsigned short);
+                         cur_code->code_seg) * sizeof(prog_word_t);
                     data_len += (cur_code->data_pt - cur_code->data_seg);
                 }
                 code_len += 2;  // add size of halt command
@@ -671,14 +671,14 @@ prog_map_to_block(struct prog_compiler_state *compiler)
 
     // Add length for the end of prog marker
     code_len += 2;
-    block_len += code_len * sizeof(unsigned short) + data_len;
+    block_len += code_len * sizeof(prog_word_t) + data_len;
 
     // Allocate result block and clear it
     CREATE(block, unsigned char, block_len);
 
     // Assign initial offsets
-    code_offset = PROG_PHASE_COUNT * PROG_EVT_COUNT * sizeof(short);
-    data_offset = code_offset + code_len * sizeof(unsigned short);
+    code_offset = PROG_PHASE_COUNT * PROG_EVT_COUNT * sizeof(prog_word_t);
+    data_offset = code_offset + code_len * sizeof(prog_word_t);
 
     // Iterate through event handling table
     for (phase_idx = 0; phase_idx < PROG_PHASE_COUNT; phase_idx++) {
@@ -688,7 +688,7 @@ prog_map_to_block(struct prog_compiler_state *compiler)
                 continue;
             }
             // Assign current code offset to event table entry
-            *((short *)block + phase_idx * PROG_EVT_COUNT + event_idx) =
+            *((prog_word_t *)block + phase_idx * PROG_EVT_COUNT + event_idx) =
                 code_offset;
 
             // Concatenate and relocate code and data segments
@@ -704,24 +704,24 @@ prog_map_to_block(struct prog_compiler_state *compiler)
                 }
                 // Copy the code segment
                 memcpy(&block[code_offset], cur_code->code_seg,
-                       (cur_code->code_pt - cur_code->code_seg) * sizeof(short));
+                       (cur_code->code_pt - cur_code->code_seg) * sizeof(prog_word_t));
 
                 // Update code and data offsets
                 code_offset +=
-                    (cur_code->code_pt - cur_code->code_seg) * sizeof(short);
+                    (cur_code->code_pt - cur_code->code_seg) * sizeof(prog_word_t);
                 data_offset += (cur_code->data_pt - cur_code->data_seg);
             }
 
             // Concatenate halt code for end of event handler
-            *((short *)&block[code_offset]) = PROG_CMD_ENDOFPROG;
-            *((short *)&block[code_offset + sizeof(short)]) = 0;
-            code_offset += 2 * sizeof(short);
+            *((prog_word_t *)&block[code_offset]) = PROG_CMD_ENDOFPROG;
+            *((prog_word_t *)&block[code_offset + sizeof(prog_word_t)]) = 0;
+            code_offset += 2 * sizeof(prog_word_t);
         }
     }
 
     // Concatenate end-of-prog marker to code.
-    *((short *)&block[code_offset]) = PROG_CMD_ENDOFPROG;
-    *((short *)&block[code_offset + sizeof(short)]) = 0;
+    *((prog_word_t *)&block[code_offset]) = PROG_CMD_ENDOFPROG;
+    *((prog_word_t *)&block[code_offset + sizeof(prog_word_t)]) = 0;
 
     return block;
 }

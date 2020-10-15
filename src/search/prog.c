@@ -2111,6 +2111,9 @@ destroy_attached_progs(void *owner)
             cur_prog->evt.object == owner) {
             cur_prog->exec_pt = -1;
         }
+        if (cur_prog->owner == owner) {
+            cur_prog->owner = NULL;
+        }
     }
 }
 
