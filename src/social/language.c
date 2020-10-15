@@ -71,7 +71,7 @@ load_tongue(xmlNodePtr node)
     tongue = make_tongue();
 
     tongue->idnum = xmlGetIntProp(node, "idnum", 0);
-    tongue->name = (char *)xmlGetProp(node, (xmlChar *) "name");
+    tongue->name = xmlGetStrProp(node, "name", "<ERROR>");
 
     for (child = node->children; child; child = child->next) {
         if (xmlMatches(child->name, "syllable")) {
@@ -89,10 +89,10 @@ load_tongue(xmlNodePtr node)
             char *s;
             s = (char *)xmlGetProp(child, (xmlChar *) "pattern");
             strcpy_s(tongue->syllables[syllable_idx].pattern, sizeof(tongue->syllables[syllable_idx].pattern), s);
-            free(s);
+            xmlFree(s);
             s = (char *)xmlGetProp(child, (xmlChar *) "replacement");
             strcpy_s(tongue->syllables[syllable_idx].replacement, sizeof(tongue->syllables[syllable_idx].replacement), s);
-            free(s);
+            xmlFree(s);
             syllable_idx++;
         } else if (xmlMatches(child->name, "letter")) {
             char *pattern = (char *)xmlGetProp(child, (xmlChar *) "pattern");
@@ -101,8 +101,8 @@ load_tongue(xmlNodePtr node)
 
             tongue->letters[tolower(*pattern)] = tolower(*replace);
             tongue->letters[toupper(*pattern)] = toupper(*replace);
-            free(pattern);
-            free(replace);
+            xmlFree(pattern);
+            xmlFree(replace);
         } else if (xmlMatches(child->name, "nospeak")) {
             tongue->nospeak_msg = (char *)xmlNodeGetContent(child);
         }

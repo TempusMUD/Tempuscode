@@ -300,9 +300,9 @@ load_quest(xmlNodePtr n, xmlDocPtr doc)
     quest->loadroom = xmlGetIntProp(n, "LOADROOM", 0);
     char *typest = (char *)xmlGetProp(n, (xmlChar *) "TYPE");
     quest->type = search_block(typest, qtype_abbrevs, true);
-    free(typest);
+    xmlFree(typest);
 
-    quest->name = (char *)xmlGetProp(n, (xmlChar *) "NAME");
+    quest->name = xmlGetStrProp(n, "NAME", "");
 
     quest->description = quest->updates = NULL;
 

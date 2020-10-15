@@ -4,6 +4,24 @@
 void xml_boot(void);
 
 /**
+ * Parses a string from a named property in the given node
+ **/
+static inline char *
+xmlGetStrProp(xmlNodePtr n, const char *name, const char *defValue)
+{
+    xmlChar *c = xmlGetProp(n, (const xmlChar *)(name));
+    if (c == NULL) {
+        if (defValue == NULL) {
+            return NULL;
+        }
+        return strdup(defValue);
+    }
+    char *prop = strdup((char *)c);
+    xmlFree(c);
+    return prop;
+}
+
+/**
  * Parses an integer from a named property in the given node
  **/
 static inline long
@@ -15,7 +33,7 @@ xmlGetLongProp(xmlNodePtr n, const char *name, long defValue)
         return defValue;
     }
     prop = atol((const char *)(c));
-    free(c);
+    xmlFree(c);
     return prop;
 }
 
@@ -31,7 +49,7 @@ xmlGetIntProp(xmlNodePtr n, const char *name, int defValue)
         return defValue;
     }
     prop = atoi((const char *)(c));
-    free(c);
+    xmlFree(c);
     return prop;
 }
 
@@ -47,7 +65,7 @@ xmlGetFloatProp(xmlNodePtr n, const char *name, float defValue)
         return defValue;
     }
     prop = (float)atof((const char *)(c));
-    free(c);
+    xmlFree(c);
     return prop;
 }
 
@@ -63,7 +81,7 @@ xmlGetCharProp(xmlNodePtr n, const char *name)
         return '\0';
     }
     prop = *c;
-    free(c);
+    xmlFree(c);
     return prop;
 }
 

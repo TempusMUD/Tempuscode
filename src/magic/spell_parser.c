@@ -70,6 +70,9 @@ struct obj_data *find_item_kit(struct creature *ch);
 int perform_taint_burn(struct creature *ch, int spellnum);
 int max_spell_num = 0;
 
+
+char *UNUSED_SPELL_NAME = "!UNUSED!";
+
 int
 mag_manacost(struct creature *ch, int spellnum)
 {
@@ -2367,7 +2370,11 @@ load_spell(xmlNodePtr node)
         spell_info[idnum].min_level[class_idx] = LVL_AMBASSADOR;
     }
 
-    spells[idnum] = (char *)xmlGetProp(node, (xmlChar *) "name");
+    if (spells[idnum] != UNUSED_SPELL_NAME) {
+        errlog("Spell idnum %d defined more than once!", idnum);
+        return false;
+    }
+    spells[idnum] = xmlGetStrProp(node, "name", "<ERROR>");
     for (child = node->children; child; child = child->next) {
         if (xmlMatches(child->name, "granted")) {
             char *class_str = (char *)xmlGetProp(child, (xmlChar *) "class");
@@ -2378,10 +2385,10 @@ load_spell(xmlNodePtr node)
             if (class_idx < 0) {
                 errlog("Granted class '%s' is not a valid class in spell!",
                        class_str);
-                free(class_str);
+                xmlFree(class_str);
                 return false;
             }
-            free(class_str);
+            xmlFree(class_str);
 
             if (level < 1 || level > LVL_AMBASSADOR) {
                 errlog("Granted level %d is not a valid level", level);
@@ -2410,10 +2417,10 @@ load_spell(xmlNodePtr node)
             int pos = search_block(pos_str, position_types, false);
             if (pos < 0) {
                 errlog("Invalid minimum position '%s' for spell", pos_str);
-                free(pos_str);
+                xmlFree(pos_str);
                 return false;
             }
-            free(pos_str);
+            xmlFree(pos_str);
             spell_info[idnum].min_position = pos;
         } else if (xmlMatches(child->name, "target")) {
             char *type_str = (char *)xmlGetProp(child, (xmlChar *) "type");
@@ -2450,8 +2457,8 @@ load_spell(xmlNodePtr node)
                     spell_info[idnum].targets |= TAR_OBJ_EQUIP;
                 }
             }
-            free(type_str);
-            free(scope_str);
+            xmlFree(type_str);
+            xmlFree(scope_str);
         } else if (xmlMatches(child->name, "flag")) {
             char *value_str = (char *)xmlGetProp(child, (xmlChar *) "value");
 
@@ -2467,12 +2474,12 @@ load_spell(xmlNodePtr node)
                 int flag = search_block(value_str, spell_bit_keywords, true);
                 if (flag < 0) {
                     errlog("Invalid flag '%s' in spell", value_str);
-                    free(value_str);
+                    xmlFree(value_str);
                     return false;
                 }
                 spell_info[idnum].routines |= (1U << flag);
             }
-            free(value_str);
+            xmlFree(value_str);
         } else if (xmlMatches(child->name, "instrument")) {
             char *type_str = (char *)xmlGetProp(child, (xmlChar *) "type");
 
@@ -2484,22 +2491,22 @@ load_spell(xmlNodePtr node)
                 songs[idnum].type = ITEM_STRING;
             } else {
                 errlog("Invalid instrument type '%s' in spell", type_str);
-                free(type_str);
+                xmlFree(type_str);
                 return false;
             }
-            free(type_str);
+            xmlFree(type_str);
         } else if (xmlMatches(child->name, "description")) {
             char *text = (char *)xmlNodeGetContent(child);
 
             songs[idnum].lyrics = strdup(text);
             songs[idnum].instrumental = true;
-            free(text);
+            xmlFree(text);
         } else if (xmlMatches(child->name, "lyrics")) {
             char *text = (char *)xmlNodeGetContent(child);
 
             songs[idnum].lyrics = strdup(text);
             songs[idnum].instrumental = false;
-            free(text);
+            xmlFree(text);
         }
     }
 
@@ -2510,15 +2517,9 @@ load_spell(xmlNodePtr node)
     return true;
 }
 
-char *UNUSED_SPELL_NAME = NULL;
-
 void
 clear_spells(void)
 {
-    if (!UNUSED_SPELL_NAME) {
-        UNUSED_SPELL_NAME = strdup("!UNUSED!");
-    }
-
     for (int spl = 1; spl < TOP_DAMAGETYPE; spl++) {
         if (spells[spl] != UNUSED_SPELL_NAME) {
             free(spells[spl]);

@@ -783,7 +783,7 @@ load_player_from_file(const char *path)
     /* to save memory, only PC's -- not MOB's -- have player_specials */
     ch = make_creature(true);
 
-    ch->player.name = (char *)xmlGetProp(root, (xmlChar *) "name");
+    ch->player.name = xmlGetStrProp(root, "name", "");
     ch->char_specials.saved.idnum = xmlGetIntProp(root, "idnum", 0);
     set_title(ch, "");
 
@@ -833,7 +833,7 @@ load_player_from_file(const char *path)
             if (sex != NULL) {
                 GET_SEX(ch) = search_block(sex, genders, false);
             }
-            free(sex);
+            xmlFree(sex);
 
             GET_RACE(ch) = 0;
             char *race_name = (char *)xmlGetProp(node, (xmlChar *) "race");
@@ -843,7 +843,7 @@ load_player_from_file(const char *path)
                     GET_RACE(ch) = race->idnum;
                 }
             }
-            free(race_name);
+            xmlFree(race_name);
 
         } else if (xmlMatches(node->name, "class")) {
             GET_OLD_CLASS(ch) = GET_REMORT_CLASS(ch) = GET_CLASS(ch) = -1;
@@ -851,13 +851,13 @@ load_player_from_file(const char *path)
             char *trade = (char *)xmlGetProp(node, (xmlChar *) "name");
             if (trade != NULL) {
                 GET_CLASS(ch) = search_block(trade, class_names, false);
-                free(trade);
+                xmlFree(trade);
             }
 
             trade = (char *)xmlGetProp(node, (xmlChar *) "remort");
             if (trade != NULL) {
                 GET_REMORT_CLASS(ch) = search_block(trade, class_names, false);
-                free(trade);
+                xmlFree(trade);
             }
 
             if (IS_CYBORG(ch)) {
@@ -866,7 +866,7 @@ load_player_from_file(const char *path)
                 if (subclass != NULL) {
                     GET_OLD_CLASS(ch) = search_block(subclass,
                                                      borg_subchar_class_names, false);
-                    free(subclass);
+                    xmlFree(subclass);
                 }
             }
 
@@ -926,11 +926,11 @@ load_player_from_file(const char *path)
         } else if (xmlMatches(node->name, "bits")) {
             char *flag = (char *)xmlGetProp(node, (xmlChar *) "flag1");
             ch->char_specials.saved.act = hex2dec(flag);
-            free(flag);
+            xmlFree(flag);
 
             flag = (char *)xmlGetProp(node, (xmlChar *) "flag2");
             ch->player_specials->saved.plr2_bits = hex2dec(flag);
-            free(flag);
+            xmlFree(flag);
         } else if (xmlMatches(node->name, "frozen")) {
             ch->player_specials->thaw_time =
                 xmlGetIntProp(node, "thaw_time", 0);
@@ -939,17 +939,17 @@ load_player_from_file(const char *path)
         } else if (xmlMatches(node->name, "prefs")) {
             char *flag = (char *)xmlGetProp(node, (xmlChar *) "flag1");
             ch->player_specials->saved.pref = hex2dec(flag);
-            free(flag);
+            xmlFree(flag);
 
             flag = (char *)xmlGetProp(node, (xmlChar *) "flag2");
             ch->player_specials->saved.pref2 = hex2dec(flag);
-            free(flag);
+            xmlFree(flag);
 
             flag = (char *)xmlGetProp(node, (xmlChar *) "tongue");
             if (flag) {
                 GET_TONGUE(ch) = find_tongue_idx_by_name(flag);
+                xmlFree(flag);
             }
-            free(flag);
         } else if (xmlMatches(node->name, "weaponspec")) {
             int vnum = xmlGetIntProp(node, "vnum", -1);
             int level = xmlGetIntProp(node, "level", 0);
@@ -967,7 +967,7 @@ load_player_from_file(const char *path)
 
             txt = (char *)xmlNodeGetContent(node);
             set_title(ch, txt);
-            free(txt);
+            xmlFree(txt);
         } else if (xmlMatches(node->name, "affect")) {
             struct affected_type af;
             init_affect(&af);
@@ -980,14 +980,14 @@ load_player_from_file(const char *path)
             af.owner = xmlGetIntProp(node, "owner", 0);
             af.next = NULL;
             char *instant = (char *)xmlGetProp(node, (xmlChar *) "instant");
-            if (instant != NULL && strcmp(instant, "yes") == 0) {
-                af.is_instant = 1;
+            if (instant != NULL) {
+                af.is_instant = (strcmp(instant, "yes") == 0);
+                xmlFree(instant);
             }
-            free(instant);
 
             char *bits = (char *)xmlGetProp(node, (xmlChar *) "affbits");
             af.bitvector = hex2dec(bits);
-            free(bits);
+            xmlFree(bits);
 
             affect_to_char(ch, &af);
 
@@ -996,15 +996,15 @@ load_player_from_file(const char *path)
             if (IS_NPC(ch)) {
                 char *flag = (char *)xmlGetProp(node, (xmlChar *) "flag1");
                 AFF_FLAGS(ch) = hex2dec(flag);
-                free(flag);
+                xmlFree(flag);
 
                 flag = (char *)xmlGetProp(node, (xmlChar *) "flag2");
                 AFF2_FLAGS(ch) = hex2dec(flag);
-                free(flag);
+                xmlFree(flag);
 
                 flag = (char *)xmlGetProp(node, (xmlChar *) "flag3");
                 AFF3_FLAGS(ch) = hex2dec(flag);
-                free(flag);
+                xmlFree(flag);
             } else {
                 AFF_FLAGS(ch) = 0;
                 AFF2_FLAGS(ch) = 0;
@@ -1017,7 +1017,7 @@ load_player_from_file(const char *path)
             if (index >= 0) {
                 SET_SKILL(ch, index, xmlGetIntProp(node, "level", 0));
             }
-            free(spellName);
+            xmlFree(spellName);
         } else if (xmlMatches(node->name, "tongue")) {
             char *tongue = (char *)xmlGetProp(node, (xmlChar *) "name");
             int index = find_tongue_idx_by_name(tongue);
@@ -1025,15 +1025,16 @@ load_player_from_file(const char *path)
                 SET_TONGUE(ch, index,
                            MIN(100, xmlGetIntProp(node, "level", 0)));
             }
-            free(tongue);
+            xmlFree(tongue);
         } else if (xmlMatches(node->name, "alias")) {
             struct alias_data *alias;
             CREATE(alias, struct alias_data, 1);
             alias->type = xmlGetIntProp(node, "type", 0);
-            alias->alias = (char *)xmlGetProp(node, (xmlChar *) "alias");
-            alias->replacement =
-                (char *)xmlGetProp(node, (xmlChar *) "replace");
+            alias->alias = xmlGetStrProp(node, "alias", NULL);
+            alias->replacement = xmlGetStrProp(node, "replace", NULL);
             if (alias->alias == NULL || alias->replacement == NULL) {
+                free(alias->alias);
+                free(alias->replacement);
                 free(alias);
             } else {
                 add_alias(ch, alias);
@@ -1041,7 +1042,7 @@ load_player_from_file(const char *path)
         } else if (xmlMatches(node->name, "description")) {
             txt = (char *)xmlNodeGetContent(node);
             ch->player.description = strdup(tmp_gsub(txt, "\n", "\r\n"));
-            free(txt);
+            xmlFree(txt);
         } else if (xmlMatches(node->name, "poofin")) {
             POOFIN(ch) = (char *)xmlNodeGetContent(node);
         } else if (xmlMatches(node->name, "poofout")) {
@@ -1050,7 +1051,7 @@ load_player_from_file(const char *path)
             txt = (char *)xmlGetProp(node, (xmlChar *) "badge");
             strncpy(BADGE(ch), txt, 7);
             BADGE(ch)[7] = '\0';
-            free(txt);
+            xmlFree(txt);
 
             GET_QLOG_LEVEL(ch) = xmlGetIntProp(node, "qlog", 0);
             GET_INVIS_LVL(ch) = xmlGetIntProp(node, "invis", 0);
@@ -1066,8 +1067,8 @@ load_player_from_file(const char *path)
             if (txt) {
                 ch->player_specials->desc_mode =
                     (enum cxn_state)search_block(txt, desc_modes, false);
+                xmlFree(txt);
             }
-            free(txt);
         } else if (xmlMatches(node->name, "recentkill")) {
             struct kill_record *kill;
 
@@ -1088,10 +1089,12 @@ load_player_from_file(const char *path)
                     search_block(txt, grievance_kind_descs, false);
                 GET_GRIEVANCES(ch) =
                     g_list_prepend(GET_GRIEVANCES(ch), grievance);
+                xmlFree(txt);
             }
-            free(txt);
         } else if (xmlMatches(node->name, "tag")) {
-            add_player_tag(ch, (char *)xmlGetProp(node, (xmlChar *) "tag"));
+            char *tag = (char *)xmlGetProp(node, (xmlChar *) "tag");
+            add_player_tag(ch, tag);
+            xmlFree(tag);
         }
     }
 
