@@ -188,6 +188,7 @@ randomize_creature(struct creature *ch, int char_class)
         GET_WEAP_SPEC(ch, i).vnum = number(1, 30000);
         GET_WEAP_SPEC(ch, i).level = number(1, 5);
     }
+    free(GET_TITLE(ch));
     GET_TITLE(ch) = strdup("");
 }
 
