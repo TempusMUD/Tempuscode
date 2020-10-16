@@ -48,8 +48,8 @@ struct prog_code_block {
     struct prog_code_block *next;
     prog_word_t code_seg[MAX_STRING_LENGTH];
     prog_word_t *code_pt;
-    char data_seg[MAX_STRING_LENGTH];
-    char *data_pt;
+    unsigned char data_seg[MAX_STRING_LENGTH];
+    unsigned char *data_pt;
 };
 
 struct prog_compiler_state {
@@ -431,8 +431,11 @@ prog_compile_handler(struct prog_compiler_state *compiler)
     compiler->code->code_pt = compiler->code->code_seg;
     compiler->code->data_pt = compiler->code->data_seg;
 
-    // A data point of 0 should return a null string
-    *compiler->code->data_pt++ = '\0';
+    // A data point of 0 should return a null string - append 8 to
+    // keep word alignment
+    for (int i = 0;i < 8;i++) {
+        *compiler->code->data_pt++ = '\0';
+    }
 
     // Retrieve the handler phase
     cmd_token = compiler->cur_token;
@@ -624,7 +627,7 @@ prog_display_obj(struct creature *ch, unsigned char *exec)
                     cmd = *((prog_word_t *)(exec + read_pt));
                     arg_addr = *((prog_word_t *)(exec + read_pt) + 1);
                     // Set the execution point to the next command by default
-                    read_pt += sizeof(prog_word_t) * 2;
+                    read_pt += 2 * sizeof(prog_word_t);
                     if (cmd < 0 || cmd >= cmd_count) {
                         send_to_char(ch, "<INVALID CMD #%d>\r\n", cmd);
                     } else {
@@ -669,6 +672,8 @@ prog_map_to_block(struct prog_compiler_state *compiler)
         }
     }
 
+    // Align to word
+    data_len = (data_len + 7) & -8;
     // Add length for the end of prog marker
     code_len += 2;
     block_len += code_len * sizeof(prog_word_t) + data_len;
@@ -716,6 +721,8 @@ prog_map_to_block(struct prog_compiler_state *compiler)
             *((prog_word_t *)&block[code_offset]) = PROG_CMD_ENDOFPROG;
             *((prog_word_t *)&block[code_offset + sizeof(prog_word_t)]) = 0;
             code_offset += 2 * sizeof(prog_word_t);
+            // Align next data block to word boundary
+            data_offset = (data_offset + 7) & -8;
         }
     }
 

@@ -10,6 +10,7 @@ check_tempus_SOURCES = \
 			@top_srcdir@/tests/tmpstr_tests.c \
 	        @top_srcdir@/tests/strutil_tests.c \
 	        @top_srcdir@/tests/player_io_tests.c \
+	        @top_srcdir@/tests/prog_tests.c \
 	        @top_srcdir@/tests/quest_tests.c
 
 check_tempus_LDADD = \

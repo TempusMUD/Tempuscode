@@ -58,82 +58,6 @@ fixture_destroy_player(void)
     destroy_test_player(ch);
 }
 
-static int next_vnum = 3000;
-
-int
-make_random_object(void)
-{
-    struct obj_data *obj;
-    CREATE(obj, struct obj_data, 1);
-    CREATE(obj->shared, struct obj_shared_data, 1);
-    obj->shared->vnum = next_vnum++;
-    obj->shared->number = 0;
-    obj->shared->house_count = 0;
-    obj->shared->func = NULL;
-    obj->shared->proto = obj;
-    obj->shared->owner_id = 0;
-
-    obj->name = strdup("test name");
-    obj->aliases = strdup("test aliases");
-    obj->line_desc = strdup("test line desc");
-    obj->action_desc = strdup("test action desc");
-    obj->soilage = 84732;
-    obj->unique_id = 34827429;
-    obj->creation_time = time(NULL);
-    obj->creation_method = CREATED_IMM;
-    obj->creator = 732;
-
-    obj->worn_on = -1;
-
-    obj->obj_flags.weight = 1.0;
-
-    g_hash_table_insert(obj_prototypes, GINT_TO_POINTER(GET_OBJ_VNUM(obj)), obj);
-
-    return obj->shared->vnum;
-}
-
-void
-compare_objects(struct obj_data *obj_a, struct obj_data *obj_b)
-{
-    fail_unless(!strcmp(obj_a->name, obj_b->name));
-    fail_unless(!strcmp(obj_a->aliases, obj_b->aliases));
-    fail_unless(!strcmp(obj_a->line_desc, obj_b->line_desc));
-    fail_unless(!strcmp(obj_a->action_desc, obj_b->action_desc));
-    fail_unless(obj_a->plrtext_len == obj_b->plrtext_len);
-    fail_unless(obj_a->worn_on == obj_b->worn_on, "obj_a->worn_on = %d, obj_b->worn_on = %d", obj_a->worn_on, obj_b->worn_on);
-    fail_unless(obj_a->soilage == obj_b->soilage);
-    fail_unless(obj_a->unique_id == obj_b->unique_id);
-    fail_unless(obj_a->creation_time == obj_b->creation_time);
-    fail_unless(obj_a->creation_method == obj_b->creation_method);
-    fail_unless(obj_a->creator == obj_b->creator);
-    fail_unless(obj_a->obj_flags.value[0] == obj_b->obj_flags.value[0]);
-    fail_unless(obj_a->obj_flags.value[1] == obj_b->obj_flags.value[1]);
-    fail_unless(obj_a->obj_flags.value[2] == obj_b->obj_flags.value[2]);
-    fail_unless(obj_a->obj_flags.value[3] == obj_b->obj_flags.value[3]);
-    fail_unless(obj_a->obj_flags.type_flag == obj_b->obj_flags.type_flag);
-    fail_unless(obj_a->obj_flags.wear_flags == obj_b->obj_flags.wear_flags);
-    fail_unless(obj_a->obj_flags.extra_flags == obj_b->obj_flags.extra_flags);
-    fail_unless(obj_a->obj_flags.extra2_flags == obj_b->obj_flags.extra2_flags);
-    fail_unless(obj_a->obj_flags.extra3_flags == obj_b->obj_flags.extra3_flags);
-    fail_unless(obj_a->obj_flags.weight == obj_b->obj_flags.weight);
-    fail_unless(obj_a->obj_flags.timer == obj_b->obj_flags.timer);
-    fail_unless(obj_a->obj_flags.bitvector[0] == obj_b->obj_flags.bitvector[0]);
-    fail_unless(obj_a->obj_flags.bitvector[1] == obj_b->obj_flags.bitvector[1]);
-    fail_unless(obj_a->obj_flags.bitvector[2] == obj_b->obj_flags.bitvector[2]);
-    fail_unless(obj_a->obj_flags.material == obj_b->obj_flags.material);
-    fail_unless(obj_a->obj_flags.max_dam == obj_b->obj_flags.max_dam);
-    fail_unless(obj_a->obj_flags.damage == obj_b->obj_flags.damage);
-    fail_unless(obj_a->obj_flags.sigil_idnum == obj_b->obj_flags.sigil_idnum);
-    fail_unless(obj_a->obj_flags.sigil_level == obj_b->obj_flags.sigil_level);
-
-    for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-        fail_unless(obj_a->affected[i].location == obj_a->affected[i].location);
-        fail_unless(obj_a->affected[i].modifier == obj_a->affected[i].modifier);
-    }
-
-    // TODO: test temp object affects
-}
-
 START_TEST(test_fixture_addresses)
 {
 fprintf(stderr, "fixture\n");
@@ -589,7 +513,6 @@ player_io_suite(void)
     TCase *tc_core = tcase_create("Core");
     tcase_add_checked_fixture(tc_core, test_tempus_boot, NULL);
     tcase_add_checked_fixture(tc_core, fixture_make_player, fixture_destroy_player);
-    // tcase_add_checked_fixture(tc_core, fixture_random_objects, fixture_destroy_random_objects);
     tcase_add_test(tc_core, test_fixture_addresses);
     tcase_add_test(tc_core, test_load_save_creature);
     tcase_add_test(tc_core, test_load_save_cyborg);

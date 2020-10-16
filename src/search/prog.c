@@ -223,7 +223,7 @@ prog_event_handler(void *owner, enum prog_evt_type owner_type,
     if (!obj) {
         return 0;
     }
-    return *((short *)obj + phase * PROG_EVT_COUNT + kind);
+    return *((prog_word_t *)obj + phase * PROG_EVT_COUNT + kind);
 }
 
 static void
@@ -233,10 +233,10 @@ prog_next_handler(struct prog_env *env, bool use_resume)
 
     prog = prog_get_obj(env->owner, env->owner_type);
     // skip over lines until we find another handler (or bust)
-    while (*((short *)&prog[env->exec_pt])) {
-        short cmd;
+    while (*((prog_word_t *)&prog[env->exec_pt])) {
+        prog_word_t cmd;
 
-        cmd = *((short *)&prog[env->exec_pt]);
+        cmd = *((prog_word_t *)&prog[env->exec_pt]);
         if (cmd == PROG_CMD_BEFORE ||
             cmd == PROG_CMD_HANDLE ||
             cmd == PROG_CMD_AFTER ||
@@ -244,7 +244,7 @@ prog_next_handler(struct prog_env *env, bool use_resume)
             (use_resume && cmd == PROG_CMD_RESUME)) {
             return;
         }
-        env->exec_pt += sizeof(short) + 2;
+        env->exec_pt += sizeof(prog_word_t) * 2;
     }
 
     // We reached the end of the prog, so we leave the exec_pt
@@ -926,13 +926,13 @@ DEFPROGHANDLER(randomly, env, evt, args)
     exec = prog_get_obj(env->owner, env->owner_type);
     num_paths = 0;
     while (cur_pt < last_pt) {
-        if (*((short *)&exec[cur_pt]) == PROG_CMD_OR) {
+        if (*((prog_word_t *)&exec[cur_pt]) == PROG_CMD_OR) {
             num_paths += 1;
             if (!number(0, num_paths)) {
-                env->exec_pt = cur_pt + sizeof(short) * 2;
+                env->exec_pt = cur_pt + sizeof(prog_word_t) * 2;
             }
         }
-        cur_pt += sizeof(short) * 2;
+        cur_pt += sizeof(prog_word_t) * 2;
     }
 
     // At this point, exec_pt should be on a randomly selected code path
@@ -1044,7 +1044,7 @@ DEFPROGHANDLER(walkto, env, evt, args)
         env->next_tick = prog_tick + MAX(1, pause);
 
         // we stay on the same line until we get to the destination
-        env->exec_pt -= sizeof(short) * 2;
+        env->exec_pt -= sizeof(prog_word_t) * 2;
     }
 }
 
@@ -1124,7 +1124,7 @@ DEFPROGHANDLER(driveto, env, evt, args)
         env->next_tick = prog_tick + MAX(1, pause);
 
         // we stay on the same line until we get to the destination
-        env->exec_pt -= sizeof(short) * 2;
+        env->exec_pt -= sizeof(prog_word_t) * 2;
     }
 }
 
@@ -2037,10 +2037,10 @@ prog_execute(struct prog_env *env)
 
     while (env->exec_pt >= 0 && env->next_tick <= prog_tick) {
         // Get the command and the arg address
-        cmd = *((short *)(exec + env->exec_pt));
-        arg_addr = *((short *)(exec + env->exec_pt + sizeof(short)));
+        cmd = *((prog_word_t *)(exec + env->exec_pt));
+        arg_addr = *((prog_word_t *)(exec + env->exec_pt + sizeof(prog_word_t)));
         // Set the execution point to the next command by default
-        env->exec_pt += sizeof(short) * 2;
+        env->exec_pt += sizeof(prog_word_t) * 2;
         // Call the handler for the command
         arg_str = (arg_addr) ? prog_expand_vars(env, (char *)exec + arg_addr) : NULL;
         // Emit a trace if the prog is being traced
