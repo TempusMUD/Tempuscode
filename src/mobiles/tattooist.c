@@ -298,18 +298,31 @@ SPECIAL(tattooist)
     int err_line;
     struct shop_data *shop;
 
+
+    shop = (struct shop_data *)self->mob_specials.func_data;
+    if (spec_mode == SPECIAL_FREE && shop) {
+        free_shop(shop);
+        self->mob_specials.func_data = NULL;
+        return 1;
+    }
+
     config = GET_NPC_PARAM(self);
     if (!config) {
         return 0;
     }
 
-    shop = (struct shop_data *)self->mob_specials.func_data;
     if (!shop) {
-        CREATE(shop, struct shop_data, 1);
+        shop = make_shop();
         err = vendor_parse_param(config, shop, &err_line);
+        if (err != NULL) {
+            errlog("tattooist vnum %d spec error on line %d: %s", GET_NPC_VNUM(self), err_line, err);
+            self->mob_specials.shared->func = NULL;
+            free_shop(shop);
+            return 1;
+        }
         self->mob_specials.func_data = shop;
     }
-
+    
     if (shop->func &&
         shop->func != tattooist &&
         shop->func(ch, me, cmd, argument, spec_mode)) {

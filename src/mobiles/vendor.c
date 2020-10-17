@@ -1155,24 +1155,21 @@ vendor_revenue(struct creature *self, struct shop_data *shop)
     }
 }
 
-const char *
-vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
-{
-    char *line, *param_key;
-    const char *err = NULL;
-    int val, lineno = 0;
+struct shop_data *
+make_shop(void) {
+    struct shop_data *shop;
 
-    // Initialize default values
+    CREATE(shop, struct shop_data, 1);
     shop->room = -1;
-    shop->msg_denied = "I'm not doing business with YOU!";
-    shop->msg_badobj = "I don't buy that sort of thing.";
-    shop->msg_selfbroke = "Sorry, but I don't have the cash.";
-    shop->msg_buyerbroke = "You don't have enough money to buy this!";
-    shop->msg_sell_noobj = "Sorry, but I don't carry that item.";
-    shop->msg_buy_noobj = "You don't have that item!";
-    shop->msg_buy = "Here you go.";
-    shop->msg_sell = "There you go.";
-    shop->msg_closed = "Come back later!";
+    shop->msg_denied = strdup("I'm not doing business with YOU!");
+    shop->msg_badobj = strdup("I don't buy that sort of thing.");
+    shop->msg_selfbroke = strdup("Sorry, but I don't have the cash.");
+    shop->msg_buyerbroke = strdup("You don't have enough money to buy this!");
+    shop->msg_sell_noobj = strdup("Sorry, but I don't carry that item.");
+    shop->msg_buy_noobj = strdup("You don't have that item!");
+    shop->msg_buy = strdup("Here you go.");
+    shop->msg_sell = strdup("There you go.");
+    shop->msg_closed = strdup("Come back later!");
     shop->cmd_temper = NULL;
     shop->markdown = 70;
     shop->markup = 120;
@@ -1183,7 +1180,38 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
     shop->consignment = false;
     shop->func = NULL;
     shop->reaction = make_reaction();
+    
+    return shop;
+}
 
+void
+free_shop(struct shop_data *shop)
+{
+    g_list_free(shop->item_list);
+    g_list_free(shop->item_types);
+    g_list_free_full(shop->closed_hours, (GDestroyNotify)free);
+    free(shop->msg_denied);
+    free(shop->msg_badobj);
+    free(shop->msg_sell_noobj);
+    free(shop->msg_buy_noobj);
+    free(shop->msg_selfbroke);
+    free(shop->msg_buyerbroke);
+    free(shop->msg_buy);
+    free(shop->msg_sell);
+    free(shop->cmd_temper);
+    free(shop->msg_closed);
+    free_reaction(shop->reaction);
+    free(shop);
+}
+
+const char *
+vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
+{
+    char *line, *param_key;
+    const char *err = NULL;
+    int val, lineno = 0;
+
+    // Initialize default values
     while ((line = tmp_getline(&param)) != NULL) {
         lineno++;
         if (add_reaction(shop->reaction, line)) {
@@ -1226,24 +1254,34 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
             shop->item_types = g_list_prepend(shop->item_types,
                                               GINT_TO_POINTER(0 << 8 | val));
         } else if (!strcmp(param_key, "denied-msg")) {
+            free(shop->msg_denied);
             shop->msg_denied = strdup(line);
         } else if (!strcmp(param_key, "keeper-broke-msg")) {
+            free(shop->msg_selfbroke);
             shop->msg_selfbroke = strdup(line);
         } else if (!strcmp(param_key, "buyer-broke-msg")) {
+            free(shop->msg_buyerbroke);
             shop->msg_buyerbroke = strdup(line);
         } else if (!strcmp(param_key, "buy-msg")) {
+            free(shop->msg_buy);
             shop->msg_buy = strdup(line);
         } else if (!strcmp(param_key, "sell-msg")) {
+            free(shop->msg_sell);
             shop->msg_sell = strdup(line);
         } else if (!strcmp(param_key, "closed-msg")) {
+            free(shop->msg_closed);
             shop->msg_closed = strdup(line);
         } else if (!strcmp(param_key, "no-buy-msg")) {
+            free(shop->msg_badobj);
             shop->msg_badobj = strdup(line);
         } else if (!strcmp(param_key, "sell-noobj-msg")) {
+            free(shop->msg_sell_noobj);
             shop->msg_sell_noobj = strdup(line);
         } else if (!strcmp(param_key, "buy-noobj-msg")) {
+            free(shop->msg_buy_noobj);
             shop->msg_buy_noobj = strdup(line);
         } else if (!strcmp(param_key, "temper-cmd")) {
+            free(shop->cmd_temper);
             shop->cmd_temper = strdup(line);
         } else if (!strcmp(param_key, "closed-hours")) {
             struct shop_time time;
@@ -1318,6 +1356,8 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
             }
         } else {
             err = "invalid directive";
+        }
+        if (err) {
             break;
         }
     }
@@ -1325,7 +1365,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
     if (err_line) {
         *err_line = (err) ? lineno : -1;
     }
-
+    
     return err;
 }
 
@@ -1337,6 +1377,13 @@ SPECIAL(vendor)
     int err_line;
     struct shop_data *shop;
 
+    shop = (struct shop_data *)self->mob_specials.func_data;
+    if (spec_mode == SPECIAL_FREE && shop) {
+        free_shop(shop);
+        self->mob_specials.func_data = NULL;
+        return 1;
+    }
+
     config = GET_NPC_PARAM(self);
     if (!config) {
         return 0;
@@ -1344,8 +1391,14 @@ SPECIAL(vendor)
 
     shop = (struct shop_data *)self->mob_specials.func_data;
     if (!shop) {
-        CREATE(shop, struct shop_data, 1);
+        shop = make_shop();
         err = vendor_parse_param(config, shop, &err_line);
+        if (err != NULL) {
+            errlog("vendor spec error on line %d: %s", err_line, err);
+            self->mob_specials.shared->func = NULL;
+            free_shop(shop);
+            return 1;
+        }
         self->mob_specials.func_data = shop;
     }
     // If there's a subspecial, try that first

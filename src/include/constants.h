@@ -21,6 +21,7 @@ enum special_mode {
     SPECIAL_ENTER =  5, // special upon entrance
     SPECIAL_LEAVE =  6, // special upon exit
     SPECIAL_RESET =  7, // zone reset
+    SPECIAL_FREE =   8, // special owner about to be deallocated
 };
 
 /* other miscellaneous defines *******************************************/

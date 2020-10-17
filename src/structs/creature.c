@@ -825,6 +825,11 @@ extract_creature(struct creature *ch, enum cxn_state con_state)
         return;
     }
 
+    // give mob special a chance to free its internal data
+    if (GET_NPC_SPEC(ch)) {
+        GET_NPC_SPEC(ch) (ch, ch, 0, tmp_strdup(""), SPECIAL_FREE);
+    }
+
     if (ch->followers || ch->master) {
         die_follower(ch);
     }

@@ -55,82 +55,37 @@ make_object(void)
 void
 free_object(struct obj_data *obj)
 {
-    struct extra_descr_data *this_desc, *next_one;
+#define FREE_UNIQUE_FIELD(o,f) if (o->shared == NULL || obj->shared->proto == NULL || obj->shared->proto->f != obj->f) { free(obj->f); }
+    FREE_UNIQUE_FIELD(obj, name);
+    FREE_UNIQUE_FIELD(obj, aliases);
+    FREE_UNIQUE_FIELD(obj, line_desc);
+    FREE_UNIQUE_FIELD(obj, action_desc);
+    FREE_UNIQUE_FIELD(obj, engraving);
 
-    if (!obj->shared || GET_OBJ_VNUM(obj) == -1 || !obj->shared->proto) {
-        if (obj->aliases) {
-            free(obj->aliases);
-            obj->aliases = NULL;
-        }
-        if (obj->line_desc) {
-            free(obj->line_desc);
-            obj->line_desc = NULL;
-        }
-        if (obj->name) {
-            free(obj->name);
-            obj->name = NULL;
-        }
-        if (obj->action_desc) {
-            free(obj->action_desc);
-            obj->action_desc = NULL;
-        }
-        if (obj->engraving) {
-            free(obj->engraving);
-            obj->engraving = NULL;
-        }
-        if (obj->ex_description) {
-            for (this_desc = obj->ex_description; this_desc;
-                 this_desc = next_one) {
-                next_one = this_desc->next;
-                if (this_desc->keyword) {
-                    free(this_desc->keyword);
-                }
-                if (this_desc->description) {
-                    free(this_desc->description);
-                }
-                free(this_desc);
+    // This should probably check to make sure none of these are
+    // shared with the proto.  In practice, these are likely to be
+    // entirely disjoint if the first element is different.
+    if (obj->shared == NULL
+        || obj->shared->proto == NULL
+        || obj->shared->proto->ex_description != obj->ex_description) {
+        struct extra_descr_data *desc;
+        while ((desc = obj->ex_description)) {
+            obj->ex_description = desc->next;
+            if (desc->keyword) {
+                free(desc->keyword);
             }
-            obj->ex_description = NULL;
-        }
-    } else {
-        if (obj->aliases && obj->aliases != obj->shared->proto->aliases) {
-            free(obj->aliases);
-            obj->aliases = NULL;
-        }
-        if (obj->line_desc && obj->line_desc != obj->shared->proto->line_desc) {
-            free(obj->line_desc);
-            obj->line_desc = NULL;
-        }
-        if (obj->name && obj->name != obj->shared->proto->name) {
-            free(obj->name);
-            obj->name = NULL;
-        }
-        if (obj->action_desc &&
-            obj->action_desc != obj->shared->proto->action_desc) {
-            free(obj->action_desc);
-            obj->action_desc = NULL;
-        }
-        if (obj->ex_description &&
-            obj->ex_description != obj->shared->proto->ex_description) {
-            for (this_desc = obj->ex_description; this_desc;
-                 this_desc = next_one) {
-                next_one = this_desc->next;
-                if (this_desc->keyword) {
-                    free(this_desc->keyword);
-                }
-                if (this_desc->description) {
-                    free(this_desc->description);
-                }
-                free(this_desc);
+            if (desc->description) {
+                free(desc->description);
             }
-            obj->ex_description = NULL;
+            free(desc);
         }
-        while (obj->tmp_affects) {
-            struct tmp_obj_affect *aff;
+    }
 
-            aff = obj->tmp_affects;
-            remove_object_affect(obj, aff);
-        }
+    while (obj->tmp_affects) {
+        struct tmp_obj_affect *aff;
+
+        aff = obj->tmp_affects;
+        remove_object_affect(obj, aff);
     }
     free(obj);
 }

@@ -209,6 +209,8 @@ main(int argc, char **argv)
 
     slog("Running as %s:%s in %s", pw->pw_name, gr->gr_name, dir);
 
+    free(dir);
+
     ensure_environment();
 
     reader_port = main_port + 1;

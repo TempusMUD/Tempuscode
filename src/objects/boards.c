@@ -32,12 +32,12 @@
 #include "strutil.h"
 
 struct board_data {
-    const char *name;
-    const char *deny_read;
-    const char *deny_post;
-    const char *deny_edit;
-    const char *deny_remove;
-    const char *not_author;
+    char *name;
+    char *deny_read;
+    char *deny_post;
+    char *deny_edit;
+    char *deny_remove;
+    char *not_author;
     struct reaction *read_perms;
     struct reaction *post_perms;
     struct reaction *edit_perms;
@@ -311,16 +311,16 @@ gen_board_load(struct obj_data *self, char *param, int *err_line)
     int lineno = 0;
 
     CREATE(board, struct board_data, 1);
-    board->name = "world";
+    board->name = strdup("world");
     board->deny_read =
-        "Try as you might, you cannot bring yourself to read this board.";
+        strdup("Try as you might, you cannot bring yourself to read this board.");
     board->deny_post =
-        "Try as you might, you cannot bring yourself to write on this board.";
+        strdup("Try as you might, you cannot bring yourself to write on this board.");
     board->deny_edit =
-        "Try as you might, you cannot bring yourself to edit this board.";
+        strdup("Try as you might, you cannot bring yourself to edit this board.");
     board->deny_remove =
-        "Try as you might, you cannot bring yourself to delete anything on this board.";
-    board->not_author = "You can only delete your own posts on this board.";
+        strdup("Try as you might, you cannot bring yourself to delete anything on this board.");
+    board->not_author = strdup("You can only delete your own posts on this board.");
     CREATE(board->read_perms, struct reaction, 1);
     CREATE(board->post_perms, struct reaction, 1);
     CREATE(board->edit_perms, struct reaction, 1);
@@ -333,16 +333,22 @@ gen_board_load(struct obj_data *self, char *param, int *err_line)
         }
         param_key = tmp_getword(&line);
         if (!strcmp(param_key, "board")) {
+            free(board->name);
             board->name = strdup(tmp_tolower(line));
         } else if (!strcmp(param_key, "deny-read")) {
+            free(board->deny_read);
             board->deny_read = strdup(line);
         } else if (!strcmp(param_key, "deny-post")) {
+            free(board->deny_post);
             board->deny_post = strdup(line);
         } else if (!strcmp(param_key, "deny-edit")) {
+            free(board->deny_edit);
             board->deny_edit = strdup(line);
         } else if (!strcmp(param_key, "deny-remove")) {
+            free(board->deny_remove);
             board->deny_remove = strdup(line);
         } else if (!strcmp(param_key, "not-author")) {
+            free(board->not_author);
             board->not_author = strdup(line);
         } else if (!strcmp(param_key, "read")) {
             if (!add_reaction(board->read_perms, line)) {
@@ -371,6 +377,12 @@ gen_board_load(struct obj_data *self, char *param, int *err_line)
     }
 
     if (err) {
+        free(board->name);
+        free(board->deny_read);
+        free(board->deny_post);
+        free(board->deny_edit);
+        free(board->deny_remove);
+        free(board->not_author);
         free_reaction(board->read_perms);
         free_reaction(board->post_perms);
         free_reaction(board->edit_perms);

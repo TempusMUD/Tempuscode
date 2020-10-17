@@ -305,6 +305,7 @@ load_auctions()
     xmlDocPtr doc = xmlParseFileWithLog(AUC_FILE_PATH);
     if (doc) {
         load_auctions_from_doc(doc);
+        xmlFreeDoc(doc);
     }
 }
 

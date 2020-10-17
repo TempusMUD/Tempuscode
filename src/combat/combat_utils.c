@@ -85,20 +85,28 @@ ok_damage_vendor(struct creature *ch, struct creature *victim)
     if (IS_NPC(victim)
         && (NPC2_FLAGGED(victim, NPC2_SELLER)
             || victim->mob_specials.shared->func == vendor)) {
-        struct shop_data *shop =
-            (struct shop_data *)victim->mob_specials.func_data;
 
         if (!GET_NPC_PARAM(victim)) {
             return false;
         }
 
+        struct shop_data *shop =
+            (struct shop_data *)victim->mob_specials.func_data;
         if (!shop) {
-            CREATE(shop, struct shop_data, 1);
-            vendor_parse_param(GET_NPC_PARAM(victim), shop, NULL);
-            victim->mob_specials.func_data = shop;
+            shop = make_shop();
+            if (vendor_parse_param(GET_NPC_PARAM(victim), shop, NULL) == NULL) {
+                victim->mob_specials.func_data = shop;
+            } else {
+                free_shop(shop);
+                shop = NULL;
+            }
         }
 
-        return shop->attack_ok;
+        if (shop) {
+            return shop->attack_ok;
+        }
+        // broken shops shouldn't be attacked
+        return false;
     }
 
     if (IS_NPC(victim) && NPC_FLAGGED(victim, NPC_UTILITY)) {

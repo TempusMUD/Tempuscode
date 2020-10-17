@@ -832,6 +832,7 @@ path_remove_object(void *object)
         i->prev->next = i->next;
     }
 
+    free(i->object);
     free(i);
 }
 

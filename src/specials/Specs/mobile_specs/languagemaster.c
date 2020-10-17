@@ -15,8 +15,6 @@ SPECIAL(languagemaster)
     int check_only = 0, tongue_idx = TONGUE_NONE;
     int cost = TONGUE_COST;
 
-    cost = adjusted_price(ch, master, cost);
-
     if (spec_mode != SPECIAL_CMD) {
         return false;
     }
@@ -50,6 +48,8 @@ SPECIAL(languagemaster)
         perform_tell(master, ch, "Sorry, but I can't teach you any more.");
         return 1;
     }
+
+    cost = adjusted_price(ch, master, cost);
 
     send_to_char(ch,
                  "It will cost you %'d gold coins to learn to speak %s%s\r\n", cost,
