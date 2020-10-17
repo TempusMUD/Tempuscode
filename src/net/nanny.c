@@ -132,37 +132,14 @@ push_command_onto_list(struct creature *ch, char *string)
     strcpy_s(last_cmd[0].string, sizeof(last_cmd[0].string), string);
 }
 
-gboolean
-handle_input(gpointer data)
+void
+dispatch_input(struct descriptor_data *d, char *arg)
 {
-    gboolean process_output(GIOChannel *io, GIOCondition condition, gpointer data);
-
-    struct descriptor_data *d = data;
-    extern bool production_mode;
-    int char_id;
-    int i;
-
-    if (--(d->wait) > 0) {
-        return true;
-    }
-
-    if (g_queue_is_empty(d->input)) {
-        return true;
-    }
-
-    char *arg = g_queue_pop_head(d->input);
-
-    // we need a prompt here
-    d->need_prompt = true;
-    if (!d->out_watcher) {
-        d->out_watcher = g_io_add_watch(d->io, G_IO_OUT, process_output, d);
-    }
-    d->wait = 1;
-    d->idle = 0;
+    int i, char_id;
 
     if (d->text_editor) {
         editor_handle_input(d->text_editor, arg);
-        return true;
+        return;
     }
 
     switch (d->input_mode) {
@@ -276,11 +253,10 @@ handle_input(gpointer data)
         }
         break;
     case CXN_ANSI_PROMPT:
-
         i = search_block(arg, ansi_levels, false);
         if (i == -1) {
             d_printf(d, "\r\nPlease enter one of the selections.\r\n\r\n");
-            return true;
+            return;
         }
 
         account_set_ansi_level(d->account, i);
@@ -290,7 +266,7 @@ handle_input(gpointer data)
         i = search_block(arg, compact_levels, false);
         if (i == -1) {
             d_printf(d, "\r\nPlease enter one of the selections.\r\n\r\n");
-            return true;
+            return;
         }
 
         account_set_compact_level(d->account, i);
@@ -433,7 +409,7 @@ handle_input(gpointer data)
             if (invalid_char_index(d->account, atoi(arg))) {
                 d_printf(d,
                          "\r\nThat character selection doesn't exist.\r\n\r\n");
-                return true;
+                return;
             }
             // Try to reconnect to an existing creature first
             char_id = get_char_by_index(d->account, atoi(arg));
@@ -471,7 +447,7 @@ handle_input(gpointer data)
                 }
 
                 set_desc_state(CXN_PLAYING, d);
-                return true;
+                return;
             }
 
             d->creature = load_player_from_xml(char_id);
@@ -485,7 +461,7 @@ handle_input(gpointer data)
                          "Sorry.  There was an error processing your request.\r\n");
                 d_printf(d,
                          "The gods are not ignorant of your plight.\r\n\r\n");
-                return true;
+                return;
             }
 
             d->creature->desc = d;
@@ -494,7 +470,7 @@ handle_input(gpointer data)
             // If they were in the middle of something important
             if (d->creature->player_specials->desc_mode != CXN_UNKNOWN) {
                 set_desc_state(d->creature->player_specials->desc_mode, d);
-                return true;
+                return;
             }
 
             if (production_mode
@@ -503,7 +479,7 @@ handle_input(gpointer data)
                          "You can't have another character in the game right now.\r\n");
                 free_creature(d->creature);
                 d->creature = NULL;
-                return true;
+                return;
             }
 
             if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR
@@ -519,7 +495,7 @@ handle_input(gpointer data)
                                         "while %s is in a quest.\r\n", GET_NAME(tmp_ch));
                             free_creature(d->creature);
                             d->creature = NULL;
-                            return true;
+                            return;
                         }
                         free_creature(tmp_ch);
                     }
@@ -534,13 +510,13 @@ handle_input(gpointer data)
     case CXN_NAME_PROMPT:
         if (!arg[0]) {
             set_desc_state(CXN_MENU, d);
-            return true;
+            return;
         }
 
         if (player_name_exists(arg)) {
             d_printf(d,
                      "\r\nThat character name is already taken.\r\n\r\n");
-            return true;
+            return;
         }
 
         if (d->creature) {
@@ -548,12 +524,12 @@ handle_input(gpointer data)
             d_printf(d,
                      "\r\nSorry, there was an error creating your character.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return true;
+            return;
         }
 
         if (!is_valid_name(arg)) {
             d_printf(d, "\r\nThat character name is invalid.\r\n\r\n");
-            return true;
+            return;
         }
 
         d->creature = account_create_char(d->account, arg, top_player_idnum() + 1);
@@ -619,26 +595,26 @@ handle_input(gpointer data)
     case CXN_CLASS_PROMPT:
         if (is_abbrev("help", arg)) {
             show_pc_class_help(d, arg);
-            return true;
+            return;
         }
         GET_CLASS(d->creature) = parse_player_class(arg);
         if (GET_CLASS(d->creature) == CLASS_UNDEFINED) {
             d_send(d, CCRED(d->creature, C_NRM));
             d_send(d, "\r\nThat's not a character class.\r\n\r\n");
             d_send(d, CCNRM(d->creature, C_NRM));
-            return true;
+            return;
         }
         set_desc_state(CXN_RACE_PROMPT, d);
         break;
     case CXN_RACE_PROMPT:
         if (is_abbrev("help", arg)) {
             show_pc_race_help(d, arg);
-            return true;
+            return;
         }
         GET_RACE(d->creature) = parse_pc_race(d, arg);
         if (GET_RACE(d->creature) == RACE_UNDEFINED) {
             d_printf(d, "&gThat's not an allowable race!&n\r\n");
-            return true;
+            return;
         }
 
         int race_idx = -1;
@@ -674,14 +650,14 @@ handle_input(gpointer data)
     case CXN_CLASS_REMORT:
         if (is_abbrev(arg, "help")) {
             show_pc_class_help(d, arg);
-            return true;
+            return;
         }
         GET_REMORT_CLASS(d->creature) = parse_player_class(arg);
         if (GET_REMORT_CLASS(d->creature) == CLASS_UNDEFINED) {
             d_send(d, CCRED(d->creature, C_NRM));
             d_send(d, "\r\nThat's not a character class.\r\n\r\n");
             d_send(d, CCNRM(d->creature, C_NRM));
-            return true;
+            return;
         }
 
         for (i = 0; i < NUM_PC_RACES; i++) {
@@ -789,7 +765,7 @@ handle_input(gpointer data)
             d_printf(d,
                      "\r\nThat character selection doesn't exist.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return true;
+            return;
         }
 
         char_id = get_char_by_index(d->account, atoi(arg));
@@ -800,7 +776,7 @@ handle_input(gpointer data)
                 d_printf(d,
                          "Sorry.  That character could not be loaded.\r\n");
                 set_desc_state(CXN_WAIT_MENU, d);
-                return true;
+                return;
             }
         }
 
@@ -811,7 +787,7 @@ handle_input(gpointer data)
             d_printf(d,
                      "\r\nThat character selection doesn't exist.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return true;
+            return;
         }
 
         char_id = get_char_by_index(d->account, atoi(arg));
@@ -819,7 +795,7 @@ handle_input(gpointer data)
         if (!d->creature) {
             d_printf(d, "Sorry.  That character could not be loaded.\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return true;
+            return;
         }
 
         d->creature->desc = d;
@@ -828,7 +804,7 @@ handle_input(gpointer data)
     case CXN_DELETE_PW:
         if (account_authenticate(d->account, arg)) {
             set_desc_state(CXN_DELETE_VERIFY, d);
-            return true;
+            return;
         }
 
         d_printf(d,
@@ -891,7 +867,7 @@ handle_input(gpointer data)
     case CXN_OLDPW_PROMPT:
         if (account_authenticate(d->account, arg)) {
             set_desc_state(CXN_NEWPW_PROMPT, d);
-            return true;
+            return;
         }
 
         d_printf(d,
@@ -936,7 +912,7 @@ handle_input(gpointer data)
             d_printf(d,
                      "\r\nThat character selection doesn't exist.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return true;
+            return;
         }
 
         char_id = get_char_by_index(d->account, atoi(arg));
@@ -944,7 +920,7 @@ handle_input(gpointer data)
         if (!d->creature) {
             d_printf(d, "Sorry.  That character could not be loaded.\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-            return true;
+            return;
         }
 
         d->creature->desc = d;
@@ -978,7 +954,7 @@ handle_input(gpointer data)
     case CXN_EMAIL_VERIFY:
         if (account_authenticate(d->account, arg)) {
             set_desc_state(CXN_NEWEMAIL_PROMPT, d);
-            return true;
+            return;
         }
 
         d_printf(d,
@@ -995,6 +971,36 @@ handle_input(gpointer data)
         }
         break;
     }
+}
+
+gboolean
+handle_input(gpointer data)
+{
+    gboolean process_output(GIOChannel *io, GIOCondition condition, gpointer data);
+    struct descriptor_data *d = data;
+
+    if (--(d->wait) > 0) {
+        return true;
+    }
+
+    if (g_queue_is_empty(d->input)) {
+        return true;
+    }
+
+    char *arg = g_queue_pop_head(d->input);
+
+    // we need a prompt here
+    d->need_prompt = true;
+    if (!d->out_watcher) {
+        d->out_watcher = g_io_add_watch(d->io, G_IO_OUT, process_output, d);
+    }
+    d->wait = 1;
+    d->idle = 0;
+
+    dispatch_input(d, arg);
+
+    free(arg);
+
     return true;
 }
 
