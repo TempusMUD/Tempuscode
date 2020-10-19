@@ -164,6 +164,10 @@ dispatch_input(struct descriptor_data *d, char *arg)
 
         // send it to interpreter
         command_interpreter(d->creature, cmd);
+
+        if (cmd != arg) {
+            free(cmd);
+        }
         break;
     case CXN_ACCOUNT_LOGIN:
         if (!*arg) {

@@ -2066,11 +2066,9 @@ expand_player_alias(struct descriptor_data *d, char *orig)
     if (!a) {
         return orig;
     } else if (a->type == ALIAS_SIMPLE) {
-        free(orig);
         return tmp_sprintf("\\%s", a->replacement);
     }
     char *result = perform_complex_alias(d->input, cmdargs, a);
-    free(orig);
 
     return result;
 }
