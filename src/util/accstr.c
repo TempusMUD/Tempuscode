@@ -1,6 +1,3 @@
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <string.h>
 #include <signal.h>
 #include <libxml/parser.h>

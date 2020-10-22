@@ -4,9 +4,6 @@
 // Copyright 1998 by John Watson and John Rothe, all rights reserved.
 //
 
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>

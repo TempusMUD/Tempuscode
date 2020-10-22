@@ -1,8 +1,5 @@
 #include <string.h>
 
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>

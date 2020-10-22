@@ -15,9 +15,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
@@ -3426,7 +3423,7 @@ const char *logtypes[] = {
     "off", "brief", "normal", "complete", "\n"
 };
 
-extern struct gender gender_info[] = {
+struct gender gender_info[] = {
     {"neuter", "it", "it", "its", "itself"},
     {"male", "he", "him", "his", "himself"},
     {"female", "she", "her", "her", "herself"},

@@ -6,10 +6,6 @@
 //
 //
 
-#ifdef HAS_CONFIG_H
-#endif
-
-#define _GNU_SOURCE 1
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

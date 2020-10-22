@@ -8,9 +8,6 @@
         VEHICLE.C
 ****************************************************************************/
 
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>

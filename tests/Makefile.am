@@ -1,6 +1,6 @@
 TESTS = check_tempus
 check_PROGRAMS = check_tempus
-AM_CFLAGS =-I@top_srcdir@/src/include @POSTGRESQL_CPPFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @CHECK_CFLAGS@  -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG} -g -O0
+AM_CFLAGS =-I@top_srcdir@/src/include @POSTGRESQL_CPPFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @CHECK_CFLAGS@  -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG} -g -O0 -fsanitize=address
 check_tempus_SOURCES = \
 			@top_srcdir@/tests/check_tempus.c \
 			@top_srcdir@/tests/testing.c \
@@ -13,6 +13,7 @@ check_tempus_SOURCES = \
 	        @top_srcdir@/tests/prog_tests.c \
 	        @top_srcdir@/tests/quest_tests.c
 
+check_tempus_LDFLAGS = -fsanitize=address -fsanitize=undefined
 check_tempus_LDADD = \
 				 $(top_builddir)/src/clan/clan.o \
 				 $(top_builddir)/src/classes/act.barb.o \

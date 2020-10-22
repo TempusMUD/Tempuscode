@@ -17,8 +17,6 @@
 // Copyright 2002 by John Rothe, all rights reserved.
 //
 
-#ifdef HAS_CONFIG_H
-#endif
 /*
 
 

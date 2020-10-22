@@ -2,9 +2,6 @@
 // File: maileditor.cc                        -- part of TempusMUD
 //
 
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <stdbool.h>
 #include <ctype.h>
 #include <inttypes.h>

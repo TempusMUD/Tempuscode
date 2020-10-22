@@ -60,13 +60,12 @@ AC_C_RESTRICT
 AC_TYPE_SIZE_T
 AC_HEADER_TIME
 AC_STRUCT_TM
-AM_PROG_CC_C_O
 
 # Checks for library functions.
 AC_FUNC_MALLOC
 AC_FUNC_MKTIME
 AC_FUNC_REALLOC
-AC_CHECK_FUNCS([bzero gethostbyaddr gettimeofday isascii memmove memset mkdir select socket strcasecmp strchr strdup strerror strncasecmp strpbrk strspn strstr strtol])
+AC_CHECK_FUNCS([bzero gethostbyaddr gettimeofday isascii memmove memset mkdir select socket strcasecmp strchr strdup strerror strncasecmp strpbrk strspn strstr strtol vsnprintf])
 
 AC_CONFIG_FILES([Makefile src/Makefile tests/Makefile])
 AC_OUTPUT

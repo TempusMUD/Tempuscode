@@ -22,9 +22,6 @@
  * the appropriate new special cases for your new char_class.
  */
 
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>

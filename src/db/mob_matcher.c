@@ -15,11 +15,6 @@
 // All modifications and additions are
 // Copyright 2014 by Daniel Lowe, all rights reserved.
 //
-#ifdef HAS_CONFIG_H
-#endif
-
-#define _GNU_SOURCE
-
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>

@@ -1,5 +1,3 @@
-#ifdef HAS_CONFIG_H
-#endif
 /*
 
    void load_xml_object(xmlNodePtr node);

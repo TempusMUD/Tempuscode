@@ -8,8 +8,6 @@
 // act.thief.c
 //
 
-#ifdef HAS_CONFIG_H
-#endif
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>

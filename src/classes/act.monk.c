@@ -8,8 +8,6 @@
 // File: act.monk.c                Created for TempusMUD by Fireball
 //
 
-#ifdef HAS_CONFIG_H
-#endif
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>

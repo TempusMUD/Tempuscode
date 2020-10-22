@@ -1,6 +1,3 @@
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>

@@ -41,9 +41,6 @@
    authors. WSE" )
  */
 
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <stdbool.h>
 
 #define m  (unsigned long)2147483647

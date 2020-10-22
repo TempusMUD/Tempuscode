@@ -1,8 +1,3 @@
-#ifdef HAS_CONFIG_H
-#endif
-
-#define _GNU_SOURCE
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>

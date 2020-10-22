@@ -15,9 +15,6 @@
 // Copyright 2001 by Daniel Lowe, all rights reserved.
 //
 
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>

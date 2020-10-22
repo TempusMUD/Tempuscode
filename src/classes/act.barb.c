@@ -8,9 +8,6 @@
 // act.barb.c      --  Barbarian specific functions,      Fireball, July 1998
 //
 
-#ifdef HAS_CONFIG_H
-#endif
-
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>

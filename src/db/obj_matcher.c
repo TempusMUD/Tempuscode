@@ -16,11 +16,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 // Copyright 2002 by John Rothe, all rights reserved.
 //
-#ifdef HAS_CONFIG_H
-#endif
-
-#define _GNU_SOURCE
-
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>

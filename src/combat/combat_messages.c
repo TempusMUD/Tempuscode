@@ -15,9 +15,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#ifdef HAS_CONFIG_H
-#endif
-
 #define __combat_code__
 #define __combat_messages__
 
