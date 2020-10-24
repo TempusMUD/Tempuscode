@@ -43,7 +43,7 @@ static const char *voice_emit_categories[] = {
     "\n"
 };
 
-GHashTable *voices = NULL;
+static GHashTable *voices = NULL;
 
 void
 free_voice(struct voice *voice)

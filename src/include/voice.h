@@ -47,8 +47,6 @@ struct voice {
     GHashTable *emits;
 };
 
-GHashTable *voices;
-
 #define GET_VOICE(ch) ((ch)->mob_specials.shared->voice)
 
 const char *voice_name(int voice_idx);
