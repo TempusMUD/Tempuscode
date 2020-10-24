@@ -12,7 +12,7 @@ SPECIAL(beer_tree)
 
     skip_spaces(&argument);
 
-    if (!spec_mode != SPECIAL_CMD || !(CMD_IS("get") || CMD_IS("pick"))) {
+    if (spec_mode != SPECIAL_CMD || !(CMD_IS("get") || CMD_IS("pick"))) {
         return 0;
     }
 

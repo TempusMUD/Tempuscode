@@ -2167,7 +2167,7 @@ ACMD(do_gasify)
         return;
     }
 
-    IS_CARRYING_N(gas) = 200;
+    IS_CARRYING_N(gas) = 127;
 
     act("$n slowly fades away, leaving only a gaseous cloud behind.",
         true, ch, NULL, NULL, TO_ROOM);
