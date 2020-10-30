@@ -1151,9 +1151,9 @@ intsig(int sig __attribute__ ((unused)))
 {
     mudlog(LVL_AMBASSADOR, BRF, true,
            "Received external signal - shutting down for reboot now.");
-
     send_to_all("\007\007:: Tempus REBOOT NOW! ::\r\n");
-    circle_shutdown = circle_reboot = 1;
+    circle_shutdown = circle_reboot = true;
+    g_main_loop_quit(main_loop);
 }
 
 /*
