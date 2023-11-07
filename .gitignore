@@ -19,3 +19,5 @@ install-sh
 missing
 pause
 syslog
+*.o
+*~
