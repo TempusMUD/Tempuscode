@@ -460,14 +460,12 @@ SPECIAL(artisan)
         return true;
     }
 
-/*
     if (!shop->accepts(ch) && shop->refuses(ch)) {
-        snprintf(buf, sizeof(buf), "I don't deal with your type.");
-        perform_say_to(keeper, ch, buf);
+        msg = tmp_sprintf("I don't deal with your type.");
+        perform_say_to(keeper, ch, msg);
         do_action(keeper, GET_NAME(ch), cmd_smirk, 0);
         return true;
     }
- */
 
     if (CMD_IS("list")) {
         craft_shop_list(shop, keeper, ch);

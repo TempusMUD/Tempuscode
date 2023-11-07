@@ -440,7 +440,6 @@ ACMD(do_circle)
         //
 
         if ((number(1, 40) + GET_LEVEL(vict)) > CHECK_SKILL(ch, SKILL_CIRCLE)) {
-            // set_fighting(vict, ch, false);
             add_combat(vict, ch, false);
             add_combat(ch, vict, true);
         }

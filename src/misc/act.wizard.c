@@ -2907,18 +2907,13 @@ ACMD(do_pload)
         send_to_char(ch, "How do you expect to create negative objects?\r\n");
         return;
     }
+
     // put a cap on how many someone can load
     if (quantity > 100) {
         send_to_char(ch, "You can't possibly need THAT many!\r\n");
         return;
     }
 
-    /*//no visible characters corresponding to vict.
-    if (!vict) {
-       send_to_char(ch, "%s", NOPERSON);
-       return;
-    }
-    */
     if (!real_object_proto(number)) {
         send_to_char(ch, "There is no object with that number.\r\n");
         return;
@@ -4143,8 +4138,6 @@ do_show_stats(struct creature *ch)
 #endif
     send_to_char(ch, "  %5zu running progs (%zu total, %zu free)\r\n",
                  prog_count(false), prog_count(true), free_prog_count());
-    // send_to_char(ch, "  %5zu fighting creatures\r\n",
-    // combatList.size());
     send_to_char(ch, "  Lunar day: %2d, phase: %s (%d)\r\n",
                  lunar_day, lunar_phases[get_lunar_phase(lunar_day)],
                  get_lunar_phase(lunar_day));

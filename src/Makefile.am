@@ -9,7 +9,7 @@ else
   USE_IPV6_FLAG=
 endif
 bin_PROGRAMS = @top_srcdir@/bin/circle
-AM_CFLAGS = -I@top_srcdir@/src/include -include @builddir@/config.h @POSTGRESQL_CPPFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ -Wall -Wcast-qual -Werror-implicit-function-declaration ${DBGFLAG} ${USE_IPV6_FLAG} 
+AM_CFLAGS = -I@top_srcdir@/src/include -include @builddir@/config.h @POSTGRESQL_CPPFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ -Wall -Wcast-qual -Werror-implicit-function-declaration ${DBGFLAG} ${USE_IPV6_FLAG}
 @top_srcdir@_bin_circle_LDADD = @POSTGRESQL_LDFLAGS@ @POSTGRESQL_LIBS@ @XML_LIBS@ @GLIB_LIBS@
 ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^DEFPROGHANDLER(\\([a-zA-Z0-9_]+\\),[^)]+)$/prog_do_\\1/' --regex='/^SPECIAL(\\([a-zA-Z0-9_]+\\))$/\\1/'
 
@@ -34,7 +34,6 @@ ETAGSFLAGS = --regex='/^ASPELL(\\([a-zA-Z0-9_]+\\))$/\\1/' --regex='/^ACMD(\\([a
                  combat/fight.c \
                  combat/pvp.c \
 				 db/account.c \
-                 db/analysis.c \
                  db/constants.c \
                  db/db.c \
                  db/mob_matcher.c \

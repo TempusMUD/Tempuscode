@@ -397,7 +397,6 @@ adjusted_price(struct creature *buyer, struct creature *seller, money_t base_pri
 int
 getSpeed(struct creature *ch)
 {
-    // if(IS_NPC(ch))
     if (ch->char_specials.saved.act & NPC_ISNPC) {
         return 0;
     }

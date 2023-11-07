@@ -2613,7 +2613,6 @@ ACMD(do_insert)
         act("$N wakes up with a scream as $n cuts into you!",
             false, ch, NULL, vict, TO_VICT | TO_SLEEP);
         GET_POSITION(vict) = POS_RESTING;
-        // damage(ch, vict, dice(5, 10), TYPE_SURGERY, pos);
         return;
     }
 

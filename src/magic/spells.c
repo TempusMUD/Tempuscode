@@ -507,11 +507,6 @@ ASPELL(spell_astral_spell)
                      "The magic quickly dissipates!\r\n");
         act("$n fades out for a moment but quickly flickers back into view.",
             false, victim, NULL, NULL, TO_ROOM);
-        /* Removed per Cat's request
-           "You are caught up in an energy vortex and thrown to the ground!\r\n", victim);
-           act("$n is knocked to the ground by a blinding flash of light!",
-           false, victim, 0, 0, TO_ROOM);
-           victim->setPosition( POS_RESTING ); */
         return;
     }
 
