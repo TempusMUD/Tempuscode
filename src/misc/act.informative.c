@@ -1828,7 +1828,7 @@ look_in_obj(struct creature *ch, char *arg)
         } else {                /* item must be a fountain or drink container */
             int max_fill = GET_OBJ_VAL(obj, 0);
             int cur_fill = GET_OBJ_VAL(obj, 1);
-            
+
             if (cur_fill == 0) {
                 acc_sprintf("It is empty.\r\n");
             } else if (cur_fill < 0 || max_fill < 0 || cur_fill >= max_fill) {
@@ -2644,6 +2644,9 @@ acc_append_affects(struct creature *ch, int8_t mode)
     }
     if (affected_by_spell(ch, SPELL_STRENGTH)) {
         acc_strcat("Your physical strength is magically augmented.\r\n", NULL);
+    }
+    if (affected_by_spell(ch, SPELL_WORD_OF_INTELLECT)) {
+        acc_strcat("Your intellect is magically augmented.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_BARKSKIN)) {
         acc_strcat("Your skin is thick and tough like tree bark.\r\n", NULL);

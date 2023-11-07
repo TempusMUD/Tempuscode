@@ -15,6 +15,7 @@
 // All modifications and additions are
 // Copyright 2014 by Daniel Lowe, all rights reserved.
 //
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>

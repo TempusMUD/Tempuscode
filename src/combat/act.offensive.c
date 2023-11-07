@@ -2156,28 +2156,31 @@ ACMD(do_tornado_kick)
 {
     struct creature *vict = NULL;
     struct obj_data *ovict = NULL;
-    int percent, prob, dam;
+    int percent = 0, prob = 0, dam = 0, count =0, i = 0;
     char *arg;
 
     arg = tmp_getword(&argument);
 
-    if (!(vict = get_char_room_vis(ch, arg))) {
-        if (is_fighting(ch)) {
-            vict = random_opponent(ch);
-        } else if ((ovict =
-                        get_obj_in_list_vis(ch, arg, ch->in_room->contents))) {
-            act("You spin into the air, kicking $p!", false, ch, ovict, NULL,
-                TO_CHAR);
-            act("$n spins into the air, kicking $p!", false, ch, ovict, NULL,
-                TO_ROOM);
-            return;
-        } else {
-            send_to_char(ch,
-                         "Upon who would you like to inflict your tornado kick?\r\n");
-            WAIT_STATE(ch, 4);
-            return;
-        }
+    if (!*arg) {   // no target specified
+        vict = random_opponent(ch);
+    } else { // try that target
+        vict = get_char_room_vis(ch, arg);
+        ovict = get_obj_in_list_vis(ch, arg, ch->in_room->contents);
     }
+
+    //do we have a target?
+    if (!vict && !ovict) {
+        send_to_char(ch, "Upon who would you like to inflict your tornado kick?\r\n");
+        WAIT_STATE(ch, 4);
+        return;
+    }
+    //hit an object
+    if (ovict && !vict) {
+        act("You spin into the air, kicking $p!", false, ch, ovict, NULL, TO_CHAR);
+        act("$n spins into the air, kicking $p!", false, ch, ovict, NULL, TO_ROOM);
+        return;
+    }
+    //can we perform an attack?
     if (vict == ch) {
         send_to_char(ch, "Aren't we funny today...\r\n");
         return;
@@ -2185,65 +2188,87 @@ ACMD(do_tornado_kick)
     if (!ok_to_attack(ch, vict, true)) {
         return;
     }
-    if (GET_MOVE(ch) < 30) {
+    if (GET_MOVE(ch) < 10) {
         send_to_char(ch, "You are too exhausted!\r\n");
         return;
     }
 
+    // calculate chance to hit
     percent = ((40 - (GET_AC(vict) / 10)) / 2) + number(1, 96);
-    prob =
-        CHECK_SKILL(ch,
-                    SKILL_TORNADO_KICK) + ((GET_DEX(ch) + GET_STR(ch)) / 2);
+
+    // initial probability
+    prob = CHECK_SKILL(ch, SKILL_TORNADO_KICK) + ((GET_DEX(ch) + GET_STR(ch)) / 2);
+
+    // modify probability
+    // better chance if victim is down
     if (GET_POSITION(vict) < POS_RESTING) {
         prob += 30;
     }
+    // minus victim's dexterity
     prob -= GET_DEX(vict);
 
-    dam = dice(GET_LEVEL(ch), 5) +
-          strength_damage_bonus(GET_STR(ch)) + GET_DAMROLL(ch);
+    // initial damage
+    dam = dice(GET_LEVEL(ch), 6) + strength_damage_bonus(GET_STR(ch)) + (GET_DAMROLL(ch) / 4);
+
+    // bonus for gen
     if (!IS_NPC(ch)) {
-        dam += (dam * GET_REMORT_GEN(ch)) / 10;
+        dam += (dam * GET_REMORT_GEN(ch)) / 15;
     }
 
-    int skill_lvl = LEARNED(ch);
-
-    if (CHECK_SKILL(ch, SKILL_TORNADO_KICK) > skill_lvl) {
-        dam *= (CHECK_SKILL(ch, SKILL_TORNADO_KICK) +
-                ((CHECK_SKILL(ch, SKILL_TORNADO_KICK) - skill_lvl) / 2));
-    } else {
-        dam *= CHECK_SKILL(ch, SKILL_TORNADO_KICK);
-    }
-    dam = (skill_lvl > 0) ? (dam / skill_lvl) : 0;
-
+    // add some dam for feet equip damroll
     RAW_EQ_DAM(ch, WEAR_FEET, &dam);
 
+    // we can't kick something without a body
     if (NON_CORPOREAL_MOB(vict)) {
         dam = 0;
     }
 
+    // set a wait state
     WAIT_STATE(ch, PULSE_VIOLENCE * 3);
 
+    // perform the kick
+    // miss
     if (percent > prob) {
         damage(ch, vict, NULL, 0, SKILL_TORNADO_KICK, -1);
         GET_MOVE(ch) -= 10;
-    } else {
-        GET_MOVE(ch) -= 10;
-        if (!(damage(ch, vict, NULL, dam, SKILL_TORNADO_KICK, -1)) &&
-            GET_LEVEL(ch) > number(30, 55) &&
-            (!(damage(ch, vict, NULL,
-                      number(0, 1 + GET_LEVEL(ch) / 10) ?
-                      (int)(dam * 1.2) :
-                      0,
-                      SKILL_TORNADO_KICK, -1))) &&
-            (GET_MOVE(ch) -= 10) &&
-            GET_LEVEL(ch) > number(40, 55) &&
-            (!(damage(ch, vict, NULL,
-                      number(0, 1 + GET_LEVEL(ch) / 10) ?
-                      (int)(dam * 1.3) : 0, SKILL_TORNADO_KICK, -1)))) {
-            GET_MOVE(ch) -= 10;
+    }   else {
+        // hit, at least once
+        int hits = 0;
+        int max_hits = 2;         //has to be minimum of two, otherwise its just a single kick
+
+        // modify max hits based on level and gen
+        if (GET_LEVEL(ch) > 35) {
+            max_hits++;
+        }
+        if (GET_REMORT_GEN(ch) >= 4) {
+            max_hits++;
+        }
+        if (GET_REMORT_GEN(ch) >= 8) {
+            max_hits++;
+        }
+
+        // roll the dice for actual number of hits
+        hits = number(1, max_hits);
+
+        // start spinning
+        for (i = 0, count = 0; i < hits && vict->in_room == ch->in_room; i++, count++) {
+            // if we run outta move, no more attempts
+            if(GET_MOVE(ch) < 10) {
+                return;
+            }
+            if (GET_LEVEL(ch) + CHECK_SKILL(ch, SKILL_TORNADO_KICK) > number(100, 120 + (count * 8))) {
+                damage(ch, vict, NULL, dam - (count * number(10, 50)), SKILL_TORNADO_KICK, -1);
+                GET_MOVE(ch) -= 10;
+                if (is_dead(ch)) {
+                    return;
+                }
+                if (is_dead(vict)) {
+                    WAIT_STATE(ch, (1 + count)RL_SEC);
+                    return;
+                }
+            }
         }
         gain_skill_prof(ch, SKILL_TORNADO_KICK);
-
     }
 }
 
@@ -2945,7 +2970,7 @@ ACMD(do_ceasefire)
 
     if (f) {
         send_to_char(ch, "You can't ceasefire while your enemy is actively "
-                         "attacking you!\r\n");
+                     "attacking you!\r\n");
     } else {
         act("You stop attacking your opponents.", false, ch, NULL, NULL, TO_CHAR);
         act("$n stops attacking $s opponents.", false, ch, NULL,
@@ -3178,7 +3203,7 @@ ACMD(do_intimidate)
     }
     if (vict == ch) {
         send_to_char(ch, "You attempt to intimidate yourself.\r\n"
-                         "You feel intimidated!\r\n");
+                     "You feel intimidated!\r\n");
         act("$n intimidates $mself!", true, ch, NULL, NULL, TO_ROOM);
         if (affected_by_spell(ch, SKILL_INTIMIDATE)) {
             return;

@@ -117,7 +117,7 @@ ASPELL(spell_recall)
 
     if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
         send_to_char(victim, "You fade out for a moment...\r\n"
-                             "You are suddenly knocked to the floor by a blinding flash!\r\n");
+                     "You are suddenly knocked to the floor by a blinding flash!\r\n");
         act("$n is knocked to the floor by a blinding flash of light!", false,
             victim, NULL, NULL, TO_ROOM);
         return;
@@ -261,7 +261,7 @@ ASPELL(spell_local_teleport)
     if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL) ||
         ROOM_FLAGGED(victim->in_room, ROOM_NOTEL)) {
         send_to_char(victim, "You fade out for a moment...\r\n"
-                             "The magic quickly dissipates!\r\n");
+                     "The magic quickly dissipates!\r\n");
         act("$n fades out for a moment but quickly flickers back into view.",
             false, victim, NULL, NULL, TO_ROOM);
         return;
@@ -385,7 +385,7 @@ ASPELL(spell_teleport)
     if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL) ||
         ROOM_FLAGGED(victim->in_room, ROOM_NOTEL)) {
         send_to_char(victim, "You fade out for a moment...\r\n"
-                             "The magic quickly dissipates!\r\n");
+                     "The magic quickly dissipates!\r\n");
         act("$n fades out for a moment but quickly flickers back into view.",
             false, victim, NULL, NULL, TO_ROOM);
         return;
@@ -504,7 +504,7 @@ ASPELL(spell_astral_spell)
     }
     if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
         send_to_char(victim, "You fade out for a moment...\r\n"
-                             "The magic quickly dissipates!\r\n");
+                     "The magic quickly dissipates!\r\n");
         act("$n fades out for a moment but quickly flickers back into view.",
             false, victim, NULL, NULL, TO_ROOM);
         /* Removed per Cat's request
@@ -640,7 +640,7 @@ ASPELL(spell_summon)
 
     if (ROOM_FLAGGED(victim->in_room, ROOM_NORECALL)) {
         send_to_char(victim, "You fade out for a moment...\r\n"
-                             "The magic quickly dissipates!\r\n");
+                     "The magic quickly dissipates!\r\n");
         act("$n fades out for a moment but quickly flickers back into view.",
             false, victim, NULL, NULL, TO_ROOM);
         send_to_char(ch, SUMMON_FAIL);
@@ -1199,12 +1199,22 @@ ASPELL(spell_identify)
             if (GET_OBJ_VAL(obj, 1) >= 1) {
                 send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 1)));
             }
+            if(GET_OBJ_VAL(obj, 1) >= 1 && ((GET_OBJ_VAL(obj, 2) >= 1 || GET_OBJ_VAL(obj, 3) >= 1))) {
+                send_to_char(ch, ",");
+            }
+
             if (GET_OBJ_VAL(obj, 2) >= 1) {
                 send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 2)));
             }
+
+            if(GET_OBJ_VAL(obj, 2) >= 1 && GET_OBJ_VAL(obj, 3) >= 1) {
+                send_to_char(ch, ",");
+            }
+
             if (GET_OBJ_VAL(obj, 3) >= 1) {
                 send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 3)));
             }
+
             send_to_char(ch, "\r\n");
             break;
         case ITEM_WAND:

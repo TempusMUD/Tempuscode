@@ -959,11 +959,15 @@ do_start(struct creature *ch, int mode)
                 8192 + number(256, 2048) + GET_INT(ch) + GET_WIS(ch);
         }
 
+        // New players do not start with the gown at this point
+        // This has been left in for reference for generic newbie starting gear for the future.
         // New players start with a hospital gown and items most dear to them
+        /*
         struct obj_data *gown = read_object(33800);
         if (gown != NULL) {
             equip_char(ch, gown, WEAR_ABOUT, EQUIP_WORN);
         }
+        */
 
         // Good clerics start with a holy symbol on neck
         if ((GET_CLASS(ch) == CLASS_CLERIC) && IS_GOOD(ch)) {

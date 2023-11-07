@@ -463,7 +463,7 @@ dynedit_update_string(dynamic_text_file *d)
     }
     printf("Updating File: %s\r\n", d->filename);
     time_t t = time(NULL);
-    
+
     struct tm tmTime;
     localtime_r(&t, &tmTime);
 

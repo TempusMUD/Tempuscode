@@ -15,6 +15,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
@@ -1014,10 +1015,10 @@ do_stat_zone(struct creature *ch, struct zone_data *zone)
     }
 
     send_to_char(ch, "\r\nZone Stats :-\r\n"
-                     "  mobs in zone : %-3d, %-3d protos;   objs in zone  : %-3d, %-3d protos;\r\n"
-                     "  players in zone: (%3d) %3d   rooms in zone: %-3d   undescripted rooms: %-3d\r\n"
-                     "  search in zone: %d\r\n  usage count: %d\r\n"
-                     "  Avg. Level [%s%d%s]real, [%s%d%s] proto\r\n\r\n",
+                 "  mobs in zone : %-3d, %-3d protos;   objs in zone  : %-3d, %-3d protos;\r\n"
+                 "  players in zone: (%3d) %3d   rooms in zone: %-3d   undescripted rooms: %-3d\r\n"
+                 "  search in zone: %d\r\n  usage count: %d\r\n"
+                 "  Avg. Level [%s%d%s]real, [%s%d%s] proto\r\n\r\n",
                  numm, numm_proto, numo, numo_proto,
                  zone->num_players, nump, numr, numur, nums, zone->enter_count,
                  CCGRN(ch, C_NRM), av_lev,
@@ -2413,7 +2414,7 @@ ACMD(do_shutdown)
     if (*arg2) {
         if (shutdown_count >= 0) {
             send_to_char(ch, "Shutdown process is already running.\r\n"
-                             "Use Shutdown abort first.\r\n");
+                         "Use Shutdown abort first.\r\n");
             return;
         }
         if ((count = atoi(arg2)) < 0) {
@@ -2477,11 +2478,11 @@ ACMD(do_shutdown)
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
         send_to_all
             ("As you stand amazed, you see the sun swell and fill the sky,\r\n"
-             "and you are overtaken by an intense heat as the particles\r\n"
-             "of your body are mixed with the rest of the cosmos by the\r\n"
-             "power of a blinding supernova explosion.\r\n\r\n"
-             "Shutting down for maintenance.\r\n"
-             "Please visit our website at http://tempusmud.com\r\n");
+            "and you are overtaken by an intense heat as the particles\r\n"
+            "of your body are mixed with the rest of the cosmos by the\r\n"
+            "power of a blinding supernova explosion.\r\n\r\n"
+            "Shutting down for maintenance.\r\n"
+            "Please visit our website at http://tempusmud.com\r\n");
 
         touch("../.killscript");
         circle_shutdown = true;
@@ -2490,11 +2491,11 @@ ACMD(do_shutdown)
         slog("(GC) Shutdown by %s.", GET_NAME(ch));
         send_to_all
             ("As you stand amazed, you see the sun swell and fill the sky,\r\n"
-             "and you are overtaken by an intense heat as the particles\r\n"
-             "of your body are mixed with the rest of the cosmos by the\r\n"
-             "power of a blinding supernova explosion.\r\n\r\n"
-             "Shutting down for maintenance.\r\n"
-             "Please visit our website at http://tempusmud.com\r\n");
+            "and you are overtaken by an intense heat as the particles\r\n"
+            "of your body are mixed with the rest of the cosmos by the\r\n"
+            "power of a blinding supernova explosion.\r\n\r\n"
+            "Shutting down for maintenance.\r\n"
+            "Please visit our website at http://tempusmud.com\r\n");
 
         touch("../pause");
         circle_shutdown = true;
@@ -2673,6 +2674,7 @@ get_start_room(struct creature *ch)
             GET_HOME(ch) == HOME_DROW_ISLE ? r_drow_isle_start_room :
             GET_HOME(ch) == HOME_ASTRAL_MANSE ? r_astral_manse_start_room :
             GET_HOME(ch) == HOME_NEWBIE_SCHOOL ? r_newbie_school_start_room :
+            GET_HOME(ch) == HOME_NEWBIE_TUTORIAL_COMPLETE ? r_newbie_tutorial_complete_start_room :
             r_mortal_start_room);
 }
 
@@ -2911,10 +2913,10 @@ ACMD(do_pload)
         return;
     }
 
-    /*/ /no visible characters corresponding to vict.
+    /*//no visible characters corresponding to vict.
     if (!vict) {
-        send_to_char(ch, "%s", NOPERSON);
-        return;
+       send_to_char(ch, "%s", NOPERSON);
+       return;
     }
     */
     if (!real_object_proto(number)) {
@@ -3124,7 +3126,12 @@ ACMD(do_purge)
             false, ch, NULL, NULL, TO_ROOM);
         send_to_room("The world seems a little cleaner.\r\n", ch->in_room);
 
-        for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
+        // as creature_purge() has a call to g_list_remove(), we can't
+        // iterate through in a simple for loop because removing an
+        // item from the GList messes up the iteration
+        GList *next_it;
+        for (GList *it = first_living(ch->in_room->people); it; it = next_it) {
+            next_it = next_living(it);
             struct creature *tch = it->data;
 
             if (IS_NPC(tch)) {
@@ -3847,7 +3854,7 @@ perform_unaffect(struct creature *ch, struct creature *vict)
 {
     if (vict->affected) {
         send_to_char(vict, "There is a brief flash of light!\r\n"
-                           "You feel slightly different.\r\n");
+                     "You feel slightly different.\r\n");
         send_to_char(ch, "All spells removed.\r\n");
         while (vict->affected) {
             affect_remove(vict, vict->affected);
@@ -4459,7 +4466,7 @@ show_mobkills(struct creature *ch, char *value, char *arg
 
     if (!*value) {
         send_to_char(ch, "Usage: show mobkills <ratio>\r\n"
-                         "<ratio> should be between 0.00 and 1.00\r\n");
+                     "<ratio> should be between 0.00 and 1.00\r\n");
         return;
     }
 
@@ -6134,7 +6141,7 @@ ACMD(do_set)
         {"nopk", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"soilage", LVL_IMMORT, PC, MISC, "WizardBasic"},
         {"specialization", LVL_IMMORT, PC, MISC, "AdminFull"},
-        {"qpallow", LVL_IMMORT, PC, NUMBER, "QuestorAdmin,WizardFull"},
+        {"qpallow", LVL_IMMORT, PC, NUMBER, "WizardFull"}, // once included QuestorAdmin
         {"soulless", LVL_IMMORT, BOTH, BINARY, "WizardFull"},
         {"buried", LVL_IMMORT, PC, BINARY, "AdminFull"},
         {"speed", LVL_IMMORT, PC, NUMBER, "Coder"},
@@ -6900,8 +6907,8 @@ ACMD(do_aset)
         {"bank_past", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"future_bank", LVL_IMMORT, PC, NUMBER, "AdminFull"},
         {"reputation", LVL_IMMORT, PC, NUMBER, "AdminFull"},
-        {"qpoints", LVL_IMMORT, PC, NUMBER, "QuestorAdmin,WizardFull"},
-        {"qbanned", LVL_IMMORT, PC, BINARY, "QuestorAdmin,AdminFull"},
+        {"qpoints", LVL_IMMORT, PC, NUMBER, "WizardFull"}, // once included QuestorAdmin
+        {"qbanned", LVL_IMMORT, PC, BINARY, "AdminFull"}, // once included QuestorAdmin
         {"password", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"email", LVL_IMMORT, PC, MISC, "AdminFull"},
         {"banned", LVL_IMMORT, PC, BINARY, "AdminFull"},
@@ -7474,8 +7481,8 @@ ACMD(do_addpos)
     if (!*arg) {
         send_to_char(ch, "Addpos usage: addpos <target> <new pos>\r\n");
         send_to_char(ch, "Valid positions are:\r\n"
-                         "take finger neck body about legs feet hands arms shield waist ass\r\n"
-                         "wrist wield hold crotch eyes back belt face ear\r\n");
+                     "take finger neck body about legs feet hands arms shield waist ass\r\n"
+                     "wrist wield hold crotch eyes back belt face ear\r\n");
         return;
     }
 
@@ -7549,7 +7556,7 @@ ACMD(do_mudwipe)
         snprintf(buf, sizeof(buf), "Mud WIPE trails called by %s.", GET_NAME(ch));
     } else {
         send_to_char(ch, "Improper syntax.  Options are:\r\n"
-                         "objects, mobiles, fullmobs, or clean.\r\n");
+                     "objects, mobiles, fullmobs, or clean.\r\n");
         return;
     }
     mudlog(GET_INVIS_LVL(ch), BRF, true, "%s", buf);
@@ -7638,17 +7645,23 @@ ACMD(do_zonepurge)
                 continue;
             }
 
-            for (GList *it = rm->people; it; it = it->next) {
+            // clear all mobs
+            GList *it = rm->people;
+            while (it != NULL) {
+                GList *next = it->next;
                 struct creature *tch = it->data;
+
                 if (IS_NPC(tch)) {
                     creature_purge(tch, true);
                     mob_count++;
                 } else {
-                    send_to_char(tch,
-                                 "You feel a rush of heat wash over you!\r\n");
+                    send_to_char(tch, "You feel a rush of heat wash over you!\r\n");
                 }
+
+                it = next;
             }
 
+            // clear all objects
             for (obj = rm->contents; obj; obj = next_obj) {
                 next_obj = obj->next_content;
                 extract_obj(obj);
@@ -8477,7 +8490,7 @@ do_freeze_char(char *argument, struct creature *vict, struct creature *ch)
     vict->player_specials->freezer_id = GET_IDNUM(ch);
 
     send_to_char(vict, "A bitter wind suddenly rises and drains every erg "
-                       "of heat from your body!\r\nYou feel frozen!\r\n");
+                 "of heat from your body!\r\nYou feel frozen!\r\n");
 
     send_to_char(ch, "%s\r\n", msg);
     mudlog(MAX(LVL_POWER, GET_INVIS_LVL(ch)), BRF, true, "(GC) %s by %s",

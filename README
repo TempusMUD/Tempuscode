@@ -73,6 +73,10 @@ Tempuscode to run.
 
 Running Tempuscode
 ------------------------------------------------------------------------
+CD into the build directory, and then compile:
+  make all
+
+CD back out into the Tempuscode directory.
 You should now be able to run the code with this command:
 
   bin/circle sample_lib

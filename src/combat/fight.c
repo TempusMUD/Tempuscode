@@ -1727,7 +1727,6 @@ damage(struct creature *ch, struct creature *victim,
     case SPELL_FLAME_STRIKE:
     case SPELL_FIRE_ELEMENTAL:
     case SPELL_FIRE_BREATH:
-    case SPELL_DRAGONS_BREATH:
     case TYPE_ABLAZE:
     case SPELL_FIRE_SHIELD:
     case TYPE_FLAMETHROWER:
@@ -2000,6 +1999,8 @@ damage(struct creature *ch, struct creature *victim,
         }
     }
 
+    update_pos(victim);
+
     /*
      * skill_message sends a message from the messages file in lib/misc.
      * dam_message just sends a generic "You hit $n extremely hard.".
@@ -2033,13 +2034,12 @@ damage(struct creature *ch, struct creature *victim,
         // ignite the victim if applicable
         if (!AFF2_FLAGGED(victim, AFF2_ABLAZE) &&
             (attacktype == SPELL_FIREBALL ||
-             attacktype == SPELL_FIRE_BREATH ||
-             attacktype == SPELL_DRAGONS_BREATH ||
-             attacktype == SPELL_HELL_FIRE ||
-             attacktype == SPELL_FLAME_STRIKE ||
-             attacktype == SPELL_METEOR_STORM ||
-             attacktype == TYPE_FLAMETHROWER ||
-             attacktype == SPELL_FIRE_ELEMENTAL)) {
+                attacktype == SPELL_FIRE_BREATH ||
+                attacktype == SPELL_HELL_FIRE ||
+                attacktype == SPELL_FLAME_STRIKE ||
+                attacktype == SPELL_METEOR_STORM ||
+                attacktype == TYPE_FLAMETHROWER ||
+                attacktype == SPELL_FIRE_ELEMENTAL)) {
             if (!mag_savingthrow(victim, 50, SAVING_BREATH) &&
                 !CHAR_WITHSTANDS_FIRE(victim)) {
                 act("$n's body suddenly ignites into flame!",

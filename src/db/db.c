@@ -132,6 +132,7 @@ struct room_data *r_astral_manse_start_room;
 struct room_data *r_zul_dane_start_room;
 struct room_data *r_zul_dane_newbie_start_room;
 struct room_data *r_newbie_school_start_room;
+struct room_data *r_newbie_tutorial_complete_start_room;
 
 struct zone_data *default_quad_zone = NULL;
 
@@ -1123,6 +1124,7 @@ check_start_rooms(void)
     extern room_num zul_dane_start_room;
     extern room_num zul_dane_newbie_start_room;
     extern room_num newbie_school_start_room;
+    extern room_num newbie_tutorial_complete_start_room;
 
     if ((r_mortal_start_room = real_room(mortal_start_room)) == NULL) {
         errlog(" Mortal start room does not exist.  Change in config.c.");
@@ -1265,6 +1267,14 @@ check_start_rooms(void)
         }
         // set it to the normal zul dane room ...
         r_newbie_school_start_room = r_mortal_start_room;
+    }
+
+    if ((r_newbie_tutorial_complete_start_room =
+            real_room(newbie_tutorial_complete_start_room)) == NULL) {
+        if (!mini_mud)
+            errlog(" Warning: Newbie tutorial complete start room does not exist.");
+        // set it to the normal start room ...
+        r_newbie_tutorial_complete_start_room = r_mortal_start_room;
     }
 
 }

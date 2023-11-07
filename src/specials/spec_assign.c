@@ -257,6 +257,7 @@ const struct spec_func_data spec_list[] = {
     {"newbie_stairs_rm", newbie_stairs_rm, SPEC_RM | SPEC_RES},
     {"newbie_cafe_rm", newbie_cafe_rm, SPEC_RM | SPEC_RES},
     {"newbie_portal_rm", newbie_portal_rm, SPEC_RM | SPEC_RES},
+    {"newbie_tutorial_loadroom_change_rm", newbie_tutorial_loadroom_change_rm, SPEC_RM | SPEC_RES},
     {"gen_shower_rm", gen_shower_rm, SPEC_RM},
     {"gingwatzim", gingwatzim, SPEC_RM | SPEC_RES},
     {"falling_tower_dt", falling_tower_dt, SPEC_RM | SPEC_RES},

@@ -1733,6 +1733,7 @@ SPECIAL(cave_bear)
 #include "Specs/newbie_specs/newbie_gold_coupler.c"
 #include "Specs/newbie_specs/newbie_fodder.c"
 #include "Specs/newbie_specs/guardian_angel.c"
+#include "Specs/newbie_specs/newbie_tutorial_loadroom_change_rm.c"
 
 /* GENERAL UTIL SPECS */
 #include "Specs/utility_specs/gen_locker.c"

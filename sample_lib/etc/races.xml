@@ -28,7 +28,6 @@
     <attributes str="+1" con="+1" cha="-1"/>
     <tongue name="dwarven"/>
     <age adjust="40" lifespan="160"/>
-    <intrinsic affect="infravision"/>
     <sex idnum="1" name="male">
       <weight min="120" max="160"/>
       <height min="100" max="125" weight_add="16"/>
@@ -86,7 +85,6 @@
     <attributes int="+1" dex="+1" con="-1"/>
     <tongue name="underdark"/>
     <age adjust="80" lifespan="200"/>
-    <intrinsic affect="infravision"/>
     <sex idnum="1" name="male">
       <weight min="120" max="180"/>
       <height min="140" max="165" weight_add="8"/>

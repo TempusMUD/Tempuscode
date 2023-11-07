@@ -292,7 +292,7 @@ ACMD(do_board)
 
 ACMD(do_palette)
 {
-    
+
     send_to_char(ch, "Sparse color:\r\n");
     send_to_char(ch, "%snormal %sblack%s %sred%s %sgreen%s %syellow%s %sblue%s %smagenta%s %scyan%s %swhite%s\r\n",
                  CCNRM(ch, C_SPR),

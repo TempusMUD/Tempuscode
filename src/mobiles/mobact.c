@@ -3818,7 +3818,7 @@ mob_fight_devil(struct creature *ch, struct creature *precious_vict)
             act("You feel a wave of sheer terror wash over you as $n approaches!", false, ch, NULL, NULL, TO_ROOM);
 
             GList *people = g_list_copy(ch->in_room->people);
-            
+
             for (GList *it = first_living(people); it; it = next_living(it)) {
                 vict = it->data;
                 if (vict != ch
@@ -4420,11 +4420,8 @@ ACMD(do_breathe)
 
     if (IS_PC(ch)) {
         if (fire != NULL) {
-            if (GET_SKILL(ch, SPELL_DRAGONS_BREATH) < GET_SKILL(ch, SPELL_FIRE_BREATHING)) {
-                SET_SKILL(ch, SPELL_DRAGONS_BREATH, GET_SKILL(ch, SPELL_FIRE_BREATHING));
-            }
-            call_magic(ch, vict, NULL, NULL, SPELL_DRAGONS_BREATH, GET_LEVEL(ch),
-                       CAST_BREATH);
+            call_magic(ch, vict, NULL, NULL, SPELL_FIRE_BREATH, GET_LEVEL(ch),
+                CAST_BREATH);
             fire = affected_by_spell(ch, SPELL_FIRE_BREATHING);
             if (fire) {
                 fire->duration -= 5;
@@ -4432,9 +4429,15 @@ ACMD(do_breathe)
                     affect_remove(ch, fire);
                 }
             }
-            WAIT_STATE(ch, 1 RL_SEC);
         } else if (frost != NULL) {
-            send_to_char(ch, "ERROR: Frost breath not found.\r\n");
+            call_magic(ch, vict, NULL, NULL, SPELL_FROST_BREATH, GET_LEVEL(ch),
+                CAST_BREATH);
+            frost = affected_by_spell(ch, SPELL_FROST_BREATH);
+            if (frost) {
+                frost->duration -= 5;
+                if (frost->duration <= 0)
+                    affect_remove(ch, frost);
+            }
         } else {
             send_to_char(ch, "ERROR: No breath type found.\r\n");
         }

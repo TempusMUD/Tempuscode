@@ -125,11 +125,11 @@ room_num mortal_start_room = 3001;
 room_num new_thalos_start_room = 5505;
 room_num kromguard_start_room = 39188;
 room_num electro_start_room = 30001;
-room_num newbie_start_room = 33800;
+room_num newbie_start_room = 301;
 room_num elven_start_room = 19024;
 room_num istan_start_room = 20444;
 room_num arena_start_room = 40000;
-room_num tower_modrian_start_room = 33800;
+room_num tower_modrian_start_room = 301;
 room_num monk_start_room = 21007;
 room_num solace_start_room = 63000;
 room_num mavernal_start_room = 59125;
@@ -140,7 +140,8 @@ room_num drow_isle_start_room = 22727;
 room_num skullport_newbie_start_room = 23100;
 room_num zul_dane_newbie_start_room = 53306;
 room_num zul_dane_start_room = 53172;
-room_num newbie_school_start_room = 33800;
+room_num newbie_school_start_room = 301;
+room_num newbie_tutorial_complete_start_room = 333;
 
 room_num astral_manse_start_room = 42500;
 
@@ -239,7 +240,7 @@ int DFLT_PORT = 4040;
 unsigned int MAX_PLAYERS = 300;
 
 /* maximum size of bug, typo and idea files (to prevent bombing) */
-int max_filesize = 50000;
+int max_filesize = 55000;
 
 /* maximum number of password attempts before disconnection */
 int max_bad_pws = 2;
@@ -266,7 +267,7 @@ const char *GREETINGS =
     "\r\n"
     ". . . . . . . . . . ./+syhdddddhyo/-`      .   .   .   .   .   .   .   .   .\r\n"
     ". . . . . . . . -ohmdy+:-.````..:/ohmds:`\r\n"
-    ". . . . . . .`odms:`                 .+hms-      \\\\\\\\\\ TEMPUS /////    .   .\r\n"
+    ". . . . . . .`odms:`                 .+hms-     \\\\\\\\\\ TEMPUS //////////\r\n"
     ". . . . . ..sNh/`                       .omh-\r\n"
     ". . . . . /md:          ,..._             `oNs`    the Anachronistic   .   .\r\n"
     ". . . . `sNs`     .:/oyhdmNNmhy+:.  /ymmh.  -dd.    Multiple User Domain\r\n"
@@ -279,10 +280,10 @@ const char *GREETINGS =
     ". . .  -`         :hNMMMmyoosydmNNMMMNds:`     sM:    Powered by Linux .   .\r\n"
     ". . .:yNMNmy+:..:yNMMMd/`     ``..:sdNMMNms:.-sNh\r\n"
     ". . +NhsyddNMMNNMMMmy-`             `-+ydNMMNNMm.    Please email  .   .   .\r\n"
-    ". . yy. .omh:+sdy+-`                    `.:yMMd.    admin@tempusmud.com\r\n"
-    ". . . . . /mm+``                          .yNs`    with any login issues   .\r\n"
+    ". . yy. .omh:+sdy+-`                    `.:yMMd.    admin@tempusmud.com     \r\n"
+    ". . . . . /mm+``                          .yNs`    with any login issues.  .\r\n"
     ". . . . . .`oNm+.                       -sNh-\r\n"
-    ". . . . . . .`+dNh+.                `-odmy-    visit http://tempusmud.net  .\r\n"
+    ". . . . . . .`+dNh+.                `-odmy-       visit www.tempusmud.com  .\r\n"
     ". . . . . . . . .ohmmhs+/--...-:/oydNds:`\r\n"
     ". . . . . . . . . . ./+syhdmmddhyo/-`      .   .   .   .   .   .   .   .   .\r\n"
     "\r\n";

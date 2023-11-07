@@ -15,6 +15,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
+#define _GNU_SOURCE
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>

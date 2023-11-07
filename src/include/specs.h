@@ -230,6 +230,7 @@ SPECIAL(newbie_tower_rm);
 SPECIAL(newbie_cafe_rm);
 SPECIAL(newbie_portal_rm);
 SPECIAL(newbie_stairs_rm);
+SPECIAL(newbie_tutorial_loadroom_change_rm);
 SPECIAL(gen_shower_rm);
 SPECIAL(gingwatzim);
 SPECIAL(falling_tower_dt);

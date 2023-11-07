@@ -165,7 +165,8 @@ enum hometown {
     HOME_SKULLPORT_NEWBIE = 20,
     HOME_NEWBIE_SCHOOL = 21,
     HOME_KROMGUARD = 22,
-    NUM_HOMETOWNS = 23,
+    HOME_NEWBIE_TUTORIAL_COMPLETE = 23,
+    NUM_HOMETOWNS = 24,
 };
 
 /* Deity Defines                */
