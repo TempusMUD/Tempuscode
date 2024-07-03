@@ -192,7 +192,7 @@ bool damage(struct creature *ch, struct creature *victim,
 __attribute__ ((nonnull (2)));
 int skill_message(int dam, struct creature *ch, struct creature *vict,
                   struct obj_data *weapon, int attacktype)
-__attribute__ ((nonnull (2,3)));
+__attribute__ ((nonnull (3)));
 void best_initial_attack(struct creature *ch, struct creature *vict)
 __attribute__ ((nonnull));
 bool check_infiltrate(struct creature *ch, struct creature *vict)
