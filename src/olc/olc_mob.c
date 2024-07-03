@@ -1152,21 +1152,25 @@ do_mob_mset(struct creature *ch, char *argument)
 
     }
     case 47:
-        // Make sure they have a mob special
-        if (!GET_NPC_SPEC(mob_p)) {
-            send_to_char(ch, "You should set a special first!\r\n");
-            break;
-        }
-        // Check to see that they can set the spec param
-        i = find_spec_index_ptr(GET_NPC_SPEC(mob_p));
-        if (i < 0) {
-            send_to_char(ch, "Couldn't find special in index.\r\n");
-            break;
-        }
-        if (IS_SET(spec_list[i].flags, SPEC_RES)
-            && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL)) {
-            send_to_char(ch, "This special is reserved.\r\n");
-            break;
+        // If they don't have the edit_zone privilege, the mob special
+        // needs to be checked to see if it's reserved.
+        if (!is_authorized(ch, EDIT_ZONE, zone)) {
+            // Make sure they have a mob special
+            if (!GET_NPC_SPEC(mob_p)) {
+                send_to_char(ch, "You should set a special first!\r\n");
+                break;
+            }
+            // Check to see that they can set the spec param
+            i = find_spec_index_ptr(GET_NPC_SPEC(mob_p));
+            if (i < 0) {
+                send_to_char(ch, "Couldn't find special in index.\r\n");
+                break;
+            }
+            if (IS_SET(spec_list[i].flags, SPEC_RES)
+                && !is_authorized(ch, SET_RESERVED_SPECIALS, NULL)) {
+                send_to_char(ch, "This special is reserved.\r\n");
+                break;
+            }
         }
         // It's ok.  Let em set it.
         start_editing_text(ch->desc, &NPC_SHARED(mob_p)->func_param, 8192);
