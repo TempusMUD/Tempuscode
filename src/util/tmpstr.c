@@ -20,8 +20,8 @@ struct tmp_str_pool {
 const size_t DEFAULT_POOL_SIZE = 65536; // 64k to start with
 size_t tmp_max_used = 0;        // Tracks maximum tmp str space used
 
-static struct tmp_str_pool *tmp_list_head;  // Always points to the initial pool
-static struct tmp_str_pool *tmp_list_tail;  // Points to the end of the linked
+static struct tmp_str_pool *tmp_list_head = NULL;  // Always points to the initial pool
+static struct tmp_str_pool *tmp_list_tail = NULL;  // Points to the end of the linked
 // list of pools
 
 struct tmp_str_pool *tmp_alloc_pool(size_t size_req);

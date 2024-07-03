@@ -67,6 +67,7 @@ test_path(char *relpath)
 void
 test_tempus_boot(void)
 {
+    tmp_string_init();
     if (!sql_cxn) {
         sql_cxn = PQconnectdb("user=realm dbname=devtempus");
     }
