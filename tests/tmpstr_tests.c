@@ -40,6 +40,25 @@ static const char *bit_descs[32] = {
     "BIT_15", "\n", NULL
 };
 
+char *old_timezone = NULL;
+
+void
+fixture_timezone_setup(void)
+{
+    old_timezone = getenv("TZ");
+    if (old_timezone) {
+        old_timezone = strdup(old_timezone);
+    }
+    setenv("TZ", "UTC", true);
+}
+
+void
+fixture_timezone_teardown(void)
+{
+    setenv("TZ", old_timezone, true);
+    free(old_timezone);
+}
+
 // Testing tmp_tolower
 START_TEST(tmp_tolower_1)
 {
@@ -492,7 +511,7 @@ START_TEST(tmp_strftime_2)
 {
     time_t t = 1602685738;
     struct tm test_val;
-    char *expected_str = "Wed Oct 14 10:28:58 2020";
+    char *expected_str = "Wed Oct 14 14:28:58 2020";
 
     localtime_r(&t, &test_val);
     ck_assert_str_eq(tmp_strftime("%a %b %d %H:%M:%S %Y", &test_val), expected_str);
@@ -506,6 +525,7 @@ tmpstr_suite(void)
 
     TCase *tc_core = tcase_create("Core");
     tcase_add_checked_fixture(tc_core, tmp_string_init, NULL);
+    tcase_add_checked_fixture(tc_core, fixture_timezone_setup, NULL);
     tcase_add_test(tc_core, tmp_tolower_1);
     tcase_add_test(tc_core, tmp_tolower_2);
     tcase_add_test(tc_core, tmp_tolower_3);
