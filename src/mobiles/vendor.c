@@ -1177,7 +1177,7 @@ make_shop(void) {
     shop->consignment = false;
     shop->func = NULL;
     shop->reaction = make_reaction();
-    
+
     return shop;
 }
 
@@ -1328,7 +1328,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
             } else if (is_abbrev(line, "qp") || is_abbrev(line, "quest")) {
                 shop->currency = 2;
             } else {
-                err = "invalid currency";
+                err = tmp_sprintf("invalid currency %s", line);
                 break;
             }
         } else if (!strcmp(param_key, "steal-ok")) {
@@ -1347,12 +1347,12 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
         } else if (!strcmp(param_key, "special")) {
             val = find_spec_index_arg(line);
             if (val == -1) {
-                err = "invalid special";
+                err = tmp_sprintf("invalid special %s", line);
             } else {
                 shop->func = spec_list[val].func;
             }
         } else {
-            err = "invalid directive";
+            err = tmp_sprintf("invalid directive %s", param_key);
         }
         if (err) {
             break;
@@ -1362,7 +1362,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
     if (err_line) {
         *err_line = (err) ? lineno : -1;
     }
-    
+
     return err;
 }
 
@@ -1391,7 +1391,8 @@ SPECIAL(vendor)
         shop = make_shop();
         err = vendor_parse_param(config, shop, &err_line);
         if (err != NULL) {
-            errlog("vendor spec error on line %d: %s", err_line, err);
+            errlog("vendor %d spec error on line %d: %s",
+                   GET_NPC_VNUM(self), err_line, err);
             self->mob_specials.shared->func = NULL;
             free_shop(shop);
             return 1;
