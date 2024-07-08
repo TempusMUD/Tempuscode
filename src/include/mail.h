@@ -30,8 +30,11 @@ extern const int MAIL_OBJ_VNUM;
 // Maximum size of mail in bytes (arbitrary)
 #define MAX_MAIL_SIZE 4096
 
+// The vnum of the letter template object
+#define MAIL_OBJ_VNUM 18
+
 // The vnum of the mail bag object
-#define MAIL_BAG_OBJ_VNUM 1219
+#define MAIL_BAG_OBJ_VNUM 19
 
 // The number of items the mail bag object can contain
 #define MAIL_BAG_OBJ_CONTAINS 75

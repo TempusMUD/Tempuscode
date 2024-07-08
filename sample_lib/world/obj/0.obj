@@ -67,7 +67,25 @@ Some enterprising soul has mixed together a potion.~
 10 dq 0 a 0
 0 0 0 0
 160 100 100
-1 0 0 0
+0.500000 0 1 0
+#18
+mail paper letter piece~
+a piece of mail~
+A piece of mail has been left behind.~
+~
+16 0 0 ao 0
+0 0 0 0
+10 100 100
+0.010000 30 10000 0
+#19
+canvas mail bag~
+a mail bag~
+A canvas mail bag marked "C. P. S." is slumped over onto the floor.~
+~
+15 0 0 a 0
+0 0 0 0
+31 100 100
+1.000000 0 1 0
 #66
 bouquet~
 Lovely's Valentine's Bouquet from Fishbone~
@@ -114,9 +132,45 @@ A lovely red rose is lying here.~
 13 deq 0 ao 0
 0 0 0 0
 66 100 100
-1 0 0 0
+1.000000 0 1 0
 A
 6 4
+#75
+wafer moldy~
+a moldy wafer~
+A small, moldy wafer has been left here.~
+~
+19 0 0 ao 0
+3 5 0 2
+67 100 100
+0.250000 1 1 0
+#76
+wafer light holy~
+a holy wafer~
+A small, light wafer has been left.~
+~
+19 0 0 ao 0
+10 5 742 0
+63 100 100
+0.250000 1 1 0
+#77
+wafer dark unholy~
+an unholy wafer~
+A small, dark wafer has been left.~
+~
+19 0 0 ao 0
+10 5 741 0
+63 100 100
+0.250000 1 1 0
+#79
+red berry goodberry~
+a small, red berry~
+A small, red berry lies on the ground.~
+~
+19 g 0 ao 0
+12 10 16 0
+64 100 100
+0.125000 0 0 0
 #99
 scythe death~
 the Scythe of Death~
