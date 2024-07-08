@@ -250,8 +250,10 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
     case SKILL_STRIKE:
         *dam = 0;
         if (GET_EQ(ch, WEAR_WIELD)) {
+            weap = GET_EQ(ch, WEAR_WIELD);
             ADD_EQ_DAM(ch, WEAR_WIELD);
         } else if (GET_EQ(ch, WEAR_HANDS)) {
+            weap = GET_EQ(ch, WEAR_HANDS);
             ADD_EQ_DAM(ch, WEAR_HANDS);
         } else {
             send_to_char(ch, "You need a weapon to strike out with!\r\n");
@@ -261,7 +263,6 @@ calc_skill_prob(struct creature *ch, struct creature *vict, int skillnum,
         *wait = 2 RL_SEC;
         *loc = WEAR_RANDOM;
         *vict_wait = 1 RL_SEC;
-        weap = GET_EQ(ch, WEAR_WIELD);
         break;
     case SKILL_HEADBUTT:
         if (!affected_by_spell(ch, SKILL_KATA) &&
