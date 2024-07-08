@@ -4375,15 +4375,15 @@ mag_creations(int level __attribute__((unused)), struct creature *ch, int spelln
     switch (spellnum) {
     case SPELL_CREATE_FOOD:
         if (IS_EVIL(ch)) {
-            z = 3177;
+            z = 77;
         } else if (IS_GOOD(ch)) {
-            z = 3176;
+            z = 76;
         } else {
-            z = 3175;
+            z = 75;
         }
         break;
     case SPELL_GOODBERRY:
-        z = 3179;
+        z = 79;
         break;
     case SPELL_MINOR_CREATION:
         z = 3009;

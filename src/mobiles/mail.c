@@ -58,9 +58,6 @@
 // From cityguard.cc
 void call_for_help(struct creature *ch, struct creature *attacker);
 
-// The vnum of the "letter" object
-const int MAIL_OBJ_VNUM = 1204;
-
 GList *load_mail(char *path);
 
 bool
