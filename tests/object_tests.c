@@ -144,7 +144,7 @@ object_suite(void)
     Suite *s = suite_create("object");
 
     TCase *tc_core = tcase_create("Core");
-    tcase_add_checked_fixture(tc_core, tmp_string_init, NULL);
+    tcase_add_checked_fixture(tc_core, tmp_string_init, tmp_string_cleanup);
     tcase_add_checked_fixture(tc_core, fixture_object_setup, NULL);
     tcase_add_test(tc_core, test_obj_to_from_obj);
     tcase_add_test(tc_core, test_obj_to_from_char);

@@ -59,7 +59,7 @@ START_TEST(test_prog_compile_prog)
     struct cmd_arg want[] = {
         { PROG_CMD_AFTER, "" },
         { PROG_CMD_CLRCOND, "" },
-        { PROG_CMD_CMPCMD, "\xd5\x03" },
+        { PROG_CMD_CMPCMD, "\xd3\x03" },
         { PROG_CMD_CONDNEXTHANDLER, "" },
         { PROG_CMD_DO, "say hey!" },
         { PROG_CMD_ENDOFPROG, "" },
@@ -92,7 +92,7 @@ prog_suite(void)
     Suite *s = suite_create("player_io");
 
     TCase *tc_core = tcase_create("Core");
-    tcase_add_checked_fixture(tc_core, test_tempus_boot, NULL);
+    tcase_add_checked_fixture(tc_core, test_tempus_boot, test_tempus_cleanup);
     tcase_add_test(tc_core, test_prog_compile_prog);
     suite_add_tcase(s, tc_core);
 

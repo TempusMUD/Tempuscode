@@ -108,7 +108,7 @@ movement_suite(void)
     Suite *s = suite_create("movement");
 
     TCase *tc_core = tcase_create("Core");
-    tcase_add_checked_fixture(tc_core, tmp_string_init, NULL);
+    tcase_add_checked_fixture(tc_core, tmp_string_init, tmp_string_cleanup);
     tcase_add_checked_fixture(tc_core, fixture_movement_setup, NULL);
     tcase_add_test(tc_core, test_flying);
     suite_add_tcase(s, tc_core);

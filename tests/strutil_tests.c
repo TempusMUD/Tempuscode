@@ -447,7 +447,7 @@ strutil_suite(void)
     Suite *s = suite_create("strutils");
 
     TCase *tc_core = tcase_create("Core");
-    tcase_add_checked_fixture(tc_core, tmp_string_init, NULL);
+    tcase_add_checked_fixture(tc_core, tmp_string_init, tmp_string_cleanup);
     tcase_add_test(tc_core, test_is_newl_macro);
     tcase_add_test(tc_core, test_if_str_macro);
     tcase_add_test(tc_core, test_cap_macro);

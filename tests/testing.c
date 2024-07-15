@@ -88,10 +88,9 @@ test_tempus_boot(void)
     creature_map = g_hash_table_new(g_direct_hash, g_direct_equal);
 
     if (chdir("../../lib") < 0) {
-        // fail("Couldn't change directory to lib");
-        // return;
+        slog("Couldn't change directory to lib");
     }
-    tmp_string_init();
+ 
     account_boot();
     boot_tongues("etc/tongues.xml");
     boot_races("etc/races.xml");
@@ -104,6 +103,13 @@ test_tempus_boot(void)
     link_rooms(room_a, room_b, NORTH);
 
     main_loop = g_main_loop_new(NULL, false);
+}
+
+void
+test_tempus_cleanup(void)
+{
+    tmp_string_cleanup();
+    fclose(qlogfile);
 }
 
 int

@@ -3,6 +3,7 @@
 
 const char *test_path(char *relpath);
 void test_tempus_boot(void);
+void test_tempus_cleanup(void);
 
 struct creature *make_test_player(const char *acct_name, const char *char_name);
 void destroy_test_player(struct creature *ch);

@@ -590,7 +590,7 @@ quest_suite(void)
     Suite *s = suite_create("quest");
 
     TCase *tc_core = tcase_create("Core");
-    tcase_add_checked_fixture(tc_core, test_tempus_boot, NULL);
+    tcase_add_checked_fixture(tc_core, test_tempus_boot, test_tempus_cleanup);
     tcase_add_checked_fixture(tc_core, fixture_make_player, fixture_destroy_player);
     tcase_add_test(tc_core, test_next_quest_vnum);
     tcase_add_test(tc_core, test_make_destroy_quest);
@@ -612,7 +612,7 @@ quest_suite(void)
     suite_add_tcase(s, tc_core);
 
     TCase *tc_qcontrol = tcase_create("qcontrol");
-    tcase_add_checked_fixture(tc_qcontrol, test_tempus_boot, NULL);
+    tcase_add_checked_fixture(tc_qcontrol, test_tempus_boot, test_tempus_cleanup);
     tcase_add_checked_fixture(tc_qcontrol, fixture_make_player, fixture_destroy_player);
     tcase_add_test(tc_qcontrol, test_qcontrol_create);
     tcase_add_test(tc_qcontrol, test_qcontrol_end);

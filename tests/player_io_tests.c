@@ -58,12 +58,6 @@ fixture_destroy_player(void)
     destroy_test_player(ch);
 }
 
-START_TEST(test_fixture_addresses)
-{
-fprintf(stderr, "fixture\n");
-}
-END_TEST
-
 START_TEST(test_load_save_creature)
 {
     struct creature *tch;
@@ -511,9 +505,8 @@ player_io_suite(void)
     Suite *s = suite_create("player_io");
 
     TCase *tc_core = tcase_create("Core");
-    tcase_add_checked_fixture(tc_core, test_tempus_boot, NULL);
+    tcase_add_unchecked_fixture(tc_core, test_tempus_boot, test_tempus_cleanup);
     tcase_add_checked_fixture(tc_core, fixture_make_player, fixture_destroy_player);
-    tcase_add_test(tc_core, test_fixture_addresses);
     tcase_add_test(tc_core, test_load_save_creature);
     tcase_add_test(tc_core, test_load_save_cyborg);
     tcase_add_test(tc_core, test_load_save_immort);
