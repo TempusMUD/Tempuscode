@@ -26,6 +26,7 @@
 #include "mail.h"
 #include "account.h"
 
+#define __USE_GNU
 #include <crypt.h>
 
 const char *ansi_levels[] = {
