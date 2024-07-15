@@ -92,6 +92,10 @@ tmp_wrap(const char *str, int width, int first_indent, int par_indent, int rest_
 // Initializes the structures used for the temporary string mechanism
 void tmp_string_init(void);
 
+// Frees all memory used by the tmpstr pool.  This is mostly used in
+// testing to prevent memory leak false positives.
+void tmp_string_cleanup(void);
+
 // tmp_gc_strings will deallocate every temporary string, adjust the
 // size of the string pool.  All previously allocated strings will be
 // invalid after this is called.

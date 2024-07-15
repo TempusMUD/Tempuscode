@@ -20,16 +20,31 @@ struct tmp_str_pool {
 const size_t DEFAULT_POOL_SIZE = 65536; // 64k to start with
 size_t tmp_max_used = 0;        // Tracks maximum tmp str space used
 
-static struct tmp_str_pool *tmp_list_head = NULL;  // Always points to the initial pool
-static struct tmp_str_pool *tmp_list_tail = NULL;  // Points to the end of the linked
 // list of pools
+static struct tmp_str_pool *tmp_list_head = NULL;  // Always points to the initial pool
 
 struct tmp_str_pool *tmp_alloc_pool(size_t size_req);
+
 // Initializes the structures used for the temporary string mechanism
 void
 tmp_string_init(void)
 {
+    if (tmp_list_head != NULL) {
+        errlog("Temp strings already initialized!");
+    }
     tmp_list_head = tmp_alloc_pool(DEFAULT_POOL_SIZE);
+}
+
+// Frees all memory used by the tmpstr pool.  This is mostly used in
+// testing to prevent memory leak false positives.
+void
+tmp_string_cleanup(void)
+{
+    while (tmp_list_head) {
+        struct tmp_str_pool *next_buf = tmp_list_head->next;
+        free(tmp_list_head);
+        tmp_list_head = next_buf;
+    }
 }
 
 // tmp_gc_strings will deallocate every temporary string, adjust the
@@ -38,15 +53,16 @@ tmp_string_init(void)
 void
 tmp_gc_strings(void)
 {
-    struct tmp_str_pool *cur_buf, *next_buf;
-    size_t wanted = tmp_list_head->used;
+    size_t wanted = 0;
 
     // Free the extra space (if any), adding up the amount we needed
-    for (cur_buf = tmp_list_head->next; cur_buf; cur_buf = next_buf) {
-        next_buf = cur_buf->next;
-        wanted += cur_buf->used;
-        free(cur_buf);
+    while (tmp_list_head->next) {
+        struct tmp_str_pool *next_buf = tmp_list_head->next;
+        wanted += tmp_list_head->used;
+        free(tmp_list_head);
+        tmp_list_head = next_buf;
     }
+    wanted += tmp_list_head->used;
 
     // Track the max used and resize the pool if necessary
     if (wanted > tmp_max_used) {
@@ -54,15 +70,13 @@ tmp_gc_strings(void)
 
         if (tmp_max_used > tmp_list_head->space) {
             free(tmp_list_head);
-            tmp_list_tail = NULL;
+            tmp_list_head = NULL;
             tmp_list_head = tmp_alloc_pool(tmp_max_used);
         }
     }
     // We don't deallocate the initial pool here.  We can just set its
     // 'used' to 0
-    tmp_list_head->next = NULL;
     tmp_list_head->used = 0;
-    tmp_list_tail = tmp_list_head;
 }
 
 // Allocate a new string pool
@@ -74,11 +88,8 @@ tmp_alloc_pool(size_t size_req)
 
     new_buf =
         (struct tmp_str_pool *)malloc(sizeof(struct tmp_str_pool) + size);
-    new_buf->next = NULL;
-    if (tmp_list_tail) {
-        tmp_list_tail->next = new_buf;
-    }
-    tmp_list_tail = new_buf;
+    new_buf->next = tmp_list_head;
+    tmp_list_head = new_buf;
     new_buf->space = size;
     new_buf->used = 0;
 
@@ -91,7 +102,7 @@ tmp_alloc_pool(size_t size_req)
 static char *
 tmp_alloc(size_t size_req)
 {
-    struct tmp_str_pool *cur_buf = tmp_list_tail;
+    struct tmp_str_pool *cur_buf = tmp_list_head;
 
     if (size_req > cur_buf->space - cur_buf->used) {
         cur_buf = tmp_alloc_pool(size_req);
@@ -115,7 +126,7 @@ tmp_vsprintf(const char *fmt, va_list args)
 
     va_copy(args_copy, args);
 
-    cur_buf = tmp_list_tail;
+    cur_buf = tmp_list_head;
 
     result = &cur_buf->data[cur_buf->used];
     wanted = vsnprintf(result, cur_buf->space - cur_buf->used, fmt, args) + 1;
@@ -399,10 +410,10 @@ tmp_gsub(const char *haystack, const char *needle, const char *sub)
     len = strlen(haystack) + matches * (strlen(sub) - strlen(needle)) + 1;
 
     // If we don't have the space, we allocate another pool
-    if (len > tmp_list_tail->space - tmp_list_tail->used) {
+    if (len > tmp_list_head->space - tmp_list_head->used) {
         cur_buf = tmp_alloc_pool(len);
     } else {
-        cur_buf = tmp_list_tail;
+        cur_buf = tmp_list_head;
     }
 
     result = cur_buf->data + cur_buf->used;
@@ -856,7 +867,7 @@ tmp_format(const char *str, int width, int first_indent, int par_indent, int res
     size_t wanted;
     char *result;
 
-    cur_buf = tmp_list_tail;
+    cur_buf = tmp_list_head;
 
     result = &cur_buf->data[cur_buf->used];
     wanted = format_buffer(result, cur_buf->space - cur_buf->used, str, width, first_indent, par_indent, rest_indent) + 1;
@@ -980,7 +991,7 @@ tmp_wrap(const char *str, int width, int first_indent, int par_indent, int rest_
     size_t wanted;
     char *result;
 
-    cur_buf = tmp_list_tail;
+    cur_buf = tmp_list_head;
 
     result = &cur_buf->data[cur_buf->used];
     wanted = wrap_buffer(result, cur_buf->space - cur_buf->used, str, width, first_indent, par_indent, rest_indent) + 1;
