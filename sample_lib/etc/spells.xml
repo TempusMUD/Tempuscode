@@ -3740,22 +3740,19 @@ But blocks true love and harbors sin.</lyrics>
   <spell id="800" name="hit">
     <flag value="weapon"/>
   </spell>
-  <spell id="800" name="sting">
+  <spell id="801" name="sting">
     <flag value="weapon"/>
   </spell>
-  <spell id="801" name="whip">
+  <spell id="802" name="whip">
     <flag value="weapon"/>
   </spell>
-  <spell id="802" name="slash">
+  <spell id="803" name="slash">
     <flag value="weapon"/>
   </spell>
-  <spell id="803" name="bite">
+  <spell id="804" name="bite">
     <flag value="weapon"/>
   </spell>
-  <spell id="804" name="bludgeon">
-    <flag value="weapon"/>
-  </spell>
-  <spell id="805" name="crush">
+  <spell id="805" name="bludgeon">
     <flag value="weapon"/>
   </spell>
   <spell id="806" name="crush">
