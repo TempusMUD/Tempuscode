@@ -141,10 +141,7 @@ int *mob_index = NULL;          /* mobile index                  */
 int *wld_index = NULL;          /* world index                   */
 
 char *credits = NULL;           /* game credits                         */
-char *motd = NULL;              /* message of the day - mortals */
-char *ansi_motd = NULL;         /* message of the day - mortals */
-char *imotd = NULL;             /* message of the day - immorts */
-char *ansi_imotd = NULL;        /* message of the day - immorts */
+char *greeting = NULL;              /* initial connect screen */
 char *info = NULL;              /* info page                         */
 char *background = NULL;        /* background story                 */
 char *handbook = NULL;          /* handbook for new immortals         */
@@ -226,10 +223,7 @@ ACMD(do_reboot)
 
     if (!strcasecmp(arg, "all") || *arg == '*') {
         file_to_string_alloc(CREDITS_FILE, &credits);
-        file_to_string_alloc(MOTD_FILE, &motd);
-        file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
-        file_to_string_alloc(IMOTD_FILE, &imotd);
-        file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
+        file_to_string_alloc(GREETING_FILE, &greeting);
         file_to_string_alloc(INFO_FILE, &info);
         file_to_string_alloc(HANDBOOK_FILE, &handbook);
         file_to_string_alloc(BACKGROUND_FILE, &background);
@@ -243,12 +237,8 @@ ACMD(do_reboot)
         boot_social_messages();
     } else if (!strcasecmp(arg, "credits")) {
         file_to_string_alloc(CREDITS_FILE, &credits);
-    } else if (!strcasecmp(arg, "motd")) {
-        file_to_string_alloc(MOTD_FILE, &motd);
-        file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
-    } else if (!strcasecmp(arg, "imotd")) {
-        file_to_string_alloc(IMOTD_FILE, &imotd);
-        file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
+    } else if (!strcasecmp(arg, "greeting")) {
+        file_to_string_alloc(GREETING_FILE, &greeting);
     } else if (!strcasecmp(arg, "info")) {
         file_to_string_alloc(INFO_FILE, &info);
     } else if (!strcasecmp(arg, "handbook")) {
@@ -279,7 +269,7 @@ ACMD(do_reboot)
     } else {
         send_to_char(ch, "Unknown reboot option.\r\n");
         send_to_char(ch,
-                     "Options: all    *         credits     motd     imotd      info\r\n");
+                     "Options: all    *         credits     greeting           info\r\n");
         send_to_char(ch,
                      "         areas  olc_guide quest_guide handbook background paths\r\n");
         send_to_char(ch, "         trails timewarps xml      socials\r\n");
@@ -363,12 +353,9 @@ boot_db(void)
 
     account_boot();
     load_bounty_data();
-    slog("Reading credits, bground, info & motds.");
+    slog("Reading text files");
     file_to_string_alloc(CREDITS_FILE, &credits);
-    file_to_string_alloc(MOTD_FILE, &motd);
-    file_to_string_alloc(ANSI_MOTD_FILE, &ansi_motd);
-    file_to_string_alloc(IMOTD_FILE, &imotd);
-    file_to_string_alloc(ANSI_IMOTD_FILE, &ansi_imotd);
+    file_to_string_alloc(GREETING_FILE, &greeting);
     file_to_string_alloc(INFO_FILE, &info);
     file_to_string_alloc(POLICIES_FILE, &policies);
     file_to_string_alloc(HANDBOOK_FILE, &handbook);

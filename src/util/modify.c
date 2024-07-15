@@ -45,8 +45,6 @@
 /* External Variables */
 
 extern char *news;
-extern char *motd;
-extern char *imotd;
 extern char *info;
 extern char *wizlist;
 extern char *immlist;

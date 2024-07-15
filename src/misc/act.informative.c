@@ -75,14 +75,6 @@ extern const int exp_scale[];
 extern char *credits;
 extern char *news;
 extern char *info;
-extern char *motd;
-extern char *ansi_motd;
-extern char *imotd;
-extern char *ansi_imotd;
-extern char *wizlist;
-extern char *ansi_wizlist;
-extern char *immlist;
-extern char *ansi_immlist;
 extern char *policies;
 extern char *handbook;
 extern char *areas_low;
@@ -4139,20 +4131,6 @@ ACMD(do_gen_ps)
         break;
     case SCMD_INFO:
         page_string(ch->desc, info);
-        break;
-    case SCMD_MOTD:
-        if (clr(ch, C_NRM)) {
-            page_string(ch->desc, ansi_motd);
-        } else {
-            page_string(ch->desc, motd);
-        }
-        break;
-    case SCMD_IMOTD:
-        if (clr(ch, C_NRM)) {
-            page_string(ch->desc, ansi_imotd);
-        } else {
-            page_string(ch->desc, imotd);
-        }
         break;
     case SCMD_CLEAR:
         send_to_char(ch, "\033[H\033[J");

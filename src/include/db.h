@@ -35,10 +35,7 @@
 #define XML_PREFIX  "world/xml"
 
 #define CREDITS_FILE    "text/credits"  /* for the 'credits' command    */
-#define MOTD_FILE   "text/motd" /* messages of the day / mortal */
-#define ANSI_MOTD_FILE  "text/ansi_motd"    /* messages of the day / mortal */
-#define IMOTD_FILE  "text/imotd"    /* messages of the day / immort */
-#define ANSI_IMOTD_FILE "text/ansi_imotd"   /* messages of the day / imm */
+#define GREETING_FILE   "text/greeting" /* initial greeting text */
 #define HELP_KWRD_FILE  "text/help_table"   /* for HELP <keywrd>       */
 #define HELP_KWRD_WIZ   "text/help_table_wiz"   /* for HELP <keywrd>   */
 #define HELP_PAGE_FILE  "text/help" /* for HELP <CR>        */

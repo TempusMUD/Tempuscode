@@ -59,10 +59,6 @@
 #include "ban.h"
 #include "login.h"
 
-extern char *motd;
-extern char *ansi_motd;
-extern char *imotd;
-extern char *ansi_imotd;
 extern char *background;
 extern char *MENU;
 extern char *WELC_MESSG;

@@ -125,13 +125,11 @@ struct set_struct {
 #define SCMD_WIZLIST    3
 #define SCMD_VERSION    4
 #define SCMD_IMMLIST    5
-#define SCMD_MOTD   6
-#define SCMD_IMOTD  7
-#define SCMD_CLEAR  8
-#define SCMD_WHOAMI 9
+#define SCMD_CLEAR      6
+#define SCMD_WHOAMI     7
 
 /* do_gen_tog */
-#define CMD_TESTER 1
+#define CMD_TESTER      1
 #define SCMD_NOSUMMON   0
 #define SCMD_NOHASSLE   1
 #define SCMD_BRIEF      2

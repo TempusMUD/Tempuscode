@@ -662,7 +662,7 @@ accept_new_connection(GIOChannel *listener_io,
     struct descriptor_data *newd;
     struct sockaddr_storage peer;
     socklen_t addrlen;
-    extern const char *GREETINGS;
+    extern const char *greeting;
     int s = g_io_channel_unix_get_fd(listener_io);
     int port = GPOINTER_TO_INT(data);
 
@@ -774,10 +774,10 @@ accept_new_connection(GIOChannel *listener_io,
             // This text is printed just before the screen clear, so most
             // people won't even see it.  Screen readers will read it out
             // loud, though.
-            d_printf(newd,"If you use a screen reader, you'll want to use port %d&@", reader_port);
+            d_printf(newd,"If you use a screen reader, you'll want to use port %d\r\n%s", reader_port, termcode(NORMAL, 0, 0, TERM_CLEAR));
         }
 
-        d_send(newd, GREETINGS);
+        d_send(newd, greeting);
     }
     return true;
 }
