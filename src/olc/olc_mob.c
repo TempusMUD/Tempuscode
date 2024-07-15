@@ -1154,6 +1154,17 @@ do_mob_mset(struct creature *ch, char *argument)
     case 47:
         // If they don't have the edit_zone privilege, the mob special
         // needs to be checked to see if it's reserved.
+        for (zone = zone_table; zone; zone = zone->next) {
+            if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
+                mob_p->mob_specials.shared->vnum <= zone->top) {
+                break;
+            }
+        }
+        if (!zone) {
+            errlog("!zone in olc mset specparam");
+            return;
+        }
+
         if (!is_authorized(ch, EDIT_ZONE, zone)) {
             // Make sure they have a mob special
             if (!GET_NPC_SPEC(mob_p)) {
