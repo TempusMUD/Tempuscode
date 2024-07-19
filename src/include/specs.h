@@ -7,7 +7,7 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 // #define FATE_TEST 1
-#define QUANTUM_RIFT_VNUM 1217
+#define QUANTUM_RIFT_VNUM 23
 #define FATE_PORTAL_VNUM 1216
 #ifndef FATE_TEST
 #define FATE_VNUM_LOW 1526
