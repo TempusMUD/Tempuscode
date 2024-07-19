@@ -324,11 +324,11 @@ void WAIT_STATE(struct creature *ch, int cycle);
 
 #define OBJ_IS_RAD(obj) (IS_OBJ_STAT2(obj, ITEM2_RADIOACTIVE))
 
-#define QUAD_VNUM  1578
+#define QUAD_VNUM  20
 #define MIXED_POTION_VNUM 15
 
-#define BLOOD_VNUM 1579
-#define ICE_VNUM   1576
+#define BLOOD_VNUM 21
+#define ICE_VNUM   22
 
 #define OBJ_IS_SOILAGE(obj) (GET_OBJ_VNUM(obj) == BLOOD_VNUM || \
                              GET_OBJ_VNUM(obj) == ICE_VNUM)

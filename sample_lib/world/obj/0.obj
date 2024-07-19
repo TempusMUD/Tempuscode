@@ -86,6 +86,63 @@ A canvas mail bag marked "C. P. S." is slumped over onto the floor.~
 0 0 0 0
 31 100 100
 1.000000 0 1 0
+#20
+quad damage quake~
+the Quad Damage~
+The Quad Damage hovers here, spinning slowly.~
+~
+8 cdq i a 0
+0 0 0 0
+103 100 100
+0.010000 0 1 0
+E
+quad damage quake~
+   The essence of magic has randomly converged here.  Glowing, pale blue
+strands of flowing energy loop and swell to create an artifact of obvious
+incalculable power.  The pale blue force forms an arc with pointed tips
+which point upward.  A sharp spike of the same energy drives straight
+downward through the arc and lies along the axis of the artifact's rotation.
+
+You feel an irresistable urge to pick it up.
+~
+#21
+blood some puddle~
+some blood~
+Some blood is here.~
+~
+0 0 0 0 0
+0 0 0 0
+0 0 0
+0.010000 0 1 0
+#22
+ice some~
+some ice~
+Some ice is here covering everything.~
+NULL~
+0 0 0 0 0
+0 0 0 0
+164 0 0
+0.010000 0 1 0
+#23
+rift quantum flux~
+a quantum rift~
+A quantum rift in the fabric of spacetime has been opened here.~
+$n disappears into the rift.~
+35 abz 0 0 0
+-1 1 0 0
+5 100 100
+0.010000 0 1 0
+E
+rift quantum flux~
+Sparkling threads of the universal spacetime reality form a
+small freestanding wall here. The threads, bits of quantum
+probability waves, quiver and hum like the strings of a musical
+instrument.  Bright motes of light drift off from the quasi-
+substantial threads only to drift off and vanish in bursts, like
+the explosions of tiny galaxies.  A flux in the wall of space,
+just big enough for you to squeeze through, appears between
+the quantum reality waves of spacetime.
+~
 #66
 bouquet~
 Lovely's Valentine's Bouquet from Fishbone~
@@ -115,7 +172,7 @@ A magnificent black rose is lying here.~
 0 0 0 0
 E
 black rose~
-The small rose is such a deep shade of red that it appears almost black.  
+The small rose is such a deep shade of red that it appears almost black.
 It feels warm in your hands, almost as if it was producing a heat of its own.
 You notice a tiny stamp at the base of one of its petals. ~
 E
