@@ -51,6 +51,8 @@ struct account *account_create(const char *name, struct descriptor_data *d)
 __attribute__ ((nonnull));
 struct account *account_by_name(char *name)
 __attribute__ ((nonnull));
+GList *accounts_by_email(char *name)
+__attribute__ ((nonnull));
 struct account *account_by_idnum(int id);
 struct account *account_by_creature(struct creature *ch)
 __attribute__ ((nonnull));
@@ -94,8 +96,6 @@ __attribute__ ((nonnull));
 struct creature *account_get_creature_by_index(struct account *account, int idx)
 __attribute__ ((nonnull));
 bool account_invalid_char_index(struct account *account, int idx)
-__attribute__ ((nonnull));
-int account_get_char_count(struct account *account)
 __attribute__ ((nonnull));
 int account_chars_available(struct account *account)
 __attribute__ ((nonnull));

@@ -1,9 +1,11 @@
+create extension if not exists pgcrypto;
+
 -- TABLES
 create table accounts (
 	idnum			integer primary key,
 	name			varchar(20),
 	password		varchar(100),
-	email			varchar(60),
+	email			varchar(255),
 	creation_time	timestamp,
 	creation_addr	varchar(60),
 	login_time		timestamp,
@@ -21,6 +23,14 @@ create table accounts (
     quest_banned boolean,
     banned boolean,
     metric_units boolean
+);
+
+create table recoveries (
+    idnum           serial primary key,
+    ipaddress       varchar(40),
+    email           varchar(255),
+    attempted_at    timestamp,
+    code_hash       varchar(100)
 );
 
 create table players (

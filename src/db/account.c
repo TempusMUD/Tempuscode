@@ -315,7 +315,7 @@ account_by_idnum(int id)
     return NULL;
 }
 
-gboolean
+static gboolean
 account_name_matches(gpointer key __attribute__((unused)), gpointer value, gpointer user_data)
 {
     struct account *this_acct = (struct account *)value;
@@ -353,6 +353,27 @@ account_by_name(char *name)
 
     free(acct);
     return NULL;
+}
+
+GList *
+accounts_by_email(char *email)
+{
+    PGresult *res;
+    GList *result = NULL;
+
+    res = sql_query("select idnum from accounts where lower(email)='%s' order by name",
+                    tmp_sqlescape(tmp_tolower(email)));
+    if (PQntuples(res) == 0) {
+        return NULL;
+    }
+
+    for (int i = 0;i < PQntuples(res);i++) {
+        int acct_id = atoi(PQgetvalue(res, i, 0));
+
+        result = g_list_append(result, account_by_idnum(acct_id));
+    }
+
+    return result;
 }
 
 struct account *
@@ -780,9 +801,10 @@ withdraw_future_bank(struct account *account, money_t amt)
 void
 account_set_email_addr(struct account *account, const char *addr)
 {
+    free(account->email);
     account->email = strdup(addr);
-    if (strlen(account->email) > 60) {
-        account->email[60] = '\0';
+    if (strlen(account->email) > 255) {
+        account->email[255] = '\0';
     }
     sql_exec("update accounts set email='%s' where idnum=%d",
              tmp_sqlescape(account->email), account->id);

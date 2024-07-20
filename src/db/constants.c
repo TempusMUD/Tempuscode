@@ -129,6 +129,7 @@ const char *desc_modes[] = {
     "race-help",
     "new-email-verify",
     "new-email-prompt",
+    "recovery-email",
     "\n"
 };
 

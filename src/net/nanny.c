@@ -89,6 +89,9 @@ char *expand_player_alias(struct descriptor_data *d, char *orig);
 int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 int parse_player_class(char *arg);
 void save_all_players(void);
+bool can_try_recovery(const char *email, const char *ipaddr);
+bool recovery_code_check(const char *email, const char *code);
+void account_setup_recovery(char *email, const char *ipaddr);
 
 // internal functions
 void set_desc_state(enum cxn_state state, struct descriptor_data *d);
@@ -163,7 +166,11 @@ dispatch_input(struct descriptor_data *d, char *arg)
             close_socket(d);
             break;
         }
-        if (strcasecmp(arg, "new")) {
+        if (!strcasecmp(arg, "new")) {
+            set_desc_state(CXN_ACCOUNT_PROMPT, d);
+        } else if (!strcasecmp(arg, "recover")) {
+            set_desc_state(CXN_RECOVER_EMAIL, d);
+        } else {
             d->account = account_by_name(arg);
             if (d->account) {
                 if (!production_mode) {
@@ -176,12 +183,21 @@ dispatch_input(struct descriptor_data *d, char *arg)
             } else {
                 d_printf(d, "That account does not exist.\r\n");
             }
-        } else {
-            set_desc_state(CXN_ACCOUNT_PROMPT, d);
         }
         break;
     case CXN_ACCOUNT_PW:
-        if (!account_authenticate(d->account, arg)) {
+        if (account_authenticate(d->account, arg)) {
+            if (d->account->banned) {
+                slog("Autobanning IP address of account %s[%d]",
+                     d->account->name, d->account->id);
+                perform_ban(BAN_ALL, d->host, "autoban",
+                            tmp_sprintf("account %s", d->account->name));
+            }
+            account_login(d->account, d);
+        } else if (recovery_code_check(d->account->email, arg)) {
+            slog("recovery: %s[%d] from %s", d->account->name, d->account->id, d->host);
+            set_desc_state(CXN_PW_PROMPT, d);
+        } else {
             slog("PASSWORD: account %s[%d] failed to authenticate. [%s]",
                  d->account->name, d->account->id, d->host);
             d->wait = (2 + d->bad_pws)RL_SEC;
@@ -195,14 +211,6 @@ dispatch_input(struct descriptor_data *d, char *arg)
                 d_printf(d, "Invalid password.\r\n");
                 set_desc_state(CXN_ACCOUNT_LOGIN, d);
             }
-        } else if (d->account->banned) {
-            slog("Autobanning IP address of account %s[%d]",
-                 d->account->name, d->account->id);
-            perform_ban(BAN_ALL, d->host, "autoban",
-                        tmp_sprintf("account %s", d->account->name));
-            account_login(d->account, d);
-        } else {
-            account_login(d->account, d);
         }
         break;
     case CXN_ACCOUNT_PROMPT:
@@ -266,7 +274,19 @@ dispatch_input(struct descriptor_data *d, char *arg)
         set_desc_state(CXN_EMAIL_PROMPT, d);
         break;
     case CXN_EMAIL_PROMPT:
-        free(d->account->email);
+        if (!arg[0]) {
+            account_set_email_addr(d->account, "");
+            d_printf(d, "\r\nNo email address.  Got it.  Note that you will not be able to recover\r\n"
+                     "your account.\r\n\r\n");
+            set_desc_state(CXN_PW_PROMPT, d);
+            return;
+        }
+        if (!strchr(arg, '@') || strlen(arg) > 255) {
+            d_printf(d, "\r\nInvalid email address.  Just press return to have no email.\r\n\r\n");
+            return;
+        }
+
+        d_printf(d, "\r\nEmail address set to %s.\r\n\r\n", arg);
         account_set_email_addr(d->account, arg);
         set_desc_state(CXN_PW_PROMPT, d);
         break;
@@ -282,8 +302,11 @@ dispatch_input(struct descriptor_data *d, char *arg)
         if (!account_authenticate(d->account, arg)) {
             d_printf(d, "Passwords did not match.  Please try again.\r\n");
             set_desc_state(CXN_PW_PROMPT, d);
-        } else {
+        } else if (account_char_count(d->account) == 0){
+            // Create new character if none are in the account.
             set_desc_state(CXN_NAME_PROMPT, d);
+        } else {
+            set_desc_state(CXN_WAIT_MENU, d);
         }
         break;
     case CXN_VIEW_POLICY:
@@ -955,13 +978,36 @@ dispatch_input(struct descriptor_data *d, char *arg)
         set_desc_state(CXN_WAIT_MENU, d);
         break;
     case CXN_NEWEMAIL_PROMPT:
-        if (arg[0]) {
-            account_set_email_addr(d->account, arg);
+        if (!arg[0]) {
+            account_set_email_addr(d->account, "");
+            d_printf(d, "\r\nNo email address.  Got it.  Note that you will not be able to recover\r\n"
+                     "your account using an email address.\r\n\r\n");
             set_desc_state(CXN_WAIT_MENU, d);
-        } else {
-            d_printf(d, "\r\nEmail change cancelled!\r\n\r\n");
-            set_desc_state(CXN_WAIT_MENU, d);
+            return;
         }
+        if (!strchr(arg, '@') || strlen(arg) > 255) {
+            d_printf(d, "\r\nInvalid email address.  Just press return to have no email.\r\n\r\n");
+            return;
+        }
+
+        d_printf(d, "\r\nEmail address set to %s.\r\n\r\n", arg);
+        account_set_email_addr(d->account, arg);
+        set_desc_state(CXN_WAIT_MENU, d);
+        break;
+    case CXN_RECOVER_EMAIL:
+        if (!arg[0]) {
+            d_printf(d, "\r\nRecovery cancelled.\r\n\r\n");
+            set_desc_state(CXN_ACCOUNT_LOGIN, d);
+            return;
+        }
+        if (!can_try_recovery(arg, d->host)) {
+                d_printf(d, "\r\nIt hasn't been long enough since your last recovery attempt.\r\n\r\n");
+                set_desc_state(CXN_ACCOUNT_LOGIN, d);
+                return;
+            }
+        d_printf(d, "\r\nIf this email is associated with an account, you should get instructions\r\nsent to you at that email address.\r\n\r\n");
+        set_desc_state(CXN_ACCOUNT_LOGIN, d);
+        account_setup_recovery(arg, d->host);
         break;
     }
 }
@@ -1119,7 +1165,7 @@ build_prompt(struct descriptor_data *d)
         }
         return acc_get_string();
     case CXN_ACCOUNT_LOGIN:
-        return "  Login with your account name, or 'new' for a new account: ";
+        return "  Login with your account name, 'new' for a new account, or 'recover' to recover your account: ";
     case CXN_ACCOUNT_PW:
         return "  Password: ";
     case CXN_PW_PROMPT:
@@ -1241,6 +1287,8 @@ build_prompt(struct descriptor_data *d)
         break;
     case CXN_NETWORK:
         return "> ";
+    case CXN_RECOVER_EMAIL:
+        return "Enter the email address associated with your account: ";
     }
     return "";
 }
@@ -1258,6 +1306,7 @@ send_menu(struct descriptor_data *d)
     case CXN_ACCOUNT_PW:
     case CXN_ACCOUNT_VERIFY:
     case CXN_PW_VERIFY:
+    case CXN_NEWPW_VERIFY:
     case CXN_STATISTICS_ROLL:
     case CXN_DELETE_VERIFY:
     case CXN_AFTERLIFE:
@@ -1267,6 +1316,10 @@ send_menu(struct descriptor_data *d)
         // These states don't have menus
         break;
     case CXN_OLDPW_PROMPT:
+        d_printf(d,
+                 "&@&c\r\n                                 CHANGE PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
+        break;
+    case CXN_NEWPW_PROMPT:
         d_printf(d,
                  "&@&c\r\n                                 CHANGE PASSWORD\r\n*******************************************************************************\r\n\r\n&n");
         break;
@@ -1630,11 +1683,23 @@ send_menu(struct descriptor_data *d)
         d_printf(d,
                  "&@&c\r\n                                       SET EMAIL\r\n*******************************************************************************\r\n\r\n&n");
         break;
+    case CXN_RECOVER_EMAIL:
+        d_printf(d,
+                 "&@&c\r\n                                  ACCOUNT RECOVERY\r\n*******************************************************************************\r\n\r\n&n");
+        d_printf(d,
+                 "   This option will send an email to the address associated with\r\n"
+                 "your account.  You will receive an email with your account name and\r\n"
+                 "a temporary password that will be good for 10 minutes.  If you did\r\n"
+                 "not specify a deliverable address or have lost access to the\r\n"
+                 "registered email, please send an email to admin@tempusmud.com with\r\n"
+                 "your characters' names and we will try to accomodate you.\r\n\r\n");
+        break;
     default:
-        slog("Unhandled input_mode %d in send_menu()", d->input_mode);
+        slog("Unhandled input_mode %s in send_menu()", strlist_aref(d->input_mode, desc_modes));
         break;
     }
 }
+
 
 void
 set_desc_state(enum cxn_state state, struct descriptor_data *d)

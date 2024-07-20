@@ -54,10 +54,11 @@ enum cxn_state {
     CXN_EDIT_PROMPT,            // Which character do you want to describe
     CXN_EDIT_DESC,              // Describe your char
     CXN_NETWORK,                // Cyborg interfaced to network
-    CXN_CLASS_HELP,
-    CXN_RACE_HELP,
-    CXN_EMAIL_VERIFY,                           // Verify password before changing e-mail
-    CXN_NEWEMAIL_PROMPT                         // Enter new e-mail address
+    CXN_CLASS_HELP,             // Help on different classes
+    CXN_RACE_HELP,              // Help on different races
+    CXN_EMAIL_VERIFY,        // Verify password before changing e-mail
+    CXN_NEWEMAIL_PROMPT,     // Enter new e-mail address
+    CXN_RECOVER_EMAIL        // Enter email for account recovery
 };
 
 enum display_mode {
