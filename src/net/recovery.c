@@ -66,7 +66,7 @@ account_setup_recovery(char *email, const char *ipaddr)
 static void
 send_recovery_email(char *email, const char *code)
 {
-    FILE *mailer = popen("/usr/bin/sendmail -t", "w");
+    FILE *mailer = popen("/usr/sbin/sendmail -t", "w");
     if (!mailer || !__fwritable(mailer)) {
         errlog("Mailer could not be opened!");
         return;
