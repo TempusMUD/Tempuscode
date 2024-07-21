@@ -624,7 +624,14 @@ burn_update_creature(struct creature *ch)
     }
     // burning character
     if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
-        if (room_is_watery(ch->in_room)) {
+        if (room_is_underwater(ch->in_room)) {
+            send_to_char(ch,
+                         "The flames on your body are quenched by the water.\r\n");
+            act("The flames on $n are quenched by the water.",
+                false, ch, NULL, NULL, TO_ROOM);
+            extinguish_creature(ch);
+        }
+        else if (room_is_watery(ch->in_room)) {
             send_to_char(ch,
                          "The flames on your body sizzle out and die, leaving you in a cloud of steam.\r\n");
             act("The flames on $n sizzle and die, leaving a cloud of steam.",
@@ -634,7 +641,7 @@ burn_update_creature(struct creature *ch)
         //
         // Sect types that don't have oxygen
         //
-        else if (SECT_TYPE(ch->in_room) == SECT_FREESPACE) {
+        else if (!room_has_air(ch->in_room)) {
             send_to_char(ch,
                          "The flames on your body die in the absence of oxygen.\r\n");
             act("The flames on $n die in the absence of oxygen.", false,
@@ -2504,7 +2511,7 @@ single_mobile_activity(struct creature *ch)
             cast_spell(ch, ch, NULL, NULL, SPELL_SANCTUARY);
         } else if (GET_EQ(ch, WEAR_WIELD)
                    && IS_OBJ_TYPE(GET_EQ(ch, WEAR_WIELD), ITEM_WEAPON)
-                   && IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_ABLAZE)
+                   && !IS_OBJ_STAT2(GET_EQ(ch, WEAR_WIELD), ITEM2_ABLAZE)
                    && can_cast_spell(ch, SPELL_FLAME_OF_FAITH)) {
             cast_spell(ch, NULL, GET_EQ(ch, WEAR_WIELD), NULL, SPELL_FLAME_OF_FAITH);
         }
