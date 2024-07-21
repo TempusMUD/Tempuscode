@@ -1197,7 +1197,7 @@ build_prompt(struct descriptor_data *d)
         return "Enter the name you wish for this character: ";
         break;
     case CXN_SEX_PROMPT:
-        return "                        What do you choose as your sex (M/F)? ";
+        return "                        What do you choose as your sex (M/F/N/S/P/K)? ";
     case CXN_HARDCORE_PROMPT:
         return "           Do you wish to play this character as hardcore (Y/N)? ";
         break;
