@@ -212,7 +212,7 @@ main(int argc, char **argv)
 
     reader_port = main_port + 1;
     irc_port = main_port + 2;
-    proxy_port = main_port + 3;
+    proxy_port = main_port + 4;
 
     if (scheck) {
         void my_srand(unsigned long initial_seed);

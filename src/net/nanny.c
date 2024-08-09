@@ -1022,17 +1022,17 @@ dispatch_input(struct descriptor_data *d, char *arg)
         account_setup_recovery(arg, d->host);
         break;
     case CXN_PROXY:
-        char *word = tmp_getword(&arg);
+        char *word = tmp_gettoken(&arg);
         if (strcmp(word, "PROXY")) {
             // Not our proxy - kill the link.
-            set_desc_state(CXN_DISCONNECT, d);
+            close_socket(d);
             return;
         }
         tmp_getword(&arg); // skip network address family
         strcpy(d->host, tmp_getword(&arg)); // copy IP address
         if (check_ban_all(d->io, d->host)) {
             // Banned.  Disconnect immediately.
-            set_desc_state(CXN_DISCONNECT, d);
+            close_socket(d);
             return;
         }
         int bantype = isbanned(d->host, buf2, sizeof(buf2));
