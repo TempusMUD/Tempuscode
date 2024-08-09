@@ -10,6 +10,7 @@
 
 ACMD(do_follow);
 ACMD(do_rescue);
+ACMD(do_sayto);
 int cast_spell(struct creature *ch, struct creature *tch,
                struct obj_data *tobj, int *tdir, int spellnum);
 
@@ -695,7 +696,8 @@ SPECIAL(guardian_angel)
     }
     // Only respond to actual in-room communications
     if (cmd_info[cmd].command_pointer != do_whisper &&
-        cmd_info[cmd].command_pointer != do_say) {
+        cmd_info[cmd].command_pointer != do_say &&
+        cmd_info[cmd].command_pointer != do_sayto) {
         return 0;
     }
 
