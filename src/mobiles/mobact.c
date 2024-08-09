@@ -1591,7 +1591,10 @@ mobile_spec(void)
 {
     extern int no_specials;
 
-    for (GList *cit = first_living(creatures); cit; cit = next_living(cit)) {
+    for (GList *cit = first_living(creatures), *next_cit; cit; cit = next_cit) {
+        // Allow this creature to be removed from the list.
+        next_cit = next_living(cit);
+
         struct creature *ch = cit->data;
 
         if (!IS_NPC(ch)) {

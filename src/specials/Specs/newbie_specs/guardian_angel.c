@@ -25,8 +25,6 @@ struct angel_data {
     unsigned long flags;
 };
 
-static GList *angels = NULL;
-
 struct angel_chat_data {
     int char_class;             // class restriction of response
     int chance;                 // percent chance this response will be chosen
@@ -352,7 +350,7 @@ angel_find_path_to_room(struct creature *angel, struct room_data *dest,
     if (cur_room != dest || steps >= 600) {
         data->action = strdup("I don't seem to be able to find that room.");
     } else {
-        data->action = acc_get_string();
+        data->action = strdup(acc_get_string());
     }
 }
 
@@ -447,14 +445,6 @@ angel_do_action(struct creature *self, struct creature *charge,
             act("$n shrugs $s shoulders and disappears!", false,
                 self, NULL, NULL, TO_ROOM);
 
-            for (GList *li = angels; li; li = li->next) {
-                struct angel_data *angel = li->data;
-                if (data->charge_id == angel->charge_id) {
-                    angels = g_list_remove(angels, angel);
-                    free(angel);
-                    break;
-                }
-            }
             creature_purge(self, true);
             return 1;
         }
@@ -609,8 +599,6 @@ assign_angel(struct creature *angel, struct creature *ch)
     char_to_room(angel, ch->in_room, false);
 
     do_follow(angel, GET_NAME(ch), 0, 0);
-
-    angels = g_list_prepend(angels, data);
 }
 
 SPECIAL(guardian_angel)
