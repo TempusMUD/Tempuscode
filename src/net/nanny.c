@@ -1021,6 +1021,28 @@ dispatch_input(struct descriptor_data *d, char *arg)
         set_desc_state(CXN_ACCOUNT_LOGIN, d);
         account_setup_recovery(arg, d->host);
         break;
+    case CXN_PROXY:
+        char *word = tmp_getword(&arg);
+        if (strcmp(word, "PROXY")) {
+            // Not our proxy - kill the link.
+            set_desc_state(CXN_DISCONNECT, d);
+            return;
+        }
+        tmp_getword(&arg); // skip network address family
+        strcpy(d->host, tmp_getword(&arg)); // copy IP address
+        if (check_ban_all(d->io, d->host)) {
+            // Banned.  Disconnect immediately.
+            set_desc_state(CXN_DISCONNECT, d);
+            return;
+        }
+        int bantype = isbanned(d->host, buf2, sizeof(buf2));
+        mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
+             "New connection from [%s]%s%s",
+             d->host,
+             (bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
+             (bantype == BAN_NEW) ? "(NEWBIE BAN)" : "");
+        set_desc_state(CXN_ACCOUNT_LOGIN, d);
+        break;
     }
 }
 
@@ -1071,6 +1093,7 @@ build_prompt(struct descriptor_data *d)
     switch (d->input_mode) {
     case CXN_UNKNOWN:
     case CXN_DISCONNECT:
+    case CXN_PROXY:
         break;
     case CXN_PLAYING:          // Playing - Nominal state
         if (d->creature == NULL) {
@@ -1325,6 +1348,7 @@ send_menu(struct descriptor_data *d)
     case CXN_REMORT_AFTERLIFE:
     case CXN_DELETE_PW:
     case CXN_WAIT_MENU:
+    case CXN_PROXY:
         // These states don't have menus
         break;
     case CXN_OLDPW_PROMPT:

@@ -72,7 +72,7 @@ extern int MAX_DESCRIPTORS_AVAILABLE;
 extern struct obj_data *cur_car;
 extern struct zone_data *default_quad_zone;
 extern struct obj_data *object_list;
-int main_port, reader_port, irc_port;
+int main_port, reader_port, irc_port, proxy_port;
 int restrict_logins = false;
 bool production_mode = false;   // Run in production mode
 
@@ -104,8 +104,8 @@ int get_from_q(struct txt_q *queue, char *dest, int *aliased, int length);
 void flush_q(struct txt_q *queue);
 void init_game(void);
 void signal_setup(void);
-void game_loop(GIOChannel *main_listener, GIOChannel *reader_listener, GIOChannel *irc_listener);
-GIOChannel *init_socket(int port);
+void game_loop(GIOChannel *main_listener, GIOChannel *reader_listener, GIOChannel *irc_listener, GIOChannel *proxy_listener);
+GIOChannel *init_socket(int port, bool local_only);
 int new_descriptor(int s, int port);
 int get_avail_descs(void);
 struct timespec timediff(struct timespec *a, struct timespec *b);
@@ -145,7 +145,7 @@ void show_string(struct descriptor_data *d);
 void autosave_zones(int SAVE_TYPE);
 void mem_cleanup(void);
 void retire_trails(void);
-void set_desc_state(int state, struct descriptor_data *d);
+void set_desc_state(enum cxn_state state, struct descriptor_data *d);
 void save_quests();             // quests.cc - saves quest data
 void save_all_players();
 void random_mob_activity(void);
@@ -172,9 +172,10 @@ init_game(void)
     verify_tempus_integrity(NULL);
 
     slog("Opening listener sockets.");
-    GIOChannel *main_io = init_socket(main_port);
-    GIOChannel *reader_io = init_socket(reader_port);
-    GIOChannel *irc_io = init_socket(irc_port);
+    GIOChannel *main_io = init_socket(main_port, false);
+    GIOChannel *reader_io = init_socket(reader_port, false);
+    GIOChannel *irc_io = init_socket(irc_port, false);
+    GIOChannel *proxy_io = init_socket(proxy_port, true);
 
     avail_descs = get_avail_descs();
 
@@ -182,12 +183,13 @@ init_game(void)
     signal_setup();
 
     slog("Entering game loop.");
-    game_loop(main_io, reader_io, irc_io);
+    game_loop(main_io, reader_io, irc_io, proxy_io);
 
     slog("Closing all sockets.");
     g_io_channel_unref(main_io);
     g_io_channel_unref(reader_io);
     g_io_channel_unref(irc_io);
+    g_io_channel_unref(proxy_io);
     while (descriptor_list) {
         close_socket(descriptor_list);
     }
@@ -212,11 +214,10 @@ init_game(void)
  * its options up, binds it, and listens.
  */
 GIOChannel *
-init_socket(int port)
+init_socket(int port, bool local_only)
 {
     struct addrinfo *info, hints;
     int err, s, opt;
-    char portstr[6];
 
     memset(&hints, 0, sizeof(hints));
 
@@ -226,9 +227,12 @@ init_socket(int port)
     hints.ai_family = AF_INET;
 #endif
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_PASSIVE | AI_NUMERICSERV;
-    snprintf(portstr, sizeof(portstr), "%d", port);
-    err = getaddrinfo(NULL, portstr, &hints, &info);
+    hints.ai_flags = AI_PASSIVE | AI_NUMERICHOST | AI_NUMERICSERV;
+    err = getaddrinfo(
+        (local_only) ? "::1":NULL,
+        tmp_sprintf("%d", port),
+        &hints, &info
+    );
     if (err != 0) {
         fprintf(stderr, "init_socket(): %s\n", gai_strerror(err));
         safe_exit(EXIT_FAILURE);
@@ -472,7 +476,7 @@ g_io_channel_write_buffer_empty(GIOChannel *channel)
  * such as mobile_activity().
  */
 void
-game_loop(GIOChannel *main_listener, GIOChannel *reader_listener, GIOChannel *irc_listener)
+game_loop(GIOChannel *main_listener, GIOChannel *reader_listener, GIOChannel *irc_listener, GIOChannel *proxy_listener)
 {
     main_loop = g_main_loop_new(NULL, false);
 
@@ -483,6 +487,8 @@ game_loop(GIOChannel *main_listener, GIOChannel *reader_listener, GIOChannel *ir
                    GINT_TO_POINTER(reader_port));
     g_io_add_watch(irc_listener, G_IO_IN, accept_new_connection,
                    GINT_TO_POINTER(irc_port));
+    g_io_add_watch(proxy_listener, G_IO_IN, accept_new_connection,
+                   GINT_TO_POINTER(proxy_port));
 
     /* Set up repeating events */
     g_timeout_add(100, repeating_func_wrapper, prog_update_pending);
@@ -718,12 +724,16 @@ accept_new_connection(GIOChannel *listener_io,
     int bantype = isbanned(newd->host, buf2, sizeof(buf2));
 
     /* Log new connections - probably unnecessary, but you may want it */
-    mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
-         "New connection from [%s]%s%s on %d",
-         newd->host,
-         (bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
-         (bantype == BAN_NEW) ? "(NEWBIE BAN)" : "",
-         port);
+    if (port == proxy_port) {
+        slog("New proxied connection on %d", port);
+    } else {
+        mlog(ROLE_ADMINBASIC, LVL_GOD, CMP, true,
+             "New connection from [%s]%s%s on %d",
+             newd->host,
+             (bantype == BAN_SELECT) ? "(SELECT BAN)" : "",
+             (bantype == BAN_NEW) ? "(NEWBIE BAN)" : "",
+             port);
+    }
 
     /* Set up descriptor I/O channels */
     GError *error = NULL;
@@ -754,8 +764,8 @@ accept_new_connection(GIOChannel *listener_io,
         newd->display = BLIND;
     } else if (port == irc_port) {
         newd->display = IRC;
-    } else {
-        newd->display = NORMAL;
+    } else if (port == proxy_port) {
+        STATE(newd) = CXN_PROXY;
     }
 
     if (++last_desc == 10000) {

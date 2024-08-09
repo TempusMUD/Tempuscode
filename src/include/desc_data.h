@@ -58,7 +58,8 @@ enum cxn_state {
     CXN_RACE_HELP,              // Help on different races
     CXN_EMAIL_VERIFY,        // Verify password before changing e-mail
     CXN_NEWEMAIL_PROMPT,     // Enter new e-mail address
-    CXN_RECOVER_EMAIL        // Enter email for account recovery
+    CXN_RECOVER_EMAIL,       // Enter email for account recovery
+    CXN_PROXY                // Awaiting proxy information
 };
 
 enum display_mode {

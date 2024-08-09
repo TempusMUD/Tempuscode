@@ -40,6 +40,7 @@ extern bool production_mode;
 extern int main_port;
 extern int reader_port;
 extern int irc_port;
+extern int proxy_port;
 
 void ensure_environment(void);
 void init_game(void);
@@ -211,6 +212,7 @@ main(int argc, char **argv)
 
     reader_port = main_port + 1;
     irc_port = main_port + 2;
+    proxy_port = main_port + 3;
 
     if (scheck) {
         void my_srand(unsigned long initial_seed);
