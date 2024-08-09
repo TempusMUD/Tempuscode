@@ -166,10 +166,22 @@ dispatch_input(struct descriptor_data *d, char *arg)
             close_socket(d);
             break;
         }
-        if (!strcasecmp(arg, "new")) {
+        if (!strcasecmp(arg, "create")) {
             set_desc_state(CXN_ACCOUNT_PROMPT, d);
         } else if (!strcasecmp(arg, "recover")) {
             set_desc_state(CXN_RECOVER_EMAIL, d);
+        } else if (!strcasecmp(arg, "help")) {
+            d_printf(d,
+                     "TempusMUD uses an account system, where all your characters are\r\n"
+                     "contained within a single account.  Your in-game bank account is\r\n"
+                     "shared between all your characters.\r\n"
+                     "\r\n"
+                     "* Type your account name to log into your account.\r\n"
+                     "* Type create to create a new account.\r\n"
+                     "* Type recover to start email-based account recovery.\r\n"
+                     "* Type help to get this useful text.\r\n"
+                     "* Just press the enter key to disconnect.\r\n"
+                     "\r\n");
         } else {
             d->account = account_by_name(arg);
             if (d->account) {
@@ -1165,7 +1177,7 @@ build_prompt(struct descriptor_data *d)
         }
         return acc_get_string();
     case CXN_ACCOUNT_LOGIN:
-        return "  Login with your account name, 'new' for a new account, or 'recover' to recover your account: ";
+        return "  Login with your account name, 'create' to create an account, or 'recover' to recover your account: ";
     case CXN_ACCOUNT_PW:
         return "  Password: ";
     case CXN_PW_PROMPT:
