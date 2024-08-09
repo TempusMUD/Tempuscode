@@ -4,8 +4,6 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-void set_desc_state(int state, struct descriptor_data *d);
-
 SPECIAL(sunstation)
 {
     struct obj_data *sun = (struct obj_data *)me;
