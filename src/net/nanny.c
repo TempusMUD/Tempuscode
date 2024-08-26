@@ -128,6 +128,48 @@ push_command_onto_list(struct creature *ch, char *string)
     strcpy_s(last_cmd[0].string, sizeof(last_cmd[0].string), string);
 }
 
+
+// player_to_world makes some checks before introducing the creature
+// attached to the descriptor to the game world.  The connection state
+// is only changed on success.
+void
+player_to_world(struct descriptor_data *d)
+{
+    d->creature->desc = d;
+    d->creature->account = d->account;
+
+    if (production_mode
+        && account_deny_char_entry(d->account, d->creature)) {
+        d_printf(d,
+                 "You can't have another character in the game right now.\r\n");
+        free_creature(d->creature);
+        d->creature = NULL;
+        return;
+    }
+
+    if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR
+        && GET_LEVEL(d->creature) < LVL_POWER) {
+        for (int idx = 1; !invalid_char_index(d->account, idx); idx++) {
+            int idnum = get_char_by_index(d->account, idx);
+            struct creature *tmp_ch = load_player_from_xml(idnum);
+
+            if (tmp_ch) {
+                if (GET_LEVEL(tmp_ch) < LVL_POWER && GET_QUEST(tmp_ch)
+                    && GET_IDNUM(d->creature) != GET_IDNUM(tmp_ch)) {
+                    d_printf(d, "You can't log on an immortal "
+                             "while %s is in a quest.\r\n", GET_NAME(tmp_ch));
+                    free_creature(d->creature);
+                    d->creature = NULL;
+                    return;
+                }
+                free_creature(tmp_ch);
+            }
+        }
+    }
+
+    char_to_game(d);
+}
+
 void
 dispatch_input(struct descriptor_data *d, char *arg)
 {
@@ -441,17 +483,16 @@ dispatch_input(struct descriptor_data *d, char *arg)
             }
             // Try to reconnect to an existing creature first
             char_id = get_char_by_index(d->account, atoi(arg));
-            d->creature = get_char_in_world_by_idnum(char_id);
+            struct creature *in_world = get_char_in_world_by_idnum(char_id);
 
-            if (d->creature) {
-                REMOVE_BIT(PLR_FLAGS(d->creature), PLR_WRITING | PLR_OLC |
+            if (in_world) {
+                REMOVE_BIT(PLR_FLAGS(in_world), PLR_WRITING | PLR_OLC |
                            PLR_MAILING | PLR_AFK);
-                if (d->creature->desc) {
-                    struct descriptor_data *other_desc = d->creature->desc;
+                if (in_world->desc) {
+                    struct descriptor_data *other_desc = in_world->desc;
 
                     d_printf(other_desc,
                              "You have logged on from another location!\r\n");
-                    d->creature->desc = d;
                     if (other_desc->text_editor) {
                         editor_finish(other_desc->text_editor, false);
                     }
@@ -460,20 +501,21 @@ dispatch_input(struct descriptor_data *d, char *arg)
                     close_socket(other_desc);
                     d_printf(d,
                              "\r\n\r\nYou take over your own body, already in use!\r\n");
-                    mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(d->creature), NRM,
-                         true, "%s has reconnected", GET_NAME(d->creature));
+                    mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(in_world), NRM,
+                         true, "%s has reconnected", GET_NAME(in_world));
                 } else {
-                    d->creature->desc = d;
-                    mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(d->creature),
+                    mlog(ROLE_ADMINBASIC, GET_INVIS_LVL(in_world),
                          NRM, true,
                          "%s has reconnected from linkless",
-                         GET_NAME(d->creature));
+                         GET_NAME(in_world));
                     d_printf(d,
                              "\r\n\r\nYou take over your own body!\r\n");
-                    act("$n has regained $s link.", true, d->creature, NULL, NULL,
+                    act("$n has regained $s link.", true, in_world, NULL, NULL,
                         TO_ROOM);
                 }
 
+                in_world->desc = d;
+                d->creature = in_world;
                 set_desc_state(CXN_PLAYING, d);
                 return;
             }
@@ -492,46 +534,13 @@ dispatch_input(struct descriptor_data *d, char *arg)
                 return;
             }
 
-            d->creature->desc = d;
-            d->creature->account = d->account;
-
             // If they were in the middle of something important
             if (d->creature->player_specials->desc_mode != CXN_UNKNOWN) {
                 set_desc_state(d->creature->player_specials->desc_mode, d);
                 return;
             }
 
-            if (production_mode
-                && account_deny_char_entry(d->account, d->creature)) {
-                d_printf(d,
-                         "You can't have another character in the game right now.\r\n");
-                free_creature(d->creature);
-                d->creature = NULL;
-                return;
-            }
-
-            if (GET_LEVEL(d->creature) >= LVL_AMBASSADOR
-                && GET_LEVEL(d->creature) < LVL_POWER) {
-                for (int idx = 1; !invalid_char_index(d->account, idx); idx++) {
-                    int idnum = get_char_by_index(d->account, idx);
-                    struct creature *tmp_ch = load_player_from_xml(idnum);
-
-                    if (tmp_ch) {
-                        if (GET_LEVEL(tmp_ch) < LVL_POWER && GET_QUEST(tmp_ch)
-                            && GET_IDNUM(d->creature) != GET_IDNUM(tmp_ch)) {
-                            d_printf(d, "You can't log on an immortal "
-                                        "while %s is in a quest.\r\n", GET_NAME(tmp_ch));
-                            free_creature(d->creature);
-                            d->creature = NULL;
-                            return;
-                        }
-                        free_creature(tmp_ch);
-                    }
-                }
-            }
-
-            char_to_game(d);
-
+            player_to_world(d);
             break;
         }
         break;
@@ -774,7 +783,6 @@ dispatch_input(struct descriptor_data *d, char *arg)
             d->wait = 4;
             break;
         } else if (is_abbrev(arg, "keep")) {
-            set_desc_state(CXN_EDIT_DESC, d);
             mlog(ROLE_ADMINBASIC, LVL_IMMORT, NRM, true,
                  "%s[%d] has created new character %s[%ld]",
                  d->account->name, d->account->id,
@@ -782,6 +790,8 @@ dispatch_input(struct descriptor_data *d, char *arg)
             d->creature->player_specials->rentcode = RENT_NEW_CHAR;
             save_player_to_xml(d->creature);
             calculate_height_weight(d->creature);
+            set_desc_state(CXN_WAIT_MENU, d);
+            player_to_world(d);
         } else {
             d_send(d, "\r\nYou must type 'reroll' or 'keep'.\r\n\r\n");
         }
