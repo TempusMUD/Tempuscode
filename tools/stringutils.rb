@@ -8,7 +8,7 @@ def check_text(str, where)
   return if str.match(/^\s*$/m)
 
   linenum = 0
-  str.each { |line|
+  str.each_line { |line|
     linenum += 1
     if line.length > SCREEN_WIDTH
       print "#{where}: Line #{linenum} is #{line.length} characters\n"
@@ -27,7 +27,7 @@ def check_text(str, where)
     ouf.print str
   }
   IO.popen("aspell --add-extra-dicts=./tempus.dict list </tmp/desc.txt", "r") { |ext|
-    ext.each { |line|
+    ext.each_line { |line|
       print "#{where}: Possible misspelling of #{line}"
     }
   }
@@ -80,4 +80,3 @@ def capitalize(original)
 
   return result
 end
-

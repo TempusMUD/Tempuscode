@@ -87,9 +87,9 @@ START_TEST(test_load_save_cyborg)
 
     compare_creatures(ch, tch);
 
-    fail_unless(GET_OLD_CLASS(ch) == GET_OLD_CLASS(tch));
-    fail_unless(GET_TOT_DAM(ch) == GET_TOT_DAM(tch));
-    fail_unless(GET_BROKE(ch) == GET_BROKE(tch));
+    ck_assert(GET_OLD_CLASS(ch) == GET_OLD_CLASS(tch));
+    ck_assert(GET_TOT_DAM(ch) == GET_TOT_DAM(tch));
+    ck_assert(GET_BROKE(ch) == GET_BROKE(tch));
 
     free_creature(tch);
 }
@@ -110,12 +110,12 @@ START_TEST(test_load_save_mage)
 
     compare_creatures(ch, tch);
 
-    fail_unless(ch->player_specials->saved.mana_shield_low ==
+    ck_assert_msg(ch->player_specials->saved.mana_shield_low ==
                 tch->player_specials->saved.mana_shield_low,
                 "mana_shield_low mismatch: %d != %d",
                 ch->player_specials->saved.mana_shield_low,
                 tch->player_specials->saved.mana_shield_low);
-    fail_unless(ch->player_specials->saved.mana_shield_pct ==
+    ck_assert(ch->player_specials->saved.mana_shield_pct ==
                 tch->player_specials->saved.mana_shield_pct);
 
     free_creature(tch);
@@ -136,13 +136,13 @@ START_TEST(test_load_save_immort)
 
     compare_creatures(ch, tch);
 
-    fail_unless(!strcmp(BADGE(ch), BADGE(tch)));
-    fail_unless(!strcmp(POOFIN(ch), POOFIN(tch)));
-    fail_unless(!strcmp(POOFOUT(ch), POOFOUT(tch)));
-    fail_unless(GET_QLOG_LEVEL(ch) == GET_QLOG_LEVEL(tch));
-    fail_unless(GET_INVIS_LVL(ch) == GET_INVIS_LVL(tch));
-    fail_unless(GET_IMMORT_QP(ch) == GET_IMMORT_QP(tch));
-    fail_unless(GET_QUEST_ALLOWANCE(ch) == GET_QUEST_ALLOWANCE(tch));
+    ck_assert(!strcmp(BADGE(ch), BADGE(tch)));
+    ck_assert(!strcmp(POOFIN(ch), POOFIN(tch)));
+    ck_assert(!strcmp(POOFOUT(ch), POOFOUT(tch)));
+    ck_assert(GET_QLOG_LEVEL(ch) == GET_QLOG_LEVEL(tch));
+    ck_assert(GET_INVIS_LVL(ch) == GET_INVIS_LVL(tch));
+    ck_assert(GET_IMMORT_QP(ch) == GET_IMMORT_QP(tch));
+    ck_assert(GET_QUEST_ALLOWANCE(ch) == GET_QUEST_ALLOWANCE(tch));
 
     free_creature(tch);
 }
@@ -158,7 +158,7 @@ START_TEST(test_load_save_title)
     tch = load_player_from_file(test_path("test_player.xml"));
 
     compare_creatures(ch, tch);
-    
+
     free_creature(tch);
 }
 END_TEST
@@ -176,9 +176,9 @@ START_TEST(test_load_save_frozen)
 
     compare_creatures(ch, tch);
 
-    fail_unless(ch->player_specials->thaw_time == tch->player_specials->thaw_time);
-    fail_unless(ch->player_specials->freezer_id == tch->player_specials->freezer_id);
-    
+    ck_assert(ch->player_specials->thaw_time == tch->player_specials->thaw_time);
+    ck_assert(ch->player_specials->freezer_id == tch->player_specials->freezer_id);
+
     free_creature(tch);
 }
 END_TEST
@@ -191,7 +191,7 @@ START_TEST(test_load_save_objects_carried)
     struct obj_data *carried_item = read_object(carried_vnum);
 
     obj_to_char(carried_item, ch);
-    fail_unless(ch->char_specials.carry_weight == carried_item->obj_flags.weight);
+    ck_assert(ch->char_specials.carry_weight == carried_item->obj_flags.weight);
 
     save_player_to_file(ch, test_path("test_player.xml"));
     save_player_objects_to_file(ch, test_path("test_items.xml"));
@@ -211,10 +211,10 @@ START_TEST(test_load_save_objects_carried)
         obj_b = obj_b->next_content;
     }
 
-    fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
-    fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
+    ck_assert(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
+    ck_assert(ch->char_specials.carry_items == tch->char_specials.carry_items);
 
-    
+
     while (ch->carrying) {
         struct obj_data *obj = ch->carrying;
         obj_from_char(obj);
@@ -240,7 +240,7 @@ START_TEST(test_load_save_objects_equipped)
     int equipped_pos = number(0, NUM_WEARS - 1);
 
     equip_char(ch, equipped_item, equipped_pos, EQUIP_WORN);
-    fail_unless(ch->char_specials.worn_weight == equipped_item->obj_flags.weight);
+    ck_assert(ch->char_specials.worn_weight == equipped_item->obj_flags.weight);
 
     save_player_to_file(ch, test_path("test_player.xml"));
     save_player_objects_to_file(ch, test_path("test_items.xml"));
@@ -262,9 +262,9 @@ START_TEST(test_load_save_objects_equipped)
         }
     }
 
-    fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
-    fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
-    fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+    ck_assert(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
+    ck_assert(ch->char_specials.carry_items == tch->char_specials.carry_items);
+    ck_assert(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
     for (int i = 0; i < NUM_WEARS; i++) {
         if (GET_EQ(ch, i)) {
@@ -310,9 +310,9 @@ START_TEST(test_load_save_objects_implanted)
         }
     }
 
-    fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
-    fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
-    fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+    ck_assert(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
+    ck_assert(ch->char_specials.carry_items == tch->char_specials.carry_items);
+    ck_assert(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
     for (int i = 0; i < NUM_WEARS; i++) {
         if (GET_IMPLANT(ch, i)) {
@@ -357,9 +357,9 @@ START_TEST(test_load_save_objects_tattooed)
         }
     }
 
-    fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
-    fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
-    fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+    ck_assert(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
+    ck_assert(ch->char_specials.carry_items == tch->char_specials.carry_items);
+    ck_assert(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
     for (int i = 0; i < NUM_WEARS; i++) {
         if (GET_TATTOO(ch, i)) {
@@ -389,7 +389,7 @@ START_TEST(test_load_save_objects_contained)
     obj_to_obj(contained_item, carried_item);
     // TODO: manage multiple contained or carried items
 
-    fail_unless(ch->char_specials.carry_weight == GET_OBJ_WEIGHT(carried_item));
+    ck_assert(ch->char_specials.carry_weight == GET_OBJ_WEIGHT(carried_item));
 
     save_player_to_file(ch, test_path("test_player.xml"));
     save_player_objects_to_file(ch, test_path("test_items.xml"));
@@ -421,9 +421,9 @@ START_TEST(test_load_save_objects_contained)
         obj_b = obj_b->next_content;
     }
 
-    fail_unless(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
-    fail_unless(ch->char_specials.carry_items == tch->char_specials.carry_items);
-    fail_unless(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+    ck_assert(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
+    ck_assert(ch->char_specials.carry_items == tch->char_specials.carry_items);
+    ck_assert(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
 
     while (ch->carrying) {
         struct obj_data *obj = ch->carrying;
@@ -437,7 +437,7 @@ START_TEST(test_load_save_objects_contained)
         extract_obj(obj);
     }
 
-    
+
     free_creature(tch);
 }
 END_TEST
@@ -462,7 +462,7 @@ START_TEST(test_load_save_objects_affected)
 
     obj_affect_join(obj_a, &aff, AFF_ADD, AFF_ADD, AFF_ADD);
 
-    fail_unless(GET_OBJ_WEIGHT(obj_a) == orig_weight + 5);
+    ck_assert(GET_OBJ_WEIGHT(obj_a) == orig_weight + 5);
 
     ouf = fopen(test_path("test_items.xml"), "w");
     if (!ouf) {
@@ -474,7 +474,7 @@ START_TEST(test_load_save_objects_affected)
     fprintf(ouf, "</objects>\n");
     fclose(ouf);
 
-    fail_unless(GET_OBJ_WEIGHT(obj_a) == orig_weight + 5);
+    ck_assert(GET_OBJ_WEIGHT(obj_a) == orig_weight + 5);
 
     xmlDocPtr doc = xmlParseFile(test_path("test_items.xml"));
     if (!doc) {

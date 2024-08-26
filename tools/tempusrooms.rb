@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'stringutils'
+require_relative 'stringutils'
 
 $linenum = 0
 
@@ -384,7 +384,7 @@ EOF
     @sound = check_desc(@sound, "room #{@idnum} sound") unless @sound.empty?
     @extradescs.each { |exd|
       if match = /[^a-zA-Z ]/.match(exd.keywords)
-        print "room #{vnum} extradesc #{exd.keywords} contains invalid character '#{match[0]}'\n"
+        print "room #{@vnum} extradesc #{exd.keywords} contains invalid character '#{match[0]}'\n"
       end
       # ASCII art detect
       if !exd.description.match(/(---|___)/)

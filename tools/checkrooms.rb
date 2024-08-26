@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'tempusrooms'
+require_relative 'tempusrooms'
 
 $change_count = 0
 $skip_count = 0

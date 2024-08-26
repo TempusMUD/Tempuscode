@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'stringutils'
+require_relative 'stringutils'
 
 $linenum = 0
 
@@ -54,10 +54,10 @@ end
 
 class Item
 
-  TYPES = ["LIGHT", "SCROLL", "WAND", "STAFF", "WEAPON", "CAMERA",
-           "MISSILE", "TREASURE", "ARMOR", "POTION", "WORN", "OTHER",
-           "TRASH", "TRAP", "CONTAINER", "NOTE", "DRINKCON", "KEY",
-           "FOOD", "MONEY", "PEN", "BOAT", "FOUNTAIN", "WINGS",
+  TYPES = ["UNDEFINED", "LIGHT", "SCROLL", "WAND", "STAFF", "WEAPON",
+           "CAMERA", "MISSILE", "TREASURE", "ARMOR", "POTION", "WORN",
+           "OTHER", "TRASH", "TRAP", "CONTAINER", "NOTE", "DRINKCON",
+           "KEY", "FOOD", "MONEY", "PEN", "BOAT", "FOUNTAIN", "WINGS",
            "VR_ARCADE", "SCUBA_MASK", "DEVICE", "INTERFACE",
            "HOLY_SYMB", "VEHICLE", "ENGINE", "BATTERY", "ENERGY_GUN",
            "WINDOW", "PORTAL", "TOBACCO", "CIGARETTE", "METAL",
@@ -202,7 +202,7 @@ class Item
   def inspect
     result = <<EOF
 Name: '#{@name}', Aliases: #{@aliases}
-Vnum: #{@vnum}, Type: #{TYPES[@type - 1]}
+Vnum: #{@vnum}, Type: #{TYPES[@type]}
 L-Des: #{@line_desc}
 Can be worn on: #{pbits(@worn, WEAR_FLAGS)}
 Extra flags : #{pbits(@extra, EXTRA_FLAGS)}
@@ -246,7 +246,7 @@ EOF
   def read_tilde_str(initial_line, inf)
     result = initial_line
     if !result.match(/~/)
-      inf.each { |line|
+      inf.each_line { |line|
         line.chomp!
         result += "\n"
         result += line
@@ -264,7 +264,7 @@ EOF
       state = :vnum
     end
     extradesc = match = nil
-    inf.each { |line|
+    inf.each_line { |line|
       line.chomp!
       $linenum += 1
       case state
@@ -311,9 +311,9 @@ EOF
         @damage = match[3].to_i
         state = :numbers3
       when :numbers3
-        match = line.match(/^([\d-]+) ([\d-]+) ([\d-]+)( ([\d-]+))?/)
+        match = line.match(/^([\d.]+) ([\d-]+) ([\d-]+)( ([\d-]+))?/)
         raise "Invalid fourth numeric line: #{line}" unless match
-        @weight = match[1].to_i
+        @weight = match[1].to_f
         @cost = match[2].to_i
         @rent = match[3].to_i
         @timer = match[5].to_i if match[5]
@@ -365,7 +365,7 @@ EOF
   end
 
   def check
-    print "object #{@vnum} has key in its alias, and is of #{TYPES[@type - 1]} type\n" if @aliases.match(/\bkey\b/) && @type != 18
+    print "object #{@vnum} has key in its alias, and is of #{TYPES[@type]} type\n" if @aliases.match(/\bkey\b/) && @type != 18
 
     if ! @extradescs.empty?
       @extradescs.each { |exd|

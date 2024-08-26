@@ -86,14 +86,14 @@ START_TEST(test_obj_to_from_obj)
     GET_OBJ_WEIGHT(obj_b) = 15;
 
     obj_to_obj(obj_a, obj_b);
-    fail_unless(obj_a->in_obj == obj_b);
-    fail_unless(obj_b->contains == obj_a);
-    fail_unless(GET_OBJ_WEIGHT(obj_b) == 25);
+    ck_assert(obj_a->in_obj == obj_b);
+    ck_assert(obj_b->contains == obj_a);
+    ck_assert(GET_OBJ_WEIGHT(obj_b) == 25);
 
     obj_from_obj(obj_a);
-    fail_unless(obj_a->in_obj == NULL);
-    fail_unless(obj_b->contains == NULL);
-    fail_unless(GET_OBJ_WEIGHT(obj_b) == 15);
+    ck_assert(obj_a->in_obj == NULL);
+    ck_assert(obj_b->contains == NULL);
+    ck_assert(GET_OBJ_WEIGHT(obj_b) == 15);
 }
 END_TEST
 START_TEST(test_obj_to_from_char)
@@ -101,16 +101,16 @@ START_TEST(test_obj_to_from_char)
     struct obj_data *obj_a = make_object();
     GET_OBJ_WEIGHT(obj_a) = 10;
     obj_to_char(obj_a, ch);
-    fail_unless(obj_a->carried_by == ch);
-    fail_unless(ch->carrying == obj_a);
-    fail_unless(IS_CARRYING_W(ch) == 10);
-    fail_unless(IS_CARRYING_N(ch) == 1);
+    ck_assert(obj_a->carried_by == ch);
+    ck_assert(ch->carrying == obj_a);
+    ck_assert(IS_CARRYING_W(ch) == 10);
+    ck_assert(IS_CARRYING_N(ch) == 1);
 
     obj_from_char(obj_a);
-    fail_unless(obj_a->carried_by == NULL);
-    fail_unless(ch->carrying == NULL);
-    fail_unless(IS_CARRYING_W(ch) == 0);
-    fail_unless(IS_CARRYING_N(ch) == 0);
+    ck_assert(obj_a->carried_by == NULL);
+    ck_assert(ch->carrying == NULL);
+    ck_assert(IS_CARRYING_W(ch) == 0);
+    ck_assert(IS_CARRYING_N(ch) == 0);
 }
 END_TEST
 START_TEST(test_obj_to_from_carried)
@@ -123,18 +123,18 @@ START_TEST(test_obj_to_from_carried)
     obj_to_char(obj_a, ch);
 
     obj_to_obj(obj_b, obj_a);
-    fail_unless(obj_a->carried_by == ch);
-    fail_unless(obj_b->in_obj == obj_a);
-    fail_unless(ch->carrying == obj_a);
-    fail_unless(IS_CARRYING_W(ch) == 25);
-    fail_unless(IS_CARRYING_N(ch) == 1);
+    ck_assert(obj_a->carried_by == ch);
+    ck_assert(obj_b->in_obj == obj_a);
+    ck_assert(ch->carrying == obj_a);
+    ck_assert(IS_CARRYING_W(ch) == 25);
+    ck_assert(IS_CARRYING_N(ch) == 1);
 
     obj_from_obj(obj_b);
-    fail_unless(obj_a->carried_by == ch);
-    fail_unless(obj_b->in_obj == NULL);
-    fail_unless(ch->carrying == obj_a);
-    fail_unless(IS_CARRYING_W(ch) == 10);
-    fail_unless(IS_CARRYING_N(ch) == 1);
+    ck_assert(obj_a->carried_by == ch);
+    ck_assert(obj_b->in_obj == NULL);
+    ck_assert(ch->carrying == obj_a);
+    ck_assert(IS_CARRYING_W(ch) == 10);
+    ck_assert(IS_CARRYING_N(ch) == 1);
 }
 END_TEST
 

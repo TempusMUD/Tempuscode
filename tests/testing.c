@@ -90,7 +90,7 @@ test_tempus_boot(void)
     if (chdir("../../lib") < 0) {
         slog("Couldn't change directory to lib");
     }
- 
+
     account_boot();
     boot_tongues("etc/tongues.xml");
     boot_races("etc/races.xml");
@@ -279,50 +279,50 @@ destroy_test_player(struct creature *ch)
 void
 compare_creatures(struct creature *ch, struct creature *tch)
 {
-    fail_unless(!strcmp(GET_NAME(ch), GET_NAME(tch)));
-    fail_unless(GET_IDNUM(ch) == GET_IDNUM(tch));
-    fail_unless(GET_HIT(ch) == GET_HIT(tch));
-    fail_unless(GET_MANA(ch) == GET_MANA(tch));
-    fail_unless(GET_MOVE(ch) == GET_MOVE(tch));
-    fail_unless(GET_MAX_HIT(ch) == GET_MAX_HIT(tch));
-    fail_unless(GET_MAX_MANA(ch) == GET_MAX_MANA(tch));
-    fail_unless(GET_MAX_MOVE(ch) == GET_MAX_MOVE(tch));
-    fail_unless(GET_GOLD(ch) == GET_GOLD(tch));
-    fail_unless(GET_CASH(ch) == GET_CASH(tch));
-    fail_unless(GET_EXP(ch) == GET_EXP(tch));
-    fail_unless(GET_HITROLL(ch) == GET_HITROLL(tch));
-    fail_unless(GET_DAMROLL(ch) == GET_DAMROLL(tch));
-    fail_unless(GET_LEVEL(ch) == GET_LEVEL(tch));
-    fail_unless(GET_SEX(ch) == GET_SEX(tch));
-    fail_unless(GET_RACE(ch) == GET_RACE(tch));
-    fail_unless(GET_HEIGHT(ch) == GET_HEIGHT(tch));
-    fail_unless(GET_WEIGHT(ch) == GET_WEIGHT(tch));
-    fail_unless(GET_ALIGNMENT(ch) == GET_ALIGNMENT(tch));
-    fail_unless(GET_CLASS(ch) == GET_CLASS(tch));
-    fail_unless(GET_REMORT_CLASS(ch) == GET_REMORT_CLASS(tch));
-    fail_unless(GET_REMORT_GEN(ch) == GET_REMORT_GEN(tch));
-    fail_unless(!memcmp(&ch->player.time, &tch->player.time, sizeof(ch->player.time)));
-    fail_unless(!memcmp(&ch->real_abils, &tch->real_abils, sizeof(ch->real_abils)));
-    fail_unless(GET_COND(ch, FULL) == GET_COND(tch, FULL));
-    fail_unless(GET_COND(ch, THIRST) == GET_COND(tch, THIRST));
-    fail_unless(GET_COND(ch, DRUNK) == GET_COND(tch, DRUNK));
-    fail_unless(GET_WIMP_LEV(ch) == GET_WIMP_LEV(tch));
-    fail_unless(GET_LIFE_POINTS(ch) == GET_LIFE_POINTS(tch));
-    fail_unless(GET_CLAN(ch) == GET_CLAN(tch));
-    fail_unless(GET_HOME(ch) == GET_HOME(tch));
-    fail_unless(GET_HOMEROOM(ch) == GET_HOMEROOM(tch));
-    fail_unless(GET_LOADROOM(ch) == GET_LOADROOM(tch));
-    fail_unless(GET_QUEST(ch) == GET_QUEST(tch));
-    fail_unless(ch->char_specials.saved.act == tch->char_specials.saved.act);
-    fail_unless(ch->player_specials->saved.plr2_bits == tch->player_specials->saved.plr2_bits);
-    fail_unless(ch->player_specials->saved.pref == tch->player_specials->saved.pref);
-    fail_unless(ch->player_specials->saved.pref2 == tch->player_specials->saved.pref2);
-    fail_unless(GET_TONGUE(ch) == GET_TONGUE(tch));
+    ck_assert(!strcmp(GET_NAME(ch), GET_NAME(tch)));
+    ck_assert(GET_IDNUM(ch) == GET_IDNUM(tch));
+    ck_assert(GET_HIT(ch) == GET_HIT(tch));
+    ck_assert(GET_MANA(ch) == GET_MANA(tch));
+    ck_assert(GET_MOVE(ch) == GET_MOVE(tch));
+    ck_assert(GET_MAX_HIT(ch) == GET_MAX_HIT(tch));
+    ck_assert(GET_MAX_MANA(ch) == GET_MAX_MANA(tch));
+    ck_assert(GET_MAX_MOVE(ch) == GET_MAX_MOVE(tch));
+    ck_assert(GET_GOLD(ch) == GET_GOLD(tch));
+    ck_assert(GET_CASH(ch) == GET_CASH(tch));
+    ck_assert(GET_EXP(ch) == GET_EXP(tch));
+    ck_assert(GET_HITROLL(ch) == GET_HITROLL(tch));
+    ck_assert(GET_DAMROLL(ch) == GET_DAMROLL(tch));
+    ck_assert(GET_LEVEL(ch) == GET_LEVEL(tch));
+    ck_assert(GET_SEX(ch) == GET_SEX(tch));
+    ck_assert(GET_RACE(ch) == GET_RACE(tch));
+    ck_assert(GET_HEIGHT(ch) == GET_HEIGHT(tch));
+    ck_assert(GET_WEIGHT(ch) == GET_WEIGHT(tch));
+    ck_assert(GET_ALIGNMENT(ch) == GET_ALIGNMENT(tch));
+    ck_assert(GET_CLASS(ch) == GET_CLASS(tch));
+    ck_assert(GET_REMORT_CLASS(ch) == GET_REMORT_CLASS(tch));
+    ck_assert(GET_REMORT_GEN(ch) == GET_REMORT_GEN(tch));
+    ck_assert(!memcmp(&ch->player.time, &tch->player.time, sizeof(ch->player.time)));
+    ck_assert(!memcmp(&ch->real_abils, &tch->real_abils, sizeof(ch->real_abils)));
+    ck_assert(GET_COND(ch, FULL) == GET_COND(tch, FULL));
+    ck_assert(GET_COND(ch, THIRST) == GET_COND(tch, THIRST));
+    ck_assert(GET_COND(ch, DRUNK) == GET_COND(tch, DRUNK));
+    ck_assert(GET_WIMP_LEV(ch) == GET_WIMP_LEV(tch));
+    ck_assert(GET_LIFE_POINTS(ch) == GET_LIFE_POINTS(tch));
+    ck_assert(GET_CLAN(ch) == GET_CLAN(tch));
+    ck_assert(GET_HOME(ch) == GET_HOME(tch));
+    ck_assert(GET_HOMEROOM(ch) == GET_HOMEROOM(tch));
+    ck_assert(GET_LOADROOM(ch) == GET_LOADROOM(tch));
+    ck_assert(GET_QUEST(ch) == GET_QUEST(tch));
+    ck_assert(ch->char_specials.saved.act == tch->char_specials.saved.act);
+    ck_assert(ch->player_specials->saved.plr2_bits == tch->player_specials->saved.plr2_bits);
+    ck_assert(ch->player_specials->saved.pref == tch->player_specials->saved.pref);
+    ck_assert(ch->player_specials->saved.pref2 == tch->player_specials->saved.pref2);
+    ck_assert(GET_TONGUE(ch) == GET_TONGUE(tch));
     for (int i = 0; i < MAX_WEAPON_SPEC; i++) {
-        fail_unless(GET_WEAP_SPEC(ch, i).vnum == GET_WEAP_SPEC(tch, i).vnum);
-        fail_unless(GET_WEAP_SPEC(ch, i).level == GET_WEAP_SPEC(tch, i).level);
+        ck_assert(GET_WEAP_SPEC(ch, i).vnum == GET_WEAP_SPEC(tch, i).vnum);
+        ck_assert(GET_WEAP_SPEC(ch, i).level == GET_WEAP_SPEC(tch, i).level);
     }
-    fail_unless(!strcmp(GET_TITLE(ch), GET_TITLE(tch)));
+    ck_assert(!strcmp(GET_TITLE(ch), GET_TITLE(tch)));
 }
 
 static int next_mob_vnum = 3000;
@@ -435,40 +435,40 @@ make_random_object(void)
 void
 compare_objects(struct obj_data *obj_a, struct obj_data *obj_b)
 {
-    fail_unless(!strcmp(obj_a->name, obj_b->name));
-    fail_unless(!strcmp(obj_a->aliases, obj_b->aliases));
-    fail_unless(!strcmp(obj_a->line_desc, obj_b->line_desc));
-    fail_unless(!strcmp(obj_a->action_desc, obj_b->action_desc));
-    fail_unless(obj_a->plrtext_len == obj_b->plrtext_len);
-    fail_unless(obj_a->worn_on == obj_b->worn_on, "obj_a->worn_on = %d, obj_b->worn_on = %d", obj_a->worn_on, obj_b->worn_on);
-    fail_unless(obj_a->soilage == obj_b->soilage);
-    fail_unless(obj_a->unique_id == obj_b->unique_id);
-    fail_unless(obj_a->creation_time == obj_b->creation_time);
-    fail_unless(obj_a->creation_method == obj_b->creation_method);
-    fail_unless(obj_a->creator == obj_b->creator);
-    fail_unless(obj_a->obj_flags.value[0] == obj_b->obj_flags.value[0]);
-    fail_unless(obj_a->obj_flags.value[1] == obj_b->obj_flags.value[1]);
-    fail_unless(obj_a->obj_flags.value[2] == obj_b->obj_flags.value[2]);
-    fail_unless(obj_a->obj_flags.value[3] == obj_b->obj_flags.value[3]);
-    fail_unless(obj_a->obj_flags.type_flag == obj_b->obj_flags.type_flag);
-    fail_unless(obj_a->obj_flags.wear_flags == obj_b->obj_flags.wear_flags);
-    fail_unless(obj_a->obj_flags.extra_flags == obj_b->obj_flags.extra_flags);
-    fail_unless(obj_a->obj_flags.extra2_flags == obj_b->obj_flags.extra2_flags);
-    fail_unless(obj_a->obj_flags.extra3_flags == obj_b->obj_flags.extra3_flags);
-    fail_unless(obj_a->obj_flags.weight == obj_b->obj_flags.weight);
-    fail_unless(obj_a->obj_flags.timer == obj_b->obj_flags.timer);
-    fail_unless(obj_a->obj_flags.bitvector[0] == obj_b->obj_flags.bitvector[0]);
-    fail_unless(obj_a->obj_flags.bitvector[1] == obj_b->obj_flags.bitvector[1]);
-    fail_unless(obj_a->obj_flags.bitvector[2] == obj_b->obj_flags.bitvector[2]);
-    fail_unless(obj_a->obj_flags.material == obj_b->obj_flags.material);
-    fail_unless(obj_a->obj_flags.max_dam == obj_b->obj_flags.max_dam);
-    fail_unless(obj_a->obj_flags.damage == obj_b->obj_flags.damage);
-    fail_unless(obj_a->obj_flags.sigil_idnum == obj_b->obj_flags.sigil_idnum);
-    fail_unless(obj_a->obj_flags.sigil_level == obj_b->obj_flags.sigil_level);
+    ck_assert(!strcmp(obj_a->name, obj_b->name));
+    ck_assert(!strcmp(obj_a->aliases, obj_b->aliases));
+    ck_assert(!strcmp(obj_a->line_desc, obj_b->line_desc));
+    ck_assert(!strcmp(obj_a->action_desc, obj_b->action_desc));
+    ck_assert(obj_a->plrtext_len == obj_b->plrtext_len);
+    ck_assert_msg(obj_a->worn_on == obj_b->worn_on, "obj_a->worn_on = %d, obj_b->worn_on = %d", obj_a->worn_on, obj_b->worn_on);
+    ck_assert(obj_a->soilage == obj_b->soilage);
+    ck_assert(obj_a->unique_id == obj_b->unique_id);
+    ck_assert(obj_a->creation_time == obj_b->creation_time);
+    ck_assert(obj_a->creation_method == obj_b->creation_method);
+    ck_assert(obj_a->creator == obj_b->creator);
+    ck_assert(obj_a->obj_flags.value[0] == obj_b->obj_flags.value[0]);
+    ck_assert(obj_a->obj_flags.value[1] == obj_b->obj_flags.value[1]);
+    ck_assert(obj_a->obj_flags.value[2] == obj_b->obj_flags.value[2]);
+    ck_assert(obj_a->obj_flags.value[3] == obj_b->obj_flags.value[3]);
+    ck_assert(obj_a->obj_flags.type_flag == obj_b->obj_flags.type_flag);
+    ck_assert(obj_a->obj_flags.wear_flags == obj_b->obj_flags.wear_flags);
+    ck_assert(obj_a->obj_flags.extra_flags == obj_b->obj_flags.extra_flags);
+    ck_assert(obj_a->obj_flags.extra2_flags == obj_b->obj_flags.extra2_flags);
+    ck_assert(obj_a->obj_flags.extra3_flags == obj_b->obj_flags.extra3_flags);
+    ck_assert(obj_a->obj_flags.weight == obj_b->obj_flags.weight);
+    ck_assert(obj_a->obj_flags.timer == obj_b->obj_flags.timer);
+    ck_assert(obj_a->obj_flags.bitvector[0] == obj_b->obj_flags.bitvector[0]);
+    ck_assert(obj_a->obj_flags.bitvector[1] == obj_b->obj_flags.bitvector[1]);
+    ck_assert(obj_a->obj_flags.bitvector[2] == obj_b->obj_flags.bitvector[2]);
+    ck_assert(obj_a->obj_flags.material == obj_b->obj_flags.material);
+    ck_assert(obj_a->obj_flags.max_dam == obj_b->obj_flags.max_dam);
+    ck_assert(obj_a->obj_flags.damage == obj_b->obj_flags.damage);
+    ck_assert(obj_a->obj_flags.sigil_idnum == obj_b->obj_flags.sigil_idnum);
+    ck_assert(obj_a->obj_flags.sigil_level == obj_b->obj_flags.sigil_level);
 
     for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-        fail_unless(obj_a->affected[i].location == obj_a->affected[i].location);
-        fail_unless(obj_a->affected[i].modifier == obj_a->affected[i].modifier);
+        ck_assert(obj_a->affected[i].location == obj_a->affected[i].location);
+        ck_assert(obj_a->affected[i].modifier == obj_a->affected[i].modifier);
     }
 
     // TODO: test temp object affects

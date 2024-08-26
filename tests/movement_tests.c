@@ -97,8 +97,8 @@ START_TEST(test_flying)
     GET_POSITION(ch) = POS_FLYING;
     SET_BIT(AFF_FLAGS(ch), AFF_INFLIGHT);
     do_move(ch, "", 1, SCMD_NORTH);
-    fail_unless(ch->in_room == room_b);
-    fail_unless(GET_POSITION(ch) == POS_FLYING);
+    ck_assert(ch->in_room == room_b);
+    ck_assert(GET_POSITION(ch) == POS_FLYING);
 }
 END_TEST
 

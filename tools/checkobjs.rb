@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 
-require 'tempusobjs'
+require_relative 'tempusobjs'
 
 def process_file(path)
   begin
