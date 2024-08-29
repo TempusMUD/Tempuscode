@@ -112,7 +112,7 @@ START_TEST(test_load_save_mage)
 
     ck_assert_msg(ch->player_specials->saved.mana_shield_low ==
                 tch->player_specials->saved.mana_shield_low,
-                "mana_shield_low mismatch: %d != %d",
+                "mana_shield_low mismatch: %ld != %ld",
                 ch->player_specials->saved.mana_shield_low,
                 tch->player_specials->saved.mana_shield_low);
     ck_assert(ch->player_specials->saved.mana_shield_pct ==
@@ -136,13 +136,13 @@ START_TEST(test_load_save_immort)
 
     compare_creatures(ch, tch);
 
-    ck_assert(!strcmp(BADGE(ch), BADGE(tch)));
-    ck_assert(!strcmp(POOFIN(ch), POOFIN(tch)));
-    ck_assert(!strcmp(POOFOUT(ch), POOFOUT(tch)));
-    ck_assert(GET_QLOG_LEVEL(ch) == GET_QLOG_LEVEL(tch));
-    ck_assert(GET_INVIS_LVL(ch) == GET_INVIS_LVL(tch));
-    ck_assert(GET_IMMORT_QP(ch) == GET_IMMORT_QP(tch));
-    ck_assert(GET_QUEST_ALLOWANCE(ch) == GET_QUEST_ALLOWANCE(tch));
+    ck_assert_str_eq(BADGE(ch), BADGE(tch));
+    ck_assert_str_eq(POOFIN(ch), POOFIN(tch));
+    ck_assert_str_eq(POOFOUT(ch), POOFOUT(tch));
+    ck_assert_int_eq(GET_QLOG_LEVEL(ch), GET_QLOG_LEVEL(tch));
+    ck_assert_int_eq(GET_INVIS_LVL(ch), GET_INVIS_LVL(tch));
+    ck_assert_int_eq(GET_IMMORT_QP(ch), GET_IMMORT_QP(tch));
+    ck_assert_int_eq(GET_QUEST_ALLOWANCE(ch), GET_QUEST_ALLOWANCE(tch));
 
     free_creature(tch);
 }
@@ -176,8 +176,8 @@ START_TEST(test_load_save_frozen)
 
     compare_creatures(ch, tch);
 
-    ck_assert(ch->player_specials->thaw_time == tch->player_specials->thaw_time);
-    ck_assert(ch->player_specials->freezer_id == tch->player_specials->freezer_id);
+    ck_assert_int_eq(ch->player_specials->thaw_time, tch->player_specials->thaw_time);
+    ck_assert_int_eq(ch->player_specials->freezer_id, tch->player_specials->freezer_id);
 
     free_creature(tch);
 }
@@ -191,7 +191,7 @@ START_TEST(test_load_save_objects_carried)
     struct obj_data *carried_item = read_object(carried_vnum);
 
     obj_to_char(carried_item, ch);
-    ck_assert(ch->char_specials.carry_weight == carried_item->obj_flags.weight);
+    ck_assert_int_eq(ch->char_specials.carry_weight, carried_item->obj_flags.weight);
 
     save_player_to_file(ch, test_path("test_player.xml"));
     save_player_objects_to_file(ch, test_path("test_items.xml"));
@@ -203,7 +203,7 @@ START_TEST(test_load_save_objects_carried)
     struct obj_data *obj_b = tch->carrying;
     while (obj_a || obj_b) {
         if (!obj_a || !obj_b) {
-            fail("different carried counts");
+            ck_abort_msg("different carried counts");
             return;
         }
         compare_objects(obj_a, obj_b);
@@ -211,8 +211,8 @@ START_TEST(test_load_save_objects_carried)
         obj_b = obj_b->next_content;
     }
 
-    ck_assert(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
-    ck_assert(ch->char_specials.carry_items == tch->char_specials.carry_items);
+    ck_assert_int_eq(ch->char_specials.carry_weight, tch->char_specials.carry_weight);
+    ck_assert_int_eq(ch->char_specials.carry_items, tch->char_specials.carry_items);
 
 
     while (ch->carrying) {
@@ -240,7 +240,7 @@ START_TEST(test_load_save_objects_equipped)
     int equipped_pos = number(0, NUM_WEARS - 1);
 
     equip_char(ch, equipped_item, equipped_pos, EQUIP_WORN);
-    ck_assert(ch->char_specials.worn_weight == equipped_item->obj_flags.weight);
+    ck_assert_int_eq(ch->char_specials.worn_weight, equipped_item->obj_flags.weight);
 
     save_player_to_file(ch, test_path("test_player.xml"));
     save_player_objects_to_file(ch, test_path("test_items.xml"));
@@ -252,19 +252,19 @@ START_TEST(test_load_save_objects_equipped)
         struct obj_data *obj_a = GET_EQ(ch, i);
         struct obj_data *obj_b = GET_EQ(tch, i);
         if (!obj_a && obj_b) {
-            fail("wear pos %d on original has eq, loaded doesn't", i);
+            ck_abort_msg("wear pos %d on original has eq, loaded doesn't", i);
             return;
         } else if (obj_a && !obj_b) {
-            fail("wear pos %d on loaded has eq, original doesn't", i);
+            ck_abort_msg("wear pos %d on loaded has eq, original doesn't", i);
             return;
         } else if (obj_a && obj_b) {
             compare_objects(obj_a, obj_b);
         }
     }
 
-    ck_assert(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
-    ck_assert(ch->char_specials.carry_items == tch->char_specials.carry_items);
-    ck_assert(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+    ck_assert_int_eq(ch->char_specials.carry_weight, tch->char_specials.carry_weight);
+    ck_assert_int_eq(ch->char_specials.carry_items, tch->char_specials.carry_items);
+    ck_assert_int_eq(ch->char_specials.worn_weight, tch->char_specials.worn_weight);
 
     for (int i = 0; i < NUM_WEARS; i++) {
         if (GET_EQ(ch, i)) {
@@ -300,19 +300,19 @@ START_TEST(test_load_save_objects_implanted)
         struct obj_data *obj_a = GET_IMPLANT(ch, i);
         struct obj_data *obj_b = GET_IMPLANT(tch, i);
         if (!obj_a && obj_b) {
-            fail("implant pos %d on original has eq, loaded doesn't", i);
+            ck_abort_msg("implant pos %d on original has eq, loaded doesn't", i);
             return;
         } else if (obj_a && !obj_b) {
-            fail("implant pos %d on loaded has eq, original doesn't", i);
+            ck_abort_msg("implant pos %d on loaded has eq, original doesn't", i);
             return;
         } else if (obj_a && obj_b) {
             compare_objects(obj_a, obj_b);
         }
     }
 
-    ck_assert(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
-    ck_assert(ch->char_specials.carry_items == tch->char_specials.carry_items);
-    ck_assert(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+    ck_assert_int_eq(ch->char_specials.carry_weight, tch->char_specials.carry_weight);
+    ck_assert_int_eq(ch->char_specials.carry_items, tch->char_specials.carry_items);
+    ck_assert_int_eq(ch->char_specials.worn_weight, tch->char_specials.worn_weight);
 
     for (int i = 0; i < NUM_WEARS; i++) {
         if (GET_IMPLANT(ch, i)) {
@@ -347,19 +347,19 @@ START_TEST(test_load_save_objects_tattooed)
         struct obj_data *obj_a = GET_TATTOO(ch, i);
         struct obj_data *obj_b = GET_TATTOO(tch, i);
         if (!obj_a && obj_b) {
-            fail("tattoo pos %d on original has eq, loaded doesn't", i);
+            ck_abort_msg("tattoo pos %d on original has eq, loaded doesn't", i);
             return;
         } else if (obj_a && !obj_b) {
-            fail("tattoo pos %d on loaded has eq, original doesn't", i);
+            ck_abort_msg("tattoo pos %d on loaded has eq, original doesn't", i);
             return;
         } else if (obj_a && obj_b) {
             compare_objects(obj_a, obj_b);
         }
     }
 
-    ck_assert(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
-    ck_assert(ch->char_specials.carry_items == tch->char_specials.carry_items);
-    ck_assert(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+    ck_assert_int_eq(ch->char_specials.carry_weight, tch->char_specials.carry_weight);
+    ck_assert_int_eq(ch->char_specials.carry_items, tch->char_specials.carry_items);
+    ck_assert_int_eq(ch->char_specials.worn_weight, tch->char_specials.worn_weight);
 
     for (int i = 0; i < NUM_WEARS; i++) {
         if (GET_TATTOO(ch, i)) {
@@ -389,7 +389,7 @@ START_TEST(test_load_save_objects_contained)
     obj_to_obj(contained_item, carried_item);
     // TODO: manage multiple contained or carried items
 
-    ck_assert(ch->char_specials.carry_weight == GET_OBJ_WEIGHT(carried_item));
+    ck_assert_int_eq(ch->char_specials.carry_weight, GET_OBJ_WEIGHT(carried_item));
 
     save_player_to_file(ch, test_path("test_player.xml"));
     save_player_objects_to_file(ch, test_path("test_items.xml"));
@@ -401,7 +401,7 @@ START_TEST(test_load_save_objects_contained)
     struct obj_data *obj_b = tch->carrying;
     while (obj_a || obj_b) {
         if (!obj_a || !obj_b) {
-            fail("different carried counts");
+            ck_abort_msg("different carried counts");
             return;
         }
         compare_objects(obj_a, obj_b);
@@ -413,7 +413,7 @@ START_TEST(test_load_save_objects_contained)
     obj_b = tch->carrying->contains;
     while (obj_a || obj_b) {
         if (!obj_a || !obj_b) {
-            fail("different contained counts");
+            ck_abort_msg("different contained counts");
             return;
         }
         compare_objects(obj_a, obj_b);
@@ -421,9 +421,9 @@ START_TEST(test_load_save_objects_contained)
         obj_b = obj_b->next_content;
     }
 
-    ck_assert(ch->char_specials.carry_weight == tch->char_specials.carry_weight);
-    ck_assert(ch->char_specials.carry_items == tch->char_specials.carry_items);
-    ck_assert(ch->char_specials.worn_weight == tch->char_specials.worn_weight);
+    ck_assert_int_eq(ch->char_specials.carry_weight, tch->char_specials.carry_weight);
+    ck_assert_int_eq(ch->char_specials.carry_items, tch->char_specials.carry_items);
+    ck_assert_int_eq(ch->char_specials.worn_weight, tch->char_specials.worn_weight);
 
     while (ch->carrying) {
         struct obj_data *obj = ch->carrying;
@@ -462,11 +462,11 @@ START_TEST(test_load_save_objects_affected)
 
     obj_affect_join(obj_a, &aff, AFF_ADD, AFF_ADD, AFF_ADD);
 
-    ck_assert(GET_OBJ_WEIGHT(obj_a) == orig_weight + 5);
+    ck_assert_int_eq(GET_OBJ_WEIGHT(obj_a), orig_weight + 5);
 
     ouf = fopen(test_path("test_items.xml"), "w");
     if (!ouf) {
-        fail("Couldn't open file to save object");
+        ck_abort_msg("Couldn't open file to save object");
         return;
     }
     fprintf(ouf, "<objects>\n");
@@ -474,16 +474,16 @@ START_TEST(test_load_save_objects_affected)
     fprintf(ouf, "</objects>\n");
     fclose(ouf);
 
-    ck_assert(GET_OBJ_WEIGHT(obj_a) == orig_weight + 5);
+    ck_assert_int_eq(GET_OBJ_WEIGHT(obj_a), orig_weight + 5);
 
     xmlDocPtr doc = xmlParseFile(test_path("test_items.xml"));
     if (!doc) {
-        fail("Couldn't open file to load object");
+        ck_abort_msg("Couldn't open file to load object");
         return;
     }
     xmlNodePtr root = xmlDocGetRootElement(doc);
     if (!doc) {
-        fail("XML file is empty");
+        ck_abort_msg("XML file is empty");
         return;
     }
 

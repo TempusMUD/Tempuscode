@@ -75,12 +75,12 @@ START_TEST(test_next_quest_vnum)
 {
     int next_quest_vnum(void);
 
-    ck_assert(next_quest_vnum() == 1);
+    ck_assert_int_eq(next_quest_vnum(), 1);
 
     struct quest *q = malloc(sizeof(*q));
     q->vnum = 5;
     quests = g_list_prepend(quests, q);
-    ck_assert(next_quest_vnum() == 6);
+    ck_assert_int_eq(next_quest_vnum(), 6);
     free(q);
     g_list_free(quests);
     quests = NULL;
@@ -89,12 +89,12 @@ END_TEST
 START_TEST(test_make_destroy_quest)
 {
     struct quest *q = make_quest(2, 72, 0, "Test quest");
-    ck_assert(q != NULL);
+    ck_assert_ptr_nonnull(q);
 
-    ck_assert(q->owner_id == 2);
-    ck_assert(q->owner_level == 72);
-    ck_assert(q->type == 0);
-    ck_assert(!strcmp(q->name, "Test quest"));
+    ck_assert_int_eq(q->owner_id, 2);
+    ck_assert_int_eq(q->owner_level, 72);
+    ck_assert_int_eq(q->type, 0);
+    ck_assert_str_eq(q->name, "Test quest");
 
     free_quest(q);
 }
@@ -148,26 +148,24 @@ add_test_quest_ban(struct quest *q, int idnum)
 void
 compare_quests(struct quest *a, struct quest *b)
 {
-    ck_assert(a->max_players == b->max_players);
-    ck_assert(a->awarded == b->awarded);
-    ck_assert(a->penalized == b->penalized);
-    ck_assert(a->vnum == b->vnum);
-    ck_assert(a->owner_id == b->owner_id);
-    ck_assert(a->started == b->started);
-    ck_assert(a->ended == b->ended);
-    ck_assert(a->flags == b->flags);
-    ck_assert(a->owner_level == b->owner_level);
-    ck_assert(a->minlevel == b->minlevel);
-    ck_assert(a->maxlevel == b->maxlevel);
-    ck_assert(a->mingen == b->mingen);
-    ck_assert(a->maxgen == b->maxgen);
-    ck_assert(a->loadroom == b->loadroom);
-    ck_assert(a->type == b->type);
-    ck_assert(!strcmp(a->name, b->name));
-    ck_assert((a->description == NULL && b->description == NULL)
-                || !strcmp(a->description, b->description));
-    ck_assert((a->updates == NULL && b->updates == NULL)
-                || !strcmp(a->updates, b->updates));
+    ck_assert_int_eq(a->max_players, b->max_players);
+    ck_assert_int_eq(a->awarded, b->awarded);
+    ck_assert_int_eq(a->penalized, b->penalized);
+    ck_assert_int_eq(a->vnum, b->vnum);
+    ck_assert_int_eq(a->owner_id, b->owner_id);
+    ck_assert_int_eq(a->started, b->started);
+    ck_assert_int_eq(a->ended, b->ended);
+    ck_assert_int_eq(a->flags, b->flags);
+    ck_assert_int_eq(a->owner_level, b->owner_level);
+    ck_assert_int_eq(a->minlevel, b->minlevel);
+    ck_assert_int_eq(a->maxlevel, b->maxlevel);
+    ck_assert_int_eq(a->mingen, b->mingen);
+    ck_assert_int_eq(a->maxgen, b->maxgen);
+    ck_assert_int_eq(a->loadroom, b->loadroom);
+    ck_assert_int_eq(a->type, b->type);
+    ck_assert_str_eq(a->name, b->name);
+    ck_assert_pstr_eq(a->description, b->description);
+    ck_assert_pstr_eq(a->updates, b->updates);
 
     GList *al = a->players;
     GList *bl = b->players;
@@ -175,25 +173,27 @@ compare_quests(struct quest *a, struct quest *b)
         struct qplayer_data *ap = al->data;
         struct qplayer_data *bp = bl->data;
 
-        ck_assert(ap->idnum == bp->idnum);
-        ck_assert(ap->flags == bp->flags);
-        ck_assert(ap->deaths == bp->deaths);
-        ck_assert(ap->mobkills== bp->mobkills);
-        ck_assert(ap->pkills == bp->pkills);
+        ck_assert_int_eq(ap->idnum, bp->idnum);
+        ck_assert_int_eq(ap->flags, bp->flags);
+        ck_assert_int_eq(ap->deaths, bp->deaths);
+        ck_assert_int_eq(ap->mobkills, bp->mobkills);
+        ck_assert_int_eq(ap->pkills, bp->pkills);
 
         al = al->next;
         bl = bl->next;
     }
-    ck_assert(al == NULL && bl == NULL);
+    ck_assert_ptr_null(al);
+    ck_assert_ptr_null(bl);
 
     al = a->bans;
     bl = b->bans;
     while (al && bl) {
-        ck_assert(al->data == bl->data);
+        ck_assert_ptr_eq(al->data, bl->data);
         al = al->next;
         bl = bl->next;
     }
-    ck_assert(al == NULL && bl == NULL);
+    ck_assert_ptr_null(al);
+    ck_assert_ptr_null(bl);
 }
 
 START_TEST(test_save_load_quest)
@@ -230,11 +230,11 @@ START_TEST(test_quest_player_by_idnum)
     add_test_questor(q, 2, QP_IGNORE, 3, 4, 5);
 
     qp = quest_player_by_idnum(q, 100);
-    ck_assert(qp == NULL);
+    ck_assert_ptr_null(qp);
 
     qp = quest_player_by_idnum(q, 2);
-    ck_assert(qp != NULL);
-    ck_assert(qp->idnum == 2);
+    ck_assert_ptr_nonnull(qp);
+    ck_assert_int_eq(qp->idnum, 2);
     free_quest(q);
 }
 END_TEST
@@ -245,7 +245,7 @@ START_TEST(test_banned_from_quest)
     add_test_questor(q, 2, QP_IGNORE, 3, 4, 5);
     add_test_quest_ban(q, 7);
 
-    fail_if(banned_from_quest(q, 2));
+    ck_assert(!banned_from_quest(q, 2));
     ck_assert(banned_from_quest(q, 7));
     free_quest(q);
 }
@@ -257,9 +257,9 @@ START_TEST(test_add_remove_quest_player)
     test_creature_to_world(ch);
 
     add_quest_player(q, GET_IDNUM(ch));
-    ck_assert(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
+    ck_assert_ptr_nonnull(quest_player_by_idnum(q, GET_IDNUM(ch)));
     remove_quest_player(q, GET_IDNUM(ch));
-    ck_assert(quest_player_by_idnum(q, GET_IDNUM(ch)) == NULL);
+    ck_assert_ptr_null(quest_player_by_idnum(q, GET_IDNUM(ch)));
     free_quest(q);
 }
 END_TEST
@@ -268,19 +268,19 @@ START_TEST(test_qcontrol_create)
     quests = NULL;
     GET_LEVEL(ch) = LVL_IMMORT;
     do_qcontrol(ch, "create trivia Test quest", 0, 0);
-    ck_assert(g_list_length(quests) == 1);
+    ck_assert_int_eq(g_list_length(quests), 1);
 
     struct quest *q = quests->data;
 
-    ck_assert(!strcmp(q->name, "Test quest"));
-    ck_assert(q->type == 0);
-    ck_assert(q->owner_id == GET_IDNUM(ch));
-    ck_assert(q->owner_level == GET_LEVEL(ch));
-    ck_assert(g_list_length(q->players) == 1);
+    ck_assert_str_eq(q->name, "Test quest");
+    ck_assert_int_eq(q->type, 0);
+    ck_assert_int_eq(q->owner_id, GET_IDNUM(ch));
+    ck_assert_int_eq(q->owner_level, GET_LEVEL(ch));
+    ck_assert_int_eq(g_list_length(q->players), 1);
 
     struct qplayer_data *p = q->players->data;
 
-    ck_assert(p->idnum == GET_IDNUM(ch));
+    ck_assert_int_eq(p->idnum, GET_IDNUM(ch));
     free_quest(q);
 }
 END_TEST
@@ -295,8 +295,8 @@ START_TEST(test_qcontrol_end)
     GET_LEVEL(ch) = LVL_IMMORT;
     do_qcontrol(ch, tmp_sprintf("end %d", q->vnum), 0, 0);
 
-    ck_assert(q->ended != 0);
-    ck_assert(q->players == NULL);
+    ck_assert_int_ne(q->ended, 0);
+    ck_assert_ptr_null(q->players);
     free_quest(q);
 }
 END_TEST
@@ -321,7 +321,7 @@ START_TEST(test_qcontrol_add)
                 "Expected one player, got %d players",
                 g_list_length(q->players));
     struct qplayer_data *p = q->players->data;
-    ck_assert(p->idnum == GET_IDNUM(tch));
+    ck_assert_int_eq(p->idnum, GET_IDNUM(tch));
     free_quest(q);
     destroy_test_player(tch);
 }
@@ -435,7 +435,7 @@ START_TEST(test_can_join_quest_1)
     struct quest *q = random_quest();
 
     q->flags = QUEST_NOJOIN;
-    fail_if(can_join_quest(q, ch));
+    ck_assert(!can_join_quest(q, ch));
     free_quest(q);
 }
 END_TEST
@@ -458,7 +458,7 @@ START_TEST(test_can_join_quest_3)
     q->maxgen = number(0, 9);
     GET_REMORT_GEN(ch) = q->maxgen + 1;
 
-    fail_if(can_join_quest(q, ch));
+    ck_assert(!can_join_quest(q, ch));
     free_quest(q);
 }
 END_TEST
@@ -470,7 +470,7 @@ START_TEST(test_can_join_quest_4)
     q->mingen = number(1, 10);
     GET_REMORT_GEN(ch) = q->mingen - 1;
 
-    fail_if(can_join_quest(q, ch));
+    ck_assert(!can_join_quest(q, ch));
     free_quest(q);
 }
 END_TEST
@@ -482,7 +482,7 @@ START_TEST(test_can_join_quest_5)
     q->maxlevel = number(0, 48);
     GET_REMORT_GEN(ch) = q->maxlevel + 1;
 
-    fail_if(can_join_quest(q, ch));
+    ck_assert(!can_join_quest(q, ch));
     free_quest(q);
 }
 END_TEST
@@ -494,7 +494,7 @@ START_TEST(test_can_join_quest_6)
     q->minlevel = number(2, 50);
     GET_REMORT_GEN(ch) = q->minlevel - 1;
 
-    fail_if(can_join_quest(q, ch));
+    ck_assert(!can_join_quest(q, ch));
     free_quest(q);
 }
 END_TEST
@@ -505,7 +505,7 @@ START_TEST(test_can_join_quest_7)
     q->flags = 0;
     ch->account->quest_banned = true;
 
-    fail_if(can_join_quest(q, ch));
+    ck_assert(!can_join_quest(q, ch));
     free_quest(q);
 }
 END_TEST
@@ -516,7 +516,7 @@ START_TEST(test_can_join_quest_8)
     q->flags = 0;
     q->bans = g_list_prepend(q->bans, GINT_TO_POINTER(GET_IDNUM(ch)));
 
-    fail_if(can_join_quest(q, ch));
+    ck_assert(!can_join_quest(q, ch));
     free_quest(q);
 }
 END_TEST
@@ -567,16 +567,16 @@ START_TEST(test_quest_join_leave)
 
     quests = g_list_prepend(quests, q);
     do_quest(ch, tmp_sprintf("join %d", q->vnum), 0, 0);
-    ck_assert(GET_QUEST(ch) == q->vnum);
-    ck_assert(quest_player_by_idnum(q, GET_IDNUM(ch)) != NULL);
+    ck_assert_int_eq(GET_QUEST(ch), q->vnum);
+    ck_assert_ptr_nonnull(quest_player_by_idnum(q, GET_IDNUM(ch)));
     ck_assert(strstr(ch->desc->io->write_buf->str,
                        "You have joined quest 'Test quest'") != NULL);
 
     ch->desc->io->write_buf->str[0] = '\0';
     ch->desc->io->write_buf->len = 0;
     do_quest(ch, tmp_sprintf("leave %d", q->vnum), 0, 0);
-    ck_assert_msg(GET_QUEST(ch) == 0, "ch's quest == %d", GET_QUEST(ch));
-    ck_assert(quest_player_by_idnum(q, GET_IDNUM(ch)) == NULL);
+    ck_assert_int_eq(GET_QUEST(ch), 0);
+    ck_assert_ptr_null(quest_player_by_idnum(q, GET_IDNUM(ch)));
     ck_assert_msg(strstr(ch->desc->io->write_buf->str,
                        "You have left quest 'Test quest'") != NULL,
                 "quest leave yielded output '%s'", ch->desc->io->write_buf->str);

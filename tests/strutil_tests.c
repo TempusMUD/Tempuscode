@@ -49,15 +49,15 @@ START_TEST(test_is_newl_macro)
 END_TEST
 START_TEST(test_if_str_macro)
 {
-    ck_assert(!strcmp(IF_STR("foo"), "foo"));
-    ck_assert(!strcmp(IF_STR(NULL), ""));
+    ck_assert_str_eq(IF_STR("foo"), "foo");
+    ck_assert_str_eq(IF_STR(NULL), "");
 }
 END_TEST
 START_TEST(test_cap_macro)
 {
     char str[4] = "foo";
     CAP(str);
-    ck_assert(!strcmp(str, "Foo"));
+    ck_assert_str_eq(str, "Foo");
 }
 END_TEST
 START_TEST(test_remove_from_cstring)
@@ -86,9 +86,9 @@ START_TEST(test_strlist_aref)
 {
     const char *strlist[] = {"alpha", "beta", "gamma", "delta", "\n"};
 
-    ck_assert(!strcmp(strlist_aref(0, strlist), "alpha"));
-    ck_assert(!strcmp(strlist_aref(1, strlist), "beta"));
-    ck_assert(!strcmp(strlist_aref(5, strlist), "UNDEFINED(5)"));
+    ck_assert_str_eq(strlist_aref(0, strlist), "alpha");
+    ck_assert_str_eq(strlist_aref(1, strlist), "beta");
+    ck_assert_str_eq(strlist_aref(5, strlist), "UNDEFINED(5)");
 }
 END_TEST
 START_TEST(test_sprinttype)
@@ -97,41 +97,41 @@ START_TEST(test_sprinttype)
     char str[1024] = "";
 
     sprinttype(0, strlist, str, sizeof(str));
-    ck_assert(!strcmp(str, "alpha"));
+    ck_assert_str_eq(str, "alpha");
     sprinttype(2, strlist, str, sizeof(str));
-    ck_assert(!strcmp(strlist_aref(1, strlist), "beta"));
+    ck_assert_str_eq(strlist_aref(1, strlist), "beta");
     sprinttype(5, strlist, str, sizeof(str));
-    ck_assert(!strcmp(strlist_aref(5, strlist), "UNDEFINED(5)"));
+    ck_assert_str_eq(strlist_aref(5, strlist), "UNDEFINED(5)");
 }
 END_TEST
 START_TEST(test_an)
 {
-    ck_assert(!strcmp(AN("tests"), "some"));
-    ck_assert(!strcmp(AN("fantasies"), "some"));
-    ck_assert(!strcmp(AN("test"), "a"));
-    ck_assert(!strcmp(AN("egg"), "an"));
-    ck_assert(!strcmp(AN("idiot"), "an"));
-    ck_assert(!strcmp(AN("arctic"), "an"));
-    ck_assert(!strcmp(AN("olive"), "an"));
-    ck_assert(!strcmp(AN("ukelele"), "an"));
+    ck_assert_str_eq(AN("tests"), "some");
+    ck_assert_str_eq(AN("fantasies"), "some");
+    ck_assert_str_eq(AN("test"), "a");
+    ck_assert_str_eq(AN("egg"), "an");
+    ck_assert_str_eq(AN("idiot"), "an");
+    ck_assert_str_eq(AN("arctic"), "an");
+    ck_assert_str_eq(AN("olive"), "an");
+    ck_assert_str_eq(AN("ukelele"), "an");
 }
 END_TEST
 START_TEST(test_yesno)
 {
-    ck_assert(!strcmp(YESNO(false), "NO"));
-    ck_assert(!strcmp(YESNO(true), "YES"));
+    ck_assert_str_eq(YESNO(false), "NO");
+    ck_assert_str_eq(YESNO(true), "YES");
 }
 END_TEST
 START_TEST(test_onoff)
 {
-    ck_assert(!strcmp(ONOFF(false), "OFF"));
-    ck_assert(!strcmp(ONOFF(true), "ON"));
+    ck_assert_str_eq(ONOFF(false), "OFF");
+    ck_assert_str_eq(ONOFF(true), "ON");
 }
 END_TEST
 START_TEST(test_fname)
 {
-    ck_assert(!strcmp(fname("alpha"), "alpha"));
-    ck_assert(!strcmp(fname("alpha beta"), "alpha"));
+    ck_assert_str_eq(fname("alpha"), "alpha");
+    ck_assert_str_eq(fname("alpha beta"), "alpha");
 }
 END_TEST
 START_TEST(test_isname)
@@ -175,15 +175,15 @@ START_TEST(test_get_number)
     char *str = buf;
 
     strcpy(buf, "object");
-    ck_assert(get_number(&str) == 1);
-    ck_assert(!strcmp(str, "object"));
+    ck_assert_int_eq(get_number(&str), 1);
+    ck_assert_str_eq(str, "object");
     str = buf;
     strcpy(buf, ".object");
-    ck_assert(get_number(&str) == 0);
-    ck_assert(!strcmp(str, "object"));
+    ck_assert_int_eq(get_number(&str), 0);
+    ck_assert_str_eq(str, "object");
     strcpy(buf, "3.object");
-    ck_assert(get_number(&str) == 3);
-    ck_assert(!strcmp(str, "object"));
+    ck_assert_int_eq(get_number(&str), 3);
+    ck_assert_str_eq(str, "object");
 }
 END_TEST
 START_TEST(test_find_all_dots)
@@ -191,13 +191,13 @@ START_TEST(test_find_all_dots)
     char buf[15];
 
     strcpy(buf, "object");
-    ck_assert(find_all_dots(buf) == FIND_INDIV);
-    ck_assert(!strcmp(buf, "object"));
+    ck_assert_int_eq(find_all_dots(buf), FIND_INDIV);
+    ck_assert_str_eq(buf, "object");
     strcpy(buf, "all.object");
-    ck_assert(find_all_dots(buf) == FIND_ALLDOT);
-    ck_assert(!strcmp(buf, "object"));
+    ck_assert_int_eq(find_all_dots(buf), FIND_ALLDOT);
+    ck_assert_str_eq(buf, "object");
     strcpy(buf, "all");
-    ck_assert(find_all_dots(buf) == FIND_ALL);
+    ck_assert_int_eq(find_all_dots(buf), FIND_ALL);
 }
 END_TEST
 START_TEST(test_one_word)
@@ -209,27 +209,27 @@ START_TEST(test_one_word)
     strcpy(buf, "   the Alpha \"beta gamma\" Delta");
 
     str = one_word(buf, first_arg);
-    ck_assert(!strcmp(first_arg, "alpha"));
-    ck_assert(!strcmp(str, " \"beta gamma\" Delta"));
+    ck_assert_str_eq(first_arg, "alpha");
+    ck_assert_str_eq(str, " \"beta gamma\" Delta");
 
     str = one_word(str, first_arg);
-    ck_assert(!strcmp(first_arg, "beta gamma"));
-    ck_assert(!strcmp(str, " Delta"));
+    ck_assert_str_eq(first_arg, "beta gamma");
+    ck_assert_str_eq(str, " Delta");
 }
 END_TEST
 START_TEST(test_search_block)
 {
     const char *strlist[] = {"Alpha", "Beta", "Gamma", "Delta", "\n"};
 
-    ck_assert(search_block("alpha", strlist, true) == 0);
-    ck_assert(search_block("al", strlist, true) == -1);
-    ck_assert(search_block("al", strlist, false) == 0);
+    ck_assert_int_eq(search_block("alpha", strlist, true), 0);
+    ck_assert_int_eq(search_block("al", strlist, true), -1);
+    ck_assert_int_eq(search_block("al", strlist, false), 0);
 
-    ck_assert(search_block("beta", strlist, true) == 1);
-    ck_assert(search_block("gamma", strlist, true) == 2);
-    ck_assert(search_block("delta", strlist, true) == 3);
+    ck_assert_int_eq(search_block("beta", strlist, true), 1);
+    ck_assert_int_eq(search_block("gamma", strlist, true), 2);
+    ck_assert_int_eq(search_block("delta", strlist, true), 3);
 
-    ck_assert(search_block("", strlist, true) == -1);
+    ck_assert_int_eq(search_block("", strlist, true), -1);
 }
 END_TEST
 START_TEST(test_is_number)
@@ -248,19 +248,19 @@ START_TEST(test_skip_spaces_const)
     const char *str = "testing";
 
     skip_spaces_const(&str);
-    ck_assert(!strcmp(str, "testing"));
+    ck_assert_str_eq(str, "testing");
 
     str = "    testing";
     skip_spaces_const(&str);
-    ck_assert(!strcmp(str, "testing"));
+    ck_assert_str_eq(str, "testing");
 
     str = "    testing   ";
     skip_spaces_const(&str);
-    ck_assert(!strcmp(str, "testing   "));
+    ck_assert_str_eq(str, "testing   ");
 
     str = "    test  ing   ";
     skip_spaces_const(&str);
-    ck_assert(!strcmp(str, "test  ing   "));
+    ck_assert_str_eq(str, "test  ing   ");
 }
 END_TEST
 START_TEST(test_skip_spaces)
@@ -270,19 +270,19 @@ START_TEST(test_skip_spaces)
 
     strcpy(buf, "testing");
     skip_spaces(&str);
-    ck_assert(!strcmp(str, "testing"));
+    ck_assert_str_eq(str, "testing");
 
     str = strcpy(buf, "   testing");
     skip_spaces(&str);
-    ck_assert(!strcmp(str, "testing"));
+    ck_assert_str_eq(str, "testing");
 
     str = strcpy(buf, "   testing   ");
     skip_spaces(&str);
-    ck_assert(!strcmp(str, "testing   "));
+    ck_assert_str_eq(str, "testing   ");
 
     str = strcpy(buf, "   test  ing   ");
     skip_spaces(&str);
-    ck_assert(!strcmp(str, "test  ing   "));
+    ck_assert_str_eq(str, "test  ing   ");
 }
 END_TEST
 START_TEST(test_fill_word)
@@ -302,12 +302,12 @@ START_TEST(test_one_argument)
     strcpy(buf, "   the Alpha \"beta gamma\" Delta");
 
     str = one_argument(str, first_arg);
-    ck_assert(!strcmp(first_arg, "alpha"));
-    ck_assert(!strcmp(str, " \"beta gamma\" Delta"));
+    ck_assert_str_eq(first_arg, "alpha");
+    ck_assert_str_eq(str, " \"beta gamma\" Delta");
 
     str = one_argument(str, first_arg);
-    ck_assert(!strcmp(first_arg, "\"beta"));
-    ck_assert(!strcmp(str, " gamma\" Delta"));
+    ck_assert_str_eq(first_arg, "\"beta");
+    ck_assert_str_eq(str, " gamma\" Delta");
 }
 END_TEST
 START_TEST(test_any_one_arg)
@@ -319,16 +319,16 @@ START_TEST(test_any_one_arg)
     strcpy(buf, "   the Alpha \"beta gamma\" Delta");
 
     str = any_one_arg(str, first_arg);
-    ck_assert(!strcmp(first_arg, "the"));
-    ck_assert(!strcmp(str, " Alpha \"beta gamma\" Delta"));
+    ck_assert_str_eq(first_arg, "the");
+    ck_assert_str_eq(str, " Alpha \"beta gamma\" Delta");
 
     str = any_one_arg(str, first_arg);
-    ck_assert(!strcmp(first_arg, "alpha"));
-    ck_assert(!strcmp(str, " \"beta gamma\" Delta"));
+    ck_assert_str_eq(first_arg, "alpha");
+    ck_assert_str_eq(str, " \"beta gamma\" Delta");
 
     str = any_one_arg(str, first_arg);
-    ck_assert(!strcmp(first_arg, "\"beta"));
-    ck_assert(!strcmp(str, " gamma\" Delta"));
+    ck_assert_str_eq(first_arg, "\"beta");
+    ck_assert_str_eq(str, " gamma\" Delta");
 }
 END_TEST
 START_TEST(test_two_arguments)
@@ -341,32 +341,32 @@ START_TEST(test_two_arguments)
     strcpy(buf, "   the Alpha beta gamma");
 
     str = two_arguments(str, first_arg, second_arg);
-    ck_assert(!strcmp(first_arg, "alpha"));
-    ck_assert(!strcmp(second_arg, "beta"));
-    ck_assert(!strcmp(str, "gamma"));
+    ck_assert_str_eq(first_arg, "alpha");
+    ck_assert_str_eq(second_arg, "beta");
+    ck_assert_str_eq(str, "gamma");
 
     str = strcpy(buf, "   the Alpha");
     str = two_arguments(str, first_arg, second_arg);
-    ck_assert(!strcmp(first_arg, "alpha"));
-    ck_assert(!strcmp(second_arg, ""));
-    ck_assert(!strcmp(str, ""));
+    ck_assert_str_eq(first_arg, "alpha");
+    ck_assert_str_eq(second_arg, "");
+    ck_assert_str_eq(str, "");
 }
 END_TEST
 START_TEST(test_is_abbrev)
 {
-    ck_assert(is_abbrev("a", "alpha") == 1);
-    ck_assert(is_abbrev("al", "alpha") == 1);
-    ck_assert(is_abbrev("alph", "alpha") == 1);
-    ck_assert(is_abbrev("alpha", "alpha") == 2);
+    ck_assert_int_eq(is_abbrev("a", "alpha"), 1);
+    ck_assert_int_eq(is_abbrev("al", "alpha"), 1);
+    ck_assert_int_eq(is_abbrev("alph", "alpha"), 1);
+    ck_assert_int_eq(is_abbrev("alpha", "alpha"), 2);
     ck_assert(!is_abbrev("b", "alpha"));
 }
 END_TEST
 START_TEST(test_is_abbrevn)
 {
-    ck_assert(is_abbrevn("a", "alpha", 3) == 0);
-    ck_assert(is_abbrevn("al", "alpha", 3) == 0);
-    ck_assert(is_abbrevn("alph", "alpha", 3) == 1);
-    ck_assert(is_abbrevn("alpha", "alpha", 3) == 2);
+    ck_assert_int_eq(is_abbrevn("a", "alpha", 3), 0);
+    ck_assert_int_eq(is_abbrevn("al", "alpha", 3), 0);
+    ck_assert_int_eq(is_abbrevn("alph", "alpha", 3), 1);
+    ck_assert_int_eq(is_abbrevn("alpha", "alpha", 3), 2);
     ck_assert(!is_abbrevn("b", "alpha", 3));
 }
 END_TEST
@@ -379,24 +379,24 @@ START_TEST(test_half_chop)
     strcpy(buf, "alpha beta gamma delta");
     half_chop(buf, first_arg, rest);
 
-    ck_assert(!strcmp(first_arg, "alpha"));
-    ck_assert(!strcmp(rest, "beta gamma delta"));
+    ck_assert_str_eq(first_arg, "alpha");
+    ck_assert_str_eq(rest, "beta gamma delta");
 }
 END_TEST
 START_TEST(test_search_block_no_lower)
 {
     const char *strlist[] = {"Alpha", "Beta", "Gamma", "Delta", "\n"};
 
-    ck_assert(search_block_no_lower("Alpha", strlist, true) == 0);
-    ck_assert(search_block_no_lower("Al", strlist, true) == -1);
-    ck_assert(search_block_no_lower("Al", strlist, false) == 0);
-    ck_assert(search_block_no_lower("al", strlist, false) == -1);
+    ck_assert_int_eq(search_block_no_lower("Alpha", strlist, true), 0);
+    ck_assert_int_eq(search_block_no_lower("Al", strlist, true), -1);
+    ck_assert_int_eq(search_block_no_lower("Al", strlist, false), 0);
+    ck_assert_int_eq(search_block_no_lower("al", strlist, false), -1);
 
-    ck_assert(search_block_no_lower("Beta", strlist, true) == 1);
-    ck_assert(search_block_no_lower("Gamma", strlist, true) == 2);
-    ck_assert(search_block_no_lower("Delta", strlist, true) == 3);
+    ck_assert_int_eq(search_block_no_lower("Beta", strlist, true), 1);
+    ck_assert_int_eq(search_block_no_lower("Gamma", strlist, true), 2);
+    ck_assert_int_eq(search_block_no_lower("Delta", strlist, true), 3);
 
-    ck_assert(search_block_no_lower("", strlist, true) == -1);
+    ck_assert_int_eq(search_block_no_lower("", strlist, true), -1);
 }
 END_TEST
 START_TEST(test_fill_word_no_lower)
@@ -418,12 +418,12 @@ START_TEST(test_one_argument_no_lower)
     strcpy(buf, "   the Alpha \"beta gamma\" Delta");
 
     str = one_argument_no_lower(str, first_arg);
-    ck_assert_msg(!strcmp(first_arg, "Alpha"), "first_arg was '%s'", first_arg);
-    ck_assert(!strcmp(str, " \"beta gamma\" Delta"));
+    ck_assert_str_eq(first_arg, "Alpha");
+    ck_assert_str_eq(str, " \"beta gamma\" Delta");
 
     str = one_argument_no_lower(str, first_arg);
-    ck_assert(!strcmp(first_arg, "\"beta"));
-    ck_assert(!strcmp(str, " gamma\" Delta"));
+    ck_assert_str_eq(first_arg, "\"beta");
+    ck_assert_str_eq(str, " gamma\" Delta");
 }
 END_TEST
 START_TEST(test_snprintf_cat)
@@ -432,12 +432,12 @@ START_TEST(test_snprintf_cat)
     int result = 0;
 
     result = snprintf_cat(buf, sizeof(buf), "ab%c", 'c');
-    ck_assert(result == 3);
-    ck_assert(!strcmp(buf, "abc"));
+    ck_assert_int_eq(result, 3);
+    ck_assert_str_eq(buf, "abc");
 
     result = snprintf_cat(buf, sizeof(buf), "def");
-    ck_assert(result == 6);
-    ck_assert(!strcmp(buf, "abcdef"));
+    ck_assert_int_eq(result, 6);
+    ck_assert_str_eq(buf, "abcdef");
 }
 END_TEST
 

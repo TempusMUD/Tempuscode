@@ -279,50 +279,50 @@ destroy_test_player(struct creature *ch)
 void
 compare_creatures(struct creature *ch, struct creature *tch)
 {
-    ck_assert(!strcmp(GET_NAME(ch), GET_NAME(tch)));
-    ck_assert(GET_IDNUM(ch) == GET_IDNUM(tch));
-    ck_assert(GET_HIT(ch) == GET_HIT(tch));
-    ck_assert(GET_MANA(ch) == GET_MANA(tch));
-    ck_assert(GET_MOVE(ch) == GET_MOVE(tch));
-    ck_assert(GET_MAX_HIT(ch) == GET_MAX_HIT(tch));
-    ck_assert(GET_MAX_MANA(ch) == GET_MAX_MANA(tch));
-    ck_assert(GET_MAX_MOVE(ch) == GET_MAX_MOVE(tch));
-    ck_assert(GET_GOLD(ch) == GET_GOLD(tch));
-    ck_assert(GET_CASH(ch) == GET_CASH(tch));
-    ck_assert(GET_EXP(ch) == GET_EXP(tch));
-    ck_assert(GET_HITROLL(ch) == GET_HITROLL(tch));
-    ck_assert(GET_DAMROLL(ch) == GET_DAMROLL(tch));
-    ck_assert(GET_LEVEL(ch) == GET_LEVEL(tch));
-    ck_assert(GET_SEX(ch) == GET_SEX(tch));
-    ck_assert(GET_RACE(ch) == GET_RACE(tch));
-    ck_assert(GET_HEIGHT(ch) == GET_HEIGHT(tch));
-    ck_assert(GET_WEIGHT(ch) == GET_WEIGHT(tch));
-    ck_assert(GET_ALIGNMENT(ch) == GET_ALIGNMENT(tch));
-    ck_assert(GET_CLASS(ch) == GET_CLASS(tch));
-    ck_assert(GET_REMORT_CLASS(ch) == GET_REMORT_CLASS(tch));
-    ck_assert(GET_REMORT_GEN(ch) == GET_REMORT_GEN(tch));
+    ck_assert_str_eq(GET_NAME(ch), GET_NAME(tch));
+    ck_assert_int_eq(GET_IDNUM(ch), GET_IDNUM(tch));
+    ck_assert_int_eq(GET_HIT(ch), GET_HIT(tch));
+    ck_assert_int_eq(GET_MANA(ch), GET_MANA(tch));
+    ck_assert_int_eq(GET_MOVE(ch), GET_MOVE(tch));
+    ck_assert_int_eq(GET_MAX_HIT(ch), GET_MAX_HIT(tch));
+    ck_assert_int_eq(GET_MAX_MANA(ch), GET_MAX_MANA(tch));
+    ck_assert_int_eq(GET_MAX_MOVE(ch), GET_MAX_MOVE(tch));
+    ck_assert_int_eq(GET_GOLD(ch), GET_GOLD(tch));
+    ck_assert_int_eq(GET_CASH(ch), GET_CASH(tch));
+    ck_assert_int_eq(GET_EXP(ch), GET_EXP(tch));
+    ck_assert_int_eq(GET_HITROLL(ch), GET_HITROLL(tch));
+    ck_assert_int_eq(GET_DAMROLL(ch), GET_DAMROLL(tch));
+    ck_assert_int_eq(GET_LEVEL(ch), GET_LEVEL(tch));
+    ck_assert_int_eq(GET_SEX(ch), GET_SEX(tch));
+    ck_assert_int_eq(GET_RACE(ch), GET_RACE(tch));
+    ck_assert_int_eq(GET_HEIGHT(ch), GET_HEIGHT(tch));
+    ck_assert_int_eq(GET_WEIGHT(ch), GET_WEIGHT(tch));
+    ck_assert_int_eq(GET_ALIGNMENT(ch), GET_ALIGNMENT(tch));
+    ck_assert_int_eq(GET_CLASS(ch), GET_CLASS(tch));
+    ck_assert_int_eq(GET_REMORT_CLASS(ch), GET_REMORT_CLASS(tch));
+    ck_assert_int_eq(GET_REMORT_GEN(ch), GET_REMORT_GEN(tch));
     ck_assert(!memcmp(&ch->player.time, &tch->player.time, sizeof(ch->player.time)));
     ck_assert(!memcmp(&ch->real_abils, &tch->real_abils, sizeof(ch->real_abils)));
-    ck_assert(GET_COND(ch, FULL) == GET_COND(tch, FULL));
-    ck_assert(GET_COND(ch, THIRST) == GET_COND(tch, THIRST));
-    ck_assert(GET_COND(ch, DRUNK) == GET_COND(tch, DRUNK));
-    ck_assert(GET_WIMP_LEV(ch) == GET_WIMP_LEV(tch));
-    ck_assert(GET_LIFE_POINTS(ch) == GET_LIFE_POINTS(tch));
-    ck_assert(GET_CLAN(ch) == GET_CLAN(tch));
-    ck_assert(GET_HOME(ch) == GET_HOME(tch));
-    ck_assert(GET_HOMEROOM(ch) == GET_HOMEROOM(tch));
-    ck_assert(GET_LOADROOM(ch) == GET_LOADROOM(tch));
-    ck_assert(GET_QUEST(ch) == GET_QUEST(tch));
-    ck_assert(ch->char_specials.saved.act == tch->char_specials.saved.act);
-    ck_assert(ch->player_specials->saved.plr2_bits == tch->player_specials->saved.plr2_bits);
-    ck_assert(ch->player_specials->saved.pref == tch->player_specials->saved.pref);
-    ck_assert(ch->player_specials->saved.pref2 == tch->player_specials->saved.pref2);
-    ck_assert(GET_TONGUE(ch) == GET_TONGUE(tch));
+    ck_assert_int_eq(GET_COND(ch, FULL), GET_COND(tch, FULL));
+    ck_assert_int_eq(GET_COND(ch, THIRST), GET_COND(tch, THIRST));
+    ck_assert_int_eq(GET_COND(ch, DRUNK), GET_COND(tch, DRUNK));
+    ck_assert_int_eq(GET_WIMP_LEV(ch), GET_WIMP_LEV(tch));
+    ck_assert_int_eq(GET_LIFE_POINTS(ch), GET_LIFE_POINTS(tch));
+    ck_assert_int_eq(GET_CLAN(ch), GET_CLAN(tch));
+    ck_assert_int_eq(GET_HOME(ch), GET_HOME(tch));
+    ck_assert_int_eq(GET_HOMEROOM(ch), GET_HOMEROOM(tch));
+    ck_assert_int_eq(GET_LOADROOM(ch), GET_LOADROOM(tch));
+    ck_assert_int_eq(GET_QUEST(ch), GET_QUEST(tch));
+    ck_assert_int_eq(ch->char_specials.saved.act, tch->char_specials.saved.act);
+    ck_assert_int_eq(ch->player_specials->saved.plr2_bits, tch->player_specials->saved.plr2_bits);
+    ck_assert_int_eq(ch->player_specials->saved.pref, tch->player_specials->saved.pref);
+    ck_assert_int_eq(ch->player_specials->saved.pref2, tch->player_specials->saved.pref2);
+    ck_assert_int_eq(GET_TONGUE(ch), GET_TONGUE(tch));
     for (int i = 0; i < MAX_WEAPON_SPEC; i++) {
-        ck_assert(GET_WEAP_SPEC(ch, i).vnum == GET_WEAP_SPEC(tch, i).vnum);
-        ck_assert(GET_WEAP_SPEC(ch, i).level == GET_WEAP_SPEC(tch, i).level);
+        ck_assert_int_eq(GET_WEAP_SPEC(ch, i).vnum, GET_WEAP_SPEC(tch, i).vnum);
+        ck_assert_int_eq(GET_WEAP_SPEC(ch, i).level, GET_WEAP_SPEC(tch, i).level);
     }
-    ck_assert(!strcmp(GET_TITLE(ch), GET_TITLE(tch)));
+    ck_assert_str_eq(GET_TITLE(ch), GET_TITLE(tch));
 }
 
 static int next_mob_vnum = 3000;
@@ -435,40 +435,40 @@ make_random_object(void)
 void
 compare_objects(struct obj_data *obj_a, struct obj_data *obj_b)
 {
-    ck_assert(!strcmp(obj_a->name, obj_b->name));
-    ck_assert(!strcmp(obj_a->aliases, obj_b->aliases));
-    ck_assert(!strcmp(obj_a->line_desc, obj_b->line_desc));
-    ck_assert(!strcmp(obj_a->action_desc, obj_b->action_desc));
-    ck_assert(obj_a->plrtext_len == obj_b->plrtext_len);
+    ck_assert_str_eq(obj_a->name, obj_b->name);
+    ck_assert_str_eq(obj_a->aliases, obj_b->aliases);
+    ck_assert_str_eq(obj_a->line_desc, obj_b->line_desc);
+    ck_assert_str_eq(obj_a->action_desc, obj_b->action_desc);
+    ck_assert_int_eq(obj_a->plrtext_len, obj_b->plrtext_len);
     ck_assert_msg(obj_a->worn_on == obj_b->worn_on, "obj_a->worn_on = %d, obj_b->worn_on = %d", obj_a->worn_on, obj_b->worn_on);
-    ck_assert(obj_a->soilage == obj_b->soilage);
-    ck_assert(obj_a->unique_id == obj_b->unique_id);
-    ck_assert(obj_a->creation_time == obj_b->creation_time);
-    ck_assert(obj_a->creation_method == obj_b->creation_method);
-    ck_assert(obj_a->creator == obj_b->creator);
-    ck_assert(obj_a->obj_flags.value[0] == obj_b->obj_flags.value[0]);
-    ck_assert(obj_a->obj_flags.value[1] == obj_b->obj_flags.value[1]);
-    ck_assert(obj_a->obj_flags.value[2] == obj_b->obj_flags.value[2]);
-    ck_assert(obj_a->obj_flags.value[3] == obj_b->obj_flags.value[3]);
-    ck_assert(obj_a->obj_flags.type_flag == obj_b->obj_flags.type_flag);
-    ck_assert(obj_a->obj_flags.wear_flags == obj_b->obj_flags.wear_flags);
-    ck_assert(obj_a->obj_flags.extra_flags == obj_b->obj_flags.extra_flags);
-    ck_assert(obj_a->obj_flags.extra2_flags == obj_b->obj_flags.extra2_flags);
-    ck_assert(obj_a->obj_flags.extra3_flags == obj_b->obj_flags.extra3_flags);
-    ck_assert(obj_a->obj_flags.weight == obj_b->obj_flags.weight);
-    ck_assert(obj_a->obj_flags.timer == obj_b->obj_flags.timer);
-    ck_assert(obj_a->obj_flags.bitvector[0] == obj_b->obj_flags.bitvector[0]);
-    ck_assert(obj_a->obj_flags.bitvector[1] == obj_b->obj_flags.bitvector[1]);
-    ck_assert(obj_a->obj_flags.bitvector[2] == obj_b->obj_flags.bitvector[2]);
-    ck_assert(obj_a->obj_flags.material == obj_b->obj_flags.material);
-    ck_assert(obj_a->obj_flags.max_dam == obj_b->obj_flags.max_dam);
-    ck_assert(obj_a->obj_flags.damage == obj_b->obj_flags.damage);
-    ck_assert(obj_a->obj_flags.sigil_idnum == obj_b->obj_flags.sigil_idnum);
-    ck_assert(obj_a->obj_flags.sigil_level == obj_b->obj_flags.sigil_level);
+    ck_assert_int_eq(obj_a->soilage, obj_b->soilage);
+    ck_assert_int_eq(obj_a->unique_id, obj_b->unique_id);
+    ck_assert_int_eq(obj_a->creation_time, obj_b->creation_time);
+    ck_assert_int_eq(obj_a->creation_method, obj_b->creation_method);
+    ck_assert_int_eq(obj_a->creator, obj_b->creator);
+    ck_assert_int_eq(obj_a->obj_flags.value[0], obj_b->obj_flags.value[0]);
+    ck_assert_int_eq(obj_a->obj_flags.value[1], obj_b->obj_flags.value[1]);
+    ck_assert_int_eq(obj_a->obj_flags.value[2], obj_b->obj_flags.value[2]);
+    ck_assert_int_eq(obj_a->obj_flags.value[3], obj_b->obj_flags.value[3]);
+    ck_assert_int_eq(obj_a->obj_flags.type_flag, obj_b->obj_flags.type_flag);
+    ck_assert_int_eq(obj_a->obj_flags.wear_flags, obj_b->obj_flags.wear_flags);
+    ck_assert_int_eq(obj_a->obj_flags.extra_flags, obj_b->obj_flags.extra_flags);
+    ck_assert_int_eq(obj_a->obj_flags.extra2_flags, obj_b->obj_flags.extra2_flags);
+    ck_assert_int_eq(obj_a->obj_flags.extra3_flags, obj_b->obj_flags.extra3_flags);
+    ck_assert_int_eq(obj_a->obj_flags.weight, obj_b->obj_flags.weight);
+    ck_assert_int_eq(obj_a->obj_flags.timer, obj_b->obj_flags.timer);
+    ck_assert_int_eq(obj_a->obj_flags.bitvector[0], obj_b->obj_flags.bitvector[0]);
+    ck_assert_int_eq(obj_a->obj_flags.bitvector[1], obj_b->obj_flags.bitvector[1]);
+    ck_assert_int_eq(obj_a->obj_flags.bitvector[2], obj_b->obj_flags.bitvector[2]);
+    ck_assert_int_eq(obj_a->obj_flags.material, obj_b->obj_flags.material);
+    ck_assert_int_eq(obj_a->obj_flags.max_dam, obj_b->obj_flags.max_dam);
+    ck_assert_int_eq(obj_a->obj_flags.damage, obj_b->obj_flags.damage);
+    ck_assert_int_eq(obj_a->obj_flags.sigil_idnum, obj_b->obj_flags.sigil_idnum);
+    ck_assert_int_eq(obj_a->obj_flags.sigil_level, obj_b->obj_flags.sigil_level);
 
     for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
-        ck_assert(obj_a->affected[i].location == obj_a->affected[i].location);
-        ck_assert(obj_a->affected[i].modifier == obj_a->affected[i].modifier);
+        ck_assert_int_eq(obj_a->affected[i].location, obj_a->affected[i].location);
+        ck_assert_int_eq(obj_a->affected[i].modifier, obj_a->affected[i].modifier);
     }
 
     // TODO: test temp object affects
