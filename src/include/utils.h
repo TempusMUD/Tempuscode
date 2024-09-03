@@ -319,8 +319,6 @@ void WAIT_STATE(struct creature *ch, int cycle);
 #define IS_BODY_PART(obj)  (IS_OBJ_STAT2(obj, ITEM2_BODY_PART))
 
 #define OBJ_APPROVED(obj) (!IS_OBJ_STAT2(obj, ITEM2_UNAPPROVED))
-#define P_OBJ_APPROVED(p_obj) (!IS_SET(p_obj->obj_flags.extra2_flags, \
-                                       ITEM2_UNAPPROVED))
 
 #define OBJ_IS_RAD(obj) (IS_OBJ_STAT2(obj, ITEM2_RADIOACTIVE))
 

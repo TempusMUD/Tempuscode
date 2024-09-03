@@ -579,7 +579,12 @@ load_object_from_xml(struct obj_data *container,
     if (vnum > -1) {
         struct obj_data *prototype = real_object_proto(vnum);
         if (!prototype) {
-            slog("Object #%d being removed from %s's rent",
+            slog("Object #%d missing prototype being removed from %s's rent",
+                 vnum, victim ? GET_NAME(victim) : "(null)");
+            return NULL;
+        }
+        if (!OBJ_APPROVED(prototype) && (victim ? !IS_IMMORT(victim):true)) {
+            slog("Object #%d with unapproved prototype being removed from %s's rent",
                  vnum, victim ? GET_NAME(victim) : "(null)");
             return NULL;
         }

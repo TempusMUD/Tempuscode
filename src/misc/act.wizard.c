@@ -7297,7 +7297,7 @@ ACMD(do_olist)
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
                         CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
                         obj->name, CCNRM(ch, C_NRM),
-                        !P_OBJ_APPROVED(obj) ? "(!aprvd)" : "",
+                        !OBJ_APPROVED(obj) ? "(!aprvd)" : "",
                         (!(obj->line_desc) || !(*(obj->line_desc))) ? "(nodesc)" : "");
         }
     }

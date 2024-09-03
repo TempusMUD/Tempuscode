@@ -426,6 +426,7 @@ make_random_object(void)
     obj->worn_on = -1;
 
     obj->obj_flags.weight = 1.0;
+    obj->obj_flags.extra2_flags = 0;
 
     g_hash_table_insert(obj_prototypes, GINT_TO_POINTER(GET_OBJ_VNUM(obj)), obj);
 
