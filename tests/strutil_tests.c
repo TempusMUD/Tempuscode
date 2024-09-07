@@ -91,19 +91,6 @@ START_TEST(test_strlist_aref)
     ck_assert_str_eq(strlist_aref(5, strlist), "UNDEFINED(5)");
 }
 END_TEST
-START_TEST(test_sprinttype)
-{
-    const char *strlist[] = {"alpha", "beta", "gamma", "delta", "\n"};
-    char str[1024] = "";
-
-    sprinttype(0, strlist, str, sizeof(str));
-    ck_assert_str_eq(str, "alpha");
-    sprinttype(2, strlist, str, sizeof(str));
-    ck_assert_str_eq(strlist_aref(1, strlist), "beta");
-    sprinttype(5, strlist, str, sizeof(str));
-    ck_assert_str_eq(strlist_aref(5, strlist), "UNDEFINED(5)");
-}
-END_TEST
 START_TEST(test_an)
 {
     ck_assert_str_eq(AN("tests"), "some");
@@ -454,7 +441,6 @@ strutil_suite(void)
     tcase_add_test(tc_core, test_remove_from_cstring);
     tcase_add_test(tc_core, test_sprintbit);
     tcase_add_test(tc_core, test_strlist_aref);
-    tcase_add_test(tc_core, test_sprinttype);
     tcase_add_test(tc_core, test_an);
     tcase_add_test(tc_core, test_yesno);
     tcase_add_test(tc_core, test_onoff);

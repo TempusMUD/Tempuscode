@@ -114,12 +114,6 @@ strlist_aref(int idx, const char **names)
     return tmp_sprintf("UNDEFINED(%d)", idx);
 }
 
-void
-sprinttype(int type, const char *names[], char *result, size_t size)
-{
-    strcpy_s(result, size, strlist_aref(type, names));
-}
-
 const char *
 AN(const char *str)
 {

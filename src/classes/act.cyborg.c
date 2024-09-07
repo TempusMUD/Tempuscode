@@ -2235,7 +2235,7 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
                 ((ALEV(5) || !checklev) && GET_OBJ_MAX_DAM(obj) > 0) ?
                 tmp_sprintf("  [%3d%%]",
                             GET_OBJ_DAM(obj) * 100 / GET_OBJ_MAX_DAM(obj)) : "");
-    acc_sprintf("Commerce Value:       %s%'d coins%s\r\n", CCCYN(ch, C_NRM),
+    acc_sprintf("Commercial Value:     %s%'d coins%s\r\n", CCCYN(ch, C_NRM),
                 GET_OBJ_COST(obj), CCNRM(ch, C_NRM));
     acc_sprintf("Total Mass:           %s%s%s\r\n", CCCYN(ch, C_NRM),
                 format_weight(GET_OBJ_WEIGHT(obj), USE_METRIC(ch)), CCNRM(ch, C_NRM));
@@ -2267,8 +2267,20 @@ perform_analyze(struct creature *ch, struct obj_data *obj, bool checklev)
             }
 
             found = true;
-            acc_sprintf("%+d to %s", obj->affected[i].modifier,
-                        strlist_aref(obj->affected[i].location, apply_types));
+            switch (obj->affected[i].location) {
+            case APPLY_RACE:
+                acc_sprintf("Morph race to %s (immutable)",
+                            race_name_by_idnum(obj->affected[i].modifier));
+                break;
+            case APPLY_SEX:
+                acc_sprintf("Morph sex to %s (immutable)",
+                            strlist_aref(obj->affected[i].modifier, genders));
+                break;
+            default:
+                acc_sprintf("%+d to %s", obj->affected[i].modifier,
+                            strlist_aref(obj->affected[i].location, apply_types));
+                break;
+            }
         }
     }
     if (found) {

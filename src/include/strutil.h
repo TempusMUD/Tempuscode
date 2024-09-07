@@ -66,7 +66,6 @@ int snprintf_cat(char *dest, size_t size, const char *fmt, ...);
 void remove_from_cstring(char *str, char c, char c_to);
 void sprintbit(long vektor, const char *names[], char *result, size_t size);
 const char *strlist_aref(int idx, const char **names);
-void sprinttype(int type, const char *names[], char *result, size_t size);
 const char *AN(const char *str)
 __attribute__ ((nonnull));
 const char *YESNO(bool a);

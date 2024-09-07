@@ -1273,9 +1273,21 @@ ASPELL(spell_identify)
                     send_to_char(ch, "Can affect you as :\r\n");
                     found = true;
                 }
-                sprinttype(obj->affected[i].location, apply_types, buf2, sizeof(buf2));
-                send_to_char(ch, "   Affects: %s By %d\r\n", buf2,
-                             obj->affected[i].modifier);
+                switch  (obj->affected[i].location) {
+                case APPLY_RACE:
+                    send_to_char(ch, "   Permanently changes race to %s\r\n",
+                                 race_name_by_idnum(obj->affected[i].modifier));
+                    break;
+                case APPLY_SEX:
+                    send_to_char(ch, "   Permanently changes gender to %s\r\n",
+                                 strlist_aref(obj->affected[i].modifier, genders));
+                    break;
+                default:
+                    send_to_char(ch, "   Affects: %s by %+d\r\n",
+                                 strlist_aref(obj->affected[i].location, apply_types),
+                                 obj->affected[i].modifier);
+                    break;
+                }
             }
         }
         if (GET_OBJ_SIGIL_IDNUM(obj)) {
@@ -1440,8 +1452,17 @@ ASPELL(spell_minor_identify)
                     send_to_char(ch, "Can affect you as :\r\n");
                     found = true;
                 }
-                sprinttype(obj->affected[i].location, apply_types, buf2, sizeof(buf2));
-                send_to_char(ch, "   Affects: %s\r\n", buf2);
+                switch (obj->affected[i].location) {
+                case APPLY_RACE:
+                    send_to_char(ch, "   Permanently changes race\r\n");
+                    break;
+                case APPLY_SEX:
+                    send_to_char(ch, "   Permanently changes sex\r\n");
+                    break;
+                default:
+                    send_to_char(ch, "   Affects: %s\r\n", strlist_aref(obj->affected[i].location, apply_types));
+                    break;
+                }
             }
         }
     } else if (victim) {        /* victim */
