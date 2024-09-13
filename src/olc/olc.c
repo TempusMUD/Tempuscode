@@ -32,6 +32,7 @@
 #include "defs.h"
 #include "desc_data.h"
 #include "macros.h"
+#include "sector.h"
 #include "room_data.h"
 #include "zone_data.h"
 #include "race.h"
@@ -41,6 +42,7 @@
 #include "screen.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "accstr.h"
 #include "spells.h"
 #include "vehicle.h"
 #include "materials.h"
@@ -1911,13 +1913,13 @@ show_olc_help(struct creature *ch, char *arg)
         page_string(ch->desc, buf);
         break;
     case 1:      /********* rsector **********/
-        strcpy_s(buf, sizeof(buf), "ROOM SECTOR TYPES:\r\n");
+        acc_string_clear();
+        acc_sprintf("ROOM SECTOR TYPES:\r\n");
         for (i = 0; i < NUM_SECT_TYPES; i++) {
-            snprintf(buf2, sizeof(buf2), "%2d         %s%s%s\r\n", i, CCCYN(ch, C_NRM),
-                     sector_types[i], CCNRM(ch, C_NRM));
-            strcat_s(buf, sizeof(buf), buf2);
+            acc_sprintf("%2d         %s%s%s\r\n", i,
+                        CCCYN(ch, C_NRM), sector_name_by_idnum(i), CCNRM(ch, C_NRM));
         }
-        page_string(ch->desc, buf);
+        page_string(ch->desc, acc_get_string());
         break;
     case 2:
         strcpy_s(buf, sizeof(buf), "ROOM FLOW TYPES:\r\n");

@@ -49,6 +49,7 @@ extern FILE *qlogfile;
 
 void boot_tongues(const char *path);
 void boot_spells(const char *path);
+void boot_sectors(const char *path);
 void extract_creature(struct creature *ch, enum cxn_state con_state);
 void free_account(struct account *acct);
 
@@ -95,6 +96,7 @@ test_tempus_boot(void)
     boot_tongues("etc/tongues.xml");
     boot_races("etc/races.xml");
     boot_spells("etc/spells.xml");
+    boot_sectors("etc/sectors.xml");
     qlogfile = fopen(QLOGFILENAME, "a");
 
     struct zone_data *zone = make_zone(1);

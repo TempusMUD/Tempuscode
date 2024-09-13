@@ -43,6 +43,7 @@
 #include "house.h"
 #include "clan.h"
 #include "char_class.h"
+#include "sector.h"
 #include "players.h"
 #include "tmpstr.h"
 #include "accstr.h"
@@ -1397,9 +1398,8 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
          && PRF_FLAGGED(ch->desc->original, PRF_ROOMFLAGS))) {
         acc_sprintf("[%5d] %s [ %s ] [ %s ]", room->number,
                     room->name,
-                    ROOM_FLAGS(room) ? tmp_printbits(ROOM_FLAGS(room),
-                                                     room_bits) : "NONE", strlist_aref(room->sector_type,
-                                                                                       sector_types));
+                    ROOM_FLAGS(room) ? tmp_printbits(ROOM_FLAGS(room), room_bits) : "NONE",
+                    sector_name_by_idnum(room->sector_type));
         if (room->max_occupancy < 256) {
             acc_sprintf(" [ Max: %d ]", room->max_occupancy);
         }
@@ -1514,120 +1514,128 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
 }
 
 static void
+look_at_exit(struct creature *ch, int dir)
+{
+    acc_string_clear();
+    if (EXIT(ch, dir)->general_description) {
+        acc_sprintf("%s", EXIT(ch, dir)->general_description);
+    } else if (IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR | EX_CLOSED) &&
+               EXIT(ch, dir)->keyword) {
+        acc_sprintf("You see %s %s.\r\n", AN(fname(EXIT(ch,
+                                                        dir)->keyword)), fname(EXIT(ch, dir)->keyword));
+    } else if (EXIT(ch, dir)->to_room) {
+        if ((IS_SET(EXIT(ch, dir)->exit_info, EX_NOPASS) &&
+             GET_LEVEL(ch) < LVL_AMBASSADOR) ||
+            IS_SET(EXIT(ch, dir)->exit_info, EX_HIDDEN)) {
+            acc_sprintf("You see nothing special.\r\n");
+        } else if (EXIT(ch, dir)->to_room->name) {
+            acc_sprintf("%s", CCCYN(ch, C_NRM));
+            if (PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
+                acc_sprintf("[%5d] %s [ %s] [ %s ]",
+                            EXIT(ch, dir)->to_room->number,
+                            EXIT(ch, dir)->to_room->name,
+                            tmp_printbits(ROOM_FLAGS(EXIT(ch, dir)->to_room), room_bits),
+                            sector_name_by_idnum(EXIT(ch, dir)->to_room->sector_type));
+            } else {
+                acc_sprintf("%s", EXIT(ch, dir)->to_room->name);
+            }
+            acc_sprintf("%s", CCNRM(ch, C_NRM));
+            acc_sprintf("\r\n");
+
+            for (struct room_affect_data *aff = ch->in_room->affects; aff; aff = aff->next) {
+                if (aff->type == dir && aff->description) {
+                    acc_sprintf("%s", aff->description);
+                }
+            }
+        } else {
+            acc_sprintf("You see nothing special.\r\n");
+        }
+    }
+    if (EXIT(ch, dir)->to_room && (!IS_SET(EXIT(ch, dir)->exit_info,
+                                           EX_ISDOOR | EX_CLOSED | EX_HIDDEN | EX_NOPASS) ||
+                                   PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
+
+        if (room_is_dark(EXIT(ch, dir)->to_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) &&
+            CHECK_SKILL(ch, SKILL_NIGHT_VISION) < number(GET_LEVEL(ch),
+                                                         101)) {
+            send_to_char(ch,
+                         "It's too dark there to see anything special.\r\n");
+        } else {
+            /* now list characters & objects */
+            acc_sprintf("%s", CCGRN(ch, C_NRM));
+            list_obj_to_char(EXIT(ch, dir)->to_room->contents, ch, SHOW_OBJ_ROOM, false);
+            acc_sprintf("%s", CCYEL(ch, C_NRM));
+            list_char_to_char(EXIT(ch, dir)->to_room->people, ch);
+            acc_sprintf("%s", CCNRM(ch, C_NRM));
+        }
+    }
+
+    if (!IS_SET(EXIT(ch, dir)->exit_info, EX_HIDDEN | EX_NOPASS)) {
+        if (IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED)
+            && EXIT(ch, dir)->keyword) {
+            acc_sprintf("The %s %s closed.\r\n", fname(EXIT(ch,
+                                                            dir)->keyword), ISARE(fname(EXIT(ch,
+                                                                                             dir)->keyword)));
+        } else if (IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR) &&
+                   EXIT(ch, dir)->keyword) {
+            acc_sprintf("The %s %s open.\r\n", fname(EXIT(ch,
+                                                          dir)->keyword), ISARE(fname(EXIT(ch,
+                                                                                           dir)->keyword)));
+            if (EXIT(ch, dir)->to_room != NULL && room_is_dark(EXIT(ch, dir)->to_room) &&
+                !EXIT(ch, dir)->general_description) {
+                snprintf(buf, sizeof(buf),
+                         "It's too dark through the %s to see anything.\r\n",
+                         fname(EXIT(ch, dir)->keyword));
+                acc_sprintf("%s", buf);
+            }
+        }
+    }
+    page_string(ch->desc, acc_get_string());
+}
+
+static void
 look_in_direction(struct creature *ch, int dir)
 {
-    struct room_affect_data *aff;
-
-    if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED) &&
-        GET_LEVEL(ch) < LVL_AMBASSADOR) {
+    if (ROOM_FLAGGED(ch->in_room, ROOM_SMOKE_FILLED) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
         send_to_char(ch, "The thick smoke limits your vision.\r\n");
         return;
     }
     if (EXIT(ch, dir)) {
-        acc_string_clear();
-        if (EXIT(ch, dir)->general_description) {
-            acc_sprintf("%s", EXIT(ch, dir)->general_description);
-        } else if (IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR | EX_CLOSED) &&
-                   EXIT(ch, dir)->keyword) {
-            acc_sprintf("You see %s %s.\r\n", AN(fname(EXIT(ch,
-                                                            dir)->keyword)), fname(EXIT(ch, dir)->keyword));
-        } else if (EXIT(ch, dir)->to_room) {
-            if ((IS_SET(EXIT(ch, dir)->exit_info, EX_NOPASS) &&
-                 GET_LEVEL(ch) < LVL_AMBASSADOR) ||
-                IS_SET(EXIT(ch, dir)->exit_info, EX_HIDDEN)) {
-                acc_sprintf("You see nothing special.\r\n");
-            } else if (EXIT(ch, dir)->to_room->name) {
-                acc_sprintf("%s", CCCYN(ch, C_NRM));
-                if (PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
-                    sprintbit((long)ROOM_FLAGS(EXIT(ch, dir)->to_room), room_bits, buf, sizeof(buf));
-                    acc_sprintf("[%5d] %s [ %s] [ %s ]", EXIT(ch, dir)->to_room->number,
-                                EXIT(ch, dir)->to_room->name, buf, sector_types[EXIT(ch, dir)->to_room->sector_type]);
-                } else {
-                    acc_sprintf("%s", EXIT(ch, dir)->to_room->name);
-                }
-                acc_sprintf("%s", CCNRM(ch, C_NRM));
-                acc_sprintf("\r\n");
-                for (aff = ch->in_room->affects; aff; aff = aff->next) {
-                    if (aff->type == dir && aff->description) {
-                        acc_sprintf("%s", aff->description);
-                    }
-                }
-            } else {
-                acc_sprintf("You see nothing special.\r\n");
-            }
-        }
-        if (EXIT(ch, dir)->to_room && (!IS_SET(EXIT(ch, dir)->exit_info,
-                                               EX_ISDOOR | EX_CLOSED | EX_HIDDEN | EX_NOPASS) ||
-                                       PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
-
-            if (room_is_dark(EXIT(ch, dir)->to_room) && !PRF_FLAGGED(ch, PRF_HOLYLIGHT) &&
-                CHECK_SKILL(ch, SKILL_NIGHT_VISION) < number(GET_LEVEL(ch),
-                                                             101)) {
-                send_to_char(ch,
-                             "It's too dark there to see anything special.\r\n");
-            } else {
-                /* now list characters & objects */
-                acc_sprintf("%s", CCGRN(ch, C_NRM));
-                list_obj_to_char(EXIT(ch, dir)->to_room->contents, ch, SHOW_OBJ_ROOM, false);
-                acc_sprintf("%s", CCYEL(ch, C_NRM));
-                list_char_to_char(EXIT(ch, dir)->to_room->people, ch);
-                acc_sprintf("%s", CCNRM(ch, C_NRM));
-            }
-        }
-
-        if (!IS_SET(EXIT(ch, dir)->exit_info, EX_HIDDEN | EX_NOPASS)) {
-            if (IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED)
-                && EXIT(ch, dir)->keyword) {
-                acc_sprintf("The %s %s closed.\r\n", fname(EXIT(ch,
-                                                                dir)->keyword), ISARE(fname(EXIT(ch,
-                                                                                                 dir)->keyword)));
-            } else if (IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR) &&
-                       EXIT(ch, dir)->keyword) {
-                acc_sprintf("The %s %s open.\r\n", fname(EXIT(ch,
-                                                              dir)->keyword), ISARE(fname(EXIT(ch,
-                                                                                               dir)->keyword)));
-                if (EXIT(ch, dir)->to_room != NULL && room_is_dark(EXIT(ch, dir)->to_room) &&
-                    !EXIT(ch, dir)->general_description) {
-                    snprintf(buf, sizeof(buf),
-                             "It's too dark through the %s to see anything.\r\n",
-                             fname(EXIT(ch, dir)->keyword));
-                    acc_sprintf("%s", buf);
-                }
-            }
-        }
-        page_string(ch->desc, acc_get_string());
-    } else {
-
-        if (ch->in_room->sector_type == SECT_PITCH_SUB) {
+        look_at_exit(ch, dir);
+        return;
+    }
+    if (ch->in_room->sector_type == SECT_PITCH_SUB && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+        send_to_char(ch,
+                     "You cannot see anything through the black pitch.\r\n");
+        return;
+    }
+    struct sector *sector = sector_by_idnum(ch->in_room->sector_type);
+    switch (dir) {
+    case FUTURE:
+        if (ch->in_room->zone->plane >= PLANE_HELL_1 &&
+            ch->in_room->zone->plane <= PLANE_HELL_9) {
             send_to_char(ch,
-                         "You cannot see anything through the black pitch.\r\n");
-            return;
+                         "From here, it looks like things are only going to get worse.\r\n");
+        } else if (ch->in_room->zone->plane == PLANE_ASTRAL) {
+            send_to_char(ch, "You gaze into infinity.\r\n");
+        } else {
+            send_to_char(ch,
+                         "You try and try, but cannot see into the future.\r\n");
         }
-        switch (dir) {
-        case FUTURE:
-            if (ch->in_room->zone->plane >= PLANE_HELL_1 &&
-                ch->in_room->zone->plane <= PLANE_HELL_9) {
-                send_to_char(ch,
-                             "From here, it looks like things are only going to get worse.\r\n");
-            } else if (ch->in_room->zone->plane == PLANE_ASTRAL) {
-                send_to_char(ch, "You gaze into infinity.\r\n");
-            } else {
-                send_to_char(ch,
-                             "You try and try, but cannot see into the future.\r\n");
-            }
-            break;
-        case PAST:
-            if (ch->in_room->zone->plane == PLANE_ASTRAL) {
-                send_to_char(ch, "You gaze into infinity.\r\n");
-            } else {
-                send_to_char(ch,
-                             "You try and try, but cannot see into the past.\r\n");
-            }
-            break;
-        case UP:
-            if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_INDOORS)) {
-                send_to_char(ch, "You see the ceiling above you.\r\n");
-            } else if (GET_PLANE(ch->in_room) == PLANE_HELL_8) {
+        break;
+    case PAST:
+        if (ch->in_room->zone->plane == PLANE_ASTRAL) {
+            send_to_char(ch, "You gaze into infinity.\r\n");
+        } else {
+            send_to_char(ch,
+                         "You try and try, but cannot see into the past.\r\n");
+        }
+        break;
+    case UP:
+        if (sector && sector->up_desc) {
+            send_to_char(ch, "%s\r\n", sector->up_desc);
+        } else if (sector && sector->opensky) {
+            if (GET_PLANE(ch->in_room) == PLANE_HELL_8) {
                 send_to_char(ch, "Snow and sleet rage across the sky.\r\n");
             } else if (GET_PLANE(ch->in_room) == PLANE_HELL_6 ||
                        GET_PLANE(ch->in_room) == PLANE_HELL_7) {
@@ -1641,117 +1649,63 @@ look_in_direction(struct creature *ch, int dir)
                              "The sky is a deep red, covered by clouds of dark ash.\r\n");
             } else if (GET_PLANE(ch->in_room) == PLANE_HELL_3) {
                 send_to_char(ch, "The sky is cold and grey.\r\n"
-                                 "It looks like the belly of one giant thunderstorm.\r\n");
+                             "It looks like the belly of one giant thunderstorm.\r\n");
             } else if (GET_PLANE(ch->in_room) == PLANE_HELL_2) {
                 send_to_char(ch,
                              "The sky is dull green, flickering with lightning.\r\n");
             } else if (GET_PLANE(ch->in_room) == PLANE_HELL_1) {
                 send_to_char(ch, "The dark sky is crimson and starless.\r\n");
-            } else if (GET_PLANE(ch->in_room) == PLANE_COSTAL) {
-                send_to_char(ch,
-                             "Great swirls of pink, green, and blue cover the sky.\r\n");
-            } else if ((ch->in_room->sector_type == SECT_CITY)
-                       || (ch->in_room->sector_type == SECT_FOREST)
-                       || (ch->in_room->sector_type == SECT_HILLS)
-                       || (ch->in_room->sector_type == SECT_FIELD)
-                       || (ch->in_room->sector_type == SECT_FARMLAND)
-                       || (ch->in_room->sector_type == SECT_SWAMP)
-                       || (ch->in_room->sector_type == SECT_DESERT)
-                       || (ch->in_room->sector_type == SECT_JUNGLE)
-                       || (ch->in_room->sector_type == SECT_ROCK)
-                       || (ch->in_room->sector_type == SECT_MUDDY)
-                       || (ch->in_room->sector_type == SECT_TRAIL)
-                       || (ch->in_room->sector_type == SECT_TUNDRA)
-                       || (ch->in_room->sector_type == SECT_CRACKED_ROAD)
-                       || (ch->in_room->sector_type == SECT_ROAD)) {
-                if (ch->in_room->zone->weather->sunlight == SUN_DARK) {
-                    if (ch->in_room->zone->weather->sky == SKY_LIGHTNING) {
-                        send_to_char(ch,
-                                     "Lightning flashes across the dark sky above you.\r\n");
-                    } else if (ch->in_room->zone->weather->sky == SKY_RAINING) {
-                        send_to_char(ch,
-                                     "Rain pelts your face as you look to the night sky.\r\n");
-                    } else if (ch->in_room->zone->weather->sky == SKY_CLOUDLESS) {
-                        send_to_char(ch,
-                                     "Glittering stars shine like jewels upon the sea.\r\n");
-                    } else if (ch->in_room->zone->weather->sky == SKY_CLOUDY) {
-                        send_to_char(ch,
-                                     "Thick dark clouds obscure the night sky.\r\n");
-                    } else {
-                        send_to_char(ch, "You see the sky above you.\r\n");
-                    }
-                } else {
-                    if (ch->in_room->zone->weather->sky == SKY_LIGHTNING) {
-                        send_to_char(ch,
-                                     "Lightning flashes across the sky above you.\r\n");
-                    } else if (ch->in_room->zone->weather->sky == SKY_RAINING) {
-                        send_to_char(ch,
-                                     "Rain pelts your face as you look to the sky.\r\n");
-                    } else if (ch->in_room->zone->weather->sky == SKY_CLOUDLESS) {
-                        send_to_char(ch,
-                                     "You see the expansive blue sky, not a cloud in sight.\r\n");
-                    } else if (ch->in_room->zone->weather->sky == SKY_CLOUDY) {
-                        send_to_char(ch,
-                                     "Thick dark clouds obscure the sky above you.\r\n");
-                    } else {
-                        send_to_char(ch, "You see the sky above you.\r\n");
-                    }
-                }
-            } else if (ch->in_room->sector_type == SECT_DEEP_OCEAN) {
-                send_to_char(ch, "You see dark waters above you.\r\n");
-            } else if (room_is_underwater(ch->in_room)) {
-                send_to_char(ch, "You see water above you.\r\n");
-            } else {
-                send_to_char(ch, "Nothing special there...\r\n");
-            }
-            break;
-        case DOWN:
-            if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_INDOORS)) {
-                send_to_char(ch, "You see the floor below you.\r\n");
-            } else if ((ch->in_room->sector_type == SECT_CITY) ||
-                       (ch->in_room->sector_type == SECT_FOREST) ||
-                       (ch->in_room->sector_type == SECT_HILLS) ||
-                       (ch->in_room->sector_type == SECT_FIELD) ||
-                       (ch->in_room->sector_type == SECT_FARMLAND) ||
-                       (ch->in_room->sector_type == SECT_JUNGLE) ||
-                       (ch->in_room->sector_type == SECT_TRAIL) ||
-                       (ch->in_room->sector_type == SECT_TUNDRA) ||
-                       (ch->in_room->sector_type == SECT_CRACKED_ROAD) ||
-                       (ch->in_room->sector_type == SECT_JUNGLE) ||
-                       (ch->in_room->sector_type == SECT_ROAD)) {
-                send_to_char(ch, "You see the ground below you.\r\n");
-            } else if ((ch->in_room->sector_type == SECT_MOUNTAIN) ||
-                       (ch->in_room->sector_type == SECT_ROCK) ||
-                       (ch->in_room->sector_type == SECT_CATACOMBS)) {
-                send_to_char(ch, "You see the rocky ground below you.\r\n");
-            } else if (ch->in_room->sector_type == SECT_SWAMP) {
-                send_to_char(ch,
-                             "You see the swampy ground below your feet.\r\n");
-            } else if (room_is_watery(ch->in_room)) {
-                send_to_char(ch, "You see the water below you.\r\n");
-            } else if (room_is_open_air(ch->in_room)) {
-                if (ch->in_room->sector_type == SECT_FLYING ||
-                    ch->in_room->sector_type == SECT_ELEMENTAL_AIR) {
-                    send_to_char(ch, "Below your feet is thin air.\r\n");
-                } else if (ch->in_room->sector_type == SECT_ELEMENTAL_LIGHTNING) {
+            } else if (ch->in_room->zone->weather->sunlight == SUN_DARK) {
+                if (ch->in_room->zone->weather->sky == SKY_LIGHTNING) {
                     send_to_char(ch,
-                                 "Elemental lightning flickers beneath your feet.\r\n");
-                } else {
+                                 "Lightning flashes across the dark sky above you.\r\n");
+                } else if (ch->in_room->zone->weather->sky == SKY_RAINING) {
                     send_to_char(ch,
-                                 "Nothing substantial lies below your feet.\r\n");
+                                 "Rain pelts your face as you look to the night sky.\r\n");
+                } else if (ch->in_room->zone->weather->sky == SKY_CLOUDLESS) {
+                    send_to_char(ch,
+                                 "Glittering stars shine like jewels upon the sea.\r\n");
+                } else if (ch->in_room->zone->weather->sky == SKY_CLOUDY) {
+                    send_to_char(ch,
+                                 "Thick dark clouds obscure the night sky.\r\n");
+                } else {
+                    send_to_char(ch, "You see the sky above you.\r\n");
                 }
-            } else if (ch->in_room->sector_type == SECT_DESERT) {
-                send_to_char(ch, "You see the sands below your feet.\r\n");
-            } else if (ch->in_room->sector_type == SECT_MUDDY) {
-                send_to_char(ch, "You see the mud underneath your feet.\r\n");
             } else {
-                send_to_char(ch, "Nothing special there...\r\n");
+                if (ch->in_room->zone->weather->sky == SKY_LIGHTNING) {
+                    send_to_char(ch,
+                                 "Lightning flashes across the sky above you.\r\n");
+                } else if (ch->in_room->zone->weather->sky == SKY_RAINING) {
+                    send_to_char(ch,
+                                 "Rain pelts your face as you look to the sky.\r\n");
+                } else if (ch->in_room->zone->weather->sky == SKY_CLOUDLESS) {
+                    send_to_char(ch,
+                                 "You see the expansive blue sky, not a cloud in sight.\r\n");
+                } else if (ch->in_room->zone->weather->sky == SKY_CLOUDY) {
+                    send_to_char(ch,
+                                 "Thick dark clouds obscure the sky above you.\r\n");
+                } else {
+                    send_to_char(ch, "You see the sky above you.\r\n");
+                }
             }
-            break;
-        default:
-            send_to_char(ch, "Nothing special there...\r\n");
-            break;
+        } else {
+            send_to_char(ch, "Nothing special up there.\r\n");
         }
+        break;
+    case DOWN:
+        if (sector && sector->down_desc) {
+            send_to_char(ch, "%s\r\n", sector->down_desc);
+        } else {
+            send_to_char(ch, "Nothing special down there.\r\n");
+        }
+        break;
+    default:
+        if (sector && sector->side_desc) {
+            send_to_char(ch, "%s\r\n", sector->side_desc);
+        } else {
+            send_to_char(ch, "Nothing special in that direction.\r\n");
+        }
+        break;
     }
 }
 

@@ -24,6 +24,7 @@
 #include "defs.h"
 #include "desc_data.h"
 #include "macros.h"
+#include "sector.h"
 #include "room_data.h"
 #include "zone_data.h"
 #include "race.h"
@@ -832,19 +833,19 @@ do_olc_rset(struct creature *ch, char *argument)
             return;
         }
         if (!is_number(arg2)) {
-            if ((i = search_block(arg2, sector_types, 0)) < 0) {
+            struct sector *sector = sector_by_name(arg2, false);
+            if (!sector) {
                 send_to_char(ch,
                              "No such sector type.  Type olc h rsect.\r\n");
                 return;
-            } else {
-                ch->in_room->sector_type = i;
             }
+            ch->in_room->sector_type = sector->idnum;
         } else {
             ch->in_room->sector_type = atoi(arg2);
         }
 
         send_to_char(ch, "Room sector type set to: %s.\r\n",
-                     sector_types[(int)ch->in_room->sector_type]);
+                     sector_name_by_idnum(ch->in_room->sector_type));
         break;
 
     case 3:                    /* rflags */

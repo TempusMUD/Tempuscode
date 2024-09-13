@@ -35,9 +35,11 @@
 #include "clan.h"
 #include "desc_data.h"
 #include "macros.h"
+#include "sector.h"
 #include "room_data.h"
 #include "zone_data.h"
 #include "race.h"
+#include "sector.h"
 #include "creature.h"
 #include "libpq-fe.h"
 #include "db.h"
@@ -373,6 +375,8 @@ boot_db(void)
     boot_races("etc/races.xml");
     slog("Loading NPC voices.");
     boot_voices();
+    slog("Loading sectors");
+    boot_sectors("etc/sectors.xml");
 
     boot_dynamic_text();
     boot_world();

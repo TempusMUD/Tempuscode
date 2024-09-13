@@ -1,0 +1,272 @@
+<sectors>
+  <sector idnum="0" name="Inside" moveloss="1">
+    <descriptions>
+      <up>You see the ceiling.</up>
+      <down>You see the floor below you.</down>
+      <side>You see a wall.</side>
+    </descriptions>
+  </sector>
+  <sector idnum="1" name="City" moveloss="1">
+    <opensky/>
+    <descriptions>
+      <down>You see the street below you.</down>
+      <side>You see the side of a building.</side>
+    </descriptions>
+  </sector>
+  <sector idnum="2" name="Field" moveloss="2">
+    <opensky/>
+    <descriptions>
+      <down>You see the grass below you.</down>
+      <side>You see grass all around you.</side>
+    </descriptions>
+  </sector>
+  <sector idnum="3" name="Forest" moveloss="3">
+    <opensky/>
+    <descriptions>
+      <down>You see the dirt below you.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="4" name="Hills" moveloss="4">
+    <opensky/>
+    <descriptions>
+      <down>You see the rocky dirt below you.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="5" name="Mountains" moveloss="5">
+    <opensky/>
+    <descriptions>
+      <down>You see the rocks below you.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="6" name="Water (Swim)" moveloss="3">
+    <opensky/>
+    <descriptions>
+      <down>You see the water below you.</down>
+    </descriptions>
+    <watery/>
+  </sector>
+  <sector idnum="7" name="Water (No Swim)" moveloss="3">
+    <opensky/>
+    <descriptions>
+      <down>You see the water below you.</down>
+    </descriptions>
+    <watery/>
+    <airless/>
+    <underwater/>
+  </sector>
+  <sector idnum="8" name="Underwater" moveloss="4">
+    <descriptions>
+      <down>You see the water below you.</down>
+    </descriptions>
+    <watery/>
+    <airless/>
+    <underwater/>
+  </sector>
+  <sector idnum="9" name="Flying" moveloss="2">
+    <opensky/>
+    <descriptions>
+      <down>Below your feet is thin air.</down>
+    </descriptions>
+    <groundless/>
+  </sector>
+  <sector idnum="10" name="Notime" moveloss="1">
+    <descriptions>
+      <down>You see the surface below you.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="11" name="Climbing" moveloss="6">
+    <opensky/>
+  </sector>
+  <sector idnum="12" name="Outer Space" moveloss="2">
+    <descriptions>
+      <up>You see a vast starry expance.</up>
+      <side>You see a vast starry expance.</side>
+      <down>You see a vast starry expanse.</down>
+    </descriptions>
+    <airless/>
+    <groundless/>
+  </sector>
+  <sector idnum="13" name="Road" moveloss="2">
+    <opensky/>
+    <descriptions>
+      <down>You see the road going ever and on.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="14" name="Vehicle" moveloss="1">
+  </sector>
+  <sector idnum="15" name="Farmland" moveloss="2">
+    <opensky/>
+    <descriptions>
+      <down>You see the soil below you.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="16" name="Swamp" moveloss="3">
+    <opensky/>
+    <descriptions>
+      <down>You see the mud below you.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="17" name="Desert" moveloss="2">
+    <opensky/>
+    <descriptions>
+      <down>You see the sands underneath your feet.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="18" name="Fire River" moveloss="3">
+    <descriptions>
+      <down>You see the fire flowing beneath you.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="19" name="Jungle" moveloss="1">
+    <opensky/>
+    <descriptions>
+      <down>You see a patchwork of vines and foilage.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="20" name="Pitch Surface" moveloss="1">
+    <descriptions>
+      <down>You see dark pitch in which you are immersed.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="21" name="Pitch Submerged" moveloss="1">
+    <descriptions>
+      <up>You cannot see anything through the black pitch.</up>
+      <down>You cannot see anything through the black pitch.</down>
+      <side>You cannot see anything through the black pitch.</side>
+    </descriptions>
+    <airless/>
+  </sector>
+  <sector idnum="22" name="Beach" moveloss="3">
+    <descriptions>
+      <down>You see the white sands beneath your feet.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="23" name="Astral" moveloss="1">
+    <descriptions>
+      <down>The astral space continues to infinity.</down>
+    </descriptions>
+    <groundless/>
+  </sector>
+  <sector idnum="24" name="Elemental Fire" moveloss="3">
+    <descriptions>
+      <down>You see endless fire beneath your feet.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="25" name="Elemental Earth" moveloss="2">
+    <descriptions>
+      <down>You see dirt beneath your feet.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="26" name="Elemental Air" moveloss="1">
+    <descriptions>
+      <down>You see air and clouds below you.</down>
+    </descriptions>
+    <groundless/>
+  </sector>
+  <sector idnum="27" name="Elemental Water" moveloss="4">
+    <descriptions>
+      <down>You see water below you.</down>
+    </descriptions>
+    <watery/>
+    <airless/>
+    <underwater/>
+  </sector>
+  <sector idnum="28" name="Elemental Positive" moveloss="0">
+    <descriptions>
+      <up>You see endless light in all directions.</up>
+      <side>You see endless light in all directions.</side>
+      <down>You see endless light in all directions.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="29" name="Elemental Negative" moveloss="5">
+    <descriptions>
+      <up>You see endless darkness in all directions.</up>
+      <side>You see endless darkness in all directions.</side>
+      <down>You see endless darkness in all directions.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="30" name="Elemental Smoke" moveloss="3">
+    <descriptions>
+      <up>Thick smoke swirls all around you.</up>
+      <side>Thick smoke swirls all around you.</side>
+      <down>Thick smoke swirls all around you.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="31" name="Elemental Ice" moveloss="8">
+    <descriptions>
+      <up>You see an icy ceiling above you.</up>
+      <side>There is an icy wall there.</side>
+      <down>You see slick ice beneath your feet.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="32" name="Elemental Ooze" moveloss="8">
+    <airless/>
+  </sector>
+  <sector idnum="33" name="Elemental Magma" moveloss="9">
+  </sector>
+  <sector idnum="34" name="Elemental Lightning" moveloss="6">
+    <descriptions>
+      <down>Elemental lightning flickers beneath your feet.</down>
+    </descriptions>
+    <groundless/>
+  </sector>
+  <sector idnum="35" name="Elemental Steam" moveloss="4">
+  </sector>
+  <sector idnum="36" name="Elemental Radiance" moveloss="1">
+    <groundless/>
+  </sector>
+  <sector idnum="37" name="Elemental Minerals" moveloss="1">
+  </sector>
+  <sector idnum="38" name="Elemental Vacuum" moveloss="1">
+    <groundless/>
+  </sector>
+  <sector idnum="39" name="Elemental Salt" moveloss="4">
+  </sector>
+  <sector idnum="40" name="Elemental Ash" moveloss="3">
+  </sector>
+  <sector idnum="41" name="Elemental Dust" moveloss="3">
+  </sector>
+  <sector idnum="42" name="Blood" moveloss="4">
+  </sector>
+  <sector idnum="43" name="Rock" moveloss="1">
+    <descriptions>
+      <down>You see rock beneath your feet.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="44" name="Muddy" moveloss="4">
+    <descriptions>
+      <down>You see mud under your feet.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="45" name="Trail" moveloss="3">
+    <descriptions>
+      <down>You see the trail under your feet.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="46" name="Tundra" moveloss="3">
+    <descriptions>
+      <down>You see mossy rocks under your feet.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="47" name="Catacombs" moveloss="1">
+    <descriptions>
+      <up>You see the rocky cavern ceiling above you.</up>
+      <side>There is a rough rock wall there.</side>
+      <down>You see dusty rocks under your feet.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="48" name="Cracked Road" moveloss="1">
+    <descriptions>
+      <down>You see the unkempt cracked surface of the road.</down>
+    </descriptions>
+  </sector>
+  <sector idnum="49" name="Deep Ocean" moveloss="6">
+    <descriptions>
+      <up>You see dark waters above you.</up>
+      <down>You see water beneath your feet.</down>
+    </descriptions>
+    <watery/>
+    <airless/>
+    <underwater/>
+  </sector>
+</sectors>

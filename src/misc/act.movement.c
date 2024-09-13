@@ -37,6 +37,7 @@
 #include "room_data.h"
 #include "zone_data.h"
 #include "race.h"
+#include "sector.h"
 #include "creature.h"
 #include "db.h"
 #include "account.h"
@@ -200,8 +201,8 @@ can_travel_sector(struct creature *ch, int sector_type, bool active)
 
         if (sector_type == SECT_WATER_NOSWIM) {
             if (AFF_FLAGGED(ch, AFF_WATERWALK)
-                || GET_POSITION(ch) >= POS_FLYING || (IS_ELEMENTAL(ch)
-                                                      && GET_CLASS(ch) == CLASS_WATER)) {
+                || GET_POSITION(ch) >= POS_FLYING
+                || (IS_ELEMENTAL(ch) && GET_CLASS(ch) == CLASS_WATER)) {
                 return true;
             }
             for (obj = ch->carrying; obj; obj = obj->next_content) {
@@ -665,9 +666,9 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
         return 1;
     }
 
-    need_movement = (movement_loss[ch->in_room->sector_type] +
-                     movement_loss[ch->in_room->dir_option[dir]->
-                                   to_room->sector_type]) / 2;
+    need_movement = (sector_by_idnum(ch->in_room->sector_type)->moveloss +
+                     sector_by_idnum(ch->in_room->dir_option[dir]->
+                                     to_room->sector_type)->moveloss) / 2;
 
     need_movement += (((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 2) /
                       CAN_CARRY_W(ch));

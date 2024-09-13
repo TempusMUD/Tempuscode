@@ -22,6 +22,7 @@
 #include "defs.h"
 #include "desc_data.h"
 #include "macros.h"
+#include "sector.h"
 #include "room_data.h"
 #include "zone_data.h"
 #include "race.h"
@@ -150,7 +151,7 @@ add_bomb_room(struct room_data *room, int fromdir, int p_factor)
                 && !IS_SET(room->dir_option[dir]->exit_info, EX_ONEWAY)
                 && (fromdir < 0 || rev_dir[fromdir] != dir)) {
                 new_factor = p_factor - (p_factor / 10) -
-                             (movement_loss[room->sector_type] * 16) -
+                    (sector_by_idnum(room->sector_type)->moveloss * 16) -
                              (IS_SET(room->dir_option[dir]->exit_info,
                                      EX_ISDOOR) ? 5 : 0) -
                              (IS_SET(room->dir_option[dir]->exit_info,

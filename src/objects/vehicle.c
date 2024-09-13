@@ -25,6 +25,7 @@
 #include "defs.h"
 #include "desc_data.h"
 #include "macros.h"
+#include "sector.h"
 #include "room_data.h"
 #include "zone_data.h"
 #include "race.h"
@@ -251,8 +252,8 @@ move_car(struct creature *ch, struct obj_data *car, int dir)
     }
 
     if (engine) {
-        energy_cost = ((movement_loss[car->in_room->sector_type] +
-                        movement_loss[dest->sector_type]) * USE_RATE(engine));
+        energy_cost = ((sector_by_idnum(car->in_room->sector_type)->moveloss +
+                        sector_by_idnum(dest->sector_type)->moveloss) * USE_RATE(engine));
         REMOVE_BIT(ENGINE_STATE(engine), ENG_PARK);
 
         CUR_ENERGY(engine) = MAX(0, CUR_ENERGY(engine) - energy_cost);

@@ -112,6 +112,7 @@ check_tempus_LDADD = \
                  $(top_builddir)/src/structs/players.o \
                  $(top_builddir)/src/structs/race.o \
                  $(top_builddir)/src/structs/room_data.o \
+                 $(top_builddir)/src/structs/sector.o \
                  $(top_builddir)/src/util/accstr.o \
                  $(top_builddir)/src/util/handler.o \
                  $(top_builddir)/src/util/gpqueue.o \

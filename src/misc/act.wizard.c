@@ -38,6 +38,7 @@
 #include "room_data.h"
 #include "zone_data.h"
 #include "race.h"
+#include "sector.h"
 #include "creature.h"
 #include "db.h"
 #include "account.h"
@@ -1140,11 +1141,10 @@ do_stat_room(struct creature *ch, char *roomstr)
     acc_sprintf("Room name: %s%s%s\r\n", CCCYN(ch, C_NRM), rm->name,
                 CCNRM(ch, C_NRM));
 
-    acc_sprintf
-        ("Zone: [%s%3d%s], VNum: [%s%5d%s], Type: %s, Lighting: [%d], Max: [%d]\r\n",
-        CCYEL(ch, C_NRM), rm->zone->number, CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
-        rm->number, CCNRM(ch, C_NRM), strlist_aref(rm->sector_type,
-                                                   sector_types), rm->light, rm->max_occupancy);
+    acc_sprintf("Zone: [%s%3d%s], VNum: [%s%5d%s], Type: %s, Lighting: [%d], Max: [%d]\r\n",
+                CCYEL(ch, C_NRM), rm->zone->number, CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
+                rm->number, CCNRM(ch, C_NRM), sector_name_by_idnum(rm->sector_type),
+                rm->light, rm->max_occupancy);
 
     acc_sprintf("SpecProc: %s, Flags: %s\r\n",
                 (rm->func == NULL) ? "None" :
@@ -4753,14 +4753,14 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
             return -1;
         }
 
-        num = search_block(arg, sector_types, 0);
-        if (num < 0) {
+        struct sector *sector = sector_by_name(arg, 0);
+        if (!sector) {
             send_to_char(ch, "No such sector type.  Type olc h rsect.\r\n");
             return -1;
         }
 
         for (room = zone->world; room; room = room->next) {
-            if (room->sector_type == num) {
+            if (room->sector_type == sector->idnum) {
                 show_room_append(ch, room, mode, NULL);
                 found = 1;
             }
