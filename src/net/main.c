@@ -22,7 +22,7 @@
 #include "creature.h"
 #include "db.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "strutil.h"
 
 extern int DFLT_PORT;
@@ -56,7 +56,6 @@ main(int argc, char **argv)
     main_port = DFLT_PORT;
 
     tmp_string_init();
-    acc_string_init();
 
     setlocale(LC_ALL, "");
 

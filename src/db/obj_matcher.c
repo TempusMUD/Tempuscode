@@ -44,7 +44,7 @@
 #include "obj_data.h"
 #include "strutil.h"
 #include "comm.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "materials.h"
 #include "specs.h"
 #include "spells.h"
@@ -545,7 +545,7 @@ do_show_objects(struct creature *ch, char *value, char *argument)
     struct obj_data *obj;
     int vnum, found;
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     found = 0;
 
     g_hash_table_iter_init(&iter, obj_prototypes);
@@ -562,7 +562,7 @@ do_show_objects(struct creature *ch, char *value, char *argument)
             }
         }
         if (matches) {
-            acc_sprintf("%3d. %s[%s%5d%s]%s %-50s%s", ++found,
+            sb_sprintf(&sb, "%3d. %s[%s%5d%s]%s %-50s%s", ++found,
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                         obj->shared->vnum,
                         CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
@@ -570,15 +570,15 @@ do_show_objects(struct creature *ch, char *value, char *argument)
             for (GList *cur_matcher = matchers; cur_matcher; cur_matcher = cur_matcher->next) {
                 struct obj_matcher *matcher = cur_matcher->data;
                 if (matcher->info) {
-                    acc_strcat(" ", matcher->info(ch, obj, matcher), NULL);
+                    sb_strcat(&sb, " ", matcher->info(ch, obj, matcher), NULL);
                 }
             }
-            acc_strcat("\r\n", NULL);
+            sb_strcat(&sb, "\r\n", NULL);
         }
     }
 
     if (found) {
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     } else {
         send_to_char(ch, "No matching objects found.\r\n");
     }

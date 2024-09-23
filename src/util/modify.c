@@ -38,7 +38,7 @@
 #include "creature.h"
 #include "db.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "strutil.h"
 
@@ -126,19 +126,19 @@ show_file(struct creature *ch, const char *fname, int lines)
         return;
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     char buf[32 << 10];
     while ((lines == 0 || lines-- != 0) && fgets(buf, sizeof(buf), inf)) {
         char *c = buf + strlen(buf) - 1;
         if (*c == '\n') {
             *c = '\0';
         }
-        acc_strcat(buf, "\r\n", NULL);
+        sb_strcat(&sb, buf, "\r\n", NULL);
     }
 
     fclose(inf);
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void

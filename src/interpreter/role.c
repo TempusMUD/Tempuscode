@@ -20,7 +20,7 @@
 #include "account.h"
 #include "screen.h"
 #include "players.h"
-#include "accstr.h"
+#include "str_builder.h"
 
 /*
  * The Security Namespace Role function definitions.
@@ -236,7 +236,7 @@ add_role_member(struct role *role, long player)
 
 /* Sends a list of this role's members to the given character. */
 void
-send_role_member_list(struct role *role,
+send_role_member_list(struct str_builder *sb, struct role *role,
                       struct creature *ch, const char *title, const char *admin_role_name)
 {
     int pos = 0;
@@ -251,12 +251,11 @@ send_role_member_list(struct role *role,
         admin_role = role_by_name(admin_role_name);
     }
 
-    acc_sprintf("\r\n\r\n        %s%s%s\r\n",
+    sb_sprintf(sb, "\r\n\r\n        %s%s%s\r\n",
                 CCYEL(ch, C_NRM), title, CCNRM(ch, C_NRM));
-    acc_sprintf
-        ("    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
+    sb_sprintf(sb, "    %so~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~%s\r\n",
         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-    acc_strcat("        ", NULL);
+    sb_strcat(sb, "        ", NULL);
 
 
     for (GList *it = role->members; it; it = it->next) {
@@ -265,15 +264,15 @@ send_role_member_list(struct role *role,
             continue;
         }
         if (admin_role && is_role_member(admin_role, GPOINTER_TO_INT(it->data))) {
-            acc_sprintf("%s%-15s%s",
+            sb_sprintf(sb, "%s%-15s%s",
                         CCYEL_BLD(ch, C_NRM), name, CCNRM(ch, C_NRM));
         } else {
-            acc_sprintf("%-15s", name);
+            sb_sprintf(sb, "%-15s", name);
         }
         pos++;
         if (pos > 3) {
             pos = 0;
-            acc_strcat("\r\n        ", NULL);
+            sb_strcat(sb, "\r\n        ", NULL);
         }
     }
 }

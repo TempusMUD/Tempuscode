@@ -29,7 +29,7 @@
 #include "screen.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "strutil.h"
 #include "prog.h"
 #include "editor.h"
@@ -59,13 +59,13 @@ load_dyntext_buffer(dynamic_text_file *dyntext)
 
     char line[1024];
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     while (fgets(line, 1024, fl)) {
-        acc_strcat(line, NULL);
+        sb_strcat(&sb, line, NULL);
     }
-    acc_strcat("\n", NULL);
+    sb_strcat(&sb, "\n", NULL);
     free(dyntext->buffer);
-    dyntext->buffer = strdup(tmp_gsub(acc_get_string(), "\n", "\r\n"));
+    dyntext->buffer = strdup(tmp_gsub(sb.str, "\n", "\r\n"));
     fclose(fl);
     return 0;
 }
@@ -894,9 +894,8 @@ ACMD(do_dyntext_show)
         strcpy_s(color3, sizeof(color3), color1);
     }
 
-    acc_string_clear();
-    acc_sprintf
-        ("   %s=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%s\r\n"
+    struct str_builder sb = str_builder_default;
+    sb_sprintf(&sb, "   %s=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-%s\r\n"
          "   %s_::::::  :::::::::  ::::::::::::  :::::::::  :::   :::  ::::::::\r\n"
          "     _:    :::        :::  ::  :::  :::    ::  :::   :::  :::\r\n"
          "    _:    :::::::    :::  ::  :::  :::::::::  :::   :::  ::::::::      %s%s%s\r\n"
@@ -906,12 +905,12 @@ ACMD(do_dyntext_show)
         color1, CCNRM(ch, C_NRM), color2, color3, humanname, CCNRM(ch, C_NRM),
         color2, CCNRM(ch, C_NRM), color1, CCNRM(ch, C_NRM));
 
-    acc_strcat(tmp_capitalize(tmp_sprintf("%s was last updated on %s\r\n", dynname,
+    sb_strcat(&sb, tmp_capitalize(tmp_sprintf("%s was last updated on %s\r\n", dynname,
                                           tmp_ctime(dyntext->last_edit[0].tEdit))),
                dyntext->buffer,
                NULL);
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void

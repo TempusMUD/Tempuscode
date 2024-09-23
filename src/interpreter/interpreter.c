@@ -38,7 +38,7 @@
 #include "account.h"
 #include "screen.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "bomb.h"
 #include "obj_data.h"
@@ -1897,15 +1897,15 @@ ACMD(do_alias)
     repl = argument;
 
     if (!*arg || !*repl) {      /* no argument specified -- list currently defined aliases */
-        acc_string_clear();
-        acc_strcat("Currently defined aliases:\r\n", NULL);
+        struct str_builder sb = str_builder_default;
+        sb_strcat(&sb, "Currently defined aliases:\r\n", NULL);
         cur_alias = GET_ALIASES(ch);
         if (!cur_alias) {
-            acc_strcat(" None.\r\n", NULL);
+            sb_strcat(&sb, " None.\r\n", NULL);
         } else {
             while (cur_alias != NULL) {
                 if (!*arg || is_abbrev(arg, cur_alias->alias)) {
-                    acc_sprintf("%s%-15s%s %s\r\n", CCCYN(ch, C_NRM),
+                    sb_sprintf(&sb, "%s%-15s%s %s\r\n", CCCYN(ch, C_NRM),
                                 cur_alias->alias, CCNRM(ch, C_NRM),
                                 cur_alias->replacement);
                     alias_cnt++;
@@ -1913,10 +1913,10 @@ ACMD(do_alias)
                 cur_alias = cur_alias->next;
             }
             if (!alias_cnt) {
-                acc_strcat(" None matching.\r\n", NULL);
+                sb_strcat(&sb, " None matching.\r\n", NULL);
             }
         }
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     } else {                    /* otherwise, add or display aliases */
         if (!strcasecmp(arg, "alias")) {
             send_to_char(ch, "You can't alias 'alias'.\r\n");

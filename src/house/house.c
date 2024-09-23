@@ -29,7 +29,7 @@
 #include "clan.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "xml_utils.h"
 #include "obj_data.h"
 #include "mail.h"
@@ -710,17 +710,16 @@ house_notify_repossession(struct house *house, struct creature *ch)
         return;
     }
     // Build the repossession note
-    acc_string_clear();
-    acc_strcat
-        ("The following items were sold at auction to cover your back rent:\r\n\r\n",
+    struct str_builder sb = str_builder_default;
+    sb_strcat(&sb, "The following items were sold at auction to cover your back rent:\r\n\r\n",
         NULL);
     for (struct txt_block *note = house->repo_notes; note; note = note->next) {
-        acc_strcat(note->text, "\r\n", NULL);
+        sb_strcat(&sb, note->text, "\r\n", NULL);
     }
 
-    acc_strcat("\r\n\r\nSincerely,\r\n    The Management\r\n", NULL);
+    sb_strcat(&sb, "\r\n\r\nSincerely,\r\n    The Management\r\n", NULL);
 
-    note->action_desc = strdup(acc_get_string());
+    note->action_desc = strdup(sb.str);
     note->plrtext_len = strlen(note->action_desc) + 1;
     obj_to_char(note, ch);
     send_to_char(ch,
@@ -827,8 +826,8 @@ load_houses(void)
     extern bool production_mode;
 
     if (production_mode && houses != NULL) {
-        acc_string_clear();
-        acc_sprintf("idnum in (");
+        struct str_builder sb = str_builder_default;
+        sb_sprintf(&sb, "idnum in (");
         bool first = true;
         for (GList *i = houses; i; i = i->next) {
             struct house *house = (struct house *)i->data;
@@ -837,15 +836,15 @@ load_houses(void)
                 if (first) {
                     first = false;
                 } else {
-                    acc_strcat(",", NULL);
+                    sb_strcat(&sb, ",", NULL);
                 }
-                acc_sprintf("%d", house->owner_id);
+                sb_sprintf(&sb, "%d", house->owner_id);
             }
         }
-        acc_strcat(")", NULL);
+        sb_strcat(&sb, ")", NULL);
 
         slog("Preloading accounts with houses...");
-        preload_accounts(acc_get_string());
+        preload_accounts(sb.str);
     }
 }
 
@@ -1040,30 +1039,30 @@ list_house_guests(struct house *house, struct creature *ch)
         return;
     }
 
-    acc_string_clear();
-    acc_strcat("     Guests: ", NULL);
+    struct str_builder sb = str_builder_default;
+    sb_strcat(&sb, "     Guests: ", NULL);
     for (GList *i = house->guests; i; i = i->next) {
-        acc_sprintf("%s ", player_name_by_idnum(GPOINTER_TO_INT(i->data)));
+        sb_sprintf(&sb, "%s ", player_name_by_idnum(GPOINTER_TO_INT(i->data)));
     }
-    acc_strcat("\r\n", NULL);
-    page_string(ch->desc, acc_get_string());
+    sb_strcat(&sb, "\r\n", NULL);
+    page_string(ch->desc, sb.str);
 }
 
 void
 list_house_rooms(struct house *house, struct creature *ch, bool show_contents)
 {
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     for (GList *i = house->rooms; i; i = i->next) {
         struct room_data *room = real_room(GPOINTER_TO_INT(i->data));
 
         if (room) {
-            acc_strcat(print_room_contents(ch, room, show_contents), NULL);
+            sb_strcat(&sb, print_room_contents(ch, room, show_contents), NULL);
         } else {
             errlog("Room [%5d] of House [%5d] does not exist.",
                    GPOINTER_TO_INT(i->data), house->id);
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void
@@ -1710,9 +1709,9 @@ match_houses(GList *houses, int mode, const char *arg)
 void
 display_houses(GList *houses, struct creature *ch)
 {
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_strcat("ID   Size Owner  Landlord   Type Rooms\r\n"
+    sb_strcat(&sb, "ID   Size Owner  Landlord   Type Rooms\r\n"
                "---- ---- ------ ---------- ---- -----"
                "-----------------------------------------\r\n", NULL);
 
@@ -1722,19 +1721,19 @@ display_houses(GList *houses, struct creature *ch)
         if (player_idnum_exists(house->landlord)) {
             landlord = player_name_by_idnum(house->landlord);
         }
-        acc_sprintf("%4d %4d %6d %-10s %4s ",
+        sb_sprintf(&sb, "%4d %4d %6d %-10s %4s ",
                     house->id,
                     g_list_length(house->rooms),
                     house->owner_id, landlord, house_type_short_name(house->type));
         if (house->rooms) {
-            acc_sprintf("%d", GPOINTER_TO_INT(house->rooms->data));
+            sb_sprintf(&sb, "%d", GPOINTER_TO_INT(house->rooms->data));
             for (GList *i = house->rooms; i; i = i->next) {
-                acc_sprintf(", %d", GPOINTER_TO_INT(i->data));
+                sb_sprintf(&sb, ", %d", GPOINTER_TO_INT(i->data));
             }
         }
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb, "\r\n", NULL);
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void

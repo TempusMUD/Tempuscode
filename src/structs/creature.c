@@ -1082,7 +1082,7 @@ creature_rent(struct creature *ch)
     remove_all_combat(ch);
     ch->player_specials->rentcode = RENT_RENTED;
     ch->player_specials->rent_per_day =
-        (GET_LEVEL(ch) < LVL_IMMORT) ? calc_daily_rent(ch, 1, NULL, false) : 0;
+        (GET_LEVEL(ch) < LVL_IMMORT) ? calc_daily_rent(ch, 1, NULL, NULL) : 0;
     ch->player_specials->desc_mode = CXN_UNKNOWN;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
     GET_LOADROOM(ch) = ch->in_room->number;
@@ -1185,7 +1185,7 @@ creature_quit(struct creature *ch)
     }
 
     ch->player_specials->rentcode = RENT_QUIT;
-    ch->player_specials->rent_per_day = calc_daily_rent(ch, 3, NULL, false);
+    ch->player_specials->rent_per_day = calc_daily_rent(ch, 3, NULL, NULL);
     ch->player_specials->desc_mode = CXN_UNKNOWN;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
     GET_LOADROOM(ch) = 0;
@@ -1210,7 +1210,7 @@ creature_idle(struct creature *ch)
         return false;
     }
     ch->player_specials->rentcode = RENT_FORCED;
-    ch->player_specials->rent_per_day = calc_daily_rent(ch, 3, NULL, false);
+    ch->player_specials->rent_per_day = calc_daily_rent(ch, 3, NULL, NULL);
     ch->player_specials->desc_mode = CXN_UNKNOWN;
     ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
     GET_LOADROOM(ch) = 0;
@@ -1315,7 +1315,7 @@ creature_arena_die(struct creature *ch)
         ch->player_specials->rentcode = RENT_RENTED;
         ch->player_specials->rent_per_day =
             (GET_LEVEL(ch) < LVL_IMMORT) ? calc_daily_rent(ch, 1, NULL,
-                                                           false) : 0;
+                                                           NULL) : 0;
         ch->player_specials->desc_mode = CXN_UNKNOWN;
         ch->player_specials->rent_currency = ch->in_room->zone->time_frame;
         GET_LOADROOM(ch) = ch->in_room->zone->respawn_pt;

@@ -41,7 +41,7 @@
 #include "account.h"
 #include "screen.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "obj_data.h"
 #include "actions.h"
@@ -108,19 +108,19 @@ rent_deadline(struct creature *ch, struct creature *recep, long cost)
 }
 
 void
-append_obj_rent(const char *currency_str, int count, struct obj_data *obj)
+append_obj_rent(struct str_builder *sb, const char *currency_str, int count, struct obj_data *obj)
 {
     if (count == 1) {
-        acc_sprintf("%'10u %s for %s\r\n", GET_OBJ_RENT(obj), currency_str,
+        sb_sprintf(sb, "%'10u %s for %s\r\n", GET_OBJ_RENT(obj), currency_str,
                     obj->name);
     } else {
-        acc_sprintf("%'10u %s for %s (x%d)\r\n",
+        sb_sprintf(sb, "%'10u %s for %s (x%d)\r\n",
                     GET_OBJ_RENT(obj) * count, currency_str, obj->name, count);
     }
 }
 
 long
-tally_obj_rent(struct obj_data *obj, const char *currency_str, bool display)
+tally_obj_rent(struct obj_data *obj, const char *currency_str, struct str_builder *sb)
 {
     struct obj_data *last_obj, *cur_obj;
     long total_cost = 0;
@@ -130,10 +130,8 @@ tally_obj_rent(struct obj_data *obj, const char *currency_str, bool display)
     while (cur_obj) {
         if (!obj_is_unrentable(cur_obj)) {
             total_cost += GET_OBJ_RENT(cur_obj);
-            if (last_obj->shared != cur_obj->shared && display) {
-                if (display) {
-                    append_obj_rent(currency_str, count, last_obj);
-                }
+            if (last_obj->shared != cur_obj->shared && sb) {
+                append_obj_rent(sb, currency_str, count, last_obj);
                 count = 1;
                 last_obj = cur_obj;
             } else {
@@ -149,8 +147,8 @@ tally_obj_rent(struct obj_data *obj, const char *currency_str, bool display)
             cur_obj = cur_obj->next_content;    // go to next obj
         }
     }
-    if (last_obj && display) {
-        append_obj_rent(currency_str, count, last_obj);
+    if (last_obj && sb) {
+        append_obj_rent(sb, currency_str, count, last_obj);
     }
 
     return total_cost;
@@ -172,8 +170,7 @@ find_receptionist_in_room(struct room_data *room)
 }
 
 long
-calc_daily_rent(struct creature *ch, int factor, char *currency_str,
-                bool display)
+calc_daily_rent(struct creature *ch, int factor, char *currency_str, struct str_builder *sb)
 {
     extern int min_rent_cost;
     struct obj_data *cur_obj;
@@ -202,12 +199,12 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str,
     for (pos = 0; pos < NUM_WEARS; pos++) {
         cur_obj = GET_EQ(ch, pos);
         if (cur_obj) {
-            total_cost += tally_obj_rent(cur_obj, currency_str, display);
+            total_cost += tally_obj_rent(cur_obj, currency_str, sb);
         }
     }
 
     if (ch->carrying) {
-        total_cost += tally_obj_rent(ch->carrying, currency_str, display);
+        total_cost += tally_obj_rent(ch->carrying, currency_str, sb);
     }
 
     level_adj = (3 * total_cost * (10 + GET_LEVEL(ch))) / 100 +
@@ -218,14 +215,14 @@ calc_daily_rent(struct creature *ch, int factor, char *currency_str,
         total_cost = adjusted_price(ch, receptionist, total_cost);
     }
 
-    if (display) {
-        acc_sprintf("%'10ld %s for level adjustment\r\n",
+    if (sb) {
+        sb_sprintf(sb, "%'10ld %s for level adjustment\r\n",
                     level_adj, currency_str);
         if (factor != 1) {
-            acc_sprintf("        x%d for services\r\n", factor);
+            sb_sprintf(sb, "        x%d for services\r\n", factor);
         }
-        acc_sprintf("-------------------------------------------\r\n");
-        acc_sprintf("%'10ld %s TOTAL\r\n", total_cost, currency_str);
+        sb_sprintf(sb, "-------------------------------------------\r\n");
+        sb_sprintf(sb, "%'10ld %s TOTAL\r\n", total_cost, currency_str);
     }
 
     return total_cost;
@@ -238,6 +235,7 @@ offer_rent(struct creature *ch, struct creature *receptionist,
     long total_money;
     long cost_per_day;
     char curr[64];
+    struct str_builder sb = str_builder_default;
 
     if (receptionist->in_room->zone->time_frame == TIME_ELECTRO) {
         strcpy_s(curr, sizeof(curr), "credits");
@@ -252,27 +250,25 @@ offer_rent(struct creature *ch, struct creature *receptionist,
     }
 
     if (display) {
-        acc_string_clear();
-        acc_sprintf("%s writes up a bill and shows it to you:\r\n",
+        struct str_builder sb = str_builder_default;
+        sb_sprintf(&sb, "%s writes up a bill and shows it to you:\r\n",
                     tmp_capitalize(PERS(receptionist, ch)));
     }
 
-    cost_per_day = calc_daily_rent(ch, factor, curr, display);
+    cost_per_day = calc_daily_rent(ch, factor, curr, &sb);
 
     if (display) {
         if (factor == RENT_FACTOR) {
             if (total_money < cost_per_day) {
-                acc_strcat
-                    ("You don't have enough money to rent for a single day!\r\n",
+                sb_strcat(&sb, "You don't have enough money to rent for a single day!\r\n",
                     NULL);
             } else if (cost_per_day) {
-                acc_sprintf
-                    ("Your %'ld %s is enough to rent for %s%'ld%s days.\r\n",
+                sb_sprintf(&sb, "Your %'ld %s is enough to rent for %s%'ld%s days.\r\n",
                     total_money, curr, CCCYN(ch, C_NRM),
                     total_money / cost_per_day, CCNRM(ch, C_NRM));
             }
         }
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     }
 
     return cost_per_day;

@@ -98,6 +98,7 @@ enum privilege {
 
 struct command_info;
 struct affected_type;
+struct str_builder;
 
 bool load_roles_from_db(void);
 bool is_authorized(struct creature *ch, enum privilege priv, /*@null@*/ void *target);
@@ -118,7 +119,8 @@ bool remove_role_member(struct role *role, long player);
 void send_role_status(struct role *role, struct creature *ch);
 void free_role(struct role *role);
 struct role *role_by_name(const char *name);
-void send_role_member_list(struct role *role,
+void send_role_member_list(struct str_builder *sb,
+                           struct role *role,
                            struct creature *ch,
                            const char *title,
                            const char *admin_role_name);

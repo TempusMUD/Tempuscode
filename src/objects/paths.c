@@ -30,7 +30,7 @@
 #include "vehicle.h"
 #include "obj_data.h"
 #include "paths.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "strutil.h"
 
 const char *PATH_FILE = "etc/paths";
@@ -190,28 +190,28 @@ show_pathobjs(struct creature *ch)
     struct path_object *p_obj = NULL;
     int count = 0;
 
-    acc_string_clear();
-    acc_strcat("Assigned paths:\r\n", NULL);
+    struct str_builder sb = str_builder_default;
+    sb_strcat(&sb, "Assigned paths:\r\n", NULL);
     for (lnk = path_object_list; lnk; lnk = lnk->next, count++) {
         p_obj = (struct path_object *)lnk->object;
         if (p_obj->type == PMOBILE && p_obj->object) {
-            acc_sprintf("%3d. MOB <%5d> %25s - %12s (%2d) %s\r\n",
+            sb_sprintf(&sb, "%3d. MOB <%5d> %25s - %12s (%2d) %s\r\n",
                         count,
                         ((struct creature *)p_obj->object)->mob_specials.shared->vnum,
                         ((struct creature *)p_obj->object)->player.short_descr,
                         p_obj->phead->name, p_obj->pos,
                         IS_SET(p_obj->flags, POBJECT_STALLED) ? "stalled" : "");
         } else if (p_obj->type == PVEHICLE && p_obj->object) {
-            acc_sprintf("%3d. OBJ <%5d> %25s - %12s (%2d) %s\r\n",
+            sb_sprintf(&sb, "%3d. OBJ <%5d> %25s - %12s (%2d) %s\r\n",
                         count, ((struct obj_data *)p_obj->object)->shared->vnum,
                         ((struct obj_data *)p_obj->object)->name,
                         p_obj->phead->name, p_obj->pos,
                         IS_SET(p_obj->flags, POBJECT_STALLED) ? "stalled" : "");
         } else {
-            acc_strcat("ERROR!\r\n", NULL);
+            sb_strcat(&sb, "ERROR!\r\n", NULL);
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 static void

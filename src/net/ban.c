@@ -37,7 +37,7 @@
 #include "creature.h"
 #include "db.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "xml_utils.h"
 #include "ban.h"
 #include "strutil.h"
@@ -257,9 +257,9 @@ show_bans(struct creature *ch)
         return;
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_strcat("* Site             Date            Banned by   Reason\r\n",
+    sb_strcat(&sb, "* Site             Date            Banned by   Reason\r\n",
                "- ---------------  --------------  ----------  -------------------------------\r\n",
                NULL);
 
@@ -272,11 +272,11 @@ show_bans(struct creature *ch)
         } else {
             strcpy_s(timestr, sizeof(timestr), "Unknown");
         }
-        acc_sprintf("%c %-15s  %-14s  %-10s  %-30s\r\n",
+        sb_sprintf(&sb, "%c %-15s  %-14s  %-10s  %-30s\r\n",
                     toupper(ban_types[node->type][0]), node->site,
                     timestr, node->name, node->reason);
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_ban)

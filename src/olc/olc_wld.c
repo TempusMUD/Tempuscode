@@ -35,7 +35,7 @@
 #include "house.h"
 #include "clan.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "flow_room.h"
 #include "obj_data.h"
 #include "specs.h"
@@ -1235,7 +1235,7 @@ ACMD(do_hedit)
         bool local = false;
         bool brief = false;
 
-        acc_string_clear();
+        struct str_builder sb = str_builder_default;
 
         argument = one_argument(argument, arg);
         skip_spaces(&argument);
@@ -1249,8 +1249,7 @@ ACMD(do_hedit)
         }
 
         if (brief) {
-            acc_strcat
-                ("-- House Room --------------------- Items ------- Cost\r\n",
+            sb_strcat(&sb, "-- House Room --------------------- Items ------- Cost\r\n",
                 NULL);
             for (GList *rit = house->rooms; rit; rit = rit->next) {
                 int cost = 0;
@@ -1275,17 +1274,16 @@ ACMD(do_hedit)
                 cost = room_rent_cost(house, room);
                 tot_cost += cost;
                 tot_num += num;
-                acc_sprintf("%s%-30s%s      %s%'5d%s   %'10d\r\n",
+                sb_sprintf(&sb, "%s%-30s%s      %s%'5d%s   %'10d\r\n",
                             CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM),
                             (num > MAX_HOUSE_ITEMS) ? CCRED(ch, C_NRM) : "",
                             num, CCNRM(ch, C_NRM), cost);
             }
             if (!local) {
-                acc_sprintf
-                    ("- Totals -------------------------- %'5d   %'10d\r\n",
+                sb_sprintf(&sb, "- Totals -------------------------- %'5d   %'10d\r\n",
                     tot_num, tot_cost);
             }
-            page_string(ch->desc, acc_get_string());
+            page_string(ch->desc, sb.str);
             return;
         }
         // not brief mode

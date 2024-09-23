@@ -22,7 +22,7 @@
 #include "account.h"
 #include "screen.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "obj_data.h"
 #include "prog.h"
 #include "editor.h"
@@ -80,15 +80,14 @@ gen_board_show(struct creature *ch)
         return;
     }
 
-    acc_string_clear();
-    acc_sprintf
-        ("Board                Count\r\n--------------------------\r\n");
+    struct str_builder sb = str_builder_default;
+    sb_sprintf(&sb, "Board                Count\r\n--------------------------\r\n");
     for (idx = 0; idx < count; idx++) {
-        acc_sprintf("%-20s %5s\r\n", PQgetvalue(res, idx, 0), PQgetvalue(res,
+        sb_sprintf(&sb, "%-20s %5s\r\n", PQgetvalue(res, idx, 0), PQgetvalue(res,
                                                                          idx, 1));
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void
@@ -250,17 +249,17 @@ gen_board_read(struct board_data *board, struct creature *ch, char *argument)
         send_to_char(ch, "That message does not exist on this board.\r\n");
         return;
     }
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     post_time = atol(PQgetvalue(res, 0, 0));
     strftime(time_buf, 30, "%a %b %e %Y", localtime(&post_time));
-    acc_sprintf("%sMessage %s : %s %-12s :: %s%s\r\n\r\n%s\r\n",
+    sb_sprintf(&sb, "%sMessage %s : %s %-12s :: %s%s\r\n\r\n%s\r\n",
                 CCBLD(ch, C_CMP),
                 argument,
                 time_buf,
                 tmp_sprintf("(%s)", PQgetvalue(res, 0, 1)),
                 CCNRM(ch, C_CMP), PQgetvalue(res, 0, 2), PQgetvalue(res, 0, 3));
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void
@@ -281,22 +280,21 @@ gen_board_list(struct board_data *board, struct creature *ch)
         return;
     }
 
-    acc_string_clear();
-    acc_sprintf
-        ("This is a bulletin board.  Usage: READ/REMOVE <messg #>, WRITE <header>\r\n%sThere %s %d message%s on the board.%s\r\n",
+    struct str_builder sb = str_builder_default;
+    sb_sprintf(&sb, "This is a bulletin board.  Usage: READ/REMOVE <messg #>, WRITE <header>\r\n%sThere %s %d message%s on the board.%s\r\n",
         CCGRN(ch, C_NRM), (count == 1) ? "is" : "are", count,
         (count == 1) ? "" : "s", CCNRM(ch, C_NRM));
 
     for (idx = 0; idx < count; idx++) {
         post_time = atol(PQgetvalue(res, idx, 0));
         strftime(time_buf, 30, "%b %e, %Y", localtime(&post_time));
-        acc_sprintf("%s%-2d %s:%s %s %-12s :: %s\r\n",
+        sb_sprintf(&sb, "%s%-2d %s:%s %s %-12s :: %s\r\n",
                     CCGRN(ch, C_NRM), count - idx, CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                     time_buf, tmp_sprintf("(%s)", PQgetvalue(res, idx, 1)),
                     PQgetvalue(res, idx, 2));
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 const char *

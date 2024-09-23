@@ -99,7 +99,7 @@ tmp_alloc_pool(size_t size_req)
 }
 
 // Allocate space for a string, creating a new pool if necessary
-static char *
+char *
 tmp_alloc(size_t size_req)
 {
     struct tmp_str_pool *cur_buf = tmp_list_head;

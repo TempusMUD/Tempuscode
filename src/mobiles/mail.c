@@ -45,7 +45,7 @@
 #include "clan.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "xml_utils.h"
 #include "obj_data.h"
@@ -163,8 +163,8 @@ store_mail(const char *from_name, long to_id, const char *txt, GList *cc_list,
     time_str = asctime(localtime(&now));
     time_str[strlen(time_str) - 1] = '\0';
 
-    acc_string_clear();
-    acc_sprintf(" * * * *  Tempus Mail System  * * * *\r\n"
+    struct str_builder sb = str_builder_default;
+    sb_sprintf(&sb, " * * * *  Tempus Mail System  * * * *\r\n"
                 "Date: %s\r\n  To: %s\r\nFrom: %s",
                 time_str, player_name_by_idnum(to_id), from_name);
 
@@ -172,22 +172,22 @@ store_mail(const char *from_name, long to_id, const char *txt, GList *cc_list,
         GList *si;
 
         for (si = cc_list; si; si = si->next) {
-            acc_strcat((si == cc_list) ? "\r\n  CC: " : ", ",
+            sb_strcat(&sb, (si == cc_list) ? "\r\n  CC: " : ", ",
                        ((GString *)si->data)->str, NULL);
         }
     }
     if (obj_list) {
-        acc_strcat("\r\nPackages attached to this mail:\r\n", NULL);
+        sb_strcat(&sb, "\r\nPackages attached to this mail:\r\n", NULL);
         temp_o = obj_list;
         while (temp_o) {
             obj_string = tmp_sprintf("  %s\r\n", temp_o->name);
-            acc_strcat(obj_string, NULL);
+            sb_strcat(&sb, obj_string, NULL);
             temp_o = temp_o->next_content;
         }
     }
-    acc_strcat("\r\n\r\n", txt, NULL);
+    sb_strcat(&sb, "\r\n\r\n", txt, NULL);
 
-    obj->action_desc = strdup(acc_get_string());
+    obj->action_desc = strdup(sb.str);
 
     obj->plrtext_len = strlen(obj->action_desc) + 1;
     mailBag = g_list_append(mailBag, obj);

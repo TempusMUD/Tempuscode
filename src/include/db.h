@@ -71,6 +71,8 @@
 
 #define CMD_LOG_FILE    "cmd_log"
 
+struct str_builder;
+
 /* public procedures in db.c */
 void boot_db(void);
 int create_entry(char *name);
@@ -95,7 +97,7 @@ int zone_number(int nr);
 struct room_data *where_obj(struct obj_data *obj);
 struct creature *obj_owner(struct obj_data *obj);
 
-long calc_daily_rent(struct creature *ch, int factor, char *currency_str, bool display);
+long calc_daily_rent(struct creature *ch, int factor, char *currency_str, struct str_builder *sb);
 
 #define REAL 0
 #define VIRTUAL 1

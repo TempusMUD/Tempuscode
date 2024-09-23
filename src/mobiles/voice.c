@@ -18,7 +18,7 @@
 #include "account.h"
 #include "screen.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "xml_utils.h"
 #include "voice.h"
 #include "strutil.h"
@@ -228,9 +228,9 @@ voice_name(int voice_idx)
 void
 show_voices(struct creature *ch)
 {
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_sprintf("VOICES:\r\n");
+    sb_sprintf(&sb, "VOICES:\r\n");
 
     GHashTableIter it;
     struct voice *voice;
@@ -238,8 +238,8 @@ show_voices(struct creature *ch)
 
     g_hash_table_iter_init(&it, voices);
     while (g_hash_table_iter_next(&it, (gpointer) & idnum, (gpointer) & voice)) {
-        acc_sprintf("%2d         %s%-10s%s\r\n",
+        sb_sprintf(&sb, "%2d         %s%-10s%s\r\n",
                     idnum, CCCYN(ch, C_NRM), voice->name, CCNRM(ch, C_NRM));
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }

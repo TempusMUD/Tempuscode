@@ -46,7 +46,8 @@
 #include "sector.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "vehicle.h"
 #include "materials.h"
@@ -123,89 +124,88 @@ HID_OBJ_PROB(struct creature *ch, struct obj_data *obj)
 }
 
 static void
-show_obj_extra(struct obj_data *object, struct creature *ch)
+show_obj_extra(struct obj_data *object, struct creature *ch, struct str_builder *sb)
 {
     if (IS_OBJ_TYPE(object, ITEM_NOTE)) {
         if (object->action_desc) {
-            acc_strcat(object->action_desc, NULL);
+            sb_strcat(sb,  object->action_desc, NULL);
         } else {
-            act("It's blank.", false, ch, NULL, NULL, TO_CHAR);
+            sb_strcat(sb,  "It's blank.", NULL);
         }
-        return;
     } else if (IS_OBJ_TYPE(object, ITEM_DRINKCON)) {
-        acc_strcat("It looks like a drink container.", NULL);
+        sb_strcat(sb,  "It looks like a drink container.", NULL);
     } else if (IS_OBJ_TYPE(object, ITEM_FOUNTAIN)) {
-        acc_strcat("It looks like a source of drink.", NULL);
+        sb_strcat(sb,  "It looks like a source of drink.", NULL);
     } else if (IS_OBJ_TYPE(object, ITEM_FOOD)) {
-        acc_strcat("It looks edible.", NULL);
+        sb_strcat(sb,  "It looks edible.", NULL);
     } else if (IS_OBJ_TYPE(object, ITEM_HOLY_SYMB)) {
-        acc_strcat("It looks like the symbol of some deity.", NULL);
+        sb_strcat(sb,  "It looks like the symbol of some deity.", NULL);
     } else if (IS_OBJ_TYPE(object, ITEM_CIGARETTE) ||
                IS_OBJ_TYPE(object, ITEM_PIPE)) {
         if (GET_OBJ_VAL(object, 3)) {
-            acc_strcat("It appears to be lit and smoking.", NULL);
+            sb_strcat(sb,  "It appears to be lit and smoking.", NULL);
         } else {
-            acc_strcat("It appears to be unlit.", NULL);
+            sb_strcat(sb,  "It appears to be unlit.", NULL);
         }
     } else if (IS_OBJ_TYPE(object, ITEM_CONTAINER)) {
         if (GET_OBJ_VAL(object, 3)) {
-            acc_strcat("It looks like a corpse.\r\n", NULL);
+            sb_strcat(sb,  "It looks like a corpse.\r\n", NULL);
         } else {
-            acc_strcat("It looks like a container.\r\n", NULL);
+            sb_strcat(sb,  "It looks like a container.\r\n", NULL);
             if (CAR_CLOSED(object) && CAR_OPENABLE(object)) {        /*macro maps to containers too */
-                acc_strcat("It appears to be closed.\r\n", NULL);
+                sb_strcat(sb,  "It appears to be closed.\r\n", NULL);
             } else if (CAR_OPENABLE(object)) {
-                acc_strcat("It appears to be open.\r\n", NULL);
+                sb_strcat(sb,  "It appears to be open.\r\n", NULL);
                 if (object->contains) {
-                    acc_strcat("There appears to be something inside.\r\n",
+                    sb_strcat(sb,  "There appears to be something inside.\r\n",
                                NULL);
                 } else {
-                    acc_strcat("It appears to be empty.\r\n", NULL);
+                    sb_strcat(sb,  "It appears to be empty.\r\n", NULL);
                 }
             }
         }
     } else if (IS_OBJ_TYPE(object, ITEM_SYRINGE)) {
         if (GET_OBJ_VAL(object, 0)) {
-            acc_strcat("It is full.", NULL);
+            sb_strcat(sb,  "It is full.", NULL);
         } else {
-            acc_strcat("It's empty.", NULL);
+            sb_strcat(sb,  "It's empty.", NULL);
         }
     } else if (GET_OBJ_MATERIAL(object) > MAT_NONE &&
                GET_OBJ_MATERIAL(object) < TOP_MATERIAL) {
-        acc_sprintf("It appears to be composed of %s.",
+        sb_sprintf(sb,  "It appears to be composed of %s.",
                     material_names[GET_OBJ_MATERIAL(object)]);
     } else {
-        acc_strcat("You see nothing special.", NULL);
+        sb_strcat(sb,  "You see nothing special.", NULL);
     }
 }
 
 static void
-show_obj_bits(struct obj_data *object, struct creature *ch)
+show_obj_bits(struct obj_data *object, struct creature *ch, struct str_builder *sb)
 {
     if (object->engraving) {
-        acc_sprintf(" \"%s\"", object->engraving);
+        sb_sprintf(sb,  " \"%s\"", object->engraving);
     }
     if (IS_OBJ_STAT2(object, ITEM2_BROKEN)) {
-        acc_sprintf(" %s<broken>", CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s<broken>", CCNRM(ch, C_NRM));
     }
     if (object->in_obj && IS_CORPSE(object->in_obj) && IS_IMPLANT(object)
         && !CAN_WEAR(object, ITEM_WEAR_TAKE)) {
-        acc_strcat(" (implanted)", NULL);
+        sb_strcat(sb,  " (implanted)", NULL);
     }
 
     if (ch == object->carried_by || ch == object->worn_by) {
         if (OBJ_REINFORCED(object)) {
-            acc_sprintf(" %s[%sreinforced%s]%s",
+            sb_sprintf(sb,  " %s[%sreinforced%s]%s",
                         CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
                         CCNRM(ch, C_NRM));
         }
         if (OBJ_ENHANCED(object)) {
-            acc_sprintf(" %s|enhanced|%s", CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
+            sb_sprintf(sb,  " %s|enhanced|%s", CCMAG(ch, C_NRM), CCNRM(ch, C_NRM));
         }
     }
 
     if (IS_OBJ_TYPE(object, ITEM_DEVICE) && ENGINE_STATE(object)) {
-        acc_strcat(" (active)", NULL);
+        sb_strcat(sb,  " (active)", NULL);
     }
 
     if (((IS_OBJ_TYPE(object, ITEM_CIGARETTE) ||
@@ -213,16 +213,16 @@ show_obj_bits(struct obj_data *object, struct creature *ch)
          GET_OBJ_VAL(object, 3)) ||
         (IS_BOMB(object) && object->contains && IS_FUSE(object->contains)
          && FUSE_STATE(object->contains))) {
-        acc_sprintf(" %s(lit)%s", CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(lit)%s", CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (IS_OBJ_STAT(object, ITEM_INVISIBLE)) {
-        acc_sprintf(" %s(invisible)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(invisible)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (IS_OBJ_STAT(object, ITEM_TRANSPARENT)) {
-        acc_sprintf(" %s(transparent)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(transparent)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (IS_OBJ_STAT2(object, ITEM2_HIDDEN)) {
-        acc_sprintf(" %s(hidden)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(hidden)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (AFF3_FLAGGED(ch, AFF3_DETECT_POISON)
         && (((IS_OBJ_TYPE(object, ITEM_FOOD)
@@ -230,124 +230,124 @@ show_obj_bits(struct obj_data *object, struct creature *ch)
               || IS_OBJ_TYPE(object, ITEM_FOUNTAIN))
              && GET_OBJ_VAL(object, 3))
             || obj_has_affect(object, SPELL_ENVENOM))) {
-        acc_sprintf(" %s(poisoned)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(poisoned)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (AFF_FLAGGED(ch, AFF_DETECT_ALIGN) ||
         (IS_CLERIC(ch) && AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))) {
         if (IS_OBJ_STAT(object, ITEM_BLESS)) {
-            acc_sprintf(" %s(holy aura)%s",
+            sb_sprintf(sb,  " %s(holy aura)%s",
                         CCBLU_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
         } else if (IS_OBJ_STAT(object, ITEM_DAMNED)) {
-            acc_sprintf(" %s(unholy aura)%s",
+            sb_sprintf(sb,  " %s(unholy aura)%s",
                         CCRED_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
         }
     }
     if ((AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
          || AFF2_FLAGGED(ch, AFF2_TRUE_SEEING))
         && IS_OBJ_STAT(object, ITEM_MAGIC)) {
-        acc_sprintf(" %s(yellow aura)%s",
+        sb_sprintf(sb,  " %s(yellow aura)%s",
                     CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
     }
     if ((AFF_FLAGGED(ch, AFF_DETECT_MAGIC)
          || AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)
          || PRF_FLAGGED(ch, PRF_HOLYLIGHT))
         && GET_OBJ_SIGIL_IDNUM(object)) {
-        acc_sprintf(" %s(%ssigil%s)%s",
+        sb_sprintf(sb,  " %s(%ssigil%s)%s",
                     CCYEL(ch, C_NRM), CCMAG(ch, C_NRM), CCYEL(ch, C_NRM),
                     CCNRM(ch, C_NRM));
     }
     if (IS_OBJ_STAT(object, ITEM_GLOW)) {
-        acc_sprintf(" %s(glowing)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(glowing)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (IS_OBJ_STAT(object, ITEM_HUM)) {
-        acc_sprintf(" %s(humming)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(humming)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (IS_OBJ_STAT2(object, ITEM2_ABLAZE)) {
-        acc_sprintf(" %s*burning*%s", CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s*burning*%s", CCRED_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (IS_OBJ_STAT3(object, ITEM3_HUNTED)) {
-        acc_sprintf(" %s(hunted)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(hunted)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (OBJ_SOILED(object, SOIL_BLOOD)) {
-        acc_sprintf(" %s(bloody)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(bloody)%s", CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (OBJ_SOILED(object, SOIL_WATER)) {
-        acc_sprintf(" %s(wet)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(wet)%s", CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (OBJ_SOILED(object, SOIL_MUD)) {
-        acc_sprintf(" %s(muddy)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(muddy)%s", CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (OBJ_SOILED(object, SOIL_ACID)) {
-        acc_sprintf(" %s(acid covered)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  " %s(acid covered)%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (object->shared->owner_id != 0) {
-        acc_sprintf(" %s(protected)%s",
+        sb_sprintf(sb,  " %s(protected)%s",
                     CCYEL_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
     }
     if (object->tmp_affects != NULL) {
         if (obj_has_affect(object, SPELL_ITEM_REPULSION_FIELD) != NULL) {
-            acc_sprintf(" %s(repulsive)%s",
+            sb_sprintf(sb,  " %s(repulsive)%s",
                         CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
         } else if (obj_has_affect(object, SPELL_ITEM_ATTRACTION_FIELD) != NULL) {
-            acc_sprintf(" %s(attractive)%s",
+            sb_sprintf(sb,  " %s(attractive)%s",
                         CCCYN(ch, C_SPR), CCNRM(ch, C_SPR));
         }
         if (obj_has_affect(object, SPELL_ELEMENTAL_BRAND) != NULL) {
-            acc_sprintf(" %s(%sbranded%s)%s",
+            sb_sprintf(sb,  " %s(%sbranded%s)%s",
                         CCRED(ch, C_SPR),
                         CCGRN(ch, C_SPR), CCRED(ch, C_SPR), CCNRM(ch, C_SPR));
         }
     }
     if ((GET_LEVEL(ch) >= LVL_IMMORT || is_tester(ch)) &&
         PRF2_FLAGGED(ch, PRF2_DISP_VNUMS)) {
-        acc_sprintf(" %s<%s%d%s>%s",
+        sb_sprintf(sb,  " %s<%s%d%s>%s",
                     CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                     GET_OBJ_VNUM(object), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM));
     }
 }
 
 static void
-show_room_obj(struct obj_data *object, struct creature *ch, int count)
+show_room_obj(struct obj_data *object, struct creature *ch, int count, struct str_builder *sb)
 {
     if (object->line_desc) {
-        acc_strcat(object->line_desc, NULL);
+        sb_strcat(sb,  object->line_desc, NULL);
     } else if (IS_IMMORT(ch)) {
-        acc_sprintf("%s exists here.", tmp_capitalize(object->name));
+        sb_sprintf(sb,  "%s exists here.", tmp_capitalize(object->name));
     } else {
         return;
     }
 
-    show_obj_bits(object, ch);
-    acc_strcat(CCGRN(ch, C_NRM), NULL);
+    show_obj_bits(object, ch, sb);
+    sb_strcat(sb,  CCGRN(ch, C_NRM), NULL);
 
     if (count > 1) {
-        acc_sprintf(" [%d]", count);
+        sb_sprintf(sb,  " [%d]", count);
     }
-    acc_strcat("\r\n", NULL);
+    sb_strcat(sb,  "\r\n", NULL);
 }
 
 static void
 show_obj_to_char(struct obj_data *object, struct creature *ch,
-                 int mode, int count)
+                 int mode, int count, struct str_builder *sb)
 {
     if (mode == SHOW_OBJ_ROOM) {
-        show_room_obj(object, ch, count);
+        show_room_obj(object, ch, count, sb);
         return;
     } else if ((mode == SHOW_OBJ_INV || mode == SHOW_OBJ_CONTENT)
                && object->name) {
-        acc_strcat(object->name, NULL);
+        sb_strcat(sb,  object->name, NULL);
     } else if (mode == SHOW_OBJ_EXTRA) {
-        show_obj_extra(object, ch);
+        show_obj_extra(object, ch, sb);
     }
 
     if (mode != SHOW_OBJ_NOBITS) {
-        show_obj_bits(object, ch);
+        show_obj_bits(object, ch, sb);
     }
 
     if (count > 1) {
-        acc_sprintf(" [%d]", count);
+        sb_sprintf(sb,  " [%d]", count);
     }
-    acc_strcat("\r\n", NULL);
+    sb_strcat(sb,  "\r\n", NULL);
 
     if (IS_OBJ_TYPE(object, ITEM_VEHICLE) && mode == SHOW_OBJ_BITS) {
         if (CAR_OPENABLE(object)) {
@@ -362,7 +362,7 @@ show_obj_to_char(struct obj_data *object, struct creature *ch,
 
 void
 list_obj_to_char(struct obj_data *list, struct creature *ch, int mode,
-                 bool show)
+                 bool show, struct str_builder *sb)
 {
     struct obj_data *i = NULL, *o = NULL;
     bool found = false, corpse = false;
@@ -406,18 +406,19 @@ list_obj_to_char(struct obj_data *list, struct creature *ch, int mode,
                 }
             }
         }
-        show_obj_to_char(i, ch, mode, count);
+        show_obj_to_char(i, ch, mode, count, sb);
         count = 0;
         found = true;
     }
     if (!found && show) {
-        acc_sprintf(" Nothing.\r\n");
+        sb_sprintf(sb,  " Nothing.\r\n");
     }
 }
 
 static void
 list_obj_to_char_GLANCE(struct obj_data *list, struct creature *ch,
-                        struct creature *vict, int mode, bool show, int glance)
+                        struct creature *vict, int mode, bool show, int glance,
+                        struct str_builder *sb)
 {
     struct obj_data *i = NULL, *o = NULL;
     bool found = false;
@@ -458,12 +459,12 @@ list_obj_to_char_GLANCE(struct obj_data *list, struct creature *ch,
             }
         }
 
-        show_obj_to_char(i, ch, mode, count);
+        show_obj_to_char(i, ch, mode, count, sb);
         found = true;
     }
 
     if (!found && show) {
-        acc_sprintf("You can't see anything.\r\n");
+        sb_sprintf(sb,  "You can't see anything.\r\n");
     }
 }
 
@@ -548,126 +549,126 @@ diag_conditions(struct creature *ch)
 }
 
 static void
-desc_char_trailers(struct creature *ch, struct creature *i)
+desc_char_trailers(struct creature *ch, struct creature *i, struct str_builder *sb)
 {
     if (affected_by_spell(i, SPELL_QUAD_DAMAGE)) {
-        acc_strcat("...", HSSH(i),
+        sb_strcat(sb,  "...", HSSH(i),
                    " is glowing with a bright blue light!\r\n", NULL);
     }
 
     if (AFF2_FLAGGED(i, AFF2_ABLAZE)) {
-        acc_strcat("...", HSHR(i),
+        sb_strcat(sb,  "...", HSHR(i),
                    " body is blazing like a bonfire!\r\n", NULL);
     }
     if (AFF_FLAGGED(i, AFF_BLIND)) {
-        acc_strcat("...", HSSH(i), " is groping around blindly!\r\n", NULL);
+        sb_strcat(sb,  "...", HSSH(i), " is groping around blindly!\r\n", NULL);
     }
 
     if (AFF_FLAGGED(i, AFF_SANCTUARY)) {
         if (IS_EVIL(i)) {
-            acc_strcat("...", HSSH(i),
+            sb_strcat(sb,  "...", HSSH(i),
                        " is surrounded by darkness!\r\n", NULL);
         } else {
-            acc_strcat("...", HSSH(i),
+            sb_strcat(sb,  "...", HSSH(i),
                        " glows with a bright light!\r\n", NULL);
         }
     }
 
     if (AFF_FLAGGED(i, AFF_CONFUSION)) {
-        acc_strcat("...", HSSH(i),
+        sb_strcat(sb,  "...", HSSH(i),
                    " is looking around in confusion!\r\n", NULL);
     }
     if (AFF3_FLAGGED(i, AFF3_SYMBOL_OF_PAIN)) {
-        acc_strcat("...a symbol of pain burns bright on ",
+        sb_strcat(sb,  "...a symbol of pain burns bright on ",
                    HSHR(i), " forehead!\r\n", NULL);
     }
     if (AFF_FLAGGED(i, AFF_BLUR)) {
-        acc_strcat("...", HSHR(i),
+        sb_strcat(sb,  "...", HSHR(i),
                    " form appears to be blurry and shifting.\r\n", NULL);
     }
     if (AFF2_FLAGGED(i, AFF2_FIRE_SHIELD)) {
-        acc_strcat("...a blazing sheet of fire floats before ",
+        sb_strcat(sb,  "...a blazing sheet of fire floats before ",
                    HSHR(i), " body!\r\n", NULL);
     }
     if (AFF2_FLAGGED(i, AFF2_BLADE_BARRIER)) {
-        acc_strcat("...", HSSH(i),
+        sb_strcat(sb,  "...", HSSH(i),
                    " is surrounded by whirling blades!\r\n", NULL);
     }
     if (AFF2_FLAGGED(i, AFF2_ENERGY_FIELD)) {
-        acc_strcat("...", HSSH(i),
+        sb_strcat(sb,  "...", HSSH(i),
                    " is covered by a crackling field of energy!\r\n", NULL);
     }
 
     if (IS_SOULLESS(i)) {
-        acc_strcat("...a deep red pentagram has been burned into ",
+        sb_strcat(sb,  "...a deep red pentagram has been burned into ",
                    HSHR(i), " forehead!\r\n", NULL);
     } else if (AFF3_FLAGGED(i, AFF3_TAINTED)) {
-        acc_strcat("...the mark of the tainted has been burned into ",
+        sb_strcat(sb,  "...the mark of the tainted has been burned into ",
                    HSHR(i), " forehead!\r\n", NULL);
     }
 
     if (AFF3_FLAGGED(i, AFF3_PRISMATIC_SPHERE)) {
-        acc_strcat("...", HSSH(i),
+        sb_strcat(sb,  "...", HSSH(i),
                    " is surrounded by a prismatic sphere of light!\r\n", NULL);
     }
 
     if (affected_by_spell(i, SPELL_SKUNK_STENCH) ||
         affected_by_spell(i, SPELL_TROG_STENCH)) {
-        acc_strcat("...", HSSH(i),
+        sb_strcat(sb,  "...", HSSH(i),
                    " is followed by a malodorous stench...\r\n", NULL);
     }
 
     if (affected_by_spell(i, SPELL_ENTANGLE)) {
         if (i->in_room->sector_type == SECT_CITY
             || i->in_room->sector_type == SECT_CRACKED_ROAD) {
-            acc_strcat("...", HSSH(i),
+            sb_strcat(sb,  "...", HSSH(i),
                        " is hopelessly tangled in the weeds and sparse vegetation.\r\n",
                        NULL);
         } else {
-            acc_strcat("...", HSSH(i),
+            sb_strcat(sb,  "...", HSSH(i),
                        " is hopelessly tangled in the undergrowth.\r\n", NULL);
         }
     }
 
     if (AFF2_FLAGGED(i, AFF2_DISPLACEMENT) &&
         AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)) {
-        acc_strcat("...the image of ", HSHR(i),
+        sb_strcat(sb,  "...the image of ", HSHR(i),
                    " body is strangely displaced.\r\n", NULL);
     }
 
     if (AFF_FLAGGED(i, AFF_INVISIBLE)) {
-        acc_strcat("...", HSSH(i),
+        sb_strcat(sb,  "...", HSSH(i),
                    " is invisible to the unaided eye.\r\n", NULL);
     }
 
     if (AFF2_FLAGGED(i, AFF2_TRANSPARENT)) {
-        acc_strcat("...", HSHR(i),
+        sb_strcat(sb,  "...", HSHR(i),
                    " body is completely transparent.\r\n", NULL);
     }
 
     if (affected_by_spell(i, SKILL_KATA) && skill_bonus(i, SKILL_KATA) >= 50) {
-        acc_strcat("...", HSHR(i), " hands are glowing eerily.\r\n", NULL);
+        sb_strcat(sb,  "...", HSHR(i), " hands are glowing eerily.\r\n", NULL);
     }
 
     if (affected_by_spell(i, SPELL_GAUSS_SHIELD)) {
-        acc_strcat("...", HSSH(i), " is protected by a swirling ",
+        sb_strcat(sb,  "...", HSSH(i), " is protected by a swirling ",
                    "shield of energy.\r\n", NULL);
     }
     if (affected_by_spell(i, SPELL_THORN_SKIN)) {
-        acc_strcat("...thorns protrude painfully from ",
+        sb_strcat(sb,  "...thorns protrude painfully from ",
                    HSHR(i), " skin.\r\n", NULL);
     }
     if (affected_by_spell(i, SONG_WOUNDING_WHISPERS)) {
-        acc_strcat("...", HSSH(i),
+        sb_strcat(sb,  "...", HSSH(i),
                    " is surrounded by whirling slivers of sound.\r\n", NULL);
     }
     if (affected_by_spell(i, SONG_MIRROR_IMAGE_MELODY)) {
-        acc_strcat("...", HSSH(i), " is surrounded by mirror images.\r\n",
+        sb_strcat(sb,  "...", HSSH(i), " is surrounded by mirror images.\r\n",
                    NULL);
     }
 
     if (affected_by_spell(i, SPELL_DIMENSIONAL_SHIFT)) {
-        acc_strcat("...", HSSH(i),
+        sb_strcat(sb,  "...", HSSH(i),
                    " is shifted into a parallel dimension.\r\n", NULL);
     }
 }
@@ -680,6 +681,7 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
     char *description = NULL;
     struct affected_type *af = NULL;
     struct creature *mob = NULL;
+    struct str_builder sb = str_builder_default;
 
     if ((af = affected_by_spell(i, SKILL_DISGUISE))) {
         if ((mob = real_mobile_proto(af->modifier))) {
@@ -719,9 +721,8 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
     diag_char_to_char(i, ch);
 
     if (CMD_IS("look")) {
-        acc_string_clear();
-        desc_char_trailers(ch, i);
-        send_to_char(ch, "%s", acc_get_string());
+        desc_char_trailers(ch, i, &sb);
+        send_to_char(ch, "%s", sb.str);
     }
 
     if (!CMD_IS("glance") && !IS_NPC(i)) {
@@ -776,9 +777,8 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
             }
         }
 
-        acc_string_clear();
         if (found) {
-            acc_sprintf("\r\n%s is using:\r\n", tmp_capitalize(PERS(i, ch)));
+            sb_sprintf(&sb,  "\r\n%s is using:\r\n", tmp_capitalize(PERS(i, ch)));
             for (j = 0; j < NUM_WEARS; j++) {
                 if (GET_EQ(i, (int)eq_pos_order[j]) &&
                     can_see_object(ch, GET_EQ(i, (int)eq_pos_order[j])) &&
@@ -790,29 +790,29 @@ look_at_char(struct creature *i, struct creature *ch, int cmd)
                         && number(50, 100) > CHECK_SKILL(ch, SKILL_GLANCE)) {
                         continue;
                     }
-                    acc_sprintf("%s%s%s",
+                    sb_sprintf(&sb,  "%s%s%s",
                                 CCGRN(ch, C_NRM),
                                 where[(int)eq_pos_order[j]], CCNRM(ch, C_NRM));
                     show_obj_to_char(GET_EQ(i, (int)eq_pos_order[j]), ch,
-                                     SHOW_OBJ_INV, 0);
+                                     SHOW_OBJ_INV, 0, &sb);
                 } else if (GET_TATTOO(i, (int)eq_pos_order[j])) {
-                    acc_sprintf("%s%s%s",
+                    sb_sprintf(&sb,  "%s%s%s",
                                 CCGRN(ch, C_NRM),
                                 tattoo_pos_descs[(int)eq_pos_order[j]],
                                 CCNRM(ch, C_NRM));
                     show_obj_to_char(GET_TATTOO(i, (int)eq_pos_order[j]), ch,
-                                     SHOW_OBJ_INV, 0);
+                                     SHOW_OBJ_INV, 0, &sb);
 
                 }
             }
         }
         if (ch != i && (IS_THIEF(ch) || GET_LEVEL(ch) >= LVL_AMBASSADOR)) {
-            acc_sprintf("\r\nYou attempt to peek at %s inventory:\r\n",
+            sb_sprintf(&sb,  "\r\nYou attempt to peek at %s inventory:\r\n",
                         HSHR(i));
             list_obj_to_char_GLANCE(i->carrying, ch, i, SHOW_OBJ_INV, true,
-                                    (GET_LEVEL(ch) >= LVL_AMBASSADOR));
+                                    (GET_LEVEL(ch) >= LVL_AMBASSADOR), &sb);
         }
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     }
 }
 
@@ -993,7 +993,7 @@ desc_one_char(struct creature *ch, struct creature *i, bool is_group)
 }
 
 static void
-list_char_to_char(GList *list, struct creature *ch)
+list_char_to_char(GList *list, struct creature *ch, struct str_builder *sb)
 {
     struct creature *i;
     bool is_group = false;
@@ -1022,11 +1022,10 @@ list_char_to_char(GList *list, struct creature *ch)
             && AFF_FLAGGED(i, AFF_INFRAVISION)) {
             switch (number(0, 2)) {
             case 0:
-                acc_sprintf
-                    ("You see a pair of glowing red eyes looking your way.\r\n");
+                sb_sprintf(sb, "You see a pair of glowing red eyes looking your way.\r\n");
                 break;
             case 1:
-                acc_sprintf("A pair of eyes glow red in the darkness.\r\n");
+                sb_sprintf(sb,  "A pair of eyes glow red in the darkness.\r\n");
                 break;
             case 2:
                 unseen++;
@@ -1075,10 +1074,10 @@ list_char_to_char(GList *list, struct creature *ch)
 
         desc = desc_one_char(ch, i, is_group);
         if (*desc) {
-            acc_strcat(desc, NULL);
+            sb_strcat(sb,  desc, NULL);
             if (!PRF2_FLAGGED(ch, PRF2_NOTRAILERS)
                 && ch->in_room == i->in_room) {
-                desc_char_trailers(ch, i);
+                desc_char_trailers(ch, i, sb);
             }
         }
     }
@@ -1086,22 +1085,22 @@ list_char_to_char(GList *list, struct creature *ch)
     if (unseen &&
         (AFF_FLAGGED(ch, AFF_SENSE_LIFE)
          || affected_by_spell(ch, SKILL_HYPERSCAN))) {
-        acc_sprintf("%s", CCMAG(ch, C_NRM));
+        sb_sprintf(sb,  "%s", CCMAG(ch, C_NRM));
         if (unseen == 1) {
-            acc_sprintf("You sense an unseen presence.\r\n");
+            sb_sprintf(sb,  "You sense an unseen presence.\r\n");
         } else if (unseen < 4) {
-            acc_sprintf("You sense a few unseen presences.\r\n");
+            sb_sprintf(sb,  "You sense a few unseen presences.\r\n");
         } else if (unseen < 7) {
-            acc_sprintf("You sense many unseen presences.\r\n");
+            sb_sprintf(sb,  "You sense many unseen presences.\r\n");
         } else {
-            acc_sprintf("You sense a crowd of unseen presences.\r\n");
+            sb_sprintf(sb,  "You sense a crowd of unseen presences.\r\n");
         }
-        acc_sprintf("%s", CCNRM(ch, C_NRM));
+        sb_sprintf(sb, "%s", CCNRM(ch, C_NRM));
     }
 }
 
 static void
-do_auto_exits(struct creature *ch, struct room_data *room)
+do_auto_exits(struct creature *ch, struct room_data *room, struct str_builder *sb)
 {
     int door;
     bool found = false;
@@ -1110,7 +1109,7 @@ do_auto_exits(struct creature *ch, struct room_data *room)
         room = ch->in_room;
     }
 
-    acc_sprintf("%s[ Exits: ", CCCYN(ch, C_NRM));
+    sb_sprintf(sb,  "%s[ Exits: ", CCCYN(ch, C_NRM));
     for (door = 0; door < NUM_OF_DIRS; door++) {
         if (!room->dir_option[door] || !room->dir_option[door]->to_room) {
             continue;
@@ -1121,32 +1120,32 @@ do_auto_exits(struct creature *ch, struct room_data *room)
         }
 
         if (IS_SET(room->dir_option[door]->exit_info, EX_CLOSED)) {
-            acc_sprintf("|%c| ", tolower(*dirs[door]));
+            sb_sprintf(sb,  "|%c| ", tolower(*dirs[door]));
         } else {
-            acc_sprintf("%c ", tolower(*dirs[door]));
+            sb_sprintf(sb,  "%c ", tolower(*dirs[door]));
         }
         found = true;
     }
 
-    acc_sprintf("%s]%s   ", found ? "" : "None obvious ", CCNRM(ch, C_NRM));
+    sb_sprintf(sb,  "%s]%s   ", found ? "" : "None obvious ", CCNRM(ch, C_NRM));
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
         *buf = '\0';
 
-        acc_sprintf("%s[ Hidden Doors: ", CCCYN(ch, C_NRM));
+        sb_sprintf(sb,  "%s[ Hidden Doors: ", CCCYN(ch, C_NRM));
         found = false;
         for (door = 0; door < NUM_OF_DIRS; door++) {
             if (ABS_EXIT(room, door) && ABS_EXIT(room, door)->to_room != NULL
                 && IS_SET(ABS_EXIT(room, door)->exit_info,
                           EX_SECRET | EX_HIDDEN)) {
-                acc_sprintf("%c ", tolower(*dirs[door]));
+                sb_sprintf(sb,  "%c ", tolower(*dirs[door]));
                 found = true;
             }
         }
 
-        acc_sprintf("%s]%s\r\n", found ? "" : "None ", CCNRM(ch, C_NRM));
+        sb_sprintf(sb,  "%s]%s\r\n", found ? "" : "None ", CCNRM(ch, C_NRM));
     } else {
-        acc_sprintf("\r\n");
+        sb_sprintf(sb,  "\r\n");
     }
 }
 
@@ -1159,8 +1158,8 @@ list_scanned_chars(GList *list, struct creature *ch, int distance, int door)
         "a ways off",
         "far off to the"
     };
-
     int count = 0;
+    struct str_builder sb = str_builder_default;
 
     if (!list) {
         return;
@@ -1185,7 +1184,6 @@ list_scanned_chars(GList *list, struct creature *ch, int distance, int door)
         return;
     }
 
-    acc_string_clear();
     for (GList *it = first_living(list); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
         /* make sure to add changes to the if statement above to this
@@ -1197,18 +1195,18 @@ list_scanned_chars(GList *list, struct creature *ch, int distance, int door)
              !PRF_FLAGGED(ch, PRF_HOLYLIGHT))) {
             continue;
         }
-        acc_sprintf("%s%s%s",
+        sb_sprintf(&sb,  "%s%s%s",
                     CCYEL(ch, C_NRM), GET_DISGUISED_NAME(ch, tch), CCNRM(ch, C_NRM));
 
         if (--count > 1) {
-            acc_strcat(", ", NULL);
+            sb_strcat(&sb,  ", ", NULL);
         } else if (count == 1) {
-            acc_strcat(" and ", NULL);
+            sb_strcat(&sb,  " and ", NULL);
         } else {
-            acc_sprintf(" %s %s.", how_far[distance], dirs[door]);
+            sb_sprintf(&sb,  " %s %s.", how_far[distance], dirs[door]);
         }
     }
-    send_to_char(ch, "You see %s\r\n", acc_get_string());
+    send_to_char(ch, "You see %s\r\n", sb.str);
 }
 
 ACMD(do_scan)
@@ -1369,6 +1367,7 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
 
     struct room_affect_data *aff = NULL;
     struct obj_data *o = NULL;
+    struct str_builder sb = str_builder_default;
 
     int ice_shown = 0;          // 1 if ice has already been shown to room...same for blood
     int blood_shown = 0;
@@ -1391,28 +1390,27 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
         return;
     }
 
-    acc_string_clear();
-    acc_sprintf("%s", CCCYN(ch, C_NRM));
+    sb_sprintf(&sb,  "%s", CCCYN(ch, C_NRM));
     if (PRF_FLAGGED(ch, PRF_ROOMFLAGS) ||
         (ch->desc->original
          && PRF_FLAGGED(ch->desc->original, PRF_ROOMFLAGS))) {
-        acc_sprintf("[%5d] %s [ %s ] [ %s ]", room->number,
+        sb_sprintf(&sb,  "[%5d] %s [ %s ] [ %s ]", room->number,
                     room->name,
                     ROOM_FLAGS(room) ? tmp_printbits(ROOM_FLAGS(room), room_bits) : "NONE",
                     sector_name_by_idnum(room->sector_type));
         if (room->max_occupancy < 256) {
-            acc_sprintf(" [ Max: %d ]", room->max_occupancy);
+            sb_sprintf(&sb,  " [ Max: %d ]", room->max_occupancy);
         }
 
         struct house *house = find_house_by_room(room->number);
         if (house) {
-            acc_sprintf(" [ House: %d ]", house->id);
+            sb_sprintf(&sb,  " [ House: %d ]", house->id);
         }
     } else {
-        acc_sprintf("%s", room->name);
+        sb_sprintf(&sb,  "%s", room->name);
     }
 
-    acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
+    sb_sprintf(&sb,  "%s\r\n", CCNRM(ch, C_NRM));
 
     if ((!PRF_FLAGGED(ch, PRF_BRIEF) &&
          (!ch->desc->original
@@ -1423,31 +1421,31 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
             !(PRF_FLAGGED(ch, PRF_HOLYLIGHT) ||
               ROOM_FLAGGED(room, ROOM_DEATH)) &&
             !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
-            acc_sprintf("The smoke swirls around you...\r\n");
+            sb_sprintf(&sb,  "The smoke swirls around you...\r\n");
         } else if (room->description) {
-            acc_sprintf("%s", room->description);
+            sb_sprintf(&sb,  "%s", room->description);
         }
     }
 
     for (aff = room->affects; aff; aff = aff->next) {
         if (aff->description) {
-            acc_sprintf("%s", aff->description);
+            sb_sprintf(&sb,  "%s", aff->description);
         }
     }
 
     /* Zone PK type */
     switch (room->zone->pk_style) {
     case ZONE_NO_PK:
-        acc_sprintf("%s[ %s!PK%s ] ", CCCYN(ch, C_NRM),
+        sb_sprintf(&sb,  "%s[ %s!PK%s ] ", CCCYN(ch, C_NRM),
                     CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
         break;
     case ZONE_NEUTRAL_PK:
-        acc_sprintf("%s[ %s%sNPK%s%s ] ", CCCYN(ch, C_NRM),
+        sb_sprintf(&sb,  "%s[ %s%sNPK%s%s ] ", CCCYN(ch, C_NRM),
                     CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
                     CCCYN(ch, C_NRM));
         break;
     case ZONE_CHAOTIC_PK:
-        acc_sprintf("%s[ %s%sCPK%s%s ] ", CCCYN(ch, C_NRM),
+        sb_sprintf(&sb,  "%s[ %s%sCPK%s%s ] ", CCCYN(ch, C_NRM),
                     CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                     CCCYN(ch, C_NRM));
         break;
@@ -1459,16 +1457,16 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
 
         /* autoexits */
         if (PRF_FLAGGED(ch, PRF_AUTOEXIT)) {
-            do_auto_exits(ch, room);
+            do_auto_exits(ch, room, &sb);
         } else {
-            acc_sprintf("\r\n");
+            sb_sprintf(&sb,  "\r\n");
         }
 
         /* now list characters & objects */
         for (o = room->contents; o; o = o->next_content) {
             if (GET_OBJ_VNUM(o) == BLOOD_VNUM) {
                 if (!blood_shown) {
-                    acc_sprintf("%s%s.%s\r\n",
+                    sb_sprintf(&sb,  "%s%s.%s\r\n",
                                 CCRED(ch, C_NRM),
                                 GET_OBJ_TIMER(o) < 10 ?
                                 "Some spots of blood have been splattered around" :
@@ -1486,7 +1484,7 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
 
             if (GET_OBJ_VNUM(o) == ICE_VNUM) {
                 if (!ice_shown) {
-                    acc_sprintf("%s%s.%s\r\n",
+                    sb_sprintf(&sb,  "%s%s.%s\r\n",
                                 CCCYN(ch, C_NRM),
                                 GET_OBJ_TIMER(o) < 10 ?
                                 "A few patches of ice are scattered around" :
@@ -1501,54 +1499,55 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
             }
         }
 
-        acc_sprintf("%s", CCGRN(ch, C_NRM));
-        list_obj_to_char(room->contents, ch, SHOW_OBJ_ROOM, false);
-        acc_sprintf("%s", CCYEL(ch, C_NRM));
-        list_char_to_char(room->people, ch);
-        acc_sprintf("%s", CCNRM(ch, C_NRM));
+        sb_sprintf(&sb,  "%s", CCGRN(ch, C_NRM));
+        list_obj_to_char(room->contents, ch, SHOW_OBJ_ROOM, false, &sb);
+        sb_sprintf(&sb,  "%s", CCYEL(ch, C_NRM));
+        list_char_to_char(room->people, ch, &sb);
+        sb_sprintf(&sb,  "%s", CCNRM(ch, C_NRM));
     } else {
-        acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
+        sb_sprintf(&sb,  "%s\r\n", CCNRM(ch, C_NRM));
     }
 
-    send_to_char(ch, "%s", acc_get_string());
+    send_to_char(ch, "%s", sb.str);
 }
 
 static void
 look_at_exit(struct creature *ch, int dir)
 {
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
+
     if (EXIT(ch, dir)->general_description) {
-        acc_sprintf("%s", EXIT(ch, dir)->general_description);
+        sb_sprintf(&sb, "%s", EXIT(ch, dir)->general_description);
     } else if (IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR | EX_CLOSED) &&
                EXIT(ch, dir)->keyword) {
-        acc_sprintf("You see %s %s.\r\n", AN(fname(EXIT(ch,
+        sb_sprintf(&sb, "You see %s %s.\r\n", AN(fname(EXIT(ch,
                                                         dir)->keyword)), fname(EXIT(ch, dir)->keyword));
     } else if (EXIT(ch, dir)->to_room) {
         if ((IS_SET(EXIT(ch, dir)->exit_info, EX_NOPASS) &&
              GET_LEVEL(ch) < LVL_AMBASSADOR) ||
             IS_SET(EXIT(ch, dir)->exit_info, EX_HIDDEN)) {
-            acc_sprintf("You see nothing special.\r\n");
+            sb_sprintf(&sb, "You see nothing special.\r\n");
         } else if (EXIT(ch, dir)->to_room->name) {
-            acc_sprintf("%s", CCCYN(ch, C_NRM));
+            sb_sprintf(&sb, "%s", CCCYN(ch, C_NRM));
             if (PRF_FLAGGED(ch, PRF_ROOMFLAGS)) {
-                acc_sprintf("[%5d] %s [ %s] [ %s ]",
+                sb_sprintf(&sb, "[%5d] %s [ %s] [ %s ]",
                             EXIT(ch, dir)->to_room->number,
                             EXIT(ch, dir)->to_room->name,
                             tmp_printbits(ROOM_FLAGS(EXIT(ch, dir)->to_room), room_bits),
                             sector_name_by_idnum(EXIT(ch, dir)->to_room->sector_type));
             } else {
-                acc_sprintf("%s", EXIT(ch, dir)->to_room->name);
+                sb_sprintf(&sb, "%s", EXIT(ch, dir)->to_room->name);
             }
-            acc_sprintf("%s", CCNRM(ch, C_NRM));
-            acc_sprintf("\r\n");
+            sb_sprintf(&sb, "%s", CCNRM(ch, C_NRM));
+            sb_sprintf(&sb, "\r\n");
 
             for (struct room_affect_data *aff = ch->in_room->affects; aff; aff = aff->next) {
                 if (aff->type == dir && aff->description) {
-                    acc_sprintf("%s", aff->description);
+                    sb_sprintf(&sb, "%s", aff->description);
                 }
             }
         } else {
-            acc_sprintf("You see nothing special.\r\n");
+            sb_sprintf(&sb, "You see nothing special.\r\n");
         }
     }
     if (EXIT(ch, dir)->to_room && (!IS_SET(EXIT(ch, dir)->exit_info,
@@ -1562,23 +1561,23 @@ look_at_exit(struct creature *ch, int dir)
                          "It's too dark there to see anything special.\r\n");
         } else {
             /* now list characters & objects */
-            acc_sprintf("%s", CCGRN(ch, C_NRM));
-            list_obj_to_char(EXIT(ch, dir)->to_room->contents, ch, SHOW_OBJ_ROOM, false);
-            acc_sprintf("%s", CCYEL(ch, C_NRM));
-            list_char_to_char(EXIT(ch, dir)->to_room->people, ch);
-            acc_sprintf("%s", CCNRM(ch, C_NRM));
+            sb_sprintf(&sb, "%s", CCGRN(ch, C_NRM));
+            list_obj_to_char(EXIT(ch, dir)->to_room->contents, ch, SHOW_OBJ_ROOM, false, &sb);
+            sb_sprintf(&sb, "%s", CCYEL(ch, C_NRM));
+            list_char_to_char( EXIT(ch, dir)->to_room->people, ch, &sb);
+            sb_sprintf(&sb, "%s", CCNRM(ch, C_NRM));
         }
     }
 
     if (!IS_SET(EXIT(ch, dir)->exit_info, EX_HIDDEN | EX_NOPASS)) {
         if (IS_SET(EXIT(ch, dir)->exit_info, EX_CLOSED)
             && EXIT(ch, dir)->keyword) {
-            acc_sprintf("The %s %s closed.\r\n", fname(EXIT(ch,
+            sb_sprintf(&sb, "The %s %s closed.\r\n", fname(EXIT(ch,
                                                             dir)->keyword), ISARE(fname(EXIT(ch,
                                                                                              dir)->keyword)));
         } else if (IS_SET(EXIT(ch, dir)->exit_info, EX_ISDOOR) &&
                    EXIT(ch, dir)->keyword) {
-            acc_sprintf("The %s %s open.\r\n", fname(EXIT(ch,
+            sb_sprintf(&sb, "The %s %s open.\r\n", fname(EXIT(ch,
                                                           dir)->keyword), ISARE(fname(EXIT(ch,
                                                                                            dir)->keyword)));
             if (EXIT(ch, dir)->to_room != NULL && room_is_dark(EXIT(ch, dir)->to_room) &&
@@ -1586,11 +1585,11 @@ look_at_exit(struct creature *ch, int dir)
                 snprintf(buf, sizeof(buf),
                          "It's too dark through the %s to see anything.\r\n",
                          fname(EXIT(ch, dir)->keyword));
-                acc_sprintf("%s", buf);
+                sb_sprintf(&sb, "%s", buf);
             }
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 static void
@@ -1715,60 +1714,60 @@ look_in_obj(struct creature *ch, char *arg)
     struct obj_data *obj = NULL;
     int bits;
     struct room_data *room_was_in = NULL;
+    struct str_builder sb = str_builder_default;
 
-    acc_string_clear();
     if (!*arg) {
-        acc_sprintf("Look in what?\r\n");
+        sb_sprintf(&sb,  "Look in what?\r\n");
     } else if (!(bits = generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM |
                                      FIND_OBJ_EQUIP, ch, NULL, &obj))) {
-        acc_sprintf("There doesn't seem to be %s %s here.\r\n", AN(arg), arg);
+        sb_sprintf(&sb,  "There doesn't seem to be %s %s here.\r\n", AN(arg), arg);
     } else if ((GET_OBJ_TYPE(obj) != ITEM_DRINKCON) &&
                (GET_OBJ_TYPE(obj) != ITEM_FOUNTAIN) &&
                (GET_OBJ_TYPE(obj) != ITEM_CONTAINER) &&
                (GET_OBJ_TYPE(obj) != ITEM_PIPE) &&
                (GET_OBJ_TYPE(obj) != ITEM_VEHICLE)) {
-        acc_sprintf("There's nothing inside that!\r\n");
+        sb_sprintf(&sb,  "There's nothing inside that!\r\n");
     } else {
         if (IS_OBJ_TYPE(obj, ITEM_CONTAINER)) {
             if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED) &&
                 !GET_OBJ_VAL(obj, 3) && GET_LEVEL(ch) < LVL_GOD) {
-                acc_sprintf("It is closed.\r\n");
+                sb_sprintf(&sb,  "It is closed.\r\n");
             } else {
-                acc_sprintf("%s", obj->name);
+                sb_sprintf(&sb,  "%s", obj->name);
                 switch (bits) {
                 case FIND_OBJ_INV:
-                    acc_sprintf(" (carried): \r\n");
+                    sb_sprintf(&sb,  " (carried): \r\n");
                     break;
                 case FIND_OBJ_ROOM:
-                    acc_sprintf(" (here): \r\n");
+                    sb_sprintf(&sb,  " (here): \r\n");
                     break;
                 case FIND_OBJ_EQUIP:
                 case FIND_OBJ_EQUIP_CONT:
-                    acc_sprintf(" (used): \r\n");
+                    sb_sprintf(&sb,  " (used): \r\n");
                     break;
                 }
 
-                list_obj_to_char(obj->contains, ch, SHOW_OBJ_CONTENT, true);
+                list_obj_to_char(obj->contains, ch, SHOW_OBJ_CONTENT, true, &sb);
             }
         } else if (IS_OBJ_TYPE(obj, ITEM_VEHICLE)) {
             if (IS_SET(GET_OBJ_VAL(obj, 1), CONT_CLOSED)) {
                 act("The door of $p is closed, and you can't see in.",
                     false, ch, obj, NULL, TO_CHAR);
             } else if (real_room(ROOM_NUMBER(obj)) != NULL) {
-                acc_sprintf("Inside %s you see:\r\n", OBJS(obj, ch));
+                sb_sprintf(&sb,  "Inside %s you see:\r\n", OBJS(obj, ch));
                 room_was_in = ch->in_room;
                 char_from_room(ch, false);
                 char_to_room(ch, real_room(ROOM_NUMBER(obj)), false);
-                list_char_to_char(ch->in_room->people, ch);
+                list_char_to_char(ch->in_room->people, ch, &sb);
                 act("$n looks in from the outside.", false, ch, NULL, NULL, TO_ROOM);
                 char_from_room(ch, false);
                 char_to_room(ch, room_was_in, false);
             }
         } else if (IS_OBJ_TYPE(obj, ITEM_PIPE)) {
             if (GET_OBJ_VAL(obj, 0)) {
-                acc_sprintf("There appears to be some tobacco in it.\r\n");
+                sb_sprintf(&sb,  "There appears to be some tobacco in it.\r\n");
             } else {
-                acc_sprintf("There is nothing in it.\r\n");
+                sb_sprintf(&sb,  "There is nothing in it.\r\n");
             }
 
         } else {                /* item must be a fountain or drink container */
@@ -1776,23 +1775,23 @@ look_in_obj(struct creature *ch, char *arg)
             int cur_fill = GET_OBJ_VAL(obj, 1);
 
             if (cur_fill == 0) {
-                acc_sprintf("It is empty.\r\n");
+                sb_sprintf(&sb,  "It is empty.\r\n");
             } else if (cur_fill < 0 || max_fill < 0 || cur_fill >= max_fill) {
-                acc_sprintf("It's full of a %s liquid.\r\n",
+                sb_sprintf(&sb,  "It's full of a %s liquid.\r\n",
                             color_liquid[GET_OBJ_VAL(obj, 2)]);
             } else if (cur_fill > max_fill / 3 * 2 ) {
-                acc_sprintf("It's more than half full of a %s liquid.\r\n",
+                sb_sprintf(&sb,  "It's more than half full of a %s liquid.\r\n",
                             color_liquid[GET_OBJ_VAL(obj, 2)]);
             } else if (cur_fill > max_fill / 3) {
-                acc_sprintf("It's about half full of a %s liquid.\r\n",
+                sb_sprintf(&sb,  "It's about half full of a %s liquid.\r\n",
                             color_liquid[GET_OBJ_VAL(obj, 2)]);
             } else {
-                acc_sprintf("It's less than half full of a %s liquid.\r\n",
+                sb_sprintf(&sb,  "It's less than half full of a %s liquid.\r\n",
                             color_liquid[GET_OBJ_VAL(obj, 2)]);
             }
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 char *
@@ -1912,6 +1911,7 @@ look_at_target(struct creature *ch, char *arg, int cmd)
         }
     }
 
+    struct str_builder sb = str_builder_default;
     if (bits) {                 /* If an object was found back in
                                  * generic_find */
         if (found_obj) {
@@ -1941,13 +1941,11 @@ look_at_target(struct creature *ch, char *arg, int cmd)
                     look_at_room(ch, car->in_room, 1);
                 }
             } else if (!found) {
-                acc_string_clear();
-                show_obj_to_char(found_obj, ch, SHOW_OBJ_EXTRA, 0); /* Show no-description */
-                page_string(ch->desc, acc_get_string());
+                show_obj_to_char(found_obj, ch, SHOW_OBJ_EXTRA, 0, &sb); /* Show no-description */
+                page_string(ch->desc, sb.str);
             } else {
-                acc_string_clear();
-                show_obj_to_char(found_obj, ch, SHOW_OBJ_BITS, 0);  /* Find hum, glow etc */
-                send_to_char(ch, "%s", acc_get_string());
+                show_obj_to_char(found_obj, ch, SHOW_OBJ_BITS, 0, &sb);  /* Find hum, glow etc */
+                send_to_char(ch, "%s", sb.str);
             }
         }
 
@@ -2207,9 +2205,9 @@ ACMD(do_look)
         send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
     } else if (room_is_dark(ch->in_room) && !has_dark_sight(ch)) {
         send_to_char(ch, "It is pitch black...\r\n");
-        acc_string_clear();
-        list_char_to_char(ch->in_room->people, ch); // glowing red eyes
-        send_to_char(ch, "%s", acc_get_string());
+        struct str_builder sb = str_builder_default;
+        list_char_to_char(ch->in_room->people, ch, &sb); // glowing red eyes
+        send_to_char(ch, "%s", sb.str);
     } else {
         half_chop(argument, arg, arg2);
 
@@ -2242,9 +2240,9 @@ ACMD(do_glance)
         send_to_char(ch, "You can't see a damned thing, you're blind!\r\n");
     } else if (room_is_dark(ch->in_room) && !has_dark_sight(ch)) {
         send_to_char(ch, "It is pitch black...\r\n");
-        acc_string_clear();
-        list_char_to_char(ch->in_room->people, ch); // glowing red eyes
-        send_to_char(ch, "%s", acc_get_string());
+        struct str_builder sb = str_builder_default;
+        list_char_to_char(ch->in_room->people, ch, &sb); // glowing red eyes
+        send_to_char(ch, "%s", sb.str);
     } else {
         char *arg = tmp_getword(&argument);
 
@@ -2385,7 +2383,7 @@ ACMD(do_encumbrance)
 // it may interest you to know that mode=1 means we should only show bad things
 // IMPORTANT: Add negative messages ABOVE the mode check, positive messages BELOW
 void
-acc_append_affects(struct creature *ch, int8_t mode)
+sb_append_affects(struct creature *ch, bool debuffs_only, struct str_builder *sb)
 {
 
     struct affected_type *af = NULL;
@@ -2394,47 +2392,47 @@ acc_append_affects(struct creature *ch, int8_t mode)
     const char *str = "";
 
     if (affected_by_spell(ch, SPELL_FIRE_BREATHING)) {
-        acc_strcat("You are empowered with breath of FIRE!\r\n", NULL);
+        sb_strcat(sb,  "You are empowered with breath of FIRE!\r\n", NULL);
     } else if (affected_by_spell(ch, SPELL_FROST_BREATHING)) {
-        acc_strcat("You are empowered with breath of FROST!\r\n", NULL);
+        sb_strcat(sb,  "You are empowered with breath of FROST!\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_BLIND)) {
-        acc_strcat("You have been blinded!\r\n", NULL);
+        sb_strcat(sb,  "You have been blinded!\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_POISON)
         || AFF3_FLAGGED(ch, AFF3_POISON_2)
         || AFF3_FLAGGED(ch, AFF3_POISON_3)) {
-        acc_strcat("You are poisoned!\r\n", NULL);
+        sb_strcat(sb,  "You are poisoned!\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_PETRIFY)) {
-        acc_sprintf("You are turning into %sSTONE%s!\r\n",
+        sb_sprintf(sb,  "You are turning into %sSTONE%s!\r\n",
                     CCNRM_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
     }
     if (AFF3_FLAGGED(ch, AFF3_RADIOACTIVE)) {
-        acc_strcat("You are radioactive.\r\n", NULL);
+        sb_strcat(sb,  "You are radioactive.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_GAMMA_RAY)) {
-        acc_strcat("You have been irradiated.\r\n", NULL);
+        sb_strcat(sb,  "You have been irradiated.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
-        acc_sprintf("You are %s%sON FIRE!!%s\r\n",
+        sb_sprintf(sb,  "You are %s%sON FIRE!!%s\r\n",
                     CCRED_BLD(ch, C_SPR), CCBLK(ch, C_CMP), CCNRM(ch, C_SPR));
     }
     if (affected_by_spell(ch, SPELL_QUAD_DAMAGE)) {
-        acc_sprintf("You are dealing out %squad damage%s.\r\n",
+        sb_sprintf(sb,  "You are dealing out %squad damage%s.\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
     }
     if (affected_by_spell(ch, SPELL_BLACKMANTLE)) {
-        acc_strcat("You are covered by the blackmantle.\r\n", NULL);
+        sb_strcat(sb,  "You are covered by the blackmantle.\r\n", NULL);
     }
 
     if (affected_by_spell(ch, SPELL_ENTANGLE)) {
-        acc_strcat("You are entangled in the undergrowth!\r\n", NULL);
+        sb_strcat(sb,  "You are entangled in the undergrowth!\r\n", NULL);
     }
 
     if ((af = affected_by_spell(ch, SKILL_DISGUISE))) {
         if ((mob = real_mobile_proto(af->modifier))) {
-            acc_sprintf("You are disguised as %s at a level of %d.\r\n",
+            sb_sprintf(sb,  "You are disguised as %s at a level of %d.\r\n",
                         GET_NAME(mob), af->duration);
         }
     }
@@ -2442,528 +2440,520 @@ acc_append_affects(struct creature *ch, int8_t mode)
 
     if (affected_by_spell(ch, TYPE_RAD_SICKNESS)) {
         if (!number(0, 2)) {
-            acc_strcat("You feel nauseous.\r\n", NULL);
+            sb_strcat(sb,  "You feel nauseous.\r\n", NULL);
         } else if (!number(0, 1)) {
-            acc_strcat("You feel sick and your skin is dry.\r\n", NULL);
+            sb_strcat(sb,  "You feel sick and your skin is dry.\r\n", NULL);
         } else {
-            acc_strcat("You feel sick and your hair is falling out.\r\n",
+            sb_strcat(sb,  "You feel sick and your hair is falling out.\r\n",
                        NULL);
         }
     }
 
     if (AFF2_FLAGGED(ch, AFF2_SLOW)) {
-        acc_strcat("You feel unnaturally slowed.\r\n", NULL);
+        sb_strcat(sb,  "You feel unnaturally slowed.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_CHARM)) {
-        acc_strcat("You have been charmed!\r\n", NULL);
+        sb_strcat(sb,  "You have been charmed!\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_MANA_LEAK) && !AFF3_FLAGGED(ch, AFF3_MANA_TAP)) {
-        acc_strcat(str,
+        sb_strcat(sb,  str,
                    "You are slowly being drained of your spiritual energy.\r\n",
                    NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK)
         && !AFF3_FLAGGED(ch, AFF3_ENERGY_TAP)) {
-        acc_strcat(str,
+        sb_strcat(sb,  str,
                    "Your body is slowly being drained of physical energy.\r\n", NULL);
     }
 
     if (AFF3_FLAGGED(ch, AFF3_SYMBOL_OF_PAIN)) {
-        acc_strcat("Your mind burns with the symbol of pain!\r\n", NULL);
+        sb_strcat(sb,  "Your mind burns with the symbol of pain!\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_WEAKNESS)) {
-        acc_strcat("You feel unusually weakened.\r\n", NULL);
+        sb_strcat(sb,  "You feel unusually weakened.\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH)) {
-        acc_strcat("You feel a psychic force crushing your mind!\r\n", NULL);
+        sb_strcat(sb,  "You feel a psychic force crushing your mind!\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_FEAR)) {
-        acc_strcat("The world is a terribly frightening place!\r\n", NULL);
+        sb_strcat(sb,  "The world is a terribly frightening place!\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_ACIDITY)) {
-        acc_strcat("Your body is producing self-corroding acids!\r\n", NULL);
+        sb_strcat(sb,  "Your body is producing self-corroding acids!\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)) {
-        acc_strcat
-            ("Spacetime is bent around you in a powerful gravity well!\r\n",
+        sb_strcat(sb, "Spacetime is bent around you in a powerful gravity well!\r\n",
             NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_HAMSTRUNG)) {
-        acc_sprintf
-            ("%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
+        sb_sprintf(sb, "%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
             CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
                                                                         C_SPR), CCNRM(ch, C_SPR));
     }
     if (IS_SICK(ch)) {
-        acc_strcat("You are afflicted with a terrible sickness!\r\n", NULL);
+        sb_strcat(sb,  "You are afflicted with a terrible sickness!\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_HAMSTRUNG)) {
-        acc_sprintf
-            ("%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
+        sb_sprintf(sb, "%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
             CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
                                                                         C_SPR), CCNRM(ch, C_SPR));
     }
     if (AFF_FLAGGED(ch, AFF_CONFUSION)) {
-        acc_strcat("You are very confused.\r\n", NULL);
+        sb_strcat(sb,  "You are very confused.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_MOTOR_SPASM)) {
-        acc_strcat("Your muscles are convulsing uncontrollably!\r\n", NULL);
+        sb_strcat(sb,  "Your muscles are convulsing uncontrollably!\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_VERTIGO)) {
-        acc_strcat("You are lost in a sea of vertigo.\r\n", NULL);
+        sb_strcat(sb,  "You are lost in a sea of vertigo.\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_TAINTED)) {
-        acc_strcat("The very essence of your being has been tainted.\r\n",
+        sb_strcat(sb,  "The very essence of your being has been tainted.\r\n",
                    NULL);
     }
     if (affected_by_spell(ch, SONG_INSIDIOUS_RHYTHM)) {
-        acc_strcat("Your senses have been dulled by insidious melodies.\r\n",
+        sb_strcat(sb,  "Your senses have been dulled by insidious melodies.\r\n",
                    NULL);
     }
     if (affected_by_spell(ch, SONG_VERSE_OF_VULNERABILITY)) {
-        acc_strcat("You feel more vulnerable to attack.\r\n", NULL);
+        sb_strcat(sb,  "You feel more vulnerable to attack.\r\n", NULL);
     }
 
     // vampiric regeneration
 
     if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {
         if ((name = player_name_by_idnum(af->modifier))) {
-            acc_sprintf
-                ("You are under the effects of %s's vampiric regeneration.\r\n",
+            sb_sprintf(sb, "You are under the effects of %s's vampiric regeneration.\r\n",
                 name);
         } else {
-            acc_strcat
-                ("You are under the effects of vampiric regeneration from an unknown source.\r\n",
+            sb_strcat(sb, "You are under the effects of vampiric regeneration from an unknown source.\r\n",
                 NULL);
         }
     }
 
     if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
         if ((name = player_name_by_idnum(af->modifier))) {
-            acc_strcat("You are under the effects of ", name,
+            sb_strcat(sb,  "You are under the effects of ", name,
                        "'s locust regeneration.\r\n", NULL);
         } else {
-            acc_strcat(str,
+            sb_strcat(sb,  str,
                        "You are under the effects of locust regeneration from an unknown source.\r\n",
                        NULL);
         }
     }
 
-    if (mode) {                 /* Only asked for bad affs? */
+    if (debuffs_only) {                 /* Only asked for bad affs? */
         return;
     }
     if (IS_SOULLESS(ch)) {
-        acc_strcat("A deep despair clouds your soulless mind.\r\n", NULL);
+        sb_strcat(sb,  "A deep despair clouds your soulless mind.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_SNEAK) && !AFF3_FLAGGED(ch, AFF3_INFILTRATE)) {
-        acc_strcat("You are sneaking.\r\n", NULL);
+        sb_strcat(sb,  "You are sneaking.\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_INFILTRATE)) {
-        acc_strcat("You are infiltrating.\r\n", NULL);
+        sb_strcat(sb,  "You are infiltrating.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_INVISIBLE)) {
-        acc_strcat("You are invisible.\r\n", NULL);
+        sb_strcat(sb,  "You are invisible.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_INVIS_TO_UNDEAD)) {
-        acc_strcat("You are invisible to the undead.\r\n", NULL);
+        sb_strcat(sb,  "You are invisible to the undead.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_TRANSPARENT)) {
-        acc_strcat("You are transparent.\r\n", NULL);
+        sb_strcat(sb,  "You are transparent.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_DETECT_INVIS)) {
-        acc_strcat(str,
+        sb_strcat(sb,  str,
                    "You are sensitive to the presence of invisible things.\r\n",
                    NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_DETECT_POISON)) {
-        acc_strcat(str,
+        sb_strcat(sb,  str,
                    "You are sensitive to the presence of poisons.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)) {
-        acc_strcat("You are seeing truly.\r\n", NULL);
+        sb_strcat(sb,  "You are seeing truly.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_SANCTUARY)) {
-        acc_strcat("You are protected by Sanctuary.\r\n", NULL);
+        sb_strcat(sb,  "You are protected by Sanctuary.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_ARMOR)) {
-        acc_strcat("You feel protected.\r\n", NULL);
+        sb_strcat(sb,  "You feel protected.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_STRENGTH)) {
-        acc_strcat("Your physical strength is magically augmented.\r\n", NULL);
+        sb_strcat(sb,  "Your physical strength is magically augmented.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_WORD_OF_INTELLECT)) {
-        acc_strcat("Your intellect is magically augmented.\r\n", NULL);
+        sb_strcat(sb,  "Your intellect is magically augmented.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_BARKSKIN)) {
-        acc_strcat("Your skin is thick and tough like tree bark.\r\n", NULL);
+        sb_strcat(sb,  "Your skin is thick and tough like tree bark.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_STONESKIN)) {
-        acc_strcat("Your skin is as hard as granite.\r\n", NULL);
+        sb_strcat(sb,  "Your skin is as hard as granite.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_SPIRIT_TRACK)) {
-        acc_strcat("You can track by sensing the spirit of your prey.\r\n", NULL);
+        sb_strcat(sb,  "You can track by sensing the spirit of your prey.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_INFRAVISION)) {
-        acc_strcat("Your eyes are glowing red.\r\n", NULL);
+        sb_strcat(sb,  "Your eyes are glowing red.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_REJUV)) {
-        acc_strcat("You feel like your body will heal with a good rest.\r\n",
+        sb_strcat(sb,  "You feel like your body will heal with a good rest.\r\n",
                    NULL);
     }
     if (AFF_FLAGGED(ch, AFF_REGEN)) {
-        acc_strcat("Your body is regenerating itself rapidly.\r\n", NULL);
+        sb_strcat(sb,  "Your body is regenerating itself rapidly.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_GLOWLIGHT)) {
-        acc_strcat("You are followed by a ghostly illumination.\r\n", NULL);
+        sb_strcat(sb,  "You are followed by a ghostly illumination.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_BLUR)) {
-        acc_strcat("Your image is blurred and shifting.\r\n", NULL);
+        sb_strcat(sb,  "Your image is blurred and shifting.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)) {
         if (affected_by_spell(ch, SPELL_REFRACTION)) {
-            acc_strcat("Your body is irregularly refractive.\r\n", NULL);
+            sb_strcat(sb,  "Your body is irregularly refractive.\r\n", NULL);
         } else {
-            acc_strcat("Your image is displaced.\r\n", NULL);
+            sb_strcat(sb,  "Your image is displaced.\r\n", NULL);
         }
     }
     if (affected_by_spell(ch, SPELL_ELECTROSTATIC_FIELD)) {
-        acc_strcat("You are surrounded by an electrostatic field.\r\n", NULL);
+        sb_strcat(sb,  "You are surrounded by an electrostatic field.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
-        acc_strcat("You are protected by a shield of fire.\r\n", NULL);
+        sb_strcat(sb,  "You are protected by a shield of fire.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_BLADE_BARRIER)) {
-        acc_strcat("You are protected by whirling blades.\r\n", NULL);
+        sb_strcat(sb,  "You are protected by whirling blades.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_ENERGY_FIELD)) {
-        acc_strcat("You are surrounded by a field of energy.\r\n", NULL);
+        sb_strcat(sb,  "You are surrounded by a field of energy.\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE)) {
-        acc_strcat("You are surrounded by a prismatic sphere of light.\r\n",
+        sb_strcat(sb,  "You are surrounded by a prismatic sphere of light.\r\n",
                    NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_FLUORESCENT)) {
-        acc_strcat("The atoms in your vicinity are fluorescent.\r\n", NULL);
+        sb_strcat(sb,  "The atoms in your vicinity are fluorescent.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION)) {
         if (IS_EVIL(ch)) {
-            acc_strcat("An unholy light is following you.\r\n", NULL);
+            sb_strcat(sb,  "An unholy light is following you.\r\n", NULL);
         } else if (IS_GOOD(ch)) {
-            acc_strcat("A holy light is following you.\r\n", NULL);
+            sb_strcat(sb,  "A holy light is following you.\r\n", NULL);
         } else {
-            acc_strcat("A sickly light is following you.\r\n", NULL);
+            sb_strcat(sb,  "A sickly light is following you.\r\n", NULL);
         }
     }
     if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
-        acc_strcat("You are BERSERK!\r\n", NULL);
+        sb_strcat(sb,  "You are BERSERK!\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_PROTECT_GOOD)) {
-        acc_strcat("You are protected from good.\r\n", NULL);
+        sb_strcat(sb,  "You are protected from good.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_PROTECT_EVIL)) {
-        acc_strcat("You are protected from evil.\r\n", NULL);
+        sb_strcat(sb,  "You are protected from evil.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_PROT_DEVILS)) {
-        acc_strcat("You are protected from devils.\r\n", NULL);
+        sb_strcat(sb,  "You are protected from devils.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_PROT_DEMONS)) {
-        acc_strcat("You are protected from demons.\r\n", NULL);
+        sb_strcat(sb,  "You are protected from demons.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_PROTECT_UNDEAD)) {
-        acc_strcat("You are protected from the undead.\r\n", NULL);
+        sb_strcat(sb,  "You are protected from the undead.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_PROT_LIGHTNING)) {
-        acc_strcat("You are protected from lightning.\r\n", NULL);
+        sb_strcat(sb,  "You are protected from lightning.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_PROT_FIRE)) {
-        acc_strcat("You are protected from fire.\r\n", NULL);
+        sb_strcat(sb,  "You are protected from fire.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_MAGICAL_PROT)) {
-        acc_strcat("You are protected against magic.\r\n", NULL);
+        sb_strcat(sb,  "You are protected against magic.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_ENDURE_COLD)) {
-        acc_strcat("You can endure extreme cold.\r\n", NULL);
+        sb_strcat(sb,  "You can endure extreme cold.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_SENSE_LIFE)) {
-        acc_strcat(str,
+        sb_strcat(sb,  str,
                    "You are sensitive to the presence of living creatures.\r\n", NULL);
     }
     if (affected_by_spell(ch, SKILL_EMPOWER)) {
-        acc_strcat("You are empowered.\r\n", NULL);
+        sb_strcat(sb,  "You are empowered.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_TELEKINESIS)) {
-        acc_strcat("You are feeling telekinetic.\r\n", NULL);
+        sb_strcat(sb,  "You are feeling telekinetic.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_HASTE)) {
-        acc_strcat("You are moving very fast.\r\n", NULL);
+        sb_strcat(sb,  "You are moving very fast.\r\n", NULL);
     }
     if (affected_by_spell(ch, SKILL_KATA)) {
-        acc_strcat("You feel focused from your kata.\r\n", NULL);
+        sb_strcat(sb,  "You feel focused from your kata.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_OBLIVITY)) {
-        acc_strcat("You are oblivious to pain.\r\n", NULL);
+        sb_strcat(sb,  "You are oblivious to pain.\r\n", NULL);
     }
     if (affected_by_spell(ch, ZEN_MOTION)) {
-        acc_strcat("The zen of motion is one with your body.\r\n", NULL);
+        sb_strcat(sb,  "The zen of motion is one with your body.\r\n", NULL);
     }
     if (affected_by_spell(ch, ZEN_TRANSLOCATION)) {
-        acc_strcat("You are as one with the zen of translocation.\r\n", NULL);
+        sb_strcat(sb,  "You are as one with the zen of translocation.\r\n", NULL);
     }
     if (affected_by_spell(ch, ZEN_CELERITY)) {
-        acc_strcat("You are under the effects of the zen of celerity.\r\n",
+        sb_strcat(sb,  "You are under the effects of the zen of celerity.\r\n",
                    NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_MANA_TAP) && !AFF3_FLAGGED(ch, AFF3_MANA_LEAK)) {
-        acc_strcat(str,
+        sb_strcat(sb,  str,
                    "You have a direct tap to the spiritual energies of the universe.\r\n",
                    NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_ENERGY_TAP)
         && !AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK)) {
-        acc_strcat(str,
+        sb_strcat(sb,  str,
                    "Your body is absorbing physical energy from the universe.\r\n",
                    NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
-        acc_strcat("You are perceiving sonic images.\r\n", NULL);
+        sb_strcat(sb,  "You are perceiving sonic images.\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_PROT_HEAT)) {
-        acc_strcat("You are protected from heat.\r\n", NULL);
+        sb_strcat(sb,  "You are protected from heat.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_RIGHTEOUS_PENETRATION)) {
-        acc_strcat("You feel overwhelmingly righteous!\r\n", NULL);
+        sb_strcat(sb,  "You feel overwhelmingly righteous!\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_PRAY)) {
-        acc_strcat("You feel guided by divine forces.\r\n", NULL);
+        sb_strcat(sb,  "You feel guided by divine forces.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_BLESS)) {
-        acc_strcat("You feel blessed.\r\n", NULL);
+        sb_strcat(sb,  "You feel blessed.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_DEATH_KNELL)) {
-        acc_strcat("You feel giddy from the absorption of a life.\r\n", NULL);
+        sb_strcat(sb,  "You feel giddy from the absorption of a life.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_MALEFIC_VIOLATION)) {
-        acc_strcat("You feel overwhelmingly wicked!\r\n", NULL);
+        sb_strcat(sb,  "You feel overwhelmingly wicked!\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_MANA_SHIELD)) {
-        acc_strcat("You are protected by a mana shield.\r\n", NULL);
+        sb_strcat(sb,  "You are protected by a mana shield.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS)) {
-        acc_strcat("You are surrounded by a shield of righteousness.\r\n",
+        sb_strcat(sb,  "You are surrounded by a shield of righteousness.\r\n",
                    NULL);
     }
     if (affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL)) {
-        acc_strcat("You are enveloped in an anti-magic shell.\r\n", NULL);
+        sb_strcat(sb,  "You are enveloped in an anti-magic shell.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_SANCTIFICATION)) {
-        acc_strcat("You have been sanctified!\r\n", NULL);
+        sb_strcat(sb,  "You have been sanctified!\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_DIVINE_INTERVENTION)) {
-        acc_strcat("You are shielded by divine intervention.\r\n", NULL);
+        sb_strcat(sb,  "You are shielded by divine intervention.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_SPHERE_OF_DESECRATION)) {
-        acc_strcat(str,
+        sb_strcat(sb,  str,
                    "You are surrounded by a black sphere of desecration.\r\n", NULL);
     }
 
     /* psionic affections */
     if (affected_by_spell(ch, SPELL_POWER)) {
-        acc_strcat("Your physical strength is augmented.\r\n", NULL);
+        sb_strcat(sb,  "Your physical strength is augmented.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_INTELLECT)) {
-        acc_strcat("Your mental faculties are augmented.\r\n", NULL);
+        sb_strcat(sb,  "Your mental faculties are augmented.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_NOPAIN)) {
-        acc_strcat("Your mind is ignoring pain.\r\n", NULL);
+        sb_strcat(sb,  "Your mind is ignoring pain.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_RETINA)) {
-        acc_strcat("Your retina is especially sensitive.\r\n", NULL);
+        sb_strcat(sb,  "Your retina is especially sensitive.\r\n", NULL);
     }
     if (affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER)) {
-        acc_strcat("Shukutei Adrenal Maximizations are active.\r\n", NULL);
+        sb_strcat(sb,  "Shukutei Adrenal Maximizations are active.\r\n", NULL);
     } else if (AFF_FLAGGED(ch, AFF_ADRENALINE)) {
-        acc_strcat("Your adrenaline is pumping.\r\n", NULL);
+        sb_strcat(sb,  "Your adrenaline is pumping.\r\n", NULL);
     }
     if (AFF_FLAGGED(ch, AFF_CONFIDENCE)) {
-        acc_strcat("You feel very confident.\r\n", NULL);
+        sb_strcat(sb,  "You feel very confident.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_DERMAL_HARDENING)) {
-        acc_strcat("Your dermal surfaces are hardened.\r\n", NULL);
+        sb_strcat(sb,  "Your dermal surfaces are hardened.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_LATTICE_HARDENING)) {
-        acc_strcat("Your molecular lattice has been strengthened.\r\n", NULL);
+        sb_strcat(sb,  "Your molecular lattice has been strengthened.\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_NOBREATHE)) {
-        acc_strcat("You are not breathing.\r\n", NULL);
+        sb_strcat(sb,  "You are not breathing.\r\n", NULL);
     }
     if (AFF3_FLAGGED(ch, AFF3_PSISHIELD)) {
-        acc_strcat("You are protected by a psionic shield.\r\n", NULL);
+        sb_strcat(sb,  "You are protected by a psionic shield.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_METABOLISM)) {
-        acc_strcat("Your metabolism is racing.\r\n", NULL);
+        sb_strcat(sb,  "Your metabolism is racing.\r\n", NULL);
     } else if (affected_by_spell(ch, SPELL_RELAXATION)) {
-        acc_strcat("You feel very relaxed.\r\n", NULL);
+        sb_strcat(sb,  "You feel very relaxed.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_ENDURANCE)) {
-        acc_strcat("Your endurance is increased.\r\n", NULL);
+        sb_strcat(sb,  "Your endurance is increased.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_CAPACITANCE_BOOST)) {
-        acc_strcat("Your energy capacitance is boosted.\r\n", NULL);
+        sb_strcat(sb,  "Your energy capacitance is boosted.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE)) {
-        acc_strcat("Your mind is resistant to external energies.\r\n", NULL);
+        sb_strcat(sb,  "Your mind is resistant to external energies.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_PSYCHIC_FEEDBACK)) {
-        acc_strcat("You are providing psychic feedback to your attackers.\r\n",
+        sb_strcat(sb,  "You are providing psychic feedback to your attackers.\r\n",
                    NULL);
     }
 
     /* physic affects */
     if (AFF3_FLAGGED(ch, AFF3_ATTRACTION_FIELD)) {
-        acc_strcat("You are emitting an attraction field.\r\n", NULL);
+        sb_strcat(sb,  "You are emitting an attraction field.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_REPULSION_FIELD)) {
-        acc_strcat("You are emitting a repulsion field.\r\n", NULL);
+        sb_strcat(sb,  "You are emitting a repulsion field.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_VACUUM_SHROUD)) {
-        acc_strcat("You are existing in a total vacuum.\r\n", NULL);
+        sb_strcat(sb,  "You are existing in a total vacuum.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_CHEMICAL_STABILITY)) {
-        acc_strcat("You feel chemically inert.\r\n", NULL);
+        sb_strcat(sb,  "You feel chemically inert.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_ALBEDO_SHIELD)) {
-        acc_strcat("You are protected from electromagnetic attacks.\r\n",
+        sb_strcat(sb,  "You are protected from electromagnetic attacks.\r\n",
                    NULL);
     }
     if (affected_by_spell(ch, SPELL_GAUSS_SHIELD)) {
-        acc_strcat("You feel somewhat protected from metal.\r\n", NULL);
+        sb_strcat(sb,  "You feel somewhat protected from metal.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_DIMENSIONAL_SHIFT)) {
-        acc_strcat("You are traversing a parallel dimension.\r\n", NULL);
+        sb_strcat(sb,  "You are traversing a parallel dimension.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_DIMENSIONAL_VOID)) {
-        acc_strcat
-            ("You are disoriented from your foray into the interdimensional void!\r\n",
+        sb_strcat(sb, "You are disoriented from your foray into the interdimensional void!\r\n",
             NULL);
     }
 
     /*cyborg */
     if (AFF3_FLAGGED(ch, AFF3_DAMAGE_CONTROL)) {
-        acc_strcat("Your Damage Control process is running.\r\n", NULL);
+        sb_strcat(sb,  "Your Damage Control process is running.\r\n", NULL);
     }
     if (affected_by_spell(ch, SKILL_DEFENSIVE_POS)) {
-        acc_strcat("You are postured defensively.\r\n", NULL);
+        sb_strcat(sb,  "You are postured defensively.\r\n", NULL);
     }
     if (affected_by_spell(ch, SKILL_OFFENSIVE_POS)) {
-        acc_strcat("You are postured offensively.\r\n", NULL);
+        sb_strcat(sb,  "You are postured offensively.\r\n", NULL);
     }
     if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
-        acc_strcat("Your neural pathways have been bridged.\r\n", NULL);
+        sb_strcat(sb,  "Your neural pathways have been bridged.\r\n", NULL);
     }
     if (affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC)) {
-        acc_strcat("Melee Combat Tactics are in effect.\r\n", NULL);
+        sb_strcat(sb,  "Melee Combat Tactics are in effect.\r\n", NULL);
     }
     if (affected_by_spell(ch, SKILL_REFLEX_BOOST)) {
-        acc_strcat("Your Reflex Boosters are active.\r\n", NULL);
+        sb_strcat(sb,  "Your Reflex Boosters are active.\r\n", NULL);
     }
 
     if (AFF3_FLAGGED(ch, AFF3_SHROUD_OBSCUREMENT)) {
-        acc_strcat(str,
+        sb_strcat(sb,  str,
                    "You are surrounded by an magical obscurement shroud.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_DETECT_SCRYING)) {
-        acc_strcat("You are sensitive to attempts to magical scrying.\r\n",
+        sb_strcat(sb,  "You are sensitive to attempts to magical scrying.\r\n",
                    NULL);
     }
     if (affected_by_spell(ch, SKILL_ELUSION)) {
-        acc_strcat("You are attempting to hide your tracks.\r\n", NULL);
+        sb_strcat(sb,  "You are attempting to hide your tracks.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_TELEPATHY)) {
-        acc_strcat("Your telepathic abilities are greatly enhanced.\r\n",
+        sb_strcat(sb,  "Your telepathic abilities are greatly enhanced.\r\n",
                    NULL);
     }
     if (affected_by_spell(ch, SPELL_ANIMAL_KIN)) {
-        acc_strcat("You are feeling a strong bond with animals.\r\n", NULL);
+        sb_strcat(sb,  "You are feeling a strong bond with animals.\r\n", NULL);
     }
     if (affected_by_spell(ch, SPELL_THORN_SKIN)) {
-        acc_strcat("There are thorns protruding from your skin.\r\n", NULL);
+        sb_strcat(sb,  "There are thorns protruding from your skin.\r\n", NULL);
     }
     if (affected_by_spell(ch, SKILL_NANITE_RECONSTRUCTION)) {
-        acc_strcat("Your implants are undergoing nanite reconstruction.\r\n",
+        sb_strcat(sb,  "Your implants are undergoing nanite reconstruction.\r\n",
                    NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_PROT_RAD)) {
-        acc_strcat("You are immune to the effects of radiation.\r\n", NULL);
+        sb_strcat(sb,  "You are immune to the effects of radiation.\r\n", NULL);
     }
 
     /* bard affects */
     if (affected_by_spell(ch, SONG_MISDIRECTION_MELISMA)) {
-        acc_strcat("Your path is cloaked in the tendrils of song.\r\n", NULL);
+        sb_strcat(sb,  "Your path is cloaked in the tendrils of song.\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_ARIA_OF_ARMAMENT)) {
-        acc_strcat("You feel protected by song.\r\n", NULL);
+        sb_strcat(sb,  "You feel protected by song.\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_MELODY_OF_METTLE)) {
-        acc_strcat("Your vitality is boosted by the Melody of Mettle.\r\n",
+        sb_strcat(sb,  "Your vitality is boosted by the Melody of Mettle.\r\n",
                    NULL);
     }
     if (affected_by_spell(ch, SONG_DEFENSE_DITTY)) {
-        acc_strcat
-            ("Harmonic resonance protects you from deleterious effects.\r\n",
+        sb_strcat(sb, "Harmonic resonance protects you from deleterious effects.\r\n",
             NULL);
     }
     if (affected_by_spell(ch, SONG_ALRONS_ARIA)) {
-        acc_strcat("Alron guides your hands.\r\n", NULL);
+        sb_strcat(sb,  "Alron guides your hands.\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_VERSE_OF_VALOR)) {
-        acc_strcat("The spirit of fallen heroes fills your being.\r\n", NULL);
+        sb_strcat(sb,  "The spirit of fallen heroes fills your being.\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_DRIFTERS_DITTY)) {
-        acc_strcat("A pleasant tune gives you a pep in your step.\r\n", NULL);
+        sb_strcat(sb,  "A pleasant tune gives you a pep in your step.\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_CHANT_OF_LIGHT)) {
-        acc_strcat("You are surrounded by a warm glow.\r\n", NULL);
+        sb_strcat(sb,  "You are surrounded by a warm glow.\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_ARIA_OF_ASYLUM)) {
-        acc_strcat("You are enveloped by a gossamer shield.\r\n", NULL);
+        sb_strcat(sb,  "You are enveloped by a gossamer shield.\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_RHYTHM_OF_RAGE)) {
-        acc_strcat("You are consumed by a feral rage!\r\n", NULL);
+        sb_strcat(sb,  "You are consumed by a feral rage!\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_POWER_OVERTURE)) {
-        acc_strcat("Your strength is bolstered by song.\r\n", NULL);
+        sb_strcat(sb,  "Your strength is bolstered by song.\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_GUIHARIAS_GLORY)) {
-        acc_strcat("The power of deities is rushing through your veins.\r\n",
+        sb_strcat(sb,  "The power of deities is rushing through your veins.\r\n",
                    NULL);
     }
     if ((af = affected_by_spell(ch, SONG_MIRROR_IMAGE_MELODY))) {
-        acc_strcat(tmp_sprintf
+        sb_strcat(sb,  tmp_sprintf
                        ("You are being accompanied by %d mirror image%s.\r\n",
                        af->modifier, af->modifier > 1 ? "s" : ""), NULL);
     }
     if (affected_by_spell(ch, SONG_UNLADEN_SWALLOW_SONG)) {
-        acc_strcat("You are under the effect of an uplifting tune!\r\n", NULL);
+        sb_strcat(sb,  "You are under the effect of an uplifting tune!\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_IRRESISTABLE_DANCE)) {
-        acc_strcat("You are feet are dancing out of your control!\r\n", NULL);
+        sb_strcat(sb,  "You are feet are dancing out of your control!\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_WEIGHT_OF_THE_WORLD)) {
-        acc_strcat
-            ("The weight of the world rests lightly upon your shoulders.\r\n",
+        sb_strcat(sb, "The weight of the world rests lightly upon your shoulders.\r\n",
             NULL);
     }
     if (affected_by_spell(ch, SONG_EAGLES_OVERTURE)) {
-        acc_strcat("Other are impressed by your beautiful voice.\r\n", NULL);
+        sb_strcat(sb,  "Other are impressed by your beautiful voice.\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_FORTISSIMO)) {
-        acc_strcat("Your voice reverberates with vigor!\r\n", NULL);
+        sb_strcat(sb,  "Your voice reverberates with vigor!\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_REGALERS_RHAPSODY)) {
-        acc_strcat("A tune has soothed your hunger and thirst.\r\n", NULL);
+        sb_strcat(sb,  "A tune has soothed your hunger and thirst.\r\n", NULL);
     }
     if (affected_by_spell(ch, SONG_WOUNDING_WHISPERS)) {
-        acc_strcat("You are surrounded by whirling slivers of sound.\r\n",
+        sb_strcat(sb,  "You are surrounded by whirling slivers of sound.\r\n",
                    NULL);
     }
 
@@ -2971,13 +2961,14 @@ acc_append_affects(struct creature *ch, int8_t mode)
 
 ACMD(do_affects)
 {
-    acc_string_clear();
-    acc_strcat("Current affects:\r\n", NULL);
-    acc_append_affects(ch, 0);
-    if (strlen(acc_get_string()) == 18) {
+    struct str_builder sb = str_builder_default;
+
+    sb_strcat(&sb,  "Current affects:\r\n", NULL);
+    sb_append_affects(ch, false, &sb);
+    if (sb.len == 18) {
         send_to_char(ch, "You feel pretty normal.\r\n");
     } else {
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     }
 }
 
@@ -3045,146 +3036,146 @@ do_blind_score(struct creature *ch)
     struct time_info_data playing_time;
     struct time_info_data real_time_passed(time_t t2, time_t t1);
     int get_hunted_id(int hunter_id);
+    struct str_builder sb = str_builder_default;
 
-    acc_string_clear();
     if (IS_PC(ch)) {
-        acc_sprintf("You are known as %s %s\r\n",
+        sb_sprintf(&sb,  "You are known as %s %s\r\n",
                     GET_NAME(ch), GET_TITLE(ch));
     }
-    acc_sprintf("You are a %d level, %d year old %s %s %s.\r\n",
+    sb_sprintf(&sb,  "You are a %d level, %d year old %s %s %s.\r\n",
                 GET_LEVEL(ch), GET_AGE(ch), genders[(int)GET_SEX(ch)],
                 (GET_RACE(ch) >= 0 && GET_RACE(ch) < NUM_RACES) ?
                 race_name_by_idnum(GET_RACE(ch)) : "BAD RACE",
                 (GET_CLASS(ch) >= 0 && GET_CLASS(ch) < TOP_CLASS) ?
                 class_names[(int)GET_CLASS(ch)] : "BAD CLASS");
     if (!IS_NPC(ch) && IS_REMORT(ch)) {
-        acc_sprintf("You have remortalized as a %s (generation %d).\r\n",
+        sb_sprintf(&sb,  "You have remortalized as a %s (generation %d).\r\n",
                     class_names[(int)GET_REMORT_CLASS(ch)],
                     GET_REMORT_GEN(ch));
     }
     if ((age(ch).month == 0) && (age(ch).day == 0)) {
-        acc_strcat("  It's your birthday today!\r\n\r\n", NULL);
+        sb_strcat(&sb,  "  It's your birthday today!\r\n\r\n", NULL);
     } else {
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb,  "\r\n", NULL);
     }
 
-    acc_sprintf("Hit Points:  (%4d/%4d)\r\n",
+    sb_sprintf(&sb,  "Hit Points:  (%4d/%4d)\r\n",
                 GET_HIT(ch), GET_MAX_HIT(ch));
-    acc_sprintf("Mana Points: (%4d/%4d)\r\n",
+    sb_sprintf(&sb,  "Mana Points: (%4d/%4d)\r\n",
                 GET_MANA(ch), GET_MAX_MANA(ch));
-    acc_sprintf("Move Points: (%4d/%4d)\r\n",
+    sb_sprintf(&sb,  "Move Points: (%4d/%4d)\r\n",
                 GET_MOVE(ch), GET_MAX_MOVE(ch));
-    acc_sprintf("Armor Class: %d/10, ", GET_AC(ch));
-    acc_sprintf("Alignment: %d, ", GET_ALIGNMENT(ch));
-    acc_sprintf("Experience: %'d\r\n", GET_EXP(ch));
-    acc_sprintf("Kills: %'d, PKills: %'d, Arena: %'d\r\n",
+    sb_sprintf(&sb,  "Armor Class: %d/10, ", GET_AC(ch));
+    sb_sprintf(&sb,  "Alignment: %d, ", GET_ALIGNMENT(ch));
+    sb_sprintf(&sb,  "Experience: %'d\r\n", GET_EXP(ch));
+    sb_sprintf(&sb,  "Kills: %'d, PKills: %'d, Arena: %'d\r\n",
                 (GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)),
                 GET_PKILLS(ch),
                 GET_ARENAKILLS(ch));
-    acc_sprintf("Life points: %d\r\n", GET_LIFE_POINTS(ch));
+    sb_sprintf(&sb,  "Life points: %d\r\n", GET_LIFE_POINTS(ch));
 
-    acc_sprintf("You are %s tall, and weigh %s.\r\n",
+    sb_sprintf(&sb,  "You are %s tall, and weigh %s.\r\n",
                 format_distance(GET_HEIGHT(ch), USE_METRIC(ch)),
                 format_weight(GET_WEIGHT(ch), USE_METRIC(ch)));
     if (IS_PC(ch)) {
         if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
-            acc_sprintf("Next level in %'d more experience\r\n",
+            sb_sprintf(&sb,  "Next level in %'d more experience\r\n",
                         ((exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch)));
         } else {
             if (ch->player_specials->poofout) {
-                acc_sprintf("%sPoofout:%s  %s\r\n",
+                sb_sprintf(&sb,  "%sPoofout:%s  %s\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                             ch->player_specials->poofout);
             }
             if (ch->player_specials->poofin) {
-                acc_sprintf("%sPoofin :%s  %s\r\n",
+                sb_sprintf(&sb,  "%sPoofin :%s  %s\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                             ch->player_specials->poofin);
             }
         }
         playing_time = real_time_passed((time(NULL) - ch->player.time.logon) +
                                         ch->player.time.played, 0);
-        acc_sprintf("Playing time: %d days and %d hours.\r\n",
+        sb_sprintf(&sb,  "Playing time: %d days and %d hours.\r\n",
                     playing_time.day, playing_time.hours);
 
-        acc_strcat("You have a reputation of being -",
+        sb_strcat(&sb,  "You have a reputation of being -",
                    reputation_msg[GET_REPUTATION_RANK(ch)], "-\r\n", NULL);
         if (get_hunted_id(GET_IDNUM(ch))) {
-            acc_sprintf("You are registered to bounty hunt %s.\r\n",
+            sb_sprintf(&sb,  "You are registered to bounty hunt %s.\r\n",
                         player_name_by_idnum(get_hunted_id(GET_IDNUM(ch))));
         }
 
     }
-    acc_sprintf("You are currently speaking %s.\r\n",
+    sb_sprintf(&sb,  "You are currently speaking %s.\r\n",
                 tongue_name(GET_TONGUE(ch)));
-    acc_sprintf(
+    sb_sprintf(&sb,
         "You carry %s%'" PRId64 "%s gold coins.  You have %s%'" PRId64 "%s cash credits.\r\n",
         CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch,
                                                                 C_NRM), GET_CASH(ch), CCNRM(ch, C_NRM));
 
     switch (GET_POSITION(ch)) {
     case POS_DEAD:
-        acc_strcat("You are DEAD!\r\n", NULL);
+        sb_strcat(&sb,  "You are DEAD!\r\n", NULL);
         break;
     case POS_MORTALLYW:
-        acc_strcat("You are mortally wounded!  You should seek help!\r\n", NULL);
+        sb_strcat(&sb,  "You are mortally wounded!  You should seek help!\r\n", NULL);
         break;
     case POS_INCAP:
-        acc_strcat("You are incapacitated, slowly fading away...\r\n", NULL);
+        sb_strcat(&sb,  "You are incapacitated, slowly fading away...\r\n", NULL);
         break;
     case POS_STUNNED:
-        acc_strcat("You are stunned!  You can't move!\r\n", NULL);
+        sb_strcat(&sb,  "You are stunned!  You can't move!\r\n", NULL);
         break;
     case POS_SLEEPING:
         if (AFF3_FLAGGED(ch, AFF3_STASIS)) {
-            acc_strcat("You are inactive in a static state.\r\n", NULL);
+            sb_strcat(&sb,  "You are inactive in a static state.\r\n", NULL);
         } else {
-            acc_strcat("You are sleeping.\r\n", NULL);
+            sb_strcat(&sb,  "You are sleeping.\r\n", NULL);
         }
         break;
     case POS_RESTING:
-        acc_strcat("You are resting.\r\n", NULL);
+        sb_strcat(&sb,  "You are resting.\r\n", NULL);
         break;
     case POS_SITTING:
         if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
-            acc_strcat("You are meditating.\r\n", NULL);
+            sb_strcat(&sb,  "You are meditating.\r\n", NULL);
         } else {
-            acc_strcat("You are sitting.\r\n", NULL);
+            sb_strcat(&sb,  "You are sitting.\r\n", NULL);
         }
         break;
     case POS_FIGHTING:
         if (is_fighting(ch)) {
-            acc_strcat("You are fighting \r\n", CCNRM(ch, C_NRM), "\r\n", NULL);
+            sb_strcat(&sb,  "You are fighting \r\n", CCNRM(ch, C_NRM), "\r\n", NULL);
         } else {
-            acc_strcat("You are fighting thin air.\r\n", NULL);
+            sb_strcat(&sb,  "You are fighting thin air.\r\n", NULL);
         }
         break;
     case POS_MOUNTED:
         if (GET_POSITION(ch) == POS_MOUNTED) {
-            acc_strcat("You are mounted on \r\n", CCNRM(ch, C_NRM), "\r\n", NULL);
+            sb_strcat(&sb,  "You are mounted on \r\n", CCNRM(ch, C_NRM), "\r\n", NULL);
         } else {
-            acc_strcat("You are mounted on the thin air!?\r\n", NULL);
+            sb_strcat(&sb,  "You are mounted on the thin air!?\r\n", NULL);
         }
         break;
     case POS_STANDING:
-        acc_strcat("You are standing.\r\n", NULL);
+        sb_strcat(&sb,  "You are standing.\r\n", NULL);
         break;
     case POS_FLYING:
-        acc_strcat("You are hovering in midair.\r\n", NULL);
+        sb_strcat(&sb,  "You are hovering in midair.\r\n", NULL);
         break;
     default:
-        acc_strcat("You are floating.\r\n", NULL);
+        sb_strcat(&sb,  "You are floating.\r\n", NULL);
         break;
     }
 
     if (GET_COND(ch, DRUNK) > 10) {
-        acc_strcat("You are intoxicated\r\n", NULL);
+        sb_strcat(&sb,  "You are intoxicated\r\n", NULL);
     }
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR && PLR_FLAGGED(ch, PLR_MORTALIZED)) {
-        acc_strcat("You are mortalized.\r\n", NULL);
+        sb_strcat(&sb,  "You are mortalized.\r\n", NULL);
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_score)
@@ -3199,19 +3190,16 @@ ACMD(do_score)
         return;
     }
 
-    acc_string_clear();
-    acc_sprintf
-        ("%s*****************************************************************\r\n",
+    struct str_builder sb = str_builder_default;
+    sb_sprintf(&sb, "%s*****************************************************************\r\n",
         CCRED(ch, C_NRM));
-    acc_sprintf
-        ("%s***************************%sS C O R E%s%s*****************************\r\n",
+    sb_sprintf(&sb, "%s***************************%sS C O R E%s%s*****************************\r\n",
         CCYEL(ch, C_NRM), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCYEL(ch,
                                                                     C_NRM));
-    acc_sprintf
-        ("%s*****************************************************************%s\r\n",
+    sb_sprintf(&sb, "%s*****************************************************************%s\r\n",
         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 
-    acc_sprintf("%s, %d year old %s %s %s.  Your level is %d.\r\n",
+    sb_sprintf(&sb,  "%s, %d year old %s %s %s.  Your level is %d.\r\n",
                 GET_NAME(ch),
                 GET_AGE(ch), genders[(int)GET_SEX(ch)],
                 (GET_RACE(ch) >= 0 && GET_RACE(ch) < NUM_RACES) ?
@@ -3219,179 +3207,176 @@ ACMD(do_score)
                 (GET_CLASS(ch) >= 0 && GET_CLASS(ch) < TOP_CLASS) ?
                 class_names[(int)GET_CLASS(ch)] : "BAD CLASS", GET_LEVEL(ch));
     if (!IS_NPC(ch) && IS_REMORT(ch)) {
-        acc_sprintf("You have remortalized as a %s (generation %d).\r\n",
+        sb_sprintf(&sb,  "You have remortalized as a %s (generation %d).\r\n",
                     class_names[(int)GET_REMORT_CLASS(ch)], GET_REMORT_GEN(ch));
     }
     if ((age(ch).month == 0) && (age(ch).day == 0)) {
-        acc_strcat("  It's your birthday today!\r\n\r\n", NULL);
+        sb_strcat(&sb,  "  It's your birthday today!\r\n\r\n", NULL);
     } else {
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb,  "\r\n", NULL);
     }
 
-    acc_sprintf("Hit Points:  %11s           Armor Class: %s%d/10%s\r\n",
+    sb_sprintf(&sb,  "Hit Points:  %11s           Armor Class: %s%d/10%s\r\n",
                 tmp_sprintf("(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_HIT(ch),
                             CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_HIT(ch),
                             CCNRM(ch, C_NRM)), CCGRN(ch, C_NRM), GET_AC(ch), CCNRM(ch, C_NRM));
-    acc_sprintf("Mana Points: %11s           Alignment: %s%d%s\r\n",
+    sb_sprintf(&sb,  "Mana Points: %11s           Alignment: %s%d%s\r\n",
                 tmp_sprintf("(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_MANA(ch),
                             CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_MANA(ch),
                             CCNRM(ch, C_NRM)),
                 CCGRN(ch, C_NRM), GET_ALIGNMENT(ch), CCNRM(ch, C_NRM));
-    acc_sprintf("Move Points: %11s           Experience: %s%'d%s\r\n",
+    sb_sprintf(&sb,  "Move Points: %11s           Experience: %s%'d%s\r\n",
                 tmp_sprintf("(%s%4d%s/%s%4d%s)", CCYEL(ch, C_NRM), GET_MOVE(ch),
                             CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MAX_MOVE(ch),
                             CCNRM(ch, C_NRM)),
                 CCGRN(ch, C_NRM), GET_EXP(ch), CCNRM(ch, C_NRM));
-    acc_sprintf
-        ("                                   %sKills%s: %'d, %sPKills%s: %'d, %sArena%s: %'d\r\n",
+    sb_sprintf(&sb, "                                   %sKills%s: %'d, %sPKills%s: %'d, %sArena%s: %'d\r\n",
         CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
         (GET_MOBKILLS(ch) + GET_PKILLS(ch) + GET_ARENAKILLS(ch)), CCRED(ch,
                                                                         C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(ch), CCGRN(ch, C_NRM),
         CCNRM(ch, C_NRM), GET_ARENAKILLS(ch));
 
-    acc_sprintf
-        ("%s*****************************************************************%s\r\n",
+    sb_sprintf(&sb, "%s*****************************************************************%s\r\n",
         CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
-    acc_sprintf("You have %s%d%s life points.\r\n", CCCYN(ch, C_NRM),
+    sb_sprintf(&sb,  "You have %s%d%s life points.\r\n", CCCYN(ch, C_NRM),
                 GET_LIFE_POINTS(ch), CCNRM(ch, C_NRM));
 
-    acc_sprintf("You are %s%s%s tall, and weigh %s%s%s.\r\n",
+    sb_sprintf(&sb,  "You are %s%s%s tall, and weigh %s%s%s.\r\n",
                 CCCYN(ch, C_NRM), format_distance(GET_HEIGHT(ch), USE_METRIC(ch)), CCNRM(ch, C_NRM),
                 CCCYN(ch, C_NRM), format_weight(GET_WEIGHT(ch), USE_METRIC(ch)), CCNRM(ch, C_NRM));
 
     if (!IS_NPC(ch)) {
         if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
-            acc_sprintf("You need %s%'d%s exp to reach your next level.\r\n",
+            sb_sprintf(&sb,  "You need %s%'d%s exp to reach your next level.\r\n",
                         CCCYN(ch, C_NRM),
                         ((exp_scale[GET_LEVEL(ch) + 1]) - GET_EXP(ch)), CCNRM(ch,
                                                                               C_NRM));
         } else {
             if (ch->player_specials->poofout) {
-                acc_sprintf("%sPoofout:%s  %s\r\n",
+                sb_sprintf(&sb,  "%sPoofout:%s  %s\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                             ch->player_specials->poofout);
             }
             if (ch->player_specials->poofin) {
-                acc_sprintf("%sPoofin :%s  %s\r\n",
+                sb_sprintf(&sb,  "%sPoofin :%s  %s\r\n",
                             CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                             ch->player_specials->poofin);
             }
         }
         playing_time = real_time_passed((time(NULL) - ch->player.time.logon) +
                                         ch->player.time.played, 0);
-        acc_sprintf("You have existed here for %d days and %d hours.\r\n",
+        sb_sprintf(&sb,  "You have existed here for %d days and %d hours.\r\n",
                     playing_time.day, playing_time.hours);
 
-        acc_sprintf("You are known as %s%s%s.%s\r\n",
+        sb_sprintf(&sb,  "You are known as %s%s%s.%s\r\n",
                     CCYEL(ch, C_NRM), GET_NAME(ch), GET_TITLE(ch), CCNRM(ch, C_NRM));
-        acc_strcat("You have a reputation of being -",
+        sb_strcat(&sb,  "You have a reputation of being -",
                    reputation_msg[GET_REPUTATION_RANK(ch)], "-\r\n", NULL);
         if (get_hunted_id(GET_IDNUM(ch))) {
-            acc_sprintf("You are registered to bounty hunt %s.\r\n",
+            sb_sprintf(&sb,  "You are registered to bounty hunt %s.\r\n",
                         player_name_by_idnum(get_hunted_id(GET_IDNUM(ch))));
         }
 
     }
-    acc_sprintf("You are currently speaking %s.\r\n",
+    sb_sprintf(&sb,  "You are currently speaking %s.\r\n",
                 tongue_name(GET_TONGUE(ch)));
-    acc_sprintf
-        ("You carry %s%'" PRId64 "%s gold coins.  You have %s%'" PRId64 "%s cash credits.\r\n",
+    sb_sprintf(&sb, "You carry %s%'" PRId64 "%s gold coins.  You have %s%'" PRId64 "%s cash credits.\r\n",
         CCCYN(ch, C_NRM), GET_GOLD(ch), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
         GET_CASH(ch), CCNRM(ch, C_NRM));
 
     switch (GET_POSITION(ch)) {
     case POS_DEAD:
-        acc_strcat(CCRED(ch, C_NRM), "You are DEAD!", CCNRM(ch, C_NRM),
+        sb_strcat(&sb,  CCRED(ch, C_NRM), "You are DEAD!", CCNRM(ch, C_NRM),
                    "\r\n", NULL);
         break;
     case POS_MORTALLYW:
-        acc_strcat(CCRED(ch, C_NRM),
+        sb_strcat(&sb,  CCRED(ch, C_NRM),
                    "You are mortally wounded!  You should seek help!",
                    CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     case POS_INCAP:
-        acc_strcat(CCRED(ch, C_NRM),
+        sb_strcat(&sb,  CCRED(ch, C_NRM),
                    "You are incapacitated, slowly fading away...", CCNRM(ch, C_NRM),
                    "\r\n", NULL);
         break;
     case POS_STUNNED:
-        acc_strcat(CCRED(ch, C_NRM), "You are stunned!  You can't move!",
+        sb_strcat(&sb,  CCRED(ch, C_NRM), "You are stunned!  You can't move!",
                    CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     case POS_SLEEPING:
         if (AFF3_FLAGGED(ch, AFF3_STASIS)) {
-            acc_strcat(CCGRN(ch, C_NRM), "You are inactive in a static state.",
+            sb_strcat(&sb,  CCGRN(ch, C_NRM), "You are inactive in a static state.",
                        CCNRM(ch, C_NRM), "\r\n", NULL);
         } else {
-            acc_strcat(CCGRN(ch, C_NRM), "You are sleeping.",
+            sb_strcat(&sb,  CCGRN(ch, C_NRM), "You are sleeping.",
                        CCNRM(ch, C_NRM), "\r\n", NULL);
         }
         break;
     case POS_RESTING:
-        acc_strcat(CCGRN(ch, C_NRM), "You are resting.",
+        sb_strcat(&sb,  CCGRN(ch, C_NRM), "You are resting.",
                    CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     case POS_SITTING:
         if (AFF2_FLAGGED(ch, AFF2_MEDITATE)) {
-            acc_strcat(CCGRN(ch, C_NRM), "You are meditating.",
+            sb_strcat(&sb,  CCGRN(ch, C_NRM), "You are meditating.",
                        CCNRM(ch, C_NRM), "\r\n", NULL);
         } else {
-            acc_strcat(CCGRN(ch, C_NRM), "You are sitting.",
+            sb_strcat(&sb,  CCGRN(ch, C_NRM), "You are sitting.",
                        CCNRM(ch, C_NRM), "\r\n", NULL);
         }
         break;
     case POS_FIGHTING:
         if ((is_fighting(ch))) {
-            acc_strcat(CCYEL(ch, C_NRM),
+            sb_strcat(&sb,  CCYEL(ch, C_NRM),
                        "You are fighting ", PERS(random_opponent(ch), ch), ".",
                        CCNRM(ch, C_NRM), "\r\n", NULL);
         } else {
-            acc_strcat(CCYEL(ch, C_NRM),
+            sb_strcat(&sb,  CCYEL(ch, C_NRM),
                        "You are fighting thin air.", CCNRM(ch, C_NRM), "\r\n", NULL);
         }
         break;
     case POS_MOUNTED:
         if (MOUNTED_BY(ch)) {
-            acc_strcat(CCGRN(ch, C_NRM), "You are mounted on ",
+            sb_strcat(&sb,  CCGRN(ch, C_NRM), "You are mounted on ",
                        PERS(MOUNTED_BY(ch), ch), ".", CCNRM(ch, C_NRM), "\r\n", NULL);
         } else {
-            acc_strcat(CCGRN(ch, C_NRM), "You are mounted on the thin air!?",
+            sb_strcat(&sb,  CCGRN(ch, C_NRM), "You are mounted on the thin air!?",
                        CCNRM(ch, C_NRM), "\r\n", NULL);
         }
         break;
     case POS_STANDING:
-        acc_strcat(CCGRN(ch, C_NRM), "You are standing.",
+        sb_strcat(&sb,  CCGRN(ch, C_NRM), "You are standing.",
                    CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     case POS_FLYING:
-        acc_strcat(CCGRN(ch, C_NRM), "You are hovering in midair.",
+        sb_strcat(&sb,  CCGRN(ch, C_NRM), "You are hovering in midair.",
                    CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     default:
-        acc_strcat(CCGRN(ch, C_NRM), "You are floating.",
+        sb_strcat(&sb,  CCGRN(ch, C_NRM), "You are floating.",
                    CCNRM(ch, C_NRM), "\r\n", NULL);
         break;
     }
 
     if (GET_COND(ch, DRUNK) > 10) {
-        acc_strcat("You are intoxicated\r\n", NULL);
+        sb_strcat(&sb,  "You are intoxicated\r\n", NULL);
     }
 
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR && PLR_FLAGGED(ch, PLR_MORTALIZED)) {
-        acc_strcat("You are mortalized.\r\n", NULL);
+        sb_strcat(&sb,  "You are mortalized.\r\n", NULL);
     }
 
-    acc_append_affects(ch, PRF2_FLAGGED(ch, PRF2_NOAFFECTS));
+    sb_append_affects(ch, PRF2_FLAGGED(ch, PRF2_NOAFFECTS), &sb);
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_inventory)
 {
-    acc_string_clear();
-    acc_sprintf("You are carrying:\r\n");
-    list_obj_to_char(ch->carrying, ch, SHOW_OBJ_INV, true);
-    page_string(ch->desc, acc_get_string());
+    struct str_builder sb = str_builder_default;
+    sb_sprintf(&sb,  "You are carrying:\r\n");
+    list_obj_to_char(ch->carrying, ch, SHOW_OBJ_INV, true, &sb);
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_equipment)
@@ -3402,13 +3387,14 @@ ACMD(do_equipment)
     const char *str;
     const char *active_buf[2] = { "(inactive)", "(active)" };
     bool show_all = false;
-    skip_spaces(&argument);
+    struct str_builder sb = str_builder_default;
 
-    acc_string_clear();
+    skip_spaces(&argument);
 
     if (subcmd == SCMD_EQ) {
         if (*argument && is_abbrev(argument, "status")) {
-            acc_sprintf("Equipment status:\r\n");
+
+            sb_sprintf(&sb,  "Equipment status:\r\n");
             for (idx = 0; idx < NUM_WEARS; idx++) {
                 pos = eq_pos_order[idx];
 
@@ -3416,11 +3402,11 @@ ACMD(do_equipment)
                     continue;
                 }
                 found = 1;
-                acc_sprintf("-%s- is in %s condition.\r\n",
-                            obj->name, obj_cond_color(obj, COLOR_LEV(ch), DISPLAY_MODE(ch)));
+                sb_sprintf(&sb,  "-%s- is in %s condition.\r\n",
+                           obj->name, obj_cond_color(obj, COLOR_LEV(ch), DISPLAY_MODE(ch)));
             }
             if (found) {
-                page_string(ch->desc, acc_get_string());
+                page_string(ch->desc, sb.str);
             } else {
                 send_to_char(ch, "You're totally naked!\r\n");
             }
@@ -3430,35 +3416,35 @@ ACMD(do_equipment)
         }
 
         if (show_all) {
-            acc_sprintf("You are using:\r\n");
+            sb_sprintf(&sb,  "You are using:\r\n");
         }
         for (idx = 0; idx < NUM_WEARS; idx++) {
             pos = eq_pos_order[idx];
             if (GET_EQ(ch, pos)) {
                 if (!found && !show_all) {
-                    acc_sprintf("You are using:\r\n");
+                    sb_sprintf(&sb,  "You are using:\r\n");
                     found = true;
                 }
                 if (can_see_object(ch, GET_EQ(ch, pos))) {
-                    acc_sprintf("%s%s%s", CCGRN(ch, C_NRM),
+                    sb_sprintf(&sb,  "%s%s%s", CCGRN(ch, C_NRM),
                                 where[pos], CCNRM(ch, C_NRM));
-                    show_obj_to_char(GET_EQ(ch, pos), ch, SHOW_OBJ_INV, 0);
+                    show_obj_to_char(GET_EQ(ch, pos), ch, SHOW_OBJ_INV, 0, &sb);
                 } else {
-                    acc_sprintf("%sSomething.\r\n", where[pos]);
+                    sb_sprintf(&sb,  "%sSomething.\r\n", where[pos]);
                 }
             } else if (show_all && pos != WEAR_ASS) {
-                acc_sprintf("%sNothing!\r\n", where[pos]);
+                sb_sprintf(&sb,  "%sNothing!\r\n", where[pos]);
             }
         }
 
         if (!found && !show_all) {
-            acc_sprintf("You're totally naked!\r\n");
+            sb_sprintf(&sb,  "You're totally naked!\r\n");
         }
     } else if (subcmd == SCMD_TATTOOS) {
         show_all = (*argument && is_abbrev(argument, "all"));
 
         if (show_all) {
-            acc_sprintf("You have the following tattoos:\r\n");
+            sb_sprintf(&sb,  "You have the following tattoos:\r\n");
         }
         for (idx = 0; idx < NUM_WEARS; idx++) {
             pos = tattoo_pos_order[idx];
@@ -3468,23 +3454,23 @@ ACMD(do_equipment)
 
             if (GET_TATTOO(ch, pos)) {
                 if (!found && !show_all) {
-                    acc_sprintf("You have the following tattoos:\r\n");
+                    sb_sprintf(&sb,  "You have the following tattoos:\r\n");
                     found = true;
                 }
-                acc_sprintf("%s%s%s", CCGRN(ch, C_NRM),
+                sb_sprintf(&sb,  "%s%s%s", CCGRN(ch, C_NRM),
                             tattoo_pos_descs[pos], CCNRM(ch, C_NRM));
-                show_obj_to_char(GET_TATTOO(ch, pos), ch, SHOW_OBJ_INV, 0);
+                show_obj_to_char(GET_TATTOO(ch, pos), ch, SHOW_OBJ_INV, 0, &sb);
             } else if (show_all) {
-                acc_sprintf("%sNothing!\r\n", where[pos]);
+                sb_sprintf(&sb,  "%sNothing!\r\n", where[pos]);
             }
         }
 
         if (!found && !show_all) {
-            acc_sprintf("You're a tattoo virgin!\r\n");
+            sb_sprintf(&sb,  "You're a tattoo virgin!\r\n");
         }
     } else if (subcmd == SCMD_IMPLANTS) {
         if (*argument && is_abbrev(argument, "status")) {
-            acc_sprintf("Implant status:\r\n");
+            sb_sprintf(&sb,  "Implant status:\r\n");
             for (idx = 0; idx < NUM_WEARS; idx++) {
                 pos = implant_pos_order[idx];
 
@@ -3492,11 +3478,11 @@ ACMD(do_equipment)
                     continue;
                 }
                 found = true;
-                acc_sprintf("-%s- is in %s condition.\r\n",
+                sb_sprintf(&sb,  "-%s- is in %s condition.\r\n",
                             obj->name, obj_cond_color(obj, COLOR_LEV(ch), DISPLAY_MODE(ch)));
             }
             if (found) {
-                page_string(ch->desc, acc_get_string());
+                page_string(ch->desc, sb.str);
             } else {
                 send_to_char(ch, "You don't have any implants.\r\n");
             }
@@ -3506,7 +3492,7 @@ ACMD(do_equipment)
         }
 
         if (show_all) {
-            acc_sprintf("You are implanted with:\r\n");
+            sb_sprintf(&sb,  "You are implanted with:\r\n");
         }
         for (idx = 0; idx < NUM_WEARS; idx++) {
             pos = implant_pos_order[idx];
@@ -3516,7 +3502,7 @@ ACMD(do_equipment)
 
             if (GET_IMPLANT(ch, pos)) {
                 if (!found && !show_all) {
-                    acc_sprintf("You are implanted with:\r\n");
+                    sb_sprintf(&sb,  "You are implanted with:\r\n");
                     found = 1;
                 }
                 if (can_see_object(ch, GET_IMPLANT(ch, pos))) {
@@ -3534,23 +3520,23 @@ ACMD(do_equipment)
                         str = "";
                     }
 
-                    acc_sprintf("%s[%12s]%s - %-30s%s\r\n",
+                    sb_sprintf(&sb,  "%s[%12s]%s - %-30s%s\r\n",
                                 CCCYN(ch, C_NRM), wear_implantpos[pos],
                                 CCNRM(ch, C_NRM), GET_IMPLANT(ch, pos)->name, str);
                 } else {
-                    acc_sprintf("%s[%12s]%s - (UNKNOWN)\r\n", CCCYN(ch,
+                    sb_sprintf(&sb,  "%s[%12s]%s - (UNKNOWN)\r\n", CCCYN(ch,
                                                                     C_NRM), wear_implantpos[pos], CCNRM(ch, C_NRM));
                 }
             } else if (show_all && pos != WEAR_ASS && pos != WEAR_HOLD) {
-                acc_sprintf("[%12s] - Nothing!\r\n", wear_implantpos[pos]);
+                sb_sprintf(&sb,  "[%12s] - Nothing!\r\n", wear_implantpos[pos]);
             }
         }
         if (!found && !show_all) {
-            acc_sprintf("You don't have any implants.\r\n");
+            sb_sprintf(&sb,  "You don't have any implants.\r\n");
         }
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void set_local_time(struct zone_data *zone, struct time_info_data *local_time);
@@ -3680,19 +3666,19 @@ ACMD(do_weather)
 
 // generates a formatted string representation of a player for the who list
 void
-who_string(struct creature *ch, struct creature *target)
+who_string(struct creature *ch, struct creature *target, struct str_builder *sb)
 {
     int len = strlen(BADGE(target));
 
     // show badge
     if (GET_LEVEL(target) >= LVL_AMBASSADOR) {
-        acc_sprintf("%s%s[%s%s%s%s%s]",
+        sb_sprintf(sb,  "%s%s[%s%s%s%s%s]",
                     CCBLD(ch, C_NRM), CCYEL(ch, C_NRM), CCGRN(ch, C_NRM),
                     tmp_pad(' ', (MAX_BADGE_LENGTH - len) / 2),
                     BADGE(target),
                     tmp_pad(' ', (MAX_BADGE_LENGTH - len + 1) / 2), CCYEL(ch, C_NRM));
     } else if (is_tester(target)) {
-        acc_sprintf("%s%s[%sTESTING%s]",
+        sb_sprintf(sb,  "%s%s[%sTESTING%s]",
                     CCBLD(ch, C_NRM), CCYEL(ch, C_NRM), CCGRN(ch, C_NRM),
                     CCYEL(ch, C_NRM));
     } else {
@@ -3703,17 +3689,17 @@ who_string(struct creature *ch, struct creature *target)
             if (PRF2_FLAGGED(target, PRF2_ANONYMOUS)) {
                 col = CCRED(ch, C_NRM);
             }
-            acc_sprintf("%s[%s%2d%s(%s%2d%s) ",
+            sb_sprintf(sb,  "%s[%s%2d%s(%s%2d%s) ",
                         CCGRN(ch, C_NRM), col, GET_LEVEL(target),
                         CCCYN(ch, C_NRM),
                         CCNRM(ch, C_NRM), GET_REMORT_GEN(target), CCCYN(ch, C_NRM));
         } else if (PRF2_FLAGGED(target, PRF2_ANONYMOUS)) {
-            acc_sprintf("%s[%s--", CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+            sb_sprintf(sb,  "%s[%s--", CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
         } else {
-            acc_sprintf("%s[%s%2d",
+            sb_sprintf(sb,  "%s[%s%2d",
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), GET_LEVEL(target));
         }
-        acc_sprintf(" %s%s%s%s]",
+        sb_sprintf(sb,  " %s%s%s%s]",
                     get_char_class_color_code(ch, target, GET_CLASS(target)),
                     char_class_abbrevs[(int)GET_CLASS(target)],
                     CCNRM(ch, C_NRM), CCGRN(ch, C_NRM));
@@ -3721,78 +3707,78 @@ who_string(struct creature *ch, struct creature *target)
 
     // name
     if (GET_LEVEL(target) >= LVL_AMBASSADOR) {
-        acc_sprintf("%s%s %s%s",
+        sb_sprintf(sb,  "%s%s %s%s",
                     CCNRM(ch, C_NRM),
                     CCGRN(ch, C_NRM), GET_NAME(target), GET_TITLE(target));
     } else {
-        acc_sprintf("%s %s%s",
+        sb_sprintf(sb,  "%s %s%s",
                     CCNRM(ch, C_NRM), GET_NAME(target), GET_TITLE(target));
     }
 }
 
 // generates a formatted string representation of a player for the who list
 void
-who_flags(struct creature *ch, struct creature *target)
+who_flags(struct creature *ch, struct creature *target, struct str_builder *sb)
 {
     // hardcore
     if (PLR_FLAGGED(target, PLR_HARDCORE)) {
-        acc_strcat(CCRED(ch, C_NRM), " (hardcore)", CCNRM(ch, C_NRM), NULL);
+        sb_strcat(sb,  CCRED(ch, C_NRM), " (hardcore)", CCNRM(ch, C_NRM), NULL);
     }
     // nowho
     if (PRF2_FLAGGED(target, PRF2_NOWHO)) {
-        acc_strcat(CCRED(ch, C_NRM), " (nowho)", CCNRM(ch, C_NRM), NULL);
+        sb_strcat(sb,  CCRED(ch, C_NRM), " (nowho)", CCNRM(ch, C_NRM), NULL);
     }
     // clan badge
     if (real_clan(GET_CLAN(target))) {
         if (!PRF2_FLAGGED(target, PRF2_CLAN_HIDE)) {
-            acc_sprintf(" %s%s%s",
+            sb_sprintf(sb,  " %s%s%s",
                         CCCYN(ch, C_NRM),
                         real_clan(GET_CLAN(target))->badge, CCNRM(ch, C_NRM));
         } else if (is_authorized(ch, SEE_FULL_WHOLIST, NULL)) {
-            acc_sprintf(" %s)%s(%s",
+            sb_sprintf(sb,  " %s)%s(%s",
                         CCCYN(ch, C_NRM),
                         real_clan(GET_CLAN(target))->name, CCNRM(ch, C_NRM));
         }
     }
     // imm invis
     if (GET_INVIS_LVL(target) && IS_IMMORT(ch)) {
-        acc_sprintf(" %s(%s%d%s)",
+        sb_sprintf(sb,  " %s(%s%d%s)",
                     CCBLU(ch, C_NRM),
                     CCMAG(ch, C_NRM), GET_INVIS_LVL(target), CCBLU(ch, C_NRM));
     }
 
     if (PLR_FLAGGED(target, PLR_MAILING)) {
-        acc_sprintf(" %s(mailing)", CCGRN(ch, C_NRM));
+        sb_sprintf(sb,  " %s(mailing)", CCGRN(ch, C_NRM));
     } else if (PLR_FLAGGED(target, PLR_OLC)) {
-        acc_sprintf(" %s(creating)", CCGRN(ch, C_NRM));
+        sb_sprintf(sb,  " %s(creating)", CCGRN(ch, C_NRM));
     } else if (PLR_FLAGGED(target, PLR_WRITING)) {  // writing
-        acc_sprintf(" %s(writing)", CCGRN(ch, C_NRM));
+        sb_sprintf(sb,  " %s(writing)", CCGRN(ch, C_NRM));
     }
     // deaf
     if (PRF_FLAGGED(target, PRF_DEAF)) {
-        acc_sprintf(" %s(deaf)", CCBLU(ch, C_NRM));
+        sb_sprintf(sb,  " %s(deaf)", CCBLU(ch, C_NRM));
     }
     // notell
     if (PRF_FLAGGED(target, PRF_NOTELL)) {
-        acc_sprintf(" %s(notell)", CCBLU(ch, C_NRM));
+        sb_sprintf(sb,  " %s(notell)", CCBLU(ch, C_NRM));
     }
     // questing
     if (GET_QUEST(target)) {
-        acc_sprintf(" %s(quest)%s",
+        sb_sprintf(sb,  " %s(quest)%s",
                     CCYEL_BLD(ch, C_NRM),
                     CCNRM(ch, C_NRM));
     }
     // afk
     if (PLR_FLAGGED(target, PLR_AFK)) {
-        acc_sprintf(" %s(afk)", CCGRN(ch, C_NRM));
+        sb_sprintf(sb,  " %s(afk)", CCGRN(ch, C_NRM));
     }
 }
 
 void
-who_kills(struct creature *ch, struct creature *target)
+who_kills(struct creature *ch, struct creature *target, struct str_builder *sb)
 {
-    acc_sprintf(" %s*%d KILLS*", CCRED_BLD(ch, C_NRM), GET_PKILLS(target));
-    acc_sprintf(" -%s-%s", reputation_msg[GET_REPUTATION_RANK(target)], CCNRM(ch, C_NRM));
+    sb_sprintf(sb,  " %s*%d KILLS*", CCRED_BLD(ch, C_NRM), GET_PKILLS(target));
+    sb_sprintf(sb,  " -%s-%s", reputation_msg[GET_REPUTATION_RANK(target)], CCNRM(ch, C_NRM));
 }
 
 static int
@@ -3923,7 +3909,7 @@ ACMD(do_who)
         }
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
     for (d = descriptor_list; d; d = d->next) {
         if (d->original) {
@@ -4016,61 +4002,61 @@ ACMD(do_who)
     testers = g_list_sort(testers, (GCompareFunc) who_list_compare);
     players = g_list_sort(players, (GCompareFunc) who_list_compare);
 
-    acc_strcat(CCNRM(ch, C_SPR), CCBLD(ch, C_CMP), "**************      ",
+    sb_strcat(&sb,  CCNRM(ch, C_SPR), CCBLD(ch, C_CMP), "**************      ",
                CCGRN(ch, C_NRM), "Visible Players of TEMPUS",
                CCNRM(ch, C_NRM), CCBLD(ch, C_CMP), "      **************",
                CCNRM(ch, C_SPR), "\r\n",
                (IS_NPC(ch) || ch->account->compact_level > 1) ? "" : "\r\n", NULL);
     for (GList *cit = first_living(immortals); cit; cit = next_living(cit)) {
         curr = (struct creature *)cit->data;
-        who_string(ch, curr);
+        who_string(ch, curr, &sb);
         if (!noflags) {
-            who_flags(ch, curr);
+            who_flags(ch, curr, &sb);
         }
         if (kills) {
-            who_kills(ch, curr);
+            who_kills(ch, curr, &sb);
         }
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb,  "\r\n", NULL);
     }
     if (IS_IMMORT(ch) || is_tester(ch)) {
         for (GList *cit = first_living(testers); cit; cit = next_living(cit)) {
             curr = (struct creature *)cit->data;
-            who_string(ch, curr);
+            who_string(ch, curr, &sb);
             if (!noflags) {
-                who_flags(ch, curr);
+                who_flags(ch, curr, &sb);
             }
             if (kills) {
-                who_kills(ch, curr);
+                who_kills(ch, curr, &sb);
             }
-            acc_strcat("\r\n", NULL);
+            sb_strcat(&sb,  "\r\n", NULL);
         }
     }
     for (GList *cit = first_living(players); cit; cit = next_living(cit)) {
         curr = (struct creature *)cit->data;
-        who_string(ch, curr);
+        who_string(ch, curr, &sb);
         if (!noflags) {
-            who_flags(ch, curr);
+            who_flags(ch, curr, &sb);
         }
         if (kills) {
-            who_kills(ch, curr);
+            who_kills(ch, curr, &sb);
         }
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb,  "\r\n", NULL);
     }
 
     if (IS_PC(ch) && ch->account->compact_level <= 1) {
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb,  "\r\n", NULL);
     }
-    acc_sprintf("%s%d of %d immortal%s, ",
+    sb_sprintf(&sb,  "%s%d of %d immortal%s, ",
                 CCNRM(ch, C_NRM),
                 g_list_length(immortals),
                 immTotal, (immTotal == 1) ? "" : "s");
     if (GET_LEVEL(ch) >= LVL_AMBASSADOR || is_tester(ch)) {
-        acc_sprintf("%d of %d tester%s, ", g_list_length(testers),
+        sb_sprintf(&sb,  "%d of %d tester%s, ", g_list_length(testers),
                     testerTotal, (testerTotal == 1) ? "" : "s");
     }
-    acc_sprintf("and %d of %d player%s displayed.\r\n", g_list_length(players),
+    sb_sprintf(&sb,  "and %d of %d player%s displayed.\r\n", g_list_length(players),
                 playerTotal, (playerTotal == 1) ? "" : "s");
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
     g_list_free(immortals);
     g_list_free(testers);
     g_list_free(players);
@@ -4102,8 +4088,8 @@ ACMD(do_gen_ps)
 }
 
 void
-acc_print_object_location(int num, struct obj_data *obj,
-                          struct creature *ch, int recur)
+sb_print_object_location(struct str_builder *sb, int num, struct obj_data *obj,
+                         struct creature *ch, int recur)
 {
     if ((obj->carried_by && GET_INVIS_LVL(obj->carried_by) > GET_LEVEL(ch)) ||
         (obj->in_obj && obj->in_obj->carried_by &&
@@ -4115,38 +4101,38 @@ acc_print_object_location(int num, struct obj_data *obj,
     }
 
     if (num > 0) {
-        acc_sprintf("%sO%s%3d. %s%-25s%s - ", CCGRN_BLD(ch, C_NRM), CCNRM(ch,
+        sb_sprintf(sb,  "%sO%s%3d. %s%-25s%s - ", CCGRN_BLD(ch, C_NRM), CCNRM(ch,
                                                                           C_NRM), num, CCGRN(ch, C_NRM), obj->name, CCNRM(ch, C_NRM));
     } else {
-        acc_sprintf("%33s", " - ");
+        sb_sprintf(sb,  "%33s", " - ");
     }
 
     if (obj->in_room != NULL) {
-        acc_sprintf("%s[%s%5d%s] %s%s%s\r\n",
+        sb_sprintf(sb,  "%s[%s%5d%s] %s%s%s\r\n",
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                     obj->in_room->number, CCGRN(ch, C_NRM), CCCYN(ch, C_NRM),
                     obj->in_room->name, CCNRM(ch, C_NRM));
     } else if (obj->carried_by) {
-        acc_sprintf("carried by %s%s%s [%s%5d%s]%s\r\n",
+        sb_sprintf(sb,  "carried by %s%s%s [%s%5d%s]%s\r\n",
                     CCYEL(ch, C_NRM), PERS(obj->carried_by, ch),
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                     obj->carried_by->in_room->number, CCGRN(ch, C_NRM), CCNRM(ch,
                                                                               C_NRM));
     } else if (obj->worn_by) {
-        acc_sprintf("worn by %s%s%s [%s%5d%s]%s\r\n",
+        sb_sprintf(sb,  "worn by %s%s%s [%s%5d%s]%s\r\n",
                     CCYEL(ch, C_NRM), PERS(obj->worn_by, ch),
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->worn_by->in_room->number,
                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
     } else if (obj->in_obj) {
-        acc_sprintf("inside %s%s%s%s\r\n",
+        sb_sprintf(sb,  "inside %s%s%s%s\r\n",
                     CCGRN(ch, C_NRM), obj->in_obj->name,
                     CCNRM(ch, C_NRM), (recur ? ", which is" : " "));
         if (recur) {
-            acc_print_object_location(0, obj->in_obj, ch, recur);
+            sb_print_object_location(sb, 0, obj->in_obj, ch, recur);
         }
         return;
     } else {
-        acc_sprintf("%sin an unknown location%s\r\n",
+        sb_sprintf(sb,  "%sin an unknown location%s\r\n",
                     CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
     }
 }
@@ -4245,10 +4231,10 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
 
     house_only = no_house = no_mob = no_object = false;
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     skip_spaces(&arg);
     if (!*arg || !show_morts) {
-        acc_strcat("Players\r\n-------\r\n", NULL);
+        sb_strcat(&sb,  "Players\r\n-------\r\n", NULL);
         for (d = descriptor_list; d; d = d->next) {
             if (STATE(d) != CXN_PLAYING) {
                 continue;
@@ -4275,7 +4261,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
                 if (ROOM_FLAGGED(form->in_room, ROOM_CLAN_HOUSE)) {
                     notes = tmp_sprintf("%s%s (clan)", notes, CCCYN(ch, C_CMP));
                 }
-                acc_sprintf("%s%-20s%s - %s[%s%5d%s]%s %s%s%s%s\r\n",
+                sb_sprintf(&sb,  "%s%-20s%s - %s[%s%5d%s]%s %s%s%s%s\r\n",
                             (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCGRN(ch, C_NRM) : ""),
                             GET_NAME(player),
                             (GET_LEVEL(player) >= LVL_AMBASSADOR ? CCNRM(ch, C_NRM) : ""),
@@ -4286,7 +4272,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
                             notes, CCNRM(ch, C_NRM));
             }
         }
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     } else {
         register struct creature *i = NULL;
         for (arg1 = tmp_getword(&arg); *arg1; arg1 = tmp_getword(&arg)) {
@@ -4332,8 +4318,7 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
                     && (GET_NPC_SPEC(i) != fate
                         || GET_LEVEL(ch) >= LVL_SPIRIT)) {
                     found = 1;
-                    acc_sprintf
-                        ("%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n",
+                    sb_sprintf(&sb, "%sM%s%3d. %s%-25s%s - %s[%s%5d%s]%s %s%s%s\r\n",
                         CCRED_BLD(ch, NRM), CCNRM(ch, NRM), ++num, CCYEL(ch,
                                                                          C_NRM), GET_NAME(i), CCNRM(ch, C_NRM), CCGRN(ch,
                                                                                                                       C_NRM), CCNRM(ch, C_NRM), i->in_room->number,
@@ -4356,13 +4341,13 @@ perform_immort_where(struct creature *ch, char *arg, bool show_morts)
                 }
                 if (object_matches_terms(required, excluded, k)) {
                     found = 1;
-                    acc_print_object_location(++num, k, ch, true);
+                    sb_print_object_location(&sb, ++num, k, ch, true);
                 }
             }
         }
 
         if (found) {
-            page_string(ch->desc, acc_get_string());
+            page_string(ch->desc, sb.str);
         } else {
             send_to_char(ch, "Couldn't find any such thing.\r\n");
         }
@@ -5156,9 +5141,9 @@ ACMD(do_commands)
         wizhelp = true;
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_sprintf("The following %s%s are available to %s:\r\n",
+    sb_sprintf(&sb,  "The following %s%s are available to %s:\r\n",
                 wizhelp ? "privileged " : "",
                 socials ? "socials" : moods ? "moods" : "commands",
                 (vict && vict == ch) ? "you" : vict ? GET_NAME(vict) : "that level");
@@ -5184,15 +5169,15 @@ ACMD(do_commands)
         if (moods != cmd_sort_info[i].is_mood) {
             continue;
         }
-        acc_sprintf("%-16s", cmd_info[i].command);
+        sb_sprintf(&sb,  "%-16s", cmd_info[i].command);
         if (!(no % 5)) {
-            acc_strcat("\r\n", NULL);
+            sb_strcat(&sb,  "\r\n", NULL);
         }
         no++;
     }
 
-    acc_strcat("\r\n", NULL);
-    page_string(ch->desc, acc_get_string());
+    sb_strcat(&sb,  "\r\n", NULL);
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_soilage)
@@ -5363,27 +5348,27 @@ ACMD(do_specializations)
 
 ACMD(do_wizlist)
 {
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_sprintf("\r\n                   %sThe Immortals of TempusMUD\r\n"
+    sb_sprintf(&sb,  "\r\n                   %sThe Immortals of TempusMUD\r\n"
                 "                   %s--------------------------%s\r\n",
                 CCBLU(ch, C_NRM), CCBLU_BLD(ch, C_NRM), CCNRM(ch, C_NRM));
-    send_role_member_list(role_by_name("Wizlist_Architects"), ch,
+    send_role_member_list(&sb, role_by_name("Wizlist_Architects"), ch,
                           "Architects", "OLCAdmin");
-    send_role_member_list(role_by_name("Wizlist_Blders"), ch,
+    send_role_member_list(&sb, role_by_name("Wizlist_Blders"), ch,
                           "Builders", NULL);
-    send_role_member_list(role_by_name("Wizlist_Coders"), ch,
+    send_role_member_list(&sb, role_by_name("Wizlist_Coders"), ch,
                           "Implementors", "CoderAdmin");
-    send_role_member_list(role_by_name("Wizlist_Quests"), ch,
+    send_role_member_list(&sb, role_by_name("Wizlist_Quests"), ch,
                           "Questors", "QuestorAdmin");
-    send_role_member_list(role_by_name("Wizlist_Elders"), ch,
+    send_role_member_list(&sb, role_by_name("Wizlist_Elders"), ch,
                           "Elder Gods", "GroupsAdmin");
-    send_role_member_list(role_by_name("Wizlist_Founders"), ch,
+    send_role_member_list(&sb, role_by_name("Wizlist_Founders"), ch,
                           "Founders", NULL);
 
-    acc_strcat("\r\n\r\n", NULL);
+    sb_strcat(&sb,  "\r\n\r\n", NULL);
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_areas)
@@ -5391,9 +5376,8 @@ ACMD(do_areas)
     struct zone_data *zone;
     bool found_one = false;
 
-    acc_string_clear();
-    acc_sprintf
-        ("%s%s                    --- Areas appropriate for your level ---%s\r\n",
+    struct str_builder sb = str_builder_default;
+    sb_sprintf(&sb, "%s%s                    --- Areas appropriate for your level ---%s\r\n",
         CCYEL(ch, C_NRM), CCBLD(ch, C_CMP), CCNRM(ch, C_NRM));
 
     for (zone = zone_table; zone; zone = zone->next) {
@@ -5405,31 +5389,31 @@ ACMD(do_areas)
                               && zone->min_gen <= GET_REMORT_GEN(ch)
                               && zone->max_gen >= GET_REMORT_GEN(ch))) {
             // name
-            acc_strcat((found_one) ? "\r\n" : "", CCCYN(ch, C_NRM),
+            sb_strcat(&sb,  (found_one) ? "\r\n" : "", CCCYN(ch, C_NRM),
                        zone->name, CCNRM(ch, C_NRM), "\r\n", NULL);
 
             // min/max level
             if (zone->min_lvl == 1 && zone->max_lvl == 49 &&
                 zone->min_gen == 0 && zone->max_gen == 10) {
-                acc_strcat("[ All Levels ]\r\n", NULL);
+                sb_strcat(&sb,  "[ All Levels ]\r\n", NULL);
             } else if (zone->min_gen > 0 || zone->max_gen > 0) {
                 // [ Level 12 Generation 2 to Level 20 Generation 10 ]
-                acc_sprintf("[ Level %d Gen %d to Level %d Gen %d ]\r\n",
+                sb_sprintf(&sb,  "[ Level %d Gen %d to Level %d Gen %d ]\r\n",
                             zone->min_lvl, zone->min_gen,
                             zone->max_lvl, zone->max_gen);
             } else {
                 // [ Level 12 to Level 20 ]
-                acc_sprintf("[ Level %d to Level %d ]\r\n",
+                sb_sprintf(&sb,  "[ Level %d to Level %d ]\r\n",
                             zone->min_lvl, zone->max_lvl);
             }
             // desc
-            acc_strcat(zone->public_desc, NULL);
+            sb_strcat(&sb,  zone->public_desc, NULL);
             found_one = true;
         }
     }
 
     if (found_one) {
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     } else {
         send_to_char(ch,
                      "Bug the immortals about adding zones appropriate for your level!\r\n");

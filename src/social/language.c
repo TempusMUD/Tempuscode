@@ -32,7 +32,7 @@
 #include "account.h"
 #include "screen.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "xml_utils.h"
 #include "language.h"
 #include "strutil.h"
@@ -352,11 +352,11 @@ ACMD(do_show_languages)
 
     tongue = g_hash_table_lookup(tongues, GINT_TO_POINTER((intptr_t)GET_TONGUE(ch)));
 
-    acc_string_clear();
-    acc_sprintf("%sYou are currently speaking:  %s%s\r\n\r\n",
+    struct str_builder sb = str_builder_default;
+    sb_sprintf(&sb, "%sYou are currently speaking:  %s%s\r\n\r\n",
                 CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), tongue->name);
 
-    acc_sprintf("%s%sYou know of the following languages:%s\r\n",
+    sb_sprintf(&sb, "%s%sYou know of the following languages:%s\r\n",
                 CCYEL(ch, C_CMP), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR));
 
     GHashTableIter iter;
@@ -368,7 +368,7 @@ ACMD(do_show_languages)
         struct tongue *tongue = val;
         if (CHECK_TONGUE(ch, vnum)) {
             if (IS_IMMORT(ch)) {
-                acc_sprintf("%s%3d. %-30s %s%-17s%s%s\r\n",
+                sb_sprintf(&sb, "%s%3d. %-30s %s%-17s%s%s\r\n",
                             CCCYN(ch, C_NRM),
                             vnum,
                             tongue->name,
@@ -378,14 +378,14 @@ ACMD(do_show_languages)
                                         CHECK_TONGUE(ch, vnum),
                                         CCNRM(ch, C_NRM)), CCNRM(ch, C_SPR));
             } else {
-                acc_sprintf("%s%-30s %s%s%s\r\n",
+                sb_sprintf(&sb, "%s%-30s %s%s%s\r\n",
                             CCCYN(ch, C_NRM), tongue->name, CCBLD(ch, C_SPR),
                             fluency_desc(ch, vnum), CCNRM(ch, C_SPR));
             }
         }
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void
@@ -495,16 +495,16 @@ show_language_help(struct creature *ch)
     GHashTableIter iter;
     gpointer key, val;
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_sprintf("LANGUAGES:\r\n");
+    sb_sprintf(&sb, "LANGUAGES:\r\n");
 
     g_hash_table_iter_init(&iter, tongues);
     while (g_hash_table_iter_next(&iter, &key, &val)) {
         struct tongue *tongue = val;
 
-        acc_sprintf("%2d         %s%-10s%s",
+        sb_sprintf(&sb, "%2d         %s%-10s%s",
                     tongue->idnum, CCCYN(ch, C_NRM), tongue->name, CCNRM(ch, C_NRM));
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }

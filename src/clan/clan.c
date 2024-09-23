@@ -37,7 +37,7 @@
 #include "char_class.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "strutil.h"
 
 extern struct descriptor_data *descriptor_list;
@@ -604,7 +604,7 @@ ACMD(do_clanmail)
 }
 
 static void
-acc_print_clan_members(struct creature *ch, struct clan_data *clan,
+sb_print_clan_members(struct str_builder *sb, struct creature *ch, struct clan_data *clan,
                        bool complete, int min_lev)
 {
     struct creature *i;
@@ -646,7 +646,7 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
                     }
 
                     if (d->original) {
-                        acc_sprintf("%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s %s(in %s)%s\r\n",
+                        sb_sprintf(sb, "%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s %s(in %s)%s\r\n",
                                     CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                                     GET_LEVEL(i),
                                     char_class_abbrevs[GET_CLASS(i)],
@@ -657,7 +657,7 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
                                     CCCYN(ch, C_NRM), loc_desc, CCNRM(ch, C_NRM),
                                     CCRED(ch, C_CMP), GET_NAME(d->creature), CCNRM(ch, C_CMP));
                     } else if (GET_LEVEL(i) >= LVL_AMBASSADOR) {
-                        acc_sprintf("%s[%s%7s%s]%s %-40s%s - %s%s%s\r\n",
+                        sb_sprintf(sb, "%s[%s%7s%s]%s %-40s%s - %s%s%s\r\n",
                                     CCYEL_BLD(ch, C_NRM),
                                     CCNRM_GRN(ch, C_SPR),
                                     BADGE(i),
@@ -665,7 +665,7 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
                                     CCNRM_GRN(ch, C_SPR), name, CCNRM(ch, C_SPR),
                                     CCCYN(ch, C_NRM), loc_desc, CCNRM(ch, C_NRM));
                     } else {
-                        acc_sprintf("%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s\r\n",
+                        sb_sprintf(sb, "%s[%s%2d %s%s]%s %s%-40s%s - %s%s%s\r\n",
                                     CCGRN(ch, C_NRM),
                                     CCNRM(ch, C_NRM),
                                     GET_LEVEL(i),
@@ -687,13 +687,13 @@ acc_print_clan_members(struct creature *ch, struct clan_data *clan,
                                   clan_rankname(clan, member->rank), NULL);
 
                 if (GET_LEVEL(i) >= LVL_AMBASSADOR) {
-                    acc_sprintf("%s[%s%s%s]%s %-40s%s\r\n",
+                    sb_sprintf(sb, "%s[%s%s%s]%s %-40s%s\r\n",
                                 CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
                                 level_abbrevs[GET_LEVEL(i) - LVL_AMBASSADOR],
                                 CCYEL_BLD(ch, C_NRM), CCNRM_GRN(ch, C_SPR),
                                 name, CCNRM(ch, C_SPR));
                 } else {
-                    acc_sprintf("%s[%s%2d %s%s]%s %s%-40s%s\r\n",
+                    sb_sprintf(sb, "%s[%s%2d %s%s]%s %s%-40s%s\r\n",
                                 CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                                 GET_LEVEL(i),
                                 char_class_abbrevs[GET_CLASS(i)],
@@ -738,10 +738,10 @@ ACMD(do_clanlist)
         arg = tmp_getword(&argument);
     }
 
-    acc_string_clear();
-    acc_strcat("Members of clan ", clan->name, " :\r\n", NULL);
-    acc_print_clan_members(ch, clan, complete, min_lev);
-    page_string(ch->desc, acc_get_string());
+    struct str_builder sb = str_builder_default;
+    sb_strcat(&sb, "Members of clan ", clan->name, " :\r\n", NULL);
+    sb_print_clan_members(&sb, ch, clan, complete, min_lev);
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_cinfo)
@@ -758,34 +758,34 @@ ACMD(do_cinfo)
         return;
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     for (i = 0, member = clan->member_list; member; member = member->next) {
         i++;
     }
-    acc_sprintf("Information on clan %s%s%s:\r\n\r\n"
+    sb_sprintf(&sb, "Information on clan %s%s%s:\r\n\r\n"
                 "Clan badge: '%s%s%s', Clan headcount: %d, "
                 "Clan bank account: %'" PRId64 "\r\nClan ranks:\r\n",
                 CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
                 CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM),
                 i, clan->bank_account);
     for (i = clan->top_rank; i >= 0; i--) {
-        acc_sprintf(" (%2d)  %s%s%s\r\n", i, CCYEL(ch, C_NRM),
+        sb_sprintf(&sb, " (%2d)  %s%s%s\r\n", i, CCYEL(ch, C_NRM),
                     clan_rankname(clan, i), CCNRM(ch, C_NRM));
     }
 
-    acc_strcat("Clan rooms:\r\n", NULL);
+    sb_strcat(&sb, "Clan rooms:\r\n", NULL);
     for (rm_list = clan->room_list; rm_list; rm_list = rm_list->next) {
         if (rm_list->room && ROOM_FLAGGED(rm_list->room, ROOM_CLAN_HOUSE)) {
-            acc_strcat(CCCYN(ch, C_NRM),
+            sb_strcat(&sb, CCCYN(ch, C_NRM),
                        rm_list->room->name, CCNRM(ch, C_NRM), "\r\n", NULL);
             found = true;
         }
     }
     if (!found) {
-        acc_strcat("None.\r\n", NULL);
+        sb_strcat(&sb, "None.\r\n", NULL);
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_clanpasswd)
@@ -1660,42 +1660,42 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
     struct room_list_elem *rm_list = NULL;
     int num_members = 0;
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     if (clan) {
-        acc_sprintf("CLAN %d - Name: %s%s%s, Badge: %s%s%s, Top Rank: %d\r\n",
+        sb_sprintf(&sb, "CLAN %d - Name: %s%s%s, Badge: %s%s%s, Top Rank: %d\r\n",
                     clan->number, CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
                     CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), clan->top_rank);
 
-        acc_sprintf("Bank: %'-20" PRId64 " Owner: %s[%ld]\r\n",
+        sb_sprintf(&sb, "Bank: %'-20" PRId64 " Owner: %s[%ld]\r\n",
                     clan->bank_account,
                     player_name_by_idnum(clan->owner), clan->owner);
 
         for (int i = clan->top_rank; i >= 0; i--) {
-            acc_sprintf("Rank %2d: %s%s%s\r\n", i,
+            sb_sprintf(&sb, "Rank %2d: %s%s%s\r\n", i,
                         CCYEL(ch, C_NRM), clan_rankname(clan, i), CCNRM(ch, C_NRM));
         }
 
-        acc_strcat("ROOMS:\r\n", NULL);
+        sb_strcat(&sb, "ROOMS:\r\n", NULL);
 
         int num_rooms;
         for (rm_list = clan->room_list, num_rooms = 0;
              rm_list; rm_list = rm_list->next) {
             num_rooms++;
-            acc_sprintf("%3d) %5d.  %s%s%s\r\n", num_rooms,
+            sb_sprintf(&sb, "%3d) %5d.  %s%s%s\r\n", num_rooms,
                         rm_list->room->number,
                         CCCYN(ch, C_NRM), rm_list->room->name, CCNRM(ch, C_NRM));
         }
         if (!num_rooms) {
-            acc_strcat("None.\r\n", NULL);
+            sb_strcat(&sb, "None.\r\n", NULL);
         }
 
         num_members = clan_member_count(clan);
         if (num_members) {
-            acc_sprintf("%d MEMBERS:\r\n", clan_member_count(clan));
+            sb_sprintf(&sb, "%d MEMBERS:\r\n", clan_member_count(clan));
 
             for (member = clan->member_list; member; member = member->next) {
                 int acct_id = player_account_by_idnum(member->idnum);
-                acc_sprintf("%-50s %s[%d]\r\n",
+                sb_sprintf(&sb, "%-50s %s[%d]\r\n",
                             tmp_sprintf("%5ld %s%s%s %s(%d)",
                                         member->idnum,
                                         CCYEL(ch, C_NRM),
@@ -1706,10 +1706,10 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
                             account_by_idnum(acct_id)->name, acct_id);
             }
         } else {
-            acc_strcat("No members.\r\n", NULL);
+            sb_strcat(&sb, "No members.\r\n", NULL);
         }
     } else {
-        acc_strcat("CLANS:\r\n", NULL);
+        sb_strcat(&sb, "CLANS:\r\n", NULL);
         for (clan = clan_list; clan; clan = clan->next) {
 
             member = clan->member_list;
@@ -1719,13 +1719,13 @@ do_show_clan(struct creature *ch, struct clan_data *clan)
                 member = member->next;
             }
 
-            acc_sprintf(" %3d - %s%20s%s  %s%20s%s  (%3d members)\r\n",
+            sb_sprintf(&sb, " %3d - %s%20s%s  %s%20s%s  (%3d members)\r\n",
                         clan->number,
                         CCCYN(ch, C_NRM), clan->name, CCNRM(ch, C_NRM),
                         CCCYN(ch, C_NRM), clan->badge, CCNRM(ch, C_NRM), num_members);
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 int

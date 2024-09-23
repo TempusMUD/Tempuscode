@@ -178,7 +178,7 @@
 #include "house.h"
 #include "char_class.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "vehicle.h"
 #include "flow_room.h"
@@ -628,14 +628,14 @@ boot_timewarp_data(void)
 void
 show_timewarps(struct creature *ch)
 {
-    acc_string_clear();
-    acc_strcat("Timewarp data:\r\n", NULL);
+    struct str_builder sb = str_builder_default;
+    sb_strcat(&sb, "Timewarp data:\r\n", NULL);
     int i;
     for (i = 0; i < num_timewarp_data; i++) {
         struct zone_data *to_zn = real_zone(timewarp_list[i].from);
         struct zone_data *from_zn = real_zone(timewarp_list[i].to);
 
-        acc_sprintf("  %3d.]  %s%25s%s [%s%3d%s] --> [%s%3d%s] %s%s%s\r\n",
+        sb_sprintf(&sb, "  %3d.]  %s%25s%s [%s%3d%s] --> [%s%3d%s] %s%s%s\r\n",
                     i,
                     CCCYN(ch, C_NRM), (from_zn) ? from_zn->name : "FROM-ERROR",
                     CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
@@ -645,8 +645,8 @@ show_timewarps(struct creature *ch)
                     (to_zn) ? to_zn->name : "TO-ERROR", CCNRM(ch, C_NRM));
     }
 
-    acc_sprintf("  %d total.\r\n", num_timewarp_data);
-    page_string(ch->desc, acc_get_string());
+    sb_sprintf(&sb, "  %d total.\r\n", num_timewarp_data);
+    page_string(ch->desc, sb.str);
 }
 
 // function to find the matchint zone in the timewarp info

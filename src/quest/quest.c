@@ -36,7 +36,7 @@
 #include "screen.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "xml_utils.h"
 #include "obj_data.h"
 #include "strutil.h"
@@ -674,22 +674,22 @@ list_quest_bans(struct creature *ch, struct quest *quest)
     const char *name;
     int num = 0;
 
-    acc_string_clear();
-    acc_strcat("  -Banned Players------------------------------------\r\n",
+    struct str_builder sb = str_builder_default;
+    sb_strcat(&sb, "  -Banned Players------------------------------------\r\n",
                NULL);
 
     for (GList *bit = quest->bans; bit; bit = bit->next) {
         int id = GPOINTER_TO_INT(bit->data);
         name = player_name_by_idnum(id);
         if (name) {
-            acc_sprintf("  %2d. %-20s\r\n", ++num, name);
+            sb_sprintf(&sb, "  %2d. %-20s\r\n", ++num, name);
         } else {
-            acc_sprintf("BOGUS player idnum %d!\r\n", id);
+            sb_sprintf(&sb, "BOGUS player idnum %d!\r\n", id);
             errlog("bogus player idnum %d in list_quest_bans.", id);
         }
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 char *
@@ -1884,7 +1884,8 @@ do_qcontrol_show(struct creature *ch, char *argument)
     struct quest *quest = NULL;
     char *timestr_e, *timestr_s;
     char timestr_a[16];
-
+    struct str_builder sb = str_builder_default;
+        
     if (!quests) {
         send_to_char(ch, "There are no quests to show.\r\n");
         return;
@@ -1917,9 +1918,7 @@ do_qcontrol_show(struct creature *ch, char *argument)
         timestr_e = asctime(localtime(&started));
         timestr_e[strlen(timestr_e) - 1] = '\0';
 
-        acc_string_clear();
-
-        acc_sprintf("Owner:  %-30s [%2d]\r\n"
+        sb_sprintf(&sb, "Owner:  %-30s [%2d]\r\n"
                     "Name:   %s\r\n"
                     "Status: COMPLETED\r\n"
                     "Description:\r\n%s"
@@ -1940,7 +1939,7 @@ do_qcontrol_show(struct creature *ch, char *argument)
                     quest->maxgen, quest->maxlevel,
                     quest->max_players, quest->awarded);
 
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
 
         return;
     }
@@ -1949,7 +1948,7 @@ do_qcontrol_show(struct creature *ch, char *argument)
     timediff = time(NULL) - quest->started;
     snprintf(timestr_a, sizeof(timestr_a), "%02d:%02d", timediff / 3600, (timediff / 60) % 60);
 
-    acc_sprintf("Owner:  %-30s [%2d]\r\n"
+    sb_sprintf(&sb, "Owner:  %-30s [%2d]\r\n"
                 "Name:   %s\r\n"
                 "Status: ACTIVE\r\n"
                 "Description:\r\n%s"
@@ -1977,15 +1976,15 @@ do_qcontrol_show(struct creature *ch, char *argument)
 
     if (quest->players) {
         list_quest_players(ch, quest, buf2, sizeof(buf2));
-        acc_strcat(buf2, NULL);
+        sb_strcat(&sb, buf2, NULL);
     }
 
     if (quest->bans) {
         list_quest_bans(ch, quest);
-        acc_strcat(buf2, NULL);
+        sb_strcat(&sb, buf2, NULL);
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 
 }
 

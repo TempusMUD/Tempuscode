@@ -31,7 +31,7 @@
 #include "screen.h"
 #include "char_class.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "vehicle.h"
 #include "materials.h"
@@ -747,9 +747,9 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
 
     struct time_info_data age(struct creature *ch);
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_sprintf("%s is %s.\r\n", tmp_capitalize(obj->name),
+    sb_sprintf(&sb, "%s is %s.\r\n", tmp_capitalize(obj->name),
                 strlist_aref(GET_OBJ_TYPE(obj), item_type_descs));
 
     if (skill_lvl > 30) {
@@ -760,13 +760,13 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
                        ITEM_ANTI_KNIGHT | ITEM_ANTI_RANGER | ITEM_ANTI_BARD |
                        ITEM_ANTI_MONK | ITEM_BLURRED | ITEM_DAMNED;
         if (GET_OBJ_EXTRA(obj) & eq_req_flags) {
-            acc_sprintf("Item is %s\r\n",
+            sb_sprintf(&sb, "Item is %s\r\n",
                         tmp_printbits(GET_OBJ_EXTRA(obj) & eq_req_flags, extra_bits));
         }
 
         eq_req_flags = ITEM2_ANTI_MERC;
         if (GET_OBJ_EXTRA2(obj) & eq_req_flags) {
-            acc_sprintf("Item is %s\r\n",
+            sb_sprintf(&sb, "Item is %s\r\n",
                         tmp_printbits(GET_OBJ_EXTRA2(obj) & eq_req_flags,
                                       extra2_bits));
         }
@@ -777,13 +777,13 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
                        ITEM3_REQ_RANGER | ITEM3_REQ_BARD | ITEM3_REQ_MONK |
                        ITEM3_REQ_VAMPIRE | ITEM3_REQ_MERCENARY;
         if (GET_OBJ_EXTRA3(obj) & eq_req_flags) {
-            acc_sprintf("Item is %s\r\n",
+            sb_sprintf(&sb, "Item is %s\r\n",
                         tmp_printbits(GET_OBJ_EXTRA3(obj) & eq_req_flags,
                                       extra3_bits));
         }
     }
 
-    acc_sprintf("Item weighs around %s and is made of %s.\n",
+    sb_sprintf(&sb, "Item weighs around %s and is made of %s.\n",
                 format_weight(GET_OBJ_WEIGHT(obj), USE_METRIC(ch)),
                 material_names[GET_OBJ_MATERIAL(obj)]);
 
@@ -795,87 +795,85 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
     cost = GET_OBJ_COST(obj) + number(0, cost) - cost / 2;
 
     if (cost > 0) {
-        acc_sprintf("Item looks to be worth about %'ld.\r\n", cost);
+        sb_sprintf(&sb, "Item looks to be worth about %'ld.\r\n", cost);
     } else {
-        acc_sprintf("Item doesn't look to be worth anything.\r\n");
+        sb_sprintf(&sb, "Item doesn't look to be worth anything.\r\n");
     }
 
     switch (GET_OBJ_TYPE(obj)) {
     case ITEM_SCROLL:
     case ITEM_POTION:
         if (skill_lvl > 80) {
-            acc_sprintf("This %s casts: ", item_types[(int)GET_OBJ_TYPE(obj)]);
+            sb_sprintf(&sb, "This %s casts: ", item_types[(int)GET_OBJ_TYPE(obj)]);
 
             if (GET_OBJ_VAL(obj, 1) >= 1) {
-                acc_sprintf("%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 1)));
+                sb_sprintf(&sb, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 1)));
             }
             if (GET_OBJ_VAL(obj, 2) >= 1) {
-                acc_sprintf("%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 2)));
+                sb_sprintf(&sb, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 2)));
             }
             if (GET_OBJ_VAL(obj, 3) >= 1) {
-                acc_sprintf("%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
+                sb_sprintf(&sb, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
             }
         }
         break;
     case ITEM_WAND:
     case ITEM_STAFF:
         if (skill_lvl > 80) {
-            acc_sprintf("This %s casts: ", item_types[(int)GET_OBJ_TYPE(obj)]);
-            acc_sprintf("%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
+            sb_sprintf(&sb, "This %s casts: ", item_types[(int)GET_OBJ_TYPE(obj)]);
+            sb_sprintf(&sb, "%s\r\n", spell_to_str(GET_OBJ_VAL(obj, 3)));
             if (skill_lvl > 90) {
-                acc_sprintf("It has %d maximum charge%s and %d remaining.\r\n",
+                sb_sprintf(&sb, "It has %d maximum charge%s and %d remaining.\r\n",
                             GET_OBJ_VAL(obj, 1), GET_OBJ_VAL(obj, 1) == 1 ? "" : "s",
                             GET_OBJ_VAL(obj, 2));
             }
         }
         break;
     case ITEM_WEAPON:
-        acc_sprintf("This weapon can deal up to %d points of damage.\r\n",
+        sb_sprintf(&sb, "This weapon can deal up to %d points of damage.\r\n",
                     GET_OBJ_VAL(obj, 2) * GET_OBJ_VAL(obj, 1));
 
         if (IS_OBJ_STAT2(obj, ITEM2_CAST_WEAPON)) {
-            acc_sprintf("This weapon casts an offensive spell.\r\n");
+            sb_sprintf(&sb, "This weapon casts an offensive spell.\r\n");
         }
         break;
     case ITEM_ARMOR:
         if (GET_OBJ_VAL(obj, 0) < 2) {
-            acc_sprintf("This armor provides hardly any protection.\r\n");
+            sb_sprintf(&sb, "This armor provides hardly any protection.\r\n");
         } else if (GET_OBJ_VAL(obj, 0) < 5) {
-            acc_sprintf("This armor provides a little protection.\r\n");
+            sb_sprintf(&sb, "This armor provides a little protection.\r\n");
         } else if (GET_OBJ_VAL(obj, 0) < 15) {
-            acc_sprintf("This armor provides some protection.\r\n");
+            sb_sprintf(&sb, "This armor provides some protection.\r\n");
         } else if (GET_OBJ_VAL(obj, 0) < 20) {
-            acc_sprintf("This armor provides a lot of protection.\r\n");
+            sb_sprintf(&sb, "This armor provides a lot of protection.\r\n");
         } else if (GET_OBJ_VAL(obj, 0) < 25) {
-            acc_sprintf
-                ("This armor provides a ridiculous amount of protection.\r\n");
+            sb_sprintf(&sb, "This armor provides a ridiculous amount of protection.\r\n");
         } else {
-            acc_sprintf
-                ("This armor provides an insane amount of protection.\r\n");
+            sb_sprintf(&sb, "This armor provides an insane amount of protection.\r\n");
         }
         break;
     case ITEM_CONTAINER:
-        acc_sprintf("This container holds a maximum of %s.\r\n",
+        sb_sprintf(&sb, "This container holds a maximum of %s.\r\n",
                     format_weight(GET_OBJ_VAL(obj, 0), USE_METRIC(ch)));
         break;
     case ITEM_FOUNTAIN:
     case ITEM_DRINKCON:
-        acc_sprintf("This container holds some %s\r\n",
+        sb_sprintf(&sb, "This container holds some %s\r\n",
                     drinks[GET_OBJ_VAL(obj, 2)]);
     }
 
     for (i = 0; i < MIN(MAX_OBJ_AFFECT, skill_lvl / 25); i++) {
         if (obj->affected[i].location != APPLY_NONE) {
             if (obj->affected[i].modifier > 0) {
-                acc_sprintf("Item increases %s\r\n",
+                sb_sprintf(&sb, "Item increases %s\r\n",
                             strlist_aref(obj->affected[i].location, apply_types));
             } else if (obj->affected[i].modifier < 0) {
-                acc_sprintf("Item decreases %s\r\n",
+                sb_sprintf(&sb, "Item decreases %s\r\n",
                             strlist_aref(obj->affected[i].location, apply_types));
             }
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_appraise)

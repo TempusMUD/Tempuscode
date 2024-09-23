@@ -80,9 +80,10 @@ bool OLC_EDIT_OK(struct creature *ch, struct zone_data *zone, int bits);
 #define OLC_EXDESC_USAGE "olc <r|o>exdesc <create | remove | edit | addkey>" \
                          "<keywords> [new keywords]\r\n"
 
-void acc_format_search_data(struct creature *ch,
-                            struct room_data *room,
-                            struct special_search_data *cur_search);
+void format_search_data(struct str_builder *sb,
+                        struct creature *ch,
+                        struct room_data *room,
+                        struct special_search_data *cur_search);
 void print_search_data_to_buf(struct creature *ch,
                               struct room_data *room,
                               struct special_search_data *cur_search,

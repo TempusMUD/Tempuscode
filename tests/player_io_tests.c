@@ -25,7 +25,6 @@
 #include "screen.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "accstr.h"
 #include "xml_utils.h"
 #include "obj_data.h"
 #include "strutil.h"

@@ -31,7 +31,7 @@
 #include "account.h"
 #include "screen.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "fight.h"
 #include "xml_utils.h"
@@ -139,73 +139,6 @@ load_hunt_group(xmlNodePtr n)
     return hunt_group;
 }
 
-void
-acc_print_hunter(struct hunter *hunter)
-{
-    acc_sprintf("[%d,%d,%d]", hunter->m_vnum, hunter->weapon, hunter->prob);
-}
-
-void
-acc_print_hunt_group(struct hunt_group *hunt_group)
-{
-    int x = 0;
-
-    acc_strcat("{", NULL);
-    for (GList *it = hunt_group->hunters; it; it = it->next) {
-        struct hunter *hunter = it->data;
-        acc_print_hunter(hunter);
-        if (x++ % 5 == 0) {
-            acc_strcat("\r\n", NULL);
-        }
-    }
-    acc_strcat("}", NULL);
-}
-
-void
-acc_print_hunt_groups(GList *hunt_groups)
-{
-    acc_strcat("{ ", NULL);
-    for (GList *it = hunt_groups; it; it = it->next) {
-        struct hunt_group *hunt_group = it->data;
-        acc_print_hunt_group(hunt_group);
-    }
-    acc_strcat(" }", NULL);
-}
-
-void
-acc_print_devil(struct devil *devil)
-{
-    acc_sprintf("[%s,%d]", devil->name, devil->vnum);
-}
-
-void
-acc_print_devils(GList *devils)
-{
-    acc_strcat("{ ", NULL);
-    for (GList *it = devils; it; it = it->next) {
-        struct devil *devil = it->data;
-        acc_print_devil(devil);
-    }
-    acc_strcat(" }", NULL);
-}
-
-void
-acc_print_target(struct target *target)
-{
-    acc_sprintf("[%d,%d]", target->o_vnum, target->level);
-}
-
-void
-acc_print_targets(GList *targets)
-{
-    acc_strcat("{ ", NULL);
-    for (GList *it = targets; it; it = it->next) {
-        struct target *target = it->data;
-        acc_print_target(target);
-    }
-    acc_strcat(" }", NULL);
-}
-
 bool
 load_hunter_data(void)
 {
@@ -295,8 +228,9 @@ SPECIAL(hell_hunter_brain)
                     continue;
                 }
                 send_to_char(ch, "%3d. [%5d] %s%30s%s %3d/%3d\r\n",
-                             i, target->o_vnum, CCGRN(ch, NRM), obj->name, CCNRM(ch,
-                                                                                 NRM), obj->shared->number, obj->shared->house_count);
+                             i, target->o_vnum,
+                             CCGRN(ch, NRM), obj->name, CCNRM(ch, NRM),
+                             obj->shared->number, obj->shared->house_count);
             }
             send_to_char(ch, "Hunter blind spots:\r\n");
             int idx = 0;

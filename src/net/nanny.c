@@ -46,7 +46,7 @@
 #include "char_class.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "strutil.h"
 #include "language.h"
@@ -1092,6 +1092,7 @@ build_prompt(struct descriptor_data *d)
 {
     extern bool production_mode;
     char colorbuf[100];
+    struct str_builder sb = str_builder_default;
 
     // Check for the text editor being used
     if (d->creature && d->text_editor) {
@@ -1114,33 +1115,31 @@ build_prompt(struct descriptor_data *d)
             return "";
         }
 
-        acc_string_clear();
-
         if (!production_mode) {
-            acc_strcat("&b(debug) ", NULL);
+            sb_strcat(&sb, "&b(debug) ", NULL);
         }
         if (GET_INVIS_LVL(d->creature)) {
-            acc_sprintf("&m(&r%d&m) ", GET_INVIS_LVL(d->creature));
+            sb_sprintf(&sb, "&m(&r%d&m) ", GET_INVIS_LVL(d->creature));
         } else if (IS_NPC(d->creature)) {
-            acc_strcat("&c[NPC] ", NULL);
+            sb_strcat(&sb, "&c[NPC] ", NULL);
         }
 
         if (PRF_FLAGGED(d->creature, PRF_DISPHP)) {
-            acc_sprintf("%s%d%s%sH%s ",
+            sb_sprintf(&sb, "%s%d%s%sH%s ",
                         CCGRN(d->creature, C_SPR), GET_HIT(d->creature),
                         CCNRM(d->creature, C_SPR),
                         CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
         }
 
         if (PRF_FLAGGED(d->creature, PRF_DISPMANA)) {
-            acc_sprintf("%s%s%d%s%sM%s ",
+            sb_sprintf(&sb, "%s%s%d%s%sM%s ",
                         CCBLD(d->creature, C_CMP), CCMAG(d->creature, C_SPR),
                         GET_MANA(d->creature), CCNRM(d->creature, C_SPR),
                         CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
         }
 
         if (PRF_FLAGGED(d->creature, PRF_DISPMOVE)) {
-            acc_sprintf("%s%s%d%s%sV%s ",
+            sb_sprintf(&sb, "%s%s%d%s%sV%s ",
                         CCCYN(d->creature, C_SPR), CCBLD(d->creature, C_CMP),
                         GET_MOVE(d->creature), CCNRM(d->creature, C_SPR),
                         CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
@@ -1156,7 +1155,7 @@ build_prompt(struct descriptor_data *d)
                 snprintf(colorbuf, sizeof(colorbuf), "%s", CCWHT(d->creature, C_SPR));
             }
 
-            acc_sprintf("%s%s%d%s%sA%s ",
+            sb_sprintf(&sb, "%s%s%d%s%sA%s ",
                         colorbuf, CCBLD(d->creature, C_CMP),
                         GET_ALIGNMENT(d->creature), CCNRM(d->creature, C_SPR),
                         CCYEL_BLD(d->creature, C_CMP), CCNRM(d->creature, C_SPR));
@@ -1164,7 +1163,7 @@ build_prompt(struct descriptor_data *d)
 
         if (PRF2_FLAGGED(d->creature, PRF2_DISPTIME)) {
             if (d->creature->in_room->zone->time_frame == TIME_TIMELESS) {
-                acc_sprintf("%s%s%s", CCYEL_BLD(d->creature,
+                sb_sprintf(&sb, "%s%s%s", CCYEL_BLD(d->creature,
                                                 C_CMP), "!TIME ", CCNRM(d->creature, C_SPR));
             } else {
                 struct time_info_data local_time;
@@ -1182,7 +1181,7 @@ build_prompt(struct descriptor_data *d)
                                                                              C_CMP));
                 }
 
-                acc_sprintf("%s%d%s%s%s%s ", colorbuf,
+                sb_sprintf(&sb, "%s%d%s%s%s%s ", colorbuf,
                             ((local_time.hours % 12 ==
                               0) ? 12 : ((local_time.hours) % 12)),
                             CCNRM(d->creature, C_SPR), CCYEL_BLD(d->creature, C_CMP),
@@ -1193,22 +1192,20 @@ build_prompt(struct descriptor_data *d)
 
         if (is_fighting(d->creature) &&
             PRF2_FLAGGED(d->creature, PRF2_AUTO_DIAGNOSE)) {
-            acc_sprintf("&r(%s) ",
+            sb_sprintf(&sb, "&r(%s) ",
                         diag_conditions(random_opponent(d->creature)));
         }
 
-        char *prompt = tmp_strdup(acc_get_string());
+        struct str_builder outer = str_builder_default;
 
-        acc_string_clear();
-
-        if (prompt[0] != '\0') {
-            acc_strcat("&W< ", prompt, NULL);
+        if (sb.len != 0) {
+            sb_strcat(&outer, "&W< ", sb.str, NULL);
         }
 
-        if (prompt[0] || d->display != IRC) {
-            acc_strcat("&W>&n ", NULL);
+        if (sb.len != 0 || d->display != IRC) {
+            sb_strcat(&outer, "&W>&n ", NULL);
         }
-        return acc_get_string();
+        return outer.str;
     case CXN_ACCOUNT_LOGIN:
         return "  Login with your account name, 'create' to create an account, or 'recover' to recover your account: ";
     case CXN_ACCOUNT_PW:
@@ -1271,15 +1268,15 @@ build_prompt(struct descriptor_data *d)
         }
         break;
     case CXN_STATISTICS_ROLL:
-        acc_string_clear();
+        struct str_builder sb = str_builder_default;
         roll_real_abils(d->creature);
         print_attributes_to_buf(d->creature, buf2, sizeof(buf2));
-        acc_strcat(
+        sb_strcat(&sb,
             "&@&c\r\n                              CHARACTER ATTRIBUTES\r\n*******************************************************************************\r\n\r\n\r\n",
             buf2,
             "\r\n&cWould you like to &gREROLL&c or &gKEEP&c these attributes?&n ",
             NULL);
-        return acc_get_string();
+        return sb.str;
     case CXN_EDIT_DESC:
         return "";
     case CXN_MENU:
@@ -1341,6 +1338,7 @@ build_prompt(struct descriptor_data *d)
 void
 send_menu(struct descriptor_data *d)
 {
+    struct str_builder sb = str_builder_default;
     struct creature *tmp_ch;
     int idx;
 
@@ -1430,9 +1428,7 @@ send_menu(struct descriptor_data *d)
         break;
     case CXN_VIEW_POLICY:
         d_printf(d, "&@");
-        acc_string_clear();
-        acc_sprintf
-            ("%s\r\n                             POLICY\r\n*******************************************************************************%s\r\n",
+        sb_sprintf(&sb, "%s\r\n                             POLICY\r\n*******************************************************************************%s\r\n",
              dtermcode(d, C_NRM, TERM_CYN),
              dtermcode(d, C_NRM, TERM_NRM));
         FILE *fl = fopen("text/policies", "r");
@@ -1442,13 +1438,13 @@ send_menu(struct descriptor_data *d)
         }
         char line[1024];
 
-        acc_string_clear();
+        struct str_builder sb = str_builder_default;
         while (fgets(line, 1024, fl)) {
-            acc_strcat(line, NULL);
+            sb_strcat(&sb, line, NULL);
         }
         fclose(fl);
-        acc_strcat("\n", NULL);
-        page_string(d, tmp_gsub(acc_get_string(), "\n", "\r\n"));
+        sb_strcat(&sb, "\n", NULL);
+        page_string(d, tmp_gsub(sb.str, "\n", "\r\n"));
         break;
     case CXN_NAME_PROMPT:
         d_printf(d,

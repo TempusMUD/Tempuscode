@@ -41,8 +41,8 @@
 #include "account.h"
 #include "screen.h"
 #include "char_class.h"
+#include "str_builder.h"
 #include "tmpstr.h"
-#include "accstr.h"
 #include "spells.h"
 #include "vehicle.h"
 #include "materials.h"
@@ -1882,6 +1882,7 @@ show_olc_help(struct creature *ch, char *arg)
     int i = 0, which_help, j = 0;
     char smallbuf[30];
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+    struct str_builder sb = str_builder_default;
 
     half_chop(arg, arg1, arg2);
     if (!*arg1) {
@@ -1913,13 +1914,12 @@ show_olc_help(struct creature *ch, char *arg)
         page_string(ch->desc, buf);
         break;
     case 1:      /********* rsector **********/
-        acc_string_clear();
-        acc_sprintf("ROOM SECTOR TYPES:\r\n");
+        sb_sprintf(&sb, "ROOM SECTOR TYPES:\r\n");
         for (i = 0; i < NUM_SECT_TYPES; i++) {
-            acc_sprintf("%2d         %s%s%s\r\n", i,
-                        CCCYN(ch, C_NRM), sector_name_by_idnum(i), CCNRM(ch, C_NRM));
+            sb_sprintf(&sb, "%2d         %s%s%s\r\n", i,
+                       CCCYN(ch, C_NRM), sector_name_by_idnum(i), CCNRM(ch, C_NRM));
         }
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
         break;
     case 2:
         strcpy_s(buf, sizeof(buf), "ROOM FLOW TYPES:\r\n");

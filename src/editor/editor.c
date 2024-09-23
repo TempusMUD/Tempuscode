@@ -28,7 +28,7 @@
 #include "account.h"
 #include "screen.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "prog.h"
 #include "help.h"
 #include "editor.h"
@@ -254,7 +254,7 @@ editor_display(struct editor *editor, unsigned int start_line, unsigned int disp
     unsigned int line_count;
     GList *itr;
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
     line_count = editor_line_count(editor);
 
@@ -278,23 +278,22 @@ editor_display(struct editor *editor, unsigned int start_line, unsigned int disp
     // sure we don't overflow the LARGE_BUF desc buffer
     for (linenum = start_line; linenum < end_line;
          linenum++, itr = g_list_next(itr)) {
-        acc_sprintf("%3d%s%s]%s %s\r\n", linenum, CCBLD(editor->desc->creature,
+        sb_sprintf(&sb, "%3d%s%s]%s %s\r\n", linenum, CCBLD(editor->desc->creature,
                                                         C_CMP), CCBLU(editor->desc->creature, C_NRM),
                     CCNRM(editor->desc->creature, C_NRM),
                     ((GString *) itr->data)->str);
-        if (acc_get_length() > (LARGE_BUFSIZE - 1024)) {
+        if (sb.len > (LARGE_BUFSIZE - 1024)) {
             break;
         }
     }
 
-    acc_strcat("\r\n", NULL);
-    if (acc_get_length() > (LARGE_BUFSIZE - 1024)) {
-        acc_strcat
-            ("Output buffer limit reached. Use \"&&r <line number>\" to specify starting line.\r\n",
+    sb_strcat(&sb, "\r\n", NULL);
+    if (sb.len > (LARGE_BUFSIZE - 1024)) {
+        sb_strcat(&sb, "Output buffer limit reached. Use \"&&r <line number>\" to specify starting line.\r\n",
             NULL);
     }
 
-    editor_emit(editor, acc_get_string());
+    editor_emit(editor, sb.str);
 }
 
 bool
@@ -410,20 +409,20 @@ editor_find(struct editor *editor, char *args)
 {
     int i = 0;
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     for (GList *it = editor->lines; it; it = it->next) {
         GString *str = it->data;
 
         i++;
         if (strcasestr(str->str, args)) {
-            acc_sprintf("%3d%s%s]%s %s\r\n", i,
+            sb_sprintf(&sb, "%3d%s%s]%s %s\r\n", i,
                         CCBLD(editor->desc->creature, C_CMP),
                         CCBLU(editor->desc->creature, C_NRM),
                         CCNRM(editor->desc->creature, C_NRM), str->str);
         }
     }
-    acc_strcat("\r\n", NULL);
-    editor_emit(editor, acc_get_string());
+    sb_strcat(&sb, "\r\n", NULL);
+    editor_emit(editor, sb.str);
 
     return true;
 }
@@ -754,8 +753,6 @@ void
 editor_help(struct editor *editor, char *line)
 {
     char *command;
-
-    acc_string_clear();
 
     if (!*line) {
         d_printf(editor->desc,

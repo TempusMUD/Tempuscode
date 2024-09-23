@@ -1,4 +1,4 @@
-#include "accstr.h"
+#include "str_builder.h"
 
 #define ANGEL_DUAL_WIELD        (1 << 0)
 #define ANGEL_CONSUME           (1 << 1)
@@ -337,11 +337,11 @@ angel_find_path_to_room(struct creature *angel, struct room_data *dest,
         return;
     }
 
-    acc_string_clear();
-    acc_strcat("The shortest path there is:", NULL);
+    struct str_builder sb = str_builder_default;
+    sb_strcat(&sb, "The shortest path there is:", NULL);
     dir = find_first_step(cur_room, dest, STD_TRACK);
     while (cur_room && dir >= 0 && steps < 600) {
-        acc_sprintf(" %s", to_dirs[dir]);
+        sb_sprintf(&sb, " %s", to_dirs[dir]);
         steps++;
         cur_room = ABS_EXIT(cur_room, dir)->to_room;
         dir = find_first_step(cur_room, dest, STD_TRACK);
@@ -350,7 +350,7 @@ angel_find_path_to_room(struct creature *angel, struct room_data *dest,
     if (cur_room != dest || steps >= 600) {
         data->action = strdup("I don't seem to be able to find that room.");
     } else {
-        data->action = strdup(acc_get_string());
+        data->action = strdup(sb.str);
     }
 }
 

@@ -13,10 +13,11 @@ int fate_timers[3] = { 0, 0, 0 };
 
 SPECIAL(fate)
 {
+    const char *dyn_names[] = {"fatelow", "fatemid", "fatehigh"};
+
     struct creature *fate = (struct creature *)me;
     struct room_data *dest = NULL;
     dynamic_text_file *dyntext = NULL;
-    char dyn_name[64];
     char s[1024];
     struct room_list_struct *roomlist = NULL, *cur_room_list_item = NULL;
     char *roomlist_buf = NULL;
@@ -37,8 +38,7 @@ SPECIAL(fate)
             fate_timers[0] = fate_timers[1] = fate_timers[2] = 0;
             return 1;
         } else {
-            send_to_char(ch,
-                         "Fate - Available commands are: status, reset\r\n");
+            send_to_char(ch, "Fate - Available commands are: status, reset\r\n");
         }
         return 0;
     }
@@ -67,15 +67,12 @@ SPECIAL(fate)
     // Who is she?
     switch (GET_NPC_VNUM(fate)) {
     case FATE_VNUM_LOW:
-        strcpy_s(dyn_name, sizeof(dyn_name), "fatelow");
         which_fate = 0;
         break;
     case FATE_VNUM_MID:
-        strcpy_s(dyn_name, sizeof(dyn_name), "fatemid");
         which_fate = 1;
         break;
     case FATE_VNUM_HIGH:
-        strcpy_s(dyn_name, sizeof(dyn_name), "fatehigh");
         which_fate = 2;
         break;
     default:
@@ -93,12 +90,12 @@ SPECIAL(fate)
 
     // find the dyntext of the rooms we need.
     for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
-        if (!strcasecmp(dyn_name, dyntext->filename)) {
+        if (!strcasecmp(dyn_names[which_fate], dyntext->filename)) {
             break;
         }
     }
     if (!dyntext) {
-        errlog("Fate unable to access %s dyntext doc.", dyn_name);
+        errlog("Fate unable to access %s dyntext doc.", dyn_names[which_fate]);
         return 1;
     }
     // If the file is null, return

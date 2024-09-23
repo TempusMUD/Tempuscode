@@ -48,7 +48,7 @@
 #include "char_class.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "vehicle.h"
 #include "materials.h"
@@ -130,7 +130,7 @@ void save_all_players();
 static int do_freeze_char(char *argument, struct creature *vict,
                           struct creature *ch);
 void verify_tempus_integrity(struct creature *ch);
-static void do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj);
+static void build_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj, struct str_builder *sb);
 
 ACMD(do_equipment);
 
@@ -141,9 +141,9 @@ show_char_class_skills(struct creature *ch, int con, int immort, int bits)
     bool found;
     char *tmp;
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_strcat("The ",
+    sb_strcat(&sb, "The ",
                class_names[con],
                " class can learn the following ",
                IS_SET(bits, SPELL_BIT) ? "spells" :
@@ -153,10 +153,9 @@ show_char_class_skills(struct creature *ch, int con, int immort, int bits)
                IS_SET(bits, SONG_BIT) ? "songs" : "skills", ":\r\n", NULL);
 
     if (GET_LEVEL(ch) < LVL_IMMORT) {
-        acc_strcat("Lvl    Skill\r\n", NULL);
+        sb_strcat(&sb, "Lvl    Skill\r\n", NULL);
     } else {
-        acc_strcat
-            ("Lvl  Number   Skill           Mana: Max  Min  Chn  Flags\r\n",
+        sb_strcat(&sb, "Lvl  Number   Skill           Mana: Max  Min  Chn  Flags\r\n",
             NULL);
     }
 
@@ -176,15 +175,15 @@ show_char_class_skills(struct creature *ch, int con, int immort, int bits)
                 (immort || GET_REMORT_GEN(ch) >= spell_info[skl].gen[con])) {
 
                 if (!found) {
-                    acc_sprintf(" %-2d", lvl);
+                    sb_sprintf(&sb, " %-2d", lvl);
                 } else {
-                    acc_strcat("   ", NULL);
+                    sb_strcat(&sb, "   ", NULL);
                 }
 
                 if (GET_LEVEL(ch) < LVL_IMMORT) {
-                    acc_strcat("    ", NULL);
+                    sb_strcat(&sb, "    ", NULL);
                 } else {
-                    acc_sprintf(" - %3d. ", skl);
+                    sb_sprintf(&sb, " - %3d. ", skl);
                 }
 
                 if (spell_info[skl].gen[con]) {
@@ -200,29 +199,29 @@ show_char_class_skills(struct creature *ch, int con, int immort, int bits)
                     if (len > 33) {
                         len = 33;
                     }
-                    acc_sprintf("%s%s %s(gen %d)%s%s",
+                    sb_sprintf(&sb, "%s%s %s(gen %d)%s%s",
                                 CCGRN(ch, C_NRM), spell_to_str(skl), CCYEL(ch, C_NRM),
                                 spell_info[skl].gen[con], CCNRM(ch, C_NRM),
                                 tmp_pad(' ', 33 - len));
                 } else {
-                    acc_sprintf("%s%-33s%s",
+                    sb_sprintf(&sb, "%s%-33s%s",
                                 CCGRN(ch, C_NRM), spell_to_str(skl), CCNRM(ch, C_NRM));
                 }
 
                 if (GET_LEVEL(ch) >= LVL_IMMORT) {
                     sprintbit(spell_info[skl].routines, spell_bits, buf2, sizeof(buf2));
-                    acc_sprintf("%3d  %3d  %2d   %s%s%s",
+                    sb_sprintf(&sb, "%3d  %3d  %2d   %s%s%s",
                                 spell_info[skl].mana_max,
                                 spell_info[skl].mana_min, spell_info[skl].mana_change,
                                 CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
                 }
 
-                acc_strcat("\r\n", NULL);
+                sb_strcat(&sb, "\r\n", NULL);
                 found = true;
             }
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_echo)
@@ -597,6 +596,7 @@ mob_vnum_compare(struct creature *a, struct creature *b, __attribute__ ((unused)
 }
 
 struct mob_vnum_output_ctx {
+    struct str_builder *sb;
     struct creature *ch;
     int *counter;
 };
@@ -604,7 +604,7 @@ struct mob_vnum_output_ctx {
 void
 mob_vnum_output(struct creature *mob, struct mob_vnum_output_ctx *ctx)
 {
-    acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(ctx->counter),
+    sb_sprintf(ctx->sb, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(ctx->counter),
                 CCGRN(ctx->ch, C_NRM), CCNRM(ctx->ch, C_NRM),
                 mob->mob_specials.shared->vnum,
                 CCGRN(ctx->ch, C_NRM), CCYEL(ctx->ch, C_NRM),
@@ -629,11 +629,11 @@ vnum_mobile(char *searchname, struct creature *ch)
     }
 
     if (g_sequence_get_length(found_mobs)) {
-        acc_string_clear();
-        struct mob_vnum_output_ctx ctx = { .ch = ch, .counter = &counter };
+        struct str_builder sb = str_builder_default;
+        struct mob_vnum_output_ctx ctx = { .ch = ch, .counter = &counter, .sb = &sb };
         g_sequence_foreach(found_mobs, (GFunc)mob_vnum_output, &ctx);
 
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     } else {
         send_to_char(ch, "No mobs found with those search terms.\r\n");
     }
@@ -654,6 +654,7 @@ obj_vnum_compare(struct obj_data *a, struct obj_data *b, __attribute__ ((unused)
 }
 
 struct obj_vnum_output_ctx {
+    struct str_builder *sb;
     struct creature *ch;
     int *counter;
 };
@@ -661,7 +662,7 @@ struct obj_vnum_output_ctx {
 void
 obj_vnum_output(struct obj_data *obj, struct obj_vnum_output_ctx *ctx)
 {
-    acc_sprintf("%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(ctx->counter),
+    sb_sprintf(ctx->sb, "%3d. %s[%s%5d%s]%s %s%s\r\n", ++*(ctx->counter),
                 CCGRN(ctx->ch, C_NRM), CCNRM(ctx->ch, C_NRM),
                 obj->shared->vnum,
                 CCGRN(ctx->ch, C_NRM), CCYEL(ctx->ch, C_NRM),
@@ -686,12 +687,12 @@ vnum_object(char *searchname, struct creature *ch)
     }
 
     if (g_sequence_get_length(found_objs)) {
-        acc_string_clear();
+        struct str_builder sb = str_builder_default;
 
-        struct obj_vnum_output_ctx ctx = { .ch = ch, .counter = &counter };
+        struct obj_vnum_output_ctx ctx = { .ch = ch, .counter = &counter, .sb = &sb };
         g_sequence_foreach(found_objs, (GFunc)obj_vnum_output, &ctx);
 
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     } else {
         send_to_char(ch, "No objects found with those search terms.\r\n");
     }
@@ -1039,11 +1040,11 @@ do_stat_trails(struct creature *ch)
         return;
     }
     mytime = time(NULL);
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     for (i = 0, trail = ch->in_room->trail; trail; trail = trail->next) {
         timediff = mytime - trail->time;
         sprintbit(trail->flags, trail_flags, buf2, sizeof(buf2));
-        acc_sprintf(" [%2d] -- Name: '%s', (%s), Idnum: [%5d]\r\n"
+        sb_sprintf(&sb, " [%2d] -- Name: '%s', (%s), Idnum: [%5d]\r\n"
                     "         Time Passed: %ld minutes, %ld seconds.\r\n"
                     "         From dir: %s, To dir: %s, Track: [%2d]\r\n"
                     "         Flags: %s\r\n",
@@ -1055,22 +1056,22 @@ do_stat_trails(struct creature *ch)
                     trail->track, buf2);
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void
-acc_format_prog(struct creature *ch, char *prog)
+build_format_prog(struct creature *ch, char *prog, struct str_builder *sb)
 {
     const char *line_color = NULL;
 
-    acc_sprintf("Prog:\r\n");
+    sb_sprintf(sb, "Prog:\r\n");
 
     int line_num = 1;
     for (char *line = tmp_getline(&prog);
          line; line = tmp_getline(&prog), line_num++) {
 
         // Line number looks like TEDII
-        acc_sprintf("%s%3d%s] ", CCYEL(ch, C_NRM), line_num, CCBLU(ch, C_NRM));
+        sb_sprintf(sb, "%s%3d%s] ", CCYEL(ch, C_NRM), line_num, CCBLU(ch, C_NRM));
         char *c = line;
         skip_spaces(&c);
         if (!line_color) {
@@ -1103,7 +1104,7 @@ acc_format_prog(struct creature *ch, char *prog)
             }
         }
         // Append the line
-        acc_sprintf("%s%s\r\n", line_color, line);
+        sb_sprintf(sb, "%s%s\r\n", line_color, line);
 
         // If not a continued line, zero out the line color
         if (line[strlen(line) - 1] != '\\') {
@@ -1137,97 +1138,97 @@ do_stat_room(struct creature *ch, char *roomstr)
         }
     }
 
-    acc_string_clear();
-    acc_sprintf("Room name: %s%s%s\r\n", CCCYN(ch, C_NRM), rm->name,
+    struct str_builder sb = str_builder_default;
+    sb_sprintf(&sb, "Room name: %s%s%s\r\n", CCCYN(ch, C_NRM), rm->name,
                 CCNRM(ch, C_NRM));
 
-    acc_sprintf("Zone: [%s%3d%s], VNum: [%s%5d%s], Type: %s, Lighting: [%d], Max: [%d]\r\n",
+    sb_sprintf(&sb, "Zone: [%s%3d%s], VNum: [%s%5d%s], Type: %s, Lighting: [%d], Max: [%d]\r\n",
                 CCYEL(ch, C_NRM), rm->zone->number, CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
                 rm->number, CCNRM(ch, C_NRM), sector_name_by_idnum(rm->sector_type),
                 rm->light, rm->max_occupancy);
 
-    acc_sprintf("SpecProc: %s, Flags: %s\r\n",
+    sb_sprintf(&sb, "SpecProc: %s, Flags: %s\r\n",
                 (rm->func == NULL) ? "None" :
                 (i = find_spec_index_ptr(rm->func)) < 0 ? "Exists" :
                 spec_list[i].tag, tmp_printbits(rm->room_flags, room_bits));
 
     if (FLOW_SPEED(rm)) {
-        acc_sprintf("Flow (Direction: %s, Speed: %d, Type: %s (%d)).\r\n",
+        sb_sprintf(&sb, "Flow (Direction: %s, Speed: %d, Type: %s (%d)).\r\n",
                     dirs[(int)FLOW_DIR(rm)], FLOW_SPEED(rm),
                     flow_types[(int)FLOW_TYPE(rm)], (int)FLOW_TYPE(rm));
     }
 
-    acc_sprintf("Description:\r\n%s",
+    sb_sprintf(&sb, "Description:\r\n%s",
                 (rm->description) ? rm->description : "  None.\r\n");
 
     if (rm->sounds) {
-        acc_sprintf("%sSound:%s\r\n%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+        sb_sprintf(&sb, "%sSound:%s\r\n%s", CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                     rm->sounds);
     }
 
     if (rm->ex_description) {
-        acc_sprintf("Extra descs:%s", CCCYN(ch, C_NRM));
+        sb_sprintf(&sb, "Extra descs:%s", CCCYN(ch, C_NRM));
         for (desc = rm->ex_description; desc; desc = desc->next) {
-            acc_sprintf(" %s%s", desc->keyword, (desc->next) ? ";" : "");
+            sb_sprintf(&sb, " %s%s", desc->keyword, (desc->next) ? ";" : "");
         }
-        acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
+        sb_strcat(&sb, CCNRM(ch, C_NRM), "\r\n", NULL);
     }
 
     if (rm->affects) {
-        acc_sprintf("Room affects:\r\n");
+        sb_sprintf(&sb, "Room affects:\r\n");
         for (aff = rm->affects; aff; aff = aff->next) {
             if (aff->type == RM_AFF_FLAGS) {
-                acc_sprintf("  Room flags: %s%s%s, duration[%d]\r\n",
+                sb_sprintf(&sb, "  Room flags: %s%s%s, duration[%d]\r\n",
                             CCCYN(ch, C_NRM),
                             tmp_printbits(aff->flags, room_bits),
                             CCNRM(ch, C_NRM), aff->duration);
             } else if (aff->type < NUM_DIRS) {
-                acc_sprintf("  Door flags exit [%s], %s, duration[%d]\r\n",
+                sb_sprintf(&sb, "  Door flags exit [%s], %s, duration[%d]\r\n",
                             dirs[(int)aff->type],
                             tmp_printbits(aff->flags, exit_bits), aff->duration);
             } else {
-                acc_sprintf("  ERROR: Type %d.\r\n", aff->type);
+                sb_sprintf(&sb, "  ERROR: Type %d.\r\n", aff->type);
             }
 
-            acc_sprintf("  Desc: %s\r\n",
+            sb_sprintf(&sb, "  Desc: %s\r\n",
                         aff->description ? aff->description : "None.");
         }
     }
 
-    acc_sprintf("Chars present:%s", CCYEL(ch, C_NRM));
+    sb_sprintf(&sb, "Chars present:%s", CCYEL(ch, C_NRM));
 
     found = 0;
     for (GList *it = first_living(rm->people); it; it = next_living(it)) {
         k = it->data;
         if (can_see_creature(ch, k)) {
-            acc_sprintf("%s %s(%s)", found++ ? "," : "", GET_NAME(k),
+            sb_sprintf(&sb, "%s %s(%s)", found++ ? "," : "", GET_NAME(k),
                         (!IS_NPC(k) ? "PC" : (!IS_NPC(k) ? "NPC" : "MOB")));
         }
     }
-    acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
+    sb_strcat(&sb, CCNRM(ch, C_NRM), "\r\n", NULL);
 
     if (rm->contents) {
-        acc_sprintf("Contents:%s", CCGRN(ch, C_NRM));
+        sb_sprintf(&sb, "Contents:%s", CCGRN(ch, C_NRM));
         for (found = 0, j = rm->contents; j; j = j->next_content) {
             if (!can_see_object(ch, j)) {
                 continue;
             }
-            acc_sprintf("%s %s", found++ ? "," : "", j->name);
+            sb_sprintf(&sb, "%s %s", found++ ? "," : "", j->name);
         }
-        acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
+        sb_strcat(&sb, CCNRM(ch, C_NRM), "\r\n", NULL);
     }
 
     if (rm->search) {
-        acc_sprintf("SEARCHES:\r\n");
+        sb_sprintf(&sb, "SEARCHES:\r\n");
         for (cur_search = rm->search;
              cur_search; cur_search = cur_search->next) {
-            acc_format_search_data(ch, rm, cur_search);
+            format_search_data(&sb, ch, rm, cur_search);
         }
     }
 
     for (i = 0; i < NUM_OF_DIRS; i++) {
         if (ABS_EXIT(rm, i)) {
-            acc_sprintf("Exit %s%-5s%s:  To: [%s%s%s], Key: [%5d], Dam: [%4d], "
+            sb_sprintf(&sb, "Exit %s%-5s%s:  To: [%s%s%s], Key: [%5d], Dam: [%4d], "
                         "Keywrd: %s, Type: %s\r\n",
                         CCCYN(ch, C_NRM), dirs[i], CCNRM(ch, C_NRM),
                         CCCYN(ch, C_NRM), ((ABS_EXIT(rm, i)->to_room) ? tmp_sprintf("%5d", ABS_EXIT(rm, i)->to_room->number) : "NONE"), CCNRM(ch, C_NRM),
@@ -1236,25 +1237,25 @@ do_stat_room(struct creature *ch, char *roomstr)
                         ABS_EXIT(rm, i)->keyword ? ABS_EXIT(rm, i)->keyword : "None",
                         tmp_printbits(ABS_EXIT(rm, i)->exit_info, exit_bits));
             if (ABS_EXIT(rm, i)->general_description) {
-                acc_strcat(ABS_EXIT(rm, i)->general_description, NULL);
+                sb_strcat(&sb, ABS_EXIT(rm, i)->general_description, NULL);
             } else {
-                acc_strcat("  No exit description.\r\n", NULL);
+                sb_strcat(&sb, "  No exit description.\r\n", NULL);
             }
         }
     }
     if (rm->prog_state && rm->prog_state->var_list) {
         struct prog_var *cur_var;
-        acc_strcat("Prog state variables:\r\n", NULL);
+        sb_strcat(&sb, "Prog state variables:\r\n", NULL);
         for (cur_var = rm->prog_state->var_list; cur_var;
              cur_var = cur_var->next) {
-            acc_sprintf("     %s = '%s'\r\n", cur_var->key, cur_var->value);
+            sb_sprintf(&sb, "     %s = '%s'\r\n", cur_var->key, cur_var->value);
         }
     }
     if (rm->prog) {
-        acc_format_prog(ch, rm->prog);
+        build_format_prog(ch, rm->prog, &sb);
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void
@@ -1279,118 +1280,116 @@ do_stat_object(struct creature *ch, struct obj_data *j)
         }
     }
 
-    acc_string_clear();
-    acc_sprintf("Name: '%s%s%s', Aliases: %s\r\n", CCGRN(ch, C_NRM),
+    struct str_builder sb = str_builder_default;
+    sb_sprintf(&sb, "Name: '%s%s%s', Aliases: %s\r\n", CCGRN(ch, C_NRM),
                 ((j->name) ? j->name : "<None>"), CCNRM(ch, C_NRM), j->aliases);
 
-    acc_sprintf
-        ("VNum: [%s%5d%s], Exist: [%3d/%3d], Type: %s, SpecProc: %s\r\n",
+    sb_sprintf(&sb, "VNum: [%s%5d%s], Exist: [%3d/%3d], Type: %s, SpecProc: %s\r\n",
         CCGRN(ch, C_NRM), GET_OBJ_VNUM(j), CCNRM(ch, C_NRM), j->shared->number,
         j->shared->house_count, strlist_aref(GET_OBJ_TYPE(j), item_types),
         (j->shared->func) ? ((i =
                                   find_spec_index_ptr(j->shared->func)) <
                              0 ? "Exists" : spec_list[i].tag) : "None");
-    acc_sprintf("L-Des: %s%s%s\r\n", CCGRN(ch, C_NRM),
+    sb_sprintf(&sb, "L-Des: %s%s%s\r\n", CCGRN(ch, C_NRM),
                 ((j->line_desc) ? j->line_desc : "None"), CCNRM(ch, C_NRM));
 
     if (j->action_desc) {
-        acc_sprintf("Action desc: %s\r\n", j->action_desc);
+        sb_sprintf(&sb, "Action desc: %s\r\n", j->action_desc);
     }
 
     if (j->ex_description) {
-        acc_sprintf("Extra descs:%s", CCCYN(ch, C_NRM));
+        sb_sprintf(&sb, "Extra descs:%s", CCCYN(ch, C_NRM));
         for (desc = j->ex_description; desc; desc = desc->next) {
-            acc_strcat(" ", desc->keyword, ";", NULL);
+            sb_strcat(&sb, " ", desc->keyword, ";", NULL);
         }
-        acc_strcat(CCNRM(ch, C_NRM), "\r\n", NULL);
+        sb_strcat(&sb, CCNRM(ch, C_NRM), "\r\n", NULL);
     }
 
     if (!j->line_desc) {
-        acc_sprintf("**This object currently has no description**\r\n");
+        sb_sprintf(&sb, "**This object currently has no description**\r\n");
     }
 
     if (j->creation_time) {
         switch (j->creation_method) {
         case CREATED_ZONE:
-            acc_sprintf("Created by zone #%ld on %s\r\n",
+            sb_sprintf(&sb, "Created by zone #%ld on %s\r\n",
                         j->creator, tmp_ctime(j->creation_time));
             break;
         case CREATED_MOB:
-            acc_sprintf("Loaded onto mob #%ld on %s\r\n",
+            sb_sprintf(&sb, "Loaded onto mob #%ld on %s\r\n",
                         j->creator, tmp_ctime(j->creation_time));
             break;
         case CREATED_SEARCH:
-            acc_sprintf("Created by search in room #%ld on %s\r\n",
+            sb_sprintf(&sb, "Created by search in room #%ld on %s\r\n",
                         j->creator, tmp_ctime(j->creation_time));
             break;
         case CREATED_IMM:
-            acc_sprintf("Loaded by %s on %s\r\n",
+            sb_sprintf(&sb, "Loaded by %s on %s\r\n",
                         player_name_by_idnum(j->creator), tmp_ctime(j->creation_time));
             break;
         case CREATED_PROG:
-            acc_sprintf("Created by prog (mob or room #%ld) on %s\r\n",
+            sb_sprintf(&sb, "Created by prog (mob or room #%ld) on %s\r\n",
                         j->creator, tmp_ctime(j->creation_time));
             break;
         case CREATED_PLAYER:
-            acc_sprintf("Created by player %s on %s\r\n",
+            sb_sprintf(&sb, "Created by player %s on %s\r\n",
                         player_name_by_idnum(j->creator), tmp_ctime(j->creation_time));
             break;
         default:
-            acc_sprintf("Created on %s\r\n", tmp_ctime(j->creation_time));
+            sb_sprintf(&sb, "Created on %s\r\n", tmp_ctime(j->creation_time));
             break;
         }
     }
 
     if (j->unique_id) {
-        acc_sprintf("Unique object id: %ld\r\n", j->unique_id);
+        sb_sprintf(&sb, "Unique object id: %ld\r\n", j->unique_id);
     }
 
     if (j->shared->owner_id != 0) {
         if (player_idnum_exists(j->shared->owner_id)) {
-            acc_sprintf("Oedit Owned By: %s[%ld]\r\n",
+            sb_sprintf(&sb, "Oedit Owned By: %s[%ld]\r\n",
                         player_name_by_idnum(j->shared->owner_id),
                         j->shared->owner_id);
         } else {
-            acc_sprintf("Oedit Owned By: NOONE[%ld]\r\n", j->shared->owner_id);
+            sb_sprintf(&sb, "Oedit Owned By: NOONE[%ld]\r\n", j->shared->owner_id);
         }
 
     }
-    acc_sprintf("Can be worn on: ");
-    acc_strcat(tmp_printbits(j->obj_flags.wear_flags, wear_bits), "\r\n",
+    sb_sprintf(&sb, "Can be worn on: ");
+    sb_strcat(&sb, tmp_printbits(j->obj_flags.wear_flags, wear_bits), "\r\n",
                NULL);
     if (j->obj_flags.bitvector[0] || j->obj_flags.bitvector[1]
         || j->obj_flags.bitvector[2]) {
-        acc_strcat("Set char bits : ", NULL);
+        sb_strcat(&sb, "Set char bits : ", NULL);
         if (j->obj_flags.bitvector[0]) {
-            acc_strcat(tmp_printbits(j->obj_flags.bitvector[0],
+            sb_strcat(&sb, tmp_printbits(j->obj_flags.bitvector[0],
                                      affected_bits), "  ", NULL);
         }
         if (j->obj_flags.bitvector[1]) {
-            acc_strcat(tmp_printbits(j->obj_flags.bitvector[1],
+            sb_strcat(&sb, tmp_printbits(j->obj_flags.bitvector[1],
                                      affected2_bits), "  ", NULL);
         }
         if (j->obj_flags.bitvector[2]) {
-            acc_strcat(tmp_printbits(j->obj_flags.bitvector[2],
+            sb_strcat(&sb, tmp_printbits(j->obj_flags.bitvector[2],
                                      affected3_bits), NULL);
         }
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb, "\r\n", NULL);
     }
-    acc_sprintf("Extra flags : %s\r\n",
+    sb_sprintf(&sb, "Extra flags : %s\r\n",
                 tmp_printbits(GET_OBJ_EXTRA(j), extra_bits));
-    acc_sprintf("Extra2 flags: %s\r\n",
+    sb_sprintf(&sb, "Extra2 flags: %s\r\n",
                 tmp_printbits(GET_OBJ_EXTRA2(j), extra2_bits));
-    acc_sprintf("Extra3 flags: %s\r\n",
+    sb_sprintf(&sb, "Extra3 flags: %s\r\n",
                 tmp_printbits(GET_OBJ_EXTRA3(j), extra3_bits));
 
-    acc_sprintf("Weight: %s, Cost: %'d (%'d), Rent: %'d, Timer: %d\r\n",
+    sb_sprintf(&sb, "Weight: %s, Cost: %'d (%'d), Rent: %'d, Timer: %d\r\n",
                 format_weight(GET_OBJ_WEIGHT(j), metric), GET_OBJ_COST(j),
                 prototype_obj_value(j), GET_OBJ_RENT(j), GET_OBJ_TIMER(j));
 
     if ((rm = where_obj(j))) {
-        acc_sprintf("Absolute location: %s (%d)\r\n", rm->name, rm->number);
+        sb_sprintf(&sb, "Absolute location: %s (%d)\r\n", rm->name, rm->number);
 
-        acc_sprintf
-            ("In room: %s%s%s, In obj: %s%s%s, Carry: %s%s%s, Worn: %s%s%s%s, Aux: %s%s%s\r\n",
+        sb_sprintf(&sb, "In room: %s%s%s, In obj: %s%s%s, Carry: %s%s%s, Worn: %s%s%s%s, Aux: %s%s%s\r\n",
             CCCYN(ch, C_NRM), (j->in_room) ? tmp_sprintf("%d",
                                                          j->in_room->number) : "N", CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
             (j->in_obj) ? j->in_obj->name : "N", CCNRM(ch, C_NRM), CCGRN(ch,
@@ -1401,20 +1400,19 @@ do_stat_object(struct creature *ch, struct obj_data *j)
             CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
             (j->aux_obj) ? j->aux_obj->name : "N", CCNRM(ch, C_NRM));
     }
-    acc_sprintf
-        ("Material: [%s%s%s (%d)], Maxdamage: [%'d (%'d)], Damage: [%'d]\r\n",
+    sb_sprintf(&sb, "Material: [%s%s%s (%d)], Maxdamage: [%'d (%'d)], Damage: [%'d]\r\n",
         CCYEL(ch, C_NRM), strlist_aref(GET_OBJ_MATERIAL(j), material_names), CCNRM(ch,
                                                                                    C_NRM), GET_OBJ_MATERIAL(j), GET_OBJ_MAX_DAM(j), set_maxdamage(j),
         GET_OBJ_DAM(j));
 
     switch (GET_OBJ_TYPE(j)) {
     case ITEM_LIGHT:
-        acc_sprintf("Color: [%d], Type: [%d], Hours: [%d], Value3: [%d]\r\n",
+        sb_sprintf(&sb, "Color: [%d], Type: [%d], Hours: [%d], Value3: [%d]\r\n",
                     GET_OBJ_VAL(j, 0),
                     GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
         break;
     case ITEM_INSTRUMENT:
-        acc_sprintf("Instrument Type: [%d] (%s)\r\n",
+        sb_sprintf(&sb, "Instrument Type: [%d] (%s)\r\n",
                     GET_OBJ_VAL(j, 0),
                     strlist_aref(GET_OBJ_VAL(j, 0), instrument_types));
         break;
@@ -1423,7 +1421,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     case ITEM_PILL:
     case ITEM_SYRINGE:
     case ITEM_BOOK:
-        acc_sprintf("Level: %d, Spells: %s(%d), %s(%d), %s(%d)\r\n",
+        sb_sprintf(&sb, "Level: %d, Spells: %s(%d), %s(%d), %s(%d)\r\n",
                     GET_OBJ_VAL(j, 0),
                     (GET_OBJ_VAL(j, 1) > 0) ? spell_to_str((int)GET_OBJ_VAL(j,
                                                                             1)) : "None", GET_OBJ_VAL(j, 1), (GET_OBJ_VAL(j,
@@ -1434,15 +1432,13 @@ do_stat_object(struct creature *ch, struct obj_data *j)
         break;
     case ITEM_WAND:
     case ITEM_STAFF:
-        acc_sprintf
-            ("Level: %d, Max Charge: %d, Current Charge: %d, Spell: %s\r\n",
+        sb_sprintf(&sb, "Level: %d, Max Charge: %d, Current Charge: %d, Spell: %s\r\n",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
             spell_to_str((int)GET_OBJ_VAL(j, 3)));
         break;
     case ITEM_WEAPON:
         if (j->shared->proto) {
-            acc_sprintf
-                ("Spell: %s (%d), Todam: %dd%d (%savg %d%s [%d-%d]), Damage Type: %s (%d)\r\n",
+            sb_sprintf(&sb, "Spell: %s (%d), Todam: %dd%d (%savg %d%s [%d-%d]), Damage Type: %s (%d)\r\n",
                 ((GET_OBJ_VAL(j, 0) > 0
                   && GET_OBJ_VAL(j, 0) < TOP_NPC_SPELL) ? spell_to_str((int)GET_OBJ_VAL(j, 0)) : "NONE"), GET_OBJ_VAL(j, 0),
                 GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
@@ -1458,8 +1454,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
                  && GET_OBJ_VAL(j, 3) < 19) ? attack_hit_text[(int)GET_OBJ_VAL(j, 3)].plural : "bunk",
                 GET_OBJ_VAL(j, 3));
         } else {
-            acc_sprintf
-                ("Spell: %s (%d), Todam: %dd%d, Damage Type: %s (%d)\r\n",
+            sb_sprintf(&sb, "Spell: %s (%d), Todam: %dd%d, Damage Type: %s (%d)\r\n",
                 ((GET_OBJ_VAL(j, 0) > 0
                   && GET_OBJ_VAL(j, 0) < TOP_NPC_SPELL) ? spell_to_str((int)GET_OBJ_VAL(j, 0)) : "NONE"), GET_OBJ_VAL(j, 0),
                 GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
@@ -1469,78 +1464,71 @@ do_stat_object(struct creature *ch, struct obj_data *j)
         }
         break;
     case ITEM_CAMERA:
-        acc_sprintf("Targ room: %d\r\n", GET_OBJ_VAL(j, 0));
+        sb_sprintf(&sb, "Targ room: %d\r\n", GET_OBJ_VAL(j, 0));
         break;
     case ITEM_MISSILE:
-        acc_sprintf("Tohit: %d, Todam: %d, Type: %d\r\n",
+        sb_sprintf(&sb, "Tohit: %d, Todam: %d, Type: %d\r\n",
                     GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 3));
         break;
     case ITEM_ARMOR:
-        acc_sprintf("AC-apply: [%d]\r\n", GET_OBJ_VAL(j, 0));
+        sb_sprintf(&sb, "AC-apply: [%d]\r\n", GET_OBJ_VAL(j, 0));
         break;
     case ITEM_TRAP:
-        acc_sprintf("Spell: %d, - Hitpoints: %d\r\n",
+        sb_sprintf(&sb, "Spell: %d, - Hitpoints: %d\r\n",
                     GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1));
         break;
     case ITEM_CONTAINER:
-        acc_sprintf
-            ("Max-contains: %d, Locktype: %d, Key/Owner: %d, Corpse: %s, Killer: %d\r\n",
+        sb_sprintf(&sb, "Max-contains: %d, Locktype: %d, Key/Owner: %d, Corpse: %s, Killer: %d\r\n",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
             GET_OBJ_VAL(j, 3) ? "Yes" : "No", CORPSE_KILLER(j));
         break;
     case ITEM_DRINKCON:
     case ITEM_FOUNTAIN:
-        acc_sprintf
-            ("Max-contains: %d, Contains: %d, Liquid: %s(%d), Poisoned: %s (%d)\r\n",
+        sb_sprintf(&sb, "Max-contains: %d, Contains: %d, Liquid: %s(%d), Poisoned: %s (%d)\r\n",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), strlist_aref(GET_OBJ_VAL(j,
                                                                            2), drinks), GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j,
                                                                                                                        3) ? "Yes" : "No", GET_OBJ_VAL(j, 3));
         break;
     case ITEM_KEY:
-        acc_sprintf("Keytype: %d, Rentable: %s, Car Number: %d\r\n",
+        sb_sprintf(&sb, "Keytype: %d, Rentable: %s, Car Number: %d\r\n",
                     GET_OBJ_VAL(j, 0), YESNO(GET_OBJ_VAL(j, 1)), GET_OBJ_VAL(j, 2));
         break;
     case ITEM_FOOD:
-        acc_sprintf
-            ("Makes full: %d, Spell Lvl: %d, Spell : %s(%d), Poisoned: %d\r\n",
+        sb_sprintf(&sb, "Makes full: %d, Spell Lvl: %d, Spell : %s(%d), Poisoned: %d\r\n",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1),
             spell_to_str((int)GET_OBJ_VAL(j, 2)), GET_OBJ_VAL(j, 2),
             GET_OBJ_VAL(j, 3));
         break;
     case ITEM_HOLY_SYMB:
-        acc_sprintf
-            ("Alignment: %s(%d), Class: %s(%d), Min Level: %d, Max Level: %d \r\n",
+        sb_sprintf(&sb, "Alignment: %s(%d), Class: %s(%d), Min Level: %d, Max Level: %d \r\n",
             strlist_aref(GET_OBJ_VAL(j, 0), alignments), GET_OBJ_VAL(j, 0),
             strlist_aref(GET_OBJ_VAL(j, 1), char_class_abbrevs), GET_OBJ_VAL(j, 1),
             GET_OBJ_VAL(j, 2), GET_OBJ_VAL(j, 3));
         break;
     case ITEM_BATTERY:
-        acc_sprintf
-            ("Max_Energy: %d, Cur_Energy: %d, Rate: %d, Cost/Unit: %d\r\n",
+        sb_sprintf(&sb, "Max_Energy: %d, Cur_Energy: %d, Rate: %d, Cost/Unit: %d\r\n",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
             GET_OBJ_VAL(j, 3));
         break;
     case ITEM_VEHICLE:
-        acc_sprintf
-            ("Room/Key Number: %d, Door State: %d, Type: %s, v3: %d\r\n",
+        sb_sprintf(&sb, "Room/Key Number: %d, Door State: %d, Type: %s, v3: %d\r\n",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), tmp_printbits(GET_OBJ_VAL(j,
                                                                             2), vehicle_types), GET_OBJ_VAL(j, 3));
         break;
     case ITEM_ENGINE:
-        acc_sprintf
-            ("Max_Energy: %d, Cur_Energy: %d, Run_State: %s, Consume_rate: %d\r\n",
+        sb_sprintf(&sb, "Max_Energy: %d, Cur_Energy: %d, Run_State: %s, Consume_rate: %d\r\n",
             GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), tmp_printbits(GET_OBJ_VAL(j,
                                                                             2), engine_flags), GET_OBJ_VAL(j, 3));
         break;
     case ITEM_ENERGY_GUN:
-        acc_sprintf("Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)\r\n",
+        sb_sprintf(&sb, "Drain Rate: %d, Todam: %dd%d (av %d), Damage Type: %s (%d)\r\n",
                     GET_OBJ_VAL(j, 0), GET_OBJ_VAL(j, 1), GET_OBJ_VAL(j, 2),
                     (GET_OBJ_VAL(j, 1) * (GET_OBJ_VAL(j, 2) + 1)) / 2,
                     strlist_aref((int)GET_OBJ_VAL(j, 3), egun_types),
                     GET_OBJ_VAL(j, 3));
         break;
     case ITEM_BOMB:
-        acc_sprintf("Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
+        sb_sprintf(&sb, "Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
                     item_value_types[(int)GET_OBJ_TYPE(j)][0],
                     strlist_aref((int)GET_OBJ_VAL(j, 0), bomb_types), GET_OBJ_VAL(j, 0),
                     item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
@@ -1548,7 +1536,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
                     item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
     case ITEM_FUSE:
-        acc_sprintf("Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
+        sb_sprintf(&sb, "Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
                     item_value_types[(int)GET_OBJ_TYPE(j)][0],
                     strlist_aref((int)GET_OBJ_VAL(j, 0), fuse_types), GET_OBJ_VAL(j, 0),
                     item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
@@ -1557,7 +1545,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
         break;
 
     case ITEM_TOBACCO:
-        acc_sprintf("Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
+        sb_sprintf(&sb, "Values: %s:[%s(%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
                     item_value_types[(int)GET_OBJ_TYPE(j)][0],
                     strlist_aref((int)MIN(GET_OBJ_VAL(j, 0), NUM_SMOKES - 1), smoke_types),
                     GET_OBJ_VAL(j, 0),
@@ -1569,7 +1557,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     case ITEM_GUN:
     case ITEM_BULLET:
     case ITEM_CLIP:
-        acc_sprintf("Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%s (%d)]\r\n",
+        sb_sprintf(&sb, "Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%s (%d)]\r\n",
                     item_value_types[(int)GET_OBJ_TYPE(j)][0], GET_OBJ_VAL(j, 0),
                     item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
                     item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
@@ -1577,7 +1565,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
                     strlist_aref(GET_OBJ_VAL(j, 3), gun_types), GET_OBJ_VAL(j, 3));
         break;
     case ITEM_INTERFACE:
-        acc_sprintf("Values 0-3: %s:[%s (%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
+        sb_sprintf(&sb, "Values 0-3: %s:[%s (%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
                     item_value_types[(int)GET_OBJ_TYPE(j)][0],
                     strlist_aref(GET_OBJ_VAL(j, 0), interface_types),
                     GET_OBJ_VAL(j, 0),
@@ -1586,7 +1574,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
                     item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
     case ITEM_MICROCHIP:
-        acc_sprintf("Values 0-3: %s:[%s (%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
+        sb_sprintf(&sb, "Values 0-3: %s:[%s (%d)] %s:[%d] %s:[%d] %s:[%d]\r\n",
                     item_value_types[(int)GET_OBJ_TYPE(j)][0],
                     strlist_aref(GET_OBJ_VAL(j, 0), microchip_types),
                     GET_OBJ_VAL(j, 0),
@@ -1595,7 +1583,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
                     item_value_types[(int)GET_OBJ_TYPE(j)][3], GET_OBJ_VAL(j, 3));
         break;
     default:
-        acc_sprintf("Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%d]\r\n",
+        sb_sprintf(&sb, "Values 0-3: %s:[%d] %s:[%d] %s:[%d] %s:[%d]\r\n",
                     item_value_types[(int)GET_OBJ_TYPE(j)][0], GET_OBJ_VAL(j, 0),
                     item_value_types[(int)GET_OBJ_TYPE(j)][1], GET_OBJ_VAL(j, 1),
                     item_value_types[(int)GET_OBJ_TYPE(j)][2], GET_OBJ_VAL(j, 2),
@@ -1606,64 +1594,64 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     if (j->shared->proto == j) {
         char *param = GET_OBJ_PARAM(j);
         if (param && strlen(param) > 0) {
-            acc_sprintf("Spec_param: \r\n%s\r\n", GET_OBJ_PARAM(j));
+            sb_sprintf(&sb, "Spec_param: \r\n%s\r\n", GET_OBJ_PARAM(j));
         }
     }
 
     found = 0;
-    acc_sprintf("Affections:");
+    sb_sprintf(&sb, "Affections:");
     for (i = 0; i < MAX_OBJ_AFFECT; i++) {
         if (j->affected[i].modifier) {
-            acc_sprintf("%s %+d to %s",
+            sb_sprintf(&sb, "%s %+d to %s",
                         found++ ? "," : "",
                         j->affected[i].modifier,
                         strlist_aref(j->affected[i].location, apply_types));
         }
     }
     if (!found) {
-        acc_sprintf(" None");
+        sb_sprintf(&sb, " None");
     }
 
-    acc_sprintf("\r\n");
+    sb_sprintf(&sb, "\r\n");
 
     if (j->shared->proto == j) {
         // All the rest of the stats are only meaningful if the object
         // is in the game.
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
         return;
     }
 
     if (j->contains) {
-        acc_sprintf("Contents:\r\n");
+        sb_sprintf(&sb, "Contents:\r\n");
         list_obj_to_char(j->contains, ch, SHOW_OBJ_CONTENT, true);
 
     }
 
     if (OBJ_SOILAGE(j)) {
-        acc_sprintf("Soilage: %s\r\n",
+        sb_sprintf(&sb, "Soilage: %s\r\n",
                     tmp_printbits(OBJ_SOILAGE(j), soilage_bits));
     }
 
     if (GET_OBJ_SIGIL_IDNUM(j)) {
-        acc_sprintf("Warding Sigil: %s (%d), level %d.\r\n",
+        sb_sprintf(&sb, "Warding Sigil: %s (%d), level %d.\r\n",
                     player_name_by_idnum(GET_OBJ_SIGIL_IDNUM(j)),
                     GET_OBJ_SIGIL_IDNUM(j), GET_OBJ_SIGIL_LEVEL(j));
     }
 
     if (j->consignor) {
-        acc_sprintf("Consigned by %s (%ld) for %'" PRId64 ".\r\n",
+        sb_sprintf(&sb, "Consigned by %s (%ld) for %'" PRId64 ".\r\n",
                     player_name_by_idnum(j->consignor),
                     j->consignor,
                     j->consign_price);
     }
 
-    do_stat_obj_tmp_affs(ch, j);
+    build_stat_obj_tmp_affs(ch, j, &sb);
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void
-do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj)
+build_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj, struct str_builder *sb)
 {
     char *stat_prefix;
 
@@ -1678,7 +1666,7 @@ do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj)
 
         for (int i = 0; i < 4; i++) {
             if (aff->val_mod[i] != 0) {
-                acc_sprintf("%s %s by %d\r\n",
+                sb_sprintf(sb, "%s %s by %d\r\n",
                             stat_prefix,
                             item_value_types[(int)GET_OBJ_TYPE(obj)][i],
                             aff->val_mod[i]);
@@ -1686,12 +1674,12 @@ do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj)
         }
 
         if (aff->type_mod) {
-            acc_sprintf("%s type = %s\r\n", stat_prefix,
+            sb_sprintf(sb, "%s type = %s\r\n", stat_prefix,
                         strlist_aref(GET_OBJ_TYPE(obj), item_type_descs));
         }
 
         if (aff->worn_mod) {
-            acc_sprintf("%s worn + %s\r\n",
+            sb_sprintf(sb, "%s worn + %s\r\n",
                         stat_prefix, tmp_printbits(aff->worn_mod, wear_bits));
         }
 
@@ -1699,19 +1687,19 @@ do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj)
             const char **bit_descs[3] = {
                 extra_bits, extra2_bits, extra3_bits
             };
-            acc_sprintf("%s extra + %s\r\n",
+            sb_sprintf(sb, "%s extra + %s\r\n",
                         stat_prefix,
                         tmp_printbits(aff->extra_mod,
                                       bit_descs[(int)aff->extra_index - 1]));
         }
 
         if (aff->weight_mod) {
-            acc_sprintf("%s weight by %f\r\n", stat_prefix, aff->weight_mod);
+            sb_sprintf(sb, "%s weight by %f\r\n", stat_prefix, aff->weight_mod);
         }
 
         for (int i = 0; i < MAX_OBJ_AFFECT; i++) {
             if (aff->affect_loc[i]) {
-                acc_sprintf("%s %+d to %s\r\n",
+                sb_sprintf(sb, "%s %+d to %s\r\n",
                             stat_prefix,
                             aff->affect_mod[i],
                             strlist_aref(aff->affect_loc[i], apply_types));
@@ -1719,11 +1707,11 @@ do_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj)
         }
 
         if (aff->dam_mod) {
-            acc_sprintf("%s damage by %d\r\n", stat_prefix, aff->dam_mod);
+            sb_sprintf(sb, "%s damage by %d\r\n", stat_prefix, aff->dam_mod);
         }
 
         if (aff->maxdam_mod) {
-            acc_sprintf("%s maxdam by %d\r\n", stat_prefix, aff->maxdam_mod);
+            sb_sprintf(sb, "%s maxdam by %d\r\n", stat_prefix, aff->maxdam_mod);
         }
     }
 }
@@ -1736,20 +1724,20 @@ do_stat_character_kills(struct creature *ch, struct creature *k)
     } else if (!GET_RECENT_KILLS(k)) {
         send_to_char(ch, "This player has not killed anything yet.\r\n");
     } else {
-        acc_string_clear();
-        acc_sprintf("Recently killed by %s:\r\n", GET_NAME(k));
+        struct str_builder sb = str_builder_default;
+        sb_sprintf(&sb, "Recently killed by %s:\r\n", GET_NAME(k));
         for (GList *kill_it = GET_RECENT_KILLS(k);
              kill_it;
              kill_it = kill_it->next) {
             struct kill_record *kill = kill_it->data;
             struct creature *killed = real_mobile_proto(kill->vnum);
-            acc_sprintf("%s%5d. %-30s %17d%s\r\n",
+            sb_sprintf(&sb, "%s%5d. %-30s %17d%s\r\n",
                         CCGRN(ch, C_NRM),
                         kill->vnum,
                         (killed) ? GET_NAME(killed) : "<unknown>",
                         kill->times, CCNRM(ch, C_NRM));
         }
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     }
 }
 
@@ -1762,9 +1750,9 @@ do_stat_character_prog(struct creature *ch, struct creature *k)
         send_to_char(ch, "Mobile %d does not have a prog.\r\n",
                      GET_NPC_VNUM(k));
     } else {
-        acc_string_clear();
-        acc_format_prog(ch, GET_NPC_PROG(k));
-        page_string(ch->desc, acc_get_string());
+        struct str_builder sb = str_builder_default;
+        build_format_prog(ch, GET_NPC_PROG(k), &sb);
+        page_string(ch->desc, sb.str);
     }
 }
 
@@ -1832,15 +1820,15 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         }
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
     if (GET_SEX(k) >= 0 && GET_SEX(k) < SEX_COUNT) {
-        acc_strcat(tmp_toupper(gender_info[GET_SEX(k)].name), NULL);
+        sb_strcat(&sb, tmp_toupper(gender_info[GET_SEX(k)].name), NULL);
     } else {
-        acc_strcat("ILLEGAL-SEX!!", NULL);
+        sb_strcat(&sb, "ILLEGAL-SEX!!", NULL);
     }
 
-    acc_sprintf(
+    sb_sprintf(&sb, 
         " %s '%s%s%s'  IDNum: [%5ld], AccountNum: [%5ld], In room %s[%s%5d%s]%s\n",
         (!IS_NPC(k) ? "PC" : (!IS_NPC(k) ? "NPC" : "MOB")), CCYEL(ch, C_NRM),
         GET_NAME(k), CCNRM(ch, C_NRM), IS_NPC(k) ? NPC_IDNUM(k) : GET_IDNUM(k),
@@ -1849,29 +1837,29 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM));
 
     if (!IS_NPC(k) && GET_LEVEL(k) >= LVL_AMBASSADOR) {
-        acc_sprintf("OlcObj: [%d], OlcMob: [%d]\r\n",
+        sb_sprintf(&sb, "OlcObj: [%d], OlcMob: [%d]\r\n",
                     (GET_OLC_OBJ(k) ? GET_OLC_OBJ(k)->shared->vnum : (-1)),
                     (GET_OLC_MOB(k) ?
                      GET_OLC_MOB(k)->mob_specials.shared->vnum : (-1)));
     } else {
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb, "\r\n", NULL);
     }
 
     if (IS_NPC(k)) {
-        acc_sprintf("Alias: %s, VNum: %s[%s%5d%s]%s, Exist: [%3d]\r\n",
+        sb_sprintf(&sb, "Alias: %s, VNum: %s[%s%5d%s]%s, Exist: [%3d]\r\n",
                     k->player.name, CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
                     GET_NPC_VNUM(k), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                     k->mob_specials.shared->number);
-        acc_sprintf("L-Des: %s%s%s\r\n", CCYEL(ch, C_NRM),
+        sb_sprintf(&sb, "L-Des: %s%s%s\r\n", CCYEL(ch, C_NRM),
                     (k->player.long_descr ? k->player.long_descr : "<None>"),
                     CCNRM(ch, C_NRM));
     } else {
-        acc_sprintf("Title: %s\r\n",
+        sb_sprintf(&sb, "Title: %s\r\n",
                     (k->player.title ? k->player.title : "<None>"));
     }
 
 /* Race, Class */
-    acc_sprintf("Race: %s, Class: %s%s/%s Gen: %d\r\n",
+    sb_sprintf(&sb, "Race: %s, Class: %s%s/%s Gen: %d\r\n",
                 race_name_by_idnum(k->player.race),
                 strlist_aref(k->player.char_class, class_names),
                 (IS_CYBORG(k) ?
@@ -1883,15 +1871,14 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                  "None"), GET_REMORT_GEN(k));
 
     if (!IS_NPC(k)) {
-        acc_sprintf("Lev: [%s%2d%s], XP: [%s%7d%s/%s%d%s], Align: [%4d]\r\n",
+        sb_sprintf(&sb, "Lev: [%s%2d%s], XP: [%s%7d%s/%s%d%s], Align: [%4d]\r\n",
                     CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM),
                     CCYEL(ch, C_NRM), GET_EXP(k), CCNRM(ch, C_NRM),
                     CCCYN(ch, C_NRM), exp_scale[GET_LEVEL(k) + 1] - GET_EXP(k),
                     CCNRM(ch, C_NRM), GET_ALIGNMENT(k));
     } else {
         rexp = mobile_experience(k, NULL);
-        acc_sprintf
-            ("Lev: [%s%2d%s], XP: [%s%7d%s/%s%d%s] %s(%s%3d p%s)%s, Align: [%4d]\r\n",
+        sb_sprintf(&sb, "Lev: [%s%2d%s], XP: [%s%7d%s/%s%d%s] %s(%s%3d p%s)%s, Align: [%4d]\r\n",
             CCYEL(ch, C_NRM), GET_LEVEL(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
             GET_EXP(k), CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), rexp, CCNRM(ch,
                                                                         C_NRM), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -1901,7 +1888,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             GET_ALIGNMENT(k));
     }
 
-    acc_sprintf("Height %s, Weight %s.\r\n",
+    sb_sprintf(&sb, "Height %s, Weight %s.\r\n",
                 format_distance(GET_HEIGHT(k), metric),
                 format_weight(GET_WEIGHT(k), metric));
 
@@ -1910,33 +1897,31 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         strcpy_s(buf2, sizeof(buf2), (char *)asctime(localtime(&(k->player.time.logon))));
         buf1[10] = buf2[10] = '\0';
 
-        acc_sprintf
-            ("Created: [%s], Last Logon: [%s], Played [%ldh %ldm], Age [%d]\r\n",
+        sb_sprintf(&sb, "Created: [%s], Last Logon: [%s], Played [%ldh %ldm], Age [%d]\r\n",
             buf1, buf2, k->player.time.played / 3600,
             ((k->player.time.played / 3600) % 60), GET_AGE(k));
 
-        acc_sprintf("Homeroom:[%d], Loadroom: [%d], Clan: %s%s%s\r\n",
+        sb_sprintf(&sb, "Homeroom:[%d], Loadroom: [%d], Clan: %s%s%s\r\n",
                     GET_HOMEROOM(k), k->player_specials->saved.home_room,
                     CCCYN(ch, C_NRM),
                     real_clan(GET_CLAN(k)) ? real_clan(GET_CLAN(k))->name : "NONE",
                     CCNRM(ch, C_NRM));
 
-        acc_sprintf("Life: [%d], Thac0: [%d], Raw Reputation: [%4d]",
+        sb_sprintf(&sb, "Life: [%d], Thac0: [%d], Raw Reputation: [%4d]",
                     GET_LIFE_POINTS(k), (int)MIN(THACO(GET_CLASS(k), GET_LEVEL(k)),
                                                  THACO(GET_REMORT_CLASS(k), GET_LEVEL(k))), RAW_REPUTATION_OF(k));
 
         if (IS_IMMORT(k)) {
-            acc_sprintf(", Qpoints: [%d/%d]", GET_IMMORT_QP(k),
+            sb_sprintf(&sb, ", Qpoints: [%d/%d]", GET_IMMORT_QP(k),
                         GET_QUEST_ALLOWANCE(k));
         }
 
-        acc_sprintf
-            ("\r\n%sMobKills:%s [%4d], %sPKills:%s [%4d], %sDeaths:%s [%4d]\r\n",
+        sb_sprintf(&sb, "\r\n%sMobKills:%s [%4d], %sPKills:%s [%4d], %sDeaths:%s [%4d]\r\n",
             CCYEL(ch, C_NRM), CCNRM(ch, C_NRM), GET_MOBKILLS(k), CCRED(ch,
                                                                        C_NRM), CCNRM(ch, C_NRM), GET_PKILLS(k), CCGRN(ch, C_NRM),
             CCNRM(ch, C_NRM), GET_PC_DEATHS(k));
     }
-    acc_sprintf("Str: [%s%d%s]  Int: [%s%d%s]  Wis: [%s%d%s]  "
+    sb_sprintf(&sb, "Str: [%s%d%s]  Int: [%s%d%s]  Wis: [%s%d%s]  "
                 "Dex: [%s%d%s]  Con: [%s%d%s]  Cha: [%s%d%s]\r\n",
                 CCCYN(ch, C_NRM), GET_STR(k), CCNRM(ch, C_NRM),
                 CCCYN(ch, C_NRM), GET_INT(k), CCNRM(ch, C_NRM),
@@ -1945,23 +1930,20 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                 CCCYN(ch, C_NRM), GET_CON(k), CCNRM(ch, C_NRM),
                 CCCYN(ch, C_NRM), GET_CHA(k), CCNRM(ch, C_NRM));
     if (k->in_room || !IS_NPC(k)) { // Real Mob/Char
-        acc_sprintf
-            ("Hit p.:[%s%d/%d+%d%s]  Mana p.:[%s%d/%d+%d%s]  Move p.:[%s%d/%d+%d%s]\r\n",
+        sb_sprintf(&sb, "Hit p.:[%s%d/%d+%d%s]  Mana p.:[%s%d/%d+%d%s]  Move p.:[%s%d/%d+%d%s]\r\n",
             CCGRN(ch, C_NRM), GET_HIT(k), GET_MAX_HIT(k), hit_gain(k),
             CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MANA(k), GET_MAX_MANA(k),
             mana_gain(k), CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), GET_MOVE(k),
             GET_MAX_MOVE(k), move_gain(k), CCNRM(ch, C_NRM));
     } else {                    // Virtual Mob
-        acc_sprintf
-            ("Hit p.:[%s%dd%d+%d (%d)%s]  Mana p.:[%s%d%s]  Move p.:[%s%d%s]\r\n",
+        sb_sprintf(&sb, "Hit p.:[%s%dd%d+%d (%d)%s]  Mana p.:[%s%d%s]  Move p.:[%s%d%s]\r\n",
             CCGRN(ch, C_NRM), GET_HIT(k), GET_MANA(k), GET_MOVE(k),
             (GET_HIT(k) * (GET_MANA(k) + 1) / 2) + GET_MOVE(k), CCNRM(ch,
                                                                       C_NRM), CCGRN(ch, C_NRM), GET_MAX_MANA(k), CCNRM(ch, C_NRM),
             CCGRN(ch, C_NRM), GET_MAX_MOVE(k), CCNRM(ch, C_NRM));
     }
 
-    acc_sprintf
-        ("AC: [%s%d/10%s], Hitroll: [%s%2d%s], Damroll: [%s%2d%s], Speed: [%s%2d%s], DR: [%s%2d%s]\r\n",
+    sb_sprintf(&sb, "AC: [%s%d/10%s], Hitroll: [%s%2d%s], Damroll: [%s%2d%s], Speed: [%s%2d%s], DR: [%s%2d%s]\r\n",
         CCYEL(ch, C_NRM), GET_AC(k), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         k->points.hitroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
         k->points.damroll, CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), SPEED_OF(k),
@@ -1969,8 +1951,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                                                                    NULL) * 100), CCNRM(ch, C_NRM));
 
     if (!IS_NPC(k) || k->in_room) {
-        acc_sprintf
-            ("Pr:[%s%2d%s],Rd:[%s%2d%s],Pt:[%s%2d%s],Br:[%s%2d%s],Sp:[%s%2d%s],Ch:[%s%2d%s],Ps:[%s%2d%s],Ph:[%s%2d%s]\r\n",
+        sb_sprintf(&sb, "Pr:[%s%2d%s],Rd:[%s%2d%s],Pt:[%s%2d%s],Br:[%s%2d%s],Sp:[%s%2d%s],Ch:[%s%2d%s],Ps:[%s%2d%s],Ph:[%s%2d%s]\r\n",
             CCYEL(ch, C_NRM), GET_SAVE(k, 0), CCNRM(ch, C_NRM), CCYEL(ch,
                                                                       C_NRM), GET_SAVE(k, 1), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM),
             GET_SAVE(k, 2), CCNRM(ch, C_NRM), CCYEL(ch, C_NRM), GET_SAVE(k, 3),
@@ -1980,22 +1961,21 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                                                                       C_NRM), GET_SAVE(k, 7), CCNRM(ch, C_NRM));
     }
     if (IS_NPC(k)) {
-        acc_sprintf("Gold:[%'8" PRId64 "], Cash:[%'8" PRId64 "], (Total: %'" PRId64 ")\r\n",
+        sb_sprintf(&sb, "Gold:[%'8" PRId64 "], Cash:[%'8" PRId64 "], (Total: %'" PRId64 ")\r\n",
                     GET_GOLD(k), GET_CASH(k), GET_GOLD(k) + GET_CASH(k));
     } else {
-        acc_sprintf
-            ("Au:[%'8" PRId64 "], Bank:[%'9" PRId64 "], Cash:[%'8" PRId64 "], Enet:[%'9" PRId64 "], (Total: %'" PRId64 ")\r\n",
+        sb_sprintf(&sb, "Au:[%'8" PRId64 "], Bank:[%'9" PRId64 "], Cash:[%'8" PRId64 "], Enet:[%'9" PRId64 "], (Total: %'" PRId64 ")\r\n",
             GET_GOLD(k), GET_PAST_BANK(k), GET_CASH(k), GET_FUTURE_BANK(k),
             GET_GOLD(k) + GET_PAST_BANK(k) + GET_FUTURE_BANK(k) + GET_CASH(k));
     }
 
     if (IS_NPC(k)) {
-        acc_sprintf("Pos: %s, Dpos: %s, Attack: %s",
+        sb_sprintf(&sb, "Pos: %s, Dpos: %s, Attack: %s",
                     position_types[(int)GET_POSITION(k)],
                     position_types[(int)k->mob_specials.shared->default_pos],
                     attack_hit_text[k->mob_specials.shared->attack_type].singular);
         if (k->in_room) {
-            acc_sprintf(", %sFT%s: %s, %sHNT%s: %s, Timer: %d",
+            sb_sprintf(&sb, ", %sFT%s: %s, %sHNT%s: %s, Timer: %d",
                         CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                         (is_fighting(k) ? GET_NAME(random_opponent(k)) : "N"),
                         CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -2003,7 +1983,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                         k->char_specials.timer);
         }
     } else if (k->in_room) {
-        acc_sprintf("Pos: %s, %sFT%s: %s, %sHNT%s: %s",
+        sb_sprintf(&sb, "Pos: %s, %sFT%s: %s, %sHNT%s: %s",
                     position_types[(int)GET_POSITION(k)],
                     CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
                     (is_fighting(k) ? GET_NAME(random_opponent(k)) : "N"),
@@ -2011,23 +1991,23 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                     NPC_HUNTING(k) ? PERS(NPC_HUNTING(k), ch) : "N");
     }
     if (k->desc) {
-        acc_sprintf(", Connected: %s, Idle [%d]\r\n",
+        sb_sprintf(&sb, ", Connected: %s, Idle [%d]\r\n",
                     strlist_aref((int)k->desc->input_mode, desc_modes),
                     k->char_specials.timer);
     } else {
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb, "\r\n", NULL);
     }
 
     if (GET_POSITION(k) == POS_MOUNTED && MOUNTED_BY(k)) {
-        acc_sprintf("Mount: %s\r\n", GET_NAME(MOUNTED_BY(k)));
+        sb_sprintf(&sb, "Mount: %s\r\n", GET_NAME(MOUNTED_BY(k)));
     }
 
     if (IS_NPC(k)) {
         sprintbit(NPC_FLAGS(k), action_bits, buf, sizeof(buf));
-        acc_sprintf("NPC flags: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
+        sb_sprintf(&sb, "NPC flags: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
                     CCNRM(ch, C_NRM));
         sprintbit(NPC2_FLAGS(k), action2_bits, buf, sizeof(buf));
-        acc_sprintf("NPC flags(2): %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
+        sb_sprintf(&sb, "NPC flags(2): %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
                     CCNRM(ch, C_NRM));
     } else {
         if (GET_LEVEL(ch) >= LVL_CREATOR) {
@@ -2035,33 +2015,32 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         } else {
             sprintbit(PLR_FLAGS(k) & ~PLR_LOG, player_bits, buf, sizeof(buf));
         }
-        acc_sprintf("PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
+        sb_sprintf(&sb, "PLR: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
                     CCNRM(ch, C_NRM));
         sprintbit(PLR2_FLAGS(k), player2_bits, buf, sizeof(buf));
-        acc_sprintf("PLR2: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
+        sb_sprintf(&sb, "PLR2: %s%s%s\r\n", CCCYN(ch, C_NRM), buf,
                     CCNRM(ch, C_NRM));
         sprintbit(PRF_FLAGS(k), preference_bits, buf, sizeof(buf));
-        acc_sprintf("PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf,
+        sb_sprintf(&sb, "PRF: %s%s%s\r\n", CCGRN(ch, C_NRM), buf,
                     CCNRM(ch, C_NRM));
         sprintbit(PRF2_FLAGS(k), preference2_bits, buf, sizeof(buf));
-        acc_sprintf("PRF2: %s%s%s\r\n", CCGRN(ch, C_NRM), buf,
+        sb_sprintf(&sb, "PRF2: %s%s%s\r\n", CCGRN(ch, C_NRM), buf,
                     CCNRM(ch, C_NRM));
         if (PLR_FLAGGED(k, PLR_FROZEN)) {
-            acc_sprintf("%sFrozen by: %s", CCCYN(ch, C_NRM),
+            sb_sprintf(&sb, "%sFrozen by: %s", CCCYN(ch, C_NRM),
                         player_name_by_idnum(k->player_specials->freezer_id));
             if (k->player_specials->thaw_time > 0) {
-                acc_sprintf(", will auto-thaw at %s%s\r\n",
+                sb_sprintf(&sb, ", will auto-thaw at %s%s\r\n",
                             tmp_ctime(k->player_specials->thaw_time),
                             CCNRM(ch, C_NRM));
             } else {
-                acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
+                sb_sprintf(&sb, "%s\r\n", CCNRM(ch, C_NRM));
             }
         }
     }
 
     if (IS_NPC(k)) {
-        acc_sprintf
-            ("Mob Spec: %s%s%s, NPC Dam: %dd%d, Morale: %d, Lair: %d, Ldr: %d\r\n",
+        sb_sprintf(&sb, "Mob Spec: %s%s%s, NPC Dam: %dd%d, Morale: %d, Lair: %d, Ldr: %d\r\n",
             CCYEL(ch, C_NRM), (k->mob_specials.shared->func ? ((i =
                                                                     find_spec_index_ptr(k->mob_specials.shared->func)) <
                                                                0 ? "Exists" : spec_list[i].tag) : "None"), CCNRM(ch,
@@ -2071,17 +2050,17 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             k->mob_specials.shared->leader);
 
         if (NPC_SHARED(k)->move_buf) {
-            acc_sprintf("Move_buf: %s\r\n", NPC_SHARED(k)->move_buf);
+            sb_sprintf(&sb, "Move_buf: %s\r\n", NPC_SHARED(k)->move_buf);
         }
         if (k->mob_specials.shared->proto == k) {
             char *param = GET_NPC_PARAM(k);
 
             if (param && strlen(param) > 0) {
-                acc_sprintf("Spec_param: \r\n%s\r\n", GET_NPC_PARAM(k));
+                sb_sprintf(&sb, "Spec_param: \r\n%s\r\n", GET_NPC_PARAM(k));
             }
             param = GET_LOAD_PARAM(k);
             if (param && strlen(param) > 0) {
-                acc_sprintf("Load_param: \r\n%s\r\n", GET_LOAD_PARAM(k));
+                sb_sprintf(&sb, "Load_param: \r\n%s\r\n", GET_LOAD_PARAM(k));
             }
         }
     }
@@ -2097,23 +2076,22 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
 
     found = false;
     if (k->in_room) {
-        acc_sprintf
-            ("Encum : (%.2f inv + %.2f eq) = (%.2f tot)/%f, Number: %d/%d inv, %d eq, %d imp\r\n",
+        sb_sprintf(&sb, "Encum : (%.2f inv + %.2f eq) = (%.2f tot)/%f, Number: %d/%d inv, %d eq, %d imp\r\n",
             IS_CARRYING_W(k), IS_WEARING_W(k),
             (IS_CARRYING_W(k) + IS_WEARING_W(k)), CAN_CARRY_W(k),
             IS_CARRYING_N(k), (int)CAN_CARRY_N(k), num, num2);
         if (BREATH_COUNT_OF(k) || GET_FALL_COUNT(k)) {
-            acc_sprintf("Breath_count: %d, Fall_count: %d",
+            sb_sprintf(&sb, "Breath_count: %d, Fall_count: %d",
                         BREATH_COUNT_OF(k), GET_FALL_COUNT(k));
             found = true;
         }
     }
     if (!IS_NPC(k)) {
-        acc_sprintf("%sHunger: %d, Thirst: %d, Drunk: %d\r\n",
+        sb_sprintf(&sb, "%sHunger: %d, Thirst: %d, Drunk: %d\r\n",
                     found ? ", " : "",
                     GET_COND(k, FULL), GET_COND(k, THIRST), GET_COND(k, DRUNK));
     } else if (found) {
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb, "\r\n", NULL);
     }
 
     if (!IS_NPC(k) && GET_QUEST(k)) {
@@ -2123,11 +2101,11 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         if (quest != NULL && is_playing_quest(quest, GET_IDNUM(k))) {
             name = quest->name;
         }
-        acc_sprintf("Quest [%d]: \'%s\'\r\n", GET_QUEST(k), name);
+        sb_sprintf(&sb, "Quest [%d]: \'%s\'\r\n", GET_QUEST(k), name);
     }
 
     if (k->in_room && (k->master || k->followers)) {
-        acc_sprintf("Master is: %s, Followers are:",
+        sb_sprintf(&sb, "Master is: %s, Followers are:",
                     ((k->master) ? GET_NAME(k->master) : "<none>"));
 
         line_buf = "";
@@ -2135,75 +2113,75 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
             line_buf = tmp_sprintf("%s %s",
                                    (*line_buf) ? "," : "", PERS(fol->follower, ch));
             if (strlen(line_buf) >= 62) {
-                acc_strcat(line_buf, "\r\n", NULL);
+                sb_strcat(&sb, line_buf, "\r\n", NULL);
                 line_buf = "";
             }
         }
 
-        acc_strcat("\r\n", NULL);
+        sb_strcat(&sb, "\r\n", NULL);
     }
     /* Showing the bitvector */
     if (AFF_FLAGS(k)) {
         sprintbit(AFF_FLAGS(k), affected_bits, buf, sizeof(buf));
-        acc_sprintf("AFF: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
+        sb_sprintf(&sb, "AFF: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
                     CCNRM(ch, C_NRM));
     }
     if (AFF2_FLAGS(k)) {
         sprintbit(AFF2_FLAGS(k), affected2_bits, buf, sizeof(buf));
-        acc_sprintf("AFF2: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
+        sb_sprintf(&sb, "AFF2: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
                     CCNRM(ch, C_NRM));
     }
     if (AFF3_FLAGS(k)) {
         sprintbit(AFF3_FLAGS(k), affected3_bits, buf, sizeof(buf));
-        acc_sprintf("AFF3: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
+        sb_sprintf(&sb, "AFF3: %s%s%s\r\n", CCYEL(ch, C_NRM), buf,
                     CCNRM(ch, C_NRM));
     }
     if (GET_POSITION(k) == POS_SITTING && AFF2_FLAGGED(k, AFF2_MEDITATE)) {
-        acc_sprintf("Meditation Timer: [%d]\r\n", MEDITATE_TIMER(k));
+        sb_sprintf(&sb, "Meditation Timer: [%d]\r\n", MEDITATE_TIMER(k));
     }
 
     if (IS_CYBORG(k)) {
-        acc_sprintf("Broken component: [%s (%d)], Dam Count: %d/%d.\r\n",
+        sb_sprintf(&sb, "Broken component: [%s (%d)], Dam Count: %d/%d.\r\n",
                     get_component_name(GET_BROKE(k), GET_OLD_CLASS(k)),
                     GET_BROKE(k), GET_TOT_DAM(k), max_component_dam(k));
 
         if (AFF3_FLAGGED(k, AFF3_SELF_DESTRUCT)) {
-            acc_sprintf("Self-destruct Timer: [%d]\r\n", MEDITATE_TIMER(k));
+            sb_sprintf(&sb, "Self-destruct Timer: [%d]\r\n", MEDITATE_TIMER(k));
         }
     }
 
     if (k->prog_state && k->prog_state->var_list) {
         struct prog_var *cur_var;
-        acc_strcat("Prog state variables:\r\n", NULL);
+        sb_strcat(&sb, "Prog state variables:\r\n", NULL);
         for (cur_var = k->prog_state->var_list; cur_var;
              cur_var = cur_var->next) {
-            acc_sprintf("     %s = '%s'\r\n", cur_var->key, cur_var->value);
+            sb_sprintf(&sb, "     %s = '%s'\r\n", cur_var->key, cur_var->value);
         }
     }
 
     if (IS_NPC(k)) {
-        acc_sprintf("NPC Voice: %s%s%s, ",
+        sb_sprintf(&sb, "NPC Voice: %s%s%s, ",
                     CCYEL(ch, C_NRM), voice_name(GET_VOICE(k)), CCNRM(ch, C_NRM));
     }
-    acc_sprintf("Currently speaking: %s%s%s\r\n", CCCYN(ch, C_NRM),
+    sb_sprintf(&sb, "Currently speaking: %s%s%s\r\n", CCCYN(ch, C_NRM),
                 tongue_name(GET_TONGUE(k)), CCNRM(ch, C_NRM));
 
     if (GET_LANG_HEARD(k)) {
-        acc_sprintf("Recently heard: %s", CCCYN(ch, C_NRM));
+        sb_sprintf(&sb, "Recently heard: %s", CCCYN(ch, C_NRM));
 
         bool first = true;
         for (GList *lang = GET_LANG_HEARD(k); lang; lang = lang->next) {
             if (first) {
                 first = false;
             } else {
-                acc_strcat(CCNRM(ch, C_NRM), ", ", CCCYN(ch, C_NRM), NULL);
+                sb_strcat(&sb, CCNRM(ch, C_NRM), ", ", CCCYN(ch, C_NRM), NULL);
             }
 
-            acc_strcat(tongue_name(GPOINTER_TO_INT(lang->data)), NULL);
+            sb_strcat(&sb, tongue_name(GPOINTER_TO_INT(lang->data)), NULL);
         }
-        acc_sprintf("%s\r\n", CCNRM(ch, C_NRM));
+        sb_sprintf(&sb, "%s\r\n", CCNRM(ch, C_NRM));
     }
-    acc_sprintf("Known Languages:\r\n");
+    sb_sprintf(&sb, "Known Languages:\r\n");
     GHashTableIter iter;
     gpointer key, val;
 
@@ -2214,7 +2192,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         struct tongue *tongue = val;
 
         if (CHECK_TONGUE(k, GPOINTER_TO_INT(vnum))) {
-            acc_sprintf("%s%3d. %-30s %s%-17s%s%s\r\n",
+            sb_sprintf(&sb, "%s%3d. %-30s %s%-17s%s%s\r\n",
                         CCCYN(ch, C_NRM),
                         GPOINTER_TO_INT(vnum),
                         tongue->name,
@@ -2227,11 +2205,11 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     }
 
     if (IS_PC(k) && GET_GRIEVANCES(k)) {
-        acc_sprintf("Grievances:\r\n");
+        sb_sprintf(&sb, "Grievances:\r\n");
 
         for (GList *it = GET_GRIEVANCES(k); it; it = it->next) {
             struct grievance *grievance = it->data;
-            acc_sprintf("%s%3d. %s got %d rep for %s at %s%s\r\n",
+            sb_sprintf(&sb, "%s%3d. %s got %d rep for %s at %s%s\r\n",
                         CCGRN(ch, C_NRM),
                         grievance->player_id,
                         player_name_by_idnum(grievance->player_id),
@@ -2244,28 +2222,28 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
     if (IS_PC(k)
         && k->player_specials->tags
         && g_hash_table_size(k->player_specials->tags) > 0) {
-        acc_sprintf("Tags:");
+        sb_sprintf(&sb, "Tags:");
 
         g_hash_table_iter_init(&iter, k->player_specials->tags);
 
         while (g_hash_table_iter_next(&iter, &key, NULL)) {
-            acc_sprintf(" %s", (char *)key);
+            sb_sprintf(&sb, " %s", (char *)key);
         }
-        acc_sprintf("\r\n");
+        sb_sprintf(&sb, "\r\n");
     }
 
     /* Routine to show what spells a char is affected by */
     if (k->affected) {
         for (aff = k->affected; aff; aff = aff->next) {
-            acc_sprintf("SPL: (%3d%s) [%2d] %s(%ld) %s%-24s%s ",
+            sb_sprintf(&sb, "SPL: (%3d%s) [%2d] %s(%ld) %s%-24s%s ",
                         aff->duration + 1, aff->is_instant ? "sec" : "hr", aff->level,
                         CCYEL(ch, C_NRM), aff->owner, CCCYN(ch, C_NRM),
                         spell_to_str(aff->type), CCNRM(ch, C_NRM));
             if (aff->modifier) {
-                acc_sprintf("%+d to %s", aff->modifier,
+                sb_sprintf(&sb, "%+d to %s", aff->modifier,
                             apply_types[(int)aff->location]);
                 if (aff->bitvector) {
-                    acc_strcat(", ", NULL);
+                    sb_strcat(&sb, ", ", NULL);
                 }
             }
 
@@ -2277,12 +2255,12 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
                 } else {
                     sprintbit(aff->bitvector, affected_bits, buf, sizeof(buf));
                 }
-                acc_strcat("sets ", buf, NULL);
+                sb_strcat(&sb, "sets ", buf, NULL);
             }
-            acc_strcat("\r\n", NULL);
+            sb_strcat(&sb, "\r\n", NULL);
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_stat)
@@ -4128,8 +4106,8 @@ do_show_stats(struct creature *ch)
     send_to_char(ch, "  %5d large bufs\r\n", buf_largecount);
     send_to_char(ch, "  %5d buf switches     %5d overflows\r\n",
                  buf_switches, buf_overflows);
-    send_to_char(ch, "  %5zd tmpstr space     %5zu accstr space\r\n",
-                 tmp_max_used, acc_str_space);
+    send_to_char(ch, "  %5zd tmpstr space\r\n",
+                 tmp_max_used);
 #ifdef MEMTRACK
     send_to_char(ch, "  %5ld trail count      %ldMB total memory\r\n",
                  tr_count, dbg_memory_used() / (1024 * 1024));
@@ -4427,15 +4405,15 @@ show_topzones(struct creature *ch, char *value)
 
     num_zones = MIN((int)g_list_length(zone_list), num_zones);
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_sprintf("Usage Options: [limit #] [>#] [<#] [reverse]\r\nTOP %d zones:\r\n",
+    sb_sprintf(&sb, "Usage Options: [limit #] [>#] [<#] [reverse]\r\nTOP %d zones:\r\n",
                 num_zones);
 
     for (GList *i = zone_list; i; num++, i = i->next) {
         struct zone_data *zone = i->data;
 
-        acc_sprintf("%2d.[%s%3d%s] %s%-30s %s[%s%6d%s]%s accesses.  Owner: %s%s%s\r\n",
+        sb_sprintf(&sb, "%2d.[%s%3d%s] %s%-30s %s[%s%6d%s]%s accesses.  Owner: %s%s%s\r\n",
                     num, CCYEL(ch, C_NRM),
                     zone->number, CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
                     zone->name, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
@@ -4445,7 +4423,7 @@ show_topzones(struct creature *ch, char *value)
 
     g_list_free(zone_list);
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 
 }
 
@@ -4465,11 +4443,10 @@ show_mobkills(struct creature *ch, char *value, char *arg
 
     thresh = atof(value);
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_sprintf("Mobiles with mobkills ratio >= %f:\r\n", thresh);
-    acc_strcat
-        (" ---- -Vnum-- -Name------------------------- -Kills- -Loaded- -Ratio-\r\n",
+    sb_sprintf(&sb, "Mobiles with mobkills ratio >= %f:\r\n", thresh);
+    sb_strcat(&sb, " ---- -Vnum-- -Name------------------------- -Kills- -Loaded- -Ratio-\r\n",
         NULL);
     GHashTableIter iter;
     gpointer key, val;
@@ -4485,14 +4462,14 @@ show_mobkills(struct creature *ch, char *value, char *arg
         ratio = (float)((float)mob->mob_specials.shared->kills /
                         (float)mob->mob_specials.shared->loaded);
         if (ratio >= thresh) {
-            acc_sprintf(" %3d. [%5d]  %-29s %6d %8d    %.2f\r\n",
+            sb_sprintf(&sb, " %3d. [%5d]  %-29s %6d %8d    %.2f\r\n",
                         ++i, GET_NPC_VNUM(mob), GET_NAME(mob),
                         mob->mob_specials.shared->kills,
                         mob->mob_specials.shared->loaded, ratio);
         }
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 const char *show_room_flags[] = {
@@ -4524,21 +4501,21 @@ const char *show_room_modes[] = {
 };
 
 void
-show_room_append(struct creature *ch, struct room_data *room, int mode,
-                 const char *extra)
+build_show_room(struct creature *ch, struct room_data *room, int mode,
+                const char *extra, struct str_builder *sb)
 {
     if (!extra) {
         extra = "";
     }
 
     if (mode != 0) {
-        acc_sprintf("%s%s%3d %s%s%-30s %s%5d %s%-30s %s%s\r\n",
+        sb_sprintf(sb, "%s%s%3d %s%s%-30s %s%5d %s%-30s %s%s\r\n",
                     CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), room->zone->number,
                     CCNRM(ch, C_NRM), CCCYN(ch, C_NRM), room->zone->name,
                     CCYEL(ch, C_NRM), room->number,
                     CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM), extra);
     } else {
-        acc_sprintf("%s#%d %s%-40s %s%s\r\n",
+        sb_sprintf(sb, "%s#%d %s%-40s %s%s\r\n",
                     CCYEL(ch, C_NRM), room->number,
                     CCCYN(ch, C_NRM), room->name, CCNRM(ch, C_NRM), extra);
     }
@@ -4546,7 +4523,7 @@ show_room_append(struct creature *ch, struct room_data *room, int mode,
 
 // returns 0 if none found, 1 if found, -1 if error
 int
-show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
+show_rooms_in_zone(struct str_builder *sb, struct creature *ch, struct zone_data *zone, int pos,
                    int mode, char *args)
 {
     struct special_search_data *srch = NULL;
@@ -4578,7 +4555,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
 
         for (room = zone->world; room; room = room->next) {
             if ((room->room_flags & flags) == flags) {
-                show_room_append(ch, room, mode, NULL);
+                build_show_room(ch, room, mode, NULL, sb);
                 found = 1;
             }
         }
@@ -4598,9 +4575,9 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
         for (room = zone->world; room; room = room->next) {
             for (srch = room->search; srch != NULL; srch = srch->next) {
                 if ((srch->flags & flags) == flags) {
-                    show_room_append(ch, room, mode,
+                    build_show_room(ch, room, mode,
                                      tmp_sprintf("[%-6s]",
-                                                 search_cmd_short[(int)srch->command]));
+                                                 search_cmd_short[(int)srch->command]), sb);
                     found = 1;
                 }
             }
@@ -4628,7 +4605,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
             }
 
             if (match) {
-                show_room_append(ch, room, mode, NULL);
+                build_show_room(ch, room, mode, NULL, sb);
                 found = 1;
             }
         }
@@ -4637,7 +4614,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
     case 3:                    // rexdescs
         for (room = zone->world; room; room = room->next) {
             if (room->ex_description != NULL) {
-                show_room_append(ch, room, mode, NULL);
+                build_show_room(ch, room, mode, NULL, sb);
                 found = 1;
             }
         }
@@ -4649,7 +4626,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
             }
 
             if (strncmp(room->description, "   ", 3) != 0) {
-                show_room_append(ch, room, mode, NULL);
+                build_show_room(ch, room, mode, NULL, sb);
                 found = 1;
             }
         }
@@ -4657,7 +4634,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
     case 5:                    // sounds
         for (room = zone->world; room; room = room->next) {
             if (room->sounds != NULL) {
-                show_room_append(ch, room, mode, NULL);
+                build_show_room(ch, room, mode, NULL, sb);
                 found = 1;
             }
         }
@@ -4690,8 +4667,8 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
         for (room = zone->world; room; room = room->next) {
             if ((gt && (room->max_occupancy > num))
                 || (lt && (room->max_occupancy < num))) {
-                show_room_append(ch, room, mode,
-                                 tmp_sprintf("[%2d]", room->max_occupancy));
+                build_show_room(ch, room, mode,
+                                tmp_sprintf("[%2d]", room->max_occupancy), sb);
                 found = 1;
             }
         }
@@ -4699,7 +4676,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
     case 7:                    // noexits
         for (room = zone->world; room; room = room->next) {
             if (!count_room_exits(room)) {
-                show_room_append(ch, room, mode, NULL);
+                build_show_room(ch, room, mode, NULL, sb);
                 found = 1;
             }
         }
@@ -4728,11 +4705,11 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
             }
 
             if (g_list_length(mob_names) >= (unsigned int)num) {
-                show_room_append(ch, room, mode,
-                                 tmp_sprintf("[%2d]", g_list_length(mob_names)));
+                build_show_room(ch, room, mode,
+                                tmp_sprintf("[%2d]", g_list_length(mob_names)), sb);
                 found = 1;
                 for (str_it = mob_names; str_it; str_it = str_it->next) {
-                    acc_sprintf("\t%s%s%s\r\n", CCYEL(ch, C_NRM),
+                    sb_sprintf(sb, "\t%s%s%s\r\n", CCYEL(ch, C_NRM),
                                 (char *)str_it->data, CCNRM(ch, C_NRM));
                 }
             }
@@ -4761,7 +4738,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
 
         for (room = zone->world; room; room = room->next) {
             if (room->sector_type == sector->idnum) {
-                show_room_append(ch, room, mode, NULL);
+                build_show_room(ch, room, mode, NULL, sb);
                 found = 1;
             }
         }
@@ -4795,8 +4772,8 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
             if (room->description
                 && ((gt && ((unsigned)num <= strlen(room->description)))
                     || (lt && ((unsigned)num >= strlen(room->description))))) {
-                show_room_append(ch, room, mode,
-                                 tmp_sprintf("[%zd]", strlen(room->description)));
+                build_show_room(ch, room, mode,
+                                tmp_sprintf("[%zd]", strlen(room->description)), sb);
                 found = 1;
             }
         }
@@ -4824,7 +4801,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
             }
             // check for a space - if one doesn't exist, we have an orphaned word.
             if (*arg != ' ') {
-                show_room_append(ch, room, mode, NULL);
+                build_show_room(ch, room, mode, NULL, sb);
                 found = 1;
             }
         }
@@ -4854,7 +4831,7 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
                 }
             }
             if (match) {
-                show_room_append(ch, room, mode, NULL);
+                build_show_room(ch, room, mode, NULL, sb);
                 found = 1;
             }
         }
@@ -4869,28 +4846,28 @@ show_rooms_in_zone(struct creature *ch, struct zone_data *zone, int pos,
                                | EX_HEAVY_DOOR | EX_TECH | EX_REINFORCED |
                                EX_SPECIAL)
                         && !IS_SET(exit->exit_info, EX_ISDOOR)) {
-                        show_room_append(ch, room, mode,
+                        build_show_room(ch, room, mode,
                                          tmp_sprintf("doorflags on non-door for %s exit",
-                                                     dirs[dir]));
+                                                     dirs[dir]), sb);
                         found = 1;
                     }
                     if (IS_SET(exit->exit_info, EX_CLOSED | EX_LOCKED)
                         && !exit->keyword) {
-                        show_room_append(ch, room, mode,
-                                         tmp_sprintf("no keyword for %s exit", dirs[dir]));
+                        build_show_room(ch, room, mode,
+                                         tmp_sprintf("no keyword for %s exit", dirs[dir]), sb);
                         found = 1;
                     }
                     if (exit->key && exit->key != -1
                         && !real_object_proto(exit->key)) {
-                        show_room_append(ch, room, mode,
+                        build_show_room(ch, room, mode,
                                          tmp_sprintf("non-existent key for %s exit",
-                                                     dirs[dir]));
+                                                     dirs[dir]), sb);
                         found = 1;
                     }
                     if (!exit->general_description) {
-                        show_room_append(ch, room, mode,
+                        build_show_room(ch, room, mode,
                                          tmp_sprintf("no description for %s exit",
-                                                     dirs[dir]));
+                                                     dirs[dir]), sb);
                         found = 1;
                     }
                 }
@@ -4915,7 +4892,7 @@ show_rooms(struct creature *ch, char *value, char *args)
     int found = 0;
     char *arg;
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
     show_mode = search_block(value, show_room_modes, 0);
     if (show_mode < 0) {
@@ -4928,7 +4905,7 @@ show_rooms(struct creature *ch, char *value, char *args)
         switch (show_mode) {
         case 0:
             found =
-                show_rooms_in_zone(ch, ch->in_room->zone, pos, show_mode,
+                show_rooms_in_zone(&sb, ch, ch->in_room->zone, pos, show_mode,
                                    args);
             if (found < 0) {
                 return;
@@ -4938,7 +4915,7 @@ show_rooms(struct creature *ch, char *value, char *args)
             for (struct zone_data *zone = zone_table; zone; zone = zone->next) {
                 if (ch->in_room->zone->time_frame == zone->time_frame) {
                     found |=
-                        show_rooms_in_zone(ch, zone, pos, show_mode, args);
+                        show_rooms_in_zone(&sb, ch, zone, pos, show_mode, args);
                     if (found < 0) {
                         return;
                     }
@@ -4949,7 +4926,7 @@ show_rooms(struct creature *ch, char *value, char *args)
             for (struct zone_data *zone = zone_table; zone; zone = zone->next) {
                 if (ch->in_room->zone->plane == zone->plane) {
                     found |=
-                        show_rooms_in_zone(ch, zone, pos, show_mode, args);
+                        show_rooms_in_zone(&sb, ch, zone, pos, show_mode, args);
                     if (found < 0) {
                         return;
                     }
@@ -4958,7 +4935,7 @@ show_rooms(struct creature *ch, char *value, char *args)
             break;
         case 3:
             for (struct zone_data *zone = zone_table; zone; zone = zone->next) {
-                found |= show_rooms_in_zone(ch, zone, pos, show_mode, args);
+                found |= show_rooms_in_zone(&sb, ch, zone, pos, show_mode, args);
                 if (found < 0) {
                     return;
                 }
@@ -4969,19 +4946,19 @@ show_rooms(struct creature *ch, char *value, char *args)
         }
 
         if (found) {
-            page_string(ch->desc, acc_get_string());
+            page_string(ch->desc, sb.str);
         } else {
             send_to_char(ch, "No matching rooms.\r\n");
         }
     } else {
-        acc_string_clear();
+        struct str_builder sb = str_builder_default;
 
-        acc_strcat("Valid flags are:\n", NULL);
+        sb_strcat(&sb, "Valid flags are:\n", NULL);
 
         for (idx = 0; *show_room_flags[idx] != '\n'; idx++) {
-            acc_strcat(show_room_flags[idx], "\r\n", NULL);
+            sb_strcat(&sb, show_room_flags[idx], "\r\n", NULL);
         }
-        send_to_char(ch, "%s", acc_get_string());
+        send_to_char(ch, "%s", sb.str);
     }
 }
 
@@ -5016,12 +4993,12 @@ show_mlevels(struct creature *ch, char *value, char *arg)
         }
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_sprintf("Mlevels for %s", remort ? "remort " : "mortal ");
+    sb_sprintf(&sb, "Mlevels for %s", remort ? "remort " : "mortal ");
     // scan the existing mobs
     if (!strcmp(value, "real")) {
-        acc_strcat("real mobiles:\r\n", NULL);
+        sb_strcat(&sb, "real mobiles:\r\n", NULL);
         for (GList *mit = creatures; mit; mit = mit->next) {
             mob = mit->data;
             if (IS_NPC(mob)
@@ -5035,7 +5012,7 @@ show_mlevels(struct creature *ch, char *value, char *arg)
             }
         }
     } else if (!strcmp(value, "proto")) {
-        acc_strcat("mobile protos:\r\n", NULL);
+        sb_strcat(&sb, "mobile protos:\r\n", NULL);
         GHashTableIter iter;
         gpointer key, val;
 
@@ -5087,7 +5064,7 @@ show_mlevels(struct creature *ch, char *value, char *arg)
                 strcat_s(buf2, sizeof(buf2), "+");
             }
 
-            acc_sprintf("%2d] %-60s %5d\r\n", i, buf2, count[i]);
+            sb_sprintf(&sb, "%2d] %-60s %5d\r\n", i, buf2, count[i]);
         }
     }
     // print the smaller list
@@ -5101,18 +5078,18 @@ show_mlevels(struct creature *ch, char *value, char *arg)
                 strcat_s(buf2, sizeof(buf2), "+");
             }
 
-            acc_sprintf("%2d-%2d] %-60s %5d\r\n", i * 5,
+            sb_sprintf(&sb, "%2d-%2d] %-60s %5d\r\n", i * 5,
                         (i + 1) * 5 - 1, buf2, count[i]);
         }
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void
-acc_print_zone(struct creature *ch, struct zone_data *zone)
+build_print_zone(struct creature *ch, struct zone_data *zone, struct str_builder *sb)
 {
-    acc_sprintf("%s%s%3d%s %s%-50.50s%s Top: %s%5d%s Owner:%s%5d%s%s%s\r\n",
+    sb_sprintf(sb, "%s%s%3d%s %s%-50.50s%s Top: %s%5d%s Owner:%s%5d%s%s%s\r\n",
                 CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), zone->number,
                 CCNRM(ch, C_CMP), CCCYN(ch, C_NRM), zone->name,
                 CCNRM(ch, C_NRM), CCGRN(ch, C_NRM), zone->top,
@@ -5127,11 +5104,11 @@ show_zones(struct creature *ch, char *arg, char *value)
 {
     struct zone_data *zone;
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
     skip_spaces(&arg);
     if (!*value) {
-        acc_print_zone(ch, ch->in_room->zone);
+        build_print_zone(ch, ch->in_room->zone, &sb);
     } else if (is_number(value)) {  // show a range ( from a to b )
         int a = atoi(value);
         int b = a;
@@ -5143,11 +5120,11 @@ show_zones(struct creature *ch, char *arg, char *value)
 
         for (zone = zone_table; zone; zone = zone->next) {
             if (zone->number >= a && zone->number <= b) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
 
-        if (acc_get_string()[0] == '\0') {
+        if (sb.str[0] == '\0') {
             send_to_char(ch, "That is not a valid zone.\r\n");
             return;
         }
@@ -5168,7 +5145,7 @@ show_zones(struct creature *ch, char *arg, char *value)
         for (zone = zone_table; zone; zone = zone->next) {
             if (owner_id == zone->owner_idnum
                 || owner_id == zone->co_owner_idnum) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else if (strcasecmp("co-owner", value) == 0 && *arg) {    // Show by name
@@ -5187,81 +5164,81 @@ show_zones(struct creature *ch, char *arg, char *value)
 
         for (zone = zone_table; zone; zone = zone->next) {
             if (owner_id == zone->co_owner_idnum) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else if (strcasecmp(value, "all") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
-            acc_print_zone(ch, zone);
+            build_print_zone(ch, zone, &sb);
         }
     } else if (strcasecmp(value, "fullcontrol") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (ZONE_FLAGGED(zone, ZONE_FULLCONTROL)) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else if (strcasecmp(value, "lawless") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (ZONE_FLAGGED(zone, ZONE_NOLAW)) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else if (strcasecmp(value, "past") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (zone->time_frame == TIME_PAST) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else if (strcasecmp(value, "future") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (zone->time_frame == TIME_FUTURE) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else if (strcasecmp(value, "timeless") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (zone->time_frame == TIME_TIMELESS) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else if (strcasecmp(value, "norecalc") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (ZONE_FLAGGED(zone, ZONE_NORECALC)) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else if (strcasecmp(value, "noauthor") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (!zone->author || !*zone->author) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else if (strcasecmp(value, "inplay") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (ZONE_FLAGGED(zone, ZONE_INPLAY)) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else if (strcasecmp(value, "!inplay") == 0) {
         for (zone = zone_table; zone; zone = zone->next) {
             if (!ZONE_FLAGGED(zone, ZONE_INPLAY)) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     } else {                    // Show by name
         for (zone = zone_table; zone; zone = zone->next) {
             if (strcasestr(zone->name, value)) {
-                acc_print_zone(ch, zone);
+                build_print_zone(ch, zone, &sb);
             }
         }
     }
 
-    if (acc_get_string()[0] == '\0') {
+    if (sb.len == 0) {
         send_to_char(ch, "No zones match that criteria.\r\n");
         return;
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 #define SFC_OBJ 1
@@ -5366,6 +5343,7 @@ ACMD(do_show)
         return;
     }
 
+    struct str_builder sb = str_builder_default;
     buf[0] = '\0';
 
     switch (l) {
@@ -5387,9 +5365,8 @@ ACMD(do_show)
             return;
         }
 
-        acc_string_clear();
         // check for exits TO room k, a slow operation
-        acc_sprintf("Rooms with exits TO room %d:\r\n", k);
+        sb_sprintf(&sb, "Rooms with exits TO room %d:\r\n", k);
 
         for (zone = zone_table, j = 0; zone; zone = zone->next) {
             for (room = zone->world; room; room = room->next) {
@@ -5400,7 +5377,7 @@ ACMD(do_show)
                     if (room->dir_option[i]
                         && room->dir_option[i]->to_room
                         && room->dir_option[i]->to_room->number == k) {
-                        acc_sprintf("%3d. [%5d] %-40s %5s -> %7d\r\n",
+                        sb_sprintf(&sb, "%3d. [%5d] %-40s %5s -> %7d\r\n",
                                     ++j, room->number, room->name, dirs[i],
                                     room->dir_option[i]->to_room->number);
                     }
@@ -5408,7 +5385,7 @@ ACMD(do_show)
             }
         }
 
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
         break;
     case 4:
         do_show_stats(ch);
@@ -5979,17 +5956,15 @@ ACMD(do_show)
             send_to_char(ch, "Zone %d does not exist.\r\n", k);
             return;
         }
-        acc_string_clear();
-
         if (*value == 'f') {
             // check for exits FROM zone k, easy to do
-            acc_sprintf("Rooms with exits FROM zone %d:\r\n", k);
+            sb_sprintf(&sb, "Rooms with exits FROM zone %d:\r\n", k);
 
             for (room = zone->world, j = 0; room; room = room->next) {
                 for (i = 0; i < NUM_DIRS; i++) {
                     if (room->dir_option[i] && room->dir_option[i]->to_room &&
                         room->dir_option[i]->to_room->zone != zone) {
-                        acc_sprintf("%3d. [%5d] %-40s %5s -> %7d\r\n",
+                        sb_sprintf(&sb, "%3d. [%5d] %-40s %5s -> %7d\r\n",
                                     ++j, room->number, room->name, dirs[i],
                                     room->dir_option[i]->to_room->number);
                     }
@@ -5997,7 +5972,7 @@ ACMD(do_show)
             }
         } else if (*value == 't') {
             // check for exits TO zone k, a slow operation
-            acc_sprintf("Rooms with exits TO zone %d:\r\n", k);
+            sb_sprintf(&sb, "Rooms with exits TO zone %d:\r\n", k);
 
             for (zone = zone_table, j = 0; zone; zone = zone->next) {
                 if (zone->number == k) {
@@ -6008,7 +5983,7 @@ ACMD(do_show)
                         if (room->dir_option[i] && room->dir_option[i]->to_room
                             && room->dir_option[i]->to_room->zone->number ==
                             k) {
-                            acc_sprintf("%3d. [%5d] %-40s %5s -> %7d\r\n",
+                            sb_sprintf(&sb, "%3d. [%5d] %-40s %5s -> %7d\r\n",
                                         ++j, room->number, room->name, dirs[i],
                                         room->dir_option[i]->to_room->number);
                         }
@@ -6016,7 +5991,7 @@ ACMD(do_show)
                 }
             }
         }
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
         break;
 
     case 40:                   // mlevels
@@ -6174,8 +6149,8 @@ ACMD(do_set)
     if (!*name || !*field) {
         GList *cmdlist = NULL;
         int j;
-        acc_string_clear();
-        acc_sprintf("Usage: set <victim> <field> <value>\r\n");
+        struct str_builder sb = str_builder_default;
+        sb_sprintf(&sb, "Usage: set <victim> <field> <value>\r\n");
         for (j = 0, i = 1; fields[i].level; i++) {
             if (is_authorized(ch, SET, &fields[i])) {
                 cmdlist = g_list_prepend(cmdlist, tmp_strdup(fields[i].cmd));
@@ -6183,13 +6158,13 @@ ACMD(do_set)
         }
         cmdlist = g_list_sort(cmdlist, (GCompareFunc) strcasecmp);
         for (GList *it = cmdlist; it; it = it->next) {
-            acc_sprintf("%-15s%s", (char *)it->data,
+            sb_sprintf(&sb, "%-15s%s", (char *)it->data,
                         (!(++j % 5) ? "\r\n" : ""));
         }
         if ((j - 1) % 5) {
-            acc_sprintf("\r\n");
+            sb_sprintf(&sb, "\r\n");
         }
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
 
         g_list_free(cmdlist);
         return;
@@ -7089,7 +7064,7 @@ ACMD(do_rlist)
         send_to_char(ch, "Second value must be greater than first.\r\n");
         return;
     }
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     for (zone = zone_table; zone && !stop; zone = zone->next) {
         for (room = zone->world; room; room = room->next) {
             if (room->number > last) {
@@ -7106,7 +7081,7 @@ ACMD(do_rlist)
                         }
                     }
                 }
-                acc_sprintf("%5d. %s[%s%5d%s]%s %s%-30s%s %s%s\r\n",
+                sb_sprintf(&sb, "%5d. %s[%s%5d%s]%s %s%-30s%s %s%s\r\n",
                             ++found,
                             CCGRN(ch, C_NRM),
                             CCNRM(ch, C_NRM),
@@ -7124,7 +7099,7 @@ ACMD(do_rlist)
     if (!found) {
         send_to_char(ch, "No rooms were found in those parameters.\r\n");
     } else {
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     }
 }
 
@@ -7180,8 +7155,8 @@ ACMD(do_xlist)
         return;
     }
 
-    acc_string_clear();
-    acc_strcat("Searches: \r\n", NULL);
+    struct str_builder sb = str_builder_default;
+    sb_strcat(&sb, "Searches: \r\n", NULL);
 
     for (room = zone->world, found = false; room && !overflow;
          found = false, room = room->next) {
@@ -7194,16 +7169,16 @@ ACMD(do_xlist)
             }
 
             if (!found) {
-                acc_sprintf("Room [%s%5d%s]:\n", CCCYN(ch, C_NRM),
+                sb_sprintf(&sb, "Room [%s%5d%s]:\n", CCCYN(ch, C_NRM),
                             room->number, CCNRM(ch, C_NRM));
                 found = true;
             }
 
             print_search_data_to_buf(ch, room, srch, buf, sizeof(buf));
-            acc_strcat(buf, NULL);
+            sb_strcat(&sb, buf, NULL);
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_mlist)
@@ -7232,12 +7207,12 @@ ACMD(do_mlist)
         return;
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
     for (int vnum = first; vnum <= last; vnum++) {
         struct creature *mob = g_hash_table_lookup(mob_prototypes, GINT_TO_POINTER(vnum));
         if (mob) {
-            acc_sprintf("%5d. %s[%s%5d%s]%s %-40s%s  [%2d] <%3d> %s%s\r\n",
+            sb_sprintf(&sb, "%5d. %s[%s%5d%s]%s %-40s%s  [%2d] <%3d> %s%s\r\n",
                         ++found,
                         CCGRN(ch, C_NRM),
                         CCNRM(ch, C_NRM),
@@ -7256,7 +7231,7 @@ ACMD(do_mlist)
     if (!found) {
         send_to_char(ch, "No mobiles were found in those parameters.\r\n");
     } else {
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     }
 }
 
@@ -7287,13 +7262,13 @@ ACMD(do_olist)
         return;
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
 
     for (int vnum = first; vnum <= last; vnum++) {
         struct obj_data *obj = g_hash_table_lookup(obj_prototypes, GINT_TO_POINTER(vnum));
         if (obj) {
-            acc_sprintf("%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
+            sb_sprintf(&sb, "%5d. %s[%s%5d%s]%s %-36s%s %s %s\r\n", ++found,
                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM), obj->shared->vnum,
                         CCGRN(ch, C_NRM), CCGRN(ch, C_NRM),
                         obj->name, CCNRM(ch, C_NRM),
@@ -7305,7 +7280,7 @@ ACMD(do_olist)
     if (!found) {
         send_to_char(ch, "No objects were found in those parameters.\r\n");
     } else {
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     }
 }
 
@@ -7951,37 +7926,37 @@ ACMD(do_coderutil)
         token = tmp_getword(&argument);
         recalc_all_mobs(ch, token);
     } else if (strcmp(token, "cmdusage") == 0) {
-        acc_string_clear();
+        struct str_builder sb = str_builder_default;
         for (idx = 1; idx < num_of_cmds; idx++) {
             cmd_num = cmd_sort_info[idx].sort_pos;
             if (!cmd_info[cmd_num].usage) {
                 continue;
             }
 
-            acc_sprintf("%-15s %7lu   ",
+            sb_sprintf(&sb, "%-15s %7lu   ",
                         cmd_info[cmd_num].command,
                         cmd_info[cmd_num].usage);
             if (idx % 3 == 0) {
-                acc_strcat("\r\n", NULL);
+                sb_strcat(&sb, "\r\n", NULL);
             }
         }
-        acc_strcat("\r\n", NULL);
-        page_string(ch->desc, acc_get_string());
+        sb_strcat(&sb, "\r\n", NULL);
+        page_string(ch->desc, sb.str);
     } else if (strcmp(token, "unusedcmds") == 0) {
-        acc_string_clear();
+        struct str_builder sb = str_builder_default;
         for (idx = 1; idx < num_of_cmds; idx++) {
             cmd_num = cmd_sort_info[idx].sort_pos;
             if (cmd_info[cmd_num].usage) {
                 continue;
             }
 
-            acc_sprintf("%-16s", cmd_info[cmd_num].command);
+            sb_sprintf(&sb, "%-16s", cmd_info[cmd_num].command);
             if (!(idx % 5)) {
-                acc_strcat("\r\n", NULL);
+                sb_strcat(&sb, "\r\n", NULL);
             }
         }
-        acc_strcat("\r\n", NULL);
-        page_string(ch->desc, acc_get_string());
+        sb_strcat(&sb, "\r\n", NULL);
+        page_string(ch->desc, sb.str);
     } else if (strcmp(token, "verify") == 0) {
         verify_tempus_integrity(ch);
     } else if (strcmp(token, "chaos") == 0) {
@@ -8041,10 +8016,9 @@ ACMD(do_coderutil)
                 return;
             }
         }
-        acc_string_clear();
-        acc_sprintf("progid    trigger   target          wait statement\r\n");
-        acc_sprintf
-            ("--------- --------- --------------- ---- ----------------------------\r\n");
+        struct str_builder sb = str_builder_default;
+        sb_sprintf(&sb, "progid    trigger   target          wait statement\r\n");
+        sb_sprintf(&sb, "--------- --------- --------------- ---- ----------------------------\r\n");
         const char *prog_event_kind_desc[] =
         { "command", "idle", "fight", "give", "enter", "leave", "load",
           "tick", "spell", "combat", "death", "dying" };
@@ -8057,7 +8031,7 @@ ACMD(do_coderutil)
                 int cmd = *((short *)(exec + prog->exec_pt));
                 int arg_addr =
                     *((short *)(exec + prog->exec_pt + sizeof(short)));
-                acc_sprintf("0x%lx %-8s  %-15s %4d %s %s\r\n",
+                sb_sprintf(&sb, "0x%lx %-8s  %-15s %4d %s %s\r\n",
                             (unsigned long)prog,
                             prog_event_kind_desc[(int)prog->evt.kind],
                             (prog->target) ? GET_NAME(prog->target) : "<none>",
@@ -8065,7 +8039,7 @@ ACMD(do_coderutil)
             }
         }
 
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
     } else if (strcmp(token, "dumpprogs") == 0) {
         extern GList *active_progs;
         extern gint prog_tick;
@@ -8556,9 +8530,8 @@ ACMD(do_users)
         }
     }                           /* end while (parser) */
 
-    acc_string_clear();
-    acc_strcat
-        (" Num Account      Character     State          Idl Login@   Site\r\n",
+    struct str_builder sb = str_builder_default;
+    sb_strcat(&sb, " Num Account      Character     State          Idl Login@   Site\r\n",
         " --- ------------ ------------- --------------- -- -------- ---------------\r\n",
         NULL);
 
@@ -8634,27 +8607,27 @@ ACMD(do_users)
             account_name = "   -   ";
         }
 
-        acc_sprintf("%4d %-12s %s %-15s %-2s %-8s ",
+        sb_sprintf(&sb, "%4d %-12s %s %-15s %-2s %-8s ",
                     d->desc_num, account_name, char_name, state, idletime, timebuf);
 
         if (*d->host) {
             if (!isbanned(d->host, buf, sizeof(buf))) {
-                acc_strcat(CCGRN(ch, C_NRM), NULL);
+                sb_strcat(&sb, CCGRN(ch, C_NRM), NULL);
             } else if (d->creature && PLR_FLAGGED(d->creature, PLR_SITEOK)) {
-                acc_strcat(CCMAG(ch, C_NRM), NULL);
+                sb_strcat(&sb, CCMAG(ch, C_NRM), NULL);
             } else {
-                acc_strcat(CCRED(ch, C_NRM), NULL);
+                sb_strcat(&sb, CCRED(ch, C_NRM), NULL);
             }
-            acc_sprintf("%s%s\r\n", d->host, CCNRM(ch, C_NRM));
+            sb_sprintf(&sb, "%s%s\r\n", d->host, CCNRM(ch, C_NRM));
         } else {
-            acc_strcat(CCRED_BLD(ch, C_SPR), "[unknown]\r\n", CCNRM(ch, C_SPR), NULL);
+            sb_strcat(&sb, CCRED_BLD(ch, C_SPR), "[unknown]\r\n", CCNRM(ch, C_SPR), NULL);
         }
 
         num_can_see++;
     }
 
-    acc_sprintf("\r\n%d visible sockets connected.\r\n", num_can_see);
-    page_string(ch->desc, acc_get_string());
+    sb_sprintf(&sb, "\r\n%d visible sockets connected.\r\n", num_can_see);
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_edit)

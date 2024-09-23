@@ -40,7 +40,7 @@
 #include "db.h"
 #include "char_class.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "fight.h"
 #include "strutil.h"
@@ -272,7 +272,7 @@ show_trails_to_char(struct creature *ch, char *str)
     const char *foot_desc, *drop_desc;
     int prob;
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
     if (GET_LEVEL(ch) < LVL_AMBASSADOR && room_is_open_air(ch->in_room)) {
         send_to_char(ch, "Track through the open air?\r\n");
@@ -336,35 +336,35 @@ show_trails_to_char(struct creature *ch, char *str)
         if (trail->from_dir >= 0) {
             if (trail->to_dir >= 0) {
                 if (trail->from_dir == trail->to_dir) {
-                    acc_sprintf("%s double%s back %s.\r\n",
+                    sb_sprintf(&sb, "%s double%s back %s.\r\n",
                                 foot_desc, drop_desc, to_dirs[(int)trail->from_dir]);
                 } else if (trail->from_dir == rev_dir[(int)trail->to_dir]) {
-                    acc_sprintf("%s lead%s straight from %s to %s.\r\n",
+                    sb_sprintf(&sb, "%s lead%s straight from %s to %s.\r\n",
                                 foot_desc, drop_desc, from_dirs[(int)trail->to_dir],
                                 dirs[(int)trail->to_dir]);
                 } else {
-                    acc_sprintf("%s turn%s from %s to %s.\r\n",
+                    sb_sprintf(&sb, "%s turn%s from %s to %s.\r\n",
                                 foot_desc, drop_desc, dirs[(int)trail->from_dir],
                                 dirs[(int)trail->to_dir]);
                 }
             } else {
-                acc_sprintf("%s lead%s from the %s.\r\n",
+                sb_sprintf(&sb, "%s lead%s from the %s.\r\n",
                             foot_desc, drop_desc, dirs[(int)trail->from_dir]);
             }
         } else if (trail->to_dir >= 0) {
-            acc_sprintf("%s lead%s %s.\r\n",
+            sb_sprintf(&sb, "%s lead%s %s.\r\n",
                         foot_desc, drop_desc, to_dirs[(int)trail->to_dir]);
         }
     }
 
     if (!found) {
         if (str) {
-            acc_sprintf("You don't see any matching footprints here.\r\n");
+            sb_sprintf(&sb, "You don't see any matching footprints here.\r\n");
         } else {
-            acc_sprintf("You don't see any prints here.\r\n");
+            sb_sprintf(&sb, "You don't see any prints here.\r\n");
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 ACMD(do_track)

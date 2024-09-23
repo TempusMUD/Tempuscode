@@ -59,7 +59,7 @@
 #include "char_class.h"
 #include "players.h"
 #include "tmpstr.h"
-#include "accstr.h"
+#include "str_builder.h"
 #include "constants.h"
 #include "comm.h"
 #include "handler.h"
@@ -235,14 +235,14 @@ list_skills(struct creature *ch, int mode, int type)
         return;
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     if ((type == 1 || type == 3) &&
         ((prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != SKL &&
           prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != PRG) ||
          (GET_REMORT_CLASS(ch) >= 0 &&
           (prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(ch)] != SKL &&
            prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(ch)] != PRG)))) {
-        acc_sprintf("%s%sYou know %sthe following %ss:%s\r\n",
+        sb_sprintf(&sb, "%s%sYou know %sthe following %ss:%s\r\n",
                     CCYEL(ch, C_CMP), CCBLD(ch, C_SPR), mode ? "of " : "", SPLSKL(ch),
                     CCNRM(ch, C_SPR));
 
@@ -254,7 +254,7 @@ list_skills(struct creature *ch, int mode, int type)
                     continue;
                 }
                 if (IS_IMMORT(ch)) {
-                    acc_sprintf("%s%s%-30s %s%-17s%s %s(%3d mana)%s\r\n",
+                    sb_sprintf(&sb, "%s%s%-30s %s%-17s%s %s(%3d mana)%s\r\n",
                                 CCGRN(ch, C_NRM),
                                 tmp_sprintf("%3d. ", i), spell_to_str(i),
                                 CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, i)),
@@ -262,7 +262,7 @@ list_skills(struct creature *ch, int mode, int type)
                                             CHECK_SKILL(ch, i)), CCRED(ch, C_SPR),
                                 mag_manacost(ch, i), CCNRM(ch, C_SPR));
                 } else {
-                    acc_sprintf("%s%-30s %s%-17s %s(%3d mana)%s\r\n",
+                    sb_sprintf(&sb, "%s%-30s %s%-17s %s(%3d mana)%s\r\n",
                                 CCGRN(ch, C_NRM), spell_to_str(i),
                                 CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, i)),
                                 CCRED(ch, C_SPR), mag_manacost(ch, i),
@@ -272,16 +272,16 @@ list_skills(struct creature *ch, int mode, int type)
         }
 
         if (type != 2 && type != 3) {
-            page_string(ch->desc, acc_get_string());
+            page_string(ch->desc, sb.str);
             return;
         }
 
-        acc_sprintf("\r\n%s%sYou know %sthe following %s:%s\r\n",
+        sb_sprintf(&sb, "\r\n%s%sYou know %sthe following %s:%s\r\n",
                     CCYEL(ch, C_CMP), CCBLD(ch, C_SPR),
                     mode ? "of " : "", IS_CYBORG(ch) ? "programs" :
                     "skills", CCNRM(ch, C_SPR));
     } else {
-        acc_sprintf("%s%sYou know %sthe following %s:%s\r\n",
+        sb_sprintf(&sb, "%s%sYou know %sthe following %s:%s\r\n",
                     CCYEL(ch, C_CMP), CCBLD(ch, C_SPR),
                     mode ? "of " : "", IS_CYBORG(ch) ? "programs"
                     : "skills", CCNRM(ch, C_SPR));
@@ -296,7 +296,7 @@ list_skills(struct creature *ch, int mode, int type)
             }
 
             if (IS_IMMORT(ch)) {
-                acc_sprintf("%s%s%-30s %s%-17s%s%s\r\n",
+                sb_sprintf(&sb, "%s%s%-30s %s%-17s%s%s\r\n",
                             CCGRN(ch, C_NRM), tmp_sprintf("%3d. ", i),
                             spell_to_str(i), CCBLD(ch, C_SPR),
                             how_good(GET_SKILL(ch, i)),
@@ -304,13 +304,13 @@ list_skills(struct creature *ch, int mode, int type)
                                         CHECK_SKILL(ch, i), CCNRM(ch, C_NRM)),
                             CCNRM(ch, C_SPR));
             } else {
-                acc_sprintf("%s%-30s %s%s%s\r\n",
+                sb_sprintf(&sb, "%s%-30s %s%s%s\r\n",
                             CCGRN(ch, C_NRM), spell_to_str(i), CCBLD(ch, C_SPR),
                             how_good(GET_SKILL(ch, i)), CCNRM(ch, C_SPR));
             }
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 SPECIAL(guild)

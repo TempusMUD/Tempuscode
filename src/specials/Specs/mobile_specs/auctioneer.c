@@ -683,7 +683,7 @@ ACMD(do_bidlist)
         send_to_char(ch, "There are no items for auction.\r\n");
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     for (GList *ai = auctions; ai; ai = ai->next) {
         struct auction_data *auc = ai->data;
 
@@ -691,24 +691,24 @@ ACMD(do_bidlist)
             continue;
         }
 
-        acc_sprintf("%sItem Number:%s   %d\r\n",
+        sb_sprintf(&sb, "%sItem Number:%s   %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->idnum);
-        acc_sprintf("%sItem:%s          %s\r\n",
+        sb_sprintf(&sb, "%sItem:%s          %s\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->item->name);
-        acc_sprintf("%sCondition:%s     %s\r\n",
+        sb_sprintf(&sb, "%sCondition:%s     %s\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     tmp_capitalize(obj_cond_color(auc->item, COLOR_LEV(ch), DISPLAY_MODE(ch))));
-        acc_sprintf("%sStarting Bid:%s  %'" PRId64 " coins/cash\r\n",
+        sb_sprintf(&sb, "%sStarting Bid:%s  %'" PRId64 " coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->start_bid);
         if (auc->bids == NULL) {
-            acc_sprintf("%sCurrent Bid:%s   None\r\n",
+            sb_sprintf(&sb, "%sCurrent Bid:%s   None\r\n",
                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
         } else {
-            acc_sprintf("%sCurrent Bid:%s   %'" PRId64 " coins/cash\r\n",
+            sb_sprintf(&sb, "%sCurrent Bid:%s   %'" PRId64 " coins/cash\r\n",
                         CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                         bid_total(auction_winning_bid(auc)));
         }
-        acc_sprintf("%sMinimum Bid:%s  %'" PRId64 " coins/cash\r\n",
+        sb_sprintf(&sb, "%sMinimum Bid:%s  %'" PRId64 " coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auction_minimum_bid(auc));
         time_t time_left = 0;
         if (auc->bids) {
@@ -722,14 +722,14 @@ ACMD(do_bidlist)
         time_left = time_left % 3600;
         int mins = time_left / 60;
         int secs = time_left % 60;
-        acc_sprintf("%sTime Left:%s     %d Hour(s) %d Mins %d Secs\r\n",
+        sb_sprintf(&sb, "%sTime Left:%s     %d Hour(s) %d Mins %d Secs\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), hours, mins, secs);
 
         if (ai->next) {
-            acc_strcat("---------------------------------------\r\n", NULL);
+            sb_strcat(&sb, "---------------------------------------\r\n", NULL);
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 static void
@@ -912,46 +912,46 @@ auctioneer_stat(struct creature *self, struct creature *ch, char *argument)
     if (!auctions) {
         send_to_char(ch, "There are no items for auction.\r\n");
     }
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
     for (GList *ai = auctions; ai; ai = ai->next) {
         struct auction_data *auc = ai->data;
-        acc_sprintf("%sItem Number:%s   %d\r\n",
+        sb_sprintf(&sb, "%sItem Number:%s   %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->idnum);
-        acc_sprintf("%sAuctioneer Room Id:%s   %ld\r\n",
+        sb_sprintf(&sb, "%sAuctioneer Room Id:%s   %ld\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->room_id);
-        acc_sprintf("%sOwner:%s         %s\r\n",
+        sb_sprintf(&sb, "%sOwner:%s         %s\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     player_name_by_idnum(auc->owner_id));
-        acc_sprintf("%sHigh Bidder:%s   %s\r\n",
+        sb_sprintf(&sb, "%sHigh Bidder:%s   %s\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     (auc->bids) ?
                     player_name_by_idnum(((struct bid_data *)auc->bids->data)->bidder_id) : "NULL");
-        acc_sprintf("%sItem:%s          %s\r\n",
+        sb_sprintf(&sb, "%sItem:%s          %s\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->item->name);
-        acc_sprintf("%sStart Time:%s    %s",
+        sb_sprintf(&sb, "%sStart Time:%s    %s",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     ctime(&auc->start_time));
-        acc_sprintf("%sLast Bid:%s      %s",
+        sb_sprintf(&sb, "%sLast Bid:%s      %s",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                     (auc->last_bid_time ?
                      ctime(&auc->last_bid_time) : "NULL\r\n"));
-        acc_sprintf("%sStarting Bid:%s  %'" PRId64 " coins/cash\r\n",
+        sb_sprintf(&sb, "%sStarting Bid:%s  %'" PRId64 " coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auc->start_bid);
-        acc_sprintf("%sMinimum Bid:%s  %'" PRId64 " coins/cash\r\n",
+        sb_sprintf(&sb, "%sMinimum Bid:%s  %'" PRId64 " coins/cash\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), auction_minimum_bid(auc));
-        acc_sprintf("Auction state:      %s\r\n", auction_state_strs[auc->state]);
+        sb_sprintf(&sb, "Auction state:      %s\r\n", auction_state_strs[auc->state]);
         for (GList *it = auc->bids; it != NULL; it = it->next) {
             struct bid_data *bid = it->data;
-            acc_sprintf("%s bid a total of %'" PRId64 "\r\n",
+            sb_sprintf(&sb, "%s bid a total of %'" PRId64 "\r\n",
                         player_name_by_idnum(bid->bidder_id),
                         bid->past_amount + bid->future_amount);
         }
 
         if (ai->next) {
-            acc_strcat("---------------------------------------\r\n", NULL);
+            sb_strcat(&sb, "---------------------------------------\r\n", NULL);
         }
     }
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
     return 1;
 }
 
@@ -978,26 +978,26 @@ auctioneer_aucset(struct creature *self, struct creature *ch, char *argument)
 
     if (!*var && !*val) {
         // Print current settings
-        acc_string_clear();
-        acc_sprintf("%sGoing Once Time:%s    %d\r\n",
+        struct str_builder sb = str_builder_default;
+        sb_sprintf(&sb, "%sGoing Once Time:%s    %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), GOING_ONCE);
-        acc_sprintf("%sGoing Twice Time:%s   %d\r\n",
+        sb_sprintf(&sb, "%sGoing Twice Time:%s   %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), GOING_TWICE);
-        acc_sprintf("%sSold Time:%s          %d\r\n",
+        sb_sprintf(&sb, "%sSold Time:%s          %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), SOLD_TIME);
-        acc_sprintf("%sNo Bids Announce:%s   %d\r\n",
+        sb_sprintf(&sb, "%sNo Bids Announce:%s   %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), NO_BID_THRESH);
-        acc_sprintf("%sMax Auction Time:%s   %d\r\n",
+        sb_sprintf(&sb, "%sMax Auction Time:%s   %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), AUCTION_THRESH);
-        acc_sprintf("%sMax Item Value:%s     %d\r\n",
+        sb_sprintf(&sb, "%sMax Item Value:%s     %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), MAX_AUC_VALUE);
-        acc_sprintf("%sMax Items/Pers:%s     %d\r\n",
+        sb_sprintf(&sb, "%sMax Items/Pers:%s     %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), MAX_AUCTIONS);
-        acc_sprintf("%sMax Total Aucs:%s     %d\r\n",
+        sb_sprintf(&sb, "%sMax Total Aucs:%s     %d\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), MAX_TOTAL_AUC);
-        acc_sprintf("%sBid Increment:%s      %f\r\n",
+        sb_sprintf(&sb, "%sBid Increment:%s      %f\r\n",
                     CCCYN(ch, C_NRM), CCNRM(ch, C_NRM), BID_INCREMENT);
-        page_string(ch->desc, acc_get_string());
+        page_string(ch->desc, sb.str);
         return 1;
     } else if (is_abbrev(var, "help") || !*var || !*val) {
         // Print usage

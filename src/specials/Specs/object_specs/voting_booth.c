@@ -160,34 +160,33 @@ voting_booth_read(struct creature *ch, char *argument)
         memory = memory->next;
     }
 
-    acc_string_clear();
+    struct str_builder sb = str_builder_default;
 
-    acc_strcat(poll->descrip, NULL);
+    sb_strcat(&sb, poll->descrip, NULL);
 
     for (opt = poll->options; opt; opt = opt->next) {
         if (GET_LEVEL(ch) >= LVL_POWER || (memory && !poll->secret)) {
             if (opt->count != poll->count) {
-                acc_sprintf("%3d (%2d%%) %c) %s",
+                sb_sprintf(&sb, "%3d (%2d%%) %c) %s",
                             opt->count,
                             ((poll->count) ? ((opt->count * 100) / poll->count) : 0),
                             opt->idx, opt->descrip);
             } else {
-                acc_sprintf("%3d (all) %c) %s",
+                sb_sprintf(&sb, "%3d (all) %c) %s",
                             opt->count, opt->idx, opt->descrip);
             }
         } else {
-            acc_sprintf("      %c) %s", opt->idx, opt->descrip);
+            sb_sprintf(&sb, "      %c) %s", opt->idx, opt->descrip);
         }
     }
     if (memory) {
-        acc_strcat("\r\nYou have already voted.\r\n", NULL);
+        sb_strcat(&sb, "\r\nYou have already voted.\r\n", NULL);
         if (poll->secret && GET_LEVEL(ch) < LVL_POWER) {
-            acc_sprintf
-                ("You are not able to see the results because this is a secret poll.\r\n");
+            sb_sprintf(&sb, "You are not able to see the results because this is a secret poll.\r\n");
         }
     }
 
-    page_string(ch->desc, acc_get_string());
+    page_string(ch->desc, sb.str);
 }
 
 void
