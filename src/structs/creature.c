@@ -1812,6 +1812,11 @@ ignite_creature(struct creature *ch, struct creature *igniter)
 {
     struct affected_type af;
 
+    if (room_is_watery(ch->in_room)) {
+        // Never ignite creatures in a watery room.
+        return;
+    }
+
     init_affect(&af);
 
     memset(&af, 0x0, sizeof(struct affected_type));
@@ -1830,6 +1835,7 @@ ignite_creature(struct creature *ch, struct creature *igniter)
 void
 extinguish_creature(struct creature *ch)
 {
+    REMOVE_BIT(AFF2_FLAGS(ch), AFF2_ABLAZE);
     affect_from_char(ch, SPELL_ABLAZE);
 }
 

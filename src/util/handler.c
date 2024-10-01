@@ -163,6 +163,9 @@ affect_modify(struct creature *ch, int16_t loc, int16_t mod, long bitv,
                     && !affected_by_spell(ch, SPELL_QUAD_DAMAGE)) {
                     ch->in_room->light++;
                 }
+                if (ch->in_room && room_is_watery(ch->in_room)) {
+                    REMOVE_BIT(bitv, AFF2_ABLAZE);
+                }
                 SET_BIT(AFF2_FLAGS(ch), bitv);
             } else if (index == 3) {
                 SET_BIT(AFF3_FLAGS(ch), bitv);
