@@ -33,10 +33,10 @@
 SPECIAL(artisan);
 
 int cmd_slap, cmd_smirk, cmd_cry;
-GList *shop_list;
 
 struct craft_component {
     int item;
+    // These are for further expansion.
     int material;
     int weight;
     int value;
@@ -45,7 +45,10 @@ struct craft_component {
 
 struct craft_item {
     int vnum;                   // object to be offered when all components are held
-    long cost;                  // -1 means to use default cost
+    bool custom_cost;           // true if cost field is used, false if item cost is used
+    long cost;
+    char *action_char_desc;     // Description of item being crafted to character
+    char *action_room_desc;     // Description of item being crafted to room
     int fail_pct;
     GList *required;
 };
@@ -55,129 +58,148 @@ struct obj_data *create(struct craft_item *item,
 char *next_crafting_requirement(struct craft_item *item,
                                 struct creature *keeper);
 
-gint
-shop_id_matches(struct craft_shop *shop, gpointer vnum)
+static gint
+free_craft_item(struct craft_item *item)
 {
-    return (shop->id == GPOINTER_TO_INT(vnum)) ? 0 : -1;
+    g_list_foreach(item->required, (GFunc)free, NULL);
+    g_list_free(item->required);
+    free(item->action_char_desc);
+    free(item->action_room_desc);
+    free(item);
+    return 0;
 }
 
-struct craft_shop *
-craft_shop_by_id(int idnum)
+static void
+free_craft_shop(struct craft_shop *shop)
 {
-    GList *it;
-    it = g_list_find_custom(shop_list, GINT_TO_POINTER(idnum), (GCompareFunc) shop_id_matches);
-    return (it) ? it->data : NULL;
-}
-
-gint
-shop_keeper_matches(struct craft_shop *shop,
-                    struct creature *keeper)
-{
-    return (shop->keeper_vnum == GET_NPC_VNUM(keeper)
-            && shop->room == keeper->in_room->number) ? 0 : -1;
+    g_list_foreach(shop->items, (GFunc) free_craft_item, NULL);
+    g_list_free(shop->items);
+    free(shop);
 }
 
 
-struct craft_shop *
-craft_shop_by_keeper(struct creature *keeper)
+const char *
+artisan_parse_param(char *param, struct craft_shop *shop, int *err_line)
 {
-    GList *it;
-    it = g_list_find_custom(shop_list, keeper, (GCompareFunc) shop_keeper_matches);
-    return (it) ? it->data : NULL;
-}
-
-
-/**
- * loads the craft_item described by the given xml node.
- * Does not reinit the item. Always creates a new item.
- **/
-void
-craft_shop_parse_item(struct craft_shop *shop, xmlNodePtr node)
-{
-    xmlNodePtr sub_node;
-    struct craft_item *new_item;
-    struct craft_component *compon;
-
-    CREATE(new_item, struct craft_item, 1);
-    new_item->vnum = xmlGetIntProp(node, "vnum", 0);
-    new_item->cost = xmlGetIntProp(node, "cost", 0);
-    new_item->fail_pct = xmlGetIntProp(node, "failure", 0);
-    for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {
-        if (xmlMatches(sub_node->name, "requires")) {
-            CREATE(compon, struct craft_component, 1);
-            compon->item = xmlGetIntProp(sub_node, "item", 0);
-            compon->material = xmlGetIntProp(sub_node, "material", 0);
-            compon->weight = xmlGetIntProp(sub_node, "weight", 0);
-            compon->value = xmlGetIntProp(sub_node, "value", 0);
-            compon->amount = xmlGetIntProp(sub_node, "amount", 0);
-            new_item->required = g_list_prepend(new_item->required, compon);
-        } else if (!xmlMatches(sub_node->name, "text")) {
-            errlog("Invalid XML tag '%s' while parsing craftshop item",
-                   (const char *)sub_node->name);
-        }
-    }
-    new_item->required = g_list_reverse(new_item->required);
-    shop->items = g_list_prepend(shop->items, new_item);
-}
-
-/**
- * Loads this craft_shop's data from the given xml node.
- **/
-void
-craft_shop_load(struct craft_shop *shop, xmlNodePtr node)
-{
-    xmlNodePtr sub_node;
-    shop->room = xmlGetIntProp(node, "room", 0);
-    shop->keeper_vnum = xmlGetIntProp(node, "keeper", 0);
+    char *line, *param_key;
+    const char *err = NULL;
+    int lineno = 0;
+    struct craft_item *cur_item = NULL;
 
     // Remove all the currently stored items.
-    g_list_foreach(shop->items, (GFunc) free, NULL);
+    g_list_foreach(shop->items, (GFunc) free_craft_item, NULL);
     g_list_free(shop->items);
     shop->items = NULL;
 
-    // Load the described items and thier info.
-    for (sub_node = node->xmlChildrenNode; sub_node; sub_node = sub_node->next) {
-        if (xmlMatches(sub_node->name, "item")) {
-            craft_shop_parse_item(shop, sub_node);
-        } else if (!xmlMatches(sub_node->name, "text")) {
-            errlog("Invalid XML tag '%s' while parsing craftshop",
-                   (const char *)sub_node->name);
+    // Initialize default values
+    while ((line = tmp_getline(&param)) != NULL) {
+        lineno++;
+        if (*line == '\0' || *line == '-') {
+            continue;
+        }
+        if (add_reaction(shop->reaction, line)) {
+            continue;
+        }
+
+        param_key = tmp_getword(&line);
+        if (!strcmp(param_key, "room")) {
+            shop->room = atol(line);
+        } else if (!strcmp(param_key, "currency")) {
+            if (is_abbrev(line, "past") || is_abbrev(line, "gold")) {
+                shop->currency = 0;
+            } else if (is_abbrev(line, "future") || is_abbrev(line, "cash")) {
+                shop->currency = 1;
+            } else if (is_abbrev(line, "qp") || is_abbrev(line, "quest")) {
+                shop->currency = 2;
+            } else {
+                err = tmp_sprintf("invalid currency %s", line);
+                break;
+            }
+        } else if (!strcmp(param_key, "craft")) {
+            CREATE(cur_item, struct craft_item, 1);
+            cur_item->vnum = atoi(line);
+            if (cur_item->vnum <= 0) {
+                err = tmp_sprintf("invalid item vnum %s", line);
+                free(cur_item);
+                break;
+            }
+            shop->items = g_list_append(shop->items, cur_item);
+        } else if (!strcmp(param_key, "cost")) {
+            if (!cur_item) {
+                err = tmp_strdup("cost specified without item declaration");
+                break;
+            }
+            cur_item->custom_cost = true;
+            cur_item->cost = atol(line);
+            if (cur_item->cost <= 0) {
+                err = tmp_sprintf("invalid item vnum %d cost %s", cur_item->vnum, line);
+                break;
+            }
+        } else if (!strcmp(param_key, "component")) {
+            if (!cur_item) {
+                err = tmp_strdup("component specified without preceding item");
+                break;
+            }
+            struct craft_component *craft_comp;
+
+            CREATE(craft_comp, struct craft_component, 1);
+            craft_comp->item = atoi(line);
+            if (craft_comp->item <= 0) {
+                err = tmp_sprintf("invalid item vnum %d component %s", cur_item->vnum, line);
+                free(craft_comp);
+                break;
+            }
+            cur_item->required = g_list_append(cur_item->required, craft_comp);
+        } else if (!strcmp(param_key, "failure")) {
+            if (!cur_item) {
+                err = tmp_strdup("failure specified without preceding item");
+                break;
+            }
+            cur_item->fail_pct = atoi(line);
+            if (cur_item->fail_pct < 0 || cur_item->fail_pct >= 100) {
+                err = tmp_sprintf("invalid item vnum %d failure %s", cur_item->vnum, line);
+                break;
+            }
+        } else if (!strcmp(param_key, "action-char")) {
+            if (!cur_item) {
+                err = tmp_strdup("action-char specified without preceding item");
+                break;
+            }
+            if (*line) {
+                cur_item->action_char_desc = strdup(line);
+            }
+        } else if (!strcmp(param_key, "action-room")) {
+            if (!cur_item) {
+                err = tmp_strdup("action-room specified without preceding item");
+                break;
+            }
+            if (*line) {
+                cur_item->action_room_desc = strdup(line);
+            }
+        } else {
+            err = tmp_sprintf("invalid directive %s", param_key);
+        }
+        if (err) {
+            break;
         }
     }
-}
 
-/**
- * Loads the craft_shop described by the given xml node.
- * If the shop has already been created, it is reinitialized.
- **/
-void
-load_craft_shop(xmlNodePtr node)
-{
-    struct craft_shop *shop = NULL;
-    int id = xmlGetIntProp(node, "id", -1);
-
-    shop = craft_shop_by_id(id);
-    if (!shop) {
-        CREATE(shop, struct craft_shop, 1);
-        craft_shop_load(shop, node);
-        shop_list = g_list_prepend(shop_list, shop);
-    } else {
-        craft_shop_load(shop, node);
+    if (err_line) {
+        *err_line = (err) ? lineno : -1;
     }
+
+    return err;
 }
 
 char *
 craft_item_next_requirement(struct craft_item *item, struct creature *keeper)
 {
-    struct craft_component *compon;
-    struct obj_data *obj;
-    GList *it;
+    for (GList *it = item->required; it; it = it->next) {
+        struct craft_component *compon = it->data;
 
-    for (it = item->required; it; it = it->next) {
-        compon = it->data;
         // Item components are all we support right now
         if (compon->item) {
-            obj = get_obj_in_list_num(compon->item, keeper->carrying);
+            struct obj_data *obj = get_obj_in_list_num(compon->item, keeper->carrying);
             if (!obj) {
                 obj = real_object_proto(compon->item);
                 return tmp_strdup(obj->name);
@@ -253,26 +275,11 @@ list_commission_item(struct creature *ch,
 
 }
 
-// sends a simple status message to the given struct creature.
-void
-send_craft_shop_status(struct craft_shop *shop, struct creature *ch)
-{
-    const char *name = "<not loaded>";
-    struct creature *keeper = real_mobile_proto(shop->keeper_vnum);
-    if (keeper != NULL) {
-        name = GET_NAME(keeper);
-    }
-    send_to_char(ch, "[%6d] %15s [%6d] ( %d items )\r\n",
-                 shop->id, name, shop->keeper_vnum, g_list_length(shop->items));
-}
-
 // Lists the items for sale.
 void
 craft_shop_list(struct craft_shop *shop, struct creature *keeper,
                 struct creature *ch)
 {
-    GList *it;
-    struct craft_item *item;
     int idx = 0;
 
     if (!shop->items) {
@@ -284,8 +291,8 @@ craft_shop_list(struct craft_shop *shop, struct creature *keeper,
                            " ##               Item                                               Cost\r\n-------------------------------------------------------------------------\r\n",
                            CCNRM(ch, C_NRM),
                            NULL);
-    for (it = shop->items; it; it = it->next) {
-        item = it->data;
+    for (GList *it = shop->items; it; it = it->next) {
+        struct craft_item *item = it->data;
         idx++;
         msg = list_commission_item(ch, keeper, idx, item, msg);
     }
@@ -311,7 +318,7 @@ craft_shop_buy(struct craft_shop *shop,
 
         arg++;
         num = atoi(arg) - 1;
-        if (num <= 0) {
+        if (num < 0) {
             perform_say_to(keeper, ch, "That's not a proper item!");
             return;
         }
@@ -376,22 +383,28 @@ craft_shop_buy(struct craft_shop *shop,
         return;
     }
 
+    if (item->action_char_desc) {
+        act(item->action_char_desc, false, keeper, obj, ch, TO_VICT);
+    }
+    if (item->action_room_desc) {
+        act(item->action_room_desc, false, keeper, obj, ch, TO_NOTVICT);
+    }
     send_to_char(ch, "You buy %s for %ld gold.\r\n", obj->name, modCost);
     switch (number(0, 20)) {
     case 0:
-        msg = tmp_strcat(GET_NAME(ch), " Glad to do business with you", NULL);
+        msg = "Glad to do business with you";
         break;
     case 1:
-        msg = tmp_strcat(GET_NAME(ch), " Come back soon!", NULL);
+        msg = "Come back soon!";
         break;
     case 2:
-        msg = tmp_strcat(GET_NAME(ch), " Have a nice day.", NULL);
+        msg = "Have a nice day.";
         break;
     case 3:
-        msg = tmp_strcat(GET_NAME(ch), " Thanks, and come again!", NULL);
+        msg = "Thanks, and come again!";
         break;
     case 4:
-        msg = tmp_strcat(GET_NAME(ch), " Nice doing business with you", NULL);
+        msg = "Nice doing business with you";
         break;
     default:
         msg = NULL;
@@ -405,20 +418,6 @@ craft_shop_buy(struct craft_shop *shop,
 void
 assign_artisans(void)
 {
-    GList *it;
-    struct craft_shop *shop;
-    struct creature *mob;
-
-    for (it = shop_list; it; it = it->next) {
-        shop = it->data;
-        mob = real_mobile_proto(shop->keeper_vnum);
-        if (mob) {
-            mob->mob_specials.shared->func = artisan;
-        } else {
-            errlog("Artisan mob %d not found!", shop->keeper_vnum);
-        }
-    }
-
     cmd_slap = find_command("slap");
     cmd_smirk = find_command("smirk");
     cmd_cry = find_command("cry");
@@ -430,6 +429,13 @@ SPECIAL(artisan)
     char *msg;
     struct craft_shop *shop;
 
+    shop = (struct craft_shop *)keeper->mob_specials.func_data;
+    if (spec_mode == SPECIAL_FREE && shop) {
+        free_craft_shop(shop);
+        keeper->mob_specials.func_data = NULL;
+        return 1;
+    }
+
     if (spec_mode != SPECIAL_CMD) {
         return false;
     }
@@ -440,18 +446,39 @@ SPECIAL(artisan)
 
     if (CMD_IS("steal") && GET_LEVEL(ch) < LVL_IMMORT) {
         do_action(keeper, GET_NAME(ch), cmd_slap, 0);
-        snprintf(buf, sizeof(buf), "%s is a bloody thief!", GET_NAME(ch));
-        buf[0] = (char)toupper(buf[0]);
-        perform_say(keeper, "shout", buf);
+        perform_say(keeper, "shout",
+                    tmp_sprintf("%s is a bloody thief!", tmp_capitalize(GET_NAME(ch))));
         return true;
     }
 
-    if (!CMD_IS("list") && !CMD_IS("buy") && !CMD_IS("sell")
-        && !CMD_IS("status")) {
+    if (!CMD_IS("list") && !CMD_IS("buy")) {
         return false;
     }
 
-    shop = craft_shop_by_keeper(keeper);
+    if (react(shop->reaction, ch) != ALLOW) {
+        perform_say_to(keeper, ch, "Not doing business with YOU.");
+        return true;
+    }
+    
+    char *config = GET_NPC_PARAM(keeper);
+    if (!config) {
+        return 0;
+    }
+
+    shop = (struct craft_shop *)keeper->mob_specials.func_data;
+    if (!shop) {
+        CREATE(shop, struct craft_shop, 1);
+        int err_line;
+        const char *err = artisan_parse_param(config, shop, &err_line);
+        if (err != NULL) {
+            errlog("vendor %d spec error on line %d: %s",
+                   GET_NPC_VNUM(keeper), err_line, err);
+            keeper->mob_specials.shared->func = NULL;
+            free_craft_shop(shop);
+            return 1;
+        }
+        keeper->mob_specials.func_data = shop;
+    }
 
     if (!shop || shop->room != keeper->in_room->number) {
         msg = tmp_sprintf("Sorry!  I don't have my tools!");
@@ -467,11 +494,6 @@ SPECIAL(artisan)
     } else if (CMD_IS("sell")) {
         msg = tmp_sprintf("I don't buy things, I make them.");
         perform_say_to(keeper, ch, msg);
-    } else if (CMD_IS("status") && is_authorized(ch, DEBUGGING, NULL)) {
-        GList *it;
-        for (it = shop_list; it; it = it->next) {
-            send_craft_shop_status(((struct craft_shop *)it->data), ch);
-        }
     } else {
         return false;
     }

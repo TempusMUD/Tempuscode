@@ -264,6 +264,7 @@ SPECIAL(finger_of_death);
 SPECIAL(wand_of_wonder);
 SPECIAL(vendor);
 SPECIAL(tattooist);
+SPECIAL(artisan);
 SPECIAL(quest_sphere);
 SPECIAL(demonic_overmind);
 SPECIAL(demonic_guard);

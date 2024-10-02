@@ -5,14 +5,12 @@ struct craft_item;
 struct reaction;
 
 struct craft_shop {
-    int id;
-    int room;
-    int keeper_vnum;
+    long room;
+    struct reaction *reaction;
+    int currency;
+    bool call_for_help;
     GList *items;
 };
-
-/** Loads and/or creates the Craftshop described by the given node. **/
-void load_craft_shop(xmlNodePtr node);
 
 // struct shop_time represents a range of hours for use in marking the
 // times in which a shop is closed
