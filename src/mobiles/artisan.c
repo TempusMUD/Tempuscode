@@ -328,8 +328,8 @@ craft_shop_buy(struct craft_shop *shop,
         }
     } else {
         for (item_itr = shop->items; item_itr; item_itr = item_itr->next) {
-            item = item_itr->data;
             if (isname(arg, real_object_proto(item->vnum)->aliases)) {
+                item = item_itr->data;
                 break;
             }
         }
