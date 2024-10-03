@@ -456,12 +456,7 @@ do_create_room(struct creature *ch, int vnum)
         return NULL;
     }
 
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (vnum >= zone->number * 100 && vnum <= zone->top) {
-            break;
-        }
-    }
-
+    zone = zone_owner(vnum);
     if (!zone) {
         send_to_char(ch,
                      "ERROR: A zone must be defined for the room first.\r\n");

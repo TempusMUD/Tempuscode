@@ -1098,7 +1098,8 @@ general_obj_to_char(struct obj_data *object,
     if (IS_OBJ_TYPE(object, ITEM_KEY) && !GET_OBJ_VAL(object, 1) &&
         !IS_NPC(ch) && GET_LEVEL(ch) < LVL_IMMORT && !GET_OBJ_TIMER(object)) {
 
-        if ((zn = real_zone(zone_number(GET_OBJ_VNUM(object))))) {
+        zn = zone_owner(GET_OBJ_VNUM(object));
+        if (zn) {
             GET_OBJ_TIMER(object) = MAX(2, zn->lifespan / 2);
         } else {
             GET_OBJ_TIMER(object) = 15;

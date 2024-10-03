@@ -1828,7 +1828,7 @@ do_stat_character(struct creature *ch, struct creature *k, char *options)
         sb_strcat(&sb, "ILLEGAL-SEX!!", NULL);
     }
 
-    sb_sprintf(&sb, 
+    sb_sprintf(&sb,
         " %s '%s%s%s'  IDNum: [%5ld], AccountNum: [%5ld], In room %s[%s%5d%s]%s\n",
         (!IS_NPC(k) ? "PC" : (!IS_NPC(k) ? "NPC" : "MOB")), CCYEL(ch, C_NRM),
         GET_NAME(k), CCNRM(ch, C_NRM), IS_NPC(k) ? NPC_IDNUM(k) : GET_IDNUM(k),
@@ -3802,12 +3802,7 @@ ACMD(do_zreset)
     } else if (*arg == '.') {
         zone = ch->in_room->zone;
     } else {
-        j = atoi(arg);
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (zone->number == j) {
-                break;
-            }
-        }
+        zone = real_zone(atoi(arg));
     }
     if (zone) {
         reset_zone(zone);
@@ -7880,11 +7875,7 @@ load_single_zone(int zone_num)
         discrete_load(db_file, DB_BOOT_OBJ);
         fclose(db_file);
     }
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (zone->number == zone_num) {
-            break;
-        }
-    }
+    zone = real_zone(zone->number);
     if (zone) {
         reset_zone(zone);
         renum_zone_table();
@@ -7980,12 +7971,7 @@ ACMD(do_coderutil)
             send_to_char(ch, "You must specify a zone number.\r\n");
             return;
         }
-        zone_num = atoi(token);
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (zone->number == zone_num) {
-                break;
-            }
-        }
+        zone = real_zone(atoi(token));
         if (zone) {
             send_to_char(ch, "Zone %d is already loaded!\r\n", zone_num);
             return;

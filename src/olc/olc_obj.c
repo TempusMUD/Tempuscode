@@ -365,12 +365,7 @@ do_create_obj(struct creature *ch, int vnum)
         return NULL;
     }
 
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (vnum >= zone->number * 100 && vnum <= zone->top) {
-            break;
-        }
-    }
-
+    zone = zone_owner(vnum);
     if (!zone) {
         send_to_char(ch,
                      "ERROR: A zone must be defined for the object first.\r\n");
@@ -447,12 +442,7 @@ do_destroy_object(struct creature *ch, int vnum)
         return 1;
     }
 
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (vnum < zone->top) {
-            break;
-        }
-    }
-
+    zone = zone_owner(vnum);
     if (!zone) {
         send_to_char(ch, "That object does not belong to any zone!!\r\n");
         errlog("object not in any zone.");
@@ -541,12 +531,7 @@ perform_oset(struct creature *ch, struct obj_data *obj_p,
         return;
     }
     // what zone is it a member of
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (GET_OBJ_VNUM(obj_p) >= zone->number * 100
-            && GET_OBJ_VNUM(obj_p) <= zone->top) {
-            break;
-        }
-    }
+    zone = zone_owner(GET_OBJ_VNUM(obj_p));
     if (!zone) {
         slog("OLC: ERROR finding zone for object %d.", GET_OBJ_VNUM(obj_p));
         send_to_char(ch, "Unable to match object with zone error..\r\n");

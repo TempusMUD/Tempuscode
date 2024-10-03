@@ -55,7 +55,6 @@ extern struct obj_data *object_list;
 extern struct room_direction_data *knock_door;
 
 extern struct descriptor_data *descriptor_list;
-extern struct zone_data *zone_table;
 
 extern struct default_mobile_stats *mob_defaults;
 extern char weapon_verbs[];

@@ -151,12 +151,7 @@ do_create_mob(struct creature *ch, int vnum)
         return NULL;
     }
 
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (vnum >= zone->number * 100 && vnum <= zone->top) {
-            break;
-        }
-    }
-
+    zone = zone_owner(vnum);
     if (!zone) {
         send_to_char(ch,
                      "ERROR: A zone must be defined for the mobile first.\r\n");
@@ -302,11 +297,7 @@ do_mob_medit(struct creature *ch, char *argument)
         if ((tmp_mob = real_mobile_proto(j)) == NULL) {
             send_to_char(ch, "There is no such mobile.\r\n");
         } else {
-            for (zone = zone_table; zone; zone = zone->next) {
-                if (j <= zone->top) {
-                    break;
-                }
-            }
+            zone = zone_owner(j);
             if (!zone) {
                 send_to_char(ch,
                              "That mobile does not belong to any zone!!\r\n");
@@ -465,13 +456,7 @@ do_mob_mset(struct creature *ch, char *argument)
         tmp_flags = 0;
         argument = one_argument(arg2, arg1);
 
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
-                mob_p->mob_specials.shared->vnum <= zone->top) {
-                break;
-            }
-        }
-
+        zone = zone_owner(GET_NPC_VNUM(mob_p));
         if (!zone) {
             errlog(" Error!  mobile not in zone.");
             send_to_char(ch, "ERROR\r\n");
@@ -532,12 +517,7 @@ do_mob_mset(struct creature *ch, char *argument)
         tmp_flags = 0;
         argument = one_argument(arg2, arg1);
 
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
-                mob_p->mob_specials.shared->vnum <= zone->top) {
-                break;
-            }
-        }
+        zone = zone_owner(GET_NPC_VNUM(mob_p));
 
         if (*arg1 == '+') {
             state = 1;
@@ -589,12 +569,7 @@ do_mob_mset(struct creature *ch, char *argument)
         tmp_flags = 0;
         argument = one_argument(arg2, arg1);
 
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
-                mob_p->mob_specials.shared->vnum <= zone->top) {
-                break;
-            }
-        }
+        zone = zone_owner(GET_NPC_VNUM(mob_p));
 
         if (*arg1 == '+') {
             state = 1;
@@ -645,12 +620,7 @@ do_mob_mset(struct creature *ch, char *argument)
         tmp_flags = 0;
         argument = one_argument(arg2, arg1);
 
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
-                mob_p->mob_specials.shared->vnum <= zone->top) {
-                break;
-            }
-        }
+        zone = zone_owner(GET_NPC_VNUM(mob_p));
         if (!zone) {
             errlog("!zone in olc mset aff2");
             return;
@@ -706,12 +676,7 @@ do_mob_mset(struct creature *ch, char *argument)
         tmp_flags = 0;
         argument = one_argument(arg2, arg1);
 
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
-                mob_p->mob_specials.shared->vnum <= zone->top) {
-                break;
-            }
-        }
+        zone = zone_owner(GET_NPC_VNUM(mob_p));
         if (!zone) {
             errlog("!zone in olc mset aff3");
             return;
@@ -1154,12 +1119,7 @@ do_mob_mset(struct creature *ch, char *argument)
     case 47:
         // If they don't have the edit_zone privilege, the mob special
         // needs to be checked to see if it's reserved.
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
-                mob_p->mob_specials.shared->vnum <= zone->top) {
-                break;
-            }
-        }
+        zone = zone_owner(GET_NPC_VNUM(mob_p));
         if (!zone) {
             errlog("!zone in olc mset specparam");
             return;
@@ -1279,15 +1239,11 @@ do_mob_mset(struct creature *ch, char *argument)
         GET_EXP(mob_p) = mobile_experience(mob_p, NULL);
     }
 
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (mob_p->mob_specials.shared->vnum >= zone->number * 100 &&
-            mob_p->mob_specials.shared->vnum <= zone->top) {
-            if (!ZONE_FLAGGED(zone, ZONE_FULLCONTROL)
-                && is_authorized(ch, APPROVE_ZONE, NULL)) {
-                SET_BIT(NPC2_FLAGS(mob_p), NPC2_UNAPPROVED);
-            }
-            break;
-        }
+    zone = zone_owner(GET_NPC_VNUM(mob_p));
+    if (zone
+        && !ZONE_FLAGGED(zone, ZONE_FULLCONTROL)
+        && is_authorized(ch, APPROVE_ZONE, NULL)) {
+        SET_BIT(NPC2_FLAGS(mob_p), NPC2_UNAPPROVED);
     }
 }
 
@@ -1637,12 +1593,7 @@ do_destroy_mobile(struct creature *ch, int vnum)
         return true;
     }
 
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (vnum < zone->top) {
-            break;
-        }
-    }
-
+    zone = zone_owner(vnum);
     if (!zone) {
         send_to_char(ch, "That mobile does not belong to any zone!!\r\n");
         errlog("mobile not in any zone.");

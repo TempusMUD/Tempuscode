@@ -611,8 +611,8 @@ point_update(void)
     void extract_obj(struct obj_data *obj); /* handler.c */
     register struct obj_data *j, *next_thing, *jj, *next_thing2;
     struct room_data *rm;
-    struct zone_data *zone;
-    int full = 0, thirst = 0, drunk = 0, z, out_of_zone = 0;
+    struct zone_data *zone, *z;
+    int full = 0, thirst = 0, drunk = 0, out_of_zone = 0;
 
     /* shadow zones */
     for (zone = zone_table; zone; zone = zone->next) {
@@ -936,15 +936,15 @@ point_update(void)
 
             // keys, unapp, zone only objects && fate portals
             if (IS_OBJ_TYPE(j, ITEM_KEY)) { // skip keys still in zone
-                z = zone_number(GET_OBJ_VNUM(j));
-                if ((rm = where_obj(j)) && rm->zone->number == z) {
+                z = zone_owner(GET_OBJ_VNUM(j));
+                if ((rm = where_obj(j)) && rm->zone == z) {
                     continue;
                 }
             }
 
             if (IS_OBJ_STAT3(j, ITEM3_STAY_ZONE)) {
-                z = zone_number(GET_OBJ_VNUM(j));
-                if ((rm = where_obj(j)) && rm->zone->number != z) {
+                z = zone_owner(GET_OBJ_VNUM(j));
+                if ((rm = where_obj(j)) && rm->zone != z) {
                     out_of_zone = 1;
                 }
             }

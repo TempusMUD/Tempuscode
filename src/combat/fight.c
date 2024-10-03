@@ -855,12 +855,7 @@ damage(struct creature *ch, struct creature *victim,
 
     // apply zone damage modifier to NPCs
     if (ch && IS_NPC(ch)) {
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (GET_NPC_VNUM(ch) >= zone->number * 100 && GET_NPC_VNUM(ch) <= zone->top) {
-                break;
-            }
-        }
-
+        zone = zone_owner(GET_NPC_VNUM(ch));
         if (!zone) {
             slog("OLC: ERROR finding zone for mob %d in damage().", GET_NPC_VNUM(ch));
         } else {

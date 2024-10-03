@@ -82,7 +82,7 @@ struct zone_data *real_zone(int number);
 char *fread_string(FILE *fl, char *error);
 bool pread_string(FILE *fl, char *str, size_t buf_size, bool comments, const char *error);
 int count_hash_records(FILE *fl);
-
+void add_new_zone_to_table(struct zone_data *zone);
 struct creature *read_mobile(int vnum);
 int real_mobile(int vnum);
 struct creature *real_mobile_proto(int vnum);
@@ -93,7 +93,7 @@ void free_obj(struct obj_data *obj);
 int real_object(int vnum);
 struct obj_data *real_object_proto(int vnum);
 struct obj_data *read_object(int vnum);
-int zone_number(int nr);
+struct zone_data *zone_owner(int nr);
 struct room_data *where_obj(struct obj_data *obj);
 struct creature *obj_owner(struct obj_data *obj);
 

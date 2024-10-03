@@ -79,6 +79,7 @@ int current_mob_idnum = 0;
 struct obj_data *object_list = NULL;    /* global linked list of objs         */
 struct obj_shared_data *null_obj_shared = NULL;
 struct mob_shared_data *null_mob_shared = NULL;
+GHashTable *zones = NULL;
 GHashTable *rooms = NULL;
 GHashTable *mob_prototypes = NULL;
 GHashTable *obj_prototypes = NULL;
@@ -825,13 +826,10 @@ parse_room(FILE *fl, int vnum_nr)
 
     snprintf(buf2, sizeof(buf2), "room #%d", vnum_nr);
 
-    zone = zone_table;
-
-    while (vnum_nr > zone->top) {
-        if (!(zone = zone->next) || vnum_nr < (zone->number * 100)) {
-            fprintf(stderr, "Room %d is outside of any zone.\n", vnum_nr);
-            safe_exit(1);
-        }
+    zone = zone_owner(vnum_nr);
+    if (!zone) {
+        fprintf(stderr, "Room %d is outside of any zone.\n", vnum_nr);
+        safe_exit(1);
     }
 
     CREATE(room, struct room_data, 1);
@@ -1273,7 +1271,7 @@ check_start_rooms(void)
 void
 renum_world(void)
 {
-    // store the rooms in a map temoporarily for use in lookups
+    // store the rooms in a map temporarily for use in lookups
     struct zone_data *zone;
     struct room_data *room;
     int door;
@@ -2157,6 +2155,29 @@ parse_object(FILE *obj_f, int nr)
     raise(SIGSEGV);
 }
 
+void
+add_new_zone_to_table(struct zone_data *new_zone)
+{
+    new_zone->next = NULL;
+    if (zone_table) {
+        for (struct zone_data *zone = zone_table; zone; zone = zone->next) {
+            if (new_zone->number > zone->number &&
+                (!zone->next || new_zone->number < zone->next->number)) {
+                if (zone->next != NULL) {
+                    new_zone->next = zone->next;
+                }
+                zone->next = new_zone;
+                break;
+            }
+        }
+    } else {
+        zone_table = new_zone;
+    }
+    g_hash_table_insert(zones, GINT_TO_POINTER(new_zone->number), new_zone);
+
+    top_of_zone_table++;
+}
+
 /* load the zone table and command tables */
 void
 load_zones(FILE *fl, char *zonename)
@@ -2360,22 +2381,7 @@ load_zones(FILE *fl, char *zonename)
         cmd_num++;
     }
 
-    /* Now we add the new zone to the zone_table linked list */
-
-    new_zone->next = NULL;
-
-    if (zone_table) {
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (!zone->next || (zone->next->number > new_zone->number)) {
-                zone->next = new_zone;
-                break;
-            }
-        }
-    } else {
-        zone_table = new_zone;
-    }
-
-    top_of_zone_table++;
+    add_new_zone_to_table(zone);
 }
 
 #undef Z
@@ -3401,18 +3407,7 @@ real_room(int vnum)
 struct zone_data *
 real_zone(int number)
 {
-    struct zone_data *zone;
-
-    for (zone = zone_table; zone; zone = zone->next) {
-        if (zone->number >= number) {
-            if (zone->number == number) {
-                return (zone);
-            } else {
-                return NULL;
-            }
-        }
-    }
-    return (NULL);
+    return g_hash_table_lookup(zones, GINT_TO_POINTER(number));
 }
 
 struct creature *
@@ -3459,16 +3454,16 @@ update_unique_id(void)
     }
 }
 
-int
-zone_number(int nr)
+struct zone_data *
+zone_owner(int nr)
 {
     struct zone_data *zone;
     for (zone = zone_table; zone; zone = zone->next) {
         if (zone->number * 100 <= nr && zone->top >= nr) {
-            return (zone->number);
+            return zone;
         }
     }
-    return -1;
+    return NULL;
 }
 
 struct room_data *

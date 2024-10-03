@@ -104,17 +104,8 @@ do_zcmd(struct creature *ch, char *argument)
     argument = one_argument(argument, arg1);
 
     if (is_number(arg1)) {
-        i = atoi(arg1);
-
-        for (found = 0, tmp_zone = zone_table; tmp_zone && found != 1;
-             tmp_zone = tmp_zone->next) {
-            if (tmp_zone->number == i) {
-                zone = tmp_zone;
-                found = 1;
-            }
-        }
-
-        if (found != 1) {
+        zone = real_zone(atoi(arg1));
+        if (!zone) {
             send_to_char(ch, "Invalid zone number.\r\n");
             return;
         }
@@ -1949,17 +1940,8 @@ do_zset_command(struct creature *ch, char *argument)
     argument = one_argument(argument, arg1);
 
     if (is_number(arg1)) {
-        i = atoi(arg1);
-
-        for (found = 0, tmp_zone = zone_table; tmp_zone && found != 1;
-             tmp_zone = tmp_zone->next) {
-            if (tmp_zone->number == i) {
-                zone = tmp_zone;
-                found = 1;
-            }
-        }
-
-        if (found != 1) {
+        zone = real_zone(atoi(arg1));
+        if (!zone) {
             send_to_char(ch, "Invalid zone number.\r\n");
             return;
         }
@@ -2518,23 +2500,7 @@ make_zone(int num)
     new_zone->weather = weather;
 
     /* Add new zone to zone_table */
-
-    if (zone_table) {
-        for (struct zone_data *zone = zone_table; zone; zone = zone->next) {
-            if (new_zone->number > zone->number &&
-                (!zone->next || new_zone->number < zone->next->number)) {
-                if (zone->next != NULL) {
-                    new_zone->next = zone->next;
-                }
-                zone->next = new_zone;
-                break;
-            }
-        }
-    } else {
-        zone_table = new_zone;
-    }
-
-    top_of_zone_table++;
+    add_new_zone_to_table(new_zone);
 
     return new_zone;
 }

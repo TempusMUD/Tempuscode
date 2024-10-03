@@ -585,29 +585,20 @@ ACMD(do_olc)
             send_to_char(ch, "The argument must be a number, or 'all'.\r\n");
         } else {
             one_argument(argument, arg1);
-            for (j = atoi(arg1), zone = zone_table; zone; zone = zone->next) {
-                if (zone->number == j) {
-                    if (is_authorized(ch, EDIT_ZONE, zone)) {
-                        if (!IS_SET(zone->flags, ZONE_LOCKED)) {
-                            send_to_char(ch,
-                                         "That zone is currently unlocked.\r\n");
-                        } else {
-                            REMOVE_BIT(zone->flags, ZONE_LOCKED);
-                            send_to_char(ch,
-                                         "Zone unlocked for online creation.\r\n");
-                            mudlog(GET_INVIS_LVL(ch), NRM, true,
-                                   "OLC: %s has unlocked zone %d (%s).",
-                                   GET_NAME(ch), zone->number, zone->name);
-                        }
-                        return;
-                    } else {
-                        send_to_char(ch,
-                                     "Olc zone unlock: Permission denied.\r\n");
-                        return;
-                    }
-                }
+            zone = real_zone(atoi(arg1));
+            if (!zone) {
+                send_to_char(ch, "That is an invalid zone.\r\n");
+            } else if (!is_authorized(ch, EDIT_ZONE, zone)) {
+                send_to_char(ch, "Olc zone unlock: Permission denied.\r\n");
+            } else if (!IS_SET(zone->flags, ZONE_LOCKED)) {
+                send_to_char(ch, "That zone is currently unlocked.\r\n");
+            } else {
+                REMOVE_BIT(zone->flags, ZONE_LOCKED);
+                send_to_char(ch, "Zone unlocked for online creation.\r\n");
+                mudlog(GET_INVIS_LVL(ch), NRM, true,
+                       "OLC: %s has unlocked zone %d (%s).",
+                       GET_NAME(ch), zone->number, zone->name);
             }
-            send_to_char(ch, "That is an invalid zone.\r\n");
         }
         break;
     case 7:                    /* lock */
@@ -626,29 +617,20 @@ ACMD(do_olc)
             send_to_char(ch, "The argument must be a number, or 'all'.\r\n");
         } else {
             one_argument(argument, arg1);
-            for (j = atoi(arg1), zone = zone_table; zone; zone = zone->next) {
-                if (zone->number == j) {
-                    if (is_authorized(ch, EDIT_ZONE, zone)) {
-                        if (IS_SET(zone->flags, ZONE_LOCKED)) {
-                            send_to_char(ch,
-                                         "That zone is already locked.\r\n");
-                        } else {
-                            SET_BIT(zone->flags, ZONE_LOCKED);
-                            send_to_char(ch,
-                                         "Zone locked to online creation.\r\n");
-                            mudlog(GET_INVIS_LVL(ch), BRF, true,
-                                   "OLC: %s has locked zone %d (%s).",
-                                   GET_NAME(ch), zone->number, zone->name);
-                        }
-                        return;
-                    } else {
-                        send_to_char(ch,
-                                     "Olc zone unlock: Permission denied.\r\n");
-                        return;
-                    }
-                }
+            zone = real_zone(atoi(arg1));
+            if (!zone) {
+                send_to_char(ch, "That is an invalid zone.\r\n");
+            } else if (!is_authorized(ch, EDIT_ZONE, zone)) {
+                send_to_char(ch, "Olc zone unlock: Permission denied.\r\n");
+            } else if (IS_SET(zone->flags, ZONE_LOCKED)) {
+                send_to_char(ch, "That zone is currently locked.\r\n");
+            } else {
+                SET_BIT(zone->flags, ZONE_LOCKED);
+                send_to_char(ch, "Zone locked for online creation.\r\n");
+                mudlog(GET_INVIS_LVL(ch), NRM, true,
+                       "OLC: %s has locked zone %d (%s).",
+                       GET_NAME(ch), zone->number, zone->name);
             }
-            send_to_char(ch, "That is an invalid zone.\r\n");
         }
         break;
     case 8: /************* guide ***************/
@@ -668,11 +650,7 @@ ACMD(do_olc)
         zone = ch->in_room->zone;
         if (GET_OLC_OBJ(ch)) {
             int o_vnum = GET_OLC_OBJ(ch)->shared->vnum;
-            for (zone = zone_table; zone; zone = zone->next) {
-                if (o_vnum >= zone->number * 100 && o_vnum <= zone->top) {
-                    break;
-                }
-            }
+            zone = zone_owner(o_vnum);
             if (!zone) {
                 send_to_char(ch, "Couldn't find a zone for object %d", o_vnum);
                 return;
@@ -712,13 +690,7 @@ ACMD(do_olc)
             if ((tmp_obj = real_object_proto(j)) == NULL) {
                 send_to_char(ch, "There is no such object.\r\n");
             } else {
-
-                for (zone = zone_table; zone; zone = zone->next) {
-                    if (j <= zone->top) {
-                        break;
-                    }
-                }
-
+                zone = zone_owner(j);
                 if (!zone) {
                     send_to_char(ch,
                                  "That object does not belong to any zone!!\r\n");
@@ -1320,11 +1292,7 @@ ACMD(do_olc)
         zone = ch->in_room->zone;
         if (*argument) {
             i = atoi(argument);
-            for (zone = zone_table; zone; zone = zone->next) {
-                if (zone->number == i) {
-                    break;
-                }
-            }
+            zone = real_zone(i);
             if (!zone) {
                 send_to_char(ch, "That zone could not be found.\r\n");
                 return;
@@ -1391,11 +1359,7 @@ ACMD(do_olc)
         zone = ch->in_room->zone;
         if (GET_OLC_MOB(ch)) {
             int m_vnum = GET_OLC_MOB(ch)->mob_specials.shared->vnum;
-            for (zone = zone_table; zone; zone = zone->next) {
-                if (m_vnum >= zone->number * 100 && m_vnum <= zone->top) {
-                    break;
-                }
-            }
+            zone = zone_owner(m_vnum);
             if (!zone) {
                 send_to_char(ch, "Couldn't find a zone for mobile #%d",
                              m_vnum);
@@ -1632,12 +1596,7 @@ ACMD(do_olc)
             send_to_char(ch, "A NEGATIVE number??\r\n");
             return;
         }
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (number >= zone->number * 100 && number <= zone->top) {
-                break;
-            }
-        }
-
+        zone = zone_owner(number);
         if (!zone) {
             send_to_char(ch, "Hmm.  There's no zone attached to it.\r\n");
             break;
@@ -1783,12 +1742,7 @@ recalc_all_mobs(struct creature *ch, const char *argument)
     int vnum;
     g_hash_table_iter_init(&iter, mob_prototypes);
     while (g_hash_table_iter_next(&iter, (gpointer) & vnum, (gpointer) & mob)) {
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (GET_NPC_VNUM(mob) >= zone->number * 100 &&
-                GET_NPC_VNUM(mob) <= zone->top) {
-                break;
-            }
-        }
+        zone = zone_owner(GET_NPC_VNUM(mob));
         if (!zone) {
             send_to_char(ch, "WARNING: No zone found for mobile %d.\r\n",
                          GET_NPC_VNUM(mob));
@@ -2481,13 +2435,7 @@ ACMD(do_unapprove)
             return;
         }
 
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (obj->shared->vnum >= (zone->number * 100) &&
-                obj->shared->vnum <= zone->top) {
-                break;
-            }
-        }
-
+        zone = zone_owner(GET_OBJ_VNUM(obj));
         if (!zone) {
             send_to_char(ch,
                          "ERROR: That object does not belong to any zone.\r\n");
@@ -2522,13 +2470,7 @@ ACMD(do_unapprove)
             return;
         }
 
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (GET_NPC_VNUM(mob) >= (zone->number * 100) &&
-                GET_NPC_VNUM(mob) <= zone->top) {
-                break;
-            }
-        }
-
+        zone = zone_owner(GET_NPC_VNUM(mob));
         if (!zone) {
             send_to_char(ch,
                          "ERROR: That object does not belong to any zone.\r\n");
@@ -2658,13 +2600,7 @@ ACMD(do_approve)
             return;
         }
 
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (obj->shared->vnum >= (zone->number * 100) &&
-                obj->shared->vnum <= zone->top) {
-                break;
-            }
-        }
-
+        zone = zone_owner(GET_OBJ_VNUM(obj));
         if (!zone) {
             send_to_char(ch,
                          "ERROR: That object does not belong to any zone.\r\n");
@@ -2700,13 +2636,7 @@ ACMD(do_approve)
             return;
         }
 
-        for (zone = zone_table; zone; zone = zone->next) {
-            if (GET_NPC_VNUM(mob) >= (zone->number * 100) &&
-                GET_NPC_VNUM(mob) <= zone->top) {
-                break;
-            }
-        }
-
+        zone = zone_owner(GET_NPC_VNUM(mob));
         if (!zone) {
             send_to_char(ch,
                          "ERROR: That object does not belong to any zone.\r\n");
