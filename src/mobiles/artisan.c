@@ -456,11 +456,6 @@ SPECIAL(artisan)
         return false;
     }
 
-    if (react(shop->reaction, ch) != ALLOW) {
-        perform_say_to(keeper, ch, "Not doing business with YOU.");
-        return true;
-    }
-    
     char *config = GET_NPC_PARAM(keeper);
     if (!config) {
         return 0;
@@ -480,6 +475,11 @@ SPECIAL(artisan)
             return 1;
         }
         keeper->mob_specials.func_data = shop;
+    }
+
+    if (react(shop->reaction, ch) != ALLOW) {
+        perform_say_to(keeper, ch, "Not doing business with YOU.");
+        return true;
     }
 
     if (!shop || shop->room != keeper->in_room->number) {
