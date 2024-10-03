@@ -74,6 +74,7 @@ free_craft_shop(struct craft_shop *shop)
 {
     g_list_foreach(shop->items, (GFunc) free_craft_item, NULL);
     g_list_free(shop->items);
+    free_reaction(shop->reaction);
     free(shop);
 }
 
@@ -468,6 +469,7 @@ SPECIAL(artisan)
     shop = (struct craft_shop *)keeper->mob_specials.func_data;
     if (!shop) {
         CREATE(shop, struct craft_shop, 1);
+        shop->reaction = make_reaction();
         int err_line;
         const char *err = artisan_parse_param(config, shop, &err_line);
         if (err != NULL) {
