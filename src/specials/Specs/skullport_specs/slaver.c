@@ -60,7 +60,7 @@ SPECIAL(slaver)
         return 0;
     }
 
-    if (GET_NPC_WAIT(slaver) <= 5 && !number(0, 1)) {
+    if (GET_WAIT(slaver) <= 5 && !number(0, 1)) {
 
         if (slaver->in_room == r_pit_lip) {
             act("$n hurls you headfirst into the slave pit!",

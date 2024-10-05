@@ -253,6 +253,7 @@ void WAIT_STATE(struct creature *ch, int cycle);
                            || zone->plane == PLANE_PELEM_OOZE)
 
 /*  character utils ******************************************************/
+
 /* room utils *********************************************************** */
 
 #define GET_ROOM_SPEC(room) ((room)->func)
@@ -264,7 +265,8 @@ void WAIT_STATE(struct creature *ch, int cycle);
 
 /* descriptor-based utils ************************************************/
 
-#define CHECK_WAIT(ch)        (((ch)->desc) ? ((ch)->desc->wait > 1) : 0)
+#define DESC_WAIT(ch)  (((ch)->desc) ? (ch)->desc->wait:0)
+#define CHECK_WAIT(ch) ((ch)->char_specials.wait > 0 || DESC_WAIT(ch) > 1)
 #define STATE(d)        ((d)->input_mode)
 
 /* object utils **********************************************************/

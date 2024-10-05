@@ -659,11 +659,7 @@ WAIT_STATE(struct creature *ch, int cycle)
         wait -= (cycle * SPEED_OF(ch)) / 100;
     }
 
-    if (ch->desc) {
-        ch->desc->wait = MAX(ch->desc->wait, wait);
-    } else if (IS_NPC(ch)) {
-        GET_NPC_WAIT(ch) = MAX(GET_NPC_WAIT(ch), wait);
-    }
+    GET_WAIT(ch) = MAX(GET_WAIT(ch), wait);
 }
 
 const char *

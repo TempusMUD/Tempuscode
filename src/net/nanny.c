@@ -1062,7 +1062,14 @@ handle_input(gpointer data)
     gboolean process_output(GIOChannel *io, GIOCondition condition, gpointer data);
     struct descriptor_data *d = data;
 
-    if (--(d->wait) > 0) {
+    // Decrement wait times in parallel
+    d->wait = MAX(d->wait - 1, 0);
+    if (d->creature) {
+        GET_WAIT(d->creature) = MAX(GET_WAIT(d->creature) -1, 0);
+    }
+
+    // Check to see if still waiting
+    if (d->wait > 0 || (d->creature && GET_WAIT(d->creature) > 0)) {
         return true;
     }
 

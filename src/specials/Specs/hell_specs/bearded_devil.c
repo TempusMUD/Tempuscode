@@ -9,7 +9,7 @@ SPECIAL(bearded_devil)
     if (spec_mode != SPECIAL_TICK) {
         return false;
     }
-    if (!is_fighting(ch) || !AWAKE(ch) || GET_NPC_WAIT(ch) > 0) {
+    if (!is_fighting(ch) || !AWAKE(ch) || CHECK_WAIT(ch)) {
         return false;
     }
 

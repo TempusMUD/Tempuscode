@@ -3783,8 +3783,6 @@ ACMD(do_zreset)
     void reset_zone(struct zone_data *zone);
     struct zone_data *zone;
 
-    int j;
-
     char *arg = tmp_getword(&argument);
     if (!*arg) {
         send_to_char(ch, "You must specify a zone.\r\n");
@@ -3804,17 +3802,17 @@ ACMD(do_zreset)
     } else {
         zone = real_zone(atoi(arg));
     }
-    if (zone) {
-        reset_zone(zone);
-        send_to_char(ch, "Reset zone %d : %s.\r\n", zone->number, zone->name);
-        act("$n waves $s hand.", false, ch, NULL, NULL, TO_ROOM);
-        send_to_zone("You feel a strangely refreshing breeze.\r\n", zone, 0);
-        slog("(GC) %s %sreset zone %d (%s)", GET_NAME(ch),
-             subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
 
-    } else {
+    if (!zone) {
         send_to_char(ch, "Invalid zone number.\r\n");
     }
+
+    reset_zone(zone);
+    send_to_char(ch, "Reset zone %d : %s.\r\n", zone->number, zone->name);
+    act("$n waves $s hand.", false, ch, NULL, NULL, TO_ROOM);
+    send_to_zone("You feel a strangely refreshing breeze.\r\n", zone, 0);
+    slog("(GC) %s %sreset zone %d (%s)", GET_NAME(ch),
+         subcmd == SCMD_OLC ? "olc-" : "", zone->number, zone->name);
 }
 
 void
@@ -7733,37 +7731,31 @@ ACMD(do_oset)
 
 ACMD(do_xlag)
 {
-
     int raw = 0;
     struct creature *vict = NULL;
+    char *vict_str = tmp_getword(&argument);
+    char *amt_str = tmp_getword(&argument);
 
-    argument = two_arguments(argument, buf, buf2);
-
-    if (!*buf || !*buf2) {
+    if (!*vict_str || !*amt_str) {
         send_to_char(ch, "Usage: xlag <victim> <0.10 seconds>\r\n");
         return;
     }
-    if (!(vict = get_char_vis(ch, buf))) {
+    if (!(vict = get_char_vis(ch, vict_str))) {
         send_to_char(ch, "No-one by that name here.\r\n");
         return;
     }
-    if (!vict->desc) {
-        send_to_char(ch, "Xlag is pointless on null descriptors.\r\n");
-        return;
-    }
-    if ((raw = atoi(buf2)) <= 0) {
+    if ((raw = atoi(amt_str)) <= 0) {
         send_to_char(ch, "Real funny xlag time, buddy.\r\n");
         return;
     }
     if (ch != vict && GET_LEVEL(vict) >= GET_LEVEL(ch)) {
         send_to_char(ch, "Nice try, sucker.\r\n");
-        ch->desc->wait = raw;
+        GET_WAIT(ch) = raw;
         return;
     }
 
-    vict->desc->wait = raw;
+    GET_WAIT(vict) = raw;
     send_to_char(ch, "%s lagged %d cycles.\r\n", GET_NAME(vict), raw);
-
 }
 
 ACMD(do_peace)

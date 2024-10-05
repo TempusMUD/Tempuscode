@@ -43,7 +43,7 @@
 
 extern int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];
 extern struct descriptor_data *descriptor_list;
-void set_desc_state(int state, struct descriptor_data *d);
+void set_desc_state(enum cxn_state state, struct descriptor_data *d);
 
 void
 perform_net_help(struct descriptor_data *d)

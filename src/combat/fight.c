@@ -2203,7 +2203,7 @@ damage(struct creature *ch, struct creature *victim,
             && !NPC_FLAGGED(victim, NPC_SENTINEL) && !IS_DRAGON(victim)
             && !IS_UNDEAD(victim) && GET_CLASS(victim) != CLASS_ARCH
             && GET_CLASS(victim) != CLASS_DEMON_PRINCE
-            && GET_NPC_WAIT(ch) <= 0 && !NPC_FLAGGED(ch, NPC_SENTINEL)
+            && GET_WAIT(ch) <= 0 && !NPC_FLAGGED(ch, NPC_SENTINEL)
             && (100 - ((GET_HIT(victim) * 100) / GET_MAX_HIT(victim))) >
             GET_MORALE(victim) + number(-5, 10 + (GET_INT(victim) / 4))) {
 
@@ -2371,18 +2371,14 @@ damage(struct creature *ch, struct creature *victim,
     if (ch && PRF2_FLAGGED(ch, PRF2_DEBUG)) {
         send_to_char(ch,
                      "%s[DAMAGE] %s   dam:%d   wait:%d   pos:%d   reduct:%.2f%s\r\n",
-                     CCCYN(ch, C_NRM), GET_NAME(victim), dam,
-                     IS_NPC(victim) ? GET_NPC_WAIT(victim) :
-                     victim->desc ? victim->desc->wait : 0,
+                     CCCYN(ch, C_NRM), GET_NAME(victim), dam, GET_WAIT(victim),
                      GET_POSITION(victim), dam_reduction, CCNRM(ch, C_NRM));
     }
 
     if (victim && ch != victim && PRF2_FLAGGED(victim, PRF2_DEBUG)) {
         send_to_char(victim,
                      "%s[DAMAGE] %s   dam:%d   wait:%d   pos:%d   reduct:%.2f%s\r\n",
-                     CCCYN(victim, C_NRM), GET_NAME(victim), dam,
-                     IS_NPC(victim) ? GET_NPC_WAIT(victim) :
-                     victim->desc ? victim->desc->wait : 0,
+                     CCCYN(victim, C_NRM), GET_NAME(victim), dam, GET_WAIT(victim),
                      GET_POSITION(victim), dam_reduction, CCNRM(victim, C_NRM));
     }
 
@@ -3187,9 +3183,9 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
     }
 
     if (IS_NPC(ch)) {
-        if (GET_NPC_WAIT(ch) > 0) {
-            GET_NPC_WAIT(ch) = MAX(GET_NPC_WAIT(ch) - SEG_VIOLENCE, 0);
-        } else if (GET_NPC_WAIT(ch) == 0) {
+        if (GET_WAIT(ch) > 0) {
+            GET_WAIT(ch) = MAX(GET_WAIT(ch) - SEG_VIOLENCE, 0);
+        } else if (GET_WAIT(ch) == 0) {
             update_pos(ch);
         }
         if (GET_POSITION(ch) <= POS_SITTING) {
@@ -3211,7 +3207,7 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
         send_to_char(ch,
                      "%s[COMBAT] %s   prob:%d   roll:%d   wait:%d%s\r\n",
                      CCCYN(ch, C_NRM), GET_NAME(ch), prob, die_roll,
-                     IS_NPC(ch) ? GET_NPC_WAIT(ch) : ch->desc->wait, CCNRM(ch, C_NRM));
+                     GET_WAIT(ch), CCNRM(ch, C_NRM));
     }
     //
     // it's an attack!
@@ -3300,7 +3296,7 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
     } else if (IS_NPC(ch)
                && ch->in_room
                && is_fighting(ch)
-               && GET_NPC_WAIT(ch) <= 0
+               && GET_WAIT(ch) <= 0
                && (MIN(100, prob) >= number(0, 300))) {
 
         if (NPC_FLAGGED(ch, NPC_SPEC) && ch->in_room &&
@@ -3308,7 +3304,7 @@ perform_violence1(struct creature *ch, gpointer ignore __attribute__((unused)))
 
             (ch->mob_specials.shared->func)(ch, ch, 0, tmp_strdup(""),
                                             SPECIAL_TICK);
-        } else if (ch->in_room && GET_NPC_WAIT(ch) <= 0 && is_fighting(ch)) {
+        } else if (ch->in_room && GET_WAIT(ch) <= 0 && is_fighting(ch)) {
             mobile_battle_activity(ch, NULL);
         }
     }

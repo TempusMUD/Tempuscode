@@ -790,11 +790,7 @@ ACMD(do_pinch)
             // Wake them up
             GET_POSITION(vict) = POS_RESTING;
             // stun also has a wait-state which must be removed
-            if (ch->desc) {
-                ch->desc->wait = 0;
-            } else if (IS_NPC(ch)) {
-                GET_NPC_WAIT(ch) = 0;
-            }
+            GET_WAIT(vict) = 0;
             to_vict = "You feel a strange sensation as $N wakes you.";
             to_room = "$n is revived.";
             happened = true;

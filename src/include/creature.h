@@ -705,6 +705,7 @@ struct char_special_data {
     int timer;                  /* Timer for update            */
     int meditate_timer;         /* How long has been meditating           */
     int cur_flow_pulse;         /* Keeps track of whether char has flowed */
+    int wait;                   /* Wait state for mobs and players        */
 
     int8_t breath_count;            /* for breathing and falling              */
     int8_t fall_count;
@@ -833,7 +834,6 @@ struct mob_special_data {
     struct memory_rec *memory;          /* List of attackers to remember           */
     void *func_data;            // Mobile-specific data used for specials
     struct mob_shared_data *shared;
-    int wait_state;             /* Wait state for bashed mobs           */
     int8_t last_direction;      /* The last direction the monster went     */
     long mob_idnum;     /* mobile's unique idnum */
 };
@@ -1233,7 +1233,7 @@ const char *CURRENCY(struct creature *ch);
 #define GET_NPC_VNUM(mob)        (IS_NPC(mob) ? \
                                   (mob)->mob_specials.shared->vnum : -1)
 
-#define GET_NPC_WAIT(ch)        ((ch)->mob_specials.wait_state)
+#define GET_WAIT(ch)        ((ch)->char_specials.wait)
 #define GET_NPC_LAIR(ch)        ((ch)->mob_specials.shared->lair)
 #define GET_NPC_LEADER(ch)        ((ch)->mob_specials.shared->leader)
 #define GET_DEFAULT_POS(ch)        ((ch)->mob_specials.shared->default_pos)

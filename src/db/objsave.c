@@ -364,7 +364,6 @@ gen_receptionist(struct creature *ch, struct creature *recep,
             }
             creature_cryo(ch);
         }
-
     } else {
         offer_rent(ch, recep, mode, true);
         act("$N gives $n an offer.", false, ch, NULL, recep, TO_ROOM);

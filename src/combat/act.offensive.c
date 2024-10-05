@@ -1318,7 +1318,7 @@ ACMD(do_order)
                 && (!NPC2_FLAGGED(vict, NPC2_FAMILIAR) || vict->master != ch)) {
                 act("$n has an indifferent look.", false, vict, NULL, NULL, TO_ROOM);
             } else {
-                if (!CHECK_WAIT(vict) && !GET_NPC_WAIT(vict)) {
+                if (!CHECK_WAIT(vict)) {
                     if (IS_NPC(vict) && GET_NPC_VNUM(vict) == 5318) {
                         perform_say(vict, "intone", "As you command, master.");
                     }
@@ -1350,8 +1350,7 @@ ACMD(do_order)
                         || GET_LEVEL(ch) >= LVL_CREATOR
                         || NPC2_FLAGGED(k->follower, NPC2_FAMILIAR)) {
                         found = true;
-                        if (!CHECK_WAIT(k->follower)
-                            && !GET_NPC_WAIT(k->follower)) {
+                        if (!CHECK_WAIT(k->follower)) {
                             if (IS_NPC(k->follower)
                                 && GET_NPC_VNUM(k->follower) == 5318) {
                                 perform_say(vict, "intone",
@@ -1510,8 +1509,7 @@ ACMD(do_retreat)
         if (vict != ch
             && g_list_find(ch->fighting, vict)
             && can_see_creature(vict, ch)
-            && ((IS_NPC(vict) && GET_NPC_WAIT(vict) < 10)
-                || (vict->desc && vict->desc->wait < 10))
+            && (GET_WAIT(ch) < 10)
             && number(0, FLEE_SPEED(ch)) < number(0, FLEE_SPEED(vict))) {
             found = true;
             hit(vict, ch, TYPE_UNDEFINED);
@@ -3056,7 +3054,7 @@ ACMD(do_disarm)
 
         if (GET_STR(ch) + number(0, 20) > GET_STR(vict) + GET_DEX(vict)) {
             do_drop(vict, fname(weap->aliases), 0, 0);
-            if (IS_NPC(vict) && !GET_NPC_WAIT(vict) && AWAKE(vict) &&
+            if (IS_NPC(vict) && !GET_WAIT(vict) && AWAKE(vict) &&
                 number(0, GET_LEVEL(vict)) > (GET_LEVEL(vict) / 2)) {
                 do_get(vict, fname(weap->aliases), 0, 0);
             }

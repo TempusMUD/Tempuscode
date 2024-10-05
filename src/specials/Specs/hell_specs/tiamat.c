@@ -10,7 +10,7 @@ SPECIAL(tiamat)
     int type = 0;
     struct room_data *lair = real_room(16182);
 
-    if (cmd || !is_fighting(ch) || GET_NPC_WAIT(ch) || number(0, 4)) {
+    if (cmd || !is_fighting(ch) || CHECK_WAIT(ch) || number(0, 4)) {
         return 0;
     }
     if (spec_mode != SPECIAL_TICK) {

@@ -147,8 +147,8 @@ burn_update_creature(struct creature *ch)
         }
     }
 
-    if (!is_fighting(ch) && GET_NPC_WAIT(ch)) {
-        GET_NPC_WAIT(ch) = MAX(0, GET_NPC_WAIT(ch) - FIRE_TICK);
+    if (!is_fighting(ch) && CHECK_WAIT(ch) && !ch->desc) {
+        GET_WAIT(ch) = MAX(0, GET_WAIT(ch) - FIRE_TICK);
     }
 
     if ((IS_NPC(ch) && ZONE_FLAGGED(ch->in_room->zone, ZONE_FROZEN))) {
@@ -823,7 +823,7 @@ burn_update_creature(struct creature *ch)
 
     /* Hunter Mobs */
     if (NPC_HUNTING(ch) && !AFF_FLAGGED(ch, AFF_BLIND) &&
-        GET_POSITION(ch) > POS_SITTING && !GET_NPC_WAIT(ch)) {
+        GET_POSITION(ch) > POS_SITTING && !GET_WAIT(ch)) {
         if (NPC_FLAGGED(ch, NPC_WIMPY)) {
             if ((GET_HIT(ch) < MIN(500, GET_MAX_HIT(ch)) * 0.80)
                 || (100 - ((GET_HIT(ch) * 100) / GET_MAX_HIT(ch))) >
@@ -1365,7 +1365,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
             act("$n jumps to $s feet!", true, ch, NULL, NULL, TO_ROOM);
             GET_POSITION(ch) = POS_STANDING;
         }
-        GET_NPC_WAIT(ch) += PULSE_VIOLENCE;
+        GET_WAIT(ch) += PULSE_VIOLENCE;
         return;
     }
     // Act like the remort class 1/3rd of the time
@@ -1622,7 +1622,7 @@ mobile_spec(void)
         //
         if (!no_specials
             && NPC_FLAGGED(ch, NPC_SPEC)
-            && GET_NPC_WAIT(ch) <= 0
+            && GET_WAIT(ch) <= 0
             && !ch->desc) {
             if (ch->mob_specials.shared->func == NULL) {
                 zerrlog(ch->in_room->zone,
@@ -1766,7 +1766,7 @@ single_mobile_activity(struct creature *ch)
 
     if (IS_NPC(ch) && !NPC2_FLAGGED(ch, NPC2_MOUNT) &&
         !AFF_FLAGGED(ch, AFF_SLEEP) &&
-        GET_NPC_WAIT(ch) < 30 &&
+        GET_WAIT(ch) < 30 &&
         !AFF_FLAGGED(ch, AFF_SLEEP) &&
         GET_POSITION(ch) >= POS_SLEEPING &&
         (GET_DEFAULT_POS(ch) <= POS_STANDING ||
@@ -1796,7 +1796,7 @@ single_mobile_activity(struct creature *ch)
     // nothing below this conditional affects characters who are asleep or in a wait state
     //
 
-    if (!AWAKE(ch) || GET_NPC_WAIT(ch) > 0 || CHECK_WAIT(ch)) {
+    if (!AWAKE(ch) || CHECK_WAIT(ch)) {
         return;
     }
 
@@ -2790,7 +2790,7 @@ detect_opponent_master(struct creature *ch, struct creature *opp)
     if (ch->master == opp->master) {
         return false;
     }
-    if (GET_NPC_WAIT(ch) >= 10) {
+    if (GET_WAIT(ch) >= 10) {
         return false;
     }
     if (!can_see_creature(ch, opp)) {

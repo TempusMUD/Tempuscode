@@ -144,7 +144,7 @@ update_pos(struct creature *ch)
         // if they're in an open air room, not affected by gravity
         // well, are able to fly, but not flying, set them flying
         GET_POSITION(ch) = POS_FLYING;
-    } else if (IS_PC(ch) || GET_NPC_WAIT(ch) > 0) {
+    } else if (IS_PC(ch) || GET_WAIT(ch) > 0) {
         // Do nothing.  The rest of this function is voluntary mob
         // actions
     } else if (GET_POSITION(ch) > POS_STUNNED
@@ -1609,11 +1609,7 @@ calculate_attack_probability(struct creature *ch)
         prob += (skill_bonus(ch, SPELL_DIVINE_POWER) / 3);
     }
 
-    if (ch->desc) {
-        prob -= ((MAX(0, ch->desc->wait / 2)) * prob) / 100;
-    } else {
-        prob -= ((MAX(0, GET_NPC_WAIT(ch) / 2)) * prob) / 100;
-    }
+    prob -= ((MAX(0, GET_WAIT(ch) / 2)) * prob) / 100;
 
     prob -= ((((IS_CARRYING_W(ch) + IS_WEARING_W(ch)) * 32) * prob) /
              (CAN_CARRY_W(ch) * 85));

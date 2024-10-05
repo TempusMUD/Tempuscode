@@ -286,6 +286,7 @@ ACMD(do_reboot)
 void
 boot_world(void)
 {
+    zones = g_hash_table_new(g_direct_hash, g_direct_equal);
     rooms = g_hash_table_new(g_direct_hash, g_direct_equal);
     mob_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
     obj_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
@@ -2184,7 +2185,7 @@ load_zones(FILE *fl, char *zonename)
 {
     int num_of_cmds = 0, line_num = 0, tmp, tmp2, error, cmd_num = 0;
     char *ptr, buf[256], zname[256], flags[128];
-    struct zone_data *new_zone, *zone = NULL;
+    struct zone_data *new_zone = NULL;
     struct reset_com *zonecmd, *new_zonecmd = NULL;
     struct weather_data *weather = NULL;
     char *arg1, *arg2;
@@ -2381,7 +2382,7 @@ load_zones(FILE *fl, char *zonename)
         cmd_num++;
     }
 
-    add_new_zone_to_table(zone);
+    add_new_zone_to_table(new_zone);
 }
 
 #undef Z

@@ -19,7 +19,7 @@ SPECIAL(moloch)
         return 0;
     }
 
-    if (is_fighting(moloch) && GET_NPC_WAIT(moloch) <= 0) {
+    if (is_fighting(moloch) && !CHECK_WAIT(moloch)) {
         vict = random_opponent(moloch);
         if (!number(0, 10)) {
             call_magic(moloch, vict, NULL, NULL, SPELL_FLAME_STRIKE, 50,
