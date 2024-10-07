@@ -3029,8 +3029,6 @@ hit(struct creature *ch, struct creature *victim, int type)
 void
 do_casting_weapon(struct creature *ch, struct obj_data *weap)
 {
-    struct obj_data *weap2;
-
     if (GET_OBJ_VAL(weap, 0) < 0 || GET_OBJ_VAL(weap, 0) > TOP_SPELL_DEFINE) {
         slog("Invalid spell number detected on weapon %d", GET_OBJ_VNUM(weap));
         return;
@@ -3088,35 +3086,20 @@ do_casting_weapon(struct creature *ch, struct obj_data *weap)
         }
     } else {
         // drop the weapon
-        if ((weap->worn_on == WEAR_WIELD ||
-             weap->worn_on == WEAR_WIELD_2) &&
-            GET_EQ(ch, weap->worn_on) == weap) {
+        if (weap->worn_on == WEAR_WIELD || weap->worn_on == WEAR_WIELD_2) {
             act("$p shocks you!  You are forced to drop it!",
                 false, ch, weap, NULL, TO_CHAR);
-
-            // weapon is the 1st of 2 wielded
-            if (weap->worn_on == WEAR_WIELD && GET_EQ(ch, WEAR_WIELD_2)) {
-                weap2 = unequip_char(ch, WEAR_WIELD_2, EQUIP_WORN);
-                obj_to_room(unequip_char(ch, weap->worn_on, EQUIP_WORN),
-                            ch->in_room);
-                equip_char(ch, weap2, WEAR_WIELD, EQUIP_WORN);
-                if (is_dead(ch)) {
-                    return;
-                }
+            weap = unequip_char(ch, weap->worn_on, EQUIP_WORN);
+            if (is_dead(ch)) {
+                return;
             }
-            // weapon should fall to ground
-            else if (number(0, 20) > GET_DEX(ch)) {
-                obj_to_room(unequip_char(ch, weap->worn_on, EQUIP_WORN),
-                            ch->in_room);
+            if (number(0, 20) > GET_DEX(ch)) {
+                obj_to_room(weap, ch->in_room);
+            } else {
+                obj_to_char(weap, ch);
             }
-            // weapon should drop to inventory
-            else {
-                obj_to_char(unequip_char(ch, weap->worn_on, EQUIP_WORN), ch);
-            }
-
-        }
-        // just shock the victim
-        else {
+        } else {
+            // just shock the victim if worn and not wielded
             act("$p blasts the hell out of you!  OUCH!!",
                 false, ch, weap, NULL, TO_CHAR);
             GET_HIT(ch) -= dice(3, 4);
