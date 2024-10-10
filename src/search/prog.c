@@ -56,6 +56,7 @@ static void prog_do_do(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_silently(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_force(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_pause(struct prog_env *env, struct prog_evt *evt, char *args);
+static void prog_do_stepto(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_walkto(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_driveto(struct prog_env *env, struct prog_evt *evt, char *args);
 static void prog_do_halt(struct prog_env *env, struct prog_evt *evt, char *args);
@@ -109,6 +110,7 @@ struct prog_command prog_cmds[] = {
     {"randomly", false, prog_do_randomly},
     {"trace", false, prog_do_trace},
     {"pause", true, prog_do_pause},
+    {"stepto", true, prog_do_stepto},
     {"walkto", true, prog_do_walkto},
     {"driveto", true, prog_do_driveto},
     {"silently", true, prog_do_silently},
@@ -1009,6 +1011,33 @@ DEFPROGHANDLER(trace, env, evt, args)
 DEFPROGHANDLER(pause, env, evt, args)
 {
     env->next_tick = prog_tick + MAX(1, atoi(args));
+}
+
+DEFPROGHANDLER(stepto, env, evt, args)
+{
+    struct creature *ch;
+    struct room_data *room;
+    int dir, pause;
+
+    if (env->owner_type != PROG_TYPE_MOBILE) {
+        return;
+    }
+
+    ch = (struct creature *) env->owner;
+
+    // Make sure the creature can walk
+    if (GET_POSITION(ch) < POS_STANDING) {
+        return;
+    }
+
+    room = real_room(atoi(tmp_getword(&args)));
+
+    if (room && room != ch->in_room) {
+        dir = find_first_step(ch->in_room, room, STD_TRACK);
+        if (dir >= 0) {
+            smart_mobile_move(ch, dir);
+        }
+    }
 }
 
 DEFPROGHANDLER(walkto, env, evt, args)
