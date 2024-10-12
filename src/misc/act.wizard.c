@@ -5117,7 +5117,7 @@ show_zones(struct creature *ch, char *arg, char *value)
             }
         }
 
-        if (sb.str[0] == '\0') {
+        if (sb.len == 0) {
             send_to_char(ch, "That is not a valid zone.\r\n");
             return;
         }
