@@ -23,13 +23,13 @@ sb_adjust(struct str_builder *sb, size_t wanted)
         raise(SIGSEGV);
     }
 
-    sb->size += SB_CHUNK_SIZE * (1 + (wanted + 1) / SB_CHUNK_SIZE);
+    size_t new_size = wanted + (SB_CHUNK_SIZE - (wanted % SB_CHUNK_SIZE));
+    char *new_str = tmp_alloc(new_size);
 
-    char *new_str = tmp_alloc(sb->size);
-
-    if (sb->str) {
+    if (sb->len > 0) {
         memcpy(new_str, sb->str, sb->len+1);
     }
+    sb->size = new_size;
     sb->str = new_str;
 }
 
@@ -116,4 +116,3 @@ sb_strcat(struct str_builder *sb, const char *str, ...)
     // NUL-terminate finished string
     sb->str[sb->len] = '\0';
 }
-
