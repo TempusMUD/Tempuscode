@@ -3786,8 +3786,7 @@ ACMD(do_reconfigure)
     af.bitvector = af2.bitvector = af3.bitvector = 0;
     af.is_instant = af2.is_instant = af3.is_instant = false;
     af.type = af2.type = af3.type = SKILL_RECONFIGURE;
-    af.duration = af2.duration = af3.duration = (GET_LEVEL(ch) + GET_REMORT_GEN(
-                                                     ch)) / 2;
+    af.duration = af2.duration = af3.duration = -1;
     af.owner = af2.owner = af3.owner = GET_IDNUM(ch);
 
     if (is_abbrev(arg, "hitpoints")) {
