@@ -115,7 +115,10 @@ SPECIAL(hell_hunter);
 #define RACIAL_ATTACK(ch, vict)                                         \
     ((GET_RACE(ch) == RACE_GOBLIN && GET_RACE(vict) == RACE_DWARF) ||   \
      (GET_RACE(ch) == RACE_ALIEN_1 && GET_RACE(vict) == RACE_HUMAN) ||  \
-     (GET_RACE(ch) == RACE_ORC && GET_RACE(vict) == RACE_DWARF))
+     (GET_RACE(ch) == RACE_ORC && GET_RACE(vict) == RACE_DWARF) ||      \
+     (GET_RACE(ch) == RACE_GITHYANKI && GET_RACE(vict) == RACE_GITHZERAI) ||  \
+     (GET_RACE(ch) == RACE_GITHZERAI && GET_RACE(vict) == RACE_GITHYANKI) || \
+     (GET_RACE(ch) == RACE_GITHZERAI && GET_RACE(vict) == RACE_ILLITHID))
 
 int update_iaffects(struct creature *ch);
 
