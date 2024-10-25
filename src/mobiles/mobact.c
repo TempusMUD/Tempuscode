@@ -1431,7 +1431,7 @@ best_initial_attack(struct creature *ch, struct creature *vict)
     //
     // psionic mobs
     //
-    if (cur_class == CLASS_PSIONIC) {
+    if (cur_class == CLASS_PSIONIC && !ROOM_FLAGGED(ch->in_room, ROOM_NOPSIONICS)) {
         psionic_best_attack(ch, vict);
         return;
     }
