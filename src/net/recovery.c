@@ -64,6 +64,12 @@ account_setup_recovery(char *email, const char *ipaddr)
 }
 
 static void
+print_account_entry(void *acct, void *mailer)
+{
+    fprintf((FILE *)mailer, "    - %s\r\n", ((struct account *)acct)->name);
+}
+
+static void
 send_recovery_email(char *email, const char *code)
 {
     FILE *mailer = popen("/usr/sbin/sendmail -t", "w");
@@ -85,10 +91,7 @@ send_recovery_email(char *email, const char *code)
         fprintf(mailer, "Your account name is: %s\r\n", ((struct account *)accounts->data)->name);
     } else {
         fprintf(mailer, "The accounts associated with this email address are:\r\n");
-        void print_account_entry(void *acct, void *ignore __attribute__((unused))) {
-            fprintf(mailer, "    - %s\r\n", ((struct account *)acct)->name);
-        }
-        g_list_foreach(accounts, print_account_entry, NULL);
+        g_list_foreach(accounts, print_account_entry, mailer);
         g_list_free(accounts);
         fprintf(mailer,
                 "\r\nSince you have more than one account associated, you might want to merge their\r\n"
