@@ -2615,7 +2615,7 @@ single_mobile_activity(struct creature *ch)
                 || room_is_open_air(ch->in_room)) {
                 act("$n dissolves, and returns to $s home plane!", true, ch, NULL,
                     NULL, TO_ROOM);
-                creature_purge(ch, true);
+                creature_purge(ch, false);
                 return;
             }
             break;
@@ -2627,7 +2627,7 @@ single_mobile_activity(struct creature *ch)
                 && !ROOM_FLAGGED(ch->in_room, ROOM_FLAME_FILLED)) {
                 act("$n dissipates, and returns to $s home plane!",
                     true, ch, NULL, NULL, TO_ROOM);
-                creature_purge(ch, true);
+                creature_purge(ch, false);
                 return;
             }
             break;
@@ -2635,7 +2635,7 @@ single_mobile_activity(struct creature *ch)
             if (k || !room_is_watery(ch->in_room)) {
                 act("$n dissipates, and returns to $s home plane!",
                     true, ch, NULL, NULL, TO_ROOM);
-                creature_purge(ch, true);
+                creature_purge(ch, false);
                 return;
             }
             break;
@@ -2643,14 +2643,14 @@ single_mobile_activity(struct creature *ch)
             if (k && !room_has_air(ch->in_room)) {
                 act("$n dissipates, and returns to $s home plane!",
                     true, ch, NULL, NULL, TO_ROOM);
-                creature_purge(ch, true);
+                creature_purge(ch, false);
                 return;
             }
             break;
         default:
             if (k) {
                 act("$n disappears.", true, ch, NULL, NULL, TO_ROOM);
-                creature_purge(ch, true);
+                creature_purge(ch, false);
                 return;
             }
         }
@@ -2663,7 +2663,7 @@ single_mobile_activity(struct creature *ch)
         if (!NPC_HUNTING(ch)) {
             act("$n dematerializes, removing the chill from the air.",
                 true, ch, NULL, NULL, TO_ROOM);
-            creature_purge(ch, true);
+            creature_purge(ch, false);
             return;
         }
     }
