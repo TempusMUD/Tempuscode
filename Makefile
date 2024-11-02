@@ -1,9 +1,9 @@
-all:
+all: tags check
+binary:
 	+make -C build all
-	+make -C build check
-clean:
-	+make -C build clean
-check:
+check: binary
 	+make -C build check
 tags:
-	+make -C build tags
+	+gtags
+clean:
+	+make -C build clean
