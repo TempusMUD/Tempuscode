@@ -7867,7 +7867,7 @@ load_single_zone(int zone_num)
         discrete_load(db_file, DB_BOOT_OBJ);
         fclose(db_file);
     }
-    zone = real_zone(zone->number);
+    zone = real_zone(zone_num);
     if (zone) {
         reset_zone(zone);
         renum_zone_table();
