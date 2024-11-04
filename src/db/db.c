@@ -417,7 +417,6 @@ boot_db(void)
 
     slog("Sorting command list and spells.");
     sort_commands();
-    sort_spells();
     sort_skills();
     load_roles_from_db();
 

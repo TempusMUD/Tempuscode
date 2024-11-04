@@ -366,12 +366,21 @@ struct set_struct {
 /* do_skills */
 #define SCMD_SKILLS_ONLY 0
 #define SCMD_SPELLS_ONLY 1
+#define SCMD_ALTERS_ONLY 2
+#define SCMD_TRIGGERS_ONLY 3
+#define SCMD_PROGRAMS_ONLY 4
+#define SCMD_SONGS_ONLY 5
+#define SCMD_ZENS_ONLY 6
 
 #define SPELL_BIT 1
 #define TRIG_BIT  2
 #define ZEN_BIT   4
 #define ALTER_BIT 8
 #define SONG_BIT 16
+#define PROGRAM_BIT 32
+#define SKILL_BIT 64
+#define ALL_ABILITY_BITS 0xff
+
 
 // do_dyntext_show
 #define SCMD_DYNTEXT_NEWS  1

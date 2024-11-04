@@ -826,6 +826,7 @@ struct spell_info_type {
     int16_t mana_min;           /* Min amount of mana used by a spell (highest lev) */
     int16_t mana_max;           /* Max amount of mana used by a spell (lowest lev) */
     char mana_change;           /* Change in mana used by spell from lev to lev */
+    int16_t maxmove;
 
     char min_level[NUM_CLASSES];
     char gen[NUM_CLASSES];

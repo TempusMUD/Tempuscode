@@ -3241,6 +3241,7 @@ const char *spell_bit_keywords[] = {
     "zen",
     "mercenary",
     "song",
+    "program",
     "\n"
 };
 

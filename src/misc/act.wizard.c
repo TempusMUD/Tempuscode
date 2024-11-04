@@ -99,8 +99,7 @@ extern const char *logtypes[];
 
 char *how_good(int percent);
 extern char *prac_types[];
-int spell_sort_info[MAX_SPELLS + 1];
-int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];
+int skill_sort_info[MAX_SKILLS + 1];
 bool has_mail(long idnum);
 int prototype_obj_value(struct obj_data *obj);
 int choose_material(struct obj_data *obj);
@@ -135,90 +134,103 @@ static void build_stat_obj_tmp_affs(struct creature *ch, struct obj_data *obj, s
 ACMD(do_equipment);
 
 void
-show_char_class_skills(struct creature *ch, int con, int immort, int bits)
+show_char_class_skills(struct creature *ch, int con, int rcon, int bits)
 {
+    bool check_class_abilities(struct creature *ch, int con, int rcon, int bits);
+    bool skill_matches_bits(int skl, int bits);
     int lvl, skl;
     bool found;
+    char *class_name = tmp_tolower(strlist_aref(con, class_names));
     char *tmp;
+
+    if (!check_class_abilities(ch, con, rcon, bits)) {
+        return;
+    }
 
     struct str_builder sb = str_builder_default;
 
-    sb_strcat(&sb, "The ",
-               class_names[con],
-               " class can learn the following ",
-               IS_SET(bits, SPELL_BIT) ? "spells" :
-               IS_SET(bits, TRIG_BIT) ? "triggers" :
-               IS_SET(bits, ZEN_BIT) ? "zens" :
-               IS_SET(bits, ALTER_BIT) ? "alterations" :
-               IS_SET(bits, SONG_BIT) ? "songs" : "skills", ":\r\n", NULL);
-
-    if (GET_LEVEL(ch) < LVL_IMMORT) {
-        sb_strcat(&sb, "Lvl    Skill\r\n", NULL);
+    if (rcon < 0) {
+        sb_strcat(&sb, "The ", class_name, " class can learn the following ", NULL);
     } else {
-        sb_strcat(&sb, "Lvl  Number   Skill           Mana: Max  Min  Chn  Flags\r\n",
-            NULL);
+        sb_strcat(&sb, "You can learn the following ", NULL);
     }
 
+    sb_strcat(&sb,
+              IS_SET(bits, SPELL_BIT) ? "spells" :
+              IS_SET(bits, TRIG_BIT) ? "triggers" :
+              IS_SET(bits, ZEN_BIT) ? "zens" :
+              IS_SET(bits, ALTER_BIT) ? "alterations" :
+              IS_SET(bits, SONG_BIT) ? "songs" :
+              IS_SET(bits, PROGRAM_BIT) ? "programs" :"skills",
+              ":\r\n", NULL);
+
+    if (IS_IMMORT(ch)) {
+        sb_strcat(&sb, "Lvl  Number   Skill           Mana: Max  Min  Chn  Flags\r\n",
+            NULL);
+    } else {
+        sb_strcat(&sb, "Lvl    Skill\r\n", NULL);
+    }
+
+    // Small optimization
+    int start_skill = 1;
+    if (bits == 0) {
+        start_skill = MAX_SPELLS;
+    }
     for (lvl = 1; lvl < LVL_AMBASSADOR; lvl++) {
         found = false;
-        for (skl = 1; skl < MAX_SKILLS; skl++) {
-            /* pre-prune the list */
+        for (skl = start_skill; skl < MAX_SKILLS; skl++) {
+            if (spell_info[skl].min_level[con] != lvl
+                && (rcon < 0 || spell_info[skl].min_level[rcon] != lvl)) {
+                continue;
+            }
+            if (!skill_matches_bits(skl, bits)) {
+                continue;
+            }
+            if (!found) {
+                sb_sprintf(&sb, " %-2d", lvl);
+            } else {
+                sb_strcat(&sb, "   ", NULL);
+            }
+
             if (GET_LEVEL(ch) < LVL_IMMORT) {
-                if (!bits && skl < MAX_SPELLS) {
-                    continue;
-                }
-                if (bits && skl >= MAX_SPELLS) {
-                    break;
-                }
+                sb_strcat(&sb, "    ", NULL);
+            } else {
+                sb_sprintf(&sb, " - %3d. ", skl);
             }
-            if (spell_info[skl].min_level[con] == lvl &&
-                (immort || GET_REMORT_GEN(ch) >= spell_info[skl].gen[con])) {
 
-                if (!found) {
-                    sb_sprintf(&sb, " %-2d", lvl);
-                } else {
-                    sb_strcat(&sb, "   ", NULL);
+            if (spell_info[skl].gen[con]) {
+                // This is wasteful, but it looks a lot better to have
+                // the gen after the spell.  The trick is that we want it
+                // to be yellow, but printf doesn't recognize the existence
+                // of escape codes for purposes of padding.
+                size_t len;
+
+                tmp = tmp_sprintf("%s (gen %d)", spell_to_str(skl),
+                                  spell_info[skl].gen[con]);
+                len = strlen(tmp);
+                if (len > 33) {
+                    len = 33;
                 }
-
-                if (GET_LEVEL(ch) < LVL_IMMORT) {
-                    sb_strcat(&sb, "    ", NULL);
-                } else {
-                    sb_sprintf(&sb, " - %3d. ", skl);
-                }
-
-                if (spell_info[skl].gen[con]) {
-                    // This is wasteful, but it looks a lot better to have
-                    // the gen after the spell.  The trick is that we want it
-                    // to be yellow, but printf doesn't recognize the existence
-                    // of escape codes for purposes of padding.
-                    size_t len;
-
-                    tmp = tmp_sprintf("%s (gen %d)", spell_to_str(skl),
-                                      spell_info[skl].gen[con]);
-                    len = strlen(tmp);
-                    if (len > 33) {
-                        len = 33;
-                    }
-                    sb_sprintf(&sb, "%s%s %s(gen %d)%s%s",
-                                CCGRN(ch, C_NRM), spell_to_str(skl), CCYEL(ch, C_NRM),
-                                spell_info[skl].gen[con], CCNRM(ch, C_NRM),
-                                tmp_pad(' ', 33 - len));
-                } else {
-                    sb_sprintf(&sb, "%s%-33s%s",
-                                CCGRN(ch, C_NRM), spell_to_str(skl), CCNRM(ch, C_NRM));
-                }
-
-                if (GET_LEVEL(ch) >= LVL_IMMORT) {
-                    sprintbit(spell_info[skl].routines, spell_bits, buf2, sizeof(buf2));
-                    sb_sprintf(&sb, "%3d  %3d  %2d   %s%s%s",
-                                spell_info[skl].mana_max,
-                                spell_info[skl].mana_min, spell_info[skl].mana_change,
-                                CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
-                }
-
-                sb_strcat(&sb, "\r\n", NULL);
-                found = true;
+                sb_sprintf(&sb, "%s%s %s(gen %d)%s%s",
+                           CCGRN(ch, C_NRM), spell_to_str(skl), CCYEL(ch, C_NRM),
+                           spell_info[skl].gen[con], CCNRM(ch, C_NRM),
+                           tmp_pad(' ', 33 - len));
+            } else {
+                sb_sprintf(&sb, "%s%-33s%s",
+                           CCGRN(ch, C_NRM), spell_to_str(skl), CCNRM(ch, C_NRM));
             }
+
+            if (IS_IMMORT(ch)) {
+                sb_sprintf(&sb, "%3d  %3d  %2d   %s%s%s",
+                           spell_info[skl].mana_max,
+                           spell_info[skl].mana_min, spell_info[skl].mana_change,
+                           CCCYN(ch, C_NRM),
+                           tmp_printbits(spell_info[skl].routines, spell_bits),
+                           CCNRM(ch, C_NRM));
+            }
+
+            sb_strcat(&sb, "\r\n", NULL);
+            found = true;
         }
     }
     page_string(ch->desc, sb.str);
@@ -3995,7 +4007,7 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
         strcpy_s(buf2, sizeof(buf2), buf);
 
         for (sortpos = 1; sortpos < MAX_SPELLS; sortpos++) {
-            i = spell_sort_info[sortpos];
+            i = skill_sort_info[sortpos];
             if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
                 strcat_s(buf2, sizeof(buf2), "**OVERFLOW**\r\n");
                 break;
@@ -4014,8 +4026,8 @@ list_skills_to_char(struct creature *ch, struct creature *vict)
                  CCYEL(ch, C_CMP), PERS(vict, ch), CCNRM(ch, C_SPR));
         strcat_s(buf2, sizeof(buf2), buf3);
     } else {
-        snprintf(buf, sizeof(buf), "%s%s%s knows of the following skills:%s\r\n",
-                 buf, CCYEL(ch, C_CMP), PERS(vict, ch), CCNRM(ch, C_SPR));
+        snprintf_cat(buf, sizeof(buf), "%s%s knows of the following skills:%s\r\n",
+                 CCYEL(ch, C_CMP), PERS(vict, ch), CCNRM(ch, C_SPR));
         strcpy_s(buf2, sizeof(buf2), buf);
     }
 

@@ -2397,11 +2397,12 @@ load_spell(xmlNodePtr node)
             }
             spell_info[idnum].min_level[class_idx] = level;
             spell_info[idnum].gen[class_idx] = gen;
-        } else if (xmlMatches(child->name, "manacost")) {
-            spell_info[idnum].mana_max = xmlGetIntProp(child, "initial", 0);
+        } else if (xmlMatches(child->name, "cost")) {
+            spell_info[idnum].mana_max = xmlGetIntProp(child, "mana_initial", 0);
             spell_info[idnum].mana_change =
-                xmlGetIntProp(child, "level_dec", 0);
-            spell_info[idnum].mana_min = xmlGetIntProp(child, "minimum", 0);
+                xmlGetIntProp(child, "mana_level_dec", 0);
+            spell_info[idnum].mana_min = xmlGetIntProp(child, "mana_minimum", 0);
+            spell_info[idnum].maxmove = xmlGetIntProp(child, "maxmove", 0);
         } else if (xmlMatches(child->name, "position")) {
             char *pos_str = (char *)xmlGetProp(child, (xmlChar *) "minimum");
 
@@ -2529,6 +2530,7 @@ clear_spells(void)
         spell_info[spl].mana_max = 0;
         spell_info[spl].mana_min = 0;
         spell_info[spl].mana_change = 0;
+        spell_info[spl].maxmove = 0;
         spell_info[spl].min_position = 0;
         spell_info[spl].targets = 0;
         spell_info[spl].violent = 0;

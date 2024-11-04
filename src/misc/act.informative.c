@@ -5252,18 +5252,23 @@ ACMD(do_soilage)
 
 ACMD(do_skills)
 {
+    const int bits[] = {
+        SKILL_BIT, SPELL_BIT, ALTER_BIT, TRIG_BIT, PROGRAM_BIT, SONG_BIT, ZEN_BIT
+    };
+
     int parse_player_class(char *arg);
     int parse_char_class(char *arg);
-    void show_char_class_skills(struct creature *ch, int con, int immort,
-                                int bits);
-    void list_skills(struct creature *ch, int mode, int type);
-    int char_class = 0;
+    void show_char_class_skills(struct creature *ch, int con, int rcon, int bits);
+    void list_skills(struct creature *ch, bool only_learned, int class_restr, int bits);
+    int char_class = -1, remort_class = -1;
     char *arg;
 
     arg = tmp_getword(&argument);
 
-    if (*arg && is_abbrev(arg, "list")) {
-        arg = tmp_getword(&argument);
+    if (*arg) {
+        if (is_abbrev(arg, "list")) {
+            arg = tmp_getword(&argument);
+        }
         if (*arg) {
             if (GET_LEVEL(ch) < LVL_IMMORT) {
                 char_class = parse_player_class(arg);
@@ -5276,19 +5281,18 @@ ACMD(do_skills)
             }
         } else {
             char_class = GET_CLASS(ch);
+            if (IS_REMORT(ch)) {
+                remort_class = GET_REMORT_CLASS(ch);
+            }
         }
 
-        show_char_class_skills(ch, char_class, 0,
-                               (subcmd ? (char_class == CLASS_PSIONIC ? TRIG_BIT :
-                                          char_class == CLASS_PHYSIC ? ALTER_BIT :
-                                          char_class == CLASS_MONK ? ZEN_BIT :
-                                          char_class == CLASS_BARD ? SONG_BIT : SPELL_BIT) : 0));
+        show_char_class_skills(ch, char_class, remort_class, bits[subcmd]);
 
         return;
     }
 
     if (IS_PC(ch)) {
-        list_skills(ch, 0, subcmd == SCMD_SKILLS_ONLY ? 2 : 1);
+        list_skills(ch, true, -1, bits[subcmd]);
         return;
     }
     send_to_char(ch, "Mobs don't have skills!\r\n");

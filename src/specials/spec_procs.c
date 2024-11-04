@@ -127,54 +127,33 @@ skill_gain(struct creature *ch, int mode)
     }
 }
 
-extern int spell_sort_info[MAX_SPELLS + 1];
 extern int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];
 
-void
-sort_spells(void)
+static int
+compare_spells_by_name(const int *a, const int *b)
 {
-    int a, b, tmp;
-
-    /* initialize array */
-    for (a = 1; a < MAX_SPELLS; a++) {
-        spell_sort_info[a] = a;
+    if (*a == 0) {
+        return -1;
     }
-
-    /* Sort.  'a' starts at 1, not 0, to remove 'RESERVED' */
-    for (a = 1; a < MAX_SPELLS - 1; a++) {
-        for (b = a + 1; b < MAX_SPELLS; b++) {
-            if (strcmp(spell_to_str(spell_sort_info[a]),
-                       spell_to_str(spell_sort_info[b])) > 0) {
-                tmp = spell_sort_info[a];
-                spell_sort_info[a] = spell_sort_info[b];
-                spell_sort_info[b] = tmp;
-            }
-        }
+    if (*b == 0) {
+        return 1;
     }
+    if (*a == *b) {
+        return 0;
+    }
+    return strcmp(spell_to_str(*a), spell_to_str(*b));
 }
 
 void
 sort_skills(void)
 {
-    int a, b, tmp;
-
     /* initialize array */
-    for (a = 1; a < MAX_SKILLS - MAX_SPELLS; a++) {
-        skill_sort_info[a] = a + MAX_SPELLS;
+    for (int a = 0; a < MAX_SKILLS; a++) {
+        skill_sort_info[a] = a;
     }
-
-    /* Sort.  'a' starts at 1, not 0, to remove 'RESERVED' */
-    for (a = 1; a < MAX_SKILLS - MAX_SPELLS - 1; a++) {
-        for (b = a + 1; b < MAX_SKILLS - MAX_SPELLS; b++) {
-            if (strcmp(spell_to_str(skill_sort_info[a]),
-                       spell_to_str(skill_sort_info[b])) > 0) {
-                tmp = skill_sort_info[a];
-                skill_sort_info[a] = skill_sort_info[b];
-                skill_sort_info[b] = tmp;
-            }
-        }
-    }
+    qsort(skill_sort_info, MAX_SKILLS, sizeof(int), compare_spells_by_name);
 }
+
 
 char *
 how_good(int percent)
@@ -223,93 +202,158 @@ const char *prac_types[] = {
 
 /* actual prac_params are in char_class.c */
 
-void
-list_skills(struct creature *ch, int mode, int type)
+bool
+class_can_do_abilities(int con, int rcon, int bits)
 {
-    int i, sortpos;
+    switch (bits) {
+    case ALL_ABILITY_BITS:
+        return true;
+    case SKILL_BIT:
+        return true;
+    case SPELL_BIT:
+        return (con == CLASS_MAGE || con == CLASS_CLERIC || con == CLASS_KNIGHT || con == CLASS_RANGER
+                || rcon == CLASS_MAGE || rcon == CLASS_CLERIC || rcon == CLASS_KNIGHT || rcon == CLASS_RANGER);
+    case TRIG_BIT:
+        return (con == CLASS_PSIONIC || rcon == CLASS_PSIONIC);
+    case ZEN_BIT:
+        return (con == CLASS_MONK || rcon == CLASS_MONK);
+    case ALTER_BIT:
+        return (con == CLASS_PHYSIC || rcon == CLASS_PHYSIC);
+    case SONG_BIT:
+        return (con == CLASS_BARD || rcon == CLASS_BARD);
+    case PROGRAM_BIT:
+        return (con == CLASS_CYBORG || rcon == CLASS_CYBORG);
+    }
+    return false;
+}
 
+bool
+check_class_abilities(struct creature *ch, int con, int rcon, int bits)
+{
+    if (class_can_do_abilities(con, rcon, bits)) {
+        return true;
+    }
+    char *class_name = tmp_tolower(strlist_aref(con, class_names));
+    switch (bits) {
+    case SPELL_BIT:
+        send_to_char(ch, "A %s cannot cast spells!\r\n", class_name);
+        break;
+    case TRIG_BIT:
+        send_to_char(ch, "A %s cannot trigger the mind!\r\n", class_name);
+        break;
+    case ZEN_BIT:
+        send_to_char(ch, "A %s cannot attain zens!\r\n", class_name);
+        break;
+    case ALTER_BIT:
+        send_to_char(ch, "A %s cannot alter the fabric of reality!\r\n", class_name);
+        break;
+    case SONG_BIT:
+        send_to_char(ch, "A %s cannot perform magical songs!\r\n", class_name);
+        break;
+    case PROGRAM_BIT:
+        send_to_char(ch, "A %s cannot activate programs!\r\n", class_name);
+        break;
+    }
+    return false;
+}
+
+bool
+skill_matches_bits(int skl, int bits)
+{
+    switch (bits) {
+    case SKILL_BIT:
+        return skl > MAX_SPELLS;
+    case SPELL_BIT:
+        return SPELL_IS_MAGIC(skl);
+    case TRIG_BIT:
+        return SPELL_IS_PSIONIC(skl);
+    case ZEN_BIT:
+        return SPELL_IS_BIO(skl);
+    case ALTER_BIT:
+        return SPELL_IS_PHYSICS(skl);
+    case SONG_BIT:
+        return SPELL_IS_BARD(skl);
+    case PROGRAM_BIT:
+        return SPELL_IS_PROGRAM(skl);
+    }
+}
+
+void
+list_skills(struct creature *ch, bool only_learned, int class_restr, int bits)
+{
     if (GET_CLASS(ch) > NUM_CLASSES - 1) {
         return;
     }
-    if (GET_REMORT_CLASS(ch) > 0 && GET_REMORT_CLASS(ch) > NUM_CLASSES - 1) {
+    if (GET_REMORT_CLASS(ch) > NUM_CLASSES - 1) {
+        return;
+    }
+    if (!check_class_abilities(ch, GET_CLASS(ch), GET_REMORT_CLASS(ch), bits)) {
         return;
     }
 
     struct str_builder sb = str_builder_default;
-    if ((type == 1 || type == 3) &&
-        ((prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != SKL &&
-          prac_params[PRAC_TYPE][(int)GET_CLASS(ch)] != PRG) ||
-         (GET_REMORT_CLASS(ch) >= 0 &&
-          (prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(ch)] != SKL &&
-           prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(ch)] != PRG)))) {
-        sb_sprintf(&sb, "%s%sYou know %sthe following %ss:%s\r\n",
-                    CCYEL(ch, C_CMP), CCBLD(ch, C_SPR), mode ? "of " : "", SPLSKL(ch),
-                    CCNRM(ch, C_SPR));
 
-        for (sortpos = 1; sortpos < MAX_SPELLS; sortpos++) {
-            i = spell_sort_info[sortpos];
-            if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
-                SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
-                if (!mode && !CHECK_SKILL(ch, i)) { // !mode => list only learned
-                    continue;
-                }
-                if (IS_IMMORT(ch)) {
-                    sb_sprintf(&sb, "%s%s%-30s %s%-17s%s %s(%3d mana)%s\r\n",
-                                CCGRN(ch, C_NRM),
-                                tmp_sprintf("%3d. ", i), spell_to_str(i),
-                                CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, i)),
-                                tmp_sprintf("%s[%3d]", CCYEL(ch, C_NRM),
-                                            CHECK_SKILL(ch, i)), CCRED(ch, C_SPR),
-                                mag_manacost(ch, i), CCNRM(ch, C_SPR));
-                } else {
-                    sb_sprintf(&sb, "%s%-30s %s%-17s %s(%3d mana)%s\r\n",
-                                CCGRN(ch, C_NRM), spell_to_str(i),
-                                CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, i)),
-                                CCRED(ch, C_SPR), mag_manacost(ch, i),
-                                CCNRM(ch, C_SPR));
-                }
-            }
+    for (int bit = 1; bit <= 64; bit *= 2) {
+        bool found = false;
+
+        if ((bit & bits) == 0) {
+            // filter on ability type
+            continue;
         }
 
-        if (type != 2 && type != 3) {
-            page_string(ch->desc, sb.str);
-            return;
-        }
-
-        sb_sprintf(&sb, "\r\n%s%sYou know %sthe following %s:%s\r\n",
-                    CCYEL(ch, C_CMP), CCBLD(ch, C_SPR),
-                    mode ? "of " : "", IS_CYBORG(ch) ? "programs" :
-                    "skills", CCNRM(ch, C_SPR));
-    } else {
-        sb_sprintf(&sb, "%s%sYou know %sthe following %s:%s\r\n",
-                    CCYEL(ch, C_CMP), CCBLD(ch, C_SPR),
-                    mode ? "of " : "", IS_CYBORG(ch) ? "programs"
-                    : "skills", CCNRM(ch, C_SPR));
-    }
-
-    for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
-        i = skill_sort_info[sortpos];
-        if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
-            SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
-            if (!mode && !CHECK_SKILL(ch, i)) { // !mode => list only learned
+        for (int sortpos = 1; sortpos < MAX_SKILLS; sortpos++) {
+            int skl = skill_sort_info[sortpos];
+            if (only_learned && !CHECK_SKILL(ch, skl)) {
                 continue;
+            }
+            if (!skill_matches_bits(skl, bit)) {
+                continue;
+            }
+            if (!is_able_to_learn(ch, skl)) {
+                continue;
+            }
+            if (class_restr >= 0 && spell_info[skl].min_level[class_restr] > 49) {
+                continue;
+            }
+            if (!found) {
+                sb_sprintf(&sb, "\r\n%s%sYou know %sthe following ",
+                           CCYEL(ch, C_CMP), CCBLD(ch, C_SPR), !only_learned ? "of " : "");
+                sb_strcat(&sb,
+                          IS_SET(bit, SPELL_BIT) ? "spells" :
+                          IS_SET(bit, TRIG_BIT) ? "triggers" :
+                          IS_SET(bit, ZEN_BIT) ? "zens" :
+                          IS_SET(bit, ALTER_BIT) ? "alterations" :
+                          IS_SET(bit, SONG_BIT) ? "songs" :
+                          IS_SET(bit, PROGRAM_BIT) ? "programs" :"skills",
+                          ":", CCNRM(ch, C_SPR), "\r\n", NULL);
+                found = true;
+            }
+            int manacost = mag_manacost(ch, skl);
+            const char *cost_str = "";
+            if (manacost > 0) {
+                cost_str = tmp_sprintf(" %s(%3d mana)", CCRED(ch, C_SPR), manacost);
+            }
+            if (spell_info[skl].maxmove > 0) {
+                cost_str = tmp_sprintf(" %s(%3d maxmove)", CCCYN(ch, C_SPR), spell_info[skl].maxmove);
             }
 
             if (IS_IMMORT(ch)) {
-                sb_sprintf(&sb, "%s%s%-30s %s%-17s%s%s\r\n",
-                            CCGRN(ch, C_NRM), tmp_sprintf("%3d. ", i),
-                            spell_to_str(i), CCBLD(ch, C_SPR),
-                            how_good(GET_SKILL(ch, i)),
-                            tmp_sprintf("%s[%3d]%s", CCYEL(ch, C_NRM),
-                                        CHECK_SKILL(ch, i), CCNRM(ch, C_NRM)),
-                            CCNRM(ch, C_SPR));
+                sb_sprintf(&sb, "%s%3d. %-30s %s%-17s%s[%3d]%s%s\r\n",
+                           CCGRN(ch, C_NRM), skl, spell_to_str(skl),
+                           CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, skl)),
+                           CCYEL(ch, C_NRM), CHECK_SKILL(ch, skl),
+                           cost_str,
+                           CCNRM(ch, C_SPR));
             } else {
-                sb_sprintf(&sb, "%s%-30s %s%s%s\r\n",
-                            CCGRN(ch, C_NRM), spell_to_str(i), CCBLD(ch, C_SPR),
-                            how_good(GET_SKILL(ch, i)), CCNRM(ch, C_SPR));
+                sb_sprintf(&sb, "%s%-30s %s%-17s%s%s\r\n",
+                           CCGRN(ch, C_NRM), spell_to_str(skl),
+                           CCBLD(ch, C_SPR), how_good(CHECK_SKILL(ch, skl)),
+                           cost_str,
+                           CCNRM(ch, C_SPR));
             }
         }
     }
+
     page_string(ch->desc, sb.str);
 }
 
@@ -327,7 +371,7 @@ SPECIAL(guild)
     }
 
     if (CMD_IS("list")) {
-        list_skills(ch, 1, 3);
+        list_skills(ch, false, GET_CLASS(master), ALL_ABILITY_BITS);
         return 1;
     }
 
@@ -343,7 +387,7 @@ SPECIAL(guild)
             perform_tell(master, ch,
                          "For what ability would you like to know the price of training?");
         } else {
-            list_skills(ch, 1, 3);
+            list_skills(ch, false, GET_CLASS(master), ALL_ABILITY_BITS);
         }
         return 1;
     }

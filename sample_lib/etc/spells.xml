@@ -1,7 +1,7 @@
 <spells>
   <skill id="161" name="ABLAZE!"/>
   <spell id="764" name="Zhengis Fist of Annihilation">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -9,7 +9,7 @@
     <flag value="damage"/>
   </spell>
   <spell id="705" name="acid breath">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -21,7 +21,7 @@
   </skill>
   <spell id="301" name="acidity">
     <granted class="physic" level="2"/>
-    <manacost initial="40" level_dec="2" minimum="20"/>
+    <cost mana_initial="40" mana_level_dec="2" mana_minimum="20"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -32,7 +32,7 @@
   </spell>
   <spell id="213" name="adrenaline">
     <granted class="psionic" level="27"/>
-    <manacost initial="80" level_dec="1" minimum="60"/>
+    <cost mana_initial="80" mana_level_dec="1" mana_minimum="60"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -48,7 +48,7 @@
   </skill>
   <spell id="87" name="air walk">
     <granted class="cleric" level="32"/>
-    <manacost initial="60" level_dec="2" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="2" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -58,7 +58,7 @@
   </spell>
   <spell id="336" name="albedo shield">
     <granted class="physic" level="34"/>
-    <manacost initial="90" level_dec="1" minimum="50"/>
+    <cost mana_initial="90" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -72,7 +72,7 @@
   </spell>
   <spell id="360" name="alrons aria">
     <granted class="bard" level="24"/>
-    <manacost initial="120" level_dec="1" minimum="95"/>
+    <cost mana_initial="120" mana_level_dec="1" mana_minimum="95"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="unaffects"/>
@@ -89,7 +89,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
   </spell>
   <spell id="235" name="amnesia">
     <granted class="psionic" level="25" gen="1"/>
-    <manacost initial="70" level_dec="2" minimum="30"/>
+    <cost mana_initial="70" mana_level_dec="2" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -103,7 +103,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
   </skill>
   <spell id="93" name="animal kin">
     <granted class="ranger" level="17"/>
-    <manacost initial="60" level_dec="1" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -113,7 +113,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
   </spell>
   <spell id="45" name="animate dead">
     <granted class="cleric" level="24" gen="2"/>
-    <manacost initial="60" level_dec="1" minimum="30"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="object" scope="room"/>
     <flag value="violent"/>
@@ -124,7 +124,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
   </spell>
   <spell id="135" name="anti-magic shell">
     <granted class="mage" level="21" gen="2"/>
-    <manacost initial="150" level_dec="4" minimum="70"/>
+    <cost mana_initial="150" mana_level_dec="4" mana_minimum="70"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -133,7 +133,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
   </spell>
   <spell id="211" name="antibody">
     <granted class="psionic" level="19"/>
-    <manacost initial="80" level_dec="1" minimum="30"/>
+    <cost mana_initial="80" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
@@ -160,14 +160,14 @@ Will come to our aid 'til our souls are at rest!</lyrics>
   </skill>
   <spell id="340" name="area stasis">
     <granted class="physic" level="40"/>
-    <manacost initial="100" level_dec="5" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="50"/>
     <position minimum="sitting"/>
     <flag value="manual"/>
     <flag value="physics"/>
   </spell>
   <spell id="351" name="aria of armament">
     <granted class="bard" level="3"/>
-    <manacost initial="55" level_dec="2" minimum="40"/>
+    <cost mana_initial="55" mana_level_dec="2" mana_minimum="40"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -178,7 +178,7 @@ Take up your swords and follow me!</lyrics>
   </spell>
   <spell id="369" name="aria of asylum">
     <granted class="bard" level="35" gen="3"/>
-    <manacost initial="95" level_dec="2" minimum="70"/>
+    <cost mana_initial="95" mana_level_dec="2" mana_minimum="70"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -193,7 +193,7 @@ Asylum saves us all!</lyrics>
     <granted class="mage" level="4"/>
     <granted class="cleric" level="1"/>
     <granted class="knight" level="5"/>
-    <manacost initial="45" level_dec="1" minimum="15"/>
+    <cost mana_initial="45" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -209,7 +209,7 @@ Asylum saves us all!</lyrics>
     <granted class="mage" level="43"/>
     <granted class="cleric" level="47"/>
     <granted class="psionic" level="45"/>
-    <manacost initial="175" level_dec="8" minimum="105"/>
+    <cost mana_initial="175" mana_level_dec="8" mana_minimum="105"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
@@ -219,7 +219,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="302" name="attraction field">
     <granted class="physic" level="8"/>
-    <manacost initial="60" level_dec="1" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="40"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -248,11 +248,11 @@ Asylum saves us all!</lyrics>
     <granted class="ranger" level="10"/>
     <granted class="monk" level="17"/>
     <granted class="mercenary" level="3"/>
-    <manacost initial="40" level_dec="1" minimum="30"/>
+    <cost mana_initial="40" mana_level_dec="1" mana_minimum="30"/>
   </skill>
   <spell id="143" name="banishment">
     <granted class="cleric" level="29" gen="4"/>
-    <manacost initial="100" level_dec="5" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -264,7 +264,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="90" name="barkskin">
     <granted class="ranger" level="4"/>
-    <manacost initial="60" level_dec="1" minimum="25"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="25"/>
     <position minimum="fighting"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -302,7 +302,7 @@ Asylum saves us all!</lyrics>
   </skill>
   <spell id="130" name="blackmantle">
     <granted class="cleric" level="42" gen="1"/>
-    <manacost initial="120" level_dec="5" minimum="80"/>
+    <cost mana_initial="120" mana_level_dec="5" mana_minimum="80"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -320,7 +320,7 @@ Asylum saves us all!</lyrics>
   <spell id="3" name="bless">
     <granted class="cleric" level="7"/>
     <granted class="knight" level="10"/>
-    <manacost initial="35" level_dec="1" minimum="15"/>
+    <cost mana_initial="35" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -331,7 +331,7 @@ Asylum saves us all!</lyrics>
   <spell id="4" name="blindness">
     <granted class="mage" level="16"/>
     <granted class="cleric" level="13"/>
-    <manacost initial="35" level_dec="1" minimum="25"/>
+    <cost mana_initial="35" mana_level_dec="1" mana_minimum="25"/>
     <position minimum="standing"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -344,7 +344,7 @@ Asylum saves us all!</lyrics>
   </skill>
   <spell id="55" name="blur">
     <granted class="mage" level="13"/>
-    <manacost initial="45" level_dec="2" minimum="20"/>
+    <cost mana_initial="45" mana_level_dec="2" mana_minimum="20"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -366,7 +366,7 @@ Asylum saves us all!</lyrics>
   </skill>
   <spell id="96" name="breathe water">
     <granted class="mage" level="40"/>
-    <manacost initial="45" level_dec="2" minimum="20"/>
+    <cost mana_initial="45" mana_level_dec="2" mana_minimum="20"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -374,7 +374,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="214" name="breathing stasis">
     <granted class="psionic" level="21"/>
-    <manacost initial="100" level_dec="1" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -384,7 +384,7 @@ Asylum saves us all!</lyrics>
   </skill>
   <spell id="5" name="burning hands">
     <granted class="mage" level="11"/>
-    <manacost initial="30" level_dec="3" minimum="10"/>
+    <cost mana_initial="30" mana_level_dec="3" mana_minimum="10"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -396,7 +396,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="242" name="call beast">
     <granted class="ranger" level="35"/>
-    <manacost initial="90" level_dec="2" minimum="60"/>
+    <cost mana_initial="90" mana_level_dec="2" mana_minimum="60"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -405,7 +405,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="240" name="call bird">
     <granted class="ranger" level="22"/>
-    <manacost initial="90" level_dec="2" minimum="60"/>
+    <cost mana_initial="90" mana_level_dec="2" mana_minimum="60"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -415,7 +415,7 @@ Asylum saves us all!</lyrics>
   <spell id="6" name="call lightning">
     <granted class="cleric" level="25"/>
     <granted class="ranger" level="30"/>
-    <manacost initial="40" level_dec="3" minimum="25"/>
+    <cost mana_initial="40" mana_level_dec="3" mana_minimum="25"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -427,7 +427,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="243" name="call predator">
     <granted class="ranger" level="41"/>
-    <manacost initial="90" level_dec="2" minimum="60"/>
+    <cost mana_initial="90" mana_level_dec="2" mana_minimum="60"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -436,7 +436,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="241" name="call reptile">
     <granted class="ranger" level="29"/>
-    <manacost initial="90" level_dec="2" minimum="60"/>
+    <cost mana_initial="90" mana_level_dec="2" mana_minimum="60"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -445,7 +445,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="239" name="call rodent">
     <granted class="ranger" level="15"/>
-    <manacost initial="90" level_dec="2" minimum="60"/>
+    <cost mana_initial="90" mana_level_dec="2" mana_minimum="60"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -454,7 +454,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="153" name="calm">
     <granted class="knight" level="36"/>
-    <manacost initial="35" level_dec="1" minimum="15"/>
+    <cost mana_initial="35" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
@@ -463,7 +463,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="324" name="capacitance boost">
     <granted class="physic" level="6"/>
-    <manacost initial="70" level_dec="3" minimum="45"/>
+    <cost mana_initial="70" mana_level_dec="3" mana_minimum="45"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -474,7 +474,7 @@ Asylum saves us all!</lyrics>
   </skill>
   <spell id="222" name="cell regeneration">
     <granted class="psionic" level="34"/>
-    <manacost initial="100" level_dec="1" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -483,7 +483,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="126" name="chain lightning">
     <granted class="mage" level="23"/>
-    <manacost initial="120" level_dec="5" minimum="30"/>
+    <cost mana_initial="120" mana_level_dec="5" mana_minimum="30"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="masses"/>
@@ -492,7 +492,7 @@ Asylum saves us all!</lyrics>
   </spell>
   <spell id="368" name="chant of light">
     <granted class="bard" level="1"/>
-    <manacost initial="30" level_dec="1" minimum="20"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -505,7 +505,7 @@ Repel the frigid cold of night!</lyrics>
   </skill>
   <spell id="94" name="charm animal">
     <granted class="ranger" level="23"/>
-    <manacost initial="75" level_dec="2" minimum="50"/>
+    <cost mana_initial="75" mana_level_dec="2" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -515,7 +515,7 @@ Repel the frigid cold of night!</lyrics>
   </spell>
   <spell id="7" name="charm person">
     <granted class="mage" level="22"/>
-    <manacost initial="75" level_dec="2" minimum="50"/>
+    <cost mana_initial="75" mana_level_dec="2" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -529,7 +529,7 @@ Repel the frigid cold of night!</lyrics>
   </spell>
   <spell id="321" name="chemical stability">
     <granted class="physic" level="9"/>
-    <manacost initial="80" level_dec="8" minimum="20"/>
+    <cost mana_initial="80" mana_level_dec="8" mana_minimum="20"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -538,7 +538,7 @@ Repel the frigid cold of night!</lyrics>
   </spell>
   <spell id="8" name="chill touch">
     <granted class="mage" level="5"/>
-    <manacost initial="30" level_dec="3" minimum="10"/>
+    <cost mana_initial="30" mana_level_dec="3" mana_minimum="10"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -557,7 +557,7 @@ Repel the frigid cold of night!</lyrics>
   </skill>
   <spell id="67" name="clairvoyance">
     <granted class="mage" level="35"/>
-    <manacost initial="90" level_dec="2" minimum="60"/>
+    <cost mana_initial="90" mana_level_dec="2" mana_minimum="60"/>
     <position minimum="standing"/>
     <target type="creature" scope="world"/>
     <flag value="manual"/>
@@ -565,7 +565,7 @@ Repel the frigid cold of night!</lyrics>
   </spell>
   <spell id="377" name="clarifying harmonies">
     <granted class="bard" level="12"/>
-    <manacost initial="45" level_dec="1" minimum="20"/>
+    <cost mana_initial="45" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -584,7 +584,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <granted class="barbarian" level="30"/>
   </skill>
   <spell id="9" name="clone">
-    <manacost initial="80" level_dec="5" minimum="65"/>
+    <cost mana_initial="80" mana_level_dec="5" mana_minimum="65"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -597,7 +597,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <spell id="233" name="clumsiness">
     <granted class="psionic" level="28"/>
-    <manacost initial="70" level_dec="1" minimum="50"/>
+    <cost mana_initial="70" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -607,11 +607,12 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="647" name="cogenic neural bridging">
     <granted class="cyborg" level="35"/>
+    <cost maxmove="37"/>
     <flag value="cybernetic"/>
   </spell>
   <spell id="10" name="color spray">
     <granted class="mage" level="18"/>
-    <manacost initial="90" level_dec="3" minimum="45"/>
+    <cost mana_initial="90" mana_level_dec="3" mana_minimum="45"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -623,7 +624,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <granted class="monk" level="33"/>
   </skill>
   <spell id="86" name="command">
-    <manacost initial="50" level_dec="5" minimum="35"/>
+    <cost mana_initial="50" mana_level_dec="5" mana_minimum="35"/>
     <position minimum="standing"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -636,7 +637,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <spell id="74" name="cone of cold">
     <granted class="mage" level="36"/>
-    <manacost initial="140" level_dec="4" minimum="55"/>
+    <cost mana_initial="140" mana_level_dec="4" mana_minimum="55"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -648,7 +649,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="207" name="confidence">
     <granted class="psionic" level="8"/>
-    <manacost initial="60" level_dec="1" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -657,7 +658,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="203" name="confusion">
     <granted class="psionic" level="36"/>
-    <manacost initial="110" level_dec="5" minimum="80"/>
+    <cost mana_initial="110" mana_level_dec="5" mana_minimum="80"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -667,7 +668,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="97" name="conjure elemental">
     <granted class="mage" level="20"/>
-    <manacost initial="175" level_dec="4" minimum="90"/>
+    <cost mana_initial="175" mana_level_dec="4" mana_minimum="90"/>
     <position minimum="standing"/>
     <flag value="manual"/>
     <flag value="magic"/>
@@ -684,7 +685,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <spell id="144" name="control undead">
     <granted class="cleric" level="26"/>
-    <manacost initial="50" level_dec="1" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -696,7 +697,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="11" name="control weather">
     <granted class="cleric" level="22"/>
-    <manacost initial="75" level_dec="5" minimum="25"/>
+    <cost mana_initial="75" mana_level_dec="5" mana_minimum="25"/>
     <position minimum="standing"/>
     <flag value="manual"/>
     <flag value="magic"/>
@@ -711,7 +712,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <spell id="12" name="create food">
     <granted class="cleric" level="5"/>
-    <manacost initial="30" level_dec="3" minimum="5"/>
+    <cost mana_initial="30" mana_level_dec="3" mana_minimum="5"/>
     <position minimum="standing"/>
     <flag value="creations"/>
     <flag value="divine"/>
@@ -720,7 +721,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <spell id="13" name="create water">
     <granted class="cleric" level="3"/>
-    <manacost initial="30" level_dec="4" minimum="5"/>
+    <cost mana_initial="30" mana_level_dec="4" mana_minimum="5"/>
     <position minimum="standing"/>
     <target type="object" scope="inventory"/>
     <target type="object" scope="equip"/>
@@ -739,7 +740,7 @@ To answer the mysteries one's life can bring.</lyrics>
   <spell id="14" name="cure blind">
     <granted class="cleric" level="6"/>
     <granted class="knight" level="26"/>
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
@@ -748,7 +749,7 @@ To answer the mysteries one's life can bring.</lyrics>
   <spell id="15" name="cure critic">
     <granted class="cleric" level="10"/>
     <granted class="knight" level="14"/>
-    <manacost initial="40" level_dec="1" minimum="10"/>
+    <cost mana_initial="40" mana_level_dec="1" mana_minimum="10"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="points"/>
@@ -756,12 +757,12 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <skill id="582" name="cure disease">
     <granted class="knight" level="43"/>
-    <manacost initial="30" level_dec="1" minimum="10"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="10"/>
   </skill>
   <spell id="16" name="cure light">
     <granted class="cleric" level="2"/>
     <granted class="knight" level="6"/>
-    <manacost initial="30" level_dec="1" minimum="5"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="5"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="points"/>
@@ -769,7 +770,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="17" name="curse">
     <granted class="mage" level="19"/>
-    <manacost initial="80" level_dec="2" minimum="50"/>
+    <cost mana_initial="80" mana_level_dec="2" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -790,12 +791,13 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <spell id="629" name="damage control">
     <granted class="cyborg" level="12"/>
+    <cost maxmove="30"/>
     <flag value="cybernetic"/>
   </spell>
   <spell id="152" name="damn">
     <granted class="cleric" level="7"/>
     <granted class="knight" level="10"/>
-    <manacost initial="35" level_dec="1" minimum="15"/>
+    <cost mana_initial="35" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -811,7 +813,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <spell id="150" name="death knell">
     <granted class="cleric" level="25" gen="1"/>
-    <manacost initial="100" level_dec="1" minimum="30"/>
+    <cost mana_initial="100" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="violent"/>
@@ -825,7 +827,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <spell id="359" name="defense ditty">
     <granted class="bard" level="39"/>
-    <manacost initial="120" level_dec="1" minimum="95"/>
+    <cost mana_initial="120" mana_level_dec="1" mana_minimum="95"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -846,7 +848,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <spell id="320" name="densify">
     <granted class="physic" level="26"/>
-    <manacost initial="80" level_dec="8" minimum="20"/>
+    <cost mana_initial="80" mana_level_dec="8" mana_minimum="20"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -858,7 +860,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="209" name="dermal hardening">
     <granted class="psionic" level="12"/>
-    <manacost initial="70" level_dec="1" minimum="30"/>
+    <cost mana_initial="70" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -869,7 +871,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <granted class="cleric" level="1"/>
     <granted class="knight" level="1"/>
     <granted class="ranger" level="13"/>
-    <manacost initial="20" level_dec="2" minimum="10"/>
+    <cost mana_initial="20" mana_level_dec="2" mana_minimum="10"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -878,7 +880,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="19" name="detect invisibility">
     <granted class="mage" level="14"/>
-    <manacost initial="20" level_dec="2" minimum="10"/>
+    <cost mana_initial="20" mana_level_dec="2" mana_minimum="10"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -889,7 +891,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <granted class="cleric" level="14"/>
     <granted class="knight" level="20"/>
     <granted class="ranger" level="27"/>
-    <manacost initial="20" level_dec="2" minimum="10"/>
+    <cost mana_initial="20" mana_level_dec="2" mana_minimum="10"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -900,7 +902,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <granted class="cleric" level="4"/>
     <granted class="knight" level="12"/>
     <granted class="ranger" level="6"/>
-    <manacost initial="15" level_dec="1" minimum="5"/>
+    <cost mana_initial="15" mana_level_dec="1" mana_minimum="5"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -909,14 +911,14 @@ To answer the mysteries one's life can bring.</lyrics>
   <spell id="66" name="detect scrying">
     <granted class="mage" level="44"/>
     <granted class="cleric" level="44"/>
-    <manacost initial="50" level_dec="4" minimum="30"/>
+    <cost mana_initial="50" mana_level_dec="4" mana_minimum="30"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
   </spell>
   <spell id="59" name="dimension door">
-    <manacost initial="90" level_dec="3" minimum="60"/>
+    <cost mana_initial="90" mana_level_dec="3" mana_minimum="60"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
@@ -924,7 +926,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="498" name="dimensional shift">
     <granted class="physic" level="35" gen="4"/>
-    <manacost initial="100" level_dec="3" minimum="65"/>
+    <cost mana_initial="100" mana_level_dec="3" mana_minimum="65"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -938,7 +940,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="387" name="dirge">
     <granted class="bard" level="6"/>
-    <manacost initial="100" level_dec="5" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="50"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="areas"/>
@@ -962,11 +964,11 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <skill id="649" name="disguise">
     <granted class="thief" level="17" gen="1"/>
-    <manacost initial="40" level_dec="1" minimum="20"/>
+    <cost mana_initial="40" mana_level_dec="1" mana_minimum="20"/>
   </skill>
   <spell id="22" name="dispel evil">
     <granted class="cleric" level="20"/>
-    <manacost initial="40" level_dec="3" minimum="25"/>
+    <cost mana_initial="40" mana_level_dec="3" mana_minimum="25"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -977,7 +979,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="46" name="dispel good">
     <granted class="cleric" level="20"/>
-    <manacost initial="40" level_dec="3" minimum="25"/>
+    <cost mana_initial="40" mana_level_dec="3" mana_minimum="25"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -988,7 +990,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="57" name="dispel magic">
     <granted class="mage" level="39"/>
-    <manacost initial="90" level_dec="5" minimum="55"/>
+    <cost mana_initial="90" mana_level_dec="5" mana_minimum="55"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -998,7 +1000,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="106" name="displacement">
     <granted class="mage" level="46"/>
-    <manacost initial="55" level_dec="4" minimum="30"/>
+    <cost mana_initial="55" mana_level_dec="4" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -1006,7 +1008,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="114" name="disruption">
     <granted class="cleric" level="38"/>
-    <manacost initial="150" level_dec="7" minimum="75"/>
+    <cost mana_initial="150" mana_level_dec="7" mana_minimum="75"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1016,7 +1018,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="238" name="distraction">
     <granted class="psionic" level="5"/>
-    <manacost initial="40" level_dec="4" minimum="10"/>
+    <cost mana_initial="40" mana_level_dec="4" mana_minimum="10"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
@@ -1025,7 +1027,7 @@ To answer the mysteries one's life can bring.</lyrics>
   <spell id="88" name="divine illumination">
     <granted class="cleric" level="9"/>
     <granted class="knight" level="7"/>
-    <manacost initial="40" level_dec="1" minimum="20"/>
+    <cost mana_initial="40" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -1034,7 +1036,7 @@ To answer the mysteries one's life can bring.</lyrics>
   <spell id="136" name="divine intervention">
     <granted class="cleric" level="21" gen="4"/>
     <granted class="knight" level="23" gen="6"/>
-    <manacost initial="120" level_dec="3" minimum="70"/>
+    <cost mana_initial="120" mana_level_dec="3" mana_minimum="70"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -1044,7 +1046,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </spell>
   <spell id="149" name="divine power">
     <granted class="cleric" level="30" gen="5"/>
-    <manacost initial="150" level_dec="1" minimum="80"/>
+    <cost mana_initial="150" mana_level_dec="1" mana_minimum="80"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -1066,7 +1068,7 @@ To answer the mysteries one's life can bring.</lyrics>
   </skill>
   <spell id="365" name="drifters ditty">
     <granted class="bard" level="4"/>
-    <manacost initial="30" level_dec="2" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="2" mana_minimum="15"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="points"/>
@@ -1080,7 +1082,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="38" name="drowsy">
     <granted class="mage" level="10"/>
-    <manacost initial="40" level_dec="5" minimum="25"/>
+    <cost mana_initial="40" mana_level_dec="5" mana_minimum="25"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="violent"/>
@@ -1089,7 +1091,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="388" name="eagles overture">
     <granted class="bard" level="25"/>
-    <manacost initial="55" level_dec="2" minimum="25"/>
+    <cost mana_initial="55" mana_level_dec="2" mana_minimum="25"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -1101,7 +1103,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="23" name="earthquake">
     <granted class="cleric" level="30"/>
-    <manacost initial="40" level_dec="3" minimum="25"/>
+    <cost mana_initial="40" mana_level_dec="3" mana_minimum="25"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="areas"/>
@@ -1109,7 +1111,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="217" name="ego whip">
     <granted class="psionic" level="22"/>
-    <manacost initial="50" level_dec="1" minimum="30"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1123,7 +1125,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="325" name="electric arc">
     <granted class="physic" level="21"/>
-    <manacost initial="90" level_dec="1" minimum="50"/>
+    <cost mana_initial="90" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1134,7 +1136,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="342" name="electromagnetic pulse">
     <granted class="physic" level="34"/>
-    <manacost initial="145" level_dec="5" minimum="75"/>
+    <cost mana_initial="145" mana_level_dec="5" mana_minimum="75"/>
     <position minimum="sitting"/>
     <flag value="manual"/>
     <flag value="physics"/>
@@ -1147,7 +1149,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="341" name="electrostatic field">
     <granted class="physic" level="1"/>
-    <manacost initial="40" level_dec="2" minimum="20"/>
+    <cost mana_initial="40" mana_level_dec="2" mana_minimum="20"/>
     <position minimum="sitting"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -1157,7 +1159,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="156" name="elemental branding">
     <granted class="ranger" level="31" gen="1"/>
-    <manacost initial="160" level_dec="1" minimum="120"/>
+    <cost mana_initial="160" mana_level_dec="1" mana_minimum="120"/>
     <position minimum="standing"/>
     <target type="object" scope="inventory"/>
     <target type="object" scope="room"/>
@@ -1173,7 +1175,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="70" name="enchant armor">
     <granted class="mage" level="16"/>
-    <manacost initial="180" level_dec="3" minimum="80"/>
+    <cost mana_initial="180" mana_level_dec="3" mana_minimum="80"/>
     <position minimum="standing"/>
     <target type="object" scope="inventory"/>
     <flag value="manual"/>
@@ -1181,7 +1183,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="24" name="enchant weapon">
     <granted class="mage" level="21"/>
-    <manacost initial="200" level_dec="3" minimum="100"/>
+    <cost mana_initial="200" mana_level_dec="3" mana_minimum="100"/>
     <position minimum="standing"/>
     <target type="object" scope="inventory"/>
     <target type="object" scope="equip"/>
@@ -1190,7 +1192,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="234" name="endurance">
     <granted class="psionic" level="11"/>
-    <manacost initial="90" level_dec="1" minimum="50"/>
+    <cost mana_initial="90" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -1201,7 +1203,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <granted class="cleric" level="15"/>
     <granted class="knight" level="16"/>
     <granted class="ranger" level="16"/>
-    <manacost initial="100" level_dec="5" minimum="40"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -1213,7 +1215,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="25" name="energy drain">
     <granted class="mage" level="24"/>
-    <manacost initial="40" level_dec="1" minimum="25"/>
+    <cost mana_initial="40" mana_level_dec="1" mana_minimum="25"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1224,6 +1226,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="617" name="energy field">
     <granted class="cyborg" level="32"/>
+    <cost maxmove="40"/>
     <flag value="cybernetic"/>
     <flag value="defensive"/>
   </spell>
@@ -1234,7 +1237,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="134" name="entangle">
     <granted class="ranger" level="22" gen="1"/>
-    <manacost initial="70" level_dec="2" minimum="30"/>
+    <cost mana_initial="70" mana_level_dec="2" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1245,7 +1248,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="322" name="entropy field">
     <granted class="physic" level="27"/>
-    <manacost initial="101" level_dec="8" minimum="60"/>
+    <cost mana_initial="101" mana_level_dec="8" mana_minimum="60"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1256,7 +1259,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="155" name="envenom">
     <granted class="ranger" level="5"/>
-    <manacost initial="25" level_dec="1" minimum="10"/>
+    <cost mana_initial="25" mana_level_dec="1" mana_minimum="10"/>
     <position minimum="fighting"/>
     <target type="object" scope="inventory"/>
     <target type="object" scope="room"/>
@@ -1269,7 +1272,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="biologic"/>
   </spell>
   <spell id="741" name="essence of evil">
-    <manacost initial="330" level_dec="21" minimum="215"/>
+    <cost mana_initial="330" mana_level_dec="21" mana_minimum="215"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <flag value="damage"/>
@@ -1277,7 +1280,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="evil"/>
   </spell>
   <spell id="742" name="essence of goodness">
-    <manacost initial="330" level_dec="21" minimum="215"/>
+    <cost mana_initial="330" mana_level_dec="21" mana_minimum="215"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <flag value="damage"/>
@@ -1294,7 +1297,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="354" name="exposure overture">
     <granted class="bard" level="25"/>
-    <manacost initial="95" level_dec="1" minimum="75"/>
+    <cost mana_initial="95" mana_level_dec="1" mana_minimum="75"/>
     <position minimum="standing"/>
     <flag value="manual"/>
     <flag value="song"/>
@@ -1308,7 +1311,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="204" name="fear">
     <granted class="psionic" level="29"/>
-    <manacost initial="60" level_dec="2" minimum="30"/>
+    <cost mana_initial="60" mana_level_dec="2" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1320,7 +1323,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <granted class="thief" level="25"/>
   </skill>
   <spell id="125" name="fiery sheet">
-    <manacost initial="50" level_dec="1" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="door"/>
     <flag value="magic"/>
@@ -1328,7 +1331,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="nowater"/>
   </spell>
   <spell id="702" name="fire breath">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1338,7 +1341,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="158" name="fire breathing">
     <granted class="mage" level="35" gen="1"/>
-    <manacost initial="280" level_dec="10" minimum="180"/>
+    <cost mana_initial="280" mana_level_dec="10" mana_minimum="180"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -1349,7 +1352,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="65" name="fire shield">
     <granted class="mage" level="17"/>
-    <manacost initial="70" level_dec="3" minimum="30"/>
+    <cost mana_initial="70" mana_level_dec="3" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -1360,7 +1363,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="26" name="fireball">
     <granted class="mage" level="31"/>
-    <manacost initial="130" level_dec="5" minimum="40"/>
+    <cost mana_initial="130" mana_level_dec="5" mana_minimum="40"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1373,11 +1376,11 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <granted class="ranger" level="19"/>
     <granted class="monk" level="30"/>
     <granted class="mercenary" level="16"/>
-    <manacost initial="70" level_dec="1" minimum="60"/>
+    <cost mana_initial="70" mana_level_dec="1" mana_minimum="60"/>
   </skill>
   <spell id="316" name="fission blast">
     <granted class="physic" level="43"/>
-    <manacost initial="150" level_dec="10" minimum="70"/>
+    <cost mana_initial="150" mana_level_dec="10" mana_minimum="70"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="areas"/>
@@ -1385,7 +1388,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="160" name="flame of faith">
     <granted class="cleric" level="12"/>
-    <manacost initial="60" level_dec="2" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="2" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="object" scope="inventory"/>
     <target type="object" scope="room"/>
@@ -1397,7 +1400,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   <spell id="81" name="flame strike">
     <granted class="cleric" level="33"/>
     <granted class="knight" level="35"/>
-    <manacost initial="60" level_dec="2" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="2" mana_minimum="40"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1410,7 +1413,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="304" name="fluorescence">
     <granted class="physic" level="3"/>
-    <manacost initial="50" level_dec="1" minimum="10"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="10"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -1418,7 +1421,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="72" name="fly">
     <granted class="mage" level="33"/>
-    <manacost initial="60" level_dec="2" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="2" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -1426,7 +1429,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="391" name="fortissimo">
     <granted class="bard" level="14" gen="3"/>
-    <manacost initial="150" level_dec="5" minimum="75"/>
+    <cost mana_initial="150" mana_level_dec="5" mana_minimum="75"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -1436,7 +1439,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <description>an upbeat tune that swells to a deafening volume</description>
   </spell>
   <spell id="221" name="fortress of iron will">
-    <manacost initial="30" level_dec="1" minimum="30"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -1445,7 +1448,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   <skill id="758" name="freezing">
   </skill>
   <spell id="704" name="frost breath">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1460,7 +1463,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="305" name="gamma ray">
     <granted class="physic" level="25"/>
-    <manacost initial="100" level_dec="2" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="2" mana_minimum="50"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1474,7 +1477,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="violent"/>
   </skill>
   <spell id="703" name="gas breath">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1484,7 +1487,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="335" name="gauss shield">
     <granted class="physic" level="32" gen="3"/>
-    <manacost initial="90" level_dec="1" minimum="70"/>
+    <cost mana_initial="90" mana_level_dec="1" mana_minimum="70"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -1503,7 +1506,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="54" name="glowlight">
     <granted class="mage" level="8"/>
-    <manacost initial="30" level_dec="1" minimum="20"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="fighting"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -1512,7 +1515,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="89" name="goodberry">
     <granted class="ranger" level="7"/>
-    <manacost initial="30" level_dec="4" minimum="5"/>
+    <cost mana_initial="30" mana_level_dec="4" mana_minimum="5"/>
     <position minimum="standing"/>
     <flag value="creations"/>
     <flag value="magic"/>
@@ -1527,7 +1530,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="323" name="gravity well">
     <granted class="physic" level="38"/>
-    <manacost initial="130" level_dec="4" minimum="70"/>
+    <cost mana_initial="130" mana_level_dec="4" mana_minimum="70"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1541,7 +1544,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="69" name="greater enchant">
     <granted class="mage" level="34"/>
-    <manacost initial="230" level_dec="5" minimum="120"/>
+    <cost mana_initial="230" mana_level_dec="5" mana_minimum="120"/>
     <position minimum="standing"/>
     <target type="object" scope="inventory"/>
     <flag value="manual"/>
@@ -1549,7 +1552,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="73" name="greater heal">
     <granted class="cleric" level="34"/>
-    <manacost initial="120" level_dec="2" minimum="90"/>
+    <cost mana_initial="120" mana_level_dec="2" mana_minimum="90"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
@@ -1558,7 +1561,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <spell id="98" name="greater invis">
     <granted class="mage" level="38"/>
-    <manacost initial="85" level_dec="1" minimum="65"/>
+    <cost mana_initial="85" mana_level_dec="1" mana_minimum="65"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -1570,21 +1573,21 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="47" name="group armor">
     <granted class="cleric" level="19"/>
-    <manacost initial="50" level_dec="2" minimum="30"/>
+    <cost mana_initial="50" mana_level_dec="2" mana_minimum="30"/>
     <position minimum="standing"/>
     <flag value="groups"/>
     <flag value="divine"/>
   </spell>
   <spell id="232" name="group confidence">
     <granted class="psionic" level="14"/>
-    <manacost initial="90" level_dec="2" minimum="45"/>
+    <cost mana_initial="90" mana_level_dec="2" mana_minimum="45"/>
     <position minimum="standing"/>
     <flag value="groups"/>
     <flag value="psionic"/>
   </spell>
   <spell id="48" name="group heal">
     <granted class="cleric" level="31"/>
-    <manacost initial="80" level_dec="5" minimum="60"/>
+    <cost mana_initial="80" mana_level_dec="5" mana_minimum="60"/>
     <position minimum="standing"/>
     <flag value="groups"/>
     <flag value="divine"/>
@@ -1593,7 +1596,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </skill>
   <spell id="373" name="guiharias glory">
     <granted class="bard" level="16"/>
-    <manacost initial="120" level_dec="1" minimum="80"/>
+    <cost mana_initial="120" mana_level_dec="1" mana_minimum="80"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -1607,7 +1610,7 @@ Her spirit renews me, my heart can endure</lyrics>
   </skill>
   <spell id="103" name="gust of wind">
     <granted class="mage" level="40"/>
-    <manacost initial="80" level_dec="4" minimum="55"/>
+    <cost mana_initial="80" mana_level_dec="4" mana_minimum="55"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1621,7 +1624,7 @@ Her spirit renews me, my heart can endure</lyrics>
   </skill>
   <spell id="127" name="hailstorm">
     <granted class="ranger" level="37"/>
-    <manacost initial="180" level_dec="10" minimum="110"/>
+    <cost mana_initial="180" mana_level_dec="10" mana_minimum="110"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="masses"/>
@@ -1630,7 +1633,7 @@ Her spirit renews me, my heart can endure</lyrics>
   </spell>
   <spell id="306" name="halflife">
     <granted class="physic" level="30"/>
-    <manacost initial="120" level_dec="5" minimum="70"/>
+    <cost mana_initial="120" mana_level_dec="5" mana_minimum="70"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1647,7 +1650,7 @@ Her spirit renews me, my heart can endure</lyrics>
   </skill>
   <spell id="27" name="harm">
     <granted class="cleric" level="29"/>
-    <manacost initial="95" level_dec="2" minimum="45"/>
+    <cost mana_initial="95" mana_level_dec="2" mana_minimum="45"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1657,7 +1660,7 @@ Her spirit renews me, my heart can endure</lyrics>
   </spell>
   <spell id="92" name="haste">
     <granted class="mage" level="44"/>
-    <manacost initial="60" level_dec="1" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="40"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -1670,7 +1673,7 @@ Her spirit renews me, my heart can endure</lyrics>
   <spell id="28" name="heal">
     <granted class="cleric" level="24"/>
     <granted class="knight" level="28"/>
-    <manacost initial="60" level_dec="1" minimum="30"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
@@ -1681,7 +1684,7 @@ Her spirit renews me, my heart can endure</lyrics>
     <granted class="thief" level="11"/>
   </skill>
   <spell id="717" name="hell fire">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1689,13 +1692,13 @@ Her spirit renews me, my heart can endure</lyrics>
     <flag value="damage"/>
   </spell>
   <spell id="748" name="hell firestorm">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="masses"/>
   </spell>
   <spell id="744" name="hell frost">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1704,7 +1707,7 @@ Her spirit renews me, my heart can endure</lyrics>
     <flag value="affects"/>
   </spell>
   <spell id="749" name="hell froststorm">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="masses"/>
@@ -1721,11 +1724,11 @@ Her spirit renews me, my heart can endure</lyrics>
   </skill>
   <skill id="604" name="holytouch">
     <granted class="knight" level="2"/>
-    <manacost initial="30" level_dec="1" minimum="10"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="10"/>
   </skill>
   <spell id="383" name="home sweet home">
     <granted class="bard" level="9"/>
-    <manacost initial="100" level_dec="2" minimum="20"/>
+    <cost mana_initial="100" mana_level_dec="2" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
@@ -1745,7 +1748,7 @@ Home sweet home.</lyrics>
   </skill>
   <spell id="363" name="hymn of peace">
     <granted class="bard" level="33"/>
-    <manacost initial="75" level_dec="3" minimum="50"/>
+    <cost mana_initial="75" mana_level_dec="3" mana_minimum="50"/>
     <position minimum="standing"/>
     <flag value="unaffects"/>
     <flag value="manual"/>
@@ -1755,11 +1758,12 @@ Home sweet home.</lyrics>
   </spell>
   <spell id="637" name="hyperscanning">
     <granted class="cyborg" level="25"/>
+    <cost maxmove="10"/>
     <flag value="cybernetic"/>
   </spell>
   <spell id="128" name="ice storm">
     <granted class="cleric" level="49"/>
-    <manacost initial="130" level_dec="15" minimum="60"/>
+    <cost mana_initial="130" mana_level_dec="15" mana_minimum="60"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="masses"/>
@@ -1767,7 +1771,7 @@ Home sweet home.</lyrics>
   </spell>
   <spell id="111" name="icy blast">
     <granted class="cleric" level="41"/>
-    <manacost initial="80" level_dec="3" minimum="50"/>
+    <cost mana_initial="80" mana_level_dec="3" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1777,7 +1781,7 @@ Home sweet home.</lyrics>
   </spell>
   <spell id="227" name="id insinuation">
     <granted class="psionic" level="32" gen="1"/>
-    <manacost initial="110" level_dec="5" minimum="80"/>
+    <cost mana_initial="110" mana_level_dec="5" mana_minimum="80"/>
     <position minimum="standing"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -1788,7 +1792,7 @@ Home sweet home.</lyrics>
   </spell>
   <spell id="53" name="identify">
     <granted class="mage" level="25"/>
-    <manacost initial="95" level_dec="3" minimum="50"/>
+    <cost mana_initial="95" mana_level_dec="3" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -1806,7 +1810,7 @@ Home sweet home.</lyrics>
   </skill>
   <spell id="141" name="inferno">
     <granted class="cleric" level="35" gen="1"/>
-    <manacost initial="100" level_dec="7" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="7" mana_minimum="50"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="manual"/>
@@ -1818,7 +1822,7 @@ Home sweet home.</lyrics>
   </skill>
   <spell id="50" name="infravision">
     <granted class="mage" level="3"/>
-    <manacost initial="25" level_dec="1" minimum="10"/>
+    <cost mana_initial="25" mana_level_dec="1" mana_minimum="10"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -1826,7 +1830,7 @@ Home sweet home.</lyrics>
   </spell>
   <spell id="392" name="insidious rhythm">
     <granted class="bard" level="20"/>
-    <manacost initial="90" level_dec="1" minimum="55"/>
+    <cost mana_initial="90" mana_level_dec="1" mana_minimum="55"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -1839,7 +1843,7 @@ Home sweet home.</lyrics>
   </spell>
   <spell id="346" name="instant audience">
     <granted class="bard" level="26"/>
-    <manacost initial="190" level_dec="5" minimum="100"/>
+    <cost mana_initial="190" mana_level_dec="5" mana_minimum="100"/>
     <position minimum="standing"/>
     <flag value="manual"/>
     <flag value="song"/>
@@ -1849,7 +1853,7 @@ The likes of which you'll not hear again soon.</lyrics>
   </spell>
   <spell id="202" name="intellect">
     <granted class="psionic" level="23"/>
-    <manacost initial="60" level_dec="1" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -1862,7 +1866,7 @@ The likes of which you'll not hear again soon.</lyrics>
   <spell id="91" name="invis to undead">
     <granted class="mage" level="30"/>
     <granted class="ranger" level="21"/>
-    <manacost initial="60" level_dec="1" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -1872,7 +1876,7 @@ The likes of which you'll not hear again soon.</lyrics>
   </spell>
   <spell id="29" name="invisibility">
     <granted class="mage" level="12"/>
-    <manacost initial="35" level_dec="1" minimum="25"/>
+    <cost mana_initial="35" mana_level_dec="1" mana_minimum="25"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -1883,7 +1887,7 @@ The likes of which you'll not hear again soon.</lyrics>
   </spell>
   <spell id="379" name="irresistable dance">
     <granted class="bard" level="38"/>
-    <manacost initial="65" level_dec="1" minimum="40"/>
+    <cost mana_initial="65" mana_level_dec="1" mana_minimum="40"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -1919,7 +1923,7 @@ In me as well as you.</lyrics>
   </skill>
   <spell id="56" name="knock">
     <granted class="mage" level="27"/>
-    <manacost initial="50" level_dec="1" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="door"/>
     <flag value="manual"/>
@@ -1927,7 +1931,7 @@ In me as well as you.</lyrics>
   </spell>
   <spell id="349" name="lament of longing">
     <granted class="bard" level="40" gen="4"/>
-    <manacost initial="320" level_dec="5" minimum="180"/>
+    <cost mana_initial="320" mana_level_dec="5" mana_minimum="180"/>
     <position minimum="standing"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="world"/>
@@ -1938,7 +1942,7 @@ In me as well as you.</lyrics>
   </spell>
   <spell id="327" name="lattice hardening">
     <granted class="physic" level="28"/>
-    <manacost initial="100" level_dec="4" minimum="40"/>
+    <cost mana_initial="100" mana_level_dec="4" mana_minimum="40"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -1961,7 +1965,7 @@ In me as well as you.</lyrics>
   </skill>
   <spell id="390" name="lichs lyrics">
     <granted class="bard" level="45" gen="5"/>
-    <manacost initial="300" level_dec="25" minimum="200"/>
+    <cost mana_initial="300" mana_level_dec="25" mana_minimum="200"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="areas"/>
@@ -1974,7 +1978,7 @@ the lich controls you all the while.</lyrics>
   </spell>
   <spell id="30" name="lightning bolt">
     <granted class="mage" level="15"/>
-    <manacost initial="50" level_dec="1" minimum="15"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1984,7 +1988,7 @@ the lich controls you all the while.</lyrics>
     <flag value="waterzap"/>
   </spell>
   <spell id="706" name="lightning breath">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -1997,7 +2001,7 @@ the lich controls you all the while.</lyrics>
   </skill>
   <spell id="105" name="local teleport">
     <granted class="mage" level="18"/>
-    <manacost initial="45" level_dec="3" minimum="30"/>
+    <cost mana_initial="45" mana_level_dec="3" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
@@ -2005,14 +2009,14 @@ the lich controls you all the while.</lyrics>
   </spell>
   <spell id="31" name="locate object">
     <granted class="mage" level="23"/>
-    <manacost initial="25" level_dec="1" minimum="20"/>
+    <cost mana_initial="25" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <flag value="manual"/>
     <flag value="magic"/>
   </spell>
   <spell id="148" name="locust regeneration">
     <granted class="mage" level="34" gen="5"/>
-    <manacost initial="125" level_dec="5" minimum="60"/>
+    <cost mana_initial="125" mana_level_dec="5" mana_minimum="60"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -2035,7 +2039,7 @@ And meditate on what you prize</lyrics>
   </skill>
   <spell id="358" name="lustration melisma">
     <granted class="bard" level="2"/>
-    <manacost initial="95" level_dec="1" minimum="75"/>
+    <cost mana_initial="95" mana_level_dec="1" mana_minimum="75"/>
     <position minimum="standing"/>
     <flag value="unaffects"/>
     <flag value="groups"/>
@@ -2046,7 +2050,7 @@ We beg for release from these sicknesses' hold.</lyrics>
   </spell>
   <spell id="32" name="magic missile">
     <granted class="mage" level="1"/>
-    <manacost initial="20" level_dec="3" minimum="8"/>
+    <cost mana_initial="20" mana_level_dec="3" mana_minimum="8"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -2057,7 +2061,7 @@ We beg for release from these sicknesses' hold.</lyrics>
   <spell id="77" name="magical protection">
     <granted class="mage" level="32"/>
     <granted class="cleric" level="26"/>
-    <manacost initial="40" level_dec="2" minimum="10"/>
+    <cost mana_initial="40" mana_level_dec="2" mana_minimum="10"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2067,7 +2071,7 @@ We beg for release from these sicknesses' hold.</lyrics>
   <spell id="83" name="magical vestment">
     <granted class="cleric" level="11"/>
     <granted class="knight" level="4"/>
-    <manacost initial="100" level_dec="1" minimum="80"/>
+    <cost mana_initial="100" mana_level_dec="1" mana_minimum="80"/>
     <position minimum="standing"/>
     <target type="object" scope="inventory"/>
     <flag value="manual"/>
@@ -2075,7 +2079,7 @@ We beg for release from these sicknesses' hold.</lyrics>
   </spell>
   <spell id="138" name="malefic violation">
     <granted class="cleric" level="39" gen="5"/>
-    <manacost initial="100" level_dec="5" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2084,7 +2088,7 @@ We beg for release from these sicknesses' hold.</lyrics>
     <flag value="evil"/>
   </spell>
   <spell id="734" name="mana restore">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <potiondesc first="bright" second="purple" third="volatile"/>
@@ -2092,7 +2096,7 @@ We beg for release from these sicknesses' hold.</lyrics>
   </spell>
   <spell id="52" name="mana shield">
     <granted class="mage" level="28" gen="3"/>
-    <manacost initial="60" level_dec="2" minimum="30"/>
+    <cost mana_initial="60" mana_level_dec="2" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2101,7 +2105,7 @@ We beg for release from these sicknesses' hold.</lyrics>
   </spell>
   <spell id="231" name="mass hysteria">
     <granted class="psionic" level="48"/>
-    <manacost initial="100" level_dec="1" minimum="30"/>
+    <cost mana_initial="100" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="standing"/>
     <flag value="violent"/>
     <flag value="areas"/>
@@ -2109,14 +2113,14 @@ We beg for release from these sicknesses' hold.</lyrics>
   </spell>
   <skill id="530" name="medic">
     <granted class="ranger" level="40"/>
-    <manacost initial="90" level_dec="1" minimum="80"/>
+    <cost mana_initial="90" mana_level_dec="1" mana_minimum="80"/>
   </skill>
   <skill id="577" name="meditate">
     <granted class="monk" level="9"/>
   </skill>
   <spell id="228" name="melatonic flood">
     <granted class="psionic" level="18"/>
-    <manacost initial="90" level_dec="5" minimum="30"/>
+    <cost mana_initial="90" mana_level_dec="5" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="violent"/>
@@ -2126,11 +2130,12 @@ We beg for release from these sicknesses' hold.</lyrics>
   </spell>
   <spell id="646" name="melee combat tactics">
     <granted class="cyborg" level="24"/>
+    <cost maxmove="30"/>
     <flag value="cybernetic"/>
   </spell>
   <spell id="357" name="melody of mettle">
     <granted class="bard" level="11"/>
-    <manacost initial="100" level_dec="3" minimum="75"/>
+    <cost mana_initial="100" mana_level_dec="3" mana_minimum="75"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -2141,7 +2146,7 @@ Such mettle is forged in the fires of war!</lyrics>
   </spell>
   <spell id="216" name="metabolism increase">
     <granted class="psionic" level="9"/>
-    <manacost initial="50" level_dec="1" minimum="30"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2154,7 +2159,7 @@ Such mettle is forged in the fires of war!</lyrics>
   </skill>
   <spell id="108" name="meteor storm">
     <granted class="mage" level="48"/>
-    <manacost initial="180" level_dec="25" minimum="110"/>
+    <cost mana_initial="180" mana_level_dec="25" mana_minimum="110"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="areas"/>
@@ -2163,7 +2168,7 @@ Such mettle is forged in the fires of war!</lyrics>
   </spell>
   <spell id="307" name="microwave">
     <granted class="physic" level="18"/>
-    <manacost initial="45" level_dec="2" minimum="20"/>
+    <cost mana_initial="45" mana_level_dec="2" mana_minimum="20"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -2176,7 +2181,7 @@ Such mettle is forged in the fires of war!</lyrics>
   <spell id="71" name="minor identify">
     <granted class="mage" level="15"/>
     <granted class="cleric" level="46"/>
-    <manacost initial="75" level_dec="3" minimum="50"/>
+    <cost mana_initial="75" mana_level_dec="3" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -2186,7 +2191,7 @@ Such mettle is forged in the fires of war!</lyrics>
   </spell>
   <spell id="376" name="mirror image melody">
     <granted class="bard" level="46" gen="6"/>
-    <manacost initial="75" level_dec="10" minimum="50"/>
+    <cost mana_initial="75" mana_level_dec="10" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2197,7 +2202,7 @@ Such mettle is forged in the fires of war!</lyrics>
   </spell>
   <spell id="350" name="misdirection melisma">
     <granted class="bard" level="34"/>
-    <manacost initial="75" level_dec="2" minimum="50"/>
+    <cost mana_initial="75" mana_level_dec="2" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2209,11 +2214,12 @@ The melody removes my trace.</lyrics>
   </spell>
   <spell id="615" name="motion sensor">
     <granted class="cyborg" level="16"/>
+    <cost maxmove="30"/>
     <flag value="cybernetic"/>
   </spell>
   <spell id="229" name="motor spasm">
     <granted class="psionic" level="37"/>
-    <manacost initial="100" level_dec="5" minimum="70"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="70"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -2224,6 +2230,7 @@ The melody removes my trace.</lyrics>
   </spell>
   <spell id="675" name="nanite reconstruction">
     <granted class="cyborg" level="33"/>
+    <cost maxmove="300"/>
     <flag value="cybernetic"/>
   </spell>
   <skill id="605" name="night vision">
@@ -2231,7 +2238,7 @@ The melody removes my trace.</lyrics>
   </skill>
   <spell id="208" name="nopain">
     <granted class="psionic" level="30"/>
-    <manacost initial="130" level_dec="5" minimum="100"/>
+    <cost mana_initial="130" mana_level_dec="5" mana_minimum="100"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2239,7 +2246,7 @@ The melody removes my trace.</lyrics>
   </spell>
   <spell id="303" name="nuclear wasteland">
     <granted class="physic" level="40"/>
-    <manacost initial="100" level_dec="10" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="10" mana_minimum="50"/>
     <position minimum="sitting"/>
     <flag value="violent"/>
     <flag value="manual"/>
@@ -2247,7 +2254,7 @@ The melody removes my trace.</lyrics>
   </spell>
   <spell id="328" name="nullify">
     <granted class="physic" level="11"/>
-    <manacost initial="90" level_dec="5" minimum="55"/>
+    <cost mana_initial="90" mana_level_dec="5" mana_minimum="55"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
@@ -2255,7 +2262,7 @@ The melody removes my trace.</lyrics>
   </spell>
   <spell id="236" name="nullpsi">
     <granted class="psionic" level="17"/>
-    <manacost initial="90" level_dec="1" minimum="50"/>
+    <cost mana_initial="90" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
@@ -2280,7 +2287,7 @@ The melody removes my trace.</lyrics>
   </skill>
   <spell id="308" name="oxidize">
     <granted class="physic" level="10"/>
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -2293,7 +2300,7 @@ The melody removes my trace.</lyrics>
   </skill>
   <spell id="107" name="peer">
     <granted class="mage" level="40"/>
-    <manacost initial="100" level_dec="6" minimum="40"/>
+    <cost mana_initial="100" mana_level_dec="6" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="object" scope="inventory"/>
     <target type="object" scope="room"/>
@@ -2307,7 +2314,7 @@ The melody removes my trace.</lyrics>
     <granted class="ranger" level="41"/>
   </skill>
   <spell id="739" name="petrify">
-    <manacost initial="330" level_dec="21" minimum="215"/>
+    <cost mana_initial="330" mana_level_dec="21" mana_minimum="215"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="violent"/>
@@ -2315,7 +2322,7 @@ The melody removes my trace.</lyrics>
   </spell>
   <spell id="62" name="phantasmic sword">
     <granted class="mage" level="30"/>
-    <manacost initial="265" level_dec="2" minimum="180"/>
+    <cost mana_initial="265" mana_level_dec="2" mana_minimum="180"/>
     <position minimum="standing"/>
     <flag value="manual"/>
     <flag value="magic"/>
@@ -2342,7 +2349,7 @@ The melody removes my trace.</lyrics>
   </skill>
   <spell id="33" name="poison">
     <granted class="mage" level="20"/>
-    <manacost initial="50" level_dec="3" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="3" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -2354,7 +2361,7 @@ The melody removes my trace.</lyrics>
   </spell>
   <spell id="201" name="power">
     <granted class="psionic" level="15"/>
-    <manacost initial="80" level_dec="1" minimum="50"/>
+    <cost mana_initial="80" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2362,11 +2369,12 @@ The melody removes my trace.</lyrics>
   </spell>
   <spell id="619" name="power boost">
     <granted class="cyborg" level="18"/>
+    <cost maxmove="40"/>
     <flag value="cybernetic"/>
   </spell>
   <spell id="372" name="power overture">
     <granted class="bard" level="13"/>
-    <manacost initial="50" level_dec="1" minimum="25"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="25"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2378,7 +2386,7 @@ A surge of power absolute</lyrics>
   <spell id="80" name="pray">
     <granted class="cleric" level="27"/>
     <granted class="knight" level="30"/>
-    <manacost initial="80" level_dec="2" minimum="50"/>
+    <cost mana_initial="80" mana_level_dec="2" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2387,7 +2395,7 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="118" name="prismatic sphere">
     <granted class="mage" level="40" gen="1"/>
-    <manacost initial="170" level_dec="3" minimum="30"/>
+    <cost mana_initial="170" mana_level_dec="3" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2397,7 +2405,7 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="64" name="prismatic spray">
     <granted class="mage" level="42"/>
-    <manacost initial="160" level_dec="10" minimum="80"/>
+    <cost mana_initial="160" mana_level_dec="10" mana_minimum="80"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -2411,7 +2419,7 @@ A surge of power absolute</lyrics>
     <flag value="weapon"/>
   </skill>
   <spell id="109" name="protection from devils">
-    <manacost initial="40" level_dec="2" minimum="15"/>
+    <cost mana_initial="40" mana_level_dec="2" mana_minimum="15"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2420,7 +2428,7 @@ A surge of power absolute</lyrics>
   <spell id="34" name="protection from evil">
     <granted class="cleric" level="16"/>
     <granted class="knight" level="9"/>
-    <manacost initial="40" level_dec="2" minimum="15"/>
+    <cost mana_initial="40" mana_level_dec="2" mana_minimum="15"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2430,7 +2438,7 @@ A surge of power absolute</lyrics>
   <spell id="100" name="protection from fire">
     <granted class="cleric" level="16"/>
     <granted class="ranger" level="19"/>
-    <manacost initial="40" level_dec="2" minimum="15"/>
+    <cost mana_initial="40" mana_level_dec="2" mana_minimum="15"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2439,7 +2447,7 @@ A surge of power absolute</lyrics>
   <spell id="76" name="protection from good">
     <granted class="cleric" level="16"/>
     <granted class="knight" level="9"/>
-    <manacost initial="40" level_dec="2" minimum="15"/>
+    <cost mana_initial="40" mana_level_dec="2" mana_minimum="15"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2448,7 +2456,7 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="99" name="protection from lightning">
     <granted class="ranger" level="9"/>
-    <manacost initial="40" level_dec="2" minimum="15"/>
+    <cost mana_initial="40" mana_level_dec="2" mana_minimum="15"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2456,23 +2464,23 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="589" name="psiblast">
     <granted class="psionic" level="1"/>
-    <manacost initial="50" level_dec="1" minimum="50"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="50"/>
     <flag value="damage"/>
     <flag value="psionic"/>
   </spell>
   <spell id="591" name="psidrain">
     <granted class="psionic" level="24"/>
-    <manacost initial="50" level_dec="1" minimum="30"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="30"/>
     <flag value="psionic"/>
   </spell>
   <spell id="590" name="psilocate">
     <granted class="psionic" level="25"/>
-    <manacost initial="100" level_dec="5" minimum="30"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="30"/>
     <flag value="psionic"/>
   </spell>
   <spell id="226" name="psionic shatter">
     <granted class="psionic" level="33"/>
-    <manacost initial="80" level_dec="3" minimum="30"/>
+    <cost mana_initial="80" mana_level_dec="3" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -2483,7 +2491,7 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="223" name="psionic shield">
     <granted class="psionic" level="30"/>
-    <manacost initial="120" level_dec="5" minimum="60"/>
+    <cost mana_initial="120" mana_level_dec="5" mana_minimum="60"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2491,7 +2499,7 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="237" name="psionic shockwave">
     <granted class="psionic" level="38" gen="7"/>
-    <manacost initial="150" level_dec="10" minimum="50"/>
+    <cost mana_initial="150" mana_level_dec="10" mana_minimum="50"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="masses"/>
@@ -2499,7 +2507,7 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="225" name="psychic conduit">
     <granted class="psionic" level="26"/>
-    <manacost initial="70" level_dec="1" minimum="50"/>
+    <cost mana_initial="70" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -2508,7 +2516,7 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="218" name="psychic crush">
     <granted class="psionic" level="35"/>
-    <manacost initial="130" level_dec="15" minimum="30"/>
+    <cost mana_initial="130" mana_level_dec="15" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -2519,7 +2527,7 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="245" name="psychic feedback">
     <granted class="psionic" level="32" gen="3"/>
-    <manacost initial="75" level_dec="3" minimum="30"/>
+    <cost mana_initial="75" mana_level_dec="3" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2528,7 +2536,7 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="230" name="psychic resistance">
     <granted class="psionic" level="20"/>
-    <manacost initial="80" level_dec="1" minimum="30"/>
+    <cost mana_initial="80" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2536,7 +2544,7 @@ A surge of power absolute</lyrics>
   </spell>
   <spell id="224" name="psychic surge">
     <granted class="psionic" level="40"/>
-    <manacost initial="90" level_dec="4" minimum="60"/>
+    <cost mana_initial="90" mana_level_dec="4" mana_minimum="60"/>
     <position minimum="standing"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -2566,7 +2574,7 @@ You've got me blowing, blowing my mind.
 Is it tomorrow or just the end of time?</lyrics>
   </skill>
   <spell id="761" name="quad damage">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -2574,14 +2582,14 @@ Is it tomorrow or just the end of time?</lyrics>
   </spell>
   <spell id="343" name="quantum rift">
     <granted class="physic" level="45" gen="5"/>
-    <manacost initial="400" level_dec="5" minimum="300"/>
+    <cost mana_initial="400" mana_level_dec="5" mana_minimum="300"/>
     <position minimum="sitting"/>
     <flag value="manual"/>
     <flag value="physics"/>
   </spell>
   <spell id="206" name="quench">
     <granted class="psionic" level="4"/>
-    <manacost initial="35" level_dec="1" minimum="15"/>
+    <cost mana_initial="35" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="points"/>
@@ -2594,7 +2602,7 @@ Is it tomorrow or just the end of time?</lyrics>
   </skill>
   <spell id="338" name="radioimmunity">
     <granted class="physic" level="20"/>
-    <manacost initial="80" level_dec="8" minimum="20"/>
+    <cost mana_initial="80" mana_level_dec="8" mana_minimum="20"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2602,13 +2610,14 @@ Is it tomorrow or just the end of time?</lyrics>
   </spell>
   <spell id="641" name="radionegation">
     <granted class="cyborg" level="17" gen="1"/>
+    <cost maxmove="15"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="cybernetic"/>
   </spell>
   <spell id="309" name="random coordinates">
     <granted class="physic" level="20"/>
-    <manacost initial="100" level_dec="2" minimum="20"/>
+    <cost mana_initial="100" mana_level_dec="2" mana_minimum="20"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
@@ -2632,11 +2641,12 @@ Is it tomorrow or just the end of time?</lyrics>
   </skill>
   <spell id="618" name="reflex boost">
     <granted class="cyborg" level="18"/>
+    <cost maxmove="40"/>
     <flag value="cybernetic"/>
   </spell>
   <spell id="317" name="refraction">
     <granted class="physic" level="33"/>
-    <manacost initial="80" level_dec="8" minimum="20"/>
+    <cost mana_initial="80" mana_level_dec="8" mana_minimum="20"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2644,7 +2654,7 @@ Is it tomorrow or just the end of time?</lyrics>
   </spell>
   <spell id="95" name="refresh">
     <granted class="ranger" level="15"/>
-    <manacost initial="100" level_dec="2" minimum="40"/>
+    <cost mana_initial="100" mana_level_dec="2" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2653,7 +2663,7 @@ Is it tomorrow or just the end of time?</lyrics>
   </spell>
   <spell id="356" name="regalers rhapsody">
     <granted class="bard" level="5"/>
-    <manacost initial="37" level_dec="1" minimum="15"/>
+    <cost mana_initial="37" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -2665,7 +2675,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
   <spell id="85" name="regenerate">
     <granted class="mage" level="49"/>
     <granted class="cleric" level="45"/>
-    <manacost initial="140" level_dec="10" minimum="100"/>
+    <cost mana_initial="140" mana_level_dec="10" mana_minimum="100"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2673,7 +2683,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
   </spell>
   <spell id="84" name="rejuvenate">
     <granted class="cleric" level="40"/>
-    <manacost initial="100" level_dec="8" minimum="40"/>
+    <cost mana_initial="100" mana_level_dec="8" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2681,7 +2691,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
   </spell>
   <spell id="219" name="relaxation">
     <granted class="psionic" level="7"/>
-    <manacost initial="100" level_dec="3" minimum="40"/>
+    <cost mana_initial="100" mana_level_dec="3" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2692,7 +2702,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <granted class="mage" level="26"/>
     <granted class="cleric" level="27"/>
     <granted class="knight" level="31"/>
-    <manacost initial="45" level_dec="5" minimum="25"/>
+    <cost mana_initial="45" mana_level_dec="5" mana_minimum="25"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -2704,7 +2714,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <granted class="cleric" level="8"/>
     <granted class="knight" level="19"/>
     <granted class="ranger" level="12"/>
-    <manacost initial="40" level_dec="4" minimum="8"/>
+    <cost mana_initial="40" mana_level_dec="4" mana_minimum="8"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -2715,7 +2725,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
   </spell>
   <spell id="116" name="remove sickness">
     <granted class="cleric" level="37"/>
-    <manacost initial="145" level_dec="5" minimum="85"/>
+    <cost mana_initial="145" mana_level_dec="5" mana_minimum="85"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
@@ -2723,7 +2733,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
   </spell>
   <spell id="310" name="repulsion field">
     <granted class="physic" level="16"/>
-    <manacost initial="30" level_dec="1" minimum="20"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -2748,7 +2758,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
   </skill>
   <spell id="101" name="restoration">
     <granted class="cleric" level="43"/>
-    <manacost initial="210" level_dec="11" minimum="80"/>
+    <cost mana_initial="210" mana_level_dec="11" mana_minimum="80"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="points"/>
@@ -2756,7 +2766,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
   </spell>
   <spell id="212" name="retina">
     <granted class="psionic" level="13"/>
-    <manacost initial="60" level_dec="1" minimum="25"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="25"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2771,7 +2781,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
   </skill>
   <spell id="104" name="retrieve corpse">
     <granted class="cleric" level="48"/>
-    <manacost initial="125" level_dec="15" minimum="65"/>
+    <cost mana_initial="125" mana_level_dec="15" mana_minimum="65"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
@@ -2779,7 +2789,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
   </spell>
   <spell id="381" name="rhapsody of remedy">
     <granted class="bard" level="28"/>
-    <manacost initial="80" level_dec="1" minimum="50"/>
+    <cost mana_initial="80" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="points"/>
@@ -2790,7 +2800,7 @@ A song can mend it all with ease.</lyrics>
   </spell>
   <spell id="380" name="rhythm of alarm">
     <granted class="bard" level="41"/>
-    <manacost initial="100" level_dec="1" minimum="75"/>
+    <cost mana_initial="100" mana_level_dec="1" mana_minimum="75"/>
     <position minimum="sitting"/>
     <flag value="violent"/>
     <flag value="manual"/>
@@ -2801,7 +2811,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="371" name="rhythm of rage">
     <granted class="bard" level="36"/>
-    <manacost initial="325" level_dec="3" minimum="180"/>
+    <cost mana_initial="325" mana_level_dec="3" mana_minimum="180"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2822,7 +2832,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="139" name="righteous penetration">
     <granted class="cleric" level="39" gen="5"/>
-    <manacost initial="100" level_dec="5" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2837,7 +2847,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="131" name="sanctification">
     <granted class="knight" level="33" gen="1"/>
-    <manacost initial="100" level_dec="1" minimum="60"/>
+    <cost mana_initial="100" mana_level_dec="1" mana_minimum="60"/>
     <position minimum="fighting"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2847,7 +2857,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="36" name="sanctuary">
     <granted class="cleric" level="28"/>
-    <manacost initial="110" level_dec="5" minimum="85"/>
+    <cost mana_initial="110" mana_level_dec="5" mana_minimum="85"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -2855,7 +2865,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="205" name="satiation">
     <granted class="psionic" level="3"/>
-    <manacost initial="30" level_dec="1" minimum="10"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="10"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="points"/>
@@ -2871,7 +2881,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="672" name="scream">
     <granted class="bard" level="5"/>
-    <manacost initial="35" level_dec="1" minimum="35"/>
+    <cost mana_initial="35" mana_level_dec="1" mana_minimum="35"/>
     <flag value="damage"/>
     <flag value="song"/>
   </spell>
@@ -2889,7 +2899,7 @@ His presence is revealed to me.</lyrics>
   <spell id="44" name="sense life">
     <granted class="mage" level="27"/>
     <granted class="cleric" level="23"/>
-    <manacost initial="120" level_dec="4" minimum="80"/>
+    <cost mana_initial="120" mana_level_dec="4" mana_minimum="80"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2897,7 +2907,7 @@ His presence is revealed to me.</lyrics>
     <flag value="magic"/>
   </spell>
   <spell id="750" name="shadow breath">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -2914,7 +2924,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="129" name="shield of righteousness">
     <granted class="cleric" level="32" gen="2"/>
-    <manacost initial="50" level_dec="1" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2925,7 +2935,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="37" name="shocking grasp">
     <granted class="mage" level="9"/>
-    <manacost initial="30" level_dec="3" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="3" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -2948,7 +2958,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="117" name="shroud of obscurement">
     <granted class="mage" level="36"/>
-    <manacost initial="145" level_dec="10" minimum="65"/>
+    <cost mana_initial="145" mana_level_dec="10" mana_minimum="65"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -2957,10 +2967,11 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="678" name="shukutei adrenal maximizations">
     <granted class="cyborg" level="37"/>
+    <cost maxmove="30"/>
     <flag value="cybernetic"/>
   </spell>
   <spell id="740" name="sickness">
-    <manacost initial="330" level_dec="21" minimum="215"/>
+    <cost mana_initial="330" mana_level_dec="21" mana_minimum="215"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="violent"/>
@@ -2985,7 +2996,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="68" name="slow">
     <granted class="mage" level="38"/>
-    <manacost initial="120" level_dec="6" minimum="60"/>
+    <cost mana_initial="120" mana_level_dec="6" mana_minimum="60"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -3015,7 +3026,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="375" name="sonic disruption">
     <granted class="bard" level="17"/>
-    <manacost initial="100" level_dec="5" minimum="60"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="60"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="areas"/>
@@ -3025,7 +3036,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="312" name="spacetime imprint">
     <granted class="physic" level="30"/>
-    <manacost initial="100" level_dec="10" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="10" mana_minimum="50"/>
     <position minimum="sitting"/>
     <flag value="violent"/>
     <flag value="manual"/>
@@ -3033,7 +3044,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="313" name="spacetime recall">
     <granted class="physic" level="30"/>
-    <manacost initial="100" level_dec="10" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="10" mana_minimum="50"/>
     <position minimum="sitting"/>
     <flag value="violent"/>
     <flag value="manual"/>
@@ -3049,7 +3060,7 @@ His presence is revealed to me.</lyrics>
   <spell id="137" name="sphere of desecration">
     <granted class="cleric" level="21" gen="4"/>
     <granted class="knight" level="23" gen="6"/>
-    <manacost initial="120" level_dec="3" minimum="70"/>
+    <cost mana_initial="120" mana_level_dec="3" mana_minimum="70"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -3069,7 +3080,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="244" name="spirit track">
     <granted class="ranger" level="38" gen="1"/>
-    <manacost initial="120" level_dec="10" minimum="60"/>
+    <cost mana_initial="120" mana_level_dec="10" mana_minimum="60"/>
     <position minimum="fighting"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -3079,7 +3090,7 @@ His presence is revealed to me.</lyrics>
   <spell id="79" name="spiritual hammer">
     <granted class="cleric" level="10"/>
     <granted class="knight" level="15"/>
-    <manacost initial="40" level_dec="1" minimum="10"/>
+    <cost mana_initial="40" mana_level_dec="1" mana_minimum="10"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -3099,7 +3110,7 @@ His presence is revealed to me.</lyrics>
     <granted class="bard" level="15"/>
   </skill>
   <spell id="751" name="steam breath">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -3108,7 +3119,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="132" name="stigmata">
     <granted class="cleric" level="23" gen="1"/>
-    <manacost initial="60" level_dec="1" minimum="30"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -3124,7 +3135,7 @@ His presence is revealed to me.</lyrics>
   <spell id="115" name="stone to flesh">
     <granted class="cleric" level="36"/>
     <granted class="ranger" level="44"/>
-    <manacost initial="380" level_dec="20" minimum="230"/>
+    <cost mana_initial="380" mana_level_dec="20" mana_minimum="230"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
@@ -3132,7 +3143,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="145" name="stoneskin">
     <granted class="ranger" level="20" gen="4"/>
-    <manacost initial="60" level_dec="1" minimum="25"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="25"/>
     <position minimum="fighting"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -3141,7 +3152,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="39" name="strength">
     <granted class="mage" level="6"/>
-    <manacost initial="65" level_dec="1" minimum="30"/>
+    <cost mana_initial="65" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -3159,7 +3170,7 @@ His presence is revealed to me.</lyrics>
   <spell id="40" name="summon">
     <granted class="mage" level="29"/>
     <granted class="cleric" level="17"/>
-    <manacost initial="320" level_dec="7" minimum="180"/>
+    <cost mana_initial="320" mana_level_dec="7" mana_minimum="180"/>
     <position minimum="standing"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="world"/>
@@ -3168,7 +3179,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="133" name="summon legion">
     <granted class="knight" level="27" gen="5"/>
-    <manacost initial="200" level_dec="5" minimum="100"/>
+    <cost mana_initial="200" mana_level_dec="5" mana_minimum="100"/>
     <position minimum="standing"/>
     <flag value="manual"/>
     <flag value="divine"/>
@@ -3178,7 +3189,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="146" name="sun ray">
     <granted class="cleric" level="20" gen="3"/>
-    <manacost initial="100" level_dec="3" minimum="40"/>
+    <cost mana_initial="100" mana_level_dec="3" mana_minimum="40"/>
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="manual"/>
@@ -3210,7 +3221,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="110" name="symbol of pain">
     <granted class="cleric" level="38"/>
-    <manacost initial="140" level_dec="5" minimum="80"/>
+    <cost mana_initial="140" mana_level_dec="5" mana_minimum="80"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -3227,7 +3238,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="147" name="taint">
     <granted class="knight" level="42" gen="9"/>
-    <manacost initial="250" level_dec="10" minimum="180"/>
+    <cost mana_initial="250" mana_level_dec="10" mana_minimum="180"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -3239,7 +3250,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="61" name="telekinesis">
     <granted class="psionic" level="38"/>
-    <manacost initial="165" level_dec="5" minimum="70"/>
+    <cost mana_initial="165" mana_level_dec="5" mana_minimum="70"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -3249,7 +3260,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="151" name="telepathy">
     <granted class="psionic" level="41"/>
-    <manacost initial="95" level_dec="4" minimum="62"/>
+    <cost mana_initial="95" mana_level_dec="4" mana_minimum="62"/>
     <position minimum="fighting"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -3258,7 +3269,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="2" name="teleport">
     <granted class="mage" level="33"/>
-    <manacost initial="75" level_dec="3" minimum="50"/>
+    <cost mana_initial="75" mana_level_dec="3" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -3268,7 +3279,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="333" name="temporal compression">
     <granted class="physic" level="29"/>
-    <manacost initial="80" level_dec="1" minimum="50"/>
+    <cost mana_initial="80" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -3276,7 +3287,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="334" name="temporal dilation">
     <granted class="physic" level="36"/>
-    <manacost initial="120" level_dec="6" minimum="60"/>
+    <cost mana_initial="120" mana_level_dec="6" mana_minimum="60"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -3288,7 +3299,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="154" name="thorn skin">
     <granted class="ranger" level="38" gen="6"/>
-    <manacost initial="110" level_dec="1" minimum="80"/>
+    <cost mana_initial="110" mana_level_dec="1" mana_minimum="80"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -3299,7 +3310,7 @@ His presence is revealed to me.</lyrics>
   <skill id="157" name="thorn skin casting">
   </skill>
   <spell id="124" name="thorn trap">
-    <manacost initial="50" level_dec="1" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="door"/>
     <flag value="magic"/>
@@ -3317,7 +3328,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="315" name="tidal spacesurf">
     <granted class="physic" level="15"/>
-    <manacost initial="100" level_dec="2" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="2" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -3325,7 +3336,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="314" name="time warp">
     <granted class="physic" level="35"/>
-    <manacost initial="100" level_dec="8" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="8" mana_minimum="50"/>
     <position minimum="sitting"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -3333,7 +3344,7 @@ His presence is revealed to me.</lyrics>
     <flag value="physics"/>
   </spell>
   <skill id="558" name="tornado kick">
-    <granted class="barbarian" level="45"/>
+    <granted class="barbarian" level="27"/>
   </skill>
   <skill id="510" name="track">
     <granted class="thief" level="8"/>
@@ -3346,7 +3357,7 @@ His presence is revealed to me.</lyrics>
   </skill>
   <spell id="311" name="transmittance">
     <granted class="physic" level="14"/>
-    <manacost initial="60" level_dec="1" minimum="30"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -3369,7 +3380,7 @@ His presence is revealed to me.</lyrics>
     <granted class="mercenary" level="38"/>
   </skill>
   <spell id="719" name="troglodytian stench">
-    <manacost initial="30" level_dec="1" minimum="15"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -3379,7 +3390,7 @@ His presence is revealed to me.</lyrics>
   <spell id="75" name="true seeing">
     <granted class="mage" level="41"/>
     <granted class="cleric" level="42"/>
-    <manacost initial="210" level_dec="15" minimum="65"/>
+    <cost mana_initial="210" mana_level_dec="15" mana_minimum="65"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -3392,7 +3403,7 @@ His presence is revealed to me.</lyrics>
   <skill id="601" name="turn">
     <granted class="cleric" level="1"/>
     <granted class="knight" level="3"/>
-    <manacost initial="90" level_dec="5" minimum="30"/>
+    <cost mana_initial="90" mana_level_dec="5" mana_minimum="30"/>
   </skill>
   <skill id="699" name="uncanny dodge">
     <granted class="thief" level="22" gen="2"/>
@@ -3401,7 +3412,7 @@ His presence is revealed to me.</lyrics>
     <granted class="mage" level="41"/>
     <granted class="cleric" level="18"/>
     <granted class="knight" level="18"/>
-    <manacost initial="60" level_dec="3" minimum="10"/>
+    <cost mana_initial="60" mana_level_dec="3" mana_minimum="10"/>
     <position minimum="standing"/>
     <target type="self" scope="only"/>
     <target type="creature" scope="room"/>
@@ -3410,7 +3421,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="140" name="unholy stalker">
     <granted class="cleric" level="25" gen="3"/>
-    <manacost initial="100" level_dec="5" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="creature" scope="world"/>
     <flag value="violent"/>
@@ -3421,7 +3432,7 @@ His presence is revealed to me.</lyrics>
   </spell>
   <spell id="378" name="unladen swallow song">
     <granted class="bard" level="19"/>
-    <manacost initial="105" level_dec="1" minimum="85"/>
+    <cost mana_initial="105" mana_level_dec="1" mana_minimum="85"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -3432,7 +3443,7 @@ whether African or European</lyrics>
   </spell>
   <spell id="366" name="unravelling diapason">
     <granted class="bard" level="40"/>
-    <manacost initial="120" level_dec="3" minimum="75"/>
+    <cost mana_initial="120" mana_level_dec="3" mana_minimum="75"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -3460,7 +3471,7 @@ Unmake your magic, break this spell</lyrics>
   </skill>
   <spell id="319" name="vacuum shroud">
     <granted class="physic" level="31"/>
-    <manacost initial="60" level_dec="1" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="1" mana_minimum="40"/>
     <position minimum="sitting"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -3470,7 +3481,7 @@ Unmake your magic, break this spell</lyrics>
   </skill>
   <spell id="142" name="vampiric regeneration">
     <granted class="cleric" level="37" gen="4"/>
-    <manacost initial="100" level_dec="5" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -3487,7 +3498,7 @@ Unmake your magic, break this spell</lyrics>
   </skill>
   <spell id="362" name="verse of valor">
     <granted class="bard" level="10"/>
-    <manacost initial="55" level_dec="1" minimum="30"/>
+    <cost mana_initial="55" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -3499,7 +3510,7 @@ But a piercing strike can hope to end it all.</lyrics>
   </spell>
   <spell id="353" name="verse of vulnerability">
     <granted class="bard" level="8"/>
-    <manacost initial="50" level_dec="3" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="3" mana_minimum="20"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -3513,7 +3524,7 @@ It guides my blade as I strike true!</lyrics>
   </spell>
   <spell id="215" name="vertigo">
     <granted class="psionic" level="31"/>
-    <manacost initial="70" level_dec="1" minimum="50"/>
+    <cost mana_initial="70" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -3523,7 +3534,7 @@ It guides my blade as I strike true!</lyrics>
   </spell>
   <spell id="113" name="vestigial rune">
     <granted class="mage" level="45" gen="1"/>
-    <manacost initial="450" level_dec="10" minimum="380"/>
+    <cost mana_initial="450" mana_level_dec="10" mana_minimum="380"/>
     <position minimum="standing"/>
     <target type="object" scope="inventory"/>
     <target type="object" scope="room"/>
@@ -3531,7 +3542,7 @@ It guides my blade as I strike true!</lyrics>
     <flag value="magic"/>
   </spell>
   <spell id="122" name="wall of fire">
-    <manacost initial="50" level_dec="1" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="door"/>
     <flag value="magic"/>
@@ -3539,14 +3550,14 @@ It guides my blade as I strike true!</lyrics>
     <flag value="nowater"/>
   </spell>
   <spell id="121" name="wall of ice">
-    <manacost initial="50" level_dec="1" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="door"/>
     <flag value="magic"/>
     <flag value="exits"/>
   </spell>
   <spell id="123" name="wall of iron">
-    <manacost initial="50" level_dec="1" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="door"/>
     <flag value="magic"/>
@@ -3554,7 +3565,7 @@ It guides my blade as I strike true!</lyrics>
   </spell>
   <spell id="347" name="wall of sound">
     <granted class="bard" level="42" gen="1"/>
-    <manacost initial="150" level_dec="4" minimum="90"/>
+    <cost mana_initial="150" mana_level_dec="4" mana_minimum="90"/>
     <position minimum="standing"/>
     <target type="direction"/>
     <flag value="manual"/>
@@ -3563,14 +3574,14 @@ It guides my blade as I strike true!</lyrics>
     <description>a loud and boisterous tune</description>
   </spell>
   <spell id="120" name="wall of stone">
-    <manacost initial="50" level_dec="1" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="door"/>
     <flag value="magic"/>
     <flag value="exits"/>
   </spell>
   <spell id="119" name="wall of thorns">
-    <manacost initial="50" level_dec="1" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="1" mana_minimum="20"/>
     <position minimum="standing"/>
     <target type="door"/>
     <flag value="magic"/>
@@ -3578,7 +3589,7 @@ It guides my blade as I strike true!</lyrics>
   </spell>
   <spell id="58" name="warding sigil">
     <granted class="mage" level="17" gen="1"/>
-    <manacost initial="300" level_dec="2" minimum="250"/>
+    <cost mana_initial="300" mana_level_dec="2" mana_minimum="250"/>
     <position minimum="standing"/>
     <target type="object" scope="inventory"/>
     <target type="object" scope="room"/>
@@ -3589,7 +3600,7 @@ It guides my blade as I strike true!</lyrics>
   </skill>
   <spell id="51" name="waterwalk">
     <granted class="mage" level="32"/>
-    <manacost initial="60" level_dec="2" minimum="40"/>
+    <cost mana_initial="60" mana_level_dec="2" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -3597,7 +3608,7 @@ It guides my blade as I strike true!</lyrics>
   </spell>
   <spell id="220" name="weakness">
     <granted class="psionic" level="16"/>
-    <manacost initial="70" level_dec="1" minimum="50"/>
+    <cost mana_initial="70" mana_level_dec="1" mana_minimum="50"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
@@ -3607,7 +3618,7 @@ It guides my blade as I strike true!</lyrics>
   </spell>
   <spell id="384" name="weight of the world">
     <granted class="bard" level="21"/>
-    <manacost initial="180" level_dec="1" minimum="150"/>
+    <cost mana_initial="180" mana_level_dec="1" mana_minimum="150"/>
     <position minimum="standing"/>
     <flag value="affects"/>
     <flag value="groups"/>
@@ -3626,7 +3637,7 @@ And to our packs a lightness bring!</lyrics>
   </skill>
   <spell id="370" name="white noise">
     <granted class="bard" level="35"/>
-    <manacost initial="80" level_dec="2" minimum="40"/>
+    <cost mana_initial="80" mana_level_dec="2" mana_minimum="40"/>
     <position minimum="fighting"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -3639,7 +3650,7 @@ And to our packs a lightness bring!</lyrics>
   </spell>
   <spell id="102" name="word of intellect">
     <granted class="cleric" level="35"/>
-    <manacost initial="100" level_dec="3" minimum="40"/>
+    <cost mana_initial="100" mana_level_dec="3" mana_minimum="40"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -3648,7 +3659,7 @@ And to our packs a lightness bring!</lyrics>
   <spell id="42" name="word of recall">
     <granted class="cleric" level="15"/>
     <granted class="knight" level="25"/>
-    <manacost initial="100" level_dec="2" minimum="20"/>
+    <cost mana_initial="100" mana_level_dec="2" mana_minimum="20"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <target type="object" scope="inventory"/>
@@ -3658,7 +3669,7 @@ And to our packs a lightness bring!</lyrics>
   </spell>
   <spell id="63" name="word stun">
     <granted class="mage" level="37"/>
-    <manacost initial="100" level_dec="5" minimum="50"/>
+    <cost mana_initial="100" mana_level_dec="5" mana_minimum="50"/>
     <position minimum="standing"/>
     <target type="self" scope="never"/>
     <target type="creature" scope="room"/>
@@ -3668,11 +3679,11 @@ And to our packs a lightness bring!</lyrics>
   </spell>
   <skill id="599" name="wormhole">
     <granted class="physic" level="30" gen="1"/>
-    <manacost initial="50" level_dec="2" minimum="20"/>
+    <cost mana_initial="50" mana_level_dec="2" mana_minimum="20"/>
   </skill>
   <spell id="210" name="wound closure">
     <granted class="psionic" level="10"/>
-    <manacost initial="80" level_dec="1" minimum="30"/>
+    <cost mana_initial="80" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
     <flag value="points"/>
@@ -3680,7 +3691,7 @@ And to our packs a lightness bring!</lyrics>
   </spell>
   <spell id="386" name="wounding whispers">
     <granted class="bard" level="36"/>
-    <manacost initial="120" level_dec="3" minimum="60"/>
+    <cost mana_initial="120" mana_level_dec="3" mana_minimum="60"/>
     <position minimum="standing"/>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
@@ -3699,38 +3710,38 @@ But blocks true love and harbors sin.</lyrics>
   </skill>
   <spell id="402" name="zen of awareness">
     <granted class="monk" level="21"/>
-    <manacost initial="30" level_dec="1" minimum="5"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="5"/>
     <flag value="zen"/>
   </spell>
   <spell id="406" name="zen of celerity">
     <granted class="monk" level="25" gen="2"/>
-    <manacost initial="40" level_dec="1" minimum="20"/>
+    <cost mana_initial="40" mana_level_dec="1" mana_minimum="20"/>
     <flag value="zen"/>
   </spell>
   <spell id="407" name="zen of dispassion">
     <granted class="monk" level="45"/>
-    <manacost initial="30" level_dec="30" minimum="50"/>
+    <cost mana_initial="30" mana_level_dec="30" mana_minimum="50"/>
     <position minimum="resting"/>
     <flag value="zen"/>
   </spell>
   <spell id="401" name="zen of healing">
     <granted class="monk" level="36"/>
-    <manacost initial="30" level_dec="2" minimum="9"/>
+    <cost mana_initial="30" mana_level_dec="2" mana_minimum="9"/>
     <flag value="zen"/>
   </spell>
   <spell id="404" name="zen of motion">
     <granted class="monk" level="28"/>
-    <manacost initial="30" level_dec="1" minimum="7"/>
+    <cost mana_initial="30" mana_level_dec="1" mana_minimum="7"/>
     <flag value="zen"/>
   </spell>
   <spell id="403" name="zen of oblivity">
     <granted class="monk" level="43"/>
-    <manacost initial="40" level_dec="4" minimum="10"/>
+    <cost mana_initial="40" mana_level_dec="4" mana_minimum="10"/>
     <flag value="zen"/>
   </spell>
   <spell id="405" name="zen of translocation">
     <granted class="monk" level="37" gen="1"/>
-    <manacost initial="40" level_dec="1" minimum="20"/>
+    <cost mana_initial="40" mana_level_dec="1" mana_minimum="20"/>
     <flag value="zen"/>
   </spell>
   <spell id="576" name="zeta nerve">
