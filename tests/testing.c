@@ -42,6 +42,7 @@
 extern PGconn *sql_cxn;
 extern GList *creatures;
 extern GHashTable *creature_map;
+extern GHashTable *zones;
 extern GHashTable *rooms;
 extern GMainLoop *main_loop;
 extern FILE *qlogfile;
@@ -82,14 +83,11 @@ test_tempus_boot(void)
     }
 
     creatures = NULL;
+    zones = g_hash_table_new(g_direct_hash, g_direct_equal);
     rooms = g_hash_table_new(g_direct_hash, g_direct_equal);
     mob_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
     obj_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
     creature_map = g_hash_table_new(g_direct_hash, g_direct_equal);
-
-    if (chdir("../../lib") < 0) {
-        slog("Couldn't change directory to lib");
-    }
 
     account_boot();
     boot_tongues("etc/tongues.xml");

@@ -34,6 +34,7 @@
 #include "zone_data.h"
 
 extern int current_mob_idnum;
+extern GHashTable *zones;
 extern GHashTable *rooms;
 extern GHashTable *mob_prototypes;
 extern GHashTable *obj_prototypes;
@@ -48,6 +49,7 @@ static struct room_data *room_a = NULL, *room_b = NULL;
 void
 fixture_object_setup(void)
 {
+    zones = g_hash_table_new(g_direct_hash, g_direct_equal);
     rooms = g_hash_table_new(g_direct_hash, g_direct_equal);
     mob_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
     obj_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);

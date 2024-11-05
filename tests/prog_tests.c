@@ -47,7 +47,7 @@ struct cmd_arg {
     enum prog_cmd_kind cmd;
     char *arg;
 };
-    
+
 START_TEST(test_prog_compile_prog)
 {
     int vnum = make_random_mobile();
@@ -58,7 +58,7 @@ START_TEST(test_prog_compile_prog)
     struct cmd_arg want[] = {
         { PROG_CMD_AFTER, "" },
         { PROG_CMD_CLRCOND, "" },
-        { PROG_CMD_CMPCMD, "\xd3\x03" },
+        { PROG_CMD_CMPCMD, "\xd5\x03" },
         { PROG_CMD_CONDNEXTHANDLER, "" },
         { PROG_CMD_DO, "say hey!" },
         { PROG_CMD_ENDOFPROG, "" },
@@ -75,11 +75,11 @@ START_TEST(test_prog_compile_prog)
         int arg_addr = *((prog_word_t *)(obj + addr) + 1);
         fprintf(stderr, "%-20s %x %s\n", prog_cmds[cmd].str, arg_addr, (char *)obj + arg_addr);
         ck_assert_int_eq(cmd, want[want_idx].cmd);
-        ck_assert_str_eq((char *)obj + arg_addr, want[want_idx].arg);
+        ck_assert_mem_eq((char *)obj + arg_addr, want[want_idx].arg, strlen(want[want_idx].arg));
         addr += 2 * sizeof(prog_word_t);
         want_idx++;
     } while (cmd != PROG_CMD_ENDOFPROG);
-    
+
     free_creature(owner);
     free(obj);
 }

@@ -35,6 +35,7 @@
 #include "zone_data.h"
 
 extern int current_mob_idnum;
+extern GHashTable *zones;
 extern GHashTable *rooms;
 extern GHashTable *mob_prototypes;
 extern GHashTable *obj_prototypes;
@@ -49,7 +50,8 @@ static struct room_data *room_a = NULL, *room_b = NULL;
 void
 fixture_movement_setup(void)
 {
-    boot_sectors("../../lib/etc/sectors.xml");
+    boot_sectors("etc/sectors.xml");
+    zones = g_hash_table_new(g_direct_hash, g_direct_equal);
     rooms = g_hash_table_new(g_direct_hash, g_direct_equal);
     mob_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);
     obj_prototypes = g_hash_table_new(g_direct_hash, g_direct_equal);

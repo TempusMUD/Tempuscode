@@ -1,4 +1,7 @@
+#include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <check.h>
 #include <time.h>
 
@@ -18,8 +21,11 @@ main(void)
 {
     int number_failed = 0;
 
-    my_srand(time(NULL));
+    if (chdir("../../lib") < 0) {
+        fprintf(stderr, "Couldn't change directory to lib: %s\n", strerror(errno));
+    }
 
+    my_srand(time(NULL));
 
     Suite *s = tmpstr_suite();
     SRunner *sr = srunner_create(s);
