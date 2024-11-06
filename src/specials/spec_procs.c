@@ -130,8 +130,10 @@ skill_gain(struct creature *ch, int mode)
 extern int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];
 
 static int
-compare_spells_by_name(const int *a, const int *b)
+compare_spells_by_name(const void *av, const void *bv)
 {
+    const int *a = av;
+    const int *b = bv;
     if (*a == 0) {
         return -1;
     }
@@ -264,11 +266,11 @@ skill_matches_bits(int skl, int bits)
     case SKILL_BIT:
         return skl > MAX_SPELLS;
     case SPELL_BIT:
-        return SPELL_IS_MAGIC(skl);
+        return SPELL_IS_MAGIC(skl) || SPELL_IS_DIVINE(skl);
     case TRIG_BIT:
         return SPELL_IS_PSIONIC(skl);
     case ZEN_BIT:
-        return SPELL_IS_BIO(skl);
+        return SPELL_FLAGGED(skl, MAG_ZEN);
     case ALTER_BIT:
         return SPELL_IS_PHYSICS(skl);
     case SONG_BIT:
@@ -276,6 +278,7 @@ skill_matches_bits(int skl, int bits)
     case PROGRAM_BIT:
         return SPELL_IS_PROGRAM(skl);
     }
+    return false;
 }
 
 void
