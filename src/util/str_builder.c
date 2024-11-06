@@ -48,7 +48,7 @@ sb_vsprintf(struct str_builder *sb, const char *fmt, va_list args)
     // If there was enough space, our work is done here.  If there wasn't enough
     // space, we expand the accumulator, and write into that.
 
-    if (sb->size - sb->len < wanted) {
+    if (sb->size - sb->len <= wanted) {
         sb_adjust(sb, sb->size + wanted + 1);
         result = sb->str + sb->len;
         wanted = vsnprintf(result, sb->size - sb->len, fmt, args_copy);
