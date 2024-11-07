@@ -1068,10 +1068,6 @@ do_mob_mset(struct creature *ch, char *argument)
         } else {
 
             mob_p->mob_specials.shared->func = spec_list[i].func;
-            if (NPC_SHARED(mob_p)->func_param) {
-                free(NPC_SHARED(mob_p)->func_param);
-            }
-            NPC_SHARED(mob_p)->func_param = NULL;
             do_specassign_save(ch, SPEC_MOB);
             send_to_char(ch, "Mobile special set.\r\n");
         }
