@@ -535,7 +535,7 @@ angel_check_charge(struct creature *self, struct creature *charge,
         // Charge is poisoned
         if (GET_HIT(charge) < 11) {
             // Charge is about to die
-            if (ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC)) {
+            if (!ROOM_FLAGGED(self->in_room, ROOM_NOMAGIC)) {
                 perform_say_to(self, charge,
                                "You're about to die from poisoning!  I'll save you!");
                 cast_spell(self, charge, NULL, NULL, SPELL_REMOVE_POISON);
@@ -570,6 +570,7 @@ angel_check_charge(struct creature *self, struct creature *charge,
                  !SPELL_IS_PSIONIC(angel_spells[x].spell_no)) &&
                 (!ROOM_FLAGGED(self->in_room, ROOM_NOSCIENCE) ||
                  !SPELL_IS_PHYSICS(angel_spells[x].spell_no))) {
+                data->respond_to = GET_IDNUM(charge);
                 guardian_angel_action(self, tmp_sprintf("cast %d", x));
             }
         }
