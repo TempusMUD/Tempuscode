@@ -94,7 +94,7 @@ struct descriptor_data {
     int max_str;                /*      -           */
     int repeat_cmd_count;       /* how many times has this command been */
     struct editor *text_editor; /*  Pointer to text editor object. */
-    char inbuf[MAX_RAW_INPUT_LENGTH];   /* buffer for raw input       */
+    uint8_t inbuf[MAX_RAW_INPUT_LENGTH];   /* buffer for raw input       */
     size_t inbuf_len;
     char last_input[MAX_INPUT_LENGTH];  /* the last input         */
     GQueue *input;          /* q of unprocessed input       */

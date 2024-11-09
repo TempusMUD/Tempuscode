@@ -22,6 +22,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <netdb.h>
+#include <arpa/telnet.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -62,6 +63,10 @@
 #include "ban.h"
 #include "paths.h"
 #include "weather.h"
+
+#define MSSP 70
+const uint8_t MSSP_VAR = 1;
+const uint8_t MSSP_VAL = 2;
 
 /* externs */
 extern struct help_collection *Help;
@@ -775,6 +780,11 @@ accept_new_connection(GIOChannel *listener_io,
 
     /* prepend to list */
     descriptor_list = newd;
+
+    // Start protocol negotiations
+    d_printf(newd, "%c%c%c", IAC, WILL, MSSP);
+
+    // Send greeting screen
     if (mini_mud) {
         d_send(newd, "(testmud)");
     } else if (newd->display == BLIND) {
@@ -896,6 +906,88 @@ enqueue_line_input(struct descriptor_data *d, const char *line)
     }
 }
 
+void
+send_mssp_var(struct descriptor_data *d, const char *name, const char *value)
+{
+    d_printf(d, "%c%s%c%s", MSSP_VAR, name, MSSP_VAL, value);
+}
+
+void send_mssp_block(struct descriptor_data *d)
+{
+    int playerCount = 0;
+
+    for (struct descriptor_data *d2 = descriptor_list; d2 != NULL; d2 = d->next) {
+        if (d2->creature) {
+            playerCount++;
+        }
+    }
+    d_printf(d, "%c%c%c", IAC, SB, MSSP);
+    send_mssp_var(d, "NAME", "TempusMUD");
+    send_mssp_var(d, "PLAYERS", tmp_sprintf("%d", playerCount));
+    send_mssp_var(d, "UPTIME", tmp_sprintf("%lu", boot_time));
+    send_mssp_var(d, "CONTACT", "azimuth@tempusmud.com");
+    send_mssp_var(d, "CREATED", "1995");
+    send_mssp_var(d, "HOSTNAME", "mud.tempusmud.com");
+    send_mssp_var(d, "LANGUAGE", "English");
+    send_mssp_var(d, "LOCATION", "United States");
+    send_mssp_var(d, "IP", "96.126.108.175");
+    send_mssp_var(d, "IPV6", "2600:3c03::f03c:93ff:fee5:454a");
+    send_mssp_var(d, "PORT", "2020");
+    send_mssp_var(d, "SSL", "2023");
+    send_mssp_var(d, "WEBSITE", "https://tempusmud.com/");
+    send_mssp_var(d, "GAMEPLAY", "Hack and Slash");
+    send_mssp_var(d, "GENRE", "Fantasy");
+    send_mssp_var(d, "GENRE", "Science Fiction");
+    send_mssp_var(d, "SUBGENRE", "Time Travel");
+    send_mssp_var(d, "STATUS", "Live");
+    send_mssp_var(d, "AREAS", tmp_sprintf("%d", g_hash_table_size(zones)));
+    send_mssp_var(d, "HELPFILES", tmp_sprintf("%d", g_list_length(help->items)));
+    send_mssp_var(d, "MOBILES", tmp_sprintf("%d", g_hash_table_size(mob_prototypes)));
+    send_mssp_var(d, "OBJECTS", tmp_sprintf("%d", g_hash_table_size(obj_prototypes)));
+    send_mssp_var(d, "ROOMS", tmp_sprintf("%d", g_hash_table_size(rooms)));
+    send_mssp_var(d, "CLASSES", "12");
+    send_mssp_var(d, "LEVELS", "49");
+    send_mssp_var(d, "RACES", "9");
+    send_mssp_var(d, "ANSI", "1");
+    send_mssp_var(d, "PAY TO PLAY", "0");
+    send_mssp_var(d, "PAY FOR PERKS", "0");
+    d_printf(d, "%c%c", IAC, SE);
+}
+
+// Handle telnet sequences.  Returns the number of bytes consumed.
+size_t
+handle_telnet(struct descriptor_data *d, uint8_t *read_pt, size_t len)
+{
+    size_t consumed = 0;
+
+    switch (*read_pt) {
+    case WILL:
+        consumed = 2;
+        break;
+    case WONT:
+        consumed = 2;
+        break;
+    case DO:
+        consumed = 2;
+        read_pt++;
+        switch (*read_pt) {
+        case MSSP:
+            send_mssp_block(d);
+            break;
+        default:
+            d_printf(d, "%c%c%c", IAC, WONT, *read_pt);
+            break;
+        }
+        break;
+    case DONT:
+        consumed = 2;
+        break;
+    }
+
+    return consumed;
+}
+
+
 gboolean
 process_input(__attribute__ ((unused)) GIOChannel *io,
               GIOCondition condition,
@@ -912,7 +1004,7 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
     }
 
     status = g_io_channel_read_chars(d->io,
-                                     &d->inbuf[d->inbuf_len],
+                                     (char *)&d->inbuf[d->inbuf_len],
                                      MAX_RAW_INPUT_LENGTH - d->inbuf_len,
                                      &bytes_read,
                                      &error);
@@ -927,16 +1019,11 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
     }
 
     d->inbuf_len += bytes_read;
-    char *end_pt = d->inbuf + d->inbuf_len;
-    char *last_line_start = d->inbuf;
+    uint8_t *end_pt = d->inbuf + d->inbuf_len;
+    uint8_t *last_line_start = d->inbuf;
     GString *line = g_string_sized_new(80);
     bool consume_linebreak = false;
-    int ignore_count = 0;
-    for (char *read_pt = d->inbuf; read_pt != end_pt; read_pt++) {
-        if (ignore_count > 0) {
-            ignore_count--;
-            continue;
-        }
+    for (uint8_t *read_pt = d->inbuf; read_pt != end_pt; read_pt++) {
         if (consume_linebreak) {
             consume_linebreak = false;
             if (*read_pt == '\n') {
@@ -945,9 +1032,10 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
             continue;
         }
         switch (*read_pt) {
-        case '\xff':
-            // telnet handling - telnet codes are always three bytes
-            ignore_count = 2;
+        case IAC:
+            // telnet handling
+            read_pt++;
+            read_pt += handle_telnet(d, (uint8_t *)read_pt, d->inbuf_len) - 1;
             break;
         case '\b':
             // backspacing
