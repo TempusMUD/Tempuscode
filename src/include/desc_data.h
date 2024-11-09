@@ -91,6 +91,7 @@ struct descriptor_data {
     char *showstr_point;        /*      -           */
     int8_t bad_pws;             /* number of bad pw attempts this login  */
     bool need_prompt;           /* control of prompt-printing       */
+    bool eor_enabled;           /* Negotiated EOR at end of prompt */
     int max_str;                /*      -           */
     int repeat_cmd_count;       /* how many times has this command been */
     struct editor *text_editor; /*  Pointer to text editor object. */

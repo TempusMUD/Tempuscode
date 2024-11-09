@@ -64,6 +64,7 @@
 #include "paths.h"
 #include "weather.h"
 
+// Protocols
 #define MSSP 70
 const uint8_t MSSP_VAR = 1;
 const uint8_t MSSP_VAL = 2;
@@ -111,7 +112,6 @@ void init_game(void);
 void signal_setup(void);
 void game_loop(GIOChannel *main_listener, GIOChannel *reader_listener, GIOChannel *irc_listener, GIOChannel *proxy_listener);
 GIOChannel *init_socket(int port, bool local_only);
-int new_descriptor(int s, int port);
 int get_avail_descs(void);
 struct timespec timediff(struct timespec *a, struct timespec *b);
 void flush_queues(struct descriptor_data *d);
@@ -782,7 +782,8 @@ accept_new_connection(GIOChannel *listener_io,
     descriptor_list = newd;
 
     // Start protocol negotiations
-    d_printf(newd, "%c%c%c", IAC, WILL, MSSP);
+
+    d_printf(newd, "%c%c%c", IAC, WILL, TELOPT_EOR);
 
     // Send greeting screen
     if (mini_mud) {
@@ -831,6 +832,9 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
                     && (d->account->compact_level == 0
                         || d->account->compact_level == 2))) {
                 d_send(d, "\r\n");
+            }
+            if (d->eor_enabled) {
+                d_printf(d, "%c%c", IAC, EOR);
             }
         }
         d->need_prompt = false;
@@ -974,6 +978,9 @@ handle_telnet(struct descriptor_data *d, uint8_t *read_pt, size_t len)
         case MSSP:
             send_mssp_block(d);
             break;
+        case TELOPT_EOR:
+            slog("EOR enabled");
+            d->eor_enabled = true;
         default:
             d_printf(d, "%c%c%c", IAC, WONT, *read_pt);
             break;
