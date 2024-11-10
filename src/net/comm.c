@@ -598,11 +598,37 @@ record_usage(void)
 }
 
 void
-d_send(struct descriptor_data *d, const char *txt)
+d_send_raw(struct descriptor_data *d, const char *txt, size_t len)
 {
     GError *error = NULL;
     gsize bytes_written;
 
+    error = NULL;
+    g_io_channel_write_chars(d->io, txt, len, &bytes_written, &error);
+    if (error) {
+        slog("g_io_channel_write_chars: %s", error->message);
+        g_error_free(error);
+    }
+}
+
+void
+d_send_telnet_seq(struct descriptor_data *d, size_t n, ...)
+{
+    va_list args;
+    char *buf = alloca(n);
+
+    va_start(args, n);
+    for (int i = 0;i < n;i++) {
+        buf[i] = va_arg(args, int);
+    }
+    va_end(args);
+
+    d_send_raw(d, buf, n);
+}
+
+void
+d_send(struct descriptor_data *d, const char *txt)
+{
     if (suppress_output) {
         return;
     }
@@ -619,7 +645,7 @@ d_send(struct descriptor_data *d, const char *txt)
             && (!d->account
                 || d->account->compact_level == 1
                 || d->account->compact_level == 3)) {
-            d_send(d, "\r\n");
+            d_send_raw(d, "\r\n", 2);
         }
     }
 
@@ -630,12 +656,7 @@ d_send(struct descriptor_data *d, const char *txt)
             d_printf(td, "&r{ &n%s&r } &n", txt);
         }
     }
-    error = NULL;
-    g_io_channel_write_chars(d->io, txt, -1, &bytes_written, &error);
-    if (error) {
-        slog("g_io_channel_write_chars: %s", error->message);
-        g_error_free(error);
-    }
+    d_send_raw(d, txt, -1);
     if (!d->out_watcher) {
         d->out_watcher = g_io_add_watch(d->io, G_IO_OUT, process_output, d);
     }
@@ -782,8 +803,8 @@ accept_new_connection(GIOChannel *listener_io,
     descriptor_list = newd;
 
     // Start protocol negotiations
-
-    d_printf(newd, "%c%c%c", IAC, WILL, TELOPT_EOR);
+    d_send_telnet_seq(newd, 3, IAC, WILL, MSSP);
+    d_send_telnet_seq(newd, 3, IAC, WILL, TELOPT_EOR);
 
     // Send greeting screen
     if (mini_mud) {
@@ -834,7 +855,7 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
                 d_send(d, "\r\n");
             }
             if (d->eor_enabled) {
-                d_printf(d, "%c%c", IAC, EOR);
+                d_send_telnet_seq(d, 2, IAC, EOR);
             }
         }
         d->need_prompt = false;
@@ -913,7 +934,10 @@ enqueue_line_input(struct descriptor_data *d, const char *line)
 void
 send_mssp_var(struct descriptor_data *d, const char *name, const char *value)
 {
-    d_printf(d, "%c%s%c%s", MSSP_VAR, name, MSSP_VAL, value);
+    d_send_telnet_seq(d, 1, MSSP_VAR);
+    d_send_raw(d, name, strlen(name));
+    d_send_telnet_seq(d, 1, MSSP_VAL);
+    d_send_raw(d, value, strlen(value));
 }
 
 void send_mssp_block(struct descriptor_data *d)
@@ -925,7 +949,7 @@ void send_mssp_block(struct descriptor_data *d)
             playerCount++;
         }
     }
-    d_printf(d, "%c%c%c", IAC, SB, MSSP);
+    d_send_telnet_seq(d, 3, IAC, SB, MSSP);
     send_mssp_var(d, "NAME", "TempusMUD");
     send_mssp_var(d, "PLAYERS", tmp_sprintf("%d", playerCount));
     send_mssp_var(d, "UPTIME", tmp_sprintf("%lu", boot_time));
@@ -955,7 +979,7 @@ void send_mssp_block(struct descriptor_data *d)
     send_mssp_var(d, "ANSI", "1");
     send_mssp_var(d, "PAY TO PLAY", "0");
     send_mssp_var(d, "PAY FOR PERKS", "0");
-    d_printf(d, "%c%c", IAC, SE);
+    d_send_telnet_seq(d, 2, IAC, SE);
 }
 
 // Handle telnet sequences.  Returns the number of bytes consumed.
@@ -979,16 +1003,24 @@ handle_telnet(struct descriptor_data *d, uint8_t *read_pt, size_t len)
             send_mssp_block(d);
             break;
         case TELOPT_EOR:
-            slog("EOR enabled");
             d->eor_enabled = true;
+            break;
         default:
-            d_printf(d, "%c%c%c", IAC, WONT, *read_pt);
+            d_send_telnet_seq(d, 3, IAC, WONT, *read_pt);
             break;
         }
         break;
     case DONT:
         consumed = 2;
         break;
+    }
+
+    // Ensure telnet response gets sent without sending prompt.
+    GError *error = NULL;
+    g_io_channel_flush(d->io, &error);
+    if (error) {
+        slog("g_io_channel_flush: %s", error->message);
+        g_error_free(error);
     }
 
     return consumed;
