@@ -606,8 +606,11 @@ d_send_raw(struct descriptor_data *d, const char *txt, size_t len)
     error = NULL;
     g_io_channel_write_chars(d->io, txt, len, &bytes_written, &error);
     if (error) {
-        slog("g_io_channel_write_chars: %s", error->message);
+        errlog("g_io_channel_write_chars: %s", error->message);
         g_error_free(error);
+    }
+    if (len != -1 && bytes_written != len) {
+        errlog("ERROR: g_io_channel_write_chars didn't write everything");
     }
 }
 
@@ -940,45 +943,61 @@ send_mssp_var(struct descriptor_data *d, const char *name, const char *value)
     d_send_raw(d, value, strlen(value));
 }
 
-void send_mssp_block(struct descriptor_data *d)
+void
+send_mssp_xml(struct descriptor_data *d, const char *path)
+{
+    xmlDocPtr doc = xmlParseFile(path);
+    if (!doc) {
+        slog("WARNING: No mudinfo.xml found at %s", path);
+        return;
+    }
+    xmlNodePtr root = xmlDocGetRootElement(doc);
+    if (!root) {
+        slog("WARNING: %s has no root", path);
+        return;
+    }
+    for (xmlNodePtr node = root->xmlChildrenNode; node; node = node->next) {
+        if (xmlNodeIsText(node)) {
+            continue;
+        }
+        char *name = tmp_toupper(tmp_gsub((const char *)node->name, "_", " "));
+        char *val = (char *)xmlNodeGetContent(node);
+        if (*val != '\0') {
+            send_mssp_var(d, name, val);
+        }
+        xmlFree(val);
+    }
+    xmlFreeDoc(doc);
+}
+
+void
+send_mssp_block(struct descriptor_data *d)
 {
     int playerCount = 0;
 
-    for (struct descriptor_data *d2 = descriptor_list; d2 != NULL; d2 = d->next) {
+    for (struct descriptor_data *d2 = descriptor_list; d2 != NULL; d2 = d2->next) {
         if (d2->creature) {
             playerCount++;
         }
     }
     d_send_telnet_seq(d, 3, IAC, SB, MSSP);
-    send_mssp_var(d, "NAME", "TempusMUD");
+
+    // Send computed values
     send_mssp_var(d, "PLAYERS", tmp_sprintf("%d", playerCount));
     send_mssp_var(d, "UPTIME", tmp_sprintf("%lu", boot_time));
-    send_mssp_var(d, "CONTACT", "azimuth@tempusmud.com");
-    send_mssp_var(d, "CREATED", "1995");
-    send_mssp_var(d, "HOSTNAME", "mud.tempusmud.com");
-    send_mssp_var(d, "LANGUAGE", "English");
-    send_mssp_var(d, "LOCATION", "United States");
-    send_mssp_var(d, "IP", "96.126.108.175");
-    send_mssp_var(d, "IPV6", "2600:3c03::f03c:93ff:fee5:454a");
-    send_mssp_var(d, "PORT", "2020");
-    send_mssp_var(d, "SSL", "2023");
-    send_mssp_var(d, "WEBSITE", "https://tempusmud.com/");
-    send_mssp_var(d, "GAMEPLAY", "Hack and Slash");
-    send_mssp_var(d, "GENRE", "Fantasy");
-    send_mssp_var(d, "GENRE", "Science Fiction");
-    send_mssp_var(d, "SUBGENRE", "Time Travel");
-    send_mssp_var(d, "STATUS", "Live");
     send_mssp_var(d, "AREAS", tmp_sprintf("%d", g_hash_table_size(zones)));
     send_mssp_var(d, "HELPFILES", tmp_sprintf("%d", g_list_length(help->items)));
     send_mssp_var(d, "MOBILES", tmp_sprintf("%d", g_hash_table_size(mob_prototypes)));
     send_mssp_var(d, "OBJECTS", tmp_sprintf("%d", g_hash_table_size(obj_prototypes)));
     send_mssp_var(d, "ROOMS", tmp_sprintf("%d", g_hash_table_size(rooms)));
+    send_mssp_var(d, "ANSI", "1");
     send_mssp_var(d, "CLASSES", "12");
     send_mssp_var(d, "LEVELS", "49");
     send_mssp_var(d, "RACES", "9");
-    send_mssp_var(d, "ANSI", "1");
-    send_mssp_var(d, "PAY TO PLAY", "0");
-    send_mssp_var(d, "PAY FOR PERKS", "0");
+
+    // Send static values
+    send_mssp_xml(d, "etc/mudinfo.xml");
+
     d_send_telnet_seq(d, 2, IAC, SE);
 }
 

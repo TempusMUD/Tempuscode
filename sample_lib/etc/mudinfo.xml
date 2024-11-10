@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    This file is derived from the information at
+    https://tintin.mudhalla.net/protocols/mssp/
+
+    The format of this file is:
+    <mudinfo>
+      <name>value</name>
+      ...
+    </mudinfo>
+
+The names sent via MSSP will be uppercased and underscores will be
+replaced with spaces.
+
+Empty values will not be sent to the client.
+
+Fields that are computed (like number of rooms) have been removed from
+this file.
+-->
+
+<mudinfo>
+  <!-- REQUIRED -->
+  <name></name>  <!-- Name of the MUD. -->
+
+  <!-- GENERIC -->
+  <charset></charset>  <!-- ASCII, BIG5, CP437, CP949, CP1251, EUC-KR, GB18030, ISO-8859-1, ISO-8859-2, KOI8-R, UTF-8. -->
+  <!-- Name of the charset in use. You can report multiple charsets using the array format, -->
+  <!-- the preferred / default charset last. See man charsets for reference. -->
+
+  <codebase></codebase>  <!-- Name of the codebase, eg Merc 2.1. You can report multiple codebases using the array -->
+  <!-- format, make sure to report the current codebase last. -->
+
+  <contact></contact>  <!-- Email address for contacting the MUD. -->
+
+  <crawl_delay></crawl_delay>  <!-- Preferred minimum number of hours between crawls. Send -1 to use the crawler's default. -->
+  <!-- Recommended values are -1, 1, 5, 11, and 23. -->
+
+  <created></created>  <!-- Year the MUD was created. -->
+
+  <discord></discord>  <!-- URL to a Discord server, this should include the https:// prefix. -->
+
+  <hostname></hostname>  <!-- Current or new hostname. -->
+
+  <icon></icon>  <!-- URL to a square image in bmp, png, jpg, or gif format. The icon should be equal or -->
+  <!-- larger than 64x64 pixels, with a filesize no larger than 256KB. -->
+
+  <ip></ip>  <!-- Current or new IP address. -->
+
+  <ipv6></ipv6>  <!-- Current or new IPv6 address. -->
+
+  <language></language>  <!-- English name of the language used, eg German or English -->
+
+  <location></location>  <!-- English short name of the country where the server is -->
+  <!-- located, using ISO 3166. -->
+
+  <minimum_age></minimum_age>  <!-- Current minimum age requirement, omit if not applicable. -->
+
+  <port></port>  <!-- Current or new port number. Can be used multiple times, most important port last. -->
+
+  <referral></referral>  <!-- A list of other MSSP enabled MUDs for the crawler to check using the host port -->
+  <!-- format and array notation. Adding referrals is important to make MSSP decentralized. -->
+  <!-- Make sure to separate the host and port with a space rather than : because IPv6 -->
+  <!-- addresses contain colons. -->
+
+  <ssl></ssl>  <!-- The port number for a SSL (Secure Socket Layer) encrypted connection. -->
+
+  <website></website>  <!-- URL to MUD website, this should include the http:// or https:// prefix. -->
+
+  <!-- CATEGORIZATION -->
+
+  <family></family>  <!-- AberMUD, CoffeeMUD, DikuMUD, Evennia, LPMud, MajorMUD, MOO, Mordor, SocketMud, -->
+  <!-- TinyMUD, TinyMUCK, TinyMUSH, Custom. -->
+  <!--  -->
+  <!-- Report Custom unless it's a well established family. -->
+
+  <!-- You can report multiple generic codebases using the array format, make sure to report the -->
+  <!-- most distant codebase (aka the family) last. -->
+
+  <!-- Check the MUD family tree for naming and capitalization. -->
+
+  <genre></genre>  <!-- Adult, Fantasy, Historical, Horror, Modern, Mystery, None, Romance, Science Fiction, Spiritual -->
+
+  <gameplay></gameplay>  <!-- Adventure, Educational, Hack and Slash, None, Player versus Player, Player versus Environment, -->
+  <!-- Questing, Roleplaying, Simulation, Social, Strategy -->
+
+  <status></status>  <!-- Alpha, Closed Beta, Open Beta, Live -->
+
+  <gamesystem></gamesystem>  <!-- D&D, d20 System, World of Darkness, Etc. -->
+
+  <!-- Use Real Time, Tick Based, Turn Based, or Custom if using a custom gamesystems. Use None if not available. -->
+
+  <intermud></intermud>  <!-- AberChat, I3, IMC2, MudNet, Etc. -->
+
+  <!-- Can be used multiple times if you support several protocols, most important protocol last. -->
+  <!-- Leave empty or omit if no Intermud protocol is supported. -->
+
+  <subgenre></subgenre>  <!-- Alternate History, Anime, Cyberpunk, Detective, Discworld, Dragonlance, Christian Fiction, Classical Fantasy, -->
+  <!-- Crime, Dark Fantasy, Epic Fantasy, Erotic, Exploration, Forgotten Realms, Frankenstein, Gothic, High Fantasy, -->
+  <!-- Magical Realism, Medieval Fantasy, Multiverse, Paranormal, Post-Apocalyptic, Military Science Fiction, -->
+  <!-- Mythology, Pulp, Star Wars, Steampunk, Suspense, Time Travel, Weird Fiction, World War II, Urban Fantasy, Etc. -->
+
+  <!-- Use None if not applicable. -->
+
+  <!-- World -->
+
+  <classes></classes>  <!-- Number of player classes, use 0 if classless. -->
+  <levels></levels>  <!-- Number of player levels, use 0 if level-less. -->
+  <races></races>  <!-- Number of player races, use 0 if raceless. -->
+  <skills></skills>  <!-- Number of player skills, use 0 if skill-less. -->
+
+  <!-- Protocols -->
+
+  <utf-8></utf-8>  <!-- Supports UTF-8 ? 1 or 0 -->
+  <vt100></vt100>  <!-- Supports VT100 interface ?  1 or 0 -->
+  <xterm_256_colors></xterm_256_colors>  <!-- Supports xterm 256 colors ?  1 or 0 -->
+  <xterm_true_colors></xterm_true_colors>  <!-- Supports xterm 24 bit colors ? 1 or 0 -->
+
+  <!-- COMMERCIAL -->
+
+  <pay_to_play></pay_to_play>  <!-- Pay to play ? 1 or 0 -->
+  <pay_for_perks></pay_for_perks>  <!-- Pay for perks ? 1 or 0 -->
+
+  <!-- HIRING -->
+
+  <hiring_builders></hiring_builders>  <!-- Game is hiring builders ? 1 or 0 -->
+  <hiring_coders></hiring_coders>  <!-- Game is hiring coders ? 1 or 0 -->
+</mudinfo>
