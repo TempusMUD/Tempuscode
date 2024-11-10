@@ -1021,6 +1021,9 @@ handle_telnet(struct descriptor_data *d, uint8_t *read_pt, size_t len)
         case MSSP:
             send_mssp_block(d);
             break;
+        case TELOPT_ECHO:
+            // just responding to an echo negotiation
+            break;
         case TELOPT_EOR:
             d->eor_enabled = true;
             break;
