@@ -1385,6 +1385,7 @@ struct command_info cmd_info[] = {
     {"time", POS_DEAD, do_time, 0, 0, 0, 0},
     {"timeout", POS_RESTING, do_action, 0, 0, 0, 0},
     {"tip", POS_RESTING, do_action, 0, 0, 0, 0},
+    {"tnl", POS_DEAD, do_gen_points, 0, SCMD_EXPERIENCE, 0, 0},
     {"toast", POS_RESTING, do_action, 0, 0, 0, 0},
     {"touch", POS_RESTING, do_action, 0, 0, 0, 0},
     {"toggle", POS_DEAD, do_toggle, 0, 0, 0, 0},
