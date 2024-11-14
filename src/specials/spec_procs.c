@@ -281,6 +281,11 @@ skill_matches_bits(int skl, int bits)
     return false;
 }
 
+// list_skills sends a list of abilities to the player ch.
+// - only_learned is true when the player is listing their own skills.
+// - class_restr restricts the list to only abilities of that class,
+//   If it is -1, there is no class restriction.
+// - bits determines the kind of abilities output, whether skill, spell, trigger, etc.
 void
 list_skills(struct creature *ch, bool only_learned, int class_restr, int bits)
 {
@@ -312,7 +317,7 @@ list_skills(struct creature *ch, bool only_learned, int class_restr, int bits)
             if (!skill_matches_bits(skl, bit)) {
                 continue;
             }
-            if (!is_able_to_learn(ch, skl)) {
+            if (!only_learned && !is_able_to_learn(ch, skl)) {
                 continue;
             }
             if (class_restr >= 0 && spell_info[skl].min_level[class_restr] > 49) {
