@@ -123,7 +123,7 @@ void retire_trails(void);
 float prac_gain(struct creature *ch, int mode);
 int skill_gain(struct creature *ch, int mode);
 void list_obj_to_char(struct obj_data *list, struct creature *ch, int mode,
-                      bool show);
+                      bool show, struct str_builder *sb);
 void save_quests();             // quests.cc - saves quest data
 void save_all_players();
 static int do_freeze_char(char *argument, struct creature *vict,
@@ -1635,7 +1635,7 @@ do_stat_object(struct creature *ch, struct obj_data *j)
 
     if (j->contains) {
         sb_sprintf(&sb, "Contents:\r\n");
-        list_obj_to_char(j->contains, ch, SHOW_OBJ_CONTENT, true);
+        list_obj_to_char(j->contains, ch, SHOW_OBJ_CONTENT, true, &sb);
 
     }
 
@@ -7975,7 +7975,8 @@ ACMD(do_coderutil)
             send_to_char(ch, "You must specify a zone number.\r\n");
             return;
         }
-        zone = real_zone(atoi(token));
+        zone_num = atoi(token);
+        zone = real_zone(zone_num);
         if (zone) {
             send_to_char(ch, "Zone %d is already loaded!\r\n", zone_num);
             return;
