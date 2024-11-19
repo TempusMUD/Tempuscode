@@ -848,12 +848,12 @@ vendor_list_obj(struct creature *ch, struct obj_data *obj, int cnt, int idx,
 
     obj_desc = tmp_capitalize(obj_desc);
     if (cnt < 0) {
-        return tmp_sprintf(" %2d%s)  %sUnlimited%s   %-48s %'7d\r\n",
+        return tmp_sprintf(" %2d%s)  %sUnlimited%s   %-47s %'7d\r\n",
                            idx, CCRED(ch, C_NRM), CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
                            obj_desc, cost);
     }
 
-    return tmp_sprintf(" %2d%s)  %s%5d%s       %-48s %'7d\r\n",
+    return tmp_sprintf(" %2d%s)  %s%5d%s       %-47s %'7d\r\n",
                        idx, CCRED(ch, C_NRM), CCYEL(ch, C_NRM), cnt, CCNRM(ch, C_NRM),
                        obj_desc, cost);
 }
