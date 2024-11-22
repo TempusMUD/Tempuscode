@@ -301,15 +301,30 @@ craft_shop_list(struct craft_shop *shop, struct creature *keeper,
     page_string(ch->desc, msg);
 }
 
+
+static int
+is_shop_item_obj_name(gconstpointer a_ptr, gconstpointer b_ptr)
+{
+    const struct craft_item *item = a_ptr;
+    const char *arg = b_ptr;
+    return namelist_match(arg, real_object_proto(item->vnum)->aliases) ? 0:1;
+}
+
+
 // Attempts to purchase an item from keeper for ch.
 void
 craft_shop_buy(struct craft_shop *shop,
                struct creature *keeper, struct creature *ch, char *arguments)
 {
     GList *item_itr;
-    struct craft_item *item;
+    struct craft_item *item = NULL;
     struct obj_data *obj;
     char *arg, *msg, *needed_str;
+
+    if (!*arguments) {
+        send_to_char(ch, "What do you wish to buy?\r\n");
+        return;
+    }
 
     arg = tmp_getword(&arguments);
 
@@ -323,15 +338,11 @@ craft_shop_buy(struct craft_shop *shop,
             perform_say_to(keeper, ch, "That's not a proper item!");
             return;
         }
-        if ((unsigned int)num < g_list_length(shop->items)) {
-            item = g_list_nth_data(shop->items, (unsigned int)num);
-        }
+        item = g_list_nth_data(shop->items, (unsigned int)num);
     } else {
-        for (item_itr = shop->items; item_itr; item_itr = item_itr->next) {
-            if (isname(arg, real_object_proto(item->vnum)->aliases)) {
-                item = item_itr->data;
-                break;
-            }
+        item_itr = g_list_find_custom(shop->items, arg, is_shop_item_obj_name);
+        if (item_itr) {
+            item = item_itr->data;
         }
     }
 
