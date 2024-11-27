@@ -127,22 +127,13 @@ skill_gain(struct creature *ch, int mode)
     }
 }
 
-extern int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];
+extern int skill_sort_info[MAX_SKILLS];
 
 static int
 compare_spells_by_name(const void *av, const void *bv)
 {
     const int *a = av;
     const int *b = bv;
-    if (*a == 0) {
-        return -1;
-    }
-    if (*b == 0) {
-        return 1;
-    }
-    if (*a == *b) {
-        return 0;
-    }
     return strcmp(spell_to_str(*a), spell_to_str(*b));
 }
 
@@ -153,7 +144,7 @@ sort_skills(void)
     for (int a = 0; a < MAX_SKILLS; a++) {
         skill_sort_info[a] = a;
     }
-    qsort(skill_sort_info, MAX_SKILLS, sizeof(int), compare_spells_by_name);
+    qsort(skill_sort_info+1, MAX_SKILLS, sizeof(int), compare_spells_by_name);
 }
 
 
