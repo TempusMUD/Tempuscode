@@ -455,7 +455,8 @@ ASPELL(spell_teleport)
     } while (count < 1000 &&
              (!zone || zone->plane != ch->in_room->zone->plane ||
               zone->time_frame != ch->in_room->zone->time_frame ||
-              !IS_APPR(zone) || ZONE_FLAGGED(zone, ZONE_ISOLATED)));
+              !IS_APPR(zone) || ZONE_FLAGGED(zone, ZONE_ISOLATED)
+              || !ZONE_FLAGGED(zone, ZONE_INPLAY)));
 
     count = 0;
 
