@@ -1001,23 +1001,39 @@ send_mssp_block(struct descriptor_data *d)
     d_send_telnet_seq(d, 2, IAC, SE);
 }
 
-// Handle telnet sequences.  Returns the number of bytes consumed.
+// Handle telnet sequences.  Returns the number of bytes consumed.  If
+// the entire message could not be read, returns 0 as a signal that more
+// needs to be read.
 size_t
 handle_telnet(struct descriptor_data *d, uint8_t *read_pt, size_t len)
 {
-    size_t consumed = 0;
+    uint8_t *start = read_pt;
 
-    switch (*read_pt) {
+    if (len < 2) {
+        return 0;
+    }
+
+    // Skip initial IAC
+    read_pt++;
+
+    switch (*read_pt++) {
     case WILL:
-        consumed = 2;
+        if (len < 3) {
+            return 0;
+        }
+        read_pt++;              // skip opt
         break;
     case WONT:
-        consumed = 2;
+        if (len < 3) {
+            return 0;
+        }
+        read_pt++;              // skip opt
         break;
     case DO:
-        consumed = 2;
-        read_pt++;
-        switch (*read_pt) {
+        if (len < 3) {
+            return 0;
+        }
+        switch (*read_pt++) {
         case MSSP:
             send_mssp_block(d);
             break;
@@ -1033,7 +1049,13 @@ handle_telnet(struct descriptor_data *d, uint8_t *read_pt, size_t len)
         }
         break;
     case DONT:
-        consumed = 2;
+        if (len < 3) {
+            return 0;
+        }
+        read_pt++;              // skip opt
+        break;
+    case IAC:
+        // This is the byte FF but it's not meaningful so just consume it.
         break;
     }
 
@@ -1045,7 +1067,7 @@ handle_telnet(struct descriptor_data *d, uint8_t *read_pt, size_t len)
         g_error_free(error);
     }
 
-    return consumed;
+    return read_pt - start;
 }
 
 
@@ -1095,8 +1117,11 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
         switch (*read_pt) {
         case IAC:
             // telnet handling
-            read_pt++;
-            read_pt += handle_telnet(d, (uint8_t *)read_pt, d->inbuf_len) - 1;
+            size_t consumed = handle_telnet(d, (uint8_t *)read_pt, d->inbuf_len) - 1;
+            if (consumed < 1) {
+                goto input_done;
+            }
+            read_pt += consumed;
             break;
         case '\b':
             // backspacing
@@ -1121,6 +1146,8 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
             }
         }
     }
+
+input_done:
     g_string_free(line, true);
 
     if (d->inbuf_len >= MAX_RAW_INPUT_LENGTH) {
