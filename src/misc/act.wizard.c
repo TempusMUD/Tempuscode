@@ -99,7 +99,7 @@ extern const char *logtypes[];
 
 char *how_good(int percent);
 extern char *prac_types[];
-int skill_sort_info[MAX_SKILLS + 1];
+int skill_sort_info[MAX_SKILLS];
 bool has_mail(long idnum);
 int prototype_obj_value(struct obj_data *obj);
 int choose_material(struct obj_data *obj);
@@ -3976,6 +3976,9 @@ ACMD(do_wizutil)
 bool
 should_display_skill(struct creature *vict, int i)
 {
+    if (spell_to_str(i)[0] == '!') {
+        return false;
+    }
     if (CHECK_SKILL(vict, i) != 0) {
         return true;
     }
@@ -3994,61 +3997,48 @@ should_display_skill(struct creature *vict, int i)
 void
 list_skills_to_char(struct creature *ch, struct creature *vict)
 {
-    char buf3[MAX_STRING_LENGTH];
+    struct str_builder sb = str_builder_default;
     int i, sortpos;
 
     if (prac_params[PRAC_TYPE][(int)GET_CLASS(vict)] != 1 ||
         (GET_REMORT_CLASS(vict) >= 0 &&
          prac_params[PRAC_TYPE][(int)GET_REMORT_CLASS(vict)] != 1)) {
-        snprintf_cat(buf, sizeof(buf), "%s%s%s knows of the following %ss:%s\r\n",
-                     CCYEL(ch, C_CMP), PERS(vict, ch), CCBLD(ch, C_SPR),
-                     SPLSKL(vict), CCNRM(ch, C_SPR));
+        sb_sprintf(&sb, "%s%s%s knows of the following %ss:%s\r\n",
+                   CCYEL(ch, C_CMP), PERS(vict, ch), CCBLD(ch, C_SPR),
+                   SPLSKL(vict), CCNRM(ch, C_SPR));
 
-        strcpy_s(buf2, sizeof(buf2), buf);
-
-        for (sortpos = 1; sortpos < MAX_SPELLS; sortpos++) {
+        for (sortpos = 1; sortpos < MAX_SKILLS; sortpos++) {
             i = skill_sort_info[sortpos];
-            if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
-                strcat_s(buf2, sizeof(buf2), "**OVERFLOW**\r\n");
-                break;
+            if (i <= TOP_SPELL_DEFINE) {
+                continue;
             }
-            snprintf(buf3, sizeof(buf3), "%s[%3d]", CCYEL(ch, C_NRM), GET_SKILL(vict, i));
             if (should_display_skill(vict, i)) {
-                snprintf(buf, sizeof(buf), "%s%3d.%-20s %s%-17s%s %s(%3d mana)%s\r\n",
-                         CCGRN(ch, C_NRM), i, spell_to_str(i), CCBLD(ch, C_SPR),
-                         how_good(GET_SKILL(vict, i)),
-                         GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "", CCRED(ch, C_SPR),
-                         mag_manacost(vict, i), CCNRM(ch, C_SPR));
-                strcat_s(buf2, sizeof(buf2), buf);
+                char *skill_lvl = tmp_sprintf("%s[%3d]", CCYEL(ch, C_NRM), GET_SKILL(vict, i));
+                sb_sprintf(&sb, "%s%3d.%-20s %s%-17s%s %s(%3d mana)%s\r\n",
+                           CCGRN(ch, C_NRM), i, spell_to_str(i),
+                           CCBLD(ch, C_SPR), how_good(GET_SKILL(vict, i)),
+                           GET_LEVEL(ch) > LVL_ETERNAL ? skill_lvl : "",
+                           CCRED(ch, C_SPR), mag_manacost(vict, i),
+                           CCNRM(ch, C_SPR));
             }
         }
-        snprintf(buf3, sizeof(buf3), "\r\n%s%s knows of the following skills:%s\r\n",
-                 CCYEL(ch, C_CMP), PERS(vict, ch), CCNRM(ch, C_SPR));
-        strcat_s(buf2, sizeof(buf2), buf3);
-    } else {
-        snprintf_cat(buf, sizeof(buf), "%s%s knows of the following skills:%s\r\n",
-                 CCYEL(ch, C_CMP), PERS(vict, ch), CCNRM(ch, C_SPR));
-        strcpy_s(buf2, sizeof(buf2), buf);
+        sb_strcat(&sb, "\r\n", NULL);
     }
+    sb_sprintf(&sb, "%s%s knows of the following skills:%s\r\n",
+               CCYEL(ch, C_CMP), PERS(vict, ch), CCNRM(ch, C_SPR));
 
-    for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
+    for (sortpos = 1; sortpos < MAX_SKILLS; sortpos++) {
         i = skill_sort_info[sortpos];
-        if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
-            strcat_s(buf2, sizeof(buf2), "**OVERFLOW**\r\n");
-            break;
-        }
-        snprintf(buf3, sizeof(buf3), "%s[%3d]%s",
-                 CCYEL(ch, C_NRM), GET_SKILL(vict, i), CCNRM(ch, NRM));
         if (should_display_skill(vict, i)) {
-            snprintf(buf, sizeof(buf), "%s%3d.%-20s %s%-17s%s%s\r\n",
-                     CCGRN(ch, C_NRM), i, spell_to_str(i), CCBLD(ch, C_SPR),
-                     how_good(GET_SKILL(vict, i)),
-                     GET_LEVEL(ch) > LVL_ETERNAL ? buf3 : "",
-                     CCNRM(ch, C_SPR));
-            strcat_s(buf2, sizeof(buf2), buf);
+            char *skill_lvl = tmp_sprintf("%s[%3d]", CCYEL(ch, C_NRM), GET_SKILL(vict, i));
+            sb_sprintf(&sb, "%s%3d.%-20s %s%-17s%s%s\r\n",
+                       CCGRN(ch, C_NRM), i, spell_to_str(i),
+                       CCBLD(ch, C_SPR), how_good(GET_SKILL(vict, i)),
+                       GET_LEVEL(ch) > LVL_ETERNAL ? skill_lvl : "",
+                       CCNRM(ch, C_SPR));
         }
     }
-    page_string(ch->desc, buf2);
+    page_string(ch->desc, sb.str);
 }
 
 void
