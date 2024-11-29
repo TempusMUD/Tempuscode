@@ -37,11 +37,12 @@
 #include "db.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "strutil.h"
 #include "account.h"
 
-extern int skill_sort_info[MAX_SKILLS - MAX_SPELLS + 1];
+extern int skill_sort_info[MAX_SKILLS];
 extern struct descriptor_data *descriptor_list;
 void set_desc_state(enum cxn_state state, struct descriptor_data *d);
 
@@ -114,7 +115,7 @@ void
 perform_net_load(struct descriptor_data *d, char *arg)
 {
     int skill_num, percent;
-    long int cost;
+    int64_t cost;
 
     skip_spaces(&arg);
     if (!*arg) {
@@ -142,7 +143,7 @@ perform_net_load(struct descriptor_data *d, char *arg)
     }
 
     cost = skill_cost(d->creature, skill_num);
-    d_printf(d, "Program cost: %10ld  Account balance; %'" PRId64 "\r\n",
+    d_printf(d, "Program cost: %10" PRId64 "  Account balance; %'" PRId64 "\r\n",
              cost, d->account->bank_future);
 
     if (d->account->bank_future < cost) {
@@ -221,25 +222,21 @@ perform_net_finger(struct creature *ch, const char *arg)
 void
 perform_net_list(struct creature *ch)
 {
+    struct str_builder sb = str_builder_default;
     int i, sortpos;
 
-    strcpy_s(buf2, sizeof(buf2), "Directory listing for local programs.\r\n\r\n");
+    sb_strcat(&sb, "Directory listing for local programs:\r\n\r\n", NULL);
 
-    for (sortpos = 1; sortpos < MAX_SKILLS - MAX_SPELLS; sortpos++) {
+    for (sortpos = 1; sortpos < MAX_SKILLS; sortpos++) {
         i = skill_sort_info[sortpos];
-        if (strlen(buf2) >= MAX_STRING_LENGTH - 32) {
-            strcat_s(buf2, sizeof(buf2), "**OVERFLOW**\r\n");
-            return;
-        }
-        if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i)) &&
-            SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
-            snprintf(buf, sizeof(buf), "%-30s [%3d] percent installed.\r\n",
+        if ((CHECK_SKILL(ch, i) || is_able_to_learn(ch, i))
+            && SPELL_LEVEL(i, 0) <= LVL_GRIMP) {
+            sb_sprintf(&sb, "%-30s [%3d] percent installed.\r\n",
                      spell_to_str(i), GET_SKILL(ch, i));
-            strcat_s(buf2, sizeof(buf2), buf);
         }
     }
 
-    page_string(ch->desc, buf2);
+    page_string(ch->desc, sb.str);
 }
 
 void
