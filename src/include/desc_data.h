@@ -97,7 +97,8 @@ struct descriptor_data {
     struct editor *text_editor; /*  Pointer to text editor object. */
     uint8_t inbuf[MAX_RAW_INPUT_LENGTH];   /* buffer for raw input       */
     size_t inbuf_len;
-    char last_input[MAX_INPUT_LENGTH];  /* the last input         */
+    GString *line;              /* buffer for current line of text */
+    GString *last_input;        /* last line entered */
     GQueue *input;          /* q of unprocessed input       */
     guint in_watcher;
     guint out_watcher;

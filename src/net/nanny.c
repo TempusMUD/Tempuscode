@@ -1229,7 +1229,7 @@ build_prompt(struct descriptor_data *d)
     case CXN_ACCOUNT_VERIFY:
         return tmp_sprintf(
             "Are you sure you want your account name to be '%s' (Y/N)? ",
-            d->last_input);
+            d->last_input->str);
     case CXN_ANSI_PROMPT:
         return "Enter the level of color you prefer: ";
     case CXN_COMPACT_PROMPT:
@@ -1792,7 +1792,7 @@ set_desc_state(enum cxn_state state, struct descriptor_data *d)
         echo_off(d);
     }
     if (CXN_AFTERLIFE == state) {
-        d->inbuf[0] = '\0';
+        g_string_truncate(d->line, 0);
         d->wait = 5 RL_SEC;
         g_queue_foreach(d->input, (GFunc)g_free, NULL);
         g_queue_clear(d->input);

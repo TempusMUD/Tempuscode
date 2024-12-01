@@ -15,9 +15,9 @@
 // Copyright 1998 by John Watson, all rights reserved.
 //
 
-#include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
 #include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -780,6 +780,8 @@ accept_new_connection(GIOChannel *listener_io,
     newd->input_handler = g_timeout_add(100, handle_input, newd);
 
     newd->input = g_queue_new();
+    newd->line = g_string_sized_new(80);
+    newd->last_input = g_string_sized_new(0);
 
     /* initialize descriptor data */
     STATE(newd) = CXN_ACCOUNT_LOGIN;
@@ -879,44 +881,46 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
 }
 
 void
-enqueue_line_input(struct descriptor_data *d, const char *line)
+enqueue_line_input(struct descriptor_data *d)
 {
     d->need_prompt = true;
 
     if (d->snoop_by && d->creature && !IS_NPC(d->creature)) {
         for (GList *x = d->snoop_by; x; x = x->next) {
             struct descriptor_data *td = x->data;
-            d_printf(td, "&r[ &n%s&r ]\r\n&n", line);
+            d_printf(td, "&r[ &n%s&r ]\r\n&n", d->line->str);
         }
     }
 
-    if (*line == '!' && IS_PLAYING(d)) {
-        line = d->last_input;
-    } else if (*line == '^') {
-        char *sub = perform_subst(d, d->last_input, line);
-        if (sub == NULL) {
-            return;
-        }
-        strcpy_s(d->last_input, sizeof(d->last_input), sub);
-        line = d->last_input;
+    if (d->line->str[0] == '!' && IS_PLAYING(d)) {
+        g_string_assign(d->line, d->last_input->str);
+    } else if (d->line->str[0] == '^') {
+        // Parse out ^needle^replace
+        char *needle = tmp_strdupt(d->line->str + 1, "^");
+        char *replace = tmp_strdup(d->line->str + strlen(needle) + 2);
+        // Copy last input into current line
+        g_string_assign(d->line, d->last_input->str);
+        // Replace all instances of needle with replace
+        g_string_replace(d->line, needle, replace, 0);
     } else {
-        strcpy_s(d->last_input, sizeof(d->last_input), line);
+        // Normally just copy the line into the last input
+        g_string_assign(d->last_input, d->line->str);
     }
 
-    if (d->repeat_cmd_count > 300 &&
-        (!d->creature || GET_LEVEL(d->creature) < LVL_ETERNAL)) {
-        if (d->creature && d->creature->in_room) {
-            act("SAY NO TO SPAM.\r\n"
-                "Begone oh you waster of electrons,"
-                " ye vile profaner of CPU time!", true, d->creature, NULL, NULL,
-                TO_ROOM);
-            slog("SPAM-death on the queue!");
-            close_socket(d);
-            return;
-        }
+    if (d->repeat_cmd_count > 300
+        && d->creature
+        && d->creature->in_room
+        && GET_LEVEL(d->creature) < LVL_ETERNAL) {
+        act("SAY NO TO SPAM.\r\n"
+            "Begone oh you waster of electrons,"
+            " ye vile profaner of CPU time!", true, d->creature, NULL, NULL,
+            TO_ROOM);
+        slog("SPAM-death on the queue!");
+        close_socket(d);
+        return;
     }
 
-    if (IS_PLAYING(d) && !strncmp("revo", line, 4)) {
+    if (IS_PLAYING(d) && !strncmp("revo", d->line->str, 4)) {
         // We want all commands in the queue to be dumped immediately
         // This has to be here so we can bypass the normal order of
         // commands
@@ -930,7 +934,7 @@ enqueue_line_input(struct descriptor_data *d, const char *line)
             WAIT_STATE(d->creature, 1 RL_SEC);
         }
     } else {
-        g_queue_push_tail(d->input, strdup(line));
+        g_queue_push_tail(d->input, strdup(d->line->str));
     }
 }
 
@@ -1102,82 +1106,54 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
     }
 
     d->inbuf_len += bytes_read;
+    uint8_t *read_pt = d->inbuf;
     uint8_t *end_pt = d->inbuf + d->inbuf_len;
-    uint8_t *last_line_start = d->inbuf;
-    GString *line = g_string_sized_new(80);
-    bool consume_linebreak = false;
-    for (uint8_t *read_pt = d->inbuf; read_pt != end_pt; read_pt++) {
-        if (consume_linebreak) {
-            consume_linebreak = false;
-            if (*read_pt == '\n') {
-                last_line_start = read_pt + 1;
-            }
-            continue;
-        }
+    while (read_pt != end_pt) {
         switch (*read_pt) {
         case IAC:
             // telnet handling
-            size_t consumed = handle_telnet(d, (uint8_t *)read_pt, d->inbuf_len) - 1;
+            size_t consumed = handle_telnet(d, (uint8_t *)read_pt, end_pt - read_pt);
             if (consumed < 1) {
                 goto input_done;
             }
             read_pt += consumed;
             break;
         case '\b':
-            // backspacing
-            g_string_truncate(line, line->len - 1);
+            // backspacing - this shouldn't happen but it might
+            g_string_truncate(d->line, d->line->len - 1);
+            read_pt++;
             break;
         case '\r':
-            // CRLF handling
-            consume_linebreak = true;
-            enqueue_line_input(d, line->str);
-            g_string_truncate(line, 0);
-            last_line_start = read_pt + 1;
+            // CRLF handling - just skip CRs and handle the LF.
+            read_pt++;
             break;
         case '\n':
             // bare linefeed handling
-            enqueue_line_input(d, line->str);
-            g_string_truncate(line, 0);
-            last_line_start = read_pt + 1;
+            enqueue_line_input(d);
+            g_string_truncate(d->line, 0);
+            read_pt++;
             break;
         default:
             if (*read_pt > 0x1f && *read_pt < 0x7f) {
-                g_string_append_c(line, *read_pt);
+                g_string_append_c(d->line, *read_pt);
+                if (d->line->len >= MAX_RAW_INPUT_LENGTH) {
+                    d_printf(d, "WARNING: line too long.  Ignoring.\r\n");
+                    g_string_truncate(d->line, 0);
+                    d->inbuf_len = 0;
+                    return true;
+                }
             }
+            read_pt++;
+            break;
         }
     }
 
 input_done:
-    g_string_free(line, true);
 
-    if (d->inbuf_len >= MAX_RAW_INPUT_LENGTH) {
-        // Guard against the line buffer overflowing.
-        d_printf(d, "WARNING: line too long.  Ignoring.\r\n");
-        d->inbuf_len = 0;
-    } else {
-        // Copy last line fragment to start of input buffer
-        d->inbuf_len = end_pt - last_line_start;
-        memmove(d->inbuf, last_line_start, d->inbuf_len);
-    }
+    d->inbuf_len = end_pt - read_pt;
+    memmove(d->inbuf, read_pt, d->inbuf_len);
 
     return true;
-}
-
-/*
- * perform substitution for the '^..^' csh-esque syntax
- * orig is the orig string (i.e. the one being modified.
- * subst contains the substition string, i.e. "^telm^tell"
- */
-char *
-perform_subst(struct descriptor_data *t, char *orig, const char *subst)
-{
-    char *needle = tmp_strdupt(subst + 1, "^");
-
-    if (strstr(orig, needle) == NULL) {
-        return NULL;
-    }
-
-    return tmp_gsub(orig, needle, subst + strlen(needle) + 2);
 }
 
 void
@@ -1248,6 +1224,10 @@ destroy_socket(struct descriptor_data *d)
     g_source_remove(d->input_handler);
 
     g_io_channel_unref(d->io);
+    g_string_free(d->line, true);
+    g_string_free(d->last_input, true);
+    g_queue_foreach(d->input, (GFunc)g_free, NULL);
+    g_queue_free(d->input);
 
     free(d);
 }
