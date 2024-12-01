@@ -68,6 +68,16 @@ enum display_mode {
     IRC,                        // Text interface optimized for IRC
 };
 
+struct telnet_endpoint_option {
+    bool enabled;
+    bool requesting;
+};
+
+struct telnet_option {
+    struct telnet_endpoint_option host[256];  // options negotiated for MUD-side
+    struct telnet_endpoint_option peer[256];  // options negotiated for client-side
+};
+
 #define IS_PLAYING(desc)    ((desc)->input_mode == CXN_PLAYING || \
                              (desc)->input_mode == CXN_NETWORK)
 
@@ -83,6 +93,7 @@ struct descriptor_data {
 
     char host[HOST_LENGTH + 1]; /* hostname             */
     enum cxn_state input_mode;  /* mode of 'connectedness'      */
+    struct telnet_option telnet; /* Telnet protocol options */
     void *mode_data;            // pointer for misc data needed for input_mode
     int wait;                   /* wait for how many loops      */
     int desc_num;               /* unique num assigned to desc      */

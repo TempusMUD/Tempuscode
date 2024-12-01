@@ -87,8 +87,10 @@ struct account;
 
 // printf to descriptor with color code expansion
 void d_send(struct descriptor_data *d, const char *txt);
+void d_send_raw(struct descriptor_data *d, const char *txt, size_t len);
 void d_printf(struct descriptor_data *d, const char *str, ...)
 __attribute__ ((format (printf, 2, 3)));
+void d_send_bytes(struct descriptor_data *d, size_t n, ...);
 
 struct last_command_data {
     int idnum;
@@ -112,6 +114,12 @@ void show_file(struct creature *ch, const char *fname, int lines)
 __attribute__ ((nonnull));
 void show_account_chars(struct descriptor_data *d, struct account *acct, bool immort, bool brief)
 __attribute__ ((nonnull));
+
+void init_telnet(void);
+void initiate_telnet(struct descriptor_data *d);
+void echo_off(struct descriptor_data *d);
+void echo_on(struct descriptor_data *d);
+int handle_telnet(struct descriptor_data *d, uint8_t *buf, size_t len);
 
 
 extern bool suppress_output;

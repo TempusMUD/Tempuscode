@@ -64,11 +64,6 @@
 #include "paths.h"
 #include "weather.h"
 
-// Protocols
-#define MSSP 70
-const uint8_t MSSP_VAR = 1;
-const uint8_t MSSP_VAL = 2;
-
 /* externs */
 extern struct help_collection *Help;
 extern int mini_mud;
@@ -181,6 +176,8 @@ init_game(void)
     GIOChannel *reader_io = init_socket(reader_port, false);
     GIOChannel *irc_io = init_socket(irc_port, false);
     GIOChannel *proxy_io = init_socket(proxy_port, true);
+
+    init_telnet();
 
     avail_descs = get_avail_descs();
 
@@ -615,7 +612,7 @@ d_send_raw(struct descriptor_data *d, const char *txt, size_t len)
 }
 
 void
-d_send_telnet_seq(struct descriptor_data *d, size_t n, ...)
+d_send_bytes(struct descriptor_data *d, size_t n, ...)
 {
     va_list args;
     char *buf = alloca(n);
@@ -808,8 +805,7 @@ accept_new_connection(GIOChannel *listener_io,
     descriptor_list = newd;
 
     // Start protocol negotiations
-    d_send_telnet_seq(newd, 3, IAC, WILL, MSSP);
-    d_send_telnet_seq(newd, 3, IAC, WILL, TELOPT_EOR);
+    initiate_telnet(newd);
 
     // Send greeting screen
     if (mini_mud) {
@@ -860,7 +856,7 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
                 d_send(d, "\r\n");
             }
             if (d->eor_enabled) {
-                d_send_telnet_seq(d, 2, IAC, EOR);
+                d_send_bytes(d, 2, IAC, EOR);
             }
         }
         d->need_prompt = false;
@@ -933,147 +929,11 @@ enqueue_line_input(struct descriptor_data *d)
             d_printf(d, "You reconsider your rash plans.\r\n");
             WAIT_STATE(d->creature, 1 RL_SEC);
         }
-    } else {
-        g_queue_push_tail(d->input, strdup(d->line->str));
-    }
-}
-
-void
-send_mssp_var(struct descriptor_data *d, const char *name, const char *value)
-{
-    d_send_telnet_seq(d, 1, MSSP_VAR);
-    d_send_raw(d, name, strlen(name));
-    d_send_telnet_seq(d, 1, MSSP_VAL);
-    d_send_raw(d, value, strlen(value));
-}
-
-void
-send_mssp_xml(struct descriptor_data *d, const char *path)
-{
-    xmlDocPtr doc = xmlParseFile(path);
-    if (!doc) {
-        slog("WARNING: No mudinfo.xml found at %s", path);
         return;
     }
-    xmlNodePtr root = xmlDocGetRootElement(doc);
-    if (!root) {
-        slog("WARNING: %s has no root", path);
-        return;
-    }
-    for (xmlNodePtr node = root->xmlChildrenNode; node; node = node->next) {
-        if (xmlNodeIsText(node)) {
-            continue;
-        }
-        char *name = tmp_toupper(tmp_gsub((const char *)node->name, "_", " "));
-        char *val = (char *)xmlNodeGetContent(node);
-        if (*val != '\0') {
-            send_mssp_var(d, name, val);
-        }
-        xmlFree(val);
-    }
-    xmlFreeDoc(doc);
+
+    g_queue_push_tail(d->input, strdup(d->line->str));
 }
-
-void
-send_mssp_block(struct descriptor_data *d)
-{
-    int playerCount = 0;
-
-    for (struct descriptor_data *d2 = descriptor_list; d2 != NULL; d2 = d2->next) {
-        if (d2->creature) {
-            playerCount++;
-        }
-    }
-    d_send_telnet_seq(d, 3, IAC, SB, MSSP);
-
-    // Send computed values
-    send_mssp_var(d, "PLAYERS", tmp_sprintf("%d", playerCount));
-    send_mssp_var(d, "UPTIME", tmp_sprintf("%lu", boot_time));
-    send_mssp_var(d, "AREAS", tmp_sprintf("%d", g_hash_table_size(zones)));
-    send_mssp_var(d, "HELPFILES", tmp_sprintf("%d", g_list_length(help->items)));
-    send_mssp_var(d, "MOBILES", tmp_sprintf("%d", g_hash_table_size(mob_prototypes)));
-    send_mssp_var(d, "OBJECTS", tmp_sprintf("%d", g_hash_table_size(obj_prototypes)));
-    send_mssp_var(d, "ROOMS", tmp_sprintf("%d", g_hash_table_size(rooms)));
-    send_mssp_var(d, "ANSI", "1");
-    send_mssp_var(d, "CLASSES", "12");
-    send_mssp_var(d, "LEVELS", "49");
-    send_mssp_var(d, "RACES", "9");
-
-    // Send static values
-    send_mssp_xml(d, "etc/mudinfo.xml");
-
-    d_send_telnet_seq(d, 2, IAC, SE);
-}
-
-// Handle telnet sequences.  Returns the number of bytes consumed.  If
-// the entire message could not be read, returns 0 as a signal that more
-// needs to be read.
-size_t
-handle_telnet(struct descriptor_data *d, uint8_t *read_pt, size_t len)
-{
-    uint8_t *start = read_pt;
-
-    if (len < 2) {
-        return 0;
-    }
-
-    // Skip initial IAC
-    read_pt++;
-
-    switch (*read_pt++) {
-    case WILL:
-        if (len < 3) {
-            return 0;
-        }
-        read_pt++;              // skip opt
-        break;
-    case WONT:
-        if (len < 3) {
-            return 0;
-        }
-        read_pt++;              // skip opt
-        break;
-    case DO:
-        if (len < 3) {
-            return 0;
-        }
-        switch (*read_pt++) {
-        case MSSP:
-            send_mssp_block(d);
-            break;
-        case TELOPT_ECHO:
-            // just responding to an echo negotiation
-            break;
-        case TELOPT_EOR:
-            d->eor_enabled = true;
-            break;
-        default:
-            d_send_telnet_seq(d, 3, IAC, WONT, *read_pt);
-            break;
-        }
-        break;
-    case DONT:
-        if (len < 3) {
-            return 0;
-        }
-        read_pt++;              // skip opt
-        break;
-    case IAC:
-        // This is the byte FF but it's not meaningful so just consume it.
-        break;
-    }
-
-    // Ensure telnet response gets sent without sending prompt.
-    GError *error = NULL;
-    g_io_channel_flush(d->io, &error);
-    if (error) {
-        slog("g_io_channel_flush: %s", error->message);
-        g_error_free(error);
-    }
-
-    return read_pt - start;
-}
-
 
 gboolean
 process_input(__attribute__ ((unused)) GIOChannel *io,

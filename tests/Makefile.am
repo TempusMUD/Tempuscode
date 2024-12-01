@@ -80,6 +80,7 @@ check_tempus_LDADD = \
                  $(top_builddir)/src/net/ban.o \
                  $(top_builddir)/src/net/comm.o \
                  $(top_builddir)/src/net/nanny.o \
+                 $(top_builddir)/src/net/protocol.o \
                  $(top_builddir)/src/net/recovery.o \
                  $(top_builddir)/src/objects/boards.o \
                  $(top_builddir)/src/objects/smokes.o \
