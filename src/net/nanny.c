@@ -1772,17 +1772,23 @@ set_desc_state(enum cxn_state state, struct descriptor_data *d)
         return;
     }
 
-    if (d->input_mode == CXN_ACCOUNT_PW ||
-        d->input_mode == CXN_PW_PROMPT ||
-        d->input_mode == CXN_PW_VERIFY ||
-        d->input_mode == CXN_OLDPW_PROMPT || d->input_mode == CXN_DELETE_PW) {
+    if (d->input_mode == CXN_ACCOUNT_PW
+        || d->input_mode == CXN_PW_PROMPT
+        || d->input_mode == CXN_PW_VERIFY
+        || d->input_mode == CXN_OLDPW_PROMPT
+        || d->input_mode == CXN_NEWPW_PROMPT
+        || d->input_mode == CXN_NEWPW_VERIFY
+        || d->input_mode == CXN_DELETE_PW) {
         echo_on(d);
     }
     d->input_mode = state;
-    if (d->input_mode == CXN_ACCOUNT_PW ||
-        d->input_mode == CXN_PW_PROMPT ||
-        d->input_mode == CXN_PW_VERIFY ||
-        d->input_mode == CXN_OLDPW_PROMPT || d->input_mode == CXN_DELETE_PW) {
+    if (d->input_mode == CXN_ACCOUNT_PW
+        || d->input_mode == CXN_PW_PROMPT
+        || d->input_mode == CXN_PW_VERIFY
+        || d->input_mode == CXN_OLDPW_PROMPT
+        || d->input_mode == CXN_NEWPW_PROMPT
+        || d->input_mode == CXN_NEWPW_VERIFY
+        || d->input_mode == CXN_DELETE_PW) {
         echo_off(d);
     }
     if (CXN_AFTERLIFE == state) {
