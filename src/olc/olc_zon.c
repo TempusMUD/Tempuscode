@@ -95,7 +95,7 @@ is_valid_if_flag(int flag)
 void
 do_zcmd(struct creature *ch, char *argument)
 {
-    struct zone_data *zone = NULL, *tmp_zone;
+    struct zone_data *zone = NULL;
     struct reset_com *zonecmd, *tmp_zonecmd, *zcmd = NULL;
     struct room_data *room;
     int cur_door_flags, tmp_door_flags, tmp_flag;
@@ -1930,9 +1930,9 @@ extern const char *zone_flag_names[];
 void
 do_zset_command(struct creature *ch, char *argument)
 {
-    struct zone_data *zone = NULL, *tmp_zone;
+    struct zone_data *zone = NULL;
     struct reset_com *tmp_zonecmd;
-    int cmd, i, j, k, found, timeframe, plane, zset_command, state;
+    int cmd, i, j, k, timeframe, plane, zset_command, state;
     int tmp_zone_flags, cur_zone_flags, tmp_flag;
     struct creature *vict = NULL;
     int num;

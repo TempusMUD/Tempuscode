@@ -1378,7 +1378,7 @@ signal_setup(void)
     struct itimerval itime;
     struct timeval interval;
 
-    /* user signal 1: reread wizlists.  Used by autowiz system. */
+    /* user signal 1: reload quest points - not really used much */
     my_signal(SIGUSR1, qp_reload);
 
     /*

@@ -1017,7 +1017,7 @@ DEFPROGHANDLER(stepto, env, evt, args)
 {
     struct creature *ch;
     struct room_data *room;
-    int dir, pause;
+    int dir;
 
     if (env->owner_type != PROG_TYPE_MOBILE) {
         return;
