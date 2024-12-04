@@ -580,7 +580,7 @@ tmp_ctime(time_t val)
 
     result = tmp_alloc(27);
     ctime_r(&val, result);
-    // last int8_t is, sadly, a newline.  we remove it here
+    // last byte is, sadly, a newline.  we remove it here
     result[strlen(result) - 1] = '\0';
 
     return result;
@@ -652,8 +652,7 @@ tmp_printbits(int val, const char *bit_descs[])
 char *
 tmp_substr(const char *str, int start_pos, int end_pos)
 {
-    const char *read_pt;
-    char *result, *write_pt;
+    char *result;
     int len;
     size_t result_len;
 
@@ -681,16 +680,11 @@ tmp_substr(const char *str, int start_pos, int end_pos)
     }
 
     // This is the true result string length
-    result_len = end_pos - start_pos + 2;
+    result_len = end_pos - start_pos + 1;
 
-    write_pt = result = tmp_alloc(result_len);
-
-    read_pt = str + start_pos;
-    result_len--;
-    while (result_len--) {
-        *write_pt++ = *read_pt++;
-    }
-    *write_pt = '\0';
+    result = tmp_alloc(result_len + 1);
+    memmove(result, str + start_pos, result_len);
+    result[result_len] = '\0';
 
     return result;
 }
@@ -698,8 +692,8 @@ tmp_substr(const char *str, int start_pos, int end_pos)
 char *
 tmp_trim(const char *str)
 {
-    const char *read_pt, *start, *end;
-    char *result, *write_pt;
+    const char *start, *end;
+    char *result;
     size_t result_len;
 
     // Find beginning of trimmed string
@@ -715,16 +709,11 @@ tmp_trim(const char *str)
     }
 
     // This is the true result string length
-    result_len = end - start + 2;
+    result_len = end - start + 1;
 
-    write_pt = result = tmp_alloc(result_len);
-
-    read_pt = start;
-    result_len--;
-    while (result_len--) {
-        *write_pt++ = *read_pt++;
-    }
-    *write_pt = '\0';
+    result = tmp_alloc(result_len + 1);
+    memmove(result, start, result_len);
+    result[result_len] = '\0';
 
     return result;
 }
