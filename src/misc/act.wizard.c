@@ -4321,10 +4321,10 @@ show_zoneusage(struct creature *ch, char *value)
         }
         snprintf(buf, sizeof(buf),
                  "%s[%s%3d%s] %s%-30s%s %s[%s%6d%s]%s acc, [%3d] idle  Owner: %s%s%s\r\n",
-                 buf, CCYEL(ch, C_NRM), zone->number, CCNRM(ch, C_NRM), CCCYN(ch,
-                                                                              C_NRM), zone->name, CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
-                 CCNRM(ch, C_NRM), zone->enter_count, CCGRN(ch, C_NRM), CCNRM(ch,
-                                                                              C_NRM), zone->idle_time, CCYEL(ch, C_NRM),
+                 buf, CCYEL(ch, C_NRM), zone->number, CCNRM(ch, C_NRM),
+                 CCCYN(ch, C_NRM), zone->name, CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
+                 CCNRM(ch, C_NRM), zone->enter_count, CCGRN(ch, C_NRM),
+                 CCNRM(ch, C_NRM), zone->idle_time, CCYEL(ch, C_NRM),
                  player_name_by_idnum(zone->owner_idnum), CCNRM(ch, C_NRM));
     }
 
@@ -8466,14 +8466,10 @@ ACMD(do_users)
     int low = 0, high = LVL_GRIMP, i, num_can_see = 0;
     int showchar_class = 0, playing = 0, deadweight = 0;
     char *arg;
-    char timebuf[27], idletime[10];
 
     while (*(arg = tmp_getword(&argument)) != '\0') {
         if (*arg == '-') {
             switch (*(arg + 1)) {
-            case 'k':
-                playing = 1;
-                break;
             case 'p':
                 playing = 1;
                 break;
@@ -8552,22 +8548,21 @@ ACMD(do_users)
                 continue;
             }
         }
-
-        strftime(timebuf, 24, "%H:%M:%S", localtime(&d->login_time));
+        char *timestr = tmp_strftime("%H:%M:%S", localtime(&d->login_time));
         if (STATE(d) == CXN_PLAYING && d->original) {
             state = "switched";
         } else {
             state = strlist_aref(STATE(d), desc_modes);
         }
 
+        char *idlestr;
         if (d->creature && STATE(d) == CXN_PLAYING &&
             (GET_LEVEL(d->creature) < GET_LEVEL(ch)
              || GET_LEVEL(ch) >= LVL_LUCIFER)) {
-            snprintf(idletime, sizeof(idletime), "%2d",
-                     d->creature->char_specials.timer * SECS_PER_MUD_HOUR /
-                     SECS_PER_REAL_MIN);
+            idlestr = tmp_sprintf("%2d", d->creature->char_specials.timer * SECS_PER_MUD_HOUR /
+                                  SECS_PER_REAL_MIN);
         } else {
-            snprintf(idletime, sizeof(idletime), "%2d", d->idle);
+            idlestr = tmp_sprintf("%2d", d->idle);
         }
 
         if (!d->creature) {
@@ -8589,7 +8584,7 @@ ACMD(do_users)
         }
 
         sb_sprintf(&sb, "%4d %-12s %s %-15s %-2s %-8s ",
-                    d->desc_num, account_name, char_name, state, idletime, timebuf);
+                    d->desc_num, account_name, char_name, state, idlestr, timestr);
 
         if (*d->host) {
             if (!isbanned(d->host, buf, sizeof(buf))) {
@@ -8599,10 +8594,21 @@ ACMD(do_users)
             } else {
                 sb_strcat(&sb, CCRED(ch, C_NRM), NULL);
             }
-            sb_sprintf(&sb, "%s%s\r\n", d->host, CCNRM(ch, C_NRM));
+            sb_sprintf(&sb, "%s%s", d->host, CCNRM(ch, C_NRM));
         } else {
-            sb_strcat(&sb, CCRED_BLD(ch, C_SPR), "[unknown]\r\n", CCNRM(ch, C_SPR), NULL);
+            sb_strcat(&sb, CCRED_BLD(ch, C_SPR), "[unknown]", CCNRM(ch, C_SPR), NULL);
         }
+
+        if (d->client_info.client_name || d->client_info.term_type) {
+            sb_sprintf(&sb, "\r\n     Client: %s%-10s%s  Terminal: %s%-10s%s  Term bits: %s%s%s",
+                       CCCYN(ch, C_NRM), d->client_info.client_name ? d->client_info.client_name:"<none>",
+                       CCNRM(ch, C_NRM),
+                       CCCYN(ch, C_NRM), d->client_info.term_type ? d->client_info.term_type:"<none>",
+                       CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
+                       d->client_info.bits ? tmp_printbits(d->client_info.bits, client_info_bitdesc):"<none>",
+                       CCNRM(ch, C_NRM));
+        }
+        sb_strcat(&sb, "\r\n", NULL);
 
         num_can_see++;
     }

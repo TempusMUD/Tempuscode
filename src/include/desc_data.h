@@ -78,6 +78,29 @@ struct telnet_option {
     struct telnet_endpoint_option peer[256];  // options negotiated for client-side
 };
 
+enum client_info_bits {
+    CLIENT_INFO_ANSI = 1,             // Client supports all common ANSI color codes.
+    CLIENT_INFO_VT100 = 2,            // Client supports all common VT100 codes.
+    CLIENT_INFO_UTF_8 = 4,            // Client is using UTF-8 character encoding.
+    CLIENT_INFO_256_COLORS = 8,       // Client supports all 256 color codes.
+    CLIENT_INFO_MOUSE_TRACKING = 16,  // Client supports xterm mouse tracking.
+    CLIENT_INFO_OSC_COLOR = 32,       // Client supports OSC and the OSC color palette.
+    CLIENT_INFO_SCREEN_READER = 64,   // Client is using a screen reader.
+    CLIENT_INFO_PROXY = 128,          // Client is a proxy allowing different users to connect from the same IP address.
+    CLIENT_INFO_TRUECOLOR = 256,      // Client supports truecolor codes using semicolon notation.
+    CLIENT_INFO_MNES = 512,           // Client supports the Mud New Environment Standard for information exchange.
+    CLIENT_INFO_MSLP = 1024,          // Client supports the Mud Server Link Protocol for clickable link handling.
+    CLIENT_INFO_SSL = 2048,           // Client supports SSL for data encryption, preferably TLS 1.3 or higher.
+};
+
+extern const char *client_info_bitdesc[];
+
+struct client_info {
+    char *client_name;
+    char *term_type;
+    int bits;
+};
+
 #define IS_PLAYING(desc)    ((desc)->input_mode == CXN_PLAYING || \
                              (desc)->input_mode == CXN_NETWORK)
 
@@ -94,6 +117,8 @@ struct descriptor_data {
     char host[HOST_LENGTH + 1]; /* hostname             */
     enum cxn_state input_mode;  /* mode of 'connectedness'      */
     struct telnet_option telnet; /* Telnet protocol options */
+    struct client_info client_info;
+    int ttype_phase;    /* TTYPE sends three unlabeled bits of info per call */
     void *mode_data;            // pointer for misc data needed for input_mode
     int wait;                   /* wait for how many loops      */
     int desc_num;               /* unique num assigned to desc      */

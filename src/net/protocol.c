@@ -50,6 +50,11 @@ struct telnet_config {
                     enum enable_or_disable enable); /* called on state change */
 };
 
+const char *client_info_bitdesc[] = {
+    "ANSI", "VT100", "UTF8", "256COLOR", "MOUSE", "OSC_COLOR", "SCREEN_READER",
+    "PROXY", "TRUECOLOR", "MNES", "MSLP", "SSL", "\n"
+};
+
 // Server-wide info about telnet support.
 struct telnet_config telnet_config[256] = { 0 };
 
@@ -134,6 +139,53 @@ handle_mssp(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum
     }
 }
 
+static void
+handle_ttype(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum enable_or_disable enable)
+{
+    if (enable == ENABLE) {
+        d->ttype_phase = 0;
+        d_send_bytes(d, 6, IAC, SB, TELOPT_TTYPE, TELQUAL_SEND, IAC, SE);
+    }
+}
+
+static void
+handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
+{
+    if (*buf++ != TELQUAL_IS) {
+        // First byte from client should always be IS (0x00)
+        return;
+    }
+    switch (d->ttype_phase) {
+    case 0:
+        d->client_info.client_name = strndup((char *)buf, len-1);
+        d_send_bytes(d, 6, IAC, SB, TELOPT_TTYPE, TELQUAL_SEND, IAC, SE);
+        break;
+    case 1:
+        char *ttype = strndup((char *)buf, len-1);
+        d->client_info.term_type = ttype;
+        if (!strcmp(ttype, d->client_info.client_name)) {
+            // There was a single termtype, so not an MTTS client.
+            free(d->client_info.client_name);
+            d->client_info.client_name = NULL;
+            d->ttype_phase = 0;
+            return;
+        }
+        d_send_bytes(d, 6, IAC, SB, TELOPT_TTYPE, TELQUAL_SEND, IAC, SE);
+        break;
+    case 2:
+        if (len < 6 || strncmp((char *)buf, "MTTS ", 5)) {
+            return;
+        }
+        d->client_info.bits = atoi(tmp_substr((char *)buf, 5, len - 2));
+        if (d->client_info.bits & CLIENT_INFO_SCREEN_READER) {
+            d->display = BLIND;
+        }
+        break;
+    }
+    d->ttype_phase++;
+}
+
+
 static int
 request_to_command(enum host_or_peer endpoint, enum enable_or_disable enable)
 {
@@ -181,6 +233,9 @@ void
 init_telnet(void)
 {
     telnet_config[TELOPT_ECHO].supported = true;
+    telnet_config[TELOPT_TTYPE].supported = true;
+    telnet_config[TELOPT_TTYPE].demand = true;
+    telnet_config[TELOPT_TTYPE].handler = handle_ttype;
     telnet_config[TELOPT_EOR].supported = true;
     telnet_config[TELOPT_EOR].advertise = true;
     telnet_config[TELOPT_EOR].handler = handle_eor;
@@ -214,7 +269,7 @@ receive_telnet_negotiation(struct descriptor_data *d, int message, int opt)
         if (d->telnet.peer[opt].requesting) {
             // client agreeing to use option
             d->telnet.peer[opt].requesting = false;
-        } else {
+        } else if (!d->telnet.peer[opt].enabled) {
             // client offering to use option
             d_send_bytes(d, 3, IAC, telnet_config[opt].supported ? DO:DONT, opt);
         }
@@ -224,7 +279,7 @@ receive_telnet_negotiation(struct descriptor_data *d, int message, int opt)
         if (d->telnet.peer[opt].requesting) {
             // client declining to use option
             d->telnet.peer[opt].requesting = false;
-        } else {
+        } else if (d->telnet.peer[opt].enabled)  {
             // client offering to disable option - we always agree
             d_send_bytes(d, 3, IAC, DONT, opt);
         }
@@ -234,7 +289,7 @@ receive_telnet_negotiation(struct descriptor_data *d, int message, int opt)
         if (d->telnet.host[opt].requesting) {
             // client permitting option on host
             d->telnet.host[opt].requesting = false;
-        } else {
+        } else if (!d->telnet.host[opt].enabled) {
             // client demanding option on host
             d_send_bytes(d, 3, IAC, telnet_config[opt].supported ? WILL:WONT, opt);
         }
@@ -244,7 +299,7 @@ receive_telnet_negotiation(struct descriptor_data *d, int message, int opt)
         if (d->telnet.host[opt].requesting) {
             // client forbidding option on host
             d->telnet.host[opt].requesting = false;
-        } else {
+        } else if (d->telnet.host[opt].enabled)  {
             // client demanding disabling option on host
             d_send_bytes(d, 3, IAC, WONT, opt);
         }
@@ -308,6 +363,10 @@ handle_telnet(struct descriptor_data *d, uint8_t *buf, size_t len)
         receive_telnet_negotiation(d, read_pt[0], read_pt[1]);
         read_pt += 2;
         break;
+    case AYT:
+        d_send_bytes(d, 4, 'O', 'H', 'A', 'I');
+        read_pt += 1;
+        break;
     case IAC:
         // xff character - just skip
         read_pt += 1;
@@ -318,9 +377,21 @@ handle_telnet(struct descriptor_data *d, uint8_t *buf, size_t len)
         if (end_pos < 0) {
             return 0;
         }
+        switch (*read_pt) {
+        case TELOPT_TTYPE:
+            handle_ttype_sub(d, read_pt + 1, end_pos - 1);
+            break;
+        default:
+            slog("Unknown telnet subnegotiation %d", *read_pt);
+        }
         // No subnegotiations are handled yet, but this is where they'd go.
         // Add 2 to the end_pos so the IAC SE is also consumed.
         read_pt += end_pos + 2;
+        break;
+    default:
+        // The rest of the telnet options are single byte commands.
+        // Ignore them.
+        read_pt += 1;
     }
 
     // Ensure telnet response gets sent without sending prompt.

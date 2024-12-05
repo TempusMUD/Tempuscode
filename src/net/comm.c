@@ -1072,9 +1072,9 @@ destroy_socket(struct descriptor_data *d)
 
     REMOVE_FROM_LIST(d, descriptor_list, next);
 
-    if (d->showstr_head) {
-        free(d->showstr_head);
-    }
+    free(d->showstr_head);
+    free(d->client_info.client_name);
+    free(d->client_info.term_type);
 
     g_source_remove(d->in_watcher);
     g_source_remove(d->err_watcher);
