@@ -595,7 +595,7 @@ record_usage(void)
 }
 
 void
-d_send_raw(struct descriptor_data *d, const char *txt, size_t len)
+d_send_raw(struct descriptor_data *d, const char *txt, ssize_t len)
 {
     GError *error = NULL;
     gsize bytes_written;
@@ -868,12 +868,16 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
         g_error_free(error);
     }
 
-    if (g_io_channel_write_buffer_empty(d->io)) {
-        d->out_watcher = 0;
-        return false;
+    if (!g_io_channel_write_buffer_empty(d->io)) {
+        return true;
     }
 
-    return true;
+    d->out_watcher = 0;
+    if (d->input_mode == CXN_DISCONNECT) {
+        close_socket(d);
+    }
+
+    return false;
 }
 
 void
@@ -901,19 +905,6 @@ enqueue_line_input(struct descriptor_data *d)
     } else {
         // Normally just copy the line into the last input
         g_string_assign(d->last_input, d->line->str);
-    }
-
-    if (d->repeat_cmd_count > 300
-        && d->creature
-        && d->creature->in_room
-        && GET_LEVEL(d->creature) < LVL_ETERNAL) {
-        act("SAY NO TO SPAM.\r\n"
-            "Begone oh you waster of electrons,"
-            " ye vile profaner of CPU time!", true, d->creature, NULL, NULL,
-            TO_ROOM);
-        slog("SPAM-death on the queue!");
-        close_socket(d);
-        return;
     }
 
     if (IS_PLAYING(d) && !strncmp("revo", d->line->str, 4)) {

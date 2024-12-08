@@ -1753,6 +1753,9 @@ send_menu(struct descriptor_data *d)
 void
 set_desc_state(enum cxn_state state, struct descriptor_data *d)
 {
+    if (d->input_mode == state) {
+        return;
+    }
     if (d->account) {
         slog("Link [%s] for account %s[%d] changing mode to %s",
              d->host,

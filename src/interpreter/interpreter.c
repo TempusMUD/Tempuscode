@@ -1763,6 +1763,17 @@ command_interpreter(struct creature *ch, const char *argument)
         } else {
             d->repeat_cmd_count = 0;
         }
+        if (d->repeat_cmd_count > 300
+            && ch->in_room
+            && GET_LEVEL(ch) < LVL_ETERNAL) {
+            send_to_room("SAY NO TO SPAM.\r\n"
+                   "Begone oh you waster of electrons,"
+                   " ye vile profaner of CPU time!\r\n", ch->in_room);
+            slog("SPAM-death on the queue!");
+            set_desc_state(CXN_DISCONNECT, d);
+            return;
+        }
+
         strcpy_s(d->last_argument, sizeof(d->last_argument), cmdargs);
         d->last_cmd = cmd;
 

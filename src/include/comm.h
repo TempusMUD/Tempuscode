@@ -87,7 +87,7 @@ struct account;
 
 // printf to descriptor with color code expansion
 void d_send(struct descriptor_data *d, const char *txt);
-void d_send_raw(struct descriptor_data *d, const char *txt, size_t len);
+void d_send_raw(struct descriptor_data *d, const char *txt, ssize_t len);
 void d_printf(struct descriptor_data *d, const char *str, ...)
 __attribute__ ((format (printf, 2, 3)));
 void d_send_bytes(struct descriptor_data *d, size_t n, ...);
