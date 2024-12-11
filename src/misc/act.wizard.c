@@ -5286,6 +5286,7 @@ struct show_struct fields[] = {
     {"wizcommands", LVL_IMMORT, ""},
     {"timewarps", LVL_IMMORT, ""},  // 43
     {"voices", LVL_IMMORT, ""},
+    {"socket", LVL_IMMORT, "WizardFull"},
     {"\n", 0, ""}
 };
 
@@ -6006,6 +6007,107 @@ ACMD(do_show)
         break;
     case 44:                   // voices
         show_voices(ch);
+        break;
+    case 45:
+        if (!is_number(value)) {
+            send_to_char(ch, "Usage: show socket <number from users command>\r\n");
+            return;
+        }
+        int num = atoi(value);
+        struct descriptor_data *d = NULL;
+        for (struct descriptor_data *sd = descriptor_list;sd;sd = sd->next) {
+            if (num == sd->desc_num) {
+                d = sd;
+                break;
+            }
+        }
+        if (!d) {
+            send_to_char(ch, "That socket wasn't found.  Check the users command.\r\n");
+            return;
+        }
+        sb_sprintf(&sb, "Socket: %s%4d%s   State: %s%13s%s  Account: %s%s%s",
+                   CCCYN(ch, C_NRM), d->desc_num, CCNRM(ch, C_NRM),
+                   CCCYN(ch, C_NRM), strlist_aref(STATE(d), desc_modes), CCNRM(ch, C_NRM),
+                   CCCYN(ch, C_NRM), d->account ? d->account->name:"-", CCNRM(ch, C_NRM));
+        sb_sprintf(&sb, "\r\nHostname: %s%-30s%s",
+                   CCCYN(ch, C_NRM), d->host, CCNRM(ch, C_NRM));
+        bool opts_found = false;
+        for (int i = 0;i < 256;i++) {
+            if (d->telnet.host[i].enabled) {
+                if (!opts_found) {
+                    sb_sprintf(&sb, "\r\nHost opts: %s", CCCYN(ch, C_NRM));
+                    opts_found = true;
+                }
+                sb_sprintf(&sb, " %s", telnet_option_descs[i]);
+            }
+        }
+        if (opts_found) {
+            sb_sprintf(&sb, "%s", CCNRM(ch, C_NRM));
+        }
+        opts_found = false;
+        for (int i = 0;i < 256;i++) {
+            if (d->telnet.host[i].requesting) {
+                if (!opts_found) {
+                    sb_sprintf(&sb, "\r\nHost opts requested: %s", CCCYN(ch, C_NRM));
+                    opts_found = true;
+                }
+                sb_sprintf(&sb, " %s", telnet_option_descs[i]);
+            }
+        }
+        if (opts_found) {
+            sb_sprintf(&sb, "%s", CCNRM(ch, C_NRM));
+        }
+        opts_found = false;
+        for (int i = 0;i < 256;i++) {
+            if (d->telnet.peer[i].enabled) {
+                if (!opts_found) {
+                    sb_sprintf(&sb, "\r\nPeer opts: %s", CCCYN(ch, C_NRM));
+                    opts_found = true;
+                }
+                sb_sprintf(&sb, " %s", telnet_option_descs[i]);
+            }
+        }
+        if (opts_found) {
+            sb_sprintf(&sb, "%s", CCNRM(ch, C_NRM));
+        }
+        opts_found = false;
+        for (int i = 0;i < 256;i++) {
+            if (d->telnet.peer[i].requesting) {
+                if (!opts_found) {
+                    sb_sprintf(&sb, "\r\Peer opts requested: %s", CCCYN(ch, C_NRM));
+                    opts_found = true;
+                }
+                sb_sprintf(&sb, " %s", telnet_option_descs[i]);
+            }
+        }
+        if (opts_found) {
+            sb_sprintf(&sb, "%s", CCNRM(ch, C_NRM));
+        }
+        if (d->client_info.client_name || d->client_info.term_type) {
+            sb_sprintf(&sb, "\r\nClient: %s%-10s%s  Version: %s%-10s%s  Terminal: %s%-10s%s",
+                       CCCYN(ch, C_NRM), d->client_info.client_name ? d->client_info.client_name:"<none>",
+                       CCNRM(ch, C_NRM),
+                       CCCYN(ch, C_NRM), d->client_info.client_version ? d->client_info.client_version:"<none>",
+                       CCNRM(ch, C_NRM),
+                       CCCYN(ch, C_NRM), d->client_info.term_type ? d->client_info.term_type:"<none>",
+                       CCNRM(ch, C_NRM));
+            sb_sprintf(&sb, "\r\nTerm bits: %s%s%s", CCCYN(ch, C_NRM),
+                       d->client_info.bits ? tmp_printbits(d->client_info.bits, client_info_bitdesc):"<none>",
+                       CCNRM(ch, C_NRM));
+
+        }
+        if (g_hash_table_size(d->vars) > 0) {
+            sb_sprintf(&sb, "\r\nClient variables:");
+            GList *keys = g_hash_table_get_keys(d->vars);
+            keys = g_list_sort(keys, (GCompareFunc)strcmp);
+            for (int i = 0;i < g_list_length(keys);i++) {
+                const char *key = g_list_nth_data(keys, i);
+                const char *val = g_hash_table_lookup(d->vars, key);
+                sb_sprintf(&sb, "\r\n   %-20s: %s", key, val);
+            }
+            g_list_free(keys);
+        }
+        send_to_char(ch, "%s\r\n", sb.str);
         break;
     default:
         send_to_char(ch, "Sorry, I don't understand that.\r\n");
@@ -8597,16 +8699,6 @@ ACMD(do_users)
             sb_sprintf(&sb, "%s%s", d->host, CCNRM(ch, C_NRM));
         } else {
             sb_strcat(&sb, CCRED_BLD(ch, C_SPR), "[unknown]", CCNRM(ch, C_SPR), NULL);
-        }
-
-        if (d->client_info.client_name || d->client_info.term_type) {
-            sb_sprintf(&sb, "\r\n     Client: %s%-10s%s  Terminal: %s%-10s%s  Term bits: %s%s%s",
-                       CCCYN(ch, C_NRM), d->client_info.client_name ? d->client_info.client_name:"<none>",
-                       CCNRM(ch, C_NRM),
-                       CCCYN(ch, C_NRM), d->client_info.term_type ? d->client_info.term_type:"<none>",
-                       CCNRM(ch, C_NRM), CCCYN(ch, C_NRM),
-                       d->client_info.bits ? tmp_printbits(d->client_info.bits, client_info_bitdesc):"<none>",
-                       CCNRM(ch, C_NRM));
         }
         sb_strcat(&sb, "\r\n", NULL);
 
