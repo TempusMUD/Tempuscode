@@ -47,6 +47,7 @@ void errlog(const char *str, ...)
 __attribute__ ((format (printf, 1, 2)));
 void zerrlog(struct zone_data *zone, const char *str, ...)
 __attribute__ ((format (printf, 2, 3)));
+void bytelog(const char *prefix, uint8_t *buf, size_t len);
 
 void mlog(const char *group,
           int8_t level,

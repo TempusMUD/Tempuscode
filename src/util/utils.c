@@ -42,6 +42,7 @@
 #include "screen.h"
 #include "char_class.h"
 #include "tmpstr.h"
+#include "str_builder.h"
 #include "spells.h"
 #include "obj_data.h"
 #include "strutil.h"
@@ -157,6 +158,33 @@ mlog(const char *group, int8_t level, enum log_type type, bool file,
             }
         }
     }
+}
+
+void
+bytelog(const char *prefix, uint8_t *buf, size_t len)
+{
+    bool control_mode = false;
+    struct str_builder sb = str_builder_default;
+    sb_strcat(&sb, prefix, NULL);
+    for (;len > 0;len--, buf++) {
+        if (control_mode && isgraph(*buf)) {
+            sb_strcat(&sb, "]", NULL);
+            control_mode = false;
+        } else if (!control_mode && !isgraph(*buf) && !isspace(*buf)) {
+            sb_sprintf(&sb, "[%d", *buf);
+            control_mode = true;
+            continue;
+        }
+        if (control_mode) {
+            sb_sprintf(&sb, " %d", *buf);
+        } else {
+            sb_sprintf(&sb, "%c", *buf);
+        }
+    }
+    if (control_mode) {
+        sb_strcat(&sb, "]", NULL);
+    }
+    slog("%s", sb.str);
 }
 
 /* writes a string to the log */
