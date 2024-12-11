@@ -788,6 +788,8 @@ accept_new_connection(GIOChannel *listener_io,
     newd->text_editor = NULL;
     newd->idle = 0;
     newd->ban_dc_counter = 0;
+    newd->vars = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+
     if (port == reader_port) {
         newd->display = BLIND;
     } else if (port == irc_port) {
@@ -1065,6 +1067,7 @@ destroy_socket(struct descriptor_data *d)
 
     free(d->showstr_head);
     free(d->client_info.client_name);
+    free(d->client_info.client_version);
     free(d->client_info.term_type);
 
     g_source_remove(d->in_watcher);
@@ -1079,6 +1082,7 @@ destroy_socket(struct descriptor_data *d)
     g_string_free(d->last_input, true);
     g_queue_foreach(d->input, (GFunc)g_free, NULL);
     g_queue_free(d->input);
+    g_hash_table_unref(d->vars);
 
     free(d);
 }
@@ -1093,6 +1097,31 @@ close_socket(struct descriptor_data *d)
     destroy_socket(d);
 }
 
+
+// set_desc_variable sets the descriptor variable KEY in the hash
+// table to VAL.  If KEY matches supported data, also updates that
+// data in the descriptor (like screen reader support or color).
+void
+set_desc_variable(struct descriptor_data *d, const char *key, const char *val)
+{
+    slog("Setting var %s = %s", key, val);
+    g_hash_table_insert(d->vars, strdup(key), strdup(val));
+    if (!strcmp(key, "CLIENT_NAME")) {
+        free(d->client_info.client_name);
+        d->client_info.client_name = strdup(val);
+    } else if (!strcmp(key, "CLIENT_VERSION")) {
+        free(d->client_info.client_version);
+        d->client_info.client_version = strdup(val);
+    } else if (!strcmp(key, "TERMINAL_TYPE")) {
+        free(d->client_info.term_type);
+        d->client_info.term_type = strdup(val);
+    } else if (!strcmp(key, "MTTS")) {
+        d->client_info.bits = atoi(val);
+        if (d->client_info.bits & CLIENT_INFO_SCREEN_READER) {
+            d->display = BLIND;
+        }
+    }
+}
 
 /*
  * I tried to universally convert Circle over to POSIX compliance, but

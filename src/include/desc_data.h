@@ -97,6 +97,7 @@ extern const char *client_info_bitdesc[];
 
 struct client_info {
     char *client_name;
+    char *client_version;
     char *term_type;
     int bits;
 };
@@ -118,6 +119,7 @@ struct descriptor_data {
     enum cxn_state input_mode;  /* mode of 'connectedness'      */
     struct telnet_option telnet; /* Telnet protocol options */
     struct client_info client_info;
+    GHashTable *vars;           /* extended client info */
     int ttype_phase;    /* TTYPE sends three unlabeled bits of info per call */
     void *mode_data;            // pointer for misc data needed for input_mode
     int wait;                   /* wait for how many loops      */
@@ -154,7 +156,9 @@ struct descriptor_data {
 };
 
 void set_desc_state(enum cxn_state state, struct descriptor_data *d);
+void set_desc_variable(struct descriptor_data *d, const char *key, const char *val);
 
 extern struct descriptor_data *descriptor_list;
+extern const char *telnet_option_descs[];
 
 #endif

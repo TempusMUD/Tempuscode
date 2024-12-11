@@ -74,7 +74,7 @@ sb_sprintf(struct str_builder *sb, const char *fmt, ...)
 void
 sb_strcat(struct str_builder *sb, const char *str, ...)
 {
-    char *write_pt, *result;
+    char *write_pt;
     const char *read_pt;
     size_t len;
     va_list args;
@@ -93,8 +93,7 @@ sb_strcat(struct str_builder *sb, const char *str, ...)
         sb_adjust(sb, sb->size + len);
     }
 
-    result = sb->str + sb->len;
-    write_pt = result;
+    write_pt = sb->str + sb->len;
     sb->len += len;
 
     // Copy in the first string

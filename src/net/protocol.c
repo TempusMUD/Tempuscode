@@ -30,6 +30,7 @@
 #include "creature.h"
 #include "db.h"
 #include "tmpstr.h"
+#include "str_builder.h"
 #include "help.h"
 
 // Protocols
@@ -57,6 +58,48 @@ const char *client_info_bitdesc[] = {
 
 // Server-wide info about telnet support.
 struct telnet_config telnet_config[256] = { 0 };
+
+const char *telnet_option_descs[256] = {
+    "BINARY", "ECHO", "RCP", "SUPPRESS_GO_AHEAD", "NAME",
+	"STATUS", "TIMING_MARK", "RCTE", "NAOL", "NAOP",
+	"NAOCRD", "NAOHTS", "NAOHTD", "NAOFFD", "NAOVTS",
+	"NAOVTD", "NAOLFD", "EXTEND_ASCII", "LOGOUT", "BYTE_MACRO",
+	"DATA_ENTRY_TERMINAL", "SUPDUP", "SUPDUP OUTPUT",
+	"SEND_LOCATION", "TTYPE", "EOR",
+	"TACACS_UID", "OUTPUT_MARKING", "TTYLOC",
+	"3270_REGIME", "X.3_PAD", "NAWS", "TSPEED", "LFLOW",
+	"LINEMODE", "XDISPLOC", "OLD-ENVIRON", "AUTH",
+	"ENCRYPT", "NEW-ENVIRON", 0
+};
+
+
+static int
+request_to_command(enum host_or_peer endpoint, enum enable_or_disable enable)
+{
+    if (endpoint == HOST) {
+        return (enable) ? WILL:WONT;
+    } else {
+        return (enable) ? DO:DONT;
+    }
+}
+
+void
+request_telnet_option(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_or_disable enable, int opt)
+{
+    struct telnet_endpoint_option *endp = (endpoint == HOST) ? d->telnet.host:d->telnet.peer;
+
+    if (endp[opt].enabled == enable) {
+        // Don't request the existing state
+        return;
+    }
+
+    if (endp[opt].requesting) {
+        // Already requesting
+        return;
+    }
+    endp[opt].requesting = true;
+    d_send_bytes(d, 3, IAC, request_to_command(endpoint, enable), opt);
+}
 
 static void
 handle_eor(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum enable_or_disable enable)
@@ -162,6 +205,7 @@ handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
         break;
     case 1:
         char *ttype = strndup((char *)buf, len-1);
+        free(d->client_info.term_type);
         d->client_info.term_type = ttype;
         if (!strcmp(ttype, d->client_info.client_name)) {
             // There was a single termtype, so not an MTTS client.
@@ -176,6 +220,10 @@ handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
         if (len < 6 || strncmp((char *)buf, "MTTS ", 5)) {
             return;
         }
+        // Confirmed MTTS client, so the previous value was actually
+        // the client version.
+        d->client_info.client_version = d->client_info.term_type;
+        d->client_info.term_type = NULL;
         d->client_info.bits = atoi(tmp_substr((char *)buf, 5, len - 2));
         if (d->client_info.bits & CLIENT_INFO_SCREEN_READER) {
             d->display = BLIND;
@@ -185,33 +233,144 @@ handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
     d->ttype_phase++;
 }
 
-
-static int
-request_to_command(enum host_or_peer endpoint, enum enable_or_disable enable)
+static void
+handle_new_environ(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum enable_or_disable enable)
 {
-    if (endpoint == HOST) {
-        return (enable) ? WILL:WONT;
+    if (enable) {
+        // Request all variables from client
+        // Note: NEW_ENV_VAR is required for tintin++.
+        d_send_bytes(d, 7, IAC, SB, TELOPT_NEW_ENVIRON, TELQUAL_SEND, NEW_ENV_VAR, IAC, SE);
+        // Request all user variables from client.  Due to MNES
+        // deviations from the NEW-ENVIRON option, this must be sent
+        // separately from NEW_ENV_VAR.
+        d_send_bytes(d, 7, IAC, SB, TELOPT_NEW_ENVIRON, TELQUAL_SEND, ENV_USERVAR, IAC, SE);
     } else {
-        return (enable) ? DO:DONT;
+        // Fall back to MTTS / TTYPE
+        request_telnet_option(d, PEER, ENABLE, TELOPT_TTYPE);
     }
 }
 
-void
-request_telnet_option(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_or_disable enable, int opt)
-{
-    struct telnet_endpoint_option *endp = (endpoint == HOST) ? d->telnet.host:d->telnet.peer;
+static void
+handle_new_environ_sub(struct descriptor_data *d, uint8_t *buf, size_t len) {
+    enum new_eviron_state {
+        WANT_IS_OR_INFO = 0,
+        WANT_VAR_OR_USERVAR,
+        WANT_VAR_NAME,
+        WANT_ESC_VAR_NAME,
+        ESC_VAR_NAME,
+        WANT_VAL,
+        WANT_VAL_STR,
+        WANT_ESC_VAL_STR,
+        ESC_VAL_STR,
+    } state;
+    int start;
+    char *name;
+    char *val;
+    for (int i = 0;i < len;i++) {
+        uint8_t c = buf[i];
+        uint8_t isEnd = (i + 1 >= len);
+        uint8_t n = (!isEnd) ? buf[i+1]:0;
 
-    if (endp[opt].enabled == enable) {
-        // Don't request the existing state
-        return;
+        switch (state) {
+        case WANT_IS_OR_INFO:
+            if (isEnd) {
+                // nothing here!
+                slog("unexpected end in new-environ");
+                return;
+            }
+            if (c != TELQUAL_IS && c != TELQUAL_INFO) {
+                // First byte from client should always be IS (0x00) or INFO (0x02)
+                slog("invalid byte %02x in new-environ", c);
+                return;
+            }
+            if (n != NEW_ENV_VAR && n != ENV_USERVAR) {
+                // no VAR or USERVAR to report
+                return;
+            }
+            state = WANT_VAR_OR_USERVAR;
+            break;
+        case WANT_VAR_OR_USERVAR:
+            if (isEnd) {
+                break;
+            }
+            if (n == NEW_ENV_VAR || n == ENV_USERVAR) {
+                // empty var name, ignore
+                continue;
+            }
+            state = WANT_VAR_NAME;
+            start = i+1;
+            break;
+        case WANT_VAR_NAME:
+            if (isEnd || n == NEW_ENV_VAR || n == ENV_USERVAR || n == NEW_ENV_VALUE) {
+                name = tmp_strdupn((char *)buf + start, i - start + 1);
+            }
+            if (isEnd) {
+                break;
+            }
+            if (n == ENV_ESC) {
+                state = WANT_ESC_VAR_NAME;
+            } else if (n == NEW_ENV_VALUE) {
+                state = WANT_VAL;
+            } else if (n == NEW_ENV_VAR || n == ENV_USERVAR) {
+                set_desc_variable(d, name, "");
+                state = WANT_VAR_OR_USERVAR;
+            }
+            break;
+        case WANT_ESC_VAR_NAME:
+            state = ESC_VAR_NAME; break;
+        case ESC_VAR_NAME:
+            state = WANT_VAR_NAME; break;
+        case WANT_VAL:
+            if (n == NEW_ENV_VAR || n == ENV_USERVAR) {
+                // empty value
+                set_desc_variable(d, name, "");
+                continue;
+            }
+            state = WANT_VAL_STR;
+            start = i+1;
+            break;
+        case WANT_VAL_STR:
+            if (isEnd) {
+                break;
+            }
+            if (n == ENV_ESC) {
+                state = WANT_ESC_VAL_STR;
+            } else if (n == NEW_ENV_VALUE) {
+                slog("invalid VAL during VAL - ignoring current VAL");
+                state = WANT_VAL;
+            } else if (n == NEW_ENV_VAR || n == ENV_USERVAR) {
+                val = tmp_strdupn((char *)buf + start, i - start + 1);
+                set_desc_variable(d, name, val);
+                state = WANT_VAR_OR_USERVAR;
+            }
+            break;
+        case WANT_ESC_VAL_STR:
+            state = ESC_VAL_STR; break;
+        case ESC_VAL_STR:
+            state = WANT_VAL_STR; break;
+        }
     }
 
-    if (endp[opt].requesting) {
-        // Already requesting
-        return;
+    switch (state) {
+    case WANT_IS_OR_INFO:
+    case WANT_VAR_OR_USERVAR:
+        break;
+    case WANT_ESC_VAR_NAME:
+    case ESC_VAR_NAME:
+    case WANT_ESC_VAL_STR:
+    case ESC_VAL_STR:
+        slog("illegal termination in newenv escape state"); break;
+    case WANT_VAR_NAME:
+        set_desc_variable(d, name, "");
+        break;
+    case WANT_VAL:
+        set_desc_variable(d, name, "");
+        break;
+    case WANT_VAL_STR:
+        val = tmp_strdupn((char *)buf + start, len - start);
+        set_desc_variable(d, name, val);
+        break;
     }
-    endp[opt].requesting = true;
-    d_send_bytes(d, 3, IAC, request_to_command(endpoint, enable), opt);
 }
 
 static void
@@ -232,16 +391,44 @@ set_telnet_option(struct descriptor_data *d, enum host_or_peer endpoint, int opt
 void
 init_telnet(void)
 {
+    // The server will offer to echo, and then not actually echo, as a
+    // way to prevent the password from being visible.
     telnet_config[TELOPT_ECHO].supported = true;
+    // TTYPE is a fallback client discovery method if NEW_ENVIRON
+    // isn't supported.  We support MTTS through this type.
+    // See: https://tintin.mudhalla.net/protocols/mtts/
     telnet_config[TELOPT_TTYPE].supported = true;
-    telnet_config[TELOPT_TTYPE].demand = true;
     telnet_config[TELOPT_TTYPE].handler = handle_ttype;
+    // EOR support is an alternative to GA (go ahead) support.  GA is
+    // always supported.  They do the same thing.  I don't know why
+    // either of them exist on modern systems.
+    // See: https://tintin.mudhalla.net/protocols/eor/
     telnet_config[TELOPT_EOR].supported = true;
     telnet_config[TELOPT_EOR].advertise = true;
     telnet_config[TELOPT_EOR].handler = handle_eor;
+    // NEW_ENVIRON is a client discovery method.  On a MUD, it
+    // supports the MNES protocol.  It can support more variables and
+    // is generally more reasonable than MTTS.
+    // See: https://tintin.mudhalla.net/protocols/mnes/
+    telnet_config[TELOPT_NEW_ENVIRON].supported = true;
+    telnet_config[TELOPT_NEW_ENVIRON].demand = true;
+    telnet_config[TELOPT_NEW_ENVIRON].handler = handle_new_environ;
+    // MSSP is the Mud Server Status Protocol, used mostly to tell
+    // crawlers about the MUD.  Some mud clients also support it.
+    // See: https://tintin.mudhalla.net/protocols/mssp/
     telnet_config[MSSP].supported = true;
     telnet_config[MSSP].advertise = true;
     telnet_config[MSSP].handler = handle_mssp;
+
+    // Initialize text display for telnet options.
+    telnet_option_descs[MSSP] = "MSSP";
+    for (int i = 0;i < 256;i++) {
+        char buf[10];
+        if (!telnet_option_descs[i]) {
+            snprintf(buf, 10, "%03d", i);
+            telnet_option_descs[i] = strdup(buf);
+        }
+    }
 }
 
 void
@@ -380,6 +567,9 @@ handle_telnet(struct descriptor_data *d, uint8_t *buf, size_t len)
         switch (*read_pt) {
         case TELOPT_TTYPE:
             handle_ttype_sub(d, read_pt + 1, end_pos - 1);
+            break;
+        case TELOPT_NEW_ENVIRON:
+            handle_new_environ_sub(d, read_pt + 1, end_pos - 1);
             break;
         default:
             slog("Unknown telnet subnegotiation %d", *read_pt);
