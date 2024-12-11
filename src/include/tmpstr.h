@@ -36,6 +36,7 @@ __attribute__((sentinel));
 
 // creates a copy of the given str as a temp str
 /*@shared@*/ char *tmp_strdup(const char *src);
+/*@shared@*/ char *tmp_strdupn(const char *src, ssize_t n);
 /*@shared@*/ char *tmp_strdupt(const char *src, const char *term);
 
 // returns a string, in which every needle in haystack is substituted with sub

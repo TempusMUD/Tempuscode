@@ -531,11 +531,20 @@ tmp_capitalize(const char *str)
 char *
 tmp_strdup(const char *src)
 {
-    char *result;
+    char *result = tmp_alloc(strlen(src) + 1);
 
-    result = tmp_alloc(strlen(src) + 1);
     strcpy(result, src);
 
+    return result;
+}
+
+char *
+tmp_strdupn(const char *src, ssize_t n)
+{
+    char *result = tmp_alloc(n + 1);
+
+    memcpy(result, src, n);
+    result[n] = '\0';
     return result;
 }
 
