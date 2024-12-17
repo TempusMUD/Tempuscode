@@ -2966,8 +2966,9 @@ mag_groups(int level, struct creature *ch, int spellnum, int savetype)
 void
 mag_masses(int8_t level, struct creature *ch, int spellnum, int savetype)
 {
-    int found = 0;
-    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
+    bool found = false;
+    GList *people = g_list_copy(ch->in_room->people);
+    for (GList *it = first_living(people); it; it = next_living(it)) {
         struct creature *tch = (struct creature *)it->data;
 
         if (tch == ch || !g_list_find(tch->fighting, ch)) {
@@ -2976,9 +2977,9 @@ mag_masses(int8_t level, struct creature *ch, int spellnum, int savetype)
         found = true;
         mag_damage(level, ch, tch, spellnum, savetype);
     }
+    g_list_free(people);
     if (!found) {
-        send_to_char(ch,
-                     "This spell is only useful if someone is fighting you.\r\n");
+        send_to_char(ch, "This spell is only useful if someone is fighting you.\r\n");
     }
 }
 
@@ -3144,7 +3145,8 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
         }
     }
 
-    for (GList *it = first_living(ch->in_room->people); it; it = next_living(it)) {
+    GList *people = g_list_copy(ch->in_room->people);
+    for (GList *it = first_living(people); it; it = next_living(it)) {
         struct creature *vict = (struct creature *)it->data;
         // skips:
         // caster
@@ -3223,6 +3225,7 @@ mag_areas(int8_t level, struct creature *ch, int spellnum, int savetype)
             GET_POSITION(ch) = POS_SITTING;
         }
     }
+    g_list_free(people);
     if (to_next_room) {
         was_in = ch->in_room;
         for (int door = 0; door < NUM_OF_DIRS; door++) {

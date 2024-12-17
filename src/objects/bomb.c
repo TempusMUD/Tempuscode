@@ -392,7 +392,10 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
             }
         }
 
-        for (GList *it = first_living(room->people); it; it = next_living(it)) {
+        // Make a copy of the room's creatures - some might get blown
+        // out of the room and ruin the list we're iterating on.
+        GList *people = g_list_copy(room->people);
+        for (GList *it = first_living(people); it; it = next_living(it)) {
             vict = it->data;
 
             if (vict == precious_vict) {
@@ -460,6 +463,7 @@ bomb_damage_room(struct creature *damager, int damager_id, char *bomb_name,
                 }
             }
         }
+        g_list_free(people);
 
         // Objects in an explosion should also be damaged
         struct obj_data *obj, *next_obj;
