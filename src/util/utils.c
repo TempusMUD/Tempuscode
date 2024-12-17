@@ -612,7 +612,7 @@ SET_SKILL(struct creature *ch, int i, int val)
     if (i < 0 || i > MAX_SKILLS) {
         return;
     }
-    ch->player_specials->saved.skills[i] = val;
+    ch->player_specials->saved.skills[i] = MAX(-125, MIN(125, val));
 }
 
 int
