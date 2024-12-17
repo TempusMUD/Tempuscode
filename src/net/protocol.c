@@ -262,7 +262,7 @@ handle_new_environ_sub(struct descriptor_data *d, uint8_t *buf, size_t len) {
         WANT_VAL_STR,
         WANT_ESC_VAL_STR,
         ESC_VAL_STR,
-    } state;
+    } state = WANT_IS_OR_INFO;
     int start;
     char *name;
     char *val;
