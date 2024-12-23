@@ -97,8 +97,16 @@ request_telnet_option(struct descriptor_data *d, enum host_or_peer endpoint, enu
         // Already requesting
         return;
     }
-    endp[opt].requesting = true;
     d_send_bytes(d, 3, IAC, request_to_command(endpoint, enable), opt);
+    if (endp[opt].broken_wont_reply && enable == DISABLE) {
+        // on a broken reply mechanism, change the state of the
+        // endpoint immediately and don't place the option in a
+        // requesting state.
+        endp[opt].enabled = enable;
+    } else {
+        endp[opt].requesting = true;
+    }
+
 }
 
 static void
@@ -200,17 +208,15 @@ handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
     }
     switch (d->ttype_phase) {
     case 0:
-        d->client_info.client_name = strndup((char *)buf, len-1);
+        set_desc_variable(d, "CLIENT_NAME", tmp_strdupn((char *)buf, len-1));
         d_send_bytes(d, 6, IAC, SB, TELOPT_TTYPE, TELQUAL_SEND, IAC, SE);
         break;
     case 1:
-        char *ttype = strndup((char *)buf, len-1);
-        free(d->client_info.term_type);
-        d->client_info.term_type = ttype;
+        char *ttype = tmp_strdupn((char *)buf, len-1);
+        set_desc_variable(d, "TERMINAL_TYPE", ttype);
         if (!strcmp(ttype, d->client_info.client_name)) {
             // There was a single termtype, so not an MTTS client.
-            free(d->client_info.client_name);
-            d->client_info.client_name = NULL;
+            set_desc_variable(d, "CLIENT_NAME", "");
             d->ttype_phase = 0;
             return;
         }
@@ -222,8 +228,8 @@ handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
         }
         // Confirmed MTTS client, so the previous value was actually
         // the client version.
-        d->client_info.client_version = d->client_info.term_type;
-        d->client_info.term_type = NULL;
+        set_desc_variable(d, "CLIENT_VERSION", d->client_info.term_type);
+        set_desc_variable(d, "TERMINAL_TYPE", "");
         d->client_info.bits = atoi(tmp_substr((char *)buf, 5, len - 2));
         if (d->client_info.bits & CLIENT_INFO_SCREEN_READER) {
             d->display = BLIND;
@@ -378,14 +384,14 @@ set_telnet_option(struct descriptor_data *d, enum host_or_peer endpoint, int opt
 {
     struct telnet_endpoint_option *endp = (endpoint == HOST) ? d->telnet.host:d->telnet.peer;
 
+    if (telnet_config[opt].handler) {
+        telnet_config[opt].handler(d, endpoint, opt, enable);
+    }
     if (endp[opt].enabled == enable) {
         // No change
         return;
     }
     endp[opt].enabled = enable;
-    if (telnet_config[opt].handler) {
-        telnet_config[opt].handler(d, endpoint, opt, enable);
-    }
 }
 
 void

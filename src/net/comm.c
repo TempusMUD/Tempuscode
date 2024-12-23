@@ -1104,17 +1104,19 @@ close_socket(struct descriptor_data *d)
 void
 set_desc_variable(struct descriptor_data *d, const char *key, const char *val)
 {
-    slog("Setting var %s = %s", key, val);
     g_hash_table_insert(d->vars, strdup(key), strdup(val));
     if (!strcmp(key, "CLIENT_NAME")) {
         free(d->client_info.client_name);
-        d->client_info.client_name = strdup(val);
+        d->client_info.client_name = (*val) ? strdup(val):NULL;
+        if (!strcasecmp(val, "tintin++")) {
+            d->telnet.host[TELOPT_ECHO].broken_wont_reply = true;
+        }
     } else if (!strcmp(key, "CLIENT_VERSION")) {
         free(d->client_info.client_version);
-        d->client_info.client_version = strdup(val);
+        d->client_info.client_version = (*val) ? strdup(val):NULL;
     } else if (!strcmp(key, "TERMINAL_TYPE")) {
         free(d->client_info.term_type);
-        d->client_info.term_type = strdup(val);
+        d->client_info.term_type = (*val) ? strdup(val):NULL;
     } else if (!strcmp(key, "MTTS")) {
         d->client_info.bits = atoi(val);
         if (d->client_info.bits & CLIENT_INFO_SCREEN_READER) {

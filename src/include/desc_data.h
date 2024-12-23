@@ -71,6 +71,7 @@ enum display_mode {
 struct telnet_endpoint_option {
     bool enabled;
     bool requesting;
+    bool broken_wont_reply;
 };
 
 struct telnet_option {
