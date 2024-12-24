@@ -360,6 +360,30 @@ ACMD(do_join)
              clan->number, GET_IDNUM(ch), 0);
 }
 
+bool
+npc_is_summoned(struct creature *ch)
+{
+    int summoned_vnums[] = {12, 13,
+        20, 21, 22, 23, 24,
+        30, 31, 32, 33, 34,
+        40, 41, 42, 43, 44,
+        50, 51, 52, 53, 54,
+        60, 61, 62, 63, 64,
+        70, 71, 72, 73, 74,
+        80, 81, 82, 83,
+        1285,
+        1205, 1206, 1207, 1208, 1209,
+        16160, 16161, 16162, 16163, 16164,
+        -1
+    };
+    for (int i = 0;summoned_vnums[i] != -1;i++) {
+        if (GET_NPC_VNUM(ch) == summoned_vnums[i]) {
+            return true;
+        }
+    }
+    return false;
+}
+
 ACMD(do_dismiss)
 {
     struct creature *vict;
@@ -371,6 +395,35 @@ ACMD(do_dismiss)
 
     arg = tmp_getword(&argument);
     skip_spaces(&argument);
+
+    vict = get_char_room_vis(ch, arg);
+    if (vict && IS_NPC(vict)) {
+        if (vict->master != ch
+            || !AFF_FLAGGED(vict, AFF_CHARM)
+            || !npc_is_summoned(vict)) {
+            send_to_char(ch, "That isn't one of your summoned minions!\r\n");
+            return;
+        }
+        act("You dismiss $N.", true, ch, 0, vict, TO_CHAR);
+        act("$n dismisses you.", true, ch, 0, vict, TO_NOTVICT);
+        act("$n dismisses $N.", true, ch, 0, vict, TO_NOTVICT);
+        switch (GET_CLASS(vict)) {
+        case CLASS_EARTH:
+            act("$n dissolves and returns to $s home plane!", true, vict, NULL, NULL, TO_ROOM);
+            break;
+        case CLASS_FIRE:
+        case CLASS_WATER:
+        case CLASS_AIR:
+            act("$n dissipates and returns to $s home plane!", true, vict, NULL, NULL, TO_ROOM);
+            break;
+        default:
+            act("$n disappears.", true, vict, NULL, NULL, TO_ROOM);
+            break;
+        }
+        remove_follower(vict);
+        creature_purge(vict, false);
+        return;
+    }
 
     if (!clan && !is_authorized(ch, EDIT_CLAN, NULL)) {
         send_to_char(ch, "Try joining a clan first.\r\n");
