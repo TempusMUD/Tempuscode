@@ -2601,7 +2601,7 @@ single_mobile_activity(struct creature *ch)
     //
 
     if (GET_RACE(ch) == RACE_ELEMENTAL) {
-        if (((GET_NPC_VNUM(ch) >= 1280 && GET_NPC_VNUM(ch) <= 1283) ||
+        if (((GET_NPC_VNUM(ch) >= 80 && GET_NPC_VNUM(ch) <= 83) ||
              GET_NPC_VNUM(ch) == 5318) &&
             (!ch->master || ch->master->in_room->zone != ch->in_room->zone)) {
             k = 1;

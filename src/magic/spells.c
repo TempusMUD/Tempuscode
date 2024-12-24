@@ -1881,18 +1881,18 @@ ASPELL(spell_conjure_elemental)
     init_affect(&af);
     if (GET_LEVEL(ch) >= 35
         && number(0, GET_INT(ch)) > 3 && !room_is_watery(ch->in_room)) {
-        elemental = read_mobile(1283);  /*  Air Elemental */
+        elemental = read_mobile(83);  /*  Air Elemental */
     } else if (GET_LEVEL(ch) >= 30
                && number(0, GET_INT(ch)) > 3 && room_is_watery(ch->in_room)) {
-        elemental = read_mobile(1282);  /*  Water Elemental */
+        elemental = read_mobile(82);  /*  Water Elemental */
     } else if (GET_LEVEL(ch) >= 25
                && number(0, GET_INT(ch)) > 3 && !room_is_watery(ch->in_room)
                && !room_is_open_air(ch->in_room)) {
-        elemental = read_mobile(1281);  /*  Fire Elemental */
+        elemental = read_mobile(81);  /*  Fire Elemental */
     } else if (GET_LEVEL(ch) >= 20
                && number(0, GET_INT(ch)) > 3 && !room_is_watery(ch->in_room)
                && !room_is_open_air(ch->in_room)) {
-        elemental = read_mobile(1280);  /* Earth Elemental */
+        elemental = read_mobile(80);  /* Earth Elemental */
     } else {
         elemental = NULL;
     }
