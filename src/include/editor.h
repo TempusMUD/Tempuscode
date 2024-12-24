@@ -74,7 +74,7 @@ void start_editing_file(struct descriptor_data *d,
 __attribute__ ((nonnull));
 void editor_handle_input(struct editor *editor, char *input)
 __attribute__ ((nonnull));
-void editor_send_prompt(struct editor *editor)
+const char *editor_prompt(struct editor *editor)
 __attribute__ ((nonnull));
 void emit_editor_startup(struct editor *editor)
 __attribute__ ((nonnull));

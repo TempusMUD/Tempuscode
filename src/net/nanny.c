@@ -1103,9 +1103,7 @@ build_prompt(struct descriptor_data *d)
 
     // Check for the text editor being used
     if (d->creature && d->text_editor) {
-        editor_send_prompt(d->text_editor);
-        d->need_prompt = false;
-        return "";
+        return editor_prompt(d->text_editor);
     }
     // Handle all other states
     switch (d->input_mode) {

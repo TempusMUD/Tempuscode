@@ -119,10 +119,10 @@ editor_line_count(struct editor *editor)
     return g_list_length(editor->lines);
 }
 
-void
-editor_send_prompt(struct editor *editor)
+const char *
+editor_prompt(struct editor *editor)
 {
-    d_printf(editor->desc, "%3d&b]&n ", editor_line_count(editor) + 1);
+    return tmp_sprintf("%3d&b]&n ", editor_line_count(editor) + 1);
 }
 
 int
