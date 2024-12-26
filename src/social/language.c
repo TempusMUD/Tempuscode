@@ -467,6 +467,10 @@ translate_tongue(struct creature *speaker, struct creature *listener,
     struct tongue *tongue;
 
     tongue = g_hash_table_lookup(tongues, GINT_TO_POINTER(lang));
+    if (tongue == NULL) {
+        errlog("NULL current tongue in creature %s", GET_NAME(speaker));
+        tongue = g_hash_table_lookup(tongues, GINT_TO_POINTER(0));
+    }
     return translate_with_tongue(tongue,
                                  message,
                                  MIN(CHECK_TONGUE(speaker, lang), CHECK_TONGUE(listener, lang)));
