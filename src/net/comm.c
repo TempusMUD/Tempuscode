@@ -31,6 +31,7 @@
 #include <libxml/parser.h>
 #include <time.h>
 #include <glib.h>
+#include <zlib.h>
 
 #include "interpreter.h"
 #include "utils.h"
@@ -594,19 +595,49 @@ record_usage(void)
 
 }
 
+// Send raw bytes to a descriptor.  All socket output should go
+// through this function.  The data may be compressed first before
+// being put on the GIOChannel.
 void
 d_send_raw(struct descriptor_data *d, const char *txt, ssize_t len)
 {
+    ssize_t buflen = (len >= 0) ? len:strlen(txt);
     GError *error = NULL;
     gsize bytes_written;
 
-    error = NULL;
-    g_io_channel_write_chars(d->io, txt, len, &bytes_written, &error);
+    if (buflen == 0) {
+        return;
+    }
+
+    if (!d->out_watcher) {
+        d->out_watcher = g_io_add_watch(d->io, G_IO_OUT, process_output, d);
+    }
+
+    if (d->telnet.host[MCCP2].enabled) {
+        d->zout->next_in = txt;
+        d->zout->avail_in = buflen;
+        while (true) {
+            int err = deflate(d->zout, Z_NO_FLUSH);
+            if (err != Z_OK) {
+                errlog("%s", d->zout->msg);
+            }
+            if (d->zout->avail_in == 0) {
+                break;
+            }
+            error = NULL;
+            g_io_channel_write_chars(d->io, (char *)d->zbuf, ZBUF_LENGTH - d->zout->avail_out, &bytes_written, &error);
+            d->zout->next_out = d->zbuf;
+            d->zout->avail_out = ZBUF_LENGTH;
+        }
+        return;
+    }
+
+    g_io_channel_write_chars(d->io, txt, buflen, &bytes_written, &error);
     if (error) {
         errlog("g_io_channel_write_chars: %s", error->message);
         g_error_free(error);
     }
-    if (len != -1 && bytes_written != len) {
+    if (bytes_written != buflen) {
         errlog("ERROR: g_io_channel_write_chars didn't write everything");
     }
 }
@@ -623,6 +654,9 @@ d_send_bytes(struct descriptor_data *d, size_t n, ...)
     }
     va_end(args);
 
+    if (!production_mode) {
+        bytelog(">telnet: ", buf, n);
+    }
     d_send_raw(d, buf, n);
 }
 
@@ -657,9 +691,6 @@ d_send(struct descriptor_data *d, const char *txt)
         }
     }
     d_send_raw(d, txt, -1);
-    if (!d->out_watcher) {
-        d->out_watcher = g_io_add_watch(d->io, G_IO_OUT, process_output, d);
-    }
 }
 
 /* ******************************************************************
@@ -827,6 +858,37 @@ accept_new_connection(GIOChannel *listener_io,
     return true;
 }
 
+void
+flush_output(struct descriptor_data *d)
+{
+    if (d->telnet.host[MCCP2].enabled) {
+        GError *error = NULL;
+        gsize bytes_written;
+        // flush zlib stream if compression is enabled.
+        while (true) {
+            d->zout->next_in = "";
+            d->zout->avail_in = 0;
+            int err = deflate(d->zout, Z_SYNC_FLUSH);
+            if (err != Z_OK) {
+                errlog("%s", d->zout->msg);
+            }
+            g_io_channel_write_chars(d->io, d->zbuf, ZBUF_LENGTH - d->zout->avail_out, &bytes_written, &error);
+            d->zout->next_out = d->zbuf;
+            d->zout->avail_out = ZBUF_LENGTH;
+            if (d->zout->avail_out != 0) {
+                break;
+            }
+        }
+    }
+
+    GError *error = NULL;
+    g_io_channel_flush(d->io, &error);
+    if (error) {
+        slog("g_io_channel_flush: %s", error->message);
+        g_error_free(error);
+    }
+}
+
 gboolean
 process_output(__attribute__ ((unused)) GIOChannel *io,
                __attribute__ ((unused)) GIOCondition condition,
@@ -864,11 +926,7 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
         d->need_prompt = false;
     }
 
-    g_io_channel_flush(d->io, &error);
-    if (error) {
-        slog("g_io_channel_flush: %s", error->message);
-        g_error_free(error);
-    }
+    flush_output(d);
 
     if (!g_io_channel_write_buffer_empty(d->io)) {
         return true;

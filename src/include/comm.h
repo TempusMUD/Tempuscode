@@ -91,6 +91,7 @@ void d_send_raw(struct descriptor_data *d, const char *txt, ssize_t len);
 void d_printf(struct descriptor_data *d, const char *str, ...)
 __attribute__ ((format (printf, 2, 3)));
 void d_send_bytes(struct descriptor_data *d, size_t n, ...);
+void flush_output(struct descriptor_data *d);
 
 struct last_command_data {
     int idnum;

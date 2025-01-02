@@ -14,6 +14,7 @@
 #include <libxml/parser.h>
 #include <time.h>
 #include <glib.h>
+#include <zlib.h>
 
 #include "interpreter.h"
 #include "utils.h"
@@ -37,6 +38,7 @@
 #define MSSP 70
 const uint8_t MSSP_VAR = 1;
 const uint8_t MSSP_VAL = 2;
+#define MCCP2 86
 
 enum host_or_peer {HOST = 0, PEER};
 enum enable_or_disable {DISABLE = 0, ENABLE};
@@ -45,10 +47,12 @@ struct telnet_config {
     bool supported;             /* will enable if client requests */
     bool advertise;             /* on connection, offer to client */
     bool demand;                /* on connection, request from client */
-    void (*handler)(struct descriptor_data *d,
-                    enum host_or_peer endpoint,
-                    int opt,
-                    enum enable_or_disable enable); /* called on state change */
+    void (*on_response)(struct descriptor_data *d,
+                      enum host_or_peer endpoint,
+                      enum enable_or_disable enable); /* called on client response */
+    void (*on_change)(struct descriptor_data *d,
+                      enum host_or_peer endpoint,
+                      enum enable_or_disable enable); /* called on state change */
 };
 
 const char *client_info_bitdesc[] = {
@@ -58,6 +62,14 @@ const char *client_info_bitdesc[] = {
 
 // Server-wide info about telnet support.
 struct telnet_config telnet_config[256] = { 0 };
+
+const char *telnet_cmd_descs[256] = {
+    [236] = "EOF", [237] = "SUSP", [238] = "ABORT", [239] = "EOR",
+	[240] = "SE", [241] = "NOP", [242] = "DMARK", [243] = "BRK",
+    [244] = "IP", [245] = "AO", [246] = "AYT", [247] = "EC",
+	[248] = "EL", [249] = "GA", [250] = "SB", [251] = "WILL",
+    [252] = "WONT", [253] = "DO", [254] = "DONT", [255] = "IAC"
+};
 
 const char *telnet_option_descs[256] = {
     "BINARY", "ECHO", "RCP", "SUPPRESS_GO_AHEAD", "NAME",
@@ -69,7 +81,9 @@ const char *telnet_option_descs[256] = {
 	"TACACS_UID", "OUTPUT_MARKING", "TTYLOC",
 	"3270_REGIME", "X.3_PAD", "NAWS", "TSPEED", "LFLOW",
 	"LINEMODE", "XDISPLOC", "OLD-ENVIRON", "AUTH",
-	"ENCRYPT", "NEW-ENVIRON", 0
+	"ENCRYPT", "NEW-ENVIRON", 0,
+    [MSSP] = "MSSP",
+    [MCCP2] = "MCCP2",
 };
 
 
@@ -110,7 +124,7 @@ request_telnet_option(struct descriptor_data *d, enum host_or_peer endpoint, enu
 }
 
 static void
-handle_eor(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum enable_or_disable enable)
+handle_eor(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_or_disable enable)
 {
     d->eor_enabled = (enable == ENABLE);
 }
@@ -183,7 +197,7 @@ send_mssp_block(struct descriptor_data *d)
 }
 
 static void
-handle_mssp(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum enable_or_disable enable)
+handle_mssp(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_or_disable enable)
 {
     if (enable == ENABLE) {
         send_mssp_block(d);
@@ -191,7 +205,7 @@ handle_mssp(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum
 }
 
 static void
-handle_ttype(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum enable_or_disable enable)
+handle_ttype(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_or_disable enable)
 {
     if (enable == ENABLE) {
         d->ttype_phase = 0;
@@ -240,7 +254,7 @@ handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
 }
 
 static void
-handle_new_environ(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum enable_or_disable enable)
+handle_new_environ(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_or_disable enable)
 {
     if (enable) {
         // Request all variables from client
@@ -380,18 +394,51 @@ handle_new_environ_sub(struct descriptor_data *d, uint8_t *buf, size_t len) {
 }
 
 static void
+handle_mccp2(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_or_disable enable)
+{
+    if (endpoint != HOST) {
+        // MCCP2 only affects the host endpoint.
+        return;
+    }
+
+    if (enable) {
+        // Remaining output needs to be sent plaintext along with the
+        // MCCP2 request, so we subvert the option mechanism here.
+        d->telnet.host[MCCP2].enabled = false;
+        d_send_bytes(d, 5, IAC, SB, MCCP2, IAC, SE);
+        flush_output(d);
+        d->telnet.host[MCCP2].enabled = true;
+
+        d->zout = calloc(sizeof(z_stream), 1);
+        (void)deflateInit(d->zout, Z_BEST_COMPRESSION);
+        d->zout->next_out = d->zbuf;
+        d->zout->avail_out = ZBUF_LENGTH;
+    } else {
+        d->zout->next_in = "";
+        d->zout->avail_in = 0;
+        deflate(d->zout, Z_FINISH);
+        deflateEnd(d->zout);
+        free(d->zout);
+        d->zout = NULL;
+    }
+}
+
+static void
 set_telnet_option(struct descriptor_data *d, enum host_or_peer endpoint, int opt, enum enable_or_disable enable)
 {
     struct telnet_endpoint_option *endp = (endpoint == HOST) ? d->telnet.host:d->telnet.peer;
 
-    if (telnet_config[opt].handler) {
-        telnet_config[opt].handler(d, endpoint, opt, enable);
+    if (telnet_config[opt].on_response) {
+        telnet_config[opt].on_response(d, endpoint, enable);
     }
     if (endp[opt].enabled == enable) {
         // No change
         return;
     }
     endp[opt].enabled = enable;
+    if (telnet_config[opt].on_change) {
+        telnet_config[opt].on_change(d, endpoint, enable);
+    }
 }
 
 void
@@ -404,30 +451,34 @@ init_telnet(void)
     // isn't supported.  We support MTTS through this type.
     // See: https://tintin.mudhalla.net/protocols/mtts/
     telnet_config[TELOPT_TTYPE].supported = true;
-    telnet_config[TELOPT_TTYPE].handler = handle_ttype;
+    telnet_config[TELOPT_TTYPE].on_change = handle_ttype;
     // EOR support is an alternative to GA (go ahead) support.  GA is
     // always supported.  They do the same thing.  I don't know why
     // either of them exist on modern systems.
     // See: https://tintin.mudhalla.net/protocols/eor/
     telnet_config[TELOPT_EOR].supported = true;
     telnet_config[TELOPT_EOR].advertise = true;
-    telnet_config[TELOPT_EOR].handler = handle_eor;
+    telnet_config[TELOPT_EOR].on_change = handle_eor;
     // NEW_ENVIRON is a client discovery method.  On a MUD, it
     // supports the MNES protocol.  It can support more variables and
     // is generally more reasonable than MTTS.
     // See: https://tintin.mudhalla.net/protocols/mnes/
     telnet_config[TELOPT_NEW_ENVIRON].supported = true;
     telnet_config[TELOPT_NEW_ENVIRON].demand = true;
-    telnet_config[TELOPT_NEW_ENVIRON].handler = handle_new_environ;
+    telnet_config[TELOPT_NEW_ENVIRON].on_response = handle_new_environ;
     // MSSP is the Mud Server Status Protocol, used mostly to tell
     // crawlers about the MUD.  Some mud clients also support it.
     // See: https://tintin.mudhalla.net/protocols/mssp/
     telnet_config[MSSP].supported = true;
     telnet_config[MSSP].advertise = true;
-    telnet_config[MSSP].handler = handle_mssp;
+    telnet_config[MSSP].on_change = handle_mssp;
+    // MCCP2 is the Mud Client Compression Protocol for compressing
+    // output to a client.
+    telnet_config[MCCP2].supported = true;
+    telnet_config[MCCP2].advertise = true;
+    telnet_config[MCCP2].on_change = handle_mccp2;
 
     // Initialize text display for telnet options.
-    telnet_option_descs[MSSP] = "MSSP";
     for (int i = 0;i < 256;i++) {
         char buf[10];
         if (!telnet_option_descs[i]) {
@@ -458,7 +509,6 @@ receive_telnet_negotiation(struct descriptor_data *d, int message, int opt)
         // This is set to supported and not true.  It should never
         // happen otherwise, but it's better to have the client be
         // confused than to misrepresent our own state.
-        set_telnet_option(d, PEER, opt, telnet_config[opt].supported);
         if (d->telnet.peer[opt].requesting) {
             // client agreeing to use option
             d->telnet.peer[opt].requesting = false;
@@ -466,9 +516,9 @@ receive_telnet_negotiation(struct descriptor_data *d, int message, int opt)
             // client offering to use option
             d_send_bytes(d, 3, IAC, telnet_config[opt].supported ? DO:DONT, opt);
         }
+        set_telnet_option(d, PEER, opt, telnet_config[opt].supported);
         break;
     case WONT:
-        set_telnet_option(d, PEER, opt, false);
         if (d->telnet.peer[opt].requesting) {
             // client declining to use option
             d->telnet.peer[opt].requesting = false;
@@ -476,9 +526,9 @@ receive_telnet_negotiation(struct descriptor_data *d, int message, int opt)
             // client offering to disable option - we always agree
             d_send_bytes(d, 3, IAC, DONT, opt);
         }
+        set_telnet_option(d, PEER, opt, false);
         break;
     case DO:
-        set_telnet_option(d, HOST, opt, telnet_config[opt].supported);
         if (d->telnet.host[opt].requesting) {
             // client permitting option on host
             d->telnet.host[opt].requesting = false;
@@ -486,9 +536,9 @@ receive_telnet_negotiation(struct descriptor_data *d, int message, int opt)
             // client demanding option on host
             d_send_bytes(d, 3, IAC, telnet_config[opt].supported ? WILL:WONT, opt);
         }
+        set_telnet_option(d, HOST, opt, telnet_config[opt].supported);
         break;
     case DONT:
-        set_telnet_option(d, HOST, opt, false);
         if (d->telnet.host[opt].requesting) {
             // client forbidding option on host
             d->telnet.host[opt].requesting = false;
@@ -496,6 +546,7 @@ receive_telnet_negotiation(struct descriptor_data *d, int message, int opt)
             // client demanding disabling option on host
             d_send_bytes(d, 3, IAC, WONT, opt);
         }
+        set_telnet_option(d, HOST, opt, false);
         break;
     }
 }
@@ -538,6 +589,9 @@ handle_telnet(struct descriptor_data *d, uint8_t *buf, size_t len)
 {
     uint8_t *read_pt = buf;
 
+    if (!production_mode) {
+        bytelog("telnet: ", buf, len);
+    }
     if (len < 2) {
         // IAC is always followed by some byte.
         return 0;
@@ -552,6 +606,9 @@ handle_telnet(struct descriptor_data *d, uint8_t *buf, size_t len)
         if (len < 3) {
             // All negotiations are 3 bytes.
             return 0;
+        }
+        if (!production_mode) {
+            slog("<TELNET %s %s", telnet_cmd_descs[read_pt[0]], telnet_option_descs[read_pt[1]]);
         }
         receive_telnet_negotiation(d, read_pt[0], read_pt[1]);
         read_pt += 2;
@@ -591,12 +648,7 @@ handle_telnet(struct descriptor_data *d, uint8_t *buf, size_t len)
     }
 
     // Ensure telnet response gets sent without sending prompt.
-    GError *error = NULL;
-    g_io_channel_flush(d->io, &error);
-    if (error) {
-        slog("g_io_channel_flush: %s", error->message);
-        g_error_free(error);
-    }
+    flush_output(d);
 
     return read_pt - buf;
 }

@@ -12,6 +12,8 @@ struct creature;    // forward declaration from creature.h
 struct account;      // forward declaration from account.h
 struct editor;  // forward declaration from editor.h
 
+#define ZBUF_LENGTH 2048
+
 // Modes of connectedness: used by descriptor_data.state
 // make sure changes to this are synced with desc_modes[] in db/constants.cc
 enum cxn_state {
@@ -68,6 +70,9 @@ enum display_mode {
     IRC,                        // Text interface optimized for IRC
 };
 
+#define MSSP 70
+#define MCCP2 86
+
 struct telnet_endpoint_option {
     bool enabled;
     bool requesting;
@@ -113,6 +118,9 @@ struct txt_q {
     struct txt_block *tail;
 };
 
+typedef struct z_stream_s z_stream;
+typedef z_stream *z_streamp;
+
 struct descriptor_data {
     GIOChannel *io;             /* file descriptor for socket       */
 
@@ -143,6 +151,8 @@ struct descriptor_data {
     guint out_watcher;
     guint err_watcher;
     guint input_handler;
+    z_streamp zout;                        /* zlib output stream */
+    uint8_t zbuf[ZBUF_LENGTH];
     char last_argument[MAX_INPUT_LENGTH];   /* */
     int last_cmd;
     int idle;                   // how long idle for

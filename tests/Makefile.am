@@ -1,6 +1,6 @@
 TESTS = check_tempus
 check_PROGRAMS = check_tempus
-AM_CFLAGS =-I@top_srcdir@/src/include @POSTGRESQL_CPPFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @CHECK_CFLAGS@  -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG} -g -O0
+AM_CFLAGS =-I@top_srcdir@/src/include @POSTGRESQL_CPPFLAGS@ @XML_CFLAGS@ @GLIB_CFLAGS@ @ZLIB_CFLAGS@ @CHECK_CFLAGS@  -Wall -Wcast-qual ${DBGFLAG} ${USE_IPV6_FLAG} -g -O0
 check_tempus_SOURCES = \
 			@top_srcdir@/tests/check_tempus.c \
 			@top_srcdir@/tests/testing.c \
@@ -126,5 +126,5 @@ check_tempus_LDADD = \
 				 $(top_builddir)/src/util/strutil.o \
                  $(top_builddir)/src/util/utils.o \
                  $(top_builddir)/src/weather/weather.o \
-			@CHECK_LIBS@ @POSTGRESQL_LDFLAGS@ @POSTGRESQL_LIBS@ @XML_LIBS@ @GLIB_LIBS@ \
+			@CHECK_LIBS@ @POSTGRESQL_LDFLAGS@ @POSTGRESQL_LIBS@ @XML_LIBS@ @GLIB_LIBS@ @ZLIB_LIBS@ \
 	        -lcrypt

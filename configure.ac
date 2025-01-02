@@ -41,6 +41,7 @@ AX_LIB_POSTGRESQL
 PKG_CHECK_MODULES([GLIB], [glib-2.0])
 PKG_CHECK_MODULES([XML], [libxml-2.0])
 PKG_CHECK_MODULES([CHECK], [check])
+PKG_CHECK_MODULES([ZLIB], [zlib])
 AC_CHECK_LIB([rt], [clock_gettime])
 AC_CHECK_LIB([crypt], [crypt])
 AC_CHECK_LIB([m], [ceilf])
