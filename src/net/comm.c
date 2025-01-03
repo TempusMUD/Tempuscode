@@ -614,12 +614,12 @@ d_send_raw(struct descriptor_data *d, const char *txt, ssize_t len)
     }
 
     if (d->telnet.host[MCCP2].enabled) {
-        d->zout->next_in = txt;
+        d->zout->next_in = (Bytef *)txt;
         d->zout->avail_in = buflen;
         while (true) {
             int err = deflate(d->zout, Z_NO_FLUSH);
             if (err != Z_OK) {
-                errlog("%s", d->zout->msg);
+                errlog("zlib deflate(): %s", d->zout->msg);
             }
             if (d->zout->avail_in == 0) {
                 break;
@@ -646,7 +646,7 @@ void
 d_send_bytes(struct descriptor_data *d, size_t n, ...)
 {
     va_list args;
-    char *buf = alloca(n);
+    uint8_t *buf = alloca(n);
 
     va_start(args, n);
     for (int i = 0;i < n;i++) {
@@ -657,7 +657,7 @@ d_send_bytes(struct descriptor_data *d, size_t n, ...)
     if (!production_mode) {
         bytelog(">telnet: ", buf, n);
     }
-    d_send_raw(d, buf, n);
+    d_send_raw(d, (char *)buf, n);
 }
 
 void
@@ -864,13 +864,15 @@ flush_output(struct descriptor_data *d)
     if (d->telnet.host[MCCP2].enabled) {
         GError *error = NULL;
         gsize bytes_written;
-        // flush zlib stream if compression is enabled.
+        // flush zlib stream if compression is enabled.  If nothing
+        // was compressed, zlib will return a Z_BUF_ERROR, so that
+        // needs to be ignored.
         while (true) {
-            d->zout->next_in = "";
+            d->zout->next_in = (Bytef *)"";
             d->zout->avail_in = 0;
             int err = deflate(d->zout, Z_SYNC_FLUSH);
-            if (err != Z_OK) {
-                errlog("%s", d->zout->msg);
+            if (err != Z_OK && err != Z_BUF_ERROR) {
+                errlog("flush zlib deflate(): %s", d->zout->msg);
             }
             g_io_channel_write_chars(d->io, d->zbuf, ZBUF_LENGTH - d->zout->avail_out, &bytes_written, &error);
             d->zout->next_out = d->zbuf;
@@ -895,7 +897,6 @@ process_output(__attribute__ ((unused)) GIOChannel *io,
                gpointer data)
 {
     struct descriptor_data *d = data;
-    GError *error = NULL;
 
     if (!IS_SET(g_io_channel_get_flags(d->io), G_IO_FLAG_IS_WRITEABLE)) {
         d->out_watcher = 0;
