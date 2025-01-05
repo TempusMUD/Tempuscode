@@ -42,6 +42,8 @@ sb_vsprintf(struct str_builder *sb, const char *fmt, va_list args)
 
     va_copy(args_copy, args);
 
+    sb_adjust(sb, 80);
+
     result = sb->str + sb->len;
     wanted = vsnprintf(result, sb->size - sb->len, fmt, args);
 
@@ -87,6 +89,10 @@ sb_strcat(struct str_builder *sb, const char *str, ...)
         len += strlen(read_pt);
     }
     va_end(args);
+
+    if (len == 0) {
+        return;
+    }
 
     // If we don't have the space, we allocate more
     if (len > sb->size - sb->len) {
