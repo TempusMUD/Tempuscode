@@ -238,7 +238,7 @@ death_cry(struct creature *ch)
             struct creature *tch = it->data;
 
             if (tch == ch) {
-                return;
+                continue;
             }
 
             if (IS_BARB(tch) && !number(0, 1)) {
