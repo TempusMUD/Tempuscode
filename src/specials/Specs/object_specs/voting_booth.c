@@ -322,10 +322,13 @@ voting_booth_list(struct creature *ch)
                 memory = memory->next;
             }
 
-            strftime(buf2, 2048, "%a %b %d", localtime(&poll->creation_time));
-            send_to_char(ch, "%2d : %s (%d responses) _ %s%s%s\r\n",
-                         ++poll_count, buf2, poll->count, poll->header,
-                         poll->secret ? secret_str : "", memory ? "" : not_voted_str);
+            send_to_char(ch, "%2d : %s (%d responses) %s%s%s\r\n",
+                         ++poll_count,
+                         tmp_strftime("%Y-%m-%d", localtime(&poll->creation_time)),
+                         poll->count,
+                         poll->header,
+                         poll->secret ? secret_str : "",
+                         memory ? "" : not_voted_str);
             poll = poll->next;
         }
     }
