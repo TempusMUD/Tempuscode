@@ -491,7 +491,7 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
 
     int need_movement, has_boat = 0, wait_state = 0;
     struct room_data *was_in;
-    struct obj_data *obj = NULL, *next_obj = NULL, *car = NULL, *c_obj = NULL;
+    struct obj_data *obj = NULL, *car = NULL, *c_obj = NULL;
     struct creature *mount = MOUNTED_BY(ch);
     int found = 0;
     struct special_search_data *srch = NULL;
@@ -1315,17 +1315,8 @@ do_simple_move(struct creature *ch, int dir, int mode, int need_specials_check)
 
     if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_DEATH) &&
         GET_LEVEL(ch) < LVL_AMBASSADOR) {
-        was_in = ch->in_room;
         log_death_trap(ch);
-        death_cry(ch);
-        // extract it, leaving it's eq and such in the dt.
-        creature_die(ch);
-        if (was_in->number == 34004) {
-            for (obj = was_in->contents; obj; obj = next_obj) {
-                next_obj = obj->next_content;
-                damage_eq(NULL, obj, dice(10, 100), -1);
-            }
-        }
+        raw_kill(ch, NULL, TYPE_SUFFERING);
         return 2;
     }
     //
@@ -2884,7 +2875,7 @@ ACMD(do_translocate)
     char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
     int dir, num = 0, i;
     struct room_data *rm = NULL;
-    struct obj_data *obj = NULL, *next_obj = NULL;
+    struct obj_data *obj = NULL;
     struct affected_type *af_ptr = NULL;
 
     if (CHECK_SKILL(ch, subcmd) < 20) {
@@ -2989,32 +2980,24 @@ ACMD(do_translocate)
                      "Better luck next time...\r\n");
         creature_die(ch);
         return;
-    } else {
-        if (!char_from_room(ch, true) || !char_to_room(ch, rm, true)) {
-            return;
-        }
-        act(TL_APPEAR(subcmd), true, ch, NULL, NULL, TO_ROOM);
-        gain_skill_prof(ch, subcmd);
-        look_at_room(ch, ch->in_room, false);
+    }
+    if (!char_from_room(ch, true) || !char_to_room(ch, rm, true)) {
+        return;
+    }
+    act(TL_APPEAR(subcmd), true, ch, NULL, NULL, TO_ROOM);
+    gain_skill_prof(ch, subcmd);
+    look_at_room(ch, ch->in_room, false);
 
-        // translocation has expired
-        if (af_ptr && (af_ptr->duration -= ((num * 4) + 10)) <= 0) {
-            affect_remove(ch, af_ptr);
-        }
+    // translocation has expired
+    if (af_ptr && (af_ptr->duration -= ((num * 4) + 10)) <= 0) {
+        affect_remove(ch, af_ptr);
+    }
 
-        // we hit a DT
-        if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_DEATH) &&
-            GET_LEVEL(ch) < LVL_AMBASSADOR) {
-            log_death_trap(ch);
-            death_cry(ch);
-            creature_die(ch);
-            if (rm->number == 34004) {
-                for (obj = rm->contents; obj; obj = next_obj) {
-                    next_obj = obj->next_content;
-                    damage_eq(NULL, obj, dice(10, 100), -1);
-                }
-            }
-        }
+    // we hit a DT
+    if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_DEATH) &&
+        GET_LEVEL(ch) < LVL_AMBASSADOR) {
+        log_death_trap(ch);
+        raw_kill(ch, NULL, TYPE_SUFFERING);
     }
 }
 

@@ -90,8 +90,7 @@ search_trans_character(struct creature *ch,
     if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_DEATH)) {
         if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
             log_death_trap(ch);
-            death_cry(ch);
-            creature_die(ch);
+            raw_kill(ch, NULL, TYPE_SUFFERING);
             return 2;
         } else {
             mudlog(LVL_GOD, NRM, true,
@@ -329,8 +328,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
             if (IS_SET(ROOM_FLAGS(ch->in_room), ROOM_DEATH)) {
                 if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
                     log_death_trap(ch);
-                    death_cry(ch);
-                    creature_die(ch);
+                    raw_kill(ch, NULL, TYPE_SUFFERING);
                     return 2;
                 } else {
                     mudlog(LVL_GOD, NRM, true,

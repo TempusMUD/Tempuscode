@@ -179,8 +179,6 @@ const char *obj_flow_msg[NUM_FLOW_TYPES + 1][2] = {
 void
 flow_one_creature(struct creature *ch, struct room_data *rnum, int dir)
 {
-    struct room_data *was_in;
-    struct obj_data *obj, *next_obj;
     struct special_search_data *srch;
 
     if (!ch) {
@@ -225,17 +223,8 @@ flow_one_creature(struct creature *ch, struct room_data *rnum, int dir)
     if (ROOM_FLAGGED(ch->in_room, ROOM_DEATH)
         && GET_LEVEL(ch) < LVL_AMBASSADOR) {
 
-        was_in = ch->in_room;
         log_death_trap(ch);
-        death_cry(ch);
-        die(ch, NULL, -1);
-
-        if (was_in->number == 34004) {
-            for (obj = was_in->contents; obj; obj = next_obj) {
-                next_obj = obj->next_content;
-                damage_eq(NULL, obj, dice(10, 100), -1);
-            }
-        }
+        raw_kill(ch, NULL, TYPE_SUFFERING);
     } else {
         for (srch = ch->in_room->search; srch; srch = srch->next) {
             if (SRCH_FLAGGED(srch, SRCH_TRIG_ENTER)

@@ -1632,8 +1632,7 @@ prog_trans_creature(struct creature *ch, struct room_data *targ_room)
     if (IS_SET(ROOM_FLAGS(targ_room), ROOM_DEATH)) {
         if (GET_LEVEL(ch) < LVL_AMBASSADOR) {
             log_death_trap(ch);
-            death_cry(ch);
-            creature_die(ch);
+            raw_kill(ch, NULL, TYPE_SUFFERING);
         } else {
             mudlog(LVL_GOD, NRM, true,
                    "(GC) %s trans-searched into deathtrap %d.",
