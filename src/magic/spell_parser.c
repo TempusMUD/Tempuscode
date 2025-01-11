@@ -1419,8 +1419,7 @@ find_spell_targets(struct creature *ch, int cmd, char *argument,
     *spellnm = spellnum;
 
     if ((spellnum < 1) || (spellnum > MAX_SPELLS)) {
-        act(tmp_sprintf("%s what?!?", cmd_info[cmd].command),
-            false, ch, NULL, NULL, TO_CHAR | TO_SLEEP);
+        send_to_char("%s what?!?", cmd_info[cmd].command);
         return false;
     }
 

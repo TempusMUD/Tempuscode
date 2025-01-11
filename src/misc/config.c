@@ -270,16 +270,3 @@ const char *START_MESSG =
     "Welcome.  This is your new character in the world of Tempus!\r\n"
     "You must be strong to survive, but in time you may become powerful\r\n"
     "beyond your wildest dreams...\r\n\r\n";
-
-/****************************************************************************/
-/****************************************************************************/
-
-/* AUTOWIZ OPTIONS */
-
-/* Should the game automatically create a new wizlist/immlist every time
-   someone immorts, or is promoted to a higher (or lower) god level? */
-bool use_autowiz = NO;
-
-/* If yes, what is the lowest level which should be on the wizlist?  (All
-   immort levels below the level you specify will go on the immlist instead.) */
-int min_wizlist_lev = LVL_GOD;

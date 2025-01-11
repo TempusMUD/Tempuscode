@@ -59,8 +59,8 @@ SPECIAL(master_communicator)
             chan[num] = COMM_CHANNEL(o);
             num++;
 
-            snprintf(buf, sizeof(buf), "%sEntities monitoring channel [%d]:\r\n",
-                     buf, COMM_CHANNEL(o));
+            snprintf_cat(buf, sizeof(buf), "Entities monitoring channel [%d]:\r\n",
+                     COMM_CHANNEL(o));
 
             for (tmpo = o, i = 0; tmpo; tmpo = tmpo->next) {
 

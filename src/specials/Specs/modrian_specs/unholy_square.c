@@ -164,10 +164,10 @@ SPECIAL(unholy_square)
         send_to_char(ch, "Holy Square is %s.\r\nstatus <begin|end|clear>.\r\n",
                      state ? "UNHOLY" : "HOLY");
         if (winner) {
-            snprintf(buf, sizeof(buf),
-                     "%sWinner is [%d] %s.\r\n"
-                     "Won at %s.\r\n", buf, winner, player_name_by_idnum(winner),
-                     ctime(&wintime));
+            snprintf_cat(buf, sizeof(buf),
+                         "Winner is [%d] %s.\r\n"
+                         "Won at %s.\r\n", winner, player_name_by_idnum(winner),
+                         ctime(&wintime));
         }
 
         return 1;

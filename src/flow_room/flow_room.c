@@ -323,25 +323,22 @@ update_alignment_ambience(__attribute__ ((unused)) gpointer ignore)
 void
 flow_room(void)
 {
-    struct obj_data *obj = NULL, *next_obj = NULL;
-    register struct zone_data *zone = NULL;
-    register struct room_data *rnum = NULL;
-    int dir;
-    struct room_trail_data *trail = NULL;
-
-    for (zone = zone_table; zone; zone = zone->next) {
+    for (struct zone_data *zone = zone_table; zone; zone = zone->next) {
         if (ZONE_FLAGGED(zone, ZONE_FROZEN) ||
             zone->idle_time >= ZONE_IDLE_TIME) {
             continue;
         }
 
-        for (rnum = zone->world; rnum; rnum = rnum->next) {
+        for (struct room_data *rnum = zone->world; rnum; rnum = rnum->next) {
             // Active flows only
-            if (!FLOW_SPEED(rnum)
-                || (!ABS_EXIT(rnum, (dir = (int)FLOW_DIR(rnum)))
-                    || ABS_EXIT(rnum, dir)->to_room == NULL
-                    || (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_CLOSED))
-                    || (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_NOPASS)))) {
+            if (!FLOW_SPEED(rnum)) {
+                continue;
+            }
+            int dir = (int)FLOW_DIR(rnum);
+            if (!ABS_EXIT(rnum, (dir))
+                || ABS_EXIT(rnum, dir)->to_room == NULL
+                || (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_CLOSED))
+                || (IS_SET(ABS_EXIT(rnum, dir)->exit_info, EX_NOPASS))) {
                 continue;
             }
 
@@ -356,11 +353,12 @@ flow_room(void)
                 FLOW_TYPE(rnum) = F_TYPE_NONE;
             }
 
-            /* nix flows */
+            /* nix trails */
             if (FLOW_TYPE(rnum) != F_TYPE_CONVEYOR &&
                 FLOW_TYPE(rnum) != F_TYPE_ROTATING_DISC &&
                 FLOW_TYPE(rnum) != F_TYPE_ESCALATOR) {
-                while ((trail = rnum->trail)) {
+                while (rnum->trail) {
+                    struct room_trail_data *trail = rnum->trail;
                     rnum->trail = trail->next;
                     if (trail->name) {
                         free(trail->name);
@@ -378,27 +376,25 @@ flow_room(void)
                 flow_one_creature(tch, rnum, dir);
             }
 
-            if ((obj = rnum->contents)) {
-                for (; obj; obj = next_obj) {
-                    next_obj = obj->next_content;
 
-                    if ((!CAN_WEAR(obj, ITEM_WEAR_TAKE) &&
-                         GET_OBJ_VNUM(obj) != BLOOD_VNUM &&
-                         GET_OBJ_VNUM(obj) != ICE_VNUM) ||
-                        (GET_OBJ_WEIGHT(obj) > number(5, FLOW_SPEED(rnum) * 10)
-                         && !number(0, FLOW_SPEED(rnum)))) {
-                        continue;
-                    }
+            struct obj_data *obj = NULL, *next_obj = NULL;
+            for (obj = rnum->contents; obj; obj = next_obj) {
+                next_obj = obj->next_content;
 
-                    act(tmp_sprintf(obj_flow_msg[(int)
-                                                 FLOW_TYPE(rnum)][MSG_TORM_1], to_dirs[dir]),
-                        true, NULL, obj, NULL, TO_ROOM);
-                    obj_from_room(obj);
-                    obj_to_room(obj, ABS_EXIT(rnum, dir)->to_room);
-                    act(tmp_sprintf(obj_flow_msg[(int)
-                                                 FLOW_TYPE(rnum)][MSG_TORM_2], from_dirs[dir]),
-                        true, NULL, obj, NULL, TO_ROOM);
+                if ((!CAN_WEAR(obj, ITEM_WEAR_TAKE) &&
+                     GET_OBJ_VNUM(obj) != BLOOD_VNUM &&
+                     GET_OBJ_VNUM(obj) != ICE_VNUM) ||
+                    (GET_OBJ_WEIGHT(obj) > number(5, FLOW_SPEED(rnum) * 10)
+                     && !number(0, FLOW_SPEED(rnum)))) {
+                    continue;
                 }
+
+                act(tmp_sprintf(obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_1], to_dirs[dir]),
+                    true, NULL, obj, NULL, TO_ROOM);
+                obj_from_room(obj);
+                obj_to_room(obj, ABS_EXIT(rnum, dir)->to_room);
+                act(tmp_sprintf(obj_flow_msg[(int)FLOW_TYPE(rnum)][MSG_TORM_2], from_dirs[dir]),
+                    true, NULL, obj, NULL, TO_ROOM);
             }
         }
     }
