@@ -3258,9 +3258,8 @@ char_hands_free(struct creature *ch)
 
 ACMD(do_remove)
 {
-    struct obj_data *obj;
-    int i, dotmode, found;
-
+    struct obj_data *obj = NULL;
+    bool found = false;
     char *arg = tmp_getword(&argument);
 
     if (!*arg) {
@@ -3273,50 +3272,67 @@ ACMD(do_remove)
         return;
     }
 
-    dotmode = find_all_dots(arg);
-
-    if (dotmode == FIND_ALL) {
-        found = 0;
-        for (i = 0; i < NUM_WEARS; i++) {
+    switch (find_all_dots(arg)) {
+    case FIND_ALL:
+        for (int i = 0; i < NUM_WEARS; i++) {
             if (GET_EQ(ch, i)) {
                 perform_remove(ch, i);
-                found = 1;
-                if (GET_EQ(ch, i)) {
-                    perform_remove(ch, i);
-                }
+                found = true;
             }
         }
         if (!found) {
             send_to_char(ch, "You're not using anything.\r\n");
         }
-    } else if (dotmode == FIND_ALLDOT) {
+        return;
+
+    case FIND_ALLDOT:
         if (!*arg) {
             send_to_char(ch, "Remove all of what?\r\n");
-        } else {
-            found = 0;
-            for (i = 0; i < NUM_WEARS; i++) {
-                if (GET_EQ(ch, i) && can_see_object(ch, GET_EQ(ch, i)) &&
-                    isname(arg, GET_EQ(ch, i)->aliases)) {
-                    perform_remove(ch, i);
-                    found = 1;
-                }
-            }
-            if (!found) {
-                send_to_char(ch, "You don't seem to be using any %ss.\r\n",
-                             arg);
+            return;
+        }
+        for (int i = 0; i < NUM_WEARS; i++) {
+            if (GET_EQ(ch, i) && can_see_object(ch, GET_EQ(ch, i)) &&
+                isname(arg, GET_EQ(ch, i)->aliases)) {
+                perform_remove(ch, i);
+                found = true;
             }
         }
-    } else {
-        if (!(obj = get_object_in_equip_all(ch, arg, ch->equipment, &i))) {
-            send_to_char(ch, "You don't seem to be using %s %s.\r\n", AN(arg),
-                         arg);
-        } else if (IS_OBJ_STAT2(obj, ITEM2_NOREMOVE) &&
-                   GET_LEVEL(ch) < LVL_AMBASSADOR) {
+        if (!found) {
+            send_to_char(ch, "You don't seem to be using any %ss.\r\n", arg);
+        }
+        return;
+
+    default:
+        int pos = search_block(arg, wear_keywords, true);
+        if (pos > 0) {
+            if (!GET_EQ(ch, pos)
+                && (pos == WEAR_FINGER_R || pos == WEAR_NECK_1 ||
+                    pos == WEAR_WRIST_R || pos == WEAR_EAR_L)
+                && GET_EQ(ch, pos+1)) {
+                pos++;
+            }
+            obj = GET_EQ(ch, pos);
+
+            if (!obj) {
+                send_to_char(ch, "You don't seem to be using anything there.\r\n");
+                return;
+            }
+        }
+        if (!obj) {
+            obj = get_object_in_equip_all(ch, arg, ch->equipment, &pos);
+        }
+        if (!obj) {
+            send_to_char(ch, "You don't seem to be using %s %s.\r\n", AN(arg), arg);
+            return;
+        }
+        if (IS_OBJ_STAT2(obj, ITEM2_NOREMOVE) && GET_LEVEL(ch) < LVL_AMBASSADOR) {
+            // Just a different message than the one provided by perform_remove().
             act("Ack!  You cannot seem to let go of $p!", false, ch, obj, NULL,
                 TO_CHAR);
-        } else {
-            perform_remove(ch, i);
+            return;
         }
+        perform_remove(ch, pos);
+        return;
     }
 }
 
