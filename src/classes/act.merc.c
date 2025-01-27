@@ -963,10 +963,6 @@ ACMD(do_combine)
     new_potion->creation_method = CREATED_PLAYER;
     new_potion->creator = GET_IDNUM(ch);
 
-    extract_obj(potion1);
-    extract_obj(potion2);
-    obj_to_char(new_potion, ch);
-
     // Check to see if mixture explodes :D
     if (spell_count > 3 || level_count > 49) {
         switch (number(0, 5)) {
@@ -1022,6 +1018,10 @@ ACMD(do_combine)
         false, ch, new_potion, NULL, TO_CHAR);
     act("$n mixes two potions together and creates $p!",
         false, ch, new_potion, NULL, TO_ROOM);
+
+    extract_obj(potion1);
+    extract_obj(potion2);
+    obj_to_char(new_potion, ch);
 }
 
 struct obj_data *
