@@ -1188,8 +1188,9 @@ ASPELL(spell_identify)
         case ITEM_POTION:
         case ITEM_PILL:
         case ITEM_SYRINGE:
-            send_to_char(ch, "This %s casts: ",
-                         strlist_aref((int)GET_OBJ_TYPE(obj), item_types));
+            send_to_char(ch, "This level %d %s casts: ",
+                         GET_OBJ_VAL(obj, 0),
+                         tmp_tolower(strlist_aref((int)GET_OBJ_TYPE(obj), item_types)));
 
             if (GET_OBJ_VAL(obj, 1) >= 1) {
                 send_to_char(ch, " %s", spell_to_str(GET_OBJ_VAL(obj, 1)));
