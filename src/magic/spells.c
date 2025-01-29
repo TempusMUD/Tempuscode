@@ -3442,8 +3442,14 @@ ASPELL(spell_dispel_magic)
         return;
     }
 
-    if (IS_OBJ_STAT(obj, ITEM_BLESS) || IS_OBJ_STAT(obj, ITEM_DAMNED)) {
-        act("$p hums for a moment this absorbs your magic!", false,
+    if (IS_OBJ_STAT(obj, ITEM_BLESS)) {
+        act("$p momentarily glows light blue and absorbs your magic!", false,
+            ch, obj, NULL, TO_CHAR);
+        return;
+    }
+
+    if (IS_OBJ_STAT(obj, ITEM_DAMNED)) {
+        act("$p momentarily glows dark red and absorbs your magic!", false,
             ch, obj, NULL, TO_CHAR);
         return;
     }
