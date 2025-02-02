@@ -214,6 +214,11 @@ check_sight_vict(struct creature *self, struct creature *vict)
         return true;
     }
 
+    // Newbies can see all players.
+    if (GET_LEVEL(self) <= 6 && GET_REMORT_GEN(self) == 0 && IS_PC(vict)) {
+        return true;
+    }
+
     // Sonic imagery and retina detects transparent creatures
     if (AFF2_FLAGGED(vict, AFF2_TRANSPARENT) &&
         !(AFF3_FLAGGED(self, AFF3_SONIC_IMAGERY) ||
