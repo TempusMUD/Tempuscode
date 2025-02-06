@@ -2162,6 +2162,8 @@ name_to_drinkcon(struct obj_data *obj, int type)
 
 ACMD(do_drink)
 {
+    void do_use(struct creature *, char *, int, int);
+
     struct obj_data *temp;
     struct affected_type af;
     int amount;
@@ -2186,7 +2188,11 @@ ACMD(do_drink)
         }
     }
     if (IS_OBJ_TYPE(temp, ITEM_POTION)) {
-        send_to_char(ch, "You must QUAFF that!\r\n");
+        if (subcmd == SCMD_SIP) {
+            send_to_char(ch, "It tastes somewhat magical.\r\n");
+        } else {
+            do_use(ch, arg, 0, SCMD_QUAFF);
+        }
         return;
     }
     if ((GET_OBJ_TYPE(temp) != ITEM_DRINKCON) &&
@@ -2235,8 +2241,8 @@ ACMD(do_drink)
 
     } else {
         act("$n sips from $p.", true, ch, temp, NULL, TO_ROOM);
-        send_to_char(ch, "It tastes like %s.\r\n", drinks[GET_OBJ_VAL(temp,
-                                                                      2)]);
+        send_to_char(ch, "It tastes like %s.\r\n",
+                     drinks[GET_OBJ_VAL(temp, 2)]);
         amount = 1;
     }
 
