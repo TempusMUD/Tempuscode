@@ -463,7 +463,7 @@ account_create_char(struct account *account, const char *name, long idnum)
         ch->points.max_mana = 100;
         ch->points.max_move = 82;
 
-        GET_HOME(ch) = HOME_NEWBIE_SCHOOL;
+        GET_HOME(ch) = HOME_NEWBIE_TOWER;
         ch->player_specials->saved.load_room = -1;
         ch->player_specials->saved.home_room = -1;
     }
