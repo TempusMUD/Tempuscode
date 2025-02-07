@@ -968,13 +968,6 @@ ACMD(do_gen_comm)
     // skip leading spaces
     skip_spaces(&argument);
 
-    /* make sure that there is something there to say! */
-    if (!*argument) {
-        send_to_char(ch, "Yes, %s, fine, %s we must, but WHAT???\r\n",
-                     chan->name, chan->name);
-        return;
-    }
-
     if (subcmd == SCMD_HOLLER && GET_LEVEL(ch) < LVL_TIMEGOD) {
         if (GET_MOVE(ch) < holler_move_cost) {
             send_to_char(ch, "You're too exhausted to holler.\r\n");
@@ -1075,6 +1068,13 @@ ACMD(do_gen_comm)
         sub_channel_desc = tmp_strcat("[", str, "] ", NULL);
     } else {
         sub_channel_desc = "";
+    }
+
+    /* make sure that there is something there to say! */
+    if (!*argument) {
+        send_to_char(ch, "Yes, %s, fine, %s we must, but WHAT???\r\n",
+                     chan->name, chan->name);
+        return;
     }
 
     // Check to see if they're calling for help
