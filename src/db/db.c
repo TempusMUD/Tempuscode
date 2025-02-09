@@ -2637,6 +2637,10 @@ randomize_object(struct obj_data *obj)
             }
         }
         if (IS_SET(obj->obj_flags.bitvector[1], bit)) {
+            if (bit == ITEM2_IMPLANT) {
+                // Don't make implants non-implants.
+                continue;
+            }
             if (!number(0, 10)) {
                 REMOVE_BIT(obj->obj_flags.bitvector[1], bit);
             } else {
@@ -2644,6 +2648,9 @@ randomize_object(struct obj_data *obj)
             }
         }
         if (IS_SET(obj->obj_flags.bitvector[2], bit)) {
+            if (bit == ITEM3_STAY_ZONE) {
+                continue;
+            }
             if (!number(0, 10)) {
                 REMOVE_BIT(obj->obj_flags.bitvector[2], bit);
             } else {
