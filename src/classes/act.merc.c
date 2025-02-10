@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include <glib.h>
+#include <libxml/parser.h>
 
 #include "interpreter.h"
 #include "structs.h"
@@ -37,10 +38,10 @@
 #include "materials.h"
 #include "bomb.h"
 #include "fight.h"
-#include <libxml/parser.h>
 #include "obj_data.h"
 #include "strutil.h"
 #include "guns.h"
+#include "actions.h"
 
 #define PISTOL(gun)  ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && !IS_TWO_HAND(gun))
 #define LARGE_GUN(gun) ((IS_GUN(gun) || IS_ENERGY_GUN(gun)) && IS_TWO_HAND(gun))
@@ -878,7 +879,7 @@ perform_appraise(struct creature *ch, struct obj_data *obj, int skill_lvl)
 
 ACMD(do_appraise)
 {
-    struct obj_data *obj = NULL;    // the object that will be emptied
+    struct obj_data *obj = NULL;
     int bits;
     char *arg;
 
@@ -894,13 +895,138 @@ ACMD(do_appraise)
         return;
     }
 
-    if (!(bits =
-              generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, NULL, &obj))) {
+    bits = generic_find(arg, FIND_OBJ_INV | FIND_OBJ_ROOM, ch, NULL, &obj);
+    if (!bits) {
         send_to_char(ch, "You can't find any %s to appraise.\r\n", arg);
         return;
     }
 
     perform_appraise(ch, obj, CHECK_SKILL(ch, SKILL_APPRAISE));
+}
+
+// is_chemistry_lab returns true when the object is a TOOL of type
+// chemistry.
+static bool
+is_chemistry_lab(struct obj_data *obj)
+{
+    return IS_TOOL(obj) && TOOL_SKILL(obj) == SKILL_CHEMISTRY;
+}
+
+// best_chemistry_lab returns the highest level chemistry lab that a
+// creature has access to.  A chemistry lab is a TOOL for the
+// chemistry skill.  Creatures have access to chemlabs that are worn,
+// implanted, in inventory, or in the room.  Returns NULL if no
+// chemistry lab was found.
+static struct obj_data *
+best_chemistry_lab(struct creature *ch)
+{
+    struct obj_data *result = NULL;
+    int max_level = -254;
+
+    for (int i = 0;i < NUM_WEARS;i++) {
+        struct obj_data *obj = GET_EQ(ch, i);
+        if (obj && is_chemistry_lab(obj) && TOOL_MOD(obj) > max_level) {
+            result = obj;
+            max_level = TOOL_MOD(obj);
+        }
+        obj = GET_IMPLANT(ch, i);
+        if (obj && is_chemistry_lab(obj) && TOOL_MOD(obj) > max_level) {
+            result = obj;
+            max_level = TOOL_MOD(obj);
+        }
+    }
+    for (struct obj_data *obj = ch->carrying;obj;obj = obj->next_content) {
+        if (is_chemistry_lab(obj) && TOOL_MOD(obj) > max_level) {
+            result = obj;
+            max_level = TOOL_MOD(obj);
+        }
+    }
+    for (struct obj_data *obj = ch->in_room->contents;obj;obj = obj->next_content) {
+        if (is_chemistry_lab(obj) && TOOL_MOD(obj) > max_level) {
+            result = obj;
+            max_level = TOOL_MOD(obj);
+        }
+    }
+    return result;
+}
+
+// Returns the effective chemistry skill taking into account the
+// character's skill level and the quality of the lab.  Labs are
+// generally a negative percentage modifier to the character's skill.
+static int
+effective_chemistry_skill(struct creature *ch, struct obj_data *lab)
+{
+    int skill = CHECK_SKILL(ch, SKILL_CHEMISTRY) * (1.0 + TOOL_MOD(lab) / 100.0);
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+        send_to_char(ch, "%s[Chemistry: effective skill %d]%s\r\n",
+                     CCCYN(ch, C_SPR), skill, CCNRM(ch, C_SPR));
+    }
+    return skill;
+}
+
+void
+describe_new_potion(struct obj_data *obj)
+{
+    char *name = NULL;
+    int potion_spells[3];
+    int num_spells = 0;
+
+    // Find number of spells and coalesce them so there's no "gaps"
+    for (int i = 1;i < 4;i++) {
+        if (GET_OBJ_VAL(obj, i) > 0) {
+            potion_spells[num_spells++] = GET_OBJ_VAL(obj, i);
+        }
+    }
+    switch (num_spells) {
+    case 0:
+        name = tmp_strdup("awkward"); break;
+    case 1:
+        name = tmp_strdup(spell_info[potion_spells[0]].potiondescs[0]); break;
+    case 2:
+        if (potion_spells[0] == potion_spells[1]) {
+            name = tmp_strdup(spell_info[potion_spells[0]].potiondescs[1]);
+        } else {
+            name = tmp_strcat(spell_info[potion_spells[0]].potiondescs[0],
+                              " ",
+                              spell_info[potion_spells[1]].potiondescs[0],
+                              NULL);
+        }
+        break;
+    case 3:
+        if (potion_spells[0] == potion_spells[1] && potion_spells[1] == potion_spells[2]) {
+            // all same spell
+            name = tmp_strdup(spell_info[potion_spells[0]].potiondescs[2]);
+        } else if (potion_spells[0] == potion_spells[1]) {
+            // first spell doubled
+            name = tmp_strcat(spell_info[potion_spells[0]].potiondescs[1],
+                              " ",
+                              spell_info[potion_spells[2]].potiondescs[0],
+                              NULL);
+        } else if (potion_spells[1] == potion_spells[2]) {
+            // second spell doubled
+            name = tmp_strcat(spell_info[potion_spells[0]].potiondescs[0],
+                              " ",
+                              spell_info[potion_spells[2]].potiondescs[1],
+                              NULL);
+        } else {
+            // all three different - ignore third
+            name = tmp_strcat(spell_info[potion_spells[0]].potiondescs[0],
+                              " ",
+                              spell_info[potion_spells[1]].potiondescs[0],
+                              NULL);
+        }
+    }
+    if (name == NULL || name[0] == '\0') {
+        name = tmp_strdup("awkward");
+        slog("Potion name for [%d %d %d] not found",
+             GET_OBJ_VAL(obj, 1),
+             GET_OBJ_VAL(obj, 2),
+             GET_OBJ_VAL(obj, 3));
+    }
+
+    obj->name = strdup(tmp_sprintf("%s %s potion", AN(name), name));
+    obj->aliases = strdup(tmp_sprintf("%s potion", name));
+    obj->line_desc = strdup(tmp_sprintf("%s %s potion is here.", tmp_capitalize(AN(name)), name));
 }
 
 ACMD(do_combine)
@@ -926,6 +1052,10 @@ ACMD(do_combine)
     }
     // Find the second potion
     arg = tmp_getword(&argument);
+    if (!*arg) {
+        send_to_char(ch, "Usage: combine <potion1> <potion2>\r\n");
+        return;
+    }
     bits = generic_find(arg, FIND_OBJ_INV, ch, NULL, &potion2);
     if (!bits) {
         send_to_char(ch, "You don't see any %s here.\r\n", arg);
@@ -945,10 +1075,17 @@ ACMD(do_combine)
         send_to_char(ch, "You aren't familiar with how to combine them.\r\n");
     }
 
+    struct obj_data *lab = best_chemistry_lab(ch);
+    if (!lab) {
+        send_to_char(ch, "You don't have access to a chemistry lab.\r\n");
+        return;
+    }
+
+    int skill = effective_chemistry_skill(ch, lab);
+
     int spell_count = 0;
     int level_count = 0;
-    int idx;
-    for (idx = 1; idx < 4; idx++) {
+    for (int idx = 1; idx < 4; idx++) {
         if (GET_OBJ_VAL(potion1, idx) > 0) {
             spell_count++;
         }
@@ -957,11 +1094,18 @@ ACMD(do_combine)
         }
     }
     level_count = GET_OBJ_VAL(potion1, 0) + GET_OBJ_VAL(potion2, 0);
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+        send_to_char(ch, "%s[Chemistry: spell count=%d level count=%d]%s\r\n",
+                     CCCYN(ch, C_SPR), spell_count, level_count, CCNRM(ch, C_SPR));
+    }
     // Create the combined potion
     struct obj_data *new_potion = read_object(MIXED_POTION_VNUM);
 
     new_potion->creation_method = CREATED_PLAYER;
     new_potion->creator = GET_IDNUM(ch);
+    obj_to_char(new_potion, ch);
+
+    WAIT_STATE(ch, 0.5 RL_SEC);
 
     // Check to see if mixture explodes :D
     if (spell_count > 3 || level_count > 49) {
@@ -985,43 +1129,290 @@ ACMD(do_combine)
             BOMB_TYPE(new_potion) = BOMB_DISRUPTION;
             break;
         }
-        BOMB_POWER(new_potion) = number(20, 40);
+        BOMB_POWER(new_potion) = number(level_count/8, level_count/4);
         if (IS_PC(ch)) {
             BOMB_IDNUM(new_potion) = GET_IDNUM(ch);
         } else {
             BOMB_IDNUM(new_potion) = -NPC_IDNUM(ch);
         }
 
+        extract_obj(potion1);
+        extract_obj(potion2);
+
         detonate_bomb(new_potion);
         return;
     }
 
-    if (number(0, 120) < CHECK_SKILL(ch, SKILL_CHEMISTRY)) {
-        // Didn't explode - set up the level and spells
-        GET_OBJ_VAL(new_potion, 0) =
-            level_count * 100 / (2 * skill_bonus(ch, SKILL_CHEMISTRY));
-        spell_count = 1;
-        int idx;
-        for (idx = 1; idx < 4; idx++) {
-            if (GET_OBJ_VAL(potion1, idx) > 0) {
-                GET_OBJ_VAL(new_potion, spell_count++) =
-                    GET_OBJ_VAL(potion1, idx);
-            }
-            if (GET_OBJ_VAL(potion2, idx) > 0) {
-                GET_OBJ_VAL(new_potion, spell_count++) =
-                    GET_OBJ_VAL(potion2, idx);
-            }
+    // Didn't explode - set up the level and spells
+    GET_OBJ_VAL(new_potion, 0) = MAX(1, MIN(49, level_count * skill / 100));
+    spell_count = 1;
+    for (int idx = 1; idx < 4; idx++) {
+        if (GET_OBJ_VAL(potion1, idx) > 0) {
+            GET_OBJ_VAL(new_potion, spell_count++) =
+                GET_OBJ_VAL(potion1, idx);
+        }
+        if (GET_OBJ_VAL(potion2, idx) > 0) {
+            GET_OBJ_VAL(new_potion, spell_count++) =
+                GET_OBJ_VAL(potion2, idx);
         }
     }
-    // They don't know if they succeeded unless they identify it or use it
+
+    describe_new_potion(new_potion);
+
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+        send_to_char(ch, "%s[Chemistry: new potion level %d, spells %d %d %d]%s\r\n",
+                     CCCYN(ch, C_SPR),
+                     GET_OBJ_VAL(new_potion, 0),
+                     GET_OBJ_VAL(new_potion, 1),
+                     GET_OBJ_VAL(new_potion, 2),
+                     GET_OBJ_VAL(new_potion, 3),
+                     CCNRM(ch, C_SPR));
+    }
+
+    extract_obj(potion1);
+    extract_obj(potion2);
+
     act("You mix them together and create $p!",
         false, ch, new_potion, NULL, TO_CHAR);
     act("$n mixes two potions together and creates $p!",
         false, ch, new_potion, NULL, TO_ROOM);
+}
 
-    extract_obj(potion1);
-    extract_obj(potion2);
-    obj_to_char(new_potion, ch);
+ACMD(do_dilute)
+{
+    struct obj_data *potion, *liquid;
+    char *arg;
+    int bits;
+
+    arg = tmp_getword(&argument);
+    if (!*arg) {
+        send_to_char(ch, "Usage: dilute <potion> <drink container> [amount]\r\n");
+        return;
+    }
+    // Find the first potion
+    bits = generic_find(arg, FIND_OBJ_INV, ch, NULL, &potion);
+    if (!bits) {
+        send_to_char(ch, "You don't see any %s here.\r\n", arg);
+        return;
+    }
+    if (!IS_POTION(potion)) {
+        act("$p is not a potion.", true, ch, NULL, potion, TO_CHAR);
+        return;
+    }
+    // Find the drink container
+    arg = tmp_getword(&argument);
+    if (!*arg) {
+        send_to_char(ch, "Usage: dilute <potion> <drink container> [amount]\r\n");
+        return;
+    }
+    bits = generic_find(arg, FIND_OBJ_INV, ch, NULL, &liquid);
+    if (!bits) {
+        send_to_char(ch, "You don't see any %s here.\r\n", arg);
+        return;
+    }
+    if (!IS_OBJ_TYPE(liquid, ITEM_DRINKCON)) {
+        act("$p is not a liquid container.", true, ch, NULL, liquid, TO_CHAR);
+        return;
+    }
+
+    if (GET_OBJ_VAL(liquid, 1) == 0) {
+        act("$p is empty.", true, ch, NULL, liquid, TO_CHAR);
+        return;
+    }
+
+    // Optional amount
+    int amt = GET_OBJ_VAL(liquid, 1);
+    if (amt == -1) {
+        // Infinite containers just dilute the potion to level 1 by default.
+        amt = 50;
+    }
+
+    arg = tmp_getword(&argument);
+    if (*arg) {
+        amt = atoi(arg);
+        if (amt <= 0) {
+            send_to_char(ch, "That amount isn't going to work.\r\n");
+            return;
+        }
+        if (GET_OBJ_VAL(liquid, 1) != -1 && amt > GET_OBJ_VAL(liquid, 1)) {
+            send_to_char(ch, "There's not that much %s in the container.\r\n",
+                         strlist_aref(GET_OBJ_VAL(liquid, 2), drinknames));
+            return;
+        }
+    }
+
+    if (CHECK_SKILL(ch, SKILL_CHEMISTRY) <= 0) {
+        send_to_char(ch, "You aren't familiar with how to dilute potions.\r\n");
+        return;
+    }
+
+    struct obj_data *lab = best_chemistry_lab(ch);
+
+    if (!lab) {
+        send_to_char(ch, "You don't have access to a chemistry lab.\r\n");
+        return;
+    }
+
+    int skill = effective_chemistry_skill(ch, lab);
+
+    if (skill < 20) {
+        act("You don't have the skill to dilute with $p.\r\n",
+            true, ch, lab, NULL, TO_CHAR);
+        return;
+    }
+
+    // Low effective skill means less accuracy
+    if (skill < 50) {
+        int deviance = 50 - skill;
+        int variation = number(-deviance, deviance) / 10; // up to +/- 5 depending
+        if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+            send_to_char(ch, "%s[Chemistry: adding variation %d]%s\r\n",
+                         CCCYN(ch, C_SPR), variation, CCNRM(ch, C_SPR));
+        }
+        amt += variation;
+    }
+    if (amt < 1) {
+        amt = 1;
+    }
+
+    // Always leave at least one level in the potion.
+    GET_OBJ_VAL(potion, 0) = MAX(1, GET_OBJ_VAL(potion, 0) - amt);
+    if (GET_OBJ_VAL(liquid, 1) != -1) {
+        GET_OBJ_VAL(liquid, 1) -= amt;
+    }
+
+    // Amusing messages
+    switch (amt / 5) {
+    case 0:
+        act("You delicately drip $P into $p.", false, ch, potion, liquid, TO_CHAR);
+        act("$n delicately drips $P into $p.", false, ch, potion, liquid, TO_ROOM);
+        break;
+    case 1:
+        act("You carefully pour $P into $p.", false, ch, potion, liquid, TO_CHAR);
+        act("$n carefully pours $P into $p.", false, ch, potion, liquid, TO_ROOM);
+        break;
+    case 2:
+        act("You pour $P into $p.", false, ch, potion, liquid, TO_CHAR);
+        act("$n pours $P into $p.", false, ch, potion, liquid, TO_ROOM);
+        break;
+    case 3:
+        act("You slosh $P into $p.", false, ch, potion, liquid, TO_CHAR);
+        act("$n sloshes $P into $p.", false, ch, potion, liquid, TO_ROOM);
+        break;
+    default:
+        act("You recklessly dump $P into $p.", false, ch, potion, liquid, TO_CHAR);
+        act("$n recklessly dumps $P into $p.", false, ch, potion, liquid, TO_ROOM);
+    }
+    WAIT_STATE(ch, 1 RL_SEC);
+}
+
+ACMD(do_distill)
+{
+    struct obj_data *potion;
+    char *arg;
+    int bits;
+
+    arg = tmp_getword(&argument);
+    if (!*arg) {
+        send_to_char(ch, "Usage: distill <potion>\r\n");
+        return;
+    }
+    bits = generic_find(arg, FIND_OBJ_INV, ch, NULL, &potion);
+    if (!bits) {
+        send_to_char(ch, "You don't see any %s here.\r\n", arg);
+        return;
+    }
+    if (!IS_POTION(potion)) {
+        act("$p is not a potion.", true, ch, NULL, potion, TO_CHAR);
+        return;
+    }
+    if (CHECK_SKILL(ch, SKILL_CHEMISTRY) <= 0) {
+        send_to_char(ch, "You don't know how to distill it.\r\n");
+        return;
+    }
+    if (GET_OBJ_VAL(potion, 2) < 1 && GET_OBJ_VAL(potion, 3) < 1) {
+        send_to_char(ch, "This potion is already in its most distilled state.\r\n");
+        return;
+    }
+
+    struct obj_data *lab = best_chemistry_lab(ch);
+
+    if (!lab) {
+        send_to_char(ch, "You don't have access to a chemistry lab.\r\n");
+        return;
+    }
+
+    int skill = effective_chemistry_skill(ch, lab);
+    if (skill < 50) {
+        act("You don't have the skill to distill with $p.",
+            true, ch, lab, NULL, TO_CHAR);
+        return;
+    }
+    int lvl_boost = MAX(1, MIN(49, GET_OBJ_VAL(potion, 0) * skill / 400));
+
+    if (GET_OBJ_VAL(potion, 2) != 0) {
+        GET_OBJ_VAL(potion, 2) = 0;
+        GET_OBJ_VAL(potion, 0) += lvl_boost;
+    }
+    if (GET_OBJ_VAL(potion, 3) != 0) {
+        GET_OBJ_VAL(potion, 3) = 0;
+        GET_OBJ_VAL(potion, 0) += lvl_boost;
+    }
+    GET_OBJ_VAL(potion, 0) = MIN(49, GET_OBJ_VAL(potion, 0));
+    act("You methodically distill $p to its purest essence.",
+        false, ch, potion, NULL, TO_CHAR);
+    act("$n methodically distills $p.",
+        false, ch, potion, NULL, TO_ROOM);
+
+    WAIT_STATE(ch, 2 RL_SEC);
+}
+
+ACMD(do_transmute)
+{
+    struct obj_data *potion;
+    char *arg;
+    int bits;
+
+    arg = tmp_getword(&argument);
+    if (!*arg) {
+        send_to_char(ch, "Usage: transmute <potion>\r\n");
+        return;
+    }
+    bits = generic_find(arg, FIND_OBJ_INV, ch, NULL, &potion);
+    if (!bits) {
+        send_to_char(ch, "You don't see any %s here.\r\n", arg);
+        return;
+    }
+    if (!IS_POTION(potion)) {
+        act("$p is not a potion.", true, ch, NULL, potion, TO_CHAR);
+        return;
+    }
+    if (CHECK_SKILL(ch, SKILL_CHEMISTRY) <= 0) {
+        send_to_char(ch, "You don't know how to transmute it.\r\n");
+        return;
+    }
+
+    struct obj_data *lab = best_chemistry_lab(ch);
+
+    if (!lab) {
+        send_to_char(ch, "You don't have access to a chemistry lab.\r\n");
+        return;
+    }
+
+    int skill = effective_chemistry_skill(ch, lab);
+    if (skill < 80) {
+        act("You don't have the skill to transmute with $p.\r\n", true, ch, lab, NULL, TO_CHAR);
+        return;
+    }
+
+    int rotated = GET_OBJ_VAL(potion, 1);
+    GET_OBJ_VAL(potion, 1) = GET_OBJ_VAL(potion, 2);
+    GET_OBJ_VAL(potion, 2) = GET_OBJ_VAL(potion, 3);
+    GET_OBJ_VAL(potion, 3) = rotated;
+
+    act("You use $P to transmute $p.", false, ch, potion, lab, TO_CHAR);
+    act("$n transmutes $p with $P.", false, ch, potion, lab, TO_ROOM);
+    WAIT_STATE(ch, 2 RL_SEC);
 }
 
 struct obj_data *

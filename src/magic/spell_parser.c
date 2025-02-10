@@ -1419,7 +1419,7 @@ find_spell_targets(struct creature *ch, int cmd, char *argument,
     *spellnm = spellnum;
 
     if ((spellnum < 1) || (spellnum > MAX_SPELLS)) {
-        send_to_char("%s what?!?", cmd_info[cmd].command);
+        send_to_char(ch, "%s what?!?", cmd_info[cmd].command);
         return false;
     }
 
@@ -2504,6 +2504,10 @@ load_spell(xmlNodePtr node)
             songs[idnum].lyrics = strdup(text);
             songs[idnum].instrumental = false;
             xmlFree(text);
+        } else if (xmlMatches(child->name, "potion")){
+            spell_info[idnum].potiondescs[0] = xmlGetStrProp(child, "single", "");
+            spell_info[idnum].potiondescs[1] = xmlGetStrProp(child, "double", spell_info[idnum].potiondescs[0]);
+            spell_info[idnum].potiondescs[2] = xmlGetStrProp(child, "triple", spell_info[idnum].potiondescs[1]);
         }
     }
 
