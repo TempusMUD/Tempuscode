@@ -964,69 +964,170 @@ effective_chemistry_skill(struct creature *ch, struct obj_data *lab)
     return skill;
 }
 
-void
+static const char *
+pick_nonempty_str(char *a, char *b, char *c)
+{
+    if (a[0]) {
+        return a;
+    }
+    if (b[0]) {
+        return b;
+    }
+    return c;
+}
+
+// Sets name, aliases, and ldesc for a new potion.
+static void
 describe_new_potion(struct obj_data *obj)
 {
-    char *name = NULL;
-    int potion_spells[3];
+    const char *qual = "", *color = "", *desc = "";
+    int spell_nums[3] = {0};
+    int spell_count[3] = {0};
     int num_spells = 0;
+    struct spell_info_type *potion_spells[3] = {NULL};
 
     // Find number of spells and coalesce them so there's no "gaps"
     for (int i = 1;i < 4;i++) {
         if (GET_OBJ_VAL(obj, i) > 0) {
-            potion_spells[num_spells++] = GET_OBJ_VAL(obj, i);
+            for (int j = 0; j <= num_spells;j++) {
+                if (j == num_spells) {
+                    // not a dupe
+                    spell_count[num_spells] = 1;
+                    spell_nums[num_spells] = GET_OBJ_VAL(obj, i);
+                    num_spells++;
+                    break;
+                } else if (spell_nums[j] == GET_OBJ_VAL(obj, i)) {
+                    spell_count[j] += 1;
+                    break;
+                }
+            }
         }
     }
+    for (int i = 0;i < num_spells;i++) {
+        potion_spells[i] = &spell_info[spell_nums[i]];
+    }
+
     switch (num_spells) {
     case 0:
-        name = tmp_strdup("awkward"); break;
+        desc = "awkward"; break;
     case 1:
-        name = tmp_strdup(spell_info[potion_spells[0]].potiondescs[0]); break;
-    case 2:
-        if (potion_spells[0] == potion_spells[1]) {
-            name = tmp_strdup(spell_info[potion_spells[0]].potiondescs[1]);
+        if (spell_count[0] == 3) {
+            // triple spell
+            desc = potion_spells[0]->potiondesc3;
+        } else if (spell_count[0] == 2) {
+            // double spell
+            qual = potion_spells[0]->potionquality2;
+            color = potion_spells[0]->potioncolor2;
+            desc = potion_spells[0]->potiondesc2;
         } else {
-            name = tmp_strcat(spell_info[potion_spells[0]].potiondescs[0],
-                              " ",
-                              spell_info[potion_spells[1]].potiondescs[0],
-                              NULL);
+            // single spell
+            qual = potion_spells[0]->potionquality1;
+            color = potion_spells[0]->potioncolor1;
+            desc = potion_spells[0]->potiondesc1;
+        }
+        break;
+    case 2:
+        if (spell_count[0] == 2) {
+            qual = pick_nonempty_str(potion_spells[0]->potionquality2,
+                                     potion_spells[1]->potionquality1,
+                                     "");
+            color = pick_nonempty_str(potion_spells[1]->potioncolor1,
+                                      potion_spells[0]->potioncolor2,
+                                      "");
+            desc = pick_nonempty_str(potion_spells[0]->potiondesc2,
+                                     potion_spells[1]->potiondesc1,
+                                     "");
+        } else {
+            qual = pick_nonempty_str(potion_spells[0]->potionquality1,
+                                     potion_spells[1]->potionquality2,
+                                     "");
+            color = pick_nonempty_str(potion_spells[1]->potioncolor2,
+                                      potion_spells[0]->potioncolor1,
+                                      "");
+            desc = pick_nonempty_str(potion_spells[0]->potiondesc1,
+                                     potion_spells[1]->potiondesc2,
+                                     "");
         }
         break;
     case 3:
-        if (potion_spells[0] == potion_spells[1] && potion_spells[1] == potion_spells[2]) {
-            // all same spell
-            name = tmp_strdup(spell_info[potion_spells[0]].potiondescs[2]);
-        } else if (potion_spells[0] == potion_spells[1]) {
-            // first spell doubled
-            name = tmp_strcat(spell_info[potion_spells[0]].potiondescs[1],
-                              " ",
-                              spell_info[potion_spells[2]].potiondescs[0],
-                              NULL);
-        } else if (potion_spells[1] == potion_spells[2]) {
-            // second spell doubled
-            name = tmp_strcat(spell_info[potion_spells[0]].potiondescs[0],
-                              " ",
-                              spell_info[potion_spells[2]].potiondescs[1],
-                              NULL);
-        } else {
-            // all three different - ignore third
-            name = tmp_strcat(spell_info[potion_spells[0]].potiondescs[0],
-                              " ",
-                              spell_info[potion_spells[1]].potiondescs[0],
-                              NULL);
-        }
+        // all three different spells
+        qual = pick_nonempty_str(potion_spells[2]->potionquality1,
+                                  potion_spells[1]->potionquality1,
+                                  potion_spells[0]->potionquality1);
+        color = pick_nonempty_str(potion_spells[1]->potioncolor1,
+                                  potion_spells[2]->potioncolor1,
+                                  potion_spells[0]->potioncolor1);
+        desc = pick_nonempty_str(potion_spells[0]->potiondesc1,
+                                  potion_spells[1]->potiondesc1,
+                                  potion_spells[2]->potiondesc1);
+        break;
     }
-    if (name == NULL || name[0] == '\0') {
-        name = tmp_strdup("awkward");
+
+    // assemble name from parts
+    if (qual[0] && color[0]) {
+        color = tmp_strcat(" ", color, NULL);
+    }
+    if ((qual[0] || color[0]) && desc[0]) {
+        desc = tmp_strcat(" ", desc, NULL);
+    }
+    const char *name = tmp_strcat(qual, color, desc, NULL);
+
+    // fall back on awkward
+    if (name[0] == '\0') {
+        name = "awkward";
         slog("Potion name for [%d %d %d] not found",
              GET_OBJ_VAL(obj, 1),
              GET_OBJ_VAL(obj, 2),
              GET_OBJ_VAL(obj, 3));
     }
 
+    // set object fields
+    if (obj->name != obj->shared->proto->name) {
+        free(obj->name);
+    }
     obj->name = strdup(tmp_sprintf("%s %s potion", AN(name), name));
+    if (obj->aliases != obj->shared->proto->aliases) {
+        free(obj->aliases);
+    }
     obj->aliases = strdup(tmp_sprintf("%s potion", name));
+    if (obj->line_desc != obj->shared->proto->line_desc) {
+        free(obj->line_desc);
+    }
     obj->line_desc = strdup(tmp_sprintf("%s %s potion is here.", tmp_capitalize(AN(name)), name));
+}
+
+// Causes a potion to explode randomly.
+static void
+exploding_potion(struct creature *ch, int pot_level, struct obj_data *potion)
+{
+    switch (number(0, 5)) {
+    case 0:
+        BOMB_TYPE(potion) = BOMB_CONCUSSION;
+        break;
+    case 1:
+        BOMB_TYPE(potion) = BOMB_INCENDIARY;
+        break;
+    case 2:
+        BOMB_TYPE(potion) = BOMB_FRAGMENTATION;
+        break;
+    case 3:
+        BOMB_TYPE(potion) = BOMB_FLASH;
+        break;
+    case 4:
+        BOMB_TYPE(potion) = BOMB_SMOKE;
+        break;
+    default:
+        BOMB_TYPE(potion) = BOMB_DISRUPTION;
+        break;
+    }
+    BOMB_POWER(potion) = number(pot_level/8, pot_level/4);
+    if (IS_PC(ch)) {
+        BOMB_IDNUM(potion) = GET_IDNUM(ch);
+    } else {
+        BOMB_IDNUM(potion) = -NPC_IDNUM(ch);
+    }
+
+    detonate_bomb(potion);
 }
 
 ACMD(do_combine)
@@ -1109,37 +1210,10 @@ ACMD(do_combine)
 
     // Check to see if mixture explodes :D
     if (spell_count > 3 || level_count > 49) {
-        switch (number(0, 5)) {
-        case 0:
-            BOMB_TYPE(new_potion) = BOMB_CONCUSSION;
-            break;
-        case 1:
-            BOMB_TYPE(new_potion) = BOMB_INCENDIARY;
-            break;
-        case 2:
-            BOMB_TYPE(new_potion) = BOMB_FRAGMENTATION;
-            break;
-        case 3:
-            BOMB_TYPE(new_potion) = BOMB_FLASH;
-            break;
-        case 4:
-            BOMB_TYPE(new_potion) = BOMB_SMOKE;
-            break;
-        default:
-            BOMB_TYPE(new_potion) = BOMB_DISRUPTION;
-            break;
-        }
-        BOMB_POWER(new_potion) = number(level_count/8, level_count/4);
-        if (IS_PC(ch)) {
-            BOMB_IDNUM(new_potion) = GET_IDNUM(ch);
-        } else {
-            BOMB_IDNUM(new_potion) = -NPC_IDNUM(ch);
-        }
-
         extract_obj(potion1);
         extract_obj(potion2);
 
-        detonate_bomb(new_potion);
+        exploding_potion(ch, level_count, new_potion);
         return;
     }
 
@@ -1349,16 +1423,29 @@ ACMD(do_distill)
         return;
     }
     int lvl_boost = MAX(1, MIN(49, GET_OBJ_VAL(potion, 0) * skill / 400));
-
+    int new_level = GET_OBJ_VAL(potion, 0);
     if (GET_OBJ_VAL(potion, 2) != 0) {
         GET_OBJ_VAL(potion, 2) = 0;
-        GET_OBJ_VAL(potion, 0) += lvl_boost;
+        new_level += lvl_boost;
     }
     if (GET_OBJ_VAL(potion, 3) != 0) {
         GET_OBJ_VAL(potion, 3) = 0;
-        GET_OBJ_VAL(potion, 0) += lvl_boost;
+        new_level += lvl_boost;
     }
-    GET_OBJ_VAL(potion, 0) = MIN(49, GET_OBJ_VAL(potion, 0));
+
+    if (PRF2_FLAGGED(ch, PRF2_DEBUG)) {
+        send_to_char(ch, "%s[Chemistry: level boost %d new level %d]%s\r\n",
+                     CCCYN(ch, C_SPR), lvl_boost, new_level, CCNRM(ch, C_SPR));
+    }
+
+    if (new_level > 49) {
+        exploding_potion(ch, new_level, potion);
+        return;
+    }
+
+    describe_new_potion(potion);
+
+    GET_OBJ_VAL(potion, 0) = new_level;
     act("You methodically distill $p to its purest essence.",
         false, ch, potion, NULL, TO_CHAR);
     act("$n methodically distills $p.",
@@ -1409,6 +1496,8 @@ ACMD(do_transmute)
     GET_OBJ_VAL(potion, 1) = GET_OBJ_VAL(potion, 2);
     GET_OBJ_VAL(potion, 2) = GET_OBJ_VAL(potion, 3);
     GET_OBJ_VAL(potion, 3) = rotated;
+
+    describe_new_potion(potion);
 
     act("You use $P to transmute $p.", false, ch, potion, lab, TO_CHAR);
     act("$n transmutes $p with $P.", false, ch, potion, lab, TO_ROOM);

@@ -2505,9 +2505,23 @@ load_spell(xmlNodePtr node)
             songs[idnum].instrumental = false;
             xmlFree(text);
         } else if (xmlMatches(child->name, "potion")){
-            spell_info[idnum].potiondescs[0] = xmlGetStrProp(child, "single", "");
-            spell_info[idnum].potiondescs[1] = xmlGetStrProp(child, "double", spell_info[idnum].potiondescs[0]);
-            spell_info[idnum].potiondescs[2] = xmlGetStrProp(child, "triple", spell_info[idnum].potiondescs[1]);
+            spell_info[idnum].potionquality1 = xmlGetStrProp(child, "quality1", "");
+            spell_info[idnum].potionquality2 = xmlGetStrProp(child, "quality2", spell_info[idnum].potionquality1);
+            spell_info[idnum].potioncolor1 = xmlGetStrProp(child, "color1", "");
+            spell_info[idnum].potioncolor2 = xmlGetStrProp(child, "color2", spell_info[idnum].potioncolor1);
+            spell_info[idnum].potiondesc1 = xmlGetStrProp(child, "desc1", "");
+            spell_info[idnum].potiondesc2 = xmlGetStrProp(child, "desc2", spell_info[idnum].potiondesc1);
+            spell_info[idnum].potiondesc3 = xmlGetStrProp(child, "desc3", spell_info[idnum].potiondesc2);
+            if (spell_info[idnum].potiondesc3[0] == '\0') {
+                free(spell_info[idnum].potiondesc3);
+                if (spell_info[idnum].potioncolor2[0]) {
+                    spell_info[idnum].potiondesc3 = strdup(spell_info[idnum].potioncolor2);
+                } else if (spell_info[idnum].potionquality2[0]) {
+                    spell_info[idnum].potiondesc3 = strdup(spell_info[idnum].potionquality2);
+                } else {
+                    errlog("Spell %d doesn't have a potion desc3", idnum);
+                }
+            }
         }
     }
 

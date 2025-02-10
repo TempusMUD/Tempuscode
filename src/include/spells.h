@@ -835,7 +835,13 @@ struct spell_info_type {
     bool violent;
     bool is_weapon;
     bool defensive;
-    char *potiondescs[3];       /* can be NULL, used in chemistry */
+    char *potionquality1;
+    char *potionquality2;
+    char *potioncolor1;
+    char *potioncolor2;
+    char *potiondesc1;
+    char *potiondesc2;
+    char *potiondesc3;
 };
 
 struct bard_song {
