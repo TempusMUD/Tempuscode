@@ -1443,12 +1443,14 @@ ACMD(do_distill)
         return;
     }
 
+    const char *old_name = tmp_strdup(potion->name);
+
     describe_new_potion(potion);
 
     GET_OBJ_VAL(potion, 0) = new_level;
-    act("You methodically distill $p to its purest essence.",
+    act(tmp_sprintf("You methodically distill %s into a pure %s.", old_name, potion->aliases),
         false, ch, potion, NULL, TO_CHAR);
-    act("$n methodically distills $p.",
+    act(tmp_sprintf("$n methodically distills %s into a pure %s.", old_name, potion->aliases),
         false, ch, potion, NULL, TO_ROOM);
 
     WAIT_STATE(ch, 2 RL_SEC);
@@ -1497,10 +1499,17 @@ ACMD(do_transmute)
     GET_OBJ_VAL(potion, 2) = GET_OBJ_VAL(potion, 3);
     GET_OBJ_VAL(potion, 3) = rotated;
 
+    const char *old_name = tmp_strdup(potion->name);
+
     describe_new_potion(potion);
 
-    act("You use $P to transmute $p.", false, ch, potion, lab, TO_CHAR);
-    act("$n transmutes $p with $P.", false, ch, potion, lab, TO_ROOM);
+    act(tmp_sprintf("You transmute %s into $p.", old_name),
+        false, ch, potion, NULL, TO_CHAR);
+    act(tmp_sprintf("$n transmutes %s into $p.", old_name),
+        false, ch, potion, NULL, TO_ROOM);
+
+    describe_new_potion(potion);
+
     WAIT_STATE(ch, 2 RL_SEC);
 }
 
