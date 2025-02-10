@@ -1254,6 +1254,9 @@ ACMD(do_combine)
 
 ACMD(do_dilute)
 {
+    // from act.obj.cc
+    void name_from_drinkcon(struct obj_data *obj, int type);
+
     struct obj_data *potion, *liquid;
     char *arg;
     int bits;
@@ -1297,8 +1300,8 @@ ACMD(do_dilute)
     // Optional amount
     int amt = GET_OBJ_VAL(liquid, 1);
     if (amt == -1) {
-        // Infinite containers just dilute the potion to level 1 by default.
-        amt = 50;
+        // Infinite containers just ruin the potion by default.
+        amt = GET_OBJ_VAL(potion, 0);
     }
 
     arg = tmp_getword(&argument);
@@ -1349,10 +1352,43 @@ ACMD(do_dilute)
         amt = 1;
     }
 
-    // Always leave at least one level in the potion.
-    GET_OBJ_VAL(potion, 0) = MAX(1, GET_OBJ_VAL(potion, 0) - amt);
+    if (GET_OBJ_VAL(potion, 0) - amt < 1) {
+        GET_OBJ_TYPE(potion) = ITEM_DRINKCON;
+        GET_OBJ_VAL(potion, 0) = 1;
+        GET_OBJ_VAL(potion, 1) = 1;
+        GET_OBJ_VAL(potion, 2) = GET_OBJ_VAL(liquid, 2);
+        GET_OBJ_VAL(potion, 3) = 0;
+        const char *liq_name = liquid_to_str(GET_OBJ_VAL(potion, 2));
+        const char *old_name = tmp_strdup(potion->name);
+
+        if (potion->name != potion->shared->proto->name) {
+            free(potion->name);
+        }
+        potion->name = strdup(tmp_sprintf("%s %s potion", AN(liq_name), liq_name));
+        if (potion->aliases != potion->shared->proto->aliases) {
+            free(potion->aliases);
+        }
+        potion->aliases = strdup(tmp_sprintf("%s potion", liq_name));
+        if (potion->line_desc != potion->shared->proto->line_desc) {
+            free(potion->line_desc);
+        }
+        potion->line_desc = strdup(tmp_sprintf("%s %s potion is here.", tmp_capitalize(AN(liq_name)), liq_name));
+        act(tmp_sprintf("You dilute %s into a simple %s.", old_name, potion->aliases),
+            false, ch, NULL, NULL, TO_CHAR);
+        act(tmp_sprintf("$n dilutes %s into a simple %s.", old_name, potion->aliases),
+            false, ch, NULL, NULL, TO_ROOM);
+        WAIT_STATE(ch, 1 RL_SEC);
+        return;
+    }
+
+    GET_OBJ_VAL(potion, 0) = GET_OBJ_VAL(potion, 0) - amt;
     if (GET_OBJ_VAL(liquid, 1) != -1) {
         GET_OBJ_VAL(liquid, 1) -= amt;
+        if (GET_OBJ_VAL(liquid, 1) == 0) {
+            name_from_drinkcon(liquid, GET_OBJ_VAL(liquid, 2));
+            GET_OBJ_VAL(liquid, 2) = 0;
+            GET_OBJ_VAL(liquid, 3) = 0;
+        }
     }
 
     // Amusing messages
