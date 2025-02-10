@@ -2339,9 +2339,9 @@ ACMD(do_drink)
     if (GET_OBJ_VAL(temp, 1) != -1) {
         GET_OBJ_VAL(temp, 1) -= amount;
         if (!GET_OBJ_VAL(temp, 1)) {    /* The last bit */
+            name_from_drinkcon(temp, GET_OBJ_VAL(temp, 2));
             GET_OBJ_VAL(temp, 2) = 0;
             GET_OBJ_VAL(temp, 3) = 0;
-            name_from_drinkcon(temp, GET_OBJ_VAL(temp, 2));
         }
     }
     return;
