@@ -1419,7 +1419,7 @@ find_spell_targets(struct creature *ch, int cmd, char *argument,
     *spellnm = spellnum;
 
     if ((spellnum < 1) || (spellnum > MAX_SPELLS)) {
-        send_to_char(ch, "%s what?!?", cmd_info[cmd].command);
+        send_to_char(ch, "%s what?!?\r\n", cmd_info[cmd].command);
         return false;
     }
 
