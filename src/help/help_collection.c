@@ -259,7 +259,6 @@ help_collection_create_item(struct help_collection *col, struct creature *ch)
     n->idnum = ++col->top_id;
     help_collection_push(col, n);
     send_to_char(ch, "Item #%d created.\r\n", n->idnum);
-    help_item_save(n);
     help_collection_save_index(col);
     help_item_edit(n, ch);
     SET_BIT(n->flags, HFLAG_MODIFIED);
