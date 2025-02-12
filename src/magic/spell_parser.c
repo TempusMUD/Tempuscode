@@ -2553,12 +2553,26 @@ clear_spells(void)
         spell_info[spl].violent = 0;
         spell_info[spl].is_weapon = 0;
         spell_info[spl].routines = 0;
-        if (songs[spl].lyrics) {
-            free(songs[spl].lyrics);
-        }
+        free(spell_info[spl].potionquality1);
+        spell_info[spl].potionquality1 = NULL;
+        free(spell_info[spl].potionquality2);
+        spell_info[spl].potionquality2 = NULL;
+        free(spell_info[spl].potioncolor1);
+        spell_info[spl].potioncolor1 = NULL;
+        free(spell_info[spl].potioncolor2);
+        spell_info[spl].potioncolor2 = NULL;
+        free(spell_info[spl].potiondesc1);
+        spell_info[spl].potiondesc1 = NULL;
+        free(spell_info[spl].potiondesc2);
+        spell_info[spl].potiondesc2 = NULL;
+        free(spell_info[spl].potiondesc3);
+        spell_info[spl].potiondesc3 = NULL;
+        free(songs[spl].lyrics);
         songs[spl].lyrics = NULL;
         songs[spl].instrumental = false;
         songs[spl].type = 0;
+
+
     }
 
     // Initialize string list terminator
