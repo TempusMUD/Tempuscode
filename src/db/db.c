@@ -221,8 +221,7 @@ extern int no_specials;
 
 ACMD(do_reboot)
 {
-    char arg[1024];
-    one_argument(argument, arg);
+    char *arg = tmp_getword(&argument);
 
     if (!strcasecmp(arg, "all") || *arg == '*') {
         file_to_string_alloc(CREDITS_FILE, &credits);
@@ -271,11 +270,9 @@ ACMD(do_reboot)
         boot_spells("etc/spells.xml");
     } else {
         send_to_char(ch, "Unknown reboot option.\r\n");
-        send_to_char(ch,
-                     "Options: all    *         credits     greeting           info\r\n");
-        send_to_char(ch,
-                     "         areas  olc_guide quest_guide handbook background paths\r\n");
-        send_to_char(ch, "         trails timewarps xml      socials\r\n");
+        send_to_char(ch, "Options: all    *         credits     greeting     info\r\n");
+        send_to_char(ch, "         areas  olc_guide quest_guide handbook     background\r\n");
+        send_to_char(ch, "         paths  trails    timewarps   spells       socials\r\n");
         return;
     }
     send_to_char(ch, "%s", OK);
