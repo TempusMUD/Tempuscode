@@ -1343,6 +1343,9 @@ ACMD(do_dilute)
         const char *liq_name = liquid_to_str(GET_OBJ_VAL(potion, 2));
         const char *old_name = tmp_strdup(potion->name);
 
+        obj_from_char(potion);
+        obj_to_char(potion, ch);
+
         if (potion->name != potion->shared->proto->name) {
             free(potion->name);
         }
@@ -1359,6 +1362,7 @@ ACMD(do_dilute)
             false, ch, NULL, NULL, TO_CHAR);
         act(tmp_sprintf("$n dilutes %s into a simple %s.", old_name, potion->aliases),
             false, ch, NULL, NULL, TO_ROOM);
+
         WAIT_STATE(ch, 1 RL_SEC);
         return;
     }
@@ -1415,7 +1419,7 @@ ACMD(do_distill)
         return;
     }
     if (!IS_POTION(potion)) {
-        act("$p is not a potion.", true, ch, NULL, potion, TO_CHAR);
+        act("$p is not a potion.", true, ch, potion, NULL, TO_CHAR);
         return;
     }
     if (CHECK_SKILL(ch, SKILL_CHEMISTRY) <= 0) {
@@ -1442,11 +1446,11 @@ ACMD(do_distill)
     }
     int lvl_boost = MAX(1, MIN(49, GET_OBJ_VAL(potion, 0) * skill / 400));
     int new_level = GET_OBJ_VAL(potion, 0);
-    if (GET_OBJ_VAL(potion, 2) != 0) {
+    if (GET_OBJ_VAL(potion, 2) > 0) {
         GET_OBJ_VAL(potion, 2) = 0;
         new_level += lvl_boost;
     }
-    if (GET_OBJ_VAL(potion, 3) != 0) {
+    if (GET_OBJ_VAL(potion, 3) > 0) {
         GET_OBJ_VAL(potion, 3) = 0;
         new_level += lvl_boost;
     }
@@ -1491,7 +1495,7 @@ ACMD(do_transmute)
         return;
     }
     if (!IS_POTION(potion)) {
-        act("$p is not a potion.", true, ch, NULL, potion, TO_CHAR);
+        act("$p is not a potion.", true, ch, potion, NULL, TO_CHAR);
         return;
     }
     if (CHECK_SKILL(ch, SKILL_CHEMISTRY) <= 0) {
