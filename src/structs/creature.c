@@ -1521,7 +1521,7 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
         get_hunted_id(GET_IDNUM(ch)) == GET_IDNUM(vict)) {
         return true;
     }
-    // Now if we're in an arena room anbody can attack anybody
+    // If we're in an arena room anybody can attack anybody
     if (is_arena_combat(ch, vict)) {
         return true;
     }
@@ -1556,6 +1556,12 @@ ok_to_attack(struct creature *ch, struct creature *vict, bool mssg)
         }
         return false;
     }
+
+    // You can attack yourself outside of NVZ.
+    if (ch == vict) {
+        return true;
+    }
+
     // Disallow attacking members of your own group
     if (IS_PC(ch)
         && AFF_FLAGGED(ch, AFF_GROUP)

@@ -1100,34 +1100,16 @@ describe_new_potion(struct obj_data *obj)
 static void
 exploding_potion(struct creature *ch, int pot_level, struct obj_data *potion)
 {
-    switch (number(0, 5)) {
-    case 0:
-        BOMB_TYPE(potion) = BOMB_CONCUSSION;
-        break;
-    case 1:
-        BOMB_TYPE(potion) = BOMB_INCENDIARY;
-        break;
-    case 2:
-        BOMB_TYPE(potion) = BOMB_FRAGMENTATION;
-        break;
-    case 3:
-        BOMB_TYPE(potion) = BOMB_FLASH;
-        break;
-    case 4:
-        BOMB_TYPE(potion) = BOMB_SMOKE;
-        break;
-    default:
-        BOMB_TYPE(potion) = BOMB_DISRUPTION;
-        break;
-    }
-    BOMB_POWER(potion) = number(pot_level/8, pot_level/4);
-    if (IS_PC(ch)) {
-        BOMB_IDNUM(potion) = GET_IDNUM(ch);
-    } else {
-        BOMB_IDNUM(potion) = -NPC_IDNUM(ch);
-    }
+    // Just fake the bomb.
+    act("$p goes off in your inventory!!!", false, ch, potion, NULL, TO_CHAR);
+    act("$p goes off in $n's hands!!!", false, ch, potion, NULL, TO_ROOM);
 
-    detonate_bomb(potion);
+    damage(NULL, ch, NULL,
+           dice(pot_level / 2, pot_level / 2), TYPE_BLAST,
+           WEAR_HANDS);
+
+    obj_from_char(potion);
+    extract_obj(potion);
 }
 
 ACMD(do_combine)
@@ -1148,7 +1130,7 @@ ACMD(do_combine)
         return;
     }
     if (!IS_POTION(potion1)) {
-        act("$p is not a potion.", true, ch, NULL, potion1, TO_CHAR);
+        act("$p is not a potion.", true, ch, potion1, NULL, TO_CHAR);
         return;
     }
     // Find the second potion
@@ -1163,7 +1145,7 @@ ACMD(do_combine)
         return;
     }
     if (!IS_POTION(potion2)) {
-        act("$p is not a potion.", true, ch, NULL, potion2, TO_CHAR);
+        act("$p is not a potion.", true, ch, potion2, NULL, TO_CHAR);
         return;
     }
 
@@ -1273,7 +1255,7 @@ ACMD(do_dilute)
         return;
     }
     if (!IS_POTION(potion)) {
-        act("$p is not a potion.", true, ch, NULL, potion, TO_CHAR);
+        act("$p is not a potion.", true, ch, potion, NULL, TO_CHAR);
         return;
     }
     // Find the drink container
@@ -1288,7 +1270,7 @@ ACMD(do_dilute)
         return;
     }
     if (!IS_OBJ_TYPE(liquid, ITEM_DRINKCON)) {
-        act("$p is not a liquid container.", true, ch, NULL, liquid, TO_CHAR);
+        act("$p is not a liquid container.", true, ch, liquid, NULL, TO_CHAR);
         return;
     }
 
