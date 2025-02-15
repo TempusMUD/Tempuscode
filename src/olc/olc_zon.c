@@ -1286,16 +1286,15 @@ do_zput_cmd(struct creature *ch, char *argument)
     }
 
     SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-    if (obj->shared->number - obj->shared->house_count < zonecmd->arg2) {
-        if ((obj = read_object(GET_OBJ_VNUM(obj)))) {
-            if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-                SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-            }
-            obj_to_obj(obj, to_obj);
-        } else {
-            errlog("Freaky-ass error in zput!");
-        }
-    }
+    struct reset_state state = {
+        .last_cmd = LAST_CMD_SUCCESS,
+        .prob_override = 100,
+        .cmd_num = 0,
+        .zone = zone,
+        .last_mob = NULL,
+        .last_obj = to_obj
+    };
+    execute_zone_cmd(zonecmd, &state);
     send_to_char(ch, "Command completed ok.\r\n");
 }
 
@@ -1417,13 +1416,15 @@ do_zgive_cmd(struct creature *ch, char *argument)
     }
 
     SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-    if (obj->shared->number - obj->shared->house_count < zonecmd->arg3) {
-        obj = read_object(int_arg1);
-        if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-            SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-        }
-        obj_to_char(obj, mob);
-    }
+    struct reset_state state = {
+        .last_cmd = LAST_CMD_SUCCESS,
+        .prob_override = true,
+        .cmd_num = 0,
+        .zone = zone,
+        .last_mob = mob,
+        .last_obj = NULL
+    };
+    execute_zone_cmd(zonecmd, &state);
     send_to_char(ch, "Command completed ok.\r\n");
 }
 
@@ -1548,11 +1549,15 @@ do_zimplant_cmd(struct creature *ch, char *argument)
     }
 
     SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-    if (obj->shared->number - obj->shared->house_count <
-        zonecmd->arg2 && !mob->equipment[zonecmd->arg3]) {
-        obj = read_object(int_arg1);
-        equip_char(mob, obj, zonecmd->arg3, EQUIP_IMPLANT);
-    }
+    struct reset_state state = {
+        .last_cmd = LAST_CMD_SUCCESS,
+        .prob_override = true,
+        .cmd_num = 0,
+        .zone = zone,
+        .last_mob = mob,
+        .last_obj = NULL
+    };
+    execute_zone_cmd(zonecmd, &state);
     send_to_char(ch, "Command completed ok.\r\n");
 }
 
@@ -1672,11 +1677,15 @@ do_zequip_cmd(struct creature *ch, char *argument)
     }
 
     SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
-    if (obj->shared->number - obj->shared->house_count <
-        zonecmd->arg2 && !mob->equipment[zonecmd->arg3]) {
-        obj = read_object(int_arg1);
-        equip_char(mob, obj, zonecmd->arg3, EQUIP_WORN);
-    }
+    struct reset_state state = {
+        .last_cmd = LAST_CMD_SUCCESS,
+        .prob_override = true,
+        .cmd_num = 0,
+        .zone = zone,
+        .last_mob = mob,
+        .last_obj = NULL
+    };
+    execute_zone_cmd(zonecmd, &state);
     send_to_char(ch, "Command completed ok.\r\n");
 }
 
@@ -1768,12 +1777,16 @@ do_zobj_cmd(struct creature *ch, char *argument)
     }
 
     SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
+    struct reset_state state = {
+        .last_cmd = LAST_CMD_SUCCESS,
+        .prob_override = true,
+        .cmd_num = 0,
+        .zone = zone,
+        .last_mob = NULL,
+        .last_obj = NULL
+    };
+    execute_zone_cmd(zonecmd, &state);
     send_to_char(ch, "Command completed ok.\r\n");
-    obj = read_object(int_arg1);
-    if (ZONE_FLAGGED(zone, ZONE_ZCMDS_APPROVED)) {
-        SET_BIT(GET_OBJ_EXTRA2(obj), ITEM2_UNAPPROVED);
-    }
-    obj_to_room(obj, ch->in_room);
 }
 
 void

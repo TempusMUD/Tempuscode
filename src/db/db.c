@@ -2495,6 +2495,16 @@ process_load_param(struct creature *ch)
     return true;
 }
 
+// Returns true if the object's load count is less than maxload.  The
+// load count is the number of that kind of object in the game, less
+// the ones stored in houses and on players.
+bool
+obj_maxload_allow_load(struct obj_data *obj, int maxload)
+{
+    int obj_count = obj->shared->number - obj->shared->house_count;
+    return obj_count < maxload;
+}
+
 // returns:
 // 0, Success
 // 1, Not loaded, percentage failure.
@@ -2520,7 +2530,7 @@ on_load_equip(struct creature *ch, int vnum, char *position, int maxload,
         }
         return 3;
     }
-    if (obj->shared->number - obj->shared->house_count >= maxload) {
+    if (!obj_maxload_allow_load(obj, maxload)) {
         return 6;
     }
 
@@ -2836,21 +2846,6 @@ zone_update(void)
     }
 }
 
-enum if_flag {
-    LAST_CMD_SUCCESS,       // Succeeded
-    LAST_CMD_FAILURE,       // Didn't execute
-    LAST_CMD_IGNORED,       // Ignored due to percentage failure
-};
-
-struct reset_state {
-    enum if_flag last_cmd;
-    bool prob_override;
-    int cmd_num;
-    struct zone_data *zone;
-    struct creature *last_mob;
-    struct obj_data *last_obj;
-};
-
 void
 execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
 {
@@ -2915,7 +2910,7 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
         state->last_cmd = LAST_CMD_FAILURE;
         tobj = real_object_proto(zonecmd->arg1);
         if (tobj == NULL
-            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || !obj_maxload_allow_load(tobj, zonecmd->arg2)
             || zonecmd->arg3 < 0) {
             break;
         }
@@ -2946,7 +2941,7 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
         state->last_cmd = LAST_CMD_FAILURE;
         tobj = real_object_proto(zonecmd->arg1);
         if (tobj == NULL
-            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || !obj_maxload_allow_load(tobj, zonecmd->arg2)
             || zonecmd->arg3 < 0) {
             break;
         }
@@ -2985,7 +2980,7 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
 
         tobj = real_object_proto(zonecmd->arg1);
         if (tobj == NULL
-            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || !obj_maxload_allow_load(tobj, zonecmd->arg2)
             || zonecmd->arg3 < 0) {
             break;
         }
@@ -3022,7 +3017,7 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
 
         tobj = real_object_proto(zonecmd->arg1);
         if (tobj == NULL
-            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || !obj_maxload_allow_load(tobj, zonecmd->arg2)
             || zonecmd->arg3 < 0) {
             break;
         }
@@ -3071,7 +3066,7 @@ execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state)
 
         tobj = real_object_proto(zonecmd->arg1);
         if (tobj == NULL
-            || tobj->shared->number - tobj->shared->house_count >= zonecmd->arg2
+            || !obj_maxload_allow_load(tobj, zonecmd->arg2)
             || zonecmd->arg3 < 0) {
             break;
         }

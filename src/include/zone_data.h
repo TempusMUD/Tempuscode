@@ -184,4 +184,24 @@ struct reset_q_type {
 
 struct zone_data *make_zone(int num);
 
+// Zone reset command execution
+enum if_flag {
+    LAST_CMD_SUCCESS,       // Succeeded
+    LAST_CMD_FAILURE,       // Didn't execute
+    LAST_CMD_IGNORED,       // Ignored due to percentage failure
+};
+
+struct reset_state {
+    enum if_flag last_cmd;
+    bool prob_override;
+    int cmd_num;
+    struct zone_data *zone;
+    struct creature *last_mob;
+    struct obj_data *last_obj;
+};
+
+void execute_zone_cmd(struct reset_com *zonecmd, struct reset_state *state);
+bool obj_maxload_allow_load(struct obj_data *obj, int maxload);
+
+
 #endif

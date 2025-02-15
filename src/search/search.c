@@ -164,7 +164,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
                     rm->number, srch->arg[1]);
             return 0;
         }
-        if (obj->shared->number - obj->shared->house_count >= srch->arg[2]) {
+        if (!obj_maxload_allow_load(obj, srch->arg[2])) {
             return 0;
         }
         if (!(obj = read_object(srch->arg[0]))) {
@@ -259,7 +259,7 @@ general_search(struct creature *ch, struct special_search_data *srch, int mode)
             return 0;
         }
 
-        if (obj->shared->number - obj->shared->house_count >= srch->arg[2]) {
+        if (!obj_maxload_allow_load(obj, srch->arg[2])) {
             return 0;
         }
 

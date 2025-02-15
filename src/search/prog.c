@@ -1762,9 +1762,7 @@ DEFPROGHANDLER(oload, env, evt, args)
     }
 
     obj = real_object_proto(vnum);
-    if (!obj ||
-        (max_load != -1 &&
-         obj->shared->number - obj->shared->house_count >= max_load)) {
+    if (!obj || (max_load != -1 && !obj_maxload_allow_load(obj, max_load))) {
         return;
     }
 
