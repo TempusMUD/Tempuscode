@@ -99,14 +99,14 @@ const int prac_params[4][NUM_CLASSES] = {
 // 1 - class/race combination allowed only for secondary class
 // 2 - class/race combination allowed for primary class
 const char race_restr[NUM_PC_RACES][NUM_CLASSES + 1] = {
-    // MG CL TH WR BR PS PH CY KN RN BD MN VP MR S1 S2 S3
+    //                MG CL TH WR BR PS PH CY KN RN BD MN VP MR S1 S2 S3
     {RACE_HUMAN,       2, 2, 2, 0, 2, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
     {RACE_ELF,         2, 2, 2, 0, 0, 2, 2, 2, 2, 2, 2, 2, 0, 2, 0, 0, 0},
     {RACE_DWARF,       0, 2, 2, 0, 2, 1, 1, 1, 2, 0, 0, 0, 0, 1, 0, 0, 0},
     {RACE_HALF_ORC,    0, 0, 2, 0, 2, 0, 2, 2, 0, 2, 1, 0, 0, 2, 0, 0, 0},
     {RACE_HALFLING,    2, 2, 2, 0, 2, 1, 1, 1, 2, 2, 2, 2, 0, 1, 0, 0, 0},
     {RACE_TABAXI,      2, 2, 2, 0, 2, 2, 2, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0},
-    {RACE_DROW,        2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 2, 0, 0, 1, 0, 0, 0},
+    {RACE_DROW,        2, 2, 2, 0, 0, 1, 1, 1, 2, 2, 2, 1, 0, 1, 0, 0, 0},
     {RACE_MINOTAUR,    2, 2, 0, 0, 2, 0, 1, 1, 0, 2, 0, 0, 0, 1, 0, 0, 0},
     {RACE_ORC,         0, 0, 1, 0, 2, 0, 1, 2, 0, 0, 0, 2, 0, 2, 0, 0, 0},
 };
