@@ -1433,33 +1433,35 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
         }
     }
 
-    /* Zone PK type */
-    switch (room->zone->pk_style) {
-    case ZONE_NO_PK:
-        sb_sprintf(&sb,  "%s[ %s!PK%s ] ", CCCYN(ch, C_NRM),
-                    CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-        break;
-    case ZONE_NEUTRAL_PK:
-        sb_sprintf(&sb,  "%s[ %s%sNPK%s%s ] ", CCCYN(ch, C_NRM),
-                    CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-                    CCCYN(ch, C_NRM));
-        break;
-    case ZONE_CHAOTIC_PK:
-        sb_sprintf(&sb,  "%s[ %s%sCPK%s%s ] ", CCCYN(ch, C_NRM),
-                    CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                    CCCYN(ch, C_NRM));
-        break;
-    }
+    if (GET_LEVEL(ch) >= LVL_AMBASSADOR
+        || !ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)
+        || AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
 
-    if ((GET_LEVEL(ch) >= LVL_AMBASSADOR ||
-         !ROOM_FLAGGED(room, ROOM_SMOKE_FILLED) ||
-         AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY))) {
+        /* Zone PK / Autoexits line */
+        if (!ch->desc || ch->desc->display != BLIND) {
+            switch (room->zone->pk_style) {
+            case ZONE_NO_PK:
+                sb_sprintf(&sb,  "%s[ %s!PK%s ] ", CCCYN(ch, C_NRM),
+                           CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+                break;
+            case ZONE_NEUTRAL_PK:
+                sb_sprintf(&sb,  "%s[ %s%sNPK%s%s ] ", CCCYN(ch, C_NRM),
+                           CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
+                           CCCYN(ch, C_NRM));
+                break;
+            case ZONE_CHAOTIC_PK:
+                sb_sprintf(&sb,  "%s[ %s%sCPK%s%s ] ", CCCYN(ch, C_NRM),
+                           CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+                           CCCYN(ch, C_NRM));
+                break;
+            }
 
-        /* autoexits */
-        if (PRF_FLAGGED(ch, PRF_AUTOEXIT)) {
-            do_auto_exits(ch, room, &sb);
-        } else {
-            sb_sprintf(&sb,  "\r\n");
+            /* autoexits */
+            if (PRF_FLAGGED(ch, PRF_AUTOEXIT)) {
+                do_auto_exits(ch, room, &sb);
+            } else {
+                sb_sprintf(&sb,  "\r\n");
+            }
         }
 
         /* now list characters & objects */
