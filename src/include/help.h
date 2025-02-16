@@ -48,6 +48,7 @@ struct help_item {
     char *keys;                 // Key Words
     char *name;                 // The listed name of the help topic
     char *text;                 // The body of the help topic
+    char *reader_text;          // Alternate body for use in screen readers
     struct creature *editor;
     struct help_item *next;
     struct help_item *next_show;
@@ -75,6 +76,7 @@ void help_item_clear(struct help_item *item);
 void help_item_setgroups(struct help_item *item, char *argument);
 void help_item_setflags(struct help_item *item, char *argument);
 void help_item_edittext(struct help_item *item);
+void help_item_edit_readertext(struct help_item *item);
 
 extern struct help_collection *help;
 struct help_collection *make_help_collection(void);

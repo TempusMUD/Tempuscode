@@ -521,7 +521,7 @@ help_collection_set(struct help_collection *col __attribute__((unused)), struct 
     }
     if (!*argument) {
         send_to_char(ch,
-                     "hcollect set <groups[+/-]|flags[+/-]|name|keywords|description> [args]\r\n");
+                     "hcollect set <groups[+/-]|flags[+/-]|name|keywords|text|reader_text> [args]\r\n");
         return false;
     }
     arg1 = tmp_getword(&argument);
@@ -539,8 +539,11 @@ help_collection_set(struct help_collection *col __attribute__((unused)), struct 
         free(GET_OLC_HELP(ch)->keys);
         GET_OLC_HELP(ch)->keys = strdup(argument);
         return true;
-    } else if (!strncmp(arg1, "description", strlen(arg1))) {
+    } else if (!strncmp(arg1, "text", strlen(arg1))) {
         help_item_edittext(GET_OLC_HELP(ch));
+        return true;
+    } else if (!strncmp(arg1, "reader_text", strlen(arg1))) {
+        help_item_edit_readertext(GET_OLC_HELP(ch));
         return true;
     }
     return false;

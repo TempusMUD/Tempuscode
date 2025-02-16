@@ -104,35 +104,49 @@ help_item_load_text(struct help_item *item)
     fname = tmp_sprintf("%s/%04d.topic", HELP_DIRECTORY, item->idnum);
 
     inf = fopen(fname, "r");
-    if (inf) {
-        if (fscanf(inf, "%d %zu\n", &idnum, &textlen) != 2) {
-            errlog("Format problem with help file %s", fname);
-            fclose(inf);
-            goto error;
-        }
-
-        if (textlen > MAX_HELP_TEXT_LENGTH - 1) {
-            textlen = MAX_HELP_TEXT_LENGTH - 1;
-        }
-        if (!fgets(buf, sizeof(buf), inf)) {
-            errlog("Can't get text length with help file %s", fname);
-            fclose(inf);
-            goto error;
-        }
-
-        CREATE(item->text, char, textlen + 1);
-        size_t read_int8_ts = fread(item->text, 1, textlen, inf);
-        if (read_int8_ts != textlen) {
-            errlog("Expected %zu int8_ts, got %zu in help file %s", textlen, read_int8_ts, fname);
-            free(item->text);
-            item->text = NULL;
-            fclose(inf);
-            goto error;
-        }
-
-        fclose(inf);
-        return true;
+    if (!inf) {
+        goto error;
     }
+
+    if (fscanf(inf, "%d %zu\n", &idnum, &textlen) != 2) {
+        errlog("Format problem with help file %s", fname);
+        fclose(inf);
+        goto error;
+    }
+
+    if (textlen > MAX_HELP_TEXT_LENGTH - 1) {
+        textlen = MAX_HELP_TEXT_LENGTH - 1;
+    }
+    if (!fgets(buf, sizeof(buf), inf)) {
+        errlog("Can't get text length with help file %s", fname);
+        fclose(inf);
+        goto error;
+    }
+
+    CREATE(item->text, char, textlen + 1);
+    size_t read_int8_ts = fread(item->text, 1, textlen, inf);
+    if (read_int8_ts != textlen) {
+        errlog("Expected %zu int8_ts, got %zu in help file %s", textlen, read_int8_ts, fname);
+        free(item->text);
+        item->text = NULL;
+        fclose(inf);
+        goto error;
+    }
+
+    fclose(inf);
+
+    fname = tmp_sprintf("%s/%04d-a.topic", HELP_DIRECTORY, item->idnum);
+    if (g_file_test(fname, G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)) {
+        GError *err = NULL;
+
+        g_file_get_contents(fname, &item->reader_text, NULL, &err);
+        if (err) {
+            errlog("Error reading %s: %s", fname, err->message);
+            g_error_free(err);
+        }
+    }
+
+    return true;
 
 error:
     errlog("Unable to load help item text (%s): %s",
@@ -148,6 +162,20 @@ help_item_edittext(struct help_item *item)
     help_item_load_text(item);
     SET_BIT(item->flags, HFLAG_MODIFIED);
     start_editing_text(item->editor->desc, &item->text, MAX_HELP_TEXT_LENGTH);
+    SET_BIT(PLR_FLAGS(item->editor), PLR_OLC);
+
+    act("$n begins to edit a help file.\r\n", true, item->editor, NULL, NULL,
+        TO_ROOM);
+}
+
+// Crank up the text item->editor and lets hit it.
+void
+help_item_edit_readertext(struct help_item *item)
+{
+
+    help_item_load_text(item);
+    SET_BIT(item->flags, HFLAG_MODIFIED);
+    start_editing_text(item->editor->desc, &item->reader_text, MAX_HELP_TEXT_LENGTH);
     SET_BIT(PLR_FLAGS(item->editor), PLR_OLC);
 
     act("$n begins to edit a help file.\r\n", true, item->editor, NULL, NULL,
@@ -252,10 +280,12 @@ help_item_clear(struct help_item *item)
     free(item->name);
     free(item->keys);
     free(item->text);
+    free(item->reader_text);
 
     item->name = strdup("A New Help Entry");
     item->keys = strdup("new help entry");
     item->text = NULL;
+    item->reader_text = NULL;
 }
 
 struct help_item *
@@ -275,6 +305,7 @@ free_help_item(struct help_item *item)
     free(item->name);
     free(item->keys);
     free(item->text);
+    free(item->reader_text);
 }
 
 // Begin editing an item much like olc oedit.
@@ -318,15 +349,33 @@ help_item_save(struct help_item *item)
     }
 
     outf = fopen(fname, "w");
-    if (outf) {
-        fprintf(outf, "%d %zd\n%s\n%s",
-                item->idnum,
-                (item->text) ? strlen(item->text) : 0,
-                item->name, (item->text && *item->text) ? item->text : "");
-        fclose(outf);
-        REMOVE_BIT(item->flags, HFLAG_MODIFIED);
-        return true;
+    if (!outf) {
+        goto error;
     }
+
+    fprintf(outf, "%d %zd\n%s\n%s",
+            item->idnum,
+            (item->text) ? strlen(item->text) : 0,
+            item->name, (item->text && *item->text) ? item->text : "");
+    fclose(outf);
+    REMOVE_BIT(item->flags, HFLAG_MODIFIED);
+
+
+    if (item->reader_text) {
+        fname = tmp_sprintf("%s/%04d-a.topic", HELP_DIRECTORY, item->idnum);
+        GError *err = NULL;
+        g_file_set_contents(fname, item->reader_text, strlen(item->reader_text), &err);
+        if (err) {
+            errlog("Error reading %s: %s", fname, err->message);
+            g_error_free(err);
+            goto error;
+        }
+    }
+
+    return true;
+
+error:
+
 
     if (item->editor) {
         send_to_char(item->editor,
@@ -362,7 +411,8 @@ help_item_show(struct help_item *item, struct creature *ch, char *buffer,
             help_item_load_text(item);
         }
         snprintf(buffer, buf_size, "\r\n%s%s%s\r\n%s\r\n",
-                 CCCYN(ch, C_NRM), item->name, CCNRM(ch, C_NRM), item->text);
+                 CCCYN(ch, C_NRM), item->name, CCNRM(ch, C_NRM),
+                 (ch->desc && ch->desc->display == BLIND && item->reader_text) ? item->reader_text:item->text);
         item->counter++;
         break;
     case 3:                    // 3 == Entire Entry Stat
@@ -380,6 +430,9 @@ help_item_show(struct help_item *item, struct creature *ch, char *buffer,
                  CCNRM(ch, C_NRM), bitbuf, CCCYN(ch, C_NRM),
                  CCNRM(ch, C_NRM), item->keys, CCCYN(ch, C_NRM), CCNRM(ch, C_NRM),
                  item->text);
+        if (item->reader_text) {
+            snprintf_cat(buffer, buf_size, "[Reader Text]\r\n%s\r\n", item->reader_text);
+        }
         break;
     default:
         break;
