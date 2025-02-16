@@ -1296,9 +1296,11 @@ do_stat_object(struct creature *ch, struct obj_data *j)
     sb_sprintf(&sb, "Name: '%s%s%s', Aliases: %s\r\n", CCGRN(ch, C_NRM),
                 ((j->name) ? j->name : "<None>"), CCNRM(ch, C_NRM), j->aliases);
 
-    sb_sprintf(&sb, "VNum: [%s%5d%s], Exist: [%3d/%3d], Type: %s, SpecProc: %s\r\n",
-        CCGRN(ch, C_NRM), GET_OBJ_VNUM(j), CCNRM(ch, C_NRM), j->shared->number,
-        j->shared->house_count, strlist_aref(GET_OBJ_TYPE(j), item_types),
+    sb_sprintf(&sb, "VNum: [%s%5d%s], Exist: [%d %d %d], Type: %s, SpecProc: %s\r\n",
+               CCGRN(ch, C_NRM), GET_OBJ_VNUM(j), CCNRM(ch, C_NRM), j->shared->number,
+               j->shared->house_count,
+               j->shared->player_count,
+               strlist_aref(GET_OBJ_TYPE(j), item_types),
         (j->shared->func) ? ((i =
                                   find_spec_index_ptr(j->shared->func)) <
                              0 ? "Exists" : spec_list[i].tag) : "None");
@@ -6074,7 +6076,7 @@ ACMD(do_show)
         for (int i = 0;i < 256;i++) {
             if (d->telnet.peer[i].requesting) {
                 if (!opts_found) {
-                    sb_sprintf(&sb, "\r\Peer opts requested: %s", CCCYN(ch, C_NRM));
+                    sb_sprintf(&sb, "\r\nPeer opts requested: %s", CCCYN(ch, C_NRM));
                     opts_found = true;
                 }
                 sb_sprintf(&sb, " %s", telnet_option_descs[i]);

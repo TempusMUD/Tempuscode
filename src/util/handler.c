@@ -1108,6 +1108,7 @@ general_obj_to_char(struct obj_data *object,
     /* set flag for crash-save system */
     if (!IS_NPC(ch)) {
         SET_BIT(PLR_FLAGS(ch), PLR_CRASH);
+        object->shared->player_count++;
     }
 }
 
@@ -1150,6 +1151,7 @@ obj_from_char(struct obj_data *object)
     /* set flag for crash-save system */
     if (!IS_NPC(object->carried_by)) {
         SET_BIT(PLR_FLAGS(object->carried_by), PLR_CRASH);
+        object->shared->player_count--;
     }
 
     IS_CARRYING_W(object->carried_by) -= GET_OBJ_WEIGHT(object);
@@ -1304,6 +1306,9 @@ equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
 
     obj->worn_by = ch;
     obj->worn_on = pos;
+    if (IS_PC(ch)) {
+        obj->shared->player_count++;
+    }
 
     apply_object_affects(ch, obj, true);
     affect_total(ch);
@@ -1410,6 +1415,9 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
 
     obj->worn_by = NULL;
     obj->worn_on = -1;
+    if (IS_PC(ch)) {
+        obj->shared->player_count--;
+    }
 
     affect_total(ch);
 
