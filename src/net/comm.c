@@ -864,10 +864,11 @@ flush_output(struct descriptor_data *d)
     if (d->telnet.host[MCCP2].enabled) {
         GError *error = NULL;
         gsize bytes_written;
+        bool more_to_send = true;
         // flush zlib stream if compression is enabled.  If nothing
         // was compressed, zlib will return a Z_BUF_ERROR, so that
         // needs to be ignored.
-        while (true) {
+        while (more_to_send) {
             d->zout->next_in = (Bytef *)"";
             d->zout->avail_in = 0;
             int err = deflate(d->zout, Z_SYNC_FLUSH);
@@ -875,11 +876,9 @@ flush_output(struct descriptor_data *d)
                 errlog("flush zlib deflate(): %s", d->zout->msg);
             }
             g_io_channel_write_chars(d->io, d->zbuf, ZBUF_LENGTH - d->zout->avail_out, &bytes_written, &error);
+            more_to_send = (d->zout->avail_out == 0);
             d->zout->next_out = d->zbuf;
             d->zout->avail_out = ZBUF_LENGTH;
-            if (d->zout->avail_out != 0) {
-                break;
-            }
         }
     }
 
