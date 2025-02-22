@@ -135,7 +135,7 @@ xmlParseFileWithLog(const char *fname)
 
     xmlDocPtr doc = xmlCtxtReadFile(ctxt, fname, NULL, 0);
     if (doc == NULL) {
-        xmlErrorPtr err = xmlCtxtGetLastError(ctxt);
+        const xmlError* err = xmlCtxtGetLastError(ctxt);
         errlog("Failed to parse %s: %s", fname, err->message);
     }
 

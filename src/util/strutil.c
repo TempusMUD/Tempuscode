@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <ctype.h>
 #include <libxml/parser.h>
 
