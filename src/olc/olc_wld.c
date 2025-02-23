@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 #include <errno.h>
 #include <unistd.h>
 #include <libpq-fe.h>

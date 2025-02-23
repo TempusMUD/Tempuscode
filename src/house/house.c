@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 #include <dirent.h>
 #include <errno.h>
 #include <inttypes.h>

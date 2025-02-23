@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <arpa/telnet.h>
+#include <time.h>
 #include <ctype.h>
 #include <inttypes.h>
 #include <libpq-fe.h>

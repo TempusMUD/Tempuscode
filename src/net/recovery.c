@@ -2,6 +2,7 @@
 #include <stdio_ext.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <time.h>
 #include <ctype.h>
 #include <glib.h>
 #include <time.h>
