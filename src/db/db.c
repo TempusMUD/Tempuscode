@@ -2505,6 +2505,7 @@ obj_maxload_allow_load(struct obj_data *obj, int maxload)
     int obj_count = obj->shared->number - obj->shared->house_count - obj->shared->player_count;
     if (obj_count < 0) {
         errlog("obj_count for obj %d < 0!  number: %d, house_count: %d, player_count: %d",
+               obj->shared->vnum,
                obj->shared->number,
                obj->shared->house_count,
                obj->shared->player_count);
