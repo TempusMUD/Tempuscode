@@ -29,6 +29,8 @@
     <flag value="damage"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <potion quality1="fizzy" quality2="" color1="" color2="sapphire"
+            desc2="ominous" desc3="hissing"/>
   </spell>
   <spell id="213" name="adrenaline">
     <granted class="psionic" level="27"/>
@@ -37,6 +39,7 @@
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion color1="brown" quality1="foamy" desc3="monster"/>
   </spell>
   <skill id="652" name="advanced cybosurgery">
     <granted class="cyborg" level="47" gen="7"/>
@@ -55,6 +58,7 @@
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="nowater"/>
+    <potion quality1="cloudy" quality2="misty" color="pearly" desc3="hazy"/>
   </spell>
   <spell id="336" name="albedo shield">
     <granted class="physic" level="34"/>
@@ -63,6 +67,7 @@
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <potion color1="black" desc2="smoky"/>
   </spell>
   <skill id="745" name="alien blood">
   </skill>
@@ -96,6 +101,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion desc1="small" desc2="unremarkable" desc3="utterly forgettable"/>
   </spell>
   <skill id="602" name="analyze">
     <granted class="physic" level="12"/>
@@ -130,6 +136,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="dark" quality2="opaque" desc3=""/>
   </spell>
   <spell id="211" name="antibody">
     <granted class="psionic" level="19"/>
@@ -138,6 +145,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
     <flag value="psionic"/>
+    <potion color1="fuchsia"/>
   </spell>
   <skill id="696" name="appraise">
     <granted class="mage" level="10"/>
@@ -164,6 +172,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
     <position minimum="sitting"/>
     <flag value="manual"/>
     <flag value="physics"/>
+    <potion desc1="still"/>
   </spell>
   <spell id="351" name="aria of armament">
     <granted class="bard" level="3"/>
@@ -199,6 +208,8 @@ Asylum saves us all!</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <flag value="divine"/>
+    <potion quality1="thick" quality2="viscous" color1="indigo"
+            color2="dark purple" desc3="glowing white"/>
   </spell>
   <skill id="640" name="assimilate">
     <granted class="cyborg" level="22" gen="3"/>
@@ -216,6 +227,7 @@ Asylum saves us all!</lyrics>
     <flag value="magic"/>
     <flag value="divine"/>
     <flag value="psionic"/>
+    <potion color1="white" desc2="chaotic"/>
   </spell>
   <spell id="302" name="attraction field">
     <granted class="physic" level="8"/>
@@ -248,7 +260,6 @@ Asylum saves us all!</lyrics>
     <granted class="ranger" level="10"/>
     <granted class="monk" level="17"/>
     <granted class="mercenary" level="3"/>
-    <cost mana_initial="40" mana_level_dec="1" mana_minimum="30"/>
   </skill>
   <spell id="143" name="banishment">
     <granted class="cleric" level="29" gen="4"/>
@@ -270,6 +281,7 @@ Asylum saves us all!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="brown" quality1="rough"/>
   </spell>
   <skill id="502" name="bash">
     <granted class="barbarian" level="10"/>
@@ -327,6 +339,7 @@ Asylum saves us all!</lyrics>
     <flag value="manual"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <potion color1="clear blue"/>
   </spell>
   <spell id="4" name="blindness">
     <granted class="mage" level="16"/>
@@ -338,6 +351,7 @@ Asylum saves us all!</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="dark" color1="gray"/>
   </spell>
   <skill id="681" name="blunt weapons">
     <granted class="barbarian" level="3"/>
@@ -349,6 +363,7 @@ Asylum saves us all!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="puce" desc1="shifting"/>
   </spell>
   <skill id="517" name="bodyslam">
     <granted class="barbarian" level="20"/>
@@ -371,6 +386,7 @@ Asylum saves us all!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="cloudy" color1="white"/>
   </spell>
   <spell id="214" name="breathing stasis">
     <granted class="psionic" level="21"/>
@@ -379,6 +395,7 @@ Asylum saves us all!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion color1="purple"/>
   </spell>
   <skill id="760" name="burning">
   </skill>
@@ -393,6 +410,7 @@ Asylum saves us all!</lyrics>
     <flag value="touch"/>
     <flag value="magic"/>
     <flag value="nowater"/>
+    <potion color1="tangerine"/>
   </spell>
   <spell id="242" name="call beast">
     <granted class="ranger" level="35"/>
@@ -424,6 +442,7 @@ Asylum saves us all!</lyrics>
     <flag value="divine"/>
     <flag value="outdoors"/>
     <flag value="nowater"/>
+    <potion desc1="charged"/>
   </spell>
   <spell id="243" name="call predator">
     <granted class="ranger" level="41"/>
@@ -460,6 +479,7 @@ Asylum saves us all!</lyrics>
     <flag value="manual"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <potion desc1="still"/>
   </spell>
   <spell id="324" name="capacitance boost">
     <granted class="physic" level="6"/>
@@ -469,6 +489,7 @@ Asylum saves us all!</lyrics>
     <flag value="affects"/>
     <flag value="points"/>
     <flag value="physics"/>
+    <potion color1="green"/>
   </spell>
   <skill id="730" name="catapult">
   </skill>
@@ -480,6 +501,7 @@ Asylum saves us all!</lyrics>
     <flag value="affects"/>
     <flag value="points"/>
     <flag value="psionic"/>
+    <potion color1="pink"/>
   </spell>
   <spell id="126" name="chain lightning">
     <granted class="mage" level="23"/>
@@ -489,6 +511,7 @@ Asylum saves us all!</lyrics>
     <flag value="masses"/>
     <flag value="magic"/>
     <flag value="waterzap"/>
+    <potion quality1="crackling"/>
   </spell>
   <spell id="368" name="chant of light">
     <granted class="bard" level="1"/>
@@ -512,6 +535,7 @@ Repel the frigid cold of night!</lyrics>
     <flag value="violent"/>
     <flag value="manual"/>
     <flag value="divine"/>
+    <potion color1="brown"/>
   </spell>
   <spell id="7" name="charm person">
     <granted class="mage" level="22"/>
@@ -522,9 +546,10 @@ Repel the frigid cold of night!</lyrics>
     <flag value="violent"/>
     <flag value="manual"/>
     <flag value="magic"/>
+    <potion quality1="aromatic"/>
   </spell>
   <spell id="651" name="chemistry">
-    <granted class="mercenary" level="45" gen="3"/>
+    <granted class="mercenary" level="23"/>
     <position minimum="sitting"/>
   </spell>
   <spell id="321" name="chemical stability">
@@ -535,6 +560,7 @@ Repel the frigid cold of night!</lyrics>
     <flag value="affects"/>
     <flag value="unaffects"/>
     <flag value="physics"/>
+    <potion color1="grey"/>
   </spell>
   <spell id="8" name="chill touch">
     <granted class="mage" level="5"/>
@@ -547,6 +573,7 @@ Repel the frigid cold of night!</lyrics>
     <flag value="affects"/>
     <flag value="touch"/>
     <flag value="magic"/>
+    <potion quality1="cold"/>
   </spell>
   <skill id="518" name="choke">
     <granted class="thief" level="23"/>
@@ -562,6 +589,7 @@ Repel the frigid cold of night!</lyrics>
     <target type="creature" scope="world"/>
     <flag value="manual"/>
     <flag value="magic"/>
+    <potion color1="yellow"/>
   </spell>
   <spell id="377" name="clarifying harmonies">
     <granted class="bard" level="12"/>
@@ -604,6 +632,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion quality1="heavy"/>
   </spell>
   <spell id="647" name="cogenic neural bridging">
     <granted class="cyborg" level="35"/>
@@ -619,6 +648,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="violent"/>
     <flag value="damage"/>
     <flag value="magic"/>
+    <potion quality1="colorful"/>
   </spell>
   <skill id="565" name="combo">
     <granted class="monk" level="33"/>
@@ -630,6 +660,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
     <flag value="divine"/>
+    <potion color1="dark gray"/>
   </spell>
   <skill id="537" name="conceal">
     <granted class="thief" level="15"/>
@@ -646,6 +677,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <flag value="divine"/>
+    <potion quality1="icy"/>
   </spell>
   <spell id="207" name="confidence">
     <granted class="psionic" level="8"/>
@@ -655,6 +687,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="affects"/>
     <flag value="unaffects"/>
     <flag value="psionic"/>
+    <potion color1="bright red"/>
   </spell>
   <spell id="203" name="confusion">
     <granted class="psionic" level="36"/>
@@ -665,6 +698,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion quality1="swirly"/>
   </spell>
   <spell id="97" name="conjure elemental">
     <granted class="mage" level="20"/>
@@ -672,6 +706,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <position minimum="standing"/>
     <flag value="manual"/>
     <flag value="magic"/>
+    <potion color1="brown"/>
   </spell>
   <skill id="531" name="consider">
     <granted class="thief" level="11"/>
@@ -694,6 +729,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="magic"/>
     <flag value="divine"/>
     <flag value="evil"/>
+    <potion color1="black"/>
   </spell>
   <spell id="11" name="control weather">
     <granted class="cleric" level="22"/>
@@ -716,6 +752,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <position minimum="standing"/>
     <flag value="creations"/>
     <flag value="divine"/>
+    <potion color1="green"/>
   </spell>
   <skill id="656" name="create vampire">
   </skill>
@@ -727,6 +764,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="object" scope="equip"/>
     <flag value="objects"/>
     <flag value="divine"/>
+    <potion color1="clear"/>
   </spell>
   <skill id="595" name="crossface">
     <granted class="mercenary" level="26"/>
@@ -745,6 +783,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
     <flag value="divine"/>
+    <potion quality1="bright"/>
   </spell>
   <spell id="15" name="cure critic">
     <granted class="cleric" level="10"/>
@@ -754,6 +793,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="points"/>
     <flag value="divine"/>
+    <potion color1="leaf-green"/>
   </spell>
   <skill id="582" name="cure disease">
     <granted class="knight" level="43"/>
@@ -767,6 +807,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="points"/>
     <flag value="divine"/>
+    <potion color1="yellow" color2="sweet yellow"/>
   </spell>
   <spell id="17" name="curse">
     <granted class="mage" level="19"/>
@@ -779,6 +820,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="affects"/>
     <flag value="alterations"/>
     <flag value="magic"/>
+    <potion color1="dull red"/>
   </spell>
   <skill id="632" name="cyberscan">
     <granted class="cyborg" level="30"/>
@@ -857,6 +899,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="affects"/>
     <flag value="alterations"/>
     <flag value="physics"/>
+    <potion quality1="thick"/>
   </spell>
   <spell id="209" name="dermal hardening">
     <granted class="psionic" level="12"/>
@@ -865,6 +908,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion quality1="hairy"/>
   </spell>
   <spell id="18" name="detect alignment">
     <granted class="mage" level="24"/>
@@ -877,6 +921,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="divine"/>
+    <potion color1="lemon-yellow"/>
   </spell>
   <spell id="19" name="detect invisibility">
     <granted class="mage" level="14"/>
@@ -885,6 +930,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="sparkly"/>
   </spell>
   <spell id="20" name="detect magic">
     <granted class="mage" level="7"/>
@@ -896,6 +942,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="effervescent"/>
   </spell>
   <spell id="21" name="detect poison">
     <granted class="mage" level="20"/>
@@ -907,6 +954,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="divine"/>
+    <potion color1="clear green"/>
   </spell>
   <spell id="66" name="detect scrying">
     <granted class="mage" level="44"/>
@@ -916,6 +964,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="clear red"/>
   </spell>
   <spell id="59" name="dimension door">
     <cost mana_initial="90" mana_level_dec="3" mana_minimum="60"/>
@@ -976,6 +1025,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="manual"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <potion quality1="glowing" color1="white"/>
   </spell>
   <spell id="46" name="dispel good">
     <granted class="cleric" level="20"/>
@@ -987,6 +1037,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="manual"/>
     <flag value="divine"/>
     <flag value="evil"/>
+    <potion color1="black"/>
   </spell>
   <spell id="57" name="dispel magic">
     <granted class="mage" level="39"/>
@@ -997,6 +1048,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="object" scope="room"/>
     <flag value="manual"/>
     <flag value="magic"/>
+    <potion quality1="sparkling"/>
   </spell>
   <spell id="106" name="displacement">
     <granted class="mage" level="46"/>
@@ -1005,6 +1057,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="glimmering"/>
   </spell>
   <spell id="114" name="disruption">
     <granted class="cleric" level="38"/>
@@ -1015,6 +1068,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="violent"/>
     <flag value="damage"/>
     <flag value="divine"/>
+    <potion quality1="popping"/>
   </spell>
   <spell id="238" name="distraction">
     <granted class="psionic" level="5"/>
@@ -1023,6 +1077,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
     <flag value="psionic"/>
+    <potion quality1="spotted" color1=" pink"/>
   </spell>
   <spell id="88" name="divine illumination">
     <granted class="cleric" level="9"/>
@@ -1043,6 +1098,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <potion quality1="glowing"/>
   </spell>
   <spell id="149" name="divine power">
     <granted class="cleric" level="30" gen="5"/>
@@ -1053,6 +1109,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <potion color1="maroon"/>
   </spell>
   <skill id="527" name="double attack">
     <granted class="thief" level="45"/>
@@ -1088,6 +1145,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="white"/>
   </spell>
   <spell id="388" name="eagles overture">
     <granted class="bard" level="25"/>
@@ -1098,6 +1156,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="song"/>
     <instrument type="wind"/>
     <description>a loud and boisterous tune</description>
+    <potion color1="red"/>
   </spell>
   <skill id="711" name="earth elemental">
   </skill>
@@ -1108,6 +1167,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="violent"/>
     <flag value="areas"/>
     <flag value="divine"/>
+    <potion color1="light brown"/>
   </spell>
   <spell id="217" name="ego whip">
     <granted class="psionic" level="22"/>
@@ -1140,6 +1200,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <position minimum="sitting"/>
     <flag value="manual"/>
     <flag value="physics"/>
+    <potion quality1="flashing"/>
   </spell>
   <skill id="630" name="electronics">
     <granted class="physic" level="13"/>
@@ -1156,6 +1217,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="affects"/>
     <flag value="physics"/>
     <flag value="defensive"/>
+    <potion quality1="fluorescent"/>
   </spell>
   <spell id="156" name="elemental branding">
     <granted class="ranger" level="31" gen="1"/>
@@ -1198,6 +1260,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="affects"/>
     <flag value="points"/>
     <flag value="psionic"/>
+    <potion color1="emerald"/>
   </spell>
   <spell id="82" name="endure cold">
     <granted class="cleric" level="15"/>
@@ -1209,6 +1272,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <flag value="divine"/>
+    <potion color1="orange"/>
   </spell>
   <skill id="679" name="energy conversion">
     <granted class="physic" level="22"/>
@@ -1223,12 +1287,14 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="damage"/>
     <flag value="manual"/>
     <flag value="magic"/>
+    <potion color1="yellow"/>
   </spell>
   <spell id="617" name="energy field">
     <granted class="cyborg" level="32"/>
     <cost maxmove="40"/>
     <flag value="cybernetic"/>
     <flag value="defensive"/>
+    <potion color1="purple"/>
   </spell>
   <skill id="634" name="energy weapons">
     <granted class="cyborg" level="20"/>
@@ -1278,6 +1344,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="damage"/>
     <flag value="points"/>
     <flag value="evil"/>
+    <potion quality1="unholy"/>
   </spell>
   <spell id="742" name="essence of goodness">
     <cost mana_initial="330" mana_level_dec="21" mana_minimum="215"/>
@@ -1286,6 +1353,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="damage"/>
     <flag value="points"/>
     <flag value="good"/>
+    <potion quality1="holy"/>
   </spell>
   <skill id="603" name="evaluate">
     <granted class="physic" level="10"/>
@@ -1318,6 +1386,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion color1="red"/>
   </spell>
   <skill id="536" name="feign">
     <granted class="thief" level="25"/>
@@ -1338,6 +1407,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="violent"/>
     <flag value="damage"/>
     <flag value="nowater"/>
+    <potion quality1="flaming"/>
   </spell>
   <spell id="158" name="fire breathing">
     <granted class="mage" level="35" gen="1"/>
@@ -1347,6 +1417,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="fiery"/>
   </spell>
   <skill id="712" name="fire elemental">
   </skill>
@@ -1360,6 +1431,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="magic"/>
     <flag value="nowater"/>
     <flag value="defensive"/>
+    <potion color1="orange"/>
   </spell>
   <spell id="26" name="fireball">
     <granted class="mage" level="31"/>
@@ -1371,12 +1443,12 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="damage"/>
     <flag value="magic"/>
     <flag value="nowater"/>
+    <potion color1="orange"/>
   </spell>
   <skill id="529" name="firstaid">
     <granted class="ranger" level="19"/>
     <granted class="monk" level="30"/>
     <granted class="mercenary" level="16"/>
-    <cost mana_initial="70" mana_level_dec="1" mana_minimum="60"/>
   </skill>
   <spell id="316" name="fission blast">
     <granted class="physic" level="43"/>
@@ -1408,6 +1480,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="damage"/>
     <flag value="divine"/>
     <flag value="nowater"/>
+    <potion color1="orange"/>
   </spell>
   <skill id="766" name="flamethrower">
   </skill>
@@ -1418,6 +1491,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <potion color1="blue-white"/>
   </spell>
   <spell id="72" name="fly">
     <granted class="mage" level="33"/>
@@ -1426,6 +1500,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="cloudy"/>
   </spell>
   <spell id="391" name="fortissimo">
     <granted class="bard" level="14" gen="3"/>
@@ -1471,6 +1546,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="damage"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <potion color1="yellow"/>
   </spell>
   <skill id="697" name="garrote">
     <granted class="mercenary" level="21"/>
@@ -1512,6 +1588,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="glowing"/>
   </spell>
   <spell id="89" name="goodberry">
     <granted class="ranger" level="7"/>
@@ -1538,6 +1615,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="damage"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <potion color1="black"/>
   </spell>
   <skill id="695" name="great cleave">
     <granted class="barbarian" level="40" gen="2"/>
@@ -1549,6 +1627,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <target type="object" scope="inventory"/>
     <flag value="manual"/>
     <flag value="magic"/>
+    <potion quality1="frosted"/>
   </spell>
   <spell id="73" name="greater heal">
     <granted class="cleric" level="34"/>
@@ -1558,6 +1637,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="unaffects"/>
     <flag value="points"/>
     <flag value="divine"/>
+    <potion color1="silver"/>
   </spell>
   <spell id="98" name="greater invis">
     <granted class="mage" level="38"/>
@@ -1567,6 +1647,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="shimmering"/>
   </spell>
   <skill id="552" name="groinkick">
     <granted class="thief" level="12"/>
@@ -1577,6 +1658,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <position minimum="standing"/>
     <flag value="groups"/>
     <flag value="divine"/>
+    <potion color1="salmon"/>
   </spell>
   <spell id="232" name="group confidence">
     <granted class="psionic" level="14"/>
@@ -1584,6 +1666,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <position minimum="standing"/>
     <flag value="groups"/>
     <flag value="psionic"/>
+    <potion quality1="bubbling"/>
   </spell>
   <spell id="48" name="group heal">
     <granted class="cleric" level="31"/>
@@ -1591,6 +1674,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <position minimum="standing"/>
     <flag value="groups"/>
     <flag value="divine"/>
+    <potion color1="silver"/>
   </spell>
   <skill id="49" name="group recall">
   </skill>
@@ -1606,7 +1690,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
 Her spirit renews me, my heart can endure</lyrics>
   </spell>
   <skill id="592" name="gunsmithing">
-    <granted class="mercenary" level="20"/>
+    <granted class="mercenary" level="24"/>
   </skill>
   <spell id="103" name="gust of wind">
     <granted class="mage" level="40"/>
@@ -1618,6 +1702,7 @@ Her spirit renews me, my heart can endure</lyrics>
     <flag value="manual"/>
     <flag value="magic"/>
     <flag value="nowater"/>
+    <potion quality1="windy"/>
   </spell>
   <skill id="631" name="hacking">
     <granted class="cyborg" level="20"/>
@@ -1630,6 +1715,7 @@ Her spirit renews me, my heart can endure</lyrics>
     <flag value="masses"/>
     <flag value="magic"/>
     <flag value="outdoors"/>
+    <potion quality1="icy"/>
   </spell>
   <spell id="306" name="halflife">
     <granted class="physic" level="30"/>
@@ -1657,6 +1743,7 @@ Her spirit renews me, my heart can endure</lyrics>
     <flag value="violent"/>
     <flag value="damage"/>
     <flag value="divine"/>
+    <potion color1="red-black"/>
   </spell>
   <spell id="92" name="haste">
     <granted class="mage" level="44"/>
@@ -1665,6 +1752,7 @@ Her spirit renews me, my heart can endure</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="roiling"/>
   </spell>
   <skill id="533" name="headbutt">
     <granted class="barbarian" level="13"/>
@@ -1679,6 +1767,7 @@ Her spirit renews me, my heart can endure</lyrics>
     <flag value="unaffects"/>
     <flag value="points"/>
     <flag value="divine"/>
+    <potion quality1="shining"/>
   </spell>
   <skill id="524" name="hearing">
     <granted class="thief" level="11"/>
@@ -1778,6 +1867,7 @@ Home sweet home.</lyrics>
     <flag value="violent"/>
     <flag value="damage"/>
     <flag value="divine"/>
+    <potion quality1="frozen"/>
   </spell>
   <spell id="227" name="id insinuation">
     <granted class="psionic" level="32" gen="1"/>
@@ -1799,6 +1889,7 @@ Home sweet home.</lyrics>
     <target type="object" scope="room"/>
     <flag value="manual"/>
     <flag value="magic"/>
+    <potion quality1="pulsating"/>
   </spell>
   <skill id="555" name="impale">
     <granted class="barbarian" level="43"/>
@@ -1827,6 +1918,7 @@ Home sweet home.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="dull red"/>
   </spell>
   <spell id="392" name="insidious rhythm">
     <granted class="bard" level="20"/>
@@ -1873,6 +1965,7 @@ The likes of which you'll not hear again soon.</lyrics>
     <flag value="affects"/>
     <flag value="alterations"/>
     <flag value="magic"/>
+    <potion quality1="seething"/>
   </spell>
   <spell id="29" name="invisibility">
     <granted class="mage" level="12"/>
@@ -1884,6 +1977,7 @@ The likes of which you'll not hear again soon.</lyrics>
     <flag value="affects"/>
     <flag value="alterations"/>
     <flag value="magic"/>
+    <potion color1="clear"/>
   </spell>
   <spell id="379" name="irresistable dance">
     <granted class="bard" level="38"/>
@@ -1950,6 +2044,7 @@ In me as well as you.</lyrics>
     <flag value="affects"/>
     <flag value="alterations"/>
     <flag value="physics"/>
+    <potion quality1="thick"/>
   </spell>
   <skill id="707" name="lava breath">
   </skill>
@@ -1986,6 +2081,7 @@ the lich controls you all the while.</lyrics>
     <flag value="damage"/>
     <flag value="magic"/>
     <flag value="waterzap"/>
+    <potion quality1="charged"/>
   </spell>
   <spell id="706" name="lightning breath">
     <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
@@ -2006,6 +2102,7 @@ the lich controls you all the while.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="manual"/>
     <flag value="magic"/>
+    <potion desc1="chaotic" desc3="wildly chaotic"/>
   </spell>
   <spell id="31" name="locate object">
     <granted class="mage" level="23"/>
@@ -2067,6 +2164,7 @@ We beg for release from these sicknesses' hold.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="churning"/>
   </spell>
   <spell id="83" name="magical vestment">
     <granted class="cleric" level="11"/>
@@ -2091,7 +2189,7 @@ We beg for release from these sicknesses' hold.</lyrics>
     <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
-    <potiondesc first="bright" second="purple" third="volatile"/>
+    <potion color1="blue" color2="" desc1="volatile" desc3="swirling volatile"/>
     <flag value="points"/>
   </spell>
   <spell id="52" name="mana shield">
@@ -2102,6 +2200,7 @@ We beg for release from these sicknesses' hold.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="buzzing"/>
   </spell>
   <spell id="231" name="mass hysteria">
     <granted class="psionic" level="48"/>
@@ -2113,7 +2212,6 @@ We beg for release from these sicknesses' hold.</lyrics>
   </spell>
   <skill id="530" name="medic">
     <granted class="ranger" level="40"/>
-    <cost mana_initial="90" mana_level_dec="1" mana_minimum="80"/>
   </skill>
   <skill id="577" name="meditate">
     <granted class="monk" level="9"/>
@@ -2127,6 +2225,7 @@ We beg for release from these sicknesses' hold.</lyrics>
     <flag value="affects"/>
     <flag value="unaffects"/>
     <flag value="psionic"/>
+    <potion color1="yellow"/>
   </spell>
   <spell id="646" name="melee combat tactics">
     <granted class="cyborg" level="24"/>
@@ -2151,6 +2250,7 @@ Such mettle is forged in the fires of war!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion color1="red"/>
   </spell>
   <skill id="586" name="metalworking">
     <granted class="barbarian" level="41"/>
@@ -2175,6 +2275,7 @@ Such mettle is forged in the fires of war!</lyrics>
     <flag value="violent"/>
     <flag value="damage"/>
     <flag value="physics"/>
+    <potion quality1="buzzing"/>
   </spell>
   <skill id="60" name="minor creation">
   </skill>
@@ -2227,6 +2328,7 @@ The melody removes my trace.</lyrics>
     <flag value="damage"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion quality1="buzzing"/>
   </spell>
   <spell id="675" name="nanite reconstruction">
     <granted class="cyborg" level="33"/>
@@ -2243,6 +2345,7 @@ The melody removes my trace.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion color1="black"/>
   </spell>
   <spell id="303" name="nuclear wasteland">
     <granted class="physic" level="40"/>
@@ -2259,6 +2362,7 @@ The melody removes my trace.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
     <flag value="physics"/>
+    <potion color1="gray"/>
   </spell>
   <spell id="236" name="nullpsi">
     <granted class="psionic" level="17"/>
@@ -2267,6 +2371,7 @@ The melody removes my trace.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
     <flag value="psionic"/>
+    <potion color1="deep blue"/>
   </spell>
   <spell id="644" name="offensive posturing">
     <granted class="cyborg" level="15"/>
@@ -2358,6 +2463,7 @@ The melody removes my trace.</lyrics>
     <flag value="affects"/>
     <flag value="objects"/>
     <flag value="magic"/>
+    <potion color1="green"/>
   </spell>
   <spell id="201" name="power">
     <granted class="psionic" level="15"/>
@@ -2366,6 +2472,7 @@ The melody removes my trace.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion color1="red"/>
   </spell>
   <spell id="619" name="power boost">
     <granted class="cyborg" level="18"/>
@@ -2392,6 +2499,7 @@ A surge of power absolute</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="divine"/>
+    <potion color1="white"/>
   </spell>
   <spell id="118" name="prismatic sphere">
     <granted class="mage" level="40" gen="1"/>
@@ -2402,6 +2510,7 @@ A surge of power absolute</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <flag value="defensive"/>
+    <potion color1="opalescent"/>
   </spell>
   <spell id="64" name="prismatic spray">
     <granted class="mage" level="42"/>
@@ -2412,6 +2521,7 @@ A surge of power absolute</lyrics>
     <flag value="violent"/>
     <flag value="damage"/>
     <flag value="magic"/>
+    <potion color1="iridescent"/>
   </spell>
   <skill id="635" name="projectile weapons">
     <granted class="cyborg" level="20"/>
@@ -2424,6 +2534,7 @@ A surge of power absolute</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="divine"/>
+    <potion color1="blue"/>
   </spell>
   <spell id="34" name="protection from evil">
     <granted class="cleric" level="16"/>
@@ -2434,6 +2545,7 @@ A surge of power absolute</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <potion color1="blue"/>
   </spell>
   <spell id="100" name="protection from fire">
     <granted class="cleric" level="16"/>
@@ -2443,6 +2555,7 @@ A surge of power absolute</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="orange"/>
   </spell>
   <spell id="76" name="protection from good">
     <granted class="cleric" level="16"/>
@@ -2453,6 +2566,7 @@ A surge of power absolute</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="evil"/>
+    <potion color1="red"/>
   </spell>
   <spell id="99" name="protection from lightning">
     <granted class="ranger" level="9"/>
@@ -2461,6 +2575,7 @@ A surge of power absolute</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="misty"/>
   </spell>
   <spell id="589" name="psiblast">
     <granted class="psionic" level="1"/>
@@ -2496,6 +2611,7 @@ A surge of power absolute</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion color1="purple"/>
   </spell>
   <spell id="237" name="psionic shockwave">
     <granted class="psionic" level="38" gen="7"/>
@@ -2541,6 +2657,7 @@ A surge of power absolute</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion color1="raspberry"/>
   </spell>
   <spell id="224" name="psychic surge">
     <granted class="psionic" level="40"/>
@@ -2579,6 +2696,7 @@ Is it tomorrow or just the end of time?</lyrics>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
     <flag value="affects"/>
+    <potion color1="bright blue"/>
   </spell>
   <spell id="343" name="quantum rift">
     <granted class="physic" level="45" gen="5"/>
@@ -2607,6 +2725,7 @@ Is it tomorrow or just the end of time?</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <potion color1="milky"/>
   </spell>
   <spell id="641" name="radionegation">
     <granted class="cyborg" level="17" gen="1"/>
@@ -2651,6 +2770,7 @@ Is it tomorrow or just the end of time?</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <potion quality1="shifting"/>
   </spell>
   <spell id="95" name="refresh">
     <granted class="ranger" level="15"/>
@@ -2660,6 +2780,7 @@ Is it tomorrow or just the end of time?</lyrics>
     <target type="creature" scope="room"/>
     <flag value="points"/>
     <flag value="magic"/>
+    <potion color1="light green" color2="deep green" desc3="forest green"/>
   </spell>
   <spell id="356" name="regalers rhapsody">
     <granted class="bard" level="5"/>
@@ -2680,6 +2801,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="pink"/>
   </spell>
   <spell id="84" name="rejuvenate">
     <granted class="cleric" level="40"/>
@@ -2688,6 +2810,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="divine"/>
+    <potion color1="green"/>
   </spell>
   <spell id="219" name="relaxation">
     <granted class="psionic" level="7"/>
@@ -2697,6 +2820,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <flag value="affects"/>
     <flag value="unaffects"/>
     <flag value="psionic"/>
+    <potion desc1="twilight"/>
   </spell>
   <spell id="35" name="remove curse">
     <granted class="mage" level="26"/>
@@ -2709,6 +2833,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <flag value="unaffects"/>
     <flag value="alterations"/>
     <flag value="divine"/>
+    <potion color1="bluish"/>
   </spell>
   <spell id="43" name="remove poison">
     <granted class="cleric" level="8"/>
@@ -2722,6 +2847,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <flag value="unaffects"/>
     <flag value="alterations"/>
     <flag value="divine"/>
+    <potion desc1="milky"/>
   </spell>
   <spell id="116" name="remove sickness">
     <granted class="cleric" level="37"/>
@@ -2730,6 +2856,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="unaffects"/>
     <flag value="divine"/>
+    <potion color1="bright green"/>
   </spell>
   <spell id="310" name="repulsion field">
     <granted class="physic" level="16"/>
@@ -2763,6 +2890,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="points"/>
     <flag value="divine"/>
+    <potion color1="silver"/>
   </spell>
   <spell id="212" name="retina">
     <granted class="psionic" level="13"/>
@@ -2771,6 +2899,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion color1="white"/>
   </spell>
   <skill id="648" name="retreat">
     <granted class="thief" level="16"/>
@@ -2854,6 +2983,7 @@ His presence is revealed to me.</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <potion color1="blue"/>
   </spell>
   <spell id="36" name="sanctuary">
     <granted class="cleric" level="28"/>
@@ -2862,6 +2992,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="divine"/>
+    <potion color1="ocean-blue"/>
   </spell>
   <spell id="205" name="satiation">
     <granted class="psionic" level="3"/>
@@ -2870,11 +3001,12 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="points"/>
     <flag value="psionic"/>
+    <potion color1="fizzy"/>
   </spell>
   <skill id="581" name="scanning">
     <granted class="thief" level="31"/>
     <granted class="ranger" level="24"/>
-    <granted class="mercenary" level="22"/>
+    <granted class="mercenary" level="23"/>
   </skill>
   <skill id="569" name="scissor kick">
     <granted class="monk" level="20"/>
@@ -2905,6 +3037,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="thick" color1="grey"/>
   </spell>
   <spell id="750" name="shadow breath">
     <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
@@ -2943,6 +3076,7 @@ His presence is revealed to me.</lyrics>
     <flag value="damage"/>
     <flag value="touch"/>
     <flag value="magic"/>
+    <potion quality1="fizzling"/>
   </spell>
   <skill id="540" name="shoot">
     <granted class="thief" level="10"/>
@@ -3127,6 +3261,7 @@ His presence is revealed to me.</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <potion color1="blood red"/>
   </spell>
   <skill id="516" name="stomp">
     <granted class="thief" level="5"/>
@@ -3149,6 +3284,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="gray"/>
   </spell>
   <spell id="39" name="strength">
     <granted class="mage" level="6"/>
@@ -3157,6 +3293,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="sapphire"/>
   </spell>
   <skill id="693" name="strike">
     <granted class="barbarian" level="17"/>
@@ -3230,6 +3367,7 @@ His presence is revealed to me.</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="evil"/>
+    <potion color1="dark red"/>
   </spell>
   <skill id="520" name="tag">
     <granted class="barbarian" level="27"/>
@@ -3257,6 +3395,7 @@ His presence is revealed to me.</lyrics>
     <flag value="affects"/>
     <flag value="psionic"/>
     <flag value="magic"/>
+    <potion color1="blue"/>
   </spell>
   <spell id="151" name="telepathy">
     <granted class="psionic" level="41"/>
@@ -3276,6 +3415,7 @@ His presence is revealed to me.</lyrics>
     <target type="object" scope="room"/>
     <flag value="manual"/>
     <flag value="magic"/>
+    <potion color1="green"/>
   </spell>
   <spell id="333" name="temporal compression">
     <granted class="physic" level="29"/>
@@ -3333,6 +3473,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <potion color1="clear"/>
   </spell>
   <spell id="314" name="time warp">
     <granted class="physic" level="35"/>
@@ -3366,6 +3507,7 @@ His presence is revealed to me.</lyrics>
     <flag value="affects"/>
     <flag value="alterations"/>
     <flag value="physics"/>
+    <potion desc1="shadowy"/>
   </spell>
   <skill id="585" name="transmute">
   </skill>
@@ -3396,6 +3538,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="turquoise" color2="oily"/>
   </spell>
   <skill id="674" name="tumbling">
     <granted class="bard" level="30"/>
@@ -3418,6 +3561,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion color1="black" desc1="bubbling"/>
   </spell>
   <spell id="140" name="unholy stalker">
     <granted class="cleric" level="25" gen="3"/>
@@ -3429,6 +3573,7 @@ His presence is revealed to me.</lyrics>
     <flag value="divine"/>
     <flag value="evil"/>
     <flag value="nosun"/>
+    <potion color1="red"/>
   </spell>
   <spell id="378" name="unladen swallow song">
     <granted class="bard" level="19"/>
@@ -3531,6 +3676,7 @@ It guides my blade as I strike true!</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion color1="green"/>
   </spell>
   <spell id="113" name="vestigial rune">
     <granted class="mage" level="45" gen="1"/>
@@ -3605,6 +3751,7 @@ It guides my blade as I strike true!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion desc1="salt water"/>
   </spell>
   <spell id="220" name="weakness">
     <granted class="psionic" level="16"/>
@@ -3615,6 +3762,7 @@ It guides my blade as I strike true!</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <potion desc1="mixed"/>
   </spell>
   <spell id="384" name="weight of the world">
     <granted class="bard" level="21"/>
@@ -3655,6 +3803,7 @@ And to our packs a lightness bring!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="divine"/>
+    <potion color1="purple"/>
   </spell>
   <spell id="42" name="word of recall">
     <granted class="cleric" level="15"/>
@@ -3666,6 +3815,7 @@ And to our packs a lightness bring!</lyrics>
     <target type="object" scope="room"/>
     <flag value="manual"/>
     <flag value="divine"/>
+    <potion color1="amber"/>
   </spell>
   <spell id="63" name="word stun">
     <granted class="mage" level="37"/>
@@ -3676,6 +3826,7 @@ And to our packs a lightness bring!</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <potion quality1="opaque"/>
   </spell>
   <skill id="599" name="wormhole">
     <granted class="physic" level="30" gen="1"/>
@@ -3688,6 +3839,7 @@ And to our packs a lightness bring!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="points"/>
     <flag value="psionic"/>
+    <potion quality1="silvered"/>
   </spell>
   <spell id="386" name="wounding whispers">
     <granted class="bard" level="36"/>
