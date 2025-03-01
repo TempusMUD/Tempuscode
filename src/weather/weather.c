@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 #include <libpq-fe.h>
 #include <glib.h>
 

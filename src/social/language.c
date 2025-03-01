@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 #include <libxml/parser.h>
 #include <glib.h>
 

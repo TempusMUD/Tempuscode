@@ -15,6 +15,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 #include <libpq-fe.h>
 #include <libxml/parser.h>
 #include <glib.h>
@@ -1885,7 +1886,7 @@ do_qcontrol_show(struct creature *ch, char *argument)
     char *timestr_e, *timestr_s;
     char timestr_a[16];
     struct str_builder sb = str_builder_default;
-        
+
     if (!quests) {
         send_to_char(ch, "There are no quests to show.\r\n");
         return;

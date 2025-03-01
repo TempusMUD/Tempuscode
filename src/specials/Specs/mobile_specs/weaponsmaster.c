@@ -55,7 +55,7 @@ SPECIAL(weaponsmaster)
         return 1;
     }
 
-    if (weap->worn_on == WEAR_HANDS && GET_CLASS(ch) != CLASS_MONK) {
+    if (weap->worn_on == WEAR_HANDS && !IS_MONK(ch)) {
         return 1;
     }
     if (GET_OBJ_VNUM(weap) < 0 || invalid_char_class(ch, weap)) {

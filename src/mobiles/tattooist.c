@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 #include <libpq-fe.h>
 #include <libxml/parser.h>
 #include <glib.h>
@@ -319,7 +320,7 @@ SPECIAL(tattooist)
         }
         self->mob_specials.func_data = shop;
     }
-    
+
     if (shop->func &&
         shop->func != tattooist &&
         shop->func(ch, me, cmd, argument, spec_mode)) {

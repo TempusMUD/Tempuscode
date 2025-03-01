@@ -25,6 +25,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <time.h>
 #include <ctype.h>
 #include <dirent.h>
 #include <errno.h>

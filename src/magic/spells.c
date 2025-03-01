@@ -19,6 +19,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
 #include <ctype.h>
 #include <libpq-fe.h>
 #include <libxml/parser.h>
