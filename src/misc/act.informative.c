@@ -48,7 +48,6 @@
 #include "players.h"
 #include "tmpstr.h"
 #include "str_builder.h"
-#include "str_builder.h"
 #include "spells.h"
 #include "vehicle.h"
 #include "materials.h"

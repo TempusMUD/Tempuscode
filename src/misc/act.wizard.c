@@ -4317,21 +4317,24 @@ show_zoneusage(struct creature *ch, char *value)
     } else {
         i = atoi(value);
     }
-    snprintf(buf, sizeof(buf), "ZONE USAGE RECORD:\r\n");
+    struct str_builder sb = str_builder_default;
+
+    sb_sprintf(&sb, "ZONE USAGE RECORD:\r\n");
     for (zone = zone_table; zone; zone = zone->next) {
         if ((i >= 0 && i != zone->number) || (i == -2 && !zone->num_players)) {
             continue;
         }
-        snprintf(buf, sizeof(buf),
-                 "%s[%s%3d%s] %s%-30s%s %s[%s%6d%s]%s acc, [%3d] idle  Owner: %s%s%s\r\n",
-                 buf, CCYEL(ch, C_NRM), zone->number, CCNRM(ch, C_NRM),
-                 CCCYN(ch, C_NRM), zone->name, CCNRM(ch, C_NRM), CCGRN(ch, C_NRM),
-                 CCNRM(ch, C_NRM), zone->enter_count, CCGRN(ch, C_NRM),
-                 CCNRM(ch, C_NRM), zone->idle_time, CCYEL(ch, C_NRM),
-                 player_name_by_idnum(zone->owner_idnum), CCNRM(ch, C_NRM));
+        sb_sprintf(&sb, "[%s%3d%s] %s%-30s%s %s[%s%6d%s]%s acc, [%3d] idle  Owner: %s%s%s\r\n",
+                  CCYEL(ch, C_NRM), zone->number, CCNRM(ch, C_NRM),
+                  CCCYN(ch, C_NRM), zone->name, CCNRM(ch, C_NRM),
+                  CCGRN(ch, C_NRM),
+                  CCNRM(ch, C_NRM), zone->enter_count, CCGRN(ch, C_NRM),
+                  CCNRM(ch, C_NRM), zone->idle_time, CCYEL(ch, C_NRM),
+                  player_name_by_idnum(zone->owner_idnum),
+                  CCNRM(ch, C_NRM));
     }
 
-    page_string(ch->desc, buf);
+    page_string(ch->desc, sb.str);
 }
 
 gint
@@ -5608,14 +5611,13 @@ ACMD(do_show)
     case 27:                   /* str_app */
         strcpy_s(buf, sizeof(buf), "STR      to_hit    to_dam    max_encum    max_weap\r\n");
         for (i = 0; i <= 50; i++) {
-            snprintf(buf, sizeof(buf),
-                     "%s%-5d     %2d         %2d         %4f          %2f\r\n",
-                     buf,
-                     i,
-                     strength_hit_bonus(i),
-                     strength_damage_bonus(i),
-                     strength_carry_weight(i),
-                     strength_wield_weight(i));
+            snprintf_cat(buf, sizeof(buf),
+                         "%-5d     %2d         %2d         %4f          %2f\r\n",
+                         i,
+                         strength_hit_bonus(i),
+                         strength_damage_bonus(i),
+                         strength_carry_weight(i),
+                         strength_wield_weight(i));
         }
         page_string(ch->desc, buf);
         break;
@@ -5719,16 +5721,16 @@ ACMD(do_show)
                     break;
                 }
                 i++;
-                snprintf(buf, sizeof(buf),
-                         "%s%4d. %s[%s%5d%s]%s %35s%s exp:[%9d] pct:%s[%s%3d%s]%s\r\n",
-                         buf, i,
-                         CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                         GET_NPC_VNUM(mob),
-                         CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
-                         GET_NAME(mob), CCNRM(ch, C_NRM),
-                         GET_EXP(mob),
-                         CCRED(ch, C_NRM), CCCYN(ch, C_NRM),
-                         percent, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
+                snprintf_cat(buf, sizeof(buf),
+                             "%4d. %s[%s%5d%s]%s %35s%s exp:[%9d] pct:%s[%s%3d%s]%s\r\n",
+                             i,
+                             CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                             GET_NPC_VNUM(mob),
+                             CCGRN(ch, C_NRM), CCYEL(ch, C_NRM),
+                             GET_NAME(mob), CCNRM(ch, C_NRM),
+                             GET_EXP(mob),
+                             CCRED(ch, C_NRM), CCCYN(ch, C_NRM),
+                             percent, CCRED(ch, C_NRM), CCNRM(ch, C_NRM));
             }
         }
         g_list_free(protos);
@@ -5756,12 +5758,12 @@ ACMD(do_show)
                     strcat_s(buf, sizeof(buf), "**OVERFOW**\r\n");
                     break;
                 }
-                snprintf(buf, sizeof(buf),
-                         "%s%4d. %s[%s%5d%s] %40s%s Tot:[%4d], House:[%4d]\r\n",
-                         buf, ++i, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
-                         GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
-                         obj->name, CCNRM(ch, C_NRM),
-                         obj->shared->number, obj->shared->house_count);
+                snprintf_cat(buf, sizeof(buf),
+                             "%4d. %s[%s%5d%s] %40s%s Tot:[%4d], House:[%4d]\r\n",
+                             ++i, CCGRN(ch, C_NRM), CCNRM(ch, C_NRM),
+                             GET_OBJ_VNUM(obj), CCGRN(ch, C_NRM),
+                             obj->name, CCNRM(ch, C_NRM),
+                             obj->shared->number, obj->shared->house_count);
             }
         }
         if (i) {
@@ -5910,9 +5912,9 @@ ACMD(do_show)
                              CCNRM(ch, C_NRM), i, num_rms, j);
             }
         }
-        snprintf(buf, sizeof(buf),
-                 "%s------------------------------------------------------\r\n"
-                 " Totals:                              %4d/%3d  %6d\r\n", buf, k,
+        snprintf_cat(buf, sizeof(buf),
+                 "------------------------------------------------------\r\n"
+                 " Totals:                              %4d/%3d  %6d\r\n", k,
                  tot_rms, con);
         page_string(ch->desc, buf);
         break;

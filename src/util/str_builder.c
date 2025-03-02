@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
+#include <time.h>
 
 #include "tmpstr.h"
 #include "str_builder.h"

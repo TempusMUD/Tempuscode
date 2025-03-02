@@ -831,13 +831,14 @@ list_active_quests(struct creature *ch)
 void
 list_quest_players(struct creature *ch, struct quest *quest, char *outbuf, size_t size)
 {
-    char buf[MAX_STRING_LENGTH], buf2[MAX_STRING_LENGTH];
     int num_online, num_offline;
     struct creature *vict = NULL;
-    char bitbuf[1024];
+    struct str_builder sb_online = str_builder_default;
+    struct str_builder sb_offline = str_builder_default;
 
-    strcpy_s(buf, sizeof(buf), "  -Online Players------------------------------------\r\n");
-    strcpy_s(buf2, sizeof(buf2), "  -Offline Players-----------------------------------\r\n");
+
+    sb_sprintf(&sb_online, "  -Online Players------------------------------------\r\n");
+    sb_sprintf(&sb_offline, "  -Offline Players-----------------------------------\r\n");
 
     num_online = num_offline = 0;
     for (GList *pit = quest->players; pit; pit = pit->next) {
@@ -845,54 +846,51 @@ list_quest_players(struct creature *ch, struct quest *quest, char *outbuf, size_
         const char *name = player_name_by_idnum(player->idnum);
 
         if (!name) {
-            strcat_s(buf, sizeof(buf), "BOGUS player idnum!\r\n");
-            strcat_s(buf2, sizeof(buf2), "BOGUS player idnum!\r\n");
+            sb_sprintf(&sb_online, "BOGUS player idnum!\r\n");
+            sb_sprintf(&sb_offline, "BOGUS player idnum!\r\n");
             errlog("bogus player idnum in list_quest_players.");
             break;
         }
 
-        if (player->flags) {
-            sprintbit(player->flags, qp_bits, bitbuf, sizeof(bitbuf));
-        } else {
-            strcpy_s(bitbuf, sizeof(bitbuf), "");
-        }
+        char *bits = tmp_printbits(player->flags, qp_bits);
 
         // player is in world and visible
-        if ((vict = get_char_in_world_by_idnum(player->idnum))
-            && can_see_creature(ch, vict)) {
+        vict = get_char_in_world_by_idnum(player->idnum);
+        if (vict && can_see_creature(ch, vict)) {
 
             // see if we can see the locations of the players
             if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-                snprintf(buf, sizeof(buf),
-                         "%s  %2d. %-15s - %-10s %s[%5d] D%d/MK%d/PK%d %s\r\n", buf,
-                         ++num_online, name, bitbuf, vict->in_room->name,
-                         vict->in_room->number, player->deaths, player->mobkills,
-                         player->pkills, vict->desc ? "" : "   (linkless)");
+                sb_sprintf(&sb_online,
+                          "  %2d. %-15s - %-10s %s[%5d] D%d/MK%d/PK%d %s\r\n",
+                          ++num_online, name, bits, vict->in_room->name,
+                          vict->in_room->number, player->deaths,
+                          player->mobkills,
+                          player->pkills,
+                          vict->desc ? "" : "   (linkless)");
             } else if (QUEST_FLAGGED(quest, QUEST_WHOWHERE)) {
-                snprintf_cat(buf, sizeof(buf), "  %2d. %-15s - %s\r\n",
-                             ++num_online, name, vict->in_room->name);
+                sb_sprintf(&sb_online, "  %2d. %-15s - %s\r\n",
+                          ++num_online, name, vict->in_room->name);
             } else {
-                snprintf_cat(buf, sizeof(buf), "  %2d. %-15s - %-10s\r\n", ++num_online,
-                             name, bitbuf);
+                sb_sprintf(&sb_online, "  %2d. %-15s - %-10s\r\n", ++num_online,
+                          name, bits);
             }
 
-        }
-        // player is either offline or invisible
-        else if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-            snprintf_cat(buf2, sizeof(buf2), "  %2d. %-15s - %-10s\r\n", ++num_offline,
-                         name, bitbuf);
+        } else if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+            // player is either offline or invisible
+            sb_sprintf(&sb_offline, "  %2d. %-15s - %-10s\r\n", ++num_offline,
+                      name, bits);
         }
     }
 
     // only gods may see the offline players
     if (PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
-        strcat_s(buf, sizeof(buf), buf2);
+        sb_strcat(&sb_online, sb_offline.str, NULL);
     }
 
     if (outbuf) {
-        strcpy_s(outbuf, size, buf);
+        strcpy_s(outbuf, size, sb_online.str);
     } else {
-        page_string(ch->desc, buf);
+        page_string(ch->desc, sb_online.str);
     }
 
 }
