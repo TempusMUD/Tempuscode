@@ -1723,6 +1723,20 @@ obj_from_room(struct obj_data *object)
     REMOVE_BIT(GET_OBJ_EXTRA2(object), ITEM2_HIDDEN);
 }
 
+static bool
+player_held(struct obj_data *obj)
+{
+    if (obj->in_obj) {
+        return player_held(obj->in_obj);
+    } else if (obj->worn_by) {
+        return IS_PC(obj->worn_by);
+    } else if (obj->carried_by) {
+        return IS_PC(obj->carried_by);
+    } else {
+        return false;
+    }
+}
+
 /* put an object in an object (quaint)  */
 static void
 general_obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, insert_func_t insert_func)
@@ -1739,6 +1753,9 @@ general_obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, insert_func_t 
 
     /* top level object.  Subtract weight from inventory if necessary. */
     modify_object_weight(obj_to, GET_OBJ_WEIGHT(obj));
+    if (player_held(obj_to)) {
+        obj->shared->player_count++;
+    }
 
     if (obj_to->in_room && ROOM_FLAGGED(obj_to->in_room, ROOM_HOUSE)) {
         SET_BIT(ROOM_FLAGS(obj_to->in_room), ROOM_HOUSE_CRASH);
@@ -1784,6 +1801,9 @@ obj_from_obj(struct obj_data *obj)
     obj_from = obj->in_obj;
 
     modify_object_weight(obj_from, -GET_OBJ_WEIGHT(obj));
+    if (player_held(obj_from)) {
+        obj->shared->player_count--;
+    }
 
     REMOVE_FROM_LIST(obj, obj_from->contains, next_content);
 
