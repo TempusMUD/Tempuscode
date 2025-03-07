@@ -10,7 +10,7 @@
 const size_t SB_CHUNK_SIZE = 4096;
 const size_t SB_MAX_SIZE = 20 * 1024 * 1024;
 
-const struct str_builder str_builder_default = {0};
+const struct str_builder str_builder_default = {0, 0, ""};
 char *tmp_alloc(size_t size_req);
 
 static void
