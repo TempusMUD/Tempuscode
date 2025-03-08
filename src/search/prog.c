@@ -1826,7 +1826,7 @@ DEFPROGHANDLER(mload, env, evt, args)
 {
     struct creature *mob;
     struct room_data *room = NULL;
-    int vnum, max_load = -1;
+    int vnum, max_load = 200;
     char *arg;
 
     vnum = atoi(tmp_getword(&args));
@@ -1849,10 +1849,10 @@ DEFPROGHANDLER(mload, env, evt, args)
         room = prog_get_owner_room(env);
     }
     if (*arg && !strcasecmp(arg, "max")) {
-        max_load = atoi(tmp_getword(&args));
+        max_load = MIN(atoi(tmp_getword(&args)), 200);
     }
 
-    if (max_load == -1 || mob->mob_specials.shared->number < max_load) {
+    if (mob->mob_specials.shared->number < max_load) {
         mob = read_mobile(vnum);
         if (mob == NULL) {
             return;
