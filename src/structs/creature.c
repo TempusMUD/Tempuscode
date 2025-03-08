@@ -273,9 +273,9 @@ add_player_tag(struct creature *ch, const char *tag)
         return;
     }
     if (ch->player_specials->tags == NULL) {
-        ch->player_specials->tags = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
+        ch->player_specials->tags = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
     }
-    g_hash_table_add(ch->player_specials->tags, GINT_TO_POINTER(1));
+    g_hash_table_add(ch->player_specials->tags, g_strdup(tag));
 }
 
 void
