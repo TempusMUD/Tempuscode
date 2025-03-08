@@ -206,6 +206,9 @@ free_creature(struct creature *ch)
 {
     reset_creature(ch);
     if (ch->player_specials != &dummy_mob) {
+        if (ch->player_specials->tags) {
+            g_hash_table_unref(ch->player_specials->tags);
+        }
         free(ch->player_specials);
         free(ch->player.title);
     }
@@ -270,9 +273,9 @@ add_player_tag(struct creature *ch, const char *tag)
         return;
     }
     if (ch->player_specials->tags == NULL) {
-        ch->player_specials->tags = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
+        ch->player_specials->tags = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, NULL);
     }
-    g_hash_table_add(ch->player_specials->tags, g_strdup(tag));
+    g_hash_table_add(ch->player_specials->tags, GINT_TO_POINTER(1));
 }
 
 void
