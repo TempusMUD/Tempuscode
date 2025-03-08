@@ -2464,10 +2464,12 @@ trigger_prog_death(void *owner, enum prog_evt_type owner_type, struct creature *
     evt.object = NULL;
     evt.object_type = PROG_TYPE_NONE;
     strcpy_s(evt.args, sizeof(evt.args), "");
-    env = prog_start(owner_type, owner, NULL, &evt);
+    env = prog_start(owner_type, owner, doomed, &evt);
     prog_execute(env);
 
 
+    // We don't target the doomed creature after death, since the
+    // creature will be removed from the game shortly.
     evt.phase = PROG_EVT_AFTER;
     env = prog_start(owner_type, owner, NULL, &evt);
     prog_execute(env);
