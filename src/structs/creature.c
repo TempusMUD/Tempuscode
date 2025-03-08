@@ -138,7 +138,10 @@ reset_creature(struct creature *ch)
         //
         // otherwise ch is a player, so free all
         //
-
+        if (ch->player_specials->tags) {
+            g_hash_table_unref(ch->player_specials->tags);
+            ch->player_specials->tags = NULL;
+        }
         free(ch->player.name);
         free(ch->player.title);
         free(ch->player.short_descr);
@@ -206,9 +209,6 @@ free_creature(struct creature *ch)
 {
     reset_creature(ch);
     if (ch->player_specials != &dummy_mob) {
-        if (ch->player_specials->tags) {
-            g_hash_table_unref(ch->player_specials->tags);
-        }
         free(ch->player_specials);
         free(ch->player.title);
     }
