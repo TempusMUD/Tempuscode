@@ -2585,6 +2585,27 @@ trigger_prog_combat(void *owner, enum prog_evt_type owner_type)
 }
 
 void
+trigger_prog_room_load(struct room_data *owner)
+{
+    if (!GET_ROOM_PROGOBJ(owner)) {
+        return;
+    }
+
+    struct prog_evt evt = {
+        .phase = PROG_EVT_AFTER,
+        .kind = PROG_EVT_LOAD,
+        .cmd = -1,
+        .args = "",
+        .subject = NULL,
+        .object = NULL,
+        .object_type = PROG_TYPE_NONE,
+    };
+
+    struct prog_env *env = prog_start(PROG_TYPE_ROOM, owner, NULL, &evt);
+    prog_execute(env);
+}
+
+void
 trigger_prog_load(struct creature *owner)
 {
     struct prog_env *env;

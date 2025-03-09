@@ -101,6 +101,7 @@ bool trigger_prog_move(void *owner, enum prog_evt_type owner_type, struct creatu
 void trigger_prog_idle(void *owner, enum prog_evt_type owner_type);
 void trigger_prog_combat(void *owner, enum prog_evt_type owner_type);
 void trigger_prog_tick(void *owner, enum prog_evt_type owner_type);
+void trigger_prog_room_load(struct room_data *self);
 void trigger_prog_load(struct creature *self);
 void trigger_prog_fight(struct creature *ch, struct creature *self);
 void trigger_prog_give(struct creature *ch, struct creature *self, struct obj_data *obj);

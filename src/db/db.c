@@ -321,7 +321,6 @@ boot_world(void)
 void
 boot_db(void)
 {
-    struct zone_data *zone;
     PGresult *res;
 
     slog("Boot db -- BEGIN.");
@@ -442,8 +441,15 @@ boot_db(void)
         update_objects_housed_count();
     }
 
+    slog("Initializing room progs.");
+    for (struct zone_data *zone = zone_table; zone; zone = zone->next) {
+        for (struct room_data *rm = zone->world;rm;rm = rm->next) {
+            trigger_prog_room_load(rm);
+        }
+    }
+
     if (!no_initial_zreset) {
-        for (zone = zone_table; zone; zone = zone->next) {
+        for (struct zone_data *zone = zone_table; zone; zone = zone->next) {
             slog("Resetting %s (rms %d-%d).",
                  zone->name, zone->number * 100, zone->top);
             reset_zone(zone);
