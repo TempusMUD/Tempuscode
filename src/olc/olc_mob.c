@@ -1239,7 +1239,7 @@ do_mob_mset(struct creature *ch, char *argument)
     zone = zone_owner(GET_NPC_VNUM(mob_p));
     if (zone
         && !ZONE_FLAGGED(zone, ZONE_FULLCONTROL)
-        && is_authorized(ch, APPROVE_ZONE, NULL)) {
+        && !is_authorized(ch, APPROVE_ZONE, NULL)) {
         SET_BIT(NPC2_FLAGS(mob_p), NPC2_UNAPPROVED);
     }
 }
