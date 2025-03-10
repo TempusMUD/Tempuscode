@@ -1743,7 +1743,7 @@ DEFPROGHANDLER(oload, env, evt, args)
 {
     struct obj_data *obj;
     struct room_data *room = NULL;
-    int vnum, max_load = -1, target_num = -1;
+    int vnum, max_load = 200, target_num = -1;
     char *target_str, *arg;
 
     vnum = atoi(tmp_getword(&args));
