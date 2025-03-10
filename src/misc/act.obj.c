@@ -1758,8 +1758,6 @@ perform_give(struct creature *ch, struct creature *vict,
         act("$n gives $p to $N.", true, ch, obj, vict, TO_NOTVICT);
     }
 
-    trigger_prog_give(ch, vict, obj);
-
     if (IS_OBJ_TYPE(obj, ITEM_MONEY) && GET_OBJ_VAL(obj, 0) > MONEY_LOG_LIMIT) {
         slog("MONEY: %s has given obj #%d (%s) worth %d %s to %s in room #%d (%s)", GET_NAME(ch), GET_OBJ_VNUM(obj), obj->name, GET_OBJ_VAL(obj, 0), GET_OBJ_VAL(obj, 1) ? "credits" : "gold", GET_NAME(vict), vict->in_room->number, vict->in_room->name);
     }
@@ -2051,6 +2049,7 @@ ACMD(do_give)
                 act(to_vict, false, ch, obj, vict, TO_VICT);
                 act(to_room, true, ch, obj, vict, TO_NOTVICT);
             }
+            trigger_prog_give(ch, vict, obj);
             counter = 0;
         }
         obj = next_obj;
