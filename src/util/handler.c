@@ -1031,6 +1031,24 @@ char_to_room(struct creature *ch, struct room_data *room,
     return true;
 }
 
+void
+add_player_counts(struct obj_data *obj)
+{
+    obj->shared->player_count++;
+    for (struct obj_data *c = obj->contains;c;c = c->next_content) {
+        add_player_counts(c);
+    }
+}
+
+void
+remove_player_counts(struct obj_data *obj)
+{
+    obj->shared->player_count--;
+    for (struct obj_data *c = obj->contains;c;c = c->next_content) {
+        remove_player_counts(c);
+    }
+}
+
 static struct obj_data *
 insert_obj_into_contents(struct obj_data *contents, struct obj_data *object)
 {
@@ -1109,7 +1127,7 @@ general_obj_to_char(struct obj_data *object,
     /* set flag for crash-save system */
     if (!IS_NPC(ch)) {
         SET_BIT(PLR_FLAGS(ch), PLR_CRASH);
-        object->shared->player_count++;
+        add_player_counts(object);
     }
 }
 
@@ -1152,7 +1170,7 @@ obj_from_char(struct obj_data *object)
     /* set flag for crash-save system */
     if (!IS_NPC(object->carried_by)) {
         SET_BIT(PLR_FLAGS(object->carried_by), PLR_CRASH);
-        object->shared->player_count--;
+        remove_player_counts(object);
     }
 
     IS_CARRYING_W(object->carried_by) -= GET_OBJ_WEIGHT(object);
@@ -1308,7 +1326,7 @@ equip_char(struct creature *ch, struct obj_data *obj, int pos, int mode)
     obj->worn_by = ch;
     obj->worn_on = pos;
     if (IS_PC(ch)) {
-        obj->shared->player_count++;
+        add_player_counts(obj);
     }
 
     apply_object_affects(ch, obj, true);
@@ -1417,7 +1435,7 @@ raw_unequip_char(struct creature *ch, int pos, int mode)
     obj->worn_by = NULL;
     obj->worn_on = -1;
     if (IS_PC(ch)) {
-        obj->shared->player_count--;
+        remove_player_counts(obj);
     }
 
     affect_total(ch);
@@ -1754,7 +1772,7 @@ general_obj_to_obj(struct obj_data *obj, struct obj_data *obj_to, insert_func_t 
     /* top level object.  Subtract weight from inventory if necessary. */
     modify_object_weight(obj_to, GET_OBJ_WEIGHT(obj));
     if (player_held(obj_to)) {
-        obj->shared->player_count++;
+        add_player_counts(obj);
     }
 
     if (obj_to->in_room && ROOM_FLAGGED(obj_to->in_room, ROOM_HOUSE)) {
@@ -1802,7 +1820,7 @@ obj_from_obj(struct obj_data *obj)
 
     modify_object_weight(obj_from, -GET_OBJ_WEIGHT(obj));
     if (player_held(obj_from)) {
-        obj->shared->player_count--;
+        remove_player_counts(obj);
     }
 
     REMOVE_FROM_LIST(obj, obj_from->contains, next_content);
