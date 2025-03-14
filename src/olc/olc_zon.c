@@ -1696,7 +1696,6 @@ void
 do_zobj_cmd(struct creature *ch, char *argument)
 {
     struct zone_data *zone;
-    struct obj_data *obj;
     struct reset_com *zonecmd, *tmp_zonecmd, *rzonecmd;
     int int_arg1, int_arg2, line, prob = 100;
 

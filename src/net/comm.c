@@ -876,7 +876,7 @@ flush_output(struct descriptor_data *d)
             if (err != Z_OK && err != Z_BUF_ERROR) {
                 errlog("flush zlib deflate(): %s", d->zout->msg);
             }
-            g_io_channel_write_chars(d->io, d->zbuf, ZBUF_LENGTH - d->zout->avail_out, &bytes_written, &error);
+            g_io_channel_write_chars(d->io, (gchar *)d->zbuf, ZBUF_LENGTH - d->zout->avail_out, &bytes_written, &error);
             more_to_send = (d->zout->avail_out == 0);
             d->zout->next_out = d->zbuf;
             d->zout->avail_out = ZBUF_LENGTH;
