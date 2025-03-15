@@ -41,6 +41,7 @@
 #include "account.h"
 #include "screen.h"
 #include "tmpstr.h"
+#include "str_builder.h"
 #include "obj_data.h"
 #include "specs.h"
 #include "strutil.h"
@@ -292,7 +293,7 @@ const struct spec_func_data spec_list[] = {
     {NULL, NULL, 0}             // terminator
 };
 
-const char *spec_flags[] = { "MOB", "OBJ", "ROOM", "RESERVED" };
+const char *spec_flags[] = { "MOB", "OBJ", "ROOM", "RESERVED", "\n" };
 //
 // find_spec_index_ptr - given a spec pointer, return the index
 //
@@ -421,59 +422,49 @@ do_specassign_save(struct creature *ch, int mode)
 //
 
 void
-do_show_specials(struct creature *ch, char *arg)
+do_show_specials(struct creature *ch, char *args)
 {
 
-    int mode_all = 0, mode_mob = 0, mode_obj = 0, mode_room = 0;
-    char arg1[MAX_INPUT_LENGTH], outbuf[MAX_STRING_LENGTH];
-    int i;
+    bool mode_all = false, mode_mob = false, mode_obj = false, mode_room = false;
 
-    if (!*arg) {
-        mode_all = 1;
+    if (!*args) {
+        mode_all = true;
     } else {
-        arg = one_argument(arg, arg1);
-        while (*arg1) {
-            if (is_abbrev(arg1, "mobiles")) {
-                mode_mob = 1;
-            } else if (is_abbrev(arg1, "objects")) {
-                mode_obj = 1;
-            } else if (is_abbrev(arg1, "rooms")) {
-                mode_room = 1;
-            } else if (is_abbrev(arg1, "all")) {
-                mode_all = 1;
+        while (*args) {
+            char *arg = tmp_getword(&args);
+
+            if (is_abbrev(arg, "mobiles")) {
+                mode_mob = true;
+            } else if (is_abbrev(arg, "objects")) {
+                mode_obj = true;
+            } else if (is_abbrev(arg, "rooms")) {
+                mode_room = true;
+            } else if (is_abbrev(arg, "all")) {
+                mode_all = true;
             } else {
-                send_to_char(ch, "Unknown show special option: '%s'\r\n",
-                             arg1);
+                send_to_char(ch, "Unknown show special option: '%s'\r\n", arg);
             }
-            arg = one_argument(arg, arg1);
         }
     }
 
-    strcpy_s(outbuf, sizeof(outbuf), "SPECIAL PROCEDURES_                FLAGS::\r\n");
-    for (i = 0; spec_list[i].tag; i++) {
+    struct str_builder sb = str_builder_default;
+
+    sb_strcat(&sb, "SPECIAL PROCEDURES                 FLAGS\r\n", NULL);
+    for (int i = 0; spec_list[i].tag; i++) {
         if (!mode_all &&
             (!mode_mob || !IS_SET(spec_list[i].flags, SPEC_MOB)) &&
             (!mode_obj || !IS_SET(spec_list[i].flags, SPEC_OBJ)) &&
             (!mode_room || !IS_SET(spec_list[i].flags, SPEC_RM))) {
             continue;
         }
-        if (spec_list[i].flags) {
-            sprintbit(spec_list[i].flags, spec_flags, buf2, sizeof(buf2));
-        } else {
-            strcpy_s(buf2, sizeof(buf2), "NONE");
-        }
 
-        snprintf(buf, sizeof(buf), "  %s%-30s%s   (%s%s%s)\r\n",
-                 CCYEL(ch, C_NRM), spec_list[i].tag, CCNRM(ch, C_NRM),
-                 CCCYN(ch, C_NRM), buf2, CCNRM(ch, C_NRM));
-        if (strlen(buf) + strlen(outbuf) > MAX_STRING_LENGTH - 128) {
-            strcat_s(outbuf, sizeof(outbuf), "**OVERFLOW**\r\n");
-            break;
-        } else {
-            strcat_s(outbuf, sizeof(outbuf), buf);
-        }
+        sb_sprintf(&sb, "  %s%-30s%s   (%s%s%s)\r\n",
+                   CCYEL(ch, C_NRM), spec_list[i].tag, CCNRM(ch, C_NRM),
+                   CCCYN(ch, C_NRM),
+                   spec_list[i].flags ? tmp_printbits(spec_list[i].flags, spec_flags):"NONE",
+                   CCNRM(ch, C_NRM));
     }
-    page_string(ch->desc, outbuf);
+    page_string(ch->desc, sb.str);
 }
 
 //
