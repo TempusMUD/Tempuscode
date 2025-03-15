@@ -173,7 +173,6 @@ const struct spec_func_data spec_list[] = {
     {"jerry", jerry, SPEC_MOB | SPEC_RES},
     {"lounge_soldier", lounge_soldier, SPEC_MOB | SPEC_RES},
     {"armory_person", armory_person, SPEC_MOB | SPEC_RES},
-    {"underworld_goddess", underworld_goddess, SPEC_MOB | SPEC_RES},
     {"duke_nukem", duke_nukem, SPEC_MOB | SPEC_RES},
     {"implanter", implanter, SPEC_MOB},
     {"taunting_frenchman", taunting_frenchman, SPEC_MOB},
