@@ -1616,19 +1616,19 @@ same_obj(struct obj_data *obj1, struct obj_data *obj2)
         return false;
     }
 
-    if (obj1->name != obj2->name && strcmp(obj1->name, obj2->name)) {
+    if (obj1->name != obj2->name && !streq(obj1->name, obj2->name)) {
         return false;
     }
 
     if (obj1->line_desc != obj2->line_desc
         && (!obj1->line_desc || !obj2->line_desc
-            || strcmp(obj1->line_desc, obj2->line_desc))) {
+            || !streq(obj1->line_desc, obj2->line_desc))) {
         return false;
     }
 
     if (obj1->engraving != obj2->engraving
         && (!obj1->engraving || !obj2->engraving
-            || strcmp(obj1->engraving, obj2->engraving))) {
+            || !streq(obj1->engraving, obj2->engraving))) {
         return false;
     }
 
@@ -2750,9 +2750,9 @@ add_reaction(struct reaction *reaction, char *arg)
     enum decision_t action;
 
     action_str = tmp_getword(&arg);
-    if (!strcmp(action_str, "allow")) {
+    if (streq(action_str, "allow")) {
         action = ALLOW;
-    } else if (!strcmp(action_str, "deny")) {
+    } else if (streq(action_str, "deny")) {
         action = DENY;
     } else {
         return false;
@@ -2761,7 +2761,7 @@ add_reaction(struct reaction *reaction, char *arg)
     new_reaction[0] = (action == ALLOW) ? 0x10 : 0x00;
 
     condition = tmp_getword(&arg);
-    if (!strcmp(condition, "not")) {
+    if (streq(condition, "not")) {
         condition = tmp_getword(&arg);
         new_reaction[0] |= 0x20;
     }

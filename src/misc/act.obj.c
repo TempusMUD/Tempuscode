@@ -1395,7 +1395,7 @@ is_undisposable(struct creature *ch, const char *cmdstr, struct obj_data *obj,
     }
 
     if (obj->shared && obj->shared->vnum >= 0 &&
-        strcmp(obj->name, PROTO_SDESC(obj->shared->vnum))) {
+        !streq(obj->name, PROTO_SDESC(obj->shared->vnum))) {
         if (display) {
             send_to_char(ch, "You can't %s a renamed object!\r\n", cmdstr);
         }
@@ -1689,7 +1689,7 @@ ACMD(do_drop)
                 }
             }
 
-            if (!next_obj || strcmp(next_obj->name, obj->name)) {
+            if (!next_obj || !streq(next_obj->name, obj->name)) {
                 if (counter > 0) {
                     if (counter == 1) {
                         to_char = tmp_sprintf("You %s $p.%s", sname, VANISH(mode));

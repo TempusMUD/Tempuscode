@@ -1664,15 +1664,15 @@ ACMD(do_screen)
     char *width_str = tmp_getword(&argument);
 
     // Validate the arguments
-    if ((!is_number(height_str) && strcmp(height_str, "off"))
-        || (*width_str && !is_number(width_str) && strcmp(width_str, "off"))) {
+    if ((!is_number(height_str) && !streq(height_str, "off"))
+        || (*width_str && !is_number(width_str) && !streq(width_str, "off"))) {
         send_to_char(ch,
                      "Usage: screen (<terminal height>|off) [(<terminal width>|off)]\r\n");
         return;
     }
 
     int new_height = 0;
-    if (strcmp(height_str, "off")) {
+    if (!streq(height_str, "off")) {
         new_height = atoi(height_str);
         if (new_height < 0 || new_height > 200) {
             new_height = 0;
@@ -1680,7 +1680,7 @@ ACMD(do_screen)
     }
 
     int new_width = 0;
-    if (*width_str && strcmp(width_str, "off")) {
+    if (*width_str && !streq(width_str, "off")) {
         new_width = atoi(width_str);
         if (new_width < 0 || new_width > 200) {
             new_width = 0;

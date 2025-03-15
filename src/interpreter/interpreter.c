@@ -1861,7 +1861,7 @@ find_alias(struct alias_data *alias_list, char *str)
 {
     while (alias_list != NULL) {
         if (*str == *alias_list->alias) { /* hey, every little bit counts :-) */
-            if (!strcmp(str, alias_list->alias)) {
+            if (streq(str, alias_list->alias)) {
                 return alias_list;
             }
         }
@@ -2118,7 +2118,7 @@ find_command_noabbrev(const char *command)
     int cmd;
 
     for (cmd = 0; *cmd_info[cmd].command != '\n'; cmd++) {
-        if (!strcmp(cmd_info[cmd].command, command)) {
+        if (streq(cmd_info[cmd].command, command)) {
             return cmd;
         }
     }

@@ -318,7 +318,7 @@ ACMD(do_join)
             return;
         }
 
-        if (*clan->password == '\0' || strcmp(clan->password, password) != 0) {
+        if (*clan->password == '\0' || !streq(clan->password, password)) {
             send_to_char(ch, "That was not the correct clan password!\r\n");
             WAIT_STATE(ch, 5 RL_SEC);
             return;
@@ -498,7 +498,7 @@ ACMD(do_resign)
                      "You need to be in a clan before you resign from it.\r\n");
     } else if (AFF_FLAGGED(ch, AFF_CHARM)) {
         send_to_char(ch, "You obviously aren't quite in your right mind.\r\n");
-    } else if (strcmp(argument, "yes") != 0) {
+    } else if (!streq(argument, "yes")) {
         send_to_char(ch, "You must type 'resign yes' to leave your clan.\r\n");
     } else {
         GET_CLAN(ch) = 0;

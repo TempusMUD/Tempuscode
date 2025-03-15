@@ -807,7 +807,7 @@ load_houses(void)
             if (!rindex(file->d_name, '.')) {
                 continue;
             }
-            if (strcmp(rindex(file->d_name, '.'), ".dat")) {
+            if (!streq(rindex(file->d_name, '.'), ".dat")) {
                 continue;
             }
 

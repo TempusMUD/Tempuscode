@@ -1710,7 +1710,7 @@ recalc_all_mobs(struct creature *ch, const char *argument)
         exptest = true;
         send_to_char(ch,
                      "Performing EXP test. Check log file for result.\r\n");
-    } else if (strcmp(argument, "aA43215nfiss")) {
+    } else if (!streq(argument, "aA43215nfiss")) {
         // Safe version reports non-recalculated zones and returns
         for (zone = zone_table; zone; zone = zone->next) {
             if (ZONE_FLAGGED(zone, ZONE_NORECALC)) {
@@ -2056,7 +2056,7 @@ show_olc_help(struct creature *ch, char *arg)
 
         strcpy_s(buf, sizeof(buf), "SPELLS:\r\n");
         for (i = 1; i < TOP_NPC_SPELL; i++) {
-            if (strcmp(spell_to_str(i), "!UNUSED!")) {
+            if (!streq(spell_to_str(i), "!UNUSED!")) {
                 snprintf(buf2, sizeof(buf2), "%3d         %s%s%s\r\n",
                          i, CCCYN(ch, C_NRM), spell_to_str(i), CCNRM(ch, C_NRM));
                 strcat_s(buf, sizeof(buf), buf2);

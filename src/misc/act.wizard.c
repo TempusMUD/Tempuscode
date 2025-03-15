@@ -4984,9 +4984,9 @@ show_mlevels(struct creature *ch, char *value, char *arg)
     }
 
     for (arg1 = tmp_getword(&arg); *arg1; arg1 = tmp_getword(&arg)) {
-        if (!strcmp(arg1, "remort")) {
+        if (streq(arg1, "remort")) {
             remort = true;
-        } else if (!strcmp(arg1, "detailed")) {
+        } else if (streq(arg1, "detailed")) {
             detailed = true;
         } else {
             send_to_char(ch, "Unknown option: '%s'\r\n%s", arg1,
@@ -4998,7 +4998,7 @@ show_mlevels(struct creature *ch, char *value, char *arg)
 
     sb_sprintf(&sb, "Mlevels for %s", remort ? "remort " : "mortal ");
     // scan the existing mobs
-    if (!strcmp(value, "real")) {
+    if (streq(value, "real")) {
         sb_strcat(&sb, "real mobiles:\r\n", NULL);
         for (GList *mit = creatures; mit; mit = mit->next) {
             mob = mit->data;
@@ -5012,7 +5012,7 @@ show_mlevels(struct creature *ch, char *value, char *arg)
                 }
             }
         }
-    } else if (!strcmp(value, "proto")) {
+    } else if (streq(value, "proto")) {
         sb_strcat(&sb, "mobile protos:\r\n", NULL);
         GHashTableIter iter;
         gpointer key, val;
@@ -6236,7 +6236,7 @@ ACMD(do_set)
     int parse_race(char *arg);
 
     name = tmp_getword(&argument);
-    if (!strcmp(name, "file")) {
+    if (streq(name, "file")) {
         is_file = true;
         name = tmp_getword(&argument);
     } else if (!strcasecmp(name, "player")) {
@@ -6337,9 +6337,9 @@ ACMD(do_set)
     }
 
     if (fields[l].type == BINARY) {
-        if (!strcmp(argument, "on") || !strcmp(argument, "yes")) {
+        if (streq(argument, "on") || streq(argument, "yes")) {
             on = true;
-        } else if (!strcmp(argument, "off") || !strcmp(argument, "no")) {
+        } else if (streq(argument, "off") || streq(argument, "no")) {
             off = true;
         }
         if (!(on || off)) {
@@ -7039,9 +7039,9 @@ ACMD(do_aset)
     }
 
     if (fields[l].type == BINARY) {
-        if (!strcmp(argument, "on") || !strcmp(argument, "yes")) {
+        if (streq(argument, "on") || streq(argument, "yes")) {
             on = true;
-        } else if (!strcmp(argument, "off") || !strcmp(argument, "no")) {
+        } else if (streq(argument, "off") || streq(argument, "no")) {
             off = true;
         }
         if (!(on || off)) {
@@ -8005,17 +8005,17 @@ ACMD(do_coderutil)
     }
     token = tmp_getword(&argument);
 
-    if (strcmp(token, "tick") == 0) {
+    if (streq(token, "tick")) {
         point_update();
         send_to_char(ch, "*tick*\r\n");
-    } else if (strcmp(token, "hour") == 0) {
+    } else if (streq(token, "hour")) {
         ACMD(do_time);
         weather_and_time();
         do_time(ch, "", 0, 0);
-    } else if (strcmp(token, "sunday") == 0) {
+    } else if (streq(token, "sunday")) {
         last_sunday_time = time(NULL);
         send_to_char(ch, "Ok, it's now Sunday (kinda).\r\n");
-    } else if (strcmp(token, "recalc") == 0) {
+    } else if (streq(token, "recalc")) {
         token = tmp_getword(&argument);
         recalc_all_mobs(ch, token);
     } else if (streq(token, "cryobackfill")) {
@@ -8039,7 +8039,7 @@ ACMD(do_coderutil)
         }
         sb_strcat(&sb, "\r\n", NULL);
         page_string(ch->desc, sb.str);
-    } else if (strcmp(token, "unusedcmds") == 0) {
+    } else if (streq(token, "unusedcmds")) {
         struct str_builder sb = str_builder_default;
         for (idx = 1; idx < num_of_cmds; idx++) {
             cmd_num = cmd_sort_info[idx].sort_pos;
@@ -8054,9 +8054,9 @@ ACMD(do_coderutil)
         }
         sb_strcat(&sb, "\r\n", NULL);
         page_string(ch->desc, sb.str);
-    } else if (strcmp(token, "verify") == 0) {
+    } else if (streq(token, "verify")) {
         verify_tempus_integrity(ch);
-    } else if (strcmp(token, "chaos") == 0) {
+    } else if (streq(token, "chaos")) {
         for (GList *cit = first_living(creatures); cit; cit = next_living(cit)) {
             struct creature *tch = cit->data;
             struct creature *attacked;
@@ -8068,7 +8068,7 @@ ACMD(do_coderutil)
         }
         send_to_char(ch, "The entire world goes mad...\r\n");
         slog("%s has doomed the world to chaos.", GET_NAME(ch));
-    } else if (strcmp(token, "loadzone") == 0) {
+    } else if (streq(token, "loadzone")) {
         int zone_num;
         struct zone_data *zone;
 
@@ -8089,7 +8089,7 @@ ACMD(do_coderutil)
         } else {
             send_to_char(ch, "Zone could not be found or reset.\r\n");
         }
-    } else if (strcmp(token, "progstat") == 0) {
+    } else if (streq(token, "progstat")) {
         void *owner = NULL;
         extern GList *active_progs;
         extern gint prog_tick;
@@ -8097,7 +8097,7 @@ ACMD(do_coderutil)
                                     enum prog_evt_type owner_type);
 
         token = tmp_getword(&argument);
-        if (!strcmp(token, "room")) {
+        if (streq(token, "room")) {
             owner = ch->in_room;
         } else {
             owner = get_char_room_vis(ch, token);
@@ -8133,7 +8133,7 @@ ACMD(do_coderutil)
         }
 
         page_string(ch->desc, sb.str);
-    } else if (strcmp(token, "dumpprogs") == 0) {
+    } else if (streq(token, "dumpprogs")) {
         extern GList *active_progs;
         extern gint prog_tick;
         unsigned char *prog_get_obj(void *owner,
@@ -8195,11 +8195,11 @@ ACMD(do_account)
         return;
     }
 
-    if (strcmp(token, "disable") == 0) {
+    if (streq(token, "disable")) {
         send_to_char(ch, "Not Implemented.\r\n");
-    } else if (strcmp(token, "enable") == 0) {
+    } else if (streq(token, "enable")) {
         send_to_char(ch, "Not Implemented.\r\n");
-    } else if (strcmp(token, "movechar") == 0) {
+    } else if (streq(token, "movechar")) {
         struct account *dst_account;
 
         token = tmp_getword(&argument);
@@ -8239,7 +8239,7 @@ ACMD(do_account)
                      "%s[%ld] has been moved from account %s[%d] to %s[%d]\r\n",
                      player_name_by_idnum(vict_id), vict_id, account->name, account->id,
                      dst_account->name, dst_account->id);
-    } else if (strcmp(token, "exhume") == 0) {
+    } else if (streq(token, "exhume")) {
         token = tmp_getword(&argument);
         if (!token) {
             send_to_char(ch, "Specify an account id.\r\n");
@@ -8259,7 +8259,7 @@ ACMD(do_account)
             return;
         }
         account_exhume_char(account, ch, vict_id);
-    } else if (strcmp(token, "reload") == 0) {
+    } else if (streq(token, "reload")) {
         token = tmp_getword(&argument);
         if (!token) {
             send_to_char(ch, "Specify an account id.\r\n");

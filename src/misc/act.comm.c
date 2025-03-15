@@ -152,25 +152,25 @@ select_say_cmd(struct creature *ch, const char *message)
     int len = strlen(message);
     const char *end = message + len - 1;
 
-    if (len > 3 && !strcmp("???", end - 2)) {
+    if (len > 3 && streq("???", end - 2)) {
         return "yell";
     }
-    if (len > 2 && !strcmp("??", end - 1)) {
+    if (len > 2 && streq("??", end - 1)) {
         return "demand";
     }
     if ('?' == *end) {
         return "ask";
     }
-    if (len > 3 && !strcmp("!!!", end - 2)) {
+    if (len > 3 && streq("!!!", end - 2)) {
         return "scream";
     }
-    if (len > 2 && !strcmp("!!", end - 1)) {
+    if (len > 2 && streq("!!", end - 1)) {
         return "yell";
     }
     if ('!' == *end) {
         return "exclaim";
     }
-    if (len > 3 && !strcmp("...", end - 2)) {
+    if (len > 3 && streq("...", end - 2)) {
         return "mutter";
     }
     if (len > 320) {
@@ -240,7 +240,7 @@ ACMD(do_say)
     }
 
     if (*argument) {
-        if (!strcmp(cmdstr, "say")) {
+        if (streq(cmdstr, "say")) {
             cmdstr = select_say_cmd(ch, argument);
         }
         perform_say(ch, cmdstr, argument);
@@ -990,22 +990,22 @@ ACMD(do_gen_comm)
 
         tmp_arg = argument + 1;
         class_str = tmp_getword(&tmp_arg);
-        if (!strcmp(class_str, "e-cleric")) {
+        if (streq(class_str, "e-cleric")) {
             eff_is_neutral = false;
             eff_is_evil = true;
             eff_is_good = false;
             eff_class = CLASS_CLERIC;
-        } else if (!strcmp(class_str, "g-cleric")) {
+        } else if (streq(class_str, "g-cleric")) {
             eff_is_neutral = false;
             eff_is_evil = false;
             eff_is_good = true;
             eff_class = CLASS_CLERIC;
-        } else if (!strcmp(class_str, "e-knight")) {
+        } else if (streq(class_str, "e-knight")) {
             eff_is_neutral = false;
             eff_is_evil = true;
             eff_is_good = false;
             eff_class = CLASS_KNIGHT;
-        } else if (!strcmp(class_str, "g-knight")) {
+        } else if (streq(class_str, "g-knight")) {
             eff_is_neutral = false;
             eff_is_evil = false;
             eff_is_good = true;

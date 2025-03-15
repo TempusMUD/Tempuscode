@@ -1228,7 +1228,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
             shop->item_list = g_list_prepend(shop->item_list,
                                              GINT_TO_POINTER(atoi(line)));
         } else if (streq(param_key, "accept")) {
-            if (strcmp(line, "all")) {
+            if (!streq(line, "all")) {
                 val = search_block(line, item_types, 0);
                 if (val <= 0) {
                     err = "an invalid accept line";
@@ -1240,7 +1240,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
             shop->item_types = g_list_prepend(shop->item_types,
                                               GINT_TO_POINTER(1U << 8 | val));
         } else if (streq(param_key, "refuse")) {
-            if (strcmp(line, "all")) {
+            if (!streq(line, "all")) {
                 val = search_block(line, item_types, 0);
                 if (val <= 0) {
                     err = "an invalid accept line";

@@ -80,11 +80,11 @@ load_banned_entry(xmlNodePtr node)
             free(text);
         } else if (xmlMatches(child->name, "type")) {
             text = (char *)xmlNodeGetContent(child);
-            if (!strcmp(text, "all")) {
+            if (streq(text, "all")) {
                 ban->type = BAN_ALL;
-            } else if (!strcmp(text, "select")) {
+            } else if (streq(text, "select")) {
                 ban->type = BAN_SELECT;
-            } else if (!strcmp(text, "new")) {
+            } else if (streq(text, "new")) {
                 ban->type = BAN_NEW;
             }
             free(text);

@@ -857,7 +857,7 @@ dispatch_input(struct descriptor_data *d, char *arg)
         set_desc_state(CXN_WAIT_MENU, d);
         break;
     case CXN_DELETE_VERIFY:
-        if (strcmp(arg, "yes")) {
+        if (!streq(arg, "yes")) {
             d_printf(d,
                      "\r\n              &yDelete cancelled.  %s will not be deleted.\r\n\r\n",
                      GET_NAME(d->creature));
@@ -1034,7 +1034,7 @@ dispatch_input(struct descriptor_data *d, char *arg)
         break;
     case CXN_PROXY:
         char *word = tmp_gettoken(&arg);
-        if (strcmp(word, "PROXY")) {
+        if (!streq(word, "PROXY")) {
             // Not our proxy - kill the link.
             close_socket(d);
             return;

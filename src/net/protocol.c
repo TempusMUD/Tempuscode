@@ -34,6 +34,7 @@
 #include "tmpstr.h"
 #include "str_builder.h"
 #include "help.h"
+#include "strutil.h"
 
 // Protocols
 #define MSSP 70
@@ -229,7 +230,7 @@ handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
     case 1:
         char *ttype = tmp_strdupn((char *)buf, len-1);
         set_desc_variable(d, "TERMINAL_TYPE", ttype);
-        if (!strcmp(ttype, d->client_info.client_name)) {
+        if (streq(ttype, d->client_info.client_name)) {
             // There was a single termtype, so not an MTTS client.
             set_desc_variable(d, "CLIENT_NAME", "");
             d->ttype_phase = 0;

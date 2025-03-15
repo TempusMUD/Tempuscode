@@ -325,7 +325,7 @@ get_number(char **name)
 int
 find_all_dots(char *arg)
 {
-    if (!strcmp(arg, "all")) {
+    if (streq(arg, "all")) {
         return FIND_ALL;
     } else if (!strncmp(arg, "all.", 4)) {
         memmove(arg, arg + 4, strlen(arg) - 3);
@@ -647,7 +647,7 @@ search_block_no_lower(char *arg, const char **list, bool exact)
 
     if (exact) {
         for (i = 0; **(list + i) != '\n'; i++) {
-            if (!strcmp(arg, *(list + i))) {
+            if (streq(arg, *(list + i))) {
                 return (i);
             }
         }

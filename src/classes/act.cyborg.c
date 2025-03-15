@@ -323,7 +323,7 @@ ACMD(do_recharge)
 
     if ((!*arg1 || ch == get_char_room_vis(ch, arg1)) && IS_CYBORG(ch)) {
         // Find the battery
-        if (!(strcmp("internal", arg2))) {
+        if (!(!streq("internal", arg2))) {
             battery = get_object_in_equip_vis(ch, arg3, ch->implants, &i);
         }
         if (battery == NULL

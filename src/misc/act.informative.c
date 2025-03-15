@@ -3846,61 +3846,61 @@ ACMD(do_who)
     GList *immortals = NULL, *testers = NULL, *players = NULL;
 
     for (arg = tmp_getword(&argument); *arg; arg = tmp_getword(&argument)) {
-        if (!strcmp(arg, "zone")) {
+        if (streq(arg, "zone")) {
             zone = true;
         }
-        if (!strcmp(arg, "plane")) {
+        if (streq(arg, "plane")) {
             plane = true;
         }
-        if (!strcmp(arg, "time")) {
+        if (streq(arg, "time")) {
             time = true;
         }
-        if (!strcmp(arg, "kills")) {
+        if (streq(arg, "kills")) {
             kills = true;
         }
-        if (!strcmp(arg, "noflags")) {
+        if (streq(arg, "noflags")) {
             noflags = true;
         }
-        if (!strcmp(arg, "class")) {
+        if (streq(arg, "class")) {
             classes = true;
-            if (!strcmp(arg, "mag")) {
+            if (streq(arg, "mag")) {
                 mage = true;
             }
-            if (!strcmp(arg, "thi")) {
+            if (streq(arg, "thi")) {
                 thief = true;
             }
-            if (!strcmp(arg, "ran")) {
+            if (streq(arg, "ran")) {
                 ranger = true;
             }
-            if (!strcmp(arg, "kni")) {
+            if (streq(arg, "kni")) {
                 knight = true;
             }
-            if (!strcmp(arg, "cle")) {
+            if (streq(arg, "cle")) {
                 cleric = true;
             }
-            if (!strcmp(arg, "barb")) {
+            if (streq(arg, "barb")) {
                 barbarian = true;
             }
-            if (!strcmp(arg, "bard")) {
+            if (streq(arg, "bard")) {
                 bard = true;
             }
-            if (!strcmp(arg, "mon")) {
+            if (streq(arg, "mon")) {
                 monk = true;
             }
-            if (!strcmp(arg, "phy")) {
+            if (streq(arg, "phy")) {
                 physic = true;
             }
-            if (!strcmp(arg, "cyb") || !strcmp(arg, "borg")) {
+            if (streq(arg, "cyb") || streq(arg, "borg")) {
                 cyborg = true;
             }
-            if (!strcmp(arg, "psi")) {
+            if (streq(arg, "psi")) {
                 psionic = true;
             }
-            if (!strcmp(arg, "mer")) {
+            if (streq(arg, "mer")) {
                 mercenary = true;
             }
         }
-        if (!strcmp(arg, "clan")) {
+        if (streq(arg, "clan")) {
             arg = tmp_getword(&argument);
             if (arg) {
                 real_clan = clan_by_name(arg);

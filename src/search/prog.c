@@ -1292,7 +1292,7 @@ DEFPROGHANDLER(damage, env, evt, args)
         mobs = true;
     } else if (streq(target_arg, "players")) {
         players = true;
-    } else if (strcmp(target_arg, "all")) {
+    } else if (!streq(target_arg, "all")) {
         zerrlog(room->zone, "Bad *damage argument '%s' in prog in %s",
                 target_arg, prog_get_desc(env));
     }
@@ -1416,7 +1416,7 @@ DEFPROGHANDLER(spell, env, evt, args)
         mobs = true;
     } else if (streq(target_arg, "players")) {
         players = true;
-    } else if (strcmp(target_arg, "all")) {
+    } else if (!streq(target_arg, "all")) {
         zerrlog(room->zone, "Bad *spell argument '%s' in prog in %s",
                 target_arg, prog_get_desc(env));
     }
@@ -1708,7 +1708,7 @@ DEFPROGHANDLER(trans, env, evt, args)
         mobs = true;
     } else if (streq(target_arg, "players")) {
         players = true;
-    } else if (strcmp(target_arg, "all")) {
+    } else if (!streq(target_arg, "all")) {
         zerrlog(room->zone, "Bad *trans argument '%s' in prog in %s",
                 target_arg, prog_get_desc(env));
     }

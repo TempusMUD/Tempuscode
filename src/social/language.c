@@ -119,7 +119,7 @@ translate_word(struct tongue *tongue, char *word)
 
     for (int x = 0; x < tongue->syllable_count; x++) {
         found = false;
-        if (!strcmp(arg, tongue->syllables[x].pattern)) {
+        if (streq(arg, tongue->syllables[x].pattern)) {
             found = true;
             arg = tmp_strdup(tongue->syllables[x].replacement);
             break;
@@ -142,7 +142,7 @@ translate_with_tongue(struct tongue *tongue, const char *phrase, int amount)
 {
     char *arg = NULL, *outbuf = NULL;
 
-    if (!strcmp(phrase, "") || !tongue->syllables || amount == 100) {
+    if (streq(phrase, "") || !tongue->syllables || amount == 100) {
         return tmp_strdup(phrase);
     }
 

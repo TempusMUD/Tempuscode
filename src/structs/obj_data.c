@@ -799,26 +799,26 @@ save_object_to_xml(struct obj_data *obj, FILE *ouf)
 
     char *s = obj->name;
     if (s != NULL &&
-        (proto == NULL || proto->name == NULL || strcmp(s, proto->name))) {
+        (proto == NULL || proto->name == NULL || !streq(s, proto->name))) {
         fprintf(ouf, "%s<name>%s</name>\n", indent, xmlEncodeTmp(s));
     }
 
     s = obj->aliases;
     if (s != NULL &&
-        (proto == NULL || proto->aliases == NULL || strcmp(s, proto->aliases))) {
+        (proto == NULL || proto->aliases == NULL || !streq(s, proto->aliases))) {
         fprintf(ouf, "%s<aliases>%s</aliases>\n", indent, xmlEncodeTmp(s));
     }
 
     s = obj->engraving;
     if (s != NULL &&
-        (proto == NULL || proto->aliases == NULL || strcmp(s, proto->aliases))) {
+        (proto == NULL || proto->aliases == NULL || !streq(s, proto->aliases))) {
         fprintf(ouf, "%s<engraving>%s</engraving>\n", indent, xmlEncodeTmp(s));
     }
 
     s = obj->line_desc;
     if (s != NULL &&
         (proto == NULL || proto->line_desc == NULL
-         || strcmp(s, proto->line_desc))) {
+         || !streq(s, proto->line_desc))) {
         fprintf(ouf, "%s<line_desc>%s</line_desc>\n", indent, xmlEncodeTmp(s));
     }
 
@@ -837,7 +837,7 @@ save_object_to_xml(struct obj_data *obj, FILE *ouf)
     s = obj->action_desc;
     if (s != NULL &&
         (proto == NULL || proto->action_desc == NULL ||
-         strcmp(s, proto->action_desc))) {
+         !streq(s, proto->action_desc))) {
         fprintf(ouf, "%s<action_desc>%s</action_desc>\n", indent,
                 xmlEncodeTmp(tmp_gsub(tmp_gsub(s, "\r\n", "\n"), "\r", "")));
     }
