@@ -38,8 +38,32 @@ void add_alias(struct creature *ch, struct alias_data *a);
 void affect_to_char(struct creature *ch, struct affected_type *af);
 void extract_object_list(struct obj_data *head);
 bool save_player_objects(struct creature *ch);
+struct creature *load_player_from_xml(int id);
+void save_player_to_xml(struct creature *ch);
 
-
+void
+autocryo(bool backfill)
+{
+    const char *cond = "where age(entry_time) between '90 days' and '91 days'";
+    if (backfill) {
+        cond = "where age(entry_time) >= '90 days'";
+    }
+    PGresult *res = sql_query("select p.idnum from accounts a join players p on p.account=a.idnum %s", cond);
+    long count = PQntuples(res);
+    for (int idx = 0;idx < count;idx++) {
+        int idnum = atol(PQgetvalue(res, idx, 0));
+        struct creature *ch = load_player_from_xml(idnum);
+        if (!ch) {
+            slog("couldn't read player %d for autocryo", idnum);
+            continue;
+        }
+        if (ch->player_specials->rentcode != RENT_CRYO) {
+            slog("Auto-cryoing player %s(%d) for dormancy.", GET_NAME(ch), idnum);
+            ch->player_specials->rentcode = RENT_CRYO;
+            save_player_to_xml(ch);
+        }
+    }
+}
 
 struct obj_data *
 findCostliestObj(struct creature *ch)

@@ -7925,9 +7925,10 @@ ACMD(do_qpreload)
 const char *CODER_UTIL_USAGE =
     "Usage: coderutil <command> <args>\r\n"
     "Commands: \r\n"
-    "      tick - forces a mud-wide tick to occur.\r\n"
-    "      hour - forces an hour of mud-time to occur.\r\n"
+    "        tick - forces a mud-wide tick to occur.\r\n"
+    "        hour - forces an hour of mud-time to occur.\r\n"
     "      recalc - recalculates all mobs and saves.\r\n"
+    "cryobackfill - autocryo every character past limit.\r\n"
     "    cmdusage - shows commands and usage counts.\r\n"
     "  unusedcmds - shows unused commands.\r\n"
     "      verify - run tempus integrity check.\r\n"
@@ -8017,7 +8018,11 @@ ACMD(do_coderutil)
     } else if (strcmp(token, "recalc") == 0) {
         token = tmp_getword(&argument);
         recalc_all_mobs(ch, token);
-    } else if (strcmp(token, "cmdusage") == 0) {
+    } else if (streq(token, "cryobackfill")) {
+        void autocryo(bool);
+
+        autocryo(true);
+    } else if (streq(token, "cmdusage")) {
         struct str_builder sb = str_builder_default;
         for (idx = 1; idx < num_of_cmds; idx++) {
             cmd_num = cmd_sort_info[idx].sort_pos;

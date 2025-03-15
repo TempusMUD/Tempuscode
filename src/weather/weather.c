@@ -42,12 +42,14 @@
 extern struct time_info_data time_info;
 extern int lunar_day;
 
-void another_hour();
+void autocryo(bool);
+void another_hour(void);
 void weather_change(void);
 void zone_weather_change(struct zone_data *zone);
 void jet_stream(void);
 
 int jet_stream_state = true;
+
 void
 weather_and_time(void)
 {
@@ -57,6 +59,13 @@ weather_and_time(void)
     if (now - last_sunday_time > (7 * 24 * 60 * 60)) {
         last_sunday_time += 7 * 24 * 60 * 60;
         qp_reload(0);
+    }
+
+    // Cryo characters of dormant accounts once a day.
+    struct tm nowtm;
+    localtime_r(&now, &nowtm);
+    if (nowtm.tm_hour == 0 && nowtm.tm_min == 15 && nowtm.tm_sec == 0) {
+        autocryo(false);
     }
 
     another_hour();
