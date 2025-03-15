@@ -687,11 +687,11 @@ load_object_from_xml(struct obj_data *container,
 
             char *type = (char *)xmlGetProp(cur, (xmlChar *) "type");
             if (type != NULL) {
-                if (victim && strcmp(type, "equipped") == 0) {
+                if (victim && streq(type, "equipped")) {
                     equip_char(victim, obj, position, EQUIP_WORN);
-                } else if (victim && strcmp(type, "implanted") == 0) {
+                } else if (victim && streq(type, "implanted")) {
                     equip_char(victim, obj, position, EQUIP_IMPLANT);
-                } else if (victim && strcmp(type, "tattooed") == 0) {
+                } else if (victim && streq(type, "tattooed")) {
                     equip_char(victim, obj, position, EQUIP_TATTOO);
                 } else if (container) {
                     unsorted_obj_to_obj(obj, container);

@@ -63,22 +63,25 @@ START_TEST(test_remove_from_cstring)
 {
     char str[9] = "abcdefba";
     remove_from_cstring(str, 'b', '?');
-    ck_assert_msg(!strcmp(str, "a?cdef?a"), "remove_from_cstring() result was '%s'", str);
+    ck_assert_msg(streq(str, "a?cdef?a"),
+                  "remove_from_cstring() result was '%s'", str);
 }
 END_TEST
 START_TEST(test_sprintbit)
 {
     char str[1024] = "";
     sprintbit(0x0001, bit_descs, str, sizeof(str));
-    ck_assert_msg(!strcmp(str, "BIT_00 "), "sprintbit 0x1 gives \"%s\"", str);
+    ck_assert_msg(streq(str, "BIT_00 "), "sprintbit 0x1 gives \"%s\"", str);
     sprintbit(0x0003, bit_descs, str, sizeof(str));
-    ck_assert_msg(!strcmp(str, "BIT_00 BIT_01 "), "sprintbit 0x3 gives \"%s\"", str);
+    ck_assert_msg(streq(str, "BIT_00 BIT_01 "), "sprintbit 0x3 gives \"%s\"",
+                  str);
     sprintbit(0x0010, bit_descs, str, sizeof(str));
-    ck_assert_msg(!strcmp(str, "BIT_04 "), "sprintbit 0x10 gives \"%s\"", str);
+    ck_assert_msg(streq(str, "BIT_04 "), "sprintbit 0x10 gives \"%s\"", str);
     sprintbit(0, bit_descs, str, sizeof(str));
-    ck_assert_msg(!strcmp(str, "NOBITS "), "sprintbit 0 gives \"%s\"", str);
+    ck_assert_msg(streq(str, "NOBITS "), "sprintbit 0 gives \"%s\"", str);
     sprintbit(0x10000, bit_descs, str, sizeof(str));
-    ck_assert_msg(!strcmp(str, "UNDEFINED "), "sprintbit 0x10000 gives \"%s\"", str);
+    ck_assert_msg(streq(str, "UNDEFINED "), "sprintbit 0x10000 gives \"%s\"",
+                  str);
 }
 END_TEST
 START_TEST(test_strlist_aref)

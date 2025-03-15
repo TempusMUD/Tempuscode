@@ -392,10 +392,10 @@ angel_do_action(struct creature *self, struct creature *charge,
 
     action = data->action;
     cmd = tmp_getword(&action);
-    if (!strcmp(cmd, "respond")) {
+    if (streq(cmd, "respond")) {
         angel_do_respond(self, data, action);
         result = 1;
-    } else if (!strcmp(cmd, "cast")) {
+    } else if (streq(cmd, "cast")) {
         char *spell = tmp_getword(&action);
         int spell_no = atoi(spell);
 
@@ -407,23 +407,23 @@ angel_do_action(struct creature *self, struct creature *charge,
                        angel_spells[spell_no].spell_no);
             result = 1;
         }
-    } else if (!strcmp(cmd, "answer")) {
+    } else if (streq(cmd, "answer")) {
         char *question = tmp_getword(&action);
         struct creature *ch = get_char_in_world_by_idnum(data->respond_to);
         if (ch == NULL) {
             angel_do_respond(self, data, "I have no idea.");
-        } else if (!strcmp(question, "whoami")) {
+        } else if (streq(question, "whoami")) {
             angel_do_respond(self, data,
                              tmp_sprintf("You are %s, %s %s",
                                          GET_NAME(ch),
                                          IS_GOOD(ch) ? "a good" :
                                          IS_EVIL(ch) ? "an evil" : "a neutral",
                                          strlist_aref(GET_CLASS(ch), class_names)));
-        } else if (!strcmp(question, "whereami")) {
+        } else if (streq(question, "whereami")) {
             angel_do_respond(self, data,
                              tmp_sprintf("You are in %s.", ch->in_room->zone->name));
         }
-    } else if (!strcmp(cmd, "directions")) {
+    } else if (streq(cmd, "directions")) {
         char *room_num = tmp_getword(&action);
         struct room_data *room = real_room(atoi(room_num));
 
@@ -437,7 +437,7 @@ angel_do_action(struct creature *self, struct creature *charge,
                              "I don't seem to be able to find that room.");
         }
         result = 1;
-    } else if (!strcmp(cmd, "dismiss")) {
+    } else if (streq(cmd, "dismiss")) {
         if (charge && GET_IDNUM(charge) != data->respond_to) {
             angel_do_respond(self, data, "Hah.  Piss off.");
             result = 1;

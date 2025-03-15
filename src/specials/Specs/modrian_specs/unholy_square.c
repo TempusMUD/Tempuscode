@@ -173,7 +173,7 @@ SPECIAL(unholy_square)
         return 1;
     }
 
-    if (!strcmp(arg1, "clear")) {
+    if (streq(arg1, "clear")) {
         winner = 0;
         wintime = 0;
         send_to_char(ch, "Winner cleared.\r\n");
@@ -185,7 +185,7 @@ SPECIAL(unholy_square)
         return 1;
     }
 
-    if (!strcmp(arg1, "begin")) {
+    if (streq(arg1, "begin")) {
 
         if (state != STATE_HOLY) {
             send_to_char(ch, "End first.\r\n");
@@ -212,7 +212,7 @@ SPECIAL(unholy_square)
         return 1;
     }
 
-    if (!strcmp(arg1, "end")) {
+    if (streq(arg1, "end")) {
 
         if (state != STATE_UNHOLY) {
             send_to_char(ch, "Begin first.\r\n");

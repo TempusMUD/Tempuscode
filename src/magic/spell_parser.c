@@ -2424,34 +2424,34 @@ load_spell(xmlNodePtr node)
             char *type_str = (char *)xmlGetProp(child, (xmlChar *) "type");
             char *scope_str = (char *)xmlGetProp(child, (xmlChar *) "scope");
 
-            if (!strcmp(type_str, "door")) {
+            if (streq(type_str, "door")) {
                 spell_info[idnum].targets |= TAR_DOOR;
-            } else if (!strcmp(type_str, "direction")) {
+            } else if (streq(type_str, "direction")) {
                 spell_info[idnum].targets |= TAR_DIR;
-            } else if (!strcmp(type_str, "self")) {
-                if (!strcmp(scope_str, "fighting")) {
+            } else if (streq(type_str, "self")) {
+                if (streq(scope_str, "fighting")) {
                     spell_info[idnum].targets |= TAR_FIGHT_SELF;
-                } else if (!strcmp(scope_str, "only")) {
+                } else if (streq(scope_str, "only")) {
                     spell_info[idnum].targets |= TAR_SELF_ONLY;
-                } else if (!strcmp(scope_str, "never")) {
+                } else if (streq(scope_str, "never")) {
                     spell_info[idnum].targets |= TAR_NOT_SELF;
                 }
-            } else if (!strcmp(type_str, "creature")) {
-                if (!strcmp(scope_str, "room")) {
+            } else if (streq(type_str, "creature")) {
+                if (streq(scope_str, "room")) {
                     spell_info[idnum].targets |= TAR_CHAR_ROOM;
-                } else if (!strcmp(scope_str, "world")) {
+                } else if (streq(scope_str, "world")) {
                     spell_info[idnum].targets |= TAR_CHAR_WORLD;
-                } else if (!strcmp(scope_str, "fighting")) {
+                } else if (streq(scope_str, "fighting")) {
                     spell_info[idnum].targets |= TAR_FIGHT_VICT;
                 }
-            } else if (!strcmp(type_str, "object")) {
-                if (!strcmp(scope_str, "room")) {
+            } else if (streq(type_str, "object")) {
+                if (streq(scope_str, "room")) {
                     spell_info[idnum].targets |= TAR_OBJ_ROOM;
-                } else if (!strcmp(scope_str, "world")) {
+                } else if (streq(scope_str, "world")) {
                     spell_info[idnum].targets |= TAR_OBJ_WORLD;
-                } else if (!strcmp(scope_str, "inventory")) {
+                } else if (streq(scope_str, "inventory")) {
                     spell_info[idnum].targets |= TAR_OBJ_INV;
-                } else if (!strcmp(scope_str, "equip")) {
+                } else if (streq(scope_str, "equip")) {
                     spell_info[idnum].targets |= TAR_OBJ_EQUIP;
                 }
             }
@@ -2460,13 +2460,13 @@ load_spell(xmlNodePtr node)
         } else if (xmlMatches(child->name, "flag")) {
             char *value_str = (char *)xmlGetProp(child, (xmlChar *) "value");
 
-            if (!strcmp(value_str, "violent")) {
+            if (streq(value_str, "violent")) {
                 spell_info[idnum].violent = true;
-            } else if (!strcmp(value_str, "weapon")) {
+            } else if (streq(value_str, "weapon")) {
                 spell_info[idnum].is_weapon = true;
-            } else if (!strcmp(value_str, "unpleasant")) {
+            } else if (streq(value_str, "unpleasant")) {
                 spell_info[idnum].targets |= TAR_UNPLEASANT;
-            } else if (!strcmp(value_str, "defensive")) {
+            } else if (streq(value_str, "defensive")) {
                 spell_info[idnum].defensive = true;
             } else {
                 int flag = search_block(value_str, spell_bit_keywords, true);
@@ -2481,11 +2481,11 @@ load_spell(xmlNodePtr node)
         } else if (xmlMatches(child->name, "instrument")) {
             char *type_str = (char *)xmlGetProp(child, (xmlChar *) "type");
 
-            if (!strcmp(type_str, "wind")) {
+            if (streq(type_str, "wind")) {
                 songs[idnum].type = ITEM_WIND;
-            } else if (!strcmp(type_str, "percussion")) {
+            } else if (streq(type_str, "percussion")) {
                 songs[idnum].type = ITEM_PERCUSSION;
-            } else if (!strcmp(type_str, "string")) {
+            } else if (streq(type_str, "string")) {
                 songs[idnum].type = ITEM_STRING;
             } else {
                 errlog("Invalid instrument type '%s' in spell", type_str);

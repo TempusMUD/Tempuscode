@@ -30,6 +30,7 @@
 #include "obj_data.h"
 #include "specs.h"
 #include "actions.h"
+#include "strutil.h"
 
 struct cityguard_data {
     int targ_room;
@@ -436,9 +437,9 @@ SPECIAL(cityguard)
     if (str) {
         for (line = tmp_getline(&str); line; line = tmp_getline(&str)) {
             param_key = tmp_getword(&line);
-            if (!strcmp(param_key, "jailroom")) {
+            if (streq(param_key, "jailroom")) {
                 jail_num = atoi(line);
-            } else if (!strcmp(param_key, "headquarters")) {
+            } else if (streq(param_key, "headquarters")) {
                 hq_num = atoi(line);
             }
         }
@@ -466,7 +467,7 @@ SPECIAL(cityguard)
         if (str) {
             for (line = tmp_getline(&str); line; line = tmp_getline(&str)) {
                 param_key = tmp_getword(&line);
-                if (!strcmp(param_key, "deathspawn")) {
+                if (streq(param_key, "deathspawn")) {
                     new_guard = read_mobile(atoi(line));
                     if (new_guard) {
                         CREATE(data, struct cityguard_data, 1);

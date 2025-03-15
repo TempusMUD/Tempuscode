@@ -3113,7 +3113,7 @@ ACMD(do_impale)
                 false, ch, NULL, ch->master, TO_CHAR);
             return;
         }
-        if (!strcmp(arg, "self")) {
+        if (streq(arg, "self")) {
             if (!(ch->in_room && is_arena_combat(ch, ch))) {
                 act("You impale yourself with $p!", false, ch, weap, NULL,
                     TO_CHAR);

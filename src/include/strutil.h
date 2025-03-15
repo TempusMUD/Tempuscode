@@ -18,6 +18,12 @@
 #define IT_THEY(buf)           (PLUR(buf) ? "they" : "it")
 #define IT_THEM(buf)           (PLUR(buf) ? "them" : "it")
 
+static inline bool
+streq(const char *a, const char *b)
+{
+    return !strcmp(a, b);
+}
+
 static inline char *
 CAP(/*@returned@*/ char *st)
 {

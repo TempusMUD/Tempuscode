@@ -1534,9 +1534,9 @@ ACMD(do_olc)
 
             int mode = 1;
 
-            if (!strcmp(argument, "toroom")) {
+            if (streq(argument, "toroom")) {
                 mode = 2;
-            } else if (!strcmp(argument, "all")) {
+            } else if (streq(argument, "all")) {
                 mode = 3;
             }
 
@@ -1706,7 +1706,7 @@ recalc_all_mobs(struct creature *ch, const char *argument)
     FILE *outfile = NULL;
     bool exptest = false;
 
-    if (strcmp(argument, "exptest") == 0) {
+    if (streq(argument, "exptest")) {
         exptest = true;
         send_to_char(ch,
                      "Performing EXP test. Check log file for result.\r\n");

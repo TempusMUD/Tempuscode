@@ -164,16 +164,16 @@ house_type_from_name(const char *name)
     if (name == NULL) {
         return INVALID;
     }
-    if (strcmp(name, "Private") == 0) {
+    if (streq(name, "Private")) {
         return PRIVATE;
     }
-    if (strcmp(name, "Public") == 0) {
+    if (streq(name, "Public")) {
         return PUBLIC;
     }
-    if (strcmp(name, "Rental") == 0) {
+    if (streq(name, "Rental")) {
         return RENTAL;
     }
-    if (strcmp(name, "Clan") == 0) {
+    if (streq(name, "Clan")) {
         return CLAN;
     }
     return INVALID;
@@ -1752,13 +1752,13 @@ hcontrol_find_houses(struct creature *ch, char *arg)
 
     while (*arg && houses_left) {
         token = tmp_getword(&arg);
-        if (strcmp(token, "owner") == 0 && *arg) {
+        if (streq(token, "owner") && *arg) {
             token = tmp_getword(&arg);
             matched = match_houses(houses_left, HC_OWNER, token);
-        } else if (strcmp(token, "landlord") == 0 && *arg) {
+        } else if (streq(token, "landlord") && *arg) {
             token = tmp_getword(&arg);
             matched = match_houses(houses_left, HC_LANDLORD, token);
-        } else if (strcmp(token, "guest") == 0 && *arg) {
+        } else if (streq(token, "guest") && *arg) {
             token = tmp_getword(&arg);
             matched = match_houses(houses_left, HC_GUEST, token);
         } else {

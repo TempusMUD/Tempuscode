@@ -301,14 +301,14 @@ prog_get_var(struct prog_env *env, const char *key, bool exact)
     if (exact) {
         if (env->state) {
             for (cur_var = env->state->var_list; cur_var; cur_var = cur_var->next) {
-                if (!strcmp(cur_var->key, key)) {
+                if (streq(cur_var->key, key)) {
                     return cur_var;
                 }
             }
         }
         if (prog_get_prog_state(env)) {
             for (cur_var = prog_get_prog_state(env)->var_list; cur_var; cur_var = cur_var->next) {
-                if (!strcmp(cur_var->key, key)) {
+                if (streq(cur_var->key, key)) {
                     return cur_var;
                 }
             }
@@ -793,22 +793,22 @@ prog_eval_condition(struct prog_env *env, struct prog_evt *evt, char *args)
         arg = tmp_getword(&args);
     }
 
-    if (!strcmp(arg, "argument")) {
+    if (streq(arg, "argument")) {
         result = (*evt->args != '\0' && !strcasecmp(args, evt->args));
         // Mobs using "alias"
         // 1200 3062 90800
-    } else if (!strcmp(arg, "alias")) {
+    } else if (streq(arg, "alias")) {
         result = prog_eval_alias(evt, args);
-    } else if (!strcmp(arg, "keyword")) {
+    } else if (streq(arg, "keyword")) {
         result = prog_eval_keyword(evt, args);
-    } else if (!strcmp(arg, "abbrev")) {
+    } else if (streq(arg, "abbrev")) {
         result = prog_eval_abbrev(evt, args);
-    } else if (!strcmp(arg, "fighting")) {
+    } else if (streq(arg, "fighting")) {
         result = (env->owner_type == PROG_TYPE_MOBILE
                   && is_fighting(((struct creature *) env->owner)));
-    } else if (!strcmp(arg, "randomly")) {
+    } else if (streq(arg, "randomly")) {
         result = number(0, 100) < atoi(args);
-    } else if (!strcmp(arg, "variable")) {
+    } else if (streq(arg, "variable")) {
         arg = tmp_gettoken(&args);
         result = prog_var_equal(env, arg, args);
         if (env->tracing) {
@@ -825,7 +825,7 @@ prog_eval_condition(struct prog_env *env, struct prog_evt *evt, char *args)
         result = time_info.hours == atoi(tmp_getword(&args));
     } else if (!strcasecmp(arg, "phase")) {
         result = prog_eval_phase(args);
-    } else if (!strcmp(arg, "position")) {
+    } else if (streq(arg, "position")) {
         if (env->owner_type != PROG_TYPE_MOBILE) {
             struct room_data *room = prog_get_owner_room(env);
             zerrlog(room->zone, "Illegal position condition in %s prog",
@@ -857,7 +857,7 @@ prog_eval_condition(struct prog_env *env, struct prog_evt *evt, char *args)
             result = prog_eval_class(env, args);
         } else if (!strcasecmp(arg, "alignment")) {
             result = prog_eval_alignment(env, args);
-        } else if (!strcmp(arg, "position")) {
+        } else if (streq(arg, "position")) {
             int pos = search_block(args, position_types, false);
 
             if (pos < 0) {
@@ -1246,7 +1246,7 @@ DEFPROGHANDLER(damage, env, evt, args)
     }
 
     search_nomessage = true;
-    if (!strcmp(target_arg, "self")) {
+    if (streq(target_arg, "self")) {
         // Trans the owner of the prog
         switch (env->owner_type) {
         case PROG_TYPE_OBJECT:
@@ -1267,7 +1267,7 @@ DEFPROGHANDLER(damage, env, evt, args)
         }
         search_nomessage = false;
         return;
-    } else if (!strcmp(target_arg, "target")) {
+    } else if (streq(target_arg, "target")) {
         // Transport the target, which is always a creature
         if (!env->target) {
             search_nomessage = false;
@@ -1288,9 +1288,9 @@ DEFPROGHANDLER(damage, env, evt, args)
         return;
     }
 
-    if (!strcmp(target_arg, "mobiles")) {
+    if (streq(target_arg, "mobiles")) {
         mobs = true;
-    } else if (!strcmp(target_arg, "players")) {
+    } else if (streq(target_arg, "players")) {
         players = true;
     } else if (strcmp(target_arg, "all")) {
         zerrlog(room->zone, "Bad *damage argument '%s' in prog in %s",
@@ -1365,7 +1365,7 @@ DEFPROGHANDLER(spell, env, evt, args)
     }
 
     search_nomessage = true;
-    if (!strcmp(target_arg, "self")) {
+    if (streq(target_arg, "self")) {
         // Cast a spell on the owner of the prog
         switch (env->owner_type) {
         case PROG_TYPE_OBJECT:
@@ -1387,7 +1387,7 @@ DEFPROGHANDLER(spell, env, evt, args)
         }
         search_nomessage = false;
         return;
-    } else if (!strcmp(target_arg, "target")) {
+    } else if (streq(target_arg, "target")) {
         // Cast a spell on the target
         if (!env->target) {
             search_nomessage = false;
@@ -1412,9 +1412,9 @@ DEFPROGHANDLER(spell, env, evt, args)
 
     bool players = false, mobs = false;
 
-    if (!strcmp(target_arg, "mobiles")) {
+    if (streq(target_arg, "mobiles")) {
         mobs = true;
-    } else if (!strcmp(target_arg, "players")) {
+    } else if (streq(target_arg, "players")) {
         players = true;
     } else if (strcmp(target_arg, "all")) {
         zerrlog(room->zone, "Bad *spell argument '%s' in prog in %s",
@@ -1659,7 +1659,7 @@ DEFPROGHANDLER(trans, env, evt, args)
         return;
     }
 
-    if (!strcmp(target_arg, "self")) {
+    if (streq(target_arg, "self")) {
         // Trans the owner of the prog
         switch (env->owner_type) {
         case PROG_TYPE_OBJECT:
@@ -1687,7 +1687,7 @@ DEFPROGHANDLER(trans, env, evt, args)
             break;
         }
         return;
-    } else if (!strcmp(target_arg, "target")) {
+    } else if (streq(target_arg, "target")) {
         // Transport the target, which is always a creature
         if (!env->target) {
             return;
@@ -1704,9 +1704,9 @@ DEFPROGHANDLER(trans, env, evt, args)
 
     bool players = false, mobs = false;
 
-    if (!strcmp(target_arg, "mobiles")) {
+    if (streq(target_arg, "mobiles")) {
         mobs = true;
-    } else if (!strcmp(target_arg, "players")) {
+    } else if (streq(target_arg, "players")) {
         players = true;
     } else if (strcmp(target_arg, "all")) {
         zerrlog(room->zone, "Bad *trans argument '%s' in prog in %s",

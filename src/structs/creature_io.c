@@ -979,7 +979,7 @@ load_player_from_file(const char *path)
             af.next = NULL;
             char *instant = (char *)xmlGetProp(node, (xmlChar *) "instant");
             if (instant != NULL) {
-                af.is_instant = (strcmp(instant, "yes") == 0);
+                af.is_instant = (streq(instant, "yes"));
                 xmlFree(instant);
             }
 
@@ -1150,87 +1150,87 @@ load_player_from_xml(int id)
 void
 set_player_field(struct creature *ch, const char *key, const char *val)
 {
-    if (!strcmp(key, "race")) {
+    if (streq(key, "race")) {
         GET_RACE(ch) = atoi(val);
-    } else if (!strcmp(key, "class")) {
+    } else if (streq(key, "class")) {
         GET_CLASS(ch) = atoi(val);
-    } else if (!strcmp(key, "remort")) {
+    } else if (streq(key, "remort")) {
         GET_REMORT_CLASS(ch) = atoi(val);
-    } else if (!strcmp(key, "name")) {
+    } else if (streq(key, "name")) {
         ch->player.name = strdup(val);
-    } else if (!strcmp(key, "title")) {
+    } else if (streq(key, "title")) {
         GET_TITLE(ch) = strdup(val);
-    } else if (!strcmp(key, "poofin")) {
+    } else if (streq(key, "poofin")) {
         POOFIN(ch) = strdup(val);
-    } else if (!strcmp(key, "poofout")) {
+    } else if (streq(key, "poofout")) {
         POOFOUT(ch) = strdup(val);
-    } else if (!strcmp(key, "immbadge")) {
+    } else if (streq(key, "immbadge")) {
         strcpy_s(BADGE(ch), sizeof(BADGE(ch)), val);
-    } else if (!strcmp(key, "sex")) {
+    } else if (streq(key, "sex")) {
         GET_SEX(ch) = atoi(val);
-    } else if (!strcmp(key, "hitp")) {
+    } else if (streq(key, "hitp")) {
         GET_HIT(ch) = atoi(val);
-    } else if (!strcmp(key, "mana")) {
+    } else if (streq(key, "mana")) {
         GET_MANA(ch) = atoi(val);
-    } else if (!strcmp(key, "move")) {
+    } else if (streq(key, "move")) {
         GET_MOVE(ch) = atoi(val);
-    } else if (!strcmp(key, "maxhitp")) {
+    } else if (streq(key, "maxhitp")) {
         GET_MAX_HIT(ch) = atoi(val);
-    } else if (!strcmp(key, "maxmana")) {
+    } else if (streq(key, "maxmana")) {
         GET_MAX_MANA(ch) = atoi(val);
-    } else if (!strcmp(key, "maxmove")) {
+    } else if (streq(key, "maxmove")) {
         GET_MAX_MOVE(ch) = atoi(val);
-    } else if (!strcmp(key, "gold")) {
+    } else if (streq(key, "gold")) {
         GET_GOLD(ch) = atol(val);
-    } else if (!strcmp(key, "cash")) {
+    } else if (streq(key, "cash")) {
         GET_CASH(ch) = atol(val);
-    } else if (!strcmp(key, "exp")) {
+    } else if (streq(key, "exp")) {
         GET_EXP(ch) = atol(val);
-    } else if (!strcmp(key, "level")) {
+    } else if (streq(key, "level")) {
         GET_LEVEL(ch) = atol(val);
-    } else if (!strcmp(key, "height")) {
+    } else if (streq(key, "height")) {
         GET_HEIGHT(ch) = atol(val);
-    } else if (!strcmp(key, "weight")) {
+    } else if (streq(key, "weight")) {
         GET_WEIGHT(ch) = atol(val);
-    } else if (!strcmp(key, "align")) {
+    } else if (streq(key, "align")) {
         GET_ALIGNMENT(ch) = atoi(val);
-    } else if (!strcmp(key, "gen")) {
+    } else if (streq(key, "gen")) {
         GET_REMORT_GEN(ch) = atoi(val);
-    } else if (!strcmp(key, "birth_time")) {
+    } else if (streq(key, "birth_time")) {
         ch->player.time.birth = atol(val);
-    } else if (!strcmp(key, "death_time")) {
+    } else if (streq(key, "death_time")) {
         ch->player.time.death = atol(val);
-    } else if (!strcmp(key, "played_time")) {
+    } else if (streq(key, "played_time")) {
         ch->player.time.played = atol(val);
-    } else if (!strcmp(key, "login_time")) {
+    } else if (streq(key, "login_time")) {
         ch->player.time.logon = atol(val);
-    } else if (!strcmp(key, "pkills")) {
+    } else if (streq(key, "pkills")) {
         GET_PKILLS(ch) = atol(val);
-    } else if (!strcmp(key, "mkills")) {
+    } else if (streq(key, "mkills")) {
         GET_MOBKILLS(ch) = atol(val);
-    } else if (!strcmp(key, "akills")) {
+    } else if (streq(key, "akills")) {
         GET_ARENAKILLS(ch) = atol(val);
-    } else if (!strcmp(key, "deaths")) {
+    } else if (streq(key, "deaths")) {
         GET_PC_DEATHS(ch) = atol(val);
-    } else if (!strcmp(key, "reputation")) {
+    } else if (streq(key, "reputation")) {
         ch->player_specials->saved.reputation = atoi(val);
-    } else if (!strcmp(key, "str")) {
+    } else if (streq(key, "str")) {
         ch->aff_abils.str = ch->real_abils.str = atoi(val);
-    } else if (!strcmp(key, "int")) {
+    } else if (streq(key, "int")) {
         ch->aff_abils.intel = ch->real_abils.intel = atoi(val);
-    } else if (!strcmp(key, "wis")) {
+    } else if (streq(key, "wis")) {
         ch->aff_abils.wis = ch->real_abils.wis = atoi(val);
-    } else if (!strcmp(key, "dex")) {
+    } else if (streq(key, "dex")) {
         ch->aff_abils.dex = ch->real_abils.dex = atoi(val);
-    } else if (!strcmp(key, "con")) {
+    } else if (streq(key, "con")) {
         ch->aff_abils.con = ch->real_abils.con = atoi(val);
-    } else if (!strcmp(key, "cha")) {
+    } else if (streq(key, "cha")) {
         ch->aff_abils.cha = ch->real_abils.cha = atoi(val);
-    } else if (!strcmp(key, "hunger")) {
+    } else if (streq(key, "hunger")) {
         GET_COND(ch, FULL) = atoi(val);
-    } else if (!strcmp(key, "thirst")) {
+    } else if (streq(key, "thirst")) {
         GET_COND(ch, THIRST) = atoi(val);
-    } else if (!strcmp(key, "drunk")) {
+    } else if (streq(key, "drunk")) {
         GET_COND(ch, DRUNK) = atoi(val);
     } else {
         slog("Invalid player field %s set to %s", key, val);

@@ -427,7 +427,7 @@ vendor_sell(struct creature *ch, char *arg, struct creature *self,
         }
 
         obj_str = tmp_getword(&arg);
-    } else if (!strcmp(obj_str, "all")) {
+    } else if (streq(obj_str, "all")) {
         num = -1;
         obj_str = tmp_getword(&arg);
     } else {
@@ -698,7 +698,7 @@ vendor_buy(struct creature *ch, char *arg, struct creature *self,
         }
 
         obj_str = tmp_getword(&arg);
-    } else if (!strcmp(obj_str, "all")) {
+    } else if (streq(obj_str, "all")) {
         num = -1;
         obj_str = tmp_getword(&arg);
     } else {
@@ -1217,9 +1217,9 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
         }
 
         param_key = tmp_getword(&line);
-        if (!strcmp(param_key, "room")) {
+        if (streq(param_key, "room")) {
             shop->room = atol(line);
-        } else if (!strcmp(param_key, "produce")) {
+        } else if (streq(param_key, "produce")) {
             val = atoi(line);
             if (val <= 0 || !real_object_proto(val)) {
                 err = "nonexistent produced item";
@@ -1227,7 +1227,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
             }
             shop->item_list = g_list_prepend(shop->item_list,
                                              GINT_TO_POINTER(atoi(line)));
-        } else if (!strcmp(param_key, "accept")) {
+        } else if (streq(param_key, "accept")) {
             if (strcmp(line, "all")) {
                 val = search_block(line, item_types, 0);
                 if (val <= 0) {
@@ -1239,7 +1239,7 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
             }
             shop->item_types = g_list_prepend(shop->item_types,
                                               GINT_TO_POINTER(1U << 8 | val));
-        } else if (!strcmp(param_key, "refuse")) {
+        } else if (streq(param_key, "refuse")) {
             if (strcmp(line, "all")) {
                 val = search_block(line, item_types, 0);
                 if (val <= 0) {
@@ -1251,37 +1251,37 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
             }
             shop->item_types = g_list_prepend(shop->item_types,
                                               GINT_TO_POINTER(0 << 8 | val));
-        } else if (!strcmp(param_key, "denied-msg")) {
+        } else if (streq(param_key, "denied-msg")) {
             free(shop->msg_denied);
             shop->msg_denied = strdup(line);
-        } else if (!strcmp(param_key, "keeper-broke-msg")) {
+        } else if (streq(param_key, "keeper-broke-msg")) {
             free(shop->msg_selfbroke);
             shop->msg_selfbroke = strdup(line);
-        } else if (!strcmp(param_key, "buyer-broke-msg")) {
+        } else if (streq(param_key, "buyer-broke-msg")) {
             free(shop->msg_buyerbroke);
             shop->msg_buyerbroke = strdup(line);
-        } else if (!strcmp(param_key, "buy-msg")) {
+        } else if (streq(param_key, "buy-msg")) {
             free(shop->msg_buy);
             shop->msg_buy = strdup(line);
-        } else if (!strcmp(param_key, "sell-msg")) {
+        } else if (streq(param_key, "sell-msg")) {
             free(shop->msg_sell);
             shop->msg_sell = strdup(line);
-        } else if (!strcmp(param_key, "closed-msg")) {
+        } else if (streq(param_key, "closed-msg")) {
             free(shop->msg_closed);
             shop->msg_closed = strdup(line);
-        } else if (!strcmp(param_key, "no-buy-msg")) {
+        } else if (streq(param_key, "no-buy-msg")) {
             free(shop->msg_badobj);
             shop->msg_badobj = strdup(line);
-        } else if (!strcmp(param_key, "sell-noobj-msg")) {
+        } else if (streq(param_key, "sell-noobj-msg")) {
             free(shop->msg_sell_noobj);
             shop->msg_sell_noobj = strdup(line);
-        } else if (!strcmp(param_key, "buy-noobj-msg")) {
+        } else if (streq(param_key, "buy-noobj-msg")) {
             free(shop->msg_buy_noobj);
             shop->msg_buy_noobj = strdup(line);
-        } else if (!strcmp(param_key, "temper-cmd")) {
+        } else if (streq(param_key, "temper-cmd")) {
             free(shop->cmd_temper);
             shop->cmd_temper = strdup(line);
-        } else if (!strcmp(param_key, "closed-hours")) {
+        } else if (streq(param_key, "closed-hours")) {
             struct shop_time time;
 
             time.start = atoi(tmp_getword(&line));
@@ -1297,31 +1297,31 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
                 shop->closed_hours = g_list_prepend(shop->closed_hours,
                                                     new_time);
             }
-        } else if (!strcmp(param_key, "markup")) {
+        } else if (streq(param_key, "markup")) {
             shop->markup = atoi(line);
             if (shop->markup <= 0 || shop->markup > 1000) {
                 err = "an invalid markup";
                 break;
             }
-        } else if (!strcmp(param_key, "markdown")) {
+        } else if (streq(param_key, "markdown")) {
             shop->markdown = atoi(line);
             if (shop->markdown <= 0 || shop->markdown > 1000) {
                 err = "an invalid markdown";
                 break;
             }
-        } else if (!strcmp(param_key, "revenue")) {
+        } else if (streq(param_key, "revenue")) {
             shop->revenue = atoi(line);
             if (shop->revenue < 0) {
                 err = "a negative revenue";
                 break;
             }
-        } else if (!strcmp(param_key, "storeroom")) {
+        } else if (streq(param_key, "storeroom")) {
             shop->storeroom = atoi(line);
             if (!real_room(shop->storeroom)) {
                 err = "a non-existent storeroom";
                 break;
             }
-        } else if (!strcmp(param_key, "currency")) {
+        } else if (streq(param_key, "currency")) {
             if (is_abbrev(line, "past") || is_abbrev(line, "gold")) {
                 shop->currency = 0;
             } else if (is_abbrev(line, "future") || is_abbrev(line, "cash")) {
@@ -1332,20 +1332,20 @@ vendor_parse_param(char *param, struct shop_data *shop, int *err_line)
                 err = tmp_sprintf("invalid currency %s", line);
                 break;
             }
-        } else if (!strcmp(param_key, "steal-ok")) {
+        } else if (streq(param_key, "steal-ok")) {
             shop->steal_ok = (is_abbrev(line, "yes") || is_abbrev(line, "on")
                               || is_abbrev(line, "1") || is_abbrev(line, "true"));
-        } else if (!strcmp(param_key, "attack-ok")) {
+        } else if (streq(param_key, "attack-ok")) {
             shop->attack_ok = (is_abbrev(line, "yes") || is_abbrev(line, "on")
                                || is_abbrev(line, "1") || is_abbrev(line, "true"));
-        } else if (!strcmp(param_key, "consignment")) {
+        } else if (streq(param_key, "consignment")) {
             shop->consignment = (is_abbrev(line, "yes") || is_abbrev(line, "on")
                                  || is_abbrev(line, "1") || is_abbrev(line, "true"));
-        } else if (!strcmp(param_key, "call-for-help")) {
+        } else if (streq(param_key, "call-for-help")) {
             shop->call_for_help = (is_abbrev(line, "yes")
                                    || is_abbrev(line, "on") || is_abbrev(line, "1")
                                    || is_abbrev(line, "true"));
-        } else if (!strcmp(param_key, "special")) {
+        } else if (streq(param_key, "special")) {
             val = find_spec_index_arg(line);
             if (val == -1) {
                 err = tmp_sprintf("invalid special %s", line);

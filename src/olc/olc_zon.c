@@ -2071,7 +2071,7 @@ do_zset_command(struct creature *ch, char *argument)
         return;
         break;
     case 6:
-        if (strcmp(argument, "none") == 0) {
+        if (streq(argument, "none")) {
             zone->owner_idnum = -1;
             send_to_char(ch, "Zone owner set to: None\r\n");
             SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);
@@ -2249,7 +2249,7 @@ do_zset_command(struct creature *ch, char *argument)
         }
         break;
     case 12:
-        if (strcmp(argument, "none") == 0) {
+        if (streq(argument, "none")) {
             zone->co_owner_idnum = -1;
             send_to_char(ch, "Zone co-owner set to: None\r\n");
             SET_BIT(zone->flags, ZONE_ZONE_MODIFIED);

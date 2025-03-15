@@ -370,7 +370,7 @@ ACMD(do_recharge)
                          AN(arg2), arg2);
             return;
         }
-        if (*arg3 && !strcmp(arg3, "internal")) {
+        if (*arg3 && streq(arg3, "internal")) {
             if (!*arg4) {
                 send_to_char(ch, "Recharge from an internal what?\r\n");
                 return;
@@ -471,7 +471,7 @@ ACMD(do_recharge)
         return;
     }
 
-    if (*arg2 && !strcmp(arg2, "internal")) {
+    if (*arg2 && streq(arg2, "internal")) {
         if (!*arg3) {
             send_to_char(ch, "Recharge from an internal what?\r\n");
             return;

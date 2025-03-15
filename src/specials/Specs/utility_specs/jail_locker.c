@@ -25,7 +25,7 @@ SPECIAL(jail_locker)
     if (str) {
         for (line = tmp_getline(&str); line; line = tmp_getline(&str)) {
             param_key = tmp_getword(&line);
-            if (!strcmp(param_key, "jailroom")) {
+            if (streq(param_key, "jailroom")) {
                 jail_num = atoi(line);
             }
         }

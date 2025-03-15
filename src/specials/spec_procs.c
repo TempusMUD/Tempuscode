@@ -649,9 +649,9 @@ SPECIAL(venom_attack)
         for (line = tmp_getline(&str), lineno = 1; line;
              line = tmp_getline(&str), lineno++) {
             param_key = tmp_getword(&line);
-            if (!strcmp(param_key, "toroom")) {
+            if (streq(param_key, "toroom")) {
                 act_toroom = line;
-            } else if (!strcmp(param_key, "tovict")) {
+            } else if (streq(param_key, "tovict")) {
                 act_tovict = line;
             } else {
                 err = "first word in param must be toroom or tovict";

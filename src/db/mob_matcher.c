@@ -361,16 +361,16 @@ make_mobile_num_matcher(struct creature *ch,
 
     char *opstr = tmp_getword(&expr);
 
-    if (!strcmp(opstr, "=") || !strcmp(opstr, "==")) {
+    if (streq(opstr, "=") || streq(opstr, "==")) {
         matcher->op = OP_EQ;
-    } else if (!strcmp(opstr, "<")) {
+    } else if (streq(opstr, "<")) {
         matcher->op = OP_LT;
-    } else if (!strcmp(opstr, ">")) {
+    } else if (streq(opstr, ">")) {
         matcher->op = OP_GT;
-    } else if (!strcmp(opstr, "<=")) {
+    } else if (streq(opstr, "<=")) {
         matcher->op = OP_GT;
         matcher->negated = !matcher->negated;
-    } else if (!strcmp(opstr, ">=")) {
+    } else if (streq(opstr, ">=")) {
         matcher->op = OP_LT;
         matcher->negated = !matcher->negated;
     } else if (is_number(opstr)) {

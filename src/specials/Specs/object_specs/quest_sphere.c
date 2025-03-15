@@ -168,14 +168,14 @@ SPECIAL(quest_sphere)
     param = GET_OBJ_PARAM(self);
     while ((line = tmp_getline(&param)) != NULL) {
         key = tmp_getword(&line);
-        if (!strcmp(key, "quad")) {
+        if (streq(key, "quad")) {
             quad = true;
-        } else if (!strcmp(key, "nobreak")) {
+        } else if (streq(key, "nobreak")) {
             nobreak = true;
             need_targ = true;
-        } else if (!strcmp(key, "lp")) {
+        } else if (streq(key, "lp")) {
             lp = (*line) ? atoi(line) : 2;
-        } else if (!strcmp(key, "enchant")) {
+        } else if (streq(key, "enchant")) {
             enchant_lvl = (*line) ? atoi(line) : 51;
             need_targ = true;
         } else {

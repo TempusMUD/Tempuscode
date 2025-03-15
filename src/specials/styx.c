@@ -36,6 +36,7 @@
 #include "db.h"
 #include "tmpstr.h"
 #include "spells.h"
+#include "strutil.h"
 
 /*   external vars  */
 extern struct room_data *world;
@@ -54,7 +55,7 @@ SPECIAL(underworld_goddess)
     /* See if Styx is in the room */
     for (GList *it = ch->in_room->people; it; it = it->next) {
         struct creature *tch = it->data;
-        if (!strcmp(GET_NAME(tch), "Styx")) {
+        if (streq(GET_NAME(tch), "Styx")) {
             styx = tch;
             break;
         }
@@ -183,7 +184,7 @@ SPECIAL(underworld_goddess)
         /* Now see if Styx is there */
         for (GList *it = room->people; it; it = it->next) {
             struct creature *tch = it->data;
-            if (!strcmp(GET_NAME(tch), "Styx")) {
+            if (streq(GET_NAME(tch), "Styx")) {
                 styx = tch;
                 break;          /* breaks out of for */
             }

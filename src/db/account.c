@@ -26,6 +26,7 @@
 #include "quest.h"
 #include "mail.h"
 #include "account.h"
+#include "strutil.h"
 
 #define __USE_GNU
 #include <crypt.h>
@@ -250,47 +251,47 @@ account_reload(struct account *account)
 void
 account_set(struct account *account, const char *key, const char *val)
 {
-    if (!strcmp(key, "idnum")) {
+    if (streq(key, "idnum")) {
         account->id = atol(val);
-    } else if (!strcmp(key, "name")) {
+    } else if (streq(key, "name")) {
         account->name = strdup(val);
-    } else if (!strcmp(key, "password")) {
+    } else if (streq(key, "password")) {
         account->password = strdup(val);
-    } else if (!strcmp(key, "email")) {
+    } else if (streq(key, "email")) {
         account->email = strdup(val);
-    } else if (!strcmp(key, "ansi_level")) {
+    } else if (streq(key, "ansi_level")) {
         account->ansi_level = atoi(val);
-    } else if (!strcmp(key, "compact_level")) {
+    } else if (streq(key, "compact_level")) {
         account->compact_level = atoi(val);
-    } else if (!strcmp(key, "term_height")) {
+    } else if (streq(key, "term_height")) {
         account->term_height = atoi(val);
-    } else if (!strcmp(key, "term_width")) {
+    } else if (streq(key, "term_width")) {
         account->term_width = atoi(val);
-    } else if (!strcmp(key, "creation_time")) {
+    } else if (streq(key, "creation_time")) {
         account->creation_time = atol(val);
-    } else if (!strcmp(key, "creation_addr")) {
+    } else if (streq(key, "creation_addr")) {
         account->creation_addr = strdup(val);
-    } else if (!strcmp(key, "login_time")) {
+    } else if (streq(key, "login_time")) {
         account->login_time = atol(val);
-    } else if (!strcmp(key, "login_addr")) {
+    } else if (streq(key, "login_addr")) {
         account->login_addr = strdup(val);
-    } else if (!strcmp(key, "entry_time")) {
+    } else if (streq(key, "entry_time")) {
         account->entry_time = atol(val);
-    } else if (!strcmp(key, "banned")) {
+    } else if (streq(key, "banned")) {
         account->banned = !strcasecmp(val, "T");
-    } else if (!strcmp(key, "reputation")) {
+    } else if (streq(key, "reputation")) {
         account->reputation = atoi(val);
-    } else if (!strcmp(key, "quest_points")) {
+    } else if (streq(key, "quest_points")) {
         account->quest_points = atoi(val);
-    } else if (!strcmp(key, "quest_banned")) {
+    } else if (streq(key, "quest_banned")) {
         account->quest_banned = !strcasecmp(val, "T");
-    } else if (!strcmp(key, "bank_past")) {
+    } else if (streq(key, "bank_past")) {
         account->bank_past = atoll(val);
-    } else if (!strcmp(key, "bank_future")) {
+    } else if (streq(key, "bank_future")) {
         account->bank_future = atoll(val);
-    } else if (!strcmp(key, "metric_units")) {
+    } else if (streq(key, "metric_units")) {
         account->metric_units = !strcasecmp(val, "T");
-    } else if (!strcmp(key, "trust")) {
+    } else if (streq(key, "trust")) {
         account->trust = atoi(val);
     } else {
         slog("Invalid account field %s set to %s", key, val);
@@ -602,7 +603,7 @@ account_authenticate(struct account *account, const char *pw)
                account->name, account->id);
         account_set_password(account, pw);
     }
-    return !strcmp(account->password, crypt_r(pw, account->password, &data));
+    return streq(account->password, crypt_r(pw, account->password, &data));
 }
 
 void

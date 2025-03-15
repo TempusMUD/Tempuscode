@@ -96,7 +96,7 @@ devil_by_name(char *name)
 {
     for (GList *dit = devils; dit; dit = dit->next) {
         struct devil *devil = dit->data;
-        if (!strcmp(devil->name, name)) {
+        if (streq(devil->name, name)) {
             return devil;
         }
     }
@@ -257,7 +257,7 @@ SPECIAL(hell_hunter_brain)
                 return 1;
             }
 
-            if (strcmp(argument, "now") == 0) {
+            if (streq(argument, "now")) {
                 snprintf(buf, sizeof(buf), "Counter set to 1.\r\n");
                 counter = 1;
                 return 1;

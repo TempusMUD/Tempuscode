@@ -1850,13 +1850,13 @@ parse_enhanced_mob(FILE *mob_f, struct creature *mobile, int nr)
     parse_simple_mob(mob_f, mobile, nr);
 
     while (get_line(mob_f, line, sizeof(line))) {
-        if (!strcmp(line, "SpecParam:")) {  /* multi-line specparam */
+        if (streq(line, "SpecParam:")) {  /* multi-line specparam */
             NPC_SHARED(mobile)->func_param = fread_string(mob_f, buf2);
-        } else if (!strcmp(line, "LoadParam:")) {   /* multi-line load param */
+        } else if (streq(line, "LoadParam:")) {   /* multi-line load param */
             NPC_SHARED(mobile)->load_param = fread_string(mob_f, buf2);
-        } else if (!strcmp(line, "Prog:")) {    /* multi-line prog */
+        } else if (streq(line, "Prog:")) {    /* multi-line prog */
             NPC_SHARED(mobile)->prog = fread_string(mob_f, buf2);
-        } else if (!strcmp(line, "E")) { /* end of the ehanced section */
+        } else if (streq(line, "E")) { /* end of the ehanced section */
             return;
         } else if (*line == '#') {  /* we've hit the next mob, maybe? */
             fprintf(stderr, "Unterminated E section in mob #%d\n", nr);
@@ -2250,25 +2250,25 @@ load_zones(FILE *fl, char *zonename)
     while (true) {
         arg2 = buf;
         arg1 = tmp_getword(&arg2);
-        if (!strcmp(arg1, "owner:")) {
+        if (streq(arg1, "owner:")) {
             new_zone->owner_idnum = atoi(arg2);
-        } else if (!strcmp(arg1, "co-owner:")) {
+        } else if (streq(arg1, "co-owner:")) {
             new_zone->co_owner_idnum = atoi(arg2);
-        } else if (!strcmp(arg1, "respawn-pt:")) {
+        } else if (streq(arg1, "respawn-pt:")) {
             new_zone->respawn_pt = atoi(arg2);
-        } else if (!strcmp(arg1, "minimum-level:")) {
+        } else if (streq(arg1, "minimum-level:")) {
             new_zone->min_lvl = atoi(arg2);
-        } else if (!strcmp(arg1, "minimum-gen:")) {
+        } else if (streq(arg1, "minimum-gen:")) {
             new_zone->min_gen = atoi(arg2);
-        } else if (!strcmp(arg1, "maximum-level:")) {
+        } else if (streq(arg1, "maximum-level:")) {
             new_zone->max_lvl = atoi(arg2);
-        } else if (!strcmp(arg1, "maximum-gen:")) {
+        } else if (streq(arg1, "maximum-gen:")) {
             new_zone->max_gen = atoi(arg2);
-        } else if (!strcmp(arg1, "public-desc:")) {
+        } else if (streq(arg1, "public-desc:")) {
             new_zone->public_desc = fread_string(fl, buf2);
-        } else if (!strcmp(arg1, "private-desc:")) {
+        } else if (streq(arg1, "private-desc:")) {
             new_zone->private_desc = fread_string(fl, buf2);
-        } else if (!strcmp(arg1, "author:")) {
+        } else if (streq(arg1, "author:")) {
             new_zone->author = strdup(arg2);
         } else {
             break;

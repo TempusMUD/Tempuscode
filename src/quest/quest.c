@@ -2493,7 +2493,7 @@ do_qcontrol_ban(struct creature *ch, char *argument, int com)
         return;
     }
 
-    if (!strcmp("all", arg2)) { // ban from all quests
+    if (streq("all", arg2)) { // ban from all quests
         if (!is_authorized(ch, QUEST_BAN, NULL)) {
             send_to_char(ch, "You do not have this ability.\r\n");
         } else if (account->quest_banned) {
@@ -2610,7 +2610,7 @@ do_qcontrol_unban(struct creature *ch, char *argument, int com)
         return;
     }
 
-    if (!strcmp("all", arg2)) { // unban from all quests
+    if (streq("all", arg2)) { // unban from all quests
         if (!is_authorized(ch, QUEST_BAN, NULL)) {
             send_to_char(ch, "You do not have this ability.\r\n");
         } else if (!account->quest_banned) {

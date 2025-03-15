@@ -870,7 +870,7 @@ ACMD(do_dyntext_show)
     }
 
     for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
-        if (!strcmp(dyntext->filename, dynname)) {
+        if (streq(dyntext->filename, dynname)) {
             break;
         }
     }
@@ -921,11 +921,11 @@ check_dyntext_updates(struct creature *ch)
 
     for (dyntext = dyntext_list; dyntext; dyntext = dyntext->next) {
         if (dyntext->last_edit[0].tEdit > ch->account->entry_time) {
-            if (!strcmp(dyntext->filename, "inews")
+            if (streq(dyntext->filename, "inews")
                 && GET_LEVEL(ch) < LVL_AMBASSADOR) {
                 continue;
             }
-            if (!strcmp(dyntext->filename, "tnews")
+            if (streq(dyntext->filename, "tnews")
                 && GET_LEVEL(ch) < LVL_AMBASSADOR && !is_tester(ch)) {
                 continue;
             }

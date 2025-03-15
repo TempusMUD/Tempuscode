@@ -58,7 +58,7 @@ SPECIAL(guard)
         }
 
         param_key = tmp_getword(&line);
-        if (!strcmp(param_key, "guard")) {
+        if (streq(param_key, "guard")) {
             dir_str = tmp_getword(&line);
             room_str = tmp_getword(&line);
             room_num = 0;
@@ -81,17 +81,17 @@ SPECIAL(guard)
             if (cmd_idx == cmd) {
                 dir = cmd_idx;
             }
-        } else if (!strcmp(param_key, "tovict")) {
+        } else if (streq(param_key, "tovict")) {
             to_vict = line;
-        } else if (!strcmp(param_key, "toroom")) {
+        } else if (streq(param_key, "toroom")) {
             to_room = line;
-        } else if (!strcmp(param_key, "attack")) {
+        } else if (streq(param_key, "attack")) {
             attack = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
                       is_abbrev(line, "1") || is_abbrev(line, "true"));
-        } else if (!strcmp(param_key, "fallible")) {
+        } else if (streq(param_key, "fallible")) {
             fallible = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
                         is_abbrev(line, "1") || is_abbrev(line, "true"));
-        } else if (!strcmp(param_key, "callsforhelp")) {
+        } else if (streq(param_key, "callsforhelp")) {
             callsforhelp = (is_abbrev(line, "yes") || is_abbrev(line, "on") ||
                             is_abbrev(line, "1") || is_abbrev(line, "true"));
         } else {

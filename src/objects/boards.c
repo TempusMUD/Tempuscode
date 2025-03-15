@@ -328,40 +328,40 @@ gen_board_load(struct obj_data *self, char *param, int *err_line)
             continue;
         }
         param_key = tmp_getword(&line);
-        if (!strcmp(param_key, "board")) {
+        if (streq(param_key, "board")) {
             free(board->name);
             board->name = strdup(tmp_tolower(line));
-        } else if (!strcmp(param_key, "deny-read")) {
+        } else if (streq(param_key, "deny-read")) {
             free(board->deny_read);
             board->deny_read = strdup(line);
-        } else if (!strcmp(param_key, "deny-post")) {
+        } else if (streq(param_key, "deny-post")) {
             free(board->deny_post);
             board->deny_post = strdup(line);
-        } else if (!strcmp(param_key, "deny-edit")) {
+        } else if (streq(param_key, "deny-edit")) {
             free(board->deny_edit);
             board->deny_edit = strdup(line);
-        } else if (!strcmp(param_key, "deny-remove")) {
+        } else if (streq(param_key, "deny-remove")) {
             free(board->deny_remove);
             board->deny_remove = strdup(line);
-        } else if (!strcmp(param_key, "not-author")) {
+        } else if (streq(param_key, "not-author")) {
             free(board->not_author);
             board->not_author = strdup(line);
-        } else if (!strcmp(param_key, "read")) {
+        } else if (streq(param_key, "read")) {
             if (!add_reaction(board->read_perms, line)) {
                 err = "invalid read permission";
                 break;
             }
-        } else if (!strcmp(param_key, "post")) {
+        } else if (streq(param_key, "post")) {
             if (!add_reaction(board->post_perms, line)) {
                 err = "invalid post permission";
                 break;
             }
-        } else if (!strcmp(param_key, "edit")) {
+        } else if (streq(param_key, "edit")) {
             if (!add_reaction(board->edit_perms, line)) {
                 err = "invalid edit permission";
                 break;
             }
-        } else if (!strcmp(param_key, "remove")) {
+        } else if (streq(param_key, "remove")) {
             if (!add_reaction(board->remove_perms, line)) {
                 err = "invalid delete permission";
                 break;

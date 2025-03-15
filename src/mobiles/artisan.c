@@ -104,9 +104,9 @@ artisan_parse_param(char *param, struct craft_shop *shop, int *err_line)
         }
 
         param_key = tmp_getword(&line);
-        if (!strcmp(param_key, "room")) {
+        if (streq(param_key, "room")) {
             shop->room = atol(line);
-        } else if (!strcmp(param_key, "currency")) {
+        } else if (streq(param_key, "currency")) {
             if (is_abbrev(line, "past") || is_abbrev(line, "gold")) {
                 shop->currency = 0;
             } else if (is_abbrev(line, "future") || is_abbrev(line, "cash")) {
@@ -117,7 +117,7 @@ artisan_parse_param(char *param, struct craft_shop *shop, int *err_line)
                 err = tmp_sprintf("invalid currency %s", line);
                 break;
             }
-        } else if (!strcmp(param_key, "craft")) {
+        } else if (streq(param_key, "craft")) {
             CREATE(cur_item, struct craft_item, 1);
             cur_item->vnum = atoi(line);
             if (cur_item->vnum <= 0) {
@@ -126,7 +126,7 @@ artisan_parse_param(char *param, struct craft_shop *shop, int *err_line)
                 break;
             }
             shop->items = g_list_append(shop->items, cur_item);
-        } else if (!strcmp(param_key, "cost")) {
+        } else if (streq(param_key, "cost")) {
             if (!cur_item) {
                 err = tmp_strdup("cost specified without item declaration");
                 break;
@@ -137,7 +137,7 @@ artisan_parse_param(char *param, struct craft_shop *shop, int *err_line)
                 err = tmp_sprintf("invalid item vnum %d cost %s", cur_item->vnum, line);
                 break;
             }
-        } else if (!strcmp(param_key, "component")) {
+        } else if (streq(param_key, "component")) {
             if (!cur_item) {
                 err = tmp_strdup("component specified without preceding item");
                 break;
@@ -152,7 +152,7 @@ artisan_parse_param(char *param, struct craft_shop *shop, int *err_line)
                 break;
             }
             cur_item->required = g_list_append(cur_item->required, craft_comp);
-        } else if (!strcmp(param_key, "failure")) {
+        } else if (streq(param_key, "failure")) {
             if (!cur_item) {
                 err = tmp_strdup("failure specified without preceding item");
                 break;
@@ -162,7 +162,7 @@ artisan_parse_param(char *param, struct craft_shop *shop, int *err_line)
                 err = tmp_sprintf("invalid item vnum %d failure %s", cur_item->vnum, line);
                 break;
             }
-        } else if (!strcmp(param_key, "action-char")) {
+        } else if (streq(param_key, "action-char")) {
             if (!cur_item) {
                 err = tmp_strdup("action-char specified without preceding item");
                 break;
@@ -170,7 +170,7 @@ artisan_parse_param(char *param, struct craft_shop *shop, int *err_line)
             if (*line) {
                 cur_item->action_char_desc = strdup(line);
             }
-        } else if (!strcmp(param_key, "action-room")) {
+        } else if (streq(param_key, "action-room")) {
             if (!cur_item) {
                 err = tmp_strdup("action-room specified without preceding item");
                 break;
