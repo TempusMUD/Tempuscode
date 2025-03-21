@@ -2191,9 +2191,10 @@ ACMD(do_clean)
     struct obj_data *obj = NULL;
     struct creature *vict = NULL;
     int i, j, k, found, pos;
-    char arg1[MAX_INPUT_LENGTH], arg2[MAX_INPUT_LENGTH];
+    char *arg1, *arg2;
 
-    argument = two_arguments(argument, arg1, arg2);
+    arg1 = tmp_getword(&argument);
+    arg2 = tmp_getword(&argument);
 
     if (!*arg1) {
         send_to_char(ch, "Clean who or what?\r\n");
@@ -2244,8 +2245,8 @@ ACMD(do_clean)
         }
 
         if (vict == ch) {
-            snprintf(buf, sizeof(buf), "$n carefully cleans $s %s.", wear_description[pos]);
-            act(buf, true, ch, NULL, NULL, TO_ROOM);
+            act(tmp_sprintf("$n carefully cleans $s %s.", wear_description[pos]),
+                true, ch, NULL, NULL, TO_ROOM);
             send_to_char(ch, "You carefully clean your %s.\r\n",
                          wear_description[pos]);
         } else {
@@ -2280,14 +2281,18 @@ ACMD(do_clean)
                 strcat_s(buf, sizeof(buf), soilage_bits[j]);
             }
         }
-        snprintf(buf2, sizeof(buf2), "Your %s %s %s.", wear_description[pos],
-                 pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
-        act(buf2, false, ch, obj, vict, TO_VICT);
-        snprintf(buf2, sizeof(buf2), "$N's %s %s %s.", wear_description[pos],
-                 pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]), buf);
-        act(buf2, true, ch, obj, vict, TO_NOTVICT);
+        act(tmp_sprintf("Your %s %s %s.",
+                       wear_description[pos],
+                       pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]),
+                       buf),
+            false, ch, obj, vict, TO_VICT);
+        const char *to_notvict = tmp_sprintf("$N's %s %s %s.",
+                                            wear_description[pos],
+                                            pos == WEAR_FEET ? "are" : ISARE(wear_description[pos]),
+                                            buf);
+        act(to_notvict, true, ch, obj, vict, TO_NOTVICT);
         if (ch != vict) {
-            act(buf2, true, ch, obj, vict, TO_CHAR);
+            act(to_notvict, true, ch, obj, vict, TO_CHAR);
         }
 
         CHAR_SOILAGE(vict, pos) = 0;
