@@ -635,6 +635,14 @@ ACMD(do_wrench)
         return;
     }
 
+    if (ch == vict) {
+        act("You try to wrench your own head off, but fail.\r\n",
+            false, ch, NULL, NULL, TO_CHAR);
+        act("$n tries to wrench $s own head off, but fails.\r\n",
+            false, ch, NULL, NULL, TO_CHAR);
+        return;
+    }
+
     if (!ok_to_attack(ch, vict, true)) {
         return;
     }
