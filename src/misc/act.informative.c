@@ -1100,7 +1100,7 @@ list_char_to_char(GList *list, struct creature *ch, struct str_builder *sb)
 }
 
 static void
-do_auto_exits(struct creature *ch, struct room_data *room, struct str_builder *sb)
+do_auto_exits(struct str_builder *sb, struct creature *ch, struct room_data *room, bool reader)
 {
     int door;
     bool found = false;
@@ -1109,7 +1109,9 @@ do_auto_exits(struct creature *ch, struct room_data *room, struct str_builder *s
         room = ch->in_room;
     }
 
-    sb_sprintf(sb,  "%s[ Exits: ", CCCYN(ch, C_NRM));
+    if (!reader) {
+        sb_sprintf(sb,  "%s[ Exits: ", CCCYN(ch, C_NRM));
+    }
     for (door = 0; door < NUM_OF_DIRS; door++) {
         if (!room->dir_option[door] || !room->dir_option[door]->to_room) {
             continue;
@@ -1119,33 +1121,50 @@ do_auto_exits(struct creature *ch, struct room_data *room, struct str_builder *s
             continue;
         }
 
-        if (IS_SET(room->dir_option[door]->exit_info, EX_CLOSED)) {
-            sb_sprintf(sb,  "|%c| ", tolower(*dirs[door]));
+        if (reader) {
+            if (found) {
+                sb_strcat(sb, ", ", NULL);
+            } else {
+                sb_strcat(sb, "Exits: ", NULL);
+            }
+            if (IS_SET(room->dir_option[door]->exit_info, EX_HIDDEN)
+                && PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+                sb_sprintf(sb,  "hidden %s", tmp_tolower(dirs[door]));
+            } else if (IS_SET(room->dir_option[door]->exit_info, EX_SECRET)
+                && PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+                sb_sprintf(sb,  "secret %s", tmp_tolower(dirs[door]));
+            } else if (IS_SET(room->dir_option[door]->exit_info, EX_CLOSED)) {
+                sb_sprintf(sb,  "blocked %s", tmp_tolower(dirs[door]));
+            } else {
+                sb_sprintf(sb,  "%s", tmp_tolower(dirs[door]));
+            }
         } else {
-            sb_sprintf(sb,  "%c ", tolower(*dirs[door]));
+            if (IS_SET(room->dir_option[door]->exit_info, EX_HIDDEN)
+                && PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+                sb_sprintf(sb,  "(%c) ", tolower(*dirs[door]));
+            } else if (IS_SET(room->dir_option[door]->exit_info, EX_SECRET)
+                && PRF_FLAGGED(ch, PRF_HOLYLIGHT)) {
+                sb_sprintf(sb,  "[%c] ", tolower(*dirs[door]));
+            } else if (IS_SET(room->dir_option[door]->exit_info, EX_CLOSED)) {
+                sb_sprintf(sb,  "|%c| ", tolower(*dirs[door]));
+            } else {
+                sb_sprintf(sb,  "%c ", tolower(*dirs[door]));
+            }
         }
         found = true;
     }
 
-    sb_sprintf(sb,  "%s]%s   ", found ? "" : "None obvious ", CCNRM(ch, C_NRM));
-
-    if (GET_LEVEL(ch) >= LVL_AMBASSADOR) {
-        *buf = '\0';
-
-        sb_sprintf(sb,  "%s[ Hidden Doors: ", CCCYN(ch, C_NRM));
-        found = false;
-        for (door = 0; door < NUM_OF_DIRS; door++) {
-            if (ABS_EXIT(room, door) && ABS_EXIT(room, door)->to_room != NULL
-                && IS_SET(ABS_EXIT(room, door)->exit_info,
-                          EX_SECRET | EX_HIDDEN)) {
-                sb_sprintf(sb,  "%c ", tolower(*dirs[door]));
-                found = true;
-            }
+    if (reader) {
+        if (!found) {
+            sb_sprintf(sb, "No obvious exits");
         }
-
-        sb_sprintf(sb,  "%s]%s\r\n", found ? "" : "None ", CCNRM(ch, C_NRM));
+        sb_sprintf(sb, "%s.\r\n", CCNRM(ch, C_NRM));
+        
     } else {
-        sb_sprintf(sb,  "\r\n");
+        if (!found) {
+            sb_sprintf(sb, "None obvious");
+        }
+        sb_sprintf(sb,  "]%s\r\n", CCNRM(ch, C_NRM));
     }
 }
 
@@ -1364,13 +1383,7 @@ ACMD(do_exits)
 void
 look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
 {
-
-    struct room_affect_data *aff = NULL;
-    struct obj_data *o = NULL;
     struct str_builder sb = str_builder_default;
-
-    int ice_shown = 0;          // 1 if ice has already been shown to room...same for blood
-    int blood_shown = 0;
 
     if (room == NULL) {
         room = ch->in_room;
@@ -1427,89 +1440,89 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
         }
     }
 
-    for (aff = room->affects; aff; aff = aff->next) {
+    for (struct room_affect_data *aff = room->affects; aff; aff = aff->next) {
         if (aff->description) {
             sb_sprintf(&sb,  "%s", aff->description);
         }
     }
 
-    if (GET_LEVEL(ch) >= LVL_AMBASSADOR
-        || !ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)
-        || AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
-
-        /* Zone PK / Autoexits line */
-        if (!ch->desc || ch->desc->display != BLIND) {
-            switch (room->zone->pk_style) {
-            case ZONE_NO_PK:
-                sb_sprintf(&sb,  "%s[ %s!PK%s ] ", CCCYN(ch, C_NRM),
-                           CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
-                break;
-            case ZONE_NEUTRAL_PK:
-                sb_sprintf(&sb,  "%s[ %s%sNPK%s%s ] ", CCCYN(ch, C_NRM),
-                           CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
-                           CCCYN(ch, C_NRM));
-                break;
-            case ZONE_CHAOTIC_PK:
-                sb_sprintf(&sb,  "%s[ %s%sCPK%s%s ] ", CCCYN(ch, C_NRM),
-                           CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
-                           CCCYN(ch, C_NRM));
-                break;
-            }
-
-            /* autoexits */
-            if (PRF_FLAGGED(ch, PRF_AUTOEXIT)) {
-                do_auto_exits(ch, room, &sb);
-            } else {
-                sb_sprintf(&sb,  "\r\n");
-            }
-        }
-
-        /* now list characters & objects */
-        for (o = room->contents; o; o = o->next_content) {
-            if (GET_OBJ_VNUM(o) == BLOOD_VNUM) {
-                if (!blood_shown) {
-                    sb_sprintf(&sb,  "%s%s.%s\r\n",
-                                CCRED(ch, C_NRM),
-                                GET_OBJ_TIMER(o) < 10 ?
-                                "Some spots of blood have been splattered around" :
-                                GET_OBJ_TIMER(o) < 20 ?
-                                "Small pools of blood are here" :
-                                GET_OBJ_TIMER(o) < 30 ?
-                                "Large pools of blood are here" :
-                                GET_OBJ_TIMER(o) < 40 ?
-                                "Blood is pooled and splattered all over everything"
-                                : "Dark red blood covers everything in sight",
-                                CCNRM(ch, C_NRM));
-                    blood_shown = 1;
-                }
-            }
-
-            if (GET_OBJ_VNUM(o) == ICE_VNUM) {
-                if (!ice_shown) {
-                    sb_sprintf(&sb,  "%s%s.%s\r\n",
-                                CCCYN(ch, C_NRM),
-                                GET_OBJ_TIMER(o) < 10 ?
-                                "A few patches of ice are scattered around" :
-                                GET_OBJ_TIMER(o) < 20 ?
-                                "A thin coating of ice covers everything" :
-                                GET_OBJ_TIMER(o) < 30 ?
-                                "A thick coating of ice covers everything" :
-                                "Everything is covered with a thick coating of ice",
-                                CCNRM(ch, C_NRM));
-                    break;
-                }
-            }
-        }
-
-        sb_sprintf(&sb,  "%s", CCGRN(ch, C_NRM));
-        list_obj_to_char(room->contents, ch, SHOW_OBJ_ROOM, false, &sb);
-        sb_sprintf(&sb,  "%s", CCYEL(ch, C_NRM));
-        list_char_to_char(room->people, ch, &sb);
-        sb_sprintf(&sb,  "%s", CCNRM(ch, C_NRM));
-    } else {
+    if (ROOM_FLAGGED(room, ROOM_SMOKE_FILLED)
+        && !PRF_FLAGGED(ch, PRF_HOLYLIGHT)
+        && !AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
+        // That's all they see in a smoke-filled room.
         sb_sprintf(&sb,  "%s\r\n", CCNRM(ch, C_NRM));
+        send_to_char(ch, "%s", sb.str);
+    }
+    
+    /* Zone PK / Autoexits line */
+    if (!ch->desc || ch->desc->display != BLIND) {
+        switch (room->zone->pk_style) {
+        case ZONE_NO_PK:
+            sb_sprintf(&sb,  "%s[ %s!PK%s ] ", CCCYN(ch, C_NRM),
+                       CCGRN(ch, C_NRM), CCCYN(ch, C_NRM));
+            break;
+        case ZONE_NEUTRAL_PK:
+            sb_sprintf(&sb,  "%s[ %s%sNPK%s%s ] ", CCCYN(ch, C_NRM),
+                       CCBLD(ch, C_CMP), CCYEL(ch, C_NRM), CCNRM(ch, C_NRM),
+                       CCCYN(ch, C_NRM));
+            break;
+        case ZONE_CHAOTIC_PK:
+            sb_sprintf(&sb,  "%s[ %s%sCPK%s%s ] ", CCCYN(ch, C_NRM),
+                       CCBLD(ch, C_CMP), CCRED(ch, C_NRM), CCNRM(ch, C_NRM),
+                       CCCYN(ch, C_NRM));
+            break;
+        }
     }
 
+    /* autoexits */
+    if (PRF_FLAGGED(ch, PRF_AUTOEXIT)) {
+        do_auto_exits(&sb, ch, room, ch->desc && ch->desc->display == BLIND);
+    } else {
+        sb_sprintf(&sb,  "\r\n");
+    }
+        
+    /* now list characters & objects */
+    bool ice_shown = false;
+    bool blood_shown = false;
+
+    for (struct obj_data *o = room->contents; o; o = o->next_content) {
+        if (GET_OBJ_VNUM(o) == BLOOD_VNUM && !blood_shown) {
+            sb_sprintf(&sb,  "%s%s.%s\r\n",
+                       CCRED(ch, C_NRM),
+                       GET_OBJ_TIMER(o) < 10 ?
+                       "Some spots of blood have been splattered around" :
+                       GET_OBJ_TIMER(o) < 20 ?
+                       "Small pools of blood are here" :
+                       GET_OBJ_TIMER(o) < 30 ?
+                       "Large pools of blood are here" :
+                       GET_OBJ_TIMER(o) < 40 ?
+                       "Blood is pooled and splattered all over everything"
+                       : "Dark red blood covers everything in sight",
+                       CCNRM(ch, C_NRM));
+            blood_shown = true;
+        }
+
+        if (GET_OBJ_VNUM(o) == ICE_VNUM && !ice_shown) {
+            sb_sprintf(&sb,  "%s%s.%s\r\n",
+                       CCCYN(ch, C_NRM),
+                       GET_OBJ_TIMER(o) < 10 ?
+                       "A few patches of ice are scattered around" :
+                       GET_OBJ_TIMER(o) < 20 ?
+                       "A thin coating of ice covers everything" :
+                       GET_OBJ_TIMER(o) < 30 ?
+                       "A thick coating of ice covers everything" :
+                       "Everything is covered with a thick coating of ice",
+                       CCNRM(ch, C_NRM));
+            ice_shown = true;
+        }
+    }
+
+    sb_sprintf(&sb,  "%s", CCGRN(ch, C_NRM));
+    list_obj_to_char(room->contents, ch, SHOW_OBJ_ROOM, false, &sb);
+    sb_sprintf(&sb,  "%s", CCYEL(ch, C_NRM));
+    list_char_to_char(room->people, ch, &sb);
+    sb_sprintf(&sb,  "%s", CCNRM(ch, C_NRM));
+ 
     send_to_char(ch, "%s", sb.str);
 }
 

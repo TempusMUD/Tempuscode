@@ -48,7 +48,6 @@ extern struct spell_info_type spell_info[];
 
 /* extern functions */
 void add_follower(struct creature *ch, struct creature *leader);
-void do_auto_exits(struct creature *ch, room_num room);
 int get_check_money(struct creature *ch, struct obj_data **obj, int display);
 
 ACMD(do_echo);
