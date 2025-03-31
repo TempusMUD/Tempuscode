@@ -392,7 +392,7 @@ adjust_creature_money(struct creature *ch, money_t amount)
 money_t
 adjusted_price(struct creature *buyer, struct creature *seller, money_t base_price)
 {
-    int cost_modifier = (GET_CHA(seller) - GET_CHA(buyer)) * 2;
+    int cost_modifier = GET_CHA(seller) - GET_CHA(buyer);
     money_t price = base_price + (base_price * cost_modifier) / 100;
 
     return MAX(1, price);
