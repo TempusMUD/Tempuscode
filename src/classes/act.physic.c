@@ -915,14 +915,27 @@ ACMD(do_econvert)
     if (*arg2) {
         one_argument(argument, arg3);
         // Is it an internal energy destination?
-        if (!strcmp(arg2, "internal") && *arg3 &&
-            (battery = get_object_in_equip_vis(ch, arg3, ch->implants, &i))) {} else if ((battery =
-                                                                                              get_object_in_equip_vis(ch, arg2, ch->equipment, &i))
-                                                                                         || (battery = get_obj_in_list_vis(ch, arg2, ch->carrying))) {} else {
-            send_to_char(ch,
+        if (streq(arg2, "internal")) {
+            if (!*arg3) {
+                send_to_char(ch, "An internal what?\r\n");
+                return;
+            }
+            battery = get_object_in_equip_vis(ch, arg3, ch->implants, &i);
+            if (!battery) {
+                send_to_char(ch, "You don't have an internal '%s'.\r\n", arg3);
+                return;
+            }
+        } else {
+            battery = get_object_in_equip_vis(ch, arg2, ch->equipment, &i);
+            if (!battery) {
+                battery = get_obj_in_list_vis(ch, arg2, ch->carrying);
+            }
+            if (!battery) {
+                send_to_char(ch,
                          "You don't seem to have %s '%s' to store the energy in.\r\n",
                          AN(arg2), arg2);
-            return;
+                return;
+            }
         }
 
         if (!IS_BATTERY(battery)) {

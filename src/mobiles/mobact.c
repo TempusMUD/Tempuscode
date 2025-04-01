@@ -2056,9 +2056,9 @@ single_mobile_activity(struct creature *ch)
                     // Log it if it is.
                     struct obj_data *original =
                         real_object_proto(GET_OBJ_VNUM(obj));
-                    int renamed = 0;
+                    bool renamed = false;
                     if (original) {
-                        renamed = strcmp(obj->name, original->name);
+                        renamed = !streq(obj->name, original->name);
                     }
                     if (renamed || isname_exact("imm", obj->aliases)) {
                         mudlog(LVL_IMMORT, CMP, true,
