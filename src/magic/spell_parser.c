@@ -2505,6 +2505,11 @@ load_spell(xmlNodePtr node)
             songs[idnum].lyrics = strdup(text);
             songs[idnum].instrumental = false;
             xmlFree(text);
+        } else if (xmlMatches(child->name, "affectmessage")) {
+            char *text = (char *)xmlNodeGetContent(child);
+
+            spell_info[idnum].affect_message = strdup(text);
+            xmlFree(text);
         } else if (xmlMatches(child->name, "potion")){
             spell_info[idnum].potionquality1 = xmlGetStrProp(child, "quality1", "");
             spell_info[idnum].potionquality2 = xmlGetStrProp(child, "quality2", spell_info[idnum].potionquality1);
@@ -2554,6 +2559,8 @@ clear_spells(void)
         spell_info[spl].violent = 0;
         spell_info[spl].is_weapon = 0;
         spell_info[spl].routines = 0;
+        free(spell_info[spl].affect_message);
+        spell_info[spl].affect_message = NULL;
         free(spell_info[spl].potionquality1);
         spell_info[spl].potionquality1 = NULL;
         free(spell_info[spl].potionquality2);

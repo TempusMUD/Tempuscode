@@ -16,6 +16,7 @@
     <flag value="violent"/>
     <flag value="damage"/>
     <flag value="affects"/>
+    <affectmessage>Acid is eating away at your skin!</affectmessage>
   </spell>
   <skill id="763" name="acid burn">
   </skill>
@@ -29,6 +30,7 @@
     <flag value="damage"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <affectmessage>Your skin bubbles and hisses as it dissolves!</affectmessage>
     <potion quality1="fizzy" quality2="" color1="" color2="sapphire"
             desc2="ominous" desc3="hissing"/>
   </spell>
@@ -58,6 +60,7 @@
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="nowater"/>
+    <affectmessage>You may walk on the air itself.</affectmessage>
     <potion quality1="cloudy" quality2="misty" color="pearly" desc3="hazy"/>
   </spell>
   <spell id="336" name="albedo shield">
@@ -68,6 +71,7 @@
     <flag value="affects"/>
     <flag value="physics"/>
     <potion color1="black" desc2="smoky"/>
+    <affectmessage>You are protected from electromagnetic attacks.</affectmessage>
   </spell>
   <skill id="745" name="alien blood">
   </skill>
@@ -86,6 +90,7 @@
     <instrument type="string"/>
     <lyrics>The courage and strength with which Alron is blessed
 Will come to our aid 'til our souls are at rest!</lyrics>
+    <affectmessage>You feel confident Alron is guiding you.</affectmessage>
   </spell>
   <spell id="650" name="ambush">
     <position minimum="standing"/>
@@ -101,6 +106,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <affectmessage>You seem to be forgetting something...</affectmessage>
     <potion desc1="small" desc2="unremarkable" desc3="utterly forgettable"/>
   </spell>
   <skill id="602" name="analyze">
@@ -116,6 +122,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
     <flag value="affects"/>
     <flag value="alterations"/>
     <flag value="magic"/>
+    <affectmessage>You are feeling a strong bond with animals.</affectmessage>
   </spell>
   <spell id="45" name="animate dead">
     <granted class="cleric" level="24" gen="2"/>
@@ -136,6 +143,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <affectmessage>You are enveloped in an anti-magic shell.</affectmessage>
     <potion quality1="dark" quality2="opaque" desc3=""/>
   </spell>
   <spell id="211" name="antibody">
@@ -184,6 +192,7 @@ Will come to our aid 'til our souls are at rest!</lyrics>
     <instrument type="string"/>
     <lyrics>Of bravery I sing to thee,
 Take up your swords and follow me!</lyrics>
+    <affectmessage>You feel protected by song.</affectmessage>
   </spell>
   <spell id="369" name="aria of asylum">
     <granted class="bard" level="35" gen="3"/>
@@ -197,6 +206,7 @@ Take up your swords and follow me!</lyrics>
 As swords and arrows fall,
 We fear no pain in our retreat,
 Asylum saves us all!</lyrics>
+    <affectmessage>You are enveloped by a gossamer shield.</affectmessage>
   </spell>
   <spell id="1" name="armor">
     <granted class="mage" level="4"/>
@@ -208,6 +218,7 @@ Asylum saves us all!</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <flag value="divine"/>
+    <affectmessage>You feel protected.</affectmessage>
     <potion quality1="thick" quality2="viscous" color1="indigo"
             color2="dark purple" desc3="glowing white"/>
   </spell>
@@ -242,6 +253,7 @@ Asylum saves us all!</lyrics>
     <flag value="affects"/>
     <flag value="alterations"/>
     <flag value="physics"/>
+    <affectmessage>You are much more attractive... to weapons.</affectmessage>
   </spell>
   <skill id="345" name="attraction field (obj)">
   </skill>
@@ -281,6 +293,7 @@ Asylum saves us all!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <affectmessage>Your skin is thick and tough like tree bark.</affectmessage>
     <potion color1="brown" quality1="rough"/>
   </spell>
   <skill id="502" name="bash">
@@ -322,6 +335,7 @@ Asylum saves us all!</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="evil"/>
+    <affectmessage>You are covered by the blackmantle.</affectmessage>
   </spell>
   <skill id="735" name="blade barrier">
     <flag value="defensive"/>
@@ -339,6 +353,7 @@ Asylum saves us all!</lyrics>
     <flag value="manual"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <affectmessage>You feel blessed.</affectmessage>
     <potion color1="clear blue"/>
   </spell>
   <spell id="4" name="blindness">
@@ -490,6 +505,7 @@ Asylum saves us all!</lyrics>
     <flag value="points"/>
     <flag value="physics"/>
     <potion color1="green"/>
+    <affectmessage>Your energy capacitance is boosted.</affectmessage>
   </spell>
   <skill id="730" name="catapult">
   </skill>
@@ -523,6 +539,7 @@ Asylum saves us all!</lyrics>
     <instrument type="string"/>
     <lyrics>Oh sun, sweet kiss of warmth and light,
 Repel the frigid cold of night!</lyrics>
+    <affectmessage>You are surrounded by a warm glow.</affectmessage>
   </spell>
   <skill id="611" name="charge">
   </skill>
@@ -561,6 +578,7 @@ Repel the frigid cold of night!</lyrics>
     <flag value="unaffects"/>
     <flag value="physics"/>
     <potion color1="grey"/>
+    <affectmessage>You feel chemically inert.</affectmessage>
   </spell>
   <spell id="8" name="chill touch">
     <granted class="mage" level="5"/>
@@ -632,12 +650,14 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <affectmessage>You are feeling quite clumsy!</affectmessage>
     <potion quality1="heavy"/>
   </spell>
   <spell id="647" name="cogenic neural bridging">
     <granted class="cyborg" level="35"/>
     <cost maxmove="37"/>
     <flag value="cybernetic"/>
+    <affectmessage>Your neural pathways have been bridged.</affectmessage>
   </spell>
   <spell id="10" name="color spray">
     <granted class="mage" level="18"/>
@@ -863,6 +883,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="manual"/>
     <flag value="divine"/>
     <flag value="evil"/>
+    <affectmessage>You feel giddy from the absorption of a life.</affectmessage>
   </spell>
   <skill id="566" name="death touch">
     <granted class="monk" level="49"/>
@@ -876,10 +897,12 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="song"/>
     <instrument type="wind"/>
     <description>a spirited march</description>
+    <affectmessage>Harmonic resonance protects you from deleterious effects.</affectmessage>
   </spell>
   <spell id="645" name="defensive posturing">
     <granted class="cyborg" level="15"/>
     <flag value="cybernetic"/>
+    <affectmessage>You are postured defensively.</affectmessage>
   </spell>
   <spell id="573" name="delta nerve">
     <granted class="monk" level="19"/>
@@ -899,6 +922,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="affects"/>
     <flag value="alterations"/>
     <flag value="physics"/>
+    <affectmessage>You are feeling incredibly dense.</affectmessage>
     <potion quality1="thick"/>
   </spell>
   <spell id="209" name="dermal hardening">
@@ -909,6 +933,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="affects"/>
     <flag value="psionic"/>
     <potion quality1="hairy"/>
+    <affectmessage>Your dermal surfaces are hardened.</affectmessage>
   </spell>
   <spell id="18" name="detect alignment">
     <granted class="mage" level="24"/>
@@ -965,6 +990,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <potion color1="clear red"/>
+    <affectmessage>You are sensitive to attempts to magical scrying.</affectmessage>
   </spell>
   <spell id="59" name="dimension door">
     <cost mana_initial="90" mana_level_dec="3" mana_minimum="60"/>
@@ -981,11 +1007,13 @@ To answer the mysteries one's life can bring.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <affectmessage>You are traversing a parallel dimension.</affectmessage>
   </spell>
   <spell id="499" name="dimensional void">
     <position minimum="fighting"/>
     <flag value="violent"/>
     <flag value="physics"/>
+    <affectmessage>You are disoriented from your foray into the interdimensional void!</affectmessage>
   </spell>
   <spell id="387" name="dirge">
     <granted class="bard" level="6"/>
@@ -1099,6 +1127,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <flag value="divine"/>
     <flag value="good"/>
     <potion quality1="glowing"/>
+    <affectmessage>You are shielded by divine intervention.</affectmessage>
   </spell>
   <spell id="149" name="divine power">
     <granted class="cleric" level="30" gen="5"/>
@@ -1134,6 +1163,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <instrument type="string"/>
     <lyrics>The journey of a thousand miles begins with just one step,
 So I'll provide a merry tune to give our step some pep!</lyrics>
+    <affectmessage>A pleasant tune gives you a pep in your step.</affectmessage>
   </spell>
   <skill id="759" name="drowning">
   </skill>
@@ -1157,6 +1187,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <instrument type="wind"/>
     <description>a loud and boisterous tune</description>
     <potion color1="red"/>
+    <affectmessage>Others are impressed by your beautiful voice.</affectmessage>
   </spell>
   <skill id="711" name="earth elemental">
   </skill>
@@ -1218,6 +1249,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="physics"/>
     <flag value="defensive"/>
     <potion quality1="fluorescent"/>
+    <affectmessage>You are surrounded by an electrostatic field.</affectmessage>
   </spell>
   <spell id="156" name="elemental branding">
     <granted class="ranger" level="31" gen="1"/>
@@ -1231,9 +1263,11 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   </spell>
   <skill id="593" name="elusion">
     <granted class="mercenary" level="11"/>
+    <affectmessage>You are attempting to hide your tracks.</affectmessage>
   </skill>
   <skill id="606" name="empower">
     <granted class="mage" level="5"/>
+    <affectmessage>You are empowered.</affectmessage>
   </skill>
   <spell id="70" name="enchant armor">
     <granted class="mage" level="16"/>
@@ -1261,6 +1295,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="points"/>
     <flag value="psionic"/>
     <potion color1="emerald"/>
+    <affectmessage>Your endurance is increased.</affectmessage>
   </spell>
   <spell id="82" name="endure cold">
     <granted class="cleric" level="15"/>
@@ -1311,6 +1346,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <flag value="outdoors"/>
+    <affectmessage>You are entangled in the undergrowth!</affectmessage>
   </spell>
   <spell id="322" name="entropy field">
     <granted class="physic" level="27"/>
@@ -1322,6 +1358,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="damage"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <affectmessage>You are caught up in an entropy field!</affectmessage>
   </spell>
   <spell id="155" name="envenom">
     <granted class="ranger" level="5"/>
@@ -1386,6 +1423,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <affectmessage>The world is a terribly frightening place!</affectmessage>
     <potion color1="red"/>
   </spell>
   <skill id="536" name="feign">
@@ -1418,6 +1456,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <potion quality1="fiery"/>
+    <affectmessage>You are empowered with breath of FIRE!</affectmessage>
   </spell>
   <skill id="712" name="fire elemental">
   </skill>
@@ -1512,6 +1551,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="song"/>
     <instrument type="wind"/>
     <description>an upbeat tune that swells to a deafening volume</description>
+    <affectmessage>Your voice reverberates with vigor!</affectmessage>
   </spell>
   <spell id="221" name="fortress of iron will">
     <cost mana_initial="30" mana_level_dec="1" mana_minimum="30"/>
@@ -1535,6 +1575,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
   <spell id="572" name="gamma nerve">
     <granted class="monk" level="35"/>
     <flag value="biologic"/>
+    <affectmessage>You are empowered with breath of FROST!</affectmessage>
   </spell>
   <spell id="305" name="gamma ray">
     <granted class="physic" level="25"/>
@@ -1547,6 +1588,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <flag value="affects"/>
     <flag value="physics"/>
     <potion color1="yellow"/>
+    <affectmessage>You have been irradiated.</affectmessage>
   </spell>
   <skill id="697" name="garrote">
     <granted class="mercenary" level="21"/>
@@ -1569,6 +1611,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <affectmessage>You feel somewhat protected from metal.</affectmessage>
   </spell>
   <spell id="677" name="genetek optimmunal response">
     <flag value="cybernetic"/>
@@ -1688,6 +1731,7 @@ So I'll provide a merry tune to give our step some pep!</lyrics>
     <instrument type="percussion"/>
     <lyrics>Guiharia's Glory, her essence so pure,
 Her spirit renews me, my heart can endure</lyrics>
+    <affectmessage>The power of deities is rushing through your veins.</affectmessage>
   </spell>
   <skill id="592" name="gunsmithing">
     <granted class="mercenary" level="24"/>
@@ -1932,6 +1976,7 @@ Home sweet home.</lyrics>
     <flag value="song"/>
     <instrument type="wind"/>
     <description>an insidious, bewitching rhythm</description>
+    <affectmessage>Your senses have been dulled by insidious melodies.</affectmessage>
   </spell>
   <spell id="346" name="instant audience">
     <granted class="bard" level="26"/>
@@ -1951,6 +1996,7 @@ The likes of which you'll not hear again soon.</lyrics>
     <flag value="affects"/>
     <flag value="unaffects"/>
     <flag value="psionic"/>
+    <affectmessage>Your mental faculties are augmented.</affectmessage>
   </spell>
   <skill id="521" name="intimidate">
     <granted class="barbarian" level="35"/>
@@ -1994,6 +2040,7 @@ The likes of which you'll not hear again soon.</lyrics>
 As treasure seekers do.
 Their cheerful spirit lingers on,
 In me as well as you.</lyrics>
+    <affectmessage>Your feet are dancing out of your control!</affectmessage>
   </spell>
   <skill id="547" name="jab">
     <granted class="thief" level="6"/>
@@ -2002,6 +2049,7 @@ In me as well as you.</lyrics>
   </skill>
   <skill id="578" name="kata">
     <granted class="monk" level="5"/>
+    <affectmessage>You feel focused from your kata.</affectmessage>
   </skill>
   <skill id="598" name="kia">
     <granted class="monk" level="23"/>
@@ -2045,6 +2093,7 @@ In me as well as you.</lyrics>
     <flag value="alterations"/>
     <flag value="physics"/>
     <potion quality1="thick"/>
+    <affectmessage>Your molecular lattice has been strengthened.</affectmessage>
   </spell>
   <skill id="707" name="lava breath">
   </skill>
@@ -2165,6 +2214,7 @@ We beg for release from these sicknesses' hold.</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <potion quality1="churning"/>
+    <affectmessage>You are protected against magic.</affectmessage>
   </spell>
   <spell id="83" name="magical vestment">
     <granted class="cleric" level="11"/>
@@ -2184,6 +2234,7 @@ We beg for release from these sicknesses' hold.</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="evil"/>
+    <affectmessage>You feel overwhelmingly wicked!</affectmessage>
   </spell>
   <spell id="734" name="mana restore">
     <cost mana_initial="30" mana_level_dec="1" mana_minimum="15"/>
@@ -2201,6 +2252,7 @@ We beg for release from these sicknesses' hold.</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <potion quality1="buzzing"/>
+    <affectmessage>You are protected by a mana shield.</affectmessage>
   </spell>
   <spell id="231" name="mass hysteria">
     <granted class="psionic" level="48"/>
@@ -2231,6 +2283,7 @@ We beg for release from these sicknesses' hold.</lyrics>
     <granted class="cyborg" level="24"/>
     <cost maxmove="30"/>
     <flag value="cybernetic"/>
+    <affectmessage>Melee Combat Tactics are in effect.</affectmessage>
   </spell>
   <spell id="357" name="melody of mettle">
     <granted class="bard" level="11"/>
@@ -2242,6 +2295,7 @@ We beg for release from these sicknesses' hold.</lyrics>
     <instrument type="percussion"/>
     <lyrics>Our courage has seen us through worse times before;
 Such mettle is forged in the fires of war!</lyrics>
+    <affectmessage>Your vitality is boosted by the Melody of Mettle.</affectmessage>
   </spell>
   <spell id="216" name="metabolism increase">
     <granted class="psionic" level="9"/>
@@ -2251,6 +2305,7 @@ Such mettle is forged in the fires of war!</lyrics>
     <flag value="affects"/>
     <flag value="psionic"/>
     <potion color1="red"/>
+    <affectmessage>Your metabolism is racing.</affectmessage>
   </spell>
   <skill id="586" name="metalworking">
     <granted class="barbarian" level="41"/>
@@ -2312,6 +2367,7 @@ Such mettle is forged in the fires of war!</lyrics>
     <instrument type="string"/>
     <lyrics>The hunter shall not see my face,
 The melody removes my trace.</lyrics>
+    <affectmessage>Your path is cloaked in the tendrils of song.</affectmessage>
   </spell>
   <spell id="615" name="motion sensor">
     <granted class="cyborg" level="16"/>
@@ -2328,12 +2384,14 @@ The melody removes my trace.</lyrics>
     <flag value="damage"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <affectmessage>Your muscles are convulsing uncontrollably!</affectmessage>
     <potion quality1="buzzing"/>
   </spell>
   <spell id="675" name="nanite reconstruction">
     <granted class="cyborg" level="33"/>
     <cost maxmove="300"/>
     <flag value="cybernetic"/>
+    <affectmessage>Your implants are undergoing nanite reconstruction.</affectmessage>
   </spell>
   <skill id="605" name="night vision">
     <granted class="ranger" level="2"/>
@@ -2376,6 +2434,7 @@ The melody removes my trace.</lyrics>
   <spell id="644" name="offensive posturing">
     <granted class="cyborg" level="15"/>
     <flag value="cybernetic"/>
+    <affectmessage>You are postured offensively.</affectmessage>
   </spell>
   <spell id="575" name="omega nerve">
     <granted class="monk" level="39"/>
@@ -2424,6 +2483,7 @@ The melody removes my trace.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="violent"/>
     <flag value="affects"/>
+    <affectmessage>You are turning into &amp;NSTONE&amp;n!</affectmessage>
   </spell>
   <spell id="62" name="phantasmic sword">
     <granted class="mage" level="30"/>
@@ -2472,6 +2532,7 @@ The melody removes my trace.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <affectmessage>Your physical strength is augmented.</affectmessage>
     <potion color1="red"/>
   </spell>
   <spell id="619" name="power boost">
@@ -2489,6 +2550,7 @@ The melody removes my trace.</lyrics>
     <instrument type="percussion"/>
     <lyrics>Such strength to rule without dispute,
 A surge of power absolute</lyrics>
+    <affectmessage>Your strength is bolstered by song.</affectmessage>
   </spell>
   <spell id="80" name="pray">
     <granted class="cleric" level="27"/>
@@ -2499,6 +2561,7 @@ A surge of power absolute</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="divine"/>
+    <affectmessage>You feel guided by divine forces.</affectmessage>
     <potion color1="white"/>
   </spell>
   <spell id="118" name="prismatic sphere">
@@ -2649,6 +2712,7 @@ A surge of power absolute</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <affectmessage>You are providing psychic feedback to your attackers.</affectmessage>
   </spell>
   <spell id="230" name="psychic resistance">
     <granted class="psionic" level="20"/>
@@ -2658,6 +2722,7 @@ A surge of power absolute</lyrics>
     <flag value="affects"/>
     <flag value="psionic"/>
     <potion color1="raspberry"/>
+    <affectmessage>Your mind is resistant to external energies.</affectmessage>
   </spell>
   <spell id="224" name="psychic surge">
     <granted class="psionic" level="40"/>
@@ -2696,6 +2761,7 @@ Is it tomorrow or just the end of time?</lyrics>
     <target type="creature" scope="room"/>
     <target type="creature" scope="fighting"/>
     <flag value="affects"/>
+    <affectmessage>You are dealing out &amp;cquad damage&amp;n.</affectmessage>
     <potion color1="bright blue"/>
   </spell>
   <spell id="343" name="quantum rift">
@@ -2762,6 +2828,7 @@ Is it tomorrow or just the end of time?</lyrics>
     <granted class="cyborg" level="18"/>
     <cost maxmove="40"/>
     <flag value="cybernetic"/>
+    <affectmessage>Your Reflex Boosters are active.</affectmessage>
   </spell>
   <spell id="317" name="refraction">
     <granted class="physic" level="33"/>
@@ -2792,6 +2859,7 @@ Is it tomorrow or just the end of time?</lyrics>
     <instrument type="string"/>
     <lyrics>A morsel of a melody keeps appetites in line,
 For when the battle's finally won, we all will drink and dine!</lyrics>
+    <affectmessage>A tune has soothed your hunger and thirst.</affectmessage>
   </spell>
   <spell id="85" name="regenerate">
     <granted class="mage" level="49"/>
@@ -2821,6 +2889,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <flag value="unaffects"/>
     <flag value="psionic"/>
     <potion desc1="twilight"/>
+    <affectmessage>You feel very relaxed.</affectmessage>
   </spell>
   <spell id="35" name="remove curse">
     <granted class="mage" level="26"/>
@@ -2869,6 +2938,7 @@ For when the battle's finally won, we all will drink and dine!</lyrics>
     <flag value="affects"/>
     <flag value="alterations"/>
     <flag value="physics"/>
+    <affectmessage>You are emitting a repulsion field.</affectmessage>
   </spell>
   <skill id="344" name="repulsion field (obj)">
   </skill>
@@ -2947,6 +3017,7 @@ His presence is revealed to me.</lyrics>
     <flag value="song"/>
     <instrument type="percussion"/>
     <description>an intense and violent rhythm</description>
+    <affectmessage>You are consumed by a feral rage!</affectmessage>
   </spell>
   <skill id="568" name="ridgehand">
     <granted class="monk" level="30"/>
@@ -2968,6 +3039,7 @@ His presence is revealed to me.</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <affectmessage>You feel overwhelmingly righteous!</affectmessage>
   </spell>
   <skill id="544" name="roundhouse">
     <granted class="barbarian" level="19"/>
@@ -2984,6 +3056,7 @@ His presence is revealed to me.</lyrics>
     <flag value="divine"/>
     <flag value="good"/>
     <potion color1="blue"/>
+    <affectmessage>You have been sanctified!</affectmessage>
   </spell>
   <spell id="36" name="sanctuary">
     <granted class="cleric" level="28"/>
@@ -3065,6 +3138,7 @@ His presence is revealed to me.</lyrics>
     <flag value="groups"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <affectmessage>You are surrounded by a shield of righteousness.</affectmessage>
   </spell>
   <spell id="37" name="shocking grasp">
     <granted class="mage" level="9"/>
@@ -3220,6 +3294,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <affectmessage>You can track by sensing the spirit of your prey.</affectmessage>
   </spell>
   <spell id="79" name="spiritual hammer">
     <granted class="cleric" level="10"/>
@@ -3261,6 +3336,7 @@ His presence is revealed to me.</lyrics>
     <flag value="affects"/>
     <flag value="divine"/>
     <flag value="good"/>
+    <affectmessage>A bloody stigmatic mark is seared into your forehead.</affectmessage>
     <potion color1="blood red"/>
   </spell>
   <skill id="516" name="stomp">
@@ -3284,6 +3360,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <affectmessage>Your skin is as hard as granite.</affectmessage>
     <potion color1="gray"/>
   </spell>
   <spell id="39" name="strength">
@@ -3293,6 +3370,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="magic"/>
+    <affectmessage>Your physical strength is magically augmented.</affectmessage>
     <potion color1="sapphire"/>
   </spell>
   <skill id="693" name="strike">
@@ -3395,6 +3473,7 @@ His presence is revealed to me.</lyrics>
     <flag value="affects"/>
     <flag value="psionic"/>
     <flag value="magic"/>
+    <affectmessage>You may use your mind to hold more things.</affectmessage>
     <potion color1="blue"/>
   </spell>
   <spell id="151" name="telepathy">
@@ -3405,6 +3484,7 @@ His presence is revealed to me.</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <affectmessage>Your telepathic abilities are greatly enhanced.</affectmessage>
   </spell>
   <spell id="2" name="teleport">
     <granted class="mage" level="33"/>
@@ -3446,6 +3526,7 @@ His presence is revealed to me.</lyrics>
     <flag value="affects"/>
     <flag value="magic"/>
     <flag value="defensive"/>
+    <affectmessage>There are thorns protruding from your skin.</affectmessage>
   </spell>
   <skill id="157" name="thorn skin casting">
   </skill>
@@ -3585,6 +3666,7 @@ His presence is revealed to me.</lyrics>
     <instrument type="percussion"/>
     <lyrics>The sky is the swallow's place to be in,
 whether African or European</lyrics>
+    <affectmessage>You are under the effect of an uplifting tune!</affectmessage>
   </spell>
   <spell id="366" name="unravelling diapason">
     <granted class="bard" level="40"/>
@@ -3621,6 +3703,7 @@ Unmake your magic, break this spell</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="physics"/>
+    <affectmessage>You are existing in a total vacuum.</affectmessage>
   </spell>
   <skill id="762" name="vader choke">
   </skill>
@@ -3652,6 +3735,7 @@ Unmake your magic, break this spell</lyrics>
     <lyrics>The battle, still it rages,
 As it has for many ages,
 But a piercing strike can hope to end it all.</lyrics>
+    <affectmessage>The spirit of fallen heroes fills your being.</affectmessage>
   </spell>
   <spell id="353" name="verse of vulnerability">
     <granted class="bard" level="8"/>
@@ -3666,6 +3750,7 @@ But a piercing strike can hope to end it all.</lyrics>
     <instrument type="string"/>
     <lyrics>The music flows from me to you,
 It guides my blade as I strike true!</lyrics>
+    <affectmessage>You feel more vulnerable to attack.</affectmessage>
   </spell>
   <spell id="215" name="vertigo">
     <granted class="psionic" level="31"/>
@@ -3762,6 +3847,7 @@ It guides my blade as I strike true!</lyrics>
     <flag value="violent"/>
     <flag value="affects"/>
     <flag value="psionic"/>
+    <affectmessage>You feel unusually weakened.</affectmessage>
     <potion desc1="mixed"/>
   </spell>
   <spell id="384" name="weight of the world">
@@ -3776,6 +3862,7 @@ It guides my blade as I strike true!</lyrics>
 Holding us down as surely as boulders.
 To lighten our loads, this song we'll sing,
 And to our packs a lightness bring!</lyrics>
+    <affectmessage>The weight of the world rests lightly upon your shoulders.</affectmessage>
   </spell>
   <skill id="682" name="whipping weapons">
     <granted class="barbarian" level="11"/>
@@ -3803,6 +3890,7 @@ And to our packs a lightness bring!</lyrics>
     <target type="creature" scope="room"/>
     <flag value="affects"/>
     <flag value="divine"/>
+    <affectmessage>Your intellect is magically augmented.</affectmessage>
     <potion color1="purple"/>
   </spell>
   <spell id="42" name="word of recall">
@@ -3854,6 +3942,7 @@ And to our packs a lightness bring!</lyrics>
 Come back to haunt the young and old.
 The barrier they form is very thin,
 But blocks true love and harbors sin.</lyrics>
+    <affectmessage>You are surrounded by whirling slivers of sound.</affectmessage>
   </spell>
   <skill id="596" name="wrench">
     <granted class="mercenary" level="6"/>
@@ -3864,11 +3953,13 @@ But blocks true love and harbors sin.</lyrics>
     <granted class="monk" level="21"/>
     <cost mana_initial="30" mana_level_dec="1" mana_minimum="5"/>
     <flag value="zen"/>
+    <affectmessage>The zen of motion is one with your body.</affectmessage>
   </spell>
   <spell id="406" name="zen of celerity">
     <granted class="monk" level="25" gen="2"/>
     <cost mana_initial="40" mana_level_dec="1" mana_minimum="20"/>
     <flag value="zen"/>
+    <affectmessage>You are under the effects of the zen of celerity.</affectmessage>
   </spell>
   <spell id="407" name="zen of dispassion">
     <granted class="monk" level="45"/>

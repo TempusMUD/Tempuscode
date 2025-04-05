@@ -1867,7 +1867,7 @@ make_act_str(const char *orig,
                     strcpy(buf, bold);
                     buf += strlen(bold);
                     c = tolower(c);
-                } else if (c != '&') {
+                } else if (c != '&' && c != '@') {
                     const char *code = dtermcode(to->desc, C_SPR, TERM_NRM);
                     strcpy(buf, code);
                     buf += strlen(code);
@@ -1897,6 +1897,9 @@ make_act_str(const char *orig,
                     break;
                 case 'w':
                     i = dtermcode(to->desc, C_SPR, TERM_WHT);
+                    break;
+                case '@':
+                    i = dtermcode(to->desc, C_SPR, TERM_BLK);
                     break;
                 case '&':
                     i = "&";

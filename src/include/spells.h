@@ -835,6 +835,7 @@ struct spell_info_type {
     bool violent;
     bool is_weapon;
     bool defensive;
+    char *affect_message;
     char *potionquality1;
     char *potionquality2;
     char *potioncolor1;

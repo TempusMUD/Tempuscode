@@ -1159,7 +1159,7 @@ do_auto_exits(struct str_builder *sb, struct creature *ch, struct room_data *roo
             sb_sprintf(sb, "No obvious exits");
         }
         sb_sprintf(sb, "%s.\r\n", CCNRM(ch, C_NRM));
-        
+
     } else {
         if (!found) {
             sb_sprintf(sb, "None obvious");
@@ -1453,7 +1453,7 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
         sb_sprintf(&sb,  "%s\r\n", CCNRM(ch, C_NRM));
         send_to_char(ch, "%s", sb.str);
     }
-    
+
     /* Zone PK / Autoexits line */
     if (!ch->desc || ch->desc->display != BLIND) {
         switch (room->zone->pk_style) {
@@ -1480,7 +1480,7 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
     } else {
         sb_sprintf(&sb,  "\r\n");
     }
-        
+
     /* now list characters & objects */
     bool ice_shown = false;
     bool blood_shown = false;
@@ -1522,7 +1522,7 @@ look_at_room(struct creature *ch, struct room_data *room, int ignore_brief)
     sb_sprintf(&sb,  "%s", CCYEL(ch, C_NRM));
     list_char_to_char(room->people, ch, &sb);
     sb_sprintf(&sb,  "%s", CCNRM(ch, C_NRM));
- 
+
     send_to_char(ch, "%s", sb.str);
 }
 
@@ -2394,9 +2394,102 @@ ACMD(do_encumbrance)
 
 }
 
-// if like me you noticed this mode thing and had no idea what it was meant for
-// it may interest you to know that mode=1 means we should only show bad things
-// IMPORTANT: Add negative messages ABOVE the mode check, positive messages BELOW
+static gint
+spell_id_compare(void *a, void *b)
+{
+    return GPOINTER_TO_INT(a) < GPOINTER_TO_INT(b) ? -1:
+        GPOINTER_TO_INT(a) > GPOINTER_TO_INT(b) ? 1 : 0;
+}
+
+struct aff_flag_message {
+    char idx;
+    uint32_t bit;
+    bool bad;
+    const char *msg;
+} aff_flag_messages[] = {
+    { 0, AFF_BLIND, true, "You have been blinded!" },
+    { 0, AFF_INVISIBLE, false, "You are invisible." },
+    { 0, AFF_DETECT_ALIGN, false, "You can discern the alignment of others." },
+    { 0, AFF_DETECT_INVIS, false, "You are sensitive to the presence of the invisible." },
+    { 0, AFF_DETECT_MAGIC, false, "You are sensitive to the magical nature of objects." },
+    { 0, AFF_SENSE_LIFE, false, "You are sensistive to the presence of living creatures." },
+    { 0, AFF_WATERWALK, false, "You can walk on water." },
+    { 0, AFF_SANCTUARY, false, "You are protected by Sanctuary." },
+    { 0, AFF_CURSE, true, "You have been cursed!" },
+    { 0, AFF_INFRAVISION, false, "Your eyes are glowing red." },
+    { 0, AFF_PROTECT_EVIL, false, "You are protected from evil." },
+    { 0, AFF_PROTECT_GOOD, false, "You are protected from good." },
+    { 0, AFF_SLEEP, true, "You can't wake up!" },
+    { 0, AFF_NOTRACK, false, "You are leaving no evidence of your passage." },
+    { 0, AFF_INFLIGHT, false, "You feel like you can fly." },
+    { 0, AFF_TIME_WARP, false, "The fabric of time is warped around you." },
+    { 0, AFF_SNEAK, false, "You are sneaking." },
+    { 0, AFF_HIDE, false, "You are hiding." },
+    { 0, AFF_WATERBREATH, false, "You can breathe underwater." },
+    { 0, AFF_CHARM, false, "You have been charmed!" },
+    { 0, AFF_CONFUSION, true, "You are very confused." },
+    { 0, AFF_NOPAIN, false, "Your mind is ignoring pain." },
+    { 0, AFF_RETINA, false, "Your retina is especially sensitive." },
+    { 0, AFF_ADRENALINE, false, "Your adrenaline is surging!" },
+    { 0, AFF_CONFIDENCE, false, "You feel very confident." },
+    { 0, AFF_REJUV, false, "You feel like your body will heal with a good rest." },
+    { 0, AFF_REGEN, false, "Your body is regenerating itself rapidly." },
+    { 0, AFF_GLOWLIGHT, false, "You are followed by a ghostly illumination." },
+    { 0, AFF_BLUR, false, "Your image is blurred and shifting." },
+    { 1, AFF2_FLUORESCENT, false, "The atoms in your vicinity are fluorescent." },
+    { 1, AFF2_TRANSPARENT, false, "You are transparent." },
+    { 1, AFF2_SLOW, true, "You feel unnaturally slowed." },
+    { 1, AFF2_HASTE, false, "You are moving very fast" },
+    { 1, AFF2_FIRE_SHIELD, false, "You are protected by a shield of fire." },
+    { 1, AFF2_BERSERK, false, "You are BERSERK!" },
+    { 1, AFF2_INTIMIDATED, true, "You have been thoroughly intimidated." },
+    { 1, AFF2_TRUE_SEEING, false, "You are seeing truely." },
+    { 1, AFF2_PROTECT_UNDEAD, false, "You are protected from the undead." },
+    { 1, AFF2_INVIS_TO_UNDEAD, false, "You are invisible to the undead." },
+    { 1, AFF2_ANIMAL_KIN, false, "You feel a strong kinship with the animals." },
+    { 1, AFF2_ENDURE_COLD, false, "You can endure extreme cold." },
+    { 1, AFF2_PARALYZED, true, "You have been paralyzed!" },
+    { 1, AFF2_PROT_LIGHTNING, false, "You are protected from lightning." },
+    { 1, AFF2_PROT_FIRE, false, "You are protected from fire." },
+    { 1, AFF2_TELEKINESIS, false, "You are feeling telekinetic." },
+    { 1, AFF2_PROT_RAD, false, "You are immune to the effects of radiation." },
+    { 1, AFF2_ABLAZE, true, "You are &R&@ON FIRE&n!!" },
+    { 1, AFF2_DISPLACEMENT, false, "Your image is displaced." },
+    { 1, AFF2_PROT_DEVILS, false, "You are protected from devils." },
+    { 1, AFF2_MEDITATE, false, "You are meditating." },
+    { 1, AFF2_EVADE, false, "You are evading melee attacks." },
+    { 1, AFF2_BLADE_BARRIER, false, "You are protected by whirling blades." },
+    { 1, AFF2_OBLIVITY, false, "You are oblivious to pain." },
+    { 1, AFF2_ENERGY_FIELD, false, "You are surrounded by a field of energy." },
+    { 1, AFF2_VERTIGO, false, "You are lost in a sea of vertigo." },
+    { 1, AFF2_PROT_DEMONS, false, "You are protected from demons." },
+    { 2, AFF3_ATTRACTION_FIELD, true, "You are emitting an attraction field." },
+    { 2, AFF3_SICKNESS, true, "You are afflicted with a terrible sickness!" },
+    { 2, AFF3_SELF_DESTRUCT, true, "Self Destruct has been activated!" },
+    { 2, AFF3_DAMAGE_CONTROL, false, "Your Damage Control process is running." },
+    { 2, AFF3_STASIS, false, "You are in stasis." },
+    { 2, AFF3_PRISMATIC_SPHERE, false, "You are surrounded by a prismatic sphere of light." },
+    { 2, AFF3_RADIOACTIVE, true, "You are radioactive." },
+    { 2, AFF3_DETECT_POISON, false, "You are sensitive to the presence of poisons." },
+    { 2, AFF3_SONIC_IMAGERY, false, "You are perceiving sonic images." },
+    { 2, AFF3_SHROUD_OBSCUREMENT, false, "You are surrounded by a magical obscurement shroud." },
+    { 2, AFF3_NOBREATHE, false, "You are not breathing." },
+    { 2, AFF3_PROT_HEAT, false, "You are protected from heat." },
+    { 2, AFF3_PSISHIELD, false, "Your mind is protected by a psionic shield." },
+    { 2, AFF3_PSYCHIC_CRUSH, true, "You feel a psychic force crushing your mind!" },
+    { 2, AFF3_DOUBLE_DAMAGE, false, "You are dealing double damage." },
+    { 2, AFF3_ACIDITY, true, "Your body is producing self-corroding acids!" },
+    { 2, AFF3_HAMSTRUNG, true, "&rThe gash on your leg is &NBLEEDING&r all over!!&n" },
+    { 2, AFF3_GRAVITY_WELL, true, "Spacetime is bent around you in a powerful gravity well!" },
+    { 2, AFF3_SYMBOL_OF_PAIN, true, "Your mind burns with the symbol of pain!" },
+    { 2, AFF3_EMP_SHIELD, false, "You are shielded from EMP pulses." },
+    { 2, AFF3_TAINTED, true, "The very essence of your being has been tainted." },
+    { 2, AFF3_DIVINE_POWER, false, "You are filled with divine power!" },
+    { -1, 0, false, "" }
+};
+
+
+
 void
 sb_append_affects(struct creature *ch, bool debuffs_only, struct str_builder *sb)
 {
@@ -2405,54 +2498,45 @@ sb_append_affects(struct creature *ch, bool debuffs_only, struct str_builder *sb
     struct creature *mob = NULL;
     const char *name = NULL;
     const char *str = "";
+    GList *aff_spells = NULL;
 
-    if (affected_by_spell(ch, SPELL_FIRE_BREATHING)) {
-        sb_strcat(sb,  "You are empowered with breath of FIRE!\r\n", NULL);
-    } else if (affected_by_spell(ch, SPELL_FROST_BREATHING)) {
-        sb_strcat(sb,  "You are empowered with breath of FROST!\r\n", NULL);
+    // Add spells with messages to a list without duplication.
+    for (struct affected_type *af = ch->affected; af; af = af->next) {
+        if (!g_list_find(aff_spells, GINT_TO_POINTER(af->type))
+            && spell_info[af->type].affect_message) {
+            aff_spells = g_list_append(aff_spells, GINT_TO_POINTER(af->type));
+        }
     }
-    if (AFF_FLAGGED(ch, AFF_BLIND)) {
-        sb_strcat(sb,  "You have been blinded!\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_POISON)
-        || AFF3_FLAGGED(ch, AFF3_POISON_2)
-        || AFF3_FLAGGED(ch, AFF3_POISON_3)) {
-        sb_strcat(sb,  "You are poisoned!\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_PETRIFY)) {
-        sb_sprintf(sb,  "You are turning into %sSTONE%s!\r\n",
-                    CCNRM_BLD(ch, C_SPR), CCNRM(ch, C_SPR));
-    }
-    if (AFF3_FLAGGED(ch, AFF3_RADIOACTIVE)) {
-        sb_strcat(sb,  "You are radioactive.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_GAMMA_RAY)) {
-        sb_strcat(sb,  "You have been irradiated.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_ABLAZE)) {
-        sb_sprintf(sb,  "You are %s%sON FIRE!!%s\r\n",
-                    CCRED_BLD(ch, C_SPR), CCBLK(ch, C_CMP), CCNRM(ch, C_SPR));
-    }
-    if (affected_by_spell(ch, SPELL_QUAD_DAMAGE)) {
-        sb_sprintf(sb,  "You are dealing out %squad damage%s.\r\n",
-                    CCCYN(ch, C_NRM), CCNRM(ch, C_NRM));
-    }
-    if (affected_by_spell(ch, SPELL_BLACKMANTLE)) {
-        sb_strcat(sb,  "You are covered by the blackmantle.\r\n", NULL);
-    }
+    // Sort them to provide position stability.
+    aff_spells = g_list_sort(aff_spells, (GCompareFunc) spell_id_compare);
 
-    if (affected_by_spell(ch, SPELL_ENTANGLE)) {
-        sb_strcat(sb,  "You are entangled in the undergrowth!\r\n", NULL);
-    }
-
+    // Special case these affects.
     if ((af = affected_by_spell(ch, SKILL_DISGUISE))) {
         if ((mob = real_mobile_proto(af->modifier))) {
             sb_sprintf(sb,  "You are disguised as %s at a level of %d.\r\n",
                         GET_NAME(mob), af->duration);
         }
     }
-    // radiation sickness
 
+    if (AFF_FLAGGED(ch, AFF_POISON)
+        || AFF3_FLAGGED(ch, AFF3_POISON_2)
+        || AFF3_FLAGGED(ch, AFF3_POISON_3)) {
+        sb_strcat(sb,  "You are poisoned!\r\n", NULL);
+    }
+
+    if (AFF3_FLAGGED(ch, AFF3_MANA_LEAK) && !AFF3_FLAGGED(ch, AFF3_MANA_TAP)) {
+        sb_strcat(sb,  str,
+                   "You are slowly being drained of your spiritual energy.\r\n",
+                   NULL);
+    }
+
+    if (AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK)
+        && !AFF3_FLAGGED(ch, AFF3_ENERGY_TAP)) {
+        sb_strcat(sb,  str,
+                   "Your body is slowly being drained of physical energy.\r\n", NULL);
+    }
+
+    // radiation sickness
     if (affected_by_spell(ch, TYPE_RAD_SICKNESS)) {
         if (!number(0, 2)) {
             sb_strcat(sb,  "You feel nauseous.\r\n", NULL);
@@ -2464,78 +2548,7 @@ sb_append_affects(struct creature *ch, bool debuffs_only, struct str_builder *sb
         }
     }
 
-    if (AFF2_FLAGGED(ch, AFF2_SLOW)) {
-        sb_strcat(sb,  "You feel unnaturally slowed.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_CHARM)) {
-        sb_strcat(sb,  "You have been charmed!\r\n", NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_MANA_LEAK) && !AFF3_FLAGGED(ch, AFF3_MANA_TAP)) {
-        sb_strcat(sb,  str,
-                   "You are slowly being drained of your spiritual energy.\r\n",
-                   NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK)
-        && !AFF3_FLAGGED(ch, AFF3_ENERGY_TAP)) {
-        sb_strcat(sb,  str,
-                   "Your body is slowly being drained of physical energy.\r\n", NULL);
-    }
-
-    if (AFF3_FLAGGED(ch, AFF3_SYMBOL_OF_PAIN)) {
-        sb_strcat(sb,  "Your mind burns with the symbol of pain!\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_WEAKNESS)) {
-        sb_strcat(sb,  "You feel unusually weakened.\r\n", NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_PSYCHIC_CRUSH)) {
-        sb_strcat(sb,  "You feel a psychic force crushing your mind!\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_FEAR)) {
-        sb_strcat(sb,  "The world is a terribly frightening place!\r\n", NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_ACIDITY)) {
-        sb_strcat(sb,  "Your body is producing self-corroding acids!\r\n", NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_GRAVITY_WELL)) {
-        sb_strcat(sb, "Spacetime is bent around you in a powerful gravity well!\r\n",
-            NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_HAMSTRUNG)) {
-        sb_sprintf(sb, "%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
-            CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
-                                                                        C_SPR), CCNRM(ch, C_SPR));
-    }
-    if (IS_SICK(ch)) {
-        sb_strcat(sb,  "You are afflicted with a terrible sickness!\r\n", NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_HAMSTRUNG)) {
-        sb_sprintf(sb, "%sThe gash on your leg is %sBLEEDING%s%s all over!!%s\r\n",
-            CCRED(ch, C_SPR), CCBLD(ch, C_SPR), CCNRM(ch, C_SPR), CCRED(ch,
-                                                                        C_SPR), CCNRM(ch, C_SPR));
-    }
-    if (AFF_FLAGGED(ch, AFF_CONFUSION)) {
-        sb_strcat(sb,  "You are very confused.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_MOTOR_SPASM)) {
-        sb_strcat(sb,  "Your muscles are convulsing uncontrollably!\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_VERTIGO)) {
-        sb_strcat(sb,  "You are lost in a sea of vertigo.\r\n", NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_TAINTED)) {
-        sb_strcat(sb,  "The very essence of your being has been tainted.\r\n",
-                   NULL);
-    }
-    if (affected_by_spell(ch, SONG_INSIDIOUS_RHYTHM)) {
-        sb_strcat(sb,  "Your senses have been dulled by insidious melodies.\r\n",
-                   NULL);
-    }
-    if (affected_by_spell(ch, SONG_VERSE_OF_VULNERABILITY)) {
-        sb_strcat(sb,  "You feel more vulnerable to attack.\r\n", NULL);
-    }
-
     // vampiric regeneration
-
     if ((af = affected_by_spell(ch, SPELL_VAMPIRIC_REGENERATION))) {
         if ((name = player_name_by_idnum(af->modifier))) {
             sb_sprintf(sb, "You are under the effects of %s's vampiric regeneration.\r\n",
@@ -2546,6 +2559,7 @@ sb_append_affects(struct creature *ch, bool debuffs_only, struct str_builder *sb
         }
     }
 
+    // locust regeneration
     if ((af = affected_by_spell(ch, SPELL_LOCUST_REGENERATION))) {
         if ((name = player_name_by_idnum(af->modifier))) {
             sb_strcat(sb,  "You are under the effects of ", name,
@@ -2557,101 +2571,48 @@ sb_append_affects(struct creature *ch, bool debuffs_only, struct str_builder *sb
         }
     }
 
-    if (debuffs_only) {                 /* Only asked for bad affs? */
+    // Affect flag descriptions
+    for (int i = 0;aff_flag_messages[i].idx >= 0;i++) {
+        if (!aff_flag_messages[i].bad) {
+            // skip non-bad affects.
+            continue;
+        }
+        int affs = aff_flag_messages[i].idx == 0 ? AFF_FLAGS(ch) :
+            aff_flag_messages[i].idx == 1 ? AFF2_FLAGS(ch) : AFF3_FLAGS(ch);
+        if (affs & aff_flag_messages[i].bit) {
+            make_act_str(aff_flag_messages[i].msg, buf, NULL, NULL, NULL, ch);
+            sb_strcat(sb, buf, NULL);
+        }
+    }
+
+    // Spell descriptions
+    for (GList *it = aff_spells;it;it = it->next) {
+        int spell = GPOINTER_TO_INT(it->data);
+        if (spell_info[spell].violent || IS_SET(spell_info[spell].targets, TAR_UNPLEASANT)) {
+            make_act_str(spell_info[spell].affect_message, buf, NULL, NULL, NULL, ch);
+            sb_strcat(sb, buf, NULL);
+        }
+    }
+
+    if (debuffs_only) {
+        g_list_free(aff_spells);
         return;
     }
     if (IS_SOULLESS(ch)) {
         sb_strcat(sb,  "A deep despair clouds your soulless mind.\r\n", NULL);
     }
-    if (AFF_FLAGGED(ch, AFF_SNEAK) && !AFF3_FLAGGED(ch, AFF3_INFILTRATE)) {
-        sb_strcat(sb,  "You are sneaking.\r\n", NULL);
-    }
     if (AFF3_FLAGGED(ch, AFF3_INFILTRATE)) {
         sb_strcat(sb,  "You are infiltrating.\r\n", NULL);
+    } else if (AFF_FLAGGED(ch, AFF_SNEAK)) {
+        sb_strcat(sb,  "You are sneaking.\r\n", NULL);
     }
-    if (AFF_FLAGGED(ch, AFF_INVISIBLE)) {
-        sb_strcat(sb,  "You are invisible.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_INVIS_TO_UNDEAD)) {
-        sb_strcat(sb,  "You are invisible to the undead.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_TRANSPARENT)) {
-        sb_strcat(sb,  "You are transparent.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_DETECT_INVIS)) {
-        sb_strcat(sb,  str,
-                   "You are sensitive to the presence of invisible things.\r\n",
-                   NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_DETECT_POISON)) {
-        sb_strcat(sb,  str,
-                   "You are sensitive to the presence of poisons.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_TRUE_SEEING)) {
-        sb_strcat(sb,  "You are seeing truly.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_SANCTUARY)) {
-        sb_strcat(sb,  "You are protected by Sanctuary.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_ARMOR)) {
-        sb_strcat(sb,  "You feel protected.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_STRENGTH)) {
-        sb_strcat(sb,  "Your physical strength is magically augmented.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_WORD_OF_INTELLECT)) {
-        sb_strcat(sb,  "Your intellect is magically augmented.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_BARKSKIN)) {
-        sb_strcat(sb,  "Your skin is thick and tough like tree bark.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_STONESKIN)) {
-        sb_strcat(sb,  "Your skin is as hard as granite.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_SPIRIT_TRACK)) {
-        sb_strcat(sb,  "You can track by sensing the spirit of your prey.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_INFRAVISION)) {
-        sb_strcat(sb,  "Your eyes are glowing red.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_REJUV)) {
-        sb_strcat(sb,  "You feel like your body will heal with a good rest.\r\n",
-                   NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_REGEN)) {
-        sb_strcat(sb,  "Your body is regenerating itself rapidly.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_GLOWLIGHT)) {
-        sb_strcat(sb,  "You are followed by a ghostly illumination.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_BLUR)) {
-        sb_strcat(sb,  "Your image is blurred and shifting.\r\n", NULL);
-    }
+
     if (AFF2_FLAGGED(ch, AFF2_DISPLACEMENT)) {
         if (affected_by_spell(ch, SPELL_REFRACTION)) {
             sb_strcat(sb,  "Your body is irregularly refractive.\r\n", NULL);
         } else {
             sb_strcat(sb,  "Your image is displaced.\r\n", NULL);
         }
-    }
-    if (affected_by_spell(ch, SPELL_ELECTROSTATIC_FIELD)) {
-        sb_strcat(sb,  "You are surrounded by an electrostatic field.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_FIRE_SHIELD)) {
-        sb_strcat(sb,  "You are protected by a shield of fire.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_BLADE_BARRIER)) {
-        sb_strcat(sb,  "You are protected by whirling blades.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_ENERGY_FIELD)) {
-        sb_strcat(sb,  "You are surrounded by a field of energy.\r\n", NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_PRISMATIC_SPHERE)) {
-        sb_strcat(sb,  "You are surrounded by a prismatic sphere of light.\r\n",
-                   NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_FLUORESCENT)) {
-        sb_strcat(sb,  "The atoms in your vicinity are fluorescent.\r\n", NULL);
     }
     if (AFF2_FLAGGED(ch, AFF2_DIVINE_ILLUMINATION)) {
         if (IS_EVIL(ch)) {
@@ -2662,316 +2623,52 @@ sb_append_affects(struct creature *ch, bool debuffs_only, struct str_builder *sb
             sb_strcat(sb,  "A sickly light is following you.\r\n", NULL);
         }
     }
-    if (AFF2_FLAGGED(ch, AFF2_BERSERK)) {
-        sb_strcat(sb,  "You are BERSERK!\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_PROTECT_GOOD)) {
-        sb_strcat(sb,  "You are protected from good.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_PROTECT_EVIL)) {
-        sb_strcat(sb,  "You are protected from evil.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_PROT_DEVILS)) {
-        sb_strcat(sb,  "You are protected from devils.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_PROT_DEMONS)) {
-        sb_strcat(sb,  "You are protected from demons.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_PROTECT_UNDEAD)) {
-        sb_strcat(sb,  "You are protected from the undead.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_PROT_LIGHTNING)) {
-        sb_strcat(sb,  "You are protected from lightning.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_PROT_FIRE)) {
-        sb_strcat(sb,  "You are protected from fire.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_MAGICAL_PROT)) {
-        sb_strcat(sb,  "You are protected against magic.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_ENDURE_COLD)) {
-        sb_strcat(sb,  "You can endure extreme cold.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_SENSE_LIFE)) {
-        sb_strcat(sb,  str,
-                   "You are sensitive to the presence of living creatures.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SKILL_EMPOWER)) {
-        sb_strcat(sb,  "You are empowered.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_TELEKINESIS)) {
-        sb_strcat(sb,  "You are feeling telekinetic.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_HASTE)) {
-        sb_strcat(sb,  "You are moving very fast.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SKILL_KATA)) {
-        sb_strcat(sb,  "You feel focused from your kata.\r\n", NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_OBLIVITY)) {
-        sb_strcat(sb,  "You are oblivious to pain.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, ZEN_MOTION)) {
-        sb_strcat(sb,  "The zen of motion is one with your body.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, ZEN_TRANSLOCATION)) {
-        sb_strcat(sb,  "You are as one with the zen of translocation.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, ZEN_CELERITY)) {
-        sb_strcat(sb,  "You are under the effects of the zen of celerity.\r\n",
-                   NULL);
-    }
     if (AFF3_FLAGGED(ch, AFF3_MANA_TAP) && !AFF3_FLAGGED(ch, AFF3_MANA_LEAK)) {
         sb_strcat(sb,  str,
                    "You have a direct tap to the spiritual energies of the universe.\r\n",
                    NULL);
     }
-    if (AFF3_FLAGGED(ch, AFF3_ENERGY_TAP)
-        && !AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK)) {
+    if (AFF3_FLAGGED(ch, AFF3_ENERGY_TAP) && !AFF3_FLAGGED(ch, AFF3_ENERGY_LEAK)) {
         sb_strcat(sb,  str,
                    "Your body is absorbing physical energy from the universe.\r\n",
                    NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_SONIC_IMAGERY)) {
-        sb_strcat(sb,  "You are perceiving sonic images.\r\n", NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_PROT_HEAT)) {
-        sb_strcat(sb,  "You are protected from heat.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_RIGHTEOUS_PENETRATION)) {
-        sb_strcat(sb,  "You feel overwhelmingly righteous!\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_PRAY)) {
-        sb_strcat(sb,  "You feel guided by divine forces.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_BLESS)) {
-        sb_strcat(sb,  "You feel blessed.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_DEATH_KNELL)) {
-        sb_strcat(sb,  "You feel giddy from the absorption of a life.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_MALEFIC_VIOLATION)) {
-        sb_strcat(sb,  "You feel overwhelmingly wicked!\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_MANA_SHIELD)) {
-        sb_strcat(sb,  "You are protected by a mana shield.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_SHIELD_OF_RIGHTEOUSNESS)) {
-        sb_strcat(sb,  "You are surrounded by a shield of righteousness.\r\n",
-                   NULL);
-    }
-    if (affected_by_spell(ch, SPELL_ANTI_MAGIC_SHELL)) {
-        sb_strcat(sb,  "You are enveloped in an anti-magic shell.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_SANCTIFICATION)) {
-        sb_strcat(sb,  "You have been sanctified!\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_DIVINE_INTERVENTION)) {
-        sb_strcat(sb,  "You are shielded by divine intervention.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_SPHERE_OF_DESECRATION)) {
-        sb_strcat(sb,  str,
-                   "You are surrounded by a black sphere of desecration.\r\n", NULL);
-    }
-
-    /* psionic affections */
-    if (affected_by_spell(ch, SPELL_POWER)) {
-        sb_strcat(sb,  "Your physical strength is augmented.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_INTELLECT)) {
-        sb_strcat(sb,  "Your mental faculties are augmented.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_NOPAIN)) {
-        sb_strcat(sb,  "Your mind is ignoring pain.\r\n", NULL);
-    }
-    if (AFF_FLAGGED(ch, AFF_RETINA)) {
-        sb_strcat(sb,  "Your retina is especially sensitive.\r\n", NULL);
     }
     if (affected_by_spell(ch, SKILL_ADRENAL_MAXIMIZER)) {
         sb_strcat(sb,  "Shukutei Adrenal Maximizations are active.\r\n", NULL);
     } else if (AFF_FLAGGED(ch, AFF_ADRENALINE)) {
         sb_strcat(sb,  "Your adrenaline is pumping.\r\n", NULL);
     }
-    if (AFF_FLAGGED(ch, AFF_CONFIDENCE)) {
-        sb_strcat(sb,  "You feel very confident.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_DERMAL_HARDENING)) {
-        sb_strcat(sb,  "Your dermal surfaces are hardened.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_LATTICE_HARDENING)) {
-        sb_strcat(sb,  "Your molecular lattice has been strengthened.\r\n", NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_NOBREATHE)) {
-        sb_strcat(sb,  "You are not breathing.\r\n", NULL);
-    }
-    if (AFF3_FLAGGED(ch, AFF3_PSISHIELD)) {
-        sb_strcat(sb,  "You are protected by a psionic shield.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_METABOLISM)) {
-        sb_strcat(sb,  "Your metabolism is racing.\r\n", NULL);
-    } else if (affected_by_spell(ch, SPELL_RELAXATION)) {
-        sb_strcat(sb,  "You feel very relaxed.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_ENDURANCE)) {
-        sb_strcat(sb,  "Your endurance is increased.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_CAPACITANCE_BOOST)) {
-        sb_strcat(sb,  "Your energy capacitance is boosted.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_PSYCHIC_RESISTANCE)) {
-        sb_strcat(sb,  "Your mind is resistant to external energies.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_PSYCHIC_FEEDBACK)) {
-        sb_strcat(sb,  "You are providing psychic feedback to your attackers.\r\n",
-                   NULL);
-    }
-
-    /* physic affects */
-    if (AFF3_FLAGGED(ch, AFF3_ATTRACTION_FIELD)) {
-        sb_strcat(sb,  "You are emitting an attraction field.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_REPULSION_FIELD)) {
-        sb_strcat(sb,  "You are emitting a repulsion field.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_VACUUM_SHROUD)) {
-        sb_strcat(sb,  "You are existing in a total vacuum.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_CHEMICAL_STABILITY)) {
-        sb_strcat(sb,  "You feel chemically inert.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_ALBEDO_SHIELD)) {
-        sb_strcat(sb,  "You are protected from electromagnetic attacks.\r\n",
-                   NULL);
-    }
-    if (affected_by_spell(ch, SPELL_GAUSS_SHIELD)) {
-        sb_strcat(sb,  "You feel somewhat protected from metal.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_DIMENSIONAL_SHIFT)) {
-        sb_strcat(sb,  "You are traversing a parallel dimension.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_DIMENSIONAL_VOID)) {
-        sb_strcat(sb, "You are disoriented from your foray into the interdimensional void!\r\n",
-            NULL);
-    }
-
-    /*cyborg */
-    if (AFF3_FLAGGED(ch, AFF3_DAMAGE_CONTROL)) {
-        sb_strcat(sb,  "Your Damage Control process is running.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SKILL_DEFENSIVE_POS)) {
-        sb_strcat(sb,  "You are postured defensively.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SKILL_OFFENSIVE_POS)) {
-        sb_strcat(sb,  "You are postured offensively.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SKILL_NEURAL_BRIDGING)) {
-        sb_strcat(sb,  "Your neural pathways have been bridged.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SKILL_MELEE_COMBAT_TAC)) {
-        sb_strcat(sb,  "Melee Combat Tactics are in effect.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SKILL_REFLEX_BOOST)) {
-        sb_strcat(sb,  "Your Reflex Boosters are active.\r\n", NULL);
-    }
-
-    if (AFF3_FLAGGED(ch, AFF3_SHROUD_OBSCUREMENT)) {
-        sb_strcat(sb,  str,
-                   "You are surrounded by an magical obscurement shroud.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_DETECT_SCRYING)) {
-        sb_strcat(sb,  "You are sensitive to attempts to magical scrying.\r\n",
-                   NULL);
-    }
-    if (affected_by_spell(ch, SKILL_ELUSION)) {
-        sb_strcat(sb,  "You are attempting to hide your tracks.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_TELEPATHY)) {
-        sb_strcat(sb,  "Your telepathic abilities are greatly enhanced.\r\n",
-                   NULL);
-    }
-    if (affected_by_spell(ch, SPELL_ANIMAL_KIN)) {
-        sb_strcat(sb,  "You are feeling a strong bond with animals.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SPELL_THORN_SKIN)) {
-        sb_strcat(sb,  "There are thorns protruding from your skin.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SKILL_NANITE_RECONSTRUCTION)) {
-        sb_strcat(sb,  "Your implants are undergoing nanite reconstruction.\r\n",
-                   NULL);
-    }
-    if (AFF2_FLAGGED(ch, AFF2_PROT_RAD)) {
-        sb_strcat(sb,  "You are immune to the effects of radiation.\r\n", NULL);
-    }
 
     /* bard affects */
-    if (affected_by_spell(ch, SONG_MISDIRECTION_MELISMA)) {
-        sb_strcat(sb,  "Your path is cloaked in the tendrils of song.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_ARIA_OF_ARMAMENT)) {
-        sb_strcat(sb,  "You feel protected by song.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_MELODY_OF_METTLE)) {
-        sb_strcat(sb,  "Your vitality is boosted by the Melody of Mettle.\r\n",
-                   NULL);
-    }
-    if (affected_by_spell(ch, SONG_DEFENSE_DITTY)) {
-        sb_strcat(sb, "Harmonic resonance protects you from deleterious effects.\r\n",
-            NULL);
-    }
-    if (affected_by_spell(ch, SONG_ALRONS_ARIA)) {
-        sb_strcat(sb,  "Alron guides your hands.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_VERSE_OF_VALOR)) {
-        sb_strcat(sb,  "The spirit of fallen heroes fills your being.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_DRIFTERS_DITTY)) {
-        sb_strcat(sb,  "A pleasant tune gives you a pep in your step.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_CHANT_OF_LIGHT)) {
-        sb_strcat(sb,  "You are surrounded by a warm glow.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_ARIA_OF_ASYLUM)) {
-        sb_strcat(sb,  "You are enveloped by a gossamer shield.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_RHYTHM_OF_RAGE)) {
-        sb_strcat(sb,  "You are consumed by a feral rage!\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_POWER_OVERTURE)) {
-        sb_strcat(sb,  "Your strength is bolstered by song.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_GUIHARIAS_GLORY)) {
-        sb_strcat(sb,  "The power of deities is rushing through your veins.\r\n",
-                   NULL);
-    }
     if ((af = affected_by_spell(ch, SONG_MIRROR_IMAGE_MELODY))) {
-        sb_strcat(sb,  tmp_sprintf
-                       ("You are being accompanied by %d mirror image%s.\r\n",
-                       af->modifier, af->modifier > 1 ? "s" : ""), NULL);
-    }
-    if (affected_by_spell(ch, SONG_UNLADEN_SWALLOW_SONG)) {
-        sb_strcat(sb,  "You are under the effect of an uplifting tune!\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_IRRESISTABLE_DANCE)) {
-        sb_strcat(sb,  "You are feet are dancing out of your control!\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_WEIGHT_OF_THE_WORLD)) {
-        sb_strcat(sb, "The weight of the world rests lightly upon your shoulders.\r\n",
-            NULL);
-    }
-    if (affected_by_spell(ch, SONG_EAGLES_OVERTURE)) {
-        sb_strcat(sb,  "Other are impressed by your beautiful voice.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_FORTISSIMO)) {
-        sb_strcat(sb,  "Your voice reverberates with vigor!\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_REGALERS_RHAPSODY)) {
-        sb_strcat(sb,  "A tune has soothed your hunger and thirst.\r\n", NULL);
-    }
-    if (affected_by_spell(ch, SONG_WOUNDING_WHISPERS)) {
-        sb_strcat(sb,  "You are surrounded by whirling slivers of sound.\r\n",
-                   NULL);
+        sb_sprintf(sb, "You are being accompanied by %d mirror image%s.\r\n",
+                   af->modifier, af->modifier > 1 ? "s" : "");
     }
 
+    // Affect flag descriptions
+    for (int i = 0;aff_flag_messages[i].idx >= 0;i++) {
+        if (aff_flag_messages[i].bad) {
+            // skip bad affects
+            continue;
+        }
+        int affs = aff_flag_messages[i].idx == 0 ? AFF_FLAGS(ch) :
+            aff_flag_messages[i].idx == 1 ? AFF2_FLAGS(ch) : AFF3_FLAGS(ch);
+        if (affs & aff_flag_messages[i].bit) {
+            make_act_str(aff_flag_messages[i].msg, buf, NULL, NULL, NULL, ch);
+            sb_strcat(sb, buf, NULL);
+        }
+    }
+
+    // Spell descriptions
+    for (GList *it = aff_spells;it;it = it->next) {
+        int spell = GPOINTER_TO_INT(it->data);
+        if (!spell_info[spell].violent && !IS_SET(spell_info[spell].targets, TAR_UNPLEASANT)) {
+            make_act_str(spell_info[spell].affect_message, buf, NULL, NULL, NULL, ch);
+            sb_strcat(sb, buf, NULL);
+        }
+    }
+
+    g_list_free(aff_spells);
 }
 
 ACMD(do_affects)

@@ -3694,7 +3694,7 @@ mag_unaffects(int level, struct creature *ch, struct creature *victim,
     case SPELL_CHEMICAL_STABILITY:
         spell = SPELL_ACIDITY;
         spell2 = SPELL_ACID_BREATH; // acid breath
-        to_vict = "You feel less acidic  What a relief!\r\n";
+        to_vict = "You feel less acidic...  What a relief!\r\n";
         break;
 
     case SONG_ALRONS_ARIA:
