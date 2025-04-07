@@ -2430,7 +2430,6 @@ struct aff_flag_message {
     { 0, AFF_CONFUSION, true, "You are very confused." },
     { 0, AFF_NOPAIN, false, "Your mind is ignoring pain." },
     { 0, AFF_RETINA, false, "Your retina is especially sensitive." },
-    { 0, AFF_ADRENALINE, false, "Your adrenaline is surging!" },
     { 0, AFF_CONFIDENCE, false, "You feel very confident." },
     { 0, AFF_REJUV, false, "You feel like your body will heal with a good rest." },
     { 0, AFF_REGEN, false, "Your body is regenerating itself rapidly." },
