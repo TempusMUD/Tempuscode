@@ -596,6 +596,53 @@ record_usage(void)
 
 }
 
+void
+compress_to_descriptor(struct descriptor_data *d, const char *txt, ssize_t len, int flush)
+{
+    uint8_t zbuf[ZBUF_LENGTH];
+
+    d->zout->next_in = (Bytef *)txt;
+    d->zout->avail_in = len;
+    d->zout->next_out = zbuf;
+    d->zout->avail_out = ZBUF_LENGTH;
+
+    while (true) {
+        if (flush == Z_NO_FLUSH && d->zout->avail_in == 0) {
+            // if we're writing data, write to channel until nothing left to send.
+            break;
+        }
+
+        // No meaningful errors for deflating
+        (void)deflate(d->zout, flush);
+
+        if (flush != Z_NO_FLUSH && d->zout->avail_out == ZBUF_LENGTH) {
+            // if we're flushing data, write to channel until nothing left to write.
+            break;
+        }
+
+        GError *error = NULL;
+        gsize bytes_written, bytes_to_write = ZBUF_LENGTH - d->zout->avail_out;
+        g_io_channel_write_chars(d->io, (gchar *)zbuf, bytes_to_write, &bytes_written, &error);
+        if (error) {
+            errlog("g_io_channel_write_chars during flush: %s", error->message);
+            g_error_free(error);
+            break;
+        }
+        if (bytes_written < bytes_to_write) {
+            // partial write - make another pass to write more.
+            errlog("g_io_channel_write_chars partial write!");
+            break;
+        } else if (bytes_written == ZBUF_LENGTH) {
+            // write of full buffer - make another pass to see if there's more coming.
+            d->zout->next_out = zbuf;
+            d->zout->avail_out = ZBUF_LENGTH;
+        } else {
+            // full write of not-full buffer - we're done compressing
+            break;
+        }
+    }
+ }
+
 // Send raw bytes to a descriptor.  All socket output should go
 // through this function.  The data may be compressed first before
 // being put on the GIOChannel.
@@ -615,21 +662,7 @@ d_send_raw(struct descriptor_data *d, const char *txt, ssize_t len)
     }
 
     if (d->telnet.host[MCCP2].enabled) {
-        d->zout->next_in = (Bytef *)txt;
-        d->zout->avail_in = buflen;
-        while (true) {
-            int err = deflate(d->zout, Z_NO_FLUSH);
-            if (err != Z_OK) {
-                errlog("zlib deflate(): %s", d->zout->msg);
-            }
-            if (d->zout->avail_in == 0) {
-                break;
-            }
-            error = NULL;
-            g_io_channel_write_chars(d->io, (char *)d->zbuf, ZBUF_LENGTH - d->zout->avail_out, &bytes_written, &error);
-            d->zout->next_out = d->zbuf;
-            d->zout->avail_out = ZBUF_LENGTH;
-        }
+        compress_to_descriptor(d, txt, buflen, Z_NO_FLUSH);
         return;
     }
 
@@ -863,24 +896,10 @@ void
 flush_output(struct descriptor_data *d)
 {
     if (d->telnet.host[MCCP2].enabled) {
-        GError *error = NULL;
-        gsize bytes_written;
-        bool more_to_send = true;
         // flush zlib stream if compression is enabled.  If nothing
         // was compressed, zlib will return a Z_BUF_ERROR, so that
         // needs to be ignored.
-        while (more_to_send) {
-            d->zout->next_in = (Bytef *)"";
-            d->zout->avail_in = 0;
-            int err = deflate(d->zout, Z_SYNC_FLUSH);
-            if (err != Z_OK && err != Z_BUF_ERROR) {
-                errlog("flush zlib deflate(): %s", d->zout->msg);
-            }
-            g_io_channel_write_chars(d->io, (gchar *)d->zbuf, ZBUF_LENGTH - d->zout->avail_out, &bytes_written, &error);
-            more_to_send = (d->zout->avail_out == 0);
-            d->zout->next_out = d->zbuf;
-            d->zout->avail_out = ZBUF_LENGTH;
-        }
+        compress_to_descriptor(d, "", 0, Z_SYNC_FLUSH);
     }
 
     GError *error = NULL;

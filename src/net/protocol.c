@@ -398,6 +398,8 @@ handle_new_environ_sub(struct descriptor_data *d, uint8_t *buf, size_t len) {
 static void
 handle_mccp2(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_or_disable enable)
 {
+    void compress_to_descriptor(struct descriptor_data *d, const char *txt, ssize_t len, int flush);
+
     if (endpoint != HOST) {
         // MCCP2 only affects the host endpoint.
         return;
@@ -406,19 +408,21 @@ handle_mccp2(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_
     if (enable) {
         // Remaining output needs to be sent plaintext along with the
         // MCCP2 request, so we subvert the option mechanism here.
+        z_streamp zout = calloc(sizeof(z_stream), 1);
+        int err = deflateInit2(zout, Z_BEST_COMPRESSION, Z_DEFLATED, 12, 5, Z_DEFAULT_STRATEGY);
+        if (err != Z_OK) {
+            errlog("Couldn't initialize zlib stream: %s", zError(err));
+            request_telnet_option(d, HOST, DISABLE, MCCP2);
+            free(zout);
+            return;
+        }
         d->telnet.host[MCCP2].enabled = false;
         d_send_bytes(d, 5, IAC, SB, MCCP2, IAC, SE);
         flush_output(d);
         d->telnet.host[MCCP2].enabled = true;
-
-        d->zout = calloc(sizeof(z_stream), 1);
-        (void)deflateInit(d->zout, Z_BEST_COMPRESSION);
-        d->zout->next_out = d->zbuf;
-        d->zout->avail_out = ZBUF_LENGTH;
+        d->zout = zout;
     } else {
-        d->zout->next_in = "";
-        d->zout->avail_in = 0;
-        deflate(d->zout, Z_FINISH);
+        compress_to_descriptor(d, "", 0, Z_FINISH);
         deflateEnd(d->zout);
         free(d->zout);
         d->zout = NULL;
@@ -572,10 +576,10 @@ echo_on(struct descriptor_data *d)
 }
 
 static int
-find_iac_se(uint8_t *buf, size_t len)
+find_iac_se(uint8_t *buf, ssize_t len)
 {
     len -= 1;  // we're checking pos and pos+1
-    for (size_t pos = 0;pos < len;pos++) {
+    for (ssize_t pos = 0;pos < len;pos++) {
         if (buf[pos] == IAC && buf[pos+1] == SE) {
             return pos;
         }

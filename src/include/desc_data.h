@@ -152,7 +152,6 @@ struct descriptor_data {
     guint err_watcher;
     guint input_handler;
     z_streamp zout;                        /* zlib output stream */
-    uint8_t zbuf[ZBUF_LENGTH];
     char last_argument[MAX_INPUT_LENGTH];   /* */
     int last_cmd;
     int idle;                   // how long idle for
