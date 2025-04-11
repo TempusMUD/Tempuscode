@@ -421,6 +421,10 @@ handle_mccp2(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_
         flush_output(d);
         d->telnet.host[MCCP2].enabled = true;
         d->zout = zout;
+        // zMUD will raise a compression error if it receives a sync
+        // flush first thing with no data, so send a NUL here.  NUL
+        // bytes are ignored by the mud clients that support MCCP2.
+        compress_to_descriptor(d, "\0", 1, Z_NO_FLUSH);
     } else {
         compress_to_descriptor(d, "", 0, Z_FINISH);
         deflateEnd(d->zout);
