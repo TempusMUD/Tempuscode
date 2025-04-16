@@ -734,7 +734,7 @@ tmp_trim(const char *str)
 static size_t
 format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_indent, int par_indent, int rest_indent)
 {
-    const char *abbreviations[] = {"Dr.", "Mr." "Ms.", "Mrs.", "Miss.", "Esq.", "Dept.", NULL};
+    const char *abbreviations[] = {"Dr.", "Mr.", "Ms.", "Mrs.", "Miss.", "Esq.", "Dept.", NULL};
     const char *read_pt = str;
     size_t output_size = 0;
     int line_width = 0;
@@ -839,7 +839,7 @@ format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_
 
         while (word != read_pt) {
             output_size += read_pt - word;
-            if (write_pt != buf_end) {
+            if (buf && write_pt != buf_end) {
                 *write_pt++ = *word;
             }
             word++;
@@ -850,7 +850,9 @@ format_buffer(char *buf, size_t buf_size, const char *str, int width, int first_
         par_end = false;
     }
 
-    *write_pt = '\0';
+    if (buf) {
+        *write_pt = '\0';
+    }
 
     return output_size;
 }
