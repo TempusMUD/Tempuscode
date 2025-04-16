@@ -3820,6 +3820,7 @@ ACMD(do_zreset)
 
     if (!zone) {
         send_to_char(ch, "Invalid zone number.\r\n");
+        return;
     }
 
     reset_zone(zone);
