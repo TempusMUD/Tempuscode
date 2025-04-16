@@ -106,7 +106,6 @@ check_tempus_LDADD = \
                  $(top_builddir)/src/specials/hell_hunter_spec.o \
                  $(top_builddir)/src/specials/spec_assign.o \
                  $(top_builddir)/src/specials/spec_procs.o \
-                 $(top_builddir)/src/specials/styx.o \
                  $(top_builddir)/src/structs/creature.o \
                  $(top_builddir)/src/structs/creature_io.o \
                  $(top_builddir)/src/structs/obj_data.o \
@@ -116,7 +115,6 @@ check_tempus_LDADD = \
                  $(top_builddir)/src/structs/sector.o \
                  $(top_builddir)/src/util/str_builder.o \
                  $(top_builddir)/src/util/handler.o \
-                 $(top_builddir)/src/util/gpqueue.o \
                  $(top_builddir)/src/util/graph.o \
                  $(top_builddir)/src/util/modify.o \
                  $(top_builddir)/src/util/random.o \
