@@ -79,9 +79,10 @@ free_room(struct room_data *room)
         free(trail);
     }
     for (int i = 0; i < NUM_DIRS; i++) {
-        if (!room->dir_option[i]) {
+        if (room->dir_option[i]) {
             free(room->dir_option[i]->general_description);
             free(room->dir_option[i]->keyword);
+            free(room->dir_option[i]);
         }
     }
 
