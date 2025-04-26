@@ -1,9 +1,11 @@
-#include <string.h>
+#define _GNU_SOURCE
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <time.h>
 #include <ctype.h>
+#include <string.h>
 #include <libxml/parser.h>
 
 #include "utils.h"
