@@ -123,7 +123,7 @@ editor_line_count(struct editor *editor)
 const char *
 editor_prompt(struct editor *editor)
 {
-    return tmp_sprintf("%3d&b]&n ", editor_line_count(editor) + 1);
+    return tmp_sprintf("%3d&B]&n ", editor_line_count(editor) + 1);
 }
 
 int
@@ -231,7 +231,7 @@ editor_handle_input(struct editor *editor, char *input)
     if (*inbuf == '&') {        // Commands
         if (!inbuf[1]) {
             editor_emit(editor,
-                        "&& is the command character. Type &h for help.\r\n");
+                        "&& is the command character. Type &&h for help.\r\n");
             return;
         }
         args = inbuf + 2;
@@ -277,12 +277,9 @@ editor_display(struct editor *editor, unsigned int start_line, unsigned int disp
 
     // Display the lines from the beginning line to the end, making
     // sure we don't overflow the LARGE_BUF desc buffer
-    for (linenum = start_line; linenum < end_line;
-         linenum++, itr = g_list_next(itr)) {
-        sb_sprintf(&sb, "%3d%s%s]%s %s\r\n", linenum, CCBLD(editor->desc->creature,
-                                                        C_CMP), CCBLU(editor->desc->creature, C_NRM),
-                    CCNRM(editor->desc->creature, C_NRM),
-                    ((GString *) itr->data)->str);
+    for (linenum = start_line; linenum < end_line; linenum++, itr = itr->next) {
+        sb_sprintf(&sb, "%3d&b]&n %s\r\n", linenum,
+                   tmp_gsub(((GString *) itr->data)->str, "&", "&&"));
         if (sb.len > (LARGE_BUFSIZE - 1024)) {
             break;
         }
@@ -416,10 +413,7 @@ editor_find(struct editor *editor, char *args)
 
         i++;
         if (strcasestr(str->str, args)) {
-            sb_sprintf(&sb, "%3d%s%s]%s %s\r\n", i,
-                        CCBLD(editor->desc->creature, C_CMP),
-                        CCBLU(editor->desc->creature, C_NRM),
-                        CCNRM(editor->desc->creature, C_NRM), str->str);
+            sb_sprintf(&sb, "%3d&b]&n %s\r\n", i, tmp_gsub(str->str, "&", "&&"));
         }
     }
     sb_strcat(&sb, "\r\n", NULL);
@@ -556,7 +550,9 @@ editor_substitute(struct editor *editor, char *args)
     if (replaced > 0) {
         editor_emit(editor,
                     tmp_sprintf("Replaced %d occurrence%s of '%s' with '%s'.\r\n",
-                                replaced, (replaced == 1) ? "" : "s", pattern->str, replacement->str));
+                                replaced, (replaced == 1) ? "" : "s",
+                                tmp_gsub(pattern->str, "&", "&&"),
+                                tmp_gsub(replacement->str, "&", "&&")));
     } else {
         editor_emit(editor, "Search string not found.\r\n");
     }
