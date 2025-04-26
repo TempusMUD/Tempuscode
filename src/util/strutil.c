@@ -22,6 +22,39 @@ const char *fill_words[] = {
 };
 
 /**
+ * strcat_sl:
+ * @param dst Destination buffer
+ * @param size Size of destination buffer
+ * @param src String to be copied to destination buffer
+ *
+ * Copies the string to the destination buffer and NUL-terminates
+ * the string.  Differs from strcpy_s() in that it returns the
+ * length of src, NOT including the NUL-terminator for
+ * concatenation purposes.
+ *
+ * Concatenation code might look like:
+ * const char *texts[] = {"foo", "bar", "baz", NULL};
+ * char *w = buf;
+ * for (int i = 0;texts[i];i++) {
+ *   w += strcpy_sl(w, buflen - (w - buf), texts[i]);
+ * }
+ **/
+size_t
+strcpy_sl(char *dst, size_t size, const char *src)
+{
+    size_t src_len = strlen(src);
+    if (src_len + 1 > size) {
+        src_len = size - 1;
+    }
+    if (src_len == 0) {
+        return 0;
+    }
+    char *cp = mempcpy(dst, src, src_len);
+    *cp = '\0';
+    return src_len;
+}
+
+/**
  * snprintf_cat:
  * @param dest Destination buffer
  * @param size Size of destination buffer

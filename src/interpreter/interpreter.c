@@ -1964,7 +1964,7 @@ ACMD(do_alias)
         CREATE(cur_alias, struct alias_data, 1);
         cur_alias->alias = strdup(arg);
         cur_alias->replacement = strdup(repl);
-        if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR)) {
+        if (strchr(repl, ALIAS_SEP_CHAR) || strchr(repl, ALIAS_VAR_CHAR) || strchr(repl, ALIAS_REST_CHAR)) {
             cur_alias->type = ALIAS_COMPLEX;
         } else {
             cur_alias->type = ALIAS_SIMPLE;
@@ -2018,55 +2018,71 @@ char *
 perform_complex_alias(GQueue *input_q, char *args, struct alias_data *a)
 {
     GQueue temp_q;
-    char *tokens[NUM_TOKENS], *temp, *write_point;
-    int num_of_tokens = 0, num;
+    char *tokens[NUM_TOKENS], *read_pt, *write_pt;
+    int num_of_tokens = 0;
 
 
     g_queue_init(&temp_q);
 
     /* First, parse the original string */
     strcpy_s(buf2, sizeof(buf2), args);
-    temp = strtok(buf2, " ");
-    while (temp != NULL && num_of_tokens < NUM_TOKENS) {
-        tokens[num_of_tokens++] = temp;
-        temp = strtok(NULL, " ");
+    read_pt = strtok(buf2, " ");
+    while (read_pt != NULL && num_of_tokens < NUM_TOKENS) {
+        tokens[num_of_tokens++] = read_pt;
+        read_pt = strtok(NULL, " ");
     }
 
     /* initialize */
     buf[0] = '\\';
-    write_point = buf + 1;
+    write_pt = buf + 1;
 
     /* now parse the alias */
-    for (temp = a->replacement; *temp; temp++) {
-        if (*temp == ALIAS_SEP_CHAR) {
-            *write_point = '\0';
+    for (read_pt = a->replacement; *read_pt; read_pt++) {
+        if (*read_pt == ALIAS_SEP_CHAR) {
+            *write_pt = '\0';
             buf[MAX_INPUT_LENGTH - 1] = '\0';
             g_queue_push_head(&temp_q, strdup(buf));
             buf[0] = '\\';
-            write_point = buf + 1;
-        } else if (*temp == ALIAS_VAR_CHAR) {
-            temp++;
-            if ((num = *temp - '1') < num_of_tokens && num >= 0) {
-                strcpy_s(write_point, sizeof(buf) - (write_point - buf), tokens[num]);
-                write_point += strlen(tokens[num]);
-            } else if (*temp == ALIAS_GLOB_CHAR) {
-                strcpy_s(write_point, sizeof(buf) - (write_point - buf), args);
-                write_point += strlen(args);
-            } else if ((*(write_point++) = *temp) == '$') {
+            write_pt = buf + 1;
+        } else if (*read_pt == ALIAS_VAR_CHAR) {
+            read_pt++;
+            if (isdigit(*read_pt)) {
+                int num = *read_pt - '1';
+                if (0 <= num && num < num_of_tokens) {
+                    strcpy_s(write_pt, sizeof(buf) - (write_pt - buf), tokens[num]);
+                    write_pt += strlen(tokens[num]);
+                }
+            } else if (*read_pt == ALIAS_GLOB_CHAR) {
+                write_pt += strcpy_sl(write_pt, sizeof(buf) - (write_pt - buf), args);
+            } else if ((*(write_pt++) = *read_pt) == '$') {
                 /* redouble $ for act safety */
-                *(write_point++) = '$';
+                *(write_pt++) = '$';
+            }
+        } else if (*read_pt == ALIAS_REST_CHAR) {
+            read_pt++;
+            if (isdigit(*read_pt)) {
+                int num = *read_pt - '1';
+                if (0 <= num && num < num_of_tokens) {
+                    write_pt += strcpy_sl(write_pt,
+                                          sizeof(buf) - (write_pt - buf),
+                                          args + (tokens[num] - buf2));
+                }
+            } else if (*read_pt == ALIAS_GLOB_CHAR) {
+                write_pt += strcpy_sl(write_pt, sizeof(buf) - (write_pt - buf), args);
+            } else {
+                *write_pt++ = '&';
             }
         } else {
-            *(write_point++) = *temp;
+            *write_pt++ = *read_pt;
         }
     }
 
-    *write_point = '\0';
+    *write_pt = '\0';
     buf[MAX_INPUT_LENGTH - 1] = '\0';
     g_queue_push_head(&temp_q, strdup(buf));
 
-    while ((temp = g_queue_pop_head(&temp_q)) != NULL) {
-        g_queue_push_head(input_q, temp);
+    while ((read_pt = g_queue_pop_head(&temp_q)) != NULL) {
+        g_queue_push_head(input_q, read_pt);
     }
 
     return g_queue_pop_head(input_q);

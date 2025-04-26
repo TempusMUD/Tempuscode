@@ -84,6 +84,7 @@ struct alias_data {
 
 #define ALIAS_SEP_CHAR  ';'
 #define ALIAS_VAR_CHAR  '$'
+#define ALIAS_REST_CHAR '&'
 #define ALIAS_GLOB_CHAR '*'
 
 struct show_struct {
