@@ -175,6 +175,7 @@ void
 dispatch_input(struct descriptor_data *d, char *arg)
 {
     int i, char_id;
+    char *word;
 
     if (d->text_editor) {
         editor_handle_input(d->text_editor, arg);
@@ -1033,7 +1034,7 @@ dispatch_input(struct descriptor_data *d, char *arg)
         account_setup_recovery(arg, d->host);
         break;
     case CXN_PROXY:
-        char *word = tmp_gettoken(&arg);
+        word = tmp_gettoken(&arg);
         if (!streq(word, "PROXY")) {
             // Not our proxy - kill the link.
             close_socket(d);
@@ -1274,7 +1275,6 @@ build_prompt(struct descriptor_data *d)
         }
         break;
     case CXN_STATISTICS_ROLL:
-        struct str_builder sb = str_builder_default;
         roll_real_abils(d->creature);
         print_attributes_to_buf(d->creature, buf2, sizeof(buf2));
         sb_strcat(&sb,

@@ -3266,6 +3266,7 @@ char_hands_free(struct creature *ch)
 ACMD(do_remove)
 {
     struct obj_data *obj = NULL;
+    int pos;
     bool found = false;
     char *arg = tmp_getword(&argument);
 
@@ -3310,7 +3311,7 @@ ACMD(do_remove)
         return;
 
     default:
-        int pos = search_block(arg, wear_keywords, true);
+        pos = search_block(arg, wear_keywords, true);
         if (pos > 0) {
             if (!GET_EQ(ch, pos)
                 && (pos == WEAR_FINGER_R || pos == WEAR_NECK_1 ||

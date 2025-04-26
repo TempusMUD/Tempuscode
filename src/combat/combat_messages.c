@@ -123,7 +123,7 @@ void
 load_messages(void)
 {
     FILE *fl;
-    int i, type;
+    int i, type = 0;
     struct message_type *messages;
     char chk[128];
 

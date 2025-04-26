@@ -218,6 +218,8 @@ handle_ttype(struct descriptor_data *d, enum host_or_peer endpoint, enum enable_
 static void
 handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
 {
+    char *ttype;
+
     if (*buf++ != TELQUAL_IS) {
         // First byte from client should always be IS (0x00)
         return;
@@ -228,7 +230,7 @@ handle_ttype_sub(struct descriptor_data *d, uint8_t *buf, size_t len)
         d_send_bytes(d, 6, IAC, SB, TELOPT_TTYPE, TELQUAL_SEND, IAC, SE);
         break;
     case 1:
-        char *ttype = tmp_strdupn((char *)buf, len-1);
+        ttype = tmp_strdupn((char *)buf, len-1);
         set_desc_variable(d, "TERMINAL_TYPE", ttype);
         if (streq(ttype, d->client_info.client_name)) {
             // There was a single termtype, so not an MTTS client.
@@ -285,9 +287,10 @@ handle_new_environ_sub(struct descriptor_data *d, uint8_t *buf, size_t len) {
         WANT_ESC_VAL_STR,
         ESC_VAL_STR,
     } state = WANT_IS_OR_INFO;
-    int start;
-    char *name;
-    char *val;
+    int start = 0;
+    char empty[1] = {0};
+    char *name = &empty;
+    char *val = &empty;
     for (int i = 0;i < len;i++) {
         uint8_t c = buf[i];
         uint8_t isEnd = (i + 1 >= len);

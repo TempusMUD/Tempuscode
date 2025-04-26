@@ -1039,11 +1039,12 @@ process_input(__attribute__ ((unused)) GIOChannel *io,
     d->inbuf_len += bytes_read;
     uint8_t *read_pt = d->inbuf;
     uint8_t *end_pt = d->inbuf + d->inbuf_len;
+    size_t consumed;
     while (read_pt != end_pt) {
         switch (*read_pt) {
         case IAC:
             // telnet handling
-            size_t consumed = handle_telnet(d, (uint8_t *)read_pt, end_pt - read_pt);
+            consumed = handle_telnet(d, (uint8_t *)read_pt, end_pt - read_pt);
             if (consumed < 1) {
                 goto input_done;
             }
