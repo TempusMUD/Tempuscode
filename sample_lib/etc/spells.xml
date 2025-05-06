@@ -71,7 +71,6 @@
     <flag value="affects"/>
     <flag value="physics"/>
     <potion color1="black" desc2="smoky"/>
-    <affectmessage>You are protected from electromagnetic attacks.</affectmessage>
   </spell>
   <skill id="745" name="alien blood">
   </skill>
