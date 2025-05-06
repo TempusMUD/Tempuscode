@@ -1964,7 +1964,7 @@ ASPELL(spell_death_knell)
     init_affect(&af3);
 
     int percent = (100 * GET_HIT(victim)) / GET_MAX_HIT(victim);
-    if (percent > 0) {
+    if (percent >= 5) {
         act("$N is way too healthy for that!", true, ch, NULL, victim,
             TO_CHAR);
         return;
