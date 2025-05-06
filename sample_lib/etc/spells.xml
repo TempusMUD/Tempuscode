@@ -877,6 +877,7 @@ To answer the mysteries one's life can bring.</lyrics>
     <cost mana_initial="100" mana_level_dec="1" mana_minimum="30"/>
     <position minimum="fighting"/>
     <target type="creature" scope="room"/>
+    <target type="creature" scope="fighting"/>
     <flag value="violent"/>
     <flag value="damage"/>
     <flag value="manual"/>

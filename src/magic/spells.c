@@ -2021,9 +2021,8 @@ ASPELL(spell_death_knell)
         // Up the chars skill proficiency
         gain_skill_prof(ch, SPELL_DEATH_KNELL);
 
-        // Kill the affected mob, since we know he already has -1 hp or less
-        // 15 points of damage should do it.
-        damage(ch, victim, NULL, 15, SPELL_DEATH_KNELL, 0);
+        // Kill the affected creature.
+        damage(ch, victim, NULL, 9999, SPELL_DEATH_KNELL, 0);
     } else {
         act("Nothing seems to happen.", false, ch, NULL, victim, TO_CHAR);
     }
