@@ -790,9 +790,9 @@ dispatch_input(struct descriptor_data *d, char *arg)
                  d->account->name, d->account->id,
                  GET_NAME(d->creature), GET_IDNUM(d->creature));
             d->creature->player_specials->rentcode = RENT_NEW_CHAR;
-            save_player_to_xml(d->creature);
             calculate_height_weight(d->creature);
             set_desc_state(CXN_WAIT_MENU, d);
+            save_player_to_xml(d->creature);
             player_to_world(d);
         } else {
             d_send(d, "\r\nYou must type 'reroll' or 'keep'.\r\n\r\n");
